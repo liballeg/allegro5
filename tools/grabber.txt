@@ -364,7 +364,7 @@ line dat utility. This accepts the following options:
       Specifies which palette to use.
 
    '-r'
-      Store the references to original files as relative filenames instead of
+      Stores the references to original files as relative filenames instead of
       absolute filenames. This greatly increases the portability of complete
       source trees containing the source data.
 

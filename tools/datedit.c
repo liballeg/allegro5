@@ -45,6 +45,7 @@ void (*grabber_set_selection)(void *object) = NULL;
 void (*grabber_busy_mouse)(int busy) = NULL;
 void (*grabber_modified)(int modified) = NULL;
 
+char grabber_data_file[FILENAME_LENGTH] = "";
 BITMAP *grabber_graphic = NULL;
 PALETTE grabber_palette;
 

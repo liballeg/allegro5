@@ -24,9 +24,6 @@
 #include "../datedit.h"
 
 
-/* 80 characters * maximum character width (6 bytes for UTF8) */
-#define FILENAME_LENGTH (80*6)
-
 
 /* creates a monochrome image containing the alpha channel of this bitmap */
 static BITMAP *get_alpha_bitmap(BITMAP *bmp)

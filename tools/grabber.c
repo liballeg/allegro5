@@ -29,10 +29,6 @@
 #endif
 
 
-#define FILENAME_LENGTH  1024
-#define MAX_BYTES_PER_CHAR 6
-
-
 typedef struct DATAITEM
 {
    DATAFILE *dat;
@@ -48,8 +44,7 @@ static char *data_sel = NULL;
 static int data_count = 0;
 static int data_malloced = 0;
 
-static char data_file[256 * MAX_BYTES_PER_CHAR] = "";
-static char header_file[256 * MAX_BYTES_PER_CHAR] = "";
+static char header_file[FILENAME_LENGTH] = "";
 static char prefix_string[256 * MAX_BYTES_PER_CHAR] = "";
 static char password[256 * MAX_BYTES_PER_CHAR];
 static char xgrid_string[5 * MAX_BYTES_PER_CHAR];
@@ -94,8 +89,6 @@ static int grabber(void);
 static int exporter(void);
 static int deleter(void);
 static int replacer(int);
-static int absolute_setter(void);
-static int relative_setter(void);
 static int sheller(void);
 static int helper(void);
 static int sysinfo(void);
@@ -159,15 +152,6 @@ static MENU new_menu[32] =
 
 
 
-static MENU rel_menu[] =
-{
-   { "To &Relative",                relative_setter,  NULL,       0, NULL  },
-   { "To &Absolute",                absolute_setter,  NULL,       0, NULL  },
-   { NULL,                          NULL,             NULL,       0, NULL  }
-};
-
-
-
 /* variable-sized */
 static MENU objc_menu[32] =
 {
@@ -177,7 +161,6 @@ static MENU objc_menu[32] =
    { "Rep&lace",                    NULL,             replace_menu, 0, NULL},
    { "&Rename\t(ctrl+N)",           renamer,          NULL,       0, NULL  },
    { "Set &Property\t(ctrl+P)",     property_insert,  NULL,       0, NULL  },
-   { "&Convert Filename",           NULL,             rel_menu,   0, NULL  },
    { "&Shell Edit\t(ctrl+Z)",       sheller,          NULL,       0, NULL  },
    { "",                            NULL,             NULL,       0, NULL  },
    { "&New",                        NULL,             new_menu,   0, NULL  },
@@ -237,7 +220,6 @@ static MENU popup_menu[32] =
    { "&Delete",                     deleter,          NULL,       0, NULL  },
    { "Rep&lace",                    NULL,             replace_menu, 0, NULL},
    { "&Rename",                     renamer,          NULL,       0, NULL  },
-   { "&Convert Filename",           NULL,             rel_menu,   0, NULL  },
    { "&Shell Edit",                 sheller,          NULL,       0, NULL  },
    { "",                            NULL,             NULL,       0, NULL  },
    { "&New",                        NULL,             new_menu,   0, NULL  },
@@ -256,7 +238,7 @@ static DIALOG main_dlg[] =
    { d_clear_proc,      0,    0,    640,  480,  0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { d_menu_proc,       0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       menu,             NULL, NULL  },
    { d_text_proc,       20,   30,   0,    0,    0,    0,    0,       0,          0,             0,       "Editing:",       NULL, NULL  },
-   { edit_mod_proc,     100,  30,   320,  8,    0,    0,    0,       0,          255,           0,       data_file,        NULL, NULL  },
+   { edit_mod_proc,     100,  30,   320,  8,    0,    0,    0,       0,          255,           0,       grabber_data_file,NULL, NULL  },
    { d_text_proc,       20,   42,   0,    0,    0,    0,    0,       0,          0,             0,       "Header:",        NULL, NULL  },
    { edit_mod_proc,     100,  42,   320,  8,    0,    0,    0,       0,          255,           0,       header_file,      NULL, NULL  },
    { d_text_proc,       20,   54,   0,    0,    0,    0,    0,       0,          0,             0,       "Prefix:",        NULL, NULL  },
@@ -345,8 +327,8 @@ static void update_title(void)
 {
    char buf[1024];
 
-   if (data_file[0])
-      sprintf(buf, "grabber - %s%s", data_file, is_modified ? " (modified)" : "");
+   if (grabber_data_file[0])
+      sprintf(buf, "grabber - %s%s", grabber_data_file, is_modified ? " (modified)" : "");
    else
       strcpy(buf, "grabber");
 
@@ -1867,13 +1849,13 @@ static void load(char *filename, int flush)
    }
 
    if (filename) {
-      canonicalize_filename(data_file, filename, sizeof(data_file));
-      strcpy(data_file, datedit_pretty_name(data_file, "dat", FALSE));
+      canonicalize_filename(grabber_data_file, filename, sizeof(grabber_data_file));
+      strcpy(grabber_data_file, datedit_pretty_name(grabber_data_file, "dat", FALSE));
    }
    else
-      data_file[0] = 0;
+      grabber_data_file[0] = 0;
 
-   main_dlg[DLG_FILENAME].d2 = strlen(data_file);
+   main_dlg[DLG_FILENAME].d2 = strlen(grabber_data_file);
 
    new_datafile = datedit_load_datafile(filename, FALSE, password);
    if (!new_datafile)
@@ -1962,7 +1944,7 @@ static int loader(void)
 
    CHECK_MENU_HOOK("Load", DATEDIT_MENU_FILE);
 
-   strcpy(buf, data_file);
+   strcpy(buf, grabber_data_file);
    *get_filename(buf) = 0;
 
    if (file_select_ex("Load datafile", buf, "dat", sizeof(buf), 0, 0)) {
@@ -2034,7 +2016,7 @@ static int merger(void)
 
    CHECK_MENU_HOOK("Merge", DATEDIT_MENU_FILE);
 
-   strcpy(buf, data_file);
+   strcpy(buf, grabber_data_file);
    *get_filename(buf) = 0;
 
    if (file_select_ex("Merge datafile", buf, "dat", sizeof(buf), 0, 0)) {
@@ -2054,10 +2036,10 @@ static int save(int strip)
    char buf[FILENAME_LENGTH], buf2[256];
    int err = FALSE;
 
-   strcpy(buf, data_file);
+   strcpy(buf, grabber_data_file);
 
    if (file_select_ex("Save datafile", buf, "dat", sizeof(buf), 0, 0)) {
-      if ((stricmp(data_file, buf) != 0) && (exists(buf))) {
+      if ((stricmp(grabber_data_file, buf) != 0) && (exists(buf))) {
 	 sprintf(buf2, "%s already exists, overwrite?", buf);
 	 if (alert(buf2, NULL, NULL, "Yes", "Cancel", 'y', 27) != 1)
 	    return D_REDRAW;
@@ -2068,8 +2050,8 @@ static int save(int strip)
       set_busy_mouse(TRUE);
 
       fix_filename_case(buf);
-      strcpy(data_file, buf);
-      main_dlg[DLG_FILENAME].d2 = strlen(data_file);
+      strcpy(grabber_data_file, buf);
+      main_dlg[DLG_FILENAME].d2 = strlen(grabber_data_file);
 
       update_info();
 
@@ -2081,7 +2063,7 @@ static int save(int strip)
       options.backup = (opt_menu[MENU_BACKUP].flags & D_SELECTED);
       options.relative = (opt_menu[MENU_RELF].flags & D_SELECTED);
 
-      if (!datedit_save_datafile(datafile, data_file, NULL, &options, password))
+      if (!datedit_save_datafile(datafile, grabber_data_file, NULL, &options, password))
 	 err = TRUE;
       else
 	 set_modified(FALSE);
@@ -2090,13 +2072,13 @@ static int save(int strip)
 	 box_eol();
 
 	 if ((!strchr(header_file, OTHER_PATH_SEPARATOR)) && (!strchr(header_file, '/'))) {
-	    strcpy(buf, data_file);
+	    strcpy(buf, grabber_data_file);
 	    strcpy(get_filename(buf), header_file);
 	 }
 	 else
 	    strcpy(buf, header_file);
 
-	 if (!datedit_save_header(datafile, data_file, buf, "grabber", prefix_string, FALSE))
+	 if (!datedit_save_header(datafile, grabber_data_file, buf, "grabber", prefix_string, FALSE))
 	    err = TRUE;
       }
 
@@ -2192,7 +2174,7 @@ static int update_worker(AL_CONST char *name, int selection_only, int force)
    for (c=1; c<data_count; c++) {
       if (!selection_only || (c==SELECTED_ITEM) || data_sel[c]) {
 	 if (data[c].dat->type != DAT_FILE) {
-	    if (!datedit_update(data[c].dat, data_file, force, FALSE, &nowhere)) {
+	    if (!datedit_update(data[c].dat, grabber_data_file, force, FALSE, &nowhere)) {
 	       err = TRUE;
 	       break;
 	    }
@@ -2317,7 +2299,7 @@ static int reader(void)
 
       strcpy(grabber_import_file, buf);
 
-      params.datafile = data_file;
+      params.datafile = grabber_data_file;
       params.filename = grabber_import_file;
       params.name = grabber_import_file;
       params.type = DAT_BITMAP;
@@ -2345,7 +2327,7 @@ static int reader(void)
 	 show_a_bitmap(grabber_graphic, grabber_palette);
 
 	 if (opt_menu[MENU_RELF].flags & D_SELECTED)
-	    make_relative_filename(grabber_graphic_origin, data_file, grabber_import_file, GRABBER_GRAPHIC_ORIGIN_SIZE);
+	    make_relative_filename(grabber_graphic_origin, grabber_data_file, grabber_import_file, GRABBER_GRAPHIC_ORIGIN_SIZE);
 	 else
 	    strcpy(grabber_graphic_origin, grabber_import_file);
 
@@ -2444,7 +2426,7 @@ static int grabber(void)
    origin = get_datafile_property(dat, DAT_ORIG);
    if (origin[0]) {
       if (is_relative_filename(origin))
-         make_absolute_filename(name, data_file, origin, sizeof(name));
+         make_absolute_filename(name, grabber_data_file, origin, sizeof(name));
       else
          strcpy(name, origin);
    }
@@ -2462,7 +2444,7 @@ static int grabber(void)
 
       strcpy(grabber_import_file, name);
 
-      params.datafile = data_file;
+      params.datafile = grabber_data_file;
       params.filename = name;
       params.name = get_datafile_property(dat, DAT_NAME);
       params.type = dat->type;
@@ -2610,52 +2592,6 @@ static int deleter(void)
    set_modified(TRUE);
 
    return D_REDRAW;
-}
-
-
-
-/* handle the convert to absolute path command */
-static int absolute_setter(void)
-{
-   int i;
-   AL_CONST char *orig;
-   char absolute[FILENAME_LENGTH];
-   
-   for (i=1; i<data_count; i++) {
-      if ((i == SELECTED_ITEM) || (data_sel[i])) {
-	 orig = get_datafile_property(data[i].dat, DAT_ORIG);
-	 if (orig[0] && is_relative_filename(orig)) {
-	    make_absolute_filename(absolute, data_file, orig, FILENAME_LENGTH);
-	    set_property(&(data[i]), DAT_ORIG, absolute);
-	    set_modified(TRUE);
-	 }
-      }
-   }
-   
-   return D_O_K;
-}
-
-
-
-/* handle the convert to relative path command */
-static int relative_setter(void)
-{
-   int i;
-   AL_CONST char *orig;
-   char relative[FILENAME_LENGTH];
-   
-   for (i=1; i<data_count; i++) {
-      if ((i == SELECTED_ITEM) || (data_sel[i])) {
-	 orig = get_datafile_property(data[i].dat, DAT_ORIG);
-	 if (orig[0] && !is_relative_filename(orig)) {
-	    make_relative_filename(relative, data_file, orig, FILENAME_LENGTH);
-	    set_property(&(data[i]), DAT_ORIG, relative);
-	    set_modified(TRUE);
-         }
-      }
-   }
-   
-   return D_O_K;
 }
 
 
@@ -3318,7 +3254,7 @@ static int sheller(void)
    origin = get_datafile_property(dat, DAT_ORIG);
    if (origin[0]) {
       if (is_relative_filename(origin)) {
-	 make_absolute_filename(filename, data_file, origin, sizeof(filename));
+	 make_absolute_filename(filename, grabber_data_file, origin, sizeof(filename));
 	 relf = TRUE;
       }
       else {
@@ -3441,7 +3377,7 @@ static int sheller(void)
 	 goto ohwellitwasaniceidea;
    }
 
-   params.datafile = data_file;
+   params.datafile = grabber_data_file;
    params.filename = filename;
    /* params.name = */
    /* params.type = */
@@ -3808,13 +3744,13 @@ int main(int argc, char *argv[])
 	 add_to_menu(file_menu, &tmpmenu, FALSE, NULL, NULL, 2); 
 
       if (datedit_menu_info[i]->flags & DATEDIT_MENU_OBJECT)
-	 add_to_menu(objc_menu, &tmpmenu, FALSE, NULL, rel_menu, 0); 
+	 add_to_menu(objc_menu, &tmpmenu, FALSE, sheller, NULL, 0); 
 
       if (datedit_menu_info[i]->flags & DATEDIT_MENU_HELP)
 	 add_to_menu(help_menu, &tmpmenu, FALSE, about, NULL, 0); 
 
       if (datedit_menu_info[i]->flags & DATEDIT_MENU_POPUP)
-	 add_to_menu(popup_menu, &tmpmenu, FALSE, NULL, rel_menu, 0); 
+	 add_to_menu(popup_menu, &tmpmenu, FALSE, sheller, NULL, 0); 
 
       if (datedit_menu_info[i]->flags & DATEDIT_MENU_TOP)
 	 add_to_menu(menu, &tmpmenu, FALSE, NULL, help_menu, 0); 

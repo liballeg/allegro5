@@ -178,6 +178,11 @@ extern void (*grabber_set_selection)(void *object);
 extern void (*grabber_busy_mouse)(int busy);
 extern void (*grabber_modified)(int modified);
 
+
+#define FILENAME_LENGTH      1024
+#define MAX_BYTES_PER_CHAR   6
+
+extern char grabber_data_file[FILENAME_LENGTH];
 extern BITMAP *grabber_graphic;
 extern PALETTE grabber_palette;
 
