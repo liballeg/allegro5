@@ -273,7 +273,7 @@ struct AL_EVENT_SOURCE
    AL_EVENT *free_events;
 };
 
-AL_FUNC(void, _al_event_source_init, (AL_EVENT_SOURCE*, size_t event_size));
+AL_FUNC(void, _al_event_source_init, (AL_EVENT_SOURCE*, unsigned long event_mask, size_t event_size));
 AL_FUNC(void, _al_event_source_free, (AL_EVENT_SOURCE*));
 AL_FUNC(void, _al_event_source_lock, (AL_EVENT_SOURCE*));
 AL_FUNC(void, _al_event_source_unlock, (AL_EVENT_SOURCE*));

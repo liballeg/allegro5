@@ -65,8 +65,9 @@ void al_event_source_set_mask(AL_EVENT_SOURCE *source, unsigned long mask)
  *  Initialise an event source structure.  EVENT_SIZE is the size of
  *  the events that this event source generates.
  */
-void _al_event_source_init(AL_EVENT_SOURCE *this, size_t event_size)
+void _al_event_source_init(AL_EVENT_SOURCE *this, unsigned long event_mask, size_t event_size)
 {
+   this->event_mask = event_mask;
    this->event_size = event_size;
    _al_mutex_init(&this->mutex);
    _al_vector_init(&this->queues, sizeof(AL_EVENT_QUEUE *));

@@ -169,8 +169,7 @@ AL_TIMER* al_install_timer(msecs_t speed_msecs)
       ASSERT(timer);
 
       if (timer) {
-         timer->es.event_mask = AL_EVENT_TIMER;
-         _al_event_source_init(&timer->es, sizeof(AL_TIMER_EVENT));
+         _al_event_source_init(&timer->es, AL_EVENT_TIMER, sizeof(AL_TIMER_EVENT));
          timer->started = false;
          timer->count = 0;
          timer->speed_usecs = speed_msecs * 1000;
