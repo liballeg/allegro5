@@ -22,8 +22,8 @@
 
 
 /* exported only for asmlock.s */
-char* wd_dirty_lines = NULL;    /* used in WRITE_BANK()       */
-void (*update_window) (RECT* rect) = NULL;  /* window updater */
+char *wd_dirty_lines = NULL;  /* used in WRITE_BANK() */
+void (*update_window) (RECT *rect) = NULL;  /* window updater */
 
 
 static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to, int vsync);
