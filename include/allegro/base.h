@@ -29,6 +29,10 @@
    #include <time.h>
 #endif
 
+#if (defined DEBUGMODE) && (defined FORTIFY)
+   #include <fortify/fortify.h>
+#endif
+
 #include "internal/alconfig.h"
 
 #ifdef __cplusplus

@@ -268,6 +268,22 @@ fi
 ])
 
 dnl
+dnl Test for debugging with Fortify.
+dnl
+dnl Variables:
+dnl  allegro_debug_with_fortify=(yes|)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_DEBUG_WITH_FORTIFY,
+[AC_ARG_ENABLE(dbg-with-fortify,
+[  --enable-dbg-with-fortify[=x]    enable debugging with Fortify [default=no]],
+test "X$enableval" != "Xno" && allegro_enable_debug_with_fortify=yes)
+
+if test -n "$allegro_enable_debug_with_fortify"; then
+   AC_CHECK_HEADER(fortify/fortify.h, allegro_debug_with_fortify=yes)
+fi
+])
+
+dnl
 dnl Test for OSS DIGI driver.
 dnl
 dnl Variables:

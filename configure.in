@@ -281,6 +281,12 @@ if test -n "$allegro_sched_yield_lib"; then
    AC_DEFINE(ALLEGRO_USE_SCHED_YIELD,1,[Define if sched_yield is provided by some library.])
 fi
 
+dnl Test for debugging with Fortify.
+ALLEGRO_ACTEST_DEBUG_WITH_FORTIFY
+if test -n "$allegro_debug_with_fortify"; then
+  LIBS="$LIBS -lfortify"
+fi
+
 dnl Test for OSS drivers.
 ALLEGRO_ACTEST_OSSDIGI
 if test -n "$allegro_support_ossdigi"; then
@@ -636,6 +642,9 @@ if test -n "GCC"; then
   WFLAGS="$WFLAGS $WCFLAGS"
   dnl In this order...
   ALLEGRO_DEBUG_CFLAGS="$CFLAGS -g $WFLAGS -DDEBUGMODE"
+  if test "X$allegro_debug_with_fortify" = "Xyes"; then
+     ALLEGRO_DEBUG_CFLAGS="$ALLEGRO_DEBUG_CFLAGS -DFORTIFY"
+  fi
   ALLEGRO_PROFILE_CFLAGS="$CFLAGS -pg $TARGET_ARCH -O2 -funroll-loops -ffast-math $WFLAGS"
   if test "X$allegro_cv_support_fomit_frame_pointer" = "Xyes"; then
     CFLAGS="$CFLAGS $TARGET_ARCH -O2 -funroll-loops -ffast-math -fomit-frame-pointer $WFLAGS"
@@ -664,6 +673,24 @@ cat > makefile.info << EOF
  Generated code: $_code_features
 
 EOF
+
+dnl Warn if passed --enable-dbg-with-fortify
+if test -n "$allegro_debug_with_fortify"; then
+  if test -z "$allegro_build_debugging_library"; then
+    cat >> makefile.info << EOF
+ Warning: the library will not be built with Fortify support.
+          The support is only enabled with the debug version.
+
+EOF
+  fi 
+  if test -z "$allegro_build_debugging_programs"; then
+    cat >> makefile.info << EOF
+ Warning: the programs will not be built with Fortify support.
+          The support is only enabled with the debug version.
+
+EOF
+  fi 
+fi
 
 dnl Prepare initial dependencies file (if missing).
 if test -f "$srcdir/makefile.dep"; then
@@ -694,4 +721,5 @@ if test "X$allegro_make_depend" = "Xyes"; then
     AC_MSG_WARN([This might be called gmake on your system.])
   fi
 fi
-make info
+
+${MAKE-make} info

@@ -94,7 +94,11 @@ AL_FUNC(int, uvszprintf, (char *buf, int size, AL_CONST char *format, va_list ar
 AL_PRINTFUNC(int, usprintf, (char *buf, AL_CONST char *format, ...), 2, 3);
 
 #ifndef ustrdup
-   #define ustrdup(src)               _ustrdup(src, malloc)
+   #ifdef FORTIFY
+      #define ustrdup(src)            _ustrdup(src, Fortify_malloc)
+   #else
+      #define ustrdup(src)            _ustrdup(src, malloc)
+   #endif
 #endif
 
 #define ustrcpy(dest, src)            ustrzcpy(dest, INT_MAX, src)
