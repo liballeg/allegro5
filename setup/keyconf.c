@@ -748,12 +748,12 @@ int tester()
    show_mouse(NULL);
 
    acquire_screen();
-   clear_to_color(screen, 8);
+   clear_to_color(screen, palette_color[8]);
 
-   text_mode(8);
+   text_mode(palette_color[8]);
 
    for (i=0; i<=KEY_MAX; i++)
-      textout(screen, font, scancode_name[i], 32+(i%4)*160, 88+(i/4)*14, 255);
+      textout(screen, font, scancode_name[i], 32+(i%4)*160, 88+(i/4)*14, palette_color[255]);
 
    release_screen();
 
@@ -769,7 +769,7 @@ int tester()
       acquire_screen();
 
       for (i=0; i<KEY_MAX; i++)
-	 textout(screen, font, key[i] ? "*" : " ", 16+(i%4)*160, 88+(i/4)*14, 255);
+	 textout(screen, font, key[i] ? "*" : " ", 16+(i%4)*160, 88+(i/4)*14, palette_color[255]);
 
       buf[0] = 0;
 
@@ -818,7 +818,7 @@ int tester()
       while (strlen(buf) < 128)
 	 strcat(buf, " ");
 
-      textout(screen, font, buf, 0, 0, 255);
+      textout(screen, font, buf, 0, 0, palette_color[255]);
 
       release_screen();
 
@@ -826,7 +826,7 @@ int tester()
 	 a = ureadkey(&i);
 	 if (!a)
 	    a = ' ';
-	 textprintf(screen, font, 32, 48, 255, "ureadkey() returns scancode 0x%02X, U+0x%04X, '%c'", i, a, a);
+	 textprintf(screen, font, 32, 48, palette_color[255], "ureadkey() returns scancode 0x%02X, U+0x%04X, '%c'", i, a, a);
       }
 
    } while ((!key[KEY_ESC]) && (!mouse_b));
@@ -847,6 +847,7 @@ int tester()
 int main()
 {
    static char config_override[] = "keyboard = \n";
+   int c;
    DATAFILE *font_data;
 
    allegro_init();
@@ -914,11 +915,33 @@ int main()
    edit_menu[11].dp = _key_accent4_lower_table;
    edit_menu[12].dp = _key_accent4_upper_table;
 
-   set_gfx_mode(GFX_SAFE, 640, 480, 0, 0);
+   if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+      return 1;
+   }
    set_palette(desktop_palette);
    set_color(0, &black_rgb);
-   gui_fg_color = 255;
-   gui_bg_color = 16;
+   gui_fg_color = palette_color[255];
+   gui_bg_color = palette_color[16];
+
+   /* We set up colors to match screen color depth (in case it changed) */
+   for (c = 0; main_dlg[c].proc; c++) {
+      main_dlg[c].fg = palette_color[main_dlg[c].fg];
+      main_dlg[c].bg = palette_color[main_dlg[c].bg];
+   }
+   for (c = 0; ascii_dlg[c].proc; c++) {
+      ascii_dlg[c].fg = palette_color[ascii_dlg[c].fg];
+      ascii_dlg[c].bg = palette_color[ascii_dlg[c].bg];
+   }
+   for (c = 0; editor_dlg[c].proc; c++) {
+      editor_dlg[c].fg = palette_color[editor_dlg[c].fg];
+      editor_dlg[c].bg = palette_color[editor_dlg[c].bg];
+   }
+   for (c = 0; accent_dlg[c].proc; c++) {
+      accent_dlg[c].fg = palette_color[accent_dlg[c].fg];
+      accent_dlg[c].bg = palette_color[accent_dlg[c].bg];
+   }
 
    _key_standard_kb = FALSE;
 

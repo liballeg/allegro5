@@ -2016,14 +2016,16 @@ Graphics modes
    back upon whatever mode is known to be reliable on the current platform 
    (this is 320x200 VGA mode under DOS, a 640x480 resolution under Windows,
    the actual framebuffer's resolution under Linux if it's supported, etc).
-   If it absolutely cannot set any graphics mode at all, it will abort the
-   program with an error message. This fake driver is useful for situations
-   where you just want to get into some kind of workable display mode, and
-   can't be bothered with trying multiple different resolutions and doing
-   all the error checking yourself. Note however, that after a successful
-   call to set_gfx_mode with this driver, you cannot make any assumptions
-   about the width, height or color depth of the screen: your code will have
-   to deal with this little detail.
+   If it absolutely cannot set any graphics mode at all, it will return
+   negative as usual, meaning that there's no possible video output on the
+   machine, and that you should abort your program immediately, possibly
+   after notifying this to the user with allegro_message. This fake driver
+   is useful for situations where you just want to get into some kind of
+   workable display mode, and can't be bothered with trying multiple
+   different resolutions and doing all the error checking yourself. Note
+   however, that after a successful call to set_gfx_mode with this driver,
+   you cannot make any assumptions about the width, height or color depth
+   of the screen: your code will have to deal with this little detail.
 
 @@int @set_display_switch_mode(int mode);
 @xref set_display_switch_callback, get_display_switch_mode

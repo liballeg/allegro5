@@ -43,7 +43,11 @@ int main(int argc, char *argv[])
    allegro_init();
    install_keyboard();
    install_mouse();
-   set_gfx_mode(GFX_SAFE, 320, 240, 0, 0);
+   if (set_gfx_mode(GFX_SAFE, 320, 240, 0, 0) != 0) {
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+      return 1;
+   }
    text_mode(-1);
 
    replace_filename(buf, argv[0], "planet.pcx", sizeof(buf));

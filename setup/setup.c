@@ -2567,7 +2567,11 @@ static DIALOG_STATE main_handler(int c)
       install_timer();
 
       fade_out(4);
-      set_gfx_mode(GFX_SAFE, SETUP_SCREEN_W, SETUP_SCREEN_H, 0, 0);
+      if (set_gfx_mode(GFX_AUTODETECT, SETUP_SCREEN_W, SETUP_SCREEN_H, 0, 0) != 0) {
+         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+         allegro_message("Unable to set graphic mode\n%s\n", allegro_error);
+         return 1;
+      }
    #endif
 
    set_palette(black_palette);

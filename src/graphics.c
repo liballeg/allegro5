@@ -349,7 +349,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       #endif
 	    set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
 	    allegro_message("%s\n", get_config_text("Fatal error: unable to set GFX_SAFE"));
-	    exit(1);
+	    return -1;
 	 }
 	 allow_config = TRUE;
       }

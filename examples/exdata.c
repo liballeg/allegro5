@@ -23,7 +23,11 @@ int main(int argc, char *argv[])
 
    allegro_init();
    install_keyboard(); 
-   set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
+   if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+      return 1;
+   }
 
    /* we still don't have a palette => Don't let Allegro twist colors */
    set_color_conversion(COLORCONV_NONE);
