@@ -432,7 +432,6 @@ static int svga_version2()
 static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    static int virgin = 1;
-   BITMAP *bmp = NULL;
    
 #ifndef HAVE_LIBPTHREAD
    /* SVGAlib and the SIGALRM code don't like each other, so only support
@@ -446,10 +445,6 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
       return NULL;
    }
 
-   /* Stop interrupts processing, which interferes with the SVGAlib
-    * VESA driver.  */
-   al_linux_set_async_mode (ASYNC_OFF);
-
    /* Initialise SVGAlib.  */
    if (virgin) {
       if (!svga_version2())
@@ -458,26 +453,19 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
 	 /* Avoid having SVGAlib calling exit() on us.  */
 	 int fd = open("/dev/svga", O_RDWR);
 	 if (fd < 0)
-	    goto error;
+	    return NULL;
 	 close(fd);
       }
       vga_disabledriverreport();
       if (vga_init() != 0)
-	 goto error;
+	 return NULL;
       if (!svga_version2())
 	 seteuid(getuid());
       virgin = 0;
    }
     
    /* Ask for a video mode.  */
-   bmp = do_set_mode(w, h, v_w, v_h, color_depth);
-
-   error:
-
-   /* Restart interrupts processing.  */
-   al_linux_set_async_mode (ASYNC_DEFAULT);
-
-   return bmp;
+   return do_set_mode(w, h, v_w, v_h, color_depth);
 }
 
 

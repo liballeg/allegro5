@@ -140,7 +140,9 @@ static int __al_linux_async_init (void)
 #endif
 	if (_unix_bg_man->init() || _unix_bg_man->register_func (linux_bg_handler))
 		return -1;
+#ifndef HAVE_LIBPTHREAD
 	al_linux_set_async_mode (ASYNC_DEFAULT);
+#endif
 	return 0;
 }
 
@@ -150,7 +152,9 @@ static int __al_linux_async_init (void)
  */
 static void __al_linux_async_exit (void)
 {
+#ifndef HAVE_LIBPTHREAD
 	al_linux_set_async_mode (ASYNC_OFF);
+#endif
 	_unix_bg_man->exit();
 }
 
