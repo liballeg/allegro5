@@ -508,7 +508,67 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
    usetc(allegro_error, 0);
 
-   if ((card == GFX_AUTODETECT) && (allow_config)) {
+   /* Try windowed mode drivers first if GFX_AUTODETECT_WINDOWED was selected */
+   if ((card == GFX_AUTODETECT) && (allow_config) && (require_window)) {
+      /* try the drivers that are listed in the config file */
+      for (n=-2; n<255; n++) {
+	 switch (n) {
+
+	    case -2:
+	       /* example: gfx_cardw_640x480x16 = */
+	       uszprintf(buf, sizeof(buf), uconvert_ascii("gfx_cardw_%dx%dx%d", tmp), w, h, _color_depth);
+	       break;
+
+	    case -1:
+	       /* example: gfx_cardw_24bpp = */
+	       uszprintf(buf, sizeof(buf), uconvert_ascii("gfx_cardw_%dbpp", tmp), _color_depth);
+	       break;
+
+	    case 0:
+	       /* example: gfx_cardw = */
+	       ustrzcpy(buf, sizeof(buf), uconvert_ascii("gfx_cardw", tmp));
+	       break;
+
+	    default:
+	       /* example: gfx_cardw1 = */
+	  uszprintf(buf, sizeof(buf), uconvert_ascii("gfx_cardw%d", tmp), n);
+	       break;
+	 }
+	 card = get_config_id(uconvert_ascii("graphics", tmp), buf, GFX_AUTODETECT);
+
+	 if (card != GFX_AUTODETECT) {
+	    for (c=0; driver_list[c].driver; c++) {
+	       if (driver_list[c].id == card) {
+		  gfx_driver = driver_list[c].driver;
+		  if (check_mode) {
+		     if (((require_window) && (!gfx_driver->windowed)) ||
+			 ((!require_window) && (gfx_driver->windowed))) {
+			gfx_driver = NULL;
+			continue;
+		     }
+		  }
+		  break;
+	       }
+	    }
+	    if (gfx_driver) {
+	       tried = TRUE;
+	       gfx_driver->name = gfx_driver->desc = get_config_text(gfx_driver->ascii_name);
+	       screen = gfx_driver->init(w, h, v_w, v_h, _color_depth);
+	       if (screen)
+		  break;
+	       else
+		  gfx_driver = NULL;
+	    }
+	 }
+	 else {
+	    if (n > 1)
+	       break;
+	 }
+      }
+   }
+
+   /* check the gfx_card config variable if gfx_cardw wasn't used */
+   if ((card == GFX_AUTODETECT) && (allow_config) && (!gfx_driver)) {
       /* try the drivers that are listed in the config file */
       for (n=-2; n<255; n++) {
 	 switch (n) {

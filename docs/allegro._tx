@@ -1018,6 +1018,12 @@ gfx_card = x<br>
    specify different drivers for each mode and color depth with variables in 
    the form "gfx_card_24bpp = x", "gfx_card_640x480x16 = x", etc.
 <li>
+gfx_cardw = x<br>
+   Specifies which graphics driver to use when the program requests 
+   GFX_AUTODETECT_WINDOWED. This variable functions exactly like
+   gfx_card in all other respects. If it is not set, Allegro will look
+   for the gfx_card variable.
+<li>
 vbeaf_driver = x<br>
    DOS and Linux only: specifies where to look for the VBE/AF driver 
    (vbeaf.drv). If this variable is not set, Allegro will look in the same 
