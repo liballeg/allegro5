@@ -1442,16 +1442,25 @@ void html2texinfo(FILE *f, char *p)
 
 
 
-void write_textinfo_xref(FILE *f, char *xref)
+void write_textinfo_xref(FILE *f, char *xref, char **chapter_nodes)
 {
    char *tok;
 
    tok = strtok(xref, ",;");
 
    while (tok) {
+      char **p = chapter_nodes;
       while ((*tok) && (myisspace(*tok)))
 	 tok++;
-      tfprintf(f, "@xref{%s}.@*\n", tok);
+      while(*p) {
+	 if(!strincmp(tok, strip_html(*p)))
+	    break;
+	 p++;
+      }
+      if(*p)
+	 tfprintf(f, "@xref{%s, %s}.@*\n", first_word(tok), strip_html(*p));
+      else
+	 tfprintf(f, "@xref{%s}.@*\n", tok);
       tok = strtok(NULL, ",;");
    }
 }
@@ -1463,14 +1472,14 @@ int write_texinfo(char *filename)
    char buf[256];
    LINE *line = head, *title_line = 0;
    char *p, *str, *next, *prev;
-   char *xref[256];
+   char *xref[256], *chapter_nodes[256];
    int xrefs = 0;
    int in_item = 0;
    int section_number = 0;
    int toc_waiting = 0;
    int continue_def = 0;
    int title_pass = 0;
-   int i;
+   int i = 0;
    FILE *f;
 
    printf("writing %s\n", filename);
@@ -1479,6 +1488,26 @@ int write_texinfo(char *filename)
    if (!f)
       return 1;
 
+   /* First scan all the chapters of the documents and build a lookup table
+    * with their text lines. This lookup table will be used during the
+    * generation of @xref texinfo commands, due to textinfo's restriction
+    * that nodes can't contain spaces, and hence remain as a single word.
+    */
+   chapter_nodes[0] = 0;
+   while (line) {
+      if (line->flags & TEXINFO_FLAG) {
+	 p = line->text;
+
+	 if (line->flags & HEADING_FLAG) {
+	    chapter_nodes[i++] = p;
+	    chapter_nodes[i] = 0;
+	 }
+      }
+      line = line->next;
+   }
+
+   line = head;
+   
    while (line) {
       if (line->flags & TEXINFO_FLAG) {
 	 p = line->text;
@@ -1509,7 +1538,7 @@ int write_texinfo(char *filename)
 		  if (xrefs > 0) {
 		     fputs("See also:@*\n", f);
 		     for (i=0; i<xrefs; i++)
-			write_textinfo_xref(f, xref[i]);
+			write_textinfo_xref(f, xref[i], chapter_nodes);
 		     xrefs = 0;
 		  }
 		  tfprintf(f, "@node %s, %s, %s, %s\n", buf, next, prev, node_name(section_number-1));
@@ -1573,7 +1602,7 @@ int write_texinfo(char *filename)
 	       if (xrefs > 0) {
 		  fputs("See also:@*\n", f);
 		  for (i=0; i<xrefs; i++)
-		     write_textinfo_xref(f, xref[i]);
+		     write_textinfo_xref(f, xref[i], chapter_nodes);
 		  xrefs = 0;
 	       }
 	       p = strip_html(p);
@@ -1644,7 +1673,7 @@ int write_texinfo(char *filename)
 	    if (xrefs > 0) {
 	       fputs("See also:@*\n", f);
 	       for (i=0; i<xrefs; i++)
-		  write_textinfo_xref(f, xref[i]);
+		  write_textinfo_xref(f, xref[i], chapter_nodes);
 	       xrefs = 0;
 	    }
 	    tfprintf(f, "@node %s, %s, %s, %s\n", line->text, next, prev, node_name(section_number-1));
