@@ -3,6 +3,10 @@
 ASMCAPA_DIR_U = $(subst \,/,$(PLATFORM_DIR))
 ASMCAPA_DIR_D = $(subst /,\,$(PLATFORM_DIR))
 
+ifndef GCC
+   GCC=$(CC)
+endif
+
 .PHONY: mmxtest ssetest cleantest
 
 cleantest:
@@ -15,7 +19,7 @@ else
 endif
 
 mmxtest:
-	gcc -DASMCAPA_MMX_TEST -x assembler-with-cpp -c src/misc/asmcapa.s -o $(ASMCAPA_DIR_U)/asmcapa$(OBJ)
+	$(GCC) -DASMCAPA_MMX_TEST -x assembler-with-cpp -c src/misc/asmcapa.s -o $(ASMCAPA_DIR_U)/asmcapa$(OBJ)
 ifdef UNIX_TOOLS
 	echo "#define ALLEGRO_MMX" >> $(ASMCAPA_DIR_U)/asmcapa.h
 else
@@ -23,7 +27,7 @@ else
 endif
 
 ssetest:
-	gcc -DASMCAPA_SSE_TEST -x assembler-with-cpp -c src/misc/asmcapa.s -o $(ASMCAPA_DIR_U)/asmcapa$(OBJ)
+	$(GCC) -DASMCAPA_SSE_TEST -x assembler-with-cpp -c src/misc/asmcapa.s -o $(ASMCAPA_DIR_U)/asmcapa$(OBJ)
 ifdef UNIX_TOOLS
 	echo "#define ALLEGRO_SSE" >> $(ASMCAPA_DIR_U)/asmcapa.h
 else

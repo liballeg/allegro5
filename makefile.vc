@@ -19,6 +19,7 @@
 
 PLATFORM = MSVC
 RUNNER = obj/msvc/runner.exe
+GCC = gcc
 EXE = .exe
 OBJ = .obj
 HTML = html
@@ -390,7 +391,7 @@ $(OBJ_DIR)/%.obj: %.c $(RUNNER)
 	$(RUNNER) cl @ -nologo $(COMPILE_FLAGS) -I. -I./include -Fo$@ -c $<
 
 $(OBJ_DIR)/%.obj: %.s
-	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
+	$(GCC) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
 $(OBJ_DIR)/%.obj: %.rc
 	rc -i"include" -fo$@ $<
@@ -449,7 +450,7 @@ obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/msvc/
 	$(RUNNER) cl @ -nologo $(WFLAGS) -I. -I./include -Foobj/msvc/asmdef.obj -Feobj/msvc/asmdef.exe src/i386/asmdef.c
 
 obj/msvc/runner.exe: src/misc/runner.c
-	gcc -O -Wall -Werror $(GCCFLAGS) -o obj/msvc/runner.exe src/misc/runner.c
+	$(GCC) -O -Wall -Werror $(GCCFLAGS) -o obj/msvc/runner.exe src/misc/runner.c
 
 define LINK_WITHOUT_LIB
    $(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $^
@@ -489,10 +490,10 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MSVC
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c > _depend.tmp
-	gcc $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c >> _depend.tmp
-	gcc $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
-	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/c/*.s src/i386/*.s src/misc/*.s src/win/*.s >> _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c > _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c >> _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) -x assembler-with-cpp src/c/*.s src/i386/*.s src/misc/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 ifdef UNIX_TOOLS
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alleg\/\1\.obj:/" _depend2.tmp > obj/msvc/alleg/makefile.dep

@@ -17,6 +17,7 @@ PLATFORM = Watcom
 OBJ_DIR = obj/watcom/$(VERSION)
 LIB_NAME = lib/watcom/$(VERSION).lib
 RUNNER = obj/watcom/runner.exe
+GCC = gcc
 EXE = .exe
 OBJ = .obj
 HTML = htm
@@ -244,13 +245,13 @@ ifeq ($(WATCOM_VERSION),11)
 
 # -------- Watcom 11.0 supports COFF --------
 $(OBJ_DIR)/%.obj: %.s
-	gcc $(GCC2WATCOM) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $(OBJ_DIR)/$*.obj -c $<
+	$(GCC) $(GCC2WATCOM) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $(OBJ_DIR)/$*.obj -c $<
 
 else
 
 # -------- black magic to build asm sources with Watcom 10.6 --------
 $(OBJ_DIR)/%.obj: %.s $(RUNNER)
-	gcc $(GCC2WATCOM) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $(OBJ_DIR)/$*.o -c $<
+	$(GCC) $(GCC2WATCOM) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $(OBJ_DIR)/$*.o -c $<
 	$(RUNNER) wdisasm \\ -a $(OBJ_DIR)/$*.o -l=$(OBJ_DIR)/$*.lst
 	sed -e "s/\.text/_TEXT/; s/\.data/_DATA/; s/\.bss/_BSS/; s/\.386/\.586/; s/lar *ecx,cx/lar ecx,ecx/; s/ORG     [0-9]*H/ORG     00000000H/" $(OBJ_DIR)/$*.lst > $(OBJ_DIR)/$*.asm
 	$(RUNNER) wasm \\ $(WFLAGS) -zq -fr=nul -fp3 -fo=$@ $(OBJ_DIR)/$*.asm
@@ -271,7 +272,7 @@ obj/watcom/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h $(RUNNE
 	wcl386 $(WFLAGS) -zq -fr=nul -bt=dos4g -5s -s -I. -I.\\include -fo=obj\\watcom\\asmdef.obj -fe=obj\\watcom\\asmdef.exe src\\i386\\asmdef.c
 
 obj/watcom/runner.exe: src/misc/runner.c
-	gcc -O -Wall -Werror -o obj/watcom/runner.exe src/misc/runner.c
+	$(GCC) -O -Wall -Werror -o obj/watcom/runner.exe src/misc/runner.c
 
 define LINK_WITHOUT_LIB
    $(RUNNER) wlink \\ @ $(LFLAGS) 'name $@' '$(addprefix file ,$^)'
@@ -307,9 +308,9 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_WATCOM
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/dos/*.c src/i386/*.c src/misc/*.c demo/*.c > _depend.tmp
-	gcc $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
-	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/dos/*.s src/misc/*.s >> _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) src/*.c src/dos/*.c src/i386/*.c src/misc/*.c demo/*.c > _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/dos/*.s src/misc/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 ifdef UNIX_TOOLS
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/watcom\/alleg\/\1\.obj:/" _depend2.tmp > obj/watcom/alleg/makefile.dep
