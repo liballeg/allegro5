@@ -352,35 +352,40 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
  */
 static HWND create_directx_window(void)
 {
+   static int first = 1;
+   WNDCLASS wnd_class;
    char fname[1024];
    HWND wnd;
-   WNDCLASS wnd_class;
 
-   /* setup the window class */
-   wnd_class.style = CS_HREDRAW | CS_VREDRAW;
-   wnd_class.lpfnWndProc = directx_wnd_proc;
-   wnd_class.cbClsExtra = 0;
-   wnd_class.cbWndExtra = 0;
-   wnd_class.hInstance = allegro_inst;
-   wnd_class.hIcon = LoadIcon(allegro_inst, "allegro_icon");
-   if (!wnd_class.hIcon)
-      wnd_class.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-   wnd_class.hCursor = LoadCursor(NULL, IDC_ARROW);
-   wnd_class.hbrBackground = GetStockObject(BLACK_BRUSH);
-   wnd_class.lpszMenuName = NULL;
-   wnd_class.lpszClassName = ALLEGRO_WND_CLASS;
+   if (first) {
+      /* setup the window class */
+      wnd_class.style = CS_HREDRAW | CS_VREDRAW;
+      wnd_class.lpfnWndProc = directx_wnd_proc;
+      wnd_class.cbClsExtra = 0;
+      wnd_class.cbWndExtra = 0;
+      wnd_class.hInstance = allegro_inst;
+      wnd_class.hIcon = LoadIcon(allegro_inst, "allegro_icon");
+      if (!wnd_class.hIcon)
+         wnd_class.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+      wnd_class.hCursor = LoadCursor(NULL, IDC_ARROW);
+      wnd_class.hbrBackground = GetStockObject(BLACK_BRUSH);
+      wnd_class.lpszMenuName = NULL;
+      wnd_class.lpszClassName = ALLEGRO_WND_CLASS;
 
-   RegisterClass(&wnd_class);
+      RegisterClass(&wnd_class);
 
-   /* what are we called? */
-   get_executable_name(fname, sizeof(fname));
-   ustrlwr(fname);
+      /* what are we called? */
+      get_executable_name(fname, sizeof(fname));
+      ustrlwr(fname);
 
-   usetc(get_extension(fname), 0);
-   if (ugetat(fname, -1) == '.')
-      usetat(fname, -1, 0);
+      usetc(get_extension(fname), 0);
+      if (ugetat(fname, -1) == '.')
+         usetat(fname, -1, 0);
 
-   do_uconvert(get_filename(fname), U_CURRENT, wnd_title, U_ASCII, WND_TITLE_SIZE);
+      do_uconvert(get_filename(fname), U_CURRENT, wnd_title, U_ASCII, WND_TITLE_SIZE);
+
+      first = 0;
+   }
 
    /* create the window now */
    wnd = CreateWindowEx(WS_EX_APPWINDOW, ALLEGRO_WND_CLASS, wnd_title,
