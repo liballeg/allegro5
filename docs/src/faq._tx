@@ -807,18 +807,18 @@ General problems
       You are probably declaring the use of a namespace before including
       Allegro headers. For example:
 <codeblock>
-      #include &ltiostream&gt
-      using namespace std;
+      #include &ltiostream&gt
+      using namespace std;
 
-      #include &ltallegro.h&gt<endblock>
+      #include &ltallegro.h&gt<endblock>
 
       Move the `using' declaration after the `include' directives referring
       to Allegro headers:
 <codeblock>
-      #include &ltiostream&gt
-      #include &ltallegro.h&gt
+      #include &ltiostream&gt
+      #include &ltallegro.h&gt
 
-      using namespace std;<endblock>
+      using namespace std;<endblock>
 
 
 @@   I'm still confused. Where can I get help?
