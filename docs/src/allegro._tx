@@ -211,7 +211,7 @@ information about how to install Allegro and link your program with it.
    set_gfx_mode(), or after a set_gfx_mode(GFX_TEXT). On platforms that have 
    a text console (DOS and Unix) it will print the string to that console,
    attempting to work around codepage differences by reducing any accented
-   characters to 7 bit ASCII approximations, and on platforms featuring a
+   characters to 7-bit ASCII approximations, and on platforms featuring a
    windowing system it will bring up a GUI message box.
 
 @@void @set_window_title(const char *name);
@@ -490,12 +490,12 @@ available in past/future versions of Allegro.
    Like V3D but using float values instead of fixed ones.
 
 @@typedef struct @COLOR_MAP
-@xref 256 color transparency, color_map
+@xref 256-color transparency, color_map
 @eref ex3d, excolmap, exlights, exshade, extrans
 <codeblock>
    unsigned char data[PAL_SIZE][PAL_SIZE];
 <endblock>
-   Read chapter "Transparency and patterned drawing", section "256 color
+   Read chapter "Transparency and patterned drawing", section "256-color
    transparency" for a description on how to obtain/use this structure.
 
 @@typedef struct @RGB_MAP
@@ -669,31 +669,31 @@ whatever format you have told Allegro to use.
 By default, Allegro uses UTF-8 encoded text (U_UTF8). This is a 
 variable-width format, where characters can occupy anywhere from one to six 
 bytes. The nice thing about it is that characters ranging from 0-127 are 
-encoded directly as themselves, so UTF-8 is upwardly compatible with 7 bit 
+encoded directly as themselves, so UTF-8 is upwardly compatible with 7-bit 
 ASCII ("Hello, World!" means the same thing regardless of whether you 
 interpret it as ASCII or UTF-8 data). Any character values above 128, such 
 as accented vowels, the UK currency symbol, and Arabic or Chinese 
 characters, will be encoded as a sequence of two or more bytes, each in the 
-range 128-255. This means you will never get what looks like a 7 bit ASCII 
+range 128-255. This means you will never get what looks like a 7-bit ASCII 
 character as part of the encoding of a different character value, which 
 makes it very easy to manipulate UTF-8 strings.
 
 There are a few editing programs that understand UTF-8 format text files. 
-Alternatively, you can write your strings in plain ASCII or 16 bit Unicode 
+Alternatively, you can write your strings in plain ASCII or 16-bit Unicode 
 formats, and then use the Allegro textconv program to convert them into 
 UTF-8.
 
 If you prefer to use some other text format, you can set Allegro to work 
-with normal 8 bit ASCII (U_ASCII), or 16 bit Unicode (U_UNICODE) instead, or 
+with normal 8-bit ASCII (U_ASCII), or 16-bit Unicode (U_UNICODE) instead, or 
 you can provide some handler functions to make it support whatever other 
 text encoding you like (for example it would be easy to add support for 32 
 bit UCS-4 characters, or the Chinese GB-code format).
 
-There is some limited support for alternative 8 bit codepages, via the 
+There is some limited support for alternative 8-bit codepages, via the 
 U_ASCII_CP mode. This is very slow, so you shouldn't use it for serious 
 work, but it can be handy as an easy way to convert text between different 
 codepages. By default the U_ASCII_CP mode is set up to reduce text to a 
-clean 7 bit ASCII format, trying to replace any accented vowels with their 
+clean 7-bit ASCII format, trying to replace any accented vowels with their 
 simpler equivalents (this is used by the allegro_message() function when it 
 needs to print an error report onto a text mode DOS screen). If you want to 
 work with other codepages, you can do this by passing a character mapping 
@@ -712,9 +712,9 @@ is best to set it with set_uformat() just before you call these.
    Allegro, wherever you see a function that returns a char *, or takes a 
    char * as a parameter. The type should be one of the values:
 <textblock>
-      U_ASCII     - fixed size, 8 bit ASCII characters
-      U_ASCII_CP  - alternative 8 bit codepage (see set_ucodepage())
-      U_UNICODE   - fixed size, 16 bit Unicode characters
+      U_ASCII     - fixed size, 8-bit ASCII characters
+      U_ASCII_CP  - alternative 8-bit codepage (see set_ucodepage())
+      U_UNICODE   - fixed size, 16-bit Unicode characters
       U_UTF8      - variable size, UTF-8 format Unicode characters
 <endblock>
    Although you can change the text format on the fly, this is not a good 
@@ -748,9 +748,9 @@ is best to set it with set_uformat() just before you call these.
 @@                   const unsigned short *extras);
 @xref set_uformat
    When you select the U_ASCII_CP encoding mode, a set of tables are used to 
-   convert between 8 bit characters and their Unicode equivalents. You can 
+   convert between 8-bit characters and their Unicode equivalents. You can 
    use this function to specify a custom set of mapping tables, which allows 
-   you to support different 8 bit codepages. The table parameter points to 
+   you to support different 8-bit codepages. The table parameter points to 
    an array of 256 shorts, which contain the Unicode value for each 
    character in your codepage. The extras parameter, if not NULL, points to 
    a list of mapping pairs, which will be used when reducing Unicode data to 
@@ -758,7 +758,7 @@ is best to set it with set_uformat() just before you call these.
    it should be represented in your codepage. The table is terminated by a 
    zero Unicode value. This allows you to create a many-&gtone mapping, where
    many different Unicode characters can be represented by a single codepage 
-   value (eg. for reducing accented vowels to 7 bit ASCII).
+   value (eg. for reducing accented vowels to 7-bit ASCII).
 
 @@int @need_uconvert(const char *s, int type, int newtype);
 @xref set_uformat, get_uformat, do_uconvert, uconvert
@@ -794,7 +794,7 @@ is best to set it with set_uformat() just before you call these.
    bytes into the output buf, but it checks before doing the conversion, and 
    doesn't bother if the string formats are already the same (either both 
    types are equal, or one is ASCII, the other is UTF-8, and the string 
-   contains only 7 bit ASCII characters). If a conversion was performed it 
+   contains only 7-bit ASCII characters). If a conversion was performed it 
    returns a pointer to buf, otherwise it returns a copy of s, so you must 
    use the return value rather than assuming that the string will always be 
    moved to buf. As a convenience, if buf is NULL it will convert the string 
@@ -1542,9 +1542,9 @@ midi_volume = x<br>
 quality = x<br>
    Controls the sound quality vs. performance tradeoff for the sample mixing 
    code. This can be set to any of the values:<textblock>
-      0 - fast mixing of 8 bit data into 16 bit buffers
-      1 - true 16 bit mixing (requires a 16 bit stereo soundcard)
-      2 - interpolated 16 bit mixing<endblock>
+      0 - fast mixing of 8-bit data into 16-bit buffers
+      1 - true 16-bit mixing (requires a 16-bit stereo soundcard)
+      2 - interpolated 16-bit mixing<endblock>
 <li>
 flip_pan = x<br>
    Toggling this between 0 and 1 reverses the left/right panning of samples, 
@@ -2701,7 +2701,7 @@ Graphics modes
    to end up creating a virtual screen much larger than the one you request. 
    On an SVGA card with one megabyte of vram you can count on getting a 
    1024x1024 virtual screen (256 colors) or 1024x512 (15 or 16 bpp), and 
-   with 512k vram you can get 1024x512 (256 color). Other sizes may or may 
+   with 512k vram you can get 1024x512 (256 colors). Other sizes may or may 
    not be possible: don't assume that they will work. In mode-X the virtual 
    width can be any multiple of eight greater than or equal to the physical 
    screen width, and the virtual height will be set accordingly (the VGA has 
@@ -3078,9 +3078,9 @@ Bitmap objects
 Once you have selected a graphics mode, you can draw things onto the display 
 via the 'screen' bitmap. All the Allegro graphics routines draw onto BITMAP 
 structures, which are areas of memory containing rectangular images, stored 
-as packed byte arrays (in 8 bit modes one byte per pixel, in 15 and 16 bit 
-modes sizeof(short) bytes per pixel, in 24 bit modes 3 bytes per pixel and 
-in 32 bit modes sizeof(long) bytes per pixel). You can create and manipulate 
+as packed byte arrays (in 8-bit modes one byte per pixel, in 15- and 16-bit 
+modes sizeof(short) bytes per pixel, in 24-bit modes 3 bytes per pixel and 
+in 32-bit modes sizeof(long) bytes per pixel). You can create and manipulate 
 bitmaps in system RAM, or you can write to the special 'screen' bitmap which 
 represents the video memory in your graphics card.
 
@@ -3221,7 +3221,7 @@ Allegro supports several different types of bitmaps:
 @xref MASK_COLOR_8, set_color_depth, bitmap_color_depth
 @eref ex3d, exmouse, expat
    Returns the mask color for the specified bitmap (the value which is 
-   skipped when drawing sprites). For 256 color bitmaps this is zero, and 
+   skipped when drawing sprites). For 256-color bitmaps this is zero, and 
    for truecolor bitmaps it is bright pink (maximum red and blue, zero 
    green).
 
@@ -3352,20 +3352,20 @@ will not be known, so the file may be converted wrongly.
 
 @@BITMAP *@load_bmp(const char *filename, RGB *pal);
 @xref load_bitmap
-   Loads a 256 color or 24 bit truecolor Windows or OS/2 BMP file.
+   Loads a 256-color or 24-bit truecolor Windows or OS/2 BMP file.
 
 @@BITMAP *@load_lbm(const char *filename, RGB *pal);
 @xref load_bitmap
-   Loads a 256 color IFF ILBM/PBM file.
+   Loads a 256-color IFF ILBM/PBM file.
 
 @@BITMAP *@load_pcx(const char *filename, RGB *pal);
 @xref load_bitmap
 @eref exscale
-   Loads a 256 color or 24 bit truecolor PCX file.
+   Loads a 256-color or 24-bit truecolor PCX file.
 
 @@BITMAP *@load_tga(const char *filename, RGB *pal);
 @xref load_bitmap
-   Loads a 256 color, 15 bit hicolor, 24 bit truecolor, or 32 bit 
+   Loads a 256-color, 15-bit hicolor, 24-bit truecolor, or 32-bit 
    truecolor+alpha TGA file.
 
 @@int @save_bitmap(const char *filename, BITMAP *bmp, const RGB *pal);
@@ -3392,16 +3392,16 @@ will not be known, so the file may be converted wrongly.
 <endblock>
 @@int @save_bmp(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
-   Writes a bitmap into a 256 color or 24 bit truecolor BMP file.
+   Writes a bitmap into a 256-color or 24-bit truecolor BMP file.
 
 @@int @save_pcx(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
-   Writes a bitmap into a 256 color or 24 bit truecolor PCX file.
+   Writes a bitmap into a 256-color or 24-bit truecolor PCX file.
 
 @@int @save_tga (const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
-   Writes a bitmap into a 256 color, 15 bit hicolor, 24 bit truecolor, or 32 
-   bit truecolor+alpha TGA file.
+   Writes a bitmap into a 256-color, 15-bit hicolor, 24-bit truecolor, or
+   32-bit truecolor+alpha TGA file.
 
 @\void @register_bitmap_file_type(const char *ext,
 @\          BITMAP *(*load)(const char *filename, RGB *pal),
@@ -3427,31 +3427,31 @@ will not be known, so the file may be converted wrongly.
 <textblock>
       COLORCONV_NONE                // disable all format
 				    // conversions
-      COLORCONV_8_TO_15             // expand 8 bits to 15 bits
-      COLORCONV_8_TO_16             // expand 8 bits to 16 bits
-      COLORCONV_8_TO_24             // expand 8 bits to 24 bits
-      COLORCONV_8_TO_32             // expand 8 bits to 32 bits
-      COLORCONV_15_TO_8             // reduce 15 bits to 8 bits
-      COLORCONV_15_TO_16            // expand 15 bits to 16 bits
-      COLORCONV_15_TO_24            // expand 15 bits to 24 bits
-      COLORCONV_15_TO_32            // expand 15 bits to 32 bits
-      COLORCONV_16_TO_8             // reduce 16 bits to 8 bits
-      COLORCONV_16_TO_15            // reduce 16 bits to 15 bits
-      COLORCONV_16_TO_24            // expand 16 bits to 24 bits
-      COLORCONV_16_TO_32            // expand 16 bits to 32 bits
-      COLORCONV_24_TO_8             // reduce 24 bits to 8 bits
-      COLORCONV_24_TO_15            // reduce 24 bits to 15 bits
-      COLORCONV_24_TO_16            // reduce 24 bits to 16 bits
-      COLORCONV_24_TO_32            // expand 24 bits to 32 bits
-      COLORCONV_32_TO_8             // reduce 32 bit RGB to 8 bits
-      COLORCONV_32_TO_15            // reduce 32 bit RGB to 15 bits
-      COLORCONV_32_TO_16            // reduce 32 bit RGB to 16 bits
-      COLORCONV_32_TO_24            // reduce 32 bit RGB to 24 bits
-      COLORCONV_32A_TO_8            // reduce 32 bit RGBA to 8 bits
-      COLORCONV_32A_TO_15           // reduce 32 bit RGBA to 15 bits
-      COLORCONV_32A_TO_16           // reduce 32 bit RGBA to 16 bits
-      COLORCONV_32A_TO_24           // reduce 32 bit RGBA to 24 bits
-      COLORCONV_DITHER_PAL          // dither when reducing to 8 bit
+      COLORCONV_8_TO_15             // expand 8-bit to 15-bit
+      COLORCONV_8_TO_16             // expand 8-bit to 16-bit
+      COLORCONV_8_TO_24             // expand 8-bit to 24-bit
+      COLORCONV_8_TO_32             // expand 8-bit to 32-bit
+      COLORCONV_15_TO_8             // reduce 15-bit to 8-bit
+      COLORCONV_15_TO_16            // expand 15-bit to 16-bit
+      COLORCONV_15_TO_24            // expand 15-bit to 24-bit
+      COLORCONV_15_TO_32            // expand 15-bit to 32-bit
+      COLORCONV_16_TO_8             // reduce 16-bit to 8-bit
+      COLORCONV_16_TO_15            // reduce 16-bit to 15-bit
+      COLORCONV_16_TO_24            // expand 16-bit to 24-bit
+      COLORCONV_16_TO_32            // expand 16-bit to 32-bit
+      COLORCONV_24_TO_8             // reduce 24-bit to 8-bit
+      COLORCONV_24_TO_15            // reduce 24-bit to 15-bit
+      COLORCONV_24_TO_16            // reduce 24-bit to 16-bit
+      COLORCONV_24_TO_32            // expand 24-bit to 32-bit
+      COLORCONV_32_TO_8             // reduce 32-bit RGB to 8-bit
+      COLORCONV_32_TO_15            // reduce 32-bit RGB to 15-bit
+      COLORCONV_32_TO_16            // reduce 32-bit RGB to 16-bit
+      COLORCONV_32_TO_24            // reduce 32-bit RGB to 24-bit
+      COLORCONV_32A_TO_8            // reduce 32-bit RGBA to 8-bit
+      COLORCONV_32A_TO_15           // reduce 32-bit RGBA to 15-bit
+      COLORCONV_32A_TO_16           // reduce 32-bit RGBA to 16-bit
+      COLORCONV_32A_TO_24           // reduce 32-bit RGBA to 24-bit
+      COLORCONV_DITHER_PAL          // dither when reducing to 8-bit
       COLORCONV_DITHER_HI           // dither when reducing to
 				    // hicolor
       COLORCONV_KEEP_TRANS          // keep original transparency
@@ -3459,26 +3459,18 @@ will not be known, so the file may be converted wrongly.
    For convenience, the following macros can be used to select common 
    combinations of these flags:
 <textblock>
-      COLORCONV_EXPAND_256          // expand 256 colors to
-				    // hi/truecolor
-      COLORCONV_REDUCE_TO_256       // reduce hi/truecolor to 256
-				    // colors
-      COLORCONV_EXPAND_15_TO_16     // expand 15 bit hicolor to
-				    // 16 bits
-      COLORCONV_REDUCE_16_TO_15     // reduce 16 bit hicolor to
-				    // 15 bits
-      COLORCONV_EXPAND_HI_TO_TRUE   // expand 15/16 bits to
-				    // 24/32 bits
-      COLORCONV_REDUCE_TRUE_TO_HI   // reduce 24/32 bits to
-				    // 15/16 bits
-      COLORCONV_24_EQUALS_32        // convert between 24 and
-				    // 32 bits
+      COLORCONV_EXPAND_256          // expand 256-color to hi/truecolor
+      COLORCONV_REDUCE_TO_256       // reduce hi/truecolor to 256-color
+      COLORCONV_EXPAND_15_TO_16     // expand 15-bit hicolor to 16-bit
+      COLORCONV_REDUCE_16_TO_15     // reduce 16-bit hicolor to 15-bit
+      COLORCONV_EXPAND_HI_TO_TRUE   // expand 15/16-bit to 24/32-bit
+      COLORCONV_REDUCE_TRUE_TO_HI   // reduce 24/32-bit to 15/16-bit
+      COLORCONV_24_EQUALS_32        // convert between 24- and 32-bit
       COLORCONV_TOTAL               // everything to current format
-      COLORCONV_PARTIAL             // convert 15 &lt-&gt 16 and
-				    // 24 &lt-&gt 32
+      COLORCONV_PARTIAL             // convert 15 &lt-&gt 16-bit and
+				    // 24 &lt-&gt 32-bit
       COLORCONV_MOST                // all but hi/truecolor &lt-&gt 256
-      COLORCONV_DITHER              // dither during all color
-				    // reductions
+      COLORCONV_DITHER              // dither during all color reductions
 <endblock>
    If you enable the COLORCONV_DITHER flag, dithering will be performed 
    whenever truecolor graphics are converted into a hicolor or paletted 
@@ -3505,7 +3497,7 @@ Palette routines
 
 All the Allegro drawing functions use integer parameters to represent 
 colors. In truecolor resolutions these numbers encode the color directly as 
-a collection of red, green, and blue bits, but in a regular 256 color mode 
+a collection of red, green, and blue bits, but in a regular 256-color mode 
 the values are treated as indexes into the current palette, which is a table 
 listing the red, green and blue intensities for each of the 256 possible 
 colors.
@@ -3653,7 +3645,7 @@ before including Allegro headers).
 @\int @generate_optimized_palette(BITMAP *bmp, PALETTE pal,
 @@                               const char rsvd[256]);
 @xref generate_332_palette, set_color_depth
-   Generates a 256 color palette suitable for making a reduced color version 
+   Generates a 256-color palette suitable for making a reduced color version 
    of the specified truecolor image. The rsvd parameter points to a table 
    indicating which colors it is allowed to modify: zero for free colors
    which may be set to whatever the optimiser likes, negative values for
@@ -3687,9 +3679,9 @@ Truecolor pixel formats
 
 In a truecolor video mode the red, green, and blue components for each pixel 
 are packed directly into the color value, rather than using a palette lookup 
-table. In a 15 bit mode there are 5 bits for each color, in 16 bit modes 
+table. In a 15-bit mode there are 5 bits for each color, in 16-bit modes 
 there are 5 bits each of red and blue and six bits of green, and both 24 and 
-32 bit modes use 8 bits for each color (the 32 bit pixels simply have an 
+32-bit modes use 8 bits for each color (the 32-bit pixels simply have an 
 extra padding byte to align the data nicely). The layout of these components 
 can vary depending on your hardware, but will generally either be RGB or 
 BGR. Since the layout is not known until you select the video mode you will 
@@ -3706,16 +3698,16 @@ routines!
 @eref exrgbhsv
    These functions convert colors from a hardware independent form (red, 
    green, and blue values ranging 0-255) into various display dependent 
-   pixel formats. Converting to 15, 16, 24, or 32 bit formats only takes a 
-   few shifts, so it is fairly efficient. Converting to an 8 bit color 
+   pixel formats. Converting to 15, 16, 24, or 32-bit formats only takes a 
+   few shifts, so it is fairly efficient. Converting to an 8-bit color 
    involves searching the palette to find the closest match, which is quite 
    slow unless you have set up an RGB mapping table (see below).
 
 @@int @makeacol32(int r, int g, int b, int a);
 @xref makeacol, set_alpha_blender, set_write_alpha_blender
-   Converts an RGBA color into a 32 bit display pixel format, which includes 
+   Converts an RGBA color into a 32-bit display pixel format, which includes 
    an alpha (transparency) value. There are no versions of this routine for 
-   other color depths, because only the 32 bit format has enough room to 
+   other color depths, because only the 32-bit format has enough room to 
    store a proper alpha channel. You should only use RGBA format colors as 
    the input to draw_trans_sprite() or draw_trans_rle_sprite() after calling 
    set_alpha_blender(), rather than drawing them directly to the screen.
@@ -3726,7 +3718,7 @@ routines!
 @eref Available Allegro examples
    Converts colors from a hardware independent format (red, green, and blue 
    values ranging 0-255) to the pixel format required by the current video 
-   mode, calling the preceding 8, 15, 16, 24, or 32 bit makecol functions as 
+   mode, calling the preceding 8, 15, 16, 24, or 32-bit makecol functions as 
    appropriate.
 
 @@int @makecol_depth(int color_depth, int r, int g, int b);
@@ -3740,19 +3732,19 @@ routines!
 @@int @makeacol_depth(int color_depth, int r, int g, int b, int a);
 @xref makecol, makecol_depth, set_alpha_blender, set_write_alpha_blender
    Convert RGBA colors into display dependent pixel formats. In anything 
-   less than a 32 bit mode, these are the same as calling makecol() or 
-   makecol_depth(), but by using these routines it is possible to create 32 
-   bit color values that contain a true 8 bit alpha channel along with the 
-   red, green, and blue components. You should only use RGBA format colors 
-   as the input to draw_trans_sprite() or draw_trans_rle_sprite() after 
-   calling set_alpha_blender(), rather than drawing them directly to the 
-   screen.
+   less than a 32-bit mode, these are the same as calling makecol() or 
+   makecol_depth(), but by using these routines it is possible to create 
+   32-bit color values that contain a true 8 bit alpha channel along with 
+   the red, green, and blue components. You should only use RGBA format 
+   colors as the input to draw_trans_sprite() or draw_trans_rle_sprite() 
+   after calling set_alpha_blender(), rather than drawing them directly to 
+   the screen.
 
 @@int @makecol15_dither(int r, int g, int b, int x, int y);
 @@int @makecol16_dither(int r, int g, int b, int x, int y);
 @xref makecol, makecol8, set_color_conversion
    Given both a color value and a pixel coordinate, calculate a dithered 15 
-   or 16 bit RGB value. This can produce better results when reducing images 
+   or 16-bit RGB value. This can produce better results when reducing images 
    from truecolor to hicolor. In addition to calling these functions 
    directly, hicolor dithering can be automatically enabled when loading 
    graphics by calling the set_color_conversion() function, for example 
@@ -3779,7 +3771,7 @@ routines!
 
 @@int @geta32(int c);
 @xref getr8
-   Given a color in a 32 bit pixel format, this function extracts the alpha 
+   Given a color in a 32-bit pixel format, this function extracts the alpha 
    component (ranging 0-255).
 
 @@int @getr(int c);
@@ -3790,8 +3782,8 @@ routines!
 @eref exalpha
    Given a color in the format being used by the current video mode, these 
    functions extract one of the red, green, blue, or alpha components 
-   (ranging 0-255), calling the preceding 8, 15, 16, 24, or 32 bit get 
-   functions as appropriate. The alpha part is only meaningful for 32 bit 
+   (ranging 0-255), calling the preceding 8, 15, 16, 24, or 32-bit get 
+   functions as appropriate. The alpha part is only meaningful for 32-bit 
    pixels.
 
 @@int @getr_depth(int color_depth, int c);
@@ -3802,13 +3794,13 @@ routines!
 @eref exlights
    Given a color in the format being used by the specified color depth, 
    these functions extract one of the red, green, blue, or alpha components 
-   (ranging 0-255). The alpha part is only meaningful for 32 bit pixels.
+   (ranging 0-255). The alpha part is only meaningful for 32-bit pixels.
 
 @@extern int @palette_color[256];
 @xref set_palette, makecol, set_color_depth
 @eref Available Allegro examples
    Table mapping palette index colors (0-255) into whatever pixel format is 
-   being used by the current display mode. In a 256 color mode this just 
+   being used by the current display mode. In a 256-color mode this just 
    maps onto the array index. In truecolor modes it looks up the specified 
    entry in the current palette, and converts that RGB value into the 
    appropriate packed pixel format.
@@ -3820,7 +3812,7 @@ routines!
 @@#define @MASK_COLOR_32 (8.8.8 pink)
 @xref bitmap_mask_color, makecol, draw_sprite, masked_blit
    Constants representing the colors used to mask transparent sprite pixels 
-   for each color depth. In 256 color resolutions this is zero, and in 
+   for each color depth. In 256-color resolutions this is zero, and in 
    truecolor modes it is bright pink (maximum red and blue, zero green).
 
 
@@ -4070,7 +4062,7 @@ bitmap.
 @@                 int dest_x, int dest_y, int width, int height);
 @xref blit, masked_stretch_blit, draw_sprite, bitmap_mask_color
    Like blit(), but skips transparent pixels, which are marked by a zero in 
-   256 color modes or bright pink for truecolor data (maximum red and blue, 
+   256-color modes or bright pink for truecolor data (maximum red and blue, 
    zero green), and requires the source and destination bitmaps to be of 
    the same color depth. The source and destination regions must not overlap.
 
@@ -4105,7 +4097,7 @@ bitmap.
    y, sprite-&gtw, sprite-&gth), but it uses a masked drawing mode where 
    transparent pixels are skipped, so the background image will show through 
    the masked parts of the sprite. Transparent pixels are marked by a zero 
-   in 256 color modes or bright pink for truecolor data (maximum red and 
+   in 256-color modes or bright pink for truecolor data (maximum red and 
    blue, zero green).
 
    If the GFX_HW_VRAM_BLIT_MASKED bit in the gfx_capabilities flag is set, 
@@ -4120,7 +4112,7 @@ bitmap.
    memory so the latter must be a memory bitmap.
 
    Although generally not supporting graphics of mixed color depths, as a 
-   special case this function can be used to draw 256 color source images 
+   special case this function can be used to draw 256-color source images 
    onto truecolor destination bitmaps, so you can use palette effects on 
    specific sprites within a truecolor program.
 
@@ -4148,24 +4140,24 @@ bitmap.
 @eref exalpha, exblend, exlights, extrans, exxfade
    Uses the global color_map table or truecolor blender functions to overlay 
    the sprite on top of the existing image. This must only be used after you 
-   have set up the color mapping table (for 256 color modes) or blender 
+   have set up the color mapping table (for 256-color modes) or blender 
    functions (for truecolor modes). Because it involves reading as well as 
    writing the bitmap memory, translucent drawing is very slow if you draw 
    directly to video RAM, so wherever possible you should use a memory 
    bitmap instead. The bitmap and sprite must normally be in the same color 
    depth, but as a special case you can draw 32 bit RGBA format sprites onto 
    any hicolor or truecolor bitmap, as long as you call set_alpha_blender() 
-   first, and you can draw 8 bit alpha images onto a 32 bit RGBA 
+   first, and you can draw 8-bit alpha images onto a 32-bit RGBA 
    destination, as long as you call set_write_alpha_blender() first. 
    As draw_sprite() this function skips transparent pixels, except if the 
-   source sprite is an 8 bit image; if this is the case, you should pay 
+   source sprite is an 8-bit image; if this is the case, you should pay 
    attention to properly set up your color map table for index 0.
 
 @@void @draw_lit_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int color);
 @xref draw_sprite, draw_trans_sprite, draw_gouraud_sprite
 @xref draw_lit_rle_sprite, color_map, set_trans_blender, bitmap_mask_color
 @eref exblend
-   In 256 color modes, uses the global color_map table to tint the sprite
+   In 256-color modes, uses the global color_map table to tint the sprite
    image to the specified color or to light it to the level specified by
    'color', depending on the function which was used to build the table
    (create_trans_table or create_light_table), and draws the resulting image
@@ -4174,7 +4166,7 @@ bitmap.
    alpha level which was passed to the blender functions is ignored) and
    draws the resulting image to the destination bitmap. The 'color' parameter
    must be in the range [0-255] whatever its actual meaning is. This must
-   only be used after you have set up the color mapping table (for 256 color
+   only be used after you have set up the color mapping table (for 256-color
    modes) or blender functions (for truecolor modes).
 
 @\void @draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
@@ -4192,8 +4184,8 @@ bitmap.
    specified position, drawing transparent pixels in the background color
    (or skipping them if the background color is -1) and setting all other
    pixels to the specified color. Transparent pixels are marked by a zero
-   in 256 color modes or bright pink for truecolor data (maximum red and
-   blue, zero green). The sprite must be an 8 bit image, even if the
+   in 256-color modes or bright pink for truecolor data (maximum red and
+   blue, zero green). The sprite must be an 8-bit image, even if the
    destination is a truecolor bitmap.
 
 @@void @rotate_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
@@ -4313,9 +4305,9 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
 @xref set_trans_blender, set_alpha_blender, bitmap_mask_color
    Translucent version of draw_rle_sprite(). See the description of 
    draw_trans_sprite(). This must only be used after you have set up the 
-   color mapping table (for 256 color modes) or blender functions (for 
+   color mapping table (for 256-color modes) or blender functions (for 
    truecolor modes). The bitmap and sprite must normally be in the same 
-   color depth, but as a special case you can draw 32 bit RGBA format 
+   color depth, but as a special case you can draw 32-bit RGBA format 
    sprites onto any hicolor or truecolor bitmap, as long as you call 
    set_alpha_blender() first.
 
@@ -4325,7 +4317,7 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
 @xref set_trans_blender, bitmap_mask_color
    Tinted version of draw_rle_sprite(). See the description of
    draw_lit_sprite(). This must only be used after you have set up the color 
-   mapping table (for 256 color modes) or blender functions (for truecolor 
+   mapping table (for 256-color modes) or blender functions (for truecolor 
    modes).
 
 
@@ -4558,17 +4550,17 @@ Polygon rendering
    <b>POLYTYPE_GCOL:</b><br>
       A single-color gouraud shaded polygon. The colors for each vertex are 
       taken from the c value, and interpolated across the polygon. This is 
-      very fast, but will only work in 256 color modes if your palette 
+      very fast, but will only work in 256-color modes if your palette 
       contains a smooth gradient between the colors. In truecolor modes it 
       interprets the color as a packed, display-format value as produced by 
       the makecol() function.
 
    <b>POLYTYPE_GRGB:</b><br>
       A gouraud shaded polygon which interpolates RGB triplets rather than a 
-      single color. In 256 color modes this uses the global rgb_map table to 
-      convert the result to an 8 bit paletted color, so it must only be used 
+      single color. In 256-color modes this uses the global rgb_map table to 
+      convert the result to an 8-bit paletted color, so it must only be used 
       after you have set up the RGB mapping table! The colors for each 
-      vertex are taken from the c value, which is interpreted as a 24 bit 
+      vertex are taken from the c value, which is interpreted as a 24-bit 
       RGB triplet (0xFF0000 is red, 0x00FF00 is green, and 0x0000FF is 
       blue).
 
@@ -4599,7 +4591,7 @@ Polygon rendering
    <b>POLYTYPE_ATEX_LIT:</b><br>
    <b>POLYTYPE_PTEX_LIT:</b><br>
       Like POLYTYPE_ATEX and POLYTYPE_PTEX, but the global color_map table 
-      (for 256 color modes) or blender function (for non-MMX truecolor 
+      (for 256-color modes) or blender function (for non-MMX truecolor 
       modes) is used to blend the texture with a light level taken from the 
       c value in the vertex structure. This must only be used after you have 
       set up the color mapping table or blender functions!
@@ -4983,7 +4975,7 @@ Transparency and patterned drawing
    routine is ignored. This is the fastest of the patterned modes.
 
    In DRAW_MODE_SOLID_PATTERN, each pixel in the pattern bitmap is compared 
-   with the mask color, which is zero in 256 color modes or bright pink for 
+   with the mask color, which is zero in 256-color modes or bright pink for 
    truecolor data (maximum red and blue, zero green). If the pattern pixel 
    is solid, a pixel of the color you passed to the drawing routine is 
    written to the destination bitmap, otherwise a zero is written. The 
@@ -5017,7 +5009,7 @@ Transparency and patterned drawing
    This is a shortcut for selecting solid drawing mode. It is equivalent to 
    calling drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 
-@hnode 256 color transparency
+@hnode 256-color transparency
 In paletted video modes, translucency and lighting are implemented with a 
 64k lookup table, which contains the result of combining any two colors c1 
 and c2. You must set up this table before you use any of the translucency 
@@ -5038,7 +5030,7 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
 @xref draw_lit_sprite, draw_gouraud_sprite, drawing_mode
 @eref ex3d, excolmap, exlights, exshade, extrans
    Global pointer to the color mapping table. This must be set before using 
-   any translucent or lit drawing functions in a 256 color video mode!
+   any translucent or lit drawing functions in a 256-color video mode!
 
 @\void @create_trans_table(COLOR_MAP *table, const PALETTE pal,
 @@                        int r, g, b, void (*callback)(int pos));
@@ -5096,8 +5088,8 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
    paletted equivalent of whatever truecolor blender mode is currently 
    selected. After calling set_trans_blender(), set_blender_mode(), or any 
    of the other truecolor blender mode routines, you can use this function 
-   to create an 8 bit mapping table that will have the same results as 
-   whatever 24 bit blending mode you have enabled.
+   to create an 8-bit mapping table that will have the same results as 
+   whatever 24-bit blending mode you have enabled.
 
 @hnode Truecolor transparency
 In truecolor video modes, translucency and lighting are implemented by a 
@@ -5129,9 +5121,9 @@ account), y is the color of the sprite and n is the alpha level that was
 passed to the drawing function itself.
 
 Since these routines may be used from various different color depths, there 
-are three such callbacks, one for use with 15 bit 5.5.5 pixels, one for 16 
-bit 5.6.5 pixels, and one for 24 bit 8.8.8 pixels (this can be shared 
-between the 24 and 32 bit code since the bit packing is the same).
+are three such callbacks, one for use with 15-bit 5.5.5 pixels, one for 16 
+bit 5.6.5 pixels, and one for 24-bit 8.8.8 pixels (this can be shared 
+between the 24 and 32-bit code since the bit packing is the same).
 
 @@void @set_trans_blender(int r, int g, int b, int a);
 @xref set_blender_mode, set_alpha_blender, set_write_alpha_blender
@@ -5149,26 +5141,26 @@ between the 24 and 32 bit code since the bit packing is the same).
 @xref set_write_alpha_blender
 @eref exalpha, extrans
    Enables the special alpha-channel blending mode, which is used for 
-   drawing 32 bit RGBA sprites. After calling this function, you can use 
-   draw_trans_sprite() or draw_trans_rle_sprite() to draw a 32 bit source 
+   drawing 32-bit RGBA sprites. After calling this function, you can use 
+   draw_trans_sprite() or draw_trans_rle_sprite() to draw a 32-bit source 
    image onto any hicolor or truecolor destination. The alpha values will be 
    taken directly from the source graphic, so you can vary the solidity of 
    each part of the image. You can't use any of the normal translucency 
    functions while this mode is active, though, so you should reset to one 
    of the normal blender modes (eg. set_trans_blender()) before drawing 
-   anything other than 32 bit RGBA sprites.
+   anything other than 32-bit RGBA sprites.
 
 @@void @set_write_alpha_blender();
 @xref set_alpha_blender, draw_trans_sprite, drawing_mode
 @eref exalpha, extrans
    Enables the special alpha-channel editing mode, which is used for drawing 
-   alpha channels over the top of an existing 32 bit RGB sprite, to turn it 
+   alpha channels over the top of an existing 32-bit RGB sprite, to turn it 
    into an RGBA format image. After calling this function, you can set the 
    drawing mode to DRAW_MODE_TRANS and then write draw color values (0-255) 
-   onto a 32 bit image. This will leave the color values unchanged, but 
+   onto a 32-bit image. This will leave the color values unchanged, but 
    alter the alpha to whatever values you are writing. After enabling this 
-   mode you can also use draw_trans_sprite() to superimpose an 8 bit alpha 
-   mask over the top of an existing 32 bit sprite.
+   mode you can also use draw_trans_sprite() to superimpose an 8-bit alpha 
+   mask over the top of an existing 32-bit sprite.
 
 @@void @set_add_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
@@ -5251,7 +5243,7 @@ between the 24 and 32 bit code since the bit packing is the same).
 @xref draw_lit_sprite, drawing_mode
    Specifies a custom set of truecolor blender routines, which can be used 
    to implement whatever special interpolation modes you need. This function 
-   shares a single blender between the 24 and 32 bit modes.
+   shares a single blender between the 24 and 32-bit modes.
 
 @\void @set_blender_mode_ex(BLENDER_FUNC b15, b16, b24, b32, b15x, b16x, b24x,
 @@                         int r, g, b, a);
@@ -5261,7 +5253,7 @@ between the 24 and 32 bit code since the bit packing is the same).
    drawing pixels onto destinations of the same format, while b15x, b16x, 
    and b24x are used by draw_trans_sprite() and draw_trans_rle_sprite() when 
    drawing RGBA images onto destination bitmaps of another format. These 
-   blenders will be passed a 32 bit x parameter, along with a y value of a 
+   blenders will be passed a 32-bit x parameter, along with a y value of a 
    different color depth, and must try to do something sensible in response.
 
 
@@ -5275,22 +5267,22 @@ bitmaps in the same format. If you want to mix several different pixel
 formats, you can use create_bitmap_ex() in place of create_bitmap(), and 
 call bitmap_color_depth() to query the format of a specific image. Most of 
 the graphics routines require all their input parameters to be in the same 
-format (eg. you cannot stretch a 15 bit source bitmap onto a 24 bit 
+format (eg. you cannot stretch a 15-bit source bitmap onto a 24-bit 
 destination), but there are some exceptions: blit() and the rotation routines 
 can copy between bitmaps of any format, converting the data as required, 
-draw_sprite() can draw 256 color source images onto destinations of any 
-format, draw_character_ex() _always_ uses a 256 color source bitmap, whatever 
+draw_sprite() can draw 256-color source images onto destinations of any 
+format, draw_character_ex() _always_ uses a 256-color source bitmap, whatever 
 the format of the destination, the draw_trans_sprite() and 
-draw_trans_rle_sprite() functions are able to draw 32 bit RGBA images onto 
+draw_trans_rle_sprite() functions are able to draw 32-bit RGBA images onto 
 any hicolor or truecolor destination, as long as you call set_alpha_blender() 
-first, and the draw_trans_sprite() function is able to draw an 8 bit alpha 
-channel image over the top of an existing 32 bit image, as long as you call 
+first, and the draw_trans_sprite() function is able to draw an 8-bit alpha 
+channel image over the top of an existing 32-bit image, as long as you call 
 set_write_alpha_blender() first.
 
-Expanding a 256 color source onto a truecolor destination is fairly fast 
+Expanding a 256-color source onto a truecolor destination is fairly fast 
 (obviously you must set the correct palette before doing this conversion!). 
 Converting between different truecolor formats is slightly slower, and 
-reducing truecolor images to a 256 color destination is very slow (it can be 
+reducing truecolor images to a 256-color destination is very slow (it can be 
 sped up significantly if you set up the global rgb_map table before doing 
 the conversion).
 
@@ -5305,7 +5297,7 @@ the conversion).
 @@extern RGB_MAP *@rgb_map;
 @xref create_rgb_table, makecol8
 @eref ex3d, excolmap, exrgbhsv, exshade, extrans
-   To speed up reducing RGB values to 8 bit paletted colors, Allegro uses a 
+   To speed up reducing RGB values to 8-bit paletted colors, Allegro uses a 
    32k lookup table (5 bits for each color component). You must set up this 
    table before using the gouraud shading routines, and if present the table 
    will also vastly accelerate the makecol8() function. RGB tables can be 
@@ -5749,7 +5741,7 @@ Digital sample routines
 @eref exsample
    Loads a sample from a file, returning a pointer to it, or NULL on error. 
    At present this function supports both mono and stereo WAV and mono VOC 
-   files, in 8 or 16 bit formats, as well as formats handled by functions
+   files, in 8 or 16-bit formats, as well as formats handled by functions
    registered using register_sample_file_type.
 
 @@SAMPLE *@load_wav(const char *filename);
@@ -6307,7 +6299,7 @@ supports the reading and writing of compressed files using a ring buffer
 algorithm based on the LZSS compressor by Haruhiko Okumura. This does not 
 achieve quite such good compression as programs like zip and lha, but 
 unpacking is very fast and it does not require much memory. Packed files 
-always begin with the 32 bit value F_PACK_MAGIC, and autodetect files with 
+always begin with the 32-bit value F_PACK_MAGIC, and autodetect files with 
 the value F_NOPACK_MAGIC.
 
 The following FA_* flags are guaranteed to work: FA_RDONLY, FA_HIDDEN,
@@ -6650,12 +6642,12 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@long @pack_igetl(PACKFILE *f);
 @xref pack_getc
-   Like pack_getc, but reads a 32 bit long from a file, using Intel byte
+   Like pack_getc, but reads a 32-bit long from a file, using Intel byte
    ordering (least significant byte first, a.k.a. little-endian).
 
 @@long @pack_iputl(long c, PACKFILE *f);
 @xref pack_putc
-   Like pack_putc, but writes a 32 bit long to a file, using Intel byte
+   Like pack_putc, but writes a 32-bit long to a file, using Intel byte
    ordering (least significant byte first, a.k.a. little-endian).
 
 @@int @pack_mgetw(PACKFILE *f);
@@ -6670,12 +6662,12 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@long @pack_mgetl(PACKFILE *f);
 @xref pack_getc
-   Like pack_getc, but reads a 32 bit long from a file, using Motorola byte
+   Like pack_getc, but reads a 32-bit long from a file, using Motorola byte
    ordering (most significant byte first, a.k.a. big-endian).
 
 @@long @pack_mputl(long c, PACKFILE *f);
 @xref pack_putc
-   Like pack_putc, but writes a 32 bit long to a file, using Motorola byte
+   Like pack_putc, but writes a 32-bit long to a file, using Motorola byte
    ordering (most significant byte first, a.k.a. big-endian).
 
 @@long @pack_fread(void *p, long n, PACKFILE *f);
@@ -6842,9 +6834,9 @@ directly from a specific datafile object.
    first case and convert the color values into the appropriate format in
    the second case. It handles flipping between RGB and BGR formats, and
    converting between different color depths whenever that can be done
-   without changing the size of the image (ie. changing between 15&lt-&gt16
-   bit hicolor for both bitmaps and RLE sprites, and 24&lt-&gt32 bit
-   truecolor for RLE sprites).
+   without changing the size of the image (ie. changing 15&lt-&gt16-bit
+   hicolor for both bitmaps and RLE sprites, and 24&lt-&gt32-bit truecolor
+   for RLE sprites).
 
 @hnode Using datafiles
 When you load a datafile, you will obtain a pointer to an array of DATAFILE 
@@ -6905,7 +6897,7 @@ an array, and it doesn't have any DAT_END object. Example:
 Fixed point math routines
 
 Allegro provides some routines for working with fixed point numbers, and 
-defines the type 'fixed' to be a signed 32 bit integer. The high word is 
+defines the type 'fixed' to be a signed 32-bit integer. The high word is 
 used for the integer part and the low word for the fraction, giving a range 
 of -32768 to 32767 and an accuracy of about four or five decimal places. 
 Fixed point numbers can be assigned, compared, added, subtracted, negated 
@@ -8277,7 +8269,7 @@ DOS specifics
       set_gfx_mode() documentation for details.
 <li>
    GFX_VGA<br>
-      The standard 256 color VGA mode 13h, using the GFX_VGA driver. This is 
+      The standard 256-color VGA mode 13h, using the GFX_VGA driver. This is 
       normally sized 320x200, which will work on any VGA but doesn't support 
       large virtual screens and hardware scrolling. Allegro also provides 
       some tweaked variants of the mode which are able to scroll, sized 
@@ -8287,7 +8279,7 @@ DOS specifics
 <li>
    GFX_MODEX<br>
       Mode-X will work on any VGA card, and provides a range of different 
-      256 color tweaked resolutions.
+      256-color tweaked resolutions.
 <ul><li>
       Stable mode-X resolutions:
 <ul><li>
@@ -8348,11 +8340,11 @@ DOS specifics
       ought to work with any SVGA card: if they don't, get a copy of the 
       SciTech Display Doctor and see if that fixes it. What color depths are 
       available will depend on your hardware. Most cards support both 15 and 
-      16 bit resolutions, but if at all possible I would advise you to 
+      16-bit resolutions, but if at all possible I would advise you to 
       support both (it's not hard...) in case one is not available. Some 
-      cards provide both 24 and 32 bit truecolor, in which case it is a 
+      cards provide both 24 and 32-bit truecolor, in which case it is a 
       choice between 24 (saves memory) or 32 (faster), but many older cards 
-      have no 32 bit mode and some newer ones don't support 24 bit 
+      have no 32-bit mode and some newer ones don't support 24-bit 
       resolutions. Use the vesainfo test program to see what modes your VESA 
       driver provides.
 
@@ -8404,12 +8396,12 @@ DOS specifics
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
       DIGI_SB              - Sound Blaster (autodetect type)
-      DIGI_SB10            - SB 1.0 (8 bit mono single shot dma)
-      DIGI_SB15            - SB 1.5 (8 bit mono single shot dma)
-      DIGI_SB20            - SB 2.0 (8 bit mono auto-initialised
+      DIGI_SB10            - SB 1.0 (8-bit mono single shot dma)
+      DIGI_SB15            - SB 1.5 (8-bit mono single shot dma)
+      DIGI_SB20            - SB 2.0 (8-bit mono auto-initialised
 			     dma)
-      DIGI_SBPRO           - SB Pro (8 bit stereo)
-      DIGI_SB16            - SB16 (16 bit stereo)
+      DIGI_SBPRO           - SB Pro (8-bit stereo)
+      DIGI_SB16            - SB16 (16-bit stereo)
       DIGI_AUDIODRIVE      - ESS AudioDrive
       DIGI_SOUNDSCAPE      - Ensoniq Soundscape
       DIGI_WINSOUNDSYS     - Windows Sound System
@@ -8768,7 +8760,7 @@ To use these routines, you must include winalleg.h after Allegro headers.
    Blits from a Windows device context to an Allegro memory bitmap, using 
    the same parameters as the stretch_blit() function. It uses the current 
    Allegro palette and does conversion to this palette, regardless of the 
-   current DC palette. So if you are blitting from 8 bit mode, you should 
+   current DC palette. So if you are blitting from 8-bit mode, you should 
    first set the DC palette with the set_palette_to_hdc() function.
 
 
@@ -8962,7 +8954,7 @@ BeOS specifics
 <li>
    GFX_BWINDOW_OVERLAY<br>
       Fullscreen mode using BWindow with a BBitmap overlay. This mode isn't
-      supported by all graphics cards, only supports 15, 16 and 32 bit color
+      supported by all graphics cards, only supports 15, 16 and 32-bit color
       depths, but allows any fullscreen resolution, even low ones that are
       normally unavailable under BeOS.
 </ul>
@@ -9353,7 +9345,7 @@ where the color depth names are any of the defines:
    COLOR_DEPTH_32
 <endblock>
 Removing any of the color depths will save quite a bit of space, with the 
-exception of the 15 and 16 bit modes: these share a great deal of code, so 
+exception of the 15 and 16-bit modes: these share a great deal of code, so 
 if you are including one of them, there is no reason not to use both. Be 
 warned that if you try to use a color depth which isn't in this list, your 
 program will crash horribly!
@@ -9433,7 +9425,7 @@ If you comment out any of these definitions and then rebuild the library,
 you will get a version without any support for the absent color depths, 
 which will be even smaller than using the DECLARE_COLOR_DEPTH_LIST() macro. 
 Removing the ALLEGRO_COLOR16 define will get rid of the support for both 15 
-and 16 bit hicolor modes, since these share a lot of the same code.
+and 16-bit hicolor modes, since these share a lot of the same code.
 </ul>
 Note: the aforementioned methods for removing unused hardware drivers only 
 apply to statically linked versions of the library, eg. DOS. On Windows and 
@@ -10018,7 +10010,7 @@ and avoid missing any important bit of information.
 @xref mouse_x, mouse_y, putpixel, rectfill, screen, set_alpha_blender
 @xref set_color_conversion, set_color_depth, set_gfx_mode
 @xref set_multiply_blender, set_write_alpha_blender, solid_mode
-   This program demonstrates how to use the 32 bit RGBA translucency
+   This program demonstrates how to use the 32-bit RGBA translucency
    functions to store an alpha channel along with a bitmap graphic.
 
 @@Example @exlights
@@ -10037,28 +10029,28 @@ and avoid missing any important bit of information.
    I just thought it was a cool concept that would be worth
    demonstrating.
    
-   The basic approach is to select a 15 or 16 bit screen mode, but
-   then draw onto 24 bit memory bitmaps. Since we only need the bottom
-   5 bits of each 8 bit color in order to store 15 bit data within a
-   24 bit location, we can fit a light level into the top 3 bits.
-   The tricky bit is that these aren't actually 24 bit images at all:
-   they are implemented as 8 bit memory bitmaps, and we just store the
+   The basic approach is to select a 15 or 16-bit screen mode, but
+   then draw onto 24-bit memory bitmaps. Since we only need the bottom
+   5 bits of each 8-bit color in order to store 15-bit data within a
+   24-bit location, we can fit a light level into the top 3 bits.
+   The tricky bit is that these aren't actually 24-bit images at all:
+   they are implemented as 8-bit memory bitmaps, and we just store the
    red level in one pixel, green in the next, and blue in the next,
    making the total image be three times wider than we really wanted.
-   This allows us to use all the normal 256 color graphics routines
+   This allows us to use all the normal 256-color graphics routines
    for drawing onto our memory surfaces, most importantly the lookup
    table translucency, which can be used to combine the low 5 bits
    of color and the top 3 bits of light in a single drawing operation.
-   Some trickery is needed to load 24 bit data into this fake 8 bit
+   Some trickery is needed to load 24-bit data into this fake 8-bit
    format, and of course it needs a custom routine to convert the
    resulting image while copying it across to the hardware screen.
    
    This program chugs slightly on my p133, but not significantly
    worse than any double buffering in what amounts to a 1920x640,
-   256 color resolution. The light blending doesn't seem to slow
+   256-color resolution. The light blending doesn't seem to slow
    it down too badly, so I think this technique would be quite usable
    on faster machines and in lower resolution hicolor modes. The
-   biggest problem is that although you keep the full 15 bit color
+   biggest problem is that although you keep the full 15-bit color
    resolution, you only get 3 bits of light, ie. 8 light levels.
    You can do some nice colored light patches, but smooth gradients
    aren't going to work too well :-)
@@ -10214,15 +10206,15 @@ and avoid missing any important bit of information.
    
    It's all very simple really. Honest.
    
-   To start with, you set a normal 256 color VESA mode, and construct a
+   To start with, you set a normal 256-color VESA mode, and construct a
    special palette for it. But then comes the trick: you need to write
-   to a set of two adjacent pixels to form a single 12 bit dot. Two eight
-   bit pixels is the same as one 16 bit pixel, so after setting the video
+   to a set of two adjacent pixels to form a single 12-bit dot. Two eight
+   bit pixels is the same as one 16-bit pixel, so after setting the video
    mode you need to hack the screen bitmap about, halving the width and
-   changing it to use the 16 bit drawing code. Then, once you have packed
+   changing it to use the 16-bit drawing code. Then, once you have packed
    a color into the correct format (using the makecol12() function below),
-   any of the normal Allegro drawing functions can be used with this 12
-   bit display!
+   any of the normal Allegro drawing functions can be used with this 12-bit
+   display!
    
    Things to note:
    
@@ -10233,10 +10225,10 @@ and avoid missing any important bit of information.
    be darker than in a normal video mode.
    
    Any bitmap data will obviously need converting to the correct 12
-   bit format: regular 15 or 16 bit images won't display correctly...
+   bit format: regular 15 or 16-bit images won't display correctly...
    
    Although this works like a truecolor mode, it is actually using a
-   256 color palette, so palette fades are still possible!
+   256-color palette, so palette fades are still possible!
    
    Note: This code only works in linear screen modes (don't try Mode-X).
 
