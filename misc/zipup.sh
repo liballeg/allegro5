@@ -99,6 +99,7 @@ utod lib/msvc/allegro.def
 utod lib/mingw32/allegro.def
 utod include/allegro/rsxdll.h
 
+export CROSS_COMPILE=1
 
 # generate dependencies for MSVC
 echo "Generating MSVC dependencies..."
@@ -176,6 +177,7 @@ make depend
 
 utod obj/djgpp/*/makefile.dep
 
+unset CROSS_COMPILE
 
 # convert documentation from the ._tx source files
 echo "Converting documentation..."

@@ -408,17 +408,34 @@ endif # STATICLINK
 
 # -------- generate automatic dependencies --------
 
-DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
- 
+GCC2MINGW = -D__MINGW32__ -UDJGPP -U__unix__
+
+ifdef CROSS_COMPILE
+  DEPEND_PARAMS = $(GCC2MINGW) -MM -MG -I. -I./include -DSCAN_DEPEND
+else
+  DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
+endif
+
 depend:
 	gcc $(DEPEND_PARAMS) src/*.c src/win/*.c src/i386/*.c src/c/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c tests/win/*.c > _depend.tmp
 	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/c/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
+ifdef CROSS_COMPILE
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alleg\/\1\.o:/" _depend2.tmp > obj/mingw32/alleg/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alld\/\1\.o:/" _depend2.tmp > obj/mingw32/alld/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/allp\/\1\.o:/" _depend2.tmp > obj/mingw32/allp/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alleg_s\/\1\.o:/" _depend2.tmp > obj/mingw32/alleg_s/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alld_s\/\1\.o:/" _depend2.tmp > obj/mingw32/alld_s/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/allp_s\/\1\.o:/" _depend2.tmp > obj/mingw32/allp_s/makefile.dep
+	rm _depend.tmp _depend2.tmp
+else
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alleg\/\1\.o:/" _depend2.tmp > obj\mingw32\alleg\makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alld\/\1\.o:/" _depend2.tmp > obj\mingw32\alld\makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/allp\/\1\.o:/" _depend2.tmp > obj\mingw32\allp\makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alleg_s\/\1\.o:/" _depend2.tmp > obj\mingw32\alleg_s\makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alld_s\/\1\.o:/" _depend2.tmp > obj\mingw32\alld_s\makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/allp_s\/\1\.o:/" _depend2.tmp > obj\mingw32\allp_s\makefile.dep
-	rm _depend.tmp _depend2.tmp
-	
+	del _depend.tmp
+	del _depend2.tmp
+endif
+

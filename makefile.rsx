@@ -171,12 +171,24 @@ endef
 
 GCC2RSXNT = -D__RSXNT__ -UDJGPP -U__unix__
 
-DEPEND_PARAMS = $(GCC2RSXNT) -MM -MG -I. -I./include -DSCAN_DEPEND
+ifdef CROSS_COMPILE
+  DEPEND_PARAMS = $(GCC2RSXNT) -MM -MG -I. -I./include -DSCAN_DEPEND
+else
+  DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
+endif
 
 depend:
 	gcc $(DEPEND_PARAMS) demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c tests/win/*.c > _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
+ifdef CROSS_COMPILE
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/rsxnt\/alleg\/\1\.o:/" _depend2.tmp > obj/rsxnt/alleg/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/rsxnt\/alld\/\1\.o:/" _depend2.tmp > obj/rsxnt/alld/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/rsxnt\/allp\/\1\.o:/" _depend2.tmp > obj/rsxnt/allp/makefile.dep
 	rm _depend.tmp _depend2.tmp
+else
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/rsxnt\/alleg\/\1\.o:/" _depend2.tmp > obj\rsxnt\alleg\makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/rsxnt\/alld\/\1\.o:/" _depend2.tmp > obj\rsxnt\alld\makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/rsxnt\/allp\/\1\.o:/" _depend2.tmp > obj\rsxnt\allp\makefile.dep
+	del _depend.tmp
+	del _depend2.tmp
+endif

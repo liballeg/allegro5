@@ -194,7 +194,11 @@ endef
 
 GCC2BEOS = -D__BEOS__ -UDJGPP -U__unix__
 
-DEPEND_PARAMS = $(GCC2BEOS) -MM -MG -I. -I./include -DSCAN_DEPEND
+ifdef CROSS_COMPILE
+  DEPEND_PARAMS = $(GCC2BEOS) -MM -MG -I. -I./include -DSCAN_DEPEND
+else
+  DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
+endif
 
 depend:
 	gcc $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c > _depend.tmp
@@ -204,4 +208,3 @@ depend:
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/beos\/alld\/\1/" _depend2.tmp > obj/beos/alld/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/beos\/allp\/\1/" _depend2.tmp > obj/beos/allp/makefile.dep
 	rm _depend.tmp _depend2.tmp
-
