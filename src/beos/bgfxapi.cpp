@@ -351,17 +351,23 @@ static int32 palette_updater_thread(void *data)
 /* be_gfx_fullscreen_fetch_mode_list:
  *  Builds the list of available video modes.
  */
-extern "C" int be_gfx_fullscreen_fetch_mode_list(void)
+extern "C" struct GFX_MODE_LIST *be_gfx_fullscreen_fetch_mode_list(void)
 {
    int j, be_mode, num_modes = 0;
    uint32 i, count;
    display_mode *mode;
+   GFX_MODE_LIST *mode_list;
    bool already_there;
    
-   destroy_gfx_mode_list();
-   
    if (BScreen().GetModeList(&mode, &count) != B_OK)
-      return -1;
+      return NULL;
+   
+   mode_list = (GFX_MODE_LIST *)malloc(sizeof(GFX_MODE_LIST));
+   if (!mode_list) {
+      free(mode);
+      return NULL;
+   }
+   mode_list->mode = NULL;
    
    for (i=0; i<count; i++) {
       be_mode = 0;
@@ -377,35 +383,38 @@ extern "C" int be_gfx_fullscreen_fetch_mode_list(void)
 
       already_there = false;
       for (j=0; j<num_modes; j++) {
-         if ((gfx_mode_list[j].width == _be_mode_table[be_mode].w) &&
-             (gfx_mode_list[j].height == _be_mode_table[be_mode].h) &&
-             (gfx_mode_list[j].bpp == _be_mode_table[be_mode].d)) {
+         if ((mode_list->mode[j].width == _be_mode_table[be_mode].w) &&
+             (mode_list->mode[j].height == _be_mode_table[be_mode].h) &&
+             (mode_list->mode[j].bpp == _be_mode_table[be_mode].d)) {
             already_there = true;
             break;
          }
       }
       if (!already_there) {
-         gfx_mode_list = (GFX_MODE_LIST *)realloc(gfx_mode_list, sizeof(GFX_MODE_LIST) * (num_modes + 1));
-         if (!gfx_mode_list)
-            return -1;
-         gfx_mode_list[num_modes].width = _be_mode_table[be_mode].w;
-         gfx_mode_list[num_modes].height = _be_mode_table[be_mode].h;
-         gfx_mode_list[num_modes].bpp = _be_mode_table[be_mode].d;
+         mode_list->mode = (GFX_MODE *)realloc(mode_list->mode, sizeof(GFX_MODE) * (num_modes + 1));
+         if (!mode_list->mode) {
+            free(mode);
+            return NULL;
+         }
+         mode_list->mode[num_modes].width = _be_mode_table[be_mode].w;
+         mode_list->mode[num_modes].height = _be_mode_table[be_mode].h;
+         mode_list->mode[num_modes].bpp = _be_mode_table[be_mode].d;
          num_modes++;
       }
    }
-   gfx_mode_list = (GFX_MODE_LIST *)realloc(gfx_mode_list, sizeof(GFX_MODE_LIST) * (num_modes + 1));
-   if (!gfx_mode_list)
-      return -1;
-   gfx_mode_list[num_modes].width = 0;
-   gfx_mode_list[num_modes].height = 0;
-   gfx_mode_list[num_modes].bpp = 0;
-
-   _gfx_mode_list_malloced = TRUE;
+   mode_list->mode = (GFX_MODE *)realloc(mode_list->mode, sizeof(GFX_MODE) * (num_modes + 1));
+   if (!mode_list->mode) {
+      free(mode);
+      return NULL;
+   }
+   mode_list->mode[num_modes].width = 0;
+   mode_list->mode[num_modes].height = 0;
+   mode_list->mode[num_modes].bpp = 0;
+   mode_list->num_modes = num_modes;
    
    free(mode);
    
-   return num_modes;
+   return mode_list;
 }
 
 
@@ -526,7 +535,6 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    if (accel) {
       be_gfx_fullscreen_accelerate(color_depth);
    }
-   gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
 
 #ifdef ALLEGRO_NO_ASM
    if (gfx_capabilities) {
@@ -541,6 +549,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
       _screen_vtable.unwrite_bank = _be_gfx_fullscreen_unwrite_bank_asm;
    }
 #endif
+   gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
 
    _screen_vtable.acquire      = be_gfx_fullscreen_acquire;
    _screen_vtable.release      = be_gfx_fullscreen_release;

@@ -68,7 +68,7 @@ int be_gfx_fullscreen_request_scroll(int x, int y);
 int be_gfx_fullscreen_poll_scroll(void);
 int be_gfx_fullscreen_request_video_bitmap(struct BITMAP *bitmap);
 void be_gfx_vsync(void);
-int be_gfx_fullscreen_fetch_mode_list(void);
+struct GFX_MODE_LIST *be_gfx_fullscreen_fetch_mode_list(void);
 void be_gfx_fullscreen_accelerate(int color_depth);
 #ifdef ALLEGRO_NO_ASM
 unsigned long be_gfx_fullscreen_read_write_bank(BITMAP *bmp, int line);
