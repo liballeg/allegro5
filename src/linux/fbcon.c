@@ -35,7 +35,16 @@
 #include <linux/fb.h>
 #include <sys/mman.h>
 
+/* 2.4 kernel doesn't seem to have these, so assume that they don't
+ * "have sticky," heheh. */
 
+#ifndef FB_VBLANK_HAVE_STICKY
+#define FB_VBLANK_HAVE_STICKY 0
+#endif
+
+#ifndef FB_VBLANK_STICKY
+#define FB_VBLANK_STICKY 0
+#endif
 
 static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth);
 static void fb_exit(BITMAP *b);
