@@ -148,7 +148,7 @@
    Once the build is finished you can recover some disk space by running
    "make compress", which uses the UPX program to compress the executable
    files and the optimized dll. Before running "make compress", you must set
-   the environment variable UPX to point to upx.exe. You will have to
+   the environment variable UPX_BIN to point to upx.exe. You will have to
    do run "make compress" before "make install" if you want the compressed
    dll to be copied to the windows directory. To recover even more disk
    space, you can run "make clean" to get rid of all the temporary files and

@@ -71,7 +71,7 @@ AL_VAR(int, wnd_windowed);
 AL_VAR(int, wnd_sysmenu);
 AL_VAR(int, wnd_paint_back);
 
-AL_VAR(void, (*user_close_proc)(void));
+AL_FUNCPTR(void, user_close_proc, (void));
 
 struct WIN_GFX_DRIVER {
    void (*switch_in)(void);
