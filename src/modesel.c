@@ -16,6 +16,9 @@
  *
  *      Rewritten by Henrik Stokseth.
  *
+ *      Magnus Henoch modified it to keep the current selection
+ *      across the changes as much as possible.
+ *
  *      See readme.txt for copyright information.
  */
 
