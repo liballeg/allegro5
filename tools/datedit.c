@@ -88,6 +88,8 @@ void datedit_init(void)
       #include "obj/bcc32/plugins.h"
    #elif defined ALLEGRO_MPW
       #include "::obj:mpw:plugins.h"
+   #elif defined ALLEGRO_MACOSX
+      #include "obj/macosx/plugins.h"
    #elif defined ALLEGRO_QNX
       #include "obj/qnx/plugins.h"
    #else

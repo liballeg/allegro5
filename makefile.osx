@@ -1,0 +1,227 @@
+#
+#  Rules for building the Allegro library with MacOS X. This file is included
+#  by the primary makefile, and should not be used directly.
+#
+#  The "depend" target uses sed.
+#
+#  See makefile.all for a list of the available targets.
+
+
+
+# -------- define some variables that the primary makefile will use --------
+
+PLATFORM = MacOS X
+OBJ_DIR = obj/macosx/$(VERSION)
+LIB_NAME = lib/macosx/lib$(VERSION).a
+EXE = 
+OBJ = .o
+HTML = html
+
+PLATFORM_DIR = obj/macosx
+
+UNIX_TOOLS = 1
+
+
+
+# -------- give a sensible default target for make without any args --------
+
+.PHONY: _default
+
+_default: default
+
+
+
+# -------- decide what compiler options to use --------
+
+ifdef WARNMODE
+   WFLAGS = -Wall -W -Werror -Wno-unused -Wno-long-double
+else
+   WFLAGS = -Wall -Wno-unused -Wno-long-double
+endif
+
+ifdef TARGET_ARCH_COMPAT
+   TARGET_ARCH = -mcpu=$(TARGET_ARCH_COMPAT)
+else
+   ifdef TARGET_ARCH_EXCL
+      TARGET_ARCH = -march=$(TARGET_ARCH_EXCL)
+   endif
+endif
+
+ifndef TARGET_OPTS
+   TARGET_OPTS = -O2 -funroll-loops -ffast-math
+endif
+
+OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
+
+ifdef DEBUGMODE
+
+# -------- debugging build --------
+CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g
+SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
+LFLAGS = -g
+
+else
+ifdef PROFILEMODE
+
+# -------- profiling build --------
+CFLAGS = $(WFLAGS) $(OFLAGS) -pg
+SFLAGS = $(WFLAGS)
+LFLAGS = -pg
+
+else
+
+# -------- optimised build --------
+CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer -pipe
+SFLAGS = $(WFLAGS)
+#ifndef SYMBOLMODE
+#   LFLAGS += -s
+#endif
+
+endif
+endif
+
+
+
+# -------- list platform specific objects and programs --------
+
+VPATH = src/macosx src/unix src/misc src/c
+CFLAGS += -DALLEGRO_USE_C
+
+OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_MACOSX_FILES)))
+
+LIBRARIES = -lpthread -framework Cocoa -framework Carbon
+
+
+
+# -------- rules for installing and removing the library files --------
+
+INSTALL_DIR = /usr
+
+$(INSTALL_DIR)/lib/lib$(VERSION).a: $(LIB_NAME)
+	cp $(LIB_NAME) $(INSTALL_DIR)/lib
+
+$(INSTALL_DIR)/include/%: include/%
+	cp $< $@
+
+$(INSTALL_DIR)/include/allegro/%.h: include/allegro/%.h $(INSTALL_DIR)/include/allegro
+	cp $< $@
+
+$(INSTALL_DIR)/include/allegro:
+	mkdir $(INSTALL_DIR)/include/allegro
+
+$(INSTALL_DIR)/include/allegro/internal/%.h: include/allegro/internal/%.h $(INSTALL_DIR)/include/allegro/internal
+	cp $< $@
+
+$(INSTALL_DIR)/include/allegro/internal:
+	mkdir $(INSTALL_DIR)/include/allegro/internal
+
+$(INSTALL_DIR)/include/allegro/inline/%.inl: include/allegro/inline/%.inl $(INSTALL_DIR)/include/allegro/inline
+	cp $< $@
+
+$(INSTALL_DIR)/include/allegro/inline:
+	mkdir $(INSTALL_DIR)/include/allegro/inline
+
+$(INSTALL_DIR)/include/allegro/platform/%.h: include/allegro/platform/%.h $(INSTALL_DIR)/include/allegro/platform
+	cp $< $@
+
+$(INSTALL_DIR)/include/allegro/platform:
+	mkdir $(INSTALL_DIR)/include/allegro/platform
+
+$(INSTALL_DIR)/bin/allegro-config:
+	cp misc/allegro-config-qnx.sh $(INSTALL_DIR)/bin/allegro-config
+	chmod +x $(INSTALL_DIR)/bin/allegro-config
+
+HEADERS = $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/*.h)))          \
+          $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/internal/*.h))) \
+          $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/inline/*.inl)))
+
+INSTALL_FILES = $(INSTALL_DIR)/lib/lib$(VERSION).a                 \
+		$(INSTALL_DIR)/include/allegro.h                   \
+		$(INSTALL_DIR)/include/allegro                     \
+		$(INSTALL_DIR)/include/allegro/internal            \
+		$(INSTALL_DIR)/include/allegro/inline              \
+		$(INSTALL_DIR)/include/allegro/platform            \
+		$(INSTALL_DIR)/include/osxalleg.h                  \
+		$(INSTALL_DIR)/include/allegro/platform/aintosx.h  \
+		$(INSTALL_DIR)/include/allegro/platform/alosxcfg.h \
+		$(INSTALL_DIR)/include/allegro/platform/alplatf.h  \
+		$(INSTALL_DIR)/include/allegro/platform/alosx.h    \
+		$(HEADERS)                                         \
+		$(INSTALL_DIR)/bin/allegro-config
+
+install: $(INSTALL_FILES)
+	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
+
+UNINSTALL_FILES = $(INSTALL_DIR)/lib/liballeg.a               \
+		  $(INSTALL_DIR)/lib/liballd.a                \
+		  $(INSTALL_DIR)/lib/liballp.a                \
+		  $(INSTALL_DIR)/include/allegro.h            \
+		  $(INSTALL_DIR)/include/osxalleg.h           \
+		  $(INSTALL_DIR)/include/allegro/*.h          \
+		  $(INSTALL_DIR)/include/allegro/internal/*.h \
+		  $(INSTALL_DIR)/include/allegro/inline/*.inl \
+		  $(INSTALL_DIR)/include/allegro/platform/*.h \
+		  $(INSTALL_DIR)/bin/allegro-config
+
+uninstall:
+	-rm -fv $(UNINSTALL_FILES)
+	-rmdir $(INSTALL_DIR)/include/allegro/platform
+	-rmdir $(INSTALL_DIR)/include/allegro/inline
+	-rmdir $(INSTALL_DIR)/include/allegro/internal
+	-rmdir $(INSTALL_DIR)/include/allegro
+	@echo All gone!	
+
+
+
+# -------- finally, we get to the fun part... --------
+
+define MAKE_LIB
+   ar rs $(LIB_NAME) $(OBJECTS)
+endef
+
+COMPILE_FLAGS = $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
+
+$(OBJ_DIR)/%.o: %.c
+	gcc $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
+
+$(OBJ_DIR)/%.o: %.m
+	gcc $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
+
+*/%: $(OBJ_DIR)/%.o $(LIB_NAME)
+	gcc $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
+
+define LINK_WITHOUT_LIB
+   gcc $(LFLAGS) -o $@ $^
+endef
+
+PLUGIN_LIB = lib/macosx/lib$(VERY_SHORT_VERSION)dat.a
+PLUGINS_H = obj/macosx/plugins.h
+PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
+PLUGIN_SCR = scr
+
+define GENERATE_PLUGINS_H
+   cat tools/plugins/*.inc > obj/macosx/plugins.h
+endef
+
+define MAKE_PLUGIN_LIB
+   ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
+endef
+
+define LINK_WITH_PLUGINS
+   gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME) $(LIBRARIES))
+endef
+
+
+
+# -------- generate automatic dependencies --------
+
+DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MACOSX
+
+depend:
+	gcc $(DEPEND_PARAMS) src/*.c src/macosx/*.m src/unix/*.c src/misc/*.c demo/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
+	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
+	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/macosx\/alleg\/\1/" _depend2.tmp > obj/macosx/alleg/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/macosx\/alld\/\1/" _depend2.tmp > obj/macosx/alld/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/macosx\/allp\/\1/" _depend2.tmp > obj/macosx/allp/makefile.dep
+	rm _depend.tmp _depend2.tmp

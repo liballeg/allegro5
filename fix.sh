@@ -9,7 +9,7 @@ proc_help()
    echo "Usage: ./fix.sh <platform> [--quick|--dtou|--utod|--utom|--mtou]"
    echo
    echo "Where platform is one of: bcc32, beos, djgpp, mingw32, msvc, qnx, unix"
-   echo "mac and watcom."
+   echo "mac, macosx and watcom."
    echo "The --quick parameter turns of text file conversion, --dtou converts from"
    echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format,"
    echo "--utom converts from Unix to Macintosh format and --mtou converts from"
@@ -39,10 +39,11 @@ proc_filelist()
    AL_FILELIST=`find . -type f "(" \
       -name "*.c" -o -name "*.cfg" -o -name "*.cpp" -o -name "*.def" -o \
       -name "*.h" -o -name "*.hin" -o -name "*.in" -o -name "*.inc" -o \
-      -name "*.m4" -o -name "*.mft" -o -name "*.s" -o -name "*.rc" -o \
-      -name "*.spec" -o -name "*.pl" -o -name "*.txt" -o -name "*._tx" -o \
-      -name "makefile*" -o -name "*.inl" -o -name "configure" -o \
-      -name "CHANGES" -o -name "AUTHORS" -o -name "THANKS" \
+      -name "*.m" -o -name "*.m4" -o -name "*.mft" -o -name "*.s" -o \
+      -name "*.rc" -o -name "*.spec" -o -name "*.pl" -o -name "*.txt" -o \
+      -name "*._tx" -o -name "makefile*" -o -name "*.inl" -o \
+      -name "configure" -o -name "CHANGES" -o -name "AUTHORS" -o \
+      -name "THANKS" \
    ")"`
 
    # touch unix shell scripts?
@@ -130,6 +131,7 @@ case "$1" in
    "qnx"     ) proc_fix "QNX"               "makefile.qnx" "ALLEGRO_QNX";;
    "unix"    ) proc_fix "Unix"              "none"         "ALLEGRO_UNIX";;
    "mac"     ) proc_fix "Mac"               "none"         "ALLEGRO_MPW";;
+   "macosx"  ) proc_fix "MacOS X"           "makefile.osx" "ALLEGRO_MACOSX";;
    "watcom"  ) proc_fix "DOS (Watcom)"      "makefile.wat" "ALLEGRO_WATCOM";;
    "help"    ) proc_help;;
    *         ) proc_help;;

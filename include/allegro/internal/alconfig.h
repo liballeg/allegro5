@@ -50,6 +50,8 @@
       #include "allegro/platform/albecfg.h"
    #elif defined ALLEGRO_MPW
       #include "allegro/platform/almaccfg.h"
+   #elif defined ALLEGRO_MACOSX
+      #include "allegro/platform/alosxcfg.h"
    #elif defined ALLEGRO_QNX
       #include "allegro/platform/alqnxcfg.h"
    #elif defined ALLEGRO_UNIX

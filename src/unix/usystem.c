@@ -51,6 +51,9 @@ _DRIVER_INFO _system_driver_list[] =
 #ifdef ALLEGRO_QNX
    {  SYSTEM_QNX,       &system_qnx,      TRUE  },
 #endif
+#ifdef ALLEGRO_MACOSX
+   {  SYSTEM_MACOSX,    &system_macosx,   TRUE  },
+#endif
    {  SYSTEM_NONE,      &system_none,     FALSE },
    {  0,                NULL,             0     }
 };
