@@ -228,7 +228,7 @@ static PARAMETER parameters[] =
  #ifdef DIGI_ALSA
    { "alsa_card",          param_int,     "",      "",         NULL,             "Card:",    NULL,       NULL,    "ALSA card number" },
    { "alsa_pcmdevice",     param_int,     "",      "",         NULL,             "Dev:",     NULL,       NULL,    "ALSA PCM device number" },
-   { "alsa_numfrags",      param_int,     "",      "2",        NULL,             "NumFr:",   NULL,       NULL,    "Number of fragments (use 2, other values make little difference)" },
+   { "alsa_numfrags",      param_int,     "",      "",         NULL,             "NumFr:",   NULL,       NULL,    "Number of fragments (use 2, other values make little difference)" },
  #endif
 
  #ifdef MIDI_ALSA
