@@ -223,7 +223,7 @@ void _add_exit_func(void (*func)(void))
 {
    struct al_exit_func *n;
 
-   for (n = first_exit_func; n; n = n->next)
+   for (n = exit_func_list; n; n = n->next)
       if (n->funcptr == func)
 	 return;
 
@@ -372,8 +372,8 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
  */
 void allegro_exit()
 {
-   while (first_exit_func)
-      (*(first_exit_func->funcptr))();
+   while (exit_func_list)
+      (*(exit_func_list->funcptr))();
 
    if (system_driver) {
       system_driver->exit();
