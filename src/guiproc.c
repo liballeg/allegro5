@@ -1169,10 +1169,11 @@ int d_list_proc(int msg, DIALOG *d, int c)
 	 (*(getfuncptr)d->dp)(-1, &listsize);
 	 height = (d->h-4) / text_height(font);
 	 if (height < listsize) {
+	    int delta = (height > 3) ? 3 : 1;
 	    if (c > 0) 
-	       i = MAX(0, d->d2-3);
+	       i = MAX(0, d->d2-delta);
 	    else
-	       i = MIN(listsize-height, d->d2+3);
+	       i = MIN(listsize-height, d->d2+delta);
 	    if (i != d->d2) {
 	       d->d2 = i;
 	       scare_mouse();
@@ -1540,8 +1541,8 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 int d_textbox_proc(int msg, DIALOG *d, int c)
 {
    int height, bar, ret = D_O_K;
-   int start, top, bottom,l;
-   int used;
+   int start, top, bottom, l;
+   int used, delta;
    int fg_color = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
 
    /* calculate the actual height */
@@ -1648,6 +1649,21 @@ int d_textbox_proc(int msg, DIALOG *d, int c)
 	    d->flags |= D_DIRTY;
 
 	 ret = used;
+	 break;
+      
+      case MSG_WHEEL:
+	 l = (d->h-8)/text_height(font);
+	 delta = (l > 3) ? 3 : 1;
+
+         /* scroll, making sure that the list stays in bounds */
+         start = d->d2;
+	 d->d2 = (c > 0) ? MAX(0, d->d2-delta) : MIN(d->d1-l, d->d2+delta);
+
+	 /* if we changed something, better redraw... */
+	 if (d->d2 != start)
+	    d->flags |= D_DIRTY;
+
+	 ret = D_O_K;
 	 break;
 
       case MSG_WANTFOCUS:
@@ -1853,6 +1869,22 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 	       SEND_MESSAGE(d, MSG_DRAW, 0);
 	       unscare_mouse();
 	    }
+	 }
+	 break;
+      
+      case MSG_WHEEL: 
+	 oldval = d->d2;
+	 d->d2 = MID(0, d->d2+c, d->d1);
+	 if (d->d2 != oldval) {
+	    /* call callback function here */
+	    if (d->dp2) {
+	       proc = d->dp2;
+	       retval |= (*proc)(d->dp3, d->d2);
+	    }
+
+	    scare_mouse();
+	    SEND_MESSAGE(d, MSG_DRAW, 0);
+	    unscare_mouse();
 	 }
 	 break;
 
