@@ -206,7 +206,6 @@ int main(int argc, char *argv[])
    CPSProcessSerNum psn;
    NSMenu *menu;
    NSMenuItem *menu_item, *temp_item;
-   char item_text[256];
    
    __crt0_argc = argc;
    __crt0_argv = argv;
