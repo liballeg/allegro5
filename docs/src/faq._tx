@@ -113,7 +113,7 @@ DJGPP problems
       appended to the end of the file).
 
 <li><font size="+1">
-@@   When I try to compile a program using Allegro, I get lots of errors like:<br>
+@@   When I try to compile a program using Allegro, I get lots of errors like:
    C:\TEMP\ccdaaaaa(.text+0x9):x.c: undefined reference to `allegro_init'<br>
    C:\TEMP\ccdaaaaa(.text+0xe):x.c: undefined reference to `install_keyboard'<br>
 </font>
