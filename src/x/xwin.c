@@ -2152,10 +2152,8 @@ static void _xwin_private_process_event(XEvent *event)
       case ClientMessage:
          /* Window close request */
          if (event->xclient.data.l[0] == wm_delete_window) {
-            if (_xwin.window_close_hook)
-               _xwin.window_close_hook();
-            else
-               exit(-1);
+            if (_xwin.close_button_callback)
+               _xwin.close_button_callback();
          }
          break;
    }

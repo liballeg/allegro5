@@ -40,8 +40,7 @@ static int qnx_sys_init(void);
 static void qnx_sys_exit(void);
 static void qnx_sys_message(AL_CONST char *);
 static void qnx_sys_set_window_title(AL_CONST char *);
-static int qnx_sys_set_window_close_button(int);
-static void qnx_sys_set_window_close_hook(AL_METHOD(void, proc, (void)));
+static int qnx_sys_set_close_button_callback(void (*proc)(void));
 static int qnx_sys_set_display_switch_mode(int mode);
 static void qnx_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode);
 static void qnx_sys_yield_timeslice(void);
@@ -60,8 +59,7 @@ SYSTEM_DRIVER system_qnx =
    _unix_get_executable_name,
    _unix_find_resource,
    qnx_sys_set_window_title,
-   qnx_sys_set_window_close_button,
-   qnx_sys_set_window_close_hook,
+   qnx_sys_set_close_button_callback,
    qnx_sys_message,
    NULL,  /* AL_METHOD(void, assert, (AL_CONST char *msg)); */
    NULL,  /* AL_METHOD(void, save_console_state, (void)); */
@@ -278,47 +276,8 @@ static void qnx_event_handler(int threaded)
             switch (window_event->event_f) {
             
                case Ph_WM_CLOSE:
-                  if (window_close_hook) {
+                  if (window_close_hook)
                      window_close_hook();
-                  }
-                  else {
-                     qnx_keyboard_focused(FALSE, 0);
-                     pthread_mutex_lock(&qnx_gfx_mutex);
-                     DISABLE();
-
-                     /* display the default close box */
-                     close_buttons[0] = malloc(16);
-                     close_buttons[1] = malloc(16);
-                     
-                     do_uconvert(get_config_text("Yes"), U_CURRENT, close_buttons[0], U_UTF8, 16);
-                     do_uconvert(get_config_text("No"), U_CURRENT, close_buttons[1], U_UTF8, 16);
-                     
-                     res = PtAlert(ph_window, NULL, window_title, NULL,
-                                   get_config_text(ALLEGRO_WINDOW_CLOSE_MESSAGE),
-                                   NULL, 2, (const char **)close_buttons, NULL, 2, 2, Pt_MODAL);
-                                   
-                     free(close_buttons[0]);
-                     free(close_buttons[1]);
-
-                     /* PtAlert messed up our region; let's reconfigure it */
-                     PgSetRegion(PtWidgetRid(ph_window));
-                     PgSetClipping(0, NULL);
-                     region.cursor_type = Ph_CURSOR_NONE;
-                     region.rid = PtWidgetRid(ph_window);
-                     PhRegionChange(Ph_REGION_CURSOR, 0, &region, NULL, NULL);
-
-                     ENABLE();
-                     pthread_mutex_unlock(&qnx_gfx_mutex);
-                     qnx_keyboard_focused(TRUE, 0);
-                     
-                     if (ph_gfx_mode == PH_GFX_WINDOW) {
-                         ph_update_window(NULL);
-                         PgFlush();
-                     }
-                     
-                     if (res == 1)
-                        PtExit(EXIT_SUCCESS);
-                  }
                   break;
                   
                case Ph_WM_FOCUS:
@@ -495,24 +454,16 @@ static void qnx_sys_set_window_title(AL_CONST char *name)
 
 
 
-/* qnx_sys_set_window_close_button:
- *  Enables or disables Photon window close button.
+/* qnx_sys_set_close_button_callback:
+ *  Sets the close button callback function.
  */
-static int qnx_sys_set_window_close_button(int enable)
-{
-   PtSetResource(ph_window, Pt_ARG_WINDOW_RENDER_FLAGS, 
-      (enable ? Pt_TRUE : Pt_FALSE), Ph_WM_RENDER_CLOSE);
-   return 0;
-}
-
-
-
-/* qnx_sys_set_window_close_hook:
- *  Sets procedure to be called on window close requests.
- */
-static void qnx_sys_set_window_close_hook(void (*proc)(void))
+static int qnx_sys_set_close_button_callback(void (*proc)(void));
 {
    window_close_hook = proc;
+
+   PtSetResource(ph_window, Pt_ARG_WINDOW_RENDER_FLAGS, 
+                 (proc ? Pt_TRUE : Pt_FALSE), Ph_WM_RENDER_CLOSE);
+   return 0;
 }
 
 

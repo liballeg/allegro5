@@ -35,32 +35,6 @@ AL_INLINE(void, set_window_title, (char *name),
 })
 
 
-#define ALLEGRO_WINDOW_CLOSE_MESSAGE                                         \
-   "Warning: forcing program shutdown may lead to data loss and unexpected " \
-   "results. It is preferable to use the exit command inside the window. "   \
-   "Proceed anyway?"
-
-
-AL_INLINE(int, set_window_close_button, (int enable),
-{
-   ASSERT(system_driver);
-
-   if (system_driver->set_window_close_button)
-      return system_driver->set_window_close_button(enable);
-
-   return -1;
-})
-
-
-AL_INLINE(void, set_window_close_hook, (AL_METHOD(void, proc, (void))),
-{
-   ASSERT(system_driver);
-
-   if (system_driver->set_window_close_hook)
-      system_driver->set_window_close_hook(proc);
-})
-
-
 AL_INLINE(int, desktop_color_depth, (void),
 {
    ASSERT(system_driver);

@@ -3224,7 +3224,7 @@ int datedit_ask(AL_CONST char *fmt, ...)
 
 
 /* close button callback */
-static void close_hook(void)
+static void close_callback(void)
 {  
    simulate_keypress(27 + (KEY_ESC << 8));   
 }
@@ -3325,7 +3325,7 @@ int main(int argc, char *argv[])
 
    update_title();
 
-   set_window_close_hook(close_hook);
+   set_close_button_callback(close_callback);
 
    if (no_sound) {
       install_sound(DIGI_NONE, MIDI_NONE, NULL);

@@ -332,19 +332,8 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_CLOSE:
          if (!user_wnd_proc) {
-            if (user_close_proc) {
+            if (user_close_proc)
                (*user_close_proc)();
-            }
-            else {
-               /* default window close message */
-               if (MessageBox(wnd, ALLEGRO_WINDOW_CLOSE_MESSAGE, wnd_title,
-                              MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) == IDYES) {
-                  TerminateThread(allegro_thread, 0);
-                  sys_reset_switch_mode();
-                  remove_timer();
-                  DestroyWindow(wnd);
-               }
-            }
             return 0;
          }
          break;

@@ -218,27 +218,9 @@ void _be_change_focus(bool active)
 
 bool _be_handle_window_close(const char *title)
 {
-   int result;
-   char tmp1[512], tmp2[32], tmp3[32];
-   
-   if (_be_window_close_hook != NULL) {
+   if (_be_window_close_hook)
       _be_window_close_hook();
-   }
-   else {
-      BAlert *close_alert = new BAlert(title,
-         uconvert_toascii(get_config_text(ALLEGRO_WINDOW_CLOSE_MESSAGE), tmp1),
-         uconvert_toascii(get_config_text("Yes"), tmp2),
-         uconvert_toascii(get_config_text("No"), tmp3), 
-         NULL, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
-      close_alert->SetShortcut(1, B_ESCAPE);
-      if (_be_midisynth)
-         _be_midisynth->AllNotesOff(false);
-      SUSPEND_ALL_THREADS();
-      result = close_alert->Go();
-      RESUME_ALL_THREADS();
-      if (result == 0)
-         _be_terminate(0, false);
-   }
+
    return false;
 }
 

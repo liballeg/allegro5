@@ -344,6 +344,9 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
    if (!system_driver)
       return -1;
 
+   /* disable close button */
+   set_close_button_callback(NULL);
+
    /* detect CPU type */
    check_cpu();
 
@@ -422,6 +425,23 @@ void get_executable_name(char *output, int size)
       output += usetc(output, '/');
       usetc(output, 0);
    }
+}
+
+
+
+/* set_close_button_callback:
+ *  Installs a callback function to be called when the close button
+ *  of the window or any equivalent device is activated. Returns 0 on
+ *  success and -1 on failure (e.g. feature not supported).
+ */
+int set_close_button_callback(void (*proc)(void))
+{
+   ASSERT(system_driver);
+
+   if (system_driver->set_close_button_callback)
+      return system_driver->set_close_button_callback(proc);
+
+   return -1;
 }
 
 
@@ -619,7 +639,7 @@ SYSTEM_DRIVER system_none =
    "Agnostic",
    sys_none_init,
    sys_none_exit,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
    sys_no_driver, sys_no_driver, sys_no_driver, sys_no_driver,
    sys_no_driver, sys_no_driver, sys_no_driver

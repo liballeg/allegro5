@@ -35,8 +35,7 @@ SYSTEM_DRIVER system_beos = {
    be_sys_get_executable_name,
    be_sys_find_resource,
    be_sys_set_window_title,
-   be_sys_set_window_close_button,
-   be_sys_set_window_close_hook,
+   be_sys_set_close_button_callback,
    be_sys_message,
    NULL,  // AL_METHOD(void, assert, (char *msg));
    NULL,  // AL_METHOD(void, save_console_state, (void));

@@ -75,8 +75,7 @@ SYSTEM_DRIVER system_macos ={
    mac_get_executable_name,
    NULL, /* find_resource */
    mac_set_window_title,
-   NULL, /* set_window_close_button */
-   NULL, /* set_window_close_hook */
+   NULL, /* set_close_button_callback */
    mac_message,
    mac_assert,
    NULL, /* save_console_state */

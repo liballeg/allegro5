@@ -119,8 +119,7 @@ SYSTEM_DRIVER system_dos =
    sys_dos_get_executable_name,
    NULL, /* find_resource */
    NULL, /* set_window_title */
-   NULL, /* set_window_close_button */
-   NULL, /* set_window_close_hook */
+   NULL, /* set_close_button_callback */
    NULL, /* message */
    sys_dos_assert,
    sys_dos_save_console_state,

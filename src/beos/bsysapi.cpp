@@ -338,22 +338,19 @@ extern "C" void be_sys_set_window_title(AL_CONST char *name)
 
 
 
-extern "C" int be_sys_set_window_close_button(int enable)
+extern "C" int be_sys_set_close_button_callback(void (*proc)(void))
 {
    if (!_be_window)
       return -1;
-   if (enable)
+
+   _be_window_close_hook = proc;
+
+   if (proc)
       _be_window->SetFlags(_be_window->Flags() & ~B_NOT_CLOSABLE);
    else
       _be_window->SetFlags(_be_window->Flags() | B_NOT_CLOSABLE);
+
    return 0;
-}
-
-
-
-extern "C" void be_sys_set_window_close_hook(void (*proc)(void))
-{
-   _be_window_close_hook = proc;
 }
 
 

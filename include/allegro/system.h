@@ -68,8 +68,9 @@ AL_FUNC(int, install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, ate
 #define allegro_init()  install_allegro(SYSTEM_AUTODETECT, &errno, (int (*)(void (*)(void)))atexit)
 AL_FUNC(void, allegro_exit, (void));
 
-AL_FUNC(void, get_executable_name, (char *output, int size));
 AL_PRINTFUNC(void, allegro_message, (AL_CONST char *msg, ...), 1, 2);
+AL_FUNC(void, get_executable_name, (char *output, int size));
+AL_FUNC(int, set_close_button_callback, (AL_METHOD(void, proc, (void))));
 
 
 AL_FUNC(void, check_cpu, (void));
@@ -102,8 +103,7 @@ typedef struct SYSTEM_DRIVER
    AL_METHOD(void, get_executable_name, (char *output, int size));
    AL_METHOD(int, find_resource, (char *dest, AL_CONST char *resource, int size));
    AL_METHOD(void, set_window_title, (AL_CONST char *name));
-   AL_METHOD(int, set_window_close_button, (int enable));
-   AL_METHOD(void, set_window_close_hook, (AL_METHOD(void, proc, (void))));
+   AL_METHOD(int, set_close_button_callback, (AL_METHOD(void, proc, (void))));
    AL_METHOD(void, message, (AL_CONST char *msg));
    AL_METHOD(void, assert, (AL_CONST char *msg));
    AL_METHOD(void, save_console_state, (void));

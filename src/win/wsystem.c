@@ -35,8 +35,7 @@ static int sys_directx_init(void);
 static void sys_directx_exit(void);
 static void sys_directx_get_executable_name(char *output, int size);
 static void sys_directx_set_window_title(AL_CONST char *name);
-static int sys_directx_set_window_close_button(int enable);
-static void sys_directx_set_window_close_hook(void (*proc)(void));
+static int sys_directx_set_close_button_callback(void (*proc)(void));
 static void sys_directx_message(AL_CONST char *msg);
 static void sys_directx_assert(AL_CONST char *msg);
 static void sys_directx_save_console_state(void);
@@ -60,8 +59,7 @@ SYSTEM_DRIVER system_directx =
    sys_directx_get_executable_name,
    NULL,                        /* AL_METHOD(int, find_resource, (char *dest, char *resource, int size)); */
    sys_directx_set_window_title,
-   sys_directx_set_window_close_button,
-   sys_directx_set_window_close_hook,
+   sys_directx_set_close_button_callback,
    sys_directx_message,
    sys_directx_assert,
    sys_directx_save_console_state,
@@ -243,24 +241,24 @@ static void sys_directx_set_window_title(AL_CONST char *name)
 
 
 
-/* sys_directx_set_window_close_button:
- *  Enables or disables the window close button.
+/* sys_directx_set_close_button_callback:
+ *  Sets the close button callback function.
  */
-static int sys_directx_set_window_close_button(int enable)
+static int sys_directx_set_close_button_callback(void (*proc)(void))
 {
    DWORD class_style;
    HMENU sys_menu;
 
-   /* we get the old class style */
+   user_close_proc = proc;
+
+   /* get the old class style */
    class_style = GetClassLong(allegro_wnd, GCL_STYLE);
 
    /* and the system menu handle */
    sys_menu = GetSystemMenu(allegro_wnd, FALSE);
 
-   /* disable or enable the no_close_button flag
-    * and the close menu option
-    */
-   if (enable) {
+   /* enable or disable the no_close_button flag and the close menu option */
+   if (proc) {
       class_style &= ~CS_NOCLOSE;
       EnableMenuItem(sys_menu, SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
    }
@@ -272,22 +270,12 @@ static int sys_directx_set_window_close_button(int enable)
    /* change the class to the new style */
    SetClassLong(allegro_wnd, GCL_STYLE, class_style);
 
-   /* redraw the whole window to display the changes in the button
-    * note we use this because UpdateWindow() only works for the client area
+   /* Redraw the whole window to display the changes of the button.
+    * (we use this because UpdateWindow() only works for the client area)
     */
    RedrawWindow(allegro_wnd, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
 
    return 0;
-}
-
-
-
-/* sys_directx_set_window_close_hook:
- *  Sets the close button user hook or restores default one.
- */
-static void sys_directx_set_window_close_hook(void (*proc)(void))
-{
-   user_close_proc = proc;
 }
 
 
