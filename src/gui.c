@@ -354,7 +354,7 @@ int object_message(DIALOG *dialog, int msg, int c)
  */
 int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
 {
-   int count, res, r, force;
+   int count, res, r, force, try;
    ASSERT(dialog);
 
    if (msg == MSG_DRAW)
@@ -364,21 +364,40 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
 
    res = D_O_K;
 
-   for (count=0; dialog[count].proc; count++) { 
-      if ((force) || (!(dialog[count].flags & D_HIDDEN))) {
-	 r = object_message(dialog+count, msg, c);
+   /* If a menu spawned by a d_menu_proc object is active, the dialog engine
+    * has effectively been shutdown for the sake of safety. This means that
+    * we can't send the message to the other objects in the dialog. So try
+    * first to send the message to the d_menu_proc object and, if the menu
+    * is then not active anymore, send it to the other objects as well.
+    */
+   if (active_menu_player)
+      try = 2;
+   else
+      try = 1;
 
-	 if (r != D_O_K) {
-	    res |= r;
-	    if (obj)
-	       *obj = count;
-	 }
+   for (; try > 0; try--) {
+      for (count=0; dialog[count].proc; count++) {
+         if ((try == 2) && (&dialog[count] != active_menu_player->dialog))
+	    continue;
 
-	 if ((msg == MSG_IDLE) && (dialog[count].flags & (D_DIRTY | D_HIDDEN)) == D_DIRTY) {
-	    dialog[count].flags &= ~D_DIRTY;
-	    object_message(dialog+count, MSG_DRAW, 0);
+	 if ((force) || (!(dialog[count].flags & D_HIDDEN))) {
+	    r = object_message(&dialog[count], msg, c);
+
+	    if (r != D_O_K) {
+	       res |= r;
+	       if (obj)
+		  *obj = count;
+	    }
+
+	    if ((msg == MSG_IDLE) && (dialog[count].flags & (D_DIRTY | D_HIDDEN)) == D_DIRTY) {
+	       dialog[count].flags &= ~D_DIRTY;
+	       object_message(dialog+count, MSG_DRAW, 0);
+	    }
 	 }
       }
+
+      if (active_menu_player)
+	 break;
    }
 
    if (msg == MSG_DRAW)
@@ -1579,10 +1598,10 @@ int do_menu(MENU *menu, int x, int y)
 
 
 
-/* _init_menu:
+/* init_single_menu:
  *  Worker function for initialising a menu.
  */
-static MENU_PLAYER *_init_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *dialog, int bar, int x, int y, int repos, int minw, int minh)
+static MENU_PLAYER *init_single_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *dialog, int bar, int x, int y, int repos, int minw, int minh)
 {
    MENU_PLAYER *player;
    ASSERT(menu);
@@ -1639,7 +1658,7 @@ static MENU_PLAYER *_init_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *dialog, 
  */ 
 MENU_PLAYER *init_menu(MENU *menu, int x, int y)
 {
-   return _init_menu(menu, NULL, NULL, FALSE, x, y, TRUE, 0, 0);
+   return init_single_menu(menu, NULL, NULL, FALSE, x, y, TRUE, 0, 0);
 }
 
 
@@ -1656,6 +1675,8 @@ MENU_PLAYER *init_menu(MENU *menu, int x, int y)
  */
 int update_menu(MENU_PLAYER *player)
 {
+   static int shutdown_single_menu(MENU_PLAYER *, int *);
+
    MENU_PLAYER *i;
    int c, c2;
    int old_sel, child_ret;
@@ -1866,13 +1887,13 @@ int update_menu(MENU_PLAYER *player)
 	 }
 
 	 /* recursively call child menu */
-	 player->child = _init_menu(player->menu[player->ret].child, player, NULL, FALSE, child_x, child_y, TRUE, 0, 0);
+	 player->child = init_single_menu(player->menu[player->ret].child, player, NULL, FALSE, child_x, child_y, TRUE, 0, 0);
 	 return TRUE;  /* continue */
       }
       
       while (player->parent) {  /* parent menu? */
 	 player = player->parent;
-	 shutdown_menu(player->child);
+	 shutdown_single_menu(player->child, NULL);
 	 player->child = NULL;
       }
       
@@ -1883,7 +1904,7 @@ int update_menu(MENU_PLAYER *player)
       if (player->parent) {
 	 child_ret = player->ret;  /* needed below */
 	 player = player->parent;
-	 shutdown_menu(player->child);
+	 shutdown_single_menu(player->child, NULL);
 	 player->child = NULL;
 	 player->ret = -1;
 	 player->mouse_button_was_pressed = FALSE;
@@ -1908,13 +1929,13 @@ int update_menu(MENU_PLAYER *player)
    
    return TRUE;
 }
-   
 
 
-/* _shutdown_menu:
+
+/* shutdown_single_menu:
  *  Worker function for shutting down a menu.
  */
-static int _shutdown_menu(MENU_PLAYER *player, int *dret)
+static int shutdown_single_menu(MENU_PLAYER *player, int *dret)
 {
    int ret;
    ASSERT(player);
@@ -1956,13 +1977,32 @@ static int _shutdown_menu(MENU_PLAYER *player, int *dret)
 
 
 
-/* shutdown_menu:
- *  Destroys a menu player object returned by init_menu(), returning the
+/* shutdown_tree_menu:
+ *  Destroys a menu player object returned by init_single_menu(), after
+ *  recursively closing all the sub-menus if necessary, and returns the
  *  index of the item that was selected, or -1 if it was dismissed.
+ */
+static int shutdown_tree_menu(MENU_PLAYER *player, int *dret)
+{
+   ASSERT(player);
+
+   if (player->child) {
+      shutdown_tree_menu(player->child, dret);
+      player->child = NULL;
+   }
+
+   return shutdown_single_menu(player, dret);
+}
+
+
+
+/* shutdown_menu:
+ *  Destroys a menu player object returned by init_menu() and returns
+ *  the index of the item that was selected, or -1 if it was dismissed.
  */
 int shutdown_menu(MENU_PLAYER *player)
 {
-   return _shutdown_menu(player, NULL);
+   return shutdown_tree_menu(player, NULL);
 }
 
 
@@ -2015,15 +2055,16 @@ int d_menu_proc(int msg, DIALOG *d, int c)
 	    }
 
 	 /* initialize the menu */
-	 active_menu_player = _init_menu(d->dp, NULL, d, TRUE, d->x, d->y, FALSE, d->w, d->h);
+	 active_menu_player = init_single_menu(d->dp, NULL, d, TRUE, d->x, d->y, FALSE, d->w, d->h);
 	 break;
-	 
+
       case MSG_LOSTMOUSE:
+      case MSG_END:
 	 if (active_menu_player) {
-	    /* _shutdown_menu may call nested dialogs */
+	    /* shutdown_tree_menu may call nested dialogs */
 	    mp = active_menu_player;
 	    active_menu_player = NULL;
-	    _shutdown_menu(mp, &x);
+	    shutdown_tree_menu(mp, &x);
 
 	    do {
 	    } while (gui_mouse_b());
