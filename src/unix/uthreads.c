@@ -16,11 +16,11 @@
  */
 
 
+#include "allegro/aintunix.h"
+
 #ifdef HAVE_LIBPTHREAD
 
 #include <pthread.h>
-
-#include "allegro/aintunix.h"
 
 
 #define MAX_FUNCS 16
