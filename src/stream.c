@@ -48,7 +48,7 @@ AUDIOSTREAM *play_audio_stream(int len, int bits, int stereo, int freq, int vol,
    stream->len = len;
    stream->bufcount = bufcount;
    stream->bufnum = 0;
-   stream->active = -1; /* means we haven't passed any data yet */
+   stream->active = 1;
    stream->locked = NULL;
 
    /* create the underlying sample */
@@ -84,7 +84,6 @@ AUDIOSTREAM *play_audio_stream(int len, int bits, int stereo, int freq, int vol,
    voice_set_playmode(stream->voice, PLAYMODE_LOOP);
    voice_set_volume(stream->voice, vol);
    voice_set_pan(stream->voice, pan);
-   voice_start(stream->voice);
 
    return stream;
 }
@@ -123,13 +122,8 @@ void *get_audio_stream_buffer(AUDIOSTREAM *stream)
    int pos;
    char *data = NULL;
 
-   /* if active is -1, it means we haven't passed the first data yet */
-   if (stream->active == -1) {
-      /* set voice pos to 0 */
-      voice_set_position(stream->voice, 0);
-      stream->active = 1;
-   }
-   else if (stream->bufnum == stream->active * stream->bufcount) {
+
+   if (stream->bufnum == stream->active * stream->bufcount) {
       /* waiting for the sample to switch halves */
       pos = voice_get_position(stream->voice);
 
@@ -187,4 +181,8 @@ void free_audio_stream_buffer(AUDIOSTREAM *stream)
 
       stream->locked = NULL;
    }
+
+   /* start playing if it wasn't already */
+   if (voice_get_position(stream->voice) == -1)
+      voice_start(stream->voice);
 }
