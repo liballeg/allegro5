@@ -471,6 +471,22 @@ fi
 AC_MSG_RESULT($allegro_cv_support_fomit_frame_pointer)])
 
 dnl
+dnl Test whether the assembler can read from a pipe.
+dnl
+dnl Variables:
+dnl  allegro_cv_can_use_pipe
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_GCC_PIPE,
+[AC_MSG_CHECKING(whether the assembler can read from a pipe)
+allegro_save_CFLAGS=$CFLAGS
+CFLAGS="-pipe $CFLAGS"
+AC_CACHE_VAL(allegro_cv_can_use_pipe, [
+AC_TRY_COMPILE(,int main(){return 0;},allegro_cv_can_use_pipe=yes, allegro_cv_can_use_pipe=no)
+])
+CFLAGS=$allegro_save_CFLAGS
+AC_MSG_RESULT($allegro_cv_can_use_pipe)])
+
+dnl
 dnl Test for custom Darwin library archiver.
 dnl
 dnl Variables:
