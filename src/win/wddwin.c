@@ -116,7 +116,8 @@ void handle_window_size_win(void)
 
       clipped_updating_mode = FALSE;
       _TRACE("clipped updating mode off\n");
-      update_window(NULL);
+      if (update_window)
+         update_window(NULL);
    }
 }
 
@@ -652,6 +653,8 @@ static void gfx_directx_win_exit(struct BITMAP *b)
       free (rgb_scale_5335);
       rgb_scale_5335 = NULL;
    }
+
+   update_window = NULL;
 
    /* unlink surface from bitmap */
    if (b)
