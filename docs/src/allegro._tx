@@ -3510,6 +3510,10 @@ Allegro supports several different types of bitmaps:
    size, so if you want to draw onto a larger virtual screen space outside 
    this rectangle, you will need to adjust the clipping.
 
+   Warning: be very careful when using this pointer at the same time as any
+   bitmaps created by the create_video_bitmap() function (see the description
+   of this function for more detailed informations).
+
 @@BITMAP *@create_bitmap(int width, int height);
 @xref create_bitmap_ex, create_sub_bitmap, create_video_bitmap
 @xref create_system_bitmap, destroy_bitmap, set_color_depth, is_memory_bitmap
@@ -3548,10 +3552,12 @@ Allegro supports several different types of bitmaps:
    vram). This can be used to allocate offscreen video memory for storing 
    source graphics ready for a hardware accelerated blitting operation, or 
    to create multiple video memory pages which can then be displayed by 
-   calling show_video_bitmap(). Video memory bitmaps are usually allocated 
-   from the same space as the screen bitmap, so they may overlap with it: it 
-   is not therefore a good idea to use the global screen at the same time as 
-   any surfaces returned by this function.
+   calling show_video_bitmap().
+
+   Warning: video memory bitmaps are usually allocated from the same space
+   as the screen bitmap, so they may overlap with it; it is therefore not
+   a good idea to use the global screen at the same time as any surfaces
+   returned by this function.
 
 @@BITMAP *@create_system_bitmap(int width, int height);
 @xref create_bitmap, create_bitmap_ex, create_video_bitmap
