@@ -121,7 +121,10 @@ proc_utod()
    proc_filelist
    for file in $AL_FILELIST_DOS_OK; do
       echo "$file"
-      perl -p -i -e "s/([^\r]|^)\n/\1\r\n/" $file
+      cp $file _tmpfile
+      perl -p -i -e "s/([^\r]|^)\n/\1\r\n/" _tmpfile
+      touch -r $file _tmpfile
+      mv _tmpfile $file
    done
 }
 
