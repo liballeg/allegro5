@@ -482,7 +482,8 @@ static int gfx_directx_show_video_bitmap_win(BITMAP *bmp)
    bmp->write_bank = gfx_directx_write_bank_win;
 
    /* display the new contents */
-   gfx_directx_sync();
+   if (_wait_for_vsync)
+      gfx_directx_sync();
    update_window(NULL);
 
    return 0;

@@ -288,6 +288,8 @@ AL_VAR(int, _gfx_mode_set_count);
 AL_VAR(int, _refresh_rate_request);
 AL_FUNC(void, _set_current_refresh_rate, (int rate));
 
+AL_VAR(int, _wait_for_vsync);
+
 AL_VAR(int, _sub_bitmap_id_count);
 
 AL_VAR(int, _screen_split_position);

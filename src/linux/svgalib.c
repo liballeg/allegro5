@@ -526,7 +526,8 @@ static int svga_scroll(int x, int y)
     * the documentation says it should be there. -- PW  */
 
    /* wait for a retrace */
-   vga_waitretrace();
+   if (_wait_for_vsync)
+      vga_waitretrace();
 
    return 0;
 }

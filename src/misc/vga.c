@@ -324,7 +324,8 @@ static int vga_scroll(int x, int y)
 
    DISABLE();
 
-   _vsync_out_h();
+   if (_wait_for_vsync)
+      _vsync_out_h();
 
    /* write to VGA address registers */
    _write_vga_register(_crtc, 0x0D, a & 0xFF);
@@ -332,7 +333,8 @@ static int vga_scroll(int x, int y)
 
    ENABLE();
 
-   _vsync_in();
+   if (_wait_for_vsync)
+      _vsync_in();
 
    return 0;
 }

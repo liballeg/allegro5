@@ -1613,6 +1613,12 @@ gfx_cardw = x<br>
    gfx_card in all other respects. If it is not set, Allegro will look
    for the gfx_card variable.
 <li>
+disable_vsync = x<br>
+   Specifies whether to disable synchronization with the vertical blank when
+   page-flipping (yes or no). Disabling synchronization may increase the
+   frame rate on slow systems, at the expense of introducing flicker on fast
+   systems.
+<li>
 vbeaf_driver = x<br>
    DOS and Linux only: specifies where to look for the VBE/AF driver 
    (vbeaf.drv). If this variable is not set, Allegro will look in the same 

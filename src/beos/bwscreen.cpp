@@ -573,7 +573,8 @@ extern "C" int be_gfx_bwindowscreen_scroll(int x, int y)
 
    release_screen();
    
-   be_gfx_vsync();   
+   if (_wait_for_vsync)
+      be_gfx_vsync();   
 
    return rv;
 }

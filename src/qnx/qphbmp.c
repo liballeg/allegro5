@@ -256,7 +256,7 @@ static int swap_video_bitmap(BITMAP *bmp, int vsync)
  */
 int qnx_ph_show_video_bitmap(BITMAP *bmp)
 {
-   return swap_video_bitmap(bmp, TRUE);
+   return swap_video_bitmap(bmp, _wait_for_vsync);
 }
 
 

@@ -749,7 +749,10 @@ static int _xdga2_scroll_screen(int x, int y)
    _xwin.scroll_x = x;
    _xwin.scroll_y = y;
 
-   while (XDGAGetViewportStatus(_xwin.display, _xwin.screen));
+   if (_wait_for_vsync)
+      while (XDGAGetViewportStatus(_xwin.display, _xwin.screen))
+         ;
+
    XDGASetViewport(_xwin.display, _xwin.screen, x, y, XDGAFlipRetrace);
 
    XUNLOCK();

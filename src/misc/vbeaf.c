@@ -1738,7 +1738,7 @@ static int vbeaf_scroll(int x, int y)
    vbeaf_yscroll = y;
 
    SAFISH_CALL(
-      if (af_driver->WaitTillIdle)
+      if (_wait_for_vsync && af_driver->WaitTillIdle)
 	 af_driver->WaitTillIdle(af_driver);
 
       af_driver->SetDisplayStart(af_driver, x, y, 1);

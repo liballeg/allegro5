@@ -333,7 +333,8 @@ static int osx_qz_show_video_bitmap(BITMAP *bmp)
    while (!QDDone(BMP_EXTRA(bmp)->port));
    LockPortBits(screen_port);
    LockPortBits(BMP_EXTRA(bmp)->port);
-   osx_qz_full_vsync();
+   if (_wait_for_vsync)
+      osx_qz_full_vsync();
    CopyBits(GetPortBitMapForCopyBits(BMP_EXTRA(bmp)->port),
             GetPortBitMapForCopyBits(screen_port),
 	    &rect, &rect, srcCopy, NULL);

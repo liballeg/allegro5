@@ -42,6 +42,8 @@ int _color_depth = 8;                  /* how many bits per pixel? */
 int _refresh_rate_request = 0;         /* requested refresh rate */
 static int current_refresh_rate = 0;   /* refresh rate set by the driver */
 
+int _wait_for_vsync = TRUE;            /* vsync when page-flipping? */
+
 int _color_conv = COLORCONV_TOTAL;     /* which formats to auto convert? */
 
 static int color_conv_set = FALSE;     /* has the user set conversion mode? */
@@ -586,7 +588,8 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    _DRIVER_INFO *driver_list;
    GFX_DRIVER *drv;
    struct GFX_MODE mode;
-   char buf[ALLEGRO_ERROR_SIZE], tmp[64];
+   char buf[ALLEGRO_ERROR_SIZE], tmp1[64], tmp2[64];
+   AL_CONST char *dv;
    int flags = 0;
    int c, driver, ret;
 
@@ -629,7 +632,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
       /* failing to set GFX_SAFE is a fatal error */
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message(uconvert_ascii("%s\n", tmp), get_config_text("Fatal error: unable to set GFX_SAFE"));
+      allegro_message(uconvert_ascii("%s\n", tmp1), get_config_text("Fatal error: unable to set GFX_SAFE"));
       return -1;
    }
 
@@ -747,11 +750,11 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       if (allow_config) {
 	 /* try the gfx_card variable if GFX_AUTODETECT or GFX_AUTODETECT_FULLSCREEN was selected */
 	 if (!(flags & GFX_DRIVER_WINDOWED_FLAG))
-	    found = get_config_gfx_driver(uconvert_ascii("gfx_card", tmp), w, h, v_w, v_h, flags, driver_list);
+	    found = get_config_gfx_driver(uconvert_ascii("gfx_card", tmp1), w, h, v_w, v_h, flags, driver_list);
 
 	 /* try the gfx_cardw variable if GFX_AUTODETECT or GFX_AUTODETECT_WINDOWED was selected */
 	 if (!(flags & GFX_DRIVER_FULLSCREEN_FLAG) && !found)
-	    found = get_config_gfx_driver(uconvert_ascii("gfx_cardw", tmp), w, h, v_w, v_h, flags, driver_list);
+	    found = get_config_gfx_driver(uconvert_ascii("gfx_cardw", tmp1), w, h, v_w, v_h, flags, driver_list);
       }
 
       /* go through the list of autodetected drivers if none was previously found */
@@ -799,6 +802,16 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       if ((gfx_driver->request_scroll) || (gfx_driver->request_video_bitmap))
 	 gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
    }
+
+   /* check whether we are instructed to disable vsync */
+   dv = get_config_string(uconvert_ascii("graphics", tmp1),
+                          uconvert_ascii("disable_vsync", tmp2),
+                          NULL);
+
+   if ((dv) && ((c = ugetc(dv)) != 0) && ((c == 'y') || (c == 'Y') || (c == '1')))
+      _wait_for_vsync = FALSE;
+   else
+      _wait_for_vsync = TRUE;
 
    clear_bitmap(screen);
 

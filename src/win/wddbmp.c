@@ -581,7 +581,7 @@ int gfx_directx_show_video_bitmap(BITMAP *bmp)
    if (bmp == forefront_bitmap)
       return 0;
 
-   return flip_with_forefront_bitmap(bmp, TRUE);
+   return flip_with_forefront_bitmap(bmp, _wait_for_vsync);
 }
 
 
