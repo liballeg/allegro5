@@ -741,8 +741,10 @@ static int update()
 
    if (d->state == state_active) {
       /* process the dialog */
-      if (_mouse_screen != screen)
-	 show_mouse(screen);
+      if (_mouse_screen != screen) {
+         set_mouse_sprite(NULL);
+         show_mouse(screen);
+      }
 
       ret = update_dialog(d->player);
 
