@@ -364,7 +364,7 @@ static int find_mouse_object(DIALOG *d)
 /* offer_focus:
  *  Offers the input focus to a particular object.
  */
-static int offer_focus(DIALOG *d, int obj, int *focus_obj, int force)
+int offer_focus(DIALOG *d, int obj, int *focus_obj, int force)
 {
    int res = D_O_K;
 
