@@ -204,7 +204,7 @@ void key_dinput_handle_scancode(unsigned char scancode, int pressed)
    if ((((scancode & 0x7f) == 0x4F) || ((scancode & 0x7f) == 0x53)) &&
        (three_finger_flag) && (_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG)) {
       _TRACE("Terminating application\n");
-      TerminateProcess(GetCurrentProcess(), 0);
+      ExitProcess(0);
    }
 
    /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc, alt+F4) */

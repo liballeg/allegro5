@@ -36,6 +36,8 @@ int wnd_paint_back = FALSE;
 
 struct WIN_GFX_DRIVER *win_gfx_driver = NULL;
 
+void (*user_close_proc)(void) = NULL;
+
 CRITICAL_SECTION gfx_crit_sect;
 
 #define ALLEGRO_WND_CLASS "AllegroWindow"
@@ -45,7 +47,6 @@ static HANDLE wnd_thread = NULL;
 static HWND (*wnd_create_proc)(WNDPROC) = NULL;
 
 static int old_style = 0;
-static BOOL allow_wm_close = FALSE;
 
 /* custom window msgs */
 static UINT msg_call_proc = 0;
@@ -208,13 +209,31 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
 	 break;
 
       case WM_CLOSE:
-	 if (!allow_wm_close) {
-            if (wnd_windowed) { /* is this line required? */
-               /* dialog code to be inserted here */
-	    }
-	    return 0;
-	 }
-	 break;
+         if (user_wnd_proc)
+            break;
+         if (user_close_proc) {
+            (*user_close_proc)();
+            /* we don't exit here cause it's supposed the user_proc */
+            /* to call allegro_exit and exit itself */
+            return 0;
+         }
+         else {
+            /* default windows close */
+            int option_sel;
+            char win_title[4096];
+            GetWindowText(wnd, win_title, 4096);
+            option_sel = MessageBox(wnd, ALLEGRO_WINDOW_CLOSE_MESSAGE,
+                                    win_title,
+                                    MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2);
+            if (option_sel == IDYES) {
+               ExitProcess(0);
+               return 0;
+            }
+            else
+               return 0;
+         }
+         break;
+
    }
 
    /* pass message to default window proc */
@@ -357,8 +376,6 @@ int init_directx_window(void)
    msg_acquire_mouse = RegisterWindowMessage("Allegro mouse acquire proc");
    msg_set_cursor = RegisterWindowMessage("Allegro mouse cursor proc");
 
-   allow_wm_close = FALSE;
-
    /* prepare window for allegro */
    if (user_wnd) {
       /* hook the user window */
@@ -401,7 +418,7 @@ int init_directx_window(void)
 
 /* exit_directx_window:
  *  if a user window was hooked, the old window proc is set. Otherwise
- *  the created window is destroy.
+ *  the created window is destroyed.
  */
 void exit_directx_window(void)
 {
@@ -411,9 +428,11 @@ void exit_directx_window(void)
       user_wnd_proc = NULL;
    }
    else {
-      /* close window */
-      allow_wm_close = TRUE;
-      PostMessage(allegro_wnd, WM_CLOSE, 0, 0); 
+      /* let's destroy the window */
+      /* since we cannot use DestroyWindow because we are on a */
+      /* different thread, we "emulate" it sending the msgs it sends */
+      PostMessage(allegro_wnd, WM_DESTROY, 0, 0);
+      PostMessage(allegro_wnd, WM_NCDESTROY, 0, 0);
 
       /* wait until the window thread ends */
       WaitForSingleObject(wnd_thread, INFINITE);
