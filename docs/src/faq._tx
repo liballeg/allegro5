@@ -453,7 +453,7 @@ General problems
 
 @@   How can I convert my graphics to all use the same 256 color palette?
 
-      See the Allegro.cc homepage (<link>http://allegro.cc/</a>)
+      See the Allegro.cc homepage (<link>http://www.allegro.cc/</a>)
       for some utilities, for example FixPal and Smacker.
 
 
@@ -500,7 +500,7 @@ General problems
 
 @@   How can I generate FLI or FLC format animations?
 
-      See the Allegro.cc homepage (<link>http://allegro.cc/</a>)
+      See the Allegro.cc homepage (<link>http://www.allegro.cc/</a>)
       for some utilities, for example DTA and Smacker. Also, you can use ASE
       (Allegro Sprite Editor, <link>http://ase.sourceforge.net/</a>), which allows
       drawing/editing each frame of the animation and save it as a FLI. Or
@@ -638,7 +638,7 @@ General problems
 
       Several very good ones already exist, for instance the JGMOD or DUMB
       packages. See the audio library extensions section on the Allegro.cc
-      website (<link>http://allegro.cc/</a>). You are not allowed to suggest
+      website (<link>http://www.allegro.cc/</a>). You are not allowed to suggest
       that one of these libraries be merged into Allegro, because this topic
       has already been done to death on the mailing list and we are tired of it.
 
@@ -719,7 +719,7 @@ General problems
 
 @@   Where can I find example source code, add-on packages, and tutorials?
 
-      Check the Allegro.cc homepage, <link>http://allegro.cc/</a>.
+      Check the Allegro.cc homepage, <link>http://www.allegro.cc/</a>.
       If you have anything to add to this, please post the URL!
 
 
