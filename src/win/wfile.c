@@ -22,6 +22,7 @@
 #endif
 
 #include "allegro.h"
+#include "winalleg.h"
 #include "allegro/aintern.h"
 
 #ifndef ALLEGRO_WINDOWS
@@ -190,10 +191,20 @@ void al_findclose(struct al_ffblk *info)
 
 
 
+/* _al_drive_exists:
+ *  Checks whether the specified drive is valid.
+ */
+int _al_drive_exists(int drive)
+{
+   return GetLogicalDrives() & (1 << drive);
+}
+
+
+
 /* _al_getdrive:
  *  Returns the current drive number (0=A, 1=B, etc).
  */
-int _al_getdrive()
+int _al_getdrive(void)
 {
    return _getdrive() - 1;
 }

@@ -528,13 +528,6 @@ time_t _al_file_time(const char *filename){
 #endif
    return ft;
 }
-int _al_getdrive(void){   
-#if (TRACE_MAC_FILE)
-   fprintf(stdout,"_al_getdrive()=0\n");
-   fflush(stdout);
-#endif
-   return 0;
-}
 
 
 
@@ -542,33 +535,23 @@ int _al_getdrive(void){
  *
  */
 void _al_getdcwd(int drive, char *buf, int size){
-   if(drive==0)
-   {
-      char * fullname;
-      fullname=malloc(1024);
-      if(volname[0]==0)
-         _mac_file_sys_init();
+   char * fullname;
+   fullname=malloc(1024);
+   if(volname[0]==0)
+      _mac_file_sys_init();
 
-      getfullpath(MainVol,MainDir,fullname);
+   getfullpath(MainVol,MainDir,fullname);
 #if (TRACE_MAC_FILE)
-      fprintf(stdout,"_al_getdcwd(%d,%s,&d)\n",drive,fullname,size);
-      fflush(stdout);
+   fprintf(stdout,"_al_getdcwd(%d,%s,&d)\n",drive,fullname,size);
+   fflush(stdout);
 #endif
-      if(strlen(fullname)<size)
-      {
-         do_uconvert(fullname, U_ASCII, buf, U_CURRENT, size);
-      }
-      else
-      {
-         usetc(buf, 0);
-      }
+   if(strlen(fullname)<size)
+   {
+      do_uconvert(fullname, U_ASCII, buf, U_CURRENT, size);
    }
    else
    {
-#if (TRACE_MAC_FILE)
-      fprintf(stdout,"_al_getdcwd(%d,...,&d)\n",drive,size);
-      fflush(stdout);
-#endif
+      usetc(buf, 0);
    }
 }
 
@@ -643,26 +626,6 @@ int _al_open(const char *filename,int mode){
    fflush(stdout);
 #endif
    return handle;
-}
-
-
-
-/*
- *
- */
-void getcwd(char* p,int size)
-{
-   _al_getdcwd(0 , p , size);
-}
-
-
-
-/*
- *
- */
-long GetLogicalDrives()
-{
-   return 1;
 }
 
 

@@ -235,10 +235,54 @@ void al_findclose(struct al_ffblk *info)
 
 
 
+/* _al_drive_exists:
+ *  Checks whether the specified drive is valid.
+ */
+int _al_drive_exists(int drive)
+{
+   unsigned int old_drive;
+   int ret = FALSE;
+   __dpmi_regs r;
+
+   /* get actual drive */
+   r.h.ah = 0x19;
+   __dpmi_int(0x21, &r);
+   old_drive = r.h.al;
+
+   /* see if the drive is assigned as a valid drive */
+   r.h.ah = 0x0E;
+   r.h.dl = drive;
+   __dpmi_int(0x21, &r);
+
+   r.h.ah = 0x19;
+   __dpmi_int(0x21, &r);
+
+   if (r.h.al == drive) {
+      /* ok, now check if it is a logical drive */
+      r.x.ax = 0x440E;
+      r.h.bl = drive+1;
+      __dpmi_int(0x21, &r);
+
+      if ((r.x.flags & 1) ||        /* call failed */
+          (r.h.al == 0) ||          /* has no logical drives */
+          (r.h.al == (drive+1)))    /* not a logical drive */
+         ret = TRUE;
+   }
+
+   /* now we set the old drive */
+   r.h.ah = 0x0E;
+   r.h.dl = old_drive;
+   __dpmi_int(0x21, &r);
+
+   return ret;
+}
+
+
+
 /* _al_getdrive:
  *  Returns the current drive number (0=A, 1=B, etc).
  */
-int _al_getdrive()
+int _al_getdrive(void)
 {
    unsigned int d;
 

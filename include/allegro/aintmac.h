@@ -77,8 +77,6 @@ extern void _tm_sys_exit();
 
 /*macfile.c*/
 extern int _al_open(const char *filename, int mode);
-extern void getcwd(char *p, int size);
-extern long GetLogicalDrives();
 extern int _mac_file_sys_init();
 
 /*macallegro.c*/

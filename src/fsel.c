@@ -33,13 +33,6 @@
 #include "allegro.h"
 #include "allegro/aintern.h"
 
-#if (defined ALLEGRO_DOS) && (!defined SCAN_DEPEND)
-   #include <dos.h>
-#endif
-
-#if defined ALLEGRO_WINDOWS
-   #include "winalleg.h"
-#endif
 
 #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
    #define HAVE_DIR_LIST
@@ -50,9 +43,12 @@ static int fs_edit_proc(int, DIALOG *, int);
 static int fs_flist_proc(int, DIALOG *, int);
 static char *fs_flist_getter(int, int *);
 
+
 #ifdef HAVE_DIR_LIST
-   static int fs_dlist_proc(int, DIALOG *, int);
-   static char *fs_dlist_getter(int, int *);
+
+static int fs_dlist_proc(int, DIALOG *, int);
+static char *fs_dlist_getter(int, int *);
+
 #endif
 
 
@@ -119,70 +115,6 @@ static DIALOG file_selector[] =
 
 
 
-/* drive_exists:
- *  Checks whether the specified drive is valid.
- */
-static int drive_exists(int x)
-{
-   #ifdef ALLEGRO_DOS
-
-      /* DOS implementation */
-      unsigned int old;
-      int ret = FALSE;
-      __dpmi_regs r;
-
-      /* get actual drive */
-      r.h.ah = 0x19;
-      __dpmi_int(0x21, &r);
-      old = r.h.al;
-
-      /* see if drive x is assigned as a valid drive */
-      r.h.ah = 0x0E;
-      r.h.dl = x;
-      __dpmi_int(0x21, &r);
-
-      r.h.ah = 0x19;
-      __dpmi_int(0x21, &r);
-
-      if (r.h.al == x) {
-	 /* ok, now check if it is a logical drive or not... */
-	 r.x.ax = 0x440E;
-	 r.h.bl = x+1;
-	 __dpmi_int(0x21, &r);
-
-	 if ((r.x.flags & 1) ||        /* call failed */
-	     (r.h.al == 0) ||          /* has no logical drives */
-	     (r.h.al == (x+1)))        /* not a logical drive */
-	    ret = TRUE;
-      }
-
-      /* now we set the old drive */
-      r.h.ah = 0x0E;
-      r.h.dl = old;
-      __dpmi_int(0x21, &r);
-
-      return ret;
-
-   #elif defined ALLEGRO_WINDOWS
-
-      /* Windows implementation */
-      return GetLogicalDrives() & (1 << x);
-
-   #elif defined ALLEGRO_MPW
-
-      /* MacOs implementation */
-      return GetLogicalDrives() & (1 << x);
-
-   #else
-
-      /* unknown platform */
-      return TRUE;
-
-   #endif
-}
-
-
-
 /* count_disks:
  *  Counts the number of valid drives.
  */
@@ -193,7 +125,7 @@ static int count_disks()
    c = 0;
 
    for (i=0; i<26; i++)
-      if (drive_exists(i))
+      if (_al_drive_exists(i))
 	 c++;
 
    return c;
@@ -211,7 +143,7 @@ static int get_x_drive(int index)
    c = 0;
 
    for (i=0; i<26; i++) {
-      if (drive_exists(i)) {
+      if (_al_drive_exists(i)) {
 	 c++;
 	 if (c==index)
 	    return i;
@@ -265,7 +197,7 @@ static int fs_dlist_proc(int msg, DIALOG *d, int c)
       if (((temp >= 'A') && (temp <= 'Z')) && (ugetat(s, 1) == DEVICE_SEPARATOR)) {
 	 temp -= 'A';
 	 for (i=0; i<temp; i++)
-	    if (drive_exists(i))
+	    if (_al_drive_exists(i))
 	       d->d1++;
       }
    }
@@ -820,9 +752,9 @@ static void stretch_dialog(DIALOG *d, int width, int height)
  */
 int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int size, int width, int height)
 {
-   char buf[1024];
    int ret;
    char *p;
+   char tmp[32];
 
    if (width == OLD_FILESEL_WIDTH)
       width = 305;
@@ -851,9 +783,18 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    fext = ext;
 
    if (!ugetc(path)) {
-      if (!getcwd(buf, sizeof(buf)))
-         buf[0]=0;
-      do_uconvert(buf, U_ASCII, path, U_CURRENT, size - ucwidth(OTHER_PATH_SEPARATOR));
+
+   #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
+
+      int drive = _al_getdrive();
+
+   #else
+
+      int drive = 0;
+
+   #endif
+
+      _al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
       fix_filename_case(path);
       fix_filename_slashes(path);
       put_backslash(path);
@@ -873,7 +814,7 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
       return FALSE;
 
    p = get_extension(path);
-   if ((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", buf)))) {
+   if ((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", tmp)))) {
       size -= ((long)p - (long)path + ucwidth('.'));
       if (size >= uwidth_max(U_CURRENT) + ucwidth(0)) {  /* do not end with '.' */
          p += usetc(p, '.');
