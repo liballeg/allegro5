@@ -115,7 +115,7 @@ if test "$echo_exec_prefix" = "yes"; then
 fi
 
 if test "$echo_cflags" = "yes"; then
-   echo -I${prefix}/headers/cpp $allegro_cflags
+   echo -I${prefix}/headers $allegro_cflags
 fi
 
 if test "$echo_libs" = "yes"; then
