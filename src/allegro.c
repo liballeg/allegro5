@@ -45,6 +45,10 @@ int *allegro_errno = NULL;
 int _allegro_count = 0;
 
 
+/* flag to decide whether to disable the screensaver */
+int _screensaver_policy = FULLSCREEN_DISABLED;
+
+
 /* the graphics driver currently in use */
 GFX_DRIVER *gfx_driver = NULL;
 
@@ -52,8 +56,10 @@ GFX_DRIVER *gfx_driver = NULL;
 /* abilities of the current graphics driver */
 int gfx_capabilities = 0;
 
+
 /* pointer to list of valid video modes */
 GFX_MODE_LIST *gfx_mode_list = NULL;
+
 
 /* a bitmap structure for accessing the physical screen */
 BITMAP *screen = NULL;
@@ -353,6 +359,11 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
 
    /* detect CPU type */
    check_cpu();
+
+   /* set up screensaver policy */
+   _screensaver_policy = get_config_int(uconvert_ascii("system", tmp1),
+                                        uconvert_ascii("disable_screensaver", tmp2),
+                                        FULLSCREEN_DISABLED);
 
    /* install shutdown handler */
    if (_allegro_count == 0) {

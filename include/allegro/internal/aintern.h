@@ -1166,6 +1166,16 @@ typedef struct SYSTEM_DRIVER_AUX {
 
 AL_VAR(SYSTEM_DRIVER_AUX *, _al_system_driver_aux);
 
+
+/* flag to decide whether to disable the screensaver */
+enum {
+  NEVER_DISABLED,
+  FULLSCREEN_DISABLED,
+  ALWAYS_DISABLED
+};
+
+AL_VAR(int, _screensaver_policy);
+
 #endif
 
 

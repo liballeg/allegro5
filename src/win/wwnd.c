@@ -409,6 +409,15 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
             return TRUE;
          break;
 
+      case WM_SYSCOMMAND:
+         if (wparam == SC_MONITORPOWER || wparam == SC_SCREENSAVE) {
+            if (_screensaver_policy == ALWAYS_DISABLED
+                || (_screensaver_policy == FULLSCREEN_DISABLED
+                    && gfx_driver && !gfx_driver->windowed))
+            return 0;
+         }
+         break;
+
       case WM_INITMENUPOPUP:
          wnd_sysmenu = TRUE;
          mouse_set_sysmenu(TRUE);

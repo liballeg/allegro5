@@ -1053,6 +1053,10 @@ language = x<br>
    location pointed to by the ALLEGRO environment variable. Look in the 
    language.dat file to see which mappings are currently available.
 <li>
+disable_screensaver = x<br>
+   Specifies whether to disable the screensaver: 0 to never disable it, 1 to
+   disable it in fullscreen mode only and 2 to always disable it. Default is 1.
+<li>
 menu_opening_delay = x<br>
    Sets how long the menus take to auto-open. The time is given in
    milliseconds (default is 300). Specifying -1 will disable the auto-opening
