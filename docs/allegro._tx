@@ -6767,7 +6767,12 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 @@int @object_message(DIALOG *dialog, int msg, int c);
 @xref dialog_message
    Sends a message to an object and returns the answer it has generated.
-
+   Remember that the first parameter is the dialog object (not a whole
+   array) that you wish to send the message to. For example, to make the
+   second object in a dialog draw itself, you might write:
+<pre>
+      object_message(&dialog[1], MSG_DRAW, 0);
+</pre>
 @@int @dialog_message(DIALOG *dialog, int msg, int c, int *obj);
 @xref object_message, broadcast_dialog_message
    Sends a message to all the objects in an array. If any of the dialog 
