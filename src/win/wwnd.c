@@ -623,6 +623,7 @@ void save_window_pos(void)
  */
 void win_set_window(HWND wnd)
 {
+   static int (*saved_scbc)(void (*proc)(void)) = NULL;
    struct WINDOW_MODULES wm;
 
    if (_allegro_count > 0) {
@@ -631,6 +632,19 @@ void win_set_window(HWND wnd)
    }
 
    user_wnd = wnd;
+
+   /* The user retains full control over the close button if he registers
+      a user-defined window. */
+   if (user_wnd) {
+      if (!saved_scbc)
+         saved_scbc = system_directx.set_close_button_callback;
+
+      system_directx.set_close_button_callback = NULL;
+   }
+   else {
+      if (saved_scbc)
+         system_directx.set_close_button_callback = saved_scbc;
+   }
 
    if (_allegro_count > 0) {
       init_directx_window();
