@@ -589,7 +589,7 @@ static void scene_segment(POLYGON_EDGE *e01, POLYGON_EDGE *e02,
    if (w <= 0) return;
 
    if ((flags & OPT_FLOAT_UV_TO_FIX) && (info->dz == 0)) {
-      float z1 = 1. / info->dz;
+      float z1 = 1. / info->z;
       info->u = info->fu * z1;
       info->v = info->fv * z1;
       info->du = info->dfu * z1;
