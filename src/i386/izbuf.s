@@ -128,7 +128,7 @@ FUNC(_poly_zbuf_flat32)
  */
 FUNC(_poly_zbuf_flat24)
    INIT_FLAT(3,
-     movl %edx, %ebx
+     movl %edx, %ebx ;
      shrl $16, %ebx
    )
    movw %dx, FSEG(%edi)
@@ -649,9 +649,9 @@ FUNC(_poly_zbuf_atex_mask24)
  */
 FUNC(_poly_zbuf_atex_lit8)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movzbl (%esi, %eax), %eax     /* read texel */
@@ -660,8 +660,8 @@ FUNC(_poly_zbuf_atex_lit8)
    movb (%ecx, %eax), %al
    movb %al, FSEG(%edi)
    END_ATEX(
-     movl DALPHA, %eax
-     incl %edi
+     movl DALPHA, %eax ;
+     incl %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_atex_lit8() */
@@ -671,9 +671,9 @@ FUNC(_poly_zbuf_atex_lit8)
  */
 FUNC(_poly_zbuf_atex_mask_lit8)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movzbl (%esi, %eax), %eax     /* read texel */
@@ -684,8 +684,8 @@ FUNC(_poly_zbuf_atex_mask_lit8)
    movb (%ecx, %eax), %al
    movb %al, FSEG(%edi)
    END_ATEX(
-     movl DALPHA, %eax
-     incl %edi
+     movl DALPHA, %eax ;
+     incl %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_atex_mask_lit8() */
@@ -699,9 +699,9 @@ FUNC(_poly_zbuf_atex_mask_lit8)
  */
 FUNC(_poly_zbuf_atex_lit15)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -717,8 +717,8 @@ FUNC(_poly_zbuf_atex_lit15)
    movw %ax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_ATEX(
-     movl DALPHA, %eax
-     addl $2, %edi
+     movl DALPHA, %eax ;
+     addl $2, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_atex_lit15() */
@@ -728,9 +728,9 @@ FUNC(_poly_zbuf_atex_lit15)
  */
 FUNC(_poly_zbuf_atex_mask_lit15)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movw (%esi, %eax, 2), %ax    /* read texel */
@@ -748,8 +748,8 @@ FUNC(_poly_zbuf_atex_mask_lit15)
    movw %ax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_ATEX(
-     movl DALPHA, %eax
-     addl $2, %edi
+     movl DALPHA, %eax ;
+     addl $2, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_atex_mask_lit15() */
@@ -761,9 +761,9 @@ FUNC(_poly_zbuf_atex_mask_lit15)
  */
 FUNC(_poly_zbuf_atex_lit16)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -778,8 +778,8 @@ FUNC(_poly_zbuf_atex_lit16)
    movw %ax, FSEG(%edi)          /* write the pixel */
    popl %edx
    END_ATEX(
-     movl DALPHA, %eax
-     addl $2, %edi
+     movl DALPHA, %eax ;
+     addl $2, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_atex_lit16() */
@@ -789,9 +789,9 @@ FUNC(_poly_zbuf_atex_lit16)
  */
 FUNC(_poly_zbuf_atex_mask_lit16)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movw (%esi, %eax, 2), %ax     /* read texel */
@@ -809,8 +809,8 @@ FUNC(_poly_zbuf_atex_mask_lit16)
    movw %ax, FSEG(%edi)          /* write the pixel */
    popl %edx
    END_ATEX(
-     movl DALPHA, %eax
-     addl $2, %edi
+     movl DALPHA, %eax ;
+     addl $2, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_atex_mask_lit16() */
@@ -825,9 +825,9 @@ FUNC(_poly_zbuf_atex_mask_lit16)
  */
 FUNC(_poly_zbuf_atex_lit32)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -843,8 +843,8 @@ FUNC(_poly_zbuf_atex_lit32)
    movl %eax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_ATEX(
-     movl DALPHA, %eax
-     addl $4, %edi
+     movl DALPHA, %eax ;
+     addl $4, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_atex_lit32() */
@@ -854,9 +854,9 @@ FUNC(_poly_zbuf_atex_lit32)
  */
 FUNC(_poly_zbuf_atex_mask_lit32)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movl (%esi, %eax, 4), %eax    /* read texel */
@@ -874,8 +874,8 @@ FUNC(_poly_zbuf_atex_mask_lit32)
    movl %eax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_ATEX(
-     movl DALPHA, %eax
-     addl $4, %edi
+     movl DALPHA, %eax ;
+     addl $4, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_atex_mask_lit32() */
@@ -890,9 +890,9 @@ FUNC(_poly_zbuf_atex_mask_lit32)
  */
 FUNC(_poly_zbuf_atex_lit24)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -913,8 +913,8 @@ FUNC(_poly_zbuf_atex_lit24)
    movb %al, FSEG 2(%edi)
    popl %edx
    END_ATEX(
-     movl DALPHA, %eax
-     addl $3, %edi
+     movl DALPHA, %eax ;
+     addl $3, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_atex_lit24() */
@@ -924,9 +924,9 @@ FUNC(_poly_zbuf_atex_lit24)
  */
 FUNC(_poly_zbuf_atex_mask_lit24)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    leal (%eax, %eax, 2), %ecx
@@ -949,8 +949,8 @@ FUNC(_poly_zbuf_atex_mask_lit24)
    movb %al, FSEG 2(%edi)
    popl %edx
    END_ATEX(
-     movl DALPHA, %eax
-     addl $3, %edi
+     movl DALPHA, %eax ;
+     addl $3, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_atex_mask_lit24() */
@@ -966,7 +966,7 @@ FUNC(_poly_zbuf_atex_mask_lit24)
  */
 FUNC(_poly_zbuf_atex_trans8)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movzbl (%esi, %eax), %eax     /* read texel */
@@ -979,7 +979,7 @@ FUNC(_poly_zbuf_atex_trans8)
    movb (%ecx, %eax), %al
    movb %al, FSEG(%edi)
    END_ATEX(
-     incl %edi
+     incl %edi ;
      incl READ_ADDR
    )
    ret                           /* end of _poly_zbuf_atex_trans8() */
@@ -989,7 +989,7 @@ FUNC(_poly_zbuf_atex_trans8)
  */
 FUNC(_poly_zbuf_atex_mask_trans8)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movzbl (%esi, %eax), %eax     /* read texel */
@@ -1004,7 +1004,7 @@ FUNC(_poly_zbuf_atex_mask_trans8)
    movb (%ecx, %eax), %al
    movb %al, FSEG(%edi)
    END_ATEX(
-     incl %edi
+     incl %edi ;
      incl READ_ADDR
    )
    ret                           /* end of _poly_zbuf_atex_mask_trans8() */
@@ -1018,7 +1018,7 @@ FUNC(_poly_zbuf_atex_mask_trans8)
  */
 FUNC(_poly_zbuf_atex_trans15)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -1037,7 +1037,7 @@ FUNC(_poly_zbuf_atex_trans15)
    movw %ax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_ATEX(
-     addl $2, %edi
+     addl $2, %edi ;
      addl $2, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_atex_trans15() */
@@ -1047,7 +1047,7 @@ FUNC(_poly_zbuf_atex_trans15)
  */
 FUNC(_poly_zbuf_atex_mask_trans15)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movw (%esi, %eax, 2), %ax    /* read texel */
@@ -1068,7 +1068,7 @@ FUNC(_poly_zbuf_atex_mask_trans15)
    movw %ax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_ATEX(
-     addl $2, %edi
+     addl $2, %edi ;
      addl $2, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_atex_mask_trans15() */
@@ -1080,7 +1080,7 @@ FUNC(_poly_zbuf_atex_mask_trans15)
  */
 FUNC(_poly_zbuf_atex_trans16)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -1099,7 +1099,7 @@ FUNC(_poly_zbuf_atex_trans16)
    movw %ax, FSEG(%edi)          /* write the pixel */
    popl %edx
    END_ATEX(
-     addl $2, %edi
+     addl $2, %edi ;
      addl $2, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_atex_trans16() */
@@ -1109,7 +1109,7 @@ FUNC(_poly_zbuf_atex_trans16)
  */
 FUNC(_poly_zbuf_atex_mask_trans16)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movw (%esi, %eax, 2), %ax     /* read texel */
@@ -1130,7 +1130,7 @@ FUNC(_poly_zbuf_atex_mask_trans16)
    movw %ax, FSEG(%edi)          /* write the pixel */
    popl %edx
    END_ATEX(
-     addl $2, %edi
+     addl $2, %edi ;
      addl $2, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_atex_mask_trans16() */
@@ -1145,7 +1145,7 @@ FUNC(_poly_zbuf_atex_mask_trans16)
  */
 FUNC(_poly_zbuf_atex_trans32)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -1162,7 +1162,7 @@ FUNC(_poly_zbuf_atex_trans32)
    movl %eax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_ATEX(
-     addl $4, %edi
+     addl $4, %edi ;
      addl $4, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_atex_trans32() */
@@ -1172,7 +1172,7 @@ FUNC(_poly_zbuf_atex_trans32)
  */
 FUNC(_poly_zbuf_atex_mask_trans32)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movl (%esi, %eax, 4), %eax    /* read texel */
@@ -1192,7 +1192,7 @@ FUNC(_poly_zbuf_atex_mask_trans32)
    movl %eax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_ATEX(
-     addl $4, %edi
+     addl $4, %edi ;
      addl $4, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_atex_mask_trans32() */
@@ -1207,7 +1207,7 @@ FUNC(_poly_zbuf_atex_mask_trans32)
  */
 FUNC(_poly_zbuf_atex_trans24)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -1233,7 +1233,7 @@ FUNC(_poly_zbuf_atex_trans24)
    movb %al, FSEG 2(%edi)
    popl %edx
    END_ATEX(
-     addl $3, %edi
+     addl $3, %edi ;
      addl $3, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_atex_trans24() */
@@ -1243,7 +1243,7 @@ FUNC(_poly_zbuf_atex_trans24)
  */
 FUNC(_poly_zbuf_atex_mask_trans24)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    leal (%eax, %eax, 2), %ecx
@@ -1271,7 +1271,7 @@ FUNC(_poly_zbuf_atex_mask_trans24)
    movb %al, FSEG 2(%edi)
    popl %edx
    END_ATEX(
-     addl $3, %edi
+     addl $3, %edi ;
      addl $3, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_atex_mask_trans24() */
@@ -1616,9 +1616,9 @@ FUNC(_poly_zbuf_ptex_mask24)
  */
 FUNC(_poly_zbuf_ptex_lit8)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movzbl (%esi, %eax), %eax     /* read texel */
@@ -1627,8 +1627,8 @@ FUNC(_poly_zbuf_ptex_lit8)
    movb (%ecx, %eax), %al
    movb %al, FSEG(%edi)
    END_PTEX(
-     movl DALPHA, %eax
-     incl %edi
+     movl DALPHA, %eax ;
+     incl %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_ptex_lit8() */
@@ -1638,9 +1638,9 @@ FUNC(_poly_zbuf_ptex_lit8)
  */
 FUNC(_poly_zbuf_ptex_mask_lit8)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movzbl (%esi, %eax), %eax     /* read texel */
@@ -1651,8 +1651,8 @@ FUNC(_poly_zbuf_ptex_mask_lit8)
    movb (%ecx, %eax), %al
    movb %al, FSEG(%edi)
    END_PTEX(
-     movl DALPHA, %eax
-     incl %edi
+     movl DALPHA, %eax ;
+     incl %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_ptex_mask_lit8() */
@@ -1666,9 +1666,9 @@ FUNC(_poly_zbuf_ptex_mask_lit8)
  */
 FUNC(_poly_zbuf_ptex_lit15)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -1684,8 +1684,8 @@ FUNC(_poly_zbuf_ptex_lit15)
    movw %ax, FSEG(%edi)          /* write the pixel */
    popl %edx
    END_PTEX(
-     movl DALPHA, %eax
-     addl $2, %edi
+     movl DALPHA, %eax ;
+     addl $2, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_ptex_lit15() */
@@ -1695,9 +1695,9 @@ FUNC(_poly_zbuf_ptex_lit15)
  */
 FUNC(_poly_zbuf_ptex_mask_lit15)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movw (%esi, %eax, 2), %ax     /* read texel */
@@ -1715,8 +1715,8 @@ FUNC(_poly_zbuf_ptex_mask_lit15)
    movw %ax, FSEG(%edi)          /* write the pixel */
    popl %edx
    END_PTEX(
-     movl DALPHA, %eax
-     addl $2, %edi
+     movl DALPHA, %eax ;
+     addl $2, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_ptex_mask_lit15() */
@@ -1728,9 +1728,9 @@ FUNC(_poly_zbuf_ptex_mask_lit15)
  */
 FUNC(_poly_zbuf_ptex_lit16)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -1746,8 +1746,8 @@ FUNC(_poly_zbuf_ptex_lit16)
    movw %ax, FSEG(%edi)          /* write the pixel */
    popl %edx
    END_PTEX(
-     movl DALPHA, %eax
-     addl $2, %edi
+     movl DALPHA, %eax ;
+     addl $2, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_ptex_lit16() */
@@ -1757,9 +1757,9 @@ FUNC(_poly_zbuf_ptex_lit16)
  */
 FUNC(_poly_zbuf_ptex_mask_lit16)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movw (%esi, %eax, 2), %ax     /* read texel */
@@ -1777,8 +1777,8 @@ FUNC(_poly_zbuf_ptex_mask_lit16)
    movw %ax, FSEG(%edi)          /* write the pixel */
    popl %edx
    END_PTEX(
-     movl DALPHA, %eax
-     addl $2, %edi
+     movl DALPHA, %eax ;
+     addl $2, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_ptex_mask_lit16() */
@@ -1793,9 +1793,9 @@ FUNC(_poly_zbuf_ptex_mask_lit16)
  */
 FUNC(_poly_zbuf_ptex_lit32)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -1811,8 +1811,8 @@ FUNC(_poly_zbuf_ptex_lit32)
    movl %eax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_PTEX(
-     movl DALPHA, %eax
-     addl $4, %edi
+     movl DALPHA, %eax ;
+     addl $4, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_ptex_lit32() */
@@ -1822,9 +1822,9 @@ FUNC(_poly_zbuf_ptex_lit32)
  */
 FUNC(_poly_zbuf_ptex_mask_lit32)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movl (%esi, %eax, 4), %eax    /* read texel */
@@ -1842,8 +1842,8 @@ FUNC(_poly_zbuf_ptex_mask_lit32)
    movl %eax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_PTEX(
-     movl DALPHA, %eax
-     addl $4, %edi
+     movl DALPHA, %eax ;
+     addl $4, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_ptex_mask_lit32() */
@@ -1858,9 +1858,9 @@ FUNC(_poly_zbuf_ptex_mask_lit32)
  */
 FUNC(_poly_zbuf_ptex_lit24)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -1881,8 +1881,8 @@ FUNC(_poly_zbuf_ptex_lit24)
    movb %al, FSEG 2(%edi)
    popl %edx
    END_PTEX(
-     movl DALPHA, %eax
-     addl $3, %edi
+     movl DALPHA, %eax ;
+     addl $3, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_ptex_lit24() */
@@ -1892,9 +1892,9 @@ FUNC(_poly_zbuf_ptex_lit24)
  */
 FUNC(_poly_zbuf_ptex_mask_lit24)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    leal (%eax, %eax, 2), %ecx
@@ -1917,8 +1917,8 @@ FUNC(_poly_zbuf_ptex_mask_lit24)
    movb %al, FSEG 2(%edi)
    popl %edx
    END_PTEX(
-     movl DALPHA, %eax
-     addl $3, %edi
+     movl DALPHA, %eax ;
+     addl $3, %edi ;
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_ptex_mask_lit24() */
@@ -1933,7 +1933,7 @@ FUNC(_poly_zbuf_ptex_mask_lit24)
  */
 FUNC(_poly_zbuf_ptex_trans8)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movzbl (%esi, %eax), %eax     /* read texel */
@@ -1946,7 +1946,7 @@ FUNC(_poly_zbuf_ptex_trans8)
    movb (%ecx, %eax), %al
    movb %al, FSEG(%edi)
    END_PTEX(
-     incl %edi
+     incl %edi ;
      incl READ_ADDR
    )
    ret                           /* end of _poly_zbuf_ptex_trans8() */
@@ -1956,7 +1956,7 @@ FUNC(_poly_zbuf_ptex_trans8)
  */
 FUNC(_poly_zbuf_ptex_mask_trans8)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movzbl (%esi, %eax), %eax     /* read texel */
@@ -1971,7 +1971,7 @@ FUNC(_poly_zbuf_ptex_mask_trans8)
    movb (%ecx, %eax), %al
    movb %al, FSEG(%edi)
    END_PTEX(
-     incl %edi
+     incl %edi ;
      incl READ_ADDR
    )
    ret                           /* end of _poly_zbuf_ptex_mask_trans8() */
@@ -1984,7 +1984,7 @@ FUNC(_poly_zbuf_ptex_mask_trans8)
  */
 FUNC(_poly_zbuf_ptex_trans15)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -2003,7 +2003,7 @@ FUNC(_poly_zbuf_ptex_trans15)
    movw %ax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_PTEX(
-     addl $2, %edi
+     addl $2, %edi ;
      addl $2, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_ptex_trans15() */
@@ -2013,7 +2013,7 @@ FUNC(_poly_zbuf_ptex_trans15)
  */
 FUNC(_poly_zbuf_ptex_mask_trans15)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movw (%esi, %eax, 2), %ax    /* read texel */
@@ -2034,7 +2034,7 @@ FUNC(_poly_zbuf_ptex_mask_trans15)
    movw %ax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_PTEX(
-     addl $2, %edi
+     addl $2, %edi ;
      addl $2, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_ptex_mask_trans15() */
@@ -2046,7 +2046,7 @@ FUNC(_poly_zbuf_ptex_mask_trans15)
  */
 FUNC(_poly_zbuf_ptex_trans16)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -2065,7 +2065,7 @@ FUNC(_poly_zbuf_ptex_trans16)
    movw %ax, FSEG(%edi)          /* write the pixel */
    popl %edx
    END_PTEX(
-     addl $2, %edi
+     addl $2, %edi ;
      addl $2, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_ptex_trans16() */
@@ -2075,7 +2075,7 @@ FUNC(_poly_zbuf_ptex_trans16)
  */
 FUNC(_poly_zbuf_ptex_mask_trans16)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movw (%esi, %eax, 2), %ax     /* read texel */
@@ -2096,7 +2096,7 @@ FUNC(_poly_zbuf_ptex_mask_trans16)
    movw %ax, FSEG(%edi)          /* write the pixel */
    popl %edx
    END_PTEX(
-     addl $2, %edi
+     addl $2, %edi ;
      addl $2, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_ptex_mask_trans16() */
@@ -2111,7 +2111,7 @@ FUNC(_poly_zbuf_ptex_mask_trans16)
  */
 FUNC(_poly_zbuf_ptex_trans32)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -2128,7 +2128,7 @@ FUNC(_poly_zbuf_ptex_trans32)
    movl %eax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_PTEX(
-     addl $4, %edi
+     addl $4, %edi ;
      addl $4, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_ptex_trans32() */
@@ -2138,7 +2138,7 @@ FUNC(_poly_zbuf_ptex_trans32)
  */
 FUNC(_poly_zbuf_ptex_mask_trans32)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movl (%esi, %eax, 4), %eax    /* read texel */
@@ -2158,7 +2158,7 @@ FUNC(_poly_zbuf_ptex_mask_trans32)
    movl %eax, FSEG(%edi)         /* write the pixel */
    popl %edx
    END_PTEX(
-     addl $4, %edi
+     addl $4, %edi ;
      addl $4, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_ptex_mask_trans32() */
@@ -2173,7 +2173,7 @@ FUNC(_poly_zbuf_ptex_mask_trans32)
  */
 FUNC(_poly_zbuf_ptex_trans24)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -2199,7 +2199,7 @@ FUNC(_poly_zbuf_ptex_trans24)
    movb %al, FSEG 2(%edi)
    popl %edx
    END_PTEX(
-     addl $3, %edi
+     addl $3, %edi ;
      addl $3, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_ptex_trans24() */
@@ -2209,7 +2209,7 @@ FUNC(_poly_zbuf_ptex_trans24)
  */
 FUNC(_poly_zbuf_ptex_mask_trans24)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    leal (%eax, %eax, 2), %ecx
@@ -2237,7 +2237,7 @@ FUNC(_poly_zbuf_ptex_mask_trans24)
    movb %al, FSEG 2(%edi)
    popl %edx
    END_PTEX(
-     addl $3, %edi
+     addl $3, %edi ;
      addl $3, READ_ADDR
    )
    ret                           /* end of _poly_zbuf_ptex_mask_trans24() */

@@ -335,11 +335,11 @@ blit_longsmmx:
 blit_mmxlong_long:               /* blit longs64 and long */
    BLIT_LOOP(long_longsmmx, 2,
    even_llmmx_loop:
-      movq %ds:(%esi), %mm0
-      movq %mm0, %es:(%edi)
-      addl $8, %esi
-      addl $8, %edi
-      loop even_llmmx_loop
+      movq %ds:(%esi), %mm0 ;
+      movq %mm0, %es:(%edi) ;
+      addl $8, %esi ;
+      addl $8, %edi ;
+      loop even_llmmx_loop ;
       movsl
    )
    emms
@@ -349,12 +349,12 @@ blit_mmxlong_long:               /* blit longs64 and long */
 blit_mmxlong_word:
    BLIT_LOOP(word_longsmmx, 2,
    even_wlmmx_loop:
-      movq %ds:(%esi), %mm0
-      movq %mm0, %es:(%edi)
-      addl $8, %esi
-      addl $8, %edi
-      loop even_wlmmx_loop
-      movsl
+      movq %ds:(%esi), %mm0 ;
+      movq %mm0, %es:(%edi) ;
+      addl $8, %esi ;
+      addl $8, %edi ;
+      loop even_wlmmx_loop ;
+      movsl ;
       movsw
    )
    emms
@@ -364,11 +364,11 @@ blit_mmxlong_word:
 blit_even_wmmxlongs:
    BLIT_LOOP(word_wlongsmmx, 2,
    even_wmmx_loop:
-      movq %ds:(%esi), %mm0
-      movq %mm0, %es:(%edi)
-      addl $8, %esi
-      addl $8, %edi
-      loop even_wmmx_loop
+      movq %ds:(%esi), %mm0 ;
+      movq %mm0, %es:(%edi) ;
+      addl $8, %esi ;
+      addl $8, %edi ;
+      loop even_wmmx_loop ;
       movsw
    )
    emms
@@ -378,10 +378,10 @@ blit_even_wmmxlongs:
 blit_even_mmxlongs:
    BLIT_LOOP(even_longsmmx, 2,
    even_lmmx_loop:
-      movq %ds:(%esi), %mm0
-      movq %mm0, %es:(%edi)
-      addl $8, %esi
-      addl $8, %edi
+      movq %ds:(%esi), %mm0 ;
+      movq %mm0, %es:(%edi) ;
+      addl $8, %esi ;
+      addl $8, %edi ;
       loop even_lmmx_loop
    )
    emms
@@ -406,7 +406,7 @@ blit_no_mmx:
 
    _align_
    BLIT_LOOP(longs_and_word, 2,  /* long at a time, plus leftover word */
-      rep ; movsl
+      rep ; movsl ;
       movsw
    )
    jmp blit_done
@@ -546,38 +546,38 @@ FUNC(_linear_masked_blit16)
 
    BLIT_LOOP(masked32, 2,
 
-      movl V_MASK, %edx
+      movl V_MASK, %edx ;
 
-      test $1, %ecx               /* 32 bit aligned->use new code */
-      jz masked32_blit_x_loop
-      movw (%esi), %ax            /* read a pixel */
-      cmpw %ax, %dx               /* test it */
-      je masked16_blit_skip
-      movw %ax, %es:(%edi)       /* write the pixel */
+      test $1, %ecx ;             /* 32 bit aligned->use new code */
+      jz masked32_blit_x_loop ;
+      movw (%esi), %ax ;          /* read a pixel */
+      cmpw %ax, %dx ;             /* test it */
+      je masked16_blit_skip ;
+      movw %ax, %es:(%edi) ;      /* write the pixel */
    masked16_blit_skip:
-      decl %ecx
-      jng masked32_blit_end
-      addl $2, %esi
-      addl $2, %edi
+      decl %ecx ;
+      jng masked32_blit_end ;
+      addl $2, %esi ;
+      addl $2, %edi ;
 
-      _align_
+      _align_ ;
    masked32_blit_x_loop:
-      movl (%esi), %eax          /* read two pixels */
-      addl $4, %esi
-      cmpl %eax, %edx            /* test it */
-      je masked32_blit_skip2
-      cmpw %ax, %dx              /* test it */
-      je masked32_blit_skip1
-      movw %ax, %es:(%edi)       /* write the pixel */
+      movl (%esi), %eax ;        /* read two pixels */
+      addl $4, %esi ;
+      cmpl %eax, %edx ;          /* test it */
+      je masked32_blit_skip2 ;
+      cmpw %ax, %dx ;            /* test it */
+      je masked32_blit_skip1 ;
+      movw %ax, %es:(%edi) ;     /* write the pixel */
    masked32_blit_skip1:
-      shrl $16, %eax
-      cmpw %ax, %dx              /* test it */
-      je masked32_blit_skip2
-      movw %ax, %es:2(%edi)      /* write the pixel */
+      shrl $16, %eax ;
+      cmpw %ax, %dx ;            /* test it */
+      je masked32_blit_skip2 ;
+      movw %ax, %es:2(%edi) ;    /* write the pixel */
    masked32_blit_skip2:
-      addl $4, %edi
-      subl $2, %ecx
-      jg masked32_blit_x_loop
+      addl $4, %edi ;
+      subl $2, %ecx ;
+      jg masked32_blit_x_loop ;
    masked32_blit_end:
    )
 

@@ -551,8 +551,8 @@ xhline_not_xor:
       movl GLOBL(color_map), %ecx   /* color map in ecx */
 
    HLINE_LOOP(trans,
-      movb %es:(%esi), %al       /* read existing color */
-      movb (%ecx, %eax), %al     /* lookup color in table */
+      movb %es:(%esi), %al ;     /* read existing color */
+      movb (%ecx, %eax), %al ;   /* lookup color in table */
       movb %al, %es:(%esi)       /* write pixel */
    )
    jmp xhline_done
@@ -577,12 +577,12 @@ xhline_not_trans:
    je xhline_solid_pattern
 
    HLINE_LOOP(masked_pattern,
-      movb (%ebx, %edi), %al     /* read pixel from pattern bitmap */
-      testb %al, %al             /* test it */
-      jz xhline_masked_zero
-      movb %ah, %es:(%esi)       /* write solid pixel */
+      movb (%ebx, %edi), %al ;   /* read pixel from pattern bitmap */
+      testb %al, %al ;           /* test it */
+      jz xhline_masked_zero ;
+      movb %ah, %es:(%esi) ;     /* write solid pixel */
    xhline_masked_zero:
-      addl $4, %edi 
+      addl $4, %edi ;
       andl %ecx, %edi            /* advance through pattern bitmap */
    )
    jmp xhline_done
@@ -590,13 +590,13 @@ xhline_not_trans:
    _align_
 xhline_solid_pattern:
    HLINE_LOOP(solid_pattern, 
-      movb (%ebx, %edi), %al     /* read pixel from pattern bitmap */
-      testb %al, %al             /* test it */
-      jz xhline_solid_zero
-      movb %ah, %al              /* select a colored pixel */
+      movb (%ebx, %edi), %al ;   /* read pixel from pattern bitmap */
+      testb %al, %al ;           /* test it */
+      jz xhline_solid_zero ;
+      movb %ah, %al ;            /* select a colored pixel */
    xhline_solid_zero:
-      movb %al, %es:(%esi)       /* write pixel */
-      addl $4, %edi 
+      movb %al, %es:(%esi) ;     /* write pixel */
+      addl $4, %edi ;
       andl %ecx, %edi            /* advance through pattern bitmap */
    )
    jmp xhline_done
@@ -604,9 +604,9 @@ xhline_solid_pattern:
    _align_
 xhline_copy_pattern:
    HLINE_LOOP(copy_pattern, 
-      movb (%ebx, %edi), %al     /* read pixel from pattern bitmap */
-      movb %al, %es:(%esi)       /* write pixel */
-      addl $4, %edi 
+      movb (%ebx, %edi), %al ;   /* read pixel from pattern bitmap */
+      movb %al, %es:(%esi) ;     /* write pixel */
+      addl $4, %edi ;
       andl %ecx, %edi            /* advance through pattern bitmap */
    )
    jmp xhline_done

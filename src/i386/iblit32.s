@@ -205,25 +205,25 @@ FUNC(_linear_masked_blit32)
    _align_
    BLIT_LOOP(masked, 4,
 
-      _align_
+      _align_ ;
    masked_blit_x_loop:
-      movl (%esi), %eax          /* read a byte */
-      addl $4, %esi
+      movl (%esi), %eax ;        /* read a byte */
+      addl $4, %esi ;
 
-      cmpl $MASK_COLOR_32, %eax  /* test it */
-      je masked_blit_skip
+      cmpl $MASK_COLOR_32, %eax ;/* test it */
+      je masked_blit_skip ;
 
-      movl %eax, %es:(%edi)      /* write the pixel */
-      addl $4, %edi
-      decl %ecx
-      jg masked_blit_x_loop
-      jmp masked_blit_x_loop_done
+      movl %eax, %es:(%edi) ;    /* write the pixel */
+      addl $4, %edi ;
+      decl %ecx ;
+      jg masked_blit_x_loop ;
+      jmp masked_blit_x_loop_done ;
 
-      _align_
+      _align_ ;
    masked_blit_skip:
-      addl $4, %edi              /* skip zero pixels */
-      decl %ecx
-      jg masked_blit_x_loop
+      addl $4, %edi ;            /* skip zero pixels */
+      decl %ecx ;
+      jg masked_blit_x_loop ;
 
    masked_blit_x_loop_done:
    )

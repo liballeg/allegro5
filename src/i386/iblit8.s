@@ -324,7 +324,7 @@ FUNC(_linear_blit8)
 
    _align_
    BLIT_LOOP(words_and_byte, 1,  /* word at a time, plus leftover byte */
-      rep ; movsw
+      rep ; movsw ;
       movsb
    )
    jmp blit_done
@@ -337,7 +337,7 @@ blit_even_bytes:
 
    _align_
    BLIT_LOOP(longs_and_word, 1,  /* long at a time, plus leftover word */
-      rep ; movsl
+      rep ; movsl ;
       movsw
    )
    jmp blit_done
@@ -345,7 +345,7 @@ blit_even_bytes:
    _align_
 blit_even_words: 
    BLIT_LOOP(even_words, 1,      /* copy a long at a time */
-      rep ; movsl
+      rep ; movsl ;
    )
    jmp blit_done
 
@@ -520,110 +520,110 @@ FUNC(_linear_masked_blit8)
 
    BLIT_LOOP(masked16, 1,
 
-      test $1, %ecx              /* 16 bit aligned->use new code */
-      jz masked16_blit           /* width 16 bit aligned */
-      movb (%esi), %al           /* read a byte */
-      incl %esi
-      orb %al, %al               /* test it */
-      jz masked8_skip
-      movb %al, %es:(%edi)       /* write the pixel */
+      test $1, %ecx ;            /* 16 bit aligned->use new code */
+      jz masked16_blit ;         /* width 16 bit aligned */
+      movb (%esi), %al ;         /* read a byte */
+      incl %esi ;
+      orb %al, %al ;             /* test it */
+      jz masked8_skip ;
+      movb %al, %es:(%edi) ;     /* write the pixel */
    masked8_skip:
-      incl %edi
-      decl %ecx
-      jng masked16_blit_end
+      incl %edi ;
+      decl %ecx ;
+      jng masked16_blit_end ;
 
    masked16_blit:
-      test $3, %ecx              /* 32 bit aligned->use new code */
-      jz masked16_blit_x_loop    /* width 32 bit aligned */
-      movw (%esi), %ax           /* read two pixels */
-      orw %ax, %ax
-      jz masked16_blit_end2
-      orb %al,%al
-      jz masked16_blit_wskip1
-      orb %ah,%ah
-      jz masked16_blit_p1wskip2
-      movw %ax, %es:(%edi)       /* write the pixel */
-      jmp masked16_blit_end2
-      _align_
+      test $3, %ecx ;            /* 32 bit aligned->use new code */
+      jz masked16_blit_x_loop ;  /* width 32 bit aligned */
+      movw (%esi), %ax ;         /* read two pixels */
+      orw %ax, %ax ;
+      jz masked16_blit_end2 ;
+      orb %al,%al ;
+      jz masked16_blit_wskip1 ;
+      orb %ah,%ah ;
+      jz masked16_blit_p1wskip2 ;
+      movw %ax, %es:(%edi) ;     /* write the pixel */
+      jmp masked16_blit_end2 ;
+      _align_ ;
    masked16_blit_p1wskip2:
-      movb %al, %es:(%edi)      /* write the pixel */
-      jmp masked16_blit_end2
-      _align_
+      movb %al, %es:(%edi) ;    /* write the pixel */
+      jmp masked16_blit_end2 ;
+      _align_ ;
    masked16_blit_wskip1:
-      movb %ah, %es:1(%edi)      /* write the pixel */
-      _align_
+      movb %ah, %es:1(%edi) ;    /* write the pixel */
+      _align_ ;
    masked16_blit_end2:
-      subl $2, %ecx
-      jng masked16_blit_end
-      addl $2, %esi
-      addl $2, %edi
+      subl $2, %ecx ;
+      jng masked16_blit_end ;
+      addl $2, %esi ;
+      addl $2, %edi ;
 
-      _align_
+      _align_ ;
    masked16_blit_x_loop:
-      movl (%esi), %eax           /* read four pixels */
-      addl $4, %esi
-      movl %eax, %edx
-      shrl $16,%edx
-      orl %eax, %eax
-      jz masked16_blit_skip4
-      orw %ax, %ax
-      jz masked16_blit_skip2
-      orb %al,%al
-      jz masked16_blit_skip1
-      orb %ah, %ah
-      jz masked16_put1skip2
-      orb %dl,%dl
-      jz masked16_put12_skip3
-      orb %dh,%dh
-      jz masked16_put123_skip4
-      movl %eax, %es:(%edi)       /* write the pixel */
-      jmp masked16_blit_skip4
+      movl (%esi), %eax ;         /* read four pixels */
+      addl $4, %esi ;
+      movl %eax, %edx ;
+      shrl $16,%edx ;
+      orl %eax, %eax ;
+      jz masked16_blit_skip4 ;
+      orw %ax, %ax ;
+      jz masked16_blit_skip2 ;
+      orb %al,%al ;
+      jz masked16_blit_skip1 ;
+      orb %ah, %ah ;
+      jz masked16_put1skip2 ;
+      orb %dl,%dl ;
+      jz masked16_put12_skip3 ;
+      orb %dh,%dh ;
+      jz masked16_put123_skip4 ;
+      movl %eax, %es:(%edi) ;     /* write the pixel */
+      jmp masked16_blit_skip4 ;
 
-      _align_
+      _align_ ;
    masked16_put1skip2:
-      movb %al, %es:(%edi)       /* write the pixel */
-      jmp masked16_blit_skip2
-      _align_
+      movb %al, %es:(%edi) ;     /* write the pixel */
+      jmp masked16_blit_skip2 ;
+      _align_ ;
    masked16_put12_skip3:
-      movw %ax, %es:(%edi)       /* write the pixel */
-      orb %dh, %dh
-      jnz masked16_blit_skip3
-      jmp masked16_blit_skip4
-      _align_
+      movw %ax, %es:(%edi) ;     /* write the pixel */
+      orb %dh, %dh ;
+      jnz masked16_blit_skip3 ;
+      jmp masked16_blit_skip4 ;
+      _align_ ;
    masked16_put123_skip4:
-      movw %ax, %es:(%edi)       /* write the pixel */
-      movb %dl, %es:2(%edi)       /* write the pixel */
-      addl $4, %edi
-      subl $4, %ecx
-      jg masked16_blit_x_loop
-      jmp masked16_blit_end
+      movw %ax, %es:(%edi) ;     /* write the pixel */
+      movb %dl, %es:2(%edi) ;     /* write the pixel */
+      addl $4, %edi ;
+      subl $4, %ecx ;
+      jg masked16_blit_x_loop ;
+      jmp masked16_blit_end ;
 
    masked16_blit_skip1:
-      movb %ah, %es:1(%edi)      /* write the pixel */
+      movb %ah, %es:1(%edi) ;    /* write the pixel */
    masked16_blit_skip2:
-      orw %dx, %dx
-      jz masked16_blit_skip4
-      orb %dl,%dl
-      jz masked16_blit_skip3
-      orb %dh, %dh
-      jz masked16_put3skip4
-      movw %dx, %es:2(%edi)       /* write the pixel */
-      jmp masked16_blit_skip4
+      orw %dx, %dx ;
+      jz masked16_blit_skip4 ;
+      orb %dl,%dl ;
+      jz masked16_blit_skip3 ;
+      orb %dh, %dh ;
+      jz masked16_put3skip4 ;
+      movw %dx, %es:2(%edi) ;     /* write the pixel */
+      jmp masked16_blit_skip4 ;
 
-      _align_
+      _align_ ;
    masked16_put3skip4:
-      movb %dl, %es:2(%edi)       /* write the pixel */
-      addl $4, %edi
-      subl $4, %ecx
-      jg masked16_blit_x_loop
-      jmp masked16_blit_end
+      movb %dl, %es:2(%edi) ;     /* write the pixel */
+      addl $4, %edi ;
+      subl $4, %ecx ;
+      jg masked16_blit_x_loop ;
+      jmp masked16_blit_end ;
 
    masked16_blit_skip3:
-      movb %dh, %es:3(%edi)      /* write the pixel */
+      movb %dh, %es:3(%edi) ;    /* write the pixel */
    masked16_blit_skip4:
-      addl $4, %edi
-      subl $4, %ecx
-      jg masked16_blit_x_loop
+      addl $4, %edi ;
+      subl $4, %ecx ;
+      jg masked16_blit_x_loop ;
    masked16_blit_end:
    )
 

@@ -293,15 +293,15 @@ atex_mask_done:
  */
 FUNC(_poly_scanline_atex_lit8)
    INIT_ATEX(
-      movl POLYSEG_C(%esi), %eax
-      movl POLYSEG_DC(%esi), %ebx
-      sarl $8, %eax
-      sarl $8, %ebx
-      jge atex_lit_round
-      incl %ebx
+      movl POLYSEG_C(%esi), %eax ;
+      movl POLYSEG_DC(%esi), %ebx ;
+      sarl $8, %eax ;
+      sarl $8, %ebx ;
+      jge atex_lit_round ;
+      incl %ebx ;
    atex_lit_round:
-      subl %ebx, %eax
-      movl %ebx, DC
+      subl %ebx, %eax ;
+      movl %ebx, DC ;
       movl %eax, C
    )
 
@@ -365,15 +365,15 @@ atex_lit_done:
  */
 FUNC(_poly_scanline_atex_mask_lit8)
    INIT_ATEX(
-      movl POLYSEG_C(%esi), %eax
-      movl POLYSEG_DC(%esi), %ebx
-      sarl $8, %eax
-      sarl $8, %ebx
-      jge atex_mask_lit_round
-      incl %ebx
+      movl POLYSEG_C(%esi), %eax ;
+      movl POLYSEG_DC(%esi), %ebx ;
+      sarl $8, %eax ;
+      sarl $8, %ebx ;
+      jge atex_mask_lit_round ;
+      incl %ebx ;
    atex_mask_lit_round:
-      subl %ebx, %eax
-      movl %ebx, DC
+      subl %ebx, %eax ;
+      movl %ebx, DC ;
       movl %eax, C
    )
 
@@ -1290,9 +1290,9 @@ FUNC(_poly_scanline_atex_mask24)
  */
 FUNC(_poly_scanline_atex_lit15)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -1317,9 +1317,9 @@ FUNC(_poly_scanline_atex_lit15)
  */
 FUNC(_poly_scanline_atex_mask_lit15)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movw (%esi, %eax, 2), %ax    /* read texel */
@@ -1349,9 +1349,9 @@ FUNC(_poly_scanline_atex_mask_lit15)
  */
 FUNC(_poly_scanline_atex_lit16)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -1376,9 +1376,9 @@ FUNC(_poly_scanline_atex_lit16)
  */
 FUNC(_poly_scanline_atex_mask_lit16)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movw (%esi, %eax, 2), %ax     /* read texel */
@@ -1411,9 +1411,9 @@ FUNC(_poly_scanline_atex_mask_lit16)
  */
 FUNC(_poly_scanline_atex_lit32)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -1438,9 +1438,9 @@ FUNC(_poly_scanline_atex_lit32)
  */
 FUNC(_poly_scanline_atex_mask_lit32)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movl (%esi, %eax, 4), %eax    /* read texel */
@@ -1473,9 +1473,9 @@ FUNC(_poly_scanline_atex_mask_lit32)
  */
 FUNC(_poly_scanline_atex_lit24)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -1505,9 +1505,9 @@ FUNC(_poly_scanline_atex_lit24)
  */
 FUNC(_poly_scanline_atex_mask_lit24)
    INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    leal (%eax, %eax, 2), %ecx
@@ -1545,7 +1545,7 @@ FUNC(_poly_scanline_atex_mask_lit24)
  */
 FUNC(_poly_scanline_atex_trans8)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edi
@@ -1567,7 +1567,7 @@ FUNC(_poly_scanline_atex_trans8)
  */
 FUNC(_poly_scanline_atex_mask_trans8)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movzbl (%esi, %eax), %eax     /* read texel */
@@ -1596,7 +1596,7 @@ FUNC(_poly_scanline_atex_mask_trans8)
  */
 FUNC(_poly_scanline_atex_trans15)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -1624,7 +1624,7 @@ FUNC(_poly_scanline_atex_trans15)
  */
 FUNC(_poly_scanline_atex_mask_trans15)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movw (%esi, %eax, 2), %ax    /* read texel */
@@ -1657,7 +1657,7 @@ FUNC(_poly_scanline_atex_mask_trans15)
  */
 FUNC(_poly_scanline_atex_trans16)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -1685,7 +1685,7 @@ FUNC(_poly_scanline_atex_trans16)
  */
 FUNC(_poly_scanline_atex_mask_trans16)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movw (%esi, %eax, 2), %ax     /* read texel */
@@ -1721,7 +1721,7 @@ FUNC(_poly_scanline_atex_mask_trans16)
  */
 FUNC(_poly_scanline_atex_trans32)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -1747,7 +1747,7 @@ FUNC(_poly_scanline_atex_trans32)
  */
 FUNC(_poly_scanline_atex_mask_trans32)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    movl (%esi, %eax, 4), %eax    /* read texel */
@@ -1782,7 +1782,7 @@ FUNC(_poly_scanline_atex_mask_trans32)
  */
 FUNC(_poly_scanline_atex_trans24)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -1817,7 +1817,7 @@ FUNC(_poly_scanline_atex_trans24)
  */
 FUNC(_poly_scanline_atex_mask_trans24)
    INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax
+     movl POLYSEG_RADDR(%esi), %eax ;
      movl %eax, READ_ADDR
    )
    leal (%eax, %eax, 2), %ecx
@@ -2148,9 +2148,9 @@ FUNC(_poly_scanline_ptex_mask24)
  */
 FUNC(_poly_scanline_ptex_mask_lit8)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movzbl (%esi, %eax), %eax     /* read texel */
@@ -2176,9 +2176,9 @@ FUNC(_poly_scanline_ptex_mask_lit8)
  */
 FUNC(_poly_scanline_ptex_lit15)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -2203,9 +2203,9 @@ FUNC(_poly_scanline_ptex_lit15)
  */
 FUNC(_poly_scanline_ptex_mask_lit15)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movw (%esi, %eax, 2), %ax     /* read texel */
@@ -2235,9 +2235,9 @@ FUNC(_poly_scanline_ptex_mask_lit15)
  */
 FUNC(_poly_scanline_ptex_lit16)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -2262,9 +2262,9 @@ FUNC(_poly_scanline_ptex_lit16)
  */
 FUNC(_poly_scanline_ptex_mask_lit16)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movw (%esi, %eax, 2), %ax     /* read texel */
@@ -2297,9 +2297,9 @@ FUNC(_poly_scanline_ptex_mask_lit16)
  */
 FUNC(_poly_scanline_ptex_lit32)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -2324,9 +2324,9 @@ FUNC(_poly_scanline_ptex_lit32)
  */
 FUNC(_poly_scanline_ptex_mask_lit32)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    movl (%esi, %eax, 4), %eax    /* read texel */
@@ -2359,9 +2359,9 @@ FUNC(_poly_scanline_ptex_mask_lit32)
  */
 FUNC(_poly_scanline_ptex_lit24)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    pushl %edx
@@ -2391,9 +2391,9 @@ FUNC(_poly_scanline_ptex_lit24)
  */
 FUNC(_poly_scanline_ptex_mask_lit24)
    INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax
-     movl POLYSEG_DC(%esi), %edx
-     movl %eax, ALPHA
+     movl POLYSEG_C(%esi), %eax ;
+     movl POLYSEG_DC(%esi), %edx ;
+     movl %eax, ALPHA ;
      movl %edx, DALPHA
    )
    leal (%eax, %eax, 2), %ecx
@@ -2431,7 +2431,7 @@ FUNC(_poly_scanline_ptex_mask_lit24)
  */
 FUNC(_poly_scanline_ptex_trans8)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax
+     movl POLYSEG_RADDR(%esi) ,%eax ;
      movl %eax, READ_ADDR
    )
    movzbl (%esi, %eax), %eax     /* read texel */
@@ -2453,7 +2453,7 @@ FUNC(_poly_scanline_ptex_trans8)
  */
 FUNC(_poly_scanline_ptex_mask_trans8)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax
+     movl POLYSEG_RADDR(%esi) ,%eax ;
      movl %eax, READ_ADDR
    )
    movzbl (%esi, %eax), %eax     /* read texel */
@@ -2483,7 +2483,7 @@ FUNC(_poly_scanline_ptex_mask_trans8)
  */
 FUNC(_poly_scanline_ptex_trans15)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax
+     movl POLYSEG_RADDR(%esi) ,%eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -2511,7 +2511,7 @@ FUNC(_poly_scanline_ptex_trans15)
  */
 FUNC(_poly_scanline_ptex_mask_trans15)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax
+     movl POLYSEG_RADDR(%esi) ,%eax ;
      movl %eax, READ_ADDR
    )
    movw (%esi, %eax, 2), %ax     /* read texel */
@@ -2544,7 +2544,7 @@ FUNC(_poly_scanline_ptex_mask_trans15)
  */
 FUNC(_poly_scanline_ptex_trans16)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax
+     movl POLYSEG_RADDR(%esi) ,%eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -2572,7 +2572,7 @@ FUNC(_poly_scanline_ptex_trans16)
  */
 FUNC(_poly_scanline_ptex_mask_trans16)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax
+     movl POLYSEG_RADDR(%esi) ,%eax ;
      movl %eax, READ_ADDR
    )
    movw (%esi, %eax, 2), %ax     /* read texel */
@@ -2608,7 +2608,7 @@ FUNC(_poly_scanline_ptex_mask_trans16)
  */
 FUNC(_poly_scanline_ptex_trans32)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax
+     movl POLYSEG_RADDR(%esi) ,%eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -2634,7 +2634,7 @@ FUNC(_poly_scanline_ptex_trans32)
  */
 FUNC(_poly_scanline_ptex_mask_trans32)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax
+     movl POLYSEG_RADDR(%esi) ,%eax ;
      movl %eax, READ_ADDR
    )
    movl (%esi, %eax, 4), %eax    /* read texel */
@@ -2669,7 +2669,7 @@ FUNC(_poly_scanline_ptex_mask_trans32)
  */
 FUNC(_poly_scanline_ptex_trans24)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax
+     movl POLYSEG_RADDR(%esi) ,%eax ;
      movl %eax, READ_ADDR
    )
    pushl %edx
@@ -2704,7 +2704,7 @@ FUNC(_poly_scanline_ptex_trans24)
  */
 FUNC(_poly_scanline_ptex_mask_trans24)
    INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax
+     movl POLYSEG_RADDR(%esi) ,%eax ;
      movl %eax, READ_ADDR
    )
    leal (%eax, %eax, 2), %ecx

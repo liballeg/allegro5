@@ -436,13 +436,13 @@ FUNC(_poly_scanline_grgb24x)
 #ifdef ALLEGRO_COLOR16
 FUNC(_poly_scanline_atex_lit15x)
    INIT_ATEX(
-     INIT_MMX_ALPHA()
-     movq GLOBL(_mask_mmx_15), %mm7
-     movl GLOBL(_blender_col_15), %eax
-     movw %ax, ALPHA
-     movw %ax, ALPHA2
-     movb %ah, ALPHA4
-     movq ALPHA, %mm6
+     INIT_MMX_ALPHA() ;
+     movq GLOBL(_mask_mmx_15), %mm7 ;
+     movl GLOBL(_blender_col_15), %eax ;
+     movw %ax, ALPHA ;
+     movw %ax, ALPHA2 ;
+     movb %ah, ALPHA4 ;
+     movq ALPHA, %mm6 ;
      PAND_R(7, 6)
    )
    movw (%esi, %eax, 2), %ax
@@ -472,13 +472,13 @@ FUNC(_poly_scanline_atex_lit15x)
 
 FUNC(_poly_scanline_atex_mask_lit15x)
    INIT_ATEX(
-     INIT_MMX_ALPHA()
-     movq GLOBL(_mask_mmx_15), %mm7
-     movl GLOBL(_blender_col_15), %eax
-     movw %ax, ALPHA
-     movw %ax, ALPHA2
-     movb %ah, ALPHA4
-     movq ALPHA, %mm6
+     INIT_MMX_ALPHA() ;
+     movq GLOBL(_mask_mmx_15), %mm7 ;
+     movl GLOBL(_blender_col_15), %eax ;
+     movw %ax, ALPHA ;
+     movw %ax, ALPHA2 ;
+     movb %ah, ALPHA4 ;
+     movq ALPHA, %mm6 ;
      PAND_R(7, 6)
    )
    movw (%esi, %eax, 2), %ax
@@ -511,13 +511,13 @@ FUNC(_poly_scanline_atex_mask_lit15x)
 
 FUNC(_poly_scanline_atex_lit16x)
    INIT_ATEX(
-     INIT_MMX_ALPHA()
-     movq GLOBL(_mask_mmx_16), %mm7
-     movl GLOBL(_blender_col_16), %eax
-     movw %ax, ALPHA
-     movw %ax, ALPHA2
-     movb %ah, ALPHA4
-     movq ALPHA, %mm6
+     INIT_MMX_ALPHA() ;
+     movq GLOBL(_mask_mmx_16), %mm7 ;
+     movl GLOBL(_blender_col_16), %eax ;
+     movw %ax, ALPHA ;
+     movw %ax, ALPHA2 ;
+     movb %ah, ALPHA4 ;
+     movq ALPHA, %mm6 ;
      PAND_R(7, 6)
    )
    movw (%esi, %eax, 2), %ax
@@ -547,13 +547,13 @@ FUNC(_poly_scanline_atex_lit16x)
 
 FUNC(_poly_scanline_atex_mask_lit16x)
    INIT_ATEX(
-     INIT_MMX_ALPHA()
-     movq GLOBL(_mask_mmx_16), %mm7
-     movl GLOBL(_blender_col_16), %eax
-     movw %ax, ALPHA
-     movw %ax, ALPHA2
-     movb %ah, ALPHA4
-     movq ALPHA, %mm6
+     INIT_MMX_ALPHA() ;
+     movq GLOBL(_mask_mmx_16), %mm7 ;
+     movl GLOBL(_blender_col_16), %eax ;
+     movw %ax, ALPHA ;
+     movw %ax, ALPHA2 ;
+     movb %ah, ALPHA4 ;
+     movq ALPHA, %mm6 ;
      PAND_R(7, 6)
    )
    movw (%esi, %eax, 2), %ax
@@ -589,9 +589,9 @@ FUNC(_poly_scanline_atex_mask_lit16x)
 #ifdef ALLEGRO_COLOR32
 FUNC(_poly_scanline_atex_lit32x)
    INIT_ATEX(
-     INIT_MMX_ALPHA()
-     pxor %mm7, %mm7
-     movd GLOBL(_blender_col_32), %mm6
+     INIT_MMX_ALPHA() ;
+     pxor %mm7, %mm7 ;
+     movd GLOBL(_blender_col_32), %mm6 ;
      punpcklbw %mm7, %mm6           /* extend RGB to words */
    )
    movd (%esi, %eax, 4), %mm2
@@ -612,9 +612,9 @@ FUNC(_poly_scanline_atex_lit32x)
 
 FUNC(_poly_scanline_atex_mask_lit32x)
    INIT_ATEX(
-     INIT_MMX_ALPHA()
-     pxor %mm7, %mm7
-     movd GLOBL(_blender_col_32), %mm6
+     INIT_MMX_ALPHA() ;
+     pxor %mm7, %mm7 ;
+     movd GLOBL(_blender_col_32), %mm6 ;
      punpcklbw %mm7, %mm6           /* extend RGB to words */
    )
    movl (%esi, %eax, 4), %eax
@@ -643,9 +643,9 @@ FUNC(_poly_scanline_atex_mask_lit32x)
 #ifdef ALLEGRO_COLOR24
 FUNC(_poly_scanline_atex_lit24x)
    INIT_ATEX(
-     INIT_MMX_ALPHA()
-     pxor %mm7, %mm7
-     movd GLOBL(_blender_col_24), %mm6
+     INIT_MMX_ALPHA() ;
+     pxor %mm7, %mm7 ;
+     movd GLOBL(_blender_col_24), %mm6 ;
      punpcklbw %mm7, %mm6
    )
    leal (%eax, %eax, 2), %ecx
@@ -674,9 +674,9 @@ FUNC(_poly_scanline_atex_lit24x)
 
 FUNC(_poly_scanline_atex_mask_lit24x)
    INIT_ATEX(
-     INIT_MMX_ALPHA()
-     pxor %mm7, %mm7
-     movd GLOBL(_blender_col_24), %mm6
+     INIT_MMX_ALPHA() ;
+     pxor %mm7, %mm7 ;
+     movd GLOBL(_blender_col_24), %mm6 ;
      punpcklbw %mm7, %mm6
    )
    leal (%eax, %eax, 2), %ecx
@@ -1254,14 +1254,14 @@ FUNC(_poly_scanline_ptex_mask_lit15x)
 
 FUNC(_poly_scanline_ptex_lit15d)
    INIT_PTEX_3D(
-      INIT_MMX_ALPHA()
-      movq %mm0, %mm7
-      movq %mm1, DALPHA
-      movl GLOBL(_blender_col_15), %eax
-      movw %ax, BLEND
-      movw %ax, BLEND2
-      movb %ah, BLEND4
-      movq BLEND, %mm6
+      INIT_MMX_ALPHA() ;
+      movq %mm0, %mm7 ;
+      movq %mm1, DALPHA ;
+      movl GLOBL(_blender_col_15), %eax ;
+      movw %ax, BLEND ;
+      movw %ax, BLEND2 ;
+      movb %ah, BLEND4 ;
+      movq BLEND, %mm6 ;
       PAND_M(GLOBL(_mask_mmx_15), 6)        /* pand mem, %mm6 */
    )
    movw (%esi, %eax, 2), %ax
@@ -1290,14 +1290,14 @@ FUNC(_poly_scanline_ptex_lit15d)
 
 FUNC(_poly_scanline_ptex_mask_lit15d)
    INIT_PTEX_3D(
-      INIT_MMX_ALPHA()
-      movq %mm0, %mm7
-      movq %mm1, DALPHA
-      movl GLOBL(_blender_col_15), %eax
-      movw %ax, BLEND
-      movw %ax, BLEND2
-      movb %ah, BLEND4
-      movq BLEND, %mm6
+      INIT_MMX_ALPHA() ;
+      movq %mm0, %mm7 ;
+      movq %mm1, DALPHA ;
+      movl GLOBL(_blender_col_15), %eax ;
+      movw %ax, BLEND ;
+      movw %ax, BLEND2 ;
+      movb %ah, BLEND4 ;
+      movq BLEND, %mm6 ;
       PAND_M(GLOBL(_mask_mmx_15), 6)   /* pand mem, %mm6 */
    )
    movw (%esi, %eax, 2), %ax
@@ -1420,14 +1420,14 @@ FUNC(_poly_scanline_ptex_mask_lit16x)
 
 FUNC(_poly_scanline_ptex_lit16d)
    INIT_PTEX_3D(
-      INIT_MMX_ALPHA()
-      movq %mm0, %mm7
-      movq %mm1, DALPHA
-      movl GLOBL(_blender_col_16), %eax
-      movw %ax, BLEND
-      movw %ax, BLEND2
-      movb %ah, BLEND4
-      movq BLEND, %mm6
+      INIT_MMX_ALPHA() ;
+      movq %mm0, %mm7 ;
+      movq %mm1, DALPHA ;
+      movl GLOBL(_blender_col_16), %eax ;
+      movw %ax, BLEND ;
+      movw %ax, BLEND2 ;
+      movb %ah, BLEND4 ;
+      movq BLEND, %mm6 ;
       PAND_M(GLOBL(_mask_mmx_16), 6)            /* pand mem, %mm6 */
    )
    movw (%esi, %eax, 2), %ax
@@ -1456,14 +1456,14 @@ FUNC(_poly_scanline_ptex_lit16d)
 
 FUNC(_poly_scanline_ptex_mask_lit16d)
    INIT_PTEX_3D(
-      INIT_MMX_ALPHA()
-      movq %mm0, %mm7
-      movq %mm1, DALPHA
-      movl GLOBL(_blender_col_16), %eax
-      movw %ax, BLEND
-      movw %ax, BLEND2
-      movb %ah, BLEND4
-      movq BLEND, %mm6
+      INIT_MMX_ALPHA() ;
+      movq %mm0, %mm7 ;
+      movq %mm1, DALPHA ;
+      movl GLOBL(_blender_col_16), %eax ;
+      movw %ax, BLEND ;
+      movw %ax, BLEND2 ;
+      movb %ah, BLEND4 ;
+      movq BLEND, %mm6 ;
       PAND_M(GLOBL(_mask_mmx_16), 6)            /* pand mem, %mm6 */
    )
    movw (%esi, %eax, 2), %ax
@@ -1565,11 +1565,11 @@ FUNC(_poly_scanline_ptex_mask_lit32x)
 
 FUNC(_poly_scanline_ptex_lit32d)
    INIT_PTEX_3D(
-      INIT_MMX_ALPHA()
-      movq %mm0, %mm7
-      movq %mm1, DALPHA
-      pxor %mm5, %mm5
-      movd GLOBL(_blender_col_32), %mm6
+      INIT_MMX_ALPHA() ;
+      movq %mm0, %mm7 ;
+      movq %mm1, DALPHA ;
+      pxor %mm5, %mm5 ;
+      movd GLOBL(_blender_col_32), %mm6 ;
       punpcklbw %mm5, %mm6
    )
    movd (%esi, %eax, 4), %mm4
@@ -1591,11 +1591,11 @@ FUNC(_poly_scanline_ptex_lit32d)
 
 FUNC(_poly_scanline_ptex_mask_lit32d)
    INIT_PTEX_3D(
-      INIT_MMX_ALPHA()
-      movq %mm0, %mm7
-      movq %mm1, DALPHA
-      pxor %mm5, %mm5
-      movd GLOBL(_blender_col_32), %mm6
+      INIT_MMX_ALPHA() ;
+      movq %mm0, %mm7 ;
+      movq %mm1, DALPHA ;
+      pxor %mm5, %mm5 ;
+      movd GLOBL(_blender_col_32), %mm6 ;
       punpcklbw %mm5, %mm6
    )
    movl (%esi, %eax, 4), %eax
@@ -1704,11 +1704,11 @@ FUNC(_poly_scanline_ptex_mask_lit24x)
 
 FUNC(_poly_scanline_ptex_lit24d)
    INIT_PTEX_3D(
-      INIT_MMX_ALPHA()
-      movq %mm0, %mm7
-      movq %mm1, DALPHA
-      pxor %mm5, %mm5
-      movd GLOBL(_blender_col_24), %mm6
+      INIT_MMX_ALPHA() ;
+      movq %mm0, %mm7 ;
+      movq %mm1, DALPHA ;
+      pxor %mm5, %mm5 ;
+      movd GLOBL(_blender_col_24), %mm6 ;
       punpcklbw %mm5, %mm6
    )
    leal (%eax, %eax, 2), %ecx
@@ -1737,11 +1737,11 @@ FUNC(_poly_scanline_ptex_lit24d)
 
 FUNC(_poly_scanline_ptex_mask_lit24d)
    INIT_PTEX_3D(
-      INIT_MMX_ALPHA()
-      movq %mm0, %mm7
-      movq %mm1, DALPHA
-      pxor %mm5, %mm5
-      movd GLOBL(_blender_col_24), %mm6
+      INIT_MMX_ALPHA() ;
+      movq %mm0, %mm7 ;
+      movq %mm1, DALPHA ;
+      pxor %mm5, %mm5 ;
+      movd GLOBL(_blender_col_24), %mm6 ;
       punpcklbw %mm5, %mm6
    )
    leal (%eax, %eax, 2), %ecx
