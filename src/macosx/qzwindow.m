@@ -452,6 +452,12 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
    dirty_lines = calloc(h + 1, sizeof(char));
    dirty_lines[h] = 1;
    
+   setup_direct_shifts();
+   
+   gfx_quartz_window.w = w;
+   gfx_quartz_window.h = h;
+   gfx_quartz_window.vid_mem = w * h * BYTES_PER_PIXEL(color_depth);
+   
    requested_color_depth = color_depth;
    if (osx_setup_colorconv_blitter()) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
@@ -477,12 +483,6 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return NULL;
    }
-   
-   setup_direct_shifts();
-   
-   gfx_quartz_window.w = w;
-   gfx_quartz_window.h = h;
-   gfx_quartz_window.vid_mem = w * h * BYTES_PER_PIXEL(color_depth);
    
    /* create a new special vtable for the pseudo screen */
    memcpy(&_special_vtable, &_screen_vtable, sizeof(GFX_VTABLE));
