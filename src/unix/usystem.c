@@ -62,8 +62,12 @@ _DRIVER_INFO _system_driver_list[] =
 
 
 
+#ifndef ALLEGRO_MACOSX
+
 /* background function manager */
 struct bg_manager *_unix_bg_man;
+
+#endif
 
 
 
@@ -139,6 +143,8 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 
 
 
+#ifndef ALLEGRO_MACOSX
+
 /* _read_os_type:
  *  Set the os_type variable to something sensible.
  */
@@ -206,6 +212,8 @@ void _read_os_type()
    os_multitasking = TRUE;
 }
 
+#endif
+
 
 
 /* _unix_sysdrv_yield_timeslice:
@@ -228,6 +236,8 @@ void _unix_yield_timeslice(void)
 }
 
 
+
+#ifndef ALLEGRO_MACOSX
 
 /* _unix_get_executable_name:
  *  Return full path to the current executable.
@@ -270,4 +280,6 @@ void _unix_get_executable_name(char *output, int size)
    /* If argv[0] had a slash, or the path search failed, just return argv[0] */
    do_uconvert (__crt0_argv[0], U_ASCII, output, U_CURRENT, size);
 }
+
+#endif
 

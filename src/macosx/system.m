@@ -34,7 +34,6 @@ static void osx_sys_set_window_title(AL_CONST char *);
 static int osx_sys_set_close_button_callback(void (*proc)(void));
 static int osx_sys_set_display_switch_mode(int mode);
 static void osx_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode);
-static void osx_sys_yield_timeslice(void);
 static int osx_sys_desktop_color_depth(void);
 static int osx_sys_get_desktop_resolution(int *width, int *height);
 
@@ -98,7 +97,7 @@ SYSTEM_DRIVER system_macosx =
    osx_sys_desktop_color_depth,
    osx_sys_get_desktop_resolution,
    osx_sys_get_gfx_safe_mode,
-   osx_sys_yield_timeslice,
+   _unix_yield_timeslice,
    _unix_create_mutex,
    _unix_destroy_mutex,
    _unix_lock_mutex,
@@ -552,16 +551,6 @@ static void osx_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
    mode->width = 320;
    mode->height = 200;
    mode->bpp = 8;
-}
-
-
-
-/* osx_sys_yield_timeslice:
- *  Used to play nice with multitasking.
- */
-static void osx_sys_yield_timeslice(void)
-{
-   usleep(0);
 }
 
 
