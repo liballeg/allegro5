@@ -6979,7 +6979,8 @@ changes are the following:
    clicked or if an alt+key corresponding to one of the shortcuts in the 
    menu is pressed. It ignores a lot of the fields in the dialog structure, 
    in particular the color is taken from the gui_*_color variables, and the 
-   width and height are calculated automatically. The dp field points to an 
+   width and height are calculated automatically (the w and h fields from 
+   the DIALOG are only used as a minimum size.) The dp field points to an 
    array of menu structures: see do_menu() for more information. The top 
    level menu will be displayed as a horizontal bar, but when child menus 
    drop down from it they will be in the normal vertical format used by 
