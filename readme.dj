@@ -31,6 +31,7 @@
    - djgpp compiler (djdev*.zip, gcc*b.zip, and bnu*b.zip).
    - GNU make (mak*b.zip).
    - Texinfo (txi*b.zip).
+   - Binutils 2.9.x or later (bnu*b.zip).
    - Optional: rm (fil*b.zip). Used by the clean and uninstall targets.
    - Optional: sed (sed*b.zip). Used by "make depend".
 
@@ -41,7 +42,23 @@
    aren't mixing it with any files from different compilers (eg. the Borland 
    version of make).
    
-   Note that you must have Binutils 2.9.x or above.
+
+
+===========================================
+============ Allegro CVS Notes ============
+===========================================
+
+   If you are using a CVS version of Allegro, then you will need to do some
+   extra things to ensure that your copy of Allegro will compile correctly.
+   These are covered in detail below, but briefly:
+
+   1. You must run the `fix' script (either the batch file, under
+      command.com, or the .sh file under bash). You must supply the
+      argument `djgpp'.
+
+   2. You must regenerate the dependency files: a simple `make depend'
+      will do this. However, please note that you must have sed installed
+      to do this.
 
 
 
@@ -95,7 +112,7 @@
    If your copy of Allegro is set up for use with some different compiler 
    (if you downloaded a tar.gz archive or a CVS version), you will have to 
    run 'fix.bat djgpp' before compiling it. If you are using bash you can run
-   'fix.sh djgpp' instead. See below for why you might want to do this.
+   'fix.sh djgpp' instead.
 
    If your copy of Allegro doesn't include the makefile.dep dependency files 
    (if you have run "make veryclean" or you have the CVS version), you can 
@@ -135,23 +152,10 @@
                 available (`md', `rd', `copy', etc., and commands which
                 understand the \ character), then set this to 1 to use
                 the unix equivalents. This is set implicitly when you
-                set CROSSCOMPILE.
+                set CROSSCOMPILE, and is also set automatically when you
+                are running under bash.
 
-    UNIX_FILES
-                (This only applies if you use it when running the
-                fix.sh script).
-
-                If you set this, then the `utod' utility won't be run on
-                the Allegro files before compilation. DJGPP and all
-                related utilities handle UNIX-style files (LF instead of
-                CRLF for a newline) without problems; it is only MS-DOS
-                style editors/broken Windows applications that fail. Set
-                this if you want to be able to use the Allegro files in
-                both DJGPP and UNIX.
-
-   To activate any of these, type "make WARNMODE=1" on the command line.
-   Alternatively, if you use the fix.sh script, you can pass these
-   on the command line (eg. "WARNMODE=1;UNIX_TOOLS=1;./fix.sh djgpp").
+    To activate any of these, type (for example) "make WARNMODE=1".
 
 
 
