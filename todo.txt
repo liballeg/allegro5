@@ -16,7 +16,6 @@ General (Platform independant) todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
-- Update docs to mention cross-compilation support.
 - Mouse pointer update ratio extremely slow when using GFX_GDI driver
 - set_volume does not seem to work (user error?)
 - Keyboard gets "stuck" under Windows 2000

@@ -159,6 +159,30 @@
 
 
 =======================================
+========== Cross compilation ==========
+=======================================
+
+   Brief example of how to set up a Mingw32 cross-compiler system:
+
+   Download the prebuilt Mingw32 cross-compiler from:
+   http://www.devolution.com/~slouken/SDL/Xmingw32/
+   Uncompress this file to /usr/local/
+   If you put the cross-compiler elsewhere you will have to edit makefile.mgx
+   and replace XC_PATH and INSTALL_BASE with the right directory names.
+
+   Replace the directx libraries and headers with the ones you find here:
+   http://sites.netscape.net/ptrpck/dxlibs.zip
+   http://sunsite.auc.dk/allegro/wipdll/dx70_min.zip
+
+   Then run './fixming.sh'.
+   
+   Run 'make -f makefile.mgx' to build the Allegro library and 
+   then run 'make -f makefile.mgx install' as root to install Allegro.
+
+   To make documentation you can run 'make -f makefile.mgx docs'
+
+
+=======================================
 ============ Using Allegro ============
 =======================================
 
