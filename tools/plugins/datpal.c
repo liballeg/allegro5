@@ -56,7 +56,7 @@ static int compare_palettes(RGB *p1, RGB *p2)
 
 
 /* draws a palette onto the grabber object view window */
-static void plot_palette(DATAFILE *dat, int x, int y)
+static void plot_palette(AL_CONST DATAFILE *dat, int x, int y)
 {
    int c;
 
@@ -98,7 +98,7 @@ static int use_palette(DATAFILE *dat)
 
 
 /* exports a palette into an external file */
-static int export_palette(DATAFILE *dat, char *filename)
+static int export_palette(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 {
    BITMAP *bmp;
    int ret;
@@ -117,7 +117,7 @@ static int export_palette(DATAFILE *dat, char *filename)
 
 
 /* grabs a palette from an external file */
-static void *grab_palette(char *filename, long *size, int x, int y, int w, int h, int depth)
+static void *grab_palette(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
 {
    int oldcolordepth = _color_depth;
    RGB *pal;

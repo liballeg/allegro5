@@ -171,7 +171,7 @@ static void rle_tga_read16(unsigned short *b, int w, PACKFILE *f)
  *  structure and storing the palette data in the specified palette (this
  *  should be an array of at least 256 RGB structures).
  */
-BITMAP *load_tga(const char *filename, RGB *pal)
+BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
 {
    unsigned char image_id[256], image_palette[256][3], rgb[4];
    unsigned char id_length, palette_type, image_type, palette_entry_size;
@@ -366,7 +366,7 @@ BITMAP *load_tga(const char *filename, RGB *pal)
  *  Writes a bitmap into a TGA file, using the specified palette (this
  *  should be an array of at least 256 RGB structures).
  */
-int save_tga(const char *filename, BITMAP *bmp, RGB *pal)
+int save_tga(AL_CONST char *filename, AL_CONST BITMAP *bmp, AL_CONST RGB *pal)
 {
    unsigned char image_palette[256][3];
    int x, y, c, r, g, b;

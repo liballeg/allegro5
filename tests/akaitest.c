@@ -627,9 +627,9 @@ int main()
 
    midi_recorder = midi_input_callback;
 
-   the_dialog[4].dp = midi_input_driver->name;
-   the_dialog[6].dp = digi_input_driver->name;
-   the_dialog[8].dp = digi_driver->name;
+   the_dialog[4].dp = (void*)midi_input_driver->name;
+   the_dialog[6].dp = (void*)digi_input_driver->name;
+   the_dialog[8].dp = (void*)digi_driver->name;
 
    do_dialog(the_dialog, -1);
 

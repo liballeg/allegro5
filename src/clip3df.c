@@ -73,11 +73,13 @@
  *  storage. The size of arrays vout, vtmp and out should be twice as 
  *  big as vtx.
  */
-int clip3d_f(int type, float min_z, float max_z, int vc, V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[])
+int clip3d_f(int type, float min_z, float max_z, int vc, AL_CONST V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[])
 {
    int i, j, vo, vt, flags;
    float t;
-   V3D_f *v1, *v2, *v3, **vin;
+   V3D_f *v3;
+
+   AL_CONST V3D_f *v1, *v2, **vin;
 
    static int flag_table[] = {
       INT_NONE,                             /* flat */
@@ -121,7 +123,7 @@ int clip3d_f(int type, float min_z, float max_z, int vc, V3D_f *vtx[], V3D_f *vo
 	 if (out[j])
 	    point_inside(vt);
       }
-      vin = vtmp;
+      vin = (AL_CONST V3D_f**)vtmp;
    }
    else {
       vt = vc;

@@ -27,7 +27,7 @@
 
 
 /* checks whether this bitmap has an alpha channel */
-static int bitmap_has_alpha(BITMAP *bmp)
+static int bitmap_has_alpha(AL_CONST BITMAP *bmp)
 {
    int x, y, c;
 
@@ -48,7 +48,7 @@ static int bitmap_has_alpha(BITMAP *bmp)
 
 
 /* checks whether this RLE sprite has an alpha channel */
-static int rle_has_alpha(RLE_SPRITE *spr)
+static int rle_has_alpha(AL_CONST RLE_SPRITE *spr)
 {
    signed long *p32;
    int x, y, c;
@@ -99,7 +99,7 @@ static void *makenew_bitmap(long *size)
 
 
 /* returns a bitmap description string */
-static void get_bitmap_desc(DATAFILE *dat, char *s)
+static void get_bitmap_desc(AL_CONST DATAFILE *dat, char *s)
 {
    BITMAP *bmp = (BITMAP *)dat->dat;
 
@@ -112,7 +112,7 @@ static void get_bitmap_desc(DATAFILE *dat, char *s)
 
 
 /* exports a bitmap into an external file */
-static int export_bitmap(DATAFILE *dat, char *filename)
+static int export_bitmap(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 {
    return (save_bitmap(filename, (BITMAP *)dat->dat, datedit_current_palette) == 0);
 }
@@ -120,7 +120,7 @@ static int export_bitmap(DATAFILE *dat, char *filename)
 
 
 /* draws a bitmap onto the grabber object view window */
-static void plot_bitmap(DATAFILE *dat, int x, int y)
+static void plot_bitmap(AL_CONST DATAFILE *dat, int x, int y)
 {
    BITMAP *b = dat->dat;
    int w = b->w;
@@ -331,7 +331,7 @@ static int view_bitmap(DATAFILE *dat)
 
 
 /* reads a bitmap from an external file */
-static void *grab_bitmap(char *filename, long *size, int x, int y, int w, int h, int depth)
+static void *grab_bitmap(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
 {
    BITMAP *bmp;
 
@@ -477,7 +477,7 @@ static void *makenew_rle_sprite(long *size)
 
 
 /* draws an RLE sprite onto the grabber object view window */
-static void plot_rle_sprite(DATAFILE *dat, int x, int y)
+static void plot_rle_sprite(AL_CONST DATAFILE *dat, int x, int y)
 {
    RLE_SPRITE *s = dat->dat;
    BITMAP *b = create_bitmap_ex(s->color_depth, s->w, s->h);
@@ -518,7 +518,7 @@ static int view_rle_sprite(DATAFILE *dat)
 
 
 /* returns a description string for an RLE sprite */
-static void get_rle_sprite_desc(DATAFILE *dat, char *s)
+static void get_rle_sprite_desc(AL_CONST DATAFILE *dat, char *s)
 {
    RLE_SPRITE *spr = (RLE_SPRITE *)dat->dat;
 
@@ -531,7 +531,7 @@ static void get_rle_sprite_desc(DATAFILE *dat, char *s)
 
 
 /* exports an RLE sprite into an external file */
-static int export_rle_sprite(DATAFILE *dat, char *filename)
+static int export_rle_sprite(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 {
    BITMAP *bmp;
    RLE_SPRITE *rle = (RLE_SPRITE *)dat->dat;
@@ -550,7 +550,7 @@ static int export_rle_sprite(DATAFILE *dat, char *filename)
 
 
 /* reads an RLE sprite from an external file */
-static void *grab_rle_sprite(char *filename, long *size, int x, int y, int w, int h, int depth)
+static void *grab_rle_sprite(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
 {
    BITMAP *bmp;
    RLE_SPRITE *spr;
@@ -715,7 +715,7 @@ static void save_rle_sprite(DATAFILE *dat, int packed, int packkids, int strip, 
 
 
 /* returns a description string for a compiled sprite object */
-static void get_c_sprite_desc(DATAFILE *dat, char *s)
+static void get_c_sprite_desc(AL_CONST DATAFILE *dat, char *s)
 {
    BITMAP *bmp = (BITMAP *)dat->dat;
 
@@ -725,7 +725,7 @@ static void get_c_sprite_desc(DATAFILE *dat, char *s)
 
 
 /* returns a description string for a mode-X compiled sprite object */
-static void get_xc_sprite_desc(DATAFILE *dat, char *s)
+static void get_xc_sprite_desc(AL_CONST DATAFILE *dat, char *s)
 {
    BITMAP *bmp = (BITMAP *)dat->dat;
 

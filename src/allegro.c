@@ -58,7 +58,7 @@ BITMAP *screen = NULL;
 /* info about the current graphics drawing mode */
 int _drawing_mode = DRAW_MODE_SOLID;
 
-BITMAP *_drawing_pattern = NULL;
+AL_CONST BITMAP *_drawing_pattern = NULL;
 
 int _drawing_x_anchor = 0;
 int _drawing_y_anchor = 0;
@@ -197,30 +197,36 @@ static int (*trace_handler)(const char *msg) = NULL;
 
 
 /* dynamic registration system for cleanup code */
-#define MAX_EXIT_FUNCS     16
-
-typedef void (*FUNCPTR)(void);
-
-static FUNCPTR exit_funcs[MAX_EXIT_FUNCS] = 
-{ 
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+struct al_exit_func {
+   void (*funcptr)(void);
+   struct al_exit_func* next;
 };
 
-
+static struct al_exit_func* first_exit_func = 0;
 
 /* _add_exit_func:
  *  Adds a function to the list that need to be called by allegro_exit().
  */
 void _add_exit_func(void (*func)(void))
 {
-   int c;
-
-   for (c=0; c<MAX_EXIT_FUNCS; c++) {
-      if ((!exit_funcs[c]) || (exit_funcs[c] == func)) {
-	 exit_funcs[c] = func;
-	 return;
-      }
+    struct al_exit_func* iter = first_exit_func, * n = 0;
+    if(!iter) {
+        n = malloc(sizeof(struct al_exit_func));
+        if(!n) return;
+        n->next = 0;
+        n->funcptr = func;
+        first_exit_func = n;
+    } else {
+        while(iter->next) {
+            if(iter->funcptr == func) return;
+            iter = iter->next;
+        }
+        if(iter->funcptr == func) return;
+        n = malloc(sizeof(struct al_exit_func));
+        if(!n) return;
+        n->next = 0;
+        n->funcptr = func;
+        iter->next = n;
    }
 }
 
@@ -231,17 +237,19 @@ void _add_exit_func(void (*func)(void))
  */
 void _remove_exit_func(void (*func)(void))
 {
-   int c;
-
-   for (c=0; c<MAX_EXIT_FUNCS; c++) {
-      if (exit_funcs[c] == func) {
-	 while (c<MAX_EXIT_FUNCS-1) {
-	    exit_funcs[c] = exit_funcs[c+1];
-	    c++;
+    struct al_exit_func* iter = first_exit_func, * prev = 0;
+    while(iter) {
+        if(iter->funcptr == func) {
+            if(prev) {
+                prev->next = iter->next;
+            } else {
+                first_exit_func = iter->next;
 	 }
-	 exit_funcs[MAX_EXIT_FUNCS-1] = NULL;
-	 break;
+            free(iter);
+            return;
       }
+        prev = iter;
+        iter = iter->next;
    }
 }
 
@@ -321,7 +329,7 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
    }
 
    if (!system_driver) {
-      char *msg = get_config_text("Fatal error: unable to activate the Allegro system");
+      AL_CONST char *msg = get_config_text("Fatal error: unable to activate the Allegro system");
 
       if (ugetc(allegro_error))
 	 allegro_message("%s\n%s\n", msg, allegro_error);
@@ -342,6 +350,9 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
 	 atexit(allegro_exit);
    }
 
+   /* register the standard bitmap file types */
+   register_bitmap_file_type_init();
+
    _allegro_count++;
 
    return 0;
@@ -354,18 +365,7 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
  */
 void allegro_exit()
 {
-   int done, c;
-
-   do {
-      done = TRUE;
-
-      for (c=MAX_EXIT_FUNCS-1; c>=0; c--) {
-	 if (exit_funcs[c]) {
-	    (*exit_funcs[c])();
-	    done = FALSE;
-	 }
-      }
-   } while (!done);
+    while(first_exit_func) first_exit_func->funcptr();
 
    if (system_driver) {
       system_driver->exit();
@@ -384,7 +384,7 @@ void allegro_exit()
 /* allegro_message:
  *  Displays a message in whatever form the current platform requires.
  */
-void allegro_message(const char *msg, ...)
+void allegro_message(AL_CONST char *msg, ...)
 {
    char *buf = malloc(4096);
    char *tmp = malloc(4096);
@@ -431,7 +431,7 @@ static void debug_exit(void)
 /* al_assert:
  *  Raises an assert.
  */
-void al_assert(const char *file, int line)
+void al_assert(AL_CONST char *file, int line)
 {
    static int asserted = FALSE;
    int olderr = errno;
@@ -487,7 +487,7 @@ void al_assert(const char *file, int line)
 /* al_trace:
  *  Outputs a trace message.
  */
-void al_trace(const char *msg, ...)
+void al_trace(AL_CONST char *msg, ...)
 {
    int olderr = errno;
    char buf[512];
@@ -530,7 +530,7 @@ void al_trace(const char *msg, ...)
 /* register_assert_handler:
  *  Installs a user handler for assert failures.
  */
-void register_assert_handler(int (*handler)(const char *msg))
+void register_assert_handler(int (*handler)(AL_CONST char *msg))
 {
    assert_handler = handler;
 }
@@ -540,7 +540,7 @@ void register_assert_handler(int (*handler)(const char *msg))
 /* register_trace_handler:
  *  Installs a user handler for trace output.
  */
-void register_trace_handler(int (*handler)(const char *msg))
+void register_trace_handler(int (*handler)(AL_CONST char *msg))
 {
    trace_handler = handler;
 }

@@ -19,62 +19,69 @@
 #include <string.h>
 
 #include "allegro.h"
+#include "allegro/aintern.h"
 
 
 
 typedef struct BITMAP_TYPE_INFO
 {
-   char ext[8];
-   BITMAP *(*load)(const char *filename, RGB *pal);
-   int (*save)(const char *filename, BITMAP *bmp, RGB *pal);
+   char* ext;
+   BITMAP *(*load)(AL_CONST char *filename, RGB *pal);
+   int (*save)(AL_CONST char *filename, AL_CONST BITMAP *bmp, AL_CONST RGB *pal);
 } BITMAP_TYPE_INFO;
 
 
-#define MAX_BITMAP_TYPES   16
-
-
-static BITMAP_TYPE_INFO bitmap_types[MAX_BITMAP_TYPES] =
-{
-   { "bmp", load_bmp, save_bmp },
-   { "lbm", load_lbm, NULL     },
-   { "pcx", load_pcx, save_pcx },
-   { "tga", load_tga, save_tga },
-   { "",    NULL,     NULL     },
-   { "",    NULL,     NULL     },
-   { "",    NULL,     NULL     },
-   { "",    NULL,     NULL     },
-   { "",    NULL,     NULL     },
-   { "",    NULL,     NULL     },
-   { "",    NULL,     NULL     },
-   { "",    NULL,     NULL     },
-   { "",    NULL,     NULL     },
-   { "",    NULL,     NULL     },
-   { "",    NULL,     NULL     },
-   { "",    NULL,     NULL     }
+struct bitmap_loader_type {
+    BITMAP_TYPE_INFO type;
+    struct bitmap_loader_type* next;
 };
 
+static struct bitmap_loader_type* first_loader_type = 0;
 
 
 /* register_bitmap_file_type:
  *  Informs Allegro of a new image file type, telling it how to load and
  *  save files of this format (either function may be NULL).
  */
-void register_bitmap_file_type(const char *ext, BITMAP *(*load)(const char *filename, RGB *pal), int (*save)(const char *filename, BITMAP *bmp, RGB *pal))
+void register_bitmap_file_type(AL_CONST char *ext, BITMAP *(*load)(AL_CONST char *filename, RGB *pal), int (*save)(AL_CONST char *filename, AL_CONST BITMAP *bmp, AL_CONST RGB *pal))
 {
-   char tmp[16], *aext;
+   char tmp[32], *aext;
    int i;
+   struct bitmap_loader_type* iter = first_loader_type;
 
    aext = uconvert_toascii(ext, tmp);
+   if(strlen(aext) == 0) return;
 
-   for (i=0; i<MAX_BITMAP_TYPES; i++) {
-      if ((!bitmap_types[i].ext[0]) || (stricmp(bitmap_types[i].ext, aext) == 0)) {
-	 strncpy(bitmap_types[i].ext, aext, sizeof(bitmap_types[i].ext)-1);
-	 bitmap_types[i].ext[sizeof(bitmap_types[i].ext)-1] = 0;
-	 bitmap_types[i].load = load;
-	 bitmap_types[i].save = save;
+    if(!iter) {
+
+        first_loader_type = malloc(sizeof(struct bitmap_loader_type));
+        if(!first_loader_type) return;
+        iter = first_loader_type;
+
+    } else {
+
+        while(iter) {
+            if(stricmp(iter->type.ext, aext) == 0) {
+                iter->type.load = load;
+                iter->type.save = save;
 	 return;
       }
+            iter = iter->next;
    }
+
+        iter = first_loader_type;
+        while(iter->next) iter = iter->next;
+
+        iter->next = malloc(sizeof(struct bitmap_loader_type));
+        if(!iter->next) return;
+        iter = iter->next;
+
+    }
+
+    iter->type.load = load;
+    iter->type.save = save;
+    iter->type.ext = strdup(aext);
+    iter->next = 0;
 }
 
 
@@ -82,23 +89,23 @@ void register_bitmap_file_type(const char *ext, BITMAP *(*load)(const char *file
 /* load_bitmap:
  *  Loads a bitmap from disk.
  */
-BITMAP *load_bitmap(const char *filename, RGB *pal)
+BITMAP *load_bitmap(AL_CONST char *filename, RGB *pal)
 {
    char tmp[16], *aext;
    int i;
+   struct bitmap_loader_type* iter = first_loader_type;
 
    aext = uconvert_toascii(get_extension(filename), tmp);
 
-   for (i=0; i<MAX_BITMAP_TYPES; i++) {
-      if ((bitmap_types[i].ext[0]) && (stricmp(bitmap_types[i].ext, aext) == 0)) {
-	 if (bitmap_types[i].load)
-	    return bitmap_types[i].load(filename, pal);
-	 else
-	    return NULL;
+    while(iter) {
+        if(stricmp(iter->type.ext, aext) == 0) {
+            if(iter->type.load) return iter->type.load(filename, pal);
+            return 0;
       }
+        iter = iter->next;
    }
 
-   return NULL;
+    return 0;
 }
 
 
@@ -106,20 +113,20 @@ BITMAP *load_bitmap(const char *filename, RGB *pal)
 /* save_bitmap:
  *  Writes a bitmap to disk.
  */
-int save_bitmap(const char *filename, BITMAP *bmp, RGB *pal)
+int save_bitmap(AL_CONST char *filename, AL_CONST BITMAP *bmp, AL_CONST RGB *pal)
 {
    char tmp[16], *aext;
    int i;
+   struct bitmap_loader_type* iter = first_loader_type;
 
    aext = uconvert_toascii(get_extension(filename), tmp);
 
-   for (i=0; i<MAX_BITMAP_TYPES; i++) {
-      if ((bitmap_types[i].ext[0]) && (stricmp(bitmap_types[i].ext, aext) == 0)) {
-	 if (bitmap_types[i].save)
-	    return bitmap_types[i].save(filename, bmp, pal);
-	 else
+    while(iter) {
+        if(stricmp(iter->type.ext, aext) == 0) {
+            if(iter->type.save) return iter->type.save(filename, bmp, pal);
 	    return 1;
       }
+        iter = iter->next;
    }
 
    return 1;
@@ -169,3 +176,30 @@ BITMAP *_fixup_loaded_bitmap(BITMAP *bmp, PALETTE pal, int bpp)
    return b2;
 }
 
+static void register_bitmap_file_type_exit(void)
+{
+    struct bitmap_loader_type* iter = first_loader_type, *iter2 = 0;
+
+    while(iter) {
+        iter2 = iter->next;
+        free(iter->type.ext);
+        free(iter);
+        iter = iter2;
+    }
+
+    first_loader_type = 0;
+
+    _remove_exit_func(register_bitmap_file_type_exit);
+}
+
+void register_bitmap_file_type_init(void)
+{
+    char buf[16];
+
+    _add_exit_func(register_bitmap_file_type_exit);
+
+    register_bitmap_file_type(uconvert_ascii("bmp", buf), load_bmp, save_bmp);
+    register_bitmap_file_type(uconvert_ascii("lbm", buf), load_lbm, 0);
+    register_bitmap_file_type(uconvert_ascii("pcx", buf), load_pcx, save_pcx);
+    register_bitmap_file_type(uconvert_ascii("tga", buf), load_tga, save_tga);
+}

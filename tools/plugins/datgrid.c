@@ -125,7 +125,7 @@ static int do_bitmap_check(DATAFILE *dat, int *param, int param2)
 static int griddler_query(int popup)
 {
    DATAFILE *dat;
-   char *s;
+   AL_CONST char *s;
 
    if (popup) {
       dat = grabber_single_selection();
@@ -151,7 +151,7 @@ static int griddler_query(int popup)
 
 
 /* checks whether a bitmap contains any data */
-static int bitmap_is_empty(BITMAP *bmp)
+static int bitmap_is_empty(AL_CONST BITMAP *bmp)
 {
    int x, y;
    int c = getpixel(bmp, 0, 0);
@@ -167,7 +167,7 @@ static int bitmap_is_empty(BITMAP *bmp)
 
 
 /* helper for grabbing images from a grid */
-static void *griddlit(DATAFILE **parent, char *name, int c, int type, int skipempty, int autocrop, int depth, int x, int y, int w, int h)
+static void *griddlit(DATAFILE **parent, AL_CONST char *name, int c, int type, int skipempty, int autocrop, int depth, int x, int y, int w, int h)
 {
    DATAFILE *dat;
    BITMAP *bmp;
@@ -244,7 +244,7 @@ static void *griddlit(DATAFILE **parent, char *name, int c, int type, int skipem
 
 
 /* grabs images from a grid, using boxes of color #255 */
-static void *box_griddle(DATAFILE **parent, char *name, int type, int skipempty, int autocrop, int depth)
+static void *box_griddle(DATAFILE **parent, AL_CONST char *name, int type, int skipempty, int autocrop, int depth)
 {
    void *ret = NULL;
    void *item = NULL;
@@ -274,7 +274,7 @@ static void *box_griddle(DATAFILE **parent, char *name, int type, int skipempty,
 
 
 /* grabs images from a regular grid */
-static void *grid_griddle(DATAFILE **parent, char *name, int type, int skipempty, int autocrop, int depth, int xgrid, int ygrid)
+static void *grid_griddle(DATAFILE **parent, AL_CONST char *name, int type, int skipempty, int autocrop, int depth, int xgrid, int ygrid)
 {
    void *ret = NULL;
    void *item = NULL;
@@ -304,7 +304,7 @@ static char griddle_name[256] = "";
 
 
 /* dialog callback for retrieving the contents of the object type list */
-static char *typelist_getter(int index, int *list_size)
+static AL_CONST char *typelist_getter(int index, int *list_size)
 {
    static char *str[] =
    {
@@ -326,7 +326,7 @@ static char *typelist_getter(int index, int *list_size)
 
 
 /* dialog callback for retrieving the contents of the color depth list */
-static char *depthlist_getter(int index, int *list_size)
+static AL_CONST char *depthlist_getter(int index, int *list_size)
 {
    static char *str[] =
    {
@@ -440,9 +440,9 @@ static int gg_edit_proc(int msg, DIALOG *d, int c)
 
 
 /* checks whether an object name matches the grid grab base name */
-static int grid_name_matches(char *gn, char *n)
+static int grid_name_matches(AL_CONST char *gn, AL_CONST char *n)
 {
-   char *s;
+   AL_CONST char *s;
 
    if (strncmp(gn, n, strlen(gn)) != 0)
       return FALSE;

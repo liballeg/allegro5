@@ -104,7 +104,7 @@ static void usage()
 
 
 /* callback for outputting messages */
-void datedit_msg(char *fmt, ...)
+void datedit_msg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -119,7 +119,7 @@ void datedit_msg(char *fmt, ...)
 
 
 /* callback for starting a 2-part message output */
-void datedit_startmsg(char *fmt, ...)
+void datedit_startmsg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -135,7 +135,7 @@ void datedit_startmsg(char *fmt, ...)
 
 
 /* callback for ending a 2-part message output */
-void datedit_endmsg(char *fmt, ...)
+void datedit_endmsg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -150,7 +150,7 @@ void datedit_endmsg(char *fmt, ...)
 
 
 /* callback for printing errors */
-void datedit_error(char *fmt, ...)
+void datedit_error(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -167,7 +167,7 @@ void datedit_error(char *fmt, ...)
 
 
 /* callback for asking questions */
-int datedit_ask(char *fmt, ...)
+int datedit_ask(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -244,7 +244,7 @@ int datedit_ask(char *fmt, ...)
 
 
 /* checks if a string is one of the names specified on the command line */
-static int is_name(char *name)
+static int is_name(AL_CONST char *name)
 {
    char str1[256], str2[256];
    int i, e;
@@ -277,10 +277,10 @@ static int is_name(char *name)
 
 
 /* does a view operation */
-static void do_view(DATAFILE *dat, char *parentname)
+static void do_view(AL_CONST DATAFILE *dat, AL_CONST char *parentname)
 {
    int i, j;
-   char *name;
+   AL_CONST char *name;
    DATAFILE_PROPERTY *prop;
    char tmp[256];
 
@@ -325,7 +325,7 @@ static void do_view(DATAFILE *dat, char *parentname)
 static void do_export(DATAFILE *dat, char *parentname)
 {
    int i;
-   char *name;
+   AL_CONST char *name;
    char tmp[256];
 
    for (i=0; dat[i].type != DAT_END; i++) {
@@ -356,7 +356,7 @@ static void do_export(DATAFILE *dat, char *parentname)
 static void do_delete(DATAFILE **dat, char *parentname)
 {
    int i;
-   char *name;
+   AL_CONST char *name;
    char tmp[256];
 
    for (i=0; (*dat)[i].type != DAT_END; i++) {
@@ -429,7 +429,7 @@ static void do_add_file(const char *filename, int attrib, int param)
 static void do_update(DATAFILE *dat, char *parentname)
 {
    int i;
-   char *name;
+   AL_CONST char *name;
    char tmp[256];
 
    for (i=0; dat[i].type != DAT_END; i++) {
@@ -458,7 +458,7 @@ static void do_update(DATAFILE *dat, char *parentname)
 static void do_force_update(DATAFILE *dat, char *parentname)
 {
    int i;
-   char *name;
+   AL_CONST char *name;
    char tmp[256];
 
    for (i=0; dat[i].type != DAT_END; i++) {
@@ -487,7 +487,7 @@ static void do_force_update(DATAFILE *dat, char *parentname)
 static void do_set_props(DATAFILE *dat, char *parentname)
 {
    int i, j;
-   char *name;
+   AL_CONST char *name;
    char tmp[256];
    char propname[256], *propvalue;
    int type;
@@ -541,7 +541,7 @@ static void do_set_props(DATAFILE *dat, char *parentname)
 static void do_setpal(DATAFILE **dat, char *parentname)
 {
    int i;
-   char *name;
+   AL_CONST char *name;
    char tmp[256];
 
    for (i=0; (*dat)[i].type != DAT_END; i++) {
@@ -577,7 +577,7 @@ static void do_setpal(DATAFILE **dat, char *parentname)
 /* recursive helper for writing out datafile dependencies */
 static void save_dependencies(DATAFILE *dat, FILE *f, int *depth)
 {
-   char *orig;
+   AL_CONST char *orig;
    int c, i;
    int hasspace;
 

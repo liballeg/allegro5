@@ -433,8 +433,8 @@ int main(int argc, char *argv[])
 	 return 0;
    }
 
-   thedialog[DRIVER_STR].dp = digi_driver->name;
-   thedialog[DESC_STR].dp = digi_driver->desc;
+   thedialog[DRIVER_STR].dp = (void*)digi_driver->name;
+   thedialog[DESC_STR].dp = (void*)digi_driver->desc;
 
    do_dialog(thedialog, -1);
 

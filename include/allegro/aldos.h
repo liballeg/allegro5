@@ -262,7 +262,7 @@ AL_FUNC(int, poll_modex_scroll, (void));
 AL_FUNC(void, split_modex_screen, (int screenline));
 
 
-AL_INLINE(void, _set_color, (int index, RGB *p),
+AL_INLINE(void, _set_color, (int index, AL_CONST RGB *p),
 {
    outportb(0x3C8, index);
    outportb(0x3C9, p->r);
@@ -343,5 +343,5 @@ AL_VAR(MIDI_DRIVER, midi_awe32);
       {  MIDI_MPU,         &midi_mpu401,        FALSE  },
 
 
-AL_FUNC(int, load_ibk, (char *filename, int drums));
+AL_FUNC(int, load_ibk, (AL_CONST char *filename, int drums));
 

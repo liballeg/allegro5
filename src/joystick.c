@@ -58,7 +58,7 @@ static int joy_loading = FALSE;
  */
 static void clear_joystick_vars()
 {
-   char *unused = get_config_text("unused");
+   AL_CONST char *unused = get_config_text("unused");
    int i, j, k;
 
    #define ARRAY_SIZE(a)   ((int)sizeof((a)) / (int)sizeof((a)[0]))
@@ -228,7 +228,7 @@ int poll_joystick()
  *  information into the specified file, from where it can later be 
  *  restored by calling load_joystick_data().
  */
-int save_joystick_data(const char *filename)
+int save_joystick_data(AL_CONST char *filename)
 {
    char tmp1[64], tmp2[64];
 
@@ -254,7 +254,7 @@ int save_joystick_data(const char *filename)
  *  Restores a set of joystick calibration data previously saved by
  *  save_joystick_data().
  */
-int load_joystick_data(const char *filename)
+int load_joystick_data(AL_CONST char *filename)
 {
    char tmp1[64], tmp2[64];
    int ret, c;
@@ -307,7 +307,7 @@ int load_joystick_data(const char *filename)
  *  Returns the name of the next calibration operation to be performed on
  *  the specified stick.
  */
-char *calibrate_joystick_name(int n)
+AL_CONST char *calibrate_joystick_name(int n)
 {
    if ((!joystick_driver) || (!joystick_driver->calibrate_name) ||
        (!(joy[n].flags & JOYFLAG_CALIBRATE)))

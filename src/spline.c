@@ -44,7 +44,7 @@
  *  is specified by the npts parameter, which controls how many output
  *  pixels will be stored in the x and y arrays.
  */
-void calc_spline(int points[8], int npts, int *out_x, int *out_y)
+void calc_spline(AL_CONST int points[8], int npts, int *out_x, int *out_y)
 {
    /* Derivatives of x(t) and y(t). */
    double x, dx, ddx, dddx;
@@ -113,7 +113,7 @@ void calc_spline(int points[8], int npts, int *out_x, int *out_y)
 /* spline:
  *  Draws a bezier spline onto the specified bitmap in the specified color.
  */
-void spline(BITMAP *bmp, int points[8], int color)
+void spline(BITMAP *bmp, AL_CONST int points[8], int color)
 {
    #define MAX_POINTS   64
 

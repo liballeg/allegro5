@@ -102,7 +102,8 @@ ifdef HTML
 DOCS = docs/ahack.$(HTML) CHANGES docs/changes.$(HTML) \
        faq.txt docs/faq.$(HTML) help.txt docs/help.$(HTML) \
        AUTHORS THANKS docs/thanks.$(HTML) \
-       allegro.txt docs/allegro.$(HTML) docs/allegro.rtf
+       allegro.txt docs/allegro.$(HTML) docs/allegro.rtf \
+       docs/const.txt docs/const.$(HTML)
 endif
 
 ifdef INFO
@@ -190,6 +191,9 @@ docs/%.$(HTML): docs/%._tx $(MAKEDOC)
 
 docs/%.rtf: docs/%._tx $(MAKEDOC)
 	$(MAKEDOC) -rtf $@ $<
+
+docs/%.txt: docs/%._tx $(MAKEDOC)
+	$(MAKEDOC) -ascii $@ $<
 
 CHANGES: docs/changes._tx $(MAKEDOC)
 	$(MAKEDOC) -ascii CHANGES docs/changes._tx

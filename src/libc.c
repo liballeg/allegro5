@@ -66,7 +66,7 @@ char *_alemu_strupr(char *string)
 /* _alemu_stricmp:
  *  Case-insensitive comparison of strings.
  */
-int _alemu_stricmp(const char *s1, const char *s2)
+int _alemu_stricmp(AL_CONST char *s1, AL_CONST char *s2)
 {
    int c1, c2;
 
@@ -87,7 +87,7 @@ int _alemu_stricmp(const char *s1, const char *s2)
 /* _alemu_memcmp:
  *  Comparison of two memory blocks.
  */
-int _alemu_memcmp(const void *s1, const void *s2, size_t num)
+int _alemu_memcmp(AL_CONST void *s1, AL_CONST void *s2, size_t num)
 {
    size_t i;
 
@@ -139,9 +139,9 @@ int _alemu_memcmp(const void *s1, const void *s2, size_t num)
  *  When passed a completely specified file path, this returns a pointer
  *  to the filename portion.
  */
-static char *ff_get_filename(char *path)
+static char *ff_get_filename(AL_CONST char *path)
 {
-   char *p = path + strlen(path);
+   char *p = (char*)path + strlen(path);
 
    while ((p > path) && (*(p - 1) != '/'))
       p--;
@@ -183,7 +183,7 @@ struct ff_info
 };
 
 
-static int ff_match(char *s1, char *s2);
+static int ff_match(AL_CONST char *s1, AL_CONST char *s2);
 
 
 
@@ -191,7 +191,7 @@ static int ff_match(char *s1, char *s2);
  *  find first file matching pattern, which has no attribs
  *  that are not present in attrib.
  */
-int _alemu_findfirst(char *pattern, struct ffblk *ffblk, int attrib)
+int _alemu_findfirst(AL_CONST char *pattern, struct ffblk *ffblk, int attrib)
 {
    struct ff_info *ff_info;
    int ret;
@@ -328,8 +328,8 @@ void _alemu_findclose(struct ffblk *ffblk)
 struct ff_match_data
 {
    int type;
-   char *s1;
-   char *s2;
+   AL_CONST char *s1;
+   AL_CONST char *s2;
 };
 
 
@@ -338,11 +338,11 @@ struct ff_match_data
  *  Match two strings ('*' matches any number of characters,
  *  '?' matches any character).
  */
-static int ff_match(char *s1, char *s2)
+static int ff_match(AL_CONST char *s1, AL_CONST char *s2)
 {
    static int size = 0;
    static struct ff_match_data *data = 0;
-   char *s1end = s1 + strlen(s1);
+   AL_CONST char *s1end = s1 + strlen(s1);
    int index, c1, c2;
 
    /* allocate larger working area if necessary */

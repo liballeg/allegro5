@@ -4315,8 +4315,8 @@ void change_mode()
    gui_mg_color = palette_color[8];
    gui_bg_color = palette_color[0];
 
-   title_screen[DIALOG_NAME].dp = gfx_driver->name;
-   title_screen[DIALOG_DESC].dp = gfx_driver->desc;
+   title_screen[DIALOG_NAME].dp = (void*)gfx_driver->name;
+   title_screen[DIALOG_DESC].dp = (void*)gfx_driver->desc;
    centre_dialog(title_screen+2);
    set_dialog_color(title_screen, gui_fg_color, gui_bg_color);
 

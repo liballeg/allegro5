@@ -17,7 +17,7 @@ int main()
    BITMAP *bmp;            /* we create a pointer to a virtual screen */
    int x=160, y=100;       /* these will be used to show the target sight */
    int analogmode;
-   char *msg;
+   AL_CONST char *msg;
    int c;
 
    allegro_init();         /* you NEED this man! ;-) */

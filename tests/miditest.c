@@ -456,8 +456,8 @@ int main()
 
    load_midi_patches();
 
-   thedialog[DRIVER_STR].dp = midi_driver->name;
-   thedialog[DESC_STR].dp = midi_driver->desc;
+   thedialog[DRIVER_STR].dp = (void*)midi_driver->name;
+   thedialog[DESC_STR].dp = (void*)midi_driver->desc;
 
    do_dialog(thedialog, INSTLIST);
 

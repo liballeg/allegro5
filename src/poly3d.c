@@ -54,13 +54,13 @@ void _poly_scanline_dummy(unsigned long addr, int w, POLYGON_SEGMENT *info) { }
  *  Polygon helper function: initialises an edge structure for the 3d 
  *  rasterising code, using fixed point vertex structures.
  */
-void _fill_3d_edge_structure(POLYGON_EDGE *edge, V3D *v1, V3D *v2, int flags, BITMAP *bmp)
+void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *v2, int flags, BITMAP *bmp)
 {
    int h, r1, r2, g1, g2, b1, b2;
 
    /* swap vertices if they are the wrong way up */
    if (v2->y < v1->y) {
-      V3D *vt;
+      AL_CONST V3D *vt;
 
       vt = v1;
       v1 = v2;
@@ -147,13 +147,13 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, V3D *v1, V3D *v2, int flags, BI
  *  Polygon helper function: initialises an edge structure for the 3d 
  *  rasterising code, using floating point vertex structures.
  */
-void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, V3D_f *v1, V3D_f *v2, int flags, BITMAP *bmp)
+void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V3D_f *v2, int flags, BITMAP *bmp)
 {
    int h, r1, r2, g1, g2, b1, b2;
 
    /* swap vertices if they are the wrong way up */
    if (v2->y < v1->y) {
-      V3D_f *vt;
+      AL_CONST V3D_f *vt;
 
       vt = v1;
       v1 = v2;

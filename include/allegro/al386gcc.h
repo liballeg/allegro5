@@ -65,7 +65,7 @@ AL_INLINE(unsigned long, bmp_write_line, (BITMAP *bmp, int line),
 /* bmp_read_line:
  *  Bank switch function.
  */
-AL_INLINE(unsigned long, bmp_read_line, (BITMAP *bmp, int line),
+AL_INLINE(unsigned long, bmp_read_line, (AL_CONST BITMAP *bmp, int line),
 {
    unsigned long result;
 
@@ -87,7 +87,7 @@ AL_INLINE(unsigned long, bmp_read_line, (BITMAP *bmp, int line),
 /* bmp_unwrite_line:
  *  Terminate bank switch function.
  */
-AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
+AL_INLINE(void, bmp_unwrite_line, (AL_CONST BITMAP *bmp),
 {
    asm volatile (
       "  call *%1 "

@@ -126,7 +126,7 @@ void datedit_init()
 
 
 /* export raw binary data */
-static int export_binary(DATAFILE *dat, char *filename)
+static int export_binary(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 {
    PACKFILE *f = pack_fopen(filename, F_WRITE);
 
@@ -141,7 +141,7 @@ static int export_binary(DATAFILE *dat, char *filename)
 
 
 /* grab raw binary data */
-static void *grab_binary(char *filename, long *size, int x, int y, int w, int h, int depth)
+static void *grab_binary(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
 {
    void *mem;
    long sz = file_size(filename);
@@ -181,7 +181,7 @@ static void save_binary(DATAFILE *dat, int packed, int packkids, int strip, int 
 
 
 /* export a child datafile */
-static int export_datafile(DATAFILE *dat, char *filename)
+static int export_datafile(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 {
    return datedit_save_datafile((DATAFILE *)dat->dat, filename, -1, -1, FALSE, FALSE, FALSE, NULL);
 }
@@ -189,7 +189,7 @@ static int export_datafile(DATAFILE *dat, char *filename)
 
 
 /* loads object names from a header file, if they are missing */
-static void load_header(DATAFILE *dat, char *filename)
+static void load_header(DATAFILE *dat, AL_CONST char *filename)
 {
    char buf[160], buf2[160];
    int datsize, i, c, c2;
@@ -306,7 +306,7 @@ static DATAFILE *extract_info(DATAFILE *dat, int save)
 
 
 /* grabs a child datafile */
-static void *grab_datafile(char *filename, long *size, int x, int y, int w, int h, int depth)
+static void *grab_datafile(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
 {
    DATAFILE *dat = load_datafile(filename);
 
@@ -601,7 +601,7 @@ void datedit_register_menu(DATEDIT_MENU_INFO *info)
 
 
 /* adds extensions to filenames if they are missing, or changes them */
-char *datedit_pretty_name(char *name, char *ext, int force_ext)
+char *datedit_pretty_name(AL_CONST char *name, AL_CONST char *ext, int force_ext)
 {
    static char buf[256];
    char *s;
@@ -625,7 +625,7 @@ char *datedit_pretty_name(char *name, char *ext, int force_ext)
 
 
 /* returns a description string for an object */
-char *datedit_desc(DATAFILE *dat)
+AL_CONST char *datedit_desc(AL_CONST DATAFILE *dat)
 {
    static char buf[256];
    int i;
@@ -648,12 +648,12 @@ char *datedit_desc(DATAFILE *dat)
 
 
 /* qsort callback for comparing datafile objects */
-static int dat_cmp(const void *e1, const void *e2)
+static int dat_cmp(AL_CONST void *e1, AL_CONST void *e2)
 {
    DATAFILE *d1 = (DATAFILE *)e1;
    DATAFILE *d2 = (DATAFILE *)e2;
 
-   return stricmp(get_datafile_property(d1, DAT_NAME), get_datafile_property(d2, DAT_NAME));
+   return stricmp(get_datafile_property((AL_CONST DATAFILE*)d1, DAT_NAME), get_datafile_property((AL_CONST DATAFILE*)d2, DAT_NAME));
 }
 
 
@@ -676,7 +676,7 @@ void datedit_sort_datafile(DATAFILE *dat)
 
 
 /* qsort callback for comparing datafile properties */
-static int prop_cmp(const void *e1, const void *e2)
+static int prop_cmp(AL_CONST void *e1, AL_CONST void *e2)
 {
    DATAFILE_PROPERTY *p1 = (DATAFILE_PROPERTY *)e1;
    DATAFILE_PROPERTY *p2 = (DATAFILE_PROPERTY *)e2;
@@ -704,7 +704,7 @@ void datedit_sort_properties(DATAFILE_PROPERTY *prop)
 
 
 /* splits bitmaps into sub-sprites, using regions bounded by col #255 */
-void datedit_find_character(BITMAP *bmp, int *x, int *y, int *w, int *h)
+void datedit_find_character(AL_CONST BITMAP *bmp, int *x, int *y, int *w, int *h)
 {
    int c1;
    int c2;
@@ -754,7 +754,7 @@ void datedit_find_character(BITMAP *bmp, int *x, int *y, int *w, int *h)
 
 
 /* cleans up an object type string, and packs it */
-int datedit_clean_typename(char *type)
+int datedit_clean_typename(AL_CONST char *type)
 {
    int c1, c2, c3, c4;
 
@@ -772,7 +772,7 @@ int datedit_clean_typename(char *type)
 
 
 /* sets an object property string */
-void datedit_set_property(DATAFILE *dat, int type, char *value)
+void datedit_set_property(DATAFILE *dat, int type, AL_CONST char *value)
 {
    int i, size, pos;
 
@@ -819,7 +819,7 @@ void datedit_set_property(DATAFILE *dat, int type, char *value)
 
 
 /* loads a datafile */
-DATAFILE *datedit_load_datafile(char *name, int compile_sprites, char *password)
+DATAFILE *datedit_load_datafile(AL_CONST char *name, int compile_sprites, AL_CONST char *password)
 {
    char *pretty_name;
    DATAFILE *datafile;
@@ -874,10 +874,10 @@ DATAFILE *datedit_load_datafile(char *name, int compile_sprites, char *password)
 
 
 /* works out what name to give an exported object */
-void datedit_export_name(DATAFILE *dat, char *name, char *ext, char *buf)
+void datedit_export_name(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST char *ext, char *buf)
 {
-   char *obname = get_datafile_property(dat, DAT_NAME);
-   char *oborig = get_datafile_property(dat, DAT_ORIG);
+   AL_CONST char *obname = get_datafile_property(dat, DAT_NAME);
+   AL_CONST char *oborig = get_datafile_property(dat, DAT_ORIG);
    char tmp[32];
    int i;
 
@@ -914,10 +914,10 @@ void datedit_export_name(DATAFILE *dat, char *name, char *ext, char *buf)
 
 
 /* exports a datafile object */
-int datedit_export(DATAFILE *dat, char *name)
+int datedit_export(AL_CONST DATAFILE *dat, AL_CONST char *name)
 {
-   char *obname = get_datafile_property(dat, DAT_NAME);
-   int (*export)(DATAFILE *dat, char *filename) = NULL;
+   AL_CONST char *obname = get_datafile_property(dat, DAT_NAME);
+   int (*export)(AL_CONST DATAFILE *dat, AL_CONST char *filename) = NULL;
    char buf[256], tmp[256];
    char *ext = NULL;
    char *tok;
@@ -1010,7 +1010,7 @@ int datedit_packtype(int pack)
       return pack;
    }
    else {
-      char *p = get_datafile_property(&datedit_info, DAT_PACK);
+      AL_CONST char *p = get_datafile_property(&datedit_info, DAT_PACK);
 
       if ((p) && (*p))
 	 return atoi(p);
@@ -1022,7 +1022,7 @@ int datedit_packtype(int pack)
 
 
 /* saves a datafile */
-int datedit_save_datafile(DATAFILE *dat, char *name, int strip, int pack, int verbose, int write_msg, int backup, char *password)
+int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, int strip, int pack, int verbose, int write_msg, int backup, AL_CONST char *password)
 {
    char *pretty_name;
    char backup_name[256];
@@ -1082,7 +1082,7 @@ int datedit_save_datafile(DATAFILE *dat, char *name, int strip, int pack, int ve
 
 
 /* writes object definitions into a header file */
-static void save_header(DATAFILE *dat, FILE *f, char *prefix)
+static void save_header(AL_CONST DATAFILE *dat, FILE *f, AL_CONST char *prefix)
 {
    int c;
 
@@ -1115,7 +1115,7 @@ static void save_header(DATAFILE *dat, FILE *f, char *prefix)
 
 
 /* helper for renaming files (works across drives) */
-static int rename_file(char *oldname, char *newname)
+static int rename_file(AL_CONST char *oldname, AL_CONST char *newname)
 {
    PACKFILE *oldfile, *newfile;
    int c;
@@ -1148,7 +1148,7 @@ static int rename_file(char *oldname, char *newname)
 
 
 /* checks whether the header needs updating */
-static int cond_update_header(char *tn, char *n, int verbose)
+static int cond_update_header(AL_CONST char *tn, AL_CONST char *n, int verbose)
 {
    PACKFILE *f1, *f2;
    char b1[256], b2[256];
@@ -1210,7 +1210,7 @@ static int cond_update_header(char *tn, char *n, int verbose)
 
 
 /* exports a datafile header */
-int datedit_save_header(DATAFILE *dat, char *name, char *headername, char *progname, char *prefix, int verbose)
+int datedit_save_header(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST char *headername, AL_CONST char *progname, AL_CONST char *prefix, int verbose)
 {
    char *pretty_name, *tmp_name;
    char tm[80];
@@ -1265,7 +1265,7 @@ int datedit_save_header(DATAFILE *dat, char *name, char *headername, char *progn
 
 
 /* converts a file timestamp from ASCII to integer representation */
-long datedit_asc2ftime(char *time)
+long datedit_asc2ftime(AL_CONST char *time)
 {
    static char *sep = "-,: ";
    char tmp[256], *tok;
@@ -1327,7 +1327,7 @@ long datedit_asc2ftime(char *time)
 
 
 /* converts a file timestamp from integer to ASCII representation */
-char *datedit_ftime2asc(long time)
+AL_CONST char *datedit_ftime2asc(long time)
 {
    static char buf[80];
 
@@ -1344,7 +1344,7 @@ char *datedit_ftime2asc(long time)
 
 
 /* converts a file timestamp to international ASCII representation */
-char *datedit_ftime2asc_int(long time)
+AL_CONST char *datedit_ftime2asc_int(long time)
 {
    static char month[12][4] =
    {
@@ -1367,10 +1367,10 @@ char *datedit_ftime2asc_int(long time)
 
 
 /* grabs an object from a disk file */
-DATAFILE *datedit_grab(char *filename, char *name, int type, int x, int y, int w, int h, int colordepth)
+DATAFILE *datedit_grab(AL_CONST char *filename, AL_CONST char *name, int type, int x, int y, int w, int h, int colordepth)
 {
    static DATAFILE dat;
-   void *(*grab)(char *filename, long *size, int x, int y, int w, int h, int depth) = NULL;
+   void *(*grab)(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth) = NULL;
    char *ext = get_extension(filename);
    char *tok;
    char tmp[256];
@@ -1448,7 +1448,7 @@ DATAFILE *datedit_grab(char *filename, char *name, int type, int x, int y, int w
 
 
 /* grabs an object over the top of an existing one */
-int datedit_grabreplace(DATAFILE *dat, char *filename, char *name, char *type, int colordepth, int x, int y, int w, int h)
+int datedit_grabreplace(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *name, AL_CONST char *type, int colordepth, int x, int y, int w, int h)
 {
    DATAFILE *tmp = datedit_grab(filename, name, 
 				datedit_clean_typename(type), 
@@ -1466,7 +1466,7 @@ int datedit_grabreplace(DATAFILE *dat, char *filename, char *name, char *type, i
 
 
 /* updates an object in-place */
-int datedit_grabupdate(DATAFILE *dat, char *filename, int x, int y, int w, int h)
+int datedit_grabupdate(DATAFILE *dat, AL_CONST char *filename, int x, int y, int w, int h)
 {
    DATAFILE *tmp = datedit_grab(filename, "dummyname", dat->type, x, y, w, h, -1);
    DATAFILE_PROPERTY *tmp_prop;
@@ -1545,7 +1545,7 @@ int datedit_grabupdate(DATAFILE *dat, char *filename, int x, int y, int w, int h
 
 
 /* grabs a new object, inserting it into the datafile */
-DATAFILE *datedit_grabnew(DATAFILE *dat, char *filename, char *name, char *type, int colordepth, int x, int y, int w, int h)
+DATAFILE *datedit_grabnew(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *name, AL_CONST char *type, int colordepth, int x, int y, int w, int h)
 {
    DATAFILE *tmp = datedit_grab(filename, name, 
 				datedit_clean_typename(type), 
@@ -1569,7 +1569,7 @@ DATAFILE *datedit_grabnew(DATAFILE *dat, char *filename, char *name, char *type,
 
 
 /* inserts a new object into the datafile */
-DATAFILE *datedit_insert(DATAFILE *dat, DATAFILE **ret, char *name, int type, void *v, long size)
+DATAFILE *datedit_insert(DATAFILE *dat, DATAFILE **ret, AL_CONST char *name, int type, void *v, long size)
 {
    int len;
 
@@ -1595,9 +1595,9 @@ DATAFILE *datedit_insert(DATAFILE *dat, DATAFILE **ret, char *name, int type, vo
 
 
 /* wrapper for examining numeric property values */
-int datedit_numprop(DATAFILE *dat, int type)
+int datedit_numprop(AL_CONST DATAFILE *dat, int type)
 {
-   char *p = get_datafile_property(dat, type);
+   AL_CONST char *p = get_datafile_property(dat, type);
 
    if (*p)
       return atoi(p);
@@ -1608,7 +1608,7 @@ int datedit_numprop(DATAFILE *dat, int type)
 
 
 /* scans plugins to find available import/export file extensions */
-static char *make_ext_list(int type, int grab)
+static AL_CONST char *make_ext_list(int type, int grab)
 {
    static char buf[256];
    char extlist[256][16];
@@ -1674,7 +1674,7 @@ static char *make_ext_list(int type, int grab)
 
 
 /* returns a list of suitable file extensions for this object type */
-char *datedit_grab_ext(int type)
+AL_CONST char *datedit_grab_ext(int type)
 {
    return make_ext_list(type, TRUE);
 }
@@ -1682,7 +1682,7 @@ char *datedit_grab_ext(int type)
 
 
 /* returns a list of suitable file extensions for this object type */
-char *datedit_export_ext(int type)
+AL_CONST char *datedit_export_ext(int type)
 {
    return make_ext_list(type, FALSE);
 }
@@ -1692,9 +1692,9 @@ char *datedit_export_ext(int type)
 /* conditionally update an out-of-date object */
 int datedit_update(DATAFILE *dat, int verbose, int *changed)
 {
-   char *name = get_datafile_property(dat, DAT_NAME);
-   char *origin = get_datafile_property(dat, DAT_ORIG);
-   char *date = get_datafile_property(dat, DAT_DATE);
+   AL_CONST char *name = get_datafile_property(dat, DAT_NAME);
+   AL_CONST char *origin = get_datafile_property(dat, DAT_ORIG);
+   AL_CONST char *date = get_datafile_property(dat, DAT_DATE);
    time_t origt, datat;
 
    if (!*origin) {
@@ -1735,8 +1735,8 @@ int datedit_update(DATAFILE *dat, int verbose, int *changed)
 /* unconditionally update an object */
 int datedit_force_update(DATAFILE *dat, int verbose, int *changed)
 {
-   char *name = get_datafile_property(dat, DAT_NAME);
-   char *origin = get_datafile_property(dat, DAT_ORIG);
+   AL_CONST char *name = get_datafile_property(dat, DAT_NAME);
+   AL_CONST char *origin = get_datafile_property(dat, DAT_ORIG);
 
    if (!*origin) {
       datedit_msg("%s has no origin data - skipping", name);

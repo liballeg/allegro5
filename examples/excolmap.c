@@ -54,7 +54,7 @@ void callback_func(int pos)
  * the nearest color, Allegro does this automatically.
  */
 
-void return_grey_color(PALETTE pal, int x, int y, RGB *rgb)
+void return_grey_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
 {
    int c;
 
@@ -71,7 +71,7 @@ void return_grey_color(PALETTE pal, int x, int y, RGB *rgb)
  * since we are ignoring the value of the drawn color (aka x).
  */
 
-void return_negative_color(PALETTE pal, int x, int y, RGB *rgb)
+void return_negative_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
 {
    /* to get the negative color, substract the color values of red, green and
     * blue from the full (63) color value

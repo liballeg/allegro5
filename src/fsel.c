@@ -359,7 +359,7 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
  *  ustricmp for filenames: makes sure that eg "foo.bar" comes before
  *  "foo-1.bar", and also that "foo9.bar" comes before "foo10.bar".
  */
-static int ustrfilecmp(const char *s1, const char *s2)
+static int ustrfilecmp(AL_CONST char *s1, AL_CONST char *s2)
 {
    int c1, c2;
    int x1, x2;
@@ -401,7 +401,7 @@ static int ustrfilecmp(const char *s1, const char *s2)
 /* fs_flist_putter:
  *  Callback routine for for_each_file() to fill the file selector listbox.
  */
-static void fs_flist_putter(const char *str, int attrib, int param)
+static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
 {
    char ext_tokens[32];
    char *s, *ext, *tok, *name;
@@ -639,7 +639,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
  *  extensions. Returns zero if it was closed with the Cancel button, 
  *  non-zero if it was OK'd.
  */
-int file_select(const char *message, char *path, const char *ext)
+int file_select(AL_CONST char *message, char *path, const char *ext)
 {
    char buf[512];
    int ret;
@@ -647,8 +647,8 @@ int file_select(const char *message, char *path, const char *ext)
 
    file_selector[FS_MESSAGE].dp = (char *)message;
    file_selector[FS_EDIT].dp = path;
-   file_selector[FS_OK].dp = get_config_text("OK");
-   file_selector[FS_CANCEL].dp = get_config_text("Cancel");
+   file_selector[FS_OK].dp = (void*)get_config_text("OK");
+   file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
    fext = ext;
 
    if (!ugetc(path)) {

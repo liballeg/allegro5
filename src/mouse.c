@@ -98,7 +98,7 @@ static char mouse_pointer_data[DEFAULT_SPRITE_H][DEFAULT_SPRITE_W] =
 
 BITMAP *_mouse_pointer = NULL;         /* default mouse pointer */
 
-BITMAP *_mouse_sprite = NULL;          /* current mouse pointer */
+AL_CONST BITMAP *_mouse_sprite = NULL; /* current mouse pointer */
 
 BITMAP *_mouse_screen = NULL;          /* where to draw the pointer */
 
@@ -367,7 +367,7 @@ END_OF_FUNCTION(_handle_mouse_input);
  *  Sets the sprite to be used for the mouse pointer. If the sprite is
  *  NULL, restores the default arrow.
  */
-void set_mouse_sprite(struct BITMAP *sprite)
+void set_mouse_sprite(AL_CONST struct BITMAP *sprite)
 {
    BITMAP *old_mouse_screen = _mouse_screen;
 
@@ -382,7 +382,7 @@ void set_mouse_sprite(struct BITMAP *sprite)
    else
       _mouse_sprite = _mouse_pointer;
 
-   lock_bitmap(_mouse_sprite);
+   lock_bitmap((struct BITMAP*)_mouse_sprite);
 
    /* make sure the ms bitmap is big enough */
    if ((!ms) || (ms->w < _mouse_sprite->w) || (ms->h < _mouse_sprite->h)) {
@@ -813,7 +813,7 @@ int install_mouse()
 {
    _DRIVER_INFO *driver_list;
    int num_buttons = -1;
-   char *emulate;
+   AL_CONST char *emulate;
    char tmp[64];
    int i;
 

@@ -427,7 +427,7 @@ typedef struct OBJ_LIST
 /* obj_list_cmp:
  *  Callback function for qsort().
  */
-static int obj_list_cmp(const void *e1, const void *e2)
+static int obj_list_cmp(AL_CONST void *e1, AL_CONST void *e2)
 {
    return (((OBJ_LIST *)e1)->diff - ((OBJ_LIST *)e2)->diff);
 }
@@ -437,7 +437,7 @@ static int obj_list_cmp(const void *e1, const void *e2)
 /* cmp_tab:
  *  Comparison function for tab key movement.
  */
-static int cmp_tab(DIALOG *d1, DIALOG *d2)
+static int cmp_tab(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (int)d2 - (int)d1;
 
@@ -452,7 +452,7 @@ static int cmp_tab(DIALOG *d1, DIALOG *d2)
 /* cmp_shift_tab:
  *  Comparison function for shift+tab key movement.
  */
-static int cmp_shift_tab(DIALOG *d1, DIALOG *d2)
+static int cmp_shift_tab(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (int)d1 - (int)d2;
 
@@ -467,7 +467,7 @@ static int cmp_shift_tab(DIALOG *d1, DIALOG *d2)
 /* cmp_right:
  *  Comparison function for right arrow key movement.
  */
-static int cmp_right(DIALOG *d1, DIALOG *d2)
+static int cmp_right(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (d2->x - d1->x) + ABS(d1->y - d2->y) * 8;
 
@@ -482,7 +482,7 @@ static int cmp_right(DIALOG *d1, DIALOG *d2)
 /* cmp_left:
  *  Comparison function for left arrow key movement.
  */
-static int cmp_left(DIALOG *d1, DIALOG *d2)
+static int cmp_left(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (d1->x - d2->x) + ABS(d1->y - d2->y) * 8;
 
@@ -497,7 +497,7 @@ static int cmp_left(DIALOG *d1, DIALOG *d2)
 /* cmp_down:
  *  Comparison function for down arrow key movement.
  */
-static int cmp_down(DIALOG *d1, DIALOG *d2)
+static int cmp_down(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (d2->y - d1->y) + ABS(d1->x - d2->x) * 8;
 
@@ -512,7 +512,7 @@ static int cmp_down(DIALOG *d1, DIALOG *d2)
 /* cmp_up:
  *  Comparison function for up arrow key movement.
  */
-static int cmp_up(DIALOG *d1, DIALOG *d2)
+static int cmp_up(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (d1->y - d2->y) + ABS(d1->x - d2->x) * 8;
 
@@ -530,7 +530,7 @@ static int cmp_up(DIALOG *d1, DIALOG *d2)
  */
 static int move_focus(DIALOG *d, int ascii, int scan, int *focus_obj)
 {
-   int (*cmp)(DIALOG *d1, DIALOG *d2);
+   int (*cmp)(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2);
    OBJ_LIST obj[MAX_OBJECTS];
    int obj_count = 0;
    int fobj, c;
@@ -1711,7 +1711,7 @@ static DIALOG alert_dialog[] =
  *  the keyboard shortcuts in c1 and c2. Returns 1, 2, or 3 depending on 
  *  which button was selected.
  */
-int alert3(const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3)
+int alert3(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST char *b1, AL_CONST char *b2, AL_CONST char *b3, int c1, int c2, int c3)
 {
    char tmp[16];
    int avg_w, avg_h;
@@ -1823,7 +1823,7 @@ int alert3(const char *s1, const char *s2, const char *s3, const char *b1, const
  *  in b1 and b2 (b2 may be null), and the keyboard shortcuts in c1 and c2.
  *  Returns 1 or 2 depending on which button was selected.
  */
-int alert(const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, int c1, int c2)
+int alert(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST char *b1, AL_CONST char *b2, int c1, int c2)
 {
    int ret;
 

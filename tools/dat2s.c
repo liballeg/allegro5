@@ -51,11 +51,11 @@ static void output_object(DATAFILE *object, char *name);
 
 
 /* unused callbacks for datedit.c */
-void datedit_msg(char *fmt, ...) { }
-void datedit_startmsg(char *fmt, ...) { }
-void datedit_endmsg(char *fmt, ...) { }
-void datedit_error(char *fmt, ...) { }
-int datedit_ask(char *fmt, ...) { return 0; }
+void datedit_msg(AL_CONST char *fmt, ...) { }
+void datedit_startmsg(AL_CONST char *fmt, ...) { }
+void datedit_endmsg(AL_CONST char *fmt, ...) { }
+void datedit_error(AL_CONST char *fmt, ...) { }
+int datedit_ask(AL_CONST char *fmt, ...) { return 0; }
 
 
 

@@ -71,7 +71,7 @@ void _set_vga_virtual_width(int old_width, int new_width)
 /* _vga_set_palette_range:
  *  Sets part of the VGA palette.
  */
-void _vga_set_palette_range(PALETTE p, int from, int to, int vsync)
+void _vga_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
    int i;
 

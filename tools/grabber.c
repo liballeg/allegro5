@@ -1255,7 +1255,7 @@ static DIALOG prop_dlg[] =
 
 
 /* brings up the property/new object dialog */
-static int do_edit(char *title, char *type_string, char *value_string, int type, char *val, int change_type, int show_type)
+static int do_edit(char *title, char *type_string, char *value_string, int type, AL_CONST char *val, int change_type, int show_type)
 {
    prop_dlg[PROP_DLG_TITLE].dp = title;
    prop_dlg[PROP_DLG_TYPE_STRING].dp = type_string;
@@ -1294,7 +1294,7 @@ static int do_edit(char *title, char *type_string, char *value_string, int type,
 
 
 /* brings up the property editing dialog */
-static int edit_property(char *title, char *value_string, int type, char *val, int change_type, int show_type)
+static int edit_property(char *title, char *value_string, int type, AL_CONST char *val, int change_type, int show_type)
 {
    int sel = single_selection();
    DATAITEM *dat;
@@ -1556,7 +1556,7 @@ static void update_info()
 /* helper for recovering data stored in the info chunk */
 static void retrieve_property(int object, int type, char *def)
 {
-   char *p = get_datafile_property(&datedit_info, type);
+   AL_CONST char *p = get_datafile_property(&datedit_info, type);
 
    if ((p) && (*p))
       strcpy(main_dlg[object].dp, p);
@@ -1931,7 +1931,7 @@ static int force_updater()
 
 
 /* formats a heading for the file select dialog */
-static void format_file_select_heading(char *dest, char *s1, char *s2, char *ext)
+static void format_file_select_heading(char *dest, char *s1, char *s2, AL_CONST char *ext)
 {
    int len;
 
@@ -1967,7 +1967,7 @@ static int reader()
 {
    DATAFILE *dat;
    char buf[256], buf2[256];
-   char *s;
+   AL_CONST char *s;
 
    CHECK_MENU_HOOK("Read", DATEDIT_MENU_FILE);
 
@@ -2063,7 +2063,7 @@ static int grabber()
 {
    DATAFILE *dat;
    char *desc = "binary data";
-   char *ext = NULL;
+   AL_CONST char *ext = NULL;
    char buf[256], name[256], type[8];
    int sel;
    int i;
@@ -2128,7 +2128,7 @@ static int grabber()
 static int exporter()
 {
    char *desc = "binary data";
-   char *ext = NULL;
+   AL_CONST char *ext = NULL;
    char buf[256], name[256];
    DATAFILE *dat;
    int sel;
@@ -2193,7 +2193,7 @@ static int deleter()
    int todel_count = 0;
    int todel_alloc = 0;
    char buf[256];
-   char *name = "";
+   AL_CONST char *name = "";
    int first = 0;
    int i;
 
@@ -2488,7 +2488,8 @@ static DIALOG sys_dlg[] =
 /* handle the system info */
 static int sysinfo()
 {
-   char *systext, *s;
+   char *systext;
+   AL_CONST char* s;
    int i, type;
 
    CHECK_MENU_HOOK("System", DATEDIT_MENU_HELP);
@@ -2680,7 +2681,8 @@ static int sheller(void)
 {
    DATAFILE *dat;
    char buf[256], cmd[256], ext[256], filename[256];
-   char *s, *s2;
+   AL_CONST char *s, * s2;
+
    int oldw = SCREEN_W;
    int oldh = SCREEN_H;
    int export, delfile;
@@ -2859,7 +2861,7 @@ static int sheller(void)
 
 
 /* callback for the datedit functions to display a message */
-void datedit_msg(char *fmt, ...)
+void datedit_msg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -2881,7 +2883,7 @@ void datedit_msg(char *fmt, ...)
 
 
 /* callback for the datedit functions to start a multi-part message */
-void datedit_startmsg(char *fmt, ...)
+void datedit_startmsg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -2896,7 +2898,7 @@ void datedit_startmsg(char *fmt, ...)
 
 
 /* callback for the datedit functions to end a multi-part message */
-void datedit_endmsg(char *fmt, ...)
+void datedit_endmsg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -2918,7 +2920,7 @@ void datedit_endmsg(char *fmt, ...)
 
 
 /* callback for the datedit functions to report an error */
-void datedit_error(char *fmt, ...)
+void datedit_error(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -2938,7 +2940,7 @@ void datedit_error(char *fmt, ...)
 
 
 /* callback for the datedit functions to ask a question */
-int datedit_ask(char *fmt, ...)
+int datedit_ask(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];

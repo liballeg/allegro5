@@ -414,7 +414,7 @@ ALLEGRO_NOLIB_EXE_SOURCES = \
 	src/i386/asmdef.c
 
 CLEAN_FILES = \
-	docs/*.texi docs/*.txi docs/*.tex docs/*.info docs/*.inf docs/*.3 \
+	docs/*.texi docs/*.txi docs/*.tex docs/*.info docs/*.inf docs/*.3 docs/*.txt \
 	obj/*/*.o obj/*/*/*.o obj/*/*/*/*.o obj/*/*.obj obj/*/*/*.obj \
 	obj/*/*.h obj/*/*.s obj/*/*.exe obj/*/*/*.lst obj/*/*/*.asm \
 	obj/*/*/*.res obj/*/asmdef src/i386/asmdef \

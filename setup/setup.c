@@ -85,9 +85,9 @@
 typedef struct SOUNDCARD
 {
    int id;
-   char *name;
+   AL_CONST char *name;
    char **param;
-   char *desc;
+   AL_CONST char *desc;
    int present;
 } SOUNDCARD;
 
@@ -930,7 +930,7 @@ static BITMAP *popup_bitmap2 = NULL;
 
 
 /* helper for displaying a popup message */
-static void popup(char *s1, char *s2)
+static void popup(AL_CONST char *s1, AL_CONST char *s2)
 {
    int w, w2, c, ct;
 
@@ -1555,7 +1555,7 @@ static void get_joystick_drivers(_DRIVER_INFO **list, int *list_size)
 
 
 /* dialog callback for retrieving information about the joystick list */
-static char *joystick_getter(int index, int *list_size)
+static AL_CONST char *joystick_getter(int index, int *list_size)
 {
    _DRIVER_INFO *list;
    int size;
@@ -1594,7 +1594,7 @@ static void get_mouse_drivers(_DRIVER_INFO **list, int *list_size)
 
 
 /* dialog callback for retrieving information about the joystick list */
-static char *mouse_getter(int index, int *list_size)
+static AL_CONST char *mouse_getter(int index, int *list_size)
 {
    _DRIVER_INFO *list;
    int size;
@@ -1615,7 +1615,7 @@ static char *mouse_getter(int index, int *list_size)
 static int card_proc(int msg, DIALOG *d, int c)
 {
    int ret = d_list_proc(msg, d, c);
-   d->dp3 = soundcard[d->d1].desc;
+   d->dp3 = (void*)soundcard[d->d1].desc;
    return ret;
 }
 
@@ -2248,7 +2248,8 @@ static DIALOG_STATE main_handler(int c)
 {
    char b1[256], b2[80];
    int i;
-   char *s, *s2;
+   AL_CONST char *s;
+   char* s2;
    DATAFILE *data;
    _DRIVER_INFO *list;
    DIALOG *dlg;

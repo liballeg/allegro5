@@ -33,7 +33,7 @@ static int fm_detect(int input);
 static int fm_init(int input, int voices);
 static void fm_exit(int input);
 static int fm_mixer_volume(int volume);
-static int fm_load_patches(char *patches, char *drums);
+static int fm_load_patches(AL_CONST char *patches, AL_CONST char *drums);
 static void fm_key_on(int inst, int note, int bend, int vol, int pan);
 static void fm_key_off(int voice);
 static void fm_set_volume(int voice, int vol);
@@ -601,7 +601,7 @@ END_OF_STATIC_FUNCTION(fm_set_pitch);
  *  Called before starting to play a MIDI file, to check if we need to be
  *  in rhythm mode or not.
  */
-static int fm_load_patches(char *patches, char *drums)
+static int fm_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 {
    int i;
    int usedrums = FALSE;
@@ -687,7 +687,7 @@ static int fm_detect(int input)
    static int ports[] = { 0x210, 0x220, 0x230, 0x240, 0x250, 0x260, 0x388, 0 };
    char tmp1[64], tmp2[64];
    int opl_type;
-   char *s;
+   AL_CONST char *s;
    int i;
 
    if (input)
@@ -760,7 +760,7 @@ static int fm_detect(int input)
 /* load_ibk:
  *  Reads in a .IBK patch set file, for use by the Adlib driver.
  */
-int load_ibk(char *filename, int drums)
+int load_ibk(AL_CONST char *filename, int drums)
 {
    char sig[4];
    FM_INSTRUMENT *inst;
@@ -854,7 +854,7 @@ int load_ibk(char *filename, int drums)
 static int fm_init(int input, int voices)
 {
    char tmp1[80], tmp2[80];
-   char *s;
+   AL_CONST char *s;
    int i;
 
    fm_reset(1);

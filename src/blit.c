@@ -28,7 +28,7 @@
 /* blit_from_256:
  *  Expand 256 color images onto a truecolor destination.
  */
-static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+static void blit_from_256(AL_CONST BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    #ifdef ALLEGRO_COLOR8
 
@@ -194,7 +194,7 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
 /* dither_blit:
  *  Blits with Floyd-Steinberg error diffusion
  */
-static void dither_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+static void dither_blit(AL_CONST BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    int prev_drawmode = _drawing_mode;
    int *errline[3];
@@ -291,7 +291,7 @@ static void dither_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, in
 /* blit_from_15:
  *  Convert 15 bpp images onto some other destination format.
  */
-static void blit_from_15(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+static void blit_from_15(AL_CONST BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    #ifdef ALLEGRO_COLOR16
 
@@ -337,7 +337,7 @@ static void blit_from_15(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
 /* blit_from_16:
  *  Convert 16 bpp images onto some other destination format.
  */
-static void blit_from_16(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+static void blit_from_16(AL_CONST BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    #ifdef ALLEGRO_COLOR16
 
@@ -383,7 +383,7 @@ static void blit_from_16(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
 /* blit_from_24:
  *  Convert 24 bpp images onto some other destination format.
  */
-static void blit_from_24(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+static void blit_from_24(AL_CONST BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    #ifdef ALLEGRO_COLOR24
 
@@ -427,7 +427,7 @@ static void blit_from_24(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
 /* blit_from_32:
  *  Convert 32 bpp images onto some other destination format.
  */
-static void blit_from_32(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+static void blit_from_32(AL_CONST BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    #ifdef ALLEGRO_COLOR32
 
@@ -473,7 +473,7 @@ static void blit_from_32(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
  *  painfully slow, but I don't think it is something that people will need
  *  to do very often...
  */
-static void blit_to_or_from_modex(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+static void blit_to_or_from_modex(AL_CONST BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    #ifdef GFX_MODEX
 
@@ -506,7 +506,7 @@ static void blit_to_or_from_modex(BITMAP *src, BITMAP *dest, int s_x, int s_y, i
  *  Blits an (already clipped) region between two bitmaps of different
  *  color depths, doing the appopriate format conversions.
  */
-static void blit_between_formats(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+static void blit_between_formats(AL_CONST BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    if ((is_planar_bitmap(src)) || (is_planar_bitmap(dest))) {
       blit_to_or_from_modex(src, dest, s_x, s_y, d_x, d_y, w, h);
@@ -543,7 +543,7 @@ static void blit_between_formats(BITMAP *src, BITMAP *dest, int s_x, int s_y, in
  *  Blits an (already clipped) region between two areas of the same bitmap,
  *  checking which way around to do the blit.
  */
-static void blit_to_self(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+static void blit_to_self(AL_CONST BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    unsigned long sx, sy, dx, dy;
    BITMAP *tmp;
@@ -643,7 +643,7 @@ static void blit_to_self(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
  *  rectangle of the destination bitmap, and will work correctly even when 
  *  the two memory areas overlap (ie. src and dest are the same). 
  */
-void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+void blit(AL_CONST BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    BLIT_CLIP();
 
@@ -690,7 +690,7 @@ END_OF_FUNCTION(blit);
  *  Version of blit() that skips zero pixels. The source must be a memory
  *  bitmap, and the source and dest regions must not overlap.
  */
-void masked_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+void masked_blit(AL_CONST BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    ASSERT(src->vtable->color_depth == dest->vtable->color_depth);
 

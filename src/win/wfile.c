@@ -30,7 +30,7 @@
  *  drive. This really only applies to the DOS library, so we don't bother
  *  with it.
  */
-int _al_file_isok(char *filename)
+int _al_file_isok(AL_CONST char *filename)
 {
    return TRUE;
 }
@@ -40,7 +40,7 @@ int _al_file_isok(char *filename)
 /* _al_file_exists:
  *  Checks whether the specified file exists.
  */
-int _al_file_exists(char *filename, int attrib, int *aret)
+int _al_file_exists(AL_CONST char *filename, int attrib, int *aret)
 {
    struct _finddata_t info;
    long handle;
@@ -70,7 +70,7 @@ int _al_file_exists(char *filename, int attrib, int *aret)
 /* _al_file_size:
  *  Measures the size of the specified file.
  */
-long _al_file_size(char *filename)
+long _al_file_size(AL_CONST char *filename)
 {
    struct _finddata_t info;
    long handle;
@@ -129,7 +129,7 @@ typedef struct FFIND_INFO {
 /* _al_findfirst:
  *  Initiates a directory search.
  */
-void *_al_findfirst(char *name, int attrib, char *nameret, int *aret)
+void *_al_findfirst(AL_CONST char *name, int attrib, char *nameret, int *aret)
 {
    FFIND_INFO *info;
    int a;

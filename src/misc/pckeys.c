@@ -612,7 +612,8 @@ static void read_key_table(unsigned short *out, unsigned short *in, char *sectio
  */
 static void read_keyboard_config()
 {
-   char filename[512], tmp1[128], tmp2[128], *name, *ext, *datafile;
+   char filename[512], tmp1[128], tmp2[128], *ext, *datafile;
+   AL_CONST char* name;
 
    name = get_config_string(NULL, uconvert_ascii("keyboard", tmp1), NULL);
 
