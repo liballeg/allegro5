@@ -9086,8 +9086,8 @@ makefiles also provide some special pseudo-targets:
 <li>
    'distclean'<br>
    Like "make clean", but more so. This removes all the executable files and 
-   HTML format documentation, leaving you with only the same files that are 
-   included when you unzip a new Allegro distribution.
+   the documentation, leaving you with only the same files that are included
+   when you unzip a new Allegro distribution.
 <li>
    'veryclean'<br>
    Use with extreme caution! This target deletes absolutely all generated 

@@ -131,7 +131,13 @@ endif
 
 default: msg lib $(PROGRAMS) docs
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been compiled.
-	@echo Run make install to complete the installation.
+ifdef UNIX_TOOLS
+	@echo Run \"make install\" with the options you passed to \"make\"
+	@echo in order to complete the installation.
+else
+	@echo Run "make install" with the options you passed to "make"
+	@echo in order to complete the installation.
+endif
 
 all:
 	$(MAKE) msg lib
@@ -140,7 +146,13 @@ all:
 	@echo Compiling utilities, examples and test programs. Please wait...
 	$(MAKE) $(PROGRAMS) docs
 	@echo All $(PLATFORM) library versions have been compiled.
-	@echo Run make installall to complete the installation.
+ifdef UNIX_TOOLS
+	@echo Run \"make installall\" with the options you passed to \"make all\"
+	@echo in order to complete the installation.
+else
+	@echo Run "make installall" with the options you passed to "make all"
+	@echo in order to complete the installation.
+endif
 
 installall:
 	$(MAKE) msg lib install
@@ -153,7 +165,11 @@ msg:
 
 docs: $(DOCS)
 	@echo HTML help files have been generated.
-	@echo To generate a .CHM version, run make chm-docs.
+ifdef UNIX_TOOLS
+	@echo To generate a .CHM version, run \"make chm-docs\".
+else
+	@echo To generate a .CHM version, run "make chm-docs".
+endif
 
 lib: $(LIB_NAME)
 
