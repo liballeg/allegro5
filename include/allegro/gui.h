@@ -69,6 +69,32 @@ typedef struct DIALOG_PLAYER
 } DIALOG_PLAYER;
 
 
+/* stored information about the state of an active GUI menu */
+typedef struct MENU_PLAYER
+{
+   MENU *menu;                      /* the menu itself */
+   int bar;                         /* set if it is a top level menu bar */
+   int size;                        /* number of items in the menu */
+   int sel;                         /* selected item */
+   int x, y, w, h;                  /* screen position of the menu */
+   int (*proc)();                   /* callback function */
+   BITMAP *saved;                   /* saved what was underneath it */
+   
+   int mouse_button_was_pressed;    /* set if mouse button pressed on last iteration */
+   int back_from_child;             /* set if a child was activated on last iteration */    
+   int timestamp;                   /* timestamp for gui_timer events */
+   int mouse_sel;                   /* item the mouse is currently over */
+   int redraw;                      /* set if redrawing is required */
+   int auto_open;                   /* set if menu auto-opening is activated */
+   int ret;                         /* return value */
+   
+   DIALOG *dialog;                  /* d_menu_proc() parent dialog (if any) */
+   
+   struct MENU_PLAYER *parent;      /* the parent menu, or NULL for root */
+   struct MENU_PLAYER *child;       /* the child menu, or NULL for none */
+} MENU_PLAYER;
+
+
 /* bits for the flags field */
 #define D_EXIT          1        /* object makes the dialog exit */
 #define D_SELECTED      2        /* object is selected */
@@ -181,6 +207,9 @@ AL_FUNC(DIALOG_PLAYER *, init_dialog, (DIALOG *dialog, int focus_obj));
 AL_FUNC(int, update_dialog, (DIALOG_PLAYER *player));
 AL_FUNC(int, shutdown_dialog, (DIALOG_PLAYER *player));
 AL_FUNC(int, do_menu, (MENU *menu, int x, int y));
+AL_FUNC(MENU_PLAYER *, init_menu, (MENU *menu, int x, int y));
+AL_FUNC(int, update_menu, (MENU_PLAYER *player));
+AL_FUNC(int, shutdown_menu, (MENU_PLAYER *player));
 AL_FUNC(int, alert, (AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST char *b1, AL_CONST char *b2, int c1, int c2));
 AL_FUNC(int, alert3, (AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST char *b1, AL_CONST char *b2, AL_CONST char *b3, int c1, int c2, int c3));
 AL_FUNC(int, file_select_ex, (AL_CONST char *message, char *path, AL_CONST char *ext, int size, int w, int h));

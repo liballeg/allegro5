@@ -16,6 +16,8 @@
  *
  *      Menu auto-opening added by Angelo Mottola.
  *
+ *      Eric Botcazou added the support for non-blocking menus.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -36,19 +38,20 @@ int gui_font_baseline = 0;
 
 
 /* pointer to the currently active dialog and menu objects */
-static DIALOG_PLAYER *active_player = NULL;
+static DIALOG_PLAYER *active_dialog_player = NULL;
+static MENU_PLAYER *active_menu_player = NULL;
 DIALOG *active_dialog = NULL;
 MENU *active_menu = NULL;
 
 
 /* list of currently active (initialized) dialog players */
-struct al_active_player {
+struct al_active_dialog_player {
    DIALOG_PLAYER *player;
-   struct al_active_player *next;
+   struct al_active_dialog_player *next;
 };
 
-static struct al_active_player *first_active_player = 0;
-static struct al_active_player *current_active_player = 0;
+static struct al_active_dialog_player *first_active_dialog_player = 0;
+static struct al_active_dialog_player *current_active_dialog_player = 0;
 
 
 
@@ -174,8 +177,8 @@ END_OF_STATIC_FUNCTION(dclick_check);
  */
 static void gui_switch_callback(void)
 {
-   if (active_player)
-      active_player->res |= D_REDRAW_ALL;
+   if (active_dialog_player)
+      active_dialog_player->res |= D_REDRAW_ALL;
 }
 
 
@@ -717,7 +720,7 @@ int popup_dialog(DIALOG *dialog, int focus_obj)
 DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
 {
    DIALOG_PLAYER *player;
-   struct al_active_player *n;
+   struct al_active_dialog_player *n;
    char tmp1[64], tmp2[64];
    int c;
    ASSERT(dialog);
@@ -729,7 +732,7 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
    }
 
    /* append player to the list */
-   n = malloc(sizeof(struct al_active_player));
+   n = malloc(sizeof(struct al_active_dialog_player));
    if (!n) {
       *allegro_errno = ENOMEM;
       free (player);
@@ -739,12 +742,12 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
    n->next = NULL;
    n->player = player;
 
-   if (!current_active_player) {
-      current_active_player = first_active_player = n;
+   if (!current_active_dialog_player) {
+      current_active_dialog_player = first_active_dialog_player = n;
    }
    else {
-      current_active_player->next = n;
-      current_active_player = n;
+      current_active_dialog_player->next = n;
+      current_active_dialog_player = n;
    }
 
    player->res = D_REDRAW;
@@ -757,7 +760,7 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
    player->mouse_b = gui_mouse_b();
 
    /* set up the global  dialog pointer */
-   active_player = player;
+   active_dialog_player = player;
    active_dialog = dialog;
 
    /* set up dclick checking code */
@@ -833,13 +836,13 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
  */
 static void check_for_redraw(DIALOG_PLAYER *player)
 {
-   struct al_active_player *iter;
+   struct al_active_dialog_player *iter;
    int c, r;
    ASSERT(player);
 
    /* need to redraw all active dialogs? */
    if (player->res & D_REDRAW_ALL) {
-      for (iter = first_active_player; iter != current_active_player; iter = iter->next)
+      for (iter = first_active_dialog_player; iter != current_active_dialog_player; iter = iter->next)
 	 dialog_message(iter->player->dialog, MSG_DRAW, 0, NULL);
 
       player->res &= ~D_REDRAW_ALL;
@@ -872,7 +875,22 @@ int update_dialog(DIALOG_PLAYER *player)
    int c, cascii, cscan, ccombo, r, ret, nowhere, z;
    int new_mouse_b;
    ASSERT(player);
+   
+   /* redirect to update_menu() whenever a menu is activated */
+   if (active_menu_player) {
+      yield_timeslice();
 
+      if (update_menu(active_menu_player))
+	 return TRUE;
+
+      for (c=0; player->dialog[c].proc; c++)
+	 if (&player->dialog[c] == active_menu_player->dialog)
+	    break;
+	 
+      MESSAGE(c, MSG_LOSTMOUSE, 0);
+      goto getout;
+   }
+       
    if (player->res & D_CLOSE)
       return FALSE;
 
@@ -1131,7 +1149,7 @@ int update_dialog(DIALOG_PLAYER *player)
  */
 int shutdown_dialog(DIALOG_PLAYER *player)
 {
-   struct al_active_player *iter, *prev;
+   struct al_active_dialog_player *iter, *prev;
    int obj;
    ASSERT(player);
 
@@ -1150,28 +1168,28 @@ int shutdown_dialog(DIALOG_PLAYER *player)
       player->dialog[player->mouse_obj].flags &= ~D_GOTMOUSE;
 
    /* remove dialog player from the list of active players */
-   for (iter = first_active_player, prev = 0; iter != 0; prev = iter, iter = iter->next) {
+   for (iter = first_active_dialog_player, prev = 0; iter != 0; prev = iter, iter = iter->next) {
       if (iter->player == player) {
 	 if (prev)
 	    prev->next = iter->next;
 	 else
-	    first_active_player = iter->next;
+	    first_active_dialog_player = iter->next;
 
-	 if (iter == current_active_player)
-	    current_active_player = prev;
+	 if (iter == current_active_dialog_player)
+	    current_active_dialog_player = prev;
 
 	 free (iter);
 	 break;
       }
    }
 
-   if (current_active_player)
-      active_player = current_active_player->player;
+   if (current_active_dialog_player)
+      active_dialog_player = current_active_dialog_player->player;
    else
-      active_player = NULL;
+      active_dialog_player = NULL;
 
-   if (active_player)
-      active_dialog = active_player->dialog;
+   if (active_dialog_player)
+      active_dialog = active_dialog_player->dialog;
    else
       active_dialog = NULL;
 
@@ -1184,20 +1202,6 @@ int shutdown_dialog(DIALOG_PLAYER *player)
 
 
 
-typedef struct MENU_INFO            /* information about a popup menu */
-{
-   MENU *menu;                      /* the menu itself */
-   struct MENU_INFO *parent;        /* the parent menu, or NULL for root */
-   int bar;                         /* set if it is a top level menu bar */
-   int size;                        /* number of items in the menu */
-   int sel;                         /* selected item */
-   int x, y, w, h;                  /* screen position of the menu */
-   int (*proc)();                   /* callback function */
-   BITMAP *saved;                   /* saved what was underneath it */
-} MENU_INFO;
-
-
-
 void (*gui_menu_draw_menu)(int x, int y, int w, int h) = NULL;
 void (*gui_menu_draw_menu_item)(MENU *m, int x, int y, int w, int h, int bar, int sel) = NULL;
 
@@ -1206,7 +1210,7 @@ void (*gui_menu_draw_menu_item)(MENU *m, int x, int y, int w, int h, int bar, in
 /* get_menu_pos:
  *  Calculates the coordinates of an object within a top level menu bar.
  */
-static void get_menu_pos(MENU_INFO *m, int c, int *x, int *y, int *w)
+static void get_menu_pos(MENU_PLAYER *m, int c, int *x, int *y, int *w)
 {
    int c2;
 
@@ -1231,7 +1235,7 @@ static void get_menu_pos(MENU_INFO *m, int c, int *x, int *y, int *w)
 /* draw_menu_item:
  *  Draws an item from a popup menu onto the screen.
  */
-static void draw_menu_item(MENU_INFO *m, int c)
+static void draw_menu_item(MENU_PLAYER *m, int c)
 {
    int fg, bg;
    int x, y, w;
@@ -1310,7 +1314,7 @@ static void draw_menu_item(MENU_INFO *m, int c)
 /* draw_menu:
  *  Draws a popup menu onto the screen.
  */
-static void draw_menu(MENU_INFO *m)
+static void draw_menu(MENU_PLAYER *m)
 {
    int c;
 
@@ -1331,7 +1335,7 @@ static void draw_menu(MENU_INFO *m)
 /* menu_mouse_object:
  *  Returns the index of the object the mouse is currently on top of.
  */
-static int menu_mouse_object(MENU_INFO *m)
+static int menu_mouse_object(MENU_PLAYER *m)
 {
    int c;
    int x, y, w;
@@ -1352,7 +1356,7 @@ static int menu_mouse_object(MENU_INFO *m)
 /* mouse_in_single_menu:
  *  Checks if the mouse is inside a single menu.
  */
-static INLINE int mouse_in_single_menu(MENU_INFO *m)
+static INLINE int mouse_in_single_menu(MENU_PLAYER *m)
 {
    if ((gui_mouse_x() >= m->x) && (gui_mouse_x() < m->x+m->w) &&
        (gui_mouse_y() >= m->y) && (gui_mouse_y() < m->y+m->h))
@@ -1367,7 +1371,7 @@ static INLINE int mouse_in_single_menu(MENU_INFO *m)
  *  Recursively checks if the mouse is inside a menu (or any of its parents)
  *  and simultaneously not on the selected item of the menu.
  */
-static int mouse_in_parent_menu(MENU_INFO *m) 
+static int mouse_in_parent_menu(MENU_PLAYER *m) 
 {
    int c;
 
@@ -1383,10 +1387,10 @@ static int mouse_in_parent_menu(MENU_INFO *m)
 
 
 
-/* fill_menu_info:
- *  Fills a menu info structure when initialising a menu.
+/* layout_menu:
+ *  Calculates the layout of the menu.
  */
-static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar, int x, int y, int minw, int minh)
+static void layout_menu(MENU_PLAYER *m, MENU *menu, int bar, int x, int y, int minw, int minh)
 {
    char *buf, *tok, *last;
    int extra = 0;
@@ -1395,7 +1399,6 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
    char tmp[16];
 
    m->menu = menu;
-   m->parent = parent;
    m->bar = bar;
    m->x = x;
    m->y = y;
@@ -1523,309 +1526,6 @@ int menu_alt_key(int k, MENU *m)
 
 
 
-/* _do_menu:
- *  The core menu control function, called by do_menu() and d_menu_proc().
- *  The navigation through the arborescence of menus can be done:
- *   - with the arrow keys,
- *   - with mouse point-and-clicks,
- *   - with mouse movements when the mouse button is being held down,
- *   - with mouse movements only if gui_menu_opening_delay is non negative.
- */
-static int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, int *dret, int minw, int minh)
-{
-   static int auto_open = TRUE;  /* global property */
-   MENU_INFO m;
-   MENU_INFO *i;
-   int c, c2;
-   int mouse_button_was_pressed;
-   int old_sel, mouse_sel;
-   int child_x, child_y;
-   int redraw = TRUE;
-   int back_from_child = FALSE;
-   int ret = -1;
-   ASSERT(menu);
-
-   fill_menu_info(&m, menu, parent, bar, x, y, minw, minh);
-
-   if (repos) {
-      m.x = MID(0, m.x, SCREEN_W-m.w-1);
-      m.y = MID(0, m.y, SCREEN_H-m.h-1);
-   }
-
-   scare_mouse_area(m.x, m.y, m.w, m.h);
-   
-   /* save screen under the menu */
-   m.saved = create_bitmap(m.w, m.h); 
-
-   if (m.saved)
-      blit(screen, m.saved, m.x, m.y, 0, 0, m.w, m.h);
-   else
-      *allegro_errno = ENOMEM;
-
-   /* setup state variables */
-   m.sel = mouse_sel = menu_mouse_object(&m);
-   mouse_button_was_pressed = gui_mouse_b();
-   gui_timer = 0;
-
-   unscare_mouse();
-
-   do {                                               /* main event loop */
-      yield_timeslice();
-
-      old_sel = m.sel;
-
-      c = menu_mouse_object(&m);
-
-      if ((gui_mouse_b()) || (c != mouse_sel)) {
-	 m.sel = mouse_sel = c;
-	 auto_open = TRUE;
-      }
-
-      if (gui_mouse_b()) {                            /* button pressed? */
-	 /* dismiss menu if:
-	  *  - the mouse cursor is outside the menu and inside the parent menu, or
-	  *  - the mouse cursor is outside the menu and the button has just been pressed
-	  */
-	 if (!mouse_in_single_menu(&m)) {
-	    if (mouse_in_parent_menu(m.parent) || (!mouse_button_was_pressed))
-	       break;
-	 }
-
-	 if ((m.sel >= 0) && (m.menu[m.sel].child))   /* bring up child menu? */
-	    ret = m.sel;
-
-	 /* don't trigger the 'select' event on button press for non menu item */
-	 mouse_button_was_pressed = TRUE;
-
-	 clear_keybuf();
-      }
-      else {                                          /* button not pressed */
-	 /* trigger the 'select' event only on button release for non menu item */
-	 if (mouse_button_was_pressed) {
-	    ret = m.sel;
-	    mouse_button_was_pressed = FALSE;
-	 }
-
-	 if (keypressed()) {                          /* keyboard input */
-	    gui_timer = 0;
-	    auto_open = FALSE;
-
-	    c = readkey();
-
-	    if ((c & 0xFF) == 27) {
-	       ret = -1;
-	       break;
-	    }
-
-	    switch (c >> 8) {
-
-	       case KEY_LEFT:
-		  if (m.parent) {
-		     if (m.parent->bar) {
-			simulate_keypress(KEY_LEFT<<8);
-			simulate_keypress(KEY_DOWN<<8);
-		     }
-		     ret = -1;
-		     goto getout;
-		  }
-		  /* fall through */
-
-	       case KEY_UP:
-		  if ((((c >> 8) == KEY_LEFT) && (m.bar)) ||
-		      (((c >> 8) == KEY_UP) && (!m.bar))) {
-		     c = m.sel;
-		     do {
-			c--;
-			if (c < 0)
-			   c = m.size - 1;
-		     } while ((!ugetc(m.menu[c].text)) && (c != m.sel));
-		     m.sel = c;
-		  }
-		  break;
-
-	       case KEY_RIGHT:
-		  if (((m.sel < 0) || (!m.menu[m.sel].child)) &&
-		      (m.parent) && (m.parent->bar)) {
-		     simulate_keypress(KEY_RIGHT<<8);
-		     simulate_keypress(KEY_DOWN<<8);
-		     ret = -1;
-		     goto getout;
-		  }
-		  /* fall through */
-
-	       case KEY_DOWN:
-		  if ((m.sel >= 0) && (m.menu[m.sel].child) &&
-		      ((((c >> 8) == KEY_RIGHT) && (!m.bar)) ||
-		       (((c >> 8) == KEY_DOWN) && (m.bar)))) {
-		     ret = m.sel;
-		  }
-		  else if ((((c >> 8) == KEY_RIGHT) && (m.bar)) ||
-			   (((c >> 8) == KEY_DOWN) && (!m.bar))) {
-		     c = m.sel;
-		     do {
-			c++;
-			if (c >= m.size)
-			   c = 0;
-		     } while ((!ugetc(m.menu[c].text)) && (c != m.sel));
-		     m.sel = c;
-		  }
-		  break;
-
-	       case KEY_SPACE:
-	       case KEY_ENTER:
-		  if (m.sel >= 0)
-		     ret = m.sel;
-		  break;
-
-	       default:
-		  if ((!m.parent) && ((c & 0xFF) == 0))
-		     c = menu_alt_key(c, m.menu);
-		  for (c2=0; m.menu[c2].text; c2++) {
-		     if (menu_key_shortcut(c, m.menu[c2].text)) {
-			ret = m.sel = c2;
-			break;
-		     }
-		  }
-		  if (m.parent) {
-		     i = m.parent;
-		     for (c2=0; i->parent; c2++)
-			i = i->parent;
-		     c = menu_alt_key(c, i->menu);
-		     if (c) {
-			while (c2-- > 0)
-			   simulate_keypress(27);
-			simulate_keypress(c);
-			ret = -1;
-			goto getout;
-		     }
-		  }
-		  break;
-	    }
-	 }
-      }  /* end of input processing */
-
-      if ((redraw) || (m.sel != old_sel)) {           /* selection changed? */
-         gui_timer = 0;
-
-	 scare_mouse_area(m.x, m.y, m.w, m.h);
-	 acquire_screen();
-
-	 if (redraw) {
-	    draw_menu(&m);
-	    redraw = FALSE;
-	 }
-	 else {
-	    if (old_sel >= 0)
-	       draw_menu_item(&m, old_sel);
-
-	    if (m.sel >= 0)
-	       draw_menu_item(&m, m.sel);
-	 }
-
-	 release_screen();
-	 unscare_mouse();
-      }
-
-      if (auto_open &&
-	  (gui_menu_opening_delay >= 0)) {            /* menu auto-opening on? */
-	 if (!mouse_in_single_menu(&m)) {
-	    if (mouse_in_parent_menu(m.parent)) {
-	       /* automatically goes back to parent */
-	       ret = -2;
-	       break;
-	    }
-	 }
-
-         if ((mouse_sel >= 0) && (m.menu[mouse_sel].child)) {
-            if (m.bar) {
-               /* top level menu auto-opening if back from child */
-               if (back_from_child) {
-                  gui_timer = 0;
-                  ret = mouse_sel;
-               }
-            }
-            else {
-               /* sub menu auto-opening if enough time has passed */
-               if (gui_timer > gui_menu_opening_delay)
-                  ret = mouse_sel;
-            }
-         }
-
-         back_from_child = FALSE;
-      }
-
-      if (ret >= 0) {                               /* item selected? */
-	 if (m.menu[ret].flags & D_DISABLED) {
-	    ret = -1;  /* continue */
-         }
-         else if (m.menu[ret].child) {              /* child menu? */
-	    if (m.bar) {
-	       get_menu_pos(&m, ret, &child_x, &child_y, &c);
-	       child_x += 6;
-	       child_y += text_height(font) + 7;
-	    }
-	    else {
-	       child_x = m.x+m.w - 3;
-	       child_y = m.y + (text_height(font)+4)*ret + text_height(font)/4 + 1;
-	    }
-
-            /* recursively call child menu */
-	    c = _do_menu(m.menu[ret].child, &m, FALSE, child_x, child_y, TRUE, NULL, 0, 0);
-
-	    if (c < 0) {                            /* return to parent? */
-	       ret = -1;
-	       mouse_button_was_pressed = FALSE;
-	       mouse_sel = menu_mouse_object(&m);
-
-	       if (c == -2) {                       /* return caused by mouse movement? */
-		  m.sel = mouse_sel;
-		  redraw = TRUE;
-		  gui_timer = 0;
-		  back_from_child = TRUE;
-	       }
-	    }
-	 }
-      }
-
-      if ((m.bar) && (!gui_mouse_b()) && (!keypressed()) && (!mouse_in_single_menu(&m)))
-	 break;
-
-   } while (ret < 0);
-
- getout:
-   if (dret)
-      *dret = 0;
-
-   if ((!m.proc) && (ret >= 0)) {    /* callback function? */
-      active_menu = &m.menu[ret];
-      m.proc = active_menu->proc;
-   }
-
-   if (ret >= 0) {
-      if (parent)
-	 parent->proc = m.proc;
-      else  {
-	 if (m.proc) {
-	    c = m.proc();
-	    if (dret)
-	       *dret = c;
-	 }
-      }
-   }
-
-   /* restore screen */
-   if (m.saved) {
-      scare_mouse_area(m.x, m.y, m.w, m.h);
-      blit(m.saved, screen, 0, 0, m.x, m.y, m.w, m.h);
-      unscare_mouse();
-      destroy_bitmap(m.saved);
-   }
-
-   return ret;
-}
-
-
-
 /* do_menu:
  *  Displays and animates a popup menu at the specified screen position,
  *  returning the index of the item that was selected, or -1 if it was
@@ -1833,12 +1533,409 @@ static int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int re
  */
 int do_menu(MENU *menu, int x, int y)
 {
-   int ret = _do_menu(menu, NULL, FALSE, x, y, TRUE, NULL, 0, 0);
+   MENU_PLAYER *player;
+   int ret;
+   ASSERT(menu);
+
+   player = init_menu(menu, x ,y);
+
+   while (update_menu(player))
+      yield_timeslice();
+
+   ret = shutdown_menu(player);
 
    do {
    } while (gui_mouse_b());
 
    return ret;
+}
+
+
+
+/* _init_menu:
+ *  Worker function for initialising a menu.
+ */
+static MENU_PLAYER *_init_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *dialog, int bar, int x, int y, int repos, int minw, int minh)
+{
+   MENU_PLAYER *player;
+   ASSERT(menu);
+
+   player = malloc(sizeof(MENU_PLAYER));
+   if (!player) {
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+
+   layout_menu(player, menu, bar, x, y, minw, minh);
+
+   if (repos) {
+      player->x = MID(0, player->x, SCREEN_W-player->w-1);
+      player->y = MID(0, player->y, SCREEN_H-player->h-1);
+   }
+
+   scare_mouse_area(player->x, player->y, player->w, player->h);
+
+   /* save screen under the menu */
+   player->saved = create_bitmap(player->w, player->h); 
+
+   if (player->saved)
+      blit(screen, player->saved, player->x, player->y, 0, 0, player->w, player->h);
+   else
+      *allegro_errno = ENOMEM;
+
+   /* setup state variables */
+   player->sel = menu_mouse_object(player);
+
+   unscare_mouse();
+
+   player->mouse_button_was_pressed = gui_mouse_b();
+   player->back_from_child = FALSE;
+   player->timestamp = gui_timer;
+   player->mouse_sel = player->sel;
+   player->redraw = TRUE;
+   player->auto_open = TRUE;
+   player->ret = -1;
+
+   player->dialog = dialog;
+
+   player->parent = parent;
+   player->child = NULL;
+
+   return player;
+}
+
+
+
+/* init_menu:
+ *  Sets up a menu, returning a menu player object that can be used
+ *  with the update_menu() and shutdown_menu() functions.
+ */ 
+MENU_PLAYER *init_menu(MENU *menu, int x, int y)
+{
+   return _init_menu(menu, NULL, NULL, FALSE, x, y, TRUE, 0, 0);
+}
+
+
+
+/* update_menu:
+ *  Updates the status of a menu player object returned by init_menu(),
+ *  returning TRUE if it is still active or FALSE if it has finished.
+ *
+ *  The navigation through the arborescence of menus can be done:
+ *   - with the arrow keys,
+ *   - with mouse point-and-clicks,
+ *   - with mouse movements when the mouse button is being held down,
+ *   - with mouse movements only if gui_menu_opening_delay is non negative.
+ */
+int update_menu(MENU_PLAYER *player)
+{
+   MENU_PLAYER *i;
+   int c, c2;
+   int old_sel, child_ret;
+   int child_x, child_y;
+   ASSERT(player);
+
+   /* find activated menu */
+   while (player->child)
+      player = player->child;
+
+   old_sel = player->sel;
+
+   c = menu_mouse_object(player);
+
+   if ((gui_mouse_b()) || (c != player->mouse_sel)) {
+      player->sel = player->mouse_sel = c;
+      player->auto_open = TRUE;
+   }
+
+   if (gui_mouse_b()) {  /* button pressed? */
+      /* Dismiss menu if:
+       *  - the mouse cursor is outside the menu and inside the parent menu, or
+       *  - the mouse cursor is outside the menu and the button has just been pressed.
+       */
+      if (!mouse_in_single_menu(player)) {
+	 if (mouse_in_parent_menu(player->parent) || (!player->mouse_button_was_pressed)) {
+	    player->ret = -2;
+	    goto End;
+	 }
+      }
+
+      if ((player->sel >= 0) && (player->menu[player->sel].child))  /* bring up child menu? */
+	 player->ret = player->sel;
+
+      /* don't trigger the 'select' event on button press for non menu item */
+      player->mouse_button_was_pressed = TRUE;
+
+      clear_keybuf();
+   }
+   else {   /* button not pressed */
+      /* trigger the 'select' event only on button release for non menu item */
+      if (player->mouse_button_was_pressed) {
+	 player->ret = player->sel;
+	 player->mouse_button_was_pressed = FALSE;
+      }
+
+      if (keypressed()) {  /* keyboard input */
+	 player->timestamp = gui_timer;
+	 player->auto_open = FALSE;
+
+	 c = readkey();
+
+	 if ((c & 0xFF) == 27) {
+	    player->ret = -2;
+	    goto End;
+	 }
+
+	 switch (c >> 8) {
+
+	    case KEY_LEFT:
+	       if (player->parent) {
+		  if (player->parent->bar) {
+		     simulate_keypress(KEY_LEFT<<8);
+		     simulate_keypress(KEY_DOWN<<8);
+		  }
+		  player->ret = -2;
+		  goto End;
+	       }
+	       /* fall through */
+
+	    case KEY_UP:
+	       if ((((c >> 8) == KEY_LEFT) && (player->bar)) ||
+		   (((c >> 8) == KEY_UP) && (!player->bar))) {
+		  c = player->sel;
+		  do {
+		     c--;
+		     if (c < 0)
+			c = player->size - 1;
+		  } while ((!ugetc(player->menu[c].text)) && (c != player->sel));
+		  player->sel = c;
+	       }
+	       break;
+
+	    case KEY_RIGHT:
+	       if (((player->sel < 0) || (!player->menu[player->sel].child)) &&
+		   (player->parent) && (player->parent->bar)) {
+		  simulate_keypress(KEY_RIGHT<<8);
+		  simulate_keypress(KEY_DOWN<<8);
+		  player->ret = -2;
+		  goto End;
+	       }
+	       /* fall through */
+
+	    case KEY_DOWN:
+	       if ((player->sel >= 0) && (player->menu[player->sel].child) &&
+		   ((((c >> 8) == KEY_RIGHT) && (!player->bar)) ||
+		    (((c >> 8) == KEY_DOWN) && (player->bar)))) {
+		  player->ret = player->sel;
+	       }
+	       else if ((((c >> 8) == KEY_RIGHT) && (player->bar)) ||
+			(((c >> 8) == KEY_DOWN) && (!player->bar))) {
+		  c = player->sel;
+		  do {
+		     c++;
+		     if (c >= player->size)
+			c = 0;
+		  } while ((!ugetc(player->menu[c].text)) && (c != player->sel));
+		  player->sel = c;
+	       }
+	       break;
+
+	    case KEY_SPACE:
+	    case KEY_ENTER:
+	       if (player->sel >= 0)
+		  player->ret = player->sel;
+	       break;
+
+	    default:
+	       if ((!player->parent) && ((c & 0xFF) == 0))
+		  c = menu_alt_key(c, player->menu);
+	       for (c2=0; player->menu[c2].text; c2++) {
+		  if (menu_key_shortcut(c, player->menu[c2].text)) {
+		     player->ret = player->sel = c2;
+		     break;
+		  }
+	       }
+	       if (player->parent) {
+		  i = player->parent;
+		  for (c2=0; i->parent; c2++)
+		     i = i->parent;
+		  c = menu_alt_key(c, i->menu);
+		  if (c) {
+		     while (c2-- > 0)
+			simulate_keypress(27);
+		     simulate_keypress(c);
+		     player->ret = -2;
+		     goto End;
+		  }
+	       }
+	       break;
+	 }
+      }
+   }  /* end of input processing */
+
+   if ((player->redraw) || (player->sel != old_sel)) {  /* selection changed? */
+      player->timestamp = gui_timer;
+
+      scare_mouse_area(player->x, player->y, player->w, player->h);
+      acquire_screen();
+
+      if (player->redraw) {
+	 draw_menu(player);
+	 player->redraw = FALSE;
+      }
+      else {
+	 if (old_sel >= 0)
+	    draw_menu_item(player, old_sel);
+
+	 if (player->sel >= 0)
+	    draw_menu_item(player, player->sel);
+      }
+
+      release_screen();
+      unscare_mouse();
+   }
+
+   if (player->auto_open && (gui_menu_opening_delay >= 0)) {  /* menu auto-opening on? */
+      if (!mouse_in_single_menu(player)) {
+	 if (mouse_in_parent_menu(player->parent)) {
+	    /* automatically goes back to parent */
+	    player->ret = -3;
+	    goto End;
+	 }
+      }
+
+      if ((player->mouse_sel >= 0) && (player->menu[player->mouse_sel].child)) {
+	 if (player->bar) {
+	    /* top level menu auto-opening if back from child */
+	    if (player->back_from_child) {
+	       player->timestamp = gui_timer;
+	       player->ret = player->mouse_sel;
+	    }
+	 }
+	 else {
+	    /* sub menu auto-opening if enough time has passed */
+	    if ((gui_timer - player->timestamp) > gui_menu_opening_delay)
+	       player->ret = player->mouse_sel;
+	 }
+      }
+
+      player->back_from_child = FALSE;
+   }
+
+ End:
+   if (player->ret >= 0) {  /* item selected? */
+      if (player->menu[player->ret].flags & D_DISABLED) {
+	 return TRUE;  /* continue */
+      }
+      else if (player->menu[player->ret].child) {  /* child menu? */
+	 if (player->bar) {
+	    get_menu_pos(player, player->ret, &child_x, &child_y, &c);
+	    child_x += 6;
+	    child_y += text_height(font) + 7;
+	 }
+	 else {
+	    child_x = player->x+player->w - 3;
+	    child_y = player->y + (text_height(font)+4)*player->ret + text_height(font)/4 + 1;
+	 }
+
+	 /* recursively call child menu */
+	 player->child = _init_menu(player->menu[player->ret].child, player, NULL, FALSE, child_x, child_y, TRUE, 0, 0);
+	 return TRUE;  /* continue */
+      }
+      
+      while (player->parent) {  /* parent menu? */
+	 player = player->parent;
+	 shutdown_menu(player->child);
+	 player->child = NULL;
+      }
+      
+      return FALSE;  /* item selected */
+   }
+   
+   if (player->ret < -1) {  /* dismiss menu ? */
+      if (player->parent) {
+	 child_ret = player->ret;  /* needed below */
+	 player = player->parent;
+	 shutdown_menu(player->child);
+	 player->child = NULL;
+	 player->ret = -1;
+	 player->mouse_button_was_pressed = FALSE;
+	 player->mouse_sel = menu_mouse_object(player);
+
+	 if (child_ret == -3) {  /* return caused by mouse movement? */
+	    player->sel = player->mouse_sel;
+	    player->redraw = TRUE;
+	    player->timestamp = gui_timer;
+	    player->back_from_child = TRUE;
+	 }
+	 
+	 return TRUE;  /* return to parent */
+      }
+      
+      return FALSE;  /* menu dismissed */
+   }
+   
+   /* special kludge for menu bar */
+   if ((player->bar) && (!gui_mouse_b()) && (!keypressed()) && (!mouse_in_single_menu(player)))
+      return FALSE;
+   
+   return TRUE;
+}
+   
+
+
+/* _shutdown_menu:
+ *  Worker function for shutting down a menu.
+ */
+static int _shutdown_menu(MENU_PLAYER *player, int *dret)
+{
+   int ret;
+   ASSERT(player);
+
+   if (dret)
+      *dret = 0;
+
+   if ((!player->proc) && (player->ret >= 0)) {   /* callback function? */
+      active_menu = &player->menu[player->ret];
+      player->proc = active_menu->proc;
+   }
+
+   if (player->ret >= 0) {
+      if (player->parent)
+	 player->parent->proc = player->proc;
+      else  {
+	 if (player->proc) {
+	    ret = player->proc();
+	    if (dret)
+	       *dret = ret;
+	 }
+      }
+   }
+
+   /* restore screen */
+   if (player->saved) {
+      scare_mouse_area(player->x, player->y, player->w, player->h);
+      blit(player->saved, screen, 0, 0, player->x, player->y, player->w, player->h);
+      unscare_mouse();
+      destroy_bitmap(player->saved);
+   }
+
+   ret = player->ret;
+   
+   free(player);
+   
+   return ret;
+}
+
+
+
+/* shutdown_menu:
+ *  Destroys a menu player object returned by init_menu(), returning the
+ *  index of the item that was selected, or -1 if it was dismissed.
+ */
+int shutdown_menu(MENU_PLAYER *player)
+{
+   return _shutdown_menu(player, NULL);
 }
 
 
@@ -1852,8 +1949,8 @@ int do_menu(MENU *menu, int x, int y)
  *  D_CLOSE, D_REDRAW, etc.
  */
 int d_menu_proc(int msg, DIALOG *d, int c)
-{ 
-   MENU_INFO m;
+{
+   MENU_PLAYER m, *mp;
    int ret = D_O_K;
    int x, i;
    ASSERT(d);
@@ -1861,13 +1958,13 @@ int d_menu_proc(int msg, DIALOG *d, int c)
    switch (msg) {
 
       case MSG_START:
-	 fill_menu_info(&m, d->dp, NULL, TRUE, d->x, d->y, d->w, d->h);
+	 layout_menu(&m, d->dp, TRUE, d->x, d->y, d->w, d->h);
 	 d->w = m.w;
 	 d->h = m.h;
 	 break;
 
       case MSG_DRAW:
-	 fill_menu_info(&m, d->dp, NULL, TRUE, d->x, d->y, d->w, d->h);
+	 layout_menu(&m, d->dp, TRUE, d->x, d->y, d->w, d->h);
 	 draw_menu(&m);
 	 break;
 
@@ -1890,17 +1987,28 @@ int d_menu_proc(int msg, DIALOG *d, int c)
 	       break;
 	    }
 
-	 /* run the menu */
-	 _do_menu(d->dp, NULL, TRUE, d->x, d->y, FALSE, &x, d->w, d->h);
-	 ret |= x;
-	 do {
-	 } while (gui_mouse_b());
+	 /* initialize the menu */
+	 active_menu_player = _init_menu(d->dp, NULL, d, TRUE, d->x, d->y, FALSE, d->w, d->h);
+	 break;
+	 
+      case MSG_LOSTMOUSE:
+	 if (active_menu_player) {
+	    /* _shutdown_menu may call nested dialogs */
+	    mp = active_menu_player;
+	    active_menu_player = NULL;
+	    _shutdown_menu(mp, &x);
 
-	 /* put the mouse */
-	 i = find_mouse_object(active_dialog);
-	 if ((i >= 0) && (&active_dialog[i] != d)) {
-	    active_dialog[i].flags |= D_GOTMOUSE;
-	    object_message(active_dialog+i, MSG_GOTMOUSE, 0);
+	    do {
+	    } while (gui_mouse_b());
+	 
+	    ret |= x;
+
+	    /* put the mouse */
+	    i = find_mouse_object(active_dialog);
+	    if ((i >= 0) && (&active_dialog[i] != d)) {
+	       active_dialog[i].flags |= D_GOTMOUSE;
+	       object_message(active_dialog+i, MSG_GOTMOUSE, 0);
+	    }
 	 }
 	 break;
    }

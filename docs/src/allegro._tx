@@ -544,6 +544,12 @@ available in past/future versions of Allegro.
    documentation of init_dialog() for a description on how to obtain/use this
    structure.
 
+@@typedef struct @MENU_PLAYER
+@xref init_menu, update_menu, shutdown_menu, GUI menus
+   A structure which holds GUI data used internally by Allegro. Read the
+   documentation of init_menu() for a description on how to obtain/use this
+   structure.
+   
 @@typedef struct @FONT
 @xref font
    A structure holding an Allegro font, usually created beforehand with the
@@ -7501,7 +7507,7 @@ overlap the menu text, so if you are going to use checked menu items it
 would be a good idea to prefix all your options with a space or two, to 
 ensure there is room for the check.
 
-@@int @do_menu(MENU *menu, int x, int y)
+@@int @do_menu(MENU *menu, int x, int y);
 @xref GUI menus, d_menu_proc, active_menu, gui_menu_draw_menu
    Displays and animates a popup menu at the specified screen coordinates 
    (these will be adjusted if the menu does not entirely fit on the screen). 
@@ -7510,6 +7516,35 @@ ensure there is room for the check.
    child menus, so you will have to use the callback functions if you want 
    multi-level menus.
 
+@@MENU_PLAYER *@init_menu(MENU *menu, int x, int y);
+@xref update_menu, shutdown_menu, do_menu
+   This function provides lower level access to the same functionality as 
+   do_menu(), but allows you to combine a popup menu with your own program 
+   control structures. It initialises a menu, returning a pointer to a menu
+   player object that can be used with update_menu() and shutdown_menu().
+   With these functions, you could implement your own version of do_menu()
+   with the lines:
+<codeblock>
+      MENU_PLAYER *player = init_menu(menu, x, y);
+
+      while (update_menu(player))
+	 ;
+
+      return shutdown_menu(player);
+<endblock>
+@@int @update_menu(MENU_PLAYER *player);
+@xref init_menu, shutdown_menu
+   Updates the status of a menu object returned by init_menu(). Returns TRUE
+   if the menu is still active, or FALSE if it has terminated. Upon a return
+   value of FALSE, it is up to you to call shutdown_menu() or to continue
+   execution.
+
+@@int @shutdown_menu(MENU_PLAYER *player);
+@xref init_menu, update_menu
+   Destroys a menu player object returned by init_menu(), returning the index
+   of the menu item that was selected, or -1 if the menu was cancelled (this
+   is the same as the return value from do_menu()).
+   
 @@extern MENU *@active_menu;
 @xref GUI menus
    When a menu callback procedure is triggered, this will be set to the menu 
