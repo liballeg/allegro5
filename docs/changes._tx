@@ -41,7 +41,8 @@ Changes from 3.11 to current
 <li>
    3.9.38: Peter Wang added check to see if display is local under X11.
 <li>
-   3.9.38: Eric Botcazou fixed compilation under Watcom 10.6. (not tested)
+   3.9.38: Eric Botcazou and Sven Sandberg fixed compilation under
+   Watcom 10.6.
 <li>
    3.9.38: Elias Pschernig contributed an icon fixer resource fixer for the
    Windows port and added support for shared library under BeOS.
@@ -90,7 +91,7 @@ Changes from 3.11 to current
    3.9.38: Henrik Stokseth added code to get more os info under unix.
 <li>
    3.9.38: Nimrod Abing fixed a bug in the config routines related to the
-   NULL sction.
+   NULL section.
 <li>
    3.9.38: Eric Botcazou fixed a crash in the Windows windowed driver on fast
    machines.
@@ -130,8 +131,8 @@ Changes from 3.11 to current
    3.9.38: Eric Botcazou added an enhanced building mechanism for DLL
    export definition files.
 <li>
-   3.9.38: Eric Botcazou unicodified the setup tool, added a new unicode
-   example program and did a ton of small fixes.
+   3.9.38: Eric Botcazou added a new unicode example program and did a ton of
+   small fixes.
 <li>
    3.9.37: Johan Peitz fixed and enhanced the Win32 joystick driver.
 <li>

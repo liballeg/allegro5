@@ -92,6 +92,7 @@
     check_cpu
     circle
     circlefill
+    clear_bitmap
     clear_keybuf
     clear_scene
     clear_to_color
@@ -107,6 +108,7 @@
     cpu_fpu DATA
     cpu_mmx DATA
     cpu_model DATA
+    cpu_sse DATA
     cpu_vendor DATA
     create_bitmap
     create_bitmap_ex
@@ -537,6 +539,7 @@
     release_bitmap
     release_screen
     release_voice
+    reload_config_texts
     remove_display_switch_callback
     remove_int
     remove_joystick
@@ -700,6 +703,7 @@
     ustrstr
     ustrtod
     ustrtok
+    ustrtok_r
     ustrtol
     ustrupr
     ustrzcat
@@ -851,20 +855,27 @@
     _color_depth DATA
     _color_find_glyph
     _color_load_depth
+    _colorconv_blit_15_to_16
     _colorconv_blit_15_to_24
     _colorconv_blit_15_to_32
+    _colorconv_blit_15_to_8
+    _colorconv_blit_16_to_15
     _colorconv_blit_16_to_24
     _colorconv_blit_16_to_32
+    _colorconv_blit_16_to_8
     _colorconv_blit_24_to_15
     _colorconv_blit_24_to_16
     _colorconv_blit_24_to_32
+    _colorconv_blit_24_to_8
     _colorconv_blit_32_to_15
     _colorconv_blit_32_to_16
     _colorconv_blit_32_to_24
+    _colorconv_blit_32_to_8
     _colorconv_blit_8_to_15
     _colorconv_blit_8_to_16
     _colorconv_blit_8_to_24
     _colorconv_blit_8_to_32
+    _colorconv_blit_8_to_8
     _compile_sprites DATA
     _construct_datafile
     _create_driver_list
@@ -900,9 +911,11 @@
     _font_vtable_color DATA
     _font_vtable_mono DATA
     _get_colorconv_blitter
+    _get_colorconv_map
     _get_scanline_filler
     _get_vtable
     _gfx_bank DATA
+    _gfx_mode_list_malloced DATA
     _gfx_mode_set_count DATA
     _got_prev_current_palette DATA
     _grow_scratch_mem
@@ -1094,6 +1107,8 @@
     _palette_color32 DATA
     _palette_color8 DATA
     _palette_expansion_table DATA
+    _parallelogram_map
+    _parallelogram_map_standard
     _pckey_scancode_to_ascii
     _pckeys_init
     _phys_voice DATA
@@ -1239,6 +1254,7 @@
     _remove_exit_func
     _restore_switch_state
     _retrace_hpp_value DATA
+    _rotate_scale_flip_coordinates
     _safe_gfx_mode_change DATA
     _save_switch_state
     _scratch_mem DATA
@@ -1284,19 +1300,3 @@
     load_xcompiled_sprite_object
     unload_midi
     unload_sample
-    _gfx_mode_list_malloced DATA
-    _parallelogram_map
-    _parallelogram_map_standard
-    _rotate_scale_flip_coordinates
-    clear_bitmap
-    cpu_sse DATA
-    reload_config_texts
-    _colorconv_blit_15_to_16
-    _colorconv_blit_15_to_8
-    _colorconv_blit_16_to_15
-    _colorconv_blit_16_to_8
-    _colorconv_blit_24_to_8
-    _colorconv_blit_32_to_8
-    _colorconv_blit_8_to_8
-    _get_colorconv_map
-    ustrtok_r
