@@ -28,6 +28,7 @@
 #endif
 
 #include <sys/asoundlib.h>
+#include <string.h>
 
 
 #ifndef SND_PCM_SFMT_S16_NE
