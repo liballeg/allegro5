@@ -16,6 +16,11 @@
  */
 
 
+/* Make sure we don't #define our own KEY_ macros as linux has its
+ * own.  Instead, we use the __allegro_KEY_ constants in this file.
+ */
+#define ALLEGRO_NO_KEY_DEFINES
+
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
@@ -85,64 +90,65 @@ static int resume_count;
 static int main_pid;
 
 
-#define KB_MODIFIERS    (KB_SHIFT_FLAG | KB_CTRL_FLAG | KB_ALT_FLAG | KB_LWIN_FLAG | KB_RWIN_FLAG | KB_MENU_FLAG)
-#define KB_LED_FLAGS    (KB_SCROLOCK_FLAG | KB_NUMLOCK_FLAG | KB_CAPSLOCK_FLAG)
+#define KB_MODIFIERS    (__allegro_KB_SHIFT_FLAG | __allegro_KB_CTRL_FLAG | __allegro_KB_ALT_FLAG | \
+			 __allegro_KB_LWIN_FLAG | __allegro_KB_RWIN_FLAG | __allegro_KB_MENU_FLAG)
+#define KB_LED_FLAGS    (__allegro_KB_SCROLOCK_FLAG | __allegro_KB_NUMLOCK_FLAG | __allegro_KB_CAPSLOCK_FLAG)
 
 
 /* lookup table for converting kernel scancodes into Allegro format */
 static unsigned char kernel_to_mycode[128] =
 {
-   /* 0x00 */  0,              KEY_ESC,        KEY_1,          KEY_2,
-   /* 0x04 */  KEY_3,          KEY_4,          KEY_5,          KEY_6,
-   /* 0x08 */  KEY_7,          KEY_8,          KEY_9,          KEY_0,
-   /* 0x0C */  KEY_MINUS,      KEY_EQUALS,     KEY_BACKSPACE,  KEY_TAB,
-   /* 0x10 */  KEY_Q,          KEY_W,          KEY_E,          KEY_R,
-   /* 0x14 */  KEY_T,          KEY_Y,          KEY_U,          KEY_I,
-   /* 0x18 */  KEY_O,          KEY_P,          KEY_OPENBRACE,  KEY_CLOSEBRACE,
-   /* 0x1C */  KEY_ENTER,      KEY_LCONTROL,   KEY_A,          KEY_S,
-   /* 0x20 */  KEY_D,          KEY_F,          KEY_G,          KEY_H,
-   /* 0x24 */  KEY_J,          KEY_K,          KEY_L,          KEY_COLON,
-   /* 0x28 */  KEY_QUOTE,      KEY_TILDE,      KEY_LSHIFT,     KEY_BACKSLASH,
-   /* 0x2C */  KEY_Z,          KEY_X,          KEY_C,          KEY_V,
-   /* 0x30 */  KEY_B,          KEY_N,          KEY_M,          KEY_COMMA,
-   /* 0x34 */  KEY_STOP,       KEY_SLASH,      KEY_RSHIFT,     KEY_ASTERISK,
-   /* 0x38 */  KEY_ALT,        KEY_SPACE,      KEY_CAPSLOCK,   KEY_F1,
-   /* 0x3C */  KEY_F2,         KEY_F3,         KEY_F4,         KEY_F5,
-   /* 0x40 */  KEY_F6,         KEY_F7,         KEY_F8,         KEY_F9,
-   /* 0x44 */  KEY_F10,        KEY_NUMLOCK,    KEY_SCRLOCK,    KEY_7_PAD,
-   /* 0x48 */  KEY_8_PAD,      KEY_9_PAD,      KEY_MINUS_PAD,  KEY_4_PAD,
-   /* 0x4C */  KEY_5_PAD,      KEY_6_PAD,      KEY_PLUS_PAD,   KEY_1_PAD,
-   /* 0x50 */  KEY_2_PAD,      KEY_3_PAD,      KEY_0_PAD,      KEY_DEL_PAD,
-   /* 0x54 */  0,              0,              KEY_BACKSLASH2, KEY_F11,
-   /* 0x58 */  KEY_F12,        0,              0,              0,
-   /* 0x5C */  0,              0,              0,              0,
-   /* 0x60 */  KEY_ENTER_PAD,  KEY_RCONTROL,   KEY_SLASH_PAD,  KEY_PRTSCR,
-   /* 0x64 */  KEY_ALTGR,      0,              KEY_HOME,       KEY_UP,
-   /* 0x68 */  KEY_PGUP,       KEY_LEFT,       KEY_RIGHT,      KEY_END,
-   /* 0x6C */  KEY_DOWN,       KEY_PGDN,       KEY_INSERT,     KEY_DEL,
-   /* 0x70 */  0,              0,              0,              0,
-   /* 0x74 */  0,              0,              0,              KEY_PAUSE,
-   /* 0x78 */  0,              0,              0,              0,
-   /* 0x7C */  0,              KEY_LWIN,       KEY_RWIN,       KEY_MENU
+   /* 0x00 */  0,			 __allegro_KEY_ESC,        __allegro_KEY_1,          __allegro_KEY_2,
+   /* 0x04 */  __allegro_KEY_3,          __allegro_KEY_4,          __allegro_KEY_5,          __allegro_KEY_6,
+   /* 0x08 */  __allegro_KEY_7,          __allegro_KEY_8,          __allegro_KEY_9,          __allegro_KEY_0,
+   /* 0x0C */  __allegro_KEY_MINUS,      __allegro_KEY_EQUALS,     __allegro_KEY_BACKSPACE,  __allegro_KEY_TAB,
+   /* 0x10 */  __allegro_KEY_Q,          __allegro_KEY_W,          __allegro_KEY_E,          __allegro_KEY_R,
+   /* 0x14 */  __allegro_KEY_T,          __allegro_KEY_Y,          __allegro_KEY_U,          __allegro_KEY_I,
+   /* 0x18 */  __allegro_KEY_O,          __allegro_KEY_P,          __allegro_KEY_OPENBRACE,  __allegro_KEY_CLOSEBRACE,
+   /* 0x1C */  __allegro_KEY_ENTER,      __allegro_KEY_LCONTROL,   __allegro_KEY_A,          __allegro_KEY_S,
+   /* 0x20 */  __allegro_KEY_D,          __allegro_KEY_F,          __allegro_KEY_G,          __allegro_KEY_H,
+   /* 0x24 */  __allegro_KEY_J,          __allegro_KEY_K,          __allegro_KEY_L,          __allegro_KEY_COLON,
+   /* 0x28 */  __allegro_KEY_QUOTE,      __allegro_KEY_TILDE,      __allegro_KEY_LSHIFT,     __allegro_KEY_BACKSLASH,
+   /* 0x2C */  __allegro_KEY_Z,          __allegro_KEY_X,          __allegro_KEY_C,          __allegro_KEY_V,
+   /* 0x30 */  __allegro_KEY_B,          __allegro_KEY_N,          __allegro_KEY_M,          __allegro_KEY_COMMA,
+   /* 0x34 */  __allegro_KEY_STOP,       __allegro_KEY_SLASH,      __allegro_KEY_RSHIFT,     __allegro_KEY_ASTERISK,
+   /* 0x38 */  __allegro_KEY_ALT,        __allegro_KEY_SPACE,      __allegro_KEY_CAPSLOCK,   __allegro_KEY_F1,
+   /* 0x3C */  __allegro_KEY_F2,         __allegro_KEY_F3,         __allegro_KEY_F4,         __allegro_KEY_F5,
+   /* 0x40 */  __allegro_KEY_F6,         __allegro_KEY_F7,         __allegro_KEY_F8,         __allegro_KEY_F9,
+   /* 0x44 */  __allegro_KEY_F10,        __allegro_KEY_NUMLOCK,    __allegro_KEY_SCRLOCK,    __allegro_KEY_7_PAD,
+   /* 0x48 */  __allegro_KEY_8_PAD,      __allegro_KEY_9_PAD,      __allegro_KEY_MINUS_PAD,  __allegro_KEY_4_PAD,
+   /* 0x4C */  __allegro_KEY_5_PAD,      __allegro_KEY_6_PAD,      __allegro_KEY_PLUS_PAD,   __allegro_KEY_1_PAD,
+   /* 0x50 */  __allegro_KEY_2_PAD,      __allegro_KEY_3_PAD,      __allegro_KEY_0_PAD,      __allegro_KEY_DEL_PAD,
+   /* 0x54 */  0,			 0,			   __allegro_KEY_BACKSLASH2, __allegro_KEY_F11,
+   /* 0x58 */  __allegro_KEY_F12,        0,			   0,			     0,
+   /* 0x5C */  0,			 0,			   0,			     0,
+   /* 0x60 */  __allegro_KEY_ENTER_PAD,  __allegro_KEY_RCONTROL,   __allegro_KEY_SLASH_PAD,  __allegro_KEY_PRTSCR,
+   /* 0x64 */  __allegro_KEY_ALTGR,      0,			   __allegro_KEY_HOME,       __allegro_KEY_UP,
+   /* 0x68 */  __allegro_KEY_PGUP,       __allegro_KEY_LEFT,       __allegro_KEY_RIGHT,      __allegro_KEY_END,
+   /* 0x6C */  __allegro_KEY_DOWN,       __allegro_KEY_PGDN,       __allegro_KEY_INSERT,     __allegro_KEY_DEL,
+   /* 0x70 */  0,			 0,			   0,			     0,
+   /* 0x74 */  0,			 0,			   0,			     __allegro_KEY_PAUSE,
+   /* 0x78 */  0,			 0,			   0,			     0,
+   /* 0x7C */  0,			 __allegro_KEY_LWIN,       __allegro_KEY_RWIN,       __allegro_KEY_MENU
 };
 
 
 /* convert Allegro format scancodes into key_shifts flag bits */
-static unsigned short modifier_table[KEY_MAX - KEY_MODIFIERS] =
+static unsigned short modifier_table[__allegro_KEY_MAX - __allegro_KEY_MODIFIERS] =
 {
-   KB_SHIFT_FLAG,    KB_SHIFT_FLAG,    KB_CTRL_FLAG,
-   KB_CTRL_FLAG,     KB_ALT_FLAG,      KB_ALT_FLAG,
-   KB_LWIN_FLAG,     KB_RWIN_FLAG,     KB_MENU_FLAG,
-   KB_SCROLOCK_FLAG, KB_NUMLOCK_FLAG,  KB_CAPSLOCK_FLAG
+   __allegro_KB_SHIFT_FLAG,    __allegro_KB_SHIFT_FLAG,    __allegro_KB_CTRL_FLAG,
+   __allegro_KB_CTRL_FLAG,     __allegro_KB_ALT_FLAG,      __allegro_KB_ALT_FLAG,
+   __allegro_KB_LWIN_FLAG,     __allegro_KB_RWIN_FLAG,     __allegro_KB_MENU_FLAG,
+   __allegro_KB_SCROLOCK_FLAG, __allegro_KB_NUMLOCK_FLAG,  __allegro_KB_CAPSLOCK_FLAG
 };
 
 #define NUM_PAD_KEYS 17
 static int pad_arrow_codes[NUM_PAD_KEYS] = {
-        KEY_INSERT, KEY_END, KEY_DOWN, KEY_PGDN,
-        KEY_LEFT, KEY_5_PAD, KEY_RIGHT, KEY_HOME,
-        KEY_UP, KEY_PGUP, KEY_PLUS_PAD, KEY_MINUS_PAD,
-	KEY_ASTERISK, KEY_SLASH_PAD, KEY_ENTER_PAD, 0/*KEY_COMMA_PAD*/,
-	KEY_DEL
+        __allegro_KEY_INSERT, __allegro_KEY_END, __allegro_KEY_DOWN, __allegro_KEY_PGDN,
+        __allegro_KEY_LEFT, __allegro_KEY_5_PAD, __allegro_KEY_RIGHT, __allegro_KEY_HOME,
+        __allegro_KEY_UP, __allegro_KEY_PGUP, __allegro_KEY_PLUS_PAD, __allegro_KEY_MINUS_PAD,
+	__allegro_KEY_ASTERISK, __allegro_KEY_SLASH_PAD, __allegro_KEY_ENTER_PAD, 0/*__allegro_KEY_COMMA_PAD*/,
+	__allegro_KEY_DEL
 };
 static char pad_asciis[NUM_PAD_KEYS] = "0123456789+-*/\r,.";
 static char pad_asciis_no_numlock[NUM_PAD_KEYS] = { 
@@ -169,8 +175,8 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
                 mycode = kernel_to_mycode[code];
 
                 /* Process modifiers */
-                if (mycode >= KEY_MODIFIERS) {
-                        int flag = modifier_table[mycode - KEY_MODIFIERS];
+                if (mycode >= __allegro_KEY_MODIFIERS) {
+                        int flag = modifier_table[mycode - __allegro_KEY_MODIFIERS];
                         if (press) {
                                 if (flag & KB_MODIFIERS)
                                         _key_shifts |= flag;
@@ -193,10 +199,10 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
 
                 /* Build kernel keymap number */
                 map = 0;
-                if (key[KEY_LSHIFT] || key[KEY_RSHIFT]) map |= 1;
-                if (key[KEY_ALTGR]) map |= 2;
-                if (key[KEY_LCONTROL] || key[KEY_RCONTROL]) map |= 4;
-                if (key[KEY_ALT]) map |= 8;
+                if (key[__allegro_KEY_LSHIFT] || key[__allegro_KEY_RSHIFT]) map |= 1;
+                if (key[__allegro_KEY_ALTGR]) map |= 2;
+                if (key[__allegro_KEY_LCONTROL] || key[__allegro_KEY_RCONTROL]) map |= 4;
+                if (key[__allegro_KEY_ALT]) map |= 8;
 
                 /* Map scancode to type and value */
                 kbe.kb_table = map;
@@ -207,12 +213,12 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
 		TRACE("keypress: code=%3d mycode=%3d map=%2d kb_value=%04x\n", code, mycode, map, kbe.kb_value);
 
                 /* Allegro wants Alt+key to return ASCII code zero */
-                if (key[KEY_ALT])
+                if (key[__allegro_KEY_ALT])
                         ascii = 0;
 		else
 		/* Otherwise fill it in according to the key pressed */
 		     switch (mycode) {
-			case KEY_BACKSPACE: ascii = 8; break;
+			case __allegro_KEY_BACKSPACE: ascii = 8; break;
 			default:
 				/* Most keys come here */
 				ascii = KVAL(kbe.kb_value);
@@ -234,7 +240,7 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
                                 break;
                         case KT_LETTER:
                                 /* Apply capslock translation */
-                                if (_key_shifts & KB_CAPSLOCK_FLAG)
+                                if (_key_shifts & __allegro_KB_CAPSLOCK_FLAG)
                                         ascii ^= 0x20;
                                 break;
                         case KT_LATIN:
@@ -242,7 +248,7 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
                                 break;
                         case KT_PAD:
                                 ascii = -1;
-                                if (_key_shifts & KB_NUMLOCK_FLAG) {
+                                if (_key_shifts & __allegro_KB_NUMLOCK_FLAG) {
                                         int val = KVAL(kbe.kb_value);
                                         if ((val >= 0) && (val < NUM_PAD_KEYS))
                                                 ascii = pad_asciis[val];
@@ -255,7 +261,7 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
                                 }
                                 break;
                         case KT_SPEC:
-                                if (mycode == KEY_ENTER) {
+                                if (mycode == __allegro_KEY_ENTER) {
                                         ascii = '\r';
                                         break;
                                 }
@@ -273,10 +279,10 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
                         ascii = _key_shifts & KB_MODIFIERS;
 
                 /* three-finger salute for killing the program */
-                if (((mycode == KEY_DEL) || (mycode == KEY_END)) && 
+                if (((mycode == __allegro_KEY_DEL) || (mycode == __allegro_KEY_END)) && 
                     (three_finger_flag) &&
-                    (_key_shifts & KB_CTRL_FLAG) && 
-                    (_key_shifts & KB_ALT_FLAG))
+                    (_key_shifts & __allegro_KB_CTRL_FLAG) && 
+                    (_key_shifts & __allegro_KB_ALT_FLAG))
                         kill(main_pid, SIGTERM);
 
                 _handle_key_press (ascii, mycode);
@@ -344,7 +350,7 @@ static void deactivate_keyboard (void)
 static void release_all_keys (void)
 {
         int i;
-        for (i = 0; i < KEY_MAX; i++)
+        for (i = 0; i < __allegro_KEY_MAX; i++)
                 if (key[i]) _handle_key_release (i);
 }
 
@@ -411,9 +417,9 @@ static void linux_key_exit (void)
 static void linux_set_leds (int leds)
 {
 	int val = 0;
-	if (leds & KB_SCROLOCK_FLAG) val |= LED_SCR;
-	if (leds & KB_NUMLOCK_FLAG) val |= LED_NUM;
-	if (leds & KB_CAPSLOCK_FLAG) val |= LED_CAP;
+	if (leds & __allegro_KB_SCROLOCK_FLAG) val |= LED_SCR;
+	if (leds & __allegro_KB_NUMLOCK_FLAG) val |= LED_NUM;
+	if (leds & __allegro_KB_CAPSLOCK_FLAG) val |= LED_CAP;
         ioctl(std_keyboard.fd, KDSETLED, val);
 }
 
@@ -440,7 +446,7 @@ static int linux_scancode_to_ascii (int scancode)
                 case KT_ASCII:
                         return KVAL(kbe.kb_value);
                 case KT_SPEC:
-                        if (scancode == KEY_ENTER)
+                        if (scancode == __allegro_KEY_ENTER)
                                 return '\r';
                         break;
         }
