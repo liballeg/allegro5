@@ -52,7 +52,7 @@
 /* Define if assembler supports MMX.  */
 #undef ALLEGRO_MMX
 
-/* Define if assembler supports SSE. */
+/* Define if assembler supports SSE.  */
 #undef ALLEGRO_SSE
 
 /* Define for Unix platforms, to use C convention for bank switching.  */
