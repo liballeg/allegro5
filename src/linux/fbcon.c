@@ -159,7 +159,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 	    my_mode.xres = w;
 	    my_mode.yres = h;
 	    my_mode.xres_virtual = MAX(w, v_w);
-	    my_mode.yres_virtual = MAX(MAX(h, v_h), fix_info.smem_len / (my_mode.xres_virtual * BYTES_PER_PIXEL(color_depth)));
+	    my_mode.yres_virtual = MAX(MAX(h, v_h), (int)(fix_info.smem_len / (my_mode.xres_virtual * BYTES_PER_PIXEL(color_depth))));
 	    break;
 
 	 case 1:
@@ -172,7 +172,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 
 	 case 2:
 	    /* see if we can fake a smaller mode (better than nothing) */
-	    if ((my_mode.xres < w) || (my_mode.yres < h) || (v_w > w) || (v_h > h))
+	    if (((int)my_mode.xres < w) || ((int)my_mode.yres < h) || (v_w > w) || (v_h > h))
 	       continue;
 	    fb_approx = TRUE;
 	    break;
@@ -500,7 +500,7 @@ static int fb_scroll(int x, int y)
  */
 static void fb_vsync()
 {
-   int prev;
+   unsigned int prev;
 
  #ifdef FBIOGET_VBLANK
 
@@ -548,7 +548,7 @@ static void fb_vsync()
       prev = retrace_count;
 
       do {
-      } while (retrace_count == prev);
+      } while (retrace_count == (int)prev);
    }
 }
 
@@ -570,7 +570,7 @@ static void fb_set_palette(AL_CONST RGB *p, int from, int to, int vsync)
    cmap.blue = b;
    cmap.transp = NULL;
 
-   for (i=0; i<cmap.len; i++) {
+   for (i=0; i < (int)cmap.len; i++) {
       r[i] = p[from+i].r << 10;
       g[i] = p[from+i].g << 10;
       b[i] = p[from+i].b << 10;

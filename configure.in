@@ -478,9 +478,9 @@ CFLAGS="$CFLAGS -DALLEGRO_LIB_BUILD"
 dnl How to compile C and asm files.
 if test -n "GCC"; then
   if test "X$allegro_strict_warnings" = "Xyes"; then
-    WFLAGS="-Wall -Werror"
+    WFLAGS="-Wall -W -Wno-unused -Werror"
   else
-    WFLAGS="-Wall"
+    WFLAGS="-Wall -Wno-unused"
   fi
   if test "$allegro_cv_support_asm" = i386; then
     if test "$allegro_exclusive_optimizations" != none; then

@@ -155,7 +155,7 @@ static void wakeup_im (int fd)
 		ret = write (fd, init, sizeof (init));
 		if ((ret < 0) && (errno != EINTR))
 			break;
-	} while (ret < sizeof (init));
+	} while (ret < (int)sizeof (init));
 }
 
 /* mouse_init:

@@ -147,14 +147,14 @@ static struct sigaction old_signals[NUM_SIGNALS];
 static void save_signals()
 {
    int i;
-   for (i = 0; i < NUM_SIGNALS; i++) 
+   for (i = 0; i < (int)NUM_SIGNALS; i++) 
       sigaction(signals[i], NULL, old_signals+i);
 }
 
 static void restore_signals()
 {
    int i;
-   for (i = 0; i < NUM_SIGNALS; i++)
+   for (i = 0; i < (int)NUM_SIGNALS; i++)
       sigaction(signals[i], old_signals+i, NULL);
 }
 

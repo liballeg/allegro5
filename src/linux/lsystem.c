@@ -272,7 +272,7 @@ static void sys_linux_message (AL_CONST char *msg)
       ret = write(STDERR_FILENO, msg, strlen(msg));
       if ((ret < 0) && (errno != EINTR))
 	 break;
-   } while (ret < strlen(msg));
+   } while (ret < (int)strlen(msg));
 
    __al_linux_got_text_message = TRUE;
 
