@@ -109,15 +109,49 @@ static GFX_DRIVER gfx_xdfs =
 
 
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
+static BITMAP *_xdga2_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
+
+
+static GFX_DRIVER gfx_xdga2 =
+{
+   GFX_XDGA2,
+   empty_string,
+   empty_string,
+   "DGA 2.0 graphics",
+   _xdga2_gfxdrv_init,
+   _xdga2_gfxdrv_exit,
+   _xdga2_scroll_screen,
+   _xdga2_vsync,
+   _xdga2_set_palette_range,
+   NULL, NULL, NULL,
+   NULL, NULL, NULL, NULL,
+   NULL, NULL,
+   NULL, NULL, NULL, NULL,
+   NULL,
+   NULL, NULL,
+   640, 480,
+   TRUE,
+   0, 0,
+   0,
+   0
+};
+#endif
+
+
+
 /* list the available drivers */
 _DRIVER_INFO _xwin_gfx_driver_list[] =
 {
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-   {  GFX_XDFS,     &gfx_xdfs, TRUE  },
-   {  GFX_XDGA,     &gfx_xdga, TRUE  },
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
+   {  GFX_XDGA2,    &gfx_xdga2, TRUE  },
 #endif
-   {  GFX_XWINDOWS, &gfx_xwin, TRUE  },
-   {  0,            NULL,      0     }
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
+   {  GFX_XDFS,     &gfx_xdfs,  TRUE  },
+   {  GFX_XDGA,     &gfx_xdga,  TRUE  },
+#endif
+   {  GFX_XWINDOWS, &gfx_xwin,  TRUE  },
+   {  0,            NULL,       0     }
 };
 
 
@@ -166,3 +200,14 @@ static void _xdga_gfxdrv_exit(BITMAP *bmp)
 }
 #endif
 
+
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
+/* _xdga2_gfxdrv_init:
+ *  Creates screen bitmap.
+ */
+static BITMAP *_xdga2_gfxdrv_init(int w, int h, int vw, int vh, int color_depth)
+{
+   return _xdga2_gfxdrv_init_drv(&gfx_xdga2, w, h, vw, vh, color_depth);
+}
+#endif

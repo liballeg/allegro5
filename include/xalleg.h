@@ -110,8 +110,9 @@ extern struct _xwin_type
 #endif
    int use_shm;
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    int in_dga_mode;
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    int disable_dga_mouse;
    int keyboard_grabbed;
    int mouse_grabbed;

@@ -107,8 +107,9 @@ struct _xwin_type _xwin =
 #endif
    0,           /* use_shm */
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    0,           /* in_dga_mode */
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    0, 		/* disable_dga_mouse */
    0,           /* keyboard_grabbed */
    0,           /* mouse_grabbed */
@@ -136,7 +137,7 @@ static Colormap _xdga_colormap[2];
 static char _xwin_driver_desc[256] = EMPTY_STRING;
 
 /* Array of keycodes which are pressed now (used for auto-repeat).  */
-static int _xwin_keycode_pressed[256];
+int _xwin_keycode_pressed[256];
 
 
 
@@ -2103,7 +2104,14 @@ static void _xwin_private_handle_input(void)
 void _xwin_handle_input(void)
 {
    DISABLE();
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
+   if (_xwin.in_dga_mode == 2)
+      _xdga2_handle_input();
+   else
+#endif
    _xwin_private_handle_input();
+
    ENABLE();
 }
 
@@ -2663,6 +2671,12 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    if (!XF86DGAQueryExtension(_xwin.display, &dga_event_base, &dga_error_base)
        || !XF86DGAQueryVersion(_xwin.display, &dga_major_version, &dga_minor_version)) {
       ustrcpy(allegro_error, get_config_text("DGA extension is not supported"));
+      return 0;
+   }
+
+   /* Works only with DGA 1.x or older.  */
+   if (dga_major_version > 1) {
+      ustrcpy(allegro_error, get_config_text("DGA 1.x or older is required"));
       return 0;
    }
 
