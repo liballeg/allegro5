@@ -194,6 +194,11 @@ AL_INLINE(int, gui_textout, (struct BITMAP *bmp, AL_CONST char *s, int x, int y,
 })
 
 
+/* the old close button functions */
+#define set_window_close_button(enable)
+#define set_window_close_hook(callback)  set_close_button_callback(callback)  
+
+
 #ifdef __cplusplus
    }
 #endif

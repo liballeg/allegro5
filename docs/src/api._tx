@@ -91,9 +91,6 @@ Changes between 4.0.x and 4.1.x series
 <li>
    object_message() now takes care of scaring and unscaring the mouse if the
    message to be sent is MSG_DRAW.
-<li>
-   set_window_close_button() and set_window_close_hook() have been removed
-   from the API. The replacement function is set_close_button_callback().
 </ul>
 
 @heading
@@ -225,6 +222,10 @@ Deprecated materials
    KB_NORMAL.
 <li>
    SEND_MESSAGE (object_message).
+<li>
+   set_window_close_button.
+<li>
+   set_window_close_hook (set_close_button_callback).
 <li>
    text_mode.
 <li>
