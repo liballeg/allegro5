@@ -17,6 +17,8 @@ General (Platform independant) todos:
   and the need of an unified set of window updating routines is stronger)
 - make the 'save' method of plugins return -1 on failure
 - add a C++ test (enabled by a configure-like check)
+- revamp the clipping API
+- add an asm sincos() internal routine
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -26,6 +28,7 @@ DOS todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
+- Fix ALT+Tab bug under WinXP
 - Investigate plugins script support
 - Investigate problem with keyboard in the dxwindow test
 - Modify convert_hbitmap_to_bitmap() behaviour with 8-bit DDBs
@@ -58,6 +61,9 @@ X11 todos:
 
 Unix todos:
 ---------------------------------------------------------------------------
+
+- tidy up the configure machinery
+- fix endianness problems under Solaris
 
 Macintosh todos:
 ---------------------------------------------------------------------------
