@@ -42,7 +42,7 @@ static void svga_vsync(void);
 static void svga_set_palette(AL_CONST RGB *p, int from, int to, int vsync);
 static void svga_save(void);
 static void svga_restore(void);
-static int svga_fetch_mode_list(void);
+static GFX_MODE_LIST *svga_fetch_mode_list(void);
 
 #ifndef ALLEGRO_NO_ASM
 unsigned long _svgalib_read_line_asm(BITMAP *bmp, int line);
@@ -548,15 +548,16 @@ static void svga_restore()
 
 /* svga_fetch_mode_list:
  *  Generates a list of valid video modes.
- *  Returns number of video modes on success and -1 on failure.
+ *  Returns the mode list on success or NULL on failure.
  */
-static int svga_fetch_mode_list(void)
+static GFX_MODE_LIST *svga_fetch_mode_list(void)
 {
+   GFX_MODE_LIST *mode_list;
    vga_modeinfo *info;
    int i, count, bpp;
 
    if ((!svga_version2()) && (!__al_linux_have_ioperms))
-      return -1;
+      return NULL;
 
    for (i = 0, count = 0; i <= vga_lastmodenumber(); i++) {
       if (vga_hasmode(i)) {
@@ -566,10 +567,15 @@ static int svga_fetch_mode_list(void)
       }
    }
 
-   destroy_gfx_mode_list();
-   gfx_mode_list = malloc(sizeof(GFX_MODE_LIST) * (count + 1));
-   if (!gfx_mode_list)
-      return -1;
+   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   if (!mode_list)
+      return NULL;
+
+   mode_list->mode = malloc(sizeof(GFX_MODE) * (count + 1));
+   if (!mode_list->mode) {
+       free(mode_list);
+       return NULL;
+   }
 
    for (i = 0, count = 0; i <= vga_lastmodenumber(); i++) {
       if (!vga_hasmode(i))
@@ -580,19 +586,20 @@ static int svga_fetch_mode_list(void)
       bpp = get_depth(info->colors, info->bytesperpixel);
       if (bpp < 0)
 	 continue;
-      gfx_mode_list[count].width = info->width;
-      gfx_mode_list[count].height = info->height;
-      gfx_mode_list[count].bpp = bpp;
+      mode_list->mode[count].width = info->width;
+      mode_list->mode[count].height = info->height;
+      mode_list->mode[count].bpp = bpp;
       count++;
    }
    
-   gfx_mode_list[count].width = 0;
-   gfx_mode_list[count].height = 0;
-   gfx_mode_list[count].bpp = 0;
+   mode_list->mode[count].width = 0;
+   mode_list->mode[count].height = 0;
+   mode_list->mode[count].bpp = 0;
 
-   _gfx_mode_list_malloced = TRUE;
+   mode_list->modes = count;
+   mode_list->malloced = TRUE;
 
-   return count;
+   return mode_list;
 }
 
 
