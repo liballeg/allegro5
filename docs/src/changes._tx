@@ -9,13 +9,20 @@
 @<body>
 
 @heading
-Changes from 4.0.0 to 4.0.1 (March 2002)
+Changes from 4.0.0 to 4.0.1 (Mar 2002)
 <ul><li>
    Many minor changes, many clarifications in the docs.
-@# after allegro_4_0_branch_point
+<li>
+   Peter Wang fixed the installation of shared libs under FreeBSD.
+<li>
+   Peter Wang and Eric Botcazou fixed autodetection glitches for VGA and
+   SVGAlib.
+<li>
+   Eric Botcazou fixed a problem under X11 when the MIT X-SHM extension is
+   used.
 <li>
    Eric Botcazou fixed a deadlock on exit when an user window is used in
-   conjunction with timers.
+   conjunction with timers under Windows.
 <li>
    Eric Botcazou disabled useless backbuffers for the DirectX safe driver.
 <li>
@@ -23,7 +30,6 @@ Changes from 4.0.0 to 4.0.1 (March 2002)
    detecting if ALSA PCM available.
 <li>
    Sven Sandberg added support for long long integers to usprintf() and al.
-@# end of after allegro_4_0_branch_point
 <li>
    Robert J. Ohannessian fixed the difference blender.
 <li>
