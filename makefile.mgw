@@ -248,7 +248,7 @@ UNINSTALL_FILES = $(MINGDIR_U)/lib/liballeg.a $(MINGDIR_U)/lib/liballd.a $(MINGD
 
 uninstall:
 	-rm -fv $(UNINSTALL_FILES)
-	-rd $(MINGDIR_D)\include\allegro
+	-rmdir $(MINGDIR_U)/include/allegro
 	@echo All gone!
 
 
