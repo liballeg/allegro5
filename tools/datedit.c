@@ -1295,7 +1295,7 @@ long datedit_asc2ftime(AL_CONST char *time)
       /* make timezone adjustments by converting to time_t with adjustment 
        * from local time, then back again as GMT (=UTC) */
       time_t tm = mktime (&t);
-      if (tm != -1) {
+      if (tm != (time_t)-1) {               /* cast needed in djgpp */
 	 struct tm *temp = gmtime (&tm);
 	 if (temp) memcpy (&t, temp, sizeof t);
       }
