@@ -449,7 +449,7 @@ void x_get_keyboard_mapping(void)
 
 	 if (allegro_key == 0) {
 	    missing++;
-            TRACE (" defering.", allegro_key);
+            TRACE (" defering.");
 	 }
 	 else {
 	    if (used[allegro_key])
