@@ -201,7 +201,7 @@ Contributors
    Haruhiko Okumura, 12-2-404 Green Heights, 580 Nagasawa, Yokosuka 239, JP.<br>
    Wrote the original version of the LZSS compression code.
 
-   Henrik Stokseth (<email>hstokset@hotmail.com</a>).<br>
+   Henrik Stokseth (<email>hstokset@privat.cybercity.no</a>).<br>
    Added code to distinguish between win95 and win98, and worked on the 
    Mingw32 native build version.
 
@@ -505,7 +505,7 @@ Contributors
    Stefan T. Boettner (<email>virtual.man@t-online.de</a>).<br>
    Wrote the Linux SVGAlib driver.
 
-   Stepan Roh (<email>sroh7497@ss1000.ms.mff.cuni.cz</a>).<br>
+   Stepan Roh (<email>src@srnet.cz</a>).<br>
    Added a Czech keyboard mapping and system message translation, the Latin 
    Extended-A characters in the default font, and the codepage support in 
    the textconv utility, fixed some problems with the ESD sound driver, and 
@@ -561,7 +561,7 @@ Contributors
    by S.Suzuki merged into my codebase. Added more aggressive Sidewinder 
    joystick driver.
 
-   Vincent Penquerc'h (<email>vpenquerch@cr2a-di.fr</a>).<br>
+   Vincent Penquerc'h (<email>lyrian@kezako.net</a>).<br>
    Added the D_DIRTY flag and mouse button press/release events to the GUI
    system, optimised the 256 to truecolor blitting code to avoid repeated 
    conversions of the palette table, added scare_mouse_area(), added the 
