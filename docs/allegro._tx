@@ -6105,8 +6105,7 @@ The behaviour of the dialog manager can be controlled by the variables:
 You can change the global 'font' pointer to make the GUI objects use 
 something other than the standard 8x8 font. The standard dialog procedures, 
 menus, and alert boxes, will work with fonts of any size, but the 
-file_select() and gfx_mode_select() dialogs will look wrong with anything 
-other than 8x8 fonts.
+gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
 @@int @gui_textout(BITMAP *bmp, unsigned char *s, int x, y, color, centre);
 @xref gui_strlen
@@ -6267,7 +6266,7 @@ ensure there is room for the check.
    Like alert(), but with three buttons. Returns 1, 2, or 3.
 
 @@int @file_select(char *message, char *path, char *ext);
-@xref gui_fg_color
+@xref file_select_ex, gui_fg_color
    Displays the Allegro file selector, with the message as caption. The path 
    parameter contains the initial filename to display (this can be used to 
    set the starting directory, or to provide a default filename for a 
@@ -6285,6 +6284,13 @@ ensure there is room for the check.
    "PCX;BMP;/+r-d" will display only PCX or BMP files that are read-only, 
    but not directories. Returns zero if it was closed with the Cancel 
    button, non-zero if it was OK'd.
+
+@@int @file_select_ex(char *message, char *path, char *ext, int w, int h);
+@xref file_select, gui_fg_color
+   Does the same as file_select(), but stretches the dialog to the width and
+   height specified and to the font size. If either size argument is set to
+   zero, the function stretches the selector to the corresponding screen 
+   dimension.
 
 @@int @gfx_mode_select(int *card, int *w, int *h);
 @xref gfx_mode_select_ex, set_gfx_mode, gui_fg_color
