@@ -19,54 +19,23 @@
 #include "wddraw.h"
 
 
-
-/* directx vars */
+/* DirectDraw globals */
 LPDIRECTDRAW2 directdraw = NULL;
 LPDIRECTDRAWSURFACE2 dd_prim_surface = NULL;
-LPDIRECTDRAWPALETTE dd_palette = NULL;
 LPDIRECTDRAWCLIPPER dd_clipper = NULL;
+LPDIRECTDRAWPALETTE dd_palette = NULL;
 LPDDPIXELFORMAT dd_pixelformat = NULL;
 DDCAPS dd_caps;
 struct BITMAP *dd_frontbuffer = NULL;
 char *pseudo_surf_mem;
 
-static PALETTEENTRY _palette[256];
-
-
-/* gfx_directx_set_palette:
- */
-void gfx_directx_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync)
-{
-   int n;
-
-   /* convert into Windows format */
-   for (n = from; n <= to; n++) {
-      _palette[n].peRed = (p[n].r << 2) | ((p[n].r & 0x30) >> 4);
-      _palette[n].peGreen = (p[n].g << 2) | ((p[n].g & 0x30) >> 4);
-      _palette[n].peBlue = (p[n].b << 2) | ((p[n].b & 0x30) >> 4);
-   }
-
-   /* wait for vertical retrace */
-   if (vsync)
-      gfx_directx_sync();
-
-   /* set the convert palette */
-   IDirectDrawPalette_SetEntries(dd_palette, 0, from, to - from + 1, &_palette[from]);
-}
-
-
-
-/* gfx_directx_sync:
- *  wait for vertical sync
- */
-void gfx_directx_sync(void)
-{
-   IDirectDraw2_WaitForVerticalBlank(directdraw, DDWAITVB_BLOCKBEGIN, NULL);
-}
+/* DirectDraw internals */
+static PALETTEENTRY palette_entry[256];
 
 
 
 /* init_directx:
+ *  Low-level DirectDraw initialization routine.
  */
 int init_directx(void)
 {
@@ -101,30 +70,8 @@ int init_directx(void)
 
 
 
-/* create_palette:
- */
-int create_palette(LPDIRECTDRAWSURFACE2 surf)
-{
-   HRESULT hr;
-   int n;
-
-   /* prepare palette entries */
-   for (n = 0; n < 256; n++) {
-      _palette[n].peFlags = PC_NOCOLLAPSE | PC_RESERVED;
-   }
-
-   hr = IDirectDraw2_CreatePalette(directdraw, DDPCAPS_8BIT | DDPCAPS_ALLOW256, _palette, &dd_palette, NULL);
-   if (FAILED(hr))
-      return -1;
-
-   IDirectDrawSurface2_SetPalette(surf, dd_palette);
-
-   return 0;
-}
-
-
-
 /* create_primary:
+ *  Low-level DirectDraw screen creation routine.
  */
 int create_primary(void)
 {
@@ -141,6 +88,7 @@ int create_primary(void)
 
 
 /* create_clipper:
+ *  Low-level DirectDraw clipper creation routine.
  */
 int create_clipper(HWND hwnd)
 {
@@ -163,9 +111,34 @@ int create_clipper(HWND hwnd)
 
 
 
-/* setup_driver:
+/* create_palette:
+ *  Low-level DirectDraw palette creation routine.
  */
-int setup_driver(GFX_DRIVER * drv, int w, int h, int color_depth)
+int create_palette(LPDIRECTDRAWSURFACE2 surf)
+{
+   HRESULT hr;
+   int n;
+
+   /* prepare palette entries */
+   for (n = 0; n < 256; n++) {
+      palette_entry[n].peFlags = PC_NOCOLLAPSE | PC_RESERVED;
+   }
+
+   hr = IDirectDraw2_CreatePalette(directdraw, DDPCAPS_8BIT | DDPCAPS_ALLOW256, palette_entry, &dd_palette, NULL);
+   if (FAILED(hr))
+      return -1;
+
+   IDirectDrawSurface2_SetPalette(surf, dd_palette);
+
+   return 0;
+}
+
+
+
+/* setup_driver:
+ *  Helper function for initializing the gfx driver.
+ */
+int setup_driver(GFX_DRIVER *drv, int w, int h, int color_depth)
 {
    DDSCAPS ddsCaps;
 
@@ -193,6 +166,7 @@ int setup_driver(GFX_DRIVER * drv, int w, int h, int color_depth)
 
 
 /* finalize_directx_init:
+ *  Low-level DirectDraw init finalization routine.
  */
 int finalize_directx_init(void)
 {
@@ -217,6 +191,7 @@ int finalize_directx_init(void)
 
 
 /* exit_directx:
+ *  Low-level DirectDraw shut down routine.
  */
 int exit_directx(void)
 {
@@ -231,6 +206,95 @@ int exit_directx(void)
    }
 
    return 0;
+}
+
+
+
+/* gfx_directx_init:
+ */
+struct BITMAP *gfx_directx_init(GFX_DRIVER *drv, int accel, int w, int h, int v_w, int v_h, int color_depth)
+{
+   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
+      return NULL;
+   }
+
+   /* set up DirectDraw */
+   if (init_directx() != 0)
+      goto Error;
+
+   /* switch to fullscreen */
+   if (set_video_mode(w, h, v_w, v_h, color_depth) != 0) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
+      goto Error;
+   }
+
+   if (finalize_directx_init() != 0)
+      goto Error;
+
+   /* create screen */
+   if (create_primary() != 0)
+      goto Error;
+
+   /* set color format */
+   if (color_depth == 8) {
+      if (create_palette(dd_prim_surface) != 0)
+	 goto Error;
+   }
+   else {
+      if (gfx_directx_update_color_format(dd_prim_surface, color_depth) != 0)
+         goto Error;
+   }
+
+   /* set gfx driver interface */
+   if (setup_driver(drv, w, h, color_depth) != 0)
+      goto Error;
+
+   /* create front buffer */
+   dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO);
+
+   if (accel)
+      enable_acceleration(drv);
+
+   return dd_frontbuffer;
+
+ Error:
+   gfx_directx_exit(NULL);
+
+   return NULL;
+}
+
+
+
+/* gfx_directx_set_palette:
+ */
+void gfx_directx_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync)
+{
+   int n;
+
+   /* convert into Windows format */
+   for (n = from; n <= to; n++) {
+      palette_entry[n].peRed = (p[n].r << 2) | ((p[n].r & 0x30) >> 4);
+      palette_entry[n].peGreen = (p[n].g << 2) | ((p[n].g & 0x30) >> 4);
+      palette_entry[n].peBlue = (p[n].b << 2) | ((p[n].b & 0x30) >> 4);
+   }
+
+   /* wait for vertical retrace */
+   if (vsync)
+      gfx_directx_sync();
+
+   /* set the convert palette */
+   IDirectDrawPalette_SetEntries(dd_palette, 0, from, to - from + 1, &palette_entry[from]);
+}
+
+
+
+/* gfx_directx_sync:
+ *  wait for vertical sync
+ */
+void gfx_directx_sync(void)
+{
+   IDirectDraw2_WaitForVerticalBlank(directdraw, DDWAITVB_BLOCKBEGIN, NULL);
 }
 
 

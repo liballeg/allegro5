@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      DirectDraw fullscreen drivers.
+ *      DirectDraw gfx fullscreen drivers.
  *
  *      By Stefan Schimanski.
  *
@@ -19,11 +19,9 @@
 #include "wddraw.h"
 
 
-
 static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int color_depth);
 static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int color_depth);
 static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int color_depth);
-
 
 
 GFX_DRIVER gfx_directx_accel =
@@ -138,7 +136,7 @@ GFX_DRIVER gfx_directx_safe =
 
 static WIN_GFX_DRIVER win_gfx_fullscreen =
 {
-   FALSE,
+   FALSE,                       // true if driver has backing store
    gfx_directx_restore,
    NULL,                        // AL_METHOD(void, switch_out, (void));
    NULL,                        // AL_METHOD(void, enter_sysmode, (void));
@@ -150,163 +148,77 @@ static WIN_GFX_DRIVER win_gfx_fullscreen =
 
 
 
-/* gfx_directx_accel:
+/* finalize_fullscreen_init:
+ */
+static void finalize_fullscreen_init(void)
+{
+   /* connect to the system driver */
+   win_gfx_driver = &win_gfx_fullscreen;
+
+   /* set the default switching policy */
+   set_display_switch_mode(SWITCH_AMNESIA);
+
+   /* grab input devices */
+   win_grab_input();
+}
+
+
+
+/* init_directx_accel:
  */
 static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int color_depth)
 {
-   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
-      return NULL;
-   }
+   struct BITMAP *bmp;
 
    _enter_critical();
 
-   if (init_directx() != 0)
-      goto Error;
-   if (set_video_mode(w, h, v_w, v_h, color_depth) != 0) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
-      goto Error;
-   }
-   if (finalize_directx_init() != 0)
-      goto Error;
-   if (create_primary() != 0)
-      goto Error;
-   if (color_depth == 8) {
-      if (create_palette(dd_prim_surface) != 0)
-	 goto Error;
-   }
-   else {
-      if (gfx_directx_update_color_format(dd_prim_surface, color_depth) != 0)
-         goto Error;
-   }
-   if (setup_driver(&gfx_directx_accel, w, h, color_depth) != 0)
-      goto Error;
-   dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO);
-   enable_acceleration(&gfx_directx_accel);
+   bmp = gfx_directx_init(&gfx_directx_accel, TRUE, w, h, v_w, v_h, color_depth);
 
-   /* connect to the system driver */
-   win_gfx_driver = &win_gfx_fullscreen;
-
-   /* set the default switching policy */
-   set_display_switch_mode(SWITCH_AMNESIA);
-
-   /* grab input devices */
-   win_grab_input();
+   if (bmp)
+      finalize_fullscreen_init();
 
    _exit_critical();
 
-   return dd_frontbuffer;
-
- Error:
-   _exit_critical();
-   gfx_directx_exit(NULL);
-   return NULL;
+   return bmp;
 }
 
 
 
-/* gfx_directx_soft:
+/* init_directx_soft:
  */
 static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int color_depth)
 {
-   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
-      return NULL;
-   }
+   struct BITMAP *bmp;
 
    _enter_critical();
 
-   if (init_directx() != 0)
-      goto Error;
-   if (set_video_mode(w, h, v_w, v_h, color_depth) != 0) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
-      goto Error;
-   }
-   if (finalize_directx_init() != 0)
-      goto Error;
-   if (create_primary() != 0)
-      goto Error;
-   if (color_depth == 8) {
-      if (create_palette(dd_prim_surface) != 0)
-	 goto Error;
-   }
-   else {
-      if (gfx_directx_update_color_format(dd_prim_surface, color_depth) != 0)
-         goto Error;
-   }
-   if (setup_driver(&gfx_directx_soft, w, h, color_depth) != 0)
-      goto Error;
-   dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO); 
+   bmp = gfx_directx_init(&gfx_directx_soft, FALSE, w, h, v_w, v_h, color_depth);
 
-   /* connect to the system driver */
-   win_gfx_driver = &win_gfx_fullscreen;
-
-   /* set the default switching policy */
-   set_display_switch_mode(SWITCH_AMNESIA);
-
-   /* grab input devices */
-   win_grab_input();
+   if (bmp)
+      finalize_fullscreen_init();
 
    _exit_critical();
 
-   return dd_frontbuffer;
-
- Error:
-   _exit_critical();
-   gfx_directx_exit(NULL);
-   return NULL;
+   return bmp;
 }
 
 
 
-/* gfx_directx_safe:
+/* init_directx_safe:
  */
 static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int color_depth)
 {
-   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
-      return NULL;
-   }
+   struct BITMAP *bmp;
 
    _enter_critical();
 
-   if (init_directx() != 0)
-      goto Error;
-   if (set_video_mode(w, h, v_w, v_h, color_depth) != 0) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
-      goto Error;
-   }
-   if (finalize_directx_init() != 0)
-      goto Error;
-   if (create_primary() != 0)
-      goto Error;
-   if (color_depth == 8) {
-      if (create_palette(dd_prim_surface) != 0)
-	 goto Error;
-   }
-   else {
-      if (gfx_directx_update_color_format(dd_prim_surface, color_depth) != 0)
-         goto Error;
-   }
-   if (setup_driver(&gfx_directx_safe, w, h, color_depth) != 0)
-      goto Error;
-   dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO); 
+   bmp = gfx_directx_init(&gfx_directx_safe, FALSE, w, h, v_w, v_h, color_depth);
 
-   /* connect to the system driver */
-   win_gfx_driver = &win_gfx_fullscreen;
-
-   /* set the default switching policy */
-   set_display_switch_mode(SWITCH_AMNESIA);
-
-   /* grab input devices */
-   win_grab_input();
+   if (bmp)
+      finalize_fullscreen_init();
 
    _exit_critical();
 
-   return dd_frontbuffer;
-
- Error:
-   _exit_critical();
-   gfx_directx_exit(NULL);
-   return NULL;
+   return bmp;
 }
+
