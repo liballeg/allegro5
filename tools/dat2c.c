@@ -1104,7 +1104,11 @@ static int cvt_BITMAP_aux(struct dat2c* dat2c, BITMAP* bmp,
     cwrite(dat2c, C, ";$n$$n$");
 
     /* write out BITMAP structure */
-    cwrite(dat2c, C, "$string$BITMAP $string lower$ = {$n$"
+
+    cwrite(dat2c, C, "$string$struct { int w, h; int clip; int cl, cr, ct, cb;\n"
+                     "                GFX_VTABLE *vtable; void *write_bank; void *read_bank;\n"
+                     "                void *dat; unsigned long id; void *extra;\n"
+                     "                int x_ofs; int y_ofs; int seg; unsigned char *line[$int$]; } $string lower$ = {$n$"
                      "    $int$, $int$, /* width, height */$n$"
                      "    0, 0, 0, 0, 0, /* clip */$n$"
                      "    (GFX_VTABLE *)$int$, /* bpp */$n$"
@@ -1113,6 +1117,7 @@ static int cvt_BITMAP_aux(struct dat2c* dat2c, BITMAP* bmp,
                      "    0, 0, 0, 0, 0,$n$"
                      "    { /* line[] array */$n$",
         export ? "" : "static ",
+        bmp->h + 1,  /* trailing 0 for convenience */
         name,
         bmp->w, bmp->h,
         bmp->vtable->color_depth,
@@ -1188,11 +1193,12 @@ static int cvt_FONT_mono(struct dat2c* dat2c, FONT* f, const char* name)
         for(glyph = iter->begin; glyph < iter->end; glyph++) {
             FONT_GLYPH* fg = iter->glyphs[glyph - iter->begin];
             
-            cwrite(dat2c, C, "static FONT_GLYPH $string lower$_glyph"
+            cwrite(dat2c, C, "static struct { short w,h; char data[$int$]; } $string lower$_glyph"
                              "$int$ = {$n$"
                              "    $int$, $int$, /* width, height */$n$"
                              "    $data$$n$"
                              "};$n$$n$",
+                fg->h * ((fg->w + 7) / 8),
                 name, glyph,
                 fg->w, fg->h,
                 fg->h * ((fg->w + 7) / 8), 4, fg->dat);
@@ -1204,7 +1210,7 @@ static int cvt_FONT_mono(struct dat2c* dat2c, FONT* f, const char* name)
             name, data_count);
         
         for(glyph = iter->begin; glyph < iter->end; glyph++) {
-            cwrite(dat2c, C, "    &$string lower$_glyph$int$,$n$",
+            cwrite(dat2c, C, "    (FONT_GLYPH *)&$string lower$_glyph$int$,$n$",
                 name, glyph);
         }
         
@@ -1266,7 +1272,7 @@ static int cvt_FONT_color(struct dat2c* dat2c, FONT* f, const char* name)
             name, data_count);
 
         for(glyph = iter->begin; glyph < iter->end; glyph++) {
-            cwrite(dat2c, C, "    &$string lower$_glyph$int$,$n$",
+            cwrite(dat2c, C, "    (BITMAP *)&$string lower$_glyph$int$,$n$",
                 name, glyph);
         }
         
@@ -1431,7 +1437,7 @@ static int cvt_RLE_SPRITE(struct dat2c* dat2c, DATAFILE* dat,
             name);
     }
 
-    cwrite(dat2c, C, "$string$RLE_SPRITE $string lower$ = {$n$"
+    cwrite(dat2c, C, "$string$struct { int w, h; int color_depth; int size; char data[$int$]; } $string lower$ = {$n$"
                      "    $int$, $int$, /* width, height */$n$"
                      "    $int$, /* color depth */$n$"
                      "    $int$, /* compressed size (bytes) */$n$"
@@ -1439,6 +1445,7 @@ static int cvt_RLE_SPRITE(struct dat2c* dat2c, DATAFILE* dat,
                      "};$n$"
                      "$n$$n$$n$",
         dat2c->global_symbols ? "" : "static ",
+        rle->size,
         name,
         rle->w, rle->h,
         rle->color_depth,
