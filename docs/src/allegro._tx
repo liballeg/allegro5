@@ -12380,6 +12380,7 @@ various attributes of the current platform:
    Defined if you are building for a relevant system. Often several of these 
    will apply, eg. DOS+Watcom, or Windows+GCC+MinGW.
 
+<b>ALLEGRO_AMD64</b><br>
 <b>ALLEGRO_I386</b><br>
 <b>ALLEGRO_BIG_ENDIAN</b><br>
 <b>ALLEGRO_LITTLE_ENDIAN</b><br>
