@@ -922,6 +922,8 @@ static int update_timings(struct fb_var_screeninfo *mode)
 /* I'm not sure whether these work or not -- my Matrox seems capable
  * of setting whatever you ask it to. */
 
+#if 0
+
 static int _fb_get_pixclock(void)
 {
    struct fb_var_screeninfo mode;
@@ -936,6 +938,8 @@ static void _fb_set_pixclock(int new_val)
    mode.pixclock = new_val;
    if (ioctl (fbfd, FBIOPUT_VSCREENINFO, &mode)) return;
 }
+
+#endif
 
 
 
