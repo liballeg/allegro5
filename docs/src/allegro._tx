@@ -1074,6 +1074,13 @@ framebuffer = x<br>
    Linux only: specifies what device file to use for the fbcon driver. If 
    this variable is not set, Allegro checks the FRAMEBUFFER environment 
    variable, and then defaults to /dev/fb0.
+<li>
+disable_direct_updating = x<br>
+   Windows only: specifies whether to disable direct updating when the 
+   GFX_DIRECTX_WIN driver is used in color conversion mode (yes or no).
+   Direct updating can cause artifacts to be left on the screen when the 
+   window is moved or minimized; disabling it results in a significant
+   performance loss.
 </ul><li>
 [mouse]<br>
    Section containing mouse configuration information, using the variables:
@@ -7826,7 +7833,10 @@ you must include winalleg.h after other Allegro headers.
    window; in particular, you are responsible for processing the events as
    usual (Allegro will automatically monitor a few of them, but will not
    filter out any of them). You can then use every component of the library 
-   (mouse, keyboard, sound, timers and so on) except the graphics subsystem.
+   (mouse, keyboard, sound, timers and so on) except the graphics subsystem,
+   bearing in mind that some Allegro functions are blocking (e.g readkey()
+   if the key buffer is empty) and thus must be carefully manipulated by the
+   window thread.
 
 @@void @win_set_wnd_create_proc(HWND (*proc)(WNDPROC));
    Registers an user-defined procedure to be used by Allegro for creating

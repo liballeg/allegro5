@@ -215,12 +215,13 @@
 
    1) Obtain the Cygwin packages. Get setup.exe from
       'http://sources.redhat.com/cygwin/'. Start the Cygwin setup program
-      and download these packages: bash, binutils, cygwin, fileutils, gcc,
-      gdb, login, make, man, mingw, sed, sh-utils, texinfo, textutils and
-      w32api.
+      and download these packages: bash, binutils, cygwin, cygutils,
+      fileutils, gcc, gdb, login, make, man, mingw-runtime, sed, sh-utils,
+      texinfo, textutils and w32api.
 
-      Install these packages. The rest of these instructions assumes
-      you installed to 'c:\cygwin'.
+      Install these packages (run setup.exe once more). The rest of these
+      instructions assumes you installed to 'c:\cygwin'. When setup asks
+      you which line endings you want, select unix-style instead of DOS.
       
    2) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
       from 'http://alleg.sourceforge.net/wip.html' and unzip it to a
@@ -236,13 +237,19 @@
       and/or on your Windows start menu. Make sure /bin/sh exists, if not
       just run: 'ln -s /bin/bash.exe /bin/sh.exe'.
 
-   5) Then run './fix.sh mingw32'. This will take a while...
+   5) Then run './fix.sh mingw32 --dtou'. This will take a while...
 
    Test the installation by typing the following in the BASH shell:
    'gcc -v'. The answer should be similar to:
    
    Reading specs from /usr/lib/gcc-lib/i686-pc-cygwin/2.95.3-5/specs
    gcc version 2.95.3-5 (cygwin special)
+
+   Note! If you have problems installing the profiling version of the Allegro
+   library, you will probably need to copy a file called libgmon.a from the
+   MingW32 distribution to your /lib/mingw directory (c:\cygwin\lib\mingw) in
+   cygwin. This is expected to be fixed in a later release of the
+   mingw-runtime package (I'm currently using mingw-runtime-1.2-1).
 
 
 

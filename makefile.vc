@@ -84,28 +84,18 @@ ifdef MSVCDir
    MSVCDIR_U = $(subst \,/,$(MSVCDir))
    MSVCDIR_D = $(subst /,\,$(MSVCDir))
 else
-ifdef MSDEVDIR
-   MSVCDIR_U = $(subst \,/,$(MSDEVDIR))
-   MSVCDIR_D = $(subst /,\,$(MSDEVDIR))
-else
-ifdef MSDevDir
-   MSVCDIR_U = $(subst \,/,$(MSDevDir))
-   MSVCDIR_D = $(subst /,\,$(MSDevDir))
-else
 badmsvc:
-	@echo Your MSVCDIR or MSDEVDIR environment variable is not set!
-endif
-endif
+	@echo Your MSVCDIR environment variable is not set!
 endif
 endif
 
 NULLSTRING :=
 SPACE := $(NULLSTRING) # special magic to get an isolated space character
 
-ifneq ($(findstring $(SPACE),$(MSVCDIR)$(MSDEVDIR)),)
+ifneq ($(findstring $(SPACE),$(MSVCDIR)),)
 badspaces:
-	@echo There are spaces in your MSVCDIR or MSDEVDIR environment
-	@echo variables: please change these to the 8.3 short filename
+	@echo There are spaces in your MSVCDIR environment
+	@echo variable: please change it to the 8.3 short filename
 	@echo version, or move your compiler to a different directory.
 endif
 

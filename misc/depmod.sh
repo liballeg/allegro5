@@ -33,9 +33,9 @@ echo ""
 # module rule
 echo "\$(LIBDIR)/$module: \$(${objlist})"
 if test "$modlibs" = "--"; then
-   echo "	gcc -shared \$(ALLEGRO_SHAREDLIB_CFLAGS) -o \$@ \$(${objlist}) \$(LDFLAGS)"
+   echo "	\$(CC) -shared \$(ALLEGRO_SHAREDLIB_CFLAGS) -o \$@ \$(${objlist}) \$(LDFLAGS)"
 else
-   echo "	gcc -shared \$(ALLEGRO_SHAREDLIB_CFLAGS) -o \$@ \$(${objlist}) \$(LDFLAGS) $modlibs"
+   echo "	\$(CC) -shared \$(ALLEGRO_SHAREDLIB_CFLAGS) -o \$@ \$(${objlist}) \$(LDFLAGS) $modlibs"
 fi
 echo ""
 
