@@ -42,7 +42,7 @@ ed in altri tipi di programmazione multimediale.
 
 %description -l de
 Allegro ist eine plattformübergreifende Bibliothek zur Verwendung in
-Computerspielen und anderen Formen von Multinediaprogrammierung.
+Computerspielen und anderen Formen von Multimediaprogrammierung.
 
 %package devel
 Summary: A game programming library.
@@ -76,7 +76,7 @@ necessario per compilare programmi scritti con Allegro.
 
 %description devel -l de
 Allegro ist eine plattformübergreifende Bibliothek zur Verwendung in
-Computerspielen und anderen Formen von Multinediaprogrammierung.
+Computerspielen und anderen Formen von Multimediaprogrammierung.
 Dieses Paket wird benötigt, um Programme zu bauen, die Allegro
 verwenden.
 
@@ -115,7 +115,7 @@ con Allegro.
 
 %description tools -l de
 Allegro ist eine plattformübergreifende Bibliothek zur Verwendung in
-Computerspielen und anderen Formen von Multinediaprogrammierung.
+Computerspielen und anderen Formen von Multimediaprogrammierung.
 Dieses Paket enthält Programme, die für die Entwicklung von
 Allegro Programmen hilfreich sind.
 
