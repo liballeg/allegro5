@@ -12,7 +12,7 @@
  *
  *      By Shawn Hargreaves.
  *
- *      pack_fdopen() and related modifications by Annie Testes.
+ *      _pack_fdopen() and related modifications by Annie Testes.
  *
  *      See readme.txt for copyright information.
  */
@@ -1235,7 +1235,7 @@ static void free_packfile(PACKFILE *f)
 
 
 
-/* pack_fdopen:
+/* _pack_fdopen:
  *  Converts the given file descriptor into a PACKFILE. The mode can have
  *  the same values as for pack_fopen() and must be compatible with the
  *  mode of the file descriptor. Unlike the libc fdopen(), pack_fdopen()
@@ -1245,7 +1245,7 @@ static void free_packfile(PACKFILE *f)
  *  returns NULL and stores an error code in errno. An attempt to read
  *  a normal file in packed mode will cause errno to be set to EDOM.
  */
-PACKFILE *pack_fdopen(int fd, AL_CONST char *mode)
+PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 {
    PACKFILE *f, *f2;
    long header = FALSE;
@@ -1273,7 +1273,7 @@ PACKFILE *pack_fdopen(int fd, AL_CONST char *mode)
 	    return NULL;
 	 }
 
-	 if ((f->parent = pack_fdopen(fd, F_WRITE)) == NULL) {
+	 if ((f->parent = _pack_fdopen(fd, F_WRITE)) == NULL) {
 	    free_packfile(f);
 	    return NULL;
 	 }
@@ -1308,7 +1308,7 @@ PACKFILE *pack_fdopen(int fd, AL_CONST char *mode)
 	    return NULL;
 	 }
 
-         if ((f->parent = pack_fdopen(fd, F_READ)) == NULL) {
+         if ((f->parent = _pack_fdopen(fd, F_READ)) == NULL) {
 	    free_packfile(f);
 	    return NULL;
 	 }
@@ -1327,7 +1327,7 @@ PACKFILE *pack_fdopen(int fd, AL_CONST char *mode)
 	       return NULL;
 	    }
 
-	    if ((f->parent = pack_fdopen(fd, F_READ)) == NULL) {
+	    if ((f->parent = _pack_fdopen(fd, F_READ)) == NULL) {
 	       free_packfile(f);
 	       return NULL;
 	    }
@@ -1442,7 +1442,7 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
       return NULL;
    }
 
-   return pack_fdopen(fd, mode);
+   return _pack_fdopen(fd, mode);
 }
 
 
@@ -1540,7 +1540,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
          return NULL;
 
       name = uconvert_ascii(tmp_name, tmp);
-      chunk = pack_fdopen(tmp_fd, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
+      chunk = _pack_fdopen(tmp_fd, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
 
       if (chunk) {
          chunk->filename = ustrdup(name);
@@ -1652,7 +1652,7 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
       lseek(hndl, 0, SEEK_SET);
 
       /* create a readable pack file */
-      tmp = pack_fdopen(hndl, F_READ);
+      tmp = _pack_fdopen(hndl, F_READ);
       if (!tmp)
          return NULL;
 

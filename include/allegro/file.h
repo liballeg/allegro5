@@ -98,7 +98,6 @@ typedef struct PACKFILE                /* our very own FILE structure... */
 
 AL_FUNC(void, packfile_password, (AL_CONST char *password));
 AL_FUNC(PACKFILE *, pack_fopen, (AL_CONST char *filename, AL_CONST char *mode));
-AL_FUNC(PACKFILE *, pack_fdopen, (int fd, AL_CONST char *mode));
 AL_FUNC(int, pack_fclose, (PACKFILE *f));
 AL_FUNC(int, pack_fseek, (PACKFILE *f, int offset));
 AL_FUNC(PACKFILE *, pack_fopen_chunk, (PACKFILE *f, int pack));

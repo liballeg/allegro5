@@ -86,10 +86,12 @@ AL_FUNC(int, _al_drive_exists, (int drive));
 AL_FUNC(int, _al_getdrive, (void));
 AL_FUNC(void, _al_getdcwd, (int drive, char *buf, int size));
 
+
+/* packfile stuff */
 AL_VAR(int, _packfile_filesize);
 AL_VAR(int, _packfile_datasize);
-
 AL_VAR(int, _packfile_type);
+AL_FUNC(PACKFILE *, _pack_fdopen, (int fd, AL_CONST char *mode));
 
 
 /* various bits of mouse stuff */
