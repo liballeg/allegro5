@@ -58,9 +58,8 @@
    #define SETUP_SCREEN_H        200
 #endif
 
-#if (defined ALLEGRO_DJGPP) && (!defined SETUP_EMBEDDED)
-   #define SETUP_USE_DAT2S
-#endif
+/* define if you want to use compiled datafiles */
+/* #undef SETUP_USE_COMPILED_DATAFILES */
 
 
 
@@ -596,7 +595,7 @@ static BITMAP *buffer;
 
 
 /* background graphic, font, and test sounds */
-#ifdef SETUP_USE_DAT2S
+#ifdef SETUP_USE_COMPILED_DATAFILES
 extern DATAFILE setup_data[];
 #else
 static DATAFILE *setup_data;
@@ -2742,7 +2741,7 @@ int main(void)
 
    set_palette(black_palette);
 
- #ifdef SETUP_USE_DAT2S
+ #ifdef SETUP_USE_COMPILED_DATAFILES
    fixup_datafile(setup_data);
  #else
    setup_data = load_datafile(uconvert_ascii("#", tmp1));
@@ -2844,7 +2843,7 @@ int main(void)
 
    set_mouse_range(0, 0, SCREEN_W-1, SCREEN_H-1);
 
- #ifndef SETUP_USE_DAT2S
+ #ifndef SETUP_USE_COMPILED_DATAFILES
    unload_datafile(setup_data);
  #endif
 

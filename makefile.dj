@@ -413,16 +413,7 @@ $(OBJ_DIR)/%.o: %.c
 $(OBJ_DIR)/%.o: %.s
 	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
-*/%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
-	gcc $(LFLAGS) -o $@ $< $(LIB_NAME)
-
 ifndef CROSSCOMPILE
-
-obj/djgpp/asmdef.inc: obj/djgpp/asmdef.exe
-	obj/djgpp/asmdef.exe obj/djgpp/asmdef.inc
-
-obj/djgpp/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/djgpp/asmcapa.h
-	gcc -O $(WFLAGS) -I. -I./include -o obj/djgpp/asmdef.exe src/i386/asmdef.c
 
 obj/djgpp/setupdat.s: setup/setup.dat tools/dat2s.exe
 	tools/dat2s.exe -p setup -o obj/djgpp/setupdat.s setup/setup.dat
@@ -430,10 +421,18 @@ obj/djgpp/setupdat.s: setup/setup.dat tools/dat2s.exe
 obj/djgpp/setupdat.o: obj/djgpp/setupdat.s
 	gcc -o obj/djgpp/setupdat.o -c obj/djgpp/setupdat.s
 
+$(OBJ_DIR)/setup.o: setup/setup.c
+	gcc $(COMPILE_FLAGS) -DSETUP_USE_COMPILED_DATAFILES -I. -I./include -o $(OBJ_DIR)/setup.o -c setup/setup.c
+
 setup/setup.exe: $(OBJ_DIR)/setup.o obj/djgpp/setupdat.o $(LIB_NAME)
 	gcc $(LFLAGS) -o setup/setup.exe $(OBJ_DIR)/setup.o obj/djgpp/setupdat.o $(LIB_NAME)
 
-else
+endif
+
+*/%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
+	gcc $(LFLAGS) -o $@ $< $(LIB_NAME)
+
+ifdef CROSSCOMPILE
 
 obj/djgpp/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h obj/djgpp/asmcapa.h
 	gcc $(WFLAGS) -I. -I./include -S -o obj/djgpp/asmdef.s src/i386/asmdef.c
@@ -442,8 +441,13 @@ obj/djgpp/asmdef.inc: obj/djgpp/asmdef.s
 	if [ ! -x misc/asmdef.sh ]; then chmod a+x misc/asmdef.sh; fi
 	misc/asmdef.sh obj/djgpp/asmdef.s obj/djgpp/asmdef.inc
 
-setup/setup.exe:
-	# do nothing
+else
+
+obj/djgpp/asmdef.inc: obj/djgpp/asmdef.exe
+	obj/djgpp/asmdef.exe obj/djgpp/asmdef.inc
+
+obj/djgpp/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/djgpp/asmcapa.h
+	gcc -O $(WFLAGS) -I. -I./include -o obj/djgpp/asmdef.exe src/i386/asmdef.c
 
 endif
 

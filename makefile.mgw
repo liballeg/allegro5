@@ -468,6 +468,32 @@ endif
 demo/demo.exe: $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
 
+obj/mingw32/setupdat.s: setup/setup.dat tools/dat2s.exe
+ifdef STATICLINK
+	tools/dat2s.exe -p setup -o obj/mingw32/setupdat.s setup/setup.dat
+else
+   ifdef UNIX_TOOLS
+	cp tools/dat2s.exe lib/mingw32/dat2s.exe
+   else
+	copy tools\dat2s.exe lib\mingw32\dat2s.exe
+   endif
+	lib/mingw32/dat2s.exe -p setup -o obj/mingw32/setupdat.s setup/setup.dat
+   ifdef UNIX_TOOLS
+	rm lib/mingw32/dat2s.exe
+   else
+	del lib\mingw32\dat2s.exe
+   endif
+endif
+
+obj/mingw32/setupdat.o: obj/mingw32/setupdat.s
+	gcc -o obj/mingw32/setupdat.o -c obj/mingw32/setupdat.s
+
+$(OBJ_DIR)/setup.o: setup/setup.c
+	gcc $(COMPILE_FLAGS) -DSETUP_USE_COMPILED_DATAFILES -I. -I./include -o $(OBJ_DIR)/setup.o -c setup/setup.c
+
+setup/setup.exe: $(OBJ_DIR)/setup.o obj/mingw32/setupdat.o $(LIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o setup/setup.exe $(OBJ_DIR)/setup.o obj/mingw32/setupdat.o $(IMPLIB_NAME) $(LIBRARIES)
+
 endif
 
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
