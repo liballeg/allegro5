@@ -39,8 +39,8 @@
    of command.com if it finds it somewhere in the path.
 
    'make depend' and 'fixdll.bat' requires that you have GNU sed installed.
-   'make clean' and 'make uninstall' requires that you have GNU fileutils
-   installed. You can download some extra utilities for MingW32 from
+   The clean targets require that you have GNU fileutils installed.
+   You can download some extra utilities for MingW32 from
    'http://agnes.dida.physik.uni-essen.de/~janjaap/mingw32/download.html'
    and
    'ftp://ftp.franken.de/pub/win32/develop/gnuwin32/mingw32/porters/Mikey/'.
