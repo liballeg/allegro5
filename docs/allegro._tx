@@ -134,9 +134,11 @@ information about how to install Allegro and link your program with it.
       OSTYPE_WARP       - OS/2 Warp 3
       OSTYPE_DOSEMU     - Linux DOSEMU
       OSTYPE_OPENDOS    - Caldera OpenDOS
-      OSTYPE_BEOS       - BeOS
       OSTYPE_LINUX      - Linux
+      OSTYPE_FREEBSD    - FreeBSD
       OSTYPE_UNIX       - Unknown Unix variant
+      OSTYPE_BEOS       - BeOS
+      OSTYPE_QNX        - QNX
 </pre>
 @@void @allegro_message(char *msg, ...);
    Outputs a message, using a printf() format string. This function must 
