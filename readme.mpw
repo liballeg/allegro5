@@ -1,0 +1,105 @@
+#          ______   ___    ___
+#         /\  _  \ /\_ \  /\_ \
+#         \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+#          \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+#           \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+#            \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+#             \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+#                                            /\____/
+#                                            \_/__/
+# 
+#       MPW Script intented to install allegro.
+# 
+#       By Ronaldo H. Yamada
+#  
+#       See readme.txt for copyright information.
+# 
+# 
+
+
+# To install allegro in a mac
+#
+# set directory to allegro directory (this file in)
+#
+# execute readme.mpw (type "readme.mac" in Worksheet and Return (or Command-Enter))
+#
+# to actions are efective quit and reopen the MPW Shell (not the computer!!)
+#
+# Actions
+# compiles all sources needed
+# install the Allegro folder at Interfaces&Libraries
+# install one MPW Script at Startup Itens Folder
+#
+# 
+# to uninstall delete the Allegro Folder at Interfaces&Libraries
+# and the Script "SetAllegro" from Startup Itens Folder
+#
+#
+# Using allegro <todo>
+# 
+# See the examples in MacTests 
+#
+# 
+#
+#
+
+If !`Exists ":include:mac:"`
+	NewFolder ":include:mac"	
+End
+
+Set -e Allegro {Libraries}::Allegro:
+
+If !`Exists "{Allegro}"`
+	NewFolder "{Allegro}"	
+End
+
+Duplicate ":include:allegro.h"          ":include:mac:allegro.h" -y
+Duplicate ":include:macalleg.h"         ":include:mac:macalleg.h" -y
+Duplicate ":include:allegro:almaccfg.h" ":include:mac:almaccfg.h" -y
+Duplicate ":include:allegro:aintern.h"  ":include:mac:allegro/aintern.h" -y
+Duplicate ":include:allegro:aintmac.h"  ":include:mac:allegro/aintmac.h" -y
+Duplicate ":include:allegro:alconfig.h" ":include:mac:allegro/alconfig.h" -y
+Duplicate ":include:allegro:alinline.h" ":include:mac:allegro/alinline.h" -y
+Duplicate ":include:allegro:almac.h"    ":include:mac:allegro/almac.h" -y
+Duplicate ":include:allegro:macdef.h"   ":include:mac:allegro/macdef.h" -y
+
+If !`Exists ":obj:"`
+	NewFolder ":obj:"	
+End
+If !`Exists ":obj:mpw:"`
+	NewFolder ":obj:mpw:"
+End
+If !`Exists ":obj:mpw:alld:"`
+	NewFolder ":obj:mpw:alld:"
+End
+
+If `Exists "makefile.mpw"`
+	make -f makefile.mpw>":obj:mpw:alld:makefile.dep"
+	Echo "compiling sources this can take several minutes..."
+	":obj:mpw:alld:makefile.dep"
+	If `Exists ":obj:mpw:alld:allegro.x"`
+		Begin
+			For fname in `Files ":include:mac:" -f`
+				Echo "copying {fname} to {Allegro}"
+				Duplicate  "{fname}" "{Allegro}" -y
+			End
+			Echo "copying allegro.x to {Allegro}"
+			Duplicate  ":obj:mpw:alld:allegro.x" "{Allegro}" -y
+						
+			Echo "copying allegro.r to {Allegro}"
+			Duplicate  ":src:mac:allegro.r" "{Allegro}" -y
+			
+			if !`Exists "{MPW}Startup Items:SetAllegro"`
+				Echo "copying SetAllegro to {MPW}Startup Items"
+				Duplicate  ":src:mac:SetAllegro" "{MPW}Startup Items" -y
+				Echo "Please Quit MPW Shell to Complete instalation"
+			End
+			
+			Echo "Done"
+		End
+	Else
+		Echo "Error has occured"
+	End
+Else
+	Echo "makefile.mpw not found"
+End
