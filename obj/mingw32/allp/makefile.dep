@@ -58,6 +58,10 @@ obj/mingw32/allp/flood.o: src/flood.c include/allegro.h include/allegro/alconfig
  include/allegro/almngw32.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/alwin.h \
  include/allegro/aintern.h
+obj/mingw32/allp/font.o: src/font.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almngw32.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
 obj/mingw32/allp/fsel.o: src/fsel.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almngw32.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/alwin.h include/winalleg.h
@@ -170,7 +174,7 @@ obj/mingw32/allp/stream.o: src/stream.c include/allegro.h include/allegro/alconf
 obj/mingw32/allp/text.o: src/text.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almngw32.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/alwin.h \
- include/allegro/aintern.h src/font.h
+ include/allegro/aintern.h
 obj/mingw32/allp/tga.o: src/tga.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almngw32.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/alwin.h \

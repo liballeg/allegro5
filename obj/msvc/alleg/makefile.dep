@@ -58,6 +58,10 @@ obj/msvc/alleg/flood.obj: src/flood.c include/allegro.h include/allegro/alconfig
  include/allegro/almsvc.h include/allegro/alinline.h \
  include/allegro/al386vc.h include/allegro/alwin.h \
  include/allegro/aintern.h
+obj/msvc/alleg/font.obj: src/font.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
 obj/msvc/alleg/fsel.obj: src/fsel.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almsvc.h include/allegro/alinline.h \
  include/allegro/al386vc.h include/allegro/alwin.h include/winalleg.h
@@ -170,7 +174,7 @@ obj/msvc/alleg/stream.obj: src/stream.c include/allegro.h include/allegro/alconf
 obj/msvc/alleg/text.obj: src/text.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almsvc.h include/allegro/alinline.h \
  include/allegro/al386vc.h include/allegro/alwin.h \
- include/allegro/aintern.h src/font.h
+ include/allegro/aintern.h
 obj/msvc/alleg/tga.obj: src/tga.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almsvc.h include/allegro/alinline.h \
  include/allegro/al386vc.h include/allegro/alwin.h \

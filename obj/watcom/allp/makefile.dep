@@ -58,6 +58,10 @@ obj/watcom/allp/flood.obj: src/flood.c include/allegro.h include/allegro/alconfi
  include/allegro/alwatcom.h include/allegro/alinline.h \
  include/allegro/al386wat.h include/allegro/aldos.h \
  include/allegro/aintern.h
+obj/watcom/allp/font.obj: src/font.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alwatcom.h include/allegro/alinline.h \
+ include/allegro/al386wat.h include/allegro/aldos.h \
+ include/allegro/aintern.h
 obj/watcom/allp/fsel.obj: src/fsel.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/alwatcom.h include/allegro/alinline.h \
  include/allegro/al386wat.h include/allegro/aldos.h
@@ -170,7 +174,7 @@ obj/watcom/allp/stream.obj: src/stream.c include/allegro.h include/allegro/alcon
 obj/watcom/allp/text.obj: src/text.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/alwatcom.h include/allegro/alinline.h \
  include/allegro/al386wat.h include/allegro/aldos.h \
- include/allegro/aintern.h src/font.h
+ include/allegro/aintern.h
 obj/watcom/allp/tga.obj: src/tga.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/alwatcom.h include/allegro/alinline.h \
  include/allegro/al386wat.h include/allegro/aldos.h \
@@ -589,6 +593,7 @@ obj/watcom/allp/exxfade.obj: examples/exxfade.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/alwatcom.h \
  include/allegro/alinline.h include/allegro/al386wat.h \
  include/allegro/aldos.h
+obj/watcom/allp/exzbuf.obj: examples/exzbuf.c
 obj/watcom/allp/keyconf.obj: setup/keyconf.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/alwatcom.h \
  include/allegro/alinline.h include/allegro/al386wat.h \
@@ -746,6 +751,7 @@ obj/watcom/allp/ispr32.obj: src/i386/ispr32.s src/i386/asmdefs.inc obj/watcom/as
  src/i386/sprite.inc
 obj/watcom/allp/ispr8.obj: src/i386/ispr8.s src/i386/asmdefs.inc obj/watcom/asmdef.inc \
  src/i386/sprite.inc
+obj/watcom/allp/izbuf.obj: src/i386/izbuf.s src/i386/asmdefs.inc obj/watcom/asmdef.inc
 obj/watcom/allp/djirqs.obj: src/dos/djirqs.s src/dos/../i386/asmdefs.inc \
  obj/watcom/asmdef.inc
 obj/watcom/allp/gripfnc.obj: src/dos/gripfnc.s src/dos/../i386/asmdefs.inc \

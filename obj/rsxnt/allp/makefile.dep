@@ -174,6 +174,7 @@ obj/rsxnt/allp/exxfade.o: examples/exxfade.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/alrsxnt.h \
  include/allegro/rsxdll.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/allp/exzbuf.o: examples/exzbuf.c
 obj/rsxnt/allp/keyconf.o: setup/keyconf.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/alrsxnt.h \
  include/allegro/rsxdll.h include/allegro/alinline.h \

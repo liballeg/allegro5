@@ -58,6 +58,10 @@ obj/beos/allp/flood.o: src/flood.c include/allegro.h include/allegro/alconfig.h 
  include/allegro/albecfg.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/albeos.h \
  include/allegro/aintern.h
+obj/beos/allp/font.o: src/font.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
 obj/beos/allp/fsel.o: src/fsel.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/albecfg.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/albeos.h
@@ -170,7 +174,7 @@ obj/beos/allp/stream.o: src/stream.c include/allegro.h include/allegro/alconfig.
 obj/beos/allp/text.o: src/text.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/albecfg.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/albeos.h \
- include/allegro/aintern.h src/font.h
+ include/allegro/aintern.h
 obj/beos/allp/tga.o: src/tga.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/albecfg.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/albeos.h \
@@ -218,7 +222,8 @@ obj/beos/allp/bgfxdrv.o: src/beos/bgfxdrv.c include/allegro.h \
 obj/beos/allp/bjoy.o: src/beos/bjoy.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/albecfg.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/albeos.h \
- include/allegro/aintern.h
+ include/allegro/aintern.h include/allegro/aintbeos.h \
+ include/bealleg.h
 obj/beos/allp/bjoydrv.o: src/beos/bjoydrv.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/albecfg.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
@@ -235,7 +240,8 @@ obj/beos/allp/bkeydrv.o: src/beos/bkeydrv.c include/allegro.h \
 obj/beos/allp/bmidi.o: src/beos/bmidi.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/albecfg.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/albeos.h \
- include/allegro/aintern.h
+ include/allegro/aintern.h include/allegro/aintbeos.h \
+ include/bealleg.h
 obj/beos/allp/bmididrv.o: src/beos/bmididrv.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/albecfg.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
@@ -267,10 +273,6 @@ obj/beos/allp/bsystem.o: src/beos/bsystem.c include/allegro.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/albeos.h include/allegro/aintern.h \
  include/allegro/aintbeos.h include/bealleg.h
-obj/beos/allp/bthread.o: src/beos/bthread.c include/allegro.h \
- include/allegro/alconfig.h include/allegro/albecfg.h \
- include/allegro/alinline.h include/allegro/al386gcc.h \
- include/allegro/albeos.h include/allegro/aintern.h
 obj/beos/allp/btimedrv.o: src/beos/btimedrv.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/albecfg.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
@@ -280,11 +282,17 @@ obj/beos/allp/btimer.o: src/beos/btimer.c include/allegro.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/albeos.h include/allegro/aintern.h \
  include/allegro/aintbeos.h include/bealleg.h
-obj/beos/allp/bwindow.o: src/beos/bwindow.c include/allegro.h \
+obj/beos/allp/baccel.o: src/beos/baccel.cpp include/bealleg.h include/allegro.h \
  include/allegro/alconfig.h include/allegro/albecfg.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
- include/allegro/albeos.h include/allegro/aintern.h
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h
 obj/beos/allp/bclasses.o: src/beos/bclasses.cpp include/bealleg.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h
+obj/beos/allp/bdispsw.o: src/beos/bdispsw.cpp include/bealleg.h include/allegro.h \
  include/allegro/alconfig.h include/allegro/albecfg.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/albeos.h include/allegro/aintern.h \
@@ -294,7 +302,17 @@ obj/beos/allp/bgfxapi.o: src/beos/bgfxapi.cpp include/bealleg.h include/allegro.
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/albeos.h include/allegro/aintern.h \
  include/allegro/aintbeos.h
+obj/beos/allp/bjoyapi.o: src/beos/bjoyapi.cpp include/bealleg.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h
 obj/beos/allp/bkeyapi.o: src/beos/bkeyapi.cpp include/bealleg.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h
+obj/beos/allp/bmidiapi.o: src/beos/bmidiapi.cpp include/bealleg.h include/allegro.h \
  include/allegro/alconfig.h include/allegro/albecfg.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/albeos.h include/allegro/aintern.h \
@@ -536,6 +554,7 @@ obj/beos/allp/exxfade.o: examples/exxfade.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/albecfg.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/albeos.h
+obj/beos/allp/exzbuf.o: examples/exzbuf.c
 obj/beos/allp/keyconf.o: setup/keyconf.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/albecfg.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
@@ -691,6 +710,7 @@ obj/beos/allp/ispr32.o: src/i386/ispr32.s src/i386/asmdefs.inc obj/beos/asmdef.i
  src/i386/sprite.inc
 obj/beos/allp/ispr8.o: src/i386/ispr8.s src/i386/asmdefs.inc obj/beos/asmdef.inc \
  src/i386/sprite.inc
+obj/beos/allp/izbuf.o: src/i386/izbuf.s src/i386/asmdefs.inc obj/beos/asmdef.inc
 obj/beos/allp/modexgfx.o: src/misc/modexgfx.s src/misc/../i386/asmdefs.inc \
  obj/beos/asmdef.inc
 obj/beos/allp/vbeafs.o: src/misc/vbeafs.s src/misc/../i386/asmdefs.inc \

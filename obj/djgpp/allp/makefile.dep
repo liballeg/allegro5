@@ -58,6 +58,10 @@ obj/djgpp/allp/flood.o: src/flood.c include/allegro.h include/allegro/alconfig.h
  include/allegro/aldjgpp.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/aldos.h \
  include/allegro/aintern.h
+obj/djgpp/allp/font.o: src/font.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/aldjgpp.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/aldos.h \
+ include/allegro/aintern.h
 obj/djgpp/allp/fsel.o: src/fsel.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/aldjgpp.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/aldos.h
@@ -170,7 +174,7 @@ obj/djgpp/allp/stream.o: src/stream.c include/allegro.h include/allegro/alconfig
 obj/djgpp/allp/text.o: src/text.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/aldjgpp.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/aldos.h \
- include/allegro/aintern.h src/font.h
+ include/allegro/aintern.h
 obj/djgpp/allp/tga.o: src/tga.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/aldjgpp.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/aldos.h \

@@ -130,6 +130,7 @@ obj/bcc32/allp/exupdate.o: examples/exupdate.c include/allegro.h \
 obj/bcc32/allp/exxfade.o: examples/exxfade.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/albcc32.h \
  include/allegro/alinline.h include/allegro/alwin.h
+obj/bcc32/allp/exzbuf.o: examples/exzbuf.c
 obj/bcc32/allp/keyconf.o: setup/keyconf.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/albcc32.h \
  include/allegro/alinline.h include/allegro/alwin.h \
