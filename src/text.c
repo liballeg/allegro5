@@ -54,13 +54,18 @@ static INLINE AL_CONST FONT *find_range(AL_CONST FONT *f, int c)
  *  output will be opaque and the background will be set to mode. If mode
  *  is negative, text will be drawn transparently (ie. the background will
  *  not be altered). The default is a mode of zero.
+ *  Returns previous mode.
  */
-void text_mode(int mode)
+int text_mode(int mode)
 {
+   int old_mode = _textmode;
+
    if (mode < 0)
       _textmode = -1;
    else
       _textmode = mode;
+
+   return old_mode;
 }
 
 

@@ -1325,7 +1325,7 @@ typedef struct FONT                 /* a range of consecutive characters */
 
 AL_VAR(FONT *, font);
 
-AL_FUNC(void, text_mode, (int mode));
+AL_FUNC(int, text_mode, (int mode));
 AL_FUNC(void, textout, (BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color));
 AL_FUNC(void, textout_centre, (BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color));
 AL_FUNC(void, textout_right, (BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color));
