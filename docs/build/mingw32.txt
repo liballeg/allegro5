@@ -41,8 +41,8 @@
    "make depend" and "fixdll.bat" require that you have GNU sed installed.
    "fixdll.bat" requires that have GNU sort (not DOS !) installed.
    You can download some extra utilities for MingW32 from:
-      http://agnes.dida.physik.uni-essen.de/~janjaap/mingw32/download.html
-      ftp://ftp.franken.de/pub/win32/develop/gnuwin32/mingw32/porters/Mikey/
+      http://sourceforge.net/projects/mingw/
+      http://sourceforge.net/projects/gnuwin32/
 
    If you at any stage in the installation process get an
    'Out of Environment space' message, then please see the Allegro F.A.Q.
