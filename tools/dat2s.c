@@ -605,7 +605,7 @@ int main(int argc, char *argv[])
 
       fprintf(outfile, ".text\n");
       fprintf(outfile, ".balign 4\n");
-      fprintf(outfile, ALLEGRO_ASM_PREFIX "_construct_me:\n");
+      fprintf(outfile, "construct_me:\n");
       fprintf(outfile, "\tpushl %%ebp\n");
       fprintf(outfile, "\tmovl %%esp, %%ebp\n");
       fprintf(outfile, "\tpushl $" ALLEGRO_ASM_PREFIX "%s%s\n", prefix, dataname);
@@ -613,8 +613,12 @@ int main(int argc, char *argv[])
       fprintf(outfile, "\taddl $4, %%esp\n");
       fprintf(outfile, "\tleave\n");
       fprintf(outfile, "\tret\n\n");
+      #ifdef ALLEGRO_DJGPP      
       fprintf(outfile, ".section .ctor\n");
-      fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "_construct_me\n");
+      #else
+      fprintf(outfile, ".section .ctors\n");
+      #endif
+      fprintf(outfile, "\t.long construct_me\n");
 
    #endif
 

@@ -2854,7 +2854,9 @@ int main(void)
    set_palette(black_palette);
 
  #ifdef SETUP_USE_COMPILED_DATAFILES
+ #ifndef ALLEGRO_USE_CONSTRUCTOR
    fixup_datafile(setup_data);
+ #endif
  #else
    setup_data = load_datafile(uconvert_ascii("#", tmp1));
 
