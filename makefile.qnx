@@ -222,15 +222,6 @@ obj/qnx/asmdef.inc: obj/qnx/asmdef
 obj/qnx/asmdef: src/i386/asmdef.c include/*.h include/allegro/*.h obj/qnx/asmcapa.h
 	gcc -O $(WFLAGS) -I. -I./include -o obj/qnx/asmdef src/i386/asmdef.c
 
-obj/qnx/setupdat.s: setup/setup.dat tools/dat2s
-	tools/dat2s -o obj/qnx/setupdat.s setup/setup.dat
-
-obj/qnx/setupdat.o: obj/qnx/setupdat.s
-	gcc -o obj/qnx/setupdat.o -c obj/qnx/setupdat.s
-
-setup/setup: $(OBJ_DIR)/setup.o obj/qnx/setupdat.o $(LIB_NAME)
-	gcc $(LFLAGS) -o setup/setup $(OBJ_DIR)/setup.o obj/qnx/setupdat.o $(LIB_NAME) $(LIBRARIES)
-
 define LINK_WITHOUT_LIB
    gcc $(LFLAGS) -o $@ $^
 endef
