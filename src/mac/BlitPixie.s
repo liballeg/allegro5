@@ -1,3 +1,4 @@
+
 	MACRO
 	MakeFunction &fnName
 		EXPORT &fnName[DS]

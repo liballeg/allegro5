@@ -25,7 +25,7 @@ resource 'vers'(1){0x01, 0x00, release, 0x00,verUS,
 /*Definition of macallegro menssage box*/
 
 resource 'ALRT' (rmac_message, purgeable){	
-	{40, 20, 150, 260},rmac_message,{
+	{0, 0, 300, 480},rmac_message,{
 		OK, visible, silent,
 		OK, visible, silent,
 		OK, visible, silent,

@@ -67,36 +67,8 @@ extern short inactive_drawsprocket();
 extern CGrafPtr GetBackBuffer();
 extern CGrafPtr GetFrontBuffer();
 extern void swap_drawsprocket();
-extern int mac_timer_init(void);
-extern void mac_timer_exit(void);
-extern int mouse_mac_init(void);
-extern void mouse_mac_exit(void);
-extern int key_mac_init(void);
-extern void key_mac_exit(void);
-extern int sound_mac_detect(int input);
-extern int sound_mac_init(int input, int voices);
-extern void sound_mac_exit(int input);
-extern int sound_mac_mixer_volume(int volume);
-extern void *sound_mac_lock_voice(int voice, int start, int end);
-extern void sound_mac_unlock_voice(int voice);
-extern void sound_mac_init_voice(int voice, AL_CONST SAMPLE *sample);
-extern void sound_mac_release_voice(int voice);
-extern void sound_mac_start_voice(int voice);
-extern void sound_mac_stop_voice(int voice);
-extern void sound_mac_loop_voice(int voice, int playmode);
-extern int sound_mac_get_position(int voice);
-extern void sound_mac_set_position(int voice, int position);
-extern int sound_mac_get_volume(int voice);
-extern void sound_mac_set_volume(int voice, int vol);
-extern int sound_mac_get_frequency(int voice);
-extern void sound_mac_set_frequency(int voice, int frequency);
-extern int sound_mac_get_pan(int voice);
-extern void sound_mac_set_pan(int voice, int pan);
-extern SoundHeader *getsoundheader(int voice);
-extern short parent(short vRefNum, long dirID);
-extern char *getfilename(const char *fullpath);
-extern void getpath(char *filename);
-extern long finddirect(void *pdta);
+
+
 extern void _al_findclose(void *dta);
 extern int _al_findnext(void *pdta, char *nameret, int *aret);
 extern void *_al_findfirst(const char *pattern, int attrib, char *nameret, int *aret);
@@ -108,7 +80,6 @@ extern int _al_getdrive(void);
 extern void _al_getdcwd(int drive, char *buf, int size);
 extern int _al_open(const char *filename, int mode);
 extern char *strdup(const char *p);
-extern void getcwd(char *p, int size);
 extern long GetLogicalDrives();
 extern Boolean DoWeHaveColor(void);
 extern Boolean DoWeHaveSystem605(void);
@@ -117,6 +88,88 @@ extern short FindMainDevice(void);
 extern Boolean RTrapAvailable(short tNumber, TrapType tType);
 extern void maccleanup();
 extern void MacEntry();
+
+
+extern const RGBColor ForeDef;
+extern const RGBColor BackDef;
+
+
+/*The our QuickDraw globals */
+extern QDGlobals qd;
+
+/*app name*/
+extern Str255 mname;
+
+/*main volume number*/
+extern short MainVol;
+
+/*main directory ID*/
+extern long MainDir;
+
+/*Our main display device the display which contains the menubar on macs with more one display*/
+extern GDHandle MainGDevice;
+
+/*Our main Color Table for indexed devices*/
+extern CTabHandle MainCTable;
+
+/*Our current deph*/
+extern short DrawDepth;
+
+/*Vsync has ocurred*/
+extern volatile short _sync;
+
+/*Vsync handler installed?*/
+extern short _syncOk;
+
+/*???Used for DrawSprocket e Vsync callback*/
+const char refconst[16];
+
+/**/
+extern short _mackeyboardinstalled;
+
+/*Used for our keyboard driver*/
+extern volatile KeyMap KeyNow;
+extern volatile KeyMap KeyOld;
+
+/**/
+extern short _mactimerinstalled;
+
+/**/
+extern short _macmouseinstalled;
+
+
+/*Our TimerManager task entry queue*/
+extern TMTask   theTMTask;      
+
+/*Our TM task is running*/
+extern short _timer_running;
+
+/*the control State of DrawSprocket*/
+extern short State;
+
+enum{kRDDNull   =0,
+   kRDDStarted   =1,
+   kRDDReserved=2,
+   kRDDFadeOut   =4,
+   kRDDActive   =8,
+   kRDDPaused   =16,
+   kRDDUnder   =32,
+   kRDDOver   =64,
+   kRDDouble   =128,
+};
+   
+/*Our DrawSprocket context*/
+extern DSpContextReference   theContext;
+/*Our Buffer Underlayer Not Used Yet*/
+extern DSpAltBufferReference   theUnderlay;
+
+
+/*Our window title ???*/
+extern char macwindowtitle[256];
+
+/*char buffer for Trace*/
+extern char macsecuremsg[256];
+
 
 #ifdef __cplusplus
    }

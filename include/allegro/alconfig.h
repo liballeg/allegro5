@@ -154,9 +154,6 @@
 #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
    #define OTHER_PATH_SEPARATOR  '\\'
    #define DEVICE_SEPARATOR      ':'
-#elif (defined ALLEGRO_MACOS)
-   #define OTHER_PATH_SEPARATOR  ':'
-   #define DEVICE_SEPARATOR      ':'
 #else
    #define OTHER_PATH_SEPARATOR  '/'
    #define DEVICE_SEPARATOR      '\0'

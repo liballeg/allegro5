@@ -106,6 +106,7 @@ typedef struct mac_voice{
 	int vol;
 	int pan;
 	int frequency;
+	SAMPLE * al_sample;
 	}mac_voice;
 
 
@@ -113,10 +114,6 @@ AL_VAR(QDGlobals , qd);
 AL_VAR(GFX_VTABLE,__mac_sys_vtable8);
 AL_VAR(GFX_VTABLE,__mac_sys_vtable15);
 AL_VAR(GFX_VTABLE,__mac_sys_vtable24);
-
-
-pascal void MyTask(TMTaskPtr tmTaskPtr);
-Boolean  MyVBLTask(DSpContextReference inContext, void *inRefCon);
 
 #ifdef __cplusplus
    }
