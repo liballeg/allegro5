@@ -66,7 +66,9 @@ AL_FUNC(void, exit_directx_window, (void));
 AL_FUNC(int, wnd_call_proc, (AL_METHOD(int, proc, (void))));
 AL_FUNC(int, get_dx_ver, (void));
 AL_FUNC(void, set_sync_timer_freq, (int freq));
+AL_FUNC(int, adjust_window, (int w, int h));
 AL_FUNC(void, restore_window_style, (void));
+AL_FUNC(void, save_window_pos, (void));
 
 
 /* main window */

@@ -199,6 +199,10 @@ static void paint_win(RECT *rect)
    if (IDirectDrawSurface2_IsLost(dd_prim_surface))
       switch_in_win();
 
+   /* clip the rectangle */
+   rect->right = MIN(rect->right, gfx_directx_win.w);
+   rect->bottom = MIN(rect->bottom, gfx_directx_win.h);
+
    update_window(rect);
 }
 
@@ -551,7 +555,6 @@ static void setup_driver_desc(void)
  */
 static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color_depth)
 {
-   RECT win_size;
    unsigned char *cmap;
    HRESULT hr;
    int i;
@@ -581,25 +584,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    if (finalize_directx_init() != 0)
       goto Error;
 
-   /* adjust window */
-   win_size.left = wnd_x = 32;
-   win_size.right = 32 + w;
-   win_size.top = wnd_y = 32;
-   win_size.bottom = 32 + h;
-   wnd_width = w;
-   wnd_height = h;
-
-   /* retrieve the size of the decorated window */
-   AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
-   
-   /* display the window */
-   MoveWindow(allegro_wnd, win_size.left, win_size.top,
-              win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
-
-   /* check that the actual window size is the one requested */
-   GetClientRect(allegro_wnd, &win_size);
-   if ( ((win_size.right - win_size.left) != w) || 
-        ((win_size.bottom - win_size.top) != h) ) {
+   if (adjust_window(w, h) != 0) {
       _TRACE("window size not supported.\n");
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto Error;
@@ -713,8 +698,10 @@ static void gfx_directx_win_exit(struct BITMAP *bmp)
 { 
    _enter_gfx_critical();
 
-   if (bmp)
+   if (bmp) {
+      save_window_pos();
       clear_bitmap(bmp);
+   }
 
    /* disconnect from the system driver */
    win_gfx_driver = NULL;

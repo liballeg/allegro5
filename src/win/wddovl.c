@@ -292,7 +292,6 @@ static int create_overlay(int w, int h, int color_depth)
  */
 static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color_depth)
 {
-   RECT win_size;
    HRESULT hr;
    DDCOLORKEY key;
 
@@ -320,25 +319,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    if (finalize_directx_init() != 0)
       goto Error;
   
-   /* adjust window */
-   win_size.left = wnd_x = 32;
-   win_size.right = wnd_x + w;
-   win_size.top = wnd_y = 32;
-   win_size.bottom = wnd_y + h;
-   wnd_width = w;
-   wnd_height = h;
-
-   /* retrieve the size of the decorated window */
-   AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
-
-   /* display the window */
-   MoveWindow(allegro_wnd, win_size.left, win_size.top,
-              win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
-
-   /* check that the actual window size is the one requested */
-   GetClientRect(allegro_wnd, &win_size);
-   if ( ((win_size.right - win_size.left) != w) || 
-        ((win_size.bottom - win_size.top) != h) ) {
+   if (adjust_window(w, h) != 0) {
       _TRACE("window size not supported.\n");
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto Error;
@@ -446,8 +427,10 @@ static void gfx_directx_ovl_exit(struct BITMAP *bmp)
 {
    _enter_gfx_critical();
 
-   if (bmp)
+   if (bmp) {
+      save_window_pos();
       clear_bitmap(bmp);
+   }
 
    /* disconnect from the system driver */
    win_gfx_driver = NULL;
