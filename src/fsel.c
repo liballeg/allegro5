@@ -28,6 +28,7 @@
 
 
 #include "allegro.h"
+#include "allegro/aintern.h"
 
 #if (defined ALLEGRO_DOS) && (!defined SCAN_DEPEND)
    #include <dos.h>
@@ -71,26 +72,26 @@ static DIALOG file_selector[] =
 {
    #ifdef HAVE_DIR_LIST
 
-      /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)              (dp2) (dp3) */
-      { d_shadow_box_proc, 0,    0,    305,  161,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
-      { d_ctext_proc,      152,  8,    1,    1,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
-      { d_button_proc,     208,  107,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-      { d_button_proc,     208,  129,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-      { fs_edit_proc,      16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,             NULL, NULL  },
-      { fs_flist_proc,     16,   46,   177,  100,  0,    0,    0,    D_EXIT,  0,    0,    fs_flist_getter,  NULL, NULL  },
-      { fs_dlist_proc,     208,  46,   81,   52,   0,    0,    0,    D_EXIT,  0,    0,    fs_dlist_getter,  NULL, NULL  },
-      { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
+      /* (dialog proc)        (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)              (dp2) (dp3) */
+      { _gui_shadow_box_proc, 0,    0,    305,  161,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
+      { _gui_ctext_proc,      152,  8,    1,    1,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
+      { _gui_button_proc,     208,  107,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+      { _gui_button_proc,     208,  129,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+      { fs_edit_proc,         16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,             NULL, NULL  },
+      { fs_flist_proc,        16,   46,   177,  100,  0,    0,    0,    D_EXIT,  0,    0,    fs_flist_getter,  NULL, NULL  },
+      { fs_dlist_proc,        208,  46,   81,   52,   0,    0,    0,    D_EXIT,  0,    0,    fs_dlist_getter,  NULL, NULL  },
+      { d_yield_proc,         0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
 
    #else
 
-      /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)              (dp2) (dp3) */
-      { d_shadow_box_proc, 0,    0,    305,  189,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
-      { d_ctext_proc,      152,  8,    1,    1,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
-      { d_button_proc,     64,   160,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-      { d_button_proc,     160,  160,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-      { fs_edit_proc,      16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,             NULL, NULL  },
-      { fs_flist_proc,     16,   46,   273,  100,  0,    0,    0,    D_EXIT,  0,    0,    fs_flist_getter,  NULL, NULL  },
-      { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
+      /* (dialog proc)        (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)              (dp2) (dp3) */
+      { _gui_shadow_box_proc, 0,    0,    305,  189,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
+      { _gui_ctext_proc,      152,  8,    1,    1,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
+      { _gui_button_proc,     64,   160,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+      { _gui_button_proc,     160,  160,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+      { fs_edit_proc,         16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,             NULL, NULL  },
+      { fs_flist_proc,        16,   46,   273,  100,  0,    0,    0,    D_EXIT,  0,    0,    fs_flist_getter,  NULL, NULL  },
+      { d_yield_proc,         0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
 
    #endif
 
@@ -266,7 +267,7 @@ static int fs_dlist_proc(int msg, DIALOG *d, int c)
       }
    }
 
-   ret = d_text_list_proc(msg, d, c);
+   ret = _gui_text_list_proc(msg, d, c);
 
    if (ret == D_CLOSE) {
       temp = 'A' + get_x_drive(d->d1+1);
@@ -391,7 +392,7 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
       }
    }
 
-   return d_edit_proc(msg, d, c); 
+   return _gui_edit_proc(msg, d, c); 
 }
 
 
@@ -653,7 +654,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
    }
 
    recurse_flag++;
-   ret = d_text_list_proc(msg, d, c);     /* call the parent procedure */
+   ret = _gui_text_list_proc(msg, d, c);     /* call the parent procedure */
    recurse_flag--;
 
    if (((sel != d->d1) || (ret == D_CLOSE)) && (recurse_flag == 0)) {

@@ -1931,3 +1931,20 @@ int d_slider_proc(int msg, DIALOG *d, int c)
    return retval;
 }
 
+
+
+/* Overridable procedures used by standard GUI dialogs.  */
+
+#define MAKE_PROC(proc, default)				\
+int (*proc)(int, DIALOG *, int);		       		\
+int _##proc(int msg, DIALOG *d, int c)				\
+{								\
+    return proc ? proc(msg, d, c) : default(msg, d, c);		\
+}
+
+MAKE_PROC(gui_shadow_box_proc, d_shadow_box_proc);
+MAKE_PROC(gui_ctext_proc, d_ctext_proc);
+MAKE_PROC(gui_button_proc, d_button_proc);
+MAKE_PROC(gui_edit_proc, d_edit_proc);
+MAKE_PROC(gui_list_proc, d_text_list_proc);
+MAKE_PROC(gui_text_list_proc, d_text_list_proc);

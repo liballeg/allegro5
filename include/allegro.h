@@ -2013,9 +2013,13 @@ AL_FUNC(void, quat_slerp, (AL_CONST QUAT *from, AL_CONST QUAT *to, float t, QUAT
 /************ GUI routines  ************/
 /***************************************/
 
+struct DIALOG;
+
+typedef AL_METHOD(int, DIALOG_PROC, (int msg, struct DIALOG *d, int c));
+
 typedef struct DIALOG 
 {
-   AL_METHOD(int, proc, (int, struct DIALOG *, int ));
+   DIALOG_PROC proc;
    int x, y, w, h;               /* position and size of the object */
    int fg, bg;                   /* foreground and background colors */
    int key;                      /* keyboard shortcut (ASCII code) */
@@ -2120,6 +2124,13 @@ AL_FUNC(int, d_text_list_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, d_textbox_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, d_slider_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, d_menu_proc, (int msg, DIALOG *d, int c));
+       
+AL_VAR(DIALOG_PROC, gui_shadow_box_proc);
+AL_VAR(DIALOG_PROC, gui_ctext_proc);
+AL_VAR(DIALOG_PROC, gui_button_proc);
+AL_VAR(DIALOG_PROC, gui_edit_proc);
+AL_VAR(DIALOG_PROC, gui_list_proc);
+AL_VAR(DIALOG_PROC, gui_text_list_proc);
 
 AL_VAR(DIALOG *, active_dialog);
 AL_VAR(MENU *, active_menu);
