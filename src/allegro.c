@@ -340,16 +340,8 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
       }
    }
 
-   if (!system_driver) {
-      AL_CONST char *msg = get_config_text("Fatal error: unable to activate the Allegro system");
-
-      if (ugetc(allegro_error))
-	 allegro_message(uconvert_ascii("%s\n%s\n", tmp1), msg, allegro_error);
-      else
-	 allegro_message(uconvert_ascii("%s\n", tmp1), msg);
-
-      exit(EXIT_FAILURE);
-   }
+   if (!system_driver)
+      return -1;
 
    /* detect CPU type */
    check_cpu();

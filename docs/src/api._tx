@@ -65,5 +65,9 @@ Changes between 4.0.x and 4.1.x series
    For example, it used to compensate for negative values for the origin
    and return NULL if the parent bitmap was NULL. These cases are now
    ASSERTed in the debug version, but unchecked in the release version.
+<li>
+   install_allegro() and allegro_init() now return an error code if unable to
+   initialise a system driver. Previously they would abort the program in
+   such cases. Consequently you should check their return values.
 </ul>
 

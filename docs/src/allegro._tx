@@ -88,19 +88,25 @@ information about how to install Allegro and link your program with it.
    Initialises the Allegro library. You must call either this or 
    allegro_init() before doing anything other than using the Unicode 
    routines. If you want to use a text mode other than UTF-8, you can set
-   it with set_uformat() before you call this. The available system ID codes 
-   will vary from one platform to another, but you will almost always want 
-   to pass SYSTEM_AUTODETECT. Alternatively, SYSTEM_NONE installs a stripped 
-   down version of Allegro that won't even try to touch your hardware or do 
-   anything platform specific: this can be useful for situations where you 
-   only want to manipulate memory bitmaps, such as the text mode datafile 
-   tools or the Windows GDI interfacing functions. The errno_ptr and 
-   atexit_ptr parameters should point to the errno variable and atexit 
-   function from your libc: these are required because when Allegro is 
-   linked as a DLL, it doesn't have direct access to your local libc data.
-   atexit_ptr may be NULL, in which case it is your responsibility to call
-   allegro_exit manually. Currently this function always returns zero. If no
-   system driver can be used, the program will abort.
+   it with set_uformat() before you call this.
+
+   The available system ID codes will vary from one platform to another, but
+   you will almost always want to pass SYSTEM_AUTODETECT. Alternatively,
+   SYSTEM_NONE installs a stripped down version of Allegro that won't even
+   try to touch your hardware or do anything platform specific: this can be
+   useful for situations where you only want to manipulate memory bitmaps,
+   such as the text mode datafile tools or the Windows GDI interfacing
+   functions.
+
+   The errno_ptr and atexit_ptr parameters should point to the errno variable
+   and atexit function from your libc: these are required because when
+   Allegro is linked as a DLL, it doesn't have direct access to your local
+   libc data.  atexit_ptr may be NULL, in which case it is your
+   responsibility to call allegro_exit() manually.
+
+   This function returns zero on success and non-zero on failure (e.g. no
+   system driver could be used). Note: in previous versions of Allegro this
+   function would abort on error.
 
 @@int @allegro_init();
 @xref install_allegro, allegro_exit
