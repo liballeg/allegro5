@@ -1657,6 +1657,7 @@ void fixup_datafile(DATAFILE *data)
    RLE_SPRITE *rle;
    int i, c, r, g, b, a, x, y;
    int bpp, depth;
+   unsigned char *p8;
    unsigned short *p16;
    unsigned long *p32;
    signed short *s16;
@@ -1748,13 +1749,14 @@ void fixup_datafile(DATAFILE *data)
 	       case 24:
 		  /* fix up a 24 bit truecolor bitmap */
 		  for (y=0; y<bmp->h; y++) {
+		     p8 = bmp->line[y];
+
 		     for (x=0; x<bmp->w; x++) {
-			r = bmp->line[y][x*3];
-			g = bmp->line[y][x*3+1];
-			b = bmp->line[y][x*3+2];
-			bmp->line[y][x*3+_rgb_r_shift_24/8] = r;
-			bmp->line[y][x*3+_rgb_r_shift_24/8] = g;
-			bmp->line[y][x*3+_rgb_r_shift_24/8] = b;
+			c = READ3BYTES(p8+x*3);
+			r = (c & 0xFF);
+			g = (c >> 8) & 0xFF;
+			b = (c >> 16) & 0xFF;
+			WRITE3BYTES(p8+x*3, makecol24(r, g, b));
 		     }
 		  }
 		  break;
