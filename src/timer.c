@@ -148,7 +148,7 @@ void rest_callback(long time, void (*callback)(void))
    else {
       time = clock() + MIN(time * CLOCKS_PER_SEC / 1000, 2);
       do {
-      } while (clock() < time);
+      } while (clock() < (clock_t)time);
    }
 }
 
