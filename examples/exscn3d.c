@@ -190,7 +190,7 @@ int main(void)
    
 
    while(!key[KEY_ESC]) {
-      clear(buffer);
+      clear_bitmap(buffer);
       clear_scene(buffer);
 
       /* matrix2: rotates cube */

@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
    truecolor_spotlight = create_bitmap_ex(32, 128, 128);
 
    /* generate an 8bpp spotlight image */
-   clear(spotlight);
+   clear_bitmap(spotlight);
    for (i=0; i<256; i++)
       circlefill(spotlight, 64, 64, 64-i/4, i);
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
       x = mouse_x - SCREEN_W/2 - 64 + 160;
       y = mouse_y - SCREEN_H/2 - 64 + 100;
 
-      clear(s);
+      clear_bitmap(s);
 
       /* unluckily we have to do something 'weird' for truecolor modes */
       if (bitmap_color_depth(screen) != 8) {

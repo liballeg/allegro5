@@ -142,7 +142,7 @@ int main()
       return 1;
    }
    set_palette(desktop_palette);
-   clear(screen);
+   clear_bitmap(screen);
 
    do_dialog(the_dlg, -1);
 

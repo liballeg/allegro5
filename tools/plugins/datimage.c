@@ -90,7 +90,7 @@ static void *makenew_bitmap(long *size)
 {
    BITMAP *bmp = create_bitmap_ex(8, 32, 32);
 
-   clear(bmp);
+   clear_bitmap(bmp);
    text_mode(-1);
    textout_centre(bmp, font, "Hi!", 16, 12, 1);
 
@@ -323,7 +323,7 @@ static int view_bitmap(DATAFILE *dat)
       poll_mouse();
    } while (mouse_b);
 
-   clear(screen);
+   clear_bitmap(screen);
    show_mouse(screen);
 
    return D_REDRAW;

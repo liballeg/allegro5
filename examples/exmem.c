@@ -29,7 +29,7 @@ int main()
    memory_bitmap = create_bitmap(20, 20);
 
    /* draw some circles onto it */
-   clear(memory_bitmap);
+   clear_bitmap(memory_bitmap);
    for (x=0; x<16; x++)
       circle(memory_bitmap, 10, 10, x, palette_color[x]);
 

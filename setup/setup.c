@@ -775,7 +775,7 @@ static void draw_dialog(ACTIVE_DIALOG *d)
 
    d->player->res &= ~D_WANTFOCUS;
 
-   clear(d->buffer);
+   clear_bitmap(d->buffer);
    screen = d->buffer;
    dialog_message(d->dialog, MSG_DRAW, 0, &nowhere);
    screen = oldscreen;

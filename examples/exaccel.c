@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
       acquire_bitmap(page[page_num]);
 
       /* clear the screen */
-      clear(page[page_num]);
+      clear_bitmap(page[page_num]);
 
       /* draw onto it */
       for (i=0; i<num_images; i++)

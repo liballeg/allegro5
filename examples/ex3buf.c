@@ -83,7 +83,7 @@ void draw(BITMAP *b)
 
    acquire_bitmap(b);
 
-   clear(b);
+   clear_bitmap(b);
 
    for (c=0; c<NUM_SHAPES; c++) {
       triangle(b, 

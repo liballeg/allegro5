@@ -255,7 +255,7 @@ POINT_T *make_points(int *numpoints, char *msg)
    int n, x, y;
 
    bmp = create_bitmap_ex(8, text_length(font, msg), text_height(font));
-   clear(bmp);
+   clear_bitmap(bmp);
    textout(bmp, font, msg, 0, 0, 1);
 
    /* first, count how much memory we will need to reserve */

@@ -106,7 +106,7 @@ void ss_update(void)
 /* draws the graphical effect */
 void ss_draw(void)
 {
-   clear(buf);
+   clear_bitmap(buf);
 
    line(buf, 0, 0, buf->w, buf->h, makecol(0, 0, 255));
    line(buf, buf->w, 0, 0, buf->h, makecol(0, 0, 255));

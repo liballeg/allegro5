@@ -487,7 +487,7 @@ int main()
    last_retrace_count = retrace_count;
 
    for (;;) {
-      clear(buffer);
+      clear_bitmap(buffer);
 
       while (last_retrace_count < retrace_count) {
 	 animate_shapes();

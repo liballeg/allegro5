@@ -1458,13 +1458,13 @@ void misc()
       tm = 0; _tm = 0;
       ct = 0;
       do {
-	 clear(p);
+	 clear_bitmap(p);
 	 ct++;
 	 if (next())
 	    return;
       } while (tm < TIME_SPEED);
       destroy_bitmap(p);
-      sprintf(buf,"clear(320x200): %ld per second", ct/TIME_SPEED);
+      sprintf(buf,"clear_bitmap(320x200): %ld per second", ct/TIME_SPEED);
       textout(screen, font, buf, xoff+16, yoff+50, palette_color[15]);
    }
 

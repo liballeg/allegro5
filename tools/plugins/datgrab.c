@@ -438,7 +438,7 @@ static int ungrab(void)
    if (dat->type == DAT_RLE_SPRITE) {
       RLE_SPRITE *spr = (RLE_SPRITE *)dat->dat;
       grabber_graphic = create_bitmap_ex(spr->color_depth, spr->w, spr->h);
-      clear(grabber_graphic);
+      clear_bitmap(grabber_graphic);
       draw_rle_sprite(grabber_graphic, spr, 0, 0);
    }
    else {

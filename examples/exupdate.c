@@ -84,7 +84,7 @@ void draw_screen(BITMAP *bmp)
 
    acquire_bitmap(bmp);
 
-   clear(bmp);
+   clear_bitmap(bmp);
 
    xor_mode(TRUE);
 

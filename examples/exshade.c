@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
    }
 
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
-   clear(buffer);
+   clear_bitmap(buffer);
 
    set_palette(pal);
 

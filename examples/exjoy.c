@@ -32,7 +32,7 @@ int main()
       return 1;
    }
    set_palette(default_palette);
-   clear(screen);
+   clear_bitmap(screen);
    textout_centre(screen, font, "Please center the joystick", SCREEN_W/2,
 		  SCREEN_H/2 - 36, palette_color[255]);
    textout_centre(screen, font, "and press a key.", SCREEN_W/2,
@@ -63,7 +63,7 @@ int main()
    while (joy[0].flags & JOYFLAG_CALIBRATE) {
       msg = calibrate_joystick_name(0);
 
-      clear(screen);
+      clear_bitmap(screen);
       textout_centre(screen, font, msg, SCREEN_W/2, 64, palette_color[255]);
       textout_centre(screen, font, "and press a key.", SCREEN_W/2, 80, palette_color[255]);
 
@@ -82,7 +82,7 @@ int main()
     * bother with this question.
    */
    if (joy[0].stick[0].flags & JOYFLAG_ANALOGUE) {
-      clear(screen);
+      clear_bitmap(screen);
       textout_centre(screen, font, "Now press 'D' to use a digital",
 		     SCREEN_W/2, 64, palette_color[255]);
       textout_centre(screen, font, "joystick or 'A' for analogue mode.",
@@ -110,12 +110,12 @@ int main()
    clear_keybuf();
 
    bmp = create_bitmap(320, 200);
-   clear(bmp);
+   clear_bitmap(bmp);
 
    do {
       poll_joystick();     /* we HAVE to do this to read the joystick */
 
-      clear(bmp);
+      clear_bitmap(bmp);
 
       textout_centre(bmp, font, joystick_driver->name, 160, 150, palette_color[255]);
 

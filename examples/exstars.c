@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
    set_palette(pal);
 
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
-   clear(buffer);
+   clear_bitmap(buffer);
 
    set_projection_viewport(0, 0, SCREEN_W, SCREEN_H);
 

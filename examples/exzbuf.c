@@ -224,7 +224,7 @@ int main()
 
    /* main loop */
    while(1) {
-      clear(buffer);
+      clear_bitmap(buffer);
       clear_zbuffer(zbuf, 0.);
       
       anim_cube(&matrix1, &matrix2, x1, x2);

@@ -161,7 +161,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
    }
 
    /* draw something into a */
-   clear(a);
+   clear_bitmap(a);
    textout_centre(a, font, "Hello world", 160, 100, makecol24(255, 0, 0));
    textout_centre(a, font, "This was created using Allegro", 160, 120, makecol24(0, 255, 0));
 

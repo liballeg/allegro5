@@ -53,7 +53,7 @@ void animate()
    blit(sprite_buffer, screen, 0, 0, 120, 80, 82, 82);
 
    /* clears sprite buffer with color 0 */
-   clear(sprite_buffer);
+   clear_bitmap(sprite_buffer);
 
    /* if SPACE key pressed set a next flag */
    if (keypressed())
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
    
    /* create and clear a bitmap for sprite buffering */
    sprite_buffer = create_bitmap(82, 82);
-   clear(sprite_buffer);
+   clear_bitmap(sprite_buffer);
 
    /* create another bitmap for color conversion from the datafile */
    running = create_bitmap(82, 82);

@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
    while (!keypressed()) {
       poll_mouse();
 
-      clear(buffer);
+      clear_bitmap(buffer);
 
       /* we can draw the graphics using normal calls, just as if they were
        * regular 256 color images. Everything is just three times as wide 

@@ -104,7 +104,7 @@ static int export_palette(AL_CONST DATAFILE *dat, AL_CONST char *filename)
    int ret;
 
    bmp = create_bitmap_ex(8, 32, 8);
-   clear(bmp);
+   clear_bitmap(bmp);
    text_mode(0);
    textout(bmp, font, "PAL.", 0, 0, 255);
 

@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
    while (!keypressed()) {
       timer = retrace_count;
-      clear(buffer);
+      clear_bitmap(buffer);
 
       /* the first image moves in a slow circle while being tinted to 
        * different colors...

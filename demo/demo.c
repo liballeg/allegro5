@@ -437,7 +437,7 @@ void draw_screen()
        */
       animation_type_str = "double buffered";
       bmp = s;
-      clear(bmp);
+      clear_bitmap(bmp);
    }
    else if ((animation_type == PAGE_FLIP) || (animation_type == RETRACE_FLIP)) {
       /* for page flipping we draw onto one of the sub-bitmaps which
@@ -456,7 +456,7 @@ void draw_screen()
 	 bmp = page1;
 	 current_page = 0;
       }
-      clear(bmp);
+      clear_bitmap(bmp);
    }
    else if (animation_type == TRIPLE_BUFFER) {
       /* triple buffering works kind of like page flipping, but with three
@@ -479,7 +479,7 @@ void draw_screen()
 	 bmp = page1; 
 	 current_page = 0;
       }
-      clear(bmp);
+      clear_bitmap(bmp);
    }
    else {
       /* for dirty rectangle animation we draw onto the memory bitmap, but 
@@ -655,7 +655,7 @@ void draw_intro_item(int item, int size)
    int w = MIN(SCREEN_W, (SCREEN_W * 2 / size));
    int h = SCREEN_H / size;
 
-   clear(screen);
+   clear_bitmap(screen);
    stretch_blit(b, screen, 0, 0, b->w, b->h, (SCREEN_W-w)/2, (SCREEN_H-h)/2, w, h);
 }
 
@@ -765,8 +765,8 @@ void play_game()
    skip:
 
    text_mode(0);
-   clear(screen);
-   clear(s);
+   clear_bitmap(screen);
+   clear_bitmap(s);
    draw_screen();
 
    if ((!keypressed()) && (!joy[0].button[0].b) && (!joy[0].button[1].b)) {
@@ -845,7 +845,7 @@ void play_game()
    /* display the score */
    b = create_bitmap(160, 160);
    b2 = create_bitmap(160, 160);
-   clear(b);
+   clear_bitmap(b);
    textout_centre(b, data[END_FONT].dat, "GAME OVER", 80, 50, 2);
    textout_centre(b, data[END_FONT].dat, score_buf, 80, 82, 2);
    clear_keybuf();
@@ -903,7 +903,7 @@ void generate_explosions()
    }
 
    for (c=0; c<EXPLODE_FRAMES; c++) {
-      clear(bmp);
+      clear_bitmap(bmp);
 
       color = ((c<16) ? c*4 : (80-c)) >> 2;
 
@@ -1111,7 +1111,7 @@ int pick_animation_type(int *type)
 
    centre_dialog(anim_type_dlg);
 
-   clear(screen);
+   clear_bitmap(screen);
 
    /* we set up colors to match screen color depth */
    for (ret = 0; anim_type_dlg[ret].proc; ret++) {
@@ -1655,7 +1655,7 @@ int title_screen()
    if (color > 3)
       color = 0;
 
-   clear(screen);
+   clear_bitmap(screen);
    set_palette(title_palette);
 
    scroll_count = 1;
@@ -1669,10 +1669,10 @@ int title_screen()
    blit(data[TITLE_BMP].dat, screen, 0, 0, SCREEN_W/2-160, SCREEN_H/2-96, 320, 128);
 
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
-   clear(buffer);
+   clear_bitmap(buffer);
 
    text_bmp = create_bitmap(SCREEN_W, 24);
-   clear(text_bmp);
+   clear_bitmap(text_bmp);
 
    old_dirty.count = dirty.count = 0;
 
@@ -2080,7 +2080,7 @@ int main(int argc, char *argv[])
       fade_out(1);
    }
 
-   clear(screen);
+   clear_bitmap(screen);
    set_gui_colors();
    set_mouse_sprite(NULL);
 
@@ -2181,7 +2181,7 @@ int main(int argc, char *argv[])
    stop_sample(data[INTRO_SPL].dat);
 
    text_mode(0);
-   clear(screen);
+   clear_bitmap(screen);
    textout_centre(screen, font, "Scanning for author credits...", SCREEN_W/2, SCREEN_H/2-16, makecol(160, 160, 160));
 
    if (SCREEN_W >= 640)
