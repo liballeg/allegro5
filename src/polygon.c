@@ -27,7 +27,7 @@
  *  Polygon helper function: initialises an edge structure for the 2d
  *  rasteriser.
  */
-void fill_edge_structure(POLYGON_EDGE *edge, AL_CONST int *i1, AL_CONST int *i2)
+static void fill_edge_structure(POLYGON_EDGE *edge, AL_CONST int *i1, AL_CONST int *i2)
 {
    if (i2[1] < i1[1]) {
       AL_CONST int *it;
