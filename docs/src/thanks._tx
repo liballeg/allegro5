@@ -221,7 +221,7 @@ Contributors
    Ettore Perazzoli (<email>ettore@comm2000.it</a>).<br>
    Optimised the linear -&gt mode-X blitting function.
 
-   Evert Glebbeek (<email>eglebbk@phys.uva.nl</a>).<br>
+   Evert Glebbeek (<email>eglebbk@dds.nl</a>).<br>
    Put set_gfx_mode on a diet, added a config entry for specifying the card
    to be used for GFX_AUTODETECT_WINDOWED, added a '-fullscreen' switch to
    the grabber, cleaned up the grabber/plugins code, added an option menu
