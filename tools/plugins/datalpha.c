@@ -255,6 +255,7 @@ static BITMAP *do_alpha_import(BITMAP *bmp, int *changed, RGB *pal)
    BITMAP *newbmp;
    DATAFILE *alpha;
    char buf[256], name[FILENAME_LENGTH];
+   DATEDIT_GRAB_PARAMETERS params;
    AL_CONST char *ext;
    int x, y, c, r, g, b, a;
 
@@ -270,7 +271,19 @@ static BITMAP *do_alpha_import(BITMAP *bmp, int *changed, RGB *pal)
       fix_filename_case(name);
       strcpy(grabber_import_file, name);
       grabber_busy_mouse(TRUE);
-      alpha = datedit_grab(name, name, DAT_BITMAP, -1, -1, -1, -1, -1);
+
+      params.datafile = NULL;  /* only with absolute filenames */
+      params.filename = name;
+      params.name = name;
+      params.type = DAT_BITMAP;
+      params.x = -1;
+      params.y = -1;
+      params.w = -1;
+      params.h = -1;
+      params.colordepth = -1;
+      params.relative = FALSE;  /* required (see above) */
+
+      alpha = datedit_grab(&params);
 
       if ((alpha) && (alpha->dat)) {
 	 if (pal)
