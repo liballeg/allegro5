@@ -191,14 +191,8 @@ static LPGUID driver_guids[MAX_DRIVERS];
  */
 static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPCSTR lpcstrModule, LPVOID lpContext)
 {
-   if (num_drivers < MAX_DRIVERS) {
-      if (lpGuid) {
-         driver_guids[num_drivers] = malloc(sizeof(GUID));
-         memcpy(driver_guids[num_drivers], lpGuid, sizeof(GUID));
-      }
-      else
-         driver_guids[num_drivers] = NULL;
-
+   if (lpGuid) {
+      driver_guids[num_drivers] = lpGuid;
       driver_names[num_drivers] = malloc(strlen(lpcstrDescription)+1);
       strcpy(driver_names[num_drivers], lpcstrDescription);
       num_drivers++;
@@ -217,29 +211,32 @@ static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPC
 _DRIVER_INFO *_get_win_digi_driver_list(void)
 {
    DIGI_DRIVER *driver;
+   HRESULT hr;
    int i;
 
    if (!driver_list) {
-      /* enumerate the DirectSound drivers */
-      DirectSoundEnumerate(DSEnumCallback, NULL);
-
       driver_list = _create_driver_list();
 
-      /* pure DirectSound drivers */
-      for (i=0; i<num_drivers; i++) {
-         driver = malloc(sizeof(DIGI_DRIVER));
-         memcpy(driver, &digi_directsound, sizeof(DIGI_DRIVER));
-         driver->id = DIGI_DIRECTX(i);
-         driver->ascii_name = driver_names[i];
+      /* enumerate the DirectSound drivers */
+      hr = DirectSoundEnumerate(DSEnumCallback, NULL);
 
-         _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
-      }
+      if (hr == DD_OK) {
+         /* pure DirectSound drivers */
+         for (i=0; i<num_drivers; i++) {
+            driver = malloc(sizeof(DIGI_DRIVER));
+            memcpy(driver, &digi_directsound, sizeof(DIGI_DRIVER));
+            driver->id = DIGI_DIRECTX(i);
+            driver->ascii_name = driver_names[i];
 
-      /* Allegro mixer to DirectSound drivers */
-      for (i=0; i<num_drivers; i++) {
-         driver = _get_dsalmix_driver(driver_names[i], driver_guids[i], i);
+            _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
+         }
 
-         _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
+         /* Allegro mixer to DirectSound drivers */
+         for (i=0; i<num_drivers; i++) {
+            driver = _get_dsalmix_driver(driver_names[i], driver_guids[i], i);
+
+            _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
+         }
       }
 
       /* Allegro mixer to WaveOut drivers */
