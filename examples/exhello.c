@@ -24,14 +24,20 @@ int main()
    /* set the color palette */
    set_palette(desktop_palette);
 
+   /* clear the screen to white */
+   clear_to_color(screen, makecol(255, 255, 255));
+
    /* you don't need to do this, but on some platforms (eg. Windows) things
     * will be drawn more quickly if you always acquire the screen before
     * trying to draw onto it.
     */
    acquire_screen();
 
-   /* write some text to the screen */
-   textout_centre(screen, font, "Hello, world!", SCREEN_W/2, SCREEN_H/2, 255);
+   /* set transparent text */
+   text_mode(-1);
+
+   /* write some text to the screen with black letters */
+   textout_centre(screen, font, "Hello, world!", SCREEN_W/2, SCREEN_H/2, makecol(0,0,0));
 
    /* you must always release bitmaps before calling any input functions */
    release_screen();
