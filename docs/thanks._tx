@@ -147,7 +147,7 @@ Contributors
    Enlarged the starfield in exstars, and fixed an incorrect range in 
    exlights.
 
-   David A. Capello (<email>davidcapello@yahoo.com</a>).<br>
+   David A. Capello (<email>dacap@users.sourceforge.net</a>).<br>
    Made dotted_rect() avoid bank switches. Fixed a problem with lost GUI
    mouse clicks. Made d_menu_proc steal/return focus when
    activated/deactivated.
