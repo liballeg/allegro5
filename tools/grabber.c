@@ -3037,16 +3037,15 @@ int main(int argc, char *argv[])
       ret = set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0);
    }
    else {
-      ret = set_gfx_mode(GFX_SAFE, w, h, 0, 0);
-      if (ret != 0) {
-	 for (i=0; color_depths[i]; i++) {
-	   bpp = color_depths[i];
-	   set_color_depth(bpp);
-	   ret = set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0);
-	   if (ret == 0)
-	      break;
-	 }
+      for (i=0; color_depths[i]; i++) {
+	 bpp = color_depths[i];
+	 set_color_depth(bpp);
+	 ret = set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0);
+	 if (ret == 0)
+	    break;
       }
+      if (ret != 0)
+	 ret = set_gfx_mode(GFX_SAFE, w, h, 0, 0);
    }
 
    if (ret != 0) {
