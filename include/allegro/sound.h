@@ -38,6 +38,7 @@ AL_FUNC(int, install_sound_input, (int digi, int midi));
 AL_FUNC(void, remove_sound_input, (void));
 
 AL_FUNC(void, set_volume, (int digi_volume, int midi_volume));
+AL_FUNC(void, set_hardware_volume, (int digi_volume, int midi_volume));
 
 #ifdef __cplusplus
    }

@@ -6210,12 +6210,18 @@ Sound init routines
    normally need to call this, because allegro_exit() will do it for you.
 
 @@void @set_volume(int digi_volume, int midi_volume);
-@xref install_sound
+@xref install_sound, set_hardware_volume
    Alters the global sound output volume. Specify volumes for both digital 
    samples and MIDI playback, as integers from 0 to 255, or pass a negative 
-   value to leave one of the settings unchanged. If possible this routine 
-   will use a hardware mixer to control the volume, otherwise it will tell 
-   the sample and MIDI players to simulate a mixer in software.
+   value to leave one of the settings unchanged. This routine will not alter
+   the volume of the hardware mixer if it exists.
+
+@@void @set_hardware_volume(int digi_volume, int midi_volume);
+@xref install_sound, set_volume
+   Alters the hardware sound output volume. Specify volumes for both digital 
+   samples and MIDI playback, as integers from 0 to 255, or pass a negative 
+   value to leave one of the settings unchanged. This routine will use the
+   hardware mixer to control the volume if it exists, otherwise do nothing.
 
 
 

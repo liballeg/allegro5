@@ -730,31 +730,55 @@ void remove_sound_input()
 
 /* set_volume:
  *  Alters the global sound output volume. Specify volumes for both digital
- *  samples and MIDI playback, as integers from 0 to 255. If possible this
- *  routine will use a hardware mixer to control the volume, otherwise it
- *  will tell the sample mixer and MIDI player to simulate a mixer in
- *  software.
+ *  samples and MIDI playback, as integers from 0 to 255. This routine will
+ *  not alter the volume of the hardware mixer if it exists.
  */
 void set_volume(int digi_volume, int midi_volume)
+{
+   int *voice_vol;
+   int i;
+
+   if (digi_volume >= 0) {
+      voice_vol = malloc(sizeof(int)*VIRTUAL_VOICES);
+
+      /* Retrieve the (relative) volume of each voice. */
+      for (i=0; i<VIRTUAL_VOICES; i++)
+	 voice_vol[i] = voice_get_volume(i);
+
+      _digi_volume = MID(0, digi_volume, 255);
+
+      /* Set the new (relative) volume for each voice. */
+      for (i=0; i<VIRTUAL_VOICES; i++)
+	 voice_set_volume(i, voice_vol[i]);
+
+      free(voice_vol);
+   }
+
+   if (midi_volume >= 0)
+      _midi_volume = MID(0, midi_volume, 255);
+}
+
+
+
+/* set_hardware_volume:
+ *  Alters the hardware sound output volume. Specify volumes for both digital
+ *  samples and MIDI playback, as integers from 0 to 255. This routine will
+ *  use the hardware mixer to control the volume if it exists, or do nothing.
+ */
+void set_hardware_volume(int digi_volume, int midi_volume)
 {
    if (digi_volume >= 0) {
       digi_volume = MID(0, digi_volume, 255);
 
-      if ((digi_driver->mixer_volume) && 
-	  (digi_driver->mixer_volume(digi_volume) == 0))
-	 _digi_volume = -1;
-      else
-	 _digi_volume = digi_volume;
+      if (digi_driver->mixer_volume)
+	 digi_driver->mixer_volume(digi_volume);
    }
 
    if (midi_volume >= 0) {
       midi_volume = MID(0, midi_volume, 255);
 
-      if ((midi_driver->mixer_volume) && 
-	  (midi_driver->mixer_volume(midi_volume) == 0))
-	 _midi_volume = -1;
-      else
-	 _midi_volume = midi_volume;
+      if (midi_driver->mixer_volume)
+	 midi_driver->mixer_volume(midi_volume);
    }
 }
 

@@ -12,7 +12,6 @@ General (Platform independent) todos:
 
 - make the library thread-safe
 - fix use of 32-bit 'long' on 64-bit platforms
-- add set_harware_volume()
 - don't use BITMAPs for zbuffers
 - make the 'save' method of plugins return FALSE on failure
 
