@@ -1,0 +1,111 @@
+     ______   ___    ___
+    /\  _  \ /\_ \  /\_ \
+    \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+     \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+      \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+       \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+        \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+                                       /\____/
+                                       \_/__/
+
+
+                ABI compatibility information.
+
+         See readme.txt for a more general overview.
+
+
+
+======================================
+============ Introduction ============
+======================================
+
+   Once Allegro 4.0 is released, we plan to maintain Application Binary
+   Interface compatibility for the rest of the 4.0.x series. For example,
+   that means you will be able to use a executable compiled using version
+   4.0.10 with a version 4.0.42 dynamic linker library, or even 4.0.0.
+
+   "Whew," you sigh, "I don't have to put allxxxx.dll in my zips anymore."
+
+   Ultimately, yes. However, there are some guidelines (rules) you should
+   (must) follow, otherwise things will not work, and you will get angry
+   emails from users and from us (the Allegro "Be Good" Mafia).
+
+   Note: ABI compatibility will only be _actively_ maintained for
+   Windows, Linux and BeOS on x86 architectures.
+
+
+
+=======================================
+============ Windows notes ============
+=======================================
+
+   If you don't need a modified version of Allegro then just link your
+   program against an officially blessed non-WIP, non-CVS, non-dodgy
+   version and chocolate chip cookies will fall from the sky. Don't
+   disable any features (eg. colour depths, drivers) in the DLL.
+
+   If you require a modified version of Allegro, then please either
+   statically link, or pick a non-standard name for the Allegro DLL.
+   For example, it would be bad mojo to distribute a modified version of
+   Allegro under a name such as all40.dll or alleg40.dll. Instead, call
+   it something like alcustom.dll. Even better, statically link.
+
+   For the people who use vanilla Allegro, we will provide a set of
+   "reference" DLLs. If your binary works with those then everything is
+   fine. If you want to distribute Allegro DLLs with your program
+   (usually a good idea), we recommend you distribute our DLLs instead
+   of ones you compiled yourself. We trust you will bodge something up.
+
+
+
+=====================================
+============ Linux notes ============
+=====================================
+
+   To make sure an Allegro binary compiled on your machine will work on
+   another machine, do not disable any features with `configure'. Your
+   copy of Allegro must have assembly routines, threads, modules, all
+   colour depths and X11 support enabled, amongst other things. If in
+   doubt, leave it at the default setting.
+
+   When you are ready to distribute your binary, run "ldd <mybinary>".
+   It should say something like:
+
+      liballeg.so.4.0 => /usr/local/lib/liballeg.so.4.0 (0xdeadbeaf)
+
+   It should NOT say:
+
+      liballeg.so.4.0.0 => /usr/local/lib/liballeg.so.4.0.0 (0xdeadbeaf)
+
+   If you see the latter, that would mean users with later versions of
+   Allegro would not be able to run your binary.
+
+   See also the Windows section if you need to use a modified version of
+   Allegro.
+
+
+
+====================================
+============ BeOS notes ============
+====================================
+
+   To do.
+
+
+
+=====================================
+============ Final notes ============
+=====================================
+
+   Providing source is still better than not providing source. Binaries
+   are good, however, if your code sucks and only you (with the help of
+   witchcraft) can compile it.
+
+   If you provided binaries in the past using WIP versions of Allegro,
+   we politely request that you recompile your program using a stable
+   version of Allegro. (Unless, of course, you'd prefer to sleep with
+   the fishes.)
+
+   And oh, don't make your compiler generate i686-only code or anything
+   stupid like that.
+
