@@ -123,7 +123,6 @@ extern "C" int be_sound_init(int input, int voices)
 {
    sem_id sound_started;
    gs_audio_format fmt;
-   gs_attribute attr;
    size_t samples;
    char tmp1[80], tmp2[80];
 
