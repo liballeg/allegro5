@@ -72,14 +72,15 @@ mktargz $basename
 # Hack'n'slash
 echo "Stripping to form end-user distribution"
 (cd $dir/$basename && {
-	(cd src && rm -rf beos dos win)
-	(cd obj && rm -rf beos djgpp mingw32 msvc rsxnt watcom)
-	(cd lib && rm -rf beos djgpp mingw32 msvc rsxnt watcom)
-	(cd include && rm -f bealleg.h winalleg.h)
+	(cd src && rm -rf beos dos mac win)
+	(cd obj && rm -rf bcc32 beos djgpp mingw32 msvc rsxnt watcom)
+	(cd lib && rm -rf bcc32 beos djgpp mingw32 msvc rsxnt watcom)
+	(cd include && rm -f bealleg.h macalleg.h winalleg.h)
 	(cd misc && rm -f cmplog.pl findtext.sh fixpatch.sh fixver.sh zipup.sh)
-	rm -rf demo docs examples setup tests tools wintests
+	rm -rf demo docs examples mactests setup tests tools wintests
 	rm -f AUTHORS CHANGES THANKS *.txt fix* indent* readme.* allegro.mft
-	rm -f makefile.all makefile.be makefile.dj makefile.mgw makefile.rsx makefile.vc makefile.wat
+	rm -f makefile.all makefile.be makefile.bcc makefile.dj makefile.djx 
+	rm -f makefile.mgw makefile.mgx makefile.mpw makefile.rsx makefile.vc makefile.wat
 	{       # Tweak makefile.in
 		cp makefile.in makefile.old &&
 		cat makefile.old |
