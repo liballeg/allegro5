@@ -247,7 +247,7 @@ static int _write_hhp(const char *filename)
    fprintf(file, "Index file=%s.hhk\n", stripped_filename);
    fprintf(file, "Language=0x409 English (USA)\n");
    if((html_flags & HTML_DOCUMENT_TITLE_FLAG) && !(html_flags & HTML_OLD_H_TAG_FLAG))
-      fprintf(file, "Title=%s\n", document_title);
+      fprintf(file, "Title=%s\n", html_document_title);
    else {
       /* Write the filename without extension and capitalized */
       fputc(toupper(*stripped_filename), file);

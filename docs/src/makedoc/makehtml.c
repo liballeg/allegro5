@@ -46,10 +46,10 @@ struct t_post
 int html_flags;
 char charset[256]="iso-8859-1";
 const char *html_extension = "html";
-char *document_title;
+char *html_document_title;
 char *html_footer;
 char *html_see_also_text;
-char *css_filename = NULL;
+char *html_css_filename;
 
 static POST **_post;
 static FILE *_file;
@@ -57,37 +57,7 @@ static char _filename[1024];
 static char *_xref[256];
 static int _xrefs;
 static int _empty_count;
-
-/* Internal functions */
-
-static void _write_html_xref_list(char **xref, int *xrefs);
-static void _write_html_xref(char *xref);
-static void _output_html_footer(char *main_filename);
-static void _output_toc(char *filename, int root, int body, int part);
-static void _hfprintf(char *format, ...);
-static void _hfputs(char *string);
-static int _toc_scmp(const void *e1, const void *e2);
-static int _output_section_heading(LINE *line, char *filename, int section_number);
-static void _output_custom_markers(LINE *line);
-static void _output_buffered_text(void);
-static void _output_html_header(char *section);
-static void _add_post_process_xref(const char *token);
-static void _post_process_pending_xrefs(void);
-static POST *_search_post_section(const char *filename);
-static POST *_search_post_section_with_token(const char *token);
-static POST *_create_post_section(const char *filename);
-static void _destroy_post_page(POST *p);
-static char *_get_clean_xref_token(const char *text);
-static void _post_process_filename(char *filename);
-static int _verify_correct_input(void);
-static void _close_html_file(FILE *file);
-static void _output_sorted_nested_toc(TOC **list, unsigned int num_items);
-static int _detect_non_paragraph_sections(const char *text);
-static char *_mark_up_auto_types(char *line, char **auto_types);
-static void _output_css(char *filename);
-
-
-const char *css_data = "\
+static const char *_css_data = "\
 A.xref:link {\n\
 \tcolor:           blue;\n\
 \ttext-decoration: none;\n\
@@ -168,6 +138,34 @@ div.faq-shift-to-right {\n\
 }\n\
 ";
 
+/* Internal functions */
+
+static void _write_html_xref_list(char **xref, int *xrefs);
+static void _write_html_xref(char *xref);
+static void _output_html_footer(char *main_filename);
+static void _output_toc(char *filename, int root, int body, int part);
+static void _hfprintf(char *format, ...);
+static void _hfputs(char *string);
+static int _toc_scmp(const void *e1, const void *e2);
+static int _output_section_heading(LINE *line, char *filename, int section_number);
+static void _output_custom_markers(LINE *line);
+static void _output_buffered_text(void);
+static void _output_html_header(char *section);
+static void _add_post_process_xref(const char *token);
+static void _post_process_pending_xrefs(void);
+static POST *_search_post_section(const char *filename);
+static POST *_search_post_section_with_token(const char *token);
+static POST *_create_post_section(const char *filename);
+static void _destroy_post_page(POST *p);
+static char *_get_clean_xref_token(const char *text);
+static void _post_process_filename(char *filename);
+static int _verify_correct_input(void);
+static void _close_html_file(FILE *file);
+static void _output_sorted_nested_toc(TOC **list, unsigned int num_items);
+static int _detect_non_paragraph_sections(const char *text);
+static char *_mark_up_auto_types(char *line, char **auto_types);
+static void _write_css_file(char *html_path, char *css_filename);
+
 
 
 /* write_html:
@@ -195,12 +193,14 @@ int write_html(char *filename)
       return 1;
    
 
-   /* Build up a table with Allegro's structures' names (spelling?) */
+   /* build up a table with Allegro's structures' names (spelling?) */
    auto_types = build_types_lookup_table(0);
    
    strcpy(_filename, filename);
-   if(document_title) _output_html_header(0);
-   if(css_filename)   _output_css(filename);
+   if(html_document_title) _output_html_header(0);
+   /* write out css if specified and allowed */
+   if(html_css_filename && !(html_flags & HTML_IGNORE_CSS))
+      _write_css_file(filename, html_css_filename);
 
    while (line) {
       if (line->flags & HTML_FLAG) {
@@ -443,46 +443,31 @@ static void _write_html_xref(char *xref)
    }
 }
 
-/* _output_css:
- * Writes a separate CSS file
+/* _write_css_file:
+ * Writes a separate CSS file. Requires two path components: the first
+ * one is the normal html path, the second is a relative path indicating
+ * where to put the css file. The final path will be a composition of
+ * both.
  */
-static void _output_css(char *filename) {
-   FILE *css;
-   int size;
-   char *css_path;
+static void _write_css_file(char *html_path, char *css_filename)
+{
+   FILE *file;
+   char *full_path;
+   
+   assert(html_path);
+   assert(css_filename);
 
-   if ((!css_filename) || (html_flags & HTML_IGNORE_CSS)) {
+   full_path = m_replace_filename(html_path, css_filename);
+   file = fopen(full_path, "wt");
+   
+   if (!file) {
+      free(full_path);
       return;
    }
    
-   size = strlen(filename) + strlen(css_filename) + 2;
-   css_path = malloc(size);
-   
-   if (css_path) {
-      char *c = strrchr(filename, '/');
-      if (!c) {
-         strcpy(css_path, css_filename);
-      }
-      else {
-         *c = 0;
-         sprintf(css_path, "%s/%s", filename, css_filename);
-         *c = '/';
-      }
-   }
-   else {
-      return;
-   }
-   
-   css = fopen(css_path, "wt");
-   
-   if (!css) {
-      free(css_path);
-      return;
-   }
-   
-   fprintf(css, "%s", css_data);
-   fclose(css);
-   free(css_path);
+   fprintf(file, "%s", _css_data);
+   fclose(file);
+   free(full_path);
    
    return;
 }
@@ -737,23 +722,23 @@ static int _output_section_heading(LINE *line, char *filename, int section_numbe
  */
 static void _output_html_header(char *section)
 {
-   assert(document_title);
+   assert(html_document_title);
    
    if (html_flags & HTML_OLD_H_TAG_FLAG) {
       if (section && strlen(strip_html(section))) {
 	 int i;
-	 for (i=0; document_title[i]; i++) {
-	    if (document_title[i] == '#')
+	 for (i=0; html_document_title[i]; i++) {
+	    if (html_document_title[i] == '#')
 	       fputs(strip_html(section), _file);
 	    else
-	       fputc(document_title[i], _file);
+	       fputc(html_document_title[i], _file);
 	 }
       }
    }
    else {
       fputs("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">\n", _file);
       fputs("<html><head><title>\n", _file);
-      fputs(document_title, _file);
+      fputs(html_document_title, _file);
       if (section && strlen(strip_html(section))) {
 	 fputs(": ", _file);
 	 fputs(strip_html(section), _file);
@@ -766,12 +751,12 @@ static void _output_html_header(char *section)
       /* optional style sheet output */
       if (!(html_flags & HTML_IGNORE_CSS)) {
 	 fputs("<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">\n", _file);
-	 if (css_filename) {
-	    fprintf(_file, "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">", css_filename);
+	 if (html_css_filename) {
+	    fprintf(_file, "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">", html_css_filename);
 	 }
 	 else {
 	    fputs("<style type=\"text/css\"><!--\n", _file);
-	    fprintf(_file, "%s\n", css_data);
+	    fprintf(_file, "%s\n", _css_data);
 	    fputs("\n--></style>\n", _file);
 	 }
       }

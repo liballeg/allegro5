@@ -339,8 +339,40 @@ char *m_replace_extension(const char *path, const char *extension)
       return temp;
    }
    else {
-      char *temp = m_strdup(path);
-      return m_strcat(temp, extension);
+      char *temp = m_xmalloc(strlen(path) + 2 + strlen(extension));
+      sprintf(temp, "%s.%s", path, extension);
+      return temp;
+   }
+}
+
+
+
+/* m_replace_filename:
+ * Replaces the filename (any text after the last slash or backslash in
+ * the string) in the path with the new one. If there's no slash or
+ * backslash in the path, path and filename will be concatenated like
+ * '%s/%s', path, filename'. Returns the created string, which has to be
+ * freed. Usage example:
+ *    char *dest = m_replace_filename(argv[2], "out.html");
+ */
+char *m_replace_filename(const char *path, const char *filename)
+{
+   char *p;
+   assert(path);
+   assert(filename);
+
+   p = get_filename(path);
+   if(*p) {
+      int len = p - path;
+      char *temp = m_xmalloc(len + 1 + strlen(filename));
+      strncpy(temp, path, len);
+      strcpy(temp+len, filename);
+      return temp;
+   }
+   else {
+      char *temp = m_xmalloc(strlen(path) + 2 + strlen(filename));
+      sprintf(temp, "%s/%s", path, filename);
+      return temp;
    }
 }
 

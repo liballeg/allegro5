@@ -382,11 +382,11 @@ static int _read_file(char *filename)
 	 else if (strincmp(buf+1, "charset=") == 0)
 	    strcpy(charset, buf+9);
 	 else if ((mytolower(buf[1]=='h')) && (buf[2]=='=')) {
-	    document_title = m_strdup(buf+3);
+	    html_document_title = m_strdup(buf+3);
 	    html_flags |= HTML_OLD_H_TAG_FLAG | HTML_DOCUMENT_TITLE_FLAG | HTML_IGNORE_CSS;
 	 }
 	 else if (strincmp(buf+1, "document_title=") == 0) {
-	    document_title = m_strdup(buf+16);
+	    html_document_title = m_strdup(buf+16);
 	    html_flags |= HTML_DOCUMENT_TITLE_FLAG;
 	 }
 	 else if (strincmp(buf+1, "html_see_also_text=") == 0) {
@@ -437,7 +437,7 @@ static int _read_file(char *filename)
 	 else if (strincmp(buf+1, "multiwordheaders") == 0)
 	    multiwordheaders = 1;
 	 else if (strincmp(buf+1, "external-css=") == 0)
-	    css_filename = m_strdup(buf+14);
+	    html_css_filename = m_strdup(buf+14);
 	 else if (buf[1] == '$')
 	    _add_line(buf+2, TEXINFO_FLAG | TEXINFO_CMD_FLAG);
 	 else if (buf[1] == '@') {

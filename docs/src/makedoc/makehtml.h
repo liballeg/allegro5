@@ -14,10 +14,10 @@
 extern int html_flags;
 extern char charset[256];
 extern const char *html_extension;
-extern char *document_title;
+extern char *html_document_title;
 extern char *html_footer;
 extern char *html_see_also_text;
-extern char *css_filename;
+extern char *html_css_filename;
 
 
 int write_html(char *filename);
