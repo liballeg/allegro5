@@ -1,1 +1,3 @@
 allegro.def
+*.lib
+*.dll
