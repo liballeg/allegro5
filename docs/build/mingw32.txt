@@ -16,6 +16,8 @@
    Robert J Ohannessian added some updates to the installation instructions
    and added an example on how to use Dev-C++ with Allegro.
 
+   Elias Pschernig and Hein Zelle revamped the cross-compilation section.
+
    See readme.txt for a more general overview.
 
 
@@ -258,29 +260,65 @@
 
    Brief example of how to set up a MingW32 cross-compiler system:
 
-   1) Install the MingW32 cross-compiler, and edit the file 'xmake.sh',
+   1) Download and install the MingW32 cross-compiler. You can get the
+      software:
+      - directly from the MingW site:
+          http://sourceforge.net/projects/mingw/
+        You need the following packages (as of February 2003):
+          - gcc (gcc-3.2.2-20030208-1-src.tar.gz)
+          - binutils (binutils-2.13.90-20030111-1-src.tar.gz)
+          - mingw runtime (mingw-runtime-2.4.tar.gz)
+          - w32api (w32api-2.2.tar.gz)
+        Optionally, you can get from the SDL site,
+         http://www.libsdl.org/extras/win32/common:
+          - opengl-devel (opengl-devel.tar.gz)
+      - using a more convenient script with instructions for downloading:
+         http://www.libsdl.org/extras/win32/cross/README.txt
+        Follow the instructions, and make sure to edit the build-crosh.sh
+        script so it downloads the most recent version of gcc and binutils.
+      - as a premade Debian package called 'mingw32', which you can install
+        with 'apt-get install mingw32'.
+
+   2) Get the minimal DirectX 7 SDK for MingW32 (dx70_mgw.zip).
+      Download it from 'http://alleg.sourceforge.net/wip.html' and unzip it
+      in the cross-compiler base directory. Make sure you convert all text
+      files to unix style (unzip -a) or the preprocessor will croak. The
+      DirectX package downloaded and installed by the SDL script is not up
+      to date: replace it with the package from the Allegro site.
+
+   3) Edit the file 'xmake.sh' in the root of your Allegro directory,
       replacing XC_PATH, XPREFIX and INSTALL_BASE with the right names.
       For example, if your compiler's base dir (the one with bin, lib and
-      include sub-folders) is /usr/i586-mingw32msvc, and you have
-      prefix-less binaries in /usr/i586-mingw32msvc/bin, you would use:
+      include sub-folders) is /usr/i586-mingw32msvc, and you have prefix-less
+      binaries in /usr/i586-mingw32msvc/bin, you would use:
 
       XC_PATH=/usr/i586-mingw32msvc/bin
       XPREFIX=
       INSTALL_BASE=/usr/i586-mingw32msvc
 
-   2) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
-      from 'http://alleg.sourceforge.net/wip.html' and unzip it to the
-      cross-compiler base dir. Make sure you convert all text files to unix
-      style (unzip -a) or the pre-processor will croak.
+      Note that the build-cross.sh script from SDL installs binaries both
+      with and without prefix, but some binaries (windres specifically)
+      are installed only with prefix. If you installed the crosscompiler
+      in /opt/cross-tools using this script, you would use:
 
-   3) Then run './fix.sh mingw32 --dtou' (--dtou is only needed if your
-      allegro directory has text files in DOS format, otherwise you can
-      use --quick). You are now finished with all the preparations.
+      XC_PATH=/opt/cross-tools/i386-mingw32msvc/bin:/opt/cross-tools/bin
+      XPREFIX=i386-mingw32msvc-
+      INSTALL_BASE=/opt/cross-tools/i386-mingw32msvc
+
+   4) Run './fix.sh mingw32 --dtou' (--dtou is only needed if your Allegro
+      directory has text files in DOS format, otherwise you can use --quick).
+      If you are using a CVS version of Allegro, run 'make depend' to
+      generate the build dependencies, then run 'misc/fixdll.sh' to generate
+      the allegro.def file. You are now finished with all the preparations.
    
-   4) You can now run './xmake.sh' to build the Allegro library and then run
-      './xmake.sh install' as root to install Allegro. You can use
-      'xmake.sh' as you would use 'make' to compile any Allegro stuff.
-      To build the documentation, use the native build process.
+   5) You can now run './xmake.sh' to build the Allegro library and then run
+      './xmake.sh install' as root to install it. Afterwards, you can use
+      'xmake.sh' as you would use 'make' to compile your Allegro programs, or
+      you can use the 'cross-make.sh' and 'cross-configure.sh' scripts from
+      the SDL site. You must use 'xmake.sh' to compile Allegro itself though.
+
+   6) To build the documentation, use the native build process. This
+      limitation will eventually be removed.
 
 
 
