@@ -298,7 +298,7 @@ Windows problems
 Unix problems
 
 <ul><li><font size="+1">
-@@   I get errors about "_mangled_main_address" being undefined!
+@@   I get an error about "_mangled_main_address" being undefined!
 </font>
       You need to write END_OF_MAIN() just after your main() function. 
       Allegro uses this, along with some preprocessor magic, to get a copy 
