@@ -54,7 +54,6 @@
 #endif
 
 
-
 #define LINE8_HOOK_NUM    3
 #define LINE16_HOOK_NUM  12
 #define LINE32_HOOK_NUM   4
@@ -211,7 +210,7 @@ AL_VAR(BeAllegroView, *_be_allegro_view);
 AL_VAR(BeAllegroScreen, *_be_allegro_screen);
 AL_VAR(BWindow, *_be_window);
 AL_VAR(BMidiSynth, *_be_midisynth);
-
+AL_VAR(sem_id, _be_sound_stream_lock);
 AL_VAR(sem_id, _be_fullscreen_lock);
 AL_VAR(sem_id, _be_mouse_view_attached);
 AL_VAR(BWindow, *_be_mouse_window);
