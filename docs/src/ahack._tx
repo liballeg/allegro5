@@ -335,6 +335,81 @@ up gracefully if these instructions are not available.
 
 
 @heading
+Documentation
+
+One of the nicest features of Allegro is its excellent manual, that you can
+read in several formats, ranging from plain text to compiled HTML. All API
+functions of the library have to be documented in docs/src/allegro._tx in the
+appropriate section. Note that, whatever you write in the file, you shouldn't
+exceed a line width of 78 characters, except for lines which contain tags.
+This rule is needed in order to produce correct plain text documentation that
+doesn't extend beyond the standard 80 column screen/terminal. All the other
+formats are less strict about line width and will probably reformat the text
+anyway.
+
+If the function you are documenting returns a value, use the @retval command
+to start the chunk of text that describes the return value or how it is used.
+If the function takes parameters, document if they are required to follow a
+specific format (e.g. string encoding), what they are for, and their range of
+values (if any). The latter is particularly important for boolean parameters,
+because there's no way to tell the user that an integer must be either `true'
+or `false' in the C programming language.
+
+If it is possible to include a little fragment of code which demonstrates the
+usage of the function, do it just before the @retval command if there is one,
+or at the end of the block. This is very welcome for functions that don't have
+example references (@eref). You don't need to include the declaration of the
+variables unless you really think it can help newbies.
+
+Usually a single line will be enough, but don't hesitate to add whatever
+comments you might think of as useful for newbies. Also, if you are writing
+such a one liner, try to use verbose variable names to indicate where they
+come from or what they should contain. Compare the following lines, where the
+second is more likely to be found in `real life' code, but should be avoided
+in these little code fragments taken out of context:
+<textblock>
+   blit(source_bitmap, destination_bitmap, source_x, source_y,
+      destination_x, destination_y, bitmap_width, bitmap_height);
+      ...
+   blit(spr[3]->bmp, screen, x, y, s_x, s_y, spr[3]->bmp->w, spr[3]->bmp->h);
+<endblock>
+Whatever coding style applies to Allegro's code also applies to these examples
+(e.g. 8 characters tab, 3 spaces indentation). If you are having trouble
+documenting a particular function because you don't know how to approach the
+task (this tends to happen when you have used the function so much that you
+have learnt it by heart), here is a checklist you can follow:
+<ul><li>
+   What is the purpose of the function? Why would the user want to call it?
+<li>
+   Can you call it at any time or is any other function required to have
+   been called before (excluding install_allegro/allegro_init)?
+<li>
+   What do the parameters mean? Do they have a precisely defined type?
+   Do they have a range (like boolean integers)?
+<li>
+   If the function returns a value, what is it? What can it be used for? Is
+   it likely to be the input of another Allegro function? Does the return
+   value have a range (e.g. positive numbers mean success, negative ones
+   failure)?
+<li>
+   Is this function supported across all platforms that Allegro runs on?
+   What does it do if it is not supported? Does it require a more thorough
+   explanation in the platform-specific section of the documentation?
+<li>
+   Should the description say whether the function is reentrant or not?
+   Do you think users would like to use it concurrently in multithreaded
+   environments?
+</ul>
+Don't bother about existing example references (@eref). These are generated
+automatically by a script. The person in charge of releasing Allegro will
+most surely do this for you. If you know how to run it, you are very welcome
+to update these tags though, to avoid piling extra work on the maintainer's
+shoulders. Of course, all said about documenting functions applies to macros
+and variables too.
+
+
+
+@heading
 Other Stuff
 
 Any portable routines that run inside a timer handler or input callback must 
