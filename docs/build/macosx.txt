@@ -19,10 +19,8 @@
 ========== MacOS X notes ===========
 ====================================
 
-   This is a native MacOS X port. The port is complete; at present the only
-   missing functionality is joystick support. The whole codebase is also
-   young, so it may hold some bugs; there are also some known minor problems
-   that are currently being investigated, mainly related to endianess.
+   This is a full featured native MacOS X port. The whole codebase is young,
+   so it may hold some bugs; feedback is welcome!
 
 
 
