@@ -14,19 +14,47 @@
  *
  *      Dithering code by James Hyman.
  *
+ *      Transparency preserving code by Elias Pschernig.
+ *
  *      See readme.txt for copyright information.
  */
 
 
+#include <string.h>
 #include "allegro.h"
 #include "allegro/aintern.h"
 
-#include <string.h>
+
+
+/* get_replacement_mask_color:
+ *  Helper function to get a replacement color for the bitmap's mask color.
+ */
+static int get_replacement_mask_color(BITMAP *bmp)
+{
+   int depth, r, g, b, c;
+
+   depth = bitmap_color_depth(bmp);
+
+   if (depth == 8) {
+      /* to do */
+      return 0;
+   }
+
+   r = getr_depth(depth, bitmap_mask_color(bmp));
+   g = getg_depth(depth, bitmap_mask_color(bmp));
+   b = getb_depth(depth, bitmap_mask_color(bmp));
+
+   do
+      c = makecol_depth(depth, r, ++g, b);
+   while (c == bitmap_mask_color(bmp));
+
+   return c;
+}
 
 
 
 /* blit_from_256:
- *  Expand 256 color images onto a truecolor destination.
+ *  Expands 256 color images onto a truecolor destination.
  */
 static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
@@ -35,79 +63,124 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
    int *dest_palette_color;
    unsigned long s, d;
    unsigned char *ss;
-   int x, y, c;
+   int x, y, c, rc;
 
    /* lookup table avoids repeated color format conversions */
-   dest_palette_color = _palette_expansion_table(bitmap_color_depth(dest));
+   if (_color_conv & COLORCONV_KEEP_TRANS) {
+      dest_palette_color = malloc(256*sizeof(int));
+      memcpy(dest_palette_color, _palette_expansion_table(bitmap_color_depth(dest)), 256*sizeof(int));
+
+      rc = get_replacement_mask_color(dest);
+
+      dest_palette_color[MASK_COLOR_8] = bitmap_mask_color(dest);
+
+      for (c=0; c<256; c++) {
+         if ((c != MASK_COLOR_8) &&
+             (dest_palette_color[c] == bitmap_mask_color(dest)))
+            dest_palette_color[c] = rc;
+      }
+   }
+   else
+      dest_palette_color = _palette_expansion_table(bitmap_color_depth(dest));
 
    /* worker macro */
    #define EXPAND_BLIT(bits, dsize)                                          \
    {                                                                         \
       if (is_memory_bitmap(src)) {                                           \
-	 /* fast version when reading from memory bitmap */                  \
-	 bmp_select(dest);                                                   \
-									     \
-	 for (y=0; y<h; y++) {                                               \
-	    ss = src->line[s_y+y] + s_x;                                     \
-	    d = bmp_write_line(dest, d_y+y) + d_x*dsize;                     \
-									     \
-	    for (x=0; x<w; x++) {                                            \
-	       bmp_write##bits(d, dest_palette_color[*ss]);                  \
-	       ss++;                                                         \
-	       d += dsize;                                                   \
-	    }                                                                \
-	 }                                                                   \
-									     \
-	 bmp_unwrite_line(dest);                                             \
+         /* fast version when reading from memory bitmap */                  \
+         bmp_select(dest);                                                   \
+                                                                             \
+         for (y=0; y<h; y++) {                                               \
+            ss = src->line[s_y+y] + s_x;                                     \
+            d = bmp_write_line(dest, d_y+y) + d_x*dsize;                     \
+                                                                             \
+            for (x=0; x<w; x++) {                                            \
+               bmp_write##bits(d, dest_palette_color[*ss]);                  \
+               ss++;                                                         \
+               d += dsize;                                                   \
+            }                                                                \
+         }                                                                   \
+                                                                             \
+         bmp_unwrite_line(dest);                                             \
       }                                                                      \
       else {                                                                 \
-	 /* slower version when reading from the screen */                   \
-	 for (y=0; y<h; y++) {                                               \
-	    s = bmp_read_line(src, s_y+y) + s_x;                             \
-	    d = bmp_write_line(dest, d_y+y) + d_x*dsize;                     \
-									     \
-	    for (x=0; x<w; x++) {                                            \
-	       bmp_select(src);                                              \
-	       c = bmp_read8(s);                                             \
-									     \
-	       bmp_select(dest);                                             \
-	       bmp_write##bits(d, dest_palette_color[c]);                    \
-									     \
-	       s++;                                                          \
-	       d += dsize;                                                   \
-	    }                                                                \
-	 }                                                                   \
-									     \
-	 bmp_unwrite_line(src);                                              \
-	 bmp_unwrite_line(dest);                                             \
+         /* slower version when reading from the screen */                   \
+         for (y=0; y<h; y++) {                                               \
+            s = bmp_read_line(src, s_y+y) + s_x;                             \
+            d = bmp_write_line(dest, d_y+y) + d_x*dsize;                     \
+                                                                             \
+            for (x=0; x<w; x++) {                                            \
+               bmp_select(src);                                              \
+               c = bmp_read8(s);                                             \
+                                                                             \
+               bmp_select(dest);                                             \
+               bmp_write##bits(d, dest_palette_color[c]);                    \
+                                                                             \
+               s++;                                                          \
+               d += dsize;                                                   \
+            }                                                                \
+         }                                                                   \
+                                                                             \
+         bmp_unwrite_line(src);                                              \
+         bmp_unwrite_line(dest);                                             \
       }                                                                      \
    }
 
    /* expand the above macro for each possible output depth */
    switch (bitmap_color_depth(dest)) {
 
-   #ifdef ALLEGRO_COLOR16
+      #ifdef ALLEGRO_COLOR16
       case 15:
       case 16:
-	 EXPAND_BLIT(16, sizeof(short));
-	 break;
-   #endif
+         EXPAND_BLIT(16, sizeof(short));
+         break;
+      #endif
 
-   #ifdef ALLEGRO_COLOR24
+      #ifdef ALLEGRO_COLOR24
       case 24:
-	 EXPAND_BLIT(24, 3);
-	 break;
-   #endif
+         EXPAND_BLIT(24, 3);
+         break;
+      #endif
 
-   #ifdef ALLEGRO_COLOR32
+      #ifdef ALLEGRO_COLOR32
       case 32:
-	 EXPAND_BLIT(32, sizeof(long));
-	 break;
-   #endif
-
+         EXPAND_BLIT(32, sizeof(long));
+         break;
+      #endif
    }
 
+   if (_color_conv & COLORCONV_KEEP_TRANS)
+      free(dest_palette_color);
+
    #endif
+}
+
+
+
+/* makecol_trans:
+ *  Helper function to convert pixel values with transparency preserving.
+ */
+static int makecol_trans(BITMAP *src, BITMAP *dest, int c, int r, int g, int b)
+{
+   static int rc;
+   static BITMAP *rc_bmp = NULL;
+
+   if (c == bitmap_mask_color(src)) {
+      c = bitmap_mask_color(dest);
+      return c;
+   }
+
+   c = makecol_depth(bitmap_color_depth(dest), r, g, b);
+
+   if (c == bitmap_mask_color(dest)) {
+      if (dest != rc_bmp) {
+         rc = get_replacement_mask_color(dest);
+         rc_bmp = dest;
+      }
+      c = rc;
+   }
+
+   return c;
 }
 
 
@@ -118,70 +191,121 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
    for (y=0; y<h; y++) {                                                     \
       s = bmp_read_line(src, s_y+y) + s_x*ssize;                             \
       d = bmp_write_line(dest, d_y+y) + d_x*dsize;                           \
-									     \
-      for (x=0; x<w; x++) {                                                  \
-	 bmp_select(src);                                                    \
-	 c = bmp_read##sbits(s);                                             \
-									     \
-	 r = getr##sbits(c);                                                 \
-	 g = getg##sbits(c);                                                 \
-	 b = getb##sbits(c);                                                 \
-									     \
-	 bmp_select(dest);                                                   \
-	 bmp_write##dbits(d, makecol##dbits(r, g, b));                       \
-									     \
-	 s += ssize;                                                         \
-	 d += dsize;                                                         \
+                                                                             \
+      if (_color_conv & COLORCONV_KEEP_TRANS) {                              \
+         for (x=0; x<w; x++) {                                               \
+            bmp_select(src);                                                 \
+            c = bmp_read##sbits(s);                                          \
+                                                                             \
+            r = getr##sbits(c);                                              \
+            g = getg##sbits(c);                                              \
+            b = getb##sbits(c);                                              \
+                                                                             \
+            bmp_select(dest);                                                \
+            bmp_write##dbits(d, makecol_trans(src, dest, c, r, g, b));       \
+                                                                             \
+            s += ssize;                                                      \
+            d += dsize;                                                      \
+         }                                                                   \
+      }                                                                      \
+      else {                                                                 \
+         for (x=0; x<w; x++) {                                               \
+            bmp_select(src);                                                 \
+            c = bmp_read##sbits(s);                                          \
+                                                                             \
+            r = getr##sbits(c);                                              \
+            g = getg##sbits(c);                                              \
+            b = getb##sbits(c);                                              \
+                                                                             \
+            bmp_select(dest);                                                \
+            bmp_write##dbits(d, makecol##dbits(r, g, b));                    \
+                                                                             \
+            s += ssize;                                                      \
+            d += dsize;                                                      \
+         }                                                                   \
       }                                                                      \
    }                                                                         \
-									     \
+                                                                             \
    bmp_unwrite_line(src);                                                    \
    bmp_unwrite_line(dest);                                                   \
 }
 
 
 
-/* worker macro for converting formats plus option dithering */
+/* makecol_dither_trans:
+ *  Helper function to convert pixel values with dithering and transparency preserving.
+ */
+static int makecol_dither_trans(BITMAP *src, BITMAP *dest, int c, int r, int g, int b,
+                                                                         int x, int y)
+{
+   static int rc;
+   static BITMAP *rc_bmp = NULL;
+
+   if (c == bitmap_mask_color(src)) {
+      c = bitmap_mask_color(dest);
+      return c;
+   }
+
+   if (bitmap_color_depth(dest) == 15)
+      c = makecol15_dither(r, g, b, x, y);
+   else
+      c = makecol16_dither(r, g, b, x, y);
+
+   if (c == bitmap_mask_color(dest)) {
+      if (dest != rc_bmp) {
+         rc = get_replacement_mask_color(dest);
+         rc_bmp = dest;
+      }
+      c = rc;
+   }
+
+   return c;
+}
+
+
+
+/* worker macro for converting formats with dithering */
 #define CONVERT_DITHER_BLIT(sbits, ssize, dbits, dsize)                      \
 {                                                                            \
    for (y=0; y<h; y++) {                                                     \
       s = bmp_read_line(src, s_y+y) + s_x*ssize;                             \
       d = bmp_write_line(dest, d_y+y) + d_x*dsize;                           \
-									     \
-      if (_color_conv & COLORCONV_DITHER_HI) {                               \
-	 for (x=0; x<w; x++) {                                               \
-	    bmp_select(src);                                                 \
-	    c = bmp_read##sbits(s);                                          \
-									     \
-	    r = getr##sbits(c);                                              \
-	    g = getg##sbits(c);                                              \
-	    b = getb##sbits(c);                                              \
-									     \
-	    bmp_select(dest);                                                \
-	    bmp_write##dbits(d, makecol##dbits##_dither(r, g, b, x, y));     \
-									     \
-	    s += ssize;                                                      \
-	    d += dsize;                                                      \
-	 }                                                                   \
+                                                                             \
+      if (_color_conv & COLORCONV_KEEP_TRANS) {                              \
+         for (x=0; x<w; x++) {                                               \
+            bmp_select(src);                                                 \
+            c = bmp_read##sbits(s);                                          \
+                                                                             \
+            r = getr##sbits(c);                                              \
+            g = getg##sbits(c);                                              \
+            b = getb##sbits(c);                                              \
+                                                                             \
+            bmp_select(dest);                                                \
+            bmp_write##dbits(d, makecol_dither_trans(src, dest, c, r, g, b,  \
+                                                                   x ,y ));  \
+                                                                             \
+            s += ssize;                                                      \
+            d += dsize;                                                      \
+         }                                                                   \
       }                                                                      \
       else {                                                                 \
-	 for (x=0; x<w; x++) {                                               \
-	    bmp_select(src);                                                 \
-	    c = bmp_read##sbits(s);                                          \
-									     \
-	    r = getr##sbits(c);                                              \
-	    g = getg##sbits(c);                                              \
-	    b = getb##sbits(c);                                              \
-									     \
-	    bmp_select(dest);                                                \
-	    bmp_write##dbits(d, makecol##dbits(r, g, b));                    \
-									     \
-	    s += ssize;                                                      \
-	    d += dsize;                                                      \
-	 }                                                                   \
+         for (x=0; x<w; x++) {                                               \
+            bmp_select(src);                                                 \
+            c = bmp_read##sbits(s);                                          \
+                                                                             \
+            r = getr##sbits(c);                                              \
+            g = getg##sbits(c);                                              \
+            b = getb##sbits(c);                                              \
+                                                                             \
+            bmp_select(dest);                                                \
+            bmp_write##dbits(d, makecol##dbits##_dither(r, g, b, x, y));     \
+                                                                             \
+            s += ssize;                                                      \
+            d += dsize;                                                      \
+         }                                                                   \
       }                                                                      \
    }                                                                         \
-									     \
+                                                                             \
    bmp_unwrite_line(src);                                                    \
    bmp_unwrite_line(dest);                                                   \
 }
@@ -190,9 +314,8 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
 
 #ifdef ALLEGRO_COLOR8
 
-
 /* dither_blit:
- *  Blits with Floyd-Steinberg error diffusion
+ *  Blits with Floyd-Steinberg error diffusion.
  */
 static void dither_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
@@ -202,7 +325,7 @@ static void dither_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, in
    int errpixel[3];
    int v[3], e[3], n[3];
    int x, y, i;
-   int c, nc;
+   int c, nc, rc;
 
    /* allocate memory for the error buffers */
    for (i=0; i<3; i++) {
@@ -213,7 +336,7 @@ static void dither_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, in
    /* free the buffers if there was an error allocating one */
    for (i=0; i<3; i++) {
       if ((!errline[i]) || (!errnextline[i]))
-	 goto getout;
+      goto getout;
    }
 
    /* initialize the error buffers */
@@ -223,73 +346,85 @@ static void dither_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, in
       errpixel[i] = 0;
    }
 
+   /* get the replacement color */
+   rc = get_replacement_mask_color(dest);
+
    _drawing_mode = DRAW_MODE_SOLID;
 
    /* dither!!! */
    for (y =0; y<h; y++) {
       for (x =0; x<w; x++) {
-	 /* get the colour from the source bitmap */
-	 c = getpixel(src, s_x+x, s_y+y);
-	 v[0] = getr_depth(bitmap_color_depth(src), c);
-	 v[1] = getg_depth(bitmap_color_depth(src), c);
-	 v[2] = getb_depth(bitmap_color_depth(src), c);
+         /* get the colour from the source bitmap */
+         c = getpixel(src, s_x+x, s_y+y);
+         v[0] = getr_depth(bitmap_color_depth(src), c);
+         v[1] = getg_depth(bitmap_color_depth(src), c);
+         v[2] = getb_depth(bitmap_color_depth(src), c);
 
-	 /* add the error from previous pixels */
-	 for (i=0; i<3; i++) {
-	    n[i] = v[i] + errline[i][x] + errpixel[i];
+         /* add the error from previous pixels */
+         for (i=0; i<3; i++) {
+            n[i] = v[i] + errline[i][x] + errpixel[i];
 
-	    if (n[i] > 255)
-	       n[i] = 255;
+            if (n[i] > 255)
+               n[i] = 255;
 
-	    if (n[i] < 0)
-	       n[i] = 0;
-	 }
+            if (n[i] < 0)
+               n[i] = 0;
+         }
 
-	 /* find the nearest matching colour */
-	 nc = makecol8(n[0], n[1], n[2]);
-	 putpixel(dest, d_x+x, d_y+y, nc);
-	 v[0] = getr8(nc);
-	 v[1] = getg8(nc);
-	 v[2] = getb8(nc);
+         /* find the nearest matching colour */
+         nc = makecol8(n[0], n[1], n[2]);
+         if (_color_conv & COLORCONV_KEEP_TRANS) {
+            if (c == bitmap_mask_color(src))
+               putpixel(dest, d_x+x, d_y+y, bitmap_mask_color(dest));
+            else if (nc == bitmap_mask_color(dest))
+               putpixel(dest, d_x+x, d_y+y, rc);
+            else
+               putpixel(dest, d_x+x, d_y+y, nc);
+         }
+         else {
+            putpixel(dest, d_x+x, d_y+y, nc);
+         }
+         v[0] = getr8(nc);
+         v[1] = getg8(nc);
+         v[2] = getb8(nc);
 
-	 /* calculate the error and store it */
-	 for (i=0; i<3; i++) {
-	    e[i] = n[i] - v[i];
-	    errpixel[i] = (int)((e[i] * 3)/8);
-	    errnextline[i][x] += errpixel[i];
+         /* calculate the error and store it */
+         for (i=0; i<3; i++) {
+            e[i] = n[i] - v[i];
+            errpixel[i] = (int)((e[i] * 3)/8);
+            errnextline[i][x] += errpixel[i];
 
-	    if (x != w-1)
-	       errnextline[i][x+1] = (int)(e[i]/4);
-	 }
+            if (x != w-1)
+               errnextline[i][x+1] = (int)(e[i]/4);
+         }
       }
 
       /* update error buffers */
       for (i=0; i<3; i++) {
-	 memcpy(errline[i], errnextline[i], sizeof(int) * w);
-	 memset(errnextline[i], 0, sizeof(int) * w);
+         memcpy(errline[i], errnextline[i], sizeof(int) * w);
+         memset(errnextline[i], 0, sizeof(int) * w);
       }
    }
 
    _drawing_mode = prev_drawmode;
 
-   getout:
+ getout:
 
    for (i=0; i<3; i++) {
       if (errline[i])
-	 free(errline[i]);
+         free(errline[i]);
 
       if (errnextline[i])
-	 free(errnextline[i]);
+         free(errnextline[i]);
    }
 }
-
 
 #endif
 
 
 
 /* blit_from_15:
- *  Convert 15 bpp images onto some other destination format.
+ *  Converts 15 bpp images onto some other destination format.
  */
 static void blit_from_15(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
@@ -301,32 +436,29 @@ static void blit_from_15(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
    switch (bitmap_color_depth(dest)) {
 
       #ifdef ALLEGRO_COLOR8
-	 case 8:
-	    if (_color_conv & COLORCONV_DITHER_PAL)
-	       dither_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
-	    else 
-	       CONVERT_BLIT(15, sizeof(short), 8, 1);
-	    break;
+      case 8:
+         if (_color_conv & COLORCONV_DITHER_PAL)
+            dither_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
+         else 
+            CONVERT_BLIT(15, sizeof(short), 8, 1)
+         break;
       #endif
 
-      #ifdef ALLEGRO_COLOR16
-	 case 16:
-	    CONVERT_BLIT(15, sizeof(short), 16, sizeof(short));
-	    break;
-      #endif
+      case 16:
+         CONVERT_BLIT(15, sizeof(short), 16, sizeof(short))
+         break;
 
       #ifdef ALLEGRO_COLOR24
-	 case 24:
-	    CONVERT_BLIT(15, sizeof(short), 24, 3);
-	    break;
+      case 24:
+         CONVERT_BLIT(15, sizeof(short), 24, 3)
+         break;
       #endif
 
       #ifdef ALLEGRO_COLOR32
-	 case 32:
-	    CONVERT_BLIT(15, sizeof(short), 32, sizeof(long));
-	    break;
+      case 32:
+         CONVERT_BLIT(15, sizeof(short), 32, sizeof(long))
+         break;
       #endif
-
    }
 
    #endif
@@ -335,7 +467,7 @@ static void blit_from_15(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
 
 
 /* blit_from_16:
- *  Convert 16 bpp images onto some other destination format.
+ *  Converts 16 bpp images onto some other destination format.
  */
 static void blit_from_16(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
@@ -347,32 +479,29 @@ static void blit_from_16(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
    switch (bitmap_color_depth(dest)) {
 
       #ifdef ALLEGRO_COLOR8
-	 case 8:
-	    if (_color_conv & COLORCONV_DITHER_PAL)
-	       dither_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
-	    else 
-	       CONVERT_BLIT(16, sizeof(short), 8, 1);
-	    break;
+      case 8:
+         if (_color_conv & COLORCONV_DITHER_PAL)
+            dither_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
+         else 
+            CONVERT_BLIT(16, sizeof(short), 8, 1)
+         break;
       #endif
 
-      #ifdef ALLEGRO_COLOR16
-	 case 15:
-	    CONVERT_BLIT(16, sizeof(short), 15, sizeof(short));
-	    break;
-      #endif
+      case 15:
+         CONVERT_BLIT(16, sizeof(short), 15, sizeof(short))
+         break;
 
       #ifdef ALLEGRO_COLOR24
-	 case 24:
-	    CONVERT_BLIT(16, sizeof(short), 24, 3);
-	    break;
+      case 24:
+         CONVERT_BLIT(16, sizeof(short), 24, 3)
+         break;
       #endif
 
       #ifdef ALLEGRO_COLOR32
-	 case 32:
-	    CONVERT_BLIT(16, sizeof(short), 32, sizeof(long));
-	    break;
+      case 32:
+         CONVERT_BLIT(16, sizeof(short), 32, sizeof(long))
+         break;
       #endif
-
    }
 
    #endif 
@@ -381,7 +510,7 @@ static void blit_from_16(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
 
 
 /* blit_from_24:
- *  Convert 24 bpp images onto some other destination format.
+ *  Converts 24 bpp images onto some other destination format.
  */
 static void blit_from_24(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
@@ -393,30 +522,35 @@ static void blit_from_24(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
    switch (bitmap_color_depth(dest)) {
 
       #ifdef ALLEGRO_COLOR8
-	 case 8:
-	    if (_color_conv & COLORCONV_DITHER_PAL)
-	       dither_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
-	    else 
-	       CONVERT_BLIT(24, 3, 8, 1);
-	    break;
+      case 8:
+         if (_color_conv & COLORCONV_DITHER_PAL)
+            dither_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
+         else 
+            CONVERT_BLIT(24, 3, 8, 1);
+         break;
       #endif
 
       #ifdef ALLEGRO_COLOR16
-	 case 15:
-	    CONVERT_DITHER_BLIT(24, 3, 15, sizeof(short));
-	    break;
+      case 15:
+         if (_color_conv & COLORCONV_DITHER_HI)
+            CONVERT_DITHER_BLIT(24, 3, 15, sizeof(short))
+         else
+            CONVERT_BLIT(24, 3, 15, sizeof(short))
+         break;
 
-	 case 16:
-	    CONVERT_DITHER_BLIT(24, 3, 16, sizeof(short));
-	    break;
+      case 16:
+         if (_color_conv & COLORCONV_DITHER_HI)
+            CONVERT_DITHER_BLIT(24, 3, 16, sizeof(short))
+         else
+            CONVERT_BLIT(24, 3, 16, sizeof(short))
+         break;
       #endif
 
       #ifdef ALLEGRO_COLOR32
-	 case 32:
-	    CONVERT_BLIT(24, 3, 32, sizeof(long));
-	    break;
+      case 32:
+         CONVERT_BLIT(24, 3, 32, sizeof(long))
+         break;
       #endif
-
    }
 
    #endif 
@@ -425,7 +559,7 @@ static void blit_from_24(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
 
 
 /* blit_from_32:
- *  Convert 32 bpp images onto some other destination format.
+ *  Converts 32 bpp images onto some other destination format.
  */
 static void blit_from_32(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
@@ -437,30 +571,35 @@ static void blit_from_32(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
    switch (bitmap_color_depth(dest)) {
 
       #ifdef ALLEGRO_COLOR8
-	 case 8:
-	    if (_color_conv & COLORCONV_DITHER_PAL)
-	       dither_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
-	    else 
-	       CONVERT_BLIT(32, sizeof(long), 8, 1);
-	    break;
+      case 8:
+         if (_color_conv & COLORCONV_DITHER_PAL)
+            dither_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
+         else 
+            CONVERT_BLIT(32, sizeof(long), 8, 1)
+         break;
       #endif
 
       #ifdef ALLEGRO_COLOR16
-	 case 15:
-	    CONVERT_DITHER_BLIT(32, sizeof(long), 15, sizeof(short));
-	    break;
+      case 15:
+         if (_color_conv & COLORCONV_DITHER_HI)
+            CONVERT_DITHER_BLIT(32, sizeof(long), 15, sizeof(short))
+         else
+            CONVERT_BLIT(32, sizeof(long), 15, sizeof(short))
+         break;
 
-	 case 16:
-	    CONVERT_DITHER_BLIT(32, sizeof(long), 16, sizeof(short));
-	    break;
+      case 16:
+         if (_color_conv & COLORCONV_DITHER_HI)
+            CONVERT_DITHER_BLIT(32, sizeof(long), 16, sizeof(short))
+         else
+            CONVERT_BLIT(32, sizeof(long), 16, sizeof(short))
+         break;
       #endif
 
       #ifdef ALLEGRO_COLOR24
-	 case 24:
-	    CONVERT_BLIT(32, sizeof(long), 24, 3);
-	    break;
+      case 24:
+         CONVERT_BLIT(32, sizeof(long), 24, 3)
+         break;
       #endif
-
    }
 
    #endif 
@@ -486,12 +625,12 @@ static void blit_to_or_from_modex(BITMAP *src, BITMAP *dest, int s_x, int s_y, i
 
    for (y=0; y<h; y++) {
       for (x=0; x<w; x++) {
-	 c = getpixel(src, s_x+x, s_y+y);
-	 r = getr_depth(src_depth, c);
-	 g = getg_depth(src_depth, c);
-	 b = getb_depth(src_depth, c);
-	 c = makecol_depth(dest_depth, r, g, b);
-	 putpixel(dest, d_x+x, d_y+y, c);
+         c = getpixel(src, s_x+x, s_y+y);
+         r = getr_depth(src_depth, c);
+         g = getg_depth(src_depth, c);
+         b = getb_depth(src_depth, c);
+         c = makecol_depth(dest_depth, r, g, b);
+         putpixel(dest, d_x+x, d_y+y, c);
       }
    }
 
@@ -552,9 +691,9 @@ static void blit_to_self(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
       /* with single-banked cards we have to use a temporary bitmap */
       tmp = create_bitmap(w, h);
       if (tmp) {
-	 src->vtable->blit_to_memory(src, tmp, s_x, s_y, 0, 0, w, h);
-	 dest->vtable->blit_from_memory(tmp, dest, 0, 0, d_x, d_y, w, h);
-	 destroy_bitmap(tmp);
+         src->vtable->blit_to_memory(src, tmp, s_x, s_y, 0, 0, w, h);
+         dest->vtable->blit_from_memory(tmp, dest, 0, 0, d_x, d_y, w, h);
+         destroy_bitmap(tmp);
       }
    }
    else {
@@ -566,12 +705,12 @@ static void blit_to_self(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
       dy = d_y + dest->y_ofs;
 
       if ((sx+w <= dx) || (dx+w <= sx) || (sy+h <= dy) || (dy+h <= sy))
-	 dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
+         dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
       else if ((sy > dy) || ((sy == dy) && (sx > dx)))
-	 dest->vtable->blit_to_self_forward(src, dest, s_x, s_y, d_x, d_y, w, h);
+         dest->vtable->blit_to_self_forward(src, dest, s_x, s_y, d_x, d_y, w, h);
       else if ((sx != dx) || (sy != dy))
-	 dest->vtable->blit_to_self_backward(src, dest, s_x, s_y, d_x, d_y, w, h);
-   } 
+         dest->vtable->blit_to_self_backward(src, dest, s_x, s_y, d_x, d_y, w, h);
+   }
 }
 
 
@@ -582,29 +721,29 @@ static void blit_to_self(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
    if ((s_x >= src->w) || (s_y >= src->h) ||                                 \
        (d_x >= dest->cr) || (d_y >= dest->cb))                               \
       return;                                                                \
-									     \
+                                                                             \
    /* clip src left */                                                       \
    if (s_x < 0) {                                                            \
       w += s_x;                                                              \
       d_x -= s_x;                                                            \
       s_x = 0;                                                               \
    }                                                                         \
-									     \
+                                                                             \
    /* clip src top */                                                        \
    if (s_y < 0) {                                                            \
       h += s_y;                                                              \
       d_y -= s_y;                                                            \
       s_y = 0;                                                               \
    }                                                                         \
-									     \
+                                                                             \
    /* clip src right */                                                      \
    if (s_x+w > src->w)                                                       \
       w = src->w - s_x;                                                      \
-									     \
+                                                                             \
    /* clip src bottom */                                                     \
    if (s_y+h > src->h)                                                       \
       h = src->h - s_y;                                                      \
-									     \
+                                                                             \
    /* clip dest left */                                                      \
    if (d_x < dest->cl) {                                                     \
       d_x -= dest->cl;                                                       \
@@ -612,7 +751,7 @@ static void blit_to_self(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
       s_x -= d_x;                                                            \
       d_x = dest->cl;                                                        \
    }                                                                         \
-									     \
+                                                                             \
    /* clip dest top */                                                       \
    if (d_y < dest->ct) {                                                     \
       d_y -= dest->ct;                                                       \
@@ -620,15 +759,15 @@ static void blit_to_self(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
       s_y -= d_y;                                                            \
       d_y = dest->ct;                                                        \
    }                                                                         \
-									     \
+                                                                             \
    /* clip dest right */                                                     \
    if (d_x+w > dest->cr)                                                     \
       w = dest->cr - d_x;                                                    \
-									     \
+                                                                             \
    /* clip dest bottom */                                                    \
    if (d_y+h > dest->cb)                                                     \
       h = dest->cb - d_y;                                                    \
-									     \
+                                                                             \
    /* bottle out if zero size */                                             \
    if ((w <= 0) || (h <= 0))                                                 \
       return;
@@ -658,27 +797,27 @@ void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, 
    else if (is_video_bitmap(dest)) {
       /* drawing onto video bitmaps */
       if (is_video_bitmap(src))
-	 dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
+         dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
       else if (is_system_bitmap(src))
-	 dest->vtable->blit_from_system(src, dest, s_x, s_y, d_x, d_y, w, h);
+         dest->vtable->blit_from_system(src, dest, s_x, s_y, d_x, d_y, w, h);
       else
-	 dest->vtable->blit_from_memory(src, dest, s_x, s_y, d_x, d_y, w, h);
+         dest->vtable->blit_from_memory(src, dest, s_x, s_y, d_x, d_y, w, h);
    }
    else if (is_system_bitmap(dest)) {
       /* drawing onto system bitmaps */
       if (is_video_bitmap(src))
-	 src->vtable->blit_to_system(src, dest, s_x, s_y, d_x, d_y, w, h);
+         src->vtable->blit_to_system(src, dest, s_x, s_y, d_x, d_y, w, h);
       else if (is_system_bitmap(src))
-	 dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
+         dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
       else
-	 dest->vtable->blit_from_memory(src, dest, s_x, s_y, d_x, d_y, w, h);
+         dest->vtable->blit_from_memory(src, dest, s_x, s_y, d_x, d_y, w, h);
    }
    else {
       /* drawing onto memory bitmaps */
       if ((is_video_bitmap(src)) || (is_system_bitmap(src)))
-	 src->vtable->blit_to_memory(src, dest, s_x, s_y, d_x, d_y, w, h);
+         src->vtable->blit_to_memory(src, dest, s_x, s_y, d_x, d_y, w, h);
       else
-	 dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
+         dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
    }
 }
 

@@ -1973,7 +1973,7 @@ Joystick routines
    selected configuration file. Returns zero on success: if it fails the 
    joystick state is undefined and you must reinitialise it from scratch.
 
-@@int @initialise_joystick(void);
+@@int @initialise_joystick();
 @xref install_joystick
    Deprecated. Use install_joystick() instead.
 
@@ -2713,6 +2713,7 @@ will not be known, so the file may be converted wrongly.
       COLORCONV_DITHER_PAL          // dither when reducing to 8 bit
       COLORCONV_DITHER_HI           // dither when reducing to
                                     // hicolor
+      COLORCONV_KEEP_TRANS          // keep original transparency
 </pre>
    For convenience, the following macros can be used to select common 
    combinations of these flags:
@@ -2743,6 +2744,13 @@ will not be known, so the file may be converted wrongly.
    format, including by the blit() function, and any automatic conversions 
    that take place while reading graphics from disk. This can produce much 
    better looking results, but is obviously slower than a direct conversion.
+
+   If you intend using converted bitmaps with functions like masked_blit() 
+   or draw_sprite(), you should specify the COLORCONV_KEEP_TRANS flag. It 
+   will ensure that the masked areas in the bitmap before and after the 
+   conversion stay exactly the same, by mapping transparent colors to each 
+   other and adjusting colors which would be converted to the transparent 
+   color otherwise.
 
 
 

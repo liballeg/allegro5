@@ -976,6 +976,7 @@ AL_VAR(BITMAP *, screen);
 
 #define COLORCONV_DITHER_PAL        0x1000000
 #define COLORCONV_DITHER_HI         0x2000000
+#define COLORCONV_KEEP_TRANS        0x4000000
 
 #define COLORCONV_DITHER            (COLORCONV_DITHER_PAL |          \
 				     COLORCONV_DITHER_HI)
