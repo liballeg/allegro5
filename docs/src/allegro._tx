@@ -9381,7 +9381,7 @@ Makefile targets
 There are a number of options that you can use to control exactly how 
 Allegro will be compiled. On Unix platforms you do this by passing arguments 
 to the configure script (run "configure --help" for a list), but on other 
-platforms you can set the environment variables:
+platforms you can set the following environment variables:
 <ul><li>
    DEBUGMODE=1<br>
    Selects a debug build, rather than the normal optimised version.
@@ -9398,30 +9398,34 @@ platforms you can set the environment variables:
    yourself, rather than just using it in your programs, you should be sure 
    to have this mode enabled.
 <li>
-   STATICLINK=1 (MSVC and Mingw32 only)<br>
-   Link as a static library, rather than the default DLL.
+   STATICLINK=1 (MinGW32, MSVC, BeOS only)<br>
+   Link as a static library, rather than the default dynamic library.
 <li>
-   TARGET_ARCH_COMPAT=[cpu] (implemented for most GNU platforms)<br>
+   TARGET_ARCH_COMPAT=[cpu] (GCC-based platforms only)<br>
    This option will optimize for the given processor while maintaining
    compatibility with older processors.
    Example: set TARGET_ARCH_COMPAT=i586
 <li>
-   TARGET_ARCH_EXCL=[cpu] (implemented for most GNU platforms)<br>
+   TARGET_ARCH_EXCL=[cpu] (GCC-based platforms only)<br>
    This option will optimize for the given processor. Please note that
    using it will cause the code to *NOT* run on older processors.
    Example: set TARGET_ARCH_EXCL=i586
 <li>
-   TARGET_OPTS=[opts] (implemented for most GNU platforms)<br>
+   TARGET_OPTS=[opts] (GCC-based platforms only)<br>
    This option allows you to customize general compiler optimisations.
 <li>
-   CROSSCOMPILE=1 (djgpp only)<br>
-   Allows you to build the djgpp library under Linux, using djgpp as a 
-   cross-compiler.
+   CROSSCOMPILE=1 (DJGPP, MinGW32 only)<br>
+   Allows you to build the library under Linux by using a cross-compiler.
 <li>
-   ALLEGRO_USE_C=1 (djgpp only)<br>
-   Allows you to build the djgpp library using C drawing code instead of the 
-   usual asm routines. This is only really useful for testing, since the asm 
+   ALLEGRO_USE_C=1 (GCC-based platforms only)<br>
+   Allows you to build the library using C drawing code instead of the usual
+   asm routines. This is only really useful for testing, since the asm
    version is faster.
+<li>
+   UNIX_TOOLS=1<br>
+   Instructs the build process to use Unix-like tools instead of DOS tools.
+   Note that you usually don't need to set it because the build proces will
+   try to autodetect this configuration.
 </ul>
 If you only want to recompile a specific test program or utility, you can 
 specify it as an argument to make, eg. "make demo" or "make grabber". The 
