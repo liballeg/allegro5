@@ -31,7 +31,7 @@
    #include <unistd.h>
    #include <signal.h>
    #include <pthread.h>
-   #ifdef __OBJC__
+   #if defined __OBJC__ && defined ALLEGRO_SRC
       #undef TRUE
       #undef FALSE
       #import <mach/mach.h>
