@@ -109,6 +109,13 @@
       #define AL_CONST     const
    #endif
 
+   #ifndef AL_FUNC_DEPRECATED
+      #if (__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1))
+         #define AL_FUNC_DEPRECATED(type, name, args)              AL_FUNC(__attribute__ ((deprecated)) type, name, args)
+         #define AL_PRINTFUNC_DEPRECATED(type, name, args, a, b)   AL_PRINTFUNC(__attribute__ ((deprecated)) type, name, args, a, b)
+         #define AL_INLINE_DEPRECATED(type, name, args, code)      AL_INLINE(__attribute__ ((deprecated)) type, name, args, code)
+      #endif
+   #endif
 #endif
 
 
@@ -170,6 +177,12 @@
 
 #ifndef AL_INLINE
    #define AL_INLINE(type, name, args, code)       type name args;
+#endif
+
+#ifndef AL_FUNC_DEPRECATED
+   #define AL_FUNC_DEPRECATED(type, name, args)              AL_FUNC(type, name, args)
+   #define AL_PRINTFUNC_DEPRECATED(type, name, args, a, b)   AL_PRINTFUNC(type, name, args, a, b)
+   #define AL_INLINE_DEPRECATED(type, name, args, code)      AL_INLINE(type, name, args, code)
 #endif
 
 #ifndef END_OF_MAIN

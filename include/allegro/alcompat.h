@@ -124,7 +124,7 @@
 #define JOY_HAT_RIGHT         3
 #define JOY_HAT_UP            4
 
-AL_FUNC(int, initialise_joystick, (void));
+AL_FUNC_DEPRECATED(int, initialise_joystick, (void));
 
 
 /* in case you want to spell 'palette' as 'pallete' */
@@ -148,64 +148,64 @@ AL_FUNC(int, initialise_joystick, (void));
 #define OLD_FILESEL_WIDTH   -1
 #define OLD_FILESEL_HEIGHT  -1
 
-AL_INLINE(int, file_select, (AL_CONST char *message, char *path, AL_CONST char *ext),
+AL_INLINE_DEPRECATED(int, file_select, (AL_CONST char *message, char *path, AL_CONST char *ext),
 {
    return file_select_ex(message, path, ext, 1024, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT);
 })
 
 
 /* the old (and broken!) file enumeration function */
-AL_FUNC(int, for_each_file, (AL_CONST char *name, int attrib, AL_METHOD(void, callback, (AL_CONST char *filename, int attrib, int param)), int param));
+AL_FUNC_DEPRECATED(int, for_each_file, (AL_CONST char *name, int attrib, AL_METHOD(void, callback, (AL_CONST char *filename, int attrib, int param)), int param));
 
 
 /* the old state-based textout functions */
 AL_VAR(int, _textmode);
-AL_FUNC(int, text_mode, (int mode));
+AL_FUNC_DEPRECATED(int, text_mode, (int mode));
 
-AL_INLINE(void, textout, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color),
+AL_INLINE_DEPRECATED(void, textout, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color),
 {
    textout_ex(bmp, f, str, x, y, color, _textmode);
 })
 
-AL_INLINE(void, textout_centre, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color),
+AL_INLINE_DEPRECATED(void, textout_centre, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color),
 {
    textout_centre_ex(bmp, f, str, x, y, color, _textmode);
 })
 
-AL_INLINE(void, textout_right, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color),
+AL_INLINE_DEPRECATED(void, textout_right, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color),
 {
    textout_right_ex(bmp, f, str, x, y, color, _textmode);
 })
 
-AL_INLINE(void, textout_justify, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, int x2, int y, int diff, int color),
+AL_INLINE_DEPRECATED(void, textout_justify, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, int x2, int y, int diff, int color),
 {
    textout_justify_ex(bmp, f, str, x1, x2, y, diff, color, _textmode);
 })
 
-AL_PRINTFUNC(void, textprintf, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
-AL_PRINTFUNC(void, textprintf_centre, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
-AL_PRINTFUNC(void, textprintf_right, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
-AL_PRINTFUNC(void, textprintf_justify, (struct BITMAP *bmp, AL_CONST FONT *f, int x1, int x2, int y, int diff, int color, AL_CONST char *format, ...), 8, 9);
+AL_PRINTFUNC_DEPRECATED(void, textprintf, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
+AL_PRINTFUNC_DEPRECATED(void, textprintf_centre, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
+AL_PRINTFUNC_DEPRECATED(void, textprintf_right, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
+AL_PRINTFUNC_DEPRECATED(void, textprintf_justify, (struct BITMAP *bmp, AL_CONST FONT *f, int x1, int x2, int y, int diff, int color, AL_CONST char *format, ...), 8, 9);
 
-AL_INLINE(void, draw_character, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color),
+AL_INLINE_DEPRECATED(void, draw_character, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color),
 {
    draw_character_ex(bmp, sprite, x, y, color, _textmode);
 })
 
-AL_INLINE(int, gui_textout, (struct BITMAP *bmp, AL_CONST char *s, int x, int y, int color, int centre),
+AL_INLINE_DEPRECATED(int, gui_textout, (struct BITMAP *bmp, AL_CONST char *s, int x, int y, int color, int centre),
 {
    return gui_textout_ex(bmp, s, x, y, color, _textmode, centre);
 })
 
 
 /* the old close button functions */
-AL_INLINE(int, set_window_close_button, (int enable),
+AL_INLINE_DEPRECATED(int, set_window_close_button, (int enable),
 {
    (void)enable;
    return 0;
 })
 
-AL_INLINE(void, set_window_close_hook, (void (*proc)(void)),
+AL_INLINE_DEPRECATED(void, set_window_close_hook, (void (*proc)(void)),
 {
    set_close_button_callback(proc);
 })
