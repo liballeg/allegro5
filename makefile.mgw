@@ -234,7 +234,6 @@ dibsound: tests/win/dibsound.exe
 dxwindow: tests/win/dxwindow.exe
 scrsave: tests/win/scrsave.scr
 wfixicon: tools/win/wfixicon.exe
-keycond: setup/keyconf.exe
 
 
 
