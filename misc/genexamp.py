@@ -33,6 +33,7 @@ START_MARK = "start genexamp.py chunk"
 END_MARK = "end genexamp.py chunk"
 XREF_WIDTH = 70
 regular_expression_for_tx_identifiers = r"@@[^@]+@(?P<name>\w+)"
+comment_line = re.compile(r"Example pr|Modified by")
 
 # the order of the examples is aimed at the newbie, going from easy
 # to difficult
@@ -90,7 +91,7 @@ def retrieve_source_data(file_name):
    """func(path_to_example.c) -> ([comment_lines], {detected_identifiers})
 
    Used on the source code of an example, extracts the first comment
-   after deleting the initial line which credits the author, which
+   after deleting the initial lines which credit authors. The comment
    will be used as the text for the documentation. Also returns a
    dictionary with all the keys being hypotetical identifiers used
    in the code, that is, every single word susceptible of being
@@ -118,7 +119,7 @@ def retrieve_source_data(file_name):
 
    # post-process comment, removing initial credits
    while len(comment):
-      if not string.strip(comment[0]) or string.find(comment[0], "Example pr") >= 0:
+      if not string.strip(comment[0]) or comment_line.search(comment[0]):
          comment.pop(0)
       else:
          break
