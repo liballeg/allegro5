@@ -389,6 +389,10 @@ static int verify_color_depth (int color_depth)
       update_window = update_matching_window;
    }
    else {
+      /* disallow cross-conversion between 15-bit and 16-bit colors */
+      if (BYTES_PER_PIXEL(color_depth) == BYTES_PER_PIXEL(desktop_depth))
+         return -1;
+
       /* the color depths don't match, need color conversion */
       colorconv_blit = _get_colorconv_blitter(color_depth, desktop_depth);
 
