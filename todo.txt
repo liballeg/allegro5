@@ -38,11 +38,7 @@ Linux todos:
 X11 todos:
 ---------------------------------------------------------------------------
 
-- Rewrite the X11 keyboard driver, following the model of the unix console
-  driver and the Mac OSX driver. Currently, we expect application users to
-  fiddle with xkeymap.
 - Investigate problems with the SIGALRM version
-- Look for a better solution to simulate vsync.
 
 Unix todos:
 ---------------------------------------------------------------------------
@@ -95,5 +91,6 @@ Wishlist:
 - Speed up the X11 driver, so it is comparable to SDL in performance.
 - Add an option to the X11 driver to use the current palette in 8-bit mode.
 - Disable screensaver in X11, as the Windows port does currently.
+- Make (at least truecolor) mask color modifyable.
 
 ---------------------------------------------------------------------------
