@@ -87,7 +87,7 @@ Contributors
    Put together the 2.11 release of Allegro while I was away from the net, 
    and wrote the original version of the Allegro FAQ.
 
-   Ben Davis (<email>ben@vjpoole.freeserve.co.uk</a>).<br>
+   Ben Davis (<email>entheh@users.sf.net</a>).<br>
    Added set_volume_per_voice(), made silent voices continue playing, and 
    fixed other minor bugs in the mixer. Fixed a bug in create_rgb_table(). 
    Adapted polygon functions to handle two coincident vertices. Added the 
