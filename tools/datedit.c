@@ -24,11 +24,6 @@
 #include "allegro/aintern.h"
 #include "datedit.h"
 
-#ifdef ALLEGRO_NO_TIMEZONE
-   #include <sys/time.h>
-   #include <unistd.h>
-#endif
-
 
 PALETTE datedit_current_palette;
 PALETTE datedit_last_read_pal;
@@ -1296,30 +1291,15 @@ long datedit_asc2ftime(AL_CONST char *time)
       }
    }
 
-   #ifdef ALLEGRO_NO_TIMEZONE
-
    {
-      /* have to use gettimeofday() for platforms with no timezone var */
-      struct timeval tv;
-      struct timezone tz;
-
-      gettimeofday(&tv, &tz);
-
-      t.tm_min -= tz.tz_minuteswest;
+      /* make timezone adjustments by converting to time_t with adjustment 
+       * from local time, then back again as GMT (=UTC) */
+      time_t tm = mktime (&t);
+      if (tm != -1) {
+	 struct tm *temp = gmtime (&tm);
+	 if (temp) memcpy (&t, temp, sizeof t);
+      }
    }
-
-   #else
-
-   {
-      /* nice way to do timezone adjustment */
-      time_t tm = 0;
-
-      localtime(&tm);
-
-      t.tm_sec -= timezone;
-   }
-
-   #endif
 
    return mktime(&t);
 }

@@ -38,9 +38,6 @@
 #define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN
 
-#define timezone _timezone
-/* Inprise likes the underscore, Allegro doesn't -- make them both happy */
-
 #ifdef USE_CONSOLE
    #define ALLEGRO_CONSOLE_OK
 #endif

@@ -39,7 +39,6 @@
 #define ALLEGRO_LITTLE_ENDIAN
 #define ALLEGRO_CONSOLE_OK
 #define ALLEGRO_VRAM_SINGLE_SURFACE
-#define ALLEGRO_NO_TIMEZONE
 
 
 /* memory locking macros */
