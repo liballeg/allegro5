@@ -91,7 +91,7 @@ include $(MAKEFILE_INC)
 
 # -------- list what objects and programs we need to build --------
 
-VPATH += src demo docs examples setup tests tools tools/plugins
+VPATH += src demo docs examples setup tests tools tools/plugins docs/src
 
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(OBJECT_LIST)))
 
@@ -103,15 +103,17 @@ EXAMPLES = $(basename $(notdir $(ALLEGRO_EXAMPLE_FILES)))
 EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 
 ifdef HTML
-DOCS = docs/ahack.$(HTML) CHANGES docs/changes.$(HTML) \
-       faq.txt docs/faq.$(HTML) help.txt docs/help.$(HTML) \
-       AUTHORS THANKS docs/thanks.$(HTML) \
-       allegro.txt docs/allegro.$(HTML) docs/allegro.rtf \
-       docs/const.$(HTML)
+DOCBASEFILES = ahack changes faq help thanks allegro const abi
+
+DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,ahack changes faq help allegro const abi))
+DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
+DOCS += $(addprefix docs/html/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
+DOCS += CHANGES AUTHORS THANKS
+
 endif
 
 ifdef INFO
-DOCS += docs/allegro.$(TEXI) docs/allegro.$(INFO)
+DOCS += docs/texi/allegro.$(TEXI) docs/info/allegro.$(INFO)
 endif
 
 
@@ -187,36 +189,35 @@ endif
 
 ifdef HTML
 
-%.txt: docs/%._tx $(MAKEDOC)
+$(filter %.txt,$(DOCS)): docs/txt/%.txt: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -ascii $@ $<
 
-docs/%.$(HTML): docs/%._tx $(MAKEDOC)
-	$(MAKEDOC) -$(HTML) $@ $<
-
-docs/%.rtf: docs/%._tx $(MAKEDOC)
+$(filter %.rtf,$(DOCS)): docs/rtf/%.rtf: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -rtf $@ $<
 
-docs/%.txt: docs/%._tx $(MAKEDOC)
-	$(MAKEDOC) -ascii $@ $<
+$(filter %.html,$(DOCS)): docs/html/%.html: docs/src/%._tx $(MAKEDOC)
+	$(MAKEDOC) -html $@ $<
 
-CHANGES: docs/changes._tx $(MAKEDOC)
-	$(MAKEDOC) -ascii CHANGES docs/changes._tx
+AUTHORS: docs/src/thanks._tx
+	$(MAKEDOC) -part -ascii AUTHORS $<
+	copy AUTHORS docs/txt/authors.txt
 
-AUTHORS: docs/thanks._tx $(MAKEDOC)
-	$(MAKEDOC) -part -ascii AUTHORS docs/thanks._tx
+THANKS: docs/src/thanks._tx
+	$(MAKEDOC) -part -ascii THANKS $<
+	copy THANKS docs/txt/thanks.txt
 
-THANKS: docs/thanks._tx $(MAKEDOC)
-	$(MAKEDOC) -part -ascii THANKS docs/thanks._tx
+CHANGES: docs/txt/changes.txt
+	copy $< $@
 
 endif
 
 ifdef INFO
 
-docs/%.$(INFO): docs/%.$(TEXI)
-	-makeinfo --no-split -o $@ $<
-
-docs/%.$(TEXI): docs/%._tx $(MAKEDOC)
+$(filter %.$(TEXI),$(DOCS)): docs/texi/%.$(TEXI): docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -$(TEXI) $@ $<
+
+$(filter %.$(INFO),$(DOCS)): docs/info/%.$(INFO): docs/texi/%.$(TEXI) $(MAKEDOC)
+	-makeinfo --no-split -o $@ $<
 
 endif
 

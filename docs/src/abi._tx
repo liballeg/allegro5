@@ -1,3 +1,10 @@
+@<html>
+@<head>
+@<title>ABI compatibility information</title>
+@</head>
+@<body>
+@<pre>
+@!indent
      ______   ___    ___
     /\  _  \ /\_ \  /\_ \
     \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
@@ -12,12 +19,13 @@
                 ABI compatibility information.
 
          See readme.txt for a more general overview.
+@indent
+@</pre>
 
 
 
-======================================
-============ Introduction ============
-======================================
+@heading
+Introduction
 
    Once Allegro 4.0 is released, we plan to maintain Application Binary
    Interface compatibility for the rest of the 4.0.x series. For example,
@@ -35,9 +43,8 @@
 
 
 
-=======================================
-============ Windows notes ============
-=======================================
+@heading
+Windows notes
 
    If you don't need a modified version of Allegro then just link your
    program against an officially blessed non-WIP, non-CVS, non-dodgy
@@ -58,9 +65,8 @@
 
 
 
-=====================================
-============ Linux notes ============
-=====================================
+@heading
+Linux notes
 
    To make sure an Allegro binary compiled on your machine will work on
    another machine, do not disable any features with `configure'. Your
@@ -85,17 +91,15 @@
 
 
 
-====================================
-============ BeOS notes ============
-====================================
+@heading
+BeOS notes
 
    To do.
 
 
 
-=====================================
-============ Final notes ============
-=====================================
+@heading
+Final notes
 
    Providing source is still better than not providing source. Binaries
    are good, however, if your code sucks and only you (with the help of
@@ -108,4 +112,5 @@
 
    And oh, don't make your compiler generate i686-only code or anything
    stupid like that.
-
+@</body>
+@</html>

@@ -276,8 +276,8 @@ $(DJDIR_U)/include/allegro/platform:
 $(DJDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
 	cp $< $@
 
-$(DJDIR_U)/info/allegro.$(INFO): docs/allegro.$(INFO)
-	-cp docs/allegro.$(INFO) $(DJDIR_U)/info
+$(DJDIR_U)/info/allegro.$(INFO): docs/info/allegro.$(INFO)
+	-cp docs/info/allegro.$(INFO) $(DJDIR_U)/info
 	-install-info $(DJDIR_U)/info/allegro.$(INFO) $(DJDIR_U)/info/dir
 
 else
@@ -312,8 +312,8 @@ $(DJDIR_U)/include/allegro/platform:
 $(DJDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
 	copy $(subst /,\,$< $@)
 
-$(DJDIR_U)/info/allegro.$(INFO): docs/allegro.$(INFO)
-	-copy docs\allegro.$(INFO) $(DJDIR_D)\info
+$(DJDIR_U)/info/allegro.$(INFO): docs/info/allegro.$(INFO)
+	-copy docs\info\allegro.$(INFO) $(DJDIR_D)\info
 	-install-info $(DJDIR_U)/info/allegro.$(INFO) $(DJDIR_U)/info/dir
 
 endif

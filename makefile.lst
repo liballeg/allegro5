@@ -487,8 +487,8 @@ ALLEGRO_NOLIB_EXE_SOURCES = \
 	src/i386/asmdef.c
 
 CLEAN_FILES = \
-	docs/*.texi docs/*.txi docs/*.tex docs/*.info docs/*.inf docs/*.3 \
-	docs/*.txt \
+	docs/texi/*.texi docs/texi/*.txi docs/*.tex docs/info/*.info \
+	docs/info/*.inf docs/man/*.3 docs/txt/*.txt \
 	obj/*/*.o obj/*/*/*.o obj/*/*/*/*.o obj/*/*.obj obj/*/*/*.obj \
 	obj/*/*.h obj/*/*.s obj/*/*.exe obj/*/*/*.lst obj/*/*/*.asm \
 	obj/*/*/*.res obj/*/asmdef src/i386/asmdef \
@@ -500,12 +500,13 @@ CLEAN_FILES = \
 	log */log */*/log core */core */*/core
 
 DISTCLEAN_FILES = \
-	allegro.txt help.txt docs/*.html docs/*.htm docs/*.rtf docs/makedoc \
+	docs/html/*.html docs/html/*.htm docs/rtf/*.rtf docs/makedoc \
+	docs/allegro.dvi docs/allegro.ps* \
 	$(ALLEGRO_LIB_EXES) $(ALLEGRO_EXAMPLE_EXES) $(ALLEGRO_DATAFILE_EXES) \
 	*.exe */*.exe msvcmake.bat tests/win/*.scr \
 	config.cache config.log stamp-h stamp-h[0-9]* suid makefile.dep \
 	config.status include/allegro/alunixac.h allegro-config modules.lst
 
 VERYCLEAN_FILES = \
-	authors AUTHORS changes CHANGES thanks THANKS faq.txt \
+	authors AUTHORS changes CHANGES thanks THANKS \
 	obj/*/*.inc obj/*/*/*.dep lib/*/*.def

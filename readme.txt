@@ -58,20 +58,20 @@
    with it, and any additional information specific to each of the supported 
    platforms, see one of the files:
 
-   DOS/djgpp         - see readme.dj
-   DOS/Watcom        - see readme.wat
-   Windows/MSVC      - see readme.vc
-   Windows/MinGW32   - see readme.mgw
-   Windows/Cygwin    - see readme.mgw
-   Windows/Borland   - see readme.bcc
-   Linux (console)   - see readme.lnx
-   Unix (X)          - see readme.uni
-   BeOS              - see readme.be
-   QNX               - see readme.qnx
-   MacOS/MPW         - see readme.mpw
+   DOS/djgpp         - see docs/build/djgpp.txt
+   DOS/Watcom        - see docs/build/watcom.txt
+   Windows/MSVC      - see docs/build/msvc.txt
+   Windows/MinGW32   - see docs/build/mingw32.txt
+   Windows/Cygwin    - see docs/build/mingw32.txt
+   Windows/Borland   - see docs/build/bcc32.txt
+   Linux (console)   - see docs/build/linux.txt
+   Unix (X)          - see docs/build/unix.txt
+   BeOS              - see docs/build/beos.txt
+   QNX               - see docs/build/qnx.txt
+   MacOS/MPW         - see docs/build/macos.txt
 
-   General API information can be found in allegro.txt, which is also 
-   available in HTML, TexInfo, and RTF format in the docs directory.
+   General API information can be found in docs/txt/allegro.txt, which is
+   also available in HTML, TexInfo, and RTF format in the docs directory.
 
 
 

@@ -6,12 +6,9 @@ configure
 config.log
 AUTHORS
 THANKS
-faq.txt
 stamp-h
 config.cache
 makefile.dep
 config.status
-help.txt
 allegro-config
-allegro.txt
 modules.lst

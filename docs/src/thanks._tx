@@ -260,7 +260,7 @@ Contributors
    Greg Hackmann (<email>hacker@ididitmyway.com</a>).<br>
    Contributed the Borland C++ Builder port.
 
-   Grzegorz Adam Hankiewicz (<email>gradha@iname.com</a>).<br>
+   Grzegorz Adam Hankiewicz (<email>gradha@users.sourceforge.net</a>).<br>
    Wrote several of the example programs, suggested the "compress" makefile 
    target, translated the docs and system error messages into Spanish,
    suggested the idea of embedding the setup utility into other programs, 

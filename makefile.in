@@ -195,66 +195,51 @@ $(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
 	src/i386/asmdef$(EXE) $(obj_unix_asmdef_inc)
 
 # Documentation.
-DOCS = docs/ahack.html CHANGES docs/changes.html faq.txt docs/faq.html \
-       help.txt docs/help.html AUTHORS THANKS docs/thanks.html \
-       allegro.txt docs/allegro.html docs/allegro.texi docs/allegro.info \
-       docs/install_allegro.3 docs/const.html
+
+DOCBASEFILES = ahack changes faq help thanks allegro const abi
+
+DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,ahack changes faq help allegro const abi))
+DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
+DOCS += $(addprefix docs/html/,$(addsuffix .html,$(DOCBASEFILES)))
+DOCS += docs/texi/allegro.texi docs/info/allegro.info docs/man/install_allegro.3
+DOCS += CHANGES AUTHORS THANKS
 
 MAKEDOC = docs/makedoc$(EXE)
 
-allegro.txt: $(srcdir)/docs/allegro._tx $(MAKEDOC)
-	$(MAKEDOC) -ascii allegro.txt $(srcdir)/docs/allegro._tx
+$(filter %.txt,$(DOCS)): docs/txt/%.txt: docs/src/%._tx $(MAKEDOC)
+	$(MAKEDOC) -ascii $@ $<
 
-docs/allegro.html: $(srcdir)/docs/allegro._tx $(MAKEDOC)
-	$(MAKEDOC) -html docs/allegro.html $(srcdir)/docs/allegro._tx
+$(filter %.rtf,$(DOCS)): docs/rtf/%.rtf: docs/src/%._tx $(MAKEDOC)
+	$(MAKEDOC) -rtf $@ $<
 
-docs/allegro.info: docs/allegro.texi
-	$(MAKEINFO) -o docs/allegro.info docs/allegro.texi
+$(filter %.texi,$(DOCS)): docs/texi/%.texi: docs/src/%._tx $(MAKEDOC)
+	$(MAKEDOC) -texi $@ $<
 
-docs/allegro.texi: $(srcdir)/docs/allegro._tx $(MAKEDOC)
-	$(MAKEDOC) -texi docs/allegro.texi $(srcdir)/docs/allegro._tx
+$(filter %.info,$(DOCS)): docs/info/%.info: docs/texi/%.texi $(MAKEDOC)
+	$(MAKEINFO) -o $@ $<
 
-docs/install_allegro.3: $(srcdir)/docs/allegro._tx $(MAKEDOC)
-	$(MAKEDOC) -man docs/dummyname.3 $(srcdir)/docs/allegro._tx
+$(filter %.html,$(DOCS)): docs/html/%.html: docs/src/%._tx $(MAKEDOC)
+	$(MAKEDOC) -html $@ $<
 
-docs/ahack.html: $(srcdir)/docs/ahack._tx $(MAKEDOC)
-	$(MAKEDOC) -html docs/ahack.html $(srcdir)/docs/ahack._tx
+docs/man/install_allegro.3: docs/src/allegro._tx $(MAKEDOC)
+	$(MAKEDOC) -man docs/man/dummyname.3 $<
 
-faq.txt: $(srcdir)/docs/faq._tx $(MAKEDOC)
-	$(MAKEDOC) -ascii faq.txt $(srcdir)/docs/faq._tx
+AUTHORS: docs/src/thanks._tx
+	$(MAKEDOC) -part -ascii AUTHORS $<
+	cp AUTHORS docs/txt/authors.txt 
 
-docs/faq.html: $(srcdir)/docs/faq._tx $(MAKEDOC)
-	$(MAKEDOC) -html docs/faq.html $(srcdir)/docs/faq._tx
+THANKS: docs/src/thanks._tx
+	$(MAKEDOC) -part -ascii THANKS $<
+	cp THANKS docs/txt/thanks.txt
 
-help.txt: $(srcdir)/docs/help._tx $(MAKEDOC)
-	$(MAKEDOC) -ascii help.txt $(srcdir)/docs/help._tx
+CHANGES: docs/txt/changes.txt
+	cp $< $@
 
-docs/help.html: $(srcdir)/docs/help._tx $(MAKEDOC)
-	$(MAKEDOC) -html docs/help.html $(srcdir)/docs/help._tx
+docs/allegro.dvi: docs/texi/allegro.texi
+	cd docs && texi2dvi -c texi/allegro.texi && cd ..
 
-docs/changes.html: $(srcdir)/docs/changes._tx $(MAKEDOC)
-	$(MAKEDOC) -html docs/changes.html $(srcdir)/docs/changes._tx
-
-CHANGES: $(srcdir)/docs/changes._tx $(MAKEDOC)
-	$(MAKEDOC) -ascii CHANGES $(srcdir)/docs/changes._tx
-
-docs/thanks.html: $(srcdir)/docs/thanks._tx $(MAKEDOC)
-	$(MAKEDOC) -html docs/thanks.html $(srcdir)/docs/thanks._tx
-
-AUTHORS: $(srcdir)/docs/thanks._tx $(MAKEDOC)
-	$(MAKEDOC) -part -ascii AUTHORS $(srcdir)/docs/thanks._tx
-
-THANKS: $(srcdir)/docs/thanks._tx $(MAKEDOC)
-	$(MAKEDOC) -part -ascii THANKS $(srcdir)/docs/thanks._tx
-
-docs/const.html: $(srcdir)/docs/const._tx $(MAKEDOC)
-	$(MAKEDOC) -html docs/const.html $(srcdir)/docs/const._tx
-
-allegro.dvi: $(srcdir)/docs/allegro.texi
-	texi2dvi -c $<
-
-%.ps: %.dvi
-	dvips -o $@ $<
+docs/allegro.ps: docs/allegro.dvi
+	cd docs && dvips -o allegro.ps allegro.dvi && cd ..
 
 # Dependencies and rules for building libraries and simple programs.
 include makefile.dep
@@ -268,6 +253,18 @@ modules: $(ALLEGRO_MODULE_TARGETS)
 programs: $(ALLEGRO_EXE_TARGETS)
 
 docs: $(DOCS)
+
+docs-dvi: $(srcdir)/docs/allegro.dvi
+	@echo "Device independant documentation generated: docs/allegro.dvi"
+	@echo "Run make docs-ps if you wish to generate postscript documentation (you need dvips)"
+
+docs-ps: $(srcdir)/docs/allegro.ps
+	@echo "Postscript documentation generated: docs/allegro.ps"
+	@echo "You can compress it with gzip or running make docs-gzipped-ps"
+
+docs-gzipped-ps: $(srcdir)/docs/allegro.ps
+	gzip -9 docs/allegro.ps
+	@echo "Compressed postscript documentation generated: docs/allegro.ps.gz"
 
 suid: $(ALLEGRO_EXE_TARGETS)
 	chown root.allegro $?
@@ -298,18 +295,6 @@ full-install: install-headers install-programs install-lib
 	@echo "Run make install-info if you wish to install the info documentation"
 	@echo "You may conserve space by instead running make install-gzipped-man"
 	@echo "and/or make install-gzipped-info"
-
-docs-dvi: $(srcdir)/allegro.dvi
-	@echo "Device independant documentation generated: allegro.dvi"
-	@echo "Run make docs-ps if you wish to generate postscript documentation (you need dvips)"
-
-docs-ps: $(srcdir)/allegro.ps
-	@echo "Postscript documentation generated: allegro.ps"
-	@echo "You can compress it with gzip or running make docs-gzipped-ps"
-
-docs-gzipped-ps: $(srcdir)/allegro.ps
-	gzip -9 allegro.ps
-	@echo "Compressed postscript documentation generated: allegro.ps.gz"
 
 install-lib: lib
 	$(mkinstalldirs) $(libdir)
@@ -385,7 +370,7 @@ install-programs: programs
 install-info: docs
 	@echo Installing Allegro info documentation...
 	$(mkinstalldirs) $(infodir)
-	@$(INSTALL_DATA) docs/allegro.info $(infodir)
+	@$(INSTALL_DATA) docs/info/allegro.info $(infodir)
 	-@if $(SHELL) -c "$(INSTALL_INFO) --version" >/dev/null 2>&1; then \
 	  if $(INSTALL_INFO) --version 2>&1 | grep -q "Debian"; then \
 	    $(INSTALL_INFO) --section Development -- $(infodir)/allegro.info; \
@@ -402,14 +387,14 @@ install-gzipped-info: install-info
 
 install-man: docs
 	$(mkinstalldirs) $(mandir)/man3
-	@for file in $(srcdir)/docs/*.3; do \
+	@for file in $(srcdir)/docs/man/*.3; do \
 	  echo Installing $$file to $(mandir)/man3; \
 	  $(INSTALL_DATA) $$file $(mandir)/man3/; \
 	done
 
 install-gzipped-man: docs
 	$(mkinstalldirs) $(mandir)/man3
-	@for file in $(srcdir)/docs/*.3; do \
+	@for file in $(srcdir)/docs/man/*.3; do \
 	  echo Installing $$file.gz to $(mandir)/man3; \
 	  $(INSTALL_DATA) $$file $(mandir)/man3/; \
 	  gzip -9 -f $(mandir)/man3/`echo $$file | sed -e "s:.*/::"`; \
@@ -468,9 +453,9 @@ uninstall-info:
 	rm -f $(infodir)/allegro.info
 
 uninstall-man:
-	sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(mandir)/man3/\1.3,p" $(srcdir)/docs/allegro._tx \
+	sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(mandir)/man3/\1.3,p" $(srcdir)/docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
-	sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(mandir)/man3/\1.3.gz,p" $(srcdir)/docs/allegro._tx \
+	sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(mandir)/man3/\1.3.gz,p" $(srcdir)/docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
 
 depend:

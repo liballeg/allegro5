@@ -1,5 +1,3 @@
-*.3
-allegro.texi
-allegro.info
-allegro.rtf
+allegro.dvi
+allegro.ps*
 makedoc
