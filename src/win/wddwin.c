@@ -17,7 +17,7 @@
 
 #include "wddraw.h"
 
-/* functions in wddwin.s */
+/* functions in update.s */
 extern void _update_32_to_16 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void _update_32_to_15 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void _update_16_to_32 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
@@ -389,6 +389,13 @@ static int verify_color_depth (int color_depth)
 	    same_color_depth = FALSE;
 	 }
          else return -1;
+	 break;
+
+      case 24:
+      	 if (color_depth == 24) {
+	    same_color_depth = TRUE;
+	 }
+	 else return -1;
 	 break;
 
       case 32:
