@@ -73,16 +73,16 @@ int _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *
    }
 
    /* set up screen rasterising parameters */
-   edge->top = fceil(v1->y);
-   edge->bottom = fceil(v2->y) - 1;
+   edge->top = fixceil(v1->y);
+   edge->bottom = fixceil(v2->y) - 1;
 
    if (edge->bottom < edge->top) return 0;
 
    h = v2->y - v1->y;
    step = (edge->top << 16) - v1->y;
 
-   edge->dx = fdiv(v2->x - v1->x, h);
-   edge->x = v1->x + fmul(step, edge->dx);
+   edge->dx = fixdiv(v2->x - v1->x, h);
+   edge->x = v1->x + fixmul(step, edge->dx);
 
    edge->prev = NULL;
    edge->next = NULL;
@@ -130,8 +130,8 @@ int _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *
 
    if (flags & INTERP_1COL) {
       /* single color shading interpolation */
-      edge->dat.dc = fdiv(itofix(v2->c - v1->c), h);
-      edge->dat.c = itofix(v1->c) + fmul(step, edge->dat.dc);
+      edge->dat.dc = fixdiv(itofix(v2->c - v1->c), h);
+      edge->dat.c = itofix(v1->c) + fixmul(step, edge->dat.dc);
    }
 
    if (flags & INTERP_3COL) {
@@ -154,20 +154,20 @@ int _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *
 	 b2 = v2->c & 0xFF;
       }
 
-      edge->dat.dr = fdiv(itofix(r2 - r1), h);
-      edge->dat.dg = fdiv(itofix(g2 - g1), h);
-      edge->dat.db = fdiv(itofix(b2 - b1), h);
-      edge->dat.r = itofix(r1) + fmul(step, edge->dat.dr);
-      edge->dat.g = itofix(g1) + fmul(step, edge->dat.dg);
-      edge->dat.b = itofix(b1) + fmul(step, edge->dat.db);
+      edge->dat.dr = fixdiv(itofix(r2 - r1), h);
+      edge->dat.dg = fixdiv(itofix(g2 - g1), h);
+      edge->dat.db = fixdiv(itofix(b2 - b1), h);
+      edge->dat.r = itofix(r1) + fixmul(step, edge->dat.dr);
+      edge->dat.g = itofix(g1) + fixmul(step, edge->dat.dg);
+      edge->dat.b = itofix(b1) + fixmul(step, edge->dat.db);
    }
 
    if (flags & INTERP_FIX_UV) {
       /* fixed point (affine) texture interpolation */
-      edge->dat.du = fdiv(v2->u - v1->u, h);
-      edge->dat.dv = fdiv(v2->v - v1->v, h);
-      edge->dat.u = v1->u + fmul(step, edge->dat.du);
-      edge->dat.v = v1->v + fmul(step, edge->dat.dv);
+      edge->dat.du = fixdiv(v2->u - v1->u, h);
+      edge->dat.dv = fixdiv(v2->v - v1->v, h);
+      edge->dat.u = v1->u + fixmul(step, edge->dat.du);
+      edge->dat.v = v1->v + fixmul(step, edge->dat.dv);
    }
 
    /* if clipping is enabled then clip edge */
@@ -209,8 +209,8 @@ int _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V
    }
 
    /* set up screen rasterising parameters */
-   edge->top = fceil(ftofix(v1->y));
-   edge->bottom = fceil(ftofix(v2->y)) - 1;
+   edge->top = fixceil(ftofix(v1->y));
+   edge->bottom = fixceil(ftofix(v2->y)) - 1;
 
    if (edge->bottom < edge->top) return 0;
 
@@ -219,7 +219,7 @@ int _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V
    step = (edge->top << 16) - ftofix(v1->y);
 
    edge->dx = ftofix((v2->x - v1->x)  * h1);
-   edge->x = ftofix(v1->x) + fmul(step, edge->dx);
+   edge->x = ftofix(v1->x) + fixmul(step, edge->dx);
 
    edge->prev = NULL;
    edge->next = NULL;
@@ -266,8 +266,8 @@ int _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V
 
    if (flags & INTERP_1COL) {
       /* single color shading interpolation */
-      edge->dat.dc = fdiv(itofix(v2->c - v1->c), h);
-      edge->dat.c = itofix(v1->c) + fmul(step, edge->dat.dc);
+      edge->dat.dc = fixdiv(itofix(v2->c - v1->c), h);
+      edge->dat.c = itofix(v1->c) + fixmul(step, edge->dat.dc);
    }
 
    if (flags & INTERP_3COL) {
@@ -290,20 +290,20 @@ int _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V
 	 b2 = v2->c & 0xFF;
       }
 
-      edge->dat.dr = fdiv(itofix(r2 - r1), h);
-      edge->dat.dg = fdiv(itofix(g2 - g1), h);
-      edge->dat.db = fdiv(itofix(b2 - b1), h);
-      edge->dat.r = itofix(r1) + fmul(step, edge->dat.dr);
-      edge->dat.g = itofix(g1) + fmul(step, edge->dat.dg);
-      edge->dat.b = itofix(b1) + fmul(step, edge->dat.db);
+      edge->dat.dr = fixdiv(itofix(r2 - r1), h);
+      edge->dat.dg = fixdiv(itofix(g2 - g1), h);
+      edge->dat.db = fixdiv(itofix(b2 - b1), h);
+      edge->dat.r = itofix(r1) + fixmul(step, edge->dat.dr);
+      edge->dat.g = itofix(g1) + fixmul(step, edge->dat.dg);
+      edge->dat.b = itofix(b1) + fixmul(step, edge->dat.db);
    }
 
    if (flags & INTERP_FIX_UV) {
       /* fixed point (affine) texture interpolation */
       edge->dat.du = ftofix((v2->u - v1->u) * h1);
       edge->dat.dv = ftofix((v2->v - v1->v) * h1);
-      edge->dat.u = ftofix(v1->u) + fmul(step, edge->dat.du);
-      edge->dat.v = ftofix(v1->v) + fmul(step, edge->dat.dv);
+      edge->dat.u = ftofix(v1->u) + fixmul(step, edge->dat.du);
+      edge->dat.v = ftofix(v1->v) + fixmul(step, edge->dat.dv);
    }
 
    /* if clipping is enabled then clip edge */
@@ -963,8 +963,8 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 
    /* for each scanline in the polygon... */
    for (y=ytop; y<=ybottom; y++) {
-      x = fceil(e1->x);
-      w = fceil(e2->x) - x;
+      x = fixceil(e1->x);
+      w = fixceil(e2->x) - x;
       drawer = save_drawer;
 
       if (drawer == _poly_scanline_dummy) {
@@ -985,19 +985,19 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
  *  End of nasty trick.
  */
 	 if (flags & INTERP_1COL) {
-	    info->dc = fdiv(s2->c - s1->c, width);
-	    info->c = s1->c + fmul(step, info->dc);
+	    info->dc = fixdiv(s2->c - s1->c, width);
+	    info->c = s1->c + fixmul(step, info->dc);
 	    s1->c += s1->dc;
 	    s2->c += s2->dc;
 	 }
 
 	 if (flags & INTERP_3COL) {
-	    info->dr = fdiv(s2->r - s1->r, width);
-	    info->dg = fdiv(s2->g - s1->g, width);
-	    info->db = fdiv(s2->b - s1->b, width);
-	    info->r = s1->r + fmul(step, info->dr);
-	    info->g = s1->g + fmul(step, info->dg);
-	    info->b = s1->b + fmul(step, info->db);
+	    info->dr = fixdiv(s2->r - s1->r, width);
+	    info->dg = fixdiv(s2->g - s1->g, width);
+	    info->db = fixdiv(s2->b - s1->b, width);
+	    info->r = s1->r + fixmul(step, info->dr);
+	    info->g = s1->g + fixmul(step, info->dg);
+	    info->b = s1->b + fixmul(step, info->db);
 
 	    s1->r += s1->dr;
 	    s2->r += s2->dr;
@@ -1008,10 +1008,10 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 	 }
 
 	 if (flags & INTERP_FIX_UV) {
-	    info->du = fdiv(s2->u - s1->u, width);
-	    info->dv = fdiv(s2->v - s1->v, width);
-	    info->u = s1->u + fmul(step, info->du);
-	    info->v = s1->v + fmul(step, info->dv);
+	    info->du = fixdiv(s2->u - s1->u, width);
+	    info->dv = fixdiv(s2->v - s1->v, width);
+	    info->u = s1->u + fixmul(step, info->du);
+	    info->v = s1->v + fixmul(step, info->dv);
 
 	    s1->u += s1->du;
 	    s2->u += s2->du;
@@ -1297,8 +1297,8 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
       info->c = color;
 
    for (y=ytop; y<=ybottom; y++) {
-      x = fceil(left_edge->x);
-      w = fceil(right_edge->x) - x;
+      x = fixceil(left_edge->x);
+      w = fixceil(right_edge->x) - x;
       step = (x << 16) - left_edge->x;
 
       if (drawer == _poly_scanline_dummy) {
@@ -1307,14 +1307,14 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
       }
       else {
 	 if (flags & INTERP_1COL) {
-	    info->c = s1->c + fmul(step, info->dc);
+	    info->c = s1->c + fixmul(step, info->dc);
             s1->c += s1->dc;
          }
 
 	 if (flags & INTERP_3COL) {
-	    info->r = s1->r + fmul(step, info->dr);
-	    info->g = s1->g + fmul(step, info->dg);
-	    info->b = s1->b + fmul(step, info->db);
+	    info->r = s1->r + fixmul(step, info->dr);
+	    info->g = s1->g + fixmul(step, info->dg);
+	    info->b = s1->b + fixmul(step, info->db);
 
 	    s1->r += s1->dr;
 	    s1->g += s1->dg;
@@ -1322,8 +1322,8 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
 	 }
 
 	 if (flags & INTERP_FIX_UV) {
-	    info->u = s1->u + fmul(step, info->du);
-	    info->v = s1->v + fmul(step, info->dv);
+	    info->u = s1->u + fixmul(step, info->du);
+	    info->v = s1->v + fixmul(step, info->dv);
 
 	    s1->u += s1->du;
 	    s1->v += s1->dv;
@@ -1391,7 +1391,7 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
 static void _triangle_deltas(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGON_SEGMENT *info, AL_CONST V3D *v, int flags)
 {
    if (flags & INTERP_1COL)
-      info->dc = fdiv(s1->c - itofix(v->c), w);
+      info->dc = fixdiv(s1->c - itofix(v->c), w);
 
    if (flags & INTERP_3COL) {
       int r, g, b;
@@ -1408,14 +1408,14 @@ static void _triangle_deltas(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGON_
 	 b = v->c & 0xFF;
       }
 
-      info->dr = fdiv(s1->r - itofix(r), w);
-      info->dg = fdiv(s1->g - itofix(g), w);
-      info->db = fdiv(s1->b - itofix(b), w);
+      info->dr = fixdiv(s1->r - itofix(r), w);
+      info->dg = fixdiv(s1->g - itofix(g), w);
+      info->db = fixdiv(s1->b - itofix(b), w);
    }
 
    if (flags & INTERP_FIX_UV) {
-      info->du = fdiv(s1->u - v->u, w);
-      info->dv = fdiv(s1->v - v->v, w);
+      info->du = fixdiv(s1->u - v->u, w);
+      info->dv = fixdiv(s1->v - v->v, w);
    }
 
    if (flags & INTERP_Z) {
@@ -1444,7 +1444,7 @@ static void _triangle_deltas(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGON_
 static void _triangle_deltas_f(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGON_SEGMENT *info, AL_CONST V3D_f *v, int flags)
 {
    if (flags & INTERP_1COL)
-      info->dc = fdiv(s1->c - itofix(v->c), w);
+      info->dc = fixdiv(s1->c - itofix(v->c), w);
 
    if (flags & INTERP_3COL) {
       int r, g, b;
@@ -1461,14 +1461,14 @@ static void _triangle_deltas_f(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGO
 	 b = v->c & 0xFF;
       }
 
-      info->dr = fdiv(s1->r - itofix(r), w);
-      info->dg = fdiv(s1->g - itofix(g), w);
-      info->db = fdiv(s1->b - itofix(b), w);
+      info->dr = fixdiv(s1->r - itofix(r), w);
+      info->dg = fixdiv(s1->g - itofix(g), w);
+      info->db = fixdiv(s1->b - itofix(b), w);
    }
 
    if (flags & INTERP_FIX_UV) {
-      info->du = fdiv(s1->u - ftofix(v->u), w);
-      info->dv = fdiv(s1->v - ftofix(v->v), w);
+      info->du = fixdiv(s1->u - ftofix(v->u), w);
+      info->dv = fixdiv(s1->v - ftofix(v->v), w);
    }
 
    if (flags & INTERP_Z) {
@@ -1498,17 +1498,17 @@ static void _triangle_deltas_f(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGO
 void _clip_polygon_segment(POLYGON_SEGMENT *info, fixed gap, int flags)
 {
    if (flags & INTERP_1COL)
-      info->c += fmul(info->dc, gap);
+      info->c += fixmul(info->dc, gap);
 
    if (flags & INTERP_3COL) {
-      info->r += fmul(info->dr, gap);
-      info->g += fmul(info->dg, gap);
-      info->b += fmul(info->db, gap);
+      info->r += fixmul(info->dr, gap);
+      info->g += fixmul(info->dg, gap);
+      info->b += fixmul(info->db, gap);
    }
 
    if (flags & INTERP_FIX_UV) {
-      info->u += fmul(info->du, gap);
-      info->v += fmul(info->dv, gap);
+      info->u += fixmul(info->du, gap);
+      info->v += fixmul(info->dv, gap);
    }
 
    if (flags & INTERP_Z) {
@@ -1589,7 +1589,7 @@ void triangle3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v
 	 h = vt2->y - (edge1.top << 16);
 	 _clip_polygon_segment(&s1, h, flags);
 
-	 w = edge1.x + fmul(h, edge1.dx) - vt2->x;
+	 w = edge1.x + fixmul(h, edge1.dx) - vt2->x;
 	 if (w) _triangle_deltas(bmp, w, &s1, &info, vt2, flags);
       }
 
@@ -1678,7 +1678,7 @@ void triangle3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, 
 	 h = ftofix(vt2->y) - (edge1.top << 16);
 	 _clip_polygon_segment(&s1, h, flags);
 
-	 w = edge1.x + fmul(h, edge1.dx) - ftofix(vt2->x);
+	 w = edge1.x + fixmul(h, edge1.dx) - ftofix(vt2->x);
 	 if (w) _triangle_deltas_f(bmp, w, &s1, &info, vt2, flags);
       }
 

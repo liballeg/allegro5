@@ -498,8 +498,8 @@ static void scene_segment(POLYGON_EDGE *e01, POLYGON_EDGE *e02,
    int x, w, gap, flags;
    fixed step, width;
    float w1, step_f;
-   int x01 = fceil(e01->x);
-   int x02 = fceil(e02->x);
+   int x01 = fixceil(e01->x);
+   int x02 = fixceil(e02->x);
    float z01 = e01->dat.z;
    POLYGON_EDGE *e1 = poly->left_edge;
    POLYGON_EDGE *e2 = poly->right_edge;
@@ -526,8 +526,8 @@ static void scene_segment(POLYGON_EDGE *e01, POLYGON_EDGE *e02,
       poly->right_edge = e2;
    }
 
-   x = fceil(e1->x);
-   w = fceil(e2->x) - x;
+   x = fixceil(e1->x);
+   w = fixceil(e2->x) - x;
    if (w <= 0) return;
 
    /* Subpixel and subtexel accuracy */
@@ -545,24 +545,24 @@ static void scene_segment(POLYGON_EDGE *e01, POLYGON_EDGE *e02,
    } 
    else {
       if (flags & INTERP_1COL) {
-         info->dc = fdiv(dat2->c - dat1->c, width);
-         info->c = dat1->c + fmul(step, info->dc);
+         info->dc = fixdiv(dat2->c - dat1->c, width);
+         info->c = dat1->c + fixmul(step, info->dc);
       }
 
       if (flags & INTERP_3COL) {
-         info->dr = fdiv(dat2->r - dat1->r, width);
-         info->dg = fdiv(dat2->g - dat1->g, width);
-         info->db = fdiv(dat2->b - dat1->b, width);
-         info->r = dat1->r + fmul(step, info->dr);
-         info->g = dat1->g + fmul(step, info->dg);
-         info->b = dat1->b + fmul(step, info->db);
+         info->dr = fixdiv(dat2->r - dat1->r, width);
+         info->dg = fixdiv(dat2->g - dat1->g, width);
+         info->db = fixdiv(dat2->b - dat1->b, width);
+         info->r = dat1->r + fixmul(step, info->dr);
+         info->g = dat1->g + fixmul(step, info->dg);
+         info->b = dat1->b + fixmul(step, info->db);
       }
 
       if (flags & INTERP_FIX_UV) {
-         info->du = fdiv(dat2->u - dat1->u, width);
-         info->dv = fdiv(dat2->v - dat1->v, width);
-         info->u = dat1->u + fmul(step, info->du);
-         info->v = dat1->v + fmul(step, info->dv);
+         info->du = fixdiv(dat2->u - dat1->u, width);
+         info->dv = fixdiv(dat2->v - dat1->v, width);
+         info->u = dat1->u + fixmul(step, info->du);
+         info->v = dat1->v + fixmul(step, info->dv);
       }
 
       if (flags & INTERP_FLOAT_UV) {
@@ -715,7 +715,7 @@ void render_scene(void)
       last_x = INT_MIN;
       last_z = 0.0;
       for (edge=active_edges; edge; edge=edge->next) {
-         int x = fceil(edge->x);
+         int x = fixceil(edge->x);
          POLYGON_INFO *poly = edge->poly;
 
          /* one polygon changes status */

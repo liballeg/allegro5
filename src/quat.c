@@ -16,7 +16,7 @@
  */
 
 
-#define ALLEGRO_INCLUDE_MATH_H
+#include <math.h>
 
 #include "allegro.h"
 

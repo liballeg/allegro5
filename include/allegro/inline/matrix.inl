@@ -24,9 +24,9 @@
 #endif
 
 
-#define CALC_ROW(n)     (fmul(x, m->v[n][0]) +        \
-                         fmul(y, m->v[n][1]) +        \
-                         fmul(z, m->v[n][2]) +        \
+#define CALC_ROW(n)     (fixmul(x, m->v[n][0]) +      \
+                         fixmul(y, m->v[n][1]) +      \
+                         fixmul(z, m->v[n][2]) +      \
                          m->t[n])
 
 AL_INLINE(void, apply_matrix, (MATRIX *m, fixed x, fixed y, fixed z, fixed *xout, fixed *yout, fixed *zout),

@@ -26,7 +26,7 @@
 
 AL_INLINE(fixed, dot_product, (fixed x1, fixed y1, fixed z1, fixed x2, fixed y2, fixed z2),
 {
-   return fmul(x1, x2) + fmul(y1, y2) + fmul(z1, z2);
+   return fixmul(x1, x2) + fixmul(y1, y2) + fixmul(z1, z2);
 })
 
 
@@ -38,8 +38,8 @@ AL_INLINE(float, dot_product_f, (float x1, float y1, float z1, float x2, float y
 
 AL_INLINE(void, persp_project, (fixed x, fixed y, fixed z, fixed *xout, fixed *yout),
 {
-   *xout = fmul(fdiv(x, z), _persp_xscale) + _persp_xoffset;
-   *yout = fmul(fdiv(y, z), _persp_yscale) + _persp_yoffset;
+   *xout = fixmul(fixdiv(x, z), _persp_xscale) + _persp_xoffset;
+   *yout = fixmul(fixdiv(y, z), _persp_yscale) + _persp_yoffset;
 })
 
 

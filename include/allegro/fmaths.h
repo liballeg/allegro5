@@ -26,10 +26,10 @@
 #include "base.h"
 #include "fixed.h"
 
-AL_FUNC(fixed, fsqrt, (fixed x));
-AL_FUNC(fixed, fhypot, (fixed x, fixed y));
-AL_FUNC(fixed, fatan, (fixed x));
-AL_FUNC(fixed, fatan2, (fixed y, fixed x));
+AL_FUNC(fixed, fixsqrt, (fixed x));
+AL_FUNC(fixed, fixhypot, (fixed x, fixed y));
+AL_FUNC(fixed, fixatan, (fixed x));
+AL_FUNC(fixed, fixatan2, (fixed y, fixed x));
 
 AL_ARRAY(fixed, _cos_tbl);
 AL_ARRAY(fixed, _tan_tbl);

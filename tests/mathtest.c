@@ -209,31 +209,31 @@ int unary_operator(int msg, DIALOG *d, int c)
       switch (d->d1) {
 
 	 case SIN:
-	    x = fsin(x);
+	    x = fixsin(x);
 	    break;
 
 	 case COS:
-	    x = fcos(x);
+	    x = fixcos(x);
 	    break;
 
 	 case TAN:
-	    x = ftan(x);
+	    x = fixtan(x);
 	    break;
 
 	 case ASIN:
-	    x = fasin(x);
+	    x = fixasin(x);
 	    break;
 
 	 case ACOS:
-	    x = facos(x);
+	    x = fixacos(x);
 	    break;
 
 	 case ATAN:
-	    x = fatan(x);
+	    x = fixatan(x);
 	    break;
 
 	 case SQRT:
-	    x = fsqrt(x);
+	    x = fixsqrt(x);
 	    break;
       }
 
@@ -258,19 +258,19 @@ int work_out(void)
    switch (calc_operation) {
 
       case ADD:
-	 x = fadd(calc_value, x);
+	 x = fixadd(calc_value, x);
 	 break;
 
       case SUB:
-	 x = fsub(calc_value, x);
+	 x = fixsub(calc_value, x);
 	 break;
 
       case MUL:
-	 x = fmul(calc_value, x);
+	 x = fixmul(calc_value, x);
 	 break;
 
       case DIV:
-	 x = fdiv(calc_value, x);
+	 x = fixdiv(calc_value, x);
 	 break;
    }
 

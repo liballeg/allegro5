@@ -278,7 +278,7 @@ void draw_ship(void)
 
    for (i=0; i<NUM_FACES; i++) {
       if (fixtof(ship.faces[i].rnormal.z) < 0.0) {
-	 col = fixtoi(fmul(dot_product(ship.faces[i].rnormal.x, ship.faces[i].rnormal.y, ship.faces[i].rnormal.z, 0, 0, itofix(1)), itofix(ship.faces[i].range)));
+	 col = fixtoi(fixmul(dot_product(ship.faces[i].rnormal.x, ship.faces[i].rnormal.y, ship.faces[i].rnormal.z, 0, 0, itofix(1)), itofix(ship.faces[i].range)));
 	 if (col < 0)
 	    col = -col + ship.faces[i].colour;
 	 else
@@ -415,9 +415,9 @@ int main(int argc, char *argv[])
       ship.ry &= itofix(255);
       ship.rz &= itofix(255);
 
-      delta.x = fmul(direction.x, itofix(ship.velocity));
-      delta.y = fmul(direction.y, itofix(ship.velocity));
-      delta.z = fmul(direction.z, itofix(ship.velocity));
+      delta.x = fixmul(direction.x, itofix(ship.velocity));
+      delta.y = fixmul(direction.y, itofix(ship.velocity));
+      delta.z = fixmul(direction.z, itofix(ship.velocity));
    }
 
    destroy_bitmap(buffer);

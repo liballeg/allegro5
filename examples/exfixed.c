@@ -43,14 +43,14 @@ int main()
 
    /* you can't multiply or divide two fixed point numbers, though:
     *    z = x * y;
-    * would give the wrong result. Use fmul() and fdiv() instead, eg:
+    * would give the wrong result. Use fixmul() and fixdiv() instead, eg:
     */
-   z = fmul(x, y);
+   z = fixmul(x, y);
    allegro_message("%f * %f = %f\n", fixtof(x), fixtof(y), fixtof(z));
 
    /* fixed point trig and square root are also available, eg: */
-   z = fsqrt(x);
-   allegro_message("fsqrt(%f) = %f\n", fixtof(x), fixtof(z));
+   z = fixsqrt(x);
+   allegro_message("fixsqrt(%f) = %f\n", fixtof(x), fixtof(z));
 
    return 0;
 }

@@ -264,9 +264,9 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
       top_index = 3;
 
    /* Get direction of points: clockwise or anti-clockwise. */
-   if (fmul(xs[(top_index+1) & 3] - xs[top_index],
+   if (fixmul(xs[(top_index+1) & 3] - xs[top_index],
 	    ys[(top_index-1) & 3] - ys[top_index]) >
-       fmul(xs[(top_index-1) & 3] - xs[top_index],
+       fixmul(xs[(top_index-1) & 3] - xs[top_index],
 	    ys[(top_index+1) & 3] - ys[top_index]))
       right_index = 1;
    else
@@ -358,18 +358,18 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
    /* Vertical gap between top corner and centre of topmost scanline. */
    extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - top_bmp_y;
    /* Calculate x coordinate of beginning of scanline in bmp. */
-   l_bmp_dx = fdiv(left_bmp_x - top_bmp_x,
+   l_bmp_dx = fixdiv(left_bmp_x - top_bmp_x,
 		   left_bmp_y - top_bmp_y);
-   l_bmp_x = top_bmp_x + fmul(extra_scanline_fraction, l_bmp_dx);
+   l_bmp_x = top_bmp_x + fixmul(extra_scanline_fraction, l_bmp_dx);
    /* Calculate x coordinate of beginning of scanline in spr. */
    /* note: all these are rounded down which is probably a Good Thing (tm) */
-   l_spr_dx = fdiv(left_spr_x - top_spr_x,
+   l_spr_dx = fixdiv(left_spr_x - top_spr_x,
 		   left_bmp_y - top_bmp_y);
-   l_spr_x = top_spr_x + fmul(extra_scanline_fraction, l_spr_dx);
+   l_spr_x = top_spr_x + fixmul(extra_scanline_fraction, l_spr_dx);
    /* Calculate y coordinate of beginning of scanline in spr. */
-   l_spr_dy = fdiv(left_spr_y - top_spr_y,
+   l_spr_dy = fixdiv(left_spr_y - top_spr_y,
 		   left_bmp_y - top_bmp_y);
-   l_spr_y = top_spr_y + fmul(extra_scanline_fraction, l_spr_dy);
+   l_spr_y = top_spr_y + fixmul(extra_scanline_fraction, l_spr_dy);
 
    /* Calculate left loop bound. */
    l_bmp_y_bottom_i = (left_bmp_y + 0x8000) >> 16;
@@ -377,18 +377,18 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
       l_bmp_y_bottom_i = clip_bottom_i;
 
    /* Calculate x coordinate of end of scanline in bmp. */
-   r_bmp_dx = fdiv(right_bmp_x - top_bmp_x,
+   r_bmp_dx = fixdiv(right_bmp_x - top_bmp_x,
 		   right_bmp_y - top_bmp_y);
-   r_bmp_x = top_bmp_x + fmul(extra_scanline_fraction, r_bmp_dx);
+   r_bmp_x = top_bmp_x + fixmul(extra_scanline_fraction, r_bmp_dx);
    #ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE
    /* Calculate x coordinate of end of scanline in spr. */
-   r_spr_dx = fdiv(right_spr_x - top_spr_x,
+   r_spr_dx = fixdiv(right_spr_x - top_spr_x,
 		   right_bmp_y - top_bmp_y);
-   r_spr_x = top_spr_x + fmul(extra_scanline_fraction, r_spr_dx);
+   r_spr_x = top_spr_x + fixmul(extra_scanline_fraction, r_spr_dx);
    /* Calculate y coordinate of end of scanline in spr. */
-   r_spr_dy = fdiv(right_spr_y - top_spr_y,
+   r_spr_dy = fixdiv(right_spr_y - top_spr_y,
 		   right_bmp_y - top_bmp_y);
-   r_spr_y = top_spr_y + fmul(extra_scanline_fraction, r_spr_dy);
+   r_spr_y = top_spr_y + fixmul(extra_scanline_fraction, r_spr_dy);
    #endif
 
    /* Calculate right loop bound. */
@@ -422,17 +422,17 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
 	 /* Vertical gap between left corner and centre of scanline. */
 	 extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - left_bmp_y;
 	 /* Update x coordinate of beginning of scanline in bmp. */
-	 l_bmp_dx = fdiv(bottom_bmp_x - left_bmp_x,
+	 l_bmp_dx = fixdiv(bottom_bmp_x - left_bmp_x,
 			 bottom_bmp_y - left_bmp_y);
-	 l_bmp_x = left_bmp_x + fmul(extra_scanline_fraction, l_bmp_dx);
+	 l_bmp_x = left_bmp_x + fixmul(extra_scanline_fraction, l_bmp_dx);
 	 /* Update x coordinate of beginning of scanline in spr. */
-	 l_spr_dx = fdiv(bottom_spr_x - left_spr_x,
+	 l_spr_dx = fixdiv(bottom_spr_x - left_spr_x,
 			 bottom_bmp_y - left_bmp_y);
-	 l_spr_x = left_spr_x + fmul(extra_scanline_fraction, l_spr_dx);
+	 l_spr_x = left_spr_x + fixmul(extra_scanline_fraction, l_spr_dx);
 	 /* Update y coordinate of beginning of scanline in spr. */
-	 l_spr_dy = fdiv(bottom_spr_y - left_spr_y,
+	 l_spr_dy = fixdiv(bottom_spr_y - left_spr_y,
 			 bottom_bmp_y - left_bmp_y);
-	 l_spr_y = left_spr_y + fmul(extra_scanline_fraction, l_spr_dy);
+	 l_spr_y = left_spr_y + fixmul(extra_scanline_fraction, l_spr_dy);
 
 	 /* Update loop bound. */
 	 if (sub_pixel_accuracy)
@@ -448,18 +448,18 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
 	 /* Vertical gap between right corner and centre of scanline. */
 	 extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - right_bmp_y;
 	 /* Update x coordinate of end of scanline in bmp. */
-	 r_bmp_dx = fdiv(bottom_bmp_x - right_bmp_x,
+	 r_bmp_dx = fixdiv(bottom_bmp_x - right_bmp_x,
 			 bottom_bmp_y - right_bmp_y);
-	 r_bmp_x = right_bmp_x + fmul(extra_scanline_fraction, r_bmp_dx);
+	 r_bmp_x = right_bmp_x + fixmul(extra_scanline_fraction, r_bmp_dx);
 	 #ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE
 	 /* Update x coordinate of beginning of scanline in spr. */
-	 r_spr_dx = fdiv(bottom_spr_x - right_spr_x,
+	 r_spr_dx = fixdiv(bottom_spr_x - right_spr_x,
 			 bottom_bmp_y - right_bmp_y);
-	 r_spr_x = right_spr_x + fmul(extra_scanline_fraction, r_spr_dx);
+	 r_spr_x = right_spr_x + fixmul(extra_scanline_fraction, r_spr_dx);
 	 /* Update y coordinate of beginning of scanline in spr. */
-	 r_spr_dy = fdiv(bottom_spr_y - right_spr_y,
+	 r_spr_dy = fixdiv(bottom_spr_y - right_spr_y,
 			 bottom_bmp_y - right_bmp_y);
-	 r_spr_y = right_spr_y + fmul(extra_scanline_fraction, r_spr_dy);
+	 r_spr_y = right_spr_y + fixmul(extra_scanline_fraction, r_spr_dy);
 	 #endif
 
 	 /* Update loop bound: We aren't supposed to use this any more, so
@@ -478,15 +478,15 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
       /* ... and move starting point in sprite accordingly. */
       if (sub_pixel_accuracy) {
 	 l_spr_x_rounded = l_spr_x +
-			   fmul((l_bmp_x_rounded - l_bmp_x), spr_dx);
+			   fixmul((l_bmp_x_rounded - l_bmp_x), spr_dx);
 	 l_spr_y_rounded = l_spr_y +
-			   fmul((l_bmp_x_rounded - l_bmp_x), spr_dy);
+			   fixmul((l_bmp_x_rounded - l_bmp_x), spr_dy);
       }
       else {
 	 l_spr_x_rounded = l_spr_x +
-			   fmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dx);
+			   fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dx);
 	 l_spr_y_rounded = l_spr_y +
-			   fmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dy);
+			   fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dy);
       }
 
       /* Make right bmp coordinate be an integer and clip it. */
@@ -710,7 +710,7 @@ void _rotate_scale_flip_coordinates(fixed w, fixed h,
    /* Setting angle to the range -180...180 degrees makes sin & cos
       more numerically stable. (Yes, this does have an effect for big
       angles!) Note that using "real" sin() and cos() gives much better
-      precision than fsin() and fcos(). */
+      precision than fixsin() and fixcos(). */
    angle = angle & 0xffffff;
    if (angle >= 0x800000)
       angle -= 0x1000000;
@@ -757,21 +757,21 @@ void _rotate_scale_flip_coordinates(fixed w, fixed h,
    }
 
    /* Calculate new coordinates of all corners. */
-   w = fmul(w, scale_x);
-   h = fmul(h, scale_y);
-   cx = fmul(cx, scale_x);
-   cy = fmul(cy, scale_y);
+   w = fixmul(w, scale_x);
+   h = fixmul(h, scale_y);
+   cx = fixmul(cx, scale_x);
+   cy = fixmul(cy, scale_y);
 
-   xofs = x - fmul(cx, fix_cos) + fmul(cy, fix_sin);
+   xofs = x - fixmul(cx, fix_cos) + fixmul(cy, fix_sin);
 
-   yofs = y - fmul(cx, fix_sin) - fmul(cy, fix_cos);
+   yofs = y - fixmul(cx, fix_sin) - fixmul(cy, fix_cos);
 
    xs[tl] = xofs;
    ys[tl] = yofs;
-   xs[tr] = xofs + fmul(w, fix_cos);
-   ys[tr] = yofs + fmul(w, fix_sin);
-   xs[bl] = xofs - fmul(h, fix_sin);
-   ys[bl] = yofs + fmul(h, fix_cos);
+   xs[tr] = xofs + fixmul(w, fix_cos);
+   ys[tr] = yofs + fixmul(w, fix_sin);
+   xs[bl] = xofs - fixmul(h, fix_sin);
+   ys[bl] = yofs + fixmul(h, fix_cos);
 
    xs[br] = xs[tr] + xs[bl] - xs[tl];
    ys[br] = ys[tr] + ys[bl] - ys[tl];

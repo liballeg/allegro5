@@ -16,7 +16,7 @@
  */
 
 
-#define ALLEGRO_INCLUDE_MATH_H
+#include <math.h>
 
 #include "allegro.h"
 
@@ -128,8 +128,8 @@ void get_scaling_matrix_f(MATRIX_f *m, float x, float y, float z)
  */
 void get_x_rotate_matrix(MATRIX *m, fixed r)
 {
-   fixed c = fcos(r);
-   fixed s = fsin(r);
+   fixed c = fixcos(r);
+   fixed s = fixsin(r);
 
    *m = identity_matrix;
 
@@ -168,8 +168,8 @@ void get_x_rotate_matrix_f(MATRIX_f *m, float r)
  */
 void get_y_rotate_matrix(MATRIX *m, fixed r)
 {
-   fixed c = fcos(r);
-   fixed s = fsin(r);
+   fixed c = fixcos(r);
+   fixed s = fixsin(r);
 
    *m = identity_matrix;
 
@@ -208,8 +208,8 @@ void get_y_rotate_matrix_f(MATRIX_f *m, float r)
  */
 void get_z_rotate_matrix(MATRIX *m, fixed r)
 {
-   fixed c = fcos(r);
-   fixed s = fsin(r);
+   fixed c = fixcos(r);
+   fixed s = fixsin(r);
 
    *m = identity_matrix;
 
@@ -243,17 +243,17 @@ void get_z_rotate_matrix_f(MATRIX_f *m, float r)
 
 /* magical formulae for constructing rotation matrices */
 #define MAKE_ROTATION(x, y, z)                  \
-   fixed sin_x = fsin(x);                       \
-   fixed cos_x = fcos(x);                       \
+   fixed sin_x = fixsin(x);                     \
+   fixed cos_x = fixcos(x);                     \
 						\
-   fixed sin_y = fsin(y);                       \
-   fixed cos_y = fcos(y);                       \
+   fixed sin_y = fixsin(y);                     \
+   fixed cos_y = fixcos(y);                     \
 						\
-   fixed sin_z = fsin(z);                       \
-   fixed cos_z = fcos(z);                       \
+   fixed sin_z = fixsin(z);                     \
+   fixed cos_z = fixcos(z);                     \
 						\
-   fixed sinx_siny = fmul(sin_x, sin_y);        \
-   fixed cosx_siny = fmul(cos_x, sin_y);
+   fixed sinx_siny = fixmul(sin_x, sin_y);      \
+   fixed cosx_siny = fixmul(cos_x, sin_y);
 
 
 
@@ -272,17 +272,17 @@ void get_z_rotate_matrix_f(MATRIX_f *m, float r)
 
 
 
-#define R00 (fmul(cos_y, cos_z))
-#define R10 (fmul(sinx_siny, cos_z) - fmul(cos_x, sin_z))
-#define R20 (fmul(cosx_siny, cos_z) + fmul(sin_x, sin_z))
+#define R00 (fixmul(cos_y, cos_z))
+#define R10 (fixmul(sinx_siny, cos_z) - fixmul(cos_x, sin_z))
+#define R20 (fixmul(cosx_siny, cos_z) + fixmul(sin_x, sin_z))
 
-#define R01 (fmul(cos_y, sin_z))
-#define R11 (fmul(sinx_siny, sin_z) + fmul(cos_x, cos_z))
-#define R21 (fmul(cosx_siny, sin_z) - fmul(sin_x, cos_z))
+#define R01 (fixmul(cos_y, sin_z))
+#define R11 (fixmul(sinx_siny, sin_z) + fixmul(cos_x, cos_z))
+#define R21 (fixmul(cosx_siny, sin_z) - fixmul(sin_x, cos_z))
 
 #define R02 (-sin_y)
-#define R12 (fmul(sin_x, cos_y))
-#define R22 (fmul(cos_x, cos_y))
+#define R12 (fixmul(sin_x, cos_y))
+#define R22 (fixmul(cos_x, cos_y))
 
 
 
@@ -470,17 +470,17 @@ void get_transformation_matrix(MATRIX *m, fixed scale, fixed xrot, fixed yrot, f
 {
    MAKE_ROTATION(xrot, yrot, zrot);
 
-   m->v[0][0] = fmul(R00, scale);
-   m->v[0][1] = fmul(R01, scale);
-   m->v[0][2] = fmul(R02, scale);
+   m->v[0][0] = fixmul(R00, scale);
+   m->v[0][1] = fixmul(R01, scale);
+   m->v[0][2] = fixmul(R02, scale);
 
-   m->v[1][0] = fmul(R10, scale);
-   m->v[1][1] = fmul(R11, scale);
-   m->v[1][2] = fmul(R12, scale);
+   m->v[1][0] = fixmul(R10, scale);
+   m->v[1][1] = fixmul(R11, scale);
+   m->v[1][2] = fixmul(R12, scale);
 
-   m->v[2][0] = fmul(R20, scale);
-   m->v[2][1] = fmul(R21, scale);
-   m->v[2][2] = fmul(R22, scale);
+   m->v[2][0] = fixmul(R20, scale);
+   m->v[2][1] = fixmul(R21, scale);
+   m->v[2][2] = fixmul(R22, scale);
 
    m->t[0] = x;
    m->t[1] = y;
@@ -638,7 +638,7 @@ void qscale_matrix(MATRIX *m, fixed scale)
 
    for (i=0; i<3; i++)
       for (j=0; j<3; j++)
-	 m->v[i][j] = fmul(m->v[i][j], scale);
+	 m->v[i][j] = fixmul(m->v[i][j], scale);
 }
 
 
@@ -680,14 +680,14 @@ void matrix_mul(AL_CONST MATRIX *m1, AL_CONST MATRIX *m2, MATRIX *out)
 
    for (i=0; i<3; i++) {
       for (j=0; j<3; j++) {
-	 out->v[i][j] = fmul(m1->v[0][j], m2->v[i][0]) +
-			fmul(m1->v[1][j], m2->v[i][1]) +
-			fmul(m1->v[2][j], m2->v[i][2]);
+	 out->v[i][j] = fixmul(m1->v[0][j], m2->v[i][0]) +
+			fixmul(m1->v[1][j], m2->v[i][1]) +
+			fixmul(m1->v[2][j], m2->v[i][2]);
       }
 
-      out->t[i] = fmul(m1->t[0], m2->v[i][0]) +
-		  fmul(m1->t[1], m2->v[i][1]) +
-		  fmul(m1->t[2], m2->v[i][2]) +
+      out->t[i] = fixmul(m1->t[0], m2->v[i][0]) +
+		  fixmul(m1->t[1], m2->v[i][1]) +
+		  fixmul(m1->t[2], m2->v[i][2]) +
 		  m2->t[i];
    } 
 }
@@ -736,7 +736,7 @@ fixed vector_length(fixed x, fixed y, fixed z)
    y >>= 8;
    z >>= 8;
 
-   return (fsqrt(fmul(x,x) + fmul(y,y) + fmul(z,z)) << 8);
+   return (fixsqrt(fixmul(x,x) + fixmul(y,y) + fixmul(z,z)) << 8);
 }
 
 
@@ -759,9 +759,9 @@ void normalize_vector(fixed *x, fixed *y, fixed *z)
 {
    fixed length = vector_length(*x, *y, *z);
 
-   *x = fdiv(*x, length);
-   *y = fdiv(*y, length);
-   *z = fdiv(*z, length);
+   *x = fixdiv(*x, length);
+   *y = fixdiv(*y, length);
+   *z = fixdiv(*z, length);
 }
 
 
@@ -785,9 +785,9 @@ void normalize_vector_f(float *x, float *y, float *z)
  */
 void cross_product(fixed x1, fixed y1, fixed z1, fixed x2, fixed y2, fixed z2, fixed *xout, fixed *yout, fixed *zout)
 {
-    *xout = fmul(y1, z2) - fmul(z1, y2);
-    *yout = fmul(z1, x2) - fmul(x1, z2);
-    *zout = fmul(x1, y2) - fmul(y1, x2);
+    *xout = fixmul(y1, z2) - fixmul(z1, y2);
+    *yout = fixmul(z1, x2) - fixmul(x1, z2);
+    *zout = fixmul(x1, y2) - fixmul(y1, x2);
 }
 
 
@@ -810,7 +810,7 @@ void cross_product_f(float x1, float y1, float z1, float x2, float y2, float z2,
  */
 fixed polygon_z_normal(AL_CONST V3D *v1, AL_CONST V3D *v2, AL_CONST V3D *v3)
 {
-   return (fmul(v2->x-v1->x, v3->y-v2->y) - fmul(v3->x-v2->x, v2->y-v1->y));
+   return (fixmul(v2->x-v1->x, v3->y-v2->y) - fixmul(v3->x-v2->x, v2->y-v1->y));
 }
 
 

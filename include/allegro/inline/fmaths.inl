@@ -29,7 +29,7 @@
 #undef ALLEGRO_IMPORT_MATH_ASM
 
 
-/* ftofix and fixtof are used in generic C versions of fmul and fdiv */
+/* ftofix and fixtof are used in generic C versions of fixmul and fixdiv */
 AL_INLINE(fixed, ftofix, (double x),
 {
    if (x > 32767.0) {
@@ -56,7 +56,7 @@ AL_INLINE(double, fixtof, (fixed x),
 
 /* use generic C versions */
 
-AL_INLINE(fixed, fadd, (fixed x, fixed y),
+AL_INLINE(fixed, fixadd, (fixed x, fixed y),
 {
    fixed result = x + y;
 
@@ -79,7 +79,7 @@ AL_INLINE(fixed, fadd, (fixed x, fixed y),
 })
 
 
-AL_INLINE(fixed, fsub, (fixed x, fixed y),
+AL_INLINE(fixed, fixsub, (fixed x, fixed y),
 {
    fixed result = x - y;
 
@@ -102,13 +102,13 @@ AL_INLINE(fixed, fsub, (fixed x, fixed y),
 })
 
 
-AL_INLINE(fixed, fmul, (fixed x, fixed y),
+AL_INLINE(fixed, fixmul, (fixed x, fixed y),
 {
    return ftofix(fixtof(x) * fixtof(y));
 })
 
 
-AL_INLINE(fixed, fdiv, (fixed x, fixed y),
+AL_INLINE(fixed, fixdiv, (fixed x, fixed y),
 {
    if (y == 0) {
       *allegro_errno = ERANGE;
@@ -119,7 +119,7 @@ AL_INLINE(fixed, fdiv, (fixed x, fixed y),
 })
 
 
-AL_INLINE(int, ffloor, (fixed x),
+AL_INLINE(int, fixfloor, (fixed x),
 {
    /* (x >> 16) is not portable */
    if (x >= 0)
@@ -129,14 +129,14 @@ AL_INLINE(int, ffloor, (fixed x),
 })
 
 
-AL_INLINE(int, fceil, (fixed x),
+AL_INLINE(int, fixceil, (fixed x),
 {
    if (x > (long)(0x7FFF0000)) {
       *allegro_errno = ERANGE;
       return 0x7FFF;
    }
 
-   return ffloor(x + 0xFFFF);
+   return fixfloor(x + 0xFFFF);
 })
 
 #endif      /* C vs. inline asm */
@@ -150,29 +150,29 @@ AL_INLINE(fixed, itofix, (int x),
 
 AL_INLINE(int, fixtoi, (fixed x),
 {
-   return ffloor(x) + ((x & 0x8000) >> 15);
+   return fixfloor(x) + ((x & 0x8000) >> 15);
 })
 
 
-AL_INLINE(fixed, fcos, (fixed x),
+AL_INLINE(fixed, fixcos, (fixed x),
 {
    return _cos_tbl[((x + 0x4000) >> 15) & 0x1FF];
 })
 
 
-AL_INLINE(fixed, fsin, (fixed x),
+AL_INLINE(fixed, fixsin, (fixed x),
 {
    return _cos_tbl[((x - 0x400000 + 0x4000) >> 15) & 0x1FF];
 })
 
 
-AL_INLINE(fixed, ftan, (fixed x),
+AL_INLINE(fixed, fixtan, (fixed x),
 {
    return _tan_tbl[((x + 0x4000) >> 15) & 0xFF];
 })
 
 
-AL_INLINE(fixed, facos, (fixed x),
+AL_INLINE(fixed, fixacos, (fixed x),
 {
    if ((x < -65536) || (x > 65536)) {
       *allegro_errno = EDOM;
@@ -183,7 +183,7 @@ AL_INLINE(fixed, facos, (fixed x),
 })
 
 
-AL_INLINE(fixed, fasin, (fixed x),
+AL_INLINE(fixed, fixasin, (fixed x),
 {
    if ((x < -65536) || (x > 65536)) {
       *allegro_errno = EDOM;

@@ -107,10 +107,10 @@ END_OF_INLINE(_set_errno_erange);
 
 
 
-/* fadd:
+/* fixadd:
  *  Fixed point (16.16) addition.
  */
-INLINE _AL_DLL fixed fadd(fixed x, fixed y)
+INLINE _AL_DLL fixed fixadd(fixed x, fixed y)
 {
    _asm {
       mov eax, x
@@ -125,14 +125,14 @@ INLINE _AL_DLL fixed fadd(fixed x, fixed y)
    }
 }
 
-END_OF_INLINE(fadd);
+END_OF_INLINE(fixadd);
 
 
 
-/* fsub:
+/* fixsub:
  *  Fixed point (16.16) subtraction.
  */
-INLINE _AL_DLL fixed fsub(fixed x, fixed y)
+INLINE _AL_DLL fixed fixsub(fixed x, fixed y)
 {
    _asm {
       mov eax, x
@@ -147,14 +147,14 @@ INLINE _AL_DLL fixed fsub(fixed x, fixed y)
    }
 }
 
-END_OF_INLINE(fsub);
+END_OF_INLINE(fixsub);
 
 
 
-/* fmul:
+/* fixmul:
  *  Fixed point (16.16) multiplication.
  */
-INLINE _AL_DLL fixed fmul(fixed x, fixed y)
+INLINE _AL_DLL fixed fixmul(fixed x, fixed y)
 {
    _asm {
       mov eax, x
@@ -177,14 +177,14 @@ INLINE _AL_DLL fixed fmul(fixed x, fixed y)
    }
 }
 
-END_OF_INLINE(fmul);
+END_OF_INLINE(fixmul);
 
 
 
-/* fdiv:
+/* fixdiv:
  *  Fixed point (16.16) division.
  */
-INLINE _AL_DLL fixed fdiv(fixed x, fixed y)
+INLINE _AL_DLL fixed fixdiv(fixed x, fixed y)
 {
    _asm {
       mov ecx, y
@@ -219,15 +219,15 @@ INLINE _AL_DLL fixed fdiv(fixed x, fixed y)
    }
 }
 
-END_OF_INLINE(fdiv);
+END_OF_INLINE(fixdiv);
 
 
 
-/* ffloor :
+/* fixfloor :
  * Fixed point version of floor().
  * Note that it returns an integer result (not a fixed one)
  */
-INLINE _AL_DLL int ffloor(fixed x)
+INLINE _AL_DLL int fixfloor(fixed x)
 {
    _asm {
       mov eax, x
@@ -235,15 +235,15 @@ INLINE _AL_DLL int ffloor(fixed x)
    }
 }
 
-END_OF_INLINE(ffloor);
+END_OF_INLINE(fixfloor);
 
 
 
-/* fceil:
+/* fixceil:
  *  Fixed point version of ceil().
  *  Note that it returns an integer result (not a fixed one)
  */
-INLINE _AL_DLL int fceil(fixed x)
+INLINE _AL_DLL int fixceil(fixed x)
 {
    _asm {
       mov eax, x
@@ -260,7 +260,7 @@ INLINE _AL_DLL int fceil(fixed x)
    }
 }
 
-END_OF_INLINE(fceil);
+END_OF_INLINE(fixceil);
 
 #endif /* ALLEGRO_IMPORT_MATH_ASM */
 

@@ -42,7 +42,7 @@ inline  fix operator -  (const float x, const fix y)  { fix t;  t.v = ftofix(x) 
 inline  fix operator -  (const fix x, const double y) { fix t;  t.v = x.v - ftofix(y);  return t; }
 inline  fix operator -  (const double x, const fix y) { fix t;  t.v = ftofix(x) - y.v;  return t; }
 
-inline  fix operator *  (const fix x, const fix y)    { fix t;  t.v = fmul(x.v, y.v);           return t; }
+inline  fix operator *  (const fix x, const fix y)    { fix t;  t.v = fixmul(x.v, y.v);         return t; }
 inline  fix operator *  (const fix x, const int y)    { fix t;  t.v = x.v * y;                  return t; }
 inline  fix operator *  (const int x, const fix y)    { fix t;  t.v = x * y.v;                  return t; }
 inline  fix operator *  (const fix x, const long y)   { fix t;  t.v = x.v * y;                  return t; }
@@ -52,11 +52,11 @@ inline  fix operator *  (const float x, const fix y)  { fix t;  t.v = ftofix(x *
 inline  fix operator *  (const fix x, const double y) { fix t;  t.v = ftofix(fixtof(x.v) * y);  return t; }
 inline  fix operator *  (const double x, const fix y) { fix t;  t.v = ftofix(x * fixtof(y.v));  return t; }
 
-inline  fix operator /  (const fix x, const fix y)    { fix t;  t.v = fdiv(x.v, y.v);           return t; }
+inline  fix operator /  (const fix x, const fix y)    { fix t;  t.v = fixdiv(x.v, y.v);         return t; }
 inline  fix operator /  (const fix x, const int y)    { fix t;  t.v = x.v / y;                  return t; }
-inline  fix operator /  (const int x, const fix y)    { fix t;  t.v = fdiv(itofix(x), y.v);     return t; }
+inline  fix operator /  (const int x, const fix y)    { fix t;  t.v = fixdiv(itofix(x), y.v);   return t; }
 inline  fix operator /  (const fix x, const long y)   { fix t;  t.v = x.v / y;                  return t; }
-inline  fix operator /  (const long x, const fix y)   { fix t;  t.v = fdiv(itofix(x), y.v);     return t; }
+inline  fix operator /  (const long x, const fix y)   { fix t;  t.v = fixdiv(itofix(x), y.v);   return t; }
 inline  fix operator /  (const fix x, const float y)  { fix t;  t.v = ftofix(fixtof(x.v) / y);  return t; }
 inline  fix operator /  (const float x, const fix y)  { fix t;  t.v = ftofix(x / fixtof(y.v));  return t; }
 inline  fix operator /  (const fix x, const double y) { fix t;  t.v = ftofix(fixtof(x.v) / y);  return t; }
@@ -125,14 +125,14 @@ inline  int operator >= (const float x, const fix y)  { return (ftofix(x) >= y.v
 inline  int operator >= (const fix x, const double y) { return (x.v >= ftofix(y)); }
 inline  int operator >= (const double x, const fix y) { return (ftofix(x) >= y.v); }
 
-inline  fix sqrt(fix x)          { fix t;  t.v = fsqrt(x.v);        return t; }
-inline  fix cos(fix x)           { fix t;  t.v = fcos(x.v);         return t; }
-inline  fix sin(fix x)           { fix t;  t.v = fsin(x.v);         return t; }
-inline  fix tan(fix x)           { fix t;  t.v = ftan(x.v);         return t; }
-inline  fix acos(fix x)          { fix t;  t.v = facos(x.v);        return t; }
-inline  fix asin(fix x)          { fix t;  t.v = fasin(x.v);        return t; }
-inline  fix atan(fix x)          { fix t;  t.v = fatan(x.v);        return t; }
-inline  fix atan2(fix x, fix y)  { fix t;  t.v = fatan2(x.v, y.v);  return t; }
+inline  fix sqrt(fix x)          { fix t;  t.v = fixsqrt(x.v);        return t; }
+inline  fix cos(fix x)           { fix t;  t.v = fixcos(x.v);         return t; }
+inline  fix sin(fix x)           { fix t;  t.v = fixsin(x.v);         return t; }
+inline  fix tan(fix x)           { fix t;  t.v = fixtan(x.v);         return t; }
+inline  fix acos(fix x)          { fix t;  t.v = fixacos(x.v);        return t; }
+inline  fix asin(fix x)          { fix t;  t.v = fixasin(x.v);        return t; }
+inline  fix atan(fix x)          { fix t;  t.v = fixatan(x.v);        return t; }
+inline  fix atan2(fix x, fix y)  { fix t;  t.v = fixatan2(x.v, y.v);  return t; }
 
 
 inline void get_translation_matrix(MATRIX *m, fix x, fix y, fix z)

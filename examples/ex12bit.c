@@ -394,8 +394,8 @@ int main(int argc, char *argv[])
       /* first, draw some vector balls moving in a circle round the edge */
       for (x=0; x<itofix(256); x += itofix(32)) {
 	 masked_blit(bigball, buffer, 0, 0,
-		     fixtoi(150 * fcos(xangle+x)) + GFXW/2 - BALLW/2,
-		     fixtoi(200 * fsin(xangle+x)) + GFXH/2 - BALLH/2,
+		     fixtoi(150 * fixcos(xangle+x)) + GFXW/2 - BALLW/2,
+		     fixtoi(200 * fixsin(xangle+x)) + GFXH/2 - BALLH/2,
 		     BIGBALLW, BIGBALLH);
       }
 

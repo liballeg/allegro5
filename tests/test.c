@@ -19,8 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-#define ALLEGRO_INCLUDE_MATH_H
+#include <math.h>
 
 #include "allegro.h"
 
@@ -1470,7 +1469,7 @@ void misc(void)
    ct = 0;
 
    do {
-      z = fmul(x,y);
+      z = fixmul(x,y);
       x += 1317;
       y += 7143;
       ct++;
@@ -1478,7 +1477,7 @@ void misc(void)
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "fmul(): %ld per second", ct/TIME_SPEED);
+   sprintf(buf, "fixmul(): %ld per second", ct/TIME_SPEED);
    textout(screen, font, buf, xoff+16, yoff+60, palette_color[15]);
 
    x = y = 0;
@@ -1486,7 +1485,7 @@ void misc(void)
    ct = 0;
 
    do {
-      z = fdiv(x,y);
+      z = fixdiv(x,y);
       x += 1317;
       y += 7143;
       if (y==0)
@@ -1496,7 +1495,7 @@ void misc(void)
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "fdiv(): %ld per second", ct/TIME_SPEED);
+   sprintf(buf, "fixdiv(): %ld per second", ct/TIME_SPEED);
    textout(screen, font, buf, xoff+16, yoff+70, palette_color[15]);
 
    x = 1;
@@ -1504,14 +1503,14 @@ void misc(void)
    ct = 0;
 
    do {
-      y = fsqrt(x);
+      y = fixsqrt(x);
       x += 7361;
       ct++;
       if (next())
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "fsqrt(): %ld per second", ct/TIME_SPEED);
+   sprintf(buf, "fixsqrt(): %ld per second", ct/TIME_SPEED);
    textout(screen, font, buf, xoff+16, yoff+80, palette_color[15]);
 
    x = 1;
@@ -1519,14 +1518,14 @@ void misc(void)
    ct = 0;
 
    do {
-      y = fsin(x);
+      y = fixsin(x);
       x += 4283;
       ct++;
       if (next())
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "fsin(): %ld per second", ct / TIME_SPEED);
+   sprintf(buf, "fixsin(): %ld per second", ct / TIME_SPEED);
    textout(screen, font, buf, xoff+16, yoff+90, palette_color[15]);
 
    x = 1;
@@ -1534,14 +1533,14 @@ void misc(void)
    ct = 0;
 
    do {
-      y = fcos(x);
+      y = fixcos(x);
       x += 4283;
       ct++;
       if (next())
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "fcos(): %ld per second", ct / TIME_SPEED);
+   sprintf(buf, "fixcos(): %ld per second", ct / TIME_SPEED);
    textout(screen, font, buf, xoff+16, yoff+100, palette_color[15]);
 
    x = 1;
@@ -1549,14 +1548,14 @@ void misc(void)
    ct = 0;
 
    do {
-      y = ftan(x);
+      y = fixtan(x);
       x += 8372;
       ct++;
       if (next())
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "ftan(): %ld per second", ct / TIME_SPEED);
+   sprintf(buf, "fixtan(): %ld per second", ct / TIME_SPEED);
    textout(screen, font, buf, xoff+16, yoff+110, palette_color[15]);
 
    x = 1;
@@ -1564,7 +1563,7 @@ void misc(void)
    ct = 0;
 
    do {
-      y = fasin(x);
+      y = fixasin(x);
       x += 5621;
       x &= 0xffff;
       ct++;
@@ -1572,7 +1571,7 @@ void misc(void)
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "fasin(): %ld per second", ct / TIME_SPEED);
+   sprintf(buf, "fixasin(): %ld per second", ct / TIME_SPEED);
    textout(screen, font, buf, xoff+16, yoff+120, palette_color[15]);
 
    x = 1;
@@ -1580,7 +1579,7 @@ void misc(void)
    ct = 0;
 
    do {
-      y = facos(x);
+      y = fixacos(x);
       x += 5621;
       x &= 0xffff;
       ct++;
@@ -1588,7 +1587,7 @@ void misc(void)
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf,"facos(): %ld per second", ct / TIME_SPEED);
+   sprintf(buf,"fixacos(): %ld per second", ct / TIME_SPEED);
    textout(screen, font, buf, xoff+16, yoff+130, palette_color[15]);
 
    x = 1;
@@ -1596,14 +1595,14 @@ void misc(void)
    ct = 0;
 
    do {
-      y = fatan(x);
+      y = fixatan(x);
       x += 7358;
       ct++;
       if (next())
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "fatan(): %ld per second", ct / TIME_SPEED);
+   sprintf(buf, "fixatan(): %ld per second", ct / TIME_SPEED);
    textout(screen, font, buf, xoff+16, yoff+140, palette_color[15]);
 
    x = 1, y = 2;
@@ -1611,7 +1610,7 @@ void misc(void)
    ct = 0;
 
    do {
-      z = fatan2(x, y);
+      z = fixatan2(x, y);
       x += 5621;
       y += 7335;
       ct++;
@@ -1619,7 +1618,7 @@ void misc(void)
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "fatan2(): %ld per second", ct / TIME_SPEED);
+   sprintf(buf, "fixatan2(): %ld per second", ct / TIME_SPEED);
    textout(screen, font, buf, xoff+16, yoff+150, palette_color[15]);
 
    textout(screen, font, "Press a key or mouse button", xoff+52, SCREEN_H-10, palette_color[15]);

@@ -1187,10 +1187,10 @@ void do_arc(BITMAP *bmp, int x, int y, fixed ang1, fixed ang2, int r, int d, voi
    rr3 = itofix(y);
 
    /* evaluate the start point and the end point */
-   px = fixtoi(rr2 + rr1 * fcos(ang1));
-   py = fixtoi(rr3 - rr1 * fsin(ang1));
-   ex = fixtoi(rr2 + rr1 * fcos(ang2));
-   ey = fixtoi(rr3 - rr1 * fsin(ang2));
+   px = fixtoi(rr2 + rr1 * fixcos(ang1));
+   py = fixtoi(rr3 - rr1 * fixsin(ang1));
+   ex = fixtoi(rr2 + rr1 * fixcos(ang2));
+   ey = fixtoi(rr3 - rr1 * fixsin(ang2));
 
    /* start quadrant */
    if (px >= x) {

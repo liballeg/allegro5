@@ -72,7 +72,7 @@ fixed node_dist(NODE n1, NODE n2)
    fixed dx = itofix(n1.x - n2.x) / SCALE;
    fixed dy = itofix(n1.y - n2.y) / SCALE;
 
-   return fsqrt(fmul(dx, dx) + fmul(dy, dy)) * SCALE;
+   return fixsqrt(fixmul(dx, dx) + fixmul(dy, dy)) * SCALE;
 }
 
 
@@ -100,8 +100,8 @@ void calc_tangents(void)
    node_count++;
 
    for (i=1; i<node_count-1; i++)
-      nodes[i].tangent = fatan2(itofix(nodes[i+1].y - nodes[i-1].y),
-				itofix(nodes[i+1].x - nodes[i-1].x));
+      nodes[i].tangent = fixatan2(itofix(nodes[i+1].y - nodes[i-1].y),
+				  itofix(nodes[i+1].x - nodes[i-1].x));
 }
 
 
@@ -123,16 +123,16 @@ void draw_node(int n)
 /* calculates the control points for a spline segment */
 void get_control_points(NODE n1, NODE n2, int points[8])
 {
-   fixed dist = fmul(node_dist(n1, n2), curviness);
+   fixed dist = fixmul(node_dist(n1, n2), curviness);
 
    points[0] = n1.x;
    points[1] = n1.y;
 
-   points[2] = n1.x + fixtoi(fmul(fcos(n1.tangent), dist));
-   points[3] = n1.y + fixtoi(fmul(fsin(n1.tangent), dist));
+   points[2] = n1.x + fixtoi(fixmul(fixcos(n1.tangent), dist));
+   points[3] = n1.y + fixtoi(fixmul(fixsin(n1.tangent), dist));
 
-   points[4] = n2.x - fixtoi(fmul(fcos(n2.tangent), dist));
-   points[5] = n2.y - fixtoi(fmul(fsin(n2.tangent), dist));
+   points[4] = n2.x - fixtoi(fixmul(fixcos(n2.tangent), dist));
+   points[5] = n2.y - fixtoi(fixmul(fixsin(n2.tangent), dist));
 
    points[6] = n2.x;
    points[7] = n2.y;
@@ -182,10 +182,10 @@ void draw_splines(void)
       draw_node(i);
 
       if (show_tangents) {
-	 line(screen, nodes[i].x - fixtoi(fcos(nodes[i].tangent) * 24),
-		      nodes[i].y - fixtoi(fsin(nodes[i].tangent) * 24),
-		      nodes[i].x + fixtoi(fcos(nodes[i].tangent) * 24),
-		      nodes[i].y + fixtoi(fsin(nodes[i].tangent) * 24),
+	 line(screen, nodes[i].x - fixtoi(fixcos(nodes[i].tangent) * 24),
+		      nodes[i].y - fixtoi(fixsin(nodes[i].tangent) * 24),
+		      nodes[i].x + fixtoi(fixcos(nodes[i].tangent) * 24),
+		      nodes[i].y + fixtoi(fixsin(nodes[i].tangent) * 24),
 		      palette_color[1]);
       }
    }

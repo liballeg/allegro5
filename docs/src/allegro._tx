@@ -6137,16 +6137,16 @@ integer' is not.
    Converts an integer to fixed point. This is the same thing as x&lt&lt16.
 
 @@int @fixtoi(fixed x);
-@xref itofix, ftofix, fixtof, ffloor, fceil
+@xref itofix, ftofix, fixtof, fixfloor, fixceil
    Converts fixed point to integer, rounding as required.
 
-@@int @ffloor(fixed x);
-@xref fixtoi, fceil
+@@int @fixfloor(fixed x);
+@xref fixtoi, fixceil
    Returns the greatest integer not greater than x. That is, it rounds 
    towards negative infinity.
 
-@@int @fceil(fixed x);
-@xref fixtoi, ffloor
+@@int @fixceil(fixed x);
+@xref fixtoi, fixfloor
    Returns the smallest integer not less than x. That is, it rounds towards
    positive infinity.
 
@@ -6158,8 +6158,8 @@ integer' is not.
 @xref ftofix, itofix, fixtoi
    Converts fixed point to floating point.
 
-@@fixed @fmul(fixed x, fixed y);
-@xref fadd, fsub, fdiv
+@@fixed @fixmul(fixed x, fixed y);
+@xref fixadd, fixsub, fixdiv
    A fixed point value can be multiplied or divided by an integer with the 
    normal '*' and '/' operators. To multiply two fixed point values, though, 
    you must use this function.
@@ -6167,23 +6167,23 @@ integer' is not.
    If an overflow or division by zero occurs, errno will be set and the 
    maximum possible value will be returned, but errno is not cleared if the 
    operation is successful. This means that if you are going to test for 
-   overflow you should set errno=0 before calling fmul().
+   overflow you should set errno=0 before calling fixmul().
 
-@@fixed @fdiv(fixed x, fixed y);
-@xref fadd, fsub, fmul
-   Fixed point division: see comments about fmul().
+@@fixed @fixdiv(fixed x, fixed y);
+@xref fixadd, fixsub, fixmul
+   Fixed point division: see comments about fixmul().
 
-@@fixed @fadd(fixed x, fixed y);
-@xref fsub, fmul, fdiv
+@@fixed @fixadd(fixed x, fixed y);
+@xref fixsub, fixmul, fixdiv
    Although fixed point numbers can be added with the normal '+' integer 
    operator, that doesn't provide any protection against overflow. If 
    overflow is a problem, you should use this function instead. It is slower 
    than using integer operators, but if an overflow occurs it will clamp the 
    result, rather than just letting it wrap, and set errno.
 
-@@fixed @fsub(fixed x, fixed y);
-@xref fadd, fmul, fdiv
-   Fixed point subtraction: see comments about fadd().
+@@fixed @fixsub(fixed x, fixed y);
+@xref fixadd, fixmul, fixdiv
+   Fixed point subtraction: see comments about fixadd().
 
 @node fixed point trig
 The fixed point square root, sin, cos, tan, inverse sin, and inverse cos 
@@ -6196,38 +6196,38 @@ Angles are represented in a binary format with 256 equal to a full circle,
 bitwise 'and' can be used to keep the angle within the range zero to a full 
 circle, eliminating all those tiresome 'if (angle &gt= 360)' checks.
 
-@@fixed @fsin(fixed x);
+@@fixed @fixsin(fixed x);
 @xref fixed point trig
    Lookup table sine.
 
-@@fixed @fcos(fixed x);
+@@fixed @fixcos(fixed x);
 @xref fixed point trig
    Lookup table cosine.
 
-@@fixed @ftan(fixed x);
+@@fixed @fixtan(fixed x);
 @xref fixed point trig
    Lookup table tangent.
 
-@@fixed @fasin(fixed x);
+@@fixed @fixasin(fixed x);
 @xref fixed point trig
    Lookup table inverse sine.
 
-@@fixed @facos(fixed x);
+@@fixed @fixacos(fixed x);
 @xref fixed point trig
    Lookup table inverse cosine.
 
-@@fixed @fatan(fixed x);
+@@fixed @fixatan(fixed x);
 @xref fixed point trig
    Fixed point inverse tangent.
 
-@@fixed @fatan2(fixed y, fixed x);
+@@fixed @fixatan2(fixed y, fixed x);
 @xref fixed point trig
    Fixed point version of the libc atan2() routine.
 
-@@fixed @fsqrt(fixed x);
+@@fixed @fixsqrt(fixed x);
    Fixed point square root.
 
-@@fixed @fhypot(fixed x, fixed y);
+@@fixed @fixhypot(fixed x, fixed y);
    Fixed point hypotenuse (returns the square root of x*x + y*y).
 
 
@@ -6238,8 +6238,18 @@ conversion to and from integer and floating point values, and calls the
 above routines as they are required. You should not mix the fix class with 
 the fixed typedef though, because the compiler will mistake the fixed values 
 for regular integers and insert unnecessary conversions. For example, if x 
-is an object of class fix, calling fsqrt(x) will return the wrong result. 
+is an object of class fix, calling fixsqrt(x) will return the wrong result. 
 You should use the overloaded sqrt(x) or x.sqrt() instead.
+
+
+@hnode fixed point aliases
+The fixed point functions used to be named with an "f" prefix instead of
+"fix", eg. fixsqrt() used to be fsqrt(), but were renamed due to conflicts
+with some libc implementations. This should not affect most existing code as
+there are backwards compatibility aliases. These aliases are static inline
+functions which map the old names to the new names, eg. fsqrt() calls
+fixsqrt(). You can disable the aliases by defining the preprocessor macro
+ALLEGRO_NO_FIX_ALIASES before including allegro.h.
 
 
 

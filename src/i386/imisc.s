@@ -12,7 +12,7 @@
  *
  *      By Shawn Hargreaves.
  *
- *      fsqrt() and fhypot() routines by David Kuhling.
+ *      fixsqrt() and fixhypot() routines by David Kuhling.
  *
  *      See readme.txt for copyright information.
  */
@@ -456,15 +456,11 @@ noinc:
 
 
 
-/* fixed fsqrt(fixed x);
+/* fixed fixsqrt(fixed x);
  *  Fixed point square root routine. This code is based on the fixfloat
  *  library by Arne Steinarson.
  */
-#ifdef ALLEGRO_WATCOM
-   FUNC(_fsqrt)                  /* evil hack: fsqrt is a Watcom opcode */
-#else
-   FUNC(fsqrt)
-#endif
+FUNC(fixsqrt)
    pushl %ebp
    movl %esp, %ebp
 
@@ -510,20 +506,20 @@ sqrt_error_check:                /* here we go if x<=0 */
 sqrt_done:
    movl %ebp, %esp
    popl %ebp
-   ret                           /* end of fsqrt() */
+   ret                           /* end of fixsqrt() */
 
 
 
 
-/* fixed fhypot(fixed x, fixed y);
+/* fixed fixhypot(fixed x, fixed y);
  *  Return fixed point sqrt (x*x+y*y), which is the length of the 
  *  hypotenuse of a right triangle with sides of length x and y, or the 
  *  distance of point (x|y) from the origin. This routine is faster and more 
- *  accurate than using the direct formula fsqrt (fmul (x,x), fmul(y,y)). 
- *  It will also return correct results for x>=256 or y>=256 where fmul(x) 
- *  or fmul(y) would overflow.
+ *  accurate than using the direct formula fixsqrt (fixmul (x,x), fixmul(y,y)). 
+ *  It will also return correct results for x>=256 or y>=256 where fixmul(x) 
+ *  or fixmul(y) would overflow.
  */
-FUNC(fhypot)
+FUNC(fixhypot)
    pushl %ebp
    movl %esp, %ebp
 
@@ -536,7 +532,7 @@ FUNC(fhypot)
     * so we come to the formula:
     *    sqrt(x^2+y^2) = sqrt((x*x + y*y)/2^(16+2n)) * 2^n
     * and this is almost the same problem as calculating the square root in
-    * `fsqrt': find `2n' so that `(x*x+y*y)/2^(16+2n)' is in the range 0..255
+    * `fixsqrt': find `2n' so that `(x*x+y*y)/2^(16+2n)' is in the range 0..255
     * so that we can use the square root lookup table.
     */
 
@@ -601,5 +597,5 @@ hypot_overflow:                  /* overflow */
 hypot_done:
    movl %ebp, %esp
    popl %ebp
-   ret                           /* end of fhypot() */
+   ret                           /* end of fixhypot() */
 

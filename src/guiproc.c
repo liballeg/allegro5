@@ -1934,7 +1934,7 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 	    if (mp > irange-hh)
 	       mp = irange-hh;
 	    slpos = itofix(mp);
-	    slmax = fdiv(slpos, slratio);
+	    slmax = fixdiv(slpos, slratio);
 	    newpos = fixtoi(slmax);
 	    if (newpos != oldval) {
 	       d->d2 = newpos;

@@ -16,7 +16,7 @@
  */
 
 
-#define ALLEGRO_INCLUDE_MATH_H
+#include <math.h>
 
 #include "allegro.h"
 
@@ -207,10 +207,10 @@ fixed _acos_tbl[513] =
 
 
 
-/* fatan:
+/* fixatan:
  *  Fixed point inverse tangent. Does a binary search on the tan table.
  */
-fixed fatan(fixed x)
+fixed fixatan(fixed x)
 {
    int a, b, c;            /* for binary search */
    fixed d;                /* difference value for search */
@@ -244,10 +244,10 @@ fixed fatan(fixed x)
 
 
 
-/* fatan2:
+/* fixatan2:
  *  Like the libc atan2, but for fixed point numbers.
  */
-fixed fatan2(fixed y, fixed x)
+fixed fixatan2(fixed y, fixed x)
 {
    fixed r;
 
@@ -261,14 +261,14 @@ fixed fatan2(fixed y, fixed x)
    } 
 
    *allegro_errno = 0;
-   r = fdiv(y, x);
+   r = fixdiv(y, x);
 
    if (*allegro_errno) {
       *allegro_errno = 0;
       return ((y < 0) ? -0x00400000L : 0x00400000L);
    }
 
-   r = fatan(r);
+   r = fixatan(r);
 
    if (x >= 0)
       return r;
@@ -287,7 +287,7 @@ fixed fatan2(fixed y, fixed x)
 
 unsigned short _sqrt_table[256] =
 {
-   /* this table is used by the fsqrt() and fhypot() routines in imisc.s */
+   /* this table is used by the fixsqrt() and fixhypot() routines in imisc.s */
 
    0x2D4,   0x103F,  0x16CD,  0x1BDB,  0x201F,  0x23E3,  0x274B,  0x2A6D, 
    0x2D57,  0x3015,  0x32AC,  0x3524,  0x377F,  0x39C2,  0x3BEE,  0x3E08, 
@@ -325,32 +325,14 @@ unsigned short _sqrt_table[256] =
 
 
 
-#ifdef ALLEGRO_WATCOM
-
-
-/* evil hack: the portable asm implementation is in imisc.s, but Watcom
- * thinks fsqrt is an asm opcode, so we have to rename that to _fsqrt(),
- * and redirect the call from here.
- */
-fixed fsqrt(fixed x)
-{
-   fixed _fsqrt(fixed x);
-   return _fsqrt(x);
-}
-
-
-#endif
-
-
-
 #else       /* not i386, so use straight C versions */
 
 
 
-/* fsqrt:
+/* fixsqrt:
  *  Fixed point square root routine for non-i386.
  */
-fixed fsqrt(fixed x)
+fixed fixsqrt(fixed x)
 {
    if (x > 0)
       return ftofix(sqrt(fixtof(x)));
@@ -363,10 +345,10 @@ fixed fsqrt(fixed x)
 
 
 
-/* fhypot:
+/* fixhypot:
  *  Fixed point sqrt (x*x+y*y) for non-i386.
  */
-fixed fhypot(fixed x, fixed y)
+fixed fixhypot(fixed x, fixed y)
 {
    return ftofix(hypot(fixtof(x), fixtof(y)));
 }

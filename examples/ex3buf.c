@@ -87,12 +87,12 @@ void draw(BITMAP *b)
 
    for (c=0; c<NUM_SHAPES; c++) {
       triangle(b, 
-	       fixtoi(shapes[c].x+fmul(shapes[c].dist1, fcos(shapes[c].dir1))),
-	       fixtoi(shapes[c].y+fmul(shapes[c].dist1, fsin(shapes[c].dir1))),
-	       fixtoi(shapes[c].x+fmul(shapes[c].dist2, fcos(shapes[c].dir2))),
-	       fixtoi(shapes[c].y+fmul(shapes[c].dist2, fsin(shapes[c].dir2))),
-	       fixtoi(shapes[c].x+fmul(shapes[c].dist3, fcos(shapes[c].dir3))),
-	       fixtoi(shapes[c].y+fmul(shapes[c].dist3, fsin(shapes[c].dir3))),
+	       fixtoi(shapes[c].x+fixmul(shapes[c].dist1, fixcos(shapes[c].dir1))),
+	       fixtoi(shapes[c].y+fixmul(shapes[c].dist1, fixsin(shapes[c].dir1))),
+	       fixtoi(shapes[c].x+fixmul(shapes[c].dist2, fixcos(shapes[c].dir2))),
+	       fixtoi(shapes[c].y+fixmul(shapes[c].dist2, fixsin(shapes[c].dir2))),
+	       fixtoi(shapes[c].x+fixmul(shapes[c].dist3, fixcos(shapes[c].dir3))),
+	       fixtoi(shapes[c].y+fixmul(shapes[c].dist3, fixsin(shapes[c].dir3))),
 	       shapes[c].color);
 
       move_shape(shapes+c);

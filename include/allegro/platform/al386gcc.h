@@ -102,8 +102,8 @@ AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
 
 #ifdef ALLEGRO_IMPORT_MATH_ASM
 
-/* Helper macro that makes the compiler reduce fadd(), fsub(), fmul() and
-   fdiv() calls to a single constant if both operands are constant. Since
+/* Helper macro that makes the compiler reduce fixadd(), fixsub(), fixmul() and
+   fixdiv() calls to a single constant if both operands are constant. Since
    this doesn't work unless we compile with optimization, it's better to skip
    the test then. */
 #if (defined __OPTIMIZE__) && ((__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95)))
@@ -127,10 +127,10 @@ AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
 
 
 
-/* fadd:
+/* fixadd:
  *  Fixed point (16.16) addition.
  */
-AL_INLINE(fixed, fadd, (fixed x, fixed y),
+AL_INLINE(fixed, fixadd, (fixed x, fixed y),
 {
    fixed result;
 
@@ -165,10 +165,10 @@ AL_INLINE(fixed, fadd, (fixed x, fixed y),
 
 
 
-/* fsub:
+/* fixsub:
  *  Fixed point (16.16) subtraction.
  */
-AL_INLINE(fixed, fsub, (fixed x, fixed y),
+AL_INLINE(fixed, fixsub, (fixed x, fixed y),
 {
    fixed result;
 
@@ -203,10 +203,10 @@ AL_INLINE(fixed, fsub, (fixed x, fixed y),
 
 
 
-/* fmul:
+/* fixmul:
  *  Fixed point (16.16) multiplication.
  */
-AL_INLINE(fixed, fmul, (fixed x, fixed y),
+AL_INLINE(fixed, fixmul, (fixed x, fixed y),
 {
    fixed edx __attribute__ ((__unused__));
    fixed result;
@@ -255,10 +255,10 @@ AL_INLINE(fixed, fmul, (fixed x, fixed y),
 
 
 
-/* fdiv:
+/* fixdiv:
  *  Fixed point (16.16) division.
  */
-AL_INLINE(fixed, fdiv, (fixed x, fixed y),
+AL_INLINE(fixed, fixdiv, (fixed x, fixed y),
 {
    fixed edx __attribute__ ((__unused__));
    fixed reg __attribute__ ((__unused__));
@@ -338,11 +338,11 @@ AL_INLINE(fixed, fdiv, (fixed x, fixed y),
 
 
 
-/* ffloor :
+/* fixfloor:
  * Fixed point version of floor().
  * Note that it returns an integer result (not a fixed one)
  */
-AL_INLINE(int, ffloor, (fixed x),
+AL_INLINE(int, fixfloor, (fixed x),
 {
    int result;
 
@@ -359,11 +359,11 @@ AL_INLINE(int, ffloor, (fixed x),
 
 
 
-/* fceil :
+/* fixceil:
  * Fixed point version of ceil().
  * Note that it returns an integer result (not a fixed one)
  */
-AL_INLINE(int, fceil, (fixed x),
+AL_INLINE(int, fixceil, (fixed x),
 {
    int result;
 

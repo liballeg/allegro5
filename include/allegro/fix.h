@@ -65,13 +65,13 @@ public:
    fix& operator -=  (const float x)         { v -= ftofix(x);    return *this; }
    fix& operator -=  (const double x)        { v -= ftofix(x);    return *this; }
 
-   fix& operator *=  (const fix x)           { v = fmul(v, x.v);           return *this; }
+   fix& operator *=  (const fix x)           { v = fixmul(v, x.v);         return *this; }
    fix& operator *=  (const int x)           { v *= x;                     return *this; }
    fix& operator *=  (const long x)          { v *= x;                     return *this; }
    fix& operator *=  (const float x)         { v = ftofix(fixtof(v) * x);  return *this; }
    fix& operator *=  (const double x)        { v = ftofix(fixtof(v) * x);  return *this; }
 
-   fix& operator /=  (const fix x)           { v = fdiv(v, x.v);           return *this; }
+   fix& operator /=  (const fix x)           { v = fixdiv(v, x.v);         return *this; }
    fix& operator /=  (const int x)           { v /= x;                     return *this; }
    fix& operator /=  (const long x)          { v /= x;                     return *this; }
    fix& operator /=  (const float x)         { v = ftofix(fixtof(v) / x);  return *this; }

@@ -1696,13 +1696,13 @@ int title_screen(void)
 	       x = itofix(rand()&0xff);
 	       y = itofix(((rand()&3)+1)*SCREEN_W);
 
-	       star[c].x = fmul(fcos(x), y);
-	       star[c].y = fmul(fsin(x), y);
+	       star[c].x = fixmul(fixcos(x), y);
+	       star[c].y = fixmul(fixsin(x), y);
 	       star[c].z = itofix((rand() & 0x1f) + 0x20);
 	    }
 
-	    x = fdiv(star[c].x, star[c].z);
-	    y = fdiv(star[c].y, star[c].z);
+	    x = fixdiv(star[c].x, star[c].z);
+	    y = fixdiv(star[c].y, star[c].z);
 
 	    ix = (int)(x>>16) + SCREEN_W/2;
 	    iy = (int)(y>>16) + SCREEN_H/2;
@@ -1758,7 +1758,7 @@ int title_screen(void)
 
 	       if (n) {
 		  credit_skip = 1 + n/50;
-		  credit_speed = 8 + fixtoi(fdiv(itofix(512), itofix(n)));
+		  credit_speed = 8 + fixtoi(fixdiv(itofix(512), itofix(n)));
 		  if (credit_speed > 200)
 		     credit_speed = 200;
 		  c = 1024 + (n-1)*credit_speed;
@@ -1836,26 +1836,26 @@ int title_screen(void)
 
 	       c2 -= 96;
 
-	       c3 = (32 + fixtoi(ABS(fsin(itofix(c/(15+n%42)+n)))*128)) * SCREEN_W / 640;
+	       c3 = (32 + fixtoi(ABS(fixsin(itofix(c/(15+n%42)+n)))*128)) * SCREEN_W / 640;
 
-	       x += fsin(itofix(c2)) * c3;
-	       y += fcos(itofix(c2)) * c3;
+	       x += fixsin(itofix(c2)) * c3;
+	       y += fixcos(itofix(c2)) * c3;
 
 	       if (c < 512) {
-		  z = fsqrt(itofix(c)/512);
+		  z = fixsqrt(itofix(c)/512);
 
-		  x = fmul(itofix(32), itofix(1)-z) + fmul(x, z);
-		  y = fmul(itofix(16), itofix(1)-z) + fmul(y, z);
+		  x = fixmul(itofix(32), itofix(1)-z) + fixmul(x, z);
+		  y = fixmul(itofix(16), itofix(1)-z) + fixmul(y, z);
 	       }
 	       else if (c > 768) {
-		  z = fsqrt(itofix(1024-c)/256);
+		  z = fixsqrt(itofix(1024-c)/256);
 
 		  if (n&2)
-		     x = fmul(itofix(128), itofix(1)-z) + fmul(x, z);
+		     x = fixmul(itofix(128), itofix(1)-z) + fixmul(x, z);
 		  else
-		     x = fmul(itofix(SCREEN_W-128), itofix(1)-z) + fmul(x, z);
+		     x = fixmul(itofix(SCREEN_W-128), itofix(1)-z) + fixmul(x, z);
 
-		  y = fmul(itofix(SCREEN_H-128), itofix(1)-z) + fmul(y, z);
+		  y = fixmul(itofix(SCREEN_H-128), itofix(1)-z) + fixmul(y, z);
 	       }
 
 	       c = 128 + (512 - ABS(512-c)) / 24;

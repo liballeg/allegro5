@@ -26,10 +26,6 @@
 
 #include "allegro/base.h"
 
-#ifdef ALLEGRO_INCLUDE_MATH_H
-   #include <math.h>
-#endif
-
 #include "allegro/system.h"
 #include "allegro/debug.h"
 

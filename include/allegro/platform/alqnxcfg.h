@@ -21,10 +21,7 @@
    #include <stdlib.h>
    #include <fcntl.h>
    #include <unistd.h>
-   #include <math.h>
 #endif
-
-#undef ALLEGRO_INCLUDE_MATH_H
 
 
 /* a static auto config */

@@ -30,8 +30,8 @@ void draw_hand(BITMAP *bmp, int value, int range, int v2, int range2, fixed leng
    angle = ((itofix(value) * 256) / range) + 
 	   ((itofix(v2) * 256) / (range * range2)) - itofix(64);
 
-   x = fmul(fcos(angle), length);
-   y = fmul(fsin(angle), length);
+   x = fixmul(fixcos(angle), length);
+   y = fixmul(fixsin(angle), length);
    w = bmp->w / 2;
    h = bmp->h / 2;
 
@@ -68,8 +68,8 @@ int clock_proc(int msg, DIALOG *d, int c)
 
 	 /* draw ticks around the edge */
 	 for (angle=0; angle<itofix(256); angle+=itofix(256)/12) {
-	    x = fcos(angle);
-	    y = fsin(angle);
+	    x = fixcos(angle);
+	    y = fixsin(angle);
 	    line(temp, temp->w/2+fixtoi(x*temp->w*15/32), 
 		       temp->h/2+fixtoi(y*temp->w*15/32), 
 		       temp->w/2+fixtoi(x*temp->w/2), 

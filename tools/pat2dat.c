@@ -23,8 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-
-#define ALLEGRO_INCLUDE_MATH_H
+#include <math.h>
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"

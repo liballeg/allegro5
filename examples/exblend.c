@@ -106,12 +106,12 @@ int main(int argc, char *argv[])
       /* the first image moves in a slow circle while being tinted to 
        * different colors...
        */
-      x1= 160+fixtoi(fsin(itofix(timer)/16)*160);
-      y1= 140-fixtoi(fcos(itofix(timer)/16)*140);
-      r = 127-fixtoi(fcos(itofix(timer)/6)*127);
-      g = 127-fixtoi(fcos(itofix(timer)/7)*127);
-      b = 127-fixtoi(fcos(itofix(timer)/8)*127);
-      a = 127-fixtoi(fcos(itofix(timer)/9)*127);
+      x1= 160+fixtoi(fixsin(itofix(timer)/16)*160);
+      y1= 140-fixtoi(fixcos(itofix(timer)/16)*140);
+      r = 127-fixtoi(fixcos(itofix(timer)/6)*127);
+      g = 127-fixtoi(fixcos(itofix(timer)/7)*127);
+      b = 127-fixtoi(fixcos(itofix(timer)/8)*127);
+      a = 127-fixtoi(fixcos(itofix(timer)/9)*127);
       set_trans_blender(r, g, b, 0);
       draw_lit_sprite(buffer, image1, x1, y1, a);
       textprintf(screen, font, 0, 0, makecol(r, g, b), "light: %d ", a);
@@ -119,9 +119,9 @@ int main(int argc, char *argv[])
       /* the second image moves in a faster circle while the alpha value
        * fades in and out...
        */
-      x2= 160+fixtoi(fsin(itofix(timer)/10)*160);
-      y2= 140-fixtoi(fcos(itofix(timer)/10)*140);
-      a = 127-fixtoi(fcos(itofix(timer)/4)*127);
+      x2= 160+fixtoi(fixsin(itofix(timer)/10)*160);
+      y2= 140-fixtoi(fixcos(itofix(timer)/10)*140);
+      a = 127-fixtoi(fixcos(itofix(timer)/4)*127);
       set_trans_blender(0, 0, 0, a);
       draw_trans_sprite(buffer, image2, x2, y2);
       textprintf(screen, font, 0, 8, makecol(a, a, a), "alpha: %d ", a);

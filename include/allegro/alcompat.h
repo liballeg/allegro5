@@ -38,6 +38,38 @@
    #endif
 #endif
 
+#ifndef ALLEGRO_NO_FIX_ALIASES
+   #if (defined ALLEGRO_GCC)
+      #define AL_ALIAS(DECL, CALL)                      \
+      static __attribute__((unused)) inline DECL        \
+      {                                                 \
+         return CALL;                                   \
+      }
+   #else
+      #define AL_ALIAS(DECL, CALL)              \
+      static INLINE DECL                        \
+      {                                         \
+         return CALL;                           \
+      }
+   #endif
+   AL_ALIAS(fixed fadd(fixed x, fixed y), fixadd(x, y));
+   AL_ALIAS(fixed fsub(fixed x, fixed y), fixsub(x, y));
+   AL_ALIAS(fixed fmul(fixed x, fixed y), fixmul(x, y));
+   AL_ALIAS(fixed fdiv(fixed x, fixed y), fixdiv(x, y));
+   AL_ALIAS(int fceil(fixed x), fixceil(x));
+   AL_ALIAS(int ffloor(fixed x), fixfloor(x));
+   AL_ALIAS(fixed fcos(fixed x), fixcos(x));
+   AL_ALIAS(fixed fsin(fixed x), fixsin(x));
+   AL_ALIAS(fixed ftan(fixed x), fixtan(x));
+   AL_ALIAS(fixed facos(fixed x), fixacos(x));
+   AL_ALIAS(fixed fasin(fixed x), fixasin(x));
+   AL_ALIAS(fixed fatan(fixed x), fixatan(x));
+   AL_ALIAS(fixed fatan2(fixed y, fixed x), fixatan2(y, x));
+   AL_ALIAS(fixed fsqrt(fixed x), fixsqrt(x));
+   AL_ALIAS(fixed fhypot(fixed x, fixed y), fixhypot(x, y));
+   #undef AL_ALIAS
+#endif
+
 #define KB_NORMAL       1
 #define KB_EXTENDED     2
 

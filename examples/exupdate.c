@@ -73,14 +73,14 @@ void kalid(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int r, i
 /* draws the current animation frame into the specified bitmap */
 void draw_screen(BITMAP *bmp)
 {
-   fixed c1 = fcos(r1);
-   fixed c2 = fcos(r2);
-   fixed c3 = fcos(r3);
-   fixed c4 = fcos(r4);
-   fixed s1 = fsin(r1);
-   fixed s2 = fsin(r2);
-   fixed s3 = fsin(r3);
-   fixed s4 = fsin(r4);
+   fixed c1 = fixcos(r1);
+   fixed c2 = fixcos(r2);
+   fixed c3 = fixcos(r3);
+   fixed c4 = fixcos(r4);
+   fixed s1 = fixsin(r1);
+   fixed s2 = fixsin(r2);
+   fixed s3 = fixsin(r3);
+   fixed s4 = fixsin(r4);
 
    acquire_bitmap(bmp);
 
@@ -98,9 +98,9 @@ void draw_screen(BITMAP *bmp)
 	      fixtoi(c3*SCREEN_W/3), fixtoi(s4*SCREEN_H/3),
 	      127+fixtoi(s1*127), 127+fixtoi(c4*127), 127+fixtoi(s4*127));
 
-   kalid(bmp, fixtoi(fmul(s2, c3)*SCREEN_W/3), fixtoi(c1*SCREEN_H/3),
-	      fixtoi(c4*SCREEN_W/3), fixtoi(fmul(c2, s3)*SCREEN_H/3),
-	      fixtoi(fmul(c3, s4)*SCREEN_W/3), fixtoi(s1*SCREEN_H/3),
+   kalid(bmp, fixtoi(fixmul(s2, c3)*SCREEN_W/3), fixtoi(c1*SCREEN_H/3),
+	      fixtoi(c4*SCREEN_W/3), fixtoi(fixmul(c2, s3)*SCREEN_H/3),
+	      fixtoi(fixmul(c3, s4)*SCREEN_W/3), fixtoi(s1*SCREEN_H/3),
 	      127+fixtoi(s2*127), 127+fixtoi(c3*127), 127+fixtoi(s3*127));
 
    xor_mode(FALSE);

@@ -35,25 +35,6 @@
 # define O_TEXT    0
 #endif
 
-#ifdef __sgi__
-# define fhypot sgi_fhypot
-#endif
-#include <math.h>
-#ifdef __sgi__
-/* SGI defines these macros in <math.h>.  */
-# undef fsin
-# undef fcos
-# undef ftan
-# undef fasin
-# undef facos
-# undef fatan
-# undef fatan2
-# undef fsqrt
-# undef fhypot
-# undef fceil
-#endif
-#undef ALLEGRO_INCLUDE_MATH_H
-
 /* These defines will be provided by configure script.  */
 #undef ALLEGRO_COLOR8
 #undef ALLEGRO_COLOR16
