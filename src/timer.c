@@ -574,7 +574,7 @@ int install_timer(void)
       return -1;
    }
 
-   _add_exit_func(remove_timer);
+   _add_exit_func(remove_timer, "remove_timer");
    _timer_installed = TRUE;
 
    return 0;

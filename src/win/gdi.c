@@ -88,7 +88,8 @@ void set_palette_to_hdc(HDC dc, PALETTE pal)
    }
    else {
       current_hpalette = convert_palette_to_hpalette(pal);
-      _add_exit_func(destroy_current_hpalette);
+      _add_exit_func(destroy_current_hpalette,
+		     "destroy_current_hpalette");
    }
 
    SelectPalette(dc, current_hpalette, FALSE);

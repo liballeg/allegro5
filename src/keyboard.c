@@ -676,7 +676,7 @@ int install_keyboard(void)
 
    set_leds(-1);
 
-   _add_exit_func(remove_keyboard);
+   _add_exit_func(remove_keyboard, "remove_keyboard");
    _keyboard_installed = TRUE;
 
    if ((keyboard_driver->autorepeat) && (!_timer_installed))

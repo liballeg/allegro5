@@ -150,7 +150,8 @@ void _register_sample_file_type_init(void)
 {
    char buf[32];
 
-   _add_exit_func(register_sample_file_type_exit);
+   _add_exit_func(register_sample_file_type_exit,
+		  "register_sample_file_type_exit");
 
    register_sample_file_type(uconvert_ascii("wav", buf), load_wav, NULL);
    register_sample_file_type(uconvert_ascii("voc", buf), load_voc, NULL);

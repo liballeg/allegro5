@@ -219,7 +219,7 @@ static void init_config(int loaddata)
    char filename[1024], tmp[128], *cfg_name;
 
    if (!config_installed) {
-      _add_exit_func(config_cleanup);
+      _add_exit_func(config_cleanup, "config_cleanup");
       config_installed = TRUE;
    }
 

@@ -647,7 +647,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       if (system_driver->save_console_state)
 	 system_driver->save_console_state();
 
-      _add_exit_func(shutdown_gfx);
+      _add_exit_func(shutdown_gfx, "shutdown_gfx");
 
       gfx_virgin = FALSE;
    }

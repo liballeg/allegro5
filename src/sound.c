@@ -540,7 +540,7 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
    if ((_digi_volume >= 0) || (_midi_volume >= 0))
       set_volume(_digi_volume, _midi_volume);
 
-   _add_exit_func(remove_sound);
+   _add_exit_func(remove_sound, "remove_sound");
    _sound_installed = TRUE;
    return 0;
 }

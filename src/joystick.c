@@ -182,7 +182,7 @@ int install_joystick(int type)
 
    poll_joystick();
 
-   _add_exit_func(remove_joystick);
+   _add_exit_func(remove_joystick, "remove_joystick");
    _joystick_installed = TRUE;
 
    return 0;

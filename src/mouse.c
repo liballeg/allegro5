@@ -1046,7 +1046,7 @@ int install_mouse(void)
    disable_hardware_cursor();
 
    set_mouse_etc();
-   _add_exit_func(remove_mouse);
+   _add_exit_func(remove_mouse, "remove_mouse");
 
    if (mouse_driver->timer_poll)
       install_int(mouse_move, 10);

@@ -1031,7 +1031,8 @@ int set_allegro_resource_path(int priority, AL_CONST char *path)
 	 }
          
 	 if (!resource_path_list->next)
-	    _add_exit_func(destroy_resource_path_list);
+	    _add_exit_func(destroy_resource_path_list,
+			   "destroy_resource_path_list");
       }
       
       ustrzcpy(new_node->path,

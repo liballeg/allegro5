@@ -221,6 +221,7 @@ struct _AL_LINKER_MOUSE *_al_linker_mouse = NULL;
 /* dynamic registration system for cleanup code */
 struct al_exit_func {
    void (*funcptr)(void);
+   AL_CONST char *desc;
    struct al_exit_func *next;
 };
 
@@ -240,8 +241,10 @@ int _get_allegro_version(void)
 
 /* _add_exit_func:
  *  Adds a function to the list that need to be called by allegro_exit().
+ *  `desc' should point to a statically allocated string to help with
+ *  debugging.
  */
-void _add_exit_func(void (*func)(void))
+void _add_exit_func(void (*func)(void), AL_CONST char *desc)
 {
    struct al_exit_func *n;
 
@@ -255,6 +258,7 @@ void _add_exit_func(void (*func)(void))
 
    n->next = exit_func_list;
    n->funcptr = func;
+   n->desc = desc;
    exit_func_list = n;
 }
 
@@ -406,8 +410,9 @@ int _install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*fun
  */
 void allegro_exit(void)
 {
-   while (exit_func_list)
+   while (exit_func_list) {
       (*(exit_func_list->funcptr))();
+   }
 
    if (system_driver) {
       system_driver->exit();
@@ -537,7 +542,7 @@ void al_assert(AL_CONST char *file, int line)
 	 assert_file = NULL;
 
       if (debug_trace_virgin)
-	 _add_exit_func(debug_exit);
+	 _add_exit_func(debug_exit, "debug_exit");
 
       debug_assert_virgin = FALSE;
    }
@@ -593,7 +598,7 @@ void al_trace(AL_CONST char *msg, ...)
 	 trace_file = fopen("allegro.log", "w");
 
       if (debug_assert_virgin)
-	 _add_exit_func(debug_exit);
+	 _add_exit_func(debug_exit, "debug_exit");
 
       debug_trace_virgin = FALSE;
    }

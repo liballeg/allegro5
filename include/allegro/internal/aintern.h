@@ -72,7 +72,7 @@ AL_FUNC(void *, _al_realloc, (void *mem, int size));
 
 
 /* list of functions to call at program cleanup */
-AL_FUNC(void, _add_exit_func, (AL_METHOD(void, func, (void))));
+AL_FUNC(void, _add_exit_func, (AL_METHOD(void, func, (void)), AL_CONST char *desc));
 AL_FUNC(void, _remove_exit_func, (AL_METHOD(void, func, (void))));
 
 
