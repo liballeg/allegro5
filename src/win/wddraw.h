@@ -53,14 +53,21 @@ AL_FUNC(void, gfx_directx_destroy_surf, (LPDIRECTDRAWSURFACE surf));
 AL_FUNC(int, init_directx, (void));
 AL_FUNC(int, set_video_mode, (int w, int h, int v_w, int v_h, int color_depth));
 AL_FUNC(int, create_palette, (LPDIRECTDRAWSURFACE surf));
-AL_FUNC(int, create_primary, (int w, int h, int color_depth));
+AL_FUNC(int, create_primary, (void));
 AL_FUNC(int, create_clipper, (HWND hwnd));
 AL_FUNC(int, setup_driver, (GFX_DRIVER * drv, int w, int h, int color_depth));
 AL_FUNC(int, finalize_directx_init, (void));
 AL_FUNC(int, gfx_directx_wnd_exit, (void));
 AL_FUNC(void, gfx_directx_exit, (BITMAP *b));
 AL_FUNC(int, enable_acceleration, (GFX_DRIVER * drv));
-AL_FUNC(int, gfx_directx_update_color_format, (int color_depth));
+
+
+/* video mode setting */
+AL_FUNC(int, gfx_directx_compare_color_depth, (int color_depth));
+AL_FUNC(int, gfx_directx_update_color_format, (LPDIRECTDRAWSURFACE surf, int color_depth));
+
+AL_VAR(int, desktop_depth);
+AL_VAR(BOOL, same_color_depth);
 
 
 /* bitmap locking */
@@ -78,7 +85,7 @@ AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
 
 
 /* bitmap creation */
-AL_FUNC(LPDIRECTDRAWSURFACE, gfx_directx_create_surface, (int w, int h, int color_depth,
+AL_FUNC(LPDIRECTDRAWSURFACE, gfx_directx_create_surface, (int w, int h, LPDDPIXELFORMAT pixel_format,
    int video, int primary, int overlay));
 AL_FUNC(BITMAP *, make_directx_bitmap, (LPDIRECTDRAWSURFACE surf, int w, int h, int color_depth, int id));
 
@@ -97,8 +104,6 @@ AL_FUNC(void, hide_overlay, (void));
 AL_FUNC(void, wddovl_switch_out, (void));
 AL_FUNC(void, wddovl_switch_in, (void));
 
-AL_VAR(LPDIRECTDRAWSURFACE, overlay_surface);
-AL_VAR(BOOL, overlay_visible);
 AL_VAR(int, wnd_x);
 AL_VAR(int, wnd_y);
 AL_VAR(int, wnd_width);
@@ -112,8 +117,19 @@ AL_FUNCPTR(void, update_window, (RECT* rect));
 AL_FUNC(void, wddwin_switch_out, (void));
 AL_FUNC(void, wddwin_switch_in, (void));
 
-AL_VAR(LPDIRECTDRAWSURFACE, dd_offscreen);
-AL_VAR(BOOL, same_color_depth);
+AL_FUNC(void,  _update_8_to_15, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
+AL_FUNC(void, _update_24_to_15, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
+AL_FUNC(void, _update_32_to_15, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
+AL_FUNC(void,  _update_8_to_16, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
+AL_FUNC(void, _update_24_to_16, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
+AL_FUNC(void, _update_32_to_16, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
+AL_FUNC(void,  _update_8_to_24, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
+AL_FUNC(void, _update_16_to_24, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
+AL_FUNC(void, _update_32_to_24, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
+AL_FUNC(void,  _update_8_to_32, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
+AL_FUNC(void, _update_16_to_32, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
+AL_FUNC(void, _update_24_to_32, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
+
 AL_VAR(BITMAP*, pseudo_screen);
 AL_VAR(int*, allegro_palette);
 AL_VAR(int*, rgb_scale_5335);

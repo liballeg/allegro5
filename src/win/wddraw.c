@@ -24,6 +24,7 @@ LPDIRECTDRAW directdraw = NULL;
 LPDIRECTDRAWSURFACE dd_prim_surface = NULL;
 LPDIRECTDRAWPALETTE dd_palette = NULL;
 LPDIRECTDRAWCLIPPER dd_clipper = NULL;
+LPDDPIXELFORMAT dd_pixelformat = NULL;
 DDCAPS dd_caps;
 CRITICAL_SECTION gfx_crit_sect;
 struct BITMAP *dd_frontbuffer = NULL;
@@ -115,10 +116,10 @@ int create_palette(LPDIRECTDRAWSURFACE surf)
 
 /* create_primary:
  */
-int create_primary(int w, int h, int color_depth)
+int create_primary(void)
 {
    /* create primary surface */
-   dd_prim_surface = gfx_directx_create_surface(w, h, color_depth, 1, 1, 0);
+   dd_prim_surface = gfx_directx_create_surface(0, 0, NULL, 1, 1, 0);
    if (!dd_prim_surface) {
       _TRACE("Can't create primary surface.\n");
       return -1;

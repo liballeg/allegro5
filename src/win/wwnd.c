@@ -52,7 +52,7 @@ static UINT msg_set_cursor = 0;
 
 
 /* win_set_window:
- *  Selects a user degined window for Allegro
+ *  Selects a user defined window for Allegro
  */
 void win_set_window(HWND wnd)
 {
@@ -72,7 +72,7 @@ HWND win_get_window(void)
 
 void win_set_wnd_create_proc(HWND proc)
 {
-        wnd_create_proc = proc;
+   wnd_create_proc = proc;
 }
 
 
@@ -153,10 +153,10 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
 	       wnd_x = (int) LOWORD(lparam);
 	       wnd_y = (int) HIWORD(lparam);
 	       handle_window_size(wnd_x, wnd_y, wnd_width, wnd_height);
-	       if (dd_offscreen)
+	       if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_WIN))
 		  handle_window_size_win();
 	    }
-	    else if (overlay_surface)
+	    else if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_OVL))
 	       hide_overlay();
 	 }
 	 break;
@@ -177,7 +177,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
 	    BeginPaint(wnd, &ps);
 	    EndPaint(wnd, &ps);
 	 }
-	 else if (dd_offscreen) {
+	 else if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_WIN)) {
 	    BeginPaint(wnd, &ps);
 	    update_window(&(ps.rcPaint));
 	    EndPaint(wnd, &ps);

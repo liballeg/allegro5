@@ -60,35 +60,8 @@ GFX_DRIVER gfx_directx_ovl =
 };
 
 static char gfx_driver_desc[256] = EMPTY_STRING;
-
-static int pixel_match[] = { 8, 15, 15, 16, 16, 24, 24, 32, 32, 0 };
-
-static DDPIXELFORMAT pixel_format[] = {
-   /* 8-bit */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB | DDPF_PALETTEINDEXED8, 0, {8}, {0}, {0}, {0}, {0}},
-   /* 16-bit RGB 5:5:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x7C00}, {0x03e0}, {0x001F}, {0}},
-   /* 16-bit BGR 5:5:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x001F}, {0x03e0}, {0x7C00}, {0}},
-   /* 16-bit RGB 5:6:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0xF800}, {0x07e0}, {0x001F}, {0}},
-   /* 16-bit BGR 5:6:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x001F}, {0x07e0}, {0xF800}, {0}},
-   /* 24-bit RGB */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {24}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
-   /* 24-bit BGR */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {24}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}},
-   /* 32-bit RGB */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
-   /* 32-bit BGR */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}	} 
-};
-
-LPDIRECTDRAWSURFACE overlay_surface = NULL;
-BOOL overlay_visible = FALSE;
-static int desktop_depth;
-static int desk_r, desk_g, desk_b;
-
+static LPDIRECTDRAWSURFACE overlay_surface = NULL;
+static BOOL overlay_visible = FALSE;
 
 
 /* show_overlay:
@@ -179,48 +152,15 @@ static int wnd_set_windowed_coop(void)
 }
 
 
-/* _get_n_bits:
- * gets the number of bits of a given bitmask
- */
-static int _get_n_bits (int mask)
-{
-    int n = 0;
-
-    while (mask) {
-        mask = mask & (mask - 1);  
-        n++;
-    }
-    return n;
-}
-
 
 /* verify_color_depth:
  * compares the color depth requested with the real color depth
  */
 static int verify_color_depth (int color_depth)
 {
-   DDSURFACEDESC surf_desc;
-   HRESULT hr;
-   
-   /* get current video mode */
-   surf_desc.dwSize = sizeof(surf_desc);
-   hr = IDirectDraw_GetDisplayMode(directdraw, &surf_desc);
-   if (FAILED(hr)) {
-      _TRACE("Can't get color format.\n");
-      return -1;
-   }
+   if (gfx_directx_compare_color_depth(color_depth) != 0) {
+      /* the color depths don't match, need color conversion */
 
-   /* get the *real* color depth of the desktop */
-   desktop_depth = surf_desc.ddpfPixelFormat.dwRGBBitCount;
-   if (desktop_depth == 16) /* sure? */
-      desktop_depth = _get_n_bits (surf_desc.ddpfPixelFormat.dwRBitMask) +
-                      _get_n_bits (surf_desc.ddpfPixelFormat.dwGBitMask) +
-                      _get_n_bits (surf_desc.ddpfPixelFormat.dwBBitMask);
-
-   if (color_depth == desktop_depth) {
-      same_color_depth = TRUE;
-   }
-   else {
       /* conversion involving 8-bit color isn't supported */
       if ((desktop_depth == 8) || (color_depth == 8))
           return -1;
@@ -229,8 +169,6 @@ static int verify_color_depth (int color_depth)
       if ( ((desktop_depth == 15) && (color_depth == 16)) ||
            ((desktop_depth == 16) && (color_depth == 15)) )
          return -1;
-
-      same_color_depth = FALSE;
    }
 
    return 0;
@@ -245,7 +183,7 @@ static void setup_driver_desc(void)
    char tmp1[80], tmp2[80];
 
    usprintf(gfx_driver_desc,
-       uconvert_ascii("DirectDraw, in %s, %d bpp window", tmp1),
+       uconvert_ascii("DirectDraw, in %s, %d bpp overlay", tmp1),
            uconvert_ascii((same_color_depth ? "matching" : "color conversion"), tmp2),
                desktop_depth );
    
@@ -317,89 +255,12 @@ static int gfx_directx_request_video_bitmap_ovl(struct BITMAP *bitmap)
 }
 
 
-/* _get_color_shift:
- *  return shift value for color mask
- */
-static int _get_color_shift(int mask)
-{
-   int n;
-
-   for (n = 0; ((mask & 1) == 0) && (mask != 0); n++)
-      mask >>= 1;
-
-   return n;
-}
-
 
 /* create_overlay:
  */
 static int create_overlay(int w, int h, int color_depth)
 {
-   DDPIXELFORMAT temp_pixel_format;
-   int i;
-   int shift_r, shift_g, shift_b;
-
-   if (same_color_depth) {
-      overlay_surface = gfx_directx_create_surface(w, h, color_depth, 1, 0, 1);
-
-      if (overlay_surface)
-         gfx_directx_update_color_format(color_depth);
-   }
-   else {
-      /* get pixel format of primary surface */
-      temp_pixel_format.dwSize = sizeof(DDPIXELFORMAT);
-
-      IDirectDrawSurface_GetPixelFormat(dd_prim_surface, &temp_pixel_format);
-      desk_r = _get_color_shift(temp_pixel_format.dwRBitMask);
-      desk_g = _get_color_shift(temp_pixel_format.dwGBitMask);
-      desk_b = _get_color_shift(temp_pixel_format.dwBBitMask);
-
-      /* test for the same depth and RGB order */
-      for (i=0 ; pixel_match[i] ; i++)
-         if ((pixel_match[i] == color_depth) &&
-            ((temp_pixel_format.dwRBitMask & pixel_format[i].dwRBitMask) ||
-                (temp_pixel_format.dwBBitMask & pixel_format[i].dwBBitMask) ||
-                   (color_depth == 8))) {
-                      dd_pixelformat = &pixel_format[i];
-                      overlay_surface = gfx_directx_create_surface(w, h, color_depth, 1, 0, 1);
-                      break;
-      }
-
-      if ((pixel_match[i] == 0) || !overlay_surface)         
-	 dd_pixelformat = NULL;
-      else {
-         /* we can't rely on gfx_directx_update_color_format() for updating the color format */
-	 shift_r = _get_color_shift(dd_pixelformat->dwRBitMask);
-	 shift_g = _get_color_shift(dd_pixelformat->dwGBitMask);
-	 shift_b = _get_color_shift(dd_pixelformat->dwBBitMask);
-
-	 switch (color_depth) {
-	    case 15:
-	       _rgb_r_shift_15 = shift_r;
-	       _rgb_g_shift_15 = shift_g;
-	       _rgb_b_shift_15 = shift_b;
-	       break;
-
-	    case 16:
-	       _rgb_r_shift_16 = shift_r;
-	       _rgb_g_shift_16 = shift_g;
-	       _rgb_b_shift_16 = shift_b;
-	       break;
-
-	    case 24:
-	       _rgb_r_shift_24 = shift_r;
-	       _rgb_g_shift_24 = shift_g;
-	       _rgb_b_shift_24 = shift_b;
-	       break;
-
-	    case 32:
-	       _rgb_r_shift_32 = shift_r;
-	       _rgb_g_shift_32 = shift_g;
-	       _rgb_b_shift_32 = shift_b;
-	       break;
-	 }
-      }
-   }
+   overlay_surface = gfx_directx_create_surface(w, h, dd_pixelformat, 1, 0, 1);
    
    if (!overlay_surface) {
       _TRACE("Can't create overlay surface.\n");
@@ -449,7 +310,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
 
    /* create surfaces */
-   if (create_primary(w, h, color_depth) != 0)
+   if (create_primary() != 0)
       goto Error;
 
    if (create_overlay(w, h, color_depth) != 0)
@@ -466,18 +327,26 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    }
 
    if (dd_caps.dwCaps & DDCAPS_ALIGNSIZESRC) {
-      if (w%dd_caps.dwAlignSizeSrc)
-          goto Error;
+      if (w%dd_caps.dwAlignSizeSrc) {
+         _TRACE("Alignment requirement not met: source size %d.\n", dd_caps.dwAlignSizeSrc);
+         goto Error;
+      }
    } 
    else if (dd_caps.dwCaps & DDCAPS_ALIGNSIZEDEST) {
-      if (w%dd_caps.dwAlignSizeDest)
-          goto Error;
+      if (w%dd_caps.dwAlignSizeDest) {
+         _TRACE("Alignment requirement not met: dest size %d.\n", dd_caps.dwAlignSizeDest);
+         goto Error;
+      }
    }
 
    /* finalize driver initialization */
    if (color_depth == 8) {
       if (create_palette(overlay_surface) != 0)
 	 goto Error;
+   }
+   else {
+      if (gfx_directx_update_color_format(overlay_surface, color_depth) != 0)
+         goto Error;
    }
 
    if (update_overlay() != 0)
@@ -496,7 +365,12 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       enable_acceleration(&gfx_directx_ovl);
 
    wnd_windowed = TRUE;
-   set_display_switch_mode(SWITCH_BACKGROUND);
+
+   /* set default switching policy */
+   if (same_color_depth)
+      set_display_switch_mode(SWITCH_BACKGROUND);
+   else
+      set_display_switch_mode(SWITCH_PAUSE);
 
    _exit_critical();
 
@@ -517,8 +391,6 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 static void gfx_directx_ovl_exit(struct BITMAP *b)
 {
    _enter_gfx_critical();
-
-   dd_pixelformat = NULL;
 
    if (b)
       clear (b);
