@@ -169,5 +169,8 @@
    the Allegro DLLs to your Windows directory and also include them in
    software you release to the public.
 
+   When using a statically linked library, you must define the preprocessor 
+   symbol ALLEGRO_STATICLINK before including any of the Allegro headers.
+
    Don't forget that you need to use the END_OF_MAIN() macro right after 
    your main() function. Happy coding!
