@@ -456,9 +456,9 @@ allegro_enable_fbcon=yes)
 
 dnl Enable Linux console VBE/AF driver
 AC_ARG_ENABLE(vbeaf,
-[  --enable-vbeaf[=x]      enable VBE/AF graphics driver [default=yes]],
+[  --enable-vbeaf[=x]      enable VBE/AF graphics driver [default=no]],
 test "X$enableval" != "Xno" && allegro_enable_vbeaf=yes,
-allegro_enable_vbeaf=yes)
+allegro_enable_vbeaf=no)
 
 dnl Enable Linux console SVGAlib driver
 AC_ARG_ENABLE(svgalib,
