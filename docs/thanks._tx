@@ -188,6 +188,10 @@ Contributors
    Ettore Perazzoli (<email>ettore@comm2000.it</a>).<br>
    Optimised the linear -&gt mode-X blitting function.
 
+   Evert Glebbeek (<email>eglebbk@phys.uva.nl</a>).<br>
+   Put set_gfx_mode on a diet and added a config entry for specifying the
+   card to be used for GFX_AUTODETECT_WINDOWED.
+
    Fabian Nunez (<email>faybs@iafrica.com</a>).<br>
    Added support for the CH Flightstick Pro and Logitech Wingman Extreme 
    joysticks, 3-button mice, and the extended keys on a Microsoft keyboard.
