@@ -448,16 +448,16 @@ tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 
 ifndef CROSSCOMPILE
 
-$(OBJ_DIR)/demo.res: demo/demo.dat tools/win/wfixicon.exe
+obj/mingw32/demo.res: demo/demo.dat tools/win/wfixicon.exe
 ifdef STATICLINK
-	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+	tools/win/wfixicon.exe obj/mingw32/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
 else
    ifdef UNIX_TOOLS
 	cp tools/win/wfixicon.exe lib/mingw32/wfixicon.exe
    else
 	copy tools\win\wfixicon.exe lib\mingw32\wfixicon.exe
    endif
-	lib/mingw32/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+	lib/mingw32/wfixicon.exe obj/mingw32/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
    ifdef UNIX_TOOLS
 	rm lib/mingw32/wfixicon.exe
    else
@@ -465,8 +465,8 @@ else
    endif
 endif
 
-demo/demo.exe: $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+demo/demo.exe: $(OBJ_DIR)/demo.o obj/mingw32/demo.res $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o obj/mingw32/demo.res $(IMPLIB_NAME) $(LIBRARIES)
 
 obj/mingw32/setupdat.s: setup/setup.dat tools/dat2s.exe
 ifdef STATICLINK
