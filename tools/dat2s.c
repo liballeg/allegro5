@@ -27,6 +27,14 @@
 #include "datedit.h"
 
 
+/* unused callbacks for datedit.c */
+void datedit_msg(AL_CONST char *fmt, ...) { }
+void datedit_startmsg(AL_CONST char *fmt, ...) { }
+void datedit_endmsg(AL_CONST char *fmt, ...) { }
+void datedit_error(AL_CONST char *fmt, ...) { }
+int datedit_ask(AL_CONST char *fmt, ...) { return 0; }
+
+
 /* this program is not portable! */
 #ifdef ALLEGRO_I386
 
@@ -55,14 +63,6 @@ static FILE *outfile = NULL;
 static FILE *outfileheader = NULL;
 
 static void output_object(DATAFILE *object, char *name);
-
-
-/* unused callbacks for datedit.c */
-void datedit_msg(AL_CONST char *fmt, ...) { }
-void datedit_startmsg(AL_CONST char *fmt, ...) { }
-void datedit_endmsg(AL_CONST char *fmt, ...) { }
-void datedit_error(AL_CONST char *fmt, ...) { }
-int datedit_ask(AL_CONST char *fmt, ...) { return 0; }
 
 
 
