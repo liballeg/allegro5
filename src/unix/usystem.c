@@ -43,6 +43,8 @@
 
 #ifdef ALLEGRO_HAVE_SV_PROCFS
    #include <sys/procfs.h>
+   #include <sys/ioctl.h>
+   #include <fcntl.h>
 #endif
 
 
