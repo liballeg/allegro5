@@ -942,7 +942,7 @@ AL_FUNC(int, _midi_allocate_voice, (int min, int max));
 
 AL_VAR(volatile long, _midi_tick);
 
-AL_FUNC(int, _digmid_find_patches, (char *dir, char *file));
+AL_FUNC(int, _digmid_find_patches, (char *dir, int dir_size, char *file, int file_size));
 
 #define VIRTUAL_VOICES  256
 

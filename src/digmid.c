@@ -363,7 +363,7 @@ static PATCH *load_patch(PACKFILE *f, int drum)
 /* _digmid_find_patches:
  *  Tries to locate the GUS patch set directory and index file (default.cfg).
  */
-int _digmid_find_patches(char *dir, char *file)
+int _digmid_find_patches(char *dir, int dir_size, char *file, int file_size)
 {
    char filename[512], tmp1[64], tmp2[64], tmp3[64], tmp4[64];
    AL_CONST char *name;
@@ -379,10 +379,10 @@ int _digmid_find_patches(char *dir, char *file)
       return FALSE;
 
    s = get_filename(filename);
-   ustrcpy(file, s);
+   ustrncpy(file, s, file_size - ucwidth(0));
 
    usetc(s, 0);
-   ustrcpy(dir, filename);
+   ustrncpy(dir, filename, dir_size - ucwidth(0));
 
    return TRUE;
 }
@@ -438,7 +438,7 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
    int type, size;
    int i, j;
 
-   if (!_digmid_find_patches(dir, file))
+   if (!_digmid_find_patches(dir, sizeof(dir), file, sizeof(file)))
       return -1;
 
    for (i=0; i<256; i++)
@@ -918,7 +918,7 @@ static int digmid_detect(int input)
    if (input)
       return FALSE;
 
-   if (!_digmid_find_patches(dir, file)) {
+   if (!_digmid_find_patches(dir, sizeof(dir), file, sizeof(file))) {
       ustrncpy(allegro_error, get_config_text("DIGMID patch set not found"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return FALSE;
    }

@@ -1713,7 +1713,7 @@ char *_ustrdup(AL_CONST char *src, AL_METHOD(void *, malloc_func, (size_t)))
    char *s = malloc_func(ustrsizez(src));
 
    if (s)
-      ustrcpy(s, src);
+      ustrcpy(s, src);  /* ustrncpy() not needed */
 
    return s;
 }

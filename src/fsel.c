@@ -579,7 +579,7 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
 	 flist->name[c2] = flist->name[c2-1];
 
       flist->name[c] = name;
-      ustrcpy(flist->name[c], s);
+      ustrcpy(flist->name[c], s);  /* ustrncpy() not needed */
 
       if (attrib & FA_DIREC)
 	 put_backslash(flist->name[c]);
@@ -841,7 +841,7 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    /* for fs_dlist_proc() */
    ASSERT(size >= 4 * uwidth_max(U_CURRENT));
 
-   ustrncpy(updir, empty_string, sizeof(updir) - ucwidth(0));
+   usetc(updir, 0);
    file_selector[FS_MESSAGE].dp = (char *)message;
    file_selector[FS_EDIT].d1 = size/uwidth_max(U_CURRENT) - 1;
    file_selector[FS_EDIT].dp = path;
@@ -873,8 +873,11 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
 
    p = get_extension(path);
    if ((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", NULL)))) {
-      p += usetc(p, '.');
-      ustrcpy(p, ext);
+      size -= (p - path + ucwidth('.') + ucwidth(0));
+      if (size >= uwidth_max(U_CURRENT)) {  /* do not end with '.' */
+         p += usetc(p, '.');
+         ustrncpy(p, ext, size);
+      }
    }
 
    return TRUE; 

@@ -223,7 +223,7 @@ static void init_config(int loaddata)
 /* get_line: 
  *  Helper for splitting files up into individual lines.
  */
-static int get_line(AL_CONST char *data, int length, char *name, char *val)
+static int get_line(AL_CONST char *data, int length, char *name, int name_size, char *val, int val_size)
 {
    char buf[256], buf2[256];
    int inpos, outpos, i, j;
@@ -272,14 +272,14 @@ static int get_line(AL_CONST char *data, int length, char *name, char *val)
    if (j) {
       /* got a variable */
       usetc(buf2+j, 0);
-      ustrcpy(name, buf2);
+      ustrncpy(name, buf2, name_size - ucwidth(0));
 
       while ((c) && ((uisspace(c)) || (c == '='))) {
 	 i += uwidth(buf+i);
 	 c = ugetc(buf+i);
       }
 
-      ustrcpy(val, buf+i);
+      ustrncpy(val, buf+i, val_size - ucwidth(0));
 
       /* strip trailing spaces */
       i = ustrlen(val) - 1;
@@ -289,7 +289,7 @@ static int get_line(AL_CONST char *data, int length, char *name, char *val)
    else {
       /* blank line or comment */
       usetc(name, 0);
-      ustrcpy(val, buf);
+      ustrncpy(val, buf, val_size - ucwidth(0));
    }
 
    return inpos;
@@ -321,11 +321,8 @@ static void set_config(CONFIG **config, AL_CONST char *data, int length, AL_CONS
    (*config)->head = NULL;
    (*config)->dirty = FALSE;
 
-   if (filename) {
-      (*config)->filename = malloc(ustrsizez(filename));
-      if ((*config)->filename)
-	 ustrcpy((*config)->filename, filename); 
-   }
+   if (filename)
+      (*config)->filename = ustrdup(filename);
    else
       (*config)->filename = NULL;
 
@@ -333,23 +330,18 @@ static void set_config(CONFIG **config, AL_CONST char *data, int length, AL_CONS
    pos = 0;
 
    while (pos < length) {
-      pos += get_line(data+pos, length-pos, name, val);
+      pos += get_line(data+pos, length-pos, name, sizeof(name), val, sizeof(val));
 
       p = malloc(sizeof(CONFIG_ENTRY));
       if (!p)
 	 return;
 
-      if (ugetc(name)) {
-	 p->name = malloc(ustrsizez(name));
-	 if (p->name)
-	    ustrcpy(p->name, name);
-      }
+      if (ugetc(name))
+         p->name = ustrdup(name);
       else
 	 p->name = NULL;
 
-      p->data = malloc(ustrsizez(val));
-      if (p->data)
-	 ustrcpy(p->data, val);
+      p->data = ustrdup(val);
 
       p->next = NULL;
       *prev = p;
@@ -500,7 +492,7 @@ void pop_config_state()
 /* prettify_section_name:
  *  Helper for ensuring that a section name is enclosed by [ ] braces.
  */
-static void prettify_section_name(AL_CONST char *in, char *out)
+static void prettify_section_name(AL_CONST char *in, char *out, int out_size)
 {
    int p;
 
@@ -512,7 +504,7 @@ static void prettify_section_name(AL_CONST char *in, char *out)
       else
 	 usetc(out, 0);
 
-      ustrcat(out, in);
+      ustrncat(out, in, out_size - ustrsizez(out) - ucwidth(']'));
 
       out += uoffset(out, -1);
 
@@ -540,7 +532,7 @@ void hook_config_section(AL_CONST char *section, int (*intgetter)(AL_CONST char 
 
    init_config(FALSE);
 
-   prettify_section_name(section, section_name);
+   prettify_section_name(section, section_name, sizeof(section_name));
 
    hook = config_hook;
    prev = &config_hook;
@@ -572,12 +564,11 @@ void hook_config_section(AL_CONST char *section, int (*intgetter)(AL_CONST char 
    if (!hook)
       return;
 
-   hook->section = malloc(ustrsizez(section_name));
+   hook->section = ustrdup(section_name);
    if (!(hook->section)) {
       free(hook);
       return;
    }
-   ustrcpy(hook->section, section_name);
 
    hook->intgetter = intgetter;
    hook->stringgetter = stringgetter;
@@ -597,7 +588,7 @@ int config_is_hooked(AL_CONST char *section)
    CONFIG_HOOK *hook = config_hook;
    char section_name[256];
 
-   prettify_section_name(section, section_name);
+   prettify_section_name(section, section_name, sizeof(section_name));
 
    while (hook) {
       if (ustricmp(section_name, hook->section) == 0)
@@ -661,7 +652,7 @@ AL_CONST char *get_config_string(AL_CONST char *section, AL_CONST char *name, AL
 
    init_config(TRUE);
 
-   prettify_section_name(section, section_name);
+   prettify_section_name(section, section_name, sizeof(section_name));
 
    /* check for hooked sections */
    hook = config_hook;
@@ -703,7 +694,7 @@ int get_config_int(AL_CONST char *section, AL_CONST char *name, int def)
    char section_name[256];
    AL_CONST char *s;
 
-   prettify_section_name(section, section_name);
+   prettify_section_name(section, section_name, sizeof(section_name));
 
    /* check for hooked sections */
    hook = config_hook;
@@ -822,7 +813,7 @@ char **get_config_argv(AL_CONST char *section, AL_CONST char *name, int *argc)
       return NULL;
    }
 
-   ustrcpy(buf, s);
+   ustrncpy(buf, s, sizeof(buf) - ucwidth(0));
    pos = 0;
    ac = 0;
 
@@ -874,19 +865,13 @@ static CONFIG_ENTRY *insert_variable(CONFIG *the_config, CONFIG_ENTRY *p, AL_CON
    if (!n)
       return NULL;
 
-   if (name) {
-      n->name = malloc(ustrsizez(name));
-      if (n->name)
-	 ustrcpy(n->name, name);
-   }
+   if (name)
+      n->name = ustrdup(name);
    else
       n->name = NULL;
 
-   if (data) {
-      n->data = malloc(ustrsizez(data));
-      if (n->data)
-	 ustrcpy(n->data, data);
-   }
+   if (data)
+      n->data = ustrdup(data);
    else
       n->data = NULL;
 
@@ -916,7 +901,7 @@ void set_config_string(AL_CONST char *section, AL_CONST char *name, AL_CONST cha
 
    init_config(TRUE);
 
-   prettify_section_name(section, section_name);
+   prettify_section_name(section, section_name, sizeof(section_name));
 
    /* check for hooked sections */
    hook = config_hook;
@@ -945,9 +930,7 @@ void set_config_string(AL_CONST char *section, AL_CONST char *name, AL_CONST cha
 	    if (p->data)
 	       free(p->data);
 
-	    p->data = malloc(ustrsizez(val));
-	    if (p->data)
-	       ustrcpy(p->data, val);
+	    p->data = ustrdup(val);
 	 }
 	 else {
 	    /* delete variable */
