@@ -32,9 +32,12 @@ write_code() {
 }
 
 
+# See src/unix/udummy.c for the rationale
 sources=`echo $* | sed 's,[^	 ]*/,,g'`
 sharable_sources=`echo $sources | sed 's,[^.	 ]*\.s,,g'`
+sharable_sources=`echo $sharable_sources | sed 's,[	 ]*udummy\.c,,g'`
 unsharable_sources=`echo $sources | sed 's,[^.	 ]*\.[^s],,g'`
+unsharable_sources=`echo $unsharable_sources udummy.c`
 
 objects=`echo $sources | sed 's,\.[^.	 ]*,,g'`
 sharable_objects=`echo $sharable_sources | sed 's,\.[^.	 ]*,,g'`

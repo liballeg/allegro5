@@ -271,6 +271,7 @@ ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/arts.c \
 	src/unix/udjgpp.c \
 	src/unix/udrvlist.c \
+	src/unix/udummy.c \
 	src/unix/uesd.c \
 	src/unix/ufile.c \
 	src/unix/ugfxdrv.c \
