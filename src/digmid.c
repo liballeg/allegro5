@@ -378,11 +378,13 @@ int _digmid_find_patches(char *dir, int dir_size, char *file, int file_size)
    if (find_allegro_resource(filename, name, NULL, datafile, objectname, envvar, subdir, sizeof(filename)) != 0)
       return FALSE;
 
-   s = get_filename(filename);
-   ustrzcpy(file, file_size, s);
+   if (dir && file) {
+      s = get_filename(filename);
+      ustrzcpy(file, file_size, s);
 
-   usetc(s, 0);
-   ustrzcpy(dir, dir_size, filename);
+      usetc(s, 0);
+      ustrzcpy(dir, dir_size, filename);
+   }
 
    return TRUE;
 }
@@ -450,7 +452,7 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
    if (!f)
       return -1;
 
-   while (pack_fgets(buf, 255, f) != 0) {
+   while (pack_fgets(buf, sizeof(buf), f) != 0) {
       argc = parse_string(buf, argv);
 
       if (argc > 0) {
@@ -913,12 +915,10 @@ END_OF_STATIC_FUNCTION(digmid_set_pitch);
  */
 static int digmid_detect(int input)
 {
-   char dir[8], file[8];
-
    if (input)
       return FALSE;
 
-   if (!_digmid_find_patches(dir, sizeof(dir), file, sizeof(file))) {
+   if (!_digmid_find_patches(NULL, 0, NULL, 0)) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("DIGMID patch set not found"));
       return FALSE;
    }
