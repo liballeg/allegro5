@@ -1868,9 +1868,26 @@ static void _xwin_private_process_event(XEvent *event)
    static int mouse_savedy = 0;
    static int mouse_warp_now = 0;
    static int mouse_was_warped = 0;
+   static int keyboard_got_focus = FALSE;
 
    switch (event->type) {
       case KeyPress:
+         if (keyboard_got_focus && _xwin_keyboard_focused) {
+            int state = 0;
+
+            if (event->xkey.state&Mod5Mask)
+               state |= KB_SCROLOCK_FLAG;
+
+            if (event->xkey.state&Mod2Mask)
+               state |= KB_NUMLOCK_FLAG;
+
+            if (event->xkey.state&LockMask)
+               state |= KB_CAPSLOCK_FLAG;
+
+            (*_xwin_keyboard_focused)(TRUE, state);
+            keyboard_got_focus = FALSE;
+         } 
+
 	 /* Key pressed.  */
 	 kcode = event->xkey.keycode;
 	 if ((kcode >= 0) && (kcode < 256) && (!_xwin_keycode_pressed[kcode])) {
@@ -1898,13 +1915,12 @@ static void _xwin_private_process_event(XEvent *event)
 	 break;
       case FocusIn:
 	 /* Gaining input focus.  */
-	 if (_xwin_keyboard_focused)
-	    (*_xwin_keyboard_focused)(TRUE);
+         keyboard_got_focus = TRUE;
 	 break;
       case FocusOut:
 	 /* Losing input focus.  */
 	 if (_xwin_keyboard_focused)
-	    (*_xwin_keyboard_focused)(FALSE);
+	    (*_xwin_keyboard_focused)(FALSE, 0);
 	 for (kcode = 0; kcode < 256; kcode++)
 	    _xwin_keycode_pressed[kcode] = FALSE;
 	 break;

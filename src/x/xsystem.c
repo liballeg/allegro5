@@ -29,7 +29,7 @@
 
 
 void (*_xwin_keyboard_interrupt)(int pressed, int code) = 0;
-void (*_xwin_keyboard_focused)(int focused) = 0;
+void (*_xwin_keyboard_focused)(int focused, int state) = 0;
 void (*_xwin_mouse_interrupt)(int x, int y, int z, int buttons) = 0;
 
 
