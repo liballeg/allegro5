@@ -78,7 +78,7 @@
 #define KB_NORMAL       1
 #define KB_EXTENDED     2
 
-#define SEND_MESSAGE        object_message
+#define SEND_MESSAGE    object_message
 
 #define cpu_fpu         (cpu_capabilities & CPU_FPU)
 #define cpu_mmx         (cpu_capabilities & CPU_MMX)
@@ -195,8 +195,15 @@ AL_INLINE(int, gui_textout, (struct BITMAP *bmp, AL_CONST char *s, int x, int y,
 
 
 /* the old close button functions */
-#define set_window_close_button(enable)
-#define set_window_close_hook(callback)  set_close_button_callback(callback)  
+AL_INLINE(int, set_window_close_button, (int enable),
+{
+   return 0;
+})
+
+AL_INLINE(void, set_window_close_hook, (void (*proc)(void)),
+{
+   set_close_button_callback(proc);
+})
 
 
 #ifdef __cplusplus
@@ -204,5 +211,4 @@ AL_INLINE(int, gui_textout, (struct BITMAP *bmp, AL_CONST char *s, int x, int y,
 #endif
 
 #endif          /* ifndef ALLEGRO_COMPAT_H */
-
 
