@@ -24,6 +24,7 @@ PLATFORM_DIR = obj/mingw32
 
 ifdef CROSSCOMPILE
    UNIX_TOOLS = 1
+   CC = $(XPREFIX)gcc
 endif
 
 ifdef ALLEGRO_USE_CYGWIN
