@@ -56,17 +56,6 @@ extern "C" {
 
    /* Defined in xvtable.c.  */
    AL_FUNC(void, _xwin_replace_vtable, (struct GFX_VTABLE *vtable));
-
-   /* Defined in xdga2.c.  */
-   AL_FUNC(BITMAP*, _xdga2_gfxdrv_init_drv, (GFX_DRIVER *drv, int w, int h,
-					     int vw, int vh, int depth, int accel));
-   AL_FUNC(void, _xdga2_gfxdrv_exit, (BITMAP *bmp));
-   AL_FUNC(int, _xdga2_scroll_screen, (int x, int y));
-   AL_FUNC(void, _xdga2_set_palette_range, (AL_CONST PALETTE p, int from, int to, int vsync));
-   AL_FUNC(void, _xdga2_handle_input, (void));
-   AL_FUNC(int, _xdga2_poll_scroll, (void));
-   AL_FUNC(int, _xdga2_request_scroll, (int x, int y));
-   AL_FUNC(int, _xdga2_request_video_bitmap, (BITMAP *bmp));
    
 #ifdef __cplusplus
 }

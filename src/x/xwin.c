@@ -2214,12 +2214,10 @@ void _xwin_handle_input(void)
 
    XLOCK();
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
-   if (_xwin.in_dga_mode == 2)
-      _xdga2_handle_input();
+   if (_xwin_input_handler)
+      _xwin_input_handler();
    else
-#endif
-   _xwin_private_handle_input();
+      _xwin_private_handle_input();
 
    XUNLOCK();
 }
@@ -3203,4 +3201,5 @@ static void _xvidmode_private_unset_fullscreen(void)
 int (*_xwin_window_creator)(void) = &_xwin_private_create_window;
 void (*_xwin_window_defaultor)(void) = &_xwin_private_set_window_defaults;
 void (*_xwin_window_redrawer)(int, int, int, int) = &_xwin_private_redraw_window;
+void (*_xwin_input_handler)(void) = 0;
 

@@ -421,6 +421,7 @@ depend:
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh alsadigi -lasound $(ALLEGRO_MODULE_ALSADIGI_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh alsamidi -lasound $(ALLEGRO_MODULE_ALSAMIDI_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh esddigi -lesd $(ALLEGRO_MODULE_ESD_FILES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh dga2 -lXxf86dga $(ALLEGRO_MODULE_DGA2_FILES)' >> makefile.dep
 	@echo "Generating dependencies for simple programs"
 	$(SHELL) -c 'cd $(srcdir) && misc/deplexe.sh $(ALLEGRO_LIB_EXE_SOURCES) $(ALLEGRO_EXAMPLE_FILES)' >>makefile.dep
 	@echo "Generating dependencies for datafile plugins"

@@ -20,7 +20,7 @@
 #include "allegro/aintunix.h"
 #include "xwin.h"
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
+#if (defined ALLEGRO_XWINDOWS_WITH_XF86DGA2) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
 #include <X11/Xlib.h>
 #include <X11/extensions/xf86dga.h>
@@ -39,8 +39,16 @@ static int keyboard_got_focus = FALSE;
 
 
 static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth);
+static void _xdga2_handle_input(void);
+static BITMAP *_xdga2_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
+static BITMAP *_xdga2_soft_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
+static void _xdga2_gfxdrv_exit(BITMAP *bmp);
+static int _xdga2_poll_scroll(void);
+static int _xdga2_request_scroll(int x, int y);
+static int _xdga2_request_video_bitmap(BITMAP *bmp);
+static int _xdga2_scroll_screen(int x, int y);
+static void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static void _xdga2_acquire(BITMAP *bmp);
-static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int accel);
 
 #ifdef ALLEGRO_NO_ASM
 unsigned long _xdga2_write_line(BITMAP *bmp, int line);
@@ -62,6 +70,68 @@ static void _xaccel_clear_to_color(BITMAP *bmp, int color);
 static void _xaccel_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 static void _xaccel_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 static void _xaccel_masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+
+
+
+GFX_DRIVER gfx_xdga2 =
+{
+   GFX_XDGA2,
+   empty_string,
+   empty_string,
+   "DGA 2.0",
+   _xdga2_gfxdrv_init,
+   _xdga2_gfxdrv_exit,
+   _xdga2_scroll_screen,
+   _xwin_vsync,
+   _xdga2_set_palette_range,
+   _xdga2_request_scroll,
+   _xdga2_poll_scroll,
+   NULL,
+   NULL, NULL, NULL,
+   _xdga2_request_video_bitmap,
+   NULL, NULL,
+   NULL, NULL, NULL, NULL,
+   NULL,
+   NULL, NULL,
+   NULL,
+   640, 480,
+   TRUE,
+   0, 0,
+   0,
+   0,
+   FALSE
+};
+
+
+
+GFX_DRIVER gfx_xdga2_soft =
+{
+   GFX_XDGA2_SOFT,
+   empty_string,
+   empty_string,
+   "DGA 2.0 soft",
+   _xdga2_soft_gfxdrv_init,
+   _xdga2_gfxdrv_exit,
+   _xdga2_scroll_screen,
+   _xwin_vsync,
+   _xdga2_set_palette_range,
+   _xdga2_request_scroll,
+   _xdga2_poll_scroll,
+   NULL,
+   NULL, NULL, NULL,
+   _xdga2_request_video_bitmap,
+   NULL, NULL,
+   NULL, NULL, NULL, NULL,
+   NULL,
+   NULL, NULL,
+   NULL,
+   640, 480,
+   TRUE,
+   0, 0,
+   0,
+   0,
+   FALSE
+};
 
 
 
@@ -118,7 +188,7 @@ static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth)
 /* _xdga2_handle_input:
  *  Handles DGA events pending from queue.
  */
-void _xdga2_handle_input(void)
+static void _xdga2_handle_input(void)
 {
    int i, events;
    static XDGAEvent event[5];
@@ -453,7 +523,7 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
    return bmp;
 }
 
-BITMAP *_xdga2_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int accel)
+static BITMAP *_xdga2_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int accel)
 {
    BITMAP *bmp;
    XLOCK();
@@ -461,7 +531,29 @@ BITMAP *_xdga2_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, in
    XUNLOCK();
    if (!bmp)
       _xdga2_gfxdrv_exit(bmp);
+   else
+      _xwin_input_handler = _xdga2_handle_input;
    return bmp;
+}
+
+
+
+/* _xdga2_gfxdrv_init:
+ *  Creates screen bitmap.
+ */
+static BITMAP *_xdga2_gfxdrv_init(int w, int h, int vw, int vh, int color_depth)
+{
+   return _xdga2_gfxdrv_init_drv(&gfx_xdga2, w, h, vw, vh, color_depth, TRUE);
+}
+
+
+
+/* _xdga2_soft_gfxdrv_init:
+ *  Creates screen bitmap (software only mode).
+ */
+static BITMAP *_xdga2_soft_gfxdrv_init(int w, int h, int vw, int vh, int color_depth)
+{
+   return _xdga2_gfxdrv_init_drv(&gfx_xdga2_soft, w, h, vw, vh, color_depth, FALSE);
 }
 
 
@@ -469,11 +561,13 @@ BITMAP *_xdga2_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, in
 /* _xdga2_gfxdrv_exit:
  *  Shuts down gfx driver.
  */
-void _xdga2_gfxdrv_exit(BITMAP *bmp)
+static void _xdga2_gfxdrv_exit(BITMAP *bmp)
 {
    XLOCK();
    
    if (_xwin.in_dga_mode) {
+      _xwin_input_handler = 0;
+       
       XDGACloseFramebuffer(_xwin.display, _xwin.screen);
       XDGASetMode(_xwin.display, _xwin.screen, 0);
       _xwin.in_dga_mode = 0;
@@ -486,7 +580,6 @@ void _xdga2_gfxdrv_exit(BITMAP *bmp)
       XInstallColormap(_xwin.display, _xwin.colormap);
 
       set_display_switch_mode(SWITCH_BACKGROUND);
-
    }
    
    XUNLOCK();
@@ -497,7 +590,7 @@ void _xdga2_gfxdrv_exit(BITMAP *bmp)
 /* _xdga2_poll_scroll:
  *  Returns true if there are pending scrolling requests left.
  */
-int _xdga2_poll_scroll(void)
+static int _xdga2_poll_scroll(void)
 {
    int result;
 
@@ -512,7 +605,7 @@ int _xdga2_poll_scroll(void)
 /* _xdga2_request_scroll:
  *  Starts a screen scroll but doesn't wait for the retrace.
  */
-int _xdga2_request_scroll(int x, int y)
+static int _xdga2_request_scroll(int x, int y)
 {
    XLOCK();
    
@@ -535,7 +628,7 @@ int _xdga2_request_scroll(int x, int y)
 /* _xdga2_request_video_bitmap:
  *  Page flips to display specified bitmap, but doesn't wait for retrace.
  */
-int _xdga2_request_video_bitmap(BITMAP *bmp)
+static int _xdga2_request_video_bitmap(BITMAP *bmp)
 {
    XLOCK();
    XDGASetViewport(_xwin.display, _xwin.screen, bmp->x_ofs, bmp->y_ofs, XDGAFlipRetrace);
@@ -548,7 +641,7 @@ int _xdga2_request_video_bitmap(BITMAP *bmp)
 /* _xdga2_scroll_screen:
  *  Scrolls DGA viewport.
  */
-int _xdga2_scroll_screen(int x, int y)
+static int _xdga2_scroll_screen(int x, int y)
 {
    XLOCK();
    
@@ -572,7 +665,7 @@ int _xdga2_scroll_screen(int x, int y)
 /* _xdga2_set_palette_range:
  *  Sets palette entries.
  */
-void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
+static void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
    int i;
    static XColor color[256];
@@ -887,6 +980,21 @@ static void _xaccel_masked_blit(BITMAP *source, BITMAP *dest, int source_x, int 
       _orig_masked_blit(source, dest, source_x, source_y, dest_x, dest_y, width, height);
 }
 
+
+
+#ifdef ALLEGRO_MODULE
+
+/* _module_init:
+ *  Called when loaded as a dynamically linked module.
+ */
+void _module_init(int system_driver)
+{
+   if (system_driver != SYSTEM_XWINDOWS) return;
+   _unix_register_priority_gfx_driver(GFX_XDGA2_SOFT, &gfx_xdga2_soft, TRUE, TRUE);
+   _unix_register_priority_gfx_driver(GFX_XDGA2,      &gfx_xdga2,      TRUE, TRUE);
+}
+
+#endif
 
 
 #endif

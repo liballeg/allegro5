@@ -202,7 +202,10 @@ if test -z "$no_x"; then
   dnl Test for DGA 2.0 extension.
   if test -n "$allegro_enable_xwin_xf86dga2"; then
     AC_CHECK_LIB(Xxf86dga, XDGAQueryExtension,
-      [LIBS="-lXxf86dga $LIBS"
+      [allegro_support_xf86dga2=yes
+      if test -z "$allegro_support_modules"; then
+        LIBS="-lXxf86dga $LIBS"
+      fi
       AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA2)])
   fi
 

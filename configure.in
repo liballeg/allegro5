@@ -422,6 +422,11 @@ if test -n "$allegro_support_modules"; then
   if test "X$allegro_support_esddigi" = "Xyes"; then
     ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-esddigi-\$(shared_version).so"
   fi
+
+  dnl DGA2.
+  if test "X$allegro_support_xf86dga2" = "Xyes"; then
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-dga2-\$(shared_version).so"
+  fi
 fi
 AC_SUBST(ALLEGRO_MODULE_TARGETS)
 

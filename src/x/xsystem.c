@@ -182,6 +182,8 @@ static int _xwin_sysdrv_init(void)
 
    /* Initialise dynamic driver lists and load modules */
    _unix_driver_lists_init();
+   if (_unix_gfx_driver_list)
+      _driver_list_append_list(&_unix_gfx_driver_list, _xwin_gfx_driver_list);
    _unix_load_modules(SYSTEM_XWINDOWS);
 
 #ifdef HAVE_LIBPTHREAD
@@ -274,7 +276,7 @@ static void _xwin_sysdrv_set_window_close_hook(void (*proc)(void))
  */
 static _DRIVER_INFO *_xwin_sysdrv_gfx_drivers(void)
 {
-   return _xwin_gfx_driver_list;
+   return _unix_gfx_driver_list;
 }
 
 

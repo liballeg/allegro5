@@ -320,6 +320,10 @@ ALLEGRO_MODULE_ALSAMIDI_FILES = \
 ALLEGRO_MODULE_ESD_FILES = \
 	src/unix/uesd.c
 
+ALLEGRO_MODULE_DGA2_FILES = \
+	src/x/xdga2.c \
+	src/x/xdga2s.s
+
 ALLEGRO_LIB_EXE_SOURCES = \
 	demo/demo.c \
 	setup/keyconf.c \

@@ -8,12 +8,12 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      X-windows bank switching code. These routines will be called 
+ *      DGA2 bank switching code. These routines will be called 
  *      with a line number in %eax and a pointer to the bitmap in %edx.
  *      The bank switcher should select the appropriate bank for the 
  *      line, and replace %eax with a pointer to the start of the line.
  *
- *      By Michael Bukin.
+ *      By Angelo Mottola.
  *
  *      See readme.txt for copyright information.
  */
@@ -25,43 +25,19 @@
 .text
 
 
-#ifndef ALLEGRO_NO_ASM
-	/* Use only with ASM calling convention.  */
+#if (!defined ALLEGRO_NO_ASM) && (defined ALLEGRO_XWINDOWS_WITH_XF86DGA2)
+#if (!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)
 
-FUNC(_xwin_write_line_asm)
+FUNC (_xdga2_write_line_asm)
 	pushl %ecx
 	pushl %eax
 	pushl %edx
-	call GLOBL(_xwin_write_line)
-	popl %edx
-	popl %ecx
-	popl %ecx
-	ret
-
-
-FUNC(_xwin_unwrite_line_asm)
-	pushl %eax
-	pushl %ecx
-	pushl %edx
-	call GLOBL(_xwin_unwrite_line)
-	popl %edx
-	popl %ecx
-	popl %eax
-	ret
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-
-FUNC(_xdga_switch_bank_asm)
-	pushl %ecx
-	pushl %eax
-	pushl %edx
-	call GLOBL(_xdga_switch_bank)
+	call GLOBL(_xdga2_write_line)
 	popl %edx
 	popl %ecx
 	popl %ecx
 	ret
 
 #endif
-
 #endif
 

@@ -152,77 +152,10 @@ static GFX_DRIVER gfx_xdga_fullscreen =
 
 
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
-static BITMAP *_xdga2_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
-static BITMAP *_xdga2_soft_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
-
-
-static GFX_DRIVER gfx_xdga2 =
-{
-   GFX_XDGA2,
-   empty_string,
-   empty_string,
-   "DGA 2.0",
-   _xdga2_gfxdrv_init,
-   _xdga2_gfxdrv_exit,
-   _xdga2_scroll_screen,
-   _xwin_vsync,
-   _xdga2_set_palette_range,
-   _xdga2_request_scroll,
-   _xdga2_poll_scroll,
-   NULL,
-   NULL, NULL, NULL,
-   _xdga2_request_video_bitmap,
-   NULL, NULL,
-   NULL, NULL, NULL, NULL,
-   NULL,
-   NULL, NULL,
-   NULL,
-   640, 480,
-   TRUE,
-   0, 0,
-   0,
-   0,
-   FALSE
-};
-
-
-static GFX_DRIVER gfx_xdga2_soft =
-{
-   GFX_XDGA2_SOFT,
-   empty_string,
-   empty_string,
-   "DGA 2.0 soft",
-   _xdga2_soft_gfxdrv_init,
-   _xdga2_gfxdrv_exit,
-   _xdga2_scroll_screen,
-   _xwin_vsync,
-   _xdga2_set_palette_range,
-   _xdga2_request_scroll,
-   _xdga2_poll_scroll,
-   NULL,
-   NULL, NULL, NULL,
-   _xdga2_request_video_bitmap,
-   NULL, NULL,
-   NULL, NULL, NULL, NULL,
-   NULL,
-   NULL, NULL,
-   NULL,
-   640, 480,
-   TRUE,
-   0, 0,
-   0,
-   0,
-   FALSE
-};
-#endif
-
-
-
 /* list the available drivers */
 _DRIVER_INFO _xwin_gfx_driver_list[] =
 {
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
+#if (defined ALLEGRO_XWINDOWS_WITH_XF86DGA2) && (!defined ALLEGRO_WITH_MODULES)
    {  GFX_XDGA2,               &gfx_xdga2,           TRUE  },
    {  GFX_XDGA2_SOFT,          &gfx_xdga2_soft,      TRUE  },
 #endif
@@ -302,27 +235,5 @@ static BITMAP *_xdga_fullscreen_gfxdrv_init(int w, int h, int vw, int vh, int co
 static void _xdga_gfxdrv_exit(BITMAP *bmp)
 {
    _xdga_destroy_screen();
-}
-#endif
-
-
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
-/* _xdga2_gfxdrv_init:
- *  Creates screen bitmap.
- */
-static BITMAP *_xdga2_gfxdrv_init(int w, int h, int vw, int vh, int color_depth)
-{
-   return _xdga2_gfxdrv_init_drv(&gfx_xdga2, w, h, vw, vh, color_depth, TRUE);
-}
-
-
-
-/* _xdga2_soft_gfxdrv_init:
- *  Creates screen bitmap (software only mode).
- */
-static BITMAP *_xdga2_soft_gfxdrv_init(int w, int h, int vw, int vh, int color_depth)
-{
-   return _xdga2_gfxdrv_init_drv(&gfx_xdga2_soft, w, h, vw, vh, color_depth, FALSE);
 }
 #endif

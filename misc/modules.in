@@ -1,6 +1,7 @@
 # List of modules to be loaded by the Unix version of Allegro.
 
 alleg-svgalib-3.9.37.so
+alleg-dga2-3.9.37.so
+alleg-esddigi-3.9.37.so
 alleg-alsadigi-3.9.37.so
 alleg-alsamidi-3.9.37.so
-alleg-esddigi-3.9.37.so
