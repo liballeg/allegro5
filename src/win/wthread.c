@@ -29,6 +29,9 @@
 #endif
 
 
+/* COINIT_MULTITHREADED is not defined in objbase.h for MSVC */
+#define _COINIT_MULTITHREADED 0
+
 typedef HRESULT(CALLBACK * _CoInitializeEx_ptr) (LPVOID, DWORD);
 static _CoInitializeEx_ptr _CoInitializeEx = NULL;
 static int first_call = 1;
@@ -66,7 +69,7 @@ void thread_init(void)
    }
 
    if (_CoInitializeEx != NULL)
-      _CoInitializeEx(NULL, COINIT_MULTITHREADED);
+      _CoInitializeEx(NULL, _COINIT_MULTITHREADED);
    else
       CoInitialize(NULL);
 }
