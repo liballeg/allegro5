@@ -359,15 +359,13 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
    }
    
    drv->linear = TRUE;
-   if (PgGetGraphicsHWCaps(&caps)) {
+   
+   if (PgGetGraphicsHWCaps(&caps))
       drv->vid_mem = w * h * BYTES_PER_PIXEL(color_depth);
-   }
-   else {
+   else
       drv->vid_mem = caps.total_video_ram;
-   }
 
-   bmp = _make_bitmap(w, h, (unsigned long)addr, drv,
-                      color_depth, ph_screen_context->pitch);
+   bmp = _make_bitmap(w, h, (unsigned long)addr, drv, color_depth, ph_screen_context->pitch);
    if(!bmp) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return NULL;
@@ -530,8 +528,11 @@ static void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int ret
    if (ph_gfx_mode == PH_GFX_WINDOW) {
       if (desktop_depth != 8) {
          _set_colorconv_palette(p, from, to);
-         for (i=0; i<gfx_photon.h; i++)
-            ph_dirty_lines[i] = 1;
+         
+         /* invalidate the whole screen */
+         pthread_mutex_lock(&ph_screen_lock);
+         ph_dirty_lines[0] = ph_dirty_lines[gfx_photon.h-1] = 1;
+         pthread_mutex_unlock(&ph_screen_lock);
       }
       mode |= Pg_PALSET_FORCE_EXPOSE;
    }
@@ -696,22 +697,21 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
    }
 
    drv->linear = TRUE;
-   if (PgGetGraphicsHWCaps(&caps)) {
+   
+   if (PgGetGraphicsHWCaps(&caps))
       drv->vid_mem = w * h * BYTES_PER_PIXEL(color_depth);
-   }
-   else {
+   else
       drv->vid_mem = caps.total_video_ram;
-   }
 
    bmp = _make_bitmap(w, h, (unsigned long)addr, drv, color_depth, pitch);
-   ph_dirty_lines = (char *)calloc(h, sizeof(char));
-   
-   if ((!bmp) || (!ph_dirty_lines)) {
+   if (!bmp) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return NULL;
-   }
-
-   pthread_mutex_init(&ph_screen_lock, NULL);
+   }   
+   
+   /* the last flag serves as an end of loop delimiter */
+   ph_dirty_lines = calloc(h+1, sizeof(char));
+   ph_dirty_lines[h] = 1;
 
    drv->w = bmp->cr = w;
    drv->h = bmp->cb = h;
@@ -734,6 +734,8 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
 
    PgFlush();
    PgWaitHWIdle();
+
+   pthread_mutex_init(&ph_screen_lock, NULL);
 
    install_int(update_dirty_lines, RENDER_DELAY);
 
@@ -856,11 +858,11 @@ static void update_dirty_lines(void)
  */
 static void ph_acquire(struct BITMAP *bmp)
 {
-   PgWaitHWIdle();
-
    /* to prevent the drawing threads and the rendering proc
       from concurrently accessing the dirty lines array */
    pthread_mutex_lock(&ph_screen_lock);
+
+   PgWaitHWIdle();
 
    lock_nesting++;
    bmp->id |= BMP_ID_LOCKED;

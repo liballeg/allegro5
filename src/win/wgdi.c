@@ -472,7 +472,7 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    MoveWindow(allegro_wnd, win_size.left, win_size.top, 
       win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
 
-   /* the last flag serves as end of loop delimiter */
+   /* the last flag serves as an end of loop delimiter */
    gdi_dirty_lines = calloc(h+1, sizeof(char));
    gdi_dirty_lines[h] = 1;
 
@@ -564,7 +564,9 @@ static void gfx_gdi_set_palette(AL_CONST struct RGB *p, int from, int to, int vs
       palette[c] = p[c];
 
    /* invalidate the whole screen */
+   _enter_gfx_critical();
    gdi_dirty_lines[0] = gdi_dirty_lines[gfx_gdi.h-1] = 1;
+   _exit_gfx_critical();
 }
 
 
