@@ -221,8 +221,8 @@ struct _AL_MUTEX
 
 #define _AL_MUTEX_UNINITED	{ false, }
 
-void _al_mutex_init(_AL_MUTEX*);
-void _al_mutex_destroy(_AL_MUTEX*);
+AL_FUNC(void, _al_mutex_init, (_AL_MUTEX*));
+AL_FUNC(void, _al_mutex_destroy, (_AL_MUTEX*));
 AL_INLINE(void, _al_mutex_lock, (_AL_MUTEX *m),
 {
    if (m->inited)
@@ -246,22 +246,22 @@ struct AL_EVENT_SOURCE
    AL_EVENT *free_events;
 };
 
-void _al_event_source_init(AL_EVENT_SOURCE*, size_t event_size);
-void _al_event_source_free(AL_EVENT_SOURCE*);
-void _al_event_source_lock(AL_EVENT_SOURCE*);
-void _al_event_source_unlock(AL_EVENT_SOURCE*);
-void _al_event_source_on_registration_to_queue(AL_EVENT_SOURCE*, AL_EVENT_QUEUE*);
-void _al_event_source_on_unregistration_from_queue(AL_EVENT_SOURCE*, AL_EVENT_QUEUE*);
-bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE*, unsigned long event_type);
-AL_EVENT* _al_event_source_get_unused_event(AL_EVENT_SOURCE*);
-void _al_event_source_emit_event(AL_EVENT_SOURCE *, AL_EVENT*);
+AL_FUNC(void, _al_event_source_init, (AL_EVENT_SOURCE*, size_t event_size));
+AL_FUNC(void, _al_event_source_free, (AL_EVENT_SOURCE*));
+AL_FUNC(void, _al_event_source_lock, (AL_EVENT_SOURCE*));
+AL_FUNC(void, _al_event_source_unlock, (AL_EVENT_SOURCE*));
+AL_FUNC(void, _al_event_source_on_registration_to_queue, (AL_EVENT_SOURCE*, AL_EVENT_QUEUE*));
+AL_FUNC(void, _al_event_source_on_unregistration_from_queue, (AL_EVENT_SOURCE*, AL_EVENT_QUEUE*));
+AL_FUNC(bool, _al_event_source_needs_to_generate_event, (AL_EVENT_SOURCE*, unsigned long event_type));
+AL_FUNC(AL_EVENT*, _al_event_source_get_unused_event, (AL_EVENT_SOURCE*));
+AL_FUNC(void, _al_event_source_emit_event, (AL_EVENT_SOURCE *, AL_EVENT*));
 
-void _al_release_event(AL_EVENT*);
+AL_FUNC(void, _al_release_event, (AL_EVENT*));
 
-void _al_event_queue_push_event(AL_EVENT_QUEUE*, AL_EVENT*);
+AL_FUNC(void, _al_event_queue_push_event, (AL_EVENT_QUEUE*, AL_EVENT*));
 
 /* time */
-void _al_unix_init_time(void);
+AL_FUNC(void, _al_unix_init_time, (void));
 
 AL_END_EXTERN_C
 

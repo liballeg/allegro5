@@ -174,8 +174,8 @@ enum
 
 typedef struct AL_EVENT_SOURCE AL_EVENT_SOURCE;
 
-void al_event_source_set_mask(AL_EVENT_SOURCE*, unsigned long mask);
-unsigned long al_event_source_mask(AL_EVENT_SOURCE*);
+AL_FUNC(void, al_event_source_set_mask, (AL_EVENT_SOURCE*, unsigned long mask));
+AL_FUNC(unsigned long, al_event_source_mask, (AL_EVENT_SOURCE*));
 
 
 
@@ -183,20 +183,23 @@ unsigned long al_event_source_mask(AL_EVENT_SOURCE*);
 
 typedef struct AL_EVENT_QUEUE AL_EVENT_QUEUE;
 
-AL_EVENT_QUEUE* al_create_event_queue(void);
-void al_destroy_event_queue(AL_EVENT_QUEUE*);
-void al_register_event_source(AL_EVENT_QUEUE*, AL_EVENT_SOURCE*);
-void al_unregister_event_source(AL_EVENT_QUEUE*, AL_EVENT_SOURCE*);
-bool al_event_queue_is_empty(AL_EVENT_QUEUE*);
-bool al_get_next_event(AL_EVENT_QUEUE*, AL_EVENT *ret_event);
-bool al_peek_next_event(AL_EVENT_QUEUE*, AL_EVENT *ret_event);
-void al_drop_next_event(AL_EVENT_QUEUE*);
-void al_flush_event_queue(AL_EVENT_QUEUE*);
-bool al_wait_for_event(AL_EVENT_QUEUE*, AL_EVENT *ret_event, long msecs);
-bool al_wait_for_specific_event(AL_EVENT_QUEUE*, AL_EVENT *ret_event,
-                                long msecs,
-                                AL_EVENT_SOURCE *source_or_null,
-                                unsigned long event_mask);
+AL_FUNC(AL_EVENT_QUEUE*, al_create_event_queue, (void));
+AL_FUNC(void, al_destroy_event_queue, (AL_EVENT_QUEUE*));
+AL_FUNC(void, al_register_event_source, (AL_EVENT_QUEUE*, AL_EVENT_SOURCE*));
+AL_FUNC(void, al_unregister_event_source, (AL_EVENT_QUEUE*, AL_EVENT_SOURCE*));
+AL_FUNC(bool, al_event_queue_is_empty, (AL_EVENT_QUEUE*));
+AL_FUNC(bool, al_get_next_event, (AL_EVENT_QUEUE*, AL_EVENT *ret_event));
+AL_FUNC(bool, al_peek_next_event, (AL_EVENT_QUEUE*, AL_EVENT *ret_event));
+AL_FUNC(void, al_drop_next_event, (AL_EVENT_QUEUE*));
+AL_FUNC(void, al_flush_event_queue, (AL_EVENT_QUEUE*));
+AL_FUNC(bool, al_wait_for_event, (AL_EVENT_QUEUE*,
+                                  AL_EVENT *ret_event,
+                                  long msecs));
+AL_FUNC(bool, al_wait_for_specific_event, (AL_EVENT_QUEUE*,
+                                           AL_EVENT *ret_event,
+                                           long msecs,
+                                           AL_EVENT_SOURCE *source_or_null,
+                                           unsigned long event_mask));
 
 
 

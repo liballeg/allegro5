@@ -138,7 +138,6 @@ AL_VAR(volatile int, _retrace_hpp_value);
 
 AL_VAR(long, _vsync_speed);
 
-
 /* various bits of keyboard stuff */
 AL_FUNC(void, _handle_key_press, (int keycode, int scancode));
 AL_FUNC(void, _handle_key_release, (int scancode));
@@ -1179,24 +1178,26 @@ AL_FUNC(int, _al_rand, (void));
 
 /* threads */
 typedef struct _AL_THREAD _AL_THREAD;
-void _al_thread_create(_AL_THREAD*, void (*proc)(_AL_THREAD*, void*), void *arg);
+AL_FUNC(void, _al_thread_create, (_AL_THREAD*,
+				  void (*proc)(_AL_THREAD*, void*),
+				  void *arg));
 /* static inline bool _al_thread_should_stop(_AL_THREAD *); */
-void _al_thread_join(_AL_THREAD*);
+AL_FUNC(void, _al_thread_join, (_AL_THREAD*));
 
 typedef struct _AL_MUTEX _AL_MUTEX;
-void _al_mutex_init(_AL_MUTEX*);
-void _al_mutex_destroy(_AL_MUTEX*);
+AL_FUNC(void, _al_mutex_init, (_AL_MUTEX*));
+AL_FUNC(void, _al_mutex_destroy, (_AL_MUTEX*));
 /* static inline void _al_mutex_lock(_AL_MUTEX*); */
 /* static inline void _al_mutex_unlock(_AL_MUTEX*); */
 
 /* destructors */
-void _al_init_destructors(void);
-void _al_register_destructor(void *object, void (*func)(void*));
-void _al_unregister_destructor(void *object);
+AL_FUNC(void, _al_init_destructors, (void));
+AL_FUNC(void, _al_register_destructor, (void *object, void (*func)(void*)));
+AL_FUNC(void, _al_unregister_destructor, (void *object));
 
 /* events */
 union AL_EVENT;
-void _al_copy_event(union AL_EVENT *dest, const union AL_EVENT *src);
+AL_FUNC(void, _al_copy_event, (union AL_EVENT *dest, const union AL_EVENT *src));
 
 /* vectors */
 typedef struct _AL_VECTOR
@@ -1210,7 +1211,7 @@ typedef struct _AL_VECTOR
 
 #define _AL_VECTOR_INITIALIZER(typ) { sizeof(typ), 0, 0, 0 }
 
-void  _al_vector_init(_AL_VECTOR*, size_t itemsize);
+AL_FUNC(void,  _al_vector_init, (_AL_VECTOR*, size_t itemsize));
 AL_INLINE(size_t, _al_vector_size, (const _AL_VECTOR *vec),
 {
    return vec->_size;
@@ -1225,15 +1226,15 @@ AL_INLINE(bool, _al_vector_is_nonempty, (const _AL_VECTOR *vec),
    ASSERT(vec);
    return !_al_vector_is_empty(vec); 
 })
-void* _al_vector_ref(const _AL_VECTOR*, unsigned int index);
-void* _al_vector_ref_front(const _AL_VECTOR*);
-void* _al_vector_ref_back(const _AL_VECTOR*);
-void* _al_vector_alloc_back(_AL_VECTOR*);
-int   _al_vector_find(const _AL_VECTOR*, const void *ptr_item);
-bool  _al_vector_contains(const _AL_VECTOR*, const void *ptr_item);
-void  _al_vector_delete_at(_AL_VECTOR*, unsigned int index);
-bool  _al_vector_find_and_delete(_AL_VECTOR*, const void *ptr_item);
-void  _al_vector_free(_AL_VECTOR*);
+AL_FUNC(void*, _al_vector_ref, (const _AL_VECTOR*, unsigned int index));
+AL_FUNC(void*, _al_vector_ref_front, (const _AL_VECTOR*));
+AL_FUNC(void*, _al_vector_ref_back, (const _AL_VECTOR*));
+AL_FUNC(void*, _al_vector_alloc_back, (_AL_VECTOR*));
+AL_FUNC(int,  _al_vector_find, (const _AL_VECTOR*, const void *ptr_item));
+AL_FUNC(bool, _al_vector_contains, (const _AL_VECTOR*, const void *ptr_item));
+AL_FUNC(void, _al_vector_delete_at, (_AL_VECTOR*, unsigned int index));
+AL_FUNC(bool, _al_vector_find_and_delete, (_AL_VECTOR*, const void *ptr_item));
+AL_FUNC(void, _al_vector_free, (_AL_VECTOR*));
 
 
 

@@ -31,15 +31,15 @@ AL_BEGIN_EXTERN_C
 typedef struct AL_TIMER AL_TIMER;
 
 
-AL_TIMER *al_install_timer(long speed_msecs);
-void al_uninstall_timer(AL_TIMER*);
-void al_start_timer(AL_TIMER*);
-void al_stop_timer(AL_TIMER*);
-bool al_timer_is_started(AL_TIMER*);
-long al_timer_get_speed(AL_TIMER*);
-void al_timer_set_speed(AL_TIMER*, long speed_msecs);
-long al_timer_get_count(AL_TIMER*);
-void al_timer_set_count(AL_TIMER*, long count);
+AL_FUNC(AL_TIMER*, al_install_timer, (long speed_msecs));
+AL_FUNC(void, al_uninstall_timer, (AL_TIMER*));
+AL_FUNC(void, al_start_timer, (AL_TIMER*));
+AL_FUNC(void, al_stop_timer, (AL_TIMER*));
+AL_FUNC(bool, al_timer_is_started, (AL_TIMER*));
+AL_FUNC(long, al_timer_get_speed, (AL_TIMER*));
+AL_FUNC(void, al_timer_set_speed, (AL_TIMER*, long speed_msecs));
+AL_FUNC(long, al_timer_get_count, (AL_TIMER*));
+AL_FUNC(void, al_timer_set_count, (AL_TIMER*, long count));
 
 
 AL_END_EXTERN_C

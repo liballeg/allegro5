@@ -5,8 +5,8 @@
 
 AL_BEGIN_EXTERN_C
 
-unsigned long al_current_time(void);
-void al_rest(long msecs);
+AL_FUNC(unsigned long, al_current_time, (void));
+AL_FUNC(void, al_rest, (long msecs));
 
 AL_END_EXTERN_C
 
