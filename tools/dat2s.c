@@ -266,6 +266,7 @@ static void output_font(FONT *f, char *name, int depth)
    fprintf(outfile, "\t.long %-16d# renderhook\n", 0);
    fprintf(outfile, "\t.long %-16d# widthhook\n", 0);
    fprintf(outfile, "\t.long %-16d# heighthook\n", 0);
+   fprintf(outfile, "\t.long %-16d# destroyhook\n", 0);
    fprintf(outfile, "\n");
 }
 

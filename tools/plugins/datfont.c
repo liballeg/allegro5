@@ -51,6 +51,7 @@ static void *makenew_font(long *size)
       fnt->renderhook = NULL;
       fnt->widthhook = NULL;
       fnt->heighthook = NULL;
+      fnt->destroyhook = NULL;
 
       count = fnt->end-fnt->start+1;
 
@@ -308,6 +309,7 @@ static FONT *import_grx_font(AL_CONST char *filename)
    fnt->renderhook = NULL;
    fnt->widthhook = NULL;
    fnt->heighthook = NULL;
+   fnt->destroyhook = NULL;
 
    fnt->glyphs = _al_malloc(numchar*sizeof(void *));
 
@@ -400,6 +402,7 @@ static FONT *import_bios_font(AL_CONST char *filename)
    fnt->renderhook = NULL;
    fnt->widthhook = NULL;
    fnt->heighthook = NULL;
+   fnt->destroyhook = NULL;
 
    fnt->glyphs = _al_malloc(255*sizeof(void *));
 
@@ -503,6 +506,7 @@ static FONT *import_bitmap_font(AL_CONST char *filename, int minchar, int maxcha
       fnt->renderhook = NULL;
       fnt->widthhook = NULL;
       fnt->heighthook = NULL;
+      fnt->destroyhook = NULL;
 
       fnt->glyphs = _al_malloc(c*sizeof(void *));
 
