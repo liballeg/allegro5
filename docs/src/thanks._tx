@@ -25,7 +25,7 @@ Contributors
 
    aj (<email>aj@visualsynth.com</a>).<br>
    Reported many problems, suggested a lot of improvements to the
-   documentation and added 64 bit/SSE2/SSE3 detection code.
+   documentation and added AMD64/IA64/SSE3 detection code.
 
    Alex Demko (<email>alex_demko@mbnet.mb.ca</a>).<br>
    Suggested lots of improvements to the datafile system and provided code
