@@ -69,6 +69,9 @@ offset_entry_t list[] = {
 #ifdef ALLEGRO_COLORCONV_ALIGNED_WIDTH
   {"##ALLEGRO_COLORCONV_ALIGNED_WIDTH", 0},
 #endif
+#ifdef ALLEGRO_NO_COLORCOPY
+  {"##ALLEGRO_NO_COLORCOPY", 0},
+#endif
 #ifdef ALLEGRO_NO_ASM
   {"##ALLEGRO_NO_ASM", 0},
 #endif

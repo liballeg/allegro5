@@ -17,6 +17,7 @@
 #define ALLEGRO_COLOR16
 #define ALLEGRO_COLOR24
 #define ALLEGRO_COLOR32
+#define ALLEGRO_NO_COLORCOPY
 
 
 #if defined ALLEGRO_API
