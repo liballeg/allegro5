@@ -3,6 +3,10 @@
  *
  *    This program demonstrates how to use the get_camera_matrix() function
  *    to view a 3d world from any position and angle.
+ *
+ *    Modified by Francisco Pires:
+ *    + Added FPS counter.
+ *    + Added option to enable/disable waiting for vsync.
  */
 
 
@@ -25,6 +29,14 @@
 #define DEG(n)    ((n) * 180.0 / M_PI)
 
 
+/* how many times per second the fps will be checked */
+#define FPS_INT 2
+
+
+/* uncomment to disable waiting for vsync */
+/* #define DISABLE_VSYNC */
+
+
 /* parameters controlling the camera and projection state */
 int viewport_w = 320;
 int viewport_h = 240;
@@ -36,6 +48,9 @@ float zpos = -4;
 float heading = 0;
 float pitch = 0;
 float roll = 0;
+
+int fps;
+int framecount;
 
 
 
@@ -184,6 +199,7 @@ void render(BITMAP *bmp)
    textprintf_ex(bmp, font, 0, 72, makecol(0, 0, 0), -1, "Roll: %.2f deg (r/R changes)", DEG(roll));
    textprintf_ex(bmp, font, 0, 80, makecol(0, 0, 0), -1, "Front vector: %.2f, %.2f, %.2f", xfront, yfront, zfront);
    textprintf_ex(bmp, font, 0, 88, makecol(0, 0, 0), -1, "Up vector: %.2f, %.2f, %.2f", xup, yup, zup);
+   textprintf_ex(bmp, font, 0, 96, makecol(0, 0, 0), -1, "Frames per second: %d", fps);
 }
 
 
@@ -308,6 +324,14 @@ void process_input(void)
 
 
 
+void fps_check(void)
+{
+   fps = framecount*FPS_INT;
+   framecount = 0;
+}
+
+
+
 int main(void)
 {
    BITMAP *buffer;
@@ -315,6 +339,7 @@ int main(void)
    if (allegro_init() != 0)
       return 1;
    install_keyboard();
+   install_timer();
 
    if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
@@ -326,12 +351,17 @@ int main(void)
 
    set_palette(desktop_palette);
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
+   install_int_ex(fps_check, BPS_TO_TIMER(FPS_INT));
 
    while (!key[KEY_ESC]) {
       render(buffer);
 
-      vsync();
-      blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H); 
+      #ifndef DISABLE_VSYNC
+         vsync();
+      #endif
+      
+      blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);       
+      framecount++;
 
       process_input();
    }
