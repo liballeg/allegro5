@@ -92,6 +92,7 @@ static BITMAP *modex_init(int w, int h, int v_w, int v_h, int color_depth);
 static void modex_exit(BITMAP *b);
 static int modex_scroll(int x, int y);
 static void modex_enable_triple_buffer(void);
+static int modex_fetch_mode_list();
 
 
 
@@ -114,7 +115,7 @@ GFX_DRIVER gfx_modex =
    NULL,                         /* no drawing mode hook */
    _save_vga_mode,
    _restore_vga_mode,
-   NULL,                         /* no fetch mode hook */
+   modex_fetch_mode_list,
    0, 0,
    TRUE,
    0, 0,
@@ -125,10 +126,39 @@ GFX_DRIVER gfx_modex =
 
 
 
+GFX_MODE_LIST modex_gfx_modes[] = {
+   { 256, 200, 8 },
+   { 256, 224, 8 },
+   { 256, 240, 8 },
+   { 256, 256, 8 },
+   { 320, 200, 8 },
+   { 320, 240, 8 },
+   { 320, 350, 8 },
+   { 320, 400, 8 },
+   { 320, 480, 8 },
+   { 320, 600, 8 },
+   { 360, 200, 8 },
+   { 360, 240, 8 },
+   { 360, 270, 8 },
+   { 360, 360, 8 },
+   { 360, 400, 8 },
+   { 360, 480, 8 },
+   { 360, 600, 8 },
+   { 376, 282, 8 },
+   { 376, 308, 8 },
+   { 376, 564, 8 },
+   { 400, 150, 8 },
+   { 400, 300, 8 },
+   { 400, 600, 8 },
+   { 0,   0,   0 }
+};
+
+
 #ifdef GFX_XTENDED
 
 
 static BITMAP *xtended_init(int w, int h, int v_w, int v_h, int color_depth);
+static int xtended_fetch_mode_list();
 
 
 GFX_DRIVER gfx_xtended =
@@ -148,7 +178,7 @@ GFX_DRIVER gfx_xtended =
    NULL, NULL, NULL, NULL,       /* no hardware cursor */
    NULL,                         /* no drawing mode hook */
    NULL, NULL,                   /* no state saving */
-   NULL,                         /* no fetch mode hook */
+   xtended_fetch_mode_list,
    640, 400,
    TRUE,
    0, 0,
@@ -156,6 +186,14 @@ GFX_DRIVER gfx_xtended =
    0,
    FALSE
 };
+
+
+
+GFX_MODE_LIST xtended_gfx_modes[] = {
+   { 640, 400, 8 },
+   { 0,   0,   0 }
+};
+
 
 
 #endif      /* GFX_XTENDED */
@@ -1546,5 +1584,31 @@ void _x_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int co
 }
 
 
+
+/* modex_fetch_mode_list:
+ *  Creates a list of of currently implemented ModeX modes.
+ */
+static int modex_fetch_mode_list()
+{
+   destroy_gfx_mode_list();
+   gfx_mode_list_malloced = FALSE;
+   gfx_mode_list = modex_gfx_modes;
+
+   return 0;
+}
+
+
+
+/* xtended_fetch_mode_list:
+ *  Creates a list of of currently implemented Xtended modes.
+ */
+static int xtended_fetch_mode_list()
+{
+   destroy_gfx_mode_list();
+   gfx_mode_list_malloced = FALSE;
+   gfx_mode_list = xtended_gfx_modes;
+
+   return 0;
+}
 
 #endif      /* ifdef GFX_MODEX */

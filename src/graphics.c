@@ -31,7 +31,9 @@ int _gfx_mode_set_count = 0;           /* has the graphics mode changed? */
 
 int _screen_split_position = 0;        /* has the screen been split? */
 
-int _safe_gfx_mode_change = 0;	       /* are we getting through GFX_SAFE? */
+int _safe_gfx_mode_change = 0;         /* are we getting through GFX_SAFE? */
+
+int gfx_mode_list_malloced = FALSE;    /* was gfx_mode_list malloced or set to point to a hardcoded table? */
 
 RGB_MAP *rgb_map = NULL;               /* RGB -> palette entry conversion */
 
@@ -205,7 +207,7 @@ int get_gfx_mode_list(int card)
 void destroy_gfx_mode_list(void)
 {
    if (gfx_mode_list) {
-      free(gfx_mode_list);
+      if (gfx_mode_list_malloced) free(gfx_mode_list);
       gfx_mode_list = NULL;
    }
 }

@@ -295,9 +295,7 @@ int gfx_directx_fetch_mode_list(void)
    modes = mode_info.modes;
 
    /* allocate mode list */
-   if (gfx_mode_list)
-      free(gfx_mode_list);
-
+   destroy_gfx_mode_list();
    gfx_mode_list = malloc(sizeof(GFX_MODE_LIST) * (modes + 1));
    if (!gfx_mode_list)
       goto Error;
@@ -314,6 +312,8 @@ int gfx_directx_fetch_mode_list(void)
    mode_info.gfx[modes].width = 0;
    mode_info.gfx[modes].height = 0;
    mode_info.gfx[modes].bpp = 0;
+
+   gfx_mode_list_malloced = TRUE;
 
    if (gfx_off)
       gfx_directx_exit(dd_frontbuffer);

@@ -148,8 +148,7 @@ static int _xdga2_fetch_mode_list(void)
    if (!mode)
       return -1;
       
-   if (gfx_mode_list)
-      free(gfx_mode_list);
+   destroy_gfx_mode_list();
 
    stored_modes = 0;
    for (i=0; i<num_modes; i++) {
@@ -175,7 +174,9 @@ static int _xdga2_fetch_mode_list(void)
    gfx_mode_list[stored_modes].width = 0;
    gfx_mode_list[stored_modes].height = 0;
    gfx_mode_list[stored_modes].bpp = 0;
-   
+
+   gfx_mode_list_malloced = TRUE;
+
    XFree(mode);
    return 0;
 }

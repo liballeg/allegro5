@@ -578,7 +578,7 @@ static int svga_fetch_mode_list(void)
       }
    }
 
-   free(gfx_mode_list);
+   destroy_gfx_mode_list();
    gfx_mode_list = malloc(sizeof(GFX_MODE_LIST) * (count + 1));
    if (!gfx_mode_list)
       return -1;
@@ -601,6 +601,8 @@ static int svga_fetch_mode_list(void)
    gfx_mode_list[count].width = 0;
    gfx_mode_list[count].height = 0;
    gfx_mode_list[count].bpp = 0;
+
+   gfx_mode_list_malloced = TRUE;
 
    return 0;
 }

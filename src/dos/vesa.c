@@ -642,7 +642,7 @@ static int vesa_fetch_mode_list()
    }
 
    /* allocate gfx_mode_list */
-   if (gfx_mode_list) free(gfx_mode_list);
+   destroy_gfx_mode_list();
    gfx_mode_list = malloc(sizeof(GFX_MODE_LIST) * (modes + 1));
    if (!gfx_mode_list) return -1;
 
@@ -664,6 +664,8 @@ static int vesa_fetch_mode_list()
 
    /* free up temporary vesa mode list */
    free(vesa_mode);
+
+   gfx_mode_list_malloced = TRUE;
 
    return 0;
 }

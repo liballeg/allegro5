@@ -38,7 +38,7 @@
 static BITMAP *vga_init(int w, int h, int v_w, int v_h, int color_depth);
 static void vga_exit(BITMAP *b);
 static int vga_scroll(int x, int y);
-
+static int vga_fetch_mode_list();
 
 
 GFX_DRIVER gfx_vga = 
@@ -59,13 +59,24 @@ GFX_DRIVER gfx_vga =
    NULL,                         /* no drawing mode hook */
    _save_vga_mode,
    _restore_vga_mode,
-   NULL,                         /* no fetch mode hook */
+   vga_fetch_mode_list,
    320, 200,
    TRUE,
    0, 0,
    0x10000,
    0,
    FALSE
+};
+
+
+
+GFX_MODE_LIST vga_gfx_modes[] = {
+   { 80,  80,  8 },
+   { 160, 120, 8 },
+   { 256, 256, 8 },
+   { 320, 100, 8 },
+   { 320, 200, 8 },
+   { 0,   0,   0 }
 };
 
 
@@ -325,5 +336,17 @@ static int vga_scroll(int x, int y)
 }
 
 
+
+/* vga_fetch_mode_list:
+ *  Creates a list of of currently implemented VGA modes.
+ */
+static int vga_fetch_mode_list()
+{
+   destroy_gfx_mode_list();
+   gfx_mode_list_malloced = FALSE;
+   gfx_mode_list = vga_gfx_modes;
+
+   return 0;
+}
 
 #endif      /* ifdef GFX_VGA */
