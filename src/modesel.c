@@ -57,6 +57,7 @@ typedef struct MODE_LIST {
 typedef struct DRIVER_LIST {
    int       id;
    char      *name;
+   void      *fetch_mode_list_ptr;
    MODE_LIST *mode_list;
    int       mode_count;
 } DRIVER_LIST;
@@ -272,6 +273,7 @@ static int create_driver_list()
 {
    _DRIVER_INFO *driver_info;
    GFX_DRIVER   *gfx_driver;
+   int          driver_count2, used_prefetched;
 
    if (system_driver->gfx_drivers)
       driver_info = system_driver->gfx_drivers();
@@ -283,14 +285,17 @@ static int create_driver_list()
 
    driver_list[0].id   = GFX_AUTODETECT;
    driver_list[0].name = "Autodetect";
+   driver_list[0].fetch_mode_list_ptr = NULL;
    create_mode_list(&driver_list[0]);
 
    driver_list[1].id   = GFX_AUTODETECT_FULLSCREEN;
    driver_list[1].name = "Autodetect fullscreen";
+   driver_list[1].fetch_mode_list_ptr = NULL;
    create_mode_list(&driver_list[1]);
 
    driver_list[2].id   = GFX_AUTODETECT_WINDOWED;
    driver_list[2].name = "Autodetect windowed";
+   driver_list[2].fetch_mode_list_ptr = NULL;
    create_mode_list(&driver_list[2]);
 
    driver_count = 0;
@@ -298,10 +303,30 @@ static int create_driver_list()
    while(driver_info[driver_count].driver) {
       driver_list = realloc(driver_list, sizeof(DRIVER_LIST) * (driver_count + 4));
       if (!driver_list) return -1;
-      driver_list[driver_count+3].id   = driver_info[driver_count].id;
+      driver_list[driver_count+3].id = driver_info[driver_count].id;
       gfx_driver = driver_info[driver_count].driver;
       driver_list[driver_count+3].name = (char *) gfx_driver->ascii_name;
-      create_mode_list(&driver_list[driver_count+3]);
+
+      driver_list[driver_count+3].fetch_mode_list_ptr = gfx_driver->fetch_mode_list;
+
+      used_prefetched = FALSE;
+
+      /* use already fetched mode-list if possible */
+      for (driver_count2=0; driver_count2 < driver_count+3; driver_count2++) {
+         if (driver_list[driver_count+3].fetch_mode_list_ptr == driver_list[driver_count2].fetch_mode_list_ptr) {
+            driver_list[driver_count+3].mode_list = driver_list[driver_count2].mode_list;
+            driver_list[driver_count+3].mode_count = driver_list[driver_count2].mode_count;
+            /* the following line prevents a mode-list from beeing free'd more than once */
+            driver_list[driver_count+3].fetch_mode_list_ptr = NULL;
+            used_prefetched = TRUE;
+            break;
+         }
+      }
+      /* didn't find an already fetched mode-list */
+      if (!used_prefetched) {
+         create_mode_list(&driver_list[driver_count+3]);
+      }
+
       driver_count++;
    }
 
@@ -313,14 +338,16 @@ static int create_driver_list()
 
 
 /* destroy_driver_list:
- *  Removed dynamically allocated memory used by driver and mode lists.
+ *  Free allocated memory used by driver lists and mode lists.
  */
 static void destroy_driver_list()
 {
-   int driver;
+   int driver, driver2;
 
-   for (driver=0; driver < driver_count; driver++)
-      if (driver_list[driver].mode_list != default_mode_list) free(driver_list[driver].mode_list);
+   for (driver=0; driver < driver_count; driver++) {
+      if (driver_list[driver].fetch_mode_list_ptr)
+         free(driver_list[driver].mode_list);
+   }
    free(driver_list);
 }
 
@@ -333,7 +360,7 @@ static AL_CONST char *gfx_card_getter(int index, int *list_size)
 {
    if (index < 0) {
       if (list_size)
-	 *list_size = driver_count;
+         *list_size = driver_count;
       return NULL;
    }
 
