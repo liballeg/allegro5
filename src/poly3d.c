@@ -837,8 +837,9 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
       step = (x << 16) - e1->x;
       drawer = save_drawer;
 
-      if (flags & INTERP_FLAT) {
-	 hline(bmp, x, y, x+w, color);
+      if ((flags & INTERP_FLAT) && (drawer == _poly_scanline_dummy)) {
+         if (w != 0)
+	      hline(bmp, x, y, x+w-1, color);
       }
       else {
 /*
@@ -1100,12 +1101,14 @@ void polygon3d(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[])
       }
    }
 
-   /* close the double-linked list */
-   edge0->prev = --edge;
-   edge->next = edge0;
+   if (list_edges) {
+      /* close the double-linked list */
+      edge0->prev = --edge;
+      edge->next = edge0;
 
-   /* render the polygon */
-   do_polygon3d(bmp, top, bottom, start_edge, drawer, flags, vtx[0]->c, &info);
+      /* render the polygon */
+      do_polygon3d(bmp, top, bottom, start_edge, drawer, flags, vtx[0]->c, &info);
+   }
 }
 
 
@@ -1189,12 +1192,14 @@ void polygon3d_f(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D_f *vtx[])
       }
    }
 
-   /* close the double-linked list */
-   edge0->prev = --edge;
-   edge->next = edge0;
+   if (list_edges) {
+      /* close the double-linked list */
+      edge0->prev = --edge;
+      edge->next = edge0;
 
-   /* render the polygon */
-   do_polygon3d(bmp, top, bottom, start_edge, drawer, flags, vtx[0]->c, &info);
+      /* render the polygon */
+      do_polygon3d(bmp, top, bottom, start_edge, drawer, flags, vtx[0]->c, &info);
+   }
 }
 
 
