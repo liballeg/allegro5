@@ -145,7 +145,7 @@ fi
 
 dnl Test for modules support.
 ALLEGRO_ACTEST_MODULES
-if test "X$allegro_support_modules" = "Xyes"; then
+if test -n "X$allegro_support_modules"; then
   AC_DEFINE(ALLEGRO_WITH_MODULES)
 fi
 
@@ -219,7 +219,7 @@ else
   LINK_WITH_STATIC_LIBS=no
   allegro_shared_libraries=yes
 fi
-if test "X$allegro_support_modules" = "Xyes"; then
+if test -n "$allegro_support_modules"; then
   LDFLAGS="-rdynamic $LDFLAGS"
 fi
 AC_SUBST(LIBALLEG)
@@ -375,7 +375,7 @@ case "$allegro_system" in
 	AC_CHECK_LIB(vga, vga_init,
 	  allegro_support_svgalib=yes
 	  AC_DEFINE(ALLEGRO_LINUX_SVGALIB)
-	  if test "$allegro_support_modules" != yes; then
+	  if test -z "$allegro_support_modules"; then
 	    LIBS="-lvga $LIBS"
 	  fi
           AC_MSG_CHECKING(for vga_version in vga.h)
@@ -401,7 +401,7 @@ dnl Test for pthreads.
 AC_CHECK_HEADER(pthread.h, AC_CHECK_LIB(pthread, pthread_create))
 
 dnl Modules.
-if test "X$allegro_support_modules" = "Xyes"; then
+if test -n "$allegro_support_modules"; then
 
   dnl SVGAlib.
   if test "X$allegro_support_svgalib" = "Xyes"; then
