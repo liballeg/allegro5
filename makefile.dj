@@ -15,10 +15,14 @@ OBJ_DIR = obj/djgpp/$(VERSION)
 LIB_NAME = lib/djgpp/lib$(VERSION).a
 EXE = .exe
 OBJ = .o
+
 ifdef CROSSCOMPILE
-UNIX_TOOLS = 1
+  UNIX_TOOLS = 1
 endif
 
+ifdef BASH
+  UNIX_TOOLS = 1
+endif
 
 
 # -------- autodetect whether to use LFN --------
