@@ -204,11 +204,11 @@ static int alsa_init(int input, int voices)
 
    /* Load config.  */
    card = get_config_int(uconvert_ascii("sound", tmp1),
-			 uconvert_ascii("alsadigi_card", tmp2),
+			 uconvert_ascii("alsa_card", tmp2),
 			 snd_defaults_card());
 
    device = get_config_int(uconvert_ascii("sound", tmp1),
-			   uconvert_ascii("alsadigi_pcmdevice", tmp2),
+			   uconvert_ascii("alsa_pcmdevice", tmp2),
 			   snd_defaults_pcm_device());
 
    fragsize = get_config_int(uconvert_ascii("sound", tmp1),
