@@ -62,9 +62,11 @@ extern "C" {
                     int vw, int vh, int depth, int accel));
    AL_FUNC(void, _xdga2_gfxdrv_exit, (BITMAP *bmp));
    AL_FUNC(int, _xdga2_scroll_screen, (int x, int y));
-   AL_FUNC(void, _xdga2_vsync, (void));
    AL_FUNC(void, _xdga2_set_palette_range, (AL_CONST PALETTE p, int from, int to, int vsync));
    AL_FUNC(void, _xdga2_handle_input, (void));
+   AL_FUNC(int, _xdga2_poll_scroll, (void));
+   AL_FUNC(int, _xdga2_request_scroll, (int x, int y));
+   AL_FUNC(int, _xdga2_request_video_bitmap, (BITMAP *bmp));
    
 #ifdef __cplusplus
 }

@@ -26,10 +26,7 @@
 #include <X11/extensions/xf86dga.h>
 
 
-#define RESYNC()                                                           \
-XDGASync(_xwin.display, _xwin.screen);
-#define GET_SHIFT(col_mask)                                                \
-for (mask = (col_mask), shift = 0; (mask & 1) == 0; mask >>= 1, shift++);
+#define RESYNC()     XDGASync(_xwin.display, _xwin.screen);
 
 
 extern int _xwin_keycode_pressed[];
@@ -224,7 +221,7 @@ void _xdga2_handle_input(void)
 static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int accel)
 {
    int dga_error_base, dga_major_version, dga_minor_version;
-   int mode, mask, shift;
+   int mode, mask, red_shift = 0, green_shift = 0, blue_shift = 0;
    long input_mask;
    char tmp[80];
    BITMAP *bmp;
@@ -318,42 +315,38 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
    XDGAInstallColormap(_xwin.display, _xwin.screen, _dga_cmap);
 
    /* Sets up direct color shifts */
+   if (depth != 8) {
+      for (mask = dga_device->mode.redMask, red_shift = 0; (mask & 1) == 0;
+         mask >>= 1, red_shift++);
+      for (mask = dga_device->mode.greenMask, green_shift = 0; (mask & 1) == 0;
+         mask >>= 1, green_shift++);
+      for (mask = dga_device->mode.blueMask, blue_shift = 0; (mask & 1) == 0;
+         mask >>= 1, blue_shift++);
+   }
    switch (depth) {
 
       case 15:
-         GET_SHIFT(dga_device->mode.redMask);
-         _rgb_r_shift_15 = shift;
-         GET_SHIFT(dga_device->mode.greenMask);
-         _rgb_g_shift_15 = shift;
-         GET_SHIFT(dga_device->mode.blueMask);
-         _rgb_b_shift_15 = shift;
+         _rgb_r_shift_15 = red_shift;
+         _rgb_g_shift_15 = green_shift;
+         _rgb_b_shift_15 = blue_shift;
          break;
 
       case 16:
-         GET_SHIFT(dga_device->mode.redMask);
-         _rgb_r_shift_16 = shift;
-         GET_SHIFT(dga_device->mode.greenMask);
-         _rgb_g_shift_16 = shift;
-         GET_SHIFT(dga_device->mode.blueMask);
-         _rgb_b_shift_16 = shift;
+         _rgb_r_shift_16 = red_shift;
+         _rgb_g_shift_16 = green_shift;
+         _rgb_b_shift_16 = blue_shift;
          break;
 
       case 24:
-         GET_SHIFT(dga_device->mode.redMask);
-         _rgb_r_shift_24 = shift;
-         GET_SHIFT(dga_device->mode.greenMask);
-         _rgb_g_shift_24 = shift;
-         GET_SHIFT(dga_device->mode.blueMask);
-         _rgb_b_shift_24 = shift;
+         _rgb_r_shift_24 = red_shift;
+         _rgb_g_shift_24 = green_shift;
+         _rgb_b_shift_24 = blue_shift;
          break;
 
       case 32:
-         GET_SHIFT(dga_device->mode.redMask);
-         _rgb_r_shift_32 = shift;
-         GET_SHIFT(dga_device->mode.greenMask);
-         _rgb_g_shift_32 = shift;
-         GET_SHIFT(dga_device->mode.blueMask);
-         _rgb_b_shift_32 = shift;
+         _rgb_r_shift_32 = red_shift;
+         _rgb_g_shift_32 = green_shift;
+         _rgb_b_shift_32 = blue_shift;
          break;
    }
 
@@ -429,6 +422,10 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
       RESYNC();
    }
 
+   /* Checks for triple buffering */
+   if (dga_device->mode.viewportFlags & XDGAFlipRetrace)
+      gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
+
    /* Sets up driver description */
    usprintf(_xdga2_driver_desc,
       uconvert_ascii("X-Windows DGA 2.0 graphics%s", tmp),
@@ -479,6 +476,57 @@ void _xdga2_gfxdrv_exit(BITMAP *bmp)
 
 
 
+/* _xdga2_poll_scroll:
+ *  Returns true if there are pending scrolling requests left.
+ */
+int _xdga2_poll_scroll(void)
+{
+   int result;
+
+   DISABLE();
+   result = XDGAGetViewportStatus(_xwin.display, _xwin.screen);
+   ENABLE();
+   return result;
+}
+
+
+
+/* _xdga2_request_scroll:
+ *  Starts a screen scroll but doesn't wait for the retrace.
+ */
+int _xdga2_request_scroll(int x, int y)
+{
+   DISABLE();
+   
+   if (x < 0) x = 0;
+   else if (x > dga_device->mode.maxViewportX)
+      x = dga_device->mode.maxViewportX;
+   if (y < 0) y = 0;
+   else if (y > dga_device->mode.maxViewportY)
+      y = dga_device->mode.maxViewportY;
+
+   XDGASetViewport(_xwin.display, _xwin.screen, x, y, XDGAFlipRetrace);
+
+   ENABLE();
+   
+   return 0;
+}
+
+
+
+/* _xdga2_request_video_bitmap:
+ *  Page flips to display specified bitmap, but doesn't wait for retrace.
+ */
+int _xdga2_request_video_bitmap(BITMAP *bmp)
+{
+   DISABLE();
+   XDGASetViewport(_xwin.display, _xwin.screen, bmp->x_ofs, bmp->y_ofs, XDGAFlipRetrace);
+   ENABLE();
+   return 0;
+}
+
+
+
 /* _xdga2_scroll_screen:
  *  Scrolls DGA viewport.
  */
@@ -499,18 +547,6 @@ int _xdga2_scroll_screen(int x, int y)
    ENABLE();
    
    return 0;
-}
-
-
-
-/* _xdga2_vsync:
- *  Waits for vertical retrace.
- */
-void _xdga2_vsync(void)
-{
-   DISABLE();
-   XSync(_xwin.display, False);
-   ENABLE();
 }
 
 
