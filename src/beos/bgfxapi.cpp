@@ -1088,85 +1088,85 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
 	 /* fallthrough */
 	 
       case B_DIRECT_MODIFY: {
-	    uint8 old_display_depth = display_depth;
-	    uint32 stride, i;
+	 uint8 old_display_depth = display_depth;
+	 uint32 stride, i;
 
-	    switch (info->pixel_format) {
-	       case B_CMAP8:  
-		  display_depth = 8;  
-		  break;
-	       case B_RGB15:  
-	       case B_RGBA15: 
-		  display_depth = 15; 
-		  break;
-	       case B_RGB16:  
-		  display_depth = 16; 
-		  break;
-	       case B_RGB32:  
-	       case B_RGBA32: 
-		  display_depth = 32; 
-		  break;
-	       default:	      
-		  display_depth = 0;  
-		  break;
-	    }
-	    
-	    if (!display_depth) {
-	       break;  
-	    }
-
-	    if (old_display_depth != display_depth) {
-	       _be_gfx_init_conversion_shifts(display_depth);
-
-	       // FIXME move this somewhere else
-	       if (display_depth == 8) {
-		  BScreen screen(be_allegro_window);
-		  int r, g, b;
-      
-		  /* Adjust cmap to system-wide palette. */
-		  for (r = 0; r < 16; r++) {
-		     for (g = 0; g < 16; g++) {
-			for (b = 0; b < 16; b++) {
-			   cmap[(r << 8) | (g << 4) | b] = screen.IndexForColor(r << 4, g << 4, b << 4);
-			}
-		     }
-		  } 
-	       }
-
-	       _be_gfx_create_mapping_tables(screen_depth);
-	       blitter = _be_gfx_select_blitter(screen_depth, display_depth);
-	    }
-	 			       
-	    if (rects) {
-	       free(rects);
-	    }
-
-	    num_rects = info->clip_list_count;
-	    size = num_rects * (sizeof *rects);
-	    rects = (clipping_rect *)malloc(num_rects * size);
-
-	    if (rects) {
-	       memcpy(rects, info->clip_list, size);
-	    }
-
-	    window = info->window_bounds;
-	    stride = info->bytes_per_row;
-	    screen_height = window.bottom - window.top + 1;
-      
-	    for (i = 0; i < screen_height; i++) {
-	       display_line[i] = (uint8 *)info->bits + ((i + window.top) * stride) 
-			    + (window.left * ((display_depth + 7) / 8));
-		   be_dirty_lines[i] = 1;
-	    }
-
-        connected = true;
+	 switch (info->pixel_format) {
+	    case B_CMAP8:  
+	       display_depth = 8;  
+	       break;
+	    case B_RGB15:  
+	    case B_RGBA15: 
+	       display_depth = 15; 
+	       break;
+	    case B_RGB16:  
+	       display_depth = 16; 
+	       break;
+	    case B_RGB32:  
+	    case B_RGBA32: 
+	       display_depth = 32; 
+	       break;
+	    default:	      
+	       display_depth = 0;  
+	       break;
 	 }
+	 
+	 if (!display_depth) {
+	    break;  
+	 }
+
+	 if (old_display_depth != display_depth) {
+	    _be_gfx_init_conversion_shifts(display_depth);
+
+	    // FIXME move this somewhere else
+	    if (display_depth == 8) {
+	       BScreen screen(be_allegro_window);
+	       int r, g, b;
+      
+	       /* Adjust cmap to system-wide palette. */
+	       for (r = 0; r < 16; r++) {
+		  for (g = 0; g < 16; g++) {
+		     for (b = 0; b < 16; b++) {
+			cmap[(r << 8) | (g << 4) | b] = screen.IndexForColor(r << 4, g << 4, b << 4);
+		     }
+		  }
+	       } 
+	    }
+
+	    _be_gfx_create_mapping_tables(screen_depth);
+	    blitter = _be_gfx_select_blitter(screen_depth, display_depth);
+	 }
+	 			       
+	 if (rects) {
+	    free(rects);
+	 }
+
+	 num_rects = info->clip_list_count;
+	 size = num_rects * (sizeof *rects);
+	 rects = (clipping_rect *)malloc(num_rects * size);
+	 
+	 if (rects) {
+	    memcpy(rects, info->clip_list, size);
+	 }
+
+	 window = info->window_bounds;
+	 stride = info->bytes_per_row;
+	 screen_height = window.bottom - window.top + 1;
+      
+	 for (i = 0; i < screen_height; i++) {
+	    display_line[i] = (uint8 *)info->bits + ((i + window.top) * stride) 
+	       + (window.left * ((display_depth + 7) / 8));
+	    be_dirty_lines[i] = 1;
+	 }
+
+	 connected = true;
 	 break;
+      }
 
       case B_DIRECT_STOP:
 	 break;
    }
-  
+   
    if (screen_depth == 8)
       be_gfx_windowed_set_palette(_current_palette, 0, 255, 0);
    else
