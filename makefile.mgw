@@ -44,10 +44,10 @@ endif
 .PHONY: badwin badming
 
 ifeq ($(OS),Windows_NT)
-  WINSYSDIR = $(SYSTEMROOT)
+  WINSYSDIR = $(SystemRoot)
   WINSUBDIR = system32
 else
-  WINSYSDIR = $(WINDIR)
+  WINSYSDIR = $(windir)
   WINSUBDIR = system
 endif
 

@@ -37,34 +37,58 @@
 ===========================================
 
    For the MingW32 part, you will need to obtain the following 
-   distributions from the internet:
+   distributions from the internet. Please don't unzip/install until step 5.
 
    1) The MingW32 compiler, documentation and utilities from
       http://www.mingw.org
       At the time of this writing (Aug. 2000) gcc-2.95.2 is out and one
       should get gcc-2.95.2-msvcrt.exe and mingw32-docs-html.exe.
+      Direct links to these files are:
 
-   2) Get the latest runtime and update at least the headers.
+      ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/mingw32/gcc-2.95.2/
+      gcc-2.95.2-msvcrt.exe
+      
+      ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/mingw32/gcc-2.95.2/
+      mingw32-docs-html.exe
+
+
+   2) Get the latest mingw32 runtime.
       ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/mingw32/runtime/
+      At time of writing this is:
+
+      ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/mingw32/runtime/
+      bin-msvcrt-2000-03-27.zip
+
 
    3) Get the DirectX 7 libraries for mingw32. Download them from
       http://sites.netscape.net/zaqhaq/directx.htm
+      Direct link is:
+
+      http://sites.netscape.net/zaqhaq/dxlibs.zip
+
 
    4) Get the DirectX 7 header files from Microsoft. You can find a minimal
       DirectX 7 SDK on the Allegro webpage.
+
       http://sunsite.auc.dk/allegro/wipdll/dx70_min.zip
 
-   5) Create a directory for mingw32, for example c:\mingw32, and install
-      all the packages to this directory. The Microsoft DirectX libraries
-      should be installed to c:\mingw32\i386-mingw32msvc\lib and the headers to 
-      c:\mingw32\i386-mingw32msvc\include.
 
-   6) Add this directory (c:\mingw32\bin) to your path in AUTOEXEC.BAT.
-      Also add this line to your AUTOEXEC.BAT:
-      SET MINGDIR=c:\mingw32
+   5) Install the mingw packages from step 1. The default path to install to
+      is not a good name, so I recommend c:\mingw32 (the following steps
+      assume this is what you used). Then unzip the update from step 2 to the
+      same directory, overwrite old files.
+
+   6) Unzip the file from step 3 to c:\mingw32\i386-mingw32msvc\lib
+      Unzip the file from step 4) to c:\mingw32\i386-mingw32msvc
+
+   7) You now need to add the mingw32\bin path. The best way to do this is
+      to add it to autoexec.bat, if you have another compiler make sure the
+      mingw path is before it. This path will be added the next time you
+      reboot, if you want to add it now, type:
+
+      path c:\mingw32\bin;%PATH%
 
 
-   Now reboot your computer to activate the changes.
    Test the installation by typing: gcc -v.
    The answer should be simmilar to
    Reading specs from C:\MINGW32\BIN\..\lib\gcc-lib\i386-mingw32msvc\2.95.2\specs
@@ -77,11 +101,27 @@
 ============================================
 
    Step-by-step instructions on how to build the MingW32 version of Allegro.
+   This assumes you have unzipped allegro to c:\allegro
 
    First configure Allegro by entering the following on the commandline:
 
    cd c:\allegro
    fixming
+
+   To build allegro with the default settings (recommended):
+
+   set MINGDIR=c:\mingw32
+   make
+   make install
+
+   You can ignore warnings about 'incompatible pointer type'
+   You have now installed mingw32 and allegro! See the rest of the
+   documentation and examples to learn more about it. A simple example
+   of a command line to compile an allegro program with mingw:
+
+   gcc foo.c -mwindows -O2 -Wall -o foo.exe -lalleg
+
+============================================
 
    The dynamically linked version of Allegro gets built by default but if
    you want to build the statically linked version of Allegro write the
@@ -102,6 +142,7 @@
 
    Then we can start to actually make and install the Allegro library.
 
+   set MINGDIR=c:\mingw32
    make
    make install
 
