@@ -70,6 +70,9 @@
 /* Define to enable Linux console SVGAlib driver */
 #undef ALLEGRO_LINUX_SVGALIB
 
+/* Define if SVGAlib driver can check vga_version */
+#undef ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION
+
 /* Define if target machine is little endian.  */
 #undef ALLEGRO_LITTLE_ENDIAN
 
@@ -81,6 +84,9 @@
 
 /* Define if MIT-SHM extension is supported.  */
 #undef ALLEGRO_XWINDOWS_WITH_SHM
+
+/* Define if XF86VidMode extension is supported.  */
+#undef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 
 /* Define if XF86DGA extension is supported.  */
 #undef ALLEGRO_XWINDOWS_WITH_XF86DGA
