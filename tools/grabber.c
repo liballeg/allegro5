@@ -1729,7 +1729,7 @@ static int loader(void)
       if (is_modified) {
 	 int r = alert3("Previous data may have been modified.",
 			"Do you want to save them?", NULL,
-			"Save", "Don't save", "Cancel", 's', 'd', 27);
+			"Save", "Do not save", "Cancel", 's', 'd', 27);
 
 	 switch (r) {
 
@@ -2155,7 +2155,7 @@ static int quitter(void)
    
    r = alert3("Data may have been modified.",
 	      "Do you want to save before quitting?", NULL,
-	      "Save", "Quit", "Cancel", 's', 'q', 27);
+	      "Save", "Do not save", "Cancel", 's', 'd', 27);
 
    if (r == 2)
       return D_CLOSE;
