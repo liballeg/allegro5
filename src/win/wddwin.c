@@ -44,7 +44,7 @@ GFX_DRIVER gfx_directx_win =
    gfx_directx_sync,
    gfx_directx_set_palette,
    NULL,                        // AL_METHOD(int, request_scroll, (int x, int y));
-   NULL,                        // gfx_directx_poll_scroll,
+   NULL,                        // AL_METHOD(int, poll_scroll, (void));
    NULL,                        // AL_METHOD(void, enable_triple_buffer, (void));
    gfx_directx_create_video_bitmap,
    gfx_directx_destroy_video_bitmap,
@@ -60,13 +60,13 @@ GFX_DRIVER gfx_directx_win =
    NULL,                        // AL_METHOD(void, save_video_state, (void*));
    NULL,                        // AL_METHOD(void, restore_video_state, (void*));
    NULL,                        // AL_METHOD(int, fetch_mode_list, (void));
-   0, 0,                        // int w, h;                     /* physical (not virtual!) screen size */
-   TRUE,                        // int linear;                   /* true if video memory is linear */
-   0,                           // long bank_size;               /* bank size, in bytes */
-   0,                           // long bank_gran;               /* bank granularity, in bytes */
-   0,                           // long vid_mem;                 /* video memory size, in bytes */
-   0,                           // long vid_phys_base;           /* physical address of video memory */
-   TRUE                         // int windowed;                 /* true if driver runs windowed */
+   0, 0,                        // int w, h;
+   TRUE,                        // int linear;
+   0,                           // long bank_size;
+   0,                           // long bank_gran;
+   0,                           // long vid_mem;
+   0,                           // long vid_phys_base;
+   TRUE                         // int windowed;
 };
 
 
@@ -83,7 +83,7 @@ static WIN_GFX_DRIVER win_gfx_driver_windowed =
    NULL,                        // AL_METHOD(void, switch_out, (void));
    handle_window_enter_sysmode_win,
    handle_window_exit_sysmode_win,
-   NULL,   // handle_window_move_win causes a crash on fast machines
+   handle_window_move_win,
    NULL,                        // AL_METHOD(void, iconify, (void));
    NULL,                        // AL_METHOD(void, paint, (RECT *));
 };
@@ -97,36 +97,34 @@ static LPDIRECTDRAWSURFACE2 offscreen_surface = NULL;
  */ 
 static LPDIRECTDRAWSURFACE2 preconv_offscreen_surface = NULL;
 static RECT working_area;
-static COLORCONV_BLITTER_FUNC *_update = NULL;
-static int clipped_updating_mode;
+static COLORCONV_BLITTER_FUNC *colorconv_blit = NULL;
+static int direct_updating_mode;
 static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
 
 /* handle_window_enter_sysmode_win:
- *  makes the driver switch into clipped updating mode 
+ *  causes the driver to switch to indirect updating mode
  */
 static void handle_window_enter_sysmode_win(void)
 {
-   if (!same_color_depth && !clipped_updating_mode) {
-      clipped_updating_mode = TRUE;
-      _TRACE("clipped updating mode on\n");
+   if (!same_color_depth && direct_updating_mode) {
+      direct_updating_mode = FALSE;
+      _TRACE("direct updating mode off\n");
    }
 }
 
 
 
 /* handle_window_exit_sysmode_win:
- *  makes the driver switch back into direct updating mode
+ *  causes the driver to switch back to direct updating mode
  */
 static void handle_window_exit_sysmode_win(void)
 {
-   if (!same_color_depth && clipped_updating_mode) {
-      clipped_updating_mode = FALSE;
-      _TRACE("clipped updating mode off\n");
+   if (!same_color_depth && !direct_updating_mode) {
+      direct_updating_mode = TRUE;
+      _TRACE("direct updating mode on\n");
    }
-
-   update_window(NULL);
 }
 
 
@@ -136,27 +134,27 @@ static void handle_window_exit_sysmode_win(void)
  */
 static void handle_window_move_win(int x, int y, int w, int h)
 {
-   if (!same_color_depth) {
-      int xmod;
+   int xmod;
+   RECT window_rect;
 
-      if ( (((desktop_depth == 15) || (desktop_depth == 16)) && (xmod=x%2)) ||
-                                     ((desktop_depth == 24) && (xmod=x%4))  ) {
-         /* enforce alignment to speed up color conversion */
-         RECT window_rect;
+   if (!same_color_depth) {
+      if (((BYTES_PER_PIXEL(desktop_depth) == 2) && (xmod=ABS(x)%2)) ||
+          ((BYTES_PER_PIXEL(desktop_depth) == 3) && (xmod=ABS(x)%4))) {
          GetWindowRect(allegro_wnd, &window_rect);
-         SetWindowPos(allegro_wnd, 0, window_rect.left + xmod,
+         SetWindowPos(allegro_wnd, 0, window_rect.left + (x > 0 ? -xmod : xmod),
                       window_rect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
-         _TRACE("window shifted by %d pixel(s) to the right to enforce alignment\n", xmod); 
+         _TRACE("window shifted by %d pixe%s to the %s to enforce alignment\n",
+                xmod, xmod > 1 ? "ls" : "l", x > 0 ? "left" : "right");
       }
    }
 }
 
 
 
-/* update_window_hw:
- * function synced with the vertical refresh
+/* update_matching_window:
+ *  updates a portion of the window when the color depths match
  */
-static void update_window_hw(RECT* rect)
+static void update_matching_window(RECT* rect)
 {
    RECT dest_rect;
 
@@ -218,8 +216,7 @@ static INLINE int is_not_contained(RECT *rect1, RECT *rect2)
 
 
 
-/*
- * ddsurf_blit_ex:
+/* ddsurf_blit_ex:
  *  extended blit function performing color conversion
  */
 static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
@@ -255,7 +252,7 @@ static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
    dest_gfx_rect.data  = dest_desc.lpSurface;
    
    /* function doing the hard work */
-   _update(&src_gfx_rect, &dest_gfx_rect);
+   colorconv_blit(&src_gfx_rect, &dest_gfx_rect);
 
    IDirectDrawSurface2_Unlock(src_surf, NULL);
    IDirectDrawSurface2_Unlock(dest_surf, NULL);
@@ -265,10 +262,10 @@ static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
 
 
 
-/* update_window_ex:
- * converts between two color formats
+/* update_colorconv_window:
+ *  updates a portion of the window when the color depths don't match
  */
-static void update_window_ex(RECT* rect)
+static void update_colorconv_window(RECT* rect)
 {
    RECT src_rect, dest_rect;
 
@@ -297,7 +294,7 @@ static void update_window_ex(RECT* rect)
    ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect);
    ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect + 1);
 
-   if (clipped_updating_mode || is_not_contained(&dest_rect, &working_area) ||
+   if (!direct_updating_mode || is_not_contained(&dest_rect, &working_area) ||
                                        (GetForegroundWindow() != allegro_wnd)) {
       /* first blit to the pre-converted offscreen buffer */
       if (ddsurf_blit_ex(preconv_offscreen_surface, &src_rect,
@@ -321,7 +318,7 @@ static void update_window_ex(RECT* rect)
 
 
 /* setup_driver_desc:
- *  Sets up the driver description string.
+ *  sets the driver description string
  */
 static void setup_driver_desc(void)
 {
@@ -338,7 +335,7 @@ static void setup_driver_desc(void)
 
 
 /* gfx_directx_set_palette_win:
- * update the palette for color conversion from 8 bit
+ *  updates the palette for color conversion from 8-bit
  */
 static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
@@ -349,7 +346,7 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
 
 
 /* switch_in_win:
- *  handle window switched in
+ *  handles window switched in
  */
 static void switch_in_win(void)
 {
@@ -377,32 +374,34 @@ static int wnd_set_windowed_coop(void)
 
 
 /* verify_color_depth:
- * compares the color depth requested with the real color depth
+ *  compares the requested color depth with the desktop color depth
  */
 static int verify_color_depth (int color_depth)
 {
    if (gfx_directx_compare_color_depth(color_depth) == 0) {
       /* the color depths match */ 
-      update_window = update_window_hw;
+      update_window = update_matching_window;
    }
    else {
       /* the color depths don't match, need color conversion */
-      _update = _get_colorconv_blitter(color_depth, desktop_depth);
+      colorconv_blit = _get_colorconv_blitter(color_depth, desktop_depth);
 
-      if (!_update)
+      if (!colorconv_blit)
          return -1;
 
-      update_window = update_window_ex;
-      clipped_updating_mode = FALSE;
+      update_window = update_colorconv_window;
+      direct_updating_mode = TRUE;
    }
 
    win_gfx_driver_windowed.paint = update_window;
+
    return 0;
 }
 
 
 
 /* gfx_directx_show_video_bitmap_win:
+ *  makes the specified video bitmap visible
  */
 static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap)
 {
@@ -417,12 +416,14 @@ static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap)
       update_window(NULL);
       return 0;
    }
+
    return -1;
 }
 
 
 
 /* create_offscreen:
+ *  create the offscreen backing surface
  */
 static int create_offscreen(int w, int h, int color_depth)
 {
@@ -462,19 +463,20 @@ static int create_offscreen(int w, int h, int color_depth)
 
 
 /* init_directx_win:
+ *  initializes the driver
  */
 static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color_depth)
 {
    RECT win_size;
    HRESULT hr;
 
-   /* Flipping is impossible in windowed mode */
+   /* flipping is impossible in windowed mode */
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
       return NULL;
    }
 
-   /* Alignment restrictions (for color conversion) */
+   /* alignment restrictions (for color conversion) */
    if (w%4)
       return NULL;
 
@@ -596,6 +598,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 
 
 /* gfx_directx_win_exit:
+ *  shuts down the driver
  */
 static void gfx_directx_win_exit(struct BITMAP *b)
 { 
@@ -621,9 +624,9 @@ static void gfx_directx_win_exit(struct BITMAP *b)
    preconv_offscreen_surface = NULL;
 
    /* release the color conversion blitter */
-   if (_update) {
-      _release_colorconv_blitter(_update);
-      _update = NULL;
+   if (colorconv_blit) {
+      _release_colorconv_blitter(colorconv_blit);
+      colorconv_blit = NULL;
    }
 
    /* unlink surface from bitmap */
