@@ -1279,6 +1279,7 @@ static int cvt_FONT_color(struct dat2c* dat2c, FONT* f, const char* name)
         data_count++;
     }
     
+    free(name_buf);
     return data_count;
 }
 
@@ -1627,7 +1628,8 @@ int do_conversion(struct dat2c* dat2c)
     char* prefixed_name = 0;
     
     prefixed_name = malloc(5 +
-        (dat2c->prefix ? (signed)strlen(dat2c->prefix) : -1));
+        (dat2c->prefix ? (signed)strlen(dat2c->prefix) : 0) +
+        (dat2c->datafile_name ? (signed)strlen(dat2c->datafile_name) : 0));
     if(!prefixed_name) out_of_memory();
     sprintf(prefixed_name, "%s%s%s", 
         dat2c->prefix ? dat2c->prefix : "",
