@@ -181,7 +181,10 @@
    can change the target directories for installation -- for example,
    you can write:
 
-      ./configure --prefix=~
+      ./configure --prefix=$HOME
+
+   (Be a bit careful, --prefix=~ works in bash but not tcsh -- it's safer
+   to use $HOME if you're not sure.)
 
    Then binaries will be installed to the `bin' subdirectory of your home
    directory, libraries to `lib', etc.  Now you need to set up your system
