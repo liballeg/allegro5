@@ -181,7 +181,7 @@ Contributors
    file_select_ex() function, rewrote the fixdll script, added an unicode
    example, fixed lots of bugs and did truckloads more work on the Windows
    port. Added flush_config_file() function and hfill() method to the
-   GFX_VTABLE structure. Added support for 8bit desktops tp the windows
+   GFX_VTABLE structure. Added support for 8bit desktops to the windows
    windowed driver. Added translation to allegro.spec file. Added a unified
    al_find*() interface.
 
