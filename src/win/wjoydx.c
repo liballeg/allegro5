@@ -106,8 +106,8 @@ static char* dinput_err_str(long err)
 
 
 
-/* joystick_dinput_acquire:
- *  Acquires the joystick devices (called by the window thread).
+/* joystick_dinput_acquire: [window thread]
+ *  Acquires the joystick devices.
  */
 int joystick_dinput_acquire(void)
 {
@@ -128,8 +128,8 @@ int joystick_dinput_acquire(void)
 
 
 
-/* joystick_dinput_unacquire:
- *  Unacquires the joystick devices (called by the window thread).
+/* joystick_dinput_unacquire: [window thread]
+ *  Unacquires the joystick devices.
  */
 int joystick_dinput_unacquire(void)
 {
@@ -146,7 +146,7 @@ int joystick_dinput_unacquire(void)
 
 
 
-/* joystick_dinput_poll:
+/* joystick_dinput_poll: [primary thread]
  *  Polls the DirectInput joystick devices.
  */
 static int joystick_dinput_poll(void)
@@ -380,7 +380,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
 
 
 
-/* joystick_dinput_init:
+/* joystick_dinput_init: [primary thread]
  *  Initialises the DirectInput joystick devices.
  */
 static int joystick_dinput_init(void)
@@ -411,7 +411,7 @@ static int joystick_dinput_init(void)
 
 
 
-/* joystick_dinput_exit:
+/* joystick_dinput_exit: [primary thread]
  *  Shuts down the DirectInput joystick devices.
  */
 static void joystick_dinput_exit(void)
