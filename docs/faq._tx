@@ -209,6 +209,16 @@ DOS problems
       volume of Allegro's digital sound output.
 
 <h4><li>
+@@   When I compile Allegro, make fails with `Error: operands given don't 
+   match any known 386 instruction'.
+</h4>
+      You need to update your version of binutils. As of writing, the latest 
+      is version 2.10, and you can download it at: 
+      <link>ftp://ftp.demon.co.uk/pub/mirrors/simtelnet/gnu/djgpp/v2gnu/</a> . 
+      Look for the latest version of bnu*b.zip (bnu210b.zip, at time 
+      of writing).
+
+<h4><li>
 @@   Why doesn't it work with my video card?
 </h4>
       Try using a FreeBE/AF driver (<link>http://www.talula.demon.co.uk/freebe/</a>),
@@ -593,6 +603,14 @@ General problems
       It simplifies the maintenance of your program, in case the value of PI 
       ever needs to be changed. Also it will make your program more portable 
       to other compilers that use different values of PI.
+
+<h4><li>
+@@   Why doesn't vsync() seem to work?
+</h4>
+      A number of graphics cards have buggy or incomplete VESA implementations, 
+      and often the vsync() function is not implemented. For examples on 
+      flicker-free drawing, look at the code for the demo game, which uses a 
+      variety of methods to draw itself.
 
 <h4><li>
 @@   I'm still confused. Where can I get help?

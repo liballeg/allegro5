@@ -2855,7 +2855,7 @@ routines!
    depth.
 
 @@int @makeacol(int r, int g, int b, int a);
-@@int @makeacol_depth(int color_depth, int r, int g, int b);
+@@int @makeacol_depth(int color_depth, int r, int g, int b, int a);
 @xref makecol, makecol_depth, set_alpha_blender, set_write_alpha_blender
    Convert RGBA colors into display dependent pixel formats. In anything 
    less than a 32 bit mode, these are the same as calling makecol() or 
