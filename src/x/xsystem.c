@@ -251,7 +251,10 @@ static void _xwin_sysdrv_exit(void)
 #endif
 
 #ifdef ALLEGRO_MULTITHREADED
-   _unix_destroy_mutex (_xwin.mutex);
+   if (_xwin.mutex) {
+      _unix_destroy_mutex(_xwin.mutex);
+      _xwin.mutex = NULL;
+   }
 #endif
 }
 
