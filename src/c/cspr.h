@@ -223,7 +223,7 @@ void FUNC_LINEAR_DRAW_SPRITE_V_FLIP(BITMAP *dst, BITMAP *src, int dx, int dy)
 
 	 for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR(d), x--) {
 	    unsigned long c = GET_MEMORY_PIXEL(s);
-	    if (!IS_SPRITE_MASK((BITMAP *)src, c)) {
+	    if (!IS_SPRITE_MASK(src, c)) {
 	       PUT_PIXEL(d, c);
 	    }
 	 }
@@ -854,7 +854,7 @@ void FUNC_LINEAR_DRAW_RLE_SPRITE(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, 
 	    c = *s++;
          }
 
-next_line:{}
+	 next_line: ;
       }
    }
    else {
@@ -895,7 +895,7 @@ next_line:{}
 	    c = *s++;
          }
 
-next_line2:{}
+	 next_line2: ;
       }
    }
 

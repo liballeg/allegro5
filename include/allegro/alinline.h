@@ -480,12 +480,16 @@ AL_INLINE(int, geta32, (int c),
    return ((c >> _rgb_a_shift_32) & 0xFF);
 })
 
+
 #ifdef ALLEGRO_MPW
-#define acquire_bitmap(bmp)
-#define release_bitmap(bmp)
-#define acquire_screen()
-#define release_screen()
+
+   #define acquire_bitmap(bmp)
+   #define release_bitmap(bmp)
+   #define acquire_screen()
+   #define release_screen()
+
 #else
+
 AL_INLINE(void, acquire_bitmap, (BITMAP *bmp),
 {
    ASSERT(bmp);

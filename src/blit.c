@@ -43,7 +43,7 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
    /* worker macro */
    #define EXPAND_BLIT(bits, dsize)                                          \
    {                                                                         \
-      if (is_memory_bitmap((BITMAP *)src)) {                                           \
+      if (is_memory_bitmap(src)) {                                           \
 	 /* fast version when reading from memory bitmap */                  \
 	 bmp_select(dest);                                                   \
 									     \
@@ -63,11 +63,11 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
       else {                                                                 \
 	 /* slower version when reading from the screen */                   \
 	 for (y=0; y<h; y++) {                                               \
-	    s = bmp_read_line((BITMAP *)src, s_y+y) + s_x;                             \
+	    s = bmp_read_line(src, s_y+y) + s_x;                             \
 	    d = bmp_write_line(dest, d_y+y) + d_x*dsize;                     \
 									     \
 	    for (x=0; x<w; x++) {                                            \
-	       bmp_select((BITMAP *)src);                                              \
+	       bmp_select(src);                                              \
 	       c = bmp_read8(s);                                             \
 									     \
 	       bmp_select(dest);                                             \
@@ -78,7 +78,7 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
 	    }                                                                \
 	 }                                                                   \
 									     \
-	 bmp_unwrite_line((BITMAP *)src);                                              \
+	 bmp_unwrite_line(src);                                              \
 	 bmp_unwrite_line(dest);                                             \
       }                                                                      \
    }
@@ -116,11 +116,11 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
 #define CONVERT_BLIT(sbits, ssize, dbits, dsize)                             \
 {                                                                            \
    for (y=0; y<h; y++) {                                                     \
-      s = bmp_read_line((BITMAP *)src, s_y+y) + s_x*ssize;                             \
+      s = bmp_read_line(src, s_y+y) + s_x*ssize;                             \
       d = bmp_write_line(dest, d_y+y) + d_x*dsize;                           \
 									     \
       for (x=0; x<w; x++) {                                                  \
-	 bmp_select((BITMAP *)src);                                                    \
+	 bmp_select(src);                                                    \
 	 c = bmp_read##sbits(s);                                             \
 									     \
 	 r = getr##sbits(c);                                                 \
@@ -135,7 +135,7 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
       }                                                                      \
    }                                                                         \
 									     \
-   bmp_unwrite_line((BITMAP *)src);                                                    \
+   bmp_unwrite_line(src);                                                    \
    bmp_unwrite_line(dest);                                                   \
 }
 
@@ -145,12 +145,12 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
 #define CONVERT_DITHER_BLIT(sbits, ssize, dbits, dsize)                      \
 {                                                                            \
    for (y=0; y<h; y++) {                                                     \
-      s = bmp_read_line((BITMAP *)src, s_y+y) + s_x*ssize;                             \
+      s = bmp_read_line(src, s_y+y) + s_x*ssize;                             \
       d = bmp_write_line(dest, d_y+y) + d_x*dsize;                           \
 									     \
       if (_color_conv & COLORCONV_DITHER_HI) {                               \
 	 for (x=0; x<w; x++) {                                               \
-	    bmp_select((BITMAP *)src);                                                 \
+	    bmp_select(src);                                                 \
 	    c = bmp_read##sbits(s);                                          \
 									     \
 	    r = getr##sbits(c);                                              \
@@ -166,7 +166,7 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
       }                                                                      \
       else {                                                                 \
 	 for (x=0; x<w; x++) {                                               \
-	    bmp_select((BITMAP *)src);                                                 \
+	    bmp_select(src);                                                 \
 	    c = bmp_read##sbits(s);                                          \
 									     \
 	    r = getr##sbits(c);                                              \
@@ -182,7 +182,7 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
       }                                                                      \
    }                                                                         \
 									     \
-   bmp_unwrite_line((BITMAP *)src);                                                    \
+   bmp_unwrite_line(src);                                                    \
    bmp_unwrite_line(dest);                                                   \
 }
 

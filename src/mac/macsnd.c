@@ -8,6 +8,10 @@
  *                                           /\____/
  *                                           \_/__/
  *
+ *      Mac sound support.
+ *
+ *      By Ronaldo H Yamada.
+ *
  *      See readme.txt for copyright information.
  */
 

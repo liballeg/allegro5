@@ -80,12 +80,12 @@ int FUNC_LINEAR_GETPIXEL(BITMAP *src, int sx, int sy)
    if ((sx < 0) || (sx >= src->w) || (sy < 0) || (sy >= src->h))
       return -1;
    else {
-      PIXEL_PTR s = OFFSET_PIXEL_PTR(bmp_read_line((BITMAP *)src, sy), sx);
+      PIXEL_PTR s = OFFSET_PIXEL_PTR(bmp_read_line(src, sy), sx);
       unsigned long c;
 
-      bmp_select((BITMAP *)src);
+      bmp_select(src);
       c = GET_PIXEL(s);
-      bmp_unwrite_line((BITMAP *)src);
+      bmp_unwrite_line(src);
 
       return c;
    }

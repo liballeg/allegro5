@@ -515,7 +515,7 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
 
 	 /* scan the string */
 	 i = 0;
-	 while ((c = utolower(ugetat(tok, i)))!=0) {
+	 while ((c = utolower(ugetat(tok, i)))) {
 	    k = 0;
 	    while ((c2 = ugetat(tmp2, k))!=0) {
 	       if (c == c2) {

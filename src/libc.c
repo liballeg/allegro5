@@ -17,11 +17,12 @@
 
 
 #include <string.h>
-#include "allegro.h"
-#ifndef ALLEGRO_MPW
-	#include <sys/stat.h>
-#endif
 
+#include "allegro.h"
+
+#ifndef ALLEGRO_MPW
+   #include <sys/stat.h>
+#endif
 
 
 #ifdef ALLEGRO_NO_STRLWR

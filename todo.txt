@@ -14,7 +14,6 @@ General (Platform independant) todos:
 - Add a general windowed gfx updater with color conversion, to be used by
   specific ports
 - Convert more programs/examples to the new GFX_SAFE behaviour
-- Clean up some bad formatting stuff introduced by the Mac port.
 
 Win32 todos:
 ---------------------------------------------------------------------------
