@@ -253,9 +253,10 @@ install-lib: lib
 	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}_unsharable.a $(libdir)/; \
 	  fi; \
 	done
+	$(mkinstalldirs) $(bindir)
 	@echo Installing allegro-config to $(bindir)
 	@$(INSTALL_PROGRAM) allegro-config $(bindir)
-	$(LDCONFIG) $(libdir)
+	-$(LDCONFIG) $(libdir)
 
 install-headers:
 	$(mkinstalldirs) $(includedir)/allegro
@@ -279,8 +280,9 @@ install-programs: programs
 
 install-info:
 	@echo Installing Allegro info documentation...
+	$(mkinstalldirs) $(infodir)
 	@$(INSTALL_DATA) docs/allegro.info $(infodir)
-	@if $(SHELL) -c "$(INSTALL_INFO) --version" >/dev/null 2>&1; then \
+	-@if $(SHELL) -c "$(INSTALL_INFO) --version" >/dev/null 2>&1; then \
 	  if $(INSTALL_INFO) --version 2>&1 | grep -q "Debian"; then \
 	    $(INSTALL_INFO) --section Development -- $(infodir)/allegro.info; \
 	  else \
@@ -307,12 +309,17 @@ uninstall: uninstall-lib uninstall-headers uninstall-programs uninstall-info uni
 uninstall-lib:
 	@echo "Uninstalling libraries..."
 	@for l in alleg alld allp; do \
-	  rm -f $(libdir)/lib$${l}-$(shared_version).so; \
 	  rm -f $(libdir)/lib$${l}_unsharable.a; \
 	  rm -f $(libdir)/lib$${l}.a; \
 	done
 	rm -f $(bindir)/allegro-config
-	$(LDCONFIG) $(libdir)
+	-$(LDCONFIG) $(libdir)
+
+uninstall-shared:
+	@echo "Uninstalling shared libraries..."
+	@for l in alleg alld allp; do \
+	  rm -f $(libdir)/lib$${l}-${shared_version}.so; \
+	done
 
 uninstall-headers:
 	rm -f $(includedir)/allegro.h
