@@ -63,21 +63,23 @@ GFX_DRIVER gfx_directx_ovl =
 };
 
 
+static void switch_in_overlay(void);
 static void show_overlay(void);
 static void move_overlay(int, int, int, int);
 static void hide_overlay(void);
+static void paint_overlay(RECT *);
 
 
 static WIN_GFX_DRIVER win_gfx_driver_overlay =
 {
    TRUE,
-   show_overlay,
+   switch_in_overlay,
    NULL,                        // AL_METHOD(void, switch_out, (void));
    NULL,                        // AL_METHOD(void, enter_sysmode, (void));
    NULL,                        // AL_METHOD(void, exit_sysmode, (void));
    move_overlay,
    hide_overlay,
-   NULL                         // AL_METHOD(void, paint, (RECT *rect));
+   paint_overlay
 };
 
 
@@ -85,6 +87,25 @@ static char gfx_driver_desc[256] = EMPTY_STRING;
 static LPDIRECTDRAWSURFACE2 overlay_surface = NULL;
 static BOOL overlay_visible = FALSE;
 static HBRUSH original_brush, overlay_brush;
+
+
+
+/* switch_in_overlay:
+ *  Handles window switched in.
+ */
+static void switch_in_overlay(void)
+{
+   /* restore all DirectDraw surfaces */
+   _enter_gfx_critical();
+
+   IDirectDrawSurface2_Restore(dd_prim_surface);
+
+   gfx_directx_restore();
+
+   show_overlay();
+
+   _exit_gfx_critical();
+}
 
 
 
@@ -158,6 +179,20 @@ static void hide_overlay(void)
 	                                dd_prim_surface, NULL,
                                         DDOVER_HIDE, NULL);
    }
+}
+
+
+
+/* paint_overlay:
+ *  Handles window paint events.
+ */
+static void paint_overlay(RECT *rect)
+{
+   /* we may have lost the DirectDraw surfaces
+    * (e.g after the monitor has gone to low power)
+    */
+   if (IDirectDrawSurface2_IsLost(dd_prim_surface))
+      switch_in_overlay();
 }
 
 

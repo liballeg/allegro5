@@ -142,12 +142,12 @@ void sys_switch_in(void)
    _TRACE("switch in\n");
    app_foreground = TRUE;
 
+   wnd_acquire_keyboard();
+   wnd_acquire_mouse();
+
    if (win_gfx_driver && win_gfx_driver->switch_in)
       win_gfx_driver->switch_in();
 
-   wnd_acquire_keyboard();
-   wnd_acquire_mouse();
-   gfx_directx_restore();
    sys_directx_switch_in_callback();
 
    /* handle switch modes */

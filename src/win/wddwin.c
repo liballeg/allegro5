@@ -76,6 +76,7 @@ static void switch_in_win(void);
 static void handle_window_enter_sysmode_win(void);
 static void handle_window_exit_sysmode_win(void);
 static void handle_window_move_win(int, int, int, int);
+static void paint_win(RECT *);
 
 
 static WIN_GFX_DRIVER win_gfx_driver_windowed =
@@ -87,7 +88,7 @@ static WIN_GFX_DRIVER win_gfx_driver_windowed =
    handle_window_exit_sysmode_win,
    handle_window_move_win,
    NULL,                        // AL_METHOD(void, iconify, (void));
-   NULL,                        // AL_METHOD(void, paint, (RECT *));
+   paint_win
 };
 
 
@@ -125,6 +126,18 @@ static void get_working_area(RECT *working_area)
 static void switch_in_win(void)
 {
    get_working_area(&working_area);
+
+   /* restore all DirectDraw surfaces */
+   _enter_gfx_critical();
+
+   IDirectDrawSurface2_Restore(dd_prim_surface);
+
+   if (preconv_offscreen_surface)
+      IDirectDrawSurface2_Restore(preconv_offscreen_surface);
+
+   gfx_directx_restore();
+
+   _exit_gfx_critical();
 }
 
 
@@ -174,6 +187,22 @@ static void handle_window_move_win(int x, int y, int w, int h)
                 xmod, xmod > 1 ? "ls" : "l", x > 0 ? "left" : "right");
       }
    }
+}
+
+
+
+/* paint_win:
+ *  Handles window paint events.
+ */
+static void paint_win(RECT *rect)
+{
+   /* we may have lost the DirectDraw surfaces
+    * (e.g after the monitor has gone to low power)
+    */
+   if (IDirectDrawSurface2_IsLost(dd_prim_surface))
+      switch_in_win();
+
+   update_window(rect);
 }
 
 
@@ -428,8 +457,6 @@ static int verify_color_depth (int color_depth)
       update_window = update_colorconv_window;
       direct_updating_mode = TRUE;
    }
-
-   win_gfx_driver_windowed.paint = update_window;
 
    return 0;
 }

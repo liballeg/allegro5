@@ -139,7 +139,7 @@ GFX_DRIVER gfx_directx_safe =
 static WIN_GFX_DRIVER win_gfx_fullscreen =
 {
    FALSE,
-   NULL,                        // AL_METHOD(void, switch_in, (void));
+   gfx_directx_restore,
    NULL,                        // AL_METHOD(void, switch_out, (void));
    NULL,                        // AL_METHOD(void, enter_sysmode, (void));
    NULL,                        // AL_METHOD(void, exit_sysmode, (void));

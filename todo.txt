@@ -29,7 +29,6 @@ Win32 todos:
 ---------------------------------------------------------------------------
 
 - Find a solution to the C-to-asm calling problem with BC++
-- Fix restoring problem after waking up from stand-by mode
 - Fix 'IE bars popup over a fullscreen DirectX window' bug
 - Investigate mouse problem with USB Wacom Tablet (bug #226445)
 
