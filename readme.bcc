@@ -9,7 +9,7 @@
 				       \_/__/
 
 
-	  Borland C++ Builder-specific information.
+	  Borland C++Builder-specific information.
 
 	 See readme.txt for a more general overview.
 
@@ -29,7 +29,7 @@
 ============ Required software ============
 ===========================================
 
-   - Borland C++ Builder (or Borland C++ command line tools)
+   - Borland C++Builder (or Borland C++ command line tools)
    - GNU make (mak*b.zip).
    - Optional: rm (fil*b.zip). Used by the clean and uninstall targets.
    - Optional: sed (sed*b.zip). Used by "make depend" and "fixdll".

@@ -17,6 +17,8 @@
 #include <limits.h>
 #include <stdarg.h>
 
+#include "allegro/internal/alconfig.h"
+
 
 #define TEXT_FLAG             0x00000001
 #define HTML_FLAG             0x00000002

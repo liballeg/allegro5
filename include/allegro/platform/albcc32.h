@@ -17,7 +17,7 @@
 
 
 #ifdef ALLEGRO_SRC
-   #error Currently BCC32 should only use the DLL
+   #error Currently BCC32 cannot build the library
 #endif
 
 #ifndef SCAN_DEPEND
@@ -26,6 +26,14 @@
    #include <direct.h>
    #include <malloc.h>
 #endif
+
+
+#pragma warn -8004  /* unused assigned value         */
+#pragma warn -8008  /* condition always met          */
+#pragma warn -8027  /* inline functions not expanded */
+#pragma warn -8057  /* unused parameter              */
+#pragma warn -8066  /* unreachable code              */
+
 
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "BCC32"

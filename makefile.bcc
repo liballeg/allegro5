@@ -1,5 +1,5 @@
 #
-#  Rules for building the Allegro library with Borland C++ Builder (BCC32)
+#  Rules for building the Allegro library with Borland C++Builder (BCC32)
 #  This file is included by the primary makefile, and should not be used
 #  directly.
 #
@@ -11,7 +11,7 @@
 
 # -------- define some variables that the primary makefile will use --------
 
-PLATFORM = Borland C++ Builder
+PLATFORM = BCC32
 EXE = .exe
 OBJ = .obj
 HTML = html
@@ -76,9 +76,9 @@ _default: default
 # -------- decide what compiler options to use --------
 
 ifdef WARNMODE
-    WFLAGS = -w-8057 -w8061 -w8084
+    WFLAGS = -w
 else
-    WFLAGS = -w-8027 -w-8057
+    WFLAGS =
 endif
 
 OFLAGS = -O2 -OS
@@ -196,9 +196,9 @@ uninstall:
 # -------- link as a DLL --------
 
 define MAKE_LIB
-   echo LIBRARY     $(DLL_BASENAME) >> _allegro.def
-   copy _allegro.def + $(subst /,\,$(EXPDEF_NAME)) _allegro.def
-   implib $(subst /,\,$(IMPLIB_NAME)) _allegro.def
+   echo LIBRARY     $(DLL_BASENAME) > _allegro.def
+   copy _allegro.def + $(subst /,\,$(EXPDEF_NAME)) _allegro.def > null
+   implib $(subst /,\,$(IMPLIB_NAME)) _allegro.def > null
    del _allegro.def
 endef
 
@@ -208,7 +208,7 @@ $(OBJ_DIR)/%.obj: %.c
 	bcc32 $(COMPILE_FLAGS) -W -I. -I./include -c -o$(subst /,\,$@) $(subst /,\,$<)
 
 $(OBJ_DIR)/%.res: %.rc
-	brcc32 -i $(BCC32DIR)\include -fo $(subst /,\,$@) $(subst /,\,$<)
+	brcc32 -i $(BCC32DIR)\include -fo $(subst /,\,$@) $(subst /,\,$<) > null
 
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
@@ -232,7 +232,7 @@ tools/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
 
 define LINK_CONSOLE
-	ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
+   ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
 endef
 
 PLUGIN_LIB = lib/bcc32/$(VERY_SHORT_VERSION)dat.lib
@@ -255,7 +255,7 @@ endef
 endif
 
 define MAKE_PLUGIN_LIB
-   $(foreach objfile, $(PLUGIN_OBJS), tlib $(subst /,\,$(PLUGIN_LIB) + $(objfile))
+   $(foreach objfile, $(PLUGIN_OBJS), tlib $(subst /,\,$(PLUGIN_LIB) + $(objfile)) > null
    )
 endef
 
