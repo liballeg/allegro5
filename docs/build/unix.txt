@@ -97,15 +97,10 @@
    /etc/ld.so.conf file, and then running ldconfig.
 
    If you are compiling a CVS version of Allegro, you'll need to
-   generate the configure script:
-   
+   generate the configure header and script:
+
+      autoheader   
       autoconf
-      
-   You will also need:
-   
-      make depend
-      
-   To create the dependency files.
 
 
 

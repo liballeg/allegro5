@@ -134,6 +134,10 @@ unset UNIX_TOOLS
 # generate the DLL export definition files for Windows compilers
 misc/fixdll.sh
 
+# running autoheader
+echo "Running autoheader to generate configure header..."
+autoheader
+
 # running autoconf
 echo "Running autoconf to generate configure script..."
 autoconf
