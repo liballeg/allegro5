@@ -110,12 +110,13 @@ INCLUDE_FILES = $(addprefix include/,allegro.h winalleg.h          \
 #
 VPATH = tests/win
 
-PROGRAMS = dibgrab dibhello scrsave
+PROGRAMS = dibgrab dibhello dibsound scrsave
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
+dibsound: tests/win/dibsound.exe
 scrsave: tests/win/scrsave.exe
-#       copy tests\win\scrsave.exe "$(WINDIR)\Allegro Screen Saver.scr"
+
 
 # -------- rules for installing and removing the library files --------
 #
@@ -166,19 +167,6 @@ uninstall:
 	$(UNINSTALL_INCLUDES)
 	rd $(INC_DIR)\allegro
 	@echo All gone!
-
-# -------- helper function for compressing the executables --------
-
-.PHONY: compress
-
-compress: $(PROGRAMS)
-ifdef UPX_BIN
-	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tests/win/*.exe tests/win/*.scr tools/*.exe lib/bcc32/all*.dll
-else
-	@echo No executable compressor specified! You must set the environment variable
-	@echo UPX_BIN to point to upx.exe.
-endif
-
 
 
 #--------------------------------------------------------------------------------------------------

@@ -1,0 +1,35 @@
+// Windows resource file for the dibsound example
+
+#include <windows.h>
+#include "dibsound.rh" 
+
+MYACCEL ACCELERATORS
+BEGIN
+   VK_F1, CMD_FILE_OPEN, VIRTKEY
+   VK_F2, CMD_FILE_PLAY, VIRTKEY
+END
+
+MYMENU MENU
+BEGIN
+   POPUP "&File"
+   BEGIN
+      MENUITEM "&Open\tF1", CMD_FILE_OPEN
+      MENUITEM "&Play\tF2", CMD_FILE_PLAY
+      MENUITEM "E&xit", CMD_FILE_EXIT
+   END
+
+   POPUP "&Help", HELP
+   BEGIN
+      MENUITEM "&About", CMD_HELP_ABOUT
+   END
+END
+
+ABOUTDLG DIALOG 25, 0, 150, 100
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "MS Sans Serif"
+BEGIN
+   CONTROL "&OK", IDOK, "BUTTON", BS_DEFPUSHBUTTON | BS_CENTER | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 50, 80, 50, 15
+   CONTROL "", -1, "button", BS_GROUPBOX | WS_CHILD | WS_VISIBLE | WS_GROUP, 5, 5, 140, 60
+   CONTROL "An example program showing how to use Allegro as a pure sound library under Windows.", -1, "static", SS_CENTER | WS_CHILD | WS_VISIBLE, 25, 23, 100, 30
+END

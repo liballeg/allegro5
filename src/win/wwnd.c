@@ -33,13 +33,13 @@
 
 /* general */
 HWND allegro_wnd = NULL;
+char wnd_title[64];
 int wnd_x = 0;
 int wnd_y = 0;
 int wnd_width = 0;
 int wnd_height = 0;
 int wnd_windowed = TRUE;
 int wnd_sysmenu = FALSE;
-int wnd_paint_back = FALSE;
 
 /* graphics */
 struct WIN_GFX_DRIVER *win_gfx_driver = NULL;
@@ -161,11 +161,14 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
    switch (message) {
 
       case WM_CREATE:
-	 allegro_wnd = wnd;
+         if (!user_wnd_proc)
+            allegro_wnd = wnd;
 	 break;
 
       case WM_SETCURSOR:
-	 return mouse_set_cursor();
+         if (!user_wnd_proc || _mouse_installed)
+            return mouse_set_cursor();
+         break;
 
       case WM_DESTROY:
 	 allegro_wnd = NULL;
@@ -209,15 +212,17 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 	 break;
 
       case WM_NCPAINT:
-	 if (!wnd_paint_back)
-	    return -1;
+	 if (!wnd_windowed)
+	    return 0;
 	 break;
 
       case WM_PAINT:
-         BeginPaint(wnd, &ps);
-         if (win_gfx_driver && win_gfx_driver->paint)
+         if (win_gfx_driver && win_gfx_driver->paint) {
+            BeginPaint(wnd, &ps);
             win_gfx_driver->paint(&ps.rcPaint);
-         EndPaint(wnd, &ps);
+            EndPaint(wnd, &ps);
+            return 0;
+         }
 	 break;
 
       case WM_KEYDOWN:
@@ -227,13 +232,17 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          /* disable the default message-based key handler
           * needed to prevent conflicts under Win2k
           */
-         return 0;
+         if (!user_wnd_proc || _keyboard_installed)
+            return 0;
+         break;
 
-      case WM_APPCOMMAND: /* Win2k only */
-         /* unlike with other messages, we have to
-          * return TRUE if we process this one
+      case WM_APPCOMMAND:
+         /* disable the default message-based key handler
+          * needed to prevent conflicts under Win2k
           */
-         return TRUE;
+         if (!user_wnd_proc || _keyboard_installed)
+            return TRUE;
+         break;
 
       case WM_INITMENUPOPUP:
 	 wnd_sysmenu = TRUE;
@@ -252,29 +261,20 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 	 break;
 
       case WM_CLOSE:
-         if (user_wnd_proc)
-            break;
+         if (!user_wnd_proc) {
+            if (user_close_proc) {
+               (*user_close_proc)();
+            }
+            else {
+               /* default window close message */
+               if (MessageBox(wnd, ALLEGRO_WINDOW_CLOSE_MESSAGE, wnd_title,
+                              MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) == IDYES)
+                  ExitProcess(0);
+            }
 
-         if (user_close_proc) {
-            (*user_close_proc)();
-            /* we don't exit here because the user proc is
-             * supposed to call allegro_exit() itself
-             */
+            return 0;
          }
-         else {
-            /* default windows close */
-            char win_title[4096];
-            int option_sel;
-
-            GetWindowText(wnd, win_title, 4096);
-            option_sel = MessageBox(wnd, ALLEGRO_WINDOW_CLOSE_MESSAGE,
-                                    win_title,
-                                    MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2);
-
-            if (option_sel == IDYES)
-               ExitProcess(0);
-         }
-         return 0;
+         break;
    }
 
    /* pass message to default window proc */
@@ -282,20 +282,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       return CallWindowProc(user_wnd_proc, wnd, message, wparam, lparam);
    else
       return DefWindowProc(wnd, message, wparam, lparam);
-}
-
-
-
-/* hook_user_window:
- *  inserts the directx_wnd_proc into the proc chain of current window
- */
-static int hook_user_window(void)
-{
-   user_wnd_proc = (WNDPROC) SetWindowLong(user_wnd, GWL_WNDPROC, (long)directx_wnd_proc);
-   if (user_wnd_proc)
-      return 0;
-   else
-      return -1;
 }
 
 
@@ -314,7 +300,6 @@ void restore_window_style(void)
  */
 static HWND create_directx_window(void)
 {
-   static char title[64];
    char fname[256];
    HWND wnd;
    WNDCLASS wnd_class;
@@ -341,10 +326,10 @@ static HWND create_directx_window(void)
    if (ugetat(fname, -1) == '.')
       usetat(fname, -1, 0);
 
-   do_uconvert(get_filename(fname), U_CURRENT, title, U_ASCII, sizeof(title));
+   do_uconvert(get_filename(fname), U_CURRENT, wnd_title, U_ASCII, sizeof(wnd_title));
 
    /* create the window now */
-   wnd = CreateWindowEx(0, ALLEGRO_WND_CLASS, title,
+   wnd = CreateWindowEx(0, ALLEGRO_WND_CLASS, wnd_title,
                         WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX,
                         -100, -100, 0, 0,
                         NULL, NULL, allegro_inst, NULL);
@@ -416,8 +401,9 @@ int init_directx_window(void)
    /* prepare window for Allegro */
    if (user_wnd) {
       /* hook the user window */
-      if (hook_user_window() != 0)
-	 return -1;
+      user_wnd_proc = (WNDPROC) SetWindowLong(user_wnd, GWL_WNDPROC, (long)directx_wnd_proc);
+      if (!user_wnd_proc)
+         return -1;
       allegro_wnd = user_wnd;
    }
    else {

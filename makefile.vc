@@ -142,10 +142,11 @@ OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) \
 LIBRARIES = kernel32.lib user32.lib gdi32.lib comdlg32.lib ole32.lib \
 		dinput.lib ddraw.lib dxguid.lib winmm.lib dsound.lib
 
-PROGRAMS = dibgrab dibhello scrsave
+PROGRAMS = dibgrab dibhello dibsound scrsave
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
+dibsound: tests/win/dibsound.exe
 scrsave: tests/win/scrsave.scr
 
 
@@ -252,7 +253,7 @@ obj/msvc/mmx.h:
 
 compress: $(PROGRAMS)
 ifdef UPX_BIN
-	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tests/win/*.exe tests/win/*.scr tools/*.exe lib/msvc/all*.dll
+	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/msvc/all*.dll
 else
 	@echo No executable compressor specified! You must set the environment variable
 	@echo UPX_BIN to point to upx.exe.
@@ -293,11 +294,17 @@ $(OBJ_DIR)/%.obj: %.s
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dibsound.exe $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
+
 tests/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/scrsave.scr $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
+
+$(OBJ_DIR)/dibsound.res: tests/win/dibsound.rc
+	rc -fo$(OBJ_DIR)/dibsound.res tests/win/dibsound.rc
 
 $(OBJ_DIR)/scrsave.res: tests/win/scrsave.rc
 	rc -fo$(OBJ_DIR)/scrsave.res tests/win/scrsave.rc

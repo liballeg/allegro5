@@ -149,10 +149,11 @@ ifdef PROFILEMODE
   LIBRARIES += -lgmon
 endif
 
-PROGRAMS = dibgrab dibhello scrsave
+PROGRAMS = dibgrab dibhello dibsound scrsave
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
+dibsound: tests/win/dibsound.exe
 scrsave: tests/win/scrsave.scr
 
 
@@ -258,7 +259,7 @@ obj/mingw32/mmx.h:
 
 compress: $(PROGRAMS)
 ifdef UPX_BIN
-	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tests/win/*.exe tests/win/*.scr tools/*.exe lib/mingw32/all*.dll
+	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/mingw32/all*.dll
 else
 	@echo No executable compressor specified! You must set the environment variable
 	@echo UPX_BIN to point to upx.exe.
@@ -308,6 +309,9 @@ ifdef STATICLINK
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  $(LIBRARIES) 
 
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
+	gcc $(LFLAGS) -mwindows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
+
 tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  $(LIBRARIES) 
 
@@ -323,6 +327,9 @@ else
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  
 
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
+	gcc $(LFLAGS) -mwindows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
+
 tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  
 
@@ -334,6 +341,9 @@ define LINK_CONSOLE
 endef
 
 endif # STATICLINK
+
+$(OBJ_DIR)/dibsound.res: tests/win/dibsound.rc
+	$(WINDRES) -O coff -o $(OBJ_DIR)/dibsound.res -i tests/win/dibsound.rc
 
 $(OBJ_DIR)/scrsave.res: tests/win/scrsave.rc
 	$(WINDRES) -O coff -o $(OBJ_DIR)/scrsave.res -i tests/win/scrsave.rc

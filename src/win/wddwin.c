@@ -605,7 +605,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    win_size.bottom = 32 + h;
    wnd_width = w;
    wnd_height = h;
-   wnd_paint_back = TRUE; 
+   wnd_windowed = TRUE;
 
    /* retrieve the size of the decorated window */
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
@@ -675,7 +675,6 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    wd_dirty_lines[h] = 0;
 
    /* set default switching policy */
-   wnd_windowed = TRUE;
    set_display_switch_mode(SWITCH_PAUSE);
 
    pseudo_screen = dd_frontbuffer;

@@ -99,10 +99,11 @@ VPATH = tests/win
 
 LIBRARIES = -lcomdlg32
 
-PROGRAMS = dibgrab dibhello scrsave
+PROGRAMS = dibgrab dibhello dibsound scrsave
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
+dibsound: tests/win/dibsound.exe
 scrsave: tests/win/scrsave.scr
 
 
@@ -123,20 +124,6 @@ uninstall:
 
 
 
-# -------- helper function for compressing the executables --------
-
-.PHONY: compress
-
-compress: $(PROGRAMS)
-ifdef UPX_BIN
-	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tests/win/*.exe tests/win/*.scr tools/*.exe lib/rsxnt/all*.dll
-else
-	@echo No executable compressor specified! You must set the environment variable
-	@echo UPX_BIN to point to upx.exe.
-endif
-
-
-
 # -------- finally, we get to the fun part... --------
 
 $(LIB_NAME): lib/msvc/$(SHORT_VERSION)$(LIBRARY_VERSION).dll
@@ -151,6 +138,10 @@ $(OBJ_DIR)/%.o: %.c
 */%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(LIB_NAME)
+	$(RSXGCC) $(LFLAGS) -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(LIB_NAME) $(LIBRARIES)
+	rsrc $(OBJ_DIR)/dibsound.res tests/win/dibsound.exe
+
 tests/win/%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
@@ -158,6 +149,9 @@ tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o tests/win/scrsave.exe $(OBJ_DIR)/scrsave.o $(LIB_NAME) $(LIBRARIES)
 	rsrc $(OBJ_DIR)/scrsave.res tests/win/scrsave.exe
 	rename tests\win\scrsave.exe scrsave.scr
+
+$(OBJ_DIR)/dibsound.res: tests/win/dibsound.rc
+	grc -o $(OBJ_DIR)/dibsound.res tests/win/dibsound.rc
 
 $(OBJ_DIR)/scrsave.res: tests/win/scrsave.rc
 	grc -o $(OBJ_DIR)/scrsave.res tests/win/scrsave.rc

@@ -273,19 +273,19 @@ void gfx_directx_exit(struct BITMAP *b)
    }
 
    /* before restoring video mode, hide window */
-   wnd_paint_back = FALSE;
    wnd_windowed = TRUE;
    set_display_switch_mode(SWITCH_PAUSE);
    restore_window_style();
-      /* HWND_TOPMOST isn't a good idea because it's a darned sticky flag 
-         which prevents the windowed driver from behaving nicely after a
-         first driver shutdown (e.g in test.exe) */
-   SetWindowPos(allegro_wnd, HWND_TOP,
-		-100, -100, 0, 0, SWP_SHOWWINDOW);
+   /* HWND_TOPMOST isn't a good idea because it's a darned sticky flag 
+    * which prevents the windowed driver from behaving nicely after a
+    * first driver shutdown (e.g in test.exe)
+    */
+   SetWindowPos(allegro_wnd, HWND_TOP, -100, -100, 0, 0, SWP_SHOWWINDOW);
 
    if (directdraw) {
       /* let the window thread set the coop level back to normal 
-	 and destory the directdraw object */
+       * and destory the directdraw object
+       */
       wnd_call_proc(gfx_directx_wnd_exit);
       directdraw = NULL;
    }

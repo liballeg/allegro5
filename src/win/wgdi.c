@@ -457,7 +457,7 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    win_size.bottom = 32 + h;
    wnd_width = w;
    wnd_height = h;
-   wnd_paint_back = TRUE;
+   wnd_windowed = TRUE;
 
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
    MoveWindow(allegro_wnd, win_size.left, win_size.top, 
@@ -468,7 +468,6 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    gdi_dirty_lines[h] = 1;
 
    /* set the default switching policy */
-   wnd_windowed = TRUE;
    set_display_switch_mode(SWITCH_PAUSE);
 
    /* create the screen surface */
@@ -534,11 +533,10 @@ static void gfx_gdi_exit(struct BITMAP *b)
    _exit_gfx_critical();
 
    /* before restoring video mode, hide window */
-   wnd_paint_back = FALSE;
+   wnd_windowed = TRUE;
    set_display_switch_mode(SWITCH_PAUSE);
    restore_window_style();
-   SetWindowPos(allegro_wnd, HWND_TOP,
-		-100, -100, 0, 0, SWP_SHOWWINDOW);
+   SetWindowPos(allegro_wnd, HWND_TOP, -100, -100, 0, 0, SWP_SHOWWINDOW);
 
    _exit_critical();
 }

@@ -64,13 +64,13 @@ AL_FUNC(void, set_sync_timer_freq, (int freq));
 AL_FUNC(void, restore_window_style, (void));
 
 /* main window */
+AL_ARRAY(char, wnd_title);
 AL_VAR(int, wnd_x);
 AL_VAR(int, wnd_y);
 AL_VAR(int, wnd_width);
 AL_VAR(int, wnd_height);
 AL_VAR(int, wnd_windowed);
 AL_VAR(int, wnd_sysmenu);
-AL_VAR(int, wnd_paint_back);
 
 AL_FUNCPTR(void, user_close_proc, (void));
 
@@ -85,13 +85,13 @@ AL_VAR(int, gfx_crit_sect_nesting);
 #define GFX_CRITICAL_RELEASED  (!gfx_crit_sect_nesting)
 
 struct WIN_GFX_DRIVER {
-   void (*switch_in)(void);
-   void (*switch_out)(void);
-   void (*enter_sysmode)(void);
-   void (*exit_sysmode)(void);
-   void (*move)(int x, int y, int w, int h);
-   void (*iconify)(void);
-   void (*paint)(RECT *rect);
+   AL_METHOD(void, switch_in, (void));
+   AL_METHOD(void, switch_out, (void));
+   AL_METHOD(void, enter_sysmode, (void));
+   AL_METHOD(void, exit_sysmode, (void));
+   AL_METHOD(void, move, (int x, int y, int w, int h));
+   AL_METHOD(void, iconify, (void));
+   AL_METHOD(void, paint, (RECT *rect));
 };   
 
 AL_VAR(struct WIN_GFX_DRIVER *, win_gfx_driver);

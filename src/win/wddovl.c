@@ -345,13 +345,13 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       goto Error;
   
    /* adjust window */
-   wnd_paint_back = TRUE;
    win_size.left = wnd_x = 32;
    win_size.right = wnd_x + w;
    win_size.top = wnd_y = 32;
    win_size.bottom = wnd_y + h;
    wnd_width = w;
    wnd_height = h;
+   wnd_windowed = TRUE;
 
    /* retrieve the size of the decorated window */
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
@@ -427,7 +427,6 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       enable_acceleration(&gfx_directx_ovl);
 
    /* set default switching policy */
-   wnd_windowed = TRUE;
    set_display_switch_mode(SWITCH_PAUSE);
 
    /* connect to the system driver */
