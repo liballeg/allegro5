@@ -51,7 +51,7 @@ void _stub_bank_switch_end(void)
 /* apply_matrix_f:
  *  Floating point vector by matrix multiplication routine.
  */
-void apply_matrix_f(MATRIX_f *m, float x, float y, float z,
+void apply_matrix_f(AL_CONST MATRIX_f *m, float x, float y, float z,
 		    float *xout, float *yout, float *zout)
 {
 #define CALC_ROW(n) (x * m->v[(n)][0] + y * m->v[(n)][1] + z * m->v[(n)][2] + m->t[(n)])
