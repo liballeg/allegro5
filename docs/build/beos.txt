@@ -19,8 +19,7 @@
 ============ BeOS notes ============
 ====================================
 
-   Status: It compiles for Intel R4 & R5. Port is complete, but it needs
-   beta testing.
+   Status: It compiles for Intel R4 & R5. Port is complete.
 
 
 

@@ -19,8 +19,7 @@
 ============ MSVC notes ============
 ====================================
 
-   Status: complete, and most things seem to be working as intended, but 
-   this version is much newer than the DOS code, so your mileage may vary.
+   Status: complete.
 
 
 
