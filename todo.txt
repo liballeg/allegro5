@@ -12,6 +12,9 @@ General (Platform independent) todos:
 
 - make the library internally thread-safe
 - fix use of 32-bit 'long' on 64-bit platforms
+- The dependency generation seems to be quite broken, and far more
+  complicated than necessary. Remove all the misc/dep*scripts, and simply
+  call "gcc -M" on every source file.
 
 DOS todos:
 ---------------------------------------------------------------------------
