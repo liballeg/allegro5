@@ -2535,14 +2535,26 @@ static int sysinfo()
 
       sprintf(systext+strlen(systext), "CPU: %s %d86", cpu_vendor, cpu_family);
 
-      if (cpu_fpu)
-	 strcat(systext, ", FPU");
+      if (cpu_capabilities & CPU_FPU)
+	 strcat(systext, " / FPU");
 
-      if (cpu_mmx)
-	 strcat(systext, ", MMX");
+      if (cpu_capabilities & CPU_SSE)
+	 strcat(systext, " / SSE");
+	 
+      if (cpu_capabilities & CPU_SSE2)
+	 strcat(systext, " / SSE2");
+	 
+      if (cpu_capabilities & CPU_MMX)
+	 strcat(systext, " / MMX");
 
-      if (cpu_3dnow)
-	 strcat(systext, ", 3DNow!");
+      if (cpu_capabilities & CPU_MMXPLUS)
+	 strcat(systext, " / MMX+");
+
+      if (cpu_capabilities & CPU_3DNOW)
+	 strcat(systext, " / 3DNow!");
+
+      if (cpu_capabilities & CPU_ENH3DNOW)
+	 strcat(systext, " / Enh 3DNow!");
 
       strcat(systext, "\n\n\n\n");
 

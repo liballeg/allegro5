@@ -115,8 +115,8 @@
  */
 FUNC (_colorconv_blit_8_to_15)
 FUNC (_colorconv_blit_8_to_16)
-   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
-   test %eax, %eax
+   movl GLOBL(cpu_capabilities), %eax     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %eax
    jz _colorconv_blit_8_to_16_no_mmx
 
    pushl %ebp
@@ -245,8 +245,8 @@ FUNC (_colorconv_blit_8_to_16)
  *                               struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_8_to_32)
-   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
-   test %eax, %eax
+   movl GLOBL(cpu_capabilities), %eax     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %eax
    jz _colorconv_blit_8_to_32_no_mmx
 
    pushl %ebp
@@ -379,8 +379,8 @@ FUNC (_colorconv_blit_8_to_32)
  *                                struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_15_to_16)
-   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
-   test %eax, %eax
+   movl GLOBL(cpu_capabilities), %eax     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %eax
    jz _colorconv_blit_15_to_16_no_mmx
 
    pushl %ebp
@@ -537,8 +537,8 @@ FUNC (_colorconv_blit_15_to_16)
  *                                struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_15_to_32)
-   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
-   test %eax, %eax
+   movl GLOBL(cpu_capabilities), %eax     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %eax
    jz _colorconv_blit_15_to_32_no_mmx
 
    pushl %ebp
@@ -634,8 +634,8 @@ FUNC (_colorconv_blit_15_to_32)
  *                                struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_16_to_15)
-   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
-   test %eax, %eax
+   movl GLOBL(cpu_capabilities), %eax     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %eax
    jz _colorconv_blit_16_to_15_no_mmx
 
    pushl %ebp
@@ -784,8 +784,8 @@ FUNC (_colorconv_blit_16_to_15)
  *                                struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_16_to_32)
-   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
-   test %eax, %eax
+   movl GLOBL(cpu_capabilities), %eax     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %eax
    jz _colorconv_blit_16_to_32_no_mmx
 
    pushl %ebp
@@ -885,8 +885,8 @@ FUNC (_colorconv_blit_16_to_32)
  *                                struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_24_to_32)
-   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
-   test %eax, %eax
+   movl GLOBL(cpu_capabilities), %eax     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %eax
    jz _colorconv_blit_24_to_32_no_mmx
 
    pushl %ebp
@@ -1025,8 +1025,8 @@ FUNC (_colorconv_blit_24_to_32)
  *                                struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_32_to_15)
-   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
-   test %eax, %eax
+   movl GLOBL(cpu_capabilities), %eax     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %eax
    jz _colorconv_blit_32_to_15_no_mmx
 
    pushl %ebp
@@ -1125,8 +1125,8 @@ FUNC (_colorconv_blit_32_to_15)
  *                                struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_32_to_16)
-   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
-   test %eax, %eax
+   movl GLOBL(cpu_capabilities), %eax     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %eax
    jz _colorconv_blit_32_to_16_no_mmx
 
    pushl %ebp
@@ -1230,8 +1230,8 @@ FUNC (_colorconv_blit_32_to_16)
  *                                struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_32_to_24)
-   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
-   test %eax, %eax
+   movl GLOBL(cpu_capabilities), %eax     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %eax
    jz _colorconv_blit_32_to_24_no_mmx
 
    pushl %ebp
@@ -3074,8 +3074,8 @@ FUNC (_colorcopy)
    pushl %edx
 
 #ifdef ALLEGRO_MMX
-   movl GLOBL(cpu_mmx), %edx        /* if MMX is enabled (or not disabled :) */
-   orl %edx, %edx
+   movl GLOBL(cpu_capabilities), %edx     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %edx
    jz next_line_no_mmx
 
    popl %edx

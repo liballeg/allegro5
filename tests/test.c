@@ -52,16 +52,14 @@ PALETTE mypal;
 #define NUM_PATTERNS    8
 BITMAP *pattern[NUM_PATTERNS];
 
-int has_cpu_sse = 0;
-int has_cpu_mmx = 0;
-int has_cpu_3d = 0;
+int cpu_has_capabilities = 0;
 int type3d = POLYTYPE_FLAT;
 
 char gfx_specs[80];
 char gfx_specs2[80];
 char gfx_specs3[80];
 char mouse_specs[80];
-char cpu_specs[80];
+char cpu_specs[120];
 
 char buf[160];
 
@@ -3636,9 +3634,7 @@ int p3d_profile_proc(void)
 {
    int scr_0_tims[11], scr_1_tims[11], mem_0_tims[11], mem_1_tims[11];
    int *tims = scr_0_tims;
-   int old_mmx = cpu_mmx;
-   int old_3d = cpu_3dnow;
-   int old_sse = cpu_sse;
+   int old_cpu_capabilities = cpu_capabilities;
    BITMAP *old_screen = screen;
    BITMAP *buffer;
    static char fname[80*6] = EMPTY_STRING; /* 80 chars * max UTF8 char width */
@@ -3650,14 +3646,13 @@ int p3d_profile_proc(void)
    show_mouse(NULL);
    text_mode(palette_color[0]);
 
-   cpu_mmx = 0;
-   cpu_3dnow = has_cpu_3d;
+   cpu_capabilities &= ~CPU_MMX;
 
    if (do_p3d_profile(scr_0_tims)) 
       goto abort;
 
-   if (has_cpu_mmx) {
-      cpu_mmx = 1;
+   if (old_cpu_capabilities & CPU_MMX) {
+      cpu_capabilities |= CPU_MMX;
       if (do_p3d_profile(scr_1_tims)) 
 	 goto abort;
    }
@@ -3667,12 +3662,12 @@ int p3d_profile_proc(void)
    textout_centre(screen, font, "This will take a few minutes...", SCREEN_W/2, SCREEN_H/2+8, palette_color[255]);
 
    screen = buffer;
-   cpu_mmx = 0;
+   cpu_capabilities &= ~CPU_MMX;
    if (do_p3d_profile(mem_0_tims)) 
       goto abort;
 
-   if (has_cpu_mmx) {
-      cpu_mmx = 1;
+   if (old_cpu_capabilities & CPU_MMX) {
+      cpu_capabilities |= CPU_MMX;
       if (do_p3d_profile(mem_1_tims)) 
 	 goto abort;
    }
@@ -3708,7 +3703,7 @@ int p3d_profile_proc(void)
 		  break;
 
 	       case 1:
-		  if (!has_cpu_mmx) 
+		  if (!(old_cpu_capabilities & CPU_MMX)) 
 		     continue;
 		  tims = scr_1_tims;
 		  fprintf(f, "Screen profile results, using MMX:\n\n");
@@ -3720,7 +3715,7 @@ int p3d_profile_proc(void)
 		  break;
 
 	       case 3:
-		  if (!has_cpu_mmx) 
+		  if (!(old_cpu_capabilities & CPU_MMX)) 
 		     continue;
 		  tims = mem_1_tims;
 		  fprintf(f, "Memory profile results, using MMX:\n\n");
@@ -3748,9 +3743,8 @@ int p3d_profile_proc(void)
    abort:
    screen = old_screen;
    destroy_bitmap(buffer);
-   cpu_mmx = old_mmx;
-   cpu_3dnow = old_3d;
-   cpu_sse = old_sse;
+   
+   cpu_capabilities = old_cpu_capabilities;
    show_mouse(screen);
    return D_REDRAW;
 }
@@ -3966,9 +3960,7 @@ int mmx_auto_proc(void)
 {
    extern MENU mmx_menu[];
 
-   cpu_mmx = has_cpu_mmx;
-   cpu_3dnow = has_cpu_3d;
-   cpu_sse = has_cpu_sse;
+   cpu_capabilities = cpu_has_capabilities;
 
    mmx_menu[0].flags = D_SELECTED;
    mmx_menu[1].flags = 0;
@@ -3980,52 +3972,53 @@ int mmx_auto_proc(void)
 
 
 
-int mmx_3doff_proc(void)
+int toggle_3dnow_proc(void)
 {
    extern MENU mmx_menu[];
 
-   cpu_mmx = has_cpu_mmx;
-   cpu_3dnow = 0;
+   cpu_capabilities ^= CPU_3DNOW | CPU_ENH3DNOW;
+   cpu_capabilities &= cpu_has_capabilities;
 
    mmx_menu[0].flags = 0;
-   mmx_menu[1].flags = D_SELECTED;
-   mmx_menu[2].flags = 0;
-   mmx_menu[3].flags = 0;
+   mmx_menu[1].flags ^= D_SELECTED;
+
+   if (((mmx_menu[1].flags | mmx_menu[2].flags | mmx_menu[3].flags) & D_SELECTED) == 0)
+      mmx_menu[0].flags = D_SELECTED;
 
    return D_O_K;
 }
 
 
 
-int mmx_off_proc(void)
+int toggle_mmx_proc(void)
 {
    extern MENU mmx_menu[];
 
-   cpu_mmx = 0;
-   cpu_3dnow = 0;
-   cpu_sse = 0;
+   cpu_capabilities ^= CPU_MMX | CPU_MMXPLUS;
+   cpu_capabilities &= cpu_has_capabilities;
 
    mmx_menu[0].flags = 0;
-   mmx_menu[1].flags = 0;
-   mmx_menu[2].flags = D_SELECTED;
-   mmx_menu[3].flags = 0;
+   mmx_menu[2].flags ^= D_SELECTED;
+
+   if (((mmx_menu[1].flags | mmx_menu[2].flags | mmx_menu[3].flags) & D_SELECTED) == 0)
+      mmx_menu[0].flags = D_SELECTED;
 
    return D_O_K;
 }
 
 
-int sse_off_proc(void)
+int toggle_sse_proc(void)
 {
    extern MENU mmx_menu[];
 
-   cpu_mmx = has_cpu_mmx;
-   cpu_3dnow = has_cpu_3d;
-   cpu_sse = 0;
+   cpu_capabilities ^= CPU_SSE | CPU_SSE2;
+   cpu_capabilities &= cpu_has_capabilities;
 
    mmx_menu[0].flags = 0;
-   mmx_menu[1].flags = 0;
-   mmx_menu[2].flags = 0;
-   mmx_menu[3].flags = D_SELECTED;
+   mmx_menu[3].flags ^= D_SELECTED;
+
+   if (((mmx_menu[1].flags | mmx_menu[2].flags | mmx_menu[3].flags) & D_SELECTED) == 0)
+      mmx_menu[0].flags = D_SELECTED;
 
    return D_O_K;
 }
@@ -4132,9 +4125,9 @@ MENU mode_menu[] =
 MENU mmx_menu[] =
 {
    { "&Autodetect",              mmx_auto_proc,    NULL,    D_SELECTED,    NULL  },
-   { "&Disable 3DNow!",          mmx_3doff_proc,   NULL,    0,             NULL  },
-   { "&Disable MMX",             mmx_off_proc,     NULL,    0,             NULL  },
-   { "&Disable SSE",             sse_off_proc,     NULL,    0,             NULL  },
+   { "&Disable 3DNow!/Enh3DNow!", toggle_3dnow_proc,NULL,    0,             NULL  },
+   { "&Disable MMX/MMX+",         toggle_mmx_proc,  NULL,    0,             NULL  },
+   { "&Disable SSE/SSE2",         toggle_sse_proc,  NULL,    0,             NULL  },
    { NULL,                       NULL,             NULL,    0,             NULL  }
 };
 
@@ -4603,27 +4596,40 @@ int main()
 
       sprintf(cpu_specs, "CPU family: %d86", cpu_family);
 
-      if (cpu_sse == 1)
+      if (cpu_capabilities & CPU_ID)
+	 strcat(cpu_specs, " / cpuid");
+
+      if (cpu_capabilities & CPU_FPU)
+	 strcat(cpu_specs, " / FPU");
+
+      if (cpu_capabilities & CPU_CMOV)
+	 strcat(cpu_specs, " / cmov");
+
+      if (cpu_capabilities & CPU_SSE)
 	 strcat(cpu_specs, " / SSE");
 	 
-      if (cpu_sse == 2)
+      if (cpu_capabilities & CPU_SSE2)
 	 strcat(cpu_specs, " / SSE2");
 	 
-      if (cpu_mmx)
+      if (cpu_capabilities & CPU_MMX)
 	 strcat(cpu_specs, " / MMX");
 
-      if (cpu_3dnow)
+      if (cpu_capabilities & CPU_MMXPLUS)
+	 strcat(cpu_specs, " / MMX+");
+
+      if (cpu_capabilities & CPU_3DNOW)
 	 strcat(cpu_specs, " / 3DNow!");
+
+      if (cpu_capabilities & CPU_ENH3DNOW)
+	 strcat(cpu_specs, " / Enh 3DNow!");
 
    #else
 
-      strcpy(cpu_specs, "Non-Intel CPU (very cool)");
+      strcpy(cpu_specs, "Non-x86 CPU (very cool)");
 
    #endif
 
-   has_cpu_mmx = cpu_mmx;
-   has_cpu_3d = cpu_3dnow;
-   has_cpu_sse = cpu_sse;
+   cpu_has_capabilities = cpu_capabilities;
 
    install_keyboard();
    install_timer();

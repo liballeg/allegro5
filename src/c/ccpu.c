@@ -27,9 +27,6 @@ void check_cpu(void)
 {
    cpu_family = 0;
    cpu_model = 0;
-   cpu_fpu = FALSE;
-   cpu_mmx = FALSE;
-   cpu_3dnow = FALSE;
-   cpu_cpuid = FALSE;
+   cpu_capabilities = 0;
 }
 

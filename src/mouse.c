@@ -329,13 +329,13 @@ static void mouse_move(void)
 	 }
       }
       else {
-	 /* bodge to avoid using MMX code inside a timer handler */
-	 int old_mmx = cpu_mmx;
-	 cpu_mmx = FALSE;
+	 /* bodge to avoid using non legacy 386 asm code inside a timer handler */
+	 int old_capabilities = cpu_capabilities;
+	 cpu_capabilities = 0;
 
 	 draw_mouse(TRUE, TRUE);
 
-	 cpu_mmx = old_mmx;
+	 cpu_capabilities = old_capabilities;
       }
 
       release_bitmap(_mouse_screen);

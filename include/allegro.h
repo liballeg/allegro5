@@ -121,14 +121,22 @@ AL_FUNC(void, allegro_exit, (void));
 
 AL_FUNC(void, check_cpu, (void));
 
+/* CPU Capabilities flags - set to 0 on non x86 capable chips */
+#define CPU_ID       0x0001
+#define CPU_FPU      0x0002
+#define CPU_MMX      0x0004
+#define CPU_MMXPLUS  0x0008
+#define CPU_SSE      0x0010
+#define CPU_SSE2     0x0020
+#define CPU_3DNOW    0x0040
+#define CPU_ENH3DNOW 0x0080
+#define CPU_CMOV     0x0100
+
 AL_ARRAY(char, cpu_vendor);
 AL_VAR(int, cpu_family);
 AL_VAR(int, cpu_model);
-AL_VAR(int, cpu_fpu);
-AL_VAR(int, cpu_mmx);
-AL_VAR(int, cpu_sse);
-AL_VAR(int, cpu_3dnow);
-AL_VAR(int, cpu_cpuid);
+AL_VAR(int, cpu_capabilities);
+
 
 AL_FUNC(void, lock_bitmap, (struct BITMAP *bmp));
 AL_FUNC(void, lock_sample, (struct SAMPLE *spl));

@@ -80,7 +80,7 @@ static void cyrix_type()
    else {
       cpu_family = 6;                  /* Pentium || class- 6x86MX */
       cpu_model = 14;                  /* Cyrix */
-      cpu_mmx = TRUE;
+      cpu_capabilities |= CPU_MMX;
    }
 }
 
@@ -95,8 +95,10 @@ void check_cpu()
    long vendor_temp[4];
    long reg[4];
 
+   cpu_capabilities = 0;
+
    if (_i_is_cpuid_supported()) {
-      cpu_cpuid = TRUE;
+      cpu_capabilities |= CPU_ID;
       _i_get_cpuid_info(0, reg);
       cpuid_levels = reg[0];
       vendor_temp[0] = reg[1];
@@ -108,25 +110,34 @@ void check_cpu()
       if (cpuid_levels > 0) {
 	 reg[0] = reg[1] = reg[2] = reg[3] = 0;
 	 _i_get_cpuid_info(1, reg);
+
 	 cpu_family = (reg[0] & 0xF00) >> 8;
-	 cpu_model = (reg[0] & 0xF0) >> 4;
-	 cpu_fpu = (reg[3] & 1 ? TRUE : FALSE);
-	 cpu_mmx = (reg[3] & 0x800000 ? TRUE : FALSE);
-	 cpu_sse = (reg[3] & 0x4000000 ? 2 : (reg[3] & 0x2000000 ? 1 : 0));
+	 cpu_model = (reg[0] & 0xF0) >> 4;  //Note: Pentium 4 = 0xF -> needs changing.
+
+	 cpu_capabilities |= (reg[3] & 1 ? CPU_FPU : 0);
+	 cpu_capabilities |= (reg[3] & 0x800000 ? CPU_MMX : 0);
+
+	 /* SSE has MMX+ included */
+	 cpu_capabilities |= (reg[3] & 0x2000000 ? CPU_SSE | CPU_MMXPLUS : 0);
+	 cpu_capabilities |= (reg[3] & 0x4000000 ? CPU_SSE2 : 0);
+	 cpu_capabilities |= (reg[3] & 0x8000 ? CPU_CMOV : 0);
       }
 
       _i_get_cpuid_info(0x80000000, reg);
       if ((unsigned long)reg[0] > 0x80000000) {
 	 _i_get_cpuid_info(0x80000001, reg);
-	 cpu_3dnow = (reg[3] & 0x80000000 ? 1 : 0);
-	 cpu_3dnow = (reg[3] & 0x40000000 ? 2 : cpu_3dnow);
+
+	 cpu_capabilities |= (reg[3] & 0x80000000 ? CPU_3DNOW : 0);
+	 
+	 /* Enhanced 3DNow! has MMX+ included */	 
+	 cpu_capabilities |= (reg[3] & 0x40000000 ? CPU_ENH3DNOW | CPU_MMXPLUS : 0);
       }
 
       if (_i_is_cyrix())
 	 cpu_model = 14;
    }
    else {
-      cpu_fpu = _i_is_fpu();
+      cpu_capabilities |= (_i_is_fpu() ? CPU_FPU : 0);
       if (!_i_is_486()) {
 	 cpu_family = 3;
       }

@@ -207,9 +207,11 @@ FUNC(_linear_masked_blit32)
 
 #ifdef ALLEGRO_SSE  /* Use SSE if the compiler supports it */
       
-   movl GLOBL(cpu_sse), %ecx      /* if SSE is enabled (or not disabled :) */
-   orl %ecx, %ecx
-   jz masked32_no_mmx
+   /* Speed improvement on the Pentium 3 only, so we need to check for MMX+ and no 3DNow! */
+   movl GLOBL(cpu_capabilities), %ecx     /* if MMX+ is enabled (or not disabled :) */
+   andl $CPU_MMXPLUS | $CPU_3DNOW, %ecx
+   cmpl $CPU_MMXPLUS, %ecx
+   jne masked32_no_mmx
 
 
    movl B_WIDTH, %ecx

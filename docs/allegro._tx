@@ -255,7 +255,7 @@ information about how to install Allegro and link your program with it.
    timeslice. Also known as the "play nice with multitasking" option.
 
 @@void @check_cpu();
-@xref cpu_cpuid, cpu_family, cpu_fpu, cpu_mmx, cpu_sse, cpu_3dnow, cpu_model
+@xref cpu_family, cpu_model, cpu_capabilities
 @xref cpu_vendor
    Detects the CPU type, setting the following global variables. You don't 
    normally need to call this, because allegro_init() will do it for you.
@@ -277,27 +277,31 @@ information about how to install Allegro and link your program with it.
    P54C, 3 is a Pentium overdrive processor, 5 is a Pentium overdrive for 
    IntelDX4, 14 is a Cyrix, and 15 is unknown.
 
-@@extern int @cpu_fpu;
-   Contains TRUE or FALSE, depending on whether an Intel floating point 
-   processor is available.
+@@extern int @cpu_capabilities;
+   Contains CPU flags indicating what features are available on the current 
+   CPU. The flags can be any combination of these:
 
-@@extern int @cpu_mmx;
-   Contains TRUE or FALSE, depending on whether the Intel MMX instruction 
-   set is available.
+<pre>
+   CPU_ID       - Indicates that the "cpuid" instruction is available. If this 
+                  is set, then all Allegro CPU variables are 100% reliable,
+                  otherwise there may be some mistakes.
+   CPU_FPU      - An x87 FPU is available.
+   CPU_MMX      - Intel MMX  instruction set is available.
+   CPU_MMXPLUS  - Intel MMX+ instruction set is available.
+   CPU_SSE      - Intel SSE  instruction set is available.
+   CPU_SSE2     - Intel SSE2 instruction set is available.
+   CPU_3DNOW    - AMD 3DNow! instruction set is available.
+   CPU_ENH3DNOW - AMD Enhanced 3DNow! instruction set is available.
+   CPU_CMOV     - Pentium Pro "cmov" instruction is available.
+</pre>
 
-@@extern int @cpu_3dnow;
-   Contains 0, 1 or 2, depending on the version of the AMD 3DNow!
-   instructions available. 0 means no 3DNow! support. 1 is the original
-   3DNow! and 2 is for Enhanced 3DNow!.
-
-@@extern int @cpu_sse;
-   Contains 0, 1 or 2, depending on the version of the SSE instructions
-   available. Set to 0 if SSE is not available.
-
-@@extern int @cpu_cpuid;
-   Contains TRUE or FALSE, depending on whether the Intel "cpuid" 
-   instruction was available (if this is set, the other CPU variables are 
-   100% reliable, otherwise there may be some mistakes).
+   You can check for multiple features by OR-ing the flags together.
+   For example, to check if the CPU has an FPU and MMX instructions
+   available, you'd do:
+<pre>
+   if ((cpu_capabilities & (CPU_FPU | CPU_MMX)) == (CPU_FPU | CPU_MMX))
+      printf("CPU has both an FPU and MMX instructions!\n");
+</pre>
 
 
 

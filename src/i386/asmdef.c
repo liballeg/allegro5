@@ -207,6 +207,16 @@ offset_entry_t list[] = {
   {"#define FSEG",       0},
 #endif
   {"NEWLINE", 0},
+  {"CPU_ID",       CPU_ID},
+  {"CPU_FPU",      CPU_FPU},
+  {"CPU_MMX",      CPU_MMX},
+  {"CPU_MMXPLUS",  CPU_MMXPLUS},
+  {"CPU_SSE",      CPU_SSE},
+  {"CPU_SSE2",     CPU_SSE2},
+  {"CPU_3DNOW",    CPU_3DNOW},
+  {"CPU_ENH3DNOW", CPU_ENH3DNOW},
+  {"CPU_CMOV",     CPU_CMOV},
+  {"NEWLINE", 0},
 
 #ifdef ALLEGRO_ASM_PREFIX
 #define PREFIX    ALLEGRO_ASM_PREFIX "##"

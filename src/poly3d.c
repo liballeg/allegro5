@@ -887,8 +887,8 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
    }
 
    #ifdef ALLEGRO_MMX
-   if ((cpu_mmx) && (typeinfo_mmx[type].filler)) {
-      if ((cpu_3dnow) && (typeinfo_3d[type].filler)) {
+   if ((cpu_capabilities & CPU_MMX) && (typeinfo_mmx[type].filler)) {
+      if ((cpu_capabilities & CPU_3DNOW) && (typeinfo_3d[type].filler)) {
 	 _optim_alternative_drawer = typeinfo_3d[type].alternative;
 	 return typeinfo_3d[type].filler;
       }

@@ -50,8 +50,8 @@ FUNC(_linear_clear_to_color8)
 
 #ifdef ALLEGRO_MMX               /* only use MMX if compiler supports it */
 
-   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
-   orl %eax, %eax
+   movl GLOBL(cpu_capabilities), %eax     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %eax
    jz clear_no_mmx
 
    movl %esi, %eax               /* if less than 32 pixels, use non-MMX */
@@ -523,9 +523,11 @@ FUNC(_linear_masked_blit8)
 
 #ifdef ALLEGRO_SSE  /* Use SSE if the compiler supports it */
       
-   movl GLOBL(cpu_sse), %ecx     /* if SSE is enabled (or not disabled :) */
-   orl %ecx, %ecx
-   jz masked8_no_mmx
+   /* Speed improvement on the Pentium 3 only, so we need to check for MMX+ and no 3DNow! */
+   movl GLOBL(cpu_capabilities), %ecx     /* if MMX+ is enabled (or not disabled :) */
+   andl $CPU_MMXPLUS | $CPU_3DNOW, %ecx
+   cmpl $CPU_MMXPLUS, %ecx
+   jne masked8_no_mmx
 
 
    movl B_WIDTH, %ecx
