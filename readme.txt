@@ -61,12 +61,15 @@
    DOS/djgpp         - see readme.dj
    DOS/Watcom        - see readme.wat
    Windows/MSVC      - see readme.vc
-   Windows/Mingw32   - see readme.mgw
+   Windows/MinGW32   - see readme.mgw
+   Windows/Cygwin    - see readme.mgw
    Windows/RSXNT     - see readme.rsx
    Windows/Borland   - see readme.bcc
    Linux (console)   - see readme.lnx
    Unix (X)          - see readme.uni
    BeOS              - see readme.be
+   QNX               - see readme.qnx
+   MacOS/MPW         - see readme.mpw
 
    General API information can be found in allegro.txt, which is also 
    available in HTML, TexInfo, and RTF format in the docs directory.
@@ -77,7 +80,7 @@
 ============ Features ============
 ==================================
 
-   Cross-platform support for DOS, Windows, Unix, and BeOS systems.
+   Cross-platform support for DOS, Windows, Unix, BeOS, QNX and MacOS systems.
 
    Drawing functions including putpixel, getpixel, lines, rectangles, flat 
    shaded, gouraud shaded, texture mapped, and z-buffered polygons, circles,
@@ -113,9 +116,9 @@
    messages, using the General MIDI patch set and drum mappings. DOS version 
    currently supports Adlib, SB, SB Pro, SB16, AWE32, MPU-401, ESS 
    AudioDrive, Ensoniq Soundscape, and Windows Sound System. Windows version 
-   uses DirectSound and the system MIDI drivers. Unix version supports OSS, 
-   ESD, and ALSA sound drivers. All versions provide software wavetable MIDI 
-   playback.
+   supports WaveOut and DirectSound interfaces and the system MIDI drivers. 
+   Unix version supports OSS, ESD, and ALSA sound drivers. All versions 
+   provide software wavetable MIDI playback.
 
    Easy access to the mouse, keyboard, joystick, and high resolution timer 
    interrupts, including a vertical retrace interrupt simulator in the DOS 
@@ -129,6 +132,8 @@
    3d vector/matrix/quaternion manipulation.
 
    GUI dialog manager and file selector.
+
+   Built-in support for 16-bit and UTF-8 format Unicode characters.
 
 
 
