@@ -1088,7 +1088,7 @@ int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixe
 
       if (strip <= 0) {
 	 datedit_set_property(&datedit_info, DAT_NAME, "GrabberInfo");
-	 save_object(&datedit_info, FALSE, FALSE, FALSE, NULL, FALSE, FALSE, f);
+	 save_object(&datedit_info, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, f);
       }
 
       pack_fclose(f); 
