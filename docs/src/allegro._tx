@@ -170,6 +170,38 @@ information about how to install Allegro and link your program with it.
    messages. If they fail and you want to tell the user why, this is the 
    place to look for a description of the problem.
 
+@@#define @ALLEGRO_VERSION
+   Defined to the major version of Allegro. From a version number like
+   4.1.16, this would be defined to the integer 4.
+   
+@@#define @ALLEGRO_SUB_VERSION
+   Defined to the middle version of Allegro. From a version number like
+   4.1.16, this would be defined to the integer 1.
+   
+@@#define @ALLEGRO_WIP_VERSION
+   Defined to the minor version of Allegro. From a version number like
+   4.1.16, this would be defined to the integer 16.
+   
+@@#define @ALLEGRO_VERSION_STR
+   Defined to a text string containing all version numbers and maybe some
+   additional text. This could be `4.1.16 (CVS)' for an Allegro version
+   obtained straight from the CVS repository.
+   
+@@#define @ALLEGRO_DATE_STR
+   Defined to a text string containing the year this version of Allegro was
+   released, like `2004'.
+   
+@@#define @ALLEGRO_DATE
+   Defined to an integer containing the release date of Allegro in the packed
+   format `yyyymmdd'. Example:
+<codeblock>
+      const int year = ALLEGRO_DATE / 10000;
+      const int month = (ALLEGRO_DATE / 100) % 100;
+      const int day = ALLEGRO_DATE % 100;
+
+      allegro_message("Year %d, month %d, day %d\n",
+	 year, month, day);<endblock>
+
 @@extern int @os_type;
 @xref allegro_init, os_version, os_multitasking
    Set by allegro_init() to one of the values:
@@ -2983,7 +3015,12 @@ routines" for more information about this.
       rest(1000);
       set_leds(KB_NUMLOCK_FLAG);
       rest(1000);
-      set_leds(-1);<endblock>
+      set_leds(-1);
+<endblock>
+   Note that the led behaviour cannot be guaranteed on some platforms, some
+   lets might not react, or none at all. Therefore you shouldn't rely only on
+   them to communicate information to the user, just in case it doesn't get
+   through.
 
 @@void @set_keyboard_rate(int delay, int repeat);
 @xref install_keyboard, readkey, ureadkey
@@ -3246,18 +3283,160 @@ incorrect data.
 @texinfo
 Graphics modes
 
+Graphics modes are the common denominator for most Allegro programs. While it
+is possible to write platform specific programs using Allegro which don't set
+a graphic mode through the routines provided in this chapter, these are not
+very common.
+
+The first thing to note is that due to the wide range of supported platforms,
+a graphic mode is the only way to safely communicate with the user. When
+Allegro was a DOS only library (versions 3.x and previous), it was frequent
+for programmers to use functions from the C standard library to communicate
+with the user, like calling printf() before setting a graphic mode or maybe
+scanf() to read the user's input. However, what would happen for such a game
+running under Windows where there is no default console output or it may be
+hidden from the user? Even if the game compiled successfully, it would be
+unplayable, especially if there was vital information for the user in those
+text only messages.
+
+Allegro provides the allegro_message() function to deal with this problem,
+but this is not a very user friendly method of communicating with the user
+and its main purpose is displaying small error like messages when no graphic
+mode is available. Therefore, the first thing your Allegro program should do
+is set a graphic mode, and from there on, use Allegro's text output routines
+to display messages to the user, just like `allegro/examples/exhello.c' does.
+
+Setting a graphic mode involves deciding how to allocate the memory of the
+video card for your program. On some platforms this means creating a virtual
+screen bigger than the physical resolution to do hardware scrolling or page
+flipping. Virtual screens can cause a lot of confusion, but they are really
+quite simple. Warning: patronising explanation coming up, so you may wish to
+skip the rest of this paragraph. Think of video memory as a rectangular piece
+of paper which is being viewed through a small hole (your monitor) in a bit of
+cardboard. Since the paper is bigger than the hole you can only see part of it
+at any one time, but by sliding the cardboard around you can alter which
+portion of the image is visible. You could just leave the hole in one position
+and ignore the parts of video memory that aren't visible, but you can get all
+sorts of useful effects by sliding the screen window around, or by drawing
+images in a hidden part of video memory and then flipping across to display
+them.
+
+For example, you could select a 640x480 mode in which the monitor acts as a
+window onto a 1024x1024 virtual screen, and then move the visible screen
+around in this larger area (hardware scrolling). Initially, with the visible
+screen positioned at the top left corner of video memory, this setup would
+look like:
+<textblock>
+      (0,0)------------(640,0)----(1024,0)
+	|                  |           |
+	|  visible screen  |           |
+	|                  |           |
+      (0,480)----------(640,480)       |
+	|                              |
+	|   the rest of video memory   |
+	|                              |
+      (0,1024)--------------------(1024,1024)
+<endblock>
+With a virtual screen bigger than the visible screen you can perform smooth
+CPU inexpensive scrolling: you draw your graphics once, and then only tell
+the video card to show a different portion of the screen. However, virtual
+screens are not supported on all platforms, and on some they might be
+emulated through software, losing any performance. On top of that, many video
+cards only allow horizontal scrolling in steps of 32 bytes. This is not a
+problem if your game runs in 24 or 32 bit, but it tends to mean jerky
+scrolling for other color depths.
+
+The other reason you could use virtual screens for is page flipping. This
+means showing one portion of the virtual screen while your program draws to
+the hidden one. When you finish, you show the part you have been drawing to
+and repeat the process with the area now hidden. The result is a perfectly
+smooth screen update without flickering or other graphical artifacts.
+
+Scrolling manually to one part of the video memory is one non portable way to
+accomplish this. The portable way is to use functions like
+create_system_bitmap(), create_video_bitmap(), show_video_bitmap(), etc. These
+functions divide the memory of the video card in areas and switch between
+them, a feature supported on all platforms and video cards (given that they
+have enough memory for the screen resolutions you asked for).
+
+The last thing you need to know about setting a graphic mode are drivers.
+Each platform has a number of graphic drivers wich support a different range
+of hardware or behave in different ways. To avoid cluttering your own code
+with #ifdefs and dealing with drivers added after you release your program,
+Allegro provides several so called magic drivers. These magic drivers don't
+really exists, they wrap around a specific kind of functionality.
+
+The magic drivers you can use are:
+<ul><li>
+GFX_AUTODETECT:<br>
+   Allegro will try to set the specified resolution with the current color
+   depth in fullscreen mode. Failing that, it will try to repeat the same
+   operation in windowed mode. If the call to set_gfx_mode() succeeds, you
+   are guaranteed to have set the specified resolution in the current color
+   depth, but you don't know if the program is running fullscreen or
+   windowed.
+<li>
+GFX_AUTODETECT_FULLSCREEN:<br>
+   Allegro will try to set the specified resolution with the current color
+   depth in fullscreen mode. If that is not possible, set_gfx_mode() will
+   fail.
+<li>
+GFX_AUTODETECT_WINDOWED:<br>
+   Allegro will try to set the specified resolution with the current color
+   depth in a windowed mode. If that is not possible, set_gfx_mode() will
+   fail. When it comes to windowed modes, the `specified resolution' actually
+   means the graphic area your program can draw on, without including window
+   decorations (if any). Note that in windowed modes running with a color
+   depth other than the desktop may result in non optimal performance due to
+   internal color conversions in the graphic driver. Use
+   desktop_color_depth() to your advantage in these situations.
+<li>
+GFX_SAFE:<br>
+   Using this driver Allegro guarantees that a graphic mode will always be
+   set correctly. It will try to select the resolution that you request, and
+   if that fails, it will fall back upon whatever mode is known to be
+   reliable on the current platform (this is 320x200 VGA mode under DOS, a
+   640x480 resolution under Windows, the actual framebuffer's resolution
+   under Linux if it's supported, etc). If it absolutely cannot set any
+   graphics mode at all, it will return negative as usual, meaning that
+   there's no possible video output on the machine, and that you should abort
+   your program immediately, possibly after notifying this to the user with
+   allegro_message.
+
+   This fake driver is useful for situations where you just want to get into
+   some kind of workable display mode, and can't be bothered with trying
+   multiple different resolutions and doing all the error checking yourself.
+   Note however, that after a successful call to set_gfx_mode with this
+   driver, you cannot make any assumptions about the width, height or color
+   depth of the screen: your code will have to deal with this little detail.
+<li>
+   GFX_TEXT:<br>
+   Closes any previously opened graphics mode, making you unable to use the
+   global variable screen, and in those environments that have text modes,
+   sets one previously used or the closest match to that (usually 80x25).
+   With this driver the size parameters of set_gfx_mode don't mean anything,
+   so you can leave them all to zero or any other number you prefer.
+</ul>
+
 @@void @set_color_depth(int depth);
 @xref get_color_depth, set_gfx_mode, set_color_conversion, makecol, getr
 @xref desktop_color_depth
 @eref Available Allegro examples
    Sets the pixel format to be used by subsequent calls to set_gfx_mode() 
    and create_bitmap(). Valid depths are 8 (the default), 15, 16, 24, and 32 
-   bits.
+   bits. Example:
+<codeblock>
+      set_color_depth(32);
+      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+	 /* Error setting a 32 bit color resolution. /*
+      }<endblock>
 
 @@int @get_color_depth(void);
 @xref set_color_depth
 @eref exrgbhsv
-   Returns the current pixel format.
+   Returns the current pixel format. This can be very useful to know in order
+   to write generic functions which select a different code path internally
+   depending on the color depth being used.
 
 @@void @request_refresh_rate(int rate);
 @xref set_gfx_mode, get_refresh_rate
@@ -3313,44 +3492,18 @@ Graphics modes
 @xref GFX_*/X, GFX_*/Linux, GFX_*/BeOS, GFX_*/MacOSX, create_video_bitmap
 @xref get_desktop_resolution, SCREEN_W, SCREEN_H, VIRTUAL_W, VIRTUAL_H
 @eref Available Allegro examples
-   Switches into graphics mode. The card parameter should usually be 
-   GFX_AUTODETECT, GFX_AUTODETECT_FULLSCREEN or GFX_AUTODETECT_WINDOWED, or
-   see the platform specific documentation for a list of the available
+   Switches into graphics mode. The card parameter should usually be one of
+   the Allegro magic drivers (read introduction of chapter "Graphics modes")
+   or see the platform specific documentation for a list of the available
    drivers. The w and h parameters specify what screen resolution you want.
+   The color depth of the graphic mode has to be specified before calling
+   this function with set_color_depth().
 
    The v_w and v_h parameters specify the minimum virtual screen size, in 
    case you need a large virtual screen for hardware scrolling or page 
    flipping. You should set them to zero if you don't care about the virtual 
-   screen size. Virtual screens can cause a lot of confusion, but they are 
-   really quite simple. Warning: patronising explanation coming up, so you 
-   may wish to skip the rest of this paragraph :-) Think of video memory as 
-   a rectangular piece of paper which is being viewed through a small hole 
-   (your monitor) in a bit of cardboard. Since the paper is bigger than the 
-   hole you can only see part of it at any one time, but by sliding the 
-   cardboard around you can alter which portion of the image is visible. You 
-   could just leave the hole in one position and ignore the parts of video 
-   memory that aren't visible, but you can get all sorts of useful effects 
-   by sliding the screen window around, or by drawing images in a hidden 
-   part of video memory and then flipping across to display them.
-
-   For example, you could select a 640x480 mode in which the monitor acts as 
-   a window onto a 1024x1024 virtual screen, and then move the visible 
-   screen around in this larger area. Initially, with the visible screen 
-   positioned at the top left corner of video memory, this setup would look 
-   like:
-<textblock>
-      (0,0)------------(640,0)----(1024,0)
-	|                  |           |
-	|  visible screen  |           |
-	|                  |           |
-      (0,480)----------(640,480)       |
-	|                              |
-	|   the rest of video memory   |
-	|                              |
-      (0,1024)--------------------(1024,1024)
-<endblock>
-   What's that? You are viewing this with a proportional font? Hehehe.
-
+   screen size.
+   
    When you call set_gfx_mode(), the v_w and v_h parameters represent the 
    minimum size of virtual screen that is acceptable for your program. The 
    range of possible sizes is usually very restricted, and Allegro is likely 
@@ -3375,34 +3528,9 @@ Graphics modes
    After you select a graphics mode, the physical and virtual screen sizes 
    can be checked with the macros SCREEN_W, SCREEN_H, VIRTUAL_W, and 
    VIRTUAL_H.
-
-   If Allegro is unable to select an appropriate mode, set_gfx_mode() 
-   returns a negative number and stores a description of the problem in 
-   allegro_error. Otherwise it returns zero.
-
-   As a special case, if you use the magic driver code GFX_SAFE, Allegro 
-   will guarantee that the mode will always be set correctly. It will try to 
-   select the resolution that you request, and if that fails, it will fall 
-   back upon whatever mode is known to be reliable on the current platform 
-   (this is 320x200 VGA mode under DOS, a 640x480 resolution under Windows,
-   the actual framebuffer's resolution under Linux if it's supported, etc).
-   If it absolutely cannot set any graphics mode at all, it will return
-   negative as usual, meaning that there's no possible video output on the
-   machine, and that you should abort your program immediately, possibly
-   after notifying this to the user with allegro_message. This fake driver
-   is useful for situations where you just want to get into some kind of
-   workable display mode, and can't be bothered with trying multiple
-   different resolutions and doing all the error checking yourself. Note
-   however, that after a successful call to set_gfx_mode with this driver,
-   you cannot make any assumptions about the width, height or color depth
-   of the screen: your code will have to deal with this little detail.
-
-   Finally, GFX_TEXT is another magic driver which usually closes any
-   previously opened graphics mode, making you unable to use the global
-   variable screen, and in those environments that have text modes, sets one
-   previously used or the closest match to that (usually 80x25). With this
-   driver the size parameters of set_gfx_mode don't mean anything, so you can
-   leave them all to zero or any other number you prefer.
+@retval
+   Returns zero on success. On failure returns a negative number and stores a
+   description of the problem in allegro_error.
 
 @@int @set_display_switch_mode(int mode);
 @xref set_display_switch_callback, get_display_switch_mode
