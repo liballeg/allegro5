@@ -83,7 +83,9 @@ void gfx_directx_lock(BITMAP *bmp)
 
       /* update the line array if our parent has moved */
       pitch = (long)parent->line[1] - (long)parent->line[0];
-      data = parent->line[0] + pitch * bmp->y_ofs + bmp->x_ofs * ((_color_depth+7) >> 3);
+      data = parent->line[0] +
+             (bmp->y_ofs - parent->y_ofs) * pitch +
+             (bmp->x_ofs - parent->x_ofs) * BYTES_PER_PIXEL(bitmap_color_depth(bmp));
 
       if (data != bmp->line[0]) {
 	 for (y = 0; y < bmp->h; y++) {
@@ -152,7 +154,7 @@ void gfx_directx_autolock(BITMAP *bmp)
    BITMAP *parent;
    int pitch;
    unsigned char *data;
-   int y, h;
+   int y;
 
    if (bmp->id & BMP_ID_SUB) {
       /* if it's a sub-bitmap, start by locking our parent */
@@ -166,11 +168,12 @@ void gfx_directx_autolock(BITMAP *bmp)
 
       /* update the line array if our parent has moved */
       pitch = (long)parent->line[1] - (long)parent->line[0];
-      data = parent->line[0] + pitch * bmp->y_ofs + bmp->x_ofs * ((_color_depth+7) >> 3);
-      h = bmp->h;
+      data = parent->line[0] +
+             (bmp->y_ofs - parent->y_ofs) * pitch +
+             (bmp->x_ofs - parent->x_ofs) * BYTES_PER_PIXEL(bitmap_color_depth(bmp));
 
       if (data != bmp->line[0]) {
-	 for (y = 0; y < h; y++) {
+	 for (y = 0; y < bmp->h; y++) {
 	    bmp->line[y] = data;
 	    data += pitch;
 	 }
