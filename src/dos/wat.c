@@ -575,7 +575,7 @@ void CALL_RMCB_PART2(void);
    "  mov esp, rmcb_saved_esp "        /* restore the original stack */    \
    "  mov ax, rmcb_saved_ss "                                              \
    "  mov ss, ax "                                                         \
-									   \ 
+									   \
    "  pop es "                         /* restore registers */             \
    "  pop ds "                                                             \
    "  pop edx "                                                            \
