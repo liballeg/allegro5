@@ -47,7 +47,7 @@ static DDPIXELFORMAT pixel_format[] = {
 
 
 /* window thread callback parameters */
-static int _wnd_width, _wnd_height, _wnd_depth;
+static int _wnd_width, _wnd_height, _wnd_depth, _wnd_refresh_rate;
 
 
 
@@ -60,16 +60,17 @@ static int wnd_set_video_mode(void)
    HRESULT hr;
 
    /* set the cooperative level to allow fullscreen access */
-   hr = IDirectDraw_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
+   hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
    if (FAILED(hr)) {
       _TRACE("SetCooperative level = %s (%x), hwnd = %x\n", win_err_str(hr), hr, allegro_wnd);
       goto Error;
    }
 
    /* switch to fullscreen mode */
-   hr = IDirectDraw_SetDisplayMode(directdraw, _wnd_width, _wnd_height, _wnd_depth);
+   hr = IDirectDraw2_SetDisplayMode(directdraw, _wnd_width, _wnd_height, _wnd_depth, _wnd_refresh_rate, 0);
    if (FAILED(hr)) {
-      _TRACE("SetDisplayMode(%u, %u, %u) = %s (%x)\n", _wnd_width, _wnd_height, _wnd_depth, win_err_str(hr), hr);
+      _TRACE("SetDisplayMode(%u, %u, %u, %u) = %s (%x)\n", _wnd_width, _wnd_height, _wnd_depth,
+                                                           _wnd_refresh_rate, win_err_str(hr), hr);
       goto Error;
    }
 
@@ -129,7 +130,7 @@ int gfx_directx_compare_color_depth(int color_depth)
 
    /* get current video mode */
    surf_desc.dwSize = sizeof(surf_desc);
-   hr = IDirectDraw_GetDisplayMode(directdraw, &surf_desc);
+   hr = IDirectDraw2_GetDisplayMode(directdraw, &surf_desc);
    if (FAILED(hr)) {
       _TRACE("Can't get color format.\n");
       return -1;
@@ -168,7 +169,7 @@ int gfx_directx_compare_color_depth(int color_depth)
 /* gfx_directx_update_color_format:
  *  sets the _rgb variables for correct color format
  */
-int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE surf, int color_depth)
+int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE2 surf, int color_depth)
 {
    DDPIXELFORMAT pixel_format;
    HRESULT hr;
@@ -176,7 +177,7 @@ int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE surf, int color_depth)
 
    /* get pixel format */
    pixel_format.dwSize = sizeof(DDPIXELFORMAT);
-   hr = IDirectDrawSurface_GetPixelFormat(surf, &pixel_format);
+   hr = IDirectDrawSurface2_GetPixelFormat(surf, &pixel_format);
    if (FAILED(hr)) {
       _TRACE("Can't get color format.\n");
       return -1;
@@ -238,8 +239,7 @@ void get_working_area(RECT *working_area)
  * EnumModesCallback
  *  callback for graphic modes enumeration
  */ 
-static HRESULT WINAPI EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc,
-                                                               LPVOID addr)
+static HRESULT WINAPI EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID addr)
 {
    int *mode_supported = (int *) addr;
    *mode_supported = TRUE;
@@ -260,26 +260,42 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
    surf_desc.dwSize   = sizeof(DDSURFACEDESC);
    surf_desc.dwFlags  = DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
    surf_desc.dwHeight = h;
-   surf_desc.dwWidth  = w;  
+   surf_desc.dwWidth  = w;
 
    for (i=0 ; pixel_realdepth[i] ; i++)
       if (pixel_realdepth[i] == color_depth) {
          surf_desc.ddpfPixelFormat = pixel_format[i];
          mode_supported = FALSE;
 
-         /* check wether the request mode is supported */
-         hr = IDirectDraw_EnumDisplayModes(directdraw, 0, &surf_desc,
-                                           &mode_supported, EnumModesCallback);
-         if (FAILED(hr))
-            break;
+         /* check whether the request mode is supported */
+         if (_refresh_rate_request) {
+            _TRACE("refresh rate requested: %d Hz\n", _refresh_rate_request);
+            surf_desc.dwFlags |= DDSD_REFRESHRATE;
+            surf_desc.dwRefreshRate = _refresh_rate_request;
+            hr = IDirectDraw2_EnumDisplayModes(directdraw, DDEDM_REFRESHRATES, &surf_desc,
+                                               &mode_supported, EnumModesCallback);
+            if (FAILED(hr))
+               break;
+         }
+
+         if (!mode_supported) {
+            _TRACE("no refresh rate requested\n");
+            surf_desc.dwFlags &= ~DDSD_REFRESHRATE;
+            surf_desc.dwRefreshRate = 0;
+            hr = IDirectDraw2_EnumDisplayModes(directdraw, 0, &surf_desc,
+                                               &mode_supported, EnumModesCallback);
+            if (FAILED(hr))
+               break;
+         }
 
          if (mode_supported) {
-            _wnd_width = w;
-            _wnd_height = h;
-            _wnd_depth = pixel_format[i].dwRGBBitCount; /* not color_depth */
+            _wnd_width        = surf_desc.dwWidth;
+            _wnd_height       = surf_desc.dwHeight;
+            _wnd_depth        = pixel_format[i].dwRGBBitCount; /* not color_depth */
+            _wnd_refresh_rate = surf_desc.dwRefreshRate;
 
             /* let the window thread do the hard work */ 
-            _TRACE("Setting display mode(%u, %u, %u)\n", w, h, color_depth);
+            _TRACE("setting display mode(%u, %u, %u, %u)\n", w, h, color_depth, _wnd_refresh_rate);
             if (wnd_call_proc(wnd_set_video_mode) != 0)
                break;
 

@@ -4348,7 +4348,9 @@ char *refresh_getter(int index, int *list_size)
       "50 Hz",
       "60 Hz",
       "70 Hz",
+      "75 Hz",
       "80 Hz",
+      "85 Hz",
       "90 Hz",
       "100 Hz",
       "120 Hz"
@@ -4356,7 +4358,7 @@ char *refresh_getter(int index, int *list_size)
 
    if (index < 0) {
       if (list_size)
-	 *list_size = 8;
+	 *list_size = 10;
       return NULL;
    }
 
@@ -4393,7 +4395,7 @@ void refresh_rate()
    if (do_dialog(refresh_dlg, REFRESH_LIST) != REFRESH_CANCEL) {
       static int table[] =
       {
-	 0, 50, 60, 70, 80, 90, 100, 120
+	 0, 50, 60, 70, 75, 80, 85, 90, 100, 120
       };
 
       gfx_rate = table[refresh_dlg[REFRESH_LIST].d1];

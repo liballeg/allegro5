@@ -73,7 +73,7 @@ void gfx_switch_in(void)
  */
 void gfx_directx_lock(BITMAP *bmp)
 {
-   LPDIRECTDRAWSURFACE surf;
+   LPDIRECTDRAWSURFACE2 surf;
    BMP_EXTRA_INFO *bmp_extra;
    BMP_EXTRA_INFO *item;
    BITMAP *parent;
@@ -127,14 +127,15 @@ void gfx_directx_lock(BITMAP *bmp)
 	 surf_desc.dwSize = sizeof(surf_desc);
 	 surf_desc.dwFlags = 0;
 
-	 hr = IDirectDrawSurface_Lock(surf, NULL, &surf_desc, DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL); 
+         hr = IDirectDrawSurface2_Lock(surf, NULL, &surf_desc,
+                                       DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL); 
 
 	 if (FAILED(hr)) {
 	    /* lost bitmap, try to restore all surfaces */
 	    item = directx_bmp_list;
 	    while (item) {
 	       /* if restoration fails, stop restoring */
-	       if (FAILED(IDirectDrawSurface_Restore(item->surf)))
+	       if (FAILED(IDirectDrawSurface2_Restore(item->surf)))
 		  break;
 	       item = item->next;
 	    }
@@ -143,7 +144,8 @@ void gfx_directx_lock(BITMAP *bmp)
 	    surf_desc.dwSize = sizeof(surf_desc);
 	    surf_desc.dwFlags = 0;
 
-	    hr = IDirectDrawSurface_Lock(surf, NULL, &surf_desc, DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL); 
+            hr = IDirectDrawSurface2_Lock(surf, NULL, &surf_desc,
+                                          DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL); 
 
 	    if (FAILED(hr)) {
 	       /* lock failed, use pseudo surface memory */
@@ -261,7 +263,7 @@ void gfx_directx_unlock(BITMAP *bmp)
       if ((!bmp_extra->lock_nesting) && (bmp->id & BMP_ID_LOCKED)) {
 	 if (!(bmp_extra->flags & BMP_FLAG_LOST)) {
 	    /* only unlock if it doesn't use pseudo video memory */
-	    IDirectDrawSurface_Unlock(bmp_extra->surf, NULL);
+	    IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
 	 }
 
 	 bmp->id &= ~BMP_ID_LOCKED;
@@ -293,7 +295,7 @@ void gfx_directx_release_lock(BITMAP *bmp)
 
       if (!(bmp_extra->flags & BMP_FLAG_LOST)) {
 	 /* only unlock if it doesn't use pseudo video memory */
-	 IDirectDrawSurface_Unlock(bmp_extra->surf, NULL);
+	 IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
       }
 
       bmp->id &= ~BMP_ID_LOCKED;

@@ -65,7 +65,7 @@ AL_VAR(CRITICAL_SECTION, gfx_crit_sect);
 AL_VAR(char *, pseudo_surf_mem);
 
 typedef struct BMP_EXTRA_INFO {
-   LPDIRECTDRAWSURFACE surf;
+   LPDIRECTDRAWSURFACE2 surf;
    struct BMP_EXTRA_INFO *next;
    struct BMP_EXTRA_INFO *prev;
    int flags;
@@ -76,8 +76,8 @@ typedef struct BMP_EXTRA_INFO {
 
 #define BMP_FLAG_LOST      1
 
-AL_VAR(LPDIRECTDRAW, directdraw);
-AL_VAR(LPDIRECTDRAWSURFACE, dd_prim_surface);
+AL_VAR(LPDIRECTDRAW2, directdraw);
+AL_VAR(LPDIRECTDRAWSURFACE2, dd_prim_surface);
 AL_VAR(LPDIRECTDRAWPALETTE, dd_palette);
 AL_VAR(LPDIRECTDRAWCLIPPER, dd_clipper);
 AL_VAR(DDCAPS, dd_caps);

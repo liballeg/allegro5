@@ -46,13 +46,13 @@ AL_FUNC(int, gfx_directx_show_video_bitmap, (BITMAP *bitmap));
 AL_FUNC(int, gfx_directx_request_video_bitmap, (BITMAP *bitmap));
 AL_FUNC(BITMAP *, gfx_directx_create_system_bitmap, (int width, int height));
 AL_FUNC(void, gfx_directx_destroy_system_bitmap, (BITMAP *bitmap));
-AL_FUNC(void, gfx_directx_destroy_surf, (LPDIRECTDRAWSURFACE surf));
+AL_FUNC(void, gfx_directx_destroy_surf, (LPDIRECTDRAWSURFACE2 surf));
 
 
 /* driver initialisation and shutdown */
 AL_FUNC(int, init_directx, (void));
 AL_FUNC(int, set_video_mode, (int w, int h, int v_w, int v_h, int color_depth));
-AL_FUNC(int, create_palette, (LPDIRECTDRAWSURFACE surf));
+AL_FUNC(int, create_palette, (LPDIRECTDRAWSURFACE2 surf));
 AL_FUNC(int, create_primary, (void));
 AL_FUNC(int, create_clipper, (HWND hwnd));
 AL_FUNC(int, setup_driver, (GFX_DRIVER * drv, int w, int h, int color_depth));
@@ -64,7 +64,7 @@ AL_FUNC(int, enable_acceleration, (GFX_DRIVER * drv));
 
 /* video mode setting */
 AL_FUNC(int, gfx_directx_compare_color_depth, (int color_depth));
-AL_FUNC(int, gfx_directx_update_color_format, (LPDIRECTDRAWSURFACE surf, int color_depth));
+AL_FUNC(int, gfx_directx_update_color_format, (LPDIRECTDRAWSURFACE2 surf, int color_depth));
 AL_FUNC(void, get_working_area, (RECT *working_area));
 
 AL_VAR(int, desktop_depth);
@@ -86,9 +86,9 @@ AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
 
 
 /* bitmap creation */
-AL_FUNC(LPDIRECTDRAWSURFACE, gfx_directx_create_surface, (int w, int h, LPDDPIXELFORMAT pixel_format,
+AL_FUNC(LPDIRECTDRAWSURFACE2, gfx_directx_create_surface, (int w, int h, LPDDPIXELFORMAT pixel_format,
    int video, int primary, int overlay));
-AL_FUNC(BITMAP *, make_directx_bitmap, (LPDIRECTDRAWSURFACE surf, int w, int h, int color_depth, int id));
+AL_FUNC(BITMAP *, make_directx_bitmap, (LPDIRECTDRAWSURFACE2 surf, int w, int h, int color_depth, int id));
 
 
 /* video bitmap list */

@@ -67,12 +67,12 @@ GFX_DRIVER gfx_directx_win =
 };
 
 static char gfx_driver_desc[256] = EMPTY_STRING;
-static LPDIRECTDRAWSURFACE offscreen_surface = NULL;
+static LPDIRECTDRAWSURFACE2 offscreen_surface = NULL;
 /* if the allegro color depth is not the same as the desktop color depth,
  * we need a pre-converted offscreen surface that will be blitted to the window
  * when in background, in order to ensure a proper clipping
  */ 
-static LPDIRECTDRAWSURFACE preconv_offscreen_surface = NULL;
+static LPDIRECTDRAWSURFACE2 preconv_offscreen_surface = NULL;
 static RECT working_area;
 static void (*_update) (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 static int clipped_updating_mode;
@@ -146,9 +146,9 @@ void update_window_hw (RECT* rect)
    ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect + 1);
  
    /* blit offscreen backbuffer to the window */
-   IDirectDrawSurface_Blt(dd_prim_surface, &dest_rect,
-                          BMP_EXTRA(pseudo_screen)->surf, rect,
-                          0, NULL);
+   IDirectDrawSurface2_Blt(dd_prim_surface, &dest_rect,
+                           BMP_EXTRA(pseudo_screen)->surf, rect,
+                           0, NULL);
 }
 
 
@@ -173,8 +173,8 @@ static INLINE int is_not_contained(RECT *rect1, RECT *rect2)
  * ddsurf_blit_ex
  *  extended blit function performing color conversion
  */
-static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE dest_surf, RECT *dest_rect,
-                          LPDIRECTDRAWSURFACE src_surf, RECT *src_rect )
+static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
+                          LPDIRECTDRAWSURFACE2 src_surf, RECT *src_rect )
 {
    DDSURFACEDESC src_desc, dest_desc;
    HRESULT hr;
@@ -184,13 +184,13 @@ static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE dest_surf, RECT *dest_rect,
    dest_desc.dwSize = sizeof(dest_desc);
    dest_desc.dwFlags = 0;
 
-   hr = IDirectDrawSurface_Lock(dest_surf, dest_rect, &dest_desc, DDLOCK_WAIT, NULL);
+   hr = IDirectDrawSurface2_Lock(dest_surf, dest_rect, &dest_desc, DDLOCK_WAIT, NULL);
    if (FAILED(hr))
       return -1;
 
-   hr = IDirectDrawSurface_Lock(src_surf, src_rect, &src_desc, DDLOCK_WAIT, NULL);
+   hr = IDirectDrawSurface2_Lock(src_surf, src_rect, &src_desc, DDLOCK_WAIT, NULL);
    if (FAILED(hr)) {
-      IDirectDrawSurface_Unlock(dest_surf, NULL);
+      IDirectDrawSurface2_Unlock(dest_surf, NULL);
       return -1;
    }
    
@@ -200,8 +200,8 @@ static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE dest_surf, RECT *dest_rect,
    /* function doing the hard work */
    _update(&src_desc, &dest_desc);
 
-   IDirectDrawSurface_Unlock(src_surf, NULL);
-   IDirectDrawSurface_Unlock(dest_surf, NULL);
+   IDirectDrawSurface2_Unlock(src_surf, NULL);
+   IDirectDrawSurface2_Unlock(dest_surf, NULL);
 
    return 0;
 }
@@ -244,9 +244,9 @@ void update_window_ex (RECT* rect)
          return;
  
       /* blit preconverted offscreen buffer to the window (clipping done by DirectDraw) */
-      IDirectDrawSurface_Blt(dd_prim_surface, &dest_rect,
-                             preconv_offscreen_surface, &src_rect,
-                             0, NULL);
+      IDirectDrawSurface2_Blt(dd_prim_surface, &dest_rect,
+                              preconv_offscreen_surface, &src_rect,
+                              0, NULL);
    }
    else {
       /* blit directly to the primary surface WITHOUT clipping */
@@ -382,7 +382,7 @@ static int wnd_set_windowed_coop(void)
 {
    HRESULT hr;
 
-   hr = IDirectDraw_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_NORMAL);
+   hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_NORMAL);
    if (FAILED(hr)) {
       _TRACE("SetCooperative level = %s (%x), hwnd = %x\n", win_err_str(hr), hr, allegro_wnd);
       return -1;

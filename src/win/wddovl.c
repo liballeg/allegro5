@@ -60,7 +60,7 @@ GFX_DRIVER gfx_directx_ovl =
 };
 
 static char gfx_driver_desc[256] = EMPTY_STRING;
-static LPDIRECTDRAWSURFACE overlay_surface = NULL;
+static LPDIRECTDRAWSURFACE2 overlay_surface = NULL;
 static RECT working_area;
 static BOOL overlay_visible = FALSE;
 
@@ -98,7 +98,7 @@ static int show_overlay(int x, int y, int w, int h)
    key.dwColorSpaceLowValue = 0; /* (wnd_back_color & 0xffff); */
    key.dwColorSpaceHighValue = 0; /* (wnd_back_color >> 16); */
 
-   hr = IDirectDrawSurface_SetColorKey(dd_prim_surface, DDCKEY_DESTOVERLAY, &key);
+   hr = IDirectDrawSurface2_SetColorKey(dd_prim_surface, DDCKEY_DESTOVERLAY, &key);
    if (FAILED(hr)) {
       _TRACE("Can't set overlay dest color key\n");
       return -1;
@@ -110,13 +110,13 @@ static int show_overlay(int x, int y, int w, int h)
    if (is_not_contained(&dest_rect, &working_area))
       hr = DDERR_INVALIDRECT;
    else
-      hr = IDirectDrawSurface_UpdateOverlay(overlay_surface, NULL,
-                                            dd_prim_surface, &dest_rect,
-                                            DDOVER_SHOW | DDOVER_KEYDEST, NULL);
+      hr = IDirectDrawSurface2_UpdateOverlay(overlay_surface, NULL,
+                                             dd_prim_surface, &dest_rect,
+                                             DDOVER_SHOW | DDOVER_KEYDEST, NULL);
    if (FAILED(hr)) {
-      IDirectDrawSurface_UpdateOverlay(overlay_surface, NULL,
-	                               dd_prim_surface, NULL,
-                                       DDOVER_HIDE, NULL);
+      IDirectDrawSurface2_UpdateOverlay(overlay_surface, NULL,
+                                        dd_prim_surface, NULL,
+                                        DDOVER_HIDE, NULL);
 
       _TRACE("Can't display overlay (%x)\n", hr);
       /* but we keep overlay_visible as TRUE to allow future updates */
@@ -135,8 +135,9 @@ void hide_overlay(void)
    if (overlay_visible) {
       overlay_visible = FALSE;
 
-      IDirectDrawSurface_UpdateOverlay(overlay_surface, NULL,
-	 dd_prim_surface, NULL, DDOVER_HIDE, NULL);
+      IDirectDrawSurface2_UpdateOverlay(overlay_surface, NULL,
+	                                dd_prim_surface, NULL,
+                                        DDOVER_HIDE, NULL);
    }
 }
 
@@ -152,7 +153,7 @@ static int update_overlay()
    ClientToScreen(allegro_wnd, (LPPOINT)&window_rect);
 
    return show_overlay(window_rect.left, window_rect.top,
-                       wnd_width, wnd_height);
+                                         wnd_width, wnd_height);
 }
 
 
@@ -163,7 +164,7 @@ static int wnd_set_windowed_coop(void)
 {
    HRESULT hr;
 
-   hr = IDirectDraw_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_NORMAL);
+   hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_NORMAL);
    if (FAILED(hr)) {
       _TRACE("SetCooperative level = %s (%x), hwnd = %x\n", win_err_str(hr), hr, allegro_wnd);
       return -1;
@@ -363,7 +364,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       can vary depending on the pixel formats of the overlay and primary surface", so
       we handle them after creating the surfaces */
    dd_caps.dwSize = sizeof(dd_caps);
-   hr = IDirectDraw_GetCaps(directdraw, &dd_caps, NULL);
+   hr = IDirectDraw2_GetCaps(directdraw, &dd_caps, NULL);
    if (FAILED(hr)) {
       _TRACE("Can't get driver caps\n");
       goto Error;

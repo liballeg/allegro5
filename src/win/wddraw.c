@@ -20,16 +20,17 @@
 
 
 /* directx vars */
-LPDIRECTDRAW directdraw = NULL;
-LPDIRECTDRAWSURFACE dd_prim_surface = NULL;
+LPDIRECTDRAW2 directdraw = NULL;
+LPDIRECTDRAWSURFACE2 dd_prim_surface = NULL;
 LPDIRECTDRAWPALETTE dd_palette = NULL;
 LPDIRECTDRAWCLIPPER dd_clipper = NULL;
 LPDDPIXELFORMAT dd_pixelformat = NULL;
 DDCAPS dd_caps;
 CRITICAL_SECTION gfx_crit_sect;
 struct BITMAP *dd_frontbuffer = NULL;
-static PALETTEENTRY _palette[256];
 char *pseudo_surf_mem;
+
+static PALETTEENTRY _palette[256];
 
 
 /* gfx_directx_set_palette:
@@ -60,7 +61,7 @@ void gfx_directx_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync
  */
 void gfx_directx_sync(void)
 {
-   IDirectDraw_WaitForVerticalBlank(directdraw, DDWAITVB_BLOCKBEGIN, NULL);
+   IDirectDraw2_WaitForVerticalBlank(directdraw, DDWAITVB_BLOCKBEGIN, NULL);
 }
 
 
@@ -69,19 +70,30 @@ void gfx_directx_sync(void)
  */
 int init_directx(void)
 {
+   LPDIRECTDRAW _directdraw1 = NULL;
    HRESULT hr;
 
-   /* Initialize gfx critical section */
+   /* initialize gfx critical section */
    InitializeCriticalSection(&gfx_crit_sect);
 
-   /* first we have to setup directdraw */
-   hr = DirectDrawCreate(NULL, &directdraw, NULL);
+   /* first we have to setup the DirectDraw2 interface */
+   hr = DirectDrawCreate(NULL, &_directdraw1, NULL);
    if (FAILED(hr))
       return -1;
 
+   hr = IDirectDraw_SetCooperativeLevel(_directdraw1, allegro_wnd, DDSCL_NORMAL);
+   if (FAILED(hr))
+      return -1;
+
+   hr = IDirectDraw_QueryInterface(_directdraw1, &IID_IDirectDraw2, (LPVOID *)&directdraw);
+   if (FAILED(hr))
+      return -1;
+
+   IDirectDraw_Release(_directdraw1);
+
    /* get capabilities */
    dd_caps.dwSize = sizeof(dd_caps);
-   hr = IDirectDraw_GetCaps(directdraw, &dd_caps, NULL);
+   hr = IDirectDraw2_GetCaps(directdraw, &dd_caps, NULL);
    if (FAILED(hr)) {
       _TRACE("Can't get driver caps\n");
       return -1;
@@ -94,7 +106,7 @@ int init_directx(void)
 
 /* create_palette:
  */
-int create_palette(LPDIRECTDRAWSURFACE surf)
+int create_palette(LPDIRECTDRAWSURFACE2 surf)
 {
    HRESULT hr;
    int n;
@@ -104,10 +116,11 @@ int create_palette(LPDIRECTDRAWSURFACE surf)
       _palette[n].peFlags = PC_NOCOLLAPSE | PC_RESERVED;
    }
 
-   hr = IDirectDraw_CreatePalette(directdraw, DDPCAPS_8BIT | DDPCAPS_ALLOW256, _palette, &dd_palette, NULL);
+   hr = IDirectDraw2_CreatePalette(directdraw, DDPCAPS_8BIT | DDPCAPS_ALLOW256, _palette, &dd_palette, NULL);
    if (FAILED(hr))
       return -1;
-   IDirectDrawSurface_SetPalette(surf, dd_palette);
+
+   IDirectDrawSurface2_SetPalette(surf, dd_palette);
 
    return 0;
 }
@@ -136,7 +149,7 @@ int create_clipper(HWND hwnd)
 {
    HRESULT hr;
 
-   hr = IDirectDraw_CreateClipper(directdraw, 0, &dd_clipper, NULL);
+   hr = IDirectDraw2_CreateClipper(directdraw, 0, &dd_clipper, NULL);
    if (FAILED(hr)) {
       _TRACE("Can't create clipper (%x)\n", hr);
       return -1;
@@ -157,11 +170,15 @@ int create_clipper(HWND hwnd)
  */
 int setup_driver(GFX_DRIVER * drv, int w, int h, int color_depth)
 {
+   DDSCAPS ddsCaps;
+
    /* setup the driver structure */
    drv->w = w;
    drv->h = h;
    drv->linear = 1;
-   drv->vid_mem = dd_caps.dwVidMemTotal + ((color_depth + 7) >> 3) * w * h;
+   ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY;
+   IDirectDraw2_GetAvailableVidMem(directdraw, &ddsCaps, &drv->vid_mem, NULL);
+   drv->vid_mem += ((color_depth + 7) / 8) * w * h;
 
    /* create our pseudo surface memory */
    pseudo_surf_mem = malloc(2048);
@@ -186,11 +203,16 @@ int finalize_directx_init(void)
    long int freq;
 
    /* set correct sync timer speed */
-   hr = IDirectDraw_GetMonitorFrequency(directdraw, &freq);
-   if ((FAILED(hr)) || (freq < 40) || (freq > 200))
+   hr = IDirectDraw2_GetMonitorFrequency(directdraw, &freq);
+
+   if ((FAILED(hr)) || (freq < 40) || (freq > 200)) {
       set_sync_timer_freq(70);
-   else
+      _current_refresh_rate = 0;
+   }
+   else {
       set_sync_timer_freq(freq);
+      _current_refresh_rate = freq;
+   }
 
    return 0;
 }
@@ -204,10 +226,10 @@ int gfx_directx_wnd_exit(void)
 {
    if (directdraw) {
       /* set cooperative level back to normal */
-      IDirectDraw_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_NORMAL);
+      IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_NORMAL);
 
       /* release DirectDraw interface */
-      IDirectDraw_Release(directdraw);
+      IDirectDraw2_Release(directdraw);
    }
 
    return 0;

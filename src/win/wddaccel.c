@@ -58,10 +58,9 @@ static void ddraw_blit_to_self(BITMAP * source, BITMAP * dest, int source_x, int
    gfx_directx_release_lock(dest);
    gfx_directx_release_lock(source);
    
-   IDirectDrawSurface_BltFast(BMP_EXTRA(dest_parent)->surf,
-			      dest_parent_x, dest_parent_y,
-			      BMP_EXTRA(source_parent)->surf, &src_rect, DDBLTFAST_WAIT);
-
+   IDirectDrawSurface2_BltFast(BMP_EXTRA(dest_parent)->surf, dest_parent_x, dest_parent_y,
+                               BMP_EXTRA(source_parent)->surf, &src_rect,
+                               DDBLTFAST_WAIT);
    _exit_gfx_critical();
    
    /* only for windowed mode */
@@ -118,13 +117,12 @@ static void ddraw_masked_blit(BITMAP * source, BITMAP * dest, int source_x, int 
       gfx_directx_release_lock(dest);
       gfx_directx_release_lock(source);
 
-      IDirectDrawSurface_SetColorKey(BMP_EXTRA(source_parent)->surf,
-				     DDCKEY_SRCBLT, &src_key);
+      IDirectDrawSurface2_SetColorKey(BMP_EXTRA(source_parent)->surf,
+                                      DDCKEY_SRCBLT, &src_key);
 
-      hr = IDirectDrawSurface_Blt(BMP_EXTRA(dest_parent)->surf, &dest_rect,
-				  BMP_EXTRA(source_parent)->surf, &source_rect,
-				  DDBLT_KEYSRC | DDBLT_WAIT, NULL);
-
+      hr = IDirectDrawSurface2_Blt(BMP_EXTRA(dest_parent)->surf, &dest_rect,
+                                   BMP_EXTRA(source_parent)->surf, &source_rect,
+                                   DDBLT_KEYSRC | DDBLT_WAIT, NULL);
       _exit_gfx_critical();
 
       if (FAILED(hr))
@@ -220,9 +218,9 @@ static void ddraw_clear_to_color(BITMAP * bitmap, int color)
    _enter_gfx_critical();
    gfx_directx_release_lock(bitmap);
 
-   hr = IDirectDrawSurface_Blt(BMP_EXTRA(parent)->surf, &dest_rect, NULL, NULL,
-			       DDBLT_COLORFILL | DDBLT_WAIT, &blt_fx);
-
+   hr = IDirectDrawSurface2_Blt(BMP_EXTRA(parent)->surf, &dest_rect,
+                                NULL, NULL,
+                                DDBLT_COLORFILL | DDBLT_WAIT, &blt_fx);
    _exit_gfx_critical();
 
    if (FAILED(hr))
@@ -301,9 +299,9 @@ static void ddraw_rectfill(BITMAP *bitmap, int x1, int y1, int x2, int y2, int c
    _enter_gfx_critical();
    gfx_directx_release_lock(bitmap);
 
-   hr = IDirectDrawSurface_Blt(BMP_EXTRA(parent)->surf, &dest_rect, NULL, NULL,
-			       DDBLT_COLORFILL | DDBLT_WAIT, &blt_fx);
-
+   hr = IDirectDrawSurface2_Blt(BMP_EXTRA(parent)->surf, &dest_rect,
+                                NULL, NULL,
+                                DDBLT_COLORFILL | DDBLT_WAIT, &blt_fx);
    _exit_gfx_critical();
 
    if (FAILED(hr))
@@ -369,9 +367,9 @@ static void ddraw_hline(BITMAP *bitmap, int x1, int y, int x2, int color)
    _enter_gfx_critical();
    gfx_directx_release_lock(bitmap);
 
-   hr = IDirectDrawSurface_Blt(BMP_EXTRA(parent)->surf, &dest_rect, NULL, NULL,
-			       DDBLT_COLORFILL | DDBLT_WAIT, &blt_fx);
-
+   hr = IDirectDrawSurface2_Blt(BMP_EXTRA(parent)->surf, &dest_rect,
+                                NULL, NULL,
+                                DDBLT_COLORFILL | DDBLT_WAIT, &blt_fx);
    _exit_gfx_critical();
 
    if (FAILED(hr))
@@ -436,9 +434,9 @@ static void ddraw_vline(BITMAP *bitmap, int x, int y1, int y2, int color)
    _enter_gfx_critical();
    gfx_directx_release_lock(bitmap);
 
-   hr = IDirectDrawSurface_Blt(BMP_EXTRA(parent)->surf, &dest_rect, NULL, NULL,
-			       DDBLT_COLORFILL | DDBLT_WAIT, &blt_fx);
-
+   hr = IDirectDrawSurface2_Blt(BMP_EXTRA(parent)->surf, &dest_rect,
+                                NULL, NULL,
+                                DDBLT_COLORFILL | DDBLT_WAIT, &blt_fx);
    _exit_gfx_critical();
 
    if (FAILED(hr))
@@ -499,7 +497,7 @@ int enable_acceleration(GFX_DRIVER * drv)
    }
 
    /* triple buffering? */
-   hr = IDirectDrawSurface_GetFlipStatus(BMP_EXTRA(dd_frontbuffer)->surf, DDGFS_ISFLIPDONE);
+   hr = IDirectDrawSurface2_GetFlipStatus(BMP_EXTRA(dd_frontbuffer)->surf, DDGFS_ISFLIPDONE);
    if (hr == DDERR_WASSTILLDRAWING || hr == DD_OK) {
       drv->poll_scroll = gfx_directx_poll_scroll;
       gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
