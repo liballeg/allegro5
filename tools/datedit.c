@@ -390,7 +390,7 @@ static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pa
 	 pack_mputl(DAT_PROPERTY, f);
 	 pack_mputl(prop->type, f);
 	 pack_mputl(strlen(prop->dat), f);
-	 if (pack_fwrite(prop->dat, strlen(prop->dat), f) < strlen(prop->dat))
+	 if (pack_fwrite(prop->dat, strlen(prop->dat), f) < (signed)strlen(prop->dat))
 	    return -1;
 	 file_datasize += 12 + strlen(prop->dat);
       }
