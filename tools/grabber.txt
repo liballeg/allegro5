@@ -857,11 +857,6 @@ Notes
    would be more effort than it is worth (especially since you can just
    call get_compiled_sprite() anyway!).
 
- - Under some compilers, you may get a warning about array initialisers
-   being too long; this is normal, and nothing to worry about. It is
-   caused by static initialisation of a zero-size array. Under GCC 3, 
-   this is supported as an extension, so upgrade to that if you can!
-
 
 
 ================================
