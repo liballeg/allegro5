@@ -846,8 +846,15 @@ void output_toc(FILE *f, char *filename, int root, int body, int part)
 	    toc = toc->next;
 	 }
 
-	 if (nested)
+	 if (nested) {
+	    if (i > 1)
+	       qsort(ptr, i, sizeof(TOC *), toc_scmp);
+	    for (j = 0; j < i; j++)
+	       hfprintf(f, "<li><a href=\"#%s\">%s</a>\n", ptr[j]->text, ALT_TEXT(ptr[j]));
+
+	    nested = i = 0;
 	    fprintf(f, "</h4></ul>\n");
+	 }
 
 	 if (root)
 	    fprintf(f, "</h2></ul>\n");
