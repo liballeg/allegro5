@@ -164,13 +164,12 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
    if (flags & INTERP_3COL) {
       /* RGB shading interpolation */
       if (flags & COLOR_TO_RGB) {
-	 int coldepth = bitmap_color_depth(bmp);
-	 r1 = getr_depth(coldepth, v1->c);
-	 r2 = getr_depth(coldepth, v2->c);
-	 g1 = getg_depth(coldepth, v1->c);
-	 g2 = getg_depth(coldepth, v2->c);
-	 b1 = getb_depth(coldepth, v1->c);
-	 b2 = getb_depth(coldepth, v2->c);
+	 r1 = getr_depth(bitmap_color_depth(bmp), v1->c);
+	 r2 = getr_depth(bitmap_color_depth(bmp), v2->c);
+	 g1 = getg_depth(bitmap_color_depth(bmp), v1->c);
+	 g2 = getg_depth(bitmap_color_depth(bmp), v2->c);
+	 b1 = getb_depth(bitmap_color_depth(bmp), v1->c);
+	 b2 = getb_depth(bitmap_color_depth(bmp), v2->c);
       } 
       else {
 	 r1 = (v1->c >> 16) & 0xFF;
@@ -305,13 +304,12 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
    if (flags & INTERP_3COL) {
       /* RGB shading interpolation */
       if (flags & COLOR_TO_RGB) {
-	 int coldepth = bitmap_color_depth(bmp);
-	 r1 = getr_depth(coldepth, v1->c);
-	 r2 = getr_depth(coldepth, v2->c);
-	 g1 = getg_depth(coldepth, v1->c);
-	 g2 = getg_depth(coldepth, v2->c);
-	 b1 = getb_depth(coldepth, v1->c);
-	 b2 = getb_depth(coldepth, v2->c);
+	 r1 = getr_depth(bitmap_color_depth(bmp), v1->c);
+	 r2 = getr_depth(bitmap_color_depth(bmp), v2->c);
+	 g1 = getg_depth(bitmap_color_depth(bmp), v1->c);
+	 g2 = getg_depth(bitmap_color_depth(bmp), v2->c);
+	 b1 = getb_depth(bitmap_color_depth(bmp), v1->c);
+	 b2 = getb_depth(bitmap_color_depth(bmp), v2->c);
       } 
       else {
 	 r1 = (v1->c >> 16) & 0xFF;
@@ -1321,10 +1319,9 @@ static void _triangle_deltas(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGON_
       int r, g, b;
 
       if (flags & COLOR_TO_RGB) {
-	 int coldepth = bitmap_color_depth(bmp);
-	 r = getr_depth(coldepth, v->c);
-	 g = getg_depth(coldepth, v->c);
-	 b = getb_depth(coldepth, v->c);
+	 r = getr_depth(bitmap_color_depth(bmp), v->c);
+	 g = getg_depth(bitmap_color_depth(bmp), v->c);
+	 b = getb_depth(bitmap_color_depth(bmp), v->c);
       }
       else {
 	 r = (v->c >> 16) & 0xFF;
@@ -1374,10 +1371,9 @@ static void _triangle_deltas_f(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGO
       int r, g, b;
 
       if (flags & COLOR_TO_RGB) {
-	 int coldepth = bitmap_color_depth(bmp);
-	 r = getr_depth(coldepth, v->c);
-	 g = getg_depth(coldepth, v->c);
-	 b = getb_depth(coldepth, v->c);
+	 r = getr_depth(bitmap_color_depth(bmp), v->c);
+	 g = getg_depth(bitmap_color_depth(bmp), v->c);
+	 b = getb_depth(bitmap_color_depth(bmp), v->c);
       }
       else {
 	 r = (v->c >> 16) & 0xFF;
