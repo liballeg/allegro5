@@ -58,6 +58,7 @@ X11 todos:
 - play nice with WindowMaker (there's no appicon, for one)
 - ufixicon (generate src file that when linked, automatically sets icon)
 - problem with mouse and keyboard events [fixed?]
+- add an option to use the current palette in 8-bit mode
 
 Unix todos:
 ---------------------------------------------------------------------------
