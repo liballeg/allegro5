@@ -200,14 +200,26 @@ $(filter %.html,$(DOCS)): docs/html/%.html: docs/src/%._tx $(MAKEDOC)
 
 AUTHORS: docs/src/thanks._tx
 	$(MAKEDOC) -part -ascii AUTHORS $<
-	copy AUTHORS docs/txt/authors.txt
+ifdef UNIX_TOOLS
+	cp AUTHORS docs/txt/authors.txt
+else
+	copy AUTHORS docs\txt\authors.txt
+endif
 
 THANKS: docs/src/thanks._tx
 	$(MAKEDOC) -part -ascii THANKS $<
-	copy THANKS docs/txt/thanks.txt
+ifdef UNIX_TOOLS
+	cp THANKS docs/txt/thanks.txt
+else
+	copy THANKS docs\txt\thanks.txt
+endif
 
 CHANGES: docs/txt/changes.txt
-	copy $< $@
+ifdef UNIX_TOOLS
+	cp CHANGES docs/txt/changes.txt
+else
+	copy CHANGES docs\txt\changes.txt
+endif
 
 endif
 
