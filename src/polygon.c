@@ -170,7 +170,7 @@ void polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
       /* draw horizontal line segments */
       edge = active_edges;
       while ((edge) && (edge->next)) {
-	 hline(bmp, edge->x>>POLYGON_FIX_SHIFT, c, 
+	 bmp->vtable->hfill(bmp, edge->x>>POLYGON_FIX_SHIFT, c, 
 	       (edge->next->x+edge->next->w)>>POLYGON_FIX_SHIFT, color);
 	 edge = edge->next->next;
       }

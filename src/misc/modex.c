@@ -58,6 +58,7 @@ GFX_VTABLE __modex_vtable =
    _x_putpixel,
    _x_vline,
    _x_hline,
+   _x_hline,
    _normal_line,
    _normal_rectfill,
    NULL,

@@ -64,6 +64,7 @@ void _xwin_replace_vtable(struct GFX_VTABLE *vtable)
    vtable->putpixel = _xwin_putpixel;
    vtable->vline = _xwin_vline;
    vtable->hline = _xwin_hline;
+   vtable->hfill = _xwin_hline;
    vtable->rectfill = _xwin_rectfill;
    vtable->draw_sprite = _xwin_draw_sprite;
    vtable->draw_256_sprite = _xwin_draw_256_sprite;

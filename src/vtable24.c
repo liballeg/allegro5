@@ -42,6 +42,7 @@ GFX_VTABLE __linear_vtable24 =
    _linear_putpixel24,
    _linear_vline24,
    _linear_hline24,
+   _linear_hline24,
    _normal_line,
    _normal_rectfill,
    NULL,

@@ -969,7 +969,7 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 
       if (drawer == _poly_scanline_dummy) {
          if (w > 0)
-	    hline(bmp, x, y, x+w-1, color);
+	    bmp->vtable->hfill(bmp, x, y, x+w-1, color);
       }
       else {
          step = (x << 16) - e1->x;
@@ -1303,7 +1303,7 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
 
       if (drawer == _poly_scanline_dummy) {
          if (w > 0)
-	    hline(bmp, x, y, x+w-1, color);
+	    bmp->vtable->hfill(bmp, x, y, x+w-1, color);
       }
       else {
 	 if (flags & INTERP_1COL) {

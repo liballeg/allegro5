@@ -874,6 +874,7 @@ typedef struct GFX_VTABLE        /* functions for drawing onto bitmaps */
    AL_METHOD(void, putpixel, (struct BITMAP *bmp, int x, int y, int color));
    AL_METHOD(void, vline, (struct BITMAP *bmp, int x, int y1, int y2, int color));
    AL_METHOD(void, hline, (struct BITMAP *bmp, int x1, int y, int x2, int color));
+   AL_METHOD(void, hfill, (struct BITMAP *bmp, int x1, int y, int x2, int color));
    AL_METHOD(void, line, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
    AL_METHOD(void, rectfill, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
    AL_METHOD(int,  triangle, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color));

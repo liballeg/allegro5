@@ -529,7 +529,7 @@ void rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
 
 
 /* _normal_rectfill:
- *  Draws a solid filled rectangle, using hline() to do the work.
+ *  Draws a solid filled rectangle, using hfill() to do the work.
  */
 void _normal_rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
 {
@@ -575,7 +575,7 @@ void _normal_rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
    acquire_bitmap(bmp);
 
    while (y1 <= y2) {
-      hline(bmp, x1, y1, x2, color);
+      bmp->vtable->hfill(bmp, x1, y1, x2, color);
       y1++;
    };
 
@@ -861,10 +861,10 @@ void circlefill(BITMAP *bmp, int x, int y, int radius, int color)
    acquire_bitmap(bmp);
 
    do {
-      hline(bmp, x-cy, y-cx, x+cy, color);
+      bmp->vtable->hfill(bmp, x-cy, y-cx, x+cy, color);
 
       if (cx)
-	 hline(bmp, x-cy, y+cx, x+cy, color);
+	 bmp->vtable->hfill(bmp, x-cy, y+cx, x+cy, color);
 
       if (df < 0)  {
 	 df += d_e;
@@ -873,10 +873,10 @@ void circlefill(BITMAP *bmp, int x, int y, int radius, int color)
       }
       else { 
 	 if (cx != cy) {
-	    hline(bmp, x-cx, y-cy, x+cx, color);
+	    bmp->vtable->hfill(bmp, x-cx, y-cy, x+cx, color);
 
 	    if (cy)
-	       hline(bmp, x-cx, y+cy, x+cx, color);
+	       bmp->vtable->hfill(bmp, x-cx, y+cy, x+cx, color);
 	 }
 
 	 df += d_se;
@@ -1100,15 +1100,15 @@ void ellipsefill(BITMAP *bmp, int x, int y, int rx, int ry, int color)
 	 nd = (nb * ry) / rx;
 
 	 if ((c > dc) && (c < dd)) {
-	    hline(bmp, x-b, y+c, x+b, color);
+	    bmp->vtable->hfill(bmp, x-b, y+c, x+b, color);
 	    if (c)
-	       hline(bmp, x-b, y-c, x+b, color);
+	       bmp->vtable->hfill(bmp, x-b, y-c, x+b, color);
 	    dc = c;
 	 }
 
 	 if ((d < dd) && (d > dc)) { 
-	    hline(bmp, x-a, y+d, x+a, color);
-	    hline(bmp, x-a, y-d, x+a, color);
+	    bmp->vtable->hfill(bmp, x-a, y+d, x+a, color);
+	    bmp->vtable->hfill(bmp, x-a, y-d, x+a, color);
 	    dd = d;
 	 }
 
@@ -1138,15 +1138,15 @@ void ellipsefill(BITMAP *bmp, int x, int y, int rx, int ry, int color)
 	 nd = (nb * rx) / ry;
 
 	 if ((a > da) && (a < db)) {
-	    hline(bmp, x-d, y+a, x+d, color); 
+	    bmp->vtable->hfill(bmp, x-d, y+a, x+d, color); 
 	    if (a)
-	       hline(bmp, x-d, y-a, x+d, color);
+	       bmp->vtable->hfill(bmp, x-d, y-a, x+d, color);
 	    da = a;
 	 }
 
 	 if ((b < db) && (b > da)) { 
-	    hline(bmp, x-c, y+b, x+c, color);
-	    hline(bmp, x-c, y-b, x+c, color);
+	    bmp->vtable->hfill(bmp, x-c, y+b, x+c, color);
+	    bmp->vtable->hfill(bmp, x-c, y-b, x+c, color);
 	    db = b;
 	 }
 

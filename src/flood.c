@@ -128,7 +128,7 @@ static int flooder(BITMAP *bmp, int x, int y, int src_color, int dest_color)
    right--;
 
    /* draw the line */
-   hline(bmp, left, y, right, dest_color);
+   bmp->vtable->hfill(bmp, left, y, right, dest_color);
 
    /* store it in the list of flooded segments */
    c = y;

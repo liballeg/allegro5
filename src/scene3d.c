@@ -611,11 +611,11 @@ static void scene_segment(POLYGON_EDGE *e01, POLYGON_EDGE *e02,
    if (drawer == _poly_scanline_dummy) {
       if (flags & INTERP_NOSOLID) {
          drawing_mode(poly->dmode, poly->dpat, poly->xanchor, poly->yanchor);
-	 hline(scene_bmp, x, scene_y, x+w-1, poly->color);
+         scene_bmp->vtable->hfill(scene_bmp, x, scene_y, x+w-1, poly->color);
          solid_mode();
       }
       else
-	 hline(scene_bmp, x, scene_y, x+w-1, poly->color);
+         scene_bmp->vtable->hfill(scene_bmp, x, scene_y, x+w-1, poly->color);
    } 
    else {
       int dx = x * BYTES_PER_PIXEL(bitmap_color_depth(scene_bmp));
