@@ -492,7 +492,8 @@ Contributors
    the create_light_table() function, optimised the fixed point trig 
    routines, provided the Swedish message translations, improved the file 
    selector sorting algorithm, optimised the spline routines, added the 
-   ustrrchr() function, and improved the usprintf() handling of floats.
+   ustrrchr() function, improved the usprintf() handling of floats, and 
+   provided other bug fixes.
 
    TBD/FeR (<email>tbd@usa.net</a>).<br>
    Added the 320x600 and 360x600 resolutions to the mode-X driver.

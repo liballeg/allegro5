@@ -96,12 +96,12 @@ static void stretch_line8(unsigned long dptr, unsigned char *sptr)
 #ifdef ALLEGRO_COLOR16
 static void stretch_line15(unsigned long dptr, unsigned char *sptr)
 {
-   DECLARE_STRETCHER(unsigned short, sizeof(unsigned short*), bmp_write15, *);
+   DECLARE_STRETCHER(unsigned short, sizeof(unsigned short), bmp_write15, *);
 }
 
 static void stretch_line16(unsigned long dptr, unsigned char *sptr)
 {
-   DECLARE_STRETCHER(unsigned short, sizeof(unsigned short*), bmp_write16, *);
+   DECLARE_STRETCHER(unsigned short, sizeof(unsigned short), bmp_write16, *);
 }
 #endif
 
