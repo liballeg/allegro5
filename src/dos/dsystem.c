@@ -159,7 +159,7 @@ static void signal_handler(int num)
 /* detect_os:
  *  Operating system autodetection routine.
  */
-static void detect_os()
+static void detect_os(void)
 {
    __dpmi_regs r;
    char buf[16];

@@ -160,7 +160,7 @@ _default: default
 # -------- decide what compiler options to use --------
 
 ifdef WARNMODE
-   WFLAGS = -Wall -W -Werror -Wno-unused
+   WFLAGS = -Wall -W -Wstrict-prototypes -Wno-unused -Werror
 else
    WFLAGS = -Wall -Wno-unused
 endif

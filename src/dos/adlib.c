@@ -653,7 +653,7 @@ static int fm_mixer_volume(int volume)
 /* fm_is_there:
  *  Checks for the presence of an OPL synth at the current port.
  */
-static int fm_is_there()
+static int fm_is_there(void)
 {
    fm_write(1, 0);                        /* init test register */
 

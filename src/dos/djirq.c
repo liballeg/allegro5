@@ -36,18 +36,18 @@ _IRQ_HANDLER _irq_handler[MAX_IRQS];
 
 unsigned char *_irq_stack[IRQ_STACKS];
 
-extern void _irq_wrapper_0(), _irq_wrapper_1(), 
-	    _irq_wrapper_2(), _irq_wrapper_3(),
-	    _irq_wrapper_4(), _irq_wrapper_5(), 
-	    _irq_wrapper_6(), _irq_wrapper_7(),
-	    _irq_wrapper_0_end();
+extern void _irq_wrapper_0(void), _irq_wrapper_1(void), 
+	    _irq_wrapper_2(void), _irq_wrapper_3(void),
+	    _irq_wrapper_4(void), _irq_wrapper_5(void), 
+	    _irq_wrapper_6(void), _irq_wrapper_7(void),
+	    _irq_wrapper_0_end(void);
 
 
 
 /* _dos_irq_init:
  *  Initialises this module.
  */
-void _dos_irq_init()
+void _dos_irq_init(void)
 {
    int c;
 
@@ -74,7 +74,7 @@ void _dos_irq_init()
 /* _dos_irq_exit:
  *  Routine for freeing the interrupt handler stacks.
  */
-void _dos_irq_exit()
+void _dos_irq_exit(void)
 {
    int c;
 
@@ -95,7 +95,7 @@ void _dos_irq_exit()
  *  switching. The C function should return zero to exit the interrupt with 
  *  an iret instruction, and non-zero to chain to the old handler.
  */
-int _install_irq(int num, int (*handler)())
+int _install_irq(int num, int (*handler)(void))
 {
    __dpmi_paddr addr;
    int c;

@@ -109,11 +109,11 @@ typedef int generators_t[SOUNDFONT_NUM_GENERATORS];
 extern int _emu8k_baseport;
 extern int _emu8k_numchannels;
 
-void emu8k_init();
+void emu8k_init(void);
 void emu8k_startsound(int channel,struct envparms_t *envparms);
 void emu8k_releasesound(int channel,struct envparms_t *envparms);
 void emu8k_terminatesound(int channel);
-int  emu8k_detect();
+int  emu8k_detect(void);
 
 void emu8k_modulate_atten (int channel, int atten);
 void emu8k_modulate_ip (int channel, int ip);
@@ -122,7 +122,7 @@ void emu8k_modulate_pan (int channel, int pan);
 envparms_t *emu8k_createenvelope(generators_t);
 void emu8k_destroyenvelope(envparms_t *);
 
-void emu8k_lock();
+void emu8k_lock(void);
 
 void *_lock_malloc(size_t size);                /* malloc and lock */
 

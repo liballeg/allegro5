@@ -149,7 +149,7 @@ void get_string(char *s, unsigned long addr)
 
 
 
-int get_vesa_info()
+int get_vesa_info(void)
 {
    __dpmi_regs r;
    unsigned long mode_ptr;
@@ -245,7 +245,7 @@ void print_flag(char *s)
 
 
 
-void end_print_flag()
+void end_print_flag(void)
 {
    if (in_flag) {
       printf(")\n");

@@ -28,10 +28,10 @@
 
 
 /* driver functions */
-static int sg_init();
-static void sg_exit();
+static int sg_init(void);
+static void sg_exit(void);
 static int sg_poll(int);
-static int sg1_poll();
+static int sg1_poll(void);
 
 static int sg_poll_sub(int num, int base);
 static int sg_poll_sub2(int base);
@@ -59,7 +59,7 @@ JOYSTICK_DRIVER joystick_sg1 =
 /* sg_init:
  *  Initialises the driver.
  */
-static int sg_init()
+static int sg_init(void)
 {
    static char *name_b[] = { "A", "B", "C", "X", "Y", "Z", "L", "R", "Start" };
    int i, j;
@@ -92,7 +92,7 @@ static int sg_init()
 /* sg_exit:
  *  Shuts down the driver.
  */
-static void sg_exit()
+static void sg_exit(void)
 {
 }
 
@@ -389,7 +389,7 @@ static void sg_button_init(int num)
 /* sg1_poll:
  *  1P - Updates the joystick status variables.
  */
-static int sg1_poll()
+static int sg1_poll(void)
 {
    return sg_poll(IFSEGAISA_BASE);
 }

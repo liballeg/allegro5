@@ -88,25 +88,25 @@
 #define LPT3_BASE 0x3bc
 
 /* driver functions */
-static int db91_init();
-static int db92_init();
-static int db93_init();
-static void db91_exit();
-static void db92_exit();
-static void db93_exit();
-static int db91_poll();
-static int db92_poll();
-static int db93_poll();
+static int db91_init(void);
+static int db92_init(void);
+static int db93_init(void);
+static void db91_exit(void);
+static void db92_exit(void);
+static void db93_exit(void);
+static int db91_poll(void);
+static int db92_poll(void);
+static int db93_poll(void);
 
-static int tgx1_init();
-static int tgx2_init();
-static int tgx3_init();
-static void tgx1_exit();
-static void tgx2_exit();
-static void tgx3_exit();
-static int tgx1_poll();
-static int tgx2_poll();
-static int tgx3_poll();
+static int tgx1_init(void);
+static int tgx2_init(void);
+static int tgx3_init(void);
+static void tgx1_exit(void);
+static void tgx2_exit(void);
+static void tgx3_exit(void);
+static int tgx1_poll(void);
+static int tgx2_poll(void);
+static int tgx3_poll(void);
 
 JOYSTICK_DRIVER joystick_db91 =
 {
@@ -218,34 +218,34 @@ static int db9_init (int base)
    return 0;
 }
 
-static int db91_init()
+static int db91_init(void)
 {
    return db9_init(LPT1_BASE);
 }
 
-static int db92_init()
+static int db92_init(void)
 {
    return db9_init(LPT2_BASE);
 }
 
-static int db93_init()
+static int db93_init(void)
 {
    return db9_init(LPT3_BASE);
 }
 
-static void db91_exit()
+static void db91_exit(void)
 {
    outportb(LPT1_BASE + 2    , 0 ^ CONTROL_PORT_INVERT);
    outportb(LPT1_BASE + 0x402, 0x15);
 }
 
-static void db92_exit()
+static void db92_exit(void)
 {
    outportb(LPT2_BASE + 2    , 0 ^ CONTROL_PORT_INVERT);
    outportb(LPT2_BASE + 0x402, 0x15);
 }
 
-static void db93_exit()
+static void db93_exit(void)
 {
    outportb(LPT3_BASE + 2    , 0 ^ CONTROL_PORT_INVERT);
    outportb(LPT3_BASE + 0x402, 0x15);
@@ -282,19 +282,19 @@ static void db9_poll(int base)
    joy[0].button[1].b = (status & 32 ) ? 0 : 1;
 }
 
-static int db91_poll()
+static int db91_poll(void)
 {
    db9_poll (LPT1_BASE);
    return 0;
 }
 
-static int db92_poll()
+static int db92_poll(void)
 {
    db9_poll (LPT2_BASE);
    return 0;
 }
 
-static int db93_poll()
+static int db93_poll(void)
 {
    db9_poll (LPT3_BASE);
    return 0;
@@ -331,32 +331,32 @@ static int tgx_init(int base)
    return 0;
 }
 
-static int tgx1_init()
+static int tgx1_init(void)
 {
    return tgx_init(LPT1_BASE);
 }
 
-static int tgx2_init()
+static int tgx2_init(void)
 {
    return tgx_init(LPT2_BASE);
 }
 
-static int tgx3_init()
+static int tgx3_init(void)
 {
    return tgx_init(LPT3_BASE);
 }
 
-static void tgx1_exit()
+static void tgx1_exit(void)
 {
    outportb (LPT1_BASE + 2, 0 ^ CONTROL_PORT_INVERT);
 }
 
-static void tgx2_exit()
+static void tgx2_exit(void)
 {
    outportb (LPT2_BASE + 2, 0 ^ CONTROL_PORT_INVERT);
 }
 
-static void tgx3_exit()
+static void tgx3_exit(void)
 {
    outportb (LPT3_BASE + 2, 0 ^ CONTROL_PORT_INVERT);
 }
@@ -388,19 +388,19 @@ static void tgx_poll(int base)
 	joy[number].button[4].b = (control & 8) ? 0 : 1;
    }
 }
-static int tgx1_poll()
+static int tgx1_poll(void)
 {
    tgx_poll (LPT1_BASE);
    return 0;
 }
 
-static int tgx2_poll()
+static int tgx2_poll(void)
 {
    tgx_poll (LPT2_BASE);
    return 0;
 }
 
-static int tgx3_poll()
+static int tgx3_poll(void)
 {
    tgx_poll (LPT3_BASE);
    return 0;
