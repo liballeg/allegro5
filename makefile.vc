@@ -111,6 +111,13 @@ badspaces:
 	@echo or move your compiler to a different directory.
 endif
 
+ifneq ($(findstring $(SPACE),$(MSVCDir)),)
+badspaces:
+	@echo There are spaces in your MSVCDir environment variable:
+	@echo please change it to the 8.3 short filename version,
+	@echo or move your compiler to a different directory.
+endif
+
 
 
 # -------- give a sensible default target for make without any args --------
