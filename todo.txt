@@ -123,7 +123,6 @@ Wishlist:
 Makedoc wishlist:
 ---------------------------------------------------------------------------
 
-- Remove &mdash; from TOC if no short description is found.
 - Man pages' titles should have word Allegro somewhere for apropos.
 - Add shortdesc support for examples. Possibly external script which
   reads data from examples/examples.txt.

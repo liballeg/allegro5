@@ -1196,6 +1196,10 @@ static void _post_process_filename(char *filename)
 	 }
 	 else {
 	    /* Remove the description then. */
+	    if (strncmp(p - 8, "&mdash; ", 8) == 0) {
+	       /* Remove the previous dash too. */
+	       p -= 8;
+	    }
 	    memmove(p, end + 1, strlen(end));
 	 }
       }
