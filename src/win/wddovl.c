@@ -63,86 +63,48 @@ GFX_DRIVER gfx_directx_ovl =
 };
 
 
-static void switch_in_ovl(void);
-static void switch_out_ovl(void);
-static void handle_window_move_ovl(int, int, int, int);
+static void show_overlay(void);
+static void move_overlay(int, int, int, int);
 static void hide_overlay(void);
 
 
 static WIN_GFX_DRIVER win_gfx_driver_overlay =
 {
    TRUE,
-   switch_in_ovl,
-   switch_out_ovl,
+   show_overlay,
+   NULL,                        // AL_METHOD(void, switch_out, (void));
    NULL,                        // AL_METHOD(void, enter_sysmode, (void));
    NULL,                        // AL_METHOD(void, exit_sysmode, (void));
-   handle_window_move_ovl,
+   move_overlay,
    hide_overlay,
-   NULL,                        // AL_METHOD(void, paint, (RECT *));
+   NULL                         // AL_METHOD(void, paint, (RECT *rect));
 };
 
 
 static char gfx_driver_desc[256] = EMPTY_STRING;
 static LPDIRECTDRAWSURFACE2 overlay_surface = NULL;
-static RECT working_area;
 static BOOL overlay_visible = FALSE;
+static HBRUSH original_brush, overlay_brush;
 
 
 
-/* is_not_contained
- *  helper to find the relative position of two rectangles
- */ 
-static INLINE int is_not_contained(RECT *rect1, RECT *rect2)
-{
-   if ( (rect1->left   < rect2->left)   ||
-        (rect1->top    < rect2->top)    ||
-        (rect1->right  > rect2->right)  ||
-        (rect1->bottom > rect2->bottom) )
-      return 1;
-   else
-      return 0;
-}
-
-
-
-/* show_overlay:
+/* update_overlay:
+ *  moves and resizes the overlay surface to make it fit into the specified area
  */
-static int show_overlay(int x, int y, int w, int h)
+static int update_overlay(int x, int y, int w, int h)
 {
    HRESULT hr;
-   DDCOLORKEY key;
    RECT dest_rect = {x, y, x + w, y + h};
 
-   _TRACE("show_overlay(%d, %d, %d, %d)\n", x, y, w, h);
-
-   overlay_visible = TRUE;
-
-   /* dest color keying */
-   key.dwColorSpaceLowValue = 0;
-   key.dwColorSpaceHighValue = 0;
-
-   hr = IDirectDrawSurface2_SetColorKey(dd_prim_surface, DDCKEY_DESTOVERLAY, &key);
+   /* show the overlay surface */
+   hr = IDirectDrawSurface2_UpdateOverlay(overlay_surface, NULL,
+                                          dd_prim_surface, &dest_rect,
+                                          DDOVER_SHOW | DDOVER_KEYDEST, NULL);
    if (FAILED(hr)) {
-      _TRACE("Can't set overlay dest color key\n");
-      return -1;
-   }
-
-   /* update overlay */
-   _TRACE("Updating overlay (key=0x%x)\n", 0);
-
-   if (is_not_contained(&dest_rect, &working_area))
-      hr = DDERR_INVALIDRECT;
-   else
-      hr = IDirectDrawSurface2_UpdateOverlay(overlay_surface, NULL,
-                                             dd_prim_surface, &dest_rect,
-                                             DDOVER_SHOW | DDOVER_KEYDEST, NULL);
-   if (FAILED(hr)) {
-      IDirectDrawSurface2_UpdateOverlay(overlay_surface, NULL,
-                                        dd_prim_surface, NULL,
-                                        DDOVER_HIDE, NULL);
-
       _TRACE("Can't display overlay (%x)\n", hr);
-      /* but we keep overlay_visible as TRUE to allow future updates */
+      IDirectDrawSurface2_UpdateOverlay(overlay_surface, NULL,
+	                                dd_prim_surface, NULL,
+                                        DDOVER_HIDE, NULL);
       return -1;
    }
 
@@ -151,7 +113,41 @@ static int show_overlay(int x, int y, int w, int h)
 
 
 
+/* show_overlay:
+ *  makes the overlay surface visible on the primary surface
+ */
+static void show_overlay(void)
+{
+   if (overlay_surface) {
+      overlay_visible = TRUE;
+      update_overlay(wnd_x, wnd_y, wnd_width, wnd_height);
+   }
+}
+
+
+
+/* move_overlay:
+ *  moves the overlay surface
+ */
+static void move_overlay(int x, int y, int w, int h)
+{
+   RECT window_rect;
+   int xmod;
+
+   /* handle hardware limitations */
+   if ((dd_caps.dwCaps & DDCAPS_ALIGNBOUNDARYDEST) && (xmod = x%dd_caps.dwAlignBoundaryDest)) {
+      GetWindowRect(allegro_wnd, &window_rect);
+      SetWindowPos(allegro_wnd, 0, window_rect.left + xmod, window_rect.top,
+                   0, 0, SWP_NOZORDER | SWP_NOSIZE);
+   }
+   else if (overlay_visible)
+      update_overlay(x, y, w, h);
+}
+
+
+
 /* hide_overlay:
+ *  makes the overlay surface invisible on the primary surface
  */
 static void hide_overlay(void)
 {
@@ -166,22 +162,8 @@ static void hide_overlay(void)
 
 
 
-/* update_overlay:
- *  moves and resizes overlay to fit into the window's client area
- */
-static int update_overlay()
-{
-   RECT window_rect = {0, 0, wnd_width, wnd_height};
-
-   ClientToScreen(allegro_wnd, (LPPOINT)&window_rect);
-
-   return show_overlay(window_rect.left, window_rect.top,
-                                         wnd_width, wnd_height);
-}
-
-
-
 /* wnd_set_windowed_coop:
+ *  sets the DirectDraw cooperative level to normal
  */
 static int wnd_set_windowed_coop(void)
 {
@@ -198,109 +180,50 @@ static int wnd_set_windowed_coop(void)
 
 
 
-/* verify_color_depth:
- * compares the color depth requested with the real color depth
- */
-static int verify_color_depth (int color_depth)
-{
-   if (gfx_directx_compare_color_depth(color_depth) != 0) {
-      /* the color depths don't match, need color conversion */
-
-      /* conversion involving 8-bit color isn't supported */
-      if ((desktop_depth == 8) || (color_depth == 8))
-          return -1;
-
-      /* disallow 15<-->16-bit conversion */
-      if ( ((desktop_depth == 15) && (color_depth == 16)) ||
-           ((desktop_depth == 16) && (color_depth == 15)) )
-         return -1;
-   }
-
-   return 0;
-}
-
-
-
 /* setup_driver_desc:
- *  Sets up the driver description string.
+ *  sets up the driver description string
  */
 static void setup_driver_desc(void)
 {
-   char tmp1[80], tmp2[80];
+   char tmp[256];
 
    uszprintf(gfx_driver_desc, sizeof(gfx_driver_desc), 
-	     uconvert_ascii("DirectDraw, in %s, %d bpp overlay", tmp1),
-	     uconvert_ascii((same_color_depth ? "matching" : "color conversion"), tmp2),
-	     desktop_depth );
+	     uconvert_ascii("DirectDraw, in matching, %d bpp overlay", tmp),
+	     desktop_depth);
    
    gfx_directx_ovl.desc = gfx_driver_desc;
 }
 
 
 
-/* handle_window_move_ovl:
- *  updates overlay if window has been moved or resized
+/* gfx_directx_show_video_bitmap_ovl:
+ *  driver-specific method for show_video_bitmap()
  */
-static void handle_window_move_ovl(int x, int y, int w, int h)
-{
-   int xmod;
-
-   /* handle hardware limitations */
-   if ((dd_caps.dwCaps & DDCAPS_ALIGNBOUNDARYDEST) &&
-               (xmod = x%dd_caps.dwAlignBoundaryDest)) {
-      RECT window_rect;
-      GetWindowRect(allegro_wnd, &window_rect);
-      SetWindowPos(allegro_wnd, 0, window_rect.left + xmod,
-                   window_rect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
-   }
-   else if (overlay_visible)
-      show_overlay(x, y, w, h);
-}
-
-
-
-/* switch_out_ovl:
- *  handle overlay switched out
- */
-static void switch_out_ovl(void)
-{
-   /* if (overlay_surface)
-      hide_overlay(); */
-}
-
-
-
-/* switch_in_ovl:
- *  handle overlay switched in
- */
-static void switch_in_ovl(void)
-{
-   get_working_area(&working_area);
-
-   if (overlay_surface)
-      show_overlay(wnd_x, wnd_y, wnd_width, wnd_height);
-}
-
-
-
 static int gfx_directx_show_video_bitmap_ovl(struct BITMAP *bitmap)
 {
-   if (gfx_directx_show_video_bitmap(bitmap))
+   if (gfx_directx_show_video_bitmap(bitmap)) {
       return -1;
+   }
    else {
-      update_overlay();
+      if (overlay_visible)
+         update_overlay(wnd_x, wnd_y, wnd_width, wnd_height);
       return 0;
    } 
 }
 
 
 
+/* gfx_directx_request_video_bitmap_ovl:
+ *  driver-specific method for request_video_bitmap()
+ */
 static int gfx_directx_request_video_bitmap_ovl(struct BITMAP *bitmap)
 {
-   if (gfx_directx_request_video_bitmap(bitmap))
+   if (gfx_directx_request_video_bitmap(bitmap)) {
       return -1;
+   }
    else {
-      update_overlay();
+      if (overlay_visible)
+         update_overlay(wnd_x, wnd_y, wnd_width, wnd_height);
       return 0;
    } 
 }
@@ -308,6 +231,7 @@ static int gfx_directx_request_video_bitmap_ovl(struct BITMAP *bitmap)
 
 
 /* create_overlay:
+ *  creates the overlay surface
  */
 static int create_overlay(int w, int h, int color_depth)
 {
@@ -323,14 +247,16 @@ static int create_overlay(int w, int h, int color_depth)
 
 
 
-/* gfx_directx_ovl:
+/* init_directx_ovl:
+ *  initializes the driver
  */
 static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color_depth)
 {
    RECT win_size;
    HRESULT hr;
+   DDCOLORKEY key;
 
-   /* overlay would allow scrolling on some cards, but isn't implemented yet */
+   /* overlay would allow scrolling on some cards, but it isn't implemented yet */
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
       return NULL;
@@ -345,7 +271,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Overlays not supported"));
       goto Error;
    }
-   if (verify_color_depth(color_depth)) {
+   if (gfx_directx_compare_color_depth(color_depth) != 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
       goto Error;
    }
@@ -362,12 +288,17 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    wnd_width = w;
    wnd_height = h;
 
+   /* paint window background with overlay color key */
+   original_brush = (HBRUSH) GetClassLong(allegro_wnd, GCL_HBRBACKGROUND);
+   overlay_brush = CreateSolidBrush(MASK_COLOR_32);
+   SetClassLong(allegro_wnd, GCL_HBRBACKGROUND, (LONG) overlay_brush);
+
    /* retrieve the size of the decorated window */
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
 
    /* display the window */
    MoveWindow(allegro_wnd, win_size.left, win_size.top,
-      win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
+              win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
 
    /* check that the actual window size is the one requested */
    GetClientRect(allegro_wnd, &win_size);
@@ -378,9 +309,6 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       goto Error;
    }
 
-   /* get the working area */
-   get_working_area(&working_area);
-
    /* create surfaces */
    if (create_primary() != 0)
       goto Error;
@@ -388,9 +316,10 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    if (create_overlay(w, h, color_depth) != 0)
       goto Error;
 
-   /* handle hardware limitations; according to the DirectX SDK, "these restrictions
-      can vary depending on the pixel formats of the overlay and primary surface", so
-      we handle them after creating the surfaces */
+   /* handle hardware limitations: according to the DirectX SDK, "these restrictions
+    * can vary depending on the pixel formats of the overlay and primary surface", so
+    * we handle them after creating the surfaces
+    */
    dd_caps.dwSize = sizeof(dd_caps);
    hr = IDirectDraw2_GetCaps(directdraw, &dd_caps, NULL);
    if (FAILED(hr)) {
@@ -400,20 +329,20 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 
    if (dd_caps.dwCaps & DDCAPS_ALIGNSIZESRC) {
       if (w%dd_caps.dwAlignSizeSrc) {
-         _TRACE("Alignment requirement not met: source size %d.\n", dd_caps.dwAlignSizeSrc);
+         _TRACE("Alignment requirement not met: source size %d\n", dd_caps.dwAlignSizeSrc);
          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
          goto Error;
       }
    } 
    else if (dd_caps.dwCaps & DDCAPS_ALIGNSIZEDEST) {
       if (w%dd_caps.dwAlignSizeDest) {
-         _TRACE("Alignment requirement not met: dest size %d.\n", dd_caps.dwAlignSizeDest);
+         _TRACE("Alignment requirement not met: dest size %d\n", dd_caps.dwAlignSizeDest);
          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
          goto Error;
       }
    }
 
-   /* finalize driver initialization */
+   /* set color format */
    if (color_depth == 8) {
       if (create_palette(overlay_surface) != 0)
 	 goto Error;
@@ -423,10 +352,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
          goto Error;
    }
 
-   if (update_overlay() != 0)
-      goto Error;
-
-   /* setup Allegro gfx driver */
+   /* set up Allegro gfx driver */
    setup_driver_desc();
 
    if (setup_driver(&gfx_directx_ovl, w, h, color_depth) != 0)
@@ -434,9 +360,20 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 
    dd_frontbuffer = make_directx_bitmap(overlay_surface, w, h, color_depth, BMP_ID_VIDEO);
 
-   /* on my ATI card, hardware-accelerated primitives corrupt the screen when the color depths don't match */
-   if (same_color_depth)
-      enable_acceleration(&gfx_directx_ovl);
+   /* display the overlay surface */
+   key.dwColorSpaceLowValue = dd_frontbuffer->vtable->mask_color;
+   key.dwColorSpaceHighValue = dd_frontbuffer->vtable->mask_color;
+
+   hr = IDirectDrawSurface2_SetColorKey(dd_prim_surface, DDCKEY_DESTOVERLAY, &key);
+   if (FAILED(hr)) {
+      _TRACE("Can't set overlay dest color key\n");
+      goto Error;
+   }
+
+   show_overlay();
+
+   /* use hardware accelerated primitives */
+   enable_acceleration(&gfx_directx_ovl);
 
    /* connect to the system driver */
    win_gfx_driver = &win_gfx_driver_overlay;
@@ -462,14 +399,15 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 
 
 
-/* gfx_directx_exit:
+/* gfx_directx_ovl_exit:
+ *  shuts down the driver
  */
 static void gfx_directx_ovl_exit(struct BITMAP *b)
 {
    _enter_gfx_critical();
 
    if (b)
-      clear (b);
+      clear(b);
 
    /* disconnect from the system driver */
    win_gfx_driver = NULL;
@@ -477,9 +415,10 @@ static void gfx_directx_ovl_exit(struct BITMAP *b)
    /* destroy overlay surface */
    if (overlay_surface) {
       hide_overlay();
+      SetClassLong(allegro_wnd, GCL_HBRBACKGROUND, (LONG) original_brush);
+      DeleteObject(overlay_brush);
       gfx_directx_destroy_surf(overlay_surface);
       overlay_surface = NULL;
-      overlay_visible = FALSE;
    }
 
    /* unlink surface from bitmap */

@@ -358,7 +358,7 @@ static HWND create_directx_window(void)
    wnd_class.hInstance = allegro_inst;
    wnd_class.hIcon = LoadIcon(allegro_inst, IDI_APPLICATION);
    wnd_class.hCursor = LoadCursor(NULL, IDC_ARROW);
-   wnd_class.hbrBackground = CreateSolidBrush(0); /* black bg & color key */
+   wnd_class.hbrBackground = CreateSolidBrush(0);
    wnd_class.lpszMenuName = NULL;
    wnd_class.lpszClassName = ALLEGRO_WND_CLASS;
 
