@@ -150,11 +150,6 @@ fi
 AC_MSG_RESULT(\"$allegro_cv_asm_prefix\")])
 
 dnl
-dnl Turn off Pentium optimizations by default.
-dnl
-allegro_pentium_optimizations=no
-
-dnl
 dnl Test for modules support (dlopen interface and -export-dynamic linker flag).
 dnl
 dnl Variables:
