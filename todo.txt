@@ -44,7 +44,6 @@ X11 todos:
 - num-lock state in X window may not match state on keyboard
 - remove `dga_mouse' config var when appropriate (newer servers have fixed
   the bug this works around).  Wait until XF86 4.0 propagated..
-- window close button
 
 Macintosh todos:
 ---------------------------------------------------------------------------
