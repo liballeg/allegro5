@@ -557,19 +557,19 @@ static int digi_directsound_mixer_volume(int volume)
 static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int stereo, int vol, int pan)
 {
    LPDIRECTSOUNDBUFFER snd_buf;
-   PCMWAVEFORMAT pcmwf;
+   WAVEFORMATEX wf;
    DSBUFFERDESC dsbdesc;
    HRESULT hr;
    int switch_mode;
 
    /* setup wave format structure */
-   memset(&pcmwf, 0, sizeof(PCMWAVEFORMAT));
-   pcmwf.wf.wFormatTag = WAVE_FORMAT_PCM;
-   pcmwf.wf.nChannels = stereo ? 2 : 1;
-   pcmwf.wf.nSamplesPerSec = freq;
-   pcmwf.wBitsPerSample = bits;
-   pcmwf.wf.nBlockAlign = bits * (stereo ? 2 : 1) / 8;
-   pcmwf.wf.nAvgBytesPerSec = pcmwf.wf.nSamplesPerSec * pcmwf.wf.nBlockAlign;
+   memset(&wf, 0, sizeof(WAVEFORMATEX));
+   wf.wFormatTag = WAVE_FORMAT_PCM;
+   wf.nChannels = stereo ? 2 : 1;
+   wf.nSamplesPerSec = freq;
+   wf.wBitsPerSample = bits;
+   wf.nBlockAlign = bits * (stereo ? 2 : 1) / 8;
+   wf.nAvgBytesPerSec = wf.nSamplesPerSec * wf.nBlockAlign;
 
    /* setup DSBUFFERDESC structure */
    memset(&dsbdesc, 0, sizeof(DSBUFFERDESC));
@@ -583,7 +583,7 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
       dsbdesc.dwFlags |= DSBCAPS_GLOBALFOCUS;
 
    dsbdesc.dwBufferBytes = len * (bits / 8) * (stereo ? 2 : 1);
-   dsbdesc.lpwfxFormat = (LPWAVEFORMATEX)&pcmwf;
+   dsbdesc.lpwfxFormat = &wf;
 
    /* create buffer */
    hr = IDirectSound_CreateSoundBuffer(directsound, &dsbdesc, &snd_buf, NULL);

@@ -42,6 +42,7 @@ int init_directx(void)
 {
    LPDIRECTDRAW directdraw1;
    HRESULT hr;
+   LPVOID temp;
 
    /* first we have to set up the DirectDraw1 interface... */
    hr = DirectDrawCreate(NULL, &directdraw1, NULL);
@@ -49,10 +50,11 @@ int init_directx(void)
       return -1;
 
    /* ...then query the DirectDraw2 interface */
-   hr = IDirectDraw_QueryInterface(directdraw1, &IID_IDirectDraw2, (LPVOID *)&directdraw);
+   hr = IDirectDraw_QueryInterface(directdraw1, &IID_IDirectDraw2, &temp);
    if (FAILED(hr))
       return -1;
 
+   directdraw = temp;
    IDirectDraw_Release(directdraw1);
 
    /* set the default cooperation level */

@@ -327,6 +327,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    LPDIRECTINPUTDEVICE _dinput_device1;
    LPDIRECTINPUTDEVICE2 dinput_device = NULL;
    HRESULT hr;
+   LPVOID temp;
 
    DIPROPRANGE property_range =
    {
@@ -368,10 +369,12 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
       goto Error;
 
    /* query the DirectInputDevice2 interface needed for the poll() method */
-   hr = IDirectInputDevice_QueryInterface(_dinput_device1, &IID_IDirectInputDevice2, (LPVOID *)&dinput_device);
+   hr = IDirectInputDevice_QueryInterface(_dinput_device1, &IID_IDirectInputDevice2, &temp);
    IDirectInputDevice_Release(_dinput_device1);
    if (FAILED(hr))
       goto Error;
+
+   dinput_device = temp;
 
    /* set cooperative level */
    hr = IDirectInputDevice2_SetCooperativeLevel(dinput_device, allegro_wnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
