@@ -118,5 +118,7 @@ Wishlist:
 - XVideo driver under XFree86
 - simplify linux input subsystem (it's much more complicated than necessary)
 - Add support for more versatile sub-bitmap objects
+- Use http://jackit.sourceforge.net/ for linux audio output. Their faq has
+  some nice pointers too about low latency drivers.
 
 ---------------------------------------------------------------------------
