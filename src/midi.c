@@ -575,6 +575,23 @@ END_OF_STATIC_FUNCTION(all_notes_off);
 
 
 
+/* all_sound_off:
+ *  Turns off sound.
+ */
+static void all_sound_off(int channel)
+{
+   if (midi_driver->raw_midi) {
+      midi_driver->raw_midi(0xB0+channel);
+      midi_driver->raw_midi(120);
+      midi_driver->raw_midi(0);
+      return;
+   }
+}
+
+END_OF_STATIC_FUNCTION(all_sound_off);
+
+
+
 /* reset_controllers:
  *  Resets volume, pan, pitch bend, etc, to default positions.
  */
@@ -672,6 +689,10 @@ static void process_controller(int channel, int ctrl, int data)
 	    midi_driver->raw_midi(10);
 	    midi_driver->raw_midi(data);
 	 }
+	 break;
+
+      case 120:                                 /* all sound off */
+	 all_sound_off(channel);
 	 break;
 
       case 121:                                 /* reset all controllers */
@@ -938,8 +959,10 @@ static void midi_player(void)
 	    goto do_it_all_again;
 	 }
 	 else {
-	    for (c=0; c<16; c++)
+	    for (c=0; c<16; c++) {
 	       all_notes_off(c);
+	       all_sound_off(c);
+	    }
 	    prepare_to_play(midifile);
 	    goto do_it_all_again;
 	 }
@@ -1205,8 +1228,10 @@ int play_midi(MIDI *midi, int loop)
 
    remove_int(midi_player);
 
-   for (c=0; c<16; c++)
+   for (c=0; c<16; c++) {
       all_notes_off(c);
+      all_sound_off(c);
+   }
 
    if (midi) {
       if (!midi_loaded_patches)
@@ -1280,8 +1305,10 @@ void midi_pause()
 
    remove_int(midi_player);
 
-   for (c=0; c<16; c++)
+   for (c=0; c<16; c++) {
       all_notes_off(c);
+      all_sound_off(c);
+   }
 }
 
 END_OF_FUNCTION(midi_pause);
@@ -1498,6 +1525,7 @@ static void midi_lock_mem(void)
    LOCK_FUNCTION(_midi_allocate_voice);
    LOCK_FUNCTION(midi_note_on);
    LOCK_FUNCTION(all_notes_off);
+   LOCK_FUNCTION(all_sound_off);
    LOCK_FUNCTION(reset_controllers);
    LOCK_FUNCTION(update_controllers);
    LOCK_FUNCTION(process_controller);
