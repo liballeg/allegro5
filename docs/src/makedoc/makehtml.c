@@ -755,10 +755,10 @@ static void _output_html_header(char *section)
       if (!(html_flags & HTML_IGNORE_CSS)) {
 	 fputs("<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">\n", _file);
 	 if (html_css_filename) {
-	    fprintf(_file, "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">", html_css_filename);
+	    fprintf(_file, "<link rel=\"stylesheet\" title=\"Default\" type=\"text/css\" href=\"%s\">", html_css_filename);
 	 }
 	 else {
-	    fputs("<style type=\"text/css\"><!--\n", _file);
+	    fputs("<style type=\"text/css\" title=\"Default\"><!--\n", _file);
 	    fprintf(_file, "%s\n", _css_data);
 	    fputs("\n--></style>\n", _file);
 	 }
