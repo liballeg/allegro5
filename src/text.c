@@ -222,7 +222,7 @@ int text_length(AL_CONST FONT *f, AL_CONST char *str)
  */
 int text_height(AL_CONST FONT *f)
 {
-   return f->height;
+   return f->vtable->font_height(f);
 }
 
 

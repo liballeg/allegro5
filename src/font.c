@@ -424,10 +424,39 @@ int allegro_404_char = '^';
 
 
 
-/* mono_findglyph:
+/* font_height:
+ *  (mono and color vtable entry)
+ *  Returns the height, in pixels of the font.
+ */
+static int font_height(AL_CONST FONT *f)
+{
+   return f->height;
+}
+
+
+
+/* length:
+ *  (mono and color vtable entry)
+ *  Returns the length, in pixels, of a string as rendered in a font.
+ */
+static int length(AL_CONST FONT* f, AL_CONST char* text)
+{
+    int ch = 0, w = 0;
+    AL_CONST char* p = text;
+
+    while( (ch = ugetxc(&p)) ) {
+        w += f->vtable->char_length(f, ch);
+    }
+
+    return w;
+}
+
+
+
+/* _mono_find_glyph:
  *  Helper for mono vtable, below.
  */
-static FONT_GLYPH* mono_findglyph(AL_CONST FONT* f, int ch)
+FONT_GLYPH* _mono_find_glyph(AL_CONST FONT* f, int ch)
 {
     FONT_MONO_DATA* mf = (FONT_MONO_DATA*)(f->data);
 
@@ -438,26 +467,48 @@ static FONT_GLYPH* mono_findglyph(AL_CONST FONT* f, int ch)
 
     /* if we don't find the character, then search for the missing
        glyph, but don't get stuck in a loop. */
-    if(ch != allegro_404_char) return mono_findglyph(f, allegro_404_char);
+    if(ch != allegro_404_char) return _mono_find_glyph(f, allegro_404_char);
     return 0;
 }
 
 
 
-/* mono_length:
+/* mono_char_length:
  *  (mono vtable entry)
- *  Returns the length, in pixels, of a string as rendered in a
+ *  Returns the length, in pixels, of a character as rendered in a
  *  monochrome font.
  */
-static int mono_length(AL_CONST FONT* f, AL_CONST char* text)
+static int mono_char_length(AL_CONST FONT* f, int ch)
 {
-    int ch = 0, w = 0;
-    AL_CONST char* p = text;
+    FONT_GLYPH* g = _mono_find_glyph(f, ch);
+    return g ? g->w : 0;
+}
 
-    while( (ch = ugetxc(&p)) ) {
-        FONT_GLYPH* g = mono_findglyph(f, ch);
-        if(g) w += g->w;
+
+
+/* mono_render_char:
+ *  (mono vtable entry)
+ *  Renders a character, in a monochrome font, onto a bitmap at a given
+ *  location and in given colors. Returns the character width, in pixels.
+ */
+static int mono_render_char(AL_CONST FONT* f, int ch, int fg, int bg, BITMAP* bmp, int x, int y)
+{
+    int w = 0;
+    FONT_GLYPH* g = 0;
+
+    int old_textmode = _textmode;
+    _textmode = bg;
+
+    acquire_bitmap(bmp);
+
+    g = _mono_find_glyph(f, ch);
+    if(g) {
+	bmp->vtable->draw_glyph(bmp, g, x, y, fg);
+	w = g->w;
     }
+
+    release_bitmap(bmp);
+    _textmode = old_textmode;
 
     return w;
 }
@@ -473,7 +524,6 @@ static void mono_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, B
 {
     int ch = 0;
     AL_CONST char* p = text;
-    FONT_GLYPH* g = 0;
 
     int old_textmode = _textmode;
     _textmode = bg;
@@ -481,11 +531,7 @@ static void mono_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, B
     acquire_bitmap(bmp);
 
     while( (ch = ugetxc(&p)) ) {
-        g = mono_findglyph(f, ch);
-        if(g) {
-            bmp->vtable->draw_glyph(bmp, g, x, y, fg);
-            x += g->w;
-        }
+        x += f->vtable->render_char(f, ch, fg, bg, bmp, x, y);
     }
 
     release_bitmap(bmp);
@@ -521,10 +567,10 @@ static void mono_destroy(FONT* f)
 
 
 
-/* color_findglyph:
+/* _color_find_glyph:
  *  Helper for color vtable entries, below.
  */
-static BITMAP* color_findglyph(AL_CONST FONT* f, int ch)
+BITMAP* _color_find_glyph(AL_CONST FONT* f, int ch)
 {
     FONT_COLOR_DATA* cf = (FONT_COLOR_DATA*)(f->data);
 
@@ -535,26 +581,59 @@ static BITMAP* color_findglyph(AL_CONST FONT* f, int ch)
 
     /* if we don't find the character, then search for the missing
        glyph, but don't get stuck in a loop. */
-    if(ch != allegro_404_char) return color_findglyph(f, allegro_404_char);
+    if(ch != allegro_404_char) return _color_find_glyph(f, allegro_404_char);
     return 0;
 }
 
 
 
-/* color_length:
+/* color_char_length:
  *  (color vtable entry)
- *  Returns the length of a string, in pixels, as it would be rendered
+ *  Returns the length of a character, in pixels, as it would be rendered
  *  in this font.
  */
-static int color_length(AL_CONST FONT* f, AL_CONST char* text)
+static int color_char_length(AL_CONST FONT* f, int ch)
 {
-    AL_CONST char* p = text;
-    int ch = 0, w = 0;
+    BITMAP* g = _color_find_glyph(f, ch);
+    return g ? g->w : 0;
+}
 
-    while( (ch = ugetxc(&p)) ) {
-        BITMAP* g = color_findglyph(f, ch);
-        if(g) w += g->w;
+
+
+/* color_render_char:
+ *  (color vtable entry)
+ *  Renders a color character onto a bitmap, at the specified location, using
+ *  the specified colors. If fg == -1, render as color, else render as
+ *  mono; if bg == -1, render as transparent, else render as opaque.
+ *  Returns the character width, in pixels.
+ */
+static int color_render_char(AL_CONST FONT* f, int ch, int fg, int bg, BITMAP* bmp, int x, int y)
+{
+    int w = 0;
+    BITMAP *g = 0;
+
+    int old_textmode = _textmode;
+    _textmode = bg;
+
+    acquire_bitmap(bmp);
+
+    if(fg < 0 && bg >= 0) {
+	rectfill(bmp, x, y, x + f->vtable->char_length(f, ch) - 1, y + f->vtable->font_height(f) - 1, bg);
     }
+
+    g = _color_find_glyph(f, ch);
+    if(g) {
+	if(fg < 0) {
+	    bmp->vtable->draw_256_sprite(bmp, g, x, y);
+	} else {
+	    bmp->vtable->draw_character(bmp, g, x, y, fg);
+	}
+
+	w = g->w;
+    }
+
+    release_bitmap(bmp);
+    _textmode = old_textmode;
 
     return w;
 }
@@ -577,19 +656,13 @@ static void color_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, 
 
     acquire_bitmap(bmp);
 
-    if(fg < 0 && bg >= 0) rectfill(bmp, x, y, x + text_length(f, text) - 1, y + text_height(f) - 1, bg);
+    if(fg < 0 && bg >= 0) {
+	rectfill(bmp, x, y, x + text_length(f, text) - 1, y + text_height(f) - 1, bg);
+	bg = -1; /* to avoid filling rectangles for each character */
+    }
 
     while( (ch = ugetxc(&p)) ) {
-        BITMAP* g = color_findglyph(f, ch);
-        if(g) {
-            if(fg < 0) {
-                bmp->vtable->draw_256_sprite(bmp, g, x, y);
-            } else {
-                bmp->vtable->draw_character(bmp, g, x, y, fg);
-            }
-
-            x += g->w;
-        }
+        x += f->vtable->render_char(f, ch, fg, bg, bmp, x, y);
     }
 
     release_bitmap(bmp);
@@ -604,9 +677,11 @@ static void color_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, 
  */
 static void color_destroy(FONT* f)
 {
-    FONT_COLOR_DATA* cf = (FONT_COLOR_DATA*)(f->data);
+    FONT_COLOR_DATA* cf;
 
     if(!f) return;
+
+    cf = (FONT_COLOR_DATA*)(f->data);
 
     while(cf) {
         FONT_COLOR_DATA* next = cf->next;
@@ -630,7 +705,10 @@ static void color_destroy(FONT* f)
  ********/
 
 FONT_VTABLE _font_vtable_mono = {
-    mono_length,
+    font_height,
+    mono_char_length,
+    length,
+    mono_render_char,
     mono_render,
     mono_destroy
 };
@@ -638,7 +716,10 @@ FONT_VTABLE _font_vtable_mono = {
 FONT_VTABLE* font_vtable_mono = &_font_vtable_mono;
 
 FONT_VTABLE _font_vtable_color = {
-    color_length,
+    font_height,
+    color_char_length,
+    length,
+    color_render_char,
     color_render,
     color_destroy
 };

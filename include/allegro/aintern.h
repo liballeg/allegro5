@@ -184,7 +184,10 @@ AL_FUNC(void, _draw_textbox, (char *thetext, int *listsize, int draw, int offset
 /* text- and font-related stuff */
 typedef struct FONT_VTABLE
 {
+   AL_METHOD(int, font_height, (AL_CONST FONT *f));
+   AL_METHOD(int, char_length, (AL_CONST FONT *f, int ch));
    AL_METHOD(int, text_length, (AL_CONST FONT *f, AL_CONST char *text));
+   AL_METHOD(int, render_char, (AL_CONST FONT *f, int ch, int fg, int bg, BITMAP *bmp, int x, int y));
    AL_METHOD(void, render, (AL_CONST FONT *f, AL_CONST char *text, int fg, int bg, BITMAP *bmp, int x, int y));
    AL_METHOD(void, destroy, (FONT *f));
 } FONT_VTABLE;
@@ -195,6 +198,9 @@ AL_VAR(FONT_VTABLE *, font_vtable_mono);
 AL_VAR(FONT_VTABLE, _font_vtable_color);
 AL_VAR(FONT_VTABLE *, font_vtable_color);
 AL_VAR(int, allegro_404_char);
+
+AL_FUNC(FONT_GLYPH *, _mono_find_glyph, (AL_CONST FONT *f, int ch));
+AL_FUNC(BITMAP *, _color_find_glyph, (AL_CONST FONT *f, int ch));
 
 typedef struct FONT_MONO_DATA 
 {
