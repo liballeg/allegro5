@@ -2124,8 +2124,7 @@ throttle_axis = x<br>
    variable will be used for every detected joystick. If you want to specify
    the axis number for each joystick individually, use variables of the form
    throttle_axis_n, where n is the joystick number.
-</ul>
-</ul>
+</ul></ul>
 
 
 @heading
