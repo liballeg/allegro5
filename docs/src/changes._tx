@@ -9,10 +9,13 @@
 @<body>
 
 @heading
-Changes from 4.0.0 to 4.0.1 beta (Feb 2002)
+Changes from 4.0.0 to 4.0.1 (March 2002)
 <ul><li>
    Many minor changes, many clarifications in the docs.
-@# backported from 4.1.x
+@# after allegro_4_0_branch_point
+<li>
+   Eric Botcazou fixed a deadlock on exit when an user window is used in
+   conjunction with timers.
 <li>
    Eric Botcazou disabled useless backbuffers for the DirectX safe driver.
 <li>
@@ -20,7 +23,7 @@ Changes from 4.0.0 to 4.0.1 beta (Feb 2002)
    detecting if ALSA PCM available.
 <li>
    Sven Sandberg added support for long long integers to usprintf() and al.
-@# end of backported from 4.1.x
+@# end of after allegro_4_0_branch_point
 <li>
    Robert J. Ohannessian fixed the difference blender.
 <li>
@@ -76,8 +79,8 @@ Changes from 4.0.0 to 4.0.1 beta (Feb 2002)
 <li>
    Richard Reeve fixed a silly mistake with gcc 3.0.x detection.
 <li>
-   Angelo Mottola fixed static keyconf compile problem on BeOS due to pckeys
-   keyboard driver.
+   Angelo Mottola fixed static keyconf compilation problem on BeOS due to
+   pckeys keyboard driver.
 <li>
    Eric Botcazou fixed the not-returning-focus-on-exit bug under Windows.
 <li>
