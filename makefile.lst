@@ -267,6 +267,7 @@ ALLEGRO_SRC_X_FILES = \
 	src/x/xtimer.c \
 	src/x/xvtable.c \
 	src/x/xwin.c \
+	src/x/xdga2.c \
 	src/x/xwins.s \
 	src/misc/pckeys.c
 
