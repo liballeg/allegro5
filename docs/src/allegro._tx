@@ -7797,6 +7797,8 @@ below for the consequences for windowed and overlay DirectX drivers.
 	    /* ok, we are in direct drawing mode */
 	 }
 <endblock>
+      Note that, mainly for performance reasons, this driver requires the
+      width of the screen to be a multiple of 4.
 <li>
    GFX_DIRECTX_OVL<br>
       The DirectX overlay driver. It uses special hardware features to run 
@@ -8227,7 +8229,9 @@ QNX specifics
    GFX_PHOTON_WIN<br>
       The regular windowed Photon driver, running in color conversion mode 
       when the color depth doesn't match that of the Photon desktop. Color 
-      conversion is much slower than direct drawing.
+      conversion is much slower than direct drawing. Note that, mainly for
+      performance reasons, this driver requires the width of the screen to
+      be a multiple of 4.
 </ul>
 @@Drivers: @DIGI_*/QNX
 @xref detect_digi_driver, install_sound, install_sound_input
