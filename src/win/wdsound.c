@@ -414,7 +414,7 @@ static int digi_directsound_init(int input, int voices)
    else
       _stereo = 0;
 
-   if ((dscaps.dwMaxSecondarySampleRate > _sound_freq) && (_sound_freq > 0))
+   if ((dscaps.dwMaxSecondarySampleRate > (DWORD)_sound_freq) && (_sound_freq > 0))
       _freq = _sound_freq;
    else
       _freq = dscaps.dwMaxSecondarySampleRate;
