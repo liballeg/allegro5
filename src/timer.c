@@ -331,7 +331,7 @@ END_OF_STATIC_FUNCTION(install_timer_int);
  */
 int install_int(void (*proc)(void), long speed)
 {
-   return install_timer_int((void *)proc, NULL, MSEC_TO_TIMER(speed), 0);
+   return install_timer_int((void *)proc, NULL, MSEC_TO_TIMER(speed), FALSE);
 }
 
 END_OF_FUNCTION(install_int);
@@ -344,7 +344,7 @@ END_OF_FUNCTION(install_int);
  */
 int install_int_ex(void (*proc)(void), long speed)
 {
-   return install_timer_int((void *)proc, NULL, speed, 0);
+   return install_timer_int((void *)proc, NULL, speed, FALSE);
 }
 
 END_OF_FUNCTION(install_int_ex);
@@ -357,7 +357,7 @@ END_OF_FUNCTION(install_int_ex);
  */
 int install_param_int(void (*proc)(void *param), void *param, long speed)
 {
-   return install_timer_int((void *)proc, param, MSEC_TO_TIMER(speed), 1);
+   return install_timer_int((void *)proc, param, MSEC_TO_TIMER(speed), TRUE);
 }
 
 END_OF_FUNCTION(install_param_int);
@@ -370,32 +370,56 @@ END_OF_FUNCTION(install_param_int);
  */
 int install_param_int_ex(void (*proc)(void *param), void *param, long speed)
 {
-   return install_timer_int((void *)proc, param, speed, 1);
+   return install_timer_int((void *)proc, param, speed, TRUE);
 }
 
 END_OF_FUNCTION(install_param_int_ex);
 
 
 
-/* remove_int:
+/* remove_timer_int:
  *  Removes a function from the list of user timers.
  */
-void remove_int(void (*proc)(void))
+static void remove_timer_int(void *proc, void *param, int param_used)
 {
    int x;
 
-   if ((timer_driver) && (timer_driver->remove_int)) {
-      timer_driver->remove_int(proc);
+   if (param_used) {
+      if ((timer_driver) && (timer_driver->remove_param_int)) {
+	 timer_driver->remove_param_int((void (*)(void *))proc, param);
+	 return;
+      }
+
+      x = find_param_timer_slot((void (*)(void *))proc, param);
+   }
+   else {
+      if ((timer_driver) && (timer_driver->remove_int)) {
+	 timer_driver->remove_int((void (*)(void))proc);
+	 return;
+      }
+
+      x = find_timer_slot((void (*)(void))proc); 
+   }
+
+   if (x < 0)
       return;
-   }
 
-   x = find_timer_slot(proc);
+   _timer_queue[x].param_proc = NULL;
+   _timer_queue[x].param = NULL;
+   _timer_queue[x].speed = 0;
+   _timer_queue[x].counter = 0;
+}
 
-   if (x >= 0) {
-      _timer_queue[x].proc = NULL;
-      _timer_queue[x].speed = 0;
-      _timer_queue[x].counter = 0;
-   }
+END_OF_FUNCTION(remove_timer_int);
+
+
+
+/* remove_int:
+ *  Wrapper for remove_timer_int, without parameters.
+ */
+void remove_int(void (*proc)(void))
+{
+   remove_timer_int((void *)proc, NULL, FALSE);
 }
 
 END_OF_FUNCTION(remove_int);
@@ -403,25 +427,11 @@ END_OF_FUNCTION(remove_int);
 
 
 /* remove_param_int:
- *  Removes a function from the list of user timers.
+ *  Wrapper for remove_timer_int, with parameters.
  */
 void remove_param_int(void (*proc)(void *param), void *param)
 {
-   int x;
-
-   if ((timer_driver) && (timer_driver->remove_param_int)) {
-      timer_driver->remove_param_int(proc, param);
-      return;
-   }
-
-   x = find_param_timer_slot(proc, param);
-
-   if (x >= 0) {
-      _timer_queue[x].param_proc = NULL;
-      _timer_queue[x].param = NULL;
-      _timer_queue[x].speed = 0;
-      _timer_queue[x].counter = 0;
-   }
+   remove_timer_int((void *)proc, param, TRUE);
 }
 
 END_OF_FUNCTION(remove_param_int);
