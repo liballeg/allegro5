@@ -17,7 +17,6 @@ General (Platform independant) todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
-- Update 'DirectSound sample looping isn't right' bug status
 
 Linux todos:
 ---------------------------------------------------------------------------
