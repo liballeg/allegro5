@@ -26,27 +26,27 @@
 /* include platform-specific stuff */
 #ifndef SCAN_EXPORT
    #ifndef SCAN_DEPEND
-      #include "platform/alplatf.h"
+      #include "allegro/platform/alplatf.h"
    #endif
 
    #if defined ALLEGRO_DJGPP
-      #include "platform/aldjgpp.h"
+      #include "allegro/platform/aldjgpp.h"
    #elif defined ALLEGRO_WATCOM
-      #include "platform/alwatcom.h"
+      #include "allegro/platform/alwatcom.h"
    #elif defined ALLEGRO_MINGW32
-      #include "platform/almngw32.h"
+      #include "allegro/platform/almngw32.h"
    #elif defined ALLEGRO_BCC32
-      #include "platform/albcc32.h"
+      #include "allegro/platform/albcc32.h"
    #elif defined ALLEGRO_MSVC
-      #include "platform/almsvc.h"
+      #include "allegro/platform/almsvc.h"
    #elif defined ALLEGRO_BEOS
-      #include "platform/albecfg.h"
+      #include "allegro/platform/albecfg.h"
    #elif defined ALLEGRO_MPW
-      #include "platform/almaccfg.h"
+      #include "allegro/platform/almaccfg.h"
    #elif defined ALLEGRO_QNX
-      #include "platform/alqnxcfg.h"
+      #include "allegro/platform/alqnxcfg.h"
    #elif defined ALLEGRO_UNIX
-      #include "platform/alucfg.h"
+      #include "allegro/platform/alucfg.h"
    #else
       #error platform not supported
    #endif
