@@ -1067,19 +1067,7 @@ AL_FUNC(void, _dummy_key_on, (int inst, int note, int bend, int vol, int pan));
 
 
 /* datafile object loading functions */
-AL_FUNC(void *, load_data_object, (PACKFILE *f, long size));
-AL_FUNC(void *, load_file_object, (PACKFILE *f, long size));
-AL_FUNC(void *, load_font_object, (PACKFILE *f, long size));
-AL_FUNC(void *, load_sample_object, (PACKFILE *f, long size));
-AL_FUNC(void *, load_midi_object, (PACKFILE *f, long size));
-AL_FUNC(void *, load_bitmap_object, (PACKFILE *f, long size));
-AL_FUNC(void *, load_rle_sprite_object, (PACKFILE *f, long size));
-AL_FUNC(void *, load_compiled_sprite_object, (PACKFILE *f, long size));
-AL_FUNC(void *, load_xcompiled_sprite_object, (PACKFILE *f, long size));
-
 AL_FUNC(void, _unload_datafile_object, (DATAFILE *dat));
-AL_FUNC(void, unload_sample, (SAMPLE *s));
-AL_FUNC(void, unload_midi, (MIDI *m));
 
 
 /* information about a datafile object */
@@ -1093,7 +1081,7 @@ typedef struct DATAFILE_TYPE
 
 #define MAX_DATAFILE_TYPES    32
 
-AL_ARRAY(DATAFILE_TYPE, datafile_type);
+AL_ARRAY(DATAFILE_TYPE, _datafile_type);
 
 AL_VAR(int, _compile_sprites);
 

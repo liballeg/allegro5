@@ -23,6 +23,10 @@
 
 
 
+static void unload_midi(MIDI *m);
+
+
+
 /* hack to let the grabber prevent compiled sprites from being compiled */
 int _compile_sprites = TRUE;
 
@@ -1192,7 +1196,7 @@ static DATAFILE *read_old_datafile(PACKFILE *f, void (*callback)(DATAFILE *))
 /* load_data_object:
  *  Loads a binary data object from a datafile.
  */
-void *load_data_object(PACKFILE *f, long size)
+static void *load_data_object(PACKFILE *f, long size)
 {
    return read_block(f, size, 0);
 }
@@ -1202,7 +1206,7 @@ void *load_data_object(PACKFILE *f, long size)
 /* load_font_object:
  *  Loads a font object from a datafile.
  */
-void *load_font_object(PACKFILE *f, long size)
+static void *load_font_object(PACKFILE *f, long size)
 {
    short height = pack_mgetw(f);
 
@@ -1219,7 +1223,7 @@ void *load_font_object(PACKFILE *f, long size)
 /* load_sample_object:
  *  Loads a sample object from a datafile.
  */
-void *load_sample_object(PACKFILE *f, long size)
+static void *load_sample_object(PACKFILE *f, long size)
 {
    return read_sample(f);
 }
@@ -1229,7 +1233,7 @@ void *load_sample_object(PACKFILE *f, long size)
 /* load_midi_object:
  *  Loads a midifile object from a datafile.
  */
-void *load_midi_object(PACKFILE *f, long size)
+static void *load_midi_object(PACKFILE *f, long size)
 {
    return read_midi(f);
 }
@@ -1239,7 +1243,7 @@ void *load_midi_object(PACKFILE *f, long size)
 /* load_bitmap_object:
  *  Loads a bitmap object from a datafile.
  */
-void *load_bitmap_object(PACKFILE *f, long size)
+static void *load_bitmap_object(PACKFILE *f, long size)
 {
    short bits = pack_mgetw(f);
 
@@ -1251,7 +1255,7 @@ void *load_bitmap_object(PACKFILE *f, long size)
 /* load_rle_sprite_object:
  *  Loads an RLE sprite object from a datafile.
  */
-void *load_rle_sprite_object(PACKFILE *f, long size)
+static void *load_rle_sprite_object(PACKFILE *f, long size)
 {
    short bits = pack_mgetw(f);
 
@@ -1263,7 +1267,7 @@ void *load_rle_sprite_object(PACKFILE *f, long size)
 /* load_compiled_sprite_object:
  *  Loads a compiled sprite object from a datafile.
  */
-void *load_compiled_sprite_object(PACKFILE *f, long size)
+static void *load_compiled_sprite_object(PACKFILE *f, long size)
 {
    short bits = pack_mgetw(f);
 
@@ -1275,7 +1279,7 @@ void *load_compiled_sprite_object(PACKFILE *f, long size)
 /* load_xcompiled_sprite_object:
  *  Loads a mode-X compiled object from a datafile.
  */
-void *load_xcompiled_sprite_object(PACKFILE *f, long size)
+static void *load_xcompiled_sprite_object(PACKFILE *f, long size)
 {
    short bits = pack_mgetw(f);
 
@@ -1287,7 +1291,7 @@ void *load_xcompiled_sprite_object(PACKFILE *f, long size)
 /* unload_sample: 
  *  Destroys a sample object.
  */
-void unload_sample(SAMPLE *s)
+static void unload_sample(SAMPLE *s)
 {
    if (s) {
       if (s->data) {
@@ -1305,7 +1309,7 @@ void unload_sample(SAMPLE *s)
 /* unload_midi: 
  *  Destroys a MIDI object.
  */
-void unload_midi(MIDI *m)
+static void unload_midi(MIDI *m)
 {
    int c;
 
@@ -1333,8 +1337,8 @@ static void *load_object(PACKFILE *f, int type, long size)
 
    /* look for a load function */
    for (i=0; i<MAX_DATAFILE_TYPES; i++)
-      if (datafile_type[i].type == type)
-	 return datafile_type[i].load(f, size);
+      if (_datafile_type[i].type == type)
+	 return _datafile_type[i].load(f, size);
 
    /* if not found, load binary data */
    return load_data_object(f, size);
@@ -1345,7 +1349,7 @@ static void *load_object(PACKFILE *f, int type, long size)
 /* load_file_object:
  *  Loads a datafile object.
  */
-void *load_file_object(PACKFILE *f, long size)
+static void *load_file_object(PACKFILE *f, long size)
 {
    #define MAX_PROPERTIES  64
 
@@ -1582,10 +1586,10 @@ void _unload_datafile_object(DATAFILE *dat)
 
    /* look for a destructor function */
    for (i=0; i<MAX_DATAFILE_TYPES; i++) {
-      if (datafile_type[i].type == dat->type) {
+      if (_datafile_type[i].type == dat->type) {
 	 if (dat->dat) {
-	    if (datafile_type[i].destroy)
-	       datafile_type[i].destroy(dat->dat);
+	    if (_datafile_type[i].destroy)
+	       _datafile_type[i].destroy(dat->dat);
 	    else
 	       free(dat->dat);
 	 }

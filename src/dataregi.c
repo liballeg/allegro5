@@ -22,7 +22,7 @@
 
 
 /* list of objects, and methods for loading and destroying them */
-DATAFILE_TYPE datafile_type[MAX_DATAFILE_TYPES] =
+DATAFILE_TYPE _datafile_type[MAX_DATAFILE_TYPES] =
 {
    {  DAT_END, NULL, NULL }, { DAT_END, NULL, NULL }, { DAT_END, NULL, NULL },
    {  DAT_END, NULL, NULL }, { DAT_END, NULL, NULL }, { DAT_END, NULL, NULL },
@@ -49,21 +49,21 @@ void register_datafile_object(int id, void *(*load)(PACKFILE *f, long size), voi
 
    /* replacing an existing type? */
    for (i=0; i<MAX_DATAFILE_TYPES; i++) {
-      if (datafile_type[i].type == id) {
+      if (_datafile_type[i].type == id) {
 	 if (load)
-	    datafile_type[i].load = load;
+	    _datafile_type[i].load = load;
 	 if (destroy)
-	    datafile_type[i].destroy = destroy;
+	    _datafile_type[i].destroy = destroy;
 	 return;
       }
    }
 
    /* add a new type */
    for (i=0; i<MAX_DATAFILE_TYPES; i++) {
-      if (datafile_type[i].type == DAT_END) {
-	 datafile_type[i].type = id;
-	 datafile_type[i].load = load;
-	 datafile_type[i].destroy = destroy;
+      if (_datafile_type[i].type == DAT_END) {
+	 _datafile_type[i].type = id;
+	 _datafile_type[i].load = load;
+	 _datafile_type[i].destroy = destroy;
 	 return;
       }
    }
