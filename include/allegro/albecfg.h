@@ -34,8 +34,8 @@
 #define ALLEGRO_PLATFORM_STR  "BeOS"
 #define ALLEGRO_LITTLE_ENDIAN
 #define ALLEGRO_CONSOLE_OK
+#define ALLEGRO_MMX
 
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/albeos.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/aintbeos.h"
-#define ALLEGRO_MMX_HEADER       "obj/beos/mmx.h"

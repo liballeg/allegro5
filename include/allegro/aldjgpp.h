@@ -33,6 +33,7 @@
 #define ALLEGRO_LITTLE_ENDIAN
 #define ALLEGRO_CONSOLE_OK
 #define ALLEGRO_VRAM_SINGLE_SURFACE
+#define ALLEGRO_MMX
 
 
 /* memory locking macros */
@@ -91,5 +92,4 @@ void bmp_write24(unsigned long addr, int c)
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/aldos.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/aintdos.h"
-#define ALLEGRO_MMX_HEADER       "obj/djgpp/mmx.h"
 

@@ -243,23 +243,6 @@ uninstall:
 
 
 
-# -------- autodetect whether the assembler supports MMX instructions --------
-
-.PHONY: mmxtest
-
-mmxtest:
-	echo // no MMX > obj\msvc\mmx.h
-	echo .text > obj\msvc\mmxtest.s
-	echo emms >> obj\msvc\mmxtest.s
-	gcc -c obj/msvc/mmxtest.s -o obj/msvc/mmxtest.o
-	echo #define ALLEGRO_MMX > obj\msvc\mmx.h
-
-obj/msvc/mmx.h:
-	@echo Testing for MMX assembler support...
-	-$(MAKE) mmxtest
-
-
-
 # -------- helper function for compressing the executables --------
 
 .PHONY: compress

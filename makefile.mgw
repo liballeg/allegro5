@@ -277,31 +277,6 @@ uninstall:
 
 
 
-# -------- autodetect whether the assembler supports MMX instructions --------
-
-.PHONY: mmxtest
-
-mmxtest:
-ifdef UNIX_TOOLS
-	echo // no MMX > obj/mingw32/mmx.h
-	echo .text > obj/mingw32/mmxtest.s
-	echo emms >> obj/mingw32/mmxtest.s
-	gcc -c obj/mingw32/mmxtest.s -o obj/mingw32/mmxtest.o
-	echo "#define ALLEGRO_MMX" > obj/mingw32/mmx.h
-else
-	echo // no MMX > obj\mingw32\mmx.h
-	echo .text > obj\mingw32\mmxtest.s
-	echo emms >> obj\mingw32\mmxtest.s
-	gcc -c obj/mingw32/mmxtest.s -o obj/mingw32/mmxtest.o
-	echo #define ALLEGRO_MMX > obj\mingw32\mmx.h
-endif # UNIX_TOOLS
-
-obj/mingw32/mmx.h:
-	@echo Testing for MMX assembler support...
-	-$(MAKE) mmxtest
-
-
-
 # -------- helper function for compressing the executables --------
 
 .PHONY: compress
@@ -382,7 +357,7 @@ endef
 
 ifdef CROSSCOMPILE
 
-obj/mingw32/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h obj/mingw32/mmx.h
+obj/mingw32/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h
 	gcc $(WFLAGS) -I. -I./include -S -o obj/mingw32/asmdef.s src/i386/asmdef.c
 
 obj/mingw32/asmdef.inc: obj/mingw32/asmdef.s
