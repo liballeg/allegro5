@@ -25,6 +25,10 @@
 #include "allegro/aintwin.h"
 
 #ifndef SCAN_DEPEND
+   #ifdef __MINGW32__
+      #undef MAKEFOURCC
+   #endif
+
    #include <mmsystem.h>
    #include <dsound.h>
    #include <math.h>

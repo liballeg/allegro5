@@ -1,4 +1,3 @@
-
 /*         ______   ___    ___ 
  *        /\  _  \ /\_ \  /\_ \ 
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
@@ -22,6 +21,10 @@
 #include "allegro/aintwin.h"
 
 #ifndef SCAN_DEPEND
+   #ifdef __MINGW32__
+      #undef MAKEFOURCC
+   #endif
+
    #include <mmsystem.h>
 
    #ifdef _MSC_VER
