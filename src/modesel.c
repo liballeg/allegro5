@@ -176,7 +176,7 @@ static DIALOG gfx_mode_ex_dialog[] =
 
 
 /* create_mode_list:
- *  Create a mode list table. Returns: -1 on failure.
+ *  Create a mode list table. Returns: 0 on success and -1 on failure.
  */
 static int create_mode_list(DRIVER_LIST *driver_list_entry)
 {
@@ -195,7 +195,7 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
    ret = get_gfx_mode_list(driver_list_entry->id);
 
    /* driver supports fetch_mode_list? */
-   if (ret == 0) {
+   if (ret > 0) {
       temp_mode_list = NULL;
       driver_list_entry->mode_count = 0;
 
@@ -342,7 +342,7 @@ static int create_driver_list()
  */
 static void destroy_driver_list()
 {
-   int driver, driver2;
+   int driver;
 
    for (driver=0; driver < driver_count; driver++) {
       if (driver_list[driver].fetch_mode_list_ptr)

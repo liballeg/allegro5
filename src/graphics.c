@@ -184,42 +184,42 @@ static int sort_gfx_mode_list(GFX_MODE_LIST *entry_1, GFX_MODE_LIST *entry_2)
 /* get_gfx_mode_list:
  *  Attempts to create a list of all the supported video modes for a certain
  *  GFX driver. The result is placed in the gfx_mode_list array.
- *  Returns: 0 on success and -2 if the function is not supported, and
- *  -1 if the function failed.
+ *  Returns: the number of video modes on success and -2 if the function is
+ *  not supported, and -1 if the function failed.
  */
 int get_gfx_mode_list(int card)
 {
-   _DRIVER_INFO *list, *entry;
+   _DRIVER_INFO *list_entry;
    GFX_DRIVER *drv;
-   int entries;
+   int fetch_ml_ret;
 
-   /* ask the system driver for a list of graphics hardware drivers */
-   if (system_driver->gfx_drivers)
-      list = system_driver->gfx_drivers();
-   else
-      list = _gfx_driver_list;
-
-   /* find the graphics driver, and if it can fetch mode lists, do so */
+   fetch_ml_ret = 0;
    drv = NULL;
    
-   for (entry = list; entry->driver; entry++) {
-      if (entry->id == card) {
-         drv = entry->driver;
-         if (!drv->fetch_mode_list)
-            return -2;
-         if (drv->fetch_mode_list() < 0)
-            return -1;
+   /* ask the system driver for a list of graphics hardware drivers */
+   if (system_driver->gfx_drivers)
+      list_entry = system_driver->gfx_drivers();
+   else
+      list_entry = _gfx_driver_list;
+
+   /* find the graphics driver, and if it can fetch mode lists, do so */
+   while (list_entry->driver) {
+      if (list_entry->id == card) {
+         drv = list_entry->driver;
+         if (!drv->fetch_mode_list) return -2;
+	 fetch_ml_ret = drv->fetch_mode_list();
+         if (fetch_ml_ret < 0) return fetch_ml_ret;
          break;
       }
+      list_entry++;
    }
 
    if(!drv) return -2;
 
    /* sort the list and finish */
-   for (entries=0; gfx_mode_list[entries].width; entries++);
-   qsort(gfx_mode_list, entries, sizeof(GFX_MODE_LIST), (void *) sort_gfx_mode_list);
+   qsort(gfx_mode_list, fetch_ml_ret, sizeof(GFX_MODE_LIST), (void *) sort_gfx_mode_list);
 
-   return 0;
+   return fetch_ml_ret;
 }
 
 

@@ -560,7 +560,7 @@ static void svga_restore()
 
 /* svga_fetch_mode_list:
  *  Generates a list of valid video modes.
- *  Returns 0 on success and -1 on failure.
+ *  Returns number of video modes on success and -1 on failure.
  */
 static int svga_fetch_mode_list(void)
 {
@@ -604,7 +604,7 @@ static int svga_fetch_mode_list(void)
 
    _gfx_mode_list_malloced = TRUE;
 
-   return 0;
+   return count;
 }
 
 

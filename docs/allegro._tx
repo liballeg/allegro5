@@ -2118,8 +2118,8 @@ Graphics modes
    } GFX_MODE_LIST;
 </pre>
    This list is terminated with an { 0, 0, 0 } entry.
-   Returns: 0 on success, -2 if the function is not supported,
-   or -1 if the call failed.
+   Returns: the number of supported video modes on success, -2 if the
+   function is not supported, or -1 if the call failed.
 
 @@void @destroy_gfx_mode_list(void);
 @xref get_gfx_mode_list, set_gfx_mode, set_color_depth

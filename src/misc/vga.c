@@ -342,11 +342,14 @@ static int vga_scroll(int x, int y)
  */
 static int vga_fetch_mode_list()
 {
+   int modes;
+
    destroy_gfx_mode_list();
    _gfx_mode_list_malloced = FALSE;
    gfx_mode_list = vga_gfx_modes;
+   modes = sizeof(vga_gfx_modes) / sizeof(GFX_MODE_LIST) - 1;
 
-   return 0;
+   return modes;
 }
 
 #endif      /* ifdef GFX_VGA */

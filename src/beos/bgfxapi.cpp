@@ -405,7 +405,7 @@ extern "C" int be_gfx_fullscreen_fetch_mode_list(void)
    
    free(mode);
    
-   return 0;
+   return num_modes;
 }
 
 

@@ -819,11 +819,14 @@ static BITMAP *xtended_init(int w, int h, int v_w, int v_h, int color_depth)
  */
 static int xtended_fetch_mode_list()
 {
+   int modes;
+
    destroy_gfx_mode_list();
    _gfx_mode_list_malloced = FALSE;
    gfx_mode_list = xtended_gfx_modes;
+   modes = sizeof(xtended_gfx_modes) / sizeof(GFX_MODE_LIST) - 1;
 
-   return 0;
+   return modes;
 }
 
 #endif      /* GFX_XTENDED */
@@ -1603,11 +1606,14 @@ void _x_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int co
  */
 static int modex_fetch_mode_list()
 {
+   int modes;
+
    destroy_gfx_mode_list();
    _gfx_mode_list_malloced = FALSE;
    gfx_mode_list = modex_gfx_modes;
+   modes = sizeof(modex_gfx_modes) / sizeof(GFX_MODE_LIST) - 1;
 
-   return 0;
+   return modes;
 }
 
 #endif      /* ifdef GFX_MODEX */
