@@ -199,35 +199,26 @@ static int (*trace_handler)(AL_CONST char *msg) = NULL;
 /* dynamic registration system for cleanup code */
 struct al_exit_func {
    void (*funcptr)(void);
-   struct al_exit_func* next;
+   struct al_exit_func *next;
 };
 
-static struct al_exit_func* first_exit_func = 0;
+static struct al_exit_func *first_exit_func = 0;
 
 /* _add_exit_func:
  *  Adds a function to the list that need to be called by allegro_exit().
  */
 void _add_exit_func(void (*func)(void))
 {
-    struct al_exit_func* iter = first_exit_func, * n = 0;
-    if(!iter) {
-        n = malloc(sizeof(struct al_exit_func));
-        if(!n) return;
-        n->next = 0;
-        n->funcptr = func;
-        first_exit_func = n;
-    } else {
-        while(iter->next) {
-            if(iter->funcptr == func) return;
-            iter = iter->next;
-        }
-        if(iter->funcptr == func) return;
-        n = malloc(sizeof(struct al_exit_func));
-        if(!n) return;
-        n->next = 0;
-        n->funcptr = func;
-        iter->next = n;
-   }
+   struct al_exit_func *n = 0;
+   for (n = first_exit_func; n != 0; n = n->next)
+      if (n->funcptr == func)
+	 return;
+   n = malloc(sizeof(struct al_exit_func));
+   if (!n)
+      return;
+   n->next = first_exit_func;
+   n->funcptr = func;
+   first_exit_func = n;
 }
 
 
@@ -237,19 +228,18 @@ void _add_exit_func(void (*func)(void))
  */
 void _remove_exit_func(void (*func)(void))
 {
-    struct al_exit_func* iter = first_exit_func, * prev = 0;
-    while(iter) {
-        if(iter->funcptr == func) {
-            if(prev) {
-                prev->next = iter->next;
-            } else {
-                first_exit_func = iter->next;
-	 }
-            free(iter);
-            return;
+   struct al_exit_func *iter = first_exit_func, *prev = 0;
+   while (iter) {
+      if (iter->funcptr == func) {
+	 if (prev)
+	    prev->next = iter->next;
+	 else
+	    first_exit_func = iter->next;
+	 free(iter);
+	 return;
       }
-        prev = iter;
-        iter = iter->next;
+      prev = iter;
+      iter = iter->next;
    }
 }
 
@@ -365,7 +355,8 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
  */
 void allegro_exit()
 {
-    while(first_exit_func) first_exit_func->funcptr();
+   while (first_exit_func)
+      (*(first_exit_func->funcptr))();
 
    if (system_driver) {
       system_driver->exit();
