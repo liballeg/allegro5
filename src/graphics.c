@@ -116,11 +116,18 @@ typedef struct VRAM_BITMAP             /* list of video memory bitmaps */
 {
    int x, y, w, h;
    BITMAP *bmp;
-   struct VRAM_BITMAP *next;
+   struct VRAM_BITMAP *next_x, *next_y;
 } VRAM_BITMAP;
 
 
 static VRAM_BITMAP *vram_bitmap_list = NULL;
+
+
+#define BMP_MAX_SIZE  46340   /* sqrt(INT_MAX) */
+
+/* the product of these must fit in an int */
+static int failed_bitmap_w = BMP_MAX_SIZE;
+static int failed_bitmap_h = BMP_MAX_SIZE;
 
 
 
@@ -996,59 +1003,79 @@ BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height)
 
 
 
-/* try_vram_location:
- *  Attempts to create a video memory bitmap out of the specified region
- *  of the larger screen surface, returning a pointer to it if that area
- *  is free.
+/* add_vram_block:
+ *  Creates a video memory bitmap out of the specified region
+ *  of the larger screen surface, returning a pointer to it.
  */
-static BITMAP *try_vram_location(int x, int y, int w, int h)
+static BITMAP *add_vram_block(int x, int y, int w, int h)
 {
-   VRAM_BITMAP *block = vram_bitmap_list;
+   VRAM_BITMAP *b, *new_b;
+   VRAM_BITMAP **last_p;
 
-   if ((x<0) || (y<0) || (x+w > VIRTUAL_W) || (y+h > VIRTUAL_H))
+   new_b = malloc(sizeof(VRAM_BITMAP));
+   if (!new_b)
       return NULL;
 
-   while (block) {
-      if (((x < block->x+block->w) && (x+w > block->x)) &&
-	  ((y < block->y+block->h) && (y+h > block->y)))
-	 return NULL;
+   new_b->x = x;
+   new_b->y = y;
+   new_b->w = w;
+   new_b->h = h;
 
-      block = block->next;
-   }
-
-   block = malloc(sizeof(VRAM_BITMAP));
-   if (!block)
-      return NULL;
-
-   block->x = x;
-   block->y = y;
-   block->w = w;
-   block->h = h;
-
-   block->bmp = create_sub_bitmap(screen, x, y, w, h);
-   if (!(block->bmp)) {
-      free(block);
+   new_b->bmp = create_sub_bitmap(screen, x, y, w, h);
+   if (!new_b->bmp) {
+      free(new_b);
       return NULL;
    }
 
-   block->next = vram_bitmap_list;
-   vram_bitmap_list = block;
+   /* find sorted y-position */
+   last_p = &vram_bitmap_list;
+   for (b = vram_bitmap_list; b && (b->y < new_b->y); b = b->next_y)
+      last_p = &b->next_y;
 
-   return block->bmp;
+   /* insert */
+   *last_p = new_b;
+   new_b->next_y = b;
+
+   return new_b->bmp;
 }
 
 
 
 /* create_video_bitmap:
  *  Attempts to make a bitmap object for accessing offscreen video memory.
+ *
+ *  The algorithm is similar to algorithms for drawing polygons. Think of
+ *  a horizontal stripe whose height is equal to that of the new bitmap.
+ *  It is initially aligned to the top of video memory and then it moves
+ *  downwards, stopping each time its top coincides with the bottom of a
+ *  video bitmap. For each stop, create a list of video bitmaps intersecting
+ *  the stripe, sorted by the left coordinate, from left to right, in the
+ *  next_x linked list. We look through this list and stop as soon as the
+ *  gap between the rightmost right edge seen so far and the current left
+ *  edge is big enough for the new video bitmap. In that case, we are done.
+ *  If we don't find such a gap, we move the stripe further down.
+ *
+ *  To make it efficient to find new bitmaps intersecting the stripe, the
+ *  list of all bitmaps is always sorted by top, from top to bottom, in
+ *  the next_y linked list. The list of bitmaps intersecting the stripe is
+ *  merely updated, not recalculated from scratch, when we move the stripe.
+ *  So every bitmap gets bubbled to its correct sorted x-position at most
+ *  once. Bubbling a bitmap takes at most as many steps as the number of
+ *  video bitmaps. So the algorithm behaves at most quadratically with
+ *  regard to the number of video bitmaps. I think that a linear behaviour
+ *  is more typical in practical applications (this happens, for instance,
+ *  if you allocate many bitmaps of the same height).
+ *
+ *  There's one more optimization: if a call fails, we cache the size of the
+ *  requested bitmap, so that next time we can detect very quickly that this
+ *  size is too large (this needs to be maintained when destroying bitmaps).
  */
 BITMAP *create_video_bitmap(int width, int height)
 {
-   VRAM_BITMAP origin_vram_bitmap;
-   VRAM_BITMAP *blockx;
-   VRAM_BITMAP *blocky;
-   VRAM_BITMAP *block;
+   VRAM_BITMAP *active_list, *b, *vram_bitmap;
+   VRAM_BITMAP **last_p;
    BITMAP *bmp;
+   int x = 0, y = 0;
 
    if (_dispsw_status)
       return NULL;
@@ -1059,32 +1086,111 @@ BITMAP *create_video_bitmap(int width, int height)
       if (!bmp)
 	 return NULL;
 
-      block = malloc(sizeof(VRAM_BITMAP));
-      block->x = -1;
-      block->y = -1;
-      block->w = 0;
-      block->h = 0;
-      block->bmp = bmp;
-      block->next = vram_bitmap_list;
-      vram_bitmap_list = block;
+      b = malloc(sizeof(VRAM_BITMAP));
+      b->x = -1;
+      b->y = -1;
+      b->w = 0;
+      b->h = 0;
+      b->bmp = bmp;
+      b->next_y = vram_bitmap_list;
+      vram_bitmap_list = b;
 
       return bmp;
    }
 
-   /* otherwise fall back on subdividing the normal screen surface:
-    *  it is sufficient to test the nodes of the grid made up of the X-axis, the Y-axis
-    *  and the straight lines carrying the right edge or the bottom edge of the bitmaps
-    */
-   memset(&origin_vram_bitmap, 0, sizeof(VRAM_BITMAP));  /* brings X-axis and Y-axis */
-   origin_vram_bitmap.next = vram_bitmap_list;
+   /* check bad args */
+   if ((width > VIRTUAL_W) || (height > VIRTUAL_H) ||
+       (width < 0) || (height < 0))
+      return NULL;
 
-   /* do the search in O(n^3) time */
-   for (blocky = &origin_vram_bitmap; blocky; blocky = blocky->next)
-      for (blockx = &origin_vram_bitmap; blockx; blockx = blockx->next)
-	 if ((bmp = try_vram_location((blockx->x+blockx->w+15)&~15, blocky->y+blocky->h, width, height)) != NULL)
-	    return bmp;
+   /* check cached bitmap size */
+   if ((width >= failed_bitmap_w) && (height >= failed_bitmap_h))
+      return NULL;
 
-   return NULL;
+   vram_bitmap = vram_bitmap_list;
+   active_list = NULL;
+   y = 0;
+
+   while (TRUE) {
+      /* Move the blocks from the VRAM_BITMAP_LIST that intersect the
+       * stripe to the ACTIVE_LIST: look through the VRAM_BITMAP_LIST
+       * following the next_y link, grow the ACTIVE_LIST following
+       * the next_x link and sorting by x-position.
+       * (this loop runs in amortized quadratic time)
+       */
+      while (vram_bitmap && (vram_bitmap->y < y+height)) {
+	 /* find sorted x-position */
+	 last_p = &active_list;
+	 for (b = active_list; b && (vram_bitmap->x > b->x); b = b->next_x)
+	    last_p = &b->next_x;
+
+	 /* insert */
+	 *last_p = vram_bitmap;
+	 vram_bitmap->next_x = b;
+
+	 /* next video bitmap */
+	 vram_bitmap = vram_bitmap->next_y;
+      }
+
+      x = 0;
+
+      /* Look for holes to put our bitmap in.
+       * (this loop runs in quadratic time)
+       */
+      for (b = active_list; b; b = b->next_x) {
+	 if (x+width <= b->x)  /* hole is big enough? */
+	    return add_vram_block(x, y, width, height);
+
+         /* Move search x-position to the right edge of the
+          * skipped bitmap if we are not already past it.
+          * And check there is enough room before continuing.
+          */
+	 if (x < b->x + b->w) {
+	    x = (b->x + b->w + 15) & ~15;
+	    if (x+width > VIRTUAL_W)
+	       break;
+	 }
+      }
+
+      /* If the whole ACTIVE_LIST was scanned, there is a big
+       * enough hole to the right of the rightmost bitmap.
+       */
+      if (b == NULL)
+	 return add_vram_block(x, y, width, height);
+
+      /* Move search y-position to the topmost bottom edge
+       * of the bitmaps intersecting the stripe.
+       * (this loop runs in quadratic time)
+       */
+      y = active_list->y + active_list->h;
+      for (b = active_list->next_x; b; b = b->next_x) {
+	 if (y > b->y + b->h)
+	    y = b->y + b->h;
+      }
+
+      if (y+height > VIRTUAL_H) {  /* too close to bottom? */
+	 /* Before failing, cache this bitmap size so that later calls can
+	  * learn from it. Use area as a measure to sort the bitmap sizes.
+          */
+	 if (width * height < failed_bitmap_w * failed_bitmap_h) {
+	    failed_bitmap_w = width;
+	    failed_bitmap_h = height;
+	 }
+
+	 return NULL;
+      }
+
+      /* Remove the blocks that don't intersect the new stripe from ACTIVE_LIST.
+       * (this loop runs in quadratic time)
+       */
+      last_p = &active_list;
+      for (b = active_list; b; b = b->next_x) {
+	 if (y >= b->y + b->h)
+	    *last_p = b->next_x;
+	 else
+	    last_p = &b->next_x;
+      }
+   }
 }
 
 
@@ -1127,9 +1233,9 @@ void destroy_bitmap(BITMAP *bitmap)
 	 while (pos) {
 	    if (pos->bmp == bitmap) {
 	       if (prev)
-		  prev->next = pos->next;
+		  prev->next_y = pos->next_y;
 	       else
-		  vram_bitmap_list = pos->next;
+		  vram_bitmap_list = pos->next_y;
 
 	       if (pos->x < 0) {
 		  /* the driver is in charge of this object */
@@ -1138,12 +1244,24 @@ void destroy_bitmap(BITMAP *bitmap)
 		  return;
 	       } 
 
+	       /* Update cached bitmap size using worst case scenario:
+		* the bitmap lies between two holes whose size is the cached
+		* size on each axis respectively.
+		*/
+	       failed_bitmap_w = failed_bitmap_w * 2 + ((bitmap->w + 15) & ~15);
+	       if (failed_bitmap_w > BMP_MAX_SIZE)
+		  failed_bitmap_w = BMP_MAX_SIZE;
+
+	       failed_bitmap_h = failed_bitmap_h * 2 + bitmap->h;
+	       if (failed_bitmap_h > BMP_MAX_SIZE)
+		  failed_bitmap_h = BMP_MAX_SIZE;
+
 	       free(pos);
 	       break;
 	    }
 
 	    prev = pos;
-	    pos = pos->next;
+	    pos = pos->next_y;
 	 }
 
 	 _unregister_switch_bitmap(bitmap);
