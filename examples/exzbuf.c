@@ -7,13 +7,17 @@
  *
  */
 
+
 #include <stdio.h>
-#include <allegro.h>
+#include "allegro.h"
+
+
 
 typedef struct FACE
 {
   int v1, v2, v3, v4;
 } FACE;
+
 
 V3D_f cube1[] =
 {
@@ -27,6 +31,7 @@ V3D_f cube1[] =
    {  32., -32.,  32., 0., 0., 88}
 };
 
+
 V3D_f cube2[] =
 {
    { -32., -32., -32., 0., 0., 104},
@@ -39,6 +44,7 @@ V3D_f cube2[] =
    {  32., -32.,  32., 0., 0., 120}
 };
 
+
 FACE faces[] =
 {
    { 2, 1, 0, 3 },
@@ -49,17 +55,24 @@ FACE faces[] =
    { 1, 2, 6, 5 }
 };
 
+
+
 volatile int t;
+
 
 /* timer interrupt handler */
 void tick(void)
 {
    t++;
 }
+
 END_OF_FUNCTION(tick);
 
+
+
 /* update cube positions */
-void anim_cube(MATRIX_f* matrix1, MATRIX_f* matrix2, V3D_f x1[], V3D_f x2[]) {
+void anim_cube(MATRIX_f* matrix1, MATRIX_f* matrix2, V3D_f x1[], V3D_f x2[])
+{
    int i;
 
    for (i=0; i<8; i++) {
@@ -70,8 +83,11 @@ void anim_cube(MATRIX_f* matrix1, MATRIX_f* matrix2, V3D_f x1[], V3D_f x2[]) {
    }
 }
 
+
+
 /* cull backfaces and draw cubes */
-void draw_cube(BITMAP* buffer, V3D_f x1[], V3D_f x2[]) {
+void draw_cube(BITMAP* buffer, V3D_f x1[], V3D_f x2[])
+{
    int i;
    
    for (i=0; i<6; i++) {
@@ -92,6 +108,8 @@ void draw_cube(BITMAP* buffer, V3D_f x1[], V3D_f x2[]) {
          quad3d_f(buffer, POLYTYPE_GCOL | POLYTYPE_ZBUF, NULL, &vtx1, &vtx2, &vtx3, &vtx4);
    }
 }
+
+
 
 int main()
 {
@@ -229,9 +247,9 @@ int main()
       frame++;
       
       if (t > 100) {
-        fps = (100. * frame) / t;
-	t = 0;
-	frame = 0;
+	 fps = (100. * frame) / t;
+	 t = 0;
+	 frame = 0;
       }
 
       if (keypressed()){
