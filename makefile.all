@@ -105,7 +105,7 @@ EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 ifdef HTML
 DOCBASEFILES = ahack changes faq help thanks allegro const abi
 
-DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,ahack changes faq help allegro const abi))
+DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,ahack faq help allegro const abi))
 DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
 DOCS += CHANGES AUTHORS THANKS
@@ -214,11 +214,12 @@ else
 	copy THANKS docs\txt\thanks.txt
 endif
 
-CHANGES: docs/txt/changes.txt
+CHANGES: docs/src/changes._tx
+	$(MAKEDOC) -ascii CHANGES $<
 ifdef UNIX_TOOLS
-	cp docs/txt/changes.txt CHANGES
+	cp CHANGES docs/txt/changes.txt
 else
-	copy docs\txt\changes.txt CHANGES
+	copy CHANGES docs\txt\changes.txt
 endif
 
 endif
