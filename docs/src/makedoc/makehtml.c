@@ -725,7 +725,6 @@ static char *_get_clean_xref_token(const char *text)
 	 pname = 0;
    }
 
-   buf = 0;
    if (pname) {
       buf = m_strdup(pname + 9);
       t = strchr(buf, '"');

@@ -96,7 +96,7 @@ int write_texinfo(char *filename)
    auto_types = build_types_lookup_table(&found_auto_types);
    
    /* Now reinit values and let real scanning start */
-   i = 0; line = head;
+   line = head;
 
    while (line) {
       if (line->flags & TEXINFO_FLAG) {
