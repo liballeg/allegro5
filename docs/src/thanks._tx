@@ -50,9 +50,9 @@ Contributors
    Added the BeOS joystick, MIDI and windowed graphics drivers, added mouse
    wheel, display switching and close button support for BeOS, and wrote the
    DGA2 driver and close button support for X. Contributed a bfixicon
-   utility. Added triple buffering support to the BeOS port and added
-   fetch_mode_list() to the BeOS and DGA2 fullscreen drivers.  And, oh,
-   contributed the QNX port too.
+   utility. Added triple buffering support, a BWindow-based windowed driver
+   and a fullscreen overlay driver to the BeOS port and reorganized its gfx
+   subsystem. And, oh, contributed the QNX port too.
 
    Annie Testes (<email>annie at kezako dot net</a>).<br>
    Added font_height, render_char, char_length hooks to FONT_VTABLE.
@@ -189,8 +189,9 @@ Contributors
    Added a COLORCONV_KEEP_TRANS mode. Contributed the wfixicon utility.
    Contributed several enhancements to the grabber. Added a window position
    saving feature to the Windows port. Fixed menu dimensions in the GUI
-   engine. Fixed the get_camera_matrix*() functions. Added chm ouput support
-   for the documentation. Fixed a bug in midi_seek().
+   engine. Fixed the get_camera_matrix*() functions. Added support for the
+   CHM and Devhelp documentation formats. Fixed a bug in midi_seek() and
+   did plenty of other things too.
 
    Eric Botcazou (<email>ebotcazou@multimania.com</a>).<br>
    Made the DGA driver work better in 8bpp and 32bpp modes, improved the
@@ -314,8 +315,8 @@ Contributors
    set_window_title(), added close button hook support and improved
    switching in Windows, fixed bad clearing of subbitmaps, and made bug
    reports and suggestions for improvement. Contributed bidirectional
-   looping and backward playing support for the DirectSound driver. Fixed
-   a latency problem with audiostreams.
+   looping support, backward playing support and bugfixes for the
+   DirectSound driver. Fixed a latency problem with audiostreams.
 
    Jeremiah Blanchard (<email>squirminworm@yahoo.com</a>).<br>
    Contributed modifications in order for Allegro to compile on Darwin/MacOS X,
@@ -375,7 +376,8 @@ Contributors
    Added destroy hook to font structure, worked on const-correctness
    throughout the library, implemented the new FONT structure, made
    some modules avoid linking dependencies and contributed the dat2c
-   utility.
+   utility. Added two fixed point ratios for converting to and from
+   radians.
 
    Lee Killough (email unknown).<br>
    Added the low-level hook routine to the keyboard handler, and fixed a 
@@ -407,7 +409,7 @@ Contributors
 
    Marcel Smit.<br>
    Corrected a bug that caused errors when drawing persp. correct polys
-   facing the screen.
+   facing the screen. Corrected an error in the packfile format write-up. 
 
    Marco Campinoti (<email>marco@etruscan.li.it</a>).<br>
    Added 15 and 24 bit support to the native Tseng ET4000 driver (now 
@@ -451,7 +453,9 @@ Contributors
    Matthew Leverton (<email>matthew@leverton.cc</a>).<br>
    Fixed a bug with mouse mickeys in windowed mode under Windows. Fixed a
    problem with al_find*() and NTFS partitions under Windows. Added missing
-   header files to be installed by the Windows binary distribution.
+   header files to be installed by the Windows binary distribution. Made the
+   DOS/Windows makefiles use 'copy /B' instead of 'copy'. Pointed out a C99
+   idiom in the dat2c utility that Borland C++ doesn't like.
 
    Maxime Carey (<email>werfu@users.sourceforge.net</a>).<br>
    Contributed the Canada (French) keyboard mapping file.
@@ -594,8 +598,13 @@ Contributors
    Added MMX optimisation for the 8 and 16 bit clear() functions, and fixed
    bad clearing of subbitmaps. Also added SSE detection and optimized some
    masked_blits with SSE instructions. Added some routines to the unified
-   color convertor and made some of them more robust. Revamped the retrieval
-   mechanism of CPU capabilities. Did plenty of other things too.
+   color convertor and made some of them more robust. Fixed the docs for
+   pivot_scaled_sprite_v_flip(). Revamped the retrieval mechanism of CPU
+   capabilities. Did plenty of other things too.
+
+   Roberto Alfonso (<email>rpgrca@labint.frba.utn.edu.ar</a>).<br>
+   Fixed a couple of memory problems in the dat2c utility. Added an srand()
+   call in the demo game.
 
    Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
    Provided a new page flipping code for the DirectDraw subsytem, added a
