@@ -248,7 +248,7 @@ $(MINGDIR_U)/include/winalleg.h: include/winalleg.h $(MINGDIR_U)/include
 	cp include/winalleg.h $(MINGDIR_U)/include
 
 $(MINGDIR_U)/include/allegro: $(MINGDIR_U)/include
-	mkdir $(MINGDIR_U)/include/allegro 
+	mkdir $(MINGDIR_U)/include/allegro
 
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
 	cp $< $@
@@ -266,7 +266,7 @@ $(MINGDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
 	cp $< $@
 
 $(MINGDIR_U)/include/allegro/platform:
-	mkdir -p $(MINGDIR_U)/include/allegro/platform
+	mkdir $(MINGDIR_U)/include/allegro/platform
 
 $(MINGDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
 	cp $< $@
