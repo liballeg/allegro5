@@ -9572,6 +9572,14 @@ command. You could add another grep to filter only lines with text like
    things: the title is what appears in the title bar of the window, but
    usually has no other effects on the behaviour of the application.
 
+@@extern void *@allegro_icon;
+   This is a pointer to the Allegro X11 icon, which is in the format of 
+   standard .xpm bitmap data. It is implemented in the library as a weak
+   symbol that can be overridden by your own declaration.
+   You do not normally have to bother with this at all: you can use the
+   xfixicon.sh utility from the tools/x11 directory to convert a true 
+   colour bitmap to a C file that you only need to link with your own code
+   to set the icon.
 
 
 @heading
