@@ -54,7 +54,7 @@ Contributors
    fetch_mode_list() to the BeOS and DGA2 fullscreen drivers.  And, oh,
    contributed the QNX port too.
 
-   Annie Testes (email unknown).<br>
+   Annie Testes (<email>annie at kezako dot net</a>).<br>
    Added font_height, render_char, char_length hooks to FONT_VTABLE.
    Fixed several glitches in the unicode support. Added a pack_fdopen()
    function. Caught a misordering in the X system shutdown. Found ASCII
@@ -705,7 +705,7 @@ Contributors
    joystick drivers by S.Suzuki merged into my codebase. Added more
    aggressive Sidewinder joystick driver.
 
-   Vincent Penquerc'h (<email>lyrian@kezako.net</a>).<br>
+   Vincent Penquerc'h (<email>lyrian at kezako dot net</a>).<br>
    Added the D_DIRTY flag and mouse button press/release events to the GUI
    system, optimised the 256 to truecolor blitting code to avoid repeated 
    conversions of the palette table, added scare_mouse_area(), added the 
