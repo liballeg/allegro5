@@ -48,6 +48,7 @@ static RETSIGTYPE (*_sigalrm_old_signal_handler)(int num) = 0;
 
 static RETSIGTYPE _sigalrm_signal_handler(int num);
 
+static int first_time = TRUE;
 
 
 /* _sigalrm_disable_interrupts:
@@ -67,6 +68,7 @@ void _sigalrm_enable_interrupts(void)
 {
    if (--_sigalrm_cli_count == 0) {
       /* Process pending interrupts.  */
+      first_time = TRUE;
       if (_sigalrm_interrupt_pending) {
 	 _sigalrm_interrupt_pending = FALSE;
 	 _sigalrm_signal_handler(SIGALRM);
@@ -89,7 +91,6 @@ static int _sigalrm_interrupts_disabled(void)
 
 
 
-static int first_time = TRUE;
 static struct timeval old_time;
 static struct timeval new_time;
 
