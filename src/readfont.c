@@ -128,6 +128,7 @@ void _register_font_file_type_init(void)
 
    register_font_file_type(uconvert_ascii("dat", buf), load_dat_font);
    register_font_file_type(uconvert_ascii("fnt", buf), load_grx_or_bios_font);
+   register_font_file_type(uconvert_ascii("txt", buf), load_txt_font);
 }
 
 

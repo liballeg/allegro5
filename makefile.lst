@@ -23,6 +23,7 @@ ALLEGRO_SRC_FILES = \
         src/fontbmp.c \
         src/fontdat.c \
         src/fontgrx.c \
+        src/fonttxt.c \
 	src/fsel.c \
 	src/gfx.c \
 	src/glyph.c \

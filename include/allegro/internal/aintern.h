@@ -229,6 +229,11 @@ typedef struct FONT_VTABLE
    AL_METHOD(int, render_char, (AL_CONST FONT *f, int ch, int fg, int bg, BITMAP *bmp, int x, int y));
    AL_METHOD(void, render, (AL_CONST FONT *f, AL_CONST char *text, int fg, int bg, BITMAP *bmp, int x, int y));
    AL_METHOD(void, destroy, (FONT *f));
+
+   AL_METHOD(int, get_font_range_begin, (FONT *f));
+   AL_METHOD(int, get_font_range_end, (FONT *f));
+   AL_METHOD(FONT *, extract_font_range, (FONT *f, int begin, int end));
+   AL_METHOD(FONT *, merge_fonts, (FONT *f1, FONT *f2));
 } FONT_VTABLE;
 
 AL_VAR(FONT, _default_font);
