@@ -55,19 +55,47 @@
       make install
 
    With this last command the Allegro library will be installed into
-   /boot/develop/lib/x86, while the headers will go into 
-   /boot/develop/headers/cpp (the default locations where Be looks for them)
+   /boot/home/config/lib (the default location for BeOS shared libraries),
+   while the headers will go into /boot/develop/headers (the default locations
+   where Be looks for them).
+   
+   You have now installed Allegro! See the rest of the documentation and
+   examples to learn more about it. A simple example of a command line to
+   compile an allegro program:
 
+   gcc foo.c -O2 -Wall -o foo -lalleg
+
+   The dynamically linked version of Allegro gets built by default but if
+   you want to build the statically linked version of Allegro write the
+   following on the command line:
+
+   export STATICLINK=1
+
+   In the same manner we can also enter one of the following lines to
+   build either the debug or the profiling version of the library:
+
+   export DEBUGMODE=1
+   export PROFILEMODE=1
+
+   Then we can start to actually make and install the Allegro library.
+   
+   make
+   
+   make install
+            
+   If you have compiled a static version of the library, it will be copied to
+   /boot/develop/lib/x86.
 
 
 =======================================
 ============ Using Allegro ============
 =======================================
 
-   Linking Allegro to a program also requires you to link several other BeOS
-   libraries. To simplify the linking process, the installation sets up a
-   script, allegro-config, that will print out a suitable commandline. You
-   can use this inside backtick command substitution, for example:
+   Linking Allegro statically to a program also requires you to link several
+   other BeOS libraries. To simplify the linking process, the installation
+   sets up a script, allegro-config, that will print out a suitable
+   commandline. You can use this inside backtick command substitution, for
+   example:
 
       gcc myfile.c -o myprogram `allegro-config --libs`
 
