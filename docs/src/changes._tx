@@ -9,6 +9,56 @@
 @<body>
 
 @heading
+Changes from 4.0.1 to 4.0.2 (Jun 2002)
+<ul><li>
+   Many clarifications in the docs.
+<li>
+   Sven Sandberg updated the Swedish translation file.
+<li>
+   Sven Sandberg fixed a crash in the exswitch example when compiled
+   by Watcom C/C++ and also made if faster.
+<li>
+   Maxime Carey added a Canada (French) keyboard mapping file.
+<li>
+   Henrik Stokseth updated instructions and fixed installation for Cygwin.
+<li>
+   Eric Botcazou added an option to disable direct updating in color
+   conversion mode under Windows.
+<li>
+   Eric Botcazou (presumably) fixed the bug in the emergency exit mechanism
+   under Windows when called from the DLL.
+<li>
+   Angelo Mottola made it so that the sound doesn't block the main thread
+   anymore under BeOS.
+<li>
+   Deepak T and Eric Botcazou fixed clipping in three C sprite drawing
+   routines.
+<li>
+   Peter Wang fixed a deadlock that occurred under Unix when Allegro
+   received an X11 close event.
+<li>
+   Eric Botcazou added a --cppflags option to allegro-config and fixed
+   C++ compilation under QNX.
+<li>
+   Vincent Penquerc'h added a --version= option to allegro-config.
+<li>
+   Robert J. Ohannessian made the 32->24 color convertors more robust and
+   improved the MMX one in the process.
+<li>
+   Robert J. Ohannessian and Eric Botcazou fixed a bug in the hue blender.
+<li>
+   Matthew Leverton fixed another problem with al_find*() and NTFS
+   partitions under Windows.
+<li>
+   Peter Wang fixed a bug in ALSA device detection.
+<li>
+   Peter Wang Peter fixed a bug in al_find* under Unix when running as root.
+<li>
+   Matthew Leverton and Eric Botcazou fixed a bug with mouse mickeys in
+   windowed mode under Windows.
+</ul>
+
+@heading
 Changes from 4.0.0 to 4.0.1 (Mar 2002)
 <ul><li>
    Many minor changes, many clarifications in the docs.
