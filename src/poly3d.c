@@ -1713,8 +1713,8 @@ void triangle3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, 
  */
 void quad3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v3, V3D *v4)
 {
-   ASSERT(bmp);
    #if (defined ALLEGRO_GCC) && (defined ALLEGRO_I386)
+      ASSERT(bmp);
 
       /* dodgy assumption alert! See comments for triangle() */
       polygon3d(bmp, type, texture, 4, &v1);
@@ -1722,6 +1722,7 @@ void quad3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v3, V
    #else
 
       V3D *vertex[4];
+      ASSERT(bmp);
 
       vertex[0] = v1;
       vertex[1] = v2;
@@ -1739,8 +1740,8 @@ void quad3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v3, V
  */
 void quad3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4)
 {
-   ASSERT(bmp);
    #if (defined ALLEGRO_GCC) && (defined ALLEGRO_I386)
+      ASSERT(bmp);
 
       /* dodgy assumption alert! See comments for triangle() */
       polygon3d_f(bmp, type, texture, 4, &v1);
@@ -1748,6 +1749,7 @@ void quad3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_
    #else
 
       V3D_f *vertex[4];
+      ASSERT(bmp);
 
       vertex[0] = v1;
       vertex[1] = v2;
