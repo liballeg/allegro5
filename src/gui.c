@@ -210,6 +210,16 @@ void position_dialog(DIALOG *dialog, int x, int y)
 
 
 
+/* visible:
+ *  Returns non-zero if a dialog object takes up space.
+ */
+static int visible(DIALOG *dialog)
+{
+   return (dialog->w != 0) && (dialog->h != 0);
+}
+
+
+
 /* centre_dialog:
  *  Moves all the objects in a dialog so that the dialog is centered in
  *  the screen.
@@ -225,24 +235,25 @@ void centre_dialog(DIALOG *dialog)
 
    /* find the extents of the dialog (done in many loops due to a bug
     * in MSVC that prevents the more sensible version from working)
+    * [someone should check if that bug still applies -- PW]
     */ 
    for (c=0; dialog[c].proc; c++) {
-      if (dialog[c].x < min_x)
+      if (visible(&dialog[c]) && (dialog[c].x < min_x))
 	 min_x = dialog[c].x;
    }
 
    for (c=0; dialog[c].proc; c++) {
-      if (dialog[c].y < min_y)
+      if (visible(&dialog[c]) && (dialog[c].y < min_y))
 	 min_y = dialog[c].y;
    }
 
    for (c=0; dialog[c].proc; c++) {
-      if (dialog[c].x + dialog[c].w > max_x)
+      if (visible(&dialog[c]) && (dialog[c].x + dialog[c].w > max_x))
 	 max_x = dialog[c].x + dialog[c].w;
    }
 
    for (c=0; dialog[c].proc; c++) {
-      if (dialog[c].y + dialog[c].h > max_y)
+      if (visible(&dialog[c]) && (dialog[c].y + dialog[c].h > max_y))
 	 max_y = dialog[c].y + dialog[c].h;
    }
 
