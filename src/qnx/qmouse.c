@@ -23,6 +23,8 @@
 #include "allegro/aintqnx.h"
 
 
+int qnx_mouse_warped = FALSE;
+
 static int mouse_minx = 0;
 static int mouse_miny = 0;
 static int mouse_maxx = 319;
@@ -38,8 +40,6 @@ static int mymickey_y = 0;
  */
 void qnx_mouse_handler(int x, int y, int z, int buttons)
 {
-   short mx, my;
-   
    _mouse_b = buttons;
 
    mymickey_x += x;
@@ -48,12 +48,6 @@ void qnx_mouse_handler(int x, int y, int z, int buttons)
    _mouse_x += x;
    _mouse_y += y;
    _mouse_z += z;
-
-   if (ph_window_context) {
-      PtGetAbsPosition(ph_window, &mx, &my);
-      _mouse_x -= mx;
-      _mouse_y -= my;
-   }
    
    if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx)
        || (_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {
@@ -90,16 +84,24 @@ void qnx_mouse_exit(void)
  */
 void qnx_mouse_position(int x, int y)
 {
-   DISABLE();
+   short mx = 0, my = 0;
 
+   pthread_mutex_lock(&qnx_events_mutex);
+   
    _mouse_x = x;
    _mouse_y = y;
-
+   
+   if (ph_window_context) {
+      PtGetAbsPosition(ph_window, &mx, &my);
+   }
+   
+   PhMoveCursorAbs(PhInputGroup(NULL), x + mx, y + my);
+   
    mymickey_x = mymickey_y = 0;
 
-   ENABLE();
-
-//   _xwin_set_warped_mouse_mode(FALSE);
+   qnx_mouse_warped = TRUE;
+   
+   pthread_mutex_unlock(&qnx_events_mutex);
 }
 
 

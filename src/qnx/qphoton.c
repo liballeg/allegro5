@@ -199,15 +199,32 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
    sprintf(driver_desc, "Photon direct mode (%s)", caps.chip_name);
    drv->desc = driver_desc;
 
-//   region.cursor_type = Ph_CURSOR_NONE;
-//   region.rid = ph_screen_context->target_rid;
-//   PhRegionChange(Ph_REGION_CURSOR, 0, &region, NULL, NULL);
    _mouse_on = TRUE;
    
    PgFlush();
    PgWaitHWIdle();
 
    return bmp;
+}
+
+
+
+/* qnx_private_phd_exit:
+ *  This is where the video driver is actually closed.
+ */
+static void qnx_private_phd_exit()
+{
+   ph_gfx_initialized = FALSE;
+   if (ph_screen_context) {
+      PhDCRelease(ph_screen_context);
+   }
+   ph_screen_context = NULL;
+   if (direct_context) {
+      PdDirectStop(direct_context);
+      PdReleaseDirectContext(direct_context);
+      direct_context = NULL;
+      PgSetVideoMode(&original_settings);
+   }
 }
 
 
@@ -219,13 +236,14 @@ struct BITMAP *qnx_phd_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    BITMAP *bmp;
    
-   DISABLE();
+   pthread_mutex_lock(&qnx_events_mutex);
    bmp = qnx_private_phd_init(&gfx_photon_direct, w, h, v_w, v_h, color_depth, TRUE);
-   ENABLE();
-   if (!bmp)
-      qnx_phd_exit(bmp);
-   else
-      ph_gfx_initialized = TRUE;
+   ph_gfx_initialized = TRUE;
+   if (!bmp) {
+      qnx_private_phd_exit(bmp);
+   }
+   pthread_mutex_unlock(&qnx_events_mutex);
+
    return bmp;
 }
 
@@ -234,26 +252,11 @@ struct BITMAP *qnx_phd_init(int w, int h, int v_w, int v_h, int color_depth)
 /* qnx_phd_exit:
  *  Shuts down photon direct driver.
  */
-void qnx_phd_exit(struct BITMAP *b)
+void qnx_phd_exit(struct BITMAP *bmp)
 {
-//   PhRegion_t region;
-   
-   DISABLE();
-   ph_gfx_initialized = FALSE;
-   if (ph_screen_context) {
-//      region.cursor_type = Ph_CURSOR_POINTER;
-//      region.rid = ph_screen_context->target_rid;
-//      PhRegionChange(Ph_REGION_CURSOR, 0, &region, NULL, NULL);
-      PhDCRelease(ph_screen_context);
-   }
-   ph_screen_context = NULL;
-   if (direct_context) {
-      PdDirectStop(direct_context);
-      PdReleaseDirectContext(direct_context);
-      direct_context = NULL;
-      PgSetVideoMode(&original_settings);
-   }
-   ENABLE();
+   pthread_mutex_lock(&qnx_events_mutex);
+   qnx_private_phd_exit();
+   pthread_mutex_unlock(&qnx_events_mutex);
 }
 
 
@@ -263,10 +266,8 @@ void qnx_phd_exit(struct BITMAP *b)
  */
 void qnx_ph_vsync(void)
 {
-   DISABLE();
    PgWaitHWIdle();
    PgWaitVSync();
-   ENABLE();
 }
 
 
@@ -283,13 +284,13 @@ void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesyn
                       (_rgb_scale_6[p[i].g] << 8) |
                       _rgb_scale_6[p[i].b];
    }
-   DISABLE();
+   pthread_mutex_lock(&qnx_events_mutex);
    if (retracesync) {
       PgWaitVSync();
    }
    PgSetPalette(ph_palette, 0, from, to - from + 1, (ph_window_context ? Pg_PALSET_SOFT : Pg_PALSET_HARDLOCKED), 0);
    PgFlush();
-   ENABLE();
+   pthread_mutex_unlock(&qnx_events_mutex);
 }
 
 
@@ -442,6 +443,19 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
 
 
 
+/* qnx_private_ph_exit:
+ *  This is where the video driver is actually closed.
+ */
+static void qnx_private_ph_exit()
+{
+   ph_gfx_initialized = FALSE;
+   if (ph_window_context)
+      PhDCRelease(ph_window_context);
+   ph_window_context = NULL;
+}
+
+
+
 /* qnx_ph_init:
  *  Initializes normal windowed Photon gfx driver.
  */
@@ -449,13 +463,14 @@ struct BITMAP *qnx_ph_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    BITMAP *bmp;
    
-   DISABLE();
+   pthread_mutex_lock(&qnx_events_mutex);
    bmp = qnx_private_ph_init(&gfx_photon, w, h, v_w, v_h, color_depth);
-   ENABLE();
-   if (!bmp)
-      qnx_ph_exit(bmp);
-   else
-      ph_gfx_initialized = TRUE;
+   ph_gfx_initialized = TRUE;
+   if (!bmp) {
+      qnx_private_ph_exit();
+   }
+   pthread_mutex_unlock(&qnx_events_mutex);
+
    return bmp;
 }
 
@@ -466,10 +481,8 @@ struct BITMAP *qnx_ph_init(int w, int h, int v_w, int v_h, int color_depth)
  */
 void qnx_ph_exit(struct BITMAP *b)
 {
-   DISABLE();
-   ph_gfx_initialized = FALSE;
-   if (ph_window_context)
-      PhDCRelease(ph_window_context);
-   ph_window_context = NULL;
-   ENABLE();
+   pthread_mutex_lock(&qnx_events_mutex);
+   qnx_private_ph_exit();
+   pthread_mutex_unlock(&qnx_events_mutex);
+//   DISABLE();
 }

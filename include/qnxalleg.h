@@ -26,6 +26,7 @@ extern "C" {
 #include "allegro/aintern.h"
 #include "allegro/aintqnx.h"
 
+#include <pthread.h>
 #include <Ph.h>
 #include <Pt.h>
 
@@ -37,6 +38,8 @@ PtWidget_t            *ph_window;
 int                    ph_gfx_initialized;
 PdOffscreenContext_t  *ph_screen_context;
 PdOffscreenContext_t  *ph_window_context;
+pthread_mutex_t        qnx_events_mutex;
+int                    qnx_mouse_warped;
 
 
 typedef void RETSIGTYPE;
