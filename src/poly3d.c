@@ -176,7 +176,7 @@ int _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *
          int gap = bmp->ct - edge->top;
          edge->top = bmp->ct;
          edge->x += gap * edge->dx;
-         _clip_polygon_segment_f(&(edge->dat), gap, flags);
+         _clip_polygon_segment(&(edge->dat), itofix(gap), flags);
       }
 
       if (edge->bottom >= bmp->cb)
