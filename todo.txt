@@ -63,6 +63,7 @@ Unix todos:
 
 - tidy up the configure machinery
 - fix endianness problems on Sparc
+- fix modules support on IRIX (export-dynamic is ignored)
 
 Macintosh todos:
 ---------------------------------------------------------------------------
