@@ -589,13 +589,12 @@ static int bitmap_font_count(BITMAP* bmp)
 
     while(1) {
         datedit_find_character(bmp, &x, &y, &w, &h);
-        if(w <= 0 || h <= 0) return num;
+        if (w <= 0 || h <= 0) break;
         num++;
         x += w;
     }
 
-    /* stop warning */
-    return 0;
+    return num;
 }
 
 

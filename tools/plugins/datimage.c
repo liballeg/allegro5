@@ -575,7 +575,7 @@ static void save_rle_sprite(DATAFILE *dat, int packed, int packkids, int strip, 
    int x, y, c, r, g, b, a;
    signed short *p16;
    signed long *p32;
-   unsigned int eol_marker;
+   unsigned long eol_marker;
    int depth;
 
    if (rle_has_alpha(spr))
@@ -602,7 +602,7 @@ static void save_rle_sprite(DATAFILE *dat, int packed, int packkids, int strip, 
 	 eol_marker = (depth == 15) ? MASK_COLOR_15 : MASK_COLOR_16;
 
 	 for (y=0; y<spr->h; y++) {
-	    while ((unsigned short)*p16 != eol_marker) {
+	    while ((unsigned short)*p16 != (unsigned short)eol_marker) {
 	       if (*p16 < 0) {
 		  /* skip count */
 		  pack_iputw(*p16, f);

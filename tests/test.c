@@ -3128,7 +3128,6 @@ int polygon3d_proc(void)
 
 	    case KEY_ESC:
 	       goto getout;
-	       break; 
 
 	    case KEY_SPACE:
 	       mode++;
