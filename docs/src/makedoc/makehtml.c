@@ -999,7 +999,7 @@ static void _post_process_filename(char *filename)
 	 char *clean_token = get_clean_ref_token(p + 2);
 	 POST *page = _search_post_section_with_token(clean_token);
 	 if (!page) {
-	    printf("Didn't find ref for %s", line);
+	    printf("Didn't find ref for %s (clean: %s)\n", line, clean_token);
 	    memmove(p, p + 14, strlen(p + 14) + 1);
 	 }
 	 else {
