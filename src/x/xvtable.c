@@ -54,6 +54,9 @@ static void _xwin_clear_to_color(BITMAP *dst, int color);
 /* True if the GC is using the proper drawing mode */
 static int _xwin_drawmode_ok = TRUE;
 
+/* A counter for the number of locks held on the X display */
+static int _xwin_lock_count = 0;
+
 
 
 /* _xwin_drawing_mode:
@@ -86,6 +89,8 @@ void _xwin_replace_vtable(struct GFX_VTABLE *vtable)
 {
    memcpy(&_xwin_vtable, vtable, sizeof(GFX_VTABLE));
 
+   vtable->acquire = _xwin_lock;
+   vtable->release = _xwin_unlock;
    vtable->putpixel = _xwin_putpixel;
    vtable->vline = _xwin_vline;
    vtable->hline = _xwin_hline;
@@ -112,6 +117,32 @@ void _xwin_replace_vtable(struct GFX_VTABLE *vtable)
    vtable->blit_to_self_backward = _xwin_blit_backward;
    vtable->masked_blit = _xwin_masked_blit;
    vtable->clear_to_color = _xwin_clear_to_color;
+}
+
+
+
+/* _xwin_lock:
+ *  Lock X for drawing onto the display. Unlike XLOCK, this allows nested
+ *  locks so be sure it's only called from one thread!
+ */
+void _xwin_lock(BITMAP *bmp)
+{
+   if (_xwin_lock_count == 0)
+      XLOCK();
+   _xwin_lock_count++;
+}
+
+
+
+/* _xwin_lock:
+ *  Unlock X after drawing. This will only truely call XUNLOCK when the
+ *  unlock count reaches 0.
+ */
+void _xwin_unlock(BITMAP *bmp)
+{
+   _xwin_lock_count--;
+   if (_xwin_lock_count == 0)
+      XUNLOCK();
 }
 
 
@@ -149,13 +180,13 @@ static void _xwin_putpixel(BITMAP *dst, int dx, int dy, int color)
       dy += dst->y_ofs - _xwin.scroll_y;
 
       if((dx >= _xwin.screen_width) || (dx < 0) || 
-         (dy >= _xwin.screen_height) || (dy < 0))
-         return;
+	 (dy >= _xwin.screen_height) || (dy < 0))
+	 return;
 
-      XLOCK();
+      _xwin_lock(NULL);
       XSetForeground(_xwin.display, _xwin.gc, color);
       XDrawPoint(_xwin.display, _xwin.window, _xwin.gc, dx, dy);
-      XUNLOCK();
+      _xwin_unlock(NULL);
    }
    else
       _xwin_update_video_bitmap(dst, dx, dy, 1, 1);
@@ -198,16 +229,16 @@ static void _xwin_hline(BITMAP *dst, int dx1, int dy, int dx2, int color)
       dy += dst->y_ofs - _xwin.scroll_y;
 
       if (dx1 < 0)
-         dx1 = 0;
+	 dx1 = 0;
       if (dx2 >= _xwin.screen_width)
-         dx2 = _xwin.screen_width - 1;
+	 dx2 = _xwin.screen_width - 1;
       if ((dx1 > dx2) || (dy < 0) || (dy >= _xwin.screen_height))
-         return;
+	 return;
 
-      XLOCK();
+      _xwin_lock(NULL);
       XSetForeground(_xwin.display, _xwin.gc, color);
       XDrawLine(_xwin.display, _xwin.window, _xwin.gc, dx1, dy, dx2, dy);
-      XUNLOCK();
+      _xwin_unlock(NULL);
    }
    else
       _xwin_update_video_bitmap(dst, dx1, dy, dx2 - dx1 + 1, 1);
@@ -250,16 +281,16 @@ static void _xwin_vline(BITMAP *dst, int dx, int dy1, int dy2, int color)
       dy2 += dst->y_ofs - _xwin.scroll_y;
 
       if (dy1 < 0)
-         dy1 = 0;
+	 dy1 = 0;
       if (dy2 >= _xwin.screen_height)
-         dy2 = _xwin.screen_height - 1;
+	 dy2 = _xwin.screen_height - 1;
       if ((dy1 > dy2) || (dx < 0) || (dx >= _xwin.screen_width))
-         return;
+	 return;
 
-      XLOCK();
+      _xwin_lock(NULL);
       XSetForeground(_xwin.display, _xwin.gc, color);
       XDrawLine(_xwin.display, _xwin.window, _xwin.gc, dx, dy1, dx, dy2);
-      XUNLOCK();
+      _xwin_unlock(NULL);
    }
    else
       _xwin_update_video_bitmap(dst, dx, dy1, 1, dy2 - dy1 + 1);
@@ -316,23 +347,23 @@ static void _xwin_rectfill(BITMAP *dst, int dx1, int dy1, int dx2, int dy2, int 
       dy2 += dst->y_ofs - _xwin.scroll_y;
 
       if (dx1 < 0)
-         dx1 = 0;
+	 dx1 = 0;
       if (dx2 >= _xwin.screen_width)
-         dx2 = _xwin.screen_width - 1;
+	 dx2 = _xwin.screen_width - 1;
       if (dx1 > dx2)
-         return;
+	 return;
 
       if (dy1 < 0)
-         dy1 = 0;
+	 dy1 = 0;
       if (dy2 >= _xwin.screen_height)
-         dy2 = _xwin.screen_height - 1;
+	 dy2 = _xwin.screen_height - 1;
       if (dy1 > dy2)
-         return;
+	 return;
 
-      XLOCK();
+      _xwin_lock(NULL);
       XSetForeground(_xwin.display, _xwin.gc, color);
       XFillRectangle(_xwin.display, _xwin.window, _xwin.gc, dx1, dy1, dx2-dx1+1, dy2-dy1+1);
-      XUNLOCK();
+      _xwin_unlock(NULL);
    }
    else
       _xwin_update_video_bitmap(dst, dx1, dy1, dx2 - dx1 + 1, dy2 - dy1 + 1);
@@ -361,23 +392,23 @@ static void _xwin_clear_to_color(BITMAP *dst, int color)
       int dy2 = dst->cb + dst->y_ofs - 1 - _xwin.scroll_y;
 
       if (dx1 < 0)
-         dx1 = 0;
+	 dx1 = 0;
       if (dx2 >= _xwin.screen_width)
-         dx2 = _xwin.screen_width - 1;
+	 dx2 = _xwin.screen_width - 1;
       if (dx1 > dx2)
-         return;
+	 return;
 
       if (dy1 < 0)
-         dy1 = 0;
+	 dy1 = 0;
       if (dy2 >= _xwin.screen_height)
-         dy2 = _xwin.screen_height - 1;
+	 dy2 = _xwin.screen_height - 1;
       if (dy1 > dy2)
-         return;
+	 return;
 
-      XLOCK();
+      _xwin_lock(NULL);
       XSetForeground(_xwin.display, _xwin.gc, color);
       XFillRectangle(_xwin.display, _xwin.window, _xwin.gc, dx1, dy1, dx2-dx1+1, dy2-dy1+1);
-      XUNLOCK();
+      _xwin_unlock(NULL);
    }
    else
       _xwin_update_video_bitmap(dst, dst->cl, dst->ct, dst->cr - dst->cl, dst->cb - dst->ct);
@@ -427,7 +458,7 @@ static void _xwin_blit_backward(BITMAP *src, BITMAP *dst, int sx, int sy,
  *  Wrapper for masked_blit.
  */
 static void _xwin_masked_blit(BITMAP *src, BITMAP *dst, int sx, int sy,
-                              int dx, int dy, int w, int h)
+			      int dx, int dy, int w, int h)
 {
    if (_xwin_in_gfx_call) {
       _xwin_vtable.masked_blit(src, dst, sx, sy, dx, dy, w, h);
@@ -454,7 +485,7 @@ static void _xwin_masked_blit(BITMAP *src, BITMAP *dst, int sx, int sy,
       tmp = dst->cr - x_orig;                                      \
       w = ((tmp > w_orig) ? w_orig : tmp) - x_delta;               \
       if (w <= 0)                                                  \
-         return;                                                   \
+	 return;                                                   \
                                                                    \
       tmp = dst->ct - y_orig;                                      \
       y_delta = ((tmp < 0) ? 0 : tmp);                             \

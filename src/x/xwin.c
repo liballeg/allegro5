@@ -2099,16 +2099,17 @@ void _xwin_flush_buffers(void)
 static void _xwin_private_vsync(void)
 {
 #if 0
-   (*_xwin_window_redrawer)(0, 0, _xwin.screen_width, _xwin.screen_height);
-#endif
    _xwin_private_flush_buffers();
+#endif
 }
 
 void _xwin_vsync(void)
 {
+#if 0
    XLOCK();
    _xwin_private_vsync();
    XUNLOCK();
+#endif
 
    if (_timer_installed) {
       int prev = retrace_count;
@@ -2536,9 +2537,9 @@ static void _xwin_private_redraw_window(int x, int y, int w, int h)
 
 void _xwin_redraw_window(int x, int y, int w, int h)
 {
-   XLOCK();
+   _xwin_lock(NULL);
    (*_xwin_window_redrawer)(x, y, w, h);
-   XUNLOCK();
+   _xwin_unlock(NULL);
 }
 
 
@@ -2571,9 +2572,9 @@ int _xwin_scroll_screen(int x, int y)
    if ((_xwin.scroll_x == x) && (_xwin.scroll_y == y))
       return 0;
 
-   XLOCK();
+   _xwin_lock(NULL);
    result = _xwin_private_scroll_screen(x, y);
-   XUNLOCK();
+   _xwin_unlock(NULL);
    return result;
 }
 
@@ -2584,32 +2585,33 @@ int _xwin_scroll_screen(int x, int y)
  */
 static void _xwin_private_update_screen(int x, int y, int w, int h)
 {
-   /* Clip updated region.  */
-   if (x >= _xwin.virtual_width)
-      return;
-   if (x < 0) {
-      w += x;
-      x = 0;
-   }
-   if (w >= (_xwin.virtual_width - x))
-      w = _xwin.virtual_width - x;
-   if (w <= 0)
-      return;
-
-   if (y >= _xwin.virtual_height)
-      return;
-   if (y < 0) {
-      h += y;
-      y = 0;
-   }
-   if (h >= (_xwin.virtual_height - y))
-      h = _xwin.virtual_height - y;
-   if (h <= 0)
-      return;
-
    /* Update frame buffer with screen contents.  */
-   if (_xwin.screen_to_buffer != 0)
+   if (_xwin.screen_to_buffer != 0) {
+      /* Clip updated region.  */
+      if (x >= _xwin.virtual_width)
+	 return;
+      if (x < 0) {
+	 w += x;
+	 x = 0;
+      }
+      if (w >= (_xwin.virtual_width - x))
+	 w = _xwin.virtual_width - x;
+      if (w <= 0)
+	 return;
+
+      if (y >= _xwin.virtual_height)
+	 return;
+      if (y < 0) {
+	 h += y;
+	 y = 0;
+      }
+      if (h >= (_xwin.virtual_height - y))
+	 h = _xwin.virtual_height - y;
+      if (h <= 0)
+	 return;
+
       (*(_xwin.screen_to_buffer))(x, y, w, h);
+   }
 
    /* Update window.  */
    (*_xwin_window_redrawer)(x - _xwin.scroll_x, y - _xwin.scroll_y, w, h);
@@ -2617,9 +2619,9 @@ static void _xwin_private_update_screen(int x, int y, int w, int h)
 
 void _xwin_update_screen(int x, int y, int w, int h)
 {
-   XLOCK();
+   _xwin_lock(NULL);
    _xwin_private_update_screen(x, y, w, h);
-   XUNLOCK();
+   _xwin_unlock(NULL);
 }
 
 
