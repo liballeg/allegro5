@@ -305,17 +305,6 @@ information about how to install Allegro and link your program with it.
    available or does not apply, in which case the values stored in the
    variables you provided for `width' and `height' are undefined.
 
-@@void @yield_timeslice();
-@xref vsync, d_yield_proc
-   Gives up some CPU time. This can be useful in order to "play nice"
-   with other processes, or simply to make the CPU usage drop. This will
-   look better to users, and also does things like saving battery power
-   and making fans less noisy.
-
-   Note that calling this inside your active game loop is a very bad idea,
-   you never know when the OS will give you the CPU back, so you could end up
-   missing the vertical retrace and skipping frames.
-
 @@void @check_cpu();
 @xref cpu_vendor, cpu_family, cpu_model, cpu_capabilities, allegro_init
    Detects the CPU type, setting the following global variables. You don't 
@@ -2567,12 +2556,24 @@ Allegro does not provide such devices.)
    set_palette(), and you shouldn't try to alter more than two or three 
    palette entries in a single retrace.
 
-@@void @rest(long time);
+@@void @rest(unsigned int time);
 @xref install_timer, rest_callback
+@xref vsync, d_yield_proc
 @eref exsample, extimer, exunicod
-   Once Allegro has taken over the timer the standard delay() function will 
-   no longer work, so you should use this routine instead. The time is given 
-   in milliseconds.
+   This function waits for the specified number of milliseconds.
+
+   Passing 0 as parameter will not wait, but just yield. This can be useful
+   in order to "play nice" with other processes. Other values will cause
+   CPU time to be dropped on most platforms. This will look better to
+   users, and also does things like saving battery power and making fans
+   less noisy.
+
+   Note that calling this inside your active game loop is a very bad idea,
+   you never know when the OS will give you the CPU back, so you could end up
+   missing the vertical retrace and skipping frames.
+
+   In DOS, where Allegro takes over the timer, the standard delay() function will 
+   no longer work, so you should use this routine instead.
 
 @@void @rest_callback(long time, void (*callback)())
 @xref install_timer, rest
@@ -8376,7 +8377,7 @@ still drawn too large until version 4.1.0.
    should return D_O_K, D_REDRAW, or D_CLOSE.
 
 @@int @d_yield_proc(int msg, DIALOG *d, int c);
-@xref yield_timeslice
+@xref rest
 @eref exgui
    An invisible helper object that yields timeslices for the scheduler (if
    the system supports it) when the GUI has nothing to do but waiting for

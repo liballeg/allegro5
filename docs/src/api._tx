@@ -114,9 +114,8 @@ Changes between 4.0.x and 4.2.x series
    that of previous versions, look at the set_volume_per_voice function.
    Programs already using set_volume_per_voice are not affected.
 <li>
-   yield_timeslice() doesn't just yield anymore, but actually takes CPU
-   time away from the program, in order to enable Allegro programs to
-   use less than 100% of the available processor time.
+   The semantics of rest are clarified so rest(0) does yielding when
+   possible.
 </ul>
 
 @heading
@@ -312,4 +311,6 @@ Deprecated materials
    generate_332_pallete (generate_332_palette).
 <li>
    generate_optimized_pallete (generate_optimized_palette).
+<li>
+   yield_timeslice (rest, passing 0 as parameter)
 </ul>
