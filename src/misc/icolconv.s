@@ -47,61 +47,61 @@
 #define INIT_CONVERSION_1(mask_red, mask_green, mask_blue)                           \
       /* init register values */                                                   ; \
                                                                                    ; \
-      movl mask_green, %eax                                                        ; \
-      movd %eax, %mm3                                                              ; \
+      movl mask_green, %esi                                                        ; \
+      movd %esi, %mm3                                                              ; \
       punpckldq %mm3, %mm3                                                         ; \
-      movl mask_red, %eax                                                          ; \
-      movd %eax, %mm4                                                              ; \
+      movl mask_red, %esi                                                          ; \
+      movd %esi, %mm4                                                              ; \
       punpckldq %mm4, %mm4                                                         ; \
-      movl mask_blue, %eax                                                         ; \
-      movd %eax, %mm5                                                              ; \
+      movl mask_blue, %esi                                                         ; \
+      movd %esi, %mm5                                                              ; \
       punpckldq %mm5, %mm5                                                         ; \
                                                                                    ; \
-      movl ARG1, %eax                  /* eax = src_rect                 */        ; \
-      movl GFXRECT_WIDTH(%eax), %edx   /* edx = src_rect->width          */        ; \
-      movl GFXRECT_HEIGHT(%eax), %ecx  /* ecx = src_rect->height         */        ; \
-      movl GFXRECT_PITCH(%eax), %esi   /* esi = src_rect->pitch          */        ; \
-      movl GFXRECT_DATA(%eax), %eax    /* eax = src_rect->data           */        ; \
-      shll $2, %edx                    /* edx = SCREEN_W * 4             */        ; \
-      subl %edx, %esi                  /* esi = (src_rect->pitch) - edx  */        ; \
+      movl ARG1, %esi                  /* esi = src_rect                 */        ; \
+      movl GFXRECT_WIDTH(%esi), %ecx   /* ecx = src_rect->width          */        ; \
+      movl GFXRECT_HEIGHT(%esi), %edx  /* edx = src_rect->height         */        ; \
+      movl GFXRECT_PITCH(%esi), %eax   /* eax = src_rect->pitch          */        ; \
+      movl GFXRECT_DATA(%esi), %esi    /* esi = src_rect->data           */        ; \
+      shll $2, %ecx                    /* ecx = SCREEN_W * 4             */        ; \
+      subl %ecx, %eax                  /* eax = (src_rect->pitch) - ecx  */        ; \
                                                                                    ; \
-      movl ARG2, %ebx                  /* ebx = dest_rect                */        ; \
-      shrl $1, %edx                    /* edx = SCREEN_W * 2             */        ; \
-      movl GFXRECT_PITCH(%ebx), %edi   /* edi = dest_rect->pitch         */        ; \
-      movl GFXRECT_DATA(%ebx), %ebx    /* ebx = dest_rect->data          */        ; \
-      subl %edx, %edi                  /* edi = (dest_rect->pitch) - edx */        ; \
-      shrl $1, %edx                    /* edx = SCREEN_W                 */        ; \
-      movl %edx, %ebp
+      movl ARG2, %edi                  /* edi = dest_rect                */        ; \
+      shrl $1, %ecx                    /* ecx = SCREEN_W * 2             */        ; \
+      movl GFXRECT_PITCH(%edi), %ebx   /* ebx = dest_rect->pitch         */        ; \
+      movl GFXRECT_DATA(%edi), %edi    /* edi = dest_rect->data          */        ; \
+      subl %ecx, %ebx                  /* ebx = (dest_rect->pitch) - ecx */        ; \
+      shrl $1, %ecx                    /* ecx = SCREEN_W                 */        ; \
+      movl %ecx, %ebp
 
 
 #define INIT_CONVERSION_2(mask_red, mask_green, mask_blue)                           \
       /* init register values */                                                   ; \
                                                                                    ; \
-      movl mask_green, %eax                                                        ; \
-      movd %eax, %mm3                                                              ; \
+      movl mask_green, %esi                                                        ; \
+      movd %esi, %mm3                                                              ; \
       punpckldq %mm3, %mm3                                                         ; \
-      movl mask_red, %eax                                                          ; \
-      movd %eax, %mm4                                                              ; \
+      movl mask_red, %esi                                                          ; \
+      movd %esi, %mm4                                                              ; \
       punpckldq %mm4, %mm4                                                         ; \
-      movl mask_blue, %eax                                                         ; \
-      movd %eax, %mm5                                                              ; \
+      movl mask_blue, %esi                                                         ; \
+      movd %esi, %mm5                                                              ; \
       punpckldq %mm5, %mm5                                                         ; \
                                                                                    ; \
-      movl ARG1, %eax                  /* eax = src_rect                 */        ; \
-      movl GFXRECT_WIDTH(%eax), %edx   /* edx = src_rect->width          */        ; \
-      movl GFXRECT_HEIGHT(%eax), %ecx  /* ecx = src_rect->height         */        ; \
-      movl GFXRECT_PITCH(%eax), %esi   /* esi = src_rect->pitch          */        ; \
-      movl GFXRECT_DATA(%eax), %eax    /* eax = src_rect->data           */        ; \
-      addl %edx, %edx                  /* edx = SCREEN_W * 2             */        ; \
-      subl %edx, %esi                  /* esi = (src_rect->pitch) - edx  */        ; \
+      movl ARG1, %esi                  /* esi = src_rect                 */        ; \
+      movl GFXRECT_WIDTH(%esi), %ecx   /* ecx = src_rect->width          */        ; \
+      movl GFXRECT_HEIGHT(%esi), %edx  /* edx = src_rect->height         */        ; \
+      movl GFXRECT_PITCH(%esi), %eax   /* eax = src_rect->pitch          */        ; \
+      movl GFXRECT_DATA(%esi), %esi    /* esi = src_rect->data           */        ; \
+      addl %ecx, %ecx                  /* ecx = SCREEN_W * 2             */        ; \
+      subl %ecx, %eax                  /* eax = (src_rect->pitch) - ecx  */        ; \
                                                                                    ; \
-      movl ARG2, %ebx                  /* ebx = dest_rect                */        ; \
-      addl %edx, %edx                  /* edx = SCREEN_W * 4             */        ; \
-      movl GFXRECT_PITCH(%ebx), %edi   /* edi = dest_rect->pitch         */        ; \
-      movl GFXRECT_DATA(%ebx), %ebx    /* ebx = dest_rect->data          */        ; \
-      subl %edx, %edi                  /* edi = (dest_rect->pitch) - edx */        ; \
-      shrl $2, %edx                    /* edx = SCREEN_W                 */        ; \
-      movl %edx, %ebp
+      movl ARG2, %edi                  /* edi = dest_rect                */        ; \
+      addl %ecx, %ecx                  /* ecx = SCREEN_W * 4             */        ; \
+      movl GFXRECT_PITCH(%edi), %ebx   /* ebx = dest_rect->pitch         */        ; \
+      movl GFXRECT_DATA(%edi), %edi    /* edi = dest_rect->data          */        ; \
+      subl %ecx, %ebx                  /* ebx = (dest_rect->pitch) - ecx */        ; \
+      shrl $2, %ecx                    /* ecx = SCREEN_W                 */        ; \
+      movl %ecx, %ebp
 
 
 
@@ -127,31 +127,34 @@ FUNC (_colorconv_blit_8_to_16)
 
    /* init register values */
 
-   movl ARG1, %eax                    /* eax = src_rect         */
-   movl GFXRECT_WIDTH(%eax), %edi     /* edi = src_rect->width  */
-   movl GFXRECT_HEIGHT(%eax), %ecx    /* ecx = src_rect->height */
-   movl GFXRECT_PITCH(%eax), %esi     /* esi = src_rect->pitch  */
-   movl GFXRECT_DATA(%eax), %eax      /* eax = src_rect->data   */
-   movl %ecx, LOCAL1                  /* LOCAL1 = SCREEN_H      */
-   subl %edi, %esi
-   movl %esi, LOCAL2                  /* LOCAL2 = src_rect->pitch - SCREEN_W */
+   movl ARG1, %esi                    /* esi = src_rect         */
+   movl GFXRECT_WIDTH(%esi), %ecx     /* ecx = src_rect->width  */
+   movl GFXRECT_HEIGHT(%esi), %eax    /* eax = src_rect->height */
+   movl GFXRECT_PITCH(%esi), %ebx     /* ebx = src_rect->pitch  */
+   movl GFXRECT_DATA(%esi), %esi      /* esi = src_rect->data   */
+   movl %eax, LOCAL1                  /* LOCAL1 = SCREEN_H      */
+   subl %ecx, %ebx
+   movl %ebx, LOCAL2                  /* LOCAL2 = src_rect->pitch - SCREEN_W */
 
-   movl ARG2, %ebx                    /* ebx = dest_rect        */
-   addl %edi, %edi                    /* edi = SCREEN_W * 2     */
-   movl GFXRECT_PITCH(%ebx), %edx     /* edx = dest_rect->pitch */
-   movl GFXRECT_DATA(%ebx), %ebx      /* ebx = dest_rect->data  */
-   subl %edi, %edx
+   movl ARG2, %edi                    /* edi = dest_rect        */
+   addl %ecx, %ecx                    /* ecx = SCREEN_W * 2     */
+   movl GFXRECT_PITCH(%edi), %edx     /* edx = dest_rect->pitch */
+   movl GFXRECT_DATA(%edi), %edi      /* edi = dest_rect->data  */
+   subl %ecx, %edx
    movl %edx, LOCAL3                  /* LOCAL3 = (dest_rect->pitch) - (SCREEN_W * 2) */
-   shrl $1, %edi                      /* edi = SCREEN_W                               */
-   movl GLOBL(_colorconv_indexed_palette), %esi  /* esi = _colorconv_indexed_palette  */
-   movl %edi, %ebp
+   shrl $1, %ecx                      /* ecx = SCREEN_W                               */
+   movl GLOBL(_colorconv_indexed_palette), %ebp  /* ebp = _colorconv_indexed_palette  */
+   movl %ecx, %ebx
 
    /* 8 bit to 16 bit conversion:
     we have:
-    eax = src_rect->data
-    ebx = dest_rect->data
-    esi = _colorconv_indexed_palette
-    edi = SCREEN_W
+    eax = free
+    ebx = SCREEN_W
+    ecx = SCREEN_W
+    edx = free
+    esi = src_rect->data
+    edi = dest_rect->data
+    ebp = _colorconv_indexed_palette
     LOCAL1 = SCREEN_H
     LOCAL2 = offset from the end of a line to the beginning of the next
     LOCAL3 = same as LOCAL2, but for the dest bitmap
@@ -159,7 +162,7 @@ FUNC (_colorconv_blit_8_to_16)
 
    _align_
    next_line_8_to_16:
-      shrl $2, %edi             /* work with packs of 4 pixels */
+      shrl $2, %ecx             /* work with packs of 4 pixels */
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       jz do_one_pixel_8_to_16  /* less than 4 pixels? Can't work with the main loop */
@@ -167,66 +170,66 @@ FUNC (_colorconv_blit_8_to_16)
 
       _align_
       next_block_8_to_16:
-         movl (%eax), %edx         /* edx = [4][3][2][1] */
-         movzbl %dl, %ecx
-         movd (%esi,%ecx,4), %mm0  /* mm0 = xxxxxxxxxx xxxxx[ 1 ] */
+         movl (%esi), %edx         /* edx = [4][3][2][1] */
+         movzbl %dl, %eax
+         movd (%ebp,%eax,4), %mm0  /* mm0 = xxxxxxxxxx xxxxx[ 1 ] */
          shrl $8, %edx
-         movzbl %dl, %ecx
-         movd (%esi,%ecx,4), %mm1  /* mm1 = xxxxxxxxxx xxxxx[ 2 ] */
+         movzbl %dl, %eax
+         movd (%ebp,%eax,4), %mm1  /* mm1 = xxxxxxxxxx xxxxx[ 2 ] */
          punpcklwd %mm1, %mm0      /* mm0 = xxxxxxxxxx [ 2 ][ 1 ] */
          shrl $8, %edx
-         movzbl %dl, %ecx
-         movd (%esi,%ecx,4), %mm2  /* mm2 = xxxxxxxxxx xxxxx[ 3 ] */
+         movzbl %dl, %eax
+         movd (%ebp,%eax,4), %mm2  /* mm2 = xxxxxxxxxx xxxxx[ 3 ] */
          shrl $8, %edx
-         movl %edx, %ecx
-         movd (%esi,%ecx,4), %mm3  /* mm3 = xxxxxxxxxx xxxxx[ 4 ] */
+         movl %edx, %eax
+         movd (%ebp,%eax,4), %mm3  /* mm3 = xxxxxxxxxx xxxxx[ 4 ] */
          punpcklwd %mm3, %mm2      /* mm2 = xxxxxxxxxx [ 4 ][ 3 ] */
-         addl $4, %eax
+         addl $4, %esi
          punpckldq %mm2, %mm0      /* mm0 = [ 4 ][ 3 ] [ 2 ][ 1 ] */
-         movq %mm0, (%ebx)
-         addl $8, %ebx
+         movq %mm0, (%edi)
+         addl $8, %edi
 
-         decl %edi
+         decl %ecx
          jnz next_block_8_to_16
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_8_to_16:
-         movl %ebp, %edi           /* restore width */
-         andl $3, %edi
+         movl %ebx, %ecx           /* restore width */
+         andl $3, %ecx
          jz end_of_line_8_to_16    /* nothing to do? */
 
-         shrl $1, %edi
+         shrl $1, %ecx
          jnc do_two_pixels_8_to_16
 
-         movzbl (%eax), %edx        /* convert 1 pixel */
-         movl (%esi,%edx,4), %ecx
-         incl %eax
-         addl $2, %ebx
-         movw %cx, -2(%ebx)
+         movzbl (%esi), %edx        /* convert 1 pixel */
+         movl (%ebp,%edx,4), %eax
+         incl %esi
+         addl $2, %edi
+         movw %ax, -2(%edi)
 
       do_two_pixels_8_to_16:
-         shrl $1, %edi
+         shrl $1, %ecx
          jnc end_of_line_8_to_16
-         movzbl (%eax), %edx        /* convert 2 pixels */
-         movzbl 1(%eax), %ecx
-         movl (%esi,%edx,4), %edx
-         movl (%esi,%ecx,4), %ecx
-         shll $16, %ecx
-         addl $2, %eax
-         orl %ecx, %edx
-         addl $4, %ebx
-         movl %edx, -4(%ebx)
+         movzbl (%esi), %edx        /* convert 2 pixels */
+         movzbl 1(%esi), %eax
+         movl (%ebp,%edx,4), %edx
+         movl (%ebp,%eax,4), %eax
+         shll $16, %eax
+         addl $2, %esi
+         orl %eax, %edx
+         addl $4, %edi
+         movl %edx, -4(%edi)
 
    _align_
    end_of_line_8_to_16:
 #endif
 
       movl LOCAL2, %edx
-      addl %edx, %eax
-      movl LOCAL3, %ecx
-      addl %ecx, %ebx
+      addl %edx, %esi
+      movl LOCAL3, %eax
+      addl %eax, %edi
       movl LOCAL1, %edx
-      movl %ebp, %edi             /* restore width */
+      movl %ebx, %ecx             /* restore width */
       decl %edx
       movl %edx, LOCAL1
       jnz next_line_8_to_16
@@ -257,31 +260,34 @@ FUNC (_colorconv_blit_8_to_32)
 
    /* init register values */
 
-   movl ARG1, %eax                    /* eax = src_rect         */
-   movl GFXRECT_WIDTH(%eax), %edi     /* edi = src_rect->width  */
-   movl GFXRECT_HEIGHT(%eax), %ecx    /* ecx = src_rect->height */
-   movl GFXRECT_PITCH(%eax), %esi     /* esi = src_rect->pitch  */
-   movl GFXRECT_DATA(%eax), %eax      /* eax = src_rect->data   */
-   movl %ecx, LOCAL1                  /* LOCAL1 = SCREEN_H      */
-   subl %edi, %esi
-   movl %esi, LOCAL2                  /* LOCAL2 = src_rect->pitch - SCREEN_W */
+   movl ARG1, %esi                    /* esi = src_rect         */
+   movl GFXRECT_WIDTH(%esi), %ecx     /* ecx = src_rect->width  */
+   movl GFXRECT_HEIGHT(%esi), %eax    /* eax = src_rect->height */
+   movl GFXRECT_PITCH(%esi), %ebx     /* ebx = src_rect->pitch  */
+   movl GFXRECT_DATA(%esi), %esi      /* esi = src_rect->data   */
+   movl %eax, LOCAL1                  /* LOCAL1 = SCREEN_H      */
+   subl %ecx, %ebx
+   movl %ebx, LOCAL2                  /* LOCAL2 = src_rect->pitch - SCREEN_W */
 
-   movl ARG2, %ebx                    /* ebx = dest_rect        */
-   shll $2, %edi                      /* edi = SCREEN_W * 4     */
-   movl GFXRECT_PITCH(%ebx), %edx     /* edx = dest_rect->pitch */
-   movl GFXRECT_DATA(%ebx), %ebx      /* ebx = dest_rect->data  */
-   subl %edi, %edx
+   movl ARG2, %edi                    /* edi = dest_rect        */
+   shll $2, %ecx                      /* ecx = SCREEN_W * 4     */
+   movl GFXRECT_PITCH(%edi), %edx     /* edx = dest_rect->pitch */
+   movl GFXRECT_DATA(%edi), %edi      /* edi = dest_rect->data  */
+   subl %ecx, %edx
    movl %edx, LOCAL3                  /* LOCAL3 = (dest_rect->pitch) - (SCREEN_W * 4) */
-   shrl $2, %edi                      /* edi = SCREEN_W                               */
-   movl GLOBL(_colorconv_indexed_palette), %esi  /* esi = _colorconv_indexed_palette  */
-   movl %edi, %ebp
+   shrl $2, %ecx                      /* ecx = SCREEN_W                               */
+   movl GLOBL(_colorconv_indexed_palette), %ebp  /* ebp = _colorconv_indexed_palette  */
+   movl %ecx, %ebx
 
    /* 8 bit to 32 bit conversion:
     we have:
-    eax = src_rect->data
-    ebx = dest_rect->data
-    esi = _colorconv_indexed_palette
-    edi = SCREEN_W
+    eax = free
+    ebx = SCREEN_W
+    ecx = SCREEN_W
+    edx = free
+    esi = src_rect->data
+    edi = dest_rect->data
+    ebp = _colorconv_indexed_palette
     LOCAL1 = SCREEN_H
     LOCAL2 = offset from the end of a line to the beginning of the next
     LOCAL3 = same as LOCAL2, but for the dest bitmap
@@ -289,7 +295,7 @@ FUNC (_colorconv_blit_8_to_32)
 
    _align_
    next_line_8_to_32:
-      shrl $2, %edi             /* work with packs of 4 pixels */
+      shrl $2, %ecx             /* work with packs of 4 pixels */
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       jz do_one_pixel_8_to_32  /* less than 4 pixels? Can't work with the main loop */
@@ -297,66 +303,66 @@ FUNC (_colorconv_blit_8_to_32)
 
       _align_
       next_block_8_to_32:
-         movl (%eax), %edx          /* edx = [4][3][2][1] */ 
-         movzbl %dl, %ecx
-         movd (%esi,%ecx,4), %mm0   /* mm0 = xxxxxxxxx [   1   ] */
+         movl (%esi), %edx          /* edx = [4][3][2][1] */ 
+         movzbl %dl, %eax
+         movd (%ebp,%eax,4), %mm0   /* mm0 = xxxxxxxxx [   1   ] */
          shrl $8, %edx
-         movzbl %dl, %ecx
-         movd (%esi,%ecx,4), %mm1   /* mm1 = xxxxxxxxx [   2   ] */
+         movzbl %dl, %eax
+         movd (%ebp,%eax,4), %mm1   /* mm1 = xxxxxxxxx [   2   ] */
          punpckldq %mm1, %mm0       /* mm0 = [   2   ] [   1   ] */
-         addl $4, %eax
-         movq %mm0, (%ebx)
+         addl $4, %esi
+         movq %mm0, (%edi)
          shrl $8, %edx
-         movzbl %dl, %ecx
-         movd (%esi,%ecx,4), %mm0   /* mm0 = xxxxxxxxx [   3   ] */
+         movzbl %dl, %eax
+         movd (%ebp,%eax,4), %mm0   /* mm0 = xxxxxxxxx [   3   ] */
          shrl $8, %edx
-         movl %edx, %ecx
-         movd (%esi,%ecx,4), %mm1   /* mm1 = xxxxxxxxx [   4   ] */
+         movl %edx, %eax
+         movd (%ebp,%eax,4), %mm1   /* mm1 = xxxxxxxxx [   4   ] */
          punpckldq %mm1, %mm0       /* mm0 = [   4   ] [   3   ] */
-         movq %mm0, 8(%ebx)
-         addl $16, %ebx
+         movq %mm0, 8(%edi)
+         addl $16, %edi
 
-         decl %edi
+         decl %ecx
          jnz next_block_8_to_32
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_8_to_32:
-         movl %ebp, %edi           /* restore width */
-         andl $3, %edi
+         movl %ebx, %ecx           /* restore width */
+         andl $3, %ecx
          jz end_of_line_8_to_32    /* nothing to do? */
 
-         shrl $1, %edi
+         shrl $1, %ecx
          jnc do_two_pixels_8_to_32
 
-         movzbl (%eax), %edx       /* convert 1 pixel */
-         movl (%esi,%edx,4), %edx
-         incl %eax
-         addl $4, %ebx
-         movl %edx, -4(%ebx)
+         movzbl (%esi), %edx       /* convert 1 pixel */
+         movl (%ebp,%edx,4), %edx
+         incl %esi
+         addl $4, %edi
+         movl %edx, -4(%edi)
 
       do_two_pixels_8_to_32:
-         shrl $1, %edi
+         shrl $1, %ecx
          jnc end_of_line_8_to_32
 
-         movzbl (%eax), %edx       /* convert 2 pixels */
-         movzbl 1(%eax), %ecx
-         movl (%esi,%edx,4), %edx
-         movl (%esi,%ecx,4), %ecx
-         addl $2, %eax
-         movl %edx, (%ebx)
-         movl %ecx, 4(%ebx)
-         addl $8, %ebx
+         movzbl (%esi), %edx       /* convert 2 pixels */
+         movzbl 1(%esi), %eax
+         movl (%ebp,%edx,4), %edx
+         movl (%ebp,%eax,4), %eax
+         addl $2, %esi
+         movl %edx, (%edi)
+         movl %eax, 4(%edi)
+         addl $8, %edi
 
    _align_
    end_of_line_8_to_32:
 #endif
 
       movl LOCAL2, %edx
-      addl %edx, %eax
-      movl LOCAL3, %ecx
-      addl %ecx, %ebx
+      addl %edx, %esi
+      movl LOCAL3, %eax
+      addl %eax, %edi
       movl LOCAL1, %edx
-      movl %ebp, %edi          /* restore width */
+      movl %ebx, %ecx          /* restore width */
       decl %edx
       movl %edx, LOCAL1
       jnz next_line_8_to_32
@@ -407,10 +413,10 @@ FUNC (_colorconv_blit_15_to_16)
 
    /* 15 bit to 16 bit conversion:
     we have:
-    ecx = SCREEN_W
-    edx = SCREEN_H
     eax = offset from the end of a line to the beginning of the next
     ebx = same as eax, but for the dest bitmap
+    ecx = SCREEN_W
+    edx = SCREEN_H
     esi = src_rect->data
     edi = dest_rect->data
    */
@@ -550,18 +556,19 @@ FUNC (_colorconv_blit_15_to_32)
    INIT_CONVERSION_2 ($0x7c00, $0x03e0, $0x001f);
 
    /* 15 bit to 32 bit conversion:
-    we have:
-    eax = src_rect->data
-    ebx = dest_rect->data
-    ecx = SCREEN_H
-    edx = SCREEN_W
-    esi = offset from the end of a line to the beginning of the next
-    edi = same as esi, but for the dest bitmap
+    we have:    
+    eax = offset from the end of a line to the beginning of the next
+    ebx = same as eax, but for the dest bitmap
+    ecx = SCREEN_W
+    edx = SCREEN_H
+    esi = src_rect->data
+    edi = dest_rect->data
+    ebp = SCREEN_W
    */
 
    _align_
    next_line_15_to_32:
-      shrl $1, %edx             /* work with packs of 2 pixels */
+      shrl $1, %ecx             /* work with packs of 2 pixels */
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       jz do_one_pixel_15_to_32  /* 1 pixel? Can't use dual-pixel code */
@@ -569,7 +576,7 @@ FUNC (_colorconv_blit_15_to_32)
 
       _align_
       next_block_15_to_32:
-         movd (%eax), %mm0    /* mm0 = 0000 0000  [rgb1][rgb2] */
+         movd (%esi), %mm0    /* mm0 = 0000 0000  [rgb1][rgb2] */
          punpcklwd %mm0, %mm0 /* mm0 = xxxx [rgb1] xxxx [rgb2]  (x don't matter) */
          movq %mm0, %mm1
          movq %mm0, %mm2
@@ -578,23 +585,23 @@ FUNC (_colorconv_blit_15_to_32)
          PAND (3, 1)        /* pand %mm3, %mm1 */
          pslld $6, %mm1
          por %mm1, %mm0
-         addl $4, %eax
+         addl $4, %esi
          PAND (4, 2)        /* pand %mm4, %mm2 */
          pslld $9, %mm2
          por %mm2, %mm0
-         movq %mm0, (%ebx)
-         addl $8, %ebx
+         movq %mm0, (%edi)
+         addl $8, %edi
 
-         decl %edx
+         decl %ecx
          jnz next_block_15_to_32
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_15_to_32:
-         movl %ebp, %edx    /* restore width */
-         shrl $1, %edx
+         movl %ebp, %ecx    /* restore width */
+         shrl $1, %ecx
          jnc end_of_line_15_to_32
 
-         movd (%eax), %mm0
+         movd (%esi), %mm0
          punpcklwd %mm0, %mm0
          movq %mm0, %mm1
          movq %mm0, %mm2
@@ -603,21 +610,21 @@ FUNC (_colorconv_blit_15_to_32)
          PAND (3, 1)        /* pand %mm3, %mm1 */
          pslld $6, %mm1
          por %mm1, %mm0
-         addl $2, %eax
+         addl $2, %esi
          PAND (4, 2)        /* pand %mm4, %mm2 */
          pslld $9, %mm2
          por %mm2, %mm0
-         movd %mm0, (%ebx)
-         addl $4, %ebx
+         movd %mm0, (%edi)
+         addl $4, %edi
 
    _align_
    end_of_line_15_to_32:
 #endif
 
-      addl %esi, %eax
-      movl %ebp, %edx         /* restore width */
-      addl %edi, %ebx
-      decl %ecx
+      addl %eax, %esi
+      movl %ebp, %ecx         /* restore width */
+      addl %ebx, %edi
+      decl %edx
       jnz next_line_15_to_32
 
    emms
@@ -662,10 +669,10 @@ FUNC (_colorconv_blit_16_to_15)
 
    /* 16 bit to 15 bit conversion:
     we have:
-    ecx = SCREEN_W
-    edx = SCREEN_H
     eax = offset from the end of a line to the beginning of the next
     ebx = same as eax, but for the dest bitmap
+    ecx = SCREEN_W
+    edx = SCREEN_H
     esi = src_rect->data
     edi = dest_rect->data
    */
@@ -798,17 +805,18 @@ FUNC (_colorconv_blit_16_to_32)
 
    /* 16 bit to 32 bit conversion:
     we have:
-    eax = src_rect->data
-    ebx = dest_rect->data
-    ecx = SCREEN_H
-    edx = SCREEN_W
-    esi = offset from the end of a line to the beginning of the next
-    edi = same as esi, but for the dest bitmap
+    eax = offset from the end of a line to the beginning of the next
+    ebx = same as eax, but for the dest bitmap
+    ecx = SCREEN_W
+    edx = SCREEN_H
+    esi = src_rect->data
+    edi = dest_rect->data
+    ebp = SCREEN_W
    */
 
    _align_
    next_line_16_to_32:
-      shrl $1, %edx             /* work with packs of 2 pixels */
+      shrl $1, %ecx             /* work with packs of 2 pixels */
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       jz do_one_pixel_16_to_32  /* 1 pixel? Can't use dual-pixel code */
@@ -816,7 +824,7 @@ FUNC (_colorconv_blit_16_to_32)
 
       _align_
       next_block_16_to_32:
-         movd (%eax), %mm0    /* mm0 = 0000 0000  [rgb1][rgb2] */
+         movd (%esi), %mm0    /* mm0 = 0000 0000  [rgb1][rgb2] */
          punpcklwd %mm0, %mm0 /* mm0 = xxxx [rgb1] xxxx [rgb2]  (x don't matter) */
          movq %mm0, %mm1
          movq %mm0, %mm2
@@ -825,23 +833,23 @@ FUNC (_colorconv_blit_16_to_32)
          PAND (3, 1)        /* pand %mm3, %mm1 */
          pslld $5, %mm1
          por %mm1, %mm0
-         addl $4, %eax
+         addl $4, %esi
          PAND (4, 2)        /* pand %mm4, %mm2 */
          pslld $8, %mm2
          por %mm2, %mm0
-         movq %mm0, (%ebx)
-         addl $8, %ebx
+         movq %mm0, (%edi)
+         addl $8, %edi
 
-         decl %edx
+         decl %ecx
          jnz next_block_16_to_32
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_16_to_32:
-         movl %ebp, %edx    /* restore width */
-         shrl $1, %edx
+         movl %ebp, %ecx    /* restore width */
+         shrl $1, %ecx
          jnc end_of_line_16_to_32
 
-         movd (%eax), %mm0
+         movd (%esi), %mm0
          punpcklwd %mm0, %mm0
          movq %mm0, %mm1
          movq %mm0, %mm2
@@ -850,21 +858,21 @@ FUNC (_colorconv_blit_16_to_32)
          PAND (3, 1)        /* pand %mm3, %mm1 */
          pslld $5, %mm1
          por %mm1, %mm0
-         addl $2, %eax
+         addl $2, %esi
          PAND (4, 2)        /* pand %mm4, %mm2 */
          pslld $8, %mm2
          por %mm2, %mm0
-         movd %mm0, (%ebx)
-         addl $4, %ebx
+         movd %mm0, (%edi)
+         addl $4, %edi
 
    _align_
    end_of_line_16_to_32:
 #endif
 
-      addl %esi, %eax
-      movl %ebp, %edx         /* restore width */
-      addl %edi, %ebx
-      decl %ecx
+      addl %eax, %esi
+      movl %ebp, %ecx         /* restore width */
+      addl %ebx, %edi
+      decl %edx
       jnz next_line_16_to_32
 
    emms
@@ -1039,17 +1047,18 @@ FUNC (_colorconv_blit_32_to_15)
 
    /* 32 bit to 15 bit conversion:
     we have:
-    eax = src_rect->data
-    ebx = dest_rect->data
-    ecx = SCREEN_H
-    edx = SCREEN_W / 2
-    esi = offset from the end of a line to the beginning of the next
-    edi = same as esi, but for the dest bitmap
+    eax = offset from the end of a line to the beginning of the next
+    ebx = same as eax, but for the dest bitmap
+    ecx = SCREEN_W
+    edx = SCREEN_H
+    esi = src_rect->data
+    edi = dest_rect->data
+    ebp = SCREEN_W
    */
 
    _align_
    next_line_32_to_15:
-      shrl $1, %edx             /* work with packs of 2 pixels */
+      shrl $1, %ecx             /* work with packs of 2 pixels */
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       jz do_one_pixel_32_to_15  /* 1 pixel? Can't use dual-pixel code */
@@ -1057,7 +1066,7 @@ FUNC (_colorconv_blit_32_to_15)
 
       _align_
       next_block_32_to_15:
-         movq (%eax), %mm0
+         movq (%esi), %mm0
          movq %mm0, %mm1
          movq %mm0, %mm2
          PAND (5, 0)        /* pand %mm5, %mm0 */
@@ -1065,26 +1074,26 @@ FUNC (_colorconv_blit_32_to_15)
          PAND (3, 1)        /* pand %mm3, %mm1 */
          psrld $6, %mm1
          por %mm1, %mm0
-         addl $8, %eax
+         addl $8, %esi
          PAND (4, 2)        /* pand %mm4, %mm2 */
          psrld $9, %mm2
          por %mm2, %mm0
          movq %mm0, %mm6
          psrlq $16, %mm0
          por %mm0, %mm6
-         movd %mm6, (%ebx)
-         addl $4, %ebx
+         movd %mm6, (%edi)
+         addl $4, %edi
 
-         decl %edx
+         decl %ecx
          jnz next_block_32_to_15
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_32_to_15:
-         movl %ebp, %edx    /* restore width */
-         shrl $1, %edx
+         movl %ebp, %ecx    /* restore width */
+         shrl $1, %ecx
          jnc end_of_line_32_to_15
 
-         movd (%eax), %mm0
+         movd (%esi), %mm0
          movq %mm0, %mm1
          movq %mm0, %mm2
          PAND (5, 0)        /* pand %mm5, %mm0 */
@@ -1092,22 +1101,22 @@ FUNC (_colorconv_blit_32_to_15)
          PAND (3, 1)        /* pand %mm3, %mm1 */
          psrld $6, %mm1
          por %mm1, %mm0
-         addl $4, %eax
+         addl $4, %esi
          PAND (4, 2)        /* pand %mm4, %mm2 */
          psrld $9, %mm2
          por %mm2, %mm0
-         movd %mm0, %edx
-         movw %dx, (%ebx)
-         addl $2, %ebx
+         movd %mm0, %ecx
+         movw %cx, (%edi)
+         addl $2, %edi
 
    _align_
    end_of_line_32_to_15:
 #endif
 
-      addl %esi, %eax
-      movl %ebp, %edx         /* restore width */
-      addl %edi, %ebx
-      decl %ecx
+      addl %eax, %esi
+      movl %ebp, %ecx         /* restore width */
+      addl %ebx, %edi
+      decl %edx
       jnz next_line_32_to_15
 
    emms
@@ -1138,17 +1147,18 @@ FUNC (_colorconv_blit_32_to_16)
 
    /* 32 bit to 16 bit conversion:
     we have:
-    eax = src_rect->data
-    ebx = dest_rect->data
-    ecx = SCREEN_H
-    edx = SCREEN_W
-    esi = offset from the end of a line to the beginning of the next
-    edi = same as esi, but for the dest bitmap
+    eax = offset from the end of a line to the beginning of the next
+    ebx = same as eax, but for the dest bitmap
+    ecx = SCREEN_W
+    edx = SCREEN_H
+    esi = src_rect->data
+    edi = dest_rect->data
+    ebp = SCREEN_W
    */
 
    _align_
    next_line_32_to_16:
-      shrl $1, %edx             /* work with packs of 2 pixels */
+      shrl $1, %ecx             /* work with packs of 2 pixels */
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       jz do_one_pixel_32_to_16  /* 1 pixel? Can't use dual-pixel code */
@@ -1156,7 +1166,7 @@ FUNC (_colorconv_blit_32_to_16)
 
       _align_
       next_block_32_to_16:
-         movq (%eax), %mm0
+         movq (%esi), %mm0
          movq %mm0, %mm1
          nop
          movq %mm0, %mm2
@@ -1165,7 +1175,7 @@ FUNC (_colorconv_blit_32_to_16)
          PAND (3, 1)        /* pand %mm3, %mm1 */
          psrld $5, %mm1
          por %mm1, %mm0
-         addl $8, %eax
+         addl $8, %esi
          PAND (4, 2)        /* pand %mm4, %mm2 */
          psrld $8, %mm2
          nop
@@ -1174,19 +1184,19 @@ FUNC (_colorconv_blit_32_to_16)
          movq %mm0, %mm6
          psrlq $16, %mm0
          por %mm0, %mm6
-         movd %mm6, (%ebx)
-         addl $4, %ebx
+         movd %mm6, (%edi)
+         addl $4, %edi
 
-         decl %edx
+         decl %ecx
          jnz next_block_32_to_16
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_32_to_16:
-         movl %ebp, %edx      /* restore width */
-         shrl $1, %edx
+         movl %ebp, %ecx      /* restore width */
+         shrl $1, %ecx
          jnc end_of_line_32_to_16
 
-         movd (%eax), %mm0
+         movd (%esi), %mm0
          movq %mm0, %mm1
          movq %mm0, %mm2
          PAND (5, 0)          /* pand %mm5, %mm0 - get Blue component */
@@ -1196,23 +1206,23 @@ FUNC (_colorconv_blit_32_to_16)
          psrld $5, %mm1
          psrld $8, %mm2
          por %mm1, %mm0       /* combine Red and Blue */
-         addl $4, %eax
+         addl $4, %esi
          por %mm2, %mm0       /* and green */
          movq %mm0, %mm6      /* make the pixels fit in the first 32 bits */
          psrlq $16, %mm0
          por %mm0, %mm6
-         movd %mm6, %edx
-         addl $2, %ebx
-         movw %dx, -2(%ebx)   /* write */
+         movd %mm6, %ecx
+         movw %cx, (%edi)
+         addl $2, %edi
 
    _align_
    end_of_line_32_to_16:
 #endif
 
-      addl %esi, %eax
-      movl %ebp, %edx         /* restore width */
-      addl %edi, %ebx
-      decl %ecx
+      addl %eax, %esi
+      movl %ebp, %ecx         /* restore width */
+      addl %ebx, %edi
+      decl %edx
       jnz next_line_32_to_16
 
    emms
