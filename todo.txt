@@ -91,6 +91,7 @@ QNX todos:
 Wishlist:
 ---------------------------------------------------------------------------
 
+- Variable line thickness on graphics primitives
 - OSS MIDI pitch bend is wrong
 - size_t where appropriate (get more opinions first)
 - keyboard set_rate
