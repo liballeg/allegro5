@@ -1472,7 +1472,7 @@ AL_INLINE(int, object_message, (DIALOG *d, int msg, int c),
 #define cpu_fpu         (cpu_capabilities & CPU_FPU)
 #define cpu_mmx         (cpu_capabilities & CPU_MMX)
 #define cpu_3dnow       (cpu_capabilities & CPU_3DNOW)
-#define cpu_cpuid       (cpu_capabilities & CPU_CPUID)
+#define cpu_cpuid       (cpu_capabilities & CPU_ID)
 
 #define joy_x           (joy[0].stick[0].axis[0].pos)
 #define joy_y           (joy[0].stick[0].axis[1].pos)
