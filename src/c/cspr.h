@@ -442,7 +442,7 @@ void FUNC_LINEAR_DRAW_TRANS_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
 
    blender = MAKE_DTS_BLENDER();
 
-   if ((src->vtable->color_depth == 8) && (dst->vtable->color_depth != 9)) {
+   if ((src->vtable->color_depth == 8) && (dst->vtable->color_depth != 8)) {
       bmp_select(dst);
 
       for (y = 0; y < h; y++) {
