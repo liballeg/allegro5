@@ -622,7 +622,7 @@ int main(int argc, char *argv[])
 
    output_datafile(data, "data", TRUE);
 
-   #ifdef ALLEGRO_DJGPP
+   #if (defined ALLEGRO_USE_CONSTRUCTOR) && (defined ALLEGRO_I386)
 
       fprintf(outfile, ".text\n");
       fprintf(outfile, ".balign 4\n");
@@ -661,7 +661,7 @@ int main(int argc, char *argv[])
 	 delete_file(outfilenameheader);
    }
    else {
-      #ifdef ALLEGRO_USE_CONSTRUCTOR
+      #if (defined ALLEGRO_USE_CONSTRUCTOR) && (defined ALLEGRO_I386)
 	 if (truecolor) {
 	    printf("\nI noticed some truecolor images, so you must call fixup_datafile()\n");
 	    printf("before using this data! (after setting a video mode).\n");
