@@ -30,6 +30,7 @@ static void osx_qz_full_exit(BITMAP *);
 static void osx_qz_full_vsync(void);
 static void osx_qz_full_set_palette(AL_CONST struct RGB *, int, int, int);
 static int osx_qz_show_video_bitmap(BITMAP *);
+static GFX_MODE_LIST *osx_qz_fetch_mode_list(void);
 
 
 static int lock_nesting = 0;
@@ -66,7 +67,7 @@ GFX_DRIVER gfx_quartz_full =
    NULL,                         /* AL_METHOD(void, drawing_mode, (void)); */
    NULL,                         /* AL_METHOD(void, save_video_state, (void)); */
    NULL,                         /* AL_METHOD(void, restore_video_state, (void)); */
-   NULL,                         /* AL_METHOD(int, fetch_mode_list, (void)); */
+   osx_qz_fetch_mode_list,       /* AL_METHOD(int, fetch_mode_list, (void)); */
    0, 0,                         /* physical (not virtual!) screen size */
    TRUE,                         /* true if video memory is linear */
    0,                            /* bank size, in bytes */
@@ -308,5 +309,76 @@ static int osx_qz_show_video_bitmap(BITMAP *bmp)
    UnlockPortBits(BMP_EXTRA(bmp)->port);
    
    return 0;
+}
+
+
+
+/* osx_qz_fetch_mode_list:
+ *  Creates a list of available fullscreen video modes.
+ */
+static GFX_MODE_LIST *osx_qz_fetch_mode_list(void)
+{
+   GFX_MODE_LIST *gfx_mode_list = NULL;
+   GFX_MODE *gfx_mode;
+   CFArrayRef modes_list;
+   CFDictionaryRef mode;
+   int i, j, num_modes;
+   int width, height, bpp;
+   int already_stored;
+   
+   modes_list = CGDisplayAvailableModes(kCGDirectMainDisplay);
+   if (!modes_list)
+      return NULL;
+   num_modes = CFArrayGetCount(modes_list);
+   gfx_mode_list = (GFX_MODE_LIST *)malloc(sizeof(GFX_MODE_LIST));
+   if (!gfx_mode_list)
+      return NULL;
+   gfx_mode_list->mode = NULL;
+   gfx_mode_list->num_modes = 0;
+   
+   for (i = 0; i < num_modes; i++) {
+      mode = CFArrayGetValueAtIndex(modes_list, i);
+      
+      CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayWidth), kCFNumberSInt32Type, &width);
+      CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayHeight), kCFNumberSInt32Type, &height);
+      CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &bpp);
+      
+      if (bpp == 16)
+         bpp = 15;
+      already_stored = FALSE;
+      for (j = 0; j < gfx_mode_list->num_modes; j++) {
+         if ((gfx_mode_list->mode[j].width == width) &&
+	     (gfx_mode_list->mode[j].height == height) &&
+	     (gfx_mode_list->mode[j].bpp == bpp)) {
+	    already_stored = TRUE;
+	    break;
+	 }
+      }
+      if (!already_stored) {
+         gfx_mode_list->num_modes++;
+         gfx_mode = (GFX_MODE *)realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
+	 if (!gfx_mode) {
+	    free(gfx_mode_list->mode);
+	    free(gfx_mode_list);
+	    return NULL;
+	 }
+	 gfx_mode_list->mode = gfx_mode;
+	 gfx_mode = &gfx_mode_list->mode[gfx_mode_list->num_modes - 1];
+	 gfx_mode->width = width;
+	 gfx_mode->height = height;
+	 gfx_mode->bpp = bpp;
+      }
+   }
+   
+   if (gfx_mode_list->mode) {
+      gfx_mode_list->mode[gfx_mode_list->num_modes].width = 0;
+      gfx_mode_list->mode[gfx_mode_list->num_modes].height = 0;
+      gfx_mode_list->mode[gfx_mode_list->num_modes].bpp = 0;
+   }
+   else {
+      free(gfx_mode_list);
+      return NULL;
+   }
+   return gfx_mode_list;
 }
 
