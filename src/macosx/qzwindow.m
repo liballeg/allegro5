@@ -105,6 +105,7 @@ static void prepare_window_for_animation(int refresh_view)
    unsigned int *addr;
    int pitch, y, x;
    
+   pthread_mutex_lock(&osx_event_mutex);
    pthread_mutex_lock(&osx_window_mutex);
    while (![qd_view lockFocusIfCanDraw]);
    while (!QDDone([qd_view qdPort]));
@@ -129,6 +130,7 @@ static void prepare_window_for_animation(int refresh_view)
    UnlockPortBits([qd_view qdPort]);
    [qd_view unlockFocus];
    pthread_mutex_unlock(&osx_window_mutex);
+   pthread_mutex_unlock(&osx_event_mutex);
 }
 
 
@@ -480,6 +482,7 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
       assumeInside: YES];
    
    osx_keyboard_focused(FALSE, 0);
+   clear_keybuf();
    osx_gfx_mode = OSX_GFX_WINDOW;
    osx_skip_mouse_move = TRUE;
    
@@ -489,11 +492,9 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
 static BITMAP *osx_qz_window_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    BITMAP *bmp;
-   _unix_bg_man->disable_interrupts();
    pthread_mutex_lock(&osx_event_mutex);
    bmp = private_osx_qz_window_init(w, h, v_w, v_h, color_depth);
    pthread_mutex_unlock(&osx_event_mutex);
-   _unix_bg_man->enable_interrupts();
    if (!bmp)
       osx_qz_window_exit(bmp);
    return bmp;
@@ -502,7 +503,6 @@ static BITMAP *osx_qz_window_init(int w, int h, int v_w, int v_h, int color_dept
 
 static void osx_qz_window_exit(BITMAP *bmp)
 {
-   _unix_bg_man->disable_interrupts();
    pthread_mutex_lock(&osx_event_mutex);
 
    if (update_region) {
@@ -545,7 +545,6 @@ static void osx_qz_window_exit(BITMAP *bmp)
    osx_gfx_mode = OSX_GFX_NONE;
    
    pthread_mutex_unlock(&osx_event_mutex);
-   _unix_bg_man->enable_interrupts();
 }
 
 

@@ -80,10 +80,6 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    char path[1024], *p;
    int i;
    
-   _unix_bg_man = &_bg_man_pthreads;
-   if (_unix_bg_man->init())
-      return;
-   
    pthread_mutex_init(&osx_event_mutex, NULL);
    
    pool = [[NSAutoreleasePool alloc] init];
@@ -128,19 +124,16 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 //   [NSThread setThreadPriority: [NSThread threadPriority] + 0.1];
    
    while (1) {
-      _unix_bg_man->disable_interrupts();
       pthread_mutex_lock(&osx_event_mutex);
       osx_event_handler();
       if (osx_gfx_mode == OSX_GFX_WINDOW)
          osx_update_dirty_lines();
       pthread_mutex_unlock(&osx_event_mutex);
-      _unix_bg_man->enable_interrupts();
       usleep(1000000 / refresh_rate);
    }
    
    [pool release];
    pthread_mutex_destroy(&osx_event_mutex);
-   _unix_bg_man->exit();
 }
 
 

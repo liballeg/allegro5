@@ -232,9 +232,9 @@ void osx_qz_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_
    Rect source_rect, dest_rect;
    
    SetRect(&source_rect, source_x + source->x_ofs, source_y + source->y_ofs,
-      source_x + source->x_ofs + width - 1, source_y + source->y_ofs + height - 1);
+      source_x + source->x_ofs + width, source_y + source->y_ofs + height);
    SetRect(&dest_rect, dest_x + dest->x_ofs, dest_y + dest->y_ofs,
-      dest_x + dest->x_ofs + width - 1, dest_y + dest->y_ofs + height - 1);
+      dest_x + dest->x_ofs + width, dest_y + dest->y_ofs + height);
 
    while (!QDDone(BMP_EXTRA(dest)->port));
    if (!(dest->id & BMP_ID_LOCKED))

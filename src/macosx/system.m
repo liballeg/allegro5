@@ -285,15 +285,16 @@ void osx_event_handler()
             switch ([event subtype]) {
 	       
                case NSApplicationActivatedEventType:
-	          if (osx_window)
+	          if (osx_window) {
 		     [osx_window invalidateCursorRectsForView: [osx_window contentView]];
-		  if (_keyboard_installed)
-	             osx_keyboard_focused(TRUE, 0);
+                     if (_keyboard_installed)
+	                osx_keyboard_focused(TRUE, 0);
+		  }
 		  _switch_in();
                   break;
 		  
                case NSApplicationDeactivatedEventType:
-		  if (_keyboard_installed)
+		  if (osx_window && _keyboard_installed)
 		     osx_keyboard_focused(FALSE, 0);
 		  _switch_out();
                   break;

@@ -188,6 +188,7 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    gfx_quartz_full.desc = driver_desc;
    
    osx_keyboard_focused(FALSE, 0);
+   clear_keybuf();
    osx_gfx_mode = OSX_GFX_FULL;
    osx_skip_mouse_move = TRUE;
    
@@ -197,11 +198,9 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
 static BITMAP *osx_qz_full_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    BITMAP *bmp;
-   _unix_bg_man->disable_interrupts();
    pthread_mutex_lock(&osx_event_mutex);
    bmp = private_osx_qz_full_init(w, h, v_w, v_h, color_depth);
    pthread_mutex_unlock(&osx_event_mutex);
-   _unix_bg_man->enable_interrupts();
    if (!bmp)
       osx_qz_full_exit(bmp);
    return bmp;
@@ -212,7 +211,6 @@ static void osx_qz_full_exit(BITMAP *bmp)
 {
    CGDisplayFadeReservationToken token = -1;
    
-   _unix_bg_man->disable_interrupts();
    pthread_mutex_lock(&osx_event_mutex);
    
    if ((bmp) && (bmp->extra)) {
@@ -228,7 +226,7 @@ static void osx_qz_full_exit(BITMAP *bmp)
    
    if (old_mode) {
       if (CGAcquireDisplayFadeReservation(kCGMaxDisplayReservationInterval, &token) == kCGErrorSuccess)
-         CGDisplayFade(token, 0.0, kCGDisplayBlendNormal, kCGDisplayBlendSolidColor, 0.0, 0.0, 0.0, true);
+         CGDisplayFade(token, 0.3, kCGDisplayBlendNormal, kCGDisplayBlendSolidColor, 0.0, 0.0, 0.0, true);
       CGDisplaySwitchToMode(kCGDirectMainDisplay, old_mode);
       CGDisplayRelease(kCGDirectMainDisplay);
       CGDisplayShowCursor(kCGDirectMainDisplay);
@@ -244,7 +242,6 @@ static void osx_qz_full_exit(BITMAP *bmp)
    osx_gfx_mode = OSX_GFX_NONE;
    
    pthread_mutex_unlock(&osx_event_mutex);
-   _unix_bg_man->enable_interrupts();
 }
 
 
