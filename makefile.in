@@ -492,7 +492,7 @@ install-lib: lib modules
 	done
 	$(mkinstalldirs) $(DESTDIR)$(prefix)/share/aclocal
 	@echo Installing allegro.m4 to $(DESTDIR)$(prefix)/share/aclocal
-	@$(INSTALL_DATA) allegro.m4 $(DESTDIR)$(prefix)/share/aclocal
+	@$(INSTALL_DATA) misc/allegro.m4 $(DESTDIR)$(prefix)/share/aclocal
 
 install-headers:
 	$(mkinstalldirs) $(DESTDIR)$(includedir)/allegro
