@@ -397,7 +397,7 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
    int dga_error_base, dga_major_version, dga_minor_version;
    int mode, mask, red_shift = 0, green_shift = 0, blue_shift = 0;
    long input_mask;
-   char tmp[256];
+   char tmp1[128], tmp2[128];
    BITMAP *bmp;
 
    /* This is just to test if the system driver has been installed properly */
@@ -608,8 +608,8 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
 
    /* Sets up driver description */
    uszprintf(_xdga2_driver_desc, sizeof(_xdga2_driver_desc),
-      uconvert_ascii("X-Windows DGA 2.0 graphics%s", tmp),
-      accel ? (gfx_capabilities ? " (accelerated)" : "") : " (software only)");
+             uconvert_ascii("X-Windows DGA 2.0 graphics%s", tmp1),
+             uconvert_ascii(accel ? (gfx_capabilities ? " (accelerated)" : "") : " (software only)", tmp2));
    drv->desc = _xdga2_driver_desc;
 
    return bmp;

@@ -75,7 +75,7 @@ MIDI_DRIVER midi_quicktime =
 static int mac_midi_detect(int input)
 {
    if (input) {
-      usprintf(allegro_error, get_config_text("Input is not supported"));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
       return FALSE;
    }
    return TRUE;
@@ -94,7 +94,7 @@ static int mac_midi_init(int input, int voices)
    qtna = OpenDefaultComponent(kNoteAllocatorComponentType, 0);
    printf("na=%d",qtna);
    if(!qtna){
-      ustrcpy(allegro_error, get_config_text("open NoteAllocator failed"));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("open NoteAllocator failed"));
       printf("open NoteAllocator failed\n");
       return -1; 
    }
@@ -111,7 +111,7 @@ static int mac_midi_init(int input, int voices)
       thisError = NANewNoteChannel(qtna, &nr, &macmidivoices[i].channel);
       if(thisError || !macmidivoices[i].channel){
           mac_midi_exit(input);
-          ustrcpy(allegro_error, get_config_text("failed on channel initialization"));
+          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("failed on channel initialization"));
 	  printf("failed on init %s channel",i);
           return -1;
       }

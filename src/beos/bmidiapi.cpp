@@ -52,7 +52,7 @@ extern "C" int be_midi_detect(int input)
  */
 extern "C" int be_midi_init(int input, int voices)
 {
-   char tmp[128], tmp2[128] = EMPTY_STRING;
+   char tmp[256], tmp2[128], tmp3[128] = EMPTY_STRING;
    char *sound = uconvert_ascii("sound", tmp);
    int mode, freq, quality, reverb;
    synth_mode sm = B_BIG_SYNTH;
@@ -110,11 +110,11 @@ extern "C" int be_midi_init(int input, int voices)
          break;
       case 1:
          im = B_2_POINT_INTERPOLATION;
-         ustrzcpy(tmp2, sizeof(tmp2), uconvert_ascii("fast", tmp));
+         do_uconvert("fast", U_ASCII, tmp3, U_CURRENT, sizeof(tmp3));
          break;
       case 2:
          im = B_LINEAR_INTERPOLATION;
-         ustrzcpy(tmp2, sizeof(tmp2), uconvert_ascii("linear", tmp));
+         do_uconvert("linear", U_ASCII, tmp3, U_CURRENT, sizeof(tmp3));
          break;
    }
    be_synth->SetInterpolation(im);
@@ -122,7 +122,8 @@ extern "C" int be_midi_init(int input, int voices)
    /* Sets up driver description */
    uszprintf(be_midi_driver_desc, sizeof(be_midi_driver_desc),
              uconvert_ascii("BeOS %s quality synth, %s %d kHz, %s reverberation", tmp),
-             (mode ? "high" : "low"), tmp2, (be_synth->SamplingRate() / 1000), reverb_name[reverb]);
+             uconvert_ascii(mode ? "high" : "low", tmp2), tmp3,
+             (be_synth->SamplingRate() / 1000), reverb_name[reverb]);
    midi_beos.desc = be_midi_driver_desc;
 
    return 0;

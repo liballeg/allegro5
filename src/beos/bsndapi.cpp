@@ -170,8 +170,8 @@ extern "C" int be_sound_init(int input, int voices)
    be_sound->SetHasData(true);
 
    uszprintf(be_sound_desc, sizeof(be_sound_desc), get_config_text("%d bits, %s, %d bps, %s"),
-	     _sound_bits, uconvert_ascii((char *)(be_sound_signed ? "signed" : "unsigned"), tmp1), 
-	     _sound_freq, uconvert_ascii((char *)(_sound_stereo ? "stereo" : "mono"), tmp2));
+	     _sound_bits, uconvert_ascii(be_sound_signed ? "signed" : "unsigned", tmp1), 
+	     _sound_freq, uconvert_ascii(_sound_stereo ? "stereo" : "mono", tmp2));
 
    digi_driver->desc = be_sound_desc;
    be_sound_active = true;

@@ -136,6 +136,7 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
    PgVideoModeInfo_t mode_info;
    int mode_num;
    char *addr;
+   char tmp1[128], tmp2[128];
 
    if (1
 #ifdef ALLEGRO_COLOR8
@@ -241,7 +242,8 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
    desktop_depth = color_depth;
 
    setup_direct_shifts();
-   sprintf(driver_desc, "Photon direct mode (%s)", caps.chip_name);
+   uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("Photon direct mode (%s)", tmp1),
+             uconvert_ascii(caps.chip_name, tmp2));
    drv->desc = driver_desc;
 
    _mouse_on = TRUE;
@@ -467,6 +469,7 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
    PhDim_t dim;
    char *addr;
    int pitch;
+   char tmp1[128], tmp2[128];
 
    if (1
 #ifdef ALLEGRO_COLOR8
@@ -575,8 +578,8 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
 #endif
 
    setup_direct_shifts();
-   sprintf(driver_desc, "Photon windowed, %d bpp %s", color_depth,
-      (color_depth == desktop_depth) ? "in matching" : "in fast emulation");
+   uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("Photon windowed, %d bpp %s", tmp1), color_depth,
+             uconvert_ascii(color_depth == desktop_depth ? "in matching" : "in fast emulation", tmp2));
    drv->desc = driver_desc;
 
    PgFlush();

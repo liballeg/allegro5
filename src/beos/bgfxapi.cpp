@@ -429,6 +429,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    frame_buffer_info  *fbuffer;
    accelerant_device_info info;
    char  path[MAXPATHLEN];
+   char tmp1|128], tmp2[128];
    char *exe;
 
    if (1
@@ -557,9 +558,10 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
 
    _be_gfx_set_truecolor_shifts();
    if (BScreen().GetDeviceInfo(&info) == B_OK)
-      uszprintf(driver_desc, sizeof(driver_desc), "BWindowScreen object (%s)", info.name);
+      uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("BWindowScreen object (%s)", tmp1)
+                uconvert_ascii(info.name, tmp2));
    else
-      uszprintf(driver_desc, sizeof(driver_desc), "BWindowScreen object");
+      ustrzcpy(driver_desc, sizeof(driver_desc), uconvert_ascii("BWindowScreen object", tmp1));
    drv->desc = driver_desc;
 
    be_gfx_initialized = true;
@@ -967,6 +969,7 @@ void BeAllegroWindow::MessageReceived(BMessage *message)
 void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
 {
    size_t size;
+   char tmp[128];
    
    if (dying) {
       return;
@@ -1062,7 +1065,7 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
       be_gfx_windowed_set_palette(_current_palette, 0, 255, 0);
 
    uszprintf(driver_desc, sizeof(driver_desc), get_config_text("BDirectWindow, %d bit in %s"),
-      screen_depth, (screen_depth == display_depth ? "matching" : "fast emulation"));
+             screen_depth, uconvert_ascii(screen_depth == display_depth ? "matching" : "fast emulation", tmp));
 
    release_sem(_be_window_lock);
    locker->Unlock();
@@ -1094,6 +1097,7 @@ static struct BITMAP *_be_gfx_windowed_init(GFX_DRIVER *drv, int w, int h, int v
    BITMAP *bmp;
    int bpp;
    char path[MAXPATHLEN];
+   char tmp[128];
    char *exe;
 
    if (1
@@ -1193,8 +1197,9 @@ static struct BITMAP *_be_gfx_windowed_init(GFX_DRIVER *drv, int w, int h, int v
    while (!be_gfx_initialized);
 
    uszprintf(driver_desc, sizeof(driver_desc), get_config_text("BDirectWindow object, %d bit in %s"),
-      _be_allegro_window->screen_depth,
-      (_be_allegro_window->screen_depth == _be_allegro_window->display_depth ? "matching" : "fast emulation"));
+             _be_allegro_window->screen_depth,
+             uconvert_ascii(_be_allegro_window->screen_depth == _be_allegro_window->display_depth ?
+                            "matching" : "fast emulation", tmp));
    drv->desc = driver_desc;
    
    return bmp;
