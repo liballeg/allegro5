@@ -155,8 +155,6 @@ int main(void)
     */
    drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 
-   text_mode(-1);
-
    /* select the greyscale table */
    color_map = &greyscale_table;
 
@@ -177,7 +175,7 @@ int main(void)
 	 deltay *= -1;
 
       blit(background, temp, 0, 0, 0, 0, 320, 200);
-      textout_centre(temp, font, "Greyscale effect", SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 255));
+      textout_centre_ex(temp, font, "Greyscale effect", SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 255), -1);
       rectfill(temp, x, y, x+50, y+50, 0);
       vsync();
       blit(temp, screen, 0, 0, 0, 0, 320, 200);
@@ -196,7 +194,7 @@ int main(void)
     * background image any more, we can optimize it's speed printing the
     * text now.
     */
-   textout_centre(background, font, "Negative effect", SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 0));
+   textout_centre_ex(background, font, "Negative effect", SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 0), -1);
 
    /* switch the active color table... */
    color_map = &negative_table;

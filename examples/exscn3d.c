@@ -178,7 +178,6 @@ int main(void)
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
    create_scene(24*MAX_CUBES*MAX_CUBES*MAX_CUBES, 6*MAX_CUBES*MAX_CUBES*MAX_CUBES);
    set_projection_viewport(0, 0, SCREEN_W, SCREEN_H);
-   text_mode(-1);
    
    /* initialize pointers */
    for (j=0; j<4; j++)
@@ -217,7 +216,7 @@ int main(void)
       
       /* sorts and renders polys */
       render_scene();
-      textprintf(buffer, font, 2, 2, palette_color[1], "(%.1f fps)", fps);
+      textprintf_ex(buffer, font, 2, 2, palette_color[1], -1, "(%.1f fps)", fps);
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
       frame++;
       

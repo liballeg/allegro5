@@ -70,7 +70,7 @@ int main()
    set_color(0, &black);
 
    if (status_bar)
-      textout(status_bar, font, "This area isn't scrolling", 8, 8, 1);
+      textout_ex(status_bar, font, "This area isn't scrolling", 8, 8, 1, 0);
 
    rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
    rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H-split_h, 2);
@@ -80,7 +80,7 @@ int main()
       if (status_bar) {
 	 sprintf(tmp, "Counter = %d", counter++);
 	 acquire_bitmap(status_bar);
-	 textout(status_bar, font, tmp, 8, 20, 1);
+	 textout_ex(status_bar, font, tmp, 8, 20, 1, 0);
 	 release_bitmap(status_bar);
       }
 

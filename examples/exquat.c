@@ -263,7 +263,6 @@ int main()
    }
    set_palette(desktop_palette);
    clear_to_color(screen, palette_color[0]);
-   text_mode(-1);
 
    /* Each back-buffer is one quarter the size of the screen
     */
@@ -282,15 +281,15 @@ int main()
    set_projection_viewport(0, 0, 320, 240);
 
    /* print out something helpful for the user */
-   textout(screen, font, "SPACE - next interpolation", 184, 24, palette_color[15]);
-   textout(screen, font, "    R - repeat last interpolation", 184, 40, palette_color[15]);
-   textout(screen, font, "  ESC - quit", 184, 56, palette_color[15]);
+   textout_ex(screen, font, "SPACE - next interpolation", 184, 24, palette_color[15], -1);
+   textout_ex(screen, font, "    R - repeat last interpolation", 184, 40, palette_color[15], -1);
+   textout_ex(screen, font, "  ESC - quit", 184, 56, palette_color[15], -1);
 
-   textout(screen, font, "Interpolating Euler Angles", 56, 110, palette_color[15]);
-   textout(screen, font, "Interpolating Quaternions", 380, 110, palette_color[15]);
+   textout_ex(screen, font, "Interpolating Euler Angles", 56, 110, palette_color[15], -1);
+   textout_ex(screen, font, "Interpolating Quaternions", 380, 110, palette_color[15], -1);
 
-   textout(screen, font, "Incorrect!", 120, 360, palette_color[15]);
-   textout(screen, font, "Correct!", 448, 360, palette_color[15]);
+   textout_ex(screen, font, "Incorrect!", 120, 360, palette_color[15], -1);
+   textout_ex(screen, font, "Correct!", 448, 360, palette_color[15], -1);
 
    /* initialize the path edges. This structure is used by both the Euler
     * path and the quaternion path. It connects all the points end to end

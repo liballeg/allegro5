@@ -99,9 +99,9 @@ void draw(BITMAP *b)
    } 
 
    if (retrace_proc)
-      textout(b, font, "Triple buffering with retrace sync", 0, 0, 255);
+      textout_ex(b, font, "Triple buffering with retrace sync", 0, 0, 255, -1);
    else
-      textout(b, font, "Triple buffering", 0, 0, 255);
+      textout_ex(b, font, "Triple buffering", 0, 0, 255, -1);
 
    release_bitmap(b);
 }
@@ -212,8 +212,6 @@ int main()
    /* initialise the shapes */
    for (c=0; c<NUM_SHAPES; c++)
       init_shape(shapes+c);
-
-   text_mode(-1);
 
    LOCK_VARIABLE(fade_color);
    LOCK_FUNCTION(fade);

@@ -128,8 +128,7 @@ int main(int argc, char *argv[])
    /* scale the background image to be the same size as the screen */
    stretch_blit(background, buffer, 0, 0, background->w, background->h, 0, 0, SCREEN_W, SCREEN_H);
 
-   text_mode(-1);
-   textprintf(buffer, font, 0, 0, makecol(255, 255, 255), "%dx%d, %dbpp", SCREEN_W, SCREEN_H, bpp);
+   textprintf_ex(buffer, font, 0, 0, makecol(255, 255, 255), -1, "%dx%d, %dbpp", SCREEN_W, SCREEN_H, bpp);
 
    destroy_bitmap(background);
    background = create_bitmap(SCREEN_W, SCREEN_H);

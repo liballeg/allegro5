@@ -69,12 +69,12 @@ int main(int argc, char *argv[])
    set_color_conversion(COLORCONV_TOTAL);
    
    /* display the bitmap from the datafile */
-   textout(screen, font, "This is the bitmap:", 32, 16, makecol(255, 255, 255));
+   textout_ex(screen, font, "This is the bitmap:", 32, 16, makecol(255, 255, 255), -1);
    blit(datafile[SILLY_BITMAP].dat, screen, 0, 0, 64, 32, 64, 64);
 
    /* and use the font from the datafile */
-   textout(screen, datafile[BIG_FONT].dat, "And this is a big font!", 32, 128,
-	   makecol(0, 255, 0));
+   textout_ex(screen, datafile[BIG_FONT].dat, "And this is a big font!", 32, 128,
+	      makecol(0, 255, 0), -1);
 
    readkey();
 

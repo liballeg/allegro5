@@ -470,11 +470,10 @@ int main(void)
    line(texture, 0, 0, 31, 31, palette_color[1]);
    line(texture, 0, 31, 31, 0, palette_color[1]);
    rect(texture, 0, 0, 31, 31, palette_color[1]);
-   text_mode(-1);
-   textout(texture, font, "dead", 0, 0, palette_color[2]);
-   textout(texture, font, "pigs", 0, 8, palette_color[2]);
-   textout(texture, font, "cant", 0, 16, palette_color[2]);
-   textout(texture, font, "fly.", 0, 24, palette_color[2]);
+   textout_ex(texture, font, "dead", 0, 0, palette_color[2], -1);
+   textout_ex(texture, font, "pigs", 0, 8, palette_color[2], -1);
+   textout_ex(texture, font, "cant", 0, 16, palette_color[2], -1);
+   textout_ex(texture, font, "fly.", 0, 24, palette_color[2], -1);
 
    /* double buffer the animation */
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
@@ -498,8 +497,8 @@ int main(void)
       translate_shapes();
       draw_shapes(buffer);
 
-      textprintf(buffer, font, 0, 0, palette_color[192], "%s, %d bpp", mode_desc[render_mode], bitmap_color_depth(screen));
-      textout(buffer, font, "Press a key to change", 0, 12, palette_color[192]);
+      textprintf_ex(buffer, font, 0, 0, palette_color[192], -1, "%s, %d bpp", mode_desc[render_mode], bitmap_color_depth(screen));
+      textout_ex(buffer, font, "Press a key to change", 0, 12, palette_color[192], -1);
 
       vsync();
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H); 

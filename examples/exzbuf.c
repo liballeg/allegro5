@@ -241,7 +241,7 @@ int main()
       get_transformation_matrix_f(&matrix1, 1., rx1, ry1, rz1, tx, 0., tz1);
       get_transformation_matrix_f(&matrix2, 1., rx2, ry2, rz2, -tx, 0., tz2);
 
-      textprintf(buffer, font, 10, 1, palette_color[1], "Z-buffered polygons (%.1f fps)", fps);
+      textprintf_ex(buffer, font, 10, 1, palette_color[1], 0, "Z-buffered polygons (%.1f fps)", fps);
    
       vsync();
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);

@@ -32,17 +32,16 @@ void test(int colordepth)
 
    clear_to_color(screen, makecol(0, 0, 0));
 
-   text_mode(-1);
-   textprintf(screen, font, 0, 0, makecol(255, 255, 255), "%d bit color...", colordepth);
+   textprintf_ex(screen, font, 0, 0, makecol(255, 255, 255), -1, "%d bit color...", colordepth);
 
    /* use the makecol() function to specify RGB values... */
-   textout(screen, font, "Red",     32, 80,  makecol(255, 0,   0  ));
-   textout(screen, font, "Green",   32, 100, makecol(0,   255, 0  ));
-   textout(screen, font, "Blue",    32, 120, makecol(0,   0,   255));
-   textout(screen, font, "Yellow",  32, 140, makecol(255, 255, 0  ));
-   textout(screen, font, "Cyan",    32, 160, makecol(0,   255, 255));
-   textout(screen, font, "Magenta", 32, 180, makecol(255, 0,   255));
-   textout(screen, font, "Grey",    32, 200, makecol(128, 128, 128));
+   textout_ex(screen, font, "Red",     32, 80,  makecol(255, 0,   0  ), -1);
+   textout_ex(screen, font, "Green",   32, 100, makecol(0,   255, 0  ), -1);
+   textout_ex(screen, font, "Blue",    32, 120, makecol(0,   0,   255), -1);
+   textout_ex(screen, font, "Yellow",  32, 140, makecol(255, 255, 0  ), -1);
+   textout_ex(screen, font, "Cyan",    32, 160, makecol(0,   255, 255), -1);
+   textout_ex(screen, font, "Magenta", 32, 180, makecol(255, 0,   255), -1);
+   textout_ex(screen, font, "Grey",    32, 200, makecol(128, 128, 128), -1);
 
    /* or we could draw some nice smooth color gradients... */
    for (x=0; x<256; x++) {
@@ -51,7 +50,7 @@ void test(int colordepth)
       vline(screen, 192+x, 304, 368, makecol(0, 0, x));
    }
 
-   textout_centre(screen, font, "<press a key>", SCREEN_W/2, SCREEN_H-16, makecol(255, 255, 255));
+   textout_centre_ex(screen, font, "<press a key>", SCREEN_W/2, SCREEN_H-16, makecol(255, 255, 255), -1);
 
    release_screen();
 

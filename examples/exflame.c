@@ -108,7 +108,7 @@ int main(void)
 
    set_palette(palette);
 
-   textout(screen, font, "Using get/putpixel()", 0, 0, makecol(255,255,255));
+   textout_ex(screen, font, "Using get/putpixel()", 0, 0, makecol(255,255,255), makecol(0, 0, 0));
 
    /* using getpixel() and putpixel() is slow :-) */
    while (!keypressed()) {
@@ -131,7 +131,7 @@ int main(void)
    }
 
    clear_keybuf();
-   textout(screen, font, "Using direct memory writes", 0, 0, makecol(255,255,255));
+   textout_ex(screen, font, "Using direct memory writes", 0, 0, makecol(255,255,255), makecol(0, 0, 0));
 
    /* It is much faster if we access the screen memory directly. This
     * time we read an entire line of the screen into our own buffer,
@@ -173,7 +173,7 @@ int main(void)
    }
 
    clear_keybuf();
-   textout(screen, font, "Using block data transfers", 0, 0, makecol(255,255,255));
+   textout_ex(screen, font, "Using block data transfers", 0, 0, makecol(255,255,255), makecol(0, 0, 0));
 
    /* It is even faster if we transfer the data in 32 bit chunks, rather
     * than only one pixel at a time. This method may not work on really

@@ -49,7 +49,6 @@ int main(int argc, char *argv[])
       allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
       return 1;
    }
-   text_mode(-1);
 
    replace_filename(buf, argv[0], "planet.pcx", sizeof(buf));
 
@@ -82,7 +81,7 @@ int main(int argc, char *argv[])
 			  distance(SCREEN_W/2 + planet->w, SCREEN_H/2 + planet->h, mouse_x, mouse_y),
 			  distance(SCREEN_W/2, SCREEN_H/2 + planet->h, mouse_x, mouse_y));
 
-      textout(buffer, font, "Gouraud Shaded Sprite Demo", 0, 0, palette_color[10]);
+      textout_ex(buffer, font, "Gouraud Shaded Sprite Demo", 0, 0, palette_color[10], -1);
 
       show_mouse(buffer);
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);

@@ -33,7 +33,6 @@ int main()
    }
    set_palette(desktop_palette);
    clear_to_color(screen, makecol(255, 255, 255));
-   text_mode(makecol(255, 255, 255));
 
    /* install a digital sound driver */
    if (install_sound(DIGI_AUTODETECT, MIDI_NONE, NULL) != 0) {
@@ -50,8 +49,8 @@ int main()
       return 1;
    }
 
-   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H/3, makecol(0, 0, 0), "Audio stream is now playing...");
-   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H/3+24, makecol(0, 0, 0), "Driver: %s", digi_driver->name);
+   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3, makecol(0, 0, 0), makecol(255, 255, 255), "Audio stream is now playing...");
+   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3+24, makecol(0, 0, 0), makecol(255, 255, 255), "Driver: %s", digi_driver->name);
 
    while (!keypressed()) {
       /* does the stream need any more data yet? */
@@ -59,7 +58,7 @@ int main()
 
       if (p) {
 	 /* if so, generate a bit more of our waveform... */
-	 textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H*2/3, makecol(0, 0, 0), "update #%d", updates++);
+	 textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H*2/3, makecol(0, 0, 0), makecol(255, 255, 255), "update #%d", updates++);
 
 	 for (i=0; i<BUFFER_SIZE; i++) {
 	    /* this is just a sawtooth wave that gradually increases in 

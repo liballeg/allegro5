@@ -34,10 +34,10 @@ int main()
    }
    set_palette(default_palette);
    clear_bitmap(screen);
-   textout_centre(screen, font, "Please center the joystick", SCREEN_W/2,
-		  SCREEN_H/2 - 36, palette_color[255]);
-   textout_centre(screen, font, "and press a key.", SCREEN_W/2,
-		  SCREEN_H/2 - 20, palette_color[255]);
+   textout_centre_ex(screen, font, "Please center the joystick", SCREEN_W/2,
+		     SCREEN_H/2 - 36, palette_color[255], 0);
+   textout_centre_ex(screen, font, "and press a key.", SCREEN_W/2,
+		     SCREEN_H/2 - 20, palette_color[255], 0);
 
    if ((readkey()&0xFF) == 27)
       return 0;
@@ -65,8 +65,8 @@ int main()
       msg = calibrate_joystick_name(0);
 
       clear_bitmap(screen);
-      textout_centre(screen, font, msg, SCREEN_W/2, 64, palette_color[255]);
-      textout_centre(screen, font, "and press a key.", SCREEN_W/2, 80, palette_color[255]);
+      textout_centre_ex(screen, font, msg, SCREEN_W/2, 64, palette_color[255], 0);
+      textout_centre_ex(screen, font, "and press a key.", SCREEN_W/2, 80, palette_color[255], 0);
 
       if ((readkey()&0xFF) == 27)
 	 return 0;
@@ -84,10 +84,10 @@ int main()
    */
    if (joy[0].stick[0].flags & JOYFLAG_ANALOGUE) {
       clear_bitmap(screen);
-      textout_centre(screen, font, "Now press 'D' to use a digital",
-		     SCREEN_W/2, 64, palette_color[255]);
-      textout_centre(screen, font, "joystick or 'A' for analogue mode.",
-		     SCREEN_W/2, 80, palette_color[255]);
+      textout_centre_ex(screen, font, "Now press 'D' to use a digital",
+			SCREEN_W/2, 64, palette_color[255], 0);
+      textout_centre_ex(screen, font, "joystick or 'A' for analogue mode.",
+			SCREEN_W/2, 80, palette_color[255], 0);
 
       for (;;) {
 	 c = readkey()&0xFF;
@@ -118,21 +118,21 @@ int main()
 
       clear_bitmap(bmp);
 
-      textout_centre(bmp, font, joystick_driver->name, 160, 150, palette_color[255]);
+      textout_centre_ex(bmp, font, joystick_driver->name, 160, 150, palette_color[255], 0);
 
       if (analogmode)
-	 textout_centre(bmp, font, "Analog mode selected", 160, 160, palette_color[255]);
+	 textout_centre_ex(bmp, font, "Analog mode selected", 160, 160, palette_color[255], 0);
       else
-	 textout_centre(bmp, font, "Digital mode selected", 160, 160, palette_color[255]);
+	 textout_centre_ex(bmp, font, "Digital mode selected", 160, 160, palette_color[255], 0);
 
-      textout_centre(bmp, font, "Move the joystick all around", 160, 170, palette_color[255]);
-      textout_centre(bmp, font, "Press any key to exit", 160, 180, palette_color[255]);
-      textout_centre(bmp, font, "Made by Grzegorz Adam Hankiewicz", 160, 190, palette_color[255]);
+      textout_centre_ex(bmp, font, "Move the joystick all around", 160, 170, palette_color[255], 0);
+      textout_centre_ex(bmp, font, "Press any key to exit", 160, 180, palette_color[255], 0);
+      textout_centre_ex(bmp, font, "Made by Grzegorz Adam Hankiewicz", 160, 190, palette_color[255], 0);
 
       /* if we detect any buttons, we print a message on the screen */
       for (c=0; c<joy[0].num_buttons; c++) {
 	 if (joy[0].button[c].b)
-	    textprintf_centre(bmp, font, 160, c*10, palette_color[15], "%s pressed", joy[0].button[c].name);
+	    textprintf_centre_ex(bmp, font, 160, c*10, palette_color[15], 0, "%s pressed", joy[0].button[c].name);
       }
 
       if (!analogmode) {
@@ -142,22 +142,22 @@ int main()
 	 if (joy[0].stick[0].axis[0].d1) {
 	    if (x > 0)
 	       x--;
-	    textout_centre(bmp, font, "Left", 120, 100, palette_color[255]);
+	    textout_centre_ex(bmp, font, "Left", 120, 100, palette_color[255], 0);
 	 }
 	 if (joy[0].stick[0].axis[0].d2) {
 	    if (x < 319)
 	       x++;
-	    textout_centre(bmp, font, "Right", 200, 100, palette_color[255]);
+	    textout_centre_ex(bmp, font, "Right", 200, 100, palette_color[255], 0);
 	 }
 	 if (joy[0].stick[0].axis[1].d1) {
 	    if (y > 0)
 	       y--;
-	    textout_centre(bmp, font, "Up", 160, 70, palette_color[255]);
+	    textout_centre_ex(bmp, font, "Up", 160, 70, palette_color[255], 0);
 	 }
 	 if (joy[0].stick[0].axis[1].d2) {
 	    if (y < 199)
 	       y++;
-	    textout_centre(bmp, font, "Down", 160, 130, palette_color[255]);
+	    textout_centre_ex(bmp, font, "Down", 160, 130, palette_color[255], 0);
 	 }
       }
       else {
@@ -168,23 +168,23 @@ int main()
 	 y += joy[0].stick[0].axis[1].pos/40;
 
 	 /* for informational purposes, show the input values on screen */
-         textprintf(bmp, font, 0,  0, palette_color[255], "Axis 0: %d", joy[0].stick[0].axis[0].pos);
-         textprintf(bmp, font, 0, 10, palette_color[255], "Axis 1: %d", joy[0].stick[0].axis[1].pos);
+         textprintf_ex(bmp, font, 0,  0, palette_color[255], 0, "Axis 0: %d", joy[0].stick[0].axis[0].pos);
+         textprintf_ex(bmp, font, 0, 10, palette_color[255], 0, "Axis 1: %d", joy[0].stick[0].axis[1].pos);
 
 	 /* by checking if the values were positive or negative, we
 	  * can know in which the direction the user pulled the joy.
 	  */
 	 if (joy[0].stick[0].axis[0].pos/40 < 0) 
-	    textout_centre(bmp, font, "Left", 120, 100, palette_color[255]);
+	    textout_centre_ex(bmp, font, "Left", 120, 100, palette_color[255], 0);
 
 	 if (joy[0].stick[0].axis[0].pos/40 > 0) 
-	    textout_centre(bmp, font, "Right", 200, 100, palette_color[255]);
+	    textout_centre_ex(bmp, font, "Right", 200, 100, palette_color[255], 0);
 
 	 if (joy[0].stick[0].axis[1].pos/40 < 0) 
-	    textout_centre(bmp, font, "Up", 160, 70, palette_color[255]);
+	    textout_centre_ex(bmp, font, "Up", 160, 70, palette_color[255], 0);
 
 	 if (joy[0].stick[0].axis[1].pos/40 > 0) 
-	    textout_centre(bmp, font, "Down", 160, 130, palette_color[255]);
+	    textout_centre_ex(bmp, font, "Down", 160, 130, palette_color[255], 0);
 
 	 /* WARNING! An analog joystick can move more than 1 pixel at
 	  * a time and the checks we did with the digital part don't

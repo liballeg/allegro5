@@ -117,19 +117,18 @@ int main(int argc, char *argv[])
       for (i=0; i<num_images; i++)
 	 blit(vimage, page[page_num], 0, 0, images[i].x, images[i].y, vimage->w, vimage->h);
 
-      text_mode(-1);
-      textprintf(page[page_num], font, 0, 0, 255, "Images: %d (arrow keys to change)", num_images);
+      textprintf_ex(page[page_num], font, 0, 0, 255, -1, "Images: %d (arrow keys to change)", num_images);
 
       /* tell the user which functions are being done in hardware */
       if (gfx_capabilities & GFX_HW_FILL)
-	 textout(page[page_num], font, "Clear: hardware accelerated", 0, 16, 255);
+	 textout_ex(page[page_num], font, "Clear: hardware accelerated", 0, 16, 255, -1);
       else
-	 textout(page[page_num], font, "Clear: software (urgh, this is not good!)", 0, 16, 255);
+	 textout_ex(page[page_num], font, "Clear: software (urgh, this is not good!)", 0, 16, 255, -1);
 
       if (gfx_capabilities & GFX_HW_VRAM_BLIT)
-	 textout(page[page_num], font, "Blit: hardware accelerated", 0, 32, 255);
+	 textout_ex(page[page_num], font, "Blit: hardware accelerated", 0, 32, 255, -1);
       else
-	 textout(page[page_num], font, "Blit: software (urgh, this program will run too sloooooowly without hardware acceleration!)", 0, 32, 255);
+	 textout_ex(page[page_num], font, "Blit: software (urgh, this program will run too sloooooowly without hardware acceleration!)", 0, 32, 255, -1);
 
       release_bitmap(page[page_num]);
 

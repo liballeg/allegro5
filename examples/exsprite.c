@@ -111,8 +111,8 @@ int main(int argc, char *argv[])
    running = create_bitmap(82, 82);
 
    /* write current sprite drawing method */
-   textout(screen, font, "Press a key for next part...", 40, 10, palette_color[1]);
-   textout(screen, font, "Using draw_sprite", 1, 190, palette_color[15]);
+   textout_ex(screen, font, "Press a key for next part...", 40, 10, palette_color[1], -1);
+   textout_ex(screen, font, "Using draw_sprite", 1, 190, palette_color[15], -1);
 
    do {
       blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout(screen, font, "Using draw_sprite_h_flip", 1, 190, palette_color[15]);
+   textout_ex(screen, font, "Using draw_sprite_h_flip", 1, 190, palette_color[15], -1);
 
    do {
       blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout(screen, font, "Using draw_sprite_v_flip", 1, 190, palette_color[15]);
+   textout_ex(screen, font, "Using draw_sprite_v_flip", 1, 190, palette_color[15], -1);
 
    do {
       blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout(screen, font, "Using draw_sprite_vh_flip", 1, 190, palette_color[15]);
+   textout_ex(screen, font, "Using draw_sprite_vh_flip", 1, 190, palette_color[15], -1);
 
    do {
       blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout(screen, font, "Now with rotating - rotate_sprite", 1, 190, palette_color[15]);
+   textout_ex(screen, font, "Now with rotating - rotate_sprite", 1, 190, palette_color[15], -1);
 
    do {
       /* The last argument to rotate_sprite() is a fixed point type,
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout(screen, font, "Now using rotate_sprite_v_flip", 1, 190, palette_color[15]);
+   textout_ex(screen, font, "Now using rotate_sprite_v_flip", 1, 190, palette_color[15], -1);
 
    do {
       /* The last argument to rotate_sprite_v_flip() is a fixed point type,

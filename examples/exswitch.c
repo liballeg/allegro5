@@ -51,7 +51,7 @@ void show_msg(char *msg)
    rectfill(text_area, 0, text_area->h-8, text_area->w, text_area->h, palette_color[0]);
 
    if (msg)
-      textout_centre(text_area, font, msg, text_area->w/2, text_area->h-8, palette_color[255]);
+      textout_centre_ex(text_area, font, msg, text_area->w/2, text_area->h-8, palette_color[255], palette_color[0]);
 
    release_bitmap(text_area);
 }
@@ -224,8 +224,6 @@ int main(void)
 
    set_palette(pal);
 
-   text_mode(palette_color[0]);
-
    text_area = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H/2);
    graphics_area = create_sub_bitmap(screen, 0, SCREEN_H/2, SCREEN_W/2, SCREEN_H/2);
    if ((!text_area) || (!graphics_area)) {
@@ -251,8 +249,8 @@ int main(void)
 	 last_counter = counter;
 
 	 acquire_screen();
-	 textprintf_centre(screen, font, SCREEN_W*3/4, SCREEN_H*3/4,
-			   palette_color[255], "Time: %d", last_counter);
+	 textprintf_centre_ex(screen, font, SCREEN_W*3/4, SCREEN_H*3/4,
+			      palette_color[255], palette_color[0], "Time: %d", last_counter);
 	 release_screen();
 
 	 acquire_bitmap(graphics_area);

@@ -63,19 +63,18 @@ int main()
    }
    set_palette(desktop_palette);
    clear_to_color(screen, makecol(255, 255, 255));
-   text_mode(makecol(255, 255, 255));
 
-   textprintf_centre(screen, font, SCREEN_W/2, 8, makecol(0, 0, 0),"Driver: %s", timer_driver->name);
+   textprintf_centre_ex(screen, font, SCREEN_W/2, 8, makecol(0, 0, 0), makecol(255, 255, 255), "Driver: %s", timer_driver->name);
 
    /* use rest() to delay for a specified number of milliseconds */
-   textprintf_centre(screen, font, SCREEN_W/2, 48, makecol(0, 0, 0),"Timing five seconds:");
+   textprintf_centre_ex(screen, font, SCREEN_W/2, 48, makecol(0, 0, 0), makecol(255, 255, 255), "Timing five seconds:");
 
    for (c=1; c<=5; c++) {
-      textprintf_centre(screen, font, SCREEN_W/2, 62+c*10, makecol(0, 0, 0),"%d", c);
+      textprintf_centre_ex(screen, font, SCREEN_W/2, 62+c*10, makecol(0, 0, 0), makecol(255, 255, 255), "%d", c);
       rest(1000);
    }
 
-   textprintf_centre(screen, font, SCREEN_W/2, 142, makecol(0, 0, 0),"Press a key to set up interrupts");
+   textprintf_centre_ex(screen, font, SCREEN_W/2, 142, makecol(0, 0, 0), makecol(255, 255, 255), "Press a key to set up interrupts");
    readkey();
 
    /* all variables and code used inside interrupt handlers must be locked */
@@ -97,7 +96,7 @@ int main()
 
    /* the interrupts are now active... */
    while (!keypressed())
-      textprintf_centre(screen, font, SCREEN_W/2, 176, makecol(0, 0, 0),"x=%d, y=%d, z=%d", x, y, z);
+      textprintf_centre_ex(screen, font, SCREEN_W/2, 176, makecol(0, 0, 0), makecol(255, 255, 255), "x=%d, y=%d, z=%d", x, y, z);
 
    return 0;
 }

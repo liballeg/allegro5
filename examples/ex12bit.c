@@ -256,7 +256,7 @@ POINT_T *make_points(int *numpoints, char *msg)
 
    bmp = create_bitmap_ex(8, text_length(font, msg), text_height(font));
    clear_bitmap(bmp);
-   textout(bmp, font, msg, 0, 0, 1);
+   textout_ex(bmp, font, msg, 0, 0, 1, -1);
 
    /* first, count how much memory we will need to reserve */
    n = 0;
@@ -387,9 +387,8 @@ int main(int argc, char *argv[])
    xangle = yangle = zangle = 0;
 
    /* put a message in the top-left corner */
-   text_mode(-1);
-   textprintf(rgbpic, font, 3, 3, makecol12(255, 255, 255), "%ix%i 12-bit colour on an 8-bit card", GFXW, GFXH);
-   textprintf(rgbpic, font, 3, 13, makecol12(255, 255, 255), "(3840 colours at once!)");
+   textprintf_ex(rgbpic, font, 3, 3, makecol12(255, 255, 255), -1, "%ix%i 12-bit colour on an 8-bit card", GFXW, GFXH);
+   textprintf_ex(rgbpic, font, 3, 13, makecol12(255, 255, 255), -1, "(3840 colours at once!)");
 
    while (!keypressed()) {
       /* first, draw some vector balls moving in a circle round the edge */

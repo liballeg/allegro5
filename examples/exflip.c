@@ -42,7 +42,6 @@ int main()
    }
 
    set_palette(desktop_palette);
-   text_mode(-1);
 
    /* allocate the memory buffer */
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
@@ -52,8 +51,8 @@ int main()
    while (retrace_count-c <= SCREEN_W+32) {
       clear_to_color(buffer, makecol(255, 255, 255));
       circlefill(buffer, retrace_count-c, SCREEN_H/2, 32, makecol(0, 0, 0));
-      textprintf(buffer, font, 0, 0, makecol(0, 0, 0),
-		 "Double buffered (%s)", gfx_driver->name);
+      textprintf_ex(buffer, font, 0, 0, makecol(0, 0, 0), -1,
+		    "Double buffered (%s)", gfx_driver->name);
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
    }
 
@@ -75,8 +74,8 @@ int main()
    for (c=-32; c<=SCREEN_W+32; c++) {
       clear_to_color(active_page, makecol(255, 255, 255));
       circlefill(active_page, c, SCREEN_H/2, 32, makecol(0, 0, 0));
-      textprintf(active_page, font, 0, 0, makecol(0, 0, 0),
-		 "Page flipping (%s)", gfx_driver->name);
+      textprintf_ex(active_page, font, 0, 0, makecol(0, 0, 0), -1,
+		    "Page flipping (%s)", gfx_driver->name);
       show_video_bitmap(active_page);
 
       if (active_page == page1)

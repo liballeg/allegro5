@@ -18,7 +18,7 @@ void draw_pattern(BITMAP *bitmap, char *message, int color)
    /* create a pattern bitmap */
    pattern = create_bitmap(text_length(font, message), text_height(font));
    clear_to_color(pattern, bitmap_mask_color(pattern));
-   textout(pattern, font, message, 0, 0, palette_color[255]);
+   textout_ex(pattern, font, message, 0, 0, palette_color[255], bitmap_mask_color(screen));
 
    /* cover the bitmap with the pattern */
    drawing_mode(DRAW_MODE_MASKED_PATTERN, pattern, 0, 0);
@@ -47,8 +47,7 @@ int main()
    }
    set_palette(desktop_palette);
    clear_to_color(screen, makecol(255, 255, 255));
-   text_mode(bitmap_mask_color(screen));
-   
+
    /* first cover the whole screen with a pattern */
    draw_pattern(screen, "<screen>", 255);
 

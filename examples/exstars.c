@@ -305,7 +305,6 @@ void erase_ship(void)
 int main(int argc, char *argv[])
 {
    PALETTE pal;
-   char buf[64];
    int i;
 
    if (allegro_init() != 0)
@@ -361,15 +360,12 @@ int main(int argc, char *argv[])
       move_stars();
       draw_stars();
 
-      sprintf(buf, "     direction: [%f] [%f] [%f]     ", fixtof(direction.x), fixtof(direction.y), fixtof(direction.z));
-      textout_centre(buffer, font, buf, SCREEN_W / 2, SCREEN_H-10, palette_color[17]);
-      sprintf(buf, "   delta: [%f] [%f] [%f]   ", fixtof(delta.x), fixtof(delta.y), fixtof(delta.z));
-      textout_centre(buffer, font, buf, SCREEN_W / 2, SCREEN_H-20, palette_color[17]);
-      sprintf(buf, "   velocity: %d   ", ship.velocity);
-      textout_centre(buffer, font, buf, SCREEN_W / 2, SCREEN_H-30, palette_color[17]);
+      textprintf_centre_ex(buffer, font, SCREEN_W / 2, SCREEN_H-10, palette_color[17], 0, "     direction: [%f] [%f] [%f]     ", fixtof(direction.x), fixtof(direction.y), fixtof(direction.z));
+      textprintf_centre_ex(buffer, font, SCREEN_W / 2, SCREEN_H-20, palette_color[17], 0, "   delta: [%f] [%f] [%f]   ", fixtof(delta.x), fixtof(delta.y), fixtof(delta.z));
+      textprintf_centre_ex(buffer, font, SCREEN_W / 2, SCREEN_H-30, palette_color[17], 0, "   velocity: %d   ", ship.velocity);
 
-      textout_centre(buffer, font, "Press ESC to exit", SCREEN_W/2, 16, palette_color[18]);
-      textout_centre(buffer, font, "Press CTRL to fire engine", SCREEN_W/2, 32, palette_color[18]);
+      textout_centre_ex(buffer, font, "Press ESC to exit", SCREEN_W/2, 16, palette_color[18], 0);
+      textout_centre_ex(buffer, font, "Press CTRL to fire engine", SCREEN_W/2, 32, palette_color[18], 0);
 
       draw_ship();
 

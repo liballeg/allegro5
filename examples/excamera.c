@@ -130,7 +130,6 @@ void draw_square(BITMAP *bmp, MATRIX_f *camera, int x, int z)
 /* draw everything */
 void render(BITMAP *bmp)
 {
-   char buf[80];
    MATRIX_f roller, camera;
    int x, y, w, h;
    float xfront, yfront, zfront;
@@ -173,31 +172,18 @@ void render(BITMAP *bmp)
 
    /* overlay some text */
    set_clip(bmp, 0, 0, bmp->w, bmp->h);
-   text_mode(-1);
-   sprintf(buf, "Viewport width: %d (w/W changes)", viewport_w);
-   textout(bmp, font, buf, 0, 0, makecol(0, 0, 0));
-   sprintf(buf, "Viewport height: %d (h/H changes)", viewport_h);
-   textout(bmp, font, buf, 0, 8, makecol(0, 0, 0));
-   sprintf(buf, "Field of view: %d (f/F changes)", fov);
-   textout(bmp, font, buf, 0, 16, makecol(0, 0, 0));
-   sprintf(buf, "Aspect ratio: %.2f (a/A changes)", aspect);
-   textout(bmp, font, buf, 0, 24, makecol(0, 0, 0));
-   sprintf(buf, "X position: %.2f (x/X changes)", xpos);
-   textout(bmp, font, buf, 0, 32, makecol(0, 0, 0));
-   sprintf(buf, "Y position: %.2f (y/Y changes)", ypos);
-   textout(bmp, font, buf, 0, 40, makecol(0, 0, 0));
-   sprintf(buf, "Z position: %.2f (z/Z changes)", zpos);
-   textout(bmp, font, buf, 0, 48, makecol(0, 0, 0));
-   sprintf(buf, "Heading: %.2f deg (left/right changes)", DEG(heading));
-   textout(bmp, font, buf, 0, 56, makecol(0, 0, 0));
-   sprintf(buf, "Pitch: %.2f deg (pgup/pgdn changes)", DEG(pitch));
-   textout(bmp, font, buf, 0, 64, makecol(0, 0, 0));
-   sprintf(buf, "Roll: %.2f deg (r/R changes)", DEG(roll));
-   textout(bmp, font, buf, 0, 72, makecol(0, 0, 0));
-   sprintf(buf, "Front vector: %.2f, %.2f, %.2f", xfront, yfront, zfront);
-   textout(bmp, font, buf, 0, 80, makecol(0, 0, 0));
-   sprintf(buf, "Up vector: %.2f, %.2f, %.2f", xup, yup, zup);
-   textout(bmp, font, buf, 0, 88, makecol(0, 0, 0));
+   textprintf_ex(bmp, font, 0,  0, makecol(0, 0, 0), -1, "Viewport width: %d (w/W changes)", viewport_w);
+   textprintf_ex(bmp, font, 0,  8, makecol(0, 0, 0), -1, "Viewport height: %d (h/H changes)", viewport_h);
+   textprintf_ex(bmp, font, 0, 16, makecol(0, 0, 0), -1, "Field of view: %d (f/F changes)", fov);
+   textprintf_ex(bmp, font, 0, 24, makecol(0, 0, 0), -1, "Aspect ratio: %.2f (a/A changes)", aspect);
+   textprintf_ex(bmp, font, 0, 32, makecol(0, 0, 0), -1, "X position: %.2f (x/X changes)", xpos);
+   textprintf_ex(bmp, font, 0, 40, makecol(0, 0, 0), -1, "Y position: %.2f (y/Y changes)", ypos);
+   textprintf_ex(bmp, font, 0, 48, makecol(0, 0, 0), -1, "Z position: %.2f (z/Z changes)", zpos);
+   textprintf_ex(bmp, font, 0, 56, makecol(0, 0, 0), -1, "Heading: %.2f deg (left/right changes)", DEG(heading));
+   textprintf_ex(bmp, font, 0, 64, makecol(0, 0, 0), -1, "Pitch: %.2f deg (pgup/pgdn changes)", DEG(pitch));
+   textprintf_ex(bmp, font, 0, 72, makecol(0, 0, 0), -1, "Roll: %.2f deg (r/R changes)", DEG(roll));
+   textprintf_ex(bmp, font, 0, 80, makecol(0, 0, 0), -1, "Front vector: %.2f, %.2f, %.2f", xfront, yfront, zfront);
+   textprintf_ex(bmp, font, 0, 88, makecol(0, 0, 0), -1, "Up vector: %.2f, %.2f, %.2f", xup, yup, zup);
 }
 
 

@@ -104,9 +104,6 @@ int main(int argc, char *argv[])
 
    clear_to_color(screen, makecol(255, 255, 255));
 
-   /* set transparent text drawing mode */
-   text_mode(-1);
-
    /* get a handle to the Unicode font */
    f = data[0].dat;
    height = text_height(f) + 8;
@@ -136,7 +133,7 @@ int main(int argc, char *argv[])
       pos[i] = ((float)rand()/RAND_MAX) * SCREEN_W;
       mesg_bmp[i] = create_system_bitmap(length[i], height);
       clear_to_color(mesg_bmp[i], makecol(255, 255, 255));
-      textout(mesg_bmp[i], f, mesg, 8, 1, makecol(0, 0, 0));
+      textout_ex(mesg_bmp[i], f, mesg, 8, 1, makecol(0, 0, 0), -1);
 
       free(mesg);
    }

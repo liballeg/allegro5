@@ -105,22 +105,20 @@ void draw_screen(BITMAP *bmp)
 
    xor_mode(FALSE);
 
-   text_mode(-1);
-
    if (num_pages == 1) {
       if (use_system_bitmaps)
-	 textout(bmp, font, "Double buffered (system bitmap)", 0, 0, makecol(255, 255, 255));
+	 textout_ex(bmp, font, "Double buffered (system bitmap)", 0, 0, makecol(255, 255, 255), -1);
       else
-	 textout(bmp, font, "Double buffered (memory bitmap)", 0, 0, makecol(255, 255, 255));
+	 textout_ex(bmp, font, "Double buffered (memory bitmap)", 0, 0, makecol(255, 255, 255), -1);
    }
    else if (num_pages == 2)
-      textout(bmp, font, "Page flipping (two pages of vram)", 0, 0, makecol(255, 255, 255));
+      textout_ex(bmp, font, "Page flipping (two pages of vram)", 0, 0, makecol(255, 255, 255), -1);
    else
-      textout(bmp, font, "Triple buffered (three pages of vram)", 0, 0, makecol(255, 255, 255));
+      textout_ex(bmp, font, "Triple buffered (three pages of vram)", 0, 0, makecol(255, 255, 255), -1);
 
-   textout(bmp, font, gfx_driver->name, 0, 16, makecol(255, 255, 255));
+   textout_ex(bmp, font, gfx_driver->name, 0, 16, makecol(255, 255, 255), -1);
 
-   textprintf(bmp, font, 0, 32, makecol(255, 255, 255), "FPS: %d", fps);
+   textprintf_ex(bmp, font, 0, 32, makecol(255, 255, 255), -1, "FPS: %d", fps);
 
    release_bitmap(bmp);
 }

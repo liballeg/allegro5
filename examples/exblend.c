@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 
    prevx1 = prevy1 = prevx2 = prevy2 = 0;
 
-   textprintf(screen, font, 0, SCREEN_H-8, makecol(255, 255, 255), "%d bpp", bpp);
+   textprintf_ex(screen, font, 0, SCREEN_H-8, makecol(255, 255, 255), 0, "%d bpp", bpp);
 
    while (!keypressed()) {
       timer = retrace_count;
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
       a = 127-fixtoi(fixcos(itofix(timer)/9)*127);
       set_trans_blender(r, g, b, 0);
       draw_lit_sprite(buffer, image1, x1, y1, a);
-      textprintf(screen, font, 0, 0, makecol(r, g, b), "light: %d ", a);
+      textprintf_ex(screen, font, 0, 0, makecol(r, g, b), 0, "light: %d ", a);
 
       /* the second image moves in a faster circle while the alpha value
        * fades in and out...
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
       a = 127-fixtoi(fixcos(itofix(timer)/4)*127);
       set_trans_blender(0, 0, 0, a);
       draw_trans_sprite(buffer, image2, x2, y2);
-      textprintf(screen, font, 0, 8, makecol(a, a, a), "alpha: %d ", a);
+      textprintf_ex(screen, font, 0, 8, makecol(a, a, a), 0, "alpha: %d ", a);
 
       /* copy the double buffer across to the screen */
       vsync();
