@@ -202,7 +202,7 @@ else
 fi
 AC_SUBST(INCLUDE_PREFIX)
 
-dnl Which version of library to link with (shared/debugging/profiling/normal)?
+dnl Which version of library to link with (static, shared, normal, debugging, profiling)?
 if test "X$allegro_build_debugging_programs" = "Xyes"; then
   COMPILE_PROGRAM=COMPILE_DEBUG
   COMPILE_S_PROGRAM=COMPILE_S_DEBUG
@@ -212,6 +212,7 @@ if test "X$allegro_build_debugging_programs" = "Xyes"; then
 elif test "X$allegro_build_profiling_programs" = "Xyes"; then
   COMPILE_PROGRAM=COMPILE_PROFILE
   COMPILE_S_PROGRAM=COMPILE_S_PROFILE
+  LDFLAGS="-pg $LDFLAGS"
   LIB_TO_LINK=allp
   PLUGIN_LIB=lib/unix/libapdat.a
   allegro_build_profiling_library=yes
