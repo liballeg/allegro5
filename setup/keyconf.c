@@ -847,8 +847,9 @@ int tester()
 int main()
 {
    static char config_override[] = "keyboard = \n";
-   int c;
+   RGB black_rgb = {0, 0, 0};
    DATAFILE *font_data;
+   int c;
 
    allegro_init();
    install_mouse();
@@ -921,7 +922,7 @@ int main()
       return 1;
    }
    set_palette(desktop_palette);
-   set_color(0, &_black_rgb);
+   set_color(0, &black_rgb);
    gui_fg_color = palette_color[255];
    gui_bg_color = palette_color[16];
 

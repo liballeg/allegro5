@@ -335,8 +335,6 @@ AL_FUNCPTR(int *, _palette_expansion_table, (int bpp));
 
 AL_VAR(int, _color_depth);
 
-AL_VAR(RGB, _black_rgb);
-
 AL_VAR(int, _current_palette_changed);
 AL_VAR(PALETTE, _prev_current_palette);
 AL_VAR(int, _got_prev_current_palette);
