@@ -3969,7 +3969,8 @@ All the Z-buffered routines are much slower than their normal counterparts
    Writes z into the given Z-buffer (0 means far away). This function should
    be used to initialize the Z-buffer before each frame. Actually, low-level
    routines compare depth of the current pixel with 1/z: for example, if you
-   want to clip polygons farther than 10, you must call clear_zbuffer(0.1);
+   want to clip polygons farther than 10, you must call
+   clear_zbuffer(zbuf, 0.1);
 
 @@void @destroy_zbuffer(ZBUFFER *zbuf);
 @xref create_zbuffer, set_zbuffer, clear_zbuffer
@@ -5591,15 +5592,20 @@ directories. Flags can be combined using '|' (binary OR operator).
 
 @@void @packfile_password(const char *password);
 @xref pack_fopen, load_datafile
-   Sets the encryption password to be used for all future read/writes of 
-   compressed files. Files written with an encryption password cannot be 
-   read unless the same password is selected, so be careful: if you forget 
-   the key, I can't make your data come back again! Pass NULL or an empty 
-   string to return to the normal, non-encrypted mode. If you are using this 
-   function to prevent people getting access to your datafiles, be careful 
-   not to store an obvious copy of the password in your executable: if there 
-   are any strings like "I'm the password for the datafile", it would be 
-   fairly easy to get access to your data :-)
+   Sets the encryption password to be used for all read/write operations
+   on files opened in future using Allegro's packfile functions (whether
+   they are compressed or not). Files written with an encryption password
+   cannot be read unless the same password is selected, so be careful: if
+   you forget the key, I can't make your data come back again! Pass NULL
+   or an empty string to return to the normal, non-encrypted mode. If you
+   are using this function to prevent people getting access to your
+   datafiles, be careful not to store an obvious copy of the password in
+   your executable: if there are any strings like "I'm the password for
+   the datafile", it would be fairly easy to get access to your data :-)
+
+   Important: as soon as you have opened a file using an encryption
+   password, call packfile_password(NULL) again. Better still, don't touch
+   this function at all. Ever.
 
 @@PACKFILE *@pack_fopen(const char *filename, const char *mode);
 @xref packfile functions, pack_fopen_chunk, packfile_password, file_select
