@@ -279,9 +279,10 @@ static void _write_html_xref_list(char **xref, int *xrefs)
    
    fputs("\n<blockquote", _file);
    if (!(html_flags & HTML_IGNORE_CSS))
-      fputs(" class=\"xref\"", _file);
+      fputs(" class=\"xref\"><em><b>", _file);
+   else
+      fputs("><font size=\"-1\" face=\"helvetica,verdana\"><em><b>", _file);
       
-   fputs("><font size=\"-1\" face=\"helvetica,verdana\"><em><b>", _file);
    fputs(html_see_also_text, _file);
    fputs("</b></em>\n", _file);
    
@@ -600,20 +601,35 @@ static void _output_html_header(char *section)
 
       /* optional style sheet output */
       if (!(html_flags & HTML_IGNORE_CSS)) {
-	 fputs("<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">\n", _file);
-	 fputs("<style type=\"text/css\">\n", _file);
+	 fputs("<meta http-equiv=\"Content-Style-Type\" ", _file);
+	 fputs("content=\"text/css\">\n<style type=\"text/css\">\n", _file);
 	 fputs("<!--\n", _file);
-	 fputs("A.xref:link    {color: blue; text-decoration: none; background: rgb(255, 204, 50);}\n", _file);
-	 fputs("A.xref:visited {color: blue; text-decoration: none; background: rgb(255, 204, 50);}\n", _file);
-	 fputs("A.xref:hover   {color: blue; text-decoration: underline; background: rgb(255, 224, 150);}\n", _file);
-	 fputs("A.xref:active  {color: red; text-decoration: none; background: rgb(255, 204, 50);}\n", _file);
-	 fputs("A.autotype:link    {color: rgb(0, 0, 177); text-decoration: none; background: white;}\n", _file);
-	 fputs("A.autotype:visited {color: rgb(0, 0, 177); text-decoration: none; background: white;}\n", _file);
-	 fputs("A.autotype:hover   {color: rgb(0, 0, 177); text-decoration: underline; background: white;}\n", _file);
-	 fputs("A.autotype:active  {color: red; text-decoration: none; background: white;}\n", _file);
-	 fputs("blockquote.xref {border: medium solid rgb(255, 204, 51); color: black; background: rgb(255, 204, 50);}\n", _file);
-	 fputs("blockquote.code {border: medium solid rgb(255, 204, 50); color: black; background: rgb(255, 255, 155);}\n", _file);
-	 fputs("blockquote.text {border: medium solid rgb(175, 235, 255); color: black; background: rgb(210, 244, 255);}\n", _file);
+	 fputs("A.xref:link {\n\tcolor: blue;\n\ttext-decoration:", _file);
+	 fputs(" none;\n\tbackground: rgb(255, 204, 50);\n}\n", _file);
+	 fputs("A.xref:visited {\n\tcolor: blue;\n\ttext-decoration:", _file);
+	 fputs(" none;\n\tbackground: rgb(255, 204, 50);\n}\n", _file);
+	 fputs("A.xref:hover {\n\tcolor: blue;\n\ttext-decoration:", _file);
+	 fputs(" underline;\n\tbackground: rgb(255, 224, 150);\n}\n", _file);
+	 fputs("A.xref:active {\n\tcolor: red;\n\ttext-decoration:", _file);
+	 fputs(" none;\n\tbackground: rgb(255, 204, 50);}\n", _file);
+	 fputs("A.autotype:link {\n\tcolor: rgb(0, 0, 177);\n\t", _file);
+	 fputs(" text-decoration: none;\n\tbackground: white;\n}\n", _file);
+	 fputs("A.autotype:visited {\n\tcolor: rgb(0, 0, 177);\n\t", _file);
+	 fputs(" text-decoration: none;\n\tbackground: white;\n}\n", _file);
+	 fputs("A.autotype:hover {\n\tcolor: rgb(0, 0, 177);\n\t", _file);
+	 fputs(" text-decoration: underline;\n\tbackground: white;\n}\n", _file);
+	 fputs("A.autotype:active {\n\tcolor: red;\n\ttext-decoration:", _file);
+	 fputs(" none;\n\tbackground: white;\n}\n", _file);
+	 fputs("blockquote.xref {\n\tfont-family: helvetica,", _file);
+	 fputs(" verdana;\n\tfont-size: smaller;\n\tborder: medium", _file);
+	 fputs(" solid rgb(255, 204, 51);\n\tcolor:", _file);
+	 fputs("  black;\n\tbackground: rgb(255, 204, 50);\n}\n", _file);
+	 fputs("blockquote.code {\n\tborder: medium solid", _file);
+	 fputs(" rgb(255, 204, 50);\n\tcolor: black;\n\tbackground:", _file);
+	 fputs(" rgb(255, 255, 155);\n}\n", _file);
+	 fputs("blockquote.text {\n\tborder: medium solid", _file);
+	 fputs(" rgb(175, 235, 255);\n\tcolor: black;\n\tbackground:", _file);
+	 fputs(" rgb(210, 244, 255);\n}\n", _file);
 	 fputs("-->\n", _file);
 	 fputs("</style>\n", _file);
       }
