@@ -54,7 +54,7 @@ LIB_MAIN_NAME = lib/macosx/lib$(VERSION)-main.a
 
 DYLINK_FLAGS = -prebind -seg1addr 0x30000000 -dylib_compatibility_version=4.0.0 -dylib_current_version=$(shared_version)
 
-INSTALL_NAME = -install_name lib$(VERSION)-$(shared_version).dylib
+INSTALL_NAME = -install_name lib$(VERSION)-$(shared_major_minor).dylib
 INSTALL_NAME_EMBED = -install_name "`echo "@executable_path/../Frameworks/$(FRAMEWORK_NAME).framework/Versions/$(shared_version)/$(FRAMEWORK_NAME)" | sed 's!//*!/!g'`"
 
 ifdef EMBED
@@ -200,6 +200,8 @@ endif
 	@sed -e "s/@LDFLAGS@//" temp > temp2
 	@sed -e "s/@LIBS@/$(STATIC_LIBRARIES)/" temp2 > temp
 	@sed -e "s/@INCLUDE_PREFIX@/\/usr\/local/" temp >temp2
+	@sed -e "s/@FRAMEWORKS@/-framework Cocoa -framework $(FRAMEWORK_NAME) -l$(VERSION)-main/" temp2 > temp
+	@sed -e "s/accepts_frameworks=no/accepts_frameworks=yes/" temp > temp2
 	@sed -e "s/-l\$${lib_type}_unsharable/-l\$${lib_type}-main $(LIBRARIES)/" temp2 >$(INSTALLDIR)/bin/allegro-config
 	@rm -f temp temp2
 	@chmod a+x $(INSTALLDIR)/bin/allegro-config
@@ -278,6 +280,9 @@ endif
 	@sed -e "s/@NAME@/$(FRAMEWORK_NAME)/" misc/Info.plist >temp
 	@sed -e "s/@VERSION@/$(shared_version) ($(DESCRIPTION))/" temp >$(FRAMEWORK)/Resources/Info.plist
 	@rm -f temp
+ifdef EMBED
+	@echo "This is the embeddable version of the Allegro framework" > $(FRAMEWORK)/Resources/Embeddable
+endif
 	@echo The $(FRAMEWORK_DESCRIPTION) Allegro framework has been successfully installed in:
 	@echo $(FRAMEWORK)
 endif
