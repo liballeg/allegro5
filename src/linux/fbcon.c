@@ -483,6 +483,20 @@ static int fb_scroll(int x, int y)
 
    ret = ioctl(fbfd, FBIOPAN_DISPLAY, &my_mode);
 
+   /* On a lot of graphics hardware the scroll registers don't
+    * take effect until the start of the next frame, so when you do a
+    * scroll you want to make sure you've waited at least until then.
+    * If you have reliable vsyncing, one call to vysnc is enough,
+    * but if you don't then the first call waits some time between 0
+    * and 1/60th of a second, and since it's not really synced to the
+    * retrace, this may or may not include an actual retrace.  However,
+    * by making a second call, we then wait for a full 1/60th of a second
+    * after the first call, and this is sure to include a retrace,
+    * assuming the refresh rate is at least 60Hz.  Sometimes overall
+    * we'll have waited past two retraces, or even more if the refresh
+    * rate is much higher than the fake vblank timer frequency, but
+    * it's still better than sometimes missing the retrace completely.
+    */
    fb_vsync();
 
  #ifdef FBIOGET_VBLANK
