@@ -73,9 +73,16 @@
 
    The "Allegro" framework will be created into /Library/Frameworks. Note
    that the framework is standalone: it contains its own copy of the
-   dynamic library. This is to ensure you can embed the framework into
-   your application bundles safely, so they'll work on machines where
-   Allegro is not installed.
+   dynamic library, so it can be safely copied around.
+   If you plan to embed the Allegro framework inside your application
+   bundles, you must install a special embeddable version of it:
+
+      sudo make install-framework EMBED=1
+
+   Embedding the framework into your application bundles ensures they will
+   work also on machines where Allegro is not installed. Note that if you
+   embed the non-embeddable version of the framework into your app bundle,
+   your program will not be able to load it and it will not work.
    Finally, if you plan on using Project Builder to code your apps, you
    may find useful installing an Allegro application PB project template:
 
@@ -187,8 +194,18 @@
    as version "1.2" and icon.bmp will be converted to an icon for the
    bundle. You can specify more options and up to 4 differently sized
    icons (16x16, 32x32, 48x48 and 128x128) to be read from any Allegro
-   supported image files or from datafile objects. Run fixbundle without
-   arguments for a list of known options.
+   supported image files or from datafile objects.
+   Run fixbundle without arguments for the full list of known options.
+
+   A special note is required for the "-e" switch; this lets you embed
+   the Allegro framework inside the built application bundle, so your
+   app will not require Allegro to be installed into the target machine
+   in order to work. This flag assumes you previously installed the
+   embeddable version of the Allegro framework and that you linked your
+   executable with it and NOT by using the allegro-config script.
+   If one of these conditions are not met, the created app may not
+   work on target machines.
+
    Bundles created by fixbundle have this default layout:
 
       bundle.app --- Contents --+--- MacOS --- executable
@@ -196,6 +213,9 @@
                                 +--- Resources --+--- (bundle.icns)
                                 |                |
                                 |                +--- (executable/...)
+                                |
+                                |
+                                +--- (Frameworks) --- (Allegro.framework/...)
                                 |
                                 +--- Info.plist
                                 |

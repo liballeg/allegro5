@@ -55,6 +55,7 @@
 #define F_MOVE			0x10
 #define F_GOT_VERSION		0x20
 #define F_GOT_LONG_VERSION	0x40
+#define F_EMBED_FRAMEWORK	0x80
 
 #define MAX_STRING_SIZE		1024
 #define ONE_SIXTH		(1.0 / 6.0)
@@ -275,7 +276,7 @@ static void usage(void)
    fprintf(stderr, "\nMacOS X application bundle fixer utility for Allegro " ALLEGRO_VERSION_STR "\n"
       "By Angelo Mottola, " ALLEGRO_DATE_STR "\n\n"
       "Usage: fixbundle exename [-m] [-o bundlename] [-v version] [-V long_version]\n"
-      "\t\t[[-d datafile] [[palette] [-{16,32,48,128}] icon] ...]\n"
+      "\t\t[-e] [[-d datafile] [[palette] [-{16,32,48,128}] icon] ...]\n"
       "\twhere icon is either a datafile bitmap or a RLE sprite object, either\n"
       "\tan image file.\n"
       "Options:\n"
@@ -283,11 +284,46 @@ static void usage(void)
       "\t-o bundlename\tSpecifies a bundle name (default: exename.app)\n"
       "\t-v version\tSets application version string (default: 1.0)\n"
       "\t-V long_version\tSets long application version string\n"
+      "\t-e\t\tEmbeds the Allegro framework into the application bundle\n"
       "\t-d datafile\tUses datafile as source for objects and palettes\n"
       "\t-{16,32,48,128}\tForces next icon image into the 16x16, 32x32, 48x48 or\n"
       "\t\t\t128x128 icon resource slot\n"
       "\n");
    exit(EXIT_FAILURE);
+}
+
+
+
+static int copy_file(AL_CONST char *filename, AL_CONST char *dest_path)
+{
+   char *buffer = NULL;
+   char dest_file[1024];
+   PACKFILE *f;
+   int size;
+   
+   if (!exists(filename))
+      return -1;
+   buffer = malloc(size = file_size(filename));
+   if (!buffer)
+      return -1;
+   append_filename(dest_file, dest_path, get_filename(filename), 1024);
+   f = pack_fopen(filename, F_READ);
+   if (!f) {
+      free(buffer);
+      return -1;
+   }
+   pack_fread(buffer, size, f);
+   pack_fclose(f);
+   f = pack_fopen(dest_file, F_WRITE);
+   if (!f) {
+      free(buffer);
+      return -1;
+   }
+   pack_fwrite(buffer, size, f);
+   pack_fclose(f);
+   free(buffer);
+   
+   return 0;
 }
 
 
@@ -309,7 +345,8 @@ int main(int argc, char *argv[])
    char bundle_contents_dir[MAX_STRING_SIZE];
    char bundle_contents_resources_dir[MAX_STRING_SIZE];
    char bundle_contents_macos_dir[MAX_STRING_SIZE];
-   char *bundle_exe;
+   char bundle_contents_frameworks_dir[MAX_STRING_SIZE];
+   char *bundle_exe = NULL;
    char bundle_plist[MAX_STRING_SIZE];
    char bundle_pkginfo[MAX_STRING_SIZE];
    char bundle_icns[MAX_STRING_SIZE];
@@ -334,6 +371,8 @@ int main(int argc, char *argv[])
    for (arg = 2; arg < argc; arg++) {
       if (!strcmp(argv[arg], "-m"))
          flags |= F_MOVE;
+      else if (!strcmp(argv[arg], "-e"))
+         flags |= F_EMBED_FRAMEWORK;
       else if (!strcmp(argv[arg], "-o")) {
          if ((argc < arg + 2) || (bundle[0] != '\0'))
 	    usage();
@@ -380,6 +419,12 @@ int main(int argc, char *argv[])
    }
    unselect_palette();
    
+   buffer = malloc(4096);
+   if (!buffer) {
+      result = -1;
+      goto exit_error_bundle;
+   }
+   
    bundle_exe = argv[1];
    if (!exists(bundle_exe)) {
       fprintf(stderr, "Cannot locate executable file '%s'\n", bundle_exe);
@@ -395,6 +440,8 @@ int main(int argc, char *argv[])
    strcat(bundle_contents_resources_dir, "/Resources");
    strcpy(bundle_contents_macos_dir, bundle_contents_dir);
    strcat(bundle_contents_macos_dir, "/MacOS");
+   strcpy(bundle_contents_frameworks_dir, bundle_contents_dir);
+   strcat(bundle_contents_frameworks_dir, "/Frameworks");
    bundle_icns[0] = '\0';
    bundle_plist[0] = '\0';
    bundle_pkginfo[0] = '\0';
@@ -410,28 +457,32 @@ int main(int argc, char *argv[])
    }
    
    /* Copy/move executable into the bundle */
-   size = file_size(bundle_exe);
-   buffer = malloc(MAX(4096, size));
-   if ((!buffer) || (!(f = pack_fopen(bundle_exe, F_READ)))) {
-      fprintf(stderr, "Unable to load '%s'\n", bundle_exe);
-      result = -1;
-      goto exit_error_bundle;
-   }
-   pack_fread(buffer, size, f);
-   pack_fclose(f);
-   strcat(bundle_contents_macos_dir, "/");
-   strcat(bundle_contents_macos_dir, get_filename(bundle_exe));
-   f = pack_fopen(bundle_contents_macos_dir, F_WRITE);
-   if (!f) {
+   if (copy_file(bundle_exe, bundle_contents_macos_dir)) {
       fprintf(stderr, "Cannot create %s\n", bundle_contents_macos_dir);
       result = -1;
       goto exit_error_bundle;
    }
-   pack_fwrite(buffer, size, f);
-   pack_fclose(f);
+   strcat(bundle_contents_macos_dir, "/");
+   strcat(bundle_contents_macos_dir, get_filename(bundle_exe));
    chmod(bundle_contents_macos_dir, 0755);
    if (flags & F_MOVE)
       unlink(bundle_exe);
+   
+   /* Embed Allegro framework if requested */
+   if (flags & F_EMBED_FRAMEWORK) {
+      if (!file_exists("/Library/Frameworks/Allegro.framework", FA_RDONLY | FA_DIREC, NULL)) {
+         fprintf(stderr, "Cannot find Allegro framework\n");
+	 result = -1;
+	 goto exit_error_bundle;
+      }
+      sprintf(buffer, "/Developer/Tools/pbxcp -exclude .DS_Store -exclude CVS -resolve-src-symlinks /Library/Frameworks/Allegro.framework %s", bundle_contents_frameworks_dir);
+      if ((mkdir(bundle_contents_frameworks_dir, 0777) && (errno != EEXIST)) ||
+	  (system(buffer))) {
+         fprintf(stderr, "Cannot create %s\n", bundle_contents_frameworks_dir);
+	 result = -1;
+	 goto exit_error_bundle;
+      }
+   }
    
    /* Setup the .icns resource */
    if (flags & F_ICONS_DEFINED) {
@@ -585,7 +636,8 @@ exit_error:
    return result;
 
 exit_error_bundle:
-   unlink(bundle_exe);
+   sprintf(buffer, "%s/%s", bundle_contents_macos_dir, get_filename(bundle_exe));
+   unlink(buffer);
    unlink(bundle_plist);
    unlink(bundle_pkginfo);
    unlink(bundle_icns);

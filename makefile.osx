@@ -23,6 +23,22 @@ UNIX_TOOLS = 1
 
 RM_OPTS = -f
 
+
+# -------- local variables --------
+
+INSTALL_DIR = /usr/local
+
+FRAMEWORK_DIR = /Library/Frameworks
+FRAMEWORK_NAME = Allegro
+FRAMEWORK = $(FRAMEWORK_DIR)/$(FRAMEWORK_NAME).framework
+
+TEMPLATE_DIR = /Developer/ProjectBuilder\ Extras/Project\ Templates/Application
+TEMPLATE_NAME = Allegro\ Application
+TEMPLATE = $(TEMPLATE_DIR)/$(TEMPLATE_NAME)
+
+MAN_DIR = /usr/local/man
+
+
 ifdef STATICLINK
 
 # -------- link as a static library --------
@@ -32,9 +48,18 @@ else
 
 # -------- link as a shared library --------
 LIB_NAME = lib/macosx/lib$(VERSION)-$(shared_version).dylib
+
 DYLINK_FLAGS = -flat_namespace -Wl,-U,__mangled_main_address
-DYLINK_FLAGS += -install_name lib$(VERSION)-$(shared_version).dylib
 DYLINK_FLAGS += -dylib_compatibility_version=4.0.0 -dylib_current_version=$(shared_version)
+
+INSTALL_NAME = -install_name lib$(VERSION)-$(shared_version).dylib
+INSTALL_NAME_EMBED = -install_name "`echo "@executable_path/../Frameworks/$(FRAMEWORK_NAME).framework/Versions/$(shared_version)/$(FRAMEWORK_NAME)" | sed 's!//*!/!g'`"
+
+ifdef EMBED
+FRAMEWORK_DESCRIPTION = "embeddable"
+else
+FRAMEWORK_DESCRIPTION = "system wide"
+endif
 
 endif # STATICLINK
 
@@ -123,18 +148,6 @@ DISTCLEAN_FILES += tools/macosx/fixbundle
 
 
 # -------- rules for installing and removing the library files --------
-
-INSTALL_DIR = /usr/local
-
-FRAMEWORK_DIR = /Library/Frameworks
-FRAMEWORK_NAME = Allegro
-FRAMEWORK = $(FRAMEWORK_DIR)/$(FRAMEWORK_NAME).framework
-
-TEMPLATE_DIR = /Developer/ProjectBuilder\ Extras/Project\ Templates/Application
-TEMPLATE_NAME = Allegro\ Application
-TEMPLATE = $(TEMPLATE_DIR)/$(TEMPLATE_NAME)
-
-MAN_DIR = /usr/local/man
 
 
 create_install_dirs:
@@ -276,7 +289,11 @@ else
 	@mkdir $(FRAMEWORK)
 	@mkdir -p $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@mkdir -p $(FRAMEWORK)/Versions/$(shared_version)/Resources
+ifdef EMBED
+	$(CC) -dynamiclib $(DYLINK_FLAGS) $(INSTALL_NAME_EMBED) $(PFLAGS) -o $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME) $(OBJECTS) $(STATIC_LIBRARIES)
+else
 	@cp $(LIB_NAME) $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME)
+endif
 	@cp include/allegro.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@cp include/osxalleg.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@cp -r include/allegro $(FRAMEWORK)/Versions/$(shared_version)/Headers
@@ -287,11 +304,11 @@ else
 	@sed -e "s/@NAME@/$(FRAMEWORK_NAME)/" misc/Info.plist >temp
 	@sed -e "s/@VERSION@/$(shared_version) ($(DESCRIPTION))/" temp >$(FRAMEWORK)/Resources/Info.plist
 	@rm -f temp
-	@echo Allegro has been successfully installed as a framework in:
+	@echo The $(FRAMEWORK_DESCRIPTION) Allegro framework has been successfully installed in:
 	@echo $(FRAMEWORK)
 endif
 
-install-template: install-framework
+install-template: $(FRAMEWORK)
 	@rm -fr $(TEMPLATE)
 	@mkdir -p $(TEMPLATE)/AllegroApp.pbproj
 	@cp misc/template.c $(TEMPLATE)/main.c
@@ -329,7 +346,7 @@ else
 # -------- link as a shared library --------
 
 define MAKE_LIB
-$(CC) -dynamiclib $(DYLINK_FLAGS) $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(STATIC_LIBRARIES)
+$(CC) -dynamiclib $(DYLINK_FLAGS) $(INSTALL_NAME) $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(STATIC_LIBRARIES)
 endef
 
 endif # STATICLINK
