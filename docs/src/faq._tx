@@ -286,6 +286,26 @@ Unix problems
       You need to redirect stderr into a file, so you can view them later. 
       The method for doing this depends on your shell: if you are using a 
       Bourne-style shell like bash, try "make 2&gt logfile.txt".
+
+<h4><li>
+@@   When I try to use DGA2, I get "resolution not supported", but the X
+   server does actually support that resolution !
+</h4>
+      There are two possible reasons:
+      1) DGA2 may support different resolutions/color depths than X, 
+         run the gfxinfo program to know what combinations you can use, 
+      2) You may have a buggy DGA2 implementation, see next question.
+
+<h4><li>
+@@   When I try to use DGA2, the screen goes black and the PC completely
+   halts!
+</h4>
+      You are probably using a XFree86 server with a very buggy DGA2 
+      implementation, such as 4.0.3 (shipped with Red Hat 7.1 for example). 
+      Upgrading to 4.1.0 will probably solve your problem. You can obtain 
+      it from ftp://ftp.xfree86.org/pub/XFree86/4.1.0/binaries/ selecting 
+      the directory suited to your platform and following the instructions 
+      you find in the Install file.
 </ul>
 
 
