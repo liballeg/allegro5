@@ -54,10 +54,10 @@ GFX_DRIVER gfx_directx_win =
    NULL,
    gfx_directx_create_system_bitmap,
    gfx_directx_destroy_system_bitmap,
-   NULL,                        // AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));
-   NULL,                        // AL_METHOD(int, show_mouse, (struct BITMAP *bmp, int x, int y));
-   NULL,                        // AL_METHOD(void, hide_mouse, (void));
-   NULL,                        // AL_METHOD(void, move_mouse, (int x, int y));
+   gfx_directx_set_mouse_sprite,
+   gfx_directx_show_mouse,
+   gfx_directx_hide_mouse,
+   gfx_directx_move_mouse,
    NULL,                        // AL_METHOD(void, drawing_mode, (void));
    NULL,                        // AL_METHOD(void, save_video_state, (void*));
    NULL,                        // AL_METHOD(void, restore_video_state, (void*));

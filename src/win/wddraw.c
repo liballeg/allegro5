@@ -360,3 +360,135 @@ void gfx_directx_exit(struct BITMAP *bmp)
    _exit_critical();
 }
 
+
+
+static HCURSOR hcursor = NULL;
+static HBITMAP and_mask = NULL;
+static HBITMAP xor_mask = NULL;
+
+/* gfx_directx_set_mouse_sprite:
+ *  Create a Windows system cursor from the specified bitmap
+ */
+int gfx_directx_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus)
+{
+	HBITMAP hbmpcursor;
+   int mask_color;
+   int x, y, col, n;
+	int sys_sm_cx, sys_sm_cy;
+   HDC h_dc;
+   HDC h_main_dc;
+   HDC h_and_dc;
+   HDC h_xor_dc;
+   ICONINFO iconinfo;
+   HBITMAP hOldAndMaskBitmap;
+   HBITMAP hOldXorMaskBitmap;
+
+   if (hcursor) {
+      DestroyIcon(hcursor);
+      hcursor = NULL;
+   }
+
+   if (and_mask) {
+      DeleteObject(and_mask);
+      and_mask = NULL;
+   }
+
+   if (xor_mask) {
+      DeleteObject(xor_mask);
+      xor_mask = NULL;
+   }
+
+	/* Get allowed cursor size - Windows can't make cursors of arbitrary size */
+	sys_sm_cx = GetSystemMetrics(SM_CXCURSOR);
+	sys_sm_cy = GetSystemMetrics(SM_CYCURSOR);
+
+	/* Test if we can make a cursor compatible with the one requested */
+   if (sprite && (sprite->w <= sys_sm_cx) && (sprite->h <= sys_sm_cy)) {
+		/* Create bitmap */
+      h_dc = GetDC(allegro_wnd);
+      h_xor_dc = CreateCompatibleDC(h_dc);
+      h_and_dc = CreateCompatibleDC(h_dc);
+
+      /* Prepare AND (monochrome) and XOR (colour) mask */
+      and_mask = CreateBitmap(sys_sm_cx, sys_sm_cy, 1, 1, NULL);
+      xor_mask = CreateCompatibleBitmap(h_dc, sys_sm_cx, sys_sm_cy);
+      hOldAndMaskBitmap = SelectObject(h_and_dc, and_mask);
+		hOldXorMaskBitmap = SelectObject(h_xor_dc, xor_mask);
+
+		/* Create transparent cursor */
+      for(y=0; y<sys_sm_cy; y++) {
+         for(x=0; x<sys_sm_cx; x++) {
+				SetPixel(h_and_dc, x, y, WINDOWS_RGB(255, 255, 255));
+				SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
+			}
+		}
+		draw_to_hdc(h_xor_dc, sprite, 0, 0);
+		mask_color = bitmap_mask_color(sprite);
+
+		/* Make cursor background transparent */
+		for(y=0; y<sprite->h; y++) {
+         for(x=0; x<sprite->w; x++) {
+				if (getpixel(sprite, x, y) != mask_color) {
+					/* Don't touch XOR value */
+					SetPixel(h_and_dc, x, y, 0);
+				} else {
+					/* No need to touch AND value */
+					SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
+				}
+			}
+		}
+
+      SelectObject(h_and_dc, hOldAndMaskBitmap);
+      SelectObject(h_xor_dc, hOldXorMaskBitmap);
+      DeleteDC(h_and_dc);
+      DeleteDC(h_xor_dc);
+      ReleaseDC(allegro_wnd, h_dc);
+
+      iconinfo.fIcon = FALSE;
+      iconinfo.xHotspot = xfocus;
+      iconinfo.yHotspot = yfocus;
+      iconinfo.hbmMask = and_mask;
+      iconinfo.hbmColor = xor_mask;
+
+      hcursor = CreateIconIndirect(&iconinfo);
+      return 0;
+   }
+
+   return -1;
+}
+
+
+
+/* gfx_directx_show_mouse:
+ *  Switch the Windows cursor to a hardware cursor
+ */
+int gfx_directx_show_mouse(struct BITMAP *bmp, int x, int y)
+{
+   if (hcursor) {
+      _win_hcursor = hcursor;
+      SetCursor(hcursor);
+      return 0;
+   }
+
+   return -1;
+}
+
+
+/* gfx_directx_hide_mouse:
+ *  Hide the hardware cursor
+ */
+void gfx_directx_hide_mouse(void)
+{
+   _win_hcursor = NULL;
+   SetCursor(NULL);
+}
+
+
+
+/* gfx_directx_move_mouse:
+ *  Move the hardware cursor (not needed)
+ */
+void gfx_directx_move_mouse(int x, int y)
+{
+}
+

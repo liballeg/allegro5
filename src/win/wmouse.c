@@ -67,6 +67,9 @@ MOUSE_DRIVER mouse_directx =
 };
 
 
+HCURSOR _win_hcursor = NULL;	/* Hardware cursor to display */
+
+
 #define DINPUT_BUFFERSIZE 256
 static HANDLE mouse_input_event = NULL;
 static LPDIRECTINPUT mouse_dinput = NULL;
@@ -457,7 +460,7 @@ int mouse_dinput_grab(void)
 int mouse_set_syscursor(void)
 {
    if ((mouse_dinput_device && _mouse_on) || (gfx_driver && !gfx_driver->windowed)) {
-      SetCursor(NULL);
+      SetCursor(_win_hcursor);
       /* Make sure the cursor is removed by the system. */
       PostMessage(allegro_wnd, WM_MOUSEMOVE, 0, 0);
    }

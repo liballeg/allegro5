@@ -85,6 +85,10 @@ AL_FUNC(int, gfx_directx_request_video_bitmap, (BITMAP *bmp));
 AL_FUNC(BITMAP *, gfx_directx_create_system_bitmap, (int width, int height));
 AL_FUNC(void, gfx_directx_destroy_system_bitmap, (BITMAP *bmp));
 AL_FUNC(GFX_MODE_LIST *, gfx_directx_fetch_mode_list, (void));
+AL_FUNC(int, gfx_directx_set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));
+AL_FUNC(int, gfx_directx_show_mouse, (struct BITMAP *bmp, int x, int y));
+AL_FUNC(void, gfx_directx_hide_mouse, (void));
+AL_FUNC(void, gfx_directx_move_mouse, (int x, int y));
 
 
 /* driver initialisation and shutdown (from wddraw.c) */
