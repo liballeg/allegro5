@@ -52,12 +52,18 @@ AL_VAR(MOUSE_DRIVER, mouse_qnx);
 
 
 /* Graphics drivers */
-#define GFX_PHOTON            AL_ID('Q','P','H',' ')
-#define GFX_PHOTON_DIRECT     AL_ID('Q','P','H','D')
+#define GFX_PHOTON            AL_ID('Q','P','A','C')
+#define GFX_PHOTON_ACCEL      AL_ID('Q','P','A','C')
+#define GFX_PHOTON_SOFT       AL_ID('Q','P','S','O')
+#define GFX_PHOTON_SAFE       AL_ID('Q','P','S','A')
+#define GFX_PHOTON_WIN        AL_ID('Q','P','W','N')
 AL_VAR(GFX_DRIVER, gfx_photon);
-AL_VAR(GFX_DRIVER, gfx_photon_direct);
+AL_VAR(GFX_DRIVER, gfx_photon_accel);
+AL_VAR(GFX_DRIVER, gfx_photon_soft);
+AL_VAR(GFX_DRIVER, gfx_photon_safe);
+AL_VAR(GFX_DRIVER, gfx_photon_win);
 
-#define GFX_SAFE_ID           GFX_PHOTON
+#define GFX_SAFE_ID           GFX_PHOTON_SAFE
 #define GFX_SAFE_DEPTH        8
 #define GFX_SAFE_W            320
 #define GFX_SAFE_H            200

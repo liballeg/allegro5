@@ -121,9 +121,8 @@ static void qnx_mouse_position(int x, int y)
    _mouse_x = x;
    _mouse_y = y;
    
-   if (ph_window_context) {
+   if (ph_gfx_mode == PH_GFX_WINDOW)
       PtGetAbsPosition(ph_window, &mx, &my);
-   }
    
    PhMoveCursorAbs(PhInputGroup(NULL), x + mx, y + my);
    

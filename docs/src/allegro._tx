@@ -8165,11 +8165,25 @@ QNX specifics
       don't really care what resolution. See the set_gfx_mode() 
       documentation for details.
 <li>
-   GFX_PHOTON_DIRECT<br>
-      Fullscreen exclusive mode through Photon.
-<li>
    GFX_PHOTON<br>
-      Windowed mode in a Photon window.
+      Alias for GFX_PHOTON_ACCEL.
+<li>
+   GFX_PHOTON_ACCEL<br>
+      Fullscreen exclusive mode through Photon, running with hardware 
+      acceleration enabled.
+<li>
+   GFX_PHOTON_SOFT<br>
+      Fullscreen exclusive mode that only uses software drawing, rather than
+      any hardware accelerated features.
+<li>
+   GFX_PHOTON_SAFE<br>
+      Simplified fullscreen exclusive driver that doesn't support any
+      hardware acceleration, video or system bitmaps, etc.
+<li>
+   GFX_PHOTON_WIN<br>
+      The regular windowed Photon driver, running in color conversion mode 
+      when the color depth doesn't match that of the Photon desktop. Color 
+      conversion is much slower than direct drawing.
 </ul>
 @@Drivers: @DIGI_*/QNX
 @xref detect_digi_driver, install_sound, install_sound_input

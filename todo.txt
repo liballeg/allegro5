@@ -87,7 +87,6 @@ BeOS todos:
 QNX todos:
 ---------------------------------------------------------------------------
 
-- Video bitmaps and acceleration support in fullscreen mode
 - Display switching in fullscreen mode
 - Overlay gfx driver
 

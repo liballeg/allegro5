@@ -47,8 +47,10 @@ _DRIVER_INFO _mouse_driver_list[] =
 
 
 BEGIN_GFX_DRIVER_LIST
-   { GFX_PHOTON_DIRECT, &gfx_photon_direct, TRUE  },
-   { GFX_PHOTON,        &gfx_photon,        TRUE  },
+   { GFX_PHOTON_ACCEL,      &gfx_photon_accel,       TRUE  },
+   { GFX_PHOTON_SOFT,       &gfx_photon_soft,        TRUE  },
+   { GFX_PHOTON_SAFE,       &gfx_photon_safe,        TRUE  },
+   { GFX_PHOTON_WIN,        &gfx_photon_win,         TRUE  },
 END_GFX_DRIVER_LIST
 
 

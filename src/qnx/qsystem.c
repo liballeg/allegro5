@@ -23,7 +23,7 @@
 #include "allegro/platform/aintqnx.h"
 
 #ifndef ALLEGRO_QNX
-#error something is wrong with the makefile
+   #error something is wrong with the makefile
 #endif
 
 #ifndef SCAN_DEPEND
@@ -88,8 +88,9 @@ SYSTEM_DRIVER system_qnx =
 };
 
 
-/* global variables */
+/* system globals */
 PtWidget_t *ph_window = NULL;
+
 pthread_mutex_t qnx_event_mutex;
 pthread_mutex_t qnx_gfx_mutex;
 
