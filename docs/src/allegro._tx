@@ -2183,8 +2183,8 @@ Graphics modes
 @@GFX_MODE_LIST *@get_gfx_mode_list(int card);
 @xref destroy_gfx_mode_list, set_gfx_mode, set_color_depth
    Attempts to create a list of all the supported video modes for a certain
-   GFX driver. This function returns a pointer to a list structure of the
-   type GFX_MODE_LIST which has the following definition:
+   graphics driver. This function returns a pointer to a list structure of 
+   the type GFX_MODE_LIST which has the following definition:
 <pre>
    typedef struct GFX_MODE_LIST {
       int num_modes;
@@ -2199,6 +2199,9 @@ Graphics modes
    } GFX_MODE;
 </pre>
    This list is terminated with an { 0, 0, 0 } entry.
+
+   Note that the card parameter must refer to a _real_ driver. This function
+   fails if you pass GFX_SAFE, GFX_AUTODETECT, or any other "magic" driver.
 
 @@void @destroy_gfx_mode_list(GFX_MODE_LIST *mode_list);
 @xref get_gfx_mode_list, set_gfx_mode, set_color_depth
