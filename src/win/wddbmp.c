@@ -168,7 +168,7 @@ static LPDIRECTDRAWSURFACE2 create_directdraw2_surface(int w, int h, LPDDPIXELFO
 {
    DDSURFACEDESC ddsurf_desc;
    LPDIRECTDRAWSURFACE ddsurf1;
-   LPDIRECTDRAWSURFACE2 ddsurf2;
+   LPVOID ddsurf2;
    HRESULT hr;
 
    /* describe surface characteristics */
@@ -240,7 +240,7 @@ static LPDIRECTDRAWSURFACE2 create_directdraw2_surface(int w, int h, LPDDPIXELFO
    }
 
    /* retrieve the DirectDrawSurface2 interface */
-   hr = IDirectDrawSurface_QueryInterface(ddsurf1, &IID_IDirectDrawSurface2, (LPVOID *)&ddsurf2);
+   hr = IDirectDrawSurface_QueryInterface(ddsurf1, &IID_IDirectDrawSurface2, &ddsurf2);
 
    /* there is a bug in the COM part of DirectX 3:
     *  If we release the DirectSurface interface, the actual
@@ -254,7 +254,7 @@ static LPDIRECTDRAWSURFACE2 create_directdraw2_surface(int w, int h, LPDDPIXELFO
       return NULL;
    }
 
-   return ddsurf2;
+   return (LPDIRECTDRAWSURFACE2)ddsurf2;
 }
 
 
