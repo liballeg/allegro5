@@ -1954,7 +1954,7 @@ static void _xwin_private_process_event(XEvent *event)
 	     	       
 	       /* Warp X-cursor to the center of the screen.  */
 	       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 
-			    _xwin.screen_width / 2, _xwin.screen_width / 2);
+			    _xwin.screen_width / 2, _xwin.screen_height / 2);
 	       mouse_was_warped = 1;
 	    }
 	    

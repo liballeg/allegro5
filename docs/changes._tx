@@ -10,6 +10,10 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.33: Isaac Cruz moved Windows bitmap locking to a separate .S file, 
+   changed the update logic for the windowed driver, and added an accelerated
+   vline implementation.
+<li>
    3.9.33: Stephen Kittelson fixed a bug in pckeys.c, and changed the ASCII 
    values returned for a few weird key combinations.
 <li>

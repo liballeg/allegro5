@@ -199,8 +199,9 @@ Contributors
    Isaac Cruz (<email>icruzbal@teleline.es</a>).<br>
    Fixed a bug with accelerated drawing onto sub bitmaps of DirectDraw 
    surfaces, added the GFX_DIRECTX_WIN driver, fixed a Windows sub bitmap 
-   locking bug and added Windows desktop_color_depth and yield_timeslice 
-   routines.
+   locking bug, added Windows desktop_color_depth and yield_timeslice 
+   routines, and made extensive modifications to other aspects of the 
+   Windows code.
 
    Ivan Baldo (<email>lubaldo@adinet.com.uy</a>).<br>
    Wrote the 15/16 bit dithering code and optimised the sprite rotation 

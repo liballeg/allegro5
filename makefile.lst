@@ -159,6 +159,7 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wddraw.c \
 	src/win/wddfull.c \
 	src/win/wddlock.c \
+	src/win/asmlock.s \
 	src/win/wddmode.c \
 	src/win/wddovl.c \
 	src/win/wddwin.c \

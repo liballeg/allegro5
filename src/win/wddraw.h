@@ -92,10 +92,15 @@ AL_FUNC(int, gfx_directx_update_color_format, (int color_depth));
 
 /* bitmap locking */
 AL_FUNC(void, gfx_directx_lock, (BITMAP *bmp));
+AL_FUNC(void, gfx_directx_autolock, (BITMAP* bmp));
 AL_FUNC(void, gfx_directx_unlock, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_release_lock, (BITMAP * bmp));
 AL_FUNC(void, gfx_directx_write_bank, (void));
 AL_FUNC(void, gfx_directx_unwrite_bank, (void));
+AL_FUNC(void, gfx_directx_write_bank_win, (void));
+AL_FUNC(void, gfx_directx_unwrite_bank_win, (void));
+AL_FUNCPTR(void, ptr_gfx_directx_autolock, (BITMAP* bmp));
+AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
 
 
 /* bitmap creation */
@@ -130,12 +135,14 @@ AL_VAR(int, wnd_sysmenu);
 
 /* windowed mode */
 AL_FUNC(void, handle_window_size_win, (void));
-AL_FUNCPTR(void, update_window, (void));
+AL_FUNCPTR(void, update_window, (RECT* rect));
 AL_FUNC(void, wddwin_switch_out, (void));
 AL_FUNC(void, wddwin_switch_in, (void));
 
 AL_VAR(LPDIRECTDRAWSURFACE, dd_offscreen);
+AL_VAR(BITMAP*, pseudo_screen);
 AL_VAR(int*, allegro_palette);
+AL_VAR(int*, dirty_lines);
 
 
 #endif

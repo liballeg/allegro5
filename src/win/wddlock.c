@@ -18,6 +18,9 @@
 #include "wddraw.h"
 
 
+void (*ptr_gfx_directx_autolock) (BITMAP* bmp) = gfx_directx_autolock;
+void (*ptr_gfx_directx_unlock) (BITMAP* bmp) = gfx_directx_unlock;
+
 
 /* gfx_directx_switch_out:
  *  Arranges for drawing requests to pause when we are in the background.
@@ -174,7 +177,7 @@ void gfx_directx_lock(BITMAP *bmp)
  *  This version is used directly by the bank switch functions, ie.
  *  it handles the autolocking mode, rather than being called directly.
  */
-static void gfx_directx_autolock(BITMAP *bmp)
+void gfx_directx_autolock(BITMAP *bmp)
 {
    BMP_EXTRA_INFO *bmp_extra;
    BITMAP *parent;
@@ -249,7 +252,7 @@ void gfx_directx_unlock(BITMAP *bmp)
       if ((!bmp_extra->lock_nesting) && (bmp->id & BMP_ID_LOCKED)) {
 	 if (!(bmp_extra->flags & BMP_FLAG_LOST)) {
 	    /* only unlock if it doesn't use pseudo video memory */
-	    IDirectDrawSurface_Unlock(bmp_extra->surf, bmp->line[0]);
+	    IDirectDrawSurface_Unlock(bmp_extra->surf, NULL);
 	 }
 
 	 bmp->id &= ~BMP_ID_LOCKED;
@@ -279,165 +282,9 @@ void gfx_directx_release_lock(BITMAP *bmp)
 
       if (!(bmp_extra->flags & BMP_FLAG_LOST)) {
 	 /* only unlock if it doesn't use pseudo video memory */
-	 IDirectDrawSurface_Unlock(bmp_extra->surf, bmp->line[0]);
+	 IDirectDrawSurface_Unlock(bmp_extra->surf, NULL);
       }
 
       bmp->id &= ~BMP_ID_LOCKED;
    }
 }
-
-
-
-#ifdef __MINGW32__
-
-
-/* gcc-style locking code for the Mingw32 build, by Henrik Stokseth.
- *
- * Note from Shawn: I don't like having two versions of the same thing.
- * At some point it would be nice to move this into an external .s file,
- * so we can share the same code between MSVC and Mingw32 builds.
- */
-
-
-
-static unsigned long gfx_directx_write_bank_internal(BITMAP *bitmap_p, unsigned long line)
-{
-   if (!(bitmap_p->id & BMP_ID_LOCKED)) {    /* check if locked already */
-      gfx_directx_lock(bitmap_p);            /* lock the surface once */
-      bitmap_p->id |= BMP_ID_AUTOLOCK;       /* set Autolock flag */
-   }
-
-   return ((unsigned long *)(bitmap_p->line))[line];
-}
-
-
-
-/* gfx_directx_bank_switch:
- *  edx = bitmap_p
- *  eax = line
- */
-__asm__(".align 4 \n
-.globl _gfx_directx_write_bank \n
-	.def _gfx_directx_write_bank; .scl 2; .type 32; .endef \n
-_gfx_directx_write_bank: \n
-	pushl %ebp \n
-	movl %esp, %ebp \n
-	addl $-12, %esp \n
-	pushl %ebx \n
-	pushl %ecx \n
-
-	pushl %eax \n
-	pushl %edx \n
-
-	call _gfx_directx_write_bank_internal \n
-
-	addl $8, %esp \n
-
-	popl %ecx \n
-	popl %ebx \n
-	addl $12, %esp \n
-	leave \n
-	ret");
-
-
-
-static void gfx_directx_unwrite_bank_internal(BITMAP *bitmap_p)
-{
-   if(bitmap_p->id & BMP_ID_AUTOLOCK)  {     /* bitmap autolock flag set? */
-      gfx_directx_unlock(bitmap_p); 
-      bitmap_p->id &= ~BMP_ID_AUTOLOCK;      /* clear autolock flag */
-   }
-}
-
-
-
-/* gfx_directx_unbank_switch:
- *  edx = bitmap_p
- */
-__asm__(".align 4 \n
-.globl _gfx_directx_unwrite_bank \n
-	.def _gfx_directx_unwrite_bank; .scl 2; .type 32; .endef \n
-_gfx_directx_unwrite_bank: \n
-	pushl %ebp \n
-	movl %esp, %ebp \n
-	addl $-12, %esp \n
-	pushl %eax \n
-	pushl %ebx \n
-	pushl %ecx \n
-
-	pushl %edx \n
-
-	call _gfx_directx_unwrite_bank_internal \n
-
-	addl $4,%esp \n
-
-	popl %ecx \n
-	popl %ebx \n
-	popl %eax \n
-	addl $12, %esp \n
-	leave \n
-	ret");
-
-
-
-#else          /* not Mingw32, so use MSVC style inline asm */
-
-
-
-/* gfx_directx_bank_switch:
- *  edx = bitmap
- *  eax = line
- */
-void gfx_directx_write_bank(void)
-{
-   _asm
-   {
-       ; check whether is is locked already
-       test [edx]BITMAP.id, BMP_ID_LOCKED
-       jnz Locked
-
-       ; lock the surface
-       pushad
-       push edx
-       call gfx_directx_autolock
-       pop edx
-       popad
-
-   Locked:
-       ; get pointer to the video memory
-       mov eax, [edx+eax*4]BITMAP.line
-   }
-}
-
-
-
-/* gfx_directx_unbank_switch:
- *  edx = bmp
- */
-void gfx_directx_unwrite_bank(void)
-{
-   _asm
-   {
-       ; only unlock bitmaps that were autolocked
-       test [edx]BITMAP.id, BMP_ID_AUTOLOCK
-       jz NoUnlock
-
-       ; unlock surface
-       pushad
-       push edx
-       call gfx_directx_unlock
-       pop edx
-       popad
-
-       ; clear the autolock flag
-       and [edx]BITMAP.id, ~BMP_ID_AUTOLOCK
-
-   NoUnlock:
-   }
-} 
-
-
-
-#endif         /* MSVC vs. Mingw32 */
-
-

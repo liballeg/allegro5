@@ -177,8 +177,11 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
 	    BeginPaint(wnd, &ps);
 	    EndPaint(wnd, &ps);
 	 }
-	 else if (dd_offscreen)
-	    update_window();
+	 else if (dd_offscreen) {
+	    BeginPaint(wnd, &ps);
+	    update_window(&(ps.rcPaint));
+	    EndPaint(wnd, &ps);
+	 }
 	 break;
 
       case WM_INITMENUPOPUP:
