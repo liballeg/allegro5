@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
       page_num = 1-page_num;
 
       /* deal with keyboard input */
-      if (keypressed()) {
+      while (keypressed()) {
 	 switch (readkey()>>8) {
 
 	    case KEY_UP:
