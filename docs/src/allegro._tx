@@ -152,8 +152,7 @@ information about how to install Allegro and link your program with it.
 	 ...
 	 return 0;
       }
-      END_OF_MAIN()
-<endblock>
+      END_OF_MAIN()<endblock>
 
 @@extern char @allegro_id[];
    Text string containing a date and version number for the library, in case 
@@ -192,8 +191,8 @@ information about how to install Allegro and link your program with it.
       OSTYPE_UNIX       - Unknown Unix variant
       OSTYPE_BEOS       - BeOS
       OSTYPE_MACOS      - MacOS
-      OSTYPE_MACOSX     - MacOS X
-<endblock>
+      OSTYPE_MACOSX     - MacOS X<endblock>
+
 @@extern int @os_version;
 @@extern int @os_revision;
 @xref os_type, os_multitasking
@@ -224,8 +223,8 @@ information about how to install Allegro and link your program with it.
       if (ret != 0) {
 	 allegro_message("Sorry, couldn't init Allegro (%d).\n", ret);
 	 exit(ret);
-      }
-<endblock>
+      }<endblock>
+
 @@void @set_window_title(const char *name);
 @xref set_close_button_callback, set_uformat
 @eref exunicod
@@ -900,6 +899,9 @@ is best to set it with set_uformat() just before you call these.
    overwritten the next time this routine is called, so don't expect the data
    to persist across any other library calls. The static buffer has a size
    shorter than 1K, so you won't be able to convert large chunks of text.
+   Example:
+<codeblock>
+      char *p = uconvert(input_string, U_CURRENT, buffer, U_ASCII, 256);<endblock>
 @retval
    Returns a pointer to `buf' (or the static buffer if you used NULL) if a
    conversion was performed. Otherwise returns a copy of `s'. In any cases,
@@ -925,15 +927,23 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @ugetc(const char *s);
 @xref ugetx, usetc, uwidth, ucwidth, uisok
-   Low level helper function for reading Unicode text data.
+   Low level helper function for reading Unicode text data. Example:
+<codeblock>
+      int first_unicode_letter = ugetc(text_string);<endblock>
 @retval
    Returns the character pointed to by `s' in the current encoding format.
 
 @@int @ugetx(char **s);
 @@int @ugetxc(const char **s);
 @xref ugetc, usetc, uwidth, ucwidth, uisok
-   Low level helper function for reading Unicode text data. ugetxc is
-   provided for working with pointer-to-pointer-to-const char data.
+   Low level helper function for reading Unicode text data. ugetxc is provided
+   for working with pointer-to-pointer-to-const char data. Example:
+<codeblock>
+      char *p = string;
+      int first_letter, second_letter, third_letter;
+      first_letter = ugetx(&p);
+      second_letter = ugetx(&p);
+      third_letter = ugetx(&p);<endblock>
 @retval
    Returns the character pointed to by `s' in the current encoding format, and
    advances the pointer to the next character after the one just returned.
@@ -972,9 +982,12 @@ is best to set it with set_uformat() just before you call these.
 @@int @uoffset(const char *s, int index);
 @xref ugetat, usetat, uinsert, uremove
    Finds out the offset (in bytes from the start of the string) of the
-   character at the specified `index' in the string `s'. If `index' is
+   character at the specified `index' in the string `s'. A zero `index'
+   parameter will return the first character of the string. If `index' is
    negative, it counts backward from the end of the string, so an `index' of
-   `-1' will return an offset to the last character.
+   `-1' will return an offset to the last character. Example:
+<codeblock>
+      int from_third_letter = uoffset(text_string, 2);<endblock>
 @retval
    Returns the offset in bytes to the specified character.
 
@@ -983,7 +996,9 @@ is best to set it with set_uformat() just before you call these.
    Finds out the character value at the specified `index' in the string. A
    zero `index' parameter will return the first character of the string. If
    `index' is negative, it counts backward from the end of the string, so an
-   `index' of `-1' will return the last character of the string.
+   `index' of `-1' will return the last character of the string. Example:
+<codeblock>
+      int third_letter = ugetat(text_string, 2);<endblock>
 @retval
    Returns the character value at the specified index in the string.
 
@@ -992,7 +1007,9 @@ is best to set it with set_uformat() just before you call these.
    Replaces the character at the specified index in the string with value `c',
    handling any adjustments for variable width data (ie. if `c' encodes to a
    different width than the previous value at that location). If `index' is
-   negative, it counts backward from the end of the string.
+   negative, it counts backward from the end of the string. Example:
+<codeblock>
+      usetat(text_string, 2, letter_a);<endblock>
 @retval
    Returns the number of bytes by which the trailing part of the string was
    moved. This is of interest only with text encoding formats where
@@ -1002,7 +1019,9 @@ is best to set it with set_uformat() just before you call these.
 @xref uoffset, ugetat, usetat, uremove
    Inserts the character `c' at the specified `index' in the string, sliding
    the rest of the data along to make room. If `index' is negative, it counts
-   backward from the end of the string.
+   backward from the end of the string. Example:
+<codeblock>
+      uinsert(text_string, 0, prefix_letter);<endblock>
 @retval
    Returns the number of bytes by which the trailing part of the string was
    moved.
@@ -1011,7 +1030,11 @@ is best to set it with set_uformat() just before you call these.
 @xref uoffset, ugetat, usetat, uinsert
    Removes the character at the specified `index' within the string, sliding
    the rest of the data back to fill the gap. If `index' is negative, it
-   counts backward from the end of the string.
+   counts backward from the end of the string. Example:
+<codeblock>
+      int length_in_bytes = ustrsizez(text_string);
+      ...
+      length_in_bytes -= uremove(text_string, -1);<endblock>
 @retval
    Returns the number of bytes by which the trailing part of the string was
    moved.
@@ -1032,7 +1055,9 @@ is best to set it with set_uformat() just before you call these.
 @xref uwidth, ucwidth
    Low level helper function for working with Unicode text data. Returns the 
    largest number of bytes that one character can occupy in the given 
-   encoding format. Pass U_CURRENT to represent the current format.
+   encoding format. Pass U_CURRENT to represent the current format. Example:
+<codeblock>
+      char *temp_buffer = malloc(256 * uwidth_max(U_UTF8));<endblock>
 
 @@int @utolower(int c);
 @xref utoupper, ugetc, ugetx, usetc, uwidth, ucwidth, uisok
@@ -1045,17 +1070,33 @@ is best to set it with set_uformat() just before you call these.
 @@int @uisspace(int c);
 @xref uisdigit, ugetc, usetc, uwidth, ucwidth, uisok
    Returns nonzero if `c' is whitespace, that is, carriage return, newline,
-   form feed, tab, vertical tab, or space.
+   form feed, tab, vertical tab, or space. Example:
+<codeblock>
+      for (counter = 0; counter &lt ustrlen(text_string); counter++) {
+	 if (uisspace(ugetat(text_string, counter)))
+	    usetat(text_string, counter, '_');
+      }<endblock>
 
 @@int @uisdigit(int c);
 @xref uisspace, ugetc, usetc, uwidth, ucwidth, uisok
    Returns nonzero if `c' is a digit.
+<codeblock>
+      for (counter = 0; counter &lt ustrlen(text_string); counter++) {
+	 if (uisdigit(ugetat(text_string, counter)))
+	    usetat(text_string, counter, '*');
+      }<endblock>
 
 @@char *@ustrdup(const char *src)
 @xref _ustrdup, uconvert, ustrsize, ustrsizez
 @eref exconfig
    This functions copies the null-terminated string `src' into a newly
-   allocated area of memory, effectively duplicating it.
+   allocated area of memory, effectively duplicating it. Example:
+<codeblock>
+      void manipulate_string(const char *input_string)
+      {
+	 char *temp_buffer = ustrdup(input_string);
+	 /* Now we can modify temp_buffer */
+	 ...<endblock>
 @retval
    Returns the newly allocated string. This memory must be freed by the
    caller. Returns NULL if it cannot allocate space for the duplicated string.
@@ -1177,7 +1218,11 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @ustrncmp(const char *s1, const char *s2, int n);
 @xref uconvert, ustrsize, ustrsizez, ustrcmp, ustricmp, ustrnicmp
-   This function compares up to `n' characters of `s1' and `s2'.
+   This function compares up to `n' characters of `s1' and `s2'. Example:
+<codeblock>
+      if (ustrncmp(prefix, long_string, ustrlen(prefix)) == 0) {
+	 /* long_string starts with prefix */
+      }<endblock>
 @retval
    Returns zero if the substrings are equal, a positive number if `s1' comes
    after `s2' in the ASCII collating sequence, else a negative number.
@@ -1185,7 +1230,11 @@ is best to set it with set_uformat() just before you call these.
 @@int @ustricmp(const char *s1, const char *s2);
 @xref uconvert, ustrsize, ustrsizez, ustrnicmp, ustrcmp, ustrncmp
 @eref exconfig
-   This function compares `s1' and `s2', ignoring case.
+   This function compares `s1' and `s2', ignoring case. Example:
+<codeblock>
+      if (ustricmp(string, user_input) == 0) {
+	 /* string and user_input are equal (ignoring case) */
+      }<endblock>
 @retval
    Returns zero if the strings are equal, a positive number if `s1' comes
    after `s2' in the ASCII collating sequence, else a negative number.
@@ -1193,7 +1242,11 @@ is best to set it with set_uformat() just before you call these.
 @@int @ustrnicmp(const char *s1, const char *s2, int n);
 @xref uconvert, ustrsize, ustrsizez, ustricmp, ustrcmp, ustrncmp
    This function compares up to `n' characters of `s1' and `s2', ignoring
-   case.
+   case. Example:
+<codeblock>
+      if (ustrnicmp(prefix, long_string, ustrlen(prefix)) == 0) {
+	 /* long_string starts with prefix (ignoring case) */
+      }<endblock>
 @retval
    Returns zero if the strings are equal, a positive number if `s1' comes
    after `s2' in the ASCII collating sequence, else a negative number.
@@ -1201,20 +1254,28 @@ is best to set it with set_uformat() just before you call these.
 @@char *@ustrlwr(char *s);
 @xref uconvert, utolower, ustrupr
    This function replaces all upper case letters in `s' with lower case
-   letters.
+   letters. Example:
+<codeblock>
+      char buffer[] = "UPPER CASE STRING";
+      allegro_message(ustrlwr(buffer));<endblock>
 @retval
    The return value is the value of `s'.
 
 @@char *@ustrupr(char *s);
 @xref uconvert, utolower, ustrlwr
    This function replaces all lower case letters in `s' with upper case
-   letters.
+   letters. Example:
+<codeblock>
+      char buffer[] = "lower case string";
+      allegro_message(ustrupr(buffer));<endblock>
 @retval
    The return value is the value of `s'.
 
 @@char *@ustrchr(const char *s, int c);
 @xref uconvert, ustrrchr, ustrstr, ustrpbrk, ustrtok
-   Finds the first occurrence of the character `c' in the string `s'.
+   Finds the first occurrence of the character `c' in the string `s'. Example:
+<codeblock>
+      char *p = ustrchr("one,two,three,four", ',');<endblock>
 @retval
    Returns a pointer to the first occurrence of `c' in `s', or NULL if no
    match was found. Note that if `c' is NULL, this will return a pointer to
@@ -1222,7 +1283,9 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrrchr(const char *s, int c);
 @xref uconvert, ustrchr, ustrstr, ustrpbrk, ustrtok
-   Finds the last occurrence of the character `c' in the string `s'.
+   Finds the last occurrence of the character `c' in the string `s'. Example:
+<codeblock>
+      char *p = ustrrchr("one,two,three,four", ',');<endblock>
 @retval
    Returns a pointer fo the last occurrence of `c' in `s', or NULL if no
    match was found.
@@ -1230,25 +1293,41 @@ is best to set it with set_uformat() just before you call these.
 @@char *@ustrstr(const char *s1, const char *s2);
 @xref uconvert, ustrchr, ustrrchr, ustrpbrk, ustrtok
    This function finds the first occurence of string `s2' in string `s1'.
+   Example:
+<codeblock>
+      char *p = ustrstr("hello world", "world");<endblock>
 @retval
    Returns a pointer within `s1', or NULL if `s2' wasn't found.
 
 @@char *@ustrpbrk(const char *s, const char *set);
 @xref uconvert, ustrchr, ustrrchr, ustrstr, ustrtok
    This function finds the first character in `s' that matches any character
-   in `set'.
+   in `set'. Example:
+<codeblock>
+      char *p = ustrpbrk("one,two-three.four", "-. ");<endblock>
 @retval
    Returns a pointer to the first match, or NULL if none are found.
 
 @@char *@ustrtok(char *s, const char *set);
 @xref uconvert, ustrchr, ustrrchr, ustrstr, ustrpbrk, ustrtok_r
+@xref allegro_message, ustrncpy
 @eref exgui
    This function retrieves tokens from `s' which are delimited by characters
    from `set'. To initiate the search, pass the string to be searched as `s'.
    For the remaining tokens, pass NULL instead. Warning: Since ustrtok alters
    the string it is parsing, you should always copy the string to a temporary
    buffer before parsing it. Also, this function is not reentrant (ie. you
-   cannot parse two strings at the same time).
+   cannot parse two strings at the same time). Example:
+<codeblock>
+      char *word;
+      char string[]="some-words with dashes";
+      char *temp = ustrdup(string);
+      word = ustrtok(temp, " -");
+      while (word) {
+	 allegro_message("Found `%s'\n", word);
+	 word = ustrtok(NULL, " -");
+      }
+      free(temp);<endblock>
 @retval
    Returns a pointer to the token, or NULL if no more are found.
 
@@ -1257,7 +1336,17 @@ is best to set it with set_uformat() just before you call these.
    Reentrant version of ustrtok. The `last' parameter is used to keep track
    of where the parsing is up to and must be a pointer to a char * variable
    allocated by the user that remains the same while parsing the same
-   string.
+   string. Example:
+<codeblock>
+      char *word, *last;
+      char string[]="some-words with dashes";
+      char *temp = ustrdup(string);
+      word = ustrtok_r(string, " -", &last);
+      while (word) {
+	 allegro_message("Found `%s'\n", word);
+	 word = ustrtok_r(NULL, " -", &last);
+      }
+      free(temp);<endblock>
 @retval
    Returns a pointer to the token, or NULL if no more are found. You can free
    the memory pointed to by `last' once NULL is returned.
@@ -1278,7 +1367,10 @@ is best to set it with set_uformat() just before you call these.
    should be treated as. If `base' is zero, the base is determined by looking
    for `0x', `0X', or `0' as the first part of the string, and sets the base
    used to 16, 16, or 8 if it finds one. The default base is 10 if none of
-   those prefixes are found.
+   those prefixes are found. Example:
+<codeblock>
+      char *endp, *string = "456.203 askdfg";
+      int number = ustrtol(string, &endp, 10);<endblock>
 @retval
    Returns the string converted as a value of type `long int'. If nothing was
    converted, returns zero with `*endp' pointing to the beginning of `s'.
@@ -1287,40 +1379,94 @@ is best to set it with set_uformat() just before you call these.
 @xref uconvert, ustrtol, uatof
    This function converts as many characters of `s' that look like a floating
    point number into one, and sets `*endp' to point to the first unused
-   character, if `endp' is not a NULL pointer.
+   character, if `endp' is not a NULL pointer. Example:
+<codeblock>
+      char *endp, *string = "456.203 askdfg";
+      double number = ustrtod(string, &endp);<endblock>
+@retval
+   Returns the string converted as a value of type `double'. If nothing was
+   converted, returns zero with *endp pointing to the beginning of s.
 
 @@const char *@ustrerror(int err);
 @xref uconvert, allegro_error
    This function returns a string that describes the error code `err', which
-   normally comes from the global variable `errno'. Returns a pointer to a
-   static string that should not be modified or free'd. If you make
-   subsequent calls to ustrerror, the string might be overwritten.
+   normally comes from the variable `errno'. Example:
+<codeblock>
+      PACKFILE *input_file = pack_fopen("badname", "r");
+      if (input_file == NULL)
+	 allegro_message("%s\nSorry!\n", ustrerror(errno));<endblock>
+@retval
+   Returns a pointer to a static string that should not be modified or
+   freed. If you make subsequent calls to ustrerror(), the string will be
+   overwritten.
 
 @@int @usprintf(char *buf, const char *format, ...);
 @xref uconvert, uszprintf, uvsprintf
 @eref exkeys
    This function writes formatted data into the output buffer. A NULL
-   character is written to mark the end of the string. Returns the number of
-   characters written, not including the terminating NULL character.
+   character is written to mark the end of the string. You should try to avoid
+   this function because it is very easy to overflow the destination buffer.
+   Use uszprintf instead.
+@retval
+   Returns the number of characters written, not including the terminating
+   null character.
 
 @@int @uszprintf(char *buf, int size, const char *format, ...);
 @xref uconvert, usprintf, uvszprintf
 @eref exgui
    This function writes formatted data into the output buffer, whose length
    in bytes is specified by `size' and which is guaranteed to be NULL
-   terminated. Returns the number of characters that would have been written
-   without eventual truncation (like with usprintf), not including the
-   terminating NULL character.
+   terminated. Example:
+<codeblock>
+      char buffer[10];
+      int player_score;
+      ...
+      uszprintf(buffer, sizeof(buffer), "Your score is: %d", player_score);<endblock>
+@retval
+   Returns the number of characters that would have been written without
+   eventual truncation (like with usprintf), not including the terminating
+   null character.
    
 @@int @uvsprintf(char *buf, const char *format, va_list args);
 @xref uconvert, usprintf, uvszprintf
    This is like usprintf(), but you pass the variable argument list directly,
-   instead of the arguments themselves.
-   
+   instead of the arguments themselves. You can use this function to implement
+   printf like functions, also called variadic functions. You should try to
+   avoid this function because it is very easy to overflow the destination
+   buffer. Use uvszprintf instead.
+@retval
+   Returns the number of characters written, not including the terminating
+   null character.
+
 @@int @uvszprintf(char *buf, int size, const char *format, va_list args);
 @xref uconvert, uszprintf, uvsprintf
    This is like uszprintf(), but you pass the variable argument list
-   directly, instead of the arguments themselves.
+   directly, instead of the arguments themselves. Example:
+<codeblock>
+      #include &ltstdarg.h&gt
+
+      void log_message(const char *format, ...)
+      {
+	 char buffer[100];
+	 va_list parameters;
+         
+	 va_start(parameters, format);
+	 uvszprintf(buffer, sizeof(buffer), format, parameters);
+	 va_end(parameters);
+         
+	 append_buffer_to_logfile(log_name, buffer);
+	 send_buffer_to_other_networked_players(multicast_ip, buffer);
+	 and_also_print_it_on_the_screen(cool_font, buffer);
+      }
+      
+      void some_other_function(void)
+      {
+	 log_message("Hello %s, are you %d years old?\n", "Dave", 25);
+      }<endblock>
+@retval
+   Returns the number of characters that would have been written without
+   eventual truncation (like with uvsprintf), not including the terminating
+   null character.
 
 
 
@@ -1662,8 +1808,7 @@ mouse = x<br>
       LPS2 - PS2 mouse
       LIPS - PS2 mouse with Intellimouse extension
       GPMD - GPM repeater data (Mouse Systems protocol)
-      EV   - Event interfaces (EVDEV)
-<endblock>
+      EV   - Event interfaces (EVDEV)<endblock>
 <li>
 num_buttons = x<br>
    Sets the number of mouse buttons viewed by Allegro. You don't normally
@@ -2389,8 +2534,7 @@ combinations are possible seems to vary from one keyboard to another).
    constants (and are also listed below). For example, you could write:
 <codeblock>
       if (key[KEY_SPACE])
-	 printf("Space is pressed\n");
-<endblock>
+	 printf("Space is pressed\n");<endblock>
 
    Note that the array is supposed to represent which keys are physically
    held down and which keys are not, so it is semantically read-only.
@@ -2425,8 +2569,8 @@ combinations are possible seems to vary from one keyboard to another).
       KEY_LWIN, KEY_RWIN, KEY_MENU,
       KEY_SCRLOCK, KEY_NUMLOCK, KEY_CAPSLOCK
 
-      KEY_EQUALS_PAD, KEY_BACKQUOTE, KEY_SEMICOLON, KEY_COMMAND
-<endblock>   
+      KEY_EQUALS_PAD, KEY_BACKQUOTE, KEY_SEMICOLON, KEY_COMMAND<endblock>
+
 @@extern volatile int @key_shifts;
 @xref install_keyboard, poll_keyboard, key
 @eref excamera, exkeys
@@ -2450,8 +2594,8 @@ combinations are possible seems to vary from one keyboard to another).
       KB_ACCENT1_FLAG
       KB_ACCENT2_FLAG
       KB_ACCENT3_FLAG
-      KB_ACCENT4_FLAG
-<endblock>   
+      KB_ACCENT4_FLAG<endblock>
+
 @@int @keypressed();
 @xref install_keyboard, readkey, ureadkey, clear_keybuf
 @xref simulate_keypress, simulate_ukeypress
@@ -2754,8 +2898,8 @@ Joystick routines
 	       exit(1);
 	    }
 	 }
-      }
-<endblock>
+      }<endblock>
+
 @@int @save_joystick_data(const char *filename);
 @xref load_joystick_data, set_config_file
    After all the headache of calibrating the joystick, you may not want to 
@@ -3583,8 +3727,8 @@ will not be known, so the file may be converted wrongly.
       get_palette(pal);
       bmp = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H);
       save_bitmap("dump.pcx", bmp, pal);
-      destroy_bitmap(bmp);
-<endblock>
+      destroy_bitmap(bmp);<endblock>
+      
 @@int @save_bmp(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
    Writes a bitmap into a 256-color or 24-bit truecolor BMP file.
@@ -4893,8 +5037,7 @@ render z-buffered polygons.
 
 Example:
 <codeblock>
-   polygon3d(bmp, POLYTYPE_ATEX | POLYTYPE_ZBUF, tex, vc, vtx);
-<endblock>
+   polygon3d(bmp, POLYTYPE_ATEX | POLYTYPE_ZBUF, tex, vc, vtx);<endblock>
 
 Of course, the z coordinates have to be valid regardless of rendering style.
 
@@ -5036,8 +5179,7 @@ have to clear the z-buffer at the start of the frame. Example:
       if (this_poly_is_zbuf) type |= POLYTYPE_ZBUF;
       scene_polygon3d(type, tex, vc, vtx);
    }
-   render_scene();
-<endblock>
+   render_scene();<endblock>
 
 @@int @create_scene(int nedge, int npoly);
 @xref scene_polygon3d, render_scene, clear_scene, destroy_scene, scene_gap
@@ -5296,8 +5438,7 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
 In truecolor video modes, translucency and lighting are implemented by a 
 blender function of the form:
 <codeblock>
-   unsigned long (*BLENDER_FUNC)(unsigned long x, y, n);
-<endblock>
+   unsigned long (*BLENDER_FUNC)(unsigned long x, y, n);<endblock>
 
 For each pixel to be drawn, this routine is passed two color parameters x 
 and y, decomposes them into their red, green and blue components, combines 
@@ -5507,8 +5648,8 @@ the conversion).
 <codeblock>
       typedef struct {
 	 unsigned char data[32][32][32];
-      } RGB_MAP;
-<endblock>
+      } RGB_MAP;<endblock>
+      
 @\void @create_rgb_table(RGB_MAP *table, const PALETTE pal,
 @@                      void (*callback)(int pos));
 @xref rgb_map
@@ -5649,8 +5790,7 @@ example, a mode-X putpixel is:
       outportw(0x3C4, (0x100&lt&lt(x&3))|2);
       bmp_select(bmp);
       bmp_write8((unsigned long)bmp-&gtline[y]+(x&gt&gt2), color);
-   }
-<endblock>
+   }<endblock>
 
 Oh yeah: the djgpp nearptr hack. Personally I don't like this very much 
 because it disables memory protection and isn't portable to other platforms, 
@@ -6037,8 +6177,8 @@ sample structure:
    unsigned long loop_start;
    unsigned long loop_end;
       Loop position in sample units, by default set to the start and end of 
-      the sample.
-<endblock>
+      the sample.<endblock>
+
 @@int @allocate_voice(const SAMPLE *spl);
 @xref Voice control, deallocate_voice, reallocate_voice, release_voice
 @xref load_sample
@@ -6059,8 +6199,8 @@ sample structure:
    reallocate_voice(voice, sample) is equivalent to:
 <codeblock>
       deallocate_voice(voice);
-      voice = allocate_voice(sample);
-<endblock>
+      voice = allocate_voice(sample);<endblock>
+
 @@void @release_voice(int voice);
 @xref allocate_voice, deallocate_voice
    Releases a soundcard voice, indicating that you are no longer interested 
@@ -6408,8 +6548,8 @@ Recording routines
       0 = audio input not supported
       8 = eight bit audio input is supported
       16 = sixteen bit audio input is supported
-      24 = both eight and sixteen bit audio input are supported
-<endblock>
+      24 = both eight and sixteen bit audio input are supported<endblock>
+
 @@int @get_sound_input_cap_stereo();
 @xref start_sound_input, get_sound_input_cap_parm, get_sound_input_cap_bits
 @xref get_sound_input_cap_rate
@@ -6434,8 +6574,8 @@ Recording routines
       2  = recording is possible at the same time as playing other
 	   sounds
       -n = sampling rate not supported, but rate 'n' would work
-	   instead
-<endblock>
+	   instead<endblock>
+
 @@int @set_sound_input_source(int source);
 @xref start_sound_input
    Selects the audio input source, returning zero on success or -1 if the 
@@ -6444,8 +6584,8 @@ Recording routines
 <textblock>
       SOUND_INPUT_MIC
       SOUND_INPUT_LINE
-      SOUND_INPUT_CD
-<endblock>
+      SOUND_INPUT_CD<endblock>
+
 @@int @start_sound_input(int rate, int bits, int stereo);
 @xref install_sound_input, read_sound_input, stop_sound_input
 @xref digi_recorder, set_sound_input_source, get_sound_input_cap_parm
@@ -7091,7 +7231,6 @@ an array, and it doesn't have any DAT_END object. Example:
    music_object = load_datafile_object("datafile.dat", "MUSIC");
    play_midi(music_object-&gtdat);
 <endblock>
-
 
 
 @heading
@@ -8118,8 +8257,8 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
       while (update_dialog(player))
 	 ;
 
-      return shutdown_dialog(player);
-<endblock>
+      return shutdown_dialog(player);<endblock>
+
 @@int @update_dialog(DIALOG_PLAYER *player);
 @xref init_dialog
    Updates the status of a dialog object returned by init_dialog(). Returns 
@@ -8187,8 +8326,8 @@ ensure there is room for the check.
       while (update_menu(player))
 	 ;
 
-      return shutdown_menu(player);
-<endblock>
+      return shutdown_menu(player);<endblock>
+
 @@int @update_menu(MENU_PLAYER *player);
 @xref init_menu, shutdown_menu
    Updates the status of a menu object returned by init_menu(). Returns TRUE
@@ -8605,8 +8744,8 @@ DOS specifics
       DIGI_SB16            - SB16 (16-bit stereo)
       DIGI_AUDIODRIVE      - ESS AudioDrive
       DIGI_SOUNDSCAPE      - Ensoniq Soundscape
-      DIGI_WINSOUNDSYS     - Windows Sound System
-<endblock>
+      DIGI_WINSOUNDSYS     - Windows Sound System<endblock>
+
 @@Drivers @MIDI_*/DOS
 @xref detect_midi_driver, install_sound, install_sound_input
    The DOS sound functions support the following MIDI soundcards:
@@ -8622,8 +8761,8 @@ DOS specifics
       MIDI_SB_OUT          - SB MIDI interface
       MIDI_MPU             - MPU-401 MIDI interface
       MIDI_DIGMID          - sample-based software wavetable player
-      MIDI_AWE32           - AWE32 (EMU8000 chip)
-<endblock>
+      MIDI_AWE32           - AWE32 (EMU8000 chip)<endblock>
+
 @@void @split_modex_screen(int line);
 @xref set_gfx_mode, scroll_screen
 @eref exscroll
@@ -8793,8 +8932,7 @@ below for the consequences for windowed and overlay DirectX drivers.
 	       }
 	    }
 	    /* ok, the 640x480 overlay driver is running */
-	 }
-<endblock>
+	 }<endblock>
 <li>
    GFX_GDI<br>
       The windowed GDI driver. It is extremely slow, but is guaranteed to 
@@ -8814,8 +8952,8 @@ below for the consequences for windowed and overlay DirectX drivers.
       DIGI_DIRECTAMX(n)    - use DirectSound device #n (zero-based)
 			     with Allegro mixing
       DIGI_WAVOUTID(n)     - high (n=0) or low (n=1) quality WaveOut
-			     device
-<endblock>
+			     device<endblock>
+
 @@Drivers @MIDI_*/Windows
 @xref detect_midi_driver, install_sound, install_sound_input
    The Windows sound functions support the following MIDI soundcards:
@@ -8824,8 +8962,7 @@ below for the consequences for windowed and overlay DirectX drivers.
       MIDI_NONE            - no MIDI sound
       MIDI_WIN32MAPPER     - use win32 MIDI mapper
       MIDI_WIN32(n)        - use win32 device #n (zero-based)
-      MIDI_DIGMID          - sample-based software wavetable player
-<endblock>
+      MIDI_DIGMID          - sample-based software wavetable player<endblock>
 
 The following functions provide a platform specific interface to seamlessly 
 integrate Allegro into general purpose Win32 programs. To use these routines, 
@@ -9089,8 +9226,8 @@ function to remind you :-)
       DIGI_OSS             - Open Sound System
       DIGI_ESD             - Enlightened Sound Daemon
       DIGI_ARTS            - aRts (Analog Real-Time Synthesizer)
-      DIGI_ALSA            - ALSA sound driver
-<endblock>
+      DIGI_ALSA            - ALSA sound driver<endblock>
+
 @@Drivers @MIDI_*/Unix
 @xref detect_midi_driver, install_sound, install_sound_input
    The Unix sound functions support the following MIDI soundcards:
@@ -9099,8 +9236,7 @@ function to remind you :-)
       MIDI_NONE            - no MIDI sound
       MIDI_OSS             - Open Sound System
       MIDI_DIGMID          - sample-based software wavetable player
-      MIDI_ALSA            - ALSA RawMIDI driver
-<endblock>
+      MIDI_ALSA            - ALSA RawMIDI driver<endblock>
 
 @@void @xwin_set_window_name(const char *name, const char *group);
 @xref set_window_title
@@ -9165,8 +9301,8 @@ BeOS specifics
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
-      DIGI_BEOS            - BeOS digital output
-<endblock>
+      DIGI_BEOS            - BeOS digital output<endblock>
+
 @@Drivers @MIDI_*/BeOS
 @xref detect_midi_driver, install_sound, install_sound_input
    The BeOS sound functions support the following MIDI soundcards:
@@ -9176,7 +9312,6 @@ BeOS specifics
       MIDI_BEOS            - BeOS MIDI output
       MIDI_DIGMID          - sample-based software wavetable player
 <endblock>
-
 
 
 @heading
@@ -9233,8 +9368,8 @@ QNX specifics
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
-      DIGI_ALSA            - ALSA sound driver
-<endblock>
+      DIGI_ALSA            - ALSA sound driver<endblock>
+
 @@Drivers @MIDI_*/QNX
 @xref detect_midi_driver, install_sound, install_sound_input
    The QNX sound functions support the following MIDI soundcards:
@@ -9244,7 +9379,6 @@ QNX specifics
       MIDI_ALSA            - ALSA RawMIDI driver
       MIDI_DIGMID          - sample-based software wavetable player
 <endblock>
-
 The following functions provide a platform specific interface to seamlessly 
 integrate Allegro into general purpose QNX programs. To use these routines, 
 you must include qnxalleg.h after other Allegro headers.
@@ -9296,8 +9430,8 @@ MacOS X specifics
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
-      DIGI_SOUND_MANAGER   - Sound Manager digital output
-<endblock>
+      DIGI_SOUND_MANAGER   - Sound Manager digital output<endblock>
+
 @@Drivers @MIDI_*/MacOSX
 @xref detect_midi_driver, install_sound, install_sound_input
    The MacOS X sound functions support the following MIDI soundcards:
@@ -9307,7 +9441,6 @@ MacOS X specifics
       MIDI_QUICKTIME       - QuickTime Music Note Allocator MIDI output
       MIDI_DIGMID          - sample-based software wavetable player
 <endblock>
-
 
 
 @headingnocontent
