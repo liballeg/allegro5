@@ -103,10 +103,10 @@ information about how to install Allegro and link your program with it.
    such as the text mode datafile tools or the Windows GDI interfacing
    functions.
 
-   The errno_ptr and atexit_ptr parameters should point to the errno variable
-   and atexit function from your libc: these are required because when
-   Allegro is linked as a DLL, it doesn't have direct access to your local
-   libc data.  atexit_ptr may be NULL, in which case it is your
+   The `errno_ptr' and `atexit_ptr' parameters should point to the errno
+   variable and atexit function from your libc: these are required because
+   when Allegro is linked as a DLL, it doesn't have direct access to your
+   local libc data. `atexit_ptr' may be NULL, in which case it is your
    responsibility to call allegro_exit() manually. Example:
 <codeblock>
       install_allegro(SYSTEM_AUTODETECT, &errno, atexit);<endblock>
@@ -246,7 +246,7 @@ information about how to install Allegro and link your program with it.
    you should set a flag during this function, and test it on a regular 
    basis in the main loop of the program.
 
-   Pass NULL as the 'proc' argument to this function to disable the close
+   Pass NULL as the `proc' argument to this function to disable the close
    button functionality, which is the default state.
 
    Note that Allegro cannot intercept the close button of a DOS box in 
@@ -299,7 +299,7 @@ information about how to install Allegro and link your program with it.
 @retval
    Returns zero on success, or a negative number if this information is not
    available or does not apply, in which case the values stored in the
-   variables you provided for width and height are undefined.
+   variables you provided for `width' and `height' are undefined.
 
 @@void @yield_timeslice();
 @xref vsync
@@ -408,7 +408,7 @@ available in past/future versions of Allegro.
    unsigned char *line[];  - pointers to the start of each line
 <endblock>
    There is some other stuff in the structure as well, but it is liable to
-   change and you shouldn't use anything except the above. The w and h
+   change and you shouldn't use anything except the above. The `w' and `h'
    fields can be used to obtain the size of an existing bitmap:
 <codeblock>
       bmp = load_bitmap("file.bmp", pal);
@@ -768,7 +768,7 @@ is best to set it with set_uformat() just before you call these.
 @eref exunicod
    Sets the current text encoding format. This will affect all parts of 
    Allegro, wherever you see a function that returns a char *, or takes a 
-   char * as a parameter. "type" should be one of these values:
+   char * as a parameter. `type' should be one of these values:
 <textblock>
       U_ASCII     - fixed size, 8-bit ASCII characters
       U_ASCII_CP  - alternative 8-bit codepage (see set_ucodepage())
@@ -812,7 +812,7 @@ is best to set it with set_uformat() just before you call these.
 @@                      int (*u_isok)(int c));
 @xref set_uformat, uconvert, ugetc, ugetx, usetc, uwidth, ucwidth, uisok
    Installs a set of custom handler functions for a new text encoding 
-   format. The type is the ID code for your new format, which should be a 
+   format. The `type' is the ID code for your new format, which should be a
    4-character string as produced by the AL_ID() macro, and which can later 
    be passed to functions like set_uformat() and uconvert(). The function 
    parameters are handlers that implement the character access for your new 
@@ -824,9 +824,9 @@ is best to set it with set_uformat() just before you call these.
    When you select the U_ASCII_CP encoding mode, a set of tables are used to 
    convert between 8-bit characters and their Unicode equivalents. You can 
    use this function to specify a custom set of mapping tables, which allows 
-   you to support different 8-bit codepages. The table parameter points to 
+   you to support different 8-bit codepages. The `table' parameter points to
    an array of 256 shorts, which contain the Unicode value for each 
-   character in your codepage. The extras parameter, if not NULL, points to 
+   character in your codepage. The `extras' parameter, if not NULL, points to
    a list of mapping pairs, which will be used when reducing Unicode data to 
    your codepage. Each pair consists of a Unicode value, followed by the way 
    it should be represented in your codepage. The table is terminated by a 
@@ -836,11 +836,11 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @need_uconvert(const char *s, int type, int newtype);
 @xref set_uformat, get_uformat, do_uconvert, uconvert
-   Given a pointer to a string (s), a description of the type of the string
-   (type), and the type that you would like this string to be converted into
-   (newtype), this function tells you whether any conversion is required. No
-   conversion will be needed if type and newtype are the same, or if one type
-   is ASCII, the other is UTF-8, and the string contains only character
+   Given a pointer to a string (`s'), a description of the type of the string
+   (`type'), and the type that you would like this string to be converted into
+   (`newtype'), this function tells you whether any conversion is required. No
+   conversion will be needed if `type' and `newtype' are the same, or if one
+   type is ASCII, the other is UTF-8, and the string contains only character
    values less than 128. As a convenience shortcut, you can pass the value
    U_CURRENT as either of the type parameters, to represent whatever text
    encoding format is currently selected. Example:
@@ -853,11 +853,11 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uconvert_size(const char *s, int type, int newtype);
 @xref need_uconvert, do_uconvert
-   Finds out how many bytes are required to store the specified string s after
-   a conversion from type to newtype, including the mandatory zero terminator
-   of the string. You can use U_CURRENT for either type or newtype as a
-   shortcut to represent whatever text encoding format is currently selected.
-   Example:
+   Finds out how many bytes are required to store the specified string `s'
+   after a conversion from `type' to `newtype', including the mandatory zero
+   terminator of the string. You can use U_CURRENT for either `type' or
+   `newtype' as a shortcut to represent whatever text encoding format is
+   currently selected. Example:
 <codeblock>
       length = uconvert_size(old_string, U_CURRENT, U_UNICODE);
       new_string = malloc(length);
@@ -868,8 +868,8 @@ is best to set it with set_uformat() just before you call these.
 @\void @do_uconvert(const char *s, int type,
 @@                 char *buf, int newtype, int size);
 @xref uconvert
-   Converts the specified string from type to newtype, storing at most size
-   bytes into the output buf. The type parameters can use the value
+   Converts the specified string `s' from `type' to `newtype', storing at most
+   `size' bytes into the output `buf'. The type parameters can use the value
    U_CURRENT as a shortcut to represent the currently selected encoding 
    format. Example:
 <codeblock>
@@ -887,23 +887,24 @@ is best to set it with set_uformat() just before you call these.
 @xref set_uformat, need_uconvert, uconvert, uconvert_ascii, uconvert_toascii
 @xref do_uconvert
    Higher level function running on top of do_uconvert(). This function 
-   converts the specified string from type to newtype, storing at most size 
-   bytes into the output buf (including the terminating null character), but
-   it checks before doing the conversion, and doesn't bother if the string
-   formats are already the same (either both types are equal, or one is ASCII,
-   the other is UTF-8, and the string contains only 7-bit ASCII characters).
+   converts the specified string `s' from `type' to `newtype', storing at most
+   `size' bytes into the output `buf' (including the terminating null
+   character), but it checks before doing the conversion, and doesn't bother
+   if the string formats are already the same (either both types are equal, or
+   one is ASCII, the other is UTF-8, and the string contains only 7-bit ASCII
+   characters).
 
-   As a convenience, if buf is NULL it will convert the string into an
-   internal static buffer and the size parameter will be ignored. You should
+   As a convenience, if `buf' is NULL it will convert the string into an
+   internal static buffer and the `size' parameter will be ignored. You should
    be wary of using this feature, though, because that buffer will be
    overwritten the next time this routine is called, so don't expect the data
    to persist across any other library calls. The static buffer has a size
    shorter than 1K, so you won't be able to convert large chunks of text.
 @retval
-   Returns a pointer to buf (or the static buffer if you used NULL) if a
-   conversion was performed. Otherwise returns a copy of s. In any cases, you
-   should use the return value rather than assuming that the string will
-   always be moved to buf.
+   Returns a pointer to `buf' (or the static buffer if you used NULL) if a
+   conversion was performed. Otherwise returns a copy of `s'. In any cases,
+   you should use the return value rather than assuming that the string will
+   always be moved to `buf'.
 
 @@char *@uconvert_ascii(const char *s, char buf[]);
 @xref uconvert
@@ -926,7 +927,7 @@ is best to set it with set_uformat() just before you call these.
 @xref ugetx, usetc, uwidth, ucwidth, uisok
    Low level helper function for reading Unicode text data.
 @retval
-   Returns the character pointed to by s in the current encoding format.
+   Returns the character pointed to by `s' in the current encoding format.
 
 @@int @ugetx(char **s);
 @@int @ugetxc(const char **s);
@@ -934,13 +935,13 @@ is best to set it with set_uformat() just before you call these.
    Low level helper function for reading Unicode text data. ugetxc is
    provided for working with pointer-to-pointer-to-const char data.
 @retval
-   Returns the character pointed to by s in the current encoding format, and
+   Returns the character pointed to by `s' in the current encoding format, and
    advances the pointer to the next character after the one just returned.
 
 @@int @usetc(char *s, int c);
 @xref ugetc, ugetx, uwidth, ucwidth, uisok
    Low level helper function for writing Unicode text data. Writes the
-   character c to the address pointed to by s.
+   character `c' to the address pointed to by `s'.
 @retval
    Returns the number of bytes written, which is equal to the width of the
    character in the current encoding format.
@@ -962,35 +963,35 @@ is best to set it with set_uformat() just before you call these.
 @@int @uisok(int c);
 @xref ugetc, ugetx, usetc, uwidth, ucwidth
    Low level helper function for testing Unicode text data. Finds out if the
-   character value c can be encoded correctly in the current format, which can
-   be useful if you are converting from Unicode to ASCII or another encoding
-   format where the range of valid characters is limited.
+   character value `c' can be encoded correctly in the current format, which
+   can be useful if you are converting from Unicode to ASCII or another
+   encoding format where the range of valid characters is limited.
 @retval
    Returns non-zero if the value can be correctly encoded, zero otherwise.
 
 @@int @uoffset(const char *s, int index);
 @xref ugetat, usetat, uinsert, uremove
    Finds out the offset (in bytes from the start of the string) of the
-   character at the specified index in the string s. If the index is negative,
-   it counts backward from the end of the string, so an index of -1 will
-   return an offset to the last character.
+   character at the specified `index' in the string `s'. If `index' is
+   negative, it counts backward from the end of the string, so an `index' of
+   `-1' will return an offset to the last character.
 @retval
    Returns the offset in bytes to the specified character.
 
 @@int @ugetat(const char *s, int index);
 @xref uoffset, usetat, uinsert, uremove
-   Finds out the character value at the specified index in the string. A zero
-   index parameter will return the first character of the string. If the index
-   is negative, it counts backward from the end of the string, so an index of
-   -1 will return the last character of the string.
+   Finds out the character value at the specified `index' in the string. A
+   zero `index' parameter will return the first character of the string. If
+   `index' is negative, it counts backward from the end of the string, so an
+   `index' of `-1' will return the last character of the string.
 @retval
    Returns the character value at the specified index in the string.
 
 @@int @usetat(char *s, int index, int c);
 @xref uoffset, ugetat, uinsert, uremove
-   Replaces the character at the specified index in the string with value c,
-   handling any adjustments for variable width data (ie. if c encodes to a
-   different width than the previous value at that location). If the index is
+   Replaces the character at the specified index in the string with value `c',
+   handling any adjustments for variable width data (ie. if `c' encodes to a
+   different width than the previous value at that location). If `index' is
    negative, it counts backward from the end of the string.
 @retval
    Returns the number of bytes by which the trailing part of the string was
@@ -999,8 +1000,8 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uinsert(char *s, int index, int c);
 @xref uoffset, ugetat, usetat, uremove
-   Inserts the character c at the specified index in the string, sliding the
-   rest of the data along to make room. If the index is negative, it counts
+   Inserts the character `c' at the specified `index' in the string, sliding
+   the rest of the data along to make room. If `index' is negative, it counts
    backward from the end of the string.
 @retval
    Returns the number of bytes by which the trailing part of the string was
@@ -1008,8 +1009,8 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uremove(char *s, int index);
 @xref uoffset, ugetat, usetat, uinsert
-   Removes the character at the specified index within the string, sliding 
-   the rest of the data back to fill the gap. If the index is negative, it
+   Removes the character at the specified `index' within the string, sliding
+   the rest of the data back to fill the gap. If `index' is negative, it
    counts backward from the end of the string.
 @retval
    Returns the number of bytes by which the trailing part of the string was
@@ -1035,25 +1036,25 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @utolower(int c);
 @xref utoupper, ugetc, ugetx, usetc, uwidth, ucwidth, uisok
-   This function returns c, converting it to lower case if it is upper case.
+   This function returns `c', converting it to lower case if it is upper case.
 
 @@int @utoupper(int c);
 @xref utolower, ugetc, ugetx, usetc, uwidth, ucwidth, uisok
-   This function returns c, converting it to upper case if it is lower case.
+   This function returns `c', converting it to upper case if it is lower case.
 
 @@int @uisspace(int c);
 @xref uisdigit, ugetc, usetc, uwidth, ucwidth, uisok
-   Returns nonzero if c is whitespace, that is, carriage return, newline,
+   Returns nonzero if `c' is whitespace, that is, carriage return, newline,
    form feed, tab, vertical tab, or space.
 
 @@int @uisdigit(int c);
 @xref uisspace, ugetc, usetc, uwidth, ucwidth, uisok
-   Returns nonzero if c is a digit.
+   Returns nonzero if `c' is a digit.
 
 @@char *@ustrdup(const char *src)
 @xref _ustrdup, uconvert, ustrsize, ustrsizez
 @eref exconfig
-   This functions copies the null-terminated string src into a newly
+   This functions copies the null-terminated string `src' into a newly
    allocated area of memory, effectively duplicating it.
 @retval
    Returns the newly allocated string. This memory must be freed by the
@@ -1067,8 +1068,8 @@ is best to set it with set_uformat() just before you call these.
 @@char *@ustrcpy(char *dest, const char *src);
 @xref uconvert, ustrzcpy, ustrncpy
 @eref exunicod
-   This function copies src (including the terminating null character into
-   dest. You should try to avoid this function because it is very easy to
+   This function copies `src' (including the terminating null character into
+   `dest'. You should try to avoid this function because it is very easy to
    overflow the destination buffer. Use ustrzcpy instead.
 @retval
    Returns the value of dest.
@@ -1076,9 +1077,9 @@ is best to set it with set_uformat() just before you call these.
 @@char *@ustrzcpy(char *dest, int size, const char *src);
 @xref uconvert, ustrcpy, ustrzncpy
 @eref exgui
-   This function copies src (including the terminating NULL character into
-   dest, whose length in bytes is specified by size and which is guaranteed
-   to be null-terminated even if src is bigger than size.
+   This function copies `src' (including the terminating NULL character into
+   `dest', whose length in bytes is specified by `size' and which is
+   guaranteed to be null-terminated even if `src' is bigger than `size'.
    
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
@@ -1086,23 +1087,23 @@ is best to set it with set_uformat() just before you call these.
    Allegro will abort at an assertion, and the release version of Allegro
    will overrun the destination buffer.
 @retval
-   Returns the value of dest.
+   Returns the value of `dest'.
 
 @@char *@ustrcat(char *dest, const char *src);
 @xref uconvert, ustrzcat, ustrncat
 @eref exunicod
-   This function concatenates src to the end of dest. You should try to avoid
-   this function because it is very easy to overflow the destination buffer,
-   use ustrzcat instead.
+   This function concatenates `src' to the end of `dest`'. You should try to
+   avoid this function because it is very easy to overflow the destination
+   buffer, use ustrzcat instead.
 @retval
-   Returns the value of dest.
+   Returns the value of `dest'.
 
 @@char *@ustrzcat(char *dest, int size, const char *src);
 @xref uconvert, ustrcat, ustrzncat
 @eref exgui
-   This function concatenates src to the end of dest, whose length in bytes 
-   is specified by size and which is guaranteed to be null-terminated even
-   when src is bigger than size.
+   This function concatenates `src' to the end of `dest', whose length in
+   bytes is specified by `size' and which is guaranteed to be null-terminated
+   even when `src' is bigger than `size'.
 
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
@@ -1110,139 +1111,140 @@ is best to set it with set_uformat() just before you call these.
    Allegro will abort at an assertion, and the release version of Allegro
    will overrun the destination buffer.
 @retval
-   Returns the value of dest.
+   Returns the value of `dest'.
 
 @@int @ustrlen(const char *s);
 @xref uconvert, ustrsize, ustrsizez
-   This function returns the number of characters in s. Note that this
+   This function returns the number of characters in `s'. Note that this
    doesn't have to equal the string's size in bytes.
 
 @@int @ustrcmp(const char *s1, const char *s2);
 @xref uconvert, ustrsize, ustrsizez, ustrncmp, ustricmp, ustrnicmp
-   This function compares s1 and s2.
+   This function compares `s1' and `s2'.
 @retval
-   Returns zero if the strings are equal, a positive number if s1 comes after
-   s2 in the ASCII collating sequence, else a negative number.
+   Returns zero if the strings are equal, a positive number if `s1' comes
+   after `s2' in the ASCII collating sequence, else a negative number.
 
 @@char *@ustrncpy(char *dest, const char *src, int n);
 @xref uconvert, ustrcpy, ustrzncpy
-   This function is like ustrcpy() except that no more than n characters 
-   from src are copied into dest. If src is shorter than n characters, null
-   characters are appended to dest as padding until n characters have been 
-   written.
+   This function is like ustrcpy() except that no more than `n' characters
+   from `src' are copied into `dest'. If `src' is shorter than `n' characters,
+   null characters are appended to `dest' as padding until `n' characters have
+   been written.
 
-   Note that if src is longer than n characters, dest will not be
+   Note that if `src' is longer than `n' characters, `dest' will not be
    null-terminated.
 @retval
-   The return value is the value of dest.
+   The return value is the value of `dest'.
 
 @@char *@ustrzncpy(char *dest, int size, const char *src, int n);
 @xref uconvert, ustrzcpy, ustrncpy
-   This function is like ustrzcpy() except that no more than n characters 
-   from src are copied into dest. If src is shorter than n characters, null
-   characters are appended to dest as padding until n characters have been 
-   written. In any case, dest is guaranteed to be null-terminated.
+   This function is like ustrzcpy() except that no more than `n' characters
+   from `src' are copied into `dest'. If `src' is shorter than `n' characters,
+   null characters are appended to `dest' as padding until `n' characters have
+   been written. In any case, `dest' is guaranteed to be null-terminated.
 
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
-   and your parameter size must reflect this. Otherwise, the debug version of
-   Allegro will abort at an assertion, and the release version of Allegro
+   and your parameter `size' must reflect this. Otherwise, the debug version
+   of Allegro will abort at an assertion, and the release version of Allegro
    will overrun the destination buffer.
 @retval
-   The return value is the value of dest.
+   The return value is the value of `dest'.
 
 @@char *@ustrncat(char *dest, const char *src, int n);
 @xref uconvert, ustrcat, ustrzncat
-   This function is like ustrcat() except that no more than n characters 
-   from src are appended to the end of dest. If the terminating null
-   character in src is reached before n characters have been written, the 
-   null character is copied, but no other characters are written. If n
+   This function is like ustrcat() except that no more than `n' characters
+   from `src' are appended to the end of `dest'. If the terminating null
+   character in `src' is reached before `n' characters have been written, the
+   null character is copied, but no other characters are written. If `n'
    characters are written before a terminating null is encountered, the
-   function appends its own null character to dest, so that n+1 characters
+   function appends its own null character to `dest', so that `n+1' characters
    are written. You should try to avoid this function because it is very
    easy to overflow the destination buffer. Use ustrzncat instead.
 @retval
-   The return value is the value of dest.
+   The return value is the value of `dest'.
 
 @@char *@ustrzncat(char *dest, int size, const char *src, int n);
 @xref uconvert, ustrzcat, ustrncat
-   This function is like ustrzcat() except that no more than n characters 
-   from src are appended to the end of dest. If the terminating null
-   character in src is reached before n characters have been written, the 
+   This function is like ustrzcat() except that no more than `n' characters
+   from `src' are appended to the end of `dest'. If the terminating null
+   character in `src' is reached before `n' characters have been written, the
    null character is copied, but no other characters are written. Note that
-   dest is guaranteed to be null-terminated.
+   `dest' is guaranteed to be null-terminated.
 @retval
-   The return value is the value of dest.
+   The return value is the value of `dest'.
 
 @@int @ustrncmp(const char *s1, const char *s2, int n);
 @xref uconvert, ustrsize, ustrsizez, ustrcmp, ustricmp, ustrnicmp
-   This function compares up to n characters of s1 and s2.
+   This function compares up to `n' characters of `s1' and `s2'.
 @retval
-   Returns zero if the substrings are equal, a positive number if s1 comes
-   after s2 in the ASCII collating sequence, else a negative number.
+   Returns zero if the substrings are equal, a positive number if `s1' comes
+   after `s2' in the ASCII collating sequence, else a negative number.
 
 @@int @ustricmp(const char *s1, const char *s2);
 @xref uconvert, ustrsize, ustrsizez, ustrnicmp, ustrcmp, ustrncmp
 @eref exconfig
-   This function compares s1 and s2, ignoring case.
+   This function compares `s1' and `s2', ignoring case.
 @retval
-   Returns zero if the strings are equal, a positive number if s1 comes after
-   s2 in the ASCII collating sequence, else a negative number.
+   Returns zero if the strings are equal, a positive number if `s1' comes
+   after `s2' in the ASCII collating sequence, else a negative number.
 
 @@int @ustrnicmp(const char *s1, const char *s2, int n);
 @xref uconvert, ustrsize, ustrsizez, ustricmp, ustrcmp, ustrncmp
-   This function compares up to n characters of s1 and s2, ignoring case.
+   This function compares up to `n' characters of `s1' and `s2', ignoring
+   case.
 @retval
-   Returns zero if the strings are equal, a positive number if s1 comes after
-   s2 in the ASCII collating sequence, else a negative number.
+   Returns zero if the strings are equal, a positive number if `s1' comes
+   after `s2' in the ASCII collating sequence, else a negative number.
 
 @@char *@ustrlwr(char *s);
 @xref uconvert, utolower, ustrupr
-   This function replaces all upper case letters in s with lower case
+   This function replaces all upper case letters in `s' with lower case
    letters.
 @retval
-   The return value is the value of s.
+   The return value is the value of `s'.
 
 @@char *@ustrupr(char *s);
 @xref uconvert, utolower, ustrlwr
-   This function replaces all lower case letters in s with upper case
+   This function replaces all lower case letters in `s' with upper case
    letters.
 @retval
-   The return value is the value of s.
+   The return value is the value of `s'.
 
 @@char *@ustrchr(const char *s, int c);
 @xref uconvert, ustrrchr, ustrstr, ustrpbrk, ustrtok
-   Finds the first occurrence of the character c in the string s.
+   Finds the first occurrence of the character `c' in the string `s'.
 @retval
-   Returns a pointer to the first occurrence of c in s, or NULL if no match
-   was found. Note that if c is NULL, this will return a pointer to the end
-   of the string.
+   Returns a pointer to the first occurrence of `c' in `s', or NULL if no
+   match was found. Note that if `c' is NULL, this will return a pointer to
+   the end of the string.
 
 @@char *@ustrrchr(const char *s, int c);
 @xref uconvert, ustrchr, ustrstr, ustrpbrk, ustrtok
-   Finds the last occurrence of the character c in the string s.
+   Finds the last occurrence of the character `c' in the string `s'.
 @retval
-   Returns a pointer fo the last occurrence of c in s, or NULL if no match
-   was found.
+   Returns a pointer fo the last occurrence of `c' in `s', or NULL if no
+   match was found.
 
 @@char *@ustrstr(const char *s1, const char *s2);
 @xref uconvert, ustrchr, ustrrchr, ustrpbrk, ustrtok
-   This function finds the first occurence of string s2 in string s1.
+   This function finds the first occurence of string `s2' in string `s1'.
 @retval
-   Returns a pointer within s1, or NULL if s2 wasn't found.
+   Returns a pointer within `s1', or NULL if `s2' wasn't found.
 
 @@char *@ustrpbrk(const char *s, const char *set);
 @xref uconvert, ustrchr, ustrrchr, ustrstr, ustrtok
-   This function finds the first character in s that matches any character in
-   set.
+   This function finds the first character in `s' that matches any character
+   in `set'.
 @retval
    Returns a pointer to the first match, or NULL if none are found.
 
 @@char *@ustrtok(char *s, const char *set);
 @xref uconvert, ustrchr, ustrrchr, ustrstr, ustrpbrk, ustrtok_r
 @eref exgui
-   This function retrieves tokens from s which are delimited by characters
-   from set. To initiate the search, pass the string to be searched as s.
+   This function retrieves tokens from `s' which are delimited by characters
+   from `set'. To initiate the search, pass the string to be searched as `s'.
    For the remaining tokens, pass NULL instead. Warning: Since ustrtok alters
    the string it is parsing, you should always copy the string to a temporary
    buffer before parsing it. Also, this function is not reentrant (ie. you
@@ -1252,13 +1254,13 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrtok_r(char *s, const char *set, char **last);
 @xref ustrtok
-   Reentrant version of ustrtok. The last parameter is used to keep track
+   Reentrant version of ustrtok. The `last' parameter is used to keep track
    of where the parsing is up to and must be a pointer to a char * variable
    allocated by the user that remains the same while parsing the same
    string.
 @retval
    Returns a pointer to the token, or NULL if no more are found. You can free
-   the memory pointed to by 'last' once NULL is returned.
+   the memory pointed to by `last' once NULL is returned.
 
 @@double @uatof(const char *s);
 @xref uconvert, ustrtol, ustrtod
@@ -1270,29 +1272,29 @@ is best to set it with set_uformat() just before you call these.
 
 @@long @ustrtol(const char *s, char **endp, int base);
 @xref uconvert, ustrtod, uatof
-   This function converts the initial part of s to a signed integer, setting
-   *endp to point to the first unused character, if endp is not a NULL
-   pointer. The base argument indicates what base the digits (or letters)
-   should be treated as. If base is zero, the base is determined by looking
+   This function converts the initial part of `s' to a signed integer, setting
+   `*endp' to point to the first unused character, if `endp' is not a NULL
+   pointer. The `base' argument indicates what base the digits (or letters)
+   should be treated as. If `base' is zero, the base is determined by looking
    for `0x', `0X', or `0' as the first part of the string, and sets the base
    used to 16, 16, or 8 if it finds one. The default base is 10 if none of
    those prefixes are found.
 @retval
    Returns the string converted as a value of type `long int'. If nothing was
-   converted, returns zero with *endp pointing to the beginning of s.
+   converted, returns zero with `*endp' pointing to the beginning of `s'.
 
 @@double @ustrtod(const char *s, char **endp);
 @xref uconvert, ustrtol, uatof
-   This function converts as many characters of s that look like a floating
-   point number into one, and sets *endp to point to the first unused
-   character, if endp is not a NULL pointer.
+   This function converts as many characters of `s' that look like a floating
+   point number into one, and sets `*endp' to point to the first unused
+   character, if `endp' is not a NULL pointer.
 
 @@const char *@ustrerror(int err);
 @xref uconvert, allegro_error
    This function returns a string that describes the error code `err', which
-   normally comes from the variable `errno'. Returns a pointer to a static
-   string that should not be modified or free'd. If you make subsequent
-   calls to ustrerror, the string might be overwritten.
+   normally comes from the global variable `errno'. Returns a pointer to a
+   static string that should not be modified or free'd. If you make
+   subsequent calls to ustrerror, the string might be overwritten.
 
 @@int @usprintf(char *buf, const char *format, ...);
 @xref uconvert, uszprintf, uvsprintf
@@ -1305,7 +1307,7 @@ is best to set it with set_uformat() just before you call these.
 @xref uconvert, usprintf, uvszprintf
 @eref exgui
    This function writes formatted data into the output buffer, whose length
-   in bytes is specified by size and which is guaranteed to be NULL
+   in bytes is specified by `size' and which is guaranteed to be NULL
    terminated. Returns the number of characters that would have been written
    without eventual truncation (like with usprintf), not including the
    terminating NULL character.

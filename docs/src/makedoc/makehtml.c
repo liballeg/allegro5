@@ -699,10 +699,40 @@ static void _hfprintf(char *format, ...)
 
 
 /* _hfputs:
+ * Outputs string to _file. At the same time some things are substituted:
+ * (&gt) for (&gt;), (&lt) for (&lt;), (&) for (&amp;) and (`word') for
+ * (<tt>`word'</tt>).
  */
 static void _hfputs(char *string)
 {
+   char *end = 0;
    while (*string) {
+      /* Found simple text comma? */
+      if ((end == 0) && (string[0] == '`')) {
+	 end = strchr(string + 1, 39);
+	 /* Is there a closing comma? */
+	 if (end) {
+	    char *p = string + 1;
+	    /* Check for a specific character range */
+	    while ((p < end) && ((*p >= '0') && (*p <= 'z')))
+	       p++;
+	        
+	    if ((p == end) && (p - string > 1)) {
+	       fputs("<tt>`", _file);
+	       string++;
+	       continue;
+	    } else {
+	       end = 0;
+	    }
+	 }
+      }
+      /* Is closing comma search active? */
+      if ((string[0] == 39) && end == string) {
+	 fputs("'</tt>", _file);
+	 string++;
+	 end = 0;
+	 continue;
+      }
       if ((string[0] == '&') &&
 	  ((string[1] == 'l') || (string[1] == 'g')) &&
 	  (string[2] == 't')) {
