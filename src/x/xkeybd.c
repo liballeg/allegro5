@@ -28,9 +28,6 @@ static void _xwin_keydrv_set_leds(int leds);
 static void _xwin_keydrv_set_rate(int delay, int rate);
 
 
-static int _xwin_keydrv_auto_repeat_state = 1;
-
-
 static KEYBOARD_DRIVER keyboard_xwin =
 {
    KEYBOARD_XWINDOWS,
@@ -146,8 +143,6 @@ static int _xwin_keydrv_init(void)
    _xwin_init_keyboard_tables();
    _xwin_keydrv_set_leds(_key_shifts);
 
-   _xwin_keydrv_auto_repeat_state = _xwin_set_auto_repeat(FALSE);
-
    DISABLE();
 
    _xwin_keyboard_interrupt = _xwin_keydrv_handler;
@@ -166,8 +161,6 @@ static int _xwin_keydrv_init(void)
 static void _xwin_keydrv_exit(void)
 {
    DISABLE();
-
-   _xwin_set_auto_repeat(_xwin_keydrv_auto_repeat_state);
 
    _xwin_keyboard_interrupt = 0;
    _xwin_keyboard_focused = 0;

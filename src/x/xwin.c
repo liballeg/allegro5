@@ -133,6 +133,9 @@ int _xdga_last_line = -1;
 
 static char _xwin_driver_desc[256] = EMPTY_STRING;
 
+/* Array of keycodes which are pressed now (used for auto-repeat).  */
+static int _xwin_keycode_pressed[256];
+
 
 
 /* Forward declarations for private functions.  */
@@ -180,7 +183,6 @@ static void _xwin_private_set_window_title(AL_CONST char *name);
 static void _xwin_private_change_keyboard_control(int led, int on);
 static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap);
 static void _xwin_private_init_keyboard_tables(void);
-static int _xwin_private_set_auto_repeat(int on);
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
@@ -1879,19 +1881,23 @@ static void _xwin_private_process_event(XEvent *event)
       case KeyPress:
 	 /* Key pressed.  */
 	 kcode = event->xkey.keycode;
-	 if ((kcode >= 0) && (kcode < 256)) {
+	 if ((kcode >= 0) && (kcode < 256) && (!_xwin_keycode_pressed[kcode])) {
 	    scode = _xwin.keycode_to_scancode[kcode];
-	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0))
+	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
+	       _xwin_keycode_pressed[kcode] = TRUE;
 	       (*_xwin_keyboard_interrupt)(1, scode);
+	    }
 	 }
 	 break;
       case KeyRelease:
 	 /* Key release.  */
 	 kcode = event->xkey.keycode;
-	 if ((kcode >= 0) && (kcode < 256)) {
+	 if ((kcode >= 0) && (kcode < 256) && _xwin_keycode_pressed[kcode]) {
 	    scode = _xwin.keycode_to_scancode[kcode];
-	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0))
+	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
 	       (*_xwin_keyboard_interrupt)(0, scode);
+	       _xwin_keycode_pressed[kcode] = FALSE;
+	    }
 	 }
 	 break;
       case FocusIn:
@@ -2462,9 +2468,12 @@ static void _xwin_private_init_keyboard_tables(void)
    if (_xwin.display == 0)
       return;
 
-   /* Clear mappings.  */
-   for (i = 0; i < 256; i++)
+   for (i = 0; i < 256; i++) {
+      /* Clear mappings.  */
       _xwin.keycode_to_scancode[i] = -1;
+      /* Clear pressed key flags.  */
+      _xwin_keycode_pressed[i] = FALSE;
+   }
 
    /* Get the number of keycodes.  */
    XDisplayKeycodes(_xwin.display, &min_keycode, &max_keycode);
@@ -2492,37 +2501,6 @@ void _xwin_init_keyboard_tables(void)
    DISABLE();
    _xwin_private_init_keyboard_tables();
    ENABLE();
-}
-
-
-
-/* _xwin_set_auto_repeat:
- *  Set auto repeat mode, return previous state of auto repeat.
- */
-static int _xwin_private_set_auto_repeat(int on)
-{
-   XKeyboardState state;
-
-   if (_xwin.display == 0)
-      return TRUE;
-
-   XGetKeyboardControl(_xwin.display, &state);
-
-   if (on != 0)
-      XAutoRepeatOn(_xwin.display);
-   else
-      XAutoRepeatOff(_xwin.display);
-
-   return ((state.global_auto_repeat == AutoRepeatModeOn) ? TRUE : FALSE);
-}
-
-int _xwin_set_auto_repeat(int on)
-{
-   int state;
-   DISABLE();
-   state = _xwin_private_set_auto_repeat(on);
-   ENABLE();
-   return state;
 }
 
 

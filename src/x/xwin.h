@@ -47,7 +47,6 @@ extern "C" {
    AL_FUNC(void, _xwin_change_keyboard_control, (int led, int on));
    AL_FUNC(int, _xwin_get_pointer_mapping, (unsigned char map[], int nmap));
    AL_FUNC(void, _xwin_init_keyboard_tables, (void));
-   AL_FUNC(int, _xwin_set_auto_repeat, (int on));
 
    AL_FUNC(BITMAP*, _xdga_create_screen, (GFX_DRIVER *drv, int w, int h,
 					  int vw, int vh, int depth, int fullscr));
