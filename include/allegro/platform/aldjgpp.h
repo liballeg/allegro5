@@ -89,6 +89,6 @@ void bmp_write24(unsigned long addr, int c)
 
 
 /* arrange for other headers to be included later on */
-#define ALLEGRO_EXTRA_HEADER     "allegro/internal/platform/aldos.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro/internal/platform/aintdos.h"
+#define ALLEGRO_EXTRA_HEADER     "allegro/platform/aldos.h"
+#define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintdos.h"
 #define ALLEGRO_ASMCAPA_HEADER   "obj/djgpp/asmcapa.h"

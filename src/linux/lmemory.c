@@ -21,7 +21,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintunix.h"
+#include "allegro/platform/aintunix.h"
 
 #if !defined(_POSIX_MAPPED_FILES) || !defined(HAVE_MMAP)
 #error "Sorry, mapped files are required for Linux console Allegro to work!"

@@ -19,7 +19,7 @@
  */
 
 
-#include "allegro/internal/platform/alunixac.h"
+#include "allegro/platform/alunixac.h"
 #include "../i386/asmdefs.inc"
 
 

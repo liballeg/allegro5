@@ -163,6 +163,6 @@ void _unlock_dpmi_data(void *addr, int size);
 
 
 /* arrange for other headers to be included later on */
-#define ALLEGRO_EXTRA_HEADER     "allegro/internal/platform/aldos.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro/internal/platform/aintdos.h"
+#define ALLEGRO_EXTRA_HEADER     "allegro/platform/aldos.h"
+#define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintdos.h"
 

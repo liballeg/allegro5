@@ -20,7 +20,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintqnx.h"
+#include "allegro/platform/aintqnx.h"
 
 
 int qnx_mouse_warped = FALSE;

@@ -17,7 +17,7 @@
 
 #include "allegro.h"
 #include "macalleg.h"
-#include "allegro/internal/platform/aintmac.h"
+#include "allegro/platform/aintmac.h"
 #include <DeskBus.h>
 
 extern volatile KeyMap KeyNow;

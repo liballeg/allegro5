@@ -19,7 +19,7 @@
 
 #include "qnxalleg.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintqnx.h"
+#include "allegro/platform/aintqnx.h"
 
 #ifndef ALLEGRO_QNX
 #error something is wrong with the makefile

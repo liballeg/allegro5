@@ -36,6 +36,6 @@
 #define ALLEGRO_CONSOLE_OK
 
 /* arrange for other headers to be included later on */
-#define ALLEGRO_EXTRA_HEADER     "allegro/internal/platform/albeos.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro/internal/platform/aintbeos.h"
+#define ALLEGRO_EXTRA_HEADER     "allegro/platform/albeos.h"
+#define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintbeos.h"
 #define ALLEGRO_ASMCAPA_HEADER   "obj/beos/asmcapa.h"

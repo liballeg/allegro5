@@ -27,8 +27,8 @@
 
 #define ALLEGRO_CONSOLE_OK
 
-#define ALLEGRO_EXTRA_HEADER "allegro/internal/platform/alunix.h"
-#define ALLEGRO_INTERNAL_HEADER "allegro/internal/platform/aintunix.h"
+#define ALLEGRO_EXTRA_HEADER "allegro/platform/alunix.h"
+#define ALLEGRO_INTERNAL_HEADER "allegro/platform/aintunix.h"
 
 #ifndef O_BINARY
 # define O_BINARY  0

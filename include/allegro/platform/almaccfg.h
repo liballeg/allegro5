@@ -71,5 +71,5 @@ char *strdup(const char *);
 #define gmtime localtime
 
 
-#define ALLEGRO_EXTRA_HEADER     "allegro/internal/platform/almac.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro/internal/platform/aintmac.h"
+#define ALLEGRO_EXTRA_HEADER     "allegro/platform/almac.h"
+#define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintmac.h"

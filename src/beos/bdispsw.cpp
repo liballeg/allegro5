@@ -19,7 +19,7 @@
 
 #include "bealleg.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintbeos.h"
+#include "allegro/platform/aintbeos.h"
 
 #ifndef ALLEGRO_BEOS
 #error something is wrong with the makefile

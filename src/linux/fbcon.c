@@ -22,7 +22,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintunix.h"
+#include "allegro/platform/aintunix.h"
 
 
 #if (defined ALLEGRO_LINUX_FBCON) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))

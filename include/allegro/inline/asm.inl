@@ -25,17 +25,17 @@
 #if (defined ALLEGRO_GCC) && (defined ALLEGRO_I386)
 
    /* use i386 asm, GCC syntax */
-   #include "allegro/internal/platform/al386gcc.h"
+   #include "allegro/platform/al386gcc.h"
 
 #elif (defined ALLEGRO_MSVC) && (defined ALLEGRO_I386)
 
    /* use i386 asm, MSVC syntax */
-   #include "allegro/internal/platform/al386vc.h"
+   #include "allegro/platform/al386vc.h"
 
 #elif (defined ALLEGRO_WATCOM) && (defined ALLEGRO_I386)
 
    /* use i386 asm, Watcom syntax */
-   #include "allegro/internal/platform/al386wat.h"
+   #include "allegro/platform/al386wat.h"
 
 #else
 

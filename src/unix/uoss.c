@@ -25,7 +25,7 @@
 #ifdef DIGI_OSS
 
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintunix.h"
+#include "allegro/platform/aintunix.h"
 
 #include <stdlib.h>
 #include <stdio.h>

@@ -29,7 +29,7 @@
    #define ALLEGRO_H
    #define ALLEGRO_WINDOWS
    #include "winalleg.h"
-   #include "allegro/internal/platform/alwin.h"
+   #include "allegro/platform/alwin.h"
 
 #elif defined ALLEGRO_INTERNALS
 

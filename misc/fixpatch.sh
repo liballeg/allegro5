@@ -7,7 +7,7 @@ touch configure.in
 touch makefile.in
 touch aclocal.m4
 touch acconfig.h
-touch include/allegro/internal/platform/alunixac.hin
+touch include/allegro/platform/alunixac.hin
 touch stamp-h.in
 touch configure
 

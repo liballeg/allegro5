@@ -47,6 +47,6 @@
 #define ALLEGRO_USE_SCHED_YIELD
 
 /* arrange for other headers to be included later on */
-#define ALLEGRO_EXTRA_HEADER     "allegro/internal/platform/alqnx.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro/internal/platform/aintqnx.h"
+#define ALLEGRO_EXTRA_HEADER     "allegro/platform/alqnx.h"
+#define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintqnx.h"
 #define ALLEGRO_ASMCAPA_HEADER   "obj/qnx/asmcapa.h"

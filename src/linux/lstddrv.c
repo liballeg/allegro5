@@ -21,7 +21,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintunix.h"
+#include "allegro/platform/aintunix.h"
 #include "linalleg.h"
 
 #include <unistd.h>

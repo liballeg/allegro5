@@ -1,5 +1,5 @@
-/* include/allegro/internal/platform/alunixac.h.  Generated automatically by configure.  */
-/* include/allegro/internal/platform/alunixac.hin.  Generated automatically from configure.in by autoheader.  */
+/* include/allegro/platform/alunixac.h.  Generated automatically by configure.  */
+/* include/allegro/platform/alunixac.hin.  Generated automatically from configure.in by autoheader.  */
 
 /* Define to empty if the keyword does not work.  */
 /* #undef const */

@@ -21,7 +21,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintdos.h"
+#include "allegro/platform/aintdos.h"
 #include "emu8k.h"
 
 #ifndef ALLEGRO_DOS

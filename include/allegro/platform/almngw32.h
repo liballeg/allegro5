@@ -92,6 +92,6 @@
 #define ALLEGRO_ASM_PREFIX    "_"
 
 /* arrange for other headers to be included later on */
-#define ALLEGRO_EXTRA_HEADER     "allegro/internal/platform/alwin.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro/internal/platform/aintwin.h"
+#define ALLEGRO_EXTRA_HEADER     "allegro/platform/alwin.h"
+#define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintwin.h"
 #define ALLEGRO_ASMCAPA_HEADER   "obj/mingw32/asmcapa.h"

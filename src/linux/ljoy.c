@@ -27,7 +27,7 @@
 #define ALLEGRO_NO_KEY_DEFINES
 
 #include "allegro.h"
-#include "allegro/internal/platform/aintunix.h"
+#include "allegro/platform/aintunix.h"
 
 
 #ifdef HAVE_LINUX_JOYSTICK_H

@@ -20,7 +20,7 @@
 
 #include "bealleg.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintbeos.h"
+#include "allegro/platform/aintbeos.h"
 #ifndef SCAN_DEPEND
 #include <sys/utsname.h>
 #endif

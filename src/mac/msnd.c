@@ -22,7 +22,7 @@
 #include <Sound.h>
 
 #include "allegro.h"
-#include "allegro/internal/platform/aintmac.h"
+#include "allegro/platform/aintmac.h"
 
 #ifndef ALLEGRO_MPW
    #error something is wrong with the makefile

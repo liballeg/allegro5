@@ -27,7 +27,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintwin.h"
+#include "allegro/platform/aintwin.h"
 
 /* needed by the SDK version 8 with MSVC 5 (SP3) */
 #define DIRECTINPUT_VERSION 0x300

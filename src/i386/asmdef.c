@@ -25,7 +25,7 @@
 #include "allegro/internal/aintern.h"
 
 #ifdef ALLEGRO_DOS
-   #include "allegro/internal/platform/aintdos.h"
+   #include "allegro/platform/aintdos.h"
 #endif
 
 #ifdef ALLEGRO_ASMCAPA_HEADER

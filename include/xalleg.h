@@ -28,7 +28,7 @@
 
 
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintunix.h"
+#include "allegro/platform/aintunix.h"
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 #include <pwd.h>

@@ -21,7 +21,7 @@
 #ifdef MIDI_OSS
 
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintunix.h"
+#include "allegro/platform/aintunix.h"
 
 #include <string.h>
 #include <sys/types.h>

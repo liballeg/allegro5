@@ -50,8 +50,8 @@ LDCONFIG = @LDCONFIG@
 
 mkinstalldirs = $(SHELL) $(srcdir)/misc/mkdirs.sh
 
-CONFIG_H = include/allegro/internal/platform/alunixac.h
-CONFIG_H_IN = include/allegro/internal/platform/alunixac.hin
+CONFIG_H = include/allegro/platform/alunixac.h
+CONFIG_H_IN = include/allegro/platform/alunixac.hin
 CONFIGURE = configure
 CONFIGURE_IN = configure.in
 
@@ -127,16 +127,16 @@ ALLEGRO_EXE_TARGETS = \
 	$(ALLEGRO_EXAMPLE_EXES)
 
 # Header files (look in makefile.dep for "Headers referred by symbols").
-ALLEGRO_EXTRA_HEADER = $(srcdir)/include/allegro/internal/platform/alunix.h
-ALLEGRO_INTERNAL_HEADER = $(srcdir)/include/allegro/internal/platform/aintunix.h
+ALLEGRO_EXTRA_HEADER = $(srcdir)/include/allegro/platform/alunix.h
+ALLEGRO_INTERNAL_HEADER = $(srcdir)/include/allegro/platform/aintunix.h
 ALLEGRO_MMX_HEADER =
 allegro_alconfig_h = $(srcdir)/include/allegro/internal/alconfig.h \
-	$(srcdir)/include/allegro/internal/platform/alucfg.h \
+	$(srcdir)/include/allegro/platform/alucfg.h \
 	$(CONFIG_H)
 allegro_alinline_h = $(srcdir)/include/allegro/alinline.h \
-	$(srcdir)/include/allegro/internal/platform/al386gcc.h \
-	$(srcdir)/include/allegro/internal/platform/al386vc.h \
-	$(srcdir)/include/allegro/internal/platform/al386wat.h
+	$(srcdir)/include/allegro/platform/al386gcc.h \
+	$(srcdir)/include/allegro/platform/al386vc.h \
+	$(srcdir)/include/allegro/platform/al386wat.h
 allegro_h = $(srcdir)/include/allegro.h \
 	$(allegro_alconfig_h) \
 	$(allegro_alinline_h) \
@@ -189,8 +189,8 @@ allegro_h = $(srcdir)/include/allegro.h \
 	$(srcdir)/include/allegro/inline/system.inl \
 	$(ALLEGRO_EXTRA_HEADER)
 allegro_aintern_h = $(srcdir)/include/allegro/internal/aintern.h
-allegro_aintdos_h = $(srcdir)/include/allegro/internal/platform/aintdos.h \
-	$(srcdir)/include/allegro/internal/platform/aintvga.h
+allegro_aintdos_h = $(srcdir)/include/allegro/platform/aintdos.h \
+	$(srcdir)/include/allegro/platform/aintvga.h
 obj_unix_asmdef_inc = $(OBJDIR)/asmdef.inc
 
 $(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
@@ -353,7 +353,7 @@ install-headers:
 	$(mkinstalldirs) $(includedir)/allegro
 	$(mkinstalldirs) $(includedir)/allegro/inline
 	$(mkinstalldirs) $(includedir)/allegro/internal
-	$(mkinstalldirs) $(includedir)/allegro/internal/platform
+	$(mkinstalldirs) $(includedir)/allegro/platform
 	$(INSTALL_DATA) $(srcdir)/include/allegro.h $(includedir)/
 	$(INSTALL_DATA) $(srcdir)/include/xalleg.h $(includedir)/
 	$(INSTALL_DATA) $(srcdir)/include/linalleg.h $(includedir)/
@@ -370,9 +370,9 @@ install-headers:
 	  echo Installing $$file to $(includedir)/allegro/internal; \
 	  $(INSTALL_DATA) $$file $(includedir)/allegro/internal/; \
 	done
-	@for file in $(srcdir)/include/allegro/internal/platform/*.h; do \
-	  echo Installing $$file to $(includedir)/allegro/internal/platform; \
-	  $(INSTALL_DATA) $$file $(includedir)/allegro/internal/platform/; \
+	@for file in $(srcdir)/include/allegro/platform/*.h; do \
+	  echo Installing $$file to $(includedir)/allegro/platform; \
+	  $(INSTALL_DATA) $$file $(includedir)/allegro/platform/; \
 	done
 
 install-programs: programs

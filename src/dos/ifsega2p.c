@@ -21,7 +21,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintdos.h"
+#include "allegro/platform/aintdos.h"
 
 #ifndef ALLEGRO_DOS
    #error something is wrong with the makefile

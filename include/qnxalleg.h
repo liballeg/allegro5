@@ -24,7 +24,7 @@ extern "C" {
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintqnx.h"
+#include "allegro/platform/aintqnx.h"
 
 #include <pthread.h>
 #include <Ph.h>

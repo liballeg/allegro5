@@ -20,7 +20,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintdos.h"
+#include "allegro/platform/aintdos.h"
 #include "../i386/asmdefs.inc"
 
 #ifndef ALLEGRO_DOS
