@@ -1,0 +1,30 @@
+#include "allegro.h"
+
+1 VERSIONINFO 
+FILEVERSION ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION, 0
+PRODUCTVERSION ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION, 0
+FILEOS 0x00000004L /* VOS__WINDOWS32 */
+FILETYPE 0x00000002L /* VFT_DLL */
+{
+ BLOCK "StringFileInfo"
+ {
+  BLOCK "040904E4"
+  {
+   VALUE "CompanyName", "Allegro programmers\000\000"
+   VALUE "FileDescription", "Allegro\000"
+   VALUE "FileVersion", ALLEGRO_VERSION_STR
+   VALUE "InternalName", "ALL3938\000"
+   VALUE "LegalCopyright", "Copyright © 1996-2001 Shawn Hargreaves and others\000\000"
+   VALUE "OriginalFilename", "ALL3938.DLL\000"
+   VALUE "ProductName", "Allegro\000"
+   VALUE "ProductVersion", ALLEGRO_VERSION_STR
+  }
+
+ }
+
+ BLOCK "VarFileInfo"
+ {
+  VALUE "Translation", 0x0809, 1252
+ }
+
+}

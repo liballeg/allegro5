@@ -147,7 +147,7 @@ MY_OBJECTS = $(I386_OBJECTS)
 
 endif # ALLEGRO_USE_C
 
-OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
+OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) dllver $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
 
 LIBRARIES = -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
 
@@ -362,6 +362,9 @@ $(OBJ_DIR)/dibsound.res: tests/win/dibsound.rc
 
 $(OBJ_DIR)/scrsave.res: tests/win/scrsave.rc
 	$(WINDRES) -O coff -o $(OBJ_DIR)/scrsave.res -i tests/win/scrsave.rc
+
+$(OBJ_DIR)/dllver.o: src/win/dllver.rc
+	$(WINDRES) -O coff -o $(OBJ_DIR)/dllver.o -i src/win/dllver.rc --include-dir include
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
 
