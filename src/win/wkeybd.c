@@ -160,12 +160,15 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
       }
 
       /* dirty hack to let Allegro for Windows use the DOS/Linux way of handling CapsLock */
+      /* Disabled - it doesn't seem to be nescessary anymore (?) */
+      /*
       if (((scancode == DIK_CAPITAL) || (scancode == DIK_LSHIFT) || (scancode == DIK_RSHIFT))
           && pressed
           && (_key_shifts & KB_CAPSLOCK_FLAG)) {
          keybd_event(VK_CAPITAL, 0, 0, 0);
          keybd_event(VK_CAPITAL, 0, KEYEVENTF_KEYUP, 0);
       }
+      */
 
       if (scancode & 0x80)
 	 _handle_pckey(0xE0);
