@@ -720,8 +720,11 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
 
       install_int(dclick_check, 20);
 
-      if (get_display_switch_mode() == SWITCH_AMNESIA)
-         set_display_switch_callback(SWITCH_IN, gui_switch_callback);
+      switch (get_display_switch_mode()) {
+         case SWITCH_AMNESIA:
+         case SWITCH_BACKAMNESIA:
+            set_display_switch_callback(SWITCH_IN, gui_switch_callback);
+      }
 
       /* gets menu auto-opening delay (in milliseconds) from config file */
       gui_menu_opening_delay = get_config_int(uconvert_ascii("system", tmp1), uconvert_ascii("menu_opening_delay", tmp2), 300);
@@ -838,8 +841,11 @@ int update_dialog(DIALOG_PLAYER *player)
    if (gui_install_time != _allegro_count) {
       install_int(dclick_check, 20);
 
-      if (get_display_switch_mode() == SWITCH_AMNESIA)
-	 set_display_switch_callback(SWITCH_IN, gui_switch_callback);
+      switch (get_display_switch_mode()) {
+         case SWITCH_AMNESIA:
+         case SWITCH_BACKAMNESIA:
+            set_display_switch_callback(SWITCH_IN, gui_switch_callback);
+      }
 
       gui_install_time = _allegro_count;
    }
