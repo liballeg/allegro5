@@ -92,10 +92,10 @@ static int wnd_set_video_mode(void)
 
 
 
-/* _get_color_shift:
+/* get_color_shift:
  *  Returns shift value for color mask.
  */
-static int _get_color_shift(int mask)
+static int get_color_shift(int mask)
 {
    int n;
 
@@ -107,10 +107,10 @@ static int _get_color_shift(int mask)
 
 
 
-/* _get_color_bits:
+/* get_color_bits:
  *  Returns used bits in color mask.
  */
-static int _get_color_bits(int mask)
+static int get_color_bits(int mask)
 {
    int n;
    int num = 0;
@@ -147,9 +147,9 @@ int gfx_directx_compare_color_depth(int color_depth)
    /* get the *real* color depth of the desktop */
    desktop_depth = surf_desc.ddpfPixelFormat.dwRGBBitCount;
    if (desktop_depth == 16) /* sure? */
-      desktop_depth = _get_color_bits (surf_desc.ddpfPixelFormat.dwRBitMask) +
-                      _get_color_bits (surf_desc.ddpfPixelFormat.dwGBitMask) +
-                      _get_color_bits (surf_desc.ddpfPixelFormat.dwBBitMask);
+      desktop_depth = get_color_bits(surf_desc.ddpfPixelFormat.dwRBitMask) +
+                      get_color_bits(surf_desc.ddpfPixelFormat.dwGBitMask) +
+                      get_color_bits(surf_desc.ddpfPixelFormat.dwBBitMask);
 
    if (color_depth == desktop_depth) {
       dd_pixelformat = NULL;
@@ -162,7 +162,7 @@ int gfx_directx_compare_color_depth(int color_depth)
          if ((pixel_realdepth[i] == color_depth) &&
             ((surf_desc.ddpfPixelFormat.dwRBitMask & pixel_format[i].dwRBitMask) ||
                 (surf_desc.ddpfPixelFormat.dwBBitMask & pixel_format[i].dwBBitMask) ||
-                   (desktop_depth ==8) || (color_depth == 8))) {
+                   (desktop_depth == 8) || (color_depth == 8))) {
                       dd_pixelformat = &pixel_format[i];
                       break;
          }
@@ -192,9 +192,9 @@ int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE2 surf, int color_depth)
    }
 
    /* pass color format */
-   shift_r = _get_color_shift(pixel_format.dwRBitMask);
-   shift_g = _get_color_shift(pixel_format.dwGBitMask);
-   shift_b = _get_color_shift(pixel_format.dwBBitMask);
+   shift_r = get_color_shift(pixel_format.dwRBitMask);
+   shift_g = get_color_shift(pixel_format.dwGBitMask);
+   shift_b = get_color_shift(pixel_format.dwBBitMask);
 
    /* set correct shift values */
    switch (color_depth) {
@@ -252,9 +252,9 @@ static HRESULT CALLBACK EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOI
 
       /* check if 16 bpp mode is 16 bpp or 15 bpp */
       if (mode_info->gfx[mode_info->modes].bpp == 16) {
-         real_bpp = _get_color_bits (lpDDSurfaceDesc->ddpfPixelFormat.dwRBitMask) +
-                    _get_color_bits (lpDDSurfaceDesc->ddpfPixelFormat.dwGBitMask) +
-                    _get_color_bits (lpDDSurfaceDesc->ddpfPixelFormat.dwBBitMask);
+         real_bpp = get_color_bits(lpDDSurfaceDesc->ddpfPixelFormat.dwRBitMask) +
+                    get_color_bits(lpDDSurfaceDesc->ddpfPixelFormat.dwGBitMask) +
+                    get_color_bits(lpDDSurfaceDesc->ddpfPixelFormat.dwBBitMask);
 
          if (real_bpp == 15)
             mode_info->gfx[mode_info->modes].bpp = real_bpp;
