@@ -378,10 +378,13 @@ test "X$enableval" != "Xno" && allegro_enable_esddigi=yes,
 allegro_enable_esddigi=yes)
 
 if test -n "$allegro_enable_esddigi"; then
-  AC_CHECK_HEADER(esd.h, allegro_support_esddigi=yes)
-  if test -n "$allegro_support_esddigi" && 
-     test -z "$allegro_support_modules"; then
-    LIBS="-lesd $LIBS"
+  AC_PATH_PROG(ESD_CONFIG, esd-config)
+  if test -n "$ESD_CONFIG"; then
+    allegro_support_esddigi=yes
+    CFLAGS="`$ESD_CONFIG --cflags` $CFLAGS"
+    if test -z "$allegro_support_modules"; then
+      LIBS="`$ESD_CONFIG --libs` $LIBS"
+    fi
   fi
 fi])
 
