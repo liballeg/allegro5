@@ -315,11 +315,11 @@ Contact info
    
    To send a message to one of the lists, write to allegro@canvaslink.com, 
    agp@canvaslink.com, alcomp@canvaslink.com, conductors@canvaslink.com, or
-   alleg-bigfive@lists.sourceforge.net. You don't need to be subscribed to
-   these lists before you can post to them, but it is a good idea to
-   subscribe in order to see the replies. It is ok to post code contributions
-   to the developers list without being subscribed, though, as long as you
-   mention this in your mail so we will know to reply by private email.
+   alleg-bigfive@lists.sourceforge.net. You need to be subscribed to the
+   canvaslink lists before you can post to them. You don't need to be
+   subscribed to the alleg-bigfive list before you can post there, but it is
+   a good idea to subscribe in order to see the replies.
+
    Before posting tech-support questions to the Allegro list, please take a
    moment to read the guidelines in docs/txt/help.txt. See docs/txt/ahack.txt
    for information about the style of code we use, and how to create your
