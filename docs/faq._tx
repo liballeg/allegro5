@@ -128,7 +128,7 @@ DJGPP problems
 @@   I give up: I can't compile this! Can you send me a precompiled version?
 </h4>
       No, sorry. For starters, liballeg.a is about 450k, but you'd probably 
-      also want  various utilities like the grabber, sound setup, etc. And 
+      also want various utilities like the grabber, sound setup, etc. And 
       what about all the example programs? If I included compiled versions 
       of everything, a binary distribution would be over 7 megs: way too big 
       to be practical! More seriously though, there just isn't any reason 
@@ -204,7 +204,9 @@ DOS problems
       you pay for multiple output channels. If you don't like it, use the 
       setup program to tweak the number of channels: this can be any power 
       of two less than or equal to 64, and the smaller you make it, the 
-      louder the sound will be.
+      louder the sound will be. Alternatively, use set_volume_per_voice(), 
+      described in the docs. This will enable you to adjust the overall 
+      volume of Allegro's digital sound output.
 
 <h4><li>
 @@   Why doesn't it work with my video card?

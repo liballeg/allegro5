@@ -78,6 +78,11 @@ Contributors
    Put together the 2.11 release of Allegro while I was away from the net, 
    and wrote the original version of the Allegro FAQ.
 
+   Ben Davis (<email>ben@vjpoole.freeserve.co.uk</a>).<br>
+   Provided the voice_volume_scale functionality, programmed the silent
+   mixer so that silent voices don't freeze, and fixed a few minor bugs
+   elsewhere.
+
    Bertrand Coconnier (<email>bcoconni@club-internet.fr</a>).<br>
    Modified routines in poly3d.c for subpixel and subtexel accuracy.
    Speed enhancements in polygon functions.  Fixed blending in C version of 

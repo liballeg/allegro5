@@ -14,6 +14,10 @@
  *
  *      Proper 16 bit sample support added by SET.
  *
+ *      Ben Davis provided the voice_volume_scale functionality, programmed
+ *      the silent mixer so that silent voices don't freeze, and fixed a
+ *      few minor bugs elsewhere.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -46,6 +50,7 @@ typedef struct MIXER_VOICE
 #define MIX_FIX_SCALE         (1<<MIX_FIX_SHIFT)
 
 #define UPDATE_FREQ           16
+#define UPDATE_FREQ_SHIFT     4
 
 
 /* the samples currently being played */
@@ -70,7 +75,7 @@ static unsigned short *mix_clip_table = NULL;
 #define BITS_MIXER_CORE       32
 #define BITS_SAMPLES          16
 
-typedef unsigned short VOLUME_T; 
+typedef unsigned short VOLUME_T;
 
 #define BITS_TOT (BITS_PAN+BITS_VOL) 
 #define ENTRIES_VOL_TABLE (1<<BITS_TOT)
@@ -85,17 +90,35 @@ static int mix_freq;
 static int mix_stereo;
 static int mix_16bit;
 
+/* shift factor for volume per voice */
+static int voice_volume_scale = -1;
+
 
 static void mixer_lock_mem();
 
 
 
+/* set_volume_per_voice:
+ *  Enables the programmer (not the end-user) to alter the maximum volume of
+ *  each voice. Pass -1 for Allegro to work as it did before this option was
+ *  provided (volume dependent on number of voices). Pass 0 if you want a
+ *  single sample to be as loud as possible without distorting (even when
+ *  panned to one side). Each time it increases by 1, the volume halves.
+ *
+ *  This must be called *before* install_sound().
+ */
+void set_volume_per_voice(int scale)
+{
+   voice_volume_scale = scale;
+}
+
+
 /* create_volume_table:
  *  Builds a volume table for the high quality 16 bit mixing mode.
  */
-static int create_volume_table(int chan)
+static int create_volume_table(int vol_scale)
 {
-   double step = 65536.0/chan/ENTRIES_VOL_TABLE;
+   double step;
    double acum = 0;
    int i;
 
@@ -106,11 +129,7 @@ static int create_volume_table(int chan)
       LOCK_DATA(volume_table, SIZE_VOLUME_TABLE);
    }
 
-   /* all 0 if 0 channels, I doubt that's really needed */
-   if (!chan) {
-      memset(volume_table, 0, SIZE_VOLUME_TABLE);
-      return 0;
-   }
+   step = (double)(16384 >> vol_scale) / ENTRIES_VOL_TABLE;
 
    for (i=0; i<ENTRIES_VOL_TABLE; i++, acum+=step)
       volume_table[i] = acum;
@@ -136,10 +155,20 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
    int clip_size;
    int clip_scale;
    int clip_max;
+   int mix_vol_scale;
 
    mix_voices = 1;
-   while ((mix_voices < MIXER_MAX_SFX) && (mix_voices < *voices))
+   mix_vol_scale = -2;
+
+   while ((mix_voices < MIXER_MAX_SFX) && (mix_voices < *voices)) {
       mix_voices <<= 1;
+      mix_vol_scale++;
+   }
+
+   if (voice_volume_scale >= 0)
+      mix_vol_scale = voice_volume_scale;
+   else
+      if (mix_vol_scale < 1) mix_vol_scale = 1;
 
    *voices = mix_voices;
 
@@ -173,49 +202,52 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
 
    for (j=0; j<MIX_VOLUME_LEVELS; j++)
       for (i=0; i<256; i++)
-	 mix_vol_table[j][i] = (i-128) * j * 256 / MIX_VOLUME_LEVELS / mix_voices;
+	 mix_vol_table[j][i] = ((i-128) * j * 64 / MIX_VOLUME_LEVELS) >> mix_vol_scale;
 
    if ((_sound_hq) && (mix_stereo) && (mix_16bit)) {
       /* make high quality table if requested and output is 16 bit stereo */
-      if (create_volume_table(mix_voices) != 0)
+      if (create_volume_table(mix_vol_scale) != 0)
 	 return -1;
    }
    else
       _sound_hq = 0;
 
-   if (mix_voices >= 8) {
-      /* lookup table for amplifying and clipping sample buffers */
-      if (mix_16bit) {
-	 clip_size = 1 << MIX_RES_16;
-	 clip_scale = 18 - MIX_RES_16;
-	 clip_max = 0xFFFF;
-      }
-      else {
-	 clip_size = 1 << MIX_RES_8;
-	 clip_scale = 10 - MIX_RES_8;
-	 clip_max = 0xFF;
-      }
-
-      mix_clip_table = malloc(sizeof(short) * clip_size);
-      if (!mix_clip_table) {
-	 free(mix_buffer);
-	 mix_buffer = NULL;
-	 free(mix_vol_table);
-	 mix_vol_table = NULL;
-	 return -1;
-      }
-
-      LOCK_DATA(mix_clip_table, sizeof(short) * clip_size);
-
-      /* clip extremes of the sample range */
-      for (i=0; i<clip_size*3/8; i++) {
-	 mix_clip_table[i] = 0;
-	 mix_clip_table[clip_size-1-i] = clip_max;
-      }
-
-      for (i=0; i<clip_size/4; i++)
-	 mix_clip_table[clip_size*3/8 + i] = i<<clip_scale;
+   /* lookup table for amplifying and clipping sample buffers */
+   if (mix_16bit) {
+      clip_size = 1 << MIX_RES_16;
+      clip_scale = 18 - MIX_RES_16;
+      clip_max = 0xFFFF;
    }
+   else {
+      clip_size = 1 << MIX_RES_8;
+      clip_scale = 10 - MIX_RES_8;
+      clip_max = 0xFF;
+   }
+
+   /* We now always use a clip table, owing to the new voice_volume_scale
+    * functionality. It is not a big loss in performance.
+    */
+   mix_clip_table = malloc(sizeof(short) * clip_size);
+   if (!mix_clip_table) {
+      free(mix_buffer);
+      mix_buffer = NULL;
+      free(mix_vol_table);
+      mix_vol_table = NULL;
+      free(volume_table);
+      volume_table = NULL;
+      return -1;
+   }
+
+   LOCK_DATA(mix_clip_table, sizeof(short) * clip_size);
+
+   /* clip extremes of the sample range */
+   for (i=0; i<clip_size*3/8; i++) {
+      mix_clip_table[i] = 0;
+      mix_clip_table[clip_size-1-i] = clip_max;
+   }
+
+   for (i=0; i<clip_size/4; i++)
+      mix_clip_table[clip_size*3/8 + i] = i<<clip_scale;
 
    mixer_lock_mem();
 
@@ -264,12 +296,9 @@ static void update_mixer_volume(MIXER_VOICE *mv, PHYS_VOICE *pv)
       vol = pv->vol>>13;
       pan = pv->pan>>13;
 
-      if (mix_stereo) {
-	 lvol = vol*(127-pan);
-	 rvol = vol*pan;
-      }
-      else
-	 lvol = rvol = vol*127;
+      /* no need to check for mix_stereo if we're using hq */
+      lvol = vol*(127-pan);
+      rvol = vol*pan;
 
       /* adjust for 127*127<128*128-1 */
       lvol += lvol>>6;
@@ -283,15 +312,15 @@ static void update_mixer_volume(MIXER_VOICE *mv, PHYS_VOICE *pv)
       pan = pv->pan >> 12;
 
       if (mix_stereo) {
-	 lvol = vol * (256-pan) * MIX_VOLUME_LEVELS / 32768;
-	 rvol = vol * pan * MIX_VOLUME_LEVELS / 32768;
-      }
-      else if (mv->stereo) {
 	 lvol = vol * (256-pan) * MIX_VOLUME_LEVELS / 65536;
 	 rvol = vol * pan * MIX_VOLUME_LEVELS / 65536;
       }
+      else if (mv->stereo) {
+	 lvol = vol * (256-pan) * MIX_VOLUME_LEVELS / 131072;
+	 rvol = vol * pan * MIX_VOLUME_LEVELS / 131072;
+      }
       else
-	 lvol = rvol = vol * MIX_VOLUME_LEVELS / 256;
+	 lvol = rvol = vol * MIX_VOLUME_LEVELS / 512;
 
       mv->lvol = MID(0, lvol, MIX_VOLUME_LEVELS-1);
       mv->rvol = MID(0, rvol, MIX_VOLUME_LEVELS-1);
@@ -362,6 +391,55 @@ static void update_mixer(MIXER_VOICE *spl, PHYS_VOICE *voice, int len)
 
 END_OF_STATIC_FUNCTION(update_mixer);
 
+/* update_silent_mixer:
+ *  Another helper for updating the volume ramp and pitch/pan sweep status.
+ *  This version is designed for the silent mixer, and it is called just once
+ *  per buffer. The len parameter is used to work out how much the values
+ *  must be adjusted.
+ */
+static void update_silent_mixer(MIXER_VOICE *spl, PHYS_VOICE *voice, int len)
+{
+   len >>= UPDATE_FREQ_SHIFT;
+
+   if ((voice->dvol) || (voice->dpan)) {
+      /* update volume ramp */
+      if (voice->dvol) {
+	 voice->vol += voice->dvol * len;
+         if (((voice->dvol > 0) && (voice->vol >= voice->target_vol)) ||
+	     ((voice->dvol < 0) && (voice->vol <= voice->target_vol))) {
+	    voice->vol = voice->target_vol;
+	    voice->dvol = 0;
+         }
+      }
+
+      /* update pan sweep */
+      if (voice->dpan) {
+	 voice->pan += voice->dpan * len;
+	 if (((voice->dpan > 0) && (voice->pan >= voice->target_pan)) ||
+	     ((voice->dpan < 0) && (voice->pan <= voice->target_pan))) {
+	    voice->pan = voice->target_pan;
+	    voice->dpan = 0;
+         }
+      }
+
+      update_mixer_volume(spl, voice);
+   }
+
+   /* update frequency sweep */
+   if (voice->dfreq) {
+      voice->freq += voice->dfreq * len;
+      if (((voice->dfreq > 0) && (voice->freq >= voice->target_freq)) ||
+	  ((voice->dfreq < 0) && (voice->freq <= voice->target_freq))) {
+         voice->freq = voice->target_freq;
+	 voice->dfreq = 0;
+      }
+
+      update_mixer_freq(spl, voice);
+   }
+}
+
+END_OF_STATIC_FUNCTION(update_silent_mixer);
+
 
 
 /* helper for constructing the body of a sample mixing routine */
@@ -369,8 +447,6 @@ END_OF_STATIC_FUNCTION(update_mixer);
 {                                                                            \
    if ((voice->playmode & PLAYMODE_LOOP) &&                                  \
        (spl->loop_start < spl->loop_end)) {                                  \
-									     \
-      restart:                                                               \
 									     \
       if (voice->playmode & PLAYMODE_BACKWARD) {                             \
 	 /* mix a backward looping sample */                                 \
@@ -380,9 +456,10 @@ END_OF_STATIC_FUNCTION(update_mixer);
 	    if (spl->pos < spl->loop_start) {                                \
 	       if (voice->playmode & PLAYMODE_BIDIR) {                       \
 		  spl->diff = -spl->diff;                                    \
-		  spl->pos += spl->diff * 2;                                 \
+                  /* however far the sample has overshot, move it the same */\
+                  /* distance from the loop point, within the loop section */\
+                  spl->pos = (spl->loop_start << 1) - spl->pos;              \
 		  voice->playmode ^= PLAYMODE_BACKWARD;                      \
-		  goto restart;                                              \
 	       }                                                             \
 	       else                                                          \
 		  spl->pos += (spl->loop_end - spl->loop_start);             \
@@ -398,9 +475,10 @@ END_OF_STATIC_FUNCTION(update_mixer);
 	    if (spl->pos >= spl->loop_end) {                                 \
 	       if (voice->playmode & PLAYMODE_BIDIR) {                       \
 		  spl->diff = -spl->diff;                                    \
-		  spl->pos += spl->diff * 2;                                 \
+                  /* however far the sample has overshot, move it the same */\
+                  /* distance from the loop point, within the loop section */\
+                  spl->pos = ((spl->loop_end - 1) << 1) - spl->pos;          \
 		  voice->playmode ^= PLAYMODE_BACKWARD;                      \
-		  goto restart;                                              \
 	       }                                                             \
 	       else                                                          \
 		  spl->pos -= (spl->loop_end - spl->loop_start);             \
@@ -424,6 +502,88 @@ END_OF_STATIC_FUNCTION(update_mixer);
       }                                                                      \
    }                                                                         \
 }
+
+
+/* mix_silent_samples:
+ *  This is used when the voice is silent, instead of the other
+ *  mix_*_samples() functions. It just extrapolates the sample position,
+ *  and stops the sample if it reaches the end and isn't set to loop.
+ *  Since no mixing is necessary, this function is much faster than
+ *  its friends. In addition, no buffer parameter is required,
+ *  and the same function can be used for all sample types.
+ *
+ *  There is a catch. All the mix_stereo_*_samples() and
+ *  mix_hq?_*_samples() functions (those which write to a stereo mixing
+ *  buffer) divide len by 2 before using it in the MIXER() macro.
+ *  Therefore, all the mix_silent_samples() for stereo buffers must divide
+ *  the len parameter by 2. This is done in _mix_some_samples().
+ */
+static void mix_silent_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, int len)
+{
+   if ((voice->playmode & PLAYMODE_LOOP) &&
+       (spl->loop_start < spl->loop_end)) {
+
+      if (voice->playmode & PLAYMODE_BACKWARD) {
+	 /* mix a backward looping sample */
+         spl->pos += spl->diff * len;
+         if (spl->pos < spl->loop_start) {
+            if (voice->playmode & PLAYMODE_BIDIR) {
+               do {
+                  spl->diff = -spl->diff;
+                  spl->pos = (spl->loop_start << 1) - spl->pos;
+                  voice->playmode ^= PLAYMODE_BACKWARD;
+                  if (spl->pos < spl->loop_end) break;
+                  spl->diff = -spl->diff;
+                  spl->pos = ((spl->loop_end - 1) << 1) - spl->pos;
+                  voice->playmode ^= PLAYMODE_BACKWARD;
+               } while (spl->pos < spl->loop_start);
+            }
+            else {
+               do {
+                  spl->pos += (spl->loop_end - spl->loop_start);
+               } while (spl->pos < spl->loop_start);
+            }
+         }
+         update_silent_mixer(spl, voice, len);
+      }
+      else {
+	 /* mix a forward looping sample */
+         spl->pos += spl->diff * len;
+         if (spl->pos >= spl->loop_end) {
+            if (voice->playmode & PLAYMODE_BIDIR) {
+               do {
+                  spl->diff = -spl->diff;
+                  spl->pos = ((spl->loop_end - 1) << 1) - spl->pos;
+                  voice->playmode ^= PLAYMODE_BACKWARD;
+                  if (spl->pos >= spl->loop_start) break;
+                  spl->diff = -spl->diff;
+                  spl->pos = (spl->loop_start << 1) - spl->pos;
+                  voice->playmode ^= PLAYMODE_BACKWARD;
+               } while (spl->pos >= spl->loop_end);
+            }
+            else {
+               do {
+                  spl->pos -= (spl->loop_end - spl->loop_start);
+               } while (spl->pos >= spl->loop_end);
+            }
+	 }
+         update_silent_mixer(spl, voice, len);
+      }
+   }
+   else {
+      /* mix a non-looping sample */
+      spl->pos += spl->diff * len;
+      if ((unsigned long)spl->pos >= (unsigned long)spl->len) {
+	 /* note: we don't need a different version for reverse play, */
+	 /* as this will wrap and automatically do the Right Thing */
+	 spl->playing = FALSE;
+	 return;
+      }
+      update_silent_mixer(spl, voice, len);
+   }
+}
+
+END_OF_STATIC_FUNCTION(mix_silent_samples);
 
 
 
@@ -723,13 +883,18 @@ static void mix_hq2_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned sh
    #define MIX()                                                             \
       v = spl->pos>>MIX_FIX_SHIFT;                                           \
 									     \
+      v1 = spl->data8[v];                                                    \
+                                                                             \
       if (spl->pos >= spl->len-MIX_FIX_SCALE) {                              \
-	 v1 = v2 = spl->data8[v];                                            \
+         if ((voice->playmode & (PLAYMODE_LOOP |                             \
+                                 PLAYMODE_BIDIR)) == PLAYMODE_LOOP &&        \
+             spl->loop_start < spl->loop_end && spl->loop_end == spl->len)   \
+            v2 = spl->data8[spl->loop_start>>MIX_FIX_SHIFT];                 \
+         else                                                                \
+            v2 = 0x80;                                                       \
       }                                                                      \
-      else {                                                                 \
-	 v1 = spl->data8[v];                                                 \
+      else                                                                   \
 	 v2 = spl->data8[v+1];                                               \
-      }                                                                      \
 									     \
       v = spl->pos & (MIX_FIX_SCALE-1);                                      \
       v = (v1*(MIX_FIX_SCALE-v) + v2*v) / MIX_FIX_SCALE;                     \
@@ -760,17 +925,24 @@ static void mix_hq2_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned sh
    len >>= 1;
 
    #define MIX()                                                             \
-      v = spl->pos>>MIX_FIX_SHIFT;                                           \
+      v = (spl->pos>>MIX_FIX_SHIFT) << 1; /* x2 for stereo */                \
+                                                                             \
+      v1a = spl->data8[v];                                                   \
+      v1b = spl->data8[v+1];                                                 \
 									     \
       if (spl->pos >= spl->len-MIX_FIX_SCALE) {                              \
-	 v1a = v2a = spl->data8[v*2];                                        \
-	 v1b = v2b = spl->data8[v*2+1];                                      \
+         if ((voice->playmode & (PLAYMODE_LOOP |                             \
+                                 PLAYMODE_BIDIR)) == PLAYMODE_LOOP &&        \
+             spl->loop_start < spl->loop_end && spl->loop_end == spl->len) { \
+            v2a = spl->data8[((spl->loop_start>>MIX_FIX_SHIFT)<<1)];         \
+            v2b = spl->data8[((spl->loop_start>>MIX_FIX_SHIFT)<<1)+1];       \
+         }                                                                   \
+         else                                                                \
+            v2a = v2b = 0x80;                                                \
       }                                                                      \
       else {                                                                 \
-	 v1a = spl->data8[v*2];                                              \
-	 v1b = spl->data8[v*2+1];                                            \
-	 v2a = spl->data8[v*2+2];                                            \
-	 v2b = spl->data8[v*2+3];                                            \
+	 v2a = spl->data8[v+2];                                              \
+	 v2b = spl->data8[v+3];                                              \
       }                                                                      \
 									     \
       v = spl->pos & (MIX_FIX_SCALE-1);                                      \
@@ -804,14 +976,19 @@ static void mix_hq2_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned s
 
    #define MIX()                                                             \
       v = spl->pos>>MIX_FIX_SHIFT;                                           \
+                                                                             \
+      v1 = spl->data16[v];                                                   \
 									     \
       if (spl->pos >= spl->len-MIX_FIX_SCALE) {                              \
-	 v1 = v2 = spl->data16[v];                                           \
+         if ((voice->playmode & (PLAYMODE_LOOP |                             \
+                                 PLAYMODE_BIDIR)) == PLAYMODE_LOOP &&        \
+             spl->loop_start < spl->loop_end && spl->loop_end == spl->len)   \
+            v2 = spl->data16[spl->loop_start>>MIX_FIX_SHIFT];                \
+         else                                                                \
+            v2 = 0x8000;                                                     \
       }                                                                      \
-      else {                                                                 \
-	 v1 = spl->data16[v];                                                \
+      else                                                                   \
 	 v2 = spl->data16[v+1];                                              \
-      }                                                                      \
 									     \
       v = spl->pos & (MIX_FIX_SCALE-1);                                      \
       v = (v1*(MIX_FIX_SCALE-v) + v2*v) / MIX_FIX_SCALE;                     \
@@ -842,17 +1019,24 @@ static void mix_hq2_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned s
    len >>= 1;
 
    #define MIX()                                                             \
-      v = spl->pos>>MIX_FIX_SHIFT;                                           \
+      v = (spl->pos>>MIX_FIX_SHIFT) << 1; /* x2 for stereo */                \
+                                                                             \
+      v1a = spl->data16[v];                                                  \
+      v1b = spl->data16[v+1];                                                \
 									     \
       if (spl->pos >= spl->len-MIX_FIX_SCALE) {                              \
-	 v1a = v2a = spl->data16[v*2];                                       \
-	 v1b = v2b = spl->data16[v*2+1];                                     \
+         if ((voice->playmode & (PLAYMODE_LOOP |                             \
+                                 PLAYMODE_BIDIR)) == PLAYMODE_LOOP &&        \
+             spl->loop_start < spl->loop_end && spl->loop_end == spl->len) { \
+            v2a = spl->data16[((spl->loop_start>>MIX_FIX_SHIFT)<<1)];        \
+            v2b = spl->data16[((spl->loop_start>>MIX_FIX_SHIFT)<<1)+1];      \
+         }                                                                   \
+         else                                                                \
+            v2a = v2b = 0x8000;                                              \
       }                                                                      \
       else {                                                                 \
-	 v1a = spl->data16[v*2];                                             \
-	 v1b = spl->data16[v*2+1];                                           \
-	 v2a = spl->data16[v*2+2];                                           \
-	 v2b = spl->data16[v*2+3];                                           \
+	 v2a = spl->data16[v+2];                                             \
+	 v2b = spl->data16[v+3];                                             \
       }                                                                      \
 									     \
       v = spl->pos & (MIX_FIX_SCALE-1);                                      \
@@ -891,140 +1075,128 @@ void _mix_some_samples(unsigned long buf, unsigned short seg, int issigned)
    if (_sound_hq >= 2) {
       /* top quality interpolated 16 bit mixing */
       for (i=0; i<mix_voices; i++) {
-	 if ((mixer_voice[i].playing) && ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0))) {
-	    if (mixer_voice[i].stereo) {
-	       /* stereo input -> interpolated output */
-	       if (mixer_voice[i].data8)
-		  mix_hq2_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       else
-		  mix_hq2_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	    }
-	    else {
-	       /* mono input -> interpolated output */
-	       if (mixer_voice[i].data8)
-		  mix_hq2_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       else
-		  mix_hq2_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	    }
+	 if (mixer_voice[i].playing) {
+            if ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0)) {
+	       if (mixer_voice[i].stereo) {
+	          /* stereo input -> interpolated output */
+	          if (mixer_voice[i].data8)
+		     mix_hq2_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	          else
+		     mix_hq2_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	       }
+	       else {
+	          /* mono input -> interpolated output */
+	          if (mixer_voice[i].data8)
+		     mix_hq2_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	          else
+		     mix_hq2_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	       }
+            }
+            else
+               mix_silent_samples(mixer_voice+i, _phys_voice+i, mix_size>>1);
 	 }
       }
    }
    else if (_sound_hq) {
       /* high quality 16 bit mixing */
       for (i=0; i<mix_voices; i++) {
-	 if ((mixer_voice[i].playing) && ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0))) {
-	    if (mixer_voice[i].stereo) {
-	       /* stereo input -> high quality output */
-	       if (mixer_voice[i].data8)
-		  mix_hq1_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       else
-		  mix_hq1_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	    }
-	    else {
-	       /* mono input -> high quality output */
-	       if (mixer_voice[i].data8)
-		  mix_hq1_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       else
-		  mix_hq1_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	    }
+	 if (mixer_voice[i].playing) {
+	    if ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0)) {
+	       if (mixer_voice[i].stereo) {
+	          /* stereo input -> high quality output */
+	          if (mixer_voice[i].data8)
+		     mix_hq1_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	          else
+		     mix_hq1_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	       }
+	       else {
+	          /* mono input -> high quality output */
+	          if (mixer_voice[i].data8)
+		     mix_hq1_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	          else
+		     mix_hq1_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	       }
+            }
+            else
+               mix_silent_samples(mixer_voice+i, _phys_voice+i, mix_size>>1);
 	 }
       }
    }
    else if (mix_stereo) { 
       /* lower quality (faster) stereo mixing */
       for (i=0; i<mix_voices; i++) {
-	 if ((mixer_voice[i].playing) && ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0))) {
-	    if (mixer_voice[i].stereo) {
-	       /* stereo input -> stereo output */
-	       if (mixer_voice[i].data8)
-		  mix_stereo_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       else
-		  mix_stereo_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	    }
-	    else {
-	       /* mono input -> stereo output */
-	       if (mixer_voice[i].data8)
-		  mix_stereo_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       else
-		  mix_stereo_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	    }
+	 if (mixer_voice[i].playing) {
+	    if ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0)) {
+	       if (mixer_voice[i].stereo) {
+	          /* stereo input -> stereo output */
+	          if (mixer_voice[i].data8)
+		     mix_stereo_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	          else
+		     mix_stereo_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	       }
+	       else {
+	          /* mono input -> stereo output */
+	          if (mixer_voice[i].data8)
+		     mix_stereo_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	          else
+		     mix_stereo_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	       }
+            }
+            else
+               mix_silent_samples(mixer_voice+i, _phys_voice+i, mix_size>>1);
 	 }
       }
    }
    else {
       /* lower quality (fast) mono mixing */
       for (i=0; i<mix_voices; i++) {
-	 if ((mixer_voice[i].playing) && ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0))) {
-	    if (mixer_voice[i].stereo) {
-	       /* stereo input -> mono output */
-	       if (mixer_voice[i].data8)
-		  mix_mono_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       else
-		  mix_mono_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	    }
-	    else {
-	       /* mono input -> mono output */
-	       if (mixer_voice[i].data8)
-		  mix_mono_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       else
-		  mix_mono_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	    }
+	 if (mixer_voice[i].playing) {
+	    if ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0)) {
+	       if (mixer_voice[i].stereo) {
+	          /* stereo input -> mono output */
+	          if (mixer_voice[i].data8)
+		     mix_mono_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	          else
+		     mix_mono_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	       }
+	       else {
+	          /* mono input -> mono output */
+	          if (mixer_voice[i].data8)
+		     mix_mono_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	          else
+		     mix_mono_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+	       }
+            }
+            else
+               mix_silent_samples(mixer_voice+i, _phys_voice+i, mix_size);
 	 }
       }
    }
 
    _farsetsel(seg);
 
-   if (mix_voices >= 8) {
-      /* transfer to conventional memory buffer using a clip table */
-      if (mix_16bit) {
-	 if (issigned) {
-	    for (i=0; i<mix_size; i++) {
-	       _farnspokew(buf, mix_clip_table[*p >> (16-MIX_RES_16)] ^ 0x8000);
-	       buf += sizeof(short);
-	       p++;
-	    }
-	 }
-	 else {
-	    for (i=0; i<mix_size; i++) {
-	       _farnspokew(buf, mix_clip_table[*p >> (16-MIX_RES_16)]);
-	       buf += sizeof(short);
-	       p++;
-	    }
-	 }
+   /* transfer to conventional memory buffer using a clip table */
+   if (mix_16bit) {
+      if (issigned) {
+	 for (i=0; i<mix_size; i++) {
+	    _farnspokew(buf, mix_clip_table[*p >> (16-MIX_RES_16)] ^ 0x8000);
+	    buf += sizeof(short);
+	    p++;
+         }
       }
       else {
 	 for (i=0; i<mix_size; i++) {
-	    _farnspokeb(buf, mix_clip_table[*p >> (16-MIX_RES_8)]);
-	    buf++;
-	    p++;
-	 }
+	    _farnspokew(buf, mix_clip_table[*p >> (16-MIX_RES_16)]);
+            buf += sizeof(short);
+            p++;
+         }
       }
    }
    else {
-      /* transfer directly to conventional memory buffer (no clip) */
-      if (mix_16bit) {
-	 if (issigned) {
-	    for (i=0; i<mix_size; i++) {
-	       _farnspokew(buf, *p ^ 0x8000);
-	       buf += sizeof(short);
-	       p++;
-	    }
-	 }
-	 else {
-	    for (i=0; i<mix_size; i++) {
-	       _farnspokew(buf, *p);
-	       buf += sizeof(short);
-	       p++;
-	    }
-	 }
-      }
-      else {
-	 for (i=0; i<mix_size; i++) {
-	    _farnspokeb(buf, *p >> 8);
-	    buf++;
-	    p++;
-	 }
+      for (i=0; i<mix_size; i++) {
+	 _farnspokeb(buf, mix_clip_table[*p >> (16-MIX_RES_8)]);
+         buf++;
+         p++;
       }
    }
 }
@@ -1121,8 +1293,7 @@ END_OF_FUNCTION(_mixer_loop_voice);
 int _mixer_get_position(int voice)
 {
    if ((!mixer_voice[voice].playing) ||
-       (mixer_voice[voice].pos >= mixer_voice[voice].len) ||
-       ((_phys_voice[voice].vol <= 0) && (_phys_voice[voice].dvol <= 0)))
+       (mixer_voice[voice].pos >= mixer_voice[voice].len))
       return -1;
 
    return (mixer_voice[voice].pos >> MIX_FIX_SHIFT);
@@ -1353,6 +1524,7 @@ static void mixer_lock_mem()
    LOCK_VARIABLE(mix_freq);
    LOCK_VARIABLE(mix_stereo);
    LOCK_VARIABLE(mix_16bit);
+   LOCK_FUNCTION(mix_silent_samples);
    LOCK_FUNCTION(mix_mono_8x1_samples);
    LOCK_FUNCTION(mix_mono_8x2_samples);
    LOCK_FUNCTION(mix_mono_16x1_samples);
@@ -1371,6 +1543,7 @@ static void mixer_lock_mem()
    LOCK_FUNCTION(mix_hq2_16x2_samples);
    LOCK_FUNCTION(update_mixer_volume);
    LOCK_FUNCTION(update_mixer);
+   LOCK_FUNCTION(update_silent_mixer);
    LOCK_FUNCTION(_mix_some_samples);
    LOCK_FUNCTION(_mixer_init_voice);
    LOCK_FUNCTION(_mixer_release_voice);

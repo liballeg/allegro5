@@ -1626,6 +1626,7 @@ AL_FUNC(int, detect_digi_driver, (int driver_id));
 AL_FUNC(int, detect_midi_driver, (int driver_id));
 
 AL_FUNC(void, reserve_voices, (int digi_voices, int midi_voices));
+AL_FUNC(void, set_volume_per_voice, (int scale));
 
 AL_FUNC(int, install_sound, (int digi, int midi, AL_CONST char *cfg_path));
 AL_FUNC(void, remove_sound, (void));

@@ -4327,7 +4327,7 @@ Sound init routines
    available. This function must be called _before_ install_sound(). 
 
 @@void @reserve_voices(int digi_voices, int midi_voices);
-@xref install_sound, detect_digi_driver, detect_midi_driver
+@xref set_volume_per_voice, install_sound, detect_digi_driver, detect_midi_driver
    Call this function to specify the number of voices that are to be used by 
    the digital and MIDI sound drivers respectively. This must be done 
    _before_ calling install_sound(). If you reserve too many voices, 
@@ -4339,6 +4339,61 @@ Sound init routines
    values to restore the default settings. You should be aware that the 
    sound quality is usually inversely related to how many voices you use, so 
    don't reserve any more than you really need.
+
+@@void @set_volume_per_voice(int scale);
+@xref reserve_voices, set_volume, install_sound, detect_digi_driver, detect_midi_driver
+   By default, when you reserve more voices for the digital sound driver, 
+   Allegro will reduce the volume of each voice to compensate. This is done 
+   to avoid too much distortion. The default volume per voice is such that, 
+   if you reserve n voices, you can play up to n/2 normalised samples with 
+   centre panning without risking distortion. The exception is when you have 
+   fewer than 8 voices, where the volume remains the same as for 8 voices.
+
+   If the resultant output is either too loud or too quiet, this function 
+   can be used to adjust the volume of each voice. You should first check 
+   that your speakers are at a reasonable volume, Allegro's global volume 
+   is at maximum (see set_volume), and any other mixers such as the Windows 
+   Volume Control are set reasonably.
+
+   Once you are sure that Allegro's output level is unsuitable for your 
+   application, use this function to adjust it. This must be done _before_ 
+   calling install_sound(). Note that this function is only relevant for 
+   drivers that use the Allegro mixer (which is most of them).
+
+   If you pass 0 to this function, each centred sample will play at half the 
+   maximum volume, as will all samples played through a mono driver. Samples 
+   at the extreme left and right will play at full volume through that 
+   channel. So it is safe to play up to two centred samples, or one on each 
+   side, without risking distortion.
+
+   Each time you increase the parameter by 1, the volume of each voice will 
+   halve. For example, if you pass 3, you can play up to 16 centred samples 
+   at maximum volume without distortion.
+
+   Here are the default values, dependent on the number of voices:
+<PRE>
+   1-8 voices - set_volume_per_voice(1);
+    16 voices - set_volume_per_voice(2);
+    32 voices - set_volume_per_voice(3);
+    64 voices - set_volume_per_voice(4);
+</PRE>
+   Of course this function does not override the volume you specify with 
+   play_sample() or voice_set_volume(). It simply alters the overall output 
+   of the program. If you play samples at lower volumes, or if they are not 
+   normalised, then you can play more of them without distortion.
+
+   Warning: Allegro uses a clipping table to clip the waveform. The table is 
+   big enough to accommodate a total output of up to 4 times the maximum 
+   possible without distortion. If your output goes above this limit, the 
+   wave will 'wrap around' (peaks become troughs and vice versa), thus 
+   distorting much more. You should be careful that this does not happen.
+
+   It is recommended that you hard-code the parameter into your program, 
+   rather than offering it to the user. The user can alter the volume with 
+   the configuration file instead, or you can provide for this with 
+   set_volume().
+
+   To restore volume per voice to its default behaviour, pass -1.
 
 @@int @install_sound(int digi, int midi, const char *cfg_path);
 @xref remove_sound, reserve_voices, detect_digi_driver, detect_midi_driver
