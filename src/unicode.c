@@ -484,12 +484,19 @@ UTYPE_INFO utypes[] =
 /* current format information and worker routines */
 static int utype = U_UTF8;
 
+/* ugetc: */
 int (*ugetc)(AL_CONST char *s) = utf8_getc;
+/* ugetxc: */
 int (*ugetx)(char **s) = utf8_getx;
+/* ugetxc: */
 int (*ugetxc)(AL_CONST char** s) = (int (*)(AL_CONST char**)) utf8_getx;
+/* usetc: */
 int (*usetc)(char *s, int c) = utf8_setc;
+/* uwidth: */
 int (*uwidth)(AL_CONST char *s) = utf8_width;
+/* ucwidth: */
 int (*ucwidth)(int c) = utf8_cwidth;
+/* uisok: */
 int (*uisok)(int c) = utf8_isok;
 
 
