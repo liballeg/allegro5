@@ -2001,12 +2001,12 @@ static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to
 
    if (_xwin.set_colors != 0) {
       if(blitter_func) {
-         if(_xwin_use_bgr_palette_hack && ((to-from+1) > 0) && (from >= 0) && (to < 256)) {
+         if(_xwin_use_bgr_palette_hack && (from >= 0) && (to < 256)) {
             pal = malloc(sizeof(RGB)*256);
             ASSERT(pal);
             ASSERT(p);
             if(!pal || !p) return; /* ... in shame and disgrace */
-            memcpy(&pal[from], p, sizeof(RGB)*(to-from+1));
+            memcpy(&pal[from], &p[from], sizeof(RGB)*(to-from+1));
             for (c=from; c<=to; c++) {
                temp = pal[c].r;
                pal[c].r = pal[c].b;
@@ -2056,7 +2056,7 @@ static void _xwin_private_set_window_defaults(void)
    hint.res_name = _xwin.application_name;
    hint.res_class = _xwin.application_class;
    XSetClassHint(_xwin.display, _xwin.window, &hint);
-
+   
    wm_hints.flags = InputHint | StateHint;
    wm_hints.input = True;
    wm_hints.initial_state = NormalState;
