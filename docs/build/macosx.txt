@@ -153,9 +153,9 @@
 
 
 
-=====================================
-============ Final notes ============
-=====================================
+==============================================
+====== Allegro and application bundles  ======
+==============================================
 
    When you build applications from the command line, you're actually just
    creating the executable, so you can run it from the command line only,
@@ -169,8 +169,24 @@
 [ToDo: add fixbundle description]
 
    If you are using Project Builder to compile your programs, there is no
-   need to use fixbundle, as the IDE will automatically generate a working
+   need to use fixbundle, as the IDE will do the work of generating an
    application bundle for you.
+
+   When an Allegro application starts, it automatically detects if the
+   executable lives inside a bundle or not. The working directory is
+   always set up to be the directory where the executable/bundle is
+   located, but there is an exception: if the application has a bundle
+   and Allegro finds a directory under the bundle Contents/Resources
+   path with the same name of the executable, that directory is set to
+   be the working one. This allows to easily package all the application
+   data inside the bundle, and still have a working program without the
+   need to tell your code about the changed location of your files.
+
+
+
+=====================================
+============ Final notes ============
+=====================================
 
    As a final note, when coding Allegro programs don't forget that you
    need to use the END_OF_MAIN() macro right after your main() function!

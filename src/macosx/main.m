@@ -87,8 +87,8 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    /* This comes from the ADC tips & tricks section: how to detect if the app
     * lives inside a bundle
     */
-   GetProcessBundleLocation (&psn, &processRef);
-   FSGetCatalogInfo (&processRef, kFSCatInfoNodeFlags, &processInfo, NULL, NULL, NULL);
+   GetProcessBundleLocation(&psn, &processRef);
+   FSGetCatalogInfo(&processRef, kFSCatInfoNodeFlags, &processInfo, NULL, NULL, NULL);
    if (processInfo.nodeFlags & kFSNodeIsDirectoryMask) {
       strncpy(path, __crt0_argv[0], sizeof(path));
       for (i = 0; i < 4; i++) {

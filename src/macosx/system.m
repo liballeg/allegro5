@@ -346,6 +346,8 @@ void osx_event_handler()
 static int osx_sys_init(void)
 {
    long result;
+   char exe_name[1024];
+   char resource_dir[1024];
    
    /* Install emergency-exit signal handlers */
    old_sig_abrt = signal(SIGABRT, osx_signal_handler);
@@ -355,6 +357,15 @@ static int osx_sys_init(void)
    old_sig_term = signal(SIGTERM, osx_signal_handler);
    old_sig_int  = signal(SIGINT,  osx_signal_handler);
    old_sig_quit = signal(SIGQUIT, osx_signal_handler);
+   
+   /* Get into bundle resource directory if appropriate */
+   if (osx_bundle) {
+      get_executable_name(exe_name, 1023);
+      snprintf(resource_dir, 1023, "%s/%s", [[osx_bundle resourcePath] cString], get_filename(exe_name));
+      resource_dir[strlen(resource_dir) - 4] = '\0';
+      if (file_exists(resource_dir, FA_DIREC, NULL))
+         chdir(resource_dir);
+   }
    
    /* Setup OS type & version */
    os_type = OSTYPE_MACOSX;
