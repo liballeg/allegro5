@@ -714,19 +714,18 @@ framebuffer = x<br>
    variable, and then defaults to /dev/fb0.
 <li>
 dga_mouse = x<br>
-   X only: enables a workaround of a bug in some X servers' DGA modes, 
-   concerning the mouse.  Default is off; enable the feature by setting the
-   variable to something other than "n" or "N" or "0".
+   X only: disable to work around a bug in some X servers' DGA modes, 
+   concerning the mouse.  Default is on; enable the workaround by setting the
+   variable to "0".
 <li>
 dga_centre = x<br>
    X only: instructs the DGA driver to centre the Allegro screen if the actual
    screen resolution is higher than Allegro's.  Default is on; disable this 
-   feature by setting the variable to "n" or "N" or "0".
+   feature by setting the variable to "0".
 <li>
 dga_clear = x<br>
    X only: instructs the DGA driver to clear visible video memory on startup. 
-   Default is on; disable this feature by setting the variable to "n" or "N" 
-   or "0".
+   Default is on; disable this feature by setting the variable to "0".
 <li>
 keyboard = x<br>
    Specifies which keyboard layout to use. The parameter is the name of a 
