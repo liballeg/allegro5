@@ -2224,18 +2224,18 @@ static void _xwin_private_process_event(XEvent *event)
 
    switch (event->type) {
       case KeyPress:
-         x_keyboard_handler (&event->xkey);
+         _xwin_keyboard_handler (&event->xkey);
 	 break;
       case KeyRelease:
-         x_keyboard_handler (&event->xkey);
+         _xwin_keyboard_handler (&event->xkey);
 	 break;
       case FocusIn:
 	 _switch_in();
-         x_keyboard_focus_handler (&event->xfocus);
+         _xwin_keyboard_focus_handler (&event->xfocus);
 	 break;
       case FocusOut:
 	 _switch_out();
-         x_keyboard_focus_handler (&event->xfocus);
+         _xwin_keyboard_focus_handler (&event->xfocus);
 	 break;
       case ButtonPress:
 	 /* Mouse button pressed.  */
@@ -2321,7 +2321,7 @@ static void _xwin_private_process_event(XEvent *event)
       case MappingNotify:
 	 /* Keyboard mapping changed.  */
 	 if (event->xmapping.request == MappingKeyboard)
-	    x_get_keyboard_mapping();
+	    _xwin_get_keyboard_mapping();
 	 break;
       case ClientMessage:
          /* Window close request */

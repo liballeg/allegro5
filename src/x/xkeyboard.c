@@ -227,11 +227,11 @@ translation_table[] = {
 
 
 
-/* x_update_shifts
+/* update_shifts
  *  Update Allegro's key_shifts variable, directly from the corresponding
  *  X11 modifiers state.
  */
-static void x_update_shifts(XKeyEvent *event)
+static void update_shifts(XKeyEvent *event)
 {
    int mask = 0;
    int i;
@@ -279,11 +279,11 @@ static void x_update_shifts(XKeyEvent *event)
 
 
 
-/* x_find_unknown_key_assignement
+/* find_unknown_key_assignment
  *  In some cases, X11 doesn't report any KeySym for a key - so the earliest
  *  time we can map it to an Allegro key is when it is first pressed.
  */
-int x_find_unknown_key_assignement (int i)
+static int find_unknown_key_assignment (int i)
 {
    int j;
    for (j = 1; j < KEY_MAX; j++) {
@@ -311,10 +311,10 @@ int x_find_unknown_key_assignement (int i)
 
 
 
-/* x_keyboard_handler:
+/* _xwin_keyboard_handler:
  *  Keyboard "interrupt" handler.
  */
-void x_keyboard_handler(XKeyEvent *event)
+void _xwin_keyboard_handler(XKeyEvent *event)
 {
    int keycode;
    if (!xkeyboard_installed)
@@ -322,9 +322,9 @@ void x_keyboard_handler(XKeyEvent *event)
 
    keycode = x_to_allegro_keycode[event->keycode];
    if (keycode == -1)
-      keycode = x_find_unknown_key_assignement (event->keycode);
+      keycode = find_unknown_key_assignment (event->keycode);
 
-   x_update_shifts (event);
+   update_shifts (event);
 
    if (event->type == KeyPress) { /* Key pressed.  */
       int len;
@@ -370,10 +370,10 @@ void x_keyboard_handler(XKeyEvent *event)
 
 
 
-/* x_keyboard_focus_handler:
+/* _xwin_keyboard_focus_handler:
  *  Handles switching of X keyboard focus.
  */
-void x_keyboard_focus_handler (XFocusChangeEvent *event)
+void _xwin_keyboard_focus_handler (XFocusChangeEvent *event)
 {
    /* Simulate release of all keys on focus out. */
    if (event->type == FocusOut) {
@@ -473,7 +473,7 @@ void x_get_keyboard_mapping(void)
       /* The keys still not assigned are just assigned arbitrarily now. */
       for (i = min_keycode; i <= max_keycode; i++) {
 	 if (x_to_allegro_keycode[i] == 0) {
-	    x_find_unknown_key_assignement (i);
+	    find_unknown_key_assignment (i);
 	 }
       }
    }
