@@ -179,6 +179,14 @@ div.al-api-cont {\n\
 div.faq-shift-to-right {\n\
 \tmargin-left: 2em;\n\
 }\n\
+div.al-back-to-contents {\n\
+\ttext-align:      center;\n\
+\tfont-family:     sans-serif;\n\
+\tmargin-top:      1em;\n\
+\tfont-weight:     bold;\n\
+\t/* Removing the  comments of the next line create longer pages */\n\
+\t/* margin-bottom:   100em; */\n\
+}\n\
 ";
 
 /* Internal functions */
@@ -570,8 +578,8 @@ static void _output_html_footer(char *main_filename)
    if (html_flags & HTML_OLD_F_TAG_FLAG)
       fprintf(_file, html_footer, get_filename(main_filename));
    else
-      fprintf(_file, "<hr><a href=\"%s\">%s</a>\n",
-	 get_filename(main_filename), html_footer);
+      fprintf(_file, "<hr><div class=\"al-back-to-contents\"><a href"
+	 "=\"%s\">%s</a></div>\n", get_filename(main_filename), html_footer);
 }
 
 
