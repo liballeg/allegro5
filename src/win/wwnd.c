@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Main system driver for the Windows library.
+ *      Main window creation and management.
  *
  *      By Stefan Schimanski.
  *
@@ -66,7 +66,7 @@ static UINT msg_set_cursor = 0;
 
 
 /* win_set_window:
- *  Selects a user defined window for Allegro
+ *  selects a user defined window for Allegro
  */
 void win_set_window(HWND wnd)
 {
@@ -84,10 +84,16 @@ HWND win_get_window(void)
    return (user_wnd ? user_wnd : allegro_wnd);
 }
 
+
+
+/* win_set_wnd_create_proc:
+ *  sets a custom window creation proc
+ */
 void win_set_wnd_create_proc(HWND proc)
 {
    wnd_create_proc = proc;
 }
+
 
 
 /* wnd_call_proc:
@@ -104,7 +110,7 @@ int wnd_call_proc(int (*proc) (void))
 
 
 /* wnd_acquire_keyboard:
- *  post msg to window to acquire the keyboard device
+ *  posts msg to window to acquire the keyboard device
  */
 void wnd_acquire_keyboard(void)
 {
@@ -114,7 +120,7 @@ void wnd_acquire_keyboard(void)
 
 
 /* wnd_acquire_mouse:
- *  post msg to window to acquire the mouse device
+ *  posts msg to window to acquire the mouse device
  */
 void wnd_acquire_mouse(void)
 {
@@ -124,7 +130,7 @@ void wnd_acquire_mouse(void)
 
 
 /* wnd_set_cursor:
- *  post msg to window to set the mouse cursor
+ *  posts msg to window to set the mouse cursor
  */
 void wnd_set_cursor(void)
 {
@@ -248,29 +254,27 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       case WM_CLOSE:
          if (user_wnd_proc)
             break;
+
          if (user_close_proc) {
             (*user_close_proc)();
-            /* we don't exit here cause it's supposed the user_proc */
-            /* to call allegro_exit and exit itself */
-            return 0;
+            /* we don't exit here because the user proc is
+             * supposed to call allegro_exit() itself
+             */
          }
          else {
             /* default windows close */
-            int option_sel;
             char win_title[4096];
+            int option_sel;
+
             GetWindowText(wnd, win_title, 4096);
             option_sel = MessageBox(wnd, ALLEGRO_WINDOW_CLOSE_MESSAGE,
                                     win_title,
                                     MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2);
-            if (option_sel == IDYES) {
-               ExitProcess(0);
-               return 0;
-            }
-            else
-               return 0;
-         }
-         break;
 
+            if (option_sel == IDYES)
+               ExitProcess(0);
+         }
+         return 0;
    }
 
    /* pass message to default window proc */
@@ -306,7 +310,7 @@ void restore_window_style(void)
 
 
 /* create_directx_window:
- *  create the Allegro window
+ *  creates the Allegro window
  */
 static HWND create_directx_window(void)
 {
@@ -314,7 +318,6 @@ static HWND create_directx_window(void)
    char fname[256];
    HWND wnd;
    WNDCLASS wnd_class;
-   int err;
 
    /* setup the window class */
    wnd_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -341,18 +344,12 @@ static HWND create_directx_window(void)
    do_uconvert(get_filename(fname), U_CURRENT, title, U_ASCII, sizeof(title));
 
    /* create the window now */
-   wnd = CreateWindowEx(  0,
-			  ALLEGRO_WND_CLASS,
-			  title,
-			  WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX,
-			  -100, -100, 0, 0,
-			  NULL, NULL,
-			  allegro_inst,
-			  NULL);
-
-   if (wnd == NULL) {
-      err = GetLastError();
-      _TRACE("CreateWindowEx = %s (%x)\n", win_err_str(err), err);
+   wnd = CreateWindowEx(0, ALLEGRO_WND_CLASS, title,
+                        WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX,
+                        -100, -100, 0, 0,
+                        NULL, NULL, allegro_inst, NULL);
+   if (!wnd) {
+      _TRACE("CreateWindowEx() failed (%s)\n", win_err_str(GetLastError()));
       return NULL;
    }
 
@@ -416,7 +413,7 @@ int init_directx_window(void)
    msg_acquire_mouse = RegisterWindowMessage("Allegro mouse acquire proc");
    msg_set_cursor = RegisterWindowMessage("Allegro mouse cursor proc");
 
-   /* prepare window for allegro */
+   /* prepare window for Allegro */
    if (user_wnd) {
       /* hook the user window */
       if (hook_user_window() != 0)
@@ -457,7 +454,7 @@ int init_directx_window(void)
 
 
 /* exit_directx_window:
- *  if a user window was hooked, the old window proc is set. Otherwise
+ *  If a user window was hooked, the old window proc is set. Otherwise
  *  the created window is destroyed.
  */
 void exit_directx_window(void)
@@ -468,9 +465,10 @@ void exit_directx_window(void)
       user_wnd_proc = NULL;
    }
    else {
-      /* let's destroy the window */
-      /* since we cannot use DestroyWindow because we are on a */
-      /* different thread, we "emulate" it sending the msgs it sends */
+      /* destroy the window: since we cannot use DestroyWindow()
+       * because we are on a different thread, we "emulate" it
+       * by sending the msgs it sends
+       */
       PostMessage(allegro_wnd, WM_DESTROY, 0, 0);
       PostMessage(allegro_wnd, WM_NCDESTROY, 0, 0);
 

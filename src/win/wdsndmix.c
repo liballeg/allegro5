@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Allegro mixer to DirectSound driver
+ *      Allegro mixer to DirectSound driver.
  *
  *      by Robin Burrows.
  *
@@ -19,7 +19,6 @@
  *
  *      See readme.txt for copyright information.
  */
-
 
 #define DIRECTSOUND_VERSION 0x0300
 
@@ -59,13 +58,11 @@ static LPDIRECTSOUNDBUFFER prim_buf = NULL;
 static long int initial_volume;
 static int _freq, _bits, _stereo;
 static int linear_to_millibel[256];
-static int _digidsbufsize;
-static unsigned char * _digidsbufdata;
-static int _digidsbufpos;
+static int digidsbufsize, digidsbufpos;
+static unsigned char *digidsbufdata;
 static int bufdivs = 16;
-static BOOL prim_buf_paused = FALSE;
+static int prim_buf_paused = FALSE;
 static int prim_buf_vol;
-
 static UINT dbgtid;
 
 static DIGI_DRIVER digi_directx =
@@ -114,109 +111,111 @@ static DIGI_DRIVER digi_directx =
    _mixer_set_echo,
    _mixer_set_tremolo,
    _mixer_set_vibrato,
+
+   /* input functions */
    0,                           /* int rec_cap_bits; */
    0,                           /* int rec_cap_stereo; */
-   NULL,                        /* AL_METHOD(int,  rec_cap_rate, (int bits, int stereo)); */
-   NULL,                        /* AL_METHOD(int,  rec_cap_parm, (int rate, int bits, int stereo)); */
-   NULL,                        /* AL_METHOD(int,  rec_source, (int source)); */
-   NULL,                        /* AL_METHOD(int,  rec_start, (int rate, int bits, int stereo)); */
-   NULL,                        /* AL_METHOD(void, rec_stop, (void)); */
-   NULL                         /* AL_METHOD(int,  rec_read, (void *buf)); */
+   digi_directsound_rec_cap_rate,
+   digi_directsound_rec_cap_param,
+   digi_directsound_rec_source,
+   digi_directsound_rec_start,
+   digi_directsound_rec_stop,
+   digi_directsound_rec_read
 };
 
 
 #define MAX_DRIVERS  16
 
-static int num_drivers = 0;
-
 static char *driver_names[MAX_DRIVERS];
 static LPGUID driver_guids[MAX_DRIVERS];
 
-static int dwOldPos = 0;
 
-/* This is the callback to update sound in primary buffer */
-static void CALLBACK digi_directsound_mixer_callback(
-  UINT uID,      
-  UINT uMsg,     
-  DWORD dwUser,  
-  DWORD dw1,     
-  DWORD dw2)
+
+/* digi_diretsound_mixer_callback:
+ *  callback to update sound in primary buffer
+ */
+static void CALLBACK digi_directsound_mixer_callback(UINT uID, UINT uMsg, DWORD dwUser,
+                                                     DWORD dw1, DWORD dw2)
 { 
-LPVOID lpvPtr1; 
-DWORD dwBytes1; 
-LPVOID lpvPtr2; 
-DWORD dwBytes2; 
-DWORD writecurs;
-HRESULT hr;
-int i;
-int switch_mode;
+   LPVOID lpvPtr1, lpvPtr2;
+   DWORD dwBytes1, dwBytes2, writecurs;
+   HRESULT hr;
+   int i, switch_mode;
 
-    switch_mode = get_display_switch_mode();
+   /* handle display switchs */
+   switch_mode = get_display_switch_mode();
 
-    if (prim_buf_paused) {
-       if (app_foreground ||
-           (switch_mode == SWITCH_BACKGROUND) || (switch_mode == SWITCH_BACKAMNESIA)) {
-          prim_buf_paused = FALSE;
-          IDirectSoundBuffer_Play (prim_buf, 0, 0, DSBPLAY_LOOPING);
-       }
-       else
-          return;
-    }
-    else {
+   if (prim_buf_paused) {
+      if (app_foreground ||
+          (switch_mode == SWITCH_BACKGROUND) || (switch_mode == SWITCH_BACKAMNESIA)) {
+         prim_buf_paused = FALSE;
+         IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
+      }
+      else
+         return;
+   }
+   else {
       if (!app_foreground &&
           ((switch_mode == SWITCH_PAUSE) || (switch_mode == SWITCH_AMNESIA))) {
          prim_buf_paused = TRUE;
-         IDirectSoundBuffer_Stop (prim_buf);
+         IDirectSoundBuffer_Stop(prim_buf);
          return;
       }
-    }
+   }
 
+   /* get primary buffer current state */
+   hr = IDirectSoundBuffer_GetStatus(prim_buf, &dwBytes1);
+   if (hr == DS_OK) {
+      if (dwBytes1 == DSBSTATUS_BUFFERLOST) {
+         IDirectSoundBuffer_Restore(prim_buf);
+         IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
+         IDirectSoundBuffer_SetVolume(prim_buf, prim_buf_vol);
+      }
+   }
 
-	if (IDirectSoundBuffer_GetStatus (prim_buf, &dwBytes1) == DS_OK) {
-		if (dwBytes1 == DSBSTATUS_BUFFERLOST) {
-			IDirectSoundBuffer_Restore (prim_buf);
-			IDirectSoundBuffer_Play (prim_buf, 0, 0, DSBPLAY_LOOPING);
-            IDirectSoundBuffer_SetVolume (prim_buf, prim_buf_vol);
-		}
-	}
-	if (IDirectSoundBuffer_GetCurrentPosition (prim_buf, NULL, &writecurs) != DS_OK)
-		return;
+   hr = IDirectSoundBuffer_GetCurrentPosition(prim_buf, NULL, &writecurs);
+   if (FAILED(hr))
+      return;
 
-	writecurs /= (_digidsbufsize/bufdivs);
-	writecurs += 8; while (writecurs > (bufdivs-1)) writecurs -= bufdivs;
-	if (writecurs == _digidsbufpos) return;
+   writecurs /= (digidsbufsize/bufdivs);
+   writecurs += 8;
 
-	hr = IDirectSoundBuffer_Lock(prim_buf, 
-							0, 0, 
-							&lpvPtr1, &dwBytes1, 
-							&lpvPtr2, &dwBytes2,
-							DSBLOCK_FROMWRITECURSOR | DSBLOCK_ENTIREBUFFER); 
-/* If DSERR_BUFFERLOST is returned, quit, we'll catch up next time */
-	if (hr == DSERR_BUFFERLOST) return;
+   while (writecurs > (bufdivs-1))
+      writecurs -= bufdivs;
 
-	if (hr == DS_OK) { 
-		while (writecurs != _digidsbufpos) {
-		if (((char *)lpvPtr2) != NULL) {
-			memcpy ((char*)lpvPtr2 + (((dwBytes1+dwBytes2)/bufdivs)*_digidsbufpos),
-				_digidsbufdata + (((dwBytes1+dwBytes2)/bufdivs)*_digidsbufpos),
-				(dwBytes1+dwBytes2)/bufdivs);
-		} else {
-			memcpy ((char*)lpvPtr1 + (((dwBytes1)/bufdivs)*_digidsbufpos),
-				_digidsbufdata + (((dwBytes1)/bufdivs)*_digidsbufpos),
-				(dwBytes1)/bufdivs);
-		}
+   if (writecurs == digidsbufpos)
+      return;
 
-		_digidsbufpos++; if (_digidsbufpos > (bufdivs-1)) _digidsbufpos = 0;
-		_mix_some_samples((unsigned long)
-			(_digidsbufdata+(((dwBytes1+dwBytes2)/bufdivs)*_digidsbufpos)), 0, 1);
-		}
+   hr = IDirectSoundBuffer_Lock(prim_buf, 0, 0, 
+                                &lpvPtr1, &dwBytes1, 
+                                &lpvPtr2, &dwBytes2,
+                                DSBLOCK_FROMWRITECURSOR | DSBLOCK_ENTIREBUFFER);
 
-		hr = IDirectSoundBuffer_Unlock(prim_buf, lpvPtr1, dwBytes1, lpvPtr2, dwBytes2); 
-	} 
-	return;
+   /* if DSERR_BUFFERLOST is returned, we'll catch up next time */
+   if (FAILED(hr))
+      return;
+
+   /* write datas into the buffer */
+   while (writecurs != digidsbufpos) {
+      if (lpvPtr2) {
+         memcpy((char*)lpvPtr2 + (((dwBytes1+dwBytes2)/bufdivs)*digidsbufpos),
+                digidsbufdata + (((dwBytes1+dwBytes2)/bufdivs)*digidsbufpos),
+                (dwBytes1+dwBytes2)/bufdivs);
+      }
+      else {
+         memcpy((char*)lpvPtr1 + (((dwBytes1)/bufdivs)*digidsbufpos),
+                digidsbufdata + (((dwBytes1)/bufdivs)*digidsbufpos),
+                (dwBytes1)/bufdivs);
+      }
+
+      if (++digidsbufpos > (bufdivs-1))
+         digidsbufpos = 0;
+
+      _mix_some_samples((unsigned long)(digidsbufdata+(((dwBytes1+dwBytes2)/bufdivs)*digidsbufpos)), 0, 1);
+   }
+
+   IDirectSoundBuffer_Unlock(prim_buf, lpvPtr1, dwBytes1, lpvPtr2, dwBytes2);
 } 
-END_OF_STATIC_FUNCTION (digi_directsound_mixer_callback);
-
 
 
 
@@ -225,224 +224,284 @@ END_OF_STATIC_FUNCTION (digi_directsound_mixer_callback);
  *  generates the device list at runtime, to match whatever DirectSound
  *  devices are available.
  */
-DIGI_DRIVER *_get_dsalmix_driver(char * dxname, int num)
+DIGI_DRIVER *_get_dsalmix_driver(char *name, LPGUID guid, int num)
 {
-DIGI_DRIVER *driver;
+   DIGI_DRIVER *driver;
 
-	driver = malloc(sizeof(DIGI_DRIVER));
-	if (driver == NULL) return NULL;
+   driver = malloc(sizeof(DIGI_DRIVER));
+   if (!driver)
+      return NULL;
 
-	memcpy(driver, &digi_directx, sizeof(DIGI_DRIVER));
+   memcpy(driver, &digi_directx, sizeof(DIGI_DRIVER));
 
-	driver->id = DIGI_DIRECTAMX(num);
+   driver->id = DIGI_DIRECTAMX(num);
 
-	driver_names[num] = malloc (strlen(dxname)+10);
-	if (driver_names != NULL) {
-		strcpy (driver_names[num], "Allegmix ");
-		strcpy (driver_names[num]+9, dxname);
-	}
-	driver->ascii_name = driver_names[num];
+   driver_names[num] = malloc(strlen(name)+10);
+   if (driver_names[num]) {
+      strcpy(driver_names[num], "Allegmix ");
+      strcpy(driver_names[num]+9, name);
+      driver->ascii_name = driver_names[num];
+   }
 
-	return driver;
+   driver_guids[num] = guid;
+
+   return driver;
 }
 
 
 
+/* ds_err:
+ *  returns an error string
+ */
+#ifdef DEBUGMODE
+static char *ds_err(long err)
+{
+   static char err_str[32];
+
+   switch (err) {
+
+      case DS_OK:
+         strcpy(err_str, "DS_OK");
+         break;
+
+      case DSERR_ALLOCATED:
+         strcpy(err_str, "DSERR_ALLOCATED");
+         break;
+
+      case DSERR_BADFORMAT:
+         strcpy(err_str, "DSERR_BADFORMAT");
+         break;
+
+      case DSERR_INVALIDPARAM:
+         strcpy(err_str, "DSERR_INVALIDPARAM");
+         break;
+
+      case DSERR_NOAGGREGATION:
+         strcpy(err_str, "DSERR_NOAGGREGATION");
+         break;
+
+      case DSERR_OUTOFMEMORY:
+         strcpy(err_str, "DSERR_OUTOFMEMORY");
+         break;
+
+      case DSERR_UNINITIALIZED:
+         strcpy(err_str, "DSERR_UNINITIALIZED");
+         break;
+
+      case DSERR_UNSUPPORTED:
+         strcpy(err_str, "DSERR_UNSUPPORTED");
+         break;
+
+      default:
+         strcpy(err_str, "DSERR_UNKNOWN");
+         break;
+   }
+
+   return err_str;
+}
+#else
+#define ds_err(hr) "\0"
+#endif
+
+
 
 /* digi_directsound_init:
- *  Initialize driver                                                                
- *
+ *  initializes DirectSound
  */
 static int digi_directsound_init(int input, int voices)
 {
-LPVOID lpvPtr1; 
-DWORD dwBytes1; 
-LPVOID lpvPtr2; 
-DWORD dwBytes2; 
-HRESULT hr;
-DSCAPS dscaps;
-DSBUFFERDESC desc;
-WAVEFORMATEX format;
-int v, id;
+   LPVOID lpvPtr1, lpvPtr2;
+   DWORD dwBytes1, dwBytes2;
+   HRESULT hr;
+   DSCAPS dscaps;
+   DSBUFFERDESC desc;
+   WAVEFORMATEX format;
+   int v, id;
 
-	digi_driver->voices = voices;
+   /* deduce our device number from the driver ID code */
+   id = ((digi_driver->id >> 8) & 0xFF) - 'A';
 
-	/* deduce our device number from the driver ID code */
-	id = ((digi_driver->id >> 8) & 0xFF) - 'A';
+   if (input)
+      return digi_directsound_capture_init(driver_guids[id]);
 
-	/* initialize DirectSound interface */
-	hr = DirectSoundCreate(driver_guids[id], &directsound, NULL);
-	if (FAILED(hr)) { 
-		_TRACE("Can't create DirectSound interface (%x)\n", hr); 
-		goto Error; 
-	}
+   digi_driver->voices = voices;
 
-	/* set cooperative level */
-	hr = IDirectSound_SetCooperativeLevel(directsound, allegro_wnd, DSSCL_WRITEPRIMARY);
-	if (FAILED(hr))
-		_TRACE("Can't set DirectSound cooperative level (%x)\n", hr);
-	else
-		_TRACE("DirectSound cooperation level set to DSSCL_WRITEPRIMARY\n");
+   /* initialize DirectSound interface */
+   hr = DirectSoundCreate(driver_guids[id], &directsound, NULL);
+   if (FAILED(hr)) { 
+      _TRACE("Can't create DirectSound interface (%s)\n", ds_err(hr)); 
+      goto Error; 
+   }
 
-	/* get hardware capabilities */
-	dscaps.dwSize = sizeof(DSCAPS);
-	hr = IDirectSound_GetCaps(directsound, &dscaps);
-	if (FAILED(hr)) { 
-		_TRACE("Can't get DirectSound caps (%x)\n", hr); 
-		goto Error; 
-	}
+   /* set cooperative level */
+   hr = IDirectSound_SetCooperativeLevel(directsound, allegro_wnd, DSSCL_WRITEPRIMARY);
+   if (FAILED(hr))
+      _TRACE("Can't set DirectSound cooperative level (%s)\n", ds_err(hr));
+   else
+      _TRACE("DirectSound cooperation level set to DSSCL_WRITEPRIMARY\n");
 
-	if (dscaps.dwFlags & DSCAPS_PRIMARY16BIT)
-		_bits = 16;
-	else
-		_bits = 8;
+   /* get hardware capabilities */
+   dscaps.dwSize = sizeof(DSCAPS);
+   hr = IDirectSound_GetCaps(directsound, &dscaps);
+   if (FAILED(hr)) { 
+      _TRACE("Can't get DirectSound caps (%s)\n", ds_err(hr)); 
+      goto Error; 
+   }
 
-	if (dscaps.dwFlags & DSCAPS_PRIMARYSTEREO)
-		_stereo = 1;
-	else
-		_stereo = 0;
+   if (dscaps.dwFlags & DSCAPS_PRIMARY16BIT)
+      _bits = 16;
+   else
+      _bits = 8;
 
-	if (dscaps.dwMaxSecondarySampleRate > 44000)
-		_freq = 44100;
-	else
-		_freq = 22050;
+   if (dscaps.dwFlags & DSCAPS_PRIMARYSTEREO)
+      _stereo = 1;
+   else
+      _stereo = 0;
 
-	_TRACE("DirectSound caps: %u bits, %s, %uHz\n", _bits, _stereo ? "stereo" : "mono", _freq);
+   if (dscaps.dwMaxSecondarySampleRate > 44000)
+      _freq = 44100;
+   else
+      _freq = 22050;
 
-	memset (&desc, 0, sizeof(DSBUFFERDESC));
-	desc.dwSize = sizeof(DSBUFFERDESC);
-    desc.dwFlags = DSBCAPS_PRIMARYBUFFER | DSBCAPS_CTRLVOLUME | DSBCAPS_STICKYFOCUS;
+   _TRACE("DirectSound caps: %u bits, %s, %uHz\n", _bits, _stereo ? "stereo" : "mono", _freq);
 
-	hr = IDirectSound_CreateSoundBuffer(directsound, &desc, &prim_buf, NULL);
-	if (hr != DS_OK) { 
-		_TRACE("Can't create primary buffer\nGlobal volume control won't be available\n"); 
-	}
+   memset(&desc, 0, sizeof(DSBUFFERDESC));
+   desc.dwSize = sizeof(DSBUFFERDESC);
+   desc.dwFlags = DSBCAPS_PRIMARYBUFFER | DSBCAPS_CTRLVOLUME | DSBCAPS_STICKYFOCUS;
 
-	if (prim_buf) {
-		hr = IDirectSoundBuffer_GetFormat(prim_buf, &format, sizeof(format), NULL);
-		if (FAILED(hr)) {
-			_TRACE("Can't get primary buffer format\n");
-		} else {
-			format.nChannels = _stereo ? 2 : 1;
-			format.nSamplesPerSec = _freq;
-			format.wBitsPerSample = _bits;
-			format.nBlockAlign = (format.wBitsPerSample * format.nChannels) >> 3;
-			format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
+   hr = IDirectSound_CreateSoundBuffer(directsound, &desc, &prim_buf, NULL);
+   if (FAILED(hr))
+      _TRACE("Can't create primary buffer (%s)\nGlobal volume control won't be available\n", ds_err(hr)); 
 
-			hr = IDirectSoundBuffer_SetFormat(prim_buf, &format);
-			if (FAILED(hr)) {
-				_TRACE("Can't set primary buffer format\n");
-			}
+   if (prim_buf) {
+      hr = IDirectSoundBuffer_GetFormat(prim_buf, &format, sizeof(format), NULL);
+      if (FAILED(hr)) {
+         _TRACE("Can't get primary buffer format (%s)\n", ds_err(hr));
+      }
+      else {
+         format.nChannels = _stereo ? 2 : 1;
+         format.nSamplesPerSec = _freq;
+         format.wBitsPerSample = _bits;
+         format.nBlockAlign = (format.wBitsPerSample * format.nChannels) >> 3;
+         format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
 
-			hr = IDirectSoundBuffer_GetFormat(prim_buf, &format, sizeof(format), NULL);
-			if (FAILED(hr)) {
-				_TRACE("Can't get primary buffer format\n");
-			} else {
-				_TRACE("primary format:\n");
-				_TRACE("  %u channels\n  %u Hz\n  %u AvgBytesPerSec\n  %u BlockAlign\n  %u bits\n  %u size\n",
-				format.nChannels, format.nSamplesPerSec, format.nAvgBytesPerSec,
-				format.nBlockAlign, format.wBitsPerSample, format.cbSize);
-			}
-		}
-	}
+         hr = IDirectSoundBuffer_SetFormat(prim_buf, &format);
+         if (FAILED(hr))
+            _TRACE("Can't set primary buffer format (%s)\n", ds_err(hr));
 
-        /* setup volume lookup table */
-        linear_to_millibel[0] = DSBVOLUME_MIN;
-        for (v = 1; v < 256; v++)
-           linear_to_millibel[v] = MAX(DSBVOLUME_MIN, DSBVOLUME_MAX + 2000.0*log10(v/255.0));
+         hr = IDirectSoundBuffer_GetFormat(prim_buf, &format, sizeof(format), NULL);
+         if (FAILED(hr)) {
+            _TRACE("Can't get primary buffer format (%s)\n", ds_err(hr));
+         }
+         else {
+            _TRACE("primary format:\n");
+            _TRACE("  %u channels\n  %u Hz\n  %u AvgBytesPerSec\n  %u BlockAlign\n  %u bits\n  %u size\n",
+                   format.nChannels, format.nSamplesPerSec, format.nAvgBytesPerSec,
+                   format.nBlockAlign, format.wBitsPerSample, format.cbSize);
+         }
+      }
+   }
 
-	hr = IDirectSoundBuffer_Lock(prim_buf, 
-						0, 0,
-                                    &lpvPtr1, &dwBytes1, 
-                                    &lpvPtr2, &dwBytes2,
-						DSBLOCK_FROMWRITECURSOR | DSBLOCK_ENTIREBUFFER);
+   /* setup volume lookup table */
+   linear_to_millibel[0] = DSBVOLUME_MIN;
+   for (v = 1; v < 256; v++)
+      linear_to_millibel[v] = MAX(DSBVOLUME_MIN, DSBVOLUME_MAX + 2000.0*log10(v/255.0));
 
-	if (hr != DS_OK) {
-	      _TRACE("Can not lock primary buffer (init)\n");
-	      return -1;
-	}
+   /* fill the primary buffer with zeros */
+   hr = IDirectSoundBuffer_Lock(prim_buf, 0, 0,
+                                &lpvPtr1, &dwBytes1, 
+                                &lpvPtr2, &dwBytes2,
+                                DSBLOCK_FROMWRITECURSOR | DSBLOCK_ENTIREBUFFER);
 
-	memset (lpvPtr1, 0, dwBytes1);
-	if (lpvPtr2 != NULL) memset (lpvPtr2, 0, dwBytes2);
+   if (FAILED(hr)) {
+      _TRACE("Can't lock primary buffer (%s)\n", ds_err(hr));
+      return -1;
+   }
 
-	_digidsbufsize = dwBytes1;
-	if (lpvPtr2 != NULL) _digidsbufsize += dwBytes2;
-	_digidsbufdata = malloc (_digidsbufsize);
-	_digidsbufpos = 0;
-	bufdivs = _digidsbufsize/1024;
+   memset(lpvPtr1, 0, dwBytes1);
+   digidsbufsize = dwBytes1;
 
-	hr = IDirectSoundBuffer_Unlock(prim_buf, lpvPtr1, dwBytes1, lpvPtr2, dwBytes2); 
+   if (lpvPtr2) {
+      memset(lpvPtr2, 0, dwBytes2);
+      digidsbufsize += dwBytes2;
+   }
 
-	if (_digidsbufsize%1024) {
-		_TRACE("Primary buffer is not multiple of 1024, failed\n");
-		return -1;
-	}
+   digidsbufdata = malloc(digidsbufsize);
+   digidsbufpos = 0;
+   bufdivs = digidsbufsize/1024;
 
-	if (_mixer_init((_digidsbufsize / (_bits /8)) / bufdivs, _freq,
-		_stereo, ((_bits == 16) ? 1 : 0),
-		&digi_driver->voices) != 0) {
+   IDirectSoundBuffer_Unlock(prim_buf, lpvPtr1, dwBytes1, lpvPtr2, dwBytes2); 
 
-		      _TRACE("Can not init software mixer\n");
-			return -1;
-	}
+   if (digidsbufsize%1024) {
+      _TRACE("Primary buffer is not multiple of 1024, failed\n");
+      return -1;
+   }
 
-	_mix_some_samples((unsigned long) _digidsbufdata, 0, 1);
-	LOCK_FUNCTION (digi_directsound_mixer_callback);
+   if (_mixer_init((digidsbufsize / (_bits /8)) / bufdivs, _freq,
+                   _stereo, ((_bits == 16) ? 1 : 0), &digi_driver->voices) != 0) {
+      _TRACE("Can't init software mixer\n");
+      return -1;
+   }
 
-        /* get primary buffer volume */
-        IDirectSoundBuffer_GetVolume(prim_buf, &initial_volume);
-        prim_buf_vol = initial_volume;
+   _mix_some_samples((unsigned long)digidsbufdata, 0, 1);
 
-        /* start playing */
-        /* install_int(digi_directsound_mixer_callback, BPS_TO_TIMER(50)); */
-        dbgtid = timeSetEvent(20, 10, digi_directsound_mixer_callback, 0, TIME_PERIODIC);
-        IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
+   /* get primary buffer volume */
+   IDirectSoundBuffer_GetVolume(prim_buf, &initial_volume);
+   prim_buf_vol = initial_volume;
+
+   /* start playing */
+   /* install_int(digi_directsound_mixer_callback, BPS_TO_TIMER(50)); */
+   dbgtid = timeSetEvent(20, 10, digi_directsound_mixer_callback, 0, TIME_PERIODIC);
+   IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
 	
-	return 0;
+   return 0;
 
-Error:
-	_TRACE("digi_directsound_init failed\n");
-	digi_directsound_exit(0);
-	return -1;
+ Error:
+   _TRACE("digi_directsound_init() failed\n");
+   digi_directsound_exit(0);
+   return -1;
 }
 
 
 
 /* digi_directsound_exit:
- *  Closes DirectX
+ *  closes DirectSound
  */
 static void digi_directsound_exit(int input)
 {
-	if (dbgtid) timeKillEvent (dbgtid);
-	if (_digidsbufdata != NULL) { free (_digidsbufdata); _digidsbufdata = NULL; }
+   if (input) {
+      digi_directsound_capture_exit();
+      return;
+   }
+	
+   if (dbgtid)
+      timeKillEvent(dbgtid);
 
-	/* destroy primary buffer */
-	if (prim_buf) {
-                /* restore primary buffer initial volume */
-                IDirectSoundBuffer_SetVolume(prim_buf, initial_volume);
+   if (digidsbufdata) {
+      free(digidsbufdata);
+      digidsbufdata = NULL;
+   }
 
-		IDirectSoundBuffer_Release(prim_buf);
-		prim_buf = NULL;
-	}
+   /* destroy primary buffer */
+   if (prim_buf) {
+      /* restore primary buffer initial volume */
+      IDirectSoundBuffer_SetVolume(prim_buf, initial_volume);
 
-	/* shutdown DirectSound */
-	if (directsound) {
-		IDirectSound_Release(directsound);
-		directsound = NULL;
-	}
+      IDirectSoundBuffer_Release(prim_buf);
+      prim_buf = NULL;
+   }
+
+   /* shutdown DirectSound */
+   if (directsound) {
+      IDirectSound_Release(directsound);
+      directsound = NULL;
+   }
 }
 
-/* digi_directsound_buffer_size:
- *  return size of buffer in samples
- */
-static int digi_directsound_buffer_size(void)
-{
-	return _digidsbufsize / (_bits / 8) / (_stereo ? 2 : 1);
-}
 
 
 /* digi_directsound_mixer_volume:
- *  Sets mixer volume
+ *  sets mixer volume
  */
 static int digi_directsound_mixer_volume(int volume)
 {
@@ -456,33 +515,44 @@ static int digi_directsound_mixer_volume(int volume)
 
 
 
+/* digi_directsound_buffer_size:
+ *  returns size of buffer in samples
+ */
+static int digi_directsound_buffer_size(void)
+{
+   return digidsbufsize / (_bits / 8) / (_stereo ? 2 : 1);
+}
+
+
+
 /* digi_directsound_detect:
- *  Detects DirectSound.
+ *  detects DirectSound
  */
 static int digi_directsound_detect(int input)
 {
-HRESULT hr;
-int id;
+   HRESULT hr;
+   int id;
 
-	if (input) return 0;
+   /* deduce our device number from the driver ID code */
+   id = ((digi_driver->id >> 8) & 0xFF) - 'A';
 
-	if (directsound == NULL) {
-		/* deduce our device number from the driver ID code */
-		id = ((digi_driver->id >> 8) & 0xFF) - 'A';
+   if (input)
+      return digi_directsound_capture_detect(driver_guids[id]);
 
-		/* initialize DirectSound interface */
-		hr = DirectSoundCreate(driver_guids[id], &directsound, NULL);
-		if (FAILED(hr)) {
-			_TRACE("DirectSound interface creation failed during detect.\n");
-			return 0;
-		}
+   if (!directsound) {
+      /* initialize DirectSound interface */
+      hr = DirectSoundCreate(driver_guids[id], &directsound, NULL);
+      if (FAILED(hr)) {
+         _TRACE("DirectSound interface creation failed during detect (%s)\n", ds_err(hr));
+         return 0;
+      }
 
-		_TRACE("DirectSound interface successfully created.\n");
+      _TRACE("DirectSound interface successfully created\n");
 
-		/* release DirectSound */
-		IDirectSound_Release(directsound);
-		directsound = NULL;
-	}
+      /* release DirectSound */
+      IDirectSound_Release(directsound);
+      directsound = NULL;
+   }
 
-	return 1;
+   return 1;
 }

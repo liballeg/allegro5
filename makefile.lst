@@ -173,8 +173,9 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wddovl.c \
 	src/win/wddwin.c \
 	src/win/update.s \
-	src/win/wdsound.c \
+	src/win/wdsinput.c \
 	src/win/wdsndmix.c \
+	src/win/wdsound.c \
 	src/win/wsndwo.c \
 	src/win/wdxver.c \
 	src/win/wdispsw.c \

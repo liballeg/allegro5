@@ -24,7 +24,6 @@
 #include "allegro.h"
 #include "allegro/aintern.h"
 #include "allegro/aintwin.h"
-#include "wddraw.h"
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile
@@ -44,9 +43,6 @@ static void sys_directx_restore_console_state(void);
 static int sys_directx_desktop_color_depth(void);
 static void sys_directx_yield_timeslice(void);
 static int sys_directx_trace_handler(AL_CONST char *msg);
-static _DRIVER_INFO *sys_directx_timer_drivers(void);
-static _DRIVER_INFO *sys_directx_keyboard_drivers(void);
-
 
 
 /* the main system driver for running under DirectX */
@@ -90,8 +86,8 @@ SYSTEM_DRIVER system_directx =
    NULL                         /* AL_METHOD(_DRIVER_INFO *, timer_drivers, (void)); */
 };
 
-
 static char sys_directx_desc[64];
+
 
 _DRIVER_INFO _system_driver_list[] =
 {
@@ -102,18 +98,20 @@ _DRIVER_INFO _system_driver_list[] =
 
 
 /* general vars */
-static CRITICAL_SECTION critical_section;
-static RECT wnd_rect;
 HINSTANCE allegro_inst = NULL;
 HANDLE allegro_thread = NULL;
 int _dx_ver;
+
+/* internals */
+static CRITICAL_SECTION critical_section;
+static RECT wnd_rect;
 
 
 
 /* sys_directx_init:
  *  Top level system driver wakeup call.
  */
-static int sys_directx_init()
+static int sys_directx_init(void)
 {
    char tmp[64];
    unsigned long win_ver;
@@ -129,7 +127,8 @@ static int sys_directx_init()
    current_thread = GetCurrentThread();
    current_process = GetCurrentProcess();
    DuplicateHandle(current_process, current_thread,
-      current_process, &allegro_thread, 0, FALSE, DUPLICATE_SAME_ACCESS);
+                   current_process, &allegro_thread,
+                   0, FALSE, DUPLICATE_SAME_ACCESS);
 
    /* get versions */
    _dx_ver = get_dx_ver();
@@ -149,7 +148,7 @@ static int sys_directx_init()
    usprintf(sys_directx_desc, uconvert_ascii("DirectX %u.%x", tmp), _dx_ver >> 8, _dx_ver & 0xff);
    system_directx.desc = sys_directx_desc;
 
-   /* setup critical section for _enter/_exit_critical */
+   /* setup general critical section */
    InitializeCriticalSection(&critical_section);
 
    /* install a Windows specific trace handler */
@@ -175,7 +174,7 @@ static int sys_directx_init()
 /* sys_directx_exit:
  *  The end of the world...
  */
-static void sys_directx_exit()
+static void sys_directx_exit(void)
 {
    /* unhook or close window */
    exit_directx_window();
@@ -195,7 +194,7 @@ static void sys_directx_exit()
 
 
 /* sys_directx_get_executable_name:
- *  Return full path to the current executable.
+ *  Returns full path to the current executable.
  */
 static void sys_directx_get_executable_name(char *output, int size)
 {
@@ -228,7 +227,7 @@ static void sys_directx_get_executable_name(char *output, int size)
 
 
 /* sys_directx_set_window_title:
- *  Alter the application title.
+ *  Alters the application title.
  */
 static void sys_directx_set_window_title(AL_CONST char *name)
 {
@@ -251,8 +250,9 @@ static int sys_directx_set_window_close_button(int enable)
    /* and the system menu handle */
    sys_menu = GetSystemMenu(allegro_wnd, FALSE);
 
-   /* disable or enable the no_close_button bit flag */
-   /* and close menu option */
+   /* disable or enable the no_close_button flag
+    * and the close menu option
+    */
    if (enable) {
       class_style &= ~CS_NOCLOSE;
       EnableMenuItem(sys_menu, SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
@@ -265,8 +265,9 @@ static int sys_directx_set_window_close_button(int enable)
    /* change the class to the new style */
    SetClassLong(allegro_wnd, GCL_STYLE, class_style);
 
-   /* and we redraw the whole window to see the changes in the button */
-   /* note we use this because UpdateWindow only works for the client area */
+   /* redraw the whole window to display the changes in the button
+    * note we use this because UpdateWindow() only works for the client area
+    */
    RedrawWindow(allegro_wnd, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
 
    return 0;
@@ -285,7 +286,7 @@ static void sys_directx_set_window_close_hook(void (*proc)(void))
 
 
 /* sys_directx_message:
- *  Display a message.
+ *  Displays a message.
  */
 static void sys_directx_message(AL_CONST char *msg)
 {
@@ -311,7 +312,7 @@ static void sys_directx_message(AL_CONST char *msg)
 
 
 /* sys_directx_assert
- *  handle assertions
+ *  handles assertions
  */
 static void sys_directx_assert(AL_CONST char *msg)
 {
@@ -321,7 +322,7 @@ static void sys_directx_assert(AL_CONST char *msg)
 
 
 /* sys_directx_save_console_state:
- *  safe window size
+ *  safes window size
  */
 static void sys_directx_save_console_state(void)
 {
@@ -331,7 +332,7 @@ static void sys_directx_save_console_state(void)
 
 
 /* sys_directx_restore_console_state:
- *  restore old window size
+ *  restores old window size
  */
 static void sys_directx_restore_console_state(void)
 {
@@ -344,18 +345,22 @@ static void sys_directx_restore_console_state(void)
 
 
 /* sys_directx_desktop_color_depth:
- *  Returns the current desktop color depth.
+ *  returns the current desktop color depth
  */
 static int sys_directx_desktop_color_depth(void)
 {
-/*   DEVMODE display_mode;
-
-   display_mode.dmSize = sizeof(DEVMODE);
-   display_mode.dmDriverExtra = 0;
-   if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &display_mode) == 0)
-      return (0);
-
-   return (display_mode.dmBitsPerPel);*/
+   /* The regular way of retrieving the desktop
+    * color depth is broken under Windows 95:
+    *
+    *   DEVMODE display_mode;
+    *
+    *   display_mode.dmSize = sizeof(DEVMODE);
+    *   display_mode.dmDriverExtra = 0;
+    *   if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &display_mode) == 0)
+    *      return 0;
+    *
+    *   return display_mode.dmBitsPerPel;
+    */
 
    HDC dc;
    int depth;
@@ -370,7 +375,7 @@ static int sys_directx_desktop_color_depth(void)
 
 
 /* sys_directx_yield_timeslice:
- *  Yields remaining timeslice portion to the system
+ *  yields remaining timeslice portion to the system
  */
 static void sys_directx_yield_timeslice(void)
 {
@@ -380,7 +385,7 @@ static void sys_directx_yield_timeslice(void)
 
 
 /* sys_directx_trace_handler
- *  handle trace output
+ *  handles trace output
  */
 static int sys_directx_trace_handler(AL_CONST char *msg)
 {
@@ -418,6 +423,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
       free(argbuf);
       return 1;
    }
+
    i = 0;
 
    /* parse commandline into argc/argv format */
@@ -475,15 +481,9 @@ char *win_err_str(long err)
 {
    static char msg[256];
 
-   FormatMessage(
-		   FORMAT_MESSAGE_FROM_SYSTEM,
-		   NULL,
-		   err,
-		   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		   (LPTSTR) & msg,
-		   0,
-		   NULL
-       );
+   FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err,
+                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                 (LPTSTR)&msg, 0, NULL);
 
    return msg;
 }
@@ -491,6 +491,7 @@ char *win_err_str(long err)
 
 
 /* _enter_critical:
+ *  requires exclusive ownership on the code
  */
 void _enter_critical(void)
 {
@@ -500,6 +501,7 @@ void _enter_critical(void)
 
 
 /* _exit_critical:
+ *  releases exclusive ownership on the code
  */
 void _exit_critical(void)
 {
@@ -509,7 +511,7 @@ void _exit_critical(void)
 
 
 /* thread_safe_trace:
- *  output trace message inside threads
+ *  outputs trace message inside threads
  */
 void thread_safe_trace(char *msg,...)
 {
