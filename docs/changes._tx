@@ -1759,7 +1759,7 @@ Changes from 2.2 to 3.0 beta (Nov 1997)
    for the grabber.
 <li>
    Added support for UK and AZERTY keyboard layouts. More can easily be 
-   added if you send me the appropriate scancode->ASCII mapping tables...
+   added if you send me the appropriate scancode -&gt ASCII mapping tables...
 <li>
    Added get_align_matrix(), qtranslate_matrix(), and qscale_matrix() 
    functions.
