@@ -1126,8 +1126,10 @@ functions like the djgpp uclock() routine.
    of which there are 1193181 a second. You can convert from other time 
    formats to hardware clock ticks with the macros:
 <pre>
-      SECS_TO_TIMER(secs)  - give the number of seconds between each tick
-      MSEC_TO_TIMER(msec)  - give the number of milliseconds between ticks
+      SECS_TO_TIMER(secs)  - give the number of seconds between
+                             each tick
+      MSEC_TO_TIMER(msec)  - give the number of milliseconds
+                             between ticks
       BPS_TO_TIMER(bps)    - give the number of ticks each second
       BPM_TO_TIMER(bpm)    - give the number of ticks per minute
 </pre>
@@ -1156,8 +1158,8 @@ functions like the djgpp uclock() routine.
    so you need to make sure you lock all the memory (both code and data) 
    that is touched inside timer routines. Allegro will lock everything it 
    uses, but you are responsible for locking your handler functions. The 
-   macros LOCK_VARIABLE(variable), END_OF_FUNCTION(function_name), 
-   END_OF_STATIC_FUNCTTION(function_name), and LOCK_FUNCTION(function_name) 
+   macros LOCK_VARIABLE (variable), END_OF_FUNCTION (function_name),
+   END_OF_STATIC_FUNCTION (function_name), and LOCK_FUNCTION (function_name)
    can be used to simplify this task. For example, if you want an interrupt 
    handler that increments a counter variable, you should write:
 <pre>
@@ -1553,7 +1555,8 @@ Joystick routines
 <pre>
    typedef struct JOYSTICK_INFO
    {
-      int flags;                       - status flags for this joystick
+      int flags;                       - status flags for this
+                                         joystick
       int num_sticks;                  - how many stick inputs?
       int num_buttons;                 - how many buttons?
       JOYSTICK_STICK_INFO stick[n];    - stick state information
@@ -1565,7 +1568,8 @@ Joystick routines
    typedef struct JOYSTICK_BUTTON_INFO
    {
       int b;                           - boolean on/off flag
-      char *name;                      - description of this button
+      char *name;                      - description of this
+                                         button
    } JOYSTICK_BUTTON_INFO;
 </pre>
    You may wish to display the button names as part of an input 
@@ -1586,10 +1590,13 @@ Joystick routines
 <pre>
    typedef struct JOYSTICK_STICK_INFO
    {
-      int flags;                       - status flags for this input
-      int num_axis;                    - how many axis do we have?
+      int flags;                       - status flags for this
+                                         input
+      int num_axis;                    - how many axis do we
+                                         have?
       JOYSTICK_AXIS_INFO axis[n];      - axis state information
-      char *name;                      - description of this input
+      char *name;                      - description of this
+                                         input
    } JOYSTICK_STICK_INFO;
 </pre>
    A single joystick may provide several different stick inputs, but you can 
@@ -2394,7 +2401,8 @@ will not be known, so the file may be converted wrongly.
    total conversion, so that all images will be loaded in the appropriate 
    format for the current video mode. Valid bit flags are:
 <pre>
-      COLORCONV_NONE                // disable all format conversions
+      COLORCONV_NONE                // disable all format
+                                    // conversions
       COLORCONV_8_TO_15             // expand 8 bits to 15 bits
       COLORCONV_8_TO_16             // expand 8 bits to 16 bits
       COLORCONV_8_TO_24             // expand 8 bits to 24 bits
@@ -2420,22 +2428,32 @@ will not be known, so the file may be converted wrongly.
       COLORCONV_32A_TO_16           // reduce 32 bit RGBA to 16 bits
       COLORCONV_32A_TO_24           // reduce 32 bit RGBA to 24 bits
       COLORCONV_DITHER_PAL          // dither when reducing to 8 bit
-      COLORCONV_DITHER_HI           // dither when reducing to hicolor
+      COLORCONV_DITHER_HI           // dither when reducing to
+                                    // hicolor
 </pre>
    For convenience, the following macros can be used to select common 
    combinations of these flags:
 <pre>
-      COLORCONV_EXPAND_256          // expand 256 colors to hi/truecolor
-      COLORCONV_REDUCE_TO_256       // reduce hi/truecolor to 256 colors
-      COLORCONV_EXPAND_15_TO_16     // expand 15 bit hicolor to 16 bits
-      COLORCONV_REDUCE_16_TO_15     // reduce 16 bit hicolor to 15 bits
-      COLORCONV_EXPAND_HI_TO_TRUE   // expand 15/16 bits to 24/32 bits
-      COLORCONV_REDUCE_TRUE_TO_HI   // reduce 24/32 bits to 15/16 bits
-      COLORCONV_24_EQUALS_32        // convert between 24 and 32 bits
+      COLORCONV_EXPAND_256          // expand 256 colors to
+                                    // hi/truecolor
+      COLORCONV_REDUCE_TO_256       // reduce hi/truecolor to 256
+                                    // colors
+      COLORCONV_EXPAND_15_TO_16     // expand 15 bit hicolor to
+                                    // 16 bits
+      COLORCONV_REDUCE_16_TO_15     // reduce 16 bit hicolor to
+                                    // 15 bits
+      COLORCONV_EXPAND_HI_TO_TRUE   // expand 15/16 bits to
+                                    // 24/32 bits
+      COLORCONV_REDUCE_TRUE_TO_HI   // reduce 24/32 bits to
+                                    // 15/16 bits
+      COLORCONV_24_EQUALS_32        // convert between 24 and
+                                    // 32 bits
       COLORCONV_TOTAL               // everything to current format
-      COLORCONV_PARTIAL             // convert 15 &lt-&gt 16 and 24 &lt-&gt 32
+      COLORCONV_PARTIAL             // convert 15 &lt-&gt 16 and
+                                    // 24 &lt-&gt 32
       COLORCONV_MOST                // all but hi/truecolor &lt-&gt 256
-      COLORCONV_DITHER              // dither during all color reductions
+      COLORCONV_DITHER              // dither during all color
+                                    // reductions
 </pre>
    If you enable the COLORCONV_DITHER flag, dithering will be performed 
    whenever truecolor graphics are converted into a hicolor or paletted 
@@ -2697,7 +2715,7 @@ routines!
    from truecolor to hicolor. In addition to calling these functions 
    directly, hicolor dithering can be automatically enabled when loading 
    graphics by calling the set_color_conversion() function, for example 
-   set_color_conversion(COLORCONV_REDUCE_TRUE_TO_HI | COLORCONV_DITHER).
+   set_color_conversion (COLORCONV_REDUCE_TRUE_TO_HI | COLORCONV_DITHER).
 
 @@int @getr8(int c);
 @@int @getg8(int c);
@@ -3105,7 +3123,7 @@ bitmap.
    Like rotate_sprite(), but stretches or shrinks the image at the same time 
    as rotating it.
 
-@\void @rotate_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
+@@void @rotate_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
 @xref rotate_sprite, pivot_sprite_v_flip
    Like rotate_sprite, but also flips the image vertically.  To flip 
    horizontally, use this routine but add fixtoi(128) to the angle.  To flip
@@ -3514,7 +3532,8 @@ Transparency and patterned drawing
    the text output, blitting, or sprite drawing functions. The mode should 
    be one of the values:
 <pre>
-      DRAW_MODE_SOLID               - the default, solid color drawing
+      DRAW_MODE_SOLID               - the default, solid color
+                                      drawing
       DRAW_MODE_XOR                 - exclusive-or drawing
       DRAW_MODE_COPY_PATTERN        - multicolored pattern fill
       DRAW_MODE_SOLID_PATTERN       - single color pattern fill
@@ -3568,8 +3587,8 @@ Transparency and patterned drawing
 @@void @xor_mode(int on);
 @xref drawing_mode
    This is a shortcut for toggling xor drawing mode on and off. Calling 
-   xor_mode(TRUE) is equivalent to drawing_mode(DRAW_MODE_XOR, NULL, 0, 0); 
-   Calling xor_mode(FALSE) is equivalent to 
+   xor_mode(TRUE) is equivalent to drawing_mode (DRAW_MODE_XOR, NULL, 0, 0);
+   Calling xor_mode(FALSE) is equivalent to
    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 
 @@void @solid_mode();
@@ -4298,10 +4317,10 @@ everything to sound. You may also want to modify a couple of fields from the
 sample structure:
 <pre>
    int priority;
-      Ranging 0-255 (default 128), this controls how voices are allocated if 
-      you attempt to play more than the driver can handle. This may be used 
-      to ensure that the less important sounds are cut off while the 
-      important ones are preserved.
+      Ranging 0-255 (default 128), this controls how voices are
+      allocated if you attempt to play more than the driver can handle.
+      This may be used to ensure that the less important sounds are
+      cut off while the important ones are preserved.
 
    unsigned long loop_start;
    unsigned long loop_end;
@@ -4986,8 +5005,8 @@ the value F_NOPACK_MAGIC.
    counts to prevent reading past the end of the chunk. To write a chunk to 
    the file f, use the code:
 <pre>
-      /* assumes f is a PACKFILE * which has been opened in write mode */
-      f = pack_fopen_chunk(f, pack);
+      /* assumes f is a PACKFILE * which has been opened */
+      f = pack_fopen_chunk(f, pack);    /* in write mode */
       write some data to f
       f = pack_fclose_chunk(f);
 </pre>
@@ -4999,8 +5018,8 @@ the value F_NOPACK_MAGIC.
 
    To read the chunk, use the code:
 <pre>
-      /* assumes f is a PACKFILE * which has been opened in read mode */
-      f = pack_fopen_chunk(f, FALSE);
+      /* assumes f is a PACKFILE * which has been opened */
+      f = pack_fopen_chunk(f, FALSE);    */ in read mode */
       read data from f
       f = pack_fclose_chunk(f);
 </pre>
@@ -5647,9 +5666,11 @@ typedef struct DIALOG
    int x, y, w, h;                  - position and size of the object
    int fg, bg;                      - foreground and background colors
    int key;                         - ASCII keyboard shortcut
-   int flags;                       - flags about the status of the object
+   int flags;                       - flags about the status of
+                                      the object
    int d1, d2;                      - whatever you want to use them for
-   void *dp, *dp2, *dp3;            - pointers to more object-specific data
+   void *dp, *dp2, *dp3;            - pointers to more
+                                      object-specific data
 } DIALOG;
 </pre>
 The array should end with an object which has the proc pointer set to NULL.
@@ -5663,7 +5684,8 @@ The flags field may contain any combination of the bit flags:
    D_HIDDEN        - this object is hidden and inactive
    D_DISABLED      - this object is greyed-out and inactive
    D_DIRTY         - this object needs to be redrawn
-   D_INTERNAL      - don't use this! It is for internal use by the library...
+   D_INTERNAL      - don't use this! It is for internal use by the
+                     library...
    D_USER          - any powers of two above this are free for your own use
 </pre>
 Each object is controlled by a dialog procedure, which is stored in the proc 
@@ -6490,7 +6512,8 @@ DOS specifics
       DIGI_SB              - Sound Blaster (autodetect type)
       DIGI_SB10            - SB 1.0 (8 bit mono single shot dma)
       DIGI_SB15            - SB 1.5 (8 bit mono single shot dma)
-      DIGI_SB20            - SB 2.0 (8 bit mono auto-initialised dma)
+      DIGI_SB20            - SB 2.0 (8 bit mono auto-initialised
+                             dma)
       DIGI_SBPRO           - SB Pro (8 bit stereo)
       DIGI_SB16            - SB16 (16 bit stereo)
       DIGI_AUDIODRIVE      - ESS AudioDrive
@@ -6505,8 +6528,10 @@ DOS specifics
       MIDI_NONE            - no MIDI sound
       MIDI_ADLIB           - Adlib or SB FM synth (autodetect type)
       MIDI_OPL2            - OPL2 synth (mono, used in Adlib and SB)
-      MIDI_2XOPL2          - dual OPL2 synths (stereo, used in SB Pro-I)
-      MIDI_OPL3            - OPL3 synth (stereo, SB Pro-II and above)
+      MIDI_2XOPL2          - dual OPL2 synths (stereo, used in
+                             SB Pro-I)
+      MIDI_OPL3            - OPL3 synth (stereo, SB Pro-II
+                             and above)
       MIDI_SB_OUT          - SB MIDI interface
       MIDI_MPU             - MPU-401 MIDI interface
       MIDI_DIGMID          - sample-based software wavetable player
@@ -7249,6 +7274,26 @@ makefiles also provide some special pseudo-targets:
 <li>
    'docs'<br>
    Converts the documentation files from the ._tx sources.
+<li>
+   'docs-dvi' (unix only)<br>
+   Creates the allegro.dvi device independant documentation file. This is
+   not a default target, since you need the texi2dvi tool to create it. The
+   generated file is especially prepared to be printed on paper.
+<li>
+  'docs-ps' or 'docs-gzipped-ps' (unix only)<br>
+   Creates a postcript file from the previously generated dvi file. This is
+   not a default target, since you need the texi2dvi and dvips tools to
+   create it. The second target compresses the generated postscript file.
+   The generated file is especialy prepared to be printed on paper
+<li>
+   'install-man' or 'install-gzipped-man' (unix only)<br>
+   This generates unix man pages for each Allegro function or variable and
+   installs them. The second target compresses the manual pages before
+   installing them.
+<li>
+   'install-info' or 'install-gzipped-info' (unix only)<br>
+   Converts the documentation to info format and installs it. The second
+   target compresses the info file before installing it.
 <li>
    'clean'<br>
    Removes generated object and library files, either to recover disk space 

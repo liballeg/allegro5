@@ -11,9 +11,9 @@
 Changes from 3.11 to current
 <ul><li>
    3.9.34: Grzegorz Adam Hankiewicz updated the documentation and the
-   makedoc program to produce better .texi output. The new output works
+   makedoc program to produce better .texi output. The new version works
    very well with the texi2dvi program, which produces fine ready to print
-   device independent output.
+   device independent output. Also documented the new unix makefile targets.
 <li>
    3.9.33: Isaac Cruz moved Windows bitmap locking to a separate .S file,
    changed the update logic for the windowed driver, and added an accelerated
@@ -642,10 +642,10 @@ Changes from 3.11 to current
    support, added support for keyconf to use a non-standard font, and added 
    the Latin Extended-A characters (U+0100 to U+017F) to the default font.
 <li>
-   3.9.19: Grzegorz Hankiewicz updated the Spanish translation with UTF-8 
-   format (ie. properly accented) strings. Converted the setup program font 
-   into Latin-1 ordering so that this will display correctly. Fixed bug with 
-   dat2s not correctly converting the resulting multiple-range font.
+   3.9.19: Grzegorz Adam Hankiewicz updated the Spanish translation with
+   UTF-8 format (ie. properly accented) strings. Converted the setup program
+   font into Latin-1 ordering so that this will display correctly. Fixed bug
+   with dat2s not correctly converting the resulting multiple-range font.
 <li>
    3.9.19: Chris La Mantia made some cosmetic fixes to the d_slider_proc() 
    GUI object.
@@ -656,7 +656,8 @@ Changes from 3.11 to current
    the Unicode support).
 <li>
    3.9.19: made some changes to setup.c so that it can easily be embedded 
-   into other programs (thanks to Grzegorz Hankiewicz for the suggestion).
+   into other programs (thanks to Grzegorz Adam Hankiewicz for the
+   suggestion).
 <li>
    3.9.18: added support for 32 bit RGBA images. You can now read TGA files 
    with an alpha channel into the grabber, or you can import a normal image 
@@ -1212,8 +1213,8 @@ Changes from 3.0 to 3.1 (Jan 1999)
 <li>
    Added a shift+tab reverse focus movement key to the GUI routines.
 <li>
-   Grzegorz Hankiewicz added a new example showing how to create and use a 
-   custom color mapping table.
+   Grzegorz Adam Hankiewicz added a new example showing how to create and
+   use a custom color mapping table.
 <li>
    Totally revamped the joystick system (better API and new driver 
    structure).

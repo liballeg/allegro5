@@ -200,6 +200,12 @@ AUTHORS: $(srcdir)/docs/thanks._tx $(MAKEDOC)
 THANKS: $(srcdir)/docs/thanks._tx $(MAKEDOC)
 	$(MAKEDOC) -part -ascii THANKS $(srcdir)/docs/thanks._tx
 
+allegro.dvi: $(srcdir)/docs/allegro.texi
+	texi2dvi -c $<
+
+%.ps: %.dvi
+	dvips -o $@ $<
+
 # Dependencies and rules for building libraries and simple programs.
 include makefile.dep
 
@@ -235,10 +241,23 @@ mini-install: install-headers install-lib
 
 full-install: install-headers install-programs install-lib
 	@echo ""
+	@echo "Run make docs-dvi if you wish to generate dvi documentation (you need texi2dvi)"
 	@echo "Run make install-man if you wish to install the man pages"
 	@echo "Run make install-info if you wish to install the info documentation"
 	@echo "You may conserve space by instead running make install-gzipped-man"
 	@echo "and/or make install-gzipped-info"
+
+docs-dvi: $(srcdir)/allegro.dvi
+	@echo "Device independant documentation generated: allegro.dvi"
+	@echo "Run make docs-ps if you wish to generate postscript documentation (you need dvips)"
+
+docs-ps: $(srcdir)/allegro.ps
+	@echo "Postscript documentation generated: allegro.ps"
+	@echo "You can compress it with gzip or running make docs-gzipped-ps"
+
+docs-gzipped-ps: $(srcdir)/allegro.ps
+	gzip -9 allegro.ps
+	@echo "Compressed postscript documentation generated: allegro.ps.gz"
 
 install-lib: lib
 	$(mkinstalldirs) $(libdir)
@@ -390,7 +409,7 @@ depend:
 	$(SHELL) -c 'cd $(srcdir) && misc/depnexe.sh $(ALLEGRO_NOLIB_EXE_SOURCES)' >>makefile.dep
 	@echo "Dependency generation completed!"
 
-.PHONY: default all lib programs docs \
+.PHONY: default all lib programs docs docs-dvi docs-ps docs-gzipped-ps \
 clean distclean veryclean maintainer-clean \
 install full-install mini-install \
 install-lib install-headers install-programs install-info \
