@@ -22,6 +22,8 @@ EXE = .exe
 OBJ = .obj
 HTML = html
 
+PLATFORM_DIR = obj/msvc
+
 ifdef STATICLINK
 
 # -------- link as a static library --------
@@ -257,24 +259,9 @@ else
 	@echo UPX_BIN to point to upx.exe.
 endif
 
+# test assembler capabilities.
 
-
-# -------- autodetect whether the assembler supports MMX instructions --------
-
-.PHONY: mmxtest
-
-mmxtest:
-	echo // no MMX > obj\msvc\mmx.h
-	echo .text > obj\msvc\mmxtest.s
-	echo emms >> obj\msvc\mmxtest.s
-	echo maskmovq %%mm3, %%mm1 >> obj\msvc\mmxtest.s
-	gcc -c obj/msvc/mmxtest.s -o obj/msvc/mmxtest.o
-	echo #define ALLEGRO_MMX > obj\msvc\mmx.h
-
-obj/msvc/mmx.h:
-	@echo Testing for MMX assembler support...
-	-$(MAKE) mmxtest
-
+include makefile.tst
 
 # -------- finally, we get to the fun part... --------
 
@@ -334,7 +321,7 @@ endef
 obj/msvc/asmdef.inc: obj/msvc/asmdef.exe
 	obj/msvc/asmdef.exe obj/msvc/asmdef.inc
 
-obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/msvc/mmx.h $(RUNNER)
+obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/msvc/asmcapa.h $(RUNNER)
 	$(RUNNER) cl @ -nologo $(WFLAGS) -I. -I./include -Foobj/msvc/asmdef.obj -Feobj/msvc/asmdef.exe src/i386/asmdef.c
 
 obj/msvc/runner.exe: src/misc/runner.c

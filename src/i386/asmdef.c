@@ -28,8 +28,8 @@
    #include "allegro/aintdos.h"
 #endif
 
-#ifdef ALLEGRO_MMX_HEADER
-   #include ALLEGRO_MMX_HEADER
+#ifdef ALLEGRO_ASMCAPA_HEADER
+   #include ALLEGRO_ASMCAPA_HEADER
 #endif
 
 typedef struct {

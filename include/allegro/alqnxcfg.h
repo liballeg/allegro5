@@ -49,4 +49,4 @@
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/alqnx.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/aintqnx.h"
-#define ALLEGRO_MMX_HEADER       "obj/qnx/mmx.h"
+#define ALLEGRO_ASMCAPA_HEADER   "obj/qnx/asmcapa.h"

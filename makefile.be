@@ -15,6 +15,8 @@ EXE =
 OBJ = .o
 HTML = html
 
+PLATFORM_DIR = obj/beos
+
 ifdef STATICLINK
 
 # -------- link as a static library --------
@@ -181,21 +183,9 @@ uninstall:
 	@echo All gone!	
 
 
-# -------- autodetect whether the assembler supports MMX instructions --------
+# test assembler capabilities.
 
-.PHONY: mmxtest
-
-mmxtest:
-	echo "// no MMX" > obj/beos/mmx.h
-	echo .text > obj/beos/mmxtest.s
-	echo emms >> obj/beos/mmxtest.s
-	echo maskmovq %mm3, %mm1 >> obj/beos/mmxtest.s
-	gcc -c obj/beos/mmxtest.s -o obj/beos/mmxtest.o
-	echo "#define ALLEGRO_MMX" > obj/beos/mmx.h
-
-obj/beos/mmx.h:
-	@echo Testing for MMX assembler support...
-	-$(MAKE) mmxtest
+include makefile.tst
 
 
 # -------- finally, we get to the fun part... --------
@@ -238,7 +228,7 @@ docs/makedoc: $(OBJ_DIR)/makedoc$(OBJ)
 obj/beos/asmdef.inc: obj/beos/asmdef
 	obj/beos/asmdef obj/beos/asmdef.inc
 
-obj/beos/asmdef: src/i386/asmdef.c include/*.h include/allegro/*.h obj/beos/mmx.h
+obj/beos/asmdef: src/i386/asmdef.c include/*.h include/allegro/*.h obj/beos/asmcapa.h
 	gcc -O $(WFLAGS) -I. -I./include -o obj/beos/asmdef src/i386/asmdef.c
 
 PLUGIN_LIB = lib/beos/lib$(VERY_SHORT_VERSION)dat.a

@@ -28,8 +28,8 @@
 #include "allegro.h"
 #include "allegro/aintern.h"
 
-#ifdef ALLEGRO_MMX_HEADER
-   #include ALLEGRO_MMX_HEADER
+#ifdef ALLEGRO_ASMCAPA_HEADER
+   #include ALLEGRO_ASMCAPA_HEADER
 #endif
 
 #ifdef ALLEGRO_USE_C

@@ -17,6 +17,7 @@ EXE =
 OBJ = .o
 HTML = html
 
+PLATFORM_DIR = obj/qnx
 
 # -------- give a sensible default target for make without any args --------
 
@@ -134,21 +135,9 @@ uninstall:
 	@echo All gone!	
 
 
-# -------- autodetect whether the assembler supports MMX instructions --------
+# test assembler capabilities.
 
-.PHONY: mmxtest
-
-mmxtest:
-	echo // no MMX > obj/qnx/mmx.h
-	echo .text > obj/qnx/mmxtest.s
-	echo emms >> obj/qnx/mmxtest.s
-        echo maskmovq %mm3, %mm1 >> obj/qnx/mmxtest.s
-	gcc -c obj/qnx/mmxtest.s -o obj/qnx/mmxtest.o
-	echo #define ALLEGRO_MMX > obj/qnx/mmx.h
-
-obj/qnx/mmx.h:
-	@echo Testing for MMX assembler support...
-	-$(MAKE) mmxtest
+include makefile.tst
 
 
 # -------- finally, we get to the fun part... --------
@@ -174,7 +163,7 @@ $(OBJ_DIR)/%.o: %.s
 obj/qnx/asmdef.inc: obj/qnx/asmdef
 	obj/qnx/asmdef obj/qnx/asmdef.inc
 
-obj/qnx/asmdef: src/i386/asmdef.c include/*.h include/allegro/*.h obj/qnx/mmx.h
+obj/qnx/asmdef: src/i386/asmdef.c include/*.h include/allegro/*.h obj/qnx/asmcapa.h
 	gcc -O $(WFLAGS) -I. -I./include -o obj/qnx/asmdef src/i386/asmdef.c
 
 obj/qnx/setupdat.s: setup/setup.dat tools/dat2s

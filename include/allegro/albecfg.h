@@ -38,4 +38,4 @@
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/albeos.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/aintbeos.h"
-#define ALLEGRO_MMX_HEADER       "obj/beos/mmx.h"
+#define ALLEGRO_ASMCAPA_HEADER   "obj/beos/asmcapa.h"

@@ -15,6 +15,8 @@ EXE = .exe
 OBJ = .o
 HTML = html
 
+PLATFORM_DIR = obj/mingw32
+
 ifdef CROSSCOMPILE
    UNIX_TOOLS = 1
 endif
@@ -294,30 +296,9 @@ endif
 
 
 
-# -------- autodetect whether the assembler supports MMX instructions --------
+# test assembler capabilities.
 
-.PHONY: mmxtest
-
-mmxtest:
-ifdef UNIX_TOOLS
-	echo // no MMX > obj/mingw32/mmx.h
-	echo .text > obj/mingw32/mmxtest.s
-	echo emms >> obj/mingw32/mmxtest.s
-	echo maskmovq %mm3, %mm1 >> obj/mingw32/mmxtest.s
-	gcc -c obj/mingw32/mmxtest.s -o obj/mingw32/mmxtest.o
-	echo "#define ALLEGRO_MMX" > obj/mingw32/mmx.h
-else
-	echo // no MMX > obj\mingw32\mmx.h
-	echo .text > obj\mingw32\mmxtest.s
-	echo emms >> obj\mingw32\mmxtest.s
-	echo maskmovq %%mm3, %%mm1 >> obj\mingw32\mmxtest.s
-	gcc -c obj/mingw32/mmxtest.s -o obj/mingw32/mmxtest.o
-	echo #define ALLEGRO_MMX > obj\mingw32\mmx.h
-endif # UNIX_TOOLS
-
-obj/mingw32/mmx.h:
-	@echo Testing for MMX assembler support...
-	-$(MAKE) mmxtest
+include makefile.tst
 
 
 # -------- finally, we get to the fun part... --------
@@ -386,7 +367,7 @@ endef
 
 ifdef CROSSCOMPILE
 
-obj/mingw32/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h obj/mingw32/mmx.h
+obj/mingw32/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h obj/mingw32/asmcapa.h
 	gcc $(WFLAGS) -I. -I./include -S -o obj/mingw32/asmdef.s src/i386/asmdef.c
 
 obj/mingw32/asmdef.inc: obj/mingw32/asmdef.s
