@@ -158,7 +158,7 @@ static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int col
 
    _enter_critical();
 
-   bmp = gfx_directx_init(&gfx_directx_accel, TRUE, w, h, v_w, v_h, color_depth);
+   bmp = gfx_directx_init(&gfx_directx_accel, w, h, v_w, v_h, color_depth);
 
    if (bmp) {
       enable_acceleration(&gfx_directx_accel);
@@ -182,7 +182,7 @@ static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int colo
 
    _enter_critical();
 
-   bmp = gfx_directx_init(&gfx_directx_soft, TRUE, w, h, v_w, v_h, color_depth);
+   bmp = gfx_directx_init(&gfx_directx_soft, w, h, v_w, v_h, color_depth);
 
    if (bmp) {
       enable_triple_buffering(&gfx_directx_soft);
@@ -205,7 +205,7 @@ static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int colo
 
    _enter_critical();
 
-   bmp = gfx_directx_init(&gfx_directx_safe, FALSE, w, h, v_w, v_h, color_depth);
+   bmp = gfx_directx_init(&gfx_directx_safe, w, h, v_w, v_h, color_depth);
 
    if (bmp)
       finalize_fullscreen_init();

@@ -52,11 +52,8 @@ int gfx_directx_restore(void)
    while (item) {
       hr = IDirectDrawSurface2_Restore(item->surf);
       if (FAILED(hr)) {
-         /* abort restoring if an unexpected error occurred */
-         if (hr != DDERR_IMPLICITLYCREATED) {
-            _exit_gfx_critical();
-            return -1;
-         }
+         _exit_gfx_critical();
+         return -1;
       }
 
       item = item->next;

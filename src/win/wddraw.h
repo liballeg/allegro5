@@ -46,7 +46,7 @@ AL_VAR(char *, pseudo_surf_mem);
 
 
 /* driver routines */
-AL_FUNC(BITMAP *, gfx_directx_init, (GFX_DRIVER *drv, int flip, int w, int h, int v_w, int v_h, int color_depth));
+AL_FUNC(BITMAP *, gfx_directx_init, (GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int color_depth));
 AL_FUNC(void, gfx_directx_exit, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_sync, (void));
 AL_FUNC(void, gfx_directx_set_palette, (AL_CONST RGB *p, int from, int to, int vsync));
@@ -64,7 +64,7 @@ AL_FUNC(GFX_MODE_LIST *, gfx_directx_fetch_mode_list, (void));
 
 /* driver initialisation and shutdown (from wddraw.c) */
 AL_FUNC(int, init_directx, (void));
-AL_FUNC(int, create_primary, (int flip));
+AL_FUNC(int, create_primary, (void));
 AL_FUNC(int, create_clipper, (HWND hwnd));
 AL_FUNC(int, create_palette, (LPDIRECTDRAWSURFACE2 surf));
 AL_FUNC(int, setup_driver, (GFX_DRIVER * drv, int w, int h, int color_depth));
@@ -115,11 +115,10 @@ AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
 
 
 /* bitmap creation (from wddbmp.c) */
-#define SURF_PRIMARY_COMPLEX  1
-#define SURF_PRIMARY_SINGLE   2
-#define SURF_OVERLAY          3
-#define SURF_SYSTEM           4
-#define SURF_VIDEO            5
+#define SURF_PRIMARY  1
+#define SURF_OVERLAY  2
+#define SURF_VIDEO    3
+#define SURF_SYSTEM   4
 
 AL_FUNC(LPDIRECTDRAWSURFACE2, gfx_directx_create_surface, (int w, int h, LPDDPIXELFORMAT pixel_format, int type));
 AL_FUNC(BITMAP *, make_directx_bitmap, (LPDIRECTDRAWSURFACE2 surf, int w, int h, int id));
