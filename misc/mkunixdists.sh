@@ -55,6 +55,7 @@ echo "Running autoconf"
 	(cd $dir/allegro && autoconf >/dev/null) || error
 echo "Checking version number"
 	basename=$(sed -n -e 's/shared_version = /allegro-/p' $dir/allegro/makefile.ver)
+	basename2=$(sed -n -e 's/shared_version = /allegro-enduser-/p' $dir/allegro/makefile.ver)
 echo "Renaming 'allegro' to '$basename'"
 	mv $dir/allegro $dir/$basename || error
 
@@ -94,7 +95,7 @@ echo "Stripping to form end-user distribution"
 })
 
 # Create the end users' archive
-mktargz $basename-enduser
+mktargz $basename2
 
 
 ################################################################
@@ -109,6 +110,7 @@ mktargz $basename-enduser
 
 rpmdir=
 [ -d /usr/src/redhat ] && rpmdir=/usr/src/redhat
+[ -d /usr/src/packages ] && rpmdir=/usr/src/packages
 [ -d /usr/src/RPM ] && rpmdir=/usr/src/RPM
 [ -d /usr/src/rpm ] && rpmdir=/usr/src/rpm
 
