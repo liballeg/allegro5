@@ -173,7 +173,7 @@ static int mouse_init (void)
 	/* Put Intellimouse into wheel mode */
 	if (intellimouse) {
 		int fd = open (device, O_WRONLY);
-		if (fd > 0) {
+		if (fd >= 0) {
 			wakeup_im (fd);
 			close (fd);
 		}
