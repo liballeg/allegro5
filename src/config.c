@@ -692,7 +692,7 @@ AL_CONST char *get_config_string(AL_CONST char *section, AL_CONST char *name, AL
    }
 
    if (p)
-      return (p->data ? p->data : empty_string);
+      return p->data;
    else
       return def;
 }
