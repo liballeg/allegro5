@@ -7656,9 +7656,9 @@ you must include winalleg.h after allegro.h.
    only by its creation: unlike with win_set_window(), you have no control
    over the window once it has been created (in particular, you are not
    responsible for processing the events). The registered function will be
-   passed a window procedure (WNDPROC) that it must make the procedure of
-   the new window of and it must return a handle to the new window. You
-   can then use the full-featured library in the regular way.
+   passed a window procedure (WNDPROC object) that it must make the 
+   procedure of the new window of and it must return a handle to the new 
+   window. You can then use the full-featured library in the regular way.
 
 @@HDC @win_get_dc(BITMAP *bmp);
    Retrieves a handle to the device context of a DirectX video or system
@@ -7670,15 +7670,15 @@ you must include winalleg.h after allegro.h.
 
 @hnode GDI routines
 
-These GDI routines are a very platform specific thing, to allow drawing 
-Allegro memory bitmaps onto a Windows device context. When you want to use 
-this, you'll have to install the neutral system driver (SYSTEM_NONE) or 
-attach Allegro to an external window with win_set_window().
+The following GDI routines are a very platform specific thing, to allow 
+drawing Allegro memory bitmaps onto a Windows device context. When you want 
+to use this, you'll have to install the neutral system driver (SYSTEM_NONE) 
+or attach Allegro to an external window with win_set_window().
 
 There are two ways to draw your Allegro bitmaps to the Windows GDI. When you 
 are using static bitmaps (for example just some pictures loaded from a 
 datafile), you can convert them to DDB (device-dependent bitmaps) with 
-convert_bitmap_to_hbitmap() and then just use Win32 BitBlt() to draw it.
+convert_bitmap_to_hbitmap() and then just use Win32's BitBlt() to draw it.
 
 When you are using dynamic bitmaps (for example some things which react to 
 user input), it's better to use set_palette_to_hdc() and blit_to_hdc() 
