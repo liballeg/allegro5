@@ -58,7 +58,7 @@ static LPDIRECTSOUND directsound = NULL;
 static LPDIRECTSOUNDBUFFER prim_buf = NULL;
 static long int initial_volume;
 static int _freq, _bits, _stereo;
-static unsigned char allegro_to_decibel[256];
+static int linear_to_millibel[256];
 static int _digidsbufsize;
 static unsigned char * _digidsbufdata;
 static int _digidsbufpos;
@@ -346,11 +346,10 @@ int v, id;
 		}
 	}
 
-	allegro_to_decibel[0] = 0;
-	for (v = 1; v < 256; v++)
-
-	/* 255 / log10(255) ~ 106 */
-	allegro_to_decibel[v] = (unsigned char)(106.0 * log10(v));
+        /* setup volume lookup table */
+        linear_to_millibel[0] = DSBVOLUME_MIN;
+        for (v = 1; v < 256; v++)
+           linear_to_millibel[v] = MAX(DSBVOLUME_MIN, DSBVOLUME_MAX + 2000.0*log10(v/255.0));
 
 	hr = IDirectSoundBuffer_Lock(prim_buf, 
 						0, 0,
@@ -447,14 +446,12 @@ static int digi_directsound_buffer_size(void)
  */
 static int digi_directsound_mixer_volume(int volume)
 {
-	if (prim_buf) {
-		volume = allegro_to_decibel[MID(0, volume, 255)];
-        prim_buf_vol = DSBVOLUME_MIN + volume * (DSBVOLUME_MAX - DSBVOLUME_MIN) / 255;
+   if (prim_buf) {
+      prim_buf_vol = linear_to_millibel[MID(0, volume, 255)];
+      IDirectSoundBuffer_SetVolume(prim_buf, prim_buf_vol); 
+   }
 
-        IDirectSoundBuffer_SetVolume(prim_buf, prim_buf_vol); 
-	}
-
-	return 0;
+   return 0;
 }
 
 

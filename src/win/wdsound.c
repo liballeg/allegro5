@@ -168,7 +168,7 @@ static LPDIRECTSOUNDBUFFER prim_buf = NULL;
 /* misc */
 static long int initial_volume;
 static int _freq, _bits, _stereo;
-static unsigned char allegro_to_decibel[256];
+static int linear_to_millibel[256];
 
 
 /* internal driver representation of a voice */
@@ -680,10 +680,10 @@ static int digi_directsound_init(int input, int voices)
       ds_voices[v].ds_loop_buffer = NULL;
    }
 
-   /* setup allegro volume to decibel translation table */
-   allegro_to_decibel[0] = 0;
+   /* setup volume lookup table */
+   linear_to_millibel[0] = DSBVOLUME_MIN;
    for (v = 1; v < 256; v++)
-      allegro_to_decibel[v] = (unsigned char)(106.0 * log10(v));       /* 255 / log10(255) ~ 106 */
+      linear_to_millibel[v] = MAX(DSBVOLUME_MIN, DSBVOLUME_MAX + 2000.0*log10(v/255.0));
 
    /* get primary buffer (global) volume */
    IDirectSoundBuffer_GetVolume(prim_buf, &initial_volume); 
@@ -750,9 +750,7 @@ static int digi_directsound_mixer_volume(int volume)
    int ds_vol;
 
    if (prim_buf) {
-      volume = allegro_to_decibel[MID(0, volume, 255)];
-      ds_vol = DSBVOLUME_MIN + volume * (DSBVOLUME_MAX - DSBVOLUME_MIN) / 255;
-
+      ds_vol = linear_to_millibel[MID(0, volume, 255)];
       IDirectSoundBuffer_SetVolume(prim_buf, ds_vol); 
    }
 
@@ -1206,9 +1204,7 @@ static void digi_directsound_set_volume(int voice, int volume)
    ds_voices[voice].vol = volume;
 
    if (ds_voices[voice].ds_buffer) {
-      volume = allegro_to_decibel[MID(0, volume, 255)];
-      ds_vol = DSBVOLUME_MIN + volume * (DSBVOLUME_MAX - DSBVOLUME_MIN) / 255;
-
+      ds_vol = linear_to_millibel[MID(0, volume, 255)];
       IDirectSoundBuffer_SetVolume(ds_voices[voice].ds_buffer, ds_vol);
 
       if (ds_voices[voice].ds_loop_buffer)
