@@ -339,17 +339,17 @@ line dat utility. This accepts the following options:
       can be used to automatically update the file whenever any of the 
       source data changes.
 
+   '-r0' - no sort
+   '-r1' - sort the objects of the datafile alphabetically by name
+      Sets the sort mode (see below). These can be used on their own to 
+      sort the objects of the datafile, or in combination with any other 
+      options.
+
    '-s0' - no strip: save everything
    '-s1' - strip grabber specific information from the file
    '-s2' - strip all object properties and names from the file
       Sets the strip mode (see below). These can be used on their own to 
       strip properties from the datafile, or in combination with any other 
-      options.
-
-   '-sr0' - no sort
-   '-sr1' - sort the objects of the datafile alphabetically by name
-      Sets the sort mode (see below). These can be used on their own to 
-      sort the objects of the datafile, or in combination with any other 
       options.
 
    '-transparency'
@@ -419,8 +419,8 @@ foolproof, and will not work for nested datafiles, but in some situations it
 allows the names to be read back from the index definition header.
 
 The objects of the datafile can be sorted alphabetically by name. This is 
-selected by the Sort checkbox in the grabber, or by using the '-sr0' and 
-'-sr1' options to dat. With zero sorting, objects are listed in the order
+selected by the Sort checkbox in the grabber, or by using the '-r0' and 
+'-r1' options to dat. With zero sorting, objects are listed in the order
 they were added to the datafile. With sort level 1, they are listed in 
 alphabetical order according to their NAME property, including inside
 nested datafiles.

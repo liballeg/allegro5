@@ -91,11 +91,11 @@ static void usage(void)
    printf("\t'-o output' sets the output file or directory when extracting data\n");
    printf("\t'-p prefixstring' sets the prefix for the output header file\n");
    printf("\t'-pal objectname' specifies which palette to use\n");
+   printf("\t'-r0' no sort\n");
+   printf("\t'-r1' sort the objects of the datafile alphabetically by name\n");
    printf("\t'-s0' no strip: save everything\n");
    printf("\t'-s1' strip grabber specific information from the file\n");
    printf("\t'-s2' strip all object properties and names from the file\n");
-   printf("\t'-sr0' no sort\n");
-   printf("\t'-sr1' sort the objects of the datafile alphabetically by name\n");
    printf("\t'-t type' sets the object type when adding files\n");
    printf("\t'-transparency' preserves transparency through color conversion\n");
    printf("\t'-u' updates the contents of the datafile\n");
@@ -800,23 +800,22 @@ int main(int argc, char *argv[])
 	       }
 	       break;
 
+	    case 'r':
+	       if ((opt_sort >= 0) ||
+		   (argv[c][2] < '0') || (argv[c][2] > '1')) {
+		  usage();
+		  return 1;
+	       }
+	       opt_sort = argv[c][2] - '0';
+	       break;
+
 	    case 's':
-	       if (argv[c][2] == 'r') {
-		  if ((opt_sort >= 0) ||
-		      (argv[c][3] < '0') || (argv[c][3] > '1')) {
-		     usage();
-		     return 1;
-	          }
-	          opt_sort = argv[c][3] - '0';
+	       if ((opt_strip >= 0) || 
+		   (argv[c][2] < '0') || (argv[c][2] > '2')) {
+		  usage();
+		  return 1;
 	       }
-	       else {
-		  if ((opt_strip >= 0) ||
-		      (argv[c][2] < '0') || (argv[c][2] > '2')) {
-		     usage();
-		     return 1;
-	          }
-	          opt_strip = argv[c][2] - '0';
-	       }
+	       opt_strip = argv[c][2] - '0';
 	       break;
 
 	    case 't':
