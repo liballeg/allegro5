@@ -218,9 +218,9 @@ END_OF_INLINE(fdiv);
 
 
 
-/* fceil :
- * Fixed point version of ceil().
- * Note that it returns an integer result (not a fixed one)
+/* fceil:
+ *  Fixed point version of ceil().
+ *  Note that it returns an integer result (not a fixed one)
  */
 INLINE _AL_DLL int fceil(fixed x)
 {
@@ -238,6 +238,8 @@ INLINE _AL_DLL int fceil(fixed x)
    Out3:
    }
 }
+
+END_OF_INLINE(fceil);
 
 
 
