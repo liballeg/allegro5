@@ -12,6 +12,8 @@
  *
  *      By Stefan Schimanski.
  *
+ *      Improved page flipping mechanism by Robin Burrows.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -377,7 +379,6 @@ static int gfx_directx_flip_bitmap(struct BITMAP *bitmap, int wait)
    LPDIRECTDRAWSURFACE2 visible;
    LPDIRECTDRAWSURFACE2 invisible;
    HRESULT hr;
-   int failed = 0;
 
    /* flip only in the foreground */
    if (!app_foreground) {
@@ -388,66 +389,52 @@ static int gfx_directx_flip_bitmap(struct BITMAP *bitmap, int wait)
    visible = BMP_EXTRA(dd_frontbuffer)->surf;
    invisible = BMP_EXTRA(bitmap)->surf;
 
-   /* always need to handle DDERR_SURFACELOST, this will happen
-    *  when we get switched away from.
-    */
-   if (IDirectDrawSurface2_IsLost(visible) == DDERR_SURFACELOST)
-      IDirectDrawSurface2_Restore(visible);
+   if (visible == invisible)
+      return 0;
 
    /* try to flip already attached surfaces */
    if ((backbuffersurf && (invisible == backbuffersurf)) ||
        (tripbuffersurf && (invisible == tripbuffersurf))) {
       /* visible is always equal to primbuffersurf */
       hr = IDirectDrawSurface2_Flip(visible, invisible, wait?DDFLIP_WAIT:0);
-
       if (FAILED(hr)) {
-         _TRACE("Can't flip (%x)\n", hr);
-         return -1;
-      }
-      else {
-         BMP_EXTRA(bitmap)->surf = visible;
-         BMP_EXTRA(dd_frontbuffer)->surf = invisible;
-         dd_frontbuffer = bitmap;
-         return 0;
+         hr = IDirectDrawSurface2_Restore(visible);
+         if (FAILED(hr))
+            return -1;
+
+         hr = IDirectDrawSurface2_Flip(visible, invisible, wait?DDFLIP_WAIT:0);
       }
    }
-
-   /* original flipping system */
-   if (visible != invisible) {
+   else {
       /* link invisible surface to primary surface */
       hr = IDirectDrawSurface2_AddAttachedSurface(visible, invisible);
       if (FAILED(hr)) {
-         _TRACE("Can't attach surface (%x)\n", hr);
-         return -1;
+         hr = IDirectDrawSurface2_Restore(visible);
+         if (FAILED(hr))
+            return -1;
+
+         hr = IDirectDrawSurface2_AddAttachedSurface(visible, invisible);
+         if (FAILED(hr)) {
+            _TRACE("Can't attach surface (%x)\n", hr);
+            return -1;
+         }
       }
 
       /* flip to invisible surface */
       hr = IDirectDrawSurface2_Flip(visible, invisible, wait?DDFLIP_WAIT:0);
-      if (FAILED(hr)) {
-         _TRACE("Can't flip (%x)\n", hr);
-         failed = 1;
-      }
-
-      /* remove background surface */
-      hr = IDirectDrawSurface2_DeleteAttachedSurface(visible, 0, invisible);
-      if (FAILED(hr)) {
-         _TRACE("Can't detach surface (%x)\n", hr);
-         failed = 1;
-      }
-
-      /* exchange surface objects */
-      if (!failed) {
-         BMP_EXTRA(bitmap)->surf = visible;
-         BMP_EXTRA(dd_frontbuffer)->surf = invisible;
-         dd_frontbuffer = bitmap;
-
-         return 0;
-      }
-      else
-         return -1;
+      IDirectDrawSurface2_DeleteAttachedSurface(visible, 0, invisible);
    }
 
-   return 0;
+   if (FAILED(hr)) {
+      _TRACE("Can't flip (%x)\n", hr);
+      return -1;
+   }
+   else {
+      BMP_EXTRA(bitmap)->surf = visible;
+      BMP_EXTRA(dd_frontbuffer)->surf = invisible;
+      dd_frontbuffer = bitmap;
+      return 0;
+   }
 }
 
 
@@ -528,7 +515,7 @@ HDC win_get_dc(BITMAP * bmp)
    HRESULT hr;
 
    if (bmp) {
-      if (bmp->id & (BMP_ID_SYSTEM + BMP_ID_VIDEO)) {
+      if (bmp->id & (BMP_ID_SYSTEM | BMP_ID_VIDEO)) {
          surf = BMP_EXTRA(bmp)->surf;
          hr = IDirectDrawSurface2_GetDC(surf, &dc);
          if (hr == DD_OK)
@@ -549,7 +536,7 @@ void win_release_dc(BITMAP * bmp, HDC dc)
    LPDIRECTDRAWSURFACE2 surf;
 
    if (bmp) {
-      if (bmp->id & (BMP_ID_SYSTEM + BMP_ID_VIDEO)) {
+      if (bmp->id & (BMP_ID_SYSTEM | BMP_ID_VIDEO)) {
          surf = BMP_EXTRA(bmp)->surf;
          IDirectDrawSurface2_ReleaseDC(surf, dc);
       }
