@@ -1347,10 +1347,10 @@ static int detect_mouse(void)
       goto finished;
    }
 
+   popup(uconvert_ascii("Move your mouse around", tmp1), uconvert_ascii("Press any key to cancel", tmp2));
+
    while (read(fd, buffer, 1) == 1)
       ;
-
-   popup(uconvert_ascii("Move your mouse around", tmp1), uconvert_ascii("Press any key to cancel", tmp2));
 
    w = sizeof(buffer);
    l = (SCREEN_W - w)/2;
