@@ -149,7 +149,7 @@ HID_DEVICE *osx_hid_scan(int type, int *num_devices)
    }
    
    *num_devices = 0;
-   device = (HID_DEVICE *)malloc(HID_MAX_DEVICES * sizeof(HID_DEVICE));
+   device = (HID_DEVICE *)calloc(1, HID_MAX_DEVICES * sizeof(HID_DEVICE));
    if (device == NULL)
       return NULL;
 
