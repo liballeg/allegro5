@@ -53,6 +53,7 @@ X11 todos:
   time, include bukinm's xkeymap program.
 - play nice with WindowMaker (there's no appicon, for one)
 - ufixicon (generate src file that when linked, automatically sets icon)
+- problem with mouse and keyboard events 
 
 Unix todos:
 ---------------------------------------------------------------------------
@@ -99,6 +100,7 @@ Wishlist:
 - size_t where appropriate (get more opinions first)
 - make allegro not use uconvert static buffer; reserve for user
 - keyboard set_rate
+- make zipwin.sh work with mingw32.
 
 Wishlist: (definitely post 4.0)
 ---------------------------------------------------------------------------
@@ -119,7 +121,6 @@ Wishlist: (definitely post 4.0)
 - Add caching system to speed up filename#object and load_datafile_object()
 - Video overlay gfx driver under QNX
 - rewrite set_gfx_mode
-- make zipwin.sh work with mingw32.
 - more modularity under Linux
 - XVideo driver under XFree86
 - simplify linux input subsystem (it's much more complicated than necessary)
