@@ -6652,7 +6652,7 @@ DOS specifics
       These drivers support up to 7 joysticks, each one with up to 5 
       buttons, connected to LPT1, LPT2, and LPT3 respectively. They use the 
       TurboGraFX interface by Steffen Schwenke: see 
-      <link>http://www.burg-halle.de/~schwenke/parport.html</> for details 
+      <link>http://www.burg-halle.de/~schwenke/parport.html</a> for details 
       on how to build this.
 <li>
    JOY_TYPE_WINGWARRIOR<br>
@@ -7578,12 +7578,15 @@ platforms you can set the environment variables:
    yourself, rather than just using it in your programs, you should be sure 
    to have this mode enabled.
 <li>
-   STATICLINK=1 (MSVC only)<br>
+   STATICLINK=1 (MSVC and Mingw32 only)<br>
    Link as a static library, rather than the default DLL.
 <li>
    PGCC=1 (djgpp, RSXNT, and Mingw32 only)<br>
    Uses optimisation options suitable for the Pentium optimising compiler, 
    rather than the stock djgpp version of gcc.
+<li>
+   PENTIUMONLY=1 (djgpp, RSXNT, and Mingw32 only)<br>
+   Make the library faster, but Pentium-only.
 <li>
    CROSSCOMPILE=1 (djgpp only)<br>
    Allows you to build the djgpp library under Linux, using djgpp as a 
