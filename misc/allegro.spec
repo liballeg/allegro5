@@ -5,7 +5,7 @@ Summary(es): Una libreria de programacion de juegos.
 Summary(fr): Une librairie de programmation de jeux.
 Name: allegro
 Version: 3.9.39
-Release: 2
+Release: 3
 License: Gift Ware
 Packager: Allegro development team <conductors@canvaslink.com>
 Group: System/Libraries
@@ -62,8 +62,8 @@ est nécessaire pour compiler les programmes utilisant Allegro.
 
 %package tools
 Summary: Extra tools for the Allegro programming library.
-Summary(es): {...}
-Summary(fr): {...}
+Summary(es): Herramientas adicionales para la librería de programación Allegro.
+Summary(fr): Outils supplémentaires pour la librairie de programmation Allegro.
 Group: Development/Other
 Prereq: allegro
 Autoreq: on
@@ -75,11 +75,15 @@ tools which are useful for developing Allegro programs.
 
 %description tools -l es
 Allegro es una librería multi-plataforma creada para ser usada en la
-programación de juegos u otro tipo de programación multimedia. {...}
+programación de juegos u otro tipo de programación multimedia. Este
+paquete contiene herramientas adicionales que son útiles para
+desarrollar programas que usen Allegro.
 
 %description tools -l fr
 Allegro est une librairie multi-plateforme destinée à être utilisée dans
-les jeux vidéo ou d'autres types de programmation multimédia. {...}
+les jeux vidéo ou d'autres types de programmation multimédia. Ce package
+contient des outils supplémentaires qui sont utiles pour le développement
+de programmes avec Allegro.
 
 %prep
 %setup -q
@@ -160,8 +164,11 @@ rm -rf %{buildroot}
 %{_bindir}/textconv
 
 %changelog
+* Mon Sep 24 2001 Peter Wang <tjaden@users.sourceforge.net>  3.9.39-3
+- remaining translations by Eric Botcazou and Grzegorz Adam Hankiewicz
+
 * Sun Sep 23 2001 Peter Wang <tjaden@users.sourceforge.net>  3.9.39-2
-- translations by Eric Botcazou and Javier Gonzalez
+- translations by Eric Botcazou and Javier González
 - language.dat and keyboard.dat moved to main package
 - devel split into devel and tools packages
 - makedoc added to tools package
