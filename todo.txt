@@ -36,6 +36,7 @@ Linux todos:
 - vt switching in BACKAMNESIA mode only causes font weirdity in text
   mode on a Voodoo Banshee (using SVGAlib VESA and BANSHEE drivers), even
   if I cheat and use vga_flip.  Font returns after program quits.
+- prepare for SVGAlib 2.0
 
 X11 todos:
 ---------------------------------------------------------------------------
@@ -43,13 +44,16 @@ X11 todos:
 - remove `dga_mouse' config var when appropriate (newer servers have fixed
   the bug this works around).  Wait until XF86 4.0 propagated..
 - speed up X11 driver
+- key[] should not be internationalised (e.g. KEY_S should always be set
+  for the key two to the right of CapsLock)
+- separate fullscreen option from XDFS, XDGA, etc. (almost there)
+- video mode switching crashes some X servers
 
 Unix todos:
 ---------------------------------------------------------------------------
 
 - check which parts of makefiles break with non-GNU make
 - update ALSA drivers to latest stable version
-- use mkstemp instead of tmpnam in as many places as possible
 
 Macintosh todos:
 ---------------------------------------------------------------------------
@@ -88,7 +92,6 @@ Wishlist
   should be written in such a way to support future additions without the
   need of rewritting the user setup ui.
 - Play with switch_in/out X events, just for the sake of it :-)
-- separate fullscreen option from XDFS, XDGA, etc.
 - OSS MIDI pitch bend.
 - function to get a list of supported video modes
 - hook function to handle window resizing
