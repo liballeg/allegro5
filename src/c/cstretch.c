@@ -425,6 +425,17 @@ void stretch_blit(BITMAP *src, BITMAP *dst, int sx, int sy, int sw, int sh,
 
 
 
+/* masked_stretch_blit:
+ *  Masked bitmap scaling function.
+ */
+void masked_stretch_blit(BITMAP *src, BITMAP *dst, int sx, int sy, int sw, int sh,
+                         int dx, int dy, int dw, int dh)
+{
+   _al_stretch_blit(src, dst, sx, sy, sw, sh, dx, dy, dw, dh, 1);
+}
+
+
+
 /* stretch_sprite:
  *  Masked version of stretch_blit().
  */
