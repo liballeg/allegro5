@@ -240,6 +240,11 @@
 
       @html_text_substitution=readme.txt|<a href="readme.html">readme.txt</a>
 
+   @shortdesc xxxx
+      A single line description of the function/define/macro whatever you
+      are documenting. This description will appear for example in the name
+      of man pages, which can be queried with the apropos command.
+
 
 
 ===================================

@@ -47,6 +47,9 @@ DIALOG *active_dialog = NULL;
 MENU *active_menu = NULL;
 
 
+static BITMAP *gui_screen = NULL;
+
+
 /* list of currently active (initialized) dialog players */
 struct al_active_dialog_player {
    DIALOG_PLAYER *player;
@@ -768,12 +771,13 @@ static int move_focus(DIALOG *d, int ascii, int scan, int *focus_obj)
 int do_dialog(DIALOG *dialog, int focus_obj)
 {
    BITMAP *mouse_screen = _mouse_screen;
+   BITMAP *gui_bmp = gui_get_screen();
    int screen_count = _gfx_mode_set_count;
    void *player;
    ASSERT(dialog);
 
-   if (!is_same_bitmap(_mouse_screen, screen))
-      show_mouse(screen);
+   if (!is_same_bitmap(_mouse_screen, gui_bmp))
+      show_mouse(gui_bmp);
 
    player = init_dialog(dialog, focus_obj);
 
@@ -802,14 +806,15 @@ int do_dialog(DIALOG *dialog, int focus_obj)
 int popup_dialog(DIALOG *dialog, int focus_obj)
 {
    BITMAP *bmp;
+   BITMAP *gui_bmp;
    int ret;
    ASSERT(dialog);
 
    bmp = create_bitmap(dialog->w, dialog->h);
-
+   gui_bmp = gui_get_screen();
    if (bmp) {
       scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
-      blit(screen, bmp, dialog->x, dialog->y, 0, 0, dialog->w, dialog->h);
+      blit(gui_bmp, bmp, dialog->x, dialog->y, 0, 0, dialog->w, dialog->h);
       unscare_mouse();
    }
    else
@@ -819,7 +824,7 @@ int popup_dialog(DIALOG *dialog, int focus_obj)
 
    if (bmp) {
       scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
-      blit(bmp, screen, 0, 0, dialog->x, dialog->y, dialog->w, dialog->h);
+      blit(bmp, gui_bmp, 0, 0, dialog->x, dialog->y, dialog->w, dialog->h);
       unscare_mouse();
       destroy_bitmap(bmp);
    }
@@ -836,6 +841,7 @@ int popup_dialog(DIALOG *dialog, int focus_obj)
 DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
 {
    DIALOG_PLAYER *player;
+   BITMAP *gui_bmp = gui_get_screen();
    struct al_active_dialog_player *n;
    char tmp1[64], tmp2[64];
    int c;
@@ -920,8 +926,8 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
       gui_install_count++;
 
    /* initialise the dialog */
-   set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
-   set_clip_state(screen, TRUE);
+   set_clip_rect(gui_bmp, 0, 0, SCREEN_W-1, SCREEN_H-1);
+   set_clip_state(gui_bmp, TRUE);
    player->res |= dialog_message(dialog, MSG_START, 0, &player->obj);
 
    player->mouse_obj = find_mouse_object(dialog);
@@ -944,6 +950,26 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
       player->focus_obj = -1;
 
    return player;
+}
+
+
+
+/* gui_set_screen:
+ *  Changes the target bitmap for GUI drawing operations
+ */
+void gui_set_screen(BITMAP *bmp)
+{
+   gui_screen = bmp;
+}
+
+
+
+/* gui_get_screen:
+ *  Returns the gui_screen, or the default surface if gui_screen is NULL
+ */
+BITMAP *gui_get_screen(void)
+{
+   return gui_screen?gui_screen:screen;
 }
 
 

@@ -22,6 +22,11 @@ ALLEGRO_SRC_FILES = \
 	src/fli.c \
 	src/flood.c \
 	src/font.c \
+	src/fontbios.c \
+	src/fontbmp.c \
+	src/fontdat.c \
+	src/fontgrx.c \
+	src/fonttxt.c \
 	src/fsel.c \
 	src/gfx.c \
 	src/glyph.c \
@@ -46,6 +51,7 @@ ALLEGRO_SRC_FILES = \
 	src/quantize.c \
 	src/quat.c \
 	src/readbmp.c \
+	src/readfont.c \
 	src/readsmp.c \
 	src/rle.c \
 	src/rotate.c \

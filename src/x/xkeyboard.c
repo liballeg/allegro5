@@ -22,6 +22,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <ctype.h>
 #include <X11/Xlocale.h>
 #include <X11/Xos.h>
@@ -41,7 +42,6 @@ static void handle_key_release(int mycode);
 static int _key_shifts;
 /*----------------------------------------------------------------------*/
 
-// TODO: Add "Ctrl-Alt-End" shortcut
 // TODO: Once this driver is deemed more stable, reduce debugging output.
 
 #ifdef ALLEGRO_USE_XIM
@@ -54,6 +54,8 @@ static int used[AL_KEY_MAX];
 static int sym_per_key;
 static int min_keycode, max_keycode;
 static KeySym *keysyms = NULL;
+static int main_pid; /* The pid to kill with ctrl-alt-del. */
+static int pause_key = 0; /* Allegro's special pause key state. */
 
 /* This table can be ammended to provide more reasonable defaults for
  * mappings other than US/UK. They are used to map X11 KeySyms as found in
@@ -61,8 +63,6 @@ static KeySym *keysyms = NULL;
  * keyboards since Allegro simply doesn't have AL_KEY_* codes for non US/UK
  * keyboards. So with other mappings, the unmapped keys will be distributed
  * arbitrarily to the remaining AL_KEY_* codes.
- *
- * TODO: Better to just map them to AL_KEY_UNKNOWN1 AL_KEY_UNKNOWN2 ...
  *
  * Double mappings should be avoided, else they can lead to different keys
  * producing the same AL_KEY_* code on some mappings.
@@ -235,7 +235,7 @@ translation_table[] = {
    {XK_Caps_Lock, AL_KEY_CAPSLOCK}
 };
 
-/* Table of: Allegro's modifier flag, assiciated X11 flag, toggle method. */
+/* Table of: Allegro's modifier flag, associated X11 flag, toggle method. */
 static int modifier_flags[8][3] = {
    {AL_KEYMOD_SHIFT, ShiftMask, 0},
    {AL_KEYMOD_CAPSLOCK, LockMask, 1},
@@ -387,6 +387,20 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack)
    else
       update_shifts (event);
 
+   /* Special case the pause key. */
+   if (keycode == AL_KEY_PAUSE) {
+      /* Allegro ignore's releasing of the pause key. */
+      if (event->type == KeyRelease)
+         return;
+      if (pause_key) {
+         event->type = KeyRelease;
+         pause_key = 0;
+      }
+      else {
+         pause_key = 1;
+      }
+   }
+
    if (event->type == KeyPress) { /* Key pressed.  */
       int len;
       char buffer[16];
@@ -398,7 +412,7 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack)
 	 len = Xutf8LookupString(xic, event, buffer, sizeof buffer, NULL, NULL);
       else
 #endif
-      /* XLookupString is supposed to only use ASCII. */
+         /* XLookupString is supposed to only use ASCII. */
 	 len = XLookupString(event, buffer, sizeof buffer, NULL, NULL);
       buffer[len] = '\0';
       uconvert(buffer, U_UTF8, buffer2, U_UNICODE, sizeof buffer2);
@@ -423,6 +437,14 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack)
 	       unicode = 0;
          }
 	 handle_key_press(keycode, unicode, _key_shifts);
+
+         /* Detect Ctrl-Alt-End. */
+         if ((keycode == AL_KEY_END) &&
+	     (_key_shifts & AL_KEYMOD_CTRL) &&
+             (_key_shifts & AL_KEYMOD_ALT))
+	 {
+	    kill(main_pid, SIGTERM);
+	 }
       }
    }
    else { /* Key release. */
@@ -660,6 +682,8 @@ static int x_keyboard_init(void)
 
    if (xkeyboard_installed)
       return 0;
+
+   main_pid = getpid();
 
    memcpy (key_names, _al_keyboard_common_names, sizeof key_names);
 

@@ -804,6 +804,32 @@ void lock_sample(SAMPLE *spl)
 SAMPLE *load_voc(AL_CONST char *filename)
 {
    PACKFILE *f;
+   SAMPLE *spl;
+   ASSERT(filename);
+
+   f = pack_fopen(filename, F_READ);
+   if (!f) 
+      return NULL;
+
+   spl = load_voc_pf(f);
+
+   pack_fclose(f);
+
+   return spl;
+}
+
+
+
+/* load_voc_pf:
+ *  Reads a mono VOC format sample from the packfile given, returning a
+ *  SAMPLE structure, or NULL on error. If successful the offset into the
+ *  file will be left just after the sample data. If unsuccessful the offset
+ *  into the file is unspecified, i.e. you must either reset the offset to
+ *  some known place or close the packfile. The packfile is not closed by
+ *  this function.
+ */
+SAMPLE *load_voc_pf(PACKFILE *f)
+{
    char buffer[30];
    int freq = 22050;
    int bits = 8;
@@ -811,11 +837,9 @@ SAMPLE *load_voc(AL_CONST char *filename)
    int len;
    int x, ver;
    int s;
-   ASSERT(filename);
+   ASSERT(f);
 
-   f = pack_fopen(filename, F_READ);
-   if (!f) 
-      return NULL;
+   memset(buffer, 0, sizeof buffer);
 
    pack_fread(buffer, 0x16, f);
 
@@ -895,7 +919,6 @@ SAMPLE *load_voc(AL_CONST char *filename)
    }
 
    getout: 
-   pack_fclose(f);
    return spl;
 }
 
@@ -908,6 +931,37 @@ SAMPLE *load_voc(AL_CONST char *filename)
 SAMPLE *load_wav(AL_CONST char *filename)
 {
    PACKFILE *f;
+   SAMPLE *spl;
+   ASSERT(filename);
+
+   f = pack_fopen(filename, F_READ);
+   if (!f)
+      return NULL;
+
+   spl = load_wav_pf(f);
+
+   pack_fclose(f);
+
+   return spl;
+}
+
+
+
+/* load_wav_pf:
+ *  Reads a RIFF WAV format sample from the packfile given, returning a
+ *  SAMPLE structure, or NULL on error.
+ *
+ *  Note that the loader does not stop reading bytes from the PACKFILE until
+ *  it sees the EOF. If you want to embed a WAV file into another file, you
+ *  will have to implement your own chunking system that stops reading at the
+ *  end of the chunk.
+ *
+ *  If unsuccessful the offset into the file is unspecified, i.e. you must
+ *  either reset the offset to some known place or close the packfile. The
+ *  packfile is not closed by this function.
+ */
+SAMPLE *load_wav_pf(PACKFILE *f)
+{
    char buffer[25];
    int i;
    int length, len;
@@ -916,11 +970,9 @@ SAMPLE *load_wav(AL_CONST char *filename)
    int channels = 1;
    int s;
    SAMPLE *spl = NULL;
-   ASSERT(filename);
+   ASSERT(f);
 
-   f = pack_fopen(filename, F_READ);
-   if (!f)
-      return NULL;
+   memset(buffer, 0, sizeof buffer);
 
    pack_fread(buffer, 12, f);          /* check RIFF header */
    if (memcmp(buffer, "RIFF", 4) || memcmp(buffer+8, "WAVE", 4))
@@ -994,7 +1046,6 @@ SAMPLE *load_wav(AL_CONST char *filename)
    }
 
    getout:
-   pack_fclose(f);
    return spl;
 }
 

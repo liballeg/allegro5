@@ -251,6 +251,32 @@ static void rle_tga_read16(unsigned short *b, int w, PACKFILE *f)
  */
 BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
 {
+   PACKFILE *f;
+   BITMAP *bmp;
+   ASSERT(filename);
+
+   f = pack_fopen(filename, F_READ);
+   if (!f)
+      return NULL;
+
+   bmp = load_tga_pf(f, pal);
+
+   pack_fclose(f);
+
+   return bmp;
+}
+
+
+
+/* load_tga_pf:
+ *  Like load_tga, but starts loading from the current place in the PACKFILE
+ *  specified. If successful the offset into the file will be left just after
+ *  the image data. If unsuccessful the offset into the file is unspecified,
+ *  i.e. you must either reset the offset to some known place or close the
+ *  packfile. The packfile is not closed by this function.
+ */
+BITMAP *load_tga_pf(PACKFILE *f, RGB *pal)
+{
    unsigned char image_id[256], image_palette[256][3];
    unsigned char id_length, palette_type, image_type, palette_entry_size;
    unsigned char bpp, descriptor_bits;
@@ -259,21 +285,16 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
    unsigned int c, i, y, yc;
    int dest_depth;
    int compressed;
-   PACKFILE *f;
    BITMAP *bmp;
    PALETTE tmppal;
    int want_palette = TRUE;
-   ASSERT(filename);
+   ASSERT(f);
 
    /* we really need a palette */
    if (!pal) {
       want_palette = FALSE;
       pal = tmppal;
    }
-
-   f = pack_fopen(filename, F_READ);
-   if (!f)
-      return NULL;
 
    id_length = pack_getc(f);
    palette_type = pack_getc(f);
@@ -315,7 +336,6 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
       }
    }
    else if (palette_type != 0) {
-      pack_fclose(f);
       return NULL;
    }
 
@@ -332,7 +352,6 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
    image_type &= 7;
 
    if ((image_type < 1) || (image_type > 3)) {
-      pack_fclose(f);
       return NULL;
    }
 
@@ -341,7 +360,6 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
       case 1:
 	 /* paletted image */
 	 if ((palette_type != 1) || (bpp != 8)) {
-	    pack_fclose(f);
 	    return NULL;
 	 }
 
@@ -364,7 +382,6 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
 	    dest_depth = _color_load_depth(bpp, (bpp == 32));
 	 }
 	 else {
-	    pack_fclose(f);
 	    return NULL;
 	 }
 	 break;
@@ -372,7 +389,6 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
       case 3:
 	 /* grayscale image */
 	 if ((palette_type != 0) || (bpp != 8)) {
-	    pack_fclose(f);
 	    return NULL;
 	 }
 
@@ -386,13 +402,11 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
 	 break;
 
       default:
-	 pack_fclose(f);
 	 return NULL;
    }
 
    bmp = create_bitmap_ex(bpp, image_width, image_height);
    if (!bmp) {
-      pack_fclose(f);
       return NULL;
    }
 
@@ -433,8 +447,6 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
 	    break;
       }
    }
-
-   pack_fclose(f);
 
    if (*allegro_errno) {
       destroy_bitmap(bmp);
@@ -487,12 +499,36 @@ static int bitmap_has_alpha(BITMAP *bmp)
  */
 int save_tga(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 {
+   PACKFILE *f;
+   int ret;
+   ASSERT(filename);
+
+   f = pack_fopen(filename, F_WRITE);
+   if (!f)
+      return -1;
+
+   ret = save_tga_pf(f, bmp, pal);
+
+   pack_fclose(f);
+
+   return ret;
+}
+
+
+
+/* save_tga_pf:
+ *  Like save_tga but writes into the PACKFILE given instead of a new file.
+ *  The packfile is not closed after writing is completed. On success the
+ *  offset into the file is left after the TGA file just written. On failure
+ *  the offset is left at the end of whatever incomplete data was written.
+ */
+int save_tga_pf(PACKFILE *f, BITMAP *bmp, AL_CONST RGB *pal)
+{
    unsigned char image_palette[256][3];
    int x, y, c, r, g, b;
    int depth;
-   PACKFILE *f;
    PALETTE tmppal;
-   ASSERT(filename);
+   ASSERT(f);
    ASSERT(bmp);
 
    if (!pal) {
@@ -504,10 +540,6 @@ int save_tga(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 
    if (depth == 15)
       depth = 16;
-
-   f = pack_fopen(filename, F_WRITE);
-   if (!f)
-      return -1;
 
    *allegro_errno = 0;
 
@@ -607,8 +639,6 @@ int save_tga(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 
       #endif
    }
-
-   pack_fclose(f);
 
    if (*allegro_errno)
       return -1;

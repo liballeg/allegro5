@@ -25,6 +25,9 @@
    extern "C" {
 #endif
 
+struct PACKFILE;       
+
+
 #define DIGI_VOICES           64       /* Theoretical maximums: */
                                        /* actual drivers may not be */
                                        /* able to handle this many */
@@ -137,7 +140,9 @@ AL_FUNC(int, detect_digi_driver, (int driver_id));
 
 AL_FUNC(SAMPLE *, load_sample, (AL_CONST char *filename));
 AL_FUNC(SAMPLE *, load_wav, (AL_CONST char *filename));
+AL_FUNC(SAMPLE *, load_wav_pf, (struct PACKFILE *f));
 AL_FUNC(SAMPLE *, load_voc, (AL_CONST char *filename));
+AL_FUNC(SAMPLE *, load_voc_pf, (struct PACKFILE *f));
 AL_FUNC(int, save_sample, (AL_CONST char *filename, SAMPLE *spl));
 AL_FUNC(SAMPLE *, create_sample, (int bits, int stereo, int freq, int len));
 AL_FUNC(void, destroy_sample, (SAMPLE *spl));

@@ -516,16 +516,41 @@ static void read_RLE4_compressed_image(PACKFILE *f, BITMAP *bmp, AL_CONST BITMAP
  */
 BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
 {
+   PACKFILE *f;
+   BITMAP *bmp;
+   ASSERT(filename);
+
+   f = pack_fopen(filename, F_READ);
+   if (!f)
+      return NULL;
+
+   bmp = load_bmp_pf(f, pal);
+
+   pack_fclose(f);
+
+   return bmp;
+}
+
+
+
+/* load_bmp_pf:
+ *  Like load_bmp, but starts loading from the current place in the PACKFILE
+ *  specified. If successful the offset into the file will be left just after
+ *  the image data. If unsuccessful the offset into the file is unspecified,
+ *  i.e. you must either reset the offset to some known place or close the
+ *  packfile. The packfile is not closed by this function.
+ */
+BITMAP *load_bmp_pf(PACKFILE *f, RGB *pal)
+{
    BITMAPFILEHEADER fileheader;
    BITMAPINFOHEADER infoheader;
-   PACKFILE *f;
    BITMAP *bmp;
    PALETTE tmppal;
    int want_palette = TRUE;
    int ncol;
    unsigned long biSize;
    int bpp, dest_depth;
-   ASSERT(filename);
+   ASSERT(f);
 
    /* we really need a palette */
    if (!pal) {
@@ -533,12 +558,7 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
       pal = tmppal;
    }
 
-   f = pack_fopen(filename, F_READ);
-   if (!f)
-      return NULL;
-
    if (read_bmfileheader(f, &fileheader) != 0) {
-      pack_fclose(f);
       return NULL;
    }
 
@@ -546,7 +566,6 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
 
    if (biSize == WININFOHEADERSIZE) {
       if (read_win_bminfoheader(f, &infoheader) != 0) {
-	 pack_fclose(f);
 	 return NULL;
       }
       /* compute number of colors recorded */
@@ -557,7 +576,6 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
    }
    else if (biSize == OS2INFOHEADERSIZE) {
       if (read_os2_bminfoheader(f, &infoheader) != 0) {
-	 pack_fclose(f);
 	 return NULL;
       }
       /* compute number of colors recorded */
@@ -567,7 +585,6 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
 	 read_bmicolors(ncol, pal, f, 0);
    }
    else {
-      pack_fclose(f);
       return NULL;
    }
 
@@ -591,7 +608,6 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
 	 bpp = 32;
       else {
 	 /* Unrecognised bit masks/depth, refuse to load. */
-	 pack_fclose(f);
 	 return NULL;
       }
    }
@@ -601,7 +617,6 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
 
    bmp = create_bitmap_ex(bpp, infoheader.biWidth, infoheader.biHeight);
    if (!bmp) {
-      pack_fclose(f);
       return NULL;
    }
 
@@ -642,7 +657,6 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
    if ((bpp != 8) && (dest_depth != 8) && want_palette)
       generate_332_palette(pal);
 
-   pack_fclose(f);
    return bmp;
 }
 
@@ -655,6 +669,30 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
 int save_bmp(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal) 
 {
    PACKFILE *f;
+   int ret;
+   ASSERT(filename);
+
+   f = pack_fopen(filename, F_WRITE);
+   if (!f) 
+      return -1;
+
+   ret = save_bmp_pf(f, bmp, pal);
+
+   pack_fclose(f);
+
+   return ret;
+}
+
+
+
+/* save_bmp_pf:
+ *  Like save_bmp but writes into the PACKFILE given instead of a new file.
+ *  The packfile is not closed after writing is completed. On success the
+ *  offset into the file is left after the TGA file just written. On failure
+ *  the offset is left at the end of whatever incomplete data was written.
+ */
+int save_bmp_pf(PACKFILE *f, BITMAP *bmp, AL_CONST RGB *pal) 
+{
    PALETTE tmppal;
    int bfSize;
    int biSizeImage;
@@ -662,7 +700,7 @@ int save_bmp(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    int bpp;
    int filler;
    int c, i, j;
-   ASSERT(filename);
+   ASSERT(f);
    ASSERT(bmp);
 
    depth = bitmap_color_depth(bmp);
@@ -684,10 +722,6 @@ int save_bmp(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
       biSizeImage = (bmp->w*3 + filler) * bmp->h;
       bfSize = 54 + biSizeImage;       /* header + image data */
    }
-
-   f = pack_fopen(filename, F_WRITE);
-   if (!f) 
-      return -1;
 
    *allegro_errno = 0;
 
@@ -747,8 +781,6 @@ int save_bmp(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
       for (j=0; j<filler; j++)
 	 pack_putc(0, f);
    }
-
-   pack_fclose(f);
 
    if (*allegro_errno)
       return -1;

@@ -85,6 +85,7 @@ char *mystrlwr(char *string)
 
 
 /* strincmp:
+ * Compares two strings ignoring case up to s2's length.
  */
 int strincmp(char *s1, char *s2)
 {

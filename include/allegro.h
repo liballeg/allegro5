@@ -45,6 +45,7 @@
 #include "allegro/rle.h"
 #include "allegro/compiled.h"
 #include "allegro/text.h"
+#include "allegro/font.h"
 
 #include "allegro/fli.h"
 #include "allegro/config.h"

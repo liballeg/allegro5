@@ -18,6 +18,8 @@
  *      make_absolute_filename(), make_relative_filename() and
  *      is_relative_filename().
  *
+ *      Peter Wang added support for packfile vtables.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -58,53 +60,17 @@
 
 
 
-#define N            4096           /* 4k buffers for LZ compression */
-#define F            18             /* upper limit for LZ match length */
-#define THRESHOLD    2              /* LZ encode string into pos and length
-				       if match size is greater than this */
-
-
-typedef struct PACK_DATA            /* stuff for doing LZ compression */
-{
-   int state;                       /* where have we got to in the pack? */
-   int i, c, len, r, s;
-   int last_match_length, code_buf_ptr;
-   unsigned char mask;
-   char code_buf[17];
-   int match_position;
-   int match_length;
-   int lson[N+1];                   /* left children, */
-   int rson[N+257];                 /* right children, */
-   int dad[N+1];                    /* and parents, = binary search trees */
-   unsigned char text_buf[N+F-1];   /* ring buffer, with F-1 extra bytes
-				       for string comparison */
-} PACK_DATA;
-
-
-typedef struct UNPACK_DATA          /* for reading LZ files */
-{
-   int state;                       /* where have we got to? */
-   int i, j, k, r, c;
-   int flags;
-   unsigned char text_buf[N+F-1];   /* ring buffer, with F-1 extra bytes
-				       for string comparison */
-} UNPACK_DATA;
-
-
-static int refill_buffer(PACKFILE *f);
-static int flush_buffer(PACKFILE *f, int last);
-static void pack_inittree(PACK_DATA *dat);
-static void pack_insertnode(int r, PACK_DATA *dat);
-static void pack_deletenode(int p, PACK_DATA *dat);
-static int pack_write(PACKFILE *file, PACK_DATA *dat, int size, unsigned char *buf, int last);
-static int pack_read(PACKFILE *file, UNPACK_DATA *dat, int s, unsigned char *buf);
-
 static char the_password[256] = EMPTY_STRING;
 
 int _packfile_filesize = 0;
 int _packfile_datasize = 0;
 
 int _packfile_type = 0;
+
+static PACKFILE_VTABLE normal_vtable;
+
+static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode);
+
 
 
 #define FA_DAT_FLAGS  (FA_RDONLY | FA_ARCH)
@@ -122,6 +88,11 @@ static RESOURCE_PATH *resource_path_list = NULL;
 
 static void destroy_resource_path_list(void);
 
+
+
+/***************************************************
+ ****************** Path handling ******************
+ ***************************************************/
 
 
 /* fix_filename_case:
@@ -677,188 +648,9 @@ void put_backslash(char *filename)
 
 
 
-/* pack_fopen_exe_file:
- *  Helper to handle opening files that have been appended to the end of
- *  the program executable.
- */
-static PACKFILE *pack_fopen_exe_file(void)
-{
-   PACKFILE *f;
-   char exe_name[1024];
-   long size;
-
-   /* open the file */
-   get_executable_name(exe_name, sizeof(exe_name));
-
-   if (!ugetc(get_filename(exe_name))) {
-      *allegro_errno = ENOENT;
-      return NULL;
-   }
-
-   f = pack_fopen(exe_name, F_READ);
-   if (!f)
-      return NULL;
-
-   /* seek to the end and check for the magic number */
-   pack_fseek(f, f->todo-8);
-
-   if (pack_mgetl(f) != F_EXE_MAGIC) {
-      pack_fclose(f);
-      *allegro_errno = ENOTDIR;
-      return NULL;
-   }
-
-   size = pack_mgetl(f);
-
-   /* rewind */
-   pack_fclose(f);
-   f = pack_fopen(exe_name, F_READ);
-   if (!f)
-      return NULL;
-
-   /* seek to the start of the appended data */
-   pack_fseek(f, f->todo-size);
-
-   f = pack_fopen_chunk(f, FALSE);
-
-   if (f)
-      f->flags |= PACKFILE_FLAG_EXEDAT;
-
-   return f;
-}
-
-
-
-/* pack_fopen_datafile_object:
- *  Recursive helper to handle opening member objects from datafiles, 
- *  given a fake filename in the form 'object_name[/nestedobject]'.
- */
-static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, AL_CONST char *objname)
-{
-   char buf[512];   /* text is read into buf as UTF-8 */
-   char tmp[512*4]; /* this should be enough even when expanding to UCS-4 */
-   char name[512];
-   int use_next = FALSE;
-   int recurse = FALSE;
-   int type, size, pos, c;
-
-   /* split up the object name */
-   pos = 0;
-
-   while ((c = ugetxc(&objname)) != 0) {
-      if ((c == '#') || (c == '/') || (c == OTHER_PATH_SEPARATOR)) {
-	 recurse = TRUE;
-	 break;
-      }
-      pos += usetc(name+pos, c);
-   }
-
-   usetc(name+pos, 0);
-
-   pack_mgetl(f);
-
-   /* search for the requested object */
-   while (!pack_feof(f)) {
-      type = pack_mgetl(f);
-
-      if (type == DAT_PROPERTY) {
-	 type = pack_mgetl(f);
-	 size = pack_mgetl(f);
-	 if (type == DAT_NAME) {
-	    /* examine name property */
-	    pack_fread(buf, size, f);
-	    buf[size] = 0;
-	    if (ustricmp(uconvert(buf, U_UTF8, tmp, U_CURRENT, sizeof tmp), name) == 0)
-	       use_next = TRUE;
-	 }
-	 else {
-	    /* skip property */
-	    pack_fseek(f, size);
-	 }
-      }
-      else {
-	 if (use_next) {
-	    /* found it! */
-	    if (recurse) {
-	       if (type == DAT_FILE)
-		  return pack_fopen_datafile_object(pack_fopen_chunk(f, FALSE), objname);
-	       else
-		  break;
-	    }
-	    else {
-	       _packfile_type = type;
-	       return pack_fopen_chunk(f, FALSE);
-	    }
-	 }
-	 else {
-	    /* skip unwanted object */
-	    size = pack_mgetl(f);
-	    pack_fseek(f, size+4);
-	 }
-      }
-   }
-
-   /* oh dear, the object isn't there... */
-   pack_fclose(f);
-   *allegro_errno = ENOENT;
-   return NULL; 
-}
-
-
-
-/* pack_fopen_special_file:
- *  Helper to handle opening psuedo-files, ie. datafile objects and data
- *  that has been appended to the end of the executable.
- */
-static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode)
-{
-   char fname[1024], objname[512], tmp[16];
-   PACKFILE *f;
-   char *p;
-   int c;
-
-   /* special files are read-only */
-   while ((c = *(mode++)) != 0) {
-      if ((c == 'w') || (c == 'W')) {
-	 *allegro_errno = EROFS;
-	 return NULL;
-      }
-   }
-
-   if (ustrcmp(filename, uconvert_ascii("#", tmp)) == 0) {
-      /* read appended executable data */
-      return pack_fopen_exe_file();
-   }
-   else {
-      if (ugetc(filename) == '#') {
-	 /* read object from an appended datafile */
-	 ustrzcpy(fname,  sizeof(fname), uconvert_ascii("#", tmp));
-	 ustrzcpy(objname, sizeof(objname), filename+uwidth(filename));
-      }
-      else {
-	 /* read object from a regular datafile */
-	 ustrzcpy(fname,  sizeof(fname), filename);
-	 p = ustrrchr(fname, '#');
-	 usetat(p, 0, 0);
-	 ustrzcpy(objname, sizeof(objname), p+uwidth(p));
-      }
-
-      /* open the file */
-      f = pack_fopen(fname, F_READ_PACKED);
-      if (!f)
-	 return NULL;
-
-      if (pack_mgetl(f) != DAT_MAGIC) {
-	 pack_fclose(f);
-	 *allegro_errno = ENOTDIR;
-	 return NULL;
-      }
-
-      /* find the required object */
-      return pack_fopen_datafile_object(f, objname);
-   }
-}
-
+/***************************************************
+ ******************* Filesystem ********************
+ ***************************************************/
 
 
 /* file_exists:
@@ -926,7 +718,9 @@ long file_size(AL_CONST char *filename)
    if (ustrchr(filename, '#')) {
       PACKFILE *f = pack_fopen_special_file(filename, F_READ);
       if (f) {
-	 long ret = f->todo;
+	 long ret;
+	 ASSERT(f->is_normal_packfile);
+	 ret = f->normal.todo;
 	 pack_fclose(f);
 	 return ret;
       }
@@ -1267,7 +1061,7 @@ int set_allegro_resource_path(int priority, AL_CONST char *path)
 
 
 
-static void destroy_resource_path_list()
+static void destroy_resource_path_list(void)
 {
    RESOURCE_PATH *node = resource_path_list;
    
@@ -1422,8 +1216,201 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
 
 
 
+/***************************************************
+ ******************** Packfiles ********************
+ ***************************************************/
+
+
+/* pack_fopen_exe_file:
+ *  Helper to handle opening files that have been appended to the end of
+ *  the program executable.
+ */
+static PACKFILE *pack_fopen_exe_file(void)
+{
+   PACKFILE *f;
+   char exe_name[1024];
+   long size;
+
+   /* open the file */
+   get_executable_name(exe_name, sizeof(exe_name));
+
+   if (!ugetc(get_filename(exe_name))) {
+      *allegro_errno = ENOENT;
+      return NULL;
+   }
+
+   f = pack_fopen(exe_name, F_READ);
+   if (!f)
+      return NULL;
+
+   ASSERT(f->is_normal_packfile);
+
+   /* seek to the end and check for the magic number */
+   pack_fseek(f, f->normal.todo-8);
+
+   if (pack_mgetl(f) != F_EXE_MAGIC) {
+      pack_fclose(f);
+      *allegro_errno = ENOTDIR;
+      return NULL;
+   }
+
+   size = pack_mgetl(f);
+
+   /* rewind */
+   pack_fclose(f);
+   f = pack_fopen(exe_name, F_READ);
+   if (!f)
+      return NULL;
+
+   /* seek to the start of the appended data */
+   pack_fseek(f, f->normal.todo-size);
+
+   f = pack_fopen_chunk(f, FALSE);
+
+   if (f)
+      f->normal.flags |= PACKFILE_FLAG_EXEDAT;
+
+   return f;
+}
+
+
+
+/* pack_fopen_datafile_object:
+ *  Recursive helper to handle opening member objects from datafiles, 
+ *  given a fake filename in the form 'object_name[/nestedobject]'.
+ */
+static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, AL_CONST char *objname)
+{
+   char buf[512];   /* text is read into buf as UTF-8 */
+   char tmp[512*4]; /* this should be enough even when expanding to UCS-4 */
+   char name[512];
+   int use_next = FALSE;
+   int recurse = FALSE;
+   int type, size, pos, c;
+
+   /* split up the object name */
+   pos = 0;
+
+   while ((c = ugetxc(&objname)) != 0) {
+      if ((c == '#') || (c == '/') || (c == OTHER_PATH_SEPARATOR)) {
+	 recurse = TRUE;
+	 break;
+      }
+      pos += usetc(name+pos, c);
+   }
+
+   usetc(name+pos, 0);
+
+   pack_mgetl(f);
+
+   /* search for the requested object */
+   while (!pack_feof(f)) {
+      type = pack_mgetl(f);
+
+      if (type == DAT_PROPERTY) {
+	 type = pack_mgetl(f);
+	 size = pack_mgetl(f);
+	 if (type == DAT_NAME) {
+	    /* examine name property */
+	    pack_fread(buf, size, f);
+	    buf[size] = 0;
+	    if (ustricmp(uconvert(buf, U_UTF8, tmp, U_CURRENT, sizeof tmp), name) == 0)
+	       use_next = TRUE;
+	 }
+	 else {
+	    /* skip property */
+	    pack_fseek(f, size);
+	 }
+      }
+      else {
+	 if (use_next) {
+	    /* found it! */
+	    if (recurse) {
+	       if (type == DAT_FILE)
+		  return pack_fopen_datafile_object(pack_fopen_chunk(f, FALSE), objname);
+	       else
+		  break;
+	    }
+	    else {
+	       _packfile_type = type;
+	       return pack_fopen_chunk(f, FALSE);
+	    }
+	 }
+	 else {
+	    /* skip unwanted object */
+	    size = pack_mgetl(f);
+	    pack_fseek(f, size+4);
+	 }
+      }
+   }
+
+   /* oh dear, the object isn't there... */
+   pack_fclose(f);
+   *allegro_errno = ENOENT;
+   return NULL; 
+}
+
+
+
+/* pack_fopen_special_file:
+ *  Helper to handle opening psuedo-files, ie. datafile objects and data
+ *  that has been appended to the end of the executable.
+ */
+static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode)
+{
+   char fname[1024], objname[512], tmp[16];
+   PACKFILE *f;
+   char *p;
+   int c;
+
+   /* special files are read-only */
+   while ((c = *(mode++)) != 0) {
+      if ((c == 'w') || (c == 'W')) {
+	 *allegro_errno = EROFS;
+	 return NULL;
+      }
+   }
+
+   if (ustrcmp(filename, uconvert_ascii("#", tmp)) == 0) {
+      /* read appended executable data */
+      return pack_fopen_exe_file();
+   }
+   else {
+      if (ugetc(filename) == '#') {
+	 /* read object from an appended datafile */
+	 ustrzcpy(fname,  sizeof(fname), uconvert_ascii("#", tmp));
+	 ustrzcpy(objname, sizeof(objname), filename+uwidth(filename));
+      }
+      else {
+	 /* read object from a regular datafile */
+	 ustrzcpy(fname,  sizeof(fname), filename);
+	 p = ustrrchr(fname, '#');
+	 usetat(p, 0, 0);
+	 ustrzcpy(objname, sizeof(objname), p+uwidth(p));
+      }
+
+      /* open the file */
+      f = pack_fopen(fname, F_READ_PACKED);
+      if (!f)
+	 return NULL;
+
+      if (pack_mgetl(f) != DAT_MAGIC) {
+	 pack_fclose(f);
+	 *allegro_errno = ENOTDIR;
+	 return NULL;
+      }
+
+      /* find the required object */
+      return pack_fopen_datafile_object(f, objname);
+   }
+}
+
+
+
 /* packfile_password:
  *  Sets the password to be used by all future read/write operations.
+ *  This only affects "normal" PACKFILEs, i.e. ones not using user-supplied
+ *  packfile vtables.
  */
 void packfile_password(AL_CONST char *password)
 {
@@ -1476,17 +1463,20 @@ static long encrypt_id(long x, int new_format)
 static int clone_password(PACKFILE *f)
 {
    ASSERT(f);
+   ASSERT(f->is_normal_packfile);
+
    if (the_password[0]) {
-      if ((f->passdata = malloc(strlen(the_password)+1)) == NULL) {
+      if ((f->normal.passdata = malloc(strlen(the_password)+1)) == NULL) {
 	 *allegro_errno = ENOMEM;
 	 return FALSE;
       }
-      _al_sane_strncpy(f->passdata, the_password, strlen(the_password)+1);
+      _al_sane_strncpy(f->normal.passdata, the_password, strlen(the_password)+1);
+      f->normal.passpos = f->normal.passdata;
    }
-   else
-      f->passdata = NULL;
-
-   f->passpos = f->passdata;
+   else {
+      f->normal.passpos = NULL;
+      f->normal.passdata = NULL;
+   }
 
    return TRUE;
 }
@@ -1496,72 +1486,43 @@ static int clone_password(PACKFILE *f)
 /* create_packfile:
  *  Helper function for creating a PACKFILE structure.
  */
-static PACKFILE *create_packfile(void)
+static PACKFILE *create_packfile(int is_normal_packfile)
 {
    PACKFILE *f;
 
-   if ((f = malloc(sizeof(PACKFILE))) == NULL) {
+   if (is_normal_packfile)
+      f = malloc(sizeof(PACKFILE));
+   else
+      f = malloc(sizeof(PACKFILE) - sizeof(struct _al_normal_packfile_details));
+
+   if (f == NULL) {
       *allegro_errno = ENOMEM;
       return NULL;
    }
 
-   f->buf_pos = f->buf;
-   f->flags = 0;
-   f->buf_size = 0;
-   f->filename = NULL;
-   f->passdata = NULL;
-   f->passpos = NULL;
-   f->parent = NULL;
-   f->pack_data = NULL;
-   f->todo = 0;
+   if (!is_normal_packfile) {
+      f->vtable = NULL;
+      f->userdata = NULL;
+      f->is_normal_packfile = FALSE;
+   }
+   else {
+      f->vtable = &normal_vtable;
+      f->userdata = f;
+      f->is_normal_packfile = TRUE;
+
+      f->normal.buf_pos = f->normal.buf;
+      f->normal.flags = 0;
+      f->normal.buf_size = 0;
+      f->normal.filename = NULL;
+      f->normal.passdata = NULL;
+      f->normal.passpos = NULL;
+      f->normal.parent = NULL;
+      f->normal.pack_data = NULL;
+      f->normal.unpack_data = NULL;
+      f->normal.todo = 0;
+   }
 
    return f;
-}
-
-
-
-/* create_pack_data:
- *  Helper function for creating a PACK_DATA structure.
- */
-static PACK_DATA *create_pack_data(void)
-{
-   PACK_DATA *dat;
-   int c;
-
-   if ((dat = malloc(sizeof(PACK_DATA))) == NULL) {
-      *allegro_errno = ENOMEM;
-      return NULL;
-   }
-
-   for (c=0; c < N - F; c++)
-      dat->text_buf[c] = 0;
-
-   dat->state = 0;
-
-   return dat;
-}
-
-
-
-/* create_unpack_data:
- *  Helper function for creating an UNPACK_DATA structure.
- */
-static UNPACK_DATA *create_unpack_data(void)
-{
-   UNPACK_DATA *dat;
-   int c;
-
-   if ((dat = malloc(sizeof(UNPACK_DATA))) == NULL) {
-      *allegro_errno = ENOMEM;
-      return NULL;
-   }
-
-   for (c=0; c < N - F; c++)
-      dat->text_buf[c] = 0;
-
-   dat->state = 0;
-
-   return dat;
 }
 
 
@@ -1572,11 +1533,16 @@ static UNPACK_DATA *create_unpack_data(void)
 static void free_packfile(PACKFILE *f)
 {
    if (f) {
-      if (f->pack_data)
-         free(f->pack_data);
-
-      if (f->passdata)
-         free(f->passdata);
+      /* These are no longer the responsibility of this function, but
+       * these assertions help catch instances of old code which still
+       * rely on the old behaviour.
+       */
+      if (f->is_normal_packfile) {
+	 ASSERT(!f->normal.pack_data);
+	 ASSERT(!f->normal.unpack_data);
+	 ASSERT(!f->normal.passdata);
+	 ASSERT(!f->normal.passpos);
+      }
 
       free(f);
    }
@@ -1600,36 +1566,41 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
    long header = FALSE;
    int c;
 
-   if ((f = create_packfile()) == NULL)
+   if ((f = create_packfile(TRUE)) == NULL)
       return NULL;
+
+   ASSERT(f->is_normal_packfile);
 
    while ((c = *(mode++)) != 0) {
       switch (c) {
-	 case 'r': case 'R': f->flags &= ~PACKFILE_FLAG_WRITE; break;
-	 case 'w': case 'W': f->flags |= PACKFILE_FLAG_WRITE; break;
-	 case 'p': case 'P': f->flags |= PACKFILE_FLAG_PACK; break;
-	 case '!': f->flags &= ~PACKFILE_FLAG_PACK; header = TRUE; break;
+	 case 'r': case 'R': f->normal.flags &= ~PACKFILE_FLAG_WRITE; break;
+	 case 'w': case 'W': f->normal.flags |= PACKFILE_FLAG_WRITE; break;
+	 case 'p': case 'P': f->normal.flags |= PACKFILE_FLAG_PACK; break;
+	 case '!': f->normal.flags &= ~PACKFILE_FLAG_PACK; header = TRUE; break;
       }
    }
 
-   if (f->flags & PACKFILE_FLAG_WRITE) {
-      if (f->flags & PACKFILE_FLAG_PACK) {
+   if (f->normal.flags & PACKFILE_FLAG_WRITE) {
+      if (f->normal.flags & PACKFILE_FLAG_PACK) {
 	 /* write a packed file */
-	 f->pack_data = create_pack_data();
+	 f->normal.pack_data = create_lzss_pack_data();
+	 ASSERT(!f->normal.unpack_data);
 
-	 if (!f->pack_data) {
+	 if (!f->normal.pack_data) {
 	    free_packfile(f);
 	    return NULL;
 	 }
 
-	 if ((f->parent = _pack_fdopen(fd, F_WRITE)) == NULL) {
+	 if ((f->normal.parent = _pack_fdopen(fd, F_WRITE)) == NULL) {
+	    free_lzss_pack_data(f->normal.pack_data);
+	    f->normal.pack_data = NULL;
 	    free_packfile(f);
 	    return NULL;
 	 }
 
-	 pack_mputl(encrypt_id(F_PACK_MAGIC, TRUE), f->parent);
+	 pack_mputl(encrypt_id(F_PACK_MAGIC, TRUE), f->normal.parent);
 
-	 f->todo = 4;
+	 f->normal.todo = 4;
       }
       else {
 	 /* write a 'real' file */
@@ -1638,8 +1609,8 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	    return NULL;
 	 }
 
-         f->hndl = fd;
-	 f->todo = 0;
+         f->normal.hndl = fd;
+	 f->normal.todo = 0;
 
 	 errno = 0;
 
@@ -1648,75 +1619,39 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
       }
    }
    else { 
-      if (f->flags & PACKFILE_FLAG_PACK) {
+      if (f->normal.flags & PACKFILE_FLAG_PACK) {
 	 /* read a packed file */
-         f->pack_data = create_unpack_data();
+         f->normal.unpack_data = create_lzss_unpack_data();
+	 ASSERT(!f->normal.pack_data);
 
-         if (!f->pack_data) {
+         if (!f->normal.unpack_data) {
 	    free_packfile(f);
 	    return NULL;
 	 }
 
-         if ((f->parent = _pack_fdopen(fd, F_READ)) == NULL) {
+         if ((f->normal.parent = _pack_fdopen(fd, F_READ)) == NULL) {
+	    free_lzss_unpack_data(f->normal.unpack_data);
+	    f->normal.unpack_data = NULL;
 	    free_packfile(f);
 	    return NULL;
 	 }
 
-	 header = pack_mgetl(f->parent);
-
-	 if ((f->parent->passpos) &&
-	     ((header == encrypt_id(F_PACK_MAGIC, FALSE)) ||
-	      (header == encrypt_id(F_NOPACK_MAGIC, FALSE)))) {
-
-	    /* duplicate the file descriptor */
-	    int fd2 = dup(fd);
-
-	    if (fd2<0) {
-	       pack_fclose(f->parent);
-	       free_packfile(f);
-	       *allegro_errno = errno;
-	       return NULL;
-            }
-
-	    /* close the parent file (logically, not physically) */
-	    pack_fclose(f->parent);
-
-	    /* backward compatibility mode */
-	    if (!clone_password(f)) {
-	       free_packfile(f);
-	       return NULL;
-	    }
-
-	    f->flags |= PACKFILE_FLAG_OLD_CRYPT;
-
-	    /* re-open the parent file */
-	    lseek(fd2, 0, SEEK_SET);
-
-	    if ((f->parent = _pack_fdopen(fd2, F_READ)) == NULL) {
-	       free_packfile(f);
-	       return NULL;
-	    }
-
-	    f->parent->flags |= PACKFILE_FLAG_OLD_CRYPT;
-
-	    pack_mgetl(f->parent);
-
-	    if (header == encrypt_id(F_PACK_MAGIC, FALSE))
-	       header = encrypt_id(F_PACK_MAGIC, TRUE);
-	    else
-	       header = encrypt_id(F_NOPACK_MAGIC, TRUE);
-	 }
+	 header = pack_mgetl(f->normal.parent);
 
 	 if (header == encrypt_id(F_PACK_MAGIC, TRUE)) {
-	    f->todo = LONG_MAX;
+	    f->normal.todo = LONG_MAX;
 	 }
 	 else if (header == encrypt_id(F_NOPACK_MAGIC, TRUE)) {
-	    f2 = f->parent;
+	    f2 = f->normal.parent;
+	    free_lzss_unpack_data(f->normal.unpack_data);
+	    f->normal.unpack_data = NULL;
  	    free_packfile(f);
 	    return f2;
 	 }
 	 else {
-	    pack_fclose(f->parent);
+	    pack_fclose(f->normal.parent);
+	    free_lzss_unpack_data(f->normal.unpack_data);
+	    f->normal.unpack_data = NULL;
 	    free_packfile(f);
 	    *allegro_errno = EDOM;
 	    return NULL;
@@ -1724,8 +1659,8 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
       }
       else {
 	 /* read a 'real' file */
-	 f->todo = lseek(fd, 0, SEEK_END);  /* size of the file */
-	 if (f->todo < 0) {
+	 f->normal.todo = lseek(fd, 0, SEEK_END);  /* size of the file */
+	 if (f->normal.todo < 0) {
 	    *allegro_errno = errno;
 	    free_packfile(f);
 	    return NULL;
@@ -1738,7 +1673,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	    return NULL;
 	 }
 
-         f->hndl = fd;
+         f->normal.hndl = fd;
       }
    }
 
@@ -1807,6 +1742,47 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 
 
 
+/* pack_fopen_vtable:
+ *  Creates a new packfile structure that uses the functions specified in
+ *  the vtable instead of the standard functions.  On success, it returns a
+ *  pointer to a file structure, and on error it returns NULL and
+ *  stores an error code in errno.
+ *
+ *  The vtable and userdata must remain available for the lifetime of the
+ *  created packfile.
+ *
+ *  Opening chunks using pack_fopen_chunk() on top of the returned packfile
+ *  is not possible at this time.
+ *
+ *  packfile_password() does not have any effect on packfiles opened
+ *  with pack_fopen_vtable().
+ */
+PACKFILE *pack_fopen_vtable(AL_CONST PACKFILE_VTABLE *vtable, void *userdata)
+{
+   PACKFILE *f;
+   ASSERT(vtable);
+   ASSERT(vtable->pf_fclose);
+   ASSERT(vtable->pf_getc);
+   ASSERT(vtable->pf_ungetc);
+   ASSERT(vtable->pf_fread);
+   ASSERT(vtable->pf_putc);
+   ASSERT(vtable->pf_fwrite);
+   ASSERT(vtable->pf_fseek);
+   ASSERT(vtable->pf_feof);
+   ASSERT(vtable->pf_ferror);
+
+   if ((f = create_packfile(FALSE)) == NULL)
+      return NULL;
+
+   f->vtable = vtable;
+   f->userdata = userdata;
+   ASSERT(!f->is_normal_packfile);
+
+   return f;
+}
+
+
+
 /* pack_fclose:
  *  Closes a file after it has been read or written.
  *  Returns zero on success. On error it returns an error code which is
@@ -1817,33 +1793,19 @@ int pack_fclose(PACKFILE *f)
 {
    int ret;
 
-   if (f) {
-      if (f->flags & PACKFILE_FLAG_WRITE) {
-	 if (f->flags & PACKFILE_FLAG_CHUNK) {
-            f = pack_fclose_chunk(f);
-            if (!f)
-               return -1;
+   if (!f)
+      return 0;
 
-            return pack_fclose(f);
-         }
+   ASSERT(f->vtable);
+   ASSERT(f->vtable->pf_fclose);
 
-	 flush_buffer(f, TRUE);
-      }
+   ret = f->vtable->pf_fclose(f->userdata);
+   if (ret != 0)
+      *allegro_errno = errno;
 
-      if (f->parent) {
-	 ret = pack_fclose(f->parent);
-      }
-      else {
-	 ret = close(f->hndl);
-	 if (ret != 0)
-	    *allegro_errno = errno;
-      }
+   free_packfile(f);
 
-      free_packfile(f);
-      return ret;
-   }
-
-   return 0;
+   return ret;
 }
 
 
@@ -1873,7 +1835,13 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
    char *name;
    ASSERT(f);
 
-   if (f->flags & PACKFILE_FLAG_WRITE) {
+   /* unsupported */
+   if (!f->is_normal_packfile) {
+      *allegro_errno = EINVAL;
+      return NULL;
+   }
+
+   if (f->normal.flags & PACKFILE_FLAG_WRITE) {
 
       /* write a sub-chunk */ 
       int tmp_fd = -1;
@@ -1909,14 +1877,14 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       chunk = _pack_fdopen(tmp_fd, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
 
       if (chunk) {
-         chunk->filename = ustrdup(name);
+         chunk->normal.filename = ustrdup(name);
 
 	 if (pack)
-	    chunk->parent->parent = f;
+	    chunk->normal.parent->normal.parent = f;
 	 else
-	    chunk->parent = f;
+	    chunk->normal.parent = f;
 
-	 chunk->flags |= PACKFILE_FLAG_CHUNK;
+	 chunk->normal.flags |= PACKFILE_FLAG_CHUNK;
       }
    }
    else {
@@ -1924,43 +1892,29 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       _packfile_filesize = pack_mgetl(f);
       _packfile_datasize = pack_mgetl(f);
 
-      if ((chunk = create_packfile()) == NULL)
+      if ((chunk = create_packfile(TRUE)) == NULL)
          return NULL;
 
-      chunk->flags = PACKFILE_FLAG_CHUNK;
-      chunk->parent = f;
-
-      if (f->flags & PACKFILE_FLAG_OLD_CRYPT) {
-	 /* backward compatibility mode */
-	 if (f->passdata) {
-	    if ((chunk->passdata = malloc(strlen(f->passdata)+1)) == NULL) {
-	       *allegro_errno = ENOMEM;
-	       free(chunk);
-	       return NULL;
-	    }
-	    _al_sane_strncpy(chunk->passdata, f->passdata, strlen(f->passdata)+1);
-	    chunk->passpos = chunk->passdata + (long)f->passpos - (long)f->passdata;
-	    f->passpos = f->passdata;
-	 }
-	 chunk->flags |= PACKFILE_FLAG_OLD_CRYPT;
-      }
+      chunk->normal.flags = PACKFILE_FLAG_CHUNK;
+      chunk->normal.parent = f;
 
       if (_packfile_datasize < 0) {
 	 /* read a packed chunk */
-         chunk->pack_data = create_unpack_data();
+         chunk->normal.unpack_data = create_lzss_unpack_data();
+	 ASSERT(!chunk->normal.pack_data);
 
-	 if (!chunk->pack_data) {
+	 if (!chunk->normal.unpack_data) {
             free_packfile(chunk);
 	    return NULL;
 	 }
 
 	 _packfile_datasize = -_packfile_datasize;
-	 chunk->todo = _packfile_datasize;
-	 chunk->flags |= PACKFILE_FLAG_PACK;
+	 chunk->normal.todo = _packfile_datasize;
+	 chunk->normal.flags |= PACKFILE_FLAG_PACK;
       }
       else {
 	 /* read an uncompressed chunk */
-	 chunk->todo = _packfile_datasize;
+	 chunk->normal.todo = _packfile_datasize;
       }
    }
 
@@ -1983,39 +1937,45 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
    int header, c;
    ASSERT(f);
 
-   parent = f->parent;
-   name = f->filename;
+   /* unsupported */
+   if (!f->is_normal_packfile) {
+      *allegro_errno = EINVAL;
+      return NULL;
+   }
 
-   if (f->flags & PACKFILE_FLAG_WRITE) {
+   parent = f->normal.parent;
+   name = f->normal.filename;
+
+   if (f->normal.flags & PACKFILE_FLAG_WRITE) {
       /* finish writing a chunk */
       int hndl;
 
       /* duplicate the file descriptor to create a readable pack file,
        * the file descriptor must have been opened in read/write mode
        */
-      if (f->flags & PACKFILE_FLAG_PACK)
-         hndl = dup(f->parent->hndl);
+      if (f->normal.flags & PACKFILE_FLAG_PACK)
+         hndl = dup(f->normal.parent->normal.hndl);
       else
-         hndl = dup(f->hndl);
+         hndl = dup(f->normal.hndl);
 
       if (hndl<0) {
          *allegro_errno = errno;
          return NULL;
       }
 
-      _packfile_datasize = f->todo + f->buf_size - 4;
+      _packfile_datasize = f->normal.todo + f->normal.buf_size - 4;
 
-      if (f->flags & PACKFILE_FLAG_PACK) {
-	 parent = parent->parent;
-	 f->parent->parent = NULL;
+      if (f->normal.flags & PACKFILE_FLAG_PACK) {
+	 parent = parent->normal.parent;
+	 f->normal.parent->normal.parent = NULL;
       }
       else
-	 f->parent = NULL;
+	 f->normal.parent = NULL;
 
       /* close the writeable temp file, it isn't physically closed
        * because the descriptor has been duplicated
        */
-      f->flags &= ~PACKFILE_FLAG_CHUNK;
+      f->normal.flags &= ~PACKFILE_FLAG_CHUNK;
       pack_fclose(f);
 
       lseek(hndl, 0, SEEK_SET);
@@ -2025,7 +1985,7 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
       if (!tmp)
          return NULL;
 
-      _packfile_filesize = tmp->todo - 4;
+      _packfile_filesize = tmp->normal.todo - 4;
 
       header = pack_mgetl(tmp);
 
@@ -2046,11 +2006,8 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
    }
    else {
       /* finish reading a chunk */
-      while (f->todo > 0)
+      while (f->normal.todo > 0)
 	 pack_getc(f);
-
-      if ((f->passpos) && (f->flags & PACKFILE_FLAG_OLD_CRYPT))
-	 parent->passpos = parent->passdata + (long)f->passpos - (long)f->passdata;
 
       free_packfile(f);
    }
@@ -2066,55 +2023,10 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
  */
 int pack_fseek(PACKFILE *f, int offset)
 {
-   int i;
    ASSERT(f);
    ASSERT(offset >= 0);
 
-   if (f->flags & PACKFILE_FLAG_WRITE)
-      return -1;
-
-   *allegro_errno = 0;
-
-   /* skip forward through the buffer */
-   if (f->buf_size > 0) {
-      i = MIN(offset, f->buf_size);
-      f->buf_size -= i;
-      f->buf_pos += i;
-      offset -= i;
-      if ((f->buf_size <= 0) && (f->todo <= 0))
-	 f->flags |= PACKFILE_FLAG_EOF;
-   }
-
-   /* need to seek some more? */
-   if (offset > 0) {
-      i = MIN(offset, f->todo);
-
-      if ((f->flags & PACKFILE_FLAG_PACK) || (f->passpos)) {
-	 /* for compressed files, we just have to read through the data */
-	 while (i > 0) {
-	    pack_getc(f);
-	    i--;
-	 }
-      }
-      else {
-	 if (f->parent) {
-	    /* pass the seek request on to the parent file */
-	    pack_fseek(f->parent, i);
-	 }
-	 else {
-	    /* do a real seek */
-	    lseek(f->hndl, i, SEEK_CUR);
-	 }
-	 f->todo -= i;
-	 if (f->todo <= 0)
-	    f->flags |= PACKFILE_FLAG_EOF;
-      }
-   }
-
-   if (*allegro_errno)
-      return -1;
-   else
-      return 0;
+   return f->vtable->pf_fseek(f->userdata, offset);
 }
 
 
@@ -2288,19 +2200,13 @@ long pack_mputl(long l, PACKFILE *f)
  */
 long pack_fread(void *p, long n, PACKFILE *f)
 {
-   unsigned char *cp = (unsigned char *)p;
-   long i;
-   int c;
    ASSERT(f);
+   ASSERT(f->vtable);
+   ASSERT(f->vtable->pf_fread);
+   ASSERT(p);
+   ASSERT(n >= 0);
 
-   for (i=0; i<n; i++) {
-      if ((c = pack_getc(f)) == EOF)
-	 break;
-
-      *(cp++) = c;
-   }
-
-   return i;
+   return f->vtable->pf_fread(p, n, f->userdata);
 }
 
 
@@ -2312,32 +2218,29 @@ long pack_fread(void *p, long n, PACKFILE *f)
  */
 long pack_fwrite(AL_CONST void *p, long n, PACKFILE *f)
 {
-   AL_CONST unsigned char *cp = (AL_CONST unsigned char *)p;
-   long i;
    ASSERT(f);
+   ASSERT(f->vtable);
+   ASSERT(f->vtable->pf_fwrite);
    ASSERT(p);
+   ASSERT(n >= 0);
 
-   for (i=0; i<n; i++) {
-      if (pack_putc(*cp++, f) == EOF)
-	 break;
-   }
-
-   return i;
+   return f->vtable->pf_fwrite(p, n, f->userdata);
 }
 
 
 
 /* pack_ungetc:
- *  Puts a character back in the file's input buffer.  Added by gfoot for
- *  use in the fgets function; maybe it should be in the API.  It only works
- *  for characters just fetched by pack_getc.
+ *  Puts a character back in the file's input buffer. It only works
+ *  for characters just fetched by pack_getc and, like ungetc, only a
+ *  single push back is guaranteed.
  */
-static void pack_ungetc(int ch, PACKFILE *f)
+int pack_ungetc(int c, PACKFILE *f)
 {
    ASSERT(f);
-   *(--f->buf_pos) = (unsigned char)ch;
-   f->buf_size++;
-   f->flags &= ~PACKFILE_FLAG_EOF;
+   ASSERT(f->vtable);
+   ASSERT(f->vtable->pf_ungetc);
+
+   return f->vtable->pf_ungetc(c, f->userdata);
 }
 
 
@@ -2373,7 +2276,8 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
 	  * add a \n.  But pack_fgets has never done this. */
 	 if (c == '\r') {
 	    /* eat the following \n, if any */
-	    if ((c = pack_getc(f)) != '\n')
+	    c = pack_getc(f);
+	    if ((c != '\n') && (c != EOF))
 	       pack_ungetc(c, f);
 	 }
 	 break;
@@ -2444,165 +2348,392 @@ int pack_fputs(AL_CONST char *p, PACKFILE *f)
 
 
 
-/* _sort_out_getc:
- *  Helper function for the pack_getc() macro.
+/* pack_get_userdata:
+ *  Returns the userdata field of packfiles using user-defined vtables.
  */
-int _sort_out_getc(PACKFILE *f)
+void *pack_get_userdata(PACKFILE *f)
 {
-   if (f->buf_size == 0) {
-      if (f->todo <= 0)
-	 f->flags |= PACKFILE_FLAG_EOF;
-      return *(f->buf_pos++);
-   }
+   ASSERT(f);
 
-   return refill_buffer(f);
+   return f->userdata;
 }
 
 
 
-/* refill_buffer:
+/***************************************************
+ ************ "Normal" packfile vtable *************
+ ***************************************************
+
+   Ideally this would be the only section which knows about the details
+   of "normal" packfiles. However, this ideal is still being violated in
+   many places (partly due to the API, and partly because it would be
+   quite a lot of work to move the _al_normal_packfile_details field
+   into the userdata field of the PACKFILE structure.
+*/
+
+
+static int normal_fclose(void *_f);
+static int normal_getc(void *_f);
+static int normal_ungetc(int ch, void *_f);
+static int normal_putc(int c, void *_f);
+static long normal_fread(void *p, long n, void *_f);
+static long normal_fwrite(AL_CONST void *p, long n, void *_f);
+static int normal_fseek(void *_f, int offset);
+static int normal_feof(void *_f);
+static int normal_ferror(void *_f);
+
+static int normal_refill_buffer(PACKFILE *f);
+static int normal_flush_buffer(PACKFILE *f, int last);
+
+
+
+static PACKFILE_VTABLE normal_vtable =
+{
+   normal_fclose,
+   normal_getc,
+   normal_ungetc,
+   normal_fread,
+   normal_putc,
+   normal_fwrite,
+   normal_fseek,
+   normal_feof,
+   normal_ferror
+};
+
+
+
+static int normal_fclose(void *_f)
+{
+   PACKFILE *f = _f;
+   int ret;
+
+   if (f->normal.flags & PACKFILE_FLAG_WRITE) {
+      if (f->normal.flags & PACKFILE_FLAG_CHUNK) {
+	 f = pack_fclose_chunk(_f);
+	 if (!f)
+	    return -1;
+
+	 return pack_fclose(f);
+      }
+
+      normal_flush_buffer(f, TRUE);
+   }
+
+   if (f->normal.parent) {
+      ret = pack_fclose(f->normal.parent);
+   }
+   else {
+      ret = close(f->normal.hndl);
+      if (ret != 0)
+	 *allegro_errno = errno;
+   }
+
+   if (f->normal.pack_data) {
+      free_lzss_pack_data(f->normal.pack_data);
+      f->normal.pack_data = NULL;
+   }
+
+   if (f->normal.unpack_data) {
+      free_lzss_unpack_data(f->normal.unpack_data);
+      f->normal.unpack_data = NULL;
+   }
+
+   if (f->normal.passdata) {
+      free(f->normal.passdata);
+      f->normal.passdata = NULL;
+      f->normal.passpos = NULL;
+   }
+
+   return ret;
+}
+
+
+
+static int normal_getc(void *_f)
+{
+   PACKFILE *f = _f;
+
+   f->normal.buf_size--;
+   if (f->normal.buf_size > 0)
+      return *(f->normal.buf_pos++);
+
+   if (f->normal.buf_size == 0) {
+      if (f->normal.todo <= 0)
+	 f->normal.flags |= PACKFILE_FLAG_EOF;
+      return *(f->normal.buf_pos++);
+   }
+
+   return normal_refill_buffer(f);
+}
+
+
+
+static int normal_ungetc(int c, void *_f)
+{
+   PACKFILE *f = _f;
+
+   if (f->normal.buf_pos == f->normal.buf) {
+      return EOF;
+   }
+   else {
+      *(--f->normal.buf_pos) = (unsigned char)c;
+      f->normal.buf_size++;
+      f->normal.flags &= ~PACKFILE_FLAG_EOF;
+      return (unsigned char)c;
+   }
+}
+
+
+
+static long normal_fread(void *p, long n, void *_f)
+{
+   PACKFILE *f = _f;
+   unsigned char *cp = (unsigned char *)p;
+   long i;
+   int c;
+
+   for (i=0; i<n; i++) {
+      if ((c = pack_getc(f)) == EOF)
+	 break;
+
+      *(cp++) = c;
+   }
+
+   return i;
+}
+
+
+
+static int normal_putc(int c, void *_f)
+{
+   PACKFILE *f = _f;
+
+   if (f->normal.buf_size + 1 >= F_BUF_SIZE) {
+      if (normal_flush_buffer(f, FALSE))
+	 return EOF;
+   }
+
+   f->normal.buf_size++;
+   return (*(f->normal.buf_pos++) = c);
+}
+
+
+
+static long normal_fwrite(AL_CONST void *p, long n, void *_f)
+{
+   PACKFILE *f = _f;
+   AL_CONST unsigned char *cp = (AL_CONST unsigned char *)p;
+   long i;
+
+   for (i=0; i<n; i++) {
+      if (normal_putc(*cp++, f) == EOF)
+	 break;
+   }
+
+   return i;
+}
+
+
+
+static int normal_fseek(void *_f, int offset)
+{
+   PACKFILE *f = _f;
+   int i;
+
+   if (f->normal.flags & PACKFILE_FLAG_WRITE)
+      return -1;
+
+   *allegro_errno = 0;
+
+   /* skip forward through the buffer */
+   if (f->normal.buf_size > 0) {
+      i = MIN(offset, f->normal.buf_size);
+      f->normal.buf_size -= i;
+      f->normal.buf_pos += i;
+      offset -= i;
+      if ((f->normal.buf_size <= 0) && (f->normal.todo <= 0))
+	 f->normal.flags |= PACKFILE_FLAG_EOF;
+   }
+
+   /* need to seek some more? */
+   if (offset > 0) {
+      i = MIN(offset, f->normal.todo);
+
+      if ((f->normal.flags & PACKFILE_FLAG_PACK) || (f->normal.passpos)) {
+	 /* for compressed or encrypted files, we just have to read through the data */
+	 while (i > 0) {
+	    pack_getc(f);
+	    i--;
+	 }
+      }
+      else {
+	 if (f->normal.parent) {
+	    /* pass the seek request on to the parent file */
+	    pack_fseek(f->normal.parent, i);
+	 }
+	 else {
+	    /* do a real seek */
+	    lseek(f->normal.hndl, i, SEEK_CUR);
+	 }
+	 f->normal.todo -= i;
+	 if (f->normal.todo <= 0)
+	    f->normal.flags |= PACKFILE_FLAG_EOF;
+      }
+   }
+
+   if (*allegro_errno)
+      return -1;
+   else
+      return 0;
+}
+
+
+
+static int normal_feof(void *_f)
+{
+   PACKFILE *f = _f;
+
+   return (f->normal.flags & PACKFILE_FLAG_EOF);
+}
+
+
+
+static int normal_ferror(void *_f)
+{
+   PACKFILE *f = _f;
+
+   return (f->normal.flags & PACKFILE_FLAG_ERROR);
+}
+
+
+
+/* normal_refill_buffer:
  *  Refills the read buffer. The file must have been opened in read mode,
  *  and the buffer must be empty.
  */
-static int refill_buffer(PACKFILE *f)
+static int normal_refill_buffer(PACKFILE *f)
 {
    int i, sz, done, offset;
 
-   if (f->flags & PACKFILE_FLAG_EOF)
+   if (f->normal.flags & PACKFILE_FLAG_EOF)
       return EOF;
 
-   if (f->todo <= 0) {
-      f->flags |= PACKFILE_FLAG_EOF;
+   if (f->normal.todo <= 0) {
+      f->normal.flags |= PACKFILE_FLAG_EOF;
       return EOF;
    }
 
-   if (f->parent) {
-      if (f->flags & PACKFILE_FLAG_PACK) {
-	 f->buf_size = pack_read(f->parent, (UNPACK_DATA *)f->pack_data, MIN(F_BUF_SIZE, f->todo), f->buf);
+   if (f->normal.parent) {
+      if (f->normal.flags & PACKFILE_FLAG_PACK) {
+	 f->normal.buf_size = lzss_read(f->normal.parent, f->normal.unpack_data, MIN(F_BUF_SIZE, f->normal.todo), f->normal.buf);
       }
       else {
-	 f->buf_size = pack_fread(f->buf, MIN(F_BUF_SIZE, f->todo), f->parent);
+	 f->normal.buf_size = pack_fread(f->normal.buf, MIN(F_BUF_SIZE, f->normal.todo), f->normal.parent);
       } 
-      if (f->parent->flags & PACKFILE_FLAG_EOF)
-	 f->todo = 0;
-      if (f->parent->flags & PACKFILE_FLAG_ERROR)
+      if (f->normal.parent->normal.flags & PACKFILE_FLAG_EOF)
+	 f->normal.todo = 0;
+      if (f->normal.parent->normal.flags & PACKFILE_FLAG_ERROR)
 	 goto Error;
    }
    else {
-      f->buf_size = MIN(F_BUF_SIZE, f->todo);
+      f->normal.buf_size = MIN(F_BUF_SIZE, f->normal.todo);
 
-      offset = lseek(f->hndl, 0, SEEK_CUR);
+      offset = lseek(f->normal.hndl, 0, SEEK_CUR);
       done = 0;
 
       errno = 0;
-      sz = read(f->hndl, f->buf, f->buf_size);
+      sz = read(f->normal.hndl, f->normal.buf, f->normal.buf_size);
 
-      while (sz+done < f->buf_size) {
+      while (sz+done < f->normal.buf_size) {
 	 if ((sz < 0) && ((errno != EINTR) && (errno != EAGAIN)))
 	    goto Error;
 
 	 if (sz > 0)
 	    done += sz;
 
-	 lseek(f->hndl, offset+done, SEEK_SET);
+	 lseek(f->normal.hndl, offset+done, SEEK_SET);
          errno = 0;
-	 sz = read(f->hndl, f->buf+done, f->buf_size-done);
+	 sz = read(f->normal.hndl, f->normal.buf+done, f->normal.buf_size-done);
       }
 
-      if ((f->passpos) && (!(f->flags & PACKFILE_FLAG_OLD_CRYPT))) {
-	 for (i=0; i<f->buf_size; i++) {
-	    f->buf[i] ^= *(f->passpos++);
-	    if (!*f->passpos)
-	       f->passpos = f->passdata;
+      if (f->normal.passpos) {
+	 for (i=0; i<f->normal.buf_size; i++) {
+	    f->normal.buf[i] ^= *(f->normal.passpos++);
+	    if (!*f->normal.passpos)
+	       f->normal.passpos = f->normal.passdata;
 	 }
       }
    }
 
-   f->todo -= f->buf_size;
-   f->buf_pos = f->buf;
-   f->buf_size--;
-   if (f->buf_size <= 0)
-      if (f->todo <= 0)
-	 f->flags |= PACKFILE_FLAG_EOF;
+   f->normal.todo -= f->normal.buf_size;
+   f->normal.buf_pos = f->normal.buf;
+   f->normal.buf_size--;
+   if (f->normal.buf_size <= 0)
+      if (f->normal.todo <= 0)
+	 f->normal.flags |= PACKFILE_FLAG_EOF;
 
-   if (f->buf_size < 0)
+   if (f->normal.buf_size < 0)
       return EOF;
    else
-      return *(f->buf_pos++);
+      return *(f->normal.buf_pos++);
 
  Error:
    *allegro_errno = EFAULT;
-   f->flags |= PACKFILE_FLAG_ERROR;
+   f->normal.flags |= PACKFILE_FLAG_ERROR;
    return EOF;
 }
 
 
 
-/* _sort_out_putc:
- *  Helper function for the pack_putc() macro.
- */
-int _sort_out_putc(int c, PACKFILE *f)
-{
-   f->buf_size--;
-
-   if (flush_buffer(f, FALSE))
-      return EOF;
-
-   f->buf_size++;
-   return (*(f->buf_pos++)=c);
-}
-
-
-
-/* flush_buffer:
+/* normal_flush_buffer:
  *  Flushes a file buffer to the disk. The file must be open in write mode.
  */
-static int flush_buffer(PACKFILE *f, int last)
+static int normal_flush_buffer(PACKFILE *f, int last)
 {
    int i, sz, done, offset;
 
-   if (f->buf_size > 0) {
-      if (f->flags & PACKFILE_FLAG_PACK) {
-	 if (pack_write(f->parent, (PACK_DATA *)f->pack_data, f->buf_size, f->buf, last))
+   if (f->normal.buf_size > 0) {
+      if (f->normal.flags & PACKFILE_FLAG_PACK) {
+	 if (lzss_write(f->normal.parent, f->normal.pack_data, f->normal.buf_size, f->normal.buf, last))
 	    goto Error;
       }
       else {
-	 if ((f->passpos) && (!(f->flags & PACKFILE_FLAG_OLD_CRYPT))) {
-	    for (i=0; i<f->buf_size; i++) {
-	       f->buf[i] ^= *(f->passpos++);
-	       if (!*f->passpos)
-		  f->passpos = f->passdata;
+	 if (f->normal.passpos) {
+	    for (i=0; i<f->normal.buf_size; i++) {
+	       f->normal.buf[i] ^= *(f->normal.passpos++);
+	       if (!*f->normal.passpos)
+		  f->normal.passpos = f->normal.passdata;
 	    }
 	 }
 
-	 offset = lseek(f->hndl, 0, SEEK_CUR);
+	 offset = lseek(f->normal.hndl, 0, SEEK_CUR);
 	 done = 0;
 
 	 errno = 0;
-	 sz = write(f->hndl, f->buf, f->buf_size);
+	 sz = write(f->normal.hndl, f->normal.buf, f->normal.buf_size);
 
-	 while (sz+done < f->buf_size) {
+	 while (sz+done < f->normal.buf_size) {
 	    if ((sz < 0) && ((errno != EINTR) && (errno != EAGAIN)))
 	       goto Error;
 
 	    if (sz > 0)
 	       done += sz;
 
-	    lseek(f->hndl, offset+done, SEEK_SET);
+	    lseek(f->normal.hndl, offset+done, SEEK_SET);
 	    errno = 0;
-	    sz = write(f->hndl, f->buf+done, f->buf_size-done);
+	    sz = write(f->normal.hndl, f->normal.buf+done, f->normal.buf_size-done);
 	 }
       }
-      f->todo += f->buf_size;
+      f->normal.todo += f->normal.buf_size;
    }
 
-   f->buf_pos = f->buf;
-   f->buf_size = 0;
+   f->normal.buf_pos = f->normal.buf;
+   f->normal.buf_size = 0;
    return 0;
 
  Error:
    *allegro_errno = EFAULT;
-   f->flags |= PACKFILE_FLAG_ERROR;
+   f->normal.flags |= PACKFILE_FLAG_ERROR;
    return EOF;
 }
 
@@ -2640,8 +2771,78 @@ static int flush_buffer(PACKFILE *f, int last)
 */
 
 
+#define N            4096           /* 4k buffers for LZ compression */
+#define F            18             /* upper limit for LZ match length */
+#define THRESHOLD    2              /* LZ encode string into pos and length
+				       if match size is greater than this */
 
-/* pack_inittree:
+
+struct LZSS_PACK_DATA               /* stuff for doing LZ compression */
+{
+   int state;                       /* where have we got to in the pack? */
+   int i, c, len, r, s;
+   int last_match_length, code_buf_ptr;
+   unsigned char mask;
+   char code_buf[17];
+   int match_position;
+   int match_length;
+   int lson[N+1];                   /* left children, */
+   int rson[N+257];                 /* right children, */
+   int dad[N+1];                    /* and parents, = binary search trees */
+   unsigned char text_buf[N+F-1];   /* ring buffer, with F-1 extra bytes
+				       for string comparison */
+};
+
+
+struct LZSS_UNPACK_DATA             /* for reading LZ files */
+{
+   int state;                       /* where have we got to? */
+   int i, j, k, r, c;
+   int flags;
+   unsigned char text_buf[N+F-1];   /* ring buffer, with F-1 extra bytes
+				       for string comparison */
+};
+
+
+
+/*** Compression (writing) ***/
+
+/* create_lzss_pack_data:
+ *  Creates a PACK_DATA structure.
+ */
+LZSS_PACK_DATA *create_lzss_pack_data(void)
+{
+   LZSS_PACK_DATA *dat;
+   int c;
+
+   if ((dat = malloc(sizeof(LZSS_PACK_DATA))) == NULL) {
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+
+   for (c=0; c < N - F; c++)
+      dat->text_buf[c] = 0;
+
+   dat->state = 0;
+
+   return dat;
+}
+
+
+
+/* free_lzss_pack_data:
+ *  Frees an LZSS_PACK_DATA structure.
+ */
+void free_lzss_pack_data(LZSS_PACK_DATA *dat)
+{
+   ASSERT(dat);
+
+   free(dat);
+}
+
+
+
+/* lzss_inittree:
  *  For i = 0 to N-1, rson[i] and lson[i] will be the right and left 
  *  children of node i. These nodes need not be initialized. Also, dad[i] 
  *  is the parent of node i. These are initialized to N, which stands for 
@@ -2649,7 +2850,7 @@ static int flush_buffer(PACKFILE *f, int last)
  *  strings that begin with character i. These are initialized to N. Note 
  *  there are 256 trees.
  */
-static void pack_inittree(PACK_DATA *dat)
+static void lzss_inittree(LZSS_PACK_DATA *dat)
 {
    int i;
 
@@ -2662,7 +2863,7 @@ static void pack_inittree(PACK_DATA *dat)
 
 
 
-/* pack_insertnode:
+/* lzss_insertnode:
  *  Inserts a string of length F, text_buf[r..r+F-1], into one of the trees 
  *  (text_buf[r]'th tree) and returns the longest-match position and length 
  *  via match_position and match_length. If match_length = F, then removes 
@@ -2670,7 +2871,7 @@ static void pack_inittree(PACK_DATA *dat)
  *  deleted sooner. Note r plays double role, as tree node and position in 
  *  the buffer. 
  */
-static void pack_insertnode(int r, PACK_DATA *dat)
+static void lzss_insertnode(int r, LZSS_PACK_DATA *dat)
 {
    int i, p, cmp;
    unsigned char *key;
@@ -2728,10 +2929,10 @@ static void pack_insertnode(int r, PACK_DATA *dat)
 
 
 
-/* pack_deletenode:
+/* lzss_deletenode:
  *  Removes a node from a tree.
  */
-static void pack_deletenode(int p, PACK_DATA *dat)
+static void lzss_deletenode(int p, LZSS_PACK_DATA *dat)
 {
    int q;
 
@@ -2769,11 +2970,11 @@ static void pack_deletenode(int p, PACK_DATA *dat)
 
 
 
-/* pack_write:
- *  Called by flush_buffer(). Packs size bytes from buf, using the pack 
- *  information contained in dat. Returns 0 on success.
+/* lzss_write:
+ *  Packs size bytes from buf, using the pack information contained in dat.
+ *  Returns 0 on success.
  */
-static int pack_write(PACKFILE *file, PACK_DATA *dat, int size, unsigned char *buf, int last)
+int lzss_write(PACKFILE *file, LZSS_PACK_DATA *dat, int size, unsigned char *buf, int last)
 {
    int i = dat->i;
    int c = dat->c;
@@ -2801,7 +3002,7 @@ static int pack_write(PACKFILE *file, PACK_DATA *dat, int size, unsigned char *b
 
    s = 0;
    r = N - F;
-   pack_inittree(dat);
+   lzss_inittree(dat);
 
    for (len=0; (len < F) && (size > 0); len++) {
       dat->text_buf[r+len] = *(buf++);
@@ -2819,13 +3020,13 @@ static int pack_write(PACKFILE *file, PACK_DATA *dat, int size, unsigned char *b
       goto getout;
 
    for (i=1; i <= F; i++)
-      pack_insertnode(r-i,dat);
+      lzss_insertnode(r-i,dat);
 	    /* Insert the F strings, each of which begins with one or
 	       more 'space' characters. Note the order in which these
 	       strings are inserted. This way, degenerate trees will be
 	       less likely to occur. */
 
-   pack_insertnode(r,dat);
+   lzss_insertnode(r,dat);
 	    /* Finally, insert the whole string just read. match_length
 	       and match_position are set. */
 
@@ -2847,13 +3048,6 @@ static int pack_write(PACKFILE *file, PACK_DATA *dat, int size, unsigned char *b
       }
 
       if ((mask <<= 1) == 0) {                  /* shift mask left one bit */
-	 if ((file->passpos) && (file->flags & PACKFILE_FLAG_OLD_CRYPT)) {
-	    dat->code_buf[0] ^= *file->passpos;
-	    file->passpos++;
-	    if (!*file->passpos)
-	       file->passpos = file->passdata;
-	 };
-
 	 for (i=0; i<code_buf_ptr; i++)         /* send at most 8 units of */
 	    pack_putc(dat->code_buf[i], file);  /* code together */
 
@@ -2876,7 +3070,7 @@ static int pack_write(PACKFILE *file, PACK_DATA *dat, int size, unsigned char *b
 	    }
 	 }
 	 pos2:
-	 pack_deletenode(s,dat);    /* delete old strings and */
+	 lzss_deletenode(s,dat);    /* delete old strings and */
 	 dat->text_buf[s] = c;      /* read new bytes */
 	 if (s < F-1)
 	    dat->text_buf[s+N] = c; /* if the position is near the end of
@@ -2886,28 +3080,21 @@ static int pack_write(PACKFILE *file, PACK_DATA *dat, int size, unsigned char *b
 	 r = (r+1) & (N-1);         /* since this is a ring buffer,
 				       increment the position modulo N */
 
-	 pack_insertnode(r,dat);    /* register the string in
+	 lzss_insertnode(r,dat);    /* register the string in
 				       text_buf[r..r+F-1] */
       }
 
       while (i++ < last_match_length) {   /* after the end of text, */
-	 pack_deletenode(s,dat);          /* no need to read, but */
+	 lzss_deletenode(s,dat);          /* no need to read, but */
 	 s = (s+1) & (N-1);               /* buffer may not be empty */
 	 r = (r+1) & (N-1);
 	 if (--len)
-	    pack_insertnode(r,dat); 
+	    lzss_insertnode(r,dat); 
       }
 
    } while (len > 0);   /* until length of string to be processed is zero */
 
    if (code_buf_ptr > 1) {         /* send remaining code */
-      if ((file->passpos) && (file->flags & PACKFILE_FLAG_OLD_CRYPT)) {
-	 dat->code_buf[0] ^= *file->passpos;
-	 file->passpos++;
-	 if (!*file->passpos)
-	    file->passpos = file->passdata;
-      };
-
       for (i=0; i<code_buf_ptr; i++) {
 	 pack_putc(dat->code_buf[i], file);
 	 if (pack_ferror(file)) {
@@ -2935,12 +3122,48 @@ static int pack_write(PACKFILE *file, PACK_DATA *dat, int size, unsigned char *b
 
 
 
-/* pack_read:
- *  Called by refill_buffer(). Unpacks from dat into buf, until either
- *  EOF is reached or s bytes have been extracted. Returns the number of
- *  bytes added to the buffer
+/*** Decompression (reading) ***/
+
+/* create_unpack_data:
+ *  Creates an LZSS_UNPACK_DATA structure.
  */
-static int pack_read(PACKFILE *file, UNPACK_DATA *dat, int s, unsigned char *buf)
+LZSS_UNPACK_DATA *create_lzss_unpack_data(void)
+{
+   LZSS_UNPACK_DATA *dat;
+   int c;
+
+   if ((dat = malloc(sizeof(LZSS_UNPACK_DATA))) == NULL) {
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+
+   for (c=0; c < N - F; c++)
+      dat->text_buf[c] = 0;
+
+   dat->state = 0;
+
+   return dat;
+}
+
+
+
+/* free_lzss_unpack_data:
+ *  Frees an LZSS_UNPACK_DATA structure.
+ */
+void free_lzss_unpack_data(LZSS_UNPACK_DATA *dat)
+{
+   ASSERT(dat);
+
+   free(dat);
+}
+
+
+
+/* lzss_read:
+ *  Unpacks from dat into buf, until either EOF is reached or s bytes have
+ *  been extracted. Returns the number of bytes added to the buffer
+ */
+int lzss_read(PACKFILE *file, LZSS_UNPACK_DATA *dat, int s, unsigned char *buf)
 {
    int i = dat->i;
    int j = dat->j;
@@ -2963,13 +3186,6 @@ static int pack_read(PACKFILE *file, UNPACK_DATA *dat, int s, unsigned char *buf
       if (((flags >>= 1) & 256) == 0) {
 	 if ((c = pack_getc(file)) == EOF)
 	    break;
-
-	 if ((file->passpos) && (file->flags & PACKFILE_FLAG_OLD_CRYPT)) {
-	    c ^= *file->passpos;
-	    file->passpos++;
-	    if (!*file->passpos)
-	       file->passpos = file->passdata;
-	 };
 
 	 flags = c | 0xFF00;        /* uses higher byte to count eight */
       }

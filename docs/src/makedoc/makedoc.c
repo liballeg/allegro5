@@ -59,6 +59,7 @@ int flags = TEXT_FLAG | HTML_FLAG | TEXINFO_FLAG | RTF_FLAG | MAN_FLAG;
 static int _last_toc_line = INT_MIN;
 static int _warn_on_long_lines = 0;
 static char *_email_mangle_at, *_email_mangle_dot;
+static int _mangle_emails = 0;
 
 
 /* internal functions */
@@ -329,7 +330,7 @@ static int _read_file(char *filename)
 
       _transform_custom_tags(buf);
 
-      if (flags & MANGLE_EMAILS)
+      if (_mangle_emails)
 	 _mangle_email_links(buf);
 
       if (buf[0] == '@') {
@@ -374,6 +375,8 @@ static int _read_file(char *filename)
 	    _add_line("", flags | RETURN_VALUE_FLAG);
 	    flags &= ~(HEADING_FLAG | NOCONTENT_FLAG | NONODE_FLAG);
 	 }
+	 else if (strincmp(buf+1, "shortdesc ") == 0)
+	    _add_line(buf+11, SHORT_DESC_FLAG);
 	 else if (strincmp(buf+1, "titlepage") == 0)
 	    _add_line("", START_TITLE_FLAG);
 	 else if (strincmp(buf+1, "!titlepage") == 0)
@@ -789,7 +792,7 @@ static void _activate_email_mangling(const char *txt)
    assert(txt);
    assert(*txt);
 
-   flags |= MANGLE_EMAILS;
+   _mangle_emails = 1;
    /* free previous strings if they existed */
    if (_email_mangle_at) free(_email_mangle_at);
    if (_email_mangle_dot) free(_email_mangle_dot);

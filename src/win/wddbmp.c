@@ -330,7 +330,7 @@ BITMAP *make_bitmap_from_surface(DDRAW_SURFACE *surf, int w, int h, int id)
    for (i = 0; i < h; i++)
       bmp->line[i] = pseudo_surf_mem;
 
-   DDRAW_SURFACE_OF(bmp) = surf;
+   bmp->extra = surf;
 
    return bmp;
 }
@@ -506,7 +506,7 @@ void gfx_directx_destroy_video_bitmap(BITMAP *bmp)
           */
          if (surf != tail_page) {
             surf->parent_bmp = tail_page->parent_bmp;
-            DDRAW_SURFACE_OF(surf->parent_bmp) = surf;
+            surf->parent_bmp->extra = surf;
          }
 
          /* remove the tail page from the flipping chain */
@@ -562,11 +562,11 @@ static int flip_with_forefront_bitmap(BITMAP *bmp, int wait)
 
    /* attach the surface to the former forefront bitmap */
    surf->parent_bmp = flipping_page[0]->parent_bmp;
-   DDRAW_SURFACE_OF(surf->parent_bmp) = surf;
+   surf->parent_bmp->extra = surf;
 
    /* make the bitmap point to the forefront surface */
    flipping_page[0]->parent_bmp = bmp;
-   DDRAW_SURFACE_OF(bmp) = flipping_page[0];
+   bmp->extra = flipping_page[0];
 
    return 0;
 }

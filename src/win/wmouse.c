@@ -46,6 +46,7 @@ static void mouse_directx_position(int x, int y);
 static void mouse_directx_set_range(int x1, int y1, int x2, int y2);
 static void mouse_directx_set_speed(int xspeed, int yspeed);
 static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy);
+static void mouse_directx_enable_hardware_cursor(int mode);
 static int mouse_directx_select_system_cursor(AL_CONST int cursor);
 
 MOUSE_DRIVER mouse_directx =
@@ -63,7 +64,7 @@ MOUSE_DRIVER mouse_directx =
    mouse_directx_set_speed,
    mouse_directx_get_mickeys,
    NULL,                       // AL_METHOD(int, analyse_data, (AL_CONST char *buffer, int size));
-   NULL,                       // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
+   mouse_directx_enable_hardware_cursor,
    mouse_directx_select_system_cursor
 };
 
@@ -209,8 +210,8 @@ static char* dinput_err_str(long err)
  */
 static void mouse_dinput_handle_event(int ofs, int data)
 {
-   static int last_mickeyx = 0;
-   static int last_mickeyy = 0;
+   static int last_data_x = 0;
+   static int last_data_y = 0;
    static int last_was_x = 0;
    int mag;
 
@@ -219,9 +220,11 @@ static void mouse_dinput_handle_event(int ofs, int data)
       case DIMOFS_X:
          if (!gfx_driver || !gfx_driver->windowed) {
             if (last_was_x)
-               last_mickeyy = 0;
+               last_data_y = 0;
+            last_data_x = data;
+            last_was_x = 1;
             if (mouse_accel_mult) {
-               mag = last_mickeyx*last_mickeyx + last_mickeyy*last_mickeyy;
+               mag = last_data_x*last_data_x + last_data_y*last_data_y;
                if (mag >= mouse_accel_thr2)
                   data *= (mouse_accel_mult<<1);
                else if (mag >= mouse_accel_thr1) 
@@ -229,17 +232,17 @@ static void mouse_dinput_handle_event(int ofs, int data)
             }
 
             dinput_x += data;
-            last_mickeyx = data;
-            last_was_x = 1;
          }
          break;
 
       case DIMOFS_Y:
          if (!gfx_driver || !gfx_driver->windowed) {
             if (!last_was_x)
-               last_mickeyx = 0;
+               last_data_x = 0;
+            last_data_y = data;
+            last_was_x = 0;
             if (mouse_accel_mult) {
-               mag = last_mickeyx*last_mickeyx + last_mickeyy*last_mickeyy;
+               mag = last_data_x*last_data_x + last_data_y*last_data_y;
                if (mag >= mouse_accel_thr2)
                   data *= (mouse_accel_mult<<1);
                else if (mag >= mouse_accel_thr1) 
@@ -247,8 +250,6 @@ static void mouse_dinput_handle_event(int ofs, int data)
             }
 
             dinput_y += data;
-            last_mickeyy = data;
-            last_was_x = 0;
          }
          break;
 
@@ -771,6 +772,18 @@ static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy)
 
    *mickeyx = temp_x;
    *mickeyy = temp_y;
+}
+
+
+
+/* mouse_directx_enable_hardware_cursor:
+ *  enable the hardware cursor; actually a no-op in Windows, but we need to
+ *  put something in the vtable.
+ */
+static void mouse_directx_enable_hardware_cursor(int mode)
+{
+   /* Do nothing */
+   (void)mode;
 }
 
 

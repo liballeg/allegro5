@@ -7,6 +7,74 @@
 @document_title=Allegro Changes
 @html_spaced_list_bullet
 
+Changes from 4.1.17 to 4.1.18 (Januari 2005)
+<ul><li>
+   Peter Hull fixed a bug that caused rest() to wait too long on MacOS X.
+<li>
+   Tore Halse made the Allegro window always appear centred in Windows.
+<li>
+   Peter Wang fixed a lot of warnings in the code and did a lot of cosmetic 
+   fixes as well.
+<li>
+   Grzegorz Adam Hankiewicz added short description support to the MAN and 
+   HTML documentation.
+<li>
+   Milan Mimica fixed a bug in the keyconf utility.
+<li>
+   Peter Hull fixed some issues compiling Allegro for MacOS X.
+<li>
+   Marcio Fialho fixed a warning when compiling Allegro with DJGPP.
+<li>
+   Evert Glebbeek fixed a bug that prevented system cursors from working in 
+   Windows, as pointed out by Peter Johanson.
+<li>
+   Evert Glebbeek font loading routine and various other font functions to
+   the library.
+<li>
+   Peter Wang added custom packfile functions and packfile vtables.
+<li>
+   Peter Wang decoupled the packfile compression code from the packfile 
+   routines.
+<li>
+   Daniel Schlyder fixed some problems with the font loading code.
+<li>
+   AJ added 64 bit, SSE2 and SSE3 detection code.
+<li>
+   Daniel Schlyder fixed some warnings with MinGW gcc 3.4.2
+<li>
+   Peter Hull made the file selector work properly with directories that have 
+   more than 2048 entries.
+<li>
+   Marcio Afonso Arimura Fialho fixed some problems with the DJGPP version and 
+   the VBE/AF driver.
+<li>
+   Phil Shenk clarified the MSVC build docs.
+<li>
+   Michal Molhanec fixed a problem with long filenames in the MSVC build
+   process and added a --msvcpaths flag to the fix.bat script.
+<li>
+   Grzegorz Adam Hankiewicz made a lot of improvements to the documentation.
+<li>
+   Peter Wang made some modifications to allegro_message() in X11.
+<li>
+   Evert Glebbeek added blender mode defines and activated the gfx_vtable 
+   set_blender_mode() function in the source.
+<li>
+   Evert Glebbeek added gui_set_screen and gui_get_screen functions and a
+   set_mouse_cursor_bitmap function.
+<li>
+   Peter Wang made scancode_to_name never return NULL.
+<li>
+   Peter Wang fixed some problems if the Linux joystick driver.
+<li>
+   Grzegorz Adam Hankiewicz added a lot of ASSERTions to the code.
+<li>
+   Elias Pschernig added special Ctrl-Alt-End and Pause key handlers to the 
+   X11 keyboard driver.
+<li>
+   Elias Pschernig fixed a problem with the mouse acceleration in Windows.
+</ul>
+
 @heading
 Changes from 4.1.16 to 4.1.17 (December 2004)
 <ul><li>

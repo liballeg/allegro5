@@ -193,6 +193,8 @@ AL_FUNCPTR(int, gui_mouse_y, (void));
 AL_FUNCPTR(int, gui_mouse_z, (void));
 AL_FUNCPTR(int, gui_mouse_b, (void));
 
+AL_FUNC(void, gui_set_screen, (BITMAP *bmp));
+AL_FUNC(BITMAP *, gui_get_screen, (void));
 AL_FUNC(int, gui_textout_ex, (struct BITMAP *bmp, AL_CONST char *s, int x, int y, int color, int bg, int centre));
 AL_FUNC(int, gui_strlen, (AL_CONST char *s));
 AL_FUNC(void, position_dialog, (DIALOG *dialog, int x, int y));

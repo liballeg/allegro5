@@ -181,6 +181,7 @@ void vsync()
  */
 void set_color(int index, AL_CONST RGB *p)
 {
+   ASSERT(index >= 0 && index < PAL_SIZE);
    set_palette_range((struct RGB *)p-index, index, index, FALSE);
 }
 
@@ -202,6 +203,9 @@ void set_palette(AL_CONST PALETTE p)
 void set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
    int c;
+
+   ASSERT(from >= 0 && from < PAL_SIZE);
+   ASSERT(to >= 0 && to < PAL_SIZE)
 
    for (c=from; c<=to; c++) {
       _current_palette[c] = p[c];
@@ -225,7 +229,7 @@ void set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 /* previous palette, so the image loaders can restore it when they are done */
 int _got_prev_current_palette = FALSE;
 PALETTE _prev_current_palette;
-static int prev_palette_color[256];
+static int prev_palette_color[PAL_SIZE];
 
 
 
@@ -239,13 +243,13 @@ void select_palette(AL_CONST PALETTE p)
 {
    int c;
 
-   for (c=0; c<256; c++) {
+   for (c=0; c<PAL_SIZE; c++) {
       _prev_current_palette[c] = _current_palette[c];
       _current_palette[c] = p[c];
    }
 
    if (_color_depth != 8) {
-      for (c=0; c<256; c++) {
+      for (c=0; c<PAL_SIZE; c++) {
 	 prev_palette_color[c] = palette_color[c];
 	 palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
       }
@@ -265,14 +269,15 @@ void unselect_palette()
 {
    int c;
 
-   for (c=0; c<256; c++)
+   for (c=0; c<PAL_SIZE; c++)
       _current_palette[c] = _prev_current_palette[c];
 
    if (_color_depth != 8) {
-      for (c=0; c<256; c++)
+      for (c=0; c<PAL_SIZE; c++)
 	 palette_color[c] = prev_palette_color[c];
    }
 
+   ASSERT(_got_prev_current_palette == TRUE);
    _got_prev_current_palette = FALSE;
 
    _current_palette_changed = 0xFFFFFFFF & ~(1<<(_color_depth-1));
@@ -297,7 +302,7 @@ static int *palette_expansion_table(int bpp)
    }
 
    if (_current_palette_changed & (1<<(bpp-1))) {
-      for (c=0; c<256; c++) {
+      for (c=0; c<PAL_SIZE; c++) {
 	 table[c] = makecol_depth(bpp,
 				  _rgb_scale_6[_current_palette[c].r], 
 				  _rgb_scale_6[_current_palette[c].g], 
@@ -325,7 +330,7 @@ void generate_332_palette(PALETTE pal)
 {
    int c;
 
-   for (c=0; c<256; c++) {
+   for (c=0; c<PAL_SIZE; c++) {
       pal[c].r = ((c>>5)&7) * 63/7;
       pal[c].g = ((c>>2)&7) * 63/7;
       pal[c].b = (c&3) * 63/3;
@@ -345,6 +350,8 @@ void generate_332_palette(PALETTE pal)
  */
 void get_color(int index, RGB *p)
 {
+   ASSERT(index >= 0 && index < PAL_SIZE);
+   ASSERT(p);
    get_palette_range(p-index, index, index);
 }
 
@@ -367,6 +374,9 @@ void get_palette_range(PALETTE p, int from, int to)
 {
    int c;
 
+   ASSERT(from >= 0 && from < PAL_SIZE);
+   ASSERT(to >= 0 && to < PAL_SIZE);
+
    if ((system_driver) && (system_driver->read_hardware_palette))
       system_driver->read_hardware_palette();
 
@@ -386,6 +396,10 @@ void fade_interpolate(AL_CONST PALETTE source, AL_CONST PALETTE dest, PALETTE ou
 {
    int c;
 
+   ASSERT(pos >= 0 && pos <= 64);
+   ASSERT(from >= 0 && from < PAL_SIZE);
+   ASSERT(to >= 0 && to < PAL_SIZE);
+
    for (c=from; c<=to; c++) { 
       output[c].r = ((int)source[c].r * (63-pos) + (int)dest[c].r * pos) / 64;
       output[c].g = ((int)source[c].g * (63-pos) + (int)dest[c].g * pos) / 64;
@@ -404,6 +418,10 @@ void fade_from_range(AL_CONST PALETTE source, AL_CONST PALETTE dest, int speed, 
 {
    PALETTE temp;
    int c, start, last;
+
+   ASSERT(speed > 0 && speed <= 64);
+   ASSERT(from >= 0 && from < PAL_SIZE);
+   ASSERT(to >= 0 && to < PAL_SIZE);
 
    for (c=0; c<PAL_SIZE; c++)
       temp[c] = source[c];
@@ -440,6 +458,9 @@ void fade_from_range(AL_CONST PALETTE source, AL_CONST PALETTE dest, int speed, 
  */
 void fade_in_range(AL_CONST PALETTE p, int speed, int from, int to)
 {
+   ASSERT(speed > 0 && speed <= 64);
+   ASSERT(from >= 0 && from < PAL_SIZE);
+   ASSERT(to >= 0 && to < PAL_SIZE);
    fade_from_range(black_palette, p, speed, from, to);
 }
 
@@ -454,6 +475,9 @@ void fade_in_range(AL_CONST PALETTE p, int speed, int from, int to)
 void fade_out_range(int speed, int from, int to)
 {
    PALETTE temp;
+   ASSERT(speed > 0 && speed <= 64);
+   ASSERT(from >= 0 && from < PAL_SIZE);
+   ASSERT(to >= 0 && to < PAL_SIZE);
 
    get_palette(temp);
    fade_from_range(temp, black_palette, speed, from, to);
@@ -467,6 +491,7 @@ void fade_out_range(int speed, int from, int to)
  */
 void fade_from(AL_CONST PALETTE source, AL_CONST PALETTE dest, int speed)
 {
+   ASSERT(speed > 0 && speed <= 64);
    fade_from_range(source, dest, speed, 0, PAL_SIZE-1);
 }
 
@@ -478,6 +503,7 @@ void fade_from(AL_CONST PALETTE source, AL_CONST PALETTE dest, int speed)
  */
 void fade_in(AL_CONST PALETTE p, int speed)
 {
+   ASSERT(speed > 0 && speed <= 64);
    fade_in_range(p, speed, 0, PAL_SIZE-1);
 }
 
@@ -489,6 +515,7 @@ void fade_in(AL_CONST PALETTE p, int speed)
  */
 void fade_out(int speed)
 {
+   ASSERT(speed > 0 && speed <= 64);
    fade_out_range(speed, 0, PAL_SIZE-1);
 }
 

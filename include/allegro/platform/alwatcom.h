@@ -179,3 +179,4 @@ void _unlock_dpmi_data(void *addr, int size);
 #define ALLEGRO_EXTRA_HEADER     "allegro/platform/aldos.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintdos.h"
 
+#define LONG_LONG long long

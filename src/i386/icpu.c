@@ -120,9 +120,11 @@ void check_cpu()
 	 cpu_capabilities |= (reg[3] & 0x800000 ? CPU_MMX : 0);
 
 	 /* SSE has MMX+ included */
-	 cpu_capabilities |= (reg[3] & 0x2000000 ? CPU_SSE | CPU_MMXPLUS : 0);
-	 cpu_capabilities |= (reg[3] & 0x4000000 ? CPU_SSE2 : 0);
-	 cpu_capabilities |= (reg[3] & 0x8000 ? CPU_CMOV : 0);
+	 cpu_capabilities |= (reg[3] & 0x02000000 ? CPU_SSE | CPU_MMXPLUS : 0);
+	 cpu_capabilities |= (reg[3] & 0x04000000 ? CPU_SSE2 : 0);
+         cpu_capabilities |= (reg[2] & 0x00000001 ? CPU_SSE3 : 0);
+	 cpu_capabilities |= (reg[3] & 0x00008000 ? CPU_CMOV : 0);
+         cpu_capabilities |= (reg[3] & 0x40000000 ? CPU_IA64 : 0);
       }
 
       _i_get_cpuid_info(0x80000000, reg);
@@ -130,7 +132,8 @@ void check_cpu()
 	 _i_get_cpuid_info(0x80000001, reg);
 
 	 cpu_capabilities |= (reg[3] & 0x80000000 ? CPU_3DNOW : 0);
-	 
+	 cpu_capabilities |= (reg[3] & 0x20000000 ? CPU_AMD64 : 0);
+	  
 	 /* Enhanced 3DNow! has MMX+ included */	 
 	 cpu_capabilities |= (reg[3] & 0x40000000 ? CPU_ENH3DNOW | CPU_MMXPLUS : 0);
       }
