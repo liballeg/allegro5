@@ -8140,6 +8140,7 @@ function to remind you :-)
       DIGI_NONE            - no digital sound
       DIGI_OSS             - Open Sound System
       DIGI_ESD             - Enlightened Sound Daemon
+      DIGI_ARTS            - aRts (Analog Real-Time Synthesizer)
       DIGI_ALSA            - ALSA sound driver
 </pre>
 @@Drivers @MIDI_*/Unix

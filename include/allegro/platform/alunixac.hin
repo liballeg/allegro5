@@ -80,6 +80,9 @@
 /* Define if ESD DIGI driver is supported.  */
 #undef ALLEGRO_WITH_ESDDIGI
 
+/* Define if aRts DIGI driver is supported.  */
+#undef ALLEGRO_WITH_ARTSDIGI
+
 /* Define to (void *)-1, if MAP_FAILED is not defined.  */
 #undef MAP_FAILED
 
