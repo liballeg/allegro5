@@ -88,7 +88,6 @@ MacOS X todos
 - implement a joystick driver
 - unified HID Manager interface for mouse and joystick drivers
 - investigate in current mouse HID detection
-- window contents don't show up during deminiaturization animation
 - fix weird kCGErrorIllegalArgument error report when closing fullscreen mode
 - fixbundle script/application
 

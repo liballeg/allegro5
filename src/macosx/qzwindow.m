@@ -91,8 +91,17 @@ GFX_DRIVER gfx_quartz_window =
 
 
 
-static void set_window_alpha()
+/* prepare_window_for_animation:
+ *  Prepares the window for a (de)miniaturization animation.
+ *  Called by the window display method when the window is about to be
+ *  deminiaturized, this updates the QuickDraw view contents and sets the
+ *  alpha component to 255 (opaque).
+ *  When called from the miniaturize window method, only the alpha value
+ *  is updated.
+ */
+static void prepare_window_for_animation(int refresh_view)
 {
+   struct GRAPHICS_RECT src_gfx_rect, dest_gfx_rect;
    unsigned int *addr;
    int pitch, y, x;
    
@@ -103,6 +112,15 @@ static void set_window_alpha()
    pitch = GetPixRowBytes(GetPortPixMap([qd_view qdPort])) / 4;
    addr = (unsigned int *)GetPixBaseAddr(GetPortPixMap([qd_view qdPort])) +
       ((int)([osx_window frame].size.height) - gfx_quartz_window.h) * pitch;
+   if (refresh_view) {
+      src_gfx_rect.width  = gfx_quartz_window.w;
+      src_gfx_rect.height = gfx_quartz_window.h;
+      src_gfx_rect.pitch  = pseudo_screen_pitch;
+      src_gfx_rect.data   = pseudo_screen->line[0];
+      dest_gfx_rect.pitch = pitch * 4;
+      dest_gfx_rect.data  = addr;
+      colorconv_blitter(&src_gfx_rect, &dest_gfx_rect);
+   }
    for (y = gfx_quartz_window.h; y; y--) {
       for (x = 0; x < gfx_quartz_window.w; x++)
          *(addr + x) |= 0xff000000;
@@ -119,15 +137,15 @@ static void set_window_alpha()
 
 - (void)display
 {
-   if (desktop_depth == 32)
-      set_window_alpha();
    [super display];
+   if (desktop_depth == 32)
+      prepare_window_for_animation(TRUE);
 }
 
 - (void)miniaturize: (id)sender
 {
    if (desktop_depth == 32)
-      set_window_alpha();
+      prepare_window_for_animation(FALSE);
    [super miniaturize: sender];
 }
 
@@ -146,11 +164,8 @@ static void set_window_alpha()
 
 - (void)windowDidDeminiaturize: (NSNotification *)aNotification
 {
-   int i;
-   
    pthread_mutex_lock(&osx_window_mutex);
-   for (i = 0; i < gfx_quartz_window.h; i++)
-      dirty_lines[i] = 1;
+   memset(dirty_lines, 1, gfx_quartz_window.h);
    pthread_mutex_unlock(&osx_window_mutex);
 }
 
@@ -318,7 +333,6 @@ void osx_update_dirty_lines(void)
 int osx_setup_colorconv_blitter()
 {
    CFDictionaryRef mode;
-   int i;
    
    mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &desktop_depth);
@@ -332,8 +346,7 @@ int osx_setup_colorconv_blitter()
    if (colorconv_blitter)
       _set_colorconv_palette(_current_palette, 0, 255);
    /* Mark all the window as dirty */
-   for (i = 0; i < gfx_quartz_window.h; i++)
-      dirty_lines[i] = 1;
+   memset(dirty_lines, 1, gfx_quartz_window.h);
    pthread_mutex_unlock(&osx_window_mutex);
    
    return (colorconv_blitter ? 0 : -1);
@@ -396,6 +409,7 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
    [osx_window setAcceptsMouseMovedEvents: YES];
    [osx_window setViewsNeedDisplay: NO];
    [osx_window setReleasedWhenClosed: YES];
+   [osx_window useOptimizedDrawing: YES];
    [osx_window center];
    
    qd_view = [[AllegroView alloc] initWithFrame: rect];
@@ -553,8 +567,6 @@ static void osx_qz_window_vsync(void)
  */
 static void osx_qz_window_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
-   int i;
-   
    if (vsync)
       osx_qz_window_vsync();
    
@@ -562,8 +574,7 @@ static void osx_qz_window_set_palette(AL_CONST struct RGB *p, int from, int to, 
    _set_colorconv_palette(p, from, to);
          
    /* invalidate the whole screen */
-   for (i = 0; i < gfx_quartz_window.h; i++)
-      dirty_lines[i] = 1;
+   memset(dirty_lines, 1, gfx_quartz_window.h);
    
    pthread_mutex_unlock(&osx_window_mutex);
 }
