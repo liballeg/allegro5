@@ -31,7 +31,7 @@
 
 #define MAX_JOYSTICKS            8
 #define MAX_JOYSTICK_AXIS        3
-#define MAX_JOYSTICK_STICKS      4
+#define MAX_JOYSTICK_STICKS      5
 #define MAX_JOYSTICK_BUTTONS     16
 
 
