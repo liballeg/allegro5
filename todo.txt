@@ -10,11 +10,15 @@ Updates or comments can be sent to the TODO list maintainer Peter Wang
 General (Platform independant) todos:
 ---------------------------------------------------------------------------
 
-- Add caching system to speed up filename#object and load_datafile_object()
 - New example to test P3D scene rendering
 - rewrite set_gfx_mode, or at least have dynamic driver lists
 - find solution or API to timer/multithread problem
 - don't use BITMAPs for zbuffers
+- buffer overflows and unicode (Annie's patch needs some changes)
+- Unified color conversion routines for all windowed gfx drivers (now
+  that we have a Mac port, it's a total of 4 possible windowed drivers,
+  and the need of an unified set of window updating routines is stronger)
+  [Eric or Angelo: remove this when it's done]
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -89,9 +93,6 @@ QNX todos:
 Wishlist
 ---------------------------------------------------------------------------
 
-- Unified color conversion routines for all windowed gfx drivers (now
-  that we have a Mac port, it's a total of 4 possible windowed drivers,
-  and the need of an unified set of window updating routines is stronger)
 - More hardware accelerated functions? Trans/lit sprites come to mind.
 - framebuffer hardware accel via XFB or DirectFB (?) library/driver
 - Better get_config_text support, with multiple fallback configuration
@@ -110,5 +111,6 @@ Wishlist
 - DirectInput 5 joystick driver
 - DirectMusic 6 MIDI driver
 - [WIN] Do not export functions and variables that are not a part of the API.
+- Add caching system to speed up filename#object and load_datafile_object()
 
 ---------------------------------------------------------------------------
