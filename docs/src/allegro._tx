@@ -5875,9 +5875,23 @@ directories, but not hidden files and directories. Similarly, if you pass
    if there are any strings like "I'm the password for the datafile", it
    would be fairly easy to get access to your data :-)
 
-   Important: as soon as you have opened a file using an encryption
-   password, call packfile_password(NULL) again. Better still, don't touch
-   this function at all. Ever.
+   Note #1: when reading a packfile (or a sub-chunk of a packfile), you must
+   make sure you set the right password (including none) before opening it;
+   you can change the password to whatever you want afterwards without
+   affecting the read operation. On the contrary, when writing a packfile
+   (or a sub-chunk of a packfile), you must make sure that the password that
+   was active at the time the packfile (or the sub-chunk respectively) was
+   opened is still active before closing the packfile (or the sub-chunk
+   respectively). This is guaranteed to be true if you didn't call the
+   packfile_password() routine in the meantime.
+
+   Note #2: as explained above, the password is used for all read/write
+   operations on files, including for several functions of the library that
+   operate on files without explicitly using packfiles, e.g load_bitmap().
+   The unencrypted mode is mandatory in order for those functions to work.
+   Therefore remember to call packfile_password(NULL) before using them if
+   you previously changed the password. As a rule of thumb, always call
+   packfile_password(NULL) when you are done with operations on packfiles.
 
 @@PACKFILE *@pack_fopen(const char *filename, const char *mode);
 @xref packfile functions, pack_fopen_chunk, packfile_password
