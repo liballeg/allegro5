@@ -629,7 +629,6 @@ static char **_build_multi_identifier_nodes_table(void)
 {
    LINE *line = head;
    int i = 0;
-   static char *first_identifier = 0;
    char **table;
 
    table = m_xmalloc(sizeof(char*)*2);
