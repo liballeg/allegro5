@@ -124,6 +124,9 @@ Contributors
    Chris Robinson (<email>crobin_99@yahoo.com</a>).<br>
    Wrote the fixed point clip3d() function.
 
+   Christian Schueler (<email>cschueler@gmx.de</a>).<br>
+   Changed the optimisation settings for better performance.
+
    Daniel Nilsson (<email>daniel7@algonet.se</a>).<br>
    Enlarged the starfield in exstars, and fixed an incorrect range in 
    exlights.
