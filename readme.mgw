@@ -187,12 +187,15 @@
       Then move the contents of C:\Temp\lib to C:\cygwin\lib\w32api, and
       the contents of C:\Temp\include to c:\cygwin\usr\include\w32api.
 
-   4) Then run './fix.sh mingw32'. This will take a while...
+   4) Make sure /bin/sh exists, if not just run:
+      ln -s /bin/bash.exe /bin/sh.exe
+
+   5) Then run './fix.sh mingw32'. This will take a while...
 
    Test the installation by typing: gcc -v.
    The answer should be similar to
-   Reading specs from /usr/lib/gcc-lib/i686-pc-cygwin/2.95.2-5/specs
-   gcc version 2.95.2-5 19991024 (cygwin experimental)
+   Reading specs from /usr/lib/gcc-lib/i686-pc-cygwin/2.95.3-5/specs
+   gcc version 2.95.3-5 (cygwin special)
 
 
 
