@@ -141,7 +141,9 @@ void _xwin_lock(BITMAP *bmp)
    if (_xwin.screen_lock_count == 0) {
 #endif
       XLOCK();
+#ifdef ALLEGRO_MULTITHREADED
       _xwin.locked_thread = pthread_self();
+#endif
    }
    _xwin.screen_lock_count++;
 }
