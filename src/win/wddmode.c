@@ -71,7 +71,7 @@ static int wnd_set_video_mode(void)
    SetWindowLong(allegro_wnd, GWL_STYLE, WS_POPUP);
 
    /* maximize the window and make it always-on-top */
-   SetWindowPos(allegro_wnd, HWND_TOPMOST, 0, 0, 
+   SetWindowPos(allegro_wnd, HWND_TOPMOST, 0, 0,
                 GetSystemMetrics(SM_CXSCREEN),
                 GetSystemMetrics(SM_CYSCREEN),
                 SWP_NOCOPYBITS);

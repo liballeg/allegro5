@@ -434,7 +434,7 @@ static void gfx_directx_ovl_exit(struct BITMAP *bmp)
       overlay_surface = NULL;
       forefront_bitmap = NULL;
       destroy_bitmap(background);
-      destroy_bitmap(viewport);
+      free(viewport);
    }
 
    gfx_directx_exit(NULL);
