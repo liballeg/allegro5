@@ -434,6 +434,10 @@ int main(int argc, char *argv[])
 
    destroy_bitmap(bigball);
    free(points);
+
+   destroy_bitmap(rgbpic);
+   destroy_bitmap(buffer);
+   
    screen->vtable = orig_vtable;
    fade_out(4);
 
