@@ -19,6 +19,7 @@ Win32 todos:
 - Fix pageflipping problem with overlay driver
 - Win32 port doesn't build when ALLEGRO_MMX is not defined.
 - Update docs to mention cross-compilation support.
+- Update docs for Robin Burrows' sound drivers.
 
 Linux todos:
 ---------------------------------------------------------------------------
@@ -45,6 +46,7 @@ X11 todos:
 - num-lock state in X window may not match state on keyboard
 - remove `dga_mouse' config var when appropriate (newer servers have fixed
   the bug this works around).  Wait until XF86 4.0 propagated..
+- DGA2 driver doesn't work for me [pw]
 
 Macintosh todos:
 ---------------------------------------------------------------------------
