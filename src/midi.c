@@ -95,7 +95,7 @@ long midi_loop_end = -1;                        /* loop at this position */
 static int midi_semaphore = 0;                  /* reentrancy flag */
 static int midi_loaded_patches = FALSE;         /* loaded entire patch set? */
 
-static long midi_timer_speed;                    /* midi_player's timer speed */
+static int midi_timer_speed;                    /* midi_player's timer speed */
 static int midi_pos_speed;                      /* MIDI delta -> midi_pos */
 static int midi_speed;                          /* MIDI delta -> timer */
 static int midi_new_speed;                      /* for tempo change events */
@@ -412,7 +412,7 @@ int _midi_allocate_voice(int min, int max)
    int c;
    int layer;
    int voice = -1;
-   long best_time = LONG_MAX;
+   int best_time = LONG_MAX;
 
    if (min < 0)
       min = 0;
@@ -1054,6 +1054,10 @@ static int load_patches(MIDI *midi)
       running_status = 0;
 
       while (p < end) {                         /* work through data stream */
+#ifdef ALLEGRO_BEOS
+         /* Is there a bug in this routine, or in gcc under BeOS/x86? --PW */
+         { int i; for (i=1; i; i--); }
+#endif
 	 event = *p; 
 	 if (event & 0x80) {                    /* regular message */
 	    p++;
