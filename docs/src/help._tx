@@ -206,7 +206,10 @@ Part 3 - when your program crashes
    Yuck! Playing with NULL values doesn't really pay off. Ok, while this was
    a slightly out-of-the-can example, you surely get the point. Remember to
    check out GDB's manual to learn about more useful commands and/or how to
-   debug your program while it's running and many other things.
+   debug your program while it's running and many other things. You might also
+   want to check out Peter Wang's "Debugging with GDB" article, featured in
+   the ninth number of the Pixelate online magazine
+   (<link>http://www.pixelate.co.za/</a>).
 
 
 

@@ -1,3 +1,4 @@
+@html_text_substitution=readme.txt|<a href="readme.html">readme.txt</a>
 @external-css=allegro.css
 @document_title=Allegro `const'-correctness
 <center><h1><b>
@@ -122,11 +123,11 @@ around it.
 @heading
 Finally...
 
-I have only tested this myself on DJGPP 2.95.2, so if you have
-experiences of it not working (I have tried to get Linux and BeOS ports
-right, but I've no guarantee it worked...) email me the *exact* error
-message and I will fix it. You can also contact the Allegro conductors
-list; see `How to get help' in the Allegro documentation.
+I have only tested this myself on DJGPP 2.95.2, so if you have experiences
+of it not working (I have tried to get Linux and BeOS ports right, but I've
+no guarantee it worked...) email me the *exact* error message and I will
+fix it. You can also contact the Allegro mailing list; see `Contact info'
+in the Allegro documentation (readme.txt).
 
 Email: <email>lwithers@lwithers.demon.co.uk</a>.
 

@@ -12,6 +12,7 @@
 @#ignore_css
 @#
 @html_text_substitution=readme.txt|<a href="readme.html">readme.txt</a>
+@html_text_substitution=AUTHORS|<a href="thanks.html">AUTHORS</a>
 @external-css=allegro.css
 @document_title=Allegro Manual
 @html_footer=Back to contents
@@ -1211,35 +1212,43 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrchr(const char *s, int c);
 @xref uconvert, ustrrchr, ustrstr, ustrpbrk, ustrtok
-   This function returns a pointer to the first occurrence of c in s, or
-   NULL if no match was found. Note that if c is NULL, this will return a
-   pointer to the end of the string.
+   Finds the first occurrence of the character c in the string s.
+@retval
+   Returns a pointer to the first occurrence of c in s, or NULL if no match
+   was found. Note that if c is NULL, this will return a pointer to the end
+   of the string.
 
 @@char *@ustrrchr(const char *s, int c);
 @xref uconvert, ustrchr, ustrstr, ustrpbrk, ustrtok
-   This function returns a pointer to the last occurrence of c in s, or NULL
-   if no match was found.
+   Finds the last occurrence of the character c in the string s.
+@retval
+   Returns a pointer fo the last occurrence of c in s, or NULL if no match
+   was found.
 
 @@char *@ustrstr(const char *s1, const char *s2);
 @xref uconvert, ustrchr, ustrrchr, ustrpbrk, ustrtok
-   This function finds the first occurence of s2 in s1. Returns a pointer
-   within s1, or NULL if s2 wasn't found.
+   This function finds the first occurence of string s2 in string s1.
+@retval
+   Returns a pointer within s1, or NULL if s2 wasn't found.
 
 @@char *@ustrpbrk(const char *s, const char *set);
 @xref uconvert, ustrchr, ustrrchr, ustrstr, ustrtok
    This function finds the first character in s that matches any character in
-   set. Returns a pointer to the first match, or NULL if none are found.
+   set.
+@retval
+   Returns a pointer to the first match, or NULL if none are found.
 
 @@char *@ustrtok(char *s, const char *set);
 @xref uconvert, ustrchr, ustrrchr, ustrstr, ustrpbrk, ustrtok_r
 @eref exgui
    This function retrieves tokens from s which are delimited by characters
    from set. To initiate the search, pass the string to be searched as s.
-   For the remaining tokens, pass NULL instead. Returns a pointer to the
-   token, or NULL if no more are found. Warning: Since ustrtok alters the
-   string it is parsing, you should always copy the string to a temporary
+   For the remaining tokens, pass NULL instead. Warning: Since ustrtok alters
+   the string it is parsing, you should always copy the string to a temporary
    buffer before parsing it. Also, this function is not reentrant (ie. you
    cannot parse two strings at the same time).
+@retval
+   Returns a pointer to the token, or NULL if no more are found.
 
 @@char *@ustrtok_r(char *s, const char *set, char **last);
 @xref ustrtok
@@ -1247,23 +1256,30 @@ is best to set it with set_uformat() just before you call these.
    of where the parsing is up to and must be a pointer to a char * variable
    allocated by the user that remains the same while parsing the same
    string.
+@retval
+   Returns a pointer to the token, or NULL if no more are found. You can free
+   the memory pointed to by 'last' once NULL is returned.
 
 @@double @uatof(const char *s);
 @xref uconvert, ustrtol, ustrtod
    Convert as much of the string as possible to an equivalent double
    precision real number. This function is almost like `ustrtod(s, NULL)'.
+@retval
    Returns the equivalent value, or zero if the string does not represent a
    number.
 
 @@long @ustrtol(const char *s, char **endp, int base);
 @xref uconvert, ustrtod, uatof
-   This function converts the initial part of s to a signed integer, which
-   is returned as a value of type `long int', setting *endp to point to the
-   first unused character, if endp is not a NULL pointer. The base argument
-   indicates what base the digits (or letters) should be treated as. If base
-   is zero, the base is determined by looking for `0x', `0X', or `0' as the
-   first part of the string, and sets the base used to 16, 16, or 8 if it
-   finds one. The default base is 10 if none of those prefixes are found.
+   This function converts the initial part of s to a signed integer, setting
+   *endp to point to the first unused character, if endp is not a NULL
+   pointer. The base argument indicates what base the digits (or letters)
+   should be treated as. If base is zero, the base is determined by looking
+   for `0x', `0X', or `0' as the first part of the string, and sets the base
+   used to 16, 16, or 8 if it finds one. The default base is 10 if none of
+   those prefixes are found.
+@retval
+   Returns the string converted as a value of type `long int'. If nothing was
+   converted, returns zero with *endp pointing to the beginning of s.
 
 @@double @ustrtod(const char *s, char **endp);
 @xref uconvert, ustrtol, uatof

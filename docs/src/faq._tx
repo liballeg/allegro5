@@ -3,6 +3,7 @@
 @# Read makedoc.c for a description of what is going on...
 @#
 @html_text_substitution=readme.txt|<a href="readme.html">readme.txt</a>
+@html_text_substitution=allegro.txt|<a href="allegro.html">allegro.txt</a>
 @document_title=Allegro FAQ
 @html_spaced_list_bullet
 @!html
@@ -41,8 +42,9 @@ Trivial problems
 
 
 @@   Where can I get it?
-      From any SimTel mirror, in the directory <tt>gnu/djgpp/v2tk/</tt>,
-      or from the Allegro homepage, <link>http://alleg.sourceforge.net/</a>.
+      From any SimTel mirror (<link>http://alleg.sourceforge.net/mirrors.html</a>), in
+      the directory <tt>gnu/djgpp/v2tk/</tt>, or from the Allegro homepage,
+      <link>http://alleg.sourceforge.net/</a>.
 
 
 @@   How do I use it?
@@ -63,7 +65,7 @@ DJGPP problems
 
 @@   Make doesn't work properly.
       Are you sure that you have installed djgpp correctly? Check the 
-      instructions in the djgpp readme.1st file, and in particular confirm 
+      instructions in the djgpp <tt>readme.1st</tt> file, and in particular confirm
       that you have set the DJGPP environment variable and added the 
       <tt>djgpp\bin</tt> directory to your path.
 

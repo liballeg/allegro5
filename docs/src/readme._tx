@@ -2,6 +2,10 @@
 @# This is the source for the Allegro thanks list, in a weird custom format.
 @# Read makedoc.c for a description of what is going on...
 @#
+@html_text_substitution=docs/txt/allegro.txt|<a href="allegro.html">docs/txt/allegro.txt</a>
+@html_text_substitution= allegro.txt| <a href="allegro.html">allegro.txt</a>
+@html_text_substitution=docs/txt/api.txt|<a href="api.html">docs/txt/api.txt</a>
+@html_text_substitution=AUTHORS|<a href="thanks.html">AUTHORS</a>
 @external-css=allegro.css
 @document_title=A general introduction to Allegro
 @<pre>
