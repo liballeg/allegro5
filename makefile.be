@@ -111,6 +111,9 @@ PROGRAMS = bfixicon
 
 bfixicon: tools/beos/bfixicon
 
+DISTCLEAN_FILES += tools/beos/bfixicon
+
+
 
 # -------- rules for installing and removing the library files --------
 
@@ -290,6 +293,15 @@ endef
 
 tools/beos/%: $(OBJ_DIR)/%.o $(LIB_NAME)
 	gcc $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
+
+
+
+# -------- demo program iconification --------
+
+.PHONY: fixdemo
+
+fixdemo: demo/demo demo/demo.dat tools/beos/bfixicon
+	tools/beos/bfixicon demo/demo -d demo/demo.dat SHIP3 GAME_PAL
 
 
 
