@@ -149,7 +149,7 @@ endif
 	sed -e "s/@LDFLAGS@ @LIBS@/$(LIBRARIES)/" temp >temp2
 	sed -e "s/include/headers/" temp2 >temp
 	sed -e "s/ -l\$${lib_type}_unsharable//" temp >temp2
-	sed -e "s/\/lib/\/lib\/x86/" temp2 >/bin/allegro-config
+	sed -e "s/libdirs=-L\$${exec_prefix}\/lib/libdirs=\"-L\$${exec_prefix}\/lib\/x86 -L\/boot\/home\/config\/lib\"/" temp2 >/bin/allegro-config
 	rm -f temp temp2
 	chmod a+x /bin/allegro-config
 
