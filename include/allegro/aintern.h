@@ -1132,6 +1132,9 @@ AL_FUNC(void, _driver_list_prepend_driver, (_DRIVER_INFO **drvlist, int id, void
 AL_FUNC(void, _driver_list_append_list, (_DRIVER_INFO **drvlist, _DRIVER_INFO *srclist));
 
 
+AL_FUNC(void *, _al_sane_realloc, (void *ptr, size_t size));
+
+
 #ifdef __cplusplus
    }
 #endif
