@@ -659,6 +659,7 @@ void do_uconvert(AL_CONST char *s, int type, char *buf, int newtype, int size)
    int c;
    ASSERT(s);
    ASSERT(buf);
+   ASSERT(size > 0);
 
    info = _find_utype(type);
    if (!info)
