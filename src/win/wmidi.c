@@ -12,6 +12,8 @@
  *
  *      By Stefan Schimanski.
  *
+ *      Midi input added by Daniel Verkamp.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -43,14 +45,30 @@ void midi_win32_exit(int input);
 int midi_win32_mixer_volume(int volume);
 void midi_win32_raw_midi(int data);
 
+int midi_win32_in_detect(int input);
+int midi_win32_in_init(int input, int voices);
+void midi_win32_in_exit(int input);
+void CALLBACK midi_in_proc(HMIDIIN, UINT, DWORD, DWORD, DWORD);
+
 
 /* driver globals */
 static HMIDIOUT midi_device = NULL;
+static HMIDIIN  midi_in_device = NULL;
 
 
 /* dynamically generated driver list */
 static _DRIVER_INFO *driver_list = NULL;
 
+
+/* MIDI recording callback */
+void CALLBACK midi_in_proc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, 
+			   DWORD dwParam1, DWORD dwParam2)
+{
+   if ((midi_in_device == NULL) || (midi_recorder == NULL)) return;
+   midi_recorder((unsigned char)(dwParam1 & 0xff));         /* status byte */
+   midi_recorder((unsigned char)((dwParam1 >> 8) & 0xff));  /* data byte 1 */
+   midi_recorder((unsigned char)((dwParam1 >> 16) & 0xff)); /* data byte 2 */
+}
 
 
 /* _get_win_midi_driver_list:
@@ -62,6 +80,7 @@ _DRIVER_INFO *_get_win_midi_driver_list(void)
 {
    MIDI_DRIVER *driver;
    MIDIOUTCAPS caps;
+   MIDIINCAPS  caps_in;
    int num_drivers, i;
 
    if (!driver_list) {
@@ -85,8 +104,7 @@ _DRIVER_INFO *_get_win_midi_driver_list(void)
 
          midiOutGetDevCaps(i-1, &caps, sizeof(caps));
 
-	 driver->ascii_name = malloc(strlen(caps.szPname)+1);
-	 _al_sane_strncpy((char *)driver->ascii_name, caps.szPname, strlen(caps.szPname)+1);
+	 driver->ascii_name = strdup(caps.szPname);
 
 	 driver->detect = midi_win32_detect;
 	 driver->init = midi_win32_init;
@@ -95,6 +113,25 @@ _DRIVER_INFO *_get_win_midi_driver_list(void)
 	 driver->raw_midi = midi_win32_raw_midi;
 
          _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
+      }
+
+      /* MidiIn drivers */
+      num_drivers = midiInGetNumDevs();
+      for (i=0; i<num_drivers; i++) {
+	 driver = malloc(sizeof(MIDI_DRIVER));
+	 memcpy(driver, &_midi_none, sizeof(MIDI_DRIVER));
+
+	 driver->id = MIDI_WIN32_IN(i); /* added MIDI_WIN32_IN to alwin.h */
+
+	 midiInGetDevCaps(i, &caps_in, sizeof(caps_in));
+
+	 driver->ascii_name = strdup(caps_in.szPname);
+
+	 driver->detect = midi_win32_in_detect;
+	 driver->init = midi_win32_in_init;
+	 driver->exit = midi_win32_in_exit;
+
+	 _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
       }
 
       /* cross-platform DIGital MIDi driver */
@@ -131,11 +168,23 @@ void _free_win_midi_driver_list(void)
  */
 int midi_win32_detect(int input)
 {
-   /* the current driver doesn't support input */
+   /* the input drivers are separate from the output drivers */
    if (input)
       return FALSE;
 
    return TRUE;
+}
+
+
+
+/* midi_win32_in_detect:
+ */
+int midi_win32_in_detect(int input)
+{
+   if (input)
+      return TRUE;
+
+   return FALSE;
 }
 
 
@@ -174,6 +223,34 @@ int midi_win32_init(int input, int voices)
 
 
 
+/* midi_win32_in_init:
+ */
+int midi_win32_in_init(int input, int voices)
+{
+   MMRESULT hr;
+   int id;
+
+   /* deduce our device number from the driver ID code */
+   id = (midi_input_driver->id & 0xFF) - 'A';
+
+   /* open midi input device */
+   hr = midiInOpen(&midi_in_device, id, (DWORD)midi_in_proc,
+		   (DWORD)NULL, CALLBACK_FUNCTION);
+   if (hr != MMSYSERR_NOERROR) {
+      _TRACE("midiInOpen failed (%x)\n", hr);
+      midi_win32_in_exit(input);
+      return -1;
+   }
+
+
+   midiInReset(midi_in_device);
+   midiInStart(midi_in_device);
+
+   return 0;
+}
+
+
+
 /* midi_win32_exit:
  */
 void midi_win32_exit(int input)
@@ -184,6 +261,20 @@ void midi_win32_exit(int input)
 
       midiOutClose(midi_device);
       midi_device = NULL;
+   }
+}
+
+
+
+/* midi_win32_in_exit:
+ */
+void midi_win32_in_exit(int input)
+{
+   if (midi_in_device != NULL) {
+      midiInStop(midi_in_device);
+      midiInReset(midi_in_device);
+      midiInClose(midi_in_device);
+      midi_in_device = NULL;
    }
 }
 

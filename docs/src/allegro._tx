@@ -6920,7 +6920,7 @@ Recording routines
    If set, this function is called by the MIDI input driver whenever a new 
    byte of MIDI data becomes available. It runs in an interrupt context, so 
    it must execute very quickly and all the code/data must be locked. This
-   currently works only under DOS.
+   currently works only under DOS and Windows.
 
 
 
