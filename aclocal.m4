@@ -380,10 +380,23 @@ allegro_enable_esddigi=yes)
 if test -n "$allegro_enable_esddigi"; then
   AC_PATH_PROG(ESD_CONFIG, esd-config)
   if test -n "$ESD_CONFIG"; then
-    allegro_support_esddigi=yes
+    ALLEGRO_OLD_LIBS="$LIBS"
+    ALLEGRO_OLD_CFLAGS="$CFLAGS"
+    LIBS="`$ESD_CONFIG --libs` $LIBS"
     CFLAGS="`$ESD_CONFIG --cflags` $CFLAGS"
-    if test -z "$allegro_support_modules"; then
-      LIBS="`$ESD_CONFIG --libs` $LIBS"
+    AC_MSG_CHECKING(for esd_open_sound)
+    AC_TRY_LINK([#include <esd.h>],
+      [esd_open_sound(0);],
+      [allegro_support_esddigi=yes
+       if test -n "$allegro_support_modules"; then
+         LIBS="$ALLEGRO_OLD_LIBS"
+       fi],
+      [CFLAGS="$ALLEGRO_OLD_CFLAGS"
+       LIBS="$ALLEGRO_OLD_LIBS"])
+    if test -n "$allegro_support_esddigi"; then
+      AC_MSG_RESULT(yes)
+    else
+      AC_MSG_RESULT(no)
     fi
   fi
 fi])
@@ -403,10 +416,23 @@ allegro_enable_artsdigi=yes)
 if test -n "$allegro_enable_artsdigi"; then
   AC_PATH_PROG(ARTSC_CONFIG, artsc-config)
   if test -n "$ARTSC_CONFIG"; then
-    allegro_support_artsdigi=yes
+    ALLEGRO_OLD_LIBS="$LIBS"
+    ALLEGRO_OLD_CFLAGS="$CFLAGS"
+    LIBS="`$ARTSC_CONFIG --libs` $LIBS"
     CFLAGS="`$ARTSC_CONFIG --cflags` $CFLAGS"
-    if test -z "$allegro_support_modules"; then
-      LIBS="`$ARTSC_CONFIG --libs` $LIBS"
+    AC_MSG_CHECKING(for arts_init)
+    AC_TRY_LINK([#include <artsc.h>],
+      [arts_init();],
+      [allegro_support_artsdigi=yes
+       if test -n "$allegro_support_modules"; then
+         LIBS="$ALLEGRO_OLD_LIBS"
+       fi],
+      [CFLAGS="$ALLEGRO_OLD_CFLAGS"
+       LIBS="$ALLEGRO_OLD_LIBS"])
+    if test -n "$allegro_support_artsdigi"; then
+      AC_MSG_RESULT(yes)
+    else
+      AC_MSG_RESULT(no)
     fi
   fi
 fi])
