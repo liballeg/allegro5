@@ -70,7 +70,11 @@ typedef struct STD_DRIVER {
 
    int         fd;   /* Descriptor of the opened device */
 
+#ifndef __cplusplus
    unsigned    private[PRIVATE_SIZE];
+#else
+   unsigned    priv[PRIVATE_SIZE];
+#endif
 } STD_DRIVER;
 
 #define STD_RTC              0

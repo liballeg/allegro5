@@ -3203,3 +3203,4 @@ void (*_xwin_window_defaultor)(void) = &_xwin_private_set_window_defaults;
 void (*_xwin_window_redrawer)(int, int, int, int) = &_xwin_private_redraw_window;
 void (*_xwin_input_handler)(void) = 0;
 
+void (*_xwin_keyboard_callback)(int, int) = 0;
