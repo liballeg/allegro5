@@ -2933,7 +2933,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
    p1, but curves round so that it arrives at p3 from the direction of p2. 
    In addition to their role as graphics primitives, spline curves can be 
    useful for constructing smooth paths around a series of control points, 
-   as in ex23.c.
+   as in exspline.c.
 
 @@void @spline(BITMAP *bmp, int points[8], int color);
 @xref calc_spline, drawing_mode

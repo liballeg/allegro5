@@ -1042,7 +1042,7 @@ Changes from 3.0 to 3.1 (Jan 1999)
 <li>
    Neil Townsend improved the accuracy of the timer routines.
 <li>
-   Added an ex40 example program, showing one way to do colored lighting 
+   Added exlights.c example program, showing one way to do colored lighting
    effects in a hicolor mode (and also because it makes the total number of 
    examples a nice round number :-)
 <li>
@@ -1174,7 +1174,7 @@ Changes from 3.0 to 3.1 (Jan 1999)
 <li>
    Thomas Wolf corrected some errors in the German keyboard mapping file.
 <li>
-   Grzegorz Adam Hankiewicz improved the ex39 example program.
+   Grzegorz Adam Hankiewicz improved the excolmap example program.
 <li>
    Sven Sandberg optimised the fixed point trig routines.
 <li>

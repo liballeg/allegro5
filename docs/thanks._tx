@@ -120,7 +120,7 @@ Contributors
 
    Dave Thomson (<email>gameskitchen@geocities.com</a>).<br>
    Added the RGB &lt-&gt HSV conversion routines, the autocrop function to 
-   the grabber, and wrote the 3d starfield example program (ex26.exe).
+   the grabber, and wrote the 3d starfield example program (exstars.exe).
 
    David Calvin (<email>calvid@rpi.edu</a>).<br>
    Wrote the original version of the sound setup utility.
@@ -364,9 +364,9 @@ Contributors
    scaling, image loading, etc).
 
    Nathan Albury, aka Rubicant (<email>gt4558a@prism.gatech.edu</a>).<br>
-   Improved the fire routine in examples/ex11.c (my original version didn't 
-   really look very much like flames :-) and gave me some extremely useful 
-   ideas about how to implement translucency.
+   Improved the fire routine in examples/exflame.c (my original version
+   didn't really look very much like flames :-) and gave me some extremely
+   useful ideas about how to implement translucency.
 
    Neil Townsend (<email>neil@robots.ox.ac.uk</a>).<br>
    Improved the accuracy of the timer routines, and added the callback 
@@ -456,7 +456,7 @@ Contributors
 
    Richard Mitton (<email>100740.1271@compuserve.com</a>).<br>
    Added support for 6-button joysticks, and wrote the 12-bit color example 
-   program (ex35).
+   program (ex12bit.c).
 
    Robert J. Ragno (<email>rjr@mit.edu</a>).<br>
    Wrote the Gravis GrIP driver, and made some improvements to the Wingman, 
