@@ -130,6 +130,10 @@ static void fill_ffblk(struct al_ffblk *info)
 
 
 
+/* we pass all the flags to findfirst() in order to work around the DOS limitations */
+#define FA_ALL (FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_DIREC | FA_ARCH)
+
+
 /* al_findfirst:
  *  Initiates a directory search.
  */
@@ -161,7 +165,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
     * return a DOS error code under Watcom (02h, 03h or 12h).
     * However the functions of both compilers set errno accordingly.
     */
-   ret = findfirst(uconvert_toascii(pattern, tmp), &ff_data->data, attrib);
+   ret = findfirst(uconvert_toascii(pattern, tmp), &ff_data->data, FA_ALL);
 
    if (ret != 0) {
 #ifdef ALLEGRO_DJGPP
