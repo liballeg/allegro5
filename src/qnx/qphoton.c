@@ -31,6 +31,7 @@ static struct BITMAP *qnx_phd_init(int, int, int, int, int);
 static void qnx_phd_exit(struct BITMAP *);
 static void qnx_ph_vsync(void);
 static void qnx_ph_set_palette(AL_CONST struct RGB *, int, int, int);
+static GFX_MODE_LIST *qnx_fetch_mode_list(void);
 
 
 GFX_DRIVER gfx_photon =
@@ -98,7 +99,7 @@ GFX_DRIVER gfx_photon_direct =
    NULL,                         /* AL_METHOD(void, drawing_mode, (void)); */
    NULL,                         /* AL_METHOD(void, save_video_state, (void)); */
    NULL,                         /* AL_METHOD(void, restore_video_state, (void)); */
-   NULL,                         /* AL_METHOD(int, fetch_mode_list, (void)); */
+   qnx_fetch_mode_list,
    0, 0,                         /* physical (not virtual!) screen size */
    TRUE,                         /* true if video memory is linear */
    0,                            /* bank size, in bytes */
@@ -208,11 +209,57 @@ static int find_video_mode(int w, int h, int depth)
          return mode_list.modes[i];
       }
    }
+   
    return -1;
 }
 
 
 
+/* qnx_fetch_mode_list:
+ *  Generates a list of valid video modes.
+ *  Returns the mode list on success or NULL on failure.
+ */
+static GFX_MODE_LIST *qnx_fetch_mode_list(void)
+{
+   GFX_MODE_LIST *mode_list;
+   PgVideoModes_t ph_mode_list;
+   PgVideoModeInfo_t ph_mode_info;
+   int i, count = 0;
+
+   if (PgGetVideoModeList(&ph_mode_list))
+      return NULL;
+
+   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   if (!mode_list)
+      return NULL;
+
+   mode_list->mode = malloc(sizeof(GFX_MODE) * (ph_mode_list.num_modes + 1));
+   if (!mode_list->mode) {
+       free(mode_list);
+       return NULL;
+   }
+   
+   for (i=0; i<ph_mode_list.num_modes; i++) {
+      if ((!PgGetVideoModeInfo(ph_mode_list.modes[i], &ph_mode_info)) &&
+          (ph_mode_info.mode_capabilities1 & PgVM_MODE_CAP1_LINEAR)) {
+         mode_list->mode[count].width = ph_mode_info.width;
+         mode_list->mode[count].height = ph_mode_info.height;
+         mode_list->mode[count].bpp = ph_mode_info.bits_per_pixel;
+         count++;
+      }
+   }
+   
+   mode_list->mode[count].width = 0;
+   mode_list->mode[count].height = 0;
+   mode_list->mode[count].bpp = 0;
+
+   mode_list->num_modes = count;
+
+   return mode_list;
+}
+   
+
+   
 /* qnx_private_phd_init:
  *  Real screen initialization runs here.
  */
@@ -271,6 +318,7 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       return NULL;
    }
+   
    PgGetVideoModeInfo(mode_num, &mode_info);
    
    settings.mode = mode_num;
@@ -281,6 +329,10 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       return NULL;
    }
+   
+   PgGetVideoMode(&settings);
+   _current_refresh_rate = settings.refresh;
+   
    if (!(ph_direct_context = PdCreateDirectContext())) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot create direct context"));
       PgSetVideoMode(&original_settings);
@@ -593,6 +645,8 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
    }
 
    PgGetVideoMode(&settings);
+   _current_refresh_rate = settings.refresh;
+      
    PgGetVideoModeInfo(settings.mode, &mode_info);
 
    dim.w = ph_window_w = w;
