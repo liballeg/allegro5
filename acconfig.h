@@ -85,6 +85,9 @@
 /* Define if aRts DIGI driver is supported.  */
 #undef ALLEGRO_WITH_ARTSDIGI
 
+/* Define if SGI AL DIGI driver is supported.  */
+#undef ALLEGRO_WITH_SGIALDIGI
+
 /* Define to (void *)-1, if MAP_FAILED is not defined.  */
 #undef MAP_FAILED
 

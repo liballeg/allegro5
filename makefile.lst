@@ -269,6 +269,7 @@ ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/alsa.c \
 	src/unix/alsamidi.c \
 	src/unix/arts.c \
+	src/unix/sgial.c \
 	src/unix/udjgpp.c \
 	src/unix/udrvlist.c \
 	src/unix/udummy.c \
@@ -339,6 +340,10 @@ ALLEGRO_MODULE_SVGALIB_FILES = \
 ALLEGRO_MODULE_FBCON_FILES = \
 	src/linux/fbcon.c
 
+ALLEGRO_MODULE_DGA2_FILES = \
+	src/x/xdga2.c \
+	src/x/xdga2s.s
+	
 ALLEGRO_MODULE_ALSADIGI_FILES = \
 	src/unix/alsa.c
 
@@ -351,9 +356,8 @@ ALLEGRO_MODULE_ESD_FILES = \
 ALLEGRO_MODULE_ARTS_FILES = \
 	src/unix/arts.c
 
-ALLEGRO_MODULE_DGA2_FILES = \
-	src/x/xdga2.c \
-	src/x/xdga2s.s
+ALLEGRO_MODULE_SGIAL_FILES = \
+	src/unix/sgial.c
 
 ALLEGRO_MAKEDOC_SOURCES = \
 	docs/src/makedoc/makedoc.c \

@@ -316,6 +316,12 @@ if test -n "$allegro_support_artsdigi"; then
   AC_DEFINE(ALLEGRO_WITH_ARTSDIGI)
 fi
 
+dnl Test for SGI AL drivers.
+ALLEGRO_ACTEST_SGIALDIGI
+if test -n "$allegro_cv_support_sgialdigi"; then
+   AC_DEFINE(ALLEGRO_WITH_SGIALDIGI)
+fi
+
 dnl Test for OSS MIDI drivers.
 ALLEGRO_ACTEST_OSSMIDI
 if test -n "$allegro_support_ossmidi"; then

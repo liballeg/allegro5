@@ -435,6 +435,28 @@ if test -n "$allegro_enable_artsdigi"; then
 fi])
 
 dnl
+dnl Test for SGI AL DIGI driver.
+dnl
+dnl Variables:
+dnl  allegro_enable_sgialdigi=(yes|)
+dnl  allegro_cv_support_sgialdigi=(yes|)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_SGIALDIGI,
+[AC_ARG_ENABLE(sgialdigi,
+[  --enable-sgialdigi[=x]  enable building SGI AL DIGI driver [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_sgialdigi=yes,
+allegro_enable_sgialdigi=yes)
+ 
+if test -n "$allegro_enable_sgialdigi"; then
+  AC_CHECK_LIB(audio, alOpenPort,
+  allegro_cv_support_sgialdigi=yes)
+  if test -n "$allegro_cv_support_sgialdigi" && 
+     test -z "$allegro_support_modules"; then
+    LIBS="-laudio $LIBS"
+  fi
+fi])
+
+dnl
 dnl Test where is sched_yield (SunOS).
 dnl
 dnl Variables:

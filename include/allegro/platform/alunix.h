@@ -111,6 +111,21 @@ AL_VAR(DIGI_DRIVER, digi_arts);
 
 #endif /* ALLEGRO_WITH_ARTSDIGI */
 
+#ifdef ALLEGRO_WITH_SGIALDIGI
+
+#define DIGI_SGIAL          AL_ID('S','G','I','A')
+
+#ifndef ALLEGRO_WITH_MODULES
+
+AL_VAR(DIGI_DRIVER, digi_sgial);
+
+#define DIGI_DRIVER_SGIAL                                        \
+      {  DIGI_SGIAL,      &digi_sgial,          TRUE  },
+
+#endif
+
+#endif /* ALLEGRO_WITH_SGIALDIGI */
+
 #ifdef ALLEGRO_WITH_ALSADIGI
 
 #define DIGI_ALSA             AL_ID('A','L','S','A')
