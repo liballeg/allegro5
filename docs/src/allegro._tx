@@ -124,7 +124,7 @@ information about how to install Allegro and link your program with it.
    to mangle your main procedure on platforms that need it like Windows
    or Linux. On the other platforms this macro compiles to nothing, so you
    don't have to #ifdef around it. Example:
-<codeblock>
+<pre>
       int main(void)
       {
 	 allegro_init();
@@ -133,7 +133,7 @@ information about how to install Allegro and link your program with it.
 	 return 0;
       }
       END_OF_MAIN()
-<endblock>
+</pre>
 
 @@extern char @allegro_id[];
    Text string containing a date and version number for the library, in case 
