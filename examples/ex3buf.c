@@ -24,6 +24,8 @@ typedef struct SHAPE
 
 
 SHAPE shapes[NUM_SHAPES];
+int triplebuffer_not_available = 0;
+int retrace_sync_not_available = 0;
 
 
 
@@ -80,6 +82,7 @@ void move_shape(SHAPE *shape)
 void draw(BITMAP *b)
 {
    int c;
+   char message[1024];
 
    acquire_bitmap(b);
 
@@ -98,10 +101,17 @@ void draw(BITMAP *b)
       move_shape(shapes+c);
    } 
 
-   if (retrace_proc)
-      textout_ex(b, font, "Triple buffering with retrace sync", 0, 0, 255, -1);
+   if (triplebuffer_not_available)
+      ustrzcpy (message, sizeof message, "Simulated triple buffering");
    else
-      textout_ex(b, font, "Triple buffering", 0, 0, 255, -1);
+      ustrzcpy (message, sizeof message, "Real triple buffering");
+
+   if (retrace_sync_not_available)
+      ustrzcat(message,  sizeof message, " with simulated retrace sync");
+   else
+      ustrzcat(message,  sizeof message, " with real retrace sync");
+
+   textout_ex(b, font, message, 0, 0, 255, -1);
 
    release_bitmap(b);
 }
@@ -164,6 +174,15 @@ int main(void)
 {
    BITMAP *page1, *page2, *page3;
    int c;
+   int w, h;
+
+#ifdef ALLEGRO_DOS
+   w = 320;
+   h = 240;
+#else
+   w = 640;
+   h = 480;
+#endif
 
    if (allegro_init() != 0)
       return 1;
@@ -172,13 +191,15 @@ int main(void)
    install_mouse();
 
    /* see comments in exflip.c */
-   if (set_gfx_mode(GFX_AUTODETECT, 320, 240, 0, 720) != 0) {
-      if (set_gfx_mode(GFX_AUTODETECT, 320, 240, 0, 0) != 0) {
-	 if (set_gfx_mode(GFX_SAFE, 320, 240, 0, 0) != 0) {
-	    set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	    allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
-	    return 1;
-         }
+#ifdef ALLEGRO_VRAM_SINGLE_SURFACE
+   if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, h * 3) != 0) {
+#else
+   if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0) != 0) {
+#endif
+      if (set_gfx_mode(GFX_SAFE, w, h, 0, 0) != 0) {
+         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+         allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+         return 1;
       }
    }
 
@@ -190,15 +211,7 @@ int main(void)
 
    /* if that didn't work, give up */
    if (!(gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)) {
-      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-
-      #ifdef ALLEGRO_DOS
-	 allegro_message("Triple buffering not available, sorry\n\nTry again in clean DOS mode (not under Windows)\n");
-      #else
-	 allegro_message("Triple buffering not available, sorry\n");
-      #endif
-
-      return 1;
+      triplebuffer_not_available = TRUE;
    }
 
    /* allocate three sub bitmaps to access pages of the screen */
@@ -224,10 +237,11 @@ int main(void)
       retrace_proc = fade;
    }
    else {
-      alert("Retrace sync is not available in",
-	    "this environment, so you won't get",
-	    "the funky smooth palette fading", 
-	    "Damn, that's a shame", NULL, 13, 0);
+      /* Well, we don't have retrace simulation. But we still can
+       * do the palette fading.
+       */
+      retrace_sync_not_available = TRUE;
+      retrace_proc = fade;
    }
 
    triple_buffer(page1, page2, page3);
