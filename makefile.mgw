@@ -202,8 +202,7 @@ else
 # -------- link as a DLL --------
 ifdef FASTDLL
 define MAKE_LIB
-  gcc $(LFLAGS) -shared -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES)
-  dlltool --dllname $(DLL_NAME) --output-lib $(IMPLIB_NAME) --def $(EXPDEF_NAME)
+  gcc $(LFLAGS) -shared -Wl,--out-implib,$(IMPLIB_NAME),--just-symbols,$(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES)
 endef
 else
 define MAKE_LIB
@@ -229,8 +228,13 @@ else
 	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  
 endif
 
+ifdef STATICLINK
 wintests/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o wintests/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
+else
+wintests/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
+	gcc $(LFLAGS) -mwindows -o wintests/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
+endif
 
 $(OBJ_DIR)/scrsave.res: wintests/scrsave.rc
 	windres -O coff -o $(OBJ_DIR)/scrsave.res -i wintests/scrsave.rc
