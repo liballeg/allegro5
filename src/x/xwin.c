@@ -13,6 +13,7 @@
  *      By Michael Bukin.
  *
  *      Video mode switching by Peter Wang and Benjamin Stover.
+ *      X icon selection by Evert Glebbeek
  *
  *      See readme.txt for copyright information.
  */
@@ -45,6 +46,10 @@
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 #include <X11/extensions/xf86dga.h>
 #endif
+
+
+#include <X11/xpm.h>
+#include "alex.xpm"
 
 
 #define XWIN_DEFAULT_WINDOW_TITLE "Allegro application"
@@ -133,6 +138,8 @@ struct _xwin_type _xwin =
 
    NULL         /* window close hook */
 };
+
+void *allegro_icon = alex_xpm;
 
 int _xwin_last_line = -1;
 int _xwin_in_gfx_call = 0;
@@ -366,6 +373,7 @@ static int _xwin_private_create_window(void)
 				0, 0, 320, 200, 0,
 				CopyFromParent, InputOutput, CopyFromParent,
 				CWBorderPixel | CWEventMask, &setattr);
+
 
    /* Get associated visual and window depth (bits per pixel).  */
    XGetWindowAttributes(_xwin.display, _xwin.window, &getattr);
@@ -2024,6 +2032,7 @@ static void _xwin_private_set_window_defaults(void)
 {
    XClassHint hint;
    XWMHints wm_hints;
+   XpmAttributes attributes;
 
    if (_xwin.window == None)
       return;
@@ -2035,10 +2044,18 @@ static void _xwin_private_set_window_defaults(void)
    hint.res_name = _xwin.application_name;
    hint.res_class = _xwin.application_class;
    XSetClassHint(_xwin.display, _xwin.window, &hint);
-   
-   wm_hints.flags = InputHint | StateHint;
+
+   wm_hints.flags = InputHint | StateHint | WindowGroupHint;
    wm_hints.input = True;
    wm_hints.initial_state = NormalState;
+   wm_hints.window_group = _xwin.window;
+   
+   if (allegro_icon) {
+      wm_hints.flags |= IconPixmapHint | IconMaskHint;
+      attributes.valuemask = XpmReturnAllocPixels | XpmReturnExtensions;
+      XpmCreatePixmapFromData(_xwin.display,_xwin.window,allegro_icon,&wm_hints.icon_pixmap,&wm_hints.icon_mask, &attributes);
+   }
+
    XSetWMHints(_xwin.display, _xwin.window, &wm_hints);
 }
 
