@@ -291,6 +291,9 @@ ifdef STATICLINK
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  $(LIBRARIES) 
 
+tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  $(LIBRARIES) 
+
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
@@ -301,6 +304,9 @@ endef
 else 
 
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  
+
+tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
