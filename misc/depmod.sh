@@ -11,7 +11,7 @@ modlibs=$2
 shift; shift
 
 sources=$*
-objects=`echo $sources | sed 's,[^	 ]*/,,g' | sed 's,\.[^.	 ]*,,g'`
+objects=`echo $sources | sed 's,[^	 ]*/,,g;s,\.[^.	 ]*,,g'`
 
 MODNAME=`echo $modname | tr [a-z] [A-Z]`
 
@@ -40,7 +40,7 @@ for file in .. $sources; do
   if test "$file" != ..; then
     name=`echo $file | sed 's,^.*/,,;s,\.[^.]*$,,'`
     ext=`echo $file | sed 's,^.*\.,,'`
-    echo "\$(OBJDIR)/module/$name\$(OBJ): \$(srcdir)/$file"
+    echo "\$(OBJDIR)/module/$name\$(OBJ): \$(srcdir)/$file \$(obj_unix_asmdef_inc)"
     if test "$ext" = "c"; then
       echo "	\$(COMPILE_NORMAL) \$(ALLEGRO_SHAREDLIB_CFLAGS) -DALLEGRO_MODULE -c \$(srcdir)/$file -o \$(OBJDIR)/module/$name\$(OBJ)"
     else
