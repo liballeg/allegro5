@@ -394,7 +394,7 @@ Contributors
    Krzysztof Krzyzaniak (<email>eloy@arrakis.cs.put.poznan.pl</a>).<br>
    Wrote the load_voc() function.
 
-   Laurence Withers (<email>lwithers@lwithers.demon.co.uk</a>).<br>
+   Laurence Withers (<email>lwithers@users.sf.net</a>).<br>
    Added destroy hook to font structure, worked on const-correctness
    throughout the library, implemented the new FONT structure, made
    some modules avoid linking dependencies, contributed the dat2c
