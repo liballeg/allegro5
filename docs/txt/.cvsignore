@@ -1,1 +1,3 @@
-*.txt
+[^t]*.txt
+t[^m]*.txt
+tm[^p]*.txt
