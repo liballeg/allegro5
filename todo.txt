@@ -31,6 +31,10 @@ Win32 todos:
 ---------------------------------------------------------------------------
 
 - DirectInput 5 joystick driver
+- Find a solution to the C-to-asm calling problem with BC++
+- Fix restoring problem after waking up from stand-by mode
+- Fix untimely switch out on mouse right-clicks under Win2k
+- Clicking doesn't seem to work when moving the mouse under Win2k
 - Make Allegro return focus to the calling app
 - Fix 'IE bars popup over a fullscreen DirectX window' bug
 - Investigate mouse problem with USB Wacom Tablet (bug #226445)
