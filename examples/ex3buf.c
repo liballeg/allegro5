@@ -201,9 +201,6 @@ int main(void)
    for (c=0; c<NUM_SHAPES; c++)
       init_shape(shapes+c);
 
-   LOCK_VARIABLE(fade_color);
-   LOCK_FUNCTION(fade);
-
    triple_buffer(page1, page2, page3);
 
    destroy_bitmap(page1);
