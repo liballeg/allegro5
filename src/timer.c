@@ -266,7 +266,7 @@ END_OF_STATIC_FUNCTION(find_empty_timer_slot);
  *  speed timer ticks. Returns a negative number if there was no room to 
  *  add a new routine.
  */
-int install_timer_int(void *proc, void *param, long speed, int param_used)
+static int install_timer_int(void *proc, void *param, long speed, int param_used)
 {
    int x;
 
@@ -313,7 +313,7 @@ int install_timer_int(void *proc, void *param, long speed, int param_used)
    return 0;
 }
 
-END_OF_FUNCTION(install_timer_int);
+END_OF_STATIC_FUNCTION(install_timer_int);
 
 
 
