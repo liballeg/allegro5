@@ -355,8 +355,8 @@ static void _xdga2_handle_input(void)
             break;
 
          case MotionNotify:
-            dx = event->xmotion.dx;
-            dy = event->xmotion.dy;
+            dx = cur_event->xmotion.dx;
+            dy = cur_event->xmotion.dy;
             if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt) {
                (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
             }
