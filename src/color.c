@@ -17,7 +17,8 @@
  *
  *      Jan Hubicka wrote the super-fast version of create_rgb_table().
  *
- *      Michael Bevin optimised the create_trans_table() function.
+ *      Michael Bevin and Sven Sandberg optimised the create_trans_table()
+ *      function.
  *
  *      Sven Sandberg optimised the create_light_table() function.
  *
@@ -674,48 +675,57 @@ void create_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, in
    int tmp[768], *q;
    int x, y, i, j, k;
    unsigned char *p;
-   RGB c;
+   int tr, tg, tb;
+   int div, add;
+
+   if (rgb_map)
+      div = 510;
+   else
+      div = 255;
+   add = div/2;
 
    for (x=0; x<256; x++) {
-      tmp[x*3]   = pal[x].r * (255-r) / 255;
-      tmp[x*3+1] = pal[x].g * (255-g) / 255;
-      tmp[x*3+2] = pal[x].b * (255-b) / 255;
+      tmp[x*3]   = (pal[x].r * (255-r) + add) / div;
+      tmp[x*3+1] = (pal[x].g * (255-g) + add) / div;
+      tmp[x*3+2] = (pal[x].b * (255-b) + add) / div;
    }
 
-   for (y=0; y<PAL_SIZE; y++)
-      table->data[0][y] = y;
-
-   if (callback)
-      (*callback)(0);
-
    for (x=1; x<PAL_SIZE; x++) {
-      i = pal[x].r * r / 255;
-      j = pal[x].g * g / 255;
-      k = pal[x].b * b / 255;
+      i = (pal[x].r * r + add) / div;
+      j = (pal[x].g * g + add) / div;
+      k = (pal[x].b * b + add) / div;
 
       p = table->data[x];
       q = tmp;
 
       if (rgb_map) {
 	 for (y=0; y<PAL_SIZE; y++) {
-	    c.r = i + *(q++);
-	    c.g = j + *(q++);
-	    c.b = k + *(q++);
-	    p[y] = rgb_map->data[c.r>>1][c.g>>1][c.b>>1];
+	    tr = i + *(q++);
+	    tg = j + *(q++);
+	    tb = k + *(q++);
+	    p[y] = rgb_map->data[tr][tg][tb];
 	 }
       }
       else {
 	 for (y=0; y<PAL_SIZE; y++) {
-	    c.r = i + *(q++); 
-	    c.g = j + *(q++); 
-	    c.b = k + *(q++);
-	    p[y] = bestfit_color(pal, c.r, c.g, c.b);
+	    tr = i + *(q++); 
+	    tg = j + *(q++); 
+	    tb = k + *(q++);
+	    p[y] = bestfit_color(pal, tr, tg, tb);
 	 }
       }
 
       if (callback)
-	 (*callback)(x);
+	 (*callback)(x-1);
    }
+
+   for (y=0; y<PAL_SIZE; y++) {
+      table->data[0][y] = y;
+      table->data[y][y] = y;
+   }
+
+   if (callback)
+      (*callback)(255);
 }
 
 
