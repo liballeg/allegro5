@@ -134,7 +134,7 @@ static int export_alpha(void)
    RLE_SPRITE *rle;
    BITMAP *bmp;
    char buf[256], name[FILENAME_LENGTH] = EMPTY_STRING;
-   AL_CONST char *ext = NULL;
+   AL_CONST char *ext;
    int ret = 0;
 
    if ((!dat) || ((dat->type != DAT_BITMAP) && (dat->type != DAT_RLE_SPRITE))) {
@@ -255,7 +255,7 @@ static BITMAP *do_alpha_import(BITMAP *bmp, int *changed, RGB *pal)
    BITMAP *newbmp;
    DATAFILE *alpha;
    char buf[256], name[FILENAME_LENGTH];
-   AL_CONST char *ext = NULL;
+   AL_CONST char *ext;
    int x, y, c, r, g, b, a;
 
    *changed = FALSE;

@@ -312,8 +312,7 @@ void getpix_demo(void)
 
 void putpix_test(int xpos, int ypos)
 {
-   int c = 0;
-   int x, y;
+   int c, x, y;
 
    for (c=0; c<16; c++)
       for (x=0; x<16; x+=2)
@@ -2005,8 +2004,8 @@ void rotate_test(void)
 
 void stretch_test(void)
 {
-   int c = 0;
    BITMAP *b;
+   int c;
 
    set_clip(screen, 0, 0, VIRTUAL_W-1, VIRTUAL_H-1);
 
@@ -2273,8 +2272,8 @@ void circler(BITMAP *b, int x, int y, int c)
 
 int floodfill_proc(void)
 {
-   int c = 0;
    int ox, oy, nx, ny;
+   int c;
 
    scare_mouse();
    text_mode(palette_color[0]);
@@ -2382,8 +2381,8 @@ int spline_proc(void)
 
    xor_mode(TRUE);
 
-   nx = ox = mouse_x;
-   ny = oy = mouse_x;
+   ox = mouse_x;
+   oy = mouse_x;
    sel = -1;
 
    draw_spline(points); 
@@ -2982,7 +2981,7 @@ int polygon3d_proc(void)
    };
 
    int c;
-   int key = 0;
+   int key;
    int mode = POLYTYPE_FLAT;
    int tile = 1;
 

@@ -30,7 +30,7 @@
 /* creates a new font object */
 static void* makenew_font(long* size)
 {
-    FONT* f = 0;
+    FONT *f;
     FONT_MONO_DATA* mf = 0, * mfread = font->data;
 
     f = _al_malloc(sizeof(FONT));
@@ -39,7 +39,7 @@ static void* makenew_font(long* size)
     f->vtable = font->vtable;
 
     while(mfread) {
-        int i = 0;
+        int i;
 
         if(mf) {
             mf->next = _al_malloc(sizeof(FONT_MONO_DATA));
@@ -52,7 +52,7 @@ static void* makenew_font(long* size)
         mf->glyphs = _al_malloc(sizeof(FONT_GLYPH*) * (mf->end - mf->begin));
 
         for(i = mf->begin; i < mf->end; i++) {
-            FONT_GLYPH* gsrc = mfread->glyphs[i - mf->begin], * gdest = 0;
+            FONT_GLYPH *gsrc = mfread->glyphs[i - mf->begin], *gdest;
             int sz = ((gsrc->w + 7) / 8) * gsrc->h;
 
             gdest = _al_malloc(sizeof(FONT_GLYPH) + sz);
@@ -165,13 +165,13 @@ static void get_font_desc(AL_CONST DATAFILE *dat, char *s)
 static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
 {
     char buf[1024], tmp[1024];
-    PACKFILE* pack = 0;
+    PACKFILE *pack;
     FONT* f = dat->dat;
 
-    BITMAP* bmp = 0;
+    BITMAP *bmp;
     PALETTE pal;
 
-    int w = 0, h = 0, max = 0, i = 0;
+    int w = 0, h = 0, max = 0, i;
 
     if(stricmp(get_extension(filename), "txt") == 0) {
         replace_extension(buf, filename, "pcx", sizeof(buf));
@@ -234,7 +234,7 @@ static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
         }
     } else {
         FONT_COLOR_DATA* cf = f->data;
-        int i = 0;
+        int i;
 
         while(cf) {
             for(i = cf->begin; i < cf->end; i++) {
@@ -306,11 +306,11 @@ static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
 /* import routine for the GRX font format */
 static FONT* import_grx_font(AL_CONST char* filename)
 {
-    PACKFILE* pack = 0;
-    FONT* f = 0;
-    FONT_MONO_DATA* mf = 0;
-    FONT_GLYPH** gl = 0;
-    int w = 0, h = 0, num = 0, i = 0;
+    PACKFILE *pack;
+    FONT *f;
+    FONT_MONO_DATA *mf;
+    FONT_GLYPH **gl;
+    int w, h, num, i;
     int* wtab = 0;
 
     pack = pack_fopen(filename, F_READ);
@@ -349,7 +349,7 @@ static FONT* import_grx_font(AL_CONST char* filename)
     }
 
     for(i = 0; i < num; i++) {
-        int sz = 0;
+        int sz;
 
         if(wtab) w = wtab[i];
 
@@ -390,11 +390,11 @@ static FONT* import_grx_font(AL_CONST char* filename)
 /* import routine for the 8x8 and 8x16 BIOS font formats */
 static FONT* import_bios_font(AL_CONST char* filename)
 {
-    PACKFILE* pack = 0;
-    FONT* f = 0;
-    FONT_MONO_DATA* mf = 0;
-    FONT_GLYPH** gl = 0;
-    int i = 0, h = 0;
+    PACKFILE *pack;
+    FONT *f;
+    FONT_MONO_DATA *mf;
+    FONT_GLYPH **gl;
+    int i, h;
 
     f = _al_malloc(sizeof(FONT));
     mf = _al_malloc(sizeof(FONT_MONO_DATA));
@@ -440,12 +440,12 @@ static int import_y = 0;
  */
 static int import_bitmap_font_mono(FONT_GLYPH** gl, int num)
 {
-    int w = 1, h = 1, i = 0;
+    int w = 1, h = 1, i;
 
     for(i = 0; i < num; i++) {
         if(w > 0 && h > 0) datedit_find_character(import_bmp, &import_x, &import_y, &w, &h);
         if(w <= 0 || h <= 0) {
-            int j = 0;
+            int j;
 
             gl[i] = _al_malloc(sizeof(FONT_GLYPH) + 8);
             gl[i]->w = 8;
@@ -453,7 +453,7 @@ static int import_bitmap_font_mono(FONT_GLYPH** gl, int num)
 
             for(j = 0; j < 8; j++) gl[i]->dat[j] = 0;
         } else {
-            int sx = ((w + 7) / 8), j = 0, k = 0;
+            int sx = ((w + 7) / 8), j, k;
 
             gl[i] = _al_malloc(sizeof(FONT_GLYPH) + sx * h);
             gl[i]->w = w;
@@ -481,7 +481,7 @@ static int import_bitmap_font_mono(FONT_GLYPH** gl, int num)
  */
 static int import_bitmap_font_color(BITMAP** bits, int num)
 {
-    int w = 1, h = 1, i = 0;
+    int w = 1, h = 1, i;
 
     for(i = 0; i < num; i++) {
         if(w > 0 && h > 0) datedit_find_character(import_bmp, &import_x, &import_y, &w, &h);
@@ -530,7 +530,7 @@ static FONT_COLOR_DATA* upgrade_to_color_data(FONT_MONO_DATA* mf)
 {
     FONT_COLOR_DATA* cf = _al_malloc(sizeof(FONT_COLOR_DATA));
     BITMAP** bits = _al_malloc(sizeof(BITMAP*) * (mf->end - mf->begin));
-    int i = 0;
+    int i;
 
     cf->begin = mf->begin;
     cf->end = mf->end;
@@ -560,7 +560,7 @@ static FONT_COLOR_DATA* upgrade_to_color_data(FONT_MONO_DATA* mf)
 static void upgrade_to_color(FONT* f)
 {
     FONT_MONO_DATA* mf = f->data;
-    FONT_COLOR_DATA* cf = 0, * cf_write = 0;
+    FONT_COLOR_DATA * cf, *cf_write = 0;
 
     if(f->vtable == font_vtable_color) return;
     f->vtable = font_vtable_color;
@@ -603,7 +603,7 @@ static int bitmap_font_count(BITMAP* bmp)
 static FONT* import_bitmap_font(AL_CONST char* fname, int begin, int end, int cleanup)
 {
     /* NB: `end' is -1 if we want every glyph */
-    FONT* f = 0;
+    FONT *f;
 
     if(fname) {
         PALETTE junk;
@@ -689,10 +689,10 @@ static FONT* import_bitmap_font(AL_CONST char* fname, int begin, int end, int cl
 /* import routine for the multiple range .txt font format */
 static FONT* import_scripted_font(AL_CONST char* filename)
 {
-    char buf[1024], * bmp_str = 0, * start_str = 0, * end_str = 0;
-    FONT* f = 0, * f2 = 0;
-    PACKFILE* pack = 0;
-    int begin = 0, end = 0;
+    char buf[1024], *bmp_str, *start_str = 0, *end_str = 0;
+    FONT *f, *f2;
+    PACKFILE *pack;
+    int begin, end;
 
     pack = pack_fopen(filename, F_READ);
     if(!pack) return 0;
@@ -1183,9 +1183,9 @@ static int font_view_proc(int msg, DIALOG *d, int c)
    FONT *fnt;
    int x, y, w, h, i;
    int font_h;
-   int begin = 0, end = 0;
+   int begin, end;
 
-    text_mode(-1);
+   text_mode(-1);
 
    switch (msg) {
 

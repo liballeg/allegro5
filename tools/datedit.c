@@ -407,7 +407,7 @@ static void save_object(DATAFILE *dat, int packed, int packkids, int strip, int 
    else
       save(dat, (packed || packkids), FALSE, strip, verbose, FALSE, f);
 
-   f = pack_fclose_chunk(f);
+   pack_fclose_chunk(f);
 
    if (verbose) {
       if ((!packed) && (packkids) && (dat->type != DAT_FILE)) {

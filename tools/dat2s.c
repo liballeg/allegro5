@@ -209,7 +209,7 @@ static void output_midi(MIDI *midi, char *name)
 static void output_font_color(FONT_COLOR_DATA *cf, char *name, int depth)
 {
    char buf[1000], goodname[1000];
-   int ch = 0;
+   int ch;
 
    if (cf->next) output_font_color(cf->next, name, depth + 1);
 
@@ -246,7 +246,7 @@ static void output_font_color(FONT_COLOR_DATA *cf, char *name, int depth)
 static void output_font_mono(FONT_MONO_DATA *mf, char *name, int depth)
 {
    char buf[1000], goodname[1000];
-   int ch = 0;
+   int ch;
 
    if (mf->next) output_font_mono(mf->next, name, depth + 1);
 

@@ -169,9 +169,7 @@ int rename_file(char *oldname, char *newname)
 
 void update_file(char *filename, char *dataname)
 {
-   PACKFILE *f = NULL;
-   PACKFILE *ef = NULL;
-   PACKFILE *df = NULL;
+   PACKFILE *f, *ef, *df = NULL;
    char *tmpname = tmpnam(NULL);
    int c;
 

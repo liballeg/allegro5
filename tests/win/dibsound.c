@@ -58,7 +58,7 @@ BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam
 int OpenNewSample(SAMPLE **sample, HWND hwnd)
 {
    OPENFILENAME openfilename;
-   SAMPLE *new_sample = NULL;
+   SAMPLE *new_sample;
    char filename[512];
 
    memset(&openfilename, 0, sizeof(OPENFILENAME));

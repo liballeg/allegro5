@@ -749,7 +749,7 @@ void output_toc(FILE *f, char *filename, int root, int body, int part)
 {
    char name[256];
    char *s;
-   TOC *toc = tochead;
+   TOC *toc;
    int nested = 0;
    int section_number = 0;
 
@@ -894,8 +894,8 @@ void output_texinfo_toc(FILE *f, int root, int body, int part)
 {
    #define TOC_SIZE     8192
 
-   TOC *toc = tochead;
-   int section_number = 0;
+   TOC *toc;
+   int section_number;
    char **ptr;
    char *s;
    int i, j;
@@ -999,7 +999,6 @@ char *node_name(int i)
 {
    TOC *toc = tochead;
 
-   toc = tochead;
    if (toc)
       toc = toc->next;
 

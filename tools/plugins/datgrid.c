@@ -246,7 +246,7 @@ static void *griddlit(DATAFILE **parent, AL_CONST char *name, int c, int type, i
 static void *box_griddle(DATAFILE **parent, AL_CONST char *name, int type, int skipempty, int autocrop, int depth)
 {
    void *ret = NULL;
-   void *item = NULL;
+   void *item;
    int x, y, w, h;
    int c = 0;
 
@@ -276,7 +276,7 @@ static void *box_griddle(DATAFILE **parent, AL_CONST char *name, int type, int s
 static void *grid_griddle(DATAFILE **parent, AL_CONST char *name, int type, int skipempty, int autocrop, int depth, int xgrid, int ygrid)
 {
    void *ret = NULL;
-   void *item = NULL;
+   void *item;
    int x, y;
    int c = 0;
 

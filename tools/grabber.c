@@ -2072,7 +2072,7 @@ static int grabber(void)
 {
    DATAFILE *dat;
    char *desc = "binary data";
-   AL_CONST char *ext = NULL;
+   AL_CONST char *ext;
    char buf[256], name[FILENAME_LENGTH], type[8];
    int sel;
    int i;
@@ -2137,7 +2137,7 @@ static int grabber(void)
 static int exporter(void)
 {
    char *desc = "binary data";
-   AL_CONST char *ext = NULL;
+   AL_CONST char *ext;
    char buf[256], name[FILENAME_LENGTH];
    DATAFILE *dat;
    int sel;
