@@ -116,11 +116,6 @@ AL_FUNC(void, wnd_set_syscursor, (int state));
 AL_FUNC(int, wnd_call_proc, (int (*proc)(void)));
 
 
-/* keyboard routines */
-AL_FUNC(int, key_dinput_acquire, (void));
-AL_FUNC(int, key_dinput_unacquire, (void));
-
-
 /* input routines */
 AL_VAR(int, input_events);
 AL_ARRAY(HANDLE, input_event_id);
@@ -130,6 +125,11 @@ AL_FUNC(void, input_init, (int need_thread));
 AL_FUNC(void, input_exit, (void));
 AL_FUNC(int, input_register_event, (HANDLE event_id, void (*event_handler)(void)));
 AL_FUNC(void, input_unregister_event, (HANDLE event_id));
+
+
+/* keyboard routines */
+AL_FUNC(int, key_dinput_acquire, (void));
+AL_FUNC(int, key_dinput_unacquire, (void));
 
 
 /* mouse routines */
