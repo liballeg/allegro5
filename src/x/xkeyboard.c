@@ -345,7 +345,6 @@ static int find_unknown_key_assignment (int i)
 	 if (str)
 	    key_names[j] = str;
 	 else {
-	    ASSERT(false);
 	    key_names[j] = _al_keyboard_common_names[j];
 	 }
 	 used[j] = 1;
