@@ -32,6 +32,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include ALLEGRO_INTERNAL_HEADER
 
 
 
@@ -88,7 +89,7 @@ static void mixer_lock_mem(void);
 
 #ifdef ALLEGRO_MULTITHREADED
 /* global mixer mutex */
-static void *mixer_mutex = NULL;
+static _AL_MUTEX mixer_mutex = _AL_MUTEX_UNINITED;
 #endif
 
 
@@ -230,16 +231,14 @@ void set_volume_per_voice(int scale)
 
    /* Update the mixer voices' volumes */
 #ifdef ALLEGRO_MULTITHREADED
-   if(mixer_mutex)
-      system_driver->lock_mutex(mixer_mutex);
+   _al_mutex_lock(&mixer_mutex);
 #endif
    voice_volume_scale = scale;
 
    for(i = 0;i < mix_voices;++i)
       update_mixer_volume(mixer_voice+i, _phys_voice+i);
 #ifdef ALLEGRO_MULTITHREADED
-   if(mixer_mutex)
-      system_driver->unlock_mutex(mixer_mutex);
+   _al_mutex_unlock(&mixer_mutex);
 #endif
 }
 
@@ -319,19 +318,7 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
 
 #ifdef ALLEGRO_MULTITHREADED
    /* Woops. Forgot to clean up incase this fails. :) */
-   mixer_mutex = system_driver->create_mutex();
-   if (!mixer_mutex) {
-      if(mix_vol_table)
-         free(mix_vol_table);
-      mix_vol_table = NULL;
-      free(mix_buffer);
-      mix_buffer = NULL;
-      mix_size = 0;
-      mix_freq = 0;
-      mix_channels = 0;
-      mix_bits = 0;
-      return -1;
-   }
+   _al_mutex_init(&mixer_mutex);
 #endif
 
    return 0;
@@ -345,8 +332,7 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
 void _mixer_exit(void)
 {
 #ifdef ALLEGRO_MULTITHREADED
-   system_driver->destroy_mutex(mixer_mutex);
-   mixer_mutex = NULL;
+   _al_mutex_destroy(&mixer_mutex);
 #endif
 
    if (mix_buffer)
@@ -1107,7 +1093,7 @@ void _mix_some_samples(unsigned long buf, unsigned short seg, int issigned)
    memset(p, 0, mix_size*mix_channels * sizeof(*p));
 
 #ifdef ALLEGRO_MULTITHREADED
-   system_driver->lock_mutex(mixer_mutex);
+   _al_mutex_lock(&mixer_mutex);
 #endif
 
    for (i=0; i<mix_voices; i++) {
@@ -1188,7 +1174,7 @@ void _mix_some_samples(unsigned long buf, unsigned short seg, int issigned)
    }
 
 #ifdef ALLEGRO_MULTITHREADED
-   system_driver->unlock_mutex(mixer_mutex);
+   _al_mutex_unlock(&mixer_mutex);
 #endif
 
    _farsetsel(seg);
@@ -1261,14 +1247,14 @@ END_OF_FUNCTION(_mixer_init_voice);
 void _mixer_release_voice(int voice)
 {
 #ifdef ALLEGRO_MULTITHREADED
-   system_driver->lock_mutex(mixer_mutex);
+   _al_mutex_lock(&mixer_mutex);
 #endif
 
    mixer_voice[voice].playing = FALSE;
    mixer_voice[voice].data.buffer = NULL;
 
 #ifdef ALLEGRO_MULTITHREADED
-   system_driver->unlock_mutex(mixer_mutex);
+   _al_mutex_unlock(&mixer_mutex);
 #endif
 }
 

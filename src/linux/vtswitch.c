@@ -72,8 +72,10 @@ static void go_away(void)
 	_switch_out();
 
 	_unix_bg_man->disable_interrupts();
+	/* XXX:
 	if ((switch_mode == SWITCH_PAUSE) || (switch_mode == SWITCH_AMNESIA))
-		if (timer_driver) timer_driver->exit();
+		if (_al_timer_driver) _al_timer_driver->exit();
+	*/
 
 	/* Disable input devices while we're away */
 	__al_linux_suspend_standard_drivers();
@@ -90,7 +92,9 @@ static void go_away(void)
 
 	if ((switch_mode == SWITCH_PAUSE) || (switch_mode == SWITCH_AMNESIA)) {
 		__al_linux_wait_for_display();
-		if (timer_driver) timer_driver->init();
+		/* XXX:
+		if (_al_timer_driver) _al_timer_driver->init();
+		*/
 	}
 
 	_unix_bg_man->enable_interrupts();

@@ -90,24 +90,12 @@ SYSTEM_DRIVER system_linux =
    NULL, /* get_desktop_resolution */
    NULL, /* get_gfx_safe_mode */
    _unix_yield_timeslice,
-#ifdef HAVE_LIBPTHREAD
-   _unix_create_mutex,
-   _unix_destroy_mutex,
-   _unix_lock_mutex,
-   _unix_unlock_mutex,
-#else
-   NULL, /* create_mutex */
-   NULL, /* destroy_mutex */
-   NULL, /* lock_mutex */
-   NULL, /* unlock_mutex */
-#endif
    get_gfx_driver_list,
    get_digi_driver_list,
    get_midi_driver_list,
    get_keyboard_driver_list,
    get_mouse_driver_list,
-   get_joystick_driver_list,
-   get_timer_driver_list
+   get_joystick_driver_list
 };
 
 
@@ -214,6 +202,9 @@ static int sys_linux_init (void)
 	/* Initialise the console switching system */
 	set_display_switch_mode (SWITCH_PAUSE);
 	__al_linux_init_vtswitch();
+
+	/* Mark the beginning of time */
+	_al_unix_init_time();
 
 	return 0;
 }

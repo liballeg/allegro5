@@ -98,17 +98,12 @@ SYSTEM_DRIVER system_macosx =
    osx_sys_get_desktop_resolution,
    osx_sys_get_gfx_safe_mode,
    _unix_yield_timeslice,
-   _unix_create_mutex,
-   _unix_destroy_mutex,
-   _unix_lock_mutex,
-   _unix_unlock_mutex,
    NULL,  /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
    NULL,  /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
    NULL,  /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
    NULL,  /* AL_METHOD(_DRIVER_INFO *, keyboard_drivers, (void)); */
    NULL,  /* AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void)); */
-   NULL,  /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
-   NULL,  /* AL_METHOD(_DRIVER_INFO *, timer_drivers, (void)); */
+   NULL   /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
 };
 
 

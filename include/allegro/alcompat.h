@@ -229,17 +229,50 @@ AL_INLINE_DEPRECATED(void, yield_timeslice, (void),
 })
 
 
-/* DOS-ish monitor retrace ideas that don't work elsewhere */
+/* the old timer API */
+#define TIMERS_PER_SECOND     1193181L
+#define SECS_TO_TIMER(x)      ((long)(x) * TIMERS_PER_SECOND)
+#define MSEC_TO_TIMER(x)      ((long)(x) * (TIMERS_PER_SECOND / 1000))
+#define BPS_TO_TIMER(x)       (TIMERS_PER_SECOND / (long)(x))
+#define BPM_TO_TIMER(x)       ((60 * TIMERS_PER_SECOND) / (long)(x))
+
+typedef struct TIMER_DRIVER
+{
+   int  id;
+   AL_CONST char *name;
+   AL_CONST char *desc;
+   AL_CONST char *ascii_name;
+} TIMER_DRIVER;
+
+AL_VAR(TIMER_DRIVER *, timer_driver);
+
+AL_FUNC(int, install_timer, (void));
+AL_FUNC(void, remove_timer, (void));
+
+AL_FUNC(int, install_int_ex, (AL_METHOD(void, proc, (void)), long speed));
+AL_FUNC(int, install_int, (AL_METHOD(void, proc, (void)), long speed));
+AL_FUNC(void, remove_int, (AL_METHOD(void, proc, (void))));
+
+AL_FUNC(int, install_param_int_ex, (AL_METHOD(void, proc, (void *param)), void *param, long speed));
+AL_FUNC(int, install_param_int, (AL_METHOD(void, proc, (void *param)), void *param, long speed));
+AL_FUNC(void, remove_param_int, (AL_METHOD(void, proc, (void *param)), void *param));
+
+AL_VAR(volatile int, retrace_count);
 AL_FUNCPTR(void, retrace_proc, (void));
 
 #ifdef ALLEGRO_LIB_BUILD
    AL_FUNC(int,  timer_can_simulate_retrace, (void));
    AL_FUNC(void, timer_simulate_retrace, (int enable));
 #else
+   /* deprecated since 4.1.16 */
    AL_FUNC_DEPRECATED(int,  timer_can_simulate_retrace, (void));
    AL_FUNC_DEPRECATED(void, timer_simulate_retrace, (int enable));
 #endif
-AL_FUNC_DEPRECATED(int,  timer_is_using_retrace, (void));
+AL_FUNC(int,  timer_is_using_retrace, (void));
+
+AL_FUNC(void, rest, (unsigned int time));
+AL_FUNC(void, rest_callback, (unsigned int time, AL_METHOD(void, callback, (void))));
+
 
 #ifdef __cplusplus
    }

@@ -22,13 +22,7 @@
 extern "C" {
 #endif
 
-#ifdef HAVE_LIBPTHREAD
-   /* Synchronization routines using POSIX threads */
-   AL_FUNC(void *, _unix_create_mutex, (void));
-   AL_FUNC(void, _unix_destroy_mutex, (void *handle));
-   AL_FUNC(void, _unix_lock_mutex, (void *handle));
-   AL_FUNC(void, _unix_unlock_mutex, (void *handle));
-#else
+#ifndef HAVE_LIBPTHREAD
    /* Asynchronous event processing with SIGALRM */
    AL_FUNC(void, _sigalrm_request_abort, (void));
    AL_FUNCPTR(void, _sigalrm_timer_interrupt_handler, (unsigned long interval));
@@ -84,7 +78,6 @@ extern "C" {
    AL_ARRAY(_DRIVER_INFO, _xwin_gfx_driver_list);
    AL_ARRAY(_DRIVER_INFO, _xwin_keyboard_driver_list);
    AL_ARRAY(_DRIVER_INFO, _xwin_mouse_driver_list);
-   AL_ARRAY(_DRIVER_INFO, _xwin_timer_driver_list);
 
    AL_FUNC(void, _xwin_handle_input, (void));
    AL_FUNC(void, _xwin_private_handle_input, (void));
@@ -182,6 +175,96 @@ extern struct bg_manager *_unix_bg_man;
 #ifdef __cplusplus
 }
 #endif
+
+
+
+/*----------------------------------------------------------------------*
+ *									*
+ *	New stuff							*
+ *									*
+ *----------------------------------------------------------------------*/
+
+/* TODO: integrate this above */
+/* TODO: remove SIGALRM stuff */
+/* TODO: replace bg_man */
+
+#include <pthread.h>
+#include "allegro/internal/aintern.h"
+
+AL_BEGIN_EXTERN_C
+
+/* threads */
+struct _AL_THREAD
+{
+    /* private: */
+    pthread_t thread;
+    pthread_mutex_t mutex;
+    bool should_stop;
+    void (*proc)(_AL_THREAD *self, void *arg);
+    void *arg;
+};
+
+AL_INLINE(bool, _al_thread_should_stop, (_AL_THREAD *t),
+{
+    bool ret;
+    pthread_mutex_lock(&t->mutex);
+    ret = t->should_stop;
+    pthread_mutex_unlock(&t->mutex);
+    return ret;
+})
+
+struct _AL_MUTEX
+{
+    bool inited;
+    pthread_mutex_t mutex;
+};
+
+#define _AL_MUTEX_UNINITED	{ false, }
+
+void _al_mutex_init(_AL_MUTEX*);
+void _al_mutex_destroy(_AL_MUTEX*);
+AL_INLINE(void, _al_mutex_lock, (_AL_MUTEX *m),
+{
+   if (m->inited)
+      pthread_mutex_lock(&m->mutex);
+})
+AL_INLINE(void, _al_mutex_unlock, (_AL_MUTEX *m),
+{
+   if (m->inited)
+      pthread_mutex_unlock(&m->mutex);
+})
+
+
+/* events */
+struct AL_EVENT_SOURCE
+{
+   unsigned long event_mask;
+   size_t event_size;
+   _AL_MUTEX mutex;
+   _AL_VECTOR queues;
+   AL_EVENT *all_events;
+   AL_EVENT *free_events;
+};
+
+void _al_event_source_init(AL_EVENT_SOURCE*, size_t event_size);
+void _al_event_source_free(AL_EVENT_SOURCE*);
+void _al_event_source_lock(AL_EVENT_SOURCE*);
+void _al_event_source_unlock(AL_EVENT_SOURCE*);
+void _al_event_source_on_registration_to_queue(AL_EVENT_SOURCE*, AL_EVENT_QUEUE*);
+void _al_event_source_on_unregistration_from_queue(AL_EVENT_SOURCE*, AL_EVENT_QUEUE*);
+bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE*, unsigned long event_type);
+AL_EVENT* _al_event_source_get_unused_event(AL_EVENT_SOURCE*);
+void _al_event_source_emit_event(AL_EVENT_SOURCE *, AL_EVENT*);
+
+void _al_release_event(AL_EVENT*);
+
+void _al_event_queue_push_event(AL_EVENT_QUEUE*, AL_EVENT*);
+
+/* time */
+void _al_unix_init_time(void);
+
+AL_END_EXTERN_C
+
 
 #endif /* ifndef AINTUNIX_H */
 

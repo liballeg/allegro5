@@ -14,7 +14,10 @@ ALLEGRO_SRC_FILES = \
 	src/digmid.c \
 	src/dither.c \
 	src/dispsw.c \
+	src/dtor.c \
 	src/drvlist.c \
+	src/events.c \
+	src/evtsrc.c \
 	src/file.c \
 	src/fli.c \
 	src/flood.c \
@@ -59,7 +62,8 @@ ALLEGRO_SRC_FILES = \
 	src/vtable16.c \
 	src/vtable24.c \
 	src/vtable32.c \
-	src/vtable8.c
+	src/vtable8.c \
+	src/misc/vector.c
 
 ALLEGRO_SRC_C_FILES = \
 	src/c/cblit16.c \
@@ -184,6 +188,7 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wsndwo.c \
 	src/win/wdxver.c \
 	src/win/wdispsw.c \
+	src/win/wevents.c \
 	src/win/wfile.c \
 	src/win/wgdi.c \
 	src/win/wgfxdrv.c \
@@ -198,8 +203,10 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wsnddrv.c \
 	src/win/wsystem.c \
 	src/win/wthread.c \
-	src/win/wtimer.c \
+	src/win/wtime.c \
+	src/win/wtimernu.c \
 	src/win/wwnd.c \
+	src/win/wxthread.c \
 	src/misc/colconv.c \
 	src/misc/pckeys.c
 
@@ -278,6 +285,7 @@ ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/udrvlist.c \
 	src/unix/udummy.c \
 	src/unix/uesd.c \
+	src/unix/uevents.c \
 	src/unix/ufile.c \
 	src/unix/ugfxdrv.c \
 	src/unix/ujoydrv.c \
@@ -287,20 +295,18 @@ ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/umouse.c \
 	src/unix/uoss.c \
 	src/unix/uossmidi.c \
-	src/unix/uptimer.c \
-	src/unix/usigalrm.c \
 	src/unix/usnddrv.c \
-	src/unix/ustimer.c \
 	src/unix/usystem.c \
 	src/unix/uthreads.c \
-	src/unix/utimer.c
+	src/unix/utime.c \
+	src/unix/utimernu.c \
+	src/unix/uxthread.c
 
 ALLEGRO_SRC_X_FILES = \
 	src/x/xgfxdrv.c \
 	src/x/xkeybd.c \
 	src/x/xmouse.c \
 	src/x/xsystem.c \
-	src/x/xtimer.c \
 	src/x/xvtable.c \
 	src/x/xwin.c \
 	src/x/xdga2.c \
@@ -325,7 +331,6 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/unix/udjgpp.c \
 	src/unix/ufile.c \
 	src/unix/umain.c \
-	src/unix/uptimer.c \
 	src/unix/usystem.c \
 	src/unix/uthreads.c \
 	src/misc/colconv.c \
@@ -347,7 +352,6 @@ ALLEGRO_SRC_MACOSX_FILES = \
 	src/macosx/system.m \
 	src/unix/ufile.c \
 	src/unix/utimer.c \
-	src/unix/uptimer.c \
 	src/unix/usystem.c \
 	src/unix/uthreads.c \
 	src/misc/colconv.c

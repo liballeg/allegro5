@@ -37,24 +37,6 @@ extern char **__crt0_argv;
 
 
 
-/**************************************/
-/************ General Unix ************/
-/**************************************/
-
-#ifdef HAVE_LIBPTHREAD
-
-#define TIMERDRV_UNIX_PTHREADS	AL_ID('P','T','H','R')
-AL_VAR(TIMER_DRIVER, timerdrv_unix_pthreads);
-
-#else
-
-#define TIMERDRV_UNIX_SIGALRM    AL_ID('A','L','R','M')
-AL_VAR(TIMER_DRIVER, timerdrv_unix_sigalrm);
-
-#endif
-
-
-
 /************************************/
 /*********** Sound drivers **********/
 /************************************/

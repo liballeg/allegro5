@@ -129,21 +129,7 @@ AL_VAR(BITMAP *, _mouse_pointer);
 
 
 /* various bits of timer stuff */
-AL_FUNC(long, _handle_timer_tick, (int interval));
-
 #define MAX_TIMERS      16
-
-/* list of active timer handlers */
-typedef struct TIMER_QUEUE
-{
-   AL_METHOD(void, proc, (void));      /* timer handler functions */
-   AL_METHOD(void, param_proc, (void *param));
-   void *param;                        /* param for param_proc if used */
-   long speed;                         /* timer speed */
-   long counter;                       /* counts down to zero=blastoff */
-} TIMER_QUEUE;
-
-AL_ARRAY(TIMER_QUEUE, _timer_queue);
 
 AL_VAR(int, _timer_installed);
 
@@ -1182,6 +1168,73 @@ AL_FUNC(char *, _al_sane_strncpy, (char *dest, const char *src, size_t n));
 #define _AL_RAND_MAX  0xFFFF
 AL_FUNC(void, _al_srand, (int seed));
 AL_FUNC(int, _al_rand, (void));
+
+
+
+/*----------------------------------------------------------------------*
+ *                                                                      *
+ *      New things                                                      *
+ *                                                                      *
+ *----------------------------------------------------------------------*/
+
+/* threads */
+typedef struct _AL_THREAD _AL_THREAD;
+void _al_thread_create(_AL_THREAD*, void (*proc)(_AL_THREAD*, void*), void *arg);
+/* static inline bool _al_thread_should_stop(_AL_THREAD *); */
+void _al_thread_join(_AL_THREAD*);
+
+typedef struct _AL_MUTEX _AL_MUTEX;
+void _al_mutex_init(_AL_MUTEX*);
+void _al_mutex_destroy(_AL_MUTEX*);
+/* static inline void _al_mutex_lock(_AL_MUTEX*); */
+/* static inline void _al_mutex_unlock(_AL_MUTEX*); */
+
+/* destructors */
+void _al_init_destructors(void);
+void _al_register_destructor(void *object, void (*func)(void*));
+void _al_unregister_destructor(void *object);
+
+/* events */
+union AL_EVENT;
+void _al_copy_event(union AL_EVENT *dest, const union AL_EVENT *src);
+
+/* vectors */
+typedef struct _AL_VECTOR
+{
+   /* private */
+   size_t _itemsize;
+   char*  _items;  /* total size == (size + unused) * itemsize */
+   size_t _size;
+   size_t _unused;
+} _AL_VECTOR;
+
+#define _AL_VECTOR_INITIALIZER(typ) { sizeof(typ), 0, 0, 0 }
+
+void  _al_vector_init(_AL_VECTOR*, size_t itemsize);
+AL_INLINE(size_t, _al_vector_size, (const _AL_VECTOR *vec),
+{
+   return vec->_size;
+})
+AL_INLINE(bool, _al_vector_is_empty, (const _AL_VECTOR *vec),
+{
+   ASSERT(vec);
+   return vec->_size == 0 ? true : false; 
+})
+AL_INLINE(bool, _al_vector_is_nonempty, (const _AL_VECTOR *vec),
+{
+   ASSERT(vec);
+   return !_al_vector_is_empty(vec); 
+})
+void* _al_vector_ref(const _AL_VECTOR*, unsigned int index);
+void* _al_vector_ref_front(const _AL_VECTOR*);
+void* _al_vector_ref_back(const _AL_VECTOR*);
+void* _al_vector_alloc_back(_AL_VECTOR*);
+int   _al_vector_find(const _AL_VECTOR*, const void *ptr_item);
+bool  _al_vector_contains(const _AL_VECTOR*, const void *ptr_item);
+void  _al_vector_delete_at(_AL_VECTOR*, unsigned int index);
+bool  _al_vector_find_and_delete(_AL_VECTOR*, const void *ptr_item);
+void  _al_vector_free(_AL_VECTOR*);
+
 
 
 #ifdef __cplusplus

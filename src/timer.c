@@ -8,179 +8,85 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Timer interrupt routines.
+ *      Old timer interrupt routines emulation.
  *
  *      By Shawn Hargreaves.
  *
  *      Synchronization added by Eric Botcazou.
  *
+ *      Converted into an emulation layer by Peter Wang.
+ *
  *      See readme.txt for copyright information.
  */
 
 
-#include <time.h>
-
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include ALLEGRO_INTERNAL_HEADER
 
-#undef ALLEGRO_MULTITHREADED  /* FIXME */
+
+
+#define TIMER_TO_MSEC(x)  ((long)((x) / 1193.181))
+
+/* list of active timer handlers */
+typedef struct TIMER_QUEUE
+{
+   AL_TIMER *timer;
+   AL_METHOD(void, proc, (void));      /* timer handler functions */
+   AL_METHOD(void, param_proc, (void *param));
+   void *param;                        /* param for param_proc if used */
+} TIMER_QUEUE;
 
 
 TIMER_DRIVER *timer_driver = NULL;        /* the active driver */
+                                          /* (a dummy in this emulation) */
 
 int _timer_installed = FALSE;
 
-TIMER_QUEUE _timer_queue[MAX_TIMERS];     /* list of active callbacks */
+static TIMER_QUEUE _timer_queue[MAX_TIMERS]; /* list of active callbacks */
 
 volatile int retrace_count = 0;           /* used for retrace syncing */
 void (*retrace_proc)(void) = NULL;
 
 long _vsync_speed = BPS_TO_TIMER(70);     /* retrace speed */
 
-static long vsync_counter;                /* retrace position counter */
-
 int _timer_use_retrace = FALSE;           /* are we synced to the retrace? */
 
 volatile int _retrace_hpp_value = -1;     /* to set during next retrace */
 
-#ifdef ALLEGRO_MULTITHREADED
-static void *timer_mutex = NULL;          /* global timer mutex */
-#else
-static int timer_semaphore = FALSE;       /* reentrant interrupt? */
-#endif
+static _AL_THREAD timer_thread;           /* the timer thread */
+static _AL_MUTEX timer_mutex = _AL_MUTEX_UNINITED; /* global timer mutex */
 
-static volatile long timer_delay = 0;     /* lost interrupt rollover */
+static AL_EVENT_QUEUE *event_queue;       /* event queue to collect timer events */
+static AL_TIMER *retrace_timer;           /* timer to simulate retrace counting */
 
 
 
-/* _handle_timer_tick:
- *  Called by the driver to handle a timer tick.
- */
-long _handle_timer_tick(int interval)
+/* a dummy driver */
+static TIMER_DRIVER timerdrv_emu =
 {
-   long new_delay = 0x8000;
-   long d;
-   int i;
-
-   timer_delay += interval;
-
-#ifdef ALLEGRO_MULTITHREADED
-   system_driver->lock_mutex(timer_mutex);
-#else
-   /* reentrant interrupt? */
-   if (timer_semaphore)
-      return 0x2000;
-
-   timer_semaphore = TRUE;
-#endif
-
-   d = timer_delay;
-
-   /* deal with retrace synchronisation */
-   vsync_counter -= d; 
-
-   while (vsync_counter <= 0) {
-      vsync_counter += _vsync_speed;
-      retrace_count++;
-      if (retrace_proc)
-	 retrace_proc();
-   }
-
-   /* process the user callbacks */
-   for (i=0; i<MAX_TIMERS; i++) { 
-      if (((_timer_queue[i].proc) || (_timer_queue[i].param_proc)) &&
-	  (_timer_queue[i].speed > 0)) {
-
-	 _timer_queue[i].counter -= d;
-
-	 while ((_timer_queue[i].counter <= 0) && 
-		((_timer_queue[i].proc) || (_timer_queue[i].param_proc)) && 
-		(_timer_queue[i].speed > 0)) {
-	    _timer_queue[i].counter += _timer_queue[i].speed;
-	    if (_timer_queue[i].param_proc)
-	       _timer_queue[i].param_proc(_timer_queue[i].param);
-	    else
-	       _timer_queue[i].proc();
-	 }
-
-	 if ((_timer_queue[i].counter > 0) && 
-	     ((_timer_queue[i].proc) || (_timer_queue[i].param_proc)) && 
-	     (_timer_queue[i].counter < new_delay)) {
-	    new_delay = _timer_queue[i].counter;
-	 }
-      }
-   }
-
-   timer_delay -= d;
-
-#ifdef ALLEGRO_MULTITHREADED
-   system_driver->unlock_mutex(timer_mutex);
-#else
-   timer_semaphore = FALSE;
-#endif
-
-#ifdef ALLEGRO_WINDOWS
-   /* fudge factor to prevent interrupts from coming too close to each other */
-   if (new_delay < MSEC_TO_TIMER(1))
-      new_delay = MSEC_TO_TIMER(1);
-#endif
-
-   return new_delay;
-}
-
-END_OF_FUNCTION(_handle_timer_tick);
-
-
-
-/* simple interrupt handler for the rest() function */
-static volatile long rest_count;
-
-static void rest_int(void)
-{
-   rest_count--;
-}
-
-END_OF_STATIC_FUNCTION(rest_int);
+   AL_ID('T','E','M','U'),
+   empty_string,
+   empty_string,
+   "Emulated timers"
+};
 
 
 
 /* rest_callback:
  *  Waits for time milliseconds.
+ *  Note: this can wrap if the process runs for > ~49 days.
  */
 void rest_callback(unsigned int time, void (*callback)(void))
 {
-   if (!time) {
-      ASSERT(system_driver);
-      if (system_driver->yield_timeslice)
-         system_driver->yield_timeslice();
-      return;
-   }
-   if (timer_driver) {
-      if (timer_driver->rest) {
-	 timer_driver->rest(time, callback);
-      }
-      else {
-	 rest_count = time;
+   if (callback) {
+      unsigned long end = al_current_time() + time;
 
-	 if (install_int(rest_int, 1) < 0)
-	    return;
-
-	 do {
-	    if (callback)
-	       callback();
-	    else
-	       rest(0);
-
-	 } while (rest_count > 0);
-
-	 remove_int(rest_int);
-      }
+      while (al_current_time() < end)
+         callback();
    }
    else {
-      time = clock() + MIN(time * CLOCKS_PER_SEC / 1000, 2);
-      do {
-         rest(0);
-      } while (clock() < (clock_t)time);
+      al_rest(time);
    }
 }
 
@@ -191,7 +97,7 @@ void rest_callback(unsigned int time, void (*callback)(void))
  */
 void rest(unsigned int time)
 {
-   rest_callback(time, NULL);
+   al_rest(time);
 }
 
 
@@ -202,10 +108,7 @@ void rest(unsigned int time)
  */
 int timer_can_simulate_retrace()
 {
-   if ((timer_driver) && (timer_driver->can_simulate_retrace))
-      return timer_driver->can_simulate_retrace();
-   else
-      return FALSE;
+   return FALSE;
 }
 
 
@@ -216,10 +119,6 @@ int timer_can_simulate_retrace()
  */
 void timer_simulate_retrace(int enable)
 {
-   if (!timer_can_simulate_retrace())
-      return;
-
-   timer_driver->simulate_retrace(enable);
 }
 
 
@@ -230,7 +129,69 @@ void timer_simulate_retrace(int enable)
  */
 int timer_is_using_retrace()
 {
-   return _timer_use_retrace;
+   return FALSE;
+}
+
+
+
+/* timer_thread_func: [timer thread]
+ *  Each "interrupt" callback registered by the user has an associated
+ *  AL_TIMER object. All these objects are registered to a global event
+ *  queue. This function runs in a background thread and reads timer events
+ *  from the event queue, calling the appropriate callbacks.
+ */
+static void timer_thread_func(_AL_THREAD *self, void *unused)
+{
+   while (!_al_thread_should_stop(self)) {
+      AL_EVENT event;
+
+      if (!al_wait_for_event(event_queue, &event, 50))
+         continue;
+
+      if ((AL_TIMER *)event.any.source == retrace_timer) {
+         retrace_count++;
+
+         /* retrace_proc is just a bad idea -- don't use it! */
+         if (retrace_proc)
+            retrace_proc();
+      }
+      else {
+         bool found = false;
+         TIMER_QUEUE copy;
+         int x;
+
+         /* We delay the call until the timer_mutex is unlocked, to
+          * avoid deadlocks. The callback itself can add or remove
+          * timers. Using a recursive mutex isn't enough either.
+          *
+          * FIXME: There is a problem with this approach. If
+          * remove_int() is called from another thread while we are in
+          * the middle of the lock...unlock, the proc being removed
+          * may run one more time after it was supposed to be removed!
+          * This can be troublesome if shortly after remove_int() some
+          * resource needed by the proc is freed up (hopefully rare!).
+          */
+
+         _al_mutex_lock(&timer_mutex);
+         {
+            for (x=0; x<MAX_TIMERS; x++) {
+               if (_timer_queue[x].timer == (AL_TIMER *)event.any.source) {
+                  copy = _timer_queue[x];
+                  found = true;
+                  break;
+               }
+            }
+         }
+         _al_mutex_unlock(&timer_mutex);
+
+         if (found) {
+            if (copy.param_proc)
+               copy.param_proc(copy.param);
+            else
+               copy.proc();
+         }
+      }
+   }
 }
 
 
@@ -250,8 +211,6 @@ static int find_timer_slot(void (*proc)(void))
    return -1;
 }
 
-END_OF_STATIC_FUNCTION(find_timer_slot);
-
 
 
 /* find_param_timer_slot:
@@ -270,8 +229,6 @@ static int find_param_timer_slot(void (*proc)(void *param), void *param)
    return -1;
 }
 
-END_OF_STATIC_FUNCTION(find_param_timer_slot);
-
 
 
 /* find_empty_timer_slot:
@@ -288,17 +245,15 @@ static int find_empty_timer_slot(void)
    return -1;
 }
 
-END_OF_STATIC_FUNCTION(find_empty_timer_slot);
-
 
 
 /* install_timer_int:
  *  Installs a function into the list of user timers, or if it is already 
  *  installed, adjusts its speed. This function will be called once every 
- *  speed timer ticks. Returns a negative number if there was no room to 
+ *  speed msecs. Returns a negative number if there was no room to 
  *  add a new routine.
  */
-static int install_timer_int(void *proc, void *param, long speed, int param_used)
+static int install_timer_int(void *proc, void *param, long speed_msecs, int param_used)
 {
    int x;
 
@@ -307,18 +262,10 @@ static int install_timer_int(void *proc, void *param, long speed, int param_used
 	 return -1;
    }
 
-   if (param_used) {
-      if (timer_driver->install_param_int) 
-	 return timer_driver->install_param_int((void (*)(void *))proc, param, speed);
-
+   if (param_used)
       x = find_param_timer_slot((void (*)(void *))proc, param);
-   }
-   else {
-      if (timer_driver->install_int) 
-	 return timer_driver->install_int((void (*)(void))proc, speed);
-
+   else
       x = find_timer_slot((void (*)(void))proc); 
-   }
 
    if (x < 0)
       x = find_empty_timer_slot();
@@ -326,34 +273,28 @@ static int install_timer_int(void *proc, void *param, long speed, int param_used
    if (x < 0)
       return -1;
 
-#ifdef ALLEGRO_MULTITHREADED
-   system_driver->lock_mutex(timer_mutex);
-#endif
-
-   if ((proc == _timer_queue[x].proc) || (proc == _timer_queue[x].param_proc)) { 
-      _timer_queue[x].counter -= _timer_queue[x].speed;
-      _timer_queue[x].counter += speed;
-   }
-   else {
-      _timer_queue[x].counter = speed;
-      if (param_used) {
-	 _timer_queue[x].param = param;
-	 _timer_queue[x].param_proc = proc;
+   _al_mutex_lock(&timer_mutex);
+   {
+      if ((proc == _timer_queue[x].proc) || (proc == _timer_queue[x].param_proc)) {
+         al_timer_set_speed(_timer_queue[x].timer, speed_msecs);
       }
-      else
-	 _timer_queue[x].proc = proc;
+      else {
+         _timer_queue[x].timer = al_install_timer(speed_msecs);
+         if (param_used) {
+            _timer_queue[x].param = param;
+            _timer_queue[x].param_proc = (void (*)(void *))proc;
+         }
+         else
+            _timer_queue[x].proc = (void (*)(void))proc;
+
+         al_register_event_source(event_queue, (AL_EVENT_SOURCE *)_timer_queue[x].timer);
+         al_start_timer(_timer_queue[x].timer);
+      }
    }
-
-   _timer_queue[x].speed = speed;
-
-#ifdef ALLEGRO_MULTITHREADED
-   system_driver->unlock_mutex(timer_mutex);
-#endif
+   _al_mutex_unlock(&timer_mutex);
 
    return 0;
 }
-
-END_OF_STATIC_FUNCTION(install_timer_int);
 
 
 
@@ -363,10 +304,8 @@ END_OF_STATIC_FUNCTION(install_timer_int);
  */
 int install_int(void (*proc)(void), long speed)
 {
-   return install_timer_int((void *)proc, NULL, MSEC_TO_TIMER(speed), FALSE);
+   return install_timer_int((void *)proc, NULL, speed, FALSE);
 }
-
-END_OF_FUNCTION(install_int);
 
 
 
@@ -376,10 +315,8 @@ END_OF_FUNCTION(install_int);
  */
 int install_int_ex(void (*proc)(void), long speed)
 {
-   return install_timer_int((void *)proc, NULL, speed, FALSE);
+   return install_timer_int((void *)proc, NULL, TIMER_TO_MSEC(speed), FALSE);
 }
-
-END_OF_FUNCTION(install_int_ex);
 
 
 
@@ -389,10 +326,8 @@ END_OF_FUNCTION(install_int_ex);
  */
 int install_param_int(void (*proc)(void *param), void *param, long speed)
 {
-   return install_timer_int((void *)proc, param, MSEC_TO_TIMER(speed), TRUE);
+   return install_timer_int((void *)proc, param, speed, TRUE);
 }
-
-END_OF_FUNCTION(install_param_int);
 
 
 
@@ -402,10 +337,8 @@ END_OF_FUNCTION(install_param_int);
  */
 int install_param_int_ex(void (*proc)(void *param), void *param, long speed)
 {
-   return install_timer_int((void *)proc, param, speed, TRUE);
+   return install_timer_int((void *)proc, param, TIMER_TO_MSEC(speed), TRUE);
 }
-
-END_OF_FUNCTION(install_param_int_ex);
 
 
 
@@ -416,42 +349,24 @@ static void remove_timer_int(void *proc, void *param, int param_used)
 {
    int x;
 
-   if (param_used) {
-      if ((timer_driver) && (timer_driver->remove_param_int)) {
-	 timer_driver->remove_param_int((void (*)(void *))proc, param);
-	 return;
-      }
-
+   if (param_used)
       x = find_param_timer_slot((void (*)(void *))proc, param);
-   }
-   else {
-      if ((timer_driver) && (timer_driver->remove_int)) {
-	 timer_driver->remove_int((void (*)(void))proc);
-	 return;
-      }
-
+   else
       x = find_timer_slot((void (*)(void))proc); 
-   }
 
    if (x < 0)
       return;
 
-#ifdef ALLEGRO_MULTITHREADED
-   system_driver->lock_mutex(timer_mutex);
-#endif
-
-   _timer_queue[x].proc = NULL;
-   _timer_queue[x].param_proc = NULL;
-   _timer_queue[x].param = NULL;
-   _timer_queue[x].speed = 0;
-   _timer_queue[x].counter = 0;
-
-#ifdef ALLEGRO_MULTITHREADED
-   system_driver->unlock_mutex(timer_mutex);
-#endif
+   _al_mutex_lock(&timer_mutex);
+   {
+      al_uninstall_timer(_timer_queue[x].timer);
+      _timer_queue[x].timer = NULL;
+      _timer_queue[x].proc = NULL;
+      _timer_queue[x].param_proc = NULL;
+      _timer_queue[x].param = NULL;
+   }
+   _al_mutex_unlock(&timer_mutex);
 }
-
-END_OF_FUNCTION(remove_timer_int);
 
 
 
@@ -463,8 +378,6 @@ void remove_int(void (*proc)(void))
    remove_timer_int((void *)proc, NULL, FALSE);
 }
 
-END_OF_FUNCTION(remove_int);
-
 
 
 /* remove_param_int:
@@ -474,8 +387,6 @@ void remove_param_int(void (*proc)(void *param), void *param)
 {
    remove_timer_int((void *)proc, param, TRUE);
 }
-
-END_OF_FUNCTION(remove_param_int);
 
 
 
@@ -487,11 +398,13 @@ static void clear_timer_queue(void)
    int i;
 
    for (i=0; i<MAX_TIMERS; i++) {
+      if (_timer_queue[i].timer) {
+         al_uninstall_timer(_timer_queue[i].timer);
+         _timer_queue[i].timer = NULL;
+      }
       _timer_queue[i].proc = NULL;
       _timer_queue[i].param_proc = NULL;
       _timer_queue[i].param = NULL;
-      _timer_queue[i].speed = 0;
-      _timer_queue[i].counter = 0;
    }
 }
 
@@ -504,70 +417,30 @@ static void clear_timer_queue(void)
  */
 int install_timer()
 {
-   _DRIVER_INFO *driver_list;
    int i;
 
    if (timer_driver)
       return 0;
 
+   timer_driver = &timerdrv_emu;
+
    clear_timer_queue();
 
-   retrace_proc = NULL;
-   vsync_counter = BPS_TO_TIMER(70);
-   _timer_use_retrace = FALSE;
-   _retrace_hpp_value = -1;
-   timer_delay = 0;
+   _al_mutex_init(&timer_mutex);
 
-   LOCK_VARIABLE(timer_driver);
-   LOCK_VARIABLE(timer_delay);
-   LOCK_VARIABLE(_timer_queue);
-   LOCK_VARIABLE(timer_semaphore);
-   LOCK_VARIABLE(vsync_counter);
-   LOCK_VARIABLE(_timer_use_retrace);
-   LOCK_VARIABLE(_retrace_hpp_value);
-   LOCK_VARIABLE(retrace_count);
-   LOCK_VARIABLE(retrace_proc);
-   LOCK_VARIABLE(rest_count);
-   LOCK_FUNCTION(rest_int);
-   LOCK_FUNCTION(_handle_timer_tick);
-   LOCK_FUNCTION(find_timer_slot);
-   LOCK_FUNCTION(find_param_timer_slot);
-   LOCK_FUNCTION(find_empty_timer_slot);
-   LOCK_FUNCTION(install_timer_int);
-   LOCK_FUNCTION(install_int);
-   LOCK_FUNCTION(install_int_ex);
-   LOCK_FUNCTION(install_param_int);
-   LOCK_FUNCTION(install_param_int_ex);
-   LOCK_FUNCTION(remove_int);
-   LOCK_FUNCTION(remove_param_int);
+   event_queue = al_create_event_queue();
+   retrace_timer = al_install_timer(TIMER_TO_MSEC(_vsync_speed));
+   al_register_event_source(event_queue, (AL_EVENT_SOURCE *)retrace_timer);
 
-   /* autodetect a driver */
-   if (system_driver->timer_drivers)
-      driver_list = system_driver->timer_drivers();
-   else
-      driver_list = _timer_driver_list;
+   /* start timer thread */
+   _al_thread_create(&timer_thread, timer_thread_func, NULL);
 
-#ifdef ALLEGRO_MULTITHREADED
-   timer_mutex = system_driver->create_mutex();
-   if (!timer_mutex)
-      return -1;
+#ifdef ALLEGRO_WINDOWS
+   /* increase priority of timer thread */
+   SetThreadPriority(timer_thread.thread, THREAD_PRIORITY_TIME_CRITICAL);
 #endif
 
-   for (i=0; driver_list[i].driver; i++) {
-      timer_driver = driver_list[i].driver;
-      timer_driver->name = timer_driver->desc = get_config_text(timer_driver->ascii_name);
-      if (timer_driver->init() == 0)
-	 break;
-   }
-
-   if (!driver_list[i].driver) {
-#ifdef ALLEGRO_MULTITHREADED
-      system_driver->destroy_mutex(timer_mutex);
-      timer_mutex = NULL;
-#endif
-      timer_driver = NULL;
-      return -1;
-   }
+   al_start_timer(retrace_timer);
 
    _add_exit_func(remove_timer);
    _timer_installed = TRUE;
@@ -583,23 +456,36 @@ int install_timer()
  */
 void remove_timer(void)
 {
+   int i;
+
    if (!timer_driver)
       return;
 
-   _timer_use_retrace = FALSE;
+   _al_thread_join(&timer_thread);
 
-   timer_driver->exit();
-   timer_driver = NULL;
+   al_uninstall_timer(retrace_timer);
+   retrace_timer = NULL;
 
-#ifdef ALLEGRO_MULTITHREADED
-   system_driver->destroy_mutex(timer_mutex);
-   timer_mutex = NULL;
-#endif
+   al_destroy_event_queue(event_queue);
+   event_queue = NULL;
 
+   _al_mutex_destroy(&timer_mutex);
+
+   /* uninstall existing timers and */
    /* make sure subsequent remove_int() calls don't crash */
    clear_timer_queue();
 
    _remove_exit_func(remove_timer);
    _timer_installed = FALSE;
+
+   timer_driver = NULL;
 }
 
+
+
+/*
+ * Local Variables:
+ * c-basic-offset: 3
+ * indent-tabs-mode: nil
+ * End:
+ */

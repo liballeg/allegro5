@@ -94,17 +94,12 @@ SYSTEM_DRIVER system_macos ={
    NULL, /* get_desktop_resolution */
    mac_get_gfx_safe_mode,
    mac_yield_timeslice,
-   NULL, /* create_mutex */
-   NULL, /* destroy_mutex */
-   NULL, /* lock_mutex */
-   NULL, /* unlock_mutex */
    NULL, /* gfx_drivers */
    NULL, /* digi_drivers */
    NULL, /* midi_drivers */
    NULL, /* keyboard_drivers */
    NULL, /* mouse_drivers */
-   NULL, /* joystick_drivers */
-   NULL  /* timer_drivers */
+   NULL  /* joystick_drivers */
 };
 
 

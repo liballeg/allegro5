@@ -78,17 +78,12 @@ SYSTEM_DRIVER system_directx =
    sys_directx_get_desktop_resolution,
    sys_directx_get_gfx_safe_mode,
    sys_directx_yield_timeslice,
-   sys_directx_create_mutex,
-   sys_directx_destroy_mutex,
-   sys_directx_lock_mutex,
-   sys_directx_unlock_mutex,
    NULL,                        /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
    _get_win_digi_driver_list,   /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
    _get_win_midi_driver_list,   /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
    NULL,                        /* AL_METHOD(_DRIVER_INFO *, keyboard_drivers, (void)); */
    NULL,                        /* AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void)); */
-   NULL,                        /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
-   NULL                         /* AL_METHOD(_DRIVER_INFO *, timer_drivers, (void)); */
+   NULL                         /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
 };
 
 static char sys_directx_desc[64] = EMPTY_STRING;
@@ -180,6 +175,8 @@ static int sys_directx_init(void)
    /* either use a user window or create a new window */
    if (init_directx_window() != 0)
       goto Error;
+
+   _al_win_init_time();
 
    return 0;
 

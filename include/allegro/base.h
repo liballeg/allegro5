@@ -16,7 +16,6 @@
  *      See readme.txt for copyright information.
  */
 
-
 #ifndef ALLEGRO_BASE_H
 #define ALLEGRO_BASE_H
 
@@ -40,8 +39,21 @@
 #include "internal/alconfig.h"
 
 #ifdef __cplusplus
-   extern "C" {
+   #define AL_BEGIN_EXTERN_C	extern "C" {
+   #define AL_END_EXTERN_C	}
+#else  /* C */
+   #include <stdbool.h>
+   /* Account for broken stdbool.h headers.  We need sizeof(bool) on C
+    * to be the same as sizeof(bool) on C++, i.e. one byte.
+    */
+   #undef bool
+   #define bool unsigned char
+
+   #define AL_BEGIN_EXTERN_C
+   #define AL_END_EXTERN_C
 #endif
+
+AL_BEGIN_EXTERN_C
 
 #define ALLEGRO_VERSION          4
 #define ALLEGRO_SUB_VERSION      1
@@ -55,8 +67,8 @@
 /*******************************************/
 
 #ifndef TRUE 
-   #define TRUE         -1
-   #define FALSE        0
+   #define TRUE         true
+   #define FALSE        false
 #endif
 
 #undef MIN
@@ -86,10 +98,8 @@ typedef struct _DRIVER_INFO         /* info about a hardware driver */
    int autodetect;                  /* set to allow autodetection */
 } _DRIVER_INFO;
 
-#ifdef __cplusplus
-   }
-#endif
+       
+
+AL_END_EXTERN_C
 
 #endif          /* ifndef ALLEGRO_BASE_H */
-
-

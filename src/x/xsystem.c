@@ -49,7 +49,6 @@ static _DRIVER_INFO *_xwin_sysdrv_mouse_drivers(void);
 #ifdef ALLEGRO_LINUX
 static _DRIVER_INFO *_xwin_sysdrv_joystick_drivers(void);
 #endif
-static _DRIVER_INFO *_xwin_sysdrv_timer_drivers(void);
 
 
 /* the main system driver for running under X-Windows */
@@ -83,28 +82,16 @@ SYSTEM_DRIVER system_xwin =
    _xwin_sysdrv_get_desktop_resolution,
    _xwin_sysdrv_get_gfx_safe_mode,
    _unix_yield_timeslice,
-#ifdef HAVE_LIBPTHREAD
-   _unix_create_mutex,
-   _unix_destroy_mutex,
-   _unix_lock_mutex,
-   _unix_unlock_mutex,
-#else
-   NULL, /* create_mutex */
-   NULL, /* destroy_mutex */
-   NULL, /* lock_mutex */
-   NULL, /* unlock_mutex */
-#endif
    _xwin_sysdrv_gfx_drivers,
    _xwin_sysdrv_digi_drivers,
    _xwin_sysdrv_midi_drivers,
    _xwin_sysdrv_keyboard_drivers,
    _xwin_sysdrv_mouse_drivers,
 #ifdef ALLEGRO_LINUX
-   _xwin_sysdrv_joystick_drivers,
+   _xwin_sysdrv_joystick_drivers
 #else
-   NULL, /* joystick_driver_list */
+   NULL /* joystick_driver_list */
 #endif
-   _xwin_sysdrv_timer_drivers
 };
 
 
@@ -211,6 +198,9 @@ static int _xwin_sysdrv_init(void)
    }
 
    set_display_switch_mode(SWITCH_BACKGROUND);
+
+   /* Mark the beginning of time. */
+   _al_unix_init_time();
 
    return 0;
 }
@@ -333,16 +323,6 @@ static _DRIVER_INFO *_xwin_sysdrv_joystick_drivers(void)
    return _linux_joystick_driver_list;
 }
 #endif
-
-
-
-/* _xwin_sysdrv_timer_drivers:
- *  Get the list of timer drivers.
- */
-static _DRIVER_INFO *_xwin_sysdrv_timer_drivers(void)
-{
-   return _xwin_timer_driver_list;
-}
 
 
 

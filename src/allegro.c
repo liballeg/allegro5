@@ -366,6 +366,9 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
    if (!system_driver)
       return -1;
 
+   /* initialise 'destructors' subsystem */
+   _al_init_destructors();
+
    /* disable close button */
    set_close_button_callback(NULL);
 
@@ -392,6 +395,9 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
 
 /* allegro_exit:
  *  Closes down the Allegro system.
+ *
+ *  Note: allegro_exit() can be called without a corresponding
+ *  install_allegro() call, e.g. from atexit().
  */
 void allegro_exit()
 {
@@ -668,8 +674,8 @@ SYSTEM_DRIVER system_none =
    sys_none_exit,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+   NULL, NULL, NULL, NULL,
    sys_no_driver, sys_no_driver, sys_no_driver, sys_no_driver,
-   sys_no_driver, sys_no_driver, sys_no_driver
+   sys_no_driver, sys_no_driver
 };
 

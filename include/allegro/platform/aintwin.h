@@ -165,13 +165,6 @@ AL_FUNC(void, thread_init, (void));
 AL_FUNC(void, thread_exit, (void));
 
 
-/* synchronization routines */
-AL_FUNC(void *, sys_directx_create_mutex, (void));
-AL_FUNC(void, sys_directx_destroy_mutex, (void *handle));
-AL_FUNC(void, sys_directx_lock_mutex, (void *handle));
-AL_FUNC(void, sys_directx_unlock_mutex, (void *handle));
-
-
 /* sound routines */
 AL_FUNC(_DRIVER_INFO *, _get_win_digi_driver_list, (void));
 AL_FUNC(void, _free_win_digi_driver_list, (void));
@@ -211,6 +204,86 @@ AL_FUNC(void, thread_safe_trace, (char *msg, ...));
 #ifdef __cplusplus
    }
 #endif
+
+
+
+/*----------------------------------------------------------------------*
+ *									*
+ *	New stuff							*
+ *									*
+ *----------------------------------------------------------------------*/
+
+/* TODO: integrate this above */
+/* TODO: a lot of this is repeated from aintunix.h */
+
+#include "allegro/internal/aintern.h"
+
+AL_BEGIN_EXTERN_C
+
+/* threads */
+struct _AL_THREAD
+{
+   /* private: */
+   HANDLE thread;
+   CRITICAL_SECTION cs;
+   bool should_stop; /* XXX: use a dedicated terminate Event object? */
+   void (*proc)(_AL_THREAD *self, void *arg);
+   void *arg;
+};
+
+AL_INLINE(bool, _al_thread_should_stop, (_AL_THREAD *t),
+{
+   bool ret;
+   EnterCriticalSection(&t->cs);
+   ret = t->should_stop;
+   LeaveCriticalSection(&t->cs);
+   return ret;
+})
+
+struct _AL_MUTEX
+{
+   bool inited;
+   CRITICAL_SECTION cs;
+};
+
+#define _AL_MUTEX_UNINITED	{ false, }
+
+void _al_mutex_init(_AL_MUTEX*);
+void _al_mutex_destroy(_AL_MUTEX*);
+static inline void _al_mutex_lock(_AL_MUTEX *m)   { if (m->inited) EnterCriticalSection(&m->cs); }
+static inline void _al_mutex_unlock(_AL_MUTEX *m) { if (m->inited) LeaveCriticalSection(&m->cs); }
+
+
+/* events */
+struct AL_EVENT_SOURCE
+{
+   unsigned long event_mask;
+   size_t event_size;
+   _AL_MUTEX mutex;
+   _AL_VECTOR queues;
+   AL_EVENT *all_events;
+   AL_EVENT *free_events;
+};
+
+void _al_event_source_init(AL_EVENT_SOURCE*, size_t event_size);
+void _al_event_source_free(AL_EVENT_SOURCE*);
+void _al_event_source_lock(AL_EVENT_SOURCE*);
+void _al_event_source_unlock(AL_EVENT_SOURCE*);
+void _al_event_source_on_registration_to_queue(AL_EVENT_SOURCE*, AL_EVENT_QUEUE*);
+void _al_event_source_on_unregistration_from_queue(AL_EVENT_SOURCE*, AL_EVENT_QUEUE*);
+bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE*, unsigned long event_type);
+AL_EVENT* _al_event_source_get_unused_event(AL_EVENT_SOURCE*);
+void _al_event_source_emit_event(AL_EVENT_SOURCE *, AL_EVENT*);
+
+void _al_release_event(AL_EVENT*);
+
+void _al_event_queue_push_event(AL_EVENT_QUEUE*, AL_EVENT*);
+
+/* time */
+void _al_win_init_time(void);
+
+AL_END_EXTERN_C
+
 
 #endif          /* !defined AINTWIN_H */
 

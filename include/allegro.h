@@ -29,6 +29,10 @@
 
 #include "allegro/unicode.h"
 
+#include "allegro/altime.h"
+
+#include "allegro/events.h"
+
 #include "allegro/mouse.h"
 #include "allegro/timer.h"
 #include "allegro/keyboard.h"

@@ -54,15 +54,10 @@ SYSTEM_DRIVER system_beos = {
    be_sys_get_desktop_resolution,
    be_sys_get_gfx_safe_mode,
    be_sys_yield_timeslice,
-   be_sys_create_mutex,
-   be_sys_destroy_mutex,
-   be_sys_lock_mutex,
-   be_sys_unlock_mutex,
    NULL,  // AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void));
    NULL,  // AL_METHOD(_DRIVER_INFO *, digi_drivers, (void));
    NULL,  // AL_METHOD(_DRIVER_INFO *, midi_drivers, (void));
    NULL,  // AL_METHOD(_DRIVER_INFO *, keyboard_drivers, (void));
    NULL,  // AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void));
-   NULL,  // AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void));
-   NULL   // AL_METHOD(_DRIVER_INFO *, timer_drivers, (void));
+   NULL   // AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void));
 };
