@@ -293,7 +293,7 @@ in many functions (like the BITMAP structure). This section of the manual
 describes their useful content from a user point of view when they don't fit
 very well any of the existing manual sections, and redirects you to the
 appropiate section when it's already described there. Note that unless stated
-otherwise, the contents showed here are just for read only purposes, there
+otherwise, the contents shown here are just for read only purposes, there
 might be other internal flags, but you shouldn't depend on them being
 available in past/future versions of Allegro.
 
