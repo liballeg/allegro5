@@ -121,7 +121,7 @@ ALLEGRO_ACTEST_GCC_VERSION
 ALLEGRO_ACTEST_GCC_INCLUDE_PREFIX
 ALLEGRO_ACTEST_GCC_PIPE
 AC_PROG_CPP
-ALLEGRO_ACTEST_CXX
+ALLEGRO_ACTEST_GCC_CXX
 ALLEGRO_ACTEST_PROG_LD_S
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
@@ -138,6 +138,11 @@ AC_PATH_PROG(INSTALL_INFO, install-info, [echo ought to run install-info], $PATH
 
 dnl Test for processor type.
 ALLEGRO_ACTEST_PROCESSOR_TYPE
+
+dnl Test for -mtune i386 option
+if test "X$allegro_cv_processor_type" = "Xi386"; then
+  ALLEGRO_ACTEST_GCC_I386_MTUNE
+fi
 
 dnl Test for asm support.
 if test "X$allegro_enable_asm" = "Xyes"; then
@@ -624,6 +629,8 @@ if test -n "GCC"; then
   if test "X$allegro_cv_processor_type" = "Xi386"; then
     if test "$allegro_exclusive_optimizations" != none; then
       TARGET_ARCH="-march=$allegro_exclusive_optimizations"
+    elif test "X$allegro_cv_support_i386_mtune" = "Xyes"; then
+      TARGET_ARCH="-mtune=$allegro_optimizations"
     else
       TARGET_ARCH="-mcpu=$allegro_optimizations"
     fi

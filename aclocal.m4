@@ -647,7 +647,7 @@ dnl
 dnl Variables:
 dnl  allegro_cv_support_cplusplus=(yes|no)
 dnl
-AC_DEFUN(ALLEGRO_ACTEST_CXX,
+AC_DEFUN(ALLEGRO_ACTEST_GCC_CXX,
 [AC_MSG_CHECKING(whether a C++ compiler is installed)
 AC_CACHE_VAL(allegro_cv_support_cplusplus,
 [if test $GCC = yes; then
@@ -660,3 +660,23 @@ else
 fi
 ])
 AC_MSG_RESULT($allegro_cv_support_cplusplus)])
+
+dnl
+dnl Test for working '-mtune' i386 compile option.
+dnl
+dnl Variables:
+dnl  allegro_cv_support_i386_mtune=(yes|no)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_GCC_I386_MTUNE,
+[AC_MSG_CHECKING(whether -mtune is supported)
+allegro_save_CFLAGS="$CFLAGS"
+CFLAGS="-mtune=i386"
+AC_CACHE_VAL(allegro_cv_support_i386_mtune,
+[if test $GCC = yes; then
+   AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_i386_mtune=yes, allegro_cv_support_i386_mtune=no)
+else
+   allegro_cv_support_i386_mtune=no
+fi
+])
+CFLAGS="$allegro_save_CFLAGS"
+AC_MSG_RESULT($allegro_cv_support_i386_mtune)])
