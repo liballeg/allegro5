@@ -616,12 +616,12 @@ FUNC (_colorconv_blit_8_to_15)
 FUNC (_colorconv_blit_24_to_32)
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_3, SIZE_4, LOOP_RATIO_4)
-   movl 4(%esi), %ebx  /* init first line */
+   movl MYLOCAL1, %edx  /* init first line */
 
    _align_
    next_line_24_to_32_no_mmx:
-      movl MYLOCAL1, %edx 
-      pushl %ecx     
+      movl 4(%esi), %ebx
+      pushl %ecx
 
       _align_
       /* 100% Pentium pairable loop */
@@ -649,8 +649,8 @@ FUNC (_colorconv_blit_24_to_32)
       popl %ecx
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
+      movl MYLOCAL1, %edx  /* init next line */
       decl %ecx
-      movl 4(%esi), %ebx  /* init next line */
       jnz next_line_24_to_32_no_mmx
 
    DESTROY_STACK_FRAME
@@ -726,13 +726,13 @@ FUNC (_colorconv_blit_8_to_32)
 #endif
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_1, SIZE_4, LOOP_RATIO_4)
-   movl $0, %eax     /* init first line */
+   movl $0, %eax  /* init first line */
+   movl MYLOCAL1, %edx  /* init first line */
    movl GLOBL(_colorconv_indexed_palette), %ebp
-   movb (%esi), %al  /* init first line */
 
    _align_
    next_line_8_to_32_no_mmx:
-      movl MYLOCAL1, %edx
+      movb (%esi), %al
       pushl %ecx     
 
       _align_
@@ -763,8 +763,8 @@ FUNC (_colorconv_blit_8_to_32)
       popl %ecx
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
+      movl MYLOCAL1, %edx  /* init next line */
       decl %ecx
-      movb (%esi), %al  /* init next line */
       jnz next_line_8_to_32_no_mmx
 
    DESTROY_STACK_FRAME
@@ -777,11 +777,11 @@ FUNC (_colorconv_blit_8_to_32)
 FUNC (_colorconv_blit_32_to_24)
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_4, SIZE_3, LOOP_RATIO_4)
-   movl 4(%esi), %ebx  /* init first line */
+   movl MYLOCAL1, %edx  /* init first line */
 
    _align_
    next_line_32_to_24_no_mmx:
-      movl MYLOCAL1, %edx           
+      movl 4(%esi), %ebx
       pushl %ecx
            
       _align_
@@ -812,8 +812,8 @@ FUNC (_colorconv_blit_32_to_24)
       popl %ecx
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
+      movl MYLOCAL1, %edx  /* init next line */
       decl %ecx
-      movl 4(%esi), %ebx  /* init first line */
       jnz next_line_32_to_24_no_mmx
 
    DESTROY_STACK_FRAME
