@@ -95,7 +95,8 @@ ifdef MINGDIR
    MINGDIR_D = $(subst /,\,$(MINGDIR))
 else
 badming:
-	@echo Please specify your mingw32 directory via MINGDIR=. See the readme.mgw file!
+	@echo Please specify your MinGW32 directory via MINGDIR=
+	@echo See the docs/build/mingw32.txt file!
 endif
 
 
