@@ -681,19 +681,19 @@ table to the set_ucodepage() function.
 
 @@int @usprintf(char *buf, const char *format, ...);
 @xref uconvert, usnprintf, uvsprintf
-   Unicode-aware version of the standard sprintf(): the function writes formatted 
-   data into the output buffer. A NULL character is written to mark the end 
-   of the string. Returns the number of characters written, not including the 
-   trailing NULL character.
+   Unicode-aware version of the standard sprintf(): the function writes
+   formatted data into the output buffer. A NULL character is written to mark
+   the end of the string. Returns the number of characters written, not
+   including the trailing NULL character.
 
 @@int @usnprintf(char *buf, int size, const char *format, ...);
 @xref uconvert, usprintf, uvsnprintf
-   This is like usprintf(), except that at most size bytes are written into the 
-   output buffer. The size parameter is given in bytes rather than characters 
-   on the assumption that you will be using this function to prevent overflowing 
-   the size of a memory buffer. Returns the number of characters that would 
-   have been written without truncation (like with usprintf), not including the 
-   trailing NULL character.
+   This is like usprintf(), except that at most size bytes are written into
+   the output buffer. The size parameter is given in bytes rather than
+   characters on the assumption that you will be using this function to
+   prevent overflowing the size of a memory buffer. Returns the number of
+   characters that would have been written without truncation (like with
+   usprintf), not including the trailing NULL character.
    
 @@int @uvsprintf(char *buf, const char *format, va_list args);
 @xref uconvert, usprintf, uvsnprintf
