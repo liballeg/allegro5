@@ -143,7 +143,7 @@ TIMER_DRIVER timer_macos ={
  */
 static int mac_init()
 {
-   os_type = OSTYPE_MPW;
+   os_type = OSTYPE_MACOS;
    os_multitasking = TRUE;
    register_trace_handler(mac_trace_handler);
 #if (TRACE_MAC_SYSTEM)
