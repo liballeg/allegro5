@@ -472,9 +472,10 @@ Contributors
 
    Peter Pavlovic (<email>Peter.Pavlovic@st.fmph.uniba.sk</a>).<br>
    Added the Slovak keyboard mapping and message translation, stopped the 
-   DOS file selector from listing virtual drives, did the same for the Windows
-   file selector, improved the support for accented character maps in the 
-   keyboard driver, and made aesthetic modifications to the GUI menu system.
+   DOS file selector from listing virtual drives, did the same for the
+   Windows file selector, improved the support for accented character maps in
+   the keyboard driver, and made aesthetic modifications to the GUI menu
+   system.
 
    Peter Puck (<email>zaqhaq@netscape.net</a>).<br>
    Helped with the Mingw32 native build.

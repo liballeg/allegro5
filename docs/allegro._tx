@@ -496,7 +496,7 @@ table to the set_ucodepage() function.
 @xref ugetat, usetat, uinsert, uremove
    Returns the offset in bytes from the start of the string to the character 
    at the specified index. If the index is negative, it counts backward from 
-   the end of the string, so an index of -1 will return an offset to the last 
+   the end of the string, so an index of -1 will return an offset to the last
    character.
 
 @@int @ugetat(const char *s, int index);
@@ -725,9 +725,9 @@ table to the set_ucodepage() function.
 
 @@int @usprintf(char *buf, const char *format, ...);
 @xref uconvert, uszprintf, uvsprintf
-   This function writes formatted data into the output buffer. A NULL character 
-   is written to mark the end of the string. Returns the number of characters 
-   written, not including the terminating NULL character.
+   This function writes formatted data into the output buffer. A NULL
+   character is written to mark the end of the string. Returns the number of
+   characters written, not including the terminating NULL character.
 
 @@int @uszprintf(char *buf, int size, const char *format, ...);
 @xref uconvert, usprintf, uvszprintf
@@ -743,8 +743,8 @@ table to the set_ucodepage() function.
    
 @@int @uvszprintf(char *buf, int size, const char *format, va_list args);
 @xref uconvert, uszprintf, uvsprintf
-   This is like uszprintf(), but you pass the variable argument list directly,
-   instead of the arguments themselves.
+   This is like uszprintf(), but you pass the variable argument list
+   directly, instead of the arguments themselves.
 
 
 
@@ -989,8 +989,9 @@ language = x<br>
    language.dat file to see which mappings are currently available.
 <li>
 menu_opening_delay = x<br>
-   Sets how long the menus take to auto-open. The time is given in milliseconds 
-   (default is 300). Specifying -1 will disable the auto-opening feature.
+   Sets how long the menus take to auto-open. The time is given in
+   milliseconds (default is 300). Specifying -1 will disable the auto-opening
+   feature.
 <li>
 dga_mouse = x<br>
    X only: disable to work around a bug in some X servers' DGA modes, 
@@ -998,16 +999,17 @@ dga_mouse = x<br>
    variable to "0".
 <li>
 dga_centre = x<br>
-   X only: instructs the DGA driver to centre the Allegro screen if the actual
-   screen resolution is higher than Allegro's.  Default is on; disable this 
-   feature by setting the variable to "0".
+   X only: instructs the DGA driver to centre the Allegro screen if the
+   actual screen resolution is higher than Allegro's.  Default is on; disable
+   this feature by setting the variable to "0".
 <li>
 dga_clear = x<br>
-   X only: instructs the DGA driver to clear visible video memory on startup. 
+   X only: instructs the DGA driver to clear visible video memory on startup.
    Default is on; disable this feature by setting the variable to "0".
 </ul><li>
 [graphics]<br>
-   Section containing graphics configuration information, using the variables:
+   Section containing graphics configuration information, using the
+   variables:
 <ul><li>
 gfx_card = x<br>
    Specifies which graphics driver to use when the program requests 
@@ -1044,9 +1046,9 @@ mouse = x<br>
       GPMD - GPM repeater data (Mouse Systems protocol)</pre>
 <li>
 num_buttons = x<br>
-   Sets the number of mouse buttons viewed by Allegro. You don't normally need 
-   to set this variable because Allegro will autodetect it. You can only use 
-   it to restrict the set of actual mouse buttons.
+   Sets the number of mouse buttons viewed by Allegro. You don't normally
+   need to set this variable because Allegro will autodetect it. You can only
+   use it to restrict the set of actual mouse buttons.
 <li>
 emulate_three = x<br>
    Sets whether to emulate a third mouse button by detecting chords of the 
@@ -1060,11 +1062,12 @@ mouse_accel_factor = x<br>
 mouse_accel_threshold1 = x<br>
 mouse_accel_threshold2 = x<br>
    Windows only: specifies the mouse acceleration parameters. If the mouse 
-   movement exceeds the threshold defined by mouse_accel_threshold1, the mouse 
-   speed get multiplied by mouse_accel_factor. If the mouse movement exceeds 
-   the threshold defined by mouse_accel_threshold2, the mouse speed get 
-   multiplied by mouse_accel_factor*2. The default parameters are 3, 5 and 16 
-   respectively. Setting mouse_accel_factor to 0 disables mouse acceleration.
+   movement exceeds the threshold defined by mouse_accel_threshold1, the
+   mouse speed get multiplied by mouse_accel_factor. If the mouse movement
+   exceeds the threshold defined by mouse_accel_threshold2, the mouse speed
+   get multiplied by mouse_accel_factor*2. The default parameters are 3, 5
+   and 16 respectively. Setting mouse_accel_factor to 0 disables mouse
+   acceleration.
 </ul><li>
 [sound]<br>
    Section containing sound configuration information, using the variables:
@@ -1249,7 +1252,8 @@ p&ltn&gt = bank0 bank1 prog pitch<br>
    by an octave.
 </ul><li>
 [joystick]<br>
-   Section containing joystick configuration information, using the variables:
+   Section containing joystick configuration information, using the
+   variables:
 <ul><li>
 joytype = x<br>
    Specifies which joystick driver to use when the program requests 
@@ -1260,9 +1264,9 @@ joystick_device = x<br>
    device found is used by default.
 <li>
 throttle_axis = x<br>
-   Linux only: sets which axis number the throttle is located at. This variable 
-   will be used for every detected joystick. If you want to specify the axis 
-   number for each joystick individually, use variables of the form 
+   Linux only: sets which axis number the throttle is located at. This
+   variable will be used for every detected joystick. If you want to specify
+   the axis number for each joystick individually, use variables of the form
    throttle_axis_n, where n is the joystick number.
 </ul>
 </ul>
@@ -1466,8 +1470,8 @@ functions like the djgpp uclock() routine.
 @@int @install_int_ex(void (*proc)(), int speed);
 @xref install_timer, remove_int, install_int, install_param_int_ex
    Adds a function to the list of user timer handlers or, if it is already 
-   installed, retroactively adjusts its speed (i.e makes as though the speed 
-   change occured precisely at the last tick). The speed is given in hardware 
+   installed, retroactively adjusts its speed (i.e makes as though the speed
+   change occured precisely at the last tick). The speed is given in hardware
    clock ticks, of which there are 1193181 a second. You can convert from 
    other time formats to hardware clock ticks with the macros:
 <pre>
@@ -2228,8 +2232,8 @@ Graphics modes
       program keep running in the background.
 </ul>
    Note that you should be very careful when you are using graphics routines 
-   in the switching context: you must always call acquire_screen() before the 
-   start of any drawing code onto the screen and not release it until you are 
+   in the switching context: you must always call acquire_screen() before the
+   start of any drawing code onto the screen and not release it until you are
    completely finished, because the automatic locking mechanism may not be
    good enough to work when the program runs in the background or has just
    been raised in the foreground.
@@ -2608,8 +2612,9 @@ Allegro supports several different types of bitmaps:
    bitmap when you are finished with it.
 
 @@void @lock_bitmap(BITMAP *bitmap);
-   Under DOS, locks all the memory used by a bitmap. You don't normally need 
-   to call this function unless you are doing very weird things in your program.
+   Under DOS, locks all the memory used by a bitmap. You don't normally need
+   to call this function unless you are doing very weird things in your
+   program.
 
 @@int @bitmap_color_depth(BITMAP *bmp);
 @xref set_color_depth, bitmap_mask_color
@@ -3953,9 +3958,9 @@ Polygon rendering
 @@void @triangle3d_f(BITMAP *bmp, int type, BITMAP *tex, V3D_f *v1, *v2, *v3);
 @xref polygon3d, quad3d, triangle
    Draw 3d triangles, using either fixed or floating point vertex structures.
-   Unlike quad3d[_f], triangle3d[_f] functions are not wrappers of polygon3d[_f].
-   The triangle3d[_f] functions use their own routines taking into account the
-   constantness of the gradients.
+   Unlike quad3d[_f], triangle3d[_f] functions are not wrappers of
+   polygon3d[_f]. The triangle3d[_f] functions use their own routines taking
+   into account the constantness of the gradients.
    Therefore triangle3d[_f](bmp, type, tex, v1, v2, v3) is faster than
    polygon3d[_f](bmp, type, tex, 3, v[]).
 
@@ -4131,7 +4136,7 @@ Notes on scene rendering:
    All polygons passed to scene_polygon3d() have to be
    persp_project()'ed.
 <li>
-   After scene_render() the mode is reset to SOLID.
+   After render_scene() the mode is reset to SOLID.
 </ul>
 Using a lot of *MASK* polygons drastically reduces performance, because
 when a MASKed polygon is the first in line of sight, the polygons
@@ -4151,23 +4156,24 @@ have to clear the z-buffer at the start of the frame. Example:
       if (this_poly_is_zbuf) type |= POLYTYPE_ZBUF;
       scene_polygon3d(type, tex, vc, vtx);
    }
-   scene_render();
+   render_scene();
 </pre>
 
 @@int @create_scene(int nedge, int npoly);
 @xref scene_polygon3d, render_scene, clear_scene, destroy_scene, scene_gap
 @xref create_zbuffer
-   Allocates memory for a scene, nedge and npoly are your estimates of how many
-   edges and how many polygons you will render (you cannot get over the limit
-   specified here). If you use same values in succesive calls, the space will
-   be reused (no new malloc()).
+   Allocates memory for a scene, nedge and npoly are your estimates of how
+   many edges and how many polygons you will render (you cannot get over the
+   limit specified here). If you use same values in succesive calls, the
+   space will be reused (no new malloc()).
 
    The memory allocated is a little less than 150 * (nedge + npoly) bytes.
    Returns zero on success, or a negative number if allocations fail.
 
 @@void @clear_scene(BITMAP *bmp);
 @xref create_scene, scene_polygon3d, render_scene, destroy_scene, scene_gap
-   Initializes a scene. The bitmap is the bitmap you will eventually render on.
+   Initializes a scene. The bitmap is the bitmap you will eventually render
+   on.
 
 @@void @destroy_scene();
 @xref create_scene, scene_polygon3d, clear_scene, render_scene, scene_gap
@@ -4680,7 +4686,8 @@ eg. a VESA linear framebuffers:
 For truecolor modes you should replace the bmp_write8() with bmp_write16(), 
 bmp_write24(), or bmp_write32(), and multiply the x offset by the number of 
 bytes per pixel. There are of course similar functions to read a pixel value
-from a bitmap, namely bmp_read8(), bmp_read16(), bmp_read24() and bmp_read32().
+from a bitmap, namely bmp_read8(), bmp_read16(), bmp_read24() and
+bmp_read32().
 <p><hr><p>
 This still won't work in banked SVGA modes, however, or on platforms like 
 Windows that do special processing inside the bank switching functions. For 
@@ -5061,7 +5068,8 @@ Digital sample routines
 @@void @lock_sample(SAMPLE *spl);
 @xref load_sample, create_sample
    Under DOS, locks all the memory used by a sample. You don't normally need 
-   to call this function because load_sample() and create_sample() do it for you.
+   to call this function because load_sample() and create_sample() do it for
+   you.
 
 @@int @play_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref install_sound, load_sample, adjust_sample, stop_sample, voice control
@@ -7528,9 +7536,11 @@ correctly.
 <pre>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
-      DIGI_DIRECTX(n)      - use DirectSound device #n (zero-based) with direct mixing
-                             (backward playing is not supported) 
-      DIGI_DIRECTAMX(n)    - use DirectSound device #n (zero-based) with Allegro mixing
+      DIGI_DIRECTX(n)      - use DirectSound device #n (zero-based) with
+                             direct mixing (backward playing is not
+                             supported)
+      DIGI_DIRECTAMX(n)    - use DirectSound device #n (zero-based) with
+                             Allegro mixing
       DIGI_WAVOUTID(n)     - high (n=0) or low (n=1) quality WaveOut device
 </pre>
 @@Drivers: @MIDI_*/Windows

@@ -463,7 +463,8 @@ Changes from 3.11 to current
 <li>
    3.9.33: Peter Wang made various functions const-correct.
 <li>
-   3.9.33: Peter Pavlovic made aesthetic modifications to the GUI menu system.
+   3.9.33: Peter Pavlovic made aesthetic modifications to the GUI menu
+   system.
 <li>
    3.9.33: Javier Gonzalez suggested that the file and mode selector dialogs 
    should use popup_dialog.

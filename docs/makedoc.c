@@ -80,6 +80,7 @@ int strip_indent = -1;
 int last_toc_line = INT_MIN;
 int last_toc_line2 = INT_MIN;
 int multiwordheaders = 0;
+int warn_on_long_lines = 0;
 
 char locale[256] = "";
 int dos_codepage = 1;
@@ -539,6 +540,13 @@ int read_file(char *filename)
 	    add_toc(buf, 1, line, !(flags & NONODE_FLAG), (flags & HTML_FLAG));
 
 	 add_line(buf, flags);
+
+	 if (warn_on_long_lines) {
+	    int len = strlen (buf);
+	    if (len > 77)
+	       printf("Warning: line %d exceded in %d caracters '...%s'\n",
+		      line, len - 77, buf + 77);
+	 }
 
 	 flags &= ~(HEADING_FLAG | NOCONTENT_FLAG | NONODE_FLAG);
       }
@@ -2374,6 +2382,9 @@ int main(int argc, char *argv[])
       else if (mystricmp(argv[i], "-part") == 0) {
 	 partial = 1;
       }
+      else if (mystricmp(argv[i], "-warn") == 0) {
+	 warn_on_long_lines = 1;
+      }
       else if (argv[i][0] == '-') {
 	 fprintf(stderr, "Unknown option '%s'\n", argv[i]);
 	 return 1;
@@ -2384,7 +2395,7 @@ int main(int argc, char *argv[])
    }
 
    if (!filename[0]) {
-      printf("Usage: makedoc [outputs] [-part] filename._tx\n\n");
+      printf("Usage: makedoc [outputs] [-part] [-warn] filename._tx\n\n");
       printf("Output formats:\n");
       printf("\t-ascii filename.txt\n");
       printf("\t-htm[l] filename.htm[l]\n");

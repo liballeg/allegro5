@@ -62,7 +62,7 @@ Part 1 - who is the culprit?
    probably your fault, in which case you should skip to part 3 below. 
 
    If the problem is related to DOS graphics modes, you should start by 
-   getting a copy of Display Doctor from <link>http://www.scitechsoft.com/</a>. 
+   getting a copy of Display Doctor from <link>http://www.scitechsoft.com/</a>.
    If this fixes the trouble, it almost certainly means that your original 
    VESA driver was broken in some way. I'm not interested in hearing reports 
    about problems of this type: there is nothing I can do to fix them, so 

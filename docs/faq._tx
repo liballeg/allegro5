@@ -215,7 +215,7 @@ DOS problems
 </h4>
       You need to update your version of binutils. As of writing, the latest 
       is version 2.10, and you can download it at: 
-      <link>ftp://ftp.demon.co.uk/pub/mirrors/simtelnet/gnu/djgpp/v2gnu/</a> . 
+      <link>ftp://ftp.demon.co.uk/pub/mirrors/simtelnet/gnu/djgpp/v2gnu/</a>.
       Look for the latest version of bnu*b.zip (bnu210b.zip, at time 
       of writing).
 
@@ -618,10 +618,10 @@ General problems
 <h4><li>
 @@   Why doesn't vsync() seem to work?
 </h4>
-      A number of graphics cards have buggy or incomplete VESA implementations, 
-      and often the vsync() function is not implemented. For examples on 
-      flicker-free drawing, look at the code for the demo game, which uses a 
-      variety of methods to draw itself.
+      A number of graphics cards have buggy or incomplete VESA
+      implementations, and often the vsync() function is not implemented. For
+      examples on flicker-free drawing, look at the code for the demo game,
+      which uses a variety of methods to draw itself.
 
 <h4><li>
 @@   I'm still confused. Where can I get help?
