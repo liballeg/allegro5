@@ -113,6 +113,8 @@ dibsound: tests/win/dibsound.exe
 scrsave: tests/win/scrsave.scr
 wfixicon: tools/win/wfixicon.exe
 
+DISTCLEAN_FILES += $(addprefix tests/win/, dibgrab.exe dibhello.exe dibsound.exe scrsave.scr) tools/win/wfixicon.exe
+
 
 
 # -------- rules for installing and removing the library files --------
