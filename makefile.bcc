@@ -501,8 +501,8 @@ DEPEND_PARMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BCC32
 depend:
 	gcc $(DEPEND_PARMS) demo/*.c docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp
 	gcc $(DEPEND_PARMS) tests/win/*.c tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
-	sed -e 's/\\/\//g' -e 's/\/$$/\\/' -e "s/^[a-zA-Z0-9_\/]*\///" -e "s/ \.\// /g" _depend.tmp > _depend1.tmp
-	sed -e "s/asmdef\.o/asmdef\.exe/" _depend1.tmp > _depend.tmp
+	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
+	sed -e "s/asmdef\.o/asmdef\.exe/" _depend2.tmp > _depend.tmp
 ifdef UNIX_TOOLS
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/bcc32\/alleg\/\1\.obj:/" _depend.tmp > obj/bcc32/alleg/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/bcc32\/alld\/\1\.obj:/" _depend.tmp > obj/bcc32/alld/makefile.dep
@@ -513,5 +513,5 @@ else
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/bcc32\/alld\/\1\.obj:/" _depend.tmp > obj\bcc32\alld\makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/bcc32\/allp\/\1\.obj:/" _depend.tmp > obj\bcc32\allp\makefile.dep
 	del _depend.tmp
-	del _depend1.tmp
+	del _depend2.tmp
 endif
