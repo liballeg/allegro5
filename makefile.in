@@ -44,7 +44,6 @@ CC = @CC@
 CPP = @CPP@
 CXX = @CXX@
 MAKEINFO = @MAKEINFO@
-RANLIB = @RANLIB@
 AR = @AR@
 LIBS = @LIBS@
 
