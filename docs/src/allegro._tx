@@ -2727,9 +2727,15 @@ information for more details.
 @eref exmouse
 @shortdesc How far the mouse has moved since the last call to this function.
    Measures how far the mouse has moved since the last call to this 
-   function. The mouse will continue to generate movement mickeys even when 
-   it reaches the edge of the screen, so this form of input can be useful 
-   for games that require an infinite range of mouse movement.
+   function. The values of mickeyx and mickeyy will become negative if the 
+   mouse is moved left or up, respectively. The mouse will continue to 
+   generate movement mickeys even when it reaches the edge of the screen, so 
+   this form of input can be useful for games that require an infinite range 
+   of mouse movement.
+
+   Note that the infinite movement may not work in windowed mode, since under 
+   some platforms the mouse would leave the window, and may not work at all 
+   if the hardware cursor is in use.
 
 @@extern void (*@mouse_callback)(int flags);
 @xref install_mouse
