@@ -136,8 +136,8 @@ static void draw_mouse_doublebuffer(int newx, int newy)
    y1 = MIN(my, newy) - mouse_y_focus;
 
    /* get width of area */
-   w = MAX(mx, newx) - x1 + mouse_sprite->w+1;
-   h = MAX(my, newy) - y1 + mouse_sprite->h+1;
+   w = MAX(mx, newx) - MIN(mx, newx) + mouse_sprite->w+1;
+   h = MAX(my, newy) - MIN(my, newy) + mouse_sprite->h+1;
 
    /* make new co-ords relative to 'mtemp' bitmap co-ords */
    newx -= mouse_x_focus+x1;
