@@ -23,6 +23,8 @@ UNIX_TOOLS = 1
 
 RM_OPTS = -f
 
+MKDIR_OPTS = -p
+
 
 # -------- local variables --------
 
