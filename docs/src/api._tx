@@ -60,5 +60,10 @@ Changes between 4.0.x and 4.1.x series
    This was not the case before, because it was ignored when loading bitmaps
    from datafiles. fixup_datafile also was modified to preserve transparency
    when this flag is set, which was not guaranteed before in rare cases.
+<li>
+   create_sub_bitmap() is now less tolerant about receiving bad arguments.
+   For example, it used to compensate for negative values for the origin
+   and return NULL if the parent bitmap was NULL. These cases are now
+   ASSERTed in the debug version, but unchecked in the release version.
 </ul>
 
