@@ -535,6 +535,7 @@
     register_assert_handler
     register_bitmap_file_type
     register_datafile_object
+    register_sample_file_type
     register_trace_handler
     register_uformat
     release_bitmap
@@ -572,6 +573,7 @@
     save_bmp
     save_joystick_data
     save_pcx
+    save_sample
     save_tga
     scancode_to_ascii
     scare_mouse
@@ -1252,6 +1254,7 @@
     _prev_current_palette DATA
     _refresh_rate_request DATA
     _register_bitmap_file_type_init
+    _register_sample_file_type_init
     _register_switch_bitmap
     _release_colorconv_blitter
     _remove_edge
