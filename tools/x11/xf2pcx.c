@@ -235,9 +235,7 @@ int main(int argc, char *argv[])
    }
 
    /* fill with filler color */
-   for (y = 0; y < bitmap_height; y++)
-      for (x = 0; x < bitmap_width; x++)
-	 putpixel(bitmap, x, y, 255);
+   clear_to_color(bitmap, 255);
 
    /* process all characters */
    sy = 1;
