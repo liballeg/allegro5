@@ -161,48 +161,48 @@ grgb_loop:
 #define INIT_ATEX(extra...)						 \
    pushl %ebp								;\
    movl %esp, %ebp							;\
-   subl $32, %esp								;\
+   subl $32, %esp							;\
    pushl %ebx								;\
    pushl %esi								;\
    pushl %edi								;\
-										;\
+									;\
    movl INFO, %esi							;\
    movl POLYSEG_VSHIFT(%esi), %ecx					;\
    movl POLYSEG_VMASK(%esi), %ebx					;\
    negl %ecx								;\
-   addl $16, %ecx								;\
+   addl $16, %ecx							;\
    movl %ebx, VMASK							;\
    movl POLYSEG_TEXTURE(%esi), %ebx					;\
    movl %ebx, TEXTURE							;\
-										;\
-   extra									;\
-										;\
+									;\
+   extra								;\
+									;\
    xorl %edx, %edx							;\
-   movl POLYSEG_DV(%esi), %ebx					;\
-   movl POLYSEG_DU(%esi), %eax					;\
+   movl POLYSEG_DV(%esi), %ebx						;\
+   movl POLYSEG_DU(%esi), %eax						;\
    shldl $16, %ebx, %edx						;\
-   shll %cl, %eax								;\
-   shll $16, %ebx								;\
-   movl %eax, DU								;\
-   movl %edx, DVH								;\
-   movl %ebx, DVL								;\
-										;\
+   shll %cl, %eax							;\
+   shll $16, %ebx							;\
+   movl %eax, DU							;\
+   movl %edx, DVH							;\
+   movl %ebx, DVL							;\
+									;\
    xorl %edx, %edx							;\
    movl POLYSEG_V(%esi), %ebx						;\
    movl POLYSEG_U(%esi), %eax						;\
    shldl $16, %ebx, %edx						;\
-   shll %cl, %eax								;\
-   shll $16, %ebx								;\
-										;\
+   shll %cl, %eax							;\
+   shll $16, %ebx							;\
+									;\
    movl ADDR, %edi							;\
-   addl $16, %ecx								;\
+   addl $16, %ecx							;\
    decl %edi								;\
-										;\
+									;\
    andl VMASK, %edx							;\
    movl %eax, %esi							;\
    incl %edi								;\
    shrdl %cl, %edx, %esi						;\
-   addl DU, %eax								;\
+   addl DU, %eax							;\
    addl TEXTURE, %esi
 
 
