@@ -293,7 +293,7 @@ Contributors
    '-h' instead of '-soname' to the linker and replaced '-L' by '-h' in shell
    comparisons so as not to break on Solaris.
 
-   Henrik Stokseth (<email>hstokset@tiscali.no</a>).<br>
+   Henrik Stokseth (<email>hensto@online.no</a>).<br>
    Contributed a native Mingw32 build which can also be built with a
    cross-compiler and the Cygwin compiler. Much improved OS detection. Added
    get_gfx_mode_list() and methods for querying the VGA, Mode-X, Xtended,
