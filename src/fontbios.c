@@ -40,7 +40,7 @@ FONT *load_bios_font(AL_CONST char *filename, RGB *pal, void *param)
     pack = pack_fopen(filename, F_READ);
     if (!pack) return 0;
 
-    h = (pack->todo == 2048) ? 8 : 16;
+    h = (pack->normal.todo == 2048) ? 8 : 16;
 
     for (i = 0; i < 256; i++) {
         gl[i] = _al_malloc(sizeof(FONT_GLYPH) + 8);
