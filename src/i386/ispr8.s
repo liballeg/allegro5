@@ -58,7 +58,7 @@ FUNC(_linear_draw_sprite8)
    /* name: the start of the label names */
    /* init_edi: code to init edi every line */
 
-   #define LINEAR_SPRITE_LOOP(dest, name, init_edi...)                       \
+   #define LINEAR_SPRITE_LOOP(dest, name, init_edi)                          \
       movl S_Y, %eax                         /* load line */               ; \
       movl S_W, %edx                         /* convert x loop counter */  ; \
       addl %edx, S_SGAP                      /* increase sprite gap */     ; \
@@ -225,7 +225,7 @@ FUNC(_linear_draw_sprite8)
       jl sprite_y_loop_tiny
 
 
-   /* the actual sprite drawing routine... */
+   /* the actual sprite drawing routine */
    START_SPRITE_DRAW(sprite)
 
    INIT_READ_TEST((%esi))
@@ -252,11 +252,18 @@ FUNC(_linear_draw_sprite8)
    jnz sprite_video
 
 				 /* dest = memory bitmap */
-   LINEAR_SPRITE_LOOP( , mem, addl BMP_LINE(%edx, %eax, 4), %edi ; )
+   #define INIT_EDI_CODE  \
+     addl BMP_LINE(%edx, %eax, 4), %edi
+   LINEAR_SPRITE_LOOP(/**/ , mem,  INIT_EDI_CODE)
+   #undef INIT_EDI_CODE
    jmp sprite_done
 
 sprite_video:                    /* dest = video memory bitmap */
-   LINEAR_SPRITE_LOOP(%es: , video, WRITE_BANK(); addl %eax, %edi ; )
+   #define INIT_EDI_CODE  \
+     WRITE_BANK();        \
+     addl %eax, %edi 
+   LINEAR_SPRITE_LOOP(%es: , video, INIT_EDI_CODE)
+   #undef INIT_EDI_CODE
    jmp sprite_done
 
 sprite_tiny:
@@ -612,7 +619,7 @@ FUNC(_linear_draw_trans_sprite8)
       popl %ebx                              /* pop unaligned counter */
 
 
-   /* the actual translucent sprite drawing routine... */
+   /* the actual translucent sprite drawing routine */
    START_SPRITE_DRAW(trans_sprite)
 
    movl BMP_LINE+4(%esi), %eax

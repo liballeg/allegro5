@@ -158,7 +158,7 @@ grgb_loop:
 #define TMP		-32(%ebp)
 
 /* helper for setting up an affine texture mapping operation */
-#define INIT_ATEX(extra...)						 \
+#define INIT_ATEX(extra)						 \
    pushl %ebp								;\
    movl %esp, %ebp							;\
    subl $32, %esp							;\
@@ -210,7 +210,7 @@ grgb_loop:
  *  Fills an affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex8)
-   INIT_ATEX()
+   INIT_ATEX(/**/)
 
    addl DVL, %ebx
    adcl DVH, %edx
@@ -251,7 +251,7 @@ atex_done:
  *  Fills a masked affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask8)
-   INIT_ATEX()
+   INIT_ATEX(/**/)
 
    addl DVL, %ebx
    adcl DVH, %edx
@@ -292,18 +292,19 @@ atex_mask_done:
  *  Fills a lit affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_lit8)
-   INIT_ATEX(
-      movl POLYSEG_C(%esi), %eax ;
-      movl POLYSEG_DC(%esi), %ebx ;
-      sarl $8, %eax ;
-      sarl $8, %ebx ;
-      jge atex_lit_round ;
-      incl %ebx ;
-   atex_lit_round:
-      subl %ebx, %eax ;
-      movl %ebx, DC ;
+   #define INIT_CODE                     \
+      movl POLYSEG_C(%esi), %eax ;       \
+      movl POLYSEG_DC(%esi), %ebx ;      \
+      sarl $8, %eax ;                    \
+      sarl $8, %ebx ;                    \
+      jge atex_lit_round ;               \
+      incl %ebx ;                        \
+   atex_lit_round:                       \
+      subl %ebx, %eax ;                  \
+      movl %ebx, DC ;                    \
       movl %eax, C
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
 
    movl %eax, TMP
    addl DVL, %ebx
@@ -364,18 +365,19 @@ atex_lit_done:
  *  Fills a masked lit affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask_lit8)
-   INIT_ATEX(
-      movl POLYSEG_C(%esi), %eax ;
-      movl POLYSEG_DC(%esi), %ebx ;
-      sarl $8, %eax ;
-      sarl $8, %ebx ;
-      jge atex_mask_lit_round ;
-      incl %ebx ;
-   atex_mask_lit_round:
-      subl %ebx, %eax ;
-      movl %ebx, DC ;
+   #define INIT_CODE                     \
+      movl POLYSEG_C(%esi), %eax ;       \
+      movl POLYSEG_DC(%esi), %ebx ;      \
+      sarl $8, %eax ;                    \
+      sarl $8, %ebx ;                    \
+      jge atex_mask_lit_round ;          \
+      incl %ebx ;                        \
+   atex_mask_lit_round:                  \
+      subl %ebx, %eax ;                  \
+      movl %ebx, DC ;                    \
       movl %eax, C
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
 
    movl %eax, TMP
    addl DVL, %ebx
@@ -1124,7 +1126,7 @@ FUNC(_poly_scanline_grgb24)
 #define READ_ADDR -48(%ebp)
 
 /* first part of an affine texture mapping operation */
-#define INIT_ATEX(extra...)                                           \
+#define INIT_ATEX(extra)                                              \
    pushl %ebp                                                       ; \
    movl %esp, %ebp                                                  ; \
    subl $48, %esp                    /* local variables */          ; \
@@ -1186,7 +1188,7 @@ FUNC(_poly_scanline_grgb24)
  *  Fills an affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex16)
-   INIT_ATEX()
+   INIT_ATEX(/**/)
    movw (%esi, %eax, 2), %ax     /* read texel */
    movw %ax, FSEG(%edi)          /* write the pixel */
    addl $2, %edi
@@ -1197,7 +1199,7 @@ FUNC(_poly_scanline_atex16)
  *  Fills a masked affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask15)
-   INIT_ATEX()
+   INIT_ATEX(/**/)
    movw (%esi, %eax, 2), %ax     /* read texel */
    cmpw $MASK_COLOR_15, %ax
    jz 7f
@@ -1210,7 +1212,7 @@ FUNC(_poly_scanline_atex_mask15)
  *  Fills a masked affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask16)
-   INIT_ATEX()
+   INIT_ATEX(/**/)
    movw (%esi, %eax, 2), %ax     /* read texel */
    cmpw $MASK_COLOR_16, %ax
    jz 7f
@@ -1227,7 +1229,7 @@ FUNC(_poly_scanline_atex_mask16)
  *  Fills an affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex32)
-   INIT_ATEX()
+   INIT_ATEX(/**/)
    movl (%esi, %eax, 4), %eax    /* read texel */
    movl %eax, FSEG(%edi)         /* write the pixel */
    addl $4, %edi
@@ -1238,7 +1240,7 @@ FUNC(_poly_scanline_atex32)
  *  Fills a masked affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask32)
-   INIT_ATEX()
+   INIT_ATEX(/**/)
    movl (%esi, %eax, 4), %eax    /* read texel */
    cmpl $MASK_COLOR_32, %eax
    jz 7f
@@ -1253,7 +1255,7 @@ FUNC(_poly_scanline_atex_mask32)
  *  Fills an affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex24)
-   INIT_ATEX()
+   INIT_ATEX(/**/)
    leal (%eax, %eax, 2), %ecx
    movw (%esi, %ecx), %ax        /* read texel */
    movw %ax, FSEG(%edi)          /* write the pixel */
@@ -1267,7 +1269,7 @@ FUNC(_poly_scanline_atex24)
  *  Fills a masked affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask24)
-   INIT_ATEX()
+   INIT_ATEX(/**/)
    leal (%eax, %eax, 2), %ecx
    movzbl 2(%esi, %ecx), %eax    /* read texel */
    shll $16, %eax
@@ -1289,12 +1291,13 @@ FUNC(_poly_scanline_atex_mask24)
  *  Fills a lit affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_lit15)
-   INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                     \
+     movl POLYSEG_C(%esi), %eax ;        \
+     movl POLYSEG_DC(%esi), %edx ;       \
+     movl %eax, ALPHA ;                  \
      movl %edx, DALPHA
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    movzbl 2+ALPHA, %edx
    pushl %edx
@@ -1316,12 +1319,13 @@ FUNC(_poly_scanline_atex_lit15)
  *  Fills a lit affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask_lit15)
-   INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                     \
+     movl POLYSEG_C(%esi), %eax ;        \
+     movl POLYSEG_DC(%esi), %edx ;       \
+     movl %eax, ALPHA ;                  \
      movl %edx, DALPHA
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax    /* read texel */
    cmpw $MASK_COLOR_15, %ax
    jz 7f
@@ -1348,12 +1352,13 @@ FUNC(_poly_scanline_atex_mask_lit15)
  *  Fills a lit affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_lit16)
-   INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                     \
+     movl POLYSEG_C(%esi), %eax ;        \
+     movl POLYSEG_DC(%esi), %edx ;       \
+     movl %eax, ALPHA ;                  \
      movl %edx, DALPHA
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    movzbl 2+ALPHA, %edx
    pushl %edx
@@ -1375,12 +1380,13 @@ FUNC(_poly_scanline_atex_lit16)
  *  Fills a lit affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask_lit16)
-   INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                     \
+     movl POLYSEG_C(%esi), %eax ;        \
+     movl POLYSEG_DC(%esi), %edx ;       \
+     movl %eax, ALPHA ;                  \
      movl %edx, DALPHA
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax     /* read texel */
    cmpw $MASK_COLOR_16, %ax
    jz 7f
@@ -1410,12 +1416,13 @@ FUNC(_poly_scanline_atex_mask_lit16)
  *  Fills a lit affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_lit32)
-   INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                     \
+     movl POLYSEG_C(%esi), %eax ;        \
+     movl POLYSEG_DC(%esi), %edx ;       \
+     movl %eax, ALPHA ;                  \
      movl %edx, DALPHA
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    movzbl 2+ALPHA, %edx
    pushl %edx
@@ -1437,12 +1444,13 @@ FUNC(_poly_scanline_atex_lit32)
  *  Fills a lit affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask_lit32)
-   INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                     \
+     movl POLYSEG_C(%esi), %eax ;        \
+     movl POLYSEG_DC(%esi), %edx ;       \
+     movl %eax, ALPHA ;                  \
      movl %edx, DALPHA
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movl (%esi, %eax, 4), %eax    /* read texel */
    cmpl $MASK_COLOR_32, %eax
    jz 7f
@@ -1472,12 +1480,13 @@ FUNC(_poly_scanline_atex_mask_lit32)
  *  Fills a lit affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_lit24)
-   INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                     \
+     movl POLYSEG_C(%esi), %eax ;        \
+     movl POLYSEG_DC(%esi), %edx ;       \
+     movl %eax, ALPHA ;                  \
      movl %edx, DALPHA
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    movzbl 2+ALPHA, %edx
    pushl %edx
@@ -1504,12 +1513,13 @@ FUNC(_poly_scanline_atex_lit24)
  *  Fills a lit affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask_lit24)
-   INIT_ATEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                     \
+     movl POLYSEG_C(%esi), %eax ;        \
+     movl POLYSEG_DC(%esi), %edx ;       \
+     movl %eax, ALPHA ;                  \
      movl %edx, DALPHA
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    leal (%eax, %eax, 2), %ecx
    movzbl 2(%esi, %ecx), %eax    /* read texel */
    shll $16, %eax
@@ -1544,10 +1554,11 @@ FUNC(_poly_scanline_atex_mask_lit24)
  *  Fills a trans affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_trans8)
-   INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax ;
+   #define INIT_CODE                     \
+     movl POLYSEG_RADDR(%esi), %eax ;    \
      movl %eax, READ_ADDR
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edi
    movzbl (%esi, %eax), %eax     /* read texel */
    movl READ_ADDR, %edi
@@ -1566,10 +1577,11 @@ FUNC(_poly_scanline_atex_trans8)
  *  Fills a trans affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask_trans8)
-   INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax ;
+   #define INIT_CODE                     \
+     movl POLYSEG_RADDR(%esi), %eax ;    \
      movl %eax, READ_ADDR
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movzbl (%esi, %eax), %eax     /* read texel */
    orl %eax, %eax
    jz 7f
@@ -1595,10 +1607,11 @@ FUNC(_poly_scanline_atex_mask_trans8)
  *  Fills a trans affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_trans15)
-   INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax ;
+   #define INIT_CODE                     \
+     movl POLYSEG_RADDR(%esi), %eax ;    \
      movl %eax, READ_ADDR
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    pushl GLOBL(_blender_alpha)
    pushl %edi
@@ -1623,10 +1636,11 @@ FUNC(_poly_scanline_atex_trans15)
  *  Fills a trans affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask_trans15)
-   INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax ;
+   #define INIT_CODE                     \
+     movl POLYSEG_RADDR(%esi), %eax ;    \
      movl %eax, READ_ADDR
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax    /* read texel */
    cmpw $MASK_COLOR_15, %ax
    jz 7f
@@ -1656,10 +1670,11 @@ FUNC(_poly_scanline_atex_mask_trans15)
  *  Fills a trans affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_trans16)
-   INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax ;
+   #define INIT_CODE                     \
+     movl POLYSEG_RADDR(%esi), %eax ;    \
      movl %eax, READ_ADDR
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    pushl GLOBL(_blender_alpha)
    pushl %edi
@@ -1684,10 +1699,11 @@ FUNC(_poly_scanline_atex_trans16)
  *  Fills a trans affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask_trans16)
-   INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax ;
+   #define INIT_CODE                     \
+     movl POLYSEG_RADDR(%esi), %eax ;    \
      movl %eax, READ_ADDR
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax     /* read texel */
    cmpw $MASK_COLOR_16, %ax
    jz 7f
@@ -1720,10 +1736,11 @@ FUNC(_poly_scanline_atex_mask_trans16)
  *  Fills a trans affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_trans32)
-   INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax ;
+   #define INIT_CODE                     \
+     movl POLYSEG_RADDR(%esi), %eax ;    \
      movl %eax, READ_ADDR
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    pushl GLOBL(_blender_alpha)
    movl %edi, ALPHA
@@ -1746,10 +1763,11 @@ FUNC(_poly_scanline_atex_trans32)
  *  Fills a trans affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask_trans32)
-   INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax ;
+   #define INIT_CODE                     \
+     movl POLYSEG_RADDR(%esi), %eax ;    \
      movl %eax, READ_ADDR
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movl (%esi, %eax, 4), %eax    /* read texel */
    cmpl $MASK_COLOR_32, %eax
    jz 7f
@@ -1781,10 +1799,11 @@ FUNC(_poly_scanline_atex_mask_trans32)
  *  Fills a trans affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_trans24)
-   INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax ;
+   #define INIT_CODE                     \
+     movl POLYSEG_RADDR(%esi), %eax ;    \
      movl %eax, READ_ADDR
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    pushl GLOBL(_blender_alpha)
    leal (%eax, %eax, 2), %ecx
@@ -1816,10 +1835,11 @@ FUNC(_poly_scanline_atex_trans24)
  *  Fills a trans affine texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_atex_mask_trans24)
-   INIT_ATEX(
-     movl POLYSEG_RADDR(%esi), %eax ;
+   #define INIT_CODE                     \
+     movl POLYSEG_RADDR(%esi), %eax ;    \
      movl %eax, READ_ADDR
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    leal (%eax, %eax, 2), %ecx
    movzbl 2(%esi, %ecx), %eax    /* read texel */
    shll $16, %eax
@@ -1915,7 +1935,7 @@ FUNC(_poly_scanline_atex_mask_trans24)
    fxch %st(1)                   /* swap uvz stack back to vuz */
 
 /* main body of the perspective-correct texture mapping routine */
-#define INIT_PTEX(extra...)                                           \
+#define INIT_PTEX(extra)                                              \
    pushl %ebp                                                       ; \
    movl %esp, %ebp                                                  ; \
    subl $100, %esp               /* local variables */              ; \
@@ -2040,7 +2060,7 @@ FUNC(_poly_scanline_atex_mask_trans24)
  *  Fills a perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex16)
-   INIT_PTEX()
+   INIT_PTEX(/**/)
    movw (%esi, %eax, 2), %ax     /* read texel */
    movw %ax, FSEG(%edi)          /* write the pixel */
    addl $2, %edi
@@ -2051,7 +2071,7 @@ FUNC(_poly_scanline_ptex16)
  *  Fills a masked perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask15)
-   INIT_PTEX()
+   INIT_PTEX(/**/)
    movw (%esi, %eax, 2), %ax     /* read texel */
    cmpw $MASK_COLOR_15, %ax
    jz 7f
@@ -2064,7 +2084,7 @@ FUNC(_poly_scanline_ptex_mask15)
  *  Fills a masked perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask16)
-   INIT_PTEX()
+   INIT_PTEX(/**/)
    movw (%esi, %eax, 2), %ax     /* read texel */
    cmpw $MASK_COLOR_16, %ax
    jz 7f
@@ -2081,7 +2101,7 @@ FUNC(_poly_scanline_ptex_mask16)
  *  Fills a perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex32)
-   INIT_PTEX()
+   INIT_PTEX(/**/)
    movl (%esi, %eax, 4), %eax    /* read texel */
    movl %eax, FSEG(%edi)         /* write the pixel */
    addl $4, %edi
@@ -2092,7 +2112,7 @@ FUNC(_poly_scanline_ptex32)
  *  Fills a masked perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask32)
-   INIT_PTEX()
+   INIT_PTEX(/**/)
    movl (%esi, %eax, 4), %eax    /* read texel */
    cmpl $MASK_COLOR_32, %eax
    jz 7f
@@ -2109,7 +2129,7 @@ FUNC(_poly_scanline_ptex_mask32)
  *  Fills a perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex24)
-   INIT_PTEX()
+   INIT_PTEX(/**/)
    leal (%eax, %eax, 2), %ecx
    movw (%esi, %ecx), %ax        /* read texel */
    movw %ax, FSEG(%edi)          /* write the pixel */
@@ -2123,7 +2143,7 @@ FUNC(_poly_scanline_ptex24)
  *  Fills a masked perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask24)
-   INIT_PTEX()
+   INIT_PTEX(/**/)
    leal (%eax, %eax, 2), %ecx
    xorl %eax, %eax
    movb 2(%esi, %ecx), %al       /* read texel */
@@ -2147,12 +2167,13 @@ FUNC(_poly_scanline_ptex_mask24)
  *  Fills a lit perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask_lit8)
-   INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                      \
+     movl POLYSEG_C(%esi), %eax ;         \
+     movl POLYSEG_DC(%esi), %edx ;        \
+     movl %eax, ALPHA ;                   \
      movl %edx, DALPHA
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    movzbl (%esi, %eax), %eax     /* read texel */
    orl %eax, %eax
    jz 7f
@@ -2175,12 +2196,13 @@ FUNC(_poly_scanline_ptex_mask_lit8)
  *  Fills a lit perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_lit15)
-   INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                      \
+     movl POLYSEG_C(%esi), %eax ;         \
+     movl POLYSEG_DC(%esi), %edx ;        \
+     movl %eax, ALPHA ;                   \
      movl %edx, DALPHA
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    movzbl 2+ALPHA, %edx
    pushl %edx
@@ -2202,12 +2224,13 @@ FUNC(_poly_scanline_ptex_lit15)
  *  Fills a lit perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask_lit15)
-   INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                      \
+     movl POLYSEG_C(%esi), %eax ;         \
+     movl POLYSEG_DC(%esi), %edx ;        \
+     movl %eax, ALPHA ;                   \
      movl %edx, DALPHA
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax     /* read texel */
    cmpw $MASK_COLOR_15, %ax
    jz 7f
@@ -2234,12 +2257,13 @@ FUNC(_poly_scanline_ptex_mask_lit15)
  *  Fills a lit perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_lit16)
-   INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                      \
+     movl POLYSEG_C(%esi), %eax ;         \
+     movl POLYSEG_DC(%esi), %edx ;        \
+     movl %eax, ALPHA ;                   \
      movl %edx, DALPHA
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    movzbl 2+ALPHA, %edx
    pushl %edx
@@ -2261,12 +2285,13 @@ FUNC(_poly_scanline_ptex_lit16)
  *  Fills a lit perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask_lit16)
-   INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                      \
+     movl POLYSEG_C(%esi), %eax ;         \
+     movl POLYSEG_DC(%esi), %edx ;        \
+     movl %eax, ALPHA ;                   \
      movl %edx, DALPHA
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax     /* read texel */
    cmpw $MASK_COLOR_16, %ax
    jz 7f
@@ -2296,12 +2321,13 @@ FUNC(_poly_scanline_ptex_mask_lit16)
  *  Fills a lit perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_lit32)
-   INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                      \
+     movl POLYSEG_C(%esi), %eax ;         \
+     movl POLYSEG_DC(%esi), %edx ;        \
+     movl %eax, ALPHA ;                   \
      movl %edx, DALPHA
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    movzbl 2+ALPHA, %edx
    pushl %edx
@@ -2323,12 +2349,13 @@ FUNC(_poly_scanline_ptex_lit32)
  *  Fills a lit perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask_lit32)
-   INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                      \
+     movl POLYSEG_C(%esi), %eax ;         \
+     movl POLYSEG_DC(%esi), %edx ;        \
+     movl %eax, ALPHA ;                   \
      movl %edx, DALPHA
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    movl (%esi, %eax, 4), %eax    /* read texel */
    cmpl $MASK_COLOR_32, %eax
    jz 7f
@@ -2358,12 +2385,13 @@ FUNC(_poly_scanline_ptex_mask_lit32)
  *  Fills a lit perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_lit24)
-   INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                      \
+     movl POLYSEG_C(%esi), %eax ;         \
+     movl POLYSEG_DC(%esi), %edx ;        \
+     movl %eax, ALPHA ;                   \
      movl %edx, DALPHA
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    movzbl 2+ALPHA, %edx
    pushl %edx
@@ -2390,12 +2418,13 @@ FUNC(_poly_scanline_ptex_lit24)
  *  Fills a lit perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask_lit24)
-   INIT_PTEX(
-     movl POLYSEG_C(%esi), %eax ;
-     movl POLYSEG_DC(%esi), %edx ;
-     movl %eax, ALPHA ;
+   #define INIT_CODE                      \
+     movl POLYSEG_C(%esi), %eax ;         \
+     movl POLYSEG_DC(%esi), %edx ;        \
+     movl %eax, ALPHA ;                   \
      movl %edx, DALPHA
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    leal (%eax, %eax, 2), %ecx
    movzbl 2(%esi, %ecx), %eax    /* read texel */
    shll $16, %eax
@@ -2430,10 +2459,11 @@ FUNC(_poly_scanline_ptex_mask_lit24)
  *  Fills a trans perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_trans8)
-   INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax ;
+   #define INIT_CODE                      \
+     movl POLYSEG_RADDR(%esi) ,%eax ;     \
      movl %eax, READ_ADDR
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    movzbl (%esi, %eax), %eax     /* read texel */
    shll $8, %eax
    pushl %edi
@@ -2452,10 +2482,11 @@ FUNC(_poly_scanline_ptex_trans8)
  *  Fills a trans perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask_trans8)
-   INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax ;
+   #define INIT_CODE                      \
+     movl POLYSEG_RADDR(%esi) ,%eax ;     \
      movl %eax, READ_ADDR
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    movzbl (%esi, %eax), %eax     /* read texel */
    orl %eax, %eax
    jz 7f
@@ -2482,10 +2513,11 @@ FUNC(_poly_scanline_ptex_mask_trans8)
  *  Fills a trans perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_trans15)
-   INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax ;
+   #define INIT_CODE                      \
+     movl POLYSEG_RADDR(%esi) ,%eax ;     \
      movl %eax, READ_ADDR
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    pushl GLOBL(_blender_alpha)
    pushl %edi
@@ -2510,10 +2542,11 @@ FUNC(_poly_scanline_ptex_trans15)
  *  Fills a trans perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask_trans15)
-   INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax ;
+   #define INIT_CODE                      \
+     movl POLYSEG_RADDR(%esi) ,%eax ;     \
      movl %eax, READ_ADDR
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax     /* read texel */
    cmpw $MASK_COLOR_15, %ax
    jz 7f
@@ -2543,10 +2576,11 @@ FUNC(_poly_scanline_ptex_mask_trans15)
  *  Fills a trans perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_trans16)
-   INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax ;
+   #define INIT_CODE                      \
+     movl POLYSEG_RADDR(%esi) ,%eax ;     \
      movl %eax, READ_ADDR
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    pushl GLOBL(_blender_alpha)
    pushl %edi
@@ -2571,10 +2605,11 @@ FUNC(_poly_scanline_ptex_trans16)
  *  Fills a trans perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask_trans16)
-   INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax ;
+   #define INIT_CODE                      \
+     movl POLYSEG_RADDR(%esi) ,%eax ;     \
      movl %eax, READ_ADDR
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax     /* read texel */
    cmpw $MASK_COLOR_16, %ax
    jz 7f
@@ -2607,10 +2642,11 @@ FUNC(_poly_scanline_ptex_mask_trans16)
  *  Fills a trans perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_trans32)
-   INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax ;
+   #define INIT_CODE                      \
+     movl POLYSEG_RADDR(%esi) ,%eax ;     \
      movl %eax, READ_ADDR
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    pushl GLOBL(_blender_alpha)
    movl %edi, TMP
@@ -2633,10 +2669,11 @@ FUNC(_poly_scanline_ptex_trans32)
  *  Fills a trans perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask_trans32)
-   INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax ;
+   #define INIT_CODE                      \
+     movl POLYSEG_RADDR(%esi) ,%eax ;     \
      movl %eax, READ_ADDR
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    movl (%esi, %eax, 4), %eax    /* read texel */
    cmpl $MASK_COLOR_32, %eax
    jz 7f
@@ -2668,10 +2705,11 @@ FUNC(_poly_scanline_ptex_mask_trans32)
  *  Fills a trans perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_trans24)
-   INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax ;
+   #define INIT_CODE                      \
+     movl POLYSEG_RADDR(%esi) ,%eax ;     \
      movl %eax, READ_ADDR
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    pushl %edx
    pushl GLOBL(_blender_alpha)
    leal (%eax, %eax, 2), %ecx
@@ -2703,10 +2741,11 @@ FUNC(_poly_scanline_ptex_trans24)
  *  Fills a trans perspective correct texture mapped polygon scanline.
  */
 FUNC(_poly_scanline_ptex_mask_trans24)
-   INIT_PTEX(
-     movl POLYSEG_RADDR(%esi) ,%eax ;
+   #define INIT_CODE                      \
+     movl POLYSEG_RADDR(%esi) ,%eax ;     \
      movl %eax, READ_ADDR
-   )
+   INIT_PTEX(INIT_CODE)
+   #undef INIT_CODE
    leal (%eax, %eax, 2), %ecx
    movzbl 2(%esi, %ecx), %eax    /* read texel */
    shll $16, %eax

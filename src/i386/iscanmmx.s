@@ -364,7 +364,7 @@ FUNC(_poly_scanline_grgb24x)
 #define UMASK    -44(%ebp)
 
 /* first part of an affine texture mapping operation */
-#define INIT_ATEX(extra...)                                           \
+#define INIT_ATEX(extra)                                              \
    pushl %ebp                                                       ; \
    movl %esp, %ebp                                                  ; \
    subl $44, %esp                    /* local variables */          ; \
@@ -435,16 +435,17 @@ FUNC(_poly_scanline_grgb24x)
 
 #ifdef ALLEGRO_COLOR16
 FUNC(_poly_scanline_atex_lit15x)
-   INIT_ATEX(
-     INIT_MMX_ALPHA() ;
-     movq GLOBL(_mask_mmx_15), %mm7 ;
-     movl GLOBL(_blender_col_15), %eax ;
-     movw %ax, ALPHA ;
-     movw %ax, ALPHA2 ;
-     movb %ah, ALPHA4 ;
-     movq ALPHA, %mm6 ;
+   #define INIT_CODE                        \
+     INIT_MMX_ALPHA() ;                     \
+     movq GLOBL(_mask_mmx_15), %mm7 ;       \
+     movl GLOBL(_blender_col_15), %eax ;    \
+     movw %ax, ALPHA ;                      \
+     movw %ax, ALPHA2 ;                     \
+     movb %ah, ALPHA4 ;                     \
+     movq ALPHA, %mm6 ;                     \
      PAND_R(7, 6)
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax
    movw %ax, ALPHA
    movw %ax, ALPHA2
@@ -471,16 +472,17 @@ FUNC(_poly_scanline_atex_lit15x)
    ret                           /* end of _poly_scanline_atex_lit15x() */
 
 FUNC(_poly_scanline_atex_mask_lit15x)
-   INIT_ATEX(
-     INIT_MMX_ALPHA() ;
-     movq GLOBL(_mask_mmx_15), %mm7 ;
-     movl GLOBL(_blender_col_15), %eax ;
-     movw %ax, ALPHA ;
-     movw %ax, ALPHA2 ;
-     movb %ah, ALPHA4 ;
-     movq ALPHA, %mm6 ;
+   #define INIT_CODE                        \
+     INIT_MMX_ALPHA() ;                     \
+     movq GLOBL(_mask_mmx_15), %mm7 ;       \
+     movl GLOBL(_blender_col_15), %eax ;    \
+     movw %ax, ALPHA ;                      \
+     movw %ax, ALPHA2 ;                     \
+     movb %ah, ALPHA4 ;                     \
+     movq ALPHA, %mm6 ;                     \
      PAND_R(7, 6)
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax
    cmpw $MASK_COLOR_15, %ax
    jz 7f
@@ -510,16 +512,17 @@ FUNC(_poly_scanline_atex_mask_lit15x)
 
 
 FUNC(_poly_scanline_atex_lit16x)
-   INIT_ATEX(
-     INIT_MMX_ALPHA() ;
-     movq GLOBL(_mask_mmx_16), %mm7 ;
-     movl GLOBL(_blender_col_16), %eax ;
-     movw %ax, ALPHA ;
-     movw %ax, ALPHA2 ;
-     movb %ah, ALPHA4 ;
-     movq ALPHA, %mm6 ;
+   #define INIT_CODE                        \
+     INIT_MMX_ALPHA() ;                     \
+     movq GLOBL(_mask_mmx_16), %mm7 ;       \
+     movl GLOBL(_blender_col_16), %eax ;    \
+     movw %ax, ALPHA ;                      \
+     movw %ax, ALPHA2 ;                     \
+     movb %ah, ALPHA4 ;                     \
+     movq ALPHA, %mm6 ;                     \
      PAND_R(7, 6)
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax
    movw %ax, ALPHA
    movw %ax, ALPHA2
@@ -546,16 +549,17 @@ FUNC(_poly_scanline_atex_lit16x)
    ret                           /* end of _poly_scanline_atex_lit16x() */
 
 FUNC(_poly_scanline_atex_mask_lit16x)
-   INIT_ATEX(
-     INIT_MMX_ALPHA() ;
-     movq GLOBL(_mask_mmx_16), %mm7 ;
-     movl GLOBL(_blender_col_16), %eax ;
-     movw %ax, ALPHA ;
-     movw %ax, ALPHA2 ;
-     movb %ah, ALPHA4 ;
-     movq ALPHA, %mm6 ;
+   #define INIT_CODE                        \
+     INIT_MMX_ALPHA() ;                     \
+     movq GLOBL(_mask_mmx_16), %mm7 ;       \
+     movl GLOBL(_blender_col_16), %eax ;    \
+     movw %ax, ALPHA ;                      \
+     movw %ax, ALPHA2 ;                     \
+     movb %ah, ALPHA4 ;                     \
+     movq ALPHA, %mm6 ;                     \
      PAND_R(7, 6)
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax
    cmpw $MASK_COLOR_16, %ax
    jz 7f
@@ -588,12 +592,13 @@ FUNC(_poly_scanline_atex_mask_lit16x)
 
 #ifdef ALLEGRO_COLOR32
 FUNC(_poly_scanline_atex_lit32x)
-   INIT_ATEX(
-     INIT_MMX_ALPHA() ;
-     pxor %mm7, %mm7 ;
-     movd GLOBL(_blender_col_32), %mm6 ;
+   #define INIT_CODE                        \
+     INIT_MMX_ALPHA() ;                     \
+     pxor %mm7, %mm7 ;                      \
+     movd GLOBL(_blender_col_32), %mm6 ;    \
      punpcklbw %mm7, %mm6           /* extend RGB to words */
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movd (%esi, %eax, 4), %mm2
    punpcklbw %mm7, %mm2             /* extend RGB to words */
 
@@ -611,12 +616,13 @@ FUNC(_poly_scanline_atex_lit32x)
    ret                           /* end of _poly_scanline_atex_lit32x() */
 
 FUNC(_poly_scanline_atex_mask_lit32x)
-   INIT_ATEX(
-     INIT_MMX_ALPHA() ;
-     pxor %mm7, %mm7 ;
-     movd GLOBL(_blender_col_32), %mm6 ;
+   #define INIT_CODE                        \
+     INIT_MMX_ALPHA() ;                     \
+     pxor %mm7, %mm7 ;                      \
+     movd GLOBL(_blender_col_32), %mm6 ;    \
      punpcklbw %mm7, %mm6           /* extend RGB to words */
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    movl (%esi, %eax, 4), %eax
    cmpl $MASK_COLOR_32, %eax
    jz 7f
@@ -642,12 +648,13 @@ FUNC(_poly_scanline_atex_mask_lit32x)
 
 #ifdef ALLEGRO_COLOR24
 FUNC(_poly_scanline_atex_lit24x)
-   INIT_ATEX(
-     INIT_MMX_ALPHA() ;
-     pxor %mm7, %mm7 ;
-     movd GLOBL(_blender_col_24), %mm6 ;
+   #define INIT_CODE                        \
+     INIT_MMX_ALPHA() ;                     \
+     pxor %mm7, %mm7 ;                      \
+     movd GLOBL(_blender_col_24), %mm6 ;    \
      punpcklbw %mm7, %mm6
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    leal (%eax, %eax, 2), %ecx
    movb 2(%esi, %ecx), %al
    shll $16, %eax
@@ -673,12 +680,13 @@ FUNC(_poly_scanline_atex_lit24x)
    ret                           /* end of _poly_scanline_atex_lit24x() */
 
 FUNC(_poly_scanline_atex_mask_lit24x)
-   INIT_ATEX(
-     INIT_MMX_ALPHA() ;
-     pxor %mm7, %mm7 ;
-     movd GLOBL(_blender_col_24), %mm6 ;
+   #define INIT_CODE                        \
+     INIT_MMX_ALPHA() ;                     \
+     pxor %mm7, %mm7 ;                      \
+     movd GLOBL(_blender_col_24), %mm6 ;    \
      punpcklbw %mm7, %mm6
-   )
+   INIT_ATEX(INIT_CODE)
+   #undef INIT_CODE
    leal (%eax, %eax, 2), %ecx
    movzbl 2(%esi, %ecx), %eax
    shll $16, %eax
@@ -771,7 +779,7 @@ FUNC(_poly_scanline_atex_mask_lit24x)
 
 /* main body of the perspective-correct texture mapping routine,
    using 3D enhancement CPUs */
-#define INIT_PTEX_3D(extra...)                                        \
+#define INIT_PTEX_3D(extra)                                           \
    pushl %ebp                                                       ; \
    movl %esp, %ebp                                                  ; \
    subl $100, %esp               /* local variables */              ; \
@@ -1135,17 +1143,18 @@ FUNC(_poly_scanline_ptex_mask_lit15x)
 #undef PIXEL
 
 FUNC(_poly_scanline_ptex_lit15d)
-   INIT_PTEX_3D(
-      INIT_MMX_ALPHA() ;
-      movq %mm0, %mm7 ;
-      movq %mm1, DALPHA ;
-      movl GLOBL(_blender_col_15), %eax ;
-      movw %ax, BLEND ;
-      movw %ax, BLEND2 ;
-      movb %ah, BLEND4 ;
-      movq BLEND, %mm6 ;
+   #define INIT_CODE                        \
+      INIT_MMX_ALPHA() ;                    \
+      movq %mm0, %mm7 ;                     \
+      movq %mm1, DALPHA ;                   \
+      movl GLOBL(_blender_col_15), %eax ;   \
+      movw %ax, BLEND ;                     \
+      movw %ax, BLEND2 ;                    \
+      movb %ah, BLEND4 ;                    \
+      movq BLEND, %mm6 ;                    \
       PAND_M(GLOBL(_mask_mmx_15), 6)        /* pand mem, %mm6 */
-   )
+   INIT_PTEX_3D(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax
    movw %ax, TMP
    movw %ax, TMP2
@@ -1171,17 +1180,18 @@ FUNC(_poly_scanline_ptex_lit15d)
    ret                           /* end of _poly_scanline_ptex_lit15d() */
 
 FUNC(_poly_scanline_ptex_mask_lit15d)
-   INIT_PTEX_3D(
-      INIT_MMX_ALPHA() ;
-      movq %mm0, %mm7 ;
-      movq %mm1, DALPHA ;
-      movl GLOBL(_blender_col_15), %eax ;
-      movw %ax, BLEND ;
-      movw %ax, BLEND2 ;
-      movb %ah, BLEND4 ;
-      movq BLEND, %mm6 ;
+   #define INIT_CODE                        \
+      INIT_MMX_ALPHA() ;                    \
+      movq %mm0, %mm7 ;                     \
+      movq %mm1, DALPHA ;                   \
+      movl GLOBL(_blender_col_15), %eax ;   \
+      movw %ax, BLEND ;                     \
+      movw %ax, BLEND2 ;                    \
+      movb %ah, BLEND4 ;                    \
+      movq BLEND, %mm6 ;                    \
       PAND_M(GLOBL(_mask_mmx_15), 6)   /* pand mem, %mm6 */
-   )
+   INIT_PTEX_3D(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax
    cmpw $MASK_COLOR_15, %ax
    jz 7f
@@ -1301,17 +1311,18 @@ FUNC(_poly_scanline_ptex_mask_lit16x)
 #undef PIXEL
 
 FUNC(_poly_scanline_ptex_lit16d)
-   INIT_PTEX_3D(
-      INIT_MMX_ALPHA() ;
-      movq %mm0, %mm7 ;
-      movq %mm1, DALPHA ;
-      movl GLOBL(_blender_col_16), %eax ;
-      movw %ax, BLEND ;
-      movw %ax, BLEND2 ;
-      movb %ah, BLEND4 ;
-      movq BLEND, %mm6 ;
+   #define INIT_CODE                        \
+      INIT_MMX_ALPHA() ;                    \
+      movq %mm0, %mm7 ;                     \
+      movq %mm1, DALPHA ;                   \
+      movl GLOBL(_blender_col_16), %eax ;   \
+      movw %ax, BLEND ;                     \
+      movw %ax, BLEND2 ;                    \
+      movb %ah, BLEND4 ;                    \
+      movq BLEND, %mm6 ;                    \
       PAND_M(GLOBL(_mask_mmx_16), 6)            /* pand mem, %mm6 */
-   )
+   INIT_PTEX_3D(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax
    movw %ax, TMP
    movw %ax, TMP2
@@ -1337,17 +1348,18 @@ FUNC(_poly_scanline_ptex_lit16d)
    ret                           /* end of _poly_scanline_ptex_lit16d() */
 
 FUNC(_poly_scanline_ptex_mask_lit16d)
-   INIT_PTEX_3D(
-      INIT_MMX_ALPHA() ;
-      movq %mm0, %mm7 ;
-      movq %mm1, DALPHA ;
-      movl GLOBL(_blender_col_16), %eax ;
-      movw %ax, BLEND ;
-      movw %ax, BLEND2 ;
-      movb %ah, BLEND4 ;
-      movq BLEND, %mm6 ;
+   #define INIT_CODE                        \
+      INIT_MMX_ALPHA() ;                    \
+      movq %mm0, %mm7 ;                     \
+      movq %mm1, DALPHA ;                   \
+      movl GLOBL(_blender_col_16), %eax ;   \
+      movw %ax, BLEND ;                     \
+      movw %ax, BLEND2 ;                    \
+      movb %ah, BLEND4 ;                    \
+      movq BLEND, %mm6 ;                    \
       PAND_M(GLOBL(_mask_mmx_16), 6)            /* pand mem, %mm6 */
-   )
+   INIT_PTEX_3D(INIT_CODE)
+   #undef INIT_CODE
    movw (%esi, %eax, 2), %ax
    cmpw $MASK_COLOR_16, %ax
    jz 7f
@@ -1446,14 +1458,15 @@ FUNC(_poly_scanline_ptex_mask_lit32x)
 #undef PIXEL
 
 FUNC(_poly_scanline_ptex_lit32d)
-   INIT_PTEX_3D(
-      INIT_MMX_ALPHA() ;
-      movq %mm0, %mm7 ;
-      movq %mm1, DALPHA ;
-      pxor %mm5, %mm5 ;
-      movd GLOBL(_blender_col_32), %mm6 ;
+   #define INIT_CODE                        \
+      INIT_MMX_ALPHA() ;                    \
+      movq %mm0, %mm7 ;                     \
+      movq %mm1, DALPHA ;                   \
+      pxor %mm5, %mm5 ;                     \
+      movd GLOBL(_blender_col_32), %mm6 ;   \
       punpcklbw %mm5, %mm6
-   )
+   INIT_PTEX_3D(INIT_CODE)
+   #undef INIT_CODE
    movd (%esi, %eax, 4), %mm4
    pxor %mm5, %mm5
    punpcklbw %mm5, %mm4
@@ -1472,14 +1485,15 @@ FUNC(_poly_scanline_ptex_lit32d)
    ret                           /* end of _poly_scanline_ptex_lit32d() */
 
 FUNC(_poly_scanline_ptex_mask_lit32d)
-   INIT_PTEX_3D(
-      INIT_MMX_ALPHA() ;
-      movq %mm0, %mm7 ;
-      movq %mm1, DALPHA ;
-      pxor %mm5, %mm5 ;
-      movd GLOBL(_blender_col_32), %mm6 ;
+   #define INIT_CODE                        \
+      INIT_MMX_ALPHA() ;                    \
+      movq %mm0, %mm7 ;                     \
+      movq %mm1, DALPHA ;                   \
+      pxor %mm5, %mm5 ;                     \
+      movd GLOBL(_blender_col_32), %mm6 ;   \
       punpcklbw %mm5, %mm6
-   )
+   INIT_PTEX_3D(INIT_CODE)
+   #undef INIT_CODE
    movl (%esi, %eax, 4), %eax
    cmpl $MASK_COLOR_32, %eax
    jz 7f
@@ -1585,14 +1599,15 @@ FUNC(_poly_scanline_ptex_mask_lit24x)
 #undef PIXEL
 
 FUNC(_poly_scanline_ptex_lit24d)
-   INIT_PTEX_3D(
-      INIT_MMX_ALPHA() ;
-      movq %mm0, %mm7 ;
-      movq %mm1, DALPHA ;
-      pxor %mm5, %mm5 ;
-      movd GLOBL(_blender_col_24), %mm6 ;
+   #define INIT_CODE                        \
+      INIT_MMX_ALPHA() ;                    \
+      movq %mm0, %mm7 ;                     \
+      movq %mm1, DALPHA ;                   \
+      pxor %mm5, %mm5 ;                     \
+      movd GLOBL(_blender_col_24), %mm6 ;   \
       punpcklbw %mm5, %mm6
-   )
+   INIT_PTEX_3D(INIT_CODE)
+   #undef INIT_CODE
    leal (%eax, %eax, 2), %ecx
    movb 2(%esi, %ecx), %al
    shll $16, %eax
@@ -1618,14 +1633,15 @@ FUNC(_poly_scanline_ptex_lit24d)
    ret                           /* end of _poly_scanline_ptex_lit24d() */
 
 FUNC(_poly_scanline_ptex_mask_lit24d)
-   INIT_PTEX_3D(
-      INIT_MMX_ALPHA() ;
-      movq %mm0, %mm7 ;
-      movq %mm1, DALPHA ;
-      pxor %mm5, %mm5 ;
-      movd GLOBL(_blender_col_24), %mm6 ;
+   #define INIT_CODE                        \
+      INIT_MMX_ALPHA() ;                    \
+      movq %mm0, %mm7 ;                     \
+      movq %mm1, DALPHA ;                   \
+      pxor %mm5, %mm5 ;                     \
+      movd GLOBL(_blender_col_24), %mm6 ;   \
       punpcklbw %mm5, %mm6
-   )
+   INIT_PTEX_3D(INIT_CODE)
+   #undef INIT_CODE
    leal (%eax, %eax, 2), %ecx
    movzbl 2(%esi, %ecx), %eax
    shll $16, %eax

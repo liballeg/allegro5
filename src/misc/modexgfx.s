@@ -411,7 +411,7 @@ xgetpix_done:
  */
 
    /* helper for patterned and xor lines, loops through each plane */
-   #define HLINE_LOOP(name, putter...)                                       \
+   #define HLINE_LOOP(name, putter)                                          \
       movl %ecx, COUNTER                                                   ; \
       movl %ebx, START_X                                                   ; \
       movl %edi, SCREEN_ADDR                                               ; \
@@ -529,7 +529,11 @@ xhline_noclip:
 									   ; \
       movb ARG5, %al             /* al = color */
 
-   HLINE_LOOP(xor, xorb %al, %es:(%esi))
+   #define LOOP_PUTTER                                                       \
+      xorb %al, %es:(%esi)      
+   HLINE_LOOP(xor, LOOP_PUTTER)
+   #undef LOOP_PUTTER
+
    jmp xhline_done
 
    #undef SETUP
@@ -553,11 +557,13 @@ xhline_not_xor:
 									   ; \
       movl GLOBL(color_map), %ecx   /* color map in ecx */
 
-   HLINE_LOOP(trans,
-      movb %es:(%esi), %al ;     /* read existing color */
-      movb (%ecx, %eax), %al ;   /* lookup color in table */
+   #define LOOP_PUTTER                                                       \
+      movb %es:(%esi), %al ;     /* read existing color */                   \
+      movb (%ecx, %eax), %al ;   /* lookup color in table */                 \
       movb %al, %es:(%esi)       /* write pixel */
-   )
+   HLINE_LOOP(trans, LOOP_PUTTER)
+   #undef LOOP_PUTTER
+
    jmp xhline_done
 
    #undef SETUP
@@ -579,39 +585,42 @@ xhline_not_trans:
    cmpl $DRAW_SOLID_PATTERN, GLOBL(_drawing_mode)
    je xhline_solid_pattern
 
-   HLINE_LOOP(masked_pattern,
-      movb (%ebx, %edi), %al ;   /* read pixel from pattern bitmap */
-      testb %al, %al ;           /* test it */
-      jz xhline_masked_zero ;
-      movb %ah, %es:(%esi) ;     /* write solid pixel */
-   xhline_masked_zero:
-      addl $4, %edi ;
+   #define LOOP_PUTTER                                                       \
+      movb (%ebx, %edi), %al ;   /* read pixel from pattern bitmap */        \
+      testb %al, %al ;           /* test it */                               \
+      jz xhline_masked_zero ;                                                \
+      movb %ah, %es:(%esi) ;     /* write solid pixel */                     \
+   xhline_masked_zero:                                                       \
+      addl $4, %edi ;                                                        \
       andl %ecx, %edi            /* advance through pattern bitmap */
-   )
+   HLINE_LOOP(masked_pattern, LOOP_PUTTER)
+   #undef LOOP_PUTTER
    jmp xhline_done
 
    _align_
 xhline_solid_pattern:
-   HLINE_LOOP(solid_pattern, 
-      movb (%ebx, %edi), %al ;   /* read pixel from pattern bitmap */
-      testb %al, %al ;           /* test it */
-      jz xhline_solid_zero ;
-      movb %ah, %al ;            /* select a colored pixel */
-   xhline_solid_zero:
-      movb %al, %es:(%esi) ;     /* write pixel */
-      addl $4, %edi ;
+   #define LOOP_PUTTER                                                       \
+      movb (%ebx, %edi), %al ;   /* read pixel from pattern bitmap */        \
+      testb %al, %al ;           /* test it */                               \
+      jz xhline_solid_zero ;                                                 \
+      movb %ah, %al ;            /* select a colored pixel */                \
+   xhline_solid_zero:                                                        \
+      movb %al, %es:(%esi) ;     /* write pixel */                           \
+      addl $4, %edi ;                                                        \
       andl %ecx, %edi            /* advance through pattern bitmap */
-   )
+   HLINE_LOOP(solid_pattern, LOOP_PUTTER)
+   #undef LOOP_PUTTER
    jmp xhline_done
 
    _align_
 xhline_copy_pattern:
-   HLINE_LOOP(copy_pattern, 
-      movb (%ebx, %edi), %al ;   /* read pixel from pattern bitmap */
-      movb %al, %es:(%esi) ;     /* write pixel */
-      addl $4, %edi ;
+   #define LOOP_PUTTER                                                       \
+      movb (%ebx, %edi), %al ;   /* read pixel from pattern bitmap */        \
+      movb %al, %es:(%esi) ;     /* write pixel */                           \
+      addl $4, %edi ;                                                        \
       andl %ecx, %edi            /* advance through pattern bitmap */
-   )
+   HLINE_LOOP(copy_pattern, LOOP_PUTTER)
+   #undef LOOP_PUTTER
    jmp xhline_done
 
 

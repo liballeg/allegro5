@@ -537,105 +537,107 @@ FUNC(_linear_masked_blit8)
    
    pcmpeqd %mm4, %mm4            /* Create inverter mask */
   
-   BLIT_LOOP(masked8_mmx_loop, 1,
-      movd %ecx, %mm2;            /* Save line length (%mm2) */
-      shrl $4, %ecx;
+   /* Note: maskmovq is an SSE instruction! */
 
-      pushl %es;  /* Swap ES and DS */
-      pushl %ds;
-      popl  %es;
-      popl  %ds;
-      
-      _align_;
-      masked8_mmx_x_loop:
-
-      movq %es:(%esi), %mm1;       /* Read 8 pixels */
-      movq %mm0, %mm3;
-      movq %es:8(%esi), %mm5;      /* Read 8 more pixels */
-      movq %mm0, %mm6;
-            
-      pcmpeqb %mm1, %mm3;         /* Compare with mask (%mm3/%mm6) */
-      pcmpeqb %mm5, %mm6;
-      pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */
-      pxor %mm4, %mm6;
-      addl $16, %esi;             /* Update src */
-      maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
-      addl $8, %edi;
-      maskmovq %mm6, %mm5;
-
-      addl $8, %edi;              /* Update dest */
-      
-      decl %ecx;                  /* Any pixel packs left for this line? */
-      jnz masked8_mmx_x_loop;
-
-   
-      movd %mm2, %ecx;            /* Restore pixel count */
-      andl $15, %ecx;
-      jz masked8_mmx_loop_end;    /* Nothing else to do? */
-      shrl $1, %ecx;              /* 1 pixels left */
-      jnc masked8_mmx_word;
-            
-      movb %es:(%esi), %al;       /* Read 1 pixel */
-      incl %esi;
-      incl %edi;
-      orb %al, %al;               /* Compare with mask */
-      jz masked8_mmx_word;
-      movb %al, -1(%edi);         /* Write the pixel */
-      
-      masked8_mmx_word:
-      shrl $1, %ecx;              /* 2 pixels left */
-      jnc masked8_mmx_long;
-      
-      movb %es:(%esi), %al;       /* Read 2 pixels */
-      movb %es:1(%esi), %ah;
-      addl $2, %esi;
-      addl $2, %edi;
-      orb %al, %al;
-      jz masked8_mmx_word_2;
-      movb %al, -2(%edi);         /* Write pixel */
-      
-      masked8_mmx_word_2:
-      orb %ah, %ah;
-      jz masked8_mmx_long;
-      movb %ah, -1(%edi);         /* Write other pixel */
-
-      _align_;
-      masked8_mmx_long:
-      
-      shrl $1, %ecx;              /* 4 pixels left */
-      jnc masked8_mmx_qword;
-      
-      movl %es:(%esi), %eax;      /* Read 4 pixels */
-      addl $4, %esi;
-      movd %eax, %mm1;
-      movl $-1, %eax;
-      movq %mm0, %mm3;
-      movd %eax, %mm5;            /* Build XOR flag */
-            
-      pcmpeqb %mm1, %mm3;         /* Compare with mask (%mm3/%mm6) */
-      pxor %mm5, %mm3;            /* Turn 1->0 and 0->1 */
-      pand %mm5, %mm3;            /* Make sure only the bottom 32 bits are used */
-      maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
-      addl $4, %edi;
-
-      _align_;
-      masked8_mmx_qword:
-      shrl $1, %ecx;              /* 8 pixels left */
-      jnc masked8_mmx_loop_end;
-      
-      movq %es:(%esi), %mm1;      /* Read 8 more pixels */
-      movq %mm0, %mm3;
-            
-      pcmpeqw %mm1, %mm3;         /* Compare with mask (%mm3) */
-      pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */
-      maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
-
-      _align_;
-      masked8_mmx_loop_end:
-
-      pushl %ds;                  /* Swap back ES and DS */
+   #define BLIT_CODE                                                                 \
+      movd %ecx, %mm2;            /* Save line length (%mm2) */                      \
+      shrl $4, %ecx;                                                                 \
+                                                                                     \
+      pushl %es;  /* Swap ES and DS */                                               \
+      pushl %ds;                                                                     \
+      popl  %es;                                                                     \
+      popl  %ds;                                                                     \
+                                                                                     \
+      _align_;                                                                       \
+      masked8_mmx_x_loop:                                                            \
+                                                                                     \
+      movq %es:(%esi), %mm1;       /* Read 8 pixels */                               \
+      movq %mm0, %mm3;                                                               \
+      movq %es:8(%esi), %mm5;      /* Read 8 more pixels */                          \
+      movq %mm0, %mm6;                                                               \
+                                                                                     \
+      pcmpeqb %mm1, %mm3;         /* Compare with mask (%mm3/%mm6) */                \
+      pcmpeqb %mm5, %mm6;                                                            \
+      pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */                           \
+      pxor %mm4, %mm6;                                                               \
+      addl $16, %esi;             /* Update src */                                   \
+      maskmovq %mm3, %mm1;        /* Write if not equal to mask. */                  \
+      addl $8, %edi;                                                                 \
+      maskmovq %mm6, %mm5;                                                           \
+                                                                                     \
+      addl $8, %edi;              /* Update dest */                                  \
+                                                                                     \
+      decl %ecx;                  /* Any pixel packs left for this line? */          \
+      jnz masked8_mmx_x_loop;                                                        \
+                                                                                     \
+      movd %mm2, %ecx;            /* Restore pixel count */                          \
+      andl $15, %ecx;                                                                \
+      jz masked8_mmx_loop_end;    /* Nothing else to do? */                          \
+      shrl $1, %ecx;              /* 1 pixels left */                                \
+      jnc masked8_mmx_word;                                                          \
+                                                                                     \
+      movb %es:(%esi), %al;       /* Read 1 pixel */                                 \
+      incl %esi;                                                                     \
+      incl %edi;                                                                     \
+      orb %al, %al;               /* Compare with mask */                            \
+      jz masked8_mmx_word;                                                           \
+      movb %al, -1(%edi);         /* Write the pixel */                              \
+                                                                                     \
+      masked8_mmx_word:                                                              \
+      shrl $1, %ecx;              /* 2 pixels left */                                \
+      jnc masked8_mmx_long;                                                          \
+                                                                                     \
+      movb %es:(%esi), %al;       /* Read 2 pixels */                                \
+      movb %es:1(%esi), %ah;                                                         \
+      addl $2, %esi;                                                                 \
+      addl $2, %edi;                                                                 \
+      orb %al, %al;                                                                  \
+      jz masked8_mmx_word_2;                                                         \
+      movb %al, -2(%edi);         /* Write pixel */                                  \
+                                                                                     \
+      masked8_mmx_word_2:                                                            \
+      orb %ah, %ah;                                                                  \
+      jz masked8_mmx_long;                                                           \
+      movb %ah, -1(%edi);         /* Write other pixel */                            \
+                                                                                     \
+      _align_;                                                                       \
+      masked8_mmx_long:                                                              \
+                                                                                     \
+      shrl $1, %ecx;              /* 4 pixels left */                                \
+      jnc masked8_mmx_qword;                                                         \
+                                                                                     \
+      movl %es:(%esi), %eax;      /* Read 4 pixels */                                \
+      addl $4, %esi;                                                                 \
+      movd %eax, %mm1;                                                               \
+      movl $-1, %eax;                                                                \
+      movq %mm0, %mm3;                                                               \
+      movd %eax, %mm5;            /* Build XOR flag */                               \
+                                                                                     \
+      pcmpeqb %mm1, %mm3;         /* Compare with mask (%mm3/%mm6) */                \
+      pxor %mm5, %mm3;            /* Turn 1->0 and 0->1 */                           \
+      pand %mm5, %mm3;            /* Make sure only the bottom 32 bits are used */   \
+      maskmovq %mm3, %mm1;        /* Write if not equal to mask. */                  \
+      addl $4, %edi;                                                                 \
+                                                                                     \
+      _align_;                                                                       \
+      masked8_mmx_qword:                                                             \
+      shrl $1, %ecx;              /* 8 pixels left */                                \
+      jnc masked8_mmx_loop_end;                                                      \
+                                                                                     \
+      movq %es:(%esi), %mm1;      /* Read 8 more pixels */                           \
+      movq %mm0, %mm3;                                                               \
+                                                                                     \
+      pcmpeqw %mm1, %mm3;         /* Compare with mask (%mm3) */                     \
+      pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */                           \
+      maskmovq %mm3, %mm1;        /* Write if not equal to mask. */                  \
+                                                                                     \
+      _align_;                                                                       \
+      masked8_mmx_loop_end:                                                          \
+                                                                                     \
+      pushl %ds;                  /* Swap back ES and DS */                          \
       popl %es;
-    )
+   BLIT_LOOP(masked8_mmx_loop, 1, BLIT_CODE)
+   #undef BLIT_CODE
    
    emms
    
@@ -647,114 +649,114 @@ FUNC(_linear_masked_blit8)
 	masked8_no_mmx:
 
 
-   BLIT_LOOP(masked16, 1,
-
-      test $1, %ecx ;            /* 16 bit aligned->use new code */
-      jz masked16_blit ;         /* width 16 bit aligned */
-      movb (%esi), %al ;         /* read a byte */
-      incl %esi ;
-      orb %al, %al ;             /* test it */
-      jz masked8_skip ;
-      movb %al, %es:(%edi) ;     /* write the pixel */
-   masked8_skip:
-      incl %edi ;
-      decl %ecx ;
-      jng masked16_blit_end ;
-
-   masked16_blit:
-      test $3, %ecx ;            /* 32 bit aligned->use new code */
-      jz masked16_blit_x_loop ;  /* width 32 bit aligned */
-      movw (%esi), %ax ;         /* read two pixels */
-      orw %ax, %ax ;
-      jz masked16_blit_end2 ;
-      orb %al,%al ;
-      jz masked16_blit_wskip1 ;
-      orb %ah,%ah ;
-      jz masked16_blit_p1wskip2 ;
-      movw %ax, %es:(%edi) ;     /* write the pixel */
-      jmp masked16_blit_end2 ;
-      _align_ ;
-   masked16_blit_p1wskip2:
-      movb %al, %es:(%edi) ;    /* write the pixel */
-      jmp masked16_blit_end2 ;
-      _align_ ;
-   masked16_blit_wskip1:
-      movb %ah, %es:1(%edi) ;    /* write the pixel */
-      _align_ ;
-   masked16_blit_end2:
-      subl $2, %ecx ;
-      jng masked16_blit_end ;
-      addl $2, %esi ;
-      addl $2, %edi ;
-
-      _align_ ;
-   masked16_blit_x_loop:
-      movl (%esi), %eax ;         /* read four pixels */
-      addl $4, %esi ;
-      movl %eax, %edx ;
-      shrl $16,%edx ;
-      orl %eax, %eax ;
-      jz masked16_blit_skip4 ;
-      orw %ax, %ax ;
-      jz masked16_blit_skip2 ;
-      orb %al,%al ;
-      jz masked16_blit_skip1 ;
-      orb %ah, %ah ;
-      jz masked16_put1skip2 ;
-      orb %dl,%dl ;
-      jz masked16_put12_skip3 ;
-      orb %dh,%dh ;
-      jz masked16_put123_skip4 ;
-      movl %eax, %es:(%edi) ;     /* write the pixel */
-      jmp masked16_blit_skip4 ;
-
-      _align_ ;
-   masked16_put1skip2:
-      movb %al, %es:(%edi) ;     /* write the pixel */
-      jmp masked16_blit_skip2 ;
-      _align_ ;
-   masked16_put12_skip3:
-      movw %ax, %es:(%edi) ;     /* write the pixel */
-      orb %dh, %dh ;
-      jnz masked16_blit_skip3 ;
-      jmp masked16_blit_skip4 ;
-      _align_ ;
-   masked16_put123_skip4:
-      movw %ax, %es:(%edi) ;     /* write the pixel */
-      movb %dl, %es:2(%edi) ;     /* write the pixel */
-      addl $4, %edi ;
-      subl $4, %ecx ;
-      jg masked16_blit_x_loop ;
-      jmp masked16_blit_end ;
-
-   masked16_blit_skip1:
-      movb %ah, %es:1(%edi) ;    /* write the pixel */
-   masked16_blit_skip2:
-      orw %dx, %dx ;
-      jz masked16_blit_skip4 ;
-      orb %dl,%dl ;
-      jz masked16_blit_skip3 ;
-      orb %dh, %dh ;
-      jz masked16_put3skip4 ;
-      movw %dx, %es:2(%edi) ;     /* write the pixel */
-      jmp masked16_blit_skip4 ;
-
-      _align_ ;
-   masked16_put3skip4:
-      movb %dl, %es:2(%edi) ;     /* write the pixel */
-      addl $4, %edi ;
-      subl $4, %ecx ;
-      jg masked16_blit_x_loop ;
-      jmp masked16_blit_end ;
-
-   masked16_blit_skip3:
-      movb %dh, %es:3(%edi) ;    /* write the pixel */
-   masked16_blit_skip4:
-      addl $4, %edi ;
-      subl $4, %ecx ;
-      jg masked16_blit_x_loop ;
+   #define BLIT_CODE                                                  \
+      test $1, %ecx ;            /* 16 bit aligned->use new code */   \
+      jz masked16_blit ;         /* width 16 bit aligned */           \
+      movb (%esi), %al ;         /* read a byte */                    \
+      incl %esi ;                                                     \
+      orb %al, %al ;             /* test it */                        \
+      jz masked8_skip ;                                               \
+      movb %al, %es:(%edi) ;     /* write the pixel */                \
+   masked8_skip:                                                      \
+      incl %edi ;                                                     \
+      decl %ecx ;                                                     \
+      jng masked16_blit_end ;                                         \
+                                                                      \
+   masked16_blit:                                                     \
+      test $3, %ecx ;            /* 32 bit aligned->use new code */   \
+      jz masked16_blit_x_loop ;  /* width 32 bit aligned */           \
+      movw (%esi), %ax ;         /* read two pixels */                \
+      orw %ax, %ax ;                                                  \
+      jz masked16_blit_end2 ;                                         \
+      orb %al,%al ;                                                   \
+      jz masked16_blit_wskip1 ;                                       \
+      orb %ah,%ah ;                                                   \
+      jz masked16_blit_p1wskip2 ;                                     \
+      movw %ax, %es:(%edi) ;     /* write the pixel */                \
+      jmp masked16_blit_end2 ;                                        \
+      _align_ ;                                                       \
+   masked16_blit_p1wskip2:                                            \
+      movb %al, %es:(%edi) ;    /* write the pixel */                 \
+      jmp masked16_blit_end2 ;                                        \
+      _align_ ;                                                       \
+   masked16_blit_wskip1:                                              \
+      movb %ah, %es:1(%edi) ;    /* write the pixel */                \
+      _align_ ;                                                       \
+   masked16_blit_end2:                                                \
+      subl $2, %ecx ;                                                 \
+      jng masked16_blit_end ;                                         \
+      addl $2, %esi ;                                                 \
+      addl $2, %edi ;                                                 \
+                                                                      \
+      _align_ ;                                                       \
+   masked16_blit_x_loop:                                              \
+      movl (%esi), %eax ;         /* read four pixels */              \
+      addl $4, %esi ;                                                 \
+      movl %eax, %edx ;                                               \
+      shrl $16,%edx ;                                                 \
+      orl %eax, %eax ;                                                \
+      jz masked16_blit_skip4 ;                                        \
+      orw %ax, %ax ;                                                  \
+      jz masked16_blit_skip2 ;                                        \
+      orb %al,%al ;                                                   \
+      jz masked16_blit_skip1 ;                                        \
+      orb %ah, %ah ;                                                  \
+      jz masked16_put1skip2 ;                                         \
+      orb %dl,%dl ;                                                   \
+      jz masked16_put12_skip3 ;                                       \
+      orb %dh,%dh ;                                                   \
+      jz masked16_put123_skip4 ;                                      \
+      movl %eax, %es:(%edi) ;     /* write the pixel */               \
+      jmp masked16_blit_skip4 ;                                       \
+                                                                      \
+      _align_ ;                                                       \
+   masked16_put1skip2:                                                \
+      movb %al, %es:(%edi) ;     /* write the pixel */                \
+      jmp masked16_blit_skip2 ;                                       \
+      _align_ ;                                                       \
+   masked16_put12_skip3:                                              \
+      movw %ax, %es:(%edi) ;     /* write the pixel */                \
+      orb %dh, %dh ;                                                  \
+      jnz masked16_blit_skip3 ;                                       \
+      jmp masked16_blit_skip4 ;                                       \
+      _align_ ;                                                       \
+   masked16_put123_skip4:                                             \
+      movw %ax, %es:(%edi) ;     /* write the pixel */                \
+      movb %dl, %es:2(%edi) ;     /* write the pixel */               \
+      addl $4, %edi ;                                                 \
+      subl $4, %ecx ;                                                 \
+      jg masked16_blit_x_loop ;                                       \
+      jmp masked16_blit_end ;                                         \
+                                                                      \
+   masked16_blit_skip1:                                               \
+      movb %ah, %es:1(%edi) ;    /* write the pixel */                \
+   masked16_blit_skip2:                                               \
+      orw %dx, %dx ;                                                  \
+      jz masked16_blit_skip4 ;                                        \
+      orb %dl,%dl ;                                                   \
+      jz masked16_blit_skip3 ;                                        \
+      orb %dh, %dh ;                                                  \
+      jz masked16_put3skip4 ;                                         \
+      movw %dx, %es:2(%edi) ;     /* write the pixel */               \
+      jmp masked16_blit_skip4 ;                                       \
+                                                                      \
+      _align_ ;                                                       \
+   masked16_put3skip4:                                                \
+      movb %dl, %es:2(%edi) ;     /* write the pixel */               \
+      addl $4, %edi ;                                                 \
+      subl $4, %ecx ;                                                 \
+      jg masked16_blit_x_loop ;                                       \
+      jmp masked16_blit_end ;                                         \
+                                                                      \
+   masked16_blit_skip3:                                               \
+      movb %dh, %es:3(%edi) ;    /* write the pixel */                \
+   masked16_blit_skip4:                                               \
+      addl $4, %edi ;                                                 \
+      subl $4, %ecx ;                                                 \
+      jg masked16_blit_x_loop ;                                       \
    masked16_blit_end:
-   )
+   BLIT_LOOP(masked16, 1, BLIT_CODE)
+   #undef BLIT_CODE
 
 masked8_end:
 

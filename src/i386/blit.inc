@@ -22,7 +22,7 @@
 
 
 /* generic framework for constructing blitting routines, shared 
- * between the 8, 16, 24, and 32 bit versions of the code...
+ * between the 8, 16, 24, and 32 bit versions of the code.
  */
 
 
@@ -37,7 +37,7 @@
 
 
 
-#define BLIT_LOOP(name, bpp, code...)                                        \
+#define BLIT_LOOP(name, bpp, code)                                           \
 blit_loop_##name:                                                          ; \
    movl B_DEST, %edx             /* destination bitmap */                  ; \
    movl B_DEST_Y, %eax           /* line number */                         ; \

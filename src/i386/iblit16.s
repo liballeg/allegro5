@@ -333,78 +333,81 @@ blit_longsmmx:
 
    _align_
 blit_mmxlong_long:               /* blit longs64 and long */
-   BLIT_LOOP(long_longsmmx, 2,
-   even_llmmx_loop:
-      movq %ds:(%esi), %mm0 ;
-      addl $8, %esi ;
-      movq %mm0, %es:(%edi) ;
-      addl $8, %edi ;
-      decl %ecx ;
-      jnz even_llmmx_loop ;
+   #define BLIT_CODE              \
+   even_llmmx_loop:               \
+      movq %ds:(%esi), %mm0 ;     \
+      addl $8, %esi ;             \
+      movq %mm0, %es:(%edi) ;     \
+      addl $8, %edi ;             \
+      decl %ecx ;                 \
+      jnz even_llmmx_loop ;       \
       movsl
-   )
+   BLIT_LOOP(long_longsmmx, 2, BLIT_CODE)
+   #undef BLIT_CODE
    emms
    jmp blit_done
 
    _align_
 blit_mmxlong_word:
-   BLIT_LOOP(word_longsmmx, 2,
-   even_wlmmx_loop:
-      movq %ds:(%esi), %mm0 ;
-      addl $8, %esi ;
-      movq %mm0, %es:(%edi) ;
-      addl $8, %edi ;
-      decl %ecx ;
-      jnz even_wlmmx_loop ;
-      movsl ;
+   #define BLIT_CODE              \
+   even_wlmmx_loop:               \
+      movq %ds:(%esi), %mm0 ;     \
+      addl $8, %esi ;             \
+      movq %mm0, %es:(%edi) ;     \
+      addl $8, %edi ;             \
+      decl %ecx ;                 \
+      jnz even_wlmmx_loop ;       \
+      movsl ;                     \
       movsw
-   )
+   BLIT_LOOP(word_longsmmx, 2, BLIT_CODE)
+   #undef BLIT_CODE
    emms
    jmp blit_done
 
    _align_
 blit_even_wmmxlongs:
-   BLIT_LOOP(word_wlongsmmx, 2,
-   even_wmmx_loop:
-      movq %ds:(%esi), %mm0 ;
-      addl $8, %esi ;
-      movq %mm0, %es:(%edi) ;
-      addl $8, %edi ;
-      decl %ecx ;
-      jnz even_wmmx_loop ;
+   #define BLIT_CODE              \
+   even_wmmx_loop:                \
+      movq %ds:(%esi), %mm0 ;     \
+      addl $8, %esi ;             \
+      movq %mm0, %es:(%edi) ;     \
+      addl $8, %edi ;             \
+      decl %ecx ;                 \
+      jnz even_wmmx_loop ;        \
       movsw
-   )
+   BLIT_LOOP(word_wlongsmmx, 2, BLIT_CODE)
+   #undef BLIT_CODE
    emms
    jmp blit_done
 
    _align_
 blit_even_mmxlongs:
-   BLIT_LOOP(even_longsmmx, 2,
-   even_lmmx_loop:
-      movq %ds:(%esi), %mm0 ;
-      addl $8, %esi ;
-      movq %mm0, %es:(%edi) ;
-      addl $8, %edi ;
-      decl %ecx ;
+   #define BLIT_CODE              \
+   even_lmmx_loop:                \
+      movq %ds:(%esi), %mm0 ;     \
+      addl $8, %esi ;             \
+      movq %mm0, %es:(%edi) ;     \
+      addl $8, %edi ;             \
+      decl %ecx ;                 \
       jnz even_lmmx_loop
-   )
+   BLIT_LOOP(even_longsmmx, 2, BLIT_CODE)
+   #undef BLIT_CODE
    emms
    jmp blit_done
 
    _align_
 blit_long_word:
-   BLIT_LOOP(long_word, 2,
-      movsl ;
+   #define BLIT_CODE              \
+      movsl ;                     \
       movsw
-   )
+   BLIT_LOOP(long_word, 2, BLIT_CODE)
+   #undef BLIT_CODE
    emms
    jmp blit_done
 
    _align_
 blit_only_one_long:
-   BLIT_LOOP(only_one_wordmmx, 2,
-      movsl
-   )
+   BLIT_LOOP(only_one_wordmmx, 2, movsl)
    emms
    jmp blit_done
 
@@ -418,24 +421,24 @@ blit_no_mmx:
    jnc blit_even_words
 
    _align_
-   BLIT_LOOP(longs_and_word, 2,  /* long at a time, plus leftover word */
-      rep ; movsl ;
+   #define BLIT_CODE              \
+      rep ; movsl ;               \
       movsw
-   )
+   BLIT_LOOP(longs_and_word, 2, BLIT_CODE)  /* long at a time, plus leftover word */
+   #undef BLIT_CODE
    jmp blit_done
 
    _align_
-blit_even_words: 
-   BLIT_LOOP(even_words, 2,      /* copy a long at a time */
+blit_even_words:
+   #define BLIT_CODE              \
       rep ; movsl
-   )
+   BLIT_LOOP(even_words, 2, BLIT_CODE)  /* copy a long at a time */
+   #undef BLIT_CODE
    jmp blit_done
 
    _align_
 blit_only_one_word: 
-   BLIT_LOOP(only_one_word, 2,   /* copy just the one word */
-      movsw
-   )
+   BLIT_LOOP(only_one_word, 2, movsw)  /* copy just the one word */
 
    _align_
 blit_done:
@@ -579,91 +582,93 @@ FUNC(_linear_masked_blit16)
    por  %mm1, %mm0
    
    pcmpeqd %mm4, %mm4            /* Create inverter mask */
-  
-   BLIT_LOOP(masked16_mmx_loop, 2,
-      movd %ecx, %mm2;            /* Save line length (%mm2) */
-      shrl $3, %ecx;
-      movl V_MASK, %edx;          /* Save 32 bit mask */
-      
-      pushl %es;  /* Swap ES and DS */
-      pushl %ds;
+
+   /* ??? maskmovq is an SSE instruction! */
+
+   #define BLIT_CODE                                                          \
+      movd %ecx, %mm2;            /* Save line length (%mm2) */               \
+      shrl $3, %ecx;                                                          \
+      movl V_MASK, %edx;          /* Save 32 bit mask */                      \
+                                                                              \
+      pushl %es;  /* Swap ES and DS */                                        \
+      pushl %ds;                                                              \
+      popl  %es;                                                              \
+      popl  %ds;                                                              \
+                                                                              \
+      _align_;                                                                \
+      masked16_mmx_x_loop:                                                    \
+                                                                              \
+      movq %es:(%esi), %mm1;       /* Read 4 pixels */                        \
+      movq %mm0, %mm3;                                                        \
+      movq %es:8(%esi), %mm5;      /* Read 4 more pixels */                   \
+      movq %mm0, %mm6;                                                        \
+                                                                              \
+      pcmpeqw %mm1, %mm3;         /* Compare with mask (%mm3/%mm6) */         \
+      pcmpeqw %mm5, %mm6;                                                     \
+      pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */                    \
+      pxor %mm4, %mm6;                                                        \
+      addl $16, %esi;             /* Update src */                            \
+      maskmovq %mm3, %mm1;        /* Write if not equal to mask. */           \
+      addl $8, %edi;                                                          \
+      maskmovq %mm6, %mm5;                                                    \
+                                                                              \
+      addl $8, %edi;              /* Update dest */                           \
+                                                                              \
+      decl %ecx;                  /* Any pixel packs left for this line? */   \
+      jnz masked16_mmx_x_loop;                                                \
+                                                                              \
+      movd %mm2, %ecx;            /* Restore pixel count */                   \
+      andl $7, %ecx;                                                          \
+      jz masked16_mmx_loop_end;   /* Nothing else to do? */                   \
+      shrl $1, %ecx;              /* 1 pixels left */                         \
+      jnc masked16_mmx_long;                                                  \
+                                                                              \
+      movw %es:(%esi), %ax;       /* Read 1 pixel */                          \
+      addl $2, %esi;                                                          \
+      addl $2, %edi;                                                          \
+      cmpw %ax, %dx;              /* Compare with mask */                     \
+      je masked16_mmx_long;                                                   \
+      movw %ax, -2(%edi);         /* Write the pixel */                       \
+                                                                              \
+      masked16_mmx_long:                                                      \
+                                                                              \
+      shrl $1, %ecx;              /* 2 pixels left */                         \
+      jnc masked16_mmx_qword;                                                 \
+                                                                              \
+      movl %es:(%esi), %eax;      /* Read 2 pixels */                         \
+      addl $4, %esi;                                                          \
+      addl $4, %edi;                                                          \
+      cmpw %ax, %dx;              /* Compare with mask */                     \
+      je masked16_mmx_long_2;                                                 \
+      movw %ax, -4(%edi);         /* Write pixel */                           \
+                                                                              \
+      masked16_mmx_long_2:                                                    \
+      shrl $16, %eax;                                                         \
+      shrl $16, %edx;                                                         \
+      cmpl %eax, %edx;                                                        \
+      je masked16_mmx_qword;                                                  \
+      movw %ax, -2(%edi);                                                     \
+                                                                              \
+      _align_;                                                                \
+      masked16_mmx_qword:                                                     \
+      shrl $1, %ecx;              /* 4 pixels left */                         \
+      jnc masked16_mmx_loop_end;                                              \
+                                                                              \
+      movq %es:(%esi), %mm1;      /* Read 4 more pixels */                    \
+      movq %mm0, %mm3;                                                        \
+                                                                              \
+      pcmpeqw %mm1, %mm3;         /* Compare with mask (%mm3, %mm6) */        \
+      pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */                    \
+      maskmovq %mm3, %mm1;        /* Write if not equal to mask. */           \
+                                                                              \
+      _align_;                                                                \
+      masked16_mmx_loop_end:                                                  \
+                                                                              \
+      pushl %ds;                  /* Swap back ES and DS */                   \
       popl  %es;
-      popl  %ds;
-      
-      _align_;
-      masked16_mmx_x_loop:
+   BLIT_LOOP(masked16_mmx_loop, 2, BLIT_CODE)
+   #undef BLIT_CODE
 
-      movq %es:(%esi), %mm1;       /* Read 4 pixels */
-      movq %mm0, %mm3;
-      movq %es:8(%esi), %mm5;      /* Read 4 more pixels */
-      movq %mm0, %mm6;
-            
-      pcmpeqw %mm1, %mm3;         /* Compare with mask (%mm3/%mm6) */
-      pcmpeqw %mm5, %mm6;
-      pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */
-      pxor %mm4, %mm6;
-      addl $16, %esi;             /* Update src */
-      maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
-      addl $8, %edi;
-      maskmovq %mm6, %mm5;
-
-      addl $8, %edi;              /* Update dest */
-      
-      decl %ecx;                  /* Any pixel packs left for this line? */
-      jnz masked16_mmx_x_loop;
-
-   
-      movd %mm2, %ecx;            /* Restore pixel count */
-      andl $7, %ecx;
-      jz masked16_mmx_loop_end;   /* Nothing else to do? */
-      shrl $1, %ecx;              /* 1 pixels left */
-      jnc masked16_mmx_long;
-            
-      movw %es:(%esi), %ax;       /* Read 1 pixel */
-      addl $2, %esi;
-      addl $2, %edi;
-      cmpw %ax, %dx;              /* Compare with mask */
-      je masked16_mmx_long;
-      movw %ax, -2(%edi);         /* Write the pixel */
-      
-      masked16_mmx_long:
-      
-      shrl $1, %ecx;              /* 2 pixels left */
-      jnc masked16_mmx_qword;
-      
-      movl %es:(%esi), %eax;      /* Read 2 pixels */
-      addl $4, %esi;
-      addl $4, %edi;
-      cmpw %ax, %dx;              /* Compare with mask */
-      je masked16_mmx_long_2;
-      movw %ax, -4(%edi);         /* Write pixel */
-      
-      masked16_mmx_long_2:
-      shrl $16, %eax;
-      shrl $16, %edx;
-      cmpl %eax, %edx;
-      je masked16_mmx_qword;
-      movw %ax, -2(%edi);
-     
-      _align_;
-      masked16_mmx_qword:
-      shrl $1, %ecx;              /* 4 pixels left */
-      jnc masked16_mmx_loop_end;
-      
-      movq %es:(%esi), %mm1;      /* Read 4 more pixels */
-      movq %mm0, %mm3;
-            
-      pcmpeqw %mm1, %mm3;         /* Compare with mask (%mm3, %mm6) */
-      pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */
-      maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
-
-      _align_;
-      masked16_mmx_loop_end:
-
-      pushl %ds;                  /* Swap back ES and DS */
-      popl  %es;
-    )
-   
    emms
    
    jmp masked16_end;
@@ -673,42 +678,42 @@ FUNC(_linear_masked_blit16)
 	_align_
 	masked16_no_mmx:
 
-   BLIT_LOOP(masked32, 2,
-
-      movl V_MASK, %edx ;
-
-      test $1, %ecx ;             /* 32 bit aligned->use new code */
-      jz masked32_blit_x_loop ;
-      movw (%esi), %ax ;          /* read a pixel */
-      cmpw %ax, %dx ;             /* test it */
-      je masked16_blit_skip ;
-      movw %ax, %es:(%edi) ;      /* write the pixel */
-   masked16_blit_skip:
-      decl %ecx ;
-      jng masked32_blit_end ;
-      addl $2, %esi ;
-      addl $2, %edi ;
-
-      _align_ ;
-   masked32_blit_x_loop:
-      movl (%esi), %eax ;        /* read two pixels */
-      addl $4, %esi ;
-      cmpl %eax, %edx ;          /* test it */
-      je masked32_blit_skip2 ;
-      cmpw %ax, %dx ;            /* test it */
-      je masked32_blit_skip1 ;
-      movw %ax, %es:(%edi) ;     /* write the pixel */
-   masked32_blit_skip1:
-      shrl $16, %eax ;
-      cmpw %ax, %dx ;            /* test it */
-      je masked32_blit_skip2 ;
-      movw %ax, %es:2(%edi) ;    /* write the pixel */
-   masked32_blit_skip2:
-      addl $4, %edi ;
-      subl $2, %ecx ;
-      jg masked32_blit_x_loop ;
+   #define BLIT_CODE                                                   \
+       movl V_MASK, %edx ;                                             \
+                                                                       \
+      test $1, %ecx ;             /* 32 bit aligned->use new code */   \
+      jz masked32_blit_x_loop ;                                        \
+      movw (%esi), %ax ;          /* read a pixel */                   \
+      cmpw %ax, %dx ;             /* test it */                        \
+      je masked16_blit_skip ;                                          \
+      movw %ax, %es:(%edi) ;      /* write the pixel */                \
+   masked16_blit_skip:                                                 \
+      decl %ecx ;                                                      \
+      jng masked32_blit_end ;                                          \
+      addl $2, %esi ;                                                  \
+      addl $2, %edi ;                                                  \
+                                                                       \
+      _align_ ;                                                        \
+   masked32_blit_x_loop:                                               \
+      movl (%esi), %eax ;        /* read two pixels */                 \
+      addl $4, %esi ;                                                  \
+      cmpl %eax, %edx ;          /* test it */                         \
+      je masked32_blit_skip2 ;                                         \
+      cmpw %ax, %dx ;            /* test it */                         \
+      je masked32_blit_skip1 ;                                         \
+      movw %ax, %es:(%edi) ;     /* write the pixel */                 \
+   masked32_blit_skip1:                                                \
+      shrl $16, %eax ;                                                 \
+      cmpw %ax, %dx ;            /* test it */                         \
+      je masked32_blit_skip2 ;                                         \
+      movw %ax, %es:2(%edi) ;    /* write the pixel */                 \
+   masked32_blit_skip2:                                                \
+      addl $4, %edi ;                                                  \
+      subl $2, %ecx ;                                                  \
+      jg masked32_blit_x_loop ;                                        \
    masked32_blit_end:
-   )
+   BLIT_LOOP(masked32, 2, BLIT_CODE)
+   #undef BLIT_CODE
 
 masked16_end:
 

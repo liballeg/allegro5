@@ -30,7 +30,7 @@
  * bank is currently selected and only executes the provided code if it
  * needs to change bank.
  */
-#define BANK_SWITCHER(name, cache, code...)                                  \
+#define BANK_SWITCHER(name, cache, code)                                     \
    pushl %eax                                                              ; \
 									   ; \
    addl BMP_YOFFSET(%edx), %eax              /* add line offset */         ; \
