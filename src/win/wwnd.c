@@ -70,6 +70,7 @@ static UINT msg_acquire_mouse = 0;
 static UINT msg_unacquire_mouse = 0;
 static UINT msg_acquire_joystick = 0;
 static UINT msg_unacquire_joystick = 0;
+static UINT msg_set_syscursor = 0;
 static UINT msg_suicide = 0;
 
 
@@ -190,6 +191,16 @@ void wnd_unacquire_joystick(void)
 
 
 
+/* wnd_set_syscursor:
+ *  posts msg to window to set the system mouse cursor
+ */
+void wnd_set_syscursor(int state)
+{
+   PostMessage(allegro_wnd, msg_set_syscursor, state, 0);
+}
+
+
+
 /* directx_wnd_proc:
  *  window proc for the Allegro window class
  */
@@ -217,6 +228,9 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
    if (message == msg_unacquire_joystick)
       return joystick_dinput_unacquire();
+
+   if (message == msg_set_syscursor)
+      return mouse_set_syscursor(wparam);
 
    if (message == msg_suicide) {
       DestroyWindow(wnd);
@@ -326,14 +340,9 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
             return TRUE;
          break;
 
-      case WM_SETCURSOR:
-         if (!user_wnd_proc || _mouse_installed)
-            return mouse_set_syscursor();
-         break;
-
       case WM_INITMENUPOPUP:
          wnd_sysmenu = TRUE;
-         mouse_set_sysmenu();
+         mouse_set_sysmenu(TRUE);
 
          if (win_gfx_driver && win_gfx_driver->enter_sysmode)
             win_gfx_driver->enter_sysmode();
@@ -342,7 +351,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       case WM_MENUSELECT:
          if ((HIWORD(wparam) == 0xFFFF) && (!lparam)) {
             wnd_sysmenu = FALSE;
-            mouse_set_sysmenu();
+            mouse_set_sysmenu(FALSE);
 
             if (win_gfx_driver && win_gfx_driver->exit_sysmode)
                win_gfx_driver->exit_sysmode();
@@ -496,6 +505,7 @@ int init_directx_window(void)
    msg_unacquire_mouse = RegisterWindowMessage("Allegro mouse unacquire proc");
    msg_acquire_joystick = RegisterWindowMessage("Allegro joystick acquire proc");
    msg_unacquire_joystick = RegisterWindowMessage("Allegro joystick unacquire proc");
+   msg_set_syscursor = RegisterWindowMessage("Allegro mouse cursor proc");
    msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
    /* prepare window for Allegro */
