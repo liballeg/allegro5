@@ -11,10 +11,9 @@ Packager: Allegro development team <conductors@canvaslink.com>
 Group: System/Libraries
 Source: ftp://sunsite.dk/allegro/%{name}-%{version}.tar.gz
 URL: http://alleg.sourceforge.net
-# If you don't have the icon, just comment it out.
-#Icon: alex.xpm
 Buildroot: %{_tmppath}/%{name}-buildroot
-BuildRequires: texinfo
+# Older rpms don't support this; just make sure you have it.
+#BuildRequires: texinfo
 # Automatic dependency generation picks up module dependencies
 # which is exactly what we don't want...
 Autoreq: off
@@ -164,16 +163,16 @@ rm -rf %{buildroot}
 %{_bindir}/textconv
 
 %changelog
-* Mon Sep 24 2001 Peter Wang <tjaden@users.sourceforge.net>  3.9.39-3
+* Mon Sep 24 2001 Peter Wang <tjaden@users.sourceforge.net>  3.9.39-1
 - remaining translations by Eric Botcazou and Grzegorz Adam Hankiewicz
 
-* Sun Sep 23 2001 Peter Wang <tjaden@users.sourceforge.net>  3.9.39-2
+* Sun Sep 23 2001 Peter Wang <tjaden@users.sourceforge.net>
 - translations by Eric Botcazou and Javier González
 - language.dat and keyboard.dat moved to main package
 - devel split into devel and tools packages
 - makedoc added to tools package
 
-* Wed Sep 16 2001 Peter Wang <tjaden@users.sourceforge.net>  3.9.39-1
+* Wed Sep 16 2001 Peter Wang <tjaden@users.sourceforge.net>
 - merged Osvaldo's spec file with gfoot's spec and some other changes
 
 * Wed Sep 27 2000 Osvaldo Santana Neto <osvaldo@conectiva.com>
