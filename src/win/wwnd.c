@@ -225,8 +225,11 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          mouse_set_syscursor();
          return 1;  /* not TRUE */
 
-      case WM_ACTIVATEAPP:
-         if ((BOOL)wparam) {  /* not TRUE */
+      case WM_ACTIVATE:
+         if (LOWORD(wparam) == WA_INACTIVE) {
+            sys_switch_out();
+         }
+         else {
             if (gfx_driver && !gfx_driver->windowed) {
                /* 1.2s delay to let Windows complete the switch in fullscreen mode */
                SetTimer(allegro_wnd, SWITCH_TIMER, 1200, NULL);
@@ -235,9 +238,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
                /* no delay in windowed mode */
                sys_switch_in();
             }
-         }
-         else {
-            sys_switch_out();
          }
          break;
 
