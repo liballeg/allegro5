@@ -41,8 +41,8 @@
    a mixture of metaphors? :-)
 
    A wide range of extension packages and add-on modules are also available, 
-   which can be found in the "Library Extensions" section of the Allegro 
-   website, http://www.talula.demon.co.uk/allegro/.
+   which can be found in the "Library Extensions" section of the Allegro.cc
+   website, http://www.allegro.cc/.
 
    According to the Oxford Companion to Music, Allegro is the Italian for 
    "quick, lively, bright". It is also a recursive acronym which stands for 
@@ -247,7 +247,7 @@
 ======================================
 
    The latest version of Allegro can always be found on the Allegro 
-   homepage, http://www.talula.demon.co.uk/allegro/.
+   homepage, http://alleg.sourceforge.net/.
 
    There are three mailing lists for Allegro-related discussion, each with a 
    slightly different purpose.

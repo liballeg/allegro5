@@ -2210,7 +2210,7 @@ int main(int argc, char *argv[])
    set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
 
    if (end_text) {
-      allegro_message("%shttp://www.talula.demon.co.uk/allegro/\n\n", end_text);
+      allegro_message("%shttp://alleg.sourceforge.net/\n\n", end_text);
       free(end_text);
    }
 

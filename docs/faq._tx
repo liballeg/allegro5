@@ -46,7 +46,7 @@ Trivial problems
 @@   Where can I get it?
 </h4>
       From any SimTel mirror, in the directory gnu/djgpp/v2tk/, or from the 
-      Allegro homepage, <link>http://www.talula.demon.co.uk/allegro/</a>.
+      Allegro homepage, <link>http://alleg.sourceforge.net/</a>.
 
 <h4><li>
 @@   How do I use it?
@@ -322,7 +322,7 @@ General problems
       WIP stands for "work in progress", and refers to any changes that are 
       more recent than the last official release. WIP versions of the 
       library can be obtained as patches from the Allegro website 
-      (<link>http://www.talula.demon.co.uk/allegro/</a>), and are usually 
+      (<link>http://alleg.sourceforge.net/</a>), and are usually
       quite stable, although obviously not so well tested as a final release 
       version.
 
@@ -355,7 +355,7 @@ General problems
 <h4><li>
 @@   How can I convert my graphics to all use the same 256 color palette?
 </h4>
-      See the Allegro homepage (<link>http://www.talula.demon.co.uk/allegro/</a>)
+      See the Allegro.cc homepage (<link>http://www.allegro.cc/</a>)
       for some utilities, for example FixPal and Smacker.
 
 <h4><li>
@@ -403,7 +403,7 @@ General problems
 <h4><li>
 @@   How can I generate FLI or FLC format animations?
 </h4>
-      See the Allegro homepage (<link>http://www.talula.demon.co.uk/allegro/</a>)
+      See the Allegro.cc homepage (<link>http://www.allegro.cc/</a>)
       for some utilities, for example DTA and Smacker.
 
 <h4><li>
@@ -530,8 +530,8 @@ General problems
 @@   Why not add a MOD playing function?
 </h4>
       Several very good ones already exist, for instance the JGMOD package. 
-      See the links on the Allegro website 
-      (<link>http://www.talula.demon.co.uk/allegro/</a>). You are not 
+      See the audio library extensions section on the Allegro.cc website
+      (<link>http://www.allegro.cc/</a>). You are not
       allowed to suggest that one of these libraries be merged into Allegro, 
       because this topic has already been done to death on the mailing list 
       and I am tired of it.
@@ -585,7 +585,7 @@ General problems
 <h4><li>
 @@   Where can I find a set of instrument samples for the DIGMID driver?
 </h4>
-      See the Allegro homepage (<link>http://www.talula.demon.co.uk/allegro/</a>)
+      See the Allegro homepage (<link>http://alleg.sourceforge.net/</a>)
       for some links. You can use Gravis patches (.pat format), or SoundFont 
       2.0 (.sf2) files, but the latter must be converted into a patches.dat 
       file with the pat2dat utility.
@@ -614,8 +614,8 @@ General problems
 <h4><li>
 @@   Where can I find example source code, add-on packages, and tutorials?
 </h4>
-      Check the Allegro homepage, <link>http://www.talula.demon.co.uk/allegro/</a>.
-      If you have anything to add to this, please send me the URL!
+      Check the Allegro.cc homepage, <link>http://www.allegro.cc/</a>.
+      If you have anything to add to this, please post the URL!
 
 <h4><li>
 @@   Why is it considered good coding practice to define PI as a constant, 
@@ -650,7 +650,7 @@ General problems
 <h4><li>
 @@   I'm still confused. Where can I get help?
 </h4>
-      See <link>http://www.talula.demon.co.uk/allegro/maillist.html</a>.
+      See <link>http://alleg.sourceforge.net/maillist.html</a>.
 </ul>
 @</body>
 @</html>

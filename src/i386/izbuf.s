@@ -9,7 +9,7 @@
  *                                           \_/__/
  *      By Shawn Hargreaves
  *      shawn@talula.demon.co.uk
- *      http://www.talula.demon.co.uk/allegro/
+ *      http://alleg.sourceforge.net/
  *
  *      Z-buffered polygon scanline filler helpers (gouraud shading, tmapping,
  *	etc). Uses MMX instructions when possible, but these will be #ifdef'ed
