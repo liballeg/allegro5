@@ -151,9 +151,8 @@ Features
    supports WaveOut and DirectSound interfaces and the system MIDI drivers. 
    Unix version supports OSS, ESD, and ALSA sound drivers. BeOS version 
    supports BSoundPlayer and BMidiSynth interfaces. MacOS X native version 
-   supports direct Sound Manager access for digital audio and QuickTime 
-   Note Allocator interface for MIDI output. All versions provide software 
-   wavetable MIDI playback.
+   supports CoreAudio, Carbon Sound Manager and QuickTime Note Allocator 
+   interfaces. All versions provide software wavetable MIDI playback.
 <li>
    Easy access to the mouse, keyboard, joystick, and high resolution timer
    interrupts, including a vertical retrace interrupt simulator in the DOS 

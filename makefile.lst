@@ -330,6 +330,8 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/misc/pckeys.c
 
 ALLEGRO_SRC_MACOSX_FILES = \
+	src/macosx/cadigi.m \
+	src/macosx/camidi.m \
 	src/macosx/drivers.m \
 	src/macosx/hidjoy.m \
 	src/macosx/hidman.m \

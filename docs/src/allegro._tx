@@ -9460,7 +9460,9 @@ MacOS X specifics
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
-      DIGI_SOUND_MANAGER   - Sound Manager digital output<endblock>
+      DIGI_CORE_AUDIO      - CoreAudio digital output (OS >= X.2 required)
+      DIGI_SOUND_MANAGER   - Carbon Sound Manager digital output
+<endblock>
 
 @@Drivers @MIDI_*/MacOSX
 @xref detect_midi_driver, install_sound, install_sound_input
@@ -9468,6 +9470,7 @@ MacOS X specifics
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
+      MIDI_CORE_AUDIO      - CoreAudio MIDI synthesizer (OS >= X.2 required)
       MIDI_QUICKTIME       - QuickTime Music Note Allocator MIDI output
       MIDI_DIGMID          - sample-based software wavetable player
 <endblock>

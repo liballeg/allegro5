@@ -167,7 +167,7 @@ static int osx_digi_sound_init(int input, int voices)
    Gestalt(gestaltSoundAttr, &sound_caps);
    
    if (_sound_stereo >= 0) {
-      if (_sound_stereo != ((sound_caps & (1 << gestaltStereoCapability)) ? TRUE : FALSE)) {
+      if (_sound_stereo && (sound_caps & (1 << gestaltStereoCapability))) {
          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Stereo output not supported"));
 	 return -1;
       }

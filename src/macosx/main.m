@@ -105,12 +105,6 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
       }
    }
    
-   /* QuickTime Note Allocator seems not to like being initialized from a
-    * secondary thread, so we open it here.
-    */
-   if (EnterMovies() == noErr)
-      osx_note_allocator = OpenDefaultComponent(kNoteAllocatorComponentType, 0);
-   
    mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
    if (refresh_rate <= 0)
@@ -169,15 +163,12 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 {
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    int (*real_main) (int, char*[]) = (int (*) (int, char*[])) _mangled_main_address;
-   int result;
    
    /* Wait for the app to become active */
    while (![NSApp isActive]);
    
    /* Call the user main() */
-   result = real_main(__crt0_argc, __crt0_argv);
-   CloseComponent(osx_note_allocator);
-   exit(result);
+   exit(real_main(__crt0_argc, __crt0_argv));
    
    [pool release];
 }

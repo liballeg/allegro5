@@ -53,11 +53,13 @@ END_GFX_DRIVER_LIST
 
 
 BEGIN_DIGI_DRIVER_LIST
+{   DIGI_CORE_AUDIO,          &digi_core_audio,         TRUE  },
 {   DIGI_SOUND_MANAGER,       &digi_sound_manager,      TRUE  },
 END_DIGI_DRIVER_LIST
 
 
 BEGIN_MIDI_DRIVER_LIST
+{   MIDI_CORE_AUDIO,          &midi_core_audio,         TRUE  },
 {   MIDI_QUICKTIME,           &midi_quicktime,          TRUE  },
 END_MIDI_DRIVER_LIST
 
