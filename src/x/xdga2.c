@@ -319,13 +319,13 @@ static void _xdga2_handle_input(void)
          case KeyPress:
             XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
 	    key.type -= dga_event_base;
-	    x_keyboard_handler (&key);
+	    _xwin_keyboard_handler (&key);
             break;
 
          case KeyRelease:
 	    XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
 	    key.type -= dga_event_base;
-	    x_keyboard_handler (&key);
+	    _xwin_keyboard_handler (&key);
             break;
 
          case ButtonPress:
