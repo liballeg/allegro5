@@ -289,7 +289,7 @@ Unix problems
       of your argv[] parameters (it needs those for various internal things).
 
 <h4><li>
-@@   Compile errors scroll off the screen too quickly for me to read them!
+@@   Compile errors scroll off the screen way too quickly for me to read them!
 </h4>
       You need to redirect stderr into a file, so you can view them later. 
       The method for doing this depends on your shell: if you are using a 
