@@ -80,7 +80,9 @@ static int refresh_rate = 70;
 BeAllegroWindow	    *be_allegro_window	    = NULL;
 BeAllegroView	    *be_allegro_view	    = NULL;
 BeAllegroScreen	    *be_allegro_screen	    = NULL; 
- 
+
+void (*be_window_close_hook)() = NULL;
+
 static uint32 cmap[0x1000];
 static uint32 rmap[256];
 static uint32 gmap[256];
@@ -394,6 +396,7 @@ static inline void change_focus(bool active)
                if (_be_switch_mode == SWITCH_BACKAMNESIA)
                   break;
             case SWITCH_PAUSE:
+               be_key_resume();
                be_sound_resume();
                be_time_resume();
                be_sys_resume();
@@ -419,6 +422,7 @@ static inline void change_focus(bool active)
             case SWITCH_PAUSE:
                if (be_midisynth)
                   be_midisynth->AllNotesOff(false);
+               be_key_suspend();
                be_sound_suspend();
                be_time_suspend();
                be_sys_suspend();
@@ -427,6 +431,24 @@ static inline void change_focus(bool active)
          }
       }
    }
+}
+
+
+
+static inline bool handle_window_close(const char *title)
+{
+   if (be_window_close_hook != NULL) {
+      be_window_close_hook();
+   }
+   else {
+      BAlert *close_alert = new BAlert(title,
+         uconvert_toascii(get_config_text(ALLEGRO_WINDOW_CLOSE_MESSAGE), NULL),
+         "Yes", "No", NULL, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
+      close_alert->SetShortcut(1, B_ESCAPE);
+      if (close_alert->Go() == 0)
+         be_terminate(0, false);
+   }
+   return false;
 }
 
 
@@ -460,7 +482,7 @@ void BeAllegroScreen::ScreenConnected(bool connected)
  */
 bool BeAllegroScreen::QuitRequested(void)
 {
-   return false;
+   return handle_window_close(be_allegro_screen->Title());
 }
 
 
@@ -1169,7 +1191,7 @@ void BeAllegroWindow::WindowActivated(bool active)
  */
 bool BeAllegroWindow::QuitRequested(void)
 {
-    return false;
+    return handle_window_close(be_allegro_window->Title());
 }
 
 

@@ -495,7 +495,7 @@ static int32 keyboard_thread(void *keyboard_started)
           (_key_shifts & KB_CTRL_FLAG) &&
           (_key_shifts & KB_ALT_FLAG)  &&
           (key_info_new.key_states[52 / 8] & (52 % 8)) ) {
-         be_terminate(keyboard_thread_id);
+         be_terminate(keyboard_thread_id, true);
       }
 
       for(i = 0; i < 16; i++) {

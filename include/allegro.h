@@ -121,6 +121,11 @@ AL_FUNC(void, lock_midi, (struct MIDI *midi));
 
 AL_PRINTFUNC(void, allegro_message, (AL_CONST char *msg, ...), 1, 2);
 
+#define ALLEGRO_WINDOW_CLOSE_MESSAGE                                         \
+   "Warning: forcing program shutdown may lead to data loss and unexpected " \
+   "results. It is preferable to use the exit command inside the window.\n\n" \
+   "Proceed anyway?"
+
 AL_FUNC(void, al_assert, (AL_CONST char *file, int line));
 AL_PRINTFUNC(void, al_trace, (AL_CONST char *msg, ...), 1, 2);
 

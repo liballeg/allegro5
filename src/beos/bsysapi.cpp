@@ -276,9 +276,35 @@ extern "C" void be_sys_set_window_title(AL_CONST char *name)
    if (be_allegro_window != NULL) {
       be_allegro_window->SetTitle(uname);
    }
-   else {
+   else if (be_allegro_screen != NULL) {
       be_allegro_screen->SetTitle(uname);
    }
+}
+
+
+
+extern "C" int be_sys_set_window_close_button(int enable)
+{
+   if (be_allegro_window != NULL) {
+      if (enable)
+         be_allegro_window->SetFlags(be_allegro_window->Flags() & ~B_NOT_CLOSABLE);
+      else
+         be_allegro_window->SetFlags(be_allegro_window->Flags() | B_NOT_CLOSABLE);
+   }
+   else if (be_allegro_screen != NULL) {
+      if (enable)
+         be_allegro_screen->SetFlags(be_allegro_screen->Flags() & ~B_NOT_CLOSABLE);
+      else
+         be_allegro_screen->SetFlags(be_allegro_screen->Flags() | B_NOT_CLOSABLE);
+   }
+   return 0;
+}
+
+
+
+extern "C" void be_sys_set_window_close_hook(void (*proc)(void))
+{
+   be_window_close_hook = proc;
 }
 
 
@@ -303,14 +329,20 @@ extern "C" void be_sys_message(AL_CONST char *msg)
 extern "C" int be_sys_desktop_color_depth(void)
 {
    display_mode current_mode;
-   int index = 0;
    
    BScreen(be_allegro_screen).GetMode(&current_mode);
-   while (be_mode_table[index].d > 0) {
-      if (be_mode_table[index].mode == current_mode.space)
-         return be_mode_table[index].d;      
-      index++;
-   }   
+   switch(current_mode.space) {
+      case B_CMAP8:  
+         return 8;  
+      case B_RGB15:  
+      case B_RGBA15: 
+        return 15; 
+      case B_RGB16:  
+        return 16; 
+      case B_RGB32:  
+      case B_RGBA32: 
+        return 32; 
+   }
    return -1;	
 }
 
@@ -374,12 +406,13 @@ int32 killer_thread(void *data)
 
 
 
-void be_terminate(thread_id caller)
+void be_terminate(thread_id caller, bool exit_caller)
 {
    thread_id killer;
 
    killer = spawn_thread(killer_thread, "son of sam", 120, NULL);
    resume_thread(killer);
 
-   exit_thread(1);
+   if (exit_caller)
+      exit_thread(1);
 }

@@ -217,10 +217,10 @@ extern HOOKS    be_hooks;
 extern const BE_MODE_TABLE be_mode_table[];
 extern int32  (*be_sync_func)();
 extern int      _be_switch_mode;
+extern void   (*be_window_close_hook)();
 
 
-
-void be_terminate(thread_id caller);
+void be_terminate(thread_id caller, bool exit_caller);
 
 
 
