@@ -7465,7 +7465,7 @@ DOS specifics
    accuracy of the timer (for instance, rest() will round the delay time to 
    the nearest 5 milliseconds), and prevents the vertical retrace simulator 
    from working, but on the plus side, it makes Allegro programs work under 
-   Windows. This flag is set by allegro_init() if it detects the presence of 
+   Windows. This flag is set by allegro_init() if it detects the presence of
    a multitasking OS, and enables the fixed rate timer mode.
 
 
@@ -7473,14 +7473,32 @@ DOS specifics
 @heading
 Windows specifics
 
-Windows programs normally start with a WinMain() function, rather than the 
-ANSI C main() routine. Allegro does some magic to make a regular main() work 
-like you expect, but you have to help it out a bit by writing END_OF_MAIN() 
-right after your main() function. If you don't want to do that, you can of 
-course just write a WinMain() in the usual Windows way. If you want to 
-generate a console application, you have to disable this special processing 
-of the main() function by defining the preprocessor symbol USE_CONSOLE 
-before you include allegro.h.
+A Windows program that uses the Allegro library is only required to include
+the main header file allegro.h; however, if it also needs to directly call
+Win32 API functions, it must include the Windows-specific header file
+winalleg.h after allegro.h, and before any Win32 API header file. By default
+winalleg.h includes the main Win32 C API header file windows.h. If instead
+you want to use the C++ interface to the Win32 API (a.k.a. the Microsoft
+Foundation Classes), define the preprocessor symbol ALLEGRO_AND_MFC before
+#include &ltallegro.h&gt so that afxwin.h will be included. Note that, in
+this latter case, the Allegro debugging macros ASSERT() and TRACE() are
+renamed AL_ASSERT() and AL_TRACE() respectively.
+
+Windows GUI applications start with a WinMain() entry point, rather than the
+standard main() entry point. Allegro is configured to build GUI applications
+by default and to do some magic in order to make a regular main() work with
+them, but you have to help it out a bit by writing END_OF_MAIN() right after
+your main() function. If you don't want to do that, you can just include
+winalleg.h and write a WinMain() function. Note that this magic may bring
+about conflicts with a few programs using direct calls to Win32 API
+functions; for these programs, the regular WinMain() is required and the
+magic must be disabled by defining the preprocessor symbol
+ALLEGRO_NO_MAGIC_MAIN before #include &ltallegro.h&gt.
+
+If you want to build a console application using Allegro, you have to define
+the preprocessor symbol USE_CONSOLE before #include &ltallegro.h&gt; it will
+instruct the library to use console features and also to disable the special
+processing of the main() function described above.
 
 DirectX requires bitmaps to be locked before you can draw onto them. This 
 will be done automatically, but you can usually get much better performance 
@@ -7493,11 +7511,10 @@ the contents of any video memory bitmaps, may be destroyed at any point. You
 can use the set_display_switch_callback() function to find out when this 
 happens.
 
-There are some conflicts between allegro.h and windows.h, so you will have 
-problems if you include both of these from the same source file. If you need 
-to access the Windows headers, #include &ltwinalleg.h&gt after allegro.h. 
-This will include windows.h for you, doing some magic to make it work 
-correctly.
+On the Windows platform, the only return values for the desktop_color_depth()
+function are 8, 16, 24 and 32. This means that 15-bit and 16-bit desktops 
+cannot be differentiated and are both reported as 16-bit desktops. See
+below for the consequences for windowed and overlay DirectX drivers.
 
 @@Drivers: @GFX_*/Windows
 @xref set_gfx_mode
@@ -7526,29 +7543,66 @@ correctly.
       Alias for GFX_DIRECTX_ACCEL.
 <li>
    GFX_DIRECTX_ACCEL<br>
-      The regular DirectX driver, running in fullscreen mode with hardware 
+      The regular fullscreen DirectX driver, running with hardware 
       acceleration enabled.
 <li>
    GFX_DIRECTX_SOFT<br>
-      DirectX driver that only uses software drawing, rather than any 
-      hardware accelerated features.
+      DirectX fullscreen driver that only uses software drawing, rather than 
+      any hardware accelerated features.
 <li>
    GFX_DIRECTX_SAFE<br>
-      Simplified DirectX driver that doesn't support any hardware 
+      Simplified fullscreen DirectX driver that doesn't support any hardware 
       acceleration, video or system bitmaps, etc.
 <li>
    GFX_DIRECTX_WIN<br>
-      Windowed DirectX driver.
+      The regular windowed DirectX driver, running in color conversion mode 
+      when the color depth doesn't match that of the Windows desktop. Color 
+      conversion is much slower than direct drawing and is not supported on 
+      8-bit desktops and between 15-bit and 16-bit color depths. This latter 
+      limitation is needed to work around that of desktop_color_depth() (see 
+      above) and allows to select the direct drawing mode in a reliable way 
+      on desktops reported as 16-bit:
+<pre>
+   if (desktop_color_depth() == 16) {
+      set_color_depth(16);
+      if (set_gfx_mode(GFX_DIRECTX_WIN, 640, 480, 0, 0) != 0) {
+         set_color_depth(15);
+         if (set_gfx_mode(GFX_DIRECTX_WIN, 640, 480, 0, 0) != 0) {
+            /* 640x480 direct drawing mode not supported */
+            goto Error;
+         }
+      }
+      /* ok, we are in direct drawing mode */
+   }
+</pre>
 <li>
    GFX_DIRECTX_OVL<br>
-      DirectX overlay driver. This uses special hardware features to run 
+      The DirectX overlay driver. It uses special hardware features to run 
       your program in a windowed mode: it doesn't work on all hardware, but 
-      performance is excellent on cards that are capable of it.
+      performance is excellent on cards that are capable of it. It requires 
+      the color depth to be the same as that of the Windows desktop. In light 
+      of the limitation of desktop_color_depth() (see above), the reliable 
+      way of setting the overlay driver on desktops reported as 16-bit is:
+<pre>
+   if (desktop_color_depth() == 16) {
+      set_color_depth(16);
+      if (set_gfx_mode(GFX_DIRECTX_OVL, 640, 480, 0, 0) != 0) {
+         set_color_depth(15);
+         if (set_gfx_mode(GFX_DIRECTX_OVL, 640, 480, 0, 0) != 0) {
+            /* 640x480 overlay driver not supported */
+            goto Error;
+         }
+      }
+      /* ok, the 640x480 overlay driver is running */
+   }
+</pre>
 <li>
    GFX_GDI<br>
-      Windowed mode GDI driver. This is extremely inefficient, but works on 
-      all hardware, so it can be useful for situations where you want to run 
-      in a window, and don't care about performance.
+      The windowed GDI driver. It is extremely slow, but is guaranteed to 
+      work on all hardware, so it can be useful for situations where you 
+      want to run in a window and don't care about performance. Note that 
+      this driver features a hardware mouse cursor emulation in order to 
+      speed up basic mouse operations (like GUI operations).
 </ul>
 @@Drivers: @DIGI_*/Windows
 @xref detect_digi_driver, install_sound, install_sound_input
@@ -7574,20 +7628,56 @@ correctly.
       MIDI_DIGMID          - sample-based software wavetable player
 </pre>
 
+The following functions provide a platform specific interface to seamlessly 
+integrate Allegro into general purpose Win32 programs. To use these routines, 
+you must include winalleg.h after allegro.h.
 
-@heading
-GDI routines
+@@HWND @win_get_window(void);
+   Retrieves a handle to the window used by Allegro. Note that Allegro
+   uses an underlying window even though you don't set any graphics mode,
+   unless you have installed the neutral system driver (SYSTEM_NONE).
+
+@@void @win_set_window(HWND wnd);
+   Registers an user-created window to be used by Allegro. This functions
+   must be called *before* initializing the library with allegro_init() or
+   installing the autodetected system driver (SYSTEM_AUTODETECT). It lets
+   you attach Allegro to any already existing window and prevents the
+   library from creating its own, thus leaving you total control over the
+   window (in particular, you are responsible for processing the events).
+   You can then use every component of the library (mouse, keyboard,
+   sound, timers and so on) except the graphics subsystem.
+
+@@void @win_set_wnd_create_proc(HWND (*proc)(WNDPROC));
+   Registers an user-defined procedure to be used by Allegro for creating
+   its window. This function must be called *before* initializing the
+   library with allegro_init() or installing the autodetected system
+   driver (SYSTEM_AUTODETECT). It lets you customize Allegro's window but
+   only by its creation: unlike with win_set_window(), you have no control
+   over the window once it has been created (in particular, you are not
+   responsible for processing the events). The registered function will be
+   passed a window procedure (WNDPROC) that it must make the procedure of
+   the new window of and it must return a handle to the new window. You
+   can then use the full-featured library in the regular way.
+
+@@HDC @win_get_dc(BITMAP *bmp);
+   Retrieves a handle to the device context of a DirectX video or system
+   bitmap.
+
+@@void @win_release_dc(BITMAP *bmp, HDC dc);
+   Releases a handle to the device context of the bitmap that was
+   previously retrieved with win_get_dc().
+
+@hnode GDI routines
 
 These GDI routines are a very platform specific thing, to allow drawing 
 Allegro memory bitmaps onto a Windows device context. When you want to use 
-this, you'll have to install the neutral system driver (SYSTEM_NONE) if 
-you call install_allegro() or attach Allegro to an external window with 
-win_set_window() if you call allegro_init().
+this, you'll have to install the neutral system driver (SYSTEM_NONE) or 
+attach Allegro to an external window with win_set_window().
 
 There are two ways to draw your Allegro bitmaps to the Windows GDI. When you 
 are using static bitmaps (for example just some pictures loaded from a 
 datafile), you can convert them to DDB (device-dependent bitmaps) with 
-convert_bitmap_to_hbitmap() and then just use BitBlt() to draw it.
+convert_bitmap_to_hbitmap() and then just use Win32 BitBlt() to draw it.
 
 When you are using dynamic bitmaps (for example some things which react to 
 user input), it's better to use set_palette_to_hdc() and blit_to_hdc() 
@@ -7602,11 +7692,9 @@ set_palette_to_hdc() or select_palette() functions. Warning: when the GDI
 system color palette is explicitly changed, (by another application, for 
 example) the current Allegro palette is not updated along with it!
 
-To use these routines, you must #include &ltwinalleg.h&gt after allegro.h. 
-This will include windows.h for you, doing some magic to make it work 
-correctly.
+To use these routines, you must include winalleg.h after allegro.h.
 
-@@void @set_gdi_color_format();
+@@void @set_gdi_color_format(void);
    Tells Allegro to use the GDI color layout for truecolor images. This is 
    optional, but it will make the conversions work faster. If you are going 
    to call this, you should do it right after initialising Allegro and 
