@@ -159,7 +159,6 @@ static Atom wm_delete_window;
 static char *_xwin_safe_copy(char *dst, const char *src, int len);
 
 static int _xwin_private_open_display(char *name);
-static void _xwin_private_close_display(void);
 static int _xwin_private_create_window(void);
 static void _xwin_private_destroy_window(void);
 static void _xwin_private_select_screen_to_buffer_function(void);
@@ -325,21 +324,20 @@ int _xwin_open_display(char *name)
 /* _xwin_close_display:
  *  Wrapper for XCloseDisplay.
  */
-static void _xwin_private_close_display(void)
-{
-   _xwin_private_destroy_window();
-
-   if (_xwin.display != 0) {
-      XCloseDisplay(_xwin.display);
-      _xwin.display = 0;
-   }
-}
-
 void _xwin_close_display(void)
 {
    XLOCK();
-   _xwin_private_close_display();
-   XUNLOCK();
+
+   _xwin_private_destroy_window();
+
+   if (_xwin.display != 0) {
+      /* Must unlock display before closing.  */
+      XUNLOCK();
+      XCloseDisplay(_xwin.display);
+      _xwin.display = 0;
+   }
+   else
+      XUNLOCK();
 }
 
 
