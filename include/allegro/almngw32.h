@@ -78,7 +78,7 @@
 
 /* defined in windef.h */
 #ifndef HMONITOR_DECLARED
-        #define HMONITOR_DECLARED
+        #define HMONITOR_DECLARED 1
 #endif
 
 /* already defined... */
