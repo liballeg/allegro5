@@ -70,8 +70,6 @@ static int view_proc(int, DIALOG *, int);
 static int list_proc(int, DIALOG *, int);
 static int prop_proc(int, DIALOG *, int);
 static int droplist_proc(int, DIALOG *, int);
-static int colorconv_proc(int, DIALOG *, int);
-static int sort_proc(int, DIALOG *, int);
 static int custkey_proc(int, DIALOG *, int);
 static int edit_mod_proc(int, DIALOG *, int);
 static int droplist_mod_proc(int, DIALOG *, int);
@@ -98,6 +96,10 @@ static int sysinfo(void);
 static int about(void);
 static int renamer(void);
 static int hooker(void);
+static int backup_toggler(void);
+static int dither_toggler(void);
+static int sort_toggler(void);
+static int trans_toggler(void);
 static int property_delete(void);
 static int property_insert(void);
 static int property_change(void);
@@ -150,6 +152,22 @@ static MENU objc_menu[32] =
 
 
 
+static MENU opt_menu[32] =
+{
+   { "&Backup Datafiles",           backup_toggler,   NULL,       0, NULL  },
+   { "&Dither Images",              dither_toggler,   NULL,       0, NULL  },
+   { "&Sort Objects",               sort_toggler,     NULL,       0, NULL  },
+   { "Preserve &Transparency",      trans_toggler,    NULL,       0, NULL  },
+   { NULL,                          NULL,             NULL,       0, NULL  }
+};
+
+#define MENU_BACKUP           0
+#define MENU_DITHER           1
+#define MENU_SORT             2
+#define MENU_TRANS            3
+
+
+
 static MENU help_menu[32] =
 {
    { "&Help\t(F1)",                 helper,           NULL,       0, NULL  },
@@ -164,6 +182,7 @@ static MENU menu[32] =
 { 
    { "&File",                       NULL,             file_menu,  0, NULL  },
    { "&Object",                     NULL,             objc_menu,  0, NULL  },
+   { "O&ptions",                    NULL,             opt_menu,   0, NULL  },
    { "&Help",                       NULL,             help_menu,  0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
 };
@@ -201,14 +220,10 @@ static DIALOG main_dlg[] =
    { edit_mod_proc,     100,  54,   320,  8,    0,    0,    0,       0,          255,           0,       prefix_string,    NULL, NULL  },
    { d_text_proc,       20,   66,   0,    0,    0,    0,    0,       0,          0,             0,       "Password:",      NULL, NULL  },
    { edit_mod_proc,     100,  66,   320,  8,    0,    0,    0,       0,          255,           0,       password,         NULL, NULL  },
-   { d_text_proc,       200,  10,   0,    0,    0,    0,    0,       0,          0,             0,       "X-grid:",        NULL, NULL  },
-   { d_edit_proc,       264,  10,   40,   8,    0,    0,    0,       0,          4,             0,       xgrid_string,     NULL, NULL  },
-   { d_text_proc,       315,  10,   0,    0,    0,    0,    0,       0,          0,             0,       "Y-grid:",        NULL, NULL  },
-   { d_edit_proc,       379,  10,   40,   8,    0,    0,    0,       0,          4,             0,       ygrid_string,     NULL, NULL  },
-   { d_check_proc,      430,  8,    83,   13,   0,    0,    0,       0,          0,             0,       "Backups:",       NULL, NULL  },
-   { colorconv_proc,    550,  8,    75,   13,   0,    0,    0,       0,          0,             0,       "Dither:",        NULL, NULL  },
-   { sort_proc,         430,  24,   59,   13,   0,    0,    0,       D_SELECTED, 0,             1,       "Sort:",          NULL, NULL  },
-   { colorconv_proc,    502,  24,   123,  13,   0,    0,    0,       0,          0,             1,       "Transparency:",  NULL, NULL  },
+   { d_text_proc,       260,  16,   0,    0,    0,    0,    0,       0,          0,             0,       "X-grid:",        NULL, NULL  },
+   { d_edit_proc,       324,  16,   40,   8,    0,    0,    0,       0,          4,             0,       xgrid_string,     NULL, NULL  },
+   { d_text_proc,       375,  16,   0,    0,    0,    0,    0,       0,          0,             0,       "Y-grid:",        NULL, NULL  },
+   { d_edit_proc,       439,  16,   40,   8,    0,    0,    0,       0,          4,             0,       ygrid_string,     NULL, NULL  },
    { droplist_mod_proc, 430,  48,   195,  28,   0,    0,    0,       0,          0,             0,       pack_getter,      NULL, NULL  },
    { prop_proc,         260,  86,   365,  107,  0,    0,    0,       D_EXIT,     0,             0,       prop_getter,      NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('l'),  0,          0,             0,       loader,           NULL, NULL  },
@@ -254,15 +269,11 @@ static DIALOG main_dlg[] =
 #define DLG_PASSWORD          9
 #define DLG_XGRIDSTRING       11
 #define DLG_YGRIDSTRING       13
-#define DLG_BACKUPCHECK       14
-#define DLG_DITHERCHECK       15
-#define DLG_SORTCHECK         16
-#define DLG_TRANSCHECK        17
-#define DLG_PACKLIST          18
-#define DLG_PROP              19
-#define DLG_FIRSTWHITE        20
-#define DLG_LIST              50
-#define DLG_VIEW              51
+#define DLG_PACKLIST          14
+#define DLG_PROP              15
+#define DLG_FIRSTWHITE        16
+#define DLG_LIST              46
+#define DLG_VIEW              47
 
 
 #define SELECTED_ITEM         main_dlg[DLG_LIST].d1
@@ -932,6 +943,54 @@ static void show_a_bitmap(BITMAP *bmp, PALETTE pal)
 
 
 
+/* helper for updating the color conversion mode */
+static void update_colorconv(int flags, int what)
+{
+   static int current[2] = {-1, -1};
+   int mode, wanted[2];
+
+   if (flags & D_SELECTED)
+      wanted[what] = 1;
+   else
+      wanted[what] = 0;
+
+   if (wanted[what] != current[what]) {
+      current[what] = wanted[what];
+
+      mode = (current[0] ? COLORCONV_DITHER : 0) | (current[1] ? COLORCONV_KEEP_TRANS : 0);
+      if (mode)
+         set_color_conversion(mode);
+      else
+         set_color_conversion(COLORCONV_NONE);
+   } 
+}
+
+
+
+/* helper for toggling sort mode on and off */
+static void update_sort(int flags)
+{
+   static int current = -1;
+   int wanted;
+   
+   if (flags & D_SELECTED)
+      wanted = 1;
+   else
+      wanted = 0;
+
+   if (wanted != current) {
+      current = wanted;
+
+      if (current) {
+         datedit_sort_datafile(datafile);
+         rebuild_list(datafile->dat, TRUE);
+         object_message(main_dlg+DLG_LIST, MSG_DRAW, 0);
+      }
+   } 
+}
+
+
+
 /* dialog procedure for displaying the selected object */
 static int view_proc(int msg, DIALOG *d, int c)
 {
@@ -997,62 +1056,6 @@ static int droplist_proc(int msg, DIALOG *d, int c)
    }
 
    return d_list_proc(msg, d, c);
-}
-
-
-
-/* dialog procedure for setting the color conversion mode */
-static int colorconv_proc(int msg, DIALOG *d, int c)
-{
-   static int current[2] = {-1, -1};
-   int ret, mode, wanted[2];
-
-   ret = d_check_proc(msg, d, c);
-
-   if (d->flags & D_SELECTED)
-      wanted[d->d2] = 1;
-   else
-      wanted[d->d2] = 0;
-
-   if (wanted[d->d2] != current[d->d2]) {
-      current[d->d2] = wanted[d->d2];
-
-      mode = (current[0] ? COLORCONV_DITHER : 0) | (current[1] ? COLORCONV_KEEP_TRANS : 0);
-      if (mode)
-         set_color_conversion(mode);
-      else
-         set_color_conversion(COLORCONV_NONE);
-   } 
-
-   return ret;
-}
-
-
-
-/* dialog procedure for toggling sort mode on and off */
-static int sort_proc(int msg, DIALOG *d, int c)
-{
-   static int current = -1;
-   int ret, wanted;
-
-   ret = d_check_proc(msg, d, c);
-
-   if (d->flags & D_SELECTED)
-      wanted = 1;
-   else
-      wanted = 0;
-
-   if (wanted != current) {
-      if (wanted) {
-         datedit_sort_datafile(datafile);
-         rebuild_list(datafile->dat, TRUE);
-         object_message(main_dlg+DLG_LIST, MSG_DRAW, 0);
-      }
-
-      current = wanted;
-   } 
-
-   return ret;
 }
 
 
@@ -1304,7 +1307,7 @@ static void set_property(DATAITEM *dat, int type, char *val)
 
    if (type == DAT_NAME) {
       check_valid_name(val);
-      if (main_dlg[DLG_SORTCHECK].flags & D_SELECTED)
+      if (opt_menu[MENU_SORT].flags & D_SELECTED)
          datedit_sort_datafile(*dat->parent);
       rebuild_list(old, TRUE);
    }
@@ -1636,16 +1639,16 @@ static void update_info(void)
    datedit_set_property(&datedit_info, DAT_YGRD, ygrid_string);
 
    datedit_set_property(&datedit_info, DAT_BACK, 
-		  (main_dlg[DLG_BACKUPCHECK].flags & D_SELECTED) ? "y" : "n");
+		  (opt_menu[MENU_BACKUP].flags & D_SELECTED) ? "y" : "n");
 
    datedit_set_property(&datedit_info, DAT_DITH, 
-		  (main_dlg[DLG_DITHERCHECK].flags & D_SELECTED) ? "y" : "n");
+		  (opt_menu[MENU_DITHER].flags & D_SELECTED) ? "y" : "n");
 
    datedit_set_property(&datedit_info, DAT_TRAN, 
-		  (main_dlg[DLG_TRANSCHECK].flags & D_SELECTED) ? "y" : "n");
+		  (opt_menu[MENU_TRANS].flags & D_SELECTED) ? "y" : "n");
 
    datedit_set_property(&datedit_info, DAT_SORT, 
-		  (main_dlg[DLG_SORTCHECK].flags & D_SELECTED) ? "y" : "n");
+		  (opt_menu[MENU_SORT].flags & D_SELECTED) ? "y" : "n");
 
    sprintf(buf, "%d", main_dlg[DLG_PACKLIST].d1);
    datedit_set_property(&datedit_info, DAT_PACK, buf);
@@ -1736,24 +1739,24 @@ static void load(char *filename, int flush)
    retrieve_property(DLG_YGRIDSTRING, DAT_YGRD, "16");
 
    if (utolower(*get_datafile_property(&datedit_info, DAT_BACK)) == 'y')
-      main_dlg[DLG_BACKUPCHECK].flags |= D_SELECTED;
+      opt_menu[MENU_BACKUP].flags |= D_SELECTED;
    else
-      main_dlg[DLG_BACKUPCHECK].flags &= ~D_SELECTED;
+      opt_menu[MENU_BACKUP].flags &= ~D_SELECTED;
 
    if (utolower(*get_datafile_property(&datedit_info, DAT_DITH)) == 'y')
-      main_dlg[DLG_DITHERCHECK].flags |= D_SELECTED;
+      opt_menu[MENU_DITHER].flags |= D_SELECTED;
    else
-      main_dlg[DLG_DITHERCHECK].flags &= ~D_SELECTED;
+      opt_menu[MENU_DITHER].flags &= ~D_SELECTED;
 
    if (utolower(*get_datafile_property(&datedit_info, DAT_TRAN)) == 'y')
-      main_dlg[DLG_TRANSCHECK].flags |= D_SELECTED;
+      opt_menu[MENU_TRANS].flags |= D_SELECTED;
    else
-      main_dlg[DLG_TRANSCHECK].flags &= ~D_SELECTED;
+      opt_menu[MENU_TRANS].flags &= ~D_SELECTED;
 
    if (sort)
-      main_dlg[DLG_SORTCHECK].flags |= D_SELECTED;
+      opt_menu[MENU_SORT].flags |= D_SELECTED;
    else
-      main_dlg[DLG_SORTCHECK].flags &= ~D_SELECTED;
+      opt_menu[MENU_SORT].flags &= ~D_SELECTED;
 
    main_dlg[DLG_PACKLIST].d1 = atoi(get_datafile_property(&datedit_info, DAT_PACK));
    pack_getter(-1, &items_num);
@@ -1840,7 +1843,7 @@ static int save(int strip)
       options.sort = -1;
       options.verbose = TRUE;
       options.write_msg = FALSE;
-      options.backup = (main_dlg[DLG_BACKUPCHECK].flags & D_SELECTED);
+      options.backup = (opt_menu[MENU_BACKUP].flags & D_SELECTED);
 
       if (!datedit_save_datafile(datafile, data_file, NULL, &options, password))
 	 err = TRUE;
@@ -2392,6 +2395,46 @@ static int deleter(void)
 
 
 
+/* handle the backup option */
+static int backup_toggler(void)
+{
+   opt_menu[MENU_BACKUP].flags ^= D_SELECTED;
+   return D_O_K;
+}
+
+
+
+/* handle the dither option */
+static int dither_toggler(void)
+{
+   opt_menu[MENU_DITHER].flags ^= D_SELECTED;
+   update_colorconv(opt_menu[MENU_SORT].flags, 0);
+   return D_O_K;
+}
+
+
+
+/* handle the sort option */
+static int sort_toggler(void)
+{
+   opt_menu[MENU_SORT].flags ^= D_SELECTED;
+   update_sort(opt_menu[MENU_SORT].flags);
+   return D_O_K;
+}
+
+
+
+/* handle the preserve transparency option */
+static int trans_toggler(void)
+{
+   opt_menu[MENU_TRANS].flags ^= D_SELECTED;
+   update_colorconv(opt_menu[MENU_SORT].flags, 1);
+   return D_O_K;
+}
+
+
+
+
 /* help system by Doug Eleveld */
 
 static char *grabber_last_help = NULL;
@@ -2823,7 +2866,7 @@ static int add_new(int type)
 	    df = dat->parent;
 
 	 *df = datedit_insert(*df, NULL, prop_value_string, type, v, size);
-	 if (main_dlg[DLG_SORTCHECK].flags & D_SELECTED)
+	 if (opt_menu[MENU_SORT].flags & D_SELECTED)
 	    datedit_sort_datafile(*df);
 	 rebuild_list(v, TRUE);
 	 select_property(DAT_NAME);
@@ -3277,19 +3320,12 @@ int main(int argc, char *argv[])
       main_dlg[DLG_PASSWORD].w = SCREEN_W / 3;
 
       main_dlg[DLG_XGRIDSTRING-1].dp = "X:";
-      main_dlg[DLG_XGRIDSTRING-1].x -= 16;
-      main_dlg[DLG_XGRIDSTRING].x -= 56;
+      main_dlg[DLG_XGRIDSTRING-1].x -= 76;
+      main_dlg[DLG_XGRIDSTRING].x -= 116;
 
       main_dlg[DLG_YGRIDSTRING-1].dp = "Y:";
-      main_dlg[DLG_YGRIDSTRING-1].x -= 64;
-      main_dlg[DLG_YGRIDSTRING].x -= 104;
-
-      main_dlg[DLG_BACKUPCHECK].x = main_dlg[DLG_BACKUPCHECK].x * SCREEN_W / 640;
-      main_dlg[DLG_BACKUPCHECK].y += 20;
-
-      main_dlg[DLG_DITHERCHECK].flags |= (D_HIDDEN | D_DISABLED);
-      main_dlg[DLG_TRANSCHECK].flags |= (D_HIDDEN | D_DISABLED);
-      main_dlg[DLG_SORTCHECK].flags |= (D_HIDDEN | D_DISABLED);
+      main_dlg[DLG_YGRIDSTRING-1].x -= 124;
+      main_dlg[DLG_YGRIDSTRING].x -= 164;
 
       main_dlg[DLG_PACKLIST].x = main_dlg[DLG_PACKLIST].x * SCREEN_W / 640;
       main_dlg[DLG_PACKLIST].w = main_dlg[DLG_PACKLIST].w * SCREEN_W / 640;
@@ -3314,7 +3350,7 @@ int main(int argc, char *argv[])
       while (main_dlg[DLG_LIST].y + main_dlg[DLG_LIST].h >= SCREEN_H)
 	 main_dlg[DLG_LIST].h -= 8;
 
-      for (i=DLG_BACKUPCHECK; main_dlg[i].proc; i++) {
+      for (i=DLG_PACKLIST; main_dlg[i].proc; i++) {
 	 if (i != DLG_LIST)
 	    main_dlg[i].x = main_dlg[i].x * SCREEN_W / 640;
 	 main_dlg[i].w = main_dlg[i].w * SCREEN_W / 640;
@@ -3408,24 +3444,24 @@ int main(int argc, char *argv[])
       sprintf(ygrid_string, "%d", get_config_int("grabber", "ygrid", 16));
 
       if (strpbrk(get_config_string("grabber", "backups", ""), "yY1"))
-         main_dlg[DLG_BACKUPCHECK].flags |= D_SELECTED;
+         opt_menu[MENU_BACKUP].flags |= D_SELECTED;
       else
-         main_dlg[DLG_BACKUPCHECK].flags &= ~D_SELECTED;
+         opt_menu[MENU_BACKUP].flags &= ~D_SELECTED;
 
       if (strpbrk(get_config_string("grabber", "dither", ""), "yY1"))
-         main_dlg[DLG_DITHERCHECK].flags |= D_SELECTED;
+         opt_menu[MENU_DITHER].flags |= D_SELECTED;
       else
-         main_dlg[DLG_DITHERCHECK].flags &= ~D_SELECTED;
+         opt_menu[MENU_DITHER].flags &= ~D_SELECTED;
 
       if (strpbrk(get_config_string("grabber", "sort", ""), "yY1"))
-         main_dlg[DLG_SORTCHECK].flags |= D_SELECTED;
+         opt_menu[MENU_SORT].flags |= D_SELECTED;
       else
-         main_dlg[DLG_SORTCHECK].flags &= ~D_SELECTED;
+         opt_menu[MENU_SORT].flags &= ~D_SELECTED;
 
       if (strpbrk(get_config_string("grabber", "transparency", ""), "yY1"))
-         main_dlg[DLG_TRANSCHECK].flags |= D_SELECTED;
+         opt_menu[MENU_TRANS].flags |= D_SELECTED;
       else
-         main_dlg[DLG_TRANSCHECK].flags &= ~D_SELECTED;
+         opt_menu[MENU_TRANS].flags &= ~D_SELECTED;
    }
 
    do_dialog(main_dlg, DLG_LIST);
@@ -3445,22 +3481,22 @@ int main(int argc, char *argv[])
    set_config_string("grabber", "xgrid", xgrid_string);
    set_config_string("grabber", "ygrid", ygrid_string);
 
-   if (main_dlg[DLG_BACKUPCHECK].flags & D_SELECTED)
+   if (opt_menu[MENU_BACKUP].flags & D_SELECTED)
       set_config_string("grabber", "backups", "y");
    else
       set_config_string("grabber", "backups", "n");
 
-   if (main_dlg[DLG_DITHERCHECK].flags & D_SELECTED)
+   if (opt_menu[MENU_DITHER].flags & D_SELECTED)
       set_config_string("grabber", "dither", "y");
    else
       set_config_string("grabber", "dither", "n");
 
-   if (main_dlg[DLG_SORTCHECK].flags & D_SELECTED)
+   if (opt_menu[MENU_SORT].flags & D_SELECTED)
       set_config_string("grabber", "sort", "y");
    else
       set_config_string("grabber", "sort", "n");
 
-   if (main_dlg[DLG_TRANSCHECK].flags & D_SELECTED)
+   if (opt_menu[MENU_TRANS].flags & D_SELECTED)
       set_config_string("grabber", "transparency", "y");
    else
       set_config_string("grabber", "transparency", "n");
