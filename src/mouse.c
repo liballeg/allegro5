@@ -774,20 +774,11 @@ void _set_mouse_range()
 
       for (y=0; y<DEFAULT_SPRITE_H; y++) {
 	 for (x=0; x<DEFAULT_SPRITE_W; x++) {
-	    if (bitmap_color_depth(_mouse_pointer) == 8) {
-	       switch (mouse_pointer_data[y][x]) {
-		  case 1:  col = 16;  break;
-		  case 2:  col = 255; break;
-		  default: col = 0;   break;
-	       }
+	    switch (mouse_pointer_data[y][x]) {
+	       case 1:  col = makecol(255, 255, 255);             break;
+	       case 2:  col = makecol(0, 0, 0);                   break;
+	       default: col = _mouse_pointer->vtable->mask_color; break;
 	    }
-	    else {
-	       switch (mouse_pointer_data[y][x]) {
-		  case 1:  col = makecol(255, 255, 255);             break;
-		  case 2:  col = makecol(0, 0, 0);                   break;
-		  default: col = _mouse_pointer->vtable->mask_color; break;
-	       }
-	    } 
 	    putpixel(_mouse_pointer, x, y, col);
 	 }
       }
