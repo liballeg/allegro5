@@ -11,6 +11,128 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.38: Robert J. Ohannessian added the following to the color convertor:
+   color copy routines needed by the BeOS port, support for cross-conversion
+   between 15-bit and 16-bit colors, support for conversion to 8-bit color,
+   support for rectangles of any width and added two new MMX routines.
+<li>
+   3.9.38: Henrik Stokseth rewrote get_gfx_mode_list() likewise rewrote the
+   mode-selector to use get_gfx_mode_list(). Also added fetch_mode_list()
+   functions on the DirectX, VGA, Mode-X and Xtended GFX drivers.
+<li>
+   3.9.38: Angelo Mottola fixed problems with SMP on the BeOS port.
+<li>
+   3.9.38: Eric Botcazou fixed some problems with the non-MMX code in the
+   color convertor.
+<li>
+   3.9.38: Sven Sandberg improved spline() for DRAW_MODE_TRANS
+<li>
+   3.9.38: Peter Wang renamed clear() to clear_bitmap(). clear() is still
+   provided for backwards compatibility.
+<li>
+   3.9.38: Stephan Roh made fractal generator work under non-Intel
+   processors.
+<li>
+   3.9.38: Eric Botcazou made a valid display switch mode of SWITCH_NONE
+   under DOS.
+<li>
+   3.9.38: Angelo Mottola made Beos port use new unified color conversion
+   routines.
+<li>
+   3.9.38: Peter Wang added check to see if display is local under X11.
+<li>
+   3.9.38: Eric Botcazou fixed compilation under Watcom 10.6. (not tested)
+<li>
+   3.9.38: Elias Pschernig contributed an icon fixer resource fixer for the
+   Windows port and added support for shared library under BeOS.
+<li>
+   3.9.38: Angelo Mottola added a bfixicon utility.
+<li>
+   3.9.38: Stephan Roh made the native Allegro time format of ANSI time_t.
+<li>
+   3.9.38: Peter Wang added an ustrtok_r() function.
+<li>
+   3.9.38: Robert J. Ohannessian optimized some masked_blits with SSE
+   instructions.
+<li>
+   3.9.38: Angelo Mottola did a sound fix for audiostream output and SMP
+   machines and added triple buffering support on the BeOS port.
+<li>
+   3.9.38: Angelo Mottola added fetch_mode_list() support to the BeOS
+   fullscreen driver.
+<li>
+   3.9.38: Eric Botcazou changed the accelleration scheme for the mouse under
+   Windows.
+<li>
+   3.9.38: Peter Wang added fetch_mode_list() support to the svgalib driver.
+<li>
+   3.9.38: Peter Wang added pthread timer and removed dependancy to SIGALRM.
+<li>
+   3.9.38: Henrik Stokseth added Windows XP detection.
+<li>
+   3.9.38: Andreas Kluge fixed a bug with volume setting in the DOS
+   Soundscape driver.
+<li>
+   3.9.38: Angelo Mottola rewrote the BeOS sound driver to use the
+   BSoundPlayer class.
+<li>
+   3.9.38: Robert J. Ohannessian added SSE and SSE2 detection.
+<li>
+   3.9.38: Connelly Barnes fixed a bug with the DirectSound pan.
+<li>
+   3.9.38: Eric Botcazou added support of switch modes to the test program.
+<li>
+   3.9.38: Eric Botcazou modified the Windows switch mechanism.
+<li>
+   3.9.38: Angelo Mottola added fullscreen display switching support and did
+   many fixes and cleanups on the BeOS port.
+<li>
+   3.9.38: Henrik Stokseth added code to get more os info under unix.
+<li>
+   3.9.38: Nimrod Abing fixed a bug in the config routines related to the
+   NULL sction.
+<li>
+   3.9.38: Eric Botcazou fixed a crash in the Windows windowed driver on fast
+   machines.
+<li>
+   3.9.38: Ronaldo Hideki Yamada did a large update on the PowerMac port and
+   added a midi driver.
+<li>
+   3.9.38: Henrik Stokseth generalised the support for processor specific
+   optimisations in some makefiles.
+<li>
+   3.9.38: Evert Glebbeek put set_gfx_mode on a diet and added config entry
+   for specifying the card to use for GFX_AUTODETECT_WINDOWED.
+<li>
+   3.9.38: Robert J. Ohannessian made blit not convert between colordepths
+   for video bitmaps. (for AllegroGL)
+<li>
+   3.9.38: Peter Wang made fix_filename_slashes() handle both types of
+   slashes.
+<li>
+   3.9.38: Grzegorz Adam Hankiewicz implemented a switch in makedoc to check
+   for long (>77) doc lines.
+<li>
+   3.9.38: Owen Rudge contributed a DLL version resource script.
+<li>
+   3.9.38: Sven Sandberg made the rotation functions faster, more accurate
+   and working with any type of bitmap. Also removed
+   rotate_scaled_sprite_flip().
+<li>
+   3.9.38: Angelo Mottola added fetch_mode_list() support to DGA2.
+<li>
+   3.9.38: David A. Capello made test program use transparent polygon types.
+<li>
+   3.9.38: Owen Rudge contributed a mkdata.bat script.
+<li>
+   3.9.38: Grzegorz Adam HankieWicz added reload_config_texts().
+<li>
+   3.9.38: Eric Botcazou added an enhanced building mechanism for DLL
+   export definition files.
+<li>
+   3.9.38: Eric Botcazou unicodified the setup tool, added a new unicode
+   example program and did a ton of small fixes.
+<li>
    3.9.37: Johan Peitz fixed and enhanced the Win32 joystick driver.
 <li>
    3.9.37: Sven Sandberg added Ctrl + arrow keys to d_edit_proc().

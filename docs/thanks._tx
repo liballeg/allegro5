@@ -54,7 +54,9 @@ Contributors
    Added the BeOS joystick, MIDI and windowed graphics drivers, added
    mouse wheel, display switching and close button support for BeOS, and
    wrote the DGA2 driver and close button support for X. And, oh,
-   contributed the QNX port too.
+   contributed the QNX port too. Contributed a bfixicon utility. Added triple
+   buffering support to the BeOS port and added fetch_mode_list() on the BeOS
+   and DGA2 fullscreen drivers.
 
    Annie Testes (email unknown).<br>
    Added font_height, render_char, char_length hooks to FONT_VTABLE.
@@ -170,13 +172,14 @@ Contributors
    Provided scancode mapping tables for the AZERTY keyboard layout.
 
    Elias Pschernig (<email>eliaspschernig@aon.at</a>).<br>
-   Added a COLORCONV_KEEP_TRANS mode.
+   Added a COLORCONV_KEEP_TRANS mode. Contributed the wfixicon utility.
 
    Eric Botcazou (<email>ebotcazou@multimania.com</a>).<br>
    Made the DGA driver work better in 8bpp and 32bpp modes, improved the
    DirectX windowed driver and Windows graphics subsystem, added the
-   file_select_ex() function, fixed lots of bugs and did truckloads more
-   work on the Windows port.
+   file_select_ex() function, rewrote the fixdll script, added an unicode
+   example, fixed lots of bugs and did truckloads more work on the Windows
+   port.
 
    Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions, and 
@@ -219,7 +222,8 @@ Contributors
    target, translated the docs and system error messages into Spanish,
    suggested the idea of embedding the setup utility into other programs, 
    wrote some documentation and corrected the .texi generation to improve
-   texi2dvi output, and did plenty of other things too.
+   texi2dvi output, improved the makedoc utility, added reload_config_texts()
+   and did plenty of other things too.
 
    Grzegorz Ludorowski (<email>pajonk@ajax.umcs.lublin.pl</a>).<br>
    Wrote several of the example programs, and made the intro animation and 
@@ -237,10 +241,10 @@ Contributors
 
    Henrik Stokseth (<email>hstokset@tiscali.no</a>).<br>
    Contributed a native Mingw32 build which can also be built with a
-   cross-compiler and the Cygwin compiler. Improved OS detection. Added
+   cross-compiler and the Cygwin compiler. Much improved OS detection. Added
    get_gfx_mode_list() and methods for querying the VGA, Mode-X, Xtended,
    VESA and DIRECTX drivers for a list of possible GFX modes. Rewrote the
-   mode-selector to use get_gfx_mode_list().
+   mode-selector to use get_gfx_mode_list(). Rewrote/updated some scripts.
 
    Isaac Cruz (<email>icruzbal@teleline.es</a>).<br>
    Fixed a bug with accelerated drawing onto sub bitmaps of DirectDraw 
@@ -430,6 +434,9 @@ Contributors
    Owen Embury (<email>owen@gememail.demon.co.uk</a>).<br>
    Wrote part of the translucency/lighting code.
 
+   Owen Rudge.<br>
+   Contributed a DLL version resource script and a mkdata.bat script.
+
    Ove Kaaven (<email>ovek@arcticnet.no</a>).<br>
    Fixed a bug in the ATI mach64 driver (now available as part of the 
    FreeBE/AF project), added native truecolor and linear framebuffer support 
@@ -487,7 +494,9 @@ Contributors
    with the ESD sound driver, wrote the ALSA sound driver, wrote the BeOS
    sound driver, added OSS MIDI and sample input support, added banked mode
    support to the SVGAlib driver, wrote the X DGA mode switching code,
-   improved the Linux joystick driver, and did loads of other things too.
+   improved the Linux joystick driver, added an ustrtok_r() function, added
+   fetch_mode_list() support on the svgalib driver, added pthread timer and
+   did loads of other things too.
 
    Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
    Wrote the CPU type detection code.
@@ -509,9 +518,13 @@ Contributors
    Wrote the Gravis GrIP driver, and made some improvements to the Wingman, 
    PSX, and throttle input code.
 
-   Robert Ohannessian (<email>varobert@colba.net</a>).<br>
+   Robert J. Ohannessian (<email>varobert@colba.net</a>).<br>
    Added MMX optimisation for the 8 and 16 bit clear() functions, and fixed
-   bad clearing of subbitmaps. Also added SSE detection.
+   bad clearing of subbitmaps. Also added SSE detection and optimized some
+   masked_blits with SSE instructions.
+   Added the following to the unified color convertor: color-copy routines,
+   support for 15bit<->16bit conversion, 8bit color, rectangles with any width
+   and added two new MMX routines.
 
    Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
    Provided a new page flipping code for the DirectDraw subsytem, added a
@@ -580,7 +593,7 @@ Contributors
    routines, provided the Swedish message translations, improved the file 
    selector sorting algorithm, optimised the spline routines, added the 
    ustrrchr() function, improved the usprintf() handling of floats, changed
-   the Z-buffer API and provided other bug fixes.
+   the Z-buffer API, improved rotation functions and provided other bugfixes.
 
    TBD/FeR (<email>tbd@usa.net</a>).<br>
    Added the 320x600 and 360x600 resolutions to the mode-X driver.
