@@ -1,5 +1,6 @@
 Summary:        A game programming library (end user distribution)
 Summary(es):    Una libreria de programacion de juegos.
+Summary(fr):    Une librairie de programmation de jeux.
 Name:           allegro-enduser
 Version:        3.9.35
 Release:        1
@@ -43,6 +44,24 @@ Fue concebida inicialmente en el Atari ST, pero esa plataforma murió
 tristemente durante su nacimiento. Tras un corto paso por Borland C, fue
 adoptada por el fantástico compilador djgpp, donde creció hasta la
 madurez.
+
+%description -l fr
+     ______   ___    ___
+    /\  _  \ /\_ \  /\_ \
+    \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+     \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+      \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+       \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+				       /\____/
+				       \_/__/     Version 3.9.35 (CVS)
+
+Allegro est une librairie multi-plateforme destinée à être utilisée dans
+les jeux vidéo ou d'autres types de programmation multimédia. Elle fut
+initialement conçue sur l'Atari ST, mais cette plateforme mourut
+tristement durant son enfantement. Après un bref passage par Borland C,
+elle fut adoptée par le fantastique compilateur djgpp, avec lequel elle
+atteignit sa maturité.
 
 %install
 mkdir -p $RPM_BUILD_ROOT/usr/local/src
