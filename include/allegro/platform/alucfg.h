@@ -43,7 +43,7 @@
 
 /* Enable multithreaded library */
 #ifdef HAVE_LIBPTHREAD
-#undef ALLEGRO_MULTITHREADED  /* FIXME */
+#define ALLEGRO_MULTITHREADED
 #endif
 
 /* Provide implementations of missing functions.  */

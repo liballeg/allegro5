@@ -23,6 +23,7 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
+#undef ALLEGRO_MULTITHREADED  /* FIXME */
 
 
 TIMER_DRIVER *timer_driver = NULL;        /* the active driver */

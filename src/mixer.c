@@ -93,8 +93,12 @@ static int mix_16bit;
 /* shift factor for volume per voice */
 static int voice_volume_scale = -1;
 
-
 static void mixer_lock_mem(void);
+
+#ifdef ALLEGRO_MULTITHREADED
+/* global mixer mutex */
+static void *mixer_mutex = NULL;
+#endif
 
 
 
@@ -258,6 +262,12 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
 
    mixer_lock_mem();
 
+#ifdef ALLEGRO_MULTITHREADED
+   mixer_mutex = system_driver->create_mutex();
+   if (!mixer_mutex)
+      return -1;
+#endif
+
    return 0;
 }
 
@@ -268,6 +278,11 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
  */
 void _mixer_exit(void)
 {
+#ifdef ALLEGRO_MULTITHREADED
+   system_driver->destroy_mutex(mixer_mutex);
+   mixer_mutex = NULL;
+#endif
+
    if (mix_buffer) {
       free(mix_buffer);
       mix_buffer = NULL;
@@ -1065,6 +1080,10 @@ void _mix_some_samples(unsigned long buf, unsigned short seg, int issigned)
    for (i=0; i<mix_size/2; i++)
       *(l++) = 0x80008000;
 
+#ifdef ALLEGRO_MULTITHREADED
+   system_driver->lock_mutex(mixer_mutex);
+#endif
+
    if (_sound_hq >= 2) {
       /* top quality interpolated 16 bit mixing */
       for (i=0; i<mix_voices; i++) {
@@ -1166,6 +1185,10 @@ void _mix_some_samples(unsigned long buf, unsigned short seg, int issigned)
       }
    }
 
+#ifdef ALLEGRO_MULTITHREADED
+   system_driver->unlock_mutex(mixer_mutex);
+#endif
+
    _farsetsel(seg);
 
    /* transfer to conventional memory buffer using a clip table */
@@ -1232,9 +1255,17 @@ END_OF_FUNCTION(_mixer_init_voice);
  */
 void _mixer_release_voice(int voice)
 {
+#ifdef ALLEGRO_MULTITHREADED
+   system_driver->lock_mutex(mixer_mutex);
+#endif
+
    mixer_voice[voice].playing = FALSE;
    mixer_voice[voice].data8 = NULL;
    mixer_voice[voice].data16 = NULL;
+
+#ifdef ALLEGRO_MULTITHREADED
+   system_driver->unlock_mutex(mixer_mutex);
+#endif
 }
 
 END_OF_FUNCTION(_mixer_release_voice);
