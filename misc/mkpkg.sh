@@ -196,13 +196,13 @@ echo "Creating compressed disk image"
 volume=allegro-enduser-${version}
 diskimage=${volume}.dmg
 tempimage=temp.dmg
-rm -f $diskimage $tempimage
+mountpoint=temp_volume
+rm -fr $diskimage $tempimage $mountpoint
 hdiutil create $tempimage -megabytes 4 -layout NONE
 drive=`hdid -nomount $tempimage`
-newfs_hfs -v "$volume" -b 4096 /dev/r${drive:t}
-hdiutil eject ${drive}
-hdid $tempimage
-mountpoint=`df -l | grep $drive | awk '{print $6}'`
+newfs_hfs -v "$volume" $drive
+mkdir $mountpoint
+mount -t hfs $drive $mountpoint
 
 cp -r $packagefile $mountpoint
 ./_makedoc -ascii ${mountpoint}/readme.txt $1/misc/pkgreadme._tx
@@ -210,10 +210,11 @@ cp -r $packagefile $mountpoint
 ./_makedoc -part -ascii ${mountpoint}/AUTHORS $1/docs/src/thanks._tx
 ./_makedoc -part -ascii ${mountpoint}/THANKS $1/docs/src/thanks._tx
 
+umount $mountpoint
 hdiutil eject $drive
 hdiutil convert -format UDCO $tempimage -o $diskimage
 echo "Compressing image"
 gzip -f -9 $diskimage
-rm -fr $tempimage ${packagefile} dstroot _makedoc
+rm -fr $tempimage ${packagefile} dstroot _makedoc $mountpoint
 
 echo "Done!"
