@@ -268,7 +268,8 @@ ALLEGRO_SRC_LINUX_FILES = \
 	src/misc/modexgfx.s
 
 ALLEGRO_SRC_UNIX_FILES = \
-	src/unix/alsa.c \
+	src/unix/alsa5.c \
+	src/unix/alsa9.c \
 	src/unix/alsamidi.c \
 	src/unix/arts.c \
 	src/unix/sgial.c \
@@ -317,7 +318,7 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/qnx/qphwin.c \
 	src/qnx/qswitch.s \
 	src/qnx/qsystem.c \
-	src/unix/alsa.c \
+	src/unix/alsa5.c \
 	src/unix/alsamidi.c \
 	src/unix/udjgpp.c \
 	src/unix/ufile.c \
@@ -368,7 +369,8 @@ ALLEGRO_MODULE_DGA2_FILES = \
 	src/x/xdga2s.s
 	
 ALLEGRO_MODULE_ALSADIGI_FILES = \
-	src/unix/alsa.c
+	src/unix/alsa5.c \
+	src/unix/alsa9.c
 
 ALLEGRO_MODULE_ALSAMIDI_FILES = \
 	src/unix/alsamidi.c
