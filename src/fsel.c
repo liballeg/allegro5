@@ -784,7 +784,7 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
 
    if (!ugetc(path)) {
 
-   #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
+   #ifdef HAVE_DIR_LIST
 
       int drive = _al_getdrive();
 
