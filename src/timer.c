@@ -32,7 +32,7 @@ TIMER_QUEUE _timer_queue[MAX_TIMERS];     /* list of active callbacks */
 volatile int retrace_count = 0;           /* used for retrace syncing */
 void (*retrace_proc)(void) = NULL;
 
-long _vsync_speed = BPS_TO_TIMER(70);     /* retrace speed */
+long _vsync_speed = BPS_TO_TIMER(60);     /* retrace speed */
 
 static long vsync_counter;                /* retrace position counter */
 
@@ -444,7 +444,7 @@ int install_timer()
    }
 
    retrace_proc = NULL;
-   vsync_counter = BPS_TO_TIMER(70);
+   vsync_counter = BPS_TO_TIMER(60);
    _timer_use_retrace = FALSE;
    _retrace_hpp_value = -1;
    timer_delay = 0;
