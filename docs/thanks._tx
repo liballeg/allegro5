@@ -103,7 +103,7 @@ Contributors
    Cloud Wu (<email>cloudwu@263.net</a>).<br>
    Optimised the truecolor pixel blending functions.
 
-   Chris La Mantia (<email>chrislm@earthlink.net</a>).<br>
+   Chris La Mantia (<email>celamantia@home.com</a>).<br>
    Wrote the d_radio_proc(), d_icon_proc(), and d_slider_proc() dialog 
    objects, added the D_DISABLED flag, improved the GUI handling of 
    different font heights, and added the right aligned text functions.
@@ -424,7 +424,7 @@ Contributors
    Peter Palotas (<email>blizzar@hem1.passagen.se</a>).<br>
    Added the keyboard callback routine.
 
-   Peter Pavlovic (<email>pavlovic@redbull.dcs.fmph.uniba.sk</a>).<br>
+   Peter Pavlovic (<email>Peter.Pavlovic@st.fmph.uniba.sk</a>).<br>
    Added the Slovak keyboard mapping and message translation, stopped the 
    DOS file selector from listing virtual drives, did the same for the Windows
    file selector, improved the support for accented character maps in the 
