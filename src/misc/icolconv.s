@@ -1791,7 +1791,7 @@ FUNC (_colorconv_blit_8_to_24)
       movl MYLOCAL1, %edx                                                        ; \
                                                                                  ; \
       shrl $1, %edx                                                              ; \
-      jz do_one_pixel_##name##                                                   ; \
+      jz do_one_pixel_##name                                                     ; \
                                                                                  ; \
       pushl %ecx                                                                 ; \
                                                                                  ; \
@@ -1822,7 +1822,7 @@ FUNC (_colorconv_blit_8_to_24)
                                                                                  ; \
       popl %ecx                                                                  ; \
                                                                                  ; \
-      do_one_pixel_##name##:                                                     ; \
+      do_one_pixel_##name:                                                       ; \
          movl MYLOCAL1, %edx                                                     ; \
          shrl $1, %edx                                                           ; \
          jnc end_of_line_##name                                                  ; \
@@ -2044,7 +2044,7 @@ FUNC (_colorconv_blit_8_to_15)
       movl MYLOCAL1, %edx                                                        ; \
                                                                                  ; \
       shrl $1, %edx                                                              ; \
-      jz do_one_pixel_##name##                                                   ; \
+      jz do_one_pixel_##name                                                     ; \
                                                                                  ; \
       pushl %ecx                                                                 ; \
                                                                                  ; \
@@ -2077,7 +2077,7 @@ FUNC (_colorconv_blit_8_to_15)
                                                                                  ; \
       popl %ecx                                                                  ; \
                                                                                  ; \
-      do_one_pixel_##name##:                                                     ; \
+      do_one_pixel_##name:                                                       ; \
          movl MYLOCAL1, %edx                                                     ; \
          shrl $1, %edx                                                           ; \
          jnc end_of_line_##name                                                  ; \

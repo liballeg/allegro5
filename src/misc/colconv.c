@@ -13,7 +13,7 @@
  *
  *      By Isaac Cruz.
  *
- *      24-bit color support and non MMX routines by Eric Botcazou. 
+ *      24-bit color support and non MMX routines by Eric Botcazou.
  *
  *      Support for rectangles of any width and 8-bit destination color,
  *      additional MMX routines by Robert J. Ohannessian.
@@ -22,11 +22,11 @@
  */
 
 
-#include <allegro.h>
-#include <allegro/aintern.h>
+#include "allegro.h"
+#include "allegro/aintern.h"
 
 
-int *_colorconv_indexed_palette = NULL;    /* for conversion from 8-bit  */
+int *_colorconv_indexed_palette = NULL;    /* for conversion from 8-bit */
 int *_colorconv_rgb_scale_5x35 = NULL;     /* for conversion from 15/16-bit */
 unsigned char *_colorconv_rgb_map = NULL;  /* for conversion from 8/12-bit to 8-bit */
 
@@ -48,7 +48,7 @@ static void build_rgb_scale_5235_table(int to_depth)
    else if (to_depth == 32)
       /* 2 contiguous 256-entry tables (2k) */
       _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*512);
-    
+
    /* 1st table: r5g2 to r8g8b0 */ 
    for (i=0; i<128; i++) {
       red = _rgb_scale_5[i>>2];
@@ -96,7 +96,7 @@ static void build_rgb_scale_5335_table(int to_depth)
    else if (to_depth == 32)
       /* 2 contiguous 256-entry tables (2k) */
       _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*512);
-    
+
    /* 1st table: r5g3 to r8g8b0 */ 
    for (i=0; i<256; i++) {
       red = _rgb_scale_5[i>>3];
@@ -236,7 +236,7 @@ unsigned char *_get_colorconv_map(void)
  */
 COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
 {
-   switch(from_depth) {
+   switch (from_depth) {
 
 #ifdef ALLEGRO_COLOR8
       case 8:
@@ -357,7 +357,6 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
 #endif
    }
 
-   ASSERT(FALSE);
    return NULL;
 }
 
@@ -370,19 +369,19 @@ void _release_colorconv_blitter(COLORCONV_BLITTER_FUNC *blitter)
 {
    /* destroy the 8-bit palette */
    if (_colorconv_indexed_palette) {
-      free (_colorconv_indexed_palette);
+      free(_colorconv_indexed_palette);
       _colorconv_indexed_palette = NULL;
    }
 
    /* destroy the shift table */
    if (_colorconv_rgb_scale_5x35) {
-      free (_colorconv_rgb_scale_5x35);
+      free(_colorconv_rgb_scale_5x35);
       _colorconv_rgb_scale_5x35 = NULL;
    }
 
    /* destroy the rgb map to 8-bit */
    if (_colorconv_rgb_map) {
-      free (_colorconv_rgb_map);
+      free(_colorconv_rgb_map);
       _colorconv_rgb_map = NULL;
    }
 }
