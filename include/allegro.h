@@ -772,6 +772,16 @@ AL_FUNC(int, calibrate_joystick, (int n));
 #define GFX_SAFE                       AL_ID('S','A','F','E')
 
 
+typedef struct GFX_MODE {
+   int width, height, bpp;
+} GFX_MODE;
+
+typedef struct GFX_MODE_LIST {
+   int modes;      /* number of gfx modes                   */
+   int malloced;   /* malloc'ed or hardcoded?               */
+   GFX_MODE *mode; /* pointer to the actual mode list array */
+} GFX_MODE_LIST;
+
 typedef struct GFX_DRIVER        /* creates and manages the screen bitmap */
 {
    int  id; 
@@ -799,7 +809,7 @@ typedef struct GFX_DRIVER        /* creates and manages the screen bitmap */
    AL_METHOD(void, drawing_mode, (void));
    AL_METHOD(void, save_video_state, (void));
    AL_METHOD(void, restore_video_state, (void));
-   AL_METHOD(int, fetch_mode_list, (void));
+   AL_METHOD(GFX_MODE_LIST *, fetch_mode_list, (void));
    int w, h;                     /* physical (not virtual!) screen size */
    int linear;                   /* true if video memory is linear */
    long bank_size;               /* bank size, in bytes */
@@ -1061,16 +1071,8 @@ AL_VAR(BITMAP *, screen);
 				     COLORCONV_REDUCE_TRUE_TO_HI |   \
 				     COLORCONV_24_EQUALS_32)
 
-typedef struct GFX_MODE_LIST {
-   int width;
-   int height;
-   int bpp;
-} GFX_MODE_LIST;
-
-AL_VAR(GFX_MODE_LIST *, gfx_mode_list);
-
-AL_FUNC(int, get_gfx_mode_list, (int card));
-AL_FUNC(void, destroy_gfx_mode_list, (void));
+AL_FUNC(GFX_MODE_LIST *, get_gfx_mode_list, (int card));
+AL_FUNC(void, destroy_gfx_mode_list, (GFX_MODE_LIST *gfx_mode_list));
 AL_FUNC(void, set_color_depth, (int depth));
 AL_FUNC(void, set_color_conversion, (int mode));
 AL_FUNC(void, request_refresh_rate, (int rate));

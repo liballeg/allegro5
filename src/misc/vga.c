@@ -38,7 +38,7 @@
 static BITMAP *vga_init(int w, int h, int v_w, int v_h, int color_depth);
 static void vga_exit(BITMAP *b);
 static int vga_scroll(int x, int y);
-static int vga_fetch_mode_list();
+static GFX_MODE_LIST *vga_fetch_mode_list();
 
 
 GFX_DRIVER gfx_vga = 
@@ -70,7 +70,7 @@ GFX_DRIVER gfx_vga =
 
 
 
-GFX_MODE_LIST vga_gfx_modes[] = {
+GFX_MODE vga_gfx_modes[] = {
    { 80,  80,  8 },
    { 160, 120, 8 },
    { 256, 256, 8 },
@@ -340,16 +340,18 @@ static int vga_scroll(int x, int y)
 /* vga_fetch_mode_list:
  *  Creates a list of of currently implemented VGA modes.
  */
-static int vga_fetch_mode_list()
+static GFX_MODE_LIST *vga_fetch_mode_list()
 {
-   int modes;
+   GFX_MODE_LIST *mode_list;
 
-   destroy_gfx_mode_list();
-   _gfx_mode_list_malloced = FALSE;
-   gfx_mode_list = vga_gfx_modes;
-   modes = sizeof(vga_gfx_modes) / sizeof(GFX_MODE_LIST) - 1;
+   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   if (!mode_list) return NULL;
+   
+   mode_list->malloced = FALSE;
+   mode_list->mode = vga_gfx_modes;
+   mode_list->modes = sizeof(vga_gfx_modes) / sizeof(GFX_MODE_LIST) - 1;
 
-   return modes;
+   return mode_list;
 }
 
 #endif      /* ifdef GFX_VGA */

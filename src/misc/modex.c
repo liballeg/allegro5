@@ -92,7 +92,7 @@ static BITMAP *modex_init(int w, int h, int v_w, int v_h, int color_depth);
 static void modex_exit(BITMAP *b);
 static int modex_scroll(int x, int y);
 static void modex_enable_triple_buffer(void);
-static int modex_fetch_mode_list();
+static GFX_MODE_LIST *modex_fetch_mode_list();
 
 
 
@@ -126,7 +126,7 @@ GFX_DRIVER gfx_modex =
 
 
 
-GFX_MODE_LIST modex_gfx_modes[] = {
+GFX_MODE modex_gfx_modes[] = {
    { 256, 200, 8 },
    { 256, 224, 8 },
    { 256, 240, 8 },
@@ -158,7 +158,7 @@ GFX_MODE_LIST modex_gfx_modes[] = {
 
 
 static BITMAP *xtended_init(int w, int h, int v_w, int v_h, int color_depth);
-static int xtended_fetch_mode_list();
+static GFX_MODE_LIST *xtended_fetch_mode_list();
 
 
 GFX_DRIVER gfx_xtended =
@@ -189,7 +189,7 @@ GFX_DRIVER gfx_xtended =
 
 
 
-GFX_MODE_LIST xtended_gfx_modes[] = {
+GFX_MODE xtended_gfx_modes[] = {
    { 640, 400, 8 },
    { 0,   0,   0 }
 };
@@ -817,16 +817,18 @@ static BITMAP *xtended_init(int w, int h, int v_w, int v_h, int color_depth)
 /* xtended_fetch_mode_list:
  *  Creates a list of of currently implemented Xtended modes.
  */
-static int xtended_fetch_mode_list()
+static GFX_MODE_LIST *xtended_fetch_mode_list()
 {
-   int modes;
+   GFX_MODE_LIST *mode_list;
 
-   destroy_gfx_mode_list();
-   _gfx_mode_list_malloced = FALSE;
-   gfx_mode_list = xtended_gfx_modes;
-   modes = sizeof(xtended_gfx_modes) / sizeof(GFX_MODE_LIST) - 1;
+   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   if (!mode_list) return NULL;
+   
+   mode_list->malloced = FALSE;
+   mode_list->mode = xtended_gfx_modes;
+   mode_list->modes = sizeof(xtended_gfx_modes) / sizeof(GFX_MODE_LIST) - 1;
 
-   return modes;
+   return mode_list;
 }
 
 #endif      /* GFX_XTENDED */
@@ -1604,16 +1606,18 @@ void _x_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int co
 /* modex_fetch_mode_list:
  *  Creates a list of of currently implemented ModeX modes.
  */
-static int modex_fetch_mode_list()
+static GFX_MODE_LIST *modex_fetch_mode_list()
 {
-   int modes;
+   GFX_MODE_LIST *mode_list;
 
-   destroy_gfx_mode_list();
-   _gfx_mode_list_malloced = FALSE;
-   gfx_mode_list = modex_gfx_modes;
-   modes = sizeof(modex_gfx_modes) / sizeof(GFX_MODE_LIST) - 1;
+   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   if (!mode_list) return NULL;
+   
+   mode_list->malloced = FALSE;
+   mode_list->mode = modex_gfx_modes;
+   mode_list->modes = sizeof(modex_gfx_modes) / sizeof(GFX_MODE_LIST) - 1;
 
-   return modes;
+   return mode_list;
 }
 
 #endif      /* ifdef GFX_MODEX */

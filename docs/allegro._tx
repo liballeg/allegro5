@@ -2105,22 +2105,26 @@ Graphics modes
    Returns the current refresh rate, if known (not all drivers are able to 
    report this information). Returns zero if the actual rate is unknown.
 
-@@int @get_gfx_mode_list(int card);
+@@GFX_MODE_LIST *@get_gfx_mode_list(int card);
 @xref destroy_gfx_mode_list, set_gfx_mode, set_color_depth
    Attempts to create a list of all the supported video modes for a certain
-   GFX driver. The result is placed in the gfx_mode_list array.
-   gfx_mode_list is a pointer to a list structure of the type GFX_MODE_LIST
-   which has the following definition:
+   GFX driver. This function returns a pointer to a list structure of the
+   type GFX_MODE_LIST which has the following definition:
 <pre>
    typedef struct GFX_MODE_LIST {
-      int width;
-      int height;
-      int bpp;
+      int modes;
+      int malloced;
+      GFX_MODE *mode;
    } GFX_MODE_LIST;
 </pre>
+   If this function returns NULL, it means the call failed. The mode entry
+   points to the actual list of video modes.
+<pre>
+   typedef struct GFX_MODE {
+      int width, height, bpp;
+   } GFX_MODE;
+</pre>
    This list is terminated with an { 0, 0, 0 } entry.
-   Returns: the number of supported video modes on success, -2 if the
-   function is not supported, or -1 if the call failed.
 
 @@void @destroy_gfx_mode_list(void);
 @xref get_gfx_mode_list, set_gfx_mode, set_color_depth

@@ -92,7 +92,7 @@ AL_VAR(RGB_MAP, desktop_rgb_map);
 AL_FUNC(void, build_desktop_rgb_map, (void));
 AL_FUNC(int, gfx_directx_compare_color_depth, (int color_depth));
 AL_FUNC(int, gfx_directx_update_color_format, (LPDIRECTDRAWSURFACE2 surf, int color_depth));
-AL_FUNC(int, gfx_directx_fetch_mode_list, (void));
+AL_FUNC(GFX_MODE_LIST *, gfx_directx_fetch_mode_list, (void));
 
 
 /* bitmap locking */

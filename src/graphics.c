@@ -33,8 +33,6 @@ int _screen_split_position = 0;        /* has the screen been split? */
 
 int _safe_gfx_mode_change = 0;         /* are we getting through GFX_SAFE? */
 
-int _gfx_mode_list_malloced = FALSE;   /* was gfx_mode_list malloced or set to point to a hardcoded table? */
-
 RGB_MAP *rgb_map = NULL;               /* RGB -> palette entry conversion */
 
 COLOR_MAP *color_map = NULL;           /* translucency/lighting table */
@@ -164,7 +162,7 @@ int get_refresh_rate(void)
 /* sort_gfx_mode_list:
  *  callback for quick-sorting a mode-list.
  */
-static int sort_gfx_mode_list(GFX_MODE_LIST *entry_1, GFX_MODE_LIST *entry_2)
+static int sort_gfx_mode_list(GFX_MODE *entry_1, GFX_MODE *entry_2)
 {
    if (entry_1->width > entry_2->width) return +1;
    else if (entry_1->width < entry_2->width) return -1;
@@ -183,18 +181,16 @@ static int sort_gfx_mode_list(GFX_MODE_LIST *entry_1, GFX_MODE_LIST *entry_2)
 
 /* get_gfx_mode_list:
  *  Attempts to create a list of all the supported video modes for a certain
- *  GFX driver. The result is placed in the gfx_mode_list array.
- *  Returns: the number of video modes on success and -2 if the function is
- *  not supported, and -1 if the function failed.
+ *  GFX driver.
  */
-int get_gfx_mode_list(int card)
+GFX_MODE_LIST *get_gfx_mode_list(int card)
 {
    _DRIVER_INFO *list_entry;
    GFX_DRIVER *drv;
-   int fetch_ml_ret;
+   GFX_MODE_LIST *gfx_mode_list;
 
-   fetch_ml_ret = 0;
    drv = NULL;
+   gfx_mode_list = NULL;
    
    /* ask the system driver for a list of graphics hardware drivers */
    if (system_driver->gfx_drivers)
@@ -206,20 +202,20 @@ int get_gfx_mode_list(int card)
    while (list_entry->driver) {
       if (list_entry->id == card) {
          drv = list_entry->driver;
-         if (!drv->fetch_mode_list) return -2;
-	 fetch_ml_ret = drv->fetch_mode_list();
-         if (fetch_ml_ret < 0) return fetch_ml_ret;
+         if (!drv->fetch_mode_list) return NULL;
+         gfx_mode_list = drv->fetch_mode_list();
+         if (!gfx_mode_list) return NULL;
          break;
       }
       list_entry++;
    }
 
-   if(!drv) return -2;
+   if(!drv) return NULL;
 
    /* sort the list and finish */
-   qsort(gfx_mode_list, fetch_ml_ret, sizeof(GFX_MODE_LIST), (void *) sort_gfx_mode_list);
+   qsort(gfx_mode_list->mode, gfx_mode_list->modes, sizeof(GFX_MODE), (void *) sort_gfx_mode_list);
 
-   return fetch_ml_ret;
+   return gfx_mode_list;
 }
 
 
@@ -227,11 +223,11 @@ int get_gfx_mode_list(int card)
 /* destroy_gfx_mode_list:
  *  Removes the mode list created by get_gfx_mode_list() from memory.
  */
-void destroy_gfx_mode_list(void)
+void destroy_gfx_mode_list(GFX_MODE_LIST *gfx_mode_list)
 {
    if (gfx_mode_list) {
-      if (_gfx_mode_list_malloced) free(gfx_mode_list);
-      gfx_mode_list = NULL;
+      if (gfx_mode_list->malloced) free(gfx_mode_list->mode);
+      free(gfx_mode_list);
    }
 }
 

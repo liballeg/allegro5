@@ -230,9 +230,6 @@ AL_VAR(int, _last_bank_2);
 
 AL_VAR(int *, _gfx_bank);
 
-/* was gfx_mode_list malloced or set to point to a hardcoded table? */
-AL_VAR(int, _gfx_mode_list_malloced);
-
 /* bank switching routines (these use a non-C calling convention on i386!) */
 AL_FUNC(unsigned long, _stub_bank_switch, (BITMAP *bmp, int line));
 AL_FUNC(void, _stub_unbank_switch, (BITMAP *bmp));

@@ -41,7 +41,7 @@ static void vesa_vsync(void);
 static void vesa_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static int vesa_request_scroll(int x, int y);
 static int vesa_poll_scroll(void);
-static int vesa_fetch_mode_list();
+static GFX_MODE_LIST *vesa_fetch_mode_list();
 
 static char vesa_desc[256] = EMPTY_STRING;
 
@@ -604,25 +604,30 @@ static void setup_vesa_desc(GFX_DRIVER *driver, int vbe_version, int linear)
  *  Generates a list of valid video modes for the VESA drivers.
  *  Returns number of video modes on success and -1 on failure.
  */
-static int vesa_fetch_mode_list()
+static GFX_MODE_LIST *vesa_fetch_mode_list()
 {
+   GFX_MODE_LIST  *mode_list;
    unsigned long  mode_ptr;
    unsigned short *vesa_mode;
-   int            mode, modes, pos, vesa_list_length;
+   int            mode, pos, vesa_list_length;
+
+   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   if (!mode_list) return NULL;
+   mode_list->malloced = TRUE;
 
    /* fetch list of VESA modes */
-   if (get_vesa_info()) return -1;
+   if (get_vesa_info()) return NULL;
 
    _farsetsel(_dos_ds);
 
    /* count number of VESA modes */
    mode_ptr = RM_TO_LINEAR(vesa_info.VideoModePtr);
-   for (modes = 0; _farnspeekw(mode_ptr) != 0xFFFF; modes++)
+   for (mode_list->modes = 0; _farnspeekw(mode_ptr) != 0xFFFF; mode_list->modes++)
       mode_ptr += sizeof(unsigned short);
 
    /* allocate and fill in temporary vesa mode list */
-   vesa_mode = malloc(sizeof(unsigned short) * modes);
-   if (!vesa_mode) return -1;
+   vesa_mode = malloc(sizeof(unsigned short) * mode_list->modes);
+   if (!vesa_mode) return NULL;
 
    mode_ptr = RM_TO_LINEAR(vesa_info.VideoModePtr);
    for (mode = 0; _farnspeekw(mode_ptr) != 0xFFFF; mode++) {
@@ -630,44 +635,41 @@ static int vesa_fetch_mode_list()
       mode_ptr += sizeof(unsigned short);
    }
 
-   vesa_list_length = modes;
+   vesa_list_length = mode_list->modes;
 
    /* zero out text and <8 bpp modes for later exclusion */
-   for (mode = 0; mode < modes; mode++) {
-      if (get_mode_info(vesa_mode[mode])) return -1;
+   for (mode = 0; mode < mode_list->modes; mode++) {
+      if (get_mode_info(vesa_mode[mode])) return NULL;
       if ((mode_info.MemoryModel == 0) || (mode_info.BitsPerPixel < 8)) {
          vesa_mode[mode] = 0;
-         modes--;
+         mode_list->modes--;
       }
    }
 
-   /* allocate gfx_mode_list */
-   destroy_gfx_mode_list();
-   gfx_mode_list = malloc(sizeof(GFX_MODE_LIST) * (modes + 1));
-   if (!gfx_mode_list) return -1;
+   /* allocate mode list */
+   mode_list->mode = malloc(sizeof(GFX_MODE) * (mode_list->modes + 1));
+   if (!mode_list->mode) return NULL;
 
    /* fill in width, height and color depth for each VESA mode */
    mode = 0;
    for (pos = 0; pos < vesa_list_length; pos++) {
-      if (get_mode_info(vesa_mode[pos])) return -1;
+      if (get_mode_info(vesa_mode[pos])) return NULL;
       if (!vesa_mode[pos]) continue;
-      gfx_mode_list[mode].width  = mode_info.XResolution;
-      gfx_mode_list[mode].height = mode_info.YResolution;
-      gfx_mode_list[mode].bpp    = mode_info.BitsPerPixel;
+      mode_list->mode[mode].width  = mode_info.XResolution;
+      mode_list->mode[mode].height = mode_info.YResolution;
+      mode_list->mode[mode].bpp    = mode_info.BitsPerPixel;
       mode++;
    }
 
    /* terminate list */
-   gfx_mode_list[modes].width  = 0;
-   gfx_mode_list[modes].height = 0;
-   gfx_mode_list[modes].bpp    = 0;
+   mode_list->mode[mode_list->modes].width  = 0;
+   mode_list->mode[mode_list->modes].height = 0;
+   mode_list->mode[mode_list->modes].bpp    = 0;
 
    /* free up temporary vesa mode list */
    free(vesa_mode);
 
-   _gfx_mode_list_malloced = TRUE;
-
-   return modes;
+   return mode_list;
 }
 
 

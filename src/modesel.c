@@ -187,8 +187,9 @@ int d_listchange_proc(int msg, DIALOG* d, int c)
 static int create_mode_list(DRIVER_LIST *driver_list_entry)
 {
    MODE_LIST *temp_mode_list;
-   GFX_MODE_LIST *gfx_mode_entry;
-   int ret, mode, res_exist;
+   GFX_MODE_LIST *gfx_mode_list;
+   GFX_MODE *gfx_mode_entry;
+   int mode, res_exist;
 
    /* autodetect drivers? */
    if ((driver_list_entry->id == GFX_AUTODETECT) || (driver_list_entry->id == GFX_AUTODETECT_WINDOWED) ||
@@ -198,15 +199,15 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
       return 0;
    }
 
-   ret = get_gfx_mode_list(driver_list_entry->id);
+   gfx_mode_list = get_gfx_mode_list(driver_list_entry->id);
 
    /* driver supports fetch_mode_list? */
-   if (ret > 0) {
+   if (gfx_mode_list) {
       temp_mode_list = NULL;
       driver_list_entry->mode_count = 0;
 
       /* build mode list */
-      for (gfx_mode_entry = gfx_mode_list; gfx_mode_entry->width; gfx_mode_entry++) {
+      for (gfx_mode_entry = gfx_mode_list->mode; gfx_mode_entry->width; gfx_mode_entry++) {
          res_exist = FALSE;
 
          /* resolution already there? */
@@ -266,7 +267,7 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
       driver_list_entry->fetch_mode_list_ptr = NULL;
    }
 
-   destroy_gfx_mode_list();
+   destroy_gfx_mode_list(gfx_mode_list);
 
    return 0;
 }
