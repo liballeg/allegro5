@@ -81,6 +81,7 @@ int get_dx_ver(void)
 #endif
 
    DDSURFACEDESC ddraw_surf_desc;
+   LPVOID temp;
    int dx_version = 0;
 
    /* first get the Windows platform */
@@ -154,11 +155,13 @@ int get_dx_ver(void)
    dx_version = 0x100;
 
    /* let's see if IDirectDraw2 exists */
-   hr = IDirectDraw_QueryInterface(directdraw, &IID_IDirectDraw2, (LPVOID *) & directdraw2);
+   hr = IDirectDraw_QueryInterface(directdraw, &IID_IDirectDraw2, &temp);
    if (FAILED(hr)) {
       /* no IDirectDraw2 exists... must be DX1 */
       goto End;
    }
+
+   directdraw2 = temp;
 
    /* IDirectDraw2 exists... must be at least DX2 */
    IDirectDraw2_Release(directdraw2);
@@ -205,9 +208,11 @@ int get_dx_ver(void)
    }
 
    /* try for the IDirectDrawSurface3 interface; if it works, we're on DX5 at least */
-   hr = IDirectDrawSurface_QueryInterface(ddraw_surf, &IID_IDirectDrawSurface3, (LPVOID *) &ddraw_surf3);
+   hr = IDirectDrawSurface_QueryInterface(ddraw_surf, &IID_IDirectDrawSurface3, &temp);
    if (FAILED(hr))
       goto End;
+
+   ddraw_surf3 = temp;
 
    /* QI for IDirectDrawSurface3 succeeded; we must be at least DX5 */
    dx_version = 0x500;

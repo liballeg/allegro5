@@ -645,7 +645,10 @@ static void wnd_thread_proc(HANDLE setup_event)
  */
 int init_directx_window(void)
 {
-   RECT win_rect;
+   union {
+     POINT p;
+     RECT r;
+   } win_rect;
    HANDLE events[2];
    long result;
 
@@ -668,13 +671,13 @@ int init_directx_window(void)
       allegro_wnd = user_wnd;
 
       /* retrieve the window dimensions */
-      GetWindowRect(allegro_wnd, &win_rect);
-      ClientToScreen(allegro_wnd, (LPPOINT)&win_rect);
-      ClientToScreen(allegro_wnd, (LPPOINT)&win_rect + 1);
-      wnd_x = win_rect.left;
-      wnd_y = win_rect.top;
-      wnd_width = win_rect.right - win_rect.left;
-      wnd_height = win_rect.bottom - win_rect.top;
+      GetWindowRect(allegro_wnd, &win_rect.r);
+      ClientToScreen(allegro_wnd, &win_rect.p);
+      ClientToScreen(allegro_wnd, &win_rect.p + 1);
+      wnd_x = win_rect.r.left;
+      wnd_y = win_rect.r.top;
+      wnd_width = win_rect.r.right - win_rect.r.left;
+      wnd_height = win_rect.r.bottom - win_rect.r.top;
    }
    else {
       /* create window thread */

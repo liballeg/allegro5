@@ -263,6 +263,7 @@ int digi_directsound_capture_init(LPGUID guid)
    DSCCAPS dsCaps;
    WAVEFORMATEX wfx;
    HRESULT hr;
+   LPVOID temp;
 
    /* the DirectSoundCapture interface is not part of DirectX 3 */
    if (_dx_ver < 0x0500)
@@ -272,13 +273,15 @@ int digi_directsound_capture_init(LPGUID guid)
     *  we use CoCreateInstance() instead of DirectSoundCaptureCreate() to avoid
     *  the dll loader blocking the start of Allegro under DirectX 3.
     */
-   hr = CoCreateInstance(&CLSID_DirectSoundCapture, NULL, CLSCTX_INPROC_SERVER,
-                         &IID_IDirectSoundCapture, (LPVOID *)&ds_capture);
 
+   hr = CoCreateInstance(&CLSID_DirectSoundCapture, NULL, CLSCTX_INPROC_SERVER,
+                         &IID_IDirectSoundCapture, &temp);
    if (FAILED(hr)) {
       _TRACE("Can't create DirectSoundCapture interface (%s).\n", ds_err(hr));
       goto Error;
    }
+
+   ds_capture = temp;
 
    /* initialize the device */
    hr = IDirectSoundCapture_Initialize(ds_capture, guid);
@@ -341,6 +344,7 @@ void digi_directsound_capture_exit(void)
 int digi_directsound_capture_detect(LPGUID guid)
 {
    HRESULT hr;
+   LPVOID temp;
 
    /* the DirectSoundCapture interface is not part of DirectX 3 */
    if (_dx_ver < 0x500)
@@ -352,12 +356,14 @@ int digi_directsound_capture_detect(LPGUID guid)
        *  the dll loader blocking the start of Allegro under DirectX 3.
        */
       hr = CoCreateInstance(&CLSID_DirectSoundCapture, NULL, CLSCTX_INPROC_SERVER,
-                            &IID_IDirectSoundCapture, (LPVOID *)&ds_capture);
+                            &IID_IDirectSoundCapture, &temp);
 
       if (FAILED(hr)) {
          _TRACE("DirectSoundCapture interface creation failed during detect (%s).\n", ds_err(hr));
          return 0;
       }
+
+      ds_capture = temp;
 
       /* initialize the device */
       hr = IDirectSoundCapture_Initialize(ds_capture, guid);
@@ -515,6 +521,7 @@ int digi_directsound_rec_read(void *buf)
    unsigned long int capture_pos;
    HRESULT hr;
    BOOL buffer_filled = FALSE;
+   LPVOID temp1, temp2;
 
    if (!ds_capture || !ds_capture_buf || !input_wave_data)
       return 0;
@@ -535,11 +542,14 @@ int digi_directsound_rec_read(void *buf)
    }
 
    hr = IDirectSoundCaptureBuffer_Lock(ds_capture_buf, last_capture_pos,
-                                       bytes_to_lock, (LPVOID *)&input_ptr1,
-                                       &input_bytes1, (LPVOID *)&input_ptr2,
+                                       bytes_to_lock, &temp1,
+                                       &input_bytes1, &temp2,
                                        &input_bytes2, 0);
    if (FAILED(hr))
       return 0;
+
+   input_ptr1 = temp1;
+   input_ptr2 = temp2;
 
    /* let's get the data aligned linearly */
    linear_input_ptr = malloc(bytes_to_lock);

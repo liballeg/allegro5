@@ -216,9 +216,12 @@ static void paint_win(RECT *rect)
 /* update_matching_window:
  *  Updates a portion of the window when the color depths match.
  */
-static void update_matching_window(RECT* rect)
+static void update_matching_window(RECT *rect)
 {
-   RECT dest_rect;
+   union {
+     POINT p;
+     RECT r;
+   } dest_rect;
 
    _enter_gfx_critical();
 
@@ -228,19 +231,19 @@ static void update_matching_window(RECT* rect)
    }
 
    if (rect)
-      dest_rect = *rect;
+      dest_rect.r = *rect;
    else {
-      dest_rect.left   = 0;
-      dest_rect.right  = gfx_directx_win.w;
-      dest_rect.top    = 0;
-      dest_rect.bottom = gfx_directx_win.h;
+      dest_rect.r.left   = 0;
+      dest_rect.r.right  = gfx_directx_win.w;
+      dest_rect.r.top    = 0;
+      dest_rect.r.bottom = gfx_directx_win.h;
    }
 
-   ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect);
-   ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect + 1);
+   ClientToScreen(allegro_wnd, &dest_rect.p);
+   ClientToScreen(allegro_wnd, &dest_rect.p + 1);
  
    /* blit offscreen backbuffer to the window */
-   IDirectDrawSurface2_Blt(dd_prim_surface, &dest_rect,
+   IDirectDrawSurface2_Blt(dd_prim_surface, &dest_rect.r,
                            BMP_EXTRA(pseudo_screen)->surf, rect,
                            0, NULL);
    _exit_gfx_critical();
@@ -313,9 +316,13 @@ static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
 /* update_colorconv_window:
  *  Updates a portion of the window when the color depths don't match.
  */
-static void update_colorconv_window(RECT* rect)
+static void update_colorconv_window(RECT *rect)
 {
-   RECT src_rect, dest_rect;
+   RECT src_rect;
+   union {
+     POINT p;
+     RECT r;
+   } dest_rect;
    HDC src_dc, dest_dc;
    HRESULT hr;
    int direct;
@@ -345,17 +352,17 @@ static void update_colorconv_window(RECT* rect)
       src_rect.bottom = gfx_directx_win.h;
    }
 
-   dest_rect = src_rect;
-   ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect);
-   ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect + 1);
+   dest_rect.r = src_rect;
+   ClientToScreen(allegro_wnd, &dest_rect.p);
+   ClientToScreen(allegro_wnd, &dest_rect.p + 1);
 
    direct = (direct_updating_mode_on &&
-             is_contained(&dest_rect, &working_area) &&
+             is_contained(&dest_rect.r, &working_area) &&
              GetForegroundWindow() == allegro_wnd);
 
    if (direct) {
       /* blit directly to the primary surface without clipping */
-      ddsurf_blit_ex(dd_prim_surface, &dest_rect,
+      ddsurf_blit_ex(dd_prim_surface, &dest_rect.r,
                      offscreen_surface, &src_rect);
    }
    else {

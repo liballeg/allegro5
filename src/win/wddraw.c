@@ -39,23 +39,27 @@ static PALETTEENTRY palette_entry[256];
  */
 int init_directx(void)
 {
-   LPDIRECTDRAW _directdraw1 = NULL;
+   LPDIRECTDRAW directdraw1;
    HRESULT hr;
+   LPVOID temp;
 
-   /* first we have to setup the DirectDraw2 interface */
-   hr = DirectDrawCreate(NULL, &_directdraw1, NULL);
+   /* first we have to set up the DirectDraw2 interface... */
+   hr = DirectDrawCreate(NULL, &directdraw1, NULL);
    if (FAILED(hr))
       return -1;
 
-   hr = IDirectDraw_SetCooperativeLevel(_directdraw1, allegro_wnd, DDSCL_NORMAL);
+   /* ...then query the DirectDraw2 interface */
+   hr = IDirectDraw_QueryInterface(directdraw1, &IID_IDirectDraw2, &temp);
    if (FAILED(hr))
       return -1;
 
-   hr = IDirectDraw_QueryInterface(_directdraw1, &IID_IDirectDraw2, (LPVOID *)&directdraw);
+   directdraw = temp;
+   IDirectDraw_Release(directdraw1);
+
+   /* set the default cooperation level */
+   hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_NORMAL);
    if (FAILED(hr))
       return -1;
-
-   IDirectDraw_Release(_directdraw1);
 
    /* get capabilities */
    dd_caps.dwSize = sizeof(dd_caps);
