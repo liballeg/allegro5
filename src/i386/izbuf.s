@@ -138,6 +138,10 @@ FUNC(_poly_zbuf_flat24)
 
 
 
+#define DB      -8(%ebp)
+#define DG     -12(%ebp)
+#define DR     -16(%ebp)
+
 #ifdef ALLEGRO_COLOR8
 /* void _poly_zbuf_gcol8(unsigned long addr, int w, POLYGON_SEGMENT *info);
  *  Fills a single-color gouraud shaded polygon scanline.
@@ -191,10 +195,6 @@ FUNC(_poly_zbuf_gcol8)
    ret                           /* end of _poly_zbuf_gcol8() */
 
 
-
-#define DB      -8(%ebp)
-#define DG     -12(%ebp)
-#define DR     -16(%ebp)
 
 /* void _poly_zbuf_grgb8(unsigned long addr, int w, POLYGON_SEGMENT *info);
  *  Fills an RGB gouraud shaded polygon scanline.

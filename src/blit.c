@@ -311,7 +311,7 @@ static int makecol_dither_trans(BITMAP *src, BITMAP *dest, int c, int r, int g, 
 
 
 
-#ifdef ALLEGRO_COLOR8
+#if (defined ALLEGRO_COLOR8) || (defined GFX_MODEX)
 
 /* dither_blit:
  *  Blits with Floyd-Steinberg error diffusion.
