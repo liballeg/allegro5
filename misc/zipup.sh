@@ -63,17 +63,12 @@ utod()
    done
 }
 
-
-# generate the DLL export definition files for Windows compilers
-misc/fixdll.sh
-
-
 export UNIX_TOOLS=1
 
-# generate dependencies for MSVC
-echo "Generating MSVC dependencies..."
+# generate dependencies for djgpp
+echo "Generating djgpp dependencies..."
 
-./fix.sh msvc --quick
+./fix.sh djgpp --quick
 
 make depend
 
@@ -86,6 +81,14 @@ echo "Generating Watcom dependencies..."
 make depend
 
 
+# generate dependencies for MSVC
+echo "Generating MSVC dependencies..."
+
+./fix.sh msvc --quick
+
+make depend
+
+
 # generate dependencies for MinGW32
 echo "Generating Mingw32 dependencies..."
 
@@ -94,8 +97,8 @@ echo "Generating Mingw32 dependencies..."
 make depend
 
 
-# generate dependencies for Borland
-echo "Generating Borland dependencies..."
+# generate dependencies for Borland C++
+echo "Generating BCC32 dependencies..."
 
 ./fix.sh bcc32 --quick
 
@@ -110,14 +113,18 @@ echo "Generating BeOS dependencies..."
 make depend
 
 
-# generate dependencies for djgpp
-echo "Generating djgpp dependencies..."
+# generate dependencies for QNX
+echo "Generating QNX dependencies..."
 
-./fix.sh djgpp --quick
+./fix.sh qnx --quick
 
 make depend
 
 unset UNIX_TOOLS
+
+
+# generate the DLL export definition files for Windows compilers
+misc/fixdll.sh
 
 # running autoconf
 echo "Running autoconf to generate configure script..."
