@@ -29,52 +29,33 @@ AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nS
 
 
 #if (!defined ALLEGRO_NO_MAGIC_MAIN) && (!defined ALLEGRO_SRC)
-
    #define main _mangled_main
-
    #undef END_OF_MAIN
 
    #ifdef ALLEGRO_GCC
-   #ifdef __cplusplus
+      #ifdef __cplusplus
+         extern "C" __attribute__ ((stdcall)) WinMain(void *hInst, void *hPrev, char *Cmd, int nShow);
+      #endif
 
-      /* GCC version for C++ programs, using __attribute__ ((stdcall)) */
-      #define END_OF_MAIN()                                                  \
-									     \
-	 extern "C" {                                                        \
-	    int __attribute__ ((stdcall)) WinMain(void *hI, void *hP, char *Cmd, int nShow); \
-									     \
-	 }                                                                   \
-									     \
-	 int __attribute__ ((stdcall)) WinMain(void *hI, void *hP, char *Cmd, int nShow) \
-	 {                                                                   \
-	    return _WinMain((void *)_mangled_main, hI, hP, Cmd, nShow);      \
-	 }
+      /* GCC version, using __attribute__ ((stdcall)) */
+      #define END_OF_MAIN()                                                                     \
+                                                                                                \
+         int __attribute__ ((stdcall)) WinMain(void *hInst, void *hPrev, char *Cmd, int nShow)  \
+         {                                                                                      \
+            return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);                   \
+         }
 
-   #else    /* not C++ */
+   #else
 
-      /* GCC version for C programs, using __attribute__ ((stdcall)) */
-      #define END_OF_MAIN()                                                  \
-									     \
-	 int __attribute__ ((stdcall)) WinMain(void *hI, void *hP, char *Cmd, int nShow); \
-									     \
-	 int __attribute__ ((stdcall)) WinMain(void *hI, void *hP, char *Cmd, int nShow) \
-	 {                                                                   \
-	    return _WinMain((void *)_mangled_main, hI, hP, Cmd, nShow);      \
-	 }
-
-   #endif   /* end of not C++ */
-   #else    /* end of GCC */
-
-      /* MSVC version, using __stdcall */
-      #define END_OF_MAIN()                                                  \
-									     \
-	 int __stdcall WinMain(void *hI, void *hP, char *Cmd, int nShow)     \
-	 {                                                                   \
-	    return _WinMain((void *)_mangled_main, hI, hP, Cmd, nShow);      \
-	 }
+      /* MSVC and BCC32 version, using __stdcall */
+      #define END_OF_MAIN()                                                        \
+                                                                                   \
+         int __stdcall WinMain(void *hInst, void *hPrev, char *Cmd, int nShow)     \
+         {                                                                         \
+            return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);      \
+         }
 
    #endif
-
 #endif
 
 
