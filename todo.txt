@@ -10,9 +10,10 @@ in the subject.
 General (Platform independent) todos:
 ---------------------------------------------------------------------------
 
-- make the library thread-safe
+- make the library internally thread-safe
 - fix use of 32-bit 'long' on 64-bit platforms
 - don't use BITMAPs for zbuffers
+- replacement for set_color_depth/set_gfx_mode
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -32,25 +33,19 @@ Linux todos:
 ---------------------------------------------------------------------------
 
 - fix fb 24-bit scrolling (allegro presuming padding?)
-- make spec file work with older rpms, e.g. from RedHat 6.0
-  They don't like lines in %files section starting with non-`/'.
 - awaiting svgalib folks to provide an atexit-free vga_init
 - some problems with display switching
   [see AD thread "fbcon backgrounding" 2001-11-28 for symptoms]
-- ALSA driver should try different parameters when it cannot set the
-  parameters it wants the first time, ie. because the sound card is crap
 
 X11 todos:
 ---------------------------------------------------------------------------
 
 - remove `dga_mouse' config var when appropriate (newer servers have fixed
   the bug this works around).  Wait until XF86 4.0 propagated..
-- speed up X11 driver (use asm colour conversion routines, for one)
-- key[] should not be internationalised (e.g. KEY_S should always be set
-  for the key two to the right of CapsLock).  If we can't solve this in
-  time, include bukinm's xkeymap program.
-- problem with mouse and keyboard events [fixed?]
-- add an option to use the current palette in 8-bit mode
+- Rewrite the X11 keyboard driver, following the model of the unix console
+  driver and the Mac OSX driver. Currently, we expect application users to
+  fiddle with xkeymap.
+- Investigate problems with the SIGALRM version
 
 Unix todos:
 ---------------------------------------------------------------------------
@@ -98,8 +93,10 @@ Wishlist:
 - DirectMusic 6 MIDI driver
 - Add caching system to speed up filename#object and load_datafile_object()
 - more modularity under Linux
-- XVideo driver under XFree86
-- simplify linux input subsystem (it's much more complicated than necessary)
-- Add support for more versatile sub-bitmap objects
+- Threaded Alsa driver, since the current one doesn't work properly for at
+  least one person.
+- Speed up the X11 driver, so it is comparable to SDL in performance.
+- Add an option to the X11 driver to use the current palette in 8-bit mode.
+- Disable screensaver in X11, as the Windows port does currently.
 
 ---------------------------------------------------------------------------
