@@ -88,7 +88,7 @@ BeOS todos:
 
 - Write a safe windowed driver using BBitmap
 - Keyboard driver rewrite
-- Fix allegro-config script for shared library support
+- Investigate the SMP problems with the sound thread
 
 QNX todos:
 ---------------------------------------------------------------------------
