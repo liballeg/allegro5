@@ -1073,15 +1073,11 @@ mouse_device = x<br>
    Linux only: specifies the name of the mouse device file (eg. /dev/mouse).
 <li>
 mouse_accel_factor = x<br>
-mouse_accel_threshold1 = x<br>
-mouse_accel_threshold2 = x<br>
-   Windows only: specifies the mouse acceleration parameters. If the mouse 
-   movement exceeds the threshold defined by mouse_accel_threshold1, the
-   mouse speed get multiplied by mouse_accel_factor. If the mouse movement
-   exceeds the threshold defined by mouse_accel_threshold2, the mouse speed
-   get multiplied by mouse_accel_factor*2. The default parameters are 3, 5
-   and 16 respectively. Setting mouse_accel_factor to 0 disables mouse
-   acceleration.
+   Windows only: specifies the mouse acceleration factor. If the mouse 
+   movement exceeds a first threshold, the mouse speed gets multiplied by 
+   mouse_accel_factor. If the mouse movement exceeds a second threshold, 
+   the mouse speed gets multiplied by mouse_accel_factor*2. Defaults to 1. 
+   Set it to 0 to disable mouse acceleration.
 </ul><li>
 [sound]<br>
    Section containing sound configuration information, using the variables:

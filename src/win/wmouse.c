@@ -86,7 +86,9 @@ static int mouse_my = 0;
 static int mouse_sx = 2;              /* mickey -> pixel scaling factor */
 static int mouse_sy = 2;
 
-static int mouse_accel_mult = 3;      /* mouse acceleration parameters */
+#define MAF_DEFAULT 1                 /* mouse acceleration parameters */
+static int mouse_accel_fact = MAF_DEFAULT;
+static int mouse_accel_mult = MAF_DEFAULT;
 static int mouse_accel_thr1 = 5;
 static int mouse_accel_thr2 = 16;
 
@@ -428,10 +430,12 @@ static void mouse_directx_poll(void)
 
 	       case DIMOFS_X:
 	          if (!gfx_driver || !gfx_driver->windowed) {
-		     if (ABS(data) >= mouse_accel_thr2)
-			data *= (mouse_accel_mult<<1);
-		     else if (ABS(data) >= mouse_accel_thr1) 
-			data *= mouse_accel_mult;
+		     if (mouse_accel_mult) {
+		        if (ABS(data) >= mouse_accel_thr2)
+		           data *= (mouse_accel_mult<<1);
+		        else if (ABS(data) >= mouse_accel_thr1) 
+		           data *= mouse_accel_mult;
+		     }
 
 		     dinput_x += data;
 		  }
@@ -439,11 +443,13 @@ static void mouse_directx_poll(void)
 
 	       case DIMOFS_Y:
 	          if (!gfx_driver || !gfx_driver->windowed) {
-		     if (ABS(data) >= mouse_accel_thr2)
-			data *= (mouse_accel_mult<<1);
-		     else if (ABS(data) >= mouse_accel_thr1) 
-			data *= mouse_accel_mult;
-	
+		     if (mouse_accel_mult) {
+		        if (ABS(data) >= mouse_accel_thr2)
+			   data *= (mouse_accel_mult<<1);
+		        else if (ABS(data) >= mouse_accel_thr1) 
+			   data *= mouse_accel_mult;
+		     }
+
 		     dinput_y += data;
 		  }
 		  break;
@@ -608,25 +614,13 @@ static int mouse_directx_init(void)
 {
    HANDLE events[2];
    DWORD result;
-   char *section;
    int factor, t1, t2;
    char tmp1[64], tmp2[256];
 
-   /* get user acceleration parameters */
-   section = uconvert_ascii("mouse", tmp1);
-   factor = get_config_int(section, uconvert_ascii("mouse_accel_factor", tmp2), mouse_accel_mult);
-   if (factor > 0) {
-      mouse_accel_mult = factor;
-      t1 = get_config_int(section, uconvert_ascii("mouse_accel_threshold1", tmp2), mouse_accel_thr1);
-      mouse_accel_thr1 = (t1 > 0 ? t1 : INT_MAX);
-      t2 = get_config_int(section, uconvert_ascii("mouse_accel_threshold2", tmp2), mouse_accel_thr2);
-      mouse_accel_thr2 = (t2 > 0 ? t2 : INT_MAX);
-   }
-   else {
-      mouse_accel_mult = 0;
-      mouse_accel_thr1 = INT_MAX;
-      mouse_accel_thr2 = INT_MAX;
-   }
+   /* get user acceleration factor */
+   mouse_accel_fact = get_config_int(uconvert_ascii("mouse", tmp1),
+                                     uconvert_ascii("mouse_accel_factor", tmp2),
+                                     MAF_DEFAULT);
 
    /* mouse input is handled by a additional thread */
    mouse_thread_stop_event = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -712,6 +706,9 @@ static void mouse_directx_set_range(int x1, int y1, int x2, int y2)
    CLEAR_MICKEYS();
 
    _exit_critical();
+
+   /* scale up the acceleration multiplier to the range */
+   mouse_accel_mult = mouse_accel_fact * MAX(x2-x1+1, y2-y1+1)/320;
 }
 
 
