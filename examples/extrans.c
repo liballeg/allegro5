@@ -39,10 +39,7 @@ int main(int argc, char *argv[])
    install_timer();
    install_mouse(); 
 
-   if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
-      allegro_message("Couldn't set a graphic resolution!\n%s", allegro_error);
-      return 1;
-   }
+   set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
 
    /* load the main screen image */
    if (argc > 1)
