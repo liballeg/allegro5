@@ -278,7 +278,7 @@ void _free_win_digi_driver_list(void)
 #ifdef DEBUGMODE
 static char *ds_err(long err)
 {
-   static char err_str[32];
+   static char err_str[64];
 
    switch (err) {
 

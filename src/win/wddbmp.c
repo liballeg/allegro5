@@ -75,7 +75,7 @@ static int n_flipping_pages = 0;
 #ifdef DEBUGMODE
 static char *dd_err(long err)
 {
-   static char err_str[32];
+   static char err_str[64];
 
    switch (err) {
 
