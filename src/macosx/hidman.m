@@ -34,7 +34,7 @@ static void hid_store_element_data(CFTypeRef element, int type, HID_DEVICE *devi
 {
    HID_ELEMENT *hid_element;
    CFTypeRef type_ref;
-   AL_CONST char *name, *s;
+   AL_CONST char *name;
    
    if (device->num_elements >= HID_MAX_DEVICE_ELEMENTS)
       return;
@@ -48,13 +48,6 @@ static void hid_store_element_data(CFTypeRef element, int type, HID_DEVICE *devi
       hid_element->name = strdup(name);
    else
       hid_element->name = NULL;
-   switch (type) {
-      case HID_ELEMENT_BUTTON: s = "button"; break;
-      case HID_ELEMENT_AXIS: s = "axis"; break;
-      case HID_ELEMENT_STANDALONE_AXIS: s = "standalone axis"; break;
-      case HID_ELEMENT_HAT: s = "hat"; break;
-   }
-   fprintf(stderr, "%s: min = %d, max = %d, cookie = %d\n", s, hid_element->min, hid_element->max, hid_element->cookie);
 }
 
 
