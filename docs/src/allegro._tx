@@ -313,6 +313,291 @@ information about how to install Allegro and link your program with it.
 
 
 @heading
+Structures and types defined by Allegro
+
+There are several structures and types defined by Allegro which are used
+in many functions (like the BITMAP structure). This section of the manual
+describes their useful content from a user point of view when they don't fit
+very well any of the existing manual sections, and redirects you to the
+appropiate section when it's already described there. Note that unless stated
+otherwise, the contents showed here are just for read only purposes, there
+might be other internal flags, but you shouldn't depend on them being
+available in past/future versions of Allegro.
+
+@@typedef long @fixed
+@xref Fixed point math routines
+   This is a fixed point integer which can replace float with similar results
+   and is faster than float on low end machines. Read chapter "Fixed point
+   math routines" for the full explanation.
+   
+@@typedef struct @BITMAP
+@xref set_clip, Direct access to video memory
+The BITMAP structure internally looks like:
+<codeblock>
+   int w, h;               - size of the bitmap in pixels
+   int clip;               - non-zero if clipping is turned on
+   int cl, cr, ct, cb;     - clip rectangle left, right, top, and bottom
+   unsigned char *line[];  - pointers to the start of each line
+<endblock>
+There is some other stuff in the structure as well, but it is liable to 
+change and you shouldn't use anything except the above. The w and h fields
+can be used to obtain the size of an existing bitmap:
+<codeblock>
+   bmp = load_bitmap("file.bmp", pal);
+   allegro_message("Bitmap size: (%dx%d)\n", bmp->w, bmp->h);
+<endblock>
+The clipping rectangle is inclusive on the left and top (0 allows drawing to
+position 0) but exclusive on the right and bottom (10 allows drawing to
+position 9, but not to 10). Note this is not the same format as you pass to
+set_clip(), which takes inclusive coordinates for all four corners. All the
+values of this structure should be regarded as read-only, with the exception
+of the line field, whose access is described in depth in the "Direct access
+to video memory" section of the manual. If you want to modify the clipping
+region, please refrain from changing this structure, use set_clip() instead.
+
+@@typedef struct @JOYSTICK_INFO
+@xref joy, Joystick routines
+<codeblock>
+   int flags;                       - status flags for this
+				      joystick
+   int num_sticks;                  - how many stick inputs?
+   int num_buttons;                 - how many buttons?
+   JOYSTICK_STICK_INFO stick[n];    - stick state information
+   JOYSTICK_BUTTON_INFO button[n];  - button state information
+<endblock>
+   Read chapter "Joystick routines" for a description on how to obtain/use
+   this structure.
+
+@@typedef struct @JOYSTICK_BUTTON_INFO
+@xref joy, Joystick routines
+<codeblock>
+   int b;                           - boolean on/off flag
+   char *name;                      - description of this
+				      button
+<endblock>
+   Read chapter "Joystick routines" for a description on how to obtain/use
+   this structure.
+
+@@typedef struct @JOYSTICK_STICK_INFO
+@xref joy, Joystick routines
+<codeblock>
+   int flags;                       - status flags for this
+				      input
+   int num_axis;                    - how many axis do we
+				      have?
+   JOYSTICK_AXIS_INFO axis[n];      - axis state information
+   char *name;                      - description of this
+				      input
+<endblock>
+   Read chapter "Joystick routines" for a description on how to obtain/use
+   this structure.
+
+@@typedef struct @JOYSTIC_AXIS_INFO
+@xref joy, Joystick routines
+<codeblock>
+   int pos;                         - analogue axis position
+   int d1, d2;                      - digital axis position
+   char *name;                      - description of this axis
+<endblock>
+   Read chapter "Joystick routines" for a description on how to obtain/use
+   this structure.
+
+@@typedef struct @GFX_MODE_LIST
+@xref GFX_MODE, get_gfx_mode_list
+<codeblock>
+   int num_modes;
+   GFX_MODE *mode;
+<endblock>
+   Structure returned by get_gfx_mode_list, which contains an array of
+   GFX_MODE structures.
+
+@@typedef struct @GFX_MODE
+@xref GFX_MODE_LIST, get_gfx_mode_list
+<codeblock>
+   int width, height, bpp;
+<endblock>
+   Structure contained in GFX_MODE_LIST.
+
+@@typedef RGB @PALETTE[PAL_SIZE]
+@xref RGB, Palette routines
+   Allegro palettes are arrays of PAL_SIZE(256) RGB entries.
+
+@@typedef struct @RGB
+@xref Palette routines, PALETTE
+<codeblock>
+   unsigned char r, g, b;
+<endblock>
+   Palette entry. Read chapter "Palette routines" for a description on
+   how to obtain/use this structure.
+
+@@typedef struct @V3D
+@xref V3D_f, polygon3d, Fixed point trig
+<codeblock>
+   fixed x, y, z;       - position
+   fixed u, v;          - texture map coordinates
+   int c;               - color
+<endblock>
+   A vertex structure used by polygon3d and other polygon rendering
+   functions. Read the description of polygon3d for a description on how to
+   obtain/use this structure.
+
+@@typedef struct @V3D_f
+@xref V3D, polygon3d, Fixed point trig
+<codeblock>
+   float x, y, z;       - position
+   float u, v;          - texture map coordinates
+   int c;               - color
+<endblock>
+   Like V3D but using float values instead of fixed ones.
+
+@@typedef struct @COLOR_MAP
+@xref 256 color transparency, color_map
+<codeblock>
+   unsigned char data[PAL_SIZE][PAL_SIZE];
+<endblock>
+   Read chapter "Transparency and patterned drawing", section "256 color
+   transparency" for a description on how to obtain/use this structure.
+
+@@typedef struct @RGB_MAP
+@xref Converting between color formats, create_rgb_table
+<codeblock>
+   unsigned char data[32][32][32];
+<endblock>
+   Read chapter "Converting between color formats" for a description on how
+   to obtain/use this structure.
+
+@@struct @al_ffblk
+@xref al_findfirst
+<codeblock>
+   int attrib;       - actual attributes of the file found
+   time_t time;      - modification time of file
+   long size;        - size of file
+   char name[512];   - name of file
+<endblock>
+   Read the description of al_findfirst for a description on how to
+   obtain/use this structure.
+
+@@typedef struct @DATAFILE
+@xref Using datafiles
+<codeblock>
+   void *dat;     - pointer to the actual data
+   int type;      - type of the data
+   long size;     - size of the data in bytes
+   void *prop;    - list of object properties
+<endblock>
+   Read chapter "Datafile routines", section "Using datafiles" for a
+   description on how to obtain/use this structure.
+
+@@typedef struct @MATRIX
+@xref MATRIX_f, 3D math routines
+<codeblock>
+   fixed v[3][3];                - 3x3 scaling and rotation component
+   fixed t[3];                   - x/y/z translation component
+<endblock>
+   Fixed point matrix structure. Read chapter "3D math routines" for a
+   description on how to obtain/use this structure.
+
+@@typedef struct @MATRIX_f
+@xref MATRIX, 3D math routines
+<codeblock>
+   float v[3][3];                - 3x3 scaling and rotation component
+   float t[3];                   - x/y/z translation component
+<endblock>
+   Floating point matrix structure. Read chapter "3D math routines" for a
+   description on how to obtain/use this structure.
+
+@@typedef struct @QUAT
+@xref Quaternion math routines
+<codeblock>
+   float w, x, y, z;
+<endblock>
+   Read chapter "Quaternion math routines" for a description on how to
+   obtain/use this structure.
+
+@@typedef struct @DIALOG
+@xref GUI routines
+<codeblock>
+   int (*proc)(int, DIALOG *, int); - dialog procedure (message handler)
+   int x, y, w, h;                  - position and size of the object
+   int fg, bg;                      - foreground and background colors
+   int key;                         - ASCII keyboard shortcut
+   int flags;                       - flags about the status of
+                                      the object
+   int d1, d2;                      - whatever you want to use them for
+   void *dp, *dp2, *dp3;            - pointers to more
+                                      object-specific data
+<endblock>
+   This is the structure which contains a GUI object. Read chapter "GUI
+   routines" for a description on how to obtain/use this structure.
+
+@@typedef struct @MENU
+@xref Gui menus
+<codeblock>
+   char *text;          - the text to display for the menu item
+   int (*proc)();       - called when the menu item is clicked
+   struct MENU *child;  - nested child menu
+   int flags;           - disabled or checked state
+   void *dp;            - pointer to any data you need
+<endblock>
+   Structure used to hold an entry of a menu. Read chapter "GUI routines",
+   section "Gui menus" for a description on how to obtain/use this structure.
+
+@@typedef struct @DIALOG_PLAYER
+@xref init_dialog
+   A structure which holds GUI data used internally by Allegro. Read the
+   documentation of init_dialog() for a description on how to obtain/use this
+   structure.
+   
+@@typedef struct @FONT
+@xref font
+   A structure holding an Allegro font, usually created beforehand with the
+   grabber tool or Allegro's default font.
+
+@@typedef struct BITMAP @ZBUFFER
+@xref Zbuffered rendering, BITMAP
+   Structure used by Allegro's 3d zbuffered rendering functions. You are not
+   supposed to mix ZBUFFER with BITMAP even though it is currently possible
+   to do so. This is just an internal representation, and it may change in
+   the future.
+
+@@typedef struct @SAMPLE
+@xref Digital sample routines
+<codeblock>
+   int bits;                   - 8 or 16
+   int stereo;                 - sample type flag
+   int freq;                   - sample frequency
+   int priority;               - 0-255 */
+   unsigned long len;          - length (in samples)
+   unsigned long loop_start;   - loop start position
+   unsigned long loop_end;     - loop finish position
+<endblock>
+   A sample structure, which holds sound data, used by the digital sample
+   routines.
+
+@@typedef struct @MIDI
+@xref Music routines (MIDI)
+   A structure holding MIDI data. Read chapter "Music routines (MIDI)" for a
+   description on how to obtain/use this structure.
+
+@@typedef struct @AUDIOSTREAM
+@xref Audio stream routines
+   A structure holding an audiostream. Read chapter "Audio stream routines"
+   for a description on how to obtain/use this structure.
+
+@@typedef struct @PACKFILE
+@xref Packfile functions, pack_fopen
+<codeblock>
+   int hndl;                   - DOS file handle
+   int flags;                  - PACKFILE_FLAG_* constants
+   char *filename;             - name of the file
+<endblock>
+   A packfile structure, similar to a stdio.h FILE structure. Read chapter
+   "Packfile functions" for a description on how to obtain/use this
+   structure.
+
+   
+
+@heading
 Unicode routines
 
 Allegro can manipulate and display text using any character values from 0 
@@ -2846,6 +3131,10 @@ Allegro supports several different types of bitmaps:
    difference, although every little helps) but will result in your program 
    dying a horrible death if you try to draw beyond the edges of the bitmap.
 
+   There's no get_clip like function. To obtain the clipping rectangle of an
+   existing bitmap, check the appropiate fields of the BITMAP structure
+   holding it.
+
 
 
 @heading
@@ -4477,15 +4766,10 @@ Lighting is achieved by treating one of the colors as a light level (0-255)
 rather than a color, and setting up the table appropriately. A range of 
 specialised effects are possible, for instance replacing any color with any 
 other color and making individual source or destination colors completely 
-solid or invisible.
+solid or invisible. Color mapping tables can be precalculated with the
+colormap utility, or generated at runtime. Read chapter "Structures and types
+defined by Allegro" for an internal description of the COLOR_MAP structure.
 
-Color mapping tables can be precalculated with the colormap utility, or 
-generated at runtime. The COLOR_MAP structure is defined as:
-<codeblock>
-   typedef struct {
-      unsigned char data[PAL_SIZE][PAL_SIZE];
-   } COLOR_MAP;
-<endblock>
 @@extern COLOR_MAP *@color_map;
 @xref create_color_table, create_light_table, create_trans_table
 @xref create_blender_table, set_trans_blender, draw_trans_sprite
@@ -4775,26 +5059,10 @@ the conversion).
 @texinfo
 Direct access to video memory
 
-The bitmap structure looks like:
-<codeblock>
-   typedef struct BITMAP
-   {
-      int w, h;               - size of the bitmap in pixels
-      int clip;               - non-zero if clipping is turned on
-      int cl, cr, ct, cb;     - clip rectangle left, right, top, and bottom
-      int seg;                - segment for use with the line pointers
-      unsigned char *line[];  - pointers to the start of each line
-   } BITMAP;
-<endblock>
-There is some other stuff in the structure as well, but it is liable to 
-change and you shouldn't use anything except the above. The clipping 
-rectangle is inclusive on the left and top (0 allows drawing to position 0) 
-but exclusive on the right and bottom (10 allows drawing to position 9, but 
-not to 10). Note this is not the same format as you pass to set_clip(), 
-which takes inclusive coordinates for all four corners.
-
-There are several ways to get direct access to the image memory of a bitmap, 
-varying in complexity depending on what sort of bitmap you are using.
+Read chapter "Structures and types defined by Allegro" for an internal
+description of the BITMAP structure. There are several ways to get direct
+access to the image memory of a bitmap, varying in complexity depending on
+what sort of bitmap you are using.
 <hr>
 The simplest approach will only work with memory bitmaps (obtained from 
 create_bitmap(), grabber datafiles, and image files) and sub-bitmaps of 
@@ -5446,7 +5714,7 @@ sample structure:
 
 
 @heading
-MIDI music routines
+Music routines (MIDI)
 
 @@MIDI *@load_midi(const char *filename);
 @xref destroy_midi, play_midi
@@ -6407,22 +6675,9 @@ projection. Since Allegro uses a separate function for projection, the
 matrix functions only need to support affine transformations, which means 
 that there is no need to store the bottom row of the matrix. Allegro 
 implicitly assumes that it contains (0,0,0,1), and optimises the matrix 
-manipulation functions accordingly.
+manipulation functions accordingly. Read chapter "Structures and types
+defined by Allegro" for an internal view of the MATRIX/_f structures.
 
-Matrices are stored in the structures:
-<codeblock>
-   typedef struct MATRIX            - fixed point matrix structure
-   {
-      fixed v[3][3];                - 3x3 scaling and rotation component
-      fixed t[3];                   - x/y/z translation component
-   } MATRIX;
-   
-   typedef struct MATRIX_f          - floating point matrix structure
-   {
-      float v[3][3];                - 3x3 scaling and rotation component
-      float t[3];                   - x/y/z translation component
-   } MATRIX_f
-<endblock>
 @@extern MATRIX @identity_matrix;
 @@extern MATRIX_f @identity_matrix_f;
    Global variables containing the 'do nothing' identity matrix. Multiplying 
@@ -6724,25 +6979,11 @@ procedures, so you can take complete control over the visual aspects of the
 interface while still using Allegro to handle input from the mouse, 
 keyboard, joystick, etc.
 
-A GUI dialog is stored as an array of DIALOG objects, each one containing 
-the fields:
-<codeblock>
-   typedef struct DIALOG
-   {
-      int (*proc)(int, DIALOG *, int); - dialog procedure (message handler)
-      int x, y, w, h;                  - position and size of the object
-      int fg, bg;                      - foreground and background colors
-      int key;                         - ASCII keyboard shortcut
-      int flags;                       - flags about the status of
-                                         the object
-      int d1, d2;                      - whatever you want to use them for
-      void *dp, *dp2, *dp3;            - pointers to more
-                                         object-specific data
-   } DIALOG;
-<endblock>
-The array should end with an object which has the proc pointer set to NULL.
-
-The flags field may contain any combination of the bit flags:
+A GUI dialog is stored as an array of DIALOG objects, read chapter
+"Structures and types defined by Allegro" for an internal description of the
+DIALOG structure. The array should end with an object which has the proc
+pointer set to NULL. Each object has a flags field which may contain any
+combination of the bit flags:
 <textblock>
    D_EXIT          - this object should close the dialog when it is clicked
    D_SELECTED      - this object is selected
@@ -7222,17 +7463,10 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
 @hnode Gui menus
 @xref do_menu, d_menu_proc, gui_menu_draw_menu
-Popup or pulldown menus are created as an array of the structures:
-<codeblock>
-   typedef struct MENU
-   {
-      char *text;          /* the text to display for the menu item */
-      int (*proc)();       /* called when the menu item is clicked */
-      struct MENU *child;  /* nested child menu */
-      int flags;           /* disabled or checked state */
-      void *dp;            /* pointer to any data you need */
-   } MENU;
-<endblock>
+Popup or pulldown menus are created as an array of MENU structures. Read
+chapter "Structures and types defined by Allegro" for an internal description
+of the MENU structure.
+
 Each menu item contains a text string. This can use the '&' character to 
 indicate keyboard shortcuts, or can be an zero-length string to display the 
 item as a non-selectable splitter bar. If the string contains a "\t" tab 

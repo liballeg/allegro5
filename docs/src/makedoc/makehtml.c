@@ -12,9 +12,10 @@
  *
  *      By Shawn Hargreaves.
  *
- *      Grzegorz Adam Hankiewicz made the output valid HTML 4.0, made
- *      sorted TOCs and added support for cross references and optional
- *      CSS to color output.
+ *      Grzegorz Adam Hankiewicz made the output valid HTML 4.0, made sorted
+ *      TOCs, added support for cross references and optional CSS to color
+ *      output, added support for auto types' cross references generation,
+ *      and a few smaller details more.
  *
  *      See readme.txt for copyright information.
  *
@@ -31,6 +32,7 @@
 #include "makehtml.h"
 #include "makemisc.h"
 #include "makedoc.h"
+#include "maketexi.h"
 
 typedef struct t_post POST;
 
@@ -80,6 +82,7 @@ static int _verify_correct_input(void);
 static void _close_html_file(FILE *file);
 static void _output_sorted_nested_toc(TOC **list, unsigned int num_items);
 static int _detect_non_paragraph_sections(const char *text);
+static char *_mark_up_auto_types(char *line, char **auto_types);
 
 
 
@@ -91,6 +94,7 @@ int write_html(char *filename)
 {
    int block_empty_lines = 0, section_number = 0, ret;
    LINE *line = head;
+   char **auto_types;
 
    if (_verify_correct_input())
       return 1;
@@ -105,6 +109,9 @@ int write_html(char *filename)
    if (!_file)
       return 1;
 
+   /* Build up a table with Allegro's structures' names (spelling?) */
+   auto_types = build_types_lookup_table(0);
+   
    strcpy(_filename, filename);
    if(document_title) _output_html_header(0);
 
@@ -117,6 +124,7 @@ int write_html(char *filename)
 	    _output_buffered_text();
 	    if (_output_section_heading(line, filename, section_number))
 	       return 1;
+	    _add_post_process_xref(line->text);
 	    section_number++;
 	 }
 	 else if (line->flags & NODE_FLAG) {
@@ -127,14 +135,17 @@ int write_html(char *filename)
 	    _add_post_process_xref(line->text);
 	 }
 	 else if (line->flags & DEFINITION_FLAG) {
+	    char *temp = m_strdup(line->text);
 	    if (_empty_count && !block_empty_lines) _empty_count++;
 	    _output_buffered_text();
 	    /* output a function definition */
-	    _add_post_process_xref(line->text);
-	    _hfprintf("<b>%s</b>", line->text);
+	    _add_post_process_xref(temp);
+	    temp = _mark_up_auto_types(temp, auto_types);
+	    _hfprintf("<b>%s</b>", temp);
 	    if (!(line->flags & CONTINUE_FLAG))
 	       fputs("<br>", _file);
 	    fputs("\n", _file);
+	    free(temp);
 	 }
 	 else if ((!(line->flags & NO_EOL_FLAG)) &&
 		  (is_empty(strip_html(line->text))) &&
@@ -192,6 +203,7 @@ int write_html(char *filename)
    
    _post_process_pending_xrefs();
    free(html_see_also_text);
+   destroy_types_lookup_table(auto_types, 0);
 
    return 0;
 }
@@ -301,12 +313,12 @@ static void _write_html_xref(char *xref)
       _hfprintf("<a ");
       if (!(html_flags & HTML_IGNORE_CSS))
 	 _hfprintf("class=\"xref\" ");
-      
+
       if (flags & MULTIFILE_FLAG)
 	 _hfprintf("href=\"post_process#%s\">%s</a>", tok, tok);
       else
 	 _hfprintf("href=\"#%s\">%s</a>", tok, tok);
-	 
+
       tok = strtok(NULL, ",;");
    }
 }
@@ -595,6 +607,10 @@ static void _output_html_header(char *section)
 	 fputs("A.xref:visited {color: blue; text-decoration: none; background: rgb(255, 204, 50);}\n", _file);
 	 fputs("A.xref:hover   {color: blue; text-decoration: underline; background: rgb(255, 224, 150);}\n", _file);
 	 fputs("A.xref:active  {color: red; text-decoration: none; background: rgb(255, 204, 50);}\n", _file);
+	 fputs("A.autotype:link    {color: rgb(0, 0, 177); text-decoration: none; background: white;}\n", _file);
+	 fputs("A.autotype:visited {color: rgb(0, 0, 177); text-decoration: none; background: white;}\n", _file);
+	 fputs("A.autotype:hover   {color: rgb(0, 0, 177); text-decoration: underline; background: white;}\n", _file);
+	 fputs("A.autotype:active  {color: red; text-decoration: none; background: white;}\n", _file);
 	 fputs("blockquote.xref {border: medium solid rgb(255, 204, 51); color: black; background: rgb(255, 204, 50);}\n", _file);
 	 fputs("blockquote.code {border: medium solid rgb(255, 204, 50); color: black; background: rgb(255, 255, 155);}\n", _file);
 	 fputs("blockquote.text {border: medium solid rgb(175, 235, 255); color: black; background: rgb(210, 244, 255);}\n", _file);
@@ -676,22 +692,31 @@ static void _add_post_process_xref(const char *token)
 
 /* _get_clean_xref_token:
  * Given a text, extracts the clean xref token, which either has to be
- * surrounded by #..", inside a <a name=".." tag, or without any
+ * surrounded by "ss#..", inside a <a name=".." tag, or without any
  * html characters around. Otherwise returns an empty string. The
  * returned string has to be freed always.
  */
 static char *_get_clean_xref_token(const char *text)
 {
    char *buf = 0, *t;
-   const char *p;
+   const char *pname, *pcross;
 
-   if ((p = strstr(text, "<a name=\""))) {
-      buf = m_strdup(p + 9);
+   pname = strstr(text, "<a name=\"");
+   pcross = strstr(text, "ss#");
+   if (pname && pcross) { /* Take the first one */
+      if (pname < pcross)
+	 pcross = 0;
+      else
+	 pname = 0;
+   }
+
+   if (pname) {
+      buf = m_strdup(pname + 9);
       t = strchr(buf, '"');
       *t = 0;
    }
-   else if ((p = strchr(text, '#'))) {
-      buf = m_strdup(p + 1);
+   else if (pcross) {
+      buf = m_strdup(pcross + 3);
       t = strchr(buf, '"');
       *t = 0;
    }
@@ -812,12 +837,12 @@ static void _post_process_filename(char *filename)
    printf("post processing %s\n", filename);
 
    while ((line = m_fgets(f1))) {
-      if ((p = strstr(line, "\"post_process#"))) {
+      while ((p = strstr(line, "\"post_process#"))) {
 	 char *clean_token = _get_clean_xref_token(p + 2);
 	 POST *page = _search_post_section_with_token(clean_token);
 	 if (!page) {
 	    printf("Didn't find xref for %s", line);
-	    fputs(line, f2);
+	    memmove(p, p + 14, strlen(p + 14) + 1);
 	 }
 	 else {
 	    char *temp = m_xmalloc(1 + strlen(line) + 13 +
@@ -830,14 +855,12 @@ static void _post_process_filename(char *filename)
 	       strcpy(&temp[p - line + 1], get_filename(page->filename));
 	       strcat(temp, p + 13);
 	    }
-	    fputs(temp, f2);
-	    free(temp);
+	    free(line);
+	    line = temp;
 	 }
 	 free(clean_token);
       }
-      else
-	 fputs(line, f2);
-	 
+      fputs(line, f2);
       free(line);
    }
 
@@ -962,4 +985,72 @@ static int _detect_non_paragraph_sections(const char *text)
    return ret;
 }
          
+
+/* _mark_up_auto_types:
+ * Instead of flooding the xref section with detected autotypes, and in
+ * order to obtain a higher coolness factor, autotypes are detected at
+ * definition lines and turned into hyperlinks. For this to happen you
+ * need to pass the text line you would output for a normal definition
+ * line, but it HAS to be dynamic memory (ie: m_strdup'ed). Pass a
+ * previously generated auto_types table.
+ * line has to be dynamic because it will be expanded whenever auto types
+ * are found. Since this is done reallocating, this function will return
+ * the new line pointer you should be using after calling this.
+ */
+static char *_mark_up_auto_types(char *line, char **auto_types)
+{
+   int length;
+   char *p = line;
+   assert(line);
+   assert(auto_types);
+
+   /* Did we find some auto type? */
+   while ((p = strstruct(line, auto_types, &length, 0))) {
+      char *temp = m_strdup(p);
+      *p = 0;
+      if (flags & MULTIFILE_FLAG) {
+	 int offset = 22;
+	 char *mark = m_xmalloc(2 * length + 47);
+	 if (html_flags & HTML_IGNORE_CSS)
+	    strcpy(mark, "<a href=\"post_process#");
+	 else {
+	    strcpy(mark, "<a class=\"autotype\" href=\"post_process#");
+	    offset += 17;
+	 }
+	 strncpy(mark + offset, temp, length);
+	 offset += length;
+	 strcpy(mark + offset, "\">");
+	 offset += 2;
+	 strncpy(mark + offset, temp, length);
+	 offset += length;
+	 strcpy(mark + offset, "</a>");
+	 line = m_strcat(line, mark);
+	 free(mark);
+	 line = m_strcat(line, temp + length);
+      }
+      else {
+	 int offset = 10;
+	 char *mark = m_xmalloc(2 * length + 35);
+	 if (html_flags & HTML_IGNORE_CSS)
+	    strcpy(mark, "<a href=\"#");
+	 else {
+	    strcpy(mark, "<a class=\"autotype\" href=\"#");
+	    offset += 17;
+	 }
+	 strncpy(mark + offset, temp, length);
+	 offset += length;
+	 strcpy(mark + offset, "\">");
+	 offset += 2;
+	 strncpy(mark + offset, temp, length);
+	 offset += length;
+	 strcpy(mark + offset, "</a>");
+	 line = m_strcat(line, mark);
+	 free(mark);
+	 line = m_strcat(line, temp + length);
+      }
+      free(temp);
+   }
+   return line;
+}
+
 

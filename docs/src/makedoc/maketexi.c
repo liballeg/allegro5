@@ -12,6 +12,9 @@
  *
  *      By Shawn Hargreaves.
  *
+ *      Grzegorz Adam Hankiewicz added support for auto types' cross
+ *      references generation.
+ *
  *      See readme.txt for copyright information.
  *
  *      See allegro/docs/src/makedoc/format.txt for a brief description of
@@ -21,7 +24,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
+#include "maketexi.h"
 #include "makertf.h"
 #include "makedoc.h"
 #include "makemisc.h"
@@ -33,12 +38,15 @@ static int _no_strip;
 static int _strip_indent = -1;
 
 
-static void _write_textinfo_xref(FILE *f, char *xref);
+static void _write_textinfo_xref(FILE *f, char *xref, char **chapter_nodes);
 static int _valid_texinfo_node(char *s, char **next, char **prev);
 static void _output_texinfo_toc(FILE *f, int root, int body, int part);
 static char *_node_name(int i);
 static char *_first_word(char *s);
 static void _html_to_texinfo(FILE *f, char *p);
+static void _write_auto_types_xrefs(FILE *f, char **auto_types, char *found_auto_types);
+static int _is_auto_type_starting_letter(char c);
+static int _is_auto_type_allowed_letter(char c);
 
 
 
@@ -49,7 +57,8 @@ int write_texinfo(char *filename)
    char buf[256];
    LINE *line = head, *title_line = 0;
    char *p, *str, *next, *prev;
-   char *xref[256];
+   char *xref[256], *chapter_nodes[256], **auto_types;
+   char *found_auto_types;
    int xrefs = 0;
    int in_item = 0;
    int section_number = 0;
@@ -64,6 +73,30 @@ int write_texinfo(char *filename)
    f = fopen(filename, "w");
    if (!f)
       return 1;
+
+   /* First scan all the chapters of the documents and build a lookup table
+    * with their text lines. This lookup table will be used during the
+    * generation of @xref texinfo commands, due to textinfo's restriction
+    * that nodes can't contain spaces, and hence remain as a single word.
+    */
+   i = 0; chapter_nodes[0] = 0;
+   while (line) {
+      if (line->flags & TEXINFO_FLAG) {
+	 p = line->text;
+
+	 if (line->flags & HEADING_FLAG) {
+	    chapter_nodes[i++] = p;
+	    chapter_nodes[i] = 0;
+	 }
+      }
+      line = line->next;
+   }
+
+   /* Build up a table with Allegro's structures' names (spelling?) */
+   auto_types = build_types_lookup_table(&found_auto_types);
+   
+   /* Now reinit values and let real scanning start */
+   i = 0; line = head;
 
    while (line) {
       if (line->flags & TEXINFO_FLAG) {
@@ -95,9 +128,10 @@ int write_texinfo(char *filename)
 		  if (xrefs > 0) {
 		     fputs("See also:@*\n", f);
 		     for (i=0; i<xrefs; i++)
-			_write_textinfo_xref(f, xref[i]);
+			_write_textinfo_xref(f, xref[i], chapter_nodes);
 		     xrefs = 0;
 		  }
+		  _write_auto_types_xrefs(f, auto_types, found_auto_types);
 		  fprintf(f, "@node %s, %s, %s, %s\n", buf, next, prev, _node_name(section_number-1));
 		  fprintf(f, "@section %s\n", buf);
 	       }
@@ -159,9 +193,10 @@ int write_texinfo(char *filename)
 	       if (xrefs > 0) {
 		  fputs("See also:@*\n", f);
 		  for (i=0; i<xrefs; i++)
-		     _write_textinfo_xref(f, xref[i]);
+		     _write_textinfo_xref(f, xref[i], chapter_nodes);
 		  xrefs = 0;
 	       }
+	       _write_auto_types_xrefs(f, auto_types, found_auto_types);
 	       p = strip_html(p);
 	       fprintf(f, "@node %s, ", _node_name(section_number));
 	       fprintf(f, "%s, ", _node_name(section_number+1));
@@ -173,6 +208,16 @@ int write_texinfo(char *filename)
 	    section_number++;
 	 }
 	 else {
+	    if(line->flags & DEFINITION_FLAG) {
+	       /* This will detect all the possible auto types of the line.
+		* The detected types will be marked in the found_auto_types
+		* table for later delayed output.
+		*/
+	       int length;
+	       char *temp = strstruct(line->text, auto_types, &length, found_auto_types);
+	       while(temp)
+		  temp = strstruct(temp+length, auto_types, &length, found_auto_types);
+	    }
 	    if ((line->flags & DEFINITION_FLAG) && (!continue_def))
 	       fputs("@item @t{", f);
 
@@ -230,9 +275,10 @@ int write_texinfo(char *filename)
 	    if (xrefs > 0) {
 	       fputs("See also:@*\n", f);
 	       for (i=0; i<xrefs; i++)
-		  _write_textinfo_xref(f, xref[i]);
+		  _write_textinfo_xref(f, xref[i], chapter_nodes);
 	       xrefs = 0;
 	    }
+	    _write_auto_types_xrefs(f, auto_types, found_auto_types);
 	    fprintf(f, "@node %s, %s, %s, %s\n", line->text, next, prev, _node_name(section_number-1));
 	    fprintf(f, "@section %s\n", line->text);
 	 }
@@ -271,23 +317,42 @@ int write_texinfo(char *filename)
    }
 
    fclose(f);
+   destroy_types_lookup_table(auto_types, found_auto_types);
    return 0;
 }
 
 
 
 /* _write_textinfo_xref:
+ * Writes the cross references found in the line pointed by xref.
+ * The line will be split with strtok to find individual references.
+ * Before a reference is written, it's compared against the table of
+ * chapter nodes. If it's there, a special more complete xref command is
+ * written, since nodes are internally a single word, but to the user they
+ * look like normal complete sentences.
  */
-static void _write_textinfo_xref(FILE *f, char *xref)
+static void _write_textinfo_xref(FILE *f, char *xref, char **chapter_nodes)
 {
    char *tok;
+   assert(f);
+   assert(xref);
+   assert(chapter_nodes);
 
    tok = strtok(xref, ",;");
 
    while (tok) {
+      char **p = chapter_nodes;
       while ((*tok) && (myisspace(*tok)))
 	 tok++;
-      fprintf(f, "@xref{%s}.@*\n", tok);
+      while(*p) {
+	 if(!strincmp(tok, strip_html(*p)))
+	    break;
+	 p++;
+      }
+      if(*p)
+	 fprintf(f, "@xref{%s, %s}.@*\n", _first_word(tok), strip_html(*p));
+      else
+	 fprintf(f, "@xref{%s}.@*\n", tok);
       tok = strtok(NULL, ",;");
    }
 }
@@ -304,7 +369,7 @@ static int _valid_texinfo_node(char *s, char **next, char **prev)
 
    while (toc) {
       if ((!toc->root) && (toc->texinfoable)) {
-	 if (mystricmp(toc->text, s) == 0) {
+	 if (strcmp(toc->text, s) == 0) {
 	    do {
 	       toc = toc->next;
 	    } while ((toc) && ((!toc->texinfoable) || (toc->root)));
@@ -488,4 +553,155 @@ static void _html_to_texinfo(FILE *f, char *p)
 
 
 
+/* build_types_lookup_table:
+ * Automatic function which will scan the document from the beginning in
+ * search of structures/types, which will be returned in a NULL terminated
+ * array. Optionally, if found_table is not NULL, it will contain a simple
+ * array with that many entries like the returned table. This array will
+ * later be used to mark which autotypes were found (useful for texinfo).
+ */
+char **build_types_lookup_table(char **found_table)
+{
+   LINE *line = head;
+   int i = 0;
+   char **table = 0;
+
+   table = m_xmalloc(sizeof(char*));
+   table[0] = 0;
+
+   /* Scan document in memory finding definition lines with upper case types */
+   while (line) {
+      if ((line->flags & STRUCT_FLAG)) {
+	 char *p = strchr(line->text, '"'); /* Find start of <a name="... */
+	 assert(p);
+	 table = m_xrealloc(table, sizeof(char*) * (i + 2));
+	 table[i] = m_strdup(++p); /* Duplicate rest of line */
+	 assert(strchr(table[i], '"'));
+	 *strchr(table[i], '"') = 0; /* Eliminate ">... part after name */
+	 table[++i] = 0;
+      }
+      line = line->next;
+   }
+   if (found_table)
+      *found_table = memset(m_xmalloc(i + 1), 0, i + 1);
+   return table;
+}
+
+
+
+/* destroy_types_lookup_table:
+ * Get's rid of the previously created auto_types and found_table.
+ * found_auto_types can be NULL.
+ */
+void destroy_types_lookup_table(char **auto_types, char *found_auto_types)
+{
+   char **p = auto_types;
+   assert(auto_types);
+   
+   if(found_auto_types)
+      free(found_auto_types);
+   while(*p) {
+      free(*p);
+      p++;
+   }
+   free(auto_types);
+}
+
+
+/* strstruct:
+ * Complex function which replicates the logic behind the strstr function:
+ * It will search in line, any of existant auto_types. If no auto_type is
+ * found, it returns NULL. Otherwise will return a pointer to the beginning
+ * of the auto_type in line, and the length of the auto_type will be stored
+ * at the variable pointed by length. found_auto_types can be NULL, or a
+ * table with as many entries as auto_types. In the latter case, the found
+ * auto_type entry will be marked with a positive number.
+ */
+char *strstruct(char *line, char **auto_types, int *length, char *found_auto_types)
+{
+   assert(line);
+   assert(auto_types);
+   assert(length);
+   
+   while(*line) {
+      if(_is_auto_type_starting_letter(*line)) {
+	 char *end = line;
+	 char **compare = auto_types;
+	 int found = 0;
+	 /* Find the end of the presumably found auto_type */
+	 while(_is_auto_type_allowed_letter(*end))
+	    end++;
+	 *length = end - line;
+	 /* Now compare with the auto_types table */
+	 while(*compare) {
+	    if(*length == strlen(*compare) && !strncmp(line, *compare, *length)) {
+	       /* The auto_type must be followed by a blank space */
+	       if(*(line + *length) == ' ') {
+		  if(found_auto_types)
+		     found_auto_types[found] = 1;
+		  return line; /* Found, return it's position. */
+	       }
+	    }
+	    compare++;
+	    found++;
+	 }
+	 line = end;
+      }
+      else
+	 line++;
+   }
+   return 0;
+}
+
+
+
+/* _write_auto_types_xrefs:
+ * After normal references have been written, call this with a table of
+ * auto_types, and a table of found_auto_types till the moment. xrefs will
+ * be generated, and all the entries of the found_auto_types will be
+ * zeroed for the next run.
+ */
+static void _write_auto_types_xrefs(FILE *f, char **auto_types, char *found_auto_types)
+{
+   while(*auto_types) {
+      if(*found_auto_types) {
+	 *found_auto_types = 0;
+	 fprintf(f, "@xref{%s}.@*\n", *auto_types);
+      }
+      auto_types++;
+      found_auto_types++;
+   }
+}
+
+
+
+/* _is_auto_type_starting_letter:
+ * Detects if the letter could be the beginning of an auto_type. Note the
+ * ugly hack used for Allegro's fixed and al_ffblk types, which should be
+ * capitalized.
+ */
+static int _is_auto_type_starting_letter(char c)
+{
+   if (c == 'f' || c == 'a' || (c >= 'A' && c <= 'Z')) return 1;
+   return 0;
+}
+
+
+
+/* _is_auto_type_starting_letter:
+ * Detects if the letter could be part of an auto_type. Note the ugly hack
+ * used for Allegro's fixed and al_ffblk types, which should be capitalized.
+ */
+static int _is_auto_type_allowed_letter(char c)
+{
+   if (_is_auto_type_starting_letter(c))
+      return 1;
+   if (c >= '0' && c <= '9')
+      return 1;
+   if (c == '_' || c == 'i' || c == 'x' || c == 'e' || c == 'd' || c == 'l' ||
+       c == 'b' || c == 'k')
+      return 1;
+
+   return 0;
+}
 

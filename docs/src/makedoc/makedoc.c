@@ -422,8 +422,14 @@ static int _read_file(char *filename)
 	 else if (buf[1] == '$')
 	    _add_line(buf+2, TEXINFO_FLAG | TEXINFO_CMD_FLAG);
 	 else if (buf[1] == '@') {
+	    char *found_struct_definition = strstr(buf+2, "struct @");
+	    if(!found_struct_definition)
+	       found_struct_definition = strstr(buf+2, "typedef ");
 	    _add_toc(buf+2, 0, line, !(flags & NONODE_FLAG), 1);
-	    _add_line(buf+2, flags | DEFINITION_FLAG);
+	    if (found_struct_definition)
+	       _add_line(buf+2, flags | DEFINITION_FLAG | STRUCT_FLAG);
+	    else
+	       _add_line(buf+2, flags | DEFINITION_FLAG);
 	    flags &= ~NONODE_FLAG;
 	 }
 	 else if (buf[1] == '\\') {
