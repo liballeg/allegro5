@@ -63,6 +63,7 @@ static int busy_mouse = FALSE;
 
 static int entered_password = FALSE;
 static int no_sound = FALSE;
+static int autodetect_card = GFX_AUTODETECT;
 
 
 static int view_proc(int, DIALOG *, int);
@@ -2974,7 +2975,7 @@ static int sheller(void)
    install_mouse();
    install_timer();
 
-   if (set_gfx_mode(GFX_AUTODETECT, oldw, oldh, 0, 0) != 0) {
+   if (set_gfx_mode(autodetect_card, oldw, oldh, 0, 0) != 0) {
       destroy_bitmap(my_mouse_pointer);
       my_mouse_pointer = NULL;
       destroy_bitmap(my_busy_pointer);
@@ -3156,6 +3157,9 @@ int main(int argc, char *argv[])
 	 if (strcmp(argv[i]+1, "nosound") == 0) {
 	    no_sound = TRUE;
 	 }
+	 else if (strcmp(argv[i]+1, "windowed") == 0) {
+	    autodetect_card = GFX_AUTODETECT_WINDOWED;
+	 }
 	 else if ((argv[i][1] == 'p') || (argv[i][1] == 'P')) {
 	    strcpy(password, argv[i]+2);
 	    entered_password = TRUE;
@@ -3203,13 +3207,13 @@ int main(int argc, char *argv[])
 
    if (bpp > 0) {
       set_color_depth(bpp);
-      ret = set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0);
+      ret = set_gfx_mode(autodetect_card, w, h, 0, 0);
    }
    else {
       for (i=0; color_depths[i]; i++) {
 	 bpp = color_depths[i];
 	 set_color_depth(bpp);
-	 ret = set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0);
+	 ret = set_gfx_mode(autodetect_card, w, h, 0, 0);
 	 if (ret == 0)
 	    break;
       }

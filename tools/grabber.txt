@@ -141,6 +141,10 @@ The grabber accepts a few different commandline options:
 
    '-WxH'
       Sets the screen resolution, eg. -320x200, -1024x768
+      
+   '-windowed'
+      Requests that the grabber starts up in a window, rather than
+      fullscreen.
 
    '-nosound'
       Disables audio output.
