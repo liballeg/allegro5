@@ -46,34 +46,11 @@ typedef struct BTOC
 extern const char *html_extension;
 
 
-static char *_get_section_name(char *buf, const char *path, int section_number);
 static int _write_toc(const char *filename, int is_index);
 static int _write_hhp(const char *filename);
-static void _replace_extension(char *dest, char *path, char *ext, int size);
 static void _write_object(FILE *file, const char *name, const char *local);
 static void _output_btoc(FILE *file, BTOC *btoc, int *btoc_prev, int *num_btoc);
 static int _qsort_btoc_helper(const void *e1, const void *e2);
-
-
-
-/* _get_section_name:
- */
-static char *_get_section_name(char *buf, const char *path, int section_number)
-{
-   int len;
-   char *filename;
-
-   filename = get_filename((char *)path);
-
-   strncpy(buf, filename, 5);
-
-   len = strlen(filename);
-   if (len > 5)
-      len = 5;
-
-   sprintf(buf+len, "%03d.%s", section_number, html_extension);
-   return buf;
-}
 
 
 
@@ -134,7 +111,7 @@ static int _write_toc(const char *filename, int is_index)
 	    }
 	    else {
 	       section_number++;
-	       _get_section_name(name, filename, section_number);
+	       get_section_filename(name, filename, section_number);
 	    }
 
 	    prev = PREV_ROOT;
@@ -152,7 +129,7 @@ static int _write_toc(const char *filename, int is_index)
 	       btoc_prev[num_btoc] = prev;
 	    }
 
-	    _get_section_name(name, filename, section_number);
+	    get_section_filename(name, filename, section_number);
 	    strcat(name, "#");
 	    strcat(name, toc->text);
 
@@ -261,7 +238,7 @@ static int _write_hhp(const char *filename)
       return 1;
 
    stripped_filename = m_strdup(get_filename(filename));
-   if ((p = extension(stripped_filename)))
+   if ((p = get_extension(stripped_filename)))
       *(p-1) = 0;
 
    fprintf(file, "[OPTIONS]\n");
@@ -296,7 +273,7 @@ static int _write_hhp(const char *filename)
 	 }
 	 else {
 	    section_number++;
-	    _get_section_name(name, filename, section_number);
+	    get_section_filename(name, filename, section_number);
 	 }
 	 mystrlwr(name);
 
@@ -308,41 +285,15 @@ static int _write_hhp(const char *filename)
 
 
 
-/* _replace_extension:
- *  Replaces extension in path with different one.
- */
-static void _replace_extension(char *dest, char *path, char *ext, int size)
-{
-   char *ext_p;
-   int pos;
-
-   ext_p = strrchr(path, '.');
-   if (ext_p == NULL)
-      ext_p = path;
-   else
-      ext_p++;
-   pos = ext_p - path;
-
-   if (pos+(signed)strlen(ext)+1 > size) {
-      fprintf(stderr, "Buffer overfull");
-      exit(1);
-   }
-
-   memcpy(dest, path, pos);
-   strcpy(dest+pos, ext);
-}
-
-
-
 /* write_chm:
  */
 int write_chm(char *filename)
 {
    FILE *file;
    int found_signature = 0;
-   char buf[1024];
+   char *temp;
    
-   if (!strcmp(extension(filename), "htm"))
+   if (!strcmp(get_extension(filename), "htm"))
       html_extension = "html";
 
    if (!(flags & MULTIFILE_FLAG)) {
@@ -371,18 +322,45 @@ int write_chm(char *filename)
       return 1;
    }
 
-   _replace_extension(buf, filename, "hhp", sizeof(buf));
-   printf("writing '%s'\n", buf);
-   if (_write_hhp(buf))
+   temp = m_replace_extension(filename, "hhp");
+   printf("writing '%s'\n", temp);
+   if (_write_hhp(temp))
       return 1;
-      
-   _replace_extension(buf, filename, "hhc", sizeof(buf));
-   printf("writing '%s'\n", buf);
-   _write_toc(buf, 0);
-   _replace_extension(buf, filename, "hhk", sizeof(buf));
-   printf("writing '%s'\n", buf);
-   _write_toc(buf, 1);
+   free(temp);
+   
+   temp = m_replace_extension(filename, "hhc");
+   printf("writing '%s'\n", temp);
+   _write_toc(temp, 0);
+   free(temp);
+
+   temp = m_replace_extension(filename, "hhk");
+   printf("writing '%s'\n", temp);
+   _write_toc(temp, 1);
+   free(temp);
 
    return 0;
+}
+
+
+
+/* get_section_filename:
+ * Extracts the filename from path and transforms it to the format
+ * 5+3.ext, where 5 characters are taken from path, next three represent
+ * the section number, and ext is the html extension. buf shuold have
+ * enough space to hold 16 characters. Returns a pointer to buf.
+ */
+char *get_section_filename(char *buf, const char *path, int section_number)
+{
+   int len;
+   assert(buf);
+   assert(path);
+   assert(section_number >= 0);
+
+   len = strlen(strncpy(buf, get_filename(path), 5));
+   if (len > 5)
+      len = 5;
+
+   sprintf(buf+len, "%03d.%s", section_number, html_extension);
+   return buf;
 }
 

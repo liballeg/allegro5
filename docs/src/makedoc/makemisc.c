@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "makemisc.h"
 
@@ -173,9 +174,12 @@ char *get_filename(const char *path)
 
 
 
-/* extension:
+/* get_extension:
+ * If filename contains a dot, this function will return a pointer to the
+ * first character after the dot. Otherwise it returns a pointer to the
+ * end of the string, position which holds the string terminator.
  */
-char *extension(const char *filename)
+char *get_extension(const char *filename)
 {
    int pos, end;
 
@@ -248,7 +252,7 @@ void m_abort(int code)
       default:	printf("An undefined error caused abnormal termination\n");
 		code = -1;
    }
-   exit(code);
+   abort();
 }
 
 
@@ -313,4 +317,31 @@ char *m_strcat(char *dynamic_string, const char *normal_string)
 }
 
 
+
+/* m_replace_extension:
+ * Replaces the extension (any text after last dot in string and after last
+ * path separator) in path with the new one. If there's no dot in path, path
+ * and extension will be concatenated like '"%s.%s", path, extension'.
+ * Returns the created string, which has to be freed. Usage example:
+ *    char *dest = m_replace_extension(argv[2], "html");
+ */
+char *m_replace_extension(const char *path, const char *extension)
+{
+   char *p;
+   assert(path);
+   assert(extension);
+
+   p = get_extension(path);
+   if(*p) {
+      int len = p - path;
+      char *temp = m_xmalloc(len + 1 + strlen(extension));
+      strncpy(temp, path, len);
+      strcpy(temp+len, extension);
+      return temp;
+   }
+   else {
+      char *temp = m_strdup(path);
+      return m_strcat(temp, extension);
+   }
+}
 

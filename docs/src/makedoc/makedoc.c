@@ -41,6 +41,7 @@
 #include "makertf.h"
 #include "maketexi.h"
 #include "makechm.h"
+#include "makedevh.h"
 
 /* external globals */
 
@@ -81,7 +82,8 @@ int main(int argc, char *argv[])
    char texinfoname[256] = "";
    char rtfname[256] = "";
    char manname[256] = "";
-   char chmname[256] = "";   
+   char chmname[256] = "";
+   char devhelpname[256] = "";
    int err = 0;
    int partial = 0;
    int i;
@@ -92,7 +94,10 @@ int main(int argc, char *argv[])
       }
       else if ((mystricmp(argv[i], "-chm") == 0) && (i<argc-1)) {
 	 strcpy(chmname, argv[++i]);	 
-      }     
+      }   
+      else if ((mystricmp(argv[i], "-devhelp") == 0) && (i<argc-1)) {
+	 strcpy(devhelpname, argv[++i]);	 
+      }  
       else if ((mystricmp(argv[i], "-html") == 0) && (i<argc-1)) {
 	 strcpy(htmlname, argv[++i]);
 	 html_extension = "html";
@@ -124,6 +129,9 @@ int main(int argc, char *argv[])
       else if (mystricmp(argv[i], "-ochm") == 0) {
 	 html_flags |= HTML_OPTIMIZE_FOR_CHM;
       }
+      else if (mystricmp(argv[i], "-odevhelp") == 0) {
+	 html_flags |= HTML_OPTIMIZE_FOR_DEVHELP;
+      }
       else if (argv[i][0] == '-') {
 	 fprintf(stderr, "Unknown option '%s'\n", argv[i]);
 	 return 1;
@@ -134,7 +142,7 @@ int main(int argc, char *argv[])
    }
 
    if (!filename[0]) {
-      printf("Usage: makedoc [outputs] [-part] [-warn] [-ochm] filename._tx\n\n");
+      printf("Usage: makedoc [outputs] [-part] [-warn] [-ochm] [-odevhelp] filename._tx\n\n");
       printf("Output formats:\n");
       printf("\t-ascii filename.txt\n");
       printf("\t-htm[l] filename.htm[l]\n");
@@ -142,22 +150,23 @@ int main(int argc, char *argv[])
       printf("\t-t[e]xi filename.t[e]xi\n");
       printf("\t-man filename.3\n");
       printf("\t-chm filename.htm[l]\n");
+      printf("\t-devhelp filename.htm[l]\n");
       return 1;
    }
 
    if ((!txtname[0]) && (!htmlname[0]) && (!texinfoname[0]) && (!rtfname[0]) &&
-      (!manname[0]) && (!chmname[0])) {
+      (!manname[0]) && (!chmname[0]) && (!devhelpname[0])) {
       strcpy(txtname, filename);
-      strcpy(extension(txtname), "txt");
+      strcpy(get_extension(txtname), "txt");
 
       strcpy(htmlname, filename);
-      strcpy(extension(htmlname), html_extension);
+      strcpy(get_extension(htmlname), html_extension);
 
       strcpy(texinfoname, filename);
-      strcpy(extension(texinfoname), texinfo_extension);
+      strcpy(get_extension(texinfoname), texinfo_extension);
 
       strcpy(rtfname, filename);
-      strcpy(extension(rtfname), "rtf");
+      strcpy(get_extension(rtfname), "rtf");
    }
 
    if (_read_file(filename) != 0) {
@@ -209,6 +218,14 @@ int main(int argc, char *argv[])
    if (chmname[0]) {
       if (write_chm(chmname) != 0) {
 	 fprintf(stderr, "Error writing CHM output file\n");
+	 err = 1;
+	 goto getout;
+      }
+   }      
+   
+   if (devhelpname[0]) {
+      if (write_devhelp(devhelpname) != 0) {
+	 fprintf(stderr, "Error writing DevHelp output file\n");
 	 err = 1;
 	 goto getout;
       }

@@ -362,7 +362,8 @@ ALLEGRO_MAKEDOC_SOURCES = \
 	docs/src/makedoc/makertf.c \
 	docs/src/makedoc/maketexi.c \
 	docs/src/makedoc/makeman.c \
-	docs/src/makedoc/makechm.c
+	docs/src/makedoc/makechm.c \
+	docs/src/makedoc/makedevh.c
 
 ALLEGRO_LIB_EXE_SOURCES = \
 	demo/demo.c \
@@ -525,8 +526,8 @@ OBJ_CLEAN_FILES = \
 OTHER_CLEAN_FILES = \
 	docs/texi/*.texi docs/texi/*.txi docs/*.tex docs/info/*.info \
 	docs/info/*.inf docs/man/*.3 docs/txt/*.txt \
-	docs/html/*.htm* docs/html/*.chm docs/html/*.hh* \
-	docs/rtf/*.rtf \
+	docs/html/*.htm* docs/chm/*.chm docs/chm/*.hh* \
+	docs/rtf/*.rtf docs/devhelp/*.html docs/devhelp/*.devhelp \
 	obj/*/*.h obj/*/*.s obj/*/*.exe obj/*/*/*.lst obj/*/*/*.asm \
 	obj/*/*/*.res obj/*/asmdef src/i386/asmdef \
 	lib/*/*.a lib/unix/*.so* lib/unix/sta* \

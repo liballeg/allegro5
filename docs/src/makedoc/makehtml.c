@@ -275,8 +275,6 @@ static void _write_html_xref_list(char **xref, int *xrefs)
    if (!(*xrefs))
       return ;
 
-   qsort(xref, *xrefs, sizeof(char *), scmp);
-   
    fputs("\n<blockquote", _file);
    if (!(html_flags & HTML_IGNORE_CSS))
       fputs(" class=\"xref\"><em><b>", _file);
@@ -373,7 +371,7 @@ static void _output_toc(char *filename, int root, int body, int part)
 	    }
 	    else {
 	       strcpy(name, filename);
-	       s = extension(name)-1;
+	       s = get_extension(name)-1;
 	       if ((int)s - (int)get_filename(name) > 5)
 		  s = get_filename(name)+5;
 	       sprintf(s, "%03d.%s", section_number, html_extension);
@@ -434,7 +432,8 @@ static void _output_toc(char *filename, int root, int body, int part)
 	 else
 	    fprintf(_file, "</ul>\n");
       }
-      else if (!(html_flags & HTML_OPTIMIZE_FOR_CHM)) {
+      else if (!(html_flags & HTML_OPTIMIZE_FOR_CHM) &&
+               !(html_flags & HTML_OPTIMIZE_FOR_DEVHELP)) {
 	 TOC *ptr[TOC_SIZE];
 	 int j, i = 0;
 	 int section_number = 0;
@@ -540,7 +539,7 @@ static int _output_section_heading(LINE *line, char *filename, int section_numbe
 
       _close_html_file(_file);
       strcpy(buf, filename);
-      s = extension(buf)-1;
+      s = get_extension(buf)-1;
       if ((int)s - (int)get_filename(buf) > 5)
 	 s = get_filename(buf)+5;
       sprintf(s, "%03d.%s", section_number-1, html_extension);
@@ -865,7 +864,7 @@ static void _post_process_filename(char *filename)
 			 strlen(get_filename(page->filename)));
 	    strncpy(temp, line, p - line + 1);
 
-	    if (!strcmp(filename, page->filename))
+	    if (!(html_flags & HTML_OPTIMIZE_FOR_DEVHELP) && !strcmp(filename, page->filename))
 	       strcpy(&temp[p - line + 1], p + 13);
 	    else {
 	       strcpy(&temp[p - line + 1], get_filename(page->filename));

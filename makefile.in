@@ -1,6 +1,6 @@
 #
 #  Rules for building the Allegro library on Unix. This file is processed
-#  by the configure script, to produce the real makefile the does the work.
+#  by the configure script, to produce the real makefile that does the work.
 
 INSTALL_TARGETS = full-install
 DEFAULT_TARGETS = all
@@ -205,6 +205,8 @@ DOCS += $(addprefix docs/html/,$(addsuffix .html,$(DOCBASEFILES)))
 DOCS += docs/texi/allegro.texi docs/info/allegro.info docs/man/install_allegro.3
 DOCS += CHANGES AUTHORS THANKS
 
+DEVHELPDOCS = $(addprefix docs/devhelp/,$(addsuffix .html,$(DOCBASEFILES)))
+
 MAKEDOC = docs/makedoc$(EXE)
 
 $(filter %.txt,$(DOCS)): docs/txt/%.txt: docs/src/%._tx $(MAKEDOC)
@@ -221,6 +223,9 @@ $(filter %.info,$(DOCS)): docs/info/%.info: docs/texi/%.texi $(MAKEDOC)
 
 $(filter %.html,$(DOCS)): docs/html/%.html: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -html $@ $<
+
+$(filter %.html,$(DEVHELPDOCS)): docs/devhelp/%.html: docs/src/%._tx $(MAKEDOC)
+	$(MAKEDOC) -odevhelp -html $@ $<
 
 docs/man/install_allegro.3: docs/src/allegro._tx $(MAKEDOC)
 	$(MAKEDOC) -man docs/man/dummyname.3 $<
@@ -242,6 +247,9 @@ docs/allegro.dvi: docs/texi/allegro.texi
 
 docs/allegro.ps: docs/allegro.dvi
 	cd docs && dvips -o allegro.ps allegro.dvi && cd ..
+
+docs/devhelp/allegro.devhelp: $(filter %.html,$(DEVHELPDOCS)) docs/src/allegro._tx $(MAKEDOC)
+	$(MAKEDOC) -devhelp docs/devhelp/allegro.html docs/src/allegro._tx
 
 # Dependencies and rules for building libraries and simple programs.
 -include makefile.dep
@@ -267,6 +275,10 @@ docs-ps: $(srcdir)/docs/allegro.ps
 docs-gzipped-ps: $(srcdir)/docs/allegro.ps
 	gzip -9 docs/allegro.ps
 	@echo "Compressed postscript documentation generated: docs/allegro.ps.gz"
+
+docs-devhelp: docs/devhelp/allegro.devhelp
+	@echo "DevHelp documentation generated: docs/devhelp/allegro.devhelp"
+	@echo "To use, please install the above file."
 
 suid: $(ALLEGRO_EXE_TARGETS)
 	chown root.allegro $?
