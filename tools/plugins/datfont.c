@@ -537,7 +537,7 @@ static FONT_COLOR_DATA* upgrade_to_color_data(FONT_MONO_DATA* mf)
         FONT_GLYPH* g = mf->glyphs[i - mf->begin];
         BITMAP* b = create_bitmap_ex(8, g->w, g->h);
         clear_to_color(b, 0);
-        b->vtable->draw_glyph(b, g, 0, 0, 1);
+        b->vtable->draw_glyph(b, g, 0, 0, 1, 0);
 
         bits[i - mf->begin] = b;
         free(g);

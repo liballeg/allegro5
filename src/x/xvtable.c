@@ -42,8 +42,8 @@ static void _xwin_draw_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx,
 static void _xwin_draw_trans_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy);
 static void _xwin_draw_trans_rgba_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy);
 static void _xwin_draw_lit_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy, int color);
-static void _xwin_draw_character(BITMAP *dst, BITMAP *src, int dx, int dy, int color);
-static void _xwin_draw_glyph(BITMAP *dst, AL_CONST FONT_GLYPH *src, int dx, int dy, int color);
+static void _xwin_draw_character(BITMAP *dst, BITMAP *src, int dx, int dy, int color, int bg);
+static void _xwin_draw_glyph(BITMAP *dst, AL_CONST FONT_GLYPH *src, int dx, int dy, int color, int bg);
 static void _xwin_blit_anywhere(BITMAP *src, BITMAP *dst, int sx, int sy,
 				int dx, int dy, int w, int h);
 static void _xwin_blit_backward(BITMAP *src, BITMAP *dst, int sx, int sy,
@@ -728,14 +728,14 @@ static void _xwin_draw_lit_sprite(BITMAP *dst, BITMAP *src, int dx, int dy, int 
 /* _xwin_draw_character:
  *  Wrapper for draw_character.
  */
-static void _xwin_draw_character(BITMAP *dst, BITMAP *src, int dx, int dy, int color)
+static void _xwin_draw_character(BITMAP *dst, BITMAP *src, int dx, int dy, int color, int bg)
 {
    int w, h;
    int dxbeg, dybeg;
    int sxbeg, sybeg;
 
    if (_xwin_in_gfx_call) {
-      _xwin_vtable.draw_character(dst, src, dx, dy, color);
+      _xwin_vtable.draw_character(dst, src, dx, dy, color, bg);
       return;
    }
 
@@ -770,7 +770,7 @@ static void _xwin_draw_character(BITMAP *dst, BITMAP *src, int dx, int dy, int c
    }
 
    _xwin_in_gfx_call = 1;
-   _xwin_vtable.draw_character(dst, src, dx, dy, color);
+   _xwin_vtable.draw_character(dst, src, dx, dy, color, bg);
    _xwin_in_gfx_call = 0;
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
 }
@@ -780,14 +780,14 @@ static void _xwin_draw_character(BITMAP *dst, BITMAP *src, int dx, int dy, int c
 /* _xwin_draw_glyph:
  *  Wrapper for draw_glyph.
  */
-static void _xwin_draw_glyph(BITMAP *dst, AL_CONST FONT_GLYPH *src, int dx, int dy, int color)
+static void _xwin_draw_glyph(BITMAP *dst, AL_CONST FONT_GLYPH *src, int dx, int dy, int color, int bg)
 {
    int w, h;
    int dxbeg, dybeg;
    int sxbeg, sybeg;
 
    if (_xwin_in_gfx_call) {
-      _xwin_vtable.draw_glyph(dst, src, dx, dy, color);
+      _xwin_vtable.draw_glyph(dst, src, dx, dy, color, bg);
       return;
    }
 
@@ -822,7 +822,7 @@ static void _xwin_draw_glyph(BITMAP *dst, AL_CONST FONT_GLYPH *src, int dx, int 
    }
 
    _xwin_in_gfx_call = 1;
-   _xwin_vtable.draw_glyph(dst, src, dx, dy, color);
+   _xwin_vtable.draw_glyph(dst, src, dx, dy, color, bg);
    _xwin_in_gfx_call = 0;
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
 }

@@ -332,8 +332,6 @@ AL_VAR(int, _drawing_y_anchor);
 AL_VAR(unsigned int, _drawing_x_mask);
 AL_VAR(unsigned int, _drawing_y_mask);
 
-AL_VAR(int, _textmode);
-
 AL_FUNCPTR(int *, _palette_expansion_table, (int bpp));
 
 AL_VAR(int, _color_depth);
@@ -444,8 +442,8 @@ AL_FUNC(void, _linear_draw_lit_sprite8, (BITMAP *bmp, BITMAP *sprite, int x, int
 AL_FUNC(void, _linear_draw_rle_sprite8, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_trans_rle_sprite8, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_lit_rle_sprite8, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y, int color));
-AL_FUNC(void, _linear_draw_character8, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color));
-AL_FUNC(void, _linear_draw_glyph8, (BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color));
+AL_FUNC(void, _linear_draw_character8, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color, int bg));
+AL_FUNC(void, _linear_draw_glyph8, (BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg));
 AL_FUNC(void, _linear_blit8, (BITMAP *source,BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
 AL_FUNC(void, _linear_blit_backward8, (BITMAP *source,BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
 AL_FUNC(void, _linear_masked_blit8, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
@@ -482,8 +480,8 @@ AL_FUNC(void, _linear_draw_rle_sprite16, (BITMAP *bmp, AL_CONST struct RLE_SPRIT
 AL_FUNC(void, _linear_draw_trans_rle_sprite16, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_trans_rgba_rle_sprite16, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_lit_rle_sprite16, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y, int color));
-AL_FUNC(void, _linear_draw_character16, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color));
-AL_FUNC(void, _linear_draw_glyph16, (BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color));
+AL_FUNC(void, _linear_draw_character16, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color, int bg));
+AL_FUNC(void, _linear_draw_glyph16, (BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg));
 AL_FUNC(void, _linear_blit16, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
 AL_FUNC(void, _linear_blit_backward16, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
 AL_FUNC(void, _linear_masked_blit16, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
@@ -509,8 +507,8 @@ AL_FUNC(void, _linear_draw_rle_sprite24, (BITMAP *bmp, AL_CONST struct RLE_SPRIT
 AL_FUNC(void, _linear_draw_trans_rle_sprite24, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_trans_rgba_rle_sprite24, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_lit_rle_sprite24, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y, int color));
-AL_FUNC(void, _linear_draw_character24, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color));
-AL_FUNC(void, _linear_draw_glyph24, (BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color));
+AL_FUNC(void, _linear_draw_character24, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color, int bg));
+AL_FUNC(void, _linear_draw_glyph24, (BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg));
 AL_FUNC(void, _linear_blit24, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
 AL_FUNC(void, _linear_blit_backward24, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
 AL_FUNC(void, _linear_masked_blit24, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
@@ -534,8 +532,8 @@ AL_FUNC(void, _linear_draw_lit_sprite32, (BITMAP *bmp, BITMAP *sprite, int x, in
 AL_FUNC(void, _linear_draw_rle_sprite32, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_trans_rle_sprite32, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_lit_rle_sprite32, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y, int color));
-AL_FUNC(void, _linear_draw_character32, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color));
-AL_FUNC(void, _linear_draw_glyph32, (BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color));
+AL_FUNC(void, _linear_draw_character32, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color, int bg));
+AL_FUNC(void, _linear_draw_glyph32, (BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg));
 AL_FUNC(void, _linear_blit32, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
 AL_FUNC(void, _linear_blit_backward32, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
 AL_FUNC(void, _linear_masked_blit32, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
@@ -558,8 +556,8 @@ AL_FUNC(void, _x_draw_lit_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, in
 AL_FUNC(void, _x_draw_rle_sprite, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
 AL_FUNC(void, _x_draw_trans_rle_sprite, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
 AL_FUNC(void, _x_draw_lit_rle_sprite, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y, int color));
-AL_FUNC(void, _x_draw_character, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color));
-AL_FUNC(void, _x_draw_glyph, (BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color));
+AL_FUNC(void, _x_draw_character, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color, int bg));
+AL_FUNC(void, _x_draw_glyph, (BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg));
 AL_FUNC(void, _x_blit_from_memory, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
 AL_FUNC(void, _x_blit_to_memory, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
 AL_FUNC(void, _x_blit, (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));

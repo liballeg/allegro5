@@ -499,19 +499,15 @@ static int mono_render_char(AL_CONST FONT* f, int ch, int fg, int bg, BITMAP* bm
     int w = 0;
     FONT_GLYPH* g = 0;
 
-    int old_textmode = _textmode;
-    _textmode = bg;
-
     acquire_bitmap(bmp);
 
     g = _mono_find_glyph(f, ch);
     if(g) {
-	bmp->vtable->draw_glyph(bmp, g, x, y, fg);
+	bmp->vtable->draw_glyph(bmp, g, x, y, fg, bg);
 	w = g->w;
     }
 
     release_bitmap(bmp);
-    _textmode = old_textmode;
 
     return w;
 }
@@ -528,9 +524,6 @@ static void mono_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, B
     int ch = 0;
     AL_CONST char* p = text;
 
-    int old_textmode = _textmode;
-    _textmode = bg;
-
     acquire_bitmap(bmp);
 
     while( (ch = ugetxc(&p)) ) {
@@ -538,7 +531,6 @@ static void mono_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, B
     }
 
     release_bitmap(bmp);
-    _textmode = old_textmode;
 }
 
 
@@ -615,9 +607,6 @@ static int color_render_char(AL_CONST FONT* f, int ch, int fg, int bg, BITMAP* b
     int w = 0;
     BITMAP *g = 0;
 
-    int old_textmode = _textmode;
-    _textmode = bg;
-
     acquire_bitmap(bmp);
 
     if(fg < 0 && bg >= 0) {
@@ -629,14 +618,13 @@ static int color_render_char(AL_CONST FONT* f, int ch, int fg, int bg, BITMAP* b
 	if(fg < 0) {
 	    bmp->vtable->draw_256_sprite(bmp, g, x, y);
 	} else {
-	    bmp->vtable->draw_character(bmp, g, x, y, fg);
+	    bmp->vtable->draw_character(bmp, g, x, y, fg, bg);
 	}
 
 	w = g->w;
     }
 
     release_bitmap(bmp);
-    _textmode = old_textmode;
 
     return w;
 }
@@ -654,9 +642,6 @@ static void color_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, 
     AL_CONST char* p = text;
     int ch = 0;
 
-    int old_textmode = _textmode;
-    _textmode = bg;
-
     acquire_bitmap(bmp);
 
     if(fg < 0 && bg >= 0) {
@@ -669,7 +654,6 @@ static void color_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, 
     }
 
     release_bitmap(bmp);
-    _textmode = old_textmode;
 }
 
 

@@ -146,13 +146,13 @@ AL_INLINE(void, draw_lit_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, int
 })
 
 
-AL_INLINE(void, draw_character, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color),
+AL_INLINE(void, draw_character_ex, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color, int bg),
 {
    ASSERT(bmp);
    ASSERT(sprite);
    ASSERT(sprite->vtable->color_depth == 8);
 
-   bmp->vtable->draw_character(bmp, sprite, x, y, color);
+   bmp->vtable->draw_character(bmp, sprite, x, y, color, bg);
 })
 
 

@@ -1461,7 +1461,7 @@ void _x_draw_lit_rle_sprite(BITMAP *bmp, AL_CONST RLE_SPRITE *sprite, int x, int
 /* _x_draw_character:
  *  Draws a character from a proportional font onto a mode-X screen.
  */
-void _x_draw_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color)
+void _x_draw_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color, int bg)
 {
    int c1, c2;
 
@@ -1472,8 +1472,8 @@ void _x_draw_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color)
 	 if (sprite->line[c1][c2])
 	    x_write(bmp, x+c2, y+c1, color);
 	 else {
-	    if (_textmode >= 0)
-	       x_write(bmp, x+c2, y+c1, _textmode);
+	    if (bg >= 0)
+	       x_write(bmp, x+c2, y+c1, bg);
 	 }
       }
    }
@@ -1484,7 +1484,7 @@ void _x_draw_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color)
 /* _x_draw_glyph:
  *  Draws monochrome text onto a mode-X screen.
  */
-void _x_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color)
+void _x_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg)
 {
    unsigned char *data = glyph->dat;
    unsigned char *dat;
@@ -1552,8 +1552,8 @@ void _x_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int co
 	 for (;;) {
 	    if (d & k)
 	       bmp_write8(addr, color);
-	    else if (_textmode >= 0)
-	       bmp_write8(addr, _textmode);
+	    else if (bg >= 0)
+	       bmp_write8(addr, bg);
 
 	    i += 4;
 	    if (i >= w)

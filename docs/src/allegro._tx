@@ -3893,7 +3893,7 @@ bitmap.
 
 @@void @draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 @xref draw_sprite_v_flip, draw_trans_sprite, draw_lit_sprite
-@xref draw_gouraud_sprite, stretch_sprite, rotate_sprite, draw_character
+@xref draw_gouraud_sprite, stretch_sprite, rotate_sprite, draw_character_ex
 @xref draw_rle_sprite, draw_compiled_sprite, masked_blit, blit
 @xref bitmap_mask_color
    Draws a copy of the sprite bitmap onto the destination bitmap at the 
@@ -3962,15 +3962,21 @@ bitmap.
    used after you have set up the color mapping table (for 256 color modes) 
    or blender functions (for truecolor modes).
 
-@@void @draw_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color);
+@\void @draw_character_ex(BITMAP *bmp, BITMAP *sprite, int x, int y,
+@@                       color, bg);
 @xref draw_sprite, bitmap_mask_color
    Draws a copy of the sprite bitmap onto the destination bitmap at the 
-   specified position, drawing transparent pixels in the current text mode 
-   (skipping them if the text mode is -1, otherwise drawing them in the text 
-   background color), and setting all other pixels to the specified color. 
-   Transparent pixels are marked by a zero in 256 color modes or bright pink 
-   for truecolor data (maximum red and blue, zero green). The sprite must be 
-   an 8 bit image, even if the destination is a truecolor bitmap.
+   specified position, drawing transparent pixels in the background color
+   (or skipping them if the background color is -1) and setting all other
+   pixels to the specified color. Transparent pixels are marked by a zero
+   in 256 color modes or bright pink for truecolor data (maximum red and
+   blue, zero green). The sprite must be an 8 bit image, even if the
+   destination is a truecolor bitmap.
+
+@@void @draw_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color);
+@xref draw_sprite, bitmap_mask_color, text_mode, draw_character_ex
+   Deprecated. Use draw_character_ex() instead, passing the mode you would
+   have passed to text_mode() as the 'bg' parameter.
 
 @@void @rotate_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
 @xref draw_sprite, rotate_scaled_sprite, rotate_sprite_v_flip
@@ -4171,7 +4177,7 @@ used to extend it with your own custom drawing code: see the definition in
 allegro/text.h for details.
 
 @@extern FONT *@font;
-@xref textout, textprintf
+@xref textout_ex, textprintf_ex
    A simple 8x8 fixed size font (the mode 13h BIOS default). If you want to 
    alter the font used by the GUI routines, change this to point to one of 
    your own fonts. This font contains the standard ASCII (U+20 to U+7F), 
@@ -4184,66 +4190,6 @@ allegro/text.h for details.
     output the character given in allegro_404_char. By default, this is
     set to the caret symbol, '^'.
 
-@@int @text_mode(int mode);
-@xref textout, textprintf
-   Sets the mode in which text will be drawn. Returns previous mode.
-   If mode is zero or positive, text output will be opaque and the 
-   background of the characters will be set to color #mode. If mode is 
-   negative, text will be drawn transparently (ie. the background of the 
-   characters will not be altered). The default is a mode of zero.
-
-@\void @textout(BITMAP *bmp, const FONT *f, const char *s,
-@@             int x, y, int color);
-@xref font, text_mode, textout_centre, textout_right, textout_justify
-@xref textprintf, text_height, text_length
-   Writes the string s onto the bitmap at position x, y, using the current 
-   text mode and the specified font and foreground color. If the color is -1 
-   and a color font is in use, it will be drawn using the colors from the 
-   original font bitmap (the one you imported into the grabber program), 
-   which allows multicolored text output.
-
-@\void @textout_centre(BITMAP *bmp, const FONT *f, const char *s,
-@@                    int x, y, color);
-@xref textout, textprintf_centre
-   Like textout(), but interprets the x coordinate as the centre rather than 
-   the left edge of the string.
-
-@\void @textout_right(BITMAP *bmp, const FONT *f, const char *s,
-@@                   int x, y, color);
-@xref textout, textprintf_right
-   Like textout(), but interprets the x coordinate as the right rather than 
-   the left edge of the string.
-
-@\void @textout_justify(BITMAP *bmp, const FONT *f, const char *s,
-@@                     int x1, int x2, int y, int diff, int color);
-@xref textout, textprintf_justify
-   Draws justified text within the region x1-x2. If the amount of spare 
-   space is greater than the diff value, it will give up and draw regular 
-   left justified text instead.
-
-@\void @textprintf(BITMAP *bmp, const FONT *f, int x, y, color,
-@@                const char *fmt, ...);
-@xref font, text_mode, textprintf_centre, textprintf_right
-@xref textprintf_justify, textout, text_height, text_length
-   Formatted text output, using a printf() style format string.
-
-@\void @textprintf_centre(BITMAP *bmp, const FONT *f, int x, y, color,
-@@                       const char *fmt, ...);
-@xref textprintf, textout_centre
-   Like textprintf(), but interprets the x coordinate as the centre rather 
-   than the left edge of the string.
-
-@\void @textprintf_right(BITMAP *bmp, const FONT *f, int x, y, color,
-@@                      const char *fmt, ...);
-@xref textprintf, textout_right
-   Like textprintf(), but interprets the x coordinate as the right rather 
-   than the left edge of the string.
-
-@\void @textprintf_justify(BITMAP *bmp, const FONT *f, int x1, int x2, int y,
-@@                        int diff, int color, const char *fmt, ...);
-@xref textprintf, textout_justify
-   Like textout_justify, but using a printf() style format string.
-
 @@int @text_length(const FONT *f, const char *str);
 @xref text_height
    Returns the length (in pixels) of a string in the specified font.
@@ -4254,6 +4200,120 @@ allegro/text.h for details.
 
 @@void @destroy_font(FONT *f);
    Frees the memory being used by a font structure.
+
+@\void @textout_ex(BITMAP *bmp, const FONT *f, const char *s,
+@@                int x, y, color, bg);
+@xref font, textout_centre_ex, textout_right_ex, textout_justify_ex
+@xref textprintf_ex, text_height, text_length
+   Writes the string s onto the bitmap at position x, y, using the specified
+   font, foreground color and background color. If the background color is
+   -1, then the text is written transparently. If the foreground color is -1
+   and a color font is in use, it will be drawn using the colors from the
+   original font bitmap (the one you imported into the grabber program),
+   which allows multicolored text output.
+
+@\void @textout_centre_ex(BITMAP *bmp, const FONT *f, const char *s,
+@@                       int x, y, color, bg);
+@xref textout_ex, textprintf_centre_ex
+   Like textout_ex(), but interprets the x coordinate as the centre rather
+   than the left edge of the string.
+
+@\void @textout_right_ex(BITMAP *bmp, const FONT *f, const char *s,
+@@                      int x, y, color, bg);
+@xref textout_ex, textprintf_right_ex
+   Like textout_ex(), but interprets the x coordinate as the right rather
+   than the left edge of the string.
+
+@\void @textout_justify_ex(BITMAP *bmp, const FONT *f, const char *s,
+@@                        int x1, x2, y, diff, color, bg);
+@xref textout_ex, textprintf_justify_ex
+   Draws justified text within the region x1-x2. If the amount of spare
+   space is greater than the diff value, it will give up and draw regular
+   left justified text instead.
+
+@\void @textprintf_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
+@@                    const char *fmt, ...);
+@xref font, textout_ex, textprintf_centre_ex, textprintf_right_ex
+@xref textprintf_justify_ex, text_height, text_length
+   Formatted text output, using a printf() style format string.
+
+@\void @textprintf_centre_ex(BITMAP *bmp, const FONT *f, int x, y, color,
+@@                          bg, const char *fmt, ...);
+@xref textprintf_ex, textout_centre_ex
+   Like textprintf_ex(), but interprets the x coordinate as the centre rather
+   than the left edge of the string.
+
+@\void @textprintf_right_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
+@@                         const char *fmt, ...);
+@xref textprintf_ex, textout_right_ex
+   Like textprintf_ex(), but interprets the x coordinate as the right rather
+   than the left edge of the string.
+
+@\void @textprintf_justify_ex(BITMAP *bmp, const FONT *f, int x1, x2, y,
+@@                           diff, color, bg, const char *fmt, ...);
+@xref textprintf_ex, textout_justify_ex
+   Like textout_justify_ex(), but using a printf() style format string.
+
+@@int @text_mode(int mode);
+@xref textout, textprintf
+   Deprecated: if you use the new textout_ex() family, you no longer have
+   to set the text mode.
+
+   Sets the mode in which text will be drawn. Returns previous mode.
+   If mode is zero or positive, text output will be opaque and the 
+   background of the characters will be set to color 'mode'. If mode is 
+   negative, text will be drawn transparently (ie. the background of the 
+   characters will not be altered). The default is a mode of zero.
+
+@\void @textout(BITMAP *bmp, const FONT *f, const char *s,
+@@             int x, y, color);
+@xref font, text_mode, textout_centre, textout_right, textout_justify
+@xref textprintf, text_height, text_length, textout_ex
+   Deprecated. Use textout_ex() instead, passing the mode you would have
+   passed to text_mode() as the 'bg' parameter.
+
+@\void @textout_centre(BITMAP *bmp, const FONT *f, const char *s,
+@@                    int x, y, color);
+@xref textout, textprintf_centre, text_mode, textout_centre_ex
+   Deprecated. Use textout_centre_ex() instead, passing the mode you would
+   have passed to text_mode() as the 'bg' parameter.
+
+@\void @textout_right(BITMAP *bmp, const FONT *f, const char *s,
+@@                   int x, y, color);
+@xref textout, textprintf_right, text_mode, textout_right_ex
+   Deprecated. Use textout_right_ex() instead, passing the mode you would
+   have passed to text_mode() as the 'bg' parameter.
+
+@\void @textout_justify(BITMAP *bmp, const FONT *f, const char *s,
+@@                     int x1, x2, y, diff, color);
+@xref textout, textprintf_justify, text_mode, textout_justify_ex
+   Deprecated. Use textout_justify_ex() instead, passing the mode you would
+   have passed to text_mode() as the 'bg' parameter.
+
+@\void @textprintf(BITMAP *bmp, const FONT *f, int x, y, color,
+@@                const char *fmt, ...);
+@xref font, text_mode, textprintf_centre, text_mode, textprintf_right
+@xref textprintf_justify, textout, text_height, text_length, textprintf_ex
+   Deprecated. Use textprintf_ex() instead, passing the mode you would have
+   passed to text_mode() as the 'bg' parameter.
+
+@\void @textprintf_centre(BITMAP *bmp, const FONT *f, int x, y, color,
+@@                       const char *fmt, ...);
+@xref textprintf, textout_centre, text_mode, textprintf_centre_ex
+   Deprecated. Use textprintf_centre_ex() instead, passing the mode you
+   would have passed to text_mode() as the 'bg' parameter.
+
+@\void @textprintf_right(BITMAP *bmp, const FONT *f, int x, y, color,
+@@                      const char *fmt, ...);
+@xref textprintf, textout_right, text_mode, textprintf_right_ex
+   Deprecated. Use textprintf_right_ex() instead, passing the mode you would
+   have passed to text_mode() as the 'bg' parameter.
+
+@\void @textprintf_justify(BITMAP *bmp, const FONT *f, int x1, x2, y,
+@@                        diff, color, const char *fmt, ...);
+@xref textprintf, textout_justify, text_mode, textprintf_justify_ex
+   Deprecated. Use textprintf_justify_ex() instead, passing the mode you
+   would have passed to text_mode() as the 'bg' parameter.
 
 
 
@@ -5028,7 +5088,7 @@ format (eg. you cannot stretch a 15 bit source bitmap onto a 24 bit
 destination), but there are some exceptions: blit() and the rotation routines 
 can copy between bitmaps of any format, converting the data as required, 
 draw_sprite() can draw 256 color source images onto destinations of any 
-format, draw_character() _always_ uses a 256 color source bitmap, whatever 
+format, draw_character_ex() _always_ uses a 256 color source bitmap, whatever 
 the format of the destination, the draw_trans_sprite() and 
 draw_trans_rle_sprite() functions are able to draw 32 bit RGBA images onto 
 any hicolor or truecolor destination, as long as you call set_alpha_blender() 
@@ -6230,7 +6290,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@PACKFILE *@pack_fopen(const char *filename, const char *mode);
 @xref Packfile functions, pack_fopen_chunk, packfile_password
-@xref file_select
+@xref file_select_ex
    Opens a file according to mode, which may contain any of the flags:
 <ul><li>
       'r' - open file for reading.
@@ -7393,14 +7453,19 @@ something other than the standard 8x8 font. The standard dialog procedures,
 menus, and alert boxes, will work with fonts of any size, but the 
 gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
-@@int @gui_textout(BITMAP *bmp, const char *s, int x, y, color, centre);
+@@int @gui_textout_ex(BITMAP *bmp, const char *s, int x, y, color, bg, centre);
 @xref gui_strlen
    Helper function for use by the GUI routines. Draws a text string onto the 
    screen, interpreting the '&' character as an underbar for displaying 
    keyboard shortcuts. Returns the width of the output string in pixels.
 
+@@int @gui_textout(BITMAP *bmp, const char *s, int x, y, color, centre);
+@xref gui_strlen, text_mode, gui_textout_ex
+   Deprecated. Use gui_textout_ex() instead, passing the mode you would have
+   passed to text_mode() as the 'bg' parameter.
+
 @@int @gui_strlen(const char *s);
-@xref gui_textout
+@xref gui_textout_ex
    Helper function for use by the GUI routines. Returns the length of a 
    string in pixels, ignoring '&' characters.
 
@@ -7575,12 +7640,6 @@ ensure there is room for the check.
 @xref alert, gui_fg_color
    Like alert(), but with three buttons. Returns 1, 2, or 3.
 
-@@int @file_select(const char *message, char *path, const char *ext);
-@xref file_select_ex, gui_fg_color
-   Deprecated. Use file_select_ex() instead, passing the two constants 
-   OLD_FILESEL_WIDTH and OLD_FILESEL_HEIGHT if you want the file selector 
-   to be displayed with the dimensions of the old file selector.
-
 @\int @file_select_ex(const char *message, char *path, const char *ext,
 @@                   int size, int w, int h);
 @xref gui_fg_color
@@ -7608,6 +7667,12 @@ ensure there is room for the check.
    stretched to the corresponding screen dimension. This function returns
    zero if it was closed with the Cancel button or non-zero if it was OK'd.
 
+@@int @file_select(const char *message, char *path, const char *ext);
+@xref file_select_ex, gui_fg_color
+   Deprecated. Use file_select_ex() instead, passing the two constants
+   OLD_FILESEL_WIDTH and OLD_FILESEL_HEIGHT if you want the file selector
+   to be displayed with the dimensions of the old file selector.
+
 @@int @gfx_mode_select(int *card, int *w, int *h);
 @xref gfx_mode_select_ex, set_gfx_mode, gui_fg_color
    Displays the Allegro graphics mode selection dialog, which allows the 
@@ -7628,7 +7693,7 @@ ensure there is room for the check.
 @@extern int (*@gui_edit_proc)(int msg, struct DIALOG *d, int c);
 @@extern int (*@gui_list_proc)(int msg, struct DIALOG *d, int c);
 @@extern int (*@gui_text_list_proc)(int msg, struct DIALOG *d, int c);
-@xref alert, alert3, file_select, gfx_mode_select, gui_fg_color
+@xref alert, alert3, file_select_ex, gfx_mode_select, gui_fg_color
    If set, these functions will be used by the standard Allegro dialogs.
    This allows you to customise the look and feel, much like gui_fg_color
    and gui_bg_color, but much more flexiblely.

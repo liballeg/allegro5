@@ -34,12 +34,12 @@ typedef char *(*getfuncptr)(int, int *);
 
 
 
-/* gui_textout:
+/* gui_textout_ex:
  *  Wrapper function for drawing text to the screen, which interprets the
  *  & character as an underbar for displaying keyboard shortcuts. Returns
  *  the width of the output string in pixels.
  */
-int gui_textout(BITMAP *bmp, AL_CONST char *s, int x, int y, int color, int centre)
+int gui_textout_ex(BITMAP *bmp, AL_CONST char *s, int x, int y, int color, int bg, int centre)
 {
    char tmp[1024];
    int hline_pos = -1;
@@ -75,7 +75,7 @@ int gui_textout(BITMAP *bmp, AL_CONST char *s, int x, int y, int color, int cent
       x -= pix_len / 2;
 
    if (bmp) {
-      textout(bmp, font, tmp, x, y, color);
+      textout_ex(bmp, font, tmp, x, y, color, bg);
 
       if (hline_pos >= 0) {
 	 c = ugetat(tmp, hline_pos);

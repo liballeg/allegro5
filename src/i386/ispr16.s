@@ -506,13 +506,14 @@ lit_sprite_done:
 
 
 
-/* void _linear_draw_character16(BITMAP *bmp, BITMAP *sprite, int x, y, color);
+/* void _linear_draw_character16(BITMAP *bmp, BITMAP *sprite, int x, y, color, bg);
  *  For proportional font output onto a linear bitmap: uses the sprite as 
  *  a mask, replacing all set pixels with the specified color.
  */
 FUNC(_linear_draw_character16)
 
    #define COLOR  ARG5
+   #define BG     ARG6
 
    START_SPRITE_DRAW(draw_char)
 
@@ -533,11 +534,11 @@ FUNC(_linear_draw_character16)
    addl S_LGAP, %esi             /* esi = sprite data ptr */
 
    movl COLOR, %ebx              /* bx = text color */
-   movl GLOBL(_textmode), %edi   /* di = background color */
+   movl BG, %edi                 /* di = background color */
    cmpl $0, %edi
    jl draw_masked_char
 
-   /* opaque (text_mode >= 0) character output */
+   /* opaque (bg >= 0) character output */
    _align_
    SPRITE_LOOP(draw_opaque_char) 
    cmpb $0, (%esi)               /* test pixel */
@@ -553,7 +554,7 @@ draw_opaque_done:
    SPRITE_END_Y(draw_opaque_char)
    jmp draw_char_done
 
-   /* masked (text_mode -1) character output */
+   /* masked (bg -1) character output */
    _align_
 draw_masked_char:
    SPRITE_LOOP(draw_masked_char) 

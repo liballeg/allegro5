@@ -650,7 +650,7 @@ void FUNC_LINEAR_DRAW_LIT_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy, int c
  *  For proportional font output onto a linear bitmap: uses the sprite as
  *  a mask, replacing all set pixels with the specified color.
  */
-void FUNC_LINEAR_DRAW_CHARACTER(BITMAP *dst, BITMAP *src, int dx, int dy, int color)
+void FUNC_LINEAR_DRAW_CHARACTER(BITMAP *dst, BITMAP *src, int dx, int dy, int color, int bg)
 {
    int x, y, w, h;
    int dxbeg, dybeg;
@@ -688,7 +688,7 @@ void FUNC_LINEAR_DRAW_CHARACTER(BITMAP *dst, BITMAP *src, int dx, int dy, int co
 
    bmp_select(dst);
 
-   if (_textmode < 0) {
+   if (bg < 0) {
       /* Masked character.  */
       for (y = 0; y < h; y++) {
 	 unsigned char *s = src->line[sybeg + y] + sxbeg;
@@ -716,7 +716,7 @@ void FUNC_LINEAR_DRAW_CHARACTER(BITMAP *dst, BITMAP *src, int dx, int dy, int co
 	       PUT_PIXEL(d, color);
 	    }
 	    else {
-	       PUT_PIXEL(d, _textmode);
+	       PUT_PIXEL(d, bg);
 	    }
 	 }
       }

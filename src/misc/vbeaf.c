@@ -108,7 +108,7 @@ static void vbeaf_vline_b(BITMAP *bmp, int x, int y1, int y2, int color);
 static void vbeaf_line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 static void vbeaf_rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 static int  vbeaf_triangle(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color);
-static void vbeaf_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color);
+static void vbeaf_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg);
 static void vbeaf_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 static void vbeaf_blit_from_memory(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 static void vbeaf_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
@@ -128,7 +128,7 @@ static void (*orig_vline)(BITMAP *bmp, int x, int y1, int y2, int color);
 static void (*orig_hline)(BITMAP *bmp, int x1, int y, int x2, int color);
 static void (*orig_line)(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 static void (*orig_rectfill)(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-static void (*orig_draw_glyph)(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color);
+static void (*orig_draw_glyph)(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg);
 static void (*orig_draw_sprite)(BITMAP *bmp, BITMAP *sprite, int x, int y);
 static void (*orig_masked_blit)(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 
@@ -2651,7 +2651,7 @@ static int vbeaf_triangle(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, i
 /* vbeaf_draw_glyph:
  *  Monochrome text plotter.
  */
-static void vbeaf_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color)
+static void vbeaf_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg)
 {
    unsigned char *data = glyph->dat;
    int w = glyph->w;
@@ -2660,8 +2660,8 @@ static void vbeaf_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int
    int d;
 
    /* give up if we can't draw this */
-   if ((x < bmp->cl) || (x+w >= bmp->cr) || ((w&7) && (_textmode >= 0))) {
-      orig_draw_glyph(bmp, glyph, x, y, color);
+   if ((x < bmp->cl) || (x+w >= bmp->cr) || ((w&7) && (bg >= 0))) {
+      orig_draw_glyph(bmp, glyph, x, y, color, bg);
       return;
    }
 
@@ -2686,9 +2686,9 @@ static void vbeaf_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int
 
    SAFE_CALL(
       /* set the mix mode */
-      if (_textmode >= 0) {
+      if (bg >= 0) {
 	 af_driver->SetMix(af_driver, 0, 0);
-	 d = _textmode;
+	 d = bg;
       }
       else {
 	 af_driver->SetMix(af_driver, 0, 4);

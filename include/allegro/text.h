@@ -45,15 +45,14 @@ typedef struct FONT
 
 AL_VAR(FONT *, font);
 AL_VAR(int, allegro_404_char);
-AL_FUNC(int, text_mode, (int mode));
-AL_FUNC(void, textout, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color));
-AL_FUNC(void, textout_centre, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color));
-AL_FUNC(void, textout_right, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color));
-AL_FUNC(void, textout_justify, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, int x2, int y, int diff, int color));
-AL_PRINTFUNC(void, textprintf, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
-AL_PRINTFUNC(void, textprintf_centre, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
-AL_PRINTFUNC(void, textprintf_right, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
-AL_PRINTFUNC(void, textprintf_justify, (struct BITMAP *bmp, AL_CONST FONT *f, int x1, int x2, int y, int diff, int color, AL_CONST char *format, ...), 8, 9);
+AL_FUNC(void, textout_ex, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color, int bg));
+AL_FUNC(void, textout_centre_ex, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color, int bg));
+AL_FUNC(void, textout_right_ex, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color, int bg));
+AL_FUNC(void, textout_justify_ex, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, int x2, int y, int diff, int color, int bg));
+AL_PRINTFUNC(void, textprintf_ex, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, int bg, AL_CONST char *format, ...), 7, 8);
+AL_PRINTFUNC(void, textprintf_centre_ex, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, int bg, AL_CONST char *format, ...), 7, 8);
+AL_PRINTFUNC(void, textprintf_right_ex, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, int bg, AL_CONST char *format, ...), 7, 8);
+AL_PRINTFUNC(void, textprintf_justify_ex, (struct BITMAP *bmp, AL_CONST FONT *f, int x1, int x2, int y, int diff, int color, int bg, AL_CONST char *format, ...), 9, 10);
 AL_FUNC(int, text_length, (AL_CONST FONT *f, AL_CONST char *str));
 AL_FUNC(int, text_height, (AL_CONST FONT *f));
 AL_FUNC(void, destroy_font, (FONT *f));
