@@ -162,6 +162,10 @@ static char* dinput_err_str(long err)
 
    switch (err) {
 
+      case DIERR_ACQUIRED:
+         strcpy(err_str, "the device is acquired");
+         break;
+
       case DIERR_NOTACQUIRED:
          strcpy(err_str, "the device is not acquired");
          break;
@@ -401,6 +405,42 @@ int mouse_dinput_unacquire(void)
 
 
 
+/* mouse_dinput_grab: [window thread]
+ *  Grabs the mouse device.
+ */
+int mouse_dinput_grab(void)
+{
+   HRESULT hr;
+   DWORD level;
+
+   if (mouse_dinput_device) {
+      /* necessary in order to set the cooperative level */
+      mouse_dinput_unacquire();
+
+      if (gfx_driver && !gfx_driver->windowed) {
+         level = DISCL_FOREGROUND | DISCL_EXCLUSIVE;
+         _TRACE("foreground exclusive cooperative level requested for mouse\n");
+      }
+      else {
+         level = DISCL_FOREGROUND | DISCL_NONEXCLUSIVE;
+         _TRACE("foreground non-exclusive cooperative level requested for mouse\n");
+      }
+
+      /* set cooperative level */
+      hr = IDirectInputDevice_SetCooperativeLevel(mouse_dinput_device, allegro_wnd, level);
+      if (FAILED(hr)) {
+         _TRACE("set cooperative level failed: %s\n", dinput_err_str(hr));
+         return -1;
+      }
+
+      mouse_dinput_acquire();
+   }
+
+   return 0;
+}
+
+
+
 /* mouse_set_syscursor: [window thread]
  *  Changes the state of the system mouse cursor.
  */
@@ -545,11 +585,6 @@ static int mouse_dinput_init(void)
    if (FAILED(hr))
       goto Error;
 
-   /* Set cooperative level */
-   hr = IDirectInputDevice_SetCooperativeLevel(mouse_dinput_device, allegro_wnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-   if (FAILED(hr))
-      goto Error;
-
    /* Enable event notification */
    mouse_input_event = CreateEvent(NULL, FALSE, FALSE, NULL);
    hr = IDirectInputDevice_SetEventNotification(mouse_dinput_device, mouse_input_event);
@@ -560,8 +595,8 @@ static int mouse_dinput_init(void)
    if (input_register_event(mouse_input_event, mouse_dinput_handle) != 0)
       goto Error;
 
-   /* Acquire the device */
-   wnd_call_proc(mouse_dinput_acquire);
+   /* Grab the device */
+   wnd_call_proc(mouse_dinput_grab);
    wnd_set_syscursor(FALSE);
    _mouse_on = TRUE;
 

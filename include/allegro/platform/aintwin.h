@@ -130,6 +130,7 @@ AL_FUNC(int, key_dinput_unacquire, (void));
 /* mouse routines */
 AL_FUNC(int, mouse_dinput_acquire, (void));
 AL_FUNC(int, mouse_dinput_unacquire, (void));
+AL_FUNC(int, mouse_dinput_grab, (void));
 AL_FUNC(int, mouse_set_syscursor, (int state));
 AL_FUNC(int, mouse_set_sysmenu, (int state));
 

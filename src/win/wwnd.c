@@ -663,6 +663,6 @@ void win_set_wnd_create_proc(HWND (*proc)(WNDPROC))
 void win_grab_input(void)
 {
    wnd_schedule_proc(key_dinput_acquire);
-   wnd_schedule_proc(mouse_dinput_acquire);
+   wnd_schedule_proc(mouse_dinput_grab);
    wnd_schedule_proc(joystick_dinput_acquire);
 }
