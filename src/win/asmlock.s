@@ -29,7 +29,7 @@
  */
 FUNC (gfx_directx_write_bank)
 
-      /* check whether is is locked already */
+      /* check whether is locked already */
       testl $BMP_ID_LOCKED, BMP_ID(%edx)
       jnz Locked
 
@@ -82,9 +82,11 @@ FUNC (gfx_directx_write_bank_win)
       
       pushal
       movl GLOBL(dirty_lines), %ebx
+      movl BMP_YOFFSET(%edx), %ecx
+      leal (%ebx,%ecx,4), %ebx  
       movl $1, (%ebx,%eax,4)   /* dirty_lines[line] = 1; (line has changed) */
       
-      /* check whether is is locked already */
+      /* check whether is locked already */
       testl $BMP_ID_LOCKED, BMP_ID(%edx)
       jnz Locked_win
 
@@ -184,7 +186,7 @@ update_dirty_lines:
       movl BMP_H(%eax), %esi           /* esi = pseudo_screen->h */
       movl $0, %edi  
       
-      _align_
+   _align_
    next_line:
       movl (%ebx,%edi,4), %eax  /* eax = dirty_lines[edi] */
       testl %eax, %eax   /* is dirty? */
@@ -214,5 +216,3 @@ update_dirty_lines:
       addl $16, %esp
 
       ret
-      
-
