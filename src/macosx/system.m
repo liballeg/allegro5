@@ -119,11 +119,13 @@ SYSTEM_DRIVER system_macosx =
 static RETSIGTYPE osx_signal_handler(int num)
 {
    pthread_mutex_unlock(&osx_event_mutex);
-   pthread_mutex_destroy(&osx_event_mutex);
    pthread_mutex_unlock(&osx_window_mutex);
-   pthread_mutex_destroy(&osx_window_mutex);
    
    allegro_exit();
+   
+   pthread_mutex_destroy(&osx_event_mutex);
+   pthread_mutex_destroy(&osx_window_mutex);
+   
    fprintf(stderr, "Shutting down Allegro due to signal #%d\n", num);
    raise(num);
 }

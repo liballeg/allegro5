@@ -69,7 +69,6 @@ static const int mac_to_scancode[128] = {
 
 
 static unsigned int old_mods = 0;
-static int main_pid;
 
 
 KEYBOARD_DRIVER keyboard_macosx =
@@ -109,10 +108,11 @@ void osx_keyboard_handler(int pressed, NSEvent *event)
 	 else
             _handle_key_press(character, scancode);
       }
-      if ((three_finger_flag) && (scancode == KEY_END) &&
-          (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) {
-	 pthread_mutex_unlock(&osx_event_mutex);
-	 kill(main_pid, SIGTERM);
+      if (((three_finger_flag) &&
+	  (scancode == KEY_END) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) ||
+	  ((scancode == KEY_Q) && (_key_shifts & KB_COMMAND_FLAG))) {
+	 [NSApp sendEvent: event];
+	 [[NSApp delegate] app_quit: nil];
       }
    }
    else
@@ -182,8 +182,6 @@ void osx_keyboard_focused(int focused, int state)
  */
 static int osx_keyboard_init(void)
 {
-   main_pid = getpid();
-   
    return 0;
 }
 

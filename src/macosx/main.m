@@ -55,6 +55,7 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 - (BOOL)application: (NSApplication *)theApplication openFile: (NSString *)filename
 {
 	arg1 = strdup([filename lossyCString]);
+	return YES;
 }
 
 
@@ -72,7 +73,7 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    CFDictionaryRef mode;
    char path[1024], *p;
    int i;
-   
+
    pthread_mutex_init(&osx_event_mutex, NULL);
    
    pool = [[NSAutoreleasePool alloc] init];
@@ -181,6 +182,16 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    [pool release];
 }
 
+
+
+/* app_quit:
+ *  Forces application to quit by raising a SIGTERM signal.
+ */
+- (void)app_quit: (id)sender
+{
+   raise(SIGTERM);
+}
+
 @end
 
 
@@ -193,6 +204,9 @@ int main(int argc, char *argv[])
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    AllegroAppDelegate *app_delegate = [[AllegroAppDelegate alloc] init];
    CPSProcessSerNum psn;
+   NSMenu *menu;
+   NSMenuItem *menu_item, *temp_item;
+   char item_text[256];
    
    __crt0_argc = argc;
    __crt0_argv = argv;
@@ -208,7 +222,25 @@ int main(int argc, char *argv[])
        (!CPSSetFrontProcess(&psn)))
       [NSApplication sharedApplication];
    
-   [NSApp setMainMenu: [[NSMenu alloc] init]];
+   /* Creates a custom application menu */
+   [NSApp setMainMenu: [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"]];
+   menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"];
+   temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
+      initWithTitle: @"temp"
+      action: NULL
+      keyEquivalent: @""];
+   [[NSApp mainMenu] addItem: temp_item];
+   [[NSApp mainMenu] setSubmenu: menu forItem: temp_item];
+   [NSApp setAppleMenu: menu];
+   NSString *quit = @"Quit ";
+   menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
+      initWithTitle: [quit stringByAppendingString: [[NSProcessInfo processInfo] processName]]
+      action: @selector(app_quit:)
+      keyEquivalent: @"q"];
+   [menu_item setKeyEquivalentModifierMask: NSCommandKeyMask];
+   [menu_item setTarget: app_delegate];
+   [menu addItem: menu_item];
+
    [NSApp setDelegate: app_delegate];
    
    [NSApp run];
