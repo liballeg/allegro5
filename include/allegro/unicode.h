@@ -76,6 +76,7 @@ AL_FUNC(char *, ustrzncpy, (char *dest, int size, AL_CONST char *src, int n));
 AL_FUNC(char *, ustrzncat, (char *dest, int size, AL_CONST char *src, int n));
 AL_FUNC(int, ustrncmp, (AL_CONST char *s1, AL_CONST char *s2, int n));
 AL_FUNC(int, ustricmp, (AL_CONST char *s1, AL_CONST char *s2));
+AL_FUNC(int, ustrnicmp, (AL_CONST char *s1, AL_CONST char *s2, int n));
 AL_FUNC(char *, ustrlwr, (char *s));
 AL_FUNC(char *, ustrupr, (char *s));
 AL_FUNC(char *, ustrchr, (AL_CONST char *s, int c));

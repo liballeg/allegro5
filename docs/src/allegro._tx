@@ -621,7 +621,7 @@ is best to set it with set_uformat() just before you call these.
    doesn't have to equal the string's size in bytes.
 
 @@int @ustrcmp(const char *s1, const char *s2);
-@xref uconvert, ustrsize, ustrsizez, ustrncmp, ustricmp
+@xref uconvert, ustrsize, ustrsizez, ustrncmp, ustricmp, ustrnicmp
    This function compares s1 and s2. Returns zero if the strings are equal,
    a positive number if s1 comes after s2 in the ASCII collating sequence,
    else a negative number.
@@ -662,14 +662,18 @@ is best to set it with set_uformat() just before you call these.
    of dest.
 
 @@int @ustrncmp(const char *s1, const char *s2, int n);
-@xref uconvert, ustrsize, ustrsizez, ustrcmp, ustricmp
+@xref uconvert, ustrsize, ustrsizez, ustrcmp, ustricmp, ustrnicmp
    This function compares up to n characters of s1 and s2. Returns zero if
    the substrings are equal, a positive number if s1 comes after s2 in the
    ASCII collating sequence, else a negative number.
 
 @@int @ustricmp(const char *s1, const char *s2);
-@xref uconvert, ustrsize, ustrsizez, ustrcmp, ustrncmp
+@xref uconvert, ustrsize, ustrsizez, ustrnicmp, ustrcmp, ustrncmp
    This function compares s1 and s2, ignoring case.
+
+@@int @ustrnicmp(const char *s1, const char *s2, int n);
+@xref uconvert, ustrsize, ustrsizez, ustricmp, ustrcmp, ustrncmp
+   This function compares up to n characters of s1 and s2, ignoring case.
 
 @@char *@ustrlwr(char *s);
 @xref uconvert, utolower, ustrupr
