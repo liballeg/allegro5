@@ -71,12 +71,11 @@ Supported platforms
    Windows/Cygwin    - see docs/build/mingw32.txt
    Windows/Borland   - see docs/build/bcc32.txt
    Linux (console)   - see docs/build/linux.txt
-   Unix (X)          - see docs/build/unix.txt
+   Unix (X11)        - see docs/build/unix.txt
+   Darwin (X11)      - see docs/build/darwin.txt
    BeOS              - see docs/build/beos.txt
    QNX               - see docs/build/qnx.txt
-   MacOS/MPW         - see docs/build/macos.txt
-   Darwin/MacOS X    - see docs/build/darwin.txt
-   MacOS X (native)  - see docs/build/macosx.txt
+   MacOS X           - see docs/build/macosx.txt
 <endblock>
    General API information can be found in the main manual, usually referred
    to as docs/txt/allegro.txt or simply allegro.txt throughout this document
