@@ -14,6 +14,7 @@ ALLEGRO_SRC_FILES = \
 	src/digmid.c \
 	src/dither.c \
 	src/dispsw.c \
+        src/display.c \
 	src/dtor.c \
 	src/drvlist.c \
 	src/events.c \
@@ -68,6 +69,7 @@ ALLEGRO_SRC_FILES = \
 	src/vtable24.c \
 	src/vtable32.c \
 	src/vtable8.c \
+	src/compat/cogfx.c \
 	src/compat/cojoy.c \
 	src/compat/cokeybd.c \
 	src/compat/cotimer.c \

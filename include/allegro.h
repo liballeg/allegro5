@@ -40,6 +40,7 @@
 
 #include "allegro/palette.h"
 #include "allegro/gfx.h"
+#include "allegro/display.h"
 #include "allegro/color.h"
 #include "allegro/draw.h"
 #include "allegro/rle.h"
