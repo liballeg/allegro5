@@ -92,6 +92,15 @@ static int last_line;
 
 
 
+#ifdef ALLEGRO_MODULE
+
+/* If this is non-zero, this module won't be unloaded.  */
+int _module_dont_unload_me_dirty_hack = 0;
+
+#endif
+
+
+
 /* _svgalib_read_line:
  *  Return linear offset for reading line.
  */
@@ -177,6 +186,13 @@ static int safe_vga_setmode(int num, int tio)
    tcgetattr(__al_linux_console_fd, &termio);
 
    ret = vga_setmode(num);
+
+#ifdef ALLEGRO_MODULE
+   /* A side-effect of vga_setmode() is that it will register an
+    * atexit handler.  See umodules.c for this problem.
+    */
+   _module_dont_unload_me_dirty_hack = 1;
+#endif
 
    tcsetattr(__al_linux_console_fd, TCSANOW, &termio);
    if (tio) 
