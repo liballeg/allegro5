@@ -229,13 +229,13 @@ static LPDIRECTDRAWSURFACE2 create_directdraw2_surface(int w, int h, LPDDPIXELFO
       ddsurf_desc.ddsCaps.dwCaps |=  DDSCAPS_COMPLEX | DDSCAPS_FLIP;
       ddsurf_desc.dwFlags |= DDSD_BACKBUFFERCOUNT;
       ddsurf_desc.dwBackBufferCount = n_backbuffers;
-      TRACE("...with %d backbuffer(s)\n", n_backbuffers);
+      _TRACE("...with %d backbuffer(s)\n", n_backbuffers);
    }
 
    /* create the surface */
    hr = IDirectDraw2_CreateSurface(directdraw, &ddsurf_desc, &ddsurf1, NULL);
    if (FAILED(hr)) {
-      TRACE("Unable to create the surface (%s)\n", dd_err(hr));
+      _TRACE("Unable to create the surface (%s)\n", dd_err(hr));
       return NULL;
    }
 
@@ -250,7 +250,7 @@ static LPDIRECTDRAWSURFACE2 create_directdraw2_surface(int w, int h, LPDDPIXELFO
       IDirectDrawSurface_Release(ddsurf1);
 
    if (FAILED(hr)) {
-      TRACE("Unable to retrieve the DirectDrawSurface2 interface (%s)\n", dd_err(hr));
+      _TRACE("Unable to retrieve the DirectDrawSurface2 interface (%s)\n", dd_err(hr));
       return NULL;
    }
 
