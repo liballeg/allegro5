@@ -15,6 +15,10 @@ EXE = .exe
 OBJ = .o
 HTML = html
 
+ifdef CROSSCOMPILE
+  UNIX_TOOLS = 1
+endif
+
 ifdef STATICLINK
 
 # -------- link as a static library --------
@@ -32,9 +36,9 @@ DLL_NAME = lib/mingw32/$(DLL_BASENAME)
 IMPLIB_BASENAME = lib$(VERSION).a
 IMPLIB_NAME = lib/mingw32/$(IMPLIB_BASENAME)
 LIB_NAME = $(DLL_NAME) $(IMPLIB_NAME)
+EXPDEF_NAME = lib/mingw32/allegro.def
 
-EXPDEF_NAME=lib/mingw32/allegro.def
-endif
+endif # STATICLINK
 
 
 
@@ -135,7 +139,7 @@ scrsave: tests/win/scrsave.scr
 
 # -------- rules for installing and removing the library files --------
 
-ifdef CROSSCOMPILE
+ifdef UNIX_TOOLS
 
 $(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
 	cp lib/mingw32/$(IMPLIB_BASENAME) $(MINGDIR_U)/lib
@@ -159,7 +163,7 @@ ifndef STATICLINK
 $(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
 	copy lib\mingw32\$(DLL_BASENAME) $(WINDIR_D)
 
-endif
+endif # STATICLINK
 
 $(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
 	copy lib\mingw32\$(IMPLIB_BASENAME) $(MINGDIR_D)\lib
@@ -176,7 +180,7 @@ $(MINGDIR_U)/include/allegro:
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
 	copy $(subst /,\,$< $@)
 
-endif # CROSSCOMPILE
+endif # UNIX_TOOLS
 
 
 HEADERS = $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/*.h))
@@ -209,7 +213,7 @@ uninstall:
 .PHONY: mmxtest
 
 mmxtest:
-ifdef CROSSCOMPILE
+ifdef UNIX_TOOLS
 	echo // no MMX > obj/mingw32/mmx.h
 	echo .text > obj/mingw32/mmxtest.s
 	echo emms >> obj/mingw32/mmxtest.s
@@ -220,9 +224,8 @@ else
 	echo .text > obj\mingw32\mmxtest.s
 	echo emms >> obj\mingw32\mmxtest.s
 	gcc -c obj/mingw32/mmxtest.s -o obj/mingw32/mmxtest.o
-	echo \#define ALLEGRO_MMX > obj\mingw32\mmx.h
 	echo #define ALLEGRO_MMX > obj\mingw32\mmx.h
-endif
+endif # UNIX_TOOLS
 
 obj/mingw32/mmx.h:
 	@echo Testing for MMX assembler support...
@@ -341,14 +344,14 @@ obj/mingw32/asmdef.inc: obj/mingw32/asmdef.s
 	if [ ! -x misc/asmdef.sh ]; then chmod a+x misc/asmdef.sh; fi
 	misc/asmdef.sh obj/mingw32/asmdef.s obj/mingw32/asmdef.inc
 
-endif
+endif # CROSSCOMPILE
 
 PLUGIN_LIB = lib/mingw32/$(VERY_SHORT_VERSION)dat.a
 PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB)
 PLUGINS_H = obj/mingw32/plugins.h
 PLUGIN_SCR = scv
 
-ifdef CROSSCOMPILE
+ifdef UNIX_TOOLS
 
 define GENERATE_PLUGINS_H
   cat tools/plugins/*.inc > obj/mingw32/plugins.h
@@ -360,7 +363,7 @@ define GENERATE_PLUGINS_H
   copy tools\plugins\*.inc obj\mingw32\plugins.h
 endef
 
-endif
+endif # UNIX_TOOLS
 
 define MAKE_PLUGIN_LIB
   ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
