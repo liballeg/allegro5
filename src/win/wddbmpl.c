@@ -126,5 +126,13 @@ int restore_all_ddraw_surfaces(void)
 
    _exit_gfx_critical();
 
+   _TRACE("all DirectDraw surfaces restored\n");
+
+   /* The contents of the screen bitmap and of all the system
+    * and video bitmaps was presumably lost so we ask the user
+    * to refresh them.
+    */
+   _switch_in();
+
    return 0;
 }

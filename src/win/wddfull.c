@@ -139,7 +139,7 @@ static WIN_GFX_DRIVER win_gfx_fullscreen =
 {
    FALSE,                       // true if driver has backing store
    switch_in_fullscreen,
-   NULL,                        // AL_METHOD(void, switch_out, (void));
+   _switch_out,
    NULL,                        // AL_METHOD(void, enter_sysmode, (void));
    NULL,                        // AL_METHOD(void, exit_sysmode, (void));
    NULL,                        // AL_METHOD(void, move, (int x, int y, int w, int h));
@@ -239,6 +239,6 @@ static void finalize_fullscreen_init(void)
  */
 static void switch_in_fullscreen(void)
 {
-   restore_all_ddraw_surfaces();
+   restore_all_ddraw_surfaces();  /* calls _switch_in() */
 }
 

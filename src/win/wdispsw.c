@@ -107,8 +107,6 @@ void sys_switch_in(void)
    if (win_gfx_driver && win_gfx_driver->switch_in)
       win_gfx_driver->switch_in();
 
-   _switch_in();
-
    /* handle switch modes */
    mode = get_display_switch_mode();
 
@@ -134,7 +132,6 @@ void sys_switch_out(void)
 
    app_foreground = FALSE;
 
-   _switch_out();
    mouse_dinput_unacquire();
    key_dinput_unacquire();
    midi_switch_out();
