@@ -1339,11 +1339,15 @@ AL_INLINE(int, object_message, (DIALOG *d, int msg, int c),
 
 #ifndef ALLEGRO_NO_CLEAR_BITMAP_ALIAS
    #if (defined ALLEGRO_GCC)
-      extern inline void clear(BITMAP *bmp) { clear_bitmap(bmp); }
-   #elif (defined ALLEGRO_MSVC)
-      __forceinline void clear(BITMAP *bmp) { clear_bitmap(bmp); }
+      static __attribute__((unused)) inline void clear(BITMAP *bmp)
+      {
+	 clear_bitmap(bmp);
+      }
    #else
-      #define clear(bmp) (clear_bitmap(bmp))
+      static INLINE void clear(BITMAP *bmp)
+      {
+	 clear_bitmap(bmp);
+      }
    #endif
 #endif
 

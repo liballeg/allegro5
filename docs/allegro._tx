@@ -3373,15 +3373,13 @@ bitmap.
 @@void @clear(BITMAP *bitmap);
 @xref clear_bitmap
    An alias for clear_bitmap(), provided for backwards compatibility. It is
-   implemented either as an inline function or a macro, depending on the
-   compiler, so you should not take the address of clear(). The aliasing may
-   be switched off by defining the preprocessor symbol
-   ALLEGRO_NO_CLEAR_BITMAP_ALIAS before including allegro.h.
+   implemented as a static inline function. The aliasing may be switched off
+   by defining the preprocessor symbol ALLEGRO_NO_CLEAR_BITMAP_ALIAS before
+   including allegro.h:
 <pre>
       #define ALLEGRO_NO_CLEAR_BITMAP_ALIAS
       #include &ltallegro.h&gt
 </pre>
-
 @@void @clear_to_color(BITMAP *bitmap, int color);
 @xref clear_bitmap
    Clears the bitmap to the specified color.
