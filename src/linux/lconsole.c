@@ -61,7 +61,7 @@ static int get_tty (int fd)
 
    inode = st.st_ino;
    for (tty = 1; tty <= 24; tty++) {
-      sprintf (name, "/dev/tty%d", tty);
+      snprintf (name, sizeof(name), "/dev/tty%d", tty);
       if (!stat (name, &st) && (inode == st.st_ino))
 	 break;
    }
@@ -121,7 +121,7 @@ int __al_linux_init_console(void)
 		    get_config_text("Unable to open"), ustrerror (errno));
 	 /* Try some ttys instead... */
 	 for (n = 1; n <= 24; n++) {
-	     sprintf (tty_name, "/dev/tty%d", n);
+	     snprintf (tty_name, sizeof(tty_name), "/dev/tty%d", n);
 	     if ((console_fd = open (tty_name, O_WRONLY)) >= 0) break;
 	 }
 	 if (n > 24) return 1; /* leave the error message about /dev/console */
@@ -146,7 +146,7 @@ int __al_linux_init_console(void)
       fd = -1;
       for (tty = 1, mask = 2; mask; tty++, mask <<= 1)
 	 if (!(vts.v_state & mask)) {
-	    sprintf (tty_name, "/dev/tty%d", tty);
+	    snprintf (tty_name, sizeof(tty_name), "/dev/tty%d", tty);
 	    if ((fd = open (tty_name, O_RDWR)) != -1) {
 	       close (fd);
 	       break;
@@ -232,7 +232,7 @@ int __al_linux_done_console (void)
 
    if (__al_linux_prev_vt >= 0) {
       if (__al_linux_got_text_message) {
-	 sprintf(msg, "\nProgram finished: press %s+F%d to switch back to the previous console\n", 
+	 snprintf(msg, sizeof(msg), "\nProgram finished: press %s+F%d to switch back to the previous console\n", 
 		      (__al_linux_prev_vt > 12) ? "AltGR" : "Alt", 
 		      __al_linux_prev_vt%12);
 
