@@ -278,6 +278,12 @@
     get_extension
     get_filename
     get_gfx_mode_list
+    get_mixer_bits
+    get_mixer_buffer_length
+    get_mixer_channels
+    get_mixer_frequency
+    get_mixer_quality
+    get_mixer_voices
     get_mouse_mickeys
     get_palette
     get_palette_range
@@ -635,6 +641,7 @@
     set_keyboard_rate
     set_leds
     set_luminance_blender
+    set_mixer_quality
     set_mouse_range
     set_mouse_speed
     set_mouse_sprite
@@ -827,6 +834,7 @@
     _al_rand
     _al_realloc
     _al_sane_realloc
+    _al_sane_strncpy
     _al_srand
     _allegro_count DATA
     _allegro_in_exit DATA
