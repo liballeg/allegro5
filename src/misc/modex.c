@@ -1149,7 +1149,7 @@ void _x_draw_lit_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int color)
  */
 void _x_draw_rle_sprite(BITMAP *bmp, AL_CONST RLE_SPRITE *sprite, int x, int y)
 {
-   signed char *p = sprite->dat;
+   AL_CONST signed char *p = sprite->dat;
    int c;
    int x_pos, y_pos;
    int lgap, width;
@@ -1253,7 +1253,7 @@ void _x_draw_rle_sprite(BITMAP *bmp, AL_CONST RLE_SPRITE *sprite, int x, int y)
  */
 void _x_draw_trans_rle_sprite(BITMAP *bmp, AL_CONST RLE_SPRITE *sprite, int x, int y)
 {
-   signed char *p = sprite->dat;
+   AL_CONST signed char *p = sprite->dat;
    int c;
    int x_pos, y_pos;
    int lgap, width;
@@ -1359,7 +1359,7 @@ void _x_draw_trans_rle_sprite(BITMAP *bmp, AL_CONST RLE_SPRITE *sprite, int x, i
  */
 void _x_draw_lit_rle_sprite(BITMAP *bmp, AL_CONST RLE_SPRITE *sprite, int x, int y, int color)
 {
-   signed char *p = sprite->dat;
+   AL_CONST signed char *p = sprite->dat;
    int c;
    int x_pos, y_pos;
    int lgap, width;
@@ -1486,8 +1486,8 @@ void _x_draw_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color, int
  */
 void _x_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg)
 {
-   unsigned char *data = glyph->dat;
-   unsigned char *dat;
+   AL_CONST unsigned char *data = glyph->dat;
+   AL_CONST unsigned char *dat;
    unsigned long addr;
    int w = glyph->w;
    int h = glyph->h;

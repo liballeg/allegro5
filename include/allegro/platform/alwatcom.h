@@ -33,7 +33,7 @@
 #endif
 
 
-#pragma disable_message (120 201)
+#pragma disable_message (120 201 202)
 
 
 /* describe this platform */
@@ -48,6 +48,10 @@
 
 #if __WATCOMC__ >= 1100
    #define ALLEGRO_MMX
+#endif
+
+#if __WATCOMC__ >= 1200   /* Open Watcom 1.0 */
+   #define AL_CONST const
 #endif
 
 

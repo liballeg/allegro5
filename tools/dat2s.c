@@ -331,7 +331,7 @@ static void output_rle_sprite(RLE_SPRITE *sprite, char *name)
    fprintf(outfile, "\t.long %-16d# color depth\n", bpp);
    fprintf(outfile, "\t.long %-16d# size\n", sprite->size);
 
-   write_data(sprite->dat, sprite->size);
+   write_data((unsigned char *)sprite->dat, sprite->size);
 
    fprintf(outfile, "\n");
 }

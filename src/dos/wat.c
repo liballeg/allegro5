@@ -56,10 +56,19 @@ int __djgpp_ds_alias = 0;
  *  Stop those stupid "abort, retry, fail" messages from popping up all
  *  over the place.
  */
+#if __WATCOMC__ >= 1200
+
+static void __interrupt __far my_int24()
+{}
+
+#else
+
 static int __interrupt __far my_int24()
 {
    return 3;
 }
+
+#endif
 
 
 
