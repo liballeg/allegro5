@@ -112,6 +112,11 @@ fi
 AC_MSG_RESULT(\"$allegro_cv_asm_prefix\")])
 
 dnl
+dnl Turn off pentium optimalizations by default.
+dnl
+allegro_pentium_optimalizations=no
+
+dnl
 dnl Test for X-Windows support.
 dnl
 dnl Variables:
