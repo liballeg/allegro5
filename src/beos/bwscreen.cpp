@@ -119,17 +119,19 @@ static inline bool be_sort_out_virtual_resolution(int w, int h, int *v_w, int *v
 {
    int32 try_v_w;
    int32 try_v_h;
-   int mb;
+   // Possible VRAM amounts. Are these always powers of 2?
+   int ram_count[] = { 256, 128, 64, 32, 16, 8, 4, 2, 1, 0 };
+   int i;
 
    if (*v_w == 0)
-      try_v_w = w;
+      try_v_w = MIN(w, 32767);
    else
-      try_v_w = *v_w;
+      try_v_w = MIN(*v_w, 32767);
    try_v_h = *v_h;
 
    if (*v_h == 0) {
-      for (mb=32; mb>1; mb--) {
-	 try_v_h = (1024*1024*mb) / (try_v_w * BYTES_PER_PIXEL(color_depth));
+      for (i = 0; ram_count[i]; i++) {
+	 try_v_h = (1024 * 1024 * ram_count[i]) / (try_v_w * BYTES_PER_PIXEL(color_depth));
 	 /* Evil hack: under BeOS R5 SetFrameBuffer() should work with any
 	  * int32 width and height parameters, but actually it crashes if
 	  * one of them exceeds the boundaries of a signed short variable.
@@ -330,15 +332,9 @@ static struct BITMAP *_be_gfx_bwindowscreen_init(GFX_DRIVER *drv, int w, int h, 
 
    gfx_card = _be_allegro_screen->CardInfo();
 
-   if (_be_allegro_screen->CanControlFrameBuffer()) {
-      if (!be_sort_out_virtual_resolution(w, h, &v_w, &v_h, color_depth)) {
-         ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
-         goto cleanup;
-      }
-   }
-   else {
-      if (((v_w != 0) && (v_w != w)) || ((v_h != 0) && (v_h != h)))
-	 goto cleanup;
+   if (!be_sort_out_virtual_resolution(w, h, &v_w, &v_h, color_depth)) {
+      v_w = w;
+      v_h = h;
    }
    
    /* BWindowScreen sets refresh rate at 60 Hz by default */
