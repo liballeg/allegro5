@@ -112,6 +112,12 @@ AC_ARG_ENABLE(strictwarn,
 [  --enable-strictwarn[=x] produce strict compiler warnings [default=no]],
 test "X$enableval" != "Xno" && allegro_strict_warnings=yes)
 
+if test "X$allegro_strict_warnings" = "Xyes"; then
+   _warnmode="Building Allegro with strict warnings."
+else
+   _warnmode="Ignoring compiler warnings."
+fi
+
 dnl Check that $prefix is set (needed for ALLEGRO_ACTEST_GCC_INCLUDE_PREFIX)
 test "$prefix" = NONE && prefix=/usr/local
 
@@ -234,6 +240,7 @@ if test "X$allegro_build_debugging_programs" = "Xyes"; then
   LIB_TO_LINK=alld
   PLUGIN_LIB=lib/unix/libaddat.a
   allegro_build_debugging_library=yes
+  _programs="debug"
 elif test "X$allegro_build_profiling_programs" = "Xyes"; then
   COMPILE_PROGRAM=COMPILE_PROFILE
   COMPILE_CXX_PROGRAM=COMPILE_CXX_PROFILE
@@ -242,6 +249,7 @@ elif test "X$allegro_build_profiling_programs" = "Xyes"; then
   LIB_TO_LINK=allp
   PLUGIN_LIB=lib/unix/libapdat.a
   allegro_build_profiling_library=yes
+  _programs="profile"
 else
   COMPILE_PROGRAM=COMPILE_NORMAL
   COMPILE_CXX_PROGRAM=COMPILE_CXX_NORMAL
@@ -254,17 +262,20 @@ else
   LIB_TO_LINK=alleg
   PLUGIN_LIB=lib/unix/libaldat.a
   allegro_build_normal_library=yes
+  _programs="release"
 fi
 if test "X$allegro_build_static_programs" = "Xyes"; then
   LIBALLEG=lib/unix/lib$LIB_TO_LINK.a
   LINK_LIBALLEG="$LIBALLEG \$(LIBS)"
   LINK_WITH_STATIC_LIBS=yes
   allegro_static_libraries=yes
+  _programs="static $_programs"
 else
   LIBALLEG="lib/unix/lib${LIB_TO_LINK}-\$(shared_version).so lib/unix/lib${LIB_TO_LINK}_unsharable.a"
   LINK_LIBALLEG="-Llib/unix -l${LIB_TO_LINK}-\$(shared_version) -l${LIB_TO_LINK}_unsharable -lm"
   LINK_WITH_STATIC_LIBS=no
   allegro_shared_libraries=yes
+  _programs="shared $_programs"
 fi
 AC_SUBST(LIBALLEG)
 AC_SUBST(LINK_LIBALLEG)
@@ -279,25 +290,33 @@ AC_SUBST(LINK_WITH_STATIC_LIBS)
 dnl Which libraries to build (static, shared, normal, debugging, profiling)?
 ALLEGRO_LIB_TARGETS=
 if test "X$allegro_static_libraries" = "Xyes"; then
+  _libraries=" static"
   if test "X$allegro_build_normal_library" = "Xyes"; then
     ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballeg.a"
+    _libraries="$_libraries release"
   fi
   if test "X$allegro_build_debugging_library" = "Xyes"; then
     ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballd.a"
+    _libraries="$_libraries debug"
   fi
   if test "X$allegro_build_profiling_library" = "Xyes"; then
     ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballp.a"
+    _libraries="$_libraries profile"
   fi
 fi
 if test "X$allegro_shared_libraries" = "Xyes"; then
+  _libraries="$_libraries shared"
   if test "X$allegro_build_normal_library" = "Xyes"; then
     ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballeg-\$(shared_version).so lib/unix/liballeg_unsharable.a"
+    _libraries="$_libraries release"
   fi
   if test "X$allegro_build_debugging_library" = "Xyes"; then
     ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballd-\$(shared_version).so lib/unix/liballd_unsharable.a"
+    _libraries="$_libraries debug"
   fi
   if test "X$allegro_build_profiling_library" = "Xyes"; then
     ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballp-\$(shared_version).so lib/unix/liballp_unsharable.a"
+    _libraries="$_libraries profile"
   fi
 fi
 AC_SUBST(ALLEGRO_LIB_TARGETS)
@@ -692,6 +711,9 @@ cat > makefile.info << EOF
  Enabled modules: $_enabled_modules
  Disabled modules: $_disabled_modules
  Generated code: $_code_features
+ Generated libraries:$_libraries
+ Compiled programs: $_programs
+ $_warnmode
 
 EOF
 
