@@ -350,19 +350,20 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
 
    v *= 255.0f;
 
-   if (s == 0.0f) {
-      *r = *g = *b = (int)v;
+   if (s == 0.0f) { /* ok since we don't divide by s, and faster */
+      *r = *g = *b = v + 0.5f;
    }
    else {
-      h = fmod(h, 360.0) / 60.0;
-      if (h < 0)
+      h = fmod(h, 360.0f) / 60.0f;
+      if (h < 0.0f)
 	 h += 6.0f;
 
       i = (int)h;
       f = h - i;
       x = v * s;
       y = x * f;
-      z = v - x + 0.5f;
+      v += 0.5f; /* round to the nearest integer below */
+      z = v - x;
 
       switch (i) {
 
@@ -374,7 +375,7 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
 	    break;
 
 	 case 1:
-	    *r = v - y + 0.5f;
+	    *r = v - y;
 	    *g = v;
 	    *b = z;
 	    break;
@@ -387,7 +388,7 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
 
 	 case 3:
 	    *r = z;
-	    *g = v - y + 0.5f;
+	    *g = v - y;
 	    *b = v;
 	    break;
 
@@ -400,7 +401,7 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
 	 case 5:
 	    *r = v;
 	    *g = z;
-	    *b = v - y + 0.5f;
+	    *b = v - y;
 	    break;
       }
    }
