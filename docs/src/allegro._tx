@@ -6275,9 +6275,15 @@ ALLEGRO_NO_FIX_ALIASES before including allegro.h.
 Allegro contains some 3d helper functions for manipulating vectors, 
 constructing and using transformation matrices, and doing perspective 
 projections from 3d space onto the screen. It is not, and never will be, a 
-fully fledged 3d library (my goal is to supply generic support routines, not 
-shrink-wrapped graphics code :-) but these functions may be useful for 
+fully fledged 3d library (my goal is to supply generic support routines, 
+not shrink-wrapped graphics code :-) but these functions may be useful for 
 developing your own 3d code.
+
+Allegro uses a right-handed coordinate system, i.e. if you point the dumb 
+of your right hand along the x axis, and the index finger along the y axis, 
+your middle finger points in the direction of the z axis. This also means, 
+for any rotation, if you point the dumb of your right hand along the axis 
+of rotation, then the fingers curl in the positive direction of rotation.
 
 All the 3d math functions are available in two versions: one which uses 
 fixed point arithmetic, and another which uses floating point. The syntax 
