@@ -498,7 +498,7 @@ dnl
 AC_DEFUN(ALLEGRO_ACTEST_AR_SUPPORT,
 [AC_MSG_CHECKING(whether GNU ar is installed)
 AC_CACHE_VAL(allegro_cv_support_ar,
-[if ar -V | grep -q 'GNU'; then
+[if ar -V | grep -i "gnu" >/dev/null; then
   allegro_cv_support_ar=yes
 else
   allegro_cv_support_ar=no
