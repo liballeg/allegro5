@@ -37,8 +37,20 @@
 
 /* permissions to use when opening files */
 #ifndef ALLEGRO_MPW
-#define OPEN_PERMS   (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)
+
+/* some OSes have no concept of "group" and "other" */
+#ifndef S_IRGRP
+   #define S_IRGRP   0
+   #define S_IWGRP   0
 #endif
+#ifndef S_IROTH
+   #define S_IROTH   0
+   #define S_IWOTH   0
+#endif
+
+#define OPEN_PERMS   (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)
+
+#endif /* !ALLEGRO_MPW */
 
 
 
