@@ -9,11 +9,25 @@ echo >> $2
 
 # 2. Get the real stuff
 list=`grep ".long" $1 | sed -e s/.*.long//`
+if [ -z "$list" ]; then
+  list=`grep ".word" $1 | sed -e s/.*.word//`
+fi
+if [ -z "$list" ]; then
+  echo "$0: unable to parse assembly file $1"
+  exit 1
+fi
 
 while [ 1 = 1 ]; do
     c=`echo $list | cut -f 1 -d " "`:
     if [ $c = "0:" ]; then break; fi
     n=`awk /$c/,/ascii/ $1 | grep "ascii" | cut -f 2 -d '"' | cut -f 1 -d '\'`
+    if [ -z "$n" ]; then
+      n=`awk /$c/,/string/ $1 | grep "string" | cut -f 2 -d '"' | cut -f 1 -d '\'`
+    fi
+    if [ -z "$n" ]; then
+      echo "$0: unable to parse assembly file $1"
+      exit 1
+    fi
     f=`echo $n | cut -b 1`
     if [ $f = "#" ]; then
       f2=`echo $n | cut -b 2`

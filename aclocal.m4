@@ -565,7 +565,7 @@ if test -n "$allegro_enable_constructor"; then
     int main (void) { return (notsupported); }],
   allegro_support_constructor=yes,
   allegro_support_constructor=no,
-  allegro_support_constructor=no)
+  allegro_support_constructor=yes)
 else
   allegro_support_constructor=no
 fi
