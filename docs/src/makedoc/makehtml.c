@@ -93,6 +93,7 @@ static char *_mark_up_auto_types(char *line, char **auto_types);
 int write_html(char *filename)
 {
    int block_empty_lines = 0, section_number = 0, ret;
+   int last_line_was_a_definition = 0;
    LINE *line = head;
    char **auto_types;
 
@@ -135,15 +136,45 @@ int write_html(char *filename)
 	    _add_post_process_xref(line->text);
 	 }
 	 else if (line->flags & DEFINITION_FLAG) {
+	    static int prev_continued = 0;
 	    char *temp = m_strdup(line->text);
 	    if (_empty_count && !block_empty_lines) _empty_count++;
 	    _output_buffered_text();
 	    /* output a function definition */
 	    _add_post_process_xref(temp);
 	    temp = _mark_up_auto_types(temp, auto_types);
-	    _hfprintf("<b>%s</b>", temp);
-	    if (!(line->flags & CONTINUE_FLAG))
-	       fputs("<br>", _file);
+	    
+	    if (!prev_continued) {
+	       if (!(html_flags & HTML_IGNORE_CSS)) {
+	           if (!last_line_was_a_definition) {
+		       fputs("<div class=\"al-api\">", _file);
+		   }
+		   else {
+		       fputs("<div class=\"al-api-cont\">", _file);
+		   }
+	       }
+	       else {
+	           if (!last_line_was_a_definition) {
+		       fputs("<hr><font size=\"+1\"><b>", _file);
+		   }
+		   else {
+		       fputs("<font size=\"+1\"><b>", _file);
+		   }
+	       }
+	    }
+	    _hfprintf("%s", temp);
+	    if (!(line->flags & CONTINUE_FLAG)) {
+	        if (!(html_flags & HTML_IGNORE_CSS)) {
+		   fputs("</div><br>", _file);
+		}
+		else {
+		   fputs("</b></font><br>", _file);
+		}
+	   	prev_continued = 0;
+	    }
+	    else {
+		prev_continued = 1;
+	    }
 	    fputs("\n", _file);
 	    free(temp);
 	 }
@@ -162,7 +193,7 @@ int write_html(char *filename)
 	    /* output a normal line */
 	    _output_buffered_text();
 	    if ((html_flags & HTML_SPACED_LI) && strstr(line->text, "<li>"))
-	       fputs("<p>", _file);
+	       fputs("<br><br>", _file);
 	    _hfputs(line->text);
 	    fputs("\n", _file);
 	 }
@@ -192,6 +223,9 @@ int write_html(char *filename)
       }
       else if (line->flags & XREF_FLAG)
 	 _xref[_xrefs++] = line->text; /* buffer cross reference */
+
+      /* Keep track of continuous definitions */	 
+      last_line_was_a_definition = (line->flags & DEFINITION_FLAG);
 
       line = line->next;
    }
@@ -601,37 +635,8 @@ static void _output_html_header(char *section)
 
       /* optional style sheet output */
       if (!(html_flags & HTML_IGNORE_CSS)) {
-	 fputs("<meta http-equiv=\"Content-Style-Type\" ", _file);
-	 fputs("content=\"text/css\">\n<style type=\"text/css\">\n", _file);
-	 fputs("<!--\n", _file);
-	 fputs("A.xref:link {\n\tcolor: blue;\n\ttext-decoration:", _file);
-	 fputs(" none;\n\tbackground: rgb(255, 204, 50);\n}\n", _file);
-	 fputs("A.xref:visited {\n\tcolor: blue;\n\ttext-decoration:", _file);
-	 fputs(" none;\n\tbackground: rgb(255, 204, 50);\n}\n", _file);
-	 fputs("A.xref:hover {\n\tcolor: blue;\n\ttext-decoration:", _file);
-	 fputs(" underline;\n\tbackground: rgb(255, 224, 150);\n}\n", _file);
-	 fputs("A.xref:active {\n\tcolor: red;\n\ttext-decoration:", _file);
-	 fputs(" none;\n\tbackground: rgb(255, 204, 50);}\n", _file);
-	 fputs("A.autotype:link {\n\tcolor: rgb(0, 0, 177);\n\t", _file);
-	 fputs(" text-decoration: none;\n\tbackground: white;\n}\n", _file);
-	 fputs("A.autotype:visited {\n\tcolor: rgb(0, 0, 177);\n\t", _file);
-	 fputs(" text-decoration: none;\n\tbackground: white;\n}\n", _file);
-	 fputs("A.autotype:hover {\n\tcolor: rgb(0, 0, 177);\n\t", _file);
-	 fputs(" text-decoration: underline;\n\tbackground: white;\n}\n", _file);
-	 fputs("A.autotype:active {\n\tcolor: red;\n\ttext-decoration:", _file);
-	 fputs(" none;\n\tbackground: white;\n}\n", _file);
-	 fputs("blockquote.xref {\n\tfont-family: helvetica,", _file);
-	 fputs(" verdana;\n\tfont-size: smaller;\n\tborder: medium", _file);
-	 fputs(" solid rgb(255, 204, 51);\n\tcolor:", _file);
-	 fputs("  black;\n\tbackground: rgb(255, 204, 50);\n}\n", _file);
-	 fputs("blockquote.code {\n\tborder: medium solid", _file);
-	 fputs(" rgb(255, 204, 50);\n\tcolor: black;\n\tbackground:", _file);
-	 fputs(" rgb(255, 255, 155);\n}\n", _file);
-	 fputs("blockquote.text {\n\tborder: medium solid", _file);
-	 fputs(" rgb(175, 235, 255);\n\tcolor: black;\n\tbackground:", _file);
-	 fputs(" rgb(210, 244, 255);\n}\n", _file);
-	 fputs("-->\n", _file);
-	 fputs("</style>\n", _file);
+	 fputs("<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">\n", _file);
+	 fputs("<link rel=\"stylesheet\" type=\"text/css\" href=\"allegro.css\">", _file);
       }
 
       /* header end and body start */

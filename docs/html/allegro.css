@@ -1,0 +1,79 @@
+A.xref:link {
+	color:           blue;
+	text-decoration: none;
+	background:      transparent;
+}
+A.xref:visited {
+	color:           blue;
+	text-decoration: none;
+	background:      transparent;
+}
+A.xref:hover {
+	color:           blue;
+	text-decoration: underline;
+	background:      rgb(220, 220, 220);
+}
+A.xref:active {
+	color:           red;
+	text-decoration: none;
+	background:      rgb(255, 204, 50);
+}
+A.autotype:link {
+	color:           rgb(64, 64, 255);
+	text-decoration: none;
+	background:      transparent;
+}
+A.autotype:visited {
+	color:           rgb(64, 64, 255);
+	text-decoration: none;
+	background:      transparent;
+}
+A.autotype:hover {
+	color:           rgb(64, 64, 255);
+	text-decoration: underline;
+	background:      transparent;
+}
+A.autotype:active {
+	color:           red;
+	text-decoration: none;
+	background:      transparent;
+}
+blockquote.xref {
+	font-family:     helvetica, verdana, serif;
+	font-size:       smaller;
+	border:          thin solid rgb(220, 220, 220);
+	color:           black;
+	background:      rgb(240, 240, 240);
+}
+blockquote.code {
+	border:          thin solid rgb(255, 234, 190);
+	color:           black;
+	background:      rgb(255, 255, 205);
+}
+blockquote.text {
+	border:          thin solid rgb(190, 234, 255);
+	color:           black;
+	background:      rgb(225, 255, 255);
+}
+div.al-api {
+	padding-left:    0.5em;
+	color:           black;
+	background:      rgb(255, 234, 100);
+	font-weight:     bold;
+	border-bottom:   medium solid rgb(255, 204, 51);
+	border-left:     medium solid rgb(255, 204, 51);
+	margin-top:      3em;
+}
+div.al-api-cont {
+	padding-left:    0.5em;
+	color:           black;
+	background:      rgb(255, 234, 100);
+	font-weight:     bold;
+	border-bottom:   medium solid rgb(255, 204, 51);
+	border-left:     medium solid rgb(255, 204, 51);
+	margin-top:      -1em;
+}
+div.faq-shift-to-right {
+	margin-left: 2em;
+}
+
