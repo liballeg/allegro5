@@ -2652,6 +2652,20 @@ static struct
    { XK_KP_Insert, 0x52 },
    { XK_KP_Delete, 0x53 },
 
+   /* Some X servers return different keycodes depending
+      upon whether NumLock is turned on. */
+   { XK_KP_1, 0x4F },
+   { XK_KP_2, 0x50 },
+   { XK_KP_3, 0x51 },
+   { XK_KP_4, 0x4B },
+   { XK_KP_5, 0x4C },
+   { XK_KP_6, 0x4D },
+   { XK_KP_7, 0x47 },
+   { XK_KP_8, 0x48 },
+   { XK_KP_9, 0x49 },
+   { XK_KP_0, 0x52 },
+   { XK_KP_Decimal, 0x53 },
+
    { NoSymbol, 0 },
 };
 
