@@ -3160,6 +3160,9 @@ int main(int argc, char *argv[])
 	 else if (strcmp(argv[i]+1, "windowed") == 0) {
 	    autodetect_card = GFX_AUTODETECT_WINDOWED;
 	 }
+	 else if (strcmp(argv[i]+1, "fullscreen") == 0) {
+	    autodetect_card = GFX_AUTODETECT_FULLSCREEN;
+	 }
 	 else if ((argv[i][1] == 'p') || (argv[i][1] == 'P')) {
 	    strcpy(password, argv[i]+2);
 	    entered_password = TRUE;

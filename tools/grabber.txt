@@ -143,8 +143,10 @@ The grabber accepts a few different commandline options:
       Sets the screen resolution, eg. -320x200, -1024x768
       
    '-windowed'
-      Requests that the grabber starts up in a window, rather than
-      fullscreen.
+      Forces the grabber to start up in a window.
+
+   '-fullscreen'
+      Forces the grabber to start up in fullscreen mode.
 
    '-nosound'
       Disables audio output.
