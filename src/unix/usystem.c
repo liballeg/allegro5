@@ -22,15 +22,16 @@
 #include <sys/stat.h>
 
 
-#ifdef _POSIX_PRIORITY_SCHEDULING
+#include "allegro.h"
+#include "allegro/aintunix.h"
+
+#if defined(ALLEGRO_USE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
+   /* ALLEGRO_USE_SCHED_YIELD is set by configure */
    /* Manpages say systems providing sched_yield() define
     * _POSIX_PRIORITY_SCHEDULING in unistd.h
     */
    #include <sched.h>
 #endif
-
-#include "allegro.h"
-#include "allegro/aintunix.h"
 
 #ifdef HAVE_SYS_UTSNAME_H
    #include <sys/utsname.h>
@@ -141,7 +142,7 @@ void _read_os_type()
  */
 void _unix_yield_timeslice(void)
 {
-   #ifdef _POSIX_PRIORITY_SCHEDULING
+   #if defined(ALLEGRO_USE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
 
       sched_yield();
 
