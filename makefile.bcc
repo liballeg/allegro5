@@ -89,7 +89,7 @@ OFLAGS = -O2 -OS
 ifdef DEBUGMODE
 
 # -------- debugging build --------
-CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -Od -q -R -v -y
+CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -Od -q -R -v
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
 LFLAGS += -q -Gn -v
 
@@ -97,7 +97,7 @@ else
 ifdef PROFILEMODE
 
 # -------- profiling build --------
-CFLAGS = $(WFLAGS) $(OFLAGS) -q -R -v -y
+CFLAGS = $(WFLAGS) $(OFLAGS) -q -R -v
 SFLAGS = $(WFLAGS)
 LFLAGS += -q -Gn -v
 
@@ -304,15 +304,16 @@ endif
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
 
+define DO_LINK_CONSOLE
+   ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
+endef
 ifdef DELETE_TDS_FILES
    define LINK_CONSOLE
-      ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
+      $(DO_LINK_CONSOLE)
       @del $(subst .exe,.tds,$(subst /,\,$@))
    endef
 else
-   define LINK_CONSOLE
-      ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
-   endef
+   LINK_CONSOLE = $(DO_LINK_CONSOLE)
 endif
 
 PLUGIN_LIB = lib/bcc32/$(VERY_SHORT_VERSION)dat.lib
@@ -337,28 +338,31 @@ endif
 define MAKE_PLUGIN_LIB
    $(foreach objfile, $(PLUGIN_OBJS), tlib $(subst /,\,$(PLUGIN_LIB) + $(objfile)) > nul
    )
+   @del $(subst .lib,.BAK,$(subst /,\,$(PLUGIN_LIB)))
 endef
 
+define DO_LINK_WITH_PLUGINS
+   ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(PLUGIN_LIB) $(LIBRARIES))
+endef
 ifdef DELETE_TDS_FILES
    define LINK_WITH_PLUGINS
-      ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(PLUGIN_LIB) $(LIBRARIES))
+      $(DO_LINK_WITH_PLUGINS)
       @del $(subst .exe,.tds,$(subst /,\,$@))
    endef
 else
-   define LINK_WITH_PLUGINS
-      ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(PLUGIN_LIB) $(LIBRARIES))
-   endef
+   LINK_WITH_PLUGINS = $(DO_LINK_WITH_PLUGINS)
 endif
 
+define DO_LINK_CONSOLE_WITH_PLUGINS
+   ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(PLUGIN_LIB) $(LIBRARIES))
+endef
 ifdef DELETE_TDS_FILES
    define LINK_CONSOLE_WITH_PLUGINS
-      ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(PLUGIN_LIB) $(LIBRARIES))
+      $(DO_LINK_CONSOLE_WITH_PLUGINS)
       @del $(subst .exe,.tds,$(subst /,\,$@))
    endef
 else
-   define LINK_CONSOLE_WITH_PLUGINS
-      ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(PLUGIN_LIB) $(LIBRARIES))
-   endef
+   LINK_CONSOLE_WITH_PLUGINS = $(DO_LINK_CONSOLE_WITH_PLUGINS)
 endif
 
 
