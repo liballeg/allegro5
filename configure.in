@@ -72,10 +72,10 @@ AC_ARG_ENABLE(staticprog,
 [  --enable-staticprog[=x] link programs with static library [default=no]],
 test "X$enableval" != "Xno" && allegro_build_static_programs=yes)
 
-dnl Enable pentium optimalizations.
+dnl Enable Pentium optimizations.
 AC_ARG_ENABLE(pentiumopts,
-[  --enable-pentiumopts[=x] enable pentium optimalizations [default=no]],
-test "X$enableval" != "Xno" && allegro_pentium_optimalizations=yes)
+[  --enable-pentiumopts[=x] enable Pentium optimizations [default=no]],
+test "X$enableval" != "Xno" && allegro_pentium_optimizations=yes)
 
 dnl Sanity check on shared/static options
 if test "X$allegro_static_libraries" != "Xyes"; then
@@ -150,7 +150,7 @@ if test -n "GCC"; then
   else
     WFLAGS="-Wall"
   fi
-  if test "X$allegro_pentium_optimalizations" = "Xyes"; then
+  if test "X$allegro_pentium_optimizations" = "Xyes"; then
     TARGET_ARCH="-mpentium"
   else
     TARGET_ARCH=
