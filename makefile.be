@@ -11,6 +11,7 @@
 # -------- define some variables that the primary makefile will use --------
 
 PLATFORM = BeOS
+CC = gcc
 EXE = 
 OBJ = .o
 HTML = html
@@ -265,7 +266,7 @@ else
 # -------- link as a shared library --------
 
 define MAKE_LIB
-gcc -nostart $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(OTHER_OBJECTS) $(LIBRARIES)
+$(CC) -nostart $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(OTHER_OBJECTS) $(LIBRARIES)
 endef
 
 endif # STATICLINK
@@ -273,26 +274,26 @@ endif # STATICLINK
 COMPILE_FLAGS = $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
 $(OBJ_DIR)/%.o: %.c
-	gcc $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
+	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
 
 $(OBJ_DIR)/%.o: %.cpp
-	gcc $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
+	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
 
 $(OBJ_DIR)/%.o: %.s
-	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
+	$(CC) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
 */%: $(OBJ_DIR)/%.o $(LIB_NAME)
-	gcc $(LFLAGS) -o $@ $< $(LIB_NAME)
+	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME)
 
 # link without Allegro, because we have no shared library yet
 docs/makedoc: $(OBJ_DIR)/makedoc$(OBJ)
-	gcc -o $@ $< $(OTHER_OBJECTS)
+	$(CC) -o $@ $< $(OTHER_OBJECTS)
 
 obj/beos/asmdef.inc: obj/beos/asmdef
 	obj/beos/asmdef obj/beos/asmdef.inc
 
 obj/beos/asmdef: src/i386/asmdef.c include/*.h include/allegro/*.h obj/beos/asmcapa.h
-	gcc -O $(WFLAGS) -I. -I./include -o obj/beos/asmdef src/i386/asmdef.c
+	$(CC) -O $(WFLAGS) -I. -I./include -o obj/beos/asmdef src/i386/asmdef.c
 
 PLUGIN_LIB = lib/beos/lib$(VERY_SHORT_VERSION)dat.a
 PLUGINS_H = obj/beos/plugins.h
@@ -308,11 +309,11 @@ ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS
-gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME))
+$(CC) $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME))
 endef
 
 tools/beos/%: $(OBJ_DIR)/%.o $(LIB_NAME)
-	gcc $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
 
 
@@ -330,8 +331,8 @@ fixdemo: demo/demo demo/demo.dat tools/beos/bfixicon
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BEOS
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c src/unix/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/beos/*.cpp tools/plugins/*.c > _depend.tmp
-	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/misc/*.s >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c src/unix/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/beos/*.cpp tools/plugins/*.c > _depend.tmp
+	$(CC) $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/misc/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/beos\/alleg\/\1/" _depend2.tmp > obj/beos/alleg/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/beos\/alld\/\1/" _depend2.tmp > obj/beos/alld/makefile.dep
