@@ -295,7 +295,7 @@ static void _xdga2_handle_input(void)
       XNextEvent(_xwin.display, (XEvent *)&event[i]);
 
    /* see xwin.c */
-   if (events_queued > events && event[i - 1].type == KeyRelease) {
+   if (events_queued > events && event[i - 1].type == dga_event_base+KeyRelease) {
       XNextEvent(_xwin.display, (XEvent *)&event[i]);
       events++;
    }
@@ -303,8 +303,8 @@ static void _xdga2_handle_input(void)
    /* Process all events.  */
    for (i = 0; i < events; i++) {
       /* see xwin.c */
-      if (event[i].type == KeyRelease && (i + 1) < events) {
-         if (event[i + 1].type == KeyPress) {
+      if (event[i].type == dga_event_base+KeyRelease && (i + 1) < events) {
+         if (event[i + 1].type == dga_event_base+KeyPress) {
             if (event[i].xkey.keycode == event[i + 1].xkey.keycode &&
                event[i].xkey.time == event[i + 1].xkey.time)
                continue;
