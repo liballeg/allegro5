@@ -266,4 +266,3 @@ depend:
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/qnx\/alld\/\1/" _depend2.tmp > obj/qnx/alld/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/qnx\/allp\/\1/" _depend2.tmp > obj/qnx/allp/makefile.dep
 	rm _depend.tmp _depend2.tmp
-	--- /tmp/diffed.tmp	Thu Nov 22 20:53:01 2001
