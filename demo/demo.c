@@ -72,6 +72,7 @@ int shot;
 int skip_speed, skip_count;
 volatile int frame_count, fps;
 volatile unsigned int game_time;
+unsigned int prev_bullet_time;
 
 #define MAX_SPEED       32
 #define SPEED_SHIFT     3
@@ -223,8 +224,6 @@ BULLET *delete_bullet(BULLET *bullet)
 /* the main game update function */
 void move_everyone(void)
 {
-   static unsigned int last_bullet_time = 0;
-
    int c;
    BULLET *bullet;
 
@@ -387,11 +386,11 @@ void move_everyone(void)
    /* fire bullet? */
    if (!shot) {
       if ((key[KEY_SPACE]) || (joy[0].button[0].b) || (joy[0].button[1].b)) {
-	 if (last_bullet_time + BULLET_DELAY < game_time) {
+	 if (prev_bullet_time + BULLET_DELAY < game_time) {
 	    bullet = add_bullet((pos >> SPEED_SHIFT) - 2, SCREEN_H - 64);
 	    if (bullet) {
 	       play_sample(data[SHOOT_SPL].dat, 100, PAN(bullet->x), 1000, FALSE);
-	       last_bullet_time = game_time;
+	       prev_bullet_time = game_time;
 	    }
 	 } 
       }
@@ -657,9 +656,9 @@ void draw_screen(void)
 
    /* draw the score and fps information */
    if (fps)
-      sprintf(score_buf, "Score: %ld - (%s, %ld fps)", (long)score, animation_type_str, (long)fps);
+      sprintf(score_buf, "Lives: %d - Score: %ld - (%s, %ld fps)", ship_count, (long)score, animation_type_str, (long)fps);
    else
-      sprintf(score_buf, "Score: %ld", (long)score);
+      sprintf(score_buf, "Lives: %d - Score: %ld", ship_count, (long)score);
 
    textout_ex(bmp, font, score_buf, 0, 0, 7, 0);
 
@@ -866,6 +865,7 @@ void play_game(void)
       install_int(game_timer, 6400/SCREEN_W);
 
    game_time = 0;
+   prev_bullet_time = 0;
    prev_update_time = 0;
 
    /* main game loop */
