@@ -1435,7 +1435,7 @@ int write_texinfo(char *filename)
 	 }
 	 else {
 	    if ((line->flags & DEFINITION_FLAG) && (!continue_def))
-	       fputs("@item ", f);
+	       fputs("@item @t{", f);
 
 	    while (*p) {
 	       /* less-than HTML tokens */
@@ -1471,8 +1471,11 @@ int write_texinfo(char *filename)
 
 	    if (line->flags & CONTINUE_FLAG)
 	       fputs(" ", f);
-	    else
+	    else {
+	       if (line->flags & DEFINITION_FLAG)
+		  fputs("}", f);
 	       fputs("\n", f);
+	    }
 	 }
       }
       else if (line->flags & NODE_FLAG) {
