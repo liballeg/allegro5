@@ -42,7 +42,7 @@ static void _al_esd_exit(int input);
 static int _al_esd_mixer_volume(int volume);
 static int _al_esd_buffer_size(void);
 
-static char _al_esd_desc[320] = EMPTY_STRING;
+static char _al_esd_desc[256] = EMPTY_STRING;
 
 DIGI_DRIVER digi_esd =
 {
@@ -139,7 +139,7 @@ static int _al_esd_detect(int input)
 {
    int fd;
    AL_CONST char *server;
-   char tmp1[80], tmp2[80], tmp3[80];
+   char tmp1[128], tmp2[128], tmp3[16];
    char s[256];
 	 
    if (input) {
@@ -175,7 +175,7 @@ static int _al_esd_detect(int input)
 static int _al_esd_init(int input, int voices)
 {
    AL_CONST char *server;
-   char tmp1[80], tmp2[80], tmp3[80];
+   char tmp1[128], tmp2[128], tmp3[16];
    char s[256];
 
    if (input) {

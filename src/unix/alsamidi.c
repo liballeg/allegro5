@@ -39,7 +39,7 @@ static int alsa_rawmidi_init(int input, int voices);
 static void alsa_rawmidi_exit(int input);
 static void alsa_rawmidi_output(int data);
 
-static char alsa_rawmidi_desc[80];
+static char alsa_rawmidi_desc[256];
 
 static snd_rawmidi_t *rawmidi_handle = NULL;
 
@@ -73,7 +73,7 @@ static int alsa_rawmidi_detect(int input)
 	int card = -1;
 	int device = -1;
 	int ret = FALSE, err;
-	char tmp1[80], tmp2[80], temp[255];
+	char tmp1[128], tmp2[128], temp[256];
 	snd_rawmidi_t *handle = NULL;
 
 	if(input) {
@@ -129,7 +129,7 @@ static int alsa_rawmidi_init(int input, int voices)
 	int card = -1;
 	int device = -1;
 	int ret = -1, err;
-	char tmp1[80], tmp2[80], temp[255];
+	char tmp1[128], tmp2[128], temp[256];
 	snd_rawmidi_info_t info;
 
 	if(input) {
@@ -162,7 +162,7 @@ static int alsa_rawmidi_init(int input, int voices)
 				snd_defaults_rawmidi_device());
 
 		if ((err = snd_rawmidi_open(&rawmidi_handle, card, device, SND_RAWMIDI_OPEN_OUTPUT_APPEND)) < 0) {
-			sprintf(temp, "Could not open card/rawmidi device: %s", snd_strerror(err));
+			sprintf(temp, "Could not open card/rawmidi device: %s", snd_strerror(err));  /* todo: use snprintf() */
 			ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text(temp));
 			ret = -1;
 		}

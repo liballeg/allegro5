@@ -62,7 +62,7 @@ static int seq_device;
 static int seq_synth_type; 
 static int seq_patch[18];
 static int seq_drum_start;
-static char seq_desc[320] = EMPTY_STRING;
+static char seq_desc[256] = EMPTY_STRING;
 
 static char seq_driver[256] = EMPTY_STRING;
 static char mixer_driver[256] = EMPTY_STRING;
@@ -109,7 +109,7 @@ void seqbuf_dump()
 /* attempt to open sequencer device */
 static int seq_attempt_open()
 {
-   char tmp1[80], tmp2[80], tmp3[80];
+   char tmp1[128], tmp2[128], tmp3[128];
    int fd;
 
    ustrzcpy(seq_driver, sizeof(seq_driver), get_config_string(uconvert_ascii("sound", tmp1),
@@ -224,7 +224,7 @@ static int oss_midi_detect(int input)
  */
 static int oss_midi_init(int input, int voices)
 {
-   char tmp1[80], tmp2[80], tmp3[80];
+   char tmp1[128], tmp2[128], tmp3[128];
    int i;
 
    if (input) {
@@ -268,7 +268,7 @@ static int oss_midi_init(int input, int voices)
 static int oss_midi_mixer_volume(int volume)
 {
    int fd, vol, ret;
-   char tmp[80];
+   char tmp[128];
 
    fd = open(uconvert_toascii(mixer_driver, tmp), O_WRONLY);
    if (fd < 0)

@@ -92,7 +92,7 @@ static int oss_rec_start(int rate, int bits, int stereo);
 static void oss_rec_stop(void);
 static int oss_rec_read(void *buf);
 
-static char oss_desc[320] = EMPTY_STRING;
+static char oss_desc[256] = EMPTY_STRING;
 
 DIGI_DRIVER digi_oss =
 {
@@ -186,7 +186,7 @@ static void oss_update(int threaded)
  */
 static int open_oss_device(int input)
 {
-   char tmp1[80], tmp2[80], tmp3[80];
+   char tmp1[128], tmp2[128], tmp3[128];
    int fragsize, fragbits, bits, stereo, freq;
 
    ustrzcpy(_oss_driver, sizeof(_oss_driver), get_config_string(uconvert_ascii("sound", tmp1),
@@ -353,7 +353,7 @@ static int oss_detect(int input)
  */
 static int oss_init(int input, int voices)
 {
-   char tmp1[80], tmp2[80];
+   char tmp1[128], tmp2[128];
    audio_buf_info bufinfo;
 
    if (input) {
@@ -435,7 +435,7 @@ static void oss_exit(int input)
 static int oss_mixer_volume(int volume)
 {
    int fd, vol, ret;
-   char tmp[80];
+   char tmp[128];
 
    fd = open(uconvert_toascii(_oss_mixer_driver, tmp), O_WRONLY);
    if (fd < 0)
@@ -477,7 +477,7 @@ static int oss_rec_cap_parm(int rate, int bits, int stereo)
 static int oss_rec_source(int source)
 {
    int fd, src, ret;
-   char tmp[80];
+   char tmp[128];
 
    fd = open(uconvert_toascii(_oss_mixer_driver, tmp), O_WRONLY);
    if (fd < 0)

@@ -56,7 +56,7 @@ static unsigned char *alsa_bufdata;
 static int alsa_bits, alsa_signed, alsa_rate, alsa_stereo;
 static int alsa_fragments;
 
-static char alsa_desc[320] = EMPTY_STRING;
+static char alsa_desc[256] = EMPTY_STRING;
 
 
 
@@ -159,7 +159,7 @@ static int alsa_detect(int input)
    snd_pcm_t *handle;
    snd_pcm_info_t info;
    int card, device;
-   char tmp1[80], tmp2[80];
+   char tmp1[128], tmp2[128];
    int ret = FALSE;
 
    card = get_config_int(uconvert_ascii("sound", tmp1),
@@ -192,7 +192,7 @@ static int alsa_init(int input, int voices)
    int format, bps, fragsize, numfrags;
    snd_pcm_channel_params_t params;
    snd_pcm_channel_setup_t setup;
-   char tmp1[80], tmp2[80];
+   char tmp1[128], tmp2[128];
 
    if (input) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
