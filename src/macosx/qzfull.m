@@ -216,12 +216,10 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    gfx_quartz_full.vid_mem = w * h * BYTES_PER_PIXEL(color_depth);
    
    _screen_vtable.created_sub_bitmap = osx_qz_created_sub_bitmap;
-   if (color_depth != 8) {
+   if (color_depth != 8)
       _screen_vtable.blit_to_self = osx_qz_blit_to_self;
-      gfx_capabilities = GFX_HW_VRAM_BLIT | GFX_HW_SYS_TO_VRAM_BLIT;
-   }
    
-   uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("Core Graphics DirectDisplay access, %d bpp", tmp1),
+   uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("CoreGraphics DirectDisplay access, %d bpp", tmp1),
              color_depth);
    gfx_quartz_full.desc = driver_desc;
    
