@@ -13,7 +13,7 @@
 #                           compatibility with older processors (GCC-based platforms).
 #        TARGET_ARCH_EXCL   optimize for the given processor; this will cause the library
 #                           to *NOT* be backwards compatible (GCC-based platforms).
-#        TARGET_OPTS        allows you to customize general optimalization (GCC-based platforms).
+#        TARGET_OPTS        allows you to customize general optimizations (GCC-based platforms).
 #        CROSSCOMPILE=1     cross-build under Linux (DJGPP, MinGW32).
 #        ALLEGRO_USE_C=1    use C drawing code instead of asm (GCC-based platforms).
 #        UNIX_TOOLS=1       use Unix-like tools instead of DOS tools.
