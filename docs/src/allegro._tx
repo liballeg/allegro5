@@ -515,7 +515,8 @@ available in past/future versions of Allegro.
 
 @@typedef struct @RGB
 @xref Palette routines, PALETTE
-@eref Available Allegro examples
+@eref ex12bit, ex3d, excolmap, exconfig, expal, exrgbhsv, exscroll
+@eref exshade, extrans, extruec
 <codeblock>
    unsigned char r, g, b;
 <endblock>
@@ -1140,7 +1141,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrzcat(char *dest, int size, const char *src);
 @xref uconvert, ustrcat, ustrzncat
-@eref ex3buf, exgui
+@eref exgui
    This function concatenates `src' to the end of `dest', whose length in
    bytes is specified by `size' and which is guaranteed to be null-terminated
    even when `src' is bigger than `size'.
@@ -2503,12 +2504,14 @@ Allegro does not provide such devices.)
 
 @@Macro @LOCK_VARIABLE(variable_name);
 @xref install_int, install_int_ex
+@eref ex3buf, exscn3d, exswitch, extimer, exupdate, exzbuf
    Due to interrupts/threading, you are required to lock all the memory used
    by your timer routines. See the description of install_int_ex() for a
    more detailed explanation and usage example.
    
 @@Macro @END_OF_FUNCTION(function_name);
 @xref install_int, install_int_ex
+@eref exscn3d, exswitch, extimer, exupdate, exzbuf
    Due to interrupts/threading, you are required to lock all the code used
    by your timer routines. See the description of install_int_ex() for a
    more detailed explanation and usage example.
@@ -10876,8 +10879,9 @@ and avoid missing any important bit of information.
    This program demonstrates how to get mouse input.
 
 @@Example @extimer
-@xref END_OF_MAIN, SCREEN_W, allegro_error, allegro_init, allegro_message
-@xref clear_to_color, desktop_palette, font, install_int, install_int_ex
+@xref END_OF_FUNCTION, END_OF_MAIN, LOCK_VARIABLE, SCREEN_W
+@xref allegro_error, allegro_init, allegro_message, clear_to_color
+@xref desktop_palette, font, install_int, install_int_ex
 @xref install_keyboard, install_timer, key, keypressed, makecol, readkey
 @xref rest, screen, set_gfx_mode, set_palette
    This program demonstrates how to use the timer routines.
@@ -11197,10 +11201,10 @@ and avoid missing any important bit of information.
 
 @@Example @exquat
 @xref BITMAP, END_OF_MAIN, MATRIX_f, QUAT, acquire_bitmap, allegro_error
-@xref allegro_init, allegro_message, apply_matrix_f, circle
+@xref allegro_init, allegro_message, apply_matrix_f, circle, clear_keybuf
 @xref clear_to_color, create_bitmap, desktop_palette, destroy_bitmap
 @xref font, get_rotation_matrix, get_rotation_matrix_f, get_rotation_quat
-@xref install_keyboard, line, matrix_mul_f, palette_color
+@xref install_keyboard, keypressed, line, matrix_mul_f, palette_color
 @xref persp_project_f, quat_interpolate, quat_to_matrix, readkey
 @xref release_bitmap, screen, set_gfx_mode, set_palette
 @xref set_projection_viewport, vsync
@@ -11242,31 +11246,32 @@ and avoid missing any important bit of information.
    starship (controllable), using the Allegro math functions.
 
 @@Example @exscn3d
-@xref BITMAP, END_OF_MAIN, MATRIX_f, PALETTE, SCREEN_H, SCREEN_W, V3D_f
-@xref allegro_error, allegro_exit, allegro_init, allegro_message
-@xref apply_matrix_f, bitmap_color_depth, clear_bitmap, clear_scene
-@xref create_bitmap, create_scene, desktop_palette, destroy_bitmap
-@xref destroy_scene, font, get_rotation_matrix_f
-@xref get_translation_matrix_f, gfx_mode_select_ex, install_int
-@xref install_keyboard, install_mouse, install_timer, key, matrix_mul_f
-@xref palette_color, persp_project_f, polygon_z_normal_f, render_scene
-@xref scene_polygon3d_f, screen, set_color_depth, set_gfx_mode
-@xref set_palette, set_projection_viewport
+@xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_VARIABLE, MATRIX_f
+@xref PALETTE, SCREEN_H, SCREEN_W, V3D_f, allegro_error, allegro_exit
+@xref allegro_init, allegro_message, apply_matrix_f, bitmap_color_depth
+@xref clear_bitmap, clear_scene, create_bitmap, create_scene
+@xref desktop_palette, destroy_bitmap, destroy_scene, font
+@xref get_rotation_matrix_f, get_translation_matrix_f, gfx_mode_select_ex
+@xref install_int, install_keyboard, install_mouse, install_timer, key
+@xref matrix_mul_f, palette_color, persp_project_f, polygon_z_normal_f
+@xref render_scene, scene_polygon3d_f, screen, set_color_depth
+@xref set_gfx_mode, set_palette, set_projection_viewport
    This program demonstrates how to use scanline sorting algo in Allegro
    (create_scene, clear_scene, ... functions). It also provides an example
    of how to use the 3D clipping function.
    
 
 @@Example @exzbuf
-@xref BITMAP, END_OF_MAIN, MATRIX_f, PALETTE, SCREEN_H, SCREEN_W, V3D_f
-@xref ZBUFFER, allegro_error, allegro_exit, allegro_init, allegro_message
-@xref apply_matrix_f, bitmap_color_depth, clear_bitmap, clear_zbuffer
-@xref create_bitmap, create_zbuffer, desktop_palette, destroy_bitmap
-@xref destroy_zbuffer, font, gfx_mode_select_ex, install_int
-@xref install_keyboard, install_mouse, install_timer, keypressed
-@xref palette_color, persp_project_f, polygon_z_normal_f, quad3d_f
-@xref readkey, screen, set_color_depth, set_gfx_mode, set_palette
-@xref set_projection_viewport, set_zbuffer, vsync
+@xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_VARIABLE, MATRIX_f
+@xref PALETTE, SCREEN_H, SCREEN_W, V3D_f, ZBUFFER, allegro_error
+@xref allegro_exit, allegro_init, allegro_message, apply_matrix_f
+@xref bitmap_color_depth, clear_bitmap, clear_zbuffer, create_bitmap
+@xref create_zbuffer, desktop_palette, destroy_bitmap, destroy_zbuffer
+@xref font, gfx_mode_select_ex, install_int, install_keyboard
+@xref install_mouse, install_timer, keypressed, palette_color
+@xref persp_project_f, polygon_z_normal_f, quad3d_f, readkey, screen
+@xref set_color_depth, set_gfx_mode, set_palette, set_projection_viewport
+@xref set_zbuffer, vsync
    This program demonstrates how to use Z-buffered polygons and
    floating point 3D math routines. It also provides a simple way
    to compute fps (frames per second) using the interrupt handler.
@@ -11284,14 +11289,14 @@ and avoid missing any important bit of information.
    supports large virtual screens.
 
 @@Example @ex3buf
-@xref BITMAP, END_OF_MAIN, RGB, SCREEN_H, SCREEN_W, _set_color
+@xref BITMAP, END_OF_MAIN, LOCK_VARIABLE, SCREEN_H, SCREEN_W
 @xref acquire_bitmap, allegro_error, allegro_init, allegro_message
 @xref clear_bitmap, clear_keybuf, create_video_bitmap, desktop_palette
 @xref destroy_bitmap, enable_triple_buffer, fixcos, fixed, fixmul, fixsin
 @xref fixtoi, font, gfx_capabilities, install_keyboard, install_mouse
 @xref install_timer, itofix, keypressed, poll_scroll, release_bitmap
-@xref request_video_bitmap, screen, set_gfx_mode
-@xref set_palette, triangle, ustrzcat, ustrzcpy
+@xref request_video_bitmap, screen, set_gfx_mode, set_palette, triangle
+@xref ustrzcpy
    This program demonstrates the use of triple buffering.
 
 @@Example @ex12bit
@@ -11400,27 +11405,28 @@ and avoid missing any important bit of information.
    the object slow down for the curve.
 
 @@Example @exupdate
-@xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, acquire_bitmap
-@xref allegro_error, allegro_init, allegro_message, bitmap_color_depth
-@xref clear_bitmap, create_bitmap, create_system_bitmap
-@xref create_video_bitmap, desktop_palette, destroy_bitmap
-@xref enable_triple_buffer, fixcos, fixed, fixmul, fixsin, fixtoi, font
-@xref ftofix, generate_332_palette, gfx_capabilities, gfx_mode_select_ex
-@xref install_int_ex, install_keyboard, install_mouse, install_timer
-@xref keypressed, line, makecol, poll_scroll, release_bitmap
-@xref request_video_bitmap, screen, set_color_depth, set_gfx_mode
-@xref set_palette, show_video_bitmap, triangle, vsync, xor_mode
+@xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_VARIABLE, PALETTE
+@xref SCREEN_H, SCREEN_W, acquire_bitmap, allegro_error, allegro_init
+@xref allegro_message, bitmap_color_depth, clear_bitmap, create_bitmap
+@xref create_system_bitmap, create_video_bitmap, desktop_palette
+@xref destroy_bitmap, enable_triple_buffer, fixcos, fixed, fixmul, fixsin
+@xref fixtoi, font, ftofix, generate_332_palette, gfx_capabilities
+@xref gfx_mode_select_ex, install_int_ex, install_keyboard, install_mouse
+@xref install_timer, keypressed, line, makecol, poll_scroll
+@xref release_bitmap, request_video_bitmap, screen, set_color_depth
+@xref set_gfx_mode, set_palette, show_video_bitmap, triangle, vsync
+@xref xor_mode
    This program demonstrates how to support double buffering, page
    flipping, and triple buffering as options within a single program,
    and how to make things run at a constant rate no matter what the
    speed of your computer.
 
 @@Example @exswitch
-@xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, acquire_bitmap
-@xref acquire_screen, allegro_error, allegro_exit, allegro_init
-@xref allegro_message, bitmap_color_depth, clear_to_color
-@xref create_sub_bitmap, desktop_palette, destroy_bitmap, font
-@xref get_display_switch_mode, gfx_mode_select_ex, install_int
+@xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_VARIABLE, PALETTE
+@xref SCREEN_H, SCREEN_W, acquire_bitmap, acquire_screen, allegro_error
+@xref allegro_exit, allegro_init, allegro_message, bitmap_color_depth
+@xref clear_to_color, create_sub_bitmap, desktop_palette, destroy_bitmap
+@xref font, get_display_switch_mode, gfx_mode_select_ex, install_int
 @xref install_keyboard, install_mouse, install_timer, keypressed, makecol
 @xref palette_color, putpixel, readkey, rectfill, release_bitmap
 @xref release_screen, screen, set_color_depth
