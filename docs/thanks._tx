@@ -477,6 +477,10 @@ Contributors
    Robert Ohannessian (<email>varobert@colba.net</a>).<br>
    Added MMX optimisation for the 8 and 16 bit clear() functions.
 
+   Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
+   Provided a new page flipping code for the DirectDraw subsytem, added a
+   Windows sound driver using the Allegro mixer and another using waveOut.
+
    Romano Signorelli (<email>romanos@bigfoot.com</a>).<br>
    Added an arc plotting routine.
 
@@ -671,10 +675,6 @@ Thanks!
    Robert Schmidt (<email>robert@stud.unit.no</a>).<br>
    The register values for the 400x* mode-X resolutions came from his TWEAK 
    program.
-
-   Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
-   Added a Windows sound driver using the Allegro mixer and another using
-   waveOut.
 
    Tom Grandgent (<email>tgrand@canvaslink.com</a>).<br>
    Organised and hosted the Allegro mailing list. Hurrah!

@@ -164,6 +164,9 @@ Changes from 3.11 to current
 <li>
    3.9.34: Eric Botcazou improved colormap handling in XDGA.
 <li>
+   3.9.34: Robin Burrows provided a new page flipping code for the DirectDraw
+   subsytem, which now works on every graphic card. 
+<li>
    3.9.33: Henrik Stokseth updated the mingw32 makefile, the documentation
    and sent in some other related fixes and updates. You will never again
    need MSVC to compile the Allegro DLLs. ;o)
