@@ -2218,7 +2218,7 @@ state of the mouse buttons from global variables. Additionally, you can read
 the mouse position difference as mouse mickeys, which is the number of pixels
 the cursor moved since the last time this information was read.
 
-Allegro offers two ways to display the mouse cursor:
+Allegro offers three ways to display the mouse cursor:
 <ul><li>
 Standard Allegro cursor<br>
    Allegro is responsible for drawing the mouse cursor from a timer. Use 
@@ -2237,6 +2237,11 @@ Custom operating system cursor (hardware cursor)<br>
    and it is therefor disabled by default. In such cases you need to call
    enable_hardware_cursor() to enable it explicitly.
 <li>
+Default operating system cursor<br>
+   Allegro will not draw its own cursor, but use the operating system default
+   cursor. You can use the select_mouse_cursor() function to select the cursor
+   shape to display. As with custom operating system cursors, you need to call 
+   enable_hardware_cursor() before you can use this.
 </ul>
 Not all drivers will support all functionality. See the platform specific
 information for more details.
@@ -2306,6 +2311,53 @@ information for more details.
    unreliable. After calling this function, get_mouse_mickeys() returns 
    reliable results again.
 
+@@void @select_mouse_cursor(int cursor);
+@xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities, enable_hardware_cursor
+   With this function, you can instruct Allegro to use the native system 
+   cursors rather than Allegro's custom cursor. You will need to enable this
+   functionality by calling enable_hardware_cursor(). Allegro will substitute
+   its own default cursor if the system does not support this functionality
+   or if it has not been enabled. You should check the GFX_SYSTEM_CURSOR flag
+   in gfx_capabilities after calling show_mouse() to see wether or not Allegro
+   is really using the default system cursor.
+   The cursor argument selects the type of cursor to be displayed:
+   
+   <b>MOUSE_CURSOR_NONE</b><br>
+   Selects an invisible mouse cursor. In that sense, it is similar to calling
+   show_mouse(NULL);
+   
+   <b>MOUSE_CURSOR_ALLEGRO</b><br>
+   Selects the custom Allegro cursor.
+   
+   <b>MOUSE_CURSOR_ARROW</b><br>
+   The operating system default arrow cursor.
+   
+   <b>MOUSE_CURSOR_BUSY</b><br>
+   The operating system default `busy' cursor (hourglass).
+   
+   <b>MOUSE_CURSOR_QUESTION</b><br>
+   The operating system default `question' cursor (arrow with question mark).
+   
+   <b>MOUSE_CURSOR_EDIT</b><br>
+   The operating system default `edit' cursor (vertical bar).
+   
+   Example:
+<codeblock>
+   /* initialize mouse sub-system */
+   install_mouse();
+   enable_hardware_cursor();
+   
+   /* Set busy pointer */
+   select_mouse_cursor(MOUSE_CURSOR_BUSY);
+   show_mouse(screen);
+   
+   /* Initialize stuff */
+   ...
+   
+   /* Set normal arrow pointer */
+   select_mouse_cursor(MOUSE_CURSOR_ARROW);
+<endblock>
+
 @@extern volatile int @mouse_x;
 @@extern volatile int @mouse_y;
 @@extern volatile int @mouse_z;
@@ -2365,10 +2417,11 @@ information for more details.
    
    Warning: if you draw anything onto the screen while the pointer is 
    visible, a mouse movement interrupt could occur in the middle of your 
-   drawing operation. If this happens the mouse buffering and SVGA bank 
-   switching code will get confused and will leave 'mouse droppings' all over 
-   the screen. To prevent this, you must make sure you turn off the mouse 
-   pointer whenever you draw onto the screen.
+   drawing operation. If this happens the mouse buffering and graphics drawing
+   code will get confused and will leave 'mouse droppings' all over the 
+   screen. To prevent this, you must make sure you turn off the mouse 
+   pointer whenever you draw onto the screen. This is not needed if you are
+   using a hardware cursor.
 
 @@void @scare_mouse();
 @xref unscare_mouse, scare_mouse_area, show_mouse
@@ -3709,6 +3762,10 @@ GFX_SAFE:<br>
       periods of time. It only tells you whether a hardware cursor is in use 
       at the current time, and may change whenever you hide/redisplay the 
       pointer.
+      
+   <b>GFX_SYSTEM_CURSOR</b><br>
+      Indicates that the mouse cursor is the default system cursor, not 
+      Allegro's custom cursor.
 
    <b>GFX_HW_HLINE:</b><br>
       Indicates that the normal opaque version of the hline() function is 
