@@ -294,9 +294,9 @@ fixdemo: demo/demo demo/demo.dat tools/beos/bfixicon
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BEOS
 
 depend:
-	$(CC) $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c src/unix/*.c demo/*.c > _depend.tmp
-	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c* tools/*.c >> _depend.tmp
-	$(CC) $(DEPEND_PARAMS) tools/beos/*.cpp tools/plugins/*.c >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) src/*.c src/beos/*.c src/i386/*.c src/misc/*.c src/unix/*.c demo/*.c > _depend.tmp
+	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) -x c src/beos/*.cpp tests/*.cpp tools/beos/*.cpp >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/misc/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/beos\/alleg\/\1/" _depend2.tmp > obj/beos/alleg/makefile.dep
