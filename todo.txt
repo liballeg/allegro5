@@ -120,4 +120,19 @@ Wishlist:
 - Disable screensaver in X11, as the Windows port does currently.
 - Make (at least truecolor) mask color modifyable.
 
+Makedoc wishlist:
+---------------------------------------------------------------------------
+
+- Man pages' titles should have word Allegro somewhere for apropos.
+- Add shortdesc support for examples. Possibly external script which
+  reads data from examples/examples.txt.
+- Add shortdesc support for makeinfo.
+- Make makeinfo spit out a "detailed node listing" after the short one,
+  like many other info manuals (like GNU make).
+- Generate plain LaTeX output for proper pdf/postscript output. This
+  would potentially allow more flexibility with the final look.
+- Lout output?
+- Improve readability of HTML index: CSS and alphabetic mini toc.
+- makexml as template for next generation makedoc?
+
 ---------------------------------------------------------------------------
