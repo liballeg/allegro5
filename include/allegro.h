@@ -738,9 +738,11 @@ AL_FUNC(int, calibrate_joystick, (int n));
 /************ Screen/bitmap routines ************/
 /************************************************/
 
-#define GFX_TEXT                 -1
-#define GFX_AUTODETECT           0
-#define GFX_SAFE                 AL_ID('S','A','F','E')
+#define GFX_TEXT                       -1
+#define GFX_AUTODETECT                 0
+#define GFX_AUTODETECT_FULLSCREEN      1
+#define GFX_AUTODETECT_WINDOWED        2
+#define GFX_SAFE                       AL_ID('S','A','F','E')
 
 
 typedef struct GFX_DRIVER        /* creates and manages the screen bitmap */
@@ -776,6 +778,7 @@ typedef struct GFX_DRIVER        /* creates and manages the screen bitmap */
    long bank_gran;               /* bank granularity, in bytes */
    long vid_mem;                 /* video memory size, in bytes */
    long vid_phys_base;           /* physical address of video memory */
+   int windowed;                 /* true if driver runs windowed */
 } GFX_DRIVER;
 
 

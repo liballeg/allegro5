@@ -59,6 +59,7 @@ GFX_DRIVER gfx_directx_accel =
    0,                            // long bank_gran;               /* bank granularity, in bytes */
    0,                            // long vid_mem;                 /* video memory size, in bytes */
    0,                            // long vid_phys_base;           /* physical address of video memory */
+   FALSE                         // int windowed;                 /* true if driver runs windowed */
 };
 
 
@@ -95,6 +96,7 @@ GFX_DRIVER gfx_directx_soft =
    0,                           // long bank_gran;               /* bank granularity, in bytes */
    0,                           // long vid_mem;                 /* video memory size, in bytes */
    0,                           // long vid_phys_base;           /* physical address of video memory */
+   FALSE                        // int windowed;                 /* true if driver runs windowed */
 };
 
 
@@ -126,6 +128,7 @@ GFX_DRIVER gfx_directx_safe =
    0,                           // long bank_gran;               /* bank granularity, in bytes */
    0,                           // long vid_mem;                 /* video memory size, in bytes */
    0,                           // long vid_phys_base;           /* physical address of video memory */
+   FALSE                        // int windowed;                 /* true if driver runs windowed */
 };
 
 

@@ -330,9 +330,18 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    int tried = FALSE;
    char buf[512], tmp[64];
    int c, n;
+   int check_mode = FALSE, require_window = FALSE;
 
 
    _gfx_mode_set_count++;
+
+   /* check specific fullscreen/windowed mode detection */
+   if ((card == GFX_AUTODETECT_FULLSCREEN) ||
+       (card == GFX_AUTODETECT_WINDOWED)) {
+      check_mode = TRUE;
+      require_window = (card == GFX_AUTODETECT_WINDOWED ? TRUE : FALSE);
+      card = GFX_AUTODETECT;
+   }
 
    /* special bodge for the GFX_SAFE driver */
    if (card == GFX_SAFE) {
@@ -477,6 +486,13 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	    for (c=0; driver_list[c].driver; c++) {
 	       if (driver_list[c].id == card) {
 		  gfx_driver = driver_list[c].driver;
+		  if (check_mode) {
+		     if (((require_window) && (!gfx_driver->windowed)) ||
+			 ((!require_window) && (gfx_driver->windowed))) {
+			gfx_driver = NULL;
+			continue;
+		     }
+		  }
 		  break;
 	       }
 	    }
@@ -514,6 +530,11 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	 for (c=0; driver_list[c].driver; c++) {
 	    if (driver_list[c].autodetect) {
 	       gfx_driver = driver_list[c].driver;
+	       if (check_mode) {
+		  if (((require_window) && (!gfx_driver->windowed)) ||
+		      ((!require_window) && (gfx_driver->windowed)))
+		  continue;
+	       }
 	       gfx_driver->name = gfx_driver->desc = get_config_text(gfx_driver->ascii_name);
 	       screen = gfx_driver->init(w, h, v_w, v_h, _color_depth);
 	       if (screen)

@@ -30,7 +30,7 @@ static GFX_DRIVER gfx_xwin =
    GFX_XWINDOWS,
    empty_string,
    empty_string,
-   "X-Windows graphics",
+   "X11 window",
    _xwin_gfxdrv_init,
    _xwin_gfxdrv_exit,
    _xwin_scroll_screen,
@@ -46,7 +46,8 @@ static GFX_DRIVER gfx_xwin =
    TRUE,
    0, 0,
    0x10000,
-   0
+   0,
+   TRUE
 };
 
 
@@ -60,7 +61,7 @@ static GFX_DRIVER gfx_xwin_fullscreen =
    GFX_XWINDOWS_FULLSCREEN,
    empty_string,
    empty_string,
-   "Fullscreen X-Window",
+   "X11 fullscreen",
    _xwin_fullscreen_gfxdrv_init,
    _xwin_gfxdrv_exit,
    _xwin_scroll_screen,
@@ -76,7 +77,8 @@ static GFX_DRIVER gfx_xwin_fullscreen =
    TRUE,
    0, 0,
    0x10000,
-   0
+   0,
+   FALSE
 };
 #endif
 
@@ -92,7 +94,7 @@ static GFX_DRIVER gfx_xdga =
    GFX_XDGA,
    empty_string,
    empty_string,
-   "DGA 1.0",
+   "DGA 1.0 window",
    _xdga_gfxdrv_init,
    _xdga_gfxdrv_exit,
    _xdga_scroll_screen,
@@ -108,7 +110,8 @@ static GFX_DRIVER gfx_xdga =
    TRUE,
    0, 0,
    0x10000,
-   0
+   0,
+   TRUE
 };
 
 
@@ -121,7 +124,7 @@ static GFX_DRIVER gfx_xdga_fullscreen =
    GFX_XDGA_FULLSCREEN,
    empty_string,
    empty_string,
-   "Fullscreen DGA 1.0",
+   "DGA 1.0",
    _xdga_fullscreen_gfxdrv_init,
    _xdga_gfxdrv_exit,
    _xdga_scroll_screen,
@@ -137,7 +140,8 @@ static GFX_DRIVER gfx_xdga_fullscreen =
    TRUE,
    0, 0,
    0x10000,
-   0
+   0,
+   FALSE
 };
 #endif
 #endif
@@ -173,7 +177,8 @@ static GFX_DRIVER gfx_xdga2 =
    TRUE,
    0, 0,
    0,
-   0
+   0,
+   FALSE
 };
 
 
@@ -182,7 +187,7 @@ static GFX_DRIVER gfx_xdga2_soft =
    GFX_XDGA2_SOFT,
    empty_string,
    empty_string,
-   "Software DGA 2.0",
+   "DGA 2.0 soft",
    _xdga2_soft_gfxdrv_init,
    _xdga2_gfxdrv_exit,
    _xdga2_scroll_screen,
@@ -201,7 +206,8 @@ static GFX_DRIVER gfx_xdga2_soft =
    TRUE,
    0, 0,
    0,
-   0
+   0,
+   FALSE
 };
 #endif
 

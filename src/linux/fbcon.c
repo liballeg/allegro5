@@ -79,7 +79,7 @@ GFX_DRIVER gfx_fbcon =
    fb_restore,
    0, 0,
    TRUE,
-   0, 0, 0, 0
+   0, 0, 0, 0, FALSE
 };
 
 

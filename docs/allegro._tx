@@ -2010,9 +2010,9 @@ Graphics modes
 @xref allegro_error, standard config variables, GFX_*/DOS, GFX_*/Windows
 @xref GFX_*/X, GFX_*/Linux, GFX_*/BeOS
    Switches into graphics mode. The card parameter should usually be 
-   GFX_AUTODETECT, or see the platform specific documentation for a list of 
-   the available drivers. The w and h parameters specify what screen 
-   resolution you want.
+   GFX_AUTODETECT, GFX_AUTODETECT_FULLSCREEN or GFX_AUTODETECT_WINDOWED, or
+   see the platform specific documentation for a list of the available
+   drivers. The w and h parameters specify what screen resolution you want.
 
    The v_w and v_h parameters specify the minimum virtual screen size, in 
    case you need a large virtual screen for hardware scrolling or page 
@@ -7119,6 +7119,13 @@ DOS specifics
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
 <li>
+   GFX_AUTODETECT_FULLSCREEN<br>
+      Autodetects a graphics driver, but will only use fullscreen drivers,
+      failing if these are not available on current platform.
+<li>
+   GFX_AUTODETECT_WINDOWED<br>
+      Same as above, but uses only windowed drivers.
+<li>
    GFX_SAFE<br>
       Special driver for when you want to reliably set a graphics mode and 
       don't really care what resolution or color depth you get. See the
@@ -7357,6 +7364,13 @@ correctly.
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
 <li>
+   GFX_AUTODETECT_FULLSCREEN<br>
+      Autodetects a graphics driver, but will only use fullscreen drivers,
+      failing if these are not available on current platform.
+<li>
+   GFX_AUTODETECT_WINDOWED<br>
+      Same as above, but uses only windowed drivers.
+<li>
    GFX_SAFE<br>
       Special driver for when you want to reliably set a graphics mode and 
       don't really care what resolution or color depth you get. See the
@@ -7529,6 +7543,20 @@ function to remind you :-)
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
 <li>
+   GFX_AUTODETECT_FULLSCREEN<br>
+      Autodetects a graphics driver, but will only use fullscreen drivers,
+      failing if these are not available on current platform.
+<li>
+   GFX_AUTODETECT_WINDOWED<br>
+      Same as above, but uses only windowed drivers.
+<li>
+   GFX_AUTODETECT_FULLSCREEN<br>
+      Autodetects a graphics driver, but will only use fullscreen drivers,
+      failing if these are not available on current platform.
+<li>
+   GFX_AUTODETECT_WINDOWED<br>
+      Same as above, but uses only windowed drivers.
+<li>
    GFX_SAFE<br>
       Special driver for when you want to reliably set a graphics mode and 
       don't really care what resolution or color depth you get. See the
@@ -7577,6 +7605,13 @@ function to remind you :-)
    GFX_XWINDOWS<br>
       The standard X graphics driver. This should work on any Unix system, 
       and can operate remotely. It does not require root permissions.
+<li>
+   GFX_XWINDOWS_FULLSCREEN<br>
+      The same as above, but while GFX_XWINDOWS runs windowed, this one uses
+      the XF86VidMode extension to make it run in fullscreen mode even
+      without root permissions. You're still using the standard X protocol
+      though, so expect the same low performances as with the windowed
+      driver version.
 <li>
    GFX_XDGA<br>
       Use the XFree86 DGA 1.0 extension to write directly to the screen
@@ -7633,6 +7668,13 @@ BeOS specifics
 <li>
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
+<li>
+   GFX_AUTODETECT_FULLSCREEN<br>
+      Autodetects a graphics driver, but will only use fullscreen drivers,
+      failing if these are not available on current platform.
+<li>
+   GFX_AUTODETECT_WINDOWED<br>
+      Same as above, but uses only windowed drivers.
 <li>
    GFX_SAFE<br>
       Special driver for when you want to reliably set a graphics mode and 

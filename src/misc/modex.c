@@ -118,7 +118,8 @@ GFX_DRIVER gfx_modex =
    TRUE,
    0, 0,
    0x40000,
-   0
+   0,
+   FALSE
 };
 
 
@@ -150,7 +151,8 @@ GFX_DRIVER gfx_xtended =
    TRUE,
    0, 0,
    0x40000,
-   0
+   0,
+   FALSE
 };
 
 

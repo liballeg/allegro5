@@ -108,6 +108,12 @@ static int gfx_card_cmp(AL_CONST void *e1, AL_CONST void *e2)
       #ifdef GFX_AUTODETECT
 	 GFX_AUTODETECT,
       #endif
+      #ifdef GFX_AUTODETECT_FULLSCREEN
+	 GFX_AUTODETECT_FULLSCREEN,
+      #endif
+      #ifdef GFX_AUTODETECT_WINDOWED
+	 GFX_AUTODETECT_WINDOWED,
+      #endif
       #ifdef GFX_VGA
 	 GFX_VGA,
       #endif
@@ -181,6 +187,8 @@ static void setup_card_list(int *list)
    }
 
    gfx_card_list[gfx_card_count++] = -1;
+   gfx_card_list[gfx_card_count++] = -2;
+   gfx_card_list[gfx_card_count++] = -3;
 
    qsort(gfx_card_list, gfx_card_count, sizeof(int), gfx_card_cmp);
 }
@@ -204,8 +212,12 @@ static AL_CONST char *gfx_card_getter(int index, int *list_size)
 
    if (i >= 0)
       return get_config_text(((GFX_DRIVER *)driver_list[i].driver)->ascii_name);
-   else
+   else if (i == -1)
       return get_config_text("Autodetect");
+   else if (i == -2)
+      return get_config_text("Auto fullscreen");
+   else
+      return get_config_text("Auto windowed");
 }
 
 
@@ -304,8 +316,12 @@ int gfx_mode_select(int *card, int *w, int *h)
 
    if (i >= 0)
       *card = driver_list[i].id;
-   else
+   else if (i == -1)
       *card = GFX_AUTODETECT;
+   else if (i == -2)
+      *card = GFX_AUTODETECT_FULLSCREEN;
+   else
+      *card = GFX_AUTODETECT_WINDOWED;
 
    *w = gfx_mode_data[gfx_mode_dialog[GFX_MODE_LIST].d1].w;
    *h = gfx_mode_data[gfx_mode_dialog[GFX_MODE_LIST].d1].h;
@@ -345,6 +361,10 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
 	 break;
       }
    }
+   if (*card == GFX_AUTODETECT_FULLSCREEN)
+      gfx_mode_ex_dialog[GFX_DRIVER_LIST].d1 = 1;
+   else if (*card == GFX_AUTODETECT_WINDOWED)
+      gfx_mode_ex_dialog[GFX_DRIVER_LIST].d1 = 2;
 
    for (i=0; gfx_mode_data[i].s; i++) {
       if ((gfx_mode_data[i].w == *w) && (gfx_mode_data[i].h == *h)) {
@@ -373,8 +393,12 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
 
    if (i >= 0)
       *card = driver_list[i].id;
-   else
+   else if (i == -1)
       *card = GFX_AUTODETECT;
+   else if (i == -2)
+      *card = GFX_AUTODETECT_FULLSCREEN;
+   else
+      *card = GFX_AUTODETECT_WINDOWED;
 
    *w = gfx_mode_data[gfx_mode_ex_dialog[GFX_MODE_LIST].d1].w;
    *h = gfx_mode_data[gfx_mode_ex_dialog[GFX_MODE_LIST].d1].h;

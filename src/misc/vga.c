@@ -63,7 +63,8 @@ GFX_DRIVER gfx_vga =
    TRUE,
    0, 0,
    0x10000,
-   0
+   0,
+   FALSE
 };
 
 

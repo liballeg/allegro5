@@ -71,7 +71,7 @@ GFX_DRIVER gfx_svgalib =
    svga_restore,
    0, 0,
    TRUE,
-   0, 0, 0, 0
+   0, 0, 0, 0, FALSE
 };
 
 
