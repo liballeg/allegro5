@@ -226,7 +226,7 @@ ifdef ALLEGRO_USE_CYGWIN
    LIBRARIES += -L/lib/mingw -lmoldname -lmsvcrt
 endif
 
-PROGRAMS = dibgrab dibhello dibsound dxwindow scrsave wfixicon keyconf
+PROGRAMS = dibgrab dibhello dibsound dxwindow scrsave wfixicon
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
