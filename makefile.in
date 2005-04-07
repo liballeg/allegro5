@@ -206,7 +206,7 @@ allegro_h = $(srcdir)/include/allegro.h \
 	$(srcdir)/include/allegro/inline/rle.inl \
 	$(srcdir)/include/allegro/inline/system.inl \
 	$(ALLEGRO_EXTRA_HEADER)
-allegro_aintern_h = $(srcdir)/include/allegro/internal/aintern.h
+allegro_internal_aintern_h = $(srcdir)/include/allegro/internal/aintern.h
 allegro_aintdos_h = $(srcdir)/include/allegro/platform/aintdos.h \
 	$(srcdir)/include/allegro/internal/aintvga.h
 obj_unix_asmdef_inc = $(OBJDIR)/asmdef.inc
