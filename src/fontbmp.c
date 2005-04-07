@@ -30,24 +30,20 @@ static int import_y = 0;
 /* splits bitmaps into sub-sprites, using regions bounded by col #255 */
 static void font_find_character(BITMAP *bmp, int *x, int *y, int *w, int *h)
 {
-   int c1;
-   int c2;
+   int c;
 
    if (bitmap_color_depth(bmp) == 8) {
-      c1 = 255;
-      c2 = 255;
+      c = 255;
    }
    else {
-      c1 = makecol_depth(bitmap_color_depth(bmp), 255, 255, 0);
-      c2 = makecol_depth(bitmap_color_depth(bmp), 0, 255, 255);
+      c = makecol_depth(bitmap_color_depth(bmp), 255, 255, 0);
    }
 
    /* look for top left corner of character */
-   while ((getpixel(bmp, *x, *y) != c1) || 
-	  (getpixel(bmp, *x+1, *y) != c2) ||
-	  (getpixel(bmp, *x, *y+1) != c2) ||
-	  (getpixel(bmp, *x+1, *y+1) == c1) ||
-	  (getpixel(bmp, *x+1, *y+1) == c2)) {
+   while ((getpixel(bmp, *x, *y) != c) || 
+	  (getpixel(bmp, *x+1, *y) != c) ||
+	  (getpixel(bmp, *x, *y+1) != c) ||
+	  (getpixel(bmp, *x+1, *y+1) == c)) {
       (*x)++;
       if (*x >= bmp->w) {
 	 *x = 0;
@@ -62,15 +58,15 @@ static void font_find_character(BITMAP *bmp, int *x, int *y, int *w, int *h)
 
    /* look for right edge of character */
    *w = 0;
-   while ((getpixel(bmp, *x+*w+1, *y) == c2) &&
-	  (getpixel(bmp, *x+*w+1, *y+1) != c2) &&
+   while ((getpixel(bmp, *x+*w+1, *y) == c) &&
+	  (getpixel(bmp, *x+*w+1, *y+1) != c) &&
 	  (*x+*w+1 <= bmp->w))
       (*w)++;
 
    /* look for bottom edge of character */
    *h = 0;
-   while ((getpixel(bmp, *x, *y+*h+1) == c2) &&
-	  (getpixel(bmp, *x+1, *y+*h+1) != c2) &&
+   while ((getpixel(bmp, *x, *y+*h+1) == c) &&
+	  (getpixel(bmp, *x+1, *y+*h+1) != c) &&
 	  (*y+*h+1 <= bmp->h))
       (*h)++;
 }
@@ -129,12 +125,12 @@ static int import_bitmap_font_color(BITMAP *import_bmp, BITMAP** bits, int num)
    for(i = 0; i < num; i++) {
       if(w > 0 && h > 0) font_find_character(import_bmp, &import_x, &import_y, &w, &h);
       if(w <= 0 || h <= 0) {
-	 bits[i] = create_bitmap_ex(8, 8, 8);
+	 bits[i] = create_bitmap_ex(bitmap_color_depth(import_bmp), 8, 8);
 	 if(!bits[i]) return -1;
 	 clear_to_color(bits[i], 255);
       }
       else {
-	 bits[i] = create_bitmap_ex(8, w, h);
+	 bits[i] = create_bitmap_ex(bitmap_color_depth(import_bmp), w, h);
 	 if(!bits[i]) return -1;
 	 blit(import_bmp, bits[i], import_x + 1, import_y + 1, 0, 0, w, h);
 	 import_x += w;
@@ -197,20 +193,14 @@ FONT *load_bitmap_font(AL_CONST char *fname, RGB *pal, void *param)
    FONT *f;
    ASSERT(fname);
 
-   /* Don't change the colourdepth of the bitmap */
+   /* Don't change the colourdepth of the bitmap if it is 8 bit */
    color_conv_mode = get_color_conversion();
-   set_color_conversion(COLORCONV_NONE);
+   set_color_conversion(COLORCONV_MOST | COLORCONV_KEEP_TRANS);
    import_bmp = load_bitmap(fname, pal);
    set_color_conversion(color_conv_mode);
 
    if(!import_bmp) 
      return NULL;
-
-   if(bitmap_color_depth(import_bmp) != 8) {
-      destroy_bitmap(import_bmp);
-      import_bmp = NULL;
-      return NULL;
-   }
 
    f = grab_font_from_bitmap(import_bmp);
 
