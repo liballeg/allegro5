@@ -163,10 +163,14 @@ AL_FUNC(void, _handle_key_release, (int scancode));
 
 AL_VAR(int, _keyboard_installed);
 AL_ARRAY(AL_CONST char *, _keyboard_common_names);
-AL_ARRAY(char *, _pckeys_names);
-
 AL_ARRAY(volatile char, _key);
 AL_VAR(volatile int, _key_shifts);
+
+
+#if (defined ALLEGRO_DOS) || (defined ALLEGRO_DJGPP) || (defined ALLEGRO_WATCOM) || \
+    (defined ALLEGRO_QNX) || (defined ALLEGRO_BEOS)
+
+AL_ARRAY(char *, _pckeys_names);
 
 AL_FUNC(void, _pckeys_init, (void));
 AL_FUNC(void, _handle_pckey, (int code));
@@ -200,6 +204,8 @@ AL_VAR(int, _key_accent4_flag);
 AL_VAR(int, _key_standard_kb);
 
 AL_VAR(char *, _keyboard_layout);
+
+#endif
 
 
 /* various bits of joystick stuff */

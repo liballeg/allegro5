@@ -611,7 +611,6 @@ static void key_directx_exit(void)
       /* now we can free all resources */
       CloseHandle(key_input_processed_event);
    }
-   _keyboard_layout = NULL;
 }
 
 
