@@ -257,7 +257,7 @@ static void handle_key_press(unsigned char scancode)
    }
 
    /* Nice, seems Windows has a function to just get the unicode character. */
-   n = ToUnicode(vkey, scancode, keystate, chars, sizeof chars, 0);
+   n = ToUnicode(vkey, scancode, keystate, chars, 16, 0);
    if (n == 1)
    {
       unicode = chars[0];
