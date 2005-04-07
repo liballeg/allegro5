@@ -290,7 +290,7 @@ endif
 
 create-install-dirs:
 ifdef UNIX_TOOLS
-	misc\mdhelper.sh $(INSTALL_DIRS)
+	misc/mdhelper.sh $(INSTALL_DIRS)
 else
    define MKDIRS
    $(foreach dir,$(INSTALL_DIRS),\
