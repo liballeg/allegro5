@@ -256,16 +256,20 @@ static void handle_key_press(unsigned char scancode)
          vkey = VK_RETURN;
    }
 
-   /* Nice, seems Windows has a function to just get the unicode character. */
-   n = ToUnicode(vkey, scancode, keystate, chars, 16, 0);
+   /* TODO: is there an advantage using this? maybe it would allow chinese and so on
+    * characters? For now, always ToAscii is used. */
+   //n = ToUnicode(vkey, scancode, keystate, chars, 16, 0);
+   n = ToAscii(vkey, scancode, keystate, (WORD *)chars, 0);
    if (n == 1)
    {
-      unicode = chars[0];
+      WCHAR wstr[2];
+      MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCSTR)chars, n, wstr, 2);
+      unicode = wstr[0];
    }
    else
    {
       /* Don't generate key presses for modifier keys. */
-      if (mycode >= KEY_MODIFIERS)
+      if (mycode >= KEY_MODIFIERS || n != 0)
          unicode = -1;
       else
          unicode = 0;
