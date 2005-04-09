@@ -353,6 +353,9 @@ int _install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*fun
    /* nasty stuff to set up the config system before the system driver */
    system_driver = _system_driver_list[0].driver;
 
+   /* needed in case set_config_file was called before allegro_init */
+   _reload_config();
+
    reload_config_texts(NULL);
 
    if (system_id == SYSTEM_AUTODETECT)

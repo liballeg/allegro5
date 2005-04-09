@@ -2061,7 +2061,7 @@ int main(int argc, char *argv[])
    install_timer();
    install_mouse();
 
-   if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, argv[0]) != 0) {
+   if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL) != 0) {
       allegro_message("Error initialising sound\n%s\n", allegro_error);
       install_sound (DIGI_NONE, MIDI_NONE, NULL);
    }

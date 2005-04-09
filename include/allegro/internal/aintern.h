@@ -112,6 +112,10 @@ AL_VAR(int, _packfile_type);
 AL_FUNC(PACKFILE *, _pack_fdopen, (int fd, AL_CONST char *mode));
 
 
+/* config stuff */
+void _reload_config(void);
+
+
 /* various bits of mouse stuff */
 AL_FUNC(void, _handle_mouse_input, (void));
 

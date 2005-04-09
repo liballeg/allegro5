@@ -168,7 +168,8 @@ endif
 # -------- top level boss targets like "default" and "all" --------
 
 .PHONY: default all msg lib install installall uninstall docs chm-docs \
-	clean distclean veryclean depend $(PROGRAMS) $(CPP_PROGRAMS)
+        clean distclean veryclean create-install-dirs depend \
+        $(PROGRAMS) $(CPP_PROGRAMS)
 
 .PRECIOUS: $(OBJ_DIR)/%$(OBJ)
 
@@ -279,23 +280,25 @@ INSTALL_DIRS := \
     $(INSTALLDIR)/$(INCDIR)/allegro/internal \
     $(INSTALLDIR)/$(INCDIR)/allegro/inline
 
-ifdef UNIX_TOOLS
-    INSTALL_DIRS := $(subst \,/,$(INSTALL_DIRS))
-else
-    INSTALL_DIRS := $(subst /,\,$(INSTALL_DIRS))
+ifdef BINDIR
+    INSTALL_DIRS += $(INSTALLDIR)/$(BINDIR)
 endif
 
-existing_dirs = $(foreach dir, $(INSTALL_DIRS), $(wildcard $(dir)))
-
-.PHONY: create-install-dirs
+ifdef UNIX_TOOLS
+   INSTALL_DIRS := $(subst $(strip \),/,$(INSTALL_DIRS))
+else
+   INSTALL_DIRS := $(subst /,$(strip \),$(INSTALL_DIRS))
+endif
 
 create-install-dirs:
-ifneq (,$(INSTALL_DIRS))
-    define MKDIRS
-    $(foreach file, $(filter-out $(existing_dirs), $(INSTALL_DIRS)), \
-        mkdir $(MKDIR_OPTS) $(file)
-    )
-    endef
+ifdef UNIX_TOOLS
+	mdhelper.sh $(INSTALL_DIRS)
+else
+   define MKDIRS
+   $(foreach dir,$(INSTALL_DIRS),\
+      mdhelper.bat $(dir)
+   )
+   endef
 	$(MKDIRS)
 endif
 

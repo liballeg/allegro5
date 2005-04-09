@@ -1546,6 +1546,8 @@ static void _output_symbol_index(void)
    fprintf(_file, "\n</div>\n\n");
 
    for (f = 0, last_letter = -1; f < num; f++) {
+      char *p, *temp;
+
       /* Did we change letter section? */
       if (list[f][0] >= 'A' && list[f][0] <= 'z' && list[f][0] != last_letter) {
 	 /* Is this the first section or another one? */
@@ -1559,7 +1561,7 @@ static void _output_symbol_index(void)
       }
       
       /* Before writing the string, remove possible short descriptions. */
-      char *p, *temp = m_strdup(list[f]);
+      temp = m_strdup(list[f]);
       p = strchr(temp, ',');
       if (p)
 	 *p = 0;

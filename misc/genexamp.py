@@ -46,13 +46,14 @@ comment_line = re.compile(r"Example pr|Modified by")
 # the order of the examples is aimed at the newbie, going from easy
 # to difficult
 examples_order = ["exhello", "exmem", "expal", "expat", "exflame",
-   "exdbuf", "exflip", "exfixed", "exmouse", "extimer", "exkeys",
+   "exdbuf", "exflip", "exfixed", "exfont", "exmouse", "extimer", "exkeys",
    "exjoy", "exsample", "exmidi", "exgui", "excustom", "exunicod",
    "exbitmap", "exscale", "exconfig", "exdata", "exsprite", "exexedat",
    "extrans", "extruec", "excolmap", "exrgbhsv", "exshade", "exblend",
    "exxfade", "exalpha", "exlights", "ex3d", "excamera", "exquat",
    "exstars", "exscn3d", "exzbuf", "exscroll", "ex3buf", "ex12bit",
-   "exaccel", "exspline", "exupdate", "exswitch", "exdodgy", "exstream"]
+   "exaccel", "exspline", "exsyscur", "exupdate", "exswitch", "exdodgy", 
+   "exstream"]
 
 # Holds examples' short descriptions. Loaded from disk at runtime.
 short_descriptions = {}

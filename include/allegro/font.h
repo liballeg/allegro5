@@ -55,6 +55,8 @@ AL_FUNC(FONT *, load_grx_or_bios_font, (AL_CONST char *filename, RGB *pal, void 
 AL_FUNC(FONT *, load_bitmap_font, (AL_CONST char *fname, RGB *pal, void *param));
 AL_FUNC(FONT *, load_txt_font, (AL_CONST char *fname, RGB *pal, void *param));
 
+AL_FUNC(FONT *, grab_font_from_bitmap, (BITMAP *bmp));
+
 AL_FUNC(int, get_font_ranges, (FONT *f));
 AL_FUNC(int, get_font_range_begin, (FONT *f, int range));
 AL_FUNC(int, get_font_range_end, (FONT *f, int range));

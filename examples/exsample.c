@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
    install_timer();
 
    /* install a digital sound driver */
-   if (install_sound(DIGI_AUTODETECT, MIDI_NONE, argv[0]) != 0) {
+   if (install_sound(DIGI_AUTODETECT, MIDI_NONE, NULL) != 0) {
       allegro_message("Error initialising sound system\n%s\n", allegro_error);
       return 1;
    }

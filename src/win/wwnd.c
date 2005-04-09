@@ -460,7 +460,6 @@ static void wnd_thread_proc(HANDLE setup_event)
          /* messages are waiting in the queue */
          while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
             if (GetMessage(&msg, NULL, 0, 0)) {
-               TranslateMessage(&msg);
                DispatchMessage(&msg);
             }
             else {

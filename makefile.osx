@@ -23,8 +23,6 @@ UNIX_TOOLS = 1
 
 RM_OPTS = -f
 
-MKDIR_OPTS = -p
-
 
 # -------- local variables --------
 
@@ -166,7 +164,9 @@ DISTCLEAN_FILES += tools/macosx/fixbundle
 
 # -------- rules for installing and removing the library files --------
 
-INSTALLDIR = /usr/local
+DESTDIR =
+INSTALLDIR = $(DESTDIR)/usr/local
+BINDIR = bin
 LIBDIR = lib
 INCDIR = include
 
@@ -192,6 +192,7 @@ $(INSTALLDIR)/lib/lib$(VERSION)-$(shared_version).dylib: $(LIB_NAME)
 endif
 
 
+# XXX: Un-hardcode the @prefix@ substitution.
 $(INSTALLDIR)/bin/allegro-config: $(LIB_NAME)
 	install -d $(INSTALLDIR)/bin
 ifdef STATICLINK

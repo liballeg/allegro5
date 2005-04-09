@@ -22,8 +22,6 @@
 #include "allegro/internal/aintern.h"
 
 /* state information for the bitmap font importer */
-static BITMAP *import_bmp = NULL;
-
 static int import_x = 0;
 static int import_y = 0;
 
@@ -82,7 +80,7 @@ static void font_find_character(BITMAP *bmp, int *x, int *y, int *w, int *h)
 /* import_bitmap_font_mono:
  *  Helper for import_bitmap_font, below.
  */
-static int import_bitmap_font_mono(FONT_GLYPH** gl, int num)
+static int import_bitmap_font_mono(BITMAP *import_bmp, FONT_GLYPH** gl, int num)
 {
    int w = 1, h = 1, i;
 
@@ -124,7 +122,7 @@ static int import_bitmap_font_mono(FONT_GLYPH** gl, int num)
 /* import_bitmap_font_color:
  *  Helper for import_bitmap_font, below.
  */
-static int import_bitmap_font_color(BITMAP** bits, int num)
+static int import_bitmap_font_color(BITMAP *import_bmp, BITMAP** bits, int num)
 {
    int w = 1, h = 1, i;
 
@@ -194,9 +192,8 @@ static int bitmap_font_count(BITMAP* bmp)
 FONT *load_bitmap_font(AL_CONST char *fname, RGB *pal, void *param)
 {
    /* NB: `end' is -1 if we want every glyph */
-   int begin = ' ';
-   int end = -1;
    int color_conv_mode;
+   BITMAP *import_bmp;
    FONT *f;
    ASSERT(fname);
 
@@ -205,9 +202,6 @@ FONT *load_bitmap_font(AL_CONST char *fname, RGB *pal, void *param)
    set_color_conversion(COLORCONV_NONE);
    import_bmp = load_bitmap(fname, pal);
    set_color_conversion(color_conv_mode);
-
-   import_x = 0;
-   import_y = 0;
 
    if(!import_bmp) 
      return NULL;
@@ -218,15 +212,35 @@ FONT *load_bitmap_font(AL_CONST char *fname, RGB *pal, void *param)
       return NULL;
    }
 
-   f = _al_malloc(sizeof(FONT));
-   if (end == -1) end = bitmap_font_count(import_bmp) + begin;
+   f = grab_font_from_bitmap(import_bmp);
 
-   if (bitmap_font_ismono(import_bmp)) {
+   destroy_bitmap(import_bmp);
+
+   return f;
+}
+
+
+
+/* work horse for grabbing a font from an Allegro bitmap */
+FONT *grab_font_from_bitmap(BITMAP *bmp)
+{
+   int begin = ' ';
+   int end = -1;
+   FONT *f;
+   ASSERT(bmp)
+
+   import_x = 0;
+   import_y = 0;
+
+   f = _al_malloc(sizeof *f);
+   if (end == -1) end = bitmap_font_count(bmp) + begin;
+
+   if (bitmap_font_ismono(bmp)) {
       FONT_MONO_DATA* mf = _al_malloc(sizeof(FONT_MONO_DATA));
 
       mf->glyphs = _al_malloc(sizeof(FONT_GLYPH*) * (end - begin));
 
-      if ( import_bitmap_font_mono(mf->glyphs, end - begin) ) {
+      if ( import_bitmap_font_mono(bmp, mf->glyphs, end - begin) ) {
 	 free(mf->glyphs);
 	 free(mf);
 	 free(f);
@@ -246,7 +260,7 @@ FONT *load_bitmap_font(AL_CONST char *fname, RGB *pal, void *param)
       FONT_COLOR_DATA* cf = _al_malloc(sizeof(FONT_COLOR_DATA));
       cf->bitmaps = _al_malloc(sizeof(BITMAP*) * (end - begin));
 
-      if( import_bitmap_font_color(cf->bitmaps, end - begin) ) {
+      if( import_bitmap_font_color(bmp, cf->bitmaps, end - begin) ) {
 	 free(cf->bitmaps);
 	 free(cf);
 	 free(f);
@@ -262,9 +276,6 @@ FONT *load_bitmap_font(AL_CONST char *fname, RGB *pal, void *param)
 	 cf->next = 0;
       }
    }
-
-   destroy_bitmap(import_bmp);
-   import_bmp = 0;
-
+   
    return f;
 }

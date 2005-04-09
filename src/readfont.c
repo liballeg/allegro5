@@ -154,7 +154,7 @@ void _register_font_file_type_init(void)
     *  quit, not just when allegro_exit() is called, we need to use a
     *  destructor to accomplish this.
     */
-   static void bitmap_filetype_destructor(void)
+   static void font_filetype_destructor(void)
    {
       FONT_TYPE_INFO *iter = font_type_list, *next;
 

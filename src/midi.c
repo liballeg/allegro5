@@ -14,6 +14,8 @@
  *
  *      Pause and seek functions by George Foot.
  *
+ *      get_midi_length by Elias Pschernig.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -28,6 +30,9 @@
 
 /* maximum number of layers in a single voice */
 #define MIDI_LAYERS  4
+
+/* how often the midi callback gets called maximally / second */
+#define MIDI_TIMER_FREQUENCY 40
 
 
 typedef struct MIDI_TRACK                       /* a track in the MIDI file */
@@ -76,7 +81,9 @@ typedef struct PATCH_TABLE                      /* GM -> external synth */
 } PATCH_TABLE;
 
 
-volatile long midi_pos = -1;                    /* position in MIDI file */
+volatile long midi_pos = -1;                    /* current position in MIDI file */
+volatile long midi_time = 0;                    /* current position in seconds */
+static volatile long midi_timers;               /* current position in allegro-timer-ticks */
 static long midi_pos_counter;                   /* delta for midi_pos */
 
 volatile long _midi_tick = 0;                   /* counter for killing notes */
@@ -875,13 +882,16 @@ static void midi_player(void)
       return;
 
    if (midi_semaphore) {
-      midi_timer_speed += BPS_TO_TIMER(40);
-      install_int_ex(midi_player, BPS_TO_TIMER(40));
+      midi_timer_speed += BPS_TO_TIMER(MIDI_TIMER_FREQUENCY);
+      install_int_ex(midi_player, BPS_TO_TIMER(MIDI_TIMER_FREQUENCY));
       return;
    }
 
    midi_semaphore = TRUE;
    _midi_tick++;
+
+   midi_timers += midi_timer_speed;
+   midi_time = midi_timers / TIMERS_PER_SECOND;
 
    do_it_all_again:
 
@@ -976,8 +986,8 @@ static void midi_player(void)
    }
 
    /* reprogram the timer */
-   if (midi_timer_speed < BPS_TO_TIMER(40))
-      midi_timer_speed = BPS_TO_TIMER(40);
+   if (midi_timer_speed < BPS_TO_TIMER(MIDI_TIMER_FREQUENCY))
+      midi_timer_speed = BPS_TO_TIMER(MIDI_TIMER_FREQUENCY);
 
    if (!midi_seeking) 
       install_int_ex(midi_player, midi_timer_speed);
@@ -1184,6 +1194,8 @@ static void prepare_to_play(MIDI *midi)
 
    midifile = midi;
    midi_pos = 0;
+   midi_timers = 0;
+   midi_time = 0;
    midi_pos_counter = 0;
    midi_speed = TIMERS_PER_SECOND / 2 / midifile->divisions;   /* 120 bpm */
    midi_new_speed = -1;
@@ -1446,6 +1458,21 @@ END_OF_FUNCTION(midi_seek);
 
 
 
+/* get_midi_length:
+ *  Returns the length, in seconds, of the specified midi. This will stop any
+ *  currently playing midi. Don't call it too often, since it simulates playing
+ *  all of the midi to get the time even if the midi contains tempo changes.
+ */
+int get_midi_length(MIDI *midi)
+{
+    play_midi(midi, 0);
+    while (midi_pos < 0); /* Without this, midi_seek won't work. */
+    midi_seek(INT_MAX);
+    return midi_time;
+}
+
+
+
 /* midi_out:
  *  Inserts MIDI command bytes into the output stream, in realtime.
  */
@@ -1498,6 +1525,8 @@ int load_midi_patches(void)
 static void midi_lock_mem(void)
 {
    LOCK_VARIABLE(midi_pos);
+   LOCK_VARIABLE(midi_time);
+   LOCK_VARIABLE(midi_timers);
    LOCK_VARIABLE(midi_pos_counter);
    LOCK_VARIABLE(_midi_tick);
    LOCK_VARIABLE(midifile);
@@ -1505,6 +1534,7 @@ static void midi_lock_mem(void)
    LOCK_VARIABLE(midi_loop);
    LOCK_VARIABLE(midi_loop_start);
    LOCK_VARIABLE(midi_loop_end);
+   LOCK_VARIABLE(midi_timer_frequency);
    LOCK_VARIABLE(midi_timer_speed);
    LOCK_VARIABLE(midi_pos_speed);
    LOCK_VARIABLE(midi_speed);

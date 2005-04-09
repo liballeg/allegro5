@@ -1180,6 +1180,21 @@ void set_config_id(AL_CONST char *section, AL_CONST char *name, int val)
 
 
 
+/* _reload_config:
+ *  Internal helper to reload the configuration from allegro_init, in case
+ *  set_config_file was called before allegro_init.
+ */
+void _reload_config(void)
+{
+   if (config[0]) {
+      char *name = ustrdup(config[0]->filename);
+      set_config_file(name);
+      free(name);
+   }
+}
+
+
+
 /* reload_config_texts:
  *  Reads in a block of translated system text, looking for either a
  *  user-specified file, a ??text.cfg file, or a language.dat#??TEXT_CFG 

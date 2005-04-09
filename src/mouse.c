@@ -520,6 +520,61 @@ void set_mouse_sprite_focus(int x, int y)
 
 
 
+/* show_os_cursor:
+ *  Tries to display the OS cursor. Returns 0 if a cursor is displayed after the
+ *  function returns, else -1. This is similar to calling show_mouse(screen)
+ *  after calling enable_hardware_cursor and checking gfx_capabilities for
+ *  GFX_HW_CURSOR, but is easier to use in cases where you don't need Allegro's
+ *  software cursor even if no os cursor is available.
+ */
+int show_os_cursor(int cursor)
+{
+   if (!mouse_driver)
+      return -1;
+
+   gfx_capabilities &= ~(GFX_HW_CURSOR|GFX_SYSTEM_CURSOR);
+   if (cursor != MOUSE_CURSOR_NONE) {
+
+      if (mouse_driver->enable_hardware_cursor) {
+         mouse_driver->enable_hardware_cursor(TRUE);
+      }
+
+      /* default system cursor? */
+      if (cursor != MOUSE_CURSOR_ALLEGRO) {
+         if (mouse_driver->select_system_cursor) {
+            if (mouse_driver->select_system_cursor(cursor) != 0) {
+               gfx_capabilities |= (GFX_HW_CURSOR|GFX_SYSTEM_CURSOR);
+               return 0;
+            }
+         }
+         return -1;
+      }
+      else {
+         /* set custom hardware cursor */
+         if (gfx_driver) {
+            if (gfx_driver->set_mouse_sprite) {
+               if (gfx_driver->set_mouse_sprite(mouse_sprite, mouse_x_focus, mouse_y_focus))
+                  return -1;
+            }
+            if (gfx_driver->show_mouse) {
+               if (gfx_driver->show_mouse(screen, mouse_x, mouse_y))
+                  return -1;
+            }
+            gfx_capabilities |= GFX_HW_CURSOR;
+            return 0;
+         }
+      }
+   }
+   else {
+      if (gfx_driver && gfx_driver->hide_mouse)
+         gfx_driver->hide_mouse();
+   }
+
+   return -1;
+}
+
+
+
 /* show_mouse:
  *  Tells Allegro to display a mouse pointer. This only works when the timer 
  *  module is active. The mouse pointer will be drawn onto the bitmap bmp, 

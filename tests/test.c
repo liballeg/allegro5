@@ -4491,7 +4491,6 @@ int main(void)
    if (cpu_capabilities & CPU_ENH3DNOW)
       strcat(cpu_specs, " / Enh 3DNow!");
 
-
    cpu_has_capabilities = cpu_capabilities;
 
    install_keyboard();

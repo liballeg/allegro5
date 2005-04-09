@@ -5,6 +5,12 @@
 #  To path MSVC so it can be used from the commandline, run the
 #  vcvars32.bat file which can be found in your MSVC bin directory.
 #
+#  To use MSVC7 specific options, the variable COMPILER_MSVC7 must be set. The
+#  fix.bat script should do this automatically if run as `fix msvc7'
+#
+#  To use the Intel commandline compiler instead of the MSVC compiler,
+#  COMPILER_ICL must be set. Again, `fix icl' should take care of this.
+#
 #  This platform uses GCC for building the assembler sources and calculating
 #  source dependencies, so you'll need to have that installed in the form of
 #  DJGPP, MinGW or Cygwin.
@@ -120,6 +126,19 @@ endif
 
 
 
+# -------- Work out the absolute pathnames for some MSVC tools to avoid confusion --------
+
+ifdef COMPILER_ICL
+   MSVC_CL = icl
+else
+   MSVC_CL = $(MSVCDIR_U)/bin/cl
+endif
+MSVC_LINK = $(MSVCDIR_U)/bin/link
+MSVC_LIB = $(MSVCDIR_U)/bin/lib
+MSVC_RC = rc
+
+
+
 # -------- give a sensible default target for make without any args --------
 
 .PHONY: _default
@@ -163,10 +182,20 @@ else
 
 # -------- optimised build --------
 
-CFLAGS = $(WFLAGS) -Gd -O2 -GB $(RUNTIME_FLAGS)
+CFLAGS = $(WFLAGS) -Gd $(RUNTIME_FLAGS)
 SFLAGS = -Wall
 LFLAGS = -release
 LIBPARMS = 
+
+ifdef COMPILER_ICL
+   CFLAGS += -Os -G7 -QaxPN
+else
+   ifdef TARGET_ARCH_EXCL
+      CFLAGS += -O2 -G$(TARGET_ARCH_EXCL)
+   else
+      CFLAGS += -O2 -GB
+   endif
+endif
 
 ifdef COMPILER_MSVC7
    CFLAGS += -GL
@@ -290,7 +319,7 @@ ifdef STATICLINK
 # -------- link as a static library --------
 
 define MAKE_LIB
-   $(RUNNER) lib @ -nologo $(LIBPARMS) -out:$(LIB_NAME) $(OBJECTS)
+   $(RUNNER) $(MSVC_LIB) @ -nologo -out:$(LIB_NAME) $(OBJECTS)
 endef
 
 COMPILE_FLAGS = -DALLEGRO_STATICLINK 
@@ -300,7 +329,7 @@ else
 # -------- link as a DLL --------
 
 define MAKE_LIB
-   $(RUNNER) link @ -nologo $(LFLAGS) -dll -def:lib/msvc/allegro.def -out:$(DLL_NAME) -implib:$(IMPLIB_NAME) $(OBJECTS) $(LIBRARIES)
+   $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -dll -def:lib/msvc/allegro.def -out:$(DLL_NAME) -implib:$(IMPLIB_NAME) $(OBJECTS) $(LIBRARIES)
 endef
 
 endif
@@ -308,34 +337,34 @@ endif
 COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
 $(OBJ_DIR)/%.obj: %.c $(RUNNER)
-	$(RUNNER) cl @ -nologo $(COMPILE_FLAGS) -I. -I./include -Fo$@ -c $<
+	$(RUNNER) $(MSVC_CL) @ -nologo $(COMPILE_FLAGS) -I. -I./include -Fo$@ -c $<
 
 $(OBJ_DIR)/%.obj: %.cpp $(RUNNER)
-	$(RUNNER) cl @ -nologo $(COMPILE_FLAGS) -I. -I./include -Fo$@ -c $<
+	$(RUNNER) $(MSVC_CL) @ -nologo $(COMPILE_FLAGS) -I. -I./include -Fo$@ -c $<
 
 $(OBJ_DIR)/%.obj: %.s
 	$(GCC) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
 $(OBJ_DIR)/%.obj: %.rc
-	rc -i"include" -fo$@ $<
+	$(MSVC_RC) -i"include" -fo$@ $<
 
 obj/msvc/%.res: %.rc
-	rc -fo$@ $<
+	$(MSVC_RC) -fo$@ $<
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj obj/msvc/dibsound.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dibsound.exe $(OBJ_DIR)/dibsound.obj obj/msvc/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
+	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dibsound.exe $(OBJ_DIR)/dibsound.obj obj/msvc/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/dxwindow.exe: $(OBJ_DIR)/dxwindow.obj obj/msvc/dxwindow.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dxwindow.exe $(OBJ_DIR)/dxwindow.obj obj/msvc/dxwindow.res $(IMPLIB_NAME) $(LIBRARIES)
+	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dxwindow.exe $(OBJ_DIR)/dxwindow.obj obj/msvc/dxwindow.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
+	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj obj/msvc/scrsave.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/scrsave.scr $(OBJ_DIR)/scrsave.obj obj/msvc/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
+	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/scrsave.scr $(OBJ_DIR)/scrsave.obj obj/msvc/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tools/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
+	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 obj/msvc/demo.res: demo/demo.dat tools/win/wfixicon.exe
 ifdef STATICLINK
@@ -355,28 +384,28 @@ else
 endif
 
 demo/demo.exe: $(OBJ_DIR)/demo.obj obj/msvc/demo.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj obj/msvc/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj obj/msvc/demo.res $(IMPLIB_NAME) $(LIBRARIES)
 
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
+	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME) $(RUNNER)
 
 define LINK_CONSOLE
-   $(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
+   $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 endef
 
 obj/msvc/asmdef.inc: obj/msvc/asmdef.exe
 	obj/msvc/asmdef.exe obj/msvc/asmdef.inc
 
 obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/msvc/asmcapa.h $(RUNNER)
-	$(RUNNER) cl @ -nologo $(WFLAGS) -I. -I./include -Foobj/msvc/asmdef.obj -Feobj/msvc/asmdef.exe src/i386/asmdef.c
+	$(RUNNER) $(MSVC_CL) @ -nologo $(WFLAGS) -I. -I./include -Foobj/msvc/asmdef.obj -Feobj/msvc/asmdef.exe src/i386/asmdef.c
 
 obj/msvc/runner.exe: src/misc/runner.c
 	$(GCC) -O -Wall -Werror $(GCCFLAGS) -o obj/msvc/runner.exe src/misc/runner.c
 
 define LINK_WITHOUT_LIB
-   $(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $^
+   $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:console -out:$@ $^
 endef
 
 PLUGIN_LIB = lib/msvc/$(VERY_SHORT_VERSION)dat.lib
@@ -395,15 +424,15 @@ else
 endif
 
 define MAKE_PLUGIN_LIB
-   $(RUNNER) lib @ -nologo $(LIBPARMS) -out:$(PLUGIN_LIB) $(PLUGIN_OBJS)
+   $(RUNNER) $(MSVC_LIB) @ -nologo -out:$(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS
-   $(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 define LINK_CONSOLE_WITH_PLUGINS
-   $(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 

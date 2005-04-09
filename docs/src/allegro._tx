@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.1.19 (CVS)" "Allegro" "Allegro manual"
+@manh="version 4.2.0 (beta)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,12 +52,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.1.19 (CVS)
+				       \_/__/     Version 4.2.0 (beta)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Jan 24, 2005.
+	     By Shawn Hargreaves, Apr 01, 2005.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -780,10 +780,12 @@ available in past/future versions of Allegro.
    
 @@typedef struct @FONT
 @xref font
-@eref excustom, exunicod
+@eref excustom, exfont, exunicod
 @shortdesc Stores an Allegro font.
    A structure holding an Allegro font, usually created beforehand with the
-   grabber tool or Allegro's default font.
+   grabber tool or Allegro's default font. Read chapter "Fonts" for a
+   description on how to load/destroy fonts, and chapter "Text output" for a
+   description on how to show text.
 
 @@typedef struct BITMAP @ZBUFFER
 @xref Zbuffered rendering, BITMAP
@@ -826,17 +828,40 @@ available in past/future versions of Allegro.
 
 @@typedef struct @PACKFILE
 @xref File and compression routines, pack_fopen, pack_fopen_chunk
-@shortdesc Packfile structure, similar to a stdio.h FILE structure.
-<codeblock>
-   int hndl;                   - System file handle
-   int flags;                  - PACKFILE_FLAG_* constants
-   char *filename;             - name of the file
-<endblock>
-   A packfile structure, similar to a stdio.h FILE structure. Read chapter
+@xref pack_fopen_vtable
+@shortdesc Packfile structure, similar to the libc FILE structure.
+   A packfile structure, similar to the libc FILE structure. Read chapter
    "File and compression routines" for a description on how to obtain/use
-   this structure.
+   this structure. Note that prior to version 4.1.18, some internal fields have
+   accidently been documented - but PACKFILE should be treated as an opaque
+   structure, just like the libc FILE type.
 
-   
+@@typedef struct @PACKFILE_VTABLE
+@xref File and compression routines, pack_fopen_vtable
+@shortdesc Packfile vtable structure, for custom packfiles.
+<codeblock>
+   int pf_fclose(void *userdata);
+   int pf_getc(void *userdata);
+   int pf_ungetc(int c, void *userdata);
+   long pf_fread(void *p, long n, void *userdata);
+   int pf_putc(int c, void *userdata);
+   long pf_fwrite(AL_CONST void *p, long n, void *userdata);
+   int pf_fseek(void *userdata, int offset);
+   int pf_feof(void *userdata);
+   int pf_ferror(void *userdata);
+<endblock>
+   This is the vtable which must be provided for custom packfiles, which then
+   can read from and write to wherever you like.
+
+@@typedef struct @LZSS_PACK_DATA
+@xref File and compression routines, create_lzss_pack_data
+@shortdesc Opaque structure for handling LZSS comression.
+   Opaque structure for handling LZSS comression.
+
+@@typedef struct @LZSS_UNPACK_DATA
+@xref File and compression routines, create_lzss_unpack_data
+@shortdesc Opaque structure for handling LZSS decomression.
+   Opaque structure for handling LZSS decomression.
 
 @heading
 Unicode routines
@@ -2404,19 +2429,21 @@ Standard Allegro cursor<br>
 <li>
 Custom operating system cursor (hardware cursor)<br>
    Allegro will let the operating system draw the mouse cursor. Use
-   set_mouse_sprite() and show_mouse() to define your own cursor and display
-   it on the screen. Not all graphics drivers are capable of this and some
-   may only be able to display cursors upto a certain size. Allegro will fall
-   back on its own cursor drawing if it cannot let the OS handle this. On some
-   platforms, the hardware cursor is incompatible with get_mouse_mickeys()
-   and it is therefor disabled by default. In such cases you need to call
-   enable_hardware_cursor() to enable it explicitly.
+   set_mouse_sprite() and show_mouse() (or show_os_cursor) to define your
+   own cursor and display it on the screen. Not all graphics drivers are
+   capable of this and some may only be able to display cursors upto a
+   certain size. Allegro will fall back on its own cursor drawing if it
+   cannot let the OS handle this. On some platforms, the hardware cursor
+   is incompatible with get_mouse_mickeys() and it is therefor disabled by
+   default. In such cases you need to call enable_hardware_cursor() to
+   enable it explicitly.
 <li>
 Default operating system cursor<br>
    Allegro will not draw its own cursor, but use the operating system default
    cursor. You can use the select_mouse_cursor() function to select the cursor
    shape to display. As with custom operating system cursors, you need to call 
-   enable_hardware_cursor() before you can use this.
+   enable_hardware_cursor() before you can use this. Or you can use the
+   low level show_os_cursor() function.
 </ul>
 Not all drivers will support all functionality. See the platform specific
 information for more details.
@@ -2474,7 +2501,8 @@ information for more details.
 
 @@void @enable_hardware_cursor(void);
 @xref install_mouse, show_mouse, set_mouse_sprite, get_mouse_mickeys
-@xref gfx_capabilities, disable_hardware_cursor
+@xref gfx_capabilities, disable_hardware_cursor, show_os_cursor
+@eref exsyscur
 @shortdesc Enables the OS hardware cursor.
    After calling this function, Allegro will let the operating system draw the
    mouse cursor instead of doing it itself. This is not possible with all
@@ -2496,7 +2524,8 @@ information for more details.
 
 @@void @select_mouse_cursor(int cursor);
 @xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities
-@xref enable_hardware_cursor, set_mouse_cursor_bitmap
+@xref enable_hardware_cursor, set_mouse_cursor_bitmap, show_os_cursor
+@eref exsyscur
 @shortdesc Tells Allegro to select software or hardware cursor drawing.
    This function allows you to use the operating system's native mouse
    cursors rather than some custom cursor. You will need to enable this
@@ -2553,7 +2582,7 @@ information for more details.
 
 @@void @set_mouse_cursor_bitmap(int cursor, BITMAP *bmp);
 @xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities
-@xref enable_hardware_cursor
+@xref enable_hardware_cursor, show_os_cursor
 @shortdesc Changes the image Allegro uses for mouse cursors.
    This function changes the cursor image Allegro uses if
    select_mouse_cursor() is called but no native operating system cursor
@@ -2629,8 +2658,8 @@ information for more details.
 
 @@void @show_mouse(BITMAP *bmp);
 @xref install_mouse, install_timer, set_mouse_sprite, scare_mouse
-@xref freeze_mouse_flag
-@eref exmouse, expal, exshade, exspline
+@xref freeze_mouse_flag, show_os_cursor
+@eref exmouse, expal, exshade, exspline, exsyscur
 @shortdesc Tells Allegro to display a mouse pointer on the screen.
    Tells Allegro to display a mouse pointer on the screen. This will only 
    work if the timer module has been installed. The mouse pointer will be 
@@ -2668,6 +2697,34 @@ information for more details.
 @shortdesc Undoes the effect of scare_mouse() or scare_mouse_area().
    Undoes the effect of a previous call to scare_mouse() or 
    scare_mouse_area(), restoring the original pointer state.
+
+@@int @show_os_cursor(int cursor);
+@xref show_mouse, set_mouse_cursor_bitmap, select_mouse_cursor
+@shortdesc Low level function to display the operating system cursor.
+   In case you do not need Allegro's mouse cursor API, which automatically
+   emulates a cursor in software if no other cursor is available, you can
+   use this low level function to try to display or hide the system cursor
+   directly. The cursor parameter takes the same values as
+   select_mouse_cursor. This function is very similar to calling
+   enable_hardware_cursor, select_mouse_cursor and show_mouse, but will
+   not try to do anything if no system cursor is available.
+
+   The most common use for this function is to just call it once at the
+   beginning of the program to tell it to display the system cursor inside
+   the Allegro window. The return value can be used to see if this
+   suceeded or not. On some systems (e.g. DirectX fullscreen) this is not
+   supported and the function will always fail, and in other cases only
+   some of the cursors will work, or in the case of MOUSE_CURSOR_ALLEGRO,
+   only certain bitmap sizes may be supported.
+
+   You never should use show_os_cursor together with the function
+   show_mouse and other functions affecting it (select_mouse_cursor,
+   enable_hardware_cursor, disable_hardware_cursor, scare_mouse,
+   unscare_mouse). They implement the standard high level mouse API, and
+   don't work together with this low level function.
+@retval
+   Returns 0 if a system cursor is being displayed after the function
+   returns, or -1 otherwise.
 
 @@extern volatile int @freeze_mouse_flag;
 @xref show_mouse
@@ -2807,7 +2864,7 @@ Allegro does not provide such devices.)
 
 @@int @install_int_ex(void (*proc)(), int speed);
 @xref install_timer, remove_int, install_int, install_param_int_ex
-@eref excamera, exsprite, extimer, exupdate
+@eref excamera, exsprite, extimer, exunicod, exupdate
 @shortdesc Adds or modifies a timer.
    Adds a function to the list of user timer handlers or, if it is already 
    installed, retroactively adjusts its speed (i.e makes as though the speed
@@ -2876,17 +2933,25 @@ Allegro does not provide such devices.)
 @xref install_int, install_int_ex
 @eref exscn3d, exsprite, exswitch, extimer, exupdate, exzbuf
 @shortdesc Locks the memory of a variable used by a timer.
-   Due to interrupts/threading, you are required to lock all the memory used
-   by your timer routines. See the description of install_int_ex() for a
-   more detailed explanation and usage example.
+   Due to interrupts, you are required to lock all the memory used by your
+   timer routines. See the description of install_int_ex() for a more
+   detailed explanation and usage example.
+   
+@@Macro @LOCK_FUNCTION(function_name);
+@xref install_int, install_int_ex
+@eref exkeys, exscn3d, exsprite, exswitch, extimer, exupdate, exzbuf
+@shortdesc Locks the memory of a function used by a timer.
+   Due to interrupts, you are required to lock all the memory used by your
+   timer routines. See the description of install_int_ex() for a more
+   detailed explanation and usage example.
    
 @@Macro @END_OF_FUNCTION(function_name);
 @xref install_int, install_int_ex
 @eref exkeys, exscn3d, exsprite, exswitch, extimer, exupdate, exzbuf
 @shortdesc Locks the code used by a timer.
-   Due to interrupts/threading, you are required to lock all the code used
-   by your timer routines. See the description of install_int_ex() for a
-   more detailed explanation and usage example.
+   Due to interrupts, you are required to lock all the code used by your
+   timer routines. See the description of install_int_ex() for a more
+   detailed explanation and usage example.
    
 @@void @remove_int(void (*proc)());
 @xref install_int, install_int_ex, remove_param_int
@@ -2929,7 +2994,8 @@ Allegro does not provide such devices.)
 @@void @rest(unsigned int time);
 @xref install_timer, rest_callback
 @xref vsync, d_yield_proc
-@eref exkeys, exquat, exsample, exsprite, extimer, exunicod
+@eref exkeys, exmidi, exquat, exsample, exsprite, exsyscur, extimer
+@eref exunicod
 @shortdesc Waits a specified number of milliseconds.
    This function waits for the specified number of milliseconds.
 
@@ -3109,6 +3175,11 @@ routines" for more information about this.
       KEY_SCRLOCK, KEY_NUMLOCK, KEY_CAPSLOCK
 
       KEY_EQUALS_PAD, KEY_BACKQUOTE, KEY_SEMICOLON, KEY_COMMAND<endblock>
+
+   Finally, you may notice an `odd' behaviour of the KEY_PAUSE key. This key
+   only generates an interrupt when it is pressed, not when it is released.
+   For this reason, Allegro pretends the pause key is a `state' key, which
+   is the only way to make it usable.
 
 @@extern volatile int @key_shifts;
 @xref install_keyboard, poll_keyboard, key
@@ -4043,7 +4114,7 @@ GFX_SAFE:<br>
 @@extern int @gfx_capabilities;
 @xref screen, create_video_bitmap, scroll_screen, request_scroll, show_mouse
 @xref enable_triple_buffer
-@eref ex3buf, exaccel, exupdate
+@eref ex3buf, exaccel, exsyscur, exupdate
 @shortdesc Bitfield describing video hardware capabilities.
    Bitfield describing the capabilities of the current graphics driver and 
    video hardware. This may contain combination any of the flags:
@@ -4519,7 +4590,7 @@ Allegro supports several different types of bitmaps:
 @xref create_bitmap, create_bitmap_ex, create_video_bitmap
 @xref create_sub_bitmap, destroy_bitmap, is_system_bitmap
 @xref clear_bitmap, clear_to_color
-@eref exunicod, exupdate
+@eref exupdate
 @shortdesc Creates a system memory bitmap.
    Allocates a system memory bitmap of the specified size. Read the
    introduction of this chapter for a comparison with other types of bitmaps
@@ -4656,15 +4727,13 @@ Allegro supports several different types of bitmaps:
 
 @@void @acquire_screen();
 @xref acquire_bitmap, release_bitmap, release_screen
-@eref exdbuf, exflame, exhello, exkeys, exmem, exmouse, expal, exspline
-@eref exswitch, extruec
+@eref Available Allegro examples
 @shortdesc Shortcut of acquire_bitmap(screen);
    Shortcut version of acquire_bitmap(screen);
 
 @@void @release_screen();
 @xref acquire_bitmap, release_bitmap, acquire_screen
-@eref exdbuf, exflame, exhello, exkeys, exmem, exmouse, expal, exspline
-@eref exswitch, extruec
+@eref Available Allegro examples
 @shortdesc Shortcut of release_bitmap(screen);
    Shortcut version of release_bitmap(screen);
 
@@ -4779,13 +4848,18 @@ will not be known, so the file may be converted wrongly.
    avoid memory leaks.
 
 @@BITMAP *@load_bmp(const char *filename, RGB *pal);
-@xref load_bitmap
+@xref load_bitmap, load_bmp_pf
 @shortdesc Loads a BMP bitmap from a file.
    Loads a 256-color or 24-bit truecolor Windows or OS/2 BMP file.
 @retval
    Returns a pointer to the bitmap or NULL on error. Remember that you are
    responsible for destroying the bitmap when you are finished with it to
    avoid memory leaks.
+
+@@BITMAP *@load_bmp_pf(PACKFILE *f, RGB *pal);
+@xref load_bmp
+@shortdesc Packfile version of load_bmp.
+   A version of load_bmp which reads from a packfile.
 
 @@BITMAP *@load_lbm(const char *filename, RGB *pal);
 @xref load_bitmap
@@ -4806,6 +4880,11 @@ will not be known, so the file may be converted wrongly.
    responsible for destroying the bitmap when you are finished with it to
    avoid memory leaks.
 
+@@BITMAP *@load_pcx_pf(PACKFILE *f, RGB *pal);
+@xref load_pcx
+@shortdesc Packfile version of load_pcx.
+   A version of load_pcx which reads from a packfile.
+
 @@BITMAP *@load_tga(const char *filename, RGB *pal);
 @xref load_bitmap
 @shortdesc Loads a TGA bitmap from a file.
@@ -4815,6 +4894,11 @@ will not be known, so the file may be converted wrongly.
    Returns a pointer to the bitmap or NULL on error. Remember that you are
    responsible for destroying the bitmap when you are finished with it to
    avoid memory leaks.
+
+@@BITMAP *@load_tga_pf(PACKFILE *f, RGB *pal);
+@xref load_tga
+@shortdesc Packfile version of load_tga.
+   A version of load_tga which reads from a packfile.
 
 @@int @save_bitmap(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bmp, save_pcx, save_tga, load_bitmap, register_bitmap_file_type
@@ -4848,12 +4932,22 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
+@@BITMAP *@save_bmp_pf(PACKFILE *f, RGB *pal);
+@xref save_bmp
+@shortdesc Packfile version of save_bmp.
+   A version of save_bmp which writes to a packfile.
+
 @@int @save_pcx(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
 @shortdesc Saves a bitmap into a PCX file.
    Writes a bitmap into a 256-color or 24-bit truecolor PCX file.
 @retval
    Returns non-zero on error.
+
+@@BITMAP *@save_pcx_pf(PACKFILE *f, RGB *pal);
+@xref save_pcx
+@shortdesc Packfile version of save_pcx.
+   A version of save_pcx which writes to a packfile.
 
 @@int @save_tga (const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
@@ -4862,6 +4956,11 @@ will not be known, so the file may be converted wrongly.
    32-bit truecolor+alpha TGA file.
 @retval
    Returns non-zero on error.
+
+@@BITMAP *@save_tga_pf(PACKFILE *f, RGB *pal);
+@xref save_tga
+@shortdesc Packfile version of save_tga.
+   A version of save_tga which writes to a packfile.
 
 @\void @register_bitmap_file_type(const char *ext,
 @\          BITMAP *(*load)(const char *filename, RGB *pal),
@@ -5613,8 +5712,8 @@ and they, as well as lengths, are specified in pixel units.
 
 @@void @rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 @xref rect, clear_bitmap, drawing_mode, makecol
-@eref exalpha, excolmap, exkeys, expat, exscroll, exsprite, exstars
-@eref exswitch, extrans
+@eref exalpha, excolmap, exkeys, exmidi, expat, exscroll, exsprite
+@eref exstars, exswitch, extrans
 @shortdesc Draws a solid filled rectangle.
    Draws a solid, filled rectangle with the two points as its opposite 
    corners.
@@ -6078,7 +6177,7 @@ clipping rectangle of the destination bitmap.
       else
 	 set_trans_blender(40, 40, 255, 255);
 
-      /* Lit the cape with a bluish light. */
+      /* Lit the cape with a blueish light. */
       draw_lit_sprite(buffer, colored_cape, x, y);<endblock>
 
 @\void @draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
@@ -6120,7 +6219,13 @@ clipping rectangle of the destination bitmap.
    pixels to the specified color. Transparent pixels are marked by a zero
    in 256-color modes or bright pink for truecolor data (maximum red and
    blue, zero green). The sprite must be an 8-bit image, even if the
-   destination is a truecolor bitmap.
+   destination is a truecolor bitmap. Example:
+<codeblock>
+      BITMAP *logo;
+      ...
+      /* Draw the logo silhouette in red. */
+      draw_character_ex(screen, logo, SCREEN_W / 2, SCREEN_H / 2,
+			makecol(255, 0, 0), -1);<endblock>
 
 @@void @rotate_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
 @xref draw_sprite, rotate_scaled_sprite, rotate_sprite_v_flip
@@ -6236,21 +6341,46 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
 @xref draw_rle_sprite, destroy_rle_sprite
 @shortdesc Creates an RLE sprite using a bitmap as source.
    Creates an RLE sprite based on the specified bitmap (which must be a 
-   memory bitmap).
+   memory bitmap). Remember to free this RLE sprite later to avoid memory
+   leaks. Example:
+<codeblock>
+      RLE_SPRITE *rle;
+      BITMAP *bmp;
+      ...
+      /* Create RLE sprite from an existent bitmap. */
+      rle = get_rle_sprite(bmp);
+      if (!rle)
+	 abort_on_error("Couldn't create RLE sprite!");
+         
+      /* We don't need the bitmap any more.*/
+      destroy_bitmap(bmp);
+      
+      /* Use the RLE sprite. */
+      ...
+      /* Destroy it when we don't need it any more. */
+      destroy_rle_sprite(rle);<endblock>
+@retval
+   Returns a pointer to the created RLE sprite, or NULL if the RLE sprite
+   could not be created. Remember to free this RLE sprite later to avoid
+   memory leaks.
 
 @@void @destroy_rle_sprite(RLE_SPRITE *sprite);
 @xref get_rle_sprite
 @shortdesc Destroys an RLE sprite.
    Destroys an RLE sprite structure previously returned by get_rle_sprite().
-   Use this once you are done with an RLE sprite to avoid memory leaks in
-   your program.
+   If you pass a NULL pointer this function won't do anything. Use this once
+   you are done with an RLE sprite to avoid memory leaks in your program.
 
 @\void @draw_rle_sprite(BITMAP *bmp, const RLE_SPRITE *sprite,
 @@                     int x, int y);
 @xref get_rle_sprite, draw_sprite, draw_compiled_sprite
 @xref draw_trans_rle_sprite, draw_lit_rle_sprite, bitmap_mask_color
 @shortdesc Draws an RLE sprite.
-   Draws an RLE sprite onto a bitmap at the specified position.
+   Draws an RLE sprite onto a bitmap at the specified position. Example:
+<codeblock>
+      RLE_SPRITE *rle_sprite;
+      ...
+      draw_rle_sprite(screen, rle_sprite, 100, 100);<endblock>
 
 @\void @draw_trans_rle_sprite(BITMAP *bmp, const RLE_SPRITE *sprite,
 @@                           int x, int y);
@@ -6263,7 +6393,19 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
    truecolor modes). The bitmap and sprite must normally be in the same 
    color depth, but as a special case you can draw 32-bit RGBA format 
    sprites onto any hicolor or truecolor bitmap, as long as you call 
-   set_alpha_blender() first.
+   set_alpha_blender() first. Example:
+<codeblock>
+      /* Some one time initialisation code. */
+      COLOR_MAP global_trans_table;
+      create_trans_table(&global_trans_table, my_palette,
+			 128, 128, 128, NULL);
+      ...
+      if (bitmap_color_depth(screen) == 8)
+	 color_map = &global_trans_table;
+      else
+	 set_trans_blender(128, 128, 128, 128);
+
+      draw_trans_rle_sprite(buffer, rle_ghost_sprite, x, y);<endblock>
 
 @\void @draw_lit_rle_sprite(BITMAP *bmp, const RLE_SPRITE *sprite,
 @@                         int x, y, color);
@@ -6273,7 +6415,20 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
    Tinted version of draw_rle_sprite(). See the description of
    draw_lit_sprite(). This must only be used after you have set up the color 
    mapping table (for 256-color modes) or blender functions (for truecolor 
-   modes).
+   modes). Example:
+<codeblock>
+      /* Some one time initialisation code. */
+      COLOR_MAP global_light_table;
+      create_light_table(&global_trans_table, my_palette,
+			 10, 10, 60, NULL);
+      ...
+      if (bitmap_color_depth(screen) == 8)
+	 color_map = &global_light_table;
+      else
+	 set_trans_blender(40, 40, 255, 255);
+
+      /* Lit the cape with a blueish light. */
+      draw_lit_rle_sprite(buffer, rle_colored_cape, x, y);<endblock>
 
 
 
@@ -6303,14 +6458,34 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
    specify whether to compile it into a linear or planar format. Pass FALSE
    as the second parameter if you are going to be drawing it onto memory 
    bitmaps or mode 13h and SVGA screen bitmaps, and pass TRUE if you are 
-   going to draw it onto mode-X or Xtended mode screen bitmaps.
+   going to draw it onto mode-X or Xtended mode screen bitmaps. Example:
+      COMPILED_SPRITE *cspr;
+      BITMAP *bmp;
+      ...
+      /* Create compiled sprite from an existent bitmap. */
+      cspr = get_compiled_sprite(bmp, 0);
+      if (!cspr)
+         abort_on_error("Couldn't create compiled sprite!");
+      
+      /* We don't need the bitmap any more.*/
+      destroy_bitmap(bmp);
+      
+      /* Use the compiled sprite. */
+      ...
+      /* Destroy it when we don't need it any more. */
+      destroy_compiled_sprite(cspr);
+   
+   Returns a pointer to the created compiled sprite, or NULL if the compiled
+   sprite could not be created. Remember to free this compiled sprite later
+   to avoid memory leaks.
 
 @@void @destroy_compiled_sprite(COMPILED_SPRITE *sprite);
 @xref get_compiled_sprite
 @shortdesc Destroys a compiled sprite.
    Destroys a compiled sprite structure previously returned by 
-   get_compiled_sprite(). Use this once you are done with a compiled sprite
-   to avoid memory leaks in your program.
+   get_compiled_sprite(). If you pass a NULL pointer this function won't do
+   anything. Use this once you are done with a compiled sprite to avoid
+   memory leaks in your program.
 
 @\void @draw_compiled_sprite(BITMAP *bmp, const COMPILED_SPRITE *sprite,
 @@                          int x, int y);
@@ -6337,7 +6512,11 @@ multiple-range Unicode font by writing a .txt script that specifies a number
 of different source files for each range of characters.
 
 By default, Allegro can only use bitmapped (non-scalable) fonts. If you want
-to use TrueType fonts, you will need to use an add-on library.
+to use TrueType fonts, you will need to use an add-on library which allows
+you to load them on the fly (like AllegTTF or Glyph Keeper, listed among
+others at <link>http://www.allegro.cc/</a>) and render them directly, or generate a
+bitmapped version of a TrueType font with tools like TTF2PCX
+(<link>http://www.talula.demon.co.uk/ttf2pcx/index.html</a>).
 
 @\void @register_font_file_type(const char *ext,
 @@          FONT *(*load)(const char *filename, RGB *pal, void *param));
@@ -6362,6 +6541,8 @@ to use TrueType fonts, you will need to use an add-on library.
 @@FONT *@load_font(const char *filename, RGB *pal, void *param);
 @xref register_font_file_type, load_bitmap, load_dat_font, load_bios_font
 @xref load_grx_font, load_grx_or_bios_font, load_bitmap_font, load_txt_font
+@xref destroy_font
+@eref exfont
 @shortdesc Loads a font from a file.
    Loads a font from a file. At present, this supports loading fonts from
    a GRX format .fnt file, a 8x8 or 8x16 BIOS format .fnt file or any bitmap
@@ -6373,7 +6554,9 @@ to use TrueType fonts, you will need to use an add-on library.
    if present, is simply not returned.
    
    The third parameter can be used to pass specific information to a custom
-   loader routine. Normally, you can just leave this as NULL.
+   loader routine. Normally, you can just leave this as NULL. Note that
+   another way of loading fonts is embedding them into a datafile and using
+   the datafile related functions.
 
    Example:
 <codeblock>
@@ -6393,28 +6576,36 @@ to use TrueType fonts, you will need to use an add-on library.
    responsible for destroying the font when you are finished with it to
    avoid memory leaks.
 
+@@void @destroy_font(FONT *f);
+@xref load_datafile_object, load_font
+@eref exfont
+@shortdesc Frees the memory being used by a font structure.
+   Frees the memory being used by a font structure. Don't use this on the
+   default global Allegro font or any text routines using it could crash. You
+   should use this only on fonts you have loaded manually after you are done
+   with them, to prevent memory leaks in your program.
+
 @@int @is_color_font(FONT *f)
 @xref is_mono_font
 @shortdesc Returns TRUE if a font is a color font.
-   This function returns TRUE if the font is an Allegro color font (as
-   opposed to a monochrome font).
+   This function checks if the given font is a color font, as opposed to a
+   monochrome font.
 @retval
    Returns TRUE if the font is a color font, FALSE if it is not.
 
 @@int @is_mono_font(FONT *f)
 @xref is_color_font
 @shortdesc Returns TRUE if a font is a monochrome font.
-   This function returns TRUE if the font is an Allegro monochrome font (as
-   opposed to a color font).
+   This function checks if the given font is a mono font, as opposed to a
+   color font.
 @retval
    Returns TRUE if the font is a monochrome font, FALSE if it is not.
 
 @@FONT *@is_compatible_font(FONT *f1, FONT *f2)
 @xref merge_fonts, is_color_font, is_mono_font
 @shortdesc Check if two fonts are of the same type.
-   This function compares the two fonts. If it returns TRUE, then you should
-   normally be able to merge the two fonts. If it returns FALSE, this is less
-   certain.
+   This function compares the two fonts, which you can use to find out if
+   Allegro is capable of merging them.
 @retval
    Returns TRUE if the two fonts are of the same general type (both are color
    fonts or both are monochrome fonts, for instance).
@@ -6422,8 +6613,8 @@ to use TrueType fonts, you will need to use an add-on library.
 @@int @get_font_ranges(FONT *f)
 @xref get_font_range_begin, get_font_range_end, transpose_font
 @shortdesc Returns the number of character ranges in a font.
-   This function returns the number of character ranges in a font. You should
-   query each of these ranges with get_font_range_begin() and
+   Use this function to find out the number of character ranges in a font. You
+   should query each of these ranges with get_font_range_begin() and
    get_font_range_end() to find out what characters are available in the
    font. Example:
 <codeblock>
@@ -6434,10 +6625,10 @@ to use TrueType fonts, you will need to use an add-on library.
       
       range = get_font_ranges(f);
       printf("The font has %d character ranges:\n", range);
-      for (n=0; n<range; n++)
-         printf("Range %d from 0x%03x - 0x%03x\n",
-               get_font_range_begin(f, n), get_font_range_end(f, n));
-      <endblock>
+      for (n = 0; n &lt range; n++)
+	 printf("Range %d from 0x%03x - 0x%03x\n",
+		get_font_range_begin(f, n),
+		get_font_range_end(f, n));<endblock>
 @retval
    Returns the number of continuous character ranges in a font, or -1 if that
    information is not available.
@@ -6445,15 +6636,15 @@ to use TrueType fonts, you will need to use an add-on library.
 @@int @get_font_range_begin(FONT *f, int range)
 @xref get_font_ranges, get_font_range_end, transpose_font
 @shortdesc Returns the start of a character range in a font.
-   This function returns the start of the character range for the font f, or
-   -1 if that information is not available for the selected font. You can pass
-   -1 for the range parameter if you want to know the start of the whole font
-   range, or a number from 0 to (but not including) get_font_ranges(f) to get
-   the start of a specific character range in the font. Example:
+   This function allows you to find out the start of a specific character
+   range for a font. You can pass -1 for the `range' parameter if you want to
+   know the start of the whole font range, or a number from 0 to (but not
+   including) get_font_ranges(f) to get the start of a specific character
+   range in the font. Example:
 <codeblock>
       printf("The font has a character range of %d - %d\n",
-             get_font_range_begin(font, -1), get_font_range_end(font, -1));
-      <endblock>
+	     get_font_range_begin(font, -1),
+	     get_font_range_end(font, -1));<endblock>
 @retval
    Returns the first character in the font range, or -1 if that information
    is not available.
@@ -6461,24 +6652,25 @@ to use TrueType fonts, you will need to use an add-on library.
 @@int @get_font_range_end(FONT *f, int range)
 @xref get_font_ranges, get_font_range_begin, transpose_font
 @shortdesc Returns the last character of a character range in a font.
-   This function returns the last character of the character range for the
-   font f. You can pass -1 for the range parameter if you want to know the
-   start of the whole font range, or a number from 0 to (but not including)
-   get_font_ranges(f) to get the start of a specific character range in the
-   font. You should check the start and end of all font ranges to see if a
-   specific character is actually available in the font. Not all characters in 
-   the range returned by get_font_range_begin(f, -1) and 
+   This function allows you to find out the index to the last character of a
+   character range for a font. You can pass -1 for the range parameter if you
+   want to know the start of the whole font range, or a number from 0 to (but
+   not including) get_font_ranges(f) to get the start of a specific character
+   range in the font. You should check the start and end of all font ranges to
+   see if a specific character is actually available in the font. Not all
+   characters in the range returned by get_font_range_begin(f, -1) and
    get_font_range_end(f, -1) need to be available! Example:
 <codeblock>
       printf("The font has a character range of %d - %d\n",
-             get_font_range_begin(font, -1), get_font_range_end(font, -1));
-      <endblock>
+	     get_font_range_begin(font, -1),
+	     get_font_range_end(font, -1));<endblock>
 @retval
    Returns the last character in the font range, or -1 if that information is
    not available.
 
 @@FONT *@extract_font_range(FONT *f, int begin, int end)
 @xref get_font_range_begin, get_font_range_end, merge_fonts, transpose_font
+@eref exfont
 @shortdesc Extracts a range of characters from a font.
    This function extracts a character range from a font and returns a new font
    that contains only the range of characters selected by this function. You
@@ -6495,7 +6687,9 @@ to use TrueType fonts, you will need to use an add-on library.
 
       /* Create a copy of the font */
       fontcopy = extract_font_range(myfont, -1, -1);
-      <endblock>
+      ...
+      destroy_font(capitals);
+      destroy_font(fontcopy);<endblock>
 @retval
    Returns a pointer to the new font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
@@ -6516,13 +6710,14 @@ to use TrueType fonts, you will need to use an add-on library.
       /* Now transpose the characters in the font so that they will be used */
       /*  for the lower case letters a-z */
       transpose_font(capitals, 'a'-'A');
-      textout_ex(screen, capitals, "allcaps", 100, 100, makecol(255,255,255), 0);
-      <endblock>
+      textout_ex(screen, capitals, "allcaps",
+		 100, 100, makecol(255,255,255), 0);<endblock>
 @retval
    Returns 0 on success, -1 on failure.
 
 @@FONT *@merge_fonts(FONT *f1, FONT *f2)
 @xref extract_font_range, is_color_font, is_mono_font
+@eref exfont
 @shortdesc Merges two fonts into one font.
    This function merges the character ranges from two fonts and returns a new
    font containing all characters in the old fonts. In general, you cannot
@@ -6644,6 +6839,7 @@ to use TrueType fonts, you will need to use an add-on library.
 
 @@FONT *@load_bitmap_font(const char *filename, RGB *pal, void *param)
 @xref register_font_file_type, load_font, load_bitmap, set_color_depth
+@xref grab_font_from_bitmap
 @shortdesc Grabs a font from a bitmap file.
    Tries to grab a font from a bitmap. The bitmap can be in any format that
    load_bitmap understands but it must have a color depth of 8 bits.
@@ -6661,6 +6857,18 @@ to use TrueType fonts, you will need to use an add-on library.
    the `demo.dat' file and export the TITLE_FONT into a PCX file. Have a look
    at the resulting picture in your paint program: that is the format a font
    should be in.
+@retval
+   Returns a pointer to the font or NULL on error. Remember that you are
+   responsible for destroying the font when you are finished with it to
+   avoid memory leaks.
+
+@@FONT *@grab_font_from_bitmap(BITMAP *bmp)
+@xref load_bitmap_font
+@shortdesc Grabs a font from a bitmap
+   This function is the work-horse of load_bitmap_font, and can be used to
+   grab a font from a bitmap in memory. You can use this if you want to
+   generate or modify a font at runtime. The bitmap should follow the layout
+   described for load_bitmap_font.
 @retval
    Returns a pointer to the font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
@@ -6723,24 +6931,15 @@ allegro/text.h for details.
 
 @@int @text_length(const FONT *f, const char *str);
 @xref text_height
-@eref ex12bit, expat, exunicod
+@eref ex12bit, exmidi, expat, exunicod
 @shortdesc Returns the length of a string in pixels.
    Returns the length (in pixels) of a string in the specified font.
 
 @@int @text_height(const FONT *f)
 @xref text_length
-@eref ex12bit, expat, exsprite, exunicod
+@eref ex12bit, exmidi, expat, exsprite, exsyscur, exunicod
 @shortdesc Returns the height of a font in pixels.
    Returns the height (in pixels) of the specified font.
-
-@@void @destroy_font(FONT *f);
-@xref load_datafile_object
-@shortdesc Frees the memory being used by a font structure.
-   Frees the memory being used by a font structure. Don't use this on the
-   default global Allegro font or any text routines using it could crash. You
-   should use this only on fonts you have loaded manually from a datafile
-   with load_datafile_object after you are done with them, to prevent memory
-   leaks in your program.
 
 @\void @textout_ex(BITMAP *bmp, const FONT *f, const char *s,
 @@                int x, y, color, bg);
@@ -6758,8 +6957,7 @@ allegro/text.h for details.
 @\void @textout_centre_ex(BITMAP *bmp, const FONT *f, const char *s,
 @@                       int x, y, color, bg);
 @xref textout_ex, textprintf_centre_ex
-@eref excolmap, exconfig, exhello, exjoy, exmouse, exspline, exsprite
-@eref exstars, exswitch, extruec
+@eref Available Allegro examples
 @shortdesc Writes a centered string on a bitmap.
    Like textout_ex(), but interprets the x coordinate as the centre rather
    than the left edge of the string.
@@ -8230,10 +8428,20 @@ Digital sample routines
 @shortdesc Loads a sample from a RIFF WAV file.
    Loads a sample from a RIFF WAV file.
 
+@@BITMAP *@load_wav_pf(PACKFILE *f);
+@xref load_wav
+@shortdesc Packfile version of load_wav.
+   A version of load_wav which reads from a packfile.
+
 @@SAMPLE *@load_voc(const char *filename);
 @xref load_sample, register_sample_file_type
 @shortdesc Loads a sample from a Creative Labs VOC file.
    Loads a sample from a Creative Labs VOC file.
+
+@@BITMAP *@load_voc_pf(PACKFILE *f);
+@xref load_voc
+@shortdesc Packfile version of load_voc.
+   A version of load_voc which reads from a packfile.
 
 @@int @save_sample(const char *filename, SAMPLE *spl);
 @xref load_sample, register_sample_file_type
@@ -8521,7 +8729,7 @@ sample structure:
 Music routines (MIDI)
 
 @@MIDI *@load_midi(const char *filename);
-@xref destroy_midi, play_midi
+@xref destroy_midi, play_midi, get_midi_length
 @eref exdodgy, exmidi
 @shortdesc Loads a MIDI file.
    Loads a MIDI file (handles both format 0 and format 1), returning a 
@@ -8544,7 +8752,7 @@ Music routines (MIDI)
 
 @@int @play_midi(MIDI *midi, int loop);
 @xref install_sound, load_midi, play_looped_midi, stop_midi, midi_pause
-@xref midi_seek, midi_pos, midi_msg_callback
+@xref midi_seek, midi_pos, midi_time, midi_msg_callback
 @eref exdodgy, exmidi
 @shortdesc Starts playing the specified MIDI file.
    Starts playing the specified MIDI file, first stopping whatever music was 
@@ -8573,11 +8781,13 @@ Music routines (MIDI)
 
 @@void @midi_pause();
 @xref play_midi, stop_midi, midi_resume, midi_seek
+@eref exmidi
 @shortdesc Pauses the MIDI player.
    Pauses the MIDI player.
 
 @@void @midi_resume();
 @xref midi_pause
+@eref exmidi
 @shortdesc Resumes playback of a paused MIDI file.
    Resumes playback of a paused MIDI file.
 
@@ -8592,6 +8802,28 @@ Music routines (MIDI)
    negative length of the MIDI file (so you can use this function to
    determine the length of a MIDI file). A return value of 2 means the MIDI
    file looped back to the start.
+
+@@int @get_midi_length(MIDI *midi);
+@xref load_midi, midi_time, midi_pos
+@eref exmidi
+@shortdesc Determines the total playing time of a midi, in seconds.
+   This function will simulate playing the given MIDI, from start to end, to
+   determine how long it takes to play. After calling this function, midi_pos
+   will contain the negative number of beats, and midi_time the length of the
+   midi, in seconds. This length also is returned.
+
+   Note that any currently playing midi is stopped when you call this function.
+   Usually you would call it before play_midi, to get the length of the midi to
+   be played, like in this example:
+   <codeblock>
+      length = get_midi_length(my_midi);
+      play_midi(my_midi);
+      do {
+         pos = midi_time;
+         textprintf_ex(screen, font, 0, 0, c, -1, "%d:%02d / %d:%02d\n",
+            pos / 60, pos % 60, length / 60, length % 60);
+         rest(100);
+      } while(pos &lt;= length);<endblock>
 
 @@void @midi_out(unsigned char *data, int length);
 @xref install_sound, load_midi_patches, midi_recorder
@@ -8611,11 +8843,20 @@ Music routines (MIDI)
 
 @@extern volatile long @midi_pos;
 @xref play_midi, midi_msg_callback
+@eref exmidi
 @shortdesc Stores the current position in the MIDI file.
    Stores the current position (beat number) in the MIDI file, or contains 
    a negative number if no music is currently playing. Useful for 
    synchronising animations with the music, and for checking whether a MIDI 
    file has finished playing.
+
+@@extern volatile long @midi_time;
+@xref play_midi, midi_pos, get_midi_length
+@eref exmidi
+@shortdesc The current position in the MIDI file, in seconds.
+   Contains the position in seconds in the currently playing midi. This is
+   useful if you want to display the current song position in seconds, not as
+   beat number.
 
 @@extern long @midi_loop_start;
 @@extern long @midi_loop_end;
@@ -8953,6 +9194,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@char *@get_filename(const char *path);
 @xref get_extension, put_backslash, replace_filename
+@eref exmidi
 @shortdesc Returns a pointer to the filename portion of a path.
    When passed a completely specified file path, this returns a pointer to 
    the filename portion. Both '\' and '/' are recognized as directory 
@@ -9138,7 +9380,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@PACKFILE *@pack_fopen(const char *filename, const char *mode);
 @xref pack_fclose, pack_fopen_chunk, packfile_password, pack_fread, pack_getc
-@xref file_select_ex
+@xref file_select_ex, pack_fopen_vtable
 @shortdesc Opens a file according to mode.
    Opens a file according to mode, which may contain any of the flags:
 <ul><li>
@@ -9192,6 +9434,22 @@ directories, but not hidden files and directories. Similarly, if you pass
    as raw binary chunks. This means that if, for example, you want to use 
    load_pcx to read an image from a datafile, you should import it as a 
    binary block rather than as a BITMAP object.
+
+@@PACKFILE *@pack_fopen_vtable(AL_CONST PACKFILE_VTABLE *vtable, void *userdata));
+@xref pack_fopen
+   Creates a new packfile structure that uses the functions specified in
+   the vtable instead of the standard functions. On success, it returns a
+   pointer to a file structure, and on error it returns NULL and
+   stores an error code in errno.
+
+   The vtable and userdata must remain available for the lifetime of the
+   created packfile.
+
+   Opening chunks using pack_fopen_chunk() on top of the returned packfile
+   is not possible at this time.
+
+   packfile_password() does not have any effect on packfiles opened
+   with pack_fopen_vtable().
 
 @@int @pack_fclose(PACKFILE *f);
 @xref pack_fopen, packfile_password
@@ -9393,7 +9651,42 @@ directories, but not hidden files and directories. Similarly, if you pass
    Closes a sub-chunk of a file, previously obtained by calling 
    pack_fopen_chunk().
 
+@@LZSS_PACK_DATA *@create_lzss_pack_data(void);
+@xref free_lzss_pack_data
+@shortdesc Creates an LZSS structure for compression.
+   Creates an LZSS_PACK_DATA structure, which can be used for LZSS compression.
 
+@@void @free_lzss_pack_data(LZSS_PACK_DATA *dat);
+@xref create_lzss_pack_data
+@shortdesc Frees an LZSS structure.
+   Frees an LZSS_PACK_DATA structure created with create_lzss_pack_data.
+
+@\int @lzss_write(PACKFILE *file, LZSS_PACK_DATA *dat, int size,
+@@ unsigned char *buf, int last);
+@xref create_lzss_pack_data
+@shortdesc Compresses data using LZSS.
+    Packs size bytes from buf, using the pack information contained in dat.
+@retval
+   Returns 0 on success.
+
+@@LZSS_UNPACK_DATA *@create_lzss_unpack_data(void);
+@xref free_lzss_unpack_data
+@shortdesc Creates an LZSS structure for decompression.
+   Creates an LZSS_UNPACK_DATA structure, which can be used for LZSS decompression.
+
+@@void @free_lzss_unpack_data(LZSS_UNPACK_DATA *dat);
+@xref create_lzss_unpack_data
+@shortdesc Frees an LZSS structure.
+   Frees an LZSS_UNPACK_DATA structure created with create_lzss_pack_data.
+
+@\int @lzss_read(PACKFILE *file, LZSS_UNPACK_DATA *dat, int s,
+@@ unsigned char *buf);
+@xref free_lzss_unpack_data
+@shortdesc Decompresses data using LZSS.
+   Unpacks from dat into buf, until either EOF is reached or s bytes have
+   been extracted.
+@retval
+   Returns the number of bytes added to the buffer.
 
 @heading
 Datafile routines
@@ -12819,6 +13112,12 @@ platforms you can set the following environment variables:
    TARGET_OPTS=[opts] (GCC-based platforms only)<br>
    This option allows you to customize general compiler optimisations.
 <li>
+   TARGET_ARCH_EXCL=[opts] (MSVC only)<br>
+   This option allows you to optimize exclusively for a given architecture.
+   Pass B to optimize for a PentiumPro or 7 to optimize for Pentium 4. Note
+   that the options you can pass may be different between MSVC 6 and 7.
+   Example: set TARGET_ARCH_EXCL=7
+<li>
    CROSSCOMPILE=1 (DJGPP, MinGW only)<br>
    Allows you to build the library under Linux by using a cross-compiler.
 <li>
@@ -12831,6 +13130,18 @@ platforms you can set the following environment variables:
    Instructs the build process to use Unix-like tools instead of DOS tools.
    Note that you usually don't need to set it because the build proces will
    try to autodetect this configuration.
+<li>
+   COMPILER_MSVC7=1 (MSVC only)<br>
+   Enables special optimizations for MSVC 7 (the default is MSVC 6). You don't
+   normally need to set this flag since <i>fix.bat msvc7</i> should do the same
+   thing and is the prefered way of doing this.
+<li>
+   COMPILER_ICL=1 (MSVC only)<br>
+   Instructs the build process to use the Intel commandline compiler icl rather
+   than Microsoft's commandline compiler cl. You don't normally need to pass 
+   this flag since <i>fix.bat icl</i> should do the same thing and is the 
+   prefered way of doing this. Do not try COMPILER_MSVC7=1 and COMPILER_ICL=1
+   at the same time.
 </ul>
 If you only want to recompile a specific test program or utility, you can 
 specify it as an argument to make, eg. "make demo" or "make grabber". The 
@@ -13065,6 +13376,15 @@ and avoid missing any important bit of information.
    example also uses the unusual approach of communicating with
    the user exclusively via the allegro_message() function.
 
+@@Example @exfont
+@xref END_OF_MAIN, FONT, SCREEN_H, SCREEN_W, acquire_screen
+@xref allegro_error, allegro_init, allegro_message, clear_to_color
+@xref desktop_palette, destroy_font, extract_font_range, font
+@xref install_keyboard, load_font, makecol, merge_fonts, readkey
+@xref release_screen, screen, set_gfx_mode, set_palette
+@xref textout_centre_ex
+   This is a very simple program showing how to load and manipulate fonts.
+
 @@Example @exmouse
 @xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen
 @xref allegro_error, allegro_init, allegro_message, bitmap_mask_color
@@ -13088,9 +13408,9 @@ and avoid missing any important bit of information.
    cursor over the printed text message.
 
 @@Example @extimer
-@xref END_OF_FUNCTION, END_OF_MAIN, LOCK_VARIABLE, SCREEN_W
-@xref allegro_error, allegro_init, allegro_message, clear_to_color
-@xref desktop_palette, font, install_int, install_int_ex
+@xref END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, LOCK_VARIABLE
+@xref SCREEN_W, allegro_error, allegro_init, allegro_message
+@xref clear_to_color, desktop_palette, font, install_int, install_int_ex
 @xref install_keyboard, install_timer, key, keypressed, makecol, readkey
 @xref rest, screen, set_gfx_mode, set_palette, textprintf_centre_ex
 @shortdesc Using the timer (delays and interrupts).
@@ -13103,13 +13423,13 @@ and avoid missing any important bit of information.
    a non blocking way.
 
 @@Example @exkeys
-@xref END_OF_FUNCTION, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen
-@xref allegro_error, allegro_init, allegro_message, blit, clear_keybuf
-@xref clear_to_color, desktop_palette, font, install_keyboard, key
-@xref key_shifts, keyboard_lowlevel_callback, keypressed, makecol
-@xref readkey, rectfill, release_screen, rest, scancode_to_name, screen
-@xref set_gfx_mode, set_palette, textprintf_centre_ex, textprintf_ex
-@xref ureadkey, usprintf, ustrzncpy
+@xref END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, SCREEN_H, SCREEN_W
+@xref acquire_screen, allegro_error, allegro_init, allegro_message, blit
+@xref clear_keybuf, clear_to_color, desktop_palette, font
+@xref install_keyboard, key, key_shifts, keyboard_lowlevel_callback
+@xref keypressed, makecol, readkey, rectfill, release_screen, rest
+@xref scancode_to_name, screen, set_gfx_mode, set_palette
+@xref textprintf_centre_ex, textprintf_ex, ureadkey, usprintf, ustrzncpy
 @shortdesc How to get input from the keyboard in different ways.
    This program demonstrates how to access the keyboard. The
    first part shows the basic use of readkey(). The second part
@@ -13156,9 +13476,11 @@ and avoid missing any important bit of information.
 @@Example @exmidi
 @xref END_OF_MAIN, MIDI, SCREEN_H, SCREEN_W, allegro_error, allegro_init
 @xref allegro_message, clear_to_color, desktop_palette, destroy_midi
-@xref font, install_keyboard, install_sound, install_timer, load_midi
-@xref makecol, play_midi, readkey, screen, set_gfx_mode, set_palette
-@xref textprintf_centre_ex
+@xref font, get_filename, get_midi_length, install_keyboard
+@xref install_sound, install_timer, key, keypressed, load_midi, makecol
+@xref midi_pause, midi_pos, midi_resume, midi_time, play_midi, readkey
+@xref rectfill, rest, screen, set_gfx_mode, set_palette, text_height
+@xref text_length, textprintf_centre_ex
 @shortdesc Playing MIDI music.
    This program demonstrates how to play MIDI files.
 
@@ -13199,11 +13521,11 @@ and avoid missing any important bit of information.
 @@Example @exunicod
 @xref BITMAP, DATAFILE, END_OF_MAIN, FONT, SCREEN_H, SCREEN_W
 @xref allegro_error, allegro_init, allegro_message, blit, clear_to_color
-@xref create_system_bitmap, destroy_bitmap, font, install_keyboard
-@xref install_timer, keypressed, load_datafile, makecol, replace_filename
-@xref rest, screen, set_gfx_mode, set_uformat, set_window_title
-@xref text_height, text_length, textout_ex, uconvert_ascii
-@xref unload_datafile, ustrcat, ustrcpy, ustrsize, ustrsizez
+@xref create_bitmap, font, install_int_ex, install_keyboard
+@xref install_timer, keypressed, load_datafile, replace_filename, rest
+@xref screen, set_gfx_mode, set_uformat, set_window_title, text_height
+@xref text_length, textout_ex, uconvert_ascii, unload_datafile, ustrcat
+@xref ustrcpy, ustrsize, ustrsizez
 @shortdesc Using Unicode string functions.
    This program demonstrates the use of the 16-bit Unicode text
    encoding format with Allegro. The example displays a message
@@ -13267,16 +13589,16 @@ and avoid missing any important bit of information.
    a font, both from this datafile.
 
 @@Example @exsprite
-@xref BITMAP, DATAFILE, END_OF_FUNCTION, END_OF_MAIN, LOCK_VARIABLE
-@xref SCREEN_H, SCREEN_W, allegro_error, allegro_init, allegro_message
-@xref blit, circle, clear_bitmap, clear_keybuf, create_bitmap
-@xref destroy_bitmap, draw_sprite, draw_sprite_h_flip, draw_sprite_v_flip
-@xref draw_sprite_vh_flip, fixed, font, hline, install_int_ex
-@xref install_keyboard, install_sound, install_timer, itofix, key
-@xref keypressed, load_datafile, makecol, palette_color, pivot_sprite
-@xref pivot_sprite_v_flip, play_sample, rectfill, replace_filename, rest
-@xref screen, set_gfx_mode, set_palette, text_height, textout_centre_ex
-@xref unload_datafile, vsync
+@xref BITMAP, DATAFILE, END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION
+@xref LOCK_VARIABLE, SCREEN_H, SCREEN_W, allegro_error, allegro_init
+@xref allegro_message, blit, circle, clear_bitmap, clear_keybuf
+@xref create_bitmap, destroy_bitmap, draw_sprite, draw_sprite_h_flip
+@xref draw_sprite_v_flip, draw_sprite_vh_flip, fixed, font, hline
+@xref install_int_ex, install_keyboard, install_sound, install_timer
+@xref itofix, key, keypressed, load_datafile, makecol, palette_color
+@xref pivot_sprite, pivot_sprite_v_flip, play_sample, rectfill
+@xref replace_filename, rest, screen, set_gfx_mode, set_palette
+@xref text_height, textout_centre_ex, unload_datafile, vsync
 @shortdesc Datafiles access and sprite animation.
    This example demonstrates how to use datafiles, various sprite
    drawing routines and flicker-free animation.
@@ -13400,11 +13722,11 @@ and avoid missing any important bit of information.
 @xref BITMAP, DIALOG, END_OF_MAIN, PALETTE, RGB, RGB_MAP, allegro_error
 @xref allegro_init, allegro_message, clear_to_color, create_bitmap_ex
 @xref create_rgb_table, d_bitmap_proc, d_box_proc, d_slider_proc
-@xref d_text_proc, do_dialog, font, generate_332_palette, get_color_depth
-@xref hsv_to_rgb, install_keyboard, install_mouse, install_timer, key
-@xref makecol, makecol32, makecol8, object_message, rgb_map, rgb_to_hsv
-@xref screen, set_color, set_color_depth, set_gfx_mode, set_palette
-@xref textout_ex, vline, vsync
+@xref d_text_proc, destroy_bitmap, do_dialog, font, generate_332_palette
+@xref get_color_depth, hsv_to_rgb, install_keyboard, install_mouse
+@xref install_timer, key, makecol, makecol32, makecol8, object_message
+@xref rgb_map, rgb_to_hsv, screen, set_color, set_color_depth
+@xref set_gfx_mode, set_palette, textout_ex, vline, vsync
 @shortdesc RGB <-> HSV colorspace conversions.
    This program shows how to convert colors between the different
    color-space representations. The central area of the screen
@@ -13633,16 +13955,17 @@ and avoid missing any important bit of information.
    the Allegro math functions.
 
 @@Example @exscn3d
-@xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_VARIABLE, MATRIX_f
-@xref PALETTE, SCREEN_H, SCREEN_W, V3D_f, allegro_error, allegro_exit
-@xref allegro_init, allegro_message, apply_matrix_f, bitmap_color_depth
-@xref blit, clear_bitmap, clear_scene, clip3d_f, create_bitmap
-@xref create_scene, desktop_palette, destroy_bitmap, destroy_scene, font
-@xref get_rotation_matrix_f, get_translation_matrix_f, gfx_mode_select_ex
-@xref install_int, install_keyboard, install_mouse, install_timer, key
-@xref matrix_mul_f, palette_color, persp_project_f, polygon_z_normal_f
-@xref render_scene, scene_polygon3d_f, screen, set_color_depth
-@xref set_gfx_mode, set_palette, set_projection_viewport, textprintf_ex
+@xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, LOCK_VARIABLE
+@xref MATRIX_f, PALETTE, SCREEN_H, SCREEN_W, V3D_f, allegro_error
+@xref allegro_exit, allegro_init, allegro_message, apply_matrix_f
+@xref bitmap_color_depth, blit, clear_bitmap, clear_scene, clip3d_f
+@xref create_bitmap, create_scene, desktop_palette, destroy_bitmap
+@xref destroy_scene, font, get_rotation_matrix_f
+@xref get_translation_matrix_f, gfx_mode_select_ex, install_int
+@xref install_keyboard, install_mouse, install_timer, key, matrix_mul_f
+@xref palette_color, persp_project_f, polygon_z_normal_f, render_scene
+@xref scene_polygon3d_f, screen, set_color_depth, set_gfx_mode
+@xref set_palette, set_projection_viewport, textprintf_ex
 @shortdesc Using the 3d scene functions.
    This program demonstrates how to use scanline sorting algo
    in Allegro (create_scene, clear_scene, ... functions). It
@@ -13652,12 +13975,12 @@ and avoid missing any important bit of information.
    
 
 @@Example @exzbuf
-@xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_VARIABLE, MATRIX_f
-@xref PALETTE, SCREEN_H, SCREEN_W, V3D_f, ZBUFFER, allegro_error
-@xref allegro_exit, allegro_init, allegro_message, apply_matrix_f
-@xref bitmap_color_depth, blit, clear_bitmap, clear_zbuffer
-@xref create_bitmap, create_zbuffer, desktop_palette, destroy_bitmap
-@xref destroy_zbuffer, font, get_transformation_matrix_f
+@xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, LOCK_VARIABLE
+@xref MATRIX_f, PALETTE, SCREEN_H, SCREEN_W, V3D_f, ZBUFFER
+@xref allegro_error, allegro_exit, allegro_init, allegro_message
+@xref apply_matrix_f, bitmap_color_depth, blit, clear_bitmap
+@xref clear_zbuffer, create_bitmap, create_zbuffer, desktop_palette
+@xref destroy_bitmap, destroy_zbuffer, font, get_transformation_matrix_f
 @xref gfx_mode_select_ex, install_int, install_keyboard, install_mouse
 @xref install_timer, keypressed, palette_color, persp_project_f
 @xref polygon_z_normal_f, quad3d_f, readkey, screen, set_color_depth
@@ -13818,18 +14141,27 @@ and avoid missing any important bit of information.
    at each guide point, the effect can be quite nice because it makes
    the object slow down for the curve.
 
+@@Example @exsyscur
+@xref END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error, allegro_init
+@xref allegro_message, clear_to_color, enable_hardware_cursor, font
+@xref gfx_capabilities, install_keyboard, install_mouse, install_timer
+@xref keypressed, makecol, readkey, rest, screen, select_mouse_cursor
+@xref set_gfx_mode, show_mouse, text_height, textprintf_centre_ex
+   Test program for hardware cursors.
+
 @@Example @exupdate
-@xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_VARIABLE, PALETTE
-@xref SCREEN_H, SCREEN_W, acquire_bitmap, allegro_error, allegro_init
-@xref allegro_message, bitmap_color_depth, blit, clear_bitmap
-@xref create_bitmap, create_system_bitmap, create_video_bitmap
-@xref desktop_palette, destroy_bitmap, enable_triple_buffer, fixcos
-@xref fixed, fixmul, fixsin, fixtoi, font, ftofix, generate_332_palette
-@xref gfx_capabilities, gfx_mode_select_ex, install_int_ex
-@xref install_keyboard, install_mouse, install_timer, keypressed, line
-@xref makecol, poll_scroll, release_bitmap, request_video_bitmap, screen
-@xref set_color_depth, set_gfx_mode, set_palette, show_video_bitmap
-@xref textout_ex, textprintf_ex, triangle, vsync, xor_mode
+@xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, LOCK_VARIABLE
+@xref PALETTE, SCREEN_H, SCREEN_W, acquire_bitmap, allegro_error
+@xref allegro_init, allegro_message, bitmap_color_depth, blit
+@xref clear_bitmap, create_bitmap, create_system_bitmap
+@xref create_video_bitmap, desktop_palette, destroy_bitmap
+@xref enable_triple_buffer, fixcos, fixed, fixmul, fixsin, fixtoi, font
+@xref ftofix, generate_332_palette, gfx_capabilities, gfx_mode_select_ex
+@xref install_int_ex, install_keyboard, install_mouse, install_timer
+@xref keypressed, line, makecol, poll_scroll, release_bitmap
+@xref request_video_bitmap, screen, set_color_depth, set_gfx_mode
+@xref set_palette, show_video_bitmap, textout_ex, textprintf_ex, triangle
+@xref vsync, xor_mode
 @shortdesc Supporting different screen update methods in a single program.
    This program demonstrates how to support double buffering,
    page flipping, and triple buffering as options within a single
@@ -13845,16 +14177,17 @@ and avoid missing any important bit of information.
    the screen.
 
 @@Example @exswitch
-@xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_VARIABLE, PALETTE
-@xref SCREEN_H, SCREEN_W, acquire_bitmap, acquire_screen, allegro_error
-@xref allegro_exit, allegro_init, allegro_message, bitmap_color_depth
-@xref blit, clear_to_color, create_sub_bitmap, desktop_palette
-@xref destroy_bitmap, font, get_display_switch_mode, gfx_mode_select_ex
-@xref install_int, install_keyboard, install_mouse, install_timer
-@xref keypressed, makecol, palette_color, putpixel, readkey, rectfill
-@xref release_bitmap, release_screen, screen, set_color_depth
-@xref set_display_switch_callback, set_display_switch_mode, set_gfx_mode
-@xref set_palette, textout_centre_ex, textprintf_centre_ex
+@xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, LOCK_VARIABLE
+@xref PALETTE, SCREEN_H, SCREEN_W, acquire_bitmap, acquire_screen
+@xref allegro_error, allegro_exit, allegro_init, allegro_message
+@xref bitmap_color_depth, blit, clear_to_color, create_sub_bitmap
+@xref desktop_palette, destroy_bitmap, font, get_display_switch_mode
+@xref gfx_mode_select_ex, install_int, install_keyboard, install_mouse
+@xref install_timer, keypressed, makecol, palette_color, putpixel
+@xref readkey, rectfill, release_bitmap, release_screen, screen
+@xref set_color_depth, set_display_switch_callback
+@xref set_display_switch_mode, set_gfx_mode, set_palette
+@xref textout_centre_ex, textprintf_centre_ex
 @shortdesc Controlling the console switch mode for background running.
    This program shows how to control the console switching mode, and
    let your program run in the background. These functions don't apply
