@@ -33,8 +33,8 @@ extern unsigned char *_colorconv_rgb_map;  /* for conversion from 8/12-bit to 8-
 
 void _colorconv_blit_8_to_8(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -101,8 +101,8 @@ void _colorconv_blit_8_to_15(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_REC
 
 void _colorconv_blit_8_to_16(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -166,8 +166,8 @@ void _colorconv_blit_8_to_16(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_REC
 
 void _colorconv_blit_8_to_24(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -232,8 +232,8 @@ void _colorconv_blit_8_to_24(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_REC
 
 void _colorconv_blit_8_to_32(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -306,8 +306,8 @@ void _colorconv_blit_8_to_32(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_REC
 
 void _colorconv_blit_15_to_8(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -357,8 +357,8 @@ void _colorconv_blit_15_to_8(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_REC
 
 void _colorconv_blit_15_to_16(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -395,8 +395,8 @@ void _colorconv_blit_15_to_16(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RE
 
 void _colorconv_blit_15_to_24(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -464,8 +464,8 @@ void _colorconv_blit_15_to_24(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RE
 
 void _colorconv_blit_15_to_32(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -509,8 +509,8 @@ void _colorconv_blit_15_to_32(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RE
 
 void _colorconv_blit_16_to_8(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -562,8 +562,8 @@ void _colorconv_blit_16_to_8(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_REC
 
 void _colorconv_blit_16_to_15(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -618,8 +618,8 @@ void _colorconv_blit_16_to_32(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RE
 
 static void colorconv_blit_true_to_8(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect, int bpp)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -646,8 +646,8 @@ static void colorconv_blit_true_to_8(struct GRAPHICS_RECT *src_rect, struct GRAP
 
 static void colorconv_blit_true_to_15(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect, int bpp)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -705,8 +705,8 @@ static void colorconv_blit_true_to_15(struct GRAPHICS_RECT *src_rect, struct GRA
 
 static void colorconv_blit_true_to_16(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect, int bpp)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -789,8 +789,8 @@ void _colorconv_blit_24_to_16(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RE
 
 void _colorconv_blit_24_to_32(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -847,8 +847,8 @@ void _colorconv_blit_32_to_16(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RE
 
 void _colorconv_blit_32_to_24(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
@@ -888,8 +888,8 @@ void _colorconv_blit_32_to_24(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RE
 
 static void colorcopy(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect, int bpp)
 {
-   void *src;
-   void *dest;
+   unsigned char *src;
+   unsigned char *dest;
    int width;
    int src_feed;
    int dest_feed;
