@@ -6849,14 +6849,14 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    space (32) up to the tilde (126). The way the characters are separated
    depends on the colordepth of the image file:
 <ul><li>
-paletted (8 bit) image file<br>
-   Use color 0 for the transparent portions of the characters and fill the 
-   spaces between each letter with color 255.  
+   paletted (8 bit) image file
+      Use color 0 for the transparent portions of the characters and fill the 
+      spaces between each letter with color 255.  
 <li>
-High (15/16 bit) and true (24/32 bit) color image file<br>
-   Use bright pink (maximum red and blue, zero green) for the transparent
-   portions of the characters and fill the spaces between each letter with
-   bright yellow (maximum red and green, zero blue).
+   High (15/16 bit) and true (24/32 bit) color image file
+      Use bright pink (maximum red and blue, zero green) for the transparent
+      portions of the characters and fill the spaces between each letter with
+      bright yellow (maximum red and green, zero blue).
 </ul>
    
    Note that in each horizontal row the bounding boxes around the characters 
