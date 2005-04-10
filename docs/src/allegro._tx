@@ -6842,21 +6842,37 @@ bitmapped version of a TrueType font with tools like TTF2PCX
 @xref grab_font_from_bitmap
 @shortdesc Grabs a font from a bitmap file.
    Tries to grab a font from a bitmap. The bitmap can be in any format that
-   load_bitmap understands but it must have a color depth of 8 bits.
+   load_bitmap understands.
 
    The size of each character is determined by the layout of the image, which
    should be a rectangular grid containing all the ASCII characters from
-   space (32) up to the tilde (126). Use color 0 for the transparent
+   space (32) up to the tilde (126). The way the characters are separated
+   depends on the colordepth of the image file:
+<ul><li>
+paletted (8 bit) image file<br>
+   Use color 0 for the transparent portions of the characters and fill the 
+   spaces between each letter with color 255.  
+<li>
+High (15/16 bit) and true (24/32 bit) color image file<br>
+   Use bright pink (maximum red and blue, zero green) for the transparent
    portions of the characters and fill the spaces between each letter with
-   color 255.
+   bright yellow (maximum red and green, zero blue).
+</ul>
    
-   Note that in each horizontal row the color-0 bounding boxes around the
-   characters should align and have the same height.
+   Note that in each horizontal row the bounding boxes around the characters 
+   should align and have the same height.
    
    Probably the easiest way to get to grips with how this works is to load up 
    the `demo.dat' file and export the TITLE_FONT into a PCX file. Have a look
    at the resulting picture in your paint program: that is the format a font
    should be in.
+
+   Take care with high and true color fonts: Allegro will convert these to the
+   current colordepth when you load the font. If you try to use a font on
+   a bitmap with a different color depth Allegro will do color conversions on
+   the fly, which will be rather slow. For optimal performance you should
+   set the colordepth to the colordepth you want to use before loading any
+   fonts.
 @retval
    Returns a pointer to the font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
@@ -6953,6 +6969,8 @@ allegro/text.h for details.
    and a color font is in use, it will be drawn using the colors from the
    original font bitmap (the one you imported into the grabber program),
    which allows multicolored text output.
+   For high and true color fonts, the foreground color is ignored and always
+   treated as -1.
 
 @\void @textout_centre_ex(BITMAP *bmp, const FONT *f, const char *s,
 @@                       int x, y, color, bg);
