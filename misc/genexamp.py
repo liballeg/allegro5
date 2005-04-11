@@ -53,7 +53,7 @@ examples_order = ["exhello", "exmem", "expal", "expat", "exflame",
    "exxfade", "exalpha", "exlights", "ex3d", "excamera", "exquat",
    "exstars", "exscn3d", "exzbuf", "exscroll", "ex3buf", "ex12bit",
    "exaccel", "exspline", "exsyscur", "exupdate", "exswitch", "exdodgy", 
-   "exstream"]
+   "exstream", "expackf"]
 
 # Holds examples' short descriptions. Loaded from disk at runtime.
 short_descriptions = {}
