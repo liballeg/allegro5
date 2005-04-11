@@ -1,5 +1,6 @@
 /*
- *    Example program for the Allegro library, by Peter Wang.
+ *    Example program for the Allegro library, by Peter Wang and
+ *    Elias Pschernig.
  *
  *    This program demonstrates the use of the packfile functions, with some
  *    simple tests.
@@ -33,7 +34,7 @@ typedef struct MEMREAD_INFO
    long offset;
 } MEMREAD_INFO;
 
-int memread_getc(void *userdata)
+static int memread_getc(void *userdata)
 {
    MEMREAD_INFO *info = userdata;
    ASSERT(info);
@@ -45,7 +46,7 @@ int memread_getc(void *userdata)
       return info->block[info->offset++];
 }
 
-int memread_ungetc(int c, void *userdata)
+static int memread_ungetc(int c, void *userdata)
 {
    MEMREAD_INFO *info = userdata;
    unsigned char ch = c;
@@ -56,12 +57,12 @@ int memread_ungetc(int c, void *userdata)
       return EOF;
 }
 
-int memread_putc(int c, void *userdata)
+static int memread_putc(int c, void *userdata)
 {
    return EOF;
 }
 
-long memread_fread(void *p, long n, void *userdata)
+static long memread_fread(void *p, long n, void *userdata)
 {
    MEMREAD_INFO *info = userdata;
    size_t actual;
@@ -78,12 +79,12 @@ long memread_fread(void *p, long n, void *userdata)
    return actual;
 }
 
-long memread_fwrite(AL_CONST void *p, long n, void *userdata)
+static long memread_fwrite(AL_CONST void *p, long n, void *userdata)
 {
    return 0;
 }
 
-int memread_seek(void *userdata, int offset)
+static int memread_seek(void *userdata, int offset)
 {
    MEMREAD_INFO *info = userdata;
    long actual;
@@ -102,19 +103,19 @@ int memread_seek(void *userdata, int offset)
       return -1;
 }
 
-int memread_fclose(void *userdata)
+static int memread_fclose(void *userdata)
 {
    return 0;
 }
 
-int memread_feof(void *userdata)
+static int memread_feof(void *userdata)
 {
    MEMREAD_INFO *info = userdata;
 
    return info->offset >= info->length;
 }
 
-int memread_ferror(void *userdata)
+static int memread_ferror(void *userdata)
 {
    (void)userdata;
 
@@ -124,7 +125,7 @@ int memread_ferror(void *userdata)
 /* The actual vtable. Note that writing is not supported, the functions for
  * writing above are only placeholders.
  */
-PACKFILE_VTABLE memread_vtable =
+static PACKFILE_VTABLE memread_vtable =
 {
    memread_fclose,
    memread_getc,
@@ -221,7 +222,13 @@ static void next(void)
    clear_bitmap(screen);
 }
 
-#define CHECK(x, err) if (!x) { alert("Error", err, NULL, "Ok", NULL, 0, 0); return; }
+#define CHECK(x, err)                                   \
+   do {                                                 \
+      if (!x) {                                         \
+         alert("Error", err, NULL, "Ok", NULL, 0, 0);   \
+         return;                                        \
+      }                                                 \
+   } while (0)
 
 /* This reads the files mysha.pcx and allegro.pcx into a memory block as
  * binary data, and then uses the memory vtable to read the bitmaps out of
@@ -397,6 +404,13 @@ static void stdio_write_test(void)
    f = pack_fopen_vtable(&stdio_vtable, fp);
    CHECK(f, "reading from stdio");
 
+   /* Note: in general you would need to implement a "chunking" system
+    * that knows where the boundary of each file is. Many file format
+    * loaders will happily read everything to the end of the file,
+    * whereas others stop reading as soon as they have all the essential
+    * data (e.g. there may be some metadata at the end of the file).
+    * Concatenating bare files together only works in examples programs.
+    */
    bmp = load_tga_pf(f, NULL);
    CHECK(bmp, "load_tga_pf");
    bmp2 = load_bmp_pf(f, NULL);
