@@ -807,7 +807,7 @@ dnl
 AC_DEFUN(ALLEGRO_ACTEST_GCC_AMD64_MTUNE,
 [AC_MSG_CHECKING(whether -mtune is supported)
 allegro_save_CFLAGS="$CFLAGS"
-CFLAGS="-mtune=athlon64"
+CFLAGS="-mtune=k8"
 AC_CACHE_VAL(allegro_cv_support_amd64_mtune,
 [if test $GCC = yes; then
    AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_amd64_mtune=yes, allegro_cv_support_amd64_mtune=no)

@@ -721,7 +721,7 @@ if test -n "GCC"; then
   elif test "X$allegro_cv_processor_type" = "Xamd64"; then
     dnl Change default pentium->athlon64
     if test "X$allegro_optimizations" = "Xpentium"; then
-      allegro_optimizations="athlon64"
+      allegro_optimizations="k8"
     fi
     if test "$allegro_exclusive_optimizations" != none; then
       TARGET_ARCH="-march=$allegro_exclusive_optimizations"
