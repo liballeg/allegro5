@@ -12,9 +12,12 @@
  *
  *      See readme.txt for copyright information.
  */
-#include <allegro.h>
-#include <allegro/internal/aintern.h>
-#include <mach-o/arch.h>
+#include "allegro.h"
+#include "allegro/internal/aintern.h"
+
+#ifndef SCAN_DEPEND
+   #include <mach-o/arch.h>
+#endif
 
 void check_cpu() {
   const NXArchInfo* info=NXGetLocalArchInfo();
