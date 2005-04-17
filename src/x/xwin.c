@@ -338,10 +338,12 @@ static void _xwin_hide_x_mouse(void)
       _xwin.cursor = None;
    }
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
    if (_xwin.xcursor_image != None) {
       XcursorImageDestroy(_xwin.xcursor_image);
       _xwin.xcursor_image = None;
    }
+#endif
 
    pixmap = XCreatePixmap(_xwin.display, _xwin.window, 1, 1, 1);
    if (pixmap != None) {
