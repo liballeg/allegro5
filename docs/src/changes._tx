@@ -92,7 +92,7 @@ Changes from 4.1.18 to 4.2.0 beta (March 2005)
 </ul>
 
 @heading
-Changes from 4.1.17 to 4.1.18 (Januari 2005)
+Changes from 4.1.17 to 4.1.18 (January 2005)
 <ul><li>
    Peter Hull fixed a bug that caused rest() to wait too long on MacOS X.
 <li>
