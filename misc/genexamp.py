@@ -153,8 +153,11 @@ def retrieve_source_data(file_name):
 
    # post-process comment, removing initial credits
    while len(comment):
-      if not string.strip(comment[0]) or comment_line.search(comment[0]):
+      if string.strip(comment[0]) == "":
          comment.pop(0)
+      elif comment_line.search(comment[0]):
+         while len(comment) and string.strip(comment[0]) != "":
+            comment.pop(0)
       else:
          break
    return comment, dic
