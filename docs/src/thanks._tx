@@ -388,6 +388,9 @@ Contributors
    Ivan Baldo (<email>lubaldo@adinet.com.uy</a>).<br>
    Wrote the 15/16 bit dithering code and optimised the sprite rotation
    routines.
+   
+   Jaime Moreno (<email>daviangel@hotmail.com</a>).<br>
+   Helped track down a problem with dependency generation in MacOS X.
 
    James Arthur (<email>jaa@arfa.clara.net</a>).<br>
    Documented the Photoshop-style truecolor blender routines.
@@ -642,8 +645,8 @@ Contributors
    Simplified the build instructions for Dev-C++, replaced all occurences
    of MingW32 by MinGW in the docs, added an faq section about the giftware
    license, fixed problems with long filenames when building for MSVC,
-   corrected a problem with the Watcom port and added MSVC7 options to the
-   makefile.
+   corrected a problem with the Watcom port, added MSVC7 options to the
+   makefile and fixed a linker problem with the MSVC port.
 
    Michail Pishchagin (<email>mblsha@users.sourceforge.net</a>).<br>
    Contributed the ustrnicmp() function.
@@ -868,6 +871,9 @@ Contributors
 
    Shawn Walker (<email>adonijah@gmail.com</a>).<br>
    Several fixes to the .spec file.
+   
+   StApostol (<email>stapostol@gmail.com</a>).<br>
+   Fixed a bug in the exflame example.
 
    Stefan Eilert (<email>seilert@rz.Uni-Osnabrueck.DE</a>).<br>
    Added support for a second joystick.
@@ -940,8 +946,9 @@ Contributors
 
    Tobi Vollebregt (email unknown).<br>
    Spotted a bug in ustrerror(), which was not returning a pointer to
-   a static buffer and reported a problem with shutdown_dialog() when a
-   menu was open.
+   a static buffer, reported a problem with shutdown_dialog() when a
+   menu was open, helped port the Windows keyboard driver to Windows 98
+   and fixed a bug with hardware cursor detection in X11.
 
    Tom Breton (<email>tob@world.std.com</a>).<br>
    Added the functionality selection #ifndefs to allegro.h.
@@ -962,8 +969,9 @@ Contributors
    Made Allegro windows always popup centred in Windows.
 
    V Karthik Kumar (<email>karthikkumar@gmail.com</a>).<br>
-   Added a Tamil language greeting to exunicode and added switches to use
-   the Intel compiler in Windows.
+   Added a Tamil language greeting to exunicode, added switches to use
+   the Intel compiler in Windows and added a password option to the Windows
+   screensaver example.
 
    Ville Skyttä (<email>scop@users.sourceforge.net</a>).<br>
    Fixed a problem with make install libdir= and modules on Unix systems.
