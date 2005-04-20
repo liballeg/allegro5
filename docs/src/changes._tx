@@ -14,6 +14,8 @@ Changes from 4.2.0 beta 1 to 4.2.0 beta 2 (April 2005)
 <li>
    Evert Glebbeek fixed a bug that prevented true colour fonts from working.
 <li>
+   Peter Wang fixed a possible deadlock in dialog_message.
+<li>
    Elias Pschernig fixed a bug where the DJGPP version would choke on a missing
    variable.
 <li>
