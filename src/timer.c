@@ -50,6 +50,16 @@ volatile int _retrace_hpp_value = -1;     /* to set during next retrace */
 
 #ifdef ALLEGRO_MULTITHREADED
 static void *timer_mutex = NULL;          /* global timer mutex */
+   /* Why we need timer_mutex:
+    *
+    * 1. So _timer_queue[] is not changed in the middle of
+    * _handle_timer_tick's loop, possibly causing a null pointer
+    * dereference or corruption;
+    *
+    * 2. So that after "remove_int(my_callback);" returns, my_callback
+    * is guaranteed not to be in the _timer_queue and will not be
+    * called from the timer thread.
+    */
 #else
 static int timer_semaphore = FALSE;       /* reentrant interrupt? */
 #endif
