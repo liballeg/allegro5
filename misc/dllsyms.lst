@@ -1035,40 +1035,15 @@
     _handle_key_release
     _handle_listbox_click
     _handle_mouse_input
-    _handle_pckey
     _handle_scrollable_scroll
     _handle_scrollable_scroll_click
     _handle_timer_tick
     _joy_type DATA
     _joystick_installed DATA
     _key DATA
-    _key_accent1 DATA
-    _key_accent1_flag DATA
-    _key_accent1_lower_table DATA
-    _key_accent1_upper_table DATA
-    _key_accent2 DATA
-    _key_accent2_flag DATA
-    _key_accent2_lower_table DATA
-    _key_accent2_upper_table DATA
-    _key_accent3 DATA
-    _key_accent3_flag DATA
-    _key_accent3_lower_table DATA
-    _key_accent3_upper_table DATA
-    _key_accent4 DATA
-    _key_accent4_flag DATA
-    _key_accent4_lower_table DATA
-    _key_accent4_upper_table DATA
-    _key_altgr_lower_table DATA
-    _key_altgr_upper_table DATA
-    _key_ascii_table DATA
-    _key_capslock_table DATA
-    _key_control_table DATA
-    _key_shift_table DATA
     _key_shifts DATA
-    _key_standard_kb DATA
     _keyboard_common_names DATA
     _keyboard_installed DATA
-    _keyboard_layout DATA
     _last_bank_1 DATA
     _last_bank_2 DATA
     _linear_blit16
@@ -1219,10 +1194,6 @@
     _palette_expansion_table DATA
     _parallelogram_map
     _parallelogram_map_standard
-    _pckey_scancode_to_ascii
-    _pckey_scancode_to_name
-    _pckeys_init
-    _pckeys_names DATA
     _phys_voice DATA
     _pivot_scaled_sprite_flip
     _poly_scanline_atex16
