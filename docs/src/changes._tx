@@ -19,11 +19,8 @@ Changes from 4.2.0 beta 1 to 4.2.0 beta 2 (April 2005)
    Elias Pschernig fixed a bug where the DJGPP version would choke on a missing
    variable.
 <li>
-   Peter Hull made makedoc retuen in error code if it failed to build the
+   Peter Hull made makedoc return an error code if it failed to build the
    SciTE documentation.
-<li>
-   Peter Wang fixed a problem with compilers that don't have inttypes.h, as
-   reported by Matthew Leverton.
 <li>
    Evert Glebbeek fixed a problem with incorrect dependencies being generated
    for MacOS X.
@@ -38,12 +35,12 @@ Changes from 4.2.0 beta 1 to 4.2.0 beta 2 (April 2005)
 <li>
    Michal Molhanec fixed a problem in the MSVC makefile.
 <li>
-   Evert Glebbeek removed void pointerarithmetic from the colour converter.
+   Evert Glebbeek removed void*-arithmetic from the colour converter.
 <li>
    Evert Glebbeek fixed a bug where hardware cursors would stop working.
 <li>
-   Elias Pschernig, Andrew Chew fixed and Tobi Vollebregt fixed several problems
-   with the Windows keyboard driver.
+   Elias Pschernig, Andrew Chew fixed and Tobi Vollebregt fixed several
+   problems with the Windows keyboard driver.
 <li>
    Elias Pschernig fixed bug in unix dependency generation.
 <li>
@@ -60,7 +57,7 @@ Changes from 4.2.0 beta 1 to 4.2.0 beta 2 (April 2005)
 <li>
    V Karthik Kumar added a password to the Windows screensaver example.
 <li>
-   Cosmetic fixes, example bugfixes and spelling corerctions by Jon Rafkind, 
+   Cosmetic fixes, example bugfixes and spelling corrections by Jon Rafkind, 
    Evert Glebbeek, Peter Wang, StApostol and Elias Pschernig.
 </ul>
 
