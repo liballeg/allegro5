@@ -706,7 +706,7 @@ CFLAGS="$CFLAGS -DALLEGRO_LIB_BUILD"
 dnl How to compile C and asm files.
 if test -n "GCC"; then
   if test "X$allegro_strict_warnings" = "Xyes"; then
-    WFLAGS="-Wall -W -Wstrict-prototypes -Wno-unused -Werror"
+    WFLAGS="-Wall -W -Wstrict-prototypes -Wno-unused-parameter -Werror"
   else
     WFLAGS="-Wall -Wno-unused"
   fi
@@ -791,6 +791,7 @@ cat > makefile.info << EOF
  Generated libraries:$_libraries
  Compiled programs: $_programs
  $_warnmode
+ $_x11
 
 EOF
 
