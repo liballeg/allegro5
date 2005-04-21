@@ -791,7 +791,6 @@ cat > makefile.info << EOF
  Generated libraries:$_libraries
  Compiled programs: $_programs
  $_warnmode
- $_x11
 
 EOF
 
