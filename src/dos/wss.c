@@ -144,7 +144,7 @@ static int wss_usedrate = 0;
 static int wss_stereo = TRUE;
 static int wss_16bits = TRUE;
 static int wss_dma_sel;
-static long wss_dma_addr;
+static unsigned long wss_dma_addr;
 static int wss_dma_block;
 static int wss_in_use = FALSE;
 static int wss_detected = FALSE;
