@@ -13926,8 +13926,6 @@ and avoid missing any important bit of information.
 @xref set_gfx_mode, set_palette, set_projection_viewport, textprintf_ex
 @xref vsync
 @shortdesc Viewing a 3d world from an arbitrary camera position.
-   option to enable/disable waiting for vsync.
-   
    This program demonstrates how to use the get_camera_matrix()
    function to view a 3d world from any position and angle. The
    example draws a checkered floor through a viewport region
