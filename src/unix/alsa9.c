@@ -65,7 +65,6 @@ static char const *alsa_device = "default";
 static char const *alsa_mixer_device = "default";
 static snd_pcm_hw_params_t *hwparams = NULL;
 static snd_pcm_sw_params_t *swparams = NULL;
-static snd_pcm_channel_area_t *areas = NULL;
 static snd_output_t *snd_output = NULL;
 static snd_pcm_uframes_t alsa_bufsize;
 static snd_mixer_t *alsa_mixer = NULL;

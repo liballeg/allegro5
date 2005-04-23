@@ -206,7 +206,7 @@ static int jack_detect(int input)
 static int jack_init(int input, int voices)
 {
    const char **ports;
-   char tmp1[128], tmp2[128];
+   char tmp[128];
 
    if (!jack_detect(input))
       return -1;
@@ -285,8 +285,8 @@ static int jack_init(int input, int voices)
    uszprintf(jack_desc, sizeof(jack_desc),
       get_config_text ("Jack, client '%s': %d bits, %s, %d bps, %s"),
       jack_client_name, jack_16bit ? 16 : 8,
-      uconvert_ascii((jack_signed ? "signed" : "unsigned"), tmp2),
-      jack_rate, uconvert_ascii((jack_stereo ? "stereo" : "mono"), tmp2));
+      uconvert_ascii((jack_signed ? "signed" : "unsigned"), tmp),
+      jack_rate, uconvert_ascii((jack_stereo ? "stereo" : "mono"), tmp));
 
    return 0;
 }

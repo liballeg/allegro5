@@ -11,7 +11,7 @@
 
 int main(void)
 {
-   FONT *f1, *f2, *f3, *f4, *f5, *f6;
+   FONT *f1, *f2, *f3, *f4, *f5;
    
    /* you should always do this at the start of Allegro programs */
    if (allegro_init() != 0)
