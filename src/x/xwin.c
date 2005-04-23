@@ -1562,10 +1562,12 @@ void _xwin_enable_hardware_cursor(int mode)
    if (_xwin.hw_cursor_ok) {
       _xwin.mouse_warped = 0;
       /* Move X-cursor to Allegro cursor.  */
+      XLOCK();
       XWarpPointer(_xwin.display, _xwin.window, _xwin.window,
 		   0, 0, _xwin.window_width, _xwin.window_height,
 		   _mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0),
 		   _mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
+      XUNLOCK();
    }
 }
 
