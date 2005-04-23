@@ -1,4 +1,7 @@
-/*
+/*    Modified by -------------->Allegro<--------------
+ *    (the first line is for the seek test), the "Modified by" is to
+ *    silence genexample.py.
+ *
  *    Example program for the Allegro library, by Peter Wang and
  *    Elias Pschernig.
  *
