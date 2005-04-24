@@ -12822,6 +12822,11 @@ following macros:
    names, eg. fsqrt() calls fixsqrt(). If you define this symbol prior to
    including Allegro headers, the aliases will be turned off.
 
+<b>ALLEGRO_NO_FIX_CLASS</b><br>
+   If you define this symbol prior to including Allegro headers in a C++
+   source file, the 'fix' class will not be made available. This mitigates
+   problems with the 'fix' class's overloading getting in the way.
+
 <b>ALLEGRO_NO_CLEAR_BITMAP_ALIAS</b><br>
    If you define this prior to including Allegro headers, Allegro will not
    define the clear() backwards compatibility alias to clear_bitmap().
