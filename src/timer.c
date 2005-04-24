@@ -58,7 +58,13 @@ static void *timer_mutex = NULL;          /* global timer mutex */
     *
     * 2. So that after "remove_int(my_callback);" returns, my_callback
     * is guaranteed not to be in the _timer_queue and will not be
-    * called from the timer thread.
+    * called from the timer thread.  Eric explains it more clearly:
+    *
+    *   my_callback can have been fired but has not completed yet; context
+    *   switch; the main thread returns from remove_int and set my_pointer
+    *   to 0; context switch; the callback dereferences my_pointer.  Ergo
+    *   remove_int must wait for all callbacks to have completed before
+    *   returning.
     */
 #else
 static int timer_semaphore = FALSE;       /* reentrant interrupt? */
