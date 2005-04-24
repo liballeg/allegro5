@@ -521,7 +521,6 @@ ALLEGRO_EXAMPLE_FILES = \
 	examples/excustom.c \
 	examples/exdata.c \
 	examples/exdbuf.c \
-	examples/exdodgy.c \
 	examples/exexedat.c \
 	examples/exfixed.c \
 	examples/exflame.c \
@@ -573,7 +572,6 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/excustom \
 	examples/exdata \
 	examples/exdbuf \
-	examples/exdodgy \
 	examples/exexedat \
 	examples/exfixed \
 	examples/exflame \

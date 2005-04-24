@@ -258,7 +258,6 @@ information about how to install Allegro and link your program with it.
 
 @@extern int @os_multitasking;
 @xref os_type, os_version
-@eref exdodgy
 @shortdesc Indicates if the OS is multitasking.
    Set by allegro_init() to either TRUE or FALSE depending on whether your
    Operating System is multitasking or not.
@@ -814,7 +813,7 @@ available in past/future versions of Allegro.
 
 @@typedef struct @MIDI
 @xref load_midi, Music routines (MIDI)
-@eref exdodgy, exmidi
+@eref exmidi
 @shortdesc Stores MIDI data.
    A structure holding MIDI data. Read chapter "Music routines (MIDI)" for a
    description on how to obtain/use this structure.
@@ -1293,7 +1292,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrcpy(char *dest, const char *src);
 @xref uconvert, ustrzcpy, ustrncpy
-@eref exdodgy, exunicod
+@eref exunicod
 @shortdesc Copies a string into another one.
    This function copies `src' (including the terminating null character into
    `dest'. You should try to avoid this function because it is very easy to
@@ -1319,7 +1318,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrcat(char *dest, const char *src);
 @xref uconvert, ustrzcat, ustrncat
-@eref exdodgy, exunicod
+@eref exunicod
 @shortdesc Concatenates a string to another one.
    This function concatenates `src' to the end of `dest`'. You should try to
    avoid this function because it is very easy to overflow the destination
@@ -8350,7 +8349,7 @@ Sound init routines
 @xref DIGI_*/MacOSX
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
 @xref MIDI_*/MacOSX
-@eref exdodgy, exmidi, exsample, exsprite, exstream
+@eref exmidi, exsample, exsprite, exstream
 @shortdesc Initialises the sound module.
    Initialises the sound module. You should normally pass DIGI_AUTODETECT 
    and MIDI_AUTODETECT as the driver parameters to this function, in which 
@@ -8365,7 +8364,6 @@ Sound init routines
 
 @@void @remove_sound();
 @xref install_sound, allegro_exit
-@eref exdodgy
 @shortdesc Cleans up after you are finished with the sound routines.
    Cleans up after you are finished with the sound routines. You don't 
    normally need to call this, because allegro_exit() will do it for you.
@@ -8755,14 +8753,14 @@ Music routines (MIDI)
 
 @@MIDI *@load_midi(const char *filename);
 @xref destroy_midi, play_midi, get_midi_length
-@eref exdodgy, exmidi
+@eref exmidi
 @shortdesc Loads a MIDI file.
    Loads a MIDI file (handles both format 0 and format 1), returning a 
    pointer to a MIDI structure, or NULL on error.
 
 @@void @destroy_midi(MIDI *midi);
 @xref load_midi
-@eref exdodgy, exmidi
+@eref exmidi
 @shortdesc Destroys a MIDI structure when you are done with it.
    Destroys a MIDI structure when you are done with it. It is safe to call 
    this even when the MIDI file might be playing, because it checks and will 
@@ -8778,7 +8776,7 @@ Music routines (MIDI)
 @@int @play_midi(MIDI *midi, int loop);
 @xref install_sound, load_midi, play_looped_midi, stop_midi, midi_pause
 @xref midi_seek, midi_pos, midi_time, midi_msg_callback
-@eref exdodgy, exmidi
+@eref exmidi
 @shortdesc Starts playing the specified MIDI file.
    Starts playing the specified MIDI file, first stopping whatever music was 
    previously playing. If the loop flag is set, the data will be repeated 
@@ -14230,15 +14228,6 @@ and avoid missing any important bit of information.
    
    Depending on the type of selected switching mode, you will see
    whether the contents of the screen are preserved or not.
-
-@@Example @exdodgy
-@xref END_OF_MAIN, MIDI, allegro_error, allegro_init, allegro_message
-@xref destroy_midi, install_sound, install_timer, load_midi
-@xref os_multitasking, play_midi, remove_sound, ustrcat, ustrcpy
-@shortdesc Dodgy trick to play MIDI files in the background of a system shell.
-   Plays MIDI files in the background of a system shell. A dodgy
-   trick, and not really useful for anything, but I think it is
-   pretty cool!
 
 @@Example @exstream
 @xref AUDIOSTREAM, END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error

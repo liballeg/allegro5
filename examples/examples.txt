@@ -11,7 +11,6 @@ exconfig.c - Using the configuration routines.
 excustom.c - Creating custom GUI objects.
 exdata.c   - Accessing the contents of datafiles.
 exdbuf.c   - How to use double buffering to avoid flicker.
-exdodgy.c  - Dodgy trick to play MIDI files in the background of a system shell.
 exexedat.c - Appending datafiles onto your executable.
 exfixed.c  - Using fixed point maths.
 exflame.c  - How to write directly to video memory improving performance.

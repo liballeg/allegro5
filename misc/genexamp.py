@@ -52,7 +52,7 @@ examples_order = ["exhello", "exmem", "expal", "expat", "exflame",
    "extrans", "extruec", "excolmap", "exrgbhsv", "exshade", "exblend",
    "exxfade", "exalpha", "exlights", "ex3d", "excamera", "exquat",
    "exstars", "exscn3d", "exzbuf", "exscroll", "ex3buf", "ex12bit",
-   "exaccel", "exspline", "exsyscur", "exupdate", "exswitch", "exdodgy", 
+   "exaccel", "exspline", "exsyscur", "exupdate", "exswitch",
    "exstream", "expackf"]
 
 # Holds examples' short descriptions. Loaded from disk at runtime.
