@@ -96,9 +96,7 @@ ifneq (,$(findstring $(suffix $(MAKEFILE_INC)),.be .dj .mgw .osx .qnx))
          GCC_MTUNE = -mcpu
       else
          ifeq (3,$(word 1,$(gcc_version)))
-            gcc3_minor_using_mcpu = 0 1 2 3
-            ifneq (,$(findstring \
-                  $(word 2,$(gcc_version)),$(gcc3_minor_using_mcpu)))
+            ifneq (,$(filter 0% 1% 2% 3%,$(word 2,$(gcc_version))))
                GCC_MTUNE = -mcpu
             endif
          endif
@@ -292,11 +290,11 @@ endif
 
 create-install-dirs:
 ifdef UNIX_TOOLS
-	mdhelper.sh $(INSTALL_DIRS)
+	misc/mdhelper.sh $(INSTALL_DIRS)
 else
    define MKDIRS
    $(foreach dir,$(INSTALL_DIRS),\
-      mdhelper.bat $(dir)
+      misc\mdhelper.bat $(dir)
    )
    endef
 	$(MKDIRS)

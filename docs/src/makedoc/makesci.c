@@ -59,8 +59,10 @@ static int _ignore_line(char *x)
 
 /* _convert:
  * Converts filename into apifilename.
+ * Returns: 0 if converted successfully
+ *          1 if an error occurred.
  */
-static void _convert(const char *filename, const char *apifilename)
+static int _convert(const char *filename, const char *apifilename)
 {
   FILE *tx_file, *api_file;
   int i, fs, offset;
@@ -69,7 +71,7 @@ static void _convert(const char *filename, const char *apifilename)
 
   tx_file = fopen(filename, "r");
   if(!tx_file)
-    return;
+    return 1;
   fs = _file_size(filename);
   buf = malloc(fs+1);
   fread(buf, sizeof(char), fs, tx_file); /* read in the file */
@@ -78,7 +80,7 @@ static void _convert(const char *filename, const char *apifilename)
   api_file = fopen(apifilename, "w");
   if (!api_file) {
     free(buf);
-    return;
+    return 1;
   }
   
   for(i = 0; i < fs; ++i)
@@ -163,6 +165,7 @@ static void _convert(const char *filename, const char *apifilename)
   
   fclose(api_file);
   free(buf);
+  return 0;
 }
 
 
@@ -174,6 +177,5 @@ static void _convert(const char *filename, const char *apifilename)
 int write_scite(char *filename, char *src)
 {
    printf("Writing %s (SciTE API File)\n", filename);
-   _convert(src, filename);
-   return 0;
+   return _convert(src, filename);
 }

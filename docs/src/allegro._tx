@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.2.0 (beta)" "Allegro" "Allegro manual"
+@manh="version 4.2.0 (beta2-CVS)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,7 +52,7 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.2.0 (beta)
+				       \_/__/     Version 4.2.0 (beta2-CVS)
 
 
 		A game programming library.
@@ -829,6 +829,7 @@ available in past/future versions of Allegro.
 @@typedef struct @PACKFILE
 @xref File and compression routines, pack_fopen, pack_fopen_chunk
 @xref pack_fopen_vtable
+@eref expackf
 @shortdesc Packfile structure, similar to the libc FILE structure.
    A packfile structure, similar to the libc FILE structure. Read chapter
    "File and compression routines" for a description on how to obtain/use
@@ -838,6 +839,7 @@ available in past/future versions of Allegro.
 
 @@typedef struct @PACKFILE_VTABLE
 @xref File and compression routines, pack_fopen_vtable
+@eref expackf
 @shortdesc Packfile vtable structure, for custom packfiles.
 <codeblock>
    int pf_fclose(void *userdata);
@@ -4858,6 +4860,7 @@ will not be known, so the file may be converted wrongly.
 
 @@BITMAP *@load_bmp_pf(PACKFILE *f, RGB *pal);
 @xref load_bmp
+@eref expackf
 @shortdesc Packfile version of load_bmp.
    A version of load_bmp which reads from a packfile.
 
@@ -4872,7 +4875,7 @@ will not be known, so the file may be converted wrongly.
 
 @@BITMAP *@load_pcx(const char *filename, RGB *pal);
 @xref load_bitmap
-@eref exscale
+@eref expackf, exscale
 @shortdesc Loads a PCX bitmap from a file.
    Loads a 256-color or 24-bit truecolor PCX file.
 @retval
@@ -4882,6 +4885,7 @@ will not be known, so the file may be converted wrongly.
 
 @@BITMAP *@load_pcx_pf(PACKFILE *f, RGB *pal);
 @xref load_pcx
+@eref expackf
 @shortdesc Packfile version of load_pcx.
    A version of load_pcx which reads from a packfile.
 
@@ -4897,6 +4901,7 @@ will not be known, so the file may be converted wrongly.
 
 @@BITMAP *@load_tga_pf(PACKFILE *f, RGB *pal);
 @xref load_tga
+@eref expackf
 @shortdesc Packfile version of load_tga.
    A version of load_tga which reads from a packfile.
 
@@ -4934,6 +4939,7 @@ will not be known, so the file may be converted wrongly.
 
 @@BITMAP *@save_bmp_pf(PACKFILE *f, RGB *pal);
 @xref save_bmp
+@eref expackf
 @shortdesc Packfile version of save_bmp.
    A version of save_bmp which writes to a packfile.
 
@@ -4959,6 +4965,7 @@ will not be known, so the file may be converted wrongly.
 
 @@BITMAP *@save_tga_pf(PACKFILE *f, RGB *pal);
 @xref save_tga
+@eref expackf
 @shortdesc Packfile version of save_tga.
    A version of save_tga which writes to a packfile.
 
@@ -6842,21 +6849,37 @@ bitmapped version of a TrueType font with tools like TTF2PCX
 @xref grab_font_from_bitmap
 @shortdesc Grabs a font from a bitmap file.
    Tries to grab a font from a bitmap. The bitmap can be in any format that
-   load_bitmap understands but it must have a color depth of 8 bits.
+   load_bitmap understands.
 
    The size of each character is determined by the layout of the image, which
    should be a rectangular grid containing all the ASCII characters from
-   space (32) up to the tilde (126). Use color 0 for the transparent
-   portions of the characters and fill the spaces between each letter with
-   color 255.
+   space (32) up to the tilde (126). The way the characters are separated
+   depends on the colordepth of the image file:
+<ul><li>
+   paletted (8 bit) image file
+      Use color 0 for the transparent portions of the characters and fill the 
+      spaces between each letter with color 255.  
+<li>
+   High (15/16 bit) and true (24/32 bit) color image file
+      Use bright pink (maximum red and blue, zero green) for the transparent
+      portions of the characters and fill the spaces between each letter with
+      bright yellow (maximum red and green, zero blue).
+</ul>
    
-   Note that in each horizontal row the color-0 bounding boxes around the
-   characters should align and have the same height.
+   Note that in each horizontal row the bounding boxes around the characters 
+   should align and have the same height.
    
    Probably the easiest way to get to grips with how this works is to load up 
    the `demo.dat' file and export the TITLE_FONT into a PCX file. Have a look
    at the resulting picture in your paint program: that is the format a font
    should be in.
+
+   Take care with high and true color fonts: Allegro will convert these to the
+   current colordepth when you load the font. If you try to use a font on
+   a bitmap with a different color depth Allegro will do color conversions on
+   the fly, which will be rather slow. For optimal performance you should
+   set the colordepth to the colordepth you want to use before loading any
+   fonts.
 @retval
    Returns a pointer to the font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
@@ -6937,7 +6960,7 @@ allegro/text.h for details.
 
 @@int @text_height(const FONT *f)
 @xref text_length
-@eref ex12bit, exmidi, expat, exsprite, exsyscur, exunicod
+@eref ex12bit, exmidi, expackf, expat, exsprite, exsyscur, exunicod
 @shortdesc Returns the height of a font in pixels.
    Returns the height (in pixels) of the specified font.
 
@@ -6953,6 +6976,8 @@ allegro/text.h for details.
    and a color font is in use, it will be drawn using the colors from the
    original font bitmap (the one you imported into the grabber program),
    which allows multicolored text output.
+   For high and true color fonts, the foreground color is ignored and always
+   treated as -1.
 
 @\void @textout_centre_ex(BITMAP *bmp, const FONT *f, const char *s,
 @@                       int x, y, color, bg);
@@ -9231,6 +9256,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@long @file_size(const char *filename);
 @xref file_exists, file_time
+@eref expackf
 @shortdesc Returns the size of a file in bytes.
    Returns the size of a file, in bytes. If the file does not exist or an 
    error occurs, it will return zero and store the system error code in 
@@ -9381,6 +9407,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 @@PACKFILE *@pack_fopen(const char *filename, const char *mode);
 @xref pack_fclose, pack_fopen_chunk, packfile_password, pack_fread, pack_getc
 @xref file_select_ex, pack_fopen_vtable
+@eref expackf
 @shortdesc Opens a file according to mode.
    Opens a file according to mode, which may contain any of the flags:
 <ul><li>
@@ -9437,6 +9464,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@PACKFILE *@pack_fopen_vtable(AL_CONST PACKFILE_VTABLE *vtable, void *userdata));
 @xref pack_fopen
+@eref expackf
    Creates a new packfile structure that uses the functions specified in
    the vtable instead of the standard functions. On success, it returns a
    pointer to a file structure, and on error it returns NULL and
@@ -9453,6 +9481,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @pack_fclose(PACKFILE *f);
 @xref pack_fopen, packfile_password
+@eref expackf
 @shortdesc Closes a stream previously opened with pack_fopen().
    Closes the stream f previously opened with pack_fopen(). After you have
    closed the stream, performing operations on it will yield errors in your
@@ -9464,6 +9493,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @pack_fseek(PACKFILE *f, int offset);
 @xref pack_fopen, pack_fopen_chunk
+@eref expackf
 @shortdesc Seeks inside a stream.
    Moves the position indicator of the stream f. Unlike the standard fseek()
    function, this only supports forward movements relative to the current
@@ -9561,6 +9591,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@long @pack_fread(void *p, long n, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_feof
+@eref expackf
 @shortdesc Reads n bytes from the stream.
    Reads n bytes from the stream f, storing them at the memory location
    pointed to by p.
@@ -11438,7 +11469,7 @@ ensure there is room for the check.
 
 @@int @alert(const char *s1, *s2, *s3, const char *b1, *b2, int c1, c2);
 @xref alert3, gui_fg_color
-@eref exgui, exspline
+@eref exgui, expackf, exspline
 @shortdesc Displays a popup alert box.
    Displays a popup alert box, containing three lines of text (s1-s3), and 
    with either one or two buttons. The text for these buttons is passed in 
@@ -13036,6 +13067,7 @@ debugging helper functions:
 
 @@void @ASSERT(condition);
 @xref al_assert, TRACE, register_assert_handler
+@eref expackf
 @shortdesc Debugging helper macro to assert.
    Debugging helper macro. Normally compiles away to nothing, but if you 
    defined the preprocessor symbol DEBUGMODE before including Allegro headers,
@@ -14223,6 +14255,30 @@ and avoid missing any important bit of information.
    this case, the sample data is generated during runtime,
    and the resulting sound reminds of a car engine when you
    are accelerating.
+
+@@Example @expackf
+@xref ASSERT, BITMAP, END_OF_MAIN, PACKFILE, PACKFILE_VTABLE, SCREEN_H
+@xref SCREEN_W, alert, allegro_init, blit, clear_bitmap, destroy_bitmap
+@xref file_size, font, install_keyboard, key, load_bmp_pf, load_pcx
+@xref load_pcx_pf, load_tga_pf, pack_fclose, pack_fopen
+@xref pack_fopen_vtable, pack_fread, pack_fseek, readkey, save_bmp_pf
+@xref save_tga_pf, screen, set_color_depth, set_gfx_mode, text_height
+@xref textprintf_centre_ex, textprintf_ex
+@shortdesc Using custom PACKFILE vtables.
+   This program demonstrates the use of the packfile functions, with some
+   simple tests.
+   
+   The first test uses the standard packfile functions to transfer a
+   bitmap file into a block of memory, then reads the bitmap out of the
+   block of memory, using a custom packfile vtable.
+   
+   The second test reads in a bitmap with another custom packfile
+   vtable, which uses libc's filestream functions.
+   
+   The third test demonstrates seeking with a custom vtable.
+   
+   The fourth test reads two bitmaps, and dumps them back into a
+   single file, using a custom vtable again.
 
 @# end genexamp.py chunk
 

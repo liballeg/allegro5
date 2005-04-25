@@ -217,7 +217,7 @@ OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SR
 LIBRARIES = kernel32.lib user32.lib gdi32.lib comdlg32.lib ole32.lib \
 		dinput.lib ddraw.lib dxguid.lib winmm.lib dsound.lib
 
-PROGRAMS = dibgrab dibhello dibsound dxwindow scrsave wfixicon keyconf
+PROGRAMS = dibgrab dibhello dibsound dxwindow scrsave wfixicon
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
@@ -225,7 +225,6 @@ dibsound: tests/win/dibsound.exe
 dxwindow: tests/win/dxwindow.exe
 scrsave: tests/win/scrsave.scr
 wfixicon: tools/win/wfixicon.exe
-keyconf: setup/keyconf.exe
 
 
 
@@ -319,7 +318,7 @@ ifdef STATICLINK
 # -------- link as a static library --------
 
 define MAKE_LIB
-   $(RUNNER) $(MSVC_LIB) @ -nologo -out:$(LIB_NAME) $(OBJECTS)
+   $(RUNNER) $(MSVC_LIB) @ -nologo $(LIBPARMS) -out:$(LIB_NAME) $(OBJECTS)
 endef
 
 COMPILE_FLAGS = -DALLEGRO_STATICLINK 
@@ -424,7 +423,7 @@ else
 endif
 
 define MAKE_PLUGIN_LIB
-   $(RUNNER) $(MSVC_LIB) @ -nologo -out:$(PLUGIN_LIB) $(PLUGIN_OBJS)
+   $(RUNNER) $(MSVC_LIB) @ -nologo $(LIBPARMS) -out:$(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS

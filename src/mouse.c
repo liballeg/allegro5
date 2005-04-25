@@ -598,6 +598,7 @@ void show_mouse(BITMAP *bmp)
       if (gfx_capabilities & GFX_HW_CURSOR) {
 	 gfx_driver->hide_mouse();
 	 gfx_capabilities &= ~(GFX_HW_CURSOR|GFX_SYSTEM_CURSOR);
+ 	 hw_cursor_dirty = TRUE;
       }
       else
 	 draw_mouse(TRUE, FALSE);

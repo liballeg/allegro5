@@ -8,6 +8,61 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.2.0 beta 1 to 4.2.0 beta 2 (April 2005)
+<ul><li>
+   Daniel Schlyder fixed a problem with the makefile in Windows.
+<li>
+   Evert Glebbeek fixed a bug that prevented true colour fonts from working.
+<li>
+   Elias Pschernig fixed a bug where the DJGPP version would choke on a missing
+   variable.
+<li>
+   Peter Hull made makedoc retuen in error code if it failed to build the
+   SciTE documentation.
+<li>
+   Peter Wang fixed a problem with compilers that don't have inttypes.h, as
+   reported by Matthew Leverton.
+<li>
+   Evert Glebbeek fixed a problem with incorrect dependencies being generated
+   for MacOS X.
+<li>
+   Tobi Vollebregt fixed a problem in X11 if the XRGBACursor extension was
+   missing.
+<li>
+   Evert Glebbeek made configure use k8 rather than athlon64 as a compiler
+   switch on AMD64.
+<li>
+   Peter Wang and Elias Pschernig added a packfile example.
+<li>
+   Michal Molhanec fixed a problem in the MSVC makefile.
+<li>
+   Evert Glebbeek removed void pointerarithmetic from the colour converter.
+<li>
+   Evert Glebbeek fixed a bug where hardware cursors would stop working.
+<li>
+   Elias Pschernig, Andrew Chew fixed and Tobi Vollebregt fixed several problems
+   with the Windows keyboard driver.
+<li>
+   Elias Pschernig fixed bug in unix dependency generation.
+<li>
+   Elias Pschernig made the GUI not mess up the hardware cursor.
+<li>
+   Elias Pschernig removed pckeys.c and keyconf from the windows port, since 
+   the dinput driver no longer needs pckeys.c nor uses keyboard.dat.
+<li>
+   Daniel Schlyder fixed a problem with the -mtune switch on older gcc based 
+   compilers.
+<li>
+   Matthew Leverton figured out which versions of Watcom have inttypes.h and
+   stdint.h.
+<li>
+   V Karthik Kumar added a password to the Windows screensaver example.
+<li>
+   Cosmetic fixes, example bugfixes and spelling corerctions by Jon Rafkind, 
+   Evert Glebbeek, Peter Wang, StApostol and Elias Pschernig.
+</ul>
+
+@heading
 Changes from 4.1.18 to 4.2.0 beta (March 2005)
 <ul><li>
    Peter Wang fixed many problems on AMD64 in Linux - it should now work fine.
@@ -88,11 +143,10 @@ Changes from 4.1.18 to 4.2.0 beta (March 2005)
    Daniel Schlyder made the Windows port use TITLEBARINFO if it is available.
 <li>
    Grzegorz Adam Hankiewicz made many improvements to the documentation.
-<li>
 </ul>
 
 @heading
-Changes from 4.1.17 to 4.1.18 (Januari 2005)
+Changes from 4.1.17 to 4.1.18 (January 2005)
 <ul><li>
    Peter Hull fixed a bug that caused rest() to wait too long on MacOS X.
 <li>

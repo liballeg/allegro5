@@ -779,7 +779,7 @@ int do_dialog(DIALOG *dialog, int focus_obj)
    void *player;
    ASSERT(dialog);
 
-   if (!is_same_bitmap(_mouse_screen, gui_bmp))
+   if (!is_same_bitmap(_mouse_screen, gui_bmp) && !(gfx_capabilities&GFX_HW_CURSOR))
       show_mouse(gui_bmp);
 
    player = init_dialog(dialog, focus_obj);
@@ -792,7 +792,7 @@ int do_dialog(DIALOG *dialog, int focus_obj)
          rest(1);
    }
 
-   if (_gfx_mode_set_count == screen_count)
+   if (_gfx_mode_set_count == screen_count && !(gfx_capabilities&GFX_HW_CURSOR))
       show_mouse(mouse_screen);
 
    return shutdown_dialog(player);

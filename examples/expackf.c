@@ -1,7 +1,4 @@
-/*    Modified by -------------->Allegro<--------------
- *    (the first line is for the seek test), the "Modified by" is to
- *    silence genexample.py.
- *
+/*
  *    Example program for the Allegro library, by Peter Wang and
  *    Elias Pschernig.
  *
@@ -350,6 +347,8 @@ static void stdio_seek_test(void)
 {
    FILE *fp;
    PACKFILE *f;
+   int c1, c2, c3, c4;
+   int ret;
    char str[8];
 
    fp = fopen("expackf.c", "rb");

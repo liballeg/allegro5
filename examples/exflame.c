@@ -98,7 +98,7 @@ int main(void)
    for (c=128; c<192; c++) {
       palette[c].r = 63;
       palette[c].g = 63;
-      palette[c].b = c-192;
+      palette[c].b = c-128;
    }
    for (c=192; c<256; c++) {
       palette[c].r = 63;

@@ -24,8 +24,9 @@
 #include "allegro/internal/aintern.h"
 
 
-/* The code can't link on platforms that don't use src/misc/pckeys.c (Linux console, MacOS X). */
-#if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS) || (defined ALLEGRO_WITH_XWINDOWS) || (defined ALLEGRO_QNX) || (defined ALLEGRO_BEOS)
+/* The code can't link on platforms that don't use src/misc/pckeys.c (everything
+ * but DOS, QNX, BEOS). */
+#if (defined ALLEGRO_DOS) || (defined ALLEGRO_QNX) || (defined ALLEGRO_BEOS)
 
 
 char *ascii_name[32] = 

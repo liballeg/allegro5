@@ -267,7 +267,22 @@ int do_settings(HANDLE hInstance, HANDLE hPrevInstance, HWND hParentWnd)
 /* the password dialog function */
 int do_password(HANDLE hInstance, HANDLE hPrevInstance, HWND hParentWnd)
 {
-   MessageBox(hParentWnd, "Sorry, this screensaver doesn't implement the password stuff", "Allegro Screensaver", MB_OK);
+    /* Load the password change DLL */
+    HINSTANCE mpr = LoadLibrary(TEXT("MPR.DLL"));
+    if (mpr)
+    {
+        /* Grab the password change function from it */
+        typedef DWORD (PASCAL *PWCHGPROC)(LPCSTR, HWND, DWORD, LPVOID);
+        PWCHGPROC pwd = (PWCHGPROC)GetProcAddress(mpr, "PwdChangePasswordA");
+
+        /* Do the password change */
+        if ( pwd != NULL )
+            pwd("SCRSAVE", hParentWnd, 0, NULL);
+
+        /* Free the library */
+        FreeLibrary(mpr);
+        mpr=NULL;
+    }   
 
    return 0;
 }

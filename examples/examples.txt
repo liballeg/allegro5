@@ -24,6 +24,7 @@ exlights.c - One way to do colored lighting effects in a hicolor video mode.
 exmem.c    - Drawing onto memory bitmaps and then blitting them to the screen.
 exmidi.c   - Playing MIDI music.
 exmouse.c  - Getting input from the mouse.
+expackf.c  - Using custom PACKFILE vtables.
 expal.c    - Palette effects and color cycling.
 expat.c    - Using patterned drawing modes and sub-bitmaps.
 exquat.c   - A comparison between euler angles and quaternions.

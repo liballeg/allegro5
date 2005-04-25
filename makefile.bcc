@@ -137,7 +137,7 @@ VPATH = tests/win tools/win
 
 LIBRARIES = cw32 import32
 
-PROGRAMS = dibgrab dibhello dibsound dxwindow scrsave wfixicon keyconf
+PROGRAMS = dibgrab dibhello dibsound dxwindow scrsave wfixicon
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
@@ -145,7 +145,6 @@ dibsound: tests/win/dibsound.exe
 dxwindow: tests/win/dxwindow.exe
 scrsave: tests/win/scrsave.scr
 wfixicon: tools/win/wfixicon.exe
-keyconf: setup/keyconf.exe
 
 
 

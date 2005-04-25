@@ -1534,7 +1534,6 @@ static void midi_lock_mem(void)
    LOCK_VARIABLE(midi_loop);
    LOCK_VARIABLE(midi_loop_start);
    LOCK_VARIABLE(midi_loop_end);
-   LOCK_VARIABLE(midi_timer_frequency);
    LOCK_VARIABLE(midi_timer_speed);
    LOCK_VARIABLE(midi_pos_speed);
    LOCK_VARIABLE(midi_speed);

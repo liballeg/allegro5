@@ -895,7 +895,7 @@ static int color_render_char(AL_CONST FONT* f, int ch, int fg, int bg, BITMAP* b
 
     g = _color_find_glyph(f, ch);
     if(g) {
-        if (bitmap_color_depth(bmp) == 8) {
+        if (bitmap_color_depth(g) == 8) {
 	    if(fg < 0) {
 	        bmp->vtable->draw_256_sprite(bmp, g, x, y + (h-g->h)/2);
 	    }
@@ -904,7 +904,26 @@ static int color_render_char(AL_CONST FONT* f, int ch, int fg, int bg, BITMAP* b
 	    }
         }
         else {
-	    masked_blit(g, bmp, 0, 0, x, y + (h-g->h)/2, g->w, g->h);
+            if (bitmap_color_depth(g) == bitmap_color_depth(bmp)) {
+	       masked_blit(g, bmp, 0, 0, x, y + (h-g->h)/2, g->w, g->h);
+            }
+            else {
+               int color_conv_mode;
+               BITMAP *tbmp;
+               /* We need to do colour conversion - which is slow... */
+               
+               color_conv_mode = get_color_conversion();
+               set_color_conversion(COLORCONV_MOST | COLORCONV_KEEP_TRANS);
+               
+               tbmp = create_bitmap_ex(bitmap_color_depth(bmp), g->w, g->h);
+               blit(g, tbmp, 0, 0, 0, 0, g->w, g->h);
+               
+               set_color_conversion(color_conv_mode);
+               
+               masked_blit(tbmp, bmp, 0, 0, x, y + (h-g->h)/2, g->w, g->h);
+               
+               destroy_bitmap(tbmp);
+            }
         }        
 
 	w = g->w;

@@ -27,7 +27,8 @@
 
 
 /* a static auto config */
-#define HAVE_INTTYPES_H
+/* older mingw's don't seem to have inttypes.h */
+/* #define HAVE_INTTYPES_H */
 #define HAVE_STDINT_H
 
 
