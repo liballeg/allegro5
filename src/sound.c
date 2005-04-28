@@ -25,7 +25,7 @@
 
 
 
-extern DIGI_DRIVER digi_none;
+static DIGI_DRIVER digi_none;
 
 
 

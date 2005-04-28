@@ -190,7 +190,7 @@ void write_output(FILE *f, int c)
    if (out_flip)
       c = ((c&0xFF)<<8) | ((c&0xFF00)>>8);
 
-   size = out_type->u_setc(buf, c);
+   size = out_type->u_setc((char *)buf, c);
 
    for (i=0; i<size; i++) {
       if (flag_c) {

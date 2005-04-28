@@ -755,7 +755,7 @@ cwrite(struct dat2c *dat2c, enum dat2c_file x, const char *fmt, ...)
 
 	    const unsigned char *s = va_arg(va,
 					    const unsigned char *);
-	    _cwrite_esc(fp, s, strlen(s));
+	    _cwrite_esc(fp, s, strlen((const char *)s));
 
 	 }
 	 else if (!strncmp(rd, "$string lower$", 14)) {

@@ -242,7 +242,7 @@ static void memread_test(void)
    PACKFILE *f;
    MEMREAD_INFO memread_info;
    BITMAP *bmp, *bmp2;
-   char *block;
+   unsigned char *block;
    int l1, l2;
    PACKFILE *f1, *f2;
 
