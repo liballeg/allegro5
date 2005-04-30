@@ -14284,7 +14284,7 @@ and avoid missing any important bit of information.
 @externalfile ahack The Allegro hacker's guide
 @externalfile const Allegro `const'-correctness
 @externalfile packfile Packfile format information
-@externalfile datafiles Datafile format information
+@externalfile datafile Datafile format information
 @externalfile license License and Disclaimer
 @chapter
 Tools
