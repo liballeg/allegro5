@@ -126,7 +126,7 @@ static BITMAP *read_bitmap(PACKFILE *f, int bits, int allowconv)
    w = pack_mgetw(f);
    h = pack_mgetw(f);
 
-   bmp = create_bitmap_ex(bits, w, h);
+   bmp = create_bitmap_ex(MAX(bits, 8), w, h);
    if (!bmp) {
       *allegro_errno = ENOMEM;
       return NULL;
