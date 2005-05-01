@@ -4536,7 +4536,7 @@ Allegro supports several different types of bitmaps:
    pixel). Example:
 <codeblock>
       /* Create screen sized bitmap in 32 bits per pixel. /*
-      BITMAP *bmp = create_bitmap_x(32, SCREEN_W, SCREEN_H);
+      BITMAP *bmp = create_bitmap_ex(32, SCREEN_W, SCREEN_H);
       if (!bmp)
 	 abort_on_error("Couldn't create bitmap!");
       /* Use the bitmap. */
@@ -6512,10 +6512,10 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
 @heading
 Fonts
 
-Allegro provides routines for loading fonts from GRX format .fnt files, 8x8
-or 8x16 BIOS format .fnt files, and from bitmap images, or you can import a
-multiple-range Unicode font by writing a .txt script that specifies a number 
-of different source files for each range of characters.
+Allegro provides routines for loading fonts directly from GRX format .fnt
+files, 8x8 or 8x16 BIOS format .fnt files, from bitmap images, from datafiles
+or you can import a multiple-range Unicode font by writing a .txt script that
+specifies a number of different source files for each range of characters.
 
 By default, Allegro can only use bitmapped (non-scalable) fonts. If you want
 to use TrueType fonts, you will need to use an add-on library which allows
@@ -6551,8 +6551,8 @@ bitmapped version of a TrueType font with tools like TTF2PCX
 @eref exfont
 @shortdesc Loads a font from a file.
    Loads a font from a file. At present, this supports loading fonts from
-   a GRX format .fnt file, a 8x8 or 8x16 BIOS format .fnt file or any bitmap
-   format that can be loaded by load_bitmap().
+   a GRX format .fnt file, a 8x8 or 8x16 BIOS format .fnt file, a datafile or
+   any bitmap format that can be loaded by load_bitmap().
    
    If the font contains palette information, then the palette is returned in
    the second parameter, which should be an array of 256 RGB structures 
