@@ -256,8 +256,8 @@ static void handle_key_press(unsigned char scancode)
          vkey = VK_RETURN;
    }
 
-   /* TODO: is there an advantage using this? maybe it would allow chinese and so on
-    * characters? For now, always ToAscii is used. */
+   /* TODO: is there an advantage using ToUnicode? maybe it would allow
+    * Chinese and so on characters? For now, always ToAscii is used. */
    //n = ToUnicode(vkey, scancode, keystate, chars, 16, 0);
    n = ToAscii(vkey, scancode, keystate, (WORD *)chars, 0);
    if (n == 1)
@@ -268,11 +268,16 @@ static void handle_key_press(unsigned char scancode)
    }
    else
    {
-      /* Don't generate key presses for modifier keys. */
+      /* Don't generate key presses for modifier keys or dead keys */
       if (mycode >= KEY_MODIFIERS || n != 0)
-         unicode = -1;
+	 unicode = -1;
       else
-         unicode = 0;
+	 unicode = 0;
+   }
+
+   /* When alt key is pressed, any key always must return ASCII 0 in Allegro. */
+   if (unicode > 0 && (keystate[VK_LMENU] & 0x80)) {
+      unicode = 0;
    }
 
    _handle_key_press(unicode, mycode);
