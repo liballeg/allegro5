@@ -7008,7 +7008,7 @@ allegro/text.h for details.
 @eref Available Allegro examples
 @shortdesc Formatted output of a string.
    Formatted text output, using a printf() style format string. Due to an
-   intenal limitation, this function can't be used for extremely long texts.
+   internal limitation, this function can't be used for extremely long texts.
    If you happen to reach this limit, you can work around it by using
    uszprintf and textout_ex, which don't have any.
 
