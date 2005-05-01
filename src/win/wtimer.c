@@ -245,7 +245,7 @@ static void tim_win32_exit(void)
    SetEvent(timer_stop_event);
 
    /* wait until thread has ended */
-   WaitForSingleObject(timer_thread, INFINITE);
+   while (WaitForSingleObject(timer_thread, 100) == WAIT_TIMEOUT);
 
    /* thread has ended, now we can release all resources */
    CloseHandle(timer_stop_event);
