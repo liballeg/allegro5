@@ -234,7 +234,6 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
       gfx_quartz_full.show_mouse = osx_mouse_show;
       gfx_quartz_full.hide_mouse = osx_mouse_hide;
       gfx_quartz_full.move_mouse = osx_mouse_move;
-      gfx_capabilities = GFX_HW_CURSOR;
    }
    else {
       /* 8 bit modes have problems handling hardware cursor so we disable it */
@@ -243,7 +242,6 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
       gfx_quartz_full.hide_mouse = NULL;
       gfx_quartz_full.move_mouse = NULL;
       CGDisplayHideCursor(kCGDirectMainDisplay);
-      gfx_capabilities = 0;
    }
    
    old_visible_bmp = bmp;
