@@ -33,6 +33,7 @@ static void osx_mouse_get_mickeys(int *, int *);
 static void osx_enable_hardware_cursor(AL_CONST int mode);
 static int osx_select_system_cursor(AL_CONST int cursor);
 
+
 MOUSE_DRIVER mouse_macosx =
 {
    MOUSE_MACOSX,
@@ -60,7 +61,7 @@ NSTrackingRectTag osx_mouse_tracking_rect = -1;
 
 
 static NSCursor *cursor = NULL, *current_cursor = NULL;
-static NSCursor *requested_cursor=NULL;
+static NSCursor *requested_cursor = NULL;
 static unsigned char *cursor_data = NULL;
 static NSBitmapImageRep *cursor_rep = NULL;
 static NSImage *cursor_image = NULL;
@@ -89,12 +90,13 @@ void osx_mouse_handler(int x, int y, int z, int buttons)
       return;
 
    if (osx_cursor != current_cursor) {
-     if (osx_window) {
-       NSView* vw=[osx_window contentView];
-       [osx_window invalidateCursorRectsForView: vw];
-     }
-      else
+      if (osx_window) {
+         NSView* vw=[osx_window contentView];
+         [osx_window invalidateCursorRectsForView: vw];
+      }
+      else {
          [osx_cursor set];
+      }
       current_cursor = osx_cursor;
    }
 
@@ -164,6 +166,7 @@ static int osx_mouse_init(void)
    pthread_mutex_lock(&osx_event_mutex);
    osx_emulate_mouse_buttons = (max_buttons == 1) ? TRUE : FALSE;
    pthread_mutex_unlock(&osx_event_mutex);
+
    return max_buttons;
 }
 
@@ -392,32 +395,37 @@ void osx_mouse_hide(void)
 void osx_mouse_move(int x, int y)
 {
 }
+
+
+
 /* osx_enable_hardware_cursor:
- * Enable hardware cursor - on OSX it's always enabled
+ *  Enable hardware cursor - on OSX it's always enabled.
  */
 void osx_enable_hardware_cursor(AL_CONST int mode) 
 {
-  (int)mode;
+   (void)mode;
 }
 
+
+
 /* osx_select_system_cursor:
- * Select a system cursor - on this platform, only
- * the I-beam and the Arrow are available as system
- * cursors.
+ *  Select a system cursor - on this platform, only the I-beam and the Arrow
+ *  are available as system cursors.
  */
-static int osx_select_system_cursor(AL_CONST int cursor) {
-  switch(cursor) {
-  case MOUSE_CURSOR_ARROW:
-    requested_cursor=[NSCursor arrowCursor];
-    break;
-  case MOUSE_CURSOR_EDIT:
-    requested_cursor=[NSCursor IBeamCursor];
-    break;
-  default:
-    return 0;
-  }
-  pthread_mutex_lock(&osx_event_mutex);
-  osx_cursor = requested_cursor;
-  pthread_mutex_unlock(&osx_event_mutex);
-  return cursor;
+static int osx_select_system_cursor(AL_CONST int cursor)
+{
+   switch (cursor) {
+      case MOUSE_CURSOR_ARROW:
+         requested_cursor = [NSCursor arrowCursor];
+         break;
+      case MOUSE_CURSOR_EDIT:
+         requested_cursor = [NSCursor IBeamCursor];
+         break;
+      default:
+         return 0;
+   }
+   pthread_mutex_lock(&osx_event_mutex);
+   osx_cursor = requested_cursor;
+   pthread_mutex_unlock(&osx_event_mutex);
+   return cursor;
 }
