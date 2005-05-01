@@ -749,5 +749,13 @@ int gfx_mode_select(int *card, int *w, int *h)
    ASSERT(card);
    ASSERT(w);
    ASSERT(h);
+
+   /* Make sure these values are not used uninitialised.
+    * This is different to the other gfx_mode_select_* functions.
+    */
+   *card = GFX_AUTODETECT;
+   *w = 0;
+   *h = 0;
+
    return gfx_mode_select_filter(card, w, h, NULL, NULL);
 }

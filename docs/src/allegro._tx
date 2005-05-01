@@ -11522,6 +11522,8 @@ ensure there is room for the check.
    the three variables, and returns zero if it was closed with the Cancel 
    button or non-zero if it was OK'd.
 
+   The initial values of card, w, h are not used.
+
 @@int @gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth);
 @xref gfx_mode_select, gfx_mode_select_filter, set_color_depth, set_gfx_mode
 @xref gui_fg_color
@@ -11529,8 +11531,11 @@ ensure there is room for the check.
 @shortdesc Extended version of the graphics mode selection dialog.
    Extended version of the graphics mode selection dialog, which allows the 
    user to select the color depth as well as the resolution and hardware 
-   driver. This version of the function reads the initial values from the 
-   parameters when it activates, so you can specify the default values.
+   driver.
+   
+   This version of the function reads the initial values from the 
+   parameters when it activates so you can specify the default values.
+   In fact, you should be sure not to pass in uninitialised values.
 
 @\int @gfx_mode_select_filter(int *card, int *w, int *h, int *color_depth,
 @@                            int (*filter)(int, int, int, int));
@@ -11541,8 +11546,11 @@ ensure there is room for the check.
    to select the color depth as well as the resolution and hardware driver.
    `filter' will be passed (card, w, h, color_depth) quadruplets and must
    return 0 to let the specified quadruplet be added to the list of displayed
-   modes. This version of the function reads the initial values from the
-   parameters when it activates, so you can specify the default values.
+   modes.
+
+   This version of the function reads the initial values from the 
+   parameters when it activates so you can specify the default values.
+   In fact, you should be sure not to pass in uninitialised values.
 
 @@extern int (*@gui_shadow_box_proc)(int msg, struct DIALOG *d, int c);
 @@extern int (*@gui_ctext_proc)(int msg, struct DIALOG *d, int c);
