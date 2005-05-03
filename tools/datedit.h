@@ -112,6 +112,7 @@ void datedit_startmsg(AL_CONST char *fmt, ...);
 void datedit_endmsg(AL_CONST char *fmt, ...);
 void datedit_error(AL_CONST char *fmt, ...);
 int datedit_ask(AL_CONST char *fmt, ...);
+int datedit_select(AL_CONST char *(*list_getter)(int index, int *list_size), AL_CONST char *fmt, ...);
 
 char *datedit_pretty_name(AL_CONST char *name, AL_CONST char *ext, int force_ext);
 int datedit_clean_typename(AL_CONST char *type);

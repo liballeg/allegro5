@@ -3498,7 +3498,7 @@ int datedit_ask(AL_CONST char *fmt, ...)
    int ret;
 
    va_start(args, fmt);
-   vsprintf(buf, fmt, args);
+   vsnprintf(buf, 1024, fmt, args);
    va_end(args);
 
    strcat(buf, "?");
@@ -3514,6 +3514,52 @@ int datedit_ask(AL_CONST char *fmt, ...)
       return 'y';
    else
       return 'n';
+}
+
+
+
+/* callback for the datedit functions to show a list of options */
+/* Returns -1 if canceled */
+int datedit_select(AL_CONST char *(*list_getter)(int index, int *list_size), AL_CONST char *fmt, ...)
+{
+   DIALOG datedit_select_dlg[] = {
+      /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                 (dp2) (dp3) */
+      { d_shadow_box_proc, 0,    0,    224,  113,  0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
+      { d_ctext_proc,      0,    2,    220,  15,   0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
+      { d_list_proc,       28,   24,   161,  50,   0,    0,    0,       0,          0,             0,       list_getter,         NULL, NULL  },
+      { d_button_proc,     16,   80,   81,   17,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
+      { d_button_proc,     127,  80,   81,   17,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",            NULL, NULL  }, 
+      { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  }
+   };
+   va_list args;
+   char buf[1024];
+   int ret, c;
+
+   va_start(args, fmt);
+   vsnprintf(buf, 1024, fmt, args);
+   va_end(args);
+   
+   /* If there is only one choice, select it automatically */
+   list_getter(-1, &c);
+   if (c<=1) return c-1;
+   
+   datedit_select_dlg[1].dp = buf;
+   centre_dialog(datedit_select_dlg);
+   set_dialog_color(datedit_select_dlg, gui_fg_color, gui_bg_color);
+   datedit_select_dlg[2].d1 = 0;
+   datedit_select_dlg[2].d2 = 0;
+      
+   set_mouse_sprite(my_mouse_pointer);
+
+   ret = popup_dialog(datedit_select_dlg, -1);
+
+   if (busy_mouse)
+      set_mouse_sprite(my_busy_pointer);
+
+   if (ret == 3)
+      return datedit_select_dlg[2].d1;
+      
+   return -1;
 }
 
 

@@ -235,6 +235,8 @@ static void usage(void)
 /* unused callback for datedit.c */
 int datedit_ask(AL_CONST char *fmt, ...) { return 0; }
 
+/* unused callback for datedit.c */
+int datedit_select(AL_CONST char *(*list_getter)(int index, int *list_size), AL_CONST char *fmt, ...) { return 0; }
 
 
 /* callback for outputting messages */

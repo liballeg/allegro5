@@ -67,7 +67,7 @@ static int export_sample(AL_CONST DATAFILE *dat, AL_CONST char *filename)
    int bps = spl->bits/8 * ((spl->stereo) ? 2 : 1);
    int len = spl->len * bps;
    int i;
-   signed short s;
+   int16_t s;
    PACKFILE *f;
 
    errno = 0;
@@ -94,7 +94,7 @@ static int export_sample(AL_CONST DATAFILE *dat, AL_CONST char *filename)
       }
       else {
 	 for (i=0; i < (int)spl->len * ((spl->stereo) ? 2 : 1); i++) {
-	    s = ((signed short *)spl->data)[i];
+	    s = ((int16_t *)spl->data)[i];
 	    pack_iputw(s^0x8000, f);
 	 }
       }
@@ -132,7 +132,7 @@ static int save_sample_in_datafile(DATAFILE *dat, AL_CONST int *fixed_prop, int 
       int i;
 
       for (i=0; i < (int)spl->len * ((spl->stereo) ? 2 : 1); i++) {
-	 pack_iputw(((unsigned short *)spl->data)[i], f);
+	 pack_iputw(((int16_t *)spl->data)[i], f);
       }
    }
 

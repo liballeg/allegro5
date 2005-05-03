@@ -260,6 +260,37 @@ int datedit_ask(AL_CONST char *fmt, ...)
 
 
 
+/* callback for the datedit functions to show a list of options */
+/* Returns -1 if canceled */
+int datedit_select(AL_CONST char *(*list_getter)(int index, int *list_size), AL_CONST char *fmt, ...)
+{
+   va_list args;
+   char buf[1024];
+   int c, num;
+
+   va_start(args, fmt);
+   vsprintf(buf, fmt, args);
+   va_end(args);
+
+   /* If there is only one choice, select it automatically. If the list is */
+   /*  empty, return immediately. */
+   list_getter(-1, &num);
+   if (num<=1) return num-1;
+   
+   printf("%s:\n", buf);
+   for (c=0; c<num; c++) {
+      printf("% 2d %s\n", c, list_getter(c, NULL));
+   }
+   printf("% 2d %s\n", -1, "Cancel");
+   fflush(stdout);
+   fscanf(stdin, "%d", &c);
+   if (c>num)
+      c = num-1;
+   return c;
+}
+
+
+
 /* checks if a string is one of the names specified on the command line */
 static int is_name(AL_CONST char *name)
 {
