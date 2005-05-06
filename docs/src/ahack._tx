@@ -458,7 +458,13 @@ consider appropriate. If the modifications are good, they will probably be
 accepted and merged in the WIP version for the next release. If you aren't
 lucky, or your patch still needs some work, you will be told why it's not
 accepted, or what you have to do to improve it. If you aren't subscribed to
-the list, remember to tell it in your email.
+the list, remember to say this in your message as, by default, replies are
+irected to the list.
+
+You can also use SourceForge's issue web trackers, which you can find at
+<link>http://sourceforge.net/tracker/?group_id=5665</a>. This doesn't require you to
+subscribe to any mailing list and you can verify every know and then the
+status of your contribution.
 
 
 

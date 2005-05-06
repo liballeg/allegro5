@@ -274,11 +274,11 @@ information about how to install Allegro and link your program with it.
    being installed, which means that it won't display the message at all on
    some platforms if Allegro has not been initialised correctly.
 
-   On platforms that have a text console (DOS and Unix) it will print the
-   string to that console, attempting to work around codepage differences by
-   reducing any accented characters to 7-bit ASCII approximations, and on
-   platforms featuring a windowing system it will bring up a blocking GUI
-   message box. Example:
+   On platforms featuring a windowing system, it will bring up a blocking GUI
+   message box. If there is no windowing system, it will try to print the
+   string to a text console, attempting to work around codepage differences
+   by reducing any accented characters to 7-bit ASCII approximations.
+   Example:
 <codeblock>
       if (allegro_init() != 0)
 	 exit(1);
@@ -796,20 +796,30 @@ available in past/future versions of Allegro.
    the future.
 
 @@typedef struct @SAMPLE
-@xref load_sample, Digital sample routines
+@xref load_sample, Digital sample routines, Voice control
 @eref exsample
 @shortdesc Stores sound data.
 <codeblock>
    int bits;                   - 8 or 16
    int stereo;                 - sample type flag
    int freq;                   - sample frequency
-   int priority;               - 0-255 */
+   int priority;               - 0-255
    unsigned long len;          - length (in samples)
    unsigned long loop_start;   - loop start position
    unsigned long loop_end;     - loop finish position
 <endblock>
    A sample structure, which holds sound data, used by the digital sample
-   routines.
+   routines. You can consider all of these fields as read only except
+   priority, loop_start and loop_end, which you can change them for example
+   after loading a sample from disk.
+
+   The priority is a value from 0 to 255 (by default set to 128) and controls
+   how hardware voices on the sound card are allocated if you attempt to play
+   more than the driver can handle. This may be used to ensure that the less
+   important sounds are cut off while the important ones are preserved.
+
+   The variables loop_start and loop_end specify the loop position in sample
+   units, and are set by default to the start and end of the sample.
 
 @@typedef struct @MIDI
 @xref load_midi, Music routines (MIDI)
@@ -819,11 +829,19 @@ available in past/future versions of Allegro.
    description on how to obtain/use this structure.
 
 @@typedef struct @AUDIOSTREAM
-@xref play_audio_stream, Audio stream routines
+@xref play_audio_stream, Audio stream routines, Voice control
 @eref exstream
 @shortdesc Stores an audiostream.
-   A structure holding an audiostream. Read chapter "Audio stream routines"
-   for a description on how to obtain/use this structure.
+<codeblock>
+      int voice;  - the hardware voice used for the sample
+<endblock>
+   A structure holding an audiostream, which is a convenience wrapper around
+   a SAMPLE structure to double buffer sounds too big to fit into memory, or
+   do clever things like generating the sound wave real time.
+   
+   While you shouldn't modify directly the value of the voice, you can use
+   all of the voice functions in chapter "Digital sample routines" to modify
+   the properties of the sound, like the frequency.
 
 @@typedef struct @PACKFILE
 @xref File and compression routines, pack_fopen, pack_fopen_chunk
@@ -832,9 +850,9 @@ available in past/future versions of Allegro.
 @shortdesc Packfile structure, similar to the libc FILE structure.
    A packfile structure, similar to the libc FILE structure. Read chapter
    "File and compression routines" for a description on how to obtain/use
-   this structure. Note that prior to version 4.1.18, some internal fields have
-   accidently been documented - but PACKFILE should be treated as an opaque
-   structure, just like the libc FILE type.
+   this structure. Note that prior to version 4.1.18, some internal fields
+   were accidentally documented - but PACKFILE should be treated as an
+   opaque structure, just like the libc FILE type.
 
 @@typedef struct @PACKFILE_VTABLE
 @xref File and compression routines, pack_fopen_vtable
@@ -863,6 +881,8 @@ available in past/future versions of Allegro.
 @xref File and compression routines, create_lzss_unpack_data
 @shortdesc Opaque structure for handling LZSS decomression.
    Opaque structure for handling LZSS decomression.
+
+
 
 @heading
 Unicode routines
@@ -2997,7 +3017,7 @@ Allegro does not provide such devices.)
 @xref vsync, d_yield_proc
 @eref exkeys, exmidi, exquat, exsample, exsprite, exsyscur, extimer
 @eref exunicod
-@shortdesc Waits a specified number of milliseconds.
+@shortdesc Waits a specified number of milliseconds or yields CPU.
    This function waits for the specified number of milliseconds.
 
    Passing 0 as parameter will not wait, but just yield. This can be useful
@@ -3007,16 +3027,18 @@ Allegro does not provide such devices.)
    less noisy.
 
    Note that calling this inside your active game loop is a bad idea, as
-   you never know when the OS will give you the CPU back, so you could end up
-   missing the vertical retrace and skipping frames. On the other hand, on
-   multitasking operating systems it is good form to give up the CPU for a
-   while if you will not be using it.
+   you never know when the OS will give you the CPU back, so you could end
+   up missing the vertical retrace and skipping frames. On the other hand,
+   on multitasking operating systems it is good form to give up the CPU for
+   a while if you will not be using it.
 
 @@void @rest_callback(long time, void (*callback)())
 @xref install_timer, rest
 @shortdesc Like rest(), but calls the callback during the wait.
-   Like rest(), but continually calls the specified function while it is 
-   waiting for the required time to elapse.
+   Like rest(), but for non zero values continually calls the specified
+   function while it is waiting for the required time to elapse. If the
+   provided `callback' parameter is NULL, this function does exactly the
+   same thing as calling rest().
 
 
 
@@ -3062,7 +3084,7 @@ routines" for more information about this.
       allegro_init();
       install_timer();
       install_keyboard();
-      /* We are not 100% we can read the keyboard yet! */
+      /* We are not 100% sure we can read the keyboard yet! */
       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0)
          abort_on_error("Couldn't set graphic mode!")
 
@@ -3893,15 +3915,23 @@ GFX_SAFE:<br>
       set_color_depth(32);
       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
 	 abort_on_error("Couldn't set a 32 bit color resolution");
-      }<endblock>
+      }
+<endblock>
+   Note that the screen color depth won't change until the next successful
+   call to set_gfx_mode().
 
 @@int @get_color_depth(void);
-@xref set_color_depth
+@xref set_color_depth, bitmap_color_depth
 @eref exrgbhsv
 @shortdesc Returns the current pixel color depth.
    Returns the current pixel format. This can be very useful to know in order
    to write generic functions which select a different code path internally
    depending on the color depth being used.
+
+   Note that the function returns whatever value you may have set previously
+   with set_color_depth(), which can be different from the current color
+   depth of the screen global variable. If you really need to know the color
+   depth of the screen, use bitmap_color_depth().
 
 @@void @request_refresh_rate(int rate);
 @xref set_gfx_mode, get_refresh_rate
@@ -4624,10 +4654,10 @@ Allegro supports several different types of bitmaps:
 <codeblock>
       switch (bitmap_color_depth(screen)) {
 	 case 8:
-	    /* Fade screen changing palette. */
+	    /* Access screen using optimized 8-bit code. */
 	    break;
 	 default:
-	    /* Truecolor fake palette fading. */
+	    /* Use generic slow functions. */
 	    break;
       }<endblock>
 
@@ -6140,7 +6170,7 @@ clipping rectangle of the destination bitmap.
       create_trans_table(&global_trans_table, my_palette,
 			 128, 128, 128, NULL);
       ...
-      if (bitmap_color_depth(screen) == 8)
+      if (get_color_depth() == 8)
 	 color_map = &global_trans_table;
       else
 	 set_trans_blender(128, 128, 128, 128);
@@ -6178,7 +6208,7 @@ clipping rectangle of the destination bitmap.
       create_light_table(&global_trans_table, my_palette,
 			 10, 10, 60, NULL);
       ...
-      if (bitmap_color_depth(screen) == 8)
+      if (get_color_depth() == 8)
 	 color_map = &global_light_table;
       else
 	 set_trans_blender(40, 40, 255, 255);
@@ -6203,7 +6233,7 @@ clipping rectangle of the destination bitmap.
       create_light_table(&global_trans_table, my_palette,
 			 0, 0, 0, NULL);
       ...
-      if (bitmap_color_depth(screen) == 8)
+      if (get_color_depth() == 8)
 	 color_map = &global_light_table;
       else
 	 set_trans_blender(0, 0, 0, 128);
@@ -6406,7 +6436,7 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
       create_trans_table(&global_trans_table, my_palette,
 			 128, 128, 128, NULL);
       ...
-      if (bitmap_color_depth(screen) == 8)
+      if (get_color_depth() == 8)
 	 color_map = &global_trans_table;
       else
 	 set_trans_blender(128, 128, 128, 128);
@@ -6428,7 +6458,7 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
       create_light_table(&global_trans_table, my_palette,
 			 10, 10, 60, NULL);
       ...
-      if (bitmap_color_depth(screen) == 8)
+      if (get_color_depth() == 8)
 	 color_map = &global_light_table;
       else
 	 set_trans_blender(40, 40, 255, 255);
@@ -6465,6 +6495,7 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
    as the second parameter if you are going to be drawing it onto memory 
    bitmaps or mode 13h and SVGA screen bitmaps, and pass TRUE if you are 
    going to draw it onto mode-X or Xtended mode screen bitmaps. Example:
+<codeblock>
       COMPILED_SPRITE *cspr;
       BITMAP *bmp;
       ...
@@ -6480,7 +6511,7 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
       ...
       /* Destroy it when we don't need it any more. */
       destroy_compiled_sprite(cspr);
-   
+<endblock>
    Returns a pointer to the created compiled sprite, or NULL if the compiled
    sprite could not be created. Remember to free this compiled sprite later
    to avoid memory leaks.
@@ -6947,62 +6978,99 @@ allegro/text.h for details.
 @@extern int @allegro_404_char;
 @xref font
 @shortdesc Character used when Allegro cannot find a glyph.
-    When Allegro cannot find a glyph it needs in a font, it will instead
-    output the character given in allegro_404_char. By default, this is
-    set to the caret symbol, '^'.
+   When Allegro cannot find a glyph it needs in a font, it will instead
+   output the character given in allegro_404_char. By default, this is set to
+   the caret symbol, `^', but you can change this global to use any other
+   character instead. Example:
+<codeblock>
+      /* Show unknown glyphs with an asterisk. */
+      allegro_404_char = '*';<endblock>
 
 @@int @text_length(const FONT *f, const char *str);
 @xref text_height
 @eref ex12bit, exmidi, expat, exunicod
 @shortdesc Returns the length of a string in pixels.
-   Returns the length (in pixels) of a string in the specified font.
+   Returns the length (in pixels) of a string in the specified font. Example:
+<codeblock>
+      int width = text_length(font, "I love spam");
+      ...
+      bmp = create_bitmap(width, height);<endblock>
 
 @@int @text_height(const FONT *f)
 @xref text_length
 @eref ex12bit, exmidi, expackf, expat, exsprite, exsyscur, exunicod
 @shortdesc Returns the height of a font in pixels.
-   Returns the height (in pixels) of the specified font.
+   Returns the height (in pixels) of the specified font. Example:
+<codeblock>
+      int height = text_height(font, "I love spam");
+      ...
+      bmp = create_bitmap(width, height);<endblock>
 
 @\void @textout_ex(BITMAP *bmp, const FONT *f, const char *s,
-@@                int x, y, color, bg);
+@@                int x, int y, int color, int bg);
 @xref font, textout_centre_ex, textout_right_ex, textout_justify_ex
 @xref textprintf_ex, text_height, text_length
 @eref Available Allegro examples
 @shortdesc Writes a string on a bitmap.
-   Writes the string s onto the bitmap at position x, y, using the specified
-   font, foreground color and background color. If the background color is
-   -1, then the text is written transparently. If the foreground color is -1
-   and a color font is in use, it will be drawn using the colors from the
-   original font bitmap (the one you imported into the grabber program),
-   which allows multicolored text output.
-   For high and true color fonts, the foreground color is ignored and always
-   treated as -1.
+   Writes the string `s' onto the bitmap at position x, y, using the
+   specified font, foreground color and background color. If the background
+   color is -1, then the text is written transparently. If the foreground
+   color is -1 and a color font is in use, it will be drawn using the colors
+   from the original font bitmap (the one you imported into the grabber
+   program), which allows multicolored text output. For high and true color
+   fonts, the foreground color is ignored and always treated as -1. Example:
+<codeblock>
+      /* Show the program's version in blue letters. */
+      textout_ex(screen, font, "v4.2.0-beta2", 10, 10,
+		 makecol(0, 0, 255), -1);<endblock>
 
 @\void @textout_centre_ex(BITMAP *bmp, const FONT *f, const char *s,
-@@                       int x, y, color, bg);
+@@                       int x, y, int color, int bg);
 @xref textout_ex, textprintf_centre_ex
 @eref Available Allegro examples
 @shortdesc Writes a centered string on a bitmap.
    Like textout_ex(), but interprets the x coordinate as the centre rather
-   than the left edge of the string.
+   than the left edge of the string. Example:
+<codeblock>
+      /* Important texts go in the middle. */
+      width = text_length("GAME OVER");
+      textout_centre_ex(screen, font, "GAME OVER",
+			SCREEN_W / 2, SCREEN_H / 2,
+			makecol(255, 0, 0), makecol(0, 0, 0));<endblock>
 
 @\void @textout_right_ex(BITMAP *bmp, const FONT *f, const char *s,
-@@                      int x, y, color, bg);
+@@                      int x, int y, int color, int bg);
 @xref textout_ex, textprintf_right_ex
 @shortdesc Writes a right aligned string on a bitmap.
    Like textout_ex(), but interprets the x coordinate as the right rather
-   than the left edge of the string.
+   than the left edge of the string. Example:
+<codeblock>
+      textout_right_ex(screen, font, "Look at this color!",
+		       SCREEN_W - 10, 10, my_yellow, -1);<endblock>
 
 @\void @textout_justify_ex(BITMAP *bmp, const FONT *f, const char *s,
-@@                        int x1, x2, y, diff, color, bg);
+@\                        int x1, int x2, int y, int diff, int color,
+@@                        int bg);
 @xref textout_ex, textprintf_justify_ex
 @shortdesc Draws justified text within a region.
    Draws justified text within the region x1-x2. If the amount of spare
    space is greater than the diff value, it will give up and draw regular
-   left justified text instead.
+   left justified text instead. Example:
+<codeblock>
+      char *lines[] = {"Draws justified text",
+		       "within the specified",
+		       "x2-x1 area. But not",
+		       "T H I S !", NULL};
+      /* Show the justification marker. */
+      vline(screen, 200, 0, SCREEN_H-1, makecol(0, 0, 0));
+      /* Draw all the lines until we reach a NULL entry. */
+      for (num = 0, y = 0; lines[num]; num++, y += text_height(font))
+	 textout_justify_ex(screen, font, lines[num], 0, 200,
+			    y, 80, makecol(0, 0, 0),
+			    makecol(255, 255, 255));<endblock>
 
-@\void @textprintf_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
-@@                    const char *fmt, ...);
+@\void @textprintf_ex(BITMAP *bmp, const FONT *f, int x, int y,
+@@                   int color, int bg, const char *fmt, ...);
 @xref font, textout_ex, textprintf_centre_ex, textprintf_right_ex
 @xref textprintf_justify_ex, text_height, text_length, uszprintf
 @eref Available Allegro examples
@@ -7010,16 +7078,26 @@ allegro/text.h for details.
    Formatted text output, using a printf() style format string. Due to an
    internal limitation, this function can't be used for extremely long texts.
    If you happen to reach this limit, you can work around it by using
-   uszprintf and textout_ex, which don't have any.
+   uszprintf() and textout_ex(), which don't have any. Example:
+<codeblock>
+      int player_score;
+      ...
+      textprintf_ex(screen, font, 10, 10, makecol(255, 100, 200),
+		    -1, "Score: %d", player_score);<endblock>
 
-@\void @textprintf_centre_ex(BITMAP *bmp, const FONT *f, int x, y, color,
-@@                          bg, const char *fmt, ...);
+@\void @textprintf_centre_ex(BITMAP *bmp, const FONT *f, int x, int y,
+@@                          int color, int bg, const char *fmt, ...);
 @xref textprintf_ex, textout_centre_ex
 @eref Available Allegro examples
 @shortdesc Formatted centered output of a string.
    Like textprintf_ex(), but interprets the x coordinate as the centre rather
    than the left edge of the string. This function shares the text length
-   limitation of textprintf_ex.
+   limitation of textprintf_ex(). Example:
+<codeblock>
+      textprintf_centre_ex(screen, font, SCREEN_W / 2, 120,
+			   makecol(0, 100, 243), -1,
+			   "Your best score so far was %d!",
+			   total_max_points);<endblock>
 
 @\void @textprintf_right_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
 @@                         const char *fmt, ...);
@@ -7027,14 +7105,30 @@ allegro/text.h for details.
 @shortdesc Formatted right aligned output of a string.
    Like textprintf_ex(), but interprets the x coordinate as the right rather
    than the left edge of the string. This function shares the text length
-   limitation of textprintf_ex.
+   limitation of textprintf_ex(). Example:
+<codeblock>
+      textprintf_right_ex(screen, font, SCREEN_W - 10, 10,
+			  makecol(200, 200, 20), -1,
+			  "%d bullets left", player_ammo);<endblock>
 
 @\void @textprintf_justify_ex(BITMAP *bmp, const FONT *f, int x1, x2, y,
 @@                           diff, color, bg, const char *fmt, ...);
 @xref textprintf_ex, textout_justify_ex
 @shortdesc Formatted justified output of a string.
    Like textout_justify_ex(), but using a printf() style format string. This
-   function shares the text length limitation of textprintf_ex.
+   function shares the text length limitation of textprintf_ex(). Example:
+<codeblock>
+      char *lines[] = {"Line %02d: Draws justified text",
+		       "Line %02d: within the specified",
+		       "Line %02d: x2-x1 area. But not",
+		       "Line %02d: T H I S !", NULL};
+      /* Show the justification marker. */
+      vline(screen, 300, 0, SCREEN_H-1, makecol(0, 0, 0));
+      /* Draw all the lines until we reach a NULL entry. */
+      for (num = 0, y = 0; lines[num]; num++, y += text_height(font))
+	 textprintf_justify_ex(screen, font, 0, 300, y, 180,
+			       makecol(0, 0, 0), makecol(255, 255, 255),
+			       lines[num], num);<endblock>
 
 
 
@@ -8541,25 +8635,15 @@ Digital sample routines
 @xref install_sound, allocate_voice, deallocate_voice, reallocate_voice
 @xref release_voice, voice_start, voice_set_priority, voice_check
 @xref voice_set_position, voice_set_playmode, voice_set_volume
-@xref voice_set_frequency, voice_set_pan
+@xref voice_set_frequency, voice_set_pan, SAMPLE
 If you need more detailed control over how samples are played, you can use 
 the lower level voice functions rather than just calling play_sample(). This 
 is rather more work, because you have to explicitly allocate and free the 
 voices rather than them being automatically released when they finish 
 playing, but allows far more precise specification of exactly how you want 
 everything to sound. You may also want to modify a couple of fields from the 
-sample structure:
-<textblock>
-   int priority;
-      Ranging 0-255 (default 128), this controls how voices are
-      allocated if you attempt to play more than the driver can handle.
-      This may be used to ensure that the less important sounds are
-      cut off while the important ones are preserved.
-
-   unsigned long loop_start;
-   unsigned long loop_end;
-      Loop position in sample units, by default set to the start and end of 
-      the sample.<endblock>
+SAMPLE structure. Read chapter "Structures and types defined by Allegro" for
+its definition.
 
 @@int @allocate_voice(const SAMPLE *spl);
 @xref Voice control, deallocate_voice, reallocate_voice, release_voice
@@ -8927,8 +9011,22 @@ to fit in a regular SAMPLE structure, either because they are huge files
 that you want to load in pieces as the data is required, or because you are 
 doing something clever like generating the waveform on the fly.
 
-@@AUDIOSTREAM *@play_audio_stream(int len, bits, stereo, freq, vol, pan);
+You can think of an AUDIOSTREAM structure as a wrapper around two audio
+buffers. The first thing you do is fill both buffers with sound data and let
+Allegro play them. Once the first buffer has been played, the second starts,
+and Allegro lets you know you have to fill the other one (i.e. graphics
+double buffering applied to sounds too big to fit into memory).
+
+The implementation of the sound buffers uses normal SAMPLE structures, so you
+can use all the voice_*() functions to modify the audio streams. Read chapter
+"Digital sample routines", section "Voice control" for a list of additional
+functions you can use. Read chapter "Structures and types defined by Allegro"
+for the internals of the AUDIOSTREAM structure.
+
+@\AUDIOSTREAM *@play_audio_stream(int len, int bits, int stereo,
+@@                               int freq, int vol, int pan);
 @xref install_sound, get_audio_stream_buffer, stop_audio_stream
+@xref AUDIOSTREAM, Voice control
 @eref exstream
 @shortdesc Creates a new audio stream and starts playing it.
    This function creates a new audio stream and starts playing it. The 
@@ -8938,18 +9036,26 @@ doing something clever like generating the waveform on the fly.
    normally be (but doesn't have to be) a power of 2 somewhere around 1k in 
    size. Larger buffers are more efficient and require fewer updates, but 
    result in more latency between you providing the data and it actually 
-   being played. The bits parameter must be 8 or 16. freq is the sample rate 
-   of the data in Hertz. The vol and pan values use the same 0-255 ranges as 
-   the regular sample playing functions. The stereo parameter should be set 
-   to 1 for stereo streams, or 0 otherwise. If you want to adjust the pitch, 
-   volume, or panning of a stream once it is playing, you can use the regular
-   voice_*() functions with stream-&gtvoice as a parameter. The sample data 
-   are always in unsigned format.
+   being played.
+
+   The `bits' parameter must be 8 or 16. `freq' is the sample rate of the
+   data in Hertz. The `vol' and `pan' values use the same 0-255 ranges as the
+   regular sample playing functions. The `stereo' parameter should be set to
+   1 for stereo streams, or 0 otherwise.
+
+   If you want to adjust the pitch, volume, or panning of a stream once it is
+   playing, you can use the regular voice_*() functions with stream-&gtvoice
+   as a parameter. The sample data are always in unsigned format. This means
+   that if you are loading a WAVE file (Windows PCM format) which is 16 bits,
+   mono and with a 44.1 kHz rate, you would have to XOR the values from the
+   file with 0x8000 before passing them to Allegro.
 
    The formula to get the size of the buffers in bytes could be:
 <codeblock>
-   bytes = len * (bits / 8) * (stereo ? 2 : 1)
-<endblock>
+      bytes = length * (bits / 8) * (stereo ? 2 : 1)<endblock>
+@retval
+   This function returns a pointer to the audio stream or NULL if it could
+   not be created.
 
 @@void @stop_audio_stream(AUDIOSTREAM *stream);
 @xref play_audio_stream
@@ -9717,6 +9823,8 @@ directories, but not hidden files and directories. Similarly, if you pass
 @retval
    Returns the number of bytes added to the buffer.
 
+
+
 @heading
 Datafile routines
 
@@ -10133,9 +10241,6 @@ tools/plugins directory. This can be used to add whole new object types and
 menu commands, or to provide additional import/export routines for the 
 existing formats. See tools/plugins/plugins.txt for an overview of how to 
 write your own grabber plugins.
-
-
-
 
 
 
@@ -10858,10 +10963,16 @@ Dialog procedures may be called with any of the messages:
    tracking as long as the button is held down, and only return from this 
    message handler when it is released.
 
+   If you process this message, use the functions gui_mouse_*() to read the
+   state of the mouse.
+
 <b>MSG_DCLICK:</b><br>
    Sent when the user double-clicks on an object. A MSG_CLICK will be sent 
    when the button is first pressed, then MSG_DCLICK if it is released and 
    pressed again within a short space of time.
+
+   If you process this message, use the functions gui_mouse_*() to read the
+   state of the mouse.
 
 <b>MSG_KEY:</b><br>
    Sent when the keyboard shortcut for the object is pressed, or if enter, 
@@ -11233,15 +11344,15 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    flipping system. Passing NULL will cause the default surface (screen) to
    be used again. Example:
 <codeblock>
-   BITMAP *page[2];
-   
-   /* Allocate two pages of video memory */
-   page[0] = create_video_bitmap(SCREEN_W, SCREEN_H);
-   page[1] = create_video_bitmap(SCREEN_W, SCREEN_H);
-   
-   /* Page flip */
-   show_video_bitmap(page[0]);
-   gui_set_screen(page[0]);
+      BITMAP *page[2];
+      
+      /* Allocate two pages of video memory */
+      page[0] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      page[1] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      
+      /* Page flip */
+      show_video_bitmap(page[0]);
+      gui_set_screen(page[0]);
 <endblock>
 
 @@BITMAP *@gui_get_screen(void);
@@ -12466,6 +12577,7 @@ command. You could add another grep to filter only lines with text like
    xfixicon.sh utility from the tools/x11 directory to convert a true 
    colour bitmap to a C file that you only need to link with your own code
    to set the icon.
+
 
 
 @heading
