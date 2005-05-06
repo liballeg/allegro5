@@ -327,6 +327,16 @@ int lzss_write(PACKFILE *file, LZSS_PACK_DATA *dat, int size, unsigned char *buf
       }
 
       if ((mask <<= 1) == 0) {                  /* shift mask left one bit */
+
+	 if ((file->is_normal_packfile) && (file->normal.passpos) &&
+	     (file->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
+	 {
+	    dat->code_buf[0] ^= *file->normal.passpos;
+	    file->normal.passpos++;
+	    if (!*file->normal.passpos)
+	       file->normal.passpos = file->normal.passdata;
+	 }
+
 	 for (i=0; i<code_buf_ptr; i++)         /* send at most 8 units of */
 	    pack_putc(dat->code_buf[i], file);  /* code together */
 
@@ -374,6 +384,16 @@ int lzss_write(PACKFILE *file, LZSS_PACK_DATA *dat, int size, unsigned char *buf
    } while (len > 0);   /* until length of string to be processed is zero */
 
    if (code_buf_ptr > 1) {         /* send remaining code */
+
+      if ((file->is_normal_packfile) && (file->normal.passpos) &&
+	  (file->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
+      {
+	 dat->code_buf[0] ^= *file->normal.passpos;
+	 file->normal.passpos++;
+	 if (!*file->normal.passpos)
+	    file->normal.passpos = file->normal.passdata;
+      }
+
       for (i=0; i<code_buf_ptr; i++) {
 	 pack_putc(dat->code_buf[i], file);
 	 if (pack_ferror(file)) {
@@ -465,6 +485,15 @@ int lzss_read(PACKFILE *file, LZSS_UNPACK_DATA *dat, int s, unsigned char *buf)
       if (((flags >>= 1) & 256) == 0) {
 	 if ((c = pack_getc(file)) == EOF)
 	    break;
+  
+	 if ((file->is_normal_packfile) && (file->normal.passpos) &&
+	     (file->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
+	 {
+	    c ^= *file->normal.passpos;
+	    file->normal.passpos++;
+	    if (!*file->normal.passpos)
+	       file->normal.passpos = file->normal.passdata;
+	 }
 
 	 flags = c | 0xFF00;        /* uses higher byte to count eight */
       }
