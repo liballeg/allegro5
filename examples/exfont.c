@@ -1,5 +1,5 @@
 /*
- *    Example program for the Allegro library, by Shawn Hargreaves.
+ *    Example program for the Allegro library, by Evert Glebbeek.
  *
  *    This is a very simple program showing how to load and manipulate fonts.
  */
@@ -66,8 +66,11 @@ int main(void)
     */
    acquire_screen();
 
-   /* write some text to the screen with black letters and transparent background */
-   textout_centre_ex(screen, font, "Hello, world!", SCREEN_W/2, SCREEN_H/2, makecol(0,0,0), -1);
+   /* write some text to the screen with black letters and transparent
+    * background
+    */
+   textout_centre_ex(screen, font, "Hello, world!", SCREEN_W/2, SCREEN_H/2,
+                     makecol(0,0,0), -1);
 
    /* you must always release bitmaps before calling any input functions */
    release_screen();
