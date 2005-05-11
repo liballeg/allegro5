@@ -3542,7 +3542,7 @@ incorrect data.
 @@int @install_joystick(int type);
 @xref remove_joystick, load_joystick_data, calibrate_joystick
 @xref calibrate_joystick_name, poll_joystick, Standard config variables
-@xref JOY_TYPE_*/DOS
+@xref JOY_TYPE_*/DOS, JOY_TYPE_*/Windows, JOY_TYPE_*/Linux
 @eref exjoy
 @shortdesc Initialises the joystick.
    Initialises the joystick, and calibrates the centre position value. The 
@@ -12098,6 +12098,30 @@ function are 8, 16, 24 and 32. This means that 15-bit and 16-bit desktops
 cannot be differentiated and are both reported as 16-bit desktops. See
 below for the consequences for windowed and overlay DirectX drivers.
 
+@@Drivers @JOY_TYPE_*/Windows
+@shortdesc Supported Windows joystick drivers.
+@xref install_joystick
+   The Windows library supports the following type parameters for the 
+   install_joystick() function:
+<ul><li>
+   JOY_TYPE_AUTODETECT<br>
+      Attempts to autodetect your joystick hardware. It will use information 
+      from the configuration file if one is available (this can be created 
+      using the setup utility or by calling the save_joystick_data()
+      function), so you can always use JOY_TYPE_AUTODETECT in your code and
+      then select the exact hardware type from the setup program.
+<li>
+   JOY_TYPE_NONE<br>
+      Dummy driver for machines without any joystick.
+<li>
+   JOY_TYPE_DIRECTX<br>
+      Use DirectInput to access the joystick.
+<li>
+   JOY_TYPE_WIN32<br>
+      Use the regular Win32 interface rather than DirectInput to access the
+      joystick.
+</ul>
+
 @@Drivers @GFX_*/Windows
 @xref set_gfx_mode
 @shortdesc Supported Windows graphic drivers.
@@ -12431,6 +12455,27 @@ Since we are interested only in files being (un)successfully opened, we
 restrict the output of the log to stat or open calls with the extended grep
 command. You could add another grep to filter only lines with text like
 `keyboard' or `allegro'.
+
+@@Drivers @JOY_TYPE_*/Linux
+@shortdesc Supported Linux joystick drivers.
+@xref install_joystick
+   The Linux library supports the following type parameters for the 
+   install_joystick() function:
+<ul><li>
+   JOY_TYPE_AUTODETECT<br>
+      Attempts to autodetect your joystick hardware. It will use information 
+      from the configuration file if one is available (this can be created 
+      using the setup utility or by calling the save_joystick_data()
+      function), so you can always use JOY_TYPE_AUTODETECT in your code and
+      then select the exact hardware type from the setup program.
+<li>
+   JOY_TYPE_NONE<br>
+      Dummy driver for machines without any joystick.
+<li>
+   JOY_TYPE_LINUX_ANALOGUE<br>
+      Regular joystick interface. Joystick support needs to be enabled in your
+      kernel.
+</ul>
 
 @@Drivers @GFX_*/Linux
 @xref set_gfx_mode, GFX_*/X
