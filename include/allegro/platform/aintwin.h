@@ -69,7 +69,6 @@ AL_FUNC(void, save_window_pos, (void));
 /* main window */
 #define WND_TITLE_SIZE  128
 
-AL_VAR(HWND, allegro_wnd);
 AL_ARRAY(char, wnd_title);
 AL_VAR(int, wnd_x);
 AL_VAR(int, wnd_y);
@@ -92,17 +91,17 @@ AL_VAR(int, gfx_crit_sect_nesting);
 
 
 /* switch routines */
-AL_VAR(int, app_foreground);
+AL_VAR(int, _win_app_foreground);
 
 AL_FUNC(void, sys_directx_display_switch_init, (void));
 AL_FUNC(void, sys_directx_display_switch_exit, (void));
 AL_FUNC(int, sys_directx_set_display_switch_mode, (int mode));
 
-AL_FUNC(void, sys_switch_in, (void));
-AL_FUNC(void, sys_switch_out, (void));
-AL_FUNC(void, sys_reset_switch_mode, (void));
+AL_FUNC(void, _win_switch_in, (void));
+AL_FUNC(void, _win_switch_out, (void));
+AL_FUNC(void, _win_reset_switch_mode, (void));
 
-AL_FUNC(int, thread_switch_out, (void));
+AL_FUNC(int, _win_thread_switch_out, (void));
 
 
 /* main window routines */
@@ -111,14 +110,14 @@ AL_FUNC(void, wnd_schedule_proc, (int (*proc)(void)));
 
 
 /* input routines */
-AL_VAR(int, input_events);
-AL_ARRAY(HANDLE, input_event_id);
-AL_FUNCPTRARRAY(void, input_event_handler, (void));
+AL_VAR(int, _win_input_events);
+AL_ARRAY(HANDLE, _win_input_event_id);
+AL_FUNCPTRARRAY(void, _win_input_event_handler, (void));
 
-AL_FUNC(void, input_init, (int need_thread));
-AL_FUNC(void, input_exit, (void));
-AL_FUNC(int, input_register_event, (HANDLE event_id, void (*event_handler)(void)));
-AL_FUNC(void, input_unregister_event, (HANDLE event_id));
+AL_FUNC(void, _win_input_init, (int need_thread));
+AL_FUNC(void, _win_input_exit, (void));
+AL_FUNC(int, _win_input_register_event, (HANDLE event_id, void (*event_handler)(void)));
+AL_FUNC(void, _win_input_unregister_event, (HANDLE event_id));
 
 
 /* keyboard routines */
@@ -162,8 +161,8 @@ AL_FUNC(int, joystick_dinput_unacquire, (void));
 
 
 /* thread routines */
-AL_FUNC(void, thread_init, (void));
-AL_FUNC(void, thread_exit, (void));
+AL_FUNC(void, _win_thread_init, (void));
+AL_FUNC(void, _win_thread_exit, (void));
 
 
 /* synchronization routines */
