@@ -972,6 +972,8 @@ void _handle_listbox_click(DIALOG *d)
 	    else
 	       sel[i] = !sel[i];
 	 }
+	 else
+	    sel[i] = TRUE;
       }
 
       d->d1 = i;
@@ -982,6 +984,18 @@ void _handle_listbox_click(DIALOG *d)
 
       if (i != d->d2)
 	 rest_callback(MID(10, text_height(font)*16-d->h-1, 100), idle_cb);
+   }
+   else {
+      if (!(d->flags & D_INTERNAL)) {
+	 if (sel) {
+	    if((key_shifts & KB_CTRL_FLAG))
+	       sel[i] = !sel[i];
+	    else
+	       sel[i] = TRUE;
+
+	    d->flags |= D_DIRTY;
+	 }
+      }
    }
 }
 
@@ -1075,13 +1089,23 @@ void _draw_listbox(DIALOG *d)
    /* draw box contents */
    for (i=0; i<height; i++) {
       if (d->d2+i < listsize) {
-	 if (d->d2+i == d->d1) {
+	 if (sel) { 
+	    if ((sel[d->d2+i]) && (d->d2+i == d->d1)) {
+	       fg = d->bg;
+	       bg = fg_color;
+		}
+	    else if (sel[d->d2+i]) {
+	       fg = d->bg;
+	       bg = gui_mg_color;
+	    }
+	    else {
+	       fg = fg_color;
+	       bg = d->bg;
+	    }
+	 }
+	 else if (d->d2+i == d->d1) {
 	    fg = d->bg;
 	    bg = fg_color;
-	 } 
-	 else if ((sel) && (sel[d->d2+i])) { 
-	    fg = d->bg;
-	    bg = gui_mg_color;
 	 }
 	 else {
 	    fg = fg_color;
@@ -1101,6 +1125,8 @@ void _draw_listbox(DIALOG *d)
 	 x += text_length(font, s);
 	 if (x <= d->x+w) 
 	    rectfill(gui_bmp, x, y, d->x+w, y+text_height(font)-1, bg);
+	 if (d->d2+i == d->d1)
+	    dotted_rect(d->x+1, y, d->x+d->w-(bar ? 12 : 0), y+text_height(font)-1, d->fg, d->bg);
       }
       else {
 	 rectfill(gui_bmp, d->x+2,  d->y+2+i*text_height(font), 
