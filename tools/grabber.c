@@ -3418,7 +3418,7 @@ void datedit_msg(AL_CONST char *fmt, ...)
    char buf[1024];
 
    va_start(args, fmt);
-   vsprintf(buf, fmt, args);
+   uvszprintf(buf, 1024, fmt, args);
    va_end(args);
 
    show_mouse(NULL);
@@ -3440,7 +3440,7 @@ void datedit_startmsg(AL_CONST char *fmt, ...)
    char buf[1024];
 
    va_start(args, fmt);
-   vsprintf(buf, fmt, args);
+   uvszprintf(buf, 1024, fmt, args);
    va_end(args);
 
    box_out(buf);
@@ -3455,7 +3455,7 @@ void datedit_endmsg(AL_CONST char *fmt, ...)
    char buf[1024];
 
    va_start(args, fmt);
-   vsprintf(buf, fmt, args);
+   uvszprintf(buf, 1024, fmt, args);
    va_end(args);
 
    show_mouse(NULL);
@@ -3477,7 +3477,7 @@ void datedit_error(AL_CONST char *fmt, ...)
    char buf[1024];
 
    va_start(args, fmt);
-   vsprintf(buf, fmt, args);
+   uvszprintf(buf, 1024, fmt, args);
    va_end(args);
 
    set_mouse_sprite(my_mouse_pointer);
