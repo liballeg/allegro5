@@ -3022,8 +3022,7 @@ Allegro does not provide such devices.)
 @@void @rest(unsigned int time);
 @xref install_timer, rest_callback
 @xref vsync, d_yield_proc
-@eref exkeys, exmidi, exquat, exsample, exsprite, exsyscur, extimer
-@eref exunicod
+@eref exkeys, exmidi, exquat, exsample, exsprite, extimer, exunicod
 @shortdesc Waits a specified number of milliseconds or yields CPU.
    This function waits for the specified number of milliseconds.
 
@@ -7158,6 +7157,7 @@ set_blender_mode() is ignored.
 
 @@#define @POLYTYPE_FLAT
 @xref Polygon rendering, polygon3d, drawing_mode
+@eref ex3d, excamera
 @shortdesc Polygon rendering mode type
    A simple flat shaded polygon, taking the color from the `c' value of the
    first vertex. This polygon type is affected by the drawing_mode() function,
@@ -7165,6 +7165,7 @@ set_blender_mode() is ignored.
 
 @@#define @POLYTYPE_GCOL
 @xref Polygon rendering, polygon3d, makecol
+@eref ex3d, exscn3d, exzbuf
 @shortdesc Polygon rendering mode type
    A single-color gouraud shaded polygon. The colors for each vertex are taken
    from the `c' value, and interpolated across the polygon. This is very fast,
@@ -7174,6 +7175,7 @@ set_blender_mode() is ignored.
 
 @@#define @POLYTYPE_GRGB
 @xref Polygon rendering, polygon3d, rgb_map
+@eref ex3d
 @shortdesc Polygon rendering mode type
    A gouraud shaded polygon which interpolates RGB triplets rather than a
    single color. In 256-color modes this uses the global rgb_map table to
@@ -7184,6 +7186,7 @@ set_blender_mode() is ignored.
 
 @@#define @POLYTYPE_ATEX
 @xref Polygon rendering, polygon3d
+@eref ex3d
 @shortdesc Polygon rendering mode type
    An affine texture mapped polygon. This stretches the texture across the
    polygon with a simple 2d linear interpolation, which is fast but not
@@ -7195,6 +7198,7 @@ set_blender_mode() is ignored.
 
 @@#define @POLYTYPE_PTEX
 @xref Polygon rendering, polygon3d, POLYTYPE_ATEX
+@eref ex3d
 @shortdesc Polygon rendering mode type
    A perspective-correct texture mapped polygon. This uses the `z' value from
    the vertex structure as well as the u/v coordinates, so textures are
@@ -7208,6 +7212,7 @@ set_blender_mode() is ignored.
 @@#define @POLYTYPE_ATEX_MASK
 @@#define @POLYTYPE_PTEX_MASK
 @xref Polygon rendering, polygon3d, POLYTYPE_ATEX, POLYTYPE_PTEX
+@eref ex3d
 @shortdesc Polygon rendering mode type
    Like POLYTYPE_ATEX and POLYTYPE_PTEX, but zero texture map pixels are
    skipped, allowing parts of the texture map to be transparent.
@@ -7216,6 +7221,7 @@ set_blender_mode() is ignored.
 @@#define @POLYTYPE_PTEX_LIT
 @xref Polygon rendering, polygon3d, POLYTYPE_ATEX, POLYTYPE_PTEX
 @xref color_map, Truecolor transparency
+@eref ex3d
 @shortdesc Polygon rendering mode type
    Like POLYTYPE_ATEX and POLYTYPE_PTEX, but the global color_map table (for
    256-color modes) or blender function (for non-MMX truecolor modes) is used
@@ -7226,6 +7232,7 @@ set_blender_mode() is ignored.
 @@#define @POLYTYPE_ATEX_MASK_LIT
 @@#define @POLYTYPE_PTEX_MASK_LIT
 @xref Polygon rendering, polygon3d, POLYTYPE_ATEX_LIT, POLYTYPE_PTEX_LIT
+@eref ex3d
 @shortdesc Polygon rendering mode type
    Like POLYTYPE_ATEX_LIT and POLYTYPE_PTEX_LIT, but zero texture map pixels
    are skipped, allowing parts of the texture map to be transparent.
@@ -7233,6 +7240,7 @@ set_blender_mode() is ignored.
 @@#define @POLYTYPE_ATEX_TRANS
 @@#define @POLYTYPE_PTEX_TRANS
 @xref Polygon rendering, polygon3d
+@eref ex3d
 @shortdesc Polygon rendering mode type
    Render translucent textures. All the general rules for drawing
    translucent things apply. However, these modes have a major
@@ -7244,6 +7252,7 @@ set_blender_mode() is ignored.
 @@#define @POLYTYPE_ATEX_MASK_TRANS
 @@#define @POLYTYPE_PTEX_MASK_TRANS
 @xref Polygon rendering, polygon3d
+@eref ex3d
 @shortdesc Polygon rendering mode type
    Like POLYTYPE_ATEX_TRANS and POLYTYPE_PTEX_TRANS, but zero texture map 
    pixels are skipped.
@@ -14107,7 +14116,12 @@ and avoid missing any important bit of information.
    aren't going to work too well :-)
 
 @@Example @ex3d
-@xref BITMAP, COLOR_MAP, END_OF_MAIN, MATRIX, PALETTE, RGB, RGB_MAP
+@xref BITMAP, COLOR_MAP, END_OF_MAIN, MATRIX, PALETTE, POLYTYPE_ATEX
+@xref POLYTYPE_ATEX_LIT, POLYTYPE_ATEX_MASK, POLYTYPE_ATEX_MASK_LIT
+@xref POLYTYPE_ATEX_MASK_TRANS, POLYTYPE_ATEX_TRANS, POLYTYPE_FLAT
+@xref POLYTYPE_GCOL, POLYTYPE_GRGB, POLYTYPE_PTEX, POLYTYPE_PTEX_LIT
+@xref POLYTYPE_PTEX_MASK, POLYTYPE_PTEX_MASK_LIT
+@xref POLYTYPE_PTEX_MASK_TRANS, POLYTYPE_PTEX_TRANS, RGB, RGB_MAP
 @xref SCREEN_H, SCREEN_W, V3D, allegro_error, allegro_exit, allegro_init
 @xref allegro_message, apply_matrix, bitmap_color_depth
 @xref bitmap_mask_color, blit, clear_bitmap, clear_to_color, color_map
@@ -14134,9 +14148,9 @@ and avoid missing any important bit of information.
    texture mapped version, and many other.
 
 @@Example @excamera
-@xref BITMAP, END_OF_MAIN, MATRIX_f, SCREEN_H, SCREEN_W, V3D_f
-@xref allegro_error, allegro_init, allegro_message, apply_matrix_f, blit
-@xref clear_to_color, clip3d_f, create_bitmap, desktop_palette
+@xref BITMAP, END_OF_MAIN, MATRIX_f, POLYTYPE_FLAT, SCREEN_H, SCREEN_W
+@xref V3D_f, allegro_error, allegro_init, allegro_message, apply_matrix_f
+@xref blit, clear_to_color, clip3d_f, create_bitmap, desktop_palette
 @xref destroy_bitmap, font, get_camera_matrix_f
 @xref get_vector_rotation_matrix_f, install_int_ex, install_keyboard
 @xref install_timer, key, key_shifts, makecol, persp_project_f
@@ -14204,11 +14218,11 @@ and avoid missing any important bit of information.
 
 @@Example @exscn3d
 @xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, LOCK_VARIABLE
-@xref MATRIX_f, PALETTE, SCREEN_H, SCREEN_W, V3D_f, allegro_error
-@xref allegro_exit, allegro_init, allegro_message, apply_matrix_f
-@xref bitmap_color_depth, blit, clear_bitmap, clear_scene, clip3d_f
-@xref create_bitmap, create_scene, desktop_palette, destroy_bitmap
-@xref destroy_scene, font, get_rotation_matrix_f
+@xref MATRIX_f, PALETTE, POLYTYPE_GCOL, SCREEN_H, SCREEN_W, V3D_f
+@xref allegro_error, allegro_exit, allegro_init, allegro_message
+@xref apply_matrix_f, bitmap_color_depth, blit, clear_bitmap, clear_scene
+@xref clip3d_f, create_bitmap, create_scene, desktop_palette
+@xref destroy_bitmap, destroy_scene, font, get_rotation_matrix_f
 @xref get_translation_matrix_f, gfx_mode_select_ex, install_int
 @xref install_keyboard, install_mouse, install_timer, key, matrix_mul_f
 @xref palette_color, persp_project_f, polygon_z_normal_f, render_scene
@@ -14224,8 +14238,8 @@ and avoid missing any important bit of information.
 
 @@Example @exzbuf
 @xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, LOCK_VARIABLE
-@xref MATRIX_f, PALETTE, SCREEN_H, SCREEN_W, V3D_f, ZBUFFER
-@xref allegro_error, allegro_exit, allegro_init, allegro_message
+@xref MATRIX_f, PALETTE, POLYTYPE_GCOL, SCREEN_H, SCREEN_W, V3D_f
+@xref ZBUFFER, allegro_error, allegro_exit, allegro_init, allegro_message
 @xref apply_matrix_f, bitmap_color_depth, blit, clear_bitmap
 @xref clear_zbuffer, create_bitmap, create_zbuffer, desktop_palette
 @xref destroy_bitmap, destroy_zbuffer, font, get_transformation_matrix_f
@@ -14393,9 +14407,9 @@ and avoid missing any important bit of information.
 @xref END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error, allegro_init
 @xref allegro_message, clear_to_color, enable_hardware_cursor, font
 @xref gfx_capabilities, install_keyboard, install_mouse, install_timer
-@xref keypressed, makecol, readkey, rest, screen, select_mouse_cursor
-@xref set_gfx_mode, show_mouse, text_height, textprintf_centre_ex
-   Test program for hardware cursors.
+@xref makecol, readkey, screen, select_mouse_cursor, set_gfx_mode
+@xref show_mouse, text_height, textprintf_centre_ex
+   This program demonstrates the use of hardware accelerated mouse cursors.
 
 @@Example @exupdate
 @xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, LOCK_VARIABLE
@@ -14465,12 +14479,12 @@ and avoid missing any important bit of information.
 
 @@Example @expackf
 @xref ASSERT, BITMAP, END_OF_MAIN, PACKFILE, PACKFILE_VTABLE, SCREEN_H
-@xref SCREEN_W, alert, allegro_init, blit, clear_bitmap, destroy_bitmap
-@xref file_size, font, install_keyboard, key, load_bmp_pf, load_pcx
-@xref load_pcx_pf, load_tga_pf, pack_fclose, pack_fopen
-@xref pack_fopen_vtable, pack_fread, pack_fseek, readkey, save_bmp_pf
-@xref save_tga_pf, screen, set_color_depth, set_gfx_mode, text_height
-@xref textprintf_centre_ex, textprintf_ex
+@xref SCREEN_W, alert, allegro_error, allegro_init, allegro_message, blit
+@xref clear_bitmap, destroy_bitmap, file_size, font, install_keyboard
+@xref key, load_bmp_pf, load_pcx, load_pcx_pf, load_tga_pf, pack_fclose
+@xref pack_fopen, pack_fopen_vtable, pack_fread, pack_fseek, readkey
+@xref save_bmp_pf, save_tga_pf, screen, set_color_depth, set_gfx_mode
+@xref text_height, textprintf_centre_ex, textprintf_ex
 @shortdesc Using custom PACKFILE vtables.
    This program demonstrates the use of the packfile functions, with some
    simple tests.
