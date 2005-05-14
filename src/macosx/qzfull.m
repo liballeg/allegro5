@@ -343,7 +343,7 @@ static void osx_qz_full_set_palette(AL_CONST struct RGB *p, int from, int to, in
 static int osx_qz_show_video_bitmap(BITMAP *bmp)
 {
    Rect rect;
-   char *addr;
+   unsigned char *addr;
    int i;
    
    if ((bmp->w != gfx_quartz_full.w) || (bmp->h != gfx_quartz_full.h))

@@ -129,7 +129,7 @@ static BITMAP *_make_quickdraw_bitmap(int width, int height, int flags)
    BITMAP *bmp;
    GWorldPtr gworld;
    Rect rect;
-   char *addr;
+   unsigned char *addr;
    int pitch;
    int i, size;
    
