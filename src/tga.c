@@ -398,7 +398,7 @@ BITMAP *load_tga_pf(PACKFILE *f, RGB *pal)
 	     pal[i].b = i>>2;
 	 }
 
-	 dest_depth = _color_depth;
+	 dest_depth = _color_load_depth(bpp, FALSE);
 	 break;
 
       default:
