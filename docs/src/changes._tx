@@ -8,6 +8,100 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
+<ul><li>
+   Grzegorz Adam Hankiewicz did several documenation update.
+<li>
+   Evert Glebbeek cleaned up some of the global namespace pollution in the 
+   Windows port.
+<li>
+   Chris Robinson made improvements to the Windows sound driver.
+<li>
+   Chris Robinson made the GUI multi-selection box behave a bit nicer.
+<li>
+   Grzegorz Adam Hankiewicz added a bunch of ASSERTs to the code to check for
+   out-of-range arguments.
+<li>
+   Jakub Wasilewski fixed a bug when loading greyscale TGA images
+<li>
+   Evert Glebbeek fixed a bug where the bottom and right line of pixels was 
+   not updated on show_video_bitmap, as pointed out by Thomas Harte.
+<li>
+   Evert Glebbeek documented JOY_TYPE_* defines for Windows and Linux.
+<li>
+   Peter Wang made some cosmetic changes to some of the examples.
+<li>
+   Dark Nation restored the ability to read old-style encrypted packfiles, 
+   i.e. those produced before Allegro 3.9.30.  This was silently removed
+   from 4.1.18 when custom packfile support / decoupled compression routines 
+   were added.
+<li>
+   Peter Wang added acomment describing the evdev mouse driver in allegro.cfg.
+<li>
+   Evert Glebbeek made the grabber and dat utilities now use Allegro's buildin 
+   load_font() function and made datafiles properly store truecolour fonts and
+   added a datedit_select() callback to datedit.
+<li>
+   Evert Glebbeek fixed some unsafe assumptions on the size of integer datatypes.
+<li>
+   Arthur Huillet fixed a typo in the docs.
+<li>
+   Elias Pschernig restored Alt+key = ASCII code 0 behavior for the windows 
+   keyboard driver
+<li>
+   Evert Glebbeek fixed a bug that caused a crash when loading Allegro 1.x 
+   datafiles containing 4 bit bitmaps.
+<li>
+   Peter Wang clarified the mode select documentation and made the mode 
+   selector clear the input variables before passing them on to the filter.
+<li>
+   Peter Wang fixed a bug in the mode selector where disabled drivers were 
+   still shown with empty resolution lists. Pointed out by Hrvoje Ban.
+<li>
+   Elias Pschernig fixed Allegro's internal multithreading in Windows. This
+   fixes a deadlock on exit.
+<li>
+   Robert Alfonso made the MSVC makefile call `link /lib' rather than `lib',
+   which doesn't work for the free toolkit.
+<li>
+   Peter Hull fixed a problem with hardware cursors not working properly in 
+   MacOS X.
+<li>
+   Peter Hull added a missing enable_hardware_cursor vtable entry and added OS 
+   native cursors for the MacOS X port.
+<li>
+   Grzegorz Adam Hankiewicz documented online Allegro patch generator.
+<li>
+   Evert Glebbeek renamed datafiles._tx -> datafile._tx
+<li>
+   StApostol updated the FAQ to use rest(0) instead of the deprecated yield_timeslice().
+<li>
+   Evert Glebbeek silenced some GCC4 warnings in MacOS X.
+<li>
+   Peter Wang fixed warnings and errors with gcc 4.0.0 on the unix port; 
+   reported by Milan Mimica.
+<li>
+   Peter Wang added preprocessor symbol ALLEGRO_NO_FIX_CLASS that the user can 
+   define to not pull in the `fix' class in C++ programs.
+<li>
+   Peter Wang removed the exdodgy example.
+<li>
+   Elias Pschernig fixed another X11 async reply.
+<li>
+   Elias Pschernig made the seek in expackf test work with windows line endings.
+<li>
+   Elias Pschernig removed some superfluous variables
+<li>
+   Evert Glebbeek fixed a small bug that prevented the Allegro template for 
+   Project Builder from installing correctly on MacOSX
+<li>
+   Elias Pschernig enabled warnings about unused variables with
+   --enable-strictwarn in unix.
+<li>
+   Peter Wang fixed a warning with Watcom 1.3
+</ul>
+
+@heading
 Changes from 4.2.0 beta 1 to 4.2.0 beta 2 (April 2005)
 <ul><li>
    Daniel Schlyder fixed a problem with the makefile in Windows.

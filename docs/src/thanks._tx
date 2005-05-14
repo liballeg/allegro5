@@ -96,6 +96,9 @@ Contributors
 
    Arne Steinarson (<email>arst@ludd.luth.se</a>).<br>
    The fixed point square root routine came from his fix-float library.
+   
+   Arthur Huillet (email unknown).<br>
+   Fixed a typo in the docs.
 
    Attila Szilagyi (<email>attilabox@hotmail.com</a>).<br>
    Fixed SVGAlib horizontal scrolling.
@@ -204,6 +207,10 @@ Contributors
 
    Daniel Verkamp (<email>i_am_drv@users.sourceforge.net</a>).<br>
    Added a MIDI input driver to the Windows port.
+   
+   Dark Nation (email unknown).<br>
+   Restored support for old-style encrypted packfiles, which had been removed
+   in 4.1.18.
 
    David A. Capello (<email>dacap@users.sourceforge.net</a>).<br>
    Made dotted_rect() avoid bank switches, fixed a problem with lost GUI
@@ -373,6 +380,9 @@ Contributors
    VESA, VBE/AF and DirectX drivers for a list of possible GFX modes,
    rewrote the mode-selector to use get_gfx_mode_list(), reworked the build
    system many times and did plenty of other things too.
+   
+   Hrvoje Ban (email unknown).<br>
+   Pointed out a bug in the mode selector.
 
    Igor Gnip (<email>gnipi@mindnever.org</a>).<br>
    Removed the requirements for fileutils on DOS/Windows platforms and added
@@ -391,6 +401,9 @@ Contributors
    
    Jaime Moreno (<email>daviangel@hotmail.com</a>).<br>
    Helped track down a problem with dependency generation in MacOS X.
+   
+   Jakub Wasilewski (<email>krajzega@meditech.pl</a>).<br>
+   Fixed a bug when loading greyscale TGA images.
 
    James Arthur (<email>jaa@arfa.clara.net</a>).<br>
    Documented the Photoshop-style truecolor blender routines.
@@ -616,8 +629,8 @@ Contributors
    problem with al_find*() and NTFS partitions under Windows, added missing
    header files to be installed by the Windows binary distribution, made the
    DOS/Windows makefiles use 'copy /B' instead of 'copy', added the detection
-   of left-hand mouse configuration under Windows and fixed a bug with
-   pack_fgets().
+   of left-hand mouse configuration under Windows, fixed a bug with
+   pack_fgets(), made an online diff generator and did lots of other things too.
 
    Maxime Carey (<email>werfu@users.sourceforge.net</a>).<br>
    Contributed the Canada (French) keyboard mapping file.
@@ -737,8 +750,9 @@ Contributors
 
    Peter Hull (<email>peterhull90@users.sourceforge.net</a>).<br>
    Made the file selector work with directories that have more than 2048 
-   files, solved some compiling issues on MacOS X and fixed a bug in rest() 
-   that caused it to wait too long on that platform.
+   files, solved some compiling issues on MacOS X, fixed a bug in rest() 
+   that caused it to wait too long on that platform and fixed several problems
+   with the hardware mouse cursor.
    
    Peter Johansson (email unknown).<br>
    Reported a problem with system cursors not working in Windows.
@@ -809,8 +823,9 @@ Contributors
    capabilities, separated the CSS file and did plenty of other things too.
 
    Roberto Alfonso (<email>rpgrca@labint.frba.utn.edu.ar</a>).<br>
-   Fixed a couple of memory problems in the dat2c utility and added an
-   srand() call in the demo game.
+   Fixed a couple of memory problems in the dat2c utility, added an
+   srand() call in the demo game and made the MSVC port call `link /lib'
+   rather than `lib'.
 
    Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
    Provided a new page flipping code for the DirectDraw subsytem, added a
@@ -873,7 +888,8 @@ Contributors
    Several fixes to the .spec file.
    
    StApostol (<email>stapostol@gmail.com</a>).<br>
-   Fixed a bug in the exflame example.
+   Fixed a bug in the exflame example and updated the FAQ to use rest(0) instead
+   of yield_timeslice().
 
    Stefan Eilert (<email>seilert@rz.Uni-Osnabrueck.DE</a>).<br>
    Added support for a second joystick.
@@ -927,6 +943,9 @@ Contributors
 
    Thomas Fjellstrom (<email>tfjellstrom@home.com</a>).<br>
    Wrote the ALSA 0.5.x MIDI driver and added support for ALSA 0.9.x.
+   
+   Thomas Harte (email unknown).<br>
+   Helped fix a bug in show_video_bitmap() on MacOS X.
 
    Thomas Klausner (<email>wiz@danbala.ifoer.tuwien.ac.at</a>).<br>
    Added NetBSD detection.
