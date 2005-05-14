@@ -127,133 +127,24 @@ static char *driver_names[MAX_DRIVERS];
 static LPGUID driver_guids[MAX_DRIVERS];
 
 
+#define USE_NEW_CODE 0
+
 /* sound driver globals */
 static LPDIRECTSOUND directsound = NULL;
 static LPDIRECTSOUNDBUFFER prim_buf = NULL;
+static LPDIRECTSOUNDBUFFER alleg_buf = NULL;
 static long int initial_volume;
 static int _freq, _bits, _stereo;
 static int alleg_to_dsound_volume[256];
-static unsigned int digidsbufsize, digidsbufpos;
+static unsigned int digidsbufsize;
 static unsigned char *digidsbufdata;
-static unsigned int bufdivs = 16;
-static int prim_buf_paused = FALSE;
-static int prim_buf_vol;
-
-
-
-/* _get_dsalmix_driver:
- *  System driver hook for listing the available sound drivers. This 
- *  generates the device list at runtime, to match whatever DirectSound
- *  devices are available.
- */
-DIGI_DRIVER *_get_dsalmix_driver(char *name, LPGUID guid, int num)
-{
-   DIGI_DRIVER *driver;
-
-   driver = malloc(sizeof(DIGI_DRIVER));
-   if (!driver)
-      return NULL;
-
-   memcpy(driver, &digi_dsoundmix, sizeof(DIGI_DRIVER));
-
-   driver->id = DIGI_DIRECTAMX(num);
-
-   driver_names[num] = malloc(strlen(name)+10);
-   if (driver_names[num]) {
-      _al_sane_strncpy(driver_names[num], "Allegmix ", strlen(name)+10);
-      _al_sane_strncpy(driver_names[num]+9, name, strlen(name)+1);
-      driver->ascii_name = driver_names[num];
-   }
-
-   driver_guids[num] = guid;
-
-   return driver;
-}
-
-
-
-/* digi_dsoundmix_mixer_callback:
- *  Callback function to update sound in primary buffer.
- */
-static void digi_dsoundmix_mixer_callback(void)
-{ 
-   LPVOID lpvPtr1, lpvPtr2;
-   DWORD dwBytes1, dwBytes2, writecurs;
-   HRESULT hr;
-   int switch_mode;
-
-   /* handle display switchs */
-   switch_mode = get_display_switch_mode();
-
-   if (prim_buf_paused) {
-      if (app_foreground ||
-          (switch_mode == SWITCH_BACKGROUND) || (switch_mode == SWITCH_BACKAMNESIA)) {
-         prim_buf_paused = FALSE;
-         IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
-      }
-      else
-         return;
-   }
-   else {
-      if (!app_foreground &&
-          ((switch_mode == SWITCH_PAUSE) || (switch_mode == SWITCH_AMNESIA))) {
-         prim_buf_paused = TRUE;
-         IDirectSoundBuffer_Stop(prim_buf);
-         return;
-      }
-   }
-
-   /* get current state of primary buffer */
-   hr = IDirectSoundBuffer_GetStatus(prim_buf, &dwBytes1);
-   if (dwBytes1 == DSBSTATUS_BUFFERLOST) {
-      IDirectSoundBuffer_Restore(prim_buf);
-      IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
-      IDirectSoundBuffer_SetVolume(prim_buf, prim_buf_vol);
-   }
-
-   hr = IDirectSoundBuffer_GetCurrentPosition(prim_buf, NULL, &writecurs);
-   if (FAILED(hr))
-      return;
-
-   writecurs /= (digidsbufsize/bufdivs);
-   writecurs += 8;
-
-   while (writecurs > (bufdivs-1))
-      writecurs -= bufdivs;
-
-   /* avoid locking the buffer if no data to write */
-   if (writecurs == digidsbufpos)
-      return;
-
-   hr = IDirectSoundBuffer_Lock(prim_buf, 0, 0, 
-                                &lpvPtr1, &dwBytes1, 
-                                &lpvPtr2, &dwBytes2,
-                                DSBLOCK_FROMWRITECURSOR | DSBLOCK_ENTIREBUFFER);
-
-   if (FAILED(hr))
-      return;
-
-   /* write data into the buffer */
-   while (writecurs != digidsbufpos) {
-      if (lpvPtr2) {
-         memcpy((char*)lpvPtr2 + (((dwBytes1+dwBytes2)/bufdivs)*digidsbufpos),
-                digidsbufdata + (((dwBytes1+dwBytes2)/bufdivs)*digidsbufpos),
-                (dwBytes1+dwBytes2)/bufdivs);
-      }
-      else {
-         memcpy((char*)lpvPtr1 + (((dwBytes1)/bufdivs)*digidsbufpos),
-                digidsbufdata + (((dwBytes1)/bufdivs)*digidsbufpos),
-                (dwBytes1)/bufdivs);
-      }
-
-      if (++digidsbufpos > (bufdivs-1))
-         digidsbufpos = 0;
-
-      _mix_some_samples((unsigned long) (digidsbufdata+(((dwBytes1+dwBytes2)/bufdivs)*digidsbufpos)), 0, TRUE);
-   }
-
-   IDirectSoundBuffer_Unlock(prim_buf, lpvPtr1, dwBytes1, lpvPtr2, dwBytes2);
-} 
+#if !USE_NEW_CODE
+static unsigned int bufdivs = 16, digidsbufpos;
+#else
+static int digidsbufdirty;
+#endif
+static int alleg_buf_paused = FALSE;
+static int alleg_buf_vol;
 
 
 
@@ -312,6 +203,223 @@ static char *ds_err(long err)
 
 
 
+/* _get_dsalmix_driver:
+ *  System driver hook for listing the available sound drivers. This 
+ *  generates the device list at runtime, to match whatever DirectSound
+ *  devices are available.
+ */
+DIGI_DRIVER *_get_dsalmix_driver(char *name, LPGUID guid, int num)
+{
+   DIGI_DRIVER *driver;
+
+   driver = malloc(sizeof(DIGI_DRIVER));
+   if (!driver)
+      return NULL;
+
+   memcpy(driver, &digi_dsoundmix, sizeof(DIGI_DRIVER));
+
+   driver->id = DIGI_DIRECTAMX(num);
+
+   driver_names[num] = malloc(strlen(name)+10);
+   if (driver_names[num]) {
+      _al_sane_strncpy(driver_names[num], "Allegmix ", strlen(name)+10);
+      _al_sane_strncpy(driver_names[num]+9, name, strlen(name)+1);
+      driver->ascii_name = driver_names[num];
+   }
+
+   driver_guids[num] = guid;
+
+   return driver;
+}
+
+
+
+/* create_dsound_buffer:
+ *  Worker function for creating a DirectSound buffer.
+ */
+static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int stereo, int vol)
+{
+   LPDIRECTSOUNDBUFFER snd_buf;
+   WAVEFORMATEX wf;
+   DSBUFFERDESC dsbdesc;
+   HRESULT hr;
+
+   /* setup wave format structure */
+   memset(&wf, 0, sizeof(WAVEFORMATEX));
+   wf.wFormatTag = WAVE_FORMAT_PCM;
+   wf.nChannels = stereo ? 2 : 1;
+   wf.nSamplesPerSec = freq;
+   wf.wBitsPerSample = bits;
+   wf.nBlockAlign = bits * (stereo ? 2 : 1) / 8;
+   wf.nAvgBytesPerSec = wf.nSamplesPerSec * wf.nBlockAlign;
+
+   /* setup DSBUFFERDESC structure */
+   memset(&dsbdesc, 0, sizeof(DSBUFFERDESC));
+   dsbdesc.dwSize = sizeof(DSBUFFERDESC);
+
+   /* need volume control and global focus */
+   dsbdesc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_GLOBALFOCUS |
+                     DSBCAPS_GETCURRENTPOSITION2;
+
+   dsbdesc.dwBufferBytes = len * (bits / 8) * (stereo ? 2 : 1);
+   dsbdesc.lpwfxFormat = &wf;
+
+   /* create buffer */
+   hr = IDirectSound_CreateSoundBuffer(directsound, &dsbdesc, &snd_buf, NULL);
+   if (FAILED(hr)) {
+      _TRACE("create_directsound_buffer() failed (%s).\n", ds_err(hr));
+      _TRACE(" - %d Hz, %s, %d bits\n", freq, stereo ? "stereo" : "mono", bits);
+      return NULL;
+   }
+
+   /* set volume */
+   IDirectSoundBuffer_SetVolume(snd_buf, alleg_to_dsound_volume[MID(0, vol, 255)]);
+
+   return snd_buf;
+}
+
+
+
+/* digi_dsoundmix_mixer_callback:
+ *  Callback function to update sound in the DS buffer.
+ */
+static void digi_dsoundmix_mixer_callback(void)
+{ 
+   LPVOID lpvPtr1, lpvPtr2;
+   DWORD dwBytes1, dwBytes2;
+   DWORD playcurs, writecurs;
+   HRESULT hr;
+   int switch_mode;
+
+   /* handle display switchs */
+   switch_mode = get_display_switch_mode();
+
+   if (alleg_buf_paused) {
+      if (app_foreground ||
+          (switch_mode == SWITCH_BACKGROUND) || (switch_mode == SWITCH_BACKAMNESIA)) {
+         /* get current state of the sound buffer */
+         hr = IDirectSoundBuffer_GetStatus(alleg_buf, &dwBytes1);
+         if ((hr == DS_OK) && (dwBytes1 & DSBSTATUS_BUFFERLOST)) {
+            if(IDirectSoundBuffer_Restore(alleg_buf) != DS_OK)
+               return;
+            IDirectSoundBuffer_SetVolume(alleg_buf, alleg_buf_vol);
+         }
+
+         alleg_buf_paused = FALSE;
+         IDirectSoundBuffer_Play(alleg_buf, 0, 0, DSBPLAY_LOOPING);
+      }
+      else
+         return;
+   }
+   else {
+      if (!app_foreground &&
+          ((switch_mode == SWITCH_PAUSE) || (switch_mode == SWITCH_AMNESIA))) {
+         alleg_buf_paused = TRUE;
+         IDirectSoundBuffer_Stop(alleg_buf);
+         return;
+      }
+   }
+
+#if USE_NEW_CODE /* this should work, dammit */
+   /* write data into the buffer */
+   if (digidsbufdirty) {
+      _mix_some_samples((uintptr_t)digidsbufdata, 0, TRUE);
+      digidsbufdirty = FALSE;
+   }
+
+   hr = IDirectSoundBuffer_GetCurrentPosition(alleg_buf, &playcurs, &writecurs);
+   if (FAILED(hr))
+      return;
+
+   if (((playcurs-writecurs)%(digidsbufsize*2)) < digidsbufsize)
+      return;
+
+   /* Consider the buffer used. Even if the buffer was lost, mark the data as old
+      so the mixer doesn't stall */
+   digidsbufdirty = TRUE;
+
+   hr = IDirectSoundBuffer_Lock(alleg_buf, 0, digidsbufsize,
+                                &lpvPtr1, &dwBytes1, &lpvPtr2, &dwBytes2,
+                                DSBLOCK_FROMWRITECURSOR);
+
+   /* only try to restore the buffer once. don't wait around forever */
+   if (hr == DSERR_BUFFERLOST) {
+      if(IDirectSoundBuffer_Restore(alleg_buf) != DS_OK)
+         return;
+
+      IDirectSoundBuffer_Play(alleg_buf, 0, 0, DSBPLAY_LOOPING);
+      IDirectSoundBuffer_SetVolume(alleg_buf, alleg_buf_vol);
+      hr = IDirectSoundBuffer_Lock(alleg_buf, 0, digidsbufsize,
+                                   &lpvPtr1, &dwBytes1, &lpvPtr2, &dwBytes2,
+                                   DSBLOCK_FROMWRITECURSOR);
+   }
+
+   if (FAILED(hr))
+      return;
+
+   /* if the first buffer has enough room, put it all there */
+   if(dwBytes1 >= digidsbufsize) {
+      dwBytes1 = digidsbufsize;
+      memcpy(lpvPtr1, digidsbufdata, dwBytes1);
+      dwBytes2 = 0;
+   }
+   /* else, sput the first part into the first buffer, and the rest into the
+      second */
+   else {
+      memcpy(lpvPtr1, digidsbufdata, dwBytes1);
+      dwBytes2 = digidsbufsize-dwBytes1;
+      memcpy(lpvPtr2, digidsbufdata+dwBytes1, dwBytes2);
+   }
+
+   IDirectSoundBuffer_Unlock(alleg_buf, lpvPtr1, dwBytes1, lpvPtr2, dwBytes2);
+#else
+   hr = IDirectSoundBuffer_GetCurrentPosition(alleg_buf, &playcurs, &writecurs);
+   if (FAILED(hr))
+      return;
+
+   writecurs /= (digidsbufsize/bufdivs);
+   writecurs += 8;
+
+   while (writecurs > (bufdivs-1))
+      writecurs -= bufdivs;
+
+   /* avoid locking the buffer if no data to write */
+   if (writecurs == digidsbufpos)
+      return;
+
+   hr = IDirectSoundBuffer_Lock(alleg_buf, 0, 0, 
+                                &lpvPtr1, &dwBytes1, 
+                                &lpvPtr2, &dwBytes2,
+                                DSBLOCK_FROMWRITECURSOR | DSBLOCK_ENTIREBUFFER);
+
+   if (FAILED(hr))
+      return;
+
+   /* write data into the buffer */
+   while (writecurs != digidsbufpos) {
+      if (lpvPtr2) {
+         memcpy((char*)lpvPtr2 + (((dwBytes1+dwBytes2)/bufdivs)*digidsbufpos),
+                digidsbufdata + (((dwBytes1+dwBytes2)/bufdivs)*digidsbufpos),
+                (dwBytes1+dwBytes2)/bufdivs);
+      }
+      else {
+         memcpy((char*)lpvPtr1 + (((dwBytes1)/bufdivs)*digidsbufpos),
+                digidsbufdata + (((dwBytes1)/bufdivs)*digidsbufpos),
+                (dwBytes1)/bufdivs);
+      }
+
+      if (++digidsbufpos > (bufdivs-1))
+         digidsbufpos = 0;
+
+      _mix_some_samples((uintptr_t) (digidsbufdata+(((dwBytes1+dwBytes2)/bufdivs)*digidsbufpos)), 0, TRUE);
+   }
+
+   IDirectSoundBuffer_Unlock(alleg_buf, lpvPtr1, dwBytes1, lpvPtr2, dwBytes2);
+#endif
+}
+
+
+
 /* digi_dsoundmix_detect:
  */
 static int digi_dsoundmix_detect(int input)
@@ -355,6 +463,7 @@ static int digi_dsoundmix_init(int input, int voices)
    DSCAPS dscaps;
    DSBUFFERDESC desc;
    WAVEFORMATEX format;
+   char tmp1[128], tmp2[128];
    int v, id;
 
    /* deduce our device number from the driver ID code */
@@ -373,11 +482,11 @@ static int digi_dsoundmix_init(int input, int voices)
    }
 
    /* set cooperative level */
-   hr = IDirectSound_SetCooperativeLevel(directsound, allegro_wnd, DSSCL_WRITEPRIMARY);
+   hr = IDirectSound_SetCooperativeLevel(directsound, allegro_wnd, DSSCL_PRIORITY);
    if (FAILED(hr))
       _TRACE("Can't set DirectSound cooperative level (%s)\n", ds_err(hr));
    else
-      _TRACE("DirectSound cooperation level set to DSSCL_WRITEPRIMARY\n");
+      _TRACE("DirectSound cooperation level set to DSSCL_PRIORITY\n");
 
    /* get hardware capabilities */
    dscaps.dwSize = sizeof(DSCAPS);
@@ -387,26 +496,32 @@ static int digi_dsoundmix_init(int input, int voices)
       goto Error; 
    }
 
-   if (dscaps.dwFlags & DSCAPS_PRIMARY16BIT)
+   if ((dscaps.dwFlags & DSCAPS_PRIMARY16BIT) &&
+       ((_sound_bits >= 16) || (_sound_bits <= 0)))
       _bits = 16;
    else
       _bits = 8;
 
-   if (dscaps.dwFlags & DSCAPS_PRIMARYSTEREO)
+   if ((dscaps.dwFlags & DSCAPS_PRIMARYSTEREO) && _sound_stereo)
       _stereo = 1;
    else
       _stereo = 0;
 
-   if (dscaps.dwMaxSecondarySampleRate > 44000)
+   /* Try to set the requested frequency */
+   if ((dscaps.dwMaxSecondarySampleRate > (DWORD)_sound_freq) && (_sound_freq > 0))
+      _freq = _sound_freq;
+   /* If no frequency is specified, make sure it's clamped to a reasonable value
+      by default */
+   else if ((_sound_freq <= 0) && (dscaps.dwMaxSecondarySampleRate > 44100))
       _freq = 44100;
    else
-      _freq = 22050;
+      _freq = dscaps.dwMaxSecondarySampleRate;
 
    _TRACE("DirectSound caps: %u bits, %s, %uHz\n", _bits, _stereo ? "stereo" : "mono", _freq);
 
    memset(&desc, 0, sizeof(DSBUFFERDESC));
    desc.dwSize = sizeof(DSBUFFERDESC);
-   desc.dwFlags = DSBCAPS_PRIMARYBUFFER | DSBCAPS_CTRLVOLUME | DSBCAPS_STICKYFOCUS;
+   desc.dwFlags = DSBCAPS_PRIMARYBUFFER | DSBCAPS_GLOBALFOCUS;// | DSBCAPS_CTRLVOLUME | DSBCAPS_STICKYFOCUS;
 
    hr = IDirectSound_CreateSoundBuffer(directsound, &desc, &prim_buf, NULL);
    if (FAILED(hr))
@@ -418,7 +533,7 @@ static int digi_dsoundmix_init(int input, int voices)
          _TRACE("Can't get primary buffer format (%s)\n", ds_err(hr));
       }
       else {
-         format.nChannels = _stereo ? 2 : 1;
+         format.nChannels = (_stereo ? 2 : 1);
          format.nSamplesPerSec = _freq;
          format.wBitsPerSample = _bits;
          format.nBlockAlign = (format.wBitsPerSample * format.nChannels) >> 3;
@@ -443,17 +558,27 @@ static int digi_dsoundmix_init(int input, int voices)
 
    /* setup volume lookup table */
    alleg_to_dsound_volume[0] = DSBVOLUME_MIN;
-   for (v = 1; v < 256; v++)
-      alleg_to_dsound_volume[v] = MAX(DSBVOLUME_MIN, DSBVOLUME_MAX + 2000.0*log10(v/255.0));
+   for (v = 1; v < 256; v++) {
+      int dB = DSBVOLUME_MAX + 2000.0*log10(v/255.0);
+      alleg_to_dsound_volume[v] = MAX(DSBVOLUME_MIN, dB);
+   }
 
-   /* fill the primary buffer with zeros */
-   hr = IDirectSoundBuffer_Lock(prim_buf, 0, 0,
-                                &lpvPtr1, &dwBytes1, 
-                                &lpvPtr2, &dwBytes2,
-                                DSBLOCK_FROMWRITECURSOR | DSBLOCK_ENTIREBUFFER);
+   /* create the sound buffer to mix into */
+   alleg_buf = create_dsound_buffer(get_config_int(uconvert_ascii("sound", tmp1),
+                                                   uconvert_ascii("dsound_numfrags", tmp2),
+                                                   6) * 1024,
+                                    _freq, _bits, _stereo, 255);
+   if(!alleg_buf) {
+      _TRACE("Can't create mixing buffer\n");
+      return -1;
+   }
+
+   /* fill the sound buffer with zeros */
+   hr = IDirectSoundBuffer_Lock(alleg_buf, 0, 0, &lpvPtr1, &dwBytes1, 
+                                &lpvPtr2, &dwBytes2, DSBLOCK_ENTIREBUFFER);
 
    if (FAILED(hr)) {
-      _TRACE("Can't lock primary buffer (%s)\n", ds_err(hr));
+      _TRACE("Can't lock sound buffer (%s)\n", ds_err(hr));
       return -1;
    }
 
@@ -461,37 +586,58 @@ static int digi_dsoundmix_init(int input, int voices)
    digidsbufsize = dwBytes1;
 
    if (lpvPtr2) {
+      _TRACE("Second buffer set when locking buffer. Error?\n");
       memset(lpvPtr2, 0, dwBytes2);
       digidsbufsize += dwBytes2;
    }
 
-   digidsbufdata = malloc(digidsbufsize);
-   digidsbufpos = 0;
-   bufdivs = digidsbufsize/1024;
+   IDirectSoundBuffer_Unlock(alleg_buf, lpvPtr1, dwBytes1, lpvPtr2, dwBytes2); 
 
-   IDirectSoundBuffer_Unlock(prim_buf, lpvPtr1, dwBytes1, lpvPtr2, dwBytes2); 
+   _TRACE("Sound buffer length is %u\n", digidsbufsize);
 
-   if (digidsbufsize%1024) {
-      _TRACE("Primary buffer is not multiple of 1024, failed\n");
+   /* shouldn't ever happen */
+   if (digidsbufsize&1023) {
+      _TRACE("Sound buffer is not multiple of 1024, failed\n");
       return -1;
    }
 
+#if USE_NEW_CODE
+   digidsbufsize /= 2;
+#endif
+   digidsbufdata = malloc(digidsbufsize);
+   if (!digidsbufdata) {
+      _TRACE("Can't create temp buffer\n");
+      return -1;
+   }
+
+#if USE_NEW_CODE
+   if (_mixer_init(digidsbufsize / (_bits /8), _freq, _stereo,
+                   ((_bits == 16) ? 1 : 0), &digi_driver->voices) != 0) {
+      _TRACE("Can't init software mixer\n");
+      return -1;
+   }
+#else
+   bufdivs = digidsbufsize/1024;
    if (_mixer_init((digidsbufsize / (_bits /8)) / bufdivs, _freq,
                    _stereo, ((_bits == 16) ? 1 : 0), &digi_driver->voices) != 0) {
       _TRACE("Can't init software mixer\n");
       return -1;
    }
 
-   _mix_some_samples((unsigned long)digidsbufdata, 0, TRUE);
+   _mix_some_samples((uintptr_t)digidsbufdata, 0, TRUE);
+#endif
 
    /* get primary buffer volume */
-   IDirectSoundBuffer_GetVolume(prim_buf, &initial_volume);
-   prim_buf_vol = initial_volume;
+   IDirectSoundBuffer_GetVolume(alleg_buf, &initial_volume);
+   alleg_buf_vol = initial_volume;
 
-   /* start playing */
+   /* mark the buffer as paused, so the mixer callback will start it */
+   alleg_buf_paused = TRUE;
+#if USE_NEW_CODE
+   digidsbufdirty = TRUE;
+#endif
    install_int(digi_dsoundmix_mixer_callback, 20);  /* 50 Hz */
-   IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
-	
+
    return 0;
 
  Error:
@@ -519,6 +665,12 @@ static void digi_dsoundmix_exit(int input)
       digidsbufdata = NULL;
    }
 
+   /* destroy mixer buffer */
+   if (alleg_buf) {
+      IDirectSoundBuffer_Release(alleg_buf);
+      alleg_buf = NULL;
+   }
+
    /* destroy primary buffer */
    if (prim_buf) {
       /* restore primary buffer initial volume */
@@ -542,8 +694,8 @@ static void digi_dsoundmix_exit(int input)
 static int digi_dsoundmix_mixer_volume(int volume)
 {
    if (prim_buf) {
-      prim_buf_vol = alleg_to_dsound_volume[MID(0, volume, 255)];
-      IDirectSoundBuffer_SetVolume(prim_buf, prim_buf_vol); 
+      alleg_buf_vol = alleg_to_dsound_volume[MID(0, volume, 255)];
+      IDirectSoundBuffer_SetVolume(alleg_buf, alleg_buf_vol); 
    }
 
    return 0;
