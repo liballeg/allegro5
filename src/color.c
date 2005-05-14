@@ -290,6 +290,10 @@ int bestfit_color(AL_CONST PALETTE pal, int r, int g, int b)
 {
    int i, coldiff, lowest, bestfit;
 
+   ASSERT(r >= 0 && r <= 63);
+   ASSERT(g >= 0 && g <= 63);
+   ASSERT(b >= 0 && b <= 63);
+
    if (col_diff[1] == 0)
       bestfit_init();
 
@@ -347,6 +351,10 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
 {
    float f, x, y, z;
    int i;
+
+   ASSERT(h >= 0 && h <= 360);
+   ASSERT(s >= 0 && s <= 1);
+   ASSERT(v >= 0 && v <= 1);
 
    v *= 255.0f;
 
@@ -415,6 +423,10 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
 void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v)
 {
    int delta;
+
+   ASSERT(r >= 0 && r <= 255);
+   ASSERT(g >= 0 && g <= 255);
+   ASSERT(b >= 0 && b <= 255);
 
    if (r > g) {
       if (b > r) {
@@ -667,6 +679,11 @@ void create_light_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, in
    int r1, g1, b1, r2, g2, b2, x, y;
    unsigned int t1, t2;
 
+   ASSERT(table);
+   ASSERT(r >= 0 && r <= 63);
+   ASSERT(g >= 0 && g <= 63);
+   ASSERT(b >= 0 && b <= 63);
+
    if (rgb_map) {
       for (x=0; x<PAL_SIZE-1; x++) {
 	 t1 = x * 0x010101;
@@ -731,6 +748,11 @@ void create_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, in
    unsigned char *p;
    int tr, tg, tb;
    int add;
+
+   ASSERT(table);
+   ASSERT(r >= 0 && r <= 255);
+   ASSERT(g >= 0 && g <= 255);
+   ASSERT(b >= 0 && b <= 255);
 
    /* This is a bit ugly, but accounts for the solidity parameters
       being in the range 0-255 rather than 0-256. Given that the
