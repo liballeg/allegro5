@@ -349,7 +349,7 @@ static int osx_qz_show_video_bitmap(BITMAP *bmp)
    if ((bmp->w != gfx_quartz_full.w) || (bmp->h != gfx_quartz_full.h))
       return -1;
    
-   SetRect(&rect, 0, 0, bmp->w - 1, bmp->h - 1);
+   SetRect(&rect, 0, 0, bmp->w, bmp->h);
    while (!QDDone(screen_port));
    while (!QDDone(BMP_EXTRA(bmp)->port));
    LockPortBits(screen_port);
