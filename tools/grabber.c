@@ -3498,7 +3498,7 @@ int datedit_ask(AL_CONST char *fmt, ...)
    int ret;
 
    va_start(args, fmt);
-   vsnprintf(buf, 1024, fmt, args);
+   uvszprintf(buf, 1024, fmt, args);
    va_end(args);
 
    strcat(buf, "?");
@@ -3536,7 +3536,7 @@ int datedit_select(AL_CONST char *(*list_getter)(int index, int *list_size), AL_
    int ret, c;
 
    va_start(args, fmt);
-   vsnprintf(buf, 1024, fmt, args);
+   uvszprintf(buf, 1024, fmt, args);
    va_end(args);
    
    /* If there is only one choice, select it automatically */
