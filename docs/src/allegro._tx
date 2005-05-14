@@ -613,6 +613,11 @@ available in past/future versions of Allegro.
 <endblock>
    Structure contained in GFX_MODE_LIST.
 
+@@#define @PAL_SIZE
+@xref RGB, PALETTE, COLOR_MAP
+@shortdesc Number of entries in a palette.
+   Preprocessor constant equal to 256.
+
 @@typedef RGB @PALETTE[PAL_SIZE]
 @xref RGB, Palette routines
 @eref Available Allegro examples
@@ -641,11 +646,11 @@ available in past/future versions of Allegro.
    int c;               - color
 <endblock>
    A vertex structure used by polygon3d and other polygon rendering
-   functions. Read the description of polygon3d for a description on how to
-   obtain/use this structure.
+   functions. Read the description of polygon3d() for a description on how
+   to obtain/use this structure.
 
 @@typedef struct @V3D_f
-@xref V3D, polygon3d, Fixed point trig
+@xref V3D, polygon3d_f, Fixed point trig
 @eref excamera, exscn3d, exzbuf
 @shortdesc Floating point vertex structure used by 3d functions.
 <codeblock>
@@ -653,7 +658,9 @@ available in past/future versions of Allegro.
    float u, v;          - texture map coordinates
    int c;               - color
 <endblock>
-   Like V3D but using float values instead of fixed ones.
+   Like V3D but using float values instead of fixed ones. Read the
+   description of polygon3d_f() for a description on how to obtain/use this
+   structure.
 
 @@typedef struct @COLOR_MAP
 @xref 256-color transparency, color_map
@@ -5131,7 +5138,7 @@ not usually care about it. For example:
    RGB grey  = { 32, 32, 32 };
 <endblock>
 The type PALETTE is defined to be an array of PAL_SIZE RGB structures, where
-PAL_SIZE is a preprocessor constant greater or equal to 256.
+PAL_SIZE is a preprocessor constant equal to 256.
 
 You may notice that a lot of the code in Allegro spells 'palette' as 
 'pallete'. This is because the headers from my old Mark Williams compiler on 
@@ -7135,6 +7142,112 @@ allegro/text.h for details.
 @heading
 Polygon rendering
 
+All the 3d functions that accept a `type' parameter are asking for a polygon
+rendering mode, which can be any of the following POLYTYPE_* values. If the
+CPU_MMX flag of the cpu_capabilities global variable is set, the GRGB and
+truecolor *LIT routines will be optimised using MMX instructions. If the
+CPU_3DNOW flag is set, the truecolor PTEX*LIT routines will take advantage of
+the 3DNow! CPU extensions.
+
+Using MMX for *LIT routines has a side effect: normally (without MMX), these
+routines use the blender functions used also for other lighting functions,
+set with set_trans_blender() or set_blender_mode(). The MMX versions only use
+the RGB value passed to set_trans_blender() and do the linear interpolation
+themselves. Therefore a new set of blender functions passed to
+set_blender_mode() is ignored.
+
+@@#define @POLYTYPE_FLAT
+@xref Polygon rendering, polygon3d, drawing_mode
+@shortdesc Polygon rendering mode type
+   A simple flat shaded polygon, taking the color from the `c' value of the
+   first vertex. This polygon type is affected by the drawing_mode() function,
+   so it can be used to render XOR or translucent polygons.
+
+@@#define @POLYTYPE_GCOL
+@xref Polygon rendering, polygon3d, makecol
+@shortdesc Polygon rendering mode type
+   A single-color gouraud shaded polygon. The colors for each vertex are taken
+   from the `c' value, and interpolated across the polygon. This is very fast,
+   but will only work in 256-color modes if your palette contains a smooth
+   gradient between the colors. In truecolor modes it interprets the color as
+   a packed, display-format value as produced by the makecol() function.
+
+@@#define @POLYTYPE_GRGB
+@xref Polygon rendering, polygon3d, rgb_map
+@shortdesc Polygon rendering mode type
+   A gouraud shaded polygon which interpolates RGB triplets rather than a
+   single color. In 256-color modes this uses the global rgb_map table to
+   convert the result to an 8-bit paletted color, so it must only be used
+   after you have set up the RGB mapping table! The colors for each vertex are
+   taken from the `c' value, which is interpreted as a 24-bit RGB triplet
+   (0xFF0000 is red, 0x00FF00 is green, and 0x0000FF is blue).
+
+@@#define @POLYTYPE_ATEX
+@xref Polygon rendering, polygon3d
+@shortdesc Polygon rendering mode type
+   An affine texture mapped polygon. This stretches the texture across the
+   polygon with a simple 2d linear interpolation, which is fast but not
+   mathematically correct. It can look ok if the polygon is fairly small or
+   flat-on to the camera, but because it doesn't deal with perspective
+   foreshortening, it can produce strange warping artifacts. To see what this
+   means, run Allegro's test program and see what happens to the polygon3d()
+   test when you zoom in very close to the cube.
+
+@@#define @POLYTYPE_PTEX
+@xref Polygon rendering, polygon3d, POLYTYPE_ATEX
+@shortdesc Polygon rendering mode type
+   A perspective-correct texture mapped polygon. This uses the `z' value from
+   the vertex structure as well as the u/v coordinates, so textures are
+   displayed correctly regardless of the angle they are viewed from. Because
+   it involves division calculations in the inner texture mapping loop, this
+   mode is a lot slower than POLYTYPE_ATEX, and it uses floating point so it
+   will be very slow on anything less than a Pentium (even with an FPU, a 486
+   can't overlap floating point division with other integer operations like
+   the Pentium can).
+
+@@#define @POLYTYPE_ATEX_MASK
+@@#define @POLYTYPE_PTEX_MASK
+@xref Polygon rendering, polygon3d, POLYTYPE_ATEX, POLYTYPE_PTEX
+@shortdesc Polygon rendering mode type
+   Like POLYTYPE_ATEX and POLYTYPE_PTEX, but zero texture map pixels are
+   skipped, allowing parts of the texture map to be transparent.
+
+@@#define @POLYTYPE_ATEX_LIT
+@@#define @POLYTYPE_PTEX_LIT
+@xref Polygon rendering, polygon3d, POLYTYPE_ATEX, POLYTYPE_PTEX
+@xref color_map, Truecolor transparency
+@shortdesc Polygon rendering mode type
+   Like POLYTYPE_ATEX and POLYTYPE_PTEX, but the global color_map table (for
+   256-color modes) or blender function (for non-MMX truecolor modes) is used
+   to blend the texture with a light level taken from the `c' value in the
+   vertex structure. This must only be used after you have set up the color
+   mapping table or blender functions!
+
+@@#define @POLYTYPE_ATEX_MASK_LIT
+@@#define @POLYTYPE_PTEX_MASK_LIT
+@xref Polygon rendering, polygon3d, POLYTYPE_ATEX_LIT, POLYTYPE_PTEX_LIT
+@shortdesc Polygon rendering mode type
+   Like POLYTYPE_ATEX_LIT and POLYTYPE_PTEX_LIT, but zero texture map pixels
+   are skipped, allowing parts of the texture map to be transparent.
+
+@@#define @POLYTYPE_ATEX_TRANS
+@@#define @POLYTYPE_PTEX_TRANS
+@xref Polygon rendering, polygon3d
+@shortdesc Polygon rendering mode type
+   Render translucent textures. All the general rules for drawing
+   translucent things apply. However, these modes have a major
+   limitation: they only work with memory bitmaps or linear frame
+   buffers (not with banked frame buffers). Don't even try, they do not
+   check and your program will die horribly (or at least draw wrong
+   things).
+
+@@#define @POLYTYPE_ATEX_MASK_TRANS
+@@#define @POLYTYPE_PTEX_MASK_TRANS
+@xref Polygon rendering, polygon3d
+@shortdesc Polygon rendering mode type
+   Like POLYTYPE_ATEX_TRANS and POLYTYPE_PTEX_TRANS, but zero texture map 
+   pixels are skipped.
+
 @@void @polygon3d(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[]);
 @@void @polygon3d_f(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D_f *vtx[]);
 @xref triangle3d, quad3d, polygon, clip3d, cpu_capabilities
@@ -7168,18 +7281,18 @@ Polygon rendering
 <endblock>
    How the vertex data is used depends on the rendering mode:
 
-   The x and y values specify the position of the vertex in 2d screen 
+   The `x' and `y' values specify the position of the vertex in 2d screen
    coordinates.
 
-   The z value is only required when doing perspective correct texture 
+   The `z' value is only required when doing perspective correct texture
    mapping, and specifies the depth of the point in 3d world coordinates.
 
-   The u and v coordinates are only required when doing texture mapping, and 
-   specify a point on the texture plane to be mapped on to this vertex. The 
-   texture plane is an infinite plane with the texture bitmap tiled across 
-   it. Each vertex in the polygon has a corresponding vertex on the texture 
-   plane, and the image of the resulting polygon in the texture plane will 
-   be mapped on to the polygon on the screen.
+   The `u' and `v' coordinates are only required when doing texture mapping,
+   and specify a point on the texture plane to be mapped on to this vertex.
+   The texture plane is an infinite plane with the texture bitmap tiled
+   across it. Each vertex in the polygon has a corresponding vertex on the
+   texture plane, and the image of the resulting polygon in the texture plane
+   will be mapped on to the polygon on the screen.
 
    We refer to pixels in the texture plane as texels. Each texel is a block, 
    not just a point, and whole numbers for u and v refer to the top-left 
@@ -7206,131 +7319,51 @@ Polygon rendering
    infinite, you can specify larger values than the size of the texture. 
    This can be used to tile the texture several times across the polygon.
 
-   The c value specifies the vertex color, and is interpreted differently by 
-   various rendering modes.
-
-   The type parameter specifies the polygon rendering mode, and can be any 
-   of the values:
-
-   <b>POLYTYPE_FLAT:</b><br>
-      A simple flat shaded polygon, taking the color from the c value of the 
-      first vertex. This polygon type is affected by the drawing_mode() 
-      function, so it can be used to render XOR or translucent polygons.
-
-   <b>POLYTYPE_GCOL:</b><br>
-      A single-color gouraud shaded polygon. The colors for each vertex are 
-      taken from the c value, and interpolated across the polygon. This is 
-      very fast, but will only work in 256-color modes if your palette 
-      contains a smooth gradient between the colors. In truecolor modes it 
-      interprets the color as a packed, display-format value as produced by 
-      the makecol() function.
-
-   <b>POLYTYPE_GRGB:</b><br>
-      A gouraud shaded polygon which interpolates RGB triplets rather than a 
-      single color. In 256-color modes this uses the global rgb_map table to 
-      convert the result to an 8-bit paletted color, so it must only be used 
-      after you have set up the RGB mapping table! The colors for each 
-      vertex are taken from the c value, which is interpreted as a 24-bit 
-      RGB triplet (0xFF0000 is red, 0x00FF00 is green, and 0x0000FF is 
-      blue).
-
-   <b>POLYTYPE_ATEX:</b><br>
-      An affine texture mapped polygon. This stretches the texture across 
-      the polygon with a simple 2d linear interpolation, which is fast but 
-      not mathematically correct. It can look ok if the polygon is fairly 
-      small or flat-on to the camera, but because it doesn't deal with 
-      perspective foreshortening, it can produce strange warping artifacts. 
-      To see what I mean, run test.exe and see what happens to the 
-      polygon3d() test when you zoom in very close to the cube.
-
-   <b>POLYTYPE_PTEX:</b><br>
-      A perspective-correct texture mapped polygon. This uses the z value 
-      from the vertex structure as well as the u/v coordinates, so textures 
-      are displayed correctly regardless of the angle they are viewed from. 
-      Because it involves division calculations in the inner texture mapping 
-      loop, this mode is a lot slower than POLYTYPE_ATEX, and it uses 
-      floating point so it will be very slow on anything less than a Pentium 
-      (even with an FPU, a 486 can't overlap floating point division with 
-      other integer operations like the Pentium can).
-
-   <b>POLYTYPE_ATEX_MASK:</b><br>
-   <b>POLYTYPE_PTEX_MASK:</b><br>
-      Like POLYTYPE_ATEX and POLYTYPE_PTEX, but zero texture map pixels are 
-      skipped, allowing parts of the texture map to be transparent.
-
-   <b>POLYTYPE_ATEX_LIT:</b><br>
-   <b>POLYTYPE_PTEX_LIT:</b><br>
-      Like POLYTYPE_ATEX and POLYTYPE_PTEX, but the global color_map table 
-      (for 256-color modes) or blender function (for non-MMX truecolor 
-      modes) is used to blend the texture with a light level taken from the 
-      c value in the vertex structure. This must only be used after you have 
-      set up the color mapping table or blender functions!
-
-   <b>POLYTYPE_ATEX_MASK_LIT:</b><br>
-   <b>POLYTYPE_PTEX_MASK_LIT:</b><br>
-      Like POLYTYPE_ATEX_LIT and POLYTYPE_PTEX_LIT, but zero texture map 
-      pixels are skipped, allowing parts of the texture map to be 
-      transparent.
-
-   <b>POLYTYPE_ATEX_TRANS:</b><br>
-   <b>POLYTYPE_PTEX_TRANS:</b><br>
-      Render translucent textures. All the general rules for drawing
-      translucent things apply. However, these modes have a major
-      limitation: they only work with memory bitmaps or linear frame
-      buffers (not with banked frame buffers). Don't even try, they do not
-      check and your program will die horribly (or at least draw wrong
-      things).
-
-   <b>POLYTYPE_ATEX_MASK_TRANS:</b><br>
-   <b>POLYTYPE_PTEX_MASK_TRANS:</b><br>
-      Like POLYTYPE_ATEX_TRANS and POLYTYPE_PTEX_TRANS, but zero texture map 
-      pixels are skipped.
-
-   If the CPU_MMX flag of the cpu_capabilities global variable is set, the 
-   GRGB and truecolor *LIT routines will be optimised using MMX 
-   instructions. If the CPU_3DNOW flag is set, the truecolor PTEX*LIT 
-   routines will take advantage of the 3DNow! CPU extensions.
-
-   Using MMX for *LIT routines has a side effect: normally (without MMX), 
-   these routines use the blender functions used also for other lighting 
-   functions, set with set_trans_blender() or set_blender_mode(). The MMX 
-   versions only use the RGB value passed to set_trans_blender() and do the 
-   linear interpolation themselves. Therefore a new set of blender functions 
-   passed to set_blender_mode() is ignored.
+   The `c' value specifies the vertex color, and is interpreted differently
+   by various rendering modes. Read the beginning of chapter "Polygon
+   rendering" for a list of rendering types you can use with this function.
 
 @@void @triangle3d(BITMAP *bmp, int type, BITMAP *tex, V3D *v1, *v2, *v3);
 @@void @triangle3d_f(BITMAP *bmp, int type, BITMAP *tex, V3D_f *v1, *v2, *v3);
-@xref polygon3d, quad3d, triangle
+@xref polygon3d, quad3d, triangle, Polygon rendering
 @shortdesc Draws a 3d triangle onto the specified bitmap.
    Draw 3d triangles, using either fixed or floating point vertex structures.
-   Unlike quad3d[_f], triangle3d[_f] functions are not wrappers of
-   polygon3d[_f]. The triangle3d[_f] functions use their own routines taking
-   into account the constantness of the gradients.
-   Therefore triangle3d[_f](bmp, type, tex, v1, v2, v3) is faster than
+   Unlike quad3d[_f](), triangle3d[_f]() functions are not wrappers of
+   polygon3d[_f](). The triangle3d[_f]() functions use their own routines
+   taking into account the constantness of the gradients. Therefore
+   triangle3d[_f](bmp, type, tex, v1, v2, v3) is faster than
    polygon3d[_f](bmp, type, tex, 3, v[]).
+
+   Read the beginning of chapter "Polygon rendering" for a list of rendering
+   types you can use with this function.
 
 @@void @quad3d(BITMAP *bmp, int type, BITMAP *tex, V3D *v1, *v2, *v3, *v4);
 @@void @quad3d_f(BITMAP *bmp, int type, BITMAP *tex, V3D_f *v1, *v2, *v3, *v4);
-@xref polygon3d, triangle3d
+@xref polygon3d, triangle3d, Polygon rendering
 @eref ex3d
 @shortdesc Draws a 3d quad onto the specified bitmap.
    Draw 3d quads, using either fixed or floating point vertex structures. 
-   These are equivalent to calling
-      polygon3d(bmp, type, tex, 4, v[]);
-   or
-      polygon3d_f(bmp, type, tex, 4, v[]);
+   These are equivalent to calling polygon3d(bmp, type, tex, 4, v[]) or
+   polygon3d_f(bmp, type, tex, 4, v[]).
 
+   Read the beginning of chapter "Polygon rendering" for a list of rendering
+   types you can use with this function.
+   
 @\int @clip3d_f(int type, float min_z, float max_z, int vc,
 @@             const V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]);
 @xref polygon3d, clip3d
 @eref excamera, exscn3d
 @shortdesc Clips the polygon given in vtx using floating point math,
-   Clips the polygon given in vtx. The number of vertices is vc, the result 
-   goes in vout, and vtmp and out are needed for internal purposes. The 
-   pointers in vtx, vout and vtmp must point to valid V3D_f structures. 
+   Clips the polygon given in `vtx'. The number of vertices is `vc', the
+   result goes in `vout', and `vtmp' and `out' are needed for internal
+   purposes. The pointers in `vtx', `vout' and `vtmp' must point to valid
+   V3D_f structures.
+   
    As additional vertices may appear in the process of clipping, so the 
-   size of vout, vtmp and out should be at least vc * (1.5 ^ n), where n is
-   the number of clipping planes (5 or 6), and '^' denotes "to the power of".
+   size of `vout', `vtmp' and `out' should be at least vc * (1.5 ^ n), where
+   `n' is the number of clipping planes (5 or 6), and `^' denotes "to the
+   power of".
+   
    The frustum (viewing volume) is defined by -z&ltx&ltz, -z&lty&ltz,
    0&ltmin_z&ltz&ltmax_z. If  max_z&lt=min_z, the z&ltmax_z clipping is
    not done. As you can see, clipping is done in the camera space, with
@@ -7338,6 +7371,8 @@ Polygon rendering
    the camera matrix, but before the perspective projection. The routine
    will correctly interpolate u, v, and c in the vertex structure. However,
    no provision is made for high/truecolor GCOL.
+@retval
+   Returns the number of vertices after clipping is done.
 
 @\int @clip3d(int type, fixed min_z, fixed max_z, int vc,
 @@           const V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]);
@@ -7347,6 +7382,8 @@ Polygon rendering
    caution, due to the limited precision of fixed point arithmetic and high 
    chance of rounding errors: the floating point code is better for most 
    situations.
+@retval
+   Returns the number of vertices after clipping is done.
 
 @hnode Zbuffered rendering
 A Z-buffer stores the depth of each pixel that is drawn on a viewport.
@@ -7396,6 +7433,10 @@ All the Z-buffered routines are much slower than their normal counterparts
    Creates a Z-buffer using the size of the BITMAP you are planning to draw
    on. Several Z-buffers can be defined but only one can be used at the same
    time, so you must call set_zbuffer() to make this Z-buffer active.
+@retval
+   Returns the pointer to the ZBUFFER or NULL if there was an error. Remember
+   to destroy the ZBUFFER once you are done with it, to avoid having memory
+   leaks.
 
 @@ZBUFFER *@create_sub_zbuffer(ZBUFFER *parent, int x, int y, int width, int height);
 @xref create_zbuffer, create_sub_bitmap, destroy_zbuffer
@@ -7415,6 +7456,10 @@ All the Z-buffered routines are much slower than their normal counterparts
    sub-z-buffer) the size of the visible screen. You don't need to first
    create a z-buffer the size of the virtual screen and then a sub-z-buffer
    of that.
+@retval
+   Returns the pointer to the sub ZBUFFER or NULL if there was an error.
+   Remember to destroy the ZBUFFER once you are done with it, to avoid having
+   memory leaks.
 
 @@void @set_zbuffer(ZBUFFER *zbuf);
 @xref create_zbuffer, clear_zbuffer, destroy_zbuffer
@@ -7431,7 +7476,7 @@ All the Z-buffered routines are much slower than their normal counterparts
    be used to initialize the Z-buffer before each frame. Actually, low-level
    routines compare depth of the current pixel with 1/z: for example, if you
    want to clip polygons farther than 10, you must call
-   clear_zbuffer(zbuf, 0.1);
+   clear_zbuffer(zbuf, 0.1).
 
 @@void @destroy_zbuffer(ZBUFFER *zbuf);
 @xref create_zbuffer, set_zbuffer, clear_zbuffer
@@ -7522,12 +7567,13 @@ have to clear the z-buffer at the start of the frame. Example:
 @xref create_zbuffer
 @eref exscn3d
 @shortdesc Allocates memory for a 3d scene.
-   Allocates memory for a scene, nedge and npoly are your estimates of how
+   Allocates memory for a scene, `nedge' and `npoly' are your estimates of how
    many edges and how many polygons you will render (you cannot get over the
    limit specified here). If you use same values in succesive calls, the
    space will be reused (no new malloc()).
 
    The memory allocated is a little less than 150 * (nedge + npoly) bytes.
+@retval
    Returns zero on success, or a negative number if allocations fail.
 
 @@void @clear_scene(BITMAP *bmp);
@@ -7572,7 +7618,7 @@ have to clear the z-buffer at the start of the frame. Example:
    The settings of the CPU_MMX and CPU_3DNOW flags of the cpu_capabilities 
    global variable on entry in this routine affect the choice of low-level 
    asm routine that will be used by render_scene() for this polygon.
-
+@retval
    Returns zero on success, or a negative number if it won't be rendered for
    lack of a rendering routine.
 
@@ -7687,16 +7733,16 @@ Transparency and patterned drawing
 @eref exspline, exupdate
 @shortdesc Shortcut for toggling xor drawing mode on and off.
    This is a shortcut for toggling xor drawing mode on and off. Calling 
-   xor_mode(TRUE) is equivalent to drawing_mode (DRAW_MODE_XOR, NULL, 0, 0);
+   xor_mode(TRUE) is equivalent to drawing_mode (DRAW_MODE_XOR, NULL, 0, 0).
    Calling xor_mode(FALSE) is equivalent to
-   drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+   drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0).
 
 @@void @solid_mode();
 @xref drawing_mode
 @eref exalpha, expat
 @shortdesc Shortcut for selecting solid drawing mode.
    This is a shortcut for selecting solid drawing mode. It is equivalent to 
-   calling drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+   calling drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0).
 
 @hnode 256-color transparency
 In paletted video modes, translucency and lighting are implemented with a 
@@ -7722,7 +7768,11 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
    Global pointer to the color mapping table. You must allocate your own
    COLOR_MAP either statically or dynamically and set color_map to it 
    before using any translucent or lit drawing functions in a 256-color 
-   video mode!
+   video mode! Example:
+<codeblock>
+      color_map = malloc(sizeof(COLOR_MAP));
+      if (!color_map)
+	 abort_on_error("Not enough memory for color map!");<endblock>
 
 @\void @create_trans_table(COLOR_MAP *table, const PALETTE pal,
 @@                        int r, g, b, void (*callback)(int pos));
