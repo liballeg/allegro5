@@ -48,7 +48,7 @@ void midi_win32_raw_midi(int data);
 int midi_win32_in_detect(int input);
 int midi_win32_in_init(int input, int voices);
 void midi_win32_in_exit(int input);
-void CALLBACK midi_in_proc(HMIDIIN, UINT, DWORD, DWORD, DWORD);
+static void CALLBACK midi_in_proc(HMIDIIN, UINT, DWORD, DWORD, DWORD);
 
 
 /* driver globals */
@@ -61,8 +61,8 @@ static _DRIVER_INFO *driver_list = NULL;
 
 
 /* MIDI recording callback */
-void CALLBACK midi_in_proc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, 
-			   DWORD dwParam1, DWORD dwParam2)
+static void CALLBACK midi_in_proc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, 
+				  DWORD dwParam1, DWORD dwParam2)
 {
    if ((midi_in_device == NULL) || (midi_recorder == NULL)) return;
    midi_recorder((unsigned char)(dwParam1 & 0xff));         /* status byte */
@@ -324,7 +324,7 @@ void midi_win32_raw_midi(int data)
             switch (get_display_switch_mode()) {
                case SWITCH_AMNESIA:
                case SWITCH_PAUSE:
-	          if (app_foreground)
+	          if (_win_app_foreground)
 	             midiOutShortMsg(midi_device, midi_msg);
 	          else
 	             midiOutReset(midi_device);

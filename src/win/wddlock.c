@@ -32,7 +32,7 @@ static void gfx_directx_switch_out(void)
    _exit_gfx_critical();
 
    if (GFX_CRITICAL_RELEASED)
-      thread_switch_out();
+      _win_thread_switch_out();
 
    _enter_gfx_critical();
 }
@@ -76,7 +76,7 @@ void gfx_directx_lock(BITMAP *bmp)
       _enter_gfx_critical();
 
       /* handle display switch */
-      if (!app_foreground)
+      if (!_win_app_foreground)
          gfx_directx_switch_out();
 
       /* this is a real bitmap, so can be locked directly */
@@ -249,7 +249,7 @@ void gfx_directx_release_lock(BITMAP *bmp)
    HRESULT hr;
 
    /* handle display switch */
-   if (!app_foreground)
+   if (!_win_app_foreground)
       gfx_directx_switch_out();
 
    /* find parent */

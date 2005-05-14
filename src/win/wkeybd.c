@@ -311,6 +311,7 @@ static void handle_key_release(unsigned char scancode)
  */
 static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 {
+   HWND allegro_wnd = win_get_window();
    /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc) */
    if (((scancode == DIK_TAB) && (_key_shifts & KB_ALT_FLAG))
        || ((scancode == DIK_SPACE) && (_key_shifts & KB_ALT_FLAG))
@@ -473,7 +474,7 @@ static int key_dinput_exit(void)
 {
    if (key_dinput_device) {
       /* unregister event handler first */
-      input_unregister_event(key_input_event);
+      _win_input_unregister_event(key_input_event);
 
       /* unacquire device */
       wnd_call_proc(key_dinput_unacquire);
@@ -524,6 +525,7 @@ static void get_reverse_mapping(void)
 static int key_dinput_init(void)
 {
    HRESULT hr;
+   HWND allegro_wnd = win_get_window();
    DIPROPDWORD property_buf_size =
    {
       /* the header */
@@ -570,7 +572,7 @@ static int key_dinput_init(void)
       goto Error;
 
    /* Register event handler */
-   if (input_register_event(key_input_event, key_dinput_handle) != 0)
+   if (_win_input_register_event(key_input_event, key_dinput_handle) != 0)
       goto Error;
 
    get_reverse_mapping();

@@ -26,8 +26,8 @@ LPDIRECTDRAWPALETTE ddpalette = NULL;
 LPDDPIXELFORMAT ddpixel_format = NULL;
 DDCAPS ddcaps;
 
-DDRAW_SURFACE *primary_surface = NULL;
-BITMAP *forefront_bitmap = NULL;
+DDRAW_SURFACE *gfx_directx_primary_surface = NULL;
+BITMAP *gfx_directx_forefront_bitmap = NULL;
 char *pseudo_surf_mem;
 
 /* DirectDraw internals */
@@ -43,6 +43,7 @@ int init_directx(void)
    LPDIRECTDRAW directdraw1;
    HRESULT hr;
    LPVOID temp;
+   HWND allegro_wnd = win_get_window();
 
    /* first we have to set up the DirectDraw1 interface... */
    hr = DirectDrawCreate(NULL, &directdraw1, NULL);
@@ -75,14 +76,14 @@ int init_directx(void)
 
 
 
-/* create_primary:
+/* gfx_directx_create_primary:
  *  Low-level DirectDraw screen creation routine.
  */
-int create_primary(void)
+int gfx_directx_create_primary(void)
 {
    /* create primary surface */
-   primary_surface = gfx_directx_create_surface(0, 0, NULL, DDRAW_SURFACE_PRIMARY);
-   if (!primary_surface) {
+   gfx_directx_primary_surface = gfx_directx_create_surface(0, 0, NULL, DDRAW_SURFACE_PRIMARY);
+   if (!gfx_directx_primary_surface) {
       _TRACE("Can't create primary surface.\n");
       return -1;
    }
@@ -92,10 +93,10 @@ int create_primary(void)
 
 
 
-/* create_clipper:
+/* gfx_directx_create_clipper:
  *  Low-level DirectDraw clipper creation routine.
  */
-int create_clipper(HWND hwnd)
+int gfx_directx_create_clipper(HWND hwnd)
 {
    HRESULT hr;
 
@@ -116,10 +117,10 @@ int create_clipper(HWND hwnd)
 
 
 
-/* create_palette:
+/* gfx_directx_create_palette:
  *  Low-level DirectDraw palette creation routine.
  */
-int create_palette(DDRAW_SURFACE *surf)
+int gfx_directx_create_palette(DDRAW_SURFACE *surf)
 {
    HRESULT hr;
    int n;
@@ -148,10 +149,10 @@ int create_palette(DDRAW_SURFACE *surf)
 
 
 
-/* setup_driver:
+/* gfx_directx_setup_driver:
  *  Helper function for initializing the gfx driver.
  */
-int setup_driver(GFX_DRIVER *drv, int w, int h, int color_depth)
+int gfx_directx_setup_driver(GFX_DRIVER *drv, int w, int h, int color_depth)
 {
    DDSCAPS ddsCaps;
 
@@ -204,9 +205,9 @@ int finalize_directx_init(void)
  */
 int exit_directx(void)
 {
-   if (directdraw) {
+   if (directdraw) {      
       /* set cooperative level back to normal */
-      IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_NORMAL);
+      IDirectDraw2_SetCooperativeLevel(directdraw, win_get_window(), DDSCL_NORMAL);
 
       /* release DirectDraw interface */
       IDirectDraw2_Release(directdraw);
@@ -242,27 +243,27 @@ struct BITMAP *gfx_directx_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h,
       goto Error;
 
    /* create screen */
-   if (create_primary() != 0)
+   if (gfx_directx_create_primary() != 0)
       goto Error;
 
    /* set color format */
    if (color_depth == 8) {
-      if (create_palette(primary_surface) != 0)
+      if (gfx_directx_create_palette(gfx_directx_primary_surface) != 0)
 	 goto Error;
    }
    else {
-      if (gfx_directx_update_color_format(primary_surface, color_depth) != 0)
+      if (gfx_directx_update_color_format(gfx_directx_primary_surface, color_depth) != 0)
          goto Error;
    }
 
    /* set gfx driver interface */
-   if (setup_driver(drv, w, h, color_depth) != 0)
+   if (gfx_directx_setup_driver(drv, w, h, color_depth) != 0)
       goto Error;
 
    /* create forefront bitmap */
-   forefront_bitmap = make_bitmap_from_surface(primary_surface, w, h, BMP_ID_VIDEO);
+   gfx_directx_forefront_bitmap = gfx_directx_make_bitmap_from_surface(gfx_directx_primary_surface, w, h, BMP_ID_VIDEO);
 
-   return forefront_bitmap;
+   return gfx_directx_forefront_bitmap;
 
  Error:
    gfx_directx_exit(NULL);
@@ -320,10 +321,10 @@ void gfx_directx_exit(struct BITMAP *bmp)
    win_gfx_driver = NULL;
 
    /* destroy primary surface */
-   if (primary_surface) {
-      gfx_directx_destroy_surface(primary_surface);
-      primary_surface = NULL;
-      forefront_bitmap = NULL;
+   if (gfx_directx_primary_surface) {
+      gfx_directx_destroy_surface(gfx_directx_primary_surface);
+      gfx_directx_primary_surface = NULL;
+      gfx_directx_forefront_bitmap = NULL;
    }
 
    /* normally this list must be empty */
@@ -380,6 +381,7 @@ int gfx_directx_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus)
    ICONINFO iconinfo;
    HBITMAP hOldAndMaskBitmap;
    HBITMAP hOldXorMaskBitmap;
+   HWND allegro_wnd = win_get_window();
 
    if (hcursor) {
       if (_win_hcursor == hcursor)

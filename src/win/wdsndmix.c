@@ -295,7 +295,7 @@ static void digi_dsoundmix_mixer_callback(void)
    switch_mode = get_display_switch_mode();
 
    if (alleg_buf_paused) {
-      if (app_foreground ||
+      if (_win_app_foreground ||
           (switch_mode == SWITCH_BACKGROUND) || (switch_mode == SWITCH_BACKAMNESIA)) {
          /* get current state of the sound buffer */
          hr = IDirectSoundBuffer_GetStatus(alleg_buf, &dwBytes1);
@@ -312,7 +312,7 @@ static void digi_dsoundmix_mixer_callback(void)
          return;
    }
    else {
-      if (!app_foreground &&
+      if (!_win_app_foreground &&
           ((switch_mode == SWITCH_PAUSE) || (switch_mode == SWITCH_AMNESIA))) {
          alleg_buf_paused = TRUE;
          IDirectSoundBuffer_Stop(alleg_buf);
@@ -463,6 +463,7 @@ static int digi_dsoundmix_init(int input, int voices)
    DSCAPS dscaps;
    DSBUFFERDESC desc;
    WAVEFORMATEX format;
+   HWND allegro_wnd = win_get_window();
    char tmp1[128], tmp2[128];
    int v, id;
 

@@ -328,7 +328,8 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    LPDIRECTINPUTDEVICE2 dinput_device = NULL;
    HRESULT hr;
    LPVOID temp;
-
+   HWND allegro_wnd = win_get_window();
+   
    DIPROPRANGE property_range =
    {
       /* the header */

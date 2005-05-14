@@ -143,7 +143,7 @@ FUNC (gfx_directx_unwrite_bank_win)
       /* update dirty lines: this is safe because autolocking
        * is guaranteed to be the only level of locking.
        */
-      movl GLOBL(forefront_bitmap), %edx
+      movl GLOBL(gfx_directx_forefront_bitmap), %edx
       call update_dirty_lines
 
       popl %eax
@@ -167,7 +167,7 @@ FUNC(gfx_directx_unlock_win)
       popl %edx
 
       /* forefront_bitmap may still be locked in case of nested locking */
-      movl GLOBL(forefront_bitmap), %edx
+      movl GLOBL(gfx_directx_forefront_bitmap), %edx
       testl $BMP_ID_LOCKED, BMP_ID(%edx)
       jnz No_update_win
 

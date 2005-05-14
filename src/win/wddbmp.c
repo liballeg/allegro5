@@ -299,10 +299,10 @@ void gfx_directx_destroy_surface(DDRAW_SURFACE *surf)
 
 
 
-/* make_bitmap_from_surface:
+/* gfx_directx_make_bitmap_from_surface:
  *  Connects a DirectDraw surface with an Allegro bitmap.
  */
-BITMAP *make_bitmap_from_surface(DDRAW_SURFACE *surf, int w, int h, int id)
+BITMAP *gfx_directx_make_bitmap_from_surface(DDRAW_SURFACE *surf, int w, int h, int id)
 {
    BITMAP *bmp;
    int i;
@@ -358,8 +358,8 @@ static int recreate_flipping_chain(int n_pages)
    ASSERT(n_pages > 0);
 
    /* set flipping chain characteristics */
-   w = forefront_bitmap->w;
-   h = forefront_bitmap->h;
+   w = gfx_directx_forefront_bitmap->w;
+   h = gfx_directx_forefront_bitmap->h;
    type = flipping_page[0]->flags & DDRAW_SURFACE_TYPE_MASK;
    n_backbuffers = n_pages - 1;
 
@@ -428,14 +428,14 @@ BITMAP *gfx_directx_create_video_bitmap(int width, int height)
    BITMAP *bmp;
 
    /* try to detect page flipping and triple buffering patterns */
-   if ((width == forefront_bitmap->w) && (height == forefront_bitmap->h)) {
+   if ((width == gfx_directx_forefront_bitmap->w) && (height == gfx_directx_forefront_bitmap->h)) {
 
       switch (n_flipping_pages) {
 
          case 0:
             /* recycle the forefront surface as the first flipping page */
-            flipping_page[0] = DDRAW_SURFACE_OF(forefront_bitmap);
-            bmp = make_bitmap_from_surface(flipping_page[0], width, height, BMP_ID_VIDEO);
+            flipping_page[0] = DDRAW_SURFACE_OF(gfx_directx_forefront_bitmap);
+            bmp = gfx_directx_make_bitmap_from_surface(flipping_page[0], width, height, BMP_ID_VIDEO);
             if (bmp) {
                flipping_page[0]->parent_bmp = bmp;
                n_flipping_pages++;
@@ -451,7 +451,7 @@ BITMAP *gfx_directx_create_video_bitmap(int width, int height)
             /* try to attach an additional page to the flipping chain */
             flipping_page[n_flipping_pages] = malloc(sizeof(DDRAW_SURFACE));
             if (recreate_flipping_chain(n_flipping_pages+1) == 0) {
-               bmp = make_bitmap_from_surface(flipping_page[n_flipping_pages], width, height, BMP_ID_VIDEO);
+               bmp = gfx_directx_make_bitmap_from_surface(flipping_page[n_flipping_pages], width, height, BMP_ID_VIDEO);
                if (bmp) {
                   flipping_page[n_flipping_pages]->parent_bmp = bmp;
                   n_flipping_pages++;
@@ -476,7 +476,7 @@ BITMAP *gfx_directx_create_video_bitmap(int width, int height)
       return NULL;
 
    /* create the bitmap that wraps up the surface */
-   bmp = make_bitmap_from_surface(surf, width, height, BMP_ID_VIDEO);
+   bmp = gfx_directx_make_bitmap_from_surface(surf, width, height, BMP_ID_VIDEO);
    if (!bmp) {
       gfx_directx_destroy_surface(surf);
       return NULL;
@@ -534,8 +534,8 @@ static int flip_with_forefront_bitmap(BITMAP *bmp, int wait)
    HRESULT hr;
 
    /* flip only in the foreground */
-   if (!app_foreground) {
-      thread_switch_out();
+   if (!_win_app_foreground) {
+      _win_thread_switch_out();
       return 0;
    }
 
@@ -578,7 +578,7 @@ static int flip_with_forefront_bitmap(BITMAP *bmp, int wait)
 int gfx_directx_show_video_bitmap(BITMAP *bmp)
 {
    /* guard against show_video_bitmap(screen); */
-   if (bmp == forefront_bitmap)
+   if (bmp == gfx_directx_forefront_bitmap)
       return 0;
 
    return flip_with_forefront_bitmap(bmp, _wait_for_vsync);
@@ -591,7 +591,7 @@ int gfx_directx_show_video_bitmap(BITMAP *bmp)
 int gfx_directx_request_video_bitmap(BITMAP *bmp)
 {
    /* guard against request_video_bitmap(screen); */
-   if (bmp == forefront_bitmap)
+   if (bmp == gfx_directx_forefront_bitmap)
       return 0;
 
    return flip_with_forefront_bitmap(bmp, FALSE);
@@ -636,7 +636,7 @@ BITMAP *gfx_directx_create_system_bitmap(int width, int height)
       return NULL;
 
    /* create the bitmap that wraps up the surface */
-   bmp = make_bitmap_from_surface(surf, width, height, BMP_ID_SYSTEM);
+   bmp = gfx_directx_make_bitmap_from_surface(surf, width, height, BMP_ID_SYSTEM);
    if (!bmp) {
       gfx_directx_destroy_surface(surf);
       return NULL;

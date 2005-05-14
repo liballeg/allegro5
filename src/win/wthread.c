@@ -40,14 +40,15 @@ static int first_call = 1;
 
 
 
-/* thread_init:
+/* _win_thread_init:
  *  Initializes COM interface for the calling thread.
  *  Attempts to use Distributed COM if available (installed by default
  *  on every 32-bit Windows starting with Win98 and Win NT4).
  */
-void thread_init(void)
+void _win_thread_init(void)
 {
    HMODULE ole32 = NULL;
+   HWND allegro_wnd = win_get_window();
 
    if (first_call) {
       first_call = 0;
@@ -78,10 +79,10 @@ void thread_init(void)
 
 
 
-/* thread_exit:
+/* _win_thread_exit:
  *  Shuts down COM interface for the calling thread.
  */
-void thread_exit(void)
+void _win_thread_exit(void)
 {
    CoUninitialize();
 }

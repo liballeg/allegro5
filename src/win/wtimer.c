@@ -108,15 +108,15 @@ static void tim_win32_high_perf_thread(void *unused)
    LARGE_INTEGER diff_counter;
 
    /* init thread */
-   thread_init();
+   _win_thread_init();
 
    /* get initial counter */
    QueryPerformanceCounter(&prev_tick);
 
    while (TRUE) {
-      if (!app_foreground) {
+      if (!_win_app_foreground) {
 	 /* restart counter if the thread was blocked */
-	 if (thread_switch_out())
+	 if (_win_thread_switch_out())
 	    QueryPerformanceCounter(&prev_tick);
       }
 
@@ -135,7 +135,7 @@ static void tim_win32_high_perf_thread(void *unused)
       /* wait calculated time */
       result = WaitForSingleObject(timer_stop_event, TIMER_TO_MSEC(delay));
       if (result != WAIT_TIMEOUT) {
-	 thread_exit();
+	 _win_thread_exit();
 	 return;
       }
    }
@@ -155,15 +155,15 @@ static void tim_win32_low_perf_thread(void *unused)
    DWORD diff_time;
 
    /* init thread */
-   thread_init();
+   _win_thread_init();
 
    /* get initial time */
    prev_time = timeGetTime();
 
    while (TRUE) {
-      if (!app_foreground) {
+      if (!_win_app_foreground) {
 	 /* restart time if the thread was blocked */
-	 if (thread_switch_out())
+	 if (_win_thread_switch_out())
 	    prev_time = timeGetTime();
       }
 
@@ -182,7 +182,7 @@ static void tim_win32_low_perf_thread(void *unused)
       /* wait calculated time */
       result = WaitForSingleObject(timer_stop_event, TIMER_TO_MSEC(delay));
       if (result != WAIT_TIMEOUT) {
-	 thread_exit();
+	 _win_thread_exit();
 	 return;
       }
    }

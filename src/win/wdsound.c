@@ -372,7 +372,8 @@ static int digi_directsound_init(int input, int voices)
    DSBUFFERDESC desc;
    WAVEFORMATEX format;
    int v, id;
-
+   HWND allegro_wnd = win_get_window();
+   
    /* deduce our device number from the driver ID code */
    id = ((digi_driver->id >> 8) & 0xFF) - 'A';
 
