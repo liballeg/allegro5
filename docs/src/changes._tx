@@ -10,7 +10,7 @@
 @heading
 Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
 <ul><li>
-   Grzegorz Adam Hankiewicz did several documenation update.
+   Grzegorz Adam Hankiewicz did several documenation updates.
 <li>
    Evert Glebbeek cleaned up some of the global namespace pollution in the 
    Windows port.
@@ -36,20 +36,21 @@ Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
    from 4.1.18 when custom packfile support / decoupled compression routines 
    were added.
 <li>
-   Peter Wang added acomment describing the evdev mouse driver in allegro.cfg.
+   Peter Wang added a comment describing the evdev mouse driver in allegro.cfg.
 <li>
    Evert Glebbeek made the grabber and dat utilities now use Allegro's buildin 
    load_font() function and made datafiles properly store truecolour fonts and
    added a datedit_select() callback to datedit.
 <li>
-   Evert Glebbeek fixed some unsafe assumptions on the size of integer datatypes.
+   Evert Glebbeek fixed some unsafe assumptions on the size of integer 
+   datatypes.
 <li>
    Arthur Huillet fixed a typo in the docs.
 <li>
    Elias Pschernig restored Alt+key = ASCII code 0 behavior for the windows 
    keyboard driver
 <li>
-   Evert Glebbeek fixed a bug that caused a crash when loading Allegro 1.x 
+   Evert Glebbeek fixed a bug that caused a crash when loading Allegro 1.x
    datafiles containing 4 bit bitmaps.
 <li>
    Peter Wang clarified the mode select documentation and made the mode 
@@ -70,7 +71,7 @@ Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
    Peter Hull added a missing enable_hardware_cursor vtable entry and added OS 
    native cursors for the MacOS X port.
 <li>
-   Grzegorz Adam Hankiewicz documented online Allegro patch generator.
+   Grzegorz Adam Hankiewicz documented the online Allegro patch generator.
 <li>
    Evert Glebbeek renamed datafiles._tx -> datafile._tx
 <li>
@@ -81,8 +82,8 @@ Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
    Peter Wang fixed warnings and errors with gcc 4.0.0 on the unix port; 
    reported by Milan Mimica.
 <li>
-   Peter Wang added preprocessor symbol ALLEGRO_NO_FIX_CLASS that the user can 
-   define to not pull in the `fix' class in C++ programs.
+   Peter Wang added the preprocessor symbol ALLEGRO_NO_FIX_CLASS that the user
+   can define to not pull in the `fix' class in C++ programs.
 <li>
    Peter Wang removed the exdodgy example.
 <li>
