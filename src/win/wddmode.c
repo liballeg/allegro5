@@ -23,8 +23,8 @@
 #include "wddraw.h"
 
 
-int desktop_depth;
-RGB_MAP desktop_rgb_map;  /* for 8-bit desktops */
+int _win_desktop_depth;
+RGB_MAP _win_desktop_rgb_map;  /* for 8-bit desktops */
 
 
 int mode_supported;
@@ -66,6 +66,7 @@ static int _wnd_width, _wnd_height, _wnd_depth, _wnd_refresh_rate, _wnd_flags;
 static int wnd_set_video_mode(void)
 {
    HRESULT hr;
+   HWND allegro_wnd = win_get_window();
 
    /* set the cooperative level to allow fullscreen access */
    hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
@@ -123,10 +124,10 @@ void build_desktop_rgb_map(void)
       pal[i].b = shift_gamma(system_palette[i].peBlue);
    }
 
-   create_rgb_table(&desktop_rgb_map, pal, NULL);
+   create_rgb_table(&_win_desktop_rgb_map, pal, NULL);
 
    /* create_rgb_table() never maps RGB triplets to index 0 */
-   desktop_rgb_map.data[pal[0].r>>1][pal[0].g>>1][pal[0].b>>1] = 0;
+   _win_desktop_rgb_map.data[pal[0].r>>1][pal[0].g>>1][pal[0].b>>1] = 0;
 }
 
 
@@ -184,13 +185,13 @@ int gfx_directx_compare_color_depth(int color_depth)
    }
 
    /* get the *real* color depth of the desktop */
-   desktop_depth = surf_desc.ddpfPixelFormat.dwRGBBitCount;
-   if (desktop_depth == 16) /* sure? */
-      desktop_depth = get_color_bits(surf_desc.ddpfPixelFormat.dwRBitMask) +
+   _win_desktop_depth = surf_desc.ddpfPixelFormat.dwRGBBitCount;
+   if (_win_desktop_depth == 16) /* sure? */
+      _win_desktop_depth = get_color_bits(surf_desc.ddpfPixelFormat.dwRBitMask) +
                       get_color_bits(surf_desc.ddpfPixelFormat.dwGBitMask) +
                       get_color_bits(surf_desc.ddpfPixelFormat.dwBBitMask);
 
-   if (color_depth == desktop_depth) {
+   if (color_depth == _win_desktop_depth) {
       ddpixel_format = NULL;
       return 0;
    }
@@ -200,7 +201,7 @@ int gfx_directx_compare_color_depth(int color_depth)
          if ((pixel_realdepth[i] == color_depth) &&
             ((surf_desc.ddpfPixelFormat.dwRBitMask & pixel_format[i].dwRBitMask) ||
                 (surf_desc.ddpfPixelFormat.dwBBitMask & pixel_format[i].dwBBitMask) ||
-                   (desktop_depth == 8) || (color_depth == 8))) {
+                   (_win_desktop_depth == 8) || (color_depth == 8))) {
                       ddpixel_format = &pixel_format[i];
                       break;
          }
@@ -363,6 +364,7 @@ GFX_MODE_LIST *gfx_directx_fetch_mode_list(void)
  */
 int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
 {
+   HWND allegro_wnd = win_get_window();
    _wnd_width = w;
    _wnd_height = h;
    _wnd_depth = (color_depth == 15 ? 16 : color_depth);

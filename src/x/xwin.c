@@ -772,7 +772,8 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
    _xwin.fast_visual_depth = _xwin_private_fast_visual_depth();
 
    /* Create screen bitmap from frame buffer.  */
-   return _xwin_private_create_screen_bitmap(drv, _xwin.ximage->data + _xwin.ximage->xoffset,
+   return _xwin_private_create_screen_bitmap(drv,
+					     (unsigned char *)_xwin.ximage->data + _xwin.ximage->xoffset,
 					     _xwin.ximage->bytes_per_line);
 }
 
@@ -1464,7 +1465,7 @@ static int _xwin_private_fast_visual_depth(void)
       return 0;
 
    /* Use first line of XImage for test.  */
-   p8 = _xwin.ximage->data + _xwin.ximage->xoffset;
+   p8 = (uint8_t *) _xwin.ximage->data + _xwin.ximage->xoffset;
    p16 = (uint16_t*) p8;
    p32 = (uint32_t*) p8;
 
@@ -1547,10 +1548,12 @@ void _xwin_enable_hardware_cursor(int mode)
    if (_xwin.hw_cursor_ok) {
       _xwin.mouse_warped = 0;
       /* Move X-cursor to Allegro cursor.  */
+      XLOCK();
       XWarpPointer(_xwin.display, _xwin.window, _xwin.window,
 		   0, 0, _xwin.window_width, _xwin.window_height,
 		   _mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0),
 		   _mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
+      XUNLOCK();
    }
 }
 

@@ -126,7 +126,7 @@ static BITMAP *read_bitmap(PACKFILE *f, int bits, int allowconv)
    w = pack_mgetw(f);
    h = pack_mgetw(f);
 
-   bmp = create_bitmap_ex(bits, w, h);
+   bmp = create_bitmap_ex(MAX(bits, 8), w, h);
    if (!bmp) {
       *allegro_errno = ENOMEM;
       return NULL;
@@ -148,7 +148,7 @@ static BITMAP *read_bitmap(PACKFILE *f, int bits, int allowconv)
       case 15:
 	 /* 15bit hicolor */
 	 for (y=0; y<h; y++) {
-	    p16 = (unsigned short *)bmp->line[y];
+	    p16 = (uint16_t *)bmp->line[y];
 
 	    for (x=0; x<w; x++) {
 	       c = pack_igetw(f);
@@ -163,7 +163,7 @@ static BITMAP *read_bitmap(PACKFILE *f, int bits, int allowconv)
       case 16:
 	 /* 16bit hicolor */
 	 for (y=0; y<h; y++) {
-	    p16 = (unsigned short *)bmp->line[y];
+	    p16 = (uint16_t *)bmp->line[y];
 
 	    for (x=0; x<w; x++) {
 	       c = pack_igetw(f);
@@ -409,7 +409,7 @@ static FONT_MONO_DATA *read_font_mono(PACKFILE *f, int *hmax)
 /* read_font_color:
  *  Helper for read_font, below.
  */
-static FONT_COLOR_DATA *read_font_color(PACKFILE *pack, int *hmax)
+static FONT_COLOR_DATA *read_font_color(PACKFILE *pack, int *hmax, int depth)
 {
    FONT_COLOR_DATA *cf = NULL;
    int max = 0, i = 0;
@@ -432,9 +432,9 @@ static FONT_COLOR_DATA *read_font_color(PACKFILE *pack, int *hmax)
       *allegro_errno = ENOMEM;
       return NULL;
    }
-   
+
    for (i = 0; i < max; i++) {
-      bits[i] = read_bitmap(pack, 8, FALSE);
+      bits[i] = read_bitmap(pack, depth, TRUE);
       if (!bits[i]) {
 	 while (i) {
 	    i--;
@@ -463,6 +463,7 @@ static FONT *read_font(PACKFILE *pack)
    FONT *f = NULL;
    int num_ranges = 0;
    int height = 0;
+   int depth;
 
    f = malloc(sizeof(FONT));
    if (!f) {
@@ -474,7 +475,8 @@ static FONT *read_font(PACKFILE *pack)
 
    num_ranges = pack_mgetw(pack);
    while (num_ranges--) {
-      if (pack_getc(pack)) {
+      depth = pack_getc(pack);
+      if (depth == 1) {
 	 FONT_MONO_DATA *mf = 0, *iter = (FONT_MONO_DATA *)f->data;
 	 
 	 f->vtable = font_vtable_mono;
@@ -494,10 +496,14 @@ static FONT *read_font(PACKFILE *pack)
       } 
       else {
 	 FONT_COLOR_DATA *cf = NULL, *iter = (FONT_COLOR_DATA *)f->data;
+         
+         /* Older versions of Allegro use `0' to indicate a colour font */
+         if (depth == 0)
+            depth = 8;
 
 	 f->vtable = font_vtable_color;
 
-	 cf = read_font_color(pack, &height);
+	 cf = read_font_color(pack, &height, depth);
 	 if (!cf) {
 	    destroy_font(f);
 	    return NULL;

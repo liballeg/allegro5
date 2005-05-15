@@ -119,7 +119,7 @@ static int sys_directx_init(void)
    HANDLE current_process;
 
    /* init thread */
-   thread_init();
+   _win_thread_init();
 
    allegro_inst = GetModuleHandle(NULL);
 
@@ -207,7 +207,7 @@ static void sys_directx_exit(void)
    DeleteCriticalSection(&allegro_critical_section);
 
    /* shutdown thread */
-   thread_exit();
+   _win_thread_exit();
 
    allegro_inst = NULL;
 }
@@ -236,6 +236,8 @@ static void sys_directx_get_executable_name(char *output, int size)
  */
 static void sys_directx_set_window_title(AL_CONST char *name)
 {
+   HWND allegro_wnd = win_get_window();
+
    do_uconvert(name, U_CURRENT, wnd_title, U_ASCII, WND_TITLE_SIZE);
    SetWindowText(allegro_wnd, wnd_title);
 }
@@ -249,6 +251,7 @@ static int sys_directx_set_close_button_callback(void (*proc)(void))
 {
    DWORD class_style;
    HMENU sys_menu;
+   HWND allegro_wnd = win_get_window();
 
    user_close_proc = proc;
 
@@ -288,6 +291,7 @@ static void sys_directx_message(AL_CONST char *msg)
 {
    char *tmp1 = malloc(ALLEGRO_MESSAGE_SIZE);
    char tmp2[WND_TITLE_SIZE*2];
+   HWND allegro_wnd = win_get_window();
 
    while ((ugetc(msg) == '\r') || (ugetc(msg) == '\n'))
       msg += uwidth(msg);
@@ -317,6 +321,7 @@ static void sys_directx_assert(AL_CONST char *msg)
  */
 static void sys_directx_save_console_state(void)
 {
+   HWND allegro_wnd = win_get_window();
    GetWindowRect(allegro_wnd, &wnd_rect);
 }
 
@@ -327,13 +332,14 @@ static void sys_directx_save_console_state(void)
  */
 static void sys_directx_restore_console_state(void)
 {
+   HWND allegro_wnd = win_get_window();
    /* unacquire input devices */
    wnd_schedule_proc(key_dinput_unacquire);
    wnd_schedule_proc(mouse_dinput_unacquire);
    wnd_schedule_proc(_al_win_joystick_dinput_unacquire);
 
    /* reset switch mode */
-   sys_reset_switch_mode();
+   _win_reset_switch_mode();
 
    /* re-size and hide window */
    SetWindowPos(allegro_wnd, HWND_TOP, wnd_rect.left, wnd_rect.top,

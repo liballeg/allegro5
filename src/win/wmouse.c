@@ -445,6 +445,7 @@ int mouse_dinput_grab(void)
 {
    HRESULT hr;
    DWORD level;
+   HWND allegro_wnd = win_get_window();
 
    if (mouse_dinput_device) {
       /* necessary in order to set the cooperative level */
@@ -488,6 +489,7 @@ int mouse_dinput_grab(void)
  */
 int mouse_set_syscursor(void)
 {
+   HWND allegro_wnd = win_get_window();
    if ((mouse_dinput_device && _mouse_on) || (gfx_driver && !gfx_driver->windowed)) {
       SetCursor(_win_hcursor);
       /* Make sure the cursor is removed by the system. */
@@ -534,7 +536,7 @@ static int mouse_dinput_exit(void)
 {
    if (mouse_dinput_device) {
       /* unregister event handler first */
-      input_unregister_event(mouse_input_event);
+      _win_input_unregister_event(mouse_input_event);
 
       /* unacquire device */
       wnd_call_proc(mouse_dinput_unacquire);
@@ -637,7 +639,7 @@ static int mouse_dinput_init(void)
       goto Error;
 
    /* Register event handler */
-   if (input_register_event(mouse_input_event, mouse_dinput_handle) != 0)
+   if (_win_input_register_event(mouse_input_event, mouse_dinput_handle) != 0)
       goto Error;
 
    /* Grab the device */
@@ -797,6 +799,7 @@ static void mouse_directx_enable_hardware_cursor(int mode)
 static int mouse_directx_select_system_cursor (AL_CONST int cursor)
 {
    HCURSOR wc;
+   HWND allegro_wnd = win_get_window();
    
    wc = NULL;
    switch(cursor) {

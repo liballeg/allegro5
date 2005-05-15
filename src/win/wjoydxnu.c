@@ -480,6 +480,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    LPDIRECTINPUTDEVICE2 dinput_device = NULL;
    HRESULT hr;
    LPVOID temp;
+   HWND allegro_wnd = win_get_window();
 
    DIPROPRANGE property_range =
    {
@@ -856,7 +857,7 @@ static void joydx_get_state(AL_JOYSTICK *joy_, AL_JOYSTATE *ret_state)
  */
 static void joydx_thread_proc(LPVOID unused)
 {
-   thread_init();
+   _win_thread_init();
 
    while (true) {
       DWORD result;
@@ -882,7 +883,7 @@ static void joydx_thread_proc(LPVOID unused)
       LeaveCriticalSection(&joydx_thread_cs);
    }
 
-   thread_exit();
+   _win_thread_exit();
 
    (void)unused;
 }

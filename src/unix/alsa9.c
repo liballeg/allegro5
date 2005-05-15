@@ -65,7 +65,6 @@ static char const *alsa_device = "default";
 static char const *alsa_mixer_device = "default";
 static snd_pcm_hw_params_t *hwparams = NULL;
 static snd_pcm_sw_params_t *swparams = NULL;
-static snd_pcm_channel_area_t *areas = NULL;
 static snd_output_t *snd_output = NULL;
 static snd_pcm_uframes_t alsa_bufsize;
 static snd_mixer_t *alsa_mixer = NULL;
@@ -78,8 +77,9 @@ static double alsa_mixer_allegro_ratio = 0.0;
 
 static snd_pcm_t *pcm_handle;
 static unsigned char *alsa_bufdata;
-static int alsa_bits, alsa_signed, alsa_rate, alsa_stereo;
-static int alsa_fragments;
+static int alsa_bits, alsa_signed, alsa_stereo;
+static unsigned int alsa_rate;
+static unsigned int alsa_fragments;
 static int alsa_sample_size;
 
 static struct pollfd *ufds = NULL;
@@ -286,8 +286,9 @@ static int alsa_init(int input, int voices)
 {
    int ret = 0;
    char tmp1[128], tmp2[128];
-   int format = 0, numfrags = 0;
-   snd_pcm_sframes_t fragsize;
+   int format = 0;
+   unsigned int numfrags = 0;
+   snd_pcm_uframes_t fragsize;
 
    if (input) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
@@ -305,7 +306,7 @@ static int alsa_init(int input, int voices)
 				   alsa_mixer_device);
 
    fragsize = get_config_int(uconvert_ascii("sound", tmp1),
-			     uconvert_ascii("alsa_fragsize", tmp2), -1);
+			     uconvert_ascii("alsa_fragsize", tmp2), 0);
 
    numfrags = get_config_int(uconvert_ascii("sound", tmp1),
 			     uconvert_ascii("alsa_numfrags", tmp2),
@@ -370,8 +371,8 @@ static int alsa_init(int input, int voices)
 
    alsa_sample_size = (alsa_bits / 8) * (alsa_stereo ? 2 : 1);
 
-   if (fragsize < 0) {
-      int size = alsa_rate * ALSA_DEFAULT_BUFFER_MS / 1000 / numfrags;
+   if (fragsize == 0) {
+      unsigned int size = alsa_rate * ALSA_DEFAULT_BUFFER_MS / 1000 / numfrags;
       fragsize = 1;
       while (fragsize < size)
 	 fragsize <<= 1;

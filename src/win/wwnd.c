@@ -32,7 +32,7 @@
 
 
 /* general */
-HWND allegro_wnd = NULL;
+static HWND allegro_wnd = NULL;
 char wnd_title[WND_TITLE_SIZE];  /* ASCII string */
 int wnd_x = 0;
 int wnd_y = 0;
@@ -228,7 +228,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       case WM_DESTROY:
          if (user_wnd_proc) {
             exit_window_modules(NULL);
-            sys_reset_switch_mode();
+            _win_reset_switch_mode();
          }
          else {
             PostQuitMessage(0);
@@ -246,7 +246,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_ACTIVATE:
          if (LOWORD(wparam) == WA_INACTIVE) {
-            sys_switch_out();
+            _win_switch_out();
          }
          else {
             if (gfx_driver && !gfx_driver->windowed) {
@@ -255,7 +255,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
             }
             else {
                /* no delay in windowed mode */
-               sys_switch_in();
+               _win_switch_in();
             }
          }
          break;
@@ -263,7 +263,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       case WM_TIMER:
          if (wparam == SWITCH_TIMER) {
             KillTimer(allegro_wnd, SWITCH_TIMER);
-            sys_switch_in();
+            _win_switch_in();
             return 0;
          }
          break;
@@ -434,7 +434,7 @@ static void wnd_thread_proc(HANDLE setup_event)
    int result;
    MSG msg;
 
-   thread_init();
+   _win_thread_init();
    _TRACE("window thread starts\n");
 
    /* setup window */
@@ -451,12 +451,12 @@ static void wnd_thread_proc(HANDLE setup_event)
 
    /* message loop */
    while (TRUE) {
-      result = MsgWaitForMultipleObjects(input_events, input_event_id, FALSE, INFINITE, QS_ALLINPUT);
-      if ((result >= WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + input_events)) {
+      result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, INFINITE, QS_ALLINPUT);
+      if ((result >= WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + _win_input_events)) {
          /* one of the registered events is in signaled state */
-         (*input_event_handler[result - WAIT_OBJECT_0])();
+         (*_win_input_event_handler[result - WAIT_OBJECT_0])();
       }
-      else if (result == WAIT_OBJECT_0 + input_events) {
+      else if (result == WAIT_OBJECT_0 + _win_input_events) {
          /* messages are waiting in the queue */
          while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
             if (GetMessage(&msg, NULL, 0, 0)) {
@@ -471,7 +471,7 @@ static void wnd_thread_proc(HANDLE setup_event)
 
  End:
    _TRACE("window thread exits\n");
-   thread_exit();
+   _win_thread_exit();
 }
 
 
@@ -495,7 +495,7 @@ int init_directx_window(void)
 
    if (user_wnd) {
       /* initializes input module and requests dedicated thread */
-      input_init(TRUE);
+      _win_input_init(TRUE);
 
       /* hook the user window */
       user_wnd_proc = (WNDPROC) SetWindowLong(user_wnd, GWL_WNDPROC, (long)directx_wnd_proc);
@@ -515,7 +515,7 @@ int init_directx_window(void)
    }
    else {
       /* initializes input module without dedicated thread */
-      input_init(FALSE);
+      _win_input_init(FALSE);
 
       /* create window thread */
       events[0] = CreateEvent(NULL, FALSE, FALSE, NULL);        /* acknowledges that thread is up */
@@ -572,7 +572,7 @@ void exit_directx_window(void)
 
    DeleteCriticalSection(&gfx_crit_sect);
 
-   input_exit();
+   _win_input_exit();
    
    window_is_initialized = FALSE;
 }

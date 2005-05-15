@@ -458,7 +458,13 @@ consider appropriate. If the modifications are good, they will probably be
 accepted and merged in the WIP version for the next release. If you aren't
 lucky, or your patch still needs some work, you will be told why it's not
 accepted, or what you have to do to improve it. If you aren't subscribed to
-the list, remember to tell it in your email.
+the list, remember to say this in your message as, by default, replies are
+irected to the list.
+
+You can also use SourceForge's issue web trackers, which you can find at
+<link>http://sourceforge.net/tracker/?group_id=5665</a>. This doesn't require you to
+subscribe to any mailing list and you can verify every know and then the
+status of your contribution.
 
 
 
@@ -531,3 +537,19 @@ through the Allegro source tree, comparing each file against the Sourceforge
 repository. The patch will have slightly different headers, but that's ok,
 once you have it follow the previous process to send it to the developers
 mailing list. Of course, check cvs' manual for more information and options.
+
+
+
+@hnode Online patch creation
+
+Sometimes you don't have the diff tool around, or don't have the cvs tool to
+check out the bleeding edge version of Allegro, or you are too lazy to care
+how to actually make the patch yourself. For any of those cases, you can use
+the online Allegro patcher at <link>http://www.allegro.cc/dev/make-diff.php</a>.
+
+To use it, first you have to get one of the source files of Allegro and make
+your changes to it. Then, go to that URL and supply the local path on your
+computer to the modified file. Then, you write the path of this file relative
+to Allegro's <em>root</em>. If everything goes well, you will end up with a
+patch you can send to the Allegro developers mailing list or post on
+SourceForge's patch submission page.

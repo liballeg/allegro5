@@ -33,6 +33,7 @@ void datedit_startmsg(AL_CONST char *fmt, ...) { }
 void datedit_endmsg(AL_CONST char *fmt, ...) { }
 void datedit_error(AL_CONST char *fmt, ...) { }
 int datedit_ask(AL_CONST char *fmt, ...) { return 0; }
+int datedit_select(AL_CONST char *(*list_getter)(int index, int *list_size), AL_CONST char *fmt, ...) { return 0; }
 
 
 /* this program is not portable! */

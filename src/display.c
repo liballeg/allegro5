@@ -416,8 +416,6 @@ GFX_VTABLE *_get_vtable(int color_depth)
  */
 static void shutdown_gfx(void)
 {
-   int i;
-   
    /* Destroy all remaining displays */
    while (!_al_vector_is_empty(&display_list)) {
       AL_DISPLAY **display = _al_vector_ref_back(&display_list);

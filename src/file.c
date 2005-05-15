@@ -1639,6 +1639,49 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 
 	 header = pack_mgetl(f->normal.parent);
 
+	 if ((f->normal.parent->normal.passpos) &&
+	     ((header == encrypt_id(F_PACK_MAGIC, FALSE)) ||
+	      (header == encrypt_id(F_NOPACK_MAGIC, FALSE))))
+	 {
+	    /* duplicate the file descriptor */
+	    int fd2 = dup(fd);
+  
+	    if (fd2<0) {
+	       pack_fclose(f->normal.parent);
+	       free_packfile(f);
+	       *allegro_errno = errno;
+	       return NULL;
+	    }
+  
+	    /* close the parent file (logically, not physically) */
+	    pack_fclose(f->normal.parent);
+  
+	    /* backward compatibility mode */
+	    if (!clone_password(f)) {
+	       free_packfile(f);
+	       return NULL;
+	    }
+  
+	    f->normal.flags |= PACKFILE_FLAG_OLD_CRYPT;
+  
+	    /* re-open the parent file */
+	    lseek(fd2, 0, SEEK_SET);
+  
+	    if ((f->normal.parent = _pack_fdopen(fd2, F_READ)) == NULL) {
+	       free_packfile(f);
+	       return NULL;
+	    }
+  
+	    f->normal.parent->normal.flags |= PACKFILE_FLAG_OLD_CRYPT;
+  
+	    pack_mgetl(f->normal.parent);
+  
+	    if (header == encrypt_id(F_PACK_MAGIC, FALSE))
+	       header = encrypt_id(F_PACK_MAGIC, TRUE);
+	    else
+	       header = encrypt_id(F_NOPACK_MAGIC, TRUE);
+	 }
+
 	 if (header == encrypt_id(F_PACK_MAGIC, TRUE)) {
 	    f->normal.todo = LONG_MAX;
 	 }
@@ -1899,6 +1942,21 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       chunk->normal.flags = PACKFILE_FLAG_CHUNK;
       chunk->normal.parent = f;
 
+      if (f->normal.flags & PACKFILE_FLAG_OLD_CRYPT) {
+	 /* backward compatibility mode */
+	 if (f->normal.passdata) {
+	    if ((chunk->normal.passdata = malloc(strlen(f->normal.passdata)+1)) == NULL) {
+	       *allegro_errno = ENOMEM;
+	       free(chunk);
+	       return NULL;
+	    }
+	    _al_sane_strncpy(chunk->normal.passdata, f->normal.passdata, strlen(f->normal.passdata)+1);
+	    chunk->normal.passpos = chunk->normal.passdata + (long)f->normal.passpos - (long)f->normal.passdata;
+	    f->normal.passpos = f->normal.passdata;
+	 }
+	 chunk->normal.flags |= PACKFILE_FLAG_OLD_CRYPT;
+      }
+
       if (_packfile_datasize < 0) {
 	 /* read a packed chunk */
          chunk->normal.unpack_data = create_lzss_unpack_data();
@@ -2014,6 +2072,9 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
 	 free_lzss_unpack_data(f->normal.unpack_data);
 	 f->normal.unpack_data = NULL;
       }
+
+      if ((f->normal.passpos) && (f->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
+	 parent->normal.passpos = parent->normal.passdata + (long)f->normal.passpos - (long)f->normal.passdata;
 
       free_packfile(f);
    }
@@ -2662,7 +2723,7 @@ static int normal_refill_buffer(PACKFILE *f)
 	 sz = read(f->normal.hndl, f->normal.buf+done, f->normal.buf_size-done);
       }
 
-      if (f->normal.passpos) {
+      if ((f->normal.passpos) && (!(f->normal.flags & PACKFILE_FLAG_OLD_CRYPT))) {
 	 for (i=0; i<f->normal.buf_size; i++) {
 	    f->normal.buf[i] ^= *(f->normal.passpos++);
 	    if (!*f->normal.passpos)
@@ -2704,7 +2765,7 @@ static int normal_flush_buffer(PACKFILE *f, int last)
 	    goto Error;
       }
       else {
-	 if (f->normal.passpos) {
+	 if ((f->normal.passpos) && (!(f->normal.flags & PACKFILE_FLAG_OLD_CRYPT))) {
 	    for (i=0; i<f->normal.buf_size; i++) {
 	       f->normal.buf[i] ^= *(f->normal.passpos++);
 	       if (!*f->normal.passpos)

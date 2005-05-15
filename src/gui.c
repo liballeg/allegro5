@@ -60,6 +60,10 @@ static struct al_active_dialog_player *first_active_dialog_player = 0;
 static struct al_active_dialog_player *current_active_dialog_player = 0;
 
 
+/* forward declarations */
+static int shutdown_single_menu(MENU_PLAYER *, int *);
+
+
 
 /* hook function for reading the mouse x position */
 static int default_mouse_x(void)
@@ -364,8 +368,21 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
    DIALOG *menu_dialog = NULL;
    ASSERT(dialog);
 
-   if (msg == MSG_DRAW)
-      acquire_screen();
+   /* Note: don't acquire the screen in here.  A deadlock develops in a
+    * situation like this:
+    *
+    * 1. this thread: acquires the screen;
+    * 2. timer thread: wakes up, locks the timer_mutex, and calls a
+    *    callback to redraw the software mouse cursor, which tries to
+    *    acquire the screen;
+    * 3. this thread: object_message(MSG_DRAW) calls scare_mouse()
+    *    which calls remove_int().
+    *
+    * So this thread has the screen acquired and wants the timer_mutex,
+    * whereas the timer thread holds the timer_mutex, but wants to acquire
+    * the screen.  The problem is calling scare_mouse() with the screen
+    * acquired.
+    */
 
    force = ((msg == MSG_START) || (msg == MSG_END) || (msg >= MSG_USER));
 
@@ -408,9 +425,6 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
       if (active_menu_player)
 	 break;
    }
-
-   if (msg == MSG_DRAW)
-      release_screen();
 
    return res;
 }
@@ -1813,8 +1827,6 @@ MENU_PLAYER *init_menu(MENU *menu, int x, int y)
  */
 int update_menu(MENU_PLAYER *player)
 {
-   static int shutdown_single_menu(MENU_PLAYER *, int *);
-
    MENU_PLAYER *i;
    int c, c2;
    int old_sel, child_ret;

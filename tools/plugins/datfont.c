@@ -80,7 +80,7 @@ static void plot_font(AL_CONST DATAFILE *dat, int x, int y)
 
     y += 32;
 
-    if(f->vtable == font_vtable_mono) {
+    if(is_mono_font(f)) {
         FONT_MONO_DATA* mf = f->data;
 
         while(mf) {
@@ -132,11 +132,11 @@ static void plot_font(AL_CONST DATAFILE *dat, int x, int y)
 static void get_font_desc(AL_CONST DATAFILE *dat, char *s)
 {
    FONT *fnt = (FONT *)dat->dat;
-   char *mono = (fnt->vtable == font_vtable_mono) ? "mono" : "color";
+   char *mono = (is_mono_font(fnt)) ? "mono" : "color";
    int ranges = 0;
    int glyphs = 0;
 
-    if(fnt->vtable == font_vtable_mono) {
+    if(is_mono_font(fnt)) {
         FONT_MONO_DATA* mf = fnt->data;
 
         while(mf) {
@@ -182,7 +182,7 @@ static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
         pack = pack_fopen(filename, F_WRITE);
         if(!pack) return FALSE;
 
-        if(f->vtable == font_vtable_mono) {
+        if(is_mono_font(f)) {
             FONT_MONO_DATA* mf = f->data;
             while(mf) {
                 sprintf(tmp, "%s 0x%04X 0x%04X\n", (mf == f->data) ? get_filename(buf) : "-", mf->begin, mf->end - 1);
@@ -204,7 +204,7 @@ static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
     } else {
         int multi = 0;
 
-        if(f->vtable == font_vtable_mono) {
+        if(is_mono_font(f)) {
             if( ((FONT_MONO_DATA*)f->data) ->next) multi = 1;
         } else {
             if( ((FONT_COLOR_DATA*)f->data)->next) multi = 1;
@@ -216,7 +216,7 @@ static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
         }
     }
 
-    if(f->vtable == font_vtable_mono) {
+    if(is_mono_font(f)) {
         FONT_MONO_DATA* mf = f->data;
 
         while(mf) {
@@ -255,7 +255,7 @@ static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
 
     max = 0;
 
-    if(f->vtable == font_vtable_mono) {
+    if(is_mono_font(f)) {
         FONT_MONO_DATA* mf = f->data;
 
         while(mf) {
@@ -294,47 +294,31 @@ static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
 
 
 
-/* import routine for the GRX font format */
-static FONT* import_grx_font(AL_CONST char* filename)
+/* import routine for the GRX font copyright message */
+static void import_grx_message(AL_CONST char* filename)
 {
     PACKFILE *pack;
-    FONT *f;
-    FONT_MONO_DATA *mf;
-    FONT_GLYPH **gl;
-    int w, h, num, i;
-    int* wtab = 0;
+    int w, h, num, i, end, begin;
 
     pack = pack_fopen(filename, F_READ);
-    if(!pack) return 0;
+    if(!pack) return;
 
     if(pack_igetl(pack) != FONTMAGIC) {
         pack_fclose(pack);
-        return 0;
+        return;
     }
     pack_igetl(pack);
-
-    f = _al_malloc(sizeof(FONT));
-    mf = _al_malloc(sizeof(FONT_MONO_DATA));
-
-    f->data = mf;
-    f->vtable = font_vtable_mono;
-    mf->next = 0;
 
     w = pack_igetw(pack);
     h = pack_igetw(pack);
 
-    f->height = h;
-
-    mf->begin = pack_igetw(pack);
-    mf->end = pack_igetw(pack) + 1;
-    num = mf->end - mf->begin;
-
-    gl = mf->glyphs = _al_malloc(sizeof(FONT_GLYPH*) * num);
+    begin = pack_igetw(pack);
+    end = pack_igetw(pack) + 1;
+    num = end - begin;
 
     if(pack_igetw(pack) == 0) {
         for(i = 0; i < 38; i++) pack_getc(pack);
-        wtab = _al_malloc(sizeof(int) * num);
-        for(i = 0; i < num; i++) wtab[i] = pack_igetw(pack);
+        for(i = 0; i < num; i++) pack_igetw(pack);
     } else {
         for(i = 0; i < 38; i++) pack_getc(pack);
     }
@@ -342,14 +326,11 @@ static FONT* import_grx_font(AL_CONST char* filename)
     for(i = 0; i < num; i++) {
         int sz;
 
-        if(wtab) w = wtab[i];
-
         sz = ((w + 7) / 8) * h;
-        gl[i] = _al_malloc(sizeof(FONT_GLYPH) + sz);
-        gl[i]->w = w;
-        gl[i]->h = h;
-
-        pack_fread(gl[i]->dat, sz, pack);
+        while(sz) {
+            pack_getc(pack);
+            sz--;
+        }
     }
 
     if(!pack_feof(pack)) {
@@ -371,145 +352,6 @@ static FONT* import_grx_font(AL_CONST char* filename)
     }
 
     pack_fclose(pack);
-    if(wtab) free(wtab);
-
-    return f;
-}
-
-
-
-/* import routine for the 8x8 and 8x16 BIOS font formats */
-static FONT* import_bios_font(AL_CONST char* filename)
-{
-    PACKFILE *pack;
-    FONT *f;
-    FONT_MONO_DATA *mf;
-    FONT_GLYPH **gl;
-    int i, h;
-
-    f = _al_malloc(sizeof(FONT));
-    mf = _al_malloc(sizeof(FONT_MONO_DATA));
-    gl = _al_malloc(sizeof(FONT_GLYPH*) * 256);
-
-    pack = pack_fopen(filename, F_READ);
-    if(!pack) return 0;
-
-    h = (pack->normal.todo == 2048) ? 8 : 16;
-
-    for(i = 0; i < 256; i++) {
-        gl[i] = _al_malloc(sizeof(FONT_GLYPH) + 8);
-        gl[i]->w = gl[i]->h = 8;
-        pack_fread(gl[i]->dat, 8, pack);
-    }
-
-    f->vtable = font_vtable_mono;
-    f->data = mf;
-    f->height = h;
-
-    mf->begin = 0;
-    mf->end = 256;
-    mf->glyphs = gl;
-    mf->next = 0;
-
-    pack_fclose(pack);
-
-    return f;
-}
-
-
-
-/* state information for the bitmap font importer */
-static BITMAP *import_bmp = NULL;
-
-static int import_x = 0;
-static int import_y = 0;
-
-
-
-/* import_bitmap_font_mono:
- *  Helper for import_bitmap_font, below.
- */
-static int import_bitmap_font_mono(FONT_GLYPH** gl, int num)
-{
-    int w = 1, h = 1, i;
-
-    for(i = 0; i < num; i++) {
-        if(w > 0 && h > 0) datedit_find_character(import_bmp, &import_x, &import_y, &w, &h);
-        if(w <= 0 || h <= 0) {
-            int j;
-
-            gl[i] = _al_malloc(sizeof(FONT_GLYPH) + 8);
-            gl[i]->w = 8;
-            gl[i]->h = 8;
-
-            for(j = 0; j < 8; j++) gl[i]->dat[j] = 0;
-        } else {
-            int sx = ((w + 7) / 8), j, k;
-
-            gl[i] = _al_malloc(sizeof(FONT_GLYPH) + sx * h);
-            gl[i]->w = w;
-            gl[i]->h = h;
-
-            for(j = 0; j < sx * h; j++) gl[i]->dat[j] = 0;
-            for(j = 0; j < h; j++) {
-                for(k = 0; k < w; k++) {
-                    if(getpixel(import_bmp, import_x + k + 1, import_y + j + 1))
-                        gl[i]->dat[(j * sx) + (k / 8)] |= 0x80 >> (k & 7);
-                }
-            }
-
-            import_x += w;
-        }
-    }
-
-    return 0;
-}
-
-
-
-/* import_bitmap_font_color:
- *  Helper for import_bitmap_font, below.
- */
-static int import_bitmap_font_color(BITMAP** bits, int num)
-{
-    int w = 1, h = 1, i;
-
-    for(i = 0; i < num; i++) {
-        if(w > 0 && h > 0) datedit_find_character(import_bmp, &import_x, &import_y, &w, &h);
-        if(w <= 0 || h <= 0) {
-            bits[i] = create_bitmap_ex(8, 8, 8);
-            if(!bits[i]) return -1;
-            clear_to_color(bits[i], 255);
-        } else {
-            bits[i] = create_bitmap_ex(8, w, h);
-            if(!bits[i]) return -1;
-            blit(import_bmp, bits[i], import_x + 1, import_y + 1, 0, 0, w, h);
-            import_x += w;
-        }
-    }
-
-    return 0;
-}
-
-
-
-/* bitmap_font_ismono:
- *  Helper for import_bitmap_font, below.
- */
-static int bitmap_font_ismono(BITMAP *bmp)
-{
-    int x, y, col = -1, pixel;
-
-    for(y = 0; y < bmp->h; y++) {
-        for(x = 0; x < bmp->w; x++) {
-            pixel = getpixel(bmp, x, y);
-            if(pixel == 0 || pixel == 255) continue;
-            if(col > 0 && pixel != col) return 0;
-            col = pixel;
-        }
-    }
-
-    return 1;
 }
 
 
@@ -551,7 +393,7 @@ static void upgrade_to_color(FONT* f)
     FONT_MONO_DATA* mf = f->data;
     FONT_COLOR_DATA * cf, *cf_write = 0;
 
-    if(f->vtable == font_vtable_color) return;
+    if(is_color_font(f)) return;
     f->vtable = font_vtable_color;
 
     while(mf) {
@@ -568,205 +410,57 @@ static void upgrade_to_color(FONT* f)
 
 
 
-/* bitmap_font_count:
- *  Helper for `import_bitmap_font', below.
- */
-static int bitmap_font_count(BITMAP* bmp)
+static DATAFILE *fonts_datafile;
+
+/* Get a list of fonts for a font datafile */
+static AL_CONST char *datafile_fontname_getter(int index, int *list_size)
 {
-    int x = 0, y = 0, w = 0, h = 0;
-    int num = 0;
+   DATAFILE *datf = fonts_datafile;
+   int n;
+   
+   if (index<0) {
+      *list_size = 0;
+      if (datf) {
+         for(n=0; datf[n].type != DAT_END; n++) {
+            if (datf[n].type == DAT_FONT) (*list_size)++;
+         }
+      }
+      
+      return NULL;
+   }
 
-    while(1) {
-        datedit_find_character(bmp, &x, &y, &w, &h);
-        if (w <= 0 || h <= 0) break;
-        num++;
-        x += w;
-    }
-
-    return num;
+   if (datf) {
+      for(n=0; datf[n].type != DAT_END && index>-1; n++)
+         if (datf[n].type == DAT_FONT) index--;
+      return get_datafile_property(&(datf[n-1]), DAT_ID('N','A','M','E'));
+   }
+   else {
+      return NULL;
+   }
 }
 
 
 
-/* import routine for the Allegro .pcx font format */
-static FONT* import_bitmap_font(AL_CONST char* fname, int begin, int end, int cleanup)
+/* List the fonts available in a datafile */
+static FONT *grab_datafile_font(AL_CONST char *filename)
 {
-    /* NB: `end' is -1 if we want every glyph */
-    FONT *f;
+   const char *names[2] = { NULL, NULL };
+   FONT *f = NULL;
+   int c;
+   
+   fonts_datafile = load_datafile(filename);
 
-    if(fname) {
-        PALETTE junk;
-
-        if(import_bmp) destroy_bitmap(import_bmp);
-        import_bmp = load_bitmap(fname, junk);
-
-        import_x = 0;
-        import_y = 0;
-    }
-
-    if(!import_bmp) return 0;
-
-    if(bitmap_color_depth(import_bmp) != 8) {
-        destroy_bitmap(import_bmp);
-        import_bmp = 0;
-        return 0;
-    }
-
-    f = _al_malloc(sizeof(FONT));
-    if(end == -1) end = bitmap_font_count(import_bmp) + begin;
-
-    if (bitmap_font_ismono(import_bmp)) {
-
-        FONT_MONO_DATA* mf = _al_malloc(sizeof(FONT_MONO_DATA));
-
-        mf->glyphs = _al_malloc(sizeof(FONT_GLYPH*) * (end - begin));
-
-        if( import_bitmap_font_mono(mf->glyphs, end - begin) ) {
-
-            free(mf->glyphs);
-            free(mf);
-            free(f);
-            f = 0;
-
-        } else {
-
-            f->data = mf;
-            f->vtable = font_vtable_mono;
-            f->height = mf->glyphs[0]->h;
-
-            mf->begin = begin;
-            mf->end = end;
-            mf->next = 0;
-        }
-
-    } else {
-
-        FONT_COLOR_DATA* cf = _al_malloc(sizeof(FONT_COLOR_DATA));
-        cf->bitmaps = _al_malloc(sizeof(BITMAP*) * (end - begin));
-
-        if( import_bitmap_font_color(cf->bitmaps, end - begin) ) {
-
-            free(cf->bitmaps);
-            free(cf);
-            free(f);
-            f = 0;
-
-        } else {
-
-            f->data = cf;
-            f->vtable = font_vtable_color;
-            f->height = cf->bitmaps[0]->h;
-
-            cf->begin = begin;
-            cf->end = end;
-            cf->next = 0;
-
-        }
-
-    }
-
-    if(cleanup) {
-        destroy_bitmap(import_bmp);
-        import_bmp = 0;
-    }
-
-    return f;
+   c = datedit_select(datafile_fontname_getter, "Select font:");
+   if (c>=0) {
+      names[0] = datafile_fontname_getter(c, NULL);
+      f = load_font(filename, NULL, names);
+   }
+   
+   unload_datafile(fonts_datafile);
+   fonts_datafile = NULL;
+   
+   return f;
 }
-
-
-
-/* import routine for the multiple range .txt font format */
-static FONT* import_scripted_font(AL_CONST char* filename)
-{
-    char buf[1024], *bmp_str, *start_str = 0, *end_str = 0;
-    FONT *f, *f2;
-    PACKFILE *pack;
-    int begin, end;
-
-    pack = pack_fopen(filename, F_READ);
-    if(!pack) return 0;
-
-    f = _al_malloc(sizeof(FONT));
-    f->data = NULL;
-    f->height = 0;
-    f->vtable = NULL;
-
-    while(pack_fgets(buf, sizeof(buf)-1, pack)) {
-        bmp_str = strtok(buf, " \t");
-        if(bmp_str) start_str = strtok(0, " \t");
-        if(start_str) end_str = strtok(0, " \t");
-
-        if(!bmp_str || !start_str || !end_str) {
-            datedit_error("Bad font description (expecting 'file.pcx start end')");
-
-            _al_free(f);
-            pack_fclose(pack);
-
-            return 0;
-        }
-
-        if(bmp_str[0] == '-') bmp_str = 0;
-        begin = strtol(start_str, 0, 0);
-        if(end_str) end = strtol(end_str, 0, 0) + 1;
-        else end = -1;
-
-        if(begin <= 0 || (end > 0 && end < begin)) {
-            datedit_error("Bad font description (expecting 'file.pcx start end'); start > 0, end > start");
-
-            _al_free(f);
-            pack_fclose(pack);
-
-            return 0;
-        }
-
-        f2 = import_bitmap_font(bmp_str, begin, end, FALSE);
-        if(!f2) {
-            if(bmp_str) datedit_error("Unable to read font images from %s", bmp_str);
-            else datedit_error("Unable to read continuation font images");
-
-            _al_free(f);
-            pack_fclose(pack);
-
-            return 0;
-        }
-
-        if(!f->vtable) f->vtable = f2->vtable;
-        if(!f->height) f->height = f2->height;
-
-        if(f2->vtable != f->vtable) {
-            upgrade_to_color(f);
-            upgrade_to_color(f2);
-        }
-
-        /* add to end of linked list */
-
-        if(f->vtable == font_vtable_mono) {
-            FONT_MONO_DATA* mf = f->data;
-            if(!mf) f->data = f2->data;
-            else {
-                while(mf->next) mf = mf->next;
-                mf->next = f2->data;
-            }
-            free(f2);
-        } else {
-            FONT_COLOR_DATA* cf = f->data;
-            if(!cf) f->data = f2->data;
-            else {
-                while(cf->next) cf = cf->next;
-                cf->next = f2->data;
-            }
-            free(f2);
-        }
-    }
-
-    destroy_bitmap(import_bmp);
-    import_bmp = 0;
-
-    pack_fclose(pack);
-    return f;
-}
-
-
 
 /* imports a font from an external file (handles various formats) */
 static DATAFILE *grab_font(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
@@ -775,6 +469,14 @@ static DATAFILE *grab_font(int type, AL_CONST char *filename, DATAFILE_PROPERTY 
    FONT *font;
    int id;
 
+   if (stricmp(get_extension(filename), "dat") == 0) {
+      font = grab_datafile_font(filename);
+   }
+   else {
+      font = load_font(filename, NULL, NULL);
+   }
+
+   /* Safe copyright message for GRX fonts */
    if (stricmp(get_extension(filename), "fnt") == 0) {
       f = pack_fopen(filename, F_READ);
       if (!f)
@@ -783,18 +485,11 @@ static DATAFILE *grab_font(int type, AL_CONST char *filename, DATAFILE_PROPERTY 
       id = pack_igetl(f);
       pack_fclose(f);
 
-      if (id == FONTMAGIC)
-	 font = import_grx_font(filename);
-      else
-	 font = import_bios_font(filename);
+      if (font && id == FONTMAGIC) {
+	 /* GRX font; safe copyright message? */
+         import_grx_message(filename);
+      }
    }
-   else if (stricmp(get_extension(filename), "txt") == 0) {
-      font = import_scripted_font(filename);
-   }
-   else {
-      font = import_bitmap_font(filename, ' ', -1, TRUE);
-   }
-
    return datedit_construct(type, font, 0, prop);
 }
 
@@ -850,6 +545,7 @@ static int save_color_font(FONT* f, PACKFILE* pack)
 {
     FONT_COLOR_DATA* cf = f->data;
     int i = 0;
+    int depth;
 
    *allegro_errno = 0;
 
@@ -863,21 +559,109 @@ static int save_color_font(FONT* f, PACKFILE* pack)
     cf = f->data;
 
     while(cf) {
+         
+        /* Get font color depth */
+        depth = bitmap_color_depth(cf->bitmaps[0]);
 
-        /* mono, begin, end-1 */
-        pack_putc(0, pack);
+        /* Compatibility with older versions: depth=0 means 8 bit */
+        if (depth == 8)
+            depth = 0;
+        
+        /* color, begin, end-1 */
+        pack_putc(depth, pack);
         pack_mputl(cf->begin, pack);
         pack_mputl(cf->end - 1, pack);
 
+        /* Save pixmap data */
         for(i = cf->begin; i < cf->end; i++) {
-            BITMAP* g = cf->bitmaps[i - cf->begin];
-            int y;
+            BITMAP* glyph = cf->bitmaps[i - cf->begin];
+            int x, y, c, r, g, b, a;
+            uint16_t *p16;
+            uint8_t *p24;
+            uint32_t *p32;
 
-            pack_mputw(g->w, pack);
-            pack_mputw(g->h, pack);
+            pack_mputw(glyph->w, pack);
+            pack_mputw(glyph->h, pack);
 
-            for(y = 0; y < g->h; y++) {
-                pack_fwrite(g->line[y], g->w, pack);
+            switch (depth) {
+
+               case 0:
+	          /* 256 colors */
+	          for (y=0; y<glyph->h; y++)
+	             for (x=0; x<glyph->w; x++)
+	                pack_putc(glyph->line[y][x], pack);
+	          break;
+
+               case 15:
+               case 16:
+	          /* hicolor */
+	          for (y=0; y<glyph->h; y++) {
+	             p16 = (uint16_t *)glyph->line[y];
+
+	             for (x=0; x<glyph->w; x++) {
+	                c = p16[x];
+	                r = getr_depth(depth, c);
+	                g = getg_depth(depth, c);
+	                b = getb_depth(depth, c);
+	                c = ((r<<8)&0xF800) | ((g<<3)&0x7E0) | ((b>>3)&0x1F);
+	                pack_iputw(c, pack);
+	             }
+	          }
+	          break;
+
+               case 24:
+	          /* 24 bit truecolor */
+	          for (y=0; y<glyph->h; y++) {
+	             p24 = (unsigned char *)glyph->line[y];
+
+	             for (x=0; x<glyph->w; x++) {
+	                c = READ3BYTES(p24);
+	                r = getr24(c);
+	                g = getg24(c);
+	                b = getb24(c);
+	                pack_putc(r, pack);
+	                pack_putc(g, pack);
+	                pack_putc(b, pack);
+	                p24 += 3;
+	             }
+	          }
+	          break;
+
+               case 32:
+	          /* 32 bit truecolor */
+	          for (y=0; y<glyph->h; y++) {
+	             p32 = (uint32_t *)glyph->line[y];
+
+	             for (x=0; x<glyph->w; x++) {
+	                c = p32[x];
+	                r = getr32(c);
+	                g = getg32(c);
+	                b = getb32(c);
+	                pack_putc(r, pack);
+	                pack_putc(g, pack);
+	                pack_putc(b, pack);
+	             }
+	          }
+	          break;
+
+               case -32:
+	          /* 32 bit truecolor with alpha channel */
+	          for (y=0; y<glyph->h; y++) {
+	             p32 = (uint32_t *)glyph->line[y];
+
+	             for (x=0; x<glyph->w; x++) {
+	                c = p32[x];
+	                r = getr32(c);
+	                g = getg32(c);
+	                b = getb32(c);
+	                a = geta32(c);
+	                pack_putc(r, pack);
+	                pack_putc(g, pack);
+	                pack_putc(b, pack);
+	                pack_putc(a, pack);
+	             }
+	          }
+	          break;
             }
 
         }
@@ -901,7 +685,7 @@ static int save_font(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack
 
     pack_mputw(0, f);
 
-    if (font->vtable == font_vtable_mono)
+    if (is_mono_font(font))
        return save_mono_font(font, f);
     else
        return save_color_font(font, f);
@@ -960,43 +744,16 @@ static char *range_getter(int index, int *list_size)
     if(index < 0) {
         if(!list_size) return 0;
 
-        *list_size = 0;
-        if(f->vtable == font_vtable_mono) {
-            FONT_MONO_DATA* mf = f->data;
-            while(mf) {
-                (*list_size)++;
-                mf = mf->next;
-            }
-        } else {
-            FONT_COLOR_DATA* cf = f->data;
-            while(cf) {
-                (*list_size)++;
-                cf = cf->next;
-            }
-        }
+        *list_size = get_font_ranges(f);
+        if (*list_size < 0)
+           *list_size = 0;
 
         return 0;
     }
 
-    if(f->vtable == font_vtable_mono) {
-        FONT_MONO_DATA* mf = f->data;
-        while(index) {
-            index--;
-            mf = mf->next;
-        }
+    sprintf(buf, "%04X-%04X, color", get_font_range_begin(f, index), get_font_range_end(f, index) - 1);
 
-        sprintf(buf, "%04X-%04X, mono", mf->begin, mf->end - 1);
-    } else {
-        FONT_COLOR_DATA* cf = f->data;
-        while(index) {
-            index--;
-            cf = cf->next;
-        }
-
-        sprintf(buf, "%04X-%04X, color", cf->begin, cf->end - 1);
-    }
-
-   return buf;
+    return buf;
 }
 
 
@@ -1039,7 +796,7 @@ static int import_proc(int msg, DIALOG *d, int c)
 
 	    base = strtol(char_string, NULL, 0);
 
-        if(fnt->vtable == font_vtable_mono) {
+        if(is_mono_font(fnt)) {
             FONT_MONO_DATA* mf = fnt->data;
             import_end = (mf->end += (base - mf->begin));
             import_begin = mf->begin = base;
@@ -1051,7 +808,7 @@ static int import_proc(int msg, DIALOG *d, int c)
 
 	    f = the_font;
 
-	    if(f->vtable == font_vtable_mono) {
+	    if(is_mono_font(fnt)) {
 	        FONT_MONO_DATA* mf = f->data;
 	        while(mf) {
 	            if(mf->end > import_begin && mf->begin < import_end) {
@@ -1063,7 +820,7 @@ static int import_proc(int msg, DIALOG *d, int c)
 	        }
 	    }
 
-	    if(f->vtable != fnt->vtable) {
+	    if(!is_compatible_font(f, fnt)) {
 	        upgrade_to_color(f);
 	        upgrade_to_color(fnt);
 	    }
@@ -1071,7 +828,7 @@ static int import_proc(int msg, DIALOG *d, int c)
 	    f = the_font;
 	    i = 0;
 
-        if(f->vtable == font_vtable_mono) {
+        if(is_mono_font(f)) {
             FONT_MONO_DATA* mf = f->data, * mf2 = fnt->data;
 
             if(mf->begin > import_begin) {
@@ -1130,7 +887,7 @@ static int delete_proc(int msg, DIALOG *d, int c)
    if (ret & D_CLOSE) {
       fnt = the_font;
 
-        if(fnt->vtable == font_vtable_mono) {
+        if(is_mono_font(fnt)) {
 
             FONT_MONO_DATA* mf = fnt->data, * mf_prev = 0;
 
@@ -1220,7 +977,7 @@ static int font_view_proc(int msg, DIALOG *d, int c)
 	 fnt = the_font;
 	 i = view_font_dlg[RANGE_LIST].d1;
 
-     if(fnt->vtable == font_vtable_mono) {
+     if(is_mono_font(fnt)) {
 
         FONT_MONO_DATA* mf = fnt->data;
         while(i--) mf = mf->next;
@@ -1414,7 +1171,7 @@ DATEDIT_OBJECT_INFO datfont_info =
 DATEDIT_GRABBER_INFO datfont_grabber =
 {
    DAT_FONT, 
-   "txt;fnt;bmp;lbm;pcx;tga",
+   "txt;fnt;bmp;lbm;pcx;tga;dat",
    "txt;bmp;pcx;tga",
    grab_font,
    export_font,

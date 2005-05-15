@@ -521,8 +521,6 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
    osx_skip_mouse_move = TRUE;
    osx_window_first_expose = TRUE;
    
-   gfx_capabilities = GFX_HW_CURSOR;
-   
    return pseudo_screen;
 }
 

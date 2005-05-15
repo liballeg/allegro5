@@ -298,7 +298,7 @@ install-template: $(TEMPLATE)
 
 $(TEMPLATE): $(FRAMEWORK)
 	@rm -fr $(TEMPLATE)
-	@install d $(TEMPLATE)/AllegroApp.pbproj
+	@install -d $(TEMPLATE)/AllegroApp.pbproj
 	@install misc/template.c $(TEMPLATE)/main.c
 	@install misc/TemplateInfo.plist $(TEMPLATE)/AllegroApp.pbproj
 	@install misc/project.pbxproj $(TEMPLATE)/AllegroApp.pbproj

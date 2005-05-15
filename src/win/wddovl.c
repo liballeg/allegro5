@@ -118,12 +118,12 @@ static int update_overlay(int x, int y, int w, int h)
 
    /* show the overlay surface */
    hr = IDirectDrawSurface2_UpdateOverlay(overlay_surface->id, NULL,
-                                          primary_surface->id, &dest_rect,
+                                          gfx_directx_primary_surface->id, &dest_rect,
                                           DDOVER_SHOW | DDOVER_KEYDEST, NULL);
    if (FAILED(hr)) {
       _TRACE("Can't display overlay (%x)\n", hr);
       IDirectDrawSurface2_UpdateOverlay(overlay_surface->id, NULL,
-                                        primary_surface->id, NULL,
+                                        gfx_directx_primary_surface->id, NULL,
                                         DDOVER_HIDE, NULL);
       return -1;
    }
@@ -152,6 +152,7 @@ static void show_overlay(void)
 static void move_overlay(int x, int y, int w, int h)
 {
    RECT window_rect;
+   HWND allegro_wnd = win_get_window();
    int xmod;
 
    /* handle hardware limitations */
@@ -175,7 +176,7 @@ static void hide_overlay(void)
       overlay_visible = FALSE;
 
       IDirectDrawSurface2_UpdateOverlay(overlay_surface->id, NULL,
-                                        primary_surface->id, NULL,
+                                        gfx_directx_primary_surface->id, NULL,
                                         DDOVER_HIDE, NULL);
    }
 }
@@ -190,7 +191,7 @@ static void paint_overlay(RECT *rect)
    /* We may have lost the DirectDraw surfaces, for example
     * after the monitor has gone to low power.
     */
-   if (IDirectDrawSurface2_IsLost(primary_surface->id))
+   if (IDirectDrawSurface2_IsLost(gfx_directx_primary_surface->id))
       switch_in_overlay();
 }
 
@@ -202,6 +203,7 @@ static void paint_overlay(RECT *rect)
 static int wnd_set_windowed_coop(void)
 {
    HRESULT hr;
+   HWND allegro_wnd = win_get_window();
 
    hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_NORMAL);
    if (FAILED(hr)) {
@@ -214,16 +216,16 @@ static int wnd_set_windowed_coop(void)
 
 
 
-/* setup_driver_desc:
+/* gfx_directx_setup_driver_desc:
  *  Sets up the driver description string.
  */
-static void setup_driver_desc(void)
+static void gfx_directx_setup_driver_desc(void)
 {
    char tmp[256];
 
    uszprintf(gfx_driver_desc, sizeof(gfx_driver_desc), 
 	     uconvert_ascii("DirectDraw, in matching, %d bpp overlay", tmp),
-	     desktop_depth);
+	     _win_desktop_depth);
    
    gfx_directx_ovl.desc = gfx_driver_desc;
 }
@@ -286,6 +288,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 {
    HRESULT hr;
    DDCOLORKEY key;
+   HWND allegro_wnd = win_get_window();
 
    /* overlay would allow scrolling on some cards, but it isn't implemented yet */
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
@@ -322,7 +325,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    }
 
    /* create surfaces */
-   if (create_primary() != 0)
+   if (gfx_directx_create_primary() != 0)
       goto Error;
 
    if (create_overlay(w, h, color_depth) != 0)
@@ -356,7 +359,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 
    /* set color format */
    if (color_depth == 8) {
-      if (create_palette(overlay_surface) != 0)
+      if (gfx_directx_create_palette(overlay_surface) != 0)
 	 goto Error;
    }
    else {
@@ -365,18 +368,18 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    }
 
    /* set up Allegro gfx driver */
-   setup_driver_desc();
+   gfx_directx_setup_driver_desc();
 
-   if (setup_driver(&gfx_directx_ovl, w, h, color_depth) != 0)
+   if (gfx_directx_setup_driver(&gfx_directx_ovl, w, h, color_depth) != 0)
       goto Error;
 
-   forefront_bitmap = make_bitmap_from_surface(overlay_surface, w, h, BMP_ID_VIDEO);
+   gfx_directx_forefront_bitmap = gfx_directx_make_bitmap_from_surface(overlay_surface, w, h, BMP_ID_VIDEO);
 
    /* set the overlay color key */
-   key.dwColorSpaceLowValue = forefront_bitmap->vtable->mask_color;
-   key.dwColorSpaceHighValue = forefront_bitmap->vtable->mask_color;
+   key.dwColorSpaceLowValue = gfx_directx_forefront_bitmap->vtable->mask_color;
+   key.dwColorSpaceHighValue = gfx_directx_forefront_bitmap->vtable->mask_color;
 
-   hr = IDirectDrawSurface2_SetColorKey(primary_surface->id, DDCKEY_DESTOVERLAY, &key);
+   hr = IDirectDrawSurface2_SetColorKey(gfx_directx_primary_surface->id, DDCKEY_DESTOVERLAY, &key);
    if (FAILED(hr)) {
       _TRACE("Can't set overlay dest color key\n");
       goto Error;
@@ -386,10 +389,10 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    show_overlay();
 
    /* use hardware accelerated primitives */
-   enable_acceleration(&gfx_directx_ovl);
+   gfx_directx_enable_acceleration(&gfx_directx_ovl);
 
    /* use triple buffering */
-   enable_triple_buffering(&gfx_directx_ovl);
+   gfx_directx_enable_triple_buffering(&gfx_directx_ovl);
 
    /* connect to the system driver */
    win_gfx_driver = &win_gfx_driver_overlay;
@@ -402,7 +405,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 
    _exit_critical();
 
-   return forefront_bitmap;
+   return gfx_directx_forefront_bitmap;
 
  Error:
    _exit_critical();
@@ -420,6 +423,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
  */
 static void gfx_directx_ovl_exit(struct BITMAP *bmp)
 {
+   HWND allegro_wnd = win_get_window();
    _enter_gfx_critical();
 
    if (bmp) {
@@ -437,7 +441,7 @@ static void gfx_directx_ovl_exit(struct BITMAP *bmp)
       DeleteObject(overlay_brush);
       gfx_directx_destroy_surface(overlay_surface);
       overlay_surface = NULL;
-      forefront_bitmap = NULL;
+      gfx_directx_forefront_bitmap = NULL;
    }
 
    gfx_directx_exit(NULL);

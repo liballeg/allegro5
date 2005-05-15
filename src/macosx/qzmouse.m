@@ -30,6 +30,8 @@ static void osx_mouse_exit(void);
 static void osx_mouse_position(int, int);
 static void osx_mouse_set_range(int, int, int, int);
 static void osx_mouse_get_mickeys(int *, int *);
+static void osx_enable_hardware_cursor(AL_CONST int mode);
+static int osx_select_system_cursor(AL_CONST int cursor);
 
 
 MOUSE_DRIVER mouse_macosx =
@@ -47,8 +49,8 @@ MOUSE_DRIVER mouse_macosx =
    NULL,       // AL_METHOD(void, set_speed, (int xspeed, int yspeed));
    osx_mouse_get_mickeys,
    NULL,       // AL_METHOD(int,  analyse_data, (AL_CONST char *buffer, int size));
-   NULL,       // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
-   NULL        // AL_METHOD(int,  select_system_cursor, (AL_CONST int cursor));
+   osx_enable_hardware_cursor, 
+   osx_select_system_cursor
 };
 
 
@@ -59,6 +61,7 @@ NSTrackingRectTag osx_mouse_tracking_rect = -1;
 
 
 static NSCursor *cursor = NULL, *current_cursor = NULL;
+static NSCursor *requested_cursor = NULL;
 static unsigned char *cursor_data = NULL;
 static NSBitmapImageRep *cursor_rep = NULL;
 static NSImage *cursor_image = NULL;
@@ -87,10 +90,13 @@ void osx_mouse_handler(int x, int y, int z, int buttons)
       return;
 
    if (osx_cursor != current_cursor) {
-      if (osx_window)
-         [osx_window invalidateCursorRectsForView: [osx_window contentView]];
-      else
+      if (osx_window) {
+         NSView* vw=[osx_window contentView];
+         [osx_window invalidateCursorRectsForView: vw];
+      }
+      else {
          [osx_cursor set];
+      }
       current_cursor = osx_cursor;
    }
 
@@ -160,7 +166,7 @@ static int osx_mouse_init(void)
    pthread_mutex_lock(&osx_event_mutex);
    osx_emulate_mouse_buttons = (max_buttons == 1) ? TRUE : FALSE;
    pthread_mutex_unlock(&osx_event_mutex);
-   
+
    return max_buttons;
 }
 
@@ -339,7 +345,7 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
    cursor = [[NSCursor alloc] initWithImage: cursor_image
       hotSpot: NSMakePoint(x, y)];
    pthread_mutex_lock(&osx_event_mutex);
-   osx_cursor = cursor;
+   osx_cursor = requested_cursor = cursor;
    pthread_mutex_unlock(&osx_event_mutex);
    if (temp)
       destroy_bitmap(temp);
@@ -359,11 +365,11 @@ int osx_mouse_show(BITMAP *bmp, int x, int y)
    if (!is_same_bitmap(bmp, screen))
       return -1;
 
-   if (!cursor)
+   if (!requested_cursor)
       return -1;
 
    pthread_mutex_lock(&osx_event_mutex);
-   osx_cursor = cursor;
+   osx_cursor = requested_cursor;
    pthread_mutex_unlock(&osx_event_mutex);
 
    return 0;
@@ -388,4 +394,38 @@ void osx_mouse_hide(void)
  */
 void osx_mouse_move(int x, int y)
 {
+}
+
+
+
+/* osx_enable_hardware_cursor:
+ *  Enable hardware cursor - on OSX it's always enabled.
+ */
+void osx_enable_hardware_cursor(AL_CONST int mode) 
+{
+   (void)mode;
+}
+
+
+
+/* osx_select_system_cursor:
+ *  Select a system cursor - on this platform, only the I-beam and the Arrow
+ *  are available as system cursors.
+ */
+static int osx_select_system_cursor(AL_CONST int cursor)
+{
+   switch (cursor) {
+      case MOUSE_CURSOR_ARROW:
+         requested_cursor = [NSCursor arrowCursor];
+         break;
+      case MOUSE_CURSOR_EDIT:
+         requested_cursor = [NSCursor IBeamCursor];
+         break;
+      default:
+         return 0;
+   }
+   pthread_mutex_lock(&osx_event_mutex);
+   osx_cursor = requested_cursor;
+   pthread_mutex_unlock(&osx_event_mutex);
+   return cursor;
 }

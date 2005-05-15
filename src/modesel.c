@@ -393,8 +393,14 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry, FILTER_FUNCTION filt
 	 }
       }
 
-      if (terminate_list(&temp_mode_list, driver_list_entry->mode_count) != 0)
-	 return -1;
+      /* We should not terminate the list if the list is empty since the caller
+       * of this function will simply discard this driver_list entry in that
+       * case.
+       */
+      if (driver_list_entry->mode_count > 0) {
+	 if (terminate_list(&temp_mode_list, driver_list_entry->mode_count) != 0)
+	    return -1;
+      }
 
       driver_list_entry->mode_list = temp_mode_list;
       driver_list_entry->fetch_mode_list_ptr = (void *)1L;  /* private dynamic */
@@ -415,9 +421,11 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry, FILTER_FUNCTION filt
       } 
    }
 
-   if (terminate_list(&temp_mode_list, driver_list_entry->mode_count) != 0) {
-      destroy_gfx_mode_list(gfx_mode_list);
-      return -1;
+   if (driver_list_entry->mode_count > 0) {
+      if (terminate_list(&temp_mode_list, driver_list_entry->mode_count) != 0) {
+	 destroy_gfx_mode_list(gfx_mode_list);
+	 return -1;
+      }
    }
 
    driver_list_entry->mode_list = temp_mode_list;
@@ -435,7 +443,8 @@ static int create_driver_list(FILTER_FUNCTION filter)
 {
    _DRIVER_INFO *driver_info;
    GFX_DRIVER *gfx_driver;
-   int driver_count2, used_prefetched;
+   int i, j, used_prefetched;
+   int list_pos;
 
    if (system_driver->gfx_drivers)
       driver_info = system_driver->gfx_drivers();
@@ -445,50 +454,62 @@ static int create_driver_list(FILTER_FUNCTION filter)
    driver_list = malloc(sizeof(DRIVER_LIST) * 3);
    if (!driver_list) return -1;
 
-   driver_list[0].id = GFX_AUTODETECT;
-   ustrzcpy(driver_list[0].name, DRVNAME_SIZE, get_config_text("Autodetect"));
-   create_mode_list(&driver_list[0], filter);
+   list_pos = 0;
 
-   driver_list[1].id = GFX_AUTODETECT_FULLSCREEN;
-   ustrzcpy(driver_list[1].name, DRVNAME_SIZE, get_config_text("Auto fullscreen"));
-   create_mode_list(&driver_list[1], filter);
+   driver_list[list_pos].id = GFX_AUTODETECT;
+   ustrzcpy(driver_list[list_pos].name, DRVNAME_SIZE, get_config_text("Autodetect"));
+   create_mode_list(&driver_list[list_pos], filter);
+   if (driver_list[list_pos].mode_count > 0)
+      list_pos++;
 
-   driver_list[2].id = GFX_AUTODETECT_WINDOWED;
-   ustrzcpy(driver_list[2].name, DRVNAME_SIZE, get_config_text("Auto windowed"));
-   create_mode_list(&driver_list[2], filter);
+   driver_list[list_pos].id = GFX_AUTODETECT_FULLSCREEN;
+   ustrzcpy(driver_list[list_pos].name, DRVNAME_SIZE, get_config_text("Auto fullscreen"));
+   create_mode_list(&driver_list[list_pos], filter);
+   if (driver_list[list_pos].mode_count > 0)
+      list_pos++;
 
-   driver_count = 0;
+   driver_list[list_pos].id = GFX_AUTODETECT_WINDOWED;
+   ustrzcpy(driver_list[list_pos].name, DRVNAME_SIZE, get_config_text("Auto windowed"));
+   create_mode_list(&driver_list[list_pos], filter);
+   if (driver_list[list_pos].mode_count > 0)
+      list_pos++;
 
-   while(driver_info[driver_count].driver) {
-      driver_list = _al_sane_realloc(driver_list, sizeof(DRIVER_LIST) * (driver_count + 4));
+   for (i = 0; driver_info[i].driver; i++) {
+      driver_list = _al_sane_realloc(driver_list, sizeof(DRIVER_LIST) * (list_pos + 1));
       if (!driver_list) return -1;
-      driver_list[driver_count+3].id = driver_info[driver_count].id;
-      gfx_driver = driver_info[driver_count].driver;
-      do_uconvert(gfx_driver->ascii_name, U_ASCII, driver_list[driver_count+3].name, U_CURRENT, DRVNAME_SIZE);
-      driver_list[driver_count+3].fetch_mode_list_ptr = gfx_driver->fetch_mode_list;
+      driver_list[list_pos].id = driver_info[i].id;
+      gfx_driver = driver_info[i].driver;
+      do_uconvert(gfx_driver->ascii_name, U_ASCII, driver_list[list_pos].name, U_CURRENT, DRVNAME_SIZE);
+      driver_list[list_pos].fetch_mode_list_ptr = gfx_driver->fetch_mode_list;
 
       used_prefetched = FALSE;
 
       /* use already fetched mode-list if possible */
-      for (driver_count2=0; driver_count2 < driver_count+3; driver_count2++) {
-         if (driver_list[driver_count+3].fetch_mode_list_ptr == driver_list[driver_count2].fetch_mode_list_ptr) {
-            driver_list[driver_count+3].mode_list = driver_list[driver_count2].mode_list;
-            driver_list[driver_count+3].mode_count = driver_list[driver_count2].mode_count;
+      for (j=0; j < list_pos; j++) {
+         if (driver_list[list_pos].fetch_mode_list_ptr == driver_list[j].fetch_mode_list_ptr) {
+            driver_list[list_pos].mode_list = driver_list[j].mode_list;
+            driver_list[list_pos].mode_count = driver_list[j].mode_count;
             /* the following line prevents a mode-list from beeing free'd more than once */
-            driver_list[driver_count+3].fetch_mode_list_ptr = NULL;
+            driver_list[list_pos].fetch_mode_list_ptr = NULL;
             used_prefetched = TRUE;
             break;
          }
       }
       /* didn't find an already fetched mode-list */
       if (!used_prefetched) {
-         create_mode_list(&driver_list[driver_count+3], filter);
+         create_mode_list(&driver_list[list_pos], filter);
       }
 
-      driver_count++;
+      if (driver_list[list_pos].mode_count > 0) {
+	 list_pos++;
+      }
+      else {
+	 ASSERT(driver_list[list_pos].mode_list == NULL);
+      }
    }
 
-   driver_count += 3;
+   /* update global variable */
+   driver_count = list_pos;
 
    return 0;
 }
@@ -728,5 +749,13 @@ int gfx_mode_select(int *card, int *w, int *h)
    ASSERT(card);
    ASSERT(w);
    ASSERT(h);
+
+   /* Make sure these values are not used uninitialised.
+    * This is different to the other gfx_mode_select_* functions.
+    */
+   *card = GFX_AUTODETECT;
+   *w = 0;
+   *h = 0;
+
    return gfx_mode_select_filter(card, w, h, NULL, NULL);
 }

@@ -234,7 +234,6 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
       gfx_quartz_full.show_mouse = osx_mouse_show;
       gfx_quartz_full.hide_mouse = osx_mouse_hide;
       gfx_quartz_full.move_mouse = osx_mouse_move;
-      gfx_capabilities = GFX_HW_CURSOR;
    }
    else {
       /* 8 bit modes have problems handling hardware cursor so we disable it */
@@ -243,7 +242,6 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
       gfx_quartz_full.hide_mouse = NULL;
       gfx_quartz_full.move_mouse = NULL;
       CGDisplayHideCursor(kCGDirectMainDisplay);
-      gfx_capabilities = 0;
    }
    
    old_visible_bmp = bmp;
@@ -345,13 +343,13 @@ static void osx_qz_full_set_palette(AL_CONST struct RGB *p, int from, int to, in
 static int osx_qz_show_video_bitmap(BITMAP *bmp)
 {
    Rect rect;
-   char *addr;
+   unsigned char *addr;
    int i;
    
    if ((bmp->w != gfx_quartz_full.w) || (bmp->h != gfx_quartz_full.h))
       return -1;
    
-   SetRect(&rect, 0, 0, bmp->w - 1, bmp->h - 1);
+   SetRect(&rect, 0, 0, bmp->w, bmp->h);
    while (!QDDone(screen_port));
    while (!QDDone(BMP_EXTRA(bmp)->port));
    LockPortBits(screen_port);

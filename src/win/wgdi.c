@@ -157,6 +157,7 @@ static int gfx_gdi_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocu
 static void update_mouse_pointer(int x, int y, int retrace)
 {
    HDC hdc;
+   HWND allegro_wnd = win_get_window();
 
    /* put the screen contents located at the new position into the frontbuffer */
    blit(gdi_screen, mouse_frontbuffer, x, y, 0, 0, mouse_frontbuffer->w, mouse_frontbuffer->h);
@@ -214,6 +215,7 @@ static int gfx_gdi_show_mouse(struct BITMAP *bmp, int x, int y)
 static void gfx_gdi_hide_mouse(void)
 {
    HDC hdc;
+   HWND allegro_wnd = win_get_window();
 
    if (!mouse_on)
       return; 
@@ -258,6 +260,7 @@ static void render_proc(void)
 {
    int top_line, bottom_line;
    HDC hdc = NULL;
+   HWND allegro_wnd = win_get_window();
 
    /* to prevent reentrant calls */
    if (render_semaphore)
@@ -363,6 +366,7 @@ static void gdi_exit_sysmode(void)
 static void gdi_update_window(RECT *rect)
 {
    HDC hdc;
+   HWND allegro_wnd = win_get_window();
 
    _enter_gfx_critical();
 
@@ -396,14 +400,14 @@ static void gfx_gdi_lock(struct BITMAP *bmp)
    _enter_gfx_critical();
 
    /* arrange for drawing requests to pause when we are in the background */
-   if (!app_foreground) {
+   if (!_win_app_foreground) {
       /* stop timer */
       remove_int(render_proc);
 
       _exit_gfx_critical();
 
       if (GFX_CRITICAL_RELEASED)
-         thread_switch_out();
+         _win_thread_switch_out();
 
       _enter_gfx_critical();
 

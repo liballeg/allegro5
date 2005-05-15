@@ -183,6 +183,7 @@ static const unsigned char hw_to_mycode[256] =
  */
 static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 {
+   HWND allegro_wnd = win_get_window();
    /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc) */
    if (((scancode == DIK_TAB) && (key_modifiers & (AL_KEYMOD_ALT | AL_KEYMOD_ALTGR)))
        || ((scancode == DIK_SPACE) && (key_modifiers & (AL_KEYMOD_ALT | AL_KEYMOD_ALTGR)))
@@ -369,8 +370,8 @@ static int key_dinput_exit(void)
 {
    if (key_dinput_device) {
       /* unregister event handlers first */
-      input_unregister_event(key_input_event);
-      input_unregister_event(key_autorepeat_timer);
+      _win_input_unregister_event(key_input_event);
+      _win_input_unregister_event(key_autorepeat_timer);
 
       /* unacquire device */
       wnd_call_proc(key_dinput_unacquire);
@@ -408,6 +409,7 @@ static int key_dinput_exit(void)
 static int key_dinput_init(void)
 {
    HRESULT hr;
+   HWND allegro_wnd = win_get_window();
    DIPROPDWORD property_buf_size =
    {
       /* the header */
@@ -459,8 +461,8 @@ static int key_dinput_init(void)
       goto Error;
 
    /* Register event handlers */
-   if (input_register_event(key_input_event, key_dinput_handle) != 0 ||
-       input_register_event(key_autorepeat_timer, key_dinput_repeat) != 0)
+   if (_win_input_register_event(key_input_event, key_dinput_handle) != 0 ||
+       _win_input_register_event(key_autorepeat_timer, key_dinput_repeat) != 0)
       goto Error;
 
    /* Acquire the device */

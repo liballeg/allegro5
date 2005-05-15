@@ -66,8 +66,8 @@ AL_VAR(LPDIRECTDRAWPALETTE, ddpalette);
 AL_VAR(LPDDPIXELFORMAT, ddpixel_format);
 AL_VAR(DDCAPS, ddcaps);
 
-AL_VAR(DDRAW_SURFACE *, primary_surface);
-AL_VAR(BITMAP *, forefront_bitmap);
+AL_VAR(DDRAW_SURFACE *, gfx_directx_primary_surface);
+AL_VAR(BITMAP *, gfx_directx_forefront_bitmap);
 AL_VAR(char *, pseudo_surf_mem);
 
 
@@ -93,22 +93,22 @@ AL_FUNC(void, gfx_directx_move_mouse, (int x, int y));
 
 /* driver initialisation and shutdown (from wddraw.c) */
 AL_FUNC(int, init_directx, (void));
-AL_FUNC(int, create_primary, (void));
-AL_FUNC(int, create_clipper, (HWND hwnd));
-AL_FUNC(int, create_palette, (DDRAW_SURFACE *surf));
-AL_FUNC(int, setup_driver, (GFX_DRIVER * drv, int w, int h, int color_depth));
+AL_FUNC(int, gfx_directx_create_primary, (void));
+AL_FUNC(int, gfx_directx_create_clipper, (HWND hwnd));
+AL_FUNC(int, gfx_directx_create_palette, (DDRAW_SURFACE *surf));
+AL_FUNC(int, gfx_directx_setup_driver, (GFX_DRIVER * drv, int w, int h, int color_depth));
 AL_FUNC(int, finalize_directx_init, (void));
 AL_FUNC(int, exit_directx, (void));
 
 
 /* driver initialisation and shutdown (from wddaccel.c) */
-AL_FUNC(void, enable_acceleration, (GFX_DRIVER *drv));
-AL_FUNC(void, enable_triple_buffering, (GFX_DRIVER *drv));
+AL_FUNC(void, gfx_directx_enable_acceleration, (GFX_DRIVER *drv));
+AL_FUNC(void, gfx_directx_enable_triple_buffering, (GFX_DRIVER *drv));
 
 
 /* video mode setting (from wddmode.c) */
-AL_VAR(int, desktop_depth);
-AL_VAR(RGB_MAP, desktop_rgb_map);
+AL_VAR(int, _win_desktop_depth);
+AL_VAR(RGB_MAP, _win_desktop_rgb_map);
 
 AL_FUNC(void, build_desktop_rgb_map, (void));
 AL_FUNC(int, gfx_directx_compare_color_depth, (int color_depth));
@@ -133,7 +133,7 @@ AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
 /* bitmap creation (from wddbmp.c) */
 AL_FUNC(DDRAW_SURFACE *, gfx_directx_create_surface, (int w, int h, LPDDPIXELFORMAT pixel_format, int type));
 AL_FUNC(void, gfx_directx_destroy_surface, (DDRAW_SURFACE *surf));
-AL_FUNC(BITMAP *, make_bitmap_from_surface, (DDRAW_SURFACE *surf, int w, int h, int id));
+AL_FUNC(BITMAP *, gfx_directx_make_bitmap_from_surface, (DDRAW_SURFACE *surf, int w, int h, int id));
 
 
 /* video bitmap list (from wddbmpl.c) */

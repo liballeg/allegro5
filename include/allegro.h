@@ -71,8 +71,10 @@
    #include "allegro/alcompat.h"
 #endif
 
-#ifdef __cplusplus
-   #include "allegro/fix.h"
+#ifndef ALLEGRO_NO_FIX_CLASS
+   #ifdef __cplusplus
+      #include "allegro/fix.h"
+   #endif
 #endif
 
 

@@ -79,6 +79,7 @@ AL_FUNC(void, al_findclose, (struct al_ffblk *info));
 #define PACKFILE_FLAG_CHUNK      4     /* file is a sub-chunk */
 #define PACKFILE_FLAG_EOF        8     /* reached the end-of-file */
 #define PACKFILE_FLAG_ERROR      16    /* an error has occurred */
+#define PACKFILE_FLAG_OLD_CRYPT  32    /* backward compatibility mode */
 #define PACKFILE_FLAG_EXEDAT     64    /* reading from our executable */
 
 

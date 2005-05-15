@@ -168,7 +168,7 @@ static void digi_waveout_mixer_callback(void)
    switch_mode = get_display_switch_mode();
 
    if (waveout_paused) {
-      if (app_foreground ||
+      if (_win_app_foreground ||
           (switch_mode == SWITCH_BACKGROUND) || (switch_mode == SWITCH_BACKAMNESIA)) {
          waveout_paused = FALSE;
          waveOutRestart(hWaveOut);
@@ -177,7 +177,7 @@ static void digi_waveout_mixer_callback(void)
          return;
    }
    else {
-      if (!app_foreground &&
+      if (!_win_app_foreground &&
           ((switch_mode == SWITCH_PAUSE) || (switch_mode == SWITCH_AMNESIA))) {
          waveout_paused = TRUE;
          waveOutPause(hWaveOut);

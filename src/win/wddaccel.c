@@ -68,7 +68,7 @@ static void ddraw_blit_to_self(BITMAP * source, BITMAP * dest, int source_x, int
    _exit_gfx_critical();
    
    /* only for windowed mode */
-   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (dest_parent == forefront_bitmap)) {
+   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (dest_parent == gfx_directx_forefront_bitmap)) {
       src_rect.left   = dest_parent_x;
       src_rect.top    = dest_parent_y;
       src_rect.right  = dest_parent_x + width;
@@ -129,7 +129,7 @@ static void ddraw_masked_blit(BITMAP * source, BITMAP * dest, int source_x, int 
 	 _TRACE("Blt failed (%x)\n", hr);
 
       /* only for windowed mode */
-      if ((gfx_driver->id == GFX_DIRECTX_WIN) && (dest_parent == forefront_bitmap))
+      if ((gfx_driver->id == GFX_DIRECTX_WIN) && (dest_parent == gfx_directx_forefront_bitmap))
          win_gfx_driver->paint(&dest_rect);
    }
    else {
@@ -225,7 +225,7 @@ static void ddraw_clear_to_color(BITMAP * bitmap, int color)
       _TRACE("Blt failed (%x)\n", hr);
 
    /* only for windowed mode */
-   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == forefront_bitmap))
+   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == gfx_directx_forefront_bitmap))
       win_gfx_driver->paint(&dest_rect);
 }
 
@@ -304,7 +304,7 @@ static void ddraw_rectfill(BITMAP *bitmap, int x1, int y1, int x2, int y2, int c
       _TRACE("Blt failed (%x)\n", hr);
 
    /* only for windowed mode */
-   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == forefront_bitmap))
+   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == gfx_directx_forefront_bitmap))
       win_gfx_driver->paint(&dest_rect);
 }
 
@@ -371,7 +371,7 @@ static void ddraw_hline(BITMAP *bitmap, int x1, int y, int x2, int color)
       _TRACE("Blt failed (%x)\n", hr);
 
    /* only for windowed mode */
-   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == forefront_bitmap))
+   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == gfx_directx_forefront_bitmap))
       win_gfx_driver->paint(&dest_rect);
 }
 
@@ -437,16 +437,16 @@ static void ddraw_vline(BITMAP *bitmap, int x, int y1, int y2, int color)
       _TRACE("Blt failed (%x)\n", hr);
 
    /* only for windowed mode */
-   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == forefront_bitmap))
+   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == gfx_directx_forefront_bitmap))
       win_gfx_driver->paint(&dest_rect);
 }
 
 
 
-/* enable_acceleration:
+/* gfx_directx_enable_acceleration:
  *  Checks graphic driver for capabilities to accelerate Allegro.
  */
-void enable_acceleration(GFX_DRIVER * drv)
+void gfx_directx_enable_acceleration(GFX_DRIVER * drv)
 {
    /* safe pointer to software versions */
    _orig_hline = _screen_vtable.hline;
@@ -491,14 +491,14 @@ void enable_acceleration(GFX_DRIVER * drv)
 
 
 
-/* enable_triple_buffering:
+/* gfx_directx_enable_triple_buffering:
  *  Checks graphic driver for triple buffering capability.
  */
-void enable_triple_buffering(GFX_DRIVER *drv)
+void gfx_directx_enable_triple_buffering(GFX_DRIVER *drv)
 {
    HRESULT hr;
 
-   hr = IDirectDrawSurface2_GetFlipStatus(DDRAW_SURFACE_OF(forefront_bitmap)->id, DDGFS_ISFLIPDONE);
+   hr = IDirectDrawSurface2_GetFlipStatus(DDRAW_SURFACE_OF(gfx_directx_forefront_bitmap)->id, DDGFS_ISFLIPDONE);
    if ((hr == DD_OK) || (hr == DDERR_WASSTILLDRAWING)) {
       drv->poll_scroll = gfx_directx_poll_scroll;
       gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;

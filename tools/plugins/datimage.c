@@ -51,16 +51,16 @@ static int bitmap_has_alpha(BITMAP *bmp)
 /* checks whether this RLE sprite has an alpha channel */
 static int rle_has_alpha(AL_CONST RLE_SPRITE *spr)
 {
-   signed long *p32;
+   int32_t *p32;
    int x, y, c;
 
    if (spr->color_depth != 32)
       return FALSE;
 
-   p32 = (signed long *)spr->dat;
+   p32 = (int32_t *)spr->dat;
 
    for (y=0; y<spr->h; y++) {
-      while ((unsigned long)*p32 != MASK_COLOR_32) {
+      while ((uint32_t)*p32 != MASK_COLOR_32) {
 	 if (*p32 < 0) {
 	    p32++;
 	 }
@@ -69,7 +69,7 @@ static int rle_has_alpha(AL_CONST RLE_SPRITE *spr)
 	    p32++;
 
 	    while (x-- > 0) {
-	       c = (unsigned long)*p32;
+	       c = (uint32_t)*p32;
 	       if (geta32(c))
 		  return TRUE;
 	       p32++;
@@ -376,9 +376,9 @@ static int save_datafile_bitmap(DATAFILE *dat, AL_CONST int *fixed_prop, int pac
 {
    BITMAP *bmp = (BITMAP *)dat->dat;
    int x, y, c, r, g, b, a;
-   unsigned short *p16;
-   unsigned char *p24;
-   unsigned long *p32;
+   uint16_t *p16;
+   uint8_t *p24;
+   uint32_t *p32;
    int depth;
 
    if (bitmap_has_alpha(bmp))
@@ -405,7 +405,7 @@ static int save_datafile_bitmap(DATAFILE *dat, AL_CONST int *fixed_prop, int pac
       case 16:
 	 /* hicolor */
 	 for (y=0; y<bmp->h; y++) {
-	    p16 = (unsigned short *)bmp->line[y];
+	    p16 = (uint16_t *)bmp->line[y];
 
 	    for (x=0; x<bmp->w; x++) {
 	       c = p16[x];
@@ -421,7 +421,7 @@ static int save_datafile_bitmap(DATAFILE *dat, AL_CONST int *fixed_prop, int pac
       case 24:
 	 /* 24 bit truecolor */
 	 for (y=0; y<bmp->h; y++) {
-	    p24 = (unsigned char *)bmp->line[y];
+	    p24 = (uint8_t *)bmp->line[y];
 
 	    for (x=0; x<bmp->w; x++) {
 	       c = READ3BYTES(p24);
@@ -439,7 +439,7 @@ static int save_datafile_bitmap(DATAFILE *dat, AL_CONST int *fixed_prop, int pac
       case 32:
 	 /* 32 bit truecolor */
 	 for (y=0; y<bmp->h; y++) {
-	    p32 = (unsigned long *)bmp->line[y];
+	    p32 = (uint32_t *)bmp->line[y];
 
 	    for (x=0; x<bmp->w; x++) {
 	       c = p32[x];
@@ -456,7 +456,7 @@ static int save_datafile_bitmap(DATAFILE *dat, AL_CONST int *fixed_prop, int pac
       case -32:
 	 /* 32 bit truecolor with alpha channel */
 	 for (y=0; y<bmp->h; y++) {
-	    p32 = (unsigned long *)bmp->line[y];
+	    p32 = (uint32_t *)bmp->line[y];
 
 	    for (x=0; x<bmp->w; x++) {
 	       c = p32[x];
@@ -591,8 +591,8 @@ static int save_rle_sprite(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, in
 {
    RLE_SPRITE *spr = (RLE_SPRITE *)dat->dat;
    int x, y, c, r, g, b, a;
-   signed short *p16;
-   signed long *p32;
+   int16_t *p16;
+   int32_t *p32;
    unsigned long eol_marker;
    int depth;
 
@@ -618,11 +618,11 @@ static int save_rle_sprite(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, in
       case 15:
       case 16:
 	 /* hicolor */
-	 p16 = (signed short *)spr->dat;
+	 p16 = (int16_t *)spr->dat;
 	 eol_marker = (depth == 15) ? MASK_COLOR_15 : MASK_COLOR_16;
 
 	 for (y=0; y<spr->h; y++) {
-	    while ((unsigned short)*p16 != (unsigned short)eol_marker) {
+	    while ((uint16_t)*p16 != (uint16_t)eol_marker) {
 	       if (*p16 < 0) {
 		  /* skip count */
 		  pack_iputw(*p16, f);
@@ -636,7 +636,7 @@ static int save_rle_sprite(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, in
 		  pack_iputw(x, f);
 
 		  while (x-- > 0) {
-		     c = (unsigned short)*p16;
+		     c = (uint16_t)*p16;
 		     r = getr_depth(depth, c);
 		     g = getg_depth(depth, c);
 		     b = getb_depth(depth, c);
@@ -656,11 +656,11 @@ static int save_rle_sprite(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, in
       case 24:
       case 32:
 	 /* truecolor */
-	 p32 = (signed long *)spr->dat;
+	 p32 = (int32_t *)spr->dat;
 	 eol_marker = (depth == 24) ? MASK_COLOR_24 : MASK_COLOR_32;
 
 	 for (y=0; y<spr->h; y++) {
-	    while ((unsigned long)*p32 != eol_marker) {
+	    while ((uint32_t)*p32 != eol_marker) {
 	       if (*p32 < 0) {
 		  /* skip count */
 		  pack_iputl(*p32, f);
@@ -674,7 +674,7 @@ static int save_rle_sprite(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, in
 		  pack_iputl(x, f);
 
 		  while (x-- > 0) {
-		     c = (unsigned long)*p32;
+		     c = (uint32_t)*p32;
 		     r = getr_depth(depth, c);
 		     g = getg_depth(depth, c);
 		     b = getb_depth(depth, c);
@@ -694,10 +694,10 @@ static int save_rle_sprite(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, in
 
       case -32:
 	 /* truecolor with alpha channel */
-	 p32 = (signed long *)spr->dat;
+	 p32 = (int32_t *)spr->dat;
 
 	 for (y=0; y<spr->h; y++) {
-	    while ((unsigned long)*p32 != MASK_COLOR_32) {
+	    while ((uint32_t)*p32 != MASK_COLOR_32) {
 	       if (*p32 < 0) {
 		  /* skip count */
 		  pack_iputl(*p32, f);
@@ -711,7 +711,7 @@ static int save_rle_sprite(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, in
 		  pack_iputl(x, f);
 
 		  while (x-- > 0) {
-		     c = (unsigned long)*p32;
+		     c = (uint32_t)*p32;
 		     r = getr32(c);
 		     g = getg32(c);
 		     b = getb32(c);

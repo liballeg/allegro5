@@ -796,7 +796,7 @@ General problems
       for example:
 <codeblock>
       while (!key[KEY_ENTER])
-         yield_timeslice();<endblock>
+         rest(0);<endblock>
 
       For this case, however, it would be better to use <code>readkey()</code> instead.
       Or consider upgrading or downgrading your compiler.

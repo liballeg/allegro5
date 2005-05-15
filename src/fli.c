@@ -96,7 +96,7 @@ static int fli_mem_pos = 0;            /* position in the memory FLI */
 static FLI_HEADER fli_header;          /* header structure */
 static FLI_FRAME frame_header;         /* frame header structure */
 
-static char _fli_broken_data[3 * 256]; /* data substituted for broken chunks */
+static unsigned char _fli_broken_data[3 * 256]; /* data substituted for broken chunks */
 
 
 

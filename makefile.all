@@ -142,7 +142,7 @@ EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 
 ifdef HTML
 DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile \
-               readme makedoc datafiles grabber dat dat2c dat2s license
+               readme makedoc datafile grabber dat dat2c dat2s license
 DOCBUILDFILES = bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom
 DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 

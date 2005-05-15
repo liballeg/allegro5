@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.2.0 (beta2-CVS)" "Allegro" "Allegro manual"
+@manh="version 4.2.0 (beta3-CVS)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,12 +52,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.2.0 (beta2-CVS)
+				       \_/__/     Version 4.2.0 (beta3-CVS)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Apr 01, 2005.
+	     By Shawn Hargreaves, Apr 20, 2005.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -258,7 +258,6 @@ information about how to install Allegro and link your program with it.
 
 @@extern int @os_multitasking;
 @xref os_type, os_version
-@eref exdodgy
 @shortdesc Indicates if the OS is multitasking.
    Set by allegro_init() to either TRUE or FALSE depending on whether your
    Operating System is multitasking or not.
@@ -275,11 +274,11 @@ information about how to install Allegro and link your program with it.
    being installed, which means that it won't display the message at all on
    some platforms if Allegro has not been initialised correctly.
 
-   On platforms that have a text console (DOS and Unix) it will print the
-   string to that console, attempting to work around codepage differences by
-   reducing any accented characters to 7-bit ASCII approximations, and on
-   platforms featuring a windowing system it will bring up a blocking GUI
-   message box. Example:
+   On platforms featuring a windowing system, it will bring up a blocking GUI
+   message box. If there is no windowing system, it will try to print the
+   string to a text console, attempting to work around codepage differences
+   by reducing any accented characters to 7-bit ASCII approximations.
+   Example:
 <codeblock>
       if (allegro_init() != 0)
 	 exit(1);
@@ -614,6 +613,11 @@ available in past/future versions of Allegro.
 <endblock>
    Structure contained in GFX_MODE_LIST.
 
+@@#define @PAL_SIZE
+@xref RGB, PALETTE, COLOR_MAP
+@shortdesc Number of entries in a palette.
+   Preprocessor constant equal to 256.
+
 @@typedef RGB @PALETTE[PAL_SIZE]
 @xref RGB, Palette routines
 @eref Available Allegro examples
@@ -642,11 +646,11 @@ available in past/future versions of Allegro.
    int c;               - color
 <endblock>
    A vertex structure used by polygon3d and other polygon rendering
-   functions. Read the description of polygon3d for a description on how to
-   obtain/use this structure.
+   functions. Read the description of polygon3d() for a description on how
+   to obtain/use this structure.
 
 @@typedef struct @V3D_f
-@xref V3D, polygon3d, Fixed point trig
+@xref V3D, polygon3d_f, Fixed point trig
 @eref excamera, exscn3d, exzbuf
 @shortdesc Floating point vertex structure used by 3d functions.
 <codeblock>
@@ -654,7 +658,9 @@ available in past/future versions of Allegro.
    float u, v;          - texture map coordinates
    int c;               - color
 <endblock>
-   Like V3D but using float values instead of fixed ones.
+   Like V3D but using float values instead of fixed ones. Read the
+   description of polygon3d_f() for a description on how to obtain/use this
+   structure.
 
 @@typedef struct @COLOR_MAP
 @xref 256-color transparency, color_map
@@ -797,34 +803,52 @@ available in past/future versions of Allegro.
    the future.
 
 @@typedef struct @SAMPLE
-@xref load_sample, Digital sample routines
+@xref load_sample, Digital sample routines, Voice control
 @eref exsample
 @shortdesc Stores sound data.
 <codeblock>
    int bits;                   - 8 or 16
    int stereo;                 - sample type flag
    int freq;                   - sample frequency
-   int priority;               - 0-255 */
+   int priority;               - 0-255
    unsigned long len;          - length (in samples)
    unsigned long loop_start;   - loop start position
    unsigned long loop_end;     - loop finish position
 <endblock>
    A sample structure, which holds sound data, used by the digital sample
-   routines.
+   routines. You can consider all of these fields as read only except
+   priority, loop_start and loop_end, which you can change them for example
+   after loading a sample from disk.
+
+   The priority is a value from 0 to 255 (by default set to 128) and controls
+   how hardware voices on the sound card are allocated if you attempt to play
+   more than the driver can handle. This may be used to ensure that the less
+   important sounds are cut off while the important ones are preserved.
+
+   The variables loop_start and loop_end specify the loop position in sample
+   units, and are set by default to the start and end of the sample.
 
 @@typedef struct @MIDI
 @xref load_midi, Music routines (MIDI)
-@eref exdodgy, exmidi
+@eref exmidi
 @shortdesc Stores MIDI data.
    A structure holding MIDI data. Read chapter "Music routines (MIDI)" for a
    description on how to obtain/use this structure.
 
 @@typedef struct @AUDIOSTREAM
-@xref play_audio_stream, Audio stream routines
+@xref play_audio_stream, Audio stream routines, Voice control
 @eref exstream
 @shortdesc Stores an audiostream.
-   A structure holding an audiostream. Read chapter "Audio stream routines"
-   for a description on how to obtain/use this structure.
+<codeblock>
+      int voice;  - the hardware voice used for the sample
+<endblock>
+   A structure holding an audiostream, which is a convenience wrapper around
+   a SAMPLE structure to double buffer sounds too big to fit into memory, or
+   do clever things like generating the sound wave real time.
+   
+   While you shouldn't modify directly the value of the voice, you can use
+   all of the voice functions in chapter "Digital sample routines" to modify
+   the properties of the sound, like the frequency.
 
 @@typedef struct @PACKFILE
 @xref File and compression routines, pack_fopen, pack_fopen_chunk
@@ -833,9 +857,9 @@ available in past/future versions of Allegro.
 @shortdesc Packfile structure, similar to the libc FILE structure.
    A packfile structure, similar to the libc FILE structure. Read chapter
    "File and compression routines" for a description on how to obtain/use
-   this structure. Note that prior to version 4.1.18, some internal fields have
-   accidently been documented - but PACKFILE should be treated as an opaque
-   structure, just like the libc FILE type.
+   this structure. Note that prior to version 4.1.18, some internal fields
+   were accidentally documented - but PACKFILE should be treated as an
+   opaque structure, just like the libc FILE type.
 
 @@typedef struct @PACKFILE_VTABLE
 @xref File and compression routines, pack_fopen_vtable
@@ -864,6 +888,8 @@ available in past/future versions of Allegro.
 @xref File and compression routines, create_lzss_unpack_data
 @shortdesc Opaque structure for handling LZSS decomression.
    Opaque structure for handling LZSS decomression.
+
+
 
 @heading
 Unicode routines
@@ -1293,7 +1319,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrcpy(char *dest, const char *src);
 @xref uconvert, ustrzcpy, ustrncpy
-@eref exdodgy, exunicod
+@eref exunicod
 @shortdesc Copies a string into another one.
    This function copies `src' (including the terminating null character into
    `dest'. You should try to avoid this function because it is very easy to
@@ -1319,7 +1345,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrcat(char *dest, const char *src);
 @xref uconvert, ustrzcat, ustrncat
-@eref exdodgy, exunicod
+@eref exunicod
 @shortdesc Concatenates a string to another one.
    This function concatenates `src' to the end of `dest`'. You should try to
    avoid this function because it is very easy to overflow the destination
@@ -2996,9 +3022,8 @@ Allegro does not provide such devices.)
 @@void @rest(unsigned int time);
 @xref install_timer, rest_callback
 @xref vsync, d_yield_proc
-@eref exkeys, exmidi, exquat, exsample, exsprite, exsyscur, extimer
-@eref exunicod
-@shortdesc Waits a specified number of milliseconds.
+@eref exkeys, exmidi, exquat, exsample, exsprite, extimer, exunicod
+@shortdesc Waits a specified number of milliseconds or yields CPU.
    This function waits for the specified number of milliseconds.
 
    Passing 0 as parameter will not wait, but just yield. This can be useful
@@ -3008,16 +3033,18 @@ Allegro does not provide such devices.)
    less noisy.
 
    Note that calling this inside your active game loop is a bad idea, as
-   you never know when the OS will give you the CPU back, so you could end up
-   missing the vertical retrace and skipping frames. On the other hand, on
-   multitasking operating systems it is good form to give up the CPU for a
-   while if you will not be using it.
+   you never know when the OS will give you the CPU back, so you could end
+   up missing the vertical retrace and skipping frames. On the other hand,
+   on multitasking operating systems it is good form to give up the CPU for
+   a while if you will not be using it.
 
 @@void @rest_callback(long time, void (*callback)())
 @xref install_timer, rest
 @shortdesc Like rest(), but calls the callback during the wait.
-   Like rest(), but continually calls the specified function while it is 
-   waiting for the required time to elapse.
+   Like rest(), but for non zero values continually calls the specified
+   function while it is waiting for the required time to elapse. If the
+   provided `callback' parameter is NULL, this function does exactly the
+   same thing as calling rest().
 
 
 
@@ -3063,7 +3090,7 @@ routines" for more information about this.
       allegro_init();
       install_timer();
       install_keyboard();
-      /* We are not 100% we can read the keyboard yet! */
+      /* We are not 100% sure we can read the keyboard yet! */
       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0)
          abort_on_error("Couldn't set graphic mode!")
 
@@ -3521,7 +3548,7 @@ incorrect data.
 @@int @install_joystick(int type);
 @xref remove_joystick, load_joystick_data, calibrate_joystick
 @xref calibrate_joystick_name, poll_joystick, Standard config variables
-@xref JOY_TYPE_*/DOS
+@xref JOY_TYPE_*/DOS, JOY_TYPE_*/Windows, JOY_TYPE_*/Linux
 @eref exjoy
 @shortdesc Initialises the joystick.
    Initialises the joystick, and calibrates the centre position value. The 
@@ -3894,15 +3921,23 @@ GFX_SAFE:<br>
       set_color_depth(32);
       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
 	 abort_on_error("Couldn't set a 32 bit color resolution");
-      }<endblock>
+      }
+<endblock>
+   Note that the screen color depth won't change until the next successful
+   call to set_gfx_mode().
 
 @@int @get_color_depth(void);
-@xref set_color_depth
+@xref set_color_depth, bitmap_color_depth
 @eref exrgbhsv
 @shortdesc Returns the current pixel color depth.
    Returns the current pixel format. This can be very useful to know in order
    to write generic functions which select a different code path internally
    depending on the color depth being used.
+
+   Note that the function returns whatever value you may have set previously
+   with set_color_depth(), which can be different from the current color
+   depth of the screen global variable. If you really need to know the color
+   depth of the screen, use bitmap_color_depth().
 
 @@void @request_refresh_rate(int rate);
 @xref set_gfx_mode, get_refresh_rate
@@ -4537,7 +4572,7 @@ Allegro supports several different types of bitmaps:
    pixel). Example:
 <codeblock>
       /* Create screen sized bitmap in 32 bits per pixel. /*
-      BITMAP *bmp = create_bitmap_x(32, SCREEN_W, SCREEN_H);
+      BITMAP *bmp = create_bitmap_ex(32, SCREEN_W, SCREEN_H);
       if (!bmp)
 	 abort_on_error("Couldn't create bitmap!");
       /* Use the bitmap. */
@@ -4625,10 +4660,10 @@ Allegro supports several different types of bitmaps:
 <codeblock>
       switch (bitmap_color_depth(screen)) {
 	 case 8:
-	    /* Fade screen changing palette. */
+	    /* Access screen using optimized 8-bit code. */
 	    break;
 	 default:
-	    /* Truecolor fake palette fading. */
+	    /* Use generic slow functions. */
 	    break;
       }<endblock>
 
@@ -5102,7 +5137,7 @@ not usually care about it. For example:
    RGB grey  = { 32, 32, 32 };
 <endblock>
 The type PALETTE is defined to be an array of PAL_SIZE RGB structures, where
-PAL_SIZE is a preprocessor constant greater or equal to 256.
+PAL_SIZE is a preprocessor constant equal to 256.
 
 You may notice that a lot of the code in Allegro spells 'palette' as 
 'pallete'. This is because the headers from my old Mark Williams compiler on 
@@ -6141,7 +6176,7 @@ clipping rectangle of the destination bitmap.
       create_trans_table(&global_trans_table, my_palette,
 			 128, 128, 128, NULL);
       ...
-      if (bitmap_color_depth(screen) == 8)
+      if (get_color_depth() == 8)
 	 color_map = &global_trans_table;
       else
 	 set_trans_blender(128, 128, 128, 128);
@@ -6179,7 +6214,7 @@ clipping rectangle of the destination bitmap.
       create_light_table(&global_trans_table, my_palette,
 			 10, 10, 60, NULL);
       ...
-      if (bitmap_color_depth(screen) == 8)
+      if (get_color_depth() == 8)
 	 color_map = &global_light_table;
       else
 	 set_trans_blender(40, 40, 255, 255);
@@ -6204,7 +6239,7 @@ clipping rectangle of the destination bitmap.
       create_light_table(&global_trans_table, my_palette,
 			 0, 0, 0, NULL);
       ...
-      if (bitmap_color_depth(screen) == 8)
+      if (get_color_depth() == 8)
 	 color_map = &global_light_table;
       else
 	 set_trans_blender(0, 0, 0, 128);
@@ -6407,7 +6442,7 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
       create_trans_table(&global_trans_table, my_palette,
 			 128, 128, 128, NULL);
       ...
-      if (bitmap_color_depth(screen) == 8)
+      if (get_color_depth() == 8)
 	 color_map = &global_trans_table;
       else
 	 set_trans_blender(128, 128, 128, 128);
@@ -6429,7 +6464,7 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
       create_light_table(&global_trans_table, my_palette,
 			 10, 10, 60, NULL);
       ...
-      if (bitmap_color_depth(screen) == 8)
+      if (get_color_depth() == 8)
 	 color_map = &global_light_table;
       else
 	 set_trans_blender(40, 40, 255, 255);
@@ -6466,6 +6501,7 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
    as the second parameter if you are going to be drawing it onto memory 
    bitmaps or mode 13h and SVGA screen bitmaps, and pass TRUE if you are 
    going to draw it onto mode-X or Xtended mode screen bitmaps. Example:
+<codeblock>
       COMPILED_SPRITE *cspr;
       BITMAP *bmp;
       ...
@@ -6481,7 +6517,7 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
       ...
       /* Destroy it when we don't need it any more. */
       destroy_compiled_sprite(cspr);
-   
+<endblock>
    Returns a pointer to the created compiled sprite, or NULL if the compiled
    sprite could not be created. Remember to free this compiled sprite later
    to avoid memory leaks.
@@ -6513,10 +6549,10 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
 @heading
 Fonts
 
-Allegro provides routines for loading fonts from GRX format .fnt files, 8x8
-or 8x16 BIOS format .fnt files, and from bitmap images, or you can import a
-multiple-range Unicode font by writing a .txt script that specifies a number 
-of different source files for each range of characters.
+Allegro provides routines for loading fonts directly from GRX format .fnt
+files, 8x8 or 8x16 BIOS format .fnt files, from bitmap images, from datafiles
+or you can import a multiple-range Unicode font by writing a .txt script that
+specifies a number of different source files for each range of characters.
 
 By default, Allegro can only use bitmapped (non-scalable) fonts. If you want
 to use TrueType fonts, you will need to use an add-on library which allows
@@ -6552,8 +6588,8 @@ bitmapped version of a TrueType font with tools like TTF2PCX
 @eref exfont
 @shortdesc Loads a font from a file.
    Loads a font from a file. At present, this supports loading fonts from
-   a GRX format .fnt file, a 8x8 or 8x16 BIOS format .fnt file or any bitmap
-   format that can be loaded by load_bitmap().
+   a GRX format .fnt file, a 8x8 or 8x16 BIOS format .fnt file, a datafile or
+   any bitmap format that can be loaded by load_bitmap().
    
    If the font contains palette information, then the palette is returned in
    the second parameter, which should be an array of 256 RGB structures 
@@ -6948,79 +6984,126 @@ allegro/text.h for details.
 @@extern int @allegro_404_char;
 @xref font
 @shortdesc Character used when Allegro cannot find a glyph.
-    When Allegro cannot find a glyph it needs in a font, it will instead
-    output the character given in allegro_404_char. By default, this is
-    set to the caret symbol, '^'.
+   When Allegro cannot find a glyph it needs in a font, it will instead
+   output the character given in allegro_404_char. By default, this is set to
+   the caret symbol, `^', but you can change this global to use any other
+   character instead. Example:
+<codeblock>
+      /* Show unknown glyphs with an asterisk. */
+      allegro_404_char = '*';<endblock>
 
 @@int @text_length(const FONT *f, const char *str);
 @xref text_height
 @eref ex12bit, exmidi, expat, exunicod
 @shortdesc Returns the length of a string in pixels.
-   Returns the length (in pixels) of a string in the specified font.
+   Returns the length (in pixels) of a string in the specified font. Example:
+<codeblock>
+      int width = text_length(font, "I love spam");
+      ...
+      bmp = create_bitmap(width, height);<endblock>
 
 @@int @text_height(const FONT *f)
 @xref text_length
 @eref ex12bit, exmidi, expackf, expat, exsprite, exsyscur, exunicod
 @shortdesc Returns the height of a font in pixels.
-   Returns the height (in pixels) of the specified font.
+   Returns the height (in pixels) of the specified font. Example:
+<codeblock>
+      int height = text_height(font, "I love spam");
+      ...
+      bmp = create_bitmap(width, height);<endblock>
 
 @\void @textout_ex(BITMAP *bmp, const FONT *f, const char *s,
-@@                int x, y, color, bg);
+@@                int x, int y, int color, int bg);
 @xref font, textout_centre_ex, textout_right_ex, textout_justify_ex
 @xref textprintf_ex, text_height, text_length
 @eref Available Allegro examples
 @shortdesc Writes a string on a bitmap.
-   Writes the string s onto the bitmap at position x, y, using the specified
-   font, foreground color and background color. If the background color is
-   -1, then the text is written transparently. If the foreground color is -1
-   and a color font is in use, it will be drawn using the colors from the
-   original font bitmap (the one you imported into the grabber program),
-   which allows multicolored text output.
-   For high and true color fonts, the foreground color is ignored and always
-   treated as -1.
+   Writes the string `s' onto the bitmap at position x, y, using the
+   specified font, foreground color and background color. If the background
+   color is -1, then the text is written transparently. If the foreground
+   color is -1 and a color font is in use, it will be drawn using the colors
+   from the original font bitmap (the one you imported into the grabber
+   program), which allows multicolored text output. For high and true color
+   fonts, the foreground color is ignored and always treated as -1. Example:
+<codeblock>
+      /* Show the program's version in blue letters. */
+      textout_ex(screen, font, "v4.2.0-beta2", 10, 10,
+		 makecol(0, 0, 255), -1);<endblock>
 
 @\void @textout_centre_ex(BITMAP *bmp, const FONT *f, const char *s,
-@@                       int x, y, color, bg);
+@@                       int x, y, int color, int bg);
 @xref textout_ex, textprintf_centre_ex
 @eref Available Allegro examples
 @shortdesc Writes a centered string on a bitmap.
    Like textout_ex(), but interprets the x coordinate as the centre rather
-   than the left edge of the string.
+   than the left edge of the string. Example:
+<codeblock>
+      /* Important texts go in the middle. */
+      width = text_length("GAME OVER");
+      textout_centre_ex(screen, font, "GAME OVER",
+			SCREEN_W / 2, SCREEN_H / 2,
+			makecol(255, 0, 0), makecol(0, 0, 0));<endblock>
 
 @\void @textout_right_ex(BITMAP *bmp, const FONT *f, const char *s,
-@@                      int x, y, color, bg);
+@@                      int x, int y, int color, int bg);
 @xref textout_ex, textprintf_right_ex
 @shortdesc Writes a right aligned string on a bitmap.
    Like textout_ex(), but interprets the x coordinate as the right rather
-   than the left edge of the string.
+   than the left edge of the string. Example:
+<codeblock>
+      textout_right_ex(screen, font, "Look at this color!",
+		       SCREEN_W - 10, 10, my_yellow, -1);<endblock>
 
 @\void @textout_justify_ex(BITMAP *bmp, const FONT *f, const char *s,
-@@                        int x1, x2, y, diff, color, bg);
+@\                        int x1, int x2, int y, int diff, int color,
+@@                        int bg);
 @xref textout_ex, textprintf_justify_ex
 @shortdesc Draws justified text within a region.
    Draws justified text within the region x1-x2. If the amount of spare
    space is greater than the diff value, it will give up and draw regular
-   left justified text instead.
+   left justified text instead. Example:
+<codeblock>
+      char *lines[] = {"Draws justified text",
+		       "within the specified",
+		       "x2-x1 area. But not",
+		       "T H I S !", NULL};
+      /* Show the justification marker. */
+      vline(screen, 200, 0, SCREEN_H-1, makecol(0, 0, 0));
+      /* Draw all the lines until we reach a NULL entry. */
+      for (num = 0, y = 0; lines[num]; num++, y += text_height(font))
+	 textout_justify_ex(screen, font, lines[num], 0, 200,
+			    y, 80, makecol(0, 0, 0),
+			    makecol(255, 255, 255));<endblock>
 
-@\void @textprintf_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
-@@                    const char *fmt, ...);
+@\void @textprintf_ex(BITMAP *bmp, const FONT *f, int x, int y,
+@@                   int color, int bg, const char *fmt, ...);
 @xref font, textout_ex, textprintf_centre_ex, textprintf_right_ex
 @xref textprintf_justify_ex, text_height, text_length, uszprintf
 @eref Available Allegro examples
 @shortdesc Formatted output of a string.
    Formatted text output, using a printf() style format string. Due to an
-   intenal limitation, this function can't be used for extremely long texts.
+   internal limitation, this function can't be used for extremely long texts.
    If you happen to reach this limit, you can work around it by using
-   uszprintf and textout_ex, which don't have any.
+   uszprintf() and textout_ex(), which don't have any. Example:
+<codeblock>
+      int player_score;
+      ...
+      textprintf_ex(screen, font, 10, 10, makecol(255, 100, 200),
+		    -1, "Score: %d", player_score);<endblock>
 
-@\void @textprintf_centre_ex(BITMAP *bmp, const FONT *f, int x, y, color,
-@@                          bg, const char *fmt, ...);
+@\void @textprintf_centre_ex(BITMAP *bmp, const FONT *f, int x, int y,
+@@                          int color, int bg, const char *fmt, ...);
 @xref textprintf_ex, textout_centre_ex
 @eref Available Allegro examples
 @shortdesc Formatted centered output of a string.
    Like textprintf_ex(), but interprets the x coordinate as the centre rather
    than the left edge of the string. This function shares the text length
-   limitation of textprintf_ex.
+   limitation of textprintf_ex(). Example:
+<codeblock>
+      textprintf_centre_ex(screen, font, SCREEN_W / 2, 120,
+			   makecol(0, 100, 243), -1,
+			   "Your best score so far was %d!",
+			   total_max_points);<endblock>
 
 @\void @textprintf_right_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
 @@                         const char *fmt, ...);
@@ -7028,19 +7111,151 @@ allegro/text.h for details.
 @shortdesc Formatted right aligned output of a string.
    Like textprintf_ex(), but interprets the x coordinate as the right rather
    than the left edge of the string. This function shares the text length
-   limitation of textprintf_ex.
+   limitation of textprintf_ex(). Example:
+<codeblock>
+      textprintf_right_ex(screen, font, SCREEN_W - 10, 10,
+			  makecol(200, 200, 20), -1,
+			  "%d bullets left", player_ammo);<endblock>
 
 @\void @textprintf_justify_ex(BITMAP *bmp, const FONT *f, int x1, x2, y,
 @@                           diff, color, bg, const char *fmt, ...);
 @xref textprintf_ex, textout_justify_ex
 @shortdesc Formatted justified output of a string.
    Like textout_justify_ex(), but using a printf() style format string. This
-   function shares the text length limitation of textprintf_ex.
+   function shares the text length limitation of textprintf_ex(). Example:
+<codeblock>
+      char *lines[] = {"Line %02d: Draws justified text",
+		       "Line %02d: within the specified",
+		       "Line %02d: x2-x1 area. But not",
+		       "Line %02d: T H I S !", NULL};
+      /* Show the justification marker. */
+      vline(screen, 300, 0, SCREEN_H-1, makecol(0, 0, 0));
+      /* Draw all the lines until we reach a NULL entry. */
+      for (num = 0, y = 0; lines[num]; num++, y += text_height(font))
+	 textprintf_justify_ex(screen, font, 0, 300, y, 180,
+			       makecol(0, 0, 0), makecol(255, 255, 255),
+			       lines[num], num);<endblock>
 
 
 
 @heading
 Polygon rendering
+
+All the 3d functions that accept a `type' parameter are asking for a polygon
+rendering mode, which can be any of the following POLYTYPE_* values. If the
+CPU_MMX flag of the cpu_capabilities global variable is set, the GRGB and
+truecolor *LIT routines will be optimised using MMX instructions. If the
+CPU_3DNOW flag is set, the truecolor PTEX*LIT routines will take advantage of
+the 3DNow! CPU extensions.
+
+Using MMX for *LIT routines has a side effect: normally (without MMX), these
+routines use the blender functions used also for other lighting functions,
+set with set_trans_blender() or set_blender_mode(). The MMX versions only use
+the RGB value passed to set_trans_blender() and do the linear interpolation
+themselves. Therefore a new set of blender functions passed to
+set_blender_mode() is ignored.
+
+@@#define @POLYTYPE_FLAT
+@xref Polygon rendering, polygon3d, drawing_mode
+@eref ex3d, excamera
+@shortdesc Polygon rendering mode type
+   A simple flat shaded polygon, taking the color from the `c' value of the
+   first vertex. This polygon type is affected by the drawing_mode() function,
+   so it can be used to render XOR or translucent polygons.
+
+@@#define @POLYTYPE_GCOL
+@xref Polygon rendering, polygon3d, makecol
+@eref ex3d, exscn3d, exzbuf
+@shortdesc Polygon rendering mode type
+   A single-color gouraud shaded polygon. The colors for each vertex are taken
+   from the `c' value, and interpolated across the polygon. This is very fast,
+   but will only work in 256-color modes if your palette contains a smooth
+   gradient between the colors. In truecolor modes it interprets the color as
+   a packed, display-format value as produced by the makecol() function.
+
+@@#define @POLYTYPE_GRGB
+@xref Polygon rendering, polygon3d, rgb_map
+@eref ex3d
+@shortdesc Polygon rendering mode type
+   A gouraud shaded polygon which interpolates RGB triplets rather than a
+   single color. In 256-color modes this uses the global rgb_map table to
+   convert the result to an 8-bit paletted color, so it must only be used
+   after you have set up the RGB mapping table! The colors for each vertex are
+   taken from the `c' value, which is interpreted as a 24-bit RGB triplet
+   (0xFF0000 is red, 0x00FF00 is green, and 0x0000FF is blue).
+
+@@#define @POLYTYPE_ATEX
+@xref Polygon rendering, polygon3d
+@eref ex3d
+@shortdesc Polygon rendering mode type
+   An affine texture mapped polygon. This stretches the texture across the
+   polygon with a simple 2d linear interpolation, which is fast but not
+   mathematically correct. It can look ok if the polygon is fairly small or
+   flat-on to the camera, but because it doesn't deal with perspective
+   foreshortening, it can produce strange warping artifacts. To see what this
+   means, run Allegro's test program and see what happens to the polygon3d()
+   test when you zoom in very close to the cube.
+
+@@#define @POLYTYPE_PTEX
+@xref Polygon rendering, polygon3d, POLYTYPE_ATEX
+@eref ex3d
+@shortdesc Polygon rendering mode type
+   A perspective-correct texture mapped polygon. This uses the `z' value from
+   the vertex structure as well as the u/v coordinates, so textures are
+   displayed correctly regardless of the angle they are viewed from. Because
+   it involves division calculations in the inner texture mapping loop, this
+   mode is a lot slower than POLYTYPE_ATEX, and it uses floating point so it
+   will be very slow on anything less than a Pentium (even with an FPU, a 486
+   can't overlap floating point division with other integer operations like
+   the Pentium can).
+
+@@#define @POLYTYPE_ATEX_MASK
+@@#define @POLYTYPE_PTEX_MASK
+@xref Polygon rendering, polygon3d, POLYTYPE_ATEX, POLYTYPE_PTEX
+@eref ex3d
+@shortdesc Polygon rendering mode type
+   Like POLYTYPE_ATEX and POLYTYPE_PTEX, but zero texture map pixels are
+   skipped, allowing parts of the texture map to be transparent.
+
+@@#define @POLYTYPE_ATEX_LIT
+@@#define @POLYTYPE_PTEX_LIT
+@xref Polygon rendering, polygon3d, POLYTYPE_ATEX, POLYTYPE_PTEX
+@xref color_map, Truecolor transparency
+@eref ex3d
+@shortdesc Polygon rendering mode type
+   Like POLYTYPE_ATEX and POLYTYPE_PTEX, but the global color_map table (for
+   256-color modes) or blender function (for non-MMX truecolor modes) is used
+   to blend the texture with a light level taken from the `c' value in the
+   vertex structure. This must only be used after you have set up the color
+   mapping table or blender functions!
+
+@@#define @POLYTYPE_ATEX_MASK_LIT
+@@#define @POLYTYPE_PTEX_MASK_LIT
+@xref Polygon rendering, polygon3d, POLYTYPE_ATEX_LIT, POLYTYPE_PTEX_LIT
+@eref ex3d
+@shortdesc Polygon rendering mode type
+   Like POLYTYPE_ATEX_LIT and POLYTYPE_PTEX_LIT, but zero texture map pixels
+   are skipped, allowing parts of the texture map to be transparent.
+
+@@#define @POLYTYPE_ATEX_TRANS
+@@#define @POLYTYPE_PTEX_TRANS
+@xref Polygon rendering, polygon3d
+@eref ex3d
+@shortdesc Polygon rendering mode type
+   Render translucent textures. All the general rules for drawing
+   translucent things apply. However, these modes have a major
+   limitation: they only work with memory bitmaps or linear frame
+   buffers (not with banked frame buffers). Don't even try, they do not
+   check and your program will die horribly (or at least draw wrong
+   things).
+
+@@#define @POLYTYPE_ATEX_MASK_TRANS
+@@#define @POLYTYPE_PTEX_MASK_TRANS
+@xref Polygon rendering, polygon3d
+@eref ex3d
+@shortdesc Polygon rendering mode type
+   Like POLYTYPE_ATEX_TRANS and POLYTYPE_PTEX_TRANS, but zero texture map 
+   pixels are skipped.
 
 @@void @polygon3d(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[]);
 @@void @polygon3d_f(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D_f *vtx[]);
@@ -7075,18 +7290,18 @@ Polygon rendering
 <endblock>
    How the vertex data is used depends on the rendering mode:
 
-   The x and y values specify the position of the vertex in 2d screen 
+   The `x' and `y' values specify the position of the vertex in 2d screen
    coordinates.
 
-   The z value is only required when doing perspective correct texture 
+   The `z' value is only required when doing perspective correct texture
    mapping, and specifies the depth of the point in 3d world coordinates.
 
-   The u and v coordinates are only required when doing texture mapping, and 
-   specify a point on the texture plane to be mapped on to this vertex. The 
-   texture plane is an infinite plane with the texture bitmap tiled across 
-   it. Each vertex in the polygon has a corresponding vertex on the texture 
-   plane, and the image of the resulting polygon in the texture plane will 
-   be mapped on to the polygon on the screen.
+   The `u' and `v' coordinates are only required when doing texture mapping,
+   and specify a point on the texture plane to be mapped on to this vertex.
+   The texture plane is an infinite plane with the texture bitmap tiled
+   across it. Each vertex in the polygon has a corresponding vertex on the
+   texture plane, and the image of the resulting polygon in the texture plane
+   will be mapped on to the polygon on the screen.
 
    We refer to pixels in the texture plane as texels. Each texel is a block, 
    not just a point, and whole numbers for u and v refer to the top-left 
@@ -7113,131 +7328,51 @@ Polygon rendering
    infinite, you can specify larger values than the size of the texture. 
    This can be used to tile the texture several times across the polygon.
 
-   The c value specifies the vertex color, and is interpreted differently by 
-   various rendering modes.
-
-   The type parameter specifies the polygon rendering mode, and can be any 
-   of the values:
-
-   <b>POLYTYPE_FLAT:</b><br>
-      A simple flat shaded polygon, taking the color from the c value of the 
-      first vertex. This polygon type is affected by the drawing_mode() 
-      function, so it can be used to render XOR or translucent polygons.
-
-   <b>POLYTYPE_GCOL:</b><br>
-      A single-color gouraud shaded polygon. The colors for each vertex are 
-      taken from the c value, and interpolated across the polygon. This is 
-      very fast, but will only work in 256-color modes if your palette 
-      contains a smooth gradient between the colors. In truecolor modes it 
-      interprets the color as a packed, display-format value as produced by 
-      the makecol() function.
-
-   <b>POLYTYPE_GRGB:</b><br>
-      A gouraud shaded polygon which interpolates RGB triplets rather than a 
-      single color. In 256-color modes this uses the global rgb_map table to 
-      convert the result to an 8-bit paletted color, so it must only be used 
-      after you have set up the RGB mapping table! The colors for each 
-      vertex are taken from the c value, which is interpreted as a 24-bit 
-      RGB triplet (0xFF0000 is red, 0x00FF00 is green, and 0x0000FF is 
-      blue).
-
-   <b>POLYTYPE_ATEX:</b><br>
-      An affine texture mapped polygon. This stretches the texture across 
-      the polygon with a simple 2d linear interpolation, which is fast but 
-      not mathematically correct. It can look ok if the polygon is fairly 
-      small or flat-on to the camera, but because it doesn't deal with 
-      perspective foreshortening, it can produce strange warping artifacts. 
-      To see what I mean, run test.exe and see what happens to the 
-      polygon3d() test when you zoom in very close to the cube.
-
-   <b>POLYTYPE_PTEX:</b><br>
-      A perspective-correct texture mapped polygon. This uses the z value 
-      from the vertex structure as well as the u/v coordinates, so textures 
-      are displayed correctly regardless of the angle they are viewed from. 
-      Because it involves division calculations in the inner texture mapping 
-      loop, this mode is a lot slower than POLYTYPE_ATEX, and it uses 
-      floating point so it will be very slow on anything less than a Pentium 
-      (even with an FPU, a 486 can't overlap floating point division with 
-      other integer operations like the Pentium can).
-
-   <b>POLYTYPE_ATEX_MASK:</b><br>
-   <b>POLYTYPE_PTEX_MASK:</b><br>
-      Like POLYTYPE_ATEX and POLYTYPE_PTEX, but zero texture map pixels are 
-      skipped, allowing parts of the texture map to be transparent.
-
-   <b>POLYTYPE_ATEX_LIT:</b><br>
-   <b>POLYTYPE_PTEX_LIT:</b><br>
-      Like POLYTYPE_ATEX and POLYTYPE_PTEX, but the global color_map table 
-      (for 256-color modes) or blender function (for non-MMX truecolor 
-      modes) is used to blend the texture with a light level taken from the 
-      c value in the vertex structure. This must only be used after you have 
-      set up the color mapping table or blender functions!
-
-   <b>POLYTYPE_ATEX_MASK_LIT:</b><br>
-   <b>POLYTYPE_PTEX_MASK_LIT:</b><br>
-      Like POLYTYPE_ATEX_LIT and POLYTYPE_PTEX_LIT, but zero texture map 
-      pixels are skipped, allowing parts of the texture map to be 
-      transparent.
-
-   <b>POLYTYPE_ATEX_TRANS:</b><br>
-   <b>POLYTYPE_PTEX_TRANS:</b><br>
-      Render translucent textures. All the general rules for drawing
-      translucent things apply. However, these modes have a major
-      limitation: they only work with memory bitmaps or linear frame
-      buffers (not with banked frame buffers). Don't even try, they do not
-      check and your program will die horribly (or at least draw wrong
-      things).
-
-   <b>POLYTYPE_ATEX_MASK_TRANS:</b><br>
-   <b>POLYTYPE_PTEX_MASK_TRANS:</b><br>
-      Like POLYTYPE_ATEX_TRANS and POLYTYPE_PTEX_TRANS, but zero texture map 
-      pixels are skipped.
-
-   If the CPU_MMX flag of the cpu_capabilities global variable is set, the 
-   GRGB and truecolor *LIT routines will be optimised using MMX 
-   instructions. If the CPU_3DNOW flag is set, the truecolor PTEX*LIT 
-   routines will take advantage of the 3DNow! CPU extensions.
-
-   Using MMX for *LIT routines has a side effect: normally (without MMX), 
-   these routines use the blender functions used also for other lighting 
-   functions, set with set_trans_blender() or set_blender_mode(). The MMX 
-   versions only use the RGB value passed to set_trans_blender() and do the 
-   linear interpolation themselves. Therefore a new set of blender functions 
-   passed to set_blender_mode() is ignored.
+   The `c' value specifies the vertex color, and is interpreted differently
+   by various rendering modes. Read the beginning of chapter "Polygon
+   rendering" for a list of rendering types you can use with this function.
 
 @@void @triangle3d(BITMAP *bmp, int type, BITMAP *tex, V3D *v1, *v2, *v3);
 @@void @triangle3d_f(BITMAP *bmp, int type, BITMAP *tex, V3D_f *v1, *v2, *v3);
-@xref polygon3d, quad3d, triangle
+@xref polygon3d, quad3d, triangle, Polygon rendering
 @shortdesc Draws a 3d triangle onto the specified bitmap.
    Draw 3d triangles, using either fixed or floating point vertex structures.
-   Unlike quad3d[_f], triangle3d[_f] functions are not wrappers of
-   polygon3d[_f]. The triangle3d[_f] functions use their own routines taking
-   into account the constantness of the gradients.
-   Therefore triangle3d[_f](bmp, type, tex, v1, v2, v3) is faster than
+   Unlike quad3d[_f](), triangle3d[_f]() functions are not wrappers of
+   polygon3d[_f](). The triangle3d[_f]() functions use their own routines
+   taking into account the constantness of the gradients. Therefore
+   triangle3d[_f](bmp, type, tex, v1, v2, v3) is faster than
    polygon3d[_f](bmp, type, tex, 3, v[]).
+
+   Read the beginning of chapter "Polygon rendering" for a list of rendering
+   types you can use with this function.
 
 @@void @quad3d(BITMAP *bmp, int type, BITMAP *tex, V3D *v1, *v2, *v3, *v4);
 @@void @quad3d_f(BITMAP *bmp, int type, BITMAP *tex, V3D_f *v1, *v2, *v3, *v4);
-@xref polygon3d, triangle3d
+@xref polygon3d, triangle3d, Polygon rendering
 @eref ex3d
 @shortdesc Draws a 3d quad onto the specified bitmap.
    Draw 3d quads, using either fixed or floating point vertex structures. 
-   These are equivalent to calling
-      polygon3d(bmp, type, tex, 4, v[]);
-   or
-      polygon3d_f(bmp, type, tex, 4, v[]);
+   These are equivalent to calling polygon3d(bmp, type, tex, 4, v[]) or
+   polygon3d_f(bmp, type, tex, 4, v[]).
 
+   Read the beginning of chapter "Polygon rendering" for a list of rendering
+   types you can use with this function.
+   
 @\int @clip3d_f(int type, float min_z, float max_z, int vc,
 @@             const V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]);
 @xref polygon3d, clip3d
 @eref excamera, exscn3d
 @shortdesc Clips the polygon given in vtx using floating point math,
-   Clips the polygon given in vtx. The number of vertices is vc, the result 
-   goes in vout, and vtmp and out are needed for internal purposes. The 
-   pointers in vtx, vout and vtmp must point to valid V3D_f structures. 
+   Clips the polygon given in `vtx'. The number of vertices is `vc', the
+   result goes in `vout', and `vtmp' and `out' are needed for internal
+   purposes. The pointers in `vtx', `vout' and `vtmp' must point to valid
+   V3D_f structures.
+   
    As additional vertices may appear in the process of clipping, so the 
-   size of vout, vtmp and out should be at least vc * (1.5 ^ n), where n is
-   the number of clipping planes (5 or 6), and '^' denotes "to the power of".
+   size of `vout', `vtmp' and `out' should be at least vc * (1.5 ^ n), where
+   `n' is the number of clipping planes (5 or 6), and `^' denotes "to the
+   power of".
+   
    The frustum (viewing volume) is defined by -z&ltx&ltz, -z&lty&ltz,
    0&ltmin_z&ltz&ltmax_z. If  max_z&lt=min_z, the z&ltmax_z clipping is
    not done. As you can see, clipping is done in the camera space, with
@@ -7245,6 +7380,8 @@ Polygon rendering
    the camera matrix, but before the perspective projection. The routine
    will correctly interpolate u, v, and c in the vertex structure. However,
    no provision is made for high/truecolor GCOL.
+@retval
+   Returns the number of vertices after clipping is done.
 
 @\int @clip3d(int type, fixed min_z, fixed max_z, int vc,
 @@           const V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]);
@@ -7254,6 +7391,8 @@ Polygon rendering
    caution, due to the limited precision of fixed point arithmetic and high 
    chance of rounding errors: the floating point code is better for most 
    situations.
+@retval
+   Returns the number of vertices after clipping is done.
 
 @hnode Zbuffered rendering
 A Z-buffer stores the depth of each pixel that is drawn on a viewport.
@@ -7303,6 +7442,10 @@ All the Z-buffered routines are much slower than their normal counterparts
    Creates a Z-buffer using the size of the BITMAP you are planning to draw
    on. Several Z-buffers can be defined but only one can be used at the same
    time, so you must call set_zbuffer() to make this Z-buffer active.
+@retval
+   Returns the pointer to the ZBUFFER or NULL if there was an error. Remember
+   to destroy the ZBUFFER once you are done with it, to avoid having memory
+   leaks.
 
 @@ZBUFFER *@create_sub_zbuffer(ZBUFFER *parent, int x, int y, int width, int height);
 @xref create_zbuffer, create_sub_bitmap, destroy_zbuffer
@@ -7322,6 +7465,10 @@ All the Z-buffered routines are much slower than their normal counterparts
    sub-z-buffer) the size of the visible screen. You don't need to first
    create a z-buffer the size of the virtual screen and then a sub-z-buffer
    of that.
+@retval
+   Returns the pointer to the sub ZBUFFER or NULL if there was an error.
+   Remember to destroy the ZBUFFER once you are done with it, to avoid having
+   memory leaks.
 
 @@void @set_zbuffer(ZBUFFER *zbuf);
 @xref create_zbuffer, clear_zbuffer, destroy_zbuffer
@@ -7338,7 +7485,7 @@ All the Z-buffered routines are much slower than their normal counterparts
    be used to initialize the Z-buffer before each frame. Actually, low-level
    routines compare depth of the current pixel with 1/z: for example, if you
    want to clip polygons farther than 10, you must call
-   clear_zbuffer(zbuf, 0.1);
+   clear_zbuffer(zbuf, 0.1).
 
 @@void @destroy_zbuffer(ZBUFFER *zbuf);
 @xref create_zbuffer, set_zbuffer, clear_zbuffer
@@ -7429,12 +7576,13 @@ have to clear the z-buffer at the start of the frame. Example:
 @xref create_zbuffer
 @eref exscn3d
 @shortdesc Allocates memory for a 3d scene.
-   Allocates memory for a scene, nedge and npoly are your estimates of how
+   Allocates memory for a scene, `nedge' and `npoly' are your estimates of how
    many edges and how many polygons you will render (you cannot get over the
    limit specified here). If you use same values in succesive calls, the
    space will be reused (no new malloc()).
 
    The memory allocated is a little less than 150 * (nedge + npoly) bytes.
+@retval
    Returns zero on success, or a negative number if allocations fail.
 
 @@void @clear_scene(BITMAP *bmp);
@@ -7479,7 +7627,7 @@ have to clear the z-buffer at the start of the frame. Example:
    The settings of the CPU_MMX and CPU_3DNOW flags of the cpu_capabilities 
    global variable on entry in this routine affect the choice of low-level 
    asm routine that will be used by render_scene() for this polygon.
-
+@retval
    Returns zero on success, or a negative number if it won't be rendered for
    lack of a rendering routine.
 
@@ -7594,16 +7742,16 @@ Transparency and patterned drawing
 @eref exspline, exupdate
 @shortdesc Shortcut for toggling xor drawing mode on and off.
    This is a shortcut for toggling xor drawing mode on and off. Calling 
-   xor_mode(TRUE) is equivalent to drawing_mode (DRAW_MODE_XOR, NULL, 0, 0);
+   xor_mode(TRUE) is equivalent to drawing_mode (DRAW_MODE_XOR, NULL, 0, 0).
    Calling xor_mode(FALSE) is equivalent to
-   drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+   drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0).
 
 @@void @solid_mode();
 @xref drawing_mode
 @eref exalpha, expat
 @shortdesc Shortcut for selecting solid drawing mode.
    This is a shortcut for selecting solid drawing mode. It is equivalent to 
-   calling drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+   calling drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0).
 
 @hnode 256-color transparency
 In paletted video modes, translucency and lighting are implemented with a 
@@ -7629,7 +7777,11 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
    Global pointer to the color mapping table. You must allocate your own
    COLOR_MAP either statically or dynamically and set color_map to it 
    before using any translucent or lit drawing functions in a 256-color 
-   video mode!
+   video mode! Example:
+<codeblock>
+      color_map = malloc(sizeof(COLOR_MAP));
+      if (!color_map)
+	 abort_on_error("Not enough memory for color map!");<endblock>
 
 @\void @create_trans_table(COLOR_MAP *table, const PALETTE pal,
 @@                        int r, g, b, void (*callback)(int pos));
@@ -8350,7 +8502,7 @@ Sound init routines
 @xref DIGI_*/MacOSX
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
 @xref MIDI_*/MacOSX
-@eref exdodgy, exmidi, exsample, exsprite, exstream
+@eref exmidi, exsample, exsprite, exstream
 @shortdesc Initialises the sound module.
    Initialises the sound module. You should normally pass DIGI_AUTODETECT 
    and MIDI_AUTODETECT as the driver parameters to this function, in which 
@@ -8365,7 +8517,6 @@ Sound init routines
 
 @@void @remove_sound();
 @xref install_sound, allegro_exit
-@eref exdodgy
 @shortdesc Cleans up after you are finished with the sound routines.
    Cleans up after you are finished with the sound routines. You don't 
    normally need to call this, because allegro_exit() will do it for you.
@@ -8543,25 +8694,15 @@ Digital sample routines
 @xref install_sound, allocate_voice, deallocate_voice, reallocate_voice
 @xref release_voice, voice_start, voice_set_priority, voice_check
 @xref voice_set_position, voice_set_playmode, voice_set_volume
-@xref voice_set_frequency, voice_set_pan
+@xref voice_set_frequency, voice_set_pan, SAMPLE
 If you need more detailed control over how samples are played, you can use 
 the lower level voice functions rather than just calling play_sample(). This 
 is rather more work, because you have to explicitly allocate and free the 
 voices rather than them being automatically released when they finish 
 playing, but allows far more precise specification of exactly how you want 
 everything to sound. You may also want to modify a couple of fields from the 
-sample structure:
-<textblock>
-   int priority;
-      Ranging 0-255 (default 128), this controls how voices are
-      allocated if you attempt to play more than the driver can handle.
-      This may be used to ensure that the less important sounds are
-      cut off while the important ones are preserved.
-
-   unsigned long loop_start;
-   unsigned long loop_end;
-      Loop position in sample units, by default set to the start and end of 
-      the sample.<endblock>
+SAMPLE structure. Read chapter "Structures and types defined by Allegro" for
+its definition.
 
 @@int @allocate_voice(const SAMPLE *spl);
 @xref Voice control, deallocate_voice, reallocate_voice, release_voice
@@ -8755,14 +8896,14 @@ Music routines (MIDI)
 
 @@MIDI *@load_midi(const char *filename);
 @xref destroy_midi, play_midi, get_midi_length
-@eref exdodgy, exmidi
+@eref exmidi
 @shortdesc Loads a MIDI file.
    Loads a MIDI file (handles both format 0 and format 1), returning a 
    pointer to a MIDI structure, or NULL on error.
 
 @@void @destroy_midi(MIDI *midi);
 @xref load_midi
-@eref exdodgy, exmidi
+@eref exmidi
 @shortdesc Destroys a MIDI structure when you are done with it.
    Destroys a MIDI structure when you are done with it. It is safe to call 
    this even when the MIDI file might be playing, because it checks and will 
@@ -8778,7 +8919,7 @@ Music routines (MIDI)
 @@int @play_midi(MIDI *midi, int loop);
 @xref install_sound, load_midi, play_looped_midi, stop_midi, midi_pause
 @xref midi_seek, midi_pos, midi_time, midi_msg_callback
-@eref exdodgy, exmidi
+@eref exmidi
 @shortdesc Starts playing the specified MIDI file.
    Starts playing the specified MIDI file, first stopping whatever music was 
    previously playing. If the loop flag is set, the data will be repeated 
@@ -8929,8 +9070,22 @@ to fit in a regular SAMPLE structure, either because they are huge files
 that you want to load in pieces as the data is required, or because you are 
 doing something clever like generating the waveform on the fly.
 
-@@AUDIOSTREAM *@play_audio_stream(int len, bits, stereo, freq, vol, pan);
+You can think of an AUDIOSTREAM structure as a wrapper around two audio
+buffers. The first thing you do is fill both buffers with sound data and let
+Allegro play them. Once the first buffer has been played, the second starts,
+and Allegro lets you know you have to fill the other one (i.e. graphics
+double buffering applied to sounds too big to fit into memory).
+
+The implementation of the sound buffers uses normal SAMPLE structures, so you
+can use all the voice_*() functions to modify the audio streams. Read chapter
+"Digital sample routines", section "Voice control" for a list of additional
+functions you can use. Read chapter "Structures and types defined by Allegro"
+for the internals of the AUDIOSTREAM structure.
+
+@\AUDIOSTREAM *@play_audio_stream(int len, int bits, int stereo,
+@@                               int freq, int vol, int pan);
 @xref install_sound, get_audio_stream_buffer, stop_audio_stream
+@xref AUDIOSTREAM, Voice control
 @eref exstream
 @shortdesc Creates a new audio stream and starts playing it.
    This function creates a new audio stream and starts playing it. The 
@@ -8940,18 +9095,26 @@ doing something clever like generating the waveform on the fly.
    normally be (but doesn't have to be) a power of 2 somewhere around 1k in 
    size. Larger buffers are more efficient and require fewer updates, but 
    result in more latency between you providing the data and it actually 
-   being played. The bits parameter must be 8 or 16. freq is the sample rate 
-   of the data in Hertz. The vol and pan values use the same 0-255 ranges as 
-   the regular sample playing functions. The stereo parameter should be set 
-   to 1 for stereo streams, or 0 otherwise. If you want to adjust the pitch, 
-   volume, or panning of a stream once it is playing, you can use the regular
-   voice_*() functions with stream-&gtvoice as a parameter. The sample data 
-   are always in unsigned format.
+   being played.
+
+   The `bits' parameter must be 8 or 16. `freq' is the sample rate of the
+   data in Hertz. The `vol' and `pan' values use the same 0-255 ranges as the
+   regular sample playing functions. The `stereo' parameter should be set to
+   1 for stereo streams, or 0 otherwise.
+
+   If you want to adjust the pitch, volume, or panning of a stream once it is
+   playing, you can use the regular voice_*() functions with stream-&gtvoice
+   as a parameter. The sample data are always in unsigned format. This means
+   that if you are loading a WAVE file (Windows PCM format) which is 16 bits,
+   mono and with a 44.1 kHz rate, you would have to XOR the values from the
+   file with 0x8000 before passing them to Allegro.
 
    The formula to get the size of the buffers in bytes could be:
 <codeblock>
-   bytes = len * (bits / 8) * (stereo ? 2 : 1)
-<endblock>
+      bytes = length * (bits / 8) * (stereo ? 2 : 1)<endblock>
+@retval
+   This function returns a pointer to the audio stream or NULL if it could
+   not be created.
 
 @@void @stop_audio_stream(AUDIOSTREAM *stream);
 @xref play_audio_stream
@@ -9719,6 +9882,8 @@ directories, but not hidden files and directories. Similarly, if you pass
 @retval
    Returns the number of bytes added to the buffer.
 
+
+
 @heading
 Datafile routines
 
@@ -10135,9 +10300,6 @@ tools/plugins directory. This can be used to add whole new object types and
 menu commands, or to provide additional import/export routines for the 
 existing formats. See tools/plugins/plugins.txt for an overview of how to 
 write your own grabber plugins.
-
-
-
 
 
 
@@ -10860,10 +11022,16 @@ Dialog procedures may be called with any of the messages:
    tracking as long as the button is held down, and only return from this 
    message handler when it is released.
 
+   If you process this message, use the functions gui_mouse_*() to read the
+   state of the mouse.
+
 <b>MSG_DCLICK:</b><br>
    Sent when the user double-clicks on an object. A MSG_CLICK will be sent 
    when the button is first pressed, then MSG_DCLICK if it is released and 
    pressed again within a short space of time.
+
+   If you process this message, use the functions gui_mouse_*() to read the
+   state of the mouse.
 
 <b>MSG_KEY:</b><br>
    Sent when the keyboard shortcut for the object is pressed, or if enter, 
@@ -11235,15 +11403,15 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    flipping system. Passing NULL will cause the default surface (screen) to
    be used again. Example:
 <codeblock>
-   BITMAP *page[2];
-   
-   /* Allocate two pages of video memory */
-   page[0] = create_video_bitmap(SCREEN_W, SCREEN_H);
-   page[1] = create_video_bitmap(SCREEN_W, SCREEN_H);
-   
-   /* Page flip */
-   show_video_bitmap(page[0]);
-   gui_set_screen(page[0]);
+      BITMAP *page[2];
+      
+      /* Allocate two pages of video memory */
+      page[0] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      page[1] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      
+      /* Page flip */
+      show_video_bitmap(page[0]);
+      gui_set_screen(page[0]);
 <endblock>
 
 @@BITMAP *@gui_get_screen(void);
@@ -11524,6 +11692,8 @@ ensure there is room for the check.
    the three variables, and returns zero if it was closed with the Cancel 
    button or non-zero if it was OK'd.
 
+   The initial values of card, w, h are not used.
+
 @@int @gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth);
 @xref gfx_mode_select, gfx_mode_select_filter, set_color_depth, set_gfx_mode
 @xref gui_fg_color
@@ -11531,8 +11701,11 @@ ensure there is room for the check.
 @shortdesc Extended version of the graphics mode selection dialog.
    Extended version of the graphics mode selection dialog, which allows the 
    user to select the color depth as well as the resolution and hardware 
-   driver. This version of the function reads the initial values from the 
-   parameters when it activates, so you can specify the default values.
+   driver.
+   
+   This version of the function reads the initial values from the 
+   parameters when it activates so you can specify the default values.
+   In fact, you should be sure not to pass in uninitialised values.
 
 @\int @gfx_mode_select_filter(int *card, int *w, int *h, int *color_depth,
 @@                            int (*filter)(int, int, int, int));
@@ -11543,8 +11716,11 @@ ensure there is room for the check.
    to select the color depth as well as the resolution and hardware driver.
    `filter' will be passed (card, w, h, color_depth) quadruplets and must
    return 0 to let the specified quadruplet be added to the list of displayed
-   modes. This version of the function reads the initial values from the
-   parameters when it activates, so you can specify the default values.
+   modes.
+
+   This version of the function reads the initial values from the 
+   parameters when it activates so you can specify the default values.
+   In fact, you should be sure not to pass in uninitialised values.
 
 @@extern int (*@gui_shadow_box_proc)(int msg, struct DIALOG *d, int c);
 @@extern int (*@gui_ctext_proc)(int msg, struct DIALOG *d, int c);
@@ -11981,6 +12157,30 @@ function are 8, 16, 24 and 32. This means that 15-bit and 16-bit desktops
 cannot be differentiated and are both reported as 16-bit desktops. See
 below for the consequences for windowed and overlay DirectX drivers.
 
+@@Drivers @JOY_TYPE_*/Windows
+@shortdesc Supported Windows joystick drivers.
+@xref install_joystick
+   The Windows library supports the following type parameters for the 
+   install_joystick() function:
+<ul><li>
+   JOY_TYPE_AUTODETECT<br>
+      Attempts to autodetect your joystick hardware. It will use information 
+      from the configuration file if one is available (this can be created 
+      using the setup utility or by calling the save_joystick_data()
+      function), so you can always use JOY_TYPE_AUTODETECT in your code and
+      then select the exact hardware type from the setup program.
+<li>
+   JOY_TYPE_NONE<br>
+      Dummy driver for machines without any joystick.
+<li>
+   JOY_TYPE_DIRECTX<br>
+      Use DirectInput to access the joystick.
+<li>
+   JOY_TYPE_WIN32<br>
+      Use the regular Win32 interface rather than DirectInput to access the
+      joystick.
+</ul>
+
 @@Drivers @GFX_*/Windows
 @xref set_gfx_mode
 @shortdesc Supported Windows graphic drivers.
@@ -12315,6 +12515,27 @@ restrict the output of the log to stat or open calls with the extended grep
 command. You could add another grep to filter only lines with text like
 `keyboard' or `allegro'.
 
+@@Drivers @JOY_TYPE_*/Linux
+@shortdesc Supported Linux joystick drivers.
+@xref install_joystick
+   The Linux library supports the following type parameters for the 
+   install_joystick() function:
+<ul><li>
+   JOY_TYPE_AUTODETECT<br>
+      Attempts to autodetect your joystick hardware. It will use information 
+      from the configuration file if one is available (this can be created 
+      using the setup utility or by calling the save_joystick_data()
+      function), so you can always use JOY_TYPE_AUTODETECT in your code and
+      then select the exact hardware type from the setup program.
+<li>
+   JOY_TYPE_NONE<br>
+      Dummy driver for machines without any joystick.
+<li>
+   JOY_TYPE_LINUX_ANALOGUE<br>
+      Regular joystick interface. Joystick support needs to be enabled in your
+      kernel.
+</ul>
+
 @@Drivers @GFX_*/Linux
 @xref set_gfx_mode, GFX_*/X
 @shortdesc Supported Linux console graphic drivers.
@@ -12460,6 +12681,7 @@ command. You could add another grep to filter only lines with text like
    xfixicon.sh utility from the tools/x11 directory to convert a true 
    colour bitmap to a C file that you only need to link with your own code
    to set the icon.
+
 
 
 @heading
@@ -12823,6 +13045,11 @@ following macros:
    provided as static inline functions which map the old names to the new
    names, eg. fsqrt() calls fixsqrt(). If you define this symbol prior to
    including Allegro headers, the aliases will be turned off.
+
+<b>ALLEGRO_NO_FIX_CLASS</b><br>
+   If you define this symbol prior to including Allegro headers in a C++
+   source file, the 'fix' class will not be made available. This mitigates
+   problems with the 'fix' class's overloading getting in the way.
 
 <b>ALLEGRO_NO_CLEAR_BITMAP_ALIAS</b><br>
    If you define this prior to including Allegro headers, Allegro will not
@@ -13889,7 +14116,12 @@ and avoid missing any important bit of information.
    aren't going to work too well :-)
 
 @@Example @ex3d
-@xref BITMAP, COLOR_MAP, END_OF_MAIN, MATRIX, PALETTE, RGB, RGB_MAP
+@xref BITMAP, COLOR_MAP, END_OF_MAIN, MATRIX, PALETTE, POLYTYPE_ATEX
+@xref POLYTYPE_ATEX_LIT, POLYTYPE_ATEX_MASK, POLYTYPE_ATEX_MASK_LIT
+@xref POLYTYPE_ATEX_MASK_TRANS, POLYTYPE_ATEX_TRANS, POLYTYPE_FLAT
+@xref POLYTYPE_GCOL, POLYTYPE_GRGB, POLYTYPE_PTEX, POLYTYPE_PTEX_LIT
+@xref POLYTYPE_PTEX_MASK, POLYTYPE_PTEX_MASK_LIT
+@xref POLYTYPE_PTEX_MASK_TRANS, POLYTYPE_PTEX_TRANS, RGB, RGB_MAP
 @xref SCREEN_H, SCREEN_W, V3D, allegro_error, allegro_exit, allegro_init
 @xref allegro_message, apply_matrix, bitmap_color_depth
 @xref bitmap_mask_color, blit, clear_bitmap, clear_to_color, color_map
@@ -13916,9 +14148,9 @@ and avoid missing any important bit of information.
    texture mapped version, and many other.
 
 @@Example @excamera
-@xref BITMAP, END_OF_MAIN, MATRIX_f, SCREEN_H, SCREEN_W, V3D_f
-@xref allegro_error, allegro_init, allegro_message, apply_matrix_f, blit
-@xref clear_to_color, clip3d_f, create_bitmap, desktop_palette
+@xref BITMAP, END_OF_MAIN, MATRIX_f, POLYTYPE_FLAT, SCREEN_H, SCREEN_W
+@xref V3D_f, allegro_error, allegro_init, allegro_message, apply_matrix_f
+@xref blit, clear_to_color, clip3d_f, create_bitmap, desktop_palette
 @xref destroy_bitmap, font, get_camera_matrix_f
 @xref get_vector_rotation_matrix_f, install_int_ex, install_keyboard
 @xref install_timer, key, key_shifts, makecol, persp_project_f
@@ -13926,8 +14158,6 @@ and avoid missing any important bit of information.
 @xref set_gfx_mode, set_palette, set_projection_viewport, textprintf_ex
 @xref vsync
 @shortdesc Viewing a 3d world from an arbitrary camera position.
-   option to enable/disable waiting for vsync.
-   
    This program demonstrates how to use the get_camera_matrix()
    function to view a 3d world from any position and angle. The
    example draws a checkered floor through a viewport region
@@ -13988,11 +14218,11 @@ and avoid missing any important bit of information.
 
 @@Example @exscn3d
 @xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, LOCK_VARIABLE
-@xref MATRIX_f, PALETTE, SCREEN_H, SCREEN_W, V3D_f, allegro_error
-@xref allegro_exit, allegro_init, allegro_message, apply_matrix_f
-@xref bitmap_color_depth, blit, clear_bitmap, clear_scene, clip3d_f
-@xref create_bitmap, create_scene, desktop_palette, destroy_bitmap
-@xref destroy_scene, font, get_rotation_matrix_f
+@xref MATRIX_f, PALETTE, POLYTYPE_GCOL, SCREEN_H, SCREEN_W, V3D_f
+@xref allegro_error, allegro_exit, allegro_init, allegro_message
+@xref apply_matrix_f, bitmap_color_depth, blit, clear_bitmap, clear_scene
+@xref clip3d_f, create_bitmap, create_scene, desktop_palette
+@xref destroy_bitmap, destroy_scene, font, get_rotation_matrix_f
 @xref get_translation_matrix_f, gfx_mode_select_ex, install_int
 @xref install_keyboard, install_mouse, install_timer, key, matrix_mul_f
 @xref palette_color, persp_project_f, polygon_z_normal_f, render_scene
@@ -14008,8 +14238,8 @@ and avoid missing any important bit of information.
 
 @@Example @exzbuf
 @xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, LOCK_VARIABLE
-@xref MATRIX_f, PALETTE, SCREEN_H, SCREEN_W, V3D_f, ZBUFFER
-@xref allegro_error, allegro_exit, allegro_init, allegro_message
+@xref MATRIX_f, PALETTE, POLYTYPE_GCOL, SCREEN_H, SCREEN_W, V3D_f
+@xref ZBUFFER, allegro_error, allegro_exit, allegro_init, allegro_message
 @xref apply_matrix_f, bitmap_color_depth, blit, clear_bitmap
 @xref clear_zbuffer, create_bitmap, create_zbuffer, desktop_palette
 @xref destroy_bitmap, destroy_zbuffer, font, get_transformation_matrix_f
@@ -14177,9 +14407,9 @@ and avoid missing any important bit of information.
 @xref END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error, allegro_init
 @xref allegro_message, clear_to_color, enable_hardware_cursor, font
 @xref gfx_capabilities, install_keyboard, install_mouse, install_timer
-@xref keypressed, makecol, readkey, rest, screen, select_mouse_cursor
-@xref set_gfx_mode, show_mouse, text_height, textprintf_centre_ex
-   Test program for hardware cursors.
+@xref makecol, readkey, screen, select_mouse_cursor, set_gfx_mode
+@xref show_mouse, text_height, textprintf_centre_ex
+   This program demonstrates the use of hardware accelerated mouse cursors.
 
 @@Example @exupdate
 @xref BITMAP, END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, LOCK_VARIABLE
@@ -14233,15 +14463,6 @@ and avoid missing any important bit of information.
    Depending on the type of selected switching mode, you will see
    whether the contents of the screen are preserved or not.
 
-@@Example @exdodgy
-@xref END_OF_MAIN, MIDI, allegro_error, allegro_init, allegro_message
-@xref destroy_midi, install_sound, install_timer, load_midi
-@xref os_multitasking, play_midi, remove_sound, ustrcat, ustrcpy
-@shortdesc Dodgy trick to play MIDI files in the background of a system shell.
-   Plays MIDI files in the background of a system shell. A dodgy
-   trick, and not really useful for anything, but I think it is
-   pretty cool!
-
 @@Example @exstream
 @xref AUDIOSTREAM, END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error
 @xref allegro_init, allegro_message, clear_to_color, desktop_palette
@@ -14258,12 +14479,12 @@ and avoid missing any important bit of information.
 
 @@Example @expackf
 @xref ASSERT, BITMAP, END_OF_MAIN, PACKFILE, PACKFILE_VTABLE, SCREEN_H
-@xref SCREEN_W, alert, allegro_init, blit, clear_bitmap, destroy_bitmap
-@xref file_size, font, install_keyboard, key, load_bmp_pf, load_pcx
-@xref load_pcx_pf, load_tga_pf, pack_fclose, pack_fopen
-@xref pack_fopen_vtable, pack_fread, pack_fseek, readkey, save_bmp_pf
-@xref save_tga_pf, screen, set_color_depth, set_gfx_mode, text_height
-@xref textprintf_centre_ex, textprintf_ex
+@xref SCREEN_W, alert, allegro_error, allegro_init, allegro_message, blit
+@xref clear_bitmap, destroy_bitmap, file_size, font, install_keyboard
+@xref key, load_bmp_pf, load_pcx, load_pcx_pf, load_tga_pf, pack_fclose
+@xref pack_fopen, pack_fopen_vtable, pack_fread, pack_fseek, readkey
+@xref save_bmp_pf, save_tga_pf, screen, set_color_depth, set_gfx_mode
+@xref text_height, textprintf_centre_ex, textprintf_ex
 @shortdesc Using custom PACKFILE vtables.
    This program demonstrates the use of the packfile functions, with some
    simple tests.
@@ -14292,7 +14513,7 @@ and avoid missing any important bit of information.
 @externalfile ahack The Allegro hacker's guide
 @externalfile const Allegro `const'-correctness
 @externalfile packfile Packfile format information
-@externalfile datafiles Datafile format information
+@externalfile datafile Datafile format information
 @externalfile license License and Disclaimer
 @chapter
 Tools

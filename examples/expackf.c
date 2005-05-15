@@ -1,4 +1,7 @@
-/*
+/*    Modified by -------------->Allegro<--------------
+ *    (the first line is for the seek test), the "Modified by" is to
+ *    silence genexample.py.
+ *
  *    Example program for the Allegro library, by Peter Wang and
  *    Elias Pschernig.
  *
@@ -239,7 +242,7 @@ static void memread_test(void)
    PACKFILE *f;
    MEMREAD_INFO memread_info;
    BITMAP *bmp, *bmp2;
-   char *block;
+   unsigned char *block;
    int l1, l2;
    PACKFILE *f1, *f2;
 
@@ -347,8 +350,6 @@ static void stdio_seek_test(void)
 {
    FILE *fp;
    PACKFILE *f;
-   int c1, c2, c3, c4;
-   int ret;
    char str[8];
 
    fp = fopen("expackf.c", "rb");
@@ -443,8 +444,11 @@ int main(void)
       return 1;
    install_keyboard();
    set_color_depth(32);
-   if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, 640, 480, 0, 0) != 0)
+   if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, 640, 480, 0, 0) != 0) {
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message("Unable to set a 640x480x32 windowed mode\n%s\n", allegro_error);
       return 1;
+   }
 
    memread_test();
 
