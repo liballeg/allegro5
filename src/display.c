@@ -475,12 +475,21 @@ static GFX_DRIVER *get_gfx_driver_from_id(int card, _DRIVER_INFO *driver_list)
 /* init_gfx_driver:
  *  Helper function for initializing a graphics driver.
  */
-static BITMAP *init_gfx_driver(AL_DISPLAY *display, GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int depth)
+static BITMAP *init_gfx_driver(AL_DISPLAY *display, GFX_DRIVER *drv, int w, int h, int depth, int flags)
 {
+   int v_w = 0; 
+   int v_h = 0;
    drv->name = drv->desc = get_config_text(drv->ascii_name);
 
    /* set gfx_driver so that it is visible when initializing the driver */
    display->gfx_driver = drv;
+
+   #ifdef ALLEGRO_VRAM_SINGLE_SURFACE
+   if (flags&(AL_UPDATE_TRIPLE_BUFFER|AL_UPDATE_PAGE_FLIP)) {
+      v_w = w;
+      v_h = h * (flags&AL_UPDATE_TRIPLE_BUFFER?3:2);
+   }
+   #endif
 
    return drv->init(w, h, v_w, v_h, depth);
 }
@@ -492,7 +501,7 @@ static BITMAP *init_gfx_driver(AL_DISPLAY *display, GFX_DRIVER *drv, int w, int 
  *  tries to set the graphics mode if a matching driver is found. Returns TRUE if
  *  at least one matching driver was found, FALSE otherwise.
  */
-static int get_config_gfx_driver(AL_DISPLAY *display, char *gfx_card, int w, int h, int v_w, int v_h, int depth, int flags, _DRIVER_INFO *driver_list)
+static int get_config_gfx_driver(AL_DISPLAY *display, char *gfx_card, int w, int h, int v_w, int v_h, int depth, int flags, int drv_flags, _DRIVER_INFO *driver_list)
 {
    char buf[512], tmp[64];
    GFX_DRIVER *drv;
@@ -529,9 +538,9 @@ static int get_config_gfx_driver(AL_DISPLAY *display, char *gfx_card, int w, int
       if (card) {
 	 drv = get_gfx_driver_from_id(card, driver_list);
 
-	 if (drv && gfx_driver_is_valid(drv, flags)) {
+	 if (drv && gfx_driver_is_valid(drv, drv_flags)) {
 	    found = TRUE;
-	    display->screen = init_gfx_driver(display, drv, w, h, v_w, v_h, depth);
+	    display->screen = init_gfx_driver(display, drv, w, h, depth, flags);
 
 	    if (display->screen)
 	       break;
@@ -711,29 +720,23 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
       if (allow_config) {
 	 /* try the gfx_card variable if GFX_AUTODETECT or GFX_AUTODETECT_FULLSCREEN was selected */
 	 if (!(drv_flags & GFX_DRIVER_WINDOWED_FLAG))
-	    found = get_config_gfx_driver(display, uconvert_ascii("gfx_card", tmp1), w, h, v_w, v_h, depth, drv_flags, driver_list);
+	    found = get_config_gfx_driver(display, uconvert_ascii("gfx_card", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
 
 	 /* try the gfx_cardw variable if GFX_AUTODETECT or GFX_AUTODETECT_WINDOWED was selected */
 	 if (!(drv_flags & GFX_DRIVER_FULLSCREEN_FLAG) && !found)
-	    found = get_config_gfx_driver(display, uconvert_ascii("gfx_cardw", tmp1), w, h, v_w, v_h, depth, drv_flags, driver_list);
+	    found = get_config_gfx_driver(display, uconvert_ascii("gfx_cardw", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
       }
 
       /* go through the list of autodetected drivers if none was previously found */
       if (!found) {
          /* Adjust virtual width and virtual height if needed and allowed */
-         #ifdef ALLEGRO_VRAM_SINGLE_SURFACE
-         if (flags&(AL_UPDATE_TRIPLE_BUFFER|AL_UPDATE_PAGE_FLIP)) {
-            v_w = w;
-            v_h = h * (drv_flags&AL_UPDATE_TRIPLE_BUFFER?3:2);
-         }
-         #endif
       
 	 for (c=0; driver_list[c].driver; c++) {
 	    if (driver_list[c].autodetect) {
 	       drv = driver_list[c].driver;
 
 	       if (gfx_driver_is_valid(drv, drv_flags)) {
-		  display->screen = init_gfx_driver(display, drv, w, h, v_w, v_h, depth);
+		  display->screen = init_gfx_driver(display, drv, w, h, depth, flags);
 
 		  if (display->screen)
 		     break;
@@ -747,7 +750,7 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
       drv = get_gfx_driver_from_id(card, driver_list);
 
       if (drv)
-	 display->screen = init_gfx_driver(display, drv, w, h, v_w, v_h, depth);
+	 display->screen = init_gfx_driver(display, drv, w, h, depth, flags);
    }
 
    /* gracefully handle failure */
@@ -1133,7 +1136,6 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
       return NULL;
    }
    (*new_display_ptr) = new_display;
-   
 
    /* Set graphics mode */
    gfx_capabilities = 0;
