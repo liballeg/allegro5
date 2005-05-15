@@ -562,7 +562,7 @@ static int get_config_gfx_driver(AL_DISPLAY *display, char *gfx_card, int w, int
  *  set the mode. If unable to select an appropriate mode, this function 
  *  returns -1.
  */
-static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int v_w, int v_h, int depth)
+static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int depth, int flags)
 {
    static int allow_config = TRUE;
    extern void blit_end(void);
@@ -571,8 +571,10 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int v_w,
    struct GFX_MODE mode;
    char buf[ALLEGRO_ERROR_SIZE], tmp1[64], tmp2[64];
    AL_CONST char *dv;
-   int flags = 0;
+   int drv_flags = 0;
    int c, driver, ret;
+   int v_w = 0;
+   int v_h = 0;
    ASSERT(system_driver);
 
    _gfx_mode_set_count++;
@@ -586,14 +588,14 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int v_w,
 	 system_driver->get_gfx_safe_mode(&driver, &mode);
 
 	 /* try using the specified depth and resolution */
-	 if (do_set_gfx_mode(display, driver, w, h, 0, 0, depth) == 0)
+	 if (do_set_gfx_mode(display, driver, w, h, depth, flags) == 0)
 	    return 0;
 
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, buf);
 
 	 /* finally use the safe settings */
 	 set_color_depth(mode.bpp);
-	 if (do_set_gfx_mode(display, driver, mode.width, mode.height, 0, 0, depth) == 0)
+	 if (do_set_gfx_mode(display, driver, mode.width, mode.height, depth, flags) == 0)
 	    return 0;
 
 	 ASSERT(FALSE);  /* the safe graphics mode must always work */
@@ -603,7 +605,7 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int v_w,
 	 allow_config = FALSE;
 	 _safe_gfx_mode_change = 1;
 
-	 ret = do_set_gfx_mode(display, GFX_AUTODETECT, w, h, 0, 0, depth);
+	 ret = do_set_gfx_mode(display, GFX_AUTODETECT, w, h, depth, flags);
 
 	 _safe_gfx_mode_change = 0;
 	 allow_config = TRUE;
@@ -613,7 +615,7 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int v_w,
       }
 
       /* failing to set GFX_SAFE is a fatal error */
-      do_set_gfx_mode(display, GFX_TEXT, 0, 0, 0, 0, 0);
+      do_set_gfx_mode(display, GFX_TEXT, 0, 0, 0, 0);
       allegro_message(uconvert_ascii("%s\n", tmp1), get_config_text("Fatal error: unable to set GFX_SAFE"));
       return -1;
    }
@@ -693,11 +695,11 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int v_w,
 
    /* filter specific fullscreen/windowed driver requests */
    if (card == GFX_AUTODETECT_FULLSCREEN) {
-      flags |= GFX_DRIVER_FULLSCREEN_FLAG;
+      drv_flags |= GFX_DRIVER_FULLSCREEN_FLAG;
       card = GFX_AUTODETECT;
    }
    else if (card == GFX_AUTODETECT_WINDOWED) {
-      flags |= GFX_DRIVER_WINDOWED_FLAG;
+      drv_flags |= GFX_DRIVER_WINDOWED_FLAG;
       card = GFX_AUTODETECT;
    }
 
@@ -708,21 +710,29 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int v_w,
       /* first try the config variables */
       if (allow_config) {
 	 /* try the gfx_card variable if GFX_AUTODETECT or GFX_AUTODETECT_FULLSCREEN was selected */
-	 if (!(flags & GFX_DRIVER_WINDOWED_FLAG))
-	    found = get_config_gfx_driver(display, uconvert_ascii("gfx_card", tmp1), w, h, v_w, v_h, depth, flags, driver_list);
+	 if (!(drv_flags & GFX_DRIVER_WINDOWED_FLAG))
+	    found = get_config_gfx_driver(display, uconvert_ascii("gfx_card", tmp1), w, h, v_w, v_h, depth, drv_flags, driver_list);
 
 	 /* try the gfx_cardw variable if GFX_AUTODETECT or GFX_AUTODETECT_WINDOWED was selected */
-	 if (!(flags & GFX_DRIVER_FULLSCREEN_FLAG) && !found)
-	    found = get_config_gfx_driver(display, uconvert_ascii("gfx_cardw", tmp1), w, h, v_w, v_h, depth, flags, driver_list);
+	 if (!(drv_flags & GFX_DRIVER_FULLSCREEN_FLAG) && !found)
+	    found = get_config_gfx_driver(display, uconvert_ascii("gfx_cardw", tmp1), w, h, v_w, v_h, depth, drv_flags, driver_list);
       }
 
       /* go through the list of autodetected drivers if none was previously found */
       if (!found) {
+         /* Adjust virtual width and virtual height if needed and allowed */
+         #ifdef ALLEGRO_VRAM_SINGLE_SURFACE
+         if (flags&(AL_UPDATE_TRIPLE_BUFFER|AL_UPDATE_PAGE_FLIP)) {
+            v_w = w;
+            v_h = h * (drv_flags&AL_UPDATE_TRIPLE_BUFFER?3:2);
+         }
+         #endif
+      
 	 for (c=0; driver_list[c].driver; c++) {
 	    if (driver_list[c].autodetect) {
 	       drv = driver_list[c].driver;
 
-	       if (gfx_driver_is_valid(drv, flags)) {
+	       if (gfx_driver_is_valid(drv, drv_flags)) {
 		  display->screen = init_gfx_driver(display, drv, w, h, v_w, v_h, depth);
 
 		  if (display->screen)
@@ -1100,7 +1110,7 @@ int al_enable_triple_buffer(AL_DISPLAY *display)
  * Create a new Allegro display object, return NULL on failure
  * The first display object created becomes the al_main_display
  */
-AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h, int v_w, int v_h)
+AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
 {
    AL_DISPLAY *new_display;
    AL_DISPLAY **new_display_ptr;
@@ -1125,19 +1135,11 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h, in
    (*new_display_ptr) = new_display;
    
 
-   /* Adjust virtual width and virtual height if needed and allowed */
-#ifdef ALLEGRO_VRAM_SINGLE_SURFACE
-   if ((v_w==0) && (v_h==0) && (flags&(AL_UPDATE_TRIPLE_BUFFER|AL_UPDATE_PAGE_FLIP))) {
-      v_w = w;
-      v_h = h * (flags&AL_UPDATE_TRIPLE_BUFFER?3:2);
-   }
-#endif
-
    /* Set graphics mode */
    gfx_capabilities = 0;
    if (depth>0)
       set_color_depth(depth);
-   if (do_set_gfx_mode(new_display, driver, w, h, v_w, v_h, depth) == -1) {
+   if (do_set_gfx_mode(new_display, driver, w, h, depth, flags) == -1) {
       goto Error;
    }
    
@@ -1172,12 +1174,12 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h, in
                for (c=0; c<new_display->num_pages; c++)
                   destroy_bitmap(new_display->page[c]);
                free(new_display->page);
-               do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0, 0);
+               do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0);
 	       goto Error;
             }
          }
          else {
-            do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0, 0);
+            do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0);
 	    goto Error;
          }
          break;
@@ -1199,7 +1201,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h, in
             for (c=0; c<new_display->num_pages; c++)
                destroy_bitmap(new_display->page[c]);
             free(new_display->page);
-            do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0, 0);
+            do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0);
 	    goto Error;
          }
          break;
@@ -1225,7 +1227,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h, in
             for (c=0; c<new_display->num_pages; c++)
                destroy_bitmap(new_display->page[c]);
             free(new_display->page);
-            do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0, 0);
+            do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0);
 	    goto Error;
          }
          break;
@@ -1374,7 +1376,7 @@ void al_destroy_display(AL_DISPLAY *display)
       destroy_bitmap(display->page[n]);
    free(display->page);
    
-   do_set_gfx_mode(display, GFX_TEXT, 0, 0, 0, 0, 0);
+   do_set_gfx_mode(display, GFX_TEXT, 0, 0, 0, 0);
    
    if (display == al_main_display)
       al_main_display = NULL;

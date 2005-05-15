@@ -24,7 +24,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 {
    al_destroy_display(al_main_display);
    
-   al_create_display(card, 0, get_color_depth(), w, h, v_w, v_h);
+   al_create_display(card, AL_UPDATE_NONE, get_color_depth(), w, h);
    if (!al_main_display) {
       return -1;
    }
