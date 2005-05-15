@@ -112,7 +112,7 @@ BITMAP *create_light_graphic(void)
 
 	 dist = fixtoi(fixsqrt(itofix(MID(-32768, dx*dx+dy*dy, 32767))));
 
-	 dir = fixtoi(fixatan2(itofix(dy), itofix(dx)));
+	 dir = fixtoi(fixatan2(itofix(dy), itofix(dx)) + itofix(128));
 
 	 hsv_to_rgb(dir*360.0/256.0, MID(0, dist/128.0, 1), 1, &r, &g, &b);
 
