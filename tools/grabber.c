@@ -3526,7 +3526,7 @@ int datedit_select(AL_CONST char *(*list_getter)(int index, int *list_size), AL_
       /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                 (dp2) (dp3) */
       { d_shadow_box_proc, 0,    0,    224,  113,  0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
       { d_ctext_proc,      0,    2,    220,  15,   0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
-      { d_list_proc,       28,   24,   161,  50,   0,    0,    0,       0,          0,             0,       list_getter,         NULL, NULL  },
+      { d_list_proc,       28,   24,   161,  50,   0,    0,    0,       0,          0,             0,       (int(*)(int,DIALOG*,int))list_getter,         NULL, NULL  },
       { d_button_proc,     16,   80,   81,   17,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
       { d_button_proc,     127,  80,   81,   17,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",            NULL, NULL  }, 
       { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  }
