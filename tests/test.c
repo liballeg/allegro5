@@ -1834,6 +1834,7 @@ void fade(void)
    RGB rgb;
 
    rgb.r = rgb.g = rgb.b = (fade_color < 64) ? fade_color : 127 - fade_color;
+   rgb.filler = 0;
 
    _set_color(0, &rgb);
 
