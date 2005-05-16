@@ -800,7 +800,7 @@ FONT *mono_merge_fonts(FONT *font1, FONT *font2)
       }
       else {
          if (mf) {
-            mf->next = mono_copy_glyph_range(mf2, mf2->begin, mf2->end);;
+            mf->next = mono_copy_glyph_range(mf2, mf2->begin, mf2->end);
             mf = mf->next;
          } else {
             mf = mono_copy_glyph_range(mf2, mf2->begin, mf2->end);
@@ -1277,7 +1277,7 @@ FONT *color_merge_fonts(FONT *font1, FONT *font2)
       }
       else {
          if (cf) {
-            cf->next = color_copy_glyph_range(cf2, cf2->begin, cf2->end);;
+            cf->next = color_copy_glyph_range(cf2, cf2->begin, cf2->end);
             cf = cf->next;
          } else {
             cf = color_copy_glyph_range(cf2, cf2->begin, cf2->end);

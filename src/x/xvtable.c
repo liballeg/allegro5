@@ -113,7 +113,7 @@ static inline int _xwin_direct_hline(BITMAP *dst, int dx1, int dy, int dx2, int 
    XLOCK();
    XSetForeground(_xwin.display, _xwin.gc, color);
    XDrawLine(_xwin.display, _xwin.window, _xwin.gc, dx1, dy, dx2, dy);
-   XUNLOCK();;
+   XUNLOCK();
 
    return 1;
 }
