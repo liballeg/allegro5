@@ -10,7 +10,7 @@
 @heading
 Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
 <ul><li>
-   Grzegorz Adam Hankiewicz did several documenation updates.
+   Grzegorz Adam Hankiewicz did several documentation updates.
 <li>
    Evert Glebbeek cleaned up some of the global namespace pollution in the 
    Windows port.
@@ -22,23 +22,19 @@ Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
    Grzegorz Adam Hankiewicz added a bunch of ASSERTs to the code to check for
    out-of-range arguments.
 <li>
-   Jakub Wasilewski fixed a bug when loading greyscale TGA images
+   Jakub Wasilewski fixed a bug when loading greyscale TGA images.
 <li>
    Evert Glebbeek fixed a bug where the bottom and right line of pixels was 
    not updated on show_video_bitmap, as pointed out by Thomas Harte.
 <li>
    Evert Glebbeek documented JOY_TYPE_* defines for Windows and Linux.
 <li>
-   Peter Wang made some cosmetic changes to some of the examples.
-<li>
    Dark Nation restored the ability to read old-style encrypted packfiles, 
    i.e. those produced before Allegro 3.9.30.  This was silently removed
    from 4.1.18 when custom packfile support / decoupled compression routines 
    were added.
 <li>
-   Peter Wang added a comment describing the evdev mouse driver in allegro.cfg.
-<li>
-   Evert Glebbeek made the grabber and dat utilities now use Allegro's buildin 
+   Evert Glebbeek made the grabber and dat utilities now use Allegro's builtin 
    load_font() function and made datafiles properly store truecolour fonts and
    added a datedit_select() callback to datedit.
 <li>
@@ -47,7 +43,7 @@ Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
 <li>
    Arthur Huillet fixed a typo in the docs.
 <li>
-   Elias Pschernig restored Alt+key = ASCII code 0 behavior for the windows 
+   Elias Pschernig restored Alt+key = ASCII code 0 behavior for the Windows 
    keyboard driver
 <li>
    Evert Glebbeek fixed a bug that caused a crash when loading Allegro 1.x
@@ -79,7 +75,7 @@ Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
 <li>
    Evert Glebbeek silenced some GCC4 warnings in MacOS X.
 <li>
-   Peter Wang fixed warnings and errors with gcc 4.0.0 on the unix port; 
+   Peter Wang fixed warnings and errors with gcc 4.0.0 on the Unix port; 
    reported by Milan Mimica.
 <li>
    Peter Wang added the preprocessor symbol ALLEGRO_NO_FIX_CLASS that the user
@@ -87,19 +83,17 @@ Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
 <li>
    Peter Wang removed the exdodgy example.
 <li>
-   Elias Pschernig fixed another X11 async reply.
+   Elias Pschernig fixed another X11 async reply bug.
 <li>
-   Elias Pschernig made the seek in expackf test work with windows line endings.
-<li>
-   Elias Pschernig removed some superfluous variables
+   Elias Pschernig made the seek in expackf test work with CR/LF line endings.
 <li>
    Evert Glebbeek fixed a small bug that prevented the Allegro template for 
-   Project Builder from installing correctly on MacOSX
+   Project Builder from installing correctly on MacOSX.
 <li>
    Elias Pschernig enabled warnings about unused variables with
    --enable-strictwarn in unix.
 <li>
-   Peter Wang fixed a warning with Watcom 1.3
+   Peter Wang fixed a warning with Watcom 1.3.
 </ul>
 
 @heading
