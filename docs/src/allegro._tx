@@ -7787,7 +7787,7 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
 @@                        int r, g, b, void (*callback)(int pos));
 @xref color_map, create_light_table, create_color_table
 @xref create_blender_table, draw_trans_sprite, draw_lit_sprite
-@xref draw_gouraud_sprite
+@xref draw_gouraud_sprite, rgb_map
 @eref ex3d, extrans
 @shortdesc Fills a color mapping table for translucency effects.
    Fills the specified color mapping table with lookup data for doing 
@@ -7795,17 +7795,25 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
    colors c1 and c2 with this table, the result will be a color somewhere 
    between the two. The r, g, and b parameters specify the solidity of each 
    color component, ranging from 0 (totally transparent) to 255 (totally 
-   solid). For 50% solidity, pass 128. This function treats source color #0 
-   as a special case, leaving the destination unchanged whenever a zero 
-   source pixel is encountered, so that masked sprites will draw correctly. 
-   If the callback function is not NULL, it will be called 256 times during 
-   the calculation, allowing you to display a progress indicator.
+   solid). For 50% solidity, pass 128.
+
+   This function treats source color #0 as a special case, leaving the
+   destination unchanged whenever a zero source pixel is encountered, so that
+   masked sprites will draw correctly. This function will take advantage of
+   the global rgb_map variable to speed up color conversions. If the callback
+   function is not NULL, it will be called 256 times during the calculation,
+   allowing you to display a progress indicator. Example:
+<codeblock>
+      COLOR_MAP trans_table;
+      ...
+      /* Build a color lookup table for translucent drawing. */
+      create_trans_table(&trans_table, pal, 128, 128, 128, NULL);<endblock>
 
 @\void @create_light_table(COLOR_MAP *table, const PALETTE pal,
 @@                        int r, g, b, void (*callback)(int pos));
 @xref color_map, create_trans_table, create_color_table
 @xref create_blender_table, draw_trans_sprite, draw_lit_sprite
-@xref draw_gouraud_sprite
+@xref draw_gouraud_sprite, rgb_map
 @eref ex3d, exshade, extrans
 @shortdesc Fills a color mapping table for lighting effects.
    Fills the specified color mapping table with lookup data for doing 
@@ -7814,27 +7822,49 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
    light level 255 the table will output color c2 unchanged, at light level 
    0 it will output the r, g, b value you specify to this function, and at 
    intermediate light levels it will output a color somewhere between the 
-   two extremes. The r, g, and b values are in the range 0-63. If the 
-   callback function is not NULL, it will be called 256 times during the 
-   calculation, allowing you to display a progress indicator.
+   two extremes. The r, g, and b values are in the range 0-63.
+
+   This function will take advantage of the global rgb_ap variable to speed
+   up color conversions. If the callback function is not NULL, it will be
+   called 256 times during the calculation, allowing you to display a
+   progress indicator. Example:
+<codeblock>
+      COLOR_MAP light_table;
+      ...
+      /* Build a color lookup table for lighting effects. */
+      create_light_table(&light_table, pal, 0, 0, 0, NULL);<endblock>
 
 @\void @create_color_table(COLOR_MAP *table, const PALETTE pal,
 @\                        void (*blend)(PALETTE pal, int x, int y, RGB *rgb),
 @@                        void (*callback)(int pos));
 @xref color_map, create_light_table, create_trans_table, create_blender_table
-@xref draw_trans_sprite, draw_lit_sprite, draw_gouraud_sprite
+@xref draw_trans_sprite, draw_lit_sprite, draw_gouraud_sprite, rgb_map
 @eref excolmap
 @shortdesc Fills a color mapping table for customised effects.
    Fills the specified color mapping table with lookup data for doing 
    customised effects with the specified palette, calling the blend function 
-   to determine the results of each color combination. Your blend routine 
-   will be passed a pointer to the palette and the two colors which are to 
-   be combined, and should fill in the RGB structure with the desired result 
-   in 0-63 format. Allegro will then search the palette for the closest 
-   match to the RGB color that you requested, so it doesn't matter if the 
-   palette has no exact match for this color. If the callback function is 
-   not NULL, it will be called 256 times during the calculation, allowing 
-   you to display a progress indicator.
+   to determine the results of each color combination.
+
+   Your blend routine will be passed a pointer to the palette and the two
+   indices of the colors which are to be combined, and should fill in the RGB
+   structure with the desired result in 0-63 format. Allegro will then search
+   the palette for the closest match to the RGB color that you requested, so
+   it doesn't matter if the palette has no exact match for this color.
+
+   If the callback function is not NULL, it will be called 256 times during
+   the calculation, allowing you to display a progress indicator. Example:
+<codeblock>
+      COLOR_MAP greyscale_table;
+      ...
+      void return_grey_color(AL_CONST PALETTE pal,
+			     int x, int y, RGB *rgb)
+      {
+	 ...
+      }
+      ...
+	 /* Build a color lookup table for greyscale effect. */
+	 create_color_table(&greyscale_table, pal,
+			    return_grey_color, NULL);<endblock>
 
 @\void @create_blender_table(COLOR_MAP *table, const PALETTE pal,
 @@                          void (*callback)(int pos));
@@ -8042,17 +8072,25 @@ formats, you can use create_bitmap_ex() in place of create_bitmap(), and
 call bitmap_color_depth() to query the format of a specific image. Most of 
 the graphics routines require all their input parameters to be in the same 
 format (eg. you cannot stretch a 15-bit source bitmap onto a 24-bit 
-destination), but there are some exceptions: blit() and the rotation routines 
-can copy between bitmaps of any format, converting the data as required, 
-draw_sprite() can draw 256-color source images onto destinations of any 
-format, draw_character_ex() _always_ uses a 256-color source bitmap, whatever 
-the format of the destination, the draw_trans_sprite() and 
-draw_trans_rle_sprite() functions are able to draw 32-bit RGBA images onto 
-any hicolor or truecolor destination, as long as you call set_alpha_blender() 
-first, and the draw_trans_sprite() function is able to draw an 8-bit alpha 
-channel image over the top of an existing 32-bit image, as long as you call 
-set_write_alpha_blender() first.
-
+destination), but there are some exceptions:
+<ul><li>
+   blit() and the rotation routines can copy between bitmaps of any format,
+   converting the data as required.
+<li>
+   draw_sprite() can draw 256-color source images onto destinations of any
+   format.
+<li>
+   draw_character_ex() _always_ uses a 256-color source bitmap, whatever the
+   format of the destination.
+<li>
+   The draw_trans_sprite() and draw_trans_rle_sprite() functions are able to
+   draw 32-bit RGBA images onto any hicolor or truecolor destination, as long
+   as you call set_alpha_blender() first.
+<li>
+   The draw_trans_sprite() function is able to draw an 8-bit alpha channel
+   image over the top of an existing 32-bit image, as long as you call
+   set_write_alpha_blender() first.
+</ul>
 Expanding a 256-color source onto a truecolor destination is fairly fast 
 (obviously you must set the correct palette before doing this conversion!). 
 Converting between different truecolor formats is slightly slower, and 
@@ -8068,22 +8106,21 @@ the conversion).
    should call makecol8() instead, but this lower level function may be 
    useful if you need to use a palette other than the currently selected 
    one, or specifically don't want to use the rgb_map lookup table.
+@retval
+   Returns the index of the palette for the closest match to the requested
+   color.
 
 @@extern RGB_MAP *@rgb_map;
-@xref create_rgb_table, makecol8
+@xref create_rgb_table, makecol8, create_trans_table
+@xref create_light_table, create_color_table
 @eref ex3d, excolmap, exrgbhsv, exshade, extrans
 @shortdesc Look up table to speed up reducing RGB values to palette colors.
    To speed up reducing RGB values to 8-bit paletted colors, Allegro uses a 
    32k lookup table (5 bits for each color component). You must set up this 
    table before using the gouraud shading routines, and if present the table 
-   will also vastly accelerate the makecol8() function. RGB tables can be 
-   precalculated with the rgbmap utility, or generated at runtime. The 
-   RGB_MAP structure is defined as:
-<codeblock>
-      typedef struct
-      {
-	 unsigned char data[32][32][32];
-      } RGB_MAP;<endblock>
+   will also vastly accelerate the makecol8() and some create_*_table()
+   functions. RGB tables can be precalculated with the rgbmap utility, or
+   generated at runtime with create_rgb_table().
       
 @\void @create_rgb_table(RGB_MAP *table, const PALETTE pal,
 @@                      void (*callback)(int pos));
@@ -8093,7 +8130,12 @@ the conversion).
    Fills the specified RGB mapping table with lookup data for the specified 
    palette. If the callback function is not NULL, it will be called 256 
    times during the calculation, allowing you to display a progress 
-   indicator.
+   indicator. Example:
+<codeblock>
+      RGB_MAP rgb_table;
+      
+      create_rgb_table(&rgb_table, palette, NULL);
+      rgb_map = &rgb_table;<endblock>
 
 @@void @hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b);
 @@void @rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v);
@@ -8101,18 +8143,23 @@ the conversion).
 @shortdesc Converts color values between the HSV and RGB colorspaces.
    Convert color values between the HSV and RGB colorspaces. The RGB values 
    range from 0 to 255, hue is from 0 to 360, and saturation and value are 
-   from 0 to 1.
+   from 0 to 1. Example:
+<codeblock>
+      int r, g, b;
+      float hue, saturation, value;
+      ...
+      /* Convert a reddish color to HSV format. */
+      rgb_to_hsv(255, 0, 128, &hue, &saturation, &value);
+      
+      /* Now put our tin foil hat, and verify that. */
+      hsv_to_rgb(hue, saturation, value, &r, &g, &b);
+      ASSERT(r == 255);
+      ASSERT(g == 0);
+      ASSERT(b == 128);<endblock>
 
 
 
-@!text
-@!html
-@headingnocontent
-@text
-@html
-@!texinfo
 @heading
-@texinfo
 Direct access to video memory
 
 Read chapter "Structures and types defined by Allegro" for an internal
@@ -8122,7 +8169,7 @@ what sort of bitmap you are using.
 
 The simplest approach will only work with memory bitmaps (obtained from 
 create_bitmap(), grabber datafiles, and image files) and sub-bitmaps of 
-memory bitmaps. This uses a table of char pointers, called 'line', which is 
+memory bitmaps. This uses a table of char pointers, called `line', which is
 a part of the bitmap structure and contains pointers to the start of each 
 line of the image. For example, a simple memory bitmap putpixel function is:
 <codeblock>
@@ -8163,23 +8210,31 @@ bmp_read32().
 
 This still won't work in banked SVGA modes, however, or on platforms like 
 Windows that do special processing inside the bank switching functions. For 
-more flexible access to bitmap memory, you need to call the routines:
+more flexible access to bitmap memory, you need to call the following
+routines. They are implemented as inline assembler routines, so they are not
+as inefficient as they might seem. If the bitmap doesn't require bank
+switching (ie. it is a memory bitmap, mode 13h screen, etc), these functions
+just return bmp-&gtline[line].
 
-unsigned long bmp_write_line(BITMAP *bmp, int line);<br>
+@@unsigned long @bmp_write_line(BITMAP *bmp, int line);
+@shortdesc Direct access bank switching line selection for writing.
    Selects the line of a bitmap that you are going to draw onto.
+@retval
+   Returns the address of the selected line for writing.
 
-unsigned long bmp_read_line(BITMAP *bmp, int line);<br>
+@@unsigned long @bmp_read_line(BITMAP *bmp, int line);
+@shortdesc Direct access bank switching line selection for reading.
    Selects the line of a bitmap that you are going to read from.
+@retval
+   Returns the address of the selected line for reading.
 
-unsigned long bmp_unwrite_line(BITMAP *bmp);<br>
+@@void @bmp_unwrite_line(BITMAP *bmp);
+@shortdesc Direct access bank switching line release.
    Releases the bitmap memory after you are finished with it. You only need 
    to call this once at the end of a drawing operation, even if you have 
    called bmp_write_line() or bmp_read_line() several times before it.
 
-These are implemented as inline assembler routines, so they are not as 
-inefficient as they might seem. If the bitmap doesn't require bank switching 
-(ie. it is a memory bitmap, mode 13h screen, etc), these functions just 
-return bmp-&gtline[line].
+@hnode More on banked direct memory access
 
 Although SVGA bitmaps are banked, Allegro provides linear access to the 
 memory within each scanline, so you only need to pass a y coordinate to 
@@ -8270,17 +8325,19 @@ different sources of the data, these two functions behave identically. They
 draw the animation onto the specified bitmap, which should normally be the 
 screen. Frames will be aligned with the top left corner of the bitmap: if 
 you want to position them somewhere else you will need to create a 
-sub-bitmap for the FLI player to draw onto. If loop is set the player will 
-cycle when it reaches the end of the file, otherwise it will play through 
-the animation once and then return. If the callback function is not NULL it 
-will be called once for each frame, allowing you to perform background tasks 
-of your own. This callback should normally return zero: if it returns 
-non-zero the player will terminate (this is the only way to stop an 
-animation that is playing in looped mode). The FLI player returns FLI_OK if 
-it reached the end of the file, FLI_ERROR if something went wrong, and the 
-value returned by the callback function if that was what stopped it. If you 
-need to distinguish between different return values, your callback should 
-return positive integers, since FLI_OK is zero and FLI_ERROR is negative. 
+sub-bitmap for the FLI player to draw onto.
+
+If the callback function is not NULL it will be called once for each frame,
+allowing you to perform background tasks of your own. This callback should
+normally return zero: if it returns non-zero the player will terminate (this
+is the only way to stop an animation that is playing in looped mode).
+
+The FLI player returns FLI_OK if it reached the end of the file, FLI_ERROR
+if something went wrong, and the value returned by the callback function if
+that was what stopped it. If you need to distinguish between different return
+values, your callback should return positive integers, since FLI_OK is zero
+and FLI_ERROR is negative.
+
 Note that the FLI player will only work when the timer module is installed, 
 and that it will alter the palette according to whatever palette data is 
 present in the animation file.
@@ -8293,44 +8350,64 @@ these with the lower level functions described below.
 @@int @play_fli(const char *filename, BITMAP *bmp, int loop, int (*callback)());
 @xref play_memory_fli, install_timer, fli_frame
 @shortdesc Plays a FLI or FLC animation from disk.
-   Plays an Autodesk Animator FLI or FLC animation file, reading the data 
-   from disk as it is required.
+   Plays an Autodesk Animator FLI or FLC animation file on the specified
+   BITMAP, reading the data from disk as it is required. If `loop' is not
+   zero, the player will cycle when it reaches the end of the file, otherwise
+   it will play through the animation once and then return. Read the beginning
+   of chapter "FLIC routines" for a description of the callback parameter.
+@retval
+   The FLI player returns FLI_OK if it reached the end of the file, FLI_ERROR
+   if something went wrong, and the value returned by the callback function if
+   that was what stopped it.
 
 @\int @play_memory_fli(const void *fli_data, BITMAP *bmp, int loop,
 @@                    int (*callback)());
 @xref play_fli, install_timer, fli_frame
 @shortdesc Plays a FLI or FLC animation from memory.
-   Plays an Autodesk Animator FLI or FLC animation, reading the data from a 
-   copy of the file which is held in memory. You can obtain the fli_data 
-   pointer by mallocing a block of memory and reading an FLI file into it, 
-   or by importing an FLI into a grabber datafile. Playing animations from 
-   memory is obviously faster than cueing them directly from disk, and is 
-   particularly useful with short, looped FLI's. Animations can easily get 
-   very large, though, so in most cases you will probably be better just 
-   using play_fli().
+   Plays an Autodesk Animator FLI or FLC animation on the specified BITMAP,
+   reading the data from a copy of the file which is held in memory. You can
+   obtain the `fli_data' pointer by mallocing a block of memory and reading
+   an FLI file into it, or by importing an FLI into a grabber datafile. If
+   `loop' is not zero, the player will cycle when it reaches the end of the
+   file, otherwise it will play through the animation once and then return.
+   Read the beginning of chapter "FLIC routines" for a description of the
+   callback parameter.
+
+   Playing animations from memory is obviously faster than cueing them
+   directly from disk, and is particularly useful with short, looped FLI's.
+   Animations can easily get very large, though, so in most cases you will
+   probably be better just using play_fli().
+@retval
+   The FLI player returns FLI_OK if it reached the end of the file, FLI_ERROR
+   if something went wrong, and the value returned by the callback function if
+   that was what stopped it.
 
 @@int @open_fli(const char *filename);
 @@int @open_memory_fli(const void *fli_data);
 @xref close_fli, next_fli_frame
 @shortdesc Makes a FLI file open and ready for playing.
-   Open FLI files ready for playing, reading the data from disk or memory 
-   respectively. Return FLI_OK on success. Information about the current FLI 
-   is held in global variables, so you can only have one animation open at a 
-   time.
+   Open FLI files ready for playing, reading the data from disk or memory
+   respectively. Information about the current FLI is held in global
+   variables, so you can only have one animation open at a time.
+@retval
+   Returns FLI_OK on success, FLI_ERROR if something went wrong.
 
 @@void @close_fli();
 @xref open_fli
 @shortdesc Closes a FLI file previously opened.
-   Closes an FLI file when you have finished reading from it.
+   Closes an FLI file when you have finished reading from it. Remember to do
+   this to avoid having memory leaks in your program.
 
 @@int @next_fli_frame(int loop);
 @xref open_fli, fli_bitmap, fli_palette, fli_timer, fli_frame
 @shortdesc Reads the next frame of the current animation file.
-   Reads the next frame of the current animation file. If loop is set the 
-   player will cycle when it reaches the end of the file, otherwise it will 
-   return FLI_EOF. Returns FLI_OK on success, FLI_ERROR or FLI_NOT_OPEN on 
-   error, and FLI_EOF on reaching the end of the file. The frame is read 
-   into the global variables fli_bitmap and fli_palette.
+   Reads the next frame of the current animation file. If `loop' is not zero,
+   the player will cycle when it reaches the end of the file, otherwise it
+   will return FLI_EOF. The frame is read into the global variables
+   fli_bitmap and fli_palette.
+@retval
+   Returns FLI_OK on success, FLI_ERROR or FLI_NOT_OPEN on error, and FLI_EOF
+   on reaching the end of the file.
 
 @@extern BITMAP *@fli_bitmap;
 @xref next_fli_frame, fli_bmp_dirty_from, fli_palette
@@ -8392,6 +8469,26 @@ these with the lower level functions described below.
 
 @heading
 Sound init routines
+
+Allegro allows you to use the sound hardware in two ways: automatic, or
+manual. Usually you should try the automatic version first. This means
+calling install_sound() with the autodetection parameters and using the rest
+of the sound functions to play samples or music. In this situation, Allegro
+will handle the sound devices and mix the samples and/or music the best way
+it can.
+
+However, sound hardware has a limitation on the number of samples it may
+play all at the same time (from now on, called hardware voices). When you
+exceed this limit, Allegro will cut off one of the samples being played and
+reproduce the new one. Depending on the type of sounds you are playing, how
+many of them you need at the same time and their nature (e.g: vital audio
+feedback to the user or useless "ping" when some shrapnel hits a rock in the
+scenary) you will want to specify more carefully how hardware voices are
+reserved and which samples have priority over others.
+
+The hardware voice reservation phase has to be done before the call to
+install_sound(), since it directly affects how Allegro talks to the sound
+drivers.
 
 @@int @detect_digi_driver(int driver_id);
 @xref install_sound, reserve_voices
@@ -8511,9 +8608,10 @@ Sound init routines
    utility: see the config section for details. Alternatively, see the 
    platform specific documentation for a list of the available drivers. The 
    cfg_path parameter is only present for compatibility with previous 
-   versions of Allegro, and has no effect on anything. Returns zero if the 
-   sound is successfully installed, and -1 on failure. If it fails it will 
-   store a description of the problem in allegro_error.
+   versions of Allegro, and has no effect on anything.
+@retval
+   Returns zero if the sound is successfully installed, and -1 on failure.
+   If it fails it will store a description of the problem in allegro_error.
 
 @@void @remove_sound();
 @xref install_sound, allegro_exit
@@ -8527,7 +8625,8 @@ Sound init routines
    Alters the global sound output volume. Specify volumes for both digital 
    samples and MIDI playback, as integers from 0 to 255, or pass a negative 
    value to leave one of the settings unchanged. This routine will not alter
-   the volume of the hardware mixer if it exists.
+   the volume of the hardware mixer if it exists (i.e. only your application
+   will be affected).
 
 @@void @set_hardware_volume(int digi_volume, int midi_volume);
 @xref install_sound, set_volume
@@ -8535,7 +8634,8 @@ Sound init routines
    Alters the hardware sound output volume. Specify volumes for both digital 
    samples and MIDI playback, as integers from 0 to 255, or pass a negative 
    value to leave one of the settings unchanged. This routine will use the
-   hardware mixer to control the volume if it exists, otherwise do nothing.
+   hardware mixer to control the volume if it exists (i.e. the volume of all
+   the applications on your machine will be affected), otherwise do nothing.
 
 
 
@@ -8549,14 +8649,15 @@ Mixer routines
 @xref Standard config variables
 @shortdesc Sets the resampling quality of the mixer.
    Sets the resampling quality of the mixer. Valid values are the same as
-   the 'quality' config variable, please look there for details.
+   the `quality' config variable, please look there for details. You can call
+   this function at any point in your program, even before allegro_init().
 
 @@int @get_mixer_quality(void);
 @xref set_mixer_quality
 @xref Standard config variables
 @shortdesc Returns the current mixing quality.
-   Returns the current mixing quality, as specified by the 'quality' config
-   variable, or a previous call to set_mixer_quality.
+   Returns the current mixing quality, as specified by the `quality' config
+   variable, or a previous call to set_mixer_quality().
 
 @@int @get_mixer_frequency(void);
 @xref Standard config variables
