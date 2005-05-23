@@ -5198,8 +5198,9 @@ before including Allegro headers).
 <codeblock>
       PALETTE palette;
       ...
+      /* Modify the first 16 entries. */
       change_first_16_colors(palette);
-      /* Change first colors waiting for vsync. */
+      /* Now update them waiting for vsync. */
       set_palette_range(palette, 0, 15, 1);<endblock>
 
 @@void @get_color(int index, RGB *p);
@@ -8355,6 +8356,21 @@ these with the lower level functions described below.
    zero, the player will cycle when it reaches the end of the file, otherwise
    it will play through the animation once and then return. Read the beginning
    of chapter "FLIC routines" for a description of the callback parameter.
+   Example:
+<codeblock>
+      /* Let users skip looped animations. */
+      int check_escape_key(void)
+      {
+	 if (key[KEY_ESC])
+	    return 1;
+	 else
+	    return 0;
+      }
+      ...
+	 int ret = play_fli("animlogo.fli", screen, 1,
+			     check_escape_key);
+	 if (ret == FLI_ERROR)
+	    abort_on_error("Error playing intro!");<endblock>
 @retval
    The FLI player returns FLI_OK if it reached the end of the file, FLI_ERROR
    if something went wrong, and the value returned by the callback function if
@@ -8376,7 +8392,13 @@ these with the lower level functions described below.
    Playing animations from memory is obviously faster than cueing them
    directly from disk, and is particularly useful with short, looped FLI's.
    Animations can easily get very large, though, so in most cases you will
-   probably be better just using play_fli().
+   probably be better just using play_fli(). You can think of this function
+   as a wrapper on top of open_memory_fli(), next_fli_frame() and close_fli().
+   Example:
+<codeblock>
+      int ret = play_memory_fli(anim_data, screen, 0, NULL);
+      if (ret == FLI_ERROR)
+	 abort_on_error("Corrupted animation data?");<endblock>
 @retval
    The FLI player returns FLI_OK if it reached the end of the file, FLI_ERROR
    if something went wrong, and the value returned by the callback function if
@@ -8384,13 +8406,19 @@ these with the lower level functions described below.
 
 @@int @open_fli(const char *filename);
 @@int @open_memory_fli(const void *fli_data);
-@xref close_fli, next_fli_frame
+@xref close_fli, next_fli_frame, fli_bitmap, fli_palette
 @shortdesc Makes a FLI file open and ready for playing.
    Open FLI files ready for playing, reading the data from disk or memory
-   respectively. Information about the current FLI is held in global
-   variables, so you can only have one animation open at a time.
+   respectively. Information about the current FLI is held in the global
+   variables fli_bitmap and fli_palette, which you can use if this function
+   succeeds. However, you can only have one animation open at a time.
+   Example:
+<codeblock>
+      if (open_fli("intro.fli") == FLI_ERROR)
+	 abort_on_error("Error playing intro");<endblock>
 @retval
-   Returns FLI_OK on success, FLI_ERROR if something went wrong.
+   Returns FLI_OK on success, FLI_ERROR if something went wrong, like trying
+   to open another FLI file without closing the previous one.
 
 @@void @close_fli();
 @xref open_fli
@@ -8404,7 +8432,13 @@ these with the lower level functions described below.
    Reads the next frame of the current animation file. If `loop' is not zero,
    the player will cycle when it reaches the end of the file, otherwise it
    will return FLI_EOF. The frame is read into the global variables
-   fli_bitmap and fli_palette.
+   fli_bitmap and fli_palette. Example:
+<codeblock>
+      while (next_fli_frame(0) == FLI_OK) {
+	 /* Do stuff, like play audio stream
+	    or check keys to skip animation. */
+	 /* Rest some time until next frame... */
+      }<endblock>
 @retval
    Returns FLI_OK on success, FLI_ERROR or FLI_NOT_OPEN on error, and FLI_EOF
    on reaching the end of the file.
@@ -8412,7 +8446,8 @@ these with the lower level functions described below.
 @@extern BITMAP *@fli_bitmap;
 @xref next_fli_frame, fli_bmp_dirty_from, fli_palette
 @shortdesc Contains the current frame of the animation.
-   Contains the current frame of the FLI/FLC animation.
+   Contains the current frame of the FLI/FLC animation. If there is no open
+   animation, its value will be NULL.
 
 @@extern PALETTE @fli_palette;
 @xref next_fli_frame, fli_pal_dirty_from, fli_bitmap
@@ -8428,8 +8463,13 @@ these with the lower level functions described below.
    fli_bmp_dirty_from is greater than fli_bmp_dirty_to, the bitmap has not 
    changed, otherwise lines fli_bmp_dirty_from to fli_bmp_dirty_to 
    (inclusive) have altered. You can use these when copying the fli_bitmap 
-   onto the screen, to avoid moving data unnecessarily.
-
+   onto the screen, to avoid moving data unnecessarily. Example:
+<codeblock>
+      if (fli_bmp_dirty_from <= fli_bmp_dirty_to)
+	 blit(fli_bitmap, screen, 0, fli_bmp_dirty_from,
+	      0, fli_bmp_dirty_from, fli_bitmap->w,
+	      fli_bmp_dirty_to - fli_bmp_dirty_from + 1);<endblock>
+              
 @@extern int @fli_pal_dirty_from;
 @@extern int @fli_pal_dirty_to;
 @xref fli_palette, reset_fli_variables
@@ -8439,7 +8479,11 @@ these with the lower level functions described below.
    fli_pal_dirty_from is greater than fli_pal_dirty_to, the palette has not 
    changed, otherwise colors fli_pal_dirty_from to fli_pal_dirty_to 
    (inclusive) have altered. You can use these when updating the hardware 
-   palette, to avoid unnecessary calls to set_palette().
+   palette, to avoid unnecessary calls to set_palette(). Example:
+<codeblock>
+      if (fli_pal_dirty_from <= fli_pal_dirty_to)
+	 set_palette_range(fli_palette, fli_pal_dirty_from,
+			   fli_pal_dirty_to, 1);<endblock>
 
 @@void @reset_fli_variables();
 @xref fli_bmp_dirty_from, fli_pal_dirty_from
@@ -8454,7 +8498,13 @@ these with the lower level functions described below.
    Global variable containing the current frame number in the FLI file. This 
    is useful for synchronising other events with the animation, for instance 
    you could check it in a play_fli() callback function and use it to 
-   trigger a sample at a particular point.
+   trigger a sample at a particular point. Example:
+<codeblock>
+      while (next_fli_frame(0) == FLI_OK) {
+	 if (fli_frame == 345)
+	    play_sample(trumpet_sound, 255, 128, 1000, 0);
+	 /* Rest some time until next frame... */
+      }<endblock>
 
 @@extern volatile int @fli_timer;
 @xref install_timer, next_fli_frame
@@ -8463,7 +8513,15 @@ these with the lower level functions described below.
    timer interrupt is installed which increments this variable every time a 
    new frame should be displayed. Calling next_fli_frame() decrements it, so 
    you can test it and know that it is time to display a new frame if it is 
-   greater than zero.
+   greater than zero. Example:
+<codeblock>
+      while (next_fli_frame(0) == FLI_OK) {
+	 /* Do stuff, like play audio stream
+	    or check keys to skip animation. */
+	 /* Rest some time until next frame... */
+	 while (fli_timer <= 0)
+	    rest(0);
+      }<endblock>
 
 
 
@@ -8695,15 +8753,26 @@ Digital sample routines
 @xref register_sample_file_type, Voice control
 @eref exsample
 @shortdesc Loads a sample from a file.
-   Loads a sample from a file, returning a pointer to it, or NULL on error. 
-   At present this function supports both mono and stereo WAV and mono VOC 
-   files, in 8 or 16-bit formats, as well as formats handled by functions
-   registered using register_sample_file_type.
+   Loads a sample from a file, supporting both mono and stereo WAV and mono
+   VOC files, in 8 or 16-bit formats, as well as formats handled by functions
+   registered using register_sample_file_type(). Example:
+<codeblock>
+      SAMPLE *sample = load_sample(user_input);
+      if (!sample)
+	 abort_on_error("Couldn't load sample!");<endblock>
+@retval
+   Returns a pointer to the SAMPLE or NULL on error.
 
 @@SAMPLE *@load_wav(const char *filename);
 @xref load_sample, register_sample_file_type
 @shortdesc Loads a sample from a RIFF WAV file.
-   Loads a sample from a RIFF WAV file.
+   Loads a sample from a RIFF WAV file. Example:
+<codeblock>
+      SAMPLE *sample = load_wav("scream.wav");
+      if (!sample)
+	 abort_on_error("Couldn't scare user!");<endblock>
+@retval
+   Returns a pointer to the SAMPLE or NULL on error.
 
 @@BITMAP *@load_wav_pf(PACKFILE *f);
 @xref load_wav
