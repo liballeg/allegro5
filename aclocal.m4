@@ -253,6 +253,7 @@ test "X$enableval" != "Xno" && allegro_enable_xim=yes,
 allegro_enable_xim=yes)
 
 dnl Process "--with[out]-x", "--x-includes" and "--x-libraries" options.
+_x11="X11 support: disabled"
 AC_PATH_X
 if test -z "$no_x"; then
   allegro_support_xwindows=yes
@@ -266,18 +267,22 @@ if test -z "$no_x"; then
     ALLEGRO_XWINDOWS_LIBDIR="$x_libraries"
   fi
   LIBS="-lX11 $LIBS"
+  _x11="X11 support: enabled"
+  _x11ext=""
 
   dnl Test for Xext library.
   AC_CHECK_LIB(Xext, XMissingExtension,
-    [LIBS="-lXext $LIBS"])
+    [_x11ext="$_x11ext Xext"
+    LIBS="-lXext $LIBS"])
 
   dnl Test for Xpm library.
   AC_CHECK_HEADER(X11/xpm.h, AC_CHECK_LIB(Xpm, XpmCreatePixmapFromData,
     [LIBS="-lXpm $LIBS"
+    _x11ext="$_x11ext Xpm"
     AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XPM,1,[Define if xpm bitmap support is available.])
     ])
    )
-   
+
   dnl Test for Xcursor library.
   if test -n "$allegro_enable_xwin_xcursor"; then
     AC_CHECK_LIB(Xcursor, XcursorImageCreate,
@@ -288,6 +293,7 @@ if test -z "$no_x"; then
                       XcursorSupportsARGB(0);
                      ],
         [LIBS="-lXcursor $LIBS"
+        _x11ext="$_x11ext Xcursor"
         AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XCURSOR,1,[Define if XCursor ARGB extension is available.])
         ])
      )
@@ -296,13 +302,15 @@ if test -z "$no_x"; then
   dnl Test for SHM extension.
   if test -n "$allegro_enable_xwin_shm"; then
     AC_CHECK_LIB(Xext, XShmQueryExtension,
-      [AC_DEFINE(ALLEGRO_XWINDOWS_WITH_SHM,1,[Define if MIT-SHM extension is supported.])])
+      [_x11ext="$_x11ext XShm"
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_SHM,1,[Define if MIT-SHM extension is supported.])])
   fi
 
   dnl Test for XF86VidMode extension.
   if test -n "$allegro_enable_xwin_xf86vidmode"; then
     AC_CHECK_LIB(Xxf86vm, XF86VidModeQueryExtension,
       [LIBS="-lXxf86vm $LIBS"
+      _x11ext="$_x11ext XF86VidMode"
       AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE,1,[Define if XF86VidMode extension is supported.])])
   fi
 
@@ -313,13 +321,19 @@ if test -z "$no_x"; then
       if test -z "$allegro_support_modules"; then
         LIBS="-lXxf86dga $LIBS"
       fi
+      _x11ext="$_x11ext XDGA"
       AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA2,1,[Define if DGA version 2.0 or newer is supported])])
   fi
 
   dnl Test for XIM support.
   if test -n "$allegro_enable_xim"; then
     AC_CHECK_LIB(X11, XOpenIM,
-      [AC_DEFINE(ALLEGRO_USE_XIM,1,[Define if XIM extension is supported.])])
+      [_x11ext="$_x11ext XIM"
+      AC_DEFINE(ALLEGRO_USE_XIM,1,[Define if XIM extension is supported.])])
+  fi
+
+  if test -n "$_x11ext"; then
+    _x11="$_x11 with:$_x11ext"
   fi
 
 fi
