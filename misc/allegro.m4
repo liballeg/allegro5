@@ -11,7 +11,7 @@
 dnl AM_PATH_allegro([MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
 dnl Test for allegro, and define allegro_CFLAGS and allegro_LIBS
 dnl
-AC_DEFUN(AM_PATH_ALLEGRO,[ 
+AC_DEFUN([AM_PATH_ALLEGRO],[ 
 AC_ARG_WITH(allegro-prefix,
             [  --with-allegro-prefix=PFX   Prefix where liballegro is installed (optional)],
             ALLEGRO_CONFIG_prefix="$withval", ALLEGRO_CONFIG_prefix="")
