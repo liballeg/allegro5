@@ -62,6 +62,10 @@ static CONFIG_HOOK *config_hook = NULL;
 
 static int config_installed = FALSE;
 
+static char **config_argv = NULL;
+static char *argv_buf = NULL;
+static int argv_buf_size = 0;
+
 
 
 /* flush_config:
@@ -202,6 +206,14 @@ static void config_cleanup(void)
 
       config_hook = NULL;
    }
+
+   free(config_argv);
+   config_argv = NULL;
+   
+   free(argv_buf);
+   argv_buf = NULL;
+   
+   argv_buf_size = 0;
 
    _remove_exit_func(config_cleanup);
    config_installed = FALSE;
@@ -904,13 +916,9 @@ int get_config_id(AL_CONST char *section, AL_CONST char *name, int def)
  */
 char **get_config_argv(AL_CONST char *section, AL_CONST char *name, int *argc)
 {
-   #define MAX_ARGV  16
-
-   static char *buf = NULL;
-   static int buf_size = 0;
-   static char *argv[MAX_ARGV];
    int pos, ac, q, c;
    int s_size;
+   int i;
 
    AL_CONST char *s = get_config_string(section, name, NULL);
 
@@ -919,56 +927,97 @@ char **get_config_argv(AL_CONST char *section, AL_CONST char *name, int *argc)
       return NULL;
    }
 
+   /* clean up the old argv that was allocated the last time this function was
+    * called.
+    */
+   free(config_argv);
+   config_argv = NULL;
+
    /* increase the buffer size if needed */
    s_size = ustrsizez(s);
-   if (s_size>buf_size) {
-      buf_size = s_size;
-      buf = _al_sane_realloc(buf, buf_size);
-      if (!buf) {
-	 *allegro_errno = ENOMEM;
-	 *argc = 0;
-	 return NULL;
+   if (s_size>argv_buf_size) {
+      argv_buf_size = s_size;
+      argv_buf = _al_sane_realloc(argv_buf, argv_buf_size);
+      if (!argv_buf) {
+         *allegro_errno = ENOMEM;
+         *argc = 0;
+         return NULL;
       }
    }
 
-   ustrzcpy(buf, buf_size, s);
+   ustrzcpy(argv_buf, argv_buf_size, s);
    pos = 0;
    ac = 0;
 
-   c = ugetc(buf);
-
-   while ((ac<MAX_ARGV) && (c) && (c != '#')) {
+   /* tokenize the buffer and count the number of words; every space character
+    * as well as single and double quotes are replaced with zeros; comments * that start with # are also cut off with a 0
+    */
+   c = ugetc(argv_buf);
+   while ((c) && (c != '#')) {
+      /* replace all spaces up to the next word with 0 */
       while ((c) && (uisspace(c))) {
-	 pos += ucwidth(c);
-	 c = ugetc(buf+pos);
+	 usetat(argv_buf+pos, 0, 0);
+	 pos += ucwidth(0);
+	 c = ugetc(argv_buf+pos);
       }
 
+      /* quit if we reached the end of the buffer or a comment */
       if ((c) && (c != '#')) {
-	 if ((c == '\'') || (c == '"')) {
-	    q = c;
-	    pos += ucwidth(c);
-	    c = ugetc(buf+pos);
-	 }
-	 else
-	    q = 0;
+         /* found another word! */
+         ac++;
 
-	 argv[ac++] = buf+pos;
+         /* cut away quotes by replacing them with 0 */
+         if ((c == '\'') || (c == '"')) {
+            q = c;
+            usetat(argv_buf+pos, 0, 0);
+            pos += ucwidth(0);
+            c = ugetc(argv_buf+pos);
+         }
+         else {
+            q = 0;
+         }
 
-	 while ((c) && ((q) ? (c != q) : (!uisspace(c)))) {
-	    pos += ucwidth(c);
-	    c = ugetc(buf+pos);
-	 }
+         /* search for the end of the word */
+         while ((c) && ((q) ? (c != q) : (!uisspace(c)))) {
+            pos += ucwidth(c);
+            c = ugetc(argv_buf+pos);
+         }
+      }
+   }
 
-	 if (c) {
-	    usetat(buf+pos, 0, 0);
-	    pos += ucwidth(0);
-	    c = ugetc(buf+pos);
-	 }
+   /* now that we know how many words there are in the buffer, allocate enough
+    * space for a list of pointers to them, or return 0 if there are no words
+    */
+   if (ac > 0) {
+      config_argv = malloc(ac*sizeof *config_argv);
+   }
+   else {
+      *argc = 0;
+      return NULL;
+   }
+
+   /* go through the tokenized buffer and assign pointers in argv to point to
+    * the beginning of each individual word
+    */
+   for (i=0,pos=0,c=ugetc(argv_buf); i<ac; i++) {
+      /* find next word */
+      while (!c) {
+         pos += ucwidth(c);
+         c = ugetc(argv_buf+pos);
+      }
+
+      /* assign pointer */
+      config_argv[i] = argv_buf+pos;
+
+      /* find end of the word */
+      while (c) {
+         pos += ucwidth(c);
+         c = ugetc(argv_buf+pos);
       }
    }
 
    *argc = ac;
-   return argv;
+   return config_argv;
 }
 
 
