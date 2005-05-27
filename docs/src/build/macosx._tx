@@ -303,6 +303,11 @@ Notes on drivers
 @heading
 Final notes
 
+   There is a known compatibility problem when using gcc 4 on MacOS X 10.4
+   that prevents binaries from working on older versions of MacOS X. While it
+   is anticipated that a future update from Apple will fix this problem, you
+   can use gcc 3 to work around it.
+
    As a final note, when coding Allegro programs don't forget that you
    need to use the <code>END_OF_MAIN()</code> macro right after your <code>main()</code> function!
 
