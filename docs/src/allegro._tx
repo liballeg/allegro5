@@ -904,7 +904,7 @@ a char * type, or that takes a char * as an argument, that text will be in
 whatever format you have told Allegro to use.
 
 By default, Allegro uses UTF-8 encoded text (U_UTF8). This is a 
-variable-width format, where characters can occupy anywhere from one to six 
+variable-width format, where characters can occupy anywhere from one to four
 bytes. The nice thing about it is that characters ranging from 0-127 are 
 encoded directly as themselves, so UTF-8 is upwardly compatible with 7-bit 
 ASCII ("Hello, World!" means the same thing regardless of whether you 
