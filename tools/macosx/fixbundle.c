@@ -517,7 +517,7 @@ int main(int argc, char *argv[])
 	    DisposeHandle(raw_data);
 	    /* Set 8bit mask */
             raw_data = NewHandle(icon_data[i].size * icon_data[i].size);
-	    data = *raw_data;
+	    data = (unsigned char *)raw_data;
 	    for (y = 0; y < icon_data[i].size; y++) {
 	       for (x = 0; x < icon_data[i].size; x++) {
 	          *data++ = geta32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
@@ -534,7 +534,7 @@ int main(int argc, char *argv[])
 	    if (icon_data[i].mask1) {
 	       size = ((icon_data[i].size * icon_data[i].size) + 7) / 8;
 	       raw_data = NewHandle(size * 2);
-	       data = *raw_data;
+	       data = (unsigned char *)raw_data;
 	       mask_byte = 0;
 	       mask_bit = 7;
 	       for (y = 0; y < icon_data[i].size; y++) {
@@ -569,7 +569,7 @@ int main(int argc, char *argv[])
       }
       pack_fclose(f);
       
-      cf_url_ref = CFURLCreateWithBytes(kCFAllocatorDefault, bundle_icns, strlen(bundle_icns), 0, NULL);
+      cf_url_ref = CFURLCreateWithBytes(kCFAllocatorDefault, (unsigned char *)bundle_icns, strlen(bundle_icns), 0, NULL);
       if (!cf_url_ref) {
          fprintf(stderr, "Cannot create %s\n", bundle_icns);
 	 result = -1;
