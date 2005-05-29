@@ -48,8 +48,8 @@ give the filename without a preceding option.
     If you specify a prefix, then this will be used when constructing a
     macro name for each object in the datafile. This is the same as the
     grabber; if you don't specify a prefix, the macro name is simply
-    <obj_name>, but if you do, then the macro name becomes
-    <prefix>_<obj_name> .
+    &ltobj_name&gt, but if you do, then the macro name becomes
+    &ltprefix&gt_&ltobj_name&gt .
 
 --crlf, -C
     Arguments: none
