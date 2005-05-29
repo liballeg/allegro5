@@ -62,18 +62,30 @@ static int attrib_ok = FA_ARCH|FA_RDONLY;
 
 static char canonical_datafilename[1024];
 
-#define MAX_FILES    256
-
-static char *opt_proplist[MAX_FILES];
+static char **opt_proplist = NULL;
 static int opt_numprops = 0;
 
-static char *opt_fixedproplist[MAX_FILES];
+static char **opt_fixedproplist = NULL;
 static int opt_numfixedprops = 0;
 
-static char *opt_namelist[MAX_FILES];
+static char **opt_namelist = NULL;
 static int opt_numnames = 0;
 
-static int opt_usedname[MAX_FILES];
+static int *opt_usedname = NULL;
+
+
+
+static void allocate(int n)
+{
+   static int max = 0;
+   if (n <= max)
+      return;
+   opt_proplist = realloc(opt_proplist, n * sizeof *opt_proplist);
+   opt_fixedproplist = realloc(opt_fixedproplist, n * sizeof *opt_fixedproplist);
+   opt_namelist = realloc(opt_namelist, n * sizeof *opt_namelist);
+   opt_usedname = realloc(opt_usedname, n * sizeof *opt_usedname);
+   max = n;
+}
 
 
 
@@ -918,15 +930,15 @@ int main(int argc, char *argv[])
 		  opt_prefixstring = argv[++c];
 	       }
 	       break;
-               
+
 	    case 'r':
 	       attrib_ok |= FA_DIREC;
 	       break;
 
 	    case 's':
 	       if (argv[c][2] == '-') {
-		  if (opt_numfixedprops < MAX_FILES)
-		     opt_fixedproplist[opt_numfixedprops++] = argv[c]+3;
+		  allocate(opt_numfixedprops + 1);
+		  opt_fixedproplist[opt_numfixedprops++] = argv[c]+3;
 	       }
 	       else {
 		  if ((opt_strip >= 0) || 
@@ -981,18 +993,17 @@ int main(int argc, char *argv[])
       }
       else {
 	 if (strchr(argv[c], '=')) {
-	    if (opt_numprops < MAX_FILES)
-	       opt_proplist[opt_numprops++] = argv[c];
+	    allocate(opt_numprops + 1);
+	    opt_proplist[opt_numprops++] = argv[c];
 	 }
 	 else {
 	    if (!opt_datafilename)
 	       opt_datafilename = argv[c];
 	    else {
-	       if (opt_numnames < MAX_FILES) {
-		  opt_namelist[opt_numnames] = argv[c];
-		  opt_usedname[opt_numnames] = FALSE;
-		  opt_numnames++;
-	       }
+	       allocate(opt_numnames + 1);
+	       opt_namelist[opt_numnames] = argv[c];
+	       opt_usedname[opt_numnames] = FALSE;
+	       opt_numnames++;
 	    }
 	 }
       }
