@@ -434,7 +434,10 @@ static FONT_COLOR_DATA *read_font_color(PACKFILE *pack, int *hmax, int depth)
    }
 
    for (i = 0; i < max; i++) {
-      bits[i] = read_bitmap(pack, depth, TRUE);
+      /* Do not allow colour conversions for 8 bit bitmaps, but require it for
+       * all other colour depths.
+       */
+      bits[i] = read_bitmap(pack, depth, depth!=8);
       if (!bits[i]) {
 	 while (i) {
 	    i--;
