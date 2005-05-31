@@ -223,7 +223,8 @@ int main(int argc, char *argv[])
       keyEquivalent: @""];
    [[NSApp mainMenu] addItem: temp_item];
    [[NSApp mainMenu] setSubmenu: menu forItem: temp_item];
-   [NSApp setAppleMenu: menu];
+   /* It seems setAppleMenu: no longer exists in MacOS 10.4 (?) */
+   /* [NSApp setAppleMenu: menu]; */
    NSString *quit = @"Quit ";
    menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
       initWithTitle: [quit stringByAppendingString: [[NSProcessInfo processInfo] processName]]
