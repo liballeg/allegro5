@@ -618,7 +618,7 @@ available in past/future versions of Allegro.
 @shortdesc Number of entries in a palette.
    Preprocessor constant equal to 256.
 
-@@typedef RGB @PALETTE[PAL_SIZE]
+@@typedef @PALETTE RGB[PAL_SIZE]
 @xref RGB, Palette routines
 @eref Available Allegro examples
 @shortdesc Stores palette information.
@@ -5336,7 +5336,7 @@ before including Allegro headers).
    are reading a truecolor bitmap).
 
 @\int @generate_optimized_palette(BITMAP *bmp, PALETTE pal,
-@@                               const char rsvd[256]);
+@@                               const char rsvd[PAL_SIZE]);
 @xref generate_332_palette, set_color_depth
 @shortdesc Generates an optimized palette for a bitmap.
    Generates a 256-color palette suitable for making a reduced color version 

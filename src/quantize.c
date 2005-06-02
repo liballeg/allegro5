@@ -513,7 +513,7 @@ static int generate_optimized_palette_ex(BITMAP *image, PALETTE pal, AL_CONST si
 
 
 
-int generate_optimized_palette(BITMAP *image, PALETTE pal, AL_CONST signed char rsvdcols[256])
+int generate_optimized_palette(BITMAP *image, PALETTE pal, AL_CONST signed char rsvdcols[PAL_SIZE])
 {
    ASSERT(image);
    return generate_optimized_palette_ex(image, pal, rsvdcols, DEFAULT_PREC, DEFAULT_FRACTION, DEFAULT_MAXSWAPS, DEFAULT_MINDIFF);
