@@ -3026,17 +3026,20 @@ Allegro does not provide such devices.)
 @shortdesc Waits a specified number of milliseconds or yields CPU.
    This function waits for the specified number of milliseconds.
 
-   Passing 0 as parameter will not wait, but just yield. This can be useful
-   in order to "play nice" with other processes. Other values will cause
-   CPU time to be dropped on most platforms. This will look better to
-   users, and also does things like saving battery power and making fans
-   less noisy.
+   Passing 0 as parameter will not wait, but just yield. This can be
+   useful in order to "play nice" with other processes - but it will
+   never release any CPU time, still making your programs eat up 100%
+   of the available CPU. Values bigger than 0 will cause CPU time to
+   be dropped on most platforms. This will look better to users, and
+   also does things like saving battery power and making fans less
+   noisy.
 
-   Note that calling this inside your active game loop is a bad idea, as
-   you never know when the OS will give you the CPU back, so you could end
-   up missing the vertical retrace and skipping frames. On the other hand,
-   on multitasking operating systems it is good form to give up the CPU for
-   a while if you will not be using it.
+   Note that in situations where you need precise timing, like
+   synchronizing to the vertical retrace (in which case, you should of
+   course use vsync, so it's a bad example), using this function is a
+   bad idea, as you never know when the OS will give you the CPU back.
+   On the other hand, on multitasking operating systems it is good
+   form to give up the CPU for a while if you will not be using it.
 
 @@void @rest_callback(long time, void (*callback)())
 @xref install_timer, rest
@@ -8774,7 +8777,7 @@ Digital sample routines
 @retval
    Returns a pointer to the SAMPLE or NULL on error.
 
-@@BITMAP *@load_wav_pf(PACKFILE *f);
+@@SAMPLE *@load_wav_pf(PACKFILE *f);
 @xref load_wav
 @shortdesc Packfile version of load_wav.
    A version of load_wav which reads from a packfile.
@@ -8784,7 +8787,7 @@ Digital sample routines
 @shortdesc Loads a sample from a Creative Labs VOC file.
    Loads a sample from a Creative Labs VOC file.
 
-@@BITMAP *@load_voc_pf(PACKFILE *f);
+@@SAMPLE *@load_voc_pf(PACKFILE *f);
 @xref load_voc
 @shortdesc Packfile version of load_voc.
    A version of load_voc which reads from a packfile.
