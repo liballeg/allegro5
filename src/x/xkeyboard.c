@@ -346,9 +346,10 @@ static int find_unknown_key_assignment (int i)
    }
 
    TRACE ("Key %i missing:", i);
-   for (j = 0; j < sym_per_key; j++)
-      TRACE (" %s", XKeysymToString(
-	 keysyms[sym_per_key * (i - min_keycode) + j]));
+   for (j = 0; j < sym_per_key; j++) {
+      char *sym_str = XKeysymToString(keysyms[sym_per_key * (i - min_keycode) + j]);
+      TRACE (" %s", sym_str ? sym_str : "NULL");
+   }
    TRACE (" - assigned to %i.\n", _xwin.keycode_to_scancode[i]);
 
    return _xwin.keycode_to_scancode[i];
@@ -532,9 +533,14 @@ void _xwin_get_keyboard_mapping(void)
    for (i = min_keycode; i <= max_keycode; i++) {
       KeySym sym = keysyms[sym_per_key * (i - min_keycode)];
       KeySym sym2 =  keysyms[sym_per_key * (i - min_keycode) + 1];
+      char *sym_str, *sym2_str;
       int allegro_key = 0;
 
-      TRACE ("key [%i: %s %s]", i, XKeysymToString(sym), XKeysymToString(sym2));
+      sym_str = XKeysymToString(sym);
+      sym2_str = XKeysymToString(sym2);
+
+      TRACE ("key [%i: %s %s]", i, sym_str ? sym_str : "NULL", sym2_str ?
+         sym2_str : "NULL");
 
       /* Hack for French keyboards, to correctly map KEY_0 to KEY_9. */
       if (sym2 >= XK_0 && sym2 <= XK_9)
@@ -590,7 +596,8 @@ void _xwin_get_keyboard_mapping(void)
       for (j = 0; j < xmodmap->max_keypermod; j++) {
 	 KeySym sym = XKeycodeToKeysym(_xwin.display,
 	    xmodmap->modifiermap[i * xmodmap->max_keypermod + j], 0);
-	 TRACE (" %s", XKeysymToString(sym));
+         char *sym_str = XKeysymToString(sym);
+         TRACE (" %s", sym_str ? sym_str : "NULL");
       }
       TRACE ("\n");
    }
