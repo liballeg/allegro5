@@ -7,7 +7,7 @@ Updates or comments can be sent to the Allegro developer's mailing list
 in the subject.
 
 
-Miscellaneous 4.2 todos:
+4.2 RC1 todos:
 ---------------------------------------------------------------------------
 
 - Investigate video bitmap problems reported in http://www.allegro.cc/forums/view_thread.php?_id=453220
@@ -19,12 +19,21 @@ Miscellaneous 4.2 todos:
    - mouse cursors
    - custom packfiles
    - custom font loading
-
-4.2 wishlist todos:
----------------------------------------------------------------------------
-
-- MSVC template for building Allegro, already posted on Allegro.cc (AJ will
-  look into this).
+- some gcc 4.0 fixes for DJGPP and MinGW need to be applied
+- some remaining problem with keyboards in Windows
+  http://www.allegro.cc/forums/view_thread.php?_id=484193
+  http://www.allegro.cc/forums/view_thread.php?_id=493712
+- font fixes by Elias still need to be applied
+- configure/OSS detection problems on Solaris
+- get_executable_name() broken in Solaris
+- grabber doesn't use native mouse cursors if possible
+- guilt's patches
+- fix split_modex_screen() not being defined on all UNICES, even if 
+  GFX_MODEX is.
+- settings CFLAGS from configure, as per gentoo bug
+- grabber.txt was moved, so the grabber can't find it anymore
+- improved demo
+- upgrades to fixmul, fixdiv
 
 General (Platform independent) todos:
 ---------------------------------------------------------------------------
@@ -33,11 +42,14 @@ General (Platform independent) todos:
 - The dependency generation seems to be quite broken, and far more
   complicated than necessary. Remove all the misc/dep*scripts, and simply
   call "gcc -M" on every source file.
+- RMI midi file support?
 
 DOS todos:
 ---------------------------------------------------------------------------
 
 - Write a unified Sidewinder driver
+- Fix buggy dos/wss.c
+
 
 Win32 todos:
 ---------------------------------------------------------------------------
@@ -71,8 +83,8 @@ Unix todos:
 MacOS X todos
 ---------------------------------------------------------------------------
 
-- PPC CPU detection routines would be nice
 - asm routines (altivec?) to speed things up
+- Mac default installation path?
 
 BeOS todos:
 ---------------------------------------------------------------------------
