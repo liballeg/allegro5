@@ -58,6 +58,11 @@ Installing Allegro
       chmod +x fix.sh
       ./fix.sh macosx
 <endblock>
+   If you have checked out a development version from Allegro's CVS
+   repository, run the following command. Otherwise, skip this step:
+<textblock>
+      make depend
+<endblock>
    Now Allegro is ready to be compiled. Start building it:
 <textblock>
       make
