@@ -95,12 +95,16 @@ Supported platforms
    MacOS X           - see docs/build/macosx.txt
 <endblock>
    General API information can be found in the main manual, usually referred
-   to as docs/txt/allegro.txt or simply allegro.txt throughout this document
-   and which is also available in HTML, TexInfo, and RTF format in the docs
+   to as docs/txt/allegro.txt, allegro.txt or simply "The Allegro manual"
+   throughout this document. The Allegro manual source is available as a set
+   of files in the docs/src directory. During the build process of the
+   library, these source files will be converted to HTML, TexInfo, and RTF
+   formats (among others) and placed in their respective doc/FORMAT
    directory.
 
    Information about changes in the API and deprecated features can be found
-   in docs/txt/api.txt (also available in HTML, TexInfo, and RTF format).
+   in docs/txt/api.txt (also available in HTML, TexInfo, and RTF format as
+   part of the Allegro manual.
 
 
 

@@ -8,9 +8,9 @@
 @<center><h1><b><i>The Hall of Fame</i></b></h1></center><hr>
 @startoutput AUTHORS
 <i>
-I hope I've remembered everyone who ought to be mentioned here. If your 
-name should be included, my apologies, and please tell me so I can correct 
-the oversight!
+We hope to have remembered everyone who ought to be mentioned here. If your
+name should be included, accept our apologies, and please tell us so we can
+correct the oversight!
 </i>
 
 
@@ -1108,5 +1108,8 @@ Thanks!
    My parents, John and Nancy.<br>
    I would never have made it through all those late night coding sessions 
    without the cafetiere they gave me last Christmas :-)
+   
+   
+   By Shawn Hargreaves, Allegro creator.
 
 @endoutput THANKS
