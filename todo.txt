@@ -99,6 +99,13 @@ QNX todos:
 Wishlist:
 ---------------------------------------------------------------------------
 
+- polygon() should draw bottom pixels. I.e. polygon() with 4 points should
+  produce the same shape as rectfill()
+  (http://www.allegro.cc/forums/view_thread.php?_id=480867)
+- ellipse/circle should use a better algorithm to give a uniform outline,
+  not the current "crispy" look (in fact, it's just very inaccurate). And
+  there should be a way to have even width ellipses.
+  (http://www.allegro.cc/forums/view_thread.php?_id=483211)
 - Variable line thickness on graphics primitives
 - OSS MIDI pitch bend is wrong
 - size_t where appropriate (get more opinions first)
