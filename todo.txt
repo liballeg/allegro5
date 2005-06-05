@@ -23,7 +23,6 @@ in the subject.
 - some remaining problem with keyboards in Windows
   http://www.allegro.cc/forums/view_thread.php?_id=484193
   http://www.allegro.cc/forums/view_thread.php?_id=493712
-- font fixes by Elias still need to be applied
 - configure/OSS detection problems on Solaris
 - get_executable_name() broken in Solaris
 - grabber doesn't use native mouse cursors if possible

@@ -27,7 +27,7 @@
 FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
 {
    char buf[1024], *font_str, *start_str = 0, *end_str = 0;
-   FONT *f, *f2, *f3, *f4;
+   FONT *f, *f2, *f3;
    PACKFILE *pack;
    int begin, end;
 
@@ -35,7 +35,7 @@ FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
    if (!pack) 
       return NULL;
 
-   f = f2 = f3 = f4 = NULL;
+   f = f2 = f3 = NULL;
 
    while(pack_fgets(buf, sizeof(buf)-1, pack)) {
       font_str = strtok(buf, " \t");
@@ -52,9 +52,9 @@ FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
 
       if(font_str[0] == '-')
          font_str[0] = '\0';
-         
+
       begin = strtol(start_str, 0, 0);
-        
+
       if (end_str)
          end = strtol(end_str, 0, 0) + 1;
       else 
@@ -69,19 +69,21 @@ FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
 
       /* Load the font that needs to be merged with the current font */
       if (font_str[0]) {
-         if (f4)
-            destroy_font(f4);
-         f4 = load_font(font_str, pal, param);
+         if (f2)
+            destroy_font(f2);
+         f2 = load_font(font_str, pal, param);
       }
-      if(!f4) {
-         destroy_font(f);
+      if(!f2) {
+         if (f)
+            destroy_font(f);
          pack_fclose(pack);
-
          return NULL;
       }
-      
-      /* Extract font range */
-      f2 = extract_font_range(f4, begin, end);
+
+      /* transpose the font to the range given in the .txt file */
+      transpose_font(f2, begin - get_font_range_begin(f2, -1));
+
+      /* FIXME: More efficient way than to repeatedely merge into a new font? */
       if (f) {
          f3 = f;
          f = merge_fonts(f2, f3);
@@ -89,10 +91,9 @@ FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
          destroy_font(f2);
       } else {
          f = f2;
-         f2 = NULL;
       }
+      f2 = NULL;
     }
-    destroy_font(f4);
 
     pack_fclose(pack);
     return f;

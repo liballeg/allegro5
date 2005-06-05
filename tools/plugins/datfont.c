@@ -751,7 +751,7 @@ static char *range_getter(int index, int *list_size)
         return 0;
     }
 
-    sprintf(buf, "%04X-%04X, color", get_font_range_begin(f, index), get_font_range_end(f, index) - 1);
+    sprintf(buf, "%04X-%04X, color", get_font_range_begin(f, index), get_font_range_end(f, index));
 
     return buf;
 }
