@@ -439,8 +439,19 @@ ALLEGRO_MAKEDOC_SOURCES = \
 	docs/src/makedoc/makedevh.c \
 	docs/src/makedoc/makesci.c
 
-ALLEGRO_LIB_EXE_SOURCES = \
+ALLEGRO_DEMO_SOURCES = \
+	demo/animsel.c \
+	demo/bullet.c \
+	demo/dirty.c \
+	demo/expl.c \
+	demo/star.c \
+	demo/aster.c \
 	demo/demo.c \
+	demo/display.c \
+	demo/game.c \
+	demo/title.c
+
+ALLEGRO_LIB_EXE_SOURCES = \
 	setup/setup.c \
 	tests/afinfo.c \
 	tests/akaitest.c \
@@ -468,7 +479,6 @@ ALLEGRO_LIB_X_EXE_SOURCES = \
 	tools/x11/xf2pcx.c
 
 ALLEGRO_LIB_EXES = \
-	demo/demo \
 	setup/setup \
 	tests/afinfo \
 	tests/akaitest \
@@ -636,6 +646,7 @@ DISTCLEAN_FILES = \
 	docs/allegro.aux docs/allegro.cp docs/allegro.fn docs/allegro.fns \
 	docs/allegro.ky docs/allegro.log docs/allegro.pg docs/allegro.toc \
 	docs/allegro.tp docs/allegro.vr docs/scite/allegro.api \
+	demo/demo \
 	$(ALLEGRO_LIB_EXES) $(ALLEGRO_EXAMPLE_EXES) $(ALLEGRO_DATAFILE_EXES) \
 	*.exe */*.exe */*/*.exe msvcmake.bat tests/win/*.scr \
 	config.cache config.log config.status stamp-h stamp-h[0-9]* suid \

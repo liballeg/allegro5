@@ -388,8 +388,8 @@ tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 
 ifdef CROSSCOMPILE
 
-demo/demo.exe: $(OBJ_DIR)/demo.o $(IMPLIB_NAME)
-	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+demo/demo.exe: $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_DEMO) $(IMPLIB_NAME) $(LIBRARIES)
 
 setup/setup.exe: $(OBJ_DIR)/setup.o $(IMPLIB_NAME)
 	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
@@ -413,8 +413,8 @@ else
    endif
 endif
 
-demo/demo.exe: $(OBJ_DIR)/demo.o obj/mingw32/demo.res $(IMPLIB_NAME)
-	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o obj/mingw32/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+demo/demo.exe: obj/mingw32/demo.res $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_DEMO) obj/mingw32/demo.res $(IMPLIB_NAME) $(LIBRARIES)
 
 obj/mingw32/setupdat.s: setup/setup.dat tools/dat2s.exe
 ifdef STATICLINK
