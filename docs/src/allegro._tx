@@ -14707,18 +14707,70 @@ dat2s.txt, dat2c.txt).
 @externalfile dat2c dat2c - Compile datafiles into C code
 @endchapter
 @headingnocontent
+Community
+
+Allegro was originally created by Shawn Hargreaves. Published sometime between
+1994 and 1995, it was just a simple lib for himself. At that time, many people
+were switching from Borland C to DJGPP and looking for a decent graphics
+library. Allegro was the first reasonably complete one to show up, so it
+attracted enough interest to keep growing, and a little contribution here, and
+some more encouragement there made it all light up like fire.
+
+Some time after the latest 3.x stable release, though, Shawn was flooded with
+Allegro tasks and Real Life (TM) work, and chose the latter to focus his
+energies on. While this somehow stalled Allegro's development, it also
+attracted a lot of people who wanted Allegro to live longer. Also, by that
+time other people had started to work on Windows and Unix ports of Allegro,
+which suggested that Allegro had the potential to survive its only decaying
+main platform (DOS).
+
+The current situation is that Shawn still keeps watching Allegro's progress
+from time to time, but is not involved with development any more. The
+community that grew over the years when Shawn was in charge of everything has
+stepped forward to continue improving Allegro. Transformed into a meritocratic
+community, users keep sending bug reports to the mailing lists, developers
+around the world keep sending patches to fix them, and a few carefully chosen
+have write access to the CVS repository, from which releases are built every
+now and then.
+
+But, who decides when a build is stable enough? Who decides when somebody is
+granted write access to the CVS? Who chooses the lesser of two evils patching
+some obscure bug? And more importantly, who decides what's Allegro's mascot?
+For all these reasons, the community decided to replace Shawn's position with
+the Allegro Dictator.
+
+In republican Rome, political power was with the Senate and the Consuls.
+However, if it was nescessary that decisions were made very quickly then the
+senate could appoint a Dictator. The Dictator was appointed for a specified
+duration or charged with a specific task, after which he was expected to
+surrender his authority back to the Senate. Nowadays, the Allegro Dictator is
+a benevolent figure and rarely has to use his overwhelming fist of iron to put
+order into chaos.
+
+The truth is that the Allegro Dictator is usually the person in charge of
+doing releases and all that unsexy work inside the community, like pestering
+users to test some obscure bugfix or rejecting incomplete patches.
+
+Past Allegro dictators have been: Shawn Hargreaves, George Foot, Peter Wang
+and Eric Botcazou. At the moment of writing this, Evert Glebbeek is the
+active Allegro Dictator. Should you want to change Allegro in some illogical
+way, he's the guy you have to send your bribes too :-)
+
+
+
+@headingnocontent
 Conclusion
 
 All good things must come to an end. Writing documentation is not a good 
 thing, though, and that means it goes on for ever. There is always something 
-I've forgotten to explain, or some essential detail I've left out, but for 
+we've forgotten to explain, or some essential detail we've left out, but for
 now you will have to make do with this. Feel free to ask if you can't figure 
 something out.
 
-Enjoy. I hope you find some of this stuff useful.
+Enjoy. We hope you find some of this stuff useful.
 
 
-By Shawn Hargreaves.
+By Shawn Hargreaves and the Allegro development team.
 
 <link>http://alleg.sourceforge.net/</a>
 
