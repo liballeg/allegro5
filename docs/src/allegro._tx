@@ -814,6 +814,7 @@ available in past/future versions of Allegro.
    unsigned long len;          - length (in samples)
    unsigned long loop_start;   - loop start position
    unsigned long loop_end;     - loop finish position
+   void *data;                 - raw sample data
 <endblock>
    A sample structure, which holds sound data, used by the digital sample
    routines. You can consider all of these fields as read only except
@@ -827,6 +828,13 @@ available in past/future versions of Allegro.
 
    The variables loop_start and loop_end specify the loop position in sample
    units, and are set by default to the start and end of the sample.
+
+   If you are creating your own samples on the fly, you might also want to
+   modify the raw data of the sample pointed by the data field. The sample
+   data are always in unsigned format. This means that if you are loading a
+   PCM encoded sound file with signed 16-bit samples, you would have to XOR
+   every two bytes (i.e. every sample value) with 0x8000 to change the
+   signedness.
 
 @@typedef struct @MIDI
 @xref load_midi, Music routines (MIDI)
@@ -2082,13 +2090,17 @@ keyboard = x<br>
 language = x<br>
    Specifies which language file to use for error messages and other bits of 
    system text. The parameter is the name of a translation file, and can 
-   either be a fully qualified file path or a basename like `en' or `sp`. If 
+   either be a fully qualified file path or a basename like `en' or `es'. If
    the latter, Allegro will look first for a separate config file with a 
    name in the form `entext.cfg', and then for an object with that name in 
    the `language.dat' file (eg. `ENTEXT_CFG'). The config file or 
    `language.dat' file can be stored in the same directory as the program, or 
-   in the location pointed to by the ALLEGRO environment variable. Look in the 
-   `language.dat' file to see which mappings are currently available.
+   in the location pointed to by the ALLEGRO environment variable.
+
+   Look in the `language.dat' file to see which mappings are currently
+   available. If there is none for your language, you can create it using the
+   English one as model, and even send it to the Allegro development team to
+   include it in future releases.
 <li>
 disable_screensaver = x<br>
    Specifies whether to disable the screensaver: 0 to never disable it, 1 to
@@ -8553,24 +8565,28 @@ drivers.
 @xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
 @xref DIGI_*/MacOSX
 @shortdesc Detects whether the specified digital sound device is available.
-   Detects whether the specified digital sound device is available. Returns 
-   the maximum number of voices that the driver can provide, or zero if the 
-   hardware is not present. This function must be called _before_ 
-   install_sound().
+   Detects whether the specified digital sound device is available. This
+   function must be called _before_ install_sound().
+@retval
+   Returns the maximum number of voices that the driver can provide, or zero
+   if the hardware is not present.
 
 @@int @detect_midi_driver(int driver_id);
 @xref install_sound, reserve_voices
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
 @xref MIDI_*/MacOSX
 @shortdesc Detects whether the specified MIDI sound device is available.
-   Detects whether the specified MIDI sound device is available. Returns the 
-   maximum number of voices that the driver can provide, or zero if the 
-   hardware is not present. There are two special-case return values that 
-   you should watch out for: if this function returns -1 it is a 
-   note-stealing driver (eg. DIGMID) that shares voices with the current 
-   digital sound driver, and if it returns 0xFFFF it is an external device 
-   like an MPU-401 where there is no way to determine how many voices are 
-   available. This function must be called _before_ install_sound(). 
+   Detects whether the specified MIDI sound device is available. This function
+   must be called _before_ install_sound().
+@retval
+   Returns the maximum number of voices that the driver can provide, or zero
+   if the hardware is not present.
+
+   There are two special-case return values that you should watch out for:
+   if this function returns -1 it is a note-stealing driver (eg. DIGMID) that
+   shares voices with the current digital sound driver, and if it returns
+   0xFFFF it is an external device like an MPU-401 where there is no way to
+   determine how many voices are available.
 
 @@void @reserve_voices(int digi_voices, int midi_voices);
 @xref set_volume_per_voice, install_sound, detect_digi_driver
@@ -8635,7 +8651,6 @@ drivers.
       32 voices - set_volume_per_voice(4)
       64 voices - set_volume_per_voice(5)
 <endblock>
-
    Of course this function does not override the volume you specify with
    play_sample() or voice_set_volume(). It simply alters the overall output
    of the program. If you play samples at lower volumes, or if they are not
@@ -8682,18 +8697,19 @@ drivers.
 @shortdesc Alters the global sound output volume.
    Alters the global sound output volume. Specify volumes for both digital 
    samples and MIDI playback, as integers from 0 to 255, or pass a negative 
-   value to leave one of the settings unchanged. This routine will not alter
-   the volume of the hardware mixer if it exists (i.e. only your application
-   will be affected).
+   value to leave one of the settings unchanged. Values bigger than 255 will
+   be reduced to 255. This routine will not alter the volume of the hardware
+   mixer if it exists (i.e. only your application will be affected).
 
 @@void @set_hardware_volume(int digi_volume, int midi_volume);
 @xref install_sound, set_volume
 @shortdesc Alters the hardware sound output volume.
    Alters the hardware sound output volume. Specify volumes for both digital 
    samples and MIDI playback, as integers from 0 to 255, or pass a negative 
-   value to leave one of the settings unchanged. This routine will use the
-   hardware mixer to control the volume if it exists (i.e. the volume of all
-   the applications on your machine will be affected), otherwise do nothing.
+   value to leave one of the settings unchanged. Values bigger than 255 will
+   be reduced to 255. This routine will use the hardware mixer to control the
+   volume if it exists (i.e. the volume of all the applications on your
+   machine will be affected), otherwise do nothing.
 
 
 
@@ -8707,8 +8723,9 @@ Mixer routines
 @xref Standard config variables
 @shortdesc Sets the resampling quality of the mixer.
    Sets the resampling quality of the mixer. Valid values are the same as
-   the `quality' config variable, please look there for details. You can call
-   this function at any point in your program, even before allegro_init().
+   the `quality' config variable. Please read chapter "Standard config
+   variables" for details. You can call this function at any point in your
+   program, even before allegro_init().
 
 @@int @get_mixer_quality(void);
 @xref set_mixer_quality
@@ -8761,7 +8778,8 @@ Digital sample routines
       if (!sample)
 	 abort_on_error("Couldn't load sample!");<endblock>
 @retval
-   Returns a pointer to the SAMPLE or NULL on error.
+   Returns a pointer to the SAMPLE or NULL on error. Remember to free this
+   sample later to avoid memory leaks.
 
 @@SAMPLE *@load_wav(const char *filename);
 @xref load_sample, register_sample_file_type
@@ -8772,37 +8790,78 @@ Digital sample routines
       if (!sample)
 	 abort_on_error("Couldn't scare user!");<endblock>
 @retval
-   Returns a pointer to the SAMPLE or NULL on error.
+   Returns a pointer to the SAMPLE or NULL on error. Remember to free this
+   sample later to avoid memory leaks.
 
 @@SAMPLE *@load_wav_pf(PACKFILE *f);
 @xref load_wav
 @shortdesc Packfile version of load_wav.
-   A version of load_wav which reads from a packfile.
+   A version of load_wav() which reads from a packfile. Example:
+<codeblock>
+      PACKFILE *packfile;
+      SAMPLE *sample;
+   
+      packfile = pack_fopen("sound.wav", F_READ);
+      if (!packfile)
+	 abort_on_error("Couldn't open sound.wav");
+   
+      sample = load_wav_pf(packfile);
+      if (!sample)
+	 abort_on_error("Error loading sound.wav");<endblock>
+@retval
+   Returns a pointer to the SAMPLE or NULL on error. Remember to free this
+   sample later to avoid memory leaks.
 
 @@SAMPLE *@load_voc(const char *filename);
 @xref load_sample, register_sample_file_type
 @shortdesc Loads a sample from a Creative Labs VOC file.
-   Loads a sample from a Creative Labs VOC file.
+   Loads a sample from a Creative Labs VOC file. Example:
+<codeblock>
+      SAMPLE *sample = load_wav("alarm.wav");
+      if (!sample)
+	 abort_on_error("Couldn't alert user!");<endblock>
+@retval
+   Returns a pointer to the SAMPLE or NULL on error. Remember to free this
+   sample later to avoid memory leaks.
 
 @@SAMPLE *@load_voc_pf(PACKFILE *f);
 @xref load_voc
 @shortdesc Packfile version of load_voc.
-   A version of load_voc which reads from a packfile.
+   A version of load_voc() which reads from a packfile. Example:
+<codeblock>
+      PACKFILE *packfile;
+      SAMPLE *sample;
+   
+      packfile = pack_fopen("sound.wav", F_READ);
+      if (!packfile)
+	 abort_on_error("Couldn't open sound.wav");
+   
+      sample = load_wav_pf(packfile);
+      if (!sample)
+	 abort_on_error("Error loading sound.wav");<endblock>
+@retval
+   Returns a pointer to the SAMPLE or NULL on error. Remember to free this
+   sample later to avoid memory leaks.
 
 @@int @save_sample(const char *filename, SAMPLE *spl);
 @xref load_sample, register_sample_file_type
 @shortdesc Writes a sample into a file.
-   Writes a sample into a file, returning non-zero on error. The output
-   format is determined from the filename extension. At present Allegro does
-   not natively support the writing of any sample formats, so you must 
-   register a custom saver routine with register_sample_file_type().
+   Writes a sample into a file. The output format is determined from the
+   filename extension. At present Allegro does not natively support the
+   writing of any sample formats, so you must register a custom saver routine
+   with register_sample_file_type().
+@retval
+   Returns zero on success, non-zero otherwise.
 
 @@SAMPLE *@create_sample(int bits, int stereo, int freq, int len);
-@xref load_sample, destroy_sample
+@xref load_sample, destroy_sample, Structures and types defined by Allegro
 @shortdesc Constructs a new sample structure of the specified type.
-   Constructs a new sample structure of the specified type. The data field 
-   points to a block of waveform data: see the structure definition in 
-   allegro/digi.h for details.
+   Constructs a new sample structure of the specified type. Read chapter
+   "Structures and types defined by Allegro" for an internal description of
+   the SAMPLE structure.
+@retval
+   Returns a pointer to the created sample, or NULL if the sample could not
+   be created. Remember to free this sample later to avoid memory leaks.
 
 @@void @destroy_sample(SAMPLE *spl);
 @xref load_sample
@@ -9274,12 +9333,9 @@ for the internals of the AUDIOSTREAM structure.
 
    If you want to adjust the pitch, volume, or panning of a stream once it is
    playing, you can use the regular voice_*() functions with stream-&gtvoice
-   as a parameter. The sample data are always in unsigned format. This means
-   that if you are loading a WAVE file (Windows PCM format) which is 16 bits,
-   mono and with a 44.1 kHz rate, you would have to XOR the values from the
-   file with 0x8000 before passing them to Allegro.
-
-   The formula to get the size of the buffers in bytes could be:
+   as a parameter. The format of the sample data is described in the SAMPLE
+   entry of the "Structures and types defined by Allegro" chapter. The formula
+   to get the size of the buffers in bytes could be:
 <codeblock>
       bytes = length * (bits / 8) * (stereo ? 2 : 1)<endblock>
 @retval
