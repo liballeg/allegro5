@@ -12,6 +12,7 @@ in the subject.
 
 - Investigate video bitmap problems reported in http://www.allegro.cc/forums/view_thread.php?_id=453220
 - Investigate mouse problem reported in http://www.allegro.cc/forums/view_thread.php?_id=459972
+- Mouse problems in Windows reported in http://www.allegro.cc/forums/view_thread.php?_id=497651
 - Make the grabber (try to) use system cursors
 - Purge main docs of DOSisms if that hasn't been done already
 - Documentation for Peter's packfile patch
@@ -33,6 +34,7 @@ in the subject.
 - grabber.txt was moved, so the grabber can't find it anymore
 - improved demo
 - upgrades to fixmul, fixdiv
+- MacOS X problems with grabber, http://www.allegro.cc/forums/view_thread.php?_id=498239
 
 General (Platform independent) todos:
 ---------------------------------------------------------------------------
