@@ -1711,7 +1711,8 @@ int menu_alt_key(int k, MENU *m)
    c = scancode_to_ascii(k);
    if (c) {
       k = c;
-   } else {
+   }
+   else {
       for (c=0; c<(int)sizeof(alt_table); c++) {
 	 if (k == alt_table[c]) {
 	    k = c + 'a';

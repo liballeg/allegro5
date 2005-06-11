@@ -621,7 +621,8 @@ void show_mouse(BITMAP *bmp)
                got_hw_cursor = TRUE;
             }
          }
-      } else {
+      }
+      else {
          use_system_cursor = FALSE;
       }
 

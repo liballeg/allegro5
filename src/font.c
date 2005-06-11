@@ -750,7 +750,8 @@ FONT *mono_extract_font_range(FONT *f, int begin, int end)
          if (mf) {
             mf->next = mono_copy_glyph_range(mfin, local_begin, local_end);
             mf = mf->next;
-         } else {
+         }
+         else {
             mf = mono_copy_glyph_range(mfin, local_begin, local_end);
             fontout->data = mf;
          }
@@ -791,7 +792,8 @@ FONT *mono_merge_fonts(FONT *font1, FONT *font2)
          if (mf) {
             mf->next = mono_copy_glyph_range(mf1, mf1->begin, mf1->end);
             mf = mf->next;
-         } else {
+         }
+         else {
             mf = mono_copy_glyph_range(mf1, mf1->begin, mf1->end);
             fontout->data = mf;
          }
@@ -801,7 +803,8 @@ FONT *mono_merge_fonts(FONT *font1, FONT *font2)
          if (mf) {
             mf->next = mono_copy_glyph_range(mf2, mf2->begin, mf2->end);
             mf = mf->next;
-         } else {
+         }
+         else {
             mf = mono_copy_glyph_range(mf2, mf2->begin, mf2->end);
             fontout->data = mf;
          }
@@ -1213,7 +1216,8 @@ FONT *color_extract_font_range(FONT *f, int begin, int end)
          if (cf) {
             cf->next = color_copy_glyph_range(cfin, local_begin, local_end);
             cf = cf->next;
-         } else {
+         }
+         else {
             cf = color_copy_glyph_range(cfin, local_begin, local_end);
             fontout->data = cf;
          }
@@ -1267,7 +1271,8 @@ FONT *color_merge_fonts(FONT *font1, FONT *font2)
          if (cf) {
             cf->next = color_copy_glyph_range(cf1, cf1->begin, cf1->end);
             cf = cf->next;
-         } else {
+         }
+         else {
             cf = color_copy_glyph_range(cf1, cf1->begin, cf1->end);
             fontout->data = cf;
          }
@@ -1277,7 +1282,8 @@ FONT *color_merge_fonts(FONT *font1, FONT *font2)
          if (cf) {
             cf->next = color_copy_glyph_range(cf2, cf2->begin, cf2->end);
             cf = cf->next;
-         } else {
+         }
+         else {
             cf = color_copy_glyph_range(cf2, cf2->begin, cf2->end);
             fontout->data = cf;
          }

@@ -89,7 +89,8 @@ FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
          f = merge_fonts(f2, f3);
          destroy_font(f3);
          destroy_font(f2);
-      } else {
+      }
+      else {
          f = f2;
       }
       f2 = NULL;
