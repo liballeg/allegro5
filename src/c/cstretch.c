@@ -236,13 +236,11 @@ static void stretch_masked_line32(uintptr_t dptr, unsigned char *sptr)
 
 
 
-/*
- * Stretch blit work-horse.
+/* al_blit_scaled:
+ *  Bitmap scaling function.
  */
-static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
-			     int sx, int sy, int sw, int sh,
-			     int dx, int dy, int dw, int dh,
-			     int masked)
+void al_blit_scaled(int method, BITMAP *src, int sx, int sy, int sw, int sh,
+                               BITMAP *dst, int dx, int dy, int dw, int dh)
 {
    int x, y, fixup;
    int i1, i2, dd;
@@ -251,9 +249,12 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
    int dybeg, dyend;
    int sxofs, dxofs;
    void (*stretch_line)(uintptr_t dptr, unsigned char *sptr);
+   int masked;
 
    ASSERT(src);
    ASSERT(dst);
+   
+   masked = (method&AL_MASK_SOURCE) == AL_MASK_SOURCE;
 
    /* vtable hook */   
    if (src->vtable->do_stretch_blit) {
@@ -433,50 +434,4 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
 	 dd += i1;
    }
    bmp_unwrite_line(dst);
-}
-
-
-
-/* stretch_blit:
- *  Opaque bitmap scaling function.
- */
-void stretch_blit(BITMAP *src, BITMAP *dst, int sx, int sy, int sw, int sh,
-		  int dx, int dy, int dw, int dh)
-{
-   ASSERT(src);
-   ASSERT(dst);
-
-   #ifdef ALLEGRO_MPW
-      if (is_system_bitmap(src) && is_system_bitmap(dst))
-         system_stretch_blit(src, dst, sx, sy, sw, sh, dx, dy, dw, dh);
-      else
-   #endif
-         _al_stretch_blit(src, dst, sx, sy, sw, sh, dx, dy, dw, dh, 0);
-}
-
-
-
-/* masked_stretch_blit:
- *  Masked bitmap scaling function.
- */
-void masked_stretch_blit(BITMAP *src, BITMAP *dst, int sx, int sy, int sw, int sh,
-                         int dx, int dy, int dw, int dh)
-{
-   ASSERT(src);
-   ASSERT(dst);
-
-   _al_stretch_blit(src, dst, sx, sy, sw, sh, dx, dy, dw, dh, 1);
-}
-
-
-
-/* stretch_sprite:
- *  Masked version of stretch_blit().
- */
-void stretch_sprite(BITMAP *dst, BITMAP *src, int x, int y, int w, int h)
-{
-   ASSERT(src);
-   ASSERT(dst);
-
-   _al_stretch_blit(src, dst, 0, 0, src->w, src->h, x, y, w, h, 1);
 }

@@ -457,30 +457,15 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
 
 
 
-/* stretch_blit:
- *  Opaque bitmap scaling function.
+/* al_blit_scaled:
+ *  Bitmap scaling function.
  */
-void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h)
+void al_blit_scaled(int method, struct BITMAP *s, int s_x, int s_y, int s_w, int s_h, struct BITMAP *d, int d_x, int d_y, int d_w, int d_h)
 {
-   do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, 0);
-}
-
-
-
-/* masked_stretch_blit:
- *  Masked bitmap scaling function.
- */
-void masked_stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h)
-{
-   do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, 1);
-}
-
-
-
-/* stretch_sprite:
- *  Masked version of stretch_blit().
- */
-void stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h)
-{
-   do_stretch_blit(sprite, bmp, 0, 0, sprite->w, sprite->h, x, y, w, h, 1); 
+   if (method == AL_MASK_SOURCE) {
+      do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, 1);
+   }
+   else {
+      do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, 0);
+   }
 }

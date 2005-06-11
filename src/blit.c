@@ -691,19 +691,32 @@ static void blit_to_self(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
 
 
 
-/* blit:
- *  Copies an area of the source bitmap to the destination bitmap. s_x and 
- *  s_y give the top left corner of the area of the source bitmap to copy, 
- *  and d_x and d_y give the position in the destination bitmap. w and h 
- *  give the size of the area to blit. This routine respects the clipping 
- *  rectangle of the destination bitmap, and will work correctly even when 
- *  the two memory areas overlap (ie. src and dest are the same). 
+/* al_blit:
+ * Copies a rectangular area of the source bitmap to the destination bitmap.
+ * The dest_x and dest_y are the coordinates of the top-left corner in the
+ * destination bitmap where the source bitmap will be drawn.
  */
-void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+void al_blit(int method, BITMAP *src, BITMAP *dest, int d_x, int d_y)
 {
+   int w, h;
+   int s_x = 0, s_y = 0;
    ASSERT(src);
    ASSERT(dest);
+
+   /* If method!=0, then bitmaps must be of the same colour depth */
+   ASSERT(method !=0 || src->vtable->color_depth == dest->vtable->color_depth);
+   
+   w = src->w;
+   h = src->h;
    BLIT_CLIP();
+   
+
+   
+   /* Masked blit */
+   if (method == AL_MASK_SOURCE) {
+      dest->vtable->masked_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
+      return;
+   }
 
    if (src->vtable->color_depth != dest->vtable->color_depth) {
       /* need to do a color conversion */
@@ -740,21 +753,61 @@ void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, 
    }
 }
 
-END_OF_FUNCTION(blit);
+END_OF_FUNCTION(al_blit);
 
 
-
-/* masked_blit:
- *  Version of blit() that skips zero pixels. The source must be a memory
- *  bitmap, and the source and dest regions must not overlap.
+/* al_blit_region:
+ * Copies a rectangular area of the source bitmap to the destination bitmap.
+ * The dest_x and dest_y are the coordinates of the top-left corner in the
+ * destination bitmap where the source bitmap will be drawn.
  */
-void masked_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+void al_blit_region(int method, BITMAP *src, int s_x, int s_y, int w, int h, BITMAP *dest, int d_x, int d_y)
 {
    ASSERT(src);
    ASSERT(dest);
-   ASSERT(src->vtable->color_depth == dest->vtable->color_depth);
-
    BLIT_CLIP();
+   
+   /* Masked blit */
+   if (method == AL_MASK_SOURCE) {
+      ASSERT(src->vtable->color_depth == dest->vtable->color_depth);
 
-   dest->vtable->masked_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
+      dest->vtable->masked_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
+      return;
+   }
+
+   if (src->vtable->color_depth != dest->vtable->color_depth) {
+      /* need to do a color conversion */
+      dest->vtable->blit_between_formats(src, dest, s_x, s_y, d_x, d_y, w, h);
+   }
+   else if (is_same_bitmap(src, dest)) {
+      /* special handling for overlapping regions */
+      blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
+   }
+   else if (is_video_bitmap(dest)) {
+      /* drawing onto video bitmaps */
+      if (is_video_bitmap(src))
+         dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
+      else if (is_system_bitmap(src))
+         dest->vtable->blit_from_system(src, dest, s_x, s_y, d_x, d_y, w, h);
+      else
+         dest->vtable->blit_from_memory(src, dest, s_x, s_y, d_x, d_y, w, h);
+   }
+   else if (is_system_bitmap(dest)) {
+      /* drawing onto system bitmaps */
+      if (is_video_bitmap(src))
+         src->vtable->blit_to_system(src, dest, s_x, s_y, d_x, d_y, w, h);
+      else if (is_system_bitmap(src))
+         dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
+      else
+         dest->vtable->blit_from_memory(src, dest, s_x, s_y, d_x, d_y, w, h);
+   }
+   else {
+      /* drawing onto memory bitmaps */
+      if ((is_video_bitmap(src)) || (is_system_bitmap(src)))
+         src->vtable->blit_to_memory(src, dest, s_x, s_y, d_x, d_y, w, h);
+      else
+         dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
+   }
 }
+
+END_OF_FUNCTION(al_blit_region);
