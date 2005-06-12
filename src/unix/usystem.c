@@ -319,6 +319,8 @@ void _unix_get_executable_name(char *output, int size)
    #ifdef ALLEGRO_HAVE_SV_PROCFS
       struct prpsinfo psinfo;
       int fd;
+   #endif
+   #if defined ALLEGRO_HAVE_SV_PROCFS || defined ALLEGRO_SYS_GETEXECNAME
       char *s;
    #endif
    char linkname[1024];
@@ -327,11 +329,26 @@ void _unix_get_executable_name(char *output, int size)
    FILE *pipe;
    pid_t pid;
    int len;
+   
+   #ifdef ALLEGRO_HAVE_GETEXECNAME
+      s = getexecname();
+      if (s) {
+         if (s[0] == '/') {   /* Absolute path */
+            do_uconvert (s, U_ASCII, output, U_CURRENT, size);
+            return;
+         }
+         else {               /* Not an absolute path */
+            if (_find_executable_file(s, output, size))
+               return;
+         }
+      }
+      s = NULL;
+   #endif
 
    /* We need the PID in order to query procfs */
    pid = getpid();
 
-   /* First try a Linux-like procfs */   
+   /* Try a Linux-like procfs */   
    /* get symolic link to executable from proc fs */
    sprintf (linkname, "/proc/%d/exe", pid);
    if (stat (linkname, &finfo) == 0) {
@@ -353,9 +370,12 @@ void _unix_get_executable_name(char *output, int size)
    
       /* Use argv[0] directly if we can */
       #ifdef ALLEGRO_HAVE_PROCFS_ARGCV
-         if (_find_executable_file(psinfo.pr_argv[0], output, size))
-            return;
-      #else
+         if (psinfo.pr_argv && psinfo.pr_argc) {
+            if (_find_executable_file(psinfo.pr_argv[0], output, size))
+               return;
+         }
+         else {
+      #endif
          /* Emulate it */
          /* We use the pr_psargs field to find argv[0]
          * This is better than using the pr_fname field because we need the
@@ -367,6 +387,8 @@ void _unix_get_executable_name(char *output, int size)
          if (s) s[0] = '\0';
          if (_find_executable_file(psinfo.pr_psargs, output, size))
             return;
+      #ifdef ALLEGRO_HAVE_PROCFS_ARGCV
+         }
       #endif
 
       /* Try the pr_fname just for completeness' sake if argv[0] fails */

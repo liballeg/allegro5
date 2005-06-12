@@ -218,6 +218,19 @@ allegro_procfs_argcv=yes, allegro_procfs_argcv=no)])
 AC_MSG_RESULT($allegro_procfs_argcv)
 
 dnl
+dnl Test for getexecname() on Solaris
+dnl
+dnl Variables:
+dnl  allegro_sys_getexecname=(yes|no)
+dnl
+AC_MSG_CHECKING(for getexecname)
+AC_DEFUN(ALLEGRO_SYS_GETEXECNAME,
+   [AC_CHECK_LIB(c, getexecname,
+      [allegro_sys_getexecname=yes], [allegro_sys_getexecname=no])]
+)
+AC_MSG_RESULT($allegro_sys_getexecname)
+
+dnl
 dnl Test for X-Windows support.
 dnl
 dnl Variables:
