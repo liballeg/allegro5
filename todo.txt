@@ -33,7 +33,6 @@ in the subject.
 - settings CFLAGS from configure, as per gentoo bug
 - grabber.txt was moved, so the grabber can't find it anymore
 - improved demo
-- upgrades to fixmul, fixdiv
 - MacOS X problems with grabber, http://www.allegro.cc/forums/view_thread.php?_id=498239
 
 General (Platform independent) todos:
