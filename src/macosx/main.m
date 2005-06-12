@@ -189,6 +189,15 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 
 
 
+/* This prevents warnings that 'NSApplication might not
+ * respond to setAppleMenu' on OS X 10.4
+ */
+@interface NSApplication(AllegroOSX)
+- (void)setAppleMenu:(NSMenu *)menu;
+@end
+
+
+
 /* main:
  *  Replacement for main function.
  */
@@ -223,8 +232,7 @@ int main(int argc, char *argv[])
       keyEquivalent: @""];
    [[NSApp mainMenu] addItem: temp_item];
    [[NSApp mainMenu] setSubmenu: menu forItem: temp_item];
-   /* It seems setAppleMenu: no longer exists in MacOS 10.4 (?) */
-   /* [NSApp setAppleMenu: menu]; */
+   [NSApp setAppleMenu: menu];
    NSString *quit = @"Quit ";
    menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
       initWithTitle: [quit stringByAppendingString: [[NSProcessInfo processInfo] processName]]
