@@ -23,10 +23,6 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
-/* Only tested with X11 so far. Can remove completely once it is tested with
- * other platforms.
- */
-
 TIMER_DRIVER *timer_driver = NULL;        /* the active driver */
 
 int _timer_installed = FALSE;
