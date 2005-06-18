@@ -81,8 +81,10 @@ void _unix_rest(unsigned int ms, void (*callback) (void))
       {
          (*callback)();
          gettimeofday (&tv, NULL);
-         if (tv.tv_sec >= tv_end.tv_sec && tv.tv_usec >= tv_end.tv_usec)
+         if (tv.tv_sec > tv_end.tv_sec)
             break;
+         if (tv.tv_sec == tv_end.tv_sec && tv.tv_usec >= tv_end.tv_usec)
+             break;
       }
    }
    else {
