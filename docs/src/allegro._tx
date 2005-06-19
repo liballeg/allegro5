@@ -11022,6 +11022,12 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
    polygon can safely be culled. If it is zero, the polygon is perpendicular 
    to the screen.
 
+   However, this method of culling back-faces must only be used once the X and
+   Y coordinates have been projected into screen space using persp_project()
+   (or if an orthographic (isometric) projection is being used). Note that
+   this function will fail if the three vertices are co-linear (they lie on
+   the same line) in 3D space.
+
 @@void @apply_matrix(const MATRIX *m, fixed x, y, z, *xout, *yout, *zout);
 @@void @apply_matrix_f(const MATRIX_f *m, float x, y, z, *xout, *yout, *zout);
 @xref matrix_mul
