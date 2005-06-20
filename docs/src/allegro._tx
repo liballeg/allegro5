@@ -8849,7 +8849,10 @@ Digital sample routines
    Writes a sample into a file. The output format is determined from the
    filename extension. At present Allegro does not natively support the
    writing of any sample formats, so you must register a custom saver routine
-   with register_sample_file_type().
+   with register_sample_file_type(). Example:
+<codeblock>
+      if (save_sample("sound.wav", sample) != 0)
+	 abort_on_error("Couldn't save sample!");<endblock>
 @retval
    Returns zero on success, non-zero otherwise.
 
@@ -8858,7 +8861,10 @@ Digital sample routines
 @shortdesc Constructs a new sample structure of the specified type.
    Constructs a new sample structure of the specified type. Read chapter
    "Structures and types defined by Allegro" for an internal description of
-   the SAMPLE structure.
+   the SAMPLE structure. The `bits' parameter can be 8 or 16, `stereo' can be
+   zero for mono samples and non-zero for stereo samples, `freq' is the
+   frequency in hertz, and `len' is the number of samples you want to allocate
+   for the full sound buffer.
 @retval
    Returns a pointer to the created sample, or NULL if the sample could not
    be created. Remember to free this sample later to avoid memory leaks.
@@ -8886,31 +8892,43 @@ Digital sample routines
 @shortdesc Registers custom loading/saving sample routines.
    Informs the load_sample() function of a new sample file type,
    providing routines to read and write samples in this format (either
-   function may be NULL).
+   function may be NULL). Example:
+<codeblock>
+      SAMPLE *load_mp3(const char *filename)
+      {
+	 ...
+      }
+      
+	 register_sample_file_type("mp3", load_mp3, NULL);<endblock>
 
 @@int @play_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref install_sound, load_sample, adjust_sample, stop_sample, Voice control
 @eref exsample, exsprite
 @shortdesc Plays a sample.
    Triggers a sample at the specified volume, pan position, and frequency. 
-   The volume and pan range from 0 (min/left) to 255 (max/right). Frequency 
-   is relative rather than absolute: 1000 represents the frequency that the 
-   sample was recorded at, 2000 is twice this, etc. If the loop flag is set, 
-   the sample will repeat until you call stop_sample(), and can be 
-   manipulated while it is playing by calling adjust_sample(). Returns the
-   voice number that was allocated for the sample (a non-negative number if
-   successful).
+   The parameters `vol' and `pan' range from 0 (min/left) to 255 (max/right).
+   Frequency is relative rather than absolute: 1000 represents the frequency
+   that the sample was recorded at, 2000 is twice this, etc. If `loop' is not
+   zero, the sample will repeat until you call stop_sample(), and can be
+   manipulated while it is playing by calling adjust_sample(). Example:
+<codeblock>
+      /* Scream from the left speaker, twice the freq. */
+      int sound = play_sample(scream, 255, 0, 2000, 0);<endblock>
+@retval
+   Returns the voice number that was allocated for the sample or negative if
+   no voices were available.
 
 @@void @adjust_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref play_sample
 @eref exsample
 @shortdesc Alters the parameters of a sample while it is playing.
-   Alters the parameters of a sample while it is playing (useful for 
-   manipulating looped sounds). You can alter the volume, pan, and 
-   frequency, and can also clear the loop flag, which will stop the sample 
-   when it next reaches the end of its loop. If there are several copies of 
-   the same sample playing, this will adjust the first one it comes across. 
-   If the sample is not playing it has no effect.
+   Alters the parameters of a sample while it is playing (useful for
+   manipulating looped sounds). You can alter the volume, pan, and frequency,
+   and can also clear the loop flag, which will stop the sample when it next
+   reaches the end of its loop. The values of the parameters are just like
+   those of play_sample(). If there are several copies of the same sample
+   playing, this will adjust the first one it comes across. If the sample is
+   not playing it has no effect.
 
 @@void @stop_sample(const SAMPLE *spl);
 @xref play_sample
@@ -8940,7 +8958,10 @@ its definition.
    Allocates a soundcard voice and prepares it for playing the specified 
    sample, setting up sensible default parameters (maximum volume, centre 
    pan, no change of pitch, no looping). When you are finished with the 
-   voice you must free it by calling deallocate_voice() or release_voice(). 
+   voice you must free it by calling deallocate_voice() or release_voice().
+   Allegro can manage up to 256 simultaneous voices, but that limit may be
+   lower due to hardware reasons.
+@retval
    Returns the voice number, or -1 if no voices are available.
 
 @@void @deallocate_voice(int voice);
@@ -8990,10 +9011,11 @@ its definition.
 @@SAMPLE *@voice_check(int voice);
 @xref allocate_voice, voice_start, voice_get_position
 @shortdesc Checks whether a voice is currently allocated.
-   Checks whether a voice is currently allocated. It returns a copy of the 
-   sample that the voice is using, or NULL if the voice is inactive (ie. it 
-   has been deallocated, or the release_voice() function has been called and 
-   the sample has then finished playing).
+   Checks whether a voice is currently allocated.
+@retval
+   Returns a pointer to the sample that the voice is using, or NULL if the
+   voice is inactive (ie. it has been deallocated, or the release_voice()
+   function has been called and the sample has then finished playing).
 
 @@int @voice_get_position(int voice);
 @xref Voice control, voice_set_position
@@ -9054,7 +9076,8 @@ its definition.
 @xref Voice control, voice_set_volume
 @shortdesc Starts a volume ramp for a voice.
    Starts a volume ramp (crescendo or diminuendo) from the current volume to 
-   the specified ending volume, lasting for time milliseconds.
+   the specified ending volume, lasting for time milliseconds. The volume is
+   a value in the range 0-255.
 
 @@void @voice_stop_volumeramp(int voice);
 @xref voice_ramp_volume
