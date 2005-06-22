@@ -33,6 +33,8 @@
    #include ALLEGRO_INTERNAL_HEADER
 #endif
 
+#include "modexsms.h"
+
 #if (!defined ALLEGRO_LINUX) || ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
 
 
@@ -40,6 +42,8 @@
 void _x_draw_sprite_end(void);
 void _x_blit_from_memory_end(void);
 void _x_blit_to_memory_end(void);
+
+static void really_split_modex_screen(int line);
 
 
 
@@ -639,6 +643,9 @@ static void modex_exit(BITMAP *b)
 
    #endif
    _unset_vga_mode();
+
+   /* see modexsms.c */
+   _split_modex_screen_ptr = NULL;
 }
 
 
@@ -653,6 +660,9 @@ static BITMAP *modex_init(int w, int h, int v_w, int v_h, int color_depth)
    BITMAP *b;
    unsigned long addr;
    int c;
+
+   /* see modexsms.c */
+   _split_modex_screen_ptr = really_split_modex_screen;
 
    /* check it is a valid resolution */
    if (color_depth != 8) {
@@ -798,6 +808,9 @@ static BITMAP *xtended_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    unsigned long addr;
    BITMAP *b;
+
+   /* see modexsms.c */
+   _split_modex_screen_ptr = really_split_modex_screen;
 
    /* check it is a valid resolution */
    if (color_depth != 8) {
@@ -1617,16 +1630,12 @@ static GFX_MODE_LIST *modex_fetch_mode_list(void)
 
 
 
-/* split_modex_screen:
+/* really_split_modex_screen:
  *  Enables a horizontal split screen at the specified line.
  *  Based on code from Paul Fenwick's XLIBDJ, which was in turn based 
  *  on Michael Abrash's routines in PC Techniques, June 1991.
  */
-#ifdef ALLEGRO_MODULE
-static void module_split_modex_screen(int line)
-#else
-void split_modex_screen(int line)
-#endif
+static void really_split_modex_screen(int line)
 {
    if (gfx_driver != &gfx_modex)
       return;
@@ -1658,18 +1667,6 @@ void split_modex_screen(int line)
 #endif      /* (!defined ALLEGRO_LINUX) || ((defined ALLEGRO_LINUX_VGA) && ... */
 
 
-#if (defined ALLEGRO_LINUX_VGA) && (defined ALLEGRO_WITH_MODULES)
-
-void (*_split_modex_screen_ptr)(int);
-
-void (split_modex_screen)(int line)
-{
-   _split_modex_screen_ptr(line);
-}
-
-#endif
-
-
 #if (defined ALLEGRO_LINUX_VGA) && (defined ALLEGRO_MODULE)
 
 /* _module_init:
@@ -1679,17 +1676,9 @@ void _module_init_modex(int system_driver)
 {
    if (system_driver == SYSTEM_LINUX)
       _unix_register_gfx_driver(GFX_MODEX, &gfx_modex, TRUE, FALSE);
-
-   _split_modex_screen_ptr = module_split_modex_screen;
 }
 
-#endif
+#endif	    /* (defined ALLEGRO_LINUX_VGA) && (defined ALLEGRO_MODULE) */
 
 
-#else      /* ifdef GFX_HAS_VGA */
-
-void split_modex_screen(int line)
-{
-}
-
-#endif
+#endif	    /* GFX_HAS_VGA */

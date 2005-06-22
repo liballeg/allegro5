@@ -197,6 +197,7 @@ ALLEGRO_SRC_DOS_FILES = \
 	src/dos/ww.c \
 	src/misc/modex.c \
 	src/misc/modexgfx.s \
+	src/misc/modexsms.c \
 	src/misc/pckeys.c \
 	src/misc/vbeaf.c \
 	src/misc/vbeafs.s \
@@ -331,7 +332,8 @@ ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/ustimer.c \
 	src/unix/usystem.c \
 	src/unix/uthreads.c \
-	src/unix/utimer.c
+	src/unix/utimer.c \
+	src/misc/modexsms.c
 
 ALLEGRO_SRC_X_FILES = \
 	src/x/xgfxdrv.c \
