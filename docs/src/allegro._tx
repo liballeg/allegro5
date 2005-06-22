@@ -12325,21 +12325,6 @@ DOS specifics
 
 @hnode DOS integration routines
 
-@@void @split_modex_screen(int line);
-@xref set_gfx_mode, scroll_screen
-@eref exscroll
-@shortdesc Splits into two parts the VGA display in mode-X.
-   This function is only available in mode-X. It splits the VGA display into 
-   two parts at the specified line. The top half of the screen can be 
-   scrolled to any part of video memory with the scroll_screen() function, 
-   but the part below the specified line number will remain fixed and will 
-   display from position (0, 0) of the screen bitmap. After splitting the 
-   screen you will generally want to scroll so that the top part of the 
-   display starts lower down in video memory, and then create two 
-   sub-bitmaps to access the two sections (see examples/exscroll.c for a 
-   demonstration of how this could be done). To disable the split, call 
-   split_modex_screen(0).
-
 @@extern int @i_love_bill;
 @xref install_timer, allegro_init, os_type
 @shortdesc Tells if Allegro has to used fixed rate timers.

@@ -334,4 +334,6 @@ Deprecated materials
 <li>
    timer_simulate_retrace (when enable_triple_buffer is called, the mode-X
    driver still enables retrace simulation automatically where possible).
+<li>
+   split_modex_screen.
 </ul>
