@@ -52,7 +52,8 @@ blit_loop_##name:                                                          ; \
    leal (%eax, %esi, bpp), %esi                                            ; \
 									   ; \
    movl B_WIDTH, %ecx            /* x loop counter */                      ; \
-   movl BMP_SEG(%edx), %ds       /* load data segment */                   ; \
+   movl BMP_SEG(%edx), %eax      /* load data segment */                   ; \
+   movl %eax, %ds                                                          ; \
    code                          /* do the transfer */                     ; \
 									   ; \
    movl %ebx, %ds                /* restore data segment */                ; \
