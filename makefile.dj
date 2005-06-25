@@ -361,7 +361,7 @@ setup/setup.exe: $(OBJ_DIR)/setup.o obj/djgpp/setupdat.o $(LIB_NAME)
 endif
 
 demo/demo.exe: $(OBJECTS_DEMO)
-        $(CC) $(LFLAGS) -o $@ $(OBJECTS_DEMO) $(LIB_NAME)
+	$(CC) $(LFLAGS) -o $@ $(OBJECTS_DEMO) $(LIB_NAME)
 
 */%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
 	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME)
