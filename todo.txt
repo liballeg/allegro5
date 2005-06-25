@@ -26,12 +26,15 @@ in the subject.
 - configure/OSS detection problems on Solaris
 - grabber doesn't use native mouse cursors if possible
 - guilt's patches
-- fix split_modex_screen() not being defined on all UNICES, even if 
-  GFX_MODEX is.
 - settings CFLAGS from configure, as per gentoo bug
 - grabber.txt was moved, so the grabber can't find it anymore
 - improved demo
 - MacOS X problems with grabber, http://www.allegro.cc/forums/view_thread.php?_id=498239
+- OSS requires -lossaudio in OpenBSD
+- OSS MIDI doesn't work on OpenBSD; make it work or fix detection in aclocal.m4
+- disallow ModeX and VBE/AF drivers in C-only Linux console port
+  (at least the bank switcher for the ModeX driver is in asm so has different
+  calling conventions than expected in the C port)
 
 General (Platform independent) todos:
 ---------------------------------------------------------------------------
