@@ -14503,7 +14503,7 @@ and avoid missing any important bit of information.
 @xref allegro_init, allegro_message, clear_keybuf, create_sub_bitmap
 @xref desktop_palette, destroy_bitmap, font, install_keyboard, keypressed
 @xref line, rectfill, release_bitmap, screen, scroll_screen, set_color
-@xref set_gfx_mode, set_palette, split_modex_screen, textout_ex, vline
+@xref set_gfx_mode, set_palette, textout_ex, vline
 @shortdesc Mode-X hardware scrolling and split screens.
    This program demonstrates how to use hardware scrolling and split
    screens in mode-X. The split screen part only works on DOS and Linux
