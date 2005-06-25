@@ -410,7 +410,7 @@ information about how to install Allegro and link your program with it.
    Contains the CPU submodel, where applicable. Allegro defines at least the 
    following CPU family types (see include/allegro/system.h for a more 
    complete list):
-<textblock>   
+<textblock>
       CPU_FAMILY_I586:
 	 CPU_MODEL_PENTIUM, CPU_MODEL_K5, CPU_MODEL_K6
 
@@ -879,7 +879,7 @@ available in past/future versions of Allegro.
    int pf_ungetc(int c, void *userdata);
    long pf_fread(void *p, long n, void *userdata);
    int pf_putc(int c, void *userdata);
-   long pf_fwrite(AL_CONST void *p, long n, void *userdata);
+   long pf_fwrite(const void *p, long n, void *userdata);
    int pf_fseek(void *userdata, int offset);
    int pf_feof(void *userdata);
    int pf_ferror(void *userdata);
@@ -1319,7 +1319,7 @@ is best to set it with set_uformat() just before you call these.
    Returns the newly allocated string. This memory must be freed by the
    caller. Returns NULL if it cannot allocate space for the duplicated string.
 
-@@char *@_ustrdup(const char *src, void* (*malloc_func) (size_t))
+@@char *@_ustrdup(const char *src, void* (*malloc_func)(size_t))
 @xref ustrdup, uconvert, ustrsize, ustrsizez
 @shortdesc Duplicates a string with a custom memory allocator.
    Does the same as ustrdup(), but allows the user to specify a custom memory
@@ -2330,7 +2330,7 @@ alsa_pcmdevice = x<br>
 <li>
 alsa_device = x<br>
    Unix only: device name for the ALSA 0.9 sound driver. The format is
-   <driver>[:<card>,<device>], for example: `hw:0,1'.
+   &ltdriver&gt[:&ltcard&gt,&ltdevice&gt], for example: `hw:0,1'.
 <li>
 alsa_mixer_device = x<br>
    Unix only: mixer device name for the ALSA 0.9 sound driver. The
@@ -5002,7 +5002,7 @@ will not be known, so the file may be converted wrongly.
 @shortdesc Packfile version of save_pcx.
    A version of save_pcx which writes to a packfile.
 
-@@int @save_tga (const char *filename, BITMAP *bmp, const RGB *pal);
+@@int @save_tga(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
 @shortdesc Saves a bitmap into a TGA file.
    Writes a bitmap into a 256-color, 15-bit hicolor, 24-bit truecolor, or
@@ -5510,7 +5510,7 @@ routines!
    from truecolor to hicolor. In addition to calling these functions 
    directly, hicolor dithering can be automatically enabled when loading 
    graphics by calling the set_color_conversion() function, for example 
-   set_color_conversion (COLORCONV_REDUCE_TRUE_TO_HI | COLORCONV_DITHER).
+   set_color_conversion(COLORCONV_REDUCE_TRUE_TO_HI | COLORCONV_DITHER).
    
    Example:
 <codeblock>
@@ -6883,7 +6883,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    responsible for destroying the font when you are finished with it to
    avoid memory leaks.
 
-@@FONT *@load_grx_or_bios_font(const char *filename, RGB *pal,void *param))
+@@FONT *@load_grx_or_bios_font(const char *filename, RGB *pal, void *param)
 @xref register_font_file_type, load_font
 @shortdesc Loads either a BIOS or GRX format font.
    Loads either a BIOS or GRX format font. You shouldn't normally call this 
@@ -7755,7 +7755,7 @@ Transparency and patterned drawing
 @eref exspline, exupdate
 @shortdesc Shortcut for toggling xor drawing mode on and off.
    This is a shortcut for toggling xor drawing mode on and off. Calling 
-   xor_mode(TRUE) is equivalent to drawing_mode (DRAW_MODE_XOR, NULL, 0, 0).
+   xor_mode(TRUE) is equivalent to drawing_mode(DRAW_MODE_XOR, NULL, 0, 0).
    Calling xor_mode(FALSE) is equivalent to
    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0).
 
@@ -7869,7 +7869,7 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
 <codeblock>
       COLOR_MAP greyscale_table;
       ...
-      void return_grey_color(AL_CONST PALETTE pal,
+      void return_grey_color(const PALETTE pal,
 			     int x, int y, RGB *rgb)
       {
 	 ...
@@ -9874,7 +9874,7 @@ directories, but not hidden files and directories. Similarly, if you pass
    load_pcx to read an image from a datafile, you should import it as a 
    binary block rather than as a BITMAP object.
 
-@@PACKFILE *@pack_fopen_vtable(AL_CONST PACKFILE_VTABLE *vtable, void *userdata));
+@@PACKFILE *@pack_fopen_vtable(const PACKFILE_VTABLE *vtable, void *userdata);
 @xref pack_fopen
 @eref expackf
    Creates a new packfile structure that uses the functions specified in
@@ -10987,8 +10987,8 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
    adds in the scale factor, so there is no need to build two temporary 
    matrices and then multiply them together.
 
-@@void @matrix_mul(const MATRIX *m1, *m2, MATRIX *out);
-@@void @matrix_mul_f(const MATRIX_f *m1, *m2, MATRIX_f *out);
+@@void @matrix_mul(const MATRIX *m1, const MATRIX *m2, MATRIX *out);
+@@void @matrix_mul_f(const MATRIX_f *m1, const MATRIX_f *m2, MATRIX_f *out);
 @xref apply_matrix
 @eref exquat, exscn3d
 @shortdesc Multiplies two matrices.
@@ -11032,8 +11032,8 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
    result in (*xout, *yout, *zout). The cross product is perpendicular to 
    both of the input vectors, so it can be used to generate polygon normals.
 
-@@fixed @polygon_z_normal(const V3D *v1, *v2, *v3);
-@@float @polygon_z_normal_f(const V3D_f *v1, *v2, *v3);
+@@fixed @polygon_z_normal(const V3D *v1, const V3D *v2, const V3D *v3);
+@@float @polygon_z_normal_f(const V3D_f *v1, const V3D_f *v2, const V3D_f *v3);
 @xref cross_product
 @eref ex3d
 @shortdesc Finds the Z component of the normal vector to three vertices.
@@ -11075,8 +11075,8 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
    though, so this isn't always completely true). If you pass -1/-1/2/2 as
    parameters, no extra scaling will be performed by the projection.
 
-@@void @persp_project(fixed x, y, z, *xout, *yout);
-@@void @persp_project_f(float x, y, z, *xout, *yout);
+@@void @persp_project(fixed x, fixed y, fixed z, fixed *xout, fixed *yout);
+@@void @persp_project_f(float x, float y, float z, float *xout, float *yout);
 @xref set_projection_viewport, get_camera_matrix
 @eref ex3d, exstars
 @shortdesc Projects a 3d point into 2d screen space.
@@ -11175,7 +11175,7 @@ me.
    much more efficient to call quat_to_matrix() and then use 
    apply_matrix_f().
 
-@@void @quat_interpolate(const QUAT *from, *to, float t, QUAT *out);
+@@void @quat_interpolate(const QUAT *from, const QUAT *to, float t, QUAT *out);
 @eref exquat
 @shortdesc Constructs a quaternion representing a rotation between from and to.
    Constructs a quaternion that represents a rotation between from and to. 
@@ -11185,7 +11185,7 @@ me.
    out. This function will create the short rotation (less than 180 degrees) 
    between from and to.
 
-@@void @quat_slerp(const QUAT *from, *to, float t, QUAT *out, int how);
+@@void @quat_slerp(const QUAT *from, const QUAT *to, float t, QUAT *out, int how);
 @shortdesc Version of quat_interpolate() allowing control over the rotation.
    The same as quat_interpolate(), but allows more control over how the 
    rotation is done. The how parameter can be any one of the values:
@@ -11998,8 +11998,8 @@ Platform specifics
 DOS specifics
 
 @@Drivers @JOY_TYPE_*/DOS
-@shortdesc Supported DOS joystick drivers.
 @xref install_joystick
+@shortdesc Supported DOS joystick drivers.
    The DOS library supports the following type parameters for the 
    install_joystick() function:
 <ul><li>
@@ -12398,8 +12398,8 @@ cannot be differentiated and are both reported as 16-bit desktops. See
 below for the consequences for windowed and overlay DirectX drivers.
 
 @@Drivers @JOY_TYPE_*/Windows
-@shortdesc Supported Windows joystick drivers.
 @xref install_joystick
+@shortdesc Supported Windows joystick drivers.
    The Windows library supports the following type parameters for the 
    install_joystick() function:
 <ul><li>
@@ -12756,8 +12756,8 @@ command. You could add another grep to filter only lines with text like
 `keyboard' or `allegro'.
 
 @@Drivers @JOY_TYPE_*/Linux
-@shortdesc Supported Linux joystick drivers.
 @xref install_joystick
+@shortdesc Supported Linux joystick drivers.
    The Linux library supports the following type parameters for the 
    install_joystick() function:
 <ul><li>
