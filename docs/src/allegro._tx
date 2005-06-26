@@ -154,8 +154,8 @@ information about how to install Allegro and link your program with it.
    In order to maintain cross-platform compatibility, you have to put this
    macro at the very end of your main function. This macro uses some `magic'
    to mangle your main procedure on platforms that need it like Windows,
-   Linux or MacOS X. On the other platforms this macro compiles to nothing,
-   so you don't have to #ifdef around it. Example:
+   some flavours of UNIX or MacOS X. On the other platforms this macro 
+   compiles to nothing, so you don't have to #ifdef around it. Example:
 <codeblock>
       int main(void)
       {
@@ -175,10 +175,22 @@ information about how to install Allegro and link your program with it.
 @xref set_gfx_mode, install_sound
 @eref Available Allegro examples
 @shortdesc Stores the last Allegro error message.
-   Text string used by set_gfx_mode() and install_sound() to report error 
-   messages. If they fail and you want to tell the user why, this is the 
-   place to look for a description of the problem.
+   Text string used by set_gfx_mode(), install_sound() and other functions to
+   report error messages. If they fail and you want to tell the user why, this
+   is the place to look for a description of the problem. Example:
+<codeblock>
+      void abort_on_error(const char *message)
+      {
+	 if (screen != NULL)
+	    set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
 
+	 allegro_message("%s.\nLast Allegro error `%s'\n",
+			 message, allegro_error);
+	 exit(-1);
+      }
+      ...
+	 if (some_allegro_function() == ERROR_CODE)
+	    abort_on_error("Error calling some function!");<endblock>
 @@#define @ALLEGRO_VERSION
 @shortdesc Defined to the major version of Allegro.
    Defined to the major version of Allegro. From a version number like
@@ -217,6 +229,38 @@ information about how to install Allegro and link your program with it.
       allegro_message("Year %d, month %d, day %d\n",
 	 year, month, day);<endblock>
 
+@@Macro @AL_ID(a,b,c,d)
+@shortdesc Converts four 8 bit values to a packed 32 bit integer ID.
+@xref DAT_ID
+   This macro can be used to create a packed 32 bit integer from 8 bit
+   characters, on both 32 and 64 bit machines. These can be used for various 
+   things, like custom datafile objects or system IDs. Example:
+<codeblock>
+      #define OSTYPE_LINUX       AL_ID('T','U','X',' ')<endblock>
+
+@@Macro @MAKE_VERSION(a, b, c)
+@shortdesc Create a 32 bit integer from the Allegro version
+@xref ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION
+   This macro can be used to check if some Allegro version is (binary)
+   compatible with the current version. It is safe to use &gt and &lt to
+   check if one version is more recent than another.
+   The third number is ignored if the second number is even, so
+   MAKE_VERSION(4, 2, 0) is equivalent to MAKE_VERSION(4, 2, 1).
+   This is because of our version numbering policy since 4.0.0:
+   the second number is even for stable releases, which must be
+   ABI-compatible with earlier versions of the same series.
+   This macro is mainly useful for addon packages and libraries. See the 
+   `ABI compatibility information' section of the manual for more detailed 
+   information. Example:
+<codeblock>
+      /* Check if the current version is compatible with Allegro 4.2.0 */
+      #if (MAKE_VERSION(4, 2, 0) <= MAKE_VERSION(ALLEGRO_VERSION, \
+			 ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION))
+	 /* Allegro 4.2.0 compatibility */
+      #else
+	 /* Work-around */
+      #endif<endblock>
+   
 @@extern int @os_type;
 @xref allegro_init, os_version, os_multitasking
 @shortdesc Stores the detected type of the OS.
@@ -294,7 +338,9 @@ information about how to install Allegro and link your program with it.
 @shortdesc Sets the window title of the Allegro program.
    On platforms that are capable of it, this routine alters the window title 
    for your Allegro program. Note that Allegro cannot set the window title 
-   when running in a DOS box under Windows.
+   when running in a DOS box under Windows. Example:
+<codeblock>
+      set_window_title("Allegro rules!");<endblock>
 
 @@int @set_close_button_callback(void (*proc)(void));
 @xref set_window_title
@@ -318,6 +364,24 @@ information about how to install Allegro and link your program with it.
    
    Also note that the supplied callback is also called under MacOS X when
    the user hits Command-Q or selects "Quit" from the application menu.
+   Example:
+<codeblock>
+      volatile int close_button_pressed = FALSE;
+
+      void close_button_handler(void)
+      {
+	 close_button_pressed = TRUE;
+      }
+      END_OF_FUNCTION(close_button_handler)
+      ...
+      
+      allegro_init();
+      LOCK_FUNCTION(close_button_handler);
+      set_close_button_callback(close_button_handler);
+      ...
+         
+      while (!close_button_pressed)
+	 do_stuff();<endblock>
 @retval
    Returns zero on success and non-zero on failure (e.g. the feature is not
    supported by the platform).
@@ -3558,7 +3622,7 @@ frame in your game loop. Otherwise you face the possibility of reading stale
 incorrect data.
 
 @@int @install_joystick(int type);
-@xref remove_joystick, load_joystick_data, calibrate_joystick
+@xref remove_joystick, num_joysticks, load_joystick_data, calibrate_joystick
 @xref calibrate_joystick_name, poll_joystick, Standard config variables
 @xref JOY_TYPE_*/DOS, JOY_TYPE_*/Windows, JOY_TYPE_*/Linux
 @eref exjoy
@@ -3567,7 +3631,14 @@ incorrect data.
    type parameter should usually be JOY_TYPE_AUTODETECT, or see the platform 
    specific documentation for a list of the available drivers. You must call 
    this routine before using any other joystick functions, and you should 
-   make sure that the joystick is in the middle position at the time.
+   make sure that the joystick is in the middle position at the time. Example:
+<codeblock>
+      textout_centre_ex(screen, font,
+			"Center the joystick and press a key",
+			SCREEN_W/2, SCREEN_H/2, red_color, -1);
+      readkey();
+      if (install_joystick(JOY_TYPE_AUTODETECT) != 0)
+	 abort_on_error("Error initialising joystick!");<endblock>
 @retval
    Returns zero on success. As soon as you have installed the joystick 
    module, you will be able to read the button state and digital (on/off 
@@ -3587,7 +3658,20 @@ incorrect data.
 @eref exjoy
 @shortdesc Polls the joystick.
    The joystick is not interrupt driven, so you need to call this function 
-   every now and again to update the global position values.
+   every now and again to update the global position values. Example:
+<codeblock>
+   do {
+      /* Get joystick input */
+      poll_joystick();
+      
+      /* Process input for the first joystick */
+      if (joy[0].button[0].b)
+         first_button_pressed();
+
+      if (joy[0].button[1].b)
+         second_button_pressed();
+      ...
+   } while(!done);<endblock>
 @retval
    Returns zero on success or a negative number on failure (usually because
    no joystick driver was installed).
@@ -4032,15 +4116,16 @@ GFX_SAFE:<br>
    
    When you call set_gfx_mode(), the v_w and v_h parameters represent the 
    minimum size of virtual screen that is acceptable for your program. The 
-   range of possible sizes is usually very restricted, and Allegro is likely 
-   to end up creating a virtual screen much larger than the one you request. 
-   On an SVGA card with one megabyte of vram you can count on getting a 
-   1024x1024 virtual screen (256 colors) or 1024x512 (15 or 16 bpp), and 
-   with 512k vram you can get 1024x512 (256 colors). Other sizes may or may 
-   not be possible: don't assume that they will work. In mode-X the virtual 
-   width can be any multiple of eight greater than or equal to the physical 
-   screen width, and the virtual height will be set accordingly (the VGA has 
-   256k of vram, so the virtual height will be 256*1024/virtual_width).
+   range of possible sizes is usually very restricted, and Allegro may 
+   end up creating a virtual screen much larger than the one you request.
+   Allowed sizes are driver dependent and some drivers do not allow virtual 
+   screens that are larger than the visible screen at all: don't assume
+   that whatever you pass will always work.
+   
+   In mode-X the virtual width can be any multiple of eight greater than or 
+   equal to the physical screen width, and the virtual height will be set 
+   accordingly (the VGA has 256k of vram, so the virtual height will be 
+   256*1024/virtual_width).
 
    Currently, using a big virtual screen for page flipping is considered bad
    practice.  There are platforms which don't support virtual screens bigger
@@ -4339,13 +4424,9 @@ GFX_SAFE:<br>
    original position in the screen bitmap you will have to alter the clipping
    rectangle with set_clip_rect().
 
-   Mode-X scrolling is reliable and will work on any card. Unfortunately 
-   most VESA implementations can only handle horizontal scrolling in four 
-   pixel increments, so smooth horizontal panning is impossible in SVGA 
-   modes. A significant number of VESA implementations seem to be very buggy
-   when it comes to scrolling in truecolor video modes, so you shouldn't
-   depend on this routine working correctly in the truecolor resolutions
-   unless you can be sure that SciTech Display Doctor is installed.
+   Mode-X scrolling is reliable and will work on any card, other drivers may
+   not work or not work reliably. See the platform-specific section of the docs
+   for more information.
 
    Allegro will handle any necessary vertical retrace synchronisation when 
    scrolling the screen, so you don't need to call vsync() before it. This 
@@ -4365,12 +4446,9 @@ GFX_SAFE:<br>
    the poll_scroll() routine to detect when the flip has actually taken 
    place.
 
-   Triple buffering is only possible on certain hardware: it will work in any
-   DOS mode-X resolution if the timer retrace simulator is active (but this
-   doesn't work correctly under Windows 95), plus it is supported by the
-   VBE 3.0 and VBE/AF drivers for a limited number of high-end graphics
-   cards. You can look at the GFX_CAN_TRIPLE_BUFFER bit in the
-   gfx_capabilities flag to see if it will work with the current driver.
+   Triple buffering is only possible with certain drivers: you can look at the 
+   GFX_CAN_TRIPLE_BUFFER bit in the gfx_capabilities flag to see if it will 
+   work with the current driver.
 @retval
    This function returns zero on success, non-zero otherwise.
 
@@ -4385,7 +4463,7 @@ GFX_SAFE:<br>
    requested scroll has already happened.
 
 @@int @show_video_bitmap(BITMAP *bitmap);
-@xref scroll_screen, create_video_bitmap
+@xref scroll_screen, create_video_bitmap, Standard config variables
 @eref exaccel, exflip, exupdate
 @shortdesc Flips the hardware screen to use the specified page.
    Attempts to page flip the hardware screen to display the specified video 
@@ -4394,7 +4472,23 @@ GFX_SAFE:<br>
    
    Allegro will handle any necessary vertical retrace synchronisation when 
    page flipping, so you don't need to call vsync() before it. This means
-   that show_video_bitmap() has the same time delay effects as vsync().
+   that show_video_bitmap() has the same time delay effects as vsync() by
+   default. This can be adjusted with the "disable_vsync" config key in the
+   [graphics] section of allegro.cfg. Example:
+<codeblock>
+      int current_page;
+      BITMAP *video_page[2];
+      ...
+      /* Create pages for page flipping */
+      video_page[0] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      video_page[1] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      current_page = 0;
+      ...
+      /* draw the screen and flip pages */
+      draw_screen(video_page[current_page]);
+      show_video_bitmap(video_page[current_page]);
+      current_page = (current_page+1)%2;
+      ...<endblock>
 @retval
    Returns zero on success and non-zero on failure.
 
@@ -4409,7 +4503,24 @@ GFX_SAFE:<br>
    vertical retrace, but you can carry on running other code in the meantime 
    and use the poll_scroll() routine to detect when the flip has actually 
    taken place. Triple buffering is only possible on certain hardware: see 
-   the comments about request_scroll().
+   the comments about request_scroll(). Example:
+<codeblock>
+      int current_page;
+      BITMAP *video_page[3];
+      ...
+      /* Create pages for page flipping */
+      video_page[0] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      video_page[1] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      video_page[2] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      current_page = 0;
+      ...
+      /* draw the screen and flip pages */
+      draw_screen(video_page[current_page]);
+      do {
+      } while (poll_scroll());
+      request_video_bitmap(video_page[current_page]);
+      current_page = (current_page+1)%3;
+      ...<endblock>
 @retval
    Returns zero on success and non-zero on failure.
 
@@ -4765,6 +4876,9 @@ Allegro supports several different types of bitmaps:
    is locked, which prevents them from getting any input messages, so you 
    must be sure to release all your bitmaps before using any timer, 
    keyboard, or other non-graphics routines!
+   
+   Note that if you are using hardware accelerated VRAM-&gtVRAM blits, you should
+   not call acquire_bitmap().
 
 @@void @release_bitmap(BITMAP *bmp);
 @xref acquire_bitmap, acquire_screen, release_screen
@@ -4909,7 +5023,22 @@ will not be known, so the file may be converted wrongly.
 @xref load_bmp
 @eref expackf
 @shortdesc Packfile version of load_bmp.
-   A version of load_bmp which reads from a packfile.
+   A version of load_bmp() which reads from a packfile. Example:
+<codeblock>
+      PACKFILE *packfile;
+      BITMAP *bmp;
+
+      packfile = pack_fopen("mybitmap.bmp", F_READ);
+      if (!packfile)
+	 abort_on_error("Couldn't open mybitmap.bmp");
+         
+      bmp = load_bmp_pf(packfile, pal);
+      if (!bmp)
+	 abort_on_error("Error loading mybitmap.bmp");<endblock>
+@retval
+   Returns a pointer to the bitmap or NULL on error. Remember that you are
+   responsible for destroying the bitmap when you are finished with it to
+   avoid memory leaks.
 
 @@BITMAP *@load_lbm(const char *filename, RGB *pal);
 @xref load_bitmap
@@ -4934,7 +5063,22 @@ will not be known, so the file may be converted wrongly.
 @xref load_pcx
 @eref expackf
 @shortdesc Packfile version of load_pcx.
-   A version of load_pcx which reads from a packfile.
+   A version of load_pcx() which reads from a packfile. Example:
+<codeblock>
+      PACKFILE *packfile;
+      BITMAP *bmp;
+
+      packfile = pack_fopen("mybitmap.pcx", F_READ);
+      if (!packfile)
+	 abort_on_error("Couldn't open mybitmap.pcx");
+         
+      bmp = load_bmp_pf(packfile, pal);
+      if (!bmp)
+	 abort_on_error("Error loading mybitmap.pcx");<endblock>
+@retval
+   Returns a pointer to the bitmap or NULL on error. Remember that you are
+   responsible for destroying the bitmap when you are finished with it to
+   avoid memory leaks.
 
 @@BITMAP *@load_tga(const char *filename, RGB *pal);
 @xref load_bitmap
@@ -4950,7 +5094,22 @@ will not be known, so the file may be converted wrongly.
 @xref load_tga
 @eref expackf
 @shortdesc Packfile version of load_tga.
-   A version of load_tga which reads from a packfile.
+   A version of load_tga() which reads from a packfile. Example:
+<codeblock>
+      PACKFILE *packfile;
+      BITMAP *bmp;
+
+      packfile = pack_fopen("mybitmap.tga", F_READ);
+      if (!packfile)
+	 abort_on_error("Couldn't open mybitmap.tga");
+         
+      bmp = load_bmp_pf(packfile, pal);
+      if (!bmp)
+	 abort_on_error("Error loading mybitmap.tga");<endblock>
+@retval
+   Returns a pointer to the bitmap or NULL on error. Remember that you are
+   responsible for destroying the bitmap when you are finished with it to
+   avoid memory leaks.
 
 @@int @save_bitmap(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bmp, save_pcx, save_tga, load_bitmap, register_bitmap_file_type
@@ -4984,7 +5143,7 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
-@@BITMAP *@save_bmp_pf(PACKFILE *f, RGB *pal);
+@@int @save_bmp_pf(PACKFILE *f, RGB *pal);
 @xref save_bmp
 @eref expackf
 @shortdesc Packfile version of save_bmp.
@@ -4997,7 +5156,7 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
-@@BITMAP *@save_pcx_pf(PACKFILE *f, RGB *pal);
+@@int @save_pcx_pf(PACKFILE *f, RGB *pal);
 @xref save_pcx
 @shortdesc Packfile version of save_pcx.
    A version of save_pcx which writes to a packfile.
@@ -5010,7 +5169,7 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
-@@BITMAP *@save_tga_pf(PACKFILE *f, RGB *pal);
+@@int @save_tga_pf(PACKFILE *f, RGB *pal);
 @xref save_tga
 @eref expackf
 @shortdesc Packfile version of save_tga.
@@ -12287,6 +12446,19 @@ DOS specifics
       normal VESA 640x400 mode will be chosen instead), so if you want to 
       use it you will have to explicitly pass GFX_XTENDED to set_gfx_mode().
 </ul>
+   There are a few things you need to be aware of for scrolling:
+   most VESA implementations can only handle horizontal scrolling in four 
+   pixel increments, so smooth horizontal panning is impossible in SVGA modes. 
+   A significant number of VESA implementations seem to be very buggy when it 
+   comes to scrolling in truecolor video modes, so you shouldn't depend on 
+   this routine working correctly in the truecolor resolutions unless you can
+   be sure that SciTech Display Doctor is installed. Hardware scrolling may
+   also not work at all under Windows.
+
+   Triple buffering is only possible with certain drivers: it will work in any
+   DOS mode-X resolution if the timer retrace simulator is active (but this
+   doesn't work correctly under Windows 95), plus it is supported by the
+   VBE 3.0 and VBE/AF drivers for a limited number graphics cards.
 @@Drivers @DIGI_*/DOS
 @xref detect_digi_driver, install_sound, install_sound_input
 @shortdesc Supported DOS digital sound drivers.
