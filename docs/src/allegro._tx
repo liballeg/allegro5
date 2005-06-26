@@ -4145,7 +4145,7 @@ GFX_SAFE:<br>
 
 @@int @set_display_switch_mode(int mode);
 @xref set_display_switch_callback, get_display_switch_mode
-@eref exswitch
+@eref exmidi, exswitch
 @shortdesc Tells Allegro how the program handles background switching.
    Sets how the program should handle being switched into the background, 
    if the user tabs away from it. Not all of the possible modes will be
@@ -8389,18 +8389,21 @@ switching (ie. it is a memory bitmap, mode 13h screen, etc), these functions
 just return bmp-&gtline[line].
 
 @@unsigned long @bmp_write_line(BITMAP *bmp, int line);
+@eref exflame, exlights
 @shortdesc Direct access bank switching line selection for writing.
    Selects the line of a bitmap that you are going to draw onto.
 @retval
    Returns the address of the selected line for writing.
 
 @@unsigned long @bmp_read_line(BITMAP *bmp, int line);
+@eref exflame
 @shortdesc Direct access bank switching line selection for reading.
    Selects the line of a bitmap that you are going to read from.
 @retval
    Returns the address of the selected line for reading.
 
 @@void @bmp_unwrite_line(BITMAP *bmp);
+@eref exflame, exlights
 @shortdesc Direct access bank switching line release.
    Releases the bitmap memory after you are finished with it. You only need 
    to call this once at the end of a drawing operation, even if you have 
@@ -14007,8 +14010,9 @@ and avoid missing any important bit of information.
 
 @@Example @exflame
 @xref END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, acquire_screen
-@xref allegro_error, allegro_init, allegro_message, clear_keybuf, font
-@xref getpixel, install_keyboard, keypressed, line, makecol, putpixel
+@xref allegro_error, allegro_init, allegro_message, bmp_read_line
+@xref bmp_unwrite_line, bmp_write_line, clear_keybuf, font, getpixel
+@xref install_keyboard, keypressed, line, makecol, putpixel
 @xref release_screen, screen, set_gfx_mode, set_palette, textout_ex
 @shortdesc How to write directly to video memory improving performance.
    This program demonstrates how to write directly to video memory.
@@ -14150,8 +14154,8 @@ and avoid missing any important bit of information.
 @xref font, get_filename, get_midi_length, install_keyboard
 @xref install_sound, install_timer, key, keypressed, load_midi, makecol
 @xref midi_pause, midi_pos, midi_resume, midi_time, play_midi, readkey
-@xref rectfill, rest, screen, set_gfx_mode, set_palette, text_height
-@xref text_length, textprintf_centre_ex
+@xref rectfill, rest, screen, set_display_switch_mode, set_gfx_mode
+@xref set_palette, text_height, text_length, textprintf_centre_ex
 @shortdesc Playing MIDI music.
    This program demonstrates how to play MIDI files.
 
@@ -14487,12 +14491,13 @@ and avoid missing any important bit of information.
 @@Example @exlights
 @xref BITMAP, COLOR_MAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W
 @xref allegro_error, allegro_init, allegro_message, bitmap_color_depth
-@xref blit, circlefill, clear_bitmap, clear_keybuf, color_map
-@xref create_bitmap_ex, destroy_bitmap, draw_trans_sprite, fixatan2
-@xref fixsqrt, fixtoi, getb_depth, getg_depth, getpixel, getr_depth
-@xref hsv_to_rgb, install_keyboard, install_mouse, install_timer, itofix
-@xref key, keypressed, line, load_bitmap, makecol, mouse_x, mouse_y
-@xref poll_mouse, replace_filename, retrace_count, screen, select_palette
+@xref blit, bmp_unwrite_line, bmp_write_line, circlefill, clear_bitmap
+@xref clear_keybuf, color_map, create_bitmap_ex, destroy_bitmap
+@xref draw_trans_sprite, fixatan2, fixsqrt, fixtoi, getb_depth
+@xref getg_depth, getpixel, getr_depth, hsv_to_rgb, install_keyboard
+@xref install_mouse, install_timer, itofix, key, keypressed, line
+@xref load_bitmap, makecol, mouse_x, mouse_y, poll_mouse
+@xref replace_filename, retrace_count, screen, select_palette
 @xref set_color_conversion, set_color_depth, set_gfx_mode
 @shortdesc One way to do colored lighting effects in a hicolor video mode.
    This program shows one way to implement colored lighting effects
@@ -14673,14 +14678,13 @@ and avoid missing any important bit of information.
 @@Example @exscroll
 @xref BITMAP, END_OF_MAIN, RGB, SCREEN_H, SCREEN_W, acquire_bitmap
 @xref allegro_init, allegro_message, clear_keybuf, create_sub_bitmap
-@xref desktop_palette, destroy_bitmap, font, install_keyboard, keypressed
-@xref line, rectfill, release_bitmap, screen, scroll_screen, set_color
-@xref set_gfx_mode, set_palette, textout_ex, vline
+@xref desktop_palette, destroy_bitmap, install_keyboard, keypressed
+@xref rectfill, release_bitmap, screen, scroll_screen, set_color
+@xref set_gfx_mode, set_palette, vline
 @shortdesc Mode-X hardware scrolling and split screens.
-   This program demonstrates how to use hardware scrolling and split
-   screens in mode-X. The split screen part only works on DOS and Linux
-   console platforms, but the scrolling should work on anything that
-   supports virtual screens larger than the physical screen.
+   This program demonstrates how to use hardware scrolling.
+   The scrolling should work on anything that supports virtual
+   screens larger than the physical screen.
 
 @@Example @ex3buf
 @xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_bitmap
