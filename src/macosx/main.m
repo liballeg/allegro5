@@ -74,7 +74,8 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    char path[1024], *p;
    int i;
 
-   pthread_mutex_init(&osx_event_mutex, NULL);
+   /* create mutex */
+    osx_event_mutex=_unix_create_mutex();
    
    pool = [[NSAutoreleasePool alloc] init];
    
@@ -115,22 +116,22 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
       withObject: nil];
    
    while (1) {
-      pthread_mutex_lock(&osx_event_mutex);
-      osx_event_handler();
       if (osx_gfx_mode == OSX_GFX_WINDOW)
          osx_update_dirty_lines();
-      else if (osx_gfx_mode == OSX_GFX_FULL) {
+      _unix_lock_mutex(osx_event_mutex);
+      if (osx_gfx_mode == OSX_GFX_FULL) {
          if ((osx_palette) && (osx_palette_dirty)) {
             CGDisplaySetPalette(kCGDirectMainDisplay, osx_palette);
 	    osx_palette_dirty = FALSE;
 	 }
       }
-      pthread_mutex_unlock(&osx_event_mutex);
+      osx_event_handler();
+      _unix_unlock_mutex(osx_event_mutex);
       usleep(1000000 / refresh_rate);
    }
    
    [pool release];
-   pthread_mutex_destroy(&osx_event_mutex);
+   _unix_destroy_mutex(osx_event_mutex);
 }
 
 

@@ -42,7 +42,7 @@ static int osx_sys_get_desktop_resolution(int *width, int *height);
 int    __crt0_argc;
 char **__crt0_argv;
 NSBundle *osx_bundle = NULL;
-pthread_mutex_t osx_event_mutex;
+void* osx_event_mutex;
 NSCursor *osx_cursor = NULL;
 NSCursor *osx_blank_cursor = NULL;
 AllegroWindow *osx_window = NULL;
@@ -117,13 +117,13 @@ SYSTEM_DRIVER system_macosx =
  */
 static RETSIGTYPE osx_signal_handler(int num)
 {
-   pthread_mutex_unlock(&osx_event_mutex);
-   pthread_mutex_unlock(&osx_window_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
+   _unix_unlock_mutex(osx_window_mutex);
    
    allegro_exit();
    
-   pthread_mutex_destroy(&osx_event_mutex);
-   pthread_mutex_destroy(&osx_window_mutex);
+   _unix_destroy_mutex(osx_event_mutex);
+   _unix_destroy_mutex(osx_window_mutex);
    
    fprintf(stderr, "Shutting down Allegro due to signal #%d\n", num);
    raise(num);
@@ -462,15 +462,15 @@ static void osx_sys_message(AL_CONST char *msg)
    ns_title = [NSString stringWithUTF8String: osx_window_title];
    ns_msg = [NSString stringWithUTF8String: tmp];
    
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    skip_events_processing = TRUE;
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
    
    NSRunAlertPanel(ns_title, ns_msg, nil, nil, nil);
    
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    skip_events_processing = FALSE;
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
 }
 
 

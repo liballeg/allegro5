@@ -151,8 +151,8 @@ void osx_hid_free(HID_DEVICE *devices, int num_devices);
 
 
 AL_VAR(NSBundle *, osx_bundle);
-AL_VAR(pthread_mutex_t, osx_event_mutex);
-AL_VAR(pthread_mutex_t, osx_window_mutex);
+AL_VAR(void *, osx_event_mutex);
+AL_VAR(void *, osx_window_mutex);
 AL_VAR(int, osx_gfx_mode);
 AL_VAR(int, osx_screen_used);
 AL_VAR(NSCursor *, osx_blank_cursor);

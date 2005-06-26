@@ -252,9 +252,9 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
 static BITMAP *osx_qz_full_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    BITMAP *bmp;
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    bmp = private_osx_qz_full_init(w, h, v_w, v_h, color_depth);
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
    if (!bmp)
       osx_qz_full_exit(bmp);
    return bmp;
@@ -267,7 +267,7 @@ static BITMAP *osx_qz_full_init(int w, int h, int v_w, int v_h, int color_depth)
  */
 static void osx_qz_full_exit(BITMAP *bmp)
 {
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    
    if ((bmp) && (bmp->extra)) {
       if (BMP_EXTRA(bmp)->port)
@@ -294,7 +294,7 @@ static void osx_qz_full_exit(BITMAP *bmp)
    
    osx_gfx_mode = OSX_GFX_NONE;
    
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
 }
 
 
@@ -321,7 +321,7 @@ static void osx_qz_full_set_palette(AL_CONST struct RGB *p, int from, int to, in
    if (!CGDisplayCanSetPalette(kCGDirectMainDisplay))
       return;
    
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    
    for (i = from; i <= to; i++) {
       color.red = ((float)p[i].r / 63.0);
@@ -331,7 +331,7 @@ static void osx_qz_full_set_palette(AL_CONST struct RGB *p, int from, int to, in
    }
    osx_palette_dirty = TRUE;
    
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
 }
 
 
