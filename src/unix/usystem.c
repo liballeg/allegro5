@@ -398,7 +398,7 @@ void _unix_get_executable_name(char *output, int size)
    
    /* Last resort: try using the output of the ps command to at least find */
    /* the name of the file if not the full path */
-   uszprintf (linkname, sizeof(linkname), "ps -f -p %d", pid);
+   uszprintf (linkname, sizeof(linkname), "ps -p %d", pid);
    do_uconvert (linkname, U_CURRENT, filename, U_ASCII, size);
    pipe = popen(filename, "r");
    if (pipe) {
