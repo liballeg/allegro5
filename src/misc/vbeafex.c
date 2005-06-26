@@ -680,8 +680,11 @@ static unsigned char asm_int_code[256][3] =
 
 
 
-/* temporary global for storing the data selector */
-static int int_ds;
+/* temporary global for storing the data selector
+ * FIXME: this is supposed to be static but that doesn't work with the
+ * following asm code with gcc 4
+ */
+int __al_vbeafex_int_ds;
 
 
 
@@ -702,7 +705,7 @@ static int my_int386x(int intno, SCITECH_REGS *in, SCITECH_REGS *out, SCITECH_SR
 
       "  movw (%%esi), %%es ; "           /* load selectors */
       "  movw 6(%%esi), %%ax ; "
-      "  movw %%ax, _int_ds ; "
+      "  movw %%ax, ___al_vbeafex_int_ds ; "
       "  movw 8(%%esi), %%fs ; "
       "  movw 10(%%esi), %%gs ; "
 
@@ -713,13 +716,13 @@ static int my_int386x(int intno, SCITECH_REGS *in, SCITECH_REGS *out, SCITECH_SR
       "  movl 16(%%edi), %%esi ; "
       "  movl 20(%%edi), %%edi ; "
 
-      "  movw _int_ds, %%ds ; "           /* load %ds selector */
+      "  movw ___al_vbeafex_int_ds, %%ds ; " /* load %ds selector */
 
       "  clc ; "                          /* generate the interrupt */
       "  popl %%ebp ; "
       "  call *%%ebp ; "
 
-      "  movw %%ds, %%ss:_int_ds ; "      /* store returned %ds value */
+      "  movw %%ds, %%ss:___al_vbeafex_int_ds ; " /* store returned %ds value */
       "  popw %%ds ; "                    /* restore original %ds */
 
       "  movl %%edi, %%ebp ; "            /* store %edi */
@@ -740,7 +743,7 @@ static int my_int386x(int intno, SCITECH_REGS *in, SCITECH_REGS *out, SCITECH_SR
       "  popl %%esi ; "                   /* pop sregs pointer into %esi */
 
       "  movw %%es, (%%esi) ; "           /* store output selectors */
-      "  movw _int_ds, %%ax ; "
+      "  movw ___al_vbeafex_int_ds, %%ax ; "
       "  movw %%ax, 6(%%esi) ; "
       "  movw %%fs, 8(%%esi) ; "
       "  movw %%gs, 10(%%esi) ; "
