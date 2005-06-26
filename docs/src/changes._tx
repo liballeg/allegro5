@@ -8,6 +8,67 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.2.0 beta 3 to 4.2.0 beta 4 (June 2005)
+<ul><li>
+   Matthew Leverton changed the default behavior of the grabber: default color 
+   depth is now the desktop, default mode is windowed and if fullscreen is
+   specified, then desktop resolution is used by default.
+<li>
+   Peter Wang fixed compilation problems related to get_modex_screen() on
+   UNIX and deprecated it.
+<li>
+   Robert Ohannessian fixed compilation problems for the assembler code with 
+   newer binutils.
+<li>
+   Peter Wang, Thomas Harte and Evert Glebbeek optimised fixmul() for different
+   platforms.
+<li>
+   Robert Alfonso fixed a couple of warnings that with DJGPP.
+<li>
+   Grzegorz Adam Hankiewicz made the FLIC player yield.
+<li>
+   Miran Amon fixed an arbitrary limit in get_config_argv(). Evert Glebbeek
+   fixed a memory leak in same.
+<li>
+   Thomas Klausner fixed a problem in allegro.m4 and automake 1.8+.
+<li>
+   Charles Wardlaw fixed some warnings with gcc 4 on MacOS X.
+<li>
+   Elias Pschernig removed the `256 items' limit from the dat utility.
+<li>
+   Julien Cugniere fixed a crash in the GUI if a new dialog was opened while
+   a menu was still open.
+<li>
+   Shawn Walker fixed crashes with the keyboard driver under Solaris.
+<li>
+   Elias Pschernig split the demo game into multiple files and made the
+   makefile handle a multi-file demo game.
+<li>
+   Evert Glebbeek fixed a bug where the hardware mouse wasn't displayed in
+   Windows until the mouse was moved.
+<li>
+   J.P. Morris fixed rest_callback() under UNIX.
+<li>
+   Shawn Walker and Evert Glebbeek fixed get_executable_name() under
+   Solaris and OpenBSD.
+<li>
+   Peter Hull fixed compilation problems with setAppleMenu under Tiger.
+<li>
+   Peter Hull fixed a deadlock on MacOS X related to mouse updating.
+<li>
+   Peter Wang fixed a problem with compiling the VBE/AF driver using newer 
+   binutils.
+<li>
+   Evert Glebbeek fixed a bug with colour conversions when loading a font from
+   a datafile.
+<li>
+   Many code, example and documentation updates by Grzegorz Adam Hankiewicz, 
+   Elias Pschernig, Peter Wang, Evert Glebbeek, Andrei Ellman,
+   Victor Williams Stafusa da Silva, Matthew Leverton, AJ, Michal Molhanec
+   and Hrvoje Ban.
+</ul>
+
+@heading
 Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
 <ul><li>
    Grzegorz Adam Hankiewicz did several documentation updates.

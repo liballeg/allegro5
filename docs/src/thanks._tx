@@ -27,8 +27,8 @@ Contributors
    Reported many problems, suggested a lot of improvements to the
    documentation, added AMD64/IA64/SSE3 detection code, added DirectX 8 and 9
    detection to the Windows port, added MSVC7 specific options to the makefile,
-   cleaned up a C99-ism in makedoc and fixed a beep when alt+character was 
-   pressed in windowed mode in Windows.
+   cleaned up a C99-ism in makedoc, fixed a beep when alt+character was pressed
+   in windowed mode in Windows and made TARGET_ARCH_EXCL also work with MSVC.
 
    Alex Demko (<email>alex_demko@mbnet.mb.ca</a>).<br>
    Suggested lots of improvements to the datafile system and provided code
@@ -161,6 +161,10 @@ Contributors
    Charles Bilyue (<email>Esaelon@aol.com</a>).<br>
    Optimized the i386 blitters and suggested to not force yielding timeslice
    with non-blocking menus.
+   
+   Charles Wardlaw (<email>kattkieru@yahoo.com</a>).<br>
+   Fixed warnings with gcc 4 on MacOS X and helped resolve a problem with
+   setAppleMenu under Tiger.
 
    Chris Graham (<email>chris_graham@postmark.net</a>).<br>
    Suggested to add a new flag for Windows NTFS compressed files.
@@ -382,7 +386,7 @@ Contributors
    system many times and did plenty of other things too.
    
    Hrvoje Ban (email unknown).<br>
-   Pointed out a bug in the mode selector.
+   Pointed out a bug in the mode selector and fixed several double ;'s.
 
    Igor Gnip (<email>gnipi@mindnever.org</a>).<br>
    Removed the requirements for fileutils on DOS/Windows platforms and added
@@ -491,12 +495,16 @@ Contributors
 
    Joshua Heyer (<email>joshua_heyer@yahoo.com</a>).<br>
    Wrote the original version of the OSS sound driver.
+   
+   J. P. Morris (email unknown).<br>
+   Fixed a bug rest_callback under unix.
 
    Julien Cugnière (<email>jcugniere@free.fr</a>).<br>
    Improved the support for non-blocking menus, fixed a bug related to the
    retrieval of the inital volume when no primary buffer was present under
-   Windows, fixed the crash on exit with the aRts sound driver and added an 
-   X11 message box for allegro_message under X11.
+   Windows, fixed the crash on exit with the aRts sound driver, added an 
+   X11 message box for allegro_message under X11 and fixed a crash in the GUI
+   when a dialog was opened while a menu was still open.
 
    Kalle Toivonen (<email>allegro@korpiq.iki.fi</a>).<br>
    Fixed a bug in _parallelogram_map().
@@ -659,7 +667,8 @@ Contributors
    of MingW32 by MinGW in the docs, added an faq section about the giftware
    license, fixed problems with long filenames when building for MSVC,
    corrected a problem with the Watcom port, added MSVC7 options to the
-   makefile and fixed a linker problem with the MSVC port.
+   makefile, fixed a linker problem with the MSVC port and fixed some const
+   warnings in the grabber code.
 
    Michail Pishchagin (<email>mblsha@users.sourceforge.net</a>).<br>
    Contributed the ustrnicmp() function.
@@ -667,6 +676,9 @@ Contributors
    Milan Mimica (<email>milan.mimica1@pu.htnet.hr</a>).<br>
    Fixed a bug in the keyconf utility and the alsa 9 volume settings.
 
+   Miran Amon (<email>miran.amon@gmail.com</a>).<br>
+   Fixed an undocumented arbitrary limit in get_config_argv()
+          
    Nathan Albury, aka Rubicant (<email>gt4558a@prism.gatech.edu</a>).<br>
    Improved the fire routine in examples/exflame.c (my original version
    didn't really look very much like flames :-) and gave me some extremely
@@ -751,8 +763,9 @@ Contributors
    Peter Hull (<email>peterhull90@users.sourceforge.net</a>).<br>
    Made the file selector work with directories that have more than 2048 
    files, solved some compiling issues on MacOS X, fixed a bug in rest() 
-   that caused it to wait too long on that platform and fixed several problems
-   with the hardware mouse cursor.
+   that caused it to wait too long on that platform, fixed several problems
+   with the hardware mouse cursor, fixed a deadlock in the software mouse
+   updating code and fixed compilation problems under MacOS X tiger.
    
    Peter Johansson (email unknown).<br>
    Reported a problem with system cursors not working in Windows.
@@ -824,8 +837,8 @@ Contributors
 
    Roberto Alfonso (<email>rpgrca@labint.frba.utn.edu.ar</a>).<br>
    Fixed a couple of memory problems in the dat2c utility, added an
-   srand() call in the demo game and made the MSVC port call `link /lib'
-   rather than `lib'.
+   srand() call in the demo game, made the MSVC port call `link /lib'
+   rather than `lib' and fixed several warnings with GCC 4 under DJGPP.
 
    Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
    Provided a new page flipping code for the DirectDraw subsytem, added a
@@ -885,7 +898,9 @@ Contributors
    Progenitor. Wrote everything that wasn't written by somebody else.
 
    Shawn Walker (<email>adonijah@gmail.com</a>).<br>
-   Several fixes to the .spec file.
+   Several fixes to the .spec file, made get_executable_name use getexecname()
+   under Solaris and fixed a bug in the keyboard driver that caused crashes on
+   the same system.
    
    StApostol (<email>stapostol@gmail.com</a>).<br>
    Fixed a bug in the exflame example and updated the FAQ to use rest(0) instead
@@ -945,10 +960,12 @@ Contributors
    Wrote the ALSA 0.5.x MIDI driver and added support for ALSA 0.9.x.
    
    Thomas Harte (email unknown).<br>
-   Helped fix a bug in show_video_bitmap() on MacOS X.
+   Helped fix a bug in show_video_bitmap() on MacOS X and helped optimise
+   fixmul().
 
    Thomas Klausner (<email>wiz@danbala.ifoer.tuwien.ac.at</a>).<br>
-   Added NetBSD detection.
+   Added NetBSD detection and fixed a problem with the allegro.m4 macro and
+   automake 1.8+.
 
    Thomas Wolf (<email>two@chello.at</a>).<br>
    Corrected some errors in the German keyboard mapping and added the
@@ -991,6 +1008,9 @@ Contributors
    Added a Tamil language greeting to exunicode, added switches to use
    the Intel compiler in Windows and added a password option to the Windows
    screensaver example.
+   
+   Victor Williams Stafusa da Silva (<email>vwss1984@yahoo.com.br</a>).<br>
+   Changed a few occurences of "256" to PAL_SIZE.
 
    Ville Skyttä (<email>scop@users.sourceforge.net</a>).<br>
    Fixed a problem with make install libdir= and modules on Unix systems.
