@@ -254,7 +254,7 @@ information about how to install Allegro and link your program with it.
    information. Example:
 <codeblock>
       /* Check if the current version is compatible with Allegro 4.2.0 */
-      #if (MAKE_VERSION(4, 2, 0) <= MAKE_VERSION(ALLEGRO_VERSION, \
+      #if (MAKE_VERSION(4, 2, 0) &lt= MAKE_VERSION(ALLEGRO_VERSION, \
 			 ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION))
 	 /* Allegro 4.2.0 compatibility */
       #else
@@ -8639,7 +8639,7 @@ these with the lower level functions described below.
    (inclusive) have altered. You can use these when copying the fli_bitmap 
    onto the screen, to avoid moving data unnecessarily. Example:
 <codeblock>
-      if (fli_bmp_dirty_from <= fli_bmp_dirty_to)
+      if (fli_bmp_dirty_from &lt= fli_bmp_dirty_to)
 	 blit(fli_bitmap, screen, 0, fli_bmp_dirty_from,
 	      0, fli_bmp_dirty_from, fli_bitmap->w,
 	      fli_bmp_dirty_to - fli_bmp_dirty_from + 1);<endblock>
@@ -8655,7 +8655,7 @@ these with the lower level functions described below.
    (inclusive) have altered. You can use these when updating the hardware 
    palette, to avoid unnecessary calls to set_palette(). Example:
 <codeblock>
-      if (fli_pal_dirty_from <= fli_pal_dirty_to)
+      if (fli_pal_dirty_from &lt= fli_pal_dirty_to)
 	 set_palette_range(fli_palette, fli_pal_dirty_from,
 			   fli_pal_dirty_to, 1);<endblock>
 
@@ -8693,7 +8693,7 @@ these with the lower level functions described below.
 	 /* Do stuff, like play audio stream
 	    or check keys to skip animation. */
 	 /* Rest some time until next frame... */
-	 while (fli_timer <= 0)
+	 while (fli_timer &lt= 0)
 	    rest(0);
       }<endblock>
 
