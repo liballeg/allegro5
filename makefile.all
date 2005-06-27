@@ -135,7 +135,7 @@ ifeq (,$(wildcard $(PLATFORM_DIR)/cpp-tested))
 endif
 endif
 
-PROGRAMS += $(CPP_PROGRAMS) examples makedoc
+PROGRAMS += $(CPP_PROGRAMS) demo examples makedoc
 
 EXAMPLES = $(basename $(notdir $(ALLEGRO_EXAMPLE_FILES)))
 
