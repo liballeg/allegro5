@@ -596,7 +596,7 @@ static int _sw_in(char* data)
  */
 static int _sw_poll(int gameport, int endstrobelimit)
 {
-   unsigned char* buff = g_swbuff;
+   unsigned char* buff = (unsigned char *)g_swbuff;
    int bufflength = sizeof(g_swbuff);
    int read_count;
    int fill;

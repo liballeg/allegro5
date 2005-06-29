@@ -280,7 +280,7 @@ static int digi_waveout_init(int input, int voices)
    }
 
    lpWaveHdr = malloc(sizeof(WAVEHDR));
-   lpWaveHdr->lpData = digiwobufdata;;
+   lpWaveHdr->lpData = digiwobufdata;
    lpWaveHdr->dwBufferLength = digiwobufsize;
    lpWaveHdr->dwFlags = WHDR_BEGINLOOP | WHDR_ENDLOOP;
    lpWaveHdr->dwLoops = 0x7fffffffL;

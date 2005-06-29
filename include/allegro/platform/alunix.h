@@ -196,7 +196,7 @@ AL_VAR(MOUSE_DRIVER, mousedrv_linux_ms);
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_ims);
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_evdev);
 
-AL_FUNC(void, split_modex_screen, (int lyne));
+AL_FUNC_DEPRECATED(void, split_modex_screen, (int lyne));
 
 
 /* Port I/O functions -- maybe these should be internal */

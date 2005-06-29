@@ -448,6 +448,14 @@ if test "$allegro_sv_procfs" = yes; then
    fi
 fi
 
+dnl Test for Solaris like getexecname().
+ALLEGRO_SYS_GETEXECNAME
+if test "$allegro_sys_getexecname" = yes; then
+   AC_DEFINE(ALLEGRO_HAVE_GETEXECNAME,1,
+      [Define to 1 if you have getexecname])
+fi
+
+
 dnl Test for X-Windows support.
 ALLEGRO_ACTEST_SUPPORT_XWINDOWS
 if test "$allegro_support_xwindows" = yes; then
@@ -774,6 +782,7 @@ cat > makefile.info << EOF
  Generated libraries:$_libraries
  Compiled programs: $_programs
  $_warnmode
+ $_x11
 
 EOF
 

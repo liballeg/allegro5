@@ -39,7 +39,8 @@ FUNC(_linear_clear_to_color32)
    movl ARG1, %edx               /* edx = bmp */
    movl BMP_CT(%edx), %ebx       /* line to start at */
 
-   movl BMP_SEG(%edx), %es       /* select segment */
+   movl BMP_SEG(%edx), %eax      /* select segment */
+   movl %eax, %es
 
    movl BMP_CR(%edx), %esi       /* width to clear */
    subl BMP_CL(%edx), %esi
@@ -88,7 +89,8 @@ FUNC(_linear_blit32)
 
    movl B_DEST, %edx
    movl %ds, %ebx                /* save data segment selector */
-   movl BMP_SEG(%edx), %es       /* load destination segment */
+   movl BMP_SEG(%edx), %eax      /* load destination segment */
+   movl %eax, %es
    cld                           /* for forward copy */
 
    _align_
@@ -138,7 +140,8 @@ FUNC(_linear_blit_backward32)
 
    movl B_DEST, %edx
    movl %ds, %ebx                /* save data segment selector */
-   movl BMP_SEG(%edx), %es       /* load destination segment */
+   movl BMP_SEG(%edx), %edx      /* load destination segment */
+   movl %edx, %es
 
    _align_
 blit_backwards_loop:
@@ -155,7 +158,8 @@ blit_backwards_loop:
    leal (%eax, %esi, 4), %esi
 
    movl B_WIDTH, %ecx            /* x loop counter */
-   movl BMP_SEG(%edx), %ds       /* load data segment */
+   movl BMP_SEG(%edx), %eax      /* load data segment */
+   movl %eax, %ds
    std                           /* backwards */
    rep ; movsl                   /* copy the line */
 
@@ -202,7 +206,8 @@ FUNC(_linear_masked_blit32)
 
    movl B_DEST, %edx
    movl %ds, %ebx 
-   movl BMP_SEG(%edx), %es 
+   movl BMP_SEG(%edx), %eax
+   movl %eax, %es
    cld 
 
 #ifdef ALLEGRO_SSE  /* Use SSE if the compiler supports it */

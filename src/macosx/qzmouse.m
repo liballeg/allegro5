@@ -163,9 +163,9 @@ static int osx_mouse_init(void)
       osx_hid_free(device, num_devices);
    }
    
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    osx_emulate_mouse_buttons = (max_buttons == 1) ? TRUE : FALSE;
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
 
    return max_buttons;
 }
@@ -203,7 +203,7 @@ static void osx_mouse_position(int x, int y)
    NSRect frame;
    int screen_height;
    
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    
    _mouse_x = point.x = x;
    _mouse_y = point.y = y;
@@ -220,7 +220,7 @@ static void osx_mouse_position(int x, int y)
    mymickey_x = mymickey_y = 0;
    osx_mouse_warped = TRUE;
 
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
 }
 
 
@@ -245,13 +245,13 @@ static void osx_mouse_set_range(int x1, int y1, int x2, int y2)
  */
 static void osx_mouse_get_mickeys(int *mickeyx, int *mickeyy)
 {
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    
    *mickeyx = mymickey_x;
    *mickeyy = mymickey_y;
    mymickey_x = mymickey_y = 0;
 
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
 }
 
 
@@ -344,9 +344,9 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
    [cursor_image addRepresentation: cursor_rep];
    cursor = [[NSCursor alloc] initWithImage: cursor_image
       hotSpot: NSMakePoint(x, y)];
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    osx_cursor = requested_cursor = cursor;
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
    if (temp)
       destroy_bitmap(temp);
 
@@ -368,9 +368,9 @@ int osx_mouse_show(BITMAP *bmp, int x, int y)
    if (!requested_cursor)
       return -1;
 
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    osx_cursor = requested_cursor;
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
 
    return 0;
 }
@@ -382,9 +382,9 @@ int osx_mouse_show(BITMAP *bmp, int x, int y)
  */
 void osx_mouse_hide(void)
 {
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    osx_cursor = osx_blank_cursor;
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
 }
 
 
@@ -424,8 +424,8 @@ static int osx_select_system_cursor(AL_CONST int cursor)
       default:
          return 0;
    }
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    osx_cursor = requested_cursor;
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
    return cursor;
 }

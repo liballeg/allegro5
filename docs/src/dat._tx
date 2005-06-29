@@ -12,7 +12,7 @@ Commandline options
 As an alternative to the graphical grabber program, you can use the command 
 line dat utility. This accepts the following options:
 
-   '-a <files>'
+   '-a &ltfiles&gt'
 
       Adds the named files to the datafile, for example:
 
@@ -47,7 +47,7 @@ line dat utility. This accepts the following options:
       to convert a datafile from one format to another, or in combination 
       with any other options.
 
-   '-d <objects>'
+   '-d &ltobjects&gt'
 
       Deletes the named objects from the datafile.
 
@@ -55,7 +55,7 @@ line dat utility. This accepts the following options:
 
       Dithers graphics when reducing color depths.
 
-   '-e <objects>'
+   '-e &ltobjects&gt'
 
       Extracts the named objects from the datafile. To extract everything, 
       use the wildcard * as the object name. To set the output filename or 
@@ -168,15 +168,15 @@ line dat utility. This accepts the following options:
 
       Always updates the entire contents of the datafile.
 
-   '-x <objects>'
+   '-x &ltobjects&gt'
 
-      Alias for '-e <objects>'.
+      Alias for '-e &ltobjects&gt'.
 
    '-007 password'
 
       Sets the file encryption key.
 
-   '<objects> PROP=value'
+   '&ltobjects&gt PROP=value'
 
       Sets properties for the specified objects. This works like environment 
       variables, in that setting a property to an empty string removes it. 

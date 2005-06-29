@@ -8,9 +8,70 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.2.0 beta 3 to 4.2.0 beta 4 (June 2005)
+<ul><li>
+   Matthew Leverton changed the default behavior of the grabber: default color 
+   depth is now the desktop, default mode is windowed and if fullscreen is
+   specified, then desktop resolution is used by default.
+<li>
+   Peter Wang fixed compilation problems related to get_modex_screen() on
+   UNIX and deprecated it.
+<li>
+   Robert Ohannessian fixed compilation problems for the assembler code with 
+   newer binutils.
+<li>
+   Peter Wang, Thomas Harte and Evert Glebbeek optimised fixmul() for different
+   platforms.
+<li>
+   Robert Alfonso fixed a couple of warnings that with DJGPP.
+<li>
+   Grzegorz Adam Hankiewicz made the FLIC player yield.
+<li>
+   Miran Amon fixed an arbitrary limit in get_config_argv(). Evert Glebbeek
+   fixed a memory leak in same.
+<li>
+   Thomas Klausner fixed a problem in allegro.m4 and automake 1.8+.
+<li>
+   Charles Wardlaw fixed some warnings with gcc 4 on MacOS X.
+<li>
+   Elias Pschernig removed the `256 items' limit from the dat utility.
+<li>
+   Julien Cugniere fixed a crash in the GUI if a new dialog was opened while
+   a menu was still open.
+<li>
+   Shawn Walker fixed crashes with the keyboard driver under Solaris.
+<li>
+   Elias Pschernig split the demo game into multiple files and made the
+   makefile handle a multi-file demo game.
+<li>
+   Evert Glebbeek fixed a bug where the hardware mouse wasn't displayed in
+   Windows until the mouse was moved.
+<li>
+   J.P. Morris fixed rest_callback() under UNIX.
+<li>
+   Shawn Walker and Evert Glebbeek fixed get_executable_name() under
+   Solaris and OpenBSD.
+<li>
+   Peter Hull fixed compilation problems with setAppleMenu under Tiger.
+<li>
+   Peter Hull fixed a deadlock on MacOS X related to mouse updating.
+<li>
+   Peter Wang fixed a problem with compiling the VBE/AF driver using newer 
+   binutils.
+<li>
+   Evert Glebbeek fixed a bug with colour conversions when loading a font from
+   a datafile.
+<li>
+   Many code, example and documentation updates by Grzegorz Adam Hankiewicz, 
+   Elias Pschernig, Peter Wang, Evert Glebbeek, Andrei Ellman,
+   Victor Williams Stafusa da Silva, Matthew Leverton, AJ, Michal Molhanec
+   and Hrvoje Ban.
+</ul>
+
+@heading
 Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
 <ul><li>
-   Grzegorz Adam Hankiewicz did several documenation update.
+   Grzegorz Adam Hankiewicz did several documentation updates.
 <li>
    Evert Glebbeek cleaned up some of the global namespace pollution in the 
    Windows port.
@@ -22,34 +83,31 @@ Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
    Grzegorz Adam Hankiewicz added a bunch of ASSERTs to the code to check for
    out-of-range arguments.
 <li>
-   Jakub Wasilewski fixed a bug when loading greyscale TGA images
+   Jakub Wasilewski fixed a bug when loading greyscale TGA images.
 <li>
    Evert Glebbeek fixed a bug where the bottom and right line of pixels was 
    not updated on show_video_bitmap, as pointed out by Thomas Harte.
 <li>
    Evert Glebbeek documented JOY_TYPE_* defines for Windows and Linux.
 <li>
-   Peter Wang made some cosmetic changes to some of the examples.
-<li>
    Dark Nation restored the ability to read old-style encrypted packfiles, 
    i.e. those produced before Allegro 3.9.30.  This was silently removed
    from 4.1.18 when custom packfile support / decoupled compression routines 
    were added.
 <li>
-   Peter Wang added acomment describing the evdev mouse driver in allegro.cfg.
-<li>
-   Evert Glebbeek made the grabber and dat utilities now use Allegro's buildin 
+   Evert Glebbeek made the grabber and dat utilities now use Allegro's builtin 
    load_font() function and made datafiles properly store truecolour fonts and
    added a datedit_select() callback to datedit.
 <li>
-   Evert Glebbeek fixed some unsafe assumptions on the size of integer datatypes.
+   Evert Glebbeek fixed some unsafe assumptions on the size of integer 
+   datatypes.
 <li>
    Arthur Huillet fixed a typo in the docs.
 <li>
-   Elias Pschernig restored Alt+key = ASCII code 0 behavior for the windows 
+   Elias Pschernig restored Alt+key = ASCII code 0 behavior for the Windows 
    keyboard driver
 <li>
-   Evert Glebbeek fixed a bug that caused a crash when loading Allegro 1.x 
+   Evert Glebbeek fixed a bug that caused a crash when loading Allegro 1.x
    datafiles containing 4 bit bitmaps.
 <li>
    Peter Wang clarified the mode select documentation and made the mode 
@@ -70,7 +128,7 @@ Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
    Peter Hull added a missing enable_hardware_cursor vtable entry and added OS 
    native cursors for the MacOS X port.
 <li>
-   Grzegorz Adam Hankiewicz documented online Allegro patch generator.
+   Grzegorz Adam Hankiewicz documented the online Allegro patch generator.
 <li>
    Evert Glebbeek renamed datafiles._tx -> datafile._tx
 <li>
@@ -78,27 +136,25 @@ Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
 <li>
    Evert Glebbeek silenced some GCC4 warnings in MacOS X.
 <li>
-   Peter Wang fixed warnings and errors with gcc 4.0.0 on the unix port; 
+   Peter Wang fixed warnings and errors with gcc 4.0.0 on the Unix port; 
    reported by Milan Mimica.
 <li>
-   Peter Wang added preprocessor symbol ALLEGRO_NO_FIX_CLASS that the user can 
-   define to not pull in the `fix' class in C++ programs.
+   Peter Wang added the preprocessor symbol ALLEGRO_NO_FIX_CLASS that the user
+   can define to not pull in the `fix' class in C++ programs.
 <li>
    Peter Wang removed the exdodgy example.
 <li>
-   Elias Pschernig fixed another X11 async reply.
+   Elias Pschernig fixed another X11 async reply bug.
 <li>
-   Elias Pschernig made the seek in expackf test work with windows line endings.
-<li>
-   Elias Pschernig removed some superfluous variables
+   Elias Pschernig made the seek in expackf test work with CR/LF line endings.
 <li>
    Evert Glebbeek fixed a small bug that prevented the Allegro template for 
-   Project Builder from installing correctly on MacOSX
+   Project Builder from installing correctly on MacOSX.
 <li>
    Elias Pschernig enabled warnings about unused variables with
    --enable-strictwarn in unix.
 <li>
-   Peter Wang fixed a warning with Watcom 1.3
+   Peter Wang fixed a warning with Watcom 1.3.
 </ul>
 
 @heading

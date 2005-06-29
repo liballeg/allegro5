@@ -59,8 +59,8 @@ static int busy_mouse = FALSE;
 
 static int entered_password = FALSE;
 static int no_sound = FALSE;
-static int autodetect_card = GFX_AUTODETECT;
 
+static int autodetect_card = GFX_AUTODETECT_WINDOWED;
 
 static int view_proc(int, DIALOG *, int);
 static int list_proc(int, DIALOG *, int);
@@ -3498,7 +3498,7 @@ int datedit_ask(AL_CONST char *fmt, ...)
    int ret;
 
    va_start(args, fmt);
-   vsnprintf(buf, 1024, fmt, args);
+   uvszprintf(buf, 1024, fmt, args);
    va_end(args);
 
    strcat(buf, "?");
@@ -3526,7 +3526,7 @@ int datedit_select(AL_CONST char *(*list_getter)(int index, int *list_size), AL_
       /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                 (dp2) (dp3) */
       { d_shadow_box_proc, 0,    0,    224,  113,  0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
       { d_ctext_proc,      0,    2,    220,  15,   0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
-      { d_list_proc,       28,   24,   161,  50,   0,    0,    0,       0,          0,             0,       list_getter,         NULL, NULL  },
+      { d_list_proc,       28,   24,   161,  50,   0,    0,    0,       0,          0,             0,       (int(*)(int,DIALOG*,int))list_getter,         NULL, NULL  },
       { d_button_proc,     16,   80,   81,   17,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
       { d_button_proc,     127,  80,   81,   17,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",            NULL, NULL  }, 
       { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  }
@@ -3536,7 +3536,7 @@ int datedit_select(AL_CONST char *(*list_getter)(int index, int *list_size), AL_
    int ret, c;
 
    va_start(args, fmt);
-   vsnprintf(buf, 1024, fmt, args);
+   uvszprintf(buf, 1024, fmt, args);
    va_end(args);
    
    /* If there is only one choice, select it automatically */
@@ -3573,19 +3573,25 @@ static void close_callback(void)
 
 
 int main(int argc, char *argv[])
-{
+{ 
    extern DATEDIT_OBJECT_INFO datfile_info;
    int i, j;
    int ret = -1;
    int bpp = -1;
    int w = 640;
    int h = 480;
+   int custom_resolution = 0;
+   int force_window = 0;
    char *s, tmp[256];
    char *fname = NULL;
-   static int color_depths[] = { 32, 16, 15, 8, 0 };
+   static int color_depths[] = { -1, 32, 16, 15, 8, 0 };
 
    if (allegro_init() != 0)
       return 1;
+   
+   /* If possible, use the desktop color depth as the default. */
+   if (!(color_depths[0] = desktop_color_depth())) 
+      color_depths[0] = -1; 
 
    for (i=1; i<argc; i++) {
       if (argv[i][0] == '-') {
@@ -3594,9 +3600,15 @@ int main(int argc, char *argv[])
 	 }
 	 else if (strcmp(argv[i]+1, "windowed") == 0) {
 	    autodetect_card = GFX_AUTODETECT_WINDOWED;
+            force_window = 1;
 	 }
 	 else if (strcmp(argv[i]+1, "fullscreen") == 0) {
 	    autodetect_card = GFX_AUTODETECT_FULLSCREEN;
+            /* If no resolution has been specified yet, try to use the desktop's resolution */
+            if (!custom_resolution && get_desktop_resolution(&w, &h)) {
+               w = 640;
+               h = 480; 
+            }
 	 }
 	 else if ((argv[i][1] == 'p') || (argv[i][1] == 'P')) {
 	    strcpy(password, argv[i]+2);
@@ -3619,6 +3631,7 @@ int main(int argc, char *argv[])
 	       allegro_message("Invalid display resolution '%s'\n", argv[i]+1);
 	       return 1;
 	    }
+            custom_resolution = 1;
 	 }
 	 else {
 	    bpp = atoi(argv[i]+1);
@@ -3643,26 +3656,36 @@ int main(int argc, char *argv[])
 
    set_color_conversion(COLORCONV_NONE);
 
-   if (bpp > 0) {
-      set_color_depth(bpp);
-      ret = set_gfx_mode(autodetect_card, w, h, 0, 0);
-   }
-   else {
-      for (i=0; color_depths[i]; i++) {
-	 bpp = color_depths[i];
-	 set_color_depth(bpp);
-	 ret = set_gfx_mode(autodetect_card, w, h, 0, 0);
-	 if (ret == 0)
-	    break;
+   while(1)
+   {
+      if (bpp > 0) {
+         set_color_depth(bpp);
+         ret = set_gfx_mode(autodetect_card, w, h, 0, 0);
       }
-      if (ret != 0)
-	 ret = set_gfx_mode(GFX_SAFE, w, h, 0, 0);
+      else {
+         for (i=0; color_depths[i]; i++) {
+            if ((bpp = color_depths[i]) > 0) {
+               set_color_depth(bpp);
+               ret = set_gfx_mode(autodetect_card, w, h, 0, 0);
+               if (ret == 0)
+                  break;
+            }
+         }
+      }
+      if (ret == 0 || force_window || autodetect_card == GFX_AUTODETECT) break;
+
+      /* If the platform doesn't support windows and the user didn't request a window, try again. */
+      autodetect_card = GFX_AUTODETECT;
    }
 
    if (ret != 0) {
-      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Error setting %dx%d %d bpp graphics mode\n%s\n", w, h, bpp, allegro_error);
-      return 1;
+      ret = set_gfx_mode(GFX_SAFE, w, h, 0, 0);
+
+      if (ret != 0) {
+         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+         allegro_message("Error setting %dx%d %d bpp graphics mode\n%s\n", w, h, bpp, allegro_error);
+         return 1;
+      }
    }
 
    update_title();

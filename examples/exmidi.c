@@ -54,6 +54,10 @@ int main(int argc, char *argv[])
 	 return 1;
       }
    }
+   
+   /* try to continue in the background */
+   if (set_display_switch_mode(SWITCH_BACKGROUND))
+      set_display_switch_mode(SWITCH_BACKAMNESIA);
 
    set_palette(desktop_palette);
    background_color = makecol(255, 255, 255);

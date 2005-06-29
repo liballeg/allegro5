@@ -29,8 +29,9 @@ static BITMAP *osx_qz_window_init(int, int, int, int, int);
 static void osx_qz_window_exit(BITMAP *);
 static void osx_qz_window_vsync(void);
 static void osx_qz_window_set_palette(AL_CONST struct RGB *, int, int, int);
+static void osx_signal_vsync(void);
 
-
+static pthread_mutex_t vsync_mutex;
 static pthread_cond_t vsync_cond;
 static int lock_nesting = 0;
 static AllegroWindowDelegate *window_delegate = NULL;
@@ -49,7 +50,7 @@ static char *dirty_lines = NULL;
 static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
-pthread_mutex_t osx_window_mutex;
+void* osx_window_mutex;
 
 
 GFX_DRIVER gfx_quartz_window =
@@ -106,7 +107,7 @@ static void prepare_window_for_animation(int refresh_view)
    unsigned int *addr;
    int pitch, y, x;
    
-   pthread_mutex_lock(&osx_window_mutex);
+   _unix_lock_mutex(osx_window_mutex);
    while (![qd_view lockFocusIfCanDraw]);
    while (!QDDone([qd_view qdPort]));
    LockPortBits([qd_view qdPort]);
@@ -129,7 +130,7 @@ static void prepare_window_for_animation(int refresh_view)
    }
    UnlockPortBits([qd_view qdPort]);
    [qd_view unlockFocus];
-   pthread_mutex_unlock(&osx_window_mutex);
+   _unix_unlock_mutex(osx_window_mutex);
 }
 
 
@@ -183,9 +184,9 @@ static void prepare_window_for_animation(int refresh_view)
  */
 - (void)windowDidDeminiaturize: (NSNotification *)aNotification
 {
-   pthread_mutex_lock(&osx_window_mutex);
+   _unix_lock_mutex(osx_window_mutex);
    memset(dirty_lines, 1, gfx_quartz_window.h);
-   pthread_mutex_unlock(&osx_window_mutex);
+   _unix_unlock_mutex(osx_window_mutex);
 }
 
 @end
@@ -217,10 +218,11 @@ static void osx_qz_acquire_win(BITMAP *bmp)
 {
    /* to prevent the drawing threads and the rendering proc
       from concurrently accessing the dirty lines array */
-   if (lock_nesting == 0)
-      pthread_mutex_lock(&osx_window_mutex);
-   lock_nesting++;
+  if (lock_nesting == 0) {
+      _unix_lock_mutex(osx_window_mutex);
    bmp->id |= BMP_ID_LOCKED;
+  }
+   lock_nesting++;
 }
 
  
@@ -232,10 +234,11 @@ static void osx_qz_release_win(BITMAP *bmp)
 {
    if (lock_nesting > 0) {
       lock_nesting--;
-      if (!lock_nesting)
-         pthread_mutex_unlock(&osx_window_mutex);
+      if (!lock_nesting) {
+	bmp->id &= ~BMP_ID_LOCKED;
+         _unix_unlock_mutex(osx_window_mutex);
+      }
    }
-   bmp->id &= ~BMP_ID_LOCKED;
 }
 
 
@@ -291,12 +294,12 @@ void osx_update_dirty_lines(void)
       return;
    
    /* Skip everything if there are no dirty lines */
-   pthread_mutex_lock(&osx_window_mutex);
+   _unix_lock_mutex(osx_window_mutex);
    for (rect.top = 0; (rect.top < gfx_quartz_window.h) && (!dirty_lines[rect.top]); rect.top++)
       ;
    if (rect.top >= gfx_quartz_window.h) {
-      pthread_mutex_unlock(&osx_window_mutex);
-      pthread_cond_broadcast(&vsync_cond);
+      _unix_unlock_mutex(osx_window_mutex);
+      osx_signal_vsync();
       return;
    }
    
@@ -352,9 +355,9 @@ void osx_update_dirty_lines(void)
    
    UnlockPortBits([qd_view qdPort]);
    [qd_view unlockFocus];
-   pthread_mutex_unlock(&osx_window_mutex);
+   _unix_unlock_mutex(osx_window_mutex);
    
-   pthread_cond_broadcast(&vsync_cond);
+   osx_signal_vsync();
 }
 
 
@@ -371,7 +374,7 @@ int osx_setup_colorconv_blitter()
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &desktop_depth);
    desktop_depth = (desktop_depth == 16) ? 15 : desktop_depth;
    
-   pthread_mutex_lock(&osx_window_mutex);
+   _unix_lock_mutex(osx_window_mutex);
    if (colorconv_blitter)
       _release_colorconv_blitter(colorconv_blitter);
    colorconv_blitter = _get_colorconv_blitter(requested_color_depth, desktop_depth);
@@ -380,7 +383,7 @@ int osx_setup_colorconv_blitter()
       _set_colorconv_palette(_current_palette, 0, 255);
    /* Mark all the window as dirty */
    memset(dirty_lines, 1, gfx_quartz_window.h);
-   pthread_mutex_unlock(&osx_window_mutex);
+   _unix_unlock_mutex(osx_window_mutex);
    
    return (colorconv_blitter ? 0 : -1);
 }
@@ -399,7 +402,8 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
    char tmp1[128], tmp2[128];
    
    pthread_cond_init(&vsync_cond, NULL);
-   pthread_mutex_init(&osx_window_mutex, NULL);
+   pthread_mutex_init(&vsync_mutex, NULL);
+   osx_window_mutex=_unix_create_mutex();
    lock_nesting = 0;
    
    if (1
@@ -527,9 +531,9 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
 static BITMAP *osx_qz_window_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    BITMAP *bmp;
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
    bmp = private_osx_qz_window_init(w, h, v_w, v_h, color_depth);
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
    if (!bmp)
       osx_qz_window_exit(bmp);
    return bmp;
@@ -542,7 +546,7 @@ static BITMAP *osx_qz_window_init(int w, int h, int v_w, int v_h, int color_dept
  */
 static void osx_qz_window_exit(BITMAP *bmp)
 {
-   pthread_mutex_lock(&osx_event_mutex);
+   _unix_lock_mutex(osx_event_mutex);
 
    if (update_region) {
       DisposeRgn(update_region);
@@ -573,14 +577,15 @@ static void osx_qz_window_exit(BITMAP *bmp)
       colorconv_blitter = NULL;
    }
    
-   pthread_mutex_destroy(&osx_window_mutex);
+   _unix_destroy_mutex(osx_window_mutex);
    pthread_cond_destroy(&vsync_cond);
+   pthread_mutex_destroy(&vsync_mutex);
    
    osx_mouse_tracking_rect = -1;
    
    osx_gfx_mode = OSX_GFX_NONE;
    
-   pthread_mutex_unlock(&osx_event_mutex);
+   _unix_unlock_mutex(osx_event_mutex);
 }
 
 
@@ -590,13 +595,9 @@ static void osx_qz_window_exit(BITMAP *bmp)
  */
 static void osx_qz_window_vsync(void)
 {
-   if (lock_nesting > 0)
-      pthread_cond_wait(&vsync_cond, &osx_window_mutex);
-   else {
-      pthread_mutex_lock(&osx_window_mutex);
-      pthread_cond_wait(&vsync_cond, &osx_window_mutex);
-      pthread_mutex_unlock(&osx_window_mutex);
-   }
+  pthread_mutex_lock(&vsync_mutex);
+  pthread_cond_wait(&vsync_cond, &vsync_mutex);
+  pthread_mutex_unlock(&vsync_mutex);
 }
 
 
@@ -609,11 +610,17 @@ static void osx_qz_window_set_palette(AL_CONST struct RGB *p, int from, int to, 
    if (vsync)
       osx_qz_window_vsync();
    
-   pthread_mutex_lock(&osx_window_mutex);
+   _unix_lock_mutex(osx_window_mutex);
    _set_colorconv_palette(p, from, to);
          
    /* invalidate the whole screen */
    memset(dirty_lines, 1, gfx_quartz_window.h);
    
-   pthread_mutex_unlock(&osx_window_mutex);
+   _unix_unlock_mutex(osx_window_mutex);
+}
+
+void osx_signal_vsync(void) {
+      pthread_mutex_lock(&vsync_mutex);
+      pthread_cond_broadcast(&vsync_cond);
+      pthread_mutex_unlock(&vsync_mutex);
 }

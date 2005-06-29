@@ -144,7 +144,8 @@ ALLEGRO_EXE_TARGETS = \
 	$(ALLEGRO_LIB_EXES) \
 	$(@ALLEGRO_MAYBE_LIB_X_EXES@) \
 	$(ALLEGRO_DATAFILE_EXES) \
-	$(ALLEGRO_EXAMPLE_EXES)
+	$(ALLEGRO_EXAMPLE_EXES) \
+	demo/demo
 
 # Header files (look in makefile.dep for "Headers referred by symbols").
 ALLEGRO_EXTRA_HEADER = $(srcdir)/include/allegro/platform/alunix.h
@@ -687,8 +688,9 @@ depend:
 	$(SHELL) -c 'cd $(srcdir) && misc/depdlib.sh tools/datedit.c' >>makefile.dep
 	@echo "Generating dependencies for datafile programs"
 	$(SHELL) -c 'cd $(srcdir) && misc/depdexe.sh $(ALLEGRO_DATAFILE_EXE_SOURCES)' >>makefile.dep
-	@echo "Generating dependencies for makedoc"
+	@echo "Generating dependencies for makedoc and demo"
 	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh docs/makedoc $(ALLEGRO_MAKEDOC_SOURCES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh demo/demo $(ALLEGRO_DEMO_SOURCES)' >>makefile.dep
 	@echo "Dependency generation completed!"
 
 .PHONY: default full-build lib programs docs docs-dvi docs-ps docs-pdf \

@@ -1823,7 +1823,8 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 	       sly = d->y+(d->h)-(hh+slp);
 	       slw = d->w-1;
 	       slh = hh-1;
-	    } else {
+	    }
+            else {
 	       slx = d->x+slp;
 	       sly = d->y;
 	       slw = hh-1;

@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.2.0 (beta3-CVS)" "Allegro" "Allegro manual"
+@manh="version 4.2.0 (beta4-cvs)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,12 +52,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.2.0 (beta3-CVS)
+				       \_/__/     Version 4.2.0 (beta4-cvs)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Apr 20, 2005.
+	     By Shawn Hargreaves, May 14, 2005.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -154,8 +154,8 @@ information about how to install Allegro and link your program with it.
    In order to maintain cross-platform compatibility, you have to put this
    macro at the very end of your main function. This macro uses some `magic'
    to mangle your main procedure on platforms that need it like Windows,
-   Linux or MacOS X. On the other platforms this macro compiles to nothing,
-   so you don't have to #ifdef around it. Example:
+   some flavours of UNIX or MacOS X. On the other platforms this macro 
+   compiles to nothing, so you don't have to #ifdef around it. Example:
 <codeblock>
       int main(void)
       {
@@ -175,10 +175,22 @@ information about how to install Allegro and link your program with it.
 @xref set_gfx_mode, install_sound
 @eref Available Allegro examples
 @shortdesc Stores the last Allegro error message.
-   Text string used by set_gfx_mode() and install_sound() to report error 
-   messages. If they fail and you want to tell the user why, this is the 
-   place to look for a description of the problem.
+   Text string used by set_gfx_mode(), install_sound() and other functions to
+   report error messages. If they fail and you want to tell the user why, this
+   is the place to look for a description of the problem. Example:
+<codeblock>
+      void abort_on_error(const char *message)
+      {
+	 if (screen != NULL)
+	    set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
 
+	 allegro_message("%s.\nLast Allegro error `%s'\n",
+			 message, allegro_error);
+	 exit(-1);
+      }
+      ...
+	 if (some_allegro_function() == ERROR_CODE)
+	    abort_on_error("Error calling some function!");<endblock>
 @@#define @ALLEGRO_VERSION
 @shortdesc Defined to the major version of Allegro.
    Defined to the major version of Allegro. From a version number like
@@ -217,6 +229,38 @@ information about how to install Allegro and link your program with it.
       allegro_message("Year %d, month %d, day %d\n",
 	 year, month, day);<endblock>
 
+@@Macro @AL_ID(a,b,c,d)
+@shortdesc Converts four 8 bit values to a packed 32 bit integer ID.
+@xref DAT_ID
+   This macro can be used to create a packed 32 bit integer from 8 bit
+   characters, on both 32 and 64 bit machines. These can be used for various 
+   things, like custom datafile objects or system IDs. Example:
+<codeblock>
+      #define OSTYPE_LINUX       AL_ID('T','U','X',' ')<endblock>
+
+@@Macro @MAKE_VERSION(a, b, c)
+@shortdesc Create a 32 bit integer from the Allegro version
+@xref ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION
+   This macro can be used to check if some Allegro version is (binary)
+   compatible with the current version. It is safe to use &gt and &lt to
+   check if one version is more recent than another.
+   The third number is ignored if the second number is even, so
+   MAKE_VERSION(4, 2, 0) is equivalent to MAKE_VERSION(4, 2, 1).
+   This is because of our version numbering policy since 4.0.0:
+   the second number is even for stable releases, which must be
+   ABI-compatible with earlier versions of the same series.
+   This macro is mainly useful for addon packages and libraries. See the 
+   `ABI compatibility information' section of the manual for more detailed 
+   information. Example:
+<codeblock>
+      /* Check if the current version is compatible with Allegro 4.2.0 */
+      #if (MAKE_VERSION(4, 2, 0) <= MAKE_VERSION(ALLEGRO_VERSION, \
+			 ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION))
+	 /* Allegro 4.2.0 compatibility */
+      #else
+	 /* Work-around */
+      #endif<endblock>
+   
 @@extern int @os_type;
 @xref allegro_init, os_version, os_multitasking
 @shortdesc Stores the detected type of the OS.
@@ -294,7 +338,9 @@ information about how to install Allegro and link your program with it.
 @shortdesc Sets the window title of the Allegro program.
    On platforms that are capable of it, this routine alters the window title 
    for your Allegro program. Note that Allegro cannot set the window title 
-   when running in a DOS box under Windows.
+   when running in a DOS box under Windows. Example:
+<codeblock>
+      set_window_title("Allegro rules!");<endblock>
 
 @@int @set_close_button_callback(void (*proc)(void));
 @xref set_window_title
@@ -318,6 +364,24 @@ information about how to install Allegro and link your program with it.
    
    Also note that the supplied callback is also called under MacOS X when
    the user hits Command-Q or selects "Quit" from the application menu.
+   Example:
+<codeblock>
+      volatile int close_button_pressed = FALSE;
+
+      void close_button_handler(void)
+      {
+	 close_button_pressed = TRUE;
+      }
+      END_OF_FUNCTION(close_button_handler)
+      ...
+      
+      allegro_init();
+      LOCK_FUNCTION(close_button_handler);
+      set_close_button_callback(close_button_handler);
+      ...
+         
+      while (!close_button_pressed)
+	 do_stuff();<endblock>
 @retval
    Returns zero on success and non-zero on failure (e.g. the feature is not
    supported by the platform).
@@ -410,7 +474,7 @@ information about how to install Allegro and link your program with it.
    Contains the CPU submodel, where applicable. Allegro defines at least the 
    following CPU family types (see include/allegro/system.h for a more 
    complete list):
-<textblock>   
+<textblock>
       CPU_FAMILY_I586:
 	 CPU_MODEL_PENTIUM, CPU_MODEL_K5, CPU_MODEL_K6
 
@@ -618,7 +682,7 @@ available in past/future versions of Allegro.
 @shortdesc Number of entries in a palette.
    Preprocessor constant equal to 256.
 
-@@typedef RGB @PALETTE[PAL_SIZE]
+@@typedef @PALETTE RGB[PAL_SIZE]
 @xref RGB, Palette routines
 @eref Available Allegro examples
 @shortdesc Stores palette information.
@@ -814,6 +878,7 @@ available in past/future versions of Allegro.
    unsigned long len;          - length (in samples)
    unsigned long loop_start;   - loop start position
    unsigned long loop_end;     - loop finish position
+   void *data;                 - raw sample data
 <endblock>
    A sample structure, which holds sound data, used by the digital sample
    routines. You can consider all of these fields as read only except
@@ -827,6 +892,13 @@ available in past/future versions of Allegro.
 
    The variables loop_start and loop_end specify the loop position in sample
    units, and are set by default to the start and end of the sample.
+
+   If you are creating your own samples on the fly, you might also want to
+   modify the raw data of the sample pointed by the data field. The sample
+   data are always in unsigned format. This means that if you are loading a
+   PCM encoded sound file with signed 16-bit samples, you would have to XOR
+   every two bytes (i.e. every sample value) with 0x8000 to change the
+   signedness.
 
 @@typedef struct @MIDI
 @xref load_midi, Music routines (MIDI)
@@ -871,7 +943,7 @@ available in past/future versions of Allegro.
    int pf_ungetc(int c, void *userdata);
    long pf_fread(void *p, long n, void *userdata);
    int pf_putc(int c, void *userdata);
-   long pf_fwrite(AL_CONST void *p, long n, void *userdata);
+   long pf_fwrite(const void *p, long n, void *userdata);
    int pf_fseek(void *userdata, int offset);
    int pf_feof(void *userdata);
    int pf_ferror(void *userdata);
@@ -904,7 +976,7 @@ a char * type, or that takes a char * as an argument, that text will be in
 whatever format you have told Allegro to use.
 
 By default, Allegro uses UTF-8 encoded text (U_UTF8). This is a 
-variable-width format, where characters can occupy anywhere from one to six 
+variable-width format, where characters can occupy anywhere from one to four
 bytes. The nice thing about it is that characters ranging from 0-127 are 
 encoded directly as themselves, so UTF-8 is upwardly compatible with 7-bit 
 ASCII ("Hello, World!" means the same thing regardless of whether you 
@@ -1311,7 +1383,7 @@ is best to set it with set_uformat() just before you call these.
    Returns the newly allocated string. This memory must be freed by the
    caller. Returns NULL if it cannot allocate space for the duplicated string.
 
-@@char *@_ustrdup(const char *src, void* (*malloc_func) (size_t))
+@@char *@_ustrdup(const char *src, void* (*malloc_func)(size_t))
 @xref ustrdup, uconvert, ustrsize, ustrsizez
 @shortdesc Duplicates a string with a custom memory allocator.
    Does the same as ustrdup(), but allows the user to specify a custom memory
@@ -2082,13 +2154,17 @@ keyboard = x<br>
 language = x<br>
    Specifies which language file to use for error messages and other bits of 
    system text. The parameter is the name of a translation file, and can 
-   either be a fully qualified file path or a basename like `en' or `sp`. If 
+   either be a fully qualified file path or a basename like `en' or `es'. If
    the latter, Allegro will look first for a separate config file with a 
    name in the form `entext.cfg', and then for an object with that name in 
    the `language.dat' file (eg. `ENTEXT_CFG'). The config file or 
    `language.dat' file can be stored in the same directory as the program, or 
-   in the location pointed to by the ALLEGRO environment variable. Look in the 
-   `language.dat' file to see which mappings are currently available.
+   in the location pointed to by the ALLEGRO environment variable.
+
+   Look in the `language.dat' file to see which mappings are currently
+   available. If there is none for your language, you can create it using the
+   English one as model, and even send it to the Allegro development team to
+   include it in future releases.
 <li>
 disable_screensaver = x<br>
    Specifies whether to disable the screensaver: 0 to never disable it, 1 to
@@ -2318,7 +2394,7 @@ alsa_pcmdevice = x<br>
 <li>
 alsa_device = x<br>
    Unix only: device name for the ALSA 0.9 sound driver. The format is
-   <driver>[:<card>,<device>], for example: `hw:0,1'.
+   &ltdriver&gt[:&ltcard&gt,&ltdevice&gt], for example: `hw:0,1'.
 <li>
 alsa_mixer_device = x<br>
    Unix only: mixer device name for the ALSA 0.9 sound driver. The
@@ -3546,7 +3622,7 @@ frame in your game loop. Otherwise you face the possibility of reading stale
 incorrect data.
 
 @@int @install_joystick(int type);
-@xref remove_joystick, load_joystick_data, calibrate_joystick
+@xref remove_joystick, num_joysticks, load_joystick_data, calibrate_joystick
 @xref calibrate_joystick_name, poll_joystick, Standard config variables
 @xref JOY_TYPE_*/DOS, JOY_TYPE_*/Windows, JOY_TYPE_*/Linux
 @eref exjoy
@@ -3555,7 +3631,14 @@ incorrect data.
    type parameter should usually be JOY_TYPE_AUTODETECT, or see the platform 
    specific documentation for a list of the available drivers. You must call 
    this routine before using any other joystick functions, and you should 
-   make sure that the joystick is in the middle position at the time.
+   make sure that the joystick is in the middle position at the time. Example:
+<codeblock>
+      textout_centre_ex(screen, font,
+			"Center the joystick and press a key",
+			SCREEN_W/2, SCREEN_H/2, red_color, -1);
+      readkey();
+      if (install_joystick(JOY_TYPE_AUTODETECT) != 0)
+	 abort_on_error("Error initialising joystick!");<endblock>
 @retval
    Returns zero on success. As soon as you have installed the joystick 
    module, you will be able to read the button state and digital (on/off 
@@ -3575,7 +3658,20 @@ incorrect data.
 @eref exjoy
 @shortdesc Polls the joystick.
    The joystick is not interrupt driven, so you need to call this function 
-   every now and again to update the global position values.
+   every now and again to update the global position values. Example:
+<codeblock>
+   do {
+      /* Get joystick input */
+      poll_joystick();
+      
+      /* Process input for the first joystick */
+      if (joy[0].button[0].b)
+         first_button_pressed();
+
+      if (joy[0].button[1].b)
+         second_button_pressed();
+      ...
+   } while(!done);<endblock>
 @retval
    Returns zero on success or a negative number on failure (usually because
    no joystick driver was installed).
@@ -4020,15 +4116,16 @@ GFX_SAFE:<br>
    
    When you call set_gfx_mode(), the v_w and v_h parameters represent the 
    minimum size of virtual screen that is acceptable for your program. The 
-   range of possible sizes is usually very restricted, and Allegro is likely 
-   to end up creating a virtual screen much larger than the one you request. 
-   On an SVGA card with one megabyte of vram you can count on getting a 
-   1024x1024 virtual screen (256 colors) or 1024x512 (15 or 16 bpp), and 
-   with 512k vram you can get 1024x512 (256 colors). Other sizes may or may 
-   not be possible: don't assume that they will work. In mode-X the virtual 
-   width can be any multiple of eight greater than or equal to the physical 
-   screen width, and the virtual height will be set accordingly (the VGA has 
-   256k of vram, so the virtual height will be 256*1024/virtual_width).
+   range of possible sizes is usually very restricted, and Allegro may 
+   end up creating a virtual screen much larger than the one you request.
+   Allowed sizes are driver dependent and some drivers do not allow virtual 
+   screens that are larger than the visible screen at all: don't assume
+   that whatever you pass will always work.
+   
+   In mode-X the virtual width can be any multiple of eight greater than or 
+   equal to the physical screen width, and the virtual height will be set 
+   accordingly (the VGA has 256k of vram, so the virtual height will be 
+   256*1024/virtual_width).
 
    Currently, using a big virtual screen for page flipping is considered bad
    practice.  There are platforms which don't support virtual screens bigger
@@ -4048,7 +4145,7 @@ GFX_SAFE:<br>
 
 @@int @set_display_switch_mode(int mode);
 @xref set_display_switch_callback, get_display_switch_mode
-@eref exswitch
+@eref exmidi, exswitch
 @shortdesc Tells Allegro how the program handles background switching.
    Sets how the program should handle being switched into the background, 
    if the user tabs away from it. Not all of the possible modes will be
@@ -4327,13 +4424,9 @@ GFX_SAFE:<br>
    original position in the screen bitmap you will have to alter the clipping
    rectangle with set_clip_rect().
 
-   Mode-X scrolling is reliable and will work on any card. Unfortunately 
-   most VESA implementations can only handle horizontal scrolling in four 
-   pixel increments, so smooth horizontal panning is impossible in SVGA 
-   modes. A significant number of VESA implementations seem to be very buggy
-   when it comes to scrolling in truecolor video modes, so you shouldn't
-   depend on this routine working correctly in the truecolor resolutions
-   unless you can be sure that SciTech Display Doctor is installed.
+   Mode-X scrolling is reliable and will work on any card, other drivers may
+   not work or not work reliably. See the platform-specific section of the docs
+   for more information.
 
    Allegro will handle any necessary vertical retrace synchronisation when 
    scrolling the screen, so you don't need to call vsync() before it. This 
@@ -4353,12 +4446,9 @@ GFX_SAFE:<br>
    the poll_scroll() routine to detect when the flip has actually taken 
    place.
 
-   Triple buffering is only possible on certain hardware: it will work in any
-   DOS mode-X resolution if the timer retrace simulator is active (but this
-   doesn't work correctly under Windows 95), plus it is supported by the
-   VBE 3.0 and VBE/AF drivers for a limited number of high-end graphics
-   cards. You can look at the GFX_CAN_TRIPLE_BUFFER bit in the
-   gfx_capabilities flag to see if it will work with the current driver.
+   Triple buffering is only possible with certain drivers: you can look at the 
+   GFX_CAN_TRIPLE_BUFFER bit in the gfx_capabilities flag to see if it will 
+   work with the current driver.
 @retval
    This function returns zero on success, non-zero otherwise.
 
@@ -4373,7 +4463,7 @@ GFX_SAFE:<br>
    requested scroll has already happened.
 
 @@int @show_video_bitmap(BITMAP *bitmap);
-@xref scroll_screen, create_video_bitmap
+@xref scroll_screen, create_video_bitmap, Standard config variables
 @eref exaccel, exflip, exupdate
 @shortdesc Flips the hardware screen to use the specified page.
    Attempts to page flip the hardware screen to display the specified video 
@@ -4382,7 +4472,23 @@ GFX_SAFE:<br>
    
    Allegro will handle any necessary vertical retrace synchronisation when 
    page flipping, so you don't need to call vsync() before it. This means
-   that show_video_bitmap() has the same time delay effects as vsync().
+   that show_video_bitmap() has the same time delay effects as vsync() by
+   default. This can be adjusted with the "disable_vsync" config key in the
+   [graphics] section of allegro.cfg. Example:
+<codeblock>
+      int current_page;
+      BITMAP *video_page[2];
+      ...
+      /* Create pages for page flipping */
+      video_page[0] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      video_page[1] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      current_page = 0;
+      ...
+      /* draw the screen and flip pages */
+      draw_screen(video_page[current_page]);
+      show_video_bitmap(video_page[current_page]);
+      current_page = (current_page+1)%2;
+      ...<endblock>
 @retval
    Returns zero on success and non-zero on failure.
 
@@ -4397,7 +4503,24 @@ GFX_SAFE:<br>
    vertical retrace, but you can carry on running other code in the meantime 
    and use the poll_scroll() routine to detect when the flip has actually 
    taken place. Triple buffering is only possible on certain hardware: see 
-   the comments about request_scroll().
+   the comments about request_scroll(). Example:
+<codeblock>
+      int current_page;
+      BITMAP *video_page[3];
+      ...
+      /* Create pages for page flipping */
+      video_page[0] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      video_page[1] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      video_page[2] = create_video_bitmap(SCREEN_W, SCREEN_H);
+      current_page = 0;
+      ...
+      /* draw the screen and flip pages */
+      draw_screen(video_page[current_page]);
+      do {
+      } while (poll_scroll());
+      request_video_bitmap(video_page[current_page]);
+      current_page = (current_page+1)%3;
+      ...<endblock>
 @retval
    Returns zero on success and non-zero on failure.
 
@@ -4753,6 +4876,9 @@ Allegro supports several different types of bitmaps:
    is locked, which prevents them from getting any input messages, so you 
    must be sure to release all your bitmaps before using any timer, 
    keyboard, or other non-graphics routines!
+   
+   Note that if you are using hardware accelerated VRAM-&gtVRAM blits, you should
+   not call acquire_bitmap().
 
 @@void @release_bitmap(BITMAP *bmp);
 @xref acquire_bitmap, acquire_screen, release_screen
@@ -4897,7 +5023,22 @@ will not be known, so the file may be converted wrongly.
 @xref load_bmp
 @eref expackf
 @shortdesc Packfile version of load_bmp.
-   A version of load_bmp which reads from a packfile.
+   A version of load_bmp() which reads from a packfile. Example:
+<codeblock>
+      PACKFILE *packfile;
+      BITMAP *bmp;
+
+      packfile = pack_fopen("mybitmap.bmp", F_READ);
+      if (!packfile)
+	 abort_on_error("Couldn't open mybitmap.bmp");
+         
+      bmp = load_bmp_pf(packfile, pal);
+      if (!bmp)
+	 abort_on_error("Error loading mybitmap.bmp");<endblock>
+@retval
+   Returns a pointer to the bitmap or NULL on error. Remember that you are
+   responsible for destroying the bitmap when you are finished with it to
+   avoid memory leaks.
 
 @@BITMAP *@load_lbm(const char *filename, RGB *pal);
 @xref load_bitmap
@@ -4922,7 +5063,22 @@ will not be known, so the file may be converted wrongly.
 @xref load_pcx
 @eref expackf
 @shortdesc Packfile version of load_pcx.
-   A version of load_pcx which reads from a packfile.
+   A version of load_pcx() which reads from a packfile. Example:
+<codeblock>
+      PACKFILE *packfile;
+      BITMAP *bmp;
+
+      packfile = pack_fopen("mybitmap.pcx", F_READ);
+      if (!packfile)
+	 abort_on_error("Couldn't open mybitmap.pcx");
+         
+      bmp = load_bmp_pf(packfile, pal);
+      if (!bmp)
+	 abort_on_error("Error loading mybitmap.pcx");<endblock>
+@retval
+   Returns a pointer to the bitmap or NULL on error. Remember that you are
+   responsible for destroying the bitmap when you are finished with it to
+   avoid memory leaks.
 
 @@BITMAP *@load_tga(const char *filename, RGB *pal);
 @xref load_bitmap
@@ -4938,7 +5094,22 @@ will not be known, so the file may be converted wrongly.
 @xref load_tga
 @eref expackf
 @shortdesc Packfile version of load_tga.
-   A version of load_tga which reads from a packfile.
+   A version of load_tga() which reads from a packfile. Example:
+<codeblock>
+      PACKFILE *packfile;
+      BITMAP *bmp;
+
+      packfile = pack_fopen("mybitmap.tga", F_READ);
+      if (!packfile)
+	 abort_on_error("Couldn't open mybitmap.tga");
+         
+      bmp = load_bmp_pf(packfile, pal);
+      if (!bmp)
+	 abort_on_error("Error loading mybitmap.tga");<endblock>
+@retval
+   Returns a pointer to the bitmap or NULL on error. Remember that you are
+   responsible for destroying the bitmap when you are finished with it to
+   avoid memory leaks.
 
 @@int @save_bitmap(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bmp, save_pcx, save_tga, load_bitmap, register_bitmap_file_type
@@ -4972,7 +5143,7 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
-@@BITMAP *@save_bmp_pf(PACKFILE *f, RGB *pal);
+@@int @save_bmp_pf(PACKFILE *f, RGB *pal);
 @xref save_bmp
 @eref expackf
 @shortdesc Packfile version of save_bmp.
@@ -4985,12 +5156,12 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
-@@BITMAP *@save_pcx_pf(PACKFILE *f, RGB *pal);
+@@int @save_pcx_pf(PACKFILE *f, RGB *pal);
 @xref save_pcx
 @shortdesc Packfile version of save_pcx.
    A version of save_pcx which writes to a packfile.
 
-@@int @save_tga (const char *filename, BITMAP *bmp, const RGB *pal);
+@@int @save_tga(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
 @shortdesc Saves a bitmap into a TGA file.
    Writes a bitmap into a 256-color, 15-bit hicolor, 24-bit truecolor, or
@@ -4998,7 +5169,7 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
-@@BITMAP *@save_tga_pf(PACKFILE *f, RGB *pal);
+@@int @save_tga_pf(PACKFILE *f, RGB *pal);
 @xref save_tga
 @eref expackf
 @shortdesc Packfile version of save_tga.
@@ -5198,8 +5369,9 @@ before including Allegro headers).
 <codeblock>
       PALETTE palette;
       ...
+      /* Modify the first 16 entries. */
       change_first_16_colors(palette);
-      /* Change first colors waiting for vsync. */
+      /* Now update them waiting for vsync. */
       set_palette_range(palette, 0, 15, 1);<endblock>
 
 @@void @get_color(int index, RGB *p);
@@ -5335,7 +5507,7 @@ before including Allegro headers).
    are reading a truecolor bitmap).
 
 @\int @generate_optimized_palette(BITMAP *bmp, PALETTE pal,
-@@                               const char rsvd[256]);
+@@                               const char rsvd[PAL_SIZE]);
 @xref generate_332_palette, set_color_depth
 @shortdesc Generates an optimized palette for a bitmap.
    Generates a 256-color palette suitable for making a reduced color version 
@@ -5497,7 +5669,7 @@ routines!
    from truecolor to hicolor. In addition to calling these functions 
    directly, hicolor dithering can be automatically enabled when loading 
    graphics by calling the set_color_conversion() function, for example 
-   set_color_conversion (COLORCONV_REDUCE_TRUE_TO_HI | COLORCONV_DITHER).
+   set_color_conversion(COLORCONV_REDUCE_TRUE_TO_HI | COLORCONV_DITHER).
    
    Example:
 <codeblock>
@@ -6870,7 +7042,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    responsible for destroying the font when you are finished with it to
    avoid memory leaks.
 
-@@FONT *@load_grx_or_bios_font(const char *filename, RGB *pal,void *param))
+@@FONT *@load_grx_or_bios_font(const char *filename, RGB *pal, void *param)
 @xref register_font_file_type, load_font
 @shortdesc Loads either a BIOS or GRX format font.
    Loads either a BIOS or GRX format font. You shouldn't normally call this 
@@ -7742,7 +7914,7 @@ Transparency and patterned drawing
 @eref exspline, exupdate
 @shortdesc Shortcut for toggling xor drawing mode on and off.
    This is a shortcut for toggling xor drawing mode on and off. Calling 
-   xor_mode(TRUE) is equivalent to drawing_mode (DRAW_MODE_XOR, NULL, 0, 0).
+   xor_mode(TRUE) is equivalent to drawing_mode(DRAW_MODE_XOR, NULL, 0, 0).
    Calling xor_mode(FALSE) is equivalent to
    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0).
 
@@ -7787,7 +7959,7 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
 @@                        int r, g, b, void (*callback)(int pos));
 @xref color_map, create_light_table, create_color_table
 @xref create_blender_table, draw_trans_sprite, draw_lit_sprite
-@xref draw_gouraud_sprite
+@xref draw_gouraud_sprite, rgb_map
 @eref ex3d, extrans
 @shortdesc Fills a color mapping table for translucency effects.
    Fills the specified color mapping table with lookup data for doing 
@@ -7795,17 +7967,25 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
    colors c1 and c2 with this table, the result will be a color somewhere 
    between the two. The r, g, and b parameters specify the solidity of each 
    color component, ranging from 0 (totally transparent) to 255 (totally 
-   solid). For 50% solidity, pass 128. This function treats source color #0 
-   as a special case, leaving the destination unchanged whenever a zero 
-   source pixel is encountered, so that masked sprites will draw correctly. 
-   If the callback function is not NULL, it will be called 256 times during 
-   the calculation, allowing you to display a progress indicator.
+   solid). For 50% solidity, pass 128.
+
+   This function treats source color #0 as a special case, leaving the
+   destination unchanged whenever a zero source pixel is encountered, so that
+   masked sprites will draw correctly. This function will take advantage of
+   the global rgb_map variable to speed up color conversions. If the callback
+   function is not NULL, it will be called 256 times during the calculation,
+   allowing you to display a progress indicator. Example:
+<codeblock>
+      COLOR_MAP trans_table;
+      ...
+      /* Build a color lookup table for translucent drawing. */
+      create_trans_table(&trans_table, pal, 128, 128, 128, NULL);<endblock>
 
 @\void @create_light_table(COLOR_MAP *table, const PALETTE pal,
 @@                        int r, g, b, void (*callback)(int pos));
 @xref color_map, create_trans_table, create_color_table
 @xref create_blender_table, draw_trans_sprite, draw_lit_sprite
-@xref draw_gouraud_sprite
+@xref draw_gouraud_sprite, rgb_map
 @eref ex3d, exshade, extrans
 @shortdesc Fills a color mapping table for lighting effects.
    Fills the specified color mapping table with lookup data for doing 
@@ -7814,27 +7994,49 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
    light level 255 the table will output color c2 unchanged, at light level 
    0 it will output the r, g, b value you specify to this function, and at 
    intermediate light levels it will output a color somewhere between the 
-   two extremes. The r, g, and b values are in the range 0-63. If the 
-   callback function is not NULL, it will be called 256 times during the 
-   calculation, allowing you to display a progress indicator.
+   two extremes. The r, g, and b values are in the range 0-63.
+
+   This function will take advantage of the global rgb_ap variable to speed
+   up color conversions. If the callback function is not NULL, it will be
+   called 256 times during the calculation, allowing you to display a
+   progress indicator. Example:
+<codeblock>
+      COLOR_MAP light_table;
+      ...
+      /* Build a color lookup table for lighting effects. */
+      create_light_table(&light_table, pal, 0, 0, 0, NULL);<endblock>
 
 @\void @create_color_table(COLOR_MAP *table, const PALETTE pal,
 @\                        void (*blend)(PALETTE pal, int x, int y, RGB *rgb),
 @@                        void (*callback)(int pos));
 @xref color_map, create_light_table, create_trans_table, create_blender_table
-@xref draw_trans_sprite, draw_lit_sprite, draw_gouraud_sprite
+@xref draw_trans_sprite, draw_lit_sprite, draw_gouraud_sprite, rgb_map
 @eref excolmap
 @shortdesc Fills a color mapping table for customised effects.
    Fills the specified color mapping table with lookup data for doing 
    customised effects with the specified palette, calling the blend function 
-   to determine the results of each color combination. Your blend routine 
-   will be passed a pointer to the palette and the two colors which are to 
-   be combined, and should fill in the RGB structure with the desired result 
-   in 0-63 format. Allegro will then search the palette for the closest 
-   match to the RGB color that you requested, so it doesn't matter if the 
-   palette has no exact match for this color. If the callback function is 
-   not NULL, it will be called 256 times during the calculation, allowing 
-   you to display a progress indicator.
+   to determine the results of each color combination.
+
+   Your blend routine will be passed a pointer to the palette and the two
+   indices of the colors which are to be combined, and should fill in the RGB
+   structure with the desired result in 0-63 format. Allegro will then search
+   the palette for the closest match to the RGB color that you requested, so
+   it doesn't matter if the palette has no exact match for this color.
+
+   If the callback function is not NULL, it will be called 256 times during
+   the calculation, allowing you to display a progress indicator. Example:
+<codeblock>
+      COLOR_MAP greyscale_table;
+      ...
+      void return_grey_color(const PALETTE pal,
+			     int x, int y, RGB *rgb)
+      {
+	 ...
+      }
+      ...
+	 /* Build a color lookup table for greyscale effect. */
+	 create_color_table(&greyscale_table, pal,
+			    return_grey_color, NULL);<endblock>
 
 @\void @create_blender_table(COLOR_MAP *table, const PALETTE pal,
 @@                          void (*callback)(int pos));
@@ -8042,17 +8244,25 @@ formats, you can use create_bitmap_ex() in place of create_bitmap(), and
 call bitmap_color_depth() to query the format of a specific image. Most of 
 the graphics routines require all their input parameters to be in the same 
 format (eg. you cannot stretch a 15-bit source bitmap onto a 24-bit 
-destination), but there are some exceptions: blit() and the rotation routines 
-can copy between bitmaps of any format, converting the data as required, 
-draw_sprite() can draw 256-color source images onto destinations of any 
-format, draw_character_ex() _always_ uses a 256-color source bitmap, whatever 
-the format of the destination, the draw_trans_sprite() and 
-draw_trans_rle_sprite() functions are able to draw 32-bit RGBA images onto 
-any hicolor or truecolor destination, as long as you call set_alpha_blender() 
-first, and the draw_trans_sprite() function is able to draw an 8-bit alpha 
-channel image over the top of an existing 32-bit image, as long as you call 
-set_write_alpha_blender() first.
-
+destination), but there are some exceptions:
+<ul><li>
+   blit() and the rotation routines can copy between bitmaps of any format,
+   converting the data as required.
+<li>
+   draw_sprite() can draw 256-color source images onto destinations of any
+   format.
+<li>
+   draw_character_ex() _always_ uses a 256-color source bitmap, whatever the
+   format of the destination.
+<li>
+   The draw_trans_sprite() and draw_trans_rle_sprite() functions are able to
+   draw 32-bit RGBA images onto any hicolor or truecolor destination, as long
+   as you call set_alpha_blender() first.
+<li>
+   The draw_trans_sprite() function is able to draw an 8-bit alpha channel
+   image over the top of an existing 32-bit image, as long as you call
+   set_write_alpha_blender() first.
+</ul>
 Expanding a 256-color source onto a truecolor destination is fairly fast 
 (obviously you must set the correct palette before doing this conversion!). 
 Converting between different truecolor formats is slightly slower, and 
@@ -8068,22 +8278,21 @@ the conversion).
    should call makecol8() instead, but this lower level function may be 
    useful if you need to use a palette other than the currently selected 
    one, or specifically don't want to use the rgb_map lookup table.
+@retval
+   Returns the index of the palette for the closest match to the requested
+   color.
 
 @@extern RGB_MAP *@rgb_map;
-@xref create_rgb_table, makecol8
+@xref create_rgb_table, makecol8, create_trans_table
+@xref create_light_table, create_color_table
 @eref ex3d, excolmap, exrgbhsv, exshade, extrans
 @shortdesc Look up table to speed up reducing RGB values to palette colors.
    To speed up reducing RGB values to 8-bit paletted colors, Allegro uses a 
    32k lookup table (5 bits for each color component). You must set up this 
    table before using the gouraud shading routines, and if present the table 
-   will also vastly accelerate the makecol8() function. RGB tables can be 
-   precalculated with the rgbmap utility, or generated at runtime. The 
-   RGB_MAP structure is defined as:
-<codeblock>
-      typedef struct
-      {
-	 unsigned char data[32][32][32];
-      } RGB_MAP;<endblock>
+   will also vastly accelerate the makecol8() and some create_*_table()
+   functions. RGB tables can be precalculated with the rgbmap utility, or
+   generated at runtime with create_rgb_table().
       
 @\void @create_rgb_table(RGB_MAP *table, const PALETTE pal,
 @@                      void (*callback)(int pos));
@@ -8093,7 +8302,12 @@ the conversion).
    Fills the specified RGB mapping table with lookup data for the specified 
    palette. If the callback function is not NULL, it will be called 256 
    times during the calculation, allowing you to display a progress 
-   indicator.
+   indicator. Example:
+<codeblock>
+      RGB_MAP rgb_table;
+      
+      create_rgb_table(&rgb_table, palette, NULL);
+      rgb_map = &rgb_table;<endblock>
 
 @@void @hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b);
 @@void @rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v);
@@ -8101,18 +8315,23 @@ the conversion).
 @shortdesc Converts color values between the HSV and RGB colorspaces.
    Convert color values between the HSV and RGB colorspaces. The RGB values 
    range from 0 to 255, hue is from 0 to 360, and saturation and value are 
-   from 0 to 1.
+   from 0 to 1. Example:
+<codeblock>
+      int r, g, b;
+      float hue, saturation, value;
+      ...
+      /* Convert a reddish color to HSV format. */
+      rgb_to_hsv(255, 0, 128, &hue, &saturation, &value);
+      
+      /* Now put our tin foil hat, and verify that. */
+      hsv_to_rgb(hue, saturation, value, &r, &g, &b);
+      ASSERT(r == 255);
+      ASSERT(g == 0);
+      ASSERT(b == 128);<endblock>
 
 
 
-@!text
-@!html
-@headingnocontent
-@text
-@html
-@!texinfo
 @heading
-@texinfo
 Direct access to video memory
 
 Read chapter "Structures and types defined by Allegro" for an internal
@@ -8122,7 +8341,7 @@ what sort of bitmap you are using.
 
 The simplest approach will only work with memory bitmaps (obtained from 
 create_bitmap(), grabber datafiles, and image files) and sub-bitmaps of 
-memory bitmaps. This uses a table of char pointers, called 'line', which is 
+memory bitmaps. This uses a table of char pointers, called `line', which is
 a part of the bitmap structure and contains pointers to the start of each 
 line of the image. For example, a simple memory bitmap putpixel function is:
 <codeblock>
@@ -8163,23 +8382,34 @@ bmp_read32().
 
 This still won't work in banked SVGA modes, however, or on platforms like 
 Windows that do special processing inside the bank switching functions. For 
-more flexible access to bitmap memory, you need to call the routines:
+more flexible access to bitmap memory, you need to call the following
+routines. They are implemented as inline assembler routines, so they are not
+as inefficient as they might seem. If the bitmap doesn't require bank
+switching (ie. it is a memory bitmap, mode 13h screen, etc), these functions
+just return bmp-&gtline[line].
 
-unsigned long bmp_write_line(BITMAP *bmp, int line);<br>
+@@unsigned long @bmp_write_line(BITMAP *bmp, int line);
+@eref exflame, exlights
+@shortdesc Direct access bank switching line selection for writing.
    Selects the line of a bitmap that you are going to draw onto.
+@retval
+   Returns the address of the selected line for writing.
 
-unsigned long bmp_read_line(BITMAP *bmp, int line);<br>
+@@unsigned long @bmp_read_line(BITMAP *bmp, int line);
+@eref exflame
+@shortdesc Direct access bank switching line selection for reading.
    Selects the line of a bitmap that you are going to read from.
+@retval
+   Returns the address of the selected line for reading.
 
-unsigned long bmp_unwrite_line(BITMAP *bmp);<br>
+@@void @bmp_unwrite_line(BITMAP *bmp);
+@eref exflame, exlights
+@shortdesc Direct access bank switching line release.
    Releases the bitmap memory after you are finished with it. You only need 
    to call this once at the end of a drawing operation, even if you have 
    called bmp_write_line() or bmp_read_line() several times before it.
 
-These are implemented as inline assembler routines, so they are not as 
-inefficient as they might seem. If the bitmap doesn't require bank switching 
-(ie. it is a memory bitmap, mode 13h screen, etc), these functions just 
-return bmp-&gtline[line].
+@hnode More on banked direct memory access
 
 Although SVGA bitmaps are banked, Allegro provides linear access to the 
 memory within each scanline, so you only need to pass a y coordinate to 
@@ -8270,17 +8500,19 @@ different sources of the data, these two functions behave identically. They
 draw the animation onto the specified bitmap, which should normally be the 
 screen. Frames will be aligned with the top left corner of the bitmap: if 
 you want to position them somewhere else you will need to create a 
-sub-bitmap for the FLI player to draw onto. If loop is set the player will 
-cycle when it reaches the end of the file, otherwise it will play through 
-the animation once and then return. If the callback function is not NULL it 
-will be called once for each frame, allowing you to perform background tasks 
-of your own. This callback should normally return zero: if it returns 
-non-zero the player will terminate (this is the only way to stop an 
-animation that is playing in looped mode). The FLI player returns FLI_OK if 
-it reached the end of the file, FLI_ERROR if something went wrong, and the 
-value returned by the callback function if that was what stopped it. If you 
-need to distinguish between different return values, your callback should 
-return positive integers, since FLI_OK is zero and FLI_ERROR is negative. 
+sub-bitmap for the FLI player to draw onto.
+
+If the callback function is not NULL it will be called once for each frame,
+allowing you to perform background tasks of your own. This callback should
+normally return zero: if it returns non-zero the player will terminate (this
+is the only way to stop an animation that is playing in looped mode).
+
+The FLI player returns FLI_OK if it reached the end of the file, FLI_ERROR
+if something went wrong, and the value returned by the callback function if
+that was what stopped it. If you need to distinguish between different return
+values, your callback should return positive integers, since FLI_OK is zero
+and FLI_ERROR is negative.
+
 Note that the FLI player will only work when the timer module is installed, 
 and that it will alter the palette according to whatever palette data is 
 present in the animation file.
@@ -8293,49 +8525,103 @@ these with the lower level functions described below.
 @@int @play_fli(const char *filename, BITMAP *bmp, int loop, int (*callback)());
 @xref play_memory_fli, install_timer, fli_frame
 @shortdesc Plays a FLI or FLC animation from disk.
-   Plays an Autodesk Animator FLI or FLC animation file, reading the data 
-   from disk as it is required.
+   Plays an Autodesk Animator FLI or FLC animation file on the specified
+   BITMAP, reading the data from disk as it is required. If `loop' is not
+   zero, the player will cycle when it reaches the end of the file, otherwise
+   it will play through the animation once and then return. Read the beginning
+   of chapter "FLIC routines" for a description of the callback parameter.
+   Example:
+<codeblock>
+      /* Let users skip looped animations. */
+      int check_escape_key(void)
+      {
+	 if (key[KEY_ESC])
+	    return 1;
+	 else
+	    return 0;
+      }
+      ...
+	 int ret = play_fli("animlogo.fli", screen, 1,
+			     check_escape_key);
+	 if (ret == FLI_ERROR)
+	    abort_on_error("Error playing intro!");<endblock>
+@retval
+   The FLI player returns FLI_OK if it reached the end of the file, FLI_ERROR
+   if something went wrong, and the value returned by the callback function if
+   that was what stopped it.
 
 @\int @play_memory_fli(const void *fli_data, BITMAP *bmp, int loop,
 @@                    int (*callback)());
 @xref play_fli, install_timer, fli_frame
 @shortdesc Plays a FLI or FLC animation from memory.
-   Plays an Autodesk Animator FLI or FLC animation, reading the data from a 
-   copy of the file which is held in memory. You can obtain the fli_data 
-   pointer by mallocing a block of memory and reading an FLI file into it, 
-   or by importing an FLI into a grabber datafile. Playing animations from 
-   memory is obviously faster than cueing them directly from disk, and is 
-   particularly useful with short, looped FLI's. Animations can easily get 
-   very large, though, so in most cases you will probably be better just 
-   using play_fli().
+   Plays an Autodesk Animator FLI or FLC animation on the specified BITMAP,
+   reading the data from a copy of the file which is held in memory. You can
+   obtain the `fli_data' pointer by mallocing a block of memory and reading
+   an FLI file into it, or by importing an FLI into a grabber datafile. If
+   `loop' is not zero, the player will cycle when it reaches the end of the
+   file, otherwise it will play through the animation once and then return.
+   Read the beginning of chapter "FLIC routines" for a description of the
+   callback parameter.
+
+   Playing animations from memory is obviously faster than cueing them
+   directly from disk, and is particularly useful with short, looped FLI's.
+   Animations can easily get very large, though, so in most cases you will
+   probably be better just using play_fli(). You can think of this function
+   as a wrapper on top of open_memory_fli(), next_fli_frame() and close_fli().
+   Example:
+<codeblock>
+      int ret = play_memory_fli(anim_data, screen, 0, NULL);
+      if (ret == FLI_ERROR)
+	 abort_on_error("Corrupted animation data?");<endblock>
+@retval
+   The FLI player returns FLI_OK if it reached the end of the file, FLI_ERROR
+   if something went wrong, and the value returned by the callback function if
+   that was what stopped it.
 
 @@int @open_fli(const char *filename);
 @@int @open_memory_fli(const void *fli_data);
-@xref close_fli, next_fli_frame
+@xref close_fli, next_fli_frame, fli_bitmap, fli_palette
 @shortdesc Makes a FLI file open and ready for playing.
-   Open FLI files ready for playing, reading the data from disk or memory 
-   respectively. Return FLI_OK on success. Information about the current FLI 
-   is held in global variables, so you can only have one animation open at a 
-   time.
+   Open FLI files ready for playing, reading the data from disk or memory
+   respectively. Information about the current FLI is held in the global
+   variables fli_bitmap and fli_palette, which you can use if this function
+   succeeds. However, you can only have one animation open at a time.
+   Example:
+<codeblock>
+      if (open_fli("intro.fli") == FLI_ERROR)
+	 abort_on_error("Error playing intro");<endblock>
+@retval
+   Returns FLI_OK on success, FLI_ERROR if something went wrong, like trying
+   to open another FLI file without closing the previous one.
 
 @@void @close_fli();
 @xref open_fli
 @shortdesc Closes a FLI file previously opened.
-   Closes an FLI file when you have finished reading from it.
+   Closes an FLI file when you have finished reading from it. Remember to do
+   this to avoid having memory leaks in your program.
 
 @@int @next_fli_frame(int loop);
 @xref open_fli, fli_bitmap, fli_palette, fli_timer, fli_frame
 @shortdesc Reads the next frame of the current animation file.
-   Reads the next frame of the current animation file. If loop is set the 
-   player will cycle when it reaches the end of the file, otherwise it will 
-   return FLI_EOF. Returns FLI_OK on success, FLI_ERROR or FLI_NOT_OPEN on 
-   error, and FLI_EOF on reaching the end of the file. The frame is read 
-   into the global variables fli_bitmap and fli_palette.
+   Reads the next frame of the current animation file. If `loop' is not zero,
+   the player will cycle when it reaches the end of the file, otherwise it
+   will return FLI_EOF. The frame is read into the global variables
+   fli_bitmap and fli_palette. Example:
+<codeblock>
+      while (next_fli_frame(0) == FLI_OK) {
+	 /* Do stuff, like play audio stream
+	    or check keys to skip animation. */
+	 /* Rest some time until next frame... */
+      }<endblock>
+@retval
+   Returns FLI_OK on success, FLI_ERROR or FLI_NOT_OPEN on error, and FLI_EOF
+   on reaching the end of the file.
 
 @@extern BITMAP *@fli_bitmap;
 @xref next_fli_frame, fli_bmp_dirty_from, fli_palette
 @shortdesc Contains the current frame of the animation.
-   Contains the current frame of the FLI/FLC animation.
+   Contains the current frame of the FLI/FLC animation. If there is no open
+   animation, its value will be NULL.
 
 @@extern PALETTE @fli_palette;
 @xref next_fli_frame, fli_pal_dirty_from, fli_bitmap
@@ -8351,8 +8637,13 @@ these with the lower level functions described below.
    fli_bmp_dirty_from is greater than fli_bmp_dirty_to, the bitmap has not 
    changed, otherwise lines fli_bmp_dirty_from to fli_bmp_dirty_to 
    (inclusive) have altered. You can use these when copying the fli_bitmap 
-   onto the screen, to avoid moving data unnecessarily.
-
+   onto the screen, to avoid moving data unnecessarily. Example:
+<codeblock>
+      if (fli_bmp_dirty_from <= fli_bmp_dirty_to)
+	 blit(fli_bitmap, screen, 0, fli_bmp_dirty_from,
+	      0, fli_bmp_dirty_from, fli_bitmap->w,
+	      fli_bmp_dirty_to - fli_bmp_dirty_from + 1);<endblock>
+              
 @@extern int @fli_pal_dirty_from;
 @@extern int @fli_pal_dirty_to;
 @xref fli_palette, reset_fli_variables
@@ -8362,7 +8653,11 @@ these with the lower level functions described below.
    fli_pal_dirty_from is greater than fli_pal_dirty_to, the palette has not 
    changed, otherwise colors fli_pal_dirty_from to fli_pal_dirty_to 
    (inclusive) have altered. You can use these when updating the hardware 
-   palette, to avoid unnecessary calls to set_palette().
+   palette, to avoid unnecessary calls to set_palette(). Example:
+<codeblock>
+      if (fli_pal_dirty_from <= fli_pal_dirty_to)
+	 set_palette_range(fli_palette, fli_pal_dirty_from,
+			   fli_pal_dirty_to, 1);<endblock>
 
 @@void @reset_fli_variables();
 @xref fli_bmp_dirty_from, fli_pal_dirty_from
@@ -8377,7 +8672,13 @@ these with the lower level functions described below.
    Global variable containing the current frame number in the FLI file. This 
    is useful for synchronising other events with the animation, for instance 
    you could check it in a play_fli() callback function and use it to 
-   trigger a sample at a particular point.
+   trigger a sample at a particular point. Example:
+<codeblock>
+      while (next_fli_frame(0) == FLI_OK) {
+	 if (fli_frame == 345)
+	    play_sample(trumpet_sound, 255, 128, 1000, 0);
+	 /* Rest some time until next frame... */
+      }<endblock>
 
 @@extern volatile int @fli_timer;
 @xref install_timer, next_fli_frame
@@ -8386,36 +8687,68 @@ these with the lower level functions described below.
    timer interrupt is installed which increments this variable every time a 
    new frame should be displayed. Calling next_fli_frame() decrements it, so 
    you can test it and know that it is time to display a new frame if it is 
-   greater than zero.
+   greater than zero. Example:
+<codeblock>
+      while (next_fli_frame(0) == FLI_OK) {
+	 /* Do stuff, like play audio stream
+	    or check keys to skip animation. */
+	 /* Rest some time until next frame... */
+	 while (fli_timer <= 0)
+	    rest(0);
+      }<endblock>
 
 
 
 @heading
 Sound init routines
 
+Allegro allows you to use the sound hardware in two ways: automatic, or
+manual. Usually you should try the automatic version first. This means
+calling install_sound() with the autodetection parameters and using the rest
+of the sound functions to play samples or music. In this situation, Allegro
+will handle the sound devices and mix the samples and/or music the best way
+it can.
+
+However, sound hardware has a limitation on the number of samples it may
+play all at the same time (from now on, called hardware voices). When you
+exceed this limit, Allegro will cut off one of the samples being played and
+reproduce the new one. Depending on the type of sounds you are playing, how
+many of them you need at the same time and their nature (e.g: vital audio
+feedback to the user or useless "ping" when some shrapnel hits a rock in the
+scenary) you will want to specify more carefully how hardware voices are
+reserved and which samples have priority over others.
+
+The hardware voice reservation phase has to be done before the call to
+install_sound(), since it directly affects how Allegro talks to the sound
+drivers.
+
 @@int @detect_digi_driver(int driver_id);
 @xref install_sound, reserve_voices
 @xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
 @xref DIGI_*/MacOSX
 @shortdesc Detects whether the specified digital sound device is available.
-   Detects whether the specified digital sound device is available. Returns 
-   the maximum number of voices that the driver can provide, or zero if the 
-   hardware is not present. This function must be called _before_ 
-   install_sound().
+   Detects whether the specified digital sound device is available. This
+   function must be called _before_ install_sound().
+@retval
+   Returns the maximum number of voices that the driver can provide, or zero
+   if the hardware is not present.
 
 @@int @detect_midi_driver(int driver_id);
 @xref install_sound, reserve_voices
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
 @xref MIDI_*/MacOSX
 @shortdesc Detects whether the specified MIDI sound device is available.
-   Detects whether the specified MIDI sound device is available. Returns the 
-   maximum number of voices that the driver can provide, or zero if the 
-   hardware is not present. There are two special-case return values that 
-   you should watch out for: if this function returns -1 it is a 
-   note-stealing driver (eg. DIGMID) that shares voices with the current 
-   digital sound driver, and if it returns 0xFFFF it is an external device 
-   like an MPU-401 where there is no way to determine how many voices are 
-   available. This function must be called _before_ install_sound(). 
+   Detects whether the specified MIDI sound device is available. This function
+   must be called _before_ install_sound().
+@retval
+   Returns the maximum number of voices that the driver can provide, or zero
+   if the hardware is not present.
+
+   There are two special-case return values that you should watch out for:
+   if this function returns -1 it is a note-stealing driver (eg. DIGMID) that
+   shares voices with the current digital sound driver, and if it returns
+   0xFFFF it is an external device like an MPU-401 where there is no way to
+   determine how many voices are available.
 
 @@void @reserve_voices(int digi_voices, int midi_voices);
 @xref set_volume_per_voice, install_sound, detect_digi_driver
@@ -8480,7 +8813,6 @@ Sound init routines
       32 voices - set_volume_per_voice(4)
       64 voices - set_volume_per_voice(5)
 <endblock>
-
    Of course this function does not override the volume you specify with
    play_sample() or voice_set_volume(). It simply alters the overall output
    of the program. If you play samples at lower volumes, or if they are not
@@ -8511,9 +8843,10 @@ Sound init routines
    utility: see the config section for details. Alternatively, see the 
    platform specific documentation for a list of the available drivers. The 
    cfg_path parameter is only present for compatibility with previous 
-   versions of Allegro, and has no effect on anything. Returns zero if the 
-   sound is successfully installed, and -1 on failure. If it fails it will 
-   store a description of the problem in allegro_error.
+   versions of Allegro, and has no effect on anything.
+@retval
+   Returns zero if the sound is successfully installed, and -1 on failure.
+   If it fails it will store a description of the problem in allegro_error.
 
 @@void @remove_sound();
 @xref install_sound, allegro_exit
@@ -8526,16 +8859,19 @@ Sound init routines
 @shortdesc Alters the global sound output volume.
    Alters the global sound output volume. Specify volumes for both digital 
    samples and MIDI playback, as integers from 0 to 255, or pass a negative 
-   value to leave one of the settings unchanged. This routine will not alter
-   the volume of the hardware mixer if it exists.
+   value to leave one of the settings unchanged. Values bigger than 255 will
+   be reduced to 255. This routine will not alter the volume of the hardware
+   mixer if it exists (i.e. only your application will be affected).
 
 @@void @set_hardware_volume(int digi_volume, int midi_volume);
 @xref install_sound, set_volume
 @shortdesc Alters the hardware sound output volume.
    Alters the hardware sound output volume. Specify volumes for both digital 
    samples and MIDI playback, as integers from 0 to 255, or pass a negative 
-   value to leave one of the settings unchanged. This routine will use the
-   hardware mixer to control the volume if it exists, otherwise do nothing.
+   value to leave one of the settings unchanged. Values bigger than 255 will
+   be reduced to 255. This routine will use the hardware mixer to control the
+   volume if it exists (i.e. the volume of all the applications on your
+   machine will be affected), otherwise do nothing.
 
 
 
@@ -8549,14 +8885,16 @@ Mixer routines
 @xref Standard config variables
 @shortdesc Sets the resampling quality of the mixer.
    Sets the resampling quality of the mixer. Valid values are the same as
-   the 'quality' config variable, please look there for details.
+   the `quality' config variable. Please read chapter "Standard config
+   variables" for details. You can call this function at any point in your
+   program, even before allegro_init().
 
 @@int @get_mixer_quality(void);
 @xref set_mixer_quality
 @xref Standard config variables
 @shortdesc Returns the current mixing quality.
-   Returns the current mixing quality, as specified by the 'quality' config
-   variable, or a previous call to set_mixer_quality.
+   Returns the current mixing quality, as specified by the `quality' config
+   variable, or a previous call to set_mixer_quality().
 
 @@int @get_mixer_frequency(void);
 @xref Standard config variables
@@ -8594,45 +8932,104 @@ Digital sample routines
 @xref register_sample_file_type, Voice control
 @eref exsample
 @shortdesc Loads a sample from a file.
-   Loads a sample from a file, returning a pointer to it, or NULL on error. 
-   At present this function supports both mono and stereo WAV and mono VOC 
-   files, in 8 or 16-bit formats, as well as formats handled by functions
-   registered using register_sample_file_type.
+   Loads a sample from a file, supporting both mono and stereo WAV and mono
+   VOC files, in 8 or 16-bit formats, as well as formats handled by functions
+   registered using register_sample_file_type(). Example:
+<codeblock>
+      SAMPLE *sample = load_sample(user_input);
+      if (!sample)
+	 abort_on_error("Couldn't load sample!");<endblock>
+@retval
+   Returns a pointer to the SAMPLE or NULL on error. Remember to free this
+   sample later to avoid memory leaks.
 
 @@SAMPLE *@load_wav(const char *filename);
 @xref load_sample, register_sample_file_type
 @shortdesc Loads a sample from a RIFF WAV file.
-   Loads a sample from a RIFF WAV file.
+   Loads a sample from a RIFF WAV file. Example:
+<codeblock>
+      SAMPLE *sample = load_wav("scream.wav");
+      if (!sample)
+	 abort_on_error("Couldn't scare user!");<endblock>
+@retval
+   Returns a pointer to the SAMPLE or NULL on error. Remember to free this
+   sample later to avoid memory leaks.
 
-@@BITMAP *@load_wav_pf(PACKFILE *f);
+@@SAMPLE *@load_wav_pf(PACKFILE *f);
 @xref load_wav
 @shortdesc Packfile version of load_wav.
-   A version of load_wav which reads from a packfile.
+   A version of load_wav() which reads from a packfile. Example:
+<codeblock>
+      PACKFILE *packfile;
+      SAMPLE *sample;
+   
+      packfile = pack_fopen("sound.wav", F_READ);
+      if (!packfile)
+	 abort_on_error("Couldn't open sound.wav");
+   
+      sample = load_wav_pf(packfile);
+      if (!sample)
+	 abort_on_error("Error loading sound.wav");<endblock>
+@retval
+   Returns a pointer to the SAMPLE or NULL on error. Remember to free this
+   sample later to avoid memory leaks.
 
 @@SAMPLE *@load_voc(const char *filename);
 @xref load_sample, register_sample_file_type
 @shortdesc Loads a sample from a Creative Labs VOC file.
-   Loads a sample from a Creative Labs VOC file.
+   Loads a sample from a Creative Labs VOC file. Example:
+<codeblock>
+      SAMPLE *sample = load_wav("alarm.wav");
+      if (!sample)
+	 abort_on_error("Couldn't alert user!");<endblock>
+@retval
+   Returns a pointer to the SAMPLE or NULL on error. Remember to free this
+   sample later to avoid memory leaks.
 
-@@BITMAP *@load_voc_pf(PACKFILE *f);
+@@SAMPLE *@load_voc_pf(PACKFILE *f);
 @xref load_voc
 @shortdesc Packfile version of load_voc.
-   A version of load_voc which reads from a packfile.
+   A version of load_voc() which reads from a packfile. Example:
+<codeblock>
+      PACKFILE *packfile;
+      SAMPLE *sample;
+   
+      packfile = pack_fopen("sound.wav", F_READ);
+      if (!packfile)
+	 abort_on_error("Couldn't open sound.wav");
+   
+      sample = load_wav_pf(packfile);
+      if (!sample)
+	 abort_on_error("Error loading sound.wav");<endblock>
+@retval
+   Returns a pointer to the SAMPLE or NULL on error. Remember to free this
+   sample later to avoid memory leaks.
 
 @@int @save_sample(const char *filename, SAMPLE *spl);
 @xref load_sample, register_sample_file_type
 @shortdesc Writes a sample into a file.
-   Writes a sample into a file, returning non-zero on error. The output
-   format is determined from the filename extension. At present Allegro does
-   not natively support the writing of any sample formats, so you must 
-   register a custom saver routine with register_sample_file_type().
+   Writes a sample into a file. The output format is determined from the
+   filename extension. At present Allegro does not natively support the
+   writing of any sample formats, so you must register a custom saver routine
+   with register_sample_file_type(). Example:
+<codeblock>
+      if (save_sample("sound.wav", sample) != 0)
+	 abort_on_error("Couldn't save sample!");<endblock>
+@retval
+   Returns zero on success, non-zero otherwise.
 
 @@SAMPLE *@create_sample(int bits, int stereo, int freq, int len);
-@xref load_sample, destroy_sample
+@xref load_sample, destroy_sample, Structures and types defined by Allegro
 @shortdesc Constructs a new sample structure of the specified type.
-   Constructs a new sample structure of the specified type. The data field 
-   points to a block of waveform data: see the structure definition in 
-   allegro/digi.h for details.
+   Constructs a new sample structure of the specified type. Read chapter
+   "Structures and types defined by Allegro" for an internal description of
+   the SAMPLE structure. The `bits' parameter can be 8 or 16, `stereo' can be
+   zero for mono samples and non-zero for stereo samples, `freq' is the
+   frequency in hertz, and `len' is the number of samples you want to allocate
+   for the full sound buffer.
+@retval
+   Returns a pointer to the created sample, or NULL if the sample could not
+   be created. Remember to free this sample later to avoid memory leaks.
 
 @@void @destroy_sample(SAMPLE *spl);
 @xref load_sample
@@ -8657,31 +9054,43 @@ Digital sample routines
 @shortdesc Registers custom loading/saving sample routines.
    Informs the load_sample() function of a new sample file type,
    providing routines to read and write samples in this format (either
-   function may be NULL).
+   function may be NULL). Example:
+<codeblock>
+      SAMPLE *load_mp3(const char *filename)
+      {
+	 ...
+      }
+      
+	 register_sample_file_type("mp3", load_mp3, NULL);<endblock>
 
 @@int @play_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref install_sound, load_sample, adjust_sample, stop_sample, Voice control
 @eref exsample, exsprite
 @shortdesc Plays a sample.
    Triggers a sample at the specified volume, pan position, and frequency. 
-   The volume and pan range from 0 (min/left) to 255 (max/right). Frequency 
-   is relative rather than absolute: 1000 represents the frequency that the 
-   sample was recorded at, 2000 is twice this, etc. If the loop flag is set, 
-   the sample will repeat until you call stop_sample(), and can be 
-   manipulated while it is playing by calling adjust_sample(). Returns the
-   voice number that was allocated for the sample (a non-negative number if
-   successful).
+   The parameters `vol' and `pan' range from 0 (min/left) to 255 (max/right).
+   Frequency is relative rather than absolute: 1000 represents the frequency
+   that the sample was recorded at, 2000 is twice this, etc. If `loop' is not
+   zero, the sample will repeat until you call stop_sample(), and can be
+   manipulated while it is playing by calling adjust_sample(). Example:
+<codeblock>
+      /* Scream from the left speaker, twice the freq. */
+      int sound = play_sample(scream, 255, 0, 2000, 0);<endblock>
+@retval
+   Returns the voice number that was allocated for the sample or negative if
+   no voices were available.
 
 @@void @adjust_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref play_sample
 @eref exsample
 @shortdesc Alters the parameters of a sample while it is playing.
-   Alters the parameters of a sample while it is playing (useful for 
-   manipulating looped sounds). You can alter the volume, pan, and 
-   frequency, and can also clear the loop flag, which will stop the sample 
-   when it next reaches the end of its loop. If there are several copies of 
-   the same sample playing, this will adjust the first one it comes across. 
-   If the sample is not playing it has no effect.
+   Alters the parameters of a sample while it is playing (useful for
+   manipulating looped sounds). You can alter the volume, pan, and frequency,
+   and can also clear the loop flag, which will stop the sample when it next
+   reaches the end of its loop. The values of the parameters are just like
+   those of play_sample(). If there are several copies of the same sample
+   playing, this will adjust the first one it comes across. If the sample is
+   not playing it has no effect.
 
 @@void @stop_sample(const SAMPLE *spl);
 @xref play_sample
@@ -8711,7 +9120,10 @@ its definition.
    Allocates a soundcard voice and prepares it for playing the specified 
    sample, setting up sensible default parameters (maximum volume, centre 
    pan, no change of pitch, no looping). When you are finished with the 
-   voice you must free it by calling deallocate_voice() or release_voice(). 
+   voice you must free it by calling deallocate_voice() or release_voice().
+   Allegro can manage up to 256 simultaneous voices, but that limit may be
+   lower due to hardware reasons.
+@retval
    Returns the voice number, or -1 if no voices are available.
 
 @@void @deallocate_voice(int voice);
@@ -8761,10 +9173,11 @@ its definition.
 @@SAMPLE *@voice_check(int voice);
 @xref allocate_voice, voice_start, voice_get_position
 @shortdesc Checks whether a voice is currently allocated.
-   Checks whether a voice is currently allocated. It returns a copy of the 
-   sample that the voice is using, or NULL if the voice is inactive (ie. it 
-   has been deallocated, or the release_voice() function has been called and 
-   the sample has then finished playing).
+   Checks whether a voice is currently allocated.
+@retval
+   Returns a pointer to the sample that the voice is using, or NULL if the
+   voice is inactive (ie. it has been deallocated, or the release_voice()
+   function has been called and the sample has then finished playing).
 
 @@int @voice_get_position(int voice);
 @xref Voice control, voice_set_position
@@ -8825,7 +9238,8 @@ its definition.
 @xref Voice control, voice_set_volume
 @shortdesc Starts a volume ramp for a voice.
    Starts a volume ramp (crescendo or diminuendo) from the current volume to 
-   the specified ending volume, lasting for time milliseconds.
+   the specified ending volume, lasting for time milliseconds. The volume is
+   a value in the range 0-255.
 
 @@void @voice_stop_volumeramp(int voice);
 @xref voice_ramp_volume
@@ -9104,12 +9518,9 @@ for the internals of the AUDIOSTREAM structure.
 
    If you want to adjust the pitch, volume, or panning of a stream once it is
    playing, you can use the regular voice_*() functions with stream-&gtvoice
-   as a parameter. The sample data are always in unsigned format. This means
-   that if you are loading a WAVE file (Windows PCM format) which is 16 bits,
-   mono and with a 44.1 kHz rate, you would have to XOR the values from the
-   file with 0x8000 before passing them to Allegro.
-
-   The formula to get the size of the buffers in bytes could be:
+   as a parameter. The format of the sample data is described in the SAMPLE
+   entry of the "Structures and types defined by Allegro" chapter. The formula
+   to get the size of the buffers in bytes could be:
 <codeblock>
       bytes = length * (bits / 8) * (stereo ? 2 : 1)<endblock>
 @retval
@@ -9625,7 +10036,7 @@ directories, but not hidden files and directories. Similarly, if you pass
    load_pcx to read an image from a datafile, you should import it as a 
    binary block rather than as a BITMAP object.
 
-@@PACKFILE *@pack_fopen_vtable(AL_CONST PACKFILE_VTABLE *vtable, void *userdata));
+@@PACKFILE *@pack_fopen_vtable(const PACKFILE_VTABLE *vtable, void *userdata);
 @xref pack_fopen
 @eref expackf
    Creates a new packfile structure that uses the functions specified in
@@ -10738,8 +11149,8 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
    adds in the scale factor, so there is no need to build two temporary 
    matrices and then multiply them together.
 
-@@void @matrix_mul(const MATRIX *m1, *m2, MATRIX *out);
-@@void @matrix_mul_f(const MATRIX_f *m1, *m2, MATRIX_f *out);
+@@void @matrix_mul(const MATRIX *m1, const MATRIX *m2, MATRIX *out);
+@@void @matrix_mul_f(const MATRIX_f *m1, const MATRIX_f *m2, MATRIX_f *out);
 @xref apply_matrix
 @eref exquat, exscn3d
 @shortdesc Multiplies two matrices.
@@ -10783,8 +11194,8 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
    result in (*xout, *yout, *zout). The cross product is perpendicular to 
    both of the input vectors, so it can be used to generate polygon normals.
 
-@@fixed @polygon_z_normal(const V3D *v1, *v2, *v3);
-@@float @polygon_z_normal_f(const V3D_f *v1, *v2, *v3);
+@@fixed @polygon_z_normal(const V3D *v1, const V3D *v2, const V3D *v3);
+@@float @polygon_z_normal_f(const V3D_f *v1, const V3D_f *v2, const V3D_f *v3);
 @xref cross_product
 @eref ex3d
 @shortdesc Finds the Z component of the normal vector to three vertices.
@@ -10795,6 +11206,12 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
    average half the polygons from a scene. If the normal is negative the 
    polygon can safely be culled. If it is zero, the polygon is perpendicular 
    to the screen.
+
+   However, this method of culling back-faces must only be used once the X and
+   Y coordinates have been projected into screen space using persp_project()
+   (or if an orthographic (isometric) projection is being used). Note that
+   this function will fail if the three vertices are co-linear (they lie on
+   the same line) in 3D space.
 
 @@void @apply_matrix(const MATRIX *m, fixed x, y, z, *xout, *yout, *zout);
 @@void @apply_matrix_f(const MATRIX_f *m, float x, y, z, *xout, *yout, *zout);
@@ -10820,8 +11237,8 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
    though, so this isn't always completely true). If you pass -1/-1/2/2 as
    parameters, no extra scaling will be performed by the projection.
 
-@@void @persp_project(fixed x, y, z, *xout, *yout);
-@@void @persp_project_f(float x, y, z, *xout, *yout);
+@@void @persp_project(fixed x, fixed y, fixed z, fixed *xout, fixed *yout);
+@@void @persp_project_f(float x, float y, float z, float *xout, float *yout);
 @xref set_projection_viewport, get_camera_matrix
 @eref ex3d, exstars
 @shortdesc Projects a 3d point into 2d screen space.
@@ -10920,7 +11337,7 @@ me.
    much more efficient to call quat_to_matrix() and then use 
    apply_matrix_f().
 
-@@void @quat_interpolate(const QUAT *from, *to, float t, QUAT *out);
+@@void @quat_interpolate(const QUAT *from, const QUAT *to, float t, QUAT *out);
 @eref exquat
 @shortdesc Constructs a quaternion representing a rotation between from and to.
    Constructs a quaternion that represents a rotation between from and to. 
@@ -10930,7 +11347,7 @@ me.
    out. This function will create the short rotation (less than 180 degrees) 
    between from and to.
 
-@@void @quat_slerp(const QUAT *from, *to, float t, QUAT *out, int how);
+@@void @quat_slerp(const QUAT *from, const QUAT *to, float t, QUAT *out, int how);
 @shortdesc Version of quat_interpolate() allowing control over the rotation.
    The same as quat_interpolate(), but allows more control over how the 
    rotation is done. The how parameter can be any one of the values:
@@ -11743,8 +12160,8 @@ Platform specifics
 DOS specifics
 
 @@Drivers @JOY_TYPE_*/DOS
-@shortdesc Supported DOS joystick drivers.
 @xref install_joystick
+@shortdesc Supported DOS joystick drivers.
    The DOS library supports the following type parameters for the 
    install_joystick() function:
 <ul><li>
@@ -12032,6 +12449,19 @@ DOS specifics
       normal VESA 640x400 mode will be chosen instead), so if you want to 
       use it you will have to explicitly pass GFX_XTENDED to set_gfx_mode().
 </ul>
+   There are a few things you need to be aware of for scrolling:
+   most VESA implementations can only handle horizontal scrolling in four 
+   pixel increments, so smooth horizontal panning is impossible in SVGA modes. 
+   A significant number of VESA implementations seem to be very buggy when it 
+   comes to scrolling in truecolor video modes, so you shouldn't depend on 
+   this routine working correctly in the truecolor resolutions unless you can
+   be sure that SciTech Display Doctor is installed. Hardware scrolling may
+   also not work at all under Windows.
+
+   Triple buffering is only possible with certain drivers: it will work in any
+   DOS mode-X resolution if the timer retrace simulator is active (but this
+   doesn't work correctly under Windows 95), plus it is supported by the
+   VBE 3.0 and VBE/AF drivers for a limited number graphics cards.
 @@Drivers @DIGI_*/DOS
 @xref detect_digi_driver, install_sound, install_sound_input
 @shortdesc Supported DOS digital sound drivers.
@@ -12069,21 +12499,6 @@ DOS specifics
       MIDI_AWE32           - AWE32 (EMU8000 chip)<endblock>
 
 @hnode DOS integration routines
-
-@@void @split_modex_screen(int line);
-@xref set_gfx_mode, scroll_screen
-@eref exscroll
-@shortdesc Splits into two parts the VGA display in mode-X.
-   This function is only available in mode-X. It splits the VGA display into 
-   two parts at the specified line. The top half of the screen can be 
-   scrolled to any part of video memory with the scroll_screen() function, 
-   but the part below the specified line number will remain fixed and will 
-   display from position (0, 0) of the screen bitmap. After splitting the 
-   screen you will generally want to scroll so that the top part of the 
-   display starts lower down in video memory, and then create two 
-   sub-bitmaps to access the two sections (see examples/exscroll.c for a 
-   demonstration of how this could be done). To disable the split, call 
-   split_modex_screen(0).
 
 @@extern int @i_love_bill;
 @xref install_timer, allegro_init, os_type
@@ -12158,8 +12573,8 @@ cannot be differentiated and are both reported as 16-bit desktops. See
 below for the consequences for windowed and overlay DirectX drivers.
 
 @@Drivers @JOY_TYPE_*/Windows
-@shortdesc Supported Windows joystick drivers.
 @xref install_joystick
+@shortdesc Supported Windows joystick drivers.
    The Windows library supports the following type parameters for the 
    install_joystick() function:
 <ul><li>
@@ -12516,8 +12931,8 @@ command. You could add another grep to filter only lines with text like
 `keyboard' or `allegro'.
 
 @@Drivers @JOY_TYPE_*/Linux
-@shortdesc Supported Linux joystick drivers.
 @xref install_joystick
+@shortdesc Supported Linux joystick drivers.
    The Linux library supports the following type parameters for the 
    install_joystick() function:
 <ul><li>
@@ -13595,8 +14010,9 @@ and avoid missing any important bit of information.
 
 @@Example @exflame
 @xref END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, acquire_screen
-@xref allegro_error, allegro_init, allegro_message, clear_keybuf, font
-@xref getpixel, install_keyboard, keypressed, line, makecol, putpixel
+@xref allegro_error, allegro_init, allegro_message, bmp_read_line
+@xref bmp_unwrite_line, bmp_write_line, clear_keybuf, font, getpixel
+@xref install_keyboard, keypressed, line, makecol, putpixel
 @xref release_screen, screen, set_gfx_mode, set_palette, textout_ex
 @shortdesc How to write directly to video memory improving performance.
    This program demonstrates how to write directly to video memory.
@@ -13738,8 +14154,8 @@ and avoid missing any important bit of information.
 @xref font, get_filename, get_midi_length, install_keyboard
 @xref install_sound, install_timer, key, keypressed, load_midi, makecol
 @xref midi_pause, midi_pos, midi_resume, midi_time, play_midi, readkey
-@xref rectfill, rest, screen, set_gfx_mode, set_palette, text_height
-@xref text_length, textprintf_centre_ex
+@xref rectfill, rest, screen, set_display_switch_mode, set_gfx_mode
+@xref set_palette, text_height, text_length, textprintf_centre_ex
 @shortdesc Playing MIDI music.
    This program demonstrates how to play MIDI files.
 
@@ -14075,12 +14491,13 @@ and avoid missing any important bit of information.
 @@Example @exlights
 @xref BITMAP, COLOR_MAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W
 @xref allegro_error, allegro_init, allegro_message, bitmap_color_depth
-@xref blit, circlefill, clear_bitmap, clear_keybuf, color_map
-@xref create_bitmap_ex, destroy_bitmap, draw_trans_sprite, fixatan2
-@xref fixsqrt, fixtoi, getb_depth, getg_depth, getpixel, getr_depth
-@xref hsv_to_rgb, install_keyboard, install_mouse, install_timer, itofix
-@xref key, keypressed, line, load_bitmap, makecol, mouse_x, mouse_y
-@xref poll_mouse, replace_filename, retrace_count, screen, select_palette
+@xref blit, bmp_unwrite_line, bmp_write_line, circlefill, clear_bitmap
+@xref clear_keybuf, color_map, create_bitmap_ex, destroy_bitmap
+@xref draw_trans_sprite, fixatan2, fixsqrt, fixtoi, getb_depth
+@xref getg_depth, getpixel, getr_depth, hsv_to_rgb, install_keyboard
+@xref install_mouse, install_timer, itofix, key, keypressed, line
+@xref load_bitmap, makecol, mouse_x, mouse_y, poll_mouse
+@xref replace_filename, retrace_count, screen, select_palette
 @xref set_color_conversion, set_color_depth, set_gfx_mode
 @shortdesc One way to do colored lighting effects in a hicolor video mode.
    This program shows one way to implement colored lighting effects
@@ -14261,14 +14678,13 @@ and avoid missing any important bit of information.
 @@Example @exscroll
 @xref BITMAP, END_OF_MAIN, RGB, SCREEN_H, SCREEN_W, acquire_bitmap
 @xref allegro_init, allegro_message, clear_keybuf, create_sub_bitmap
-@xref desktop_palette, destroy_bitmap, font, install_keyboard, keypressed
-@xref line, rectfill, release_bitmap, screen, scroll_screen, set_color
-@xref set_gfx_mode, set_palette, split_modex_screen, textout_ex, vline
+@xref desktop_palette, destroy_bitmap, install_keyboard, keypressed
+@xref rectfill, release_bitmap, screen, scroll_screen, set_color
+@xref set_gfx_mode, set_palette, vline
 @shortdesc Mode-X hardware scrolling and split screens.
-   This program demonstrates how to use hardware scrolling and split
-   screens in mode-X. The split screen part only works on DOS and Linux
-   console platforms, but the scrolling should work on anything that
-   supports virtual screens larger than the physical screen.
+   This program demonstrates how to use hardware scrolling.
+   The scrolling should work on anything that supports virtual
+   screens larger than the physical screen.
 
 @@Example @ex3buf
 @xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_bitmap
@@ -14537,18 +14953,70 @@ dat2s.txt, dat2c.txt).
 @externalfile dat2c dat2c - Compile datafiles into C code
 @endchapter
 @headingnocontent
+Community
+
+Allegro was originally created by Shawn Hargreaves. Published sometime between
+1994 and 1995, it was just a simple lib for himself. At that time, many people
+were switching from Borland C to DJGPP and looking for a decent graphics
+library. Allegro was the first reasonably complete one to show up, so it
+attracted enough interest to keep growing, and a little contribution here, and
+some more encouragement there made it all light up like fire.
+
+Some time after the latest 3.x stable release, though, Shawn was flooded with
+Allegro tasks and Real Life (TM) work, and chose the latter to focus his
+energies on. While this somehow stalled Allegro's development, it also
+attracted a lot of people who wanted Allegro to live longer. Also, by that
+time other people had started to work on Windows and Unix ports of Allegro,
+which suggested that Allegro had the potential to survive its only decaying
+main platform (DOS).
+
+The current situation is that Shawn still keeps watching Allegro's progress
+from time to time, but is not involved with development any more. The
+community that grew over the years when Shawn was in charge of everything has
+stepped forward to continue improving Allegro. Transformed into a meritocratic
+community, users keep sending bug reports to the mailing lists, developers
+around the world keep sending patches to fix them, and a few carefully chosen
+have write access to the CVS repository, from which releases are built every
+now and then.
+
+But, who decides when a build is stable enough? Who decides when somebody is
+granted write access to the CVS? Who chooses the lesser of two evils patching
+some obscure bug? And more importantly, who decides what's Allegro's mascot?
+For all these reasons, the community decided to replace Shawn's position with
+the Allegro Dictator.
+
+In republican Rome, political power was with the Senate and the Consuls.
+However, if it was nescessary that decisions were made very quickly then the
+senate could appoint a Dictator. The Dictator was appointed for a specified
+duration or charged with a specific task, after which he was expected to
+surrender his authority back to the Senate. Nowadays, the Allegro Dictator is
+a benevolent figure and rarely has to use his overwhelming fist of iron to put
+order into chaos.
+
+The truth is that the Allegro Dictator is usually the person in charge of
+doing releases and all that unsexy work inside the community, like pestering
+users to test some obscure bugfix or rejecting incomplete patches.
+
+Past Allegro dictators have been: Shawn Hargreaves, George Foot, Peter Wang
+and Eric Botcazou. At the moment of writing this, Evert Glebbeek is the
+active Allegro Dictator. Should you want to change Allegro in some illogical
+way, he's the guy you have to send your bribes too :-)
+
+
+
+@headingnocontent
 Conclusion
 
 All good things must come to an end. Writing documentation is not a good 
 thing, though, and that means it goes on for ever. There is always something 
-I've forgotten to explain, or some essential detail I've left out, but for 
+we've forgotten to explain, or some essential detail we've left out, but for
 now you will have to make do with this. Feel free to ask if you can't figure 
 something out.
 
-Enjoy. I hope you find some of this stuff useful.
+Enjoy. We hope you find some of this stuff useful.
 
 
-By Shawn Hargreaves.
+By Shawn Hargreaves and the Allegro development team.
 
 <link>http://alleg.sourceforge.net/</a>
 

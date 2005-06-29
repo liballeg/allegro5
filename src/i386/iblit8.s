@@ -41,7 +41,8 @@ FUNC(_linear_clear_to_color8)
    movl ARG1, %edx               /* edx = bmp */
    pushl %es 
 
-   movl BMP_SEG(%edx), %es       /* select segment */
+   movl BMP_SEG(%edx), %eax      /* select segment */
+   movl %eax, %es
 
    movl BMP_CT(%edx), %ebx       /* line to start at */
 
@@ -315,7 +316,8 @@ FUNC(_linear_blit8)
 
    movl B_DEST, %edx
    movl %ds, %ebx                /* save data segment selector */
-   movl BMP_SEG(%edx), %es       /* load destination segment */
+   movl BMP_SEG(%edx), %eax      /* load destination segment */
+   movl %eax, %es
    cld                           /* for forward copy */
 
    shrl $1, B_WIDTH              /* halve counter for word copies */
@@ -406,7 +408,8 @@ FUNC(_linear_blit_backward8)
 
    movl B_DEST, %edx
    movl %ds, %ebx                /* save data segment selector */
-   movl BMP_SEG(%edx), %es       /* load destination segment */
+   movl BMP_SEG(%edx), %eax      /* load destination segment */
+   movl %eax, %es
 
    movl B_SOURCE_Y, %eax         /* if different line -> fast dword blit */
    cmpl B_DEST_Y, %eax
@@ -433,7 +436,8 @@ blit_backwards_loop_slow:
 
    std                           /* backwards */
    movl B_WIDTH, %ecx            /* x loop counter */
-   movl BMP_SEG(%edx), %ds       /* load data segment */
+   movl BMP_SEG(%edx), %eax      /* load data segment */
+   movl %eax, %ds
    rep ; movsb                   /* copy the line */
 
    movl %ebx, %ds                /* restore data segment */
@@ -460,7 +464,8 @@ blit_backwards_loop_fast:
 
    std                           /* backwards */
    movl B_WIDTH, %eax            /* x loop counter */
-   movl BMP_SEG(%edx), %ds       /* load data segment */
+   movl BMP_SEG(%edx), %edx      /* load data segment */
+   movl %edx, %ds
 
    movl %eax, %ecx
    andl $3, %ecx                 /* copy bytes */
@@ -517,7 +522,8 @@ FUNC(_linear_masked_blit8)
 
    movl B_DEST, %edx
    movl %ds, %ebx 
-   movl BMP_SEG(%edx), %es 
+   movl BMP_SEG(%edx), %eax
+   movl %eax, %es
    cld 
 
 #ifdef ALLEGRO_SSE  /* Use SSE if the compiler supports it */

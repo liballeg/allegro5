@@ -181,6 +181,9 @@ $(OBJ_DIR)/%.o: %.cpp
 $(OBJ_DIR)/%.o: %.s
 	$(CC) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
+demo/demo: $(OBJECTS_DEMO) $(LIB_NAME)
+	$(CC) $(LFLAGS) -o $@ $(OBJECTS_DEMO) $(LIB_NAME) $(LIBRARIES)
+
 */%: $(OBJ_DIR)/%.o $(LIB_NAME)
 	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 

@@ -121,9 +121,9 @@ static void hid_scan_collection(CFMutableDictionaryRef properties, HID_DEVICE *d
 HID_DEVICE *osx_hid_scan(int type, int *num_devices)
 {
    HID_DEVICE *device, *this_device;
-   mach_port_t master_port = NULL;
-   io_iterator_t hid_object_iterator = NULL;
-   io_object_t hid_device = NULL;
+   mach_port_t master_port = 0;
+   io_iterator_t hid_object_iterator = 0;
+   io_object_t hid_device = 0;
    io_registry_entry_t parent1, parent2;
    CFMutableDictionaryRef class_dictionary = NULL;
    int usage, usage_page;

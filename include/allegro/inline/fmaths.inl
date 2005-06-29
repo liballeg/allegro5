@@ -103,7 +103,40 @@ AL_INLINE(fixed, fixsub, (fixed x, fixed y),
 
 AL_INLINE(fixed, fixmul, (fixed x, fixed y),
 {
-   return ftofix(fixtof(x) * fixtof(y));
+   /* In benchmarks conducted circa May 2005 we found that, in the main:
+    * - IA32 machines performed faster with one implementation;
+    * - AMD64 and G4 machines performed faster with another implementation.
+    *
+    * Benchmarks were mainly done with differing versions of gcc.
+    * Results varied with other compilers, optimisation levels, etc.
+    * so this is not optimal, though a tenable compromise.
+    */
+   #if (defined ALLEGRO_I386) || (!defined LONG_LONG)
+
+      fixed sign = (x^y) & 0x80000000;
+      int mask_x = x >> 31;
+      int mask_y = y >> 31;
+      int mask_result = sign >> 31;
+      fixed result;
+
+      x = (x^mask_x) - mask_x;
+      y = (y^mask_y) - mask_y;
+
+      result = ((y >> 8)*(x >> 8) +
+		(((y >> 8)*(x&0xff)) >> 8) +
+		(((x >> 8)*(y&0xff)) >> 8));
+
+      return (result^mask_result) - mask_result;
+
+   #else
+
+      LONG_LONG lx = x;
+      LONG_LONG ly = y;
+      LONG_LONG lres = (lx*ly)>>16;
+      int res = lres;
+      return res;
+
+   #endif
 })
 
 

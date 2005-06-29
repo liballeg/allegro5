@@ -129,7 +129,7 @@ static BITMAP *_make_quickdraw_bitmap(int width, int height, int flags)
    BITMAP *bmp;
    GWorldPtr gworld;
    Rect rect;
-   unsigned char *addr;
+   char *addr;
    int pitch;
    int i, size;
    
@@ -169,7 +169,7 @@ static BITMAP *_make_quickdraw_bitmap(int width, int height, int flags)
    bmp->y_ofs = 0;
    bmp->seg = _video_ds();
 
-   bmp->line[0] = addr;
+   bmp->line[0] = (unsigned char *)addr;
 
    for (i = 1; i < height; i++)
       bmp->line[i] = bmp->line[i - 1] + pitch;

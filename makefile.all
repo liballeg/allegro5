@@ -12,7 +12,7 @@
 #        TARGET_ARCH_COMPAT optimize for the given processor while preserving backwards
 #                           compatibility with older processors (GCC-based platforms).
 #        TARGET_ARCH_EXCL   optimize for the given processor; this will cause the library
-#                           to *NOT* be backwards compatible (GCC-based platforms).
+#                           to *NOT* be backwards compatible (GCC-based platforms, MSVC).
 #        TARGET_OPTS        allows you to customize general optimizations (GCC-based platforms).
 #        CROSSCOMPILE=1     cross-build under Linux (DJGPP, MinGW32).
 #        ALLEGRO_USE_C=1    use C drawing code instead of asm (GCC-based platforms).
@@ -123,6 +123,7 @@ VPATH += src demo docs examples setup tests tools tools/plugins docs/src/makedoc
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(OBJECT_LIST)))
 
 OBJECTS_DOC = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_MAKEDOC_SOURCES)))))
+OBJECTS_DEMO = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_DEMO_SOURCES)))))
 
 PROGRAMS += $(notdir $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES))
 
@@ -535,6 +536,11 @@ tools/grabber$(EXE): $(OBJ_DIR)/grabber$(OBJ) $(PLUGIN_DEPS)
 tools/pat2dat$(EXE): $(OBJ_DIR)/pat2dat$(OBJ) $(PLUGIN_DEPS)
 	$(LINK_CONSOLE_WITH_PLUGINS)
 
+
+
+# -------- dependencies for the demo game --------
+
+demo/demo$(EXE): $(OBJECTS_DEMO)
 
 
 # -------- special rules for C++ programs --------

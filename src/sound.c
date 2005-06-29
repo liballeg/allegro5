@@ -1057,6 +1057,8 @@ SAMPLE *load_wav_pf(PACKFILE *f)
 SAMPLE *create_sample(int bits, int stereo, int freq, int len)
 {
    SAMPLE *spl;
+   ASSERT(freq > 0);
+   ASSERT(len > 0);
 
    spl = malloc(sizeof(SAMPLE)); 
    if (!spl)
@@ -1135,6 +1137,9 @@ int play_sample(AL_CONST SAMPLE *spl, int vol, int pan, int freq, int loop)
 {
    int voice;
    ASSERT(spl);
+   ASSERT(vol >= 0 && vol <= 255);
+   ASSERT(pan >= 0 && vol <= 255);
+   ASSERT(freq > 0);
 
    voice = allocate_voice(spl);
    if (voice >= 0) {
@@ -1358,6 +1363,8 @@ END_OF_FUNCTION(allocate_voice);
  */
 void deallocate_voice(int voice)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
+   
    if (virt_voice[voice].num >= 0) {
       digi_driver->stop_voice(virt_voice[voice].num);
       digi_driver->release_voice(virt_voice[voice].num);
@@ -1377,8 +1384,11 @@ END_OF_FUNCTION(deallocate_voice);
  */
 void reallocate_voice(int voice, AL_CONST SAMPLE *spl)
 {
-   int phys = virt_voice[voice].num;
+   int phys;
    ASSERT(spl);
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
+
+   phys =  virt_voice[voice].num;
 
    if (phys >= 0) {
       digi_driver->stop_voice(phys);
@@ -1413,6 +1423,7 @@ END_OF_FUNCTION(reallocate_voice);
  */
 void release_voice(int voice)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    virt_voice[voice].autokill = TRUE;
 }
 
@@ -1425,6 +1436,7 @@ END_OF_FUNCTION(release_voice);
  */
 void voice_start(int voice)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if (virt_voice[voice].num >= 0)
       digi_driver->start_voice(virt_voice[voice].num);
 
@@ -1440,6 +1452,7 @@ END_OF_FUNCTION(voice_start);
  */
 void voice_stop(int voice)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if (virt_voice[voice].num >= 0)
       digi_driver->stop_voice(virt_voice[voice].num);
 }
@@ -1453,6 +1466,8 @@ END_OF_FUNCTION(voice_stop);
  */
 void voice_set_priority(int voice, int priority)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
+   ASSERT(priority >= 0 && priority <= 255);
    virt_voice[voice].priority = priority;
 }
 
@@ -1466,6 +1481,7 @@ END_OF_FUNCTION(voice_set_priority);
  */
 SAMPLE *voice_check(int voice)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if (virt_voice[voice].sample) {
       if (virt_voice[voice].num < 0)
 	 return NULL;
@@ -1491,6 +1507,7 @@ END_OF_FUNCTION(voice_check);
  */
 int voice_get_position(int voice)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if (virt_voice[voice].num >= 0)
       return digi_driver->get_position(virt_voice[voice].num);
    else
@@ -1506,6 +1523,7 @@ END_OF_FUNCTION(voice_get_position);
  */
 void voice_set_position(int voice, int position)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if (virt_voice[voice].num >= 0)
       digi_driver->set_position(virt_voice[voice].num, position);
 }
@@ -1519,6 +1537,7 @@ END_OF_FUNCTION(voice_set_position);
  */
 void voice_set_playmode(int voice, int playmode)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if (virt_voice[voice].num >= 0) {
       _phys_voice[virt_voice[voice].num].playmode = playmode;
       digi_driver->loop_voice(virt_voice[voice].num, playmode);
@@ -1540,6 +1559,7 @@ END_OF_FUNCTION(voice_set_playmode);
 int voice_get_volume(int voice)
 {
    int vol;
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
 
    if (virt_voice[voice].num >= 0)
       vol = digi_driver->get_volume(virt_voice[voice].num);
@@ -1565,6 +1585,9 @@ END_OF_FUNCTION(voice_get_volume);
  */
 void voice_set_volume(int voice, int volume)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
+   ASSERT(volume >= 0 && volume <= 255);
+   
    if (_digi_volume >= 0)
       volume = (volume * _digi_volume) / 255;
 
@@ -1585,6 +1608,10 @@ END_OF_FUNCTION(voice_set_volume);
  */
 void voice_ramp_volume(int voice, int time, int endvol)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
+   ASSERT(endvol >= 0 && endvol <= 255);
+   ASSERT(time >= 0);
+   
    if (_digi_volume >= 0)
       endvol = (endvol * _digi_volume) / 255;
 
@@ -1610,6 +1637,7 @@ END_OF_FUNCTION(voice_ramp_volume);
  */
 void voice_stop_volumeramp(int voice)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if (virt_voice[voice].num >= 0) {
       _phys_voice[virt_voice[voice].num].dvol = 0;
 
@@ -1629,6 +1657,7 @@ END_OF_FUNCTION(voice_stop_volumeramp);
  */
 int voice_get_frequency(int voice)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if (virt_voice[voice].num >= 0)
       return digi_driver->get_frequency(virt_voice[voice].num);
    else
@@ -1644,6 +1673,9 @@ END_OF_FUNCTION(voice_get_frequency);
  */
 void voice_set_frequency(int voice, int frequency)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
+   ASSERT(frequency > 0);
+   
    if (virt_voice[voice].num >= 0) {
       _phys_voice[virt_voice[voice].num].freq = frequency << 12;
       _phys_voice[virt_voice[voice].num].dfreq = 0;
@@ -1661,6 +1693,10 @@ END_OF_FUNCTION(voice_set_frequency);
  */
 void voice_sweep_frequency(int voice, int time, int endfreq)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
+   ASSERT(endfreq > 0);
+   ASSERT(time >= 0);
+   
    if (virt_voice[voice].num >= 0) {
       if (digi_driver->sweep_frequency) {
 	 digi_driver->sweep_frequency(virt_voice[voice].num, time, endfreq);
@@ -1683,6 +1719,7 @@ END_OF_FUNCTION(voice_sweep_frequency);
  */
 void voice_stop_frequency_sweep(int voice)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if (virt_voice[voice].num >= 0) {
       _phys_voice[virt_voice[voice].num].dfreq = 0;
 
@@ -1703,6 +1740,7 @@ END_OF_FUNCTION(voice_stop_frequency_sweep);
 int voice_get_pan(int voice)
 {
    int pan;
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
 
    if (virt_voice[voice].num >= 0)
       pan = digi_driver->get_pan(virt_voice[voice].num);
@@ -1724,6 +1762,8 @@ END_OF_FUNCTION(voice_get_pan);
  */
 void voice_set_pan(int voice, int pan)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
+   ASSERT(pan >= 0 && pan <= 255);
    if (_sound_flip_pan)
       pan = 255 - pan;
 
@@ -1744,6 +1784,10 @@ END_OF_FUNCTION(voice_set_pan);
  */
 void voice_sweep_pan(int voice, int time, int endpan)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
+   ASSERT(endpan >= 0 && endpan <= 255);
+   ASSERT(time >= 0);
+   
    if (_sound_flip_pan)
       endpan = 255 - endpan;
 
@@ -1769,6 +1813,7 @@ END_OF_FUNCTION(voice_sweep_pan);
  */
 void voice_stop_pan_sweep(int voice)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if (virt_voice[voice].num >= 0) {
       _phys_voice[virt_voice[voice].num].dpan = 0;
 
@@ -1786,6 +1831,7 @@ END_OF_FUNCTION(voice_stop_pan_sweep);
  */
 void voice_set_echo(int voice, int strength, int delay)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if ((virt_voice[voice].num >= 0) && (digi_driver->set_echo))
       digi_driver->set_echo(virt_voice[voice].num, strength, delay);
 }
@@ -1799,6 +1845,7 @@ END_OF_FUNCTION(voice_set_echo);
  */
 void voice_set_tremolo(int voice, int rate, int depth)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if ((virt_voice[voice].num >= 0) && (digi_driver->set_tremolo))
       digi_driver->set_tremolo(virt_voice[voice].num, rate, depth);
 }
@@ -1812,6 +1859,7 @@ END_OF_FUNCTION(voice_set_tremolo);
  */
 void voice_set_vibrato(int voice, int rate, int depth)
 {
+   ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    if ((virt_voice[voice].num >= 0) && (digi_driver->set_vibrato))
       digi_driver->set_vibrato(virt_voice[voice].num, rate, depth);
 }

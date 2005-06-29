@@ -640,7 +640,7 @@ static int mono_get_font_range_begin(FONT* f, int range)
 
 /* mono_get_font_range_end:
  *  (mono vtable entry)
- *  Get last character for font range. Pass -1 to search the entire font
+ *  Get last character for font range. Pass -1 to search the entire font.
  */
 static int mono_get_font_range_end(FONT* f, int range)
 {
@@ -656,9 +656,8 @@ static int mono_get_font_range_end(FONT* f, int range)
 
    while(mf && (n<=range || range==-1)) {
       FONT_MONO_DATA* next = mf->next;
-        
       if (!next || range == n)
-         return mf->end;
+         return mf->end - 1;
       mf = next;
       n++;
    }
@@ -689,7 +688,7 @@ static FONT_MONO_DATA *mono_copy_glyph_range(FONT_MONO_DATA *mf, int begin, int 
    newmf->begin = begin;
    newmf->end = end;
    newmf->next = NULL;
-   num = end - begin+1;
+   num = end - begin;
 
    gl = newmf->glyphs = _al_malloc(num * sizeof *gl);
    for (c=0; c<num; c++) {
@@ -737,12 +736,12 @@ FONT *mono_extract_font_range(FONT *f, int begin, int end)
    /* Get real character ranges */
    first = MAX(begin, mono_get_font_range_begin(f, -1));
    last = (end>-1) ? MIN(end, mono_get_font_range_end(f, -1)) : mono_get_font_range_end(f, -1);
-   
+
    mf = NULL;
    mfin = f->data;
    while (mfin) {
       /* Check if we've found the proper range */
-      if ((first >= mfin->begin) && (last<=mfin->end)) {
+      if ((first >= mfin->begin) && (last<mfin->end)) {
          int local_begin, local_end;
          
          local_begin = MAX(mfin->begin, first);
@@ -751,7 +750,8 @@ FONT *mono_extract_font_range(FONT *f, int begin, int end)
          if (mf) {
             mf->next = mono_copy_glyph_range(mfin, local_begin, local_end);
             mf = mf->next;
-         } else {
+         }
+         else {
             mf = mono_copy_glyph_range(mfin, local_begin, local_end);
             fontout->data = mf;
          }
@@ -792,7 +792,8 @@ FONT *mono_merge_fonts(FONT *font1, FONT *font2)
          if (mf) {
             mf->next = mono_copy_glyph_range(mf1, mf1->begin, mf1->end);
             mf = mf->next;
-         } else {
+         }
+         else {
             mf = mono_copy_glyph_range(mf1, mf1->begin, mf1->end);
             fontout->data = mf;
          }
@@ -800,9 +801,10 @@ FONT *mono_merge_fonts(FONT *font1, FONT *font2)
       }
       else {
          if (mf) {
-            mf->next = mono_copy_glyph_range(mf2, mf2->begin, mf2->end);;
+            mf->next = mono_copy_glyph_range(mf2, mf2->begin, mf2->end);
             mf = mf->next;
-         } else {
+         }
+         else {
             mf = mono_copy_glyph_range(mf2, mf2->begin, mf2->end);
             fontout->data = mf;
          }
@@ -1054,7 +1056,7 @@ static int color_get_font_range_begin(FONT* f, int range)
 
 /* color_get_font_range_end:
  *  (color vtable entry)
- *  Get last character for font.
+ *  Get last character for font range.
  */
 static int color_get_font_range_end(FONT* f, int range)
 {
@@ -1070,9 +1072,8 @@ static int color_get_font_range_end(FONT* f, int range)
 
    while(cf && (n<=range || range==-1)) {
       FONT_COLOR_DATA* next = cf->next;
-        
       if (!next || range == n)
-         return cf->end;
+         return cf->end - 1;
       cf = next;
       n++;
    }
@@ -1088,7 +1089,7 @@ static int color_get_font_range_end(FONT* f, int range)
 static FONT_COLOR_DATA* upgrade_to_color_data(FONT_MONO_DATA* mf)
 {
     FONT_COLOR_DATA* cf = _al_malloc(sizeof *cf);
-    BITMAP** bits = _al_malloc((mf->end - mf->begin+1)*sizeof *bits);
+    BITMAP** bits = _al_malloc((mf->end - mf->begin)*sizeof *bits);
     int i;
 
     cf->begin = mf->begin;
@@ -1096,7 +1097,7 @@ static FONT_COLOR_DATA* upgrade_to_color_data(FONT_MONO_DATA* mf)
     cf->bitmaps = bits;
     cf->next = 0;
 
-    for(i = mf->begin; i <= mf->end; i++) {
+    for(i = mf->begin; i < mf->end; i++) {
         FONT_GLYPH* g = mf->glyphs[i - mf->begin];
         BITMAP* b = create_bitmap_ex(8, g->w, g->h);
         clear_to_color(b, 0);
@@ -1158,7 +1159,7 @@ static FONT_COLOR_DATA *color_copy_glyph_range(FONT_COLOR_DATA *cf, int begin, i
    newcf->begin = begin;
    newcf->end = end;
    newcf->next = NULL;
-   num = end - begin+1;
+   num = end - begin;
 
    gl = newcf->bitmaps = _al_malloc(num * sizeof *gl);
    for (c=0; c<num; c++) {
@@ -1166,7 +1167,7 @@ static FONT_COLOR_DATA *color_copy_glyph_range(FONT_COLOR_DATA *cf, int begin, i
       gl[c] = create_bitmap_ex(8, g->w, g->h);
       blit(g, gl[c], 0, 0, 0, 0, g->w, g->h);
    }
-   
+
    return newcf;
 }
 
@@ -1201,12 +1202,12 @@ FONT *color_extract_font_range(FONT *f, int begin, int end)
    /* Get real character ranges */
    first = MAX(begin, color_get_font_range_begin(f, -1));
    last = (end>-1) ? MIN(end, color_get_font_range_end(f, -1)) : color_get_font_range_end(f, -1);
-   
+
    cf = NULL;
    cfin = f->data;
    while (cfin) {
       /* Check if we've found the proper range */
-      if ((first >= cfin->begin) && (last<=cfin->end)) {
+      if ((first >= cfin->begin) && (last<cfin->end)) {
          int local_begin, local_end;
          
          local_begin = MAX(cfin->begin, first);
@@ -1215,14 +1216,15 @@ FONT *color_extract_font_range(FONT *f, int begin, int end)
          if (cf) {
             cf->next = color_copy_glyph_range(cfin, local_begin, local_end);
             cf = cf->next;
-         } else {
+         }
+         else {
             cf = color_copy_glyph_range(cfin, local_begin, local_end);
             fontout->data = cf;
          }
       }
       cfin = cfin->next;
    }
-   
+
    return fontout;
 }
 
@@ -1269,7 +1271,8 @@ FONT *color_merge_fonts(FONT *font1, FONT *font2)
          if (cf) {
             cf->next = color_copy_glyph_range(cf1, cf1->begin, cf1->end);
             cf = cf->next;
-         } else {
+         }
+         else {
             cf = color_copy_glyph_range(cf1, cf1->begin, cf1->end);
             fontout->data = cf;
          }
@@ -1277,9 +1280,10 @@ FONT *color_merge_fonts(FONT *font1, FONT *font2)
       }
       else {
          if (cf) {
-            cf->next = color_copy_glyph_range(cf2, cf2->begin, cf2->end);;
+            cf->next = color_copy_glyph_range(cf2, cf2->begin, cf2->end);
             cf = cf->next;
-         } else {
+         }
+         else {
             cf = color_copy_glyph_range(cf2, cf2->begin, cf2->end);
             fontout->data = cf;
          }
@@ -1402,7 +1406,7 @@ int is_compatible_font(FONT *f1, FONT *f2)
 /* extract_font_range:
  *  Extracts a character range from a font f, and returns a new font containing
  *   only the extracted characters.
- * Returns NULL if teh character range could not be extracted.
+ * Returns NULL if the character range could not be extracted.
  */
 FONT *extract_font_range(FONT *f, int begin, int end)
 {
@@ -1462,13 +1466,13 @@ int get_font_range_begin(FONT *f, int range)
 
 /* get_font_range_end:
  *  Returns the last character for the font in question, or -1 if that
- *   information is not available.
+ *  information is not available.
  */
 int get_font_range_end(FONT *f, int range)
 {
    if (f->vtable->get_font_range_end)
       return f->vtable->get_font_range_end(f, range);
-   
+
    return -1;
 }
 

@@ -1834,6 +1834,7 @@ void fade(void)
    RGB rgb;
 
    rgb.r = rgb.g = rgb.b = (fade_color < 64) ? fade_color : 127 - fade_color;
+   rgb.filler = 0;
 
    _set_color(0, &rgb);
 
@@ -1951,7 +1952,6 @@ void hscroll_test(void)
    int done = FALSE;
    int ox = mouse_x;
    int oy = mouse_y;
-   int split = (SCREEN_H*3)/4;
 
    set_clip_rect(screen, 0, 0, VIRTUAL_W-1, VIRTUAL_H-1);
    clear_to_color(screen, palette_color[0]);
@@ -1983,10 +1983,6 @@ void hscroll_test(void)
 
    if (gfx_driver->scroll == NULL)
       textout_ex(screen, font, "Hardware scrolling not supported", 32, 112, palette_color[15], -1);
- #ifdef GFX_MODEX
-   else if (gfx_driver->id == GFX_MODEX)
-      textout_ex(screen, font, "PGUP/PGDN to adjust the split screen", 32, 112, palette_color[15], -1);
- #endif
 
    x = y = 0;
    position_mouse(32, 32);
@@ -2006,8 +2002,6 @@ void hscroll_test(void)
 	    case KEY_RIGHT: x++;          break;
 	    case KEY_UP:    y--;          break;
 	    case KEY_DOWN:  y++;          break;
-	    case KEY_PGUP:  split--;      break;
-	    case KEY_PGDN:  split++;      break;
 	    default:       done = TRUE;   break;
 	 }
       }
@@ -2019,20 +2013,10 @@ void hscroll_test(void)
 
       if (y < 0)
 	 y = 0;
-      else if (y > (VIRTUAL_H - split))
-	 y = VIRTUAL_H - split;
-
-      if (split < 1)
-	 split = 1;
-      else if (split > SCREEN_H)
-	 split = SCREEN_H;
+      else if (y > VIRTUAL_H)
+	 y = VIRTUAL_H;
 
       scroll_screen(x, y);
-
-    #ifdef GFX_MODEX
-      if (gfx_driver->id == GFX_MODEX)
-	 split_modex_screen(split);
-    #endif
    }
 
    do {
@@ -2043,11 +2027,6 @@ void hscroll_test(void)
    clear_keybuf();
 
    scroll_screen(0, 0);
-
- #ifdef GFX_MODEX
-   if (gfx_driver->id == GFX_MODEX)
-      split_modex_screen(0);
- #endif
 }
 
 

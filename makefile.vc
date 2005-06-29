@@ -382,8 +382,9 @@ else
    endif
 endif
 
-demo/demo.exe: $(OBJ_DIR)/demo.obj obj/msvc/demo.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj obj/msvc/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+demo/demo.exe: obj/msvc/demo.res $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows
+        -out:demo/demo.exe $(OBJECTS_DEMO) obj/msvc/demo.res $(IMPLIB_NAME) $(LIBRARIES)
 
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)

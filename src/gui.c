@@ -39,7 +39,17 @@ int gui_mouse_focus = TRUE;
 int gui_font_baseline = 0;
 
 
-/* pointer to the currently active dialog and menu objects */
+/* Pointers to the currently active dialog and menu objects.
+ *
+ * Note: active_dialog_player always points to the currently active dialog
+ * player. However, active_menu_player only ever points to menu players
+ * started by a d_menu_proc. The code also assumes that that d_menu_proc can
+ * be found in the currently active dialog.
+ *
+ * Note: active_dialog points to the whole dialog currently running. However,
+ * active_menu points to the *current item* of the currently running menu,
+ * and should really have been called active_menu_item.
+ */
 static DIALOG_PLAYER *active_dialog_player = NULL;
 static MENU_PLAYER *active_menu_player = NULL;
 static int active_menu_player_zombie = FALSE;
@@ -864,6 +874,10 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
    int c;
    ASSERT(dialog);
 
+   /* close any menu opened by a d_menu_proc */
+   if (active_menu_player)
+      object_message(active_menu_player->dialog, MSG_LOSTMOUSE, 0);
+
    player = malloc(sizeof(DIALOG_PLAYER));
    if (!player) {
       *allegro_errno = ENOMEM;
@@ -1054,6 +1068,7 @@ int update_dialog(DIALOG_PLAYER *player)
 	 for (c=0; player->dialog[c].proc; c++)
 	    if (&player->dialog[c] == active_menu_player->dialog)
 	       break;
+	 ASSERT(player->dialog[c].proc);
 
 	 MESSAGE(c, MSG_LOSTMOUSE, 0);
 	 goto getout;
@@ -1696,7 +1711,8 @@ int menu_alt_key(int k, MENU *m)
    c = scancode_to_ascii(k);
    if (c) {
       k = c;
-   } else {
+   }
+   else {
       for (c=0; c<(int)sizeof(alt_table); c++) {
 	 if (k == alt_table[c]) {
 	    k = c + 'a';
@@ -2390,4 +2406,3 @@ int alert(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST char
 
    return ret;
 }
-

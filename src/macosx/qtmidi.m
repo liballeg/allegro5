@@ -159,7 +159,7 @@ static void osx_midi_exit(int input)
          if (voice[i].channel) {
             NAPlayNote(note_allocator, voice[i].channel, voice[i].note, 0);
             NADisposeNoteChannel(note_allocator, voice[i].channel);
-	    voice[i].channel = NULL;
+	    voice[i].channel = 0;
 	 }
       }
       CloseComponent(note_allocator);
