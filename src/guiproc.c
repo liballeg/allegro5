@@ -1093,7 +1093,7 @@ void _draw_listbox(DIALOG *d)
 	    if ((sel[d->d2+i]) && (d->d2+i == d->d1)) {
 	       fg = d->bg;
 	       bg = fg_color;
-		}
+	    }
 	    else if (sel[d->d2+i]) {
 	       fg = d->bg;
 	       bg = gui_mg_color;
@@ -1126,7 +1126,8 @@ void _draw_listbox(DIALOG *d)
 	 if (x <= d->x+w) 
 	    rectfill(gui_bmp, x, y, d->x+w, y+text_height(font)-1, bg);
 	 if (d->d2+i == d->d1)
-	    dotted_rect(d->x+1, y, d->x+d->w-(bar ? 12 : 0), y+text_height(font)-1, d->fg, d->bg);
+	    dotted_rect(d->x+2, y, d->x+d->w-(bar ? 15 : 3),
+	       y+text_height(font)-1,d->fg, d->bg);
       }
       else {
 	 rectfill(gui_bmp, d->x+2,  d->y+2+i*text_height(font), 
