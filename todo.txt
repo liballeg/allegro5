@@ -44,6 +44,8 @@ General (Platform independent) todos:
   complicated than necessary. Remove all the misc/dep*scripts, and simply
   call "gcc -M" on every source file.
 - RMI midi file support?
+- Investigate making the mixer mutex globally accessible, and add locking e.g.
+  to set_volume
 
 DOS todos:
 ---------------------------------------------------------------------------

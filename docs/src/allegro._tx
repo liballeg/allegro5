@@ -9227,7 +9227,9 @@ its definition.
 @@int @voice_get_volume(int voice);
 @xref Voice control, voice_set_volume
 @shortdesc Returns the current volume of the voice.
-   Returns the current volume of the voice, range 0-255.
+   Returns the current volume of the voice, range 0-255.  Otherwise it
+   returns -1 if that cannot be determined (because it has finished or
+   been preempted by a different sound).
 
 @@void @voice_set_volume(int voice, int volume);
 @xref Voice control, voice_get_volume, voice_ramp_volume
