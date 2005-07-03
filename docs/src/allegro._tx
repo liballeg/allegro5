@@ -648,7 +648,7 @@ available in past/future versions of Allegro.
    Read chapter "Joystick routines" for a description on how to obtain/use
    this structure.
 
-@@typedef struct @JOYSTIC_AXIS_INFO
+@@typedef struct @JOYSTICK_AXIS_INFO
 @xref joy, Joystick routines
 @shortdesc Stores joystick axis information.
 <codeblock>
