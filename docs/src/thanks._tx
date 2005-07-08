@@ -23,7 +23,7 @@ Contributors
    Adrian Oboroc (<email>doba@corefx.com</a>).<br>
    Wrote the LBM loader.
 
-   aj (<email>aj@visualsynth.com</a>).<br>
+   aj.<br>
    Reported many problems, suggested a lot of improvements to the
    documentation, added AMD64/IA64/SSE3 detection code, added DirectX 8 and 9
    detection to the Windows port, added MSVC7 specific options to the makefile,
@@ -632,7 +632,7 @@ Contributors
    Matthew Bowie (<email>catcat@nmt.edu</a>).<br>
    Added support for 4-button joysticks.
 
-   Matthew Leverton (<email>matthew@leverton.cc</a>).<br>
+   Matthew Leverton (<email>matthew@allegro.cc</a>).<br>
    Fixed a bug with mouse mickeys in windowed mode under Windows, fixed a
    problem with al_find*() and NTFS partitions under Windows, added missing
    header files to be installed by the Windows binary distribution, made the
