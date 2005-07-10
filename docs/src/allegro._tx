@@ -7000,7 +7000,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
       PALETTE pal;
       char *names[] = { "FONT_1_DATA", "FONT_1_PALETTE" }
       
-      f = load_dat_font("fonts.dat", pal, NULL);
+      f = load_dat_font("fonts.dat", pal, names);
 <endblock>
    If instead you want to load the second font, FONT_2, from the datafile,
    you would use:
@@ -7009,14 +7009,14 @@ bitmapped version of a TrueType font with tools like TTF2PCX
       PALETTE pal;
       char *names[] = { "FONT_2_DATA", "FONT_2_PALETTE" }
       
-      f = load_dat_font("fonts.dat", pal, NULL);
+      f = load_dat_font("fonts.dat", pal, names);
 <endblock>
    If you want to load the third font, but not bother with a palette, use:
 <codeblock>
       FONT *f;
       char *names[] = { "FONT_3_DATA", NULL }
       
-      f = load_dat_font("fonts.dat", NULL, &n);<endblock>
+      f = load_dat_font("fonts.dat", NULL, names);<endblock>
 @retval
    Returns a pointer to the font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
