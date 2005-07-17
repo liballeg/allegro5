@@ -199,7 +199,6 @@ allegro_h = $(srcdir)/include/allegro.h \
 	$(srcdir)/include/allegro/inline/asm.inl \
 	$(srcdir)/include/allegro/inline/color.inl \
 	$(srcdir)/include/allegro/inline/draw.inl \
-	$(srcdir)/include/allegro/inline/file.inl \
 	$(srcdir)/include/allegro/inline/fix.inl \
 	$(srcdir)/include/allegro/inline/fmaths.inl \
 	$(srcdir)/include/allegro/inline/gfx.inl \

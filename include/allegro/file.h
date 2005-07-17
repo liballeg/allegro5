@@ -143,6 +143,10 @@ AL_FUNC(int, pack_fclose, (PACKFILE *f));
 AL_FUNC(int, pack_fseek, (PACKFILE *f, int offset));
 AL_FUNC(PACKFILE *, pack_fopen_chunk, (PACKFILE *f, int pack));
 AL_FUNC(PACKFILE *, pack_fclose_chunk, (PACKFILE *f));
+AL_FUNC(int, pack_getc, (PACKFILE *f));
+AL_FUNC(int, pack_putc, (int c, PACKFILE *f));
+AL_FUNC(int, pack_feof, (PACKFILE *f));
+AL_FUNC(int, pack_ferror, (PACKFILE *f));
 AL_FUNC(int, pack_igetw, (PACKFILE *f));
 AL_FUNC(long, pack_igetl, (PACKFILE *f));
 AL_FUNC(int, pack_iputw, (int w, PACKFILE *f));
@@ -162,8 +166,6 @@ AL_FUNC(void *, pack_get_userdata, (PACKFILE *f));
 #ifdef __cplusplus
    }
 #endif
-
-#include "inline/file.inl"
 
 #endif          /* ifndef ALLEGRO_FILE_H */
 

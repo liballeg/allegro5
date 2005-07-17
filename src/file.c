@@ -2098,6 +2098,66 @@ int pack_fseek(PACKFILE *f, int offset)
 
 
 
+/* pack_getc:
+ *  Returns the next character from the stream f, or EOF if the end of the
+ *  file has been reached.
+ */
+int pack_getc(PACKFILE *f)
+{
+   ASSERT(f);
+   ASSERT(f->vtable);
+   ASSERT(f->vtable->pf_getc);
+
+   return f->vtable->pf_getc(f->userdata);
+}
+
+
+
+/* pack_putc:
+ *  Puts a character in the stream f.
+ */
+int pack_putc(int c, PACKFILE *f)
+{
+   ASSERT(f);
+   ASSERT(f->vtable);
+   ASSERT(f->vtable->pf_putc);
+
+   return f->vtable->pf_putc(c, f->userdata);
+}
+
+
+
+/* pack_feof:
+ *  pack_feof() returns nonzero as soon as you reach the end of the file. It 
+ *  does not wait for you to attempt to read beyond the end of the file,
+ *  contrary to the ISO C feof() function.
+ */
+int pack_feof(PACKFILE *f)
+{
+   ASSERT(f);
+   ASSERT(f->vtable);
+   ASSERT(f->vtable->pf_feof);
+
+   return f->vtable->pf_feof(f->userdata);
+}
+
+
+
+/* pack_ferror:
+ *  Returns nonzero if the error indicator for the stream is set, indicating
+ *  that an error has occurred during a previous operation on the stream.
+ */
+int pack_ferror(PACKFILE *f)
+{
+   ASSERT(f);
+   ASSERT(f->vtable);
+   ASSERT(f->vtable->pf_ferror);
+
+   return f->vtable->pf_ferror(f->userdata);
+}
+
+
+
 /* pack_igetw:
  *  Reads a 16 bit word from a file, using intel byte ordering.
  */
