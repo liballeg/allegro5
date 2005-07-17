@@ -5258,6 +5258,8 @@ will not be known, so the file may be converted wrongly.
 				    // 24 &lt-&gt 32-bit
       COLORCONV_MOST                // all but hi/truecolor &lt-&gt 256
       COLORCONV_DITHER              // dither during all color reductions
+      COLORCONV_KEEP_ALPHA          // convert everything to current format
+                                    // unless it would lose alpha information
 <endblock>
    If you enable the COLORCONV_DITHER flag, dithering will be performed 
    whenever truecolor graphics are converted into a hicolor or paletted 

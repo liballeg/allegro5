@@ -378,6 +378,12 @@ AL_VAR(BITMAP *, screen);
                                      COLORCONV_REDUCE_TRUE_TO_HI |   \
                                      COLORCONV_24_EQUALS_32)
 
+#define COLORCONV_KEEP_ALPHA        (COLORCONV_TOTAL                 \
+                                     & ~(COLORCONV_32A_TO_8 |        \
+                                         COLORCONV_32A_TO_15 |       \
+                                         COLORCONV_32A_TO_16 |       \
+                                         COLORCONV_32A_TO_24))
+
 AL_FUNC(GFX_MODE_LIST *, get_gfx_mode_list, (int card));
 AL_FUNC(void, destroy_gfx_mode_list, (GFX_MODE_LIST *gfx_mode_list));
 AL_FUNC(void, set_color_depth, (int depth));
