@@ -1081,8 +1081,6 @@ SAMPLE *create_sample(int bits, int stereo, int freq, int len)
       return NULL;
    }
 
-   memset(spl->data, 0, len * ((bits==8) ? 1 : sizeof(short)) * ((stereo) ? 2 : 1));
-
    lock_sample(spl);
    return spl;
 }
