@@ -24,6 +24,22 @@
    #error something is wrong with the makefile
 #endif
 
+#include <CoreFoundation/CoreFoundation.h>
+#include <mach/mach_port.h>
+#include <servers/bootstrap.h>
+
+
+/* These are used to warn the dock about the application */
+struct CPSProcessSerNum
+{
+   UInt32 lo;
+   UInt32 hi;
+};
+extern OSErr CPSGetCurrentProcess(struct CPSProcessSerNum *psn);
+extern OSErr CPSEnableForegroundOperation(struct CPSProcessSerNum *psn, UInt32 _arg2, UInt32 _arg3, UInt32 _arg4, UInt32 _arg5);
+extern OSErr CPSSetFrontProcess(struct CPSProcessSerNum *psn);
+
+
 
 static int osx_sys_init(void);
 static void osx_sys_exit(void);
@@ -322,6 +338,49 @@ void osx_event_handler()
 
 
 
+/* osx_tell_dock:
+ *  Tell the dock about us; the origins of this hack are unknown, but it's
+ *  currently the only way to make a Cocoa app to work when started from a
+ *  console.
+ *  For the future, (10.3 and above) investigate TranformProcessType in the 
+ *  HIServices framework.
+ */
+static void osx_tell_dock(void)
+{
+   struct CPSProcessSerNum psn;
+
+   if ((!CPSGetCurrentProcess(&psn)) &&
+       (!CPSEnableForegroundOperation(&psn, 0x03, 0x3C, 0x2C, 0x1103)) &&
+       (!CPSSetFrontProcess(&psn)))
+      [NSApplication sharedApplication];
+}
+
+
+
+/* osx_bootstrap_ok:
+ *  Check if the current bootstrap context is privilege. If it's not, we can't
+ *  use NSApplication, and instead have to go directly to main.
+ *  Returns 1 if ok, 0 if not.
+ */
+int osx_bootstrap_ok(void)
+{
+   static int _ok = -1;
+   mach_port_t bp;
+   kern_return_t ret;
+   CFMachPortRef cfport;
+
+   /* If have tested once, just return that answer */
+   if (_ok >= 0)
+      return _ok;
+   cfport = CFMachPortCreate(NULL, NULL, NULL, NULL);
+   task_get_bootstrap_port(mach_task_self(), &bp);
+   ret = bootstrap_register(bp, "bootstrap-ok-test", CFMachPortGetPort(cfport));
+   _ok = (ret == KERN_SUCCESS) ? 1 : 0;
+   return _ok;
+}
+
+
+
 /* osx_sys_init:
  *  Initalizes the MacOS X system driver.
  */
@@ -330,6 +389,11 @@ static int osx_sys_init(void)
    long result;
    AL_CONST char *exe_name;
    char resource_dir[1024];
+   
+   /* If we're in the 'dead bootstrap' environment, the Mac driver won't work. */
+   if (!osx_bootstrap_ok()) {
+      return -1;
+   }
    
    /* Install emergency-exit signal handlers */
    old_sig_abrt = signal(SIGABRT, osx_signal_handler);
@@ -340,6 +404,8 @@ static int osx_sys_init(void)
    old_sig_int  = signal(SIGINT,  osx_signal_handler);
    old_sig_quit = signal(SIGQUIT, osx_signal_handler);
    
+   osx_tell_dock();
+
    /* Get into bundle resource directory if appropriate */
    if (osx_bundle) {
       exe_name = [[osx_bundle executablePath] lossyCString];

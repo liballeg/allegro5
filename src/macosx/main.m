@@ -37,18 +37,6 @@ static char *arg0, *arg1 = NULL;
 static int refresh_rate = 70;
 
 
-/* These are used to warn the dock about the application */
-typedef struct CPSProcessSerNum
-{
-   UInt32 lo;
-   UInt32 hi;
-} CPSProcessSerNum;
-
-extern OSErr CPSGetCurrentProcess( CPSProcessSerNum *psn);
-extern OSErr CPSEnableForegroundOperation( CPSProcessSerNum *psn, UInt32 _arg2, UInt32 _arg3, UInt32 _arg4, UInt32 _arg5);
-extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
-
-
 
 @implementation AllegroAppDelegate
 
@@ -157,17 +145,22 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 
 
 
+/* Call the user main() */
+static void call_user_main(void)
+{
+   int (*real_main)(int, char*[]) = (int (*)(int, char*[])) _mangled_main_address;
+   exit(real_main(__crt0_argc, __crt0_argv));
+}
+
+
+
 /* app_main:
  *  Thread dedicated to the user program; real main() gets called here.
  */
 + (void)app_main: (id)arg
 {
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-   int (*real_main) (int, char*[]) = (int (*) (int, char*[])) _mangled_main_address;
-   
-   /* Call the user main() */
-   exit(real_main(__crt0_argc, __crt0_argv));
-   
+   call_user_main();
    [pool release];
 }
 
@@ -206,22 +199,15 @@ int main(int argc, char *argv[])
 {
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    AllegroAppDelegate *app_delegate = [[AllegroAppDelegate alloc] init];
-   CPSProcessSerNum psn;
    NSMenu *menu;
    NSMenuItem *menu_item, *temp_item;
    
    __crt0_argc = argc;
    __crt0_argv = argv;
    
-   [NSApplication sharedApplication];
+   if (!osx_bootstrap_ok()) /* not safe to use NSApplication */
+      call_user_main();
       
-   /* Tell the dock about us; the origins of this hack are unknown, but it's
-    * currently the only way to make a Cocoa app to work when started from a
-    * console.
-    */
-   if ((!CPSGetCurrentProcess(&psn)) &&
-       (!CPSEnableForegroundOperation(&psn, 0x03, 0x3C, 0x2C, 0x1103)) &&
-       (!CPSSetFrontProcess(&psn)))
       [NSApplication sharedApplication];
    
    /* Creates a custom application menu */
