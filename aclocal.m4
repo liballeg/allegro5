@@ -757,10 +757,14 @@ dnl
 AC_DEFUN(ALLEGRO_ACTEST_GCC_VERSION,
 [AC_MSG_CHECKING(whether -fomit-frame-pointer is safe)
 AC_CACHE_VAL(allegro_cv_support_fomit_frame_pointer,
-[if test $GCC = yes && $CC --version | grep '3\.0\(\.\?[[012]]\)\?$' >/dev/null; then
+[if test "$GCC" = yes && $CC --version | grep '3\.0\(\.\?[[012]]\)\?$' >/dev/null; then
   allegro_cv_support_fomit_frame_pointer=no
 else
-  allegro_cv_support_fomit_frame_pointer=yes
+  if test "$GCC" = yes; then
+    allegro_cv_support_fomit_frame_pointer=yes
+  else
+    allegro_cv_support_fomit_frame_pointer=no
+  fi
 fi
 ])
 AC_MSG_RESULT($allegro_cv_support_fomit_frame_pointer)])
@@ -776,7 +780,7 @@ AC_DEFUN(ALLEGRO_ACTEST_GCC_INCLUDE_PREFIX,
 allegro_save_CFLAGS="$CFLAGS"
 CFLAGS="-Werror -I$prefix/include $CFLAGS"
 AC_CACHE_VAL(allegro_cv_support_include_prefix,
-[if test $GCC = yes; then
+[if test "$GCC" = yes; then
    AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_include_prefix=yes, allegro_cv_support_include_prefix=no)
 else
    allegro_cv_support_include_prefix=yes
@@ -794,7 +798,7 @@ dnl
 AC_DEFUN(ALLEGRO_ACTEST_GCC_CXX,
 [AC_MSG_CHECKING(whether a C++ compiler is installed)
 AC_CACHE_VAL(allegro_cv_support_cplusplus,
-[if test $GCC = yes; then
+[if test "$GCC" = yes; then
    allegro_save_CFLAGS=$CFLAGS
    CFLAGS="-x c++"
    AC_TRY_COMPILE(,class foo {foo() {}};, allegro_cv_support_cplusplus=yes, allegro_cv_support_cplusplus=no)
@@ -816,7 +820,7 @@ AC_DEFUN(ALLEGRO_ACTEST_GCC_I386_MTUNE,
 allegro_save_CFLAGS="$CFLAGS"
 CFLAGS="-mtune=i386"
 AC_CACHE_VAL(allegro_cv_support_i386_mtune,
-[if test $GCC = yes; then
+[if test "$GCC" = yes; then
    AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_i386_mtune=yes, allegro_cv_support_i386_mtune=no)
 else
    allegro_cv_support_i386_mtune=no
@@ -836,7 +840,7 @@ AC_DEFUN(ALLEGRO_ACTEST_GCC_AMD64_MTUNE,
 allegro_save_CFLAGS="$CFLAGS"
 CFLAGS="-mtune=k8"
 AC_CACHE_VAL(allegro_cv_support_amd64_mtune,
-[if test $GCC = yes; then
+[if test "$GCC" = yes; then
    AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_amd64_mtune=yes, allegro_cv_support_amd64_mtune=no)
 else
    allegro_cv_support_amd64_mtune=no
