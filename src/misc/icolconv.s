@@ -30,7 +30,7 @@
 #if !defined(__GNUC__) || (__GNUC__ < 3)
 #define SLOTS_TO_BYTES(n) (n*4)
 #else
-#define SLOTS_TO_BYTES(n) (((n*4+15)/16)*16)
+#define SLOTS_TO_BYTES(n) (((n*4+15)>>4)*16)
 #endif
 
 
