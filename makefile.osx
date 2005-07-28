@@ -29,6 +29,7 @@ RM_OPTS = -f
 FRAMEWORK_DIR = /Library/Frameworks
 FRAMEWORK_NAME = Allegro
 FRAMEWORK = $(FRAMEWORK_DIR)/$(FRAMEWORK_NAME).framework
+HELPBUNDLE:=/Library/Documentation/Help/Allegro.bundle
 
 TEMPLATE_DIR = /Developer/ProjectBuilder\ Extras/Project\ Templates/Application
 ifeq ($(wildcard $(TEMPLATE_DIR)),)
@@ -260,9 +261,21 @@ uninstall: generic-uninstall
 	  | xargs -n 1 rm -f
 	-sed -n -e "s,^@@\(struct\|typedef\).*@\([a-zA-Z0-9_]*\),$(MAN_DIR)/man3/\2.3,p" docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
+	-rm -f $(HELPBUNDLE)/*
+	-rmdir -f $(HELPBUNDLE)
+
 	@echo All gone!	
 
 install-framework: $(FRAMEWORK)
+
+install-applehelp:
+	install -d $(HELPBUNDLE)
+	install docs/html/*.html $(HELPBUNDLE)
+	sed -n -e '1,6p' docs/html/index.html > $(HELPBUNDLE)/index.html
+	echo "<META NAME=\"AppleTitle\" CONTENT=\"Allegro Help\">" >> $(HELPBUNDLE)/index.html 
+	echo "<META NAME=\"AppleIcon\" CONTENT=\"alex.png\">" >> $(HELPBUNDLE)/index.html 
+	sed -n -e '7,$$p' docs/html/index.html >> $(HELPBUNDLE)/index.html
+	install misc/alex.png $(HELPBUNDLE) 	
 
 $(FRAMEWORK): $(LIB_NAME)
 ifdef STATICLINK
