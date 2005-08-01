@@ -468,9 +468,12 @@ int gfx_directx_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus)
 int gfx_directx_show_mouse(struct BITMAP *bmp, int x, int y)
 {
    if (hcursor) {
-      POINT p;
       _win_hcursor = hcursor;
-      SetCursor(hcursor);
+   }
+   if (_win_hcursor) {
+      POINT p;
+
+      SetCursor(_win_hcursor);
       /* Windows is too stupid to actually display the mouse pointer when we
        * change it and waits until it is moved, so we have to generate a fake
        * mouse move to actually show the cursor.
@@ -489,8 +492,24 @@ int gfx_directx_show_mouse(struct BITMAP *bmp, int x, int y)
  */
 void gfx_directx_hide_mouse(void)
 {
+   POINT p;
+
+   /* We need to destroy the custom cursor image too, otherwise Allegro will
+    * get confused when we try to display a system cursor.
+    */
+   if (hcursor) {
+      DestroyIcon(hcursor);
+      hcursor = NULL;
+   }
    _win_hcursor = NULL;
    SetCursor(NULL);
+
+   /* Windows is too stupid to actually display the mouse pointer when we
+    * change it and waits until it is moved, so we have to generate a fake
+    * mouse move to actually show the cursor.
+    */
+   GetCursorPos(&p);
+   SetCursorPos(p.x, p.y);
 }
 
 
