@@ -1447,6 +1447,22 @@ static int do_edit(char *title, char *type_string, char *value_string, int type,
 
 
 
+/* helper for informing of multiple selections */
+static void alert_multiple_selections(void)
+{
+   alert("Please select one item for this action.", NULL, NULL, "OK", NULL, 13, 0);
+}
+
+
+
+/* helper for informing of no selection */
+static void alert_no_selection(void)
+{
+   alert("Please make a valid selection.", NULL, NULL, "OK", NULL, 13, 0);
+}
+
+
+
 /* brings up the property editing dialog */
 static int edit_property(char *title, char *value_string, int type, AL_CONST char *val, int change_type, int show_type)
 {
@@ -1458,9 +1474,9 @@ static int edit_property(char *title, char *value_string, int type, AL_CONST cha
    }
    else {
       if (sel < 0)
-	 alert("Can't set properties for a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
       else
-	 alert("Nothing to set properties for!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_no_selection();
       return D_O_K;
    }
 
@@ -1502,7 +1518,7 @@ static int property_change(void)
    }
    else {
       if (sel < 0)
-	 alert("Can't set properties for a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
    }
 
    return D_O_K;
@@ -1522,9 +1538,9 @@ static int renamer(void)
 
    if ((sel <= 0) || (sel >= data_count)) {
       if (sel < 0)
-	 alert("Can't rename a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
       else
-	 alert("Nothing to rename!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_no_selection();
       return D_O_K;
    }
 
@@ -1554,7 +1570,7 @@ static int property_delete(void)
    }
    else {
       if (sel < 0)
-	 alert("Can't delete properties from a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
    }
 
    return D_O_K;
@@ -2422,9 +2438,9 @@ static int grabber(void)
 
    if ((sel <= 0) || (sel >= data_count)) {
       if (sel < 0)
-	 alert("Can't grab to a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
       else
-	 alert("You must create an object to contain", "the data before you can grab it", NULL, "OK", NULL, 13, 0);
+	 alert_no_selection();
       return D_O_K;
    }
 
@@ -2505,9 +2521,9 @@ static int exporter(void)
 
    if ((sel <= 0) || (sel >= data_count)) {
       if (sel < 0)
-	 alert("Can't export a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
       else
-	 alert("Nothing to export!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_no_selection();
       return D_O_K;
    }
 
@@ -2578,7 +2594,7 @@ static int deleter(void)
    }
 
    if (todel_count <= 0) {
-      alert("Nothing to delete!", NULL, NULL, "OK", NULL, 13, 0);
+      alert_no_selection();
       return D_O_K;
    }
 
@@ -2634,11 +2650,11 @@ static int mover(int direction)
    CHECK_MENU_HOOK("Move", DATEDIT_MENU_OBJECT);
 
    if (SELECTED_ITEM == 0) {
-      alert("Nothing to move!", NULL, NULL, "OK", NULL, 13, 0);
+      alert_no_selection();
       return D_O_K;
    }
    else if (single_selection() < 0) {
-      alert("Can't move a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+      alert_multiple_selections();
       return D_O_K;
    }
 
@@ -2711,9 +2727,9 @@ static int replacer(int type)
    }
    else {
       if (sel < 0)
-	 alert("Can't replace a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
       else
-	 alert("Nothing to replace!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_no_selection();
 
       return D_O_K;
    }
@@ -3304,9 +3320,9 @@ static int sheller(void)
 
    if ((sel <= 0) || (sel >= data_count)) {
       if (sel < 0)
-	 alert("Can't Shell Edit a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
       else
-	 alert("Nothing to Shell Edit!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_no_selection();
       return D_O_K;
    }
 
