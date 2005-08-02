@@ -234,6 +234,7 @@ install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 	@if (printenv PATH |grep -q -v "$(INSTALLDIR)/bin"); then echo "Please check that $(INSTALLDIR)/bin is in your path (see docs/build/macosx.txt)"; fi
 	@echo Run make install-man if you wish to install the man pages.
+	@echo Run make install-applehelp if you wish to install the Apple Help Center documentation
 	@echo Run make install-framework if you wish to install the library as a framework.
 	@echo Run make install-template if you wish to install the application template.
 

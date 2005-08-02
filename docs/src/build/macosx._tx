@@ -77,6 +77,10 @@ Installing Allegro
 <textblock>
       sudo make install-man
 <endblock>
+   Alternatively, you can view the documentation in the Mac Help Center:
+<textblock>
+      sudo make install-applehelp
+<endblock>
    You may also wish to install the library as a standard MacOS X framework:
 <textblock>
       sudo make install-framework
