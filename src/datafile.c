@@ -479,7 +479,7 @@ static FONT *read_font(PACKFILE *pack)
    num_ranges = pack_mgetw(pack);
    while (num_ranges--) {
       depth = pack_getc(pack);
-      if (depth == 1) {
+      if (depth == 1 || depth == 255) {
 	 FONT_MONO_DATA *mf = 0, *iter = (FONT_MONO_DATA *)f->data;
 	 
 	 f->vtable = font_vtable_mono;
