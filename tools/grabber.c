@@ -243,6 +243,7 @@ static MENU popup_menu[32] =
 
 #define C(x)      (x - 'a' + 1)
 
+/*  Note:  See DLG_* constants below. */
 static DIALOG main_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)              (dp2) (dp3) */
@@ -1969,6 +1970,16 @@ static void load(char *filename, int flush)
 
 
 
+/* helper for closing modified files */
+static int ask_save_changes(void)
+{
+   return alert3("Save changes to datafile?",
+		 NULL, NULL,
+		 "Yes", "No", "Cancel", 'y', 'n', 27);
+}
+
+
+
 /* handle the load command */
 static int loader(void)
 {
@@ -1981,9 +1992,7 @@ static int loader(void)
 
    if (file_select_ex("Load datafile", buf, "dat", sizeof(buf), 0, 0)) {
       if (is_modified) {
-	 int r = alert3("Previous data may have been modified.",
-			"Do you want to save them?", NULL,
-			"Save", "Do not save", "Cancel", 's', 'd', 27);
+	 int r = ask_save_changes();
 
 	 switch (r) {
 
@@ -2015,9 +2024,7 @@ static int renewer(void)
    CHECK_MENU_HOOK("New", DATEDIT_MENU_FILE);
 
    if (is_modified) {
-      int r = alert3("Previous data may have been modified.",
-		     "Do you want to save them?", NULL,
-		     "Save", "Do not save", "Cancel", 's', 'd', 27);
+      int r = ask_save_changes();
 
       switch (r) {
 
@@ -2073,7 +2080,7 @@ static int save(int strip)
    if (file_select_ex("Save datafile", buf, "dat", sizeof(buf), 0, 0)) {
       if ((stricmp(grabber_data_file, buf) != 0) && (exists(buf))) {
 	 sprintf(buf2, "%s already exists, overwrite?", buf);
-	 if (alert(buf2, NULL, NULL, "Yes", "Cancel", 'y', 27) != 1)
+	 if (alert(buf2, NULL, NULL, "Yes", "No", 'y', 'n') != 1)
 	    return D_REDRAW;
       }
 
@@ -2404,10 +2411,8 @@ static int quitter(void)
 
    if (!is_modified)
       return D_CLOSE;
-   
-   r = alert3("Data may have been modified.",
-	      "Do you want to save before quitting?", NULL,
-	      "Save", "Do not save", "Cancel", 's', 'd', 27);
+
+   r = ask_save_changes();
 
    if (r == 2)
       return D_CLOSE;
@@ -2603,7 +2608,7 @@ static int deleter(void)
    else
       sprintf(buf, "these %d items?", todel_count);
 
-   if (alert("Really delete", buf, NULL, "Yes", "Cancel", 'y', 27) != 1)
+   if (alert("Really delete", buf, NULL, "Yes", "No", 'y', 'n') != 1)
       return D_O_K;
 
    SELECTED_ITEM = first;
@@ -2737,7 +2742,7 @@ static int replacer(int type)
    name = get_datafile_property(dat, DAT_NAME);
    sprintf(buf, "%s?", name[0] ? name : "this item");
 
-   if (alert("Really delete", buf, NULL, "Yes", "Cancel", 'y', 27) != 1)
+   if (alert("Really delete", buf, NULL, "Yes", "No", 'y', 'n') != 1)
       return D_O_K;
 
    if (!do_edit("New Object", "Type:", "Name:", type, NULL, (type == 0), TRUE))
@@ -3471,7 +3476,7 @@ static int sheller(void)
    }
 
    if (ret != 0) {
-      if (alert("Tool returned an error status!", "Do you still want to regrab", "the modified data?", "Grab", "Cancel", 'g', 27) != 1)
+      if (alert("Tool returned an error status!", "Do you still want to regrab", "the modified data?", "Yes", "No", 'y', 'n') != 1)
 	 goto ohwellitwasaniceidea;
    }
 
@@ -3599,7 +3604,7 @@ int datedit_ask(AL_CONST char *fmt, ...)
 
    set_mouse_sprite(my_mouse_pointer);
 
-   ret = alert(buf, NULL, NULL, "Yes", "Cancel", 'y', 27);
+   ret = alert(buf, NULL, NULL, "Yes", "No", 'y', 'n');
 
    if (busy_mouse)
       set_mouse_sprite(my_busy_pointer);
