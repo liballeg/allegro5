@@ -897,7 +897,7 @@ Contributors
    Shawn Hargreaves (<email>shawn@talula.demon.co.uk</a>).<br>
    Progenitor. Wrote everything that wasn't written by somebody else.
 
-   Shawn Walker (<email>adonijah@gmail.com</a>).<br>
+   Shawn Walker (<email>binarycrusader@gmail.com</a>).<br>
    Several fixes to the .spec file, made get_executable_name use getexecname()
    under Solaris and fixed a bug in the keyboard driver that caused crashes on
    the same system.
