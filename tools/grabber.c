@@ -88,6 +88,9 @@ static int quitter(void);
 static int grabber(void);
 static int exporter(void);
 static int deleter(void);
+static int mover(int);
+static int mover_up(void);
+static int mover_down(void);
 static int replacer(int);
 static int sheller(void);
 static int helper(void);
@@ -135,6 +138,14 @@ static MENU file_menu[32] =
 
 
 
+static MENU move_menu[2] =
+{
+   { "&Up\t(shift+U)",              mover_up,         NULL,       0, NULL  },
+   { "&Down\t(shift+D)",            mover_down,       NULL,       0, NULL  }
+};
+
+
+
 /* variable-sized */
 static MENU replace_menu[32] =
 {
@@ -158,6 +169,7 @@ static MENU objc_menu[32] =
    { "&Grab\t(ctrl+G)",             grabber,          NULL,       0, NULL  },
    { "&Export\t(ctrl+E)",           exporter,         NULL,       0, NULL  },
    { "&Delete\t(ctrl+D)",           deleter,          NULL,       0, NULL  },
+   { "&Move",                       NULL,             move_menu,  0, NULL  },
    { "Rep&lace",                    NULL,             replace_menu, 0, NULL},
    { "&Rename\t(ctrl+N)",           renamer,          NULL,       0, NULL  },
    { "Set &Property\t(ctrl+P)",     property_insert,  NULL,       0, NULL  },
@@ -218,6 +230,7 @@ static MENU popup_menu[32] =
    { "&Grab",                       grabber,          NULL,       0, NULL  },
    { "&Export",                     exporter,         NULL,       0, NULL  },
    { "&Delete",                     deleter,          NULL,       0, NULL  },
+   { "&Move",                       NULL,             move_menu,  0, NULL  },
    { "Rep&lace",                    NULL,             replace_menu, 0, NULL},
    { "&Rename",                     renamer,          NULL,       0, NULL  },
    { "&Shell Edit",                 sheller,          NULL,       0, NULL  },
@@ -229,8 +242,6 @@ static MENU popup_menu[32] =
 
 
 #define C(x)      (x - 'a' + 1)
-
-
 
 static DIALOG main_dlg[] =
 {
@@ -262,6 +273,8 @@ static DIALOG main_dlg[] =
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('g'),  0,          0,             0,       grabber,          NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('e'),  0,          0,             0,       exporter,         NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('d'),  0,          0,             0,       deleter,          NULL, NULL  },
+   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    'U',     0,          0,             0,       mover_up,         NULL, NULL  },
+   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    'D',     0,          0,             0,       mover_down,       NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('n'),  0,          0,             0,       renamer,          NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('p'),  0,          0,             0,       property_insert,  NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('z'),  0,          0,             0,       sheller,          NULL, NULL  },
@@ -290,7 +303,6 @@ static DIALOG main_dlg[] =
 };
 
 
-
 #define DLG_FILENAME          3
 #define DLG_HEADERNAME        5
 #define DLG_PREFIXSTRING      7
@@ -300,8 +312,8 @@ static DIALOG main_dlg[] =
 #define DLG_PACKLIST          14
 #define DLG_PROP              15
 #define DLG_FIRSTWHITE        16
-#define DLG_LIST              48
-#define DLG_VIEW              49
+#define DLG_LIST              50
+#define DLG_VIEW              51
 
 
 #define SELECTED_ITEM         main_dlg[DLG_LIST].d1
@@ -758,8 +770,9 @@ static MENU *which_menu(int sel)
 
       if ((compare_menu_names(popup_menu[i].text, "Grab") == 0) ||
 	  (compare_menu_names(popup_menu[i].text, "Export") == 0) ||
-	  (compare_menu_names(popup_menu[i].text, "Rename") == 0) ||
-	  (compare_menu_names(popup_menu[i].text, "Replace") == 0)) {
+	  (compare_menu_names(popup_menu[i].text, "Move") == 0) ||
+	  (compare_menu_names(popup_menu[i].text, "Replace") == 0) ||
+	  (compare_menu_names(popup_menu[i].text, "Rename") == 0)) {
 	 if (get_single_selection())
 	    ok = TRUE;
       }
@@ -2595,6 +2608,71 @@ static int deleter(void)
    set_modified(TRUE);
 
    return D_REDRAW;
+}
+
+
+
+/* returns the datafile's index in the display list (helper for mover) */
+static int data_index(DATAFILE *dat)
+{
+   int i;
+   for (i=1; i<data_count; i++) {
+      if(data[i].dat == dat)
+	 return i;
+   }
+   return -1;
+}
+
+
+
+/* handle the move commands */
+static int mover(int direction)
+{
+   DATAITEM *item;
+   DATAFILE *dest;
+
+   CHECK_MENU_HOOK("Move", DATEDIT_MENU_OBJECT);
+
+   if (SELECTED_ITEM == 0) {
+      alert("Nothing to move!", NULL, NULL, "OK", NULL, 13, 0);
+      return D_O_K;
+   }
+   else if (single_selection() < 0) {
+      alert("Can't move a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+      return D_O_K;
+   }
+
+   item = data+SELECTED_ITEM;
+   dest = &(*item->parent)[item->i+direction];
+
+   if (item->i==0 && direction<0)
+      return D_O_K;
+   else if (item->dat[1].type==DAT_END && direction>0)
+      return D_O_K;
+
+   datedit_swap(*item->parent, item->i, item->i+direction);
+   rebuild_list(NULL, TRUE);
+   SELECTED_ITEM = data_index(dest);
+
+   set_modified(TRUE);
+
+   return D_REDRAW;
+}
+
+
+
+/* moves a datafile to the previous index, if possible */
+static int mover_up(void)
+{
+   return mover(-1);
+}
+
+
+
+/* moves a datafile to the next index, if possible */
+static int mover_down(void)
+{
+   return mover(1);
 }
 
 

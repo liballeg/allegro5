@@ -155,6 +155,8 @@ void datedit_export_name(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST c
 DATAFILE *datedit_insert(DATAFILE *dat, DATAFILE **ret, AL_CONST char *name, int type, void *v, long size);
 DATAFILE *datedit_delete(DATAFILE *dat, int i);
 
+void datedit_swap(DATAFILE *dat, int i1, int i2);
+
 
 typedef struct DATEDIT_GRAB_PARAMETERS {
    AL_CONST char *datafile;  /* absolute filename of the datafile              */
