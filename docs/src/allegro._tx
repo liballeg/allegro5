@@ -9312,12 +9312,42 @@ its definition.
 @heading
 Music routines (MIDI)
 
+Allegro allows you to play MIDI files. MIDI files basically contain notes and
+the type of instrument that is meant to play them, so they are usually very
+small in size. However, it's up to the soundcard of the end user to play the
+notes, and soundcards have been historically known to have poor MIDI
+performance (at least those oriented to the consumer market). Few consumer
+cards feature decent MIDI playback. Still, as a game creator you can never be
+sure if the music of your game will be played as you meant it, because it
+totally depends on the hardware of the user.
+
+For this reason Allegro also provides a DIGMID driver. This is a software
+implementation of the so called Wavetable synthesis. Soundcards featuring this
+store digital samples of real instruments at different pitches, interpolating
+those that are not recorded, thus achieving a high sound quality. Implementing
+this in software makes you sure that the quality you hear on your computer is
+that which will be heard by end users using the same driver.
+
+The disadvantage of the DIGMID driver is that it uses more CPU than simple
+MIDI playback, and it steals some hardware voices from the soundcard, which
+might be more critical for the end user experience than the background music.
+At the Allegro homepage (<link>http://alleg.sourceforge.net/</a>) you can find more
+information about DIGMID and where to download digital samples for your MIDI
+files.
+
 @@MIDI *@load_midi(const char *filename);
 @xref destroy_midi, play_midi, get_midi_length
 @eref exmidi
 @shortdesc Loads a MIDI file.
-   Loads a MIDI file (handles both format 0 and format 1), returning a 
-   pointer to a MIDI structure, or NULL on error.
+   Loads a MIDI file (handles both format 0 and format 1). Example:
+<codeblock>
+      MIDI *music;
+      music = load_midi("backmus.mid");
+      if (!music)
+	 abort_on_error("Couldn't load background music!");<endblock>
+@retval
+   Returns a pointer to a MIDI structure, or NULL on error. Remember to free
+   this MIDI file later to avoid memory leaks.
 
 @@void @destroy_midi(MIDI *midi);
 @xref load_midi
@@ -9340,22 +9370,27 @@ Music routines (MIDI)
 @eref exmidi
 @shortdesc Starts playing the specified MIDI file.
    Starts playing the specified MIDI file, first stopping whatever music was 
-   previously playing. If the loop flag is set, the data will be repeated 
-   until replaced with something else, otherwise it will stop at the end of 
-   the file. Passing a NULL pointer will stop whatever music is currently 
-   playing. Returns non-zero if an error occurs (this may happen if a 
-   patch-caching wavetable driver is unable to load the required samples, or 
-   at least it might in the future when somebody writes some patch-caching 
-   wavetable drivers :-)
+   previously playing. If the loop flag is set to non-zero, the data will be
+   repeated until replaced with something else, otherwise it will stop at the
+   end of the file. Passing a NULL pointer will stop whatever music is
+   currently playing.
+@retval
+   Returns non-zero if an error occurs (this may happen if a patch-caching
+   wavetable driver is unable to load the required samples, or at least it
+   might in the future when somebody writes some patch-caching wavetable
+   drivers :-)
 
 @@int @play_looped_midi(MIDI *midi, int loop_start, int loop_end);
-@xref play_midi, midi_loop_start
+@xref play_midi, midi_pos, midi_loop_start
 @shortdesc Starts playing a MIDI file with a user-defined loop position.
    Starts playing a MIDI file with a user-defined loop position. When the 
    player reaches the loop end position or the end of the file (loop_end may 
    be -1 to only loop at EOF), it will wind back to the loop start point. 
    Both positions are specified in the same beat number format as the 
    midi_pos variable.
+@retval
+   The return value has the same meaning as that of play_midi(): non-zero if
+   an error occurs, zero otherwise.
 
 @@void @stop_midi();
 @xref play_midi, midi_pause
@@ -9380,12 +9415,13 @@ Music routines (MIDI)
 @shortdesc Seeks to the given midi_pos in the current MIDI file.
    Seeks to the given midi_pos in the current MIDI file. If the target is 
    earlier in the file than the current midi_pos it seeks from the 
-   beginning; otherwise it seeks from the current position. Returns zero if 
-   it could successfully seek to the requested position. Otherwise, a
-   return value of 1 means it stopped playing, and midi_pos is set to the
-   negative length of the MIDI file (so you can use this function to
-   determine the length of a MIDI file). A return value of 2 means the MIDI
-   file looped back to the start.
+   beginning; otherwise it seeks from the current position.
+@retval
+   Returns zero if it could successfully seek to the requested position.
+   Otherwise, a return value of 1 means it stopped playing, and midi_pos is
+   set to the negative length of the MIDI file (so you can use this function
+   to determine the length of a MIDI file). A return value of 2 means the
+   MIDI file looped back to the start.
 
 @@int @get_midi_length(MIDI *midi);
 @xref load_midi, midi_time, midi_pos
@@ -9394,12 +9430,12 @@ Music routines (MIDI)
    This function will simulate playing the given MIDI, from start to end, to
    determine how long it takes to play. After calling this function, midi_pos
    will contain the negative number of beats, and midi_time the length of the
-   midi, in seconds. This length also is returned.
+   midi, in seconds.
 
    Note that any currently playing midi is stopped when you call this function.
    Usually you would call it before play_midi, to get the length of the midi to
    be played, like in this example:
-   <codeblock>
+<codeblock>
       length = get_midi_length(my_midi);
       play_midi(my_midi);
       do {
@@ -9407,7 +9443,9 @@ Music routines (MIDI)
          textprintf_ex(screen, font, 0, 0, c, -1, "%d:%02d / %d:%02d\n",
             pos / 60, pos % 60, length / 60, length % 60);
          rest(100);
-      } while(pos &lt;= length);<endblock>
+      } while(pos &lt= length);<endblock>
+@retval
+   Returns the value of midi_time, the length of the midi.
 
 @@void @midi_out(unsigned char *data, int length);
 @xref install_sound, load_midi_patches, midi_recorder
@@ -9423,7 +9461,9 @@ Music routines (MIDI)
    You will not normally need to call this, because Allegro automatically 
    loads whatever data is required for the current MIDI file, but you must 
    call it before sending any program change messages via the midi_out() 
-   command. Returns non-zero if an error occurred.
+   command.
+@retval
+   Returns non-zero if an error occurred.
 
 @@extern volatile long @midi_pos;
 @xref play_midi, midi_msg_callback
@@ -9476,7 +9516,9 @@ Music routines (MIDI)
    call this before or after initialising the sound code, or can simply set 
    the ibk_file and ibk_drum_file variables in the configuration file to 
    have the data loaded automatically. Note that this function has no effect 
-   on any drivers other than the Adlib one! Returns non-zero on error.
+   on any drivers other than the Adlib one!
+@retval
+   Returns non-zero on error.
 
 
 
