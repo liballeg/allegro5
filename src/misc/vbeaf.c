@@ -1179,6 +1179,14 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
    char tmp1[512];
    void *vaddr;
 
+   /* Do not continue if this version of Allegro was built in C-only mode.
+    * The bank switchers assume asm-mode calling conventions, but the
+    * library would try to call them with C calling conventions.
+    */
+#ifdef ALLEGRO_USE_C
+   return NULL;
+#endif
+
    /* locate and load VBE/AF driver from disk */
    if (!vbeaf_locate_driver())
       return NULL;

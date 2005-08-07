@@ -661,6 +661,14 @@ static BITMAP *modex_init(int w, int h, int v_w, int v_h, int color_depth)
    unsigned long addr;
    int c;
 
+   /* Do not continue if this version of Allegro was built in C-only mode.
+    * The bank switchers assume asm-mode calling conventions, but the
+    * library would try to call them with C calling conventions.
+    */
+#ifdef ALLEGRO_USE_C
+   return NULL;
+#endif
+
    /* see modexsms.c */
    _split_modex_screen_ptr = really_split_modex_screen;
 
@@ -808,6 +816,14 @@ static BITMAP *xtended_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    unsigned long addr;
    BITMAP *b;
+
+   /* Do not continue if this version of Allegro was built in C-only mode.
+    * The bank switchers assume asm-mode calling conventions, but the
+    * library would try to call them with C calling conventions.
+    */
+#ifdef ALLEGRO_USE_C
+   return NULL;
+#endif
 
    /* see modexsms.c */
    _split_modex_screen_ptr = really_split_modex_screen;
