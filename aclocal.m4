@@ -430,6 +430,9 @@ if test -n "$allegro_enable_ossdigi"; then
   AC_CHECK_HEADERS(sys/soundcard.h, allegro_support_ossdigi=yes)
   AC_CHECK_HEADERS(machine/soundcard.h, allegro_support_ossdigi=yes)
   AC_CHECK_HEADERS(linux/soundcard.h, allegro_support_ossdigi=yes)
+
+  dnl Link with libossaudio if necessary, used by some BSD systems.
+  AC_CHECK_LIB(ossaudio, _oss_ioctl)
 fi
 ])
 
@@ -446,11 +449,38 @@ test "X$enableval" != "Xno" && allegro_enable_ossmidi=yes,
 allegro_enable_ossmidi=yes)
 
 if test -n "$allegro_enable_ossmidi"; then
-  AC_CHECK_HEADERS(soundcard.h, allegro_support_ossmidi=yes)
-  AC_CHECK_HEADERS(sys/soundcard.h, allegro_support_ossmidi=yes)
-  AC_CHECK_HEADERS(machine/soundcard.h, allegro_support_ossmidi=yes)
-  AC_CHECK_HEADERS(linux/soundcard.h, allegro_support_ossmidi=yes)
+  AC_CHECK_HEADERS(soundcard.h)
+  AC_CHECK_HEADERS(sys/soundcard.h)
+  AC_CHECK_HEADERS(machine/soundcard.h)
+  AC_CHECK_HEADERS(linux/soundcard.h)
   AC_CHECK_HEADERS(linux/awe_voice.h)
+
+  dnl Link with libossaudio if necessary, used by some BSD systems.
+  AC_CHECK_LIB(ossaudio, _oss_ioctl)
+
+  dnl Sequencer support might not be present if this is an incomplete
+  dnl emulation of the OSS API.
+  AC_MSG_CHECKING(for OSS sequencer support)
+  AC_LINK_IFELSE(
+    AC_LANG_PROGRAM([[
+      #if HAVE_SOUNDCARD_H
+       #include <soundcard.h>
+      #elif HAVE_SYS_SOUNDCARD_H
+       #include <sys/soundcard.h>
+      #elif HAVE_MACHINE_SOUNDCARD_H
+       #include <machine/soundcard.h>
+      #elif HAVE_LINUX_SOUNDCARD_H
+       #include <linux/soundcard.h>
+      #endif]],
+      [return SNDCTL_SEQ_NRSYNTHS;]
+    ),
+    [allegro_support_ossmidi=yes]
+  )
+  if test -n "$allegro_support_ossmidi"; then
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+  fi
 fi
 ])
 
