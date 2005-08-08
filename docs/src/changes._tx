@@ -8,6 +8,59 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.2.0 beta 4 to 4.2.0 RC1 (August 2005)
+<ul><li>
+   Peter Hull fixed the MacOS X port to avoid an issue with the dead bootstrap 
+   context and cleaned up the dock notification. This means command line
+   apps (with SYSTEM_NONE) run without the dock being notified.
+<li>
+   Peter Wang Added a COLORCONV_KEEP_ALPHA flag, as suggested by Gideon Weems.
+<li>
+   Peter Wang fixed issues with OSS in OpenBSD and made the configure script
+   print a warning if Allegro is compiled without X11 support.
+<li>
+   Peter Hull set the compatibility version to 4.2.0 for MacOS X and added a 
+   MacOS X help file.
+<li>
+   Peter Wang made the Mode-X and VBE/AF drivers fail if Allegro is compiled 
+   as a C-only library in Linux and made the Unix port install liballeg*.so 
+   and the alleg-*.so modules with the execute permission enabled.
+<li>
+   Grady Martin standardised some of the grabber dialog boxes and added a `move'
+   command to the grabber.
+<li>
+   Evert Glebbeek fixed a bug when loading some old datafiles containing 
+   monochrome fonts.
+<li>
+   Evert Glebbeek fixed a bug that prevented system cursors from working 
+   correctly in Windows.
+<li>
+   Olivier Blin fixed compilation problems for the ModeX driver with newer 
+   binutils.
+<li>
+   Shawn Walker fixed a bug in get_executable_name under some UNIX systems.
+<li>
+   Shawn Walker worked around a problem with some versions of GNU AS and fixed 
+   some errors in the configure script when not using GCC.
+<li>
+   Elias Pschernig made create_sample not unnecessarily clear the sample to 0.
+<li>
+   Bobby Ferris fixed the makedoc SciTE API output.
+<li>
+   Elias Pschernig fixed a too strict assert that prevented set_volume from 
+   working in debug mode.
+<li>
+   Paavo Ahola helped fix a problem with BCC and the C implementations of 
+   fixmul.
+<li>
+   Elias Pschernig fixed a cosmetic bug where the listbox was drawing a too big 
+   selection rectangle, reported by dthompson.
+<li>
+   Documentation and example updates by Grzegorz Adam Hankiewicz, Peter
+   Wang, Elias Pschernig Michal Molhanec and Evert Glebbeek.
+</ul>
+
+@heading
 Changes from 4.2.0 beta 3 to 4.2.0 beta 4 (June 2005)
 <ul><li>
    Matthew Leverton changed the default behavior of the grabber: default color 
