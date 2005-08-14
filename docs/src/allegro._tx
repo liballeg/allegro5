@@ -7182,7 +7182,7 @@ allegro/text.h for details.
 @shortdesc Returns the height of a font in pixels.
    Returns the height (in pixels) of the specified font. Example:
 <codeblock>
-      int height = text_height(font, "I love spam");
+      int height = text_height(font);
       ...
       bmp = create_bitmap(width, height);<endblock>
 
