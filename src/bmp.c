@@ -276,6 +276,27 @@ static void read_24bit_line(int length, PACKFILE *f, BITMAP *bmp, int line)
 
 
 
+/* read_32bit_line:
+ *  Support function for reading the 32 bit bitmap file format, doing
+ *  our best to convert it down to a 256 color palette.
+ */
+static void read_32bit_line(int length, PACKFILE *f, BITMAP *bmp, int line)
+{
+   int i;
+   RGB c;
+   char a;
+
+   for (i=0; i<length; i++) {
+      c.b = pack_getc(f);
+      c.g = pack_getc(f);
+      c.r = pack_getc(f);
+      a = pack_getc(f);
+      WRITE3BYTES(bmp->line[line]+i*4, makeacol32(c.r, c.g, c.b, a));
+   }
+}
+
+
+
 /* read_bitfields_image:
  *  For reading the bitfield compressed BMP image format.
  */
@@ -352,6 +373,10 @@ static void read_image(PACKFILE *f, BITMAP *bmp, AL_CONST BITMAPINFOHEADER *info
 
 	 case 24:
 	    read_24bit_line(infoheader->biWidth, f, bmp, infoheader->biHeight-i-1);
+	    break;
+
+	 case 32:
+	    read_32bit_line(infoheader->biWidth, f, bmp, infoheader->biHeight-i-1);
 	    break;
       }
    }
@@ -592,6 +617,8 @@ BITMAP *load_bmp_pf(PACKFILE *f, RGB *pal)
       bpp = 24;
    else if (infoheader.biBitCount == 16)
       bpp = 16;
+   else if (infoheader.biBitCount == 32)
+      bpp = 32;
    else
       bpp = 8;
 
