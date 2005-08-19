@@ -31,14 +31,19 @@ Introduction
    executable compiled using version 4.2.0 with version 4.2.5 or 4.2.41 of
    the dynamically linked library.
 
-   "Whew," you sigh, "I don't have to put allxxxx.dll in my zips anymore."
+   However, there are some guidelines (rules) you should (must) follow,
+   otherwise things will not work, and you will get angry emails from
+   users and from us.
 
-   Ultimately, yes. However, there are some guidelines (rules) you should
-   (must) follow, otherwise things will not work, and you will get angry
-   emails from users and from us (the Allegro "Be Good" Mafia).
+   Note: ABI compatibility will only be _actively_ maintained for:
+<ul>
+<li>Windows on x86
+<li>Linux on x86
+<li>Linux on x86-64
+<li>MacOS X on PowerPC
+</ul>
 
-   Note: ABI compatibility will only be _actively_ maintained for
-   Windows, Linux and BeOS on x86 architectures.
+   XXX: something about backwards vs forwards compatibility
 
 
 
@@ -47,25 +52,25 @@ Windows notes
 
    If you don't need a modified version of Allegro then just link your
    program against an officially blessed non-WIP, non-CVS, non-dodgy
-   version and chocolate chip cookies will fall from the sky. Don't
-   disable any features (eg. colour depths, drivers) in the DLL.
+   version. Don't disable any features (eg. colour depths, drivers) in
+   the DLL.
 
    If you require a modified version of Allegro, then please either
    statically link, or pick a non-standard name for the Allegro DLL.
-   For example, it would be bad mojo to distribute a modified version of
-   Allegro under a name such as all40.dll or alleg40.dll. Instead, call
-   it something like alcustom.dll. Even better, statically link.
+   For example, don't distribute a modified version of Allegro under a
+   name such as all42.dll or alleg42.dll. Instead, call it something
+   like alcustom.dll. Even better, statically link.
 
    For the people who use vanilla Allegro, we will provide a set of
    "reference" DLLs. If your binary works with those then everything is
    fine. If you want to distribute Allegro DLLs with your program
    (usually a good idea), we recommend you distribute our DLLs instead
-   of ones you compiled yourself. We trust you will bodge something up.
+   of ones you compiled yourself.
 
 
 
 @heading
-Linux notes
+Linux on x86 notes
 
    To make sure an Allegro binary compiled on your machine will work on
    another machine, do not disable any "features" with `configure'. Your
@@ -76,11 +81,11 @@ Linux notes
    When you are ready to distribute your binary, run "ldd &ltmybinary&gt".
    It should say something like:
 
-      liballeg.so.4.0 =&gt /usr/local/lib/liballeg.so.4.0 (0xdeadbeaf)
+      liballeg.so.4.2 =&gt /usr/local/lib/liballeg.so.4.2 (0xdeadbeaf)
 
    It should NOT say:
 
-      liballeg.so.4.0.0 =&gt /usr/local/lib/liballeg.so.4.0.0 (0xdeadbeaf)
+      liballeg.so.4.2.0 =&gt /usr/local/lib/liballeg.so.4.2.0 (0xdeadbeaf)
 
    If you see the latter, that would mean users with later versions of
    Allegro would not be able to run your binary.
@@ -91,19 +96,25 @@ Linux notes
    For people packaging Allegro for redistribution: Drivers that are
    built as dynamically loaded modules may be disabled or left out, but
    all others should be left in. Examples of drivers that are _not_
-   dynamically loaded include: VBE/AF, OSS digital, OSS MIDI. In
+   dynamically loaded include: OSS digital sound and OSS MIDI. In
    short, if a program built against a copy of default-options Allegro
-   will work with your final library, all is goodly.
+   will work with your final library it should be fine.
 
 
 
 @heading
-BeOS notes
+Linux on x86-64 notes
 
-   Most of the things discussed in the Windows notes apply here. In
-   particular, you're encouraged to use a non-WIP, non-CVS unmodified
-   official version of the library, in which case your program should
-   run without problems on foreign machines.
+   The situation is basically the same as for Linux on x86, however
+   your copy of Allegro must NOT have assembly routines enabled (it
+   wouldn't work anyhow).
+
+
+
+@heading
+MacOS X notes
+
+   XXX fill this in
 
 
 
@@ -116,9 +127,5 @@ Final notes
 
    If you provided binaries in the past using WIP versions of Allegro,
    we politely request that you recompile your program using a stable
-   version of Allegro. (Unless, of course, you'd prefer to sleep with
-   the fishes.)
-
-   And oh, don't make your compiler generate i686-only code or anything
-   stupid like that.
+   version of Allegro.
 

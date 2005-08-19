@@ -88,6 +88,7 @@ MacOS X todos
 
 - asm routines (altivec?) to speed things up
 - Mac default installation path?
+- document ABI notes for this platform in docs/src/abi._tx.
 
 BeOS todos:
 ---------------------------------------------------------------------------
