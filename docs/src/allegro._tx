@@ -6912,7 +6912,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    responsible for destroying the font when you are finished with it to
    avoid memory leaks.
 
-@@FONT *@transpose_font(FONT *f, int drange)
+@@int @transpose_font(FONT *f, int drange)
 @xref get_font_range_begin, get_font_range_end, merge_fonts, extract_font_range
 @shortdesc Transposes all characters in a font.
    This function transposes all characters in a font, effectively remapping the
