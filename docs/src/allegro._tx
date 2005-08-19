@@ -10437,6 +10437,18 @@ directly from a specific datafile object.
    hicolor for both bitmaps and RLE sprites, and 24&lt-&gt32-bit truecolor
    for RLE sprites).
 
+   Note that you can only call this once and expect it to work correctly,
+   because after the call the DATAFILE you fixed up is permanently converted
+   to whatever is the current component ordering for your screen mode. If you
+   call fixup_datafile again, the function assumes you have a freshly loaded
+   datafile. It cannot "undo" the previous conversion.
+
+   If your program supports changing resolution and/or color depth during
+   runtime, you have two choices: either call fixup_datafile() just once and
+   hope that the component ordering and bit depth doesn't change when the
+   screen mode changes (unlikely). Or, you can reload your datafiles when the
+   screen mode changes.
+
 @@Macro @DAT_ID(a, b, c, d);
 @xref register_datafile_object, get_datafile_property
 @xref Custom datafile objects, Using datafiles
