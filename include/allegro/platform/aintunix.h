@@ -48,7 +48,7 @@ extern "C" {
 
 
    /* Helper for setting os_type */
-   AL_FUNC(void, _read_os_type, (void));
+   AL_FUNC(void, _unix_read_os_type, (void));
 
 
    /* Helper for yield CPU */

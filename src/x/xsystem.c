@@ -165,7 +165,7 @@ static int _xwin_sysdrv_init(void)
 {
    char tmp[256];
 
-   _read_os_type();
+   _unix_read_os_type();
 
    /* install emergency-exit signal handlers */
    old_sig_abrt = signal(SIGABRT, _xwin_signal_handler);
