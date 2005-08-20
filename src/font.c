@@ -583,7 +583,7 @@ static void mono_destroy(FONT* f)
  *  Returns the number of character ranges in a font, or -1 if that information
  *   is not available.
  */
-int mono_get_font_ranges(FONT *f)
+static int mono_get_font_ranges(FONT *f)
 {
     FONT_MONO_DATA* mf = 0;
     int ranges = 0;
@@ -711,7 +711,7 @@ static FONT_MONO_DATA *mono_copy_glyph_range(FONT_MONO_DATA *mf, int begin, int 
  *  (mono vtable entry)
  *  Extract a range of characters from a mono font 
  */
-FONT *mono_extract_font_range(FONT *f, int begin, int end)
+static FONT *mono_extract_font_range(FONT *f, int begin, int end)
 {
    FONT *fontout = NULL;
    FONT_MONO_DATA *mf, *mfin;
@@ -768,7 +768,7 @@ FONT *mono_extract_font_range(FONT *f, int begin, int end)
  *  (mono vtable entry)
  *  Merges font2 with font1 and returns a new font
  */
-FONT *mono_merge_fonts(FONT *font1, FONT *font2)
+static FONT *mono_merge_fonts(FONT *font1, FONT *font2)
 {
    FONT *fontout = NULL;
    FONT_MONO_DATA *mf, *mf1, *mf2;
@@ -999,7 +999,7 @@ static void color_destroy(FONT* f)
  *  Returns the number of character ranges in a font, or -1 if that information
  *   is not available.
  */
-int color_get_font_ranges(FONT *f)
+static int color_get_font_ranges(FONT *f)
 {
     FONT_COLOR_DATA* cf = 0;
     int ranges = 0;
@@ -1177,7 +1177,7 @@ static FONT_COLOR_DATA *color_copy_glyph_range(FONT_COLOR_DATA *cf, int begin, i
  *  (color vtable entry)
  *  Extract a range of characters from a color font 
  */
-FONT *color_extract_font_range(FONT *f, int begin, int end)
+static FONT *color_extract_font_range(FONT *f, int begin, int end)
 {
    FONT *fontout = NULL;
    FONT_COLOR_DATA *cf, *cfin;
@@ -1234,7 +1234,7 @@ FONT *color_extract_font_range(FONT *f, int begin, int end)
  *  (color vtable entry)
  *  Merges font2 with font1 and returns a new font
  */
-FONT *color_merge_fonts(FONT *font1, FONT *font2)
+static FONT *color_merge_fonts(FONT *font1, FONT *font2)
 {
    FONT *fontout = NULL, *font2_upgr = NULL;
    FONT_COLOR_DATA *cf, *cf1, *cf2;
