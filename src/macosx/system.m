@@ -24,9 +24,11 @@
    #error something is wrong with the makefile
 #endif
 
+#ifndef SCAN_DEPEND
 #include <CoreFoundation/CoreFoundation.h>
 #include <mach/mach_port.h>
 #include <servers/bootstrap.h>
+#endif
 
 
 /* These are used to warn the dock about the application */
