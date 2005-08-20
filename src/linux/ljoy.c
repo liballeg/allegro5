@@ -256,7 +256,7 @@ static int joy_calib(int n)
 }
 
 
-JOYSTICK_DRIVER joystick_linux_analogue = {
+static JOYSTICK_DRIVER joystick_linux_analogue = {
 	JOY_TYPE_LINUX_ANALOGUE,
 	empty_string,
 	empty_string,

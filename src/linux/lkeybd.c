@@ -27,6 +27,10 @@
 #include "linalleg.h"
 
 
+static KEYBOARD_DRIVER keydrv_linux_console;
+
+
+
 /* list the available drivers */
 _DRIVER_INFO _linux_keyboard_driver_list[] =
 {
@@ -41,7 +45,7 @@ static void linux_set_leds (int leds);
 static void linux_set_rate (int delay, int rate);
 static int  linux_scancode_to_ascii (int scancode);
 
-KEYBOARD_DRIVER keydrv_linux_console =
+static KEYBOARD_DRIVER keydrv_linux_console =
 {
    KEYDRV_LINUX,
    empty_string,

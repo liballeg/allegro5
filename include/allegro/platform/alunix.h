@@ -208,16 +208,12 @@ AL_VAR(SYSTEM_DRIVER, system_linux);
    #define GFX_HAS_VBEAF
 #endif
 
-AL_VAR(KEYBOARD_DRIVER, keydrv_linux_console);
-
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_ps2);
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_ips2);
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_gpmdata);
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_ms);
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_ims);
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_evdev);
-
-AL_VAR(JOYSTICK_DRIVER, joystick_linux_analogue);
 
 AL_FUNC_DEPRECATED(void, split_modex_screen, (int lyne));
 

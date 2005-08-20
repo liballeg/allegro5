@@ -48,7 +48,7 @@ static void really_split_modex_screen(int line);
 
 
 /* table of functions for drawing onto the mode-X screen */
-GFX_VTABLE __modex_vtable =
+static GFX_VTABLE __modex_vtable =
 {
    8,
    MASK_COLOR_8,
@@ -157,7 +157,7 @@ GFX_DRIVER gfx_modex =
 
 
 
-GFX_MODE modex_gfx_modes[] = {
+static GFX_MODE modex_gfx_modes[] = {
    { 256, 200, 8 },
    { 256, 224, 8 },
    { 256, 240, 8 },
