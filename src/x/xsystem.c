@@ -318,7 +318,7 @@ static void _xwin_sysdrv_message(AL_CONST char *msg)
 	 break;
 
       case 0: /* child process */
-	 execlp("xmessage", "xmessage", "-buttons", "OK:101", "-default", "OK", "-center", msg2, NULL);
+	 execlp("xmessage", "xmessage", "-buttons", "OK:101", "-default", "OK", "-center", msg2, (char *)NULL);
 
 	 /* if execution reaches here, it means execlp failed */
 	 _exit(EXIT_FAILURE);
