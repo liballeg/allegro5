@@ -1691,7 +1691,7 @@ static int menu_key_shortcut(int c, AL_CONST char *s)
  *  Searches a menu for keyboard shortcuts, for the alt+letter to bring
  *  up a menu.
  */
-int menu_alt_key(int k, MENU *m)
+static int menu_alt_key(int k, MENU *m)
 {
    static unsigned char alt_table[] =
    {
