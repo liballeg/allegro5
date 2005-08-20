@@ -27,49 +27,25 @@
 #ifndef ALLEGRO_LIB_BUILD
 
    #ifndef ALLEGRO_NO_CLEAR_BITMAP_ALIAS
-      #if (defined ALLEGRO_GCC)
-         static __attribute__((unused)) __inline__ void clear(BITMAP *bmp)
-         {
-            clear_bitmap(bmp);
-         }
-      #else
-         static INLINE void clear(BITMAP *bmp)
-         {
-            clear_bitmap(bmp);
-         }
-      #endif
+      AL_INLINE_DEPRECATED(void, clear, (struct BITMAP *bmp), { clear_bitmap(bmp); })
    #endif
 
    #ifndef ALLEGRO_NO_FIX_ALIASES
-      #if (defined ALLEGRO_GCC)
-         #define AL_ALIAS(DECL, CALL)                      \
-         static __attribute__((unused)) __inline__ DECL    \
-         {                                                 \
-            return CALL;                                   \
-         }
-      #else
-         #define AL_ALIAS(DECL, CALL)              \
-         static INLINE DECL                        \
-         {                                         \
-            return CALL;                           \
-         }
-      #endif
-      AL_ALIAS(fixed fadd(fixed x, fixed y), fixadd(x, y))
-      AL_ALIAS(fixed fsub(fixed x, fixed y), fixsub(x, y))
-      AL_ALIAS(fixed fmul(fixed x, fixed y), fixmul(x, y))
-      AL_ALIAS(fixed fdiv(fixed x, fixed y), fixdiv(x, y))
-      AL_ALIAS(int fceil(fixed x), fixceil(x))
-      AL_ALIAS(int ffloor(fixed x), fixfloor(x))
-      AL_ALIAS(fixed fcos(fixed x), fixcos(x))
-      AL_ALIAS(fixed fsin(fixed x), fixsin(x))
-      AL_ALIAS(fixed ftan(fixed x), fixtan(x))
-      AL_ALIAS(fixed facos(fixed x), fixacos(x))
-      AL_ALIAS(fixed fasin(fixed x), fixasin(x))
-      AL_ALIAS(fixed fatan(fixed x), fixatan(x))
-      AL_ALIAS(fixed fatan2(fixed y, fixed x), fixatan2(y, x))
-      AL_ALIAS(fixed fsqrt(fixed x), fixsqrt(x))
-      AL_ALIAS(fixed fhypot(fixed x, fixed y), fixhypot(x, y))
-      #undef AL_ALIAS
+      AL_INLINE_DEPRECATED(fixed, fadd,   (fixed x, fixed y), { return fixadd(x, y);   })
+      AL_INLINE_DEPRECATED(fixed, fsub,   (fixed x, fixed y), { return fixsub(x, y);   })
+      AL_INLINE_DEPRECATED(fixed, fmul,   (fixed x, fixed y), { return fixmul(x, y);   })
+      AL_INLINE_DEPRECATED(fixed, fdiv,   (fixed x, fixed y), { return fixdiv(x, y);   })
+      AL_INLINE_DEPRECATED(int,   fceil,  (fixed x),          { return fixceil(x);     })
+      AL_INLINE_DEPRECATED(int,   ffloor, (fixed x),          { return fixfloor(x);    })
+      AL_INLINE_DEPRECATED(fixed, fcos,   (fixed x),          { return fixcos(x);      })
+      AL_INLINE_DEPRECATED(fixed, fsin,   (fixed x),          { return fixsin(x);      })
+      AL_INLINE_DEPRECATED(fixed, ftan,   (fixed x),          { return fixtan(x);      })
+      AL_INLINE_DEPRECATED(fixed, facos,  (fixed x),          { return fixacos(x);     })
+      AL_INLINE_DEPRECATED(fixed, fasin,  (fixed x),          { return fixasin(x);     })
+      AL_INLINE_DEPRECATED(fixed, fatan,  (fixed x),          { return fixatan(x);     })
+      AL_INLINE_DEPRECATED(fixed, fatan2, (fixed y, fixed x), { return fixatan2(y, x); })
+      AL_INLINE_DEPRECATED(fixed, fsqrt,  (fixed x),          { return fixsqrt(x);     })
+      AL_INLINE_DEPRECATED(fixed, fhypot, (fixed x, fixed y), { return fixhypot(x, y); })
    #endif
 
 #endif  /* !defined ALLEGRO_LIB_BUILD */
