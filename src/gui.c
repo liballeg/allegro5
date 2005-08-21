@@ -1774,6 +1774,7 @@ int do_menu(MENU *menu, int x, int y)
 static MENU_PLAYER *init_single_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *dialog, int bar, int x, int y, int repos, int minw, int minh)
 {
    BITMAP *gui_bmp = gui_get_screen();
+   int scare = is_same_bitmap(gui_bmp, _mouse_screen);
    MENU_PLAYER *player;
    ASSERT(menu);
 
@@ -1790,7 +1791,7 @@ static MENU_PLAYER *init_single_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *di
       player->y = MID(0, player->y, SCREEN_H-player->h-1);
    }
 
-   if (is_same_bitmap(gui_bmp, _mouse_screen))
+   if (scare)
       scare_mouse_area(player->x, player->y, player->w, player->h);
 
    /* save screen under the menu */
@@ -1804,7 +1805,7 @@ static MENU_PLAYER *init_single_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *di
    /* setup state variables */
    player->sel = menu_mouse_object(player);
 
-   if (is_same_bitmap(gui_bmp, _mouse_screen))
+   if (scare)
       unscare_mouse();
 
    player->mouse_button_was_pressed = gui_mouse_b();
@@ -1994,9 +1995,10 @@ int update_menu(MENU_PLAYER *player)
 
    if ((player->redraw) || (player->sel != old_sel)) {  /* selection changed? */
       BITMAP *gui_bmp = gui_get_screen();
+      int scare = is_same_bitmap(gui_bmp, _mouse_screen);
       player->timestamp = gui_timer;
 
-      if (is_same_bitmap(gui_bmp, _mouse_screen))
+      if (scare)
 	 scare_mouse_area(player->x, player->y, player->w, player->h);
       acquire_bitmap(gui_bmp);
 
@@ -2013,7 +2015,7 @@ int update_menu(MENU_PLAYER *player)
       }
 
       release_bitmap(gui_bmp);
-      if (is_same_bitmap(gui_bmp, _mouse_screen))
+      if (scare)
 	 unscare_mouse();
    }
 
@@ -2137,11 +2139,12 @@ static int shutdown_single_menu(MENU_PLAYER *player, int *dret)
    /* restore screen */
    if (player->saved) {
       BITMAP *gui_bmp = gui_get_screen();
-      if (is_same_bitmap(gui_bmp, _mouse_screen))
-	 scare_mouse_area(player->x, player->y, player->w, player->h);
+      int scare = is_same_bitmap(gui_bmp, _mouse_screen);
+      if (scare)
+         scare_mouse_area(player->x, player->y, player->w, player->h);
       blit(player->saved, gui_bmp, 0, 0, player->x, player->y, player->w, player->h);
-      if (is_same_bitmap(gui_bmp, _mouse_screen))
-	 unscare_mouse();
+      if (scare)
+         unscare_mouse();
       destroy_bitmap(player->saved);
    }
 
