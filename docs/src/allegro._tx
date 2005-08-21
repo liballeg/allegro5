@@ -3117,7 +3117,7 @@ Allegro does not provide such devices.)
 @@void @rest_callback(long time, void (*callback)())
 @xref install_timer, rest
 @shortdesc Like rest(), but calls the callback during the wait.
-   Like rest(), but for non zero values continually calls the specified
+   Like rest(), but for non-zero values continually calls the specified
    function while it is waiting for the required time to elapse. If the
    provided `callback' parameter is NULL, this function does exactly the
    same thing as calling rest().
@@ -9569,6 +9569,12 @@ for the internals of the AUDIOSTREAM structure.
    to get the size of the buffers in bytes could be:
 <codeblock>
       bytes = length * (bits / 8) * (stereo ? 2 : 1)<endblock>
+   Example:
+<codeblock>
+      /* Create a 22KHz 8bit mono audio stream. */
+      stream = play_audio_stream(1024, 8, FALSE, 22050, 255, 128);
+      if (!stream)
+	 abort_on_error("Error creating audio stream!\n");<endblock>
 @retval
    This function returns a pointer to the audio stream or NULL if it could
    not be created.
@@ -9585,15 +9591,26 @@ for the internals of the AUDIOSTREAM structure.
 @shortdesc Tells you if you need to fill the audiostream or not.
    You must call this function at regular intervals while an audio stream is 
    playing, to provide the next buffer of sample data (the smaller the 
-   stream buffer size, the more often it must be called). If it returns 
-   NULL, the stream is still playing the previous lot of data, so you don't 
-   need to do anything. If it returns a value, that is the location of the 
-   next buffer to be played, and you should load the appropriate number of 
-   samples (however many you specified when creating the stream) to that 
-   address, for example using an fread() from a disk file. After filling the 
-   buffer with data, call free_audio_stream_buffer() to indicate that the 
-   new data is now valid. Note that this function should not be called from 
-   a timer handler...
+   stream buffer size, the more often it must be called). This function should
+   not be called from a timer handler. Example:
+<codeblock>
+      void *mem_chunk;
+      ...
+      while (TRUE) {
+	 ...
+         mem_chunk = get_audio_stream_buffer(buffer);
+	 if (mem_chunk != NULL) {
+	    /* Refill the stream buffer. */
+	 }
+      }<endblock>
+@retval
+   If it returns NULL, the stream is still playing the previous lot of data,
+   so you don't need to do anything. If it returns a value, that is the
+   location of the next buffer to be played, and you should load the
+   appropriate number of samples (however many you specified when creating the
+   stream) to that address, for example using an fread() from a disk file.
+   After filling the buffer with data, call free_audio_stream_buffer() to
+   indicate that the new data is now valid.
 
 @@void @free_audio_stream_buffer(AUDIOSTREAM *stream);
 @xref get_audio_stream_buffer
@@ -9601,12 +9618,35 @@ for the internals of the AUDIOSTREAM structure.
 @shortdesc Tells the audio stream player new data can be played.
    Call this function after get_audio_stream_buffer() returns a non-NULL 
    address, to indicate that you have loaded a new block of samples to that 
-   location and the data is now ready to be played.
+   location and the data is now ready to be played. Example:
+<codeblock>
+      mem_chunk = get_audio_stream_buffer(buffer);
+      if (mem_chunk != NULL) {
+	 /* Refill the stream buffer. */
+	 ...
+	 free_audio_stream_buffer(buffer);
+      }<endblock>
 
 
 
 @heading
 Recording routines
+
+Allegro provides routines to capture sound from the soundcard, be it digital
+samples or MIDI notes. Ideally this would allow you to create games where
+basic speech recognition could be implemented, or voice messages in
+multiplayer games over a network. However, many old sound cards are not full
+duplex. This means, that the sound device can only be playing or recording,
+but not both at the same time.
+
+Any Windows 2000 or better machine comes with a full duplex soundcard and
+updated drivers. All MacOS X machines allow full duplex recording. Under Unix
+your mileage may vary: you can have the right hardware for the task, but the
+drivers might not support this feature. Under DOS you should forget about full
+duplex altogether.
+
+To find out if your system allows this feature, use the akaitest program,
+distributed along with Allegro, in the `tests' directory.
 
 @@int @install_sound_input(int digi, int midi);
 @xref install_sound, start_sound_input, midi_recorder
@@ -9616,11 +9656,14 @@ Recording routines
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
 @xref MIDI_*/MacOSX
 @shortdesc Initialises the sound recorder module.
-   Initialises the sound recorder module, returning zero on success. You 
-   must install the normal sound playback system before calling this 
-   routine. The two card parameters should use the same constants as 
-   install_sound(), including DIGI_NONE and MIDI_NONE to disable parts of 
-   the module, or DIGI_AUTODETECT and MIDI_AUTODETECT to guess the hardware.
+   Initialises the sound recorder module. You must install the normal sound
+   playback system before calling this routine. The two card parameters should
+   use the same constants as install_sound(), including DIGI_NONE and
+   MIDI_NONE to disable parts of the module, or DIGI_AUTODETECT and
+   MIDI_AUTODETECT to guess the hardware.
+@retval
+   This function returns zero on success, and any other value if the machine
+   or driver doesn't support sound recording.
 
 @@void @remove_sound_input();
 @xref install_sound_input, remove_sound, allegro_exit
@@ -9640,46 +9683,75 @@ Recording routines
       8 = eight bit audio input is supported
       16 = sixteen bit audio input is supported
       24 = both eight and sixteen bit audio input are supported<endblock>
-
+   Example:
+<codeblock>
+      cap = get_sound_input_cap_bits();
+      if (cap == 0) {
+	 /* Ugh, no audio input supported? */
+      } else {
+	 if (cap & 8) {
+	    /* We have eight bit audio input. */
+	 }
+	 if (cap & 16) {
+	    /* We have sixteen bit audio input. */
+	 }
+      }<endblock>
+      
 @@int @get_sound_input_cap_stereo();
 @xref start_sound_input, get_sound_input_cap_parm, get_sound_input_cap_bits
 @xref get_sound_input_cap_rate
 @shortdesc Tells if the input driver is capable of stereo recording.
    Checks whether the current audio input driver is capable of stereo 
    recording.
+@retval
+   Returns non-zero if the driver is capable of stereo recording.
 
 @@int @get_sound_input_cap_rate(int bits, int stereo);
 @xref start_sound_input, get_sound_input_cap_parm, get_sound_input_cap_bits
 @xref get_sound_input_cap_stereo
 @shortdesc Returns the maximum sample frequency for recording.
    Returns the maximum possible sample frequency for recording in the 
-   specified format, or zero if these settings are not supported.
+   specified format, or zero if these settings are not supported. The bits
+   parameter is the number of bits of the audio, and stereo is a boolean
+   parameter. Pass zero for mono, non-zero for stereo input. Example:
+<codeblock>
+      int max_freq;
+      ...
+      /* What frequency can we record 8 bits mono at? */
+      max_freq = get_sound_input_cap_rate(8, 0);
+      if (max_freq > 22000) {
+	 /* Ok, 22KHz and above is good enough. */
+      }<endblock>
 
 @@int @get_sound_input_cap_parm(int rate, int bits, int stereo);
 @xref start_sound_input, get_sound_input_cap_bits, get_sound_input_cap_rate
 @xref get_sound_input_cap_stereo
 @shortdesc Detects if the specified recording parameters are supported.
    Checks whether the specified recording frequency, number of bits, and 
-   mono/stereo mode are supported by the current audio driver, returning one 
-   of the values:
+   mono/stereo mode are supported (and how) by the current audio driver.
+@retval
+   The function returns one of the following possible values:
 <textblock>
-      0  = it is impossible to record in this format
-      1  = recording is possible, but audio output will be suspended
-      2  = recording is possible at the same time as playing other
-	   sounds
-      -n = sampling rate not supported, but rate 'n' would work
-	   instead<endblock>
+      0  = It is impossible to record in this format.
+      1  = Recording is possible, but audio output
+	   will be suspended.
+      2  = Recording is possible at the same time as
+	   playing other sounds (full duplex soundcard).
+      -n = Sampling rate not supported, but rate 'n'
+	   would work instead.<endblock>
 
 @@int @set_sound_input_source(int source);
 @xref start_sound_input
 @shortdesc Selects the audio input source.
-   Selects the audio input source, returning zero on success or -1 if the 
-   hardware does not provide an input select register. The parameter should 
-   be one of the values:
+   Selects the audio input source. The parameter should be one of the values:
 <textblock>
       SOUND_INPUT_MIC
       SOUND_INPUT_LINE
       SOUND_INPUT_CD<endblock>
+@retval
+   The function returns zero on success, or -1 if the hardware does not
+   provide an input select register (ie. you have no control over the input
+   source).
 
 @@int @start_sound_input(int rate, int bits, int stereo);
 @xref install_sound_input, read_sound_input, stop_sound_input
@@ -9688,8 +9760,9 @@ Recording routines
 @xref get_sound_input_cap_stereo
 @shortdesc Starts recording in the specified format.
    Starts recording in the specified format, suspending audio playback as 
-   necessary (this will always happen with the current drivers). Returns the 
-   buffer size in bytes if successful, or zero on error.
+   necessary if the card is not full duplex.
+@retval
+   Returns the buffer size in bytes if successful, or zero on error.
 
 @@void @stop_sound_input();
 @xref start_sound_input
@@ -9701,17 +9774,21 @@ Recording routines
 @xref start_sound_input
 @shortdesc Retrieves the last recorded audio buffer.
    Retrieves the most recently recorded audio buffer into the specified 
-   location, returning non-zero if a buffer has been copied or zero if no 
-   new data is yet available. The buffer size can be obtained by checking 
-   the return value from start_sound_input(). You must be sure to call this 
+   location. The buffer size can be obtained by checking the return value
+   from start_sound_input(). You must be sure to call this
    function at regular intervals during the recording (typically around 100 
    times a second), or some data will be lost. If you are unable to do this 
    often enough from the mainline code, use the digi_recorder() callback to 
-   store the waveform into a larger buffer of your own. Note: many cards 
-   produce a click or popping sound when switching between record and 
-   playback modes, so it is often a good idea to discard the first buffer 
-   after you start a recording. The waveform is always stored in unsigned 
-   format, with stereo data consisting of alternate left/right samples.
+   store the waveform into a larger buffer of your own.
+
+   Note: many cards produce a click or popping sound when switching between
+   record and playback modes, so it is often a good idea to discard the
+   first buffer after you start a recording. The waveform is always stored
+   in unsigned format, with stereo data consisting of alternate left/right
+   samples.
+@retval
+   The function will return non-zero if a buffer has been copied or zero if
+   no new data is yet available (you were too fast checking the input).
 
 @@extern void (*@digi_recorder)();
 @xref install_sound_input, start_sound_input
