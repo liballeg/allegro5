@@ -8071,7 +8071,7 @@ represents the base color to be modified. The interpolation factor n is in
 the range [0-255] and controls the solidity of the blending.
 
 When a translucent drawing function is used, x is the color of the source, 
-y is the color of the bitmap begin drawn onto and n is the alpha level   
+y is the color of the bitmap being drawn onto and n is the alpha level   
 that was passed to the function that sets the blending mode (the RGB triplet 
 that was passed to this function is not taken into account).
 
