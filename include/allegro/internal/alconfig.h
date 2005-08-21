@@ -62,6 +62,7 @@
 
    #ifndef SCAN_DEPEND
       #include "allegro/platform/astdint.h"
+      #include "allegro/platform/astdbool.h"
    #endif
 #endif
 

@@ -35,6 +35,7 @@
 #define HAVE_DIRENT_H
 #define HAVE_INTTYPES_H
 #define HAVE_STDINT_H
+#define HAVE_STDBOOL_H
 #define HAVE_SYS_DIR_H
 #define HAVE_SYS_TIME_H
 #define TIME_WITH_SYS_TIME

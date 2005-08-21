@@ -42,13 +42,6 @@
    #define AL_BEGIN_EXTERN_C	extern "C" {
    #define AL_END_EXTERN_C	}
 #else  /* C */
-   #include <stdbool.h>
-   /* Account for broken stdbool.h headers.  We need sizeof(bool) on C
-    * to be the same as sizeof(bool) on C++, i.e. one byte.
-    */
-   #undef bool
-   #define bool unsigned char
-
    #define AL_BEGIN_EXTERN_C
    #define AL_END_EXTERN_C
 #endif

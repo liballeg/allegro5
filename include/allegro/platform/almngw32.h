@@ -30,6 +30,7 @@
 /* older mingw's don't seem to have inttypes.h */
 /* #define HAVE_INTTYPES_H */
 #define HAVE_STDINT_H
+#define HAVE_STDBOOL_H
 
 
 /* describe this platform */
