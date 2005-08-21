@@ -256,7 +256,7 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_WATCOM
 
 depend:
-	$(GCC) $(DEPEND_PARAMS) src/*.c src/dos/*.c src/i386/*.c src/misc/*.c demo/*.c > _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) src/*.c src/dos/*.c src/compat/*.c src/i386/*.c src/misc/*.c demo/*.c > _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x c tests/*.cpp >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/dos/*.s src/misc/*.s >> _depend.tmp
