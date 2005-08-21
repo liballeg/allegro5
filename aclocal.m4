@@ -430,6 +430,9 @@ if test -n "$allegro_enable_ossdigi"; then
   AC_CHECK_HEADERS(sys/soundcard.h, allegro_support_ossdigi=yes)
   AC_CHECK_HEADERS(machine/soundcard.h, allegro_support_ossdigi=yes)
   AC_CHECK_HEADERS(linux/soundcard.h, allegro_support_ossdigi=yes)
+
+  dnl Link with libossaudio if necessary, used by some BSD systems.
+  AC_CHECK_LIB(ossaudio, _oss_ioctl)
 fi
 ])
 
@@ -446,11 +449,38 @@ test "X$enableval" != "Xno" && allegro_enable_ossmidi=yes,
 allegro_enable_ossmidi=yes)
 
 if test -n "$allegro_enable_ossmidi"; then
-  AC_CHECK_HEADERS(soundcard.h, allegro_support_ossmidi=yes)
-  AC_CHECK_HEADERS(sys/soundcard.h, allegro_support_ossmidi=yes)
-  AC_CHECK_HEADERS(machine/soundcard.h, allegro_support_ossmidi=yes)
-  AC_CHECK_HEADERS(linux/soundcard.h, allegro_support_ossmidi=yes)
+  AC_CHECK_HEADERS(soundcard.h)
+  AC_CHECK_HEADERS(sys/soundcard.h)
+  AC_CHECK_HEADERS(machine/soundcard.h)
+  AC_CHECK_HEADERS(linux/soundcard.h)
   AC_CHECK_HEADERS(linux/awe_voice.h)
+
+  dnl Link with libossaudio if necessary, used by some BSD systems.
+  AC_CHECK_LIB(ossaudio, _oss_ioctl)
+
+  dnl Sequencer support might not be present if this is an incomplete
+  dnl emulation of the OSS API.
+  AC_MSG_CHECKING(for OSS sequencer support)
+  AC_LINK_IFELSE(
+    AC_LANG_PROGRAM([[
+      #if HAVE_SOUNDCARD_H
+       #include <soundcard.h>
+      #elif HAVE_SYS_SOUNDCARD_H
+       #include <sys/soundcard.h>
+      #elif HAVE_MACHINE_SOUNDCARD_H
+       #include <machine/soundcard.h>
+      #elif HAVE_LINUX_SOUNDCARD_H
+       #include <linux/soundcard.h>
+      #endif]],
+      [return SNDCTL_SEQ_NRSYNTHS;]
+    ),
+    [allegro_support_ossmidi=yes]
+  )
+  if test -n "$allegro_support_ossmidi"; then
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+  fi
 fi
 ])
 
@@ -757,10 +787,14 @@ dnl
 AC_DEFUN(ALLEGRO_ACTEST_GCC_VERSION,
 [AC_MSG_CHECKING(whether -fomit-frame-pointer is safe)
 AC_CACHE_VAL(allegro_cv_support_fomit_frame_pointer,
-[if test $GCC = yes && $CC --version | grep '3\.0\(\.\?[[012]]\)\?$' >/dev/null; then
+[if test "$GCC" = yes && $CC --version | grep '3\.0\(\.\?[[012]]\)\?$' >/dev/null; then
   allegro_cv_support_fomit_frame_pointer=no
 else
-  allegro_cv_support_fomit_frame_pointer=yes
+  if test "$GCC" = yes; then
+    allegro_cv_support_fomit_frame_pointer=yes
+  else
+    allegro_cv_support_fomit_frame_pointer=no
+  fi
 fi
 ])
 AC_MSG_RESULT($allegro_cv_support_fomit_frame_pointer)])
@@ -776,7 +810,7 @@ AC_DEFUN(ALLEGRO_ACTEST_GCC_INCLUDE_PREFIX,
 allegro_save_CFLAGS="$CFLAGS"
 CFLAGS="-Werror -I$prefix/include $CFLAGS"
 AC_CACHE_VAL(allegro_cv_support_include_prefix,
-[if test $GCC = yes; then
+[if test "$GCC" = yes; then
    AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_include_prefix=yes, allegro_cv_support_include_prefix=no)
 else
    allegro_cv_support_include_prefix=yes
@@ -794,7 +828,7 @@ dnl
 AC_DEFUN(ALLEGRO_ACTEST_GCC_CXX,
 [AC_MSG_CHECKING(whether a C++ compiler is installed)
 AC_CACHE_VAL(allegro_cv_support_cplusplus,
-[if test $GCC = yes; then
+[if test "$GCC" = yes; then
    allegro_save_CFLAGS=$CFLAGS
    CFLAGS="-x c++"
    AC_TRY_COMPILE(,class foo {foo() {}};, allegro_cv_support_cplusplus=yes, allegro_cv_support_cplusplus=no)
@@ -816,7 +850,7 @@ AC_DEFUN(ALLEGRO_ACTEST_GCC_I386_MTUNE,
 allegro_save_CFLAGS="$CFLAGS"
 CFLAGS="-mtune=i386"
 AC_CACHE_VAL(allegro_cv_support_i386_mtune,
-[if test $GCC = yes; then
+[if test "$GCC" = yes; then
    AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_i386_mtune=yes, allegro_cv_support_i386_mtune=no)
 else
    allegro_cv_support_i386_mtune=no
@@ -836,7 +870,7 @@ AC_DEFUN(ALLEGRO_ACTEST_GCC_AMD64_MTUNE,
 allegro_save_CFLAGS="$CFLAGS"
 CFLAGS="-mtune=k8"
 AC_CACHE_VAL(allegro_cv_support_amd64_mtune,
-[if test $GCC = yes; then
+[if test "$GCC" = yes; then
    AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_amd64_mtune=yes, allegro_cv_support_amd64_mtune=no)
 else
    allegro_cv_support_amd64_mtune=no

@@ -252,9 +252,10 @@ int info1(void)
 {
    char buf1[256];
    char buf2[256] = "";
-   int i, s = 0;
+   int i, s = 0, n;
+   listbox_getter(-1, &n);
    /* query the list proc */
-   for (i = 0; i < 10; i++)
+   for (i = 0; i < n; i++)
       if (sel[i]) {
          uszprintf (buf1, sizeof buf1, "%i ", i);
          ustrzcat (buf2, sizeof buf2, buf1);

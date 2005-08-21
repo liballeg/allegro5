@@ -23,7 +23,7 @@ Contributors
    Adrian Oboroc (<email>doba@corefx.com</a>).<br>
    Wrote the LBM loader.
 
-   aj (<email>aj@visualsynth.com</a>).<br>
+   aj.<br>
    Reported many problems, suggested a lot of improvements to the
    documentation, added AMD64/IA64/SSE3 detection code, added DirectX 8 and 9
    detection to the Windows port, added MSVC7 specific options to the makefile,
@@ -328,7 +328,9 @@ Contributors
    Added the Redhat RPM .spec file.
 
    Grady Martin (<email>shadygrady@budweiser.com</a>).<br>
-   Fixed a bug in the handling of %n in the printf style text functions.
+   Fixed a bug in the handling of %n in the printf style text functions, added
+   a move command to the grabber and standardised some of the grabber dialog
+   boxes.
 
    Greg Hackmann (<email>hacker@ididitmyway.com</a>).<br>
    Contributed the Borland C++ Builder port.
@@ -632,7 +634,7 @@ Contributors
    Matthew Bowie (<email>catcat@nmt.edu</a>).<br>
    Added support for 4-button joysticks.
 
-   Matthew Leverton (<email>matthew@leverton.cc</a>).<br>
+   Matthew Leverton (<email>matthew@allegro.cc</a>).<br>
    Fixed a bug with mouse mickeys in windowed mode under Windows, fixed a
    problem with al_find*() and NTFS partitions under Windows, added missing
    header files to be installed by the Windows binary distribution, made the
@@ -667,8 +669,8 @@ Contributors
    of MingW32 by MinGW in the docs, added an faq section about the giftware
    license, fixed problems with long filenames when building for MSVC,
    corrected a problem with the Watcom port, added MSVC7 options to the
-   makefile, fixed a linker problem with the MSVC port and fixed some const
-   warnings in the grabber code.
+   makefile, fixed a linker problem with the MSVC port, fixed some const
+   warnings in the grabber code and did plenty of other things too.
 
    Michail Pishchagin (<email>mblsha@users.sourceforge.net</a>).<br>
    Contributed the ustrnicmp() function.
@@ -705,6 +707,9 @@ Contributors
    translation, and made the Unicode utolower() and utoupper() functions
    understand the entire 16 bit character set.
 
+   Olivier Blin (<email>oblin@mandriva.com</a>).<br>
+   fixed compilation problems for the ModeX driver.
+
    Olly Betts (<email>olly@muscat.co.uk</a>).<br>
    Modified the djgpp makefile to support cross-compiling on a Linux machine.
 
@@ -730,6 +735,9 @@ Contributors
    FreeBE/AF project), added native truecolor and linear framebuffer support
    to the ATI driver, contributed the Norwegian keyboard mapping, and added
    MIDI and sample input features to the MPU and SB drivers respectively.
+
+   Paavo Ahola (email unknown).<br>
+   Helped fix a problem with BCC and the C implementations of fixmul.
 
    Patrick Hogan (<email>patter@iname.com</a>).<br>
    Wrote the draw_gouraud_sprite() function, and made Windows audiostreams
@@ -765,7 +773,8 @@ Contributors
    files, solved some compiling issues on MacOS X, fixed a bug in rest() 
    that caused it to wait too long on that platform, fixed several problems
    with the hardware mouse cursor, fixed a deadlock in the software mouse
-   updating code and fixed compilation problems under MacOS X tiger.
+   updating code, fixed compilation problems under MacOS X tiger, added a
+   MacOS X helpfile and did plenty of other things too.
    
    Peter Johansson (email unknown).<br>
    Reported a problem with system cursors not working in Windows.
@@ -897,10 +906,11 @@ Contributors
    Shawn Hargreaves (<email>shawn@talula.demon.co.uk</a>).<br>
    Progenitor. Wrote everything that wasn't written by somebody else.
 
-   Shawn Walker (<email>adonijah@gmail.com</a>).<br>
+   Shawn Walker (<email>binarycrusader@gmail.com</a>).<br>
    Several fixes to the .spec file, made get_executable_name use getexecname()
-   under Solaris and fixed a bug in the keyboard driver that caused crashes on
-   the same system.
+   under Solaris, fixed a bug in the keyboard driver that caused crashes on
+   the same system, worked around errors with some versions of GNU AS and fixed
+   errors in the configure script when not using GCC
    
    StApostol (<email>stapostol@gmail.com</a>).<br>
    Fixed a bug in the exflame example and updated the FAQ to use rest(0) instead

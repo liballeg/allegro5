@@ -365,35 +365,36 @@ void _unix_get_executable_name(char *output, int size)
    #ifdef ALLEGRO_HAVE_SV_PROCFS
       sprintf (linkname, "/proc/%d/exe", pid);
       fd = open(linkname, O_RDONLY);
-      ioctl(fd, PIOCPSINFO, &psinfo);
-      close(fd);
+      if (!fd == -1) {
+         ioctl(fd, PIOCPSINFO, &psinfo);
+         close(fd);
    
-      /* Use argv[0] directly if we can */
+         /* Use argv[0] directly if we can */
       #ifdef ALLEGRO_HAVE_PROCFS_ARGCV
-         if (psinfo.pr_argv && psinfo.pr_argc) {
-            if (_find_executable_file(psinfo.pr_argv[0], output, size))
-               return;
-         }
-         else {
+	 if (psinfo.pr_argv && psinfo.pr_argc) {
+	    if (_find_executable_file(psinfo.pr_argv[0], output, size))
+	       return;
+	 }
+	 else
       #endif
-         /* Emulate it */
-         /* We use the pr_psargs field to find argv[0]
-         * This is better than using the pr_fname field because we need the
-         *  additional path information that may be present in argv[0]
-         */
-         
-         /* Skip other args */
-         s = strchr(psinfo.pr_psargs, ' ');
-         if (s) s[0] = '\0';
-         if (_find_executable_file(psinfo.pr_psargs, output, size))
-            return;
-      #ifdef ALLEGRO_HAVE_PROCFS_ARGCV
-         }
-      #endif
+	 {
+	    /* Emulate it */
+	    /* We use the pr_psargs field to find argv[0]
+	     * This is better than using the pr_fname field because we need
+	     * the additional path information that may be present in argv[0]
+	     */
+	 
+	    /* Skip other args */
+	    s = strchr(psinfo.pr_psargs, ' ');
+	    if (s) s[0] = '\0';
+	    if (_find_executable_file(psinfo.pr_psargs, output, size))
+	       return;
+	 }
 
-      /* Try the pr_fname just for completeness' sake if argv[0] fails */
-      if (_find_executable_file(psinfo.pr_fname, output, size))
-         return;     
+         /* Try the pr_fname just for completeness' sake if argv[0] fails */
+         if (_find_executable_file(psinfo.pr_fname, output, size))
+            return;
+      }
    #endif
    
    /* Last resort: try using the output of the ps command to at least find */

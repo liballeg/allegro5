@@ -1230,7 +1230,8 @@ FUNC(_x_blit_forward)
    pushw %es
 
    movl DEST, %edx               /* load segment selector */
-   movl BMP_SEG(%edx), %es
+   movl BMP_SEG(%edx), %eax
+   movl %eax, %es
 
    _align_
 x_blit_forward_y_loop:
@@ -1335,7 +1336,8 @@ FUNC(_x_blit_backward)
    addl %eax, DEST_X
 
    movl DEST, %edx               /* load segment selector */
-   movl BMP_SEG(%edx), %es
+   movl BMP_SEG(%edx), %eax
+   movl %eax, %es
 
    _align_
 x_blit_backward_y_loop:

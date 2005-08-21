@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.2.0 (beta4-cvs)" "Allegro" "Allegro manual"
+@manh="version 4.2.0 (beta5-cvs)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,12 +52,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.2.0 (beta4-cvs)
+				       \_/__/     Version 4.2.0 (beta5-cvs)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, May 14, 2005.
+	     By Shawn Hargreaves, Jun 27, 2005.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -254,7 +254,7 @@ information about how to install Allegro and link your program with it.
    information. Example:
 <codeblock>
       /* Check if the current version is compatible with Allegro 4.2.0 */
-      #if (MAKE_VERSION(4, 2, 0) <= MAKE_VERSION(ALLEGRO_VERSION, \
+      #if (MAKE_VERSION(4, 2, 0) &lt= MAKE_VERSION(ALLEGRO_VERSION, \
 			 ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION))
 	 /* Allegro 4.2.0 compatibility */
       #else
@@ -648,7 +648,7 @@ available in past/future versions of Allegro.
    Read chapter "Joystick routines" for a description on how to obtain/use
    this structure.
 
-@@typedef struct @JOYSTIC_AXIS_INFO
+@@typedef struct @JOYSTICK_AXIS_INFO
 @xref joy, Joystick routines
 @shortdesc Stores joystick axis information.
 <codeblock>
@@ -5258,6 +5258,8 @@ will not be known, so the file may be converted wrongly.
 				    // 24 &lt-&gt 32-bit
       COLORCONV_MOST                // all but hi/truecolor &lt-&gt 256
       COLORCONV_DITHER              // dither during all color reductions
+      COLORCONV_KEEP_ALPHA          // convert everything to current format
+                                    // unless it would lose alpha information
 <endblock>
    If you enable the COLORCONV_DITHER flag, dithering will be performed 
    whenever truecolor graphics are converted into a hicolor or paletted 
@@ -7000,7 +7002,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
       PALETTE pal;
       char *names[] = { "FONT_1_DATA", "FONT_1_PALETTE" }
       
-      f = load_dat_font("fonts.dat", pal, NULL);
+      f = load_dat_font("fonts.dat", pal, names);
 <endblock>
    If instead you want to load the second font, FONT_2, from the datafile,
    you would use:
@@ -7009,14 +7011,14 @@ bitmapped version of a TrueType font with tools like TTF2PCX
       PALETTE pal;
       char *names[] = { "FONT_2_DATA", "FONT_2_PALETTE" }
       
-      f = load_dat_font("fonts.dat", pal, NULL);
+      f = load_dat_font("fonts.dat", pal, names);
 <endblock>
    If you want to load the third font, but not bother with a palette, use:
 <codeblock>
       FONT *f;
       char *names[] = { "FONT_3_DATA", NULL }
       
-      f = load_dat_font("fonts.dat", NULL, &n);<endblock>
+      f = load_dat_font("fonts.dat", NULL, names);<endblock>
 @retval
    Returns a pointer to the font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
@@ -8639,7 +8641,7 @@ these with the lower level functions described below.
    (inclusive) have altered. You can use these when copying the fli_bitmap 
    onto the screen, to avoid moving data unnecessarily. Example:
 <codeblock>
-      if (fli_bmp_dirty_from <= fli_bmp_dirty_to)
+      if (fli_bmp_dirty_from &lt= fli_bmp_dirty_to)
 	 blit(fli_bitmap, screen, 0, fli_bmp_dirty_from,
 	      0, fli_bmp_dirty_from, fli_bitmap->w,
 	      fli_bmp_dirty_to - fli_bmp_dirty_from + 1);<endblock>
@@ -8655,7 +8657,7 @@ these with the lower level functions described below.
    (inclusive) have altered. You can use these when updating the hardware 
    palette, to avoid unnecessary calls to set_palette(). Example:
 <codeblock>
-      if (fli_pal_dirty_from <= fli_pal_dirty_to)
+      if (fli_pal_dirty_from &lt= fli_pal_dirty_to)
 	 set_palette_range(fli_palette, fli_pal_dirty_from,
 			   fli_pal_dirty_to, 1);<endblock>
 
@@ -8693,7 +8695,7 @@ these with the lower level functions described below.
 	 /* Do stuff, like play audio stream
 	    or check keys to skip animation. */
 	 /* Rest some time until next frame... */
-	 while (fli_timer <= 0)
+	 while (fli_timer &lt= 0)
 	    rest(0);
       }<endblock>
 
@@ -9227,7 +9229,9 @@ its definition.
 @@int @voice_get_volume(int voice);
 @xref Voice control, voice_set_volume
 @shortdesc Returns the current volume of the voice.
-   Returns the current volume of the voice, range 0-255.
+   Returns the current volume of the voice, range 0-255.  Otherwise it
+   returns -1 if that cannot be determined (because it has finished or
+   been preempted by a different sound).
 
 @@void @voice_set_volume(int voice, int volume);
 @xref Voice control, voice_get_volume, voice_ramp_volume
@@ -9308,12 +9312,42 @@ its definition.
 @heading
 Music routines (MIDI)
 
+Allegro allows you to play MIDI files. MIDI files basically contain notes and
+the type of instrument that is meant to play them, so they are usually very
+small in size. However, it's up to the soundcard of the end user to play the
+notes, and soundcards have been historically known to have poor MIDI
+performance (at least those oriented to the consumer market). Few consumer
+cards feature decent MIDI playback. Still, as a game creator you can never be
+sure if the music of your game will be played as you meant it, because it
+totally depends on the hardware of the user.
+
+For this reason Allegro also provides a DIGMID driver. This is a software
+implementation of the so called Wavetable synthesis. Soundcards featuring this
+store digital samples of real instruments at different pitches, interpolating
+those that are not recorded, thus achieving a high sound quality. Implementing
+this in software makes you sure that the quality you hear on your computer is
+that which will be heard by end users using the same driver.
+
+The disadvantage of the DIGMID driver is that it uses more CPU than simple
+MIDI playback, and it steals some hardware voices from the soundcard, which
+might be more critical for the end user experience than the background music.
+At the Allegro homepage (<link>http://alleg.sourceforge.net/</a>) you can find more
+information about DIGMID and where to download digital samples for your MIDI
+files.
+
 @@MIDI *@load_midi(const char *filename);
 @xref destroy_midi, play_midi, get_midi_length
 @eref exmidi
 @shortdesc Loads a MIDI file.
-   Loads a MIDI file (handles both format 0 and format 1), returning a 
-   pointer to a MIDI structure, or NULL on error.
+   Loads a MIDI file (handles both format 0 and format 1). Example:
+<codeblock>
+      MIDI *music;
+      music = load_midi("backmus.mid");
+      if (!music)
+	 abort_on_error("Couldn't load background music!");<endblock>
+@retval
+   Returns a pointer to a MIDI structure, or NULL on error. Remember to free
+   this MIDI file later to avoid memory leaks.
 
 @@void @destroy_midi(MIDI *midi);
 @xref load_midi
@@ -9336,22 +9370,27 @@ Music routines (MIDI)
 @eref exmidi
 @shortdesc Starts playing the specified MIDI file.
    Starts playing the specified MIDI file, first stopping whatever music was 
-   previously playing. If the loop flag is set, the data will be repeated 
-   until replaced with something else, otherwise it will stop at the end of 
-   the file. Passing a NULL pointer will stop whatever music is currently 
-   playing. Returns non-zero if an error occurs (this may happen if a 
-   patch-caching wavetable driver is unable to load the required samples, or 
-   at least it might in the future when somebody writes some patch-caching 
-   wavetable drivers :-)
+   previously playing. If the loop flag is set to non-zero, the data will be
+   repeated until replaced with something else, otherwise it will stop at the
+   end of the file. Passing a NULL pointer will stop whatever music is
+   currently playing.
+@retval
+   Returns non-zero if an error occurs (this may happen if a patch-caching
+   wavetable driver is unable to load the required samples, or at least it
+   might in the future when somebody writes some patch-caching wavetable
+   drivers :-)
 
 @@int @play_looped_midi(MIDI *midi, int loop_start, int loop_end);
-@xref play_midi, midi_loop_start
+@xref play_midi, midi_pos, midi_loop_start
 @shortdesc Starts playing a MIDI file with a user-defined loop position.
    Starts playing a MIDI file with a user-defined loop position. When the 
    player reaches the loop end position or the end of the file (loop_end may 
    be -1 to only loop at EOF), it will wind back to the loop start point. 
    Both positions are specified in the same beat number format as the 
    midi_pos variable.
+@retval
+   The return value has the same meaning as that of play_midi(): non-zero if
+   an error occurs, zero otherwise.
 
 @@void @stop_midi();
 @xref play_midi, midi_pause
@@ -9376,12 +9415,13 @@ Music routines (MIDI)
 @shortdesc Seeks to the given midi_pos in the current MIDI file.
    Seeks to the given midi_pos in the current MIDI file. If the target is 
    earlier in the file than the current midi_pos it seeks from the 
-   beginning; otherwise it seeks from the current position. Returns zero if 
-   it could successfully seek to the requested position. Otherwise, a
-   return value of 1 means it stopped playing, and midi_pos is set to the
-   negative length of the MIDI file (so you can use this function to
-   determine the length of a MIDI file). A return value of 2 means the MIDI
-   file looped back to the start.
+   beginning; otherwise it seeks from the current position.
+@retval
+   Returns zero if it could successfully seek to the requested position.
+   Otherwise, a return value of 1 means it stopped playing, and midi_pos is
+   set to the negative length of the MIDI file (so you can use this function
+   to determine the length of a MIDI file). A return value of 2 means the
+   MIDI file looped back to the start.
 
 @@int @get_midi_length(MIDI *midi);
 @xref load_midi, midi_time, midi_pos
@@ -9390,12 +9430,12 @@ Music routines (MIDI)
    This function will simulate playing the given MIDI, from start to end, to
    determine how long it takes to play. After calling this function, midi_pos
    will contain the negative number of beats, and midi_time the length of the
-   midi, in seconds. This length also is returned.
+   midi, in seconds.
 
    Note that any currently playing midi is stopped when you call this function.
    Usually you would call it before play_midi, to get the length of the midi to
    be played, like in this example:
-   <codeblock>
+<codeblock>
       length = get_midi_length(my_midi);
       play_midi(my_midi);
       do {
@@ -9403,7 +9443,9 @@ Music routines (MIDI)
          textprintf_ex(screen, font, 0, 0, c, -1, "%d:%02d / %d:%02d\n",
             pos / 60, pos % 60, length / 60, length % 60);
          rest(100);
-      } while(pos &lt;= length);<endblock>
+      } while(pos &lt= length);<endblock>
+@retval
+   Returns the value of midi_time, the length of the midi.
 
 @@void @midi_out(unsigned char *data, int length);
 @xref install_sound, load_midi_patches, midi_recorder
@@ -9419,7 +9461,9 @@ Music routines (MIDI)
    You will not normally need to call this, because Allegro automatically 
    loads whatever data is required for the current MIDI file, but you must 
    call it before sending any program change messages via the midi_out() 
-   command. Returns non-zero if an error occurred.
+   command.
+@retval
+   Returns non-zero if an error occurred.
 
 @@extern volatile long @midi_pos;
 @xref play_midi, midi_msg_callback
@@ -9472,7 +9516,9 @@ Music routines (MIDI)
    call this before or after initialising the sound code, or can simply set 
    the ibk_file and ibk_drum_file variables in the configuration file to 
    have the data loaded automatically. Note that this function has no effect 
-   on any drivers other than the Adlib one! Returns non-zero on error.
+   on any drivers other than the Adlib one!
+@retval
+   Returns non-zero on error.
 
 
 

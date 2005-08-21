@@ -48,11 +48,12 @@ static int _file_size(const char *filename)
  */
 static int _ignore_line(char *x)
 {
-  return mystricmp(x, "typedef") == 0 ||
-         mystricmp(x, "extern")  == 0 ||
-         mystricmp(x, "struct")  == 0 ||
-         mystricmp(x, "example") == 0 ||
-         mystricmp(x, "drivers") == 0;
+  return strincmp(x, "typedef") == 0 ||
+         strincmp(x, "extern")  == 0 ||
+         strincmp(x, "struct")  == 0 ||
+         strincmp(x, "example") == 0 ||
+         strincmp(x, "drivers") == 0 ||
+         strincmp(x, "#define") == 0;
 }
 
 

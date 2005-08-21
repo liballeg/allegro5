@@ -199,7 +199,6 @@ allegro_h = $(srcdir)/include/allegro.h \
 	$(srcdir)/include/allegro/inline/asm.inl \
 	$(srcdir)/include/allegro/inline/color.inl \
 	$(srcdir)/include/allegro/inline/draw.inl \
-	$(srcdir)/include/allegro/inline/file.inl \
 	$(srcdir)/include/allegro/inline/fix.inl \
 	$(srcdir)/include/allegro/inline/fmaths.inl \
 	$(srcdir)/include/allegro/inline/gfx.inl \
@@ -468,16 +467,17 @@ install-lib: lib modules
 	@for l in alleg alld allp; do \
 	  if test -f $(LIBDIR)/lib$${l}-$(shared_version).so; then \
 	    echo Installing $(LIBDIR)/lib$${l}-$(shared_version).so to $(DESTDIR)$(libdir); \
-	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}-$(shared_version).so $(DESTDIR)$(libdir)/; \
+	    $(INSTALL_PROGRAM) $(LIBDIR)/lib$${l}-$(shared_version).so $(DESTDIR)$(libdir)/; \
 	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}_unsharable.a $(DESTDIR)$(libdir)/; \
 	  fi; \
 	done
 	@if test -n "$(ALLEGRO_MODULE_TARGETS)"; then \
 	  $(mkinstalldirs) $(DESTDIR)$(moduledir); \
-	  for m in $(ALLEGRO_MODULE_TARGETS) modules.lst; do \
+	  for m in $(ALLEGRO_MODULE_TARGETS); do \
 	   echo Installing $$m to $(DESTDIR)$(moduledir); \
-	   $(INSTALL_DATA) $$m $(DESTDIR)$(moduledir)/; \
+	   $(INSTALL_PROGRAM) $$m $(DESTDIR)$(moduledir)/; \
 	  done; \
+	  $(INSTALL_DATA) modules.lst $(DESTDIR)$(moduledir)/; \
 	fi
 	$(mkinstalldirs) $(DESTDIR)$(bindir)
 	@echo Installing allegro-config to $(DESTDIR)$(bindir)

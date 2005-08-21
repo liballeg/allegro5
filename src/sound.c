@@ -748,8 +748,10 @@ void set_volume(int digi_volume, int midi_volume)
       _digi_volume = MID(0, digi_volume, 255);
 
       /* Set the new (relative) volume for each voice. */
-      for (i=0; i<VIRTUAL_VOICES; i++)
-	 voice_set_volume(i, voice_vol[i]);
+      for (i=0; i<VIRTUAL_VOICES; i++) {
+	 if (voice_vol[i] >= 0)
+	    voice_set_volume(i, voice_vol[i]);
+      }
 
       free(voice_vol);
    }
@@ -1078,8 +1080,6 @@ SAMPLE *create_sample(int bits, int stereo, int freq, int len)
       free(spl);
       return NULL;
    }
-
-   memset(spl->data, 0, len * ((bits==8) ? 1 : sizeof(short)) * ((stereo) ? 2 : 1));
 
    lock_sample(spl);
    return spl;
@@ -1587,7 +1587,7 @@ void voice_set_volume(int voice, int volume)
 {
    ASSERT(voice >= 0 && voice < VIRTUAL_VOICES);
    ASSERT(volume >= 0 && volume <= 255);
-   
+
    if (_digi_volume >= 0)
       volume = (volume * _digi_volume) / 255;
 

@@ -20,8 +20,26 @@ static char *anim_list_getter(int index, int *list_size)
 
 
 
-/* dialog procedure for the animation type dialog */
-static DIALOG anim_type_dlg[];
+static int anim_list_proc(int msg, DIALOG * d, int c);
+static int anim_desc_proc(int msg, DIALOG * d, int c);
+
+static DIALOG anim_type_dlg[] = {
+   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)     (d1)  (d2)  (dp)                 (dp2) (dp3) */
+   {d_shadow_box_proc, 0, 0, 281, 151, 0, 1, 0, 0, 0, 0, NULL, NULL, NULL},
+   {d_ctext_proc, 140, 8, 1, 1, 0, 1, 0, 0, 0, 0, "Animation Method", NULL,
+    NULL},
+   {anim_list_proc, 16, 28, 153, 36, 0, 1, 0, D_EXIT, 3, 0,
+    anim_list_getter, NULL, NULL},
+   {d_check_proc, 16, 70, 248, 12, 0, 0, 0, 0, 0, 0, "Maximum FPS (uses 100% CPU)", NULL, NULL},
+   {anim_desc_proc, 16, 90, 248, 48, 0, 1, 0, 0, 0, 0, 0, NULL, NULL},
+   {d_button_proc, 184, 28, 80, 16, 0, 1, 13, D_EXIT, 0, 0, "OK", NULL,
+    NULL},
+   {d_button_proc, 184, 50, 80, 16, 0, 1, 27, D_EXIT, 0, 0, "Cancel", NULL,
+    NULL},
+   {d_yield_proc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL},
+   {NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL}
+};
+
 
 
 static int anim_list_proc(int msg, DIALOG * d, int c)
@@ -105,25 +123,6 @@ static int anim_desc_proc(int msg, DIALOG * d, int c)
 
    return D_O_K;
 }
-
-
-
-static DIALOG anim_type_dlg[] = {
-   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)     (d1)  (d2)  (dp)                 (dp2) (dp3) */
-   {d_shadow_box_proc, 0, 0, 281, 151, 0, 1, 0, 0, 0, 0, NULL, NULL, NULL},
-   {d_ctext_proc, 140, 8, 1, 1, 0, 1, 0, 0, 0, 0, "Animation Method", NULL,
-    NULL},
-   {anim_list_proc, 16, 28, 153, 36, 0, 1, 0, D_EXIT, 3, 0,
-    anim_list_getter, NULL, NULL},
-   {d_check_proc, 16, 70, 248, 12, 0, 0, 0, 0, 0, 0, "Maximum FPS (uses 100% CPU)", NULL, NULL},
-   {anim_desc_proc, 16, 90, 248, 48, 0, 1, 0, 0, 0, 0, 0, NULL, NULL},
-   {d_button_proc, 184, 28, 80, 16, 0, 1, 13, D_EXIT, 0, 0, "OK", NULL,
-    NULL},
-   {d_button_proc, 184, 50, 80, 16, 0, 1, 27, D_EXIT, 0, 0, "Cancel", NULL,
-    NULL},
-   {d_yield_proc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL},
-   {NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL}
-};
 
 
 

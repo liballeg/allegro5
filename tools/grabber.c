@@ -88,6 +88,9 @@ static int quitter(void);
 static int grabber(void);
 static int exporter(void);
 static int deleter(void);
+static int mover(int);
+static int mover_up(void);
+static int mover_down(void);
 static int replacer(int);
 static int sheller(void);
 static int helper(void);
@@ -135,6 +138,14 @@ static MENU file_menu[32] =
 
 
 
+static MENU move_menu[2] =
+{
+   { "&Up\t(shift+U)",              mover_up,         NULL,       0, NULL  },
+   { "&Down\t(shift+D)",            mover_down,       NULL,       0, NULL  }
+};
+
+
+
 /* variable-sized */
 static MENU replace_menu[32] =
 {
@@ -158,6 +169,7 @@ static MENU objc_menu[32] =
    { "&Grab\t(ctrl+G)",             grabber,          NULL,       0, NULL  },
    { "&Export\t(ctrl+E)",           exporter,         NULL,       0, NULL  },
    { "&Delete\t(ctrl+D)",           deleter,          NULL,       0, NULL  },
+   { "&Move",                       NULL,             move_menu,  0, NULL  },
    { "Rep&lace",                    NULL,             replace_menu, 0, NULL},
    { "&Rename\t(ctrl+N)",           renamer,          NULL,       0, NULL  },
    { "Set &Property\t(ctrl+P)",     property_insert,  NULL,       0, NULL  },
@@ -218,6 +230,7 @@ static MENU popup_menu[32] =
    { "&Grab",                       grabber,          NULL,       0, NULL  },
    { "&Export",                     exporter,         NULL,       0, NULL  },
    { "&Delete",                     deleter,          NULL,       0, NULL  },
+   { "&Move",                       NULL,             move_menu,  0, NULL  },
    { "Rep&lace",                    NULL,             replace_menu, 0, NULL},
    { "&Rename",                     renamer,          NULL,       0, NULL  },
    { "&Shell Edit",                 sheller,          NULL,       0, NULL  },
@@ -230,8 +243,7 @@ static MENU popup_menu[32] =
 
 #define C(x)      (x - 'a' + 1)
 
-
-
+/*  Note:  See DLG_* constants below. */
 static DIALOG main_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)              (dp2) (dp3) */
@@ -262,6 +274,8 @@ static DIALOG main_dlg[] =
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('g'),  0,          0,             0,       grabber,          NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('e'),  0,          0,             0,       exporter,         NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('d'),  0,          0,             0,       deleter,          NULL, NULL  },
+   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    'U',     0,          0,             0,       mover_up,         NULL, NULL  },
+   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    'D',     0,          0,             0,       mover_down,       NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('n'),  0,          0,             0,       renamer,          NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('p'),  0,          0,             0,       property_insert,  NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('z'),  0,          0,             0,       sheller,          NULL, NULL  },
@@ -290,7 +304,6 @@ static DIALOG main_dlg[] =
 };
 
 
-
 #define DLG_FILENAME          3
 #define DLG_HEADERNAME        5
 #define DLG_PREFIXSTRING      7
@@ -300,8 +313,8 @@ static DIALOG main_dlg[] =
 #define DLG_PACKLIST          14
 #define DLG_PROP              15
 #define DLG_FIRSTWHITE        16
-#define DLG_LIST              48
-#define DLG_VIEW              49
+#define DLG_LIST              50
+#define DLG_VIEW              51
 
 
 #define SELECTED_ITEM         main_dlg[DLG_LIST].d1
@@ -758,8 +771,9 @@ static MENU *which_menu(int sel)
 
       if ((compare_menu_names(popup_menu[i].text, "Grab") == 0) ||
 	  (compare_menu_names(popup_menu[i].text, "Export") == 0) ||
-	  (compare_menu_names(popup_menu[i].text, "Rename") == 0) ||
-	  (compare_menu_names(popup_menu[i].text, "Replace") == 0)) {
+	  (compare_menu_names(popup_menu[i].text, "Move") == 0) ||
+	  (compare_menu_names(popup_menu[i].text, "Replace") == 0) ||
+	  (compare_menu_names(popup_menu[i].text, "Rename") == 0)) {
 	 if (get_single_selection())
 	    ok = TRUE;
       }
@@ -1434,6 +1448,22 @@ static int do_edit(char *title, char *type_string, char *value_string, int type,
 
 
 
+/* helper for informing of multiple selections */
+static void alert_multiple_selections(void)
+{
+   alert("Please select one item for this action.", NULL, NULL, "OK", NULL, 13, 0);
+}
+
+
+
+/* helper for informing of no selection */
+static void alert_no_selection(void)
+{
+   alert("Please make a valid selection.", NULL, NULL, "OK", NULL, 13, 0);
+}
+
+
+
 /* brings up the property editing dialog */
 static int edit_property(char *title, char *value_string, int type, AL_CONST char *val, int change_type, int show_type)
 {
@@ -1445,9 +1475,9 @@ static int edit_property(char *title, char *value_string, int type, AL_CONST cha
    }
    else {
       if (sel < 0)
-	 alert("Can't set properties for a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
       else
-	 alert("Nothing to set properties for!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_no_selection();
       return D_O_K;
    }
 
@@ -1489,7 +1519,7 @@ static int property_change(void)
    }
    else {
       if (sel < 0)
-	 alert("Can't set properties for a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
    }
 
    return D_O_K;
@@ -1509,9 +1539,9 @@ static int renamer(void)
 
    if ((sel <= 0) || (sel >= data_count)) {
       if (sel < 0)
-	 alert("Can't rename a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
       else
-	 alert("Nothing to rename!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_no_selection();
       return D_O_K;
    }
 
@@ -1541,7 +1571,7 @@ static int property_delete(void)
    }
    else {
       if (sel < 0)
-	 alert("Can't delete properties from a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
    }
 
    return D_O_K;
@@ -1940,6 +1970,16 @@ static void load(char *filename, int flush)
 
 
 
+/* helper for closing modified files */
+static int ask_save_changes(void)
+{
+   return alert3("Save changes to datafile?",
+		 NULL, NULL,
+		 "Yes", "No", "Cancel", 'y', 'n', 27);
+}
+
+
+
 /* handle the load command */
 static int loader(void)
 {
@@ -1952,9 +1992,7 @@ static int loader(void)
 
    if (file_select_ex("Load datafile", buf, "dat", sizeof(buf), 0, 0)) {
       if (is_modified) {
-	 int r = alert3("Previous data may have been modified.",
-			"Do you want to save them?", NULL,
-			"Save", "Do not save", "Cancel", 's', 'd', 27);
+	 int r = ask_save_changes();
 
 	 switch (r) {
 
@@ -1986,9 +2024,7 @@ static int renewer(void)
    CHECK_MENU_HOOK("New", DATEDIT_MENU_FILE);
 
    if (is_modified) {
-      int r = alert3("Previous data may have been modified.",
-		     "Do you want to save them?", NULL,
-		     "Save", "Do not save", "Cancel", 's', 'd', 27);
+      int r = ask_save_changes();
 
       switch (r) {
 
@@ -2044,7 +2080,7 @@ static int save(int strip)
    if (file_select_ex("Save datafile", buf, "dat", sizeof(buf), 0, 0)) {
       if ((stricmp(grabber_data_file, buf) != 0) && (exists(buf))) {
 	 sprintf(buf2, "%s already exists, overwrite?", buf);
-	 if (alert(buf2, NULL, NULL, "Yes", "Cancel", 'y', 27) != 1)
+	 if (alert(buf2, NULL, NULL, "Yes", "No", 'y', 'n') != 1)
 	    return D_REDRAW;
       }
 
@@ -2375,10 +2411,8 @@ static int quitter(void)
 
    if (!is_modified)
       return D_CLOSE;
-   
-   r = alert3("Data may have been modified.",
-	      "Do you want to save before quitting?", NULL,
-	      "Save", "Do not save", "Cancel", 's', 'd', 27);
+
+   r = ask_save_changes();
 
    if (r == 2)
       return D_CLOSE;
@@ -2409,9 +2443,9 @@ static int grabber(void)
 
    if ((sel <= 0) || (sel >= data_count)) {
       if (sel < 0)
-	 alert("Can't grab to a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
       else
-	 alert("You must create an object to contain", "the data before you can grab it", NULL, "OK", NULL, 13, 0);
+	 alert_no_selection();
       return D_O_K;
    }
 
@@ -2492,9 +2526,9 @@ static int exporter(void)
 
    if ((sel <= 0) || (sel >= data_count)) {
       if (sel < 0)
-	 alert("Can't export a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
       else
-	 alert("Nothing to export!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_no_selection();
       return D_O_K;
    }
 
@@ -2565,7 +2599,7 @@ static int deleter(void)
    }
 
    if (todel_count <= 0) {
-      alert("Nothing to delete!", NULL, NULL, "OK", NULL, 13, 0);
+      alert_no_selection();
       return D_O_K;
    }
 
@@ -2574,7 +2608,7 @@ static int deleter(void)
    else
       sprintf(buf, "these %d items?", todel_count);
 
-   if (alert("Really delete", buf, NULL, "Yes", "Cancel", 'y', 27) != 1)
+   if (alert("Really delete", buf, NULL, "Yes", "No", 'y', 'n') != 1)
       return D_O_K;
 
    SELECTED_ITEM = first;
@@ -2595,6 +2629,71 @@ static int deleter(void)
    set_modified(TRUE);
 
    return D_REDRAW;
+}
+
+
+
+/* returns the datafile's index in the display list (helper for mover) */
+static int data_index(DATAFILE *dat)
+{
+   int i;
+   for (i=1; i<data_count; i++) {
+      if(data[i].dat == dat)
+	 return i;
+   }
+   return -1;
+}
+
+
+
+/* handle the move commands */
+static int mover(int direction)
+{
+   DATAITEM *item;
+   DATAFILE *dest;
+
+   CHECK_MENU_HOOK("Move", DATEDIT_MENU_OBJECT);
+
+   if (SELECTED_ITEM == 0) {
+      alert_no_selection();
+      return D_O_K;
+   }
+   else if (single_selection() < 0) {
+      alert_multiple_selections();
+      return D_O_K;
+   }
+
+   item = data+SELECTED_ITEM;
+   dest = &(*item->parent)[item->i+direction];
+
+   if (item->i==0 && direction<0)
+      return D_O_K;
+   else if (item->dat[1].type==DAT_END && direction>0)
+      return D_O_K;
+
+   datedit_swap(*item->parent, item->i, item->i+direction);
+   rebuild_list(NULL, TRUE);
+   SELECTED_ITEM = data_index(dest);
+
+   set_modified(TRUE);
+
+   return D_REDRAW;
+}
+
+
+
+/* moves a datafile to the previous index, if possible */
+static int mover_up(void)
+{
+   return mover(-1);
+}
+
+
+
+/* moves a datafile to the next index, if possible */
+static int mover_down(void)
+{
+   return mover(1);
 }
 
 
@@ -2633,9 +2732,9 @@ static int replacer(int type)
    }
    else {
       if (sel < 0)
-	 alert("Can't replace a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
       else
-	 alert("Nothing to replace!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_no_selection();
 
       return D_O_K;
    }
@@ -2643,7 +2742,7 @@ static int replacer(int type)
    name = get_datafile_property(dat, DAT_NAME);
    sprintf(buf, "%s?", name[0] ? name : "this item");
 
-   if (alert("Really delete", buf, NULL, "Yes", "Cancel", 'y', 27) != 1)
+   if (alert("Really delete", buf, NULL, "Yes", "No", 'y', 'n') != 1)
       return D_O_K;
 
    if (!do_edit("New Object", "Type:", "Name:", type, NULL, (type == 0), TRUE))
@@ -3226,9 +3325,9 @@ static int sheller(void)
 
    if ((sel <= 0) || (sel >= data_count)) {
       if (sel < 0)
-	 alert("Can't Shell Edit a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_multiple_selections();
       else
-	 alert("Nothing to Shell Edit!", NULL, NULL, "OK", NULL, 13, 0);
+	 alert_no_selection();
       return D_O_K;
    }
 
@@ -3377,7 +3476,7 @@ static int sheller(void)
    }
 
    if (ret != 0) {
-      if (alert("Tool returned an error status!", "Do you still want to regrab", "the modified data?", "Grab", "Cancel", 'g', 27) != 1)
+      if (alert("Tool returned an error status!", "Do you still want to regrab", "the modified data?", "Yes", "No", 'y', 'n') != 1)
 	 goto ohwellitwasaniceidea;
    }
 
@@ -3505,7 +3604,7 @@ int datedit_ask(AL_CONST char *fmt, ...)
 
    set_mouse_sprite(my_mouse_pointer);
 
-   ret = alert(buf, NULL, NULL, "Yes", "Cancel", 'y', 27);
+   ret = alert(buf, NULL, NULL, "Yes", "No", 'y', 'n');
 
    if (busy_mouse)
       set_mouse_sprite(my_busy_pointer);

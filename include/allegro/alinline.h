@@ -24,8 +24,6 @@
 
 #include "inline/draw.inl"
 
-#include "inline/file.inl"
-
 #include "inline/fmaths.inl"
 
 #include "inline/3dmaths.inl"

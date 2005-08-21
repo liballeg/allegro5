@@ -1096,6 +1096,17 @@ DATAFILE *datedit_delete(DATAFILE *dat, int i)
 
 
 
+/* swaps two datafile objects */
+void datedit_swap(DATAFILE *dat, int i1, int i2)
+{
+   DATAFILE temp = dat[i1];
+
+   dat[i1] = dat[i2];
+   dat[i2] = temp;
+}
+
+
+
 /* fixup function for the strip options */
 int datedit_striptype(int strip)
 {

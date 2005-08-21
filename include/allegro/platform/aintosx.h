@@ -119,6 +119,7 @@ typedef struct HID_DEVICE
 
 
 void osx_event_handler(void);
+int osx_bootstrap_ok(void);
 
 void setup_direct_shifts(void);
 void osx_init_fade_system(void);

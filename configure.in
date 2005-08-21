@@ -478,6 +478,13 @@ AC_ARG_ENABLE(linux,
 test "X$enableval" != "Xno" && allegro_enable_linux=yes,
 allegro_enable_linux=yes)
 
+_linux_console="Linux console support:"
+if test "X$allegro_enable_linux" != "Xyes"; then
+  _linux_console="$_linux_console disabled"
+else
+  _linux_console="$_linux_console enabled"
+fi
+
 dnl Enable Linux console VGA driver
 AC_ARG_ENABLE(vga,
 [  --enable-vga[=x]        enable VGA graphics driver [default=yes]],
@@ -696,7 +703,7 @@ dnl Tweak header files for library build
 CFLAGS="$CFLAGS -DALLEGRO_LIB_BUILD"
 
 dnl How to compile C and asm files.
-if test -n "GCC"; then
+if test -n "$GCC"; then
   if test "X$allegro_strict_warnings" = "Xyes"; then
     WFLAGS="-Wall -W -Wstrict-prototypes -Wno-unused-parameter -Werror"
   else
@@ -784,8 +791,30 @@ cat > makefile.info << EOF
  Compiled programs: $_programs
  $_warnmode
  $_x11
+ $_linux_console
 
 EOF
+
+dnl Warn if neither X11 nor Linux console support is going to be built,
+dnl or just if X11 support is not going to be built.
+if test "X$allegro_support_xwindows" != "Xyes"; then
+  if test "X$allegro_enable_linux" != "Xyes"; then
+    cat >> makefile.info << EOF
+ Warning: the library will not be built with either X11 or Linux console
+          support.  This configuration is useless for most purposes.
+
+EOF
+  else
+    cat >> makefile.info << EOF
+ Warning: the library will not be built with X11 support.
+          If you were expecting X11 support then you may need to install
+          the appropriate development packages from your distribution.
+          Otherwise, ignore this warning (it's just that a lot of new
+          users trip up on this).
+
+EOF
+  fi
+fi
 
 dnl Warn if passed --enable-dbg-with-fortify
 if test -n "$allegro_debug_with_fortify"; then
