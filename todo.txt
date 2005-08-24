@@ -30,11 +30,8 @@ in the subject.
 - grabber.txt was moved, so the grabber can't find it anymore
 - improved demo
 - MacOS X problems with grabber, http://www.allegro.cc/forums/view_thread.php?_id=498239
-- OSS requires -lossaudio in OpenBSD
-- OSS MIDI doesn't work on OpenBSD; make it work or fix detection in aclocal.m4
-- disallow ModeX and VBE/AF drivers in C-only Linux console port
-  (at least the bank switcher for the ModeX driver is in asm so has different
-  calling conventions than expected in the C port)
+- hline/vline conflicts with curses API
+- do something about create_bitmap(0,0) -- return NULL seems to be consensus
 
 General (Platform independent) todos:
 ---------------------------------------------------------------------------
@@ -52,7 +49,8 @@ DOS todos:
 
 - Write a unified Sidewinder driver
 - Fix buggy dos/wss.c
-
+- grabber compiled with bcc32 5.5.1 crashes on exit in release mode,
+  but not debug mode
 
 Win32 todos:
 ---------------------------------------------------------------------------
@@ -70,6 +68,7 @@ Linux todos:
 - awaiting svgalib folks to provide an atexit-free vga_init
 - some problems with display switching
   [see AD thread "fbcon backgrounding" 2001-11-28 for symptoms]
+- make at least one sound driver take advantage of multiple hardware voices
 
 X11 todos:
 ---------------------------------------------------------------------------
@@ -82,6 +81,7 @@ Unix todos:
 - tidy up the configure machinery
 - implement load-on-demand for modules
 - fix modules support on IRIX (export-dynamic is ignored)
+- fix problem with alunixac.h #defines leaking into user programs
 
 MacOS X todos
 ---------------------------------------------------------------------------
