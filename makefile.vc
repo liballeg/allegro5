@@ -174,7 +174,7 @@ ifdef PROFILEMODE
 
 # -------- profiling build --------
 
-CFLAGS = $(WFLAGS) -Gd -Ox -GB $(RUNTIME_FLAGS)
+CFLAGS = $(WFLAGS) -Gd -Ox $(RUNTIME_FLAGS)
 SFLAGS = -Wall
 LFLAGS = -profile
 
@@ -193,7 +193,7 @@ else
    ifdef TARGET_ARCH_EXCL
       CFLAGS += -O2 -G$(TARGET_ARCH_EXCL)
    else
-      CFLAGS += -O2 -GB
+      CFLAGS += -O2 
    endif
 endif
 
@@ -203,9 +203,19 @@ ifdef COMPILER_MSVC7
    LIBPARMS += -LTCG
 endif
 
+ifdef COMPILER_MSVC8
+   CFLAGS += -GL
+   LFLAGS += -LTCG
+   LIBPARMS += -LTCG
+endif
+
 endif
 endif
 
+# -------- on all MSVC 8 targets, remove deprecation warnings --------
+ifdef COMPILER_MSVC8
+   CFLAGS += -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE
+endif
 
 
 # -------- list platform specific objects and programs --------
@@ -398,7 +408,7 @@ obj/msvc/asmdef.inc: obj/msvc/asmdef.exe
 	obj/msvc/asmdef.exe obj/msvc/asmdef.inc
 
 obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/msvc/asmcapa.h $(RUNNER)
-	$(RUNNER) $(MSVC_CL) @ -nologo $(WFLAGS) -I. -I./include -Foobj/msvc/asmdef.obj -Feobj/msvc/asmdef.exe src/i386/asmdef.c
+	$(RUNNER) $(MSVC_CL) @ -nologo $(WFLAGS) $(CFLAGS) -I. -I./include -Foobj/msvc/asmdef.obj -Feobj/msvc/asmdef.exe src/i386/asmdef.c
 
 obj/msvc/runner.exe: src/misc/runner.c
 	$(GCC) -O -Wall -Werror $(GCCFLAGS) -o obj/msvc/runner.exe src/misc/runner.c
