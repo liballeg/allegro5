@@ -14,7 +14,7 @@ proc_help()
    echo "The --quick parameter turns off text file conversion, --dtou converts from"
    echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format,"
    echo "--utom converts from Unix to Macintosh format and --mtou converts from"
-   echo "Macintosh to Unix format. If no parameter is specified --dtou is assumed."
+   echo "Macintosh to Unix format. If no parameter is specified --quick is assumed."
    echo
 
    AL_NOCONV="1"
@@ -147,7 +147,6 @@ if [ "$AL_NOCONV" != "1" ]; then
       "--utom"  ) proc_utom "$1";;
       "--mtou"  ) proc_mtou "$1";;
       "--quick" ) echo "No text file conversion performed ...";;
-      *         ) proc_dtou "$1";;
    esac
 fi
 
