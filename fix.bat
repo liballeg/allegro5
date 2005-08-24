@@ -105,6 +105,7 @@ goto msvccommon
 :msvccommon
 echo MAKEFILE_INC = makefile.vc >> makefile
 echo #define ALLEGRO_MSVC >> include\allegro\platform\alplatf.h
+if "%MSVCDir%" == "" set MSVCDir=%VCINSTALLDIR%
 goto tail
 
 :watcom
