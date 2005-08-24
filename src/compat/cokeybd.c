@@ -515,7 +515,7 @@ static void cokeybd_thread_func(_AL_THREAD *self, void *unused)
 
          default:
             /* shouldn't happen */
-            TRACE("%s got unknown event of type = %d\n", __FUNCTION__, event.type);
+            TRACE("%s got unknown event of type = %d\n", __func__, event.type);
             break;
       }
 

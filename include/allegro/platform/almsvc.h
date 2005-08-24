@@ -79,6 +79,11 @@
 
 #define AL_CONST     const
 
+/* __func__ is C99 */
+#ifndef __func__
+   #define __func__  __FUNCTION__
+#endif
+
 
 /* describe the asm syntax for this platform */
 #define ALLEGRO_ASM_PREFIX    "_"
