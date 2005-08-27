@@ -1564,6 +1564,7 @@ static int property_delete(void)
 	 for (i=0; dat->prop[i].type != DAT_END; i++) {
 	    if (i == SELECTED_PROPERTY) {
 	       set_property(data+SELECTED_ITEM, dat->prop[i].type, NULL);
+	       set_modified(TRUE);
 	       return D_REDRAW;
 	    }
 	 }
