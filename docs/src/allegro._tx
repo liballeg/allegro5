@@ -912,7 +912,7 @@ available in past/future versions of Allegro.
 @eref exstream
 @shortdesc Stores an audiostream.
 <codeblock>
-      int voice;  - the hardware voice used for the sample
+   int voice;  - the hardware voice used for the sample
 <endblock>
    A structure holding an audiostream, which is a convenience wrapper around
    a SAMPLE structure to double buffer sounds too big to fit into memory, or
@@ -949,17 +949,24 @@ available in past/future versions of Allegro.
    int pf_ferror(void *userdata);
 <endblock>
    This is the vtable which must be provided for custom packfiles, which then
-   can read from and write to wherever you like.
+   can read from and write to wherever you like (eg. files in memory). You
+   should provide all the entries of the vtable, even if they are empty stubs
+   doing nothing, to avoid Allegro (or you) calling a NULL method at some
+   point.
 
 @@typedef struct @LZSS_PACK_DATA
 @xref File and compression routines, create_lzss_pack_data
 @shortdesc Opaque structure for handling LZSS comression.
-   Opaque structure for handling LZSS comression.
+   Opaque structure for handling LZSS compression. Read chapter "File and
+   compression routines for a description on how to obtain/use this
+   structure.
 
 @@typedef struct @LZSS_UNPACK_DATA
 @xref File and compression routines, create_lzss_unpack_data
 @shortdesc Opaque structure for handling LZSS decomression.
-   Opaque structure for handling LZSS decomression.
+   Opaque structure for handling LZSS decompression. Read chapter "File and
+   compression routines for a description on how to obtain/use this
+   structure.
 
 
 
@@ -5013,7 +5020,7 @@ will not be known, so the file may be converted wrongly.
 @@BITMAP *@load_bmp(const char *filename, RGB *pal);
 @xref load_bitmap, load_bmp_pf
 @shortdesc Loads a BMP bitmap from a file.
-   Loads a 256-color or 24-bit truecolor Windows or OS/2 BMP file.
+   Loads an 8-bit, 16-bit, 24-bit or 32-bit Windows or OS/2 BMP file.
 @retval
    Returns a pointer to the bitmap or NULL on error. Remember that you are
    responsible for destroying the bitmap when you are finished with it to
@@ -9851,53 +9858,117 @@ and directories will be included as well as read-only files and
 directories, but not hidden files and directories. Similarly, if you pass 
 'FA_ARCH' then both archived and non-archived files will be included.
 
+Functions which accept wildcards as file names support the meta characters
+`*' (which means, zero or any quantity of characters) and `?' (which means
+any character, but only one).
+
 @@void @get_executable_name(char *buf, int size);
 @shortdesc Obtains the full path to the current executable.
-   Fills buf with the full path to the current executable, writing at most 
-   size bytes.  This generally comes from argv[0] but on Unix systems we
-   try to get the information from the /proc filesystem first, searching the
-   directories specified in $PATH if nescessary. If this fails we try to find 
-   the executable name from the output of the ps command, using argv[0] only
-   as a last resort if all other options fail.
+   Fills `buf' with the full path to the current executable, writing at most
+   `size' bytes.  This generally comes from `argv[0]' but on Unix systems it
+   tries to get the information from the `/proc' filesystem first, searching
+   the directories specified in `$PATH' if necessary. If this fails too, it
+   tries to find the executable name from the output of the `ps' command,
+   using `argv[0]' only as a last resort if all other options fail. Example:
+<codeblock>
+      char name[200];
+      ...
+      get_executable_name(name, sizeof(name));
+      allegro_message("Running `%s'\n", name);<endblock>
 
 @@char *@fix_filename_case(char *path);
 @xref fix_filename_slashes, canonicalize_filename
 @shortdesc Converts a filename to a standardised case.
-   Converts a filename to a standardised case. On DOS platforms, they will 
-   be entirely uppercase. Returns a copy of the path parameter.
+   Converts the filename stored in `path' to a standardised case. On DOS
+   platforms, they will be entirely uppercase. On other platforms this
+   function doesn't do anything. Example:
+<codeblock>
+      get_executable_name(name, sizeof(name));
+      fix_filename_case(name);
+      allegro_message("Running `%s'\n", name);<endblock>
+@retval
+   Returns a copy of the `path' parameter.
 
 @@char *@fix_filename_slashes(char *path);
 @xref fix_filename_case, canonicalize_filename
 @shortdesc Converts all the directory separators to a standard character.
-   Converts all the directory separators in a filename to a standard 
-   character. On DOS platforms, this is a backslash. Returns a copy of the 
-   path parameter.
+   Converts all the directory separators in the filename stored in `path' to
+   a standard character. On DOS and Windows platforms, this is a backslash.
+   On most other platforms this is a slash. Example:
+<codeblock>
+      char buf[200] = "c:/dos\\backup/weirdo\\test";
+      ...
+      fix_filename_slashes(buf);
+      /* Under DOS we would have c:\dos\backup\weirdo\test.
+	 Under Unix we would have c:/dos/backup/weirdo/test. */<endblock>
+@retval
+   Returns a copy of the `path' parameter.
 
 @@char *@canonicalize_filename(char *dest, const char *filename, int size);
 @xref fix_filename_case, fix_filename_slashes
 @shortdesc Converts any filename into its canonical form.
    Converts any filename into its canonical form, i.e. the minimal absolute
-   filename describing the same file, storing at most size bytes into the
-   dest buffer. Returns a copy of the dest parameter.
+   filename describing the same file and fixing incorrect forward/backward
+   slashes for the current platform, storing at most `size' bytes into the
+   `dest' buffer. You can use the same buffer both as input and output
+   because Allegro internally works on a copy of the input before touching
+   `dest'. Example:
+<codeblock>
+      char buf[256];
+      ...
+      canonicalize_filename(buf, "~/../s22/..\\t3st///hi.c",
+			    sizeof(buf));
+      /* Running this under Unix would
+	 return: /home/t3st/hi.c */
+<endblock>
+   Note that this function won't work as expected if the path to canonicalize
+   comes from another platform (eg. a "c:\something" path will canonicalize
+   into something really wrong under Unix: "/current/path/c:/something").
+@retval
+   Returns a copy of the `dest' parameter.
 
 @@char *@make_absolute_filename(char *dest, const char *path, const char *filename, int size);
-@xref make_relative_filename, is_relative_filename
+@xref make_relative_filename, is_relative_filename, replace_filename
+@xref canonicalize_filename
 @shortdesc Makes an absolute filename from a path and relative filename.
    Makes an absolute filename from an absolute path and a relative filename,
-   storing at most size bytes into the dest buffer. Returns a copy of the
-   dest parameter.
+   storing at most `size' bytes into the `dest' buffer. This is like calling
+   replace_filename() and then canonicalize_filename(). Example:
+<codeblock>
+      char buf[256];
+      ...
+      make_absolute_filename(buf, "/usr/games/",
+			     "../temp.txt", sizeof(buf));
+      /* This would create /usr/temp.txt */<endblock>
+@retval
+   Returns a copy of the `dest' parameter.
 
 @@char *@make_relative_filename(char *dest, const char *path, const char *filename, int size);
-@xref make_absolute_filename, is_relative_filename
+@xref make_absolute_filename, is_relative_filename, canonicalize_filename
 @shortdesc Tries to make a relative filename from absolute path and filename.
    Attempts to make a relative filename from an absolute path and an absolute
-   filename, storing at most size bytes into the dest buffer. Returns a copy
-   of the dest parameter if it succeeds or NULL if it fails.
+   filename, storing at most `size' bytes into the `dest' buffer. This
+   function won't work if the paths are not canonical under the current
+   platform (see canonicalize_filename()). Also, `dest' cannot be used as
+   input value for `path' or `filename'. Example:
+<codeblock>
+      char base[] = "/long/absolute/path/program.exe";
+      char user_input[] = "/nice/and/short.txt";
+      ...
+      make_relative_filename(buf, base, user_input, sizeof(buf));
+      /* Under Unix buf would contain:
+         ../../../nice/and/short.txt */<endblock>
+@retval
+   Returns a copy of the `dest' parameter if it succeeds or NULL if it fails
+   (eg. under DOS, one path starts with "C:\" and another with "A:\").
 
 @@int @is_relative_filename(const char *filename);
 @xref make_absolute_filename, make_relative_filename
 @shortdesc Returns TRUE if the filename is relative.
-   Returns TRUE if the filename is relative or FALSE if it is absolute.
+   Returns TRUE if the filename is relative or FALSE if it is absolute. Note
+   that an absolute filename under DOS (with a device separator) will be
+   considered as relative under Unix, because there absolute paths always
+   start with a slash.
 
 @\char *@replace_filename(char *dest, const char *path, 
 @@                       const char *filename, int size);
@@ -9905,54 +9976,105 @@ directories, but not hidden files and directories. Similarly, if you pass
 @eref Available Allegro examples
 @shortdesc Replaces path+filename with a new filename tail.
    Replaces the specified path+filename with a new filename tail, storing 
-   at most size bytes into the dest buffer. Returns a copy of the dest 
-   parameter.
+   at most `size' bytes into the `dest' buffer. You can use the same buffer
+   both as input and output because Allegro internally works on a copy of
+   the input before touching `dest'. Example:
+<codeblock>
+      char name[200];
+      ...
+      get_executable_name(name, sizeof(name));
+      replace_filename(name, name, "sound.dat", sizeof(name));<endblock>
+@retval
+   Returns a copy of the `dest' parameter.
 
 @\char *@replace_extension(char *dest, const char *filename, 
 @@                        const char *ext, int size);
 @xref get_extension, replace_filename
 @shortdesc Replaces filename+extension with a new extension tail.
-   Replaces the specified filename+extension with a new extension tail, 
-   storing at most size bytes into the dest buffer. Returns a copy of the 
-   dest parameter.
+   Replaces the specified filename+extension with a new extension tail,
+   storing at most `size' bytes into the `dest' buffer. If the filename
+   doesn't have any extension at all, `ext' will be appended to it, adding
+   a dot character if needed. You can use the same buffer both as input and
+   output because Allegro internally works on a copy of the input before
+   touching `dest'. Example:
+<codeblock>
+      replace_extension(buf, "C:\\game\\prog.exe",
+			"dat", sizeof(buf));<endblock>
+@retval
+   Returns a copy of the `dest' parameter.
 
 @\char *@append_filename(char *dest, const char *path, 
 @@                      const char *filename, int size);
 @xref replace_filename
 @shortdesc Concatenates a filename to a path.
    Concatenates the specified filename onto the end of the specified path, 
-   storing at most size bytes into the dest buffer. Returns a copy of the 
-   dest parameter.
+   storing at most `size' bytes into the `dest' buffer. If `path' doesn't
+   have a trailing path separator, the function will append one if needed.
+   You can use the same buffer both as input and output because Allegro
+   internally works on a copy of the input before touching `dest'. Example:
+<codeblock>
+      append_filename(buf, "/home/user",
+		      "prog.bin", sizeof(buf));<endblock>
+@retval
+   Returns a copy of the `dest' parameter.
 
 @@char *@get_filename(const char *path);
 @xref get_extension, put_backslash, replace_filename
 @eref exmidi
 @shortdesc Returns a pointer to the filename portion of a path.
-   When passed a completely specified file path, this returns a pointer to 
-   the filename portion. Both '\' and '/' are recognized as directory 
-   separators.
+   Finds out the filename portion of a completely specified file path. Both
+   `\' and `/' are recognized as directory separators under DOS and Windows.
+   However, only `/' is recognized as directory separator under other
+   platforms. Example:
+<codeblock>
+      get_executable_name(name, sizeof(name));
+      allegro_message("Running `%s'\n", get_filename(name));
+<endblock>
+   Note that Allegro won't perform any IO operations during the verification.
+   This means that if you have `/a/path/like/this/', which doesn't have a
+   filename, the function will return a pointer to the trailing null
+   character. However, if you have `/a/path/like/this', Allegro will return
+   a pointer to `this', even if it is a valid directory.
+@retval
+   Returns a pointer to the portion of `path' where the filename starts, or
+   the beginning of `path' if no valid filename is found (eg. you are
+   processing a path with backslashes under Unix).
 
 @@char *@get_extension(const char *filename);
 @xref get_filename, put_backslash, replace_extension
 @shortdesc Returns a pointer to the extension of a filename.
-   When passed a complete filename (with or without path information) this 
-   returns a pointer to the file extension.
+   Finds out the extension of the filename (with or without path
+   information). Example:
+<codeblock>
+      get_executable_name(name, sizeof(name));
+      allegro_message("The binary has the extension `%s'\n",
+		      get_extension(name));<endblock>
+@retval
+   Returns a pointer to the portion of `filename' where the extension starts,
+   or a pointer to the trailing null character if there is no filename or it
+   doesn't have extension.
 
 @@void @put_backslash(char *filename);
 @xref get_extension, get_filename
-@shortdesc Puts a path separator at the end of a path.
-   If the last character of the filename is not a '\', '/', '#' or a device
-   separator (ie. ':' under DOS), this routine will concatenate either a '\'
-   or '/' on to it (depending on the platform). Note: ignore the function
+@shortdesc Puts a path separator at the end of a path if needed.
+   If the last character of the filename is not a `\', `/', `#' or a device
+   separator (ie. `:' under DOS), this routine will concatenate either a `\'
+   or `/' on to it (depending on the platform). Note: ignore the function
    name, it's out of date.
 
 @@int @file_exists(const char *filename, int attrib, int *aret);
 @xref exists, file_size, file_time
 @shortdesc Tells if a file exists.
-   Checks whether a file matching the given name and attributes (see above) 
-   exists, returning non-zero if it does. If aret is not NULL, it will be 
-   set to the attributes of the matching file. If an error occurs the system 
-   error code will be stored in errno.
+   Checks whether a file matching the given name and attributes (see
+   beginning of this chapter) exists. If `aret' is not NULL, it will be set
+   to the attributes of the matching file. Example:
+<codeblock>
+      /* Check for a normal file. */
+      if (file_exists("franken.dat", 0, NULL))
+	 allegro_message("It is alive!\n");<endblock>
+@retval
+   Returns non-zero if the file exists, or zero if it doesn't or the
+   specified attributes mask it out.
 
 @@int @exists(const char *filename);
 @xref file_exists, file_size, file_time
@@ -9978,26 +10100,46 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @delete_file(const char *filename);
 @shortdesc Removes a file from the disk.
-   Removes a file from the disk.
+   Removes a file from the disk. You can't delete directories, though.
+@retval
+   Returns zero on success, non-zero on failure.
 
 @\int @for_each_file_ex(const char *name, int in_attrib, int out_attrib,
 @\                     int (*callback)(const char *filename, int attrib,
 @@                     void *param), void *param);
+@xref al_findfirst, al_findnext, al_findclose
 @shortdesc Executes callback() for each file matching a wildcard.
    Finds all the files on disk which match the given wildcard specification
-   and file attributes, and executes callback() once for each. in_attrib is 
-   a bitmask specifying the attributes the files must carry, out_attrib is a 
-   bitmask specifying the attributes the files must not carry; attributes 
-   which are not specified in either bitmasks are not taken into account for 
-   deciding whether callback() is invoked or not. callback() will be passed 
-   three arguments: the first is a string which contains the completed 
-   filename, the second is the actual attributes of the file, and the third 
-   is a void pointer which is simply a copy of param (you can use this for 
-   whatever you like). It must return 0 to let the enumeration proceed, or 
-   any non-zero value to stop it. If an error occurs, the error code will be 
-   stored in errno but the enumeration won't stop. Returns the number of 
-   successful calls made to callback(), that is the number of times 
-   callback() was called and returned 0.
+   and file attributes, and executes callback() once for each. Basically, this
+   is a convenient wrapper around al_findfirst(), al_findnext() and
+   al_findclose(). `in_attrib' is a bitmask specifying the attributes the
+   files must carry, `out_attrib' is a bitmask specifying the attributes the
+   files must not carry; attributes which are not specified in either bitmasks
+   are not taken into account for deciding whether callback() is invoked or
+   not.
+
+   The callback function will be passed three arguments: the first is a string
+   which contains the completed filename (exactly the same string you passed
+   to for_each_file_ex() but with meta characters), the second is the actual
+   attributes of the file, and the third is a void pointer which is simply a
+   copy of `param' (you can use this for whatever you like). The callback must
+   return zero to let the enumeration proceed, or any non-zero value to stop
+   it. If an error occurs, the error code will be stored in `errno' but the
+   enumeration won't stop. Example:
+<codeblock>
+      int show_name(const char *filename, int attrib, void *param)
+      {
+	 allegro_message("Caught `%s', attribs %d\n",
+			 filename, attrib);
+	 return 0;
+      }
+      ...
+         count = for_each_file_ex("data/level*", FA_DIREC,
+				  0, show_name, 0);
+	 allegro_message("%d game directories\n", count);<endblock>
+@retval
+   Returns the number of successful calls made to callback(), that is, the
+   number of times callback() was called and returned 0.
 
 @@int @al_findfirst(const char *pattern, struct al_ffblk *info, int attrib);
 @xref al_findnext, al_findclose
@@ -10005,9 +10147,7 @@ directories, but not hidden files and directories. Similarly, if you pass
    Low-level function for searching files. This function finds the first 
    file which matches the given wildcard specification and file attributes 
    (see above). The information about the file (if any) will be put in the 
-   al_ffblk structure which you have to provide. The function returns zero 
-   if a match is found, nonzero if none is found or if an error occured  
-   and, in the latter case, sets errno accordingly. The al_ffblk structure 
+   al_ffblk structure which you have to provide. The al_ffblk structure 
    looks like:
 <codeblock>
       struct al_ffblk
@@ -10019,16 +10159,37 @@ directories, but not hidden files and directories. Similarly, if you pass
       };
 <endblock>
    There is some other stuff in the structure as well, but it is there for 
-   internal use only. If the function is successful, it will allocate some
-   memory for internal use in the structure. Therefore you have to close your
-   search when you are finished to avoid memory leaks in your program.
+   internal use only. Example:
+<codeblock>
+      struct al_ffblk info;
+
+      if (al_findfirst("*.pcx", &info, 0) != 0) {
+	 /* Tell user there are no PCX files. */
+	 return;
+      }<endblock>
+@retval
+   The function returns non-zero if no match is found or if an error occurred
+   and, in the latter case, sets `errno' accordingly. It returns zero if a
+   match is found, allocating some memory for internal use in the structure.
+   Therefore you have to close your search when you are finished to avoid
+   memory leaks in your program.
 
 @@int @al_findnext(struct al_ffblk *info);
 @xref al_findfirst, al_findclose
 @shortdesc Finds the next file in a search started by al_findfirst().
-   This finds the next file in a search started by al_findfirst(). Returns 
-   zero if a match is found, nonzero if none is found or if an error 
-   occured and, in the latter case, sets errno accordingly.
+   This finds the next file in a search started by al_findfirst(). Example:
+<codeblock>
+      if (al_findfirst("*.pcx", &info, 0) != 0)
+	 return;
+
+      do {
+	 /* Do something useful here with info.name. */
+      } while (al_findnext(&info) == 0);
+
+      al_findclose(&info);<endblock>
+@retval
+   Returns zero if a match is found, non-zero if none is found or if an
+   error occurred and, in the latter case, sets errno accordingly.
 
 @@void @al_findclose(struct al_ffblk *info);
 @xref al_findfirst, al_findnext
@@ -10043,15 +10204,28 @@ directories, but not hidden files and directories. Similarly, if you pass
 @@                          const char *subdir, int size);
 @xref set_allegro_resource_path
 @shortdesc Searches for a support file in many places.
-   Searches for a support file, eg. allegro.cfg or language.dat. Passed a 
+   Searches for a support file, eg. `allegro.cfg' or `language.dat'. Passed a
    resource string describing what you are looking for, along with extra 
    optional information such as the default extension, what datafile to look 
    inside, what the datafile object name is likely to be, any special 
    environment variable to check, and any subdirectory that you would like 
    to check as well as the default location, this function looks in a hell 
-   of a lot of different places :-). Check the documentation chapter specific
-   to your platform for information on additional paths this function might
-   search for.
+   of a lot of different places :-). Pass NULL for the parameters you are not
+   using.
+
+   Check the documentation chapter specific to your platform for information
+   on additional paths this function might search for. Also, don't forget
+   about set_allegro_resource_path() to extend the searches. Example:
+<codeblock>
+      char path[256];
+      int ret;
+      ret = find_allegro_resource(path, "scores.cfg", NULL, NULL,
+				  NULL, NULL, NULL, sizeof(path));
+      if (ret == 0) {
+	 /* Found system wide scores file. */
+      } else {
+	 /* No previous scores, create our own file. */
+      }<endblock>
 @retval
    Returns zero on success, and stores a full path to the file (at most size
    bytes) into the dest buffer.
@@ -10080,14 +10254,14 @@ directories, but not hidden files and directories. Similarly, if you pass
    path. Modification of existing paths always succeeds.
 
 @@void @packfile_password(const char *password);
-@xref pack_fopen, load_datafile
+@xref pack_fopen, load_datafile, pack_fopen_vtable
 @shortdesc Sets the global I/O encryption password.
    Sets the encryption password to be used for all read/write operations
    on files opened in future using Allegro's packfile functions (whether
    they are compressed or not), including all the save, load and config
    routines. Files written with an encryption password cannot be read
    unless the same password is selected, so be careful: if you forget the
-   key, I can't make your data come back again! Pass NULL or an empty
+   key, nobody can make your data come back again! Pass NULL or an empty
    string to return to the normal, non-encrypted mode. If you are using
    this function to prevent people getting access to your datafiles, be
    careful not to store an obvious copy of the password in your executable:
@@ -10110,6 +10284,8 @@ directories, but not hidden files and directories. Similarly, if you pass
    Therefore remember to call packfile_password(NULL) before using them if
    you previously changed the password. As a rule of thumb, always call
    packfile_password(NULL) when you are done with operations on packfiles.
+   The only exception to this is custom packfiles created with
+   pack_fopen_vtable().
 
 @@PACKFILE *@pack_fopen(const char *filename, const char *mode);
 @xref pack_fclose, pack_fopen_chunk, packfile_password, pack_fread, pack_getc
@@ -10118,39 +10294,36 @@ directories, but not hidden files and directories. Similarly, if you pass
 @shortdesc Opens a file according to mode.
    Opens a file according to mode, which may contain any of the flags:
 <ul><li>
-      'r' - open file for reading.
+      `r' - open file for reading.
 <li>
-      'w' - open file for writing, overwriting any existing data.
+      `w' - open file for writing, overwriting any existing data.
 <li>
-      'p' - open file in packed mode. Data will be compressed as it is 
+      `p' - open file in packed mode. Data will be compressed as it is
 	    written to the file, and automatically uncompressed during read 
 	    operations. Files created in this mode will produce garbage if 
 	    they are read without this flag being set. 
 <li>
-      '!' - open file for writing in normal, unpacked mode, but add the 
+      `!' - open file for writing in normal, unpacked mode, but add the
 	    value F_NOPACK_MAGIC to the start of the file, so that it can 
 	    later be opened in packed mode and Allegro will automatically 
 	    detect that the data does not need to be decompressed.
 </ul>
    Instead of these flags, one of the constants F_READ, F_WRITE, 
    F_READ_PACKED, F_WRITE_PACKED or F_WRITE_NOPACK may be used as the mode 
-   parameter. On success, pack_fopen() returns a pointer to a file 
-   structure, and on error it returns NULL and stores an error code in 
-   errno. An attempt to read a normal file in packed mode will cause errno 
-   to be set to EDOM.
+   parameter.
 
    The packfile functions also understand several "magic" filenames that are 
    used for special purposes. These are:
 <ul><li>
-      "#" - read data that has been appended to your executable file with 
+      `#' - read data that has been appended to your executable file with
       the exedat utility, as if it was a regular independent disk file.
 <li>
-      'filename.dat#object_name' - open a specific object from a datafile, 
+      `filename.dat#object_name' - open a specific object from a datafile,
       and read from it as if it was a regular file. You can treat nested 
       datafiles exactly like a normal directory structure, for example 
-      you could open 'filename.dat#graphics/level1/mapdata'.
+      you could open `filename.dat#graphics/level1/mapdata'.
 <li>
-      '#object_name' - combination of the above, reading an object from a 
+      `#object_name' - combination of the above, reading an object from a
       datafile that has been appended onto your executable.
 </ul>
    With these special filenames, the contents of a datafile object or 
@@ -10160,85 +10333,105 @@ directories, but not hidden files and directories. Similarly, if you pass
    write to these special files, though: the fake file is read only. Also, 
    you must save your datafile uncompressed or with per-object compression 
    if you are planning on loading individual objects from it (otherwise 
-   there will be an excessive amount of seeking when it is read). Finally, 
-   be aware that the special Allegro object types aren't the same format as 
-   the files you import the data from. When you import data like bitmaps or 
-   samples into the grabber, they are converted into a special 
-   Allegro-specific format, but the '#' marker file syntax reads the objects 
+   there will be an excessive amount of seeking when it is read).
+
+   Finally, be aware that the special Allegro object types aren't the same
+   format as the files you import the data from. When you import data like
+   bitmaps or samples into the grabber, they are converted into a special
+   Allegro-specific format, but the `#' marker file syntax reads the objects
    as raw binary chunks. This means that if, for example, you want to use 
-   load_pcx to read an image from a datafile, you should import it as a 
+   load_pcx() to read an image from a datafile, you should import it as a
    binary block rather than as a BITMAP object.
 
+   Example:
+<codeblock>
+      PACKFILE *input_file;
+
+      input_file = pack_fopen("scores.dat", "rp");
+      if (!input_file)
+	 abort_on_error("Couldn't read `scores.dat'!");<endblock>
+@retval
+   On success, pack_fopen() returns a pointer to a PACKFILE structure, and on
+   error it returns NULL and stores an error code in `errno'. An attempt to
+   read a normal file in packed mode will cause `errno' to be set to EDOM.
+
 @@PACKFILE *@pack_fopen_vtable(const PACKFILE_VTABLE *vtable, void *userdata);
-@xref pack_fopen
+@xref pack_fopen, pack_fopen_chunk, packfile_password
 @eref expackf
    Creates a new packfile structure that uses the functions specified in
-   the vtable instead of the standard functions. On success, it returns a
-   pointer to a file structure, and on error it returns NULL and
-   stores an error code in errno.
+   the vtable instead of the standard functions. The data pointer by `vtable'
+   and `userdata' must remain available for the lifetime of the created
+   packfile.
 
-   The vtable and userdata must remain available for the lifetime of the
-   created packfile.
-
-   Opening chunks using pack_fopen_chunk() on top of the returned packfile
-   is not possible at this time.
-
-   packfile_password() does not have any effect on packfiles opened
+   While the created packfile structure can be used with other Allegro
+   functions, there are two limitations. First, opening chunks using
+   pack_fopen_chunk() on top of the returned packfile is not possible at this
+   time. And packfile_password() does not have any effect on packfiles opened
    with pack_fopen_vtable().
+@retval
+   On success, it returns a pointer to a PACKFILE structure, and on error it
+   returns NULL and stores an error code in `errno'.
 
 @@int @pack_fclose(PACKFILE *f);
-@xref pack_fopen, packfile_password
+@xref pack_fopen, pack_fopen_vtable, packfile_password
 @eref expackf
-@shortdesc Closes a stream previously opened with pack_fopen().
-   Closes the stream f previously opened with pack_fopen(). After you have
-   closed the stream, performing operations on it will yield errors in your
-   application (e.g. crash it) or even block your OS.
+@shortdesc Closes a stream previously opened.
+   Closes the stream `f' previously opened with pack_fopen() or
+   pack_fopen_vtable(). After you have closed the stream, performing
+   operations on it will yield errors in your application (e.g. crash it) or
+   even block your OS.
 @retval
    Returns zero on success. On error, returns an error code which is also
-   stored in errno. This function can fail only when writing to files: if
+   stored in `errno'. This function can fail only when writing to files: if
    the file was opened in read mode, it will always succeed.
 
 @@int @pack_fseek(PACKFILE *f, int offset);
 @xref pack_fopen, pack_fopen_chunk
 @eref expackf
 @shortdesc Seeks inside a stream.
-   Moves the position indicator of the stream f. Unlike the standard fseek()
+   Moves the position indicator of the stream `f'. Unlike the standard fseek()
    function, this only supports forward movements relative to the current
-   position and in read-only streams, so don't use negative offsets.
+   position and in read-only streams, so don't use negative offsets. Note that
+   seeking is very slow when reading compressed files, and so should be
+   avoided unless you are sure that the file is not compressed. Example:
+<codeblock>
+      input_file = pack_fopen("data.bin", "r");
+      if (!input_file)
+	 abort_on_error("Couldn't open binary data!");
+      /* Skip some useless header before reading data. */
+      pack_fseek(input_file, 32);<endblock>
 @retval
    Returns zero on success or a negative number on error, storing the error
-   code in errno.
-
-   Note that seeking is very slow when reading compressed files, and so
-   should be avoided unless you are sure that the file is not compressed.
+   code in `errno'.
 
 @@int @pack_feof(PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_ferror
 @shortdesc Returns nonzero as soon as you reach the end of the file.
-   pack_feof() returns nonzero as soon as you reach the end of the file. It 
-   does not wait for you to attempt to read beyond the end of the file,
-   contrary to the ISO C feof() function. The only way to know whether you
-   have read beyond the end of the file is to check the return value of the
-   read operation you use (and be wary of pack_*getl() as EOF is also a valid
-   return value with these functions).
+   Finds out if you have reached the end of the file. It does not wait for you
+   to attempt to read beyond the end of the file, contrary to the ISO C feof()
+   function. The only way to know whether you have read beyond the end of the
+   file is to check the return value of the read operation you use (and be
+   wary of pack_*getl() as EOF is also a valid return value with these
+   functions).
+@retval
+   Returns non-zero if you are at the end of the file, zero otherwise.
 
 @@int @pack_ferror(PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk
 @shortdesc Tells if an error occurred during an operation on the stream.
-@retval
-   Returns nonzero if the error indicator for the stream is set, indicating
-   that an error has occurred during a previous operation on the stream.
-
    Since EOF is used to report errors by some functions, it's often better to
    use the pack_feof() function to check explicitly for end of file and
    pack_ferror() to check for errors. Both functions check indicators that
    are part of the internal state of the stream to detect correctly the
    different situations.
+@retval
+   Returns nonzero if the error indicator for the stream is set, meaning
+   that an error has occurred during a previous operation on the stream.
 
 @@int @pack_getc(PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk
 @shortdesc Returns the next character from a stream.
-   Returns the next character from the stream f, or EOF if the end of the
+   Returns the next character from the stream `f', or EOF if the end of the
    file has been reached.
 
 @@int @pack_putc(int c, PACKFILE *f);
@@ -10300,16 +10493,21 @@ directories, but not hidden files and directories. Similarly, if you pass
 @xref pack_fopen, pack_fopen_chunk, pack_feof
 @eref expackf
 @shortdesc Reads n bytes from the stream.
-   Reads n bytes from the stream f, storing them at the memory location
-   pointed to by p.
+   Reads `n' bytes from the stream `f', storing them at the memory location
+   pointed to by `p'. Example:
+<codeblock>
+      unsigned char buf[256];
+      ...
+      if (pack_fread(buf, 256, input_file) != 256)
+	 abort_on_error("Truncated input file!");<endblock>
 @retval
-   Returns the number of bytes read, which will be less than n if EOF is
+   Returns the number of bytes read, which will be less than `n' if EOF is
    reached or an error occurs. Error codes are stored in errno.
 
 @@long @pack_fwrite(const void *p, long n, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_feof
 @shortdesc Writes n bytes to the stream.
-   Writes n bytes to the stream f from memory location pointed to by p.
+   Writes `n' bytes to the stream `f' from memory location pointed to by `p'.
 @retval
    Returns the number of bytes written, which will be less than n if an
    error occurs. Error codes are stored in errno.
@@ -10317,25 +10515,30 @@ directories, but not hidden files and directories. Similarly, if you pass
 @@char *@pack_fgets(char *p, int max, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_fread, pack_getc
 @shortdesc Reads a line from the stream.
-   Reads a line from the stream f, storing it at location pointed to by p.
-   Stops when a linefeed is encountered, or 'max' bytes have been read. The
-   end of line is handled by detecting the right combination of characters
+   Reads a line from the stream `f', storing it at location pointed to by
+   `p'. Stops when a linefeed is encountered, or `max' bytes have been read.
+   The end of line is handled by detecting the right combination of characters
    for the platform. This supports CR-LF (DOS/Windows), LF (Unix), and CR
-   (Mac) formats.
-@retval
-   Returns the pointer p on success, or NULL on error.
-
-   Note, however, that the trailing carriage return is not included in the
+   (Mac) formats. However, the trailing carriage return is not included in the
    returned string, in order to provide easy code portability across
    platforms. If you need the carriage return, use pack_fread() and/or
-   pack_getc() instead.
+   pack_getc() instead. Example:
+<codeblock>
+      char buf[256];
+      ...
+      while (pack_fgets(buf, sizeof(buf), input_file)) {
+	 /* Process input line. */
+      }
+      fclose(input_file);<endblock>
+@retval
+   Returns the pointer `p' on success, or NULL on error.
 
 @@int @pack_fputs(const char *p, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_fwrite, pack_putc
 @shortdesc Writes a string to the stream.
-   Writes a string to the stream f. The input string is converted from the
+   Writes a string to the stream `f'. The input string is converted from the
    current text encoding format to UTF-8 before writing. Newline characters
-   are written as \r\n on DOS and Windows platforms. If you don't want this
+   are written as `\r\n' on DOS and Windows platforms. If you don't want this
    behaviour, use pack_fwrite() and/or pack_putc() instead.
 @retval
    Returns zero on success or a negative number on error.
@@ -10347,26 +10550,36 @@ directories, but not hidden files and directories. Similarly, if you pass
    datafile code, but they may also be useful for your own file routines. A 
    chunk provides a logical view of part of a file, which can be compressed 
    as an individual entity and will automatically insert and check length 
-   counts to prevent reading past the end of the chunk. To write a chunk to 
-   the file f, use the code:
+   counts to prevent reading past the end of the chunk. The PACKFILE
+   parameter is a previously opened file, and `pack' is a boolean parameter
+   which will turn compression on for the sub-chunk if it is non-zero.
+   Example:
 <codeblock>
-      /* assumes f is a PACKFILE * which has been opened */
-      f = pack_fopen_chunk(f, pack);    /* in write mode */
-      write some data to f
-      f = pack_fclose_chunk(f);
+      PACKFILE *output = pack_fopen("out.raw", "w!");
+      ...
+      /* Create a sub-chunk with compression. */
+      output = pack_fopen(chunk(output, 1);
+      if (!output)
+	 abort_on_error("Error saving data!");
+      /* Write some data to the sub-chunk. */
+      ...
+      /* Close the sub-chunk, recovering parent file. */
+      output = pack_fclose_chunk(output);
 <endblock>
    The data written to the chunk will be prefixed with two length counts
    (32-bit, a.k.a. big-endian). For uncompressed chunks these will both be
    set to the size of the data in the chunk. For compressed chunks (created
-   by setting the pack flag), the first length will be the raw size of the
+   by setting the `pack' flag), the first length will be the raw size of the
    chunk, and the second will be the negative size of the uncompressed data.
 
-   To read the chunk, use the code:
+   To read the chunk, use the following code:
 <codeblock>
-      /* assumes f is a PACKFILE * which has been opened */
-      f = pack_fopen_chunk(f, FALSE);    */ in read mode */
-      read data from f
-      f = pack_fclose_chunk(f);
+      PACKFILE *input = pack_fopen("out.raw", "rp");
+      ...
+      input = pack_fopen_chunk(input, 1);
+      /* Read data from the sub-chunk and close it. */
+      ...
+      input = pack_fclose_chunk(input);
 <endblock>
    This sequence will read the length counts created when the chunk was 
    written, and automatically decompress the contents of the chunk if it 
@@ -10382,35 +10595,49 @@ directories, but not hidden files and directories. Similarly, if you pass
    parent file is already open in packed mode, setting the pack flag will 
    result in data being compressed twice: once as it is written to the 
    chunk, and again as the chunk passes it on to the parent file.
+@retval
+   Returns a pointer to the sub-chunked PACKFILE, or NULL if there was some
+   error (eg. you are using a custom PACKFILE vtable).
 
 @@PACKFILE *@pack_fclose_chunk(PACKFILE *f);
 @xref pack_fopen_chunk
 @shortdesc Closes a previously opened sub-chunk.
    Closes a sub-chunk of a file, previously obtained by calling 
    pack_fopen_chunk().
+@retval
+   Returns a pointer to the parent of the sub-chunk you just closed. Returns
+   NULL if there was some error (eg. you tried to close a PACKFILE which
+   wasn't sub-chunked).
 
 @@LZSS_PACK_DATA *@create_lzss_pack_data(void);
 @xref free_lzss_pack_data
 @shortdesc Creates an LZSS structure for compression.
-   Creates an LZSS_PACK_DATA structure, which can be used for LZSS compression.
+   Creates an LZSS_PACK_DATA structure, which can be used for LZSS
+   compression with PACKFILEs.
+@retval
+   Returns a pointer to the structure, or NULL if there was an error.
 
 @@void @free_lzss_pack_data(LZSS_PACK_DATA *dat);
 @xref create_lzss_pack_data
 @shortdesc Frees an LZSS structure.
-   Frees an LZSS_PACK_DATA structure created with create_lzss_pack_data.
+   Frees an LZSS_PACK_DATA structure created with create_lzss_pack_data().
 
 @\int @lzss_write(PACKFILE *file, LZSS_PACK_DATA *dat, int size,
-@@ unsigned char *buf, int last);
-@xref create_lzss_pack_data
+@@               unsigned char *buf, int last);
+@xref create_lzss_pack_data, free_lzss_pack_data
 @shortdesc Compresses data using LZSS.
-    Packs size bytes from buf, using the pack information contained in dat.
+   Packs `size' bytes from `buf', using the pack information contained in
+   `dat'. The compressed bytes will be stored in `file'.
 @retval
-   Returns 0 on success.
+   Returns 0 on success, or EOF if there was an error.
 
 @@LZSS_UNPACK_DATA *@create_lzss_unpack_data(void);
 @xref free_lzss_unpack_data
 @shortdesc Creates an LZSS structure for decompression.
-   Creates an LZSS_UNPACK_DATA structure, which can be used for LZSS decompression.
+   Creates an LZSS_UNPACK_DATA structure, which can be used for LZSS
+   decompression reading PACKFILEs.
+@retval
+   Returns a pointer to the structure, or NULL if there was an error.
 
 @@void @free_lzss_unpack_data(LZSS_UNPACK_DATA *dat);
 @xref create_lzss_unpack_data
@@ -10418,13 +10645,13 @@ directories, but not hidden files and directories. Similarly, if you pass
    Frees an LZSS_UNPACK_DATA structure created with create_lzss_pack_data.
 
 @\int @lzss_read(PACKFILE *file, LZSS_UNPACK_DATA *dat, int s,
-@@ unsigned char *buf);
+@@              unsigned char *buf);
 @xref free_lzss_unpack_data
 @shortdesc Decompresses data using LZSS.
-   Unpacks from dat into buf, until either EOF is reached or s bytes have
-   been extracted.
+   Unpacks from `dat' into `buf', until either EOF is reached or `s' bytes
+   have been extracted from `file'.
 @retval
-   Returns the number of bytes added to the buffer.
+   Returns the number of bytes added to the buffer `buf'.
 
 
 
