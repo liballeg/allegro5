@@ -1006,9 +1006,11 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    bitmap->y_ofs = 0;
    bitmap->seg = _default_ds();
 
-   bitmap->line[0] = bitmap->dat;
-   for (i=1; i<height; i++)
-      bitmap->line[i] = bitmap->line[i-1] + width * BYTES_PER_PIXEL(color_depth);
+   if (height > 0) {
+      bitmap->line[0] = bitmap->dat;
+      for (i=1; i<height; i++)
+         bitmap->line[i] = bitmap->line[i-1] + width * BYTES_PER_PIXEL(color_depth);
+   }
 
    if (system_driver->created_bitmap)
       system_driver->created_bitmap(bitmap);
