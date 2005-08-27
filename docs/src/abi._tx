@@ -114,7 +114,31 @@ Linux on x86-64 notes
 @heading
 MacOS X notes
 
-   XXX fill this in
+   On OSX there are two 'styles' of linking - Unix style and Mac style.
+   For the Unix style linking, you would use `allegro-config --libs`
+   on the link line. For versioning, follow the advice given in the
+   'Linux on x86' section above, using the command otool -L instead
+   of ldd.
+
+   For example, otool -L &ltmybinary&gt should give
+
+      liballeg-4.2.dylib (compatibility version 4.2.0, current version 4.2.0)
+
+   For the Mac style, use `allegro-config --frameworks` on the link
+   line, or add Allegro.framework to your project if you are using 
+   XCode. In this case, the versioning is done inside the framework
+   itself.
+
+   Apple recommends that an application should be entirely self-
+   contained. To achieve this in Allegro, static-link the executable
+   and use fixbundle to bind all its resources together. In this
+   way, you will not need to worry about incompatible versions of
+   the library. This is useful if you are distributing an application.
+
+   There is a known compatibility problem when using gcc 4 on MacOS X 10.4
+   that prevents binaries from working on older versions of MacOS X. While it
+   is anticipated that a future update from Apple will fix this problem, you
+   can use gcc 3 to work around it.
 
 
 
