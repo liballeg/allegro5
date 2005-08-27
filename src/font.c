@@ -722,7 +722,14 @@ static FONT *mono_extract_font_range(FONT *f, int begin, int end)
 
    /* Special case: copy entire font */
    if (begin==-1 && end==-1) {
-   } else if (begin>end) {
+   }
+   else if (begin == -1 && end > mono_get_font_range_begin(f, -1)) {
+   }
+   else if (end == -1 && begin <= mono_get_font_range_end(f, -1)) {
+   }
+   else if (begin <= end && begin != -1 && end != -1) {
+   }
+   else {
       return NULL;
    }
 
@@ -735,13 +742,13 @@ static FONT *mono_extract_font_range(FONT *f, int begin, int end)
 
    /* Get real character ranges */
    first = MAX(begin, mono_get_font_range_begin(f, -1));
-   last = (end>-1) ? MIN(end, mono_get_font_range_end(f, -1)) : mono_get_font_range_end(f, -1);
+   last = (end>-1) ? MIN(end, mono_get_font_range_end(f, -1) + 1) : mono_get_font_range_end(f, -1) + 1;
 
    mf = NULL;
    mfin = f->data;
    while (mfin) {
       /* Check if we've found the proper range */
-      if ((first >= mfin->begin) && (last<mfin->end)) {
+	  if ((first >= mfin->begin && first < mfin->end) || (last <= mfin->end && last > mfin->begin)) {
          int local_begin, local_end;
          
          local_begin = MAX(mfin->begin, first);
@@ -1188,7 +1195,14 @@ static FONT *color_extract_font_range(FONT *f, int begin, int end)
 
    /* Special case: copy entire font */
    if (begin==-1 && end==-1) {
-   } else if (begin>end) {
+   }
+   else if (begin == -1 && end > color_get_font_range_begin(f, -1)) {
+   }
+   else if (end == -1 && begin <= color_get_font_range_end(f, -1)) {
+   }
+   else if (begin <= end && begin != -1 && end != -1) {
+   }
+   else {
       return NULL;
    }
 
@@ -1201,13 +1215,13 @@ static FONT *color_extract_font_range(FONT *f, int begin, int end)
 
    /* Get real character ranges */
    first = MAX(begin, color_get_font_range_begin(f, -1));
-   last = (end>-1) ? MIN(end, color_get_font_range_end(f, -1)) : color_get_font_range_end(f, -1);
+   last = (end>-1) ? MIN(end, color_get_font_range_end(f, -1) + 1) : color_get_font_range_end(f, -1) + 1;
 
    cf = NULL;
    cfin = f->data;
    while (cfin) {
       /* Check if we've found the proper range */
-      if ((first >= cfin->begin) && (last<cfin->end)) {
+      if ((first >= cfin->begin && first < cfin->end) || (last <= cfin->end && last > cfin->begin)) {
          int local_begin, local_end;
          
          local_begin = MAX(cfin->begin, first);
