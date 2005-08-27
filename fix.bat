@@ -128,6 +128,8 @@ echo spaces (you can view content of that variable by typing
 echo echo %%MSVCDir%%
 echo on the command line). Remember that this will only work if you
 echo have MinGW gcc in your PATH.
+echo With MSVC 8 and higher the variable name is VCINSTALLDIR instead
+echo of MSVCDir.
 echo.
 goto end
 
