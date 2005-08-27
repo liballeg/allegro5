@@ -161,11 +161,11 @@ static void update_shifts(BYTE * keystate)
    /* Can't we just deprecate key_shifts, now that pckeys.c is gone? EP */
    unsigned int modifiers = 0;
 
-   if ((keystate[VK_LSHIFT] & 0x80) || (keystate[VK_RSHIFT] & 0x80))
+   if (keystate[VK_SHIFT] & 0x80)
       modifiers |= KB_SHIFT_FLAG;
-   if ((keystate[VK_LCONTROL] & 0x80) || (keystate[VK_RCONTROL] & 0x80))
+   if (keystate[VK_CONTROL] & 0x80)
       modifiers |= KB_CTRL_FLAG;
-   if (keystate[VK_LMENU] & 0x80 || keystate[VK_RMENU] & 0x80)
+   if (keystate[VK_MENU] & 0x80)
       modifiers |= KB_ALT_FLAG;
    if (keystate[VK_SCROLL] & 1)
       modifiers |= KB_SCROLOCK_FLAG;
