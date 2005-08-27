@@ -132,6 +132,14 @@
          #define AL_INLINE_DEPRECATED(type, name, args, code)      AL_INLINE(__attribute__ ((deprecated)) type, name, args, code)
       #endif
    #endif
+
+   #ifndef AL_ALIAS
+      #define AL_ALIAS(DECL, CALL)                      \
+      static __attribute__((unused)) __inline__ DECL    \
+      {                                                 \
+         return CALL;                                   \
+      }
+   #endif
 #endif
 
 
@@ -203,6 +211,14 @@
    #define AL_FUNC_DEPRECATED(type, name, args)              AL_FUNC(type, name, args)
    #define AL_PRINTFUNC_DEPRECATED(type, name, args, a, b)   AL_PRINTFUNC(type, name, args, a, b)
    #define AL_INLINE_DEPRECATED(type, name, args, code)      AL_INLINE(type, name, args, code)
+#endif
+
+#ifndef AL_ALIAS
+   #define AL_ALIAS(DECL, CALL)              \
+   static INLINE DECL                        \
+   {                                         \
+      return CALL;                           \
+   }
 #endif
 
 #ifndef END_OF_MAIN

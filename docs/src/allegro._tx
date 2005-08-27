@@ -5860,15 +5860,25 @@ and they, as well as lengths, are specified in pixel units.
 
 @@void @vline(BITMAP *bmp, int x, int y1, int y2, int color);
 @xref hline, line, drawing_mode, makecol
+@xref Differences between platforms
 @eref exrgbhsv, exscroll, extruec
 @shortdesc Draws a vertical line onto the bitmap.
    Draws a vertical line onto the bitmap, from point (x, y1) to (x, y2).
 
+   Note: vline() is implemented as an alias to another function.
+   See ALLEGRO_NO_VHLINE_ALIAS in the `Differences between platforms'
+   section for details.
+
 @@void @hline(BITMAP *bmp, int x1, int y, int x2, int color);
 @xref vline, line, drawing_mode, makecol
+@xref Differences between platforms
 @eref exsprite
 @shortdesc Draws a horizontal line onto the bitmap.
    Draws a horizontal line onto the bitmap, from point (x1, y) to (x2, y).
+
+   Note: hline() is implemented as an alias to another function.
+   See ALLEGRO_NO_VHLINE_ALIAS in the `Differences between platforms'
+   section for details.
 
 @\void @do_line(BITMAP *bmp, int x1, y1, x2, y2, int d, 
 @@             void (*proc)(BITMAP *bmp, int x, int y, int d));
@@ -13600,6 +13610,16 @@ following macros:
    If you define this symbol prior to including Allegro headers in a C++
    source file, the 'fix' class will not be made available. This mitigates
    problems with the 'fix' class's overloading getting in the way.
+
+<b>ALLEGRO_NO_VHLINE_ALIAS</b><br>
+   The `curses' API also defines functions called vline() and hline().
+   To avoid a linker conflict when both libraries are used, we have
+   internally renamed our functions and added inline function aliases which
+   remap vline() and hline(). This should not be noticable to most users.
+
+   If you define ALLEGRO_NO_VHLINE_ALIAS prior to including Allegro headers,
+   Allegro will not define the vline() and hline() aliases, e.g. so you can
+   include curses.h and allegro.h in the same module.
 
 <b>ALLEGRO_NO_CLEAR_BITMAP_ALIAS</b><br>
    If you define this prior to including Allegro headers, Allegro will not

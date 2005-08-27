@@ -396,7 +396,7 @@
     gui_text_list_proc DATA
     gui_textout
     gui_textout_ex
-    hline
+    _allegro_hline
     hook_config_section
     hsv_to_rgb
     identity_matrix DATA
@@ -825,7 +825,7 @@
     uwidth_max
     vector_length
     vector_length_f
-    vline
+    _allegro_vline
     voice_check
     voice_get_frequency
     voice_get_pan
