@@ -3637,7 +3637,7 @@ int datedit_select(AL_CONST char *(*list_getter)(int index, int *list_size), AL_
    /* Some compilers don't like non-constant initialisers */
    ASSERT(datedit_select_dlg[2].proc == d_list_proc);
    ASSERT(datedit_select_dlg[2].dp == NULL);
-   datedit_select_dlg[2].dp = list_getter;
+   datedit_select_dlg[2].dp = (void *)list_getter;
 
    va_start(args, fmt);
    uvszprintf(buf, 1024, fmt, args);
