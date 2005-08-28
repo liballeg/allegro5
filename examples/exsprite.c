@@ -149,7 +149,8 @@ int main(int argc, char *argv[])
 
    /* create and clear a bitmap for sprite buffering, big
     * enough to hold the diagonal(sqrt(2)) when rotating */
-   sprite_buffer = create_bitmap(82 * sqrt(2) + 2, 82 * sqrt(2) + 2);
+   sprite_buffer = create_bitmap((int)(82 * sqrt(2) + 2),
+      (int)(82 * sqrt(2) + 2));
    clear_bitmap(sprite_buffer);
 
    x = (sprite_buffer->w - 82) / 2;
