@@ -22,6 +22,7 @@
 #        default:           build library version, docs, and programs.
 #        all:               build all versions and programs.
 #        lib:               build a single library only, no programs.
+#        programs:          build all programs
 #        install:           install single library version.
 #        installall:        install all library versions.
 #        uninstall:         remove Allegro from system directories.
@@ -227,7 +228,8 @@ lib: $(LIB_NAME)
 $(LIB_NAME): $(OBJECTS) $(RUNNER)
 	$(MAKE_LIB)
 
-
+programs:
+	$(MAKE) $(PROGRAMS)
 
 # -------- rules for deleting the generated files --------
 
