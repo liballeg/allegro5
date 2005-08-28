@@ -30,8 +30,6 @@ in the subject.
 - grabber.txt was moved, so the grabber can't find it anymore
 - improved demo
 - MacOS X problems with grabber, http://www.allegro.cc/forums/view_thread.php?_id=498239
-- hline/vline conflicts with curses API
-- do something about create_bitmap(0,0) -- return NULL seems to be consensus
 
 General (Platform independent) todos:
 ---------------------------------------------------------------------------
