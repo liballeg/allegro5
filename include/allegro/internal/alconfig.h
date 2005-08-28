@@ -140,6 +140,14 @@
          return CALL;                                   \
       }
    #endif
+
+   #ifndef AL_ALIAS_VOID_RET
+      #define AL_ALIAS_VOID_RET(DECL, CALL)                  \
+      static __attribute__((unused)) __inline__ void DECL    \
+      {                                                      \
+         CALL;                                               \
+      }
+   #endif
 #endif
 
 
@@ -218,6 +226,14 @@
    static INLINE DECL                        \
    {                                         \
       return CALL;                           \
+   }
+#endif
+
+#ifndef AL_ALIAS_VOID_RET
+   #define AL_ALIAS_VOID_RET(DECL, CALL)     \
+   static INLINE void DECL                   \
+   {                                         \
+      CALL;                                  \
    }
 #endif
 
