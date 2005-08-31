@@ -18,6 +18,7 @@
  */
 #define ALLEGRO_NO_CLEAR_BITMAP_ALIAS
 #define ALLEGRO_NO_FIX_ALIASES
+#define ALLEGRO_NO_VHLINE_ALIAS 
 
 #include <stdio.h>
 #include <stdlib.h>
