@@ -263,8 +263,8 @@ static void _xvidmode_private_unset_fullscreen(void);
 #endif
 
 #ifdef ALLEGRO_NO_ASM
-uintptr_t _xwin_write_line (BITMAP *bmp, int line);
-void _xwin_unwrite_line (BITMAP *bmp);
+static uintptr_t _xwin_write_line (BITMAP *bmp, int line);
+static void _xwin_unwrite_line (BITMAP *bmp);
 #else
 uintptr_t _xwin_write_line_asm (BITMAP *bmp, int line);
 void _xwin_unwrite_line_asm (BITMAP *bmp);
@@ -2689,10 +2689,12 @@ int _xwin_get_pointer_mapping(unsigned char map[], int nmap)
 
 
 
+#ifdef ALLEGRO_NO_ASM
+
 /* _xwin_write_line:
  *  Update last selected line and select new line.
  */
-uintptr_t _xwin_write_line(BITMAP *bmp, int line)
+static uintptr_t _xwin_write_line(BITMAP *bmp, int line)
 {
    int new_line = line + bmp->y_ofs;
    if ((new_line != _xwin_last_line) && (!_xwin_in_gfx_call) && (_xwin_last_line >= 0))
@@ -2706,12 +2708,14 @@ uintptr_t _xwin_write_line(BITMAP *bmp, int line)
 /* _xwin_unwrite_line:
  *  Update last selected line.
  */
-void _xwin_unwrite_line(BITMAP *bmp)
+static void _xwin_unwrite_line(BITMAP *bmp)
 {
    if ((!_xwin_in_gfx_call) && (_xwin_last_line >= 0))
       _xwin_update_screen(0, _xwin_last_line, _xwin.virtual_width, 1);
    _xwin_last_line = -1;
 }
+
+#endif /* ALLEGRO_NO_ASM */
 
 
 
