@@ -366,7 +366,7 @@ void blit_magic_format_to_screen(BITMAP *bmp)
 
    for (y=0; y<SCREEN_H; y++) {
       addr = bmp_write_line(screen, y);
-      data = (unsigned long *)bmp->line[y];
+      data = (uint32_t *)bmp->line[y];
 
       for (x=0; x<SCREEN_W/4; x++) {
 	 in1 = *(data++);
