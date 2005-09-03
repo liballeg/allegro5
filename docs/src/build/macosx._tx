@@ -156,7 +156,24 @@ Using Allegro from the command line
    libraries, in case you installed both. Run <tt>allegro-config</tt> without any
    arguments for a full list of options.
 
-
+   If you get an error like '<tt>allegro-config: program not found</tt>', and
+   you're sure you have built and installed the library as described above, it
+   probably means that <tt>/usr/local/bin</tt> is not on your path. The method
+   to add it depends on the shell you're using. If you have tcsh, add the
+   following line to the end of the <tt>.cshrc</tt> in your home directory.
+<textblock>
+     set path=($path /usr/local/bin)
+<endblock>
+   If you have bash, add the following line to the end of the <tt>.bash_profile</tt>
+   file in your home directory:
+<textblock>
+     PATH=${PATH}:/usr/local/bin
+<endblock>
+   If you don't know which, just type <tt>echo $SHELL</tt> on the command 
+   line, which will print either <tt>/bin/bash</tt> or <tt>/bin/tcsh</tt>.
+   Newer versions of OSX use bash, older ones use tcsh.
+   You will have to close the Terminal window and open a new one once
+   you have made the changes, so it will have an effect.
 
 @heading
 Using Allegro from Project Builder (or XCode)
