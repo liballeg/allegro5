@@ -28,7 +28,7 @@
 #include "allegro.h"
 #include "xalleg.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/platform/aintosx.h"
+#include "xwin.h"
 
 // TODO: Once this driver is deemed more stable, reduce debugging output.
 

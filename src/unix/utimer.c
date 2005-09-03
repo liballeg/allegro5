@@ -19,6 +19,7 @@
 
 
 #include "allegro.h"
+#include "allegro/platform/aintunix.h"
 #include <sys/time.h>
 
 
