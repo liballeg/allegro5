@@ -796,7 +796,7 @@ static void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int v
 /* _xdga2_lock:
  *  Synchronizes with framebuffer.
  */
-static void _xdga2_lock(BITMAP *bmp)
+void _xdga2_lock(BITMAP *bmp)
 {
    XLOCK();
    RESYNC();
