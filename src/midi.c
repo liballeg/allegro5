@@ -178,7 +178,26 @@ MIDI *load_midi(AL_CONST char *filename)
       midi->track[c].len = 0;
    }
 
-   pack_fread(buf, 4, fp);                   /* read midi header */
+   pack_fread(buf, 4, fp); /* read midi header */
+
+   /* Is the midi inside a .rmi file? */
+   if (memcmp(buf, "RIFF", 4) == 0) { /* check for RIFF header */
+      pack_mgetl(fp);
+
+      while (!pack_feof(fp)) {
+         pack_fread(buf, 4, fp); /* RMID chunk? */
+         if (memcmp(buf, "RMID", 4) == 0) break;
+
+         pack_fseek(fp, pack_igetl(fp)); /* skip to next chunk */
+      }
+
+      if (pack_feof(fp)) goto err;
+
+      pack_mgetl(fp);
+      pack_mgetl(fp);
+      pack_fread(buf, 4, fp); /* read midi header */
+   }
+
    if (memcmp(buf, "MThd", 4))
       goto err;
 
