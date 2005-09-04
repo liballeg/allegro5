@@ -262,13 +262,18 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
       top_index = 3;
 
    /* Get direction of points: clockwise or anti-clockwise. */
-   if (fixmul(xs[(top_index+1) & 3] - xs[top_index],
-	    ys[(top_index-1) & 3] - ys[top_index]) >
-       fixmul(xs[(top_index-1) & 3] - xs[top_index],
-	    ys[(top_index+1) & 3] - ys[top_index]))
+   right_index = (double)(xs[(top_index+1) & 3] - xs[top_index]) *
+      (double)(ys[(top_index-1) & 3] - ys[top_index]) >
+      (double)(xs[(top_index-1) & 3] - xs[top_index]) *
+      (double)(ys[(top_index+1) & 3] - ys[top_index]) ? 1 : -1;
+   //FIXME: why does fixmul overflow below?
+   /*if (fixmul(xs[(top_index+1) & 3] - xs[top_index],
+      ys[(top_index-1) & 3] - ys[top_index]) >
+         fixmul(xs[(top_index-1) & 3] - xs[top_index],
+            ys[(top_index+1) & 3] - ys[top_index]))
       right_index = 1;
    else
-      right_index = -1;
+      right_index = -1;*/
 
    /*
     * Get coordinates of the corners.
