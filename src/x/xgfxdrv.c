@@ -106,8 +106,8 @@ static GFX_DRIVER gfx_xwin_fullscreen =
 _DRIVER_INFO _xwin_gfx_driver_list[] =
 {
 #if (defined ALLEGRO_XWINDOWS_WITH_XF86DGA2) && (!defined ALLEGRO_WITH_MODULES)
-   {  GFX_XDGA2,               &gfx_xdga2,           TRUE  },
-   {  GFX_XDGA2_SOFT,          &gfx_xdga2_soft,      TRUE  },
+   {  GFX_XDGA2,               &gfx_xdga2,           FALSE  },
+   {  GFX_XDGA2_SOFT,          &gfx_xdga2_soft,      FALSE  },
 #endif
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    {  GFX_XWINDOWS_FULLSCREEN, &gfx_xwin_fullscreen, TRUE  },
