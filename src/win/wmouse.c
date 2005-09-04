@@ -50,7 +50,7 @@ static void mouse_directx_set_range(int x1, int y1, int x2, int y2);
 static void mouse_directx_set_speed(int xspeed, int yspeed);
 static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy);
 static void mouse_directx_enable_hardware_cursor(int mode);
-static int mouse_directx_select_system_cursor(AL_CONST int cursor);
+static int mouse_directx_select_system_cursor(int cursor);
 
 static MOUSE_DRIVER mouse_directx =
 {
@@ -796,7 +796,7 @@ static void mouse_directx_enable_hardware_cursor(int mode)
 /* mouse_directx_select_system_cursor:
  *  Select an OS native cursor 
  */
-static int mouse_directx_select_system_cursor (AL_CONST int cursor)
+static int mouse_directx_select_system_cursor (int cursor)
 {
    HCURSOR wc;
    HWND allegro_wnd = win_get_window();
