@@ -15376,6 +15376,7 @@ and avoid missing any important bit of information.
 @externalfile changes Changes since previous versions
 @externalfile thanks Contributors: The Hall of Fame
 @externalfile faq Frequently asked questions (FAQ)
+@externalfile mistakes Common mistakes
 @externalfile help Help: what to do when your Allegro program doesn't work
 @externalfile api API compatibility information
 @externalfile abi ABI compatibility information
