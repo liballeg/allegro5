@@ -103,12 +103,6 @@ Installing Allegro
    Alternatively, you can add the path to your <tt>LD_LIBRARY_PATH</tt> environment
    variable.
 
-   Note that a manual install from the source code won't install global files
-   like `allegro.cfg', `keyboard.dat' or `language.dat'. These files might be
-   necessary for Allegro programs to work correctly. Please read the chapter
-   Unix specifics in the main Allegro manual to find more info about where to
-   install these files.
-
    If you are compiling a CVS version of Allegro, you need to generate the
    configure header and script prior to doing anything else. Make sure that
    GNU autoconf 2.53 or newer is installed on your system and type:
@@ -129,6 +123,43 @@ Installing Allegro
    this way may be overridden. For this reason, it is best to only use this
    to specify flags that do not interfere with the code generation. Useful
    flags to pass are -save-temps, or -pipe.
+
+
+
+@heading
+Shared files
+
+   Installing Allegro will copy the library and header files plus other
+   support files. These are:
+<ul><li>
+   allegro-config: Script that outputs the correct compiler and linker flags
+   for your system in order to compile Allegro. This is copied into a
+   `.../bin' path.
+<li>
+   allegro.m4: Autoconf support file to include in your `./configure'
+   scripts. Copied into a `.../share/aclocal' path.
+</ul>
+   On the other hand, there are files which you, as system administrator, are
+   required to installed manually. These are:
+<ul><li>
+   language.dat: Contains translations for text strings used by Allegro. If
+   this file is not available, Allegro runtime messages will only speak
+   English. Recommended location is `/usr[/local]/share/allegro'.
+<li>
+   allegro.info: Allegro documentation in Info format, viewable with GNU's
+   info viewer. This is copied into the correct `.../info' path of your
+   system if you run `make install-info'.
+<li>
+   allegro.cfg: Contains configuration settings for your system when the
+   hardware autodetection fails. You can either copy this file and edit
+   the contents manually or you can use Allegro's setup configuration
+   program (in the `setup' directory) to create this file. Recommended
+   location is `[/usr/local]/etc/allegro.cfg'.
+</ul>
+   You can find more information about some of these files and other
+   suggestions in the chapter "Unix specifics" of the main Allegro manual.
+
+   
 
 @heading
 Using Allegro
@@ -172,6 +203,8 @@ Setting an X11 icon
    No other steps are required. The xfixicon.sh utility will also accept 
    bitmaps that are not in .xpm format, interpreting magic pink as transparent.
    You will need to have the ImageMagik tools installed for this to work.
+
+
 
 @heading
 Shared library compatibility
@@ -312,4 +345,5 @@ Irix Notes
 <endblock>
    then you should <tt>#define ALLEGRO_NO_FIX_ALIASES</tt> prior to
    the <tt>#include &ltallegro.h&gt</tt> line.
+
 

@@ -2007,7 +2007,7 @@ your game.
 @\const char *@get_config_string(const char *section,
 @@                              const char *name, const char *def);
 @xref set_config_file, set_config_string, get_config_argv, get_config_float
-@xref get_config_hex, get_config_int, get_config_id
+@xref get_config_hex, get_config_int, get_config_id, get_config_text
 @eref exconfig
 @shortdesc Retrieves a string from the configuration file.
    Retrieves a string variable from the current config file. The section name
@@ -2082,6 +2082,11 @@ your game.
    memory being allocated as required, so you can assume that this pointer 
    will persist without having to manually allocate storage space for each 
    string.
+
+   Note that if you are planning on distributing your game on the Unix
+   platform there is a special issue with how to deal with the `language.dat'
+   file. Read section "Files shared by Allegro" of the chapter "Unix
+   specifics" to learn more about this.
 @retval
    Returns a suitable translation if one can be found or a copy of the 
    parameter if nothing else is available. 
@@ -3141,16 +3146,15 @@ keyboard. Up to two or three keys at a time will work fine, but if you press
 more than that the extras are likely to be ignored (exactly which 
 combinations are possible seems to vary from one keyboard to another).
 
-On some platforms (like DOS and Windows), Allegro requires the user to
-specify the language of the keyboard mapping because it is impossible to
-obtain this information from the OS, otherwise the default US keyboard
-mapping will be used. Allegro comes with a prepackaged `keyboard.dat' file
-which you can put along with your binary. If this file is present, Allegro
-will be able to extract the keyboard mapping information stored there.
-However, the end user still needs to select which keyboard mapping to use.
-This can be acomplished through the keyboard variable of the system section
-in a standard `allegro.cfg' configuration file. Read chapter "Configuration
-routines" for more information about this.
+On DOS, Allegro requires the user to specify the language of the keyboard
+mapping because it is impossible to obtain this information from the OS,
+otherwise the default US keyboard mapping will be used. Allegro comes with a
+prepackaged `keyboard.dat' file which you can put along with your binary. If
+this file is present, Allegro will be able to extract the keyboard mapping
+information stored there. However, the end user still needs to select which
+keyboard mapping to use. This can be acomplished through the keyboard variable
+of the system section in a standard `allegro.cfg' configuration file. Read
+chapter "Configuration routines" for more information about this.
 
 @@int @install_keyboard();
 @xref remove_keyboard, poll_keyboard, key, keypressed, readkey, ureadkey
@@ -3399,11 +3403,11 @@ routines" for more information about this.
 	 allegro_message("You pressed sharp s\n");
 <endblock>
    You should be able to find Unicode character maps at
-   <link>http://www.unicode.org/</a>. Remember that on some platforms you must specify
-   a custom keyboard map (like those found in `keyboard.dat') usually with
-   the help of a configuration file specifying the language mapping
-   (keyboard variable in system section of `allegro.cfg'), or you will get
-   the default US keyboard mapping.
+   <link>http://www.unicode.org/</a>. Remember that on DOS you must specify a custom
+   keyboard map (like those found in `keyboard.dat') usually with the help of
+   a configuration file specifying the language mapping (keyboard variable in
+   system section of `allegro.cfg'), or you will get the default US keyboard
+   mapping.
 
 @@int @scancode_to_ascii(int scancode);
 @xref scancode_to_name
@@ -12531,6 +12535,26 @@ Platform specifics
 @heading
 DOS specifics
 
+There are four Allegro files which you should redistribute along your program.
+These are the files `keyboard.dat', `language.dat', `allegro.cfg' and
+`setup.exe'.
+
+The first two contain internationalisation information for keyboard mappings
+and system messages to show up localised on the user's computer. The
+`setup.exe' program, which comes in Allegro's `setup' directory, is a
+standalone tool which you can graphically customise and even embed into your
+main binary. The user can generate a configuration file with this tool, to
+store special settings or avoid Allegro's autodetection failing on specific
+hardware. Even if you distribute `setup.exe', you are recommended to copy too
+the empty `allegro.cfg' file, in case the setup program itself is unable to
+run and the user has to edit manually the configuration with a text editor.
+
+If you are using get_config_text() in your program to localise text strings,
+merge your xxtext.cfg files with the ones provided by Allegro in the
+`resource' directory before creating `language.dat', and redistribute this
+with your program. This file will contain then both Allegro's system
+messages and the strings of your program.
+
 @@Drivers @JOY_TYPE_*/DOS
 @xref install_joystick
 @shortdesc Supported DOS joystick drivers.
@@ -12892,6 +12916,10 @@ DOS specifics
 @heading
 Windows specifics
 
+In terms of file redistribution, the Windows platform behaves practically the
+same as the DOS platform. Read section chapter "Dos specifics" in the manual
+to learn more about this.
+
 A Windows program that uses the Allegro library is only required to include
 one or more header files from the include/allegro tree, or allegro.h; however,
 if it also needs to directly call non portable Win32 API functions, it must
@@ -13245,13 +13273,40 @@ To use these routines, you must include winalleg.h after Allegro headers.
    current DC palette. So if you are blitting from 8-bit mode, you should 
    first set the DC palette with the set_palette_to_hdc() function.
 
-
 @man
 
 @heading
 Unix specifics
 
-In order to locate things like the config and translation files, Allegro 
+Under Unix you usually have two ways of redistributing your binaries. You
+either pack everything in a single directory, even providing Allegro in
+binary or source form for the user to compile. Or your program is being
+packaged separately from Allegro and stored in different paths. For the
+first case of redistribution, read section "Files shared by Allegro" from
+the "Dos specifics" chapter to learn more about this.
+
+For the second type, you can ignore redistributing the setup, keyboard
+mappings and language datafiles, because they will be already installed in
+the system. This, however, is problematic if you are using get_config_text()
+to localise your program's text strings.
+
+The problem is that on other platforms you usually mix your program's text
+strings with those of Allegro (found in the `resources' directory) to create
+a special language.dat. And it is likely that the Allegro library installed
+on the user's system already contains a datafile.dat. You can go ahead and
+still provide your own language.dat file, but this will mean that if Allegro
+is updated, your language.dat file may not contain all the text strings used
+by the new version.
+
+Given the slow paced release cycle of Allegro, this might not be a concern.
+However, if you want to make it easy on system administrators, instead of
+providing your own `language.dat', you should provide the separate
+`xxtext.cfg' files it in a separate directory. Then, before showing the
+strings to the user you can detect the language setting and use
+override_config_file() with the appropriate localisation file and call
+reload_config_texts().
+
+In order to locate things like the config and translation files, Allegro
 needs to know the path to your executable. Since there is no standard way to 
 find that, it needs to capture a copy of your argv[] parameter, and it does 
 this with some preprocessor macro trickery. Unfortunately it can't quite 
@@ -13260,10 +13315,10 @@ END_OF_MAIN() right after your main() function. Pretty easy, really, and if
 you forget, you'll get a nice linker error about a missing _mangled_main 
 function to remind you :-)
 
-Under Unix resources are searched for in many different paths. When a
-configuration resource is looked for, it is usually tried with the variations
-`name.cfg' or `.namerc' in multiple paths: the current directory, the
-directory pointed to by the ALLEGRO environment variable, the user's home
+Under Unix resources are searched for in many different paths (see above).
+When a configuration resource is looked for, it is usually tried with the
+variations `name.cfg' or `.namerc' in multiple paths: the current directory,
+the directory pointed to by the ALLEGRO environment variable, the user's home
 directory, one or more global system directories which usually only the
 root user has access to and any custom paths set up with
 set_allegro_resource_path(). Text files, like the main allegro config file or
@@ -13276,21 +13331,21 @@ a language text translation files are looked for in the following places:
    /etc/allegro.cfg
    /etc/allegrorc
 <endblock>
-Binary resources like the keyboard mappings (keyboard.dat) or the language
-translation files packfile (language.dat) are looked for in:
+Binary resources like the language translation files packfile (language.dat)
+are looked for in:
 <textblock>
-   ./keyboard.dat
-   $ALLEGRO/keyboard.dat
-   ~/keyboard.dat
-   /etc/keyboard.dat
-   /usr/share/allegro/keyboard.dat
-   /usr/local/share/allegro/keyboard.dat
+   ./language.dat
+   $ALLEGRO/language.dat
+   ~/language.dat
+   /etc/language.dat
+   /usr/share/allegro/language.dat
+   /usr/local/share/allegro/language.dat
 <endblock>
 Note that if you have installed Allegro from the source distribution with
-the typical `<tt>make install</tt>', global files like `keyboard.dat', `language.dat'
-and `allegro.cfg' will not have been installed. As a system administrator
-you are required to install them manually wherever you prefer to have them.
-If you suspect that an Allegro program is somehow not finding the correct
+the typical `<tt>make install</tt>', global files like `language.dat' and
+`allegro.cfg' will not have been installed. As a system administrator you are
+required to install them manually wherever you prefer to have them. If you
+suspect that an Allegro program is somehow not finding the correct
 configuration file, you could try using the following command:
 <textblock>
    strace program 2>&1|egrep "(open|stat)"
@@ -13300,7 +13355,7 @@ the information to stderr, so that's why we redirect it to stdin with `<tt>2>&1<
 Since we are interested only in files being (un)successfully opened, we
 restrict the output of the log to stat or open calls with the extended grep
 command. You could add another grep to filter only lines with text like
-`keyboard' or `allegro'.
+`language' or `allegro'.
 
 @@Drivers @JOY_TYPE_*/Linux
 @xref install_joystick
@@ -13474,6 +13529,10 @@ command. You could add another grep to filter only lines with text like
 @heading
 BeOS specifics
 
+In terms of file redistribution, the BeOS platform behaves practically the
+same as the DOS platform. Read section chapter "Dos specifics" in the manual
+to learn more about this.
+
 @@Drivers @GFX_*/BeOS
 @xref set_gfx_mode
 @shortdesc Supported BeOS graphic drivers.
@@ -13541,6 +13600,10 @@ BeOS specifics
 
 @heading
 QNX specifics
+
+In terms of file redistribution, the QNX platform behaves practically the
+same as the DOS platform. Read section chapter "Dos specifics" in the manual
+to learn more about this.
 
 @@Drivers @GFX_*/QNX
 @xref set_gfx_mode
@@ -13625,6 +13688,10 @@ you must include qnxalleg.h after other Allegro headers.
 @heading
 MacOS X specifics
 
+In terms of file redistribution, the MacOS X platform behaves practically the
+same as the DOS platform. Read section chapter "Dos specifics" in the manual
+to learn more about this.
+
 Allegro programs under MacOS X are Cocoa applications; in order to hide all
 the Cocoa interfacing to the enduser, you need to add the END_OF_MAIN()
 macro right after your main() function. This is a necessary step: if you omit
@@ -13702,7 +13769,6 @@ loop.
 <endblock>
 
 
-
 @headingnocontent
 Differences between platforms
 
@@ -13728,6 +13794,11 @@ None of the currently supported platforms require input polling, but it is
 possible that some future ones might, so if you want to ensure 100% 
 portability of your program, you should call poll_mouse() and 
 poll_keyboard() in all the relevant places.
+
+On Unix the shared files by Allegro (like `language.dat') may require a
+special use due to the nature of distributing the resources in separate paths
+instead of putting everything in the same directory. Check the beginning of
+your platform's specific chapter to learn more about this.
 
 Allegro defines a number of standard macros that can be used to check 
 various attributes of the current platform:
