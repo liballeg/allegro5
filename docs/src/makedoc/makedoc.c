@@ -315,7 +315,7 @@ static int _read_file(char *filename)
    FILE *f;
    int line = 0;
 
-   printf("reading %s\n", filename);
+   /*printf("reading %s\n", filename);*/
 
    f = fopen(filename, "r");
    if (!f)

@@ -102,7 +102,7 @@ int write_man(char *filename)
 	       strcat(buf, ".");
 	       strcat(buf, get_extension(filename));
 
-	       printf("writing %s\n", buf);
+	       /*printf("writing %s\n", buf);*/
 	       f = fopen(buf, "w");
 	       if (!f)
 		  return 1;
@@ -167,7 +167,7 @@ int write_man(char *filename)
 			strcat(buf2, ".");
 			strcat(buf2, get_extension(filename));
 
-			printf("writing %s\n", buf2);
+			/*printf("writing %s\n", buf2);*/
 			f2 = fopen(buf2, "w");
 			if (!f2)
 			   return 1;

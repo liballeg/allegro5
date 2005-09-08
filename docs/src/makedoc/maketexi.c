@@ -72,7 +72,7 @@ int write_texinfo(char *filename)
    char up_target[256] = "Top";
    FILE *f;
 
-   printf("writing %s\n", filename);
+   /*printf("writing %s\n", filename);*/
 
    f = fopen(filename, "w");
    if (!f)

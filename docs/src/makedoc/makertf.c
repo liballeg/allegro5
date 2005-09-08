@@ -66,7 +66,7 @@ int write_rtf(char *filename)
       }                                                  \
    }
 
-   printf("writing %s\n", filename);
+   /*printf("writing %s\n", filename);*/
 
    f = fopen(filename, "w");
    if (!f)

@@ -177,6 +177,6 @@ static int _convert(const char *filename, const char *apifilename)
  */
 int write_scite(char *filename, char *src)
 {
-   printf("Writing %s (SciTE API File)\n", filename);
+   /*printf("Writing %s (SciTE API File)\n", filename);*/
    return _convert(src, filename);
 }
