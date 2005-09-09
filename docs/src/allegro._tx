@@ -4010,7 +4010,7 @@ GFX_SAFE:<br>
 <li>
    GFX_TEXT:<br>
    Closes any previously opened graphics mode, making you unable to use the
-   global variable screen, and in those environments that have text modes,
+   global variable `screen', and in those environments that have text modes,
    sets one previously used or the closest match to that (usually 80x25).
    With this driver the size parameters of set_gfx_mode don't mean anything,
    so you can leave them all to zero or any other number you prefer.
@@ -4568,45 +4568,45 @@ direct access to the image memory in a bitmap.
 
 Allegro supports several different types of bitmaps:
 <ul><li>
-     The `screen' bitmap, which represents the hardware video memory.
-     Ultimately you have to draw onto this in order for your image to be 
-     visible. It is destroyed by any subsequent calls to set_gfx_mode().
+   The `screen' bitmap, which represents the hardware video memory. Ultimately
+   you have to draw onto this in order for your image to be visible. It is
+   destroyed by any subsequent calls to set_gfx_mode(), so you should never
+   attempt to destroy it yourself.
 <li>
-     Memory bitmaps, which are located in system RAM and can be used to
-     store graphics or as temporary drawing spaces for double buffered 
-     systems. These can be obtained by calling create_bitmap(), load_pcx(), 
-     or by loading a grabber datafile.
+   Memory bitmaps, which are located in system RAM and can be used to store
+   graphics or as temporary drawing spaces for double buffered systems. These
+   can be obtained by calling create_bitmap(), load_pcx(), or by loading a
+   grabber datafile.
 <li>
-     Sub-bitmaps. These share image memory with a parent bitmap (which can be
-     the screen, a video or system bitmap, a memory bitmap, or another
-     sub-bitmap), so drawing onto them will also change their parent. They can
-     be of any size and located anywhere within the parent bitmap, and can
-     have their own clipping rectangles, so they are a useful way of dividing
-     a bitmap into several smaller units, eg. splitting a large virtual screen
-     into multiple sections (see examples/exscroll.c).
+   Sub-bitmaps. These share image memory with a parent bitmap (which can be
+   the screen, a video or system bitmap, a memory bitmap, or another
+   sub-bitmap), so drawing onto them will also change their parent. They can
+   be of any size and located anywhere within the parent bitmap, and can have
+   their own clipping rectangles, so they are a useful way of dividing a
+   bitmap into several smaller units, eg. splitting a large virtual screen
+   into multiple sections (see examples/exscroll.c).
 
-     Warning: Make sure not to destroy a bitmap before all of its sub-bitmaps,
-     otherwise bad things will happen when you try to access one of these
-     sub-bitmaps.
+   Warning: Make sure not to destroy a bitmap before all of its sub-bitmaps,
+   otherwise bad things will happen when you try to access one of these
+   sub-bitmaps.
 <li>
-     Video memory bitmaps. These are created by the create_video_bitmap()
-     function, and are usually implemented as sub-bitmaps of the screen 
-     object. They must be destroyed by destroy_bitmap() before any subsequent
-     calls to set_gfx_mode().
+   Video memory bitmaps. These are created by the create_video_bitmap()
+   function, and are usually implemented as sub-bitmaps of the screen object.
+   They must be destroyed by destroy_bitmap() before any subsequent calls to
+   set_gfx_mode().
 <li>
-     System bitmaps. These are created by the create_system_bitmap()
-     function, and are a sort of halfway house between memory and video 
-     bitmaps. They live in system memory, so you aren't limited by the 
-     amount of video ram in your card, but they are stored in a 
-     platform-specific format that may enable better hardware acceleration 
-     than is possible with a normal memory bitmap (see the 
-     GFX_HW_SYS_TO_VRAM_BLIT and GFX_HW_SYS_TO_VRAM_BLIT_MASKED flags in 
-     gfx_capabilities). System bitmaps must be accessed in the same way as 
-     video bitmaps, using the bank switch functions and bmp_write*() macros. 
-     Not every platform implements this type of bitmap: if they aren't 
-     available, create_system_bitmap() will function identically to 
-     create_bitmap(). They must be destroyed by destroy_bitmap() before any
-     subsequent calls to set_gfx_mode().
+   System bitmaps. These are created by the create_system_bitmap() function,
+   and are a sort of halfway house between memory and video bitmaps. They
+   live in system memory, so you aren't limited by the amount of video ram in
+   your card, but they are stored in a platform-specific format that may
+   enable better hardware acceleration than is possible with a normal memory
+   bitmap (see the GFX_HW_SYS_TO_VRAM_BLIT and GFX_HW_SYS_TO_VRAM_BLIT_MASKED
+   flags in gfx_capabilities). System bitmaps must be accessed in the same way
+   as video bitmaps, using the bank switch functions and bmp_write*() macros.
+   Not every platform implements this type of bitmap: if they aren't
+   available, create_system_bitmap() will function identically to
+   create_bitmap(). They must be destroyed by destroy_bitmap() before any
+   subsequent calls to set_gfx_mode().
 </ul>
 
 @@extern BITMAP *@screen;
@@ -4641,7 +4641,8 @@ Allegro supports several different types of bitmaps:
 
    Warning: be very careful when using this pointer at the same time as any
    bitmaps created by the create_video_bitmap() function (see the description
-   of this function for more detailed information).
+   of this function for more detailed information). And never try to destroy
+   it with destroy_bitmap().
 
 @@#define @SCREEN_W;
 @@#define @SCREEN_H;
