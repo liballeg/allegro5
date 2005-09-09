@@ -159,7 +159,7 @@ gcc -o _makedoc.exe docs/src/makedoc/*.c
 ./_makedoc.exe -ascii CHANGES docs/src/changes._tx
 ./_makedoc.exe -part -ascii AUTHORS docs/src/thanks._tx
 ./_makedoc.exe -part -ascii THANKS docs/src/thanks._tx
-for base in abi ahack allegro const faq help; do
+for base in abi ahack allegro const faq help mistakes; do
    ./_makedoc.exe -ascii docs/txt/$base.txt docs/src/$base._tx
 done
 for base in bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom; do

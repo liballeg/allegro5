@@ -175,7 +175,8 @@ rm -rf %{buildroot}
 %files devel
 %defattr(-,root,root)
 %doc docs/txt/abi.txt docs/txt/ahack.txt docs/txt/allegro.txt
-%doc docs/txt/const.txt docs/txt/faq.txt docs/txt/help.txt
+%doc docs/txt/const.txt docs/txt/faq.txt docs/txt/mistakes.txt
+%doc docs/txt/help.txt
 %doc todo.txt docs/html
 %doc demo examples setup
 %{_bindir}/allegro-config
