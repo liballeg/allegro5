@@ -74,7 +74,7 @@ long _al_file_size(AL_CONST char *filename)
    struct stat s;
    char tmp[1024];
 
-   if (stat(uconvert_toascii(filename, tmp), &s) != 0) {
+   if (stat(uconvert(filename, U_CURRENT, tmp, U_UTF8, sizeof(tmp)), &s) != 0) {
       *allegro_errno = errno;
       return 0;
    }
@@ -92,7 +92,7 @@ time_t _al_file_time(AL_CONST char *filename)
    struct stat s;
    char tmp[1024];
 
-   if (stat(uconvert_toascii(filename, tmp), &s) != 0) {
+   if (stat(uconvert(filename, U_CURRENT, tmp, U_UTF8, sizeof(tmp)), &s) != 0) {
       *allegro_errno = errno;
       return 0;
    }
@@ -316,15 +316,15 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    char *p;
 
    /* if the pattern contains no wildcard, we use stat() */
-   if (!ustrpbrk(pattern, uconvert_ascii("?*", tmp))) {
+   if (!ustrpbrk(pattern, uconvert("?*", U_ASCII, tmp, U_CURRENT, sizeof(tmp)))) {
       info->ff_data = NULL;
 
       /* start the search */
       errno = *allegro_errno = 0;
 
-      if (stat(uconvert_toascii(pattern, tmp), &s) == 0) {
+      if (stat(uconvert(pattern, U_CURRENT, tmp, U_UTF8, sizeof(tmp)), &s) == 0) {
          /* get file attributes */
-         actual_attrib = ff_get_attrib(ff_get_filename(uconvert_toascii(pattern, tmp)), &s);
+         actual_attrib = ff_get_attrib(ff_get_filename(uconvert(pattern, U_CURRENT, tmp, U_UTF8, sizeof(tmp))), &s);
 
          /* does it match ? */
          if ((actual_attrib & ~attrib) == 0) {
@@ -354,7 +354,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    /* initialize it */
    ff_data->attrib = attrib;
 
-   do_uconvert(pattern, U_CURRENT, ff_data->dirname, U_ASCII, sizeof(ff_data->dirname));
+   do_uconvert(pattern, U_CURRENT, ff_data->dirname, U_UTF8, sizeof(ff_data->dirname));
    p = ff_get_filename(ff_data->dirname);
    _al_sane_strncpy(ff_data->pattern, p, sizeof(ff_data->pattern));
    if (p == ff_data->dirname)
@@ -443,7 +443,7 @@ int al_findnext(struct al_ffblk *info)
    info->time = s.st_mtime;
    info->size = s.st_size;
 
-   do_uconvert(tempname, U_ASCII, info->name, U_CURRENT, sizeof(info->name));
+   do_uconvert(tempname, U_UTF8, info->name, U_CURRENT, sizeof(info->name));
 
    return 0;
 }
@@ -477,7 +477,7 @@ void _al_getdcwd(int drive, char *buf, int size)
    char tmp[1024];
 
    if (getcwd(tmp, sizeof(tmp)))
-      do_uconvert(tmp, U_ASCII, buf, U_CURRENT, size);
+      do_uconvert(tmp, U_UTF8, buf, U_CURRENT, size);
    else
       usetc(buf, 0);
 }
