@@ -1164,8 +1164,8 @@ is best to set it with set_uformat() just before you call these.
    internal static buffer and the `size' parameter will be ignored. You should
    be wary of using this feature, though, because that buffer will be
    overwritten the next time this routine is called, so don't expect the data
-   to persist across any other library calls. The static buffer has a size
-   shorter than 1K, so you won't be able to convert large chunks of text.
+   to persist across any other library calls. The static buffer may hold less
+   than 1024 characters, so you won't be able to convert large chunks of text.
    Example:
 <codeblock>
       char *p = uconvert(input_string, U_CURRENT, buffer, U_ASCII, 256);<endblock>
