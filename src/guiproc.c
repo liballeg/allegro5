@@ -409,7 +409,7 @@ int d_button_proc(int msg, DIALOG *d, int c)
 int d_check_proc(int msg, DIALOG *d, int c)
 {
    BITMAP *gui_bmp = gui_get_screen();
-   int x;
+   int x, y, h;
    int fg, bg;
    ASSERT(d);
 
@@ -417,17 +417,22 @@ int d_check_proc(int msg, DIALOG *d, int c)
       fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
       bg = (d->bg < 0) ? gui_bg_color : d->bg;
 
-      x = d->x + ((d->d1) ? 0 : gui_textout_ex(gui_bmp, d->dp, d->x, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, d->bg, FALSE) + text_height(font)/2);
-      rectfill(gui_bmp, x+1, d->y+1, x+d->h-2, d->y+d->h-2, bg);
-      rect(gui_bmp, x, d->y, x+d->h-1, d->y+d->h-1, fg);
-      if (d->d1)
-	 gui_textout_ex(gui_bmp, d->dp, x+d->h-1+text_height(font)/2, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, d->bg, FALSE);
-      if (d->flags & D_SELECTED) {
-	 line(gui_bmp, x, d->y, x+d->h-1, d->y+d->h-1, fg);
-	 line(gui_bmp, x, d->y+d->h-1, x+d->h-1, d->y, fg);
-      }
+      h = text_height(font);
+
+      rectfill(gui_bmp, d->x, d->y, d->x+d->w-1, d->y+d->h-1, bg);
       if (d->flags & D_GOTFOCUS)
-	 dotted_rect(x+1, d->y+1, x+d->h-2, d->y+d->h-2, fg, bg);
+	 dotted_rect(d->x, d->y, d->x+d->w-1, d->y+d->h-1, fg, bg);
+
+      y = d->y + ((d->h-(h-gui_font_baseline))/2);
+      x = d->x + ((d->d1) ? 0 : gui_textout_ex(gui_bmp, d->dp, d->x, y, fg, -1, FALSE) + h/2);
+
+      rect(gui_bmp, x, y, x+h-1, y+h-1, fg);
+      if (d->d1)
+	 gui_textout_ex(gui_bmp, d->dp, x+h+h/2, y, fg, -1, FALSE);
+      if (d->flags & D_SELECTED) {
+	 line(gui_bmp, x, y, x+h-1, y+h-1, fg);
+	 line(gui_bmp, x, y+h-1, x+h-1, y, fg);
+      }
 
       return D_O_K;
    } 
@@ -445,7 +450,8 @@ int d_check_proc(int msg, DIALOG *d, int c)
 int d_radio_proc(int msg, DIALOG *d, int c)
 {
    BITMAP *gui_bmp = gui_get_screen();
-   int x, center, r, ret, fg, bg;
+   int x, y, h, r, ret, fg, bg;
+   int centerx, centery;
    ASSERT(d);
 
    switch(msg) {
@@ -454,34 +460,34 @@ int d_radio_proc(int msg, DIALOG *d, int c)
 	 fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
 	 bg = (d->bg < 0) ? gui_bg_color : d->bg;
 
-	 gui_textout_ex(gui_bmp, d->dp, d->x+d->h-1+text_height(font), d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, d->bg, FALSE);
+	 rectfill(gui_bmp, d->x, d->y, d->x+d->w-1, d->y+d->h-1, bg);
+	 if (d->flags & D_GOTFOCUS)
+	    dotted_rect(d->x, d->y, d->x+d->w-1, d->y+d->h-1, fg, bg);
+
+	 h = text_height(font);
+	 y = d->y+(d->h-(h-gui_font_baseline))/2;
+
+	 gui_textout_ex(gui_bmp, d->dp, d->x+h+h/2, y, fg, -1, FALSE);
 
 	 x = d->x;
-	 r = d->h/2;
+	 r = h/2;
 
-	 center = x+r;
-	 rectfill(gui_bmp, x, d->y, x+d->h-1, d->y+d->h-1, bg);
+	 centerx = d->x+r;
+	 centery = d->y+d->h/2;
 
 	 switch (d->d2) {
 
 	    case 1:
-	       rect(gui_bmp, x, d->y, x+d->h-1, d->y+d->h-1, fg);
+	       rect(gui_bmp, d->x, y, x+h-1, y+h-1, fg);
 	       if (d->flags & D_SELECTED)
-		  rectfill(gui_bmp, x+r/2, d->y+r/2, x+d->h-1-r/2, d->y+d->h-1-r/2, fg);
+		  rectfill(gui_bmp, centerx-r/2, centery-r/2, centerx+r/2-1, centery+r/2-1, fg);
 	       break;
 
 	    default:
-	       circle(gui_bmp, center, d->y+r, r, fg);
+	       circle(gui_bmp, centerx, centery, r, fg);
 	       if (d->flags & D_SELECTED)
-		  circlefill(gui_bmp, center, d->y+r, r/2, fg);
+		  circlefill(gui_bmp, centerx, centery, r/2, fg);
 	       break;
-	 }
-
-	 if (d->flags & D_GOTFOCUS) {
-	    if (d->d2 == 1)
-	       dotted_rect(x+1, d->y+1, x+d->h-2, d->y+d->h-2, fg, bg);
-	    else
-	       dotted_rect(x, d->y, x+d->h-1, d->y+d->h-1, fg, bg);
 	 }
 
 	 return D_O_K;
