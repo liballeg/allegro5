@@ -1405,6 +1405,7 @@ void misc(void)
 {
    BITMAP *p;
    volatile fixed x, y, z;
+   volatile float fx, fy, fz;
 
    clear_to_color(screen, palette_color[0]);
    textout_ex(screen,font,"Timing some other routines...", xoff+44, 6, palette_color[15], palette_color[0]);
@@ -1423,7 +1424,7 @@ void misc(void)
       } while (tm < TIME_SPEED);
       destroy_bitmap(p);
       sprintf(buf,"clear_bitmap(320x200): %ld per second", ct/TIME_SPEED);
-      textout_ex(screen, font, buf, xoff+16, yoff+50, palette_color[15], palette_color[0]);
+      textout_ex(screen, font, buf, xoff+16, yoff+15, palette_color[15], palette_color[0]);
    }
 
    x = y = 0;
@@ -1440,7 +1441,23 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixmul(): %ld per second", ct/TIME_SPEED);
-   textout_ex(screen, font, buf, xoff+16, yoff+60, palette_color[15], palette_color[0]);
+   textout_ex(screen, font, buf, xoff+16, yoff+25, palette_color[15], palette_color[0]);
+
+   fx = fy = 0;
+   tm = 0; _tm = 0;
+   ct = 0;
+
+   do {
+      fz = fx * fy;
+      fx += 1317;
+      fy += 7143;
+      ct++;
+      if (next())
+	 return;
+   } while (tm < TIME_SPEED);
+
+   sprintf(buf, "float *:  %ld per second", ct/TIME_SPEED);
+   textout_ex(screen, font, buf, xoff+16, yoff+35, palette_color[15], palette_color[0]);
 
    x = y = 0;
    tm = 0; _tm = 0;
@@ -1458,7 +1475,25 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixdiv(): %ld per second", ct/TIME_SPEED);
-   textout_ex(screen, font, buf, xoff+16, yoff+70, palette_color[15], palette_color[0]);
+   textout_ex(screen, font, buf, xoff+16, yoff+45, palette_color[15], palette_color[0]);
+
+   fx = fy = 1;
+   tm = 0; _tm = 0;
+   ct = 0;
+
+   do {
+      fz = fx / fy;
+      fx += 1317;
+      fy += 7143;
+      if (fy==0)
+	 fy++;
+      ct++;
+      if (next())
+	 return;
+   } while (tm < TIME_SPEED);
+
+   sprintf(buf, "float /:  %ld per second", ct/TIME_SPEED);
+   textout_ex(screen, font, buf, xoff+16, yoff+55, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1472,8 +1507,23 @@ void misc(void)
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "fixsqrt(): %ld per second", ct/TIME_SPEED);
-   textout_ex(screen, font, buf, xoff+16, yoff+80, palette_color[15], palette_color[0]);
+   sprintf(buf, "fixsqrt():    %ld per second", ct/TIME_SPEED);
+   textout_ex(screen, font, buf, xoff+16, yoff+65, palette_color[15], palette_color[0]);
+
+   fx = 1;
+   tm = 0; _tm = 0;
+   ct = 0;
+
+   do {
+      fy = fixsqrt(fx);
+      fx += 7361;
+      ct++;
+      if (next())
+	 return;
+   } while (tm < TIME_SPEED);
+
+   sprintf(buf, "libc sqrtf(): %ld per second", ct/TIME_SPEED);
+   textout_ex(screen, font, buf, xoff+16, yoff+75, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1487,8 +1537,23 @@ void misc(void)
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "fixsin(): %ld per second", ct / TIME_SPEED);
-   textout_ex(screen, font, buf, xoff+16, yoff+90, palette_color[15], palette_color[0]);
+   sprintf(buf, "fixsin():    %ld per second", ct / TIME_SPEED);
+   textout_ex(screen, font, buf, xoff+16, yoff+85, palette_color[15], palette_color[0]);
+
+   fx = 1;
+   tm = 0; _tm = 0;
+   ct = 0;
+
+   do {
+      fy = sinf(fx);
+      fx += 4283;
+      ct++;
+      if (next())
+	 return;
+   } while (tm < TIME_SPEED);
+
+   sprintf(buf, "libc sinf(): %ld per second", ct / TIME_SPEED);
+   textout_ex(screen, font, buf, xoff+16, yoff+95, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1503,7 +1568,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixcos(): %ld per second", ct / TIME_SPEED);
-   textout_ex(screen, font, buf, xoff+16, yoff+100, palette_color[15], palette_color[0]);
+   textout_ex(screen, font, buf, xoff+16, yoff+105, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1517,8 +1582,23 @@ void misc(void)
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "fixtan(): %ld per second", ct / TIME_SPEED);
-   textout_ex(screen, font, buf, xoff+16, yoff+110, palette_color[15], palette_color[0]);
+   sprintf(buf, "fixtan():    %ld per second", ct / TIME_SPEED);
+   textout_ex(screen, font, buf, xoff+16, yoff+115, palette_color[15], palette_color[0]);
+
+   fx = 1;
+   tm = 0; _tm = 0;
+   ct = 0;
+
+   do {
+      fy = tanf(fx);
+      fx += 8372;
+      ct++;
+      if (next())
+	 return;
+   } while (tm < TIME_SPEED);
+
+   sprintf(buf, "libc tanf(): %ld per second", ct / TIME_SPEED);
+   textout_ex(screen, font, buf, xoff+16, yoff+125, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1534,7 +1614,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixasin(): %ld per second", ct / TIME_SPEED);
-   textout_ex(screen, font, buf, xoff+16, yoff+120, palette_color[15], palette_color[0]);
+   textout_ex(screen, font, buf, xoff+16, yoff+135, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1550,7 +1630,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf,"fixacos(): %ld per second", ct / TIME_SPEED);
-   textout_ex(screen, font, buf, xoff+16, yoff+130, palette_color[15], palette_color[0]);
+   textout_ex(screen, font, buf, xoff+16, yoff+145, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1564,8 +1644,23 @@ void misc(void)
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "fixatan(): %ld per second", ct / TIME_SPEED);
-   textout_ex(screen, font, buf, xoff+16, yoff+140, palette_color[15], palette_color[0]);
+   sprintf(buf, "fixatan():    %ld per second", ct / TIME_SPEED);
+   textout_ex(screen, font, buf, xoff+16, yoff+155, palette_color[15], palette_color[0]);
+
+   fx = 1;
+   tm = 0; _tm = 0;
+   ct = 0;
+
+   do {
+      fy = atanf(fx);
+      fx += 7358;
+      ct++;
+      if (next())
+	 return;
+   } while (tm < TIME_SPEED);
+
+   sprintf(buf, "libc atanf(): %ld per second", ct / TIME_SPEED);
+   textout_ex(screen, font, buf, xoff+16, yoff+165, palette_color[15], palette_color[0]);
 
    x = 1, y = 2;
    tm = 0; _tm = 0;
@@ -1581,7 +1676,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixatan2(): %ld per second", ct / TIME_SPEED);
-   textout_ex(screen, font, buf, xoff+16, yoff+150, palette_color[15], palette_color[0]);
+   textout_ex(screen, font, buf, xoff+16, yoff+175, palette_color[15], palette_color[0]);
 
    textout_ex(screen, font, "Press a key or mouse button", xoff+52, SCREEN_H-10, palette_color[15], palette_color[0]);
 
