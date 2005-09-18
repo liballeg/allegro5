@@ -713,7 +713,7 @@ Contributors
    understand the entire 16 bit character set.
 
    Olivier Blin (<email>oblin@mandriva.com</a>).<br>
-   fixed compilation problems for the ModeX driver.
+   Fixed compilation problems for the ModeX driver.
 
    Olly Betts (<email>olly@muscat.co.uk</a>).<br>
    Modified the djgpp makefile to support cross-compiling on a Linux machine.
