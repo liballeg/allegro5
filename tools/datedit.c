@@ -1529,10 +1529,15 @@ DATAFILE *datedit_construct(int type, void *dat, long size, DATAFILE_PROPERTY **
    datafile.type = type;
    datafile.dat = dat;
    datafile.size = size;
-   datafile.prop = *prop;
+   if (prop != NULL) {
+      datafile.prop = *prop;
 
-   /* Make sure we own the property list. */
-   *prop = NULL;
+      /* Make sure we own the property list. */
+      *prop = NULL;
+   }
+   else {
+      datafile.prop = NULL;
+   }
 
    return &datafile;
 }
