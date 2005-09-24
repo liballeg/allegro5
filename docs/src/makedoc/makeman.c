@@ -384,7 +384,7 @@ static void _mfputs(char *p, FILE *f)
       }
       /* output other characters */
       else {
-	 if ((*p == '\'') || (*p == '\\'))
+	 if (*p == '\\')
 	    fputc('\\', f);
 
 	 fputc(*p, f);
