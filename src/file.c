@@ -2635,7 +2635,7 @@ static long normal_fread(void *p, long n, void *_f)
    int c;
 
    for (i=0; i<n; i++) {
-      if ((c = pack_getc(f)) == EOF)
+      if ((c = normal_getc(f)) == EOF)
 	 break;
 
       *(cp++) = c;
