@@ -7,7 +7,7 @@ Updates or comments can be sent to the Allegro developer's mailing list
 in the subject.
 
 
-4.2 RC1 todos:
+4.2 RC2 todos:
 ---------------------------------------------------------------------------
 
 - Investigate video bitmap problems reported in http://www.allegro.cc/forums/view_thread.php?_id=453220
@@ -33,6 +33,7 @@ in the subject.
 - exkey in Windows: scancode_to_name(NumLock) shows up as "Pause"
 - 64-bit portability warnings with MSVC7.1, http://www.allegro.cc/forums/view_thread.php?_id=523945
 - DirectInput joystick bug, http://www.allegro.cc/forums/view_thread.php?_id=507375
+- Revert to fixmul's C version from 4.0.x if needed: http://www.allegro.cc/forums/view_thread.php?_id=525743
 
 General (Platform independent) todos:
 ---------------------------------------------------------------------------
