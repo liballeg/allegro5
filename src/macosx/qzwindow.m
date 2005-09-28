@@ -595,9 +595,14 @@ static void osx_qz_window_exit(BITMAP *bmp)
  */
 static void osx_qz_window_vsync(void)
 {
-  pthread_mutex_lock(&vsync_mutex);
-  pthread_cond_wait(&vsync_cond, &vsync_mutex);
-  pthread_mutex_unlock(&vsync_mutex);
+  if (lock_nesting==0) {
+    pthread_mutex_trylock(&vsync_mutex);
+    pthread_cond_wait(&vsync_cond, &vsync_mutex);
+    pthread_mutex_unlock(&vsync_mutex);
+  }
+  else {
+    ASSERT(0); /* Screen already acquired, don't call vsync() */
+  }
 }
 
 
