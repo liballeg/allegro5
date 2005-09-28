@@ -277,6 +277,8 @@
    #define FA_DIREC        16
    #define FA_ARCH         32
 #endif
+   #define FA_NONE         0
+   #define FA_ALL          (~FA_NONE)
 
 
 #ifdef __cplusplus
