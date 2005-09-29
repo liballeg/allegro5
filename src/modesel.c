@@ -609,13 +609,13 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
          bpp_index++;
    }
 
-   uszprintf(mode_string,
-             sizeof(mode_string),
-             uconvert_ascii("%2d %s (%s %s)", tmp),
-             bpp_value(bpp_entry),
-             get_config_text("bpp"),
-             bpp_string_list[bpp_entry],
-             get_config_text("colors"));
+   uszprintf(mode_string, sizeof(mode_string), uconvert_ascii("%2d ", tmp), bpp_value(bpp_entry));
+   ustrzcat(mode_string, sizeof(mode_string), get_config_text("bpp"));
+   ustrzcat(mode_string, sizeof(mode_string), uconvert_ascii(" (", tmp));
+   ustrzcat(mode_string, sizeof(mode_string), uconvert_ascii(bpp_string_list[bpp_entry], tmp));
+   ustrzcat(mode_string, sizeof(mode_string), uconvert_ascii(" ", tmp));
+   ustrzcat(mode_string, sizeof(mode_string), get_config_text("colors"));
+   ustrzcat(mode_string, sizeof(mode_string), uconvert_ascii(")", tmp));
  
    return mode_string;
 }
