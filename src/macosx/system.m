@@ -377,6 +377,7 @@ int osx_bootstrap_ok(void)
    cfport = CFMachPortCreate(NULL, NULL, NULL, NULL);
    task_get_bootstrap_port(mach_task_self(), &bp);
    ret = bootstrap_register(bp, "bootstrap-ok-test", CFMachPortGetPort(cfport));
+   CFRelease(cfport);
    _ok = (ret == KERN_SUCCESS) ? 1 : 0;
    return _ok;
 }
