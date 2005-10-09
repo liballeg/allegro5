@@ -100,7 +100,8 @@ typedef struct HID_ELEMENT
    int type;
    IOHIDElementCookie cookie;
    int max, min;
-   int stick;
+   int app;
+   int col;
    int index;
    char *name;
 } HID_ELEMENT;
@@ -112,10 +113,18 @@ typedef struct HID_DEVICE
    char *manufacturer;
    char *product;
    int num_elements;
-   HID_ELEMENT element[HID_MAX_DEVICE_ELEMENTS];
+   int capacity;
+   HID_ELEMENT *element;
    IOHIDDeviceInterface **interface;
+   int cur_app;
 } HID_DEVICE;
 
+typedef struct 
+{
+   int count;
+   int capacity;
+   HID_DEVICE* devices;
+} HID_DEVICE_COLLECTION;
 
 
 void osx_event_handler(void);
@@ -147,8 +156,8 @@ int osx_mouse_show(BITMAP *bmp, int x, int y);
 void osx_mouse_hide(void);
 void osx_mouse_move(int x, int y);
 
-HID_DEVICE *osx_hid_scan(int type, int *num_devices);
-void osx_hid_free(HID_DEVICE *devices, int num_devices);
+HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION*);
+void osx_hid_free(HID_DEVICE_COLLECTION *);
 
 
 AL_VAR(NSBundle *, osx_bundle);
@@ -173,3 +182,9 @@ extern AL_METHOD(void, osx_window_close_hook, (void));
 #endif
 
 #endif
+
+/* Local variables:       */
+/* mode: objc             */
+/* c-basic-offset: 3      */
+/* indent-tabs-mode: nil  */
+/* End:                   */

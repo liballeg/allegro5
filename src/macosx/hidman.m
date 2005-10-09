@@ -24,25 +24,53 @@
 #error Something is wrong with the makefile
 #endif
 
-static void hid_store_element_data(CFTypeRef element, int type, HID_DEVICE *device);
+#define USAGE(p, u) (((p)<<16)+(u))
+
+static void hid_store_element_data(CFTypeRef element, int type, HID_DEVICE *device, int app, int collection, int index);
 static void hid_scan_element(CFTypeRef element, HID_DEVICE *device);
-static void hid_scan_collection(CFMutableDictionaryRef properties, HID_DEVICE *device);
+static void hid_scan_physical_collection(CFTypeRef properties, HID_DEVICE *device, int app, int collection);
+static void hid_scan_application_collection(CFMutableDictionaryRef properties, HID_DEVICE *device);
+
+static HID_DEVICE* add_device(HID_DEVICE_COLLECTION*);
 
 
+static HID_ELEMENT* add_element(HID_DEVICE* d) {
+   HID_ELEMENT* e;
+   if (d->element==NULL) {
+      d->capacity=8;
+      d->element=malloc(d->capacity*sizeof(HID_ELEMENT));
+   }
+   if (d->num_elements>=d->capacity) {
+      d->capacity*=2;
+      d->element=realloc(d->element, d->capacity*sizeof(HID_ELEMENT));
+   }
+   e=&d->element[d->num_elements++];
+   memset(e, 0, sizeof(HID_ELEMENT));
+   return e;
+}
+/* i_val:
+ * Helper method - get an integer value from a dictionary
+ */
+static int i_val(CFTypeRef d, CFStringRef key) {
+   int ans;
+   CFNumberGetValue(CFDictionaryGetValue(d, key), kCFNumberIntType, &ans);
+   return ans;
+}
 
-static void hid_store_element_data(CFTypeRef element, int type, HID_DEVICE *device)
+static void hid_store_element_data(CFTypeRef element, int type, HID_DEVICE *device, int app, int col, int idx)
 {
    HID_ELEMENT *hid_element;
    CFTypeRef type_ref;
    AL_CONST char *name;
-   
-   if (device->num_elements >= HID_MAX_DEVICE_ELEMENTS)
-      return;
-   hid_element = &device->element[device->num_elements++];
+
+   hid_element = add_element(device);
    hid_element->type = type;
-   CFNumberGetValue(CFDictionaryGetValue(element, CFSTR(kIOHIDElementCookieKey)), kCFNumberIntType, &hid_element->cookie);
-   CFNumberGetValue(CFDictionaryGetValue(element, CFSTR(kIOHIDElementMinKey)), kCFNumberIntType, &hid_element->min);
-   CFNumberGetValue(CFDictionaryGetValue(element, CFSTR(kIOHIDElementMaxKey)), kCFNumberIntType, &hid_element->max);
+   hid_element->index=idx;
+   hid_element->col=col;
+   hid_element->app=app;
+   hid_element->cookie=(IOHIDElementCookie) i_val(element, CFSTR(kIOHIDElementCookieKey));
+   hid_element->min=i_val(element, CFSTR(kIOHIDElementMinKey));
+   hid_element->max=i_val(element, CFSTR(kIOHIDElementMaxKey));
    type_ref = CFDictionaryGetValue(element, CFSTR(kIOHIDElementNameKey));
    if ((type_ref) && (name = CFStringGetCStringPtr(type_ref, CFStringGetSystemEncoding())))
       hid_element->name = strdup(name);
@@ -52,74 +80,172 @@ static void hid_store_element_data(CFTypeRef element, int type, HID_DEVICE *devi
 
 
 
-static void hid_scan_element(CFTypeRef element, HID_DEVICE *device)
+/* hid_scan_application:
+ * scan the elements that make up one 'application'
+ */
+static void hid_scan_application(CFTypeRef properties, HID_DEVICE *device, int app)
 {
+   CFTypeRef array_ref, element;
    int type, usage_page, usage;
-   
-   CFNumberGetValue(CFDictionaryGetValue(element, CFSTR(kIOHIDElementTypeKey)), kCFNumberIntType, &type);
-   if (type == kIOHIDElementTypeCollection)
-      hid_scan_collection((CFMutableDictionaryRef)element, device);
-   else if ((type == kIOHIDElementTypeInput_Misc) ||
-            (type == kIOHIDElementTypeInput_Button) ||
-	    ((device->type != HID_MOUSE) && (type == kIOHIDElementTypeInput_Axis))) {
-      CFNumberGetValue(CFDictionaryGetValue(element, CFSTR(kIOHIDElementUsagePageKey)), kCFNumberIntType, &usage_page);
-      CFNumberGetValue(CFDictionaryGetValue(element, CFSTR(kIOHIDElementUsageKey)), kCFNumberIntType, &usage);
-      if (usage_page == kHIDPage_GenericDesktop) {
-	 switch (usage) {
-	    
-	    case kHIDUsage_GD_X:
-	       hid_store_element_data(element, HID_ELEMENT_AXIS_PRIMARY_X, device);
-	       break;
-	       
-	    case kHIDUsage_GD_Y:
-	       hid_store_element_data(element, HID_ELEMENT_AXIS_PRIMARY_Y, device);
-	       break;
-	       
-	    case kHIDUsage_GD_Z:
-	    case kHIDUsage_GD_Rx:
-	    case kHIDUsage_GD_Ry:
-	    case kHIDUsage_GD_Rz:
-	       hid_store_element_data(element, HID_ELEMENT_AXIS, device);
-	       break;
-	    
-	    case kHIDUsage_GD_Slider:
-	    case kHIDUsage_GD_Dial:
-	    case kHIDUsage_GD_Wheel:
-	       hid_store_element_data(element, HID_ELEMENT_STANDALONE_AXIS, device);
-	       break;
-	       
-	    case kHIDUsage_GD_Hatswitch:
-	       hid_store_element_data(element, HID_ELEMENT_HAT, device);
-	       break;
-	 }
-      }
-      else if (usage_page == kHIDPage_Button) {
-	 hid_store_element_data(element, HID_ELEMENT_BUTTON, device);
-      }
-   }
-}
-
-
-
-static void hid_scan_collection(CFMutableDictionaryRef properties, HID_DEVICE *device)
-{
-   CFTypeRef array_ref, type_ref;
    int i;
-   
+   int axis=0;
+   int stick=0;
    array_ref = CFDictionaryGetValue(properties, CFSTR(kIOHIDElementKey));
    if ((array_ref) && (CFGetTypeID(array_ref) == CFArrayGetTypeID())) {
       for (i = 0; i < CFArrayGetCount(array_ref); i++) {
-         type_ref = CFArrayGetValueAtIndex(array_ref, i);
-	 if (CFGetTypeID(type_ref) == CFDictionaryGetTypeID())
-	    hid_scan_element(type_ref, device);
+         element = CFArrayGetValueAtIndex(array_ref, i);
+         if (CFGetTypeID(element) == CFDictionaryGetTypeID()) {
+            type=i_val(element, CFSTR(kIOHIDElementTypeKey));
+            usage=i_val(element, CFSTR(kIOHIDElementUsageKey));
+            usage_page=i_val(element, CFSTR(kIOHIDElementUsagePageKey));
+            switch (usage_page) {
+            case kHIDPage_GenericDesktop:
+               switch(usage) {
+               case kHIDUsage_GD_Pointer:
+                  if (axis!=0) {
+                     /* already have some elements in this stick */
+                     ++stick;
+                     axis=0;
+                  }
+                  hid_scan_physical_collection(element, device, app, stick);
+                  ++stick;
+                  break;
+               case kHIDUsage_GD_X:
+                  hid_store_element_data(element, HID_ELEMENT_AXIS_PRIMARY_X, device, app, stick, axis++);
+                  break;
+                    
+               case kHIDUsage_GD_Y:
+                  hid_store_element_data(element, HID_ELEMENT_AXIS_PRIMARY_Y, device, app, stick, axis++);
+                  break;
+                    
+               case kHIDUsage_GD_Z:
+               case kHIDUsage_GD_Rx:
+               case kHIDUsage_GD_Ry:
+               case kHIDUsage_GD_Rz:
+                  hid_store_element_data(element, HID_ELEMENT_AXIS, device,app, stick, axis++);
+                  break;
+                    
+               case kHIDUsage_GD_Slider:
+               case kHIDUsage_GD_Dial:
+               case kHIDUsage_GD_Wheel:
+                  ++stick;
+                  axis=0;
+                  hid_store_element_data(element, HID_ELEMENT_STANDALONE_AXIS, device, app, stick++, 0);
+                  break;
+                    
+               case kHIDUsage_GD_Hatswitch:
+                  ++stick;
+                  axis=0;
+                  hid_store_element_data(element, HID_ELEMENT_HAT, device, app, stick++, 0);
+                  break;
+               }
+               break;
+            case kHIDPage_Button:
+               hid_store_element_data(element, HID_ELEMENT_BUTTON, device, app, 0, usage-1);
+               break;
+            }
+            if (axis>=2) {
+               ++stick;
+               axis=0;
+            }
+         }
       }
    }
 }
 
-
-
-HID_DEVICE *osx_hid_scan(int type, int *num_devices)
+/* hid_scan_physical_collection:
+ * scan the elements that make up one 'stick'
+ */
+static void hid_scan_physical_collection(CFTypeRef properties, HID_DEVICE *device, int app, int stick)
 {
+   CFTypeRef array_ref, element;
+   int type, usage_page, usage;
+   int i;
+   int axis=0;
+   array_ref = CFDictionaryGetValue(properties, CFSTR(kIOHIDElementKey));
+   if ((array_ref) && (CFGetTypeID(array_ref) == CFArrayGetTypeID())) {
+      for (i = 0; i < CFArrayGetCount(array_ref); i++) {
+         element = CFArrayGetValueAtIndex(array_ref, i);
+         if (CFGetTypeID(element) == CFDictionaryGetTypeID()) {
+            type=i_val(element, CFSTR(kIOHIDElementTypeKey));
+            usage=i_val(element, CFSTR(kIOHIDElementUsageKey));
+            usage_page=i_val(element, CFSTR(kIOHIDElementUsagePageKey));
+            switch (usage_page) {
+            case kHIDPage_GenericDesktop:
+               switch(usage) {
+               case kHIDUsage_GD_X:
+                  hid_store_element_data(element, HID_ELEMENT_AXIS_PRIMARY_X, device, app, stick, axis++);
+                  break;
+                
+               case kHIDUsage_GD_Y:
+                  hid_store_element_data(element, HID_ELEMENT_AXIS_PRIMARY_Y, device, app, stick, axis++);
+                  break;
+                
+               case kHIDUsage_GD_Z:
+               case kHIDUsage_GD_Rx:
+               case kHIDUsage_GD_Ry:
+               case kHIDUsage_GD_Rz:
+                  hid_store_element_data(element, HID_ELEMENT_AXIS, device,app, stick, axis++);
+                  break;
+               }
+               break;
+            case kHIDPage_Button:
+               hid_store_element_data(element, HID_ELEMENT_BUTTON, device, app, 0, usage-1);
+               break;
+            }
+         }
+      }
+   }
+}
+
+/* hid_scan_application_collection:
+ * Scan the elements array; each element will be an 'application'
+ * i.e. one joystick, gamepad or mouse
+ *
+ */
+static void hid_scan_application_collection(CFMutableDictionaryRef properties, HID_DEVICE *device)
+{
+   CFTypeRef array_ref, element;
+
+   int type, usage, usage_page;
+   int i;
+
+   array_ref = CFDictionaryGetValue(properties, CFSTR(kIOHIDElementKey));
+   if ((array_ref) && (CFGetTypeID(array_ref) == CFArrayGetTypeID())) {
+      for (i = 0; i < CFArrayGetCount(array_ref); i++) {
+         element = CFArrayGetValueAtIndex(array_ref, i);
+         if (CFGetTypeID(element) == CFDictionaryGetTypeID()) {
+            usage=i_val(element, CFSTR(kIOHIDElementUsageKey));
+            usage_page=i_val(element, CFSTR(kIOHIDElementUsagePageKey));
+            switch(USAGE(usage_page,  usage)) {
+            case USAGE(kHIDPage_GenericDesktop, kHIDUsage_GD_Joystick):
+               device->type=HID_JOYSTICK;
+               hid_scan_application(element, device, device->cur_app);
+               device->cur_app++;
+               break;
+            case USAGE(kHIDPage_GenericDesktop, kHIDUsage_GD_GamePad):
+               device->type=HID_GAMEPAD;
+               hid_scan_application(element, device, device->cur_app);
+               device->cur_app++;
+               break;
+            case USAGE(kHIDPage_GenericDesktop, kHIDUsage_GD_Mouse):
+               device->type=HID_MOUSE;
+               hid_scan_application(element, device, device->cur_app);
+               device->cur_app++;
+               break;
+            }
+         }
+      }
+   }
+}
+
+/* osx_hid_scan:
+ * Scan the hid manager for devices of type 'type',
+ * and append to the collection col
+ */
+HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
+{
+   ASSERT(col);
    HID_DEVICE *device, *this_device;
    mach_port_t master_port = 0;
    io_iterator_t hid_object_iterator = 0;
@@ -127,6 +253,7 @@ HID_DEVICE *osx_hid_scan(int type, int *num_devices)
    io_registry_entry_t parent1, parent2;
    CFMutableDictionaryRef class_dictionary = NULL;
    int usage, usage_page;
+   int app_count;
    CFTypeRef type_ref;
    CFNumberRef usage_ref = NULL, usage_page_ref = NULL;
    CFMutableDictionaryRef properties = NULL, usb_properties = NULL;
@@ -138,24 +265,19 @@ HID_DEVICE *osx_hid_scan(int type, int *num_devices)
    
    usage_page = kHIDPage_GenericDesktop;
    switch (type) {
-   
-      case HID_MOUSE:
-	 usage = kHIDUsage_GD_Mouse;
-	 break;
-	 
-      case HID_JOYSTICK:
-         usage = kHIDUsage_GD_Joystick;
-	 break;
+   case HID_MOUSE:
+      usage = kHIDUsage_GD_Mouse;
+      break;
+   case HID_JOYSTICK:
+      usage = kHIDUsage_GD_Joystick;
+      break;
+   case HID_GAMEPAD:
+      usage=kHIDUsage_GD_GamePad;
+      break;
    }
-   
-   *num_devices = 0;
-   device = (HID_DEVICE *)calloc(1, HID_MAX_DEVICES * sizeof(HID_DEVICE));
-   if (device == NULL)
-      return NULL;
 
    result = IOMasterPort(bootstrap_port, &master_port);
    if (result == kIOReturnSuccess) {
-start_scan:
       class_dictionary = IOServiceMatching(kIOHIDDeviceKey);
       if (class_dictionary) {
          /* Add key for device type to refine the matching dictionary. */
@@ -167,98 +289,122 @@ start_scan:
       result = IOServiceGetMatchingServices(master_port, class_dictionary, &hid_object_iterator);
       if ((result == kIOReturnSuccess) && (hid_object_iterator)) {
          /* Ok, we have a list of attached HID devices; scan them. */
-	 while ((hid_device = IOIteratorNext(hid_object_iterator))) {
+         while ((hid_device = IOIteratorNext(hid_object_iterator))!=NULL) {
             /* Mac OS X currently is not mirroring all USB properties to HID page so need to look at USB device page also
              * get dictionary for usb properties: step up two levels and get CF dictionary for USB properties.
-	     */
+             */
             if ((IORegistryEntryCreateCFProperties(hid_device, &properties, kCFAllocatorDefault, kNilOptions) == KERN_SUCCESS) &&
                 (IORegistryEntryGetParentEntry(hid_device, kIOServicePlane, &parent1) == KERN_SUCCESS) &&
                 (IORegistryEntryGetParentEntry (parent1, kIOServicePlane, &parent2) == KERN_SUCCESS) &&
                 (IORegistryEntryCreateCFProperties (parent2, &usb_properties, kCFAllocatorDefault, kNilOptions) == KERN_SUCCESS) &&
-		(properties) && (usb_properties) && (*num_devices < HID_MAX_DEVICES)) {
-	       error = FALSE;
-	       this_device = &device[*num_devices];
-	       (*num_devices)++;
-	       this_device->type = type;
-	       type_ref = CFDictionaryGetValue(properties, CFSTR(kIOHIDManufacturerKey));
-	       if (!type_ref)
-	          type_ref = CFDictionaryGetValue(usb_properties, CFSTR("USB Vendor Name"));
-	       if ((type_ref) && (string = CFStringGetCStringPtr(type_ref, CFStringGetSystemEncoding())))
-	          this_device->manufacturer = strdup(string);
-	       else
-	          this_device->manufacturer = NULL;
-	       type_ref = CFDictionaryGetValue(properties, CFSTR(kIOHIDProductKey));
-	       if (!type_ref)
-	          type_ref = CFDictionaryGetValue(usb_properties, CFSTR("USB Product Name"));
-	       if ((type_ref) && (string = CFStringGetCStringPtr(type_ref, CFStringGetSystemEncoding())))
-	          this_device->product = strdup(string);
-	       else
-	          this_device->product = NULL;
-	       
-	       type_ref = CFDictionaryGetValue(usb_properties, CFSTR("USB Address"));
-	       if ((type == HID_MOUSE) && (!type_ref)) {
-	          /* Not an USB mouse. Must be integrated trackpad: we do report it as a single button mouse */
-		  this_device->num_elements = 1;
-		  this_device->element[0].type = HID_ELEMENT_BUTTON;
-	       }
-	       else {
-	          /* Scan for device elements */
-	          this_device->num_elements = 0;
-	          hid_scan_collection(properties, this_device);
-	       }
-	       
-	       this_device->interface = NULL;
-	       if ((type == HID_JOYSTICK) || (type == HID_GAMEPAD)) {
-	          /* Joystick or gamepad device: create HID interface */
-		  if (IOCreatePlugInInterfaceForService(hid_device, kIOHIDDeviceUserClientTypeID, kIOCFPlugInInterfaceID, &plugin_interface, &score) != kIOReturnSuccess)
-		     error = TRUE;
-		  else {
-		     if ((*plugin_interface)->QueryInterface(plugin_interface, CFUUIDGetUUIDBytes(kIOHIDDeviceInterfaceID), (void *)&(this_device->interface)) != S_OK)
-		        error = TRUE;
-		     (*plugin_interface)->Release(plugin_interface);
-		     if ((*(this_device->interface))->open(this_device->interface, 0) != KERN_SUCCESS)
-		        error = TRUE;
-		  }
-	       }
-	       if (error) {
-	          if (this_device->manufacturer)
-		     free(this_device->manufacturer);
-	          if (this_device->product)
-		     free(this_device->product);
-		  if (this_device->interface)
+                (properties) && (usb_properties)) {
+               IOObjectRelease(parent1);
+               IOObjectRelease(parent2);
+               error = FALSE;
+               this_device = add_device(col);
+               this_device->type = type;
+               if (col->count==0) {
+                  this_device->cur_app=0;
+               }
+               else
+                  {
+                     this_device->cur_app=col->devices[col->count-1].cur_app;
+                  }
+
+               type_ref = CFDictionaryGetValue(properties, CFSTR(kIOHIDManufacturerKey));
+               if (!type_ref)
+                  type_ref = CFDictionaryGetValue(usb_properties, CFSTR("USB Vendor Name"));
+               if ((type_ref) && (string = CFStringGetCStringPtr(type_ref, CFStringGetSystemEncoding())))
+                  this_device->manufacturer = strdup(string);
+               else
+                  this_device->manufacturer = NULL;
+               type_ref = CFDictionaryGetValue(properties, CFSTR(kIOHIDProductKey));
+               if (!type_ref)
+                  type_ref = CFDictionaryGetValue(usb_properties, CFSTR("USB Product Name"));
+               if ((type_ref) && (string = CFStringGetCStringPtr(type_ref, CFStringGetSystemEncoding())))
+                  this_device->product = strdup(string);
+               else
+                  this_device->product = NULL;
+
+               type_ref = CFDictionaryGetValue(usb_properties, CFSTR("USB Address"));
+               if ((type == HID_MOUSE) && (!type_ref)) {
+                  /* Not an USB mouse. Must be integrated trackpad: we report it as a single button mouse */
+                  add_element(this_device)->type = HID_ELEMENT_BUTTON;
+               }
+               else {
+                  /* Scan for device elements */
+                  this_device->num_elements = 0;
+                  hid_scan_application_collection(properties, this_device);
+               }
+
+               this_device->interface = NULL;
+               if ((type == HID_JOYSTICK) || (type == HID_GAMEPAD)) {
+                  /* Joystick or gamepad device: create HID interface */
+                  if (IOCreatePlugInInterfaceForService(hid_device, kIOHIDDeviceUserClientTypeID, kIOCFPlugInInterfaceID, &plugin_interface, &score) != kIOReturnSuccess)
+                     error = TRUE;
+                  else {
+                     if ((*plugin_interface)->QueryInterface(plugin_interface, CFUUIDGetUUIDBytes(kIOHIDDeviceInterfaceID), (void *)&(this_device->interface)) != S_OK)
+                        error = TRUE;
+                     (*plugin_interface)->Release(plugin_interface);
+                     if ((*(this_device->interface))->open(this_device->interface, 0) != KERN_SUCCESS)
+                        error = TRUE;
+                  }
+               }
+               if (error) {
+                  if (this_device->manufacturer)
+                     free(this_device->manufacturer);
+                  if (this_device->product)
+                     free(this_device->product);
+                  if (this_device->interface)
                      (*(this_device->interface))->Release(this_device->interface);
-		  (*num_devices)--;
-	       }
-	       
-	       CFRelease(properties);
-	       CFRelease(usb_properties);
-	    }
-	 }
+                  this_device->interface=NULL;
+                  --col->count;
+               }
+
+               CFRelease(properties);
+               CFRelease(usb_properties);
+            }
+         }
          IOObjectRelease(hid_object_iterator);
       }
       CFRelease(usage_ref);
       CFRelease(usage_page_ref);
-      if (type == HID_JOYSTICK) {
-         type = HID_GAMEPAD;
-	 usage = kHIDUsage_GD_GamePad;
-	 goto start_scan;
-      }
       mach_port_deallocate(mach_task_self(), master_port);
    }
-   
-   return device;
+
+   return col;
 }
 
+/* add_device:
+ * add a new device to a collection
+ */
+static HID_DEVICE* add_device(HID_DEVICE_COLLECTION* o) {
+   HID_DEVICE* d;
+   if (o->devices==NULL) {
+      o->count=0;
+      o->capacity=1;
+      o->devices=malloc(o->capacity*sizeof(HID_DEVICE));
+   }
+   if (o->count>=o->capacity) {
+      o->capacity*=2;
+      o->devices=realloc(o->devices, o->capacity*sizeof(HID_DEVICE));
+   }
+   d=&o->devices[o->count++];
+   memset(d, 0, sizeof(HID_DEVICE));
+   return d;
+}
 
-
-void osx_hid_free(HID_DEVICE *devices, int num_devices)
+/* osx_hid_free:
+ * Release the memory taken up by a collection 
+ */
+void osx_hid_free(HID_DEVICE_COLLECTION *col)
 {
    HID_DEVICE *device;
    HID_ELEMENT *element;
    int i, j;
-   
-   for (i = 0; i < num_devices; i++) {
-      device = &devices[i];
+
+   for (i = 0; i < col->count; i++) {
+      device = &col->devices[i];
       if (device->manufacturer)
          free(device->manufacturer);
       if (device->product)
@@ -266,13 +412,18 @@ void osx_hid_free(HID_DEVICE *devices, int num_devices)
       for (j = 0; j < device->num_elements; j++) {
          element = &device->element[j];
          if (element->name)
-	    free(element->name);
+            free(element->name);
       }
-      if ((device->type == HID_JOYSTICK) || (device->type == HID_GAMEPAD)) {
+      free(device->element);
+      if (device->interface) {
          (*(device->interface))->close(device->interface);
          (*(device->interface))->Release(device->interface);
       }
    }
-   free(devices);
+   free(col->devices);
 }
 
+/* Local variables:       */
+/* c-basic-offset: 3      */
+/* indent-tabs-mode: nil  */
+/* End:                   */
