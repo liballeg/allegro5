@@ -66,7 +66,7 @@ static int hid_joy_init(void)
    hid_devices.devices=NULL;
    osx_hid_scan(HID_JOYSTICK, &hid_devices);
    osx_hid_scan(HID_GAMEPAD, &hid_devices);
-   num_joysticks=hid_devices.devices[hid_devices.count-1].cur_app;
+   num_joysticks = hid_devices.count > 0 ? hid_devices.devices[hid_devices.count - 1].cur_app : 0;
    for (i = 0; i < num_joysticks; i++) {
       memset(&joy[i], 0, sizeof(joy[i]));
    }
