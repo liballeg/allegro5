@@ -188,8 +188,6 @@ static void call_user_main(void)
 {
    if (osx_window_close_hook)
       osx_window_close_hook();
-   else
-      raise(SIGTERM);
 }
 
 @end

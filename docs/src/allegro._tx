@@ -14036,10 +14036,9 @@ the allegro-config script when linking. Otherwise be sure you link against it
 unless you want to get undefined symbol errors.
 
 To behave nicely with the MacOS X user interface, Allegro apps will provide a
-standard application menu with just the "Quit" menu item in it. The default
-behaviour when the user hits Command-Q or selects "Quit" is to force shutdown,
-which may lead to data loss and/or application crash on exit. To override this
-behaviour you must call the set_close_button_callback() function; under MacOS
+standard application menu with the "Quit" menu item in it. The default
+behaviour when the user hits Command-Q or selects "Quit" is to do nothing.
+To override this behaviour you must call the set_close_button_callback() function; under MacOS
 X the supplied callback will be used either if the user clicks the window
 close button either on Command-Q or "Quit" selection. In this last case the
 application will not shutdown, but you are supposed to set some quit flag
