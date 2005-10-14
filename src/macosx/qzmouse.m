@@ -80,7 +80,7 @@ static char driver_desc[256];
 /* osx_mouse_handler:
  *  Mouse "interrupt" handler for mickey-mode driver.
  */
-void osx_mouse_handler(int x, int y, int z, int buttons)
+void osx_mouse_handler(int ax, int ay, int x, int y, int z, int buttons)
 {
    if (!_mouse_on)
       mymickey_x = mymickey_y = 0;
@@ -90,7 +90,7 @@ void osx_mouse_handler(int x, int y, int z, int buttons)
 
    if (osx_cursor != current_cursor) {
       if (osx_window) {
-         NSView* vw=[osx_window contentView];
+         NSView* vw = [osx_window contentView];
          [osx_window invalidateCursorRectsForView: vw];
       }
       else {
@@ -108,15 +108,12 @@ void osx_mouse_handler(int x, int y, int z, int buttons)
    
    mymickey_x += x;
    mymickey_y += y;
-   _mouse_x += x;
-   _mouse_y += y;
+   _mouse_x = ax;
+   _mouse_y = ay;
    _mouse_z += z;
    
-   if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx)
-       || (_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {
-      _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-      _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
-   }
+   _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
+   _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
 
    _handle_mouse_input();
 }
