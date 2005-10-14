@@ -388,7 +388,8 @@ Contributors
    system many times and did plenty of other things too.
    
    Hrvoje Ban (email unknown).<br>
-   Pointed out a bug in the mode selector and fixed several double ;'s.
+   Pointed out a bug in the mode selector, fixed several double ;'s and
+   fixed ASSERT() in Windows.
 
    Igor Gnip (<email>gnipi@mindnever.org</a>).<br>
    Removed the requirements for fileutils on DOS/Windows platforms and added
@@ -653,6 +654,9 @@ Contributors
    improve the portability, robustness, and performance of pretty much the
    entire library.
 
+   Michael Faerber.<br>
+   Pointed out a mistake in the documentation for text_height().
+
    Michael Rickmann (<email>mrickma@gwdg.de</a>).<br>
    Ported the Windows code to Mingw32.
 
@@ -676,7 +680,8 @@ Contributors
    Contributed the ustrnicmp() function.
 
    Milan Mimica (<email>milan.mimica1@pu.htnet.hr</a>).<br>
-   Fixed a bug in the keyconf utility and the alsa 9 volume settings.
+   Fixed bugs in the keyconf utility, the alsa 9 volume settings and
+   extract_font_range().
 
    Miran Amon (<email>miran.amon@gmail.com</a>).<br>
    Fixed an undocumented arbitrary limit in get_config_argv()

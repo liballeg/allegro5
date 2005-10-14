@@ -152,10 +152,10 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 
 #ifndef ALLEGRO_MACOSX
 
-/* _read_os_type:
+/* _unix_read_os_type:
  *  Set the os_type variable to something sensible.
  */
-void _read_os_type(void)
+void _unix_read_os_type(void)
 {
    #ifdef HAVE_SYS_UTSNAME_H
 

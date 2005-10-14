@@ -8,6 +8,51 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.2.0 RC1 to 4.2.0 RC2 (August 2005)
+<ul><li>
+   Grady Martin made the grabber consider deleting object properties as a
+   change to the datafile.
+<li>
+   Milan Mimica fixed numerous bugs in extract_font_range().
+<li>
+   Peter Hull moved the 'magic chdir' in the MacOS X port to earlier in the
+   startup process, so that the config file will be looked for in the
+   resource directory if is present.
+<li>
+   Chris Robinson made create_bitmap(0,0) not return a bitmap that would
+   later crash destroy_bitmap().  Zero-sized bitmaps are still not allowed so
+   the assertions for debug mode have not changed.
+<li>
+   Elias Pschernig patched the Windows keyboard driver to get key_shifts
+   working again with KB_SHIFT_FLAG, KB_CTRL_FLAG, KB_ALT_FLAG on Win98.
+<li>
+   Peter Wang changed hline and vline into aliases for internal symbols to
+   avoid a conflict with the curses API. This change should be transparent
+   for users.
+<li>
+   Matthew Leverton and Michal Molhanec updated the build system for MSVC 8.
+<li>
+   Grzegorz Adam Hankiewicz prevented make_relative_filename() from crashing
+   with malformed parameters.
+<li>
+   Hrvoje Ban made ASSERT() actually abort in Windows.
+<li>
+   Chris Robinson made GUI menus work with gui_screen.
+<li>
+   Evert Glebbeek fixed reading of 32 bit Windows .bmp files, which was not
+   supported.  These files seem to be not very standard though, so it's
+   unclear if it will always do the right thing.  Alpha channels also seem
+   not to be standard in 32 bit BMP files, so it's possible they're not read
+   in correctly.
+<li>
+   Peter Wang and Peter Hull updated the ABI compatibility document.  This
+   documents our policy for the 4.2.x series.
+<li>
+   Extensive documentation updates from Grzegorz Adam Hankiewicz and minor
+   updates due to Michael Faerber, Robert Ohannessian and Milan Mimica.
+</ul>
+
+@heading
 Changes from 4.2.0 beta 4 to 4.2.0 RC1 (August 2005)
 <ul><li>
    Peter Hull fixed the MacOS X port to avoid an issue with the dead bootstrap 

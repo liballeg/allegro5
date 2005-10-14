@@ -43,7 +43,7 @@ AL_INLINE(void, putpixel, (BITMAP *bmp, int x, int y, int color),
 })
 
 
-AL_INLINE(void, vline, (BITMAP *bmp, int x, int y_1, int y2, int color),
+AL_INLINE(void, _allegro_vline, (BITMAP *bmp, int x, int y_1, int y2, int color),
 {
    ASSERT(bmp);
 
@@ -51,12 +51,22 @@ AL_INLINE(void, vline, (BITMAP *bmp, int x, int y_1, int y2, int color),
 })
 
 
-AL_INLINE(void, hline, (BITMAP *bmp, int x1, int y, int x2, int color),
+AL_INLINE(void, _allegro_hline, (BITMAP *bmp, int x1, int y, int x2, int color),
 {
    ASSERT(bmp);
 
    bmp->vtable->hline(bmp, x1, y, x2, color);
 })
+
+
+/* The curses API also contains functions called vline and hline so we have
+ * called our functions _allegro_vline and _allegro_hline.  User programs
+ * should use the vline/hline aliases as they are the official names.
+ */
+#ifndef ALLEGRO_NO_VHLINE_ALIAS
+   AL_ALIAS(void vline(BITMAP *bmp, int x, int y_1, int y2, int color), _allegro_vline(bmp, x, y_1, y2, color))
+   AL_ALIAS(void hline(BITMAP *bmp, int x1, int y, int x2, int color),  _allegro_hline(bmp, x1, y, x2, color))
+#endif
 
 
 AL_INLINE(void, line, (BITMAP *bmp, int x1, int y_1, int x2, int y2, int color),

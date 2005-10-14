@@ -59,8 +59,9 @@ static int refresh_rate = 70;
    FSCatalogInfo processInfo;
    ProcessSerialNumber psn = { 0, kCurrentProcess };
    CFDictionaryRef mode;
-   char path[1024], *p;
-   int i;
+   NSString* exename, *resdir;
+   NSFileManager* fm;
+   BOOL isDir;
 
    /* create mutex */
     osx_event_mutex=_unix_create_mutex();
@@ -73,14 +74,25 @@ static int refresh_rate = 70;
    GetProcessBundleLocation(&psn, &processRef);
    FSGetCatalogInfo(&processRef, kFSCatInfoNodeFlags, &processInfo, NULL, NULL, NULL);
    if (processInfo.nodeFlags & kFSNodeIsDirectoryMask) {
-      _al_sane_strncpy(path, __crt0_argv[0], sizeof(path));
-      for (i = 0; i < 4; i++) {
-         for (p = path + strlen(path); (p >= path) && (*p != '/'); p--);
-         *p = '\0';
-      }
-      chdir(path);
+      /* In a bundle, so chdir to the containing directory,
+       * or to the 'magic' resource directory if it exists.
+       * (see the readme.osx file for more info)
+       */
       osx_bundle = [NSBundle mainBundle];
-      arg0 = strdup([[osx_bundle bundlePath] lossyCString]);
+      exename = [[osx_bundle executablePath] lastPathComponent];
+      resdir = [[osx_bundle resourcePath] stringByAppendingPathComponent: exename];
+      resdir = [resdir stringByStandardizingPath];
+      fm = [NSFileManager defaultManager];
+      if ([fm fileExistsAtPath: resdir isDirectory: &isDir] && isDir) {
+          /* Yes, it exists inside the bundle */
+          [fm changeCurrentDirectoryPath: resdir];
+      }
+      else {
+          /* No, change to the directory containing the bundle*/
+          [fm changeCurrentDirectoryPath: [osx_bundle bundlePath]];
+      }
+
+      arg0 = strdup([[osx_bundle bundlePath] fileSystemRepresentation]);
       if (arg1) {
          static char *args[2];
 	 args[0] = arg0;
@@ -93,6 +105,7 @@ static int refresh_rate = 70;
          __crt0_argc = 1;
       }
    }
+   /* else: not in a bundle so don't chdir */
    
    mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);

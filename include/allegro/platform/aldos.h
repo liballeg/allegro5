@@ -259,9 +259,6 @@ AL_VAR(GFX_DRIVER, gfx_xtended);
    {  GFX_VESA1,        &gfx_vesa_1,         TRUE   },
 
 
-AL_VAR(GFX_VTABLE, __modex_vtable);
-
-
 AL_FUNC_DEPRECATED(void, split_modex_screen, (int lyne));
 
 

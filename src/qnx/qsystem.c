@@ -396,7 +396,7 @@ static int qnx_sys_init(void)
       pthread_setschedparam(pthread_self(), spolicy, &sparam);
    }
    
-   _read_os_type();
+   _unix_read_os_type();
 
    set_display_switch_mode(SWITCH_BACKGROUND);
 

@@ -150,7 +150,7 @@ static int _xwin_sysdrv_init(void)
 {
    char tmp[256];
 
-   _read_os_type();
+   _unix_read_os_type();
 
    /* install emergency-exit signal handlers */
    old_sig_abrt = signal(SIGABRT, _xwin_signal_handler);
@@ -292,7 +292,7 @@ static void _xwin_sysdrv_message(AL_CONST char *msg)
 	 break;
 
       case 0: /* child process */
-	 execlp("xmessage", "xmessage", "-buttons", "OK:101", "-default", "OK", "-center", msg2, NULL);
+	 execlp("xmessage", "xmessage", "-buttons", "OK:101", "-default", "OK", "-center", msg2, (char *)NULL);
 
 	 /* if execution reaches here, it means execlp failed */
 	 _exit(EXIT_FAILURE);

@@ -144,7 +144,7 @@ static void __al_linux_bgman_exit (void)
 static int sys_linux_init (void)
 {
 	/* Get OS type */
-	_read_os_type();
+	_unix_read_os_type();
 	if (os_type != OSTYPE_LINUX) return -1; /* FWIW */
 
 	/* This is the only bit that needs root privileges.  First

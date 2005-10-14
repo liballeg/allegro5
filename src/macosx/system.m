@@ -24,9 +24,11 @@
    #error something is wrong with the makefile
 #endif
 
+#ifndef SCAN_DEPEND
 #include <CoreFoundation/CoreFoundation.h>
 #include <mach/mach_port.h>
 #include <servers/bootstrap.h>
+#endif
 
 
 /* These are used to warn the dock about the application */
@@ -399,14 +401,11 @@ static int osx_sys_init(void)
    old_sig_int  = signal(SIGINT,  osx_signal_handler);
    old_sig_quit = signal(SIGQUIT, osx_signal_handler);
    
-   osx_tell_dock();
+    
 
-   /* Get into bundle resource directory if appropriate */
-   if (osx_bundle) {
-      exe_name = [[osx_bundle executablePath] lossyCString];
-      snprintf(resource_dir, 1023, "%s/%s", [[osx_bundle resourcePath] lossyCString], get_filename(exe_name));
-      if (file_exists(resource_dir, FA_DIREC, NULL))
-         chdir(resource_dir);
+   if (osx_bundle == NULL) {
+       /* If in a bundle, the dock will recognise us automatically */
+       osx_tell_dock();
    }
    
    /* Setup OS type & version */

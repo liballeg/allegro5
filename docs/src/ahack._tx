@@ -40,14 +40,14 @@ probably reformat your code to fit in with my existing style. It will
 obviously save me time if you write it this way in the first place, hence 
 this description:
 
-Basic Allegro style: K&R, with 3 space indentation. On disk, though, tab 
-stops are 8 spaces, so if for example a line was indented by 12 spaces, this 
-would be saved out as either 12 space characters or 1 tab and 4 spaces, not 
-as 4 tabs. If your editor can't handle the difference between 3 char 
-internal and 8 char external tab stops, either get a better editor or use 
-indent to clean up after yourself. The indent.pro file included with the 
-Allegro distribution comes close to getting this layout right, but doesn't 
-quite manage it, so some things still need to be cleaned up by hand.
+Basic Allegro style: K&R, with 3 space indentation. On disk, though, tab stops
+are 8 spaces, so if for example a line was indented by 12 spaces, this would be
+saved out as either 12 space characters or 1 tab and 4 spaces, not as 4 tabs.
+Because this format always will lead to code display looking broken in place or
+another, new patches should now always use spaces only and no longer contain
+tabs. The indent.pro file included with the Allegro distribution comes close to
+getting this layout right, but doesn't quite manage it, so some things still
+need to be cleaned up by hand.
 
 Preprocessor defines and structure names are UPPER_CASE. Function and 
 variable names are lower_case. MixedCaseNames are evil and should not be 

@@ -41,19 +41,6 @@
    #endif
 
    #ifndef ALLEGRO_NO_FIX_ALIASES
-      #if (defined ALLEGRO_GCC)
-         #define AL_ALIAS(DECL, CALL)                      \
-         static __attribute__((unused)) __inline__ DECL    \
-         {                                                 \
-            return CALL;                                   \
-         }
-      #else
-         #define AL_ALIAS(DECL, CALL)              \
-         static INLINE DECL                        \
-         {                                         \
-            return CALL;                           \
-         }
-      #endif
       AL_ALIAS(fixed fadd(fixed x, fixed y), fixadd(x, y))
       AL_ALIAS(fixed fsub(fixed x, fixed y), fixsub(x, y))
       AL_ALIAS(fixed fmul(fixed x, fixed y), fixmul(x, y))
@@ -69,7 +56,6 @@
       AL_ALIAS(fixed fatan2(fixed y, fixed x), fixatan2(y, x))
       AL_ALIAS(fixed fsqrt(fixed x), fixsqrt(x))
       AL_ALIAS(fixed fhypot(fixed x, fixed y), fixhypot(x, y))
-      #undef AL_ALIAS
    #endif
 
 #endif  /* !defined ALLEGRO_LIB_BUILD */

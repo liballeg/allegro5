@@ -56,11 +56,12 @@ Required software
 	 Optional: GNU sed. Used by "<tt>make depend</tt>" and "<tt>fixdll.sh</tt>"<br>
 	 Optional: GNU sort (textutils). Used by "<tt>fixdll.sh</tt>".<br><br>
    </ul></ul>
-   Allegro should work ok with MSVC versions 4, 5, 6, 7.0 (.NET)
-   and 7.1 (.NET 2003). However note that the lowest tested version is 6.
+   Allegro should work ok with MSVC versions 4, 5, 6, 7.0 (.NET),
+   7.1 (.NET 2003) and 8.0 (.NET 2005). However note that the lowest tested
+   version is 6.
 
    The DirectX SDK can be obtained directly from Microsoft. An old version 
-   of the headers is included with MSVC, but Allegro requires more recent 
+   of the headers is included with MSVC 6, but Allegro requires more recent 
    files. You should either copy the current headers into your MSVC include 
    and lib directories, or alter your <tt>INCLUDE</tt> and <tt>LIB</tt> environment variables
    to put the DirectX SDK files in front of the standard MSVC locations.
@@ -102,11 +103,12 @@ Installing Allegro
    The make process needs all the path variables to be in DOS 8.3 format, and
    since MSVC is usually installed in something like
    "<tt>C:\Program Files\Microsoft\Microsoft Visual Studio .NET 2003</tt>",
-   this will cause a problem. Run "<tt>echo %MSVCDir%</tt>" from the command
-   line to see if you have this problem. If you are using MSVC 6 or lower the
-   output should already be in DOS 8.3 format so you should not have any
-   troubles. With higher versions of MSVC it will probably show the long path
-   with spaces. There are two solutions for this.
+   this will cause a problem. Run "<tt>echo %MSVCDir%</tt>" (<tt>%VCINSTALLDIR%</tt>
+   under MSVC 8) from the command line to see if you have this problem. 
+   If you are using MSVC 6 or lower the output should already be in DOS 8.3
+   format so you should not have any troubles. With higher versions of MSVC
+   it will probably show the long path with spaces. There are two solutions
+   for this.
 
    If you have chosen MinGW and have installed it with the w32api package
    you can solve this problem simply by passing the <tt>--msvcpaths</tt>
@@ -135,7 +137,9 @@ Installing Allegro
    
    If you are using MSVC 7 you can specify "msvc7" instead of "msvc" to enable
    better optimizations. Likewise, you can specify "icl" to use the Intel
-   commandline compiler.
+   commandline compiler. If you are using MSVC 8 you should specify "msvc8"
+   otherwise you will get a lot of deprecation warnings. For MSVC 6 and older
+   you can use also "msvc6".
 
    If you are compiling from CVS, before continuing you must run both
    "<tt>make depend</tt>" and "<tt>misc/fixdll.sh</tt>" as explained below, or the build will

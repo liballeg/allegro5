@@ -73,7 +73,7 @@ GFX_DRIVER gfx_vga =
 
 
 
-GFX_MODE vga_gfx_modes[] = {
+static GFX_MODE vga_gfx_modes[] = {
    { 80,  80,  8 },
    { 160, 120, 8 },
    { 256, 256, 8 },

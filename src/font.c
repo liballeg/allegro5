@@ -583,7 +583,7 @@ static void mono_destroy(FONT* f)
  *  Returns the number of character ranges in a font, or -1 if that information
  *   is not available.
  */
-int mono_get_font_ranges(FONT *f)
+static int mono_get_font_ranges(FONT *f)
 {
     FONT_MONO_DATA* mf = 0;
     int ranges = 0;
@@ -711,7 +711,7 @@ static FONT_MONO_DATA *mono_copy_glyph_range(FONT_MONO_DATA *mf, int begin, int 
  *  (mono vtable entry)
  *  Extract a range of characters from a mono font 
  */
-FONT *mono_extract_font_range(FONT *f, int begin, int end)
+static FONT *mono_extract_font_range(FONT *f, int begin, int end)
 {
    FONT *fontout = NULL;
    FONT_MONO_DATA *mf, *mfin;
@@ -722,7 +722,14 @@ FONT *mono_extract_font_range(FONT *f, int begin, int end)
 
    /* Special case: copy entire font */
    if (begin==-1 && end==-1) {
-   } else if (begin>end) {
+   }
+   else if (begin == -1 && end > mono_get_font_range_begin(f, -1)) {
+   }
+   else if (end == -1 && begin <= mono_get_font_range_end(f, -1)) {
+   }
+   else if (begin <= end && begin != -1 && end != -1) {
+   }
+   else {
       return NULL;
    }
 
@@ -735,13 +742,13 @@ FONT *mono_extract_font_range(FONT *f, int begin, int end)
 
    /* Get real character ranges */
    first = MAX(begin, mono_get_font_range_begin(f, -1));
-   last = (end>-1) ? MIN(end, mono_get_font_range_end(f, -1)) : mono_get_font_range_end(f, -1);
+   last = (end>-1) ? MIN(end, mono_get_font_range_end(f, -1) + 1) : mono_get_font_range_end(f, -1) + 1;
 
    mf = NULL;
    mfin = f->data;
    while (mfin) {
       /* Check if we've found the proper range */
-      if ((first >= mfin->begin) && (last<mfin->end)) {
+	  if ((first >= mfin->begin && first < mfin->end) || (last <= mfin->end && last > mfin->begin)) {
          int local_begin, local_end;
          
          local_begin = MAX(mfin->begin, first);
@@ -768,7 +775,7 @@ FONT *mono_extract_font_range(FONT *f, int begin, int end)
  *  (mono vtable entry)
  *  Merges font2 with font1 and returns a new font
  */
-FONT *mono_merge_fonts(FONT *font1, FONT *font2)
+static FONT *mono_merge_fonts(FONT *font1, FONT *font2)
 {
    FONT *fontout = NULL;
    FONT_MONO_DATA *mf, *mf1, *mf2;
@@ -999,7 +1006,7 @@ static void color_destroy(FONT* f)
  *  Returns the number of character ranges in a font, or -1 if that information
  *   is not available.
  */
-int color_get_font_ranges(FONT *f)
+static int color_get_font_ranges(FONT *f)
 {
     FONT_COLOR_DATA* cf = 0;
     int ranges = 0;
@@ -1177,7 +1184,7 @@ static FONT_COLOR_DATA *color_copy_glyph_range(FONT_COLOR_DATA *cf, int begin, i
  *  (color vtable entry)
  *  Extract a range of characters from a color font 
  */
-FONT *color_extract_font_range(FONT *f, int begin, int end)
+static FONT *color_extract_font_range(FONT *f, int begin, int end)
 {
    FONT *fontout = NULL;
    FONT_COLOR_DATA *cf, *cfin;
@@ -1188,7 +1195,14 @@ FONT *color_extract_font_range(FONT *f, int begin, int end)
 
    /* Special case: copy entire font */
    if (begin==-1 && end==-1) {
-   } else if (begin>end) {
+   }
+   else if (begin == -1 && end > color_get_font_range_begin(f, -1)) {
+   }
+   else if (end == -1 && begin <= color_get_font_range_end(f, -1)) {
+   }
+   else if (begin <= end && begin != -1 && end != -1) {
+   }
+   else {
       return NULL;
    }
 
@@ -1201,13 +1215,13 @@ FONT *color_extract_font_range(FONT *f, int begin, int end)
 
    /* Get real character ranges */
    first = MAX(begin, color_get_font_range_begin(f, -1));
-   last = (end>-1) ? MIN(end, color_get_font_range_end(f, -1)) : color_get_font_range_end(f, -1);
+   last = (end>-1) ? MIN(end, color_get_font_range_end(f, -1) + 1) : color_get_font_range_end(f, -1) + 1;
 
    cf = NULL;
    cfin = f->data;
    while (cfin) {
       /* Check if we've found the proper range */
-      if ((first >= cfin->begin) && (last<cfin->end)) {
+      if ((first >= cfin->begin && first < cfin->end) || (last <= cfin->end && last > cfin->begin)) {
          int local_begin, local_end;
          
          local_begin = MAX(cfin->begin, first);
@@ -1234,7 +1248,7 @@ FONT *color_extract_font_range(FONT *f, int begin, int end)
  *  (color vtable entry)
  *  Merges font2 with font1 and returns a new font
  */
-FONT *color_merge_fonts(FONT *font1, FONT *font2)
+static FONT *color_merge_fonts(FONT *font1, FONT *font2)
 {
    FONT *fontout = NULL, *font2_upgr = NULL;
    FONT_COLOR_DATA *cf, *cf1, *cf2;

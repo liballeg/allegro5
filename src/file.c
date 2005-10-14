@@ -417,6 +417,13 @@ char *make_relative_filename(char *dest, AL_CONST char *path, AL_CONST char *fil
       }
    }
    else {
+      /* Bail out if previously something went wrong (eg. user supplied
+       * paths are not canonical and we can't understand them). */
+      if (!reduced_path) {
+	 free(my_path);
+	 free(my_filename);
+	 return NULL;
+      }
       /* Otherwise, we are in the latter case and need to count the number
        * of remaining directories in the reduced path and prepend the same
        * number of '../' to the reduced filename.
@@ -431,6 +438,14 @@ char *make_relative_filename(char *dest, AL_CONST char *path, AL_CONST char *fil
       }
 
       usetc(dest+pos, 0);
+   }
+
+   /* Bail out if previously something went wrong (eg. user supplied
+    * paths are not canonical and we can't understand them). */
+   if (!reduced_filename) {
+      free(my_path);
+      free(my_filename);
+      return NULL;
    }
 
    ustrzcat(dest, size, reduced_filename);

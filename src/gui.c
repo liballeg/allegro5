@@ -1462,6 +1462,7 @@ static void draw_menu_item(MENU_PLAYER *m, int c)
    int x, y, w;
    char *buf, *tok1, *tok2;
    int my;
+   BITMAP *gui_bmp = gui_get_screen();
 
    get_menu_pos(m, c, &x, &y, &w);
 
@@ -1492,35 +1493,35 @@ static void draw_menu_item(MENU_PLAYER *m, int c)
       }
    }
 
-   rectfill(screen, x, y, x+w-1, y+text_height(font)+3, bg);
+   rectfill(gui_bmp, x, y, x+w-1, y+text_height(font)+3, bg);
 
    if (ugetc(m->menu[c].text)) {
       buf = split_around_tab(m->menu[c].text, &tok1, &tok2);
-      gui_textout_ex(screen, tok1, x+8, y+1, fg, bg, FALSE);
+      gui_textout_ex(gui_bmp, tok1, x+8, y+1, fg, bg, FALSE);
       if (tok2)
- 	 gui_textout_ex(screen, tok2, x+w-gui_strlen(tok2)-10, y+1, fg, bg, FALSE);
+ 	 gui_textout_ex(gui_bmp, tok2, x+w-gui_strlen(tok2)-10, y+1, fg, bg, FALSE);
 
       if ((m->menu[c].child) && (!m->bar)) {
          my = y + text_height(font)/2;
-         hline(screen, x+w-8, my+1, x+w-4, fg);
-         hline(screen, x+w-8, my+0, x+w-5, fg);
-         hline(screen, x+w-8, my-1, x+w-6, fg);
-         hline(screen, x+w-8, my-2, x+w-7, fg);
-         putpixel(screen, x+w-8, my-3, fg);
-         hline(screen, x+w-8, my+2, x+w-5, fg);
-         hline(screen, x+w-8, my+3, x+w-6, fg);
-         hline(screen, x+w-8, my+4, x+w-7, fg);
-         putpixel(screen, x+w-8, my+5, fg);
+         hline(gui_bmp, x+w-8, my+1, x+w-4, fg);
+         hline(gui_bmp, x+w-8, my+0, x+w-5, fg);
+         hline(gui_bmp, x+w-8, my-1, x+w-6, fg);
+         hline(gui_bmp, x+w-8, my-2, x+w-7, fg);
+         putpixel(gui_bmp, x+w-8, my-3, fg);
+         hline(gui_bmp, x+w-8, my+2, x+w-5, fg);
+         hline(gui_bmp, x+w-8, my+3, x+w-6, fg);
+         hline(gui_bmp, x+w-8, my+4, x+w-7, fg);
+         putpixel(gui_bmp, x+w-8, my+5, fg);
       }
 
       free(buf);
    }
    else
-      hline(screen, x, y+text_height(font)/2+2, x+w, fg);
+      hline(gui_bmp, x, y+text_height(font)/2+2, x+w, fg);
 
    if (m->menu[c].flags & D_SELECTED) {
-      line(screen, x+1, y+text_height(font)/2+1, x+3, y+text_height(font)+1, fg);
-      line(screen, x+3, y+text_height(font)+1, x+6, y+2, fg);
+      line(gui_bmp, x+1, y+text_height(font)/2+1, x+3, y+text_height(font)+1, fg);
+      line(gui_bmp, x+3, y+text_height(font)+1, x+6, y+2, fg);
    }
 }
 
@@ -1536,9 +1537,10 @@ static void draw_menu(MENU_PLAYER *m)
    if (gui_menu_draw_menu)
       gui_menu_draw_menu(m->x, m->y, m->w, m->h);
    else {
-      rect(screen, m->x, m->y, m->x+m->w-2, m->y+m->h-2, gui_fg_color);
-      vline(screen, m->x+m->w-1, m->y+1, m->y+m->h-1, gui_fg_color);
-      hline(screen, m->x+1, m->y+m->h-1, m->x+m->w-1, gui_fg_color);
+      BITMAP *gui_bmp = gui_get_screen();
+      rect(gui_bmp, m->x, m->y, m->x+m->w-2, m->y+m->h-2, gui_fg_color);
+      vline(gui_bmp, m->x+m->w-1, m->y+1, m->y+m->h-1, gui_fg_color);
+      hline(gui_bmp, m->x+1, m->y+m->h-1, m->x+m->w-1, gui_fg_color);
    }
 
    for (c=0; m->menu[c].text; c++)
@@ -1691,7 +1693,7 @@ static int menu_key_shortcut(int c, AL_CONST char *s)
  *  Searches a menu for keyboard shortcuts, for the alt+letter to bring
  *  up a menu.
  */
-int menu_alt_key(int k, MENU *m)
+static int menu_alt_key(int k, MENU *m)
 {
    static unsigned char alt_table[] =
    {
@@ -1771,6 +1773,8 @@ int do_menu(MENU *menu, int x, int y)
  */
 static MENU_PLAYER *init_single_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *dialog, int bar, int x, int y, int repos, int minw, int minh)
 {
+   BITMAP *gui_bmp = gui_get_screen();
+   int scare = is_same_bitmap(gui_bmp, _mouse_screen);
    MENU_PLAYER *player;
    ASSERT(menu);
 
@@ -1787,20 +1791,22 @@ static MENU_PLAYER *init_single_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *di
       player->y = MID(0, player->y, SCREEN_H-player->h-1);
    }
 
-   scare_mouse_area(player->x, player->y, player->w, player->h);
+   if (scare)
+      scare_mouse_area(player->x, player->y, player->w, player->h);
 
    /* save screen under the menu */
    player->saved = create_bitmap(player->w, player->h);
 
    if (player->saved)
-      blit(screen, player->saved, player->x, player->y, 0, 0, player->w, player->h);
+      blit(gui_bmp, player->saved, player->x, player->y, 0, 0, player->w, player->h);
    else
       *allegro_errno = ENOMEM;
 
    /* setup state variables */
    player->sel = menu_mouse_object(player);
 
-   unscare_mouse();
+   if (scare)
+      unscare_mouse();
 
    player->mouse_button_was_pressed = gui_mouse_b();
    player->back_from_child = FALSE;
@@ -1988,10 +1994,13 @@ int update_menu(MENU_PLAYER *player)
    }  /* end of input processing */
 
    if ((player->redraw) || (player->sel != old_sel)) {  /* selection changed? */
+      BITMAP *gui_bmp = gui_get_screen();
+      int scare = is_same_bitmap(gui_bmp, _mouse_screen);
       player->timestamp = gui_timer;
 
-      scare_mouse_area(player->x, player->y, player->w, player->h);
-      acquire_screen();
+      if (scare)
+	 scare_mouse_area(player->x, player->y, player->w, player->h);
+      acquire_bitmap(gui_bmp);
 
       if (player->redraw) {
 	 draw_menu(player);
@@ -2005,8 +2014,9 @@ int update_menu(MENU_PLAYER *player)
 	    draw_menu_item(player, player->sel);
       }
 
-      release_screen();
-      unscare_mouse();
+      release_bitmap(gui_bmp);
+      if (scare)
+	 unscare_mouse();
    }
 
    if (player->auto_open && (gui_menu_opening_delay >= 0)) {  /* menu auto-opening on? */
@@ -2128,9 +2138,13 @@ static int shutdown_single_menu(MENU_PLAYER *player, int *dret)
 
    /* restore screen */
    if (player->saved) {
-      scare_mouse_area(player->x, player->y, player->w, player->h);
-      blit(player->saved, screen, 0, 0, player->x, player->y, player->w, player->h);
-      unscare_mouse();
+      BITMAP *gui_bmp = gui_get_screen();
+      int scare = is_same_bitmap(gui_bmp, _mouse_screen);
+      if (scare)
+         scare_mouse_area(player->x, player->y, player->w, player->h);
+      blit(player->saved, gui_bmp, 0, 0, player->x, player->y, player->w, player->h);
+      if (scare)
+         unscare_mouse();
       destroy_bitmap(player->saved);
    }
 
