@@ -10087,6 +10087,8 @@ any character, but only one).
    Shortcut version of file_exists(), which checks for normal files, which 
    may have the archive or read-only bits set, but are not hidden, 
    directories, system files, etc.
+@retval
+   Returns non-zero if the file exists, or zero if it doesn't.
 
 @@long @file_size(const char *filename);
 @xref file_exists, file_time
@@ -11603,7 +11605,7 @@ source backwards compatibility.
 Allegro contains some 3d helper functions for manipulating vectors, 
 constructing and using transformation matrices, and doing perspective 
 projections from 3d space onto the screen. It is not, and never will be, a 
-fully fledged 3d library (my goal is to supply generic support routines, 
+fully fledged 3d library (the goal is to supply generic support routines,
 not shrink-wrapped graphics code :-) but these functions may be useful for 
 developing your own 3d code.
 
@@ -11647,12 +11649,11 @@ transformation pipeline of a point from world space to the screen.
    /* Finally, the point is projected from
     * camera space to the screen.
     */
-   persp_project_f (cx, cy, cz, &sx, &sy);
-<endblock>
+   persp_project_f (cx, cy, cz, &sx, &sy);<endblock>
 
 For more details, look at the function descriptions of
-set_projection_viewport, get_camera_matrix, and persp_project, as well as
-the relevant example programs.
+set_projection_viewport(), get_camera_matrix(), and persp_project(), as well
+as the relevant example programs.
 
 All the 3d math functions are available in two versions: one which uses 
 fixed point arithmetic, and another which uses floating point. The syntax 
@@ -12075,7 +12076,7 @@ GUI routines
 
 Allegro contains an object-oriented dialog manager, which was originally 
 based on the Atari GEM system (form_do(), objc_draw(), etc: old ST 
-programmers will know what I'm talking about :-) You can use the GUI as-is 
+programmers will know what we are talking about :-) You can use the GUI as-is
 to knock out simple interfaces for things like the test program and grabber 
 utility, or you can use it as a basis for more complicated systems of your 
 own. Allegro lets you define your own object types by writing new dialog 
@@ -12767,7 +12768,13 @@ ensure there is room for the check.
 @shortdesc Displays a popup alert box.
    Displays a popup alert box, containing three lines of text (s1-s3), and 
    with either one or two buttons. The text for these buttons is passed in 
-   b1 and b2 (b2 may be NULL), and the keyboard shortcuts in c1 and c2. 
+   `b1' and `b2' (`b2' may be NULL), and the keyboard shortcuts in `c1' and
+   `c2' as ASCII value. Example:
+<codeblock>
+      if (!exists(CONFIG_FILE))
+	 alert(CONFIG_FILE, "not found.", "Using defaults.",
+	       "&Continue", NULL, 'c', 0);<endblock>
+@retval
    Returns 1 or 2 depending on which button was clicked. If the alert is 
    dismissed by pressing ESC when ESC is not one of the keyboard shortcuts, 
    it treats it as a click on the second button (this is consistent with the 
@@ -14029,6 +14036,7 @@ Allegro programs under MacOS X are Cocoa applications; in order to hide all
 the Cocoa interfacing to the enduser, you need to add the END_OF_MAIN()
 macro right after your main() function. This is a necessary step: if you omit
 it, your program will not compile.
+
 The END_OF_MAIN() macro simply does some magic to make sure your program
 executes another function before your main(); this function is defined into
 the liballeg-main.a static library, which is automatically linked if you use
@@ -14471,15 +14479,100 @@ will make debugging much easier, and includes assert tests that will help to
 locate errors in your code at an earlier stage. Allegro also contains some 
 debugging helper functions:
 
+@@void @ASSERT(condition);
+@xref al_assert, TRACE, register_assert_handler
+@eref expackf
+@shortdesc Debugging helper macro to assert.
+   Debugging helper macro. Normally compiles away to nothing, but if you 
+   defined the preprocessor symbol DEBUGMODE before including Allegro headers,
+   it will check the supplied condition and call al_assert() if it fails,
+   whose default action is to stop the program and report the assert. You can
+   use this macro even when Allegro has not been initialised. Example:
+<codeblock>
+      #define DEBUGMODE
+      #include <allegro.h>
+      ...
+      void my_blitter(BITMAP *source, int flags)
+      {
+	 int some_variables;
+	 ASSERT(source != NULL);
+	 ASSERT(flags & GAME_RUNNING);
+         ...
+      }<endblock>
+
+@@void @TRACE(char *msg, ...);
+@xref al_trace, ASSERT, register_trace_handler
+@shortdesc Debugging helper macro to trace messages.
+   Debugging helper macro. Normally compiles away to nothing, but if you 
+   defined the preprocessor symbol DEBUGMODE before including Allegro headers,
+   it passes the supplied message given in ASCII format to al_trace().
+   Example:
+<codeblock>
+      #define DEBUGMODE
+      #include <allegro.h>
+      ...
+      void my_blitter(BITMAP *source, int flags)
+      {
+	 static int count_call = 0;
+	 TRACE("my_blitter() called %d times.\n", count_call++);
+         ...
+      }<endblock>
+
+@@void @register_assert_handler(int (*handler)(const char *msg));
+@xref al_assert, ASSERT, register_trace_handler
+@shortdesc Registers a custom handler for assert failures.
+   Supplies a custom handler function for dealing with assert failures. Your 
+   callback will be passed a formatted error message in ASCII, and should 
+   return non-zero if it has processed the error, or zero to continue with 
+   the default actions. You could use this to ignore assert failures, or to 
+   display the error messages on a graphics mode screen without aborting the 
+   program. Example:
+<codeblock>
+   int show_but_continue(const char *text)
+   {
+       alert("Uh oh...", "Fasten your seat belts.", text,
+	     "&Go on!", NULL, 'g', 0);
+       return 1;
+   }
+   ...
+      register_assert(show_but_continue);
+      ASSERT(0); /* This won't crash the program now. */<endblock>
+
+@@void @register_trace_handler(int (*handler)(const char *msg));
+@xref al_trace, TRACE, register_assert_handler
+@shortdesc Registers a custom handler for trace output.
+   Supplies a custom handler function for dealing with trace output. Your 
+   callback will be passed a formatted error message in ASCII, and should 
+   return non-zero if it has processed the message, or zero to continue with 
+   the default actions. You could use this to ignore trace output, or to 
+   display the messages on a second monochrome monitor, etc. Example:
+<codeblock>
+   int network_broadcaster(const char *text)
+   {
+      int f;
+
+      for (int f = 0; f < connected_clients; f++)
+	 send_msg_to_client(client[f], text);
+         
+      return 0; /* Let normal tracing occur. */
+   }
+   ...
+      register_trace_handler(network_broadcaster);
+      TRACE("Networked tracing activated\n");<endblock>
+
 @@void @al_assert(const char *file, int line);
 @xref ASSERT, al_trace, register_assert_handler
 @shortdesc Asserts at the specified file and line number.
    Raises an assert for an error at the specified file and line number. The 
-   file parameter is always given in ASCII format. If you have installed a 
-   custom assert handler it uses that, or if the environment variable 
-   ALLEGRO_ASSERT is set it writes a message into the file specified by the 
-   environment, otherwise it aborts the program with an error message. You 
-   will usually want to use the ASSERT() macro instead of calling this 
+   file parameter is always given in ASCII format. By default, this will call
+   the system driver's assert handler. If there is none, the error will be
+   sent to stderr and the program will abort. However, if the environment
+   variable ALLEGRO_ASSERT is set, this function writes a message into the
+   file specified by the environment variable and program execution will
+   continue. If none of this behaviours is wanted, you can override them with
+   a custom assert handler.
+
+   You will usually want to use the ASSERT() macro instead of calling this
    function directly.
 
 @@void @al_trace(const char *msg, ...);
@@ -14491,40 +14584,6 @@ debugging helper functions:
    specified by the environment, otherwise it writes the message to 
    "allegro.log" in the current directory. You will usually want to use the 
    TRACE() macro instead of calling this function directly.
-
-@@void @ASSERT(condition);
-@xref al_assert, TRACE, register_assert_handler
-@eref expackf
-@shortdesc Debugging helper macro to assert.
-   Debugging helper macro. Normally compiles away to nothing, but if you 
-   defined the preprocessor symbol DEBUGMODE before including Allegro headers,
-   it will check the supplied condition and call al_assert() if it fails.
-
-@@void @TRACE(char *msg, ...);
-@xref al_trace, ASSERT, register_trace_handler
-@shortdesc Debugging helper macro to trace messages.
-   Debugging helper macro. Normally compiles away to nothing, but if you 
-   defined the preprocessor symbol DEBUGMODE before including Allegro headers,
-   it passes the supplied message given in ASCII format to al_trace().
-
-@@void @register_assert_handler(int (*handler)(const char *msg));
-@xref al_assert, ASSERT, register_trace_handler
-@shortdesc Registers a custom handler for assert failures.
-   Supplies a custom handler function for dealing with assert failures. Your 
-   callback will be passed a formatted error message in ASCII, and should 
-   return non-zero if it has processed the error, or zero to continue with 
-   the default actions. You could use this to ignore assert failures, or to 
-   display the error messages on a graphics mode screen without aborting the 
-   program.
-
-@@void @register_trace_handler(int (*handler)(const char *msg));
-@xref al_trace, TRACE, register_assert_handler
-@shortdesc Registers a custom handler for trace output.
-   Supplies a custom handler function for dealing with trace output. Your 
-   callback will be passed a formatted error message in ASCII, and should 
-   return non-zero if it has processed the message, or zero to continue with 
-   the default actions. You could use this to ignore trace output, or to 
-   display the messages on a second monochrome monitor, etc.
 
 
 
