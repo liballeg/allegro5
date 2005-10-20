@@ -1270,7 +1270,7 @@ int update_dialog(DIALOG_PLAYER *player)
 	    goto getout;
 
 	 MESSAGE(player->focus_obj, MSG_UCHAR, cascii);
-	 f (player->res & (D_USED_CHAR | D_CLOSE))
+	 if (player->res & (D_USED_CHAR | D_CLOSE))
 	    goto getout;
       }
 
