@@ -422,6 +422,10 @@ static void load_credits(void)
 
    load_text();
 
+   /* Don't load top scroller with small screens. */
+   if (SCREEN_W < 640)
+      return;
+
    /* parse thanks._tx */
    get_executable_name(buf, sizeof(buf));
    replace_filename(buf2, buf, "../docs/src/thanks._tx", sizeof(buf2));
@@ -767,9 +771,7 @@ int title_screen(void)
    play_midi(data[TITLE_MUSIC].dat, TRUE);
    play_sample(data[WELCOME_SPL].dat, 255, 127, 1000, FALSE);
 
-   if (SCREEN_W >= 640) {
-      load_credits();
-   }
+   load_credits();
 
    init_starfield_3d();
 
