@@ -38,6 +38,10 @@
 #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-wmidi INFO: "
+#define PREFIX_W                "al-wmidi WARNING: "
+#define PREFIX_E                "al-wmidi ERROR: "
+
 
 int midi_win32_detect(int input);
 int midi_win32_init(int input, int voices);
@@ -207,7 +211,7 @@ int midi_win32_init(int input, int voices)
    /* open midi mapper */
    hr = midiOutOpen(&midi_device, id, 0, 0, CALLBACK_NULL);
    if (hr != MMSYSERR_NOERROR) {
-      _TRACE("midiOutOpen failed (%x)\n", hr);
+      _TRACE(PREFIX_E "midiOutOpen failed (%x)\n", hr);
       goto Error;
    }
 
@@ -237,7 +241,7 @@ int midi_win32_in_init(int input, int voices)
    hr = midiInOpen(&midi_in_device, id, (DWORD)midi_in_proc,
 		   (DWORD)NULL, CALLBACK_FUNCTION);
    if (hr != MMSYSERR_NOERROR) {
-      _TRACE("midiInOpen failed (%x)\n", hr);
+      _TRACE(PREFIX_E "midiInOpen failed (%x)\n", hr);
       midi_win32_in_exit(input);
       return -1;
    }

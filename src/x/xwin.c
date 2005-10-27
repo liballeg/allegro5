@@ -165,6 +165,9 @@ static char _xwin_driver_desc[256] = EMPTY_STRING;
 /* This is used to intercept window closing requests.  */
 static Atom wm_delete_window;
 
+#define PREFIX_I                "al-xwin INFO: "
+#define PREFIX_W                "al-xwin WARNING: "
+#define PREFIX_E                "al-xwin ERROR: "
 
 
 /* Forward declarations for private functions.  */
@@ -600,12 +603,14 @@ static void _xwin_private_select_screen_to_buffer_function(void)
 	 j += 5;
 
       if (_xwin_private_colorconv_usable()) {
-         TRACE("Using generic color conversion blitter (%u, %u).\n", _xwin.screen_depth, _xwin.fast_visual_depth);
-         blitter_func = _get_colorconv_blitter(_xwin.screen_depth, _xwin.fast_visual_depth);
-         _xwin.screen_to_buffer = _xwin_private_fast_colorconv;
+	 TRACE(PREFIX_I "Using generic color conversion blitter (%u, %u).\n",
+	       _xwin.screen_depth, _xwin.fast_visual_depth);
+	 blitter_func = _get_colorconv_blitter(_xwin.screen_depth,
+					       _xwin.fast_visual_depth);
+	 _xwin.screen_to_buffer = _xwin_private_fast_colorconv;
       }
       else {
-         _xwin.screen_to_buffer = _xwin_screen_to_buffer_function[i][j];
+	 _xwin.screen_to_buffer = _xwin_screen_to_buffer_function[i][j];
       }
    }
 }

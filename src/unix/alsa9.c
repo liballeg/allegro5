@@ -61,6 +61,10 @@
 } while(0)
 
 
+#define PREFIX_I                "al-alsa9 INFO: "
+#define PREFIX_W                "al-alsa9 WARNING: "
+#define PREFIX_E                "al-alsa9 ERROR: "
+
 static char const *alsa_device = "default";
 static char const *alsa_mixer_device = "default";
 static snd_pcm_hw_params_t *hwparams = NULL;
@@ -395,7 +399,7 @@ static int alsa_init(int input, int voices)
    ALSA9_CHECK(snd_pcm_hw_params_get_period_size(hwparams, &alsa_bufsize, NULL));
    ALSA9_CHECK(snd_pcm_hw_params_get_periods(hwparams, &alsa_fragments, NULL));
 
-   TRACE ("ALSA 9 driver: alsa_bufsize = %ld, alsa_fragments = %d\n", alsa_bufsize, alsa_fragments);
+   TRACE (PREFIX_I "alsa_bufsize = %ld, alsa_fragments = %d\n", alsa_bufsize, alsa_fragments);
 
    ALSA9_CHECK(snd_pcm_sw_params_current(pcm_handle, swparams));
    ALSA9_CHECK(snd_pcm_sw_params_set_start_threshold(pcm_handle, swparams, alsa_bufsize));

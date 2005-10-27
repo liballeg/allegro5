@@ -24,6 +24,10 @@
 
 
 
+#define PREFIX_I                "al-ddaccel INFO: "
+#define PREFIX_W                "al-ddaccel WARNING: "
+#define PREFIX_E                "al-ddaccel ERROR: "
+
 /* software version pointers */
 static void (*_orig_hline) (BITMAP * bmp, int x1, int y, int x2, int color);
 static void (*_orig_vline) (BITMAP * bmp, int x, int y1, int y2, int color);
@@ -126,7 +130,7 @@ static void ddraw_masked_blit(BITMAP * source, BITMAP * dest, int source_x, int 
       _exit_gfx_critical();
 
       if (FAILED(hr))
-	 _TRACE("Blt failed (%x)\n", hr);
+	 _TRACE(PREFIX_E "Blt failed (%x)\n", hr);
 
       /* only for windowed mode */
       if ((gfx_driver->id == GFX_DIRECTX_WIN) && (dest_parent == gfx_directx_forefront_bitmap))
@@ -222,7 +226,7 @@ static void ddraw_clear_to_color(BITMAP * bitmap, int color)
    _exit_gfx_critical();
 
    if (FAILED(hr))
-      _TRACE("Blt failed (%x)\n", hr);
+      _TRACE(PREFIX_E "Blt failed (%x)\n", hr);
 
    /* only for windowed mode */
    if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == gfx_directx_forefront_bitmap))
@@ -301,7 +305,7 @@ static void ddraw_rectfill(BITMAP *bitmap, int x1, int y1, int x2, int y2, int c
    _exit_gfx_critical();
 
    if (FAILED(hr))
-      _TRACE("Blt failed (%x)\n", hr);
+      _TRACE(PREFIX_E "Blt failed (%x)\n", hr);
 
    /* only for windowed mode */
    if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == gfx_directx_forefront_bitmap))
@@ -368,7 +372,7 @@ static void ddraw_hline(BITMAP *bitmap, int x1, int y, int x2, int color)
    _exit_gfx_critical();
 
    if (FAILED(hr))
-      _TRACE("Blt failed (%x)\n", hr);
+      _TRACE(PREFIX_E "Blt failed (%x)\n", hr);
 
    /* only for windowed mode */
    if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == gfx_directx_forefront_bitmap))
@@ -434,7 +438,7 @@ static void ddraw_vline(BITMAP *bitmap, int x, int y1, int y2, int color)
    _exit_gfx_critical();
 
    if (FAILED(hr))
-      _TRACE("Blt failed (%x)\n", hr);
+      _TRACE(PREFIX_E "Blt failed (%x)\n", hr);
 
    /* only for windowed mode */
    if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == gfx_directx_forefront_bitmap))

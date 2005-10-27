@@ -35,6 +35,10 @@
 #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-wtimer INFO: "
+#define PREFIX_W                "al-wtimer WARNING: "
+#define PREFIX_E                "al-wtimer ERROR: "
+
 
 static TIMER_DRIVER timer_win32_high_perf;
 static TIMER_DRIVER timer_win32_low_perf;
@@ -196,7 +200,7 @@ static void tim_win32_low_perf_thread(void *unused)
 static int tim_win32_high_perf_init(void)
 {
    if (!QueryPerformanceFrequency(&counter_freq)) {
-      _TRACE("High performance timer not supported\n");
+      _TRACE(PREFIX_W "High performance timer not supported\n");
       return -1;
    }
 

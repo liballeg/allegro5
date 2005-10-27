@@ -28,6 +28,10 @@
    #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-winput INFO: "
+#define PREFIX_W                "al-winput WARNING: "
+#define PREFIX_E                "al-winput ERROR: "
+
 
 #define MAX_EVENTS 8
 
@@ -58,7 +62,7 @@ static void input_thread_proc(LPVOID unused)
    int result;
 
    _win_thread_init();
-   _TRACE("input thread starts\n");
+   _TRACE(PREFIX_I "input thread starts\n");
 
    /* event loop */
    while (TRUE) {
@@ -69,7 +73,7 @@ static void input_thread_proc(LPVOID unused)
          (*_win_input_event_handler[result - WAIT_OBJECT_0])();
    }
 
-   _TRACE("input thread exits\n");
+   _TRACE(PREFIX_I "input thread exits\n");
    _win_thread_exit();
 }
 
@@ -147,7 +151,7 @@ int _win_input_register_event(HANDLE event_id, void (*event_handler)(void))
    /* wait for the input thread to acknowledge */
    WaitForSingleObject(ack_event, INFINITE);
 
-   _TRACE("1 input event registered (total = %d)\n", _win_input_events-reserved_events);
+   _TRACE(PREFIX_I "1 input event registered (total = %d)\n", _win_input_events-reserved_events);
    return 0;
 }
 
@@ -173,7 +177,7 @@ void _win_input_unregister_event(HANDLE event_id)
       input_thread = NULL;
    }
 
-   _TRACE("1 input event unregistered (total = %d)\n", _win_input_events-reserved_events);
+   _TRACE(PREFIX_I "1 input event unregistered (total = %d)\n", _win_input_events-reserved_events);
 }
 
 

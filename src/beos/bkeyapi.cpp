@@ -40,6 +40,10 @@
 #define BE_KEY_SCROLOCK     15
 
 
+#define PREFIX_I                "al-bkey INFO: "
+#define PREFIX_W                "al-bkey WARNING: "
+#define PREFIX_E                "al-bkey ERROR: "
+
 static uint16 keyboard_id = (uint16)(-1);
 
 static volatile int keyboard_thread_running = FALSE;
@@ -256,7 +260,7 @@ static int32 keyboard_thread(void *keyboard_started)
       key_info_old = key_info_new;
    }
 
- AL_TRACE("keyboard thread exited\n");
+ TRACE(PREFIX_I "keyboard thread exited\n");
 
  return 0;
 }

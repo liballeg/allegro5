@@ -38,6 +38,10 @@
 #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-wjoy INFO: "
+#define PREFIX_W                "al-wjoy WARNING: "
+#define PREFIX_E                "al-wjoy ERROR: "
+
 
 static int joystick_dinput_init(void);
 static void joystick_dinput_exit(void);
@@ -122,7 +126,7 @@ int joystick_dinput_acquire(void)
          hr = IDirectInputDevice2_Acquire(dinput_joystick[i].device);
 
          if (FAILED(hr))
-	    _TRACE("acquire joystick %d failed: %s\n", i, dinput_err_str(hr));
+	    _TRACE(PREFIX_E "acquire joystick %d failed: %s\n", i, dinput_err_str(hr));
       }
    }
 
@@ -239,11 +243,11 @@ static int joystick_dinput_poll(void)
       else {
          if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
 	    /* reacquire device */
-	    _TRACE("joystick device not acquired or lost\n");
+	    _TRACE(PREFIX_W "joystick device not acquired or lost\n");
 	    wnd_schedule_proc(joystick_dinput_acquire);
          }
          else {
-            _TRACE("unexpected error while polling the joystick\n");
+            _TRACE(PREFIX_E "unexpected error while polling the joystick\n");
          }
       }
    }
@@ -360,7 +364,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    };
 
    if (dinput_joy_num == MAX_JOYSTICKS-1) {
-      _TRACE("The system supports more than %d joysticks\n", MAX_JOYSTICKS);
+      _TRACE(PREFIX_W "The system supports more than %d joysticks\n", MAX_JOYSTICKS);
       return DIENUM_STOP;
    }
 

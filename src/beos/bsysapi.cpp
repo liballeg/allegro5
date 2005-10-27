@@ -36,6 +36,10 @@
 
 #define EXE_NAME_UNKNOWN "./UNKNOWN"
 
+#define PREFIX_I                "al-bsys INFO: "
+#define PREFIX_W                "al-bsys WARNING: "
+#define PREFIX_E                "al-bsys ERROR: "
+
 
 
 status_t ignore_result = 0;
@@ -140,7 +144,7 @@ static int32 system_thread(void *data)
 
    _be_allegro_app->Run();
 
-   AL_TRACE("system thread exited\n");
+   TRACE(PREFIX_I "system thread exited\n");
 
    return 0;
 }

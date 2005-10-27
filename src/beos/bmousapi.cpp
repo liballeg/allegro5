@@ -35,6 +35,10 @@
 
 
 
+#define PREFIX_I                "al-bmouse INFO: "
+#define PREFIX_W                "al-bmouse WARNING: "
+#define PREFIX_E                "al-bmouse ERROR: "
+
 static thread_id     mouse_thread_id      = -1;
 static volatile bool mouse_thread_running = false;
 
@@ -74,7 +78,7 @@ int32 mouse_thread(void *mouse_started)
 
       if (mouse_thread_running == false) {
          release_sem(_be_mouse_view_attached);
-         AL_TRACE("mouse thread exited\n");
+         TRACE(PREFIX_I "mouse thread exited\n");
 
          return 0;
       }

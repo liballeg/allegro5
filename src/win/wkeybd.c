@@ -31,6 +31,10 @@
    #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-wkey INFO: "
+#define PREFIX_W                "al-wkey WARNING: "
+#define PREFIX_E                "al-wkey ERROR: "
+
 
 #define DINPUT_BUFFERSIZE 256
 static HANDLE key_input_event = NULL;
@@ -342,7 +346,7 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
       if (((scancode == DIK_END) || (scancode == DIK_NUMPAD1))
           && ((_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG))
           && three_finger_flag) {
-         _TRACE("Terminating application\n");
+         _TRACE(PREFIX_I "Terminating application\n");
          abort();
       }
 
@@ -378,11 +382,11 @@ static void key_dinput_handle(void)
    /* was device lost ? */
    if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
       /* reacquire device */
-      _TRACE("keyboard device not acquired or lost\n");
+      _TRACE(PREFIX_W "keyboard device not acquired or lost\n");
       wnd_schedule_proc(key_dinput_acquire);
    }
    else if (FAILED(hr)) {  /* other error? */
-      _TRACE("unexpected error while filling keyboard scancode buffer\n");
+      _TRACE(PREFIX_E "unexpected error while filling keyboard scancode buffer\n");
    }
    else {
       /* normally only this case should happen */
@@ -429,7 +433,7 @@ int key_dinput_acquire(void)
       hr = IDirectInputDevice_Acquire(key_dinput_device);
 
       if (FAILED(hr)) {
-         _TRACE("acquire keyboard failed: %s\n", dinput_err_str(hr));
+         _TRACE(PREFIX_E "acquire keyboard failed: %s\n", dinput_err_str(hr));
          return -1;
       }
 
@@ -598,13 +602,13 @@ static int key_directx_init(void)
 
    if (key_dinput_init() != 0) {
       /* something has gone wrong */
-      _TRACE("keyboard handler init failed\n");
+      _TRACE(PREFIX_E "keyboard handler init failed\n");
       CloseHandle(key_input_processed_event);
       return -1;
    }
 
    /* the keyboard handler has successfully set up */
-   _TRACE("keyboard handler starts\n");
+   _TRACE(PREFIX_I "keyboard handler starts\n");
    return 0;
 }
 
@@ -616,7 +620,7 @@ static void key_directx_exit(void)
 {
    if (key_dinput_device) {
       /* command keyboard handler shutdown */
-      _TRACE("keyboard handler exits\n");
+      _TRACE(PREFIX_I "keyboard handler exits\n");
       key_dinput_exit();
 
       /* now we can free all resources */

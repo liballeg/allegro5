@@ -30,6 +30,10 @@
    #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-wwnd INFO: "
+#define PREFIX_W                "al-wwnd WARNING: "
+#define PREFIX_E                "al-wwnd ERROR: "
+
 
 /* general */
 static HWND allegro_wnd = NULL;
@@ -409,7 +413,7 @@ static HWND create_directx_window(void)
                         -100, -100, 0, 0,
                         NULL, NULL, allegro_inst, NULL);
    if (!wnd) {
-      _TRACE("CreateWindowEx() failed (%s)\n", win_err_str(GetLastError()));
+      _TRACE(PREFIX_E "CreateWindowEx() failed (%s)\n", win_err_str(GetLastError()));
       return NULL;
    }
 
@@ -431,7 +435,7 @@ static void wnd_thread_proc(HANDLE setup_event)
    MSG msg;
 
    _win_thread_init();
-   _TRACE("window thread starts\n");
+   _TRACE(PREFIX_I "window thread starts\n");
 
    /* setup window */
    if (wnd_create_proc)
@@ -466,7 +470,7 @@ static void wnd_thread_proc(HANDLE setup_event)
    }
 
  End:
-   _TRACE("window thread exits\n");
+   _TRACE(PREFIX_I "window thread exits\n");
    _win_thread_exit();
 }
 

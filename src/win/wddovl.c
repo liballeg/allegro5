@@ -18,6 +18,10 @@
 
 #include "wddraw.h"
 
+#define PREFIX_I                "al-wddovl INFO: "
+#define PREFIX_W                "al-wddovl WARNING: "
+#define PREFIX_E                "al-wddovl ERROR: "
+
 
 static int gfx_directx_show_video_bitmap_ovl(struct BITMAP *bitmap);
 static int gfx_directx_request_video_bitmap_ovl(struct BITMAP *bitmap);
@@ -121,7 +125,7 @@ static int update_overlay(int x, int y, int w, int h)
                                           gfx_directx_primary_surface->id, &dest_rect,
                                           DDOVER_SHOW | DDOVER_KEYDEST, NULL);
    if (FAILED(hr)) {
-      _TRACE("Can't display overlay (%x)\n", hr);
+      _TRACE(PREFIX_E "Can't display overlay (%x)\n", hr);
       IDirectDrawSurface2_UpdateOverlay(overlay_surface->id, NULL,
                                         gfx_directx_primary_surface->id, NULL,
                                         DDOVER_HIDE, NULL);
@@ -207,7 +211,7 @@ static int wnd_set_windowed_coop(void)
 
    hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_NORMAL);
    if (FAILED(hr)) {
-      _TRACE("SetCooperative level = %s (%x), hwnd = %x\n", win_err_str(hr), hr, allegro_wnd);
+      _TRACE(PREFIX_E "SetCooperative level = %s (%x), hwnd = %x\n", win_err_str(hr), hr, allegro_wnd);
       return -1;
    }
 
@@ -272,7 +276,7 @@ static int create_overlay(int w, int h, int color_depth)
    overlay_surface = gfx_directx_create_surface(w, h, ddpixel_format, DDRAW_SURFACE_OVERLAY);
    
    if (!overlay_surface) {
-      _TRACE("Can't create overlay surface.\n");
+      _TRACE(PREFIX_E "Can't create overlay surface.\n");
       return -1;
    }
 
@@ -319,7 +323,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    SetClassLong(allegro_wnd, GCL_HBRBACKGROUND, (LONG) overlay_brush);
 
    if (adjust_window(w, h) != 0) {
-      _TRACE("window size not supported.\n");
+      _TRACE(PREFIX_E "window size not supported.\n");
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto Error;
    }
@@ -338,20 +342,20 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    ddcaps.dwSize = sizeof(ddcaps);
    hr = IDirectDraw2_GetCaps(directdraw, &ddcaps, NULL);
    if (FAILED(hr)) {
-      _TRACE("Can't get driver caps\n");
+      _TRACE(PREFIX_E "Can't get driver caps\n");
       goto Error;
    }
 
    if (ddcaps.dwCaps & DDCAPS_ALIGNSIZESRC) {
       if (w%ddcaps.dwAlignSizeSrc) {
-         _TRACE("Alignment requirement not met: source size %d\n", ddcaps.dwAlignSizeSrc);
+         _TRACE(PREFIX_E "Alignment requirement not met: source size %d\n", ddcaps.dwAlignSizeSrc);
          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
          goto Error;
       }
    } 
    else if (ddcaps.dwCaps & DDCAPS_ALIGNSIZEDEST) {
       if (w%ddcaps.dwAlignSizeDest) {
-         _TRACE("Alignment requirement not met: dest size %d\n", ddcaps.dwAlignSizeDest);
+         _TRACE(PREFIX_E "Alignment requirement not met: dest size %d\n", ddcaps.dwAlignSizeDest);
          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
          goto Error;
       }
@@ -381,7 +385,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 
    hr = IDirectDrawSurface2_SetColorKey(gfx_directx_primary_surface->id, DDCKEY_DESTOVERLAY, &key);
    if (FAILED(hr)) {
-      _TRACE("Can't set overlay dest color key\n");
+      _TRACE(PREFIX_E "Can't set overlay dest color key\n");
       goto Error;
    }
 

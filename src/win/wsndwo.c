@@ -39,6 +39,10 @@
 #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-wsnd INFO: "
+#define PREFIX_W                "al-wsnd WARNING: "
+#define PREFIX_E                "al-wsnd ERROR: "
+
 
 static int digi_waveout_detect(int input);
 static int digi_waveout_init(int input, int voices);
@@ -262,7 +266,7 @@ static int digi_waveout_init(int input, int voices)
 
    digiwobufdata = malloc(digiwobufsize);
    if (!digiwobufdata) {
-      _TRACE ("malloc() failed\n");
+      _TRACE (PREFIX_E "malloc() failed\n");
       goto Error;
    }
 
@@ -275,7 +279,7 @@ static int digi_waveout_init(int input, int voices)
 
    mmr = waveOutOpen(&hWaveOut, WAVE_MAPPER, &format, 0, 0, CALLBACK_NULL);
    if (mmr != MMSYSERR_NOERROR) {
-      _TRACE ("Can't open WaveOut\n");
+      _TRACE (PREFIX_E "Can't open WaveOut\n");
       goto Error;
    }
 
@@ -287,19 +291,19 @@ static int digi_waveout_init(int input, int voices)
 
    mmr = waveOutPrepareHeader(hWaveOut, lpWaveHdr, sizeof(WAVEHDR));
    if (mmr != MMSYSERR_NOERROR) {
-      _TRACE ("waveOutPrepareHeader() failed\n");
+      _TRACE (PREFIX_E "waveOutPrepareHeader() failed\n");
       goto Error;
    } 
 
    mmr = waveOutWrite(hWaveOut, lpWaveHdr, sizeof(WAVEHDR));
    if (mmr != MMSYSERR_NOERROR) {
-      _TRACE ("waveOutWrite() failed\n" );
+      _TRACE (PREFIX_E "waveOutWrite() failed\n" );
       goto Error;
    }
 
    if (_mixer_init((digiwobufsize / (_bits /8)) / digiwobufdivs, _freq,
                     _stereo, ((_bits == 16) ? 1 : 0), &digi_driver->voices) != 0) {
-      _TRACE("Can't init software mixer\n");
+      _TRACE(PREFIX_E "Can't init software mixer\n");
       goto Error;
    }
 
@@ -314,7 +318,7 @@ static int digi_waveout_init(int input, int voices)
    return 0;
 
  Error:
-   _TRACE("digi_waveout_init() failed\n");
+   _TRACE(PREFIX_E "digi_waveout_init() failed\n");
    digi_waveout_exit(0);
    return -1;
 }

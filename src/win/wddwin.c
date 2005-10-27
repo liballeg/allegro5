@@ -20,6 +20,10 @@
 
 #include "wddraw.h"
 
+#define PREFIX_I                "al-wddwin INFO: "
+#define PREFIX_W                "al-wddwin WARNING: "
+#define PREFIX_E                "al-wddwin ERROR: "
+
 
 /* exported only for asmlock.s */
 char *wd_dirty_lines = NULL;  /* used in WRITE_BANK() */
@@ -137,7 +141,7 @@ static void handle_window_enter_sysmode_win(void)
    if (direct_updating_mode_enabled && colorconv_blit) {
       if (direct_updating_mode_on) {
          direct_updating_mode_on = FALSE;
-         _TRACE("direct updating mode off\n");
+         _TRACE(PREFIX_I "direct updating mode off\n");
       }
    }
 }
@@ -152,7 +156,7 @@ static void handle_window_exit_sysmode_win(void)
    if (direct_updating_mode_enabled && colorconv_blit) {
       if (!direct_updating_mode_on) {
          direct_updating_mode_on = TRUE;
-         _TRACE("direct updating mode on\n");
+         _TRACE(PREFIX_I "direct updating mode on\n");
       }
    }
 }
@@ -175,7 +179,7 @@ static void handle_window_move_win(int x, int y, int w, int h)
          GetWindowRect(allegro_wnd, &window_rect);
          SetWindowPos(allegro_wnd, 0, window_rect.left + (x > 0 ? -xmod : xmod),
                       window_rect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
-         _TRACE("window shifted by %d pixe%s to the %s to enforce alignment\n",
+         _TRACE(PREFIX_I "window shifted by %d pixe%s to the %s to enforce alignment\n",
                 xmod, xmod > 1 ? "ls" : "l", x > 0 ? "left" : "right");
       }
    }
@@ -546,7 +550,7 @@ static int wnd_set_windowed_coop(void)
    
    hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_NORMAL);
    if (FAILED(hr)) {
-      _TRACE("SetCooperative level = %s (%x), hwnd = %x\n", win_err_str(hr), hr, allegro_wnd);
+      _TRACE(PREFIX_E "SetCooperative level = %s (%x), hwnd = %x\n", win_err_str(hr), hr, allegro_wnd);
       return -1;
    }
 
@@ -613,7 +617,7 @@ static int create_offscreen(int w, int h, int color_depth)
       offscreen_surface = gfx_directx_create_surface(w, h, NULL, DDRAW_SURFACE_VIDEO);
 
       if (!offscreen_surface) {
-         _TRACE("Can't create offscreen surface in video memory.\n");
+         _TRACE(PREFIX_E "Can't create offscreen surface in video memory.\n");
 
          /* create offscreen surface in system memory */
          offscreen_surface = gfx_directx_create_surface(w, h, NULL, DDRAW_SURFACE_SYSTEM);
@@ -621,7 +625,7 @@ static int create_offscreen(int w, int h, int color_depth)
    }
 
    if (!offscreen_surface) {
-      _TRACE("Can't create offscreen surface.\n");
+      _TRACE(PREFIX_E "Can't create offscreen surface.\n");
       return -1;
    }
 
@@ -682,7 +686,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
       goto Error;
 
    if (adjust_window(w, h) != 0) {
-      _TRACE("window size not supported.\n");
+      _TRACE(PREFIX_E "window size not supported.\n");
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto Error;
    }

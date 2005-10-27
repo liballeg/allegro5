@@ -18,6 +18,10 @@
 
 #include "wddraw.h"
 
+#define PREFIX_I                "al-wddbmpl INFO: "
+#define PREFIX_W                "al-wddbmpl WARNING: "
+#define PREFIX_E                "al-wddbmpl ERROR: "
+
 
 /* double linked list */
 static DDRAW_SURFACE *ddraw_surface_list = NULL;
@@ -126,7 +130,7 @@ int restore_all_ddraw_surfaces(void)
 
    _exit_gfx_critical();
 
-   _TRACE("all DirectDraw surfaces restored\n");
+   _TRACE(PREFIX_I "all DirectDraw surfaces restored\n");
 
    return 0;
 }

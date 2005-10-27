@@ -47,6 +47,10 @@
 #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-dsound INFO: "
+#define PREFIX_W                "al-dsound WARNING: "
+#define PREFIX_E                "al-dsound ERROR: "
+
 
 static int digi_directsound_detect(int input);
 static int digi_directsound_init(int input, int voices);
@@ -347,11 +351,11 @@ static int digi_directsound_detect(int input)
       /* initialize DirectSound interface */
       hr = DirectSoundCreate(driver_guids[id], &directsound, NULL);
       if (FAILED(hr)) {
-         _TRACE("DirectSound interface creation failed during detect (%s).\n", ds_err(hr));
+         _TRACE(PREFIX_E "DirectSound interface creation failed during detect (%s).\n", ds_err(hr));
          return 0;
       }
 
-      _TRACE("DirectSound interface successfully created.\n");
+      _TRACE(PREFIX_I "DirectSound interface successfully created.\n");
 
       /* release DirectSound interface */
       IDirectSound_Release(directsound);
@@ -385,22 +389,22 @@ static int digi_directsound_init(int input, int voices)
    /* initialize DirectSound interface */
    hr = DirectSoundCreate(driver_guids[id], &directsound, NULL);
    if (FAILED(hr)) { 
-      _TRACE("Can't create DirectSound interface (%s).\n", ds_err(hr)); 
+      _TRACE(PREFIX_E "Can't create DirectSound interface (%s).\n", ds_err(hr));
       goto Error; 
    }
 
    /* set cooperative level */
    hr = IDirectSound_SetCooperativeLevel(directsound, allegro_wnd, DSSCL_PRIORITY);
    if (FAILED(hr))
-      _TRACE("Can't set DirectSound cooperative level (%s).\n", ds_err(hr));
+      _TRACE(PREFIX_W "Can't set DirectSound cooperative level (%s).\n", ds_err(hr));
    else
-      _TRACE("DirectSound cooperation level set to PRIORITY.\n");
+      _TRACE(PREFIX_I "DirectSound cooperation level set to PRIORITY.\n");
 
    /* get hardware capabilities */
    dscaps.dwSize = sizeof(DSCAPS);
    hr = IDirectSound_GetCaps(directsound, &dscaps);
    if (FAILED(hr)) { 
-      _TRACE("Can't get DirectSound caps (%s).\n", ds_err(hr)); 
+      _TRACE(PREFIX_E "Can't get DirectSound caps (%s).\n", ds_err(hr));
       goto Error; 
    }
 
@@ -420,7 +424,7 @@ static int digi_directsound_init(int input, int voices)
    else
       _freq = dscaps.dwMaxSecondarySampleRate;
 
-   _TRACE("DirectSound caps: %u bits, %s, %uHz\n", _bits, _stereo ? "stereo" : "mono", _freq);
+   _TRACE(PREFIX_I "DirectSound caps: %u bits, %s, %uHz\n", _bits, _stereo ? "stereo" : "mono", _freq);
 
    /* create primary buffer */
    memset(&desc, 0, sizeof(DSBUFFERDESC));
@@ -429,14 +433,14 @@ static int digi_directsound_init(int input, int voices)
 
    hr = IDirectSound_CreateSoundBuffer(directsound, &desc, &prim_buf, NULL);
    if (hr != DS_OK) { 
-      _TRACE("Can't create primary buffer (%s)\nGlobal volume control won't be available.\n", ds_err(hr)); 
+      _TRACE(PREFIX_W "Can't create primary buffer (%s)\nGlobal volume control won't be available.\n", ds_err(hr));
    }
 
    /* get current format */
    if (prim_buf) {
       hr = IDirectSoundBuffer_GetFormat(prim_buf, &format, sizeof(format), NULL);
       if (FAILED(hr)) {
-         _TRACE("Can't get primary buffer format (%s).\n", ds_err(hr));
+         _TRACE(PREFIX_W "Can't get primary buffer format (%s).\n", ds_err(hr));
       }
       else {
          format.nChannels = _stereo ? 2 : 1;
@@ -447,17 +451,17 @@ static int digi_directsound_init(int input, int voices)
 
          hr = IDirectSoundBuffer_SetFormat(prim_buf, &format);
          if (FAILED(hr)) {
-            _TRACE("Can't set primary buffer format (%s).\n", ds_err(hr));
+            _TRACE(PREFIX_W "Can't set primary buffer format (%s).\n", ds_err(hr));
          }
 
          /* output primary format */
          hr = IDirectSoundBuffer_GetFormat(prim_buf, &format, sizeof(format), NULL);
          if (FAILED(hr)) {
-            _TRACE("Can't get primary buffer format (%s).\n", ds_err(hr));
+            _TRACE(PREFIX_W "Can't get primary buffer format (%s).\n", ds_err(hr));
          }
          else {
-            _TRACE("primary format:\n");
-            _TRACE("  %u channels\n  %u Hz\n  %u AvgBytesPerSec\n  %u BlockAlign\n  %u bits\n  %u size\n",
+            _TRACE(PREFIX_I "primary format:\n");
+            _TRACE(PREFIX_I "  %u channels\n  %u Hz\n  %u AvgBytesPerSec\n  %u BlockAlign\n  %u bits\n  %u size\n",
             format.nChannels, format.nSamplesPerSec, format.nAvgBytesPerSec,
             format.nBlockAlign, format.wBitsPerSample, format.cbSize);
          }
@@ -492,7 +496,7 @@ static int digi_directsound_init(int input, int voices)
    return 0;
 
  Error:
-   _TRACE("digi_directsound_init() failed.\n");
+   _TRACE(PREFIX_E "digi_directsound_init() failed.\n");
    digi_directsound_exit(FALSE);
    return -1;
 }
@@ -593,8 +597,8 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
    /* create buffer */
    hr = IDirectSound_CreateSoundBuffer(directsound, &dsbdesc, &snd_buf, NULL);
    if (FAILED(hr)) {
-      _TRACE("create_directsound_buffer() failed (%s).\n", ds_err(hr));
-      _TRACE(" - %d Hz, %s, %d bits\n", freq, stereo ? "stereo" : "mono", bits);
+      _TRACE(PREFIX_E "create_directsound_buffer() failed (%s).\n", ds_err(hr));
+      _TRACE(PREFIX_E " - %d Hz, %s, %d bits\n", freq, stereo ? "stereo" : "mono", bits);
       return NULL;
    }
 
@@ -631,7 +635,7 @@ static int fill_dsound_buffer(LPDIRECTSOUNDBUFFER snd_buf, int offset, int len, 
 
       hr = IDirectSoundBuffer_Lock(snd_buf, offset, size, &buf_a, &size_a, NULL, NULL, 0);
       if (FAILED(hr)) {
-         _TRACE("fill_dsound_buffer() failed (%s).\n", ds_err(hr));
+         _TRACE(PREFIX_E "fill_dsound_buffer() failed (%s).\n", ds_err(hr));
          return -1;
       }
    }
@@ -929,7 +933,7 @@ static void *digi_directsound_lock_voice(int voice, int start, int end)
 
       hr = IDirectSoundBuffer_Lock(ds_locked_buffer, start, end - start, &buf_a, &size_a, NULL, NULL, 0);
       if (FAILED(hr)) {
-         _TRACE("digi_directsound_lock_voice() failed (%s).\n", ds_err(hr));
+         _TRACE(PREFIX_E "digi_directsound_lock_voice() failed (%s).\n", ds_err(hr));
          return NULL;
       }
    }
@@ -968,7 +972,7 @@ static void digi_directsound_unlock_voice(int voice)
                                      0);
 
       if (FAILED(hr)) {
-         _TRACE("digi_directsound_unlock_voice() failed (%s).\n", ds_err(hr));
+         _TRACE(PREFIX_E "digi_directsound_unlock_voice() failed (%s).\n", ds_err(hr));
       }
 
       ds_voices[voice].ds_locked_buffer = NULL;
@@ -998,7 +1002,7 @@ static int digi_directsound_get_position(int voice)
       hr = IDirectSoundBuffer_GetCurrentPosition(ds_voices[voice].ds_loop_buffer,
                                                  &play_cursor, &write_cursor);
       if (FAILED(hr)) {
-         _TRACE("digi_directsound_get_position() failed (%s).\n", ds_err(hr));
+         _TRACE(PREFIX_E "digi_directsound_get_position() failed (%s).\n", ds_err(hr));
          return -1;
       }
 
@@ -1023,7 +1027,7 @@ static int digi_directsound_get_position(int voice)
       hr = IDirectSoundBuffer_GetCurrentPosition(ds_voices[voice].ds_buffer,
                                                  &play_cursor, &write_cursor);
       if (FAILED(hr)) {
-         _TRACE("digi_directsound_get_position() failed (%s).\n", ds_err(hr));
+         _TRACE(PREFIX_E "digi_directsound_get_position() failed (%s).\n", ds_err(hr));
          return -1;
       }
 
@@ -1060,7 +1064,7 @@ static void digi_directsound_set_position(int voice, int position)
       hr = IDirectSoundBuffer_SetCurrentPosition(ds_voices[voice].ds_loop_buffer,
                                                  pos * ds_voices[voice].bytes_per_sample);
       if (FAILED(hr)) {
-         _TRACE("digi_directsound_set_position() failed (%s).\n", ds_err(hr));
+         _TRACE(PREFIX_E "digi_directsound_set_position() failed (%s).\n", ds_err(hr));
       }
    }
 
@@ -1074,7 +1078,7 @@ static void digi_directsound_set_position(int voice, int position)
       hr = IDirectSoundBuffer_SetCurrentPosition(ds_voices[voice].ds_buffer,
                                                  pos * ds_voices[voice].bytes_per_sample);
       if (FAILED(hr)) {
-         _TRACE("digi_directsound_set_position() failed (%s).\n", ds_err(hr));
+         _TRACE(PREFIX_E "digi_directsound_set_position() failed (%s).\n", ds_err(hr));
       }
    }
 }

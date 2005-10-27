@@ -36,6 +36,10 @@
 #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-wjoy INFO: "
+#define PREFIX_W                "al-wjoy WARNING: "
+#define PREFIX_E                "al-wjoy ERROR: "
+
 
 static int joystick_win32_init(void);
 static void joystick_win32_exit(void);
@@ -159,7 +163,7 @@ static int joystick_win32_init(void)
    win32_joy_num = joyGetNumDevs();
 
    if (win32_joy_num > MAX_JOYSTICKS)
-      _TRACE("The system supports more than %d joysticks\n", MAX_JOYSTICKS);
+      _TRACE(PREFIX_W "The system supports more than %d joysticks\n", MAX_JOYSTICKS);
 
    /* retrieve joystick infos */
    n_joy = 0;

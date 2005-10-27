@@ -26,6 +26,9 @@
 #include "allegro/platform/aintunix.h"
 #include "linalleg.h"
 
+#define PREFIX_I                "al-ckey INFO: "
+#define PREFIX_W                "al-ckey WARNING: "
+#define PREFIX_E                "al-ckey ERROR: "
 
 static KEYBOARD_DRIVER keydrv_linux_console;
 
@@ -210,7 +213,8 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
                 ioctl (std_keyboard.fd, KDGKBENT, &kbe);
 
 		/* debugging */
-		/* TRACE("keypress: code=%3d mycode=%3d map=%2d kb_value=%04x\n", code, mycode, map, kbe.kb_value); */
+		/* TRACE(PREFIX_I "keypress: code=%3d mycode=%3d map=%2d kb_value=%04x\n",
+		      code, mycode, map, kbe.kb_value); */
 
                 /* Allegro wants Alt+key to return ASCII code zero */
                 if (key[__allegro_KEY_ALT])
