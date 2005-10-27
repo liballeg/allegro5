@@ -161,7 +161,17 @@ int d_clear_proc(int msg, DIALOG *d, int c)
 
    if (msg == MSG_DRAW) {
       BITMAP *gui_bmp = gui_get_screen();
-      set_clip_rect(gui_bmp, 0, 0, SCREEN_W-1, SCREEN_H-1);
+      int w, h;
+    
+      /* Get width and height of target bitmap. We can't use SCREEN_W and
+       * SCREEN_H because the target might not be the screen, but we cannot use
+       * bmp->w and bmp->h either because if it is the screen these are actually
+       * wrong. Ugh!
+       */
+      w = (gui_bmp == screen) ? SCREEN_W: gui_bmp->w;
+      h = (gui_bmp == screen) ? SCREEN_H: gui_bmp->h;
+
+      set_clip_rect(gui_bmp, 0, 0, w-1, h-1);
       set_clip_state(gui_bmp, TRUE);
       clear_to_color(gui_bmp, d->bg);
    }
