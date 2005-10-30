@@ -8,6 +8,75 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.2.0 RC2 to 4.2.0 RC3 (October 2005)
+<ul><li>
+   Peter Wang made fixmul() detect overflows as it used to do in the 4.0.x
+   branch.
+<li>
+   Dennis Busch found a bug where d_clear_proc would not work properly if the
+   GUI target bitmap is	different from screen.
+<li>
+   Grzegorz Adam Hankiewicz made Allegro log all TRACE output with a prefix 
+   in the format "al-system level: ". This makes it easier to grep debug logs.
+<li>
+   Grzegorz Adam Hankiewicz made dialogs with MSG_CHAR/MSG_UCHAR handlers
+   honor a D_CLOSE return flag without a D_USED_CHAR.
+<li>
+   Peter Hull fixed problems with the mouse position as reported by Allegro and 
+   the mouse position as known to OS X.
+<li>
+   Peter Hull made Command-Q not close the application if no exit-button
+   callback is registered.
+<li>
+   Peter Hull fixed problems with joysticks under MacOS X as reported by
+   Thomas Harte.
+<li>
+   Peter Hull fixed a bug preventing more than one Allegro application from 
+   being run at a time on Mac OS X. Reported by Thomas Harte.
+<li>
+   Peter Hull did a lot of other things for the MacOS X port too.
+<li>
+   Jiri Gabriel fixed loading of multiple ranges in a single bitmap with txt 
+   fonts.
+<li>
+   Milan Mimica and Jiri Gabriel fixed several bugs in extract_font_range.
+<li>
+   Dennis Busch fixed a Unicode bug in the mode selector.
+<li>
+   Evert Glebbeek added FA_ALL and FA_NONE file attribute flags.
+<li>
+   Peter Hull fixed a deadlock in OS X when calling vsync() while the screen 
+   was acquired.
+<li>
+   Robert Alfonso fixed a grabber crash when importing a new font range into an
+   existing font. Reported by Milan Mimica.
+<li>
+   Chris Robinson fixed the fileselector in UNIXnot properly recognising 
+   filenames containing UTF-8 characters.
+<li>
+   Hrvoje Ban and Peter Wang wrote a documentation section that explains
+   several common mistakes.
+<li>
+   Elias Pschernig disabled DGA auto-detection under X11
+<li>
+   i_am_drv added support for .rmi midis to the midi reader
+<li>
+   Elias Pschernig fixed a fix-point overflow in pivot_sprite.
+<li>
+   Michal Molhanec fixed several problems with the Watcom compiler.
+<li>
+   Peter Hull fixed an error with 'make uninstall' on MacOS X.
+<li>
+   Matthew Leverton added a programs: makefile target.
+<li>
+   Many small fixes and improvements by Michal Molhanec, Peter Hull, Chris 
+   Robinson, Peter Wang and Elias Pschernig.
+<li>
+   Documentation improvements by Grzegorz Adam Hankiewicz, Tore Halse and 
+   Peter Hull.
+</ul>
+
+@heading
 Changes from 4.2.0 RC1 to 4.2.0 RC2 (August 2005)
 <ul><li>
    Grady Martin made the grabber consider deleting object properties as a

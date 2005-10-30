@@ -239,6 +239,9 @@ Contributors
 
    Deepak T (<email>coolbool@gmx.net</a>).<br>
    Fixed clipping in three C sprite drawing routines.
+   
+   Dennis Busch (email unknown).<br>
+   Fixed a bug in d_clear_proc and fixed a Unicode bug in the mode selector.
 
    Dmitriy Kazimirow (<email>mariann@mail.ru</a>).<br>
    Provided the Russian keyboard mapping and message translation files.
@@ -388,8 +391,12 @@ Contributors
    system many times and did plenty of other things too.
    
    Hrvoje Ban (email unknown).<br>
-   Pointed out a bug in the mode selector, fixed several double ;'s and
-   fixed ASSERT() in Windows.
+   Pointed out a bug in the mode selector, fixed several double ;'s, fixed 
+   ASSERT() in Windows and helped write a documentation section about common
+   pitfalls.
+   
+   i_am_drv (email unknown).<br>
+   Added support for .rmi MIDI files to the MIDI loader.
 
    Igor Gnip (<email>gnipi@mindnever.org</a>).<br>
    Removed the requirements for fileutils on DOS/Windows platforms and added
@@ -455,6 +462,10 @@ Contributors
 
    Jim Grainger (<email>Grainger_Jim/world_europe_samuro_WYN-CTV@samsung.co.kr</a>).<br>
    Spotted a broken link in the docs and updated it.
+   
+   Jiri Gabriel (email unknown).<br>
+   fixed loading of multiple ranges in a single bitmap with txt fonts and helped
+   fix an off-by-one mistake for the last glyph in extract_font_range.
 
    Joaquin Hierro Diaz (<email>Joaquin.Hierro.Diaz@fresno.csic.es</a>).<br>
    Made the mapping table for Spanish keyboards.
@@ -681,7 +692,9 @@ Contributors
 
    Milan Mimica (<email>milan.mimica1@pu.htnet.hr</a>).<br>
    Fixed bugs in the keyconf utility, the alsa 9 volume settings and
-   extract_font_range().
+   extract_font_range(), helped fix an off-by-one mistake for the last glyph
+   in extract_font_range and fixed a bug where a font would be converted to 8
+   bit.
 
    Miran Amon (<email>miran.amon@gmail.com</a>).<br>
    Fixed an undocumented arbitrary limit in get_config_argv()
@@ -852,7 +865,8 @@ Contributors
    Roberto Alfonso (<email>rpgrca@labint.frba.utn.edu.ar</a>).<br>
    Fixed a couple of memory problems in the dat2c utility, added an
    srand() call in the demo game, made the MSVC port call `link /lib'
-   rather than `lib' and fixed several warnings with GCC 4 under DJGPP.
+   rather than `lib', fixed several warnings with GCC 4 under DJGPP and
+   fixed a grabber crash when importing a font range in an existing font.
 
    Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
    Provided a new page flipping code for the DirectDraw subsytem, added a
@@ -975,8 +989,8 @@ Contributors
    Wrote the ALSA 0.5.x MIDI driver and added support for ALSA 0.9.x.
    
    Thomas Harte (email unknown).<br>
-   Helped fix a bug in show_video_bitmap() on MacOS X and helped optimise
-   fixmul().
+   Helped fix a bug in show_video_bitmap() on MacOS X, helped optimise fixmul()
+   and helped find many bugs in the MacOS X port.
 
    Thomas Klausner (<email>wiz@danbala.ifoer.tuwien.ac.at</a>).<br>
    Added NetBSD detection and fixed a problem with the allegro.m4 macro and
@@ -1017,7 +1031,8 @@ Contributors
    aggressive Sidewinder joystick driver.
 
    Tore Halse (<email>gnolam@gmail.com</a>).<br>
-   Made Allegro windows always popup centred in Windows.
+   Made Allegro windows always popup centred in Windows and made fixes to the
+   documentation.
 
    V Karthik Kumar (<email>karthikkumar@gmail.com</a>).<br>
    Added a Tamil language greeting to exunicode, added switches to use
