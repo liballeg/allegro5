@@ -168,8 +168,6 @@ void osx_event_handler()
    int event_type;
    BOOL gotmouseevent = NO;
    
-   view = NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h);
-   
    while ((event = [NSApp nextEventMatchingMask: NSAnyEventMask
          untilDate: distant_past
          inMode: NSDefaultRunLoopMode
@@ -179,7 +177,8 @@ void osx_event_handler()
          [NSApp sendEvent: event];
 	 continue;
       }
-
+      
+      view = NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h);
       point = [event locationInWindow];
       if (osx_window) 
       {

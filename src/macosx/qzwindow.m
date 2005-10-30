@@ -114,7 +114,7 @@ static void prepare_window_for_animation(int refresh_view)
    pitch = GetPixRowBytes(GetPortPixMap([qd_view qdPort])) / 4;
    addr = (unsigned int *)GetPixBaseAddr(GetPortPixMap([qd_view qdPort])) +
       ((int)([osx_window frame].size.height) - gfx_quartz_window.h) * pitch;
-   if (refresh_view) {
+   if (refresh_view && colorconv_blitter) {
       src_gfx_rect.width  = gfx_quartz_window.w;
       src_gfx_rect.height = gfx_quartz_window.h;
       src_gfx_rect.pitch  = pseudo_screen_pitch;
@@ -304,57 +304,59 @@ void osx_update_dirty_lines(void)
    }
    
    /* Dirty lines need to be updated */
-   while (![qd_view lockFocusIfCanDraw]);
-   while (!QDDone([qd_view qdPort]));
-   LockPortBits([qd_view qdPort]);
+   if ([qd_view lockFocusIfCanDraw] == YES) {
+      while (!QDDone([qd_view qdPort]));
+      LockPortBits([qd_view qdPort]);
    
-   qd_view_port = [qd_view qdPort];
+      qd_view_port = [qd_view qdPort];
    
-   qd_view_pitch = GetPixRowBytes(GetPortPixMap(qd_view_port));
-   qd_view_addr = GetPixBaseAddr(GetPortPixMap(qd_view_port)) +
-      ((int)([osx_window frame].size.height) - gfx_quartz_window.h) * qd_view_pitch;
+      qd_view_pitch = GetPixRowBytes(GetPortPixMap(qd_view_port));
+      qd_view_addr = GetPixBaseAddr(GetPortPixMap(qd_view_port)) +
+         ((int)([osx_window frame].size.height) - gfx_quartz_window.h) * qd_view_pitch;
    
-   SetEmptyRgn(update_region);
+      if (colorconv_blitter || (osx_setup_colorconv_blitter() == 0)) {
+         SetEmptyRgn(update_region);
    
-   rect.left = 0;
-   rect.right = gfx_quartz_window.w;
+         rect.left = 0;
+         rect.right = gfx_quartz_window.w;
 
-   while (rect.top < gfx_quartz_window.h) {
-      while ((!dirty_lines[rect.top]) && (rect.top < gfx_quartz_window.h))
-         rect.top++;
-      if (rect.top >= gfx_quartz_window.h)
-         break;
-      rect.bottom = rect.top;
-      while ((dirty_lines[rect.bottom]) && (rect.bottom < gfx_quartz_window.h)) {
-         dirty_lines[rect.bottom] = 0;
-         rect.bottom++;
-      }
-      /* fill in source graphics rectangle description */
-      src_gfx_rect.width  = rect.right - rect.left;
-      src_gfx_rect.height = rect.bottom - rect.top;
-      src_gfx_rect.pitch  = pseudo_screen_pitch;
-      src_gfx_rect.data   = pseudo_screen->line[0] +
-                            (rect.top * pseudo_screen_pitch) +
-                            (rect.left * BYTES_PER_PIXEL(pseudo_screen_depth));
+         while (rect.top < gfx_quartz_window.h) {
+            while ((!dirty_lines[rect.top]) && (rect.top < gfx_quartz_window.h))
+               rect.top++;
+            if (rect.top >= gfx_quartz_window.h)
+               break;
+            rect.bottom = rect.top;
+            while ((dirty_lines[rect.bottom]) && (rect.bottom < gfx_quartz_window.h)) {
+               dirty_lines[rect.bottom] = 0;
+               rect.bottom++;
+            }
+            /* fill in source graphics rectangle description */
+            src_gfx_rect.width  = rect.right - rect.left;
+            src_gfx_rect.height = rect.bottom - rect.top;
+            src_gfx_rect.pitch  = pseudo_screen_pitch;
+            src_gfx_rect.data   = pseudo_screen->line[0] +
+               (rect.top * pseudo_screen_pitch) +
+               (rect.left * BYTES_PER_PIXEL(pseudo_screen_depth));
 
-      /* fill in destination graphics rectangle description */
-      dest_gfx_rect.pitch = qd_view_pitch;
-      dest_gfx_rect.data  = qd_view_addr +
-                            (rect.top * qd_view_pitch) + 
-                            (rect.left * BYTES_PER_PIXEL(desktop_depth));
+            /* fill in destination graphics rectangle description */
+            dest_gfx_rect.pitch = qd_view_pitch;
+            dest_gfx_rect.data  = qd_view_addr +
+               (rect.top * qd_view_pitch) + 
+               (rect.left * BYTES_PER_PIXEL(desktop_depth));
       
-      /* function doing the hard work */
-      colorconv_blitter(&src_gfx_rect, &dest_gfx_rect);
+            /* function doing the hard work */
+            colorconv_blitter(&src_gfx_rect, &dest_gfx_rect);
       
-      RectRgn(temp_region, &rect);
-      UnionRgn(temp_region, update_region, update_region);
-      rect.top = rect.bottom;
+            RectRgn(temp_region, &rect);
+            UnionRgn(temp_region, update_region, update_region);
+            rect.top = rect.bottom;
+         }
+      }   
+      QDFlushPortBuffer(qd_view_port, update_region);
+   
+      UnlockPortBits([qd_view qdPort]);
+      [qd_view unlockFocus];
    }
-   
-   QDFlushPortBuffer(qd_view_port, update_region);
-   
-   UnlockPortBits([qd_view qdPort]);
-   [qd_view unlockFocus];
    _unix_unlock_mutex(osx_window_mutex);
    
    osx_signal_vsync();
@@ -369,15 +371,23 @@ void osx_update_dirty_lines(void)
 int osx_setup_colorconv_blitter()
 {
    CFDictionaryRef mode;
-   
-   mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
-   CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &desktop_depth);
-   desktop_depth = (desktop_depth == 16) ? 15 : desktop_depth;
-   
+   void *vp;
+   int dd;
+   if (qd_view && (vp = [qd_view qdPort]))
+   {
+      dd = GetPixDepth(GetPortPixMap(vp));
+   }   
+   else
+   {
+       mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
+       CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &desktop_depth);
+       dd = desktop_depth;
+   }
+   if (dd == 16) dd = 15;
    _unix_lock_mutex(osx_window_mutex);
    if (colorconv_blitter)
       _release_colorconv_blitter(colorconv_blitter);
-   colorconv_blitter = _get_colorconv_blitter(requested_color_depth, desktop_depth);
+   colorconv_blitter = _get_colorconv_blitter(requested_color_depth, dd);
    /* We also need to update the color conversion palette to reflect the change */
    if (colorconv_blitter)
       _set_colorconv_palette(_current_palette, 0, 255);
@@ -473,11 +483,7 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
    gfx_quartz_window.vid_mem = w * h * BYTES_PER_PIXEL(color_depth);
    
    requested_color_depth = color_depth;
-   if (osx_setup_colorconv_blitter()) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
-      return NULL;
-   }
-   
+   colorconv_blitter=NULL;   
    mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &desktop_depth);
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
@@ -624,8 +630,15 @@ static void osx_qz_window_set_palette(AL_CONST struct RGB *p, int from, int to, 
    _unix_unlock_mutex(osx_window_mutex);
 }
 
-void osx_signal_vsync(void) {
-      pthread_mutex_lock(&vsync_mutex);
-      pthread_cond_broadcast(&vsync_cond);
-      pthread_mutex_unlock(&vsync_mutex);
+void osx_signal_vsync(void) 
+{
+   pthread_mutex_lock(&vsync_mutex);
+   pthread_cond_broadcast(&vsync_cond);
+   pthread_mutex_unlock(&vsync_mutex);
 }
+
+/* Local variables:       */
+/* c-basic-offset: 3      */
+/* indent-tabs-mode: nil  */
+/* c-file-style: "linux" */
+/* End:                   */
