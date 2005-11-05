@@ -91,8 +91,7 @@ static void insert_builtin_prop(AL_CONST char *prop_types)
 /* main cleanup routine */
 static void datedit_exit(void)
 {
-   if (builtin_prop)
-      free(builtin_prop);
+   _al_free(builtin_prop);
 }
 
 
