@@ -57,7 +57,7 @@
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Aug 28, 2005.
+	     By Shawn Hargreaves, Nov 05, 2005.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -1086,15 +1086,31 @@ is best to set it with set_uformat() just before you call these.
    When you select the U_ASCII_CP encoding mode, a set of tables are used to 
    convert between 8-bit characters and their Unicode equivalents. You can 
    use this function to specify a custom set of mapping tables, which allows 
-   you to support different 8-bit codepages. The `table' parameter points to
-   an array of 256 shorts, which contain the Unicode value for each 
-   character in your codepage. The `extras' parameter, if not NULL, points to
-   a list of mapping pairs, which will be used when reducing Unicode data to 
-   your codepage. Each pair consists of a Unicode value, followed by the way 
-   it should be represented in your codepage. The table is terminated by a 
-   zero Unicode value. This allows you to create a many-&gtone mapping, where
-   many different Unicode characters can be represented by a single codepage 
-   value (eg. for reducing accented vowels to 7-bit ASCII).
+   you to support different 8-bit codepages.
+
+   The `table' parameter points to an array of 256 shorts, which contain the
+   Unicode value for each character in your codepage. The `extras' parameter,
+   if not NULL, points to a list of mapping pairs, which will be used when
+   reducing Unicode data to your codepage. Each pair consists of a Unicode
+   value, followed by the way it should be represented in your codepage.
+   The list is terminated by a zero Unicode value. This allows you to create
+   a many-&gtone mapping, where many different Unicode characters can be
+   represented by a single codepage value (eg. for reducing accented vowels
+   to 7-bit ASCII).
+
+   Allegro will use the `table' parameter when it needs to convert an ASCII
+   string to an Unicode string. But when Allegro converts an Unicode string
+   to ASCII, it will use both parameters. First, it will loop through the
+   `table' parameter looking for an index position pointing at the unicode
+   value it is trying to convert (ie. the `table' parameter is also used for
+   reverse matching). If that fails, the `extras' list is used. If that fails
+   too, Allegro will put the character `^', giving up the conversion.
+
+   Note that Allegro comes with a default `table' and `extras' parameters
+   set internally. The default `table' will convert 8-bit characters to `^'.
+   The default `extras' list reduces Latin-1 and Extended-A characters to 7
+   bits in a sensible way (eg. an accented vowel will be reduced to the same
+   vowel without the accent).
 
 @@int @need_uconvert(const char *s, int type, int newtype);
 @xref set_uformat, get_uformat, do_uconvert, uconvert
