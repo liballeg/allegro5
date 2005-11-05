@@ -1432,7 +1432,7 @@ void misc(void)
    ct = 0;
 
    do {
-      z = fixmul(x,y);
+      z += fixmul(x,y);
       x += 1317;
       y += 7143;
       ct++;
@@ -1448,7 +1448,7 @@ void misc(void)
    ct = 0;
 
    do {
-      fz = fx * fy;
+      fz += fx * fy;
       fx += 1317;
       fy += 7143;
       ct++;
@@ -1464,7 +1464,7 @@ void misc(void)
    ct = 0;
 
    do {
-      z = fixdiv(x,y);
+      z += fixdiv(x,y);
       x += 1317;
       y += 7143;
       if (y==0)
@@ -1482,7 +1482,7 @@ void misc(void)
    ct = 0;
 
    do {
-      fz = fx / fy;
+      fz += fx / fy;
       fx += 1317;
       fy += 7143;
       if (fy==0)
@@ -1500,7 +1500,7 @@ void misc(void)
    ct = 0;
 
    do {
-      y = fixsqrt(x);
+      y += fixsqrt(x);
       x += 7361;
       ct++;
       if (next())
@@ -1515,7 +1515,7 @@ void misc(void)
    ct = 0;
 
    do {
-      fy = fixsqrt(fx);
+      fy += sqrt(fx);
       fx += 7361;
       ct++;
       if (next())
@@ -1530,7 +1530,7 @@ void misc(void)
    ct = 0;
 
    do {
-      y = fixsin(x);
+      y += fixsin(x);
       x += 4283;
       ct++;
       if (next())
@@ -1545,14 +1545,14 @@ void misc(void)
    ct = 0;
 
    do {
-      fy = sinf(fx);
+      fy += sin(fx);
       fx += 4283;
       ct++;
       if (next())
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "libc sinf(): %ld per second", ct / TIME_SPEED);
+   sprintf(buf, "libc sin(): %ld per second", ct / TIME_SPEED);
    textout_ex(screen, font, buf, xoff+16, yoff+95, palette_color[15], palette_color[0]);
 
    x = 1;
@@ -1560,7 +1560,7 @@ void misc(void)
    ct = 0;
 
    do {
-      y = fixcos(x);
+      y += fixcos(x);
       x += 4283;
       ct++;
       if (next())
@@ -1575,7 +1575,7 @@ void misc(void)
    ct = 0;
 
    do {
-      y = fixtan(x);
+      y += fixtan(x);
       x += 8372;
       ct++;
       if (next())
@@ -1590,14 +1590,14 @@ void misc(void)
    ct = 0;
 
    do {
-      fy = tanf(fx);
+      fy += tan(fx);
       fx += 8372;
       ct++;
       if (next())
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "libc tanf(): %ld per second", ct / TIME_SPEED);
+   sprintf(buf, "libc tan(): %ld per second", ct / TIME_SPEED);
    textout_ex(screen, font, buf, xoff+16, yoff+125, palette_color[15], palette_color[0]);
 
    x = 1;
@@ -1605,7 +1605,7 @@ void misc(void)
    ct = 0;
 
    do {
-      y = fixasin(x);
+      y += fixasin(x);
       x += 5621;
       x &= 0xffff;
       ct++;
@@ -1621,7 +1621,7 @@ void misc(void)
    ct = 0;
 
    do {
-      y = fixacos(x);
+      y += fixacos(x);
       x += 5621;
       x &= 0xffff;
       ct++;
@@ -1637,7 +1637,7 @@ void misc(void)
    ct = 0;
 
    do {
-      y = fixatan(x);
+      y += fixatan(x);
       x += 7358;
       ct++;
       if (next())
@@ -1652,14 +1652,14 @@ void misc(void)
    ct = 0;
 
    do {
-      fy = atanf(fx);
+      fy += atan(fx);
       fx += 7358;
       ct++;
       if (next())
 	 return;
    } while (tm < TIME_SPEED);
 
-   sprintf(buf, "libc atanf(): %ld per second", ct / TIME_SPEED);
+   sprintf(buf, "libc atan(): %ld per second", ct / TIME_SPEED);
    textout_ex(screen, font, buf, xoff+16, yoff+165, palette_color[15], palette_color[0]);
 
    x = 1, y = 2;
@@ -1667,7 +1667,7 @@ void misc(void)
    ct = 0;
 
    do {
-      z = fixatan2(x, y);
+      z += fixatan2(x, y);
       x += 5621;
       y += 7335;
       ct++;
