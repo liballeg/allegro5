@@ -438,9 +438,14 @@ void _xwin_keyboard_handler(XKeyEvent *event, int dga2_hack)
             #ifndef HAVE_LIBPTHREAD
             if (_unix_bg_man == &_bg_man_sigalrm)
                _sigalrm_request_abort();
-            else
+            else {
             #endif
+               TRACE(PREFIX_W "Three finger combo detected. SIGTERMing "
+                     "pid %d\n", main_pid);
                kill(main_pid, SIGTERM);
+            #ifndef HAVE_LIBPTHREAD
+            }
+            #endif
          }
       }
    }

@@ -282,8 +282,11 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
                 if (((mycode == __allegro_KEY_DEL) || (mycode == __allegro_KEY_END)) && 
                     (three_finger_flag) &&
                     (_key_shifts & __allegro_KB_CTRL_FLAG) && 
-                    (_key_shifts & __allegro_KB_ALT_FLAG))
+                    (_key_shifts & __allegro_KB_ALT_FLAG)) {
+                        TRACE(PREFIX_W "Three finger combo detected. SIGTERMing "
+                              "pid %d\n", main_pid);
                         kill(main_pid, SIGTERM);
+                }
 
                 _handle_key_press (ascii, mycode);
         }

@@ -23,6 +23,12 @@
 
 
 
+#define PREFIX_I                "al-gfx INFO: "
+#define PREFIX_W                "al-gfx WARNING: "
+#define PREFIX_E                "al-gfx ERROR: "
+
+
+
 static int gfx_virgin = TRUE;          /* is the graphics system active? */
 
 int _sub_bitmap_id_count = 1;          /* hash value for sub-bitmaps */
@@ -130,6 +136,11 @@ static VRAM_BITMAP *vram_bitmap_list = NULL;
 /* the product of these must fit in an int */
 static int failed_bitmap_w = BMP_MAX_SIZE;
 static int failed_bitmap_h = BMP_MAX_SIZE;
+
+
+
+static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_config);
+static int _set_gfx_mode_safe(int card, int w, int h, int v_w, int v_h);
 
 
 
@@ -585,61 +596,41 @@ static int get_config_gfx_driver(char *gfx_card, int w, int h, int v_w, int v_h,
  */
 int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 {
-   static int allow_config = TRUE;
+   TRACE(PREFIX_I "Called set_gfx_mode(%d, %d, %d, %d, %d).\n",
+	 card, w, h, v_w, v_h);
+         
+   /* TODO: shouldn't this be incremented only IF successful? */
+   _gfx_mode_set_count++;
+
+   /* special bodge for the GFX_SAFE driver */
+   if (card == GFX_SAFE)
+      return _set_gfx_mode_safe(card, w, h, v_w, v_h);
+   else
+      return _set_gfx_mode(card, w, h, v_w, v_h, TRUE);
+}
+
+
+
+/* _set_gfx_mode:
+ *  Called by set_gfx_mode(). Separated to make a clear difference between
+ *  the virtual GFX_SAFE driver and the rest. The allow_config parameter,
+ *  if true, allows the configuration to override the graphics card/driver
+ *  when using GFX_AUTODETECT.
+ */
+static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_config)
+{
    _DRIVER_INFO *driver_list;
    GFX_DRIVER *drv;
-   struct GFX_MODE mode;
-   char buf[ALLEGRO_ERROR_SIZE], tmp1[64], tmp2[64];
+   char tmp1[64], tmp2[64];
    AL_CONST char *dv;
    int flags = 0;
    int c, driver, ret;
    ASSERT(system_driver);
-
-   _gfx_mode_set_count++;
-
-   /* special bodge for the GFX_SAFE driver */
-   if (card == GFX_SAFE) {
-      if (system_driver->get_gfx_safe_mode) {
-	 ustrzcpy(buf, sizeof(buf), allegro_error);
-
-	 /* retrieve the safe graphics mode */
-	 system_driver->get_gfx_safe_mode(&driver, &mode);
-
-	 /* try using the specified depth and resolution */
-	 if (set_gfx_mode(driver, w, h, 0, 0) == 0)
-	    return 0;
-
-	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, buf);
-
-	 /* finally use the safe settings */
-	 set_color_depth(mode.bpp);
-	 if (set_gfx_mode(driver, mode.width, mode.height, 0, 0) == 0)
-	    return 0;
-
-	 ASSERT(FALSE);  /* the safe graphics mode must always work */
-      }
-      else {
-	 /* no safe graphics mode, try hard-coded autodetected modes with custom settings */
-	 allow_config = FALSE;
-	 _safe_gfx_mode_change = 1;
-
-	 ret = set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0);
-
-	 _safe_gfx_mode_change = 0;
-	 allow_config = TRUE;
-
-	 if (ret == 0)
-	    return 0;
-      }
-
-      /* failing to set GFX_SAFE is a fatal error */
-      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message(uconvert_ascii("%s\n", tmp1), get_config_text("Fatal error: unable to set GFX_SAFE"));
-      return -1;
-   }
+   ASSERT(card != GFX_SAFE);
 
    /* remember the current console state */
    if (gfx_virgin) {
+      TRACE(PREFIX_I "Firt call, remembering console state.\n");
       LOCK_FUNCTION(_stub_bank_switch);
       LOCK_FUNCTION(blit);
 
@@ -660,6 +651,8 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
    /* close down any existing graphics driver */
    if (gfx_driver) {
+      TRACE(PREFIX_I "Closing graphics driver (%p) ", gfx_driver);
+      TRACE("%s.\n", gfx_driver->ascii_name);
       if (_al_linker_mouse)
          _al_linker_mouse->show_mouse(NULL);
 
@@ -711,6 +704,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
    /* return to text mode? */
    if (card == GFX_TEXT) {
+      TRACE(PREFIX_I "Closing, restoring original console state.\n");
       if (system_driver->restore_console_state)
 	 system_driver->restore_console_state();
 
@@ -722,6 +716,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       if (system_driver->display_switch_lock)
 	 system_driver->display_switch_lock(FALSE, FALSE);
 
+      TRACE(PREFIX_I "Graphic mode closed.\n");
       return 0;
    }
 
@@ -761,6 +756,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
       /* go through the list of autodetected drivers if none was previously found */
       if (!found) {
+	 TRACE(PREFIX_I "Autodetecing graphic driver.\n");
 	 for (c=0; driver_list[c].driver; c++) {
 	    if (driver_list[c].autodetect) {
 	       drv = driver_list[c].driver;
@@ -773,6 +769,10 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	       }
 	    }
 	 }
+      }
+      else {
+	 TRACE(PREFIX_I "GFX_AUTODETECT overriden through configuration:"
+	       " %s.\n", tmp1);
       }
    }
    else {
@@ -793,6 +793,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       if (system_driver->display_switch_lock)
 	 system_driver->display_switch_lock(FALSE, FALSE);
 
+      TRACE(PREFIX_E "Failed setting graphic driver %d.", card);
       return -1;
    }
 
@@ -814,6 +815,9 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       _wait_for_vsync = FALSE;
    else
       _wait_for_vsync = TRUE;
+
+   TRACE(PREFIX_I "The driver %s wait for vsync.\n",
+	 (_wait_for_vsync) ? "will" : "won't");
 
    /* Give the gfx driver an opportunity to set the drawing mode */
    if ((gfx_driver->drawing_mode) && (!_dispsw_status))
@@ -848,8 +852,74 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    if (system_driver->display_switch_lock)
       system_driver->display_switch_lock(FALSE, FALSE);
 
+   TRACE(PREFIX_I "set_gfx_card success for %dx%dx%d.\n",
+	 screen->w, screen->h, bitmap_color_depth(screen));
    return 0;
 } 
+
+
+
+/* _set_gfx_mode_safe:
+ *  Special wrapper used when the card parameter of set_gfx_mode()
+ *  is GFX_SAFE. In this case the function tries to query the
+ *  system driver for a "safe" resolution+driver it knows it will
+ *  work, and set it. If the system driver cannot get a "safe"
+ *  resolution+driver, it will try the given parameters.
+ */
+static int _set_gfx_mode_safe(int card, int w, int h, int v_w, int v_h)
+{
+   char buf[ALLEGRO_ERROR_SIZE], tmp1[64];
+   struct GFX_MODE mode;
+   static int allow_config = TRUE;
+   int ret, driver;
+
+   ASSERT(card == GFX_SAFE);
+   ASSERT(system_driver);
+   TRACE(PREFIX_I "Trying to set a safe graphics mode.\n");
+   
+   if (system_driver->get_gfx_safe_mode) {
+      ustrzcpy(buf, sizeof(buf), allegro_error);
+
+      /* retrieve the safe graphics mode */
+      system_driver->get_gfx_safe_mode(&driver, &mode);
+      TRACE(PREFIX_I "The system driver suggests %dx%dx%d\n",
+	    mode.width, mode.height, mode.bpp);
+
+      /* try using the specified resolution but current depth */
+      if (_set_gfx_mode(driver, w, h, 0, 0, TRUE) == 0)
+         return 0;
+
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, buf);
+
+      /* finally use the safe settings */
+      set_color_depth(mode.bpp);
+      if (_set_gfx_mode(driver, mode.width, mode.height, 0, 0, TRUE) == 0)
+         return 0;
+
+      ASSERT(FALSE);  /* the safe graphics mode must always work */
+   }
+   else {
+      TRACE(PREFIX_W "The system driver was unable to get a safe mode, "
+	    "I'll try with the specified parameters...\n");
+      /* no safe graphics mode, try hard-coded autodetected modes with
+       * custom settings */
+      _safe_gfx_mode_change = 1;
+
+      ret = _set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0, TRUE);
+
+      _safe_gfx_mode_change = 0;
+
+      if (ret == 0)
+         return 0;
+   }
+
+   /* failing to set GFX_SAFE is a fatal error */
+   TRACE(PREFIX_E "Bad bad, not even GFX_SAFE works?\n");
+   _set_gfx_mode(GFX_TEXT, 0, 0, 0, 0, TRUE);
+   allegro_message(uconvert_ascii("%s\n", tmp1),
+		   get_config_text("Fatal error: unable to set GFX_SAFE"));
+   return -1;
+}
 
 
 

@@ -25,6 +25,12 @@
 
 
 
+#define PREFIX_I                "al-main INFO: "
+#define PREFIX_W                "al-main WARNING: "
+#define PREFIX_E                "al-main ERROR: "
+
+
+
 /* in case you want to report version numbers */
 char allegro_id[] = "Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR;
 
@@ -399,6 +405,7 @@ int _install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*fun
 
    _allegro_count++;
 
+   TRACE(PREFIX_I "Allegro initialised (instance %d)\n", _allegro_count);
    return 0;
 }
 
