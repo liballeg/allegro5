@@ -434,7 +434,7 @@ void _xwin_keyboard_handler(XKeyEvent *event, int dga2_hack)
 
          /* Detect Ctrl-Alt-End. */
          if (keycode == KEY_END && (_key_shifts & KB_CTRL_FLAG) &&
-            (_key_shifts & KB_ALT_FLAG)) {
+            (_key_shifts & KB_ALT_FLAG) && (three_finger_flag)) {
             #ifndef HAVE_LIBPTHREAD
             if (_unix_bg_man == &_bg_man_sigalrm)
                _sigalrm_request_abort();
