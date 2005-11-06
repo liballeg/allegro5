@@ -205,7 +205,6 @@ static int load_resource(char *datafile, char *name, ICON_DATA *icon)
 	    break;
 	    
 	 case DAT_PALETTE:
-	    unselect_palette();
 	    select_palette((RGB *)data->dat);
 	    unload_datafile_object(data);
 	    return 0;
@@ -219,7 +218,6 @@ static int load_resource(char *datafile, char *name, ICON_DATA *icon)
    }
    else {
       bitmap = load_bitmap(name, palette);
-      unselect_palette();
       select_palette(palette);
       if (!bitmap) {
          fprintf(stderr, "Unable to load '%s'\n", name);
@@ -424,7 +422,6 @@ int main(int argc, char *argv[])
 	 }
       }
    }
-   unselect_palette();
    
    buffer = malloc(4096);
    if (!buffer) {
@@ -517,7 +514,7 @@ int main(int argc, char *argv[])
 	    DisposeHandle(raw_data);
 	    /* Set 8bit mask */
             raw_data = NewHandle(icon_data[i].size * icon_data[i].size);
-	    data = (unsigned char *)raw_data;
+	    data = *(unsigned char **)raw_data;
 	    for (y = 0; y < icon_data[i].size; y++) {
 	       for (x = 0; x < icon_data[i].size; x++) {
 	          *data++ = geta32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
@@ -534,7 +531,7 @@ int main(int argc, char *argv[])
 	    if (icon_data[i].mask1) {
 	       size = ((icon_data[i].size * icon_data[i].size) + 7) / 8;
 	       raw_data = NewHandle(size * 2);
-	       data = (unsigned char *)raw_data;
+	       data = *(unsigned char **)raw_data;
 	       mask_byte = 0;
 	       mask_bit = 7;
 	       for (y = 0; y < icon_data[i].size; y++) {
