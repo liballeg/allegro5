@@ -2,7 +2,7 @@
 #include "data.h"
 #include "expl.h"
 #include "animsel.h"
-#include "display.h"
+#include "demodisp.h"
 #include "title.h"
 #include "game.h"
 
@@ -65,6 +65,15 @@ int main(int argc, char *argv[])
          jumpstart = TRUE;
    }
 
+   /* The fonts we are using don't contain the full latin1 charset (not to
+    * mention Unicode), so in order to display correctly author names in
+    * the credits with 8-bit characters, we will convert them down to 7
+    * bits with a custom mapping table. Fortunately, Allegro comes with a
+    * default custom mapping table which reduces Latin-1 and Extended-A
+    * characters to 7 bits. We don't even need to call set_ucodepage()!
+    */
+   set_uformat(U_ASCII_CP);
+   
    srand(time(NULL));
    if (allegro_init() != 0)
       return 1;

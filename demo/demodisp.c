@@ -1,4 +1,4 @@
-#include "display.h"
+#include "demodisp.h"
 #include "dirty.h"
 
 static BITMAP *page1, *page2, *page3;

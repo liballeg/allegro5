@@ -413,6 +413,49 @@ and variables too.
 
 
 @heading
+Debugging helpers
+
+As a developer you are encouraged to spill as many ASSERT and TRACE macros as
+you consider necessary. ASSERT macros are a very good way of enforcing
+documented limitations in input parameters which should never happen during a
+perfect (ie. bugless) version of your game. They are good for things like
+verifying some Allegro subsystem was initialised at the entry point of a
+function which depends on it, or passing NULL pointers where the documentation
+explicitly says the user is not allowed to do so.
+
+The TRACE macro is very good for things which are not very repetitive, mainly
+initialisation functions. The problem with C code is that usually error
+reporting to the user programmer layer is done through a simple integer or
+NULL pointer, and the error description (if any) stored in allegro_error. This
+is clearly insufficient for functions like set_gfx_mode() which test many
+graphic drivers before bailing out.
+
+What should be the error code in such case? How could you preserve a coherent
+error message to the user in driver A when driver B later overwrites it with
+some other error which may not interest the user trying to run driver A?
+Developers have made plans to include better logging facilities in future
+Allegro releases. In the meantime, it is good if opaque systems like drivers
+use TRACE both to indicate success and failure.
+
+For this reason there is a TRACE convention for Allegro code using this macro.
+At the top of the source file you want to use TRACE define three macros:
+PREFIX_I, PREFIX_W, PREFIX_E. Each of this should be a string in the format
+"al-SYSTEM LEVEL: " where SYSTEM is usually the filename creating the TRACE
+(but doesn't have to) and LEVEL is either INFO, WARNING or ERROR respectively.
+Later you can use them like this:
+<codeblock>
+   if (some_error_in_a_deep_obscure_function) {
+      TRACE(PREFIX_E "Couldn't init obscure driver because %s", something);
+      return -1;
+   }
+   TRACE(PREFIX_I "Obscure system initialised with option %s", switch);
+<endblock>
+Thanks to this prefix convention a user can use the TRACE macro too and grep
+Allegro's messages if there is no interest in them.
+
+
+
+@heading
 Other Stuff
 
 Any portable routines that run inside a timer handler or input callback must 

@@ -48,6 +48,14 @@
 #define FB_VBLANK_STICKY 0
 #endif
 
+
+
+#define PREFIX_I                "al-fbcon INFO: "
+#define PREFIX_W                "al-fbcon WARNING: "
+#define PREFIX_E                "al-fbcon ERROR: "
+
+
+
 static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth);
 static int fb_open_device(void);
 static void fb_exit(BITMAP *b);
@@ -133,12 +141,15 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    if (((!w) && (!h)) || _safe_gfx_mode_change) {
       w = orig_mode.xres;
       h = orig_mode.yres;
+      TRACE(PREFIX_I "User didn't ask for a resolution, and we are trying "
+	    "to set a safe mode, so I will try resolution %dx%d\n", w, h);
    }
 
    if (_safe_gfx_mode_change) tries = -1;
    else tries = 0;
    
    for (; tries<3; tries++) {
+      TRACE(PREFIX_I "...try number %d...\n", tries);
       my_mode = orig_mode;
 
       switch (tries) {
@@ -247,12 +258,15 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    }
 
    /* oops! */
-   if (_safe_gfx_mode_change)
+   if (_safe_gfx_mode_change) {
       set_color_depth(original_color_depth);
+      TRACE(PREFIX_I "Restoring color depth %d\n", original_color_depth);
+   }
       
    ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
    close(fbfd);
    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Framebuffer resolution not available"));
+   TRACE(PREFIX_E "Resolution %dx%d not available...\n", w, h);
    return NULL;
 
    got_a_nice_mode:
@@ -263,6 +277,8 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
       ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
       close(fbfd);
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can't map framebuffer"));
+      TRACE(PREFIX_E "Couldn't map framebuffer for %dx%d. Restored old "
+	    "resolution.\n", w, h);
       return NULL;
    }
 
@@ -290,6 +306,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
       ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
       munmap(fbaddr, fix_info.smem_len);
       close(fbfd);
+      TRACE(PREFIX_E "Couldn't make bitmap `b', sorry.\n");
       return NULL;
    }
 
@@ -385,6 +402,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
       memset(fbaddr, 0, gfx_fbcon.vid_mem);
 
    fb_save_cmap();    /* Maybe we should fill in our default palette too... */
+   TRACE(PREFIX_I "Got a bitmap %dx%dx%d\n", b->w, b->h, bitmap_color_depth(b));
    return b;
 }
 
@@ -417,6 +435,7 @@ static int fb_open_device(void)
    /* open the framebuffer device */
    if ((fbfd = open(fname, O_RDWR)) < 0) {
       uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can't open framebuffer %s"), uconvert_ascii(fname, tmp1));
+      TRACE(PREFIX_E "Couldn't open %s\n", fname);
       return 1;
    }
 
@@ -424,9 +443,11 @@ static int fb_open_device(void)
    if ((ioctl(fbfd, FBIOGET_FSCREENINFO, &fix_info) != 0) ||
        (ioctl(fbfd, FBIOGET_VSCREENINFO, &orig_mode) != 0)) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Framebuffer ioctl() failed"));
+      TRACE(PREFIX_E "ioctl() failed\n");
       return 2;
    }
 
+   TRACE(PREFIX_I "fb device %s opened successfully.\n", fname);
    return 0;
 }
 
@@ -437,6 +458,7 @@ static int fb_open_device(void)
  */
 static void fb_exit(BITMAP *b)
 {
+   TRACE(PREFIX_I "Unsetting video mode.\n");
    ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
    fb_restore_cmap();
 

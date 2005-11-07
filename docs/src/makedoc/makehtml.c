@@ -254,7 +254,7 @@ int write_html(char *filename)
    if (!html_return_value_text)
       html_return_value_text = m_strdup("Return value:");
    
-   printf("writing %s\n", filename);
+   /*printf("writing %s\n", filename);*/
 
    _file = fopen(filename, "w");
    if (!_file)
@@ -853,7 +853,7 @@ static int _output_section_heading(LINE *line, char *filename, int section_numbe
       if (s - get_filename(buf) > 5)
 	 s = get_filename(buf)+5;
       sprintf(s, "%03d.%s", section_number-1, html_extension);
-      printf("writing %s\n", buf);
+      /*printf("writing %s\n", buf);*/
       _file = fopen(buf, "w");
       if (!_file)
 	 return 1;
@@ -1156,7 +1156,7 @@ static void _post_process_filename(char *filename)
    f2 = fopen(new_filename, "wt");
    if (!f1 || !f2) goto cancel;
 
-   printf("post processing %s\n", filename);
+   /*printf("post processing %s\n", filename);*/
 
    code_scanning = 0;
 

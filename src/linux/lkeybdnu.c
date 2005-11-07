@@ -49,6 +49,10 @@
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro/internal/aintern2.h"
 
+#define PREFIX_I                "al-ckey INFO: "
+#define PREFIX_W                "al-ckey WARNING: "
+#define PREFIX_E                "al-ckey ERROR: "
+
 
 
 typedef struct AL_KEYBOARD_LINUX
@@ -514,7 +518,11 @@ static void process_character(unsigned char ch)
        && ((mycode == AL_KEY_DELETE) || (mycode == AL_KEY_END))
        && (the_keyboard.modifiers & AL_KEYMOD_CTRL)
        && (the_keyboard.modifiers & AL_KEYMOD_ALT))
+   {
+      TRACE(PREFIX_W "Three finger combo detected. SIGTERMing "
+	 "pid %d\n", main_pid);
       kill(main_pid, SIGTERM);
+   }
 }
 
 

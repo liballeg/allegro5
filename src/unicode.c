@@ -696,7 +696,7 @@ void do_uconvert(AL_CONST char *s, int type, char *buf, int newtype, int size)
  */
 char *uconvert(AL_CONST char *s, int type, char *buf, int newtype, int size)
 {
-   static char static_buf[512];
+   static char static_buf[1024];
    ASSERT(s);
    ASSERT(size >= 0);
 

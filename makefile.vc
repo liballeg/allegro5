@@ -381,14 +381,26 @@ ifdef STATICLINK
 else
    ifdef UNIX_TOOLS
 	cp tools/win/wfixicon.exe lib/msvc/wfixicon.exe
+      ifdef COMPILER_MSVC8
+		cp tools/win/wfixicon.exe.manifest lib/msvc/wfixicon.exe.manifest
+      endif
    else
 	copy tools\win\wfixicon.exe lib\msvc\wfixicon.exe
+      ifdef COMPILER_MSVC8
+		copy tools\win\wfixicon.exe.manifest lib\msvc\wfixicon.exe.manifest
+      endif
    endif
 	lib/msvc/wfixicon.exe obj/msvc/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
    ifdef UNIX_TOOLS
 	rm lib/msvc/wfixicon.exe
+      ifdef COMPILER_MSVC8
+		rm lib/msvc/wfixicon.exe.manifest
+      endif
    else
 	del lib\msvc\wfixicon.exe
+      ifdef COMPILER_MSVC8
+		del lib\msvc\wfixicon.exe.manifest
+      endif
    endif
 endif
 

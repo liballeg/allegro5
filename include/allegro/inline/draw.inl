@@ -64,8 +64,8 @@ AL_INLINE(void, _allegro_hline, (BITMAP *bmp, int x1, int y, int x2, int color),
  * should use the vline/hline aliases as they are the official names.
  */
 #ifndef ALLEGRO_NO_VHLINE_ALIAS
-   AL_ALIAS(void vline(BITMAP *bmp, int x, int y_1, int y2, int color), _allegro_vline(bmp, x, y_1, y2, color))
-   AL_ALIAS(void hline(BITMAP *bmp, int x1, int y, int x2, int color),  _allegro_hline(bmp, x1, y, x2, color))
+   AL_ALIAS_VOID_RET(vline(BITMAP *bmp, int x, int y_1, int y2, int color), _allegro_vline(bmp, x, y_1, y2, color))
+   AL_ALIAS_VOID_RET(hline(BITMAP *bmp, int x1, int y, int x2, int color),  _allegro_hline(bmp, x1, y, x2, color))
 #endif
 
 

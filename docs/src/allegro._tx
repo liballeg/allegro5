@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.2.0 (RC2-CVS)" "Allegro" "Allegro manual"
+@manh="version 4.2.0 (RC3-CVS)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,12 +52,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.2.0 (RC2-CVS)
+				       \_/__/     Version 4.2.0 (RC3-CVS)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Aug 08, 2005.
+	     By Shawn Hargreaves, Nov 05, 2005.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -1086,15 +1086,31 @@ is best to set it with set_uformat() just before you call these.
    When you select the U_ASCII_CP encoding mode, a set of tables are used to 
    convert between 8-bit characters and their Unicode equivalents. You can 
    use this function to specify a custom set of mapping tables, which allows 
-   you to support different 8-bit codepages. The `table' parameter points to
-   an array of 256 shorts, which contain the Unicode value for each 
-   character in your codepage. The `extras' parameter, if not NULL, points to
-   a list of mapping pairs, which will be used when reducing Unicode data to 
-   your codepage. Each pair consists of a Unicode value, followed by the way 
-   it should be represented in your codepage. The table is terminated by a 
-   zero Unicode value. This allows you to create a many-&gtone mapping, where
-   many different Unicode characters can be represented by a single codepage 
-   value (eg. for reducing accented vowels to 7-bit ASCII).
+   you to support different 8-bit codepages.
+
+   The `table' parameter points to an array of 256 shorts, which contain the
+   Unicode value for each character in your codepage. The `extras' parameter,
+   if not NULL, points to a list of mapping pairs, which will be used when
+   reducing Unicode data to your codepage. Each pair consists of a Unicode
+   value, followed by the way it should be represented in your codepage.
+   The list is terminated by a zero Unicode value. This allows you to create
+   a many-&gtone mapping, where many different Unicode characters can be
+   represented by a single codepage value (eg. for reducing accented vowels
+   to 7-bit ASCII).
+
+   Allegro will use the `table' parameter when it needs to convert an ASCII
+   string to an Unicode string. But when Allegro converts an Unicode string
+   to ASCII, it will use both parameters. First, it will loop through the
+   `table' parameter looking for an index position pointing at the unicode
+   value it is trying to convert (ie. the `table' parameter is also used for
+   reverse matching). If that fails, the `extras' list is used. If that fails
+   too, Allegro will put the character `^', giving up the conversion.
+
+   Note that Allegro comes with a default `table' and `extras' parameters
+   set internally. The default `table' will convert 8-bit characters to `^'.
+   The default `extras' list reduces Latin-1 and Extended-A characters to 7
+   bits in a sensible way (eg. an accented vowel will be reduced to the same
+   vowel without the accent).
 
 @@int @need_uconvert(const char *s, int type, int newtype);
 @xref set_uformat, get_uformat, do_uconvert, uconvert
@@ -1164,8 +1180,8 @@ is best to set it with set_uformat() just before you call these.
    internal static buffer and the `size' parameter will be ignored. You should
    be wary of using this feature, though, because that buffer will be
    overwritten the next time this routine is called, so don't expect the data
-   to persist across any other library calls. The static buffer has a size
-   shorter than 1K, so you won't be able to convert large chunks of text.
+   to persist across any other library calls. The static buffer may hold less
+   than 1024 characters, so you won't be able to convert large chunks of text.
    Example:
 <codeblock>
       char *p = uconvert(input_string, U_CURRENT, buffer, U_ASCII, 256);<endblock>
@@ -2007,7 +2023,7 @@ your game.
 @\const char *@get_config_string(const char *section,
 @@                              const char *name, const char *def);
 @xref set_config_file, set_config_string, get_config_argv, get_config_float
-@xref get_config_hex, get_config_int, get_config_id
+@xref get_config_hex, get_config_int, get_config_id, get_config_text
 @eref exconfig
 @shortdesc Retrieves a string from the configuration file.
    Retrieves a string variable from the current config file. The section name
@@ -2082,6 +2098,11 @@ your game.
    memory being allocated as required, so you can assume that this pointer 
    will persist without having to manually allocate storage space for each 
    string.
+
+   Note that if you are planning on distributing your game on the Unix
+   platform there is a special issue with how to deal with the `language.dat'
+   file. Read section "Files shared by Allegro" of the chapter "Unix
+   specifics" to learn more about this.
 @retval
    Returns a suitable translation if one can be found or a copy of the 
    parameter if nothing else is available. 
@@ -3141,16 +3162,15 @@ keyboard. Up to two or three keys at a time will work fine, but if you press
 more than that the extras are likely to be ignored (exactly which 
 combinations are possible seems to vary from one keyboard to another).
 
-On some platforms (like DOS and Windows), Allegro requires the user to
-specify the language of the keyboard mapping because it is impossible to
-obtain this information from the OS, otherwise the default US keyboard
-mapping will be used. Allegro comes with a prepackaged `keyboard.dat' file
-which you can put along with your binary. If this file is present, Allegro
-will be able to extract the keyboard mapping information stored there.
-However, the end user still needs to select which keyboard mapping to use.
-This can be acomplished through the keyboard variable of the system section
-in a standard `allegro.cfg' configuration file. Read chapter "Configuration
-routines" for more information about this.
+On DOS, Allegro requires the user to specify the language of the keyboard
+mapping because it is impossible to obtain this information from the OS,
+otherwise the default US keyboard mapping will be used. Allegro comes with a
+prepackaged `keyboard.dat' file which you can put along with your binary. If
+this file is present, Allegro will be able to extract the keyboard mapping
+information stored there. However, the end user still needs to select which
+keyboard mapping to use. This can be acomplished through the keyboard variable
+of the system section in a standard `allegro.cfg' configuration file. Read
+chapter "Configuration routines" for more information about this.
 
 @@int @install_keyboard();
 @xref remove_keyboard, poll_keyboard, key, keypressed, readkey, ureadkey
@@ -3399,11 +3419,11 @@ routines" for more information about this.
 	 allegro_message("You pressed sharp s\n");
 <endblock>
    You should be able to find Unicode character maps at
-   <link>http://www.unicode.org/</a>. Remember that on some platforms you must specify
-   a custom keyboard map (like those found in `keyboard.dat') usually with
-   the help of a configuration file specifying the language mapping
-   (keyboard variable in system section of `allegro.cfg'), or you will get
-   the default US keyboard mapping.
+   <link>http://www.unicode.org/</a>. Remember that on DOS you must specify a custom
+   keyboard map (like those found in `keyboard.dat') usually with the help of
+   a configuration file specifying the language mapping (keyboard variable in
+   system section of `allegro.cfg'), or you will get the default US keyboard
+   mapping.
 
 @@int @scancode_to_ascii(int scancode);
 @xref scancode_to_name
@@ -4006,7 +4026,7 @@ GFX_SAFE:<br>
 <li>
    GFX_TEXT:<br>
    Closes any previously opened graphics mode, making you unable to use the
-   global variable screen, and in those environments that have text modes,
+   global variable `screen', and in those environments that have text modes,
    sets one previously used or the closest match to that (usually 80x25).
    With this driver the size parameters of set_gfx_mode don't mean anything,
    so you can leave them all to zero or any other number you prefer.
@@ -4564,45 +4584,45 @@ direct access to the image memory in a bitmap.
 
 Allegro supports several different types of bitmaps:
 <ul><li>
-     The `screen' bitmap, which represents the hardware video memory.
-     Ultimately you have to draw onto this in order for your image to be 
-     visible. It is destroyed by any subsequent calls to set_gfx_mode().
+   The `screen' bitmap, which represents the hardware video memory. Ultimately
+   you have to draw onto this in order for your image to be visible. It is
+   destroyed by any subsequent calls to set_gfx_mode(), so you should never
+   attempt to destroy it yourself.
 <li>
-     Memory bitmaps, which are located in system RAM and can be used to
-     store graphics or as temporary drawing spaces for double buffered 
-     systems. These can be obtained by calling create_bitmap(), load_pcx(), 
-     or by loading a grabber datafile.
+   Memory bitmaps, which are located in system RAM and can be used to store
+   graphics or as temporary drawing spaces for double buffered systems. These
+   can be obtained by calling create_bitmap(), load_pcx(), or by loading a
+   grabber datafile.
 <li>
-     Sub-bitmaps. These share image memory with a parent bitmap (which can be
-     the screen, a video or system bitmap, a memory bitmap, or another
-     sub-bitmap), so drawing onto them will also change their parent. They can
-     be of any size and located anywhere within the parent bitmap, and can
-     have their own clipping rectangles, so they are a useful way of dividing
-     a bitmap into several smaller units, eg. splitting a large virtual screen
-     into multiple sections (see examples/exscroll.c).
+   Sub-bitmaps. These share image memory with a parent bitmap (which can be
+   the screen, a video or system bitmap, a memory bitmap, or another
+   sub-bitmap), so drawing onto them will also change their parent. They can
+   be of any size and located anywhere within the parent bitmap, and can have
+   their own clipping rectangles, so they are a useful way of dividing a
+   bitmap into several smaller units, eg. splitting a large virtual screen
+   into multiple sections (see examples/exscroll.c).
 
-     Warning: Make sure not to destroy a bitmap before all of its sub-bitmaps,
-     otherwise bad things will happen when you try to access one of these
-     sub-bitmaps.
+   Warning: Make sure not to destroy a bitmap before all of its sub-bitmaps,
+   otherwise bad things will happen when you try to access one of these
+   sub-bitmaps.
 <li>
-     Video memory bitmaps. These are created by the create_video_bitmap()
-     function, and are usually implemented as sub-bitmaps of the screen 
-     object. They must be destroyed by destroy_bitmap() before any subsequent
-     calls to set_gfx_mode().
+   Video memory bitmaps. These are created by the create_video_bitmap()
+   function, and are usually implemented as sub-bitmaps of the screen object.
+   They must be destroyed by destroy_bitmap() before any subsequent calls to
+   set_gfx_mode().
 <li>
-     System bitmaps. These are created by the create_system_bitmap()
-     function, and are a sort of halfway house between memory and video 
-     bitmaps. They live in system memory, so you aren't limited by the 
-     amount of video ram in your card, but they are stored in a 
-     platform-specific format that may enable better hardware acceleration 
-     than is possible with a normal memory bitmap (see the 
-     GFX_HW_SYS_TO_VRAM_BLIT and GFX_HW_SYS_TO_VRAM_BLIT_MASKED flags in 
-     gfx_capabilities). System bitmaps must be accessed in the same way as 
-     video bitmaps, using the bank switch functions and bmp_write*() macros. 
-     Not every platform implements this type of bitmap: if they aren't 
-     available, create_system_bitmap() will function identically to 
-     create_bitmap(). They must be destroyed by destroy_bitmap() before any
-     subsequent calls to set_gfx_mode().
+   System bitmaps. These are created by the create_system_bitmap() function,
+   and are a sort of halfway house between memory and video bitmaps. They
+   live in system memory, so you aren't limited by the amount of video ram in
+   your card, but they are stored in a platform-specific format that may
+   enable better hardware acceleration than is possible with a normal memory
+   bitmap (see the GFX_HW_SYS_TO_VRAM_BLIT and GFX_HW_SYS_TO_VRAM_BLIT_MASKED
+   flags in gfx_capabilities). System bitmaps must be accessed in the same way
+   as video bitmaps, using the bank switch functions and bmp_write*() macros.
+   Not every platform implements this type of bitmap: if they aren't
+   available, create_system_bitmap() will function identically to
+   create_bitmap(). They must be destroyed by destroy_bitmap() before any
+   subsequent calls to set_gfx_mode().
 </ul>
 
 @@extern BITMAP *@screen;
@@ -4637,7 +4657,8 @@ Allegro supports several different types of bitmaps:
 
    Warning: be very careful when using this pointer at the same time as any
    bitmaps created by the create_video_bitmap() function (see the description
-   of this function for more detailed information).
+   of this function for more detailed information). And never try to destroy
+   it with destroy_bitmap().
 
 @@#define @SCREEN_W;
 @@#define @SCREEN_H;
@@ -10082,6 +10103,8 @@ any character, but only one).
    Shortcut version of file_exists(), which checks for normal files, which 
    may have the archive or read-only bits set, but are not hidden, 
    directories, system files, etc.
+@retval
+   Returns non-zero if the file exists, or zero if it doesn't.
 
 @@long @file_size(const char *filename);
 @xref file_exists, file_time
@@ -10658,16 +10681,70 @@ any character, but only one).
 @heading
 Datafile routines
 
-Datafiles are created by the grabber utility, and have a .dat extension. 
-They can contain bitmaps, palettes, fonts, samples, MIDI music, FLI/FLC 
-animations, and any other binary data that you import.
+Datafiles are created by the grabber utility (see grabber.txt for more
+information), and have a `.dat' extension. They can contain bitmaps, palettes,
+fonts, samples, MIDI music, FLI/FLC animations, and any other binary data that
+you import. You could distribute your bitmaps and samples in a myriad of
+separate files, but packing them in a few `.dat' binaries has a few
+advantages:
+<ul><li>
+   On some platforms loading a single big datafile at once is faster than
+   loading individual resources one by one.
+<li>
+   Instead of several loops for your resources, you can write a single line of
+   code with just a single point of failure to take care of.
+<li>
+   You can potentially reduce the size of your data by enabling compression
+   on your datafiles. Less download time for your end users, less wait during
+   loading screens!
+<li>
+   If you don't need to load the whole datafile at once, you can still enable
+   individual file compression. It is slightly worse than global compression,
+   but it is very fast with loading times because Allegro can easily seek
+   inside the datafile to find a specific object.
+<li>
+   Even without encryption, most end users of your application won't be able
+   to look at or modify the resources for your game. A missing sound file or
+   a modified bitmap could potentially crash the game if you haven't
+   considered this in your loading code!
+<li>
+   It looks much more professional and convenient to distribute levels! For
+   example, if you found a bug in a level of your game, just distribute your
+   new `level4.dat' and tell users to overwrite their old version.
+</ul>
+Allegro allows you to load datafiles once and forget about them. But if you
+have many levels it can be wise to load only the resources required for the
+current level. You can accomplish the later by separating levels in different
+datafiles, or using functions like load_datafile_object() to avoid loading
+everything at once. You can even read directly from a specific datafile object
+with the pack_fopen() function.
 
-Warning: when using truecolor images, you should always set the graphics 
-mode before loading any bitmap data! Otherwise the pixel format (RGB or BGR)
-will not be known, so the file may be converted wrongly.
+On some platforms you can attach datafiles to your binary, potentially
+reducing your game distribution down to a single executable file. Try the
+example exexedat on your platform to see if this is possible. However, this
+is not recommended for big programs: a single update to your code or binary
+data would force end users to download again a potentially big file, no matter
+how small your change is. The same warning goes for the tools dat2s or dat2c,
+which convert datafiles into assembler and C code respectively, prepared to be
+included directly in your binary.
 
-See the documentation for pack_fopen() for information about how to read 
-directly from a specific datafile object.
+Remember that with Allegro truecolor images can only be loaded after you have
+set a graphics mode. This is true for datafiles too. Load all your data after
+you have set the graphics mode, otherwise the pixel format (RGB or BGR) will
+not be known and the datafile may be converted wrongly. Oh, and read carefully
+the warning of fixup_datafile() if you plan on switching resolutions during
+runtime.
+
+Note: even though Allegro datafiles provide encryption, you should consider
+it weak, so don't plan on hiding there the plans for a Death Star or
+something. Determinate knowledgeable users will be able to rip your resources
+no matter how hard you try to hide them! Use the encryption only as a slight
+deterrent towards unwanted tampering of your data. How to crack an encrypted
+datafile is left as an exercise to the reader, though.
+
+Using datafiles once they are loaded is quite simple: you access the elements
+of the DATAFILE as a normal array. Read below the section "Using datafiles"
+below for several examples on how to access their data.
 
 @@DATAFILE *@load_datafile(const char *filename);
 @xref load_datafile_callback, unload_datafile, load_datafile_object
@@ -10676,11 +10753,22 @@ directly from a specific datafile object.
 @xref Using datafiles
 @eref excustom, exdata, exexedat, exgui, exsprite, exunicod
 @shortdesc Loads a datafile into memory.
-   Loads a datafile into memory, and returns a pointer to it, or NULL on 
-   error. If the datafile has been encrypted, you must first use the 
-   packfile_password() function to set the appropriate key. See grabber.txt 
-   for more information. If the datafile contains truecolor graphics, you 
-   must set the video mode or call set_color_conversion() before loading it.
+   Loads a datafile into memory in one go. If the datafile has been encrypted,
+   you must first call packfile_password() to set the appropriate key. If the
+   datafile contains truecolor graphics, you must set the video mode or call
+   set_color_conversion() before loading it. Example:
+<codeblock>
+      /* Load the resources for our game. */
+      DATAFILE *dat = load_datafile("game.dat");
+      if (!dat)
+	 abort_on_error("Couldn't load sound resources!");
+      /* Use resources. */
+      ...
+      /* Destroy them when we don't need them any more. */
+      unload_datafile(dat);<endblock>
+@retval
+   Returns a pointer to the DATAFILE, or NULL on error. Remember to free this
+   DATAFILE later to avoid memory leaks.
 
 @\DATAFILE *@load_datafile_callback(const char *filename,
 @@                                 void (*callback)(DATAFILE *d));
@@ -10688,8 +10776,31 @@ directly from a specific datafile object.
 @xref set_color_conversion, fixup_datafile, packfile_password
 @xref find_datafile_object, register_datafile_object
 @shortdesc Loads a datafile into memory, calling a hook per object.
-   Loads a datafile into memory, calling the specified hook function once 
-   for each object in the file, passing it a pointer to the object just read.
+   Loads a datafile into memory, calling the specified hook function once for
+   each object in the file, passing it a pointer to the object just read. You
+   can use this to implement very simple loading screens where every time the
+   hook is called, the screen is updated to let the user know your program is
+   still loading from disk:
+<codeblock>
+      void load_callback(DATAFILE *dat_obj)
+      {
+	 static const char indicator[] = "-\\|/-.oOXOo.";
+	 static int current = 0;
+          
+	 /* Show a different character every time. */
+	 textprintf_ex(screen, font, 0, 0, makecol(0, 0, 0),
+		       makecol(255, 255, 255), "%c Loading %c",
+		       indicator[current], indicator[current]);
+	 /* Increase index and check if we need to reset it. */
+	 current++;
+	 if (!indicator[current])
+	    current = 0;
+      }
+	 ...
+	 dat = load_datafile_callback("data.dat", load_callback);<endblock>
+@retval
+   Returns a pointer to the DATAFILE or NULL on error. Remember to free this
+   DATAFILE later to avoid memory leaks.
 
 @@void @unload_datafile(DATAFILE *dat);
 @xref load_datafile
@@ -10706,7 +10817,21 @@ directly from a specific datafile object.
 @shortdesc Loads a specific object from a datafile.
    Loads a specific object from a datafile. This won't work if you strip the 
    object names from the file, and it will be very slow if you save the file 
-   with global compression.
+   with global compression. Example:
+<codeblock>
+      /* Load only the music from the datafile. */
+      music_object = load_datafile_object("datafile.dat",
+					  "MUSIC");
+      /* Play it and wait a moment for it. */
+      play_midi(music_object-&gtdat);
+      ...
+      /* Destroy unneeded music. */
+      unload_datafile_object(music_object);<endblock>
+@retval
+   Returns a pointer to a single DATAFILE element whose `dat' member points to
+   the object, or NULL if there was an error or there was no object with the
+   requested name. Remember to free this DATAFILE later to avoid memory leaks,
+   but use the correct unloading function!
 
 @@void @unload_datafile_object(DATAFILE *dat);
 @xref load_datafile_object
@@ -10718,15 +10843,36 @@ directly from a specific datafile object.
 @xref load_datafile, load_datafile_object
 @shortdesc Searches a datafile for an object with a name.
    Searches an already loaded datafile for an object with the specified 
-   name, returning a pointer to it, or NULL if the object cannot be found. 
-   It understands '/' and '#' separators for nested datafile paths.
+   name. In the name you can use `/' and `#' separators for nested datafile
+   paths. Example:
+<codeblock>
+      char level_name[10];
+      DATAFILE *dat, *level;
+      ...
+      uszprintf(level_name, sizeof(buffer),
+		"LEVEL_%02d", level_number);
+      level = find_datafile_object(dat, level_name);
+      if (!level)
+	 abort_on_error("That level doesn't exist!");<endblock>
+@retval
+   Returns a pointer to a single DATAFILE element whose `dat' member points to
+   the object, or NULL if the object could not be found.
 
 @@const char *@get_datafile_property(const DATAFILE *dat, int type);
-@xref Using datafiles, DAT_ID
+@xref Using datafiles, DAT_ID, empty_string
 @shortdesc Returns the property string for the object.
-   Returns the specified property string for the object, or an empty string
-   if the property isn't present. The type parameter must be a value
-   created with the DAT_ID macro.
+   Finds the property type of a DATAFILE object. The type parameter must be a
+   value created with the DAT_ID() macro. Example:
+<codeblock>
+      const char *name;
+      ...
+      name = get_datafile_property(game_data,
+				   DAT_ID('N','A','M','E'));
+      if (name == empty_string)
+	 abort_on_error("Object doesn't have a name!");<endblock>
+@retval
+   Returns a pointer to the text string for the object, or a pointer to the
+   variable empty_string if the property isn't present.
 
 @\void @register_datafile_object(int id, void *(*load)(PACKFILE *f, long size),
 @@                              void (*destroy)(void *data));
@@ -10770,11 +10916,9 @@ directly from a specific datafile object.
    Every object or property in a datafile is identified by a 4 letter ID,
    which can be created with this macro. For example, to access the NAME
    property of a datafile object, you could use:
-
 <codeblock>
       get_datafile_property(datob, DAT_ID('N','A','M','E'));
 <endblock>
-
 
 
 @hnode Using datafiles
@@ -10786,33 +10930,26 @@ into the "Header:" field, and the object indexes will be written to this
 file whenever the datafile is saved. With the dat utility, use the '-h'
 option, eg. "dat filename.dat -h filename.h". The header will define C
 preprocessor symbols for each object in the datafile, for example:
-
 <codeblock>
    #define SOME_DATA                        0        /* DATA */
    #define SOME_MORE_DATA                   1        /* DATA */
 <endblock>
-
-To prevent name conflicts, you can specify a prefix string for these 
+To prevent name conflicts, you can specify a prefix string for these
 definitions by typing it into the "Prefix:" field in the grabber or using 
 the '-p' option to dat.
 
 To load a datafile into memory, call the function:
-
 <codeblock>
    DATAFILE *load_datafile(char *filename);
 <endblock>
-
-This will load the entire file, returning a pointer to it, or NULL on error. 
-When the data is no longer required, the entire thing can be destroyed by 
+This will load the entire file, returning a pointer to it, or NULL on error.
+When the data is no longer required, the entire thing can be destroyed by
 calling:
-
 <codeblock>
    void unload_datafile(DATAFILE *dat);
 <endblock>
-
-When you load a datafile, you will obtain a pointer to an array of DATAFILE 
+When you load a datafile, you will obtain a pointer to an array of DATAFILE
 structures:
-
 <codeblock>
    typedef struct DATAFILE
    {
@@ -10820,10 +10957,9 @@ structures:
       int type;                     - object type ID
       long size;                    - size of the data, in bytes
       DATAFILE_PROPERTY *prop;      - list of object properties
-   } DATAFILE;
-<endblock>
+   } DATAFILE;<endblock>
 
-The only really important piece of information here is the dat field, which 
+The only really important piece of information here is the `dat' field, which
 points to the contents of the object. What type of data this is will depend 
 on the type of object: for bitmaps it will be an Allegro BITMAP structure, 
 for RLE sprites an RLE_SPRITE, for fonts a FONT structure, etc. If you are 
@@ -10831,10 +10967,9 @@ programming in C you can pass this pointer directly to the relevant Allegro
 library functions, but if you are using C++ you will need to cast it to the 
 appropriate type to prevent the compiler giving a warning.
 
-For example, if you have a datafile called myfile.dat, which contains a 
+For example, if you have a datafile called `myfile.dat', which contains a
 bitmap called COOL_PICTURE, and you have used it to produce a header called 
-myfile.h, you could display the bitmap with the code:
-
+`myfile.h', you could display the bitmap with the code:
 <codeblock>
    #include "myfile.h"
 
@@ -10852,8 +10987,7 @@ myfile.h, you could display the bitmap with the code:
       bmp = (BITMAP *)dat[COOL_PICTURE].dat;
       blit(bmp, screen, 0, 0, 0, 0, bmp-&gtw, bmp-&gth);
       unload_datafile(dat);
-   }
-<endblock>
+   }<endblock>
 
 If a datafile contains nested child datafiles, the header will prefix the 
 names of objects in the sub-files with the name of their parent datafile. It 
@@ -10862,8 +10996,7 @@ may be useful if for example the child datafile contains several bitmaps
 which form a 'run' animation, and you want your code to automatically 
 adjust to the number of frames in the datafile. 
 
-For example, the datafile:
-
+For example, the following datafile:
 <textblock>
    "FILE" - NESTED_FILE
 	    |- "BMP" - A_BITMAP
@@ -10871,9 +11004,7 @@ For example, the datafile:
    "DATA" - SOME_DATA
    "DATA" - SOME_MORE_DATA
 <endblock>
-
-produces the header:
-
+Will produce the header:
 <codeblock>
    #define NESTED_FILE                      0        /* FILE */
 
@@ -10884,73 +11015,61 @@ produces the header:
    #define SOME_DATA                        1        /* DATA */
    #define SOME_MORE_DATA                   2        /* DATA */
 <endblock>
-
 The main datafile contains three objects (NESTED_FILE, SOME_DATA, and 
 SOME_MORE_DATA) with consecutive indexes, while the child datafile contains 
 the two objects A_BITMAP and A_FONT. To access these objects you need to 
 reference both the parent and child datafiles, eg:
-
 <codeblock>
    DATAFILE *dat = load_datafile("whatever.dat");
    DATAFILE *nested = (DATAFILE *)dat[NESTED_FILE].dat;
    FONT *thefont = (FONT *)nested[NESTED_FILE_A_FONT].dat;
 <endblock>
-
-If you need to access object property strings from within your program, you 
+If you need to access object property strings from within your program, you
 can use the function:
-
 <codeblock>
    char *get_datafile_property(DATAFILE *dat, int type);
 <endblock>
-
-This will return a pointer to the property string if it can be found, and an 
+This will return a pointer to the property string if it can be found, and an
 empty string (not null!) if it does not exist. One possible use of this 
 function is to locate objects by name, rather than using the indexes from a 
 header file. The datafile array is ended by an object of type DAT_END, so to 
 search the datafile dat for the object "my_object" you could use the code:
-
 <codeblock>
+   const int name_type = DAT_ID('N','A','M','E');
    for (i=0; dat[i].type != DAT_END; i++) {
-      if (stricmp(get_datafile_property(dat+i, DAT_ID('N','A','M','E')),
-	 "my_object") == 0) {
+      if (stricmp(get_datafile_property(dat+i, name_type),
+		  "my_object") == 0) {
 	 /* found the object at index i */
       }
    }
    /* not found... */
 <endblock>
-
-If you prefer to access objects by name rather than index number, you can 
+If you prefer to access objects by name rather than index number, you can
 use the function:
-
 <codeblock>
    DATAFILE *find_datafile_object(DATAFILE *dat, char *objectname);
 <endblock>
-
-This will search an already loaded datafile for an object with the specified 
+This will search an already loaded datafile for an object with the specified
 name, returning a pointer to it, or NULL if the object cannot be found. It 
 understands '/' and '#' separators for nested datafile paths.
 
 It is also possible to selectively load individual objects from a datafile, 
 with the function:
-
 <codeblock>
    DATAFILE *load_datafile_object(char *filename, char *objectname);
 <endblock>
-
-This searches the datafile for an object with the specified name, so 
+This searches the datafile for an object with the specified name, so
 obviously it won't work if you strip the name properties out of the file. 
 Because this function needs to seek through the data, it will be extremely 
 slow if you have saved the file with global compression. If you are planning 
 to load objects individually, you should save the file uncompressed or with 
 individual compression per-object. Because the returned datafile points to a 
 single object rather than an array of objects, you should access it with the 
-syntax datafile->dat, rather than datafile[index].dat, and when you are done 
+syntax datafile->dat, rather than datafile[index].dat, and when you are done
 you should free the object with the function:
-
 <codeblock>
    void unload_datafile_object(DATAFILE *dat);
 <endblock>
-
 Example:
 <codeblock>
    music_object = load_datafile_object("datafile.dat", "MUSIC");
@@ -10958,8 +11077,7 @@ Example:
    ...
    unload_datafile_object(music_object);
 <endblock>
-
-Alternatively, the packfile functions can open and read directly from the 
+Alternatively, the packfile functions can open and read directly from the
 contents of a datafile object. You do this by calling pack_fopen() with a 
 fake filename in the form "filename.dat#object_name". The contents of the 
 object can then be read in an identical way to a normal disk file, so any of 
@@ -11008,14 +11126,11 @@ all four characters, the string should be padded with spaces (ASCII 32). You
 should use this ID when creating the objects in the grabber (select 
 New/Other and type in the ID string), and in your code you should define an 
 identifier for the type, eg:
-
 <codeblock>
    #define DAT_MAPDATA  DAT_ID('M','A','P','D')
 <endblock>
-
-You then need to write functions for loading and destroying objects of this 
+You then need to write functions for loading and destroying objects of this
 type, in the form:
-
 <codeblock>
    void *load_mapdata(PACKFILE *f, long size)
    {
@@ -11069,19 +11184,16 @@ type, in the form:
 	 free(data);
    }
 <endblock>
-
-Finally, before you load your datafile you must tell Allegro about the 
+Finally, before you load your datafile you must tell Allegro about the
 custom format, by calling:
-
 <codeblock>
    register_datafile_object(DAT_MAPDATA, load_mapdata, destroy_mapdata);
 <endblock>
-
-It is also possible to integrate support for custom object types directly 
+It is also possible to integrate support for custom object types directly
 into the grabber and dat utilities, by copying some special files into the 
 tools/plugins directory. This can be used to add whole new object types and 
 menu commands, or to provide additional import/export routines for the 
-existing formats. See tools/plugins/plugins.txt for an overview of how to 
+existing formats. See `tools/plugins/plugins.txt' for an overview of how to
 write your own grabber plugins.
 
 
@@ -11089,16 +11201,37 @@ write your own grabber plugins.
 @heading
 Fixed point math routines
 
-Allegro provides some routines for working with fixed point numbers, and 
-defines the type 'fixed' to be a signed 32-bit integer. The high word is 
-used for the integer part and the low word for the fraction, giving a range 
-of -32768 to 32767 and an accuracy of about four or five decimal places. 
-Fixed point numbers can be assigned, compared, added, subtracted, negated 
-and shifted (for multiplying or dividing by powers of two) using the normal 
-integer operators, but you should take care to use the appropriate 
-conversion routines when mixing fixed point with integer or floating point 
-values. Writing 'fixed_point_1 + fixed_point_2' is ok, but 'fixed_point + 
-integer' is not.
+Allegro provides some routines for working with fixed point numbers, and
+defines the type `fixed' to be a signed 32-bit integer. The high word is 
+used for the integer part and the low word for the fraction, giving a range
+of -32768 to 32767 and an accuracy of about four or five decimal places.
+Fixed point numbers can be assigned, compared, added, subtracted, negated and
+shifted (for multiplying or dividing by powers of two) using the normal
+integer operators, but you should take care to use the appropriate conversion
+routines when mixing fixed point with integer or floating point values.
+Writing `fixed_point_1 + fixed_point_2' is OK, but `fixed_point + integer' is
+not.
+
+Unfortunately the only advantage of fixed point math routines is that you
+don't require a floating point coprocessor to use them. This was great in the
+time period of i386 and i486 machines, but stopped being so useful with the
+coming of the Pentium class of processors. From Pentium onwards, CPUs have
+increased their strength in floating point operations, equaling or even
+surpassing integer math performance.
+
+Depending on the type of operations your program may need, using floating
+point types may be faster than fixed types if you are targeting a specific
+machine class. Allegro comes with a test program in the `allegro/tests'
+directory. Its `Misc' menu contains a basic profile test which can give you
+an idea of the speed difference between fixed and float types for a few basic
+operations on your machine. However, don't forget to profile your program in
+real life conditions, tight loop benchmarks are after all artificial.
+
+Fixed point math is considered "add-on" material and is kept only for
+backwards compatibility. Whenever a future release of Allegro breaks backwards
+compatibility, fixed point math will likely be moved to a separate add-on
+package for the very few users who still find it convenient and useful, and
+Allegro functions using fixed point math will use other types.
 
 @@fixed @itofix(int x);
 @xref fixtoi, ftofix, fixtof
@@ -11106,147 +11239,362 @@ integer' is not.
 @eref exspline, exsprite, exstars
 @shortdesc Converts an integer to fixed point.
    Converts an integer to fixed point. This is the same thing as x&lt&lt16.
+   Remember that overflows (trying to convert an integer greater than 32767)
+   and underflows (trying to convert an integer lesser than -32768) are not
+   detected even in debug builds! The values simply "wrap around". Example:
+<codeblock>
+      fixed number;
+      /* This conversion is OK. */
+      number = itofix(100);
+      ASSERT(fixtoi(number) == 100);
+      number = itofix(64000);
+      /* This check will fail in debug builds. */
+      ASSERT(fixtoi(number) == 64000);<endblock>
+@retval
+   Returns the value of the integer converted to fixed point ignoring
+   overflows.
 
 @@int @fixtoi(fixed x);
 @xref itofix, ftofix, fixtof, fixfloor, fixceil
 @eref ex12bit, ex3buf, ex3d, exblend, excustom, exlights, exspline
 @eref exstars, exupdate
 @shortdesc Converts a fixed point to integer with rounding.
-   Converts fixed point to integer, rounding as required.
+   Converts fixed point to integer, rounding as required to the nearest
+   integer. Example:
+<codeblock>
+      int result;
+      /* This will put 33 into `result'. */
+      result = fixtoi(itofix(100) / 3);
+      /* But this will round up to 17. */
+      result = fixtoi(itofix(100) / 6);<endblock>
 
 @@int @fixfloor(fixed x);
 @xref fixtoi, fixceil
 @shortdesc Returns the greatest integer not greater than x.
    Returns the greatest integer not greater than x. That is, it rounds 
-   towards negative infinity.
+   towards negative infinity. Example:
+<codeblock>
+      int result;
+      /* This will put 33 into `result'. */
+      result = fixfloor(itofix(100) / 3);
+      /* And this will round down to 16. */
+      result = fixfloor(itofix(100) / 6);<endblock>
 
 @@int @fixceil(fixed x);
 @xref fixtoi, fixfloor
 @shortdesc Returns the smallest integer not less than x.
    Returns the smallest integer not less than x. That is, it rounds towards
-   positive infinity.
+   positive infinity. Example:
+<codeblock>
+      int result;
+      /* This will put 34 into `result'. */
+      result = fixceil(itofix(100) / 3);
+      /* This will round up to 17. */
+      result = fixceil(itofix(100) / 6);<endblock>
 
 @@fixed @ftofix(double x);
 @xref fixtof, itofix, fixtoi
 @eref exfixed, exspline, exupdate
 @shortdesc Converts a floating point value to fixed point.
-   Converts a floating point value to fixed point.
+   Converts a floating point value to fixed point. Unlike itofix(), this
+   function clamps values which could overflow the type conversion, setting
+   `errno' to ERANGE in the process if this happens. Example:
+<codeblock>
+      fixed number;
+      number = itofix(-40000);
+      ASSERT(fixfloor(number) == -32768);
+      number = itofix(64000);
+      ASSERT(fixfloor(number) == 32767);
+      ASSERT(!errno); /* This will fail. */<endblock>
+@retval
+   Returns the value of the floating point value converted to fixed point
+   clamping overflows (and setting `errno').
 
 @@double @fixtof(fixed x);
 @xref ftofix, itofix, fixtoi
 @eref exfixed, exspline, exstars
 @shortdesc Converts a fixed point to floating point.
-   Converts fixed point to floating point.
+   Converts fixed point to floating point. Example:
+<codeblock>
+      float result;
+      
+      /* This will put 33.33333 into `result'. */
+      result = fixtof(itofix(100) / 3);
+      /* This will put 16.66666 into `result'. */
+      result = fixtof(itofix(100) / 6);<endblock>
 
 @@fixed @fixmul(fixed x, fixed y);
 @xref fixadd, fixsub, fixdiv
 @eref ex3buf, excustom, exfixed, exspline, exstars, exupdate
 @shortdesc Multiplies two fixed point values together.
    A fixed point value can be multiplied or divided by an integer with the 
-   normal '*' and '/' operators. To multiply two fixed point values, though, 
+   normal `*' and `/' operators. To multiply two fixed point values, though,
    you must use this function.
 
-   If an overflow or division by zero occurs, errno will be set and the 
-   maximum possible value will be returned, but errno is not cleared if the 
-   operation is successful. This means that if you are going to test for 
-   overflow you should set errno=0 before calling fixmul().
+   If an overflow occurs, `errno' will be set and the maximum possible value
+   will be returned, but `errno' is not cleared if the operation is
+   successful. This means that if you are going to test for overflow you
+   should set `errno=0' before calling fixmul(). Example:
+<codeblock>
+      fixed result;
+
+      /* This will put 30000 into `result'. */
+      result = fixmul(itofix(10), itofix(3000));
+      /* But this overflows, and sets `errno'. */
+      result = fixmul(itofix(100), itofix(3000));
+      ASSERT(!errno);<endblock>
+@retval
+   Returns the clamped result of multiplying `x' by `y', setting `errno' to
+   ERANGE if there was an overflow.
 
 @@fixed @fixdiv(fixed x, fixed y);
 @xref fixadd, fixsub, fixmul
 @eref exfixed
 @shortdesc Fixed point division.
-   Fixed point division: see comments about fixmul().
+   A fixed point value can be divided by an integer with the normal `/'
+   operator. To divide two fixed point values, though, you must use this
+   function. If a division by zero occurs, `errno' will be set and the
+   maximum possible value will be returned, but `errno' is not cleared if the
+   operation is successful. This means that if you are going to test for
+   division by zero you should set `errno=0' before calling fixdiv(). Example:
+<codeblock>
+      fixed result;
+      /* This will put 0.06060 `result'. */
+      result = fixdiv(itofix(2), itofix(33));
+      /* This will put 0 into `result'. */
+      result = fixdiv(0, itofix(-30));
+      /* Sets `errno' and puts -32768 into `result'. */
+      result = fixdiv(itofix(-100), itofix(0));
+      ASSERT(!errno); /* This will fail. */<endblock>
+@retval
+   Returns the result of dividing `x' by `y'. If `y' is zero, returns the
+   maximum possible fixed point value and sets `errno' to ERANGE.
 
 @@fixed @fixadd(fixed x, fixed y);
 @xref fixsub, fixmul, fixdiv
 @shortdesc Safe function to add fixed point numbers clamping overflow.
    Although fixed point numbers can be added with the normal '+' integer 
-   operator, that doesn't provide any protection against overflow. If 
-   overflow is a problem, you should use this function instead. It is slower 
-   than using integer operators, but if an overflow occurs it will clamp the 
-   result, rather than just letting it wrap, and set errno.
+   operator, that doesn't provide any protection against overflow. If overflow
+   is a problem, you should use this function instead. It is slower than using
+   integer operators, but if an overflow occurs it will set `errno' and clamp
+   the result, rather than just letting it wrap. Example:
+<codeblock>
+      fixed result;
+      /* This will put 5035 into `result'. */
+      result = fixadd(itofix(5000), itofix(35));
+      /* Sets `errno' and puts -32768 into `result'. */
+      result = fixadd(itofix(-31000), itofix(-3000));
+      ASSERT(!errno); /* This will fail. */<endblock>
+@retval
+   Returns the clamped result of adding `x' to `y', setting `errno' to ERANGE
+   if there was an overflow.
 
 @@fixed @fixsub(fixed x, fixed y);
 @xref fixadd, fixmul, fixdiv
 @shortdesc Safe function to subtract fixed point numbers clamping underflow.
-   Fixed point subtraction: see comments about fixadd().
+   Although fixed point numbers can be subtracted with the normal '-' integer
+   operator, that doesn't provide any protection against overflow. If overflow
+   is a problem, you should use this function instead. It is slower than using
+   integer operators, but if an overflow occurs it will set `errno' and clamp
+   the result, rather than just letting it wrap. Example:
+<codeblock>
+      fixed result;
+      /* This will put 4965 into `result'. */
+      result = fixsub(itofix(5000), itofix(35));
+      /* Sets `errno' and puts -32768 into `result'. */
+      result = fixsub(itofix(-31000), itofix(3000));
+      ASSERT(!errno); /* This will fail. */<endblock>
+@retval
+   Returns the clamped result of subtracting `y' from `x', setting `errno' to
+   ERANGE if there was an overflow.
 
 @hnode Fixed point trig
 The fixed point square root, sin, cos, tan, inverse sin, and inverse cos 
 functions are implemented using lookup tables, which are very fast but not 
 particularly accurate. At the moment the inverse tan uses an iterative 
-search on the tan table, so it is a lot slower than the others.
+search on the tan table, so it is a lot slower than the others. Note that on
+machines with very good floating point processors using these functions could
+be slower in real life code due to cache misses: it may be faster to wait
+a few extra cicles for a floating point sine result rather than wait for the
+CPU to fetch the precalculated table from main memory. Always profile your
+code.
 
 Angles are represented in a binary format with 256 equal to a full circle, 
 64 being a right angle and so on. This has the advantage that a simple 
-bitwise 'and' can be used to keep the angle within the range zero to a full 
+bitwise 'and' can be used to keep the angle within the range zero to a full
 circle, eliminating all those tiresome 'if (angle &gt= 360)' checks.
 
 @@extern const fixed @fixtorad_r;
 @xref fixmul, radtofix_r
 @shortdesc Constant to convert angles in fixed point format to radians.
-   This constant gives a ratio which can be used to convert a number in
-   fixed point angle format to a number in radians: if 'y' is an angle in
-   fixed point angle format then use: 'x = fixmul(y, fixtorad_r);' to get
-   its value 'x' in radians.
+   This constant gives a ratio which can be used to convert a fixed point
+   number in binary angle format to a fixed point number in radians. Example:
+<codeblock>
+      fixed rad_angle, binary_angle;
+      /* Set the binary angle to 90 degrees. */
+      binary_angle = 64;
+      /* Now convert to radians (about 1.57). */
+      rad_angle = fixmul(binary_angle, fixtorad_r);<endblock>
 
 @@extern const fixed @radtofix_r;
 @xref fixmul, fixtorad_r
 @shortdesc Constant to convert radians to fixed point angles.
-   This constant gives a ratio which can be used to convert a number in
-   radians to a number in fixed point angle format: if 'x' is an angle in
-   radians, then use: 'y = fixmul(x, radtofix_r);' to get its value 'y'
-   in fixed point angle format.
+   This constant gives a ratio which can be used to convert a fixed point
+   number in radians to a fixed point number in binary angle format. Example:
+<codeblock>
+      fixed rad_angle, binary_angle;
+      ...
+      binary_angle = fixmul(rad_angle, radtofix_r);<endblock>
 
 @@fixed @fixsin(fixed x);
 @xref Fixed point trig
 @eref ex12bit, ex3buf, exblend, excustom, exspline, exupdate
-@shortdesc Lookup table sine.
-   Lookup table sine.
+@shortdesc Fixed point sine of binary angles.
+   This function finds the sine of a value using a lookup table. The input
+   value must be a fixed point binary angle. Example:
+<codeblock>
+      fixed angle;
+      int result;
+
+      /* Set the binary angle to 90 degrees. */
+      angle = itofix(64);
+      /* The sine of 90 degrees is one. */
+      result = fixtoi(fixsin(angle));
+      ASSERT(result == 1);<endblock>
+@retval
+   Returns the sine of a fixed point binary format angle. The return value
+   will be in radians.
 
 @@fixed @fixcos(fixed x);
 @xref Fixed point trig
 @eref ex12bit, ex3buf, exblend, excustom, exspline, exupdate
-@shortdesc Lookup table cosine.
-   Lookup table cosine.
+@shortdesc Fixed point cosine of binary angles.
+   This function finds the cosine of a value using a lookup table. The input
+   value must be a fixed point binary angle. Example:
+<codeblock>
+      fixed angle;
+      float result;
+
+      /* Set the binary angle to 45 degrees. */
+      angle = itofix(32);
+      /* The cosine of 45 degrees is about 0.7071. */
+      result = fixtof(fixcos(angle));
+      ASSERT(result &gt 0.7 && result &lt 0.71);<endblock>
+@retval
+   Returns the cosine of a fixed point binary format angle. The return value
+   will be in radians.
 
 @@fixed @fixtan(fixed x);
 @xref Fixed point trig
-@shortdesc Lookup table tangent.
-   Lookup table tangent.
+@shortdesc Fixed point tangent of binary angles.
+   This function finds the tangent of a value using a lookup table. The input
+   value must be a fixed point binary angle. Example:
+<codeblock>
+      fixed angle, res_a, res_b;
+      float dif;
+      
+      angle = itofix(37);
+      /* Prove that tan(angle) == sin(angle) / cos(angle). */
+      res_a = fixdiv(fixsin(angle), fixcos(angle));
+      res_b = fixtan(angle);
+      dif = fixtof(fixsub(res_a, res_b));
+      allegro_message("Precision error: %f\n", dif);<endblock>
+@retval
+   Returns the tangent of a fixed point binary format angle. The return value
+   will be in radians.
 
 @@fixed @fixasin(fixed x);
 @xref Fixed point trig
-@shortdesc Lookup table inverse sine.
-   Lookup table inverse sine.
+@shortdesc Fixed point inverse sine lookup table.
+   This function finds the inverse sine of a value using a lookup table. The
+   input value must be a fixed point value. The inverse sine is defined only
+   in the domain from `-1' to `1'. Outside of this input range, the function
+   will set `errno' to EDOM and return zero. Example:
+<codeblock>
+      float angle;
+      fixed val;
+
+      /* Sets `val' to a right binary angle (`64'). */
+      val = fixasin(itofix(1));
+      /* Sets `angle' to 0.2405. */
+      angle = fixtof(fixmul(fixasin(ftofix(0.238)), fixtorad_r));
+      /* This will trigger the assert. */
+      val = fixasin(ftofix(-1.09));
+      ASSERT(!errno);<endblock>
+@retval
+   Returns the inverse sine of a fixed point value, measured as fixed point
+   binary format angle, or zero if the input was out of the range. All return
+   values of this function will be in the range `-64' to `64'.
 
 @@fixed @fixacos(fixed x);
 @xref Fixed point trig
-@shortdesc Lookup table inverse cosine.
-   Lookup table inverse cosine.
+@shortdesc Fixed point inverse cosine lookup table.
+   This function finds the inverse cosine of a value using a lookup table. The
+   input value must be a fixed point radian. The inverse cosine is defined
+   only in the domain from `-1' to `1'. Outside of this input range, the
+   function will set `errno' to EDOM and return zero. Example:
+<codeblock>
+      fixed result;
+
+      /* Sets `result' to binary angle 128. */
+      result = fixacos(itofix(-1));<endblock>
+@retval
+   Returns the inverse sine of a fixed point value, measured as fixed point
+   binary format angle, or zero if the input was out of range. All return
+   values of this function will be in the range `0' to `128'.
 
 @@fixed @fixatan(fixed x);
 @xref Fixed point trig
-@shortdesc Fixed point inverse tangent.
-   Fixed point inverse tangent.
+@shortdesc Fixed point inverse tangent lookup table.
+   This function finds the inverse tangent of a value using a lookup table.
+   The input value must be a fixed point radian. The inverse tangent is the
+   value whose tangent is `x'. Example:
+<codeblock>
+      fixed result;
+
+      /* Sets `result' to binary angle 13. */
+      result = fixatan(ftofix(0.326));<endblock>
+@retval
+   Returns the inverse tangent of a fixed point value, measured as a fixed
+   point binary format angle.
 
 @@fixed @fixatan2(fixed y, fixed x);
 @xref Fixed point trig
 @eref exlights, exspline
 @shortdesc Fixed point version of the libc atan2() routine.
-   Fixed point version of the libc atan2() routine.
+   This is a fixed point version of the libc atan2() routine. It computes the
+   arc tangent of `y / x', but the signs of both arguments are used to
+   determine the quadrant of the result, and `x' is permitted to be zero. This
+   function is useful to convert Cartesian coordinates to polar coordinates.
+   Example:
+<codeblock>
+      fixed result;
+      
+      /* Sets `result' to binary angle 64. */
+      result = fixatan2(itofix(1), 0);
+      /* Sets `result' to binary angle -109. */
+      result = fixatan2(itofix(-1), itofix(-2));
+      /* Fails the assert. */
+      result = fixatan2(0, 0);
+      ASSERT(!errno);<endblock>
+@retval
+   Returns the arc tangent of `y / x' in fixed point binary format angle,
+   from `-128' to `128'. If both `x' and `y' are zero, returns zero and sets
+   `errno' to EDOM.
 
 @@fixed @fixsqrt(fixed x);
 @xref Fixed point trig
 @eref exfixed, exlights, exspline
 @shortdesc Fixed point square root.
-   Fixed point square root.
+   This finds out the non negative square root of `x'. If `x' is negative,
+   `errno' is set to EDOM and the function returns zero.
 
 @@fixed @fixhypot(fixed x, fixed y);
 @xref Fixed point trig
 @shortdesc Fixed point hypotenuse.
-   Fixed point hypotenuse (returns the square root of x*x + y*y).
-
+   Fixed point hypotenuse (returns the square root of `x*x + y*y'). This
+   should be better than calculating the formula yourself manually, since
+   the error is much smaller.
 
 @hnode Fix class
 If you are programming in C++ you can ignore all the above and use the fix 
@@ -11258,6 +11606,13 @@ for regular integers and insert unnecessary conversions. For example, if x
 is an object of class fix, calling fixsqrt(x) will return the wrong result. 
 You should use the overloaded sqrt(x) or x.sqrt() instead.
 
+On top of that, the Fix class may be slower than using directly the C
+functions because of implicit internal conversions from one type to another
+which you otherwise could avoid or minimise. Finally, this is the only bit
+of C++ in the whole Allegro library, and the developers are certainly going
+to move it into add-on space in the next version of Allegro which breaks
+source backwards compatibility.
+
 
 
 @heading
@@ -11266,7 +11621,7 @@ You should use the overloaded sqrt(x) or x.sqrt() instead.
 Allegro contains some 3d helper functions for manipulating vectors, 
 constructing and using transformation matrices, and doing perspective 
 projections from 3d space onto the screen. It is not, and never will be, a 
-fully fledged 3d library (my goal is to supply generic support routines, 
+fully fledged 3d library (the goal is to supply generic support routines,
 not shrink-wrapped graphics code :-) but these functions may be useful for 
 developing your own 3d code.
 
@@ -11310,12 +11665,11 @@ transformation pipeline of a point from world space to the screen.
    /* Finally, the point is projected from
     * camera space to the screen.
     */
-   persp_project_f (cx, cy, cz, &sx, &sy);
-<endblock>
+   persp_project_f (cx, cy, cz, &sx, &sy);<endblock>
 
 For more details, look at the function descriptions of
-set_projection_viewport, get_camera_matrix, and persp_project, as well as
-the relevant example programs.
+set_projection_viewport(), get_camera_matrix(), and persp_project(), as well
+as the relevant example programs.
 
 All the 3d math functions are available in two versions: one which uses 
 fixed point arithmetic, and another which uses floating point. The syntax 
@@ -11738,7 +12092,7 @@ GUI routines
 
 Allegro contains an object-oriented dialog manager, which was originally 
 based on the Atari GEM system (form_do(), objc_draw(), etc: old ST 
-programmers will know what I'm talking about :-) You can use the GUI as-is 
+programmers will know what we are talking about :-) You can use the GUI as-is
 to knock out simple interfaces for things like the test program and grabber 
 utility, or you can use it as a basis for more complicated systems of your 
 own. Allegro lets you define your own object types by writing new dialog 
@@ -12039,9 +12393,9 @@ still drawn too large until version 4.1.0.
    characters that it will accept, and d2 is the text cursor position within 
    the string.
    
-   Note: dp must point to a buffer at least (d1 + 1) * 6 bytes long because,
+   Note: dp must point to a buffer at least (d1 + 1) * 4 bytes long because,
    depending on the encoding format in use, a single character can occupy
-   up to 6 bytes and room must be reserved for the terminating null character.
+   up to 4 bytes and room must be reserved for the terminating null character.
 
 @@int @d_list_proc(int msg, DIALOG *d, int c);
 @eref exgui
@@ -12430,7 +12784,13 @@ ensure there is room for the check.
 @shortdesc Displays a popup alert box.
    Displays a popup alert box, containing three lines of text (s1-s3), and 
    with either one or two buttons. The text for these buttons is passed in 
-   b1 and b2 (b2 may be NULL), and the keyboard shortcuts in c1 and c2. 
+   `b1' and `b2' (`b2' may be NULL), and the keyboard shortcuts in `c1' and
+   `c2' as ASCII value. Example:
+<codeblock>
+      if (!exists(CONFIG_FILE))
+	 alert(CONFIG_FILE, "not found.", "Using defaults.",
+	       "&Continue", NULL, 'c', 0);<endblock>
+@retval
    Returns 1 or 2 depending on which button was clicked. If the alert is 
    dismissed by pressing ESC when ESC is not one of the keyboard shortcuts, 
    it treats it as a click on the second button (this is consistent with the 
@@ -12530,6 +12890,26 @@ ensure there is room for the check.
 Platform specifics
 @heading
 DOS specifics
+
+There are four Allegro files which you should redistribute along your program.
+These are the files `keyboard.dat', `language.dat', `allegro.cfg' and
+`setup.exe'.
+
+The first two contain internationalisation information for keyboard mappings
+and system messages to show up localised on the user's computer. The
+`setup.exe' program, which comes in Allegro's `setup' directory, is a
+standalone tool which you can graphically customise and even embed into your
+main binary. The user can generate a configuration file with this tool, to
+store special settings or avoid Allegro's autodetection failing on specific
+hardware. Even if you distribute `setup.exe', you are recommended to copy too
+the empty `allegro.cfg' file, in case the setup program itself is unable to
+run and the user has to edit manually the configuration with a text editor.
+
+If you are using get_config_text() in your program to localise text strings,
+merge your xxtext.cfg files with the ones provided by Allegro in the
+`resource' directory before creating `language.dat', and redistribute this
+with your program. This file will contain then both Allegro's system
+messages and the strings of your program.
 
 @@Drivers @JOY_TYPE_*/DOS
 @xref install_joystick
@@ -12892,6 +13272,10 @@ DOS specifics
 @heading
 Windows specifics
 
+In terms of file redistribution, the Windows platform behaves practically the
+same as the DOS platform. Read section chapter "Dos specifics" in the manual
+to learn more about this.
+
 A Windows program that uses the Allegro library is only required to include
 one or more header files from the include/allegro tree, or allegro.h; however,
 if it also needs to directly call non portable Win32 API functions, it must
@@ -13245,13 +13629,40 @@ To use these routines, you must include winalleg.h after Allegro headers.
    current DC palette. So if you are blitting from 8-bit mode, you should 
    first set the DC palette with the set_palette_to_hdc() function.
 
-
 @man
 
 @heading
 Unix specifics
 
-In order to locate things like the config and translation files, Allegro 
+Under Unix you usually have two ways of redistributing your binaries. You
+either pack everything in a single directory, even providing Allegro in
+binary or source form for the user to compile. Or your program is being
+packaged separately from Allegro and stored in different paths. For the
+first case of redistribution, read section "Files shared by Allegro" from
+the "Dos specifics" chapter to learn more about this.
+
+For the second type, you can ignore redistributing the setup, keyboard
+mappings and language datafiles, because they will be already installed in
+the system. This, however, is problematic if you are using get_config_text()
+to localise your program's text strings.
+
+The problem is that on other platforms you usually mix your program's text
+strings with those of Allegro (found in the `resources' directory) to create
+a special language.dat. And it is likely that the Allegro library installed
+on the user's system already contains a datafile.dat. You can go ahead and
+still provide your own language.dat file, but this will mean that if Allegro
+is updated, your language.dat file may not contain all the text strings used
+by the new version.
+
+Given the slow paced release cycle of Allegro, this might not be a concern.
+However, if you want to make it easy on system administrators, instead of
+providing your own `language.dat', you should provide the separate
+`xxtext.cfg' files it in a separate directory. Then, before showing the
+strings to the user you can detect the language setting and use
+override_config_file() with the appropriate localisation file and call
+reload_config_texts().
+
+In order to locate things like the config and translation files, Allegro
 needs to know the path to your executable. Since there is no standard way to 
 find that, it needs to capture a copy of your argv[] parameter, and it does 
 this with some preprocessor macro trickery. Unfortunately it can't quite 
@@ -13260,10 +13671,10 @@ END_OF_MAIN() right after your main() function. Pretty easy, really, and if
 you forget, you'll get a nice linker error about a missing _mangled_main 
 function to remind you :-)
 
-Under Unix resources are searched for in many different paths. When a
-configuration resource is looked for, it is usually tried with the variations
-`name.cfg' or `.namerc' in multiple paths: the current directory, the
-directory pointed to by the ALLEGRO environment variable, the user's home
+Under Unix resources are searched for in many different paths (see above).
+When a configuration resource is looked for, it is usually tried with the
+variations `name.cfg' or `.namerc' in multiple paths: the current directory,
+the directory pointed to by the ALLEGRO environment variable, the user's home
 directory, one or more global system directories which usually only the
 root user has access to and any custom paths set up with
 set_allegro_resource_path(). Text files, like the main allegro config file or
@@ -13276,21 +13687,21 @@ a language text translation files are looked for in the following places:
    /etc/allegro.cfg
    /etc/allegrorc
 <endblock>
-Binary resources like the keyboard mappings (keyboard.dat) or the language
-translation files packfile (language.dat) are looked for in:
+Binary resources like the language translation files packfile (language.dat)
+are looked for in:
 <textblock>
-   ./keyboard.dat
-   $ALLEGRO/keyboard.dat
-   ~/keyboard.dat
-   /etc/keyboard.dat
-   /usr/share/allegro/keyboard.dat
-   /usr/local/share/allegro/keyboard.dat
+   ./language.dat
+   $ALLEGRO/language.dat
+   ~/language.dat
+   /etc/language.dat
+   /usr/share/allegro/language.dat
+   /usr/local/share/allegro/language.dat
 <endblock>
 Note that if you have installed Allegro from the source distribution with
-the typical `<tt>make install</tt>', global files like `keyboard.dat', `language.dat'
-and `allegro.cfg' will not have been installed. As a system administrator
-you are required to install them manually wherever you prefer to have them.
-If you suspect that an Allegro program is somehow not finding the correct
+the typical `<tt>make install</tt>', global files like `language.dat' and
+`allegro.cfg' will not have been installed. As a system administrator you are
+required to install them manually wherever you prefer to have them. If you
+suspect that an Allegro program is somehow not finding the correct
 configuration file, you could try using the following command:
 <textblock>
    strace program 2>&1|egrep "(open|stat)"
@@ -13300,7 +13711,7 @@ the information to stderr, so that's why we redirect it to stdin with `<tt>2>&1<
 Since we are interested only in files being (un)successfully opened, we
 restrict the output of the log to stat or open calls with the extended grep
 command. You could add another grep to filter only lines with text like
-`keyboard' or `allegro'.
+`language' or `allegro'.
 
 @@Drivers @JOY_TYPE_*/Linux
 @xref install_joystick
@@ -13474,6 +13885,10 @@ command. You could add another grep to filter only lines with text like
 @heading
 BeOS specifics
 
+In terms of file redistribution, the BeOS platform behaves practically the
+same as the DOS platform. Read section chapter "Dos specifics" in the manual
+to learn more about this.
+
 @@Drivers @GFX_*/BeOS
 @xref set_gfx_mode
 @shortdesc Supported BeOS graphic drivers.
@@ -13541,6 +13956,10 @@ BeOS specifics
 
 @heading
 QNX specifics
+
+In terms of file redistribution, the QNX platform behaves practically the
+same as the DOS platform. Read section chapter "Dos specifics" in the manual
+to learn more about this.
 
 @@Drivers @GFX_*/QNX
 @xref set_gfx_mode
@@ -13625,10 +14044,15 @@ you must include qnxalleg.h after other Allegro headers.
 @heading
 MacOS X specifics
 
+In terms of file redistribution, the MacOS X platform behaves practically the
+same as the DOS platform. Read section chapter "Dos specifics" in the manual
+to learn more about this.
+
 Allegro programs under MacOS X are Cocoa applications; in order to hide all
 the Cocoa interfacing to the enduser, you need to add the END_OF_MAIN()
 macro right after your main() function. This is a necessary step: if you omit
 it, your program will not compile.
+
 The END_OF_MAIN() macro simply does some magic to make sure your program
 executes another function before your main(); this function is defined into
 the liballeg-main.a static library, which is automatically linked if you use
@@ -13636,10 +14060,9 @@ the allegro-config script when linking. Otherwise be sure you link against it
 unless you want to get undefined symbol errors.
 
 To behave nicely with the MacOS X user interface, Allegro apps will provide a
-standard application menu with just the "Quit" menu item in it. The default
-behaviour when the user hits Command-Q or selects "Quit" is to force shutdown,
-which may lead to data loss and/or application crash on exit. To override this
-behaviour you must call the set_close_button_callback() function; under MacOS
+standard application menu with the "Quit" menu item in it. The default
+behaviour when the user hits Command-Q or selects "Quit" is to do nothing.
+To override this behaviour you must call the set_close_button_callback() function; under MacOS
 X the supplied callback will be used either if the user clicks the window
 close button either on Command-Q or "Quit" selection. In this last case the
 application will not shutdown, but you are supposed to set some quit flag
@@ -13702,7 +14125,6 @@ loop.
 <endblock>
 
 
-
 @headingnocontent
 Differences between platforms
 
@@ -13728,6 +14150,11 @@ None of the currently supported platforms require input polling, but it is
 possible that some future ones might, so if you want to ensure 100% 
 portability of your program, you should call poll_mouse() and 
 poll_keyboard() in all the relevant places.
+
+On Unix the shared files by Allegro (like `language.dat') may require a
+special use due to the nature of distributing the resources in separate paths
+instead of putting everything in the same directory. Check the beginning of
+your platform's specific chapter to learn more about this.
 
 Allegro defines a number of standard macros that can be used to check 
 various attributes of the current platform:
@@ -14068,15 +14495,100 @@ will make debugging much easier, and includes assert tests that will help to
 locate errors in your code at an earlier stage. Allegro also contains some 
 debugging helper functions:
 
+@@void @ASSERT(condition);
+@xref al_assert, TRACE, register_assert_handler
+@eref expackf
+@shortdesc Debugging helper macro to assert.
+   Debugging helper macro. Normally compiles away to nothing, but if you 
+   defined the preprocessor symbol DEBUGMODE before including Allegro headers,
+   it will check the supplied condition and call al_assert() if it fails,
+   whose default action is to stop the program and report the assert. You can
+   use this macro even when Allegro has not been initialised. Example:
+<codeblock>
+      #define DEBUGMODE
+      #include <allegro.h>
+      ...
+      void my_blitter(BITMAP *source, int flags)
+      {
+	 int some_variables;
+	 ASSERT(source != NULL);
+	 ASSERT(flags & GAME_RUNNING);
+         ...
+      }<endblock>
+
+@@void @TRACE(char *msg, ...);
+@xref al_trace, ASSERT, register_trace_handler
+@shortdesc Debugging helper macro to trace messages.
+   Debugging helper macro. Normally compiles away to nothing, but if you 
+   defined the preprocessor symbol DEBUGMODE before including Allegro headers,
+   it passes the supplied message given in ASCII format to al_trace().
+   Example:
+<codeblock>
+      #define DEBUGMODE
+      #include <allegro.h>
+      ...
+      void my_blitter(BITMAP *source, int flags)
+      {
+	 static int count_call = 0;
+	 TRACE("my_blitter() called %d times.\n", count_call++);
+         ...
+      }<endblock>
+
+@@void @register_assert_handler(int (*handler)(const char *msg));
+@xref al_assert, ASSERT, register_trace_handler
+@shortdesc Registers a custom handler for assert failures.
+   Supplies a custom handler function for dealing with assert failures. Your 
+   callback will be passed a formatted error message in ASCII, and should 
+   return non-zero if it has processed the error, or zero to continue with 
+   the default actions. You could use this to ignore assert failures, or to 
+   display the error messages on a graphics mode screen without aborting the 
+   program. Example:
+<codeblock>
+   int show_but_continue(const char *text)
+   {
+       alert("Uh oh...", "Fasten your seat belts.", text,
+	     "&Go on!", NULL, 'g', 0);
+       return 1;
+   }
+   ...
+      register_assert(show_but_continue);
+      ASSERT(0); /* This won't crash the program now. */<endblock>
+
+@@void @register_trace_handler(int (*handler)(const char *msg));
+@xref al_trace, TRACE, register_assert_handler
+@shortdesc Registers a custom handler for trace output.
+   Supplies a custom handler function for dealing with trace output. Your 
+   callback will be passed a formatted error message in ASCII, and should 
+   return non-zero if it has processed the message, or zero to continue with 
+   the default actions. You could use this to ignore trace output, or to 
+   display the messages on a second monochrome monitor, etc. Example:
+<codeblock>
+   int network_broadcaster(const char *text)
+   {
+      int f;
+
+      for (int f = 0; f < connected_clients; f++)
+	 send_msg_to_client(client[f], text);
+         
+      return 0; /* Let normal tracing occur. */
+   }
+   ...
+      register_trace_handler(network_broadcaster);
+      TRACE("Networked tracing activated\n");<endblock>
+
 @@void @al_assert(const char *file, int line);
 @xref ASSERT, al_trace, register_assert_handler
 @shortdesc Asserts at the specified file and line number.
    Raises an assert for an error at the specified file and line number. The 
-   file parameter is always given in ASCII format. If you have installed a 
-   custom assert handler it uses that, or if the environment variable 
-   ALLEGRO_ASSERT is set it writes a message into the file specified by the 
-   environment, otherwise it aborts the program with an error message. You 
-   will usually want to use the ASSERT() macro instead of calling this 
+   file parameter is always given in ASCII format. By default, this will call
+   the system driver's assert handler. If there is none, the error will be
+   sent to stderr and the program will abort. However, if the environment
+   variable ALLEGRO_ASSERT is set, this function writes a message into the
+   file specified by the environment variable and program execution will
+   continue. If none of this behaviours is wanted, you can override them with
+   a custom assert handler.
+
+   You will usually want to use the ASSERT() macro instead of calling this
    function directly.
 
 @@void @al_trace(const char *msg, ...);
@@ -14088,40 +14600,6 @@ debugging helper functions:
    specified by the environment, otherwise it writes the message to 
    "allegro.log" in the current directory. You will usually want to use the 
    TRACE() macro instead of calling this function directly.
-
-@@void @ASSERT(condition);
-@xref al_assert, TRACE, register_assert_handler
-@eref expackf
-@shortdesc Debugging helper macro to assert.
-   Debugging helper macro. Normally compiles away to nothing, but if you 
-   defined the preprocessor symbol DEBUGMODE before including Allegro headers,
-   it will check the supplied condition and call al_assert() if it fails.
-
-@@void @TRACE(char *msg, ...);
-@xref al_trace, ASSERT, register_trace_handler
-@shortdesc Debugging helper macro to trace messages.
-   Debugging helper macro. Normally compiles away to nothing, but if you 
-   defined the preprocessor symbol DEBUGMODE before including Allegro headers,
-   it passes the supplied message given in ASCII format to al_trace().
-
-@@void @register_assert_handler(int (*handler)(const char *msg));
-@xref al_assert, ASSERT, register_trace_handler
-@shortdesc Registers a custom handler for assert failures.
-   Supplies a custom handler function for dealing with assert failures. Your 
-   callback will be passed a formatted error message in ASCII, and should 
-   return non-zero if it has processed the error, or zero to continue with 
-   the default actions. You could use this to ignore assert failures, or to 
-   display the error messages on a graphics mode screen without aborting the 
-   program.
-
-@@void @register_trace_handler(int (*handler)(const char *msg));
-@xref al_trace, TRACE, register_assert_handler
-@shortdesc Registers a custom handler for trace output.
-   Supplies a custom handler function for dealing with trace output. Your 
-   callback will be passed a formatted error message in ASCII, and should 
-   return non-zero if it has processed the message, or zero to continue with 
-   the default actions. You could use this to ignore trace output, or to 
-   display the messages on a second monochrome monitor, etc.
 
 
 
@@ -15305,6 +15783,7 @@ and avoid missing any important bit of information.
 @externalfile changes Changes since previous versions
 @externalfile thanks Contributors: The Hall of Fame
 @externalfile faq Frequently asked questions (FAQ)
+@externalfile mistakes Common mistakes
 @externalfile help Help: what to do when your Allegro program doesn't work
 @externalfile api API compatibility information
 @externalfile abi ABI compatibility information

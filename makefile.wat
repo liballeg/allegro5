@@ -210,6 +210,9 @@ $(OBJ_DIR)/iscanmmx.obj: iscanmmx.s $(RUNNER)
 
 endif
 
+demo/demo.exe: $(OBJ_DIR)/demo.obj
+	$(RUNNER) wlink \\ @ $(LFLAGS) 'name $@' $(patsubst %,'file %',$(OBJECTS_DEMO)) 'library $(LIB_NAME)'
+
 */%.exe: $(OBJ_DIR)/%.obj $(LIB_NAME) $(RUNNER)
 	$(RUNNER) wlink \\ @ $(LFLAGS) 'name $@' 'file $<' 'library $(LIB_NAME)'
 

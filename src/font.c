@@ -723,10 +723,13 @@ static FONT *mono_extract_font_range(FONT *f, int begin, int end)
    /* Special case: copy entire font */
    if (begin==-1 && end==-1) {
    }
+   /* Copy from the beginning */
    else if (begin == -1 && end > mono_get_font_range_begin(f, -1)) {
    }
+   /* Copy to the end */
    else if (end == -1 && begin <= mono_get_font_range_end(f, -1)) {
    }
+   /* begin cannot be bigger than end */
    else if (begin <= end && begin != -1 && end != -1) {
    }
    else {
@@ -742,13 +745,17 @@ static FONT *mono_extract_font_range(FONT *f, int begin, int end)
 
    /* Get real character ranges */
    first = MAX(begin, mono_get_font_range_begin(f, -1));
-   last = (end>-1) ? MIN(end, mono_get_font_range_end(f, -1) + 1) : mono_get_font_range_end(f, -1) + 1;
+   last = (end>-1) ? MIN(end, mono_get_font_range_end(f, -1)) : mono_get_font_range_end(f, -1);
+   last++;
 
    mf = NULL;
    mfin = f->data;
    while (mfin) {
-      /* Check if we've found the proper range */
-	  if ((first >= mfin->begin && first < mfin->end) || (last <= mfin->end && last > mfin->begin)) {
+      /* Find the range that is covered by the requested range. */
+      /* Check if the requested and processed ranges at least overlap */
+	  if (((first >= mfin->begin && first < mfin->end) || (last <= mfin->end && last > mfin->begin))
+      /* Check if the requested range wraps processed ranges */
+      || (first < mfin->begin && last > mfin->end)) {
          int local_begin, local_end;
          
          local_begin = MAX(mfin->begin, first);
@@ -1171,7 +1178,7 @@ static FONT_COLOR_DATA *color_copy_glyph_range(FONT_COLOR_DATA *cf, int begin, i
    gl = newcf->bitmaps = _al_malloc(num * sizeof *gl);
    for (c=0; c<num; c++) {
       g = cf->bitmaps[begin - cf->begin + c];
-      gl[c] = create_bitmap_ex(8, g->w, g->h);
+      gl[c] = create_bitmap_ex(bitmap_color_depth(g), g->w, g->h);
       blit(g, gl[c], 0, 0, 0, 0, g->w, g->h);
    }
 
@@ -1196,10 +1203,13 @@ static FONT *color_extract_font_range(FONT *f, int begin, int end)
    /* Special case: copy entire font */
    if (begin==-1 && end==-1) {
    }
+   /* Copy from the beginning */
    else if (begin == -1 && end > color_get_font_range_begin(f, -1)) {
    }
+   /* Copy to the end */
    else if (end == -1 && begin <= color_get_font_range_end(f, -1)) {
    }
+   /* begin cannot be bigger than end */
    else if (begin <= end && begin != -1 && end != -1) {
    }
    else {
@@ -1215,13 +1225,17 @@ static FONT *color_extract_font_range(FONT *f, int begin, int end)
 
    /* Get real character ranges */
    first = MAX(begin, color_get_font_range_begin(f, -1));
-   last = (end>-1) ? MIN(end, color_get_font_range_end(f, -1) + 1) : color_get_font_range_end(f, -1) + 1;
+   last = (end>-1) ? MIN(end, color_get_font_range_end(f, -1)) : color_get_font_range_end(f, -1);
+   last++;
 
    cf = NULL;
    cfin = f->data;
    while (cfin) {
-      /* Check if we've found the proper range */
-      if ((first >= cfin->begin && first < cfin->end) || (last <= cfin->end && last > cfin->begin)) {
+      /* Find the range that is covered by the requested range. */
+      /* Check if the requested and processed ranges at least overlap */
+      if (((first >= cfin->begin && first < cfin->end) || (last <= cfin->end && last > cfin->begin))
+      /* Check if the requested range wraps processed ranges */
+      || (first < cfin->begin && last > cfin->end)) {
          int local_begin, local_end;
          
          local_begin = MAX(cfin->begin, first);

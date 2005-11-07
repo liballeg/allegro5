@@ -141,6 +141,14 @@
          return CALL;                                   \
       }
    #endif
+
+   #ifndef AL_ALIAS_VOID_RET
+      #define AL_ALIAS_VOID_RET(DECL, CALL)                  \
+      static __attribute__((unused)) __inline__ void DECL    \
+      {                                                      \
+         CALL;                                               \
+      }
+   #endif
 #endif
 
 
@@ -222,6 +230,14 @@
    }
 #endif
 
+#ifndef AL_ALIAS_VOID_RET
+   #define AL_ALIAS_VOID_RET(DECL, CALL)     \
+   static INLINE void DECL                   \
+   {                                         \
+      CALL;                                  \
+   }
+#endif
+
 #ifndef END_OF_MAIN
    #define END_OF_MAIN()
 #endif
@@ -262,6 +278,8 @@
    #define FA_DIREC        16
    #define FA_ARCH         32
 #endif
+   #define FA_NONE         0
+   #define FA_ALL          (~FA_NONE)
 
 
 #ifdef __cplusplus

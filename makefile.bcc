@@ -445,6 +445,12 @@ endif
 
 
 
+# -------- link demo --------
+
+demo/demo.exe: $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res
+	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJECTS_DEMO)),demo\demo.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
+
+
 # -------- demo program iconification --------
 
 .PHONY: fixdemo

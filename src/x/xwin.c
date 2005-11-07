@@ -158,6 +158,9 @@ static char _xwin_driver_desc[256] = EMPTY_STRING;
 /* This is used to intercept window closing requests.  */
 static Atom wm_delete_window;
 
+#define PREFIX_I                "al-xwin INFO: "
+#define PREFIX_W                "al-xwin WARNING: "
+#define PREFIX_E                "al-xwin ERROR: "
 
 
 /* Forward declarations for private functions.  */
@@ -255,10 +258,9 @@ static int _xvidmode_private_set_fullscreen(int w, int h);
 static void _xvidmode_private_unset_fullscreen(void);
 #endif
 
-#ifdef ALLEGRO_NO_ASM
 uintptr_t _xwin_write_line (BITMAP *bmp, int line);
 void _xwin_unwrite_line (BITMAP *bmp);
-#else
+#ifndef ALLEGRO_NO_ASM
 uintptr_t _xwin_write_line_asm (BITMAP *bmp, int line);
 void _xwin_unwrite_line_asm (BITMAP *bmp);
 #endif
@@ -586,12 +588,14 @@ static void _xwin_private_select_screen_to_buffer_function(void)
 	 j += 5;
 
       if (_xwin_private_colorconv_usable()) {
-         TRACE("Using generic color conversion blitter (%u, %u).\n", _xwin.screen_depth, _xwin.fast_visual_depth);
-         blitter_func = _get_colorconv_blitter(_xwin.screen_depth, _xwin.fast_visual_depth);
-         _xwin.screen_to_buffer = _xwin_private_fast_colorconv;
+	 TRACE(PREFIX_I "Using generic color conversion blitter (%u, %u).\n",
+	       _xwin.screen_depth, _xwin.fast_visual_depth);
+	 blitter_func = _get_colorconv_blitter(_xwin.screen_depth,
+					       _xwin.fast_visual_depth);
+	 _xwin.screen_to_buffer = _xwin_private_fast_colorconv;
       }
       else {
-         _xwin.screen_to_buffer = _xwin_screen_to_buffer_function[i][j];
+	 _xwin.screen_to_buffer = _xwin_screen_to_buffer_function[i][j];
       }
    }
 }

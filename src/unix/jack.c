@@ -39,6 +39,10 @@
 #define AMP16 ((sample_t) 32768)
 #define AMP8 ((sample_t) 128)
 
+#define PREFIX_I                "al-jack INFO: "
+#define PREFIX_W                "al-jack WARNING: "
+#define PREFIX_E                "al-jack ERROR: "
+
 typedef jack_default_audio_sample_t sample_t;
 
 static int jack_bufsize = JACK_DEFAULT_BUFFER_SIZE;
@@ -267,17 +271,17 @@ static int jack_init(int input, int voices)
     */
    if ((ports = jack_get_ports (jack_client, NULL, NULL,
       JackPortIsPhysical|JackPortIsInput)) == NULL) {
-      TRACE ("JACK: Cannot find any physical playback ports");
+      TRACE (PREFIX_I "Cannot find any physical playback ports");
    }
 
    if (ports) {
       if (ports[0]) {
 	 if (jack_connect (jack_client, jack_port_name (output_left), ports[0]) == 0)
-	    TRACE ("JACK: Connected left playback port to %s", ports[0]);
+	    TRACE (PREFIX_I "Connected left playback port to %s", ports[0]);
       }
       if (jack_stereo && ports[1]) {
 	 if (jack_connect (jack_client, jack_port_name (output_right), ports[1]) == 0)
-	    TRACE ("JACK: Connected right playback port to %s", ports[1]);
+	    TRACE (PREFIX_I "Connected right playback port to %s", ports[1]);
       }
       free (ports);
    }

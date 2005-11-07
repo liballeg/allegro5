@@ -453,7 +453,7 @@ static FONT *grab_datafile_font(AL_CONST char *filename)
    c = datedit_select(datafile_fontname_getter, "Select font:");
    if (c>=0) {
       names[0] = datafile_fontname_getter(c, NULL);
-      f = load_font(filename, NULL, names);
+      f = load_font(filename, NULL, (void*)names);
    }
    
    unload_datafile(fonts_datafile);

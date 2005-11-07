@@ -22,6 +22,10 @@
 
 #include "wddraw.h"
 
+#define PREFIX_I                "al-wddmode INFO: "
+#define PREFIX_W                "al-wddmode WARNING: "
+#define PREFIX_E                "al-wddmode ERROR: "
+
 
 int _win_desktop_depth;
 RGB_MAP _win_desktop_rgb_map;  /* for 8-bit desktops */
@@ -71,7 +75,7 @@ static int wnd_set_video_mode(void)
    /* set the cooperative level to allow fullscreen access */
    hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
    if (FAILED(hr)) {
-      _TRACE("SetCooperativeLevel() failed (%x)\n", hr);
+      _TRACE(PREFIX_E "SetCooperativeLevel() failed (%x)\n", hr);
       return -1;
    }
 
@@ -79,7 +83,7 @@ static int wnd_set_video_mode(void)
    hr = IDirectDraw2_SetDisplayMode(directdraw, _wnd_width, _wnd_height, _wnd_depth,
                                                 _wnd_refresh_rate, _wnd_flags);
    if (FAILED(hr)) {
-      _TRACE("SetDisplayMode(%u, %u, %u, %u, %u) failed (%x)\n", _wnd_width, _wnd_height, _wnd_depth,
+      _TRACE(PREFIX_E "SetDisplayMode(%u, %u, %u, %u, %u) failed (%x)\n", _wnd_width, _wnd_height, _wnd_depth,
                                                                  _wnd_refresh_rate, _wnd_flags, hr);
       return -1;
    }
@@ -180,7 +184,7 @@ int gfx_directx_compare_color_depth(int color_depth)
    surf_desc.dwSize = sizeof(surf_desc);
    hr = IDirectDraw2_GetDisplayMode(directdraw, &surf_desc);
    if (FAILED(hr)) {
-      _TRACE("Can't get color format.\n");
+      _TRACE(PREFIX_E "Can't get color format.\n");
       return -1;
    }
 
@@ -226,7 +230,7 @@ int gfx_directx_update_color_format(DDRAW_SURFACE *surf, int color_depth)
    pixel_format.dwSize = sizeof(DDPIXELFORMAT);
    hr = IDirectDrawSurface2_GetPixelFormat(surf->id, &pixel_format);
    if (FAILED(hr)) {
-      _TRACE("Can't get color format.\n");
+      _TRACE(PREFIX_E "Can't get color format.\n");
       return -1;
    }
 
@@ -378,7 +382,7 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
 
    while (TRUE) {
       /* let the window thread do the hard work */ 
-      _TRACE("setting display mode(%u, %u, %u, %u)\n",
+      _TRACE(PREFIX_I "setting display mode(%u, %u, %u, %u)\n",
              _wnd_width, _wnd_height, _wnd_depth, _wnd_refresh_rate);
 
       if (wnd_call_proc(wnd_set_video_mode) == 0) {
@@ -394,7 +398,7 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
          break;
    }
       
-   _TRACE("Unable to set any display mode.\n");
+   _TRACE(PREFIX_E "Unable to set any display mode.\n");
    return -1;
 
  Done:

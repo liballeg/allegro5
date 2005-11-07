@@ -42,7 +42,9 @@ static void handle_key_release(int mycode);
 static int _key_shifts;
 /*----------------------------------------------------------------------*/
 
-// TODO: Once this driver is deemed more stable, reduce debugging output.
+#define PREFIX_I                "al-xkey INFO: "
+#define PREFIX_W                "al-xkey WARNING: "
+#define PREFIX_E                "al-xkey ERROR: "
 
 #ifdef ALLEGRO_USE_XIM
 static XIM xim = NULL;
@@ -353,12 +355,12 @@ static int find_unknown_key_assignment (int i)
    }
 
    if (j == AL_KEY_MAX) {
-      TRACE ("Fatal: You have more keys reported by X than Allegro's "
+      TRACE (PREFIX_E "You have more keys reported by X than Allegro's "
 	     "maximum of %i keys. Please send a bug report.\n", AL_KEY_MAX);
       _xwin.keycode_to_scancode[i] = 0;
    }
 
-   TRACE ("Key %i missing:", i);
+   TRACE (PREFIX_I "Key %i missing:", i);
    for (j = 0; j < sym_per_key; j++) {
       char *sym_str = XKeysymToString(keysyms[sym_per_key * (i - min_keycode) + j]);
       TRACE (" %s", sym_str ? sym_str : "NULL");
@@ -438,14 +440,6 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack)
 	       unicode = 0;
          }
 	 handle_key_press(keycode, unicode, _key_shifts);
-
-         /* Detect Ctrl-Alt-End. */
-         if ((keycode == AL_KEY_END) &&
-	     (_key_shifts & AL_KEYMOD_CTRL) &&
-             (_key_shifts & AL_KEYMOD_ALT))
-	 {
-	    kill(main_pid, SIGTERM);
-	 }
       }
    }
    else { /* Key release. */
@@ -535,7 +529,7 @@ static void private_get_keyboard_mapping(void)
    keysyms = XGetKeyboardMapping(_xwin.display, min_keycode,
       count, &sym_per_key);
 
-   TRACE ("xkeyboard: %i keys, %i symbols per key.\n", count, sym_per_key);
+   TRACE (PREFIX_I "%i keys, %i symbols per key.\n", count, sym_per_key);
 
    missing = 0;
 
@@ -548,7 +542,7 @@ static void private_get_keyboard_mapping(void)
       sym_str = XKeysymToString(sym);
       sym2_str = XKeysymToString(sym2);
 
-      TRACE ("key [%i: %s %s]", i, sym_str ? sym_str : "NULL", sym2_str ?
+      TRACE (PREFIX_I "key [%i: %s %s]", i, sym_str ? sym_str : "NULL", sym2_str ?
          sym2_str : "NULL");
 
       /* Hack for French keyboards, to correctly map AL_KEY_0 to AL_KEY_9. */
@@ -601,7 +595,7 @@ static void private_get_keyboard_mapping(void)
    for (i = 0; i < 8; i++)
    {
       int j;
-      TRACE ("Modifier %d:", i + 1);
+      TRACE (PREFIX_I "Modifier %d:", i + 1);
       for (j = 0; j < xmodmap->max_keypermod; j++) {
 	 KeySym sym = XKeycodeToKeysym(_xwin.display,
 	    xmodmap->modifiermap[i * xmodmap->max_keypermod + j], 0);
@@ -631,7 +625,7 @@ static void private_get_keyboard_mapping(void)
 	 if (scancode > 0)
 	 {
 	    _xwin.keycode_to_scancode[i] = scancode;
-	    TRACE ("User override: KeySym %i assigned to %i.\n", i, scancode);
+	    TRACE (PREFIX_I "User override: KeySym %i assigned to %i.\n", i, scancode);
 	 }
       }
    }
@@ -698,23 +692,23 @@ static int x_keyboard_init(void)
 #ifdef ALLEGRO_USE_XIM
 /* TODO: is this needed?
    if (setlocale(LC_ALL,"") == NULL) {
-      TRACE("x keyboard warning: Could not set default locale.\n");
+      TRACE(PREFIX_W "Could not set default locale.\n");
    }
 
    modifiers = XSetLocaleModifiers ("@im=none");
    if (modifiers == NULL) {
-      TRACE ("x keyboard warning: XSetLocaleModifiers failed.\n");
+      TRACE(PREFIX_W "XSetLocaleModifiers failed.\n");
    }
 */
    xim = XOpenIM (_xwin.display, NULL, NULL, NULL);
    if (xim == NULL) {
-      TRACE("x keyboard warning: XOpenIM failed.\n");
+      TRACE(PREFIX_W "XOpenIM failed.\n");
    }
 
    if (xim) {
       imvalret = XGetIMValues (xim, XNQueryInputStyle, &xim_styles, NULL);
       if (imvalret != NULL || xim_styles == NULL) {
-	 TRACE("x keyboard warning: Input method doesn't support any styles.\n");
+	 TRACE(PREFIX_W "Input method doesn't support any styles.\n");
       }
 
       if (xim_styles) {
@@ -728,7 +722,7 @@ static int x_keyboard_init(void)
 	 }
 
 	 if (xim_style == 0) {
-	    TRACE ("x keyboard warning: Input method doesn't support the style we support.\n");
+	    TRACE (PREFIX_W "Input method doesn't support the style we support.\n");
 	 }
 	 XFree (xim_styles);
       }
@@ -742,7 +736,7 @@ static int x_keyboard_init(void)
 		       NULL);
 
       if (xic == NULL) {
-	 TRACE ("x keyboard warning: XCreateIC failed.\n");
+	 TRACE (PREFIX_W "XCreateIC failed.\n");
       }
    }
 #endif
@@ -980,7 +974,11 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers)
        && ((mycode == AL_KEY_DELETE) || (mycode == AL_KEY_END))
        && (modifiers & AL_KEYMOD_CTRL)
        && (modifiers & (AL_KEYMOD_ALT | AL_KEYMOD_ALTGR)))
+   {
+      TRACE(PREFIX_W "Three finger combo detected. SIGTERMing "
+	    "pid %d\n", main_pid);
       kill(main_pid, SIGTERM);
+   }
 }
 
 

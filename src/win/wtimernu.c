@@ -30,6 +30,10 @@
    #include <process.h>
 #endif
 
+#define PREFIX_I                "al-wtimer INFO: "
+#define PREFIX_W                "al-wtimer WARNING: "
+#define PREFIX_E                "al-wtimer ERROR: "
+
 
 /* readability typedefs */
 typedef long msecs_t;
@@ -189,7 +193,7 @@ static void tim_win32_low_perf_thread(_AL_THREAD *self, void *unused)
 static bool tim_win32_high_perf_init(void)
 {
    if (!QueryPerformanceFrequency(&counter_freq)) {
-      TRACE("High performance timer not supported\n");
+      _TRACE(PREFIX_W "High performance timer not supported\n");
       return false;
    }
 

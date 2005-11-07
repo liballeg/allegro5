@@ -72,6 +72,10 @@
 #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-wjoy INFO: "
+#define PREFIX_W                "al-wjoy WARNING: "
+#define PREFIX_E                "al-wjoy ERROR: "
+
 
 
 /* arbitrary limit to make life easier; this was the limit in Allegro 4.1.x */
@@ -261,7 +265,7 @@ int _al_win_joystick_dinput_acquire(void)
          hr = IDirectInputDevice2_Acquire(joydx_joystick[i].device);
 
          if (FAILED(hr))
-	    _TRACE("acquire joystick %d failed: %s\n", i, dinput_err_str(hr));
+	    _TRACE(PREFIX_E "acquire joystick %d failed: %s\n", i, dinput_err_str(hr));
       }
    }
 
@@ -591,7 +595,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
                                                  JOYSTICK_WAKER(joydx_num_joysticks));
 
    if (FAILED(hr)) {
-      _TRACE("SetEventNotification failed for joystick %d: %s\n", joydx_num_joysticks, dinput_err_str(hr));
+      _TRACE(PREFIX_E "SetEventNotification failed for joystick %d: %s\n", joydx_num_joysticks, dinput_err_str(hr));
       goto Error;
    }
 
@@ -608,7 +612,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
 
       JOYSTICK_WAKER(joydx_num_joysticks) = CreateWaitableTimer(NULL, FALSE, NULL);
       if (JOYSTICK_WAKER(joydx_num_joysticks) == NULL) {
-         _TRACE("CreateWaitableTimer failed in wjoydxnu.c\n");
+         _TRACE(PREFIX_E "CreateWaitableTimer failed in wjoydxnu.c\n");
          goto Error;
       }
 
@@ -910,11 +914,11 @@ static void update_joystick(AL_JOYSTICK_DIRECTX *joy)
    if (hr != DI_OK && hr != DI_BUFFEROVERFLOW) {
       if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
          /* reacquire device */
-         _TRACE("joystick device not acquired or lost\n");
+         _TRACE(PREFIX_W "joystick device not acquired or lost\n");
          wnd_schedule_proc(_al_win_joystick_dinput_acquire);
       }
       else {
-         _TRACE("unexpected error while polling the joystick\n");
+         _TRACE(PREFIX_E "unexpected error while polling the joystick\n");
       }
       return;
    }

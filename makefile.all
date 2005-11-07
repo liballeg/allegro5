@@ -22,6 +22,7 @@
 #        default:           build library version, docs, and programs.
 #        all:               build all versions and programs.
 #        lib:               build a single library only, no programs.
+#        programs:          build all programs
 #        install:           install single library version.
 #        installall:        install all library versions.
 #        uninstall:         remove Allegro from system directories.
@@ -142,7 +143,7 @@ EXAMPLES = $(basename $(notdir $(ALLEGRO_EXAMPLE_FILES)))
 EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 
 ifdef HTML
-DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile \
+DOCBASEFILES = ahack changes faq mistakes help thanks allegro const abi api packfile \
                readme makedoc datafile grabber dat dat2c dat2s license
 DOCBUILDFILES = bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom
 DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
@@ -150,7 +151,7 @@ DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,$(filter-out changes thanks readme, $(DOCBASEFILES))))
 DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/,$(addsuffix .$(HTML),index $(DOCBASEFILES)))
-DOCS += $(addprefix docs/html/build/,$(addsuffix .html,$(DOCBUILDFILES)))
+DOCS += $(addprefix docs/html/build/,$(addsuffix .$(HTML),$(DOCBUILDFILES)))
 DOCS += CHANGES AUTHORS THANKS readme.txt
 DOCS += docs/scite/allegro.api
 CHMDOCS  = $(addprefix docs/chm/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
@@ -227,7 +228,8 @@ lib: $(LIB_NAME)
 $(LIB_NAME): $(OBJECTS) $(RUNNER)
 	$(MAKE_LIB)
 
-
+programs:
+	$(MAKE) $(PROGRAMS)
 
 # -------- rules for deleting the generated files --------
 

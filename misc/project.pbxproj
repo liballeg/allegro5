@@ -251,6 +251,7 @@
 			buildRules = (
 			);
 			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
 				COPY_PHASE_STRIP = NO;
 				OPTIMIZATION_CFLAGS = "-O0";
 			};

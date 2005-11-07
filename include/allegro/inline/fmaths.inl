@@ -109,34 +109,37 @@ AL_INLINE(fixed, fixsub, (fixed x, fixed y),
  * Results varied with other compilers, optimisation levels, etc.
  * so this is not optimal, though a tenable compromise.
  *
+ * Note that the following implementation are NOT what were benchmarked.
+ * We had forgotten to put in overflow detection in those versions.
+ * If you don't need overflow detection then previous versions in the
+ * CVS tree might be worth looking at.
+ *
  * PS. Don't move the #ifs inside the AL_INLINE; BCC doesn't like it.
  */
 #if (defined ALLEGRO_I386) || (!defined LONG_LONG)
    AL_INLINE(fixed, fixmul, (fixed x, fixed y),
    {
-      fixed sign = (x^y) & 0x80000000;
-      int mask_x = x >> 31;
-      int mask_y = y >> 31;
-      int mask_result = sign >> 31;
-      fixed result;
-
-      x = (x^mask_x) - mask_x;
-      y = (y^mask_y) - mask_y;
-
-      result = ((y >> 8)*(x >> 8) +
-		(((y >> 8)*(x&0xff)) >> 8) +
-		(((x >> 8)*(y&0xff)) >> 8));
-
-      return (result^mask_result) - mask_result;
+      return ftofix(fixtof(x) * fixtof(y));
    })
 #else
    AL_INLINE(fixed, fixmul, (fixed x, fixed y),
    {
       LONG_LONG lx = x;
       LONG_LONG ly = y;
-      LONG_LONG lres = (lx*ly)>>16;
-      int res = lres;
-      return res;
+      LONG_LONG lres = (lx*ly);
+
+      if (lres > 0x7FFFFFFF0000LL) {
+	 *allegro_errno = ERANGE;
+	 return 0x7FFFFFFF;
+      }
+      else if (lres < -0x7FFFFFFF0000LL) {
+	 *allegro_errno = ERANGE;
+	 return 0x80000000;
+      }
+      else {
+	 int res = lres >> 16;
+	 return res;
+      }
    })
 #endif	    /* fixmul() C implementations */
 

@@ -843,10 +843,14 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
 {
    static attrb_state_t default_attrb_state[ATTRB_MAX] = DEFAULT_ATTRB_STATE;
    int ret;
-   char *p;
+   char *p, *backup;
    char tmp[32];
    ASSERT(message);
    ASSERT(path);
+
+   backup = ustrdup(path);
+   if (!backup)
+      return FALSE;
 
    if (width == OLD_FILESEL_WIDTH)
       width = 305;
@@ -918,15 +922,22 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
       fext_p = NULL;
    }
 
-   if ((ret == FS_CANCEL) || (!ugetc(get_filename(path))))
+   if (ret == FS_CANCEL) {
+      ustrcpy(path, backup);
+      free(backup);
       return FALSE;
+   }
 
-   p = get_extension(path);
-   if ((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", tmp)))) {
-      size -= ((long)p - (long)path + ucwidth('.'));
-      if (size >= uwidth_max(U_CURRENT) + ucwidth(0)) {  /* do not end with '.' */
-         p += usetc(p, '.');
-         ustrzcpy(p, size, ext);
+   free(backup);
+
+   if (ugetc(get_filename(path))) {
+      p = get_extension(path);
+      if ((!ugetc(p)) && (ext) && (ugetc(ext)) && (!ustrpbrk(ext, uconvert_ascii(" ,;", tmp)))) {
+         size -= ((long)p - (long)path + ucwidth('.'));
+         if (size >= uwidth_max(U_CURRENT) + ucwidth(0)) {  /* do not end with '.' */
+            p += usetc(p, '.');
+            ustrzcpy(p, size, ext);
+         }
       }
    }
 

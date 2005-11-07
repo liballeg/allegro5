@@ -456,7 +456,7 @@ ALLEGRO_DEMO_SOURCES = \
 	demo/star.c \
 	demo/aster.c \
 	demo/demo.c \
-	demo/display.c \
+	demo/demodisp.c \
 	demo/game.c \
 	demo/title.c
 

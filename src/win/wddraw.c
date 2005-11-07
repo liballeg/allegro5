@@ -18,6 +18,10 @@
 
 #include "wddraw.h"
 
+#define PREFIX_I                "al-wddraw INFO: "
+#define PREFIX_W                "al-wddraw WARNING: "
+#define PREFIX_E                "al-wddraw ERROR: "
+
 
 /* DirectDraw globals */
 LPDIRECTDRAW2 directdraw = NULL;
@@ -67,7 +71,7 @@ int init_directx(void)
    ddcaps.dwSize = sizeof(ddcaps);
    hr = IDirectDraw2_GetCaps(directdraw, &ddcaps, NULL);
    if (FAILED(hr)) {
-      _TRACE("Can't get driver caps\n");
+      _TRACE(PREFIX_E "Can't get driver caps\n");
       return -1;
    }
 
@@ -84,7 +88,7 @@ int gfx_directx_create_primary(void)
    /* create primary surface */
    gfx_directx_primary_surface = gfx_directx_create_surface(0, 0, NULL, DDRAW_SURFACE_PRIMARY);
    if (!gfx_directx_primary_surface) {
-      _TRACE("Can't create primary surface.\n");
+      _TRACE(PREFIX_E "Can't create primary surface.\n");
       return -1;
    }
 
@@ -102,13 +106,13 @@ int gfx_directx_create_clipper(HWND hwnd)
 
    hr = IDirectDraw2_CreateClipper(directdraw, 0, &ddclipper, NULL);
    if (FAILED(hr)) {
-      _TRACE("Can't create clipper (%x)\n", hr);
+      _TRACE(PREFIX_E "Can't create clipper (%x)\n", hr);
       return -1;
    }
 
    hr = IDirectDrawClipper_SetHWnd(ddclipper, 0, hwnd);
    if (FAILED(hr)) {
-      _TRACE("Can't set clipper window (%x)\n", hr);
+      _TRACE(PREFIX_E "Can't set clipper window (%x)\n", hr);
       return -1;
    }
 
@@ -132,13 +136,13 @@ int gfx_directx_create_palette(DDRAW_SURFACE *surf)
 
    hr = IDirectDraw2_CreatePalette(directdraw, DDPCAPS_8BIT | DDPCAPS_ALLOW256, palette_entry, &ddpalette, NULL);
    if (FAILED(hr)) {
-      _TRACE("Can't create palette (%x)\n", hr);
+      _TRACE(PREFIX_E "Can't create palette (%x)\n", hr);
       return -1;
    }
 
    hr = IDirectDrawSurface2_SetPalette(surf->id, ddpalette);
      if (FAILED(hr)) {
-      _TRACE("Can't set palette (%x)\n", hr);
+      _TRACE(PREFIX_E "Can't set palette (%x)\n", hr);
       return -1;
    }
 

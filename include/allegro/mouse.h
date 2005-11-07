@@ -44,8 +44,8 @@ typedef struct MOUSE_DRIVER
    AL_METHOD(void, set_speed, (int xspeed, int yspeed));
    AL_METHOD(void, get_mickeys, (int *mickeyx, int *mickeyy));
    AL_METHOD(int,  analyse_data, (AL_CONST char *buffer, int size));
-   AL_METHOD(void, enable_hardware_cursor, (AL_CONST int mode));
-   AL_METHOD(int,  select_system_cursor, (AL_CONST int cursor));
+   AL_METHOD(void, enable_hardware_cursor, (int mode));
+   AL_METHOD(int,  select_system_cursor, (int cursor));
 } MOUSE_DRIVER;
 
 

@@ -34,8 +34,7 @@ static void osx_enable_hardware_cursor(AL_CONST int mode);
 static int osx_select_system_cursor(AL_CONST int cursor);
 
 
-MOUSE_DRIVER mouse_macosx =
-{
+MOUSE_DRIVER mouse_macosx = {
    MOUSE_MACOSX,
    empty_string,
    empty_string,
@@ -81,7 +80,7 @@ static char driver_desc[256];
 /* osx_mouse_handler:
  *  Mouse "interrupt" handler for mickey-mode driver.
  */
-void osx_mouse_handler(int x, int y, int z, int buttons)
+void osx_mouse_handler(int ax, int ay, int x, int y, int z, int buttons)
 {
    if (!_mouse_on)
       mymickey_x = mymickey_y = 0;
@@ -91,7 +90,7 @@ void osx_mouse_handler(int x, int y, int z, int buttons)
 
    if (osx_cursor != current_cursor) {
       if (osx_window) {
-         NSView* vw=[osx_window contentView];
+         NSView* vw = [osx_window contentView];
          [osx_window invalidateCursorRectsForView: vw];
       }
       else {
@@ -109,15 +108,12 @@ void osx_mouse_handler(int x, int y, int z, int buttons)
    
    mymickey_x += x;
    mymickey_y += y;
-   _mouse_x += x;
-   _mouse_y += y;
+   _mouse_x = ax;
+   _mouse_y = ay;
    _mouse_z += z;
    
-   if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx)
-       || (_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {
-      _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-      _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
-   }
+   _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
+   _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
 
    _handle_mouse_input();
 }
@@ -129,10 +125,11 @@ void osx_mouse_handler(int x, int y, int z, int buttons)
  */
 static int osx_mouse_init(void)
 {
-   HID_DEVICE *device;
-   int i, j, num_devices;
+   HID_DEVICE_COLLECTION devices={0,0,NULL};
+   int i, j;
    int buttons, max_buttons = -1;
-
+   HID_DEVICE* device;
+   
    if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_1) {
       /* On 10.1.x mice and keyboards aren't available from the HID Manager,
        * so we can't autodetect. We assume an 1-button mouse to always be
@@ -141,26 +138,27 @@ static int osx_mouse_init(void)
       max_buttons = 1;
    }
    else {
-      device = osx_hid_scan(HID_MOUSE, &num_devices);
-      for (i = 0; i < num_devices; i++) {
+      osx_hid_scan(HID_MOUSE, &devices);
+      for (i = 0; i < devices.count; i++) {
+         device=&devices.devices[i];
          buttons = 0;
-         for (j = 0; j < device[i].num_elements; j++) {
-            if (device[i].element[j].type == HID_ELEMENT_BUTTON)
+         for (j = 0; j < device->num_elements; j++) {
+            if (device->element[j].type == HID_ELEMENT_BUTTON)
 	       buttons++;
          }
          if (buttons > max_buttons) {
             max_buttons = buttons;
 	    _al_sane_strncpy(driver_desc, "", sizeof(driver_desc));
-            if (device[i].manufacturer) {
-	       strncat(driver_desc, device[i].manufacturer, sizeof(driver_desc)-1);
+            if (device->manufacturer) {
+	       strncat(driver_desc, device->manufacturer, sizeof(driver_desc)-1);
 	       strncat(driver_desc, " ", sizeof(driver_desc)-1);
 	    }
-	    if (device[i].product)
-	       strncat(driver_desc, device[i].product, sizeof(driver_desc)-1);
+	    if (device->product)
+	       strncat(driver_desc, device->product, sizeof(driver_desc)-1);
 	    mouse_macosx.desc = driver_desc;
 	 }
       }
-      osx_hid_free(device, num_devices);
+      osx_hid_free(&devices);
    }
    
    _unix_lock_mutex(osx_event_mutex);
@@ -331,19 +329,19 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
    }
    
    cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: &cursor_data
-      pixelsWide: sprite->w
-      pixelsHigh: sprite->h
-      bitsPerSample: 8
-      samplesPerPixel: 4
-      hasAlpha: YES
-      isPlanar: NO
-      colorSpaceName: NSDeviceRGBColorSpace
-      bytesPerRow: sprite->w * 4
-      bitsPerPixel: 32];
+                                          pixelsWide: sprite->w
+                                          pixelsHigh: sprite->h
+                                          bitsPerSample: 8
+                                          samplesPerPixel: 4
+                                          hasAlpha: YES
+                                          isPlanar: NO
+                                          colorSpaceName: NSDeviceRGBColorSpace
+                                          bytesPerRow: sprite->w * 4
+                                          bitsPerPixel: 32];
    cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(sprite->w, sprite->h)];
    [cursor_image addRepresentation: cursor_rep];
    cursor = [[NSCursor alloc] initWithImage: cursor_image
-      hotSpot: NSMakePoint(x, y)];
+                              hotSpot: NSMakePoint(x, y)];
    _unix_lock_mutex(osx_event_mutex);
    osx_cursor = requested_cursor = cursor;
    _unix_unlock_mutex(osx_event_mutex);
@@ -415,17 +413,24 @@ void osx_enable_hardware_cursor(AL_CONST int mode)
 static int osx_select_system_cursor(AL_CONST int cursor)
 {
    switch (cursor) {
-      case MOUSE_CURSOR_ARROW:
-         requested_cursor = [NSCursor arrowCursor];
-         break;
-      case MOUSE_CURSOR_EDIT:
-         requested_cursor = [NSCursor IBeamCursor];
-         break;
-      default:
-         return 0;
+   case MOUSE_CURSOR_ARROW:
+      requested_cursor = [NSCursor arrowCursor];
+      break;
+   case MOUSE_CURSOR_EDIT:
+      requested_cursor = [NSCursor IBeamCursor];
+      break;
+   default:
+      return 0;
    }
    _unix_lock_mutex(osx_event_mutex);
    osx_cursor = requested_cursor;
    _unix_unlock_mutex(osx_event_mutex);
    return cursor;
 }
+
+
+
+/* Local variables:       */
+/* c-basic-offset: 3      */
+/* indent-tabs-mode: nil  */
+/* End:                   */

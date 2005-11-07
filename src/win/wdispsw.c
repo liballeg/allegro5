@@ -25,6 +25,10 @@
    #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-wdispsw INFO: "
+#define PREFIX_W                "al-wdispsw WARNING: "
+#define PREFIX_E                "al-wdispsw ERROR: "
+
 
 int _win_app_foreground = TRUE;
 
@@ -105,7 +109,7 @@ void _win_switch_in(void)
 {
    int mode;
 
-   _TRACE("switch in\n");
+   _TRACE(PREFIX_I "switch in\n");
 
    _win_app_foreground = TRUE;
 
@@ -120,7 +124,7 @@ void _win_switch_in(void)
    mode = get_display_switch_mode();
 
    if ((mode == SWITCH_AMNESIA) || (mode == SWITCH_PAUSE)) {
-      _TRACE("AMNESIA or PAUSE mode recovery\n");
+      _TRACE(PREFIX_I "AMNESIA or PAUSE mode recovery\n");
       SetEvent(foreground_event);
 
       /* restore old priority and wake up */
@@ -139,7 +143,7 @@ void _win_switch_out(void)
 {
    int mode;
 
-   _TRACE("switch out\n");
+   _TRACE(PREFIX_I "switch out\n");
 
    _win_app_foreground = FALSE;
 
@@ -156,7 +160,7 @@ void _win_switch_out(void)
    mode = get_display_switch_mode();
 
    if ((mode == SWITCH_AMNESIA) || (mode == SWITCH_PAUSE)) {
-      _TRACE("AMNESIA or PAUSE mode suspension\n");
+      _TRACE(PREFIX_I "AMNESIA or PAUSE mode suspension\n");
       ResetEvent(foreground_event);
 
       /* if the thread doesn't stop, lower its priority only if another window is active */ 

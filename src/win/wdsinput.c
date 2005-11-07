@@ -43,6 +43,10 @@
 #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-dsinput INFO: "
+#define PREFIX_W                "al-dsinput WARNING: "
+#define PREFIX_E                "al-dsinput ERROR: "
+
 
 /* sound driver globals */
 static LPDIRECTSOUNDCAPTURE ds_capture = NULL;
@@ -209,7 +213,7 @@ static int get_capture_format_support(int bits, int stereo, int rate,
    dsCaps.dwSize = sizeof(DSCCAPS);
    hr = IDirectSoundCapture_GetCaps(ds_capture, &dsCaps);
    if (FAILED(hr)) {
-      _TRACE("Can't get input device caps (%s).\n", ds_err(hr));
+      _TRACE(PREFIX_E "Can't get input device caps (%s).\n", ds_err(hr));
       return -1;
    }
 
@@ -250,7 +254,7 @@ static int get_capture_format_support(int bits, int stereo, int rate,
    if (!wfx)
       free(test_wfx);
 
-   _TRACE("No valid recording formats found.\n");
+   _TRACE(PREFIX_W "No valid recording formats found.\n");
    return -1;
 }
 
@@ -277,7 +281,7 @@ int digi_directsound_capture_init(LPGUID guid)
    hr = CoCreateInstance(&CLSID_DirectSoundCapture, NULL, CLSCTX_INPROC_SERVER,
                          &IID_IDirectSoundCapture, &temp);
    if (FAILED(hr)) {
-      _TRACE("Can't create DirectSoundCapture interface (%s).\n", ds_err(hr));
+      _TRACE(PREFIX_E "Can't create DirectSoundCapture interface (%s).\n", ds_err(hr));
       goto Error;
    }
 
@@ -289,7 +293,7 @@ int digi_directsound_capture_init(LPGUID guid)
    if (FAILED(hr)) {
       hr = IDirectSoundCapture_Initialize(ds_capture, NULL);
       if (FAILED(hr)) {
-         _TRACE("Can't initialize DirectSoundCapture interface (%s).\n", ds_err(hr));
+         _TRACE(PREFIX_E "Can't initialize DirectSoundCapture interface (%s).\n", ds_err(hr));
          goto Error;
       }
    }
@@ -298,13 +302,13 @@ int digi_directsound_capture_init(LPGUID guid)
    dsCaps.dwSize = sizeof(DSCCAPS);
    hr = IDirectSoundCapture_GetCaps(ds_capture, &dsCaps);
    if (FAILED(hr)) {
-      _TRACE("Can't get input device caps (%s).\n", ds_err(hr));
+      _TRACE(PREFIX_E "Can't get input device caps (%s).\n", ds_err(hr));
       goto Error;
    }
 
    /* cool little 'autodetection' process :) */
    if (get_capture_format_support(0, FALSE, 0, TRUE, &wfx) != 0) {
-      _TRACE("The DirectSound hardware doesn't support any capture types.\n");
+      _TRACE(PREFIX_E "The DirectSound hardware doesn't support any capture types.\n");
       goto Error;
    }
 
@@ -359,7 +363,7 @@ int digi_directsound_capture_detect(LPGUID guid)
                             &IID_IDirectSoundCapture, &temp);
 
       if (FAILED(hr)) {
-         _TRACE("DirectSoundCapture interface creation failed during detect (%s).\n", ds_err(hr));
+         _TRACE(PREFIX_E "DirectSoundCapture interface creation failed during detect (%s).\n", ds_err(hr));
          return 0;
       }
 
@@ -371,12 +375,12 @@ int digi_directsound_capture_detect(LPGUID guid)
       if (FAILED(hr)) {
          hr = IDirectSoundCapture_Initialize(ds_capture, NULL);
          if (FAILED(hr)) {
-            _TRACE("DirectSoundCapture interface initialization failed during detect (%s).\n", ds_err(hr));
+            _TRACE(PREFIX_E "DirectSoundCapture interface initialization failed during detect (%s).\n", ds_err(hr));
             return 0;
          }
       }
 
-      _TRACE("DirectSoundCapture interface successfully created.\n");
+      _TRACE(PREFIX_I "DirectSoundCapture interface successfully created.\n");
 
       /* release DirectSoundCapture interface */
       IDirectSoundCapture_Release(ds_capture);
@@ -470,7 +474,7 @@ int digi_directsound_rec_start(int rate, int bits, int stereo)
 
    hr = IDirectSoundCapture_CreateCaptureBuffer(ds_capture, &dscBufDesc, &ds_capture_buf, NULL);
    if (FAILED(hr)) {
-      _TRACE("Can't create the DirectSound capture buffer (%s).\n", ds_err(hr));
+      _TRACE(PREFIX_E "Can't create the DirectSound capture buffer (%s).\n", ds_err(hr));
       return 0;
    }
 
@@ -479,7 +483,7 @@ int digi_directsound_rec_start(int rate, int bits, int stereo)
       IDirectSoundCaptureBuffer_Release(ds_capture_buf);
       ds_capture_buf = NULL;
 
-      _TRACE("Can't start the DirectSound capture buffer (%s).\n", ds_err(hr));
+      _TRACE(PREFIX_E "Can't start the DirectSound capture buffer (%s).\n", ds_err(hr));
       return 0;
    }
 

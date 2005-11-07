@@ -1266,11 +1266,11 @@ int update_dialog(DIALOG_PLAYER *player)
       /* let object deal with the key */
       if (player->focus_obj >= 0) {
 	 MESSAGE(player->focus_obj, MSG_CHAR, ccombo);
-	 if (player->res & D_USED_CHAR)
+	 if (player->res & (D_USED_CHAR | D_CLOSE))
 	    goto getout;
 
 	 MESSAGE(player->focus_obj, MSG_UCHAR, cascii);
-	 if (player->res & D_USED_CHAR)
+	 if (player->res & (D_USED_CHAR | D_CLOSE))
 	    goto getout;
       }
 

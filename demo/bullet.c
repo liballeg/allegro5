@@ -1,6 +1,6 @@
 #include "bullet.h"
 #include "data.h"
-#include "display.h"
+#include "demodisp.h"
 #include "dirty.h"
 #include "aster.h"
 #include "game.h"

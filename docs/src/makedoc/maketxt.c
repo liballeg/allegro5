@@ -37,7 +37,7 @@ int write_txt(char *filename, int partial)
    FILE *f;
    int outputting = !partial;
 
-   printf("writing %s\n", filename);
+   /*printf("writing %s\n", filename);*/
 
    f = fopen(filename, "w");
    if (!f)

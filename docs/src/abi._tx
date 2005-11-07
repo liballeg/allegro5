@@ -43,7 +43,12 @@ Introduction
 <li>MacOS X on PowerPC
 </ul>
 
-   XXX: something about backwards vs forwards compatibility
+   We will not be maintaining "forwards compatibility", meaning that
+   programs compiled with a newer release of Allegro may not necessarily
+   run on a target system which has an older release of Allegro installed.
+   You would have to upgrade the Allegro DLL on the target system.  While
+   we will try to minimise these kinds of forced upgrades, it should give
+   us more flexibility within the stable series.
 
 
 

@@ -1,7 +1,7 @@
 #include "aster.h"
 #include "expl.h"
 #include "data.h"
-#include "display.h"
+#include "demodisp.h"
 #include "dirty.h"
 #include "game.h"
 

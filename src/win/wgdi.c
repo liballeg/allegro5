@@ -27,6 +27,10 @@
 #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-wgdi INFO: "
+#define PREFIX_W                "al-wgdi WARNING: "
+#define PREFIX_E                "al-wgdi ERROR: "
+
 
 /* function from asmlock.s */ 
 extern void gfx_gdi_write_bank(void);
@@ -341,7 +345,7 @@ static void gdi_enter_sysmode(void)
    if (mouse_on) {
       mouse_was_on = TRUE;
       gfx_gdi_hide_mouse();
-      _TRACE("mouse pointer off\n");
+      _TRACE(PREFIX_I "mouse pointer off\n");
    }
 }
 
@@ -354,7 +358,7 @@ static void gdi_exit_sysmode(void)
    if (mouse_was_on) {
       mouse_on = TRUE;
       mouse_was_on = FALSE;
-      _TRACE("mouse pointer on\n");
+      _TRACE(PREFIX_I "mouse pointer on\n");
    }
 }
 
@@ -461,7 +465,7 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    gfx_gdi.h = h;
 
    if (adjust_window(w, h) != 0) {
-      _TRACE("window size not supported.\n");
+      _TRACE(PREFIX_E "window size not supported.\n");
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto Error;
    }

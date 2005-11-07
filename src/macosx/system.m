@@ -156,34 +156,40 @@ void osx_event_handler()
    NSRect frame, view;
    CGMouseDelta fdx, fdy;
    int dx = 0, dy = 0, dz = 0;
+   int mx=_mouse_x;
+   int my=_mouse_y;
    static int buttons = 0;
    int old_buttons = buttons;
+   int event_type;
+   BOOL gotmouseevent = NO;
    
-   while (1) {
-      event = [NSApp nextEventMatchingMask: NSAnyEventMask
+   while ((event = [NSApp nextEventMatchingMask: NSAnyEventMask
          untilDate: distant_past
          inMode: NSDefaultRunLoopMode
-         dequeue: YES];
-      if (event == nil)
-         break;
-      
+         dequeue: YES]) != nil)
+     {
       if ((skip_events_processing) || (osx_gfx_mode == OSX_GFX_NONE)) {
          [NSApp sendEvent: event];
 	 continue;
       }
-
-      if (osx_window) {
-         point = [event locationInWindow];
-         frame = [[osx_window contentView] frame];
-         view = NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h);
-      }
       
-      switch ([event type]) {
+      view = NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h);
+      point = [event locationInWindow];
+      if (osx_window) 
+      {
+	 frame = [[osx_window contentView] frame];
+      }
+      else
+      {
+	 frame = [[NSScreen mainScreen] frame];
+      }
+      event_type = [event type];
+      switch (event_type) {
 	 
          case NSKeyDown:
 	    if (_keyboard_installed)
 	       osx_keyboard_handler(TRUE, event);
-	    if (([[event charactersIgnoringModifiers] lossyCString][0] == 'q') && ([event modifierFlags] & NSCommandKeyMask))
+	    if (([[event charactersIgnoringModifiers] characterAtIndex: 0] == 'q') && ([event modifierFlags] & NSCommandKeyMask)) 
 	       [NSApp sendEvent: event];
 	    break;
 	
@@ -204,10 +210,9 @@ void osx_event_handler()
 	       /* App is regaining focus */
 	       if (_mouse_installed) {
 	          if ((osx_window) && (NSPointInRect(point, view))) {
-                     _mouse_x = point.x;
-	             _mouse_y = frame.size.height - point.y;
-		     _mouse_b = 0;
-	             _handle_mouse_input();
+                     mx = point.x;
+	             my = frame.size.height - point.y;
+		     buttons = 0;
                      _mouse_on = TRUE;
 	          }
 	       }
@@ -216,6 +221,7 @@ void osx_event_handler()
 	       if (_keyboard_installed)
 	          osx_keyboard_focused(TRUE, 0);
 	       _switch_in();
+	       gotmouseevent = YES;
 	       [NSApp sendEvent: event];
 	       break;
 	    }
@@ -224,7 +230,7 @@ void osx_event_handler()
          case NSOtherMouseUp:
          case NSRightMouseUp:
 	    if (osx_emulate_mouse_buttons) {
-	       if ([event type] == NSLeftMouseDown) {
+	       if (event_type == NSLeftMouseDown) {
                   if ((!osx_window) || (NSPointInRect(point, view))) {
 		     buttons = 0x1;
 		     if (key[KEY_ALT])
@@ -233,20 +239,21 @@ void osx_event_handler()
 		        buttons = 0x2;
 		  }
 	       }
-	       else if ([event type] == NSLeftMouseUp)
+	       else if (event_type == NSLeftMouseUp)
 	          buttons &= ~0x7;
 	    }
 	    else {
 	       if ((!osx_window) || (NSPointInRect(point, view))) {
 	          /* Deliver mouse downs only if cursor is on the window */
-	          buttons |= (([event type] == NSLeftMouseDown) ? 0x1 : 0);
-	          buttons |= (([event type] == NSRightMouseDown) ? 0x2 : 0);
-	          buttons |= (([event type] == NSOtherMouseDown) ? 0x4 : 0);
+	          buttons |= ((event_type == NSLeftMouseDown) ? 0x1 : 0);
+	          buttons |= ((event_type == NSRightMouseDown) ? 0x2 : 0);
+	          buttons |= ((event_type == NSOtherMouseDown) ? 0x4 : 0);
 	       }
-	       buttons &= ~(([event type] == NSLeftMouseUp) ? 0x1 : 0);
-	       buttons &= ~(([event type] == NSRightMouseUp) ? 0x2 : 0);
-	       buttons &= ~(([event type] == NSOtherMouseUp) ? 0x4 : 0);
+	       buttons &= ~((event_type == NSLeftMouseUp) ? 0x1 : 0);
+	       buttons &= ~((event_type == NSRightMouseUp) ? 0x2 : 0);
+	       buttons &= ~((event_type == NSOtherMouseUp) ? 0x4 : 0);
 	    }
+	    gotmouseevent = YES;
 	    [NSApp sendEvent: event];
 	    break;
 	    
@@ -256,22 +263,27 @@ void osx_event_handler()
          case NSMouseMoved:
 	    dx += [event deltaX];
 	    dy += [event deltaY];
+
+	    mx=point.x;
+	    my=frame.size.height-point.y;
+
 	    [NSApp sendEvent: event];
+	    gotmouseevent = YES;
 	    break;
             
          case NSScrollWheel:
 	    dz += [event deltaY];
+	    gotmouseevent = YES;
             break;
 	    
 	 case NSMouseEntered:
 	    if (([event trackingNumber] == osx_mouse_tracking_rect) && ([NSApp isActive])) {
 	       if (_mouse_installed) {
-                  _mouse_x = point.x;
-	          _mouse_y = frame.size.height - point.y;
-		  _mouse_b = 0;
+		  mx = point.x;
+	          my = frame.size.height - point.y;
+		  buttons = 0;
                   _mouse_on = TRUE;
-	          _handle_mouse_input();
-		  osx_mouse_warped = TRUE;
+		  gotmouseevent = YES;
 	       }
 	    }
 	    [NSApp sendEvent: event];
@@ -281,7 +293,7 @@ void osx_event_handler()
 	    if ([event trackingNumber] == osx_mouse_tracking_rect) {
 	       if (_mouse_installed) {
 	          _mouse_on = FALSE;
-                  _handle_mouse_input();
+		  gotmouseevent = YES;
 	       }
 	    }
             [NSApp sendEvent: event];
@@ -289,7 +301,6 @@ void osx_event_handler()
             
 	 case NSAppKitDefined:
             switch ([event subtype]) {
-                  
                case NSApplicationActivatedEventType:
 	          if (osx_window) {
 		     [osx_window invalidateCursorRectsForView: [osx_window contentView]];
@@ -328,8 +339,8 @@ void osx_event_handler()
 	    break;
       }
    }
-   if (dx || dy || dz || (old_buttons ^ buttons))
-      osx_mouse_handler(dx, dy, dz, buttons);
+   if (gotmouseevent == YES)
+      osx_mouse_handler(mx, my, dx, dy, dz, buttons);
    [pool release];
 }
 
@@ -372,6 +383,7 @@ int osx_bootstrap_ok(void)
    cfport = CFMachPortCreate(NULL, NULL, NULL, NULL);
    task_get_bootstrap_port(mach_task_self(), &bp);
    ret = bootstrap_register(bp, "bootstrap-ok-test", CFMachPortGetPort(cfport));
+   CFRelease(cfport);
    _ok = (ret == KERN_SUCCESS) ? 1 : 0;
    return _ok;
 }

@@ -1,6 +1,6 @@
 #include "star.h"
 #include "dirty.h"
-#include "display.h"
+#include "demodisp.h"
 
 /* for the starfield */
 #define MAX_STARS       128

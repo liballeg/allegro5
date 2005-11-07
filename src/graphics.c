@@ -23,6 +23,12 @@
 
 
 
+#define PREFIX_I                "al-gfx INFO: "
+#define PREFIX_W                "al-gfx WARNING: "
+#define PREFIX_E                "al-gfx ERROR: "
+
+
+
 int _sub_bitmap_id_count = 1;          /* hash value for sub-bitmaps */
 
 int _gfx_mode_set_count = 0;           /* has the graphics mode changed? */

@@ -31,6 +31,10 @@
    #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-wmouse INFO: "
+#define PREFIX_W                "al-wmouse WARNING: "
+#define PREFIX_E                "al-wmouse ERROR: "
+
 
 static MOUSE_DRIVER mouse_directx;
 
@@ -50,7 +54,7 @@ static void mouse_directx_set_range(int x1, int y1, int x2, int y2);
 static void mouse_directx_set_speed(int xspeed, int yspeed);
 static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy);
 static void mouse_directx_enable_hardware_cursor(int mode);
-static int mouse_directx_select_system_cursor(AL_CONST int cursor);
+static int mouse_directx_select_system_cursor(int cursor);
 
 static MOUSE_DRIVER mouse_directx =
 {
@@ -324,11 +328,11 @@ static void mouse_dinput_handle(void)
    /* was device lost ? */
    if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
       /* reacquire device */
-      _TRACE("mouse device not acquired or lost\n");
+      _TRACE(PREFIX_W "mouse device not acquired or lost\n");
       wnd_schedule_proc(mouse_dinput_acquire);
    }
    else if (FAILED(hr)) {  /* other error? */
-      _TRACE("unexpected error while filling mouse message buffer\n");
+      _TRACE(PREFIX_E "unexpected error while filling mouse message buffer\n");
    }
    else {
       /* normally only this case should happen */
@@ -401,7 +405,7 @@ int mouse_dinput_acquire(void)
       hr = IDirectInputDevice_Acquire(mouse_dinput_device);
 
       if (FAILED(hr)) {
-	 _TRACE("acquire mouse failed: %s\n", dinput_err_str(hr));
+	 _TRACE(PREFIX_E "acquire mouse failed: %s\n", dinput_err_str(hr));
 	 return -1;
       }
 
@@ -453,17 +457,17 @@ int mouse_dinput_grab(void)
 
       if (gfx_driver && !gfx_driver->windowed) {
          level = DISCL_FOREGROUND | DISCL_EXCLUSIVE;
-         _TRACE("foreground exclusive cooperative level requested for mouse\n");
+         _TRACE(PREFIX_I "foreground exclusive cooperative level requested for mouse\n");
       }
       else {
          level = DISCL_FOREGROUND | DISCL_NONEXCLUSIVE;
-         _TRACE("foreground non-exclusive cooperative level requested for mouse\n");
+         _TRACE(PREFIX_I "foreground non-exclusive cooperative level requested for mouse\n");
       }
 
       /* set cooperative level */
       hr = IDirectInputDevice_SetCooperativeLevel(mouse_dinput_device, allegro_wnd, level);
       if (FAILED(hr)) {
-         _TRACE("set cooperative level failed: %s\n", dinput_err_str(hr));
+         _TRACE(PREFIX_E "set cooperative level failed: %s\n", dinput_err_str(hr));
          return -1;
       }
 
@@ -668,12 +672,12 @@ static int mouse_directx_init(void)
 
    if (mouse_dinput_init() != 0) {
       /* something has gone wrong */
-      _TRACE("mouse handler init failed\n");
+      _TRACE(PREFIX_E "mouse handler init failed\n");
       return -1;
    }
 
    /* the mouse handler has successfully set up */
-   _TRACE("mouse handler starts\n");
+   _TRACE(PREFIX_I "mouse handler starts\n");
    return dinput_buttons;
 }
 
@@ -685,7 +689,7 @@ static void mouse_directx_exit(void)
 {
    if (mouse_dinput_device) {
       /* command mouse handler shutdown */
-      _TRACE("mouse handler exits\n");
+      _TRACE(PREFIX_I "mouse handler exits\n");
       mouse_dinput_exit();
    }
 }
@@ -796,7 +800,7 @@ static void mouse_directx_enable_hardware_cursor(int mode)
 /* mouse_directx_select_system_cursor:
  *  Select an OS native cursor 
  */
-static int mouse_directx_select_system_cursor (AL_CONST int cursor)
+static int mouse_directx_select_system_cursor (int cursor)
 {
    HCURSOR wc;
    HWND allegro_wnd = win_get_window();

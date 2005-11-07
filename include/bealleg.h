@@ -43,10 +43,8 @@
 
 #ifdef DEBUGMODE
 # define AL_ASSERT(condition)  { if (!(condition)) al_assert(__FILE__, __LINE__); }
-# define AL_TRACE al_trace
 #else
 # define AL_ASSERT(condition)
-# define AL_TRACE 1 ? (void) 0 : al_trace
 #endif
 
 #ifndef SCAN_DEPEND

@@ -45,6 +45,10 @@
 #error something is wrong with the makefile
 #endif
 
+#define PREFIX_I                "al-dsndmix INFO: "
+#define PREFIX_W                "al-dsndmix WARNING: "
+#define PREFIX_E                "al-dsndmix ERROR: "
+
 
 static int digi_dsoundmix_detect(int input);
 static int digi_dsoundmix_init(int input, int voices);
@@ -267,8 +271,8 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
    /* create buffer */
    hr = IDirectSound_CreateSoundBuffer(directsound, &dsbdesc, &snd_buf, NULL);
    if (FAILED(hr)) {
-      _TRACE("create_directsound_buffer() failed (%s).\n", ds_err(hr));
-      _TRACE(" - %d Hz, %s, %d bits\n", freq, stereo ? "stereo" : "mono", bits);
+      _TRACE(PREFIX_E "create_directsound_buffer() failed (%s).\n", ds_err(hr));
+      _TRACE(PREFIX_E " - %d Hz, %s, %d bits\n", freq, stereo ? "stereo" : "mono", bits);
       return NULL;
    }
 
@@ -437,11 +441,11 @@ static int digi_dsoundmix_detect(int input)
       /* initialize DirectSound interface */
       hr = DirectSoundCreate(driver_guids[id], &directsound, NULL);
       if (FAILED(hr)) {
-         _TRACE("DirectSound interface creation failed during detect (%s)\n", ds_err(hr));
+         _TRACE(PREFIX_E "DirectSound interface creation failed during detect (%s)\n", ds_err(hr));
          return 0;
       }
 
-      _TRACE("DirectSound interface successfully created\n");
+      _TRACE(PREFIX_I "DirectSound interface successfully created\n");
 
       /* release DirectSound */
       IDirectSound_Release(directsound);
@@ -478,22 +482,22 @@ static int digi_dsoundmix_init(int input, int voices)
    /* initialize DirectSound interface */
    hr = DirectSoundCreate(driver_guids[id], &directsound, NULL);
    if (FAILED(hr)) { 
-      _TRACE("Can't create DirectSound interface (%s)\n", ds_err(hr)); 
+      _TRACE(PREFIX_E "Can't create DirectSound interface (%s)\n", ds_err(hr));
       goto Error; 
    }
 
    /* set cooperative level */
    hr = IDirectSound_SetCooperativeLevel(directsound, allegro_wnd, DSSCL_PRIORITY);
    if (FAILED(hr))
-      _TRACE("Can't set DirectSound cooperative level (%s)\n", ds_err(hr));
+      _TRACE(PREFIX_W "Can't set DirectSound cooperative level (%s)\n", ds_err(hr));
    else
-      _TRACE("DirectSound cooperation level set to DSSCL_PRIORITY\n");
+      _TRACE(PREFIX_I "DirectSound cooperation level set to DSSCL_PRIORITY\n");
 
    /* get hardware capabilities */
    dscaps.dwSize = sizeof(DSCAPS);
    hr = IDirectSound_GetCaps(directsound, &dscaps);
    if (FAILED(hr)) { 
-      _TRACE("Can't get DirectSound caps (%s)\n", ds_err(hr)); 
+      _TRACE(PREFIX_E "Can't get DirectSound caps (%s)\n", ds_err(hr));
       goto Error; 
    }
 
@@ -518,7 +522,7 @@ static int digi_dsoundmix_init(int input, int voices)
    else
       _freq = dscaps.dwMaxSecondarySampleRate;
 
-   _TRACE("DirectSound caps: %u bits, %s, %uHz\n", _bits, _stereo ? "stereo" : "mono", _freq);
+   _TRACE(PREFIX_I "DirectSound caps: %u bits, %s, %uHz\n", _bits, _stereo ? "stereo" : "mono", _freq);
 
    memset(&desc, 0, sizeof(DSBUFFERDESC));
    desc.dwSize = sizeof(DSBUFFERDESC);
@@ -526,12 +530,12 @@ static int digi_dsoundmix_init(int input, int voices)
 
    hr = IDirectSound_CreateSoundBuffer(directsound, &desc, &prim_buf, NULL);
    if (FAILED(hr))
-      _TRACE("Can't create primary buffer (%s)\nGlobal volume control won't be available\n", ds_err(hr)); 
+      _TRACE(PREFIX_W "Can't create primary buffer (%s)\nGlobal volume control won't be available\n", ds_err(hr));
 
    if (prim_buf) {
       hr = IDirectSoundBuffer_GetFormat(prim_buf, &format, sizeof(format), NULL);
       if (FAILED(hr)) {
-         _TRACE("Can't get primary buffer format (%s)\n", ds_err(hr));
+         _TRACE(PREFIX_W "Can't get primary buffer format (%s)\n", ds_err(hr));
       }
       else {
          format.nChannels = (_stereo ? 2 : 1);
@@ -542,15 +546,15 @@ static int digi_dsoundmix_init(int input, int voices)
 
          hr = IDirectSoundBuffer_SetFormat(prim_buf, &format);
          if (FAILED(hr))
-            _TRACE("Can't set primary buffer format (%s)\n", ds_err(hr));
+            _TRACE(PREFIX_W "Can't set primary buffer format (%s)\n", ds_err(hr));
 
          hr = IDirectSoundBuffer_GetFormat(prim_buf, &format, sizeof(format), NULL);
          if (FAILED(hr)) {
-            _TRACE("Can't get primary buffer format (%s)\n", ds_err(hr));
+            _TRACE(PREFIX_W "Can't get primary buffer format (%s)\n", ds_err(hr));
          }
          else {
-            _TRACE("primary format:\n");
-            _TRACE("  %u channels\n  %u Hz\n  %u AvgBytesPerSec\n  %u BlockAlign\n  %u bits\n  %u size\n",
+            _TRACE(PREFIX_I "primary format:\n");
+            _TRACE(PREFIX_I "  %u channels\n  %u Hz\n  %u AvgBytesPerSec\n  %u BlockAlign\n  %u bits\n  %u size\n",
                    format.nChannels, format.nSamplesPerSec, format.nAvgBytesPerSec,
                    format.nBlockAlign, format.wBitsPerSample, format.cbSize);
          }
@@ -570,7 +574,7 @@ static int digi_dsoundmix_init(int input, int voices)
                                                    6) * 1024,
                                     _freq, _bits, _stereo, 255);
    if(!alleg_buf) {
-      _TRACE("Can't create mixing buffer\n");
+      _TRACE(PREFIX_E "Can't create mixing buffer\n");
       return -1;
    }
 
@@ -579,7 +583,7 @@ static int digi_dsoundmix_init(int input, int voices)
                                 &lpvPtr2, &dwBytes2, DSBLOCK_ENTIREBUFFER);
 
    if (FAILED(hr)) {
-      _TRACE("Can't lock sound buffer (%s)\n", ds_err(hr));
+      _TRACE(PREFIX_E "Can't lock sound buffer (%s)\n", ds_err(hr));
       return -1;
    }
 
@@ -587,18 +591,18 @@ static int digi_dsoundmix_init(int input, int voices)
    digidsbufsize = dwBytes1;
 
    if (lpvPtr2) {
-      _TRACE("Second buffer set when locking buffer. Error?\n");
+      _TRACE(PREFIX_E "Second buffer set when locking buffer. Error?\n");
       memset(lpvPtr2, 0, dwBytes2);
       digidsbufsize += dwBytes2;
    }
 
    IDirectSoundBuffer_Unlock(alleg_buf, lpvPtr1, dwBytes1, lpvPtr2, dwBytes2); 
 
-   _TRACE("Sound buffer length is %u\n", digidsbufsize);
+   _TRACE(PREFIX_I "Sound buffer length is %u\n", digidsbufsize);
 
    /* shouldn't ever happen */
    if (digidsbufsize&1023) {
-      _TRACE("Sound buffer is not multiple of 1024, failed\n");
+      _TRACE(PREFIX_E "Sound buffer is not multiple of 1024, failed\n");
       return -1;
    }
 
@@ -607,21 +611,21 @@ static int digi_dsoundmix_init(int input, int voices)
 #endif
    digidsbufdata = malloc(digidsbufsize);
    if (!digidsbufdata) {
-      _TRACE("Can't create temp buffer\n");
+      _TRACE(PREFIX_E "Can't create temp buffer\n");
       return -1;
    }
 
 #if USE_NEW_CODE
    if (_mixer_init(digidsbufsize / (_bits /8), _freq, _stereo,
                    ((_bits == 16) ? 1 : 0), &digi_driver->voices) != 0) {
-      _TRACE("Can't init software mixer\n");
+      _TRACE(PREFIX_E "Can't init software mixer\n");
       return -1;
    }
 #else
    bufdivs = digidsbufsize/1024;
    if (_mixer_init((digidsbufsize / (_bits /8)) / bufdivs, _freq,
                    _stereo, ((_bits == 16) ? 1 : 0), &digi_driver->voices) != 0) {
-      _TRACE("Can't init software mixer\n");
+      _TRACE(PREFIX_E "Can't init software mixer\n");
       return -1;
    }
 
@@ -642,7 +646,7 @@ static int digi_dsoundmix_init(int input, int voices)
    return 0;
 
  Error:
-   _TRACE("digi_directsound_init() failed\n");
+   _TRACE(PREFIX_E "digi_directsound_init() failed\n");
    digi_dsoundmix_exit(0);
    return -1;
 }

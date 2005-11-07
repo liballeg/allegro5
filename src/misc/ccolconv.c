@@ -50,30 +50,18 @@ void _colorconv_blit_8_to_8(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT
    for (y = src_rect->height; y; y--) {
       for (x = width >> 2; x; x--) {
          src_data = *(unsigned int *)src;
-#ifdef ALLEGRO_LITTLE_ENDIAN
 	 dest_data = _colorconv_rgb_map[src_data & 0xff];
 	 dest_data |= (_colorconv_rgb_map[(src_data >> 8) & 0xff] << 8);
 	 dest_data |= (_colorconv_rgb_map[(src_data >> 16) & 0xff] << 16);
 	 dest_data |= (_colorconv_rgb_map[src_data >> 24] << 24);
-#else
-	 dest_data = _colorconv_rgb_map[(src_data >> 24) & 0xff];
-	 dest_data |= (_colorconv_rgb_map[(src_data >> 16) & 0xff] << 8);
-	 dest_data |= (_colorconv_rgb_map[(src_data >> 8) & 0xff] << 16);
-	 dest_data |= (_colorconv_rgb_map[src_data & 0xff] << 24);
-#endif
 	 *(unsigned int *)dest = dest_data;
 	 src += 4;
 	 dest += 4;
       }
       if (width & 0x2) {
          src_data = *(unsigned short *)src;
-#ifdef ALLEGRO_LITTLE_ENDIAN
 	 dest_data = _colorconv_rgb_map[src_data & 0xff];
 	 dest_data |= (_colorconv_rgb_map[src_data >> 8] << 8);
-#else
-	 dest_data = _colorconv_rgb_map[src_data & 0xff] << 8;
-	 dest_data |= _colorconv_rgb_map[src_data >> 8];
-#endif
 	 *(unsigned short *)dest = (unsigned short)dest_data;
 	 src += 2;
 	 dest += 2;

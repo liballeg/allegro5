@@ -339,7 +339,7 @@ ifdef STATICLINK
 # -------- link as a static library --------
 
 define MAKE_LIB
-   $(AR) rs $(LIB_NAME) $(OBJECTS)
+   $(AR) crs $(LIB_NAME) $(OBJECTS)
 endef
 
 COMPILE_FLAGS = -DALLEGRO_STATICLINK 
@@ -495,7 +495,7 @@ else
 endif
 
 define MAKE_PLUGIN_LIB
-   $(AR) rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
+   $(AR) crs $(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS

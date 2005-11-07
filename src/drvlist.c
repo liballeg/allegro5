@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
 
 
 

@@ -31,6 +31,10 @@
 #define BE_DRAWING_THREAD_PRIORITY  B_REAL_TIME_DISPLAY_PRIORITY
 
 
+#define PREFIX_I                "al-bdwin INFO: "
+#define PREFIX_W                "al-bdwin WARNING: "
+#define PREFIX_E                "al-bdwin ERROR: "
+
 static char driver_desc[256] = EMPTY_STRING;
 static rgb_color palette_colors[256];
 static unsigned char *cmap = NULL;
@@ -256,7 +260,8 @@ void BeAllegroDirectWindow::DirectConnected(direct_buffer_info *info)
 	             cmap[i] = BScreen().IndexForColor(((i >> 4) & 0xF0) | (i >> 8),  (i & 0xF0) | ((i >> 4) & 0xF),  (i & 0xF) | ((i & 0xF) << 4));
 	       }
 	    }
-	    AL_TRACE("Color conversion mode set: %d->%d\n", (int)screen_depth, (int)display_depth);
+	    TRACE(PREFIX_I "Color conversion mode set: %d->%d\n",
+		  (int)screen_depth, (int)display_depth);
 	 }
 	 			       
 	 if (rects) {

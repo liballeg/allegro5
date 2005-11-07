@@ -22,6 +22,10 @@
 
 #include "wddraw.h"
 
+#define PREFIX_I                "al-wddbmp INFO: "
+#define PREFIX_W                "al-wddbmp WARNING: "
+#define PREFIX_E                "al-wddbmp ERROR: "
+
 
 /* The video bitmap allocation scheme works as follows:
  *  - the screen is allocated as a single DirectDraw surface (primary or overlay,
@@ -180,7 +184,7 @@ static LPDIRECTDRAWSURFACE2 create_directdraw2_surface(int w, int h, LPDDPIXELFO
 
       case DDRAW_SURFACE_PRIMARY:
          ddsurf_desc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-         _TRACE("Creating primary surface...");
+         _TRACE(PREFIX_I "Creating primary surface...");
          break;
 
       case DDRAW_SURFACE_OVERLAY:
@@ -194,7 +198,7 @@ static LPDIRECTDRAWSURFACE2 create_directdraw2_surface(int w, int h, LPDDPIXELFO
             ddsurf_desc.ddpfPixelFormat = *pixel_format;
          }
 
-         _TRACE("Creating overlay surface...");
+         _TRACE(PREFIX_I "Creating overlay surface...");
          break;
 
       case DDRAW_SURFACE_VIDEO:
@@ -202,7 +206,7 @@ static LPDIRECTDRAWSURFACE2 create_directdraw2_surface(int w, int h, LPDDPIXELFO
          ddsurf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
          ddsurf_desc.dwHeight = h;
          ddsurf_desc.dwWidth = w;
-         _TRACE("Creating video surface...");
+         _TRACE(PREFIX_I "Creating video surface...");
          break;
 
       case DDRAW_SURFACE_SYSTEM:
@@ -216,11 +220,11 @@ static LPDIRECTDRAWSURFACE2 create_directdraw2_surface(int w, int h, LPDDPIXELFO
             ddsurf_desc.ddpfPixelFormat = *pixel_format;
          }
 
-         _TRACE("Creating system surface...");
+         _TRACE(PREFIX_I "Creating system surface...");
          break;
 
       default:
-         _TRACE("Unknown surface type\n");
+         _TRACE(PREFIX_E "Unknown surface type\n");
          return NULL;
    }
 
@@ -235,7 +239,7 @@ static LPDIRECTDRAWSURFACE2 create_directdraw2_surface(int w, int h, LPDDPIXELFO
    /* create the surface */
    hr = IDirectDraw2_CreateSurface(directdraw, &ddsurf_desc, &ddsurf1, NULL);
    if (FAILED(hr)) {
-      _TRACE("Unable to create the surface (%s)\n", dd_err(hr));
+      _TRACE(PREFIX_E "Unable to create the surface (%s)\n", dd_err(hr));
       return NULL;
    }
 
@@ -250,7 +254,7 @@ static LPDIRECTDRAWSURFACE2 create_directdraw2_surface(int w, int h, LPDDPIXELFO
       IDirectDrawSurface_Release(ddsurf1);
 
    if (FAILED(hr)) {
-      _TRACE("Unable to retrieve the DirectDrawSurface2 interface (%s)\n", dd_err(hr));
+      _TRACE(PREFIX_E "Unable to retrieve the DirectDrawSurface2 interface (%s)\n", dd_err(hr));
       return NULL;
    }
 
@@ -367,7 +371,7 @@ static int recreate_flipping_chain(int n_pages)
    if (flipping_page[0]->id) {
       hr = IDirectDrawSurface2_Release(flipping_page[0]->id);
       if (FAILED(hr)) {
-         _TRACE("Unable to release the primary surface (%s)", dd_err(hr));
+         _TRACE(PREFIX_E "Unable to release the primary surface (%s)", dd_err(hr));
          return -1;
       }
    }
@@ -385,7 +389,7 @@ static int recreate_flipping_chain(int n_pages)
       ddscaps.dwCaps = DDSCAPS_BACKBUFFER;
       hr = IDirectDrawSurface2_GetAttachedSurface(flipping_page[0]->id, &ddscaps, &flipping_page[1]->id);
       if (FAILED(hr)) {
-         _TRACE("Unable to retrieve the first backbuffer (%s)", dd_err(hr));
+         _TRACE(PREFIX_E "Unable to retrieve the first backbuffer (%s)", dd_err(hr));
          return -1;
       }
 
@@ -397,7 +401,7 @@ static int recreate_flipping_chain(int n_pages)
          ddscaps.dwCaps = DDSCAPS_FLIP;
          hr = IDirectDrawSurface2_GetAttachedSurface(flipping_page[1]->id, &ddscaps, &flipping_page[2]->id);
          if (FAILED(hr)) {
-            _TRACE("Unable to retrieve the second backbuffer (%s)", dd_err(hr));
+            _TRACE(PREFIX_E "Unable to retrieve the second backbuffer (%s)", dd_err(hr));
             return -1;
          }
 
@@ -410,7 +414,7 @@ static int recreate_flipping_chain(int n_pages)
    if (flipping_page[0]->flags & DDRAW_SURFACE_INDEXED) {
       hr = IDirectDrawSurface2_SetPalette(flipping_page[0]->id, ddpalette);
       if (FAILED(hr)) {
-         _TRACE("Unable to attach the global palette (%s)", dd_err(hr));
+         _TRACE(PREFIX_E "Unable to attach the global palette (%s)", dd_err(hr));
          return -1;
       }
    }
@@ -556,7 +560,7 @@ static int flip_with_forefront_bitmap(BITMAP *bmp, int wait)
    }
 
    if (FAILED(hr)) {
-      _TRACE("Can't flip (%s)\n", dd_err(hr));
+      _TRACE(PREFIX_E "Can't flip (%s)\n", dd_err(hr));
       return -1;
    }
 

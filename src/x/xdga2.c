@@ -1111,8 +1111,8 @@ static void _xaccel_masked_blit(BITMAP *source, BITMAP *dest, int source_x, int 
 void _module_init(int system_driver)
 {
    if (system_driver != SYSTEM_XWINDOWS) return;
-   _unix_register_gfx_driver(GFX_XDGA2_SOFT, &gfx_xdga2_soft, TRUE, TRUE);
-   _unix_register_gfx_driver(GFX_XDGA2,      &gfx_xdga2,      TRUE, TRUE);
+   _unix_register_gfx_driver(GFX_XDGA2_SOFT, &gfx_xdga2_soft, FALSE, FALSE);
+   _unix_register_gfx_driver(GFX_XDGA2,      &gfx_xdga2,      FALSE, FALSE);
 }
 
 #endif

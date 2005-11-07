@@ -18,6 +18,10 @@
 
 #include "wddraw.h"
 
+#define PREFIX_I                "al-wddlock INFO: "
+#define PREFIX_W                "al-wddlock WARNING: "
+#define PREFIX_E                "al-wddlock ERROR: "
+
 
 void (*ptr_gfx_directx_autolock) (BITMAP* bmp) = gfx_directx_autolock;
 void (*ptr_gfx_directx_unlock) (BITMAP* bmp) = gfx_directx_unlock;
@@ -108,7 +112,7 @@ void gfx_directx_lock(BITMAP *bmp)
 	 }
 
 	 if (FAILED(hr)) {
-	    _TRACE("Can't lock surface (%x)\n", hr);
+	    _TRACE(PREFIX_E "Can't lock surface (%x)\n", hr);
 
 	    /* lock failed, use pseudo surface memory */
 	    surf->flags |= DDRAW_SURFACE_LOST;
@@ -226,7 +230,7 @@ void gfx_directx_unlock(BITMAP *bmp)
 	       }
 
 	       if (FAILED(hr))
-	          _TRACE("Can't unlock surface (%x)\n", hr);
+	          _TRACE(PREFIX_E "Can't unlock surface (%x)\n", hr);
             }
 
             bmp->id &= ~BMP_ID_LOCKED;
@@ -274,7 +278,7 @@ void gfx_directx_release_lock(BITMAP *bmp)
 	 }
 
 	 if (FAILED(hr))
-	    _TRACE("Can't release lock (%x)\n", hr);
+	    _TRACE(PREFIX_E "Can't release lock (%x)\n", hr);
       }
 
       bmp->id &= ~BMP_ID_LOCKED;

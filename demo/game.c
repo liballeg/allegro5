@@ -5,7 +5,7 @@
 #include "star.h"
 #include "aster.h"
 #include "dirty.h"
-#include "display.h"
+#include "demodisp.h"
 
 #define BULLET_DELAY   20
 
