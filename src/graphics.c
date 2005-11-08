@@ -626,7 +626,7 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
    char tmp1[64], tmp2[64];
    AL_CONST char *dv;
    int flags = 0;
-   int c, driver, ret;
+   int c;
    ASSERT(system_driver);
    ASSERT(card != GFX_SAFE);
 
@@ -872,7 +872,6 @@ static int _set_gfx_mode_safe(int card, int w, int h, int v_w, int v_h)
 {
    char buf[ALLEGRO_ERROR_SIZE], tmp1[64];
    struct GFX_MODE mode;
-   static int allow_config = TRUE;
    int ret, driver;
 
    ASSERT(card == GFX_SAFE);
