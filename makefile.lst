@@ -461,7 +461,6 @@ ALLEGRO_DEMO_SOURCES = \
 	demo/title.c
 
 ALLEGRO_LIB_EXE_SOURCES = \
-	demo/demo.c \
 	tests/afinfo.c \
 	tests/akaitest.c \
 	tests/digitest.c \
@@ -487,7 +486,6 @@ ALLEGRO_LIB_X_EXE_SOURCES = \
 	tools/x11/xf2pcx.c
 
 ALLEGRO_LIB_EXES = \
-	demo/demo \
 	tests/afinfo \
 	tests/akaitest \
 	tests/digitest \
