@@ -632,7 +632,7 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
 
    /* remember the current console state */
    if (gfx_virgin) {
-      TRACE(PREFIX_I "Firt call, remembering console state.\n");
+      TRACE(PREFIX_I "First call, remembering console state.\n");
       LOCK_FUNCTION(_stub_bank_switch);
       LOCK_FUNCTION(blit);
 
@@ -773,7 +773,7 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
 	 }
       }
       else {
-	 TRACE(PREFIX_I "GFX_AUTODETECT overriden through configuration:"
+	 TRACE(PREFIX_I "GFX_AUTODETECT overridden through configuration:"
 	       " %s.\n", tmp1);
       }
    }
