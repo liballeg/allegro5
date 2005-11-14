@@ -21,8 +21,9 @@
 
 /* TODO:
  * [ ] Remove axis range from the config file ?
- * [ ] Speed
- * [ ] Mickeys
+ * Tablet mouse has parkinson
+ * Tablet mouse speed is pretty high (but scaled correctly)
+ * Position mouse doesn't work with tablet mouse
  */
 
 
@@ -116,7 +117,7 @@ typedef struct AXIS {
    int out_min;     /* For absolute mode */
    int out_max;     /* For absolute mode */
 
-   int speed;       /* For set_mouse_speed */
+   float speed;     /* For set_mouse_speed */
    int mickeys;     /* For get_mouse_mickeys */
 
    int in_abs;      /* Current absolute position */
@@ -139,21 +140,11 @@ static int in_to_screen(AL_CONST AXIS *axis, int v)
 
 
 /* screen_to_in:
- *  maps a screen position to an input one
+ *  maps a screen position to an input absolute one
  */
 static int screen_to_in(AL_CONST AXIS *axis, int v)
 {
    return (((v-axis->out_min) * IN_RANGE(*axis)) / OUT_RANGE(*axis)) + axis->in_min;
-}
-
-
-
-/* in_to_rel:
- *  scale an input position
- */
-static int in_to_rel(AL_CONST AXIS *axis, int v)
-{
-   return v / axis->speed;
 }
 
 
@@ -167,7 +158,7 @@ static void set_value(AXIS *axis, int out_abs)
       axis->in_abs = screen_to_in(axis, out_abs);
    }
    else {
-      axis->in_abs += (axis->out_abs-out_abs) * axis->speed;
+      axis->in_abs += (int)((axis->out_abs-out_abs)/axis->speed);
    }
    axis->out_abs = out_abs;
    axis->mickeys = 0;
@@ -182,9 +173,8 @@ static void set_value(AXIS *axis, int out_abs)
 static int rel_event(AXIS *axis, int v)
 {
    /* When input only send relative events, the mode is always relative */
-   int rel = in_to_rel(axis, v);
-   int ret = axis->out_abs + rel;
-   axis->mickeys += rel;
+   int ret = axis->out_abs + v*axis->speed;
+   axis->mickeys += v;
    axis->in_abs += v;
    return ret;
 }
@@ -629,21 +619,22 @@ static void mouse_set_range(int x1, int y1, int x2, int y2)
 
 
 /* mouse_set_speed:
+ *   Number of mickeys to cross the screen horizontally: speed * 320.
  */
 static void mouse_set_speed(int speedx, int speedy)
 {
-   int scale = 4;
+   float scale = 1;
 
    if (gfx_driver)
-      scale = (4*gfx_driver->w)/320;
+      scale = gfx_driver->w/320;
 
    DISABLE();
 
-   x_axis.speed = MAX(1, (scale * MAX(1, speedx))/2);
-   y_axis.speed = MAX(1, (scale * MAX(1, speedy))/2);
+   x_axis.speed = scale / MAX(1, speedx);
+   y_axis.speed = scale / MAX(1, speedy);
 
-   set_value(&x_axis, _mouse_x);
-   set_value(&y_axis, _mouse_y);
+   set_value(&x_axis, x_axis.out_abs);
+   set_value(&y_axis, y_axis.out_abs);
 
    ENABLE();
 }
@@ -660,8 +651,8 @@ static void mouse_get_mickeys(int *mickeyx, int *mickeyy)
    x_axis.mickeys -= mx;
    y_axis.mickeys -= my;
 
-   *mickeyx = in_to_rel(&x_axis, mx);
-   *mickeyy = in_to_rel(&y_axis, my);
+   *mickeyx = mx;
+   *mickeyy = my;
 }
 
 
