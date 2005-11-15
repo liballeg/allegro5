@@ -117,6 +117,65 @@ static int update_timings(struct fb_var_screeninfo *mode);
 
 
 
+static void set_ramp_cmap(int color_depth)
+{
+   struct fb_cmap cmap;
+   unsigned short r[256], g[256], b[256]; /* 1.5 KB on the stack */
+   unsigned int c;
+   int rlen, glen, blen;
+   
+   /* initialize what is common */
+   cmap.start = 0;
+   cmap.red = r;
+   cmap.green = g;
+   cmap.blue = b;
+   cmap.transp = NULL;
+
+   switch (color_depth) {
+      case 8:
+         /* nothing to do, 8 bit modes have the right palette from the start */
+         cmap.len = rlen = glen = blen = 0;
+         break;
+      case 16:
+         cmap.len = glen = 64;
+         rlen = blen = 32;
+         break;
+      case 15:
+         cmap.len = rlen = glen = blen = 32;
+         break;
+      case 24:
+      case 32:
+         cmap.len = rlen = glen = blen = 256;
+         break;
+      default:
+         ASSERT(0);
+         cmap.len = rlen = glen = blen = 0;
+         break;
+   }
+
+   /* the easy case */
+   if (cmap.len == 0)
+      return;
+
+   /* build the colormap */
+   for (c=0; c<cmap.len; ++c) {
+      cmap.red[c] = c*65535/(rlen-1);
+      cmap.green[c] = c*65535/(glen-1);
+      cmap.blue[c] = c*65535/(blen-1);
+   }
+
+   /* wait a little to set colors once the frame is drawn */
+   fb_vsync();
+
+   /* ioctl to the FB driver with our colormap */
+   if (ioctl(fbfd, FBIOPUTCMAP, &cmap)) {
+      /* well, we can continue with potentially screwed up colors, I guess */
+      ASSERT(0);
+   }
+}
+
+
+
 /* fb_init:
  *  Sets a graphics mode.
  */
@@ -192,6 +251,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 
       my_mode.bits_per_pixel = color_depth;
       my_mode.grayscale = 0;
+      my_mode.activate = FB_ACTIVATE_NOW;
       my_mode.xoffset = 0;
       my_mode.yoffset = 0;
 
@@ -410,6 +470,12 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
       memset(fbaddr, 0, gfx_fbcon.vid_mem);
 
    fb_save_cmap();    /* Maybe we should fill in our default palette too... */
+
+   /* for directcolor modes, set up a ramp colormap, so colors are mapped
+      onto themselves, so to speak */
+   if (fix_info.visual == FB_VISUAL_DIRECTCOLOR)
+      set_ramp_cmap(color_depth);
+ 
    TRACE(PREFIX_I "Got a bitmap %dx%dx%d\n", b->w, b->h, bitmap_color_depth(b));
    return b;
 }
