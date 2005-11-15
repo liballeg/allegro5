@@ -271,6 +271,14 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 
    got_a_nice_mode:
 
+   /* get the fb_fix_screeninfo again, as it may have changed */
+   if (ioctl(fbfd, FBIOGET_FSCREENINFO, &fix_info) != 0) {
+      ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
+      close(fbfd);
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Framebuffer ioctl() failed"));
+      return NULL;
+   }
+
    /* map the framebuffer */
    fbaddr = mmap(NULL, fix_info.smem_len, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
    if (fbaddr == MAP_FAILED) {
