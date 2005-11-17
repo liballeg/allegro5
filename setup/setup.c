@@ -1338,7 +1338,7 @@ static void mouse_proc(int type)
 static void get_mouse_drivers(_DRIVER_INFO **list, int *list_size);
 
 /* Number of devices tested. */
-#define NUM_FD 4
+#define NUM_FD 6
 
 /* Some devices can't be read one byte at a time. */
 #define PACKET_SIZE 16
@@ -1367,7 +1367,14 @@ static void reset_for_select(int *fd, fd_set *readfds, struct timeval *timeout)
 static int detect_mouse(void)
 {
    int fd[NUM_FD];
-   char *devices[NUM_FD] = {"/dev/mouse", "dev/input/mice", "/dev/input/mouse", "/dev/input/mouse0"};
+   char *devices[NUM_FD] = {
+      "/dev/mouse",
+      "/dev/input/mice", /* Collects all the evdev mice, PS/2-style */
+      "/dev/input/event0",
+      "/dev/input/event1",
+      "/dev/input/event2",
+      "/dev/input/event3"
+   };
    fd_set readfds;
    struct timeval timeout;
    int n, i;

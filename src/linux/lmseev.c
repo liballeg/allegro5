@@ -41,6 +41,10 @@
 #include <sys/ioctl.h>
 #include <linux/input.h>
 
+#define PREFIX_I                "al-evdev INFO: "
+#define PREFIX_W                "al-evdev WARNING: "
+#define PREFIX_E                "al-evdev ERROR: "
+
 
 
 /*
@@ -209,6 +213,38 @@ static void get_axis_value(int fd, AXIS *axis, int type)
   if (ret>=0) {
     axis->in_abs = abs[0];
   }
+}
+
+
+
+/* has_event:
+ *  returns true if the device generates the event
+ */
+static int has_event(int fd, unsigned short type, unsigned short code)
+{
+   const unsigned int len = sizeof(unsigned long)*8;
+   const unsigned int max = MAX(EV_MAX, MAX(KEY_MAX, MAX(REL_MAX, MAX(ABS_MAX, MAX(LED_MAX, MAX(SND_MAX, FF_MAX))))));
+   unsigned long bits[(max+len-1)/len];
+   if (ioctl(fd, EVIOCGBIT(type, max), bits)) {
+     return (bits[code/len] >> (code%len)) & 1;
+   }
+   return 0;
+}
+
+
+
+/* get_num_buttons:
+ *  return the number of buttons
+ */
+static int get_num_buttons(int fd)
+{
+   if (has_event(fd, EV_KEY, BTN_MIDDLE))
+      return 3;
+   if (has_event(fd, EV_KEY, BTN_RIGHT))
+      return 2;
+   if (has_event(fd, EV_KEY, BTN_MOUSE))
+      return 1;
+   return 0; /* Not a mouse */
 }
 
 
@@ -534,6 +570,7 @@ static int mouse_init (void)
 
    /* Open mouse device.  Devices are cool. */
    if (udevice) {
+      TRACE(PREFIX_I "Trying %s device\n", udevice);
       intdrv.device = open (uconvert_toascii (udevice, tmp1), O_RDONLY | O_NONBLOCK);
       if (intdrv.device < 0) {
          uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open %s: %s"),
@@ -542,19 +579,32 @@ static int mouse_init (void)
       }
    }
    else {
-      /* If not specified in the config file, try some common device files
-       * but not /dev/input/event because it may not be a mouse.
-       */
-      const char *device_name[] = { "/dev/input/mice",
-                                    "/dev/input/mouse",
-                                    "/dev/input/mouse0",
+      /* If not specified in the config file, try several /dev/input/event<n>
+       * devices. */
+      const char *device_name[] = { "/dev/input/event0",
+                                    "/dev/input/event1",
+                                    "/dev/input/event2",
+                                    "/dev/input/event3",
                                     NULL };
       int i;
 
+      TRACE(PREFIX_I "Trying /dev/input/event[0-3] devices\n");
+
       for (i=0; device_name[i]; i++) {
          intdrv.device = open (device_name[i], O_RDONLY | O_NONBLOCK);
-         if (intdrv.device >= 0)
-            goto Found;
+         if (intdrv.device >= 0) {
+            TRACE(PREFIX_I "Opened device %s\n", device_name[i]);
+            /* The device is a mouse if it has a BTN_MOUSE */
+            if (has_event(intdrv.device, EV_KEY, BTN_MOUSE)) {
+               TRACE(PREFIX_I "Device %s was a mouse.\n", device_name[i]);
+               goto Found;
+            }
+            else {
+               TRACE(PREFIX_I "Device %s was not mouse, closing.\n",
+                     device_name[i]);
+               close(intdrv.device);
+            }
+         }
       }
 
       uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open a mouse device: %s"),
@@ -563,6 +613,7 @@ static int mouse_init (void)
    }
 
  Found:
+   intdrv.num_buttons = get_num_buttons(intdrv.device);
    /* Init the tablet data */
    init_tablet(intdrv.device);
 
