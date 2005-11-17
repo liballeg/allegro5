@@ -2300,7 +2300,17 @@ ev_max_y = x<br>
 ev_min_z = x<br>
 ev_max_z = x<br>
    Linux only: for absolute EV inputs, minimum and maximum value. By default
-   this information is autodetected.
+   this information is autodetected.  If you want to use only part of a
+   tablet, you need to set the entries for X and Y axis by hand.
+<li>
+ev_abs_to_rel_x = x<br>
+ev_abs_to_rel_y = x<br>
+ev_abs_to_rel_z = x<br>
+   Linux only: scaling factor for tablet mouse speed.  Defaults to 1.
+   This is used only when the input sends absolute events (tablet, joystick,
+   etc.) and the cursor should behave like a mouse.
+   If you are using a mouse on a tablet, you need to set these entries
+   for X and Y axis (try numbers between 1 and 40).
 <li>
 mouse_accel_factor = x<br>
    Windows only: specifies the mouse acceleration factor. Defaults to 1.

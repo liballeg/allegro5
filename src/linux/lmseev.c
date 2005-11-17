@@ -19,13 +19,6 @@
  *      See readme.txt for copyright information.
  */
 
-/* TODO:
- * [ ] Remove axis range from the config file ?
- * Tablet mouse has parkinson
- * Tablet mouse speed is pretty high (but scaled correctly)
- * Position mouse doesn't work with tablet mouse
- */
-
 
 /* linux/input.h also defines KEY_A et al. */
 #define ALLEGRO_NO_KEY_DEFINES
@@ -123,9 +116,12 @@ typedef struct AXIS {
 
    float speed;     /* For set_mouse_speed */
    int mickeys;     /* For get_mouse_mickeys */
+   float scale;     /* Scale factor, because tablet mice generate more movement
+                       than common mice */
 
-   int in_abs;      /* Current absolute position */
-   int out_abs;
+   int in_abs;      /* Current absolute position, used for absolute input,
+                       whether the output is absolute or relative */
+   int out_abs;     /* Position on the screen */
 } AXIS;
 
 
@@ -139,33 +135,6 @@ typedef struct AXIS {
 static int in_to_screen(AL_CONST AXIS *axis, int v)
 {
    return (((v-axis->in_min) * OUT_RANGE(*axis)) / IN_RANGE(*axis)) + axis->out_min;
-}
-
-
-
-/* screen_to_in:
- *  maps a screen position to an input absolute one
- */
-static int screen_to_in(AL_CONST AXIS *axis, int v)
-{
-   return (((v-axis->out_min) * IN_RANGE(*axis)) / OUT_RANGE(*axis)) + axis->in_min;
-}
-
-
-
-/* set_value:
- *  updates fields in an axis, depending on the mouse position on the screen
- */
-static void set_value(AXIS *axis, int out_abs)
-{
-   if (current_tool->mode == MODE_ABSOLUTE) {
-      axis->in_abs = screen_to_in(axis, out_abs);
-   }
-   else {
-      axis->in_abs += (int)((axis->out_abs-out_abs)/axis->speed);
-   }
-   axis->out_abs = out_abs;
-   axis->mickeys = 0;
 }
 
 
@@ -196,8 +165,11 @@ static int abs_event(AXIS *axis, MODE mode, int v)
       axis->in_abs = v;
       return in_to_screen(axis, v);
    }
-   else {
-      return rel_event(axis, v-axis->in_abs);
+   else { /* Input is absolute, but tool is relative */
+      int value = (v-axis->in_abs)*axis->scale;
+      axis->mickeys += value;
+      axis->in_abs = v;
+      return axis->out_abs + value*axis->speed;
    }
 }
 
@@ -278,19 +250,29 @@ static void init_axis(int fd, AXIS *axis, AL_CONST char *name, AL_CONST char *se
    char tmp2[256]; /* format string */
    char tmp3[256]; /* Converted 'name' */
    int abs[5]; /* values given by the input */
+   int config_speed;
 
    uszprintf(tmp1, sizeof(tmp1), uconvert_ascii("ev_min_%s", tmp2), uconvert_ascii(name, tmp3));
    axis->in_min = get_config_int(section, tmp1, 0);
    uszprintf(tmp1, sizeof(tmp1), uconvert_ascii("ev_max_%s", tmp2), uconvert_ascii(name, tmp3));
    axis->in_max = get_config_int(section, tmp1, 0);
+
+   uszprintf(tmp1, sizeof(tmp1), uconvert_ascii("ev_abs_to_rel_%s", tmp2), uconvert_ascii(name, tmp3));
+   config_speed = get_config_int(section, tmp1, 1);
+   if (config_speed<=0) config_speed = 1;
+   axis->scale = 1;
+
    /* Ask the input */
    if (ioctl(fd, EVIOCGABS(type), abs)>=0) {
       if (axis->in_min==0) axis->in_min=abs[1];
       if (axis->in_max==0) axis->in_max=abs[2];
       axis->in_abs = abs[0];
+      axis->scale = 320.0*config_speed/IN_RANGE(*axis);
    }
-   if (axis->in_min>axis->in_max)
+   if (axis->in_min>axis->in_max) {
       axis->in_min = axis->in_max = 0;
+      axis->scale = 1;
+   }
 
    axis->out_min = 0;
    axis->out_max = 0;
@@ -639,8 +621,10 @@ static void mouse_position(int x, int y)
 {
    DISABLE();
 
-   set_value(&x_axis, x);
-   set_value(&y_axis, y);
+   x_axis.out_abs = x;
+   y_axis.out_abs = y;
+   x_axis.mickeys = 0;
+   y_axis.mickeys = 0;
 
    _mouse_x = x;
    _mouse_y = y;
@@ -684,8 +668,8 @@ static void mouse_set_speed(int speedx, int speedy)
    x_axis.speed = scale / MAX(1, speedx);
    y_axis.speed = scale / MAX(1, speedy);
 
-   set_value(&x_axis, x_axis.out_abs);
-   set_value(&y_axis, y_axis.out_abs);
+   x_axis.mickeys = 0;
+   y_axis.mickeys = 0;
 
    ENABLE();
 }
