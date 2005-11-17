@@ -32,6 +32,9 @@ in the subject.
 - DirectInput joystick bug, http://www.allegro.cc/forums/view_thread.php?_id=507375
 - fbcon driver doesn't restore original resolution
 - fbcon driver requires 2 video mode sets to change the resolution, [AD] 2005-11-08 "fbcon directcolor modes patch"
+- disable or embed .manifest files when using MSVC 8,
+  http://www.allegro.cc/forums/view_thread.php?_id=543226&page=2
+- make the evdev driver the default linux mouse driver
 
 General (Platform independent) todos:
 ---------------------------------------------------------------------------
