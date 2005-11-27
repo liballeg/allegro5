@@ -352,7 +352,6 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
    float f, x, y, z;
    int i;
 
-   ASSERT(h >= 0 && h <= 360);
    ASSERT(s >= 0 && s <= 1);
    ASSERT(v >= 0 && v <= 1);
 
