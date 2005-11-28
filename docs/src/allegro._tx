@@ -274,6 +274,8 @@ information about how to install Allegro and link your program with it.
       OSTYPE_WINNT      - Windows NT
       OSTYPE_WIN2000    - Windows 2000
       OSTYPE_WINXP      - Windows XP
+      OSTYPE_WIN2003    - Windows 2003
+      OSTYPE_WINVISTA   - Windows Vista
       OSTYPE_OS2        - OS/2
       OSTYPE_WARP       - OS/2 Warp 3
       OSTYPE_DOSEMU     - Linux DOSEMU

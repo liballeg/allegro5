@@ -142,8 +142,18 @@ static int sys_directx_init(void)
    os_multitasking = TRUE;
 
    if (win_ver < 0x80000000) {
-      if (os_version == 5) {
-         if(os_revision == 1)
+
+      /* Since doesn't exist os_version == 7 or greater yet,
+         these will be detected as Vista instead of NT. */
+      if (os_version >= 6) {
+         os_type = OSTYPE_WINVISTA;
+      }
+      else if (os_version == 5) {
+         /* If in the future a os_revision == 3 or greater comes,
+            it will be detected as Win2003 instead of Win2000. */
+         if (os_revision >= 2)
+	    os_type = OSTYPE_WIN2003;
+         else if (os_revision == 1)
 	    os_type = OSTYPE_WINXP;
 	 else
 	    os_type = OSTYPE_WIN2000;
