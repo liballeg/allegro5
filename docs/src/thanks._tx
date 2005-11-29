@@ -210,8 +210,9 @@ Contributors
    fixed a bunch of warnings in MinGW and did plenty of other things too.
 
    Daniel Verkamp (<email>i_am_drv@users.sourceforge.net</a>).<br>
-   Added a MIDI input driver to the Windows port.
-   
+   Added a MIDI input driver to the Windows port anda dded support for .rmi
+   MIDI files to the MIDI loader.
+
    Dark Nation (email unknown).<br>
    Restored support for old-style encrypted packfiles, which had been removed
    in 4.1.18.
@@ -394,9 +395,6 @@ Contributors
    Pointed out a bug in the mode selector, fixed several double ;'s, fixed 
    ASSERT() in Windows and helped write a documentation section about common
    pitfalls.
-   
-   i_am_drv (email unknown).<br>
-   Added support for .rmi MIDI files to the MIDI loader.
 
    Igor Gnip (<email>gnipi@mindnever.org</a>).<br>
    Removed the requirements for fileutils on DOS/Windows platforms and added
@@ -464,8 +462,8 @@ Contributors
    Spotted a broken link in the docs and updated it.
    
    Jiri Gabriel (email unknown).<br>
-   Fixed loading of multiple ranges in a single bitmap with txt fonts and
-   helped fix an off-by-one mistake for the last glyph in extract_font_range.
+   fixed loading of multiple ranges in a single bitmap with txt fonts and helped
+   fix an off-by-one mistake for the last glyph in extract_font_range.
 
    Joaquin Hierro Diaz (<email>Joaquin.Hierro.Diaz@fresno.csic.es</a>).<br>
    Made the mapping table for Spanish keyboards.
