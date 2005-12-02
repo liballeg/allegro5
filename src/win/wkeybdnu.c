@@ -108,6 +108,40 @@ static char* dinput_err_str(long err)
 
 
 
+/* Update the key_shifts.
+ */
+static void update_modifiers(BYTE *keystate)
+{
+   /* TODO: There must be a more efficient way to maintain key_modifiers? */
+   /* Can't we just deprecate key_shifts, now that pckeys.c is gone? EP */
+   unsigned int modifiers = 0;
+
+   if (keystate[VK_SHIFT] & 0x80)
+      modifiers |= AL_KEYMOD_SHIFT;
+   if (keystate[VK_CONTROL] & 0x80)
+      modifiers |= AL_KEYMOD_CTRL;
+
+   if (keystate[VK_LMENU] & 0x80)
+      modifiers |= AL_KEYMOD_ALT;
+   else if (keystate[VK_RMENU] & 0x80)
+      modifiers |= AL_KEYMOD_ALTGR;
+   else if (keystate[VK_MENU] & 0x80)
+      modifiers |= AL_KEYMOD_ALT;
+
+   if (keystate[VK_SCROLL] & 1)
+      modifiers |= AL_KEYMOD_SCROLLLOCK;
+   if (keystate[VK_NUMLOCK] & 1)
+      modifiers |= AL_KEYMOD_NUMLOCK;
+   if (keystate[VK_CAPITAL] & 1)
+      modifiers |= AL_KEYMOD_CAPSLOCK;
+
+   /* needed for special handling in key_dinput_handle_scancode */
+   key_modifiers = modifiers;
+
+}
+
+
+
 /* lookup table for converting DIK_* scancodes into Allegro AL_KEY_* codes */
 /* this table was from pckeys.c  */
 static const unsigned char hw_to_mycode[256] =
@@ -188,6 +222,12 @@ static const unsigned char hw_to_mycode[256] =
 static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 {
    HWND allegro_wnd = win_get_window();
+   /* Windows seems to send lots of ctrl-alt-XXX key combos in response to the
+    * ctrl-alt-del combo. We want to ignore them all, especially ctrl-alt-end,
+    * which would cause Allegro to terminate.
+    */
+   static int ignore_three_finger_flag = FALSE;
+
    /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc) */
    if (((scancode == DIK_TAB) && (key_modifiers & (AL_KEYMOD_ALT | AL_KEYMOD_ALTGR)))
        || ((scancode == DIK_SPACE) && (key_modifiers & (AL_KEYMOD_ALT | AL_KEYMOD_ALTGR)))
@@ -203,15 +243,22 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 
    /* if not foreground, filter out press codes and handle only release codes */
    if (!wnd_sysmenu || !pressed) {
-
       /* three-finger salute for killing the program */
-      if (((scancode == DIK_END) || (scancode == DIK_NUMPAD1))
-          && (key_modifiers & AL_KEYMOD_CTRL)
-          && ((key_modifiers & AL_KEYMOD_ALT) || (key_modifiers & AL_KEYMOD_ALTGR))
-          && _al_three_finger_flag)
-      {
-         _TRACE(PREFIX_I "Terminating application\n");
-         ExitProcess(0);  /* unsafe */
+      if (_al_three_finger_flag && (key_modifiers & AL_KEYMOD_CTRL) && (key_modifiers & AL_KEYMOD_ALT)) {
+         if (scancode == 0x00) {
+            /* when pressing CTRL-ALT-DEL, Windows launches CTRL-ALT-EVERYTHING */
+            ignore_three_finger_flag = TRUE;
+         }
+         else if (!ignore_three_finger_flag && (scancode == DIK_END || scancode == DIK_NUMPAD1)) {
+            /* we can now safely assume the user hit CTRL-ALT-END as opposed to CTRL-ALT-DEL */
+            _TRACE(PREFIX_I "Terminating Allegro application by CTRL-ALT-END sequence\n");
+            abort();
+         }
+         else if (ignore_three_finger_flag && scancode == 0xff) {
+         /* Windows is finished with CTRL-ALT-EVERYTHING - lets return to normality */
+            ignore_three_finger_flag = FALSE;
+            key_modifiers = 0;
+         }
       }
 
       if (pressed)
@@ -598,67 +645,94 @@ static void wkeybd_get_state(AL_KBDSTATE *ret_state)
 static void handle_key_press(unsigned char scancode)
 {
    int mycode;
-   int ascii;
-   unsigned int modifiers;
+   int unicode;
    bool is_repeat;
    unsigned int event_type;
    AL_EVENT *event;
+   UINT vkey;
+   BYTE keystate[256];
+   WCHAR chars[16];
+   int n;
 
+   vkey = MapVirtualKey(scancode, 1);
+   GetKeyboardState(keystate);
+   update_modifiers(keystate);
+
+   /* TODO: shouldn't we base the mapping on vkey? */
    mycode = hw_to_mycode[scancode];
    if (mycode == 0)
       return;
 
-   /* TODO: clean this up */
+   /* TODO: The below is probably unneeded.. we should not ignore the
+    * numlock state.
+    */
+
+   /* we always want the number characters */
+   keystate[VK_NUMLOCK] |= 1;
+   /* what's life without a few special cases */
+   switch (scancode) {
+      case DIK_NUMPAD0:
+         vkey = VK_NUMPAD0;
+         break;
+      case DIK_NUMPAD1:
+         vkey = VK_NUMPAD1;
+         break;
+      case DIK_NUMPAD2:
+         vkey = VK_NUMPAD2;
+         break;
+      case DIK_NUMPAD3:
+         vkey = VK_NUMPAD3;
+         break;
+      case DIK_NUMPAD4:
+         vkey = VK_NUMPAD4;
+         break;
+      case DIK_NUMPAD5:
+         vkey = VK_NUMPAD5;
+         break;
+      case DIK_NUMPAD6:
+         vkey = VK_NUMPAD6;
+         break;
+      case DIK_NUMPAD7:
+         vkey = VK_NUMPAD7;
+         break;
+      case DIK_NUMPAD8:
+         vkey = VK_NUMPAD8;
+         break;
+      case DIK_NUMPAD9:
+         vkey = VK_NUMPAD9;
+         break;
+      case DIK_DECIMAL:
+         vkey = VK_DECIMAL;
+         break;
+      case DIK_DIVIDE:
+         vkey = VK_DIVIDE;
+         break;
+      case DIK_MULTIPLY:
+         vkey = VK_MULTIPLY;
+         break;
+      case DIK_SUBTRACT:
+         vkey = VK_SUBTRACT;
+         break;
+      case DIK_ADD:
+         vkey = VK_ADD;
+         break;
+      case DIK_NUMPADENTER:
+         vkey = VK_RETURN;
+   }
+
+   /* TODO: is there an advantage using ToUnicode? maybe it would allow
+    * Chinese and so on characters? For now, always ToAscii is used. */
+   //n = ToUnicode(vkey, scancode, keystate, chars, 16, 0);
+   n = ToAscii(vkey, scancode, keystate, (WORD *)chars, 0);
+   if (n == 1)
    {
-      UINT vkey;
-      BYTE keystate[256];
-      BYTE chars[2];
-
-      vkey = MapVirtualKey(scancode, 1);
-      GetKeyboardState(keystate);
-
-      modifiers = 0;
-      if ((keystate[VK_LSHIFT]&0x80) || (keystate[VK_RSHIFT]&0x80)) modifiers |= AL_KEYMOD_SHIFT;
-      if ((keystate[VK_LCONTROL]&0x80) || (keystate[VK_RCONTROL]&0x80)) modifiers |= AL_KEYMOD_CTRL;
-      if (keystate[VK_LMENU]&0x80) modifiers |= AL_KEYMOD_ALT;
-      if (keystate[VK_RMENU]&0x80) modifiers |= AL_KEYMOD_ALTGR;
-      if (keystate[VK_SCROLL]&1) modifiers |= AL_KEYMOD_SCROLLLOCK;
-      if (keystate[VK_NUMLOCK]&1) modifiers |= AL_KEYMOD_NUMLOCK;
-      if (keystate[VK_CAPITAL]&1) modifiers |= AL_KEYMOD_CAPSLOCK;
-
-      /* needed for special handling in key_dinput_handle_scancode */
-      key_modifiers = modifiers;
-
-      /* what's life without a few special cases */
-      if (keystate[VK_NUMLOCK] & 1) {
-         switch (scancode) {
-         case DIK_NUMPAD0: vkey = VK_NUMPAD0; break;
-         case DIK_NUMPAD1: vkey = VK_NUMPAD1; break;
-         case DIK_NUMPAD2: vkey = VK_NUMPAD2; break;
-         case DIK_NUMPAD3: vkey = VK_NUMPAD3; break;
-         case DIK_NUMPAD4: vkey = VK_NUMPAD4; break;
-         case DIK_NUMPAD5: vkey = VK_NUMPAD5; break;
-         case DIK_NUMPAD6: vkey = VK_NUMPAD6; break;
-         case DIK_NUMPAD7: vkey = VK_NUMPAD7; break;
-         case DIK_NUMPAD8: vkey = VK_NUMPAD8; break;
-         case DIK_NUMPAD9: vkey = VK_NUMPAD9; break;
-         case DIK_DECIMAL: vkey = VK_DECIMAL; break;
-         }
-      }
-      /* and a few more */
-      switch (scancode) {
-      case DIK_DIVIDE: vkey = VK_DIVIDE; break;
-      case DIK_MULTIPLY: vkey = VK_MULTIPLY; break;
-      case DIK_SUBTRACT: vkey = VK_SUBTRACT; break;
-      case DIK_ADD: vkey = VK_ADD; break;
-      case DIK_NUMPADENTER: vkey = VK_RETURN; break;
-      }
-
-      /* ascii */
-      if (ToAscii(vkey, scancode, keystate, (WORD *)chars, 0) == 1)
-         ascii = chars[0];
-      else
-         ascii = 0;
+      WCHAR wstr[2];
+      MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCSTR)chars, n, wstr, 2);
+      unicode = wstr[0];
+   }
+   else
+   {
+      unicode = 0;
    }
 
    is_repeat = _AL_KBDSTATE_KEY_DOWN(key_state, mycode);
@@ -679,8 +753,8 @@ static void handle_key_press(unsigned char scancode)
    event->keyboard.timestamp = al_current_time();
    event->keyboard.__display__dont_use_yet__ = NULL;
    event->keyboard.keycode = mycode;
-   event->keyboard.unichar = ascii;
-   event->keyboard.modifiers = modifiers;
+   event->keyboard.unichar = unicode;
+   event->keyboard.modifiers = key_modifiers;
 
    _al_event_source_emit_event(&the_keyboard.es, event);
 
@@ -708,24 +782,9 @@ static void handle_key_release(unsigned char scancode)
    if (mycode == 0)
       return;
 
-   /* TODO: There must be a more efficient way to maintain key_modifiers? */
-   {
-      BYTE keystate[256];
-      unsigned int modifiers;
-
-      GetKeyboardState(keystate);
-
-      modifiers = 0;
-      if ((keystate[VK_LSHIFT]&0x80) || (keystate[VK_RSHIFT]&0x80)) modifiers |= AL_KEYMOD_SHIFT;
-      if ((keystate[VK_LCONTROL]&0x80) || (keystate[VK_RCONTROL]&0x80)) modifiers |= AL_KEYMOD_CTRL;
-      if (keystate[VK_LMENU]&0x80) modifiers |= AL_KEYMOD_ALT;
-      if (keystate[VK_RMENU]&0x80) modifiers |= AL_KEYMOD_ALTGR;
-      if (keystate[VK_SCROLL]&1) modifiers |= AL_KEYMOD_SCROLLLOCK;
-      if (keystate[VK_NUMLOCK]&1) modifiers |= AL_KEYMOD_NUMLOCK;
-      if (keystate[VK_CAPITAL]&1) modifiers |= AL_KEYMOD_CAPSLOCK;
-
-      key_modifiers = modifiers;
-   }
+   BYTE keystate[256];
+   GetKeyboardState(keystate);
+   update_modifiers(keystate);
 
    if (!_AL_KBDSTATE_KEY_DOWN(key_state, mycode))
       return;
