@@ -117,12 +117,17 @@ static int update_timings(struct fb_var_screeninfo *mode);
 
 
 
-static void set_ramp_cmap(int color_depth)
+static void set_ramp_cmap(AL_CONST struct fb_fix_screeninfo *fix,
+                          AL_CONST struct fb_var_screeninfo *var)
 {
    struct fb_cmap cmap;
-   unsigned short r[256], g[256], b[256]; /* 1.5 KB on the stack */
+   static unsigned short r[256], g[256], b[256]; /* 1.5 KB, so in .bss */
+   int rlen, glen, blen, rdiv, gdiv, bdiv;
    unsigned int c;
-   int rlen, glen, blen;
+
+   ASSERT(fix);
+   ASSERT(var);
+   ASSERT(var->visual == FB_VISUAL_DIRECTCOLOR);
    
    /* initialize what is common */
    cmap.start = 0;
@@ -131,37 +136,28 @@ static void set_ramp_cmap(int color_depth)
    cmap.blue = b;
    cmap.transp = NULL;
 
-   switch (color_depth) {
-      case 8:
-         /* nothing to do, 8 bit modes have the right palette from the start */
-         cmap.len = rlen = glen = blen = 0;
-         break;
-      case 16:
-         cmap.len = glen = 64;
-         rlen = blen = 32;
-         break;
-      case 15:
-         cmap.len = rlen = glen = blen = 32;
-         break;
-      case 24:
-      case 32:
-         cmap.len = rlen = glen = blen = 256;
-         break;
-      default:
-         ASSERT(0);
-         cmap.len = rlen = glen = blen = 0;
-         break;
-   }
+   /* from the mode's color depth information */
+   rlen = 1<<var->red.length;
+   glen = 1<<var->green.length;
+   blen = 1<<var->blue.length;
+   cmap.len = MAX(rlen, MAX(glen, blen));
+   ASSERT(cmap.len <= 256);
+   if (cmap.len > 256)
+      cmap.len = 256; /* are there cards with more than 8 bits per color ? */
 
-   /* the easy case */
+   rdiv = rlen<=1 ? 1 : rlen-1;
+   gdiv = glen<=1 ? 1 : glen-1;
+   bdiv = blen<=1 ? 1 : blen-1;
+  
+   /* the easy case (should not happen) */
    if (cmap.len == 0)
       return;
 
    /* build the colormap */
    for (c=0; c<cmap.len; ++c) {
-      cmap.red[c] = c*65535/(rlen-1);
-      cmap.green[c] = c*65535/(glen-1);
-      cmap.blue[c] = c*65535/(blen-1);
+      cmap.red[c] = c*65535/rdiv;
+      cmap.green[c] = c*65535/gdiv;
+      cmap.blue[c] = c*65535/bdiv;
    }
 
    /* wait a little to set colors once the frame is drawn */
@@ -494,7 +490,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    /* for directcolor modes, set up a ramp colormap, so colors are mapped
       onto themselves, so to speak */
    if (fix_info.visual == FB_VISUAL_DIRECTCOLOR)
-      set_ramp_cmap(color_depth);
+      set_ramp_cmap(&fix_info, &my_mode);
 
    calculate_refresh_rate(&my_mode);
  
@@ -585,6 +581,9 @@ static void fb_restore(void)
 
    if (fb_approx)
       memset(fbaddr, 0, gfx_fbcon.vid_mem);
+
+   if (fix_info.visual == FB_VISUAL_DIRECTCOLOR)
+      set_ramp_cmap(&fix_info, &my_mode);
 }
 
 
