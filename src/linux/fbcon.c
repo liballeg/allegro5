@@ -176,6 +176,20 @@ static void set_ramp_cmap(int color_depth)
 
 
 
+static void calculate_refresh_rate(AL_CONST struct fb_var_screeninfo *mode)
+{
+   int h, v, hz;
+
+   ASSERT(mode);
+
+   h = mode->left_margin+mode->xres+mode->left_margin+mode->hsync_len;
+   v = mode->upper_margin+mode->yres+mode->lower_margin+mode->vsync_len;
+   hz = (int)(0.5f+1.0e12f/((float)mode->pixclock*h*v));
+   _set_current_refresh_rate(hz);
+}
+
+
+
 /* fb_init:
  *  Sets a graphics mode.
  */
@@ -481,6 +495,8 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
       onto themselves, so to speak */
    if (fix_info.visual == FB_VISUAL_DIRECTCOLOR)
       set_ramp_cmap(color_depth);
+
+   calculate_refresh_rate(&my_mode);
  
    TRACE(PREFIX_I "Got a bitmap %dx%dx%d\n", b->w, b->h, bitmap_color_depth(b));
    return b;
