@@ -206,7 +206,9 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 
    if (_safe_gfx_mode_change) tries = -1;
    else tries = 0;
-   
+
+   __al_linux_console_graphics();
+
    for (; tries<3; tries++) {
       TRACE(PREFIX_I "...try number %d...\n", tries);
       my_mode = orig_mode;
@@ -324,6 +326,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    }
       
    ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
+   __al_linux_console_text();
    close(fbfd);
    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Framebuffer resolution not available"));
    TRACE(PREFIX_E "Resolution %dx%d not available...\n", w, h);
@@ -334,6 +337,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    /* get the fb_fix_screeninfo again, as it may have changed */
    if (ioctl(fbfd, FBIOGET_FSCREENINFO, &fix_info) != 0) {
       ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
+      __al_linux_console_text();
       close(fbfd);
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Framebuffer ioctl() failed"));
       return NULL;
@@ -343,6 +347,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    fbaddr = mmap(NULL, fix_info.smem_len, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
    if (fbaddr == MAP_FAILED) {
       ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
+      __al_linux_console_text();
       close(fbfd);
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can't map framebuffer"));
       TRACE(PREFIX_E "Couldn't map framebuffer for %dx%d. Restored old "
@@ -373,6 +378,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    if (!b) {
       ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
       munmap(fbaddr, fix_info.smem_len);
+      __al_linux_console_text();
       close(fbfd);
       TRACE(PREFIX_E "Couldn't make bitmap `b', sorry.\n");
       return NULL;
