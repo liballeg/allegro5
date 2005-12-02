@@ -316,6 +316,7 @@ static void handle_key_release(unsigned char scancode)
 static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 {
    HWND allegro_wnd = win_get_window();
+   static int ignore_three_finger_flag = FALSE;
    /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc) */
    if (((scancode == DIK_TAB) && (_key_shifts & KB_ALT_FLAG))
        || ((scancode == DIK_SPACE) && (_key_shifts & KB_ALT_FLAG))
@@ -341,14 +342,23 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 
    /* if not foreground, filter out press codes and handle only release codes */
    if (!wnd_sysmenu || !pressed) {
-
       /* three-finger salute for killing the program */
-      if (((scancode == DIK_END) || (scancode == DIK_NUMPAD1))
-          && ((_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG))
-          && three_finger_flag) {
-         _TRACE(PREFIX_I "Terminating application\n");
-         abort();
-      }
+      if (three_finger_flag && (_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG)) {
+         if (scancode == 0x00) {
+            /* when pressing CTRL-ALT-DEL, Windows launches CTRL-ALT-EVERYTHING */
+            ignore_three_finger_flag = TRUE;
+		 }
+		 else if (!ignore_three_finger_flag && (scancode == DIK_END || scancode == DIK_NUMPAD1)) {
+		    /* we can now safely assume the user hit CTRL-ALT-END as opposed to CTRL-ALT-DEL */
+		    _TRACE(PREFIX_I "Terminating application\n");
+			abort();
+		 }
+		 else if (ignore_three_finger_flag && scancode == 0xff) {
+            /* Windows is finished with CTRL-ALT-EVERYTHING - lets return to normality */
+			ignore_three_finger_flag = FALSE;
+			_key_shifts = 0;
+		 }
+	  }
 
       if (pressed)
          handle_key_press(scancode);
