@@ -127,7 +127,6 @@ static void set_ramp_cmap(AL_CONST struct fb_fix_screeninfo *fix,
 
    ASSERT(fix);
    ASSERT(var);
-   ASSERT(var->visual == FB_VISUAL_DIRECTCOLOR);
    
    /* initialize what is common */
    cmap.start = 0;
