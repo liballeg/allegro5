@@ -36,13 +36,11 @@
 #define PREFIX_E                "al-wmouse ERROR: "
 
 
-static MOUSE_DRIVER mouse_directx;
-
-
-_DRIVER_INFO _mouse_driver_list[] =
+_DRIVER_INFO _al_mouse_driver_list[] =
 {
+#if 0
    {MOUSE_DIRECTX, &mouse_directx, TRUE},
-   {MOUSEDRV_NONE, &mousedrv_none, TRUE},
+#endif
    {0, NULL, 0}
 };
 
@@ -56,6 +54,7 @@ static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy);
 static void mouse_directx_enable_hardware_cursor(int mode);
 static int mouse_directx_select_system_cursor(int cursor);
 
+#if 0
 static MOUSE_DRIVER mouse_directx =
 {
    MOUSE_DIRECTX,
@@ -74,6 +73,7 @@ static MOUSE_DRIVER mouse_directx =
    mouse_directx_enable_hardware_cursor,
    mouse_directx_select_system_cursor
 };
+#endif
 
 
 HCURSOR _win_hcursor = NULL;	/* Hardware cursor to display */
@@ -216,6 +216,8 @@ static char* dinput_err_str(long err)
  *  Handles a single event.
  */
 static void mouse_dinput_handle_event(int ofs, int data)
+{}
+#if 0
 {
    static int last_data_x = 0;
    static int last_data_y = 0;
@@ -302,6 +304,7 @@ static void mouse_dinput_handle_event(int ofs, int data)
          break;
    }
 }
+#endif /* 0 */
 
 
 
@@ -309,6 +312,8 @@ static void mouse_dinput_handle_event(int ofs, int data)
  *  Handles queued mouse input.
  */
 static void mouse_dinput_handle(void)
+{}
+#if 0
 {
    static DIDEVICEOBJECTDATA message_buffer[DINPUT_BUFFERSIZE];
    long int waiting_messages;
@@ -389,6 +394,7 @@ static void mouse_dinput_handle(void)
       }
    }
 }
+#endif /* 0 */
 
 
 
@@ -396,6 +402,8 @@ static void mouse_dinput_handle(void)
  *  Acquires the mouse device.
  */
 int mouse_dinput_acquire(void)
+{return -1;}
+#if 0
 {
    HRESULT hr;
 
@@ -419,6 +427,7 @@ int mouse_dinput_acquire(void)
       return -1;
    }
 }
+#endif /* 0 */
 
 
 
@@ -426,6 +435,8 @@ int mouse_dinput_acquire(void)
  *  Unacquires the mouse device.
  */
 int mouse_dinput_unacquire(void)
+{return -1;}
+#if 0
 {
    if (mouse_dinput_device) {
       IDirectInputDevice_Unacquire(mouse_dinput_device);
@@ -439,6 +450,7 @@ int mouse_dinput_unacquire(void)
       return -1;
    }
 }
+#endif /* 0 */
 
 
 
@@ -492,6 +504,8 @@ int mouse_dinput_grab(void)
  *  Selects whatever system cursor we should display.
  */
 int mouse_set_syscursor(void)
+{return 0;}
+#if 0
 {
    HWND allegro_wnd = win_get_window();
    if ((mouse_dinput_device && _mouse_on) || (gfx_driver && !gfx_driver->windowed)) {
@@ -504,6 +518,7 @@ int mouse_set_syscursor(void)
 
    return 0;
 }
+#endif /* 0 */
 
 
 
@@ -511,6 +526,8 @@ int mouse_set_syscursor(void)
  *  Changes the state of the mouse when going to/from sysmenu mode.
  */
 int mouse_set_sysmenu(int state)
+{return 0;}
+#if 0
 {
    POINT p;
 
@@ -530,6 +547,7 @@ int mouse_set_sysmenu(int state)
 
    return 0;
 }
+#endif /* 0 */
 
 
 
@@ -589,6 +607,8 @@ static BOOL CALLBACK mouse_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOI
  *  Sets up the DirectInput mouse device.
  */
 static int mouse_dinput_init(void)
+{return -1;}
+#if 0
 {
    HRESULT hr;
    DIPROPDWORD property_buf_size =
@@ -656,6 +676,7 @@ static int mouse_dinput_init(void)
    mouse_dinput_exit();
    return -1;
 }
+#endif /* 0 */
 
 
 
@@ -699,6 +720,8 @@ static void mouse_directx_exit(void)
 /* mouse_directx_position: [primary thread]
  */
 static void mouse_directx_position(int x, int y)
+{}
+#if 0
 {
    _enter_critical();
 
@@ -720,12 +743,15 @@ static void mouse_directx_position(int x, int y)
 
    _exit_critical();
 }
+#endif
 
 
 
 /* mouse_directx_set_range: [primary thread]
  */
 static void mouse_directx_set_range(int x1, int y1, int x2, int y2)
+{}
+#if 0
 {
    mouse_minx = x1;
    mouse_miny = y1;
@@ -747,12 +773,15 @@ static void mouse_directx_set_range(int x1, int y1, int x2, int y2)
    /* scale up the acceleration multiplier to the range */
    mouse_accel_mult = mouse_accel_fact * MAX(x2-x1+1, y2-y1+1)/320;
 }
+#endif /* 0 */
 
 
 
 /* mouse_directx_set_speed: [primary thread]
  */
 static void mouse_directx_set_speed(int xspeed, int yspeed)
+{}
+#if 0
 {
    _enter_critical();
 
@@ -766,6 +795,7 @@ static void mouse_directx_set_speed(int xspeed, int yspeed)
 
    _exit_critical();
 }
+#endif /* 0 */
 
 
 

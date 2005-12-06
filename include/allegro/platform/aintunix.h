@@ -69,11 +69,9 @@ extern "C" {
 
 
 #ifdef ALLEGRO_WITH_XWINDOWS
-   AL_FUNCPTR(void, _xwin_mouse_interrupt, (int x, int y, int z, int buttons));
-
    AL_ARRAY(_DRIVER_INFO, _xwin_gfx_driver_list);
    AL_ARRAY(_DRIVER_INFO, _al_xwin_keyboard_driver_list);
-   AL_ARRAY(_DRIVER_INFO, _xwin_mouse_driver_list);
+   AL_ARRAY(_DRIVER_INFO, _al_xwin_mouse_driver_list);
 
    AL_FUNC(void, _xwin_handle_input, (void));
    AL_FUNC(void, _xwin_private_handle_input, (void));

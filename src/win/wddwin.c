@@ -73,7 +73,9 @@ GFX_DRIVER gfx_directx_win =
    0,                           // long bank_gran;
    0,                           // long vid_mem;
    0,                           // long vid_phys_base;
-   TRUE                         // int windowed;
+   TRUE,                        // int windowed;
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 

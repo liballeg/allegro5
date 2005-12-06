@@ -91,7 +91,9 @@ GFX_DRIVER gfx_fbcon =
    NULL,                         /* no fetch mode hook */
    0, 0,
    TRUE,
-   0, 0, 0, 0, FALSE
+   0, 0, 0, 0, FALSE,
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 

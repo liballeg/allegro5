@@ -1,3 +1,5 @@
+#error This file has been superceded by xmousenu.c
+
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___

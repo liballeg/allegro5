@@ -117,20 +117,11 @@ void _reload_config(void);
 
 
 /* various bits of mouse stuff */
-AL_FUNC(void, _handle_mouse_input, (void));
+#ifndef ALLEGRO_NO_COMPATIBILITY
+AL_VAR(int, _al_comouse_on);
 
-AL_VAR(int, _mouse_x);
-AL_VAR(int, _mouse_y);
-AL_VAR(int, _mouse_z);
-AL_VAR(int, _mouse_b);
-AL_VAR(int, _mouse_on);
-
-AL_VAR(int, _mouse_installed);
-
-AL_VAR(int, _mouse_type);
 AL_VAR(BITMAP *, _mouse_screen);
-AL_VAR(BITMAP *, _mouse_pointer);
-
+#endif /* !ALLEGRO_NO_COMPATIBILITY */
 
 /* various bits of timer stuff */
 #ifndef ALLEGRO_NO_COMPATIBILITY
