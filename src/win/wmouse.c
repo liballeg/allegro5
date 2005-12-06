@@ -18,9 +18,12 @@
 
 #define DIRECTINPUT_VERSION 0x0300
 
+#define ALLEGRO_NO_COMPATIBILITY
+
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/platform/aintwin.h"
+#include ALLEGRO_INTERNAL_HEADER
+#include "allegro/internal/aintern2.h"
 
 #ifndef SCAN_DEPEND
    #include <process.h>
@@ -36,26 +39,45 @@
 #define PREFIX_E                "al-wmouse ERROR: "
 
 
-_DRIVER_INFO _al_mouse_driver_list[] =
+
+typedef struct AL_MOUSE_DIRECTX
 {
-#if 0
-   {MOUSE_DIRECTX, &mouse_directx, TRUE},
-#endif
-   {0, NULL, 0}
-};
+   AL_MOUSE parent;
+   AL_MSESTATE state;
+   int min_x, min_y;
+   int max_x, max_y;
+} AL_MOUSE_DIRECTX;
 
 
-static int mouse_directx_init(void);
+
+static bool mouse_directx_installed = false;
+
+/* the one and only mouse object */
+static AL_MOUSE_DIRECTX the_mouse;
+
+
+
+/* forward declarations */
+static bool mouse_directx_init(void);
 static void mouse_directx_exit(void);
-static void mouse_directx_position(int x, int y);
-static void mouse_directx_set_range(int x1, int y1, int x2, int y2);
-static void mouse_directx_set_speed(int xspeed, int yspeed);
-static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy);
-static void mouse_directx_enable_hardware_cursor(int mode);
-static int mouse_directx_select_system_cursor(int cursor);
+static AL_MOUSE *mouse_directx_get_mouse(void);
+static unsigned int mouse_directx_get_mouse_num_buttons(void);
+static bool mouse_directx_set_mouse_xy(int x, int y);
+static bool mouse_directx_set_mouse_z(int z);
+static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2);
+static void mouse_directx_get_state(AL_MSESTATE *ret_state);
 
-#if 0
-static MOUSE_DRIVER mouse_directx =
+static void generate_mouse_event(unsigned int type,
+                                 int x, int y, int z,
+                                 int dx, int dy, int dz,
+                                 unsigned int button);
+
+
+
+/* the driver vtable */
+#define MOUSEDRV_XWIN  AL_ID('X','W','I','N')
+
+static AL_MOUSE_DRIVER mousedrv_directx =
 {
    MOUSE_DIRECTX,
    empty_string,
@@ -63,20 +85,34 @@ static MOUSE_DRIVER mouse_directx =
    "DirectInput mouse",
    mouse_directx_init,
    mouse_directx_exit,
-   NULL,                       // AL_METHOD(void, poll, (void));
-   NULL,                       // AL_METHOD(void, timer_poll, (void));
-   mouse_directx_position,
-   mouse_directx_set_range,
-   mouse_directx_set_speed,
-   mouse_directx_get_mickeys,
-   NULL,                       // AL_METHOD(int, analyse_data, (AL_CONST char *buffer, int size));
-   mouse_directx_enable_hardware_cursor,
-   mouse_directx_select_system_cursor
+   mouse_directx_get_mouse,
+   mouse_directx_get_mouse_num_buttons,
+   mouse_directx_set_mouse_xy,
+   mouse_directx_set_mouse_z,
+   mouse_directx_set_mouse_range,
+   mouse_directx_get_state
 };
-#endif
+
+
+
+_DRIVER_INFO _al_mouse_driver_list[] =
+{
+   {MOUSE_DIRECTX, &mousedrv_directx, TRUE},
+   {0, NULL, 0}
+};
+
 
 
 HCURSOR _win_hcursor = NULL;	/* Hardware cursor to display */
+
+
+//XXX
+static int _mouse_on;
+#define _mouse_x the_mouse.state.x
+#define _mouse_y the_mouse.state.y
+#define _mouse_z the_mouse.state.z
+#define _mouse_b the_mouse.state.buttons
+//XXX end
 
 
 #define DINPUT_BUFFERSIZE 256
@@ -212,12 +248,35 @@ static char* dinput_err_str(long err)
 
 
 
+static void mouse_directx_button_handler(int button, bool is_down)
+{
+   int dz;
+   unsigned int al_button = button; /* XXX: I'm sure I had a reason for introducing 
+				       al_button but I'm not in windows at the moment
+				       to test
+				    */
+
+   ASSERT(mouse_directx_installed);
+
+   _al_event_source_lock(&the_mouse.parent.es);
+   {
+      the_mouse.state.buttons |= al_button;
+
+      generate_mouse_event(
+         AL_EVENT_MOUSE_BUTTON_DOWN,
+         the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+         0, 0, 0,
+         al_button);
+   }
+   _al_event_source_unlock(&the_mouse.parent.es);
+}
+
+
+
 /* mouse_dinput_handle_event: [input thread]
  *  Handles a single event.
  */
 static void mouse_dinput_handle_event(int ofs, int data)
-{}
-#if 0
 {
    static int last_data_x = 0;
    static int last_data_y = 0;
@@ -268,43 +327,54 @@ static void mouse_dinput_handle_event(int ofs, int data)
          break;
 
       case DIMOFS_BUTTON0:
+	 mouse_directx_button_handler(0, data & 0x80);
+	 /* 
          if (data & 0x80) {
             if (_mouse_on)
                _mouse_b |= (mouse_swap_button ? 2 : 1);
          }
          else
             _mouse_b &= ~(mouse_swap_button ? 2 : 1);
+	 */
          break;
 
       case DIMOFS_BUTTON1:
+	 mouse_directx_button_handler(1, data & 0x80);
+	 /*
          if (data & 0x80) {
             if (_mouse_on)
                _mouse_b |= (mouse_swap_button ? 1 : 2);
          }
          else
             _mouse_b &= ~(mouse_swap_button ? 1 : 2);
+	 */
          break;
 
       case DIMOFS_BUTTON2:
+	 mouse_directx_button_handler(2, data & 0x80);
+	 /*
          if (data & 0x80) {
             if (_mouse_on)
                _mouse_b |= 4;
          }
          else
             _mouse_b &= ~4;
+	 */
          break;
 
       case DIMOFS_BUTTON3:
+	 mouse_directx_button_handler(3, data & 0x80);
+	 /*
          if (data & 0x80) {
             if (_mouse_on)
                _mouse_b |= 8;
          }
          else
             _mouse_b &= ~8;
+	 */
          break;
    }
 }
-#endif /* 0 */
 
 
 
@@ -312,8 +382,6 @@ static void mouse_dinput_handle_event(int ofs, int data)
  *  Handles queued mouse input.
  */
 static void mouse_dinput_handle(void)
-{}
-#if 0
 {
    static DIDEVICEOBJECTDATA message_buffer[DINPUT_BUFFERSIZE];
    long int waiting_messages;
@@ -359,11 +427,12 @@ static void mouse_dinput_handle(void)
             mymickey_ox = p.x;
             mymickey_oy = p.y;
 
-            _handle_mouse_input();
+            //_handle_mouse_input();
          }
       }
       else {
          /* fullscreen input mode */
+#if 0
          mymickey_x += dinput_x - mymickey_ox;
          mymickey_y += dinput_y - mymickey_oy;
 
@@ -391,10 +460,10 @@ static void mouse_dinput_handle(void)
          }
 
          _handle_mouse_input();
+#endif
       }
    }
 }
-#endif /* 0 */
 
 
 
@@ -402,8 +471,6 @@ static void mouse_dinput_handle(void)
  *  Acquires the mouse device.
  */
 int mouse_dinput_acquire(void)
-{return -1;}
-#if 0
 {
    HRESULT hr;
 
@@ -427,7 +494,6 @@ int mouse_dinput_acquire(void)
       return -1;
    }
 }
-#endif /* 0 */
 
 
 
@@ -435,8 +501,6 @@ int mouse_dinput_acquire(void)
  *  Unacquires the mouse device.
  */
 int mouse_dinput_unacquire(void)
-{return -1;}
-#if 0
 {
    if (mouse_dinput_device) {
       IDirectInputDevice_Unacquire(mouse_dinput_device);
@@ -450,7 +514,6 @@ int mouse_dinput_unacquire(void)
       return -1;
    }
 }
-#endif /* 0 */
 
 
 
@@ -504,8 +567,6 @@ int mouse_dinput_grab(void)
  *  Selects whatever system cursor we should display.
  */
 int mouse_set_syscursor(void)
-{return 0;}
-#if 0
 {
    HWND allegro_wnd = win_get_window();
    if ((mouse_dinput_device && _mouse_on) || (gfx_driver && !gfx_driver->windowed)) {
@@ -518,7 +579,6 @@ int mouse_set_syscursor(void)
 
    return 0;
 }
-#endif /* 0 */
 
 
 
@@ -526,8 +586,6 @@ int mouse_set_syscursor(void)
  *  Changes the state of the mouse when going to/from sysmenu mode.
  */
 int mouse_set_sysmenu(int state)
-{return 0;}
-#if 0
 {
    POINT p;
 
@@ -542,12 +600,11 @@ int mouse_set_sysmenu(int state)
          READ_CURSOR_POS(p);
       }
 
-      _handle_mouse_input();
+      //_handle_mouse_input();
    }
 
    return 0;
 }
-#endif /* 0 */
 
 
 
@@ -607,8 +664,6 @@ static BOOL CALLBACK mouse_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOI
  *  Sets up the DirectInput mouse device.
  */
 static int mouse_dinput_init(void)
-{return -1;}
-#if 0
 {
    HRESULT hr;
    DIPROPDWORD property_buf_size =
@@ -676,13 +731,12 @@ static int mouse_dinput_init(void)
    mouse_dinput_exit();
    return -1;
 }
-#endif /* 0 */
 
 
 
 /* mouse_directx_init: [primary thread]
  */
-static int mouse_directx_init(void)
+static bool mouse_directx_init(void)
 {
    char tmp1[64], tmp2[128];
 
@@ -694,12 +748,12 @@ static int mouse_directx_init(void)
    if (mouse_dinput_init() != 0) {
       /* something has gone wrong */
       _TRACE(PREFIX_E "mouse handler init failed\n");
-      return -1;
+      return false;
    }
 
    /* the mouse handler has successfully set up */
    _TRACE(PREFIX_I "mouse handler starts\n");
-   return dinput_buttons;
+   return true;
 }
 
 
@@ -717,11 +771,150 @@ static void mouse_directx_exit(void)
 
 
 
+/* mouse_directx_get_mouse:
+ *  Returns the address of a AL_MOUSE structure representing the mouse.
+ */
+static AL_MOUSE *mouse_directx_get_mouse(void)
+{
+   ASSERT(mouse_directx_installed);
+
+   return (AL_MOUSE *)&the_mouse;
+}
+
+
+
+/* mouse_directx_get_mouse_num_buttons:
+ *  Return the number of buttons on the mouse.
+ */
+static unsigned int mouse_directx_get_mouse_num_buttons(void)
+{
+   ASSERT(mouse_directx_installed);
+
+   return dinput_buttons;
+}
+
+
+
+/* mouse_directx_set_mouse_xy:
+ *
+ */
+static bool mouse_directx_set_mouse_xy(int x, int y)
+{
+   ASSERT(mouse_directx_installed);
+
+/*
+   if ((x < 0) || (y < 0) || (x >= _xwin.window_width) || (y >= _xwin.window_height))
+      return false;*/
+
+   return false;
+
+      /*
+   _al_event_source_lock(&the_mouse.parent.es);
+   {
+      XWarpPointer(_xwin.display, _xwin.window, _xwin.window, 0, 0,
+                   _xwin.window_width, _xwin.window_height, x, y);
+   }
+   _al_event_source_unlock(&the_mouse.parent.es);
+
+   return true;
+      */
+}
+
+
+
+/* mouse_directx_set_mouse_xy:
+ *
+ */
+static bool mouse_directx_set_mouse_z(int z)
+{
+   ASSERT(mouse_directx_installed);
+
+   return false;
+/*
+   _al_event_source_lock(&the_mouse.parent.es);
+   {
+      int dz = (z - the_mouse.state.z);
+
+      if (dz != 0) {
+         the_mouse.state.z = z;
+
+         generate_mouse_event(
+            AL_EVENT_MOUSE_AXES,
+            the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+            0, 0, dz,
+            0);
+      }
+   }
+   _al_event_source_unlock(&the_mouse.parent.es);
+
+   return true;
+   */
+}
+
+
+
+/* mouse_directx_set_mouse_range:
+ *
+ */
+static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2)
+{
+   return false;
+}
+
+
+
+/* mouse_directx_get_state:
+ *  Copy the current mouse state into RET_STATE, with any necessary locking.
+ */
+static void mouse_directx_get_state(AL_MSESTATE *ret_state)
+{
+   ASSERT(mouse_directx_installed);
+
+   _al_event_source_lock(&the_mouse.parent.es);
+   {
+      *ret_state = the_mouse.state;
+   }
+   _al_event_source_unlock(&the_mouse.parent.es);
+}
+
+
+
+/* [bgman thread] */
+static void generate_mouse_event(unsigned int type,
+                                 int x, int y, int z,
+                                 int dx, int dy, int dz,
+                                 unsigned int button)
+{
+   AL_EVENT *event;
+
+   if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es, type))
+      return;
+
+   event = _al_event_source_get_unused_event(&the_mouse.parent.es);
+   if (!event)
+      return;
+
+   event->mouse.type = type;
+   event->mouse.timestamp = al_current_time();
+   event->mouse.__display__dont_use_yet__ = NULL; /* TODO */
+   event->mouse.x = x;
+   event->mouse.y = y;
+   event->mouse.z = z;
+   event->mouse.dx = dx;
+   event->mouse.dy = dy;
+   event->mouse.dz = dz;
+   event->mouse.button = button;
+   _al_event_source_emit_event(&the_mouse.parent.es, event);
+}
+
+
+//---------------------------------------------------------------------//
+//---------------------------------------------------------------------//
+
 /* mouse_directx_position: [primary thread]
  */
-static void mouse_directx_position(int x, int y)
-{}
 #if 0
+static void mouse_directx_position(int x, int y)
 {
    _enter_critical();
 
@@ -749,9 +942,8 @@ static void mouse_directx_position(int x, int y)
 
 /* mouse_directx_set_range: [primary thread]
  */
-static void mouse_directx_set_range(int x1, int y1, int x2, int y2)
-{}
 #if 0
+static void mouse_directx_set_range(int x1, int y1, int x2, int y2)
 {
    mouse_minx = x1;
    mouse_miny = y1;
@@ -779,9 +971,8 @@ static void mouse_directx_set_range(int x1, int y1, int x2, int y2)
 
 /* mouse_directx_set_speed: [primary thread]
  */
-static void mouse_directx_set_speed(int xspeed, int yspeed)
-{}
 #if 0
+static void mouse_directx_set_speed(int xspeed, int yspeed)
 {
    _enter_critical();
 
@@ -801,6 +992,7 @@ static void mouse_directx_set_speed(int xspeed, int yspeed)
 
 /* mouse_directx_get_mickeys: [primary thread]
  */
+#if 0
 static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy)
 {
    int temp_x = mymickey_x;
@@ -812,6 +1004,7 @@ static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy)
    *mickeyx = temp_x;
    *mickeyy = temp_y;
 }
+#endif
 
 
 
@@ -819,18 +1012,21 @@ static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy)
  *  enable the hardware cursor; actually a no-op in Windows, but we need to
  *  put something in the vtable.
  */
+#if 0
 static void mouse_directx_enable_hardware_cursor(int mode)
 {
    /* Do nothing */
    (void)mode;
 }
+#endif
 
 
 
 /* mouse_directx_select_system_cursor:
  *  Select an OS native cursor 
  */
-static int mouse_directx_select_system_cursor (int cursor)
+#if 0
+static int mouse_directx_select_system_cursor (AL_CONST int cursor)
 {
    HCURSOR wc;
    HWND allegro_wnd = win_get_window();
@@ -859,3 +1055,4 @@ static int mouse_directx_select_system_cursor (int cursor)
    
    return cursor;
 }
+#endif
