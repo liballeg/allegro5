@@ -373,6 +373,7 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/unix/umain.c \
 	src/unix/usystem.c \
 	src/unix/uthreads.c \
+	src/unix/utimer.c \
 	src/misc/colconv.c \
 	src/misc/pckeys.c
 

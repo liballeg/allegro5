@@ -20,7 +20,6 @@
 #include "allegro/platform/aintunix.h"
 #include "xwin.h"
 
-
 static GFX_VTABLE _xwin_vtable;
 
 

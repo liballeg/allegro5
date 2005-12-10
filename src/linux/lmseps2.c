@@ -168,22 +168,38 @@ static void wakeup_im (int fd)
  */
 static int mouse_init (void)
 {
-	char tmp1[128], tmp2[128], tmp3[128];
+	char tmp1[128], tmp2[128];
 	AL_CONST char *udevice;
+	int flags;
+
+        static AL_CONST char * AL_CONST default_devices[] = {
+		"/dev/mouse",
+		"/dev/input/mice",
+        };
 
 	/* Find the device filename */
 	udevice = get_config_string (uconvert_ascii ("mouse", tmp1),
 				     uconvert_ascii ("mouse_device", tmp2),
-				     uconvert_ascii ("/dev/mouse", tmp3));
+				     NULL);
 
 	/* Open mouse device.  Devices are cool. */
-	if (intellimouse)
-		intdrv.device = open (uconvert_toascii (udevice, tmp1), O_RDWR | O_NONBLOCK);
-	else
-		intdrv.device = open (uconvert_toascii (udevice, tmp1), O_RDONLY | O_NONBLOCK);
+        flags = O_NONBLOCK | (intellimouse ? O_RDWR : O_RDONLY);
+        if (udevice) {
+		intdrv.device = open (uconvert_toascii (udevice, tmp1), flags);
+        }
+        else {
+		size_t n;
+		for (n = 0; n < sizeof(default_devices) / sizeof(default_devices[0]); n++) {
+			intdrv.device = open (default_devices[n], flags);
+			if (intdrv.device >= 0)
+				break;
+		}
+        }
+
 	if (intdrv.device < 0) {
 		uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open %s: %s"),
-			   udevice, ustrerror (errno));
+			   udevice ? udevice : get_config_text("one of the default mice devices"),
+			   ustrerror (errno));
 		return -1;
 	}
 

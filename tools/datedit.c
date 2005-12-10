@@ -1053,12 +1053,12 @@ int datedit_export(AL_CONST DATAFILE *dat, AL_CONST char *name)
    ext = get_extension(buf);
 
    for (i=0; datedit_grabber_info[i]->type != DAT_END; i++) {
-      if ((datedit_grabber_info[i]->type == dat->type) && (datedit_grabber_info[i]->export_ext) && (datedit_grabber_info[i]->export)) {
+      if ((datedit_grabber_info[i]->type == dat->type) && (datedit_grabber_info[i]->export_ext) && (datedit_grabber_info[i]->exporter)) {
 	 strcpy(tmp, datedit_grabber_info[i]->export_ext);
 	 tok = strtok(tmp, ";");
 	 while (tok) {
 	    if (stricmp(tok, ext) == 0) {
-	       export = datedit_grabber_info[i]->export;
+	       export = datedit_grabber_info[i]->exporter;
 	       break;
 	    }
 	    tok = strtok(NULL, ";");

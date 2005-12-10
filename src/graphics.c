@@ -21,6 +21,7 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
+extern void blit_end(void);   /* for LOCK_FUNCTION; defined in blit.c */
 
 
 #define PREFIX_I                "al-gfx INFO: "

@@ -166,7 +166,7 @@ GFX_DRIVER gfx_vesa_3 =
 
 typedef struct VESA_INFO         /* VESA information block structure */
 { 
-   unsigned char  VESASignature[4]     __PACKED__;
+   char           VESASignature[4]     __PACKED__;
    unsigned short VESAVersion          __PACKED__;
    unsigned long  OEMStringPtr         __PACKED__;
    unsigned char  Capabilities[4]      __PACKED__;
