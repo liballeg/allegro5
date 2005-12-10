@@ -139,23 +139,6 @@ static int in_to_screen(AL_CONST AXIS *axis, int v)
 
 
 
-/* set_value:
- *  updates fields in an axis, depending on the mouse position on the screen
- */
-static void set_value(AXIS *axis, int out_abs)
-{
-   if (current_tool->mode == MODE_ABSOLUTE) {
-      axis->in_abs = screen_to_in(axis, out_abs);
-   }
-   else {
-      axis->in_abs += (axis->out_abs-out_abs) * axis->speed;
-   }
-   axis->out_abs = out_abs;
-   axis->mickeys = 0;
-}
-
-
-
 /* rel_event:
  *  returns the new screen position, given the input relative one.
  *  The tool mode is always relative
@@ -642,9 +625,6 @@ static void mouse_position(int x, int y)
    y_axis.out_abs = y;
    x_axis.mickeys = 0;
    y_axis.mickeys = 0;
-
-   set_value(&x_axis, x);
-   set_value(&y_axis, y);
 
    _mouse_x = x;
    _mouse_y = y;
