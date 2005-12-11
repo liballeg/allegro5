@@ -12,18 +12,12 @@
  *
  *      By Annie Testes.
  *
+ *      Handles all inputs that fill evdev with informations
+ *      about movement and click.
+ *
  *      Hacked for new mouse API by Peter Wang.
  *
  *      See readme.txt for copyright information.
- */
-
-/* TODO:
- * [ ] Remove axis range from the config file ?
- * [ ] Speed
- * [ ] Mickeys
- *
- * XXX: Owing to the origins of this driver, the propagation of axis
- * values is all a bit gross.
  */
 
 
@@ -44,6 +38,9 @@
 #include <sys/ioctl.h>
 #include <linux/input.h>
 
+#define PREFIX_I                "al-evdev INFO: "
+#define PREFIX_W                "al-evdev WARNING: "
+#define PREFIX_E                "al-evdev ERROR: "
 
 
 typedef struct AL_MOUSE_EVDEV
@@ -145,11 +142,14 @@ typedef struct AXIS {
    int out_min;     /* For absolute mode */
    int out_max;     /* For absolute mode */
 
-   int speed;       /* For set_mouse_speed */
+   float speed;     /* For set_mouse_speed */
    int mickeys;     /* For get_mouse_mickeys */
+   float scale;     /* Scale factor, because tablet mice generate more movement
+                       than common mice */
 
-   int in_abs;      /* Current absolute position */
-   int out_abs;
+   int in_abs;      /* Current absolute position, used for absolute input,
+                       whether the output is absolute or relative */
+   int out_abs;     /* Position on the screen */
 } AXIS;
 
 
@@ -167,43 +167,6 @@ static int in_to_screen(AL_CONST AXIS *axis, int v)
 
 
 
-/* screen_to_in:
- *  maps a screen position to an input one
- */
-static int screen_to_in(AL_CONST AXIS *axis, int v)
-{
-   return (((v-axis->out_min) * IN_RANGE(*axis)) / OUT_RANGE(*axis)) + axis->in_min;
-}
-
-
-
-/* in_to_rel:
- *  scale an input position
- */
-static int in_to_rel(AL_CONST AXIS *axis, int v)
-{
-   return v / axis->speed;
-}
-
-
-
-/* set_value:
- *  updates fields in an axis, depending on the mouse position on the screen
- */
-static void set_value(AXIS *axis, int out_abs)
-{
-   if (current_tool->mode == MODE_ABSOLUTE) {
-      axis->in_abs = screen_to_in(axis, out_abs);
-   }
-   else {
-      axis->in_abs += (axis->out_abs-out_abs) * axis->speed;
-   }
-   axis->out_abs = out_abs;
-   axis->mickeys = 0;
-}
-
-
-
 /* rel_event:
  *  returns the new screen position, given the input relative one.
  *  The tool mode is always relative
@@ -211,9 +174,8 @@ static void set_value(AXIS *axis, int out_abs)
 static int rel_event(AXIS *axis, int v)
 {
    /* When input only send relative events, the mode is always relative */
-   int rel = in_to_rel(axis, v);
-   int ret = axis->out_abs + rel;
-   axis->mickeys += rel;
+   int ret = axis->out_abs + v*axis->speed;
+   axis->mickeys += v;
    axis->in_abs += v;
    return ret;
 }
@@ -231,8 +193,11 @@ static int abs_event(AXIS *axis, MODE mode, int v)
       axis->in_abs = v;
       return in_to_screen(axis, v);
    }
-   else {
-      return rel_event(axis, v-axis->in_abs);
+   else { /* Input is absolute, but tool is relative */
+      int value = (v-axis->in_abs)*axis->scale;
+      axis->mickeys += value;
+      axis->in_abs = v;
+      return axis->out_abs + value*axis->speed;
    }
 }
 
@@ -252,21 +217,42 @@ static void get_axis_value(int fd, AXIS *axis, int type)
 
 
 
+/* has_event:
+ *  returns true if the device generates the event
+ */
+static int has_event(int fd, unsigned short type, unsigned short code)
+{
+   const unsigned int len = sizeof(unsigned long)*8;
+   const unsigned int max = MAX(EV_MAX, MAX(KEY_MAX, MAX(REL_MAX, MAX(ABS_MAX, MAX(LED_MAX, MAX(SND_MAX, FF_MAX))))));
+   unsigned long bits[(max+len-1)/len];
+   if (ioctl(fd, EVIOCGBIT(type, max), bits)) {
+     return (bits[code/len] >> (code%len)) & 1;
+   }
+   return 0;
+}
+
+
+
+/* get_num_buttons:
+ *  return the number of buttons
+ */
+static int get_num_buttons(int fd)
+{
+   if (has_event(fd, EV_KEY, BTN_MIDDLE))
+      return 3;
+   if (has_event(fd, EV_KEY, BTN_RIGHT))
+      return 2;
+   if (has_event(fd, EV_KEY, BTN_MOUSE))
+      return 1;
+   return 0; /* Not a mouse */
+}
+
+
+
 /* The three axis: horizontal, vertical and wheel */
 static AXIS x_axis;
 static AXIS y_axis;
 static AXIS z_axis;
-
-
-/*
- * Previous button status
- */
-/*
-static int button_left = 0;
-static int button_right = 0;
-static int button_middle = 0;
-*/
-
 
 
 
@@ -283,19 +269,29 @@ static void init_axis(int fd, AXIS *axis, AL_CONST char *name, AL_CONST char *se
    char tmp2[256]; /* format string */
    char tmp3[256]; /* Converted 'name' */
    int abs[5]; /* values given by the input */
+   int config_speed;
 
    uszprintf(tmp1, sizeof(tmp1), uconvert_ascii("ev_min_%s", tmp2), uconvert_ascii(name, tmp3));
    axis->in_min = get_config_int(section, tmp1, 0);
    uszprintf(tmp1, sizeof(tmp1), uconvert_ascii("ev_max_%s", tmp2), uconvert_ascii(name, tmp3));
    axis->in_max = get_config_int(section, tmp1, 0);
+
+   uszprintf(tmp1, sizeof(tmp1), uconvert_ascii("ev_abs_to_rel_%s", tmp2), uconvert_ascii(name, tmp3));
+   config_speed = get_config_int(section, tmp1, 1);
+   if (config_speed<=0) config_speed = 1;
+   axis->scale = 1;
+
    /* Ask the input */
    if (ioctl(fd, EVIOCGABS(type), abs)>=0) {
       if (axis->in_min==0) axis->in_min=abs[1];
       if (axis->in_max==0) axis->in_max=abs[2];
       axis->in_abs = abs[0];
+      axis->scale = 320.0*config_speed/IN_RANGE(*axis);
    }
-   if (axis->in_min>axis->in_max)
+   if (axis->in_min>axis->in_max) {
       axis->in_min = axis->in_max = 0;
+      axis->scale = 1;
+   }
 
    axis->out_min = INT_MIN;
    axis->out_max = INT_MAX;
@@ -449,6 +445,7 @@ static void process_rel(AL_CONST struct input_event *event)
 
 /* process_abs: [fdwatch thread]
  *  process absolute events (x, y and z movement are currently supported)
+ *  TODO: missing handle_axis_event calls
  */
 static void process_abs(AL_CONST struct input_event *event)
 {
@@ -516,6 +513,7 @@ static bool mouse_init (void)
 
    /* Open mouse device.  Devices are cool. */
    if (udevice) {
+      TRACE(PREFIX_I "Trying %s device\n", udevice);
       the_mouse.fd = open (uconvert_toascii (udevice, tmp1), O_RDONLY | O_NONBLOCK);
       if (the_mouse.fd < 0) {
          uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open %s: %s"),
@@ -524,21 +522,32 @@ static bool mouse_init (void)
       }
    }
    else {
-      /* If not specified in the config file, try some common device files
-       * but not /dev/input/event because it may not be a mouse.
-       */
-      const char *device_name[] = {/* "/dev/input/mice",
-                                    "/dev/input/mouse",
-                                    "/dev/input/mouse0", */
+      /* If not specified in the config file, try several /dev/input/event<n>
+       * devices. */
+      const char *device_name[] = { "/dev/input/event0",
+                                    "/dev/input/event1",
+                                    "/dev/input/event2",
+                                    "/dev/input/event3",
                                     NULL };
       int i;
 
-      strcpy(allegro_error, "please edit 'mouse_device' variable in config file");
+      TRACE(PREFIX_I "Trying /dev/input/event[0-3] devices\n");
 
       for (i=0; device_name[i]; i++) {
          the_mouse.fd = open (device_name[i], O_RDONLY | O_NONBLOCK);
-         if (the_mouse.fd >= 0)
-            goto Found;
+         if (the_mouse.fd >= 0) {
+            TRACE(PREFIX_I "Opened device %s\n", device_name[i]);
+            /* The device is a mouse if it has a BTN_MOUSE */
+            if (has_event(the_mouse.fd, EV_KEY, BTN_MOUSE)) {
+               TRACE(PREFIX_I "Device %s was a mouse.\n", device_name[i]);
+               goto Found;
+            }
+            else {
+               TRACE(PREFIX_I "Device %s was not mouse, closing.\n",
+                     device_name[i]);
+               close(the_mouse.fd);
+            }
+         }
       }
 
       uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open a mouse device: %s"),
@@ -596,7 +605,9 @@ static AL_MOUSE *mouse_get_mouse(void)
  */
 static unsigned int mouse_get_mouse_num_buttons(void)
 {
-   return 3;
+   ASSERT(the_mouse.fd >= 0);
+
+   return get_num_buttons(the_mouse.fd);
 }
 
 
@@ -610,11 +621,10 @@ static bool mouse_set_mouse_xy(int x, int y)
    {
       int dx, dy;
 
-      set_value(&x_axis, x);
-      set_value(&y_axis, y);
-
       x_axis.out_abs = MID(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
       y_axis.out_abs = MID(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
+      x_axis.mickeys = 0;
+      y_axis.mickeys = 0;
 
       dx = x_axis.out_abs - the_mouse.state.x;
       dy = y_axis.out_abs - the_mouse.state.y;
@@ -639,6 +649,7 @@ static bool mouse_set_mouse_xy(int x, int y)
 
 /* mouse_set_mouse_z:
  *
+ *   Number of mickeys to cross the screen horizontally: speed * 320.
  */
 static bool mouse_set_mouse_z(int z)
 {
@@ -646,7 +657,7 @@ static bool mouse_set_mouse_z(int z)
    {
       int dz;
 
-      set_value(&z_axis, z);
+      z_axis.out_abs = z;
 
       dz = z_axis.out_abs - the_mouse.state.z;
 

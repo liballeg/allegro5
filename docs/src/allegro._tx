@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.2.0 (RC3-CVS)" "Allegro" "Allegro manual"
+@manh="version 4.2.1 (CVS)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,12 +52,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.2.0 (RC3-CVS)
+				       \_/__/     Version 4.2.1 (CVS)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Nov 05, 2005.
+	     By Shawn Hargreaves, Nov 07, 2005.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -274,6 +274,8 @@ information about how to install Allegro and link your program with it.
       OSTYPE_WINNT      - Windows NT
       OSTYPE_WIN2000    - Windows 2000
       OSTYPE_WINXP      - Windows XP
+      OSTYPE_WIN2003    - Windows 2003
+      OSTYPE_WINVISTA   - Windows Vista
       OSTYPE_OS2        - OS/2
       OSTYPE_WARP       - OS/2 Warp 3
       OSTYPE_DOSEMU     - Linux DOSEMU
@@ -2300,7 +2302,17 @@ ev_max_y = x<br>
 ev_min_z = x<br>
 ev_max_z = x<br>
    Linux only: for absolute EV inputs, minimum and maximum value. By default
-   this information is autodetected.
+   this information is autodetected.  If you want to use only part of a
+   tablet, you need to set the entries for X and Y axis by hand.
+<li>
+ev_abs_to_rel_x = x<br>
+ev_abs_to_rel_y = x<br>
+ev_abs_to_rel_z = x<br>
+   Linux only: scaling factor for tablet mouse speed.  Defaults to 1.
+   This is used only when the input sends absolute events (tablet, joystick,
+   etc.) and the cursor should behave like a mouse.
+   If you are using a mouse on a tablet, you need to set these entries
+   for X and Y axis (try numbers between 1 and 40).
 <li>
 mouse_accel_factor = x<br>
    Windows only: specifies the mouse acceleration factor. Defaults to 1.
@@ -9859,25 +9871,36 @@ unpacking is very fast and it does not require much memory. Packed files
 always begin with the 32-bit value F_PACK_MAGIC, and autodetect files with 
 the value F_NOPACK_MAGIC.
 
-The following FA_* flags are guaranteed to work: FA_RDONLY, FA_HIDDEN,
-FA_SYSTEM, FA_LABEL, FA_DIREC, FA_ARCH. Do not use any other flags from 
-DOS/Windows or your code will not compile on another platform. Flags
-FA_SYSTEM, FA_LABEL and FA_ARCH are valuable only on DOS/Windows (entries
-with system flag, volume labels and archive flag). FA_RDONLY is for 
-directory entries with read-only flag on DOS-like systems or unwritable 
-by current user on Unix-like systems. FA_HIDDEN is for entries with hidden 
-flag on DOS-like systems or starting with '.' on Unix (dotted files - 
-excluding '.' and '..'). FA_DIREC represents directories. Flags can be 
-combined using '|' (binary OR operator).
+The following FA_* flags are guaranteed to work:
+<textblock>
+      FA_NONE           - Exclude files that have any attribute set
+      FA_RDONLY         - Directory entries that are unwritable for current user
+      FA_HIDDEN         - Hidden flag
+      FA_DIREC          - Directories
+      FA_SYSTEM         - Files with system flag set (DOS/Windows only)
+      FA_LABEL          - Files with volume label flag set (DOS/Windows only)
+      FA_ARCH           - Files with archive flag set (DOS/Windows only)
+      FA_ALL            - Match all attributes<endblock>
+Do not use any other flags from DOS/Windows or your code will not compile on 
+another platform.
+FA_RDONLY is for directory entries with read-only flag on DOS-like systems or 
+unwritable by current user on Unix-like systems. Hidden files are directory
+entries that have the hidden flag set (DOS/Windows) or have names starting with
+'.' (UNIX, excluding '.' and '..').
+Flags can be combined using '|' (binary OR operator).
 
 When passed to the functions as the 'attrib' parameter, these flags 
 represent an upper set in which the actual flag set of a matching file must 
 be included. That is, in order for a file to be matching, its attributes 
 may contain any of the specified flags but must not contain any of the 
-unspecified flags. Thus, if you pass 'FA_DIREC | FA_RDONLY', normal files 
+unspecified flags. In other words, you explictly <i>exclude</i> the flags that you
+do <i>not</i> specify. Thus if you pass 'FA_DIREC | FA_RDONLY', normal files 
 and directories will be included as well as read-only files and 
 directories, but not hidden files and directories. Similarly, if you pass 
-'FA_ARCH' then both archived and non-archived files will be included.
+'FA_ARCH' then both archived and non-archived files will be included. If
+FA_NONE is passed all attributes are excluded and only files with no attributes
+are returned. Conversely, if you pass FA_ALL, no attributes are excluded so all
+files are returned (which is what you would usually want).
 
 Functions which accept wildcards as file names support the meta characters
 `*' (which means, zero or any quantity of characters) and `?' (which means
@@ -10186,7 +10209,7 @@ any character, but only one).
 <codeblock>
       struct al_ffblk info;
 
-      if (al_findfirst("*.pcx", &info, 0) != 0) {
+      if (al_findfirst("*.pcx", &info, FA_ALL) != 0) {
 	 /* Tell user there are no PCX files. */
 	 return;
       }<endblock>

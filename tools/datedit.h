@@ -66,7 +66,7 @@ typedef struct DATEDIT_GRABBER_INFO
    char *grab_ext;
    char *export_ext;
    DATAFILE *(*grab)(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth);  /* TODO: get rid of 'depth' */
-   int (*export)(AL_CONST DATAFILE *dat, AL_CONST char *filename);
+   int (*exporter)(AL_CONST DATAFILE *dat, AL_CONST char *filename);
    char *prop_types;
 } DATEDIT_GRABBER_INFO;
 

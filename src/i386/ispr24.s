@@ -830,7 +830,7 @@ FUNC(_linear_draw_trans_rgba_rle_sprite24)
       WRITE_BANK()                  /* select write bank */                ; \
       movl R_X, %edi                                                       ; \
       leal (%edi, %edi, 2), %edi                                           ; \
-      addl %eax, %edi
+      addl %eax, %edi                                                      ; \
       subl %eax, R_TMP              /* calculate read/write diff */
 
 

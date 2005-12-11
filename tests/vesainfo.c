@@ -51,7 +51,7 @@ int verbose = FALSE;
 
 typedef struct VESA_INFO 
 { 
-   unsigned char  VESASignature[4]     __PACKED__;
+   char           VESASignature[4]     __PACKED__;
    unsigned short VESAVersion          __PACKED__;
    unsigned long  OEMStringPtr         __PACKED__;
    unsigned char  Capabilities[4]      __PACKED__;

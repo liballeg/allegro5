@@ -1010,7 +1010,14 @@ SAMPLE *load_wav_pf(PACKFILE *f)
 	    goto getout;
       }
       else if (memcmp(buffer, "data", 4) == 0) {
-	 len = length / channels;
+	 if (channels == 2) {
+	    /* allocate enough space even if length is odd for some reason */
+	    len = (length + 1) / 2;
+	 }
+	 else {
+	    ASSERT(channels == 1);
+	    len = length;
+	 }
 
 	 if (bits == 16)
 	    len /= 2;

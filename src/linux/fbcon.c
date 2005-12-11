@@ -119,6 +119,75 @@ static int update_timings(struct fb_var_screeninfo *mode);
 
 
 
+static void set_ramp_cmap(AL_CONST struct fb_fix_screeninfo *fix,
+                          AL_CONST struct fb_var_screeninfo *var)
+{
+   struct fb_cmap cmap;
+   static unsigned short r[256], g[256], b[256]; /* 1.5 KB, so in .bss */
+   int rlen, glen, blen, rdiv, gdiv, bdiv;
+   unsigned int c;
+
+   ASSERT(fix);
+   ASSERT(var);
+   ASSERT(fix->visual == FB_VISUAL_DIRECTCOLOR);
+   
+   /* initialize what is common */
+   cmap.start = 0;
+   cmap.red = r;
+   cmap.green = g;
+   cmap.blue = b;
+   cmap.transp = NULL;
+
+   /* from the mode's color depth information */
+   rlen = 1<<var->red.length;
+   glen = 1<<var->green.length;
+   blen = 1<<var->blue.length;
+   cmap.len = MAX(rlen, MAX(glen, blen));
+   ASSERT(cmap.len <= 256);
+   if (cmap.len > 256)
+      cmap.len = 256; /* are there cards with more than 8 bits per color ? */
+
+   rdiv = rlen<=1 ? 1 : rlen-1;
+   gdiv = glen<=1 ? 1 : glen-1;
+   bdiv = blen<=1 ? 1 : blen-1;
+  
+   /* the easy case (should not happen) */
+   if (cmap.len == 0)
+      return;
+
+   /* build the colormap */
+   for (c=0; c<cmap.len; ++c) {
+      cmap.red[c] = c*65535/rdiv;
+      cmap.green[c] = c*65535/gdiv;
+      cmap.blue[c] = c*65535/bdiv;
+   }
+
+   /* wait a little to set colors once the frame is drawn */
+   fb_vsync();
+
+   /* ioctl to the FB driver with our colormap */
+   if (ioctl(fbfd, FBIOPUTCMAP, &cmap)) {
+      /* well, we can continue with potentially screwed up colors, I guess */
+      ASSERT(0);
+   }
+}
+
+
+
+static void calculate_refresh_rate(AL_CONST struct fb_var_screeninfo *mode)
+{
+   int h, v, hz;
+
+   ASSERT(mode);
+
+   h = mode->left_margin+mode->xres+mode->left_margin+mode->hsync_len;
+   v = mode->upper_margin+mode->yres+mode->lower_margin+mode->vsync_len;
+   hz = (int)(0.5f+1.0e12f/((float)mode->pixclock*h*v));
+   _set_current_refresh_rate(hz);
+}
+
+
+
 /* fb_init:
  *  Sets a graphics mode.
  */
@@ -149,7 +218,9 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 
    if (_safe_gfx_mode_change) tries = -1;
    else tries = 0;
-   
+
+   __al_linux_console_graphics();
+
    for (; tries<3; tries++) {
       TRACE(PREFIX_I "...try number %d...\n", tries);
       my_mode = orig_mode;
@@ -194,6 +265,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 
       my_mode.bits_per_pixel = color_depth;
       my_mode.grayscale = 0;
+      my_mode.activate = FB_ACTIVATE_NOW;
       my_mode.xoffset = 0;
       my_mode.yoffset = 0;
 
@@ -266,6 +338,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    }
       
    ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
+   __al_linux_console_text();
    close(fbfd);
    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Framebuffer resolution not available"));
    TRACE(PREFIX_E "Resolution %dx%d not available...\n", w, h);
@@ -273,10 +346,20 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 
    got_a_nice_mode:
 
+   /* get the fb_fix_screeninfo again, as it may have changed */
+   if (ioctl(fbfd, FBIOGET_FSCREENINFO, &fix_info) != 0) {
+      ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
+      __al_linux_console_text();
+      close(fbfd);
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Framebuffer ioctl() failed"));
+      return NULL;
+   }
+
    /* map the framebuffer */
    fbaddr = mmap(NULL, fix_info.smem_len, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
    if (fbaddr == MAP_FAILED) {
       ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
+      __al_linux_console_text();
       close(fbfd);
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can't map framebuffer"));
       TRACE(PREFIX_E "Couldn't map framebuffer for %dx%d. Restored old "
@@ -307,6 +390,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    if (!b) {
       ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
       munmap(fbaddr, fix_info.smem_len);
+      __al_linux_console_text();
       close(fbfd);
       TRACE(PREFIX_E "Couldn't make bitmap `b', sorry.\n");
       return NULL;
@@ -404,6 +488,14 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
       memset(fbaddr, 0, gfx_fbcon.vid_mem);
 
    fb_save_cmap();    /* Maybe we should fill in our default palette too... */
+
+   /* for directcolor modes, set up a ramp colormap, so colors are mapped
+      onto themselves, so to speak */
+   if (fix_info.visual == FB_VISUAL_DIRECTCOLOR)
+      set_ramp_cmap(&fix_info, &my_mode);
+
+   calculate_refresh_rate(&my_mode);
+ 
    TRACE(PREFIX_I "Got a bitmap %dx%dx%d\n", b->w, b->h, bitmap_color_depth(b));
    return b;
 }
@@ -491,6 +583,9 @@ static void fb_restore(void)
 
    if (fb_approx)
       memset(fbaddr, 0, gfx_fbcon.vid_mem);
+
+   if (fix_info.visual == FB_VISUAL_DIRECTCOLOR)
+      set_ramp_cmap(&fix_info, &my_mode);
 }
 
 
