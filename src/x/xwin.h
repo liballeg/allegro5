@@ -43,13 +43,12 @@ AL_FUNC(void, _xwin_set_palette_range, (AL_CONST PALETTE p, int from, int to, in
 AL_FUNC(void, _xwin_flush_buffers, (void));
 AL_FUNC(void, _xwin_vsync, (void));
 AL_FUNC(void, _xwin_handle_input, (void));
-AL_FUNC(void, _xwin_enable_hardware_cursor, (int mode));
+AL_FUNC(void, _al_xwin_enable_hardware_cursor, (bool mode));
 AL_FUNC(void, _xwin_redraw_window, (int x, int y, int w, int h));
 AL_FUNC(int, _xwin_scroll_screen, (int x, int y));
 AL_FUNC(void, _xwin_update_screen, (int x, int y, int w, int h));
 AL_FUNC(void, _xwin_set_window_title, (AL_CONST char *name));
 AL_FUNC(void, _xwin_change_keyboard_control, (int led, int on));
-AL_FUNC(int, _xwin_get_pointer_mapping, (unsigned char map[], int nmap));
 AL_FUNC(void, _xwin_init_keyboard_tables, (void));
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR

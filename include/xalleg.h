@@ -68,7 +68,7 @@ extern struct _xwin_type
 #endif
    Cursor invisible_cursor;
    Cursor cursor;
-   int hw_cursor_ok;
+   bool hw_cursor_ok;
 
    void (*screen_to_buffer)(int sx, int sy, int sw, int sh);
    void (*set_colors)(AL_CONST PALETTE p, int from, int to);

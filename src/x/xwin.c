@@ -71,7 +71,7 @@ struct _xwin_type _xwin =
 #endif
    None,        /* invisible_cursor */
    None,        /* cursor */
-   1,           /* hw_cursor_ok */
+   true,        /* hw_cursor_ok */
 
    0,           /* screen_to_buffer */
    0,           /* set_colors */
@@ -199,7 +199,6 @@ static int _xwin_private_scroll_screen(int x, int y);
 static void _xwin_private_update_screen(int x, int y, int w, int h);
 static void _xwin_private_set_window_title(AL_CONST char *name);
 static void _xwin_private_set_window_name(AL_CONST char *name, AL_CONST char *group);
-static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap);
 
 static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh);
 
@@ -415,7 +414,7 @@ static int _xwin_private_create_window(void)
    /* Detect if ARGB cursors are supported */
    _xwin.support_argb_cursor = XcursorSupportsARGB(_xwin.display);
 #endif
-   _xwin.hw_cursor_ok = 0;
+   _xwin.hw_cursor_ok = true;
    
    return 0;
 }
@@ -1534,17 +1533,17 @@ static int _xwin_private_fast_visual_depth(void)
 
 
 
-/* _xwin_enable_hardware_cursor:
- *  enable the hardware cursor; this disables the mouse mickey warping hack
+/* _al_xwin_enable_hardware_cursor:
+ *  Enable the hardware cursor; this disables the mouse mickey warping hack.
  */
-void _xwin_enable_hardware_cursor(int mode)
+void _al_xwin_enable_hardware_cursor(bool mode)
 {
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
    if (_xwin.support_argb_cursor)
       _xwin.hw_cursor_ok = mode;
    else
 #endif
-      _xwin.hw_cursor_ok = 0;
+      _xwin.hw_cursor_ok = false;
 
    /* Switch to non-warped mode */
    if (_xwin.hw_cursor_ok) {
@@ -2700,25 +2699,6 @@ void xwin_set_window_name(AL_CONST char *name, AL_CONST char *group)
    XLOCK();
    _xwin_private_set_window_name(tmp1, tmp2);
    XUNLOCK();
-}
-
-
-
-/* _xwin_get_pointer_mapping:
- *  Wrapper for XGetPointerMapping.
- */
-static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap)
-{
-   return ((_xwin.display == 0) ? -1 : XGetPointerMapping(_xwin.display, map, nmap));
-}
-
-int _xwin_get_pointer_mapping(unsigned char map[], int nmap)
-{
-   int num;
-   XLOCK();
-   num = _xwin_private_get_pointer_mapping(map, nmap);
-   XUNLOCK();
-   return num;
 }
 
 

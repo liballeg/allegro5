@@ -38,7 +38,7 @@ typedef struct AL_MOUSE_XWIN
 
 
 
-static bool xmouse_installed = 0;
+static bool xmouse_installed = false;
 
 /* the one and only mouse object */
 static AL_MOUSE_XWIN the_mouse;
@@ -100,7 +100,7 @@ _DRIVER_INFO _al_xwin_mouse_driver_list[] =
  */
 static bool xmouse_init(void)
 {
-   _xwin_enable_hardware_cursor(1);
+   _al_xwin_enable_hardware_cursor(true);
 
    memset(&the_mouse, 0, sizeof the_mouse);
 
@@ -151,15 +151,18 @@ static unsigned int xmouse_get_mouse_num_buttons(void)
 
    ASSERT(xmouse_installed);
 
-   num_buttons = _xwin_get_pointer_mapping(map, sizeof(map));
+   XLOCK();
+   num_buttons = XGetPointerMapping(_xwin.display, map, sizeof(map));
+   XUNLOCK();
 
+   num_buttons = MID(2, num_buttons, 3);
    return num_buttons;
 }
 
 
 
 /* xmouse_set_mouse_xy:
- *
+ *  Set the mouse position.  Return true if successful.
  */
 static bool xmouse_set_mouse_xy(int x, int y)
 {
@@ -180,8 +183,8 @@ static bool xmouse_set_mouse_xy(int x, int y)
 
 
 
-/* xmouse_set_mouse_xy:
- *
+/* xmouse_set_mouse_z:
+ *  Set the mouse wheel position.  Return true if successful.
  */
 static bool xmouse_set_mouse_z(int z)
 {
@@ -209,7 +212,7 @@ static bool xmouse_set_mouse_z(int z)
 
 
 /* xmouse_set_mouse_range:
- *
+ *  TODO
  */
 static bool xmouse_set_mouse_range(int x1, int y1, int x2, int y2)
 {
@@ -234,7 +237,10 @@ static void xmouse_get_state(AL_MSESTATE *ret_state)
 
 
 
-/* [bgman thread] */
+/* _al_xwin_mouse_button_press_handler: [bgman thread]
+ *  Called by _xwin_process_event() for ButtonPress events received from the X
+ *  server.
+ */
 void _al_xwin_mouse_button_press_handler(unsigned int x_button)
 {
    int dz;
@@ -243,12 +249,14 @@ void _al_xwin_mouse_button_press_handler(unsigned int x_button)
    if (!xmouse_installed)
       return;
 
+   /* Is this event actually generated for a mouse wheel movement? */
    dz = x_button_to_wheel(x_button);
    if (dz != 0) {
       wheel_motion_handler(dz);
       return;
    }
 
+   /* Is this button supported by the Allegro API? */
    al_button = x_button_to_al_button(x_button);
    if (al_button == 0)
       return;
@@ -268,7 +276,10 @@ void _al_xwin_mouse_button_press_handler(unsigned int x_button)
 
 
 
-/* [bgman thread] */
+/* wheel_motion_handler: [bgman thread]
+ *  Called by _al_xwin_mouse_button_press_handler() if the ButtonPress event
+ *  received from the X server is actually for a mouse wheel movement.
+ */
 static void wheel_motion_handler(int dz)
 {
    _al_event_source_lock(&the_mouse.parent.es);
@@ -286,7 +297,10 @@ static void wheel_motion_handler(int dz)
 
 
 
-/* [bgman thread] */
+/* _al_xwin_mouse_button_release_handler: [bgman thread]
+ *  Called by _xwin_process_event() for ButtonRelease events received from the
+ *  X server.
+ */
 void _al_xwin_mouse_button_release_handler(unsigned int x_button)
 {
    int al_button;
@@ -313,7 +327,10 @@ void _al_xwin_mouse_button_release_handler(unsigned int x_button)
 
 
 
-/* [bgman thread] */
+/* _al_xwin_mouse_motion_notify_handler: [bgman thread]
+ *  Called by _xwin_process_event() for MotionNotify events received from the X
+ *  server.
+ */
 void _al_xwin_mouse_motion_notify_handler(int x, int y)
 {
    if (!xmouse_installed)
@@ -337,7 +354,11 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y)
 
 
 
-/* [bgman thread] */
+/* _al_xwin_mouse_motion_notify_handler_dga2: [bgman thread]
+ *  Called by _xdga_process_event() for MotionNotify events received from the X
+ *  server.  These are different from the MotionNotify events received when not
+ *  in DGA2 mode.
+ */
 void _al_xwin_mouse_motion_notify_handler_dga2(int dx, int dy,
                                                int min_x, int min_y,
                                                int max_x, int max_y)
@@ -364,7 +385,10 @@ void _al_xwin_mouse_motion_notify_handler_dga2(int dx, int dy,
 
 
 
-/* [bgman thread] */
+/* x_button_to_wheel: [bgman thread]
+ *  Return a non-zero number if an X mouse button number corresponds to the
+ *  mouse wheel scrolling, otherwise return 0.
+ */
 static int x_button_to_wheel(unsigned int x_button)
 {
    switch (x_button) {
@@ -380,7 +404,9 @@ static int x_button_to_wheel(unsigned int x_button)
 
 
 
-/* [bgman thread] */
+/* x_button_to_al_button: [bgman thread]
+ *  Map a X button number to an Allegro button number.
+ */
 static unsigned int x_button_to_al_button(unsigned int x_button)
 {
    switch (x_button) {
@@ -398,7 +424,9 @@ static unsigned int x_button_to_al_button(unsigned int x_button)
 
 
 
-/* [bgman thread] */
+/* generate_mouse_event: [bgman thread]
+ *  Helper to generate a mouse event.
+ */
 static void generate_mouse_event(unsigned int type,
                                  int x, int y, int z,
                                  int dx, int dy, int dz,
