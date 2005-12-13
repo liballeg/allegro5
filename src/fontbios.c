@@ -33,9 +33,9 @@ FONT *load_bios_font(AL_CONST char *filename, RGB *pal, void *param)
     FONT_GLYPH **gl;
     int i, h;
 
-    f = _al_malloc(sizeof(FONT));
-    mf = _al_malloc(sizeof(FONT_MONO_DATA));
-    gl = _al_malloc(sizeof(FONT_GLYPH*) * 256);
+    f = _AL_MALLOC(sizeof(FONT));
+    mf = _AL_MALLOC(sizeof(FONT_MONO_DATA));
+    gl = _AL_MALLOC(sizeof(FONT_GLYPH*) * 256);
 
     pack = pack_fopen(filename, F_READ);
     if (!pack) return 0;
@@ -43,7 +43,7 @@ FONT *load_bios_font(AL_CONST char *filename, RGB *pal, void *param)
     h = (pack->normal.todo == 2048) ? 8 : 16;
 
     for (i = 0; i < 256; i++) {
-        gl[i] = _al_malloc(sizeof(FONT_GLYPH) + 8);
+        gl[i] = _AL_MALLOC(sizeof(FONT_GLYPH) + 8);
         gl[i]->w = gl[i]->h = 8;
         pack_fread(gl[i]->dat, 8, pack);
     }

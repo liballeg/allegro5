@@ -50,6 +50,22 @@ enum {
 AL_VAR(int, _screensaver_policy);
 
 
+/* malloc wrappers */
+/* The 4.3 branch uses the following macro names to allow the user to customise
+ * the memory management routines.  We don't have that feature in 4.2, but we
+ * use the same macros names in order to reduce divergence of the codebases.
+ */
+#define _AL_MALLOC(SIZE)         (_al_malloc(SIZE))
+#define _AL_MALLOC_ATOMIC(SIZE)  (_al_malloc(SIZE))
+#define _AL_FREE(PTR)            (_al_free(PTR))
+#define _AL_REALLOC(PTR, SIZE)   (_al_realloc(PTR, SIZE))
+
+AL_FUNC(void *, _al_malloc, (int size));
+AL_FUNC(void, _al_free, (void *mem));
+AL_FUNC(void *, _al_realloc, (void *mem, int size));
+
+
+
 /* some Allegro functions need a block of scratch memory */
 AL_VAR(void *, _scratch_mem);
 AL_VAR(int, _scratch_mem_size);
@@ -59,16 +75,10 @@ AL_INLINE(void, _grow_scratch_mem, (int size),
 {
    if (size > _scratch_mem_size) {
       size = (size+1023) & 0xFFFFFC00;
-      _scratch_mem = realloc(_scratch_mem, size);
+      _scratch_mem = _AL_REALLOC(_scratch_mem, size);
       _scratch_mem_size = size;
    }
 })
-
-
-/* malloc wrappers for DLL <-> application shared memory */
-AL_FUNC(void *, _al_malloc, (int size));
-AL_FUNC(void, _al_free, (void *mem));
-AL_FUNC(void *, _al_realloc, (void *mem, int size));
 
 
 /* list of functions to call at program cleanup */

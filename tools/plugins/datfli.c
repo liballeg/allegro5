@@ -27,7 +27,7 @@
 /* creates a new FLIC object */
 static void *makenew_fli(long *size)
 {
-   char *v = _al_malloc(1);
+   char *v = _AL_MALLOC(1);
 
    *v = 0;
    *size = 1;

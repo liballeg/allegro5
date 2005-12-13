@@ -993,7 +993,7 @@ int open_fli(AL_CONST char *filename)
       return FLI_ERROR;
 
    if (fli_filename) {
-      free(fli_filename);
+      _AL_FREE(fli_filename);
       fli_filename = NULL;
    }
 
@@ -1042,7 +1042,7 @@ void close_fli(void)
    }
 
    if (fli_filename) {
-      free(fli_filename);
+      _AL_FREE(fli_filename);
       fli_filename = NULL;
    }
 

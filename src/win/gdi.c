@@ -108,7 +108,7 @@ HPALETTE convert_palette_to_hpalette(PALETTE pal)
    LOGPALETTE *lp;
    int i;
 
-   lp = (LOGPALETTE *) malloc(sizeof(LOGPALETTE) + sizeof(PALETTEENTRY) * 256);
+   lp = (LOGPALETTE *) _AL_MALLOC(sizeof(LOGPALETTE) + sizeof(PALETTEENTRY) * 256);
    if (!lp)
       return NULL;
 
@@ -124,7 +124,7 @@ HPALETTE convert_palette_to_hpalette(PALETTE pal)
 
    hpal = CreatePalette(lp);
 
-   free(lp);
+   _AL_FREE(lp);
 
    return hpal;
 }
@@ -159,7 +159,7 @@ static BITMAPINFO *get_bitmap_info(BITMAP *bitmap, PALETTE pal)
    BITMAPINFO *bi;
    int bpp, i;
 
-   bi = (BITMAPINFO *) malloc(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
+   bi = (BITMAPINFO *) _AL_MALLOC(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
 
    bpp = bitmap_color_depth(bitmap);
    if (bpp == 15)
@@ -206,7 +206,7 @@ static BYTE *get_dib_from_bitmap(BITMAP *bitmap)
    pitch = bitmap->w * BYTES_PER_PIXEL(bpp);
    pitch = (pitch + 3) & ~3;	/* align on dword */
 
-   pixels = (BYTE *) malloc(bitmap->h * pitch);
+   pixels = (BYTE *) _AL_MALLOC_ATOMIC(bitmap->h * pitch);
    if (!pixels)
       return NULL;
 
@@ -331,7 +331,7 @@ static BYTE *get_dib_from_hbitmap(int bpp, HBITMAP hbitmap)
    pitch = bm.bmWidth * BYTES_PER_PIXEL(bpp);
    pitch = (pitch + 3) & ~3;	/* align on dword */
 
-   pixels = (BYTE *) malloc(bm.bmHeight * pitch);
+   pixels = (BYTE *) _AL_MALLOC_ATOMIC(bm.bmHeight * pitch);
    if (!pixels)
       return NULL;
 
@@ -345,7 +345,7 @@ static BYTE *get_dib_from_hbitmap(int bpp, HBITMAP hbitmap)
    bi.biClrUsed = 256;
    bi.biCompression = BI_RGB;
 
-   binfo = malloc(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
+   binfo = _AL_MALLOC(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
    binfo->bmiHeader = bi;
 
    hdc = GetDC(NULL);
@@ -380,7 +380,7 @@ static BYTE *get_dib_from_hbitmap(int bpp, HBITMAP hbitmap)
       }
    }
 
-   free(binfo);
+   _AL_FREE(binfo);
 
    SelectPalette(hdc, holdpal, TRUE);
    DeleteObject(hpal);
@@ -528,8 +528,8 @@ HBITMAP convert_bitmap_to_hbitmap(BITMAP *bitmap)
    SelectPalette(hdc, holdpal, TRUE);
    DeleteObject(hpal);
 
-   free(pixels);
-   free(bi);
+   _AL_FREE(pixels);
+   _AL_FREE(bi);
 
    return hbmp;
 }
@@ -562,7 +562,7 @@ BITMAP *convert_hbitmap_to_bitmap(HBITMAP bitmap)
    /* now that we have the DIB, convert it to a BITMAP */
    bmp = get_bitmap_from_dib(bpp, bm.bmWidth, bm.bmHeight, pixels);
 
-   free(pixels);
+   _AL_FREE(pixels);
 
    return bmp;
 }
@@ -602,8 +602,8 @@ void stretch_blit_to_hdc(BITMAP *bitmap, HDC dc, int src_x, int src_y, int src_w
 
    StretchDIBits(dc, dest_x, dest_y, dest_w, dest_h, src_x, bitmap->h - src_y - src_h, src_w, src_h, pixels, bi, DIB_RGB_COLORS, SRCCOPY);
 
-   free(pixels);
-   free(bi);
+   _AL_FREE(pixels);
+   _AL_FREE(bi);
 }
 
 

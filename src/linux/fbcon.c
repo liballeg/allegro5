@@ -741,8 +741,8 @@ static void fb_do_cmap (int ioctlno)
  */
 static void fb_save_cmap (void)
 {
-	if (orig_cmap_data) free (orig_cmap_data);   /* can't happen */
-	orig_cmap_data = malloc (sizeof *orig_cmap_data* 768);
+	if (orig_cmap_data) _AL_FREE (orig_cmap_data);   /* can't happen */
+	orig_cmap_data = _AL_MALLOC_ATOMIC (sizeof *orig_cmap_data* 768);
 	if (orig_cmap_data)
 		fb_do_cmap (FBIOGETCMAP);
 }
@@ -753,7 +753,7 @@ static void fb_restore_cmap (void)
 {
 	if (orig_cmap_data) {
 		fb_do_cmap (FBIOPUTCMAP);
-		free (orig_cmap_data);
+		_AL_FREE (orig_cmap_data);
 		orig_cmap_data = NULL;
 	}
 }
@@ -904,9 +904,9 @@ static int read_fbmodes_file (int w, int h)
       }
 
       if (!strcmp (s, "mode")) {
-	 free (mode_id);
-	 free (geometry);
-	 free (timings);
+	 _AL_FREE (mode_id);
+	 _AL_FREE (geometry);
+	 _AL_FREE (timings);
 	 mode_id = strdup (t);
 	 geometry = timings = NULL;
 	 sync = 0;
@@ -933,15 +933,15 @@ static int read_fbmodes_file (int w, int h)
 	       s = NULL;
 	    }
 	 }
-	 free (mode_id);
-	 free (geometry);
-	 free (timings);
+	 _AL_FREE (mode_id);
+	 _AL_FREE (geometry);
+	 _AL_FREE (timings);
 	 mode_id = geometry = timings = NULL;
       } else if (!strcmp (s, "geometry")) {
-	 free (geometry);
+	 _AL_FREE (geometry);
 	 geometry = strdup (t);
       } else if (!strcmp (s, "timings")) {
-	 free (timings);
+	 _AL_FREE (timings);
 	 timings = strdup (t);
       } else if (!strcmp (s, "hsync")) {
 	 #define set_bit(var,bit,on) var = ((var) &~ (bit)) | ((on) ? bit : 0)
@@ -963,9 +963,9 @@ static int read_fbmodes_file (int w, int h)
       }
    } while (s);
 
-   free (mode_id);
-   free (geometry);
-   free (timings);
+   _AL_FREE (mode_id);
+   _AL_FREE (geometry);
+   _AL_FREE (timings);
 
    fclose (fbmodes);
    return ret;

@@ -827,17 +827,17 @@ static void _xwin_private_destroy_screen(void)
 #endif
 
    if (_xwin.buffer_line != 0) {
-      free(_xwin.buffer_line);
+      _AL_FREE(_xwin.buffer_line);
       _xwin.buffer_line = 0;
    }
 
    if (_xwin.screen_line != 0) {
-      free(_xwin.screen_line);
+      _AL_FREE(_xwin.screen_line);
       _xwin.screen_line = 0;
    }
 
    if (_xwin.screen_data != 0) {
-      free(_xwin.screen_data);
+      _AL_FREE(_xwin.screen_data);
       _xwin.screen_data = 0;
    }
 
@@ -908,7 +908,7 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv,
    _xwin_private_select_set_colors_function();
 
    /* Create line accelerators for screen data.  */
-   _xwin.screen_line = malloc(_xwin.virtual_height * sizeof(unsigned char*));
+   _xwin.screen_line = _AL_MALLOC_ATOMIC(_xwin.virtual_height * sizeof(unsigned char*));
    if (_xwin.screen_line == 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return 0;
@@ -922,7 +922,7 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv,
    }
    else {
       bytes_per_screen_line = _xwin.virtual_width * BYTES_PER_PIXEL(_xwin.screen_depth);
-      _xwin.screen_data = malloc(_xwin.virtual_height * bytes_per_screen_line);
+      _xwin.screen_data = _AL_MALLOC_ATOMIC(_xwin.virtual_height * bytes_per_screen_line);
       if (_xwin.screen_data == 0) {
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
 	 return 0;
@@ -936,7 +936,7 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv,
 
    /* Create line accelerators for frame buffer.  */
    if (!_xwin.matching_formats && _xwin.fast_visual_depth) {
-      _xwin.buffer_line = malloc(_xwin.virtual_height * sizeof(unsigned char*));
+      _xwin.buffer_line = _AL_MALLOC(_xwin.virtual_height * sizeof(unsigned char*));
       if (_xwin.buffer_line == 0) {
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
 	 return 0;
@@ -1137,7 +1137,7 @@ static int _xwin_private_create_ximage(int w, int h)
       image = XCreateImage(_xwin.display, _xwin.visual, _xwin.window_depth,
 			   ZPixmap, 0, 0, w, h, 32, 0);
       if (image != 0) {
-	 image->data = malloc(image->bytes_per_line * image->height);
+	 image->data = _AL_MALLOC_ATOMIC(image->bytes_per_line * image->height);
 	 if (image->data == 0) {
 	    XDestroyImage(image);
 	    image = 0;
@@ -2087,7 +2087,7 @@ static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to
    if (_xwin.set_colors != 0) {
       if (blitter_func) {
          if (use_bgr_palette_hack && (from >= 0) && (to < 256)) {
-            pal = malloc(sizeof(RGB)*256);
+            pal = _AL_MALLOC_ATOMIC(sizeof(RGB)*256);
             ASSERT(pal);
             ASSERT(p);
             if (!pal || !p)
@@ -2099,7 +2099,7 @@ static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to
                pal[c].b = temp;
             }
             _set_colorconv_palette(pal, from, to);
-	    free(pal);
+	    _AL_FREE(pal);
          }
          else {
             _set_colorconv_palette(p, from, to);
@@ -2855,15 +2855,15 @@ static GFX_MODE_LIST *_xvidmode_private_fetch_mode_list(void)
       return 0;
 
    /* Allocate space for mode list.  */
-   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   mode_list = _AL_MALLOC(sizeof(GFX_MODE_LIST));
    if (!mode_list) {
       free_modelines(modesinfo, num_modes);
       return 0;
    }
 
-   mode_list->mode = malloc(sizeof(GFX_MODE) * ((num_modes * num_bpp) + 1));
+   mode_list->mode = _AL_MALLOC(sizeof(GFX_MODE) * ((num_modes * num_bpp) + 1));
    if (!mode_list->mode) {
-      free(mode_list);
+      _AL_FREE(mode_list);
       free_modelines(modesinfo, num_modes);
       return 0;
    }

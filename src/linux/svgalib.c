@@ -414,7 +414,7 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
       vid_mem = bytes_per_line * height;
 
       /* Allocate memory buffer for screen.  */
-      screen_buffer = malloc(vid_mem);
+      screen_buffer = _AL_MALLOC_ATOMIC(vid_mem);
       if (!screen_buffer) 
 	 return NULL;
       last_line = -1;
@@ -518,7 +518,7 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
 static void svga_exit(BITMAP *b)
 {
    if (screen_buffer) {
-      free(screen_buffer);
+      _AL_FREE(screen_buffer);
       screen_buffer = NULL;
    }
 
@@ -622,13 +622,13 @@ static GFX_MODE_LIST *svga_fetch_mode_list(void)
       }
    }
 
-   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   mode_list = _AL_MALLOC(sizeof(GFX_MODE_LIST));
    if (!mode_list)
       return NULL;
 
-   mode_list->mode = malloc(sizeof(GFX_MODE) * (count + 1));
+   mode_list->mode = _AL_MALLOC(sizeof(GFX_MODE) * (count + 1));
    if (!mode_list->mode) {
-       free(mode_list);
+       _AL_FREE(mode_list);
        return NULL;
    }
 

@@ -167,7 +167,7 @@ MIDI *load_midi(AL_CONST char *filename)
    if (!fp)
       return NULL;
 
-   midi = malloc(sizeof(MIDI));              /* get some memory */
+   midi = _AL_MALLOC(sizeof(MIDI));              /* get some memory */
    if (!midi) {
       pack_fclose(fp);
       return NULL;
@@ -222,7 +222,7 @@ MIDI *load_midi(AL_CONST char *filename)
       data = pack_mgetl(fp);                 /* length of track chunk */
       midi->track[c].len = data;
 
-      midi->track[c].data = malloc(data);    /* allocate memory */
+      midi->track[c].data = _AL_MALLOC_ATOMIC(data); /* allocate memory */
       if (!midi->track[c].data)
 	 goto err;
 					     /* finally, read track data */
@@ -257,12 +257,12 @@ void destroy_midi(MIDI *midi)
       for (c=0; c<MIDI_TRACKS; c++) {
 	 if (midi->track[c].data) {
 	    UNLOCK_DATA(midi->track[c].data, midi->track[c].len);
-	    free(midi->track[c].data);
+	    _AL_FREE(midi->track[c].data);
 	 }
       }
 
       UNLOCK_DATA(midi, sizeof(MIDI));
-      free(midi);
+      _AL_FREE(midi);
    }
 }
 

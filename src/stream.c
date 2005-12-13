@@ -17,6 +17,7 @@
 
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
 
 
 
@@ -44,7 +45,7 @@ AUDIOSTREAM *play_audio_stream(int len, int bits, int stereo, int freq, int vol,
       bufcount = (i + len-1) / len;
 
    /* create the stream structure */
-   stream = malloc(sizeof(AUDIOSTREAM));
+   stream = _AL_MALLOC(sizeof(AUDIOSTREAM));
    if (!stream)
       return NULL;
 
@@ -57,7 +58,7 @@ AUDIOSTREAM *play_audio_stream(int len, int bits, int stereo, int freq, int vol,
    /* create the underlying sample */
    stream->samp = create_sample(bits, stereo, freq, len*bufcount*2);
    if (!stream->samp) {
-      free(stream);
+      _AL_FREE(stream);
       return NULL;
    }
 
@@ -80,7 +81,7 @@ AUDIOSTREAM *play_audio_stream(int len, int bits, int stereo, int freq, int vol,
    if (stream->voice < 0) {
       destroy_sample(stream->samp);
       UNLOCK_DATA(stream, sizeof(AUDIOSTREAM));
-      free(stream);
+      _AL_FREE(stream);
       return NULL;
    }
 
@@ -109,7 +110,7 @@ void stop_audio_stream(AUDIOSTREAM *stream)
    destroy_sample(stream->samp);
 
    UNLOCK_DATA(stream, sizeof(AUDIOSTREAM));
-   free(stream); 
+   _AL_FREE(stream); 
 }
 
 

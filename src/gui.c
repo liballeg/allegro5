@@ -878,17 +878,17 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
    if (active_menu_player)
       object_message(active_menu_player->dialog, MSG_LOSTMOUSE, 0);
 
-   player = malloc(sizeof(DIALOG_PLAYER));
+   player = _AL_MALLOC(sizeof(DIALOG_PLAYER));
    if (!player) {
       *allegro_errno = ENOMEM;
       return NULL;
    }
 
    /* append player to the list */
-   n = malloc(sizeof(struct al_active_dialog_player));
+   n = _AL_MALLOC(sizeof(struct al_active_dialog_player));
    if (!n) {
       *allegro_errno = ENOMEM;
-      free (player);
+      _AL_FREE (player);
       return NULL;
    }
 
@@ -1362,7 +1362,7 @@ int shutdown_dialog(DIALOG_PLAYER *player)
 	 if (iter == current_active_dialog_player)
 	    current_active_dialog_player = prev;
 
-	 free (iter);
+	 _AL_FREE (iter);
 	 break;
       }
    }
@@ -1379,7 +1379,7 @@ int shutdown_dialog(DIALOG_PLAYER *player)
 
    obj = player->obj;
 
-   free(player);
+   _AL_FREE(player);
 
    return obj;
 }
@@ -1421,7 +1421,7 @@ static int bar_entry_length(const char *text)
    len = gui_strlen(tok1) + 16;
    if (tok2)
       len += gui_strlen(tok2) + 16;
-   free(buf);
+   _AL_FREE(buf);
 
    return len;
 }
@@ -1514,7 +1514,7 @@ static void draw_menu_item(MENU_PLAYER *m, int c)
          putpixel(gui_bmp, x+w-8, my+5, fg);
       }
 
-      free(buf);
+      _AL_FREE(buf);
    }
    else
       hline(gui_bmp, x, y+text_height(font)/2+2, x+w, fg);
@@ -1651,7 +1651,7 @@ static void layout_menu(MENU_PLAYER *m, MENU *menu, int bar, int x, int y, int m
 	       extra = MAX(extra, c);
 	    }
 
-	    free(buf);
+	    _AL_FREE(buf);
 	 }
       }
    }
@@ -1778,7 +1778,7 @@ static MENU_PLAYER *init_single_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *di
    MENU_PLAYER *player;
    ASSERT(menu);
 
-   player = malloc(sizeof(MENU_PLAYER));
+   player = _AL_MALLOC(sizeof(MENU_PLAYER));
    if (!player) {
       *allegro_errno = ENOMEM;
       return NULL;
@@ -2150,7 +2150,7 @@ static int shutdown_single_menu(MENU_PLAYER *player, int *dret)
 
    ret = player->ret;
 
-   free(player);
+   _AL_FREE(player);
 
    return ret;
 }

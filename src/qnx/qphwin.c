@@ -331,7 +331,7 @@ static BITMAP *qnx_private_ph_init_win(GFX_DRIVER *drv, int w, int h, int v_w, i
       window_pitch = ph_window_context->pitch;
       
       /* the pseudo-screen is a memory bitmap */
-      pseudo_screen_addr = malloc(w * h * BYTES_PER_PIXEL(color_depth));
+      pseudo_screen_addr = _AL_MALLOC(w * h * BYTES_PER_PIXEL(color_depth));
       if (!pseudo_screen_addr) {
          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
          return NULL;
@@ -407,12 +407,12 @@ static void qnx_private_ph_exit_win(BITMAP *bmp)
    }
    
    if (pseudo_screen_addr) {
-      free(pseudo_screen_addr);
+      _AL_FREE(pseudo_screen_addr);
       pseudo_screen_addr = NULL;
    }
    
    if (ph_dirty_lines) {
-      free(ph_dirty_lines);
+      _AL_FREE(ph_dirty_lines);
       ph_dirty_lines = NULL;
    }
    

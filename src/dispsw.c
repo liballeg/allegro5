@@ -225,7 +225,7 @@ void _register_switch_bitmap(BITMAP *bmp, BITMAP *parent)
       if (!parent_info)
 	 goto getout;
 
-      info = malloc(sizeof(BITMAP_INFORMATION));
+      info = _AL_MALLOC(sizeof(BITMAP_INFORMATION));
       if (!info)
 	 goto getout;
 
@@ -242,7 +242,7 @@ void _register_switch_bitmap(BITMAP *bmp, BITMAP *parent)
       /* add a new top-level bitmap: must be in the foreground for this! */
       ASSERT(_dispsw_status == SWITCH_NONE);
 
-      info = malloc(sizeof(BITMAP_INFORMATION));
+      info = _AL_MALLOC(sizeof(BITMAP_INFORMATION));
       if (!info)
 	 goto getout;
 
@@ -285,7 +285,7 @@ void _unregister_switch_bitmap(BITMAP *bmp)
    ASSERT(!info->other);
 
    *head = info->sibling;
-   free(info);
+   _AL_FREE(info);
 
    getout:
 

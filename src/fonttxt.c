@@ -63,7 +63,7 @@ FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
          end = -1;
 
       if(begin <= 0 || (end > 0 && end < begin)) {
-         _al_free(f);
+         _AL_FREE(f);
          if (f2)
             destroy_font(f2);
          pack_fclose(pack);

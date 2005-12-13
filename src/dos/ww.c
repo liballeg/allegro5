@@ -26,6 +26,7 @@
 #include <string.h>
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
 
 #ifndef ALLEGRO_DOS
    #error something is wrong with the makefile
@@ -83,7 +84,7 @@ static int ww_init(void)
 {
    __dpmi_regs r;
 
-   wingman = malloc(sizeof(SWIFT_T));
+   wingman = _AL_MALLOC(sizeof(SWIFT_T));
    memset(wingman, 0, sizeof(SWIFT_T));
 
    memset(&r, 0, sizeof(r));
@@ -97,7 +98,7 @@ static int ww_init(void)
    if (r.x.ax != 1) {
       /* SWIFT functions not present */
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("SWIFT Device not detected"));
-      free(wingman);
+      _AL_FREE(wingman);
       wingman = NULL;
       return -1;
    }
@@ -109,7 +110,7 @@ static int ww_init(void)
       else
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Device connected is not a Wingman Warrior"));
 
-      free(wingman);
+      _AL_FREE(wingman);
       wingman = NULL;
       return -1;
    }
@@ -218,7 +219,7 @@ static int ww_poll(void)
 static void ww_exit(void)
 {
    if (wingman) {
-      free(wingman);
+      _AL_FREE(wingman);
       wingman = NULL;
    }
 }

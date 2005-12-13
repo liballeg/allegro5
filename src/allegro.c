@@ -254,7 +254,7 @@ void _add_exit_func(void (*func)(void), AL_CONST char *desc)
       if (n->funcptr == func)
 	 return;
 
-   n = malloc(sizeof(struct al_exit_func));
+   n = _AL_MALLOC(sizeof(struct al_exit_func));
    if (!n)
       return;
 
@@ -279,7 +279,7 @@ void _remove_exit_func(void (*func)(void))
 	    prev->next = iter->next;
 	 else
 	    exit_func_list = iter->next;
-	 free(iter);
+	 _AL_FREE(iter);
 	 return;
       }
       prev = iter;
@@ -426,7 +426,7 @@ void allegro_exit(void)
    }
 
    if (_scratch_mem) {
-      free(_scratch_mem);
+      _AL_FREE(_scratch_mem);
       _scratch_mem = NULL;
       _scratch_mem_size = 0;
    }
@@ -439,8 +439,8 @@ void allegro_exit(void)
  */
 void allegro_message(AL_CONST char *msg, ...)
 {
-   char *buf = malloc(ALLEGRO_MESSAGE_SIZE);
-   char *tmp = malloc(ALLEGRO_MESSAGE_SIZE);
+   char *buf = _AL_MALLOC_ATOMIC(ALLEGRO_MESSAGE_SIZE);
+   char *tmp = _AL_MALLOC_ATOMIC(ALLEGRO_MESSAGE_SIZE);
    va_list ap;
    ASSERT(msg);
    va_start(ap, msg);
@@ -452,8 +452,8 @@ void allegro_message(AL_CONST char *msg, ...)
    else
       fputs(uconvert(buf, U_CURRENT, tmp, U_ASCII_CP, ALLEGRO_MESSAGE_SIZE), stdout);
 
-   free(buf);
-   free(tmp);
+   _AL_FREE(buf);
+   _AL_FREE(tmp);
 }
 
 

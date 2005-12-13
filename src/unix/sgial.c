@@ -232,7 +232,7 @@ static int _al_sgial_init(int input, int voices)
    }
 
    _al_sgial_bufsize = _AL_SGIAL_BUFFERSIZE;
-   _al_sgial_bufdata = malloc(_al_sgial_bufsize*((_al_sgial_bits==AL_SAMPLE_16) ? 2 : 1)*((_al_sgial_stereo==AL_STEREO) ? 2 : 1));
+   _al_sgial_bufdata = _AL_MALLOC_ATOMIC(_al_sgial_bufsize*((_al_sgial_bits==AL_SAMPLE_16) ? 2 : 1)*((_al_sgial_stereo==AL_STEREO) ? 2 : 1));
    if (!_al_sgial_bufdata) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not allocate audio buffer"));
       alClosePort(_al_sgial_port);
@@ -246,7 +246,7 @@ static int _al_sgial_init(int input, int voices)
 		   ((_al_sgial_stereo == AL_STEREO) ? 1 : 0), ((_al_sgial_bits == AL_SAMPLE_16) ? 1 : 0),
 		   &digi_sgial.voices) != 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not init software mixer"));
-      free(_al_sgial_bufdata);
+      _AL_FREE(_al_sgial_bufdata);
       alClosePort(_al_sgial_port);
       alFreeConfig(_al_sgial_config);
       return -1;
@@ -288,7 +288,7 @@ static void _al_sgial_exit(int input)
    _unix_bg_man->unregister_func(_al_sgial_update);
 #endif
 
-   free(_al_sgial_bufdata);
+   _AL_FREE(_al_sgial_bufdata);
    _al_sgial_bufdata = NULL;
 
    _mixer_exit();

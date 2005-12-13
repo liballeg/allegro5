@@ -169,7 +169,7 @@ int gfx_directx_setup_driver(GFX_DRIVER *drv, int w, int h, int color_depth)
    drv->vid_mem += w * h * BYTES_PER_PIXEL(color_depth);
 
    /* create our pseudo surface memory */
-   pseudo_surf_mem = malloc(2048 * BYTES_PER_PIXEL(color_depth));
+   pseudo_surf_mem = _AL_MALLOC_ATOMIC(2048 * BYTES_PER_PIXEL(color_depth));
 
    /* modify the vtable to work with video memory */
    memcpy(&_screen_vtable, _get_vtable(color_depth), sizeof(_screen_vtable));
@@ -348,7 +348,7 @@ void gfx_directx_exit(struct BITMAP *bmp)
 
    /* free pseudo memory */
    if (pseudo_surf_mem) {
-      free(pseudo_surf_mem);
+      _AL_FREE(pseudo_surf_mem);
       pseudo_surf_mem = NULL;
    }
 

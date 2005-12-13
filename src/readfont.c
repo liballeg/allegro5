@@ -47,10 +47,10 @@ void register_font_file_type(AL_CONST char *ext, FONT *(*load)(AL_CONST char *fi
    if (strlen(aext) == 0) return;
 
    if (!iter) 
-      iter = font_type_list = malloc(sizeof(struct FONT_TYPE_INFO));
+      iter = font_type_list = _AL_MALLOC(sizeof(struct FONT_TYPE_INFO));
    else {
       for (iter = font_type_list; iter->next; iter = iter->next);
-      iter = iter->next = malloc(sizeof(struct FONT_TYPE_INFO));
+      iter = iter->next = _AL_MALLOC(sizeof(struct FONT_TYPE_INFO));
    }
 
    if (iter) {
@@ -97,8 +97,8 @@ static void register_font_file_type_exit(void)
 
    while (iter) {
       next = iter->next;
-      free(iter->ext);
-      free(iter);
+      _AL_FREE(iter->ext);
+      _AL_FREE(iter);
       iter = next;
    }
    
@@ -160,8 +160,8 @@ void _register_font_file_type_init(void)
 
       while (iter) {
          next = iter->next;
-         free(iter->ext);
-         free(iter);
+         _AL_FREE(iter->ext);
+         _AL_FREE(iter);
          iter = next;
       }
    

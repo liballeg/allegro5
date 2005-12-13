@@ -232,14 +232,14 @@ static void sys_directx_exit(void)
  */
 static void sys_directx_get_executable_name(char *output, int size)
 {
-   char *temp = malloc(size);
+   char *temp = _AL_MALLOC_ATOMIC(size);
 
    if (GetModuleFileName(allegro_inst, temp, size))
       do_uconvert(temp, U_ASCII, output, U_CURRENT, size);
    else
       usetc(output, 0);
 
-   free(temp);
+   _AL_FREE(temp);
 }
 
 
@@ -302,7 +302,7 @@ static int sys_directx_set_close_button_callback(void (*proc)(void))
  */
 static void sys_directx_message(AL_CONST char *msg)
 {
-   char *tmp1 = malloc(ALLEGRO_MESSAGE_SIZE);
+   char *tmp1 = _AL_MALLOC_ATOMIC(ALLEGRO_MESSAGE_SIZE);
    char tmp2[WND_TITLE_SIZE*2];
    HWND allegro_wnd = win_get_window();
 
@@ -314,7 +314,7 @@ static void sys_directx_message(AL_CONST char *msg)
 	       (unsigned short *)uconvert(wnd_title, U_ASCII, tmp2, U_UNICODE, sizeof(tmp2)),
 	       MB_OK);
 
-   free(tmp1);
+   _AL_FREE(tmp1);
 }
 
 
@@ -478,14 +478,14 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
    /* can't use parameter because it doesn't include the executable name */
    cmdline = GetCommandLine();
    i = strlen(cmdline) + 1;
-   argbuf = malloc(i);
+   argbuf = _AL_MALLOC(i);
    memcpy(argbuf, cmdline, i);
 
    argc = 0;
    argc_max = 64;
-   argv = malloc(sizeof(char *) * argc_max);
+   argv = _AL_MALLOC(sizeof(char *) * argc_max);
    if (!argv) {
-      free(argbuf);
+      _AL_FREE(argbuf);
       return 1;
    }
 
@@ -509,9 +509,9 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
          if (argc >= argc_max) {
             argc_max += 64;
-            argv = realloc(argv, sizeof(char *) * argc_max);
+            argv = _AL_REALLOC(argv, sizeof(char *) * argc_max);
             if (!argv) {
-               free(argbuf);
+               _AL_FREE(argbuf);
                return 1;
             }
          }
@@ -531,8 +531,8 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
    /* call the application entry point */
    i = mainfunc(argc, argv);
 
-   free(argv);
-   free(argbuf);
+   _AL_FREE(argv);
+   _AL_FREE(argbuf);
 
    return i;
 }

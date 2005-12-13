@@ -197,7 +197,7 @@ static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPC
 {
    if (lpGuid) {
       driver_guids[num_drivers] = lpGuid;
-      driver_names[num_drivers] = malloc(strlen(lpcstrDescription)+1);
+      driver_names[num_drivers] = _AL_MALLOC_ATOMIC(strlen(lpcstrDescription)+1);
       if(driver_names[num_drivers])
       {
          _al_sane_strncpy(driver_names[num_drivers], lpcstrDescription, strlen(lpcstrDescription)+1);
@@ -237,7 +237,7 @@ _DRIVER_INFO *_get_win_digi_driver_list(void)
 
          /* pure DirectSound drivers */
          for (i=0; i<num_drivers; i++) {
-            driver = malloc(sizeof(DIGI_DRIVER));
+            driver = _AL_MALLOC(sizeof(DIGI_DRIVER));
             memcpy(driver, &digi_directsound, sizeof(DIGI_DRIVER));
             driver->id = DIGI_DIRECTX(i);
             driver->ascii_name = driver_names[i];
@@ -268,7 +268,7 @@ void _free_win_digi_driver_list(void)
 
    if (driver_list) {
       while (driver_list[i].driver) {
-         free(driver_list[i].driver);
+         _AL_FREE(driver_list[i].driver);
          i++;
       }
 
@@ -472,7 +472,7 @@ static int digi_directsound_init(int input, int voices)
    }
 
    /* initialize physical voices */
-   ds_voices = (struct DIRECTSOUND_VOICE *)malloc(sizeof(struct DIRECTSOUND_VOICE) * voices);
+   ds_voices = (struct DIRECTSOUND_VOICE *)_AL_MALLOC(sizeof(struct DIRECTSOUND_VOICE) * voices);
    for (v = 0; v < digi_driver->voices; v++) {
       ds_voices[v].ds_buffer = NULL;
       ds_voices[v].ds_loop_buffer = NULL;
@@ -518,7 +518,7 @@ static void digi_directsound_exit(int input)
    for (v = 0; v < digi_driver->voices; v++)
       digi_directsound_release_voice(v);
 
-   free(ds_voices);
+   _AL_FREE(ds_voices);
    ds_voices = NULL;
 
    /* destroy primary buffer */

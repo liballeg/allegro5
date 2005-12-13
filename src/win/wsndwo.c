@@ -140,7 +140,7 @@ DIGI_DRIVER *_get_woalmix_driver(int num)
 {
    DIGI_DRIVER *driver;
 
-   driver = malloc(sizeof(DIGI_DRIVER));
+   driver = _AL_MALLOC(sizeof(DIGI_DRIVER));
    if (!driver)
       return NULL;
 
@@ -264,9 +264,9 @@ static int digi_waveout_init(int input, int voices)
       digiwobufsize = digiwobufdivs * 512;
    }
 
-   digiwobufdata = malloc(digiwobufsize);
+   digiwobufdata = _AL_MALLOC_ATOMIC(digiwobufsize);
    if (!digiwobufdata) {
-      _TRACE (PREFIX_E "malloc() failed\n");
+      _TRACE (PREFIX_E "_AL_MALLOC_ATOMIC() failed\n");
       goto Error;
    }
 
@@ -283,7 +283,7 @@ static int digi_waveout_init(int input, int voices)
       goto Error;
    }
 
-   lpWaveHdr = malloc(sizeof(WAVEHDR));
+   lpWaveHdr = _AL_MALLOC(sizeof(WAVEHDR));
    lpWaveHdr->lpData = digiwobufdata;
    lpWaveHdr->dwBufferLength = digiwobufsize;
    lpWaveHdr->dwFlags = WHDR_BEGINLOOP | WHDR_ENDLOOP;
@@ -344,12 +344,12 @@ static void digi_waveout_exit(int input)
    }
 
    if (lpWaveHdr) {
-      free(lpWaveHdr);
+      _AL_FREE(lpWaveHdr);
       lpWaveHdr = NULL;
    }
 
    if (digiwobufdata) {
-      free(digiwobufdata);
+      _AL_FREE(digiwobufdata);
       digiwobufdata = NULL;
    }
 }

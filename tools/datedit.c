@@ -91,7 +91,7 @@ static void insert_builtin_prop(AL_CONST char *prop_types)
 /* main cleanup routine */
 static void datedit_exit(void)
 {
-   _al_free(builtin_prop);
+   _AL_FREE(builtin_prop);
 }
 
 
@@ -344,10 +344,10 @@ static DATAFILE *extract_info(DATAFILE *dat, int save)
 	 prop = datedit_info.prop;
 	 while (prop->type != DAT_END) {
 	    if (prop->dat)
-	       _al_free(prop->dat);
+	       _AL_FREE(prop->dat);
 	    prop++;
 	 }
-	 _al_free(datedit_info.prop);
+	 _AL_FREE(datedit_info.prop);
 	 datedit_info.prop = NULL;
       }
    }
@@ -524,7 +524,7 @@ static int save_datafile(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int 
 /* creates a new datafile */
 static void *makenew_file(long *size)
 {
-   DATAFILE *dat = _al_malloc(sizeof(DATAFILE));
+   DATAFILE *dat = _AL_MALLOC(sizeof(DATAFILE));
 
    dat->dat = NULL;
    dat->type = DAT_END;
@@ -879,14 +879,14 @@ void datedit_insert_property(DATAFILE_PROPERTY **prop, int type, AL_CONST char *
 
       if ((value) && (strlen(value) > 0)) {
 	 if (the_prop) {
-	    the_prop->dat = _al_realloc(the_prop->dat, strlen(value)+1);
+	    the_prop->dat = _AL_REALLOC(the_prop->dat, strlen(value)+1);
 	    strcpy(the_prop->dat, value);
 	 }
 	 else {
-	    *prop = _al_realloc(*prop, sizeof(DATAFILE_PROPERTY)*(size+2));
+	    *prop = _AL_REALLOC(*prop, sizeof(DATAFILE_PROPERTY)*(size+2));
 	    the_prop = *prop + size;
 	    the_prop->type = type;
-	    the_prop->dat = _al_malloc(strlen(value)+1);
+	    the_prop->dat = _AL_MALLOC(strlen(value)+1);
 	    strcpy(the_prop->dat, value);
 	    the_prop++;
 	    the_prop->type = DAT_END;
@@ -895,19 +895,19 @@ void datedit_insert_property(DATAFILE_PROPERTY **prop, int type, AL_CONST char *
       }
       else {
 	 if (the_prop) {
-	    _al_free(the_prop->dat);
+	    _AL_FREE(the_prop->dat);
 	    for (iter = the_prop; iter->type != DAT_END; iter++)
 	       *iter = *(iter+1);
-	    *prop = _al_realloc(*prop, sizeof(DATAFILE_PROPERTY)*size);
+	    *prop = _AL_REALLOC(*prop, sizeof(DATAFILE_PROPERTY)*size);
 	 }
       }
    }
    else {
       if ((value) && (strlen(value) > 0)) {
-	 *prop = _al_malloc(sizeof(DATAFILE_PROPERTY)*2);
+	 *prop = _AL_MALLOC(sizeof(DATAFILE_PROPERTY)*2);
 	 the_prop = *prop;
 	 the_prop->type = type;
-	 the_prop->dat = _al_malloc(strlen(value)+1);
+	 the_prop->dat = _AL_MALLOC(strlen(value)+1);
 	 strcpy(the_prop->dat, value);
 	 the_prop++;
 	 the_prop->type = DAT_END;
@@ -967,7 +967,7 @@ DATAFILE *datedit_load_datafile(AL_CONST char *name, int compile_sprites, AL_CON
       if (pretty_name)
 	 datedit_msg("%s not found: creating new datafile", pretty_name);
 
-      datafile = _al_malloc(sizeof(DATAFILE));
+      datafile = _AL_MALLOC(sizeof(DATAFILE));
       datafile->dat = NULL;
       datafile->type = DAT_END;
       datafile->size = 0;
@@ -1090,7 +1090,7 @@ DATAFILE *datedit_delete(DATAFILE *dat, int i)
       i++;
    } while (dat[i].type != DAT_END);
 
-   return _al_realloc(dat, sizeof(DATAFILE)*i);
+   return _AL_REALLOC(dat, sizeof(DATAFILE)*i);
 }
 
 
@@ -1556,7 +1556,7 @@ static DATAFILE_PROPERTY *clone_properties(DATAFILE_PROPERTY *prop)
       size++;
    }
 
-   clone = _al_malloc(sizeof(DATAFILE_PROPERTY)*(size+1));
+   clone = _AL_MALLOC(sizeof(DATAFILE_PROPERTY)*(size+1));
 
    for (i = 0; i <= size; i++) {
        clone[i].type = prop[i].type;
@@ -1790,7 +1790,7 @@ DATAFILE *datedit_grabnew(DATAFILE *dat, AL_CONST DATEDIT_GRAB_PARAMETERS *param
       while (dat[len].type != DAT_END)
 	 len++;
 
-      dat = _al_realloc(dat, sizeof(DATAFILE)*(len+2));
+      dat = _AL_REALLOC(dat, sizeof(DATAFILE)*(len+2));
       dat[len+1] = dat[len];
       dat[len] = *tmp;
       return dat;
@@ -1810,7 +1810,7 @@ DATAFILE *datedit_insert(DATAFILE *dat, DATAFILE **ret, AL_CONST char *name, int
    while (dat[len].type != DAT_END)
       len++;
 
-   dat = _al_realloc(dat, sizeof(DATAFILE)*(len+2));
+   dat = _AL_REALLOC(dat, sizeof(DATAFILE)*(len+2));
    dat[len+1] = dat[len];
 
    dat[len].dat = v;

@@ -61,7 +61,7 @@ void _dos_irq_init(void)
    }
 
    for (c=0; c<IRQ_STACKS; c++) {
-      _irq_stack[c] = malloc(STACK_SIZE);
+      _irq_stack[c] = _AL_MALLOC(STACK_SIZE);
       if (_irq_stack[c]) {
 	 LOCK_DATA(_irq_stack[c], STACK_SIZE);
 	 _irq_stack[c] += STACK_SIZE - 32;   /* stacks grow downwards */
@@ -81,7 +81,7 @@ void _dos_irq_exit(void)
    for (c=0; c<IRQ_STACKS; c++) {
       if (_irq_stack[c]) {
 	 _irq_stack[c] -= STACK_SIZE - 32;
-	 free(_irq_stack[c]);
+	 _AL_FREE(_irq_stack[c]);
 	 _irq_stack[c] = NULL;
       }
    }

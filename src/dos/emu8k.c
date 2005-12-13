@@ -28,6 +28,7 @@
 #include <math.h>
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
 #include "emu8k.h"
 
 #ifndef ALLEGRO_DOS
@@ -1366,7 +1367,7 @@ envparms_t *emu8k_createenvelope(generators_t sfgen)
  */
 void emu8k_destroyenvelope(envparms_t * env)
 {
-   free(env);
+   _AL_FREE(env);
 }
 
 

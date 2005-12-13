@@ -307,7 +307,7 @@ static void *map_physical_addr(unsigned long base, unsigned long limit)
  */
 static void *malloc_shared(long size)
 {
-   return malloc(size);
+   return _AL_MALLOC(size);
 }
 
 
@@ -327,7 +327,7 @@ static int map_shared(void *ptr)
  */
 static void free_shared(void *ptr)
 {
-   free(ptr);
+   _AL_FREE(ptr);
 }
 
 
@@ -927,7 +927,7 @@ static const char *get_current_path(void)
    static char *buffer = NULL;
 
    if (!buffer)
-      buffer = malloc(BUFFER_SIZE);
+      buffer = _AL_MALLOC(BUFFER_SIZE);
 
    getcwd(buffer, BUFFER_SIZE-1);
 
@@ -961,7 +961,7 @@ static const char *get_nucleus_path(void)
    p = getenv("WINBOOTDIR");
    if (p) {
       if (!buffer)
-	 buffer = malloc(BUFFER_SIZE);
+	 buffer = _AL_MALLOC(BUFFER_SIZE);
 
       _al_sane_strncpy(buffer , p, BUFFER_SIZE);
       strncat(buffer, "\\nucleus", BUFFER_SIZE-1);
@@ -981,7 +981,7 @@ static const char *get_nucleus_config_path(void)
    static char *buffer = NULL;
 
    if (!buffer)
-      buffer = malloc(BUFFER_SIZE);
+      buffer = _AL_MALLOC(BUFFER_SIZE);
 
    _al_sane_strncpy(buffer, get_nucleus_path(), BUFFER_SIZE);
    put_backslash(buffer);
@@ -1010,7 +1010,7 @@ static const char *get_machine_name(void)
    static char *buffer = NULL;
 
    if (!buffer)
-      buffer = malloc(BUFFER_SIZE);
+      buffer = _AL_MALLOC(BUFFER_SIZE);
 
    #ifdef ALLEGRO_DJGPP
       gethostname(buffer, BUFFER_SIZE-1);

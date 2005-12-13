@@ -182,9 +182,9 @@ static void __al_linux_save_text_font (MODE_REGISTERS *regs)
    ASSERT(regs);
 
    if (!regs->text_font1)
-      regs->text_font1 = (unsigned char*) malloc (VGA_FONT_SIZE);
+      regs->text_font1 = (unsigned char*) _AL_MALLOC (VGA_FONT_SIZE);
    if (!regs->text_font2)
-      regs->text_font2 = (unsigned char*) malloc (VGA_FONT_SIZE);
+      regs->text_font2 = (unsigned char*) _AL_MALLOC (VGA_FONT_SIZE);
 
    /* First switch to a 4bpp video mode, so that we have selective 
     * access to video memory planes.  Do it with host palette 
