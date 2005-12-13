@@ -138,7 +138,7 @@ void _unix_load_modules(int system_driver)
       if (init)
          init(system_driver);
 
-      m = malloc(sizeof(MODULE));
+      m = _AL_MALLOC(sizeof(MODULE));
       if (m) {
 	 m->handle = handle;
 	 m->next = module_list;
@@ -180,7 +180,7 @@ void _unix_unload_modules(void)
       if (!has_registered || _allegro_in_exit)
 	 dlclose(m->handle);
 
-      free(m);
+      _AL_FREE(m);
    }
    
    module_list = NULL;

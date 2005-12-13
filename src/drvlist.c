@@ -42,7 +42,7 @@ _DRIVER_INFO *_create_driver_list(void)
 {
    _DRIVER_INFO *drv;
 	
-   drv = malloc(sizeof(struct _DRIVER_INFO));
+   drv = _AL_MALLOC(sizeof(struct _DRIVER_INFO));
 
    if (drv) {
       drv->id = 0;
@@ -60,7 +60,7 @@ _DRIVER_INFO *_create_driver_list(void)
  */
 void _destroy_driver_list(_DRIVER_INFO *drvlist)
 {
-   free(drvlist);
+   _AL_FREE(drvlist);
 }
 
 
@@ -77,7 +77,7 @@ void _driver_list_append_driver(_DRIVER_INFO **drvlist, int id, void *driver, in
 
    c = count_drivers(*drvlist);
 
-   drv = realloc(*drvlist, sizeof(_DRIVER_INFO) * (c+2));
+   drv = _AL_REALLOC(*drvlist, sizeof(_DRIVER_INFO) * (c+2));
    if (!drv)
       return;
 
@@ -105,7 +105,7 @@ void _driver_list_prepend_driver(_DRIVER_INFO **drvlist, int id, void *driver, i
 
    c = count_drivers(*drvlist);
 
-   drv = realloc(*drvlist, sizeof(_DRIVER_INFO) * (c+2));
+   drv = _AL_REALLOC(*drvlist, sizeof(_DRIVER_INFO) * (c+2));
    if (!drv)
       return;
    

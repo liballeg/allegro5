@@ -101,7 +101,7 @@ static BITMAP *_make_video_bitmap(int w, int h, unsigned long addr, struct GFX_V
 
    size = sizeof(BITMAP) + sizeof(char *) * h;
 
-   b = (BITMAP *) malloc(size);
+   b = (BITMAP *) _AL_MALLOC(size);
    if (!b)
       return NULL;
 
@@ -156,7 +156,7 @@ BITMAP *make_photon_bitmap(PdOffscreenContext_t *context, int w, int h, int id)
 #endif
 
    /* setup surface info structure to store additional information */
-   bmp->extra = malloc(sizeof(struct BMP_EXTRA_INFO));
+   bmp->extra = _AL_MALLOC(sizeof(struct BMP_EXTRA_INFO));
    BMP_EXTRA(bmp)->context = context;
 
    return bmp;
@@ -170,8 +170,8 @@ BITMAP *make_photon_bitmap(PdOffscreenContext_t *context, int w, int h, int id)
 void destroy_photon_bitmap(BITMAP *bmp)
 {
    if (bmp) {
-      free(bmp->extra);
-      free(bmp);
+      _AL_FREE(bmp->extra);
+      _AL_FREE(bmp);
    }
 }
 

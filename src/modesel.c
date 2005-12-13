@@ -451,7 +451,7 @@ static int create_driver_list(FILTER_FUNCTION filter)
    else
       driver_info = _gfx_driver_list;
 
-   driver_list = malloc(sizeof(DRIVER_LIST) * 3);
+   driver_list = _AL_MALLOC(sizeof(DRIVER_LIST) * 3);
    if (!driver_list) return -1;
 
    list_pos = 0;
@@ -525,10 +525,10 @@ static void destroy_driver_list(void)
 
    for (driver=0; driver < driver_count; driver++) {
       if (driver_list[driver].fetch_mode_list_ptr)
-         free(driver_list[driver].mode_list);
+         _AL_FREE(driver_list[driver].mode_list);
    }
 
-   free(driver_list);
+   _AL_FREE(driver_list);
 }
 
 

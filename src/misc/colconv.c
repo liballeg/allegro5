@@ -45,10 +45,10 @@ static void build_rgb_scale_5235_table(int to_depth)
 
    if (to_depth == 24)
       /* 6 contiguous 256-entry tables (6k) */
-      _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*1536);
+      _colorconv_rgb_scale_5x35 = _AL_MALLOC_ATOMIC(sizeof(int)*1536);
    else if (to_depth == 32)
       /* 2 contiguous 256-entry tables (2k) */
-      _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*512);
+      _colorconv_rgb_scale_5x35 = _AL_MALLOC_ATOMIC(sizeof(int)*512);
 
    /* 1st table: r5g2 to r8g8b0 */ 
    for (i=0; i<128; i++) {
@@ -93,10 +93,10 @@ static void build_rgb_scale_5335_table(int to_depth)
 
    if (to_depth == 24)
       /* 6 contiguous 256-entry tables (6k) */
-      _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*1536);
+      _colorconv_rgb_scale_5x35 = _AL_MALLOC_ATOMIC(sizeof(int)*1536);
    else if (to_depth == 32)
       /* 2 contiguous 256-entry tables (2k) */
-      _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*512);
+      _colorconv_rgb_scale_5x35 = _AL_MALLOC_ATOMIC(sizeof(int)*512);
 
    /* 1st table: r5g3 to r8g8b0 */ 
    for (i=0; i<256; i++) {
@@ -160,7 +160,7 @@ static void create_indexed_palette(int to_depth)
    }
 
    indexed_palette_depth = to_depth;
-   _colorconv_indexed_palette = malloc(sizeof(int) * indexed_palette_size);
+   _colorconv_indexed_palette = _AL_MALLOC_ATOMIC(sizeof(int) * indexed_palette_size);
 }
 
 
@@ -218,7 +218,7 @@ static void create_rgb_map(int from_depth)
          break;
    }
 
-   _colorconv_rgb_map = malloc(sizeof(int) * rgb_map_size);
+   _colorconv_rgb_map = _AL_MALLOC_ATOMIC(sizeof(int) * rgb_map_size);
 }
 
 
@@ -390,20 +390,20 @@ void _release_colorconv_blitter(COLORCONV_BLITTER_FUNC *blitter)
 {
    /* destroy the 8-bit palette */
    if (_colorconv_indexed_palette) {
-      free(_colorconv_indexed_palette);
+      _AL_FREE(_colorconv_indexed_palette);
       _colorconv_indexed_palette = NULL;
       indexed_palette_size = 0;
    }
 
    /* destroy the shift table */
    if (_colorconv_rgb_scale_5x35) {
-      free(_colorconv_rgb_scale_5x35);
+      _AL_FREE(_colorconv_rgb_scale_5x35);
       _colorconv_rgb_scale_5x35 = NULL;
    }
 
    /* destroy the rgb map to 8-bit */
    if (_colorconv_rgb_map) {
-      free(_colorconv_rgb_map);
+      _AL_FREE(_colorconv_rgb_map);
       _colorconv_rgb_map = NULL;
    }
 }

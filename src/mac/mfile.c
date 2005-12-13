@@ -124,12 +124,12 @@ static int ff_match(const char *s1, const char *s2)
    int index, c1, c2;
    /* allocate larger working area if necessary */
    if ((data != 0) && (size < strlen(s2))){
-      free(data);
+      _AL_FREE(data);
       data = 0;
    }
    if (data == 0){
       size = strlen(s2);
-      data = (ffmatchdataPtr)malloc(sizeof(ff_match_data)* size * 2 + 1);
+      data = (ffmatchdataPtr)_AL_MALLOC(sizeof(ff_match_data)* size * 2 + 1);
       if (data == 0)
          return 0;
    }
@@ -222,7 +222,7 @@ static void getpath(char *filename, unsigned int filename_size)
 {
    char *temp,*d,*s,*last;
    int div;
-   temp=malloc(strlen(filename)+1);
+   temp=_AL_MALLOC(strlen(filename)+1);
    if(temp!=NULL){
       d=temp;
       div=0;
@@ -243,7 +243,7 @@ static void getpath(char *filename, unsigned int filename_size)
       *d=0;
       *last=0;
       _al_sane_strncpy(filename,temp,filename_size);
-      free(temp);
+      _AL_FREE(temp);
    }
 }
 
@@ -270,7 +270,7 @@ static long finddirect(void *pdta){
    OSErr err=noErr;       
    int done;
    short buffersize=strlen(dta->dirname);
-   char *buffer=malloc(buffersize+1);
+   char *buffer=_AL_MALLOC(buffersize+1);
 
    if(!buffer)return 0;
    _al_sane_strncpy(buffer,dta->dirname,buffersize+1);
@@ -317,7 +317,7 @@ static long finddirect(void *pdta){
       p=strtok(NULL,"\\/");
    }
    dta->cpb.dirInfo.ioFDirIndex=1;
-   free(buffer);
+   _AL_FREE(buffer);
    if(err)dta->dirbase=0;
    return dta->dirbase;
 }
@@ -330,7 +330,7 @@ static long finddirect(void *pdta){
  */
 void _al_findclose(void *dta)
 {
-   if(dta)free(dta);
+   if(dta)_AL_FREE(dta);
 }
 
 
@@ -388,7 +388,7 @@ int _al_findnext(void *pdta, char *nameret, unsigned int nameret_size, int *aret
  */
 void * _al_findfirst(const char *pattern,int attrib, char *nameret, unsigned int nameret_size, int *aret)
 {
-   ffblkPtr dta=(ffblkPtr)malloc(sizeof(ffblk));
+   ffblkPtr dta=(ffblkPtr)_AL_MALLOC(sizeof(ffblk));
    
 #if (TRACE_MAC_FILE)
    fprintf(stdout,"_al_findfirst(%s, %d, .,.)\n",pattern,attrib);
@@ -536,7 +536,7 @@ time_t _al_file_time(const char *filename){
  */
 void _al_getdcwd(int drive, char *buf, int size){
    char * fullname;
-   fullname=malloc(1024);
+   fullname=_AL_MALLOC(1024);
    if(volname[0]==0)
       _mac_file_sys_init();
 
@@ -571,8 +571,8 @@ int _al_open(const char *filename,int mode){
       _mac_file_sys_init();
    size=strlen(filename)+32;
    
-   path=malloc(size);
-   tmp=malloc(size);
+   path=_AL_MALLOC(size);
+   tmp=_AL_MALLOC(size);
    if(path!=NULL&&tmp!=NULL){
       s=(char *)filename; 
       if(*s=='/')
@@ -619,8 +619,8 @@ int _al_open(const char *filename,int mode){
 #endif
       handle=open(path,mode);
    }
-   free(path);
-   free(tmp);
+   _AL_FREE(path);
+   _AL_FREE(tmp);
 #if (TRACE_MAC_FILE)
    fprintf(stdout,"_al_open(%s ,%d)=%d\n",filename,mode,handle);
    fflush(stdout);

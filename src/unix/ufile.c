@@ -162,7 +162,7 @@ static int ff_match(AL_CONST char *s1, AL_CONST char *s2)
    /* handle NULL arguments */
    if ((!s1) && (!s2)) {
       if (data) {
-         free(data);
+         _AL_FREE(data);
          data = NULL;
       }
 
@@ -173,13 +173,13 @@ static int ff_match(AL_CONST char *s1, AL_CONST char *s2)
 
    /* allocate larger working area if necessary */
    if (data && (size < strlen(s2))) {
-      free(data);
+      _AL_FREE(data);
       data = NULL;
    }
 
    if (!data) {
       size = strlen(s2);
-      data = malloc(sizeof(struct FF_MATCH_DATA) * size * 2 + 1);
+      data = _AL_MALLOC(sizeof(struct FF_MATCH_DATA) * size * 2 + 1);
       if (!data)
          return 0;
    }
@@ -341,7 +341,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    }
 
    /* allocate ff_data structure */
-   ff_data = malloc(sizeof(struct FF_DATA));
+   ff_data = _AL_MALLOC(sizeof(struct FF_DATA));
 
    if (!ff_data) {
       *allegro_errno = ENOMEM;
@@ -373,7 +373,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
 
    if (!ff_data->dir) {
       *allegro_errno = (errno ? errno : ENOENT);
-      free(ff_data);
+      _AL_FREE(ff_data);
       info->ff_data = NULL;
       return -1;
    }
@@ -459,7 +459,7 @@ void al_findclose(struct al_ffblk *info)
 
    if (ff_data) {
       closedir(ff_data->dir);
-      free(ff_data);
+      _AL_FREE(ff_data);
       info->ff_data = NULL;
 
       /* to avoid leaking memory */

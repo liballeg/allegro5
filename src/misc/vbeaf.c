@@ -728,10 +728,10 @@ static int load_vbeaf_driver(AL_CONST char *filename)
    if (!f)
       return 0;
 
-   af_driver = _accel_driver = malloc(size);
+   af_driver = _accel_driver = _AL_MALLOC(size);
 
    if (pack_fread(af_driver, size, f) != size) {
-      free(af_driver);
+      _AL_FREE(af_driver);
       af_driver = _accel_driver = NULL;
       return 0;
    }
@@ -1567,7 +1567,7 @@ static void vbeaf_exit(BITMAP *b)
    _remove_linear_mapping(&af_linear_mem);
 
    if (af_driver) {
-      free(af_driver);
+      _AL_FREE(af_driver);
       af_driver = _accel_driver = NULL;
    }
 
@@ -1645,18 +1645,18 @@ static GFX_MODE_LIST *vbeaf_fetch_mode_list(void)
    unsigned short *mode;
    int vbeaf_was_off;
 
-   mode_info = malloc(sizeof(AF_MODE_INFO));
+   mode_info = _AL_MALLOC(sizeof(AF_MODE_INFO));
    if (!mode_info) return NULL;
 
    /* make sure VBE/AF interface is enabled! */
    if (!af_driver) {
       if (!vbeaf_locate_driver()) {
-         if (mode_info) free(mode_info);
+         if (mode_info) _AL_FREE(mode_info);
 	 
          return NULL;
       }
       if (!vbeaf_lowlevel_init()) {
-         if (mode_info) free(mode_info);
+         if (mode_info) _AL_FREE(mode_info);
 	 
          return NULL;
       }
@@ -1666,9 +1666,9 @@ static GFX_MODE_LIST *vbeaf_fetch_mode_list(void)
       vbeaf_was_off = FALSE;
 
    /* start building mode-list */
-   gfx_mode_list = malloc(sizeof(GFX_MODE_LIST));
+   gfx_mode_list = _AL_MALLOC(sizeof(GFX_MODE_LIST));
    if (!gfx_mode_list) {
-      if (mode_info) free(mode_info);
+      if (mode_info) _AL_FREE(mode_info);
       
       return NULL;
    }
@@ -1679,15 +1679,15 @@ static GFX_MODE_LIST *vbeaf_fetch_mode_list(void)
    for (mode = af_driver->AvailableModes; *mode != 0xFFFF; mode++) {
       gfx_mode_list->mode = _al_sane_realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
       if (!gfx_mode_list->mode) {
-         if (mode_info) free(mode_info);
-         if (gfx_mode_list) free(gfx_mode_list);
+         if (mode_info) _AL_FREE(mode_info);
+         if (gfx_mode_list) _AL_FREE(gfx_mode_list);
          
          return NULL;
       }
       if (af_driver->GetVideoModeInfo(af_driver, *mode, mode_info) != 0) {
-         if (mode_info) free(mode_info);
-         if (gfx_mode_list->mode) free(gfx_mode_list->mode);
-         if (gfx_mode_list) free(gfx_mode_list);
+         if (mode_info) _AL_FREE(mode_info);
+         if (gfx_mode_list->mode) _AL_FREE(gfx_mode_list->mode);
+         if (gfx_mode_list) _AL_FREE(gfx_mode_list);
          
          return NULL;
       }
@@ -1702,8 +1702,8 @@ static GFX_MODE_LIST *vbeaf_fetch_mode_list(void)
    /* terminate mode list */
    gfx_mode_list->mode = _al_sane_realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
    if (!gfx_mode_list->mode) {
-      if (mode_info) free(mode_info);
-      if (gfx_mode_list) free(gfx_mode_list);
+      if (mode_info) _AL_FREE(mode_info);
+      if (gfx_mode_list) _AL_FREE(gfx_mode_list);
       
       return NULL;
    }
@@ -1716,7 +1716,7 @@ static GFX_MODE_LIST *vbeaf_fetch_mode_list(void)
    if (vbeaf_was_off)
       vbeaf_exit(NULL);
 
-   if (mode_info) free(mode_info);
+   if (mode_info) _AL_FREE(mode_info);
 
    return gfx_mode_list;
 }

@@ -131,7 +131,7 @@ void* _al_vector_alloc_back(_AL_VECTOR *vec)
          ASSERT(vec->_size == 0);
          ASSERT(vec->_unused == 0);
 
-         vec->_items = malloc(vec->_itemsize);
+         vec->_items = _AL_MALLOC(vec->_itemsize);
          ASSERT(vec->_items);
          if (!vec->_items)
             return NULL;
@@ -139,7 +139,7 @@ void* _al_vector_alloc_back(_AL_VECTOR *vec)
          vec->_unused = 1;
       }
       else if (vec->_unused == 0) {
-         char *new_items = realloc(vec->_items, 2 * vec->_size * vec->_itemsize);
+         char *new_items = _AL_REALLOC(vec->_items, 2 * vec->_size * vec->_itemsize);
          ASSERT(new_items);
          if (!new_items)
             return NULL;
@@ -258,7 +258,7 @@ void _al_vector_free(_AL_VECTOR *vec)
    ASSERT(vec);
 
    if (vec->_items != NULL) {
-      free(vec->_items);
+      _AL_FREE(vec->_items);
       vec->_items = NULL;
    }
    vec->_size = 0;

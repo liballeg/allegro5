@@ -260,7 +260,7 @@ static void sys_linux_message (AL_CONST char *msg)
    int ret;
    ASSERT(msg);
 
-   tmp = malloc(ALLEGRO_MESSAGE_SIZE);
+   tmp = _AL_MALLOC_ATOMIC(ALLEGRO_MESSAGE_SIZE);
    msg = uconvert(msg, U_CURRENT, tmp, U_ASCII, ALLEGRO_MESSAGE_SIZE);
 
    do {
@@ -271,7 +271,7 @@ static void sys_linux_message (AL_CONST char *msg)
 
    __al_linux_got_text_message = TRUE;
 
-   free(tmp);
+   _AL_FREE(tmp);
 }
 
 

@@ -44,7 +44,7 @@ struct AL_EVENT_QUEUE
  */
 AL_EVENT_QUEUE *al_create_event_queue(void)
 {
-   AL_EVENT_QUEUE *queue = malloc(sizeof *queue);
+   AL_EVENT_QUEUE *queue = _AL_MALLOC(sizeof *queue);
 
    ASSERT(queue);
 
@@ -88,7 +88,7 @@ void al_destroy_event_queue(AL_EVENT_QUEUE *queue)
    _al_cond_destroy(&queue->cond);
    _al_mutex_destroy(&queue->mutex);
 
-   free(queue);
+   _AL_FREE(queue);
 }
 
 

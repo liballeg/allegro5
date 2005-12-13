@@ -248,7 +248,7 @@ static void free_stretchers(void)
 
    for (i=0; i<NUM_STRETCHERS; i++)
       if (stretcher_info[i].data != NULL) {
-	 free(stretcher_info[i].data);
+	 _AL_FREE(stretcher_info[i].data);
 	 /* leave things in a clean state, else if stretcher functions are
 	  * used later, we will be trying to execute random garbage... */
 	 memset(&stretcher_info[i], 0, sizeof(STRETCHER_INFO));

@@ -14,7 +14,7 @@ static char *read_header(char *name)
   fseek(f,0,SEEK_END);
   size=ftell(f);
   fseek(f,0,SEEK_SET);
-  header=malloc(size+1L);
+  header=_AL_MALLOC(size+1L);
   fread(header,size,1,f);
   header[size]=0;
   fclose(f);
@@ -32,7 +32,7 @@ int main(int argc,char **argv)
 
   headers=NULL;
   for (header_count=0;header_count<argc-1;header_count++) {
-    headers=realloc(headers,(header_count+1)*sizeof(char*));
+    headers=_AL_REALLOC(headers,(header_count+1)*sizeof(char*));
     headers[header_count]=read_header(argv[header_count+1]);
   }
 
@@ -53,7 +53,7 @@ int main(int argc,char **argv)
     fflush(stdout);
   }
 
-  while (header_count) free(headers[--header_count]);
+  while (header_count) _AL_FREE(headers[--header_count]);
 
   return 0;
 }

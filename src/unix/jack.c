@@ -239,7 +239,7 @@ static int jack_init(int input, int voices)
 
    jack_rate = jack_get_sample_rate (jack_client);
 
-   jack_buffer = malloc(jack_bufsize * (1 + jack_16bit) * (1 + jack_stereo));
+   jack_buffer = _AL_MALLOC_ATOMIC(jack_bufsize * (1 + jack_16bit) * (1 + jack_stereo));
    if (!jack_buffer) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text(
          "Cannot allocate audio buffer"));
@@ -283,7 +283,7 @@ static int jack_init(int input, int voices)
 	 if (jack_connect (jack_client, jack_port_name (output_right), ports[1]) == 0)
 	    TRACE (PREFIX_I "Connected right playback port to %s", ports[1]);
       }
-      free (ports);
+      _AL_FREE (ports);
    }
 
    uszprintf(jack_desc, sizeof(jack_desc),

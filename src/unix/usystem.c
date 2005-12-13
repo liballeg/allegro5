@@ -166,7 +166,7 @@ void _unix_read_os_type(void)
       uname(&utsn);
 
       /* fetch OS version and revision */
-      tmpstr = malloc(strlen(utsn.release)+1);
+      tmpstr = _AL_MALLOC_ATOMIC(strlen(utsn.release)+1);
       _al_sane_strncpy(tmpstr, utsn.release, strlen(utsn.release)+1);
       tmpstr2 = NULL;
 
@@ -181,7 +181,7 @@ void _unix_read_os_type(void)
       os_version = atoi(tmpstr);
       os_revision = atoi(tmpstr2);
 
-      free(tmpstr);
+      _AL_FREE(tmpstr);
 
       /* try to detect Unix systems we know of */
       if (!strcmp(utsn.sysname, "Linux")) {
@@ -287,7 +287,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
 	 if (!end) end = strchr (start, '\0');
 
 	 /* Resize `buffer' for path component, slash, filename and a '\0' */
-	 temp = realloc (buffer, end - start + 1 + strlen (filename) + 1);
+	 temp = _AL_REALLOC (buffer, end - start + 1 + strlen (filename) + 1);
 	 if (temp) {
 	    buffer = temp;
 
@@ -297,7 +297,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
 
 	    if ((stat(buffer, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
 	       do_uconvert (buffer, U_ASCII, output, U_CURRENT, size);
-	       free (buffer);
+	       _AL_FREE (buffer);
 	       return 1;
 	    }
 	 } /* else... ignore the failure; `buffer' is still valid anyway. */
@@ -305,7 +305,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
 	 start = end + 1;
       }
       /* Path search failed */
-      free (buffer);
+      _AL_FREE (buffer);
    }
    
    return 0;

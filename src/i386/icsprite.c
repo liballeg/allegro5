@@ -270,7 +270,7 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
 
    COMPILER_RET();
 
-   p = malloc(compiler_pos);
+   p = _AL_MALLOC(compiler_pos);
    if (p) {
       memcpy(p, _scratch_mem, compiler_pos);
       *len = compiler_pos;
@@ -289,7 +289,7 @@ COMPILED_SPRITE *get_compiled_sprite(BITMAP *bitmap, int planar)
    COMPILED_SPRITE *s;
    int plane;
 
-   s = malloc(sizeof(COMPILED_SPRITE));
+   s = _AL_MALLOC(sizeof(COMPILED_SPRITE));
    if (!s)
       return NULL;
 
@@ -327,9 +327,9 @@ void destroy_compiled_sprite(COMPILED_SPRITE *sprite)
    if (sprite) {
       for (plane=0; plane<4; plane++)
 	 if (sprite->proc[plane].draw)
-	    free(sprite->proc[plane].draw);
+	    _AL_FREE(sprite->proc[plane].draw);
 
-      free(sprite);
+      _AL_FREE(sprite);
    }
 }
 

@@ -473,7 +473,7 @@ static void mem_write8(int val)
 {
    if (mem_size >= mem_alloced) {
       mem_alloced += 4096;
-      mem = _al_realloc(mem, mem_alloced);
+      mem = _AL_REALLOC(mem, mem_alloced);
    }
 
    mem[mem_size] = val;
@@ -518,7 +518,7 @@ static void mem_write_block(void *data, int size)
 {
    if (mem_size+size > mem_alloced) {
       mem_alloced = (mem_alloced + size + 4095) & ~4095;
-      mem = _al_realloc(mem, mem_alloced);
+      mem = _AL_REALLOC(mem, mem_alloced);
    }
 
    memcpy(mem+mem_size, data, size);
@@ -532,7 +532,7 @@ static void mem_write_file(PACKFILE *f, int size)
 {
    if (mem_size+size > mem_alloced) {
       mem_alloced = (mem_alloced + size + 4095) & ~4095;
-      mem = _al_realloc(mem, mem_alloced);
+      mem = _AL_REALLOC(mem, mem_alloced);
    }
 
    pack_fread(mem+mem_size, size, f);
@@ -565,13 +565,13 @@ static DATAFILE *grab_patch(int type, AL_CONST char *filename, DATAFILE_PROPERTY
 
    if (!opt_8bit) {
       /* raw copy of the disk file */
-      mem = _al_malloc(sz);
+      mem = _AL_MALLOC(sz);
 
       pack_fread(mem, sz, f);
       pack_fclose(f);
 
       if (errno) {
-	 _al_free(mem);
+	 _AL_FREE(mem);
 	 return NULL;
       }
 
@@ -734,7 +734,7 @@ static DATAFILE *grab_patch(int type, AL_CONST char *filename, DATAFILE_PROPERTY
    pack_fclose(f);
 
    if (errno) {
-      _al_free(mem);
+      _AL_FREE(mem);
       return NULL;
    }
 
@@ -2455,7 +2455,7 @@ int main(int argc, char *argv[])
 	 printf("\n");
       }
 
-      datafile = _al_malloc(sizeof(DATAFILE));
+      datafile = _AL_MALLOC(sizeof(DATAFILE));
       datafile->dat = NULL;
       datafile->type = DAT_END;
       datafile->size = 0;

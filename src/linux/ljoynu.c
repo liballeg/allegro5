@@ -300,7 +300,7 @@ static AL_JOYSTICK *ljoy_get_joystick(int num)
             joy->parent.info.stick[s].num_axes = 2;
             joy->parent.info.stick[s].axis[0].name = get_config_text("X");
             joy->parent.info.stick[s].axis[1].name = get_config_text("Y");
-            joy->parent.info.stick[s].name = malloc (32);
+            joy->parent.info.stick[s].name = _AL_MALLOC_ATOMIC (32);
             uszprintf((char *)joy->parent.info.stick[s].name, 32, get_config_text("Stick %d"), s+1);
             joy->axis_mapping[a].stick = s;
             joy->axis_mapping[a].axis = 0;
@@ -316,7 +316,7 @@ static AL_JOYSTICK *ljoy_get_joystick(int num)
       /* Do the buttons. */
 
       for (b = 0; b < num_buttons; b++) {
-         joy->parent.info.button[b].name = malloc (32);
+         joy->parent.info.button[b].name = _AL_MALLOC_ATOMIC (32);
          uszprintf((char *)joy->parent.info.button[b].name, 32, get_config_text("B%d"), b+1);
       }
 
@@ -349,10 +349,10 @@ static void ljoy_release_joystick(AL_JOYSTICK *joy_)
    _al_event_source_free(&joy->parent.es);
    close(joy->fd);
    for (i = 0; i < joy->parent.info.num_sticks; i++)
-      free((void *)joy->parent.info.stick[i].name);
+      _AL_FREE((void *)joy->parent.info.stick[i].name);
    for (i = 0; i < joy->parent.info.num_buttons; i++)
-      free((void *)joy->parent.info.button[i].name);
-   free(joy);
+      _AL_FREE((void *)joy->parent.info.button[i].name);
+   _AL_FREE(joy);
 }
 
 

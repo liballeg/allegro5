@@ -303,7 +303,7 @@ static int alsa_init(int input, int voices)
    alsa_bufsize = setup.buf.block.frag_size;
 
    /* Allocate mixing buffer.  */
-   alsa_bufdata = malloc(alsa_bufsize);
+   alsa_bufdata = _AL_MALLOC_ATOMIC(alsa_bufsize);
    if (!alsa_bufdata) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not allocate audio buffer"));
       goto error;
@@ -358,7 +358,7 @@ static void alsa_exit(int input)
 
    _unix_bg_man->unregister_func(alsa_update);
 
-   free(alsa_bufdata);
+   _AL_FREE(alsa_bufdata);
    alsa_bufdata = NULL;
 
    _mixer_exit();

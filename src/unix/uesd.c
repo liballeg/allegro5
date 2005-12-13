@@ -205,7 +205,7 @@ static int _al_esd_init(int input, int voices)
    }
 
    _al_esd_bufsize = ESD_BUF_SIZE;
-   _al_esd_bufdata = malloc(_al_esd_bufsize);
+   _al_esd_bufdata = _AL_MALLOC_ATOMIC(_al_esd_bufsize);
    if (_al_esd_bufdata == 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not allocate audio buffer"));
       close(_al_esd_fd);
@@ -218,7 +218,7 @@ static int _al_esd_init(int input, int voices)
 		   _al_esd_stereo, ((_al_esd_bits == 16) ? 1 : 0),
 		   &digi_esd.voices) != 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not init software mixer"));
-      free(_al_esd_bufdata);
+      _AL_FREE(_al_esd_bufdata);
       _al_esd_bufdata = 0;
       close(_al_esd_fd);
       return -1;
@@ -252,7 +252,7 @@ static void _al_esd_exit(int input)
 
    _unix_bg_man->unregister_func(_al_esd_update);
 
-   free(_al_esd_bufdata);
+   _AL_FREE(_al_esd_bufdata);
    _al_esd_bufdata = 0;
 
    _mixer_exit();

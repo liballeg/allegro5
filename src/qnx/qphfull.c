@@ -212,13 +212,13 @@ static GFX_MODE_LIST *qnx_ph_fetch_mode_list(unsigned int flags)
    if (PgGetVideoModeList(&ph_mode_list))
       return NULL;
 
-   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   mode_list = _AL_MALLOC(sizeof(GFX_MODE_LIST));
    if (!mode_list)
       return NULL;
 
-   mode_list->mode = malloc(sizeof(GFX_MODE) * (ph_mode_list.num_modes + 1));
+   mode_list->mode = _AL_MALLOC(sizeof(GFX_MODE) * (ph_mode_list.num_modes + 1));
    if (!mode_list->mode) {
-       free(mode_list);
+       _AL_FREE(mode_list);
        return NULL;
    }
    
@@ -379,7 +379,7 @@ static void qnx_private_ph_exit(BITMAP *bmp)
    }
 
    if (bmp)
-      free(bmp->extra);
+      _AL_FREE(bmp->extra);
 
    if (ph_direct_context) {
       PdReleaseDirectContext(ph_direct_context);

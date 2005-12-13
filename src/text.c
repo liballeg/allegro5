@@ -122,7 +122,7 @@ void textout_justify_ex(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x
 
    if ((space <= 0) || (space > diff) || (last < 2)) {
       /* can't justify */
-      free(strbuf);
+      _AL_FREE(strbuf);
       f->vtable->render(f, str, color, bg, bmp, x1, y);
       return; 
    }
@@ -135,7 +135,7 @@ void textout_justify_ex(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x
       fleft += (float)text_length(f, tok[i]) + finc;
    }
 
-   free(strbuf);
+   _AL_FREE(strbuf);
 }
 
 

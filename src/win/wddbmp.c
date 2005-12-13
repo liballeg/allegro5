@@ -270,14 +270,14 @@ DDRAW_SURFACE *gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pixel_fo
 {
    DDRAW_SURFACE *surf;
 
-   surf = malloc(sizeof(DDRAW_SURFACE));
+   surf = _AL_MALLOC(sizeof(DDRAW_SURFACE));
    if (!surf)
       return NULL;
 
    /* create the surface with the specified characteristics */
    surf->id = create_directdraw2_surface(w, h, pixel_format,type, 0);
    if (!surf->id) {
-      free(surf);
+      _AL_FREE(surf);
       return NULL;
    }
 
@@ -298,7 +298,7 @@ void gfx_directx_destroy_surface(DDRAW_SURFACE *surf)
 {
    IDirectDrawSurface2_Release(surf->id);
    unregister_ddraw_surface(surf);
-   free(surf);
+   _AL_FREE(surf);
 }
 
 
@@ -311,7 +311,7 @@ BITMAP *gfx_directx_make_bitmap_from_surface(DDRAW_SURFACE *surf, int w, int h, 
    BITMAP *bmp;
    int i;
 
-   bmp = (BITMAP *) malloc(sizeof(BITMAP) + sizeof(char *) * h);
+   bmp = (BITMAP *) _AL_MALLOC(sizeof(BITMAP) + sizeof(char *) * h);
    if (!bmp)
       return NULL;
 
@@ -453,7 +453,7 @@ BITMAP *gfx_directx_create_video_bitmap(int width, int height)
          case 1:
          case 2:
             /* try to attach an additional page to the flipping chain */
-            flipping_page[n_flipping_pages] = malloc(sizeof(DDRAW_SURFACE));
+            flipping_page[n_flipping_pages] = _AL_MALLOC(sizeof(DDRAW_SURFACE));
             if (recreate_flipping_chain(n_flipping_pages+1) == 0) {
                bmp = gfx_directx_make_bitmap_from_surface(flipping_page[n_flipping_pages], width, height, BMP_ID_VIDEO);
                if (bmp) {
@@ -464,7 +464,7 @@ BITMAP *gfx_directx_create_video_bitmap(int width, int height)
             }
 
             recreate_flipping_chain(n_flipping_pages);
-            free(flipping_page[n_flipping_pages]);
+            _AL_FREE(flipping_page[n_flipping_pages]);
             flipping_page[n_flipping_pages] = NULL;
             return NULL;
       }
@@ -515,7 +515,7 @@ void gfx_directx_destroy_video_bitmap(BITMAP *bmp)
 
          /* remove the tail page from the flipping chain */
          recreate_flipping_chain(n_flipping_pages);
-         free(tail_page);
+         _AL_FREE(tail_page);
       }
       flipping_page[n_flipping_pages] = NULL;
    }
@@ -524,7 +524,7 @@ void gfx_directx_destroy_video_bitmap(BITMAP *bmp)
       gfx_directx_destroy_surface(surf);
    }
 
-   free(bmp);
+   _AL_FREE(bmp);
 }
 
 
@@ -658,7 +658,7 @@ void gfx_directx_destroy_system_bitmap(BITMAP *bmp)
    /* destroy the surface */
    gfx_directx_destroy_surface(DDRAW_SURFACE_OF(bmp));
 
-   free(bmp);
+   _AL_FREE(bmp);
 }
 
 

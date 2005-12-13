@@ -436,7 +436,7 @@ static int fs_flist_putter(AL_CONST char *str, int attrib, void *check_attrib)
 
    if (((ugetc(s) != '.') || (ugetat(s, 1)))) {
       int size = ustrsizez(s) + ((attrib & FA_DIREC) ? ucwidth(OTHER_PATH_SEPARATOR) : 0);
-      name = malloc(size);
+      name = _AL_MALLOC_ATOMIC(size);
       if (!name)
 	 return -1;
 
@@ -533,14 +533,14 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
 
    if (msg == MSG_START) {
       if (!flist) {
-	 flist = malloc(sizeof(FLIST));
+	 flist = _AL_MALLOC(sizeof(FLIST));
 
 	 if (!flist) {
 	    *allegro_errno = ENOMEM;
 	    return D_CLOSE; 
 	 }
 	 flist->capacity = FLIST_START_CAPACITY;
-	 flist->name = malloc(flist->capacity * sizeof(char *));
+	 flist->name = _AL_MALLOC(flist->capacity * sizeof(char *));
 	 if (!flist->name) {
 	    *allegro_errno = ENOMEM;
 	    return D_CLOSE;
@@ -549,7 +549,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
       else {
 	 for (i=0; i<flist->size; i++) {
 	    if (flist->name[i]) {
-	       free(flist->name[i]);
+	       _AL_FREE(flist->name[i]);
 	       /* PH add: maybe avoid multiple frees */
 	       flist->name[i] = NULL;
 	    }
@@ -591,9 +591,9 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
       if (flist) {
 	 for (i=0; i<flist->size; i++)
 	    if (flist->name[i])
-	       free(flist->name[i]);
-	 free(flist->name);
-	 free(flist);
+	       _AL_FREE(flist->name[i]);
+	 _AL_FREE(flist->name);
+	 _AL_FREE(flist);
 	 flist = NULL;
       }
    }
@@ -913,22 +913,22 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    ret = popup_dialog(file_selector, FS_EDIT);
 
    if (fext) {
-      free(fext);
+      _AL_FREE(fext);
       fext = NULL;
    }
 
    if (fext_p) {
-      free(fext_p);
+      _AL_FREE(fext_p);
       fext_p = NULL;
    }
 
    if (ret == FS_CANCEL) {
       ustrcpy(path, backup);
-      free(backup);
+      _AL_FREE(backup);
       return FALSE;
    }
 
-   free(backup);
+   _AL_FREE(backup);
 
    if (ugetc(get_filename(path))) {
       p = get_extension(path);

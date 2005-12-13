@@ -75,7 +75,7 @@ void _al_mutex_init(_AL_MUTEX *mutex)
    ASSERT(mutex);
 
    if (!mutex->cs)
-      mutex->cs = malloc(sizeof *mutex->cs);
+      mutex->cs = _AL_MALLOC(sizeof *mutex->cs);
    ASSERT(mutex->cs);
    if (mutex->cs)
       InitializeCriticalSection(mutex->cs);
@@ -97,7 +97,7 @@ void _al_mutex_destroy(_AL_MUTEX *mutex)
    ASSERT(mutex->cs);
 
    DeleteCriticalSection(mutex->cs);
-   free(mutex->cs);
+   _AL_FREE(mutex->cs);
    mutex->cs = NULL;
 }
 

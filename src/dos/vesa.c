@@ -615,7 +615,7 @@ static GFX_MODE_LIST *vesa_fetch_mode_list(void)
    unsigned short *vesa_mode;
    int            mode, pos, vesa_list_length;
 
-   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   mode_list = _AL_MALLOC(sizeof(GFX_MODE_LIST));
    if (!mode_list) return NULL;
 
    /* fetch list of VESA modes */
@@ -629,7 +629,7 @@ static GFX_MODE_LIST *vesa_fetch_mode_list(void)
       mode_ptr += sizeof(unsigned short);
 
    /* allocate and fill in temporary vesa mode list */
-   vesa_mode = malloc(sizeof(unsigned short) * mode_list->num_modes);
+   vesa_mode = _AL_MALLOC(sizeof(unsigned short) * mode_list->num_modes);
    if (!vesa_mode) return NULL;
 
    mode_ptr = RM_TO_LINEAR(vesa_info.VideoModePtr);
@@ -650,7 +650,7 @@ static GFX_MODE_LIST *vesa_fetch_mode_list(void)
    }
 
    /* allocate mode list */
-   mode_list->mode = malloc(sizeof(GFX_MODE) * (mode_list->num_modes + 1));
+   mode_list->mode = _AL_MALLOC(sizeof(GFX_MODE) * (mode_list->num_modes + 1));
    if (!mode_list->mode) return NULL;
 
    /* fill in width, height and color depth for each VESA mode */
@@ -670,7 +670,7 @@ static GFX_MODE_LIST *vesa_fetch_mode_list(void)
    mode_list->mode[mode_list->num_modes].bpp    = 0;
 
    /* free up temporary vesa mode list */
-   free(vesa_mode);
+   _AL_FREE(vesa_mode);
 
    return mode_list;
 }
@@ -696,9 +696,9 @@ static int get_pmode_functions(void (**w1)(void), void (**w2)(void))
       return -1;
 
    if (pm_info)
-      free(pm_info);
+      _AL_FREE(pm_info);
 
-   pm_info = malloc(_dpmi_reg.x.cx);         /* copy into our address space */
+   pm_info = _AL_MALLOC(_dpmi_reg.x.cx);         /* copy into our address space */
    LOCK_DATA(pm_info, _dpmi_reg.x.cx);
    dosmemget((_dpmi_reg.x.es*16)+_dpmi_reg.x.di, _dpmi_reg.x.cx, pm_info);
 
@@ -1456,7 +1456,7 @@ static void vesa_exit(BITMAP *b)
    _remove_physical_mapping(&mmio_linear, &_mmio_segment);
 
    if (pm_info) {
-      free(pm_info);
+      _AL_FREE(pm_info);
       pm_info = NULL;
    }
 
