@@ -4842,8 +4842,8 @@ Allegro supports several different types of bitmaps:
    draw_sprite() after drawing other stuff on it. Example:
 <codeblock>
       /* Replace mask color with another color. */
-      for (y = 0; y < bmp->h; y++)
-	 for (x = 0; x < bmp->w; x++)
+      for (y = 0; y < bmp-&gth; y++)
+	 for (x = 0; x < bmp-&gtw; x++)
 	    if (getpixel(bmp, x, y) == bitmap_mask_color(bmp))
 	       putpixel(bmp, x, y, another_color);<endblock>
 
