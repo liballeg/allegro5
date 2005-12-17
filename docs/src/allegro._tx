@@ -9874,33 +9874,34 @@ the value F_NOPACK_MAGIC.
 The following FA_* flags are guaranteed to work:
 <textblock>
       FA_NONE           - Exclude files that have any attribute set
-      FA_RDONLY         - Directory entries that are unwritable for current user
+      FA_RDONLY         - Directory entries that are unwritable for current
+			  user
       FA_HIDDEN         - Hidden flag
       FA_DIREC          - Directories
       FA_SYSTEM         - Files with system flag set (DOS/Windows only)
       FA_LABEL          - Files with volume label flag set (DOS/Windows only)
       FA_ARCH           - Files with archive flag set (DOS/Windows only)
-      FA_ALL            - Match all attributes<endblock>
+      FA_ALL            - Match all attributes
+<endblock>
 Do not use any other flags from DOS/Windows or your code will not compile on 
-another platform.
-FA_RDONLY is for directory entries with read-only flag on DOS-like systems or 
-unwritable by current user on Unix-like systems. Hidden files are directory
-entries that have the hidden flag set (DOS/Windows) or have names starting with
-'.' (UNIX, excluding '.' and '..').
-Flags can be combined using '|' (binary OR operator).
+another platform. FA_RDONLY is for directory entries with read-only flag on
+DOS-like systems or unwritable by current user on Unix-like systems. Hidden
+files are directory entries that have the hidden flag set (DOS/Windows) or
+have names starting with '.' (UNIX, excluding '.' and '..'). Flags can be
+combined using '|' (binary OR operator).
 
-When passed to the functions as the 'attrib' parameter, these flags 
-represent an upper set in which the actual flag set of a matching file must 
-be included. That is, in order for a file to be matching, its attributes 
-may contain any of the specified flags but must not contain any of the 
+When passed to the functions as the 'attrib' parameter, these flags represent
+an upper set in which the actual flag set of a matching file must be
+included. That is, in order for a file to be matching, its attributes may
+contain any of the specified flags but must not contain any of the
 unspecified flags. In other words, you explictly <i>exclude</i> the flags that you
-do <i>not</i> specify. Thus if you pass 'FA_DIREC | FA_RDONLY', normal files 
-and directories will be included as well as read-only files and 
-directories, but not hidden files and directories. Similarly, if you pass 
-'FA_ARCH' then both archived and non-archived files will be included. If
-FA_NONE is passed all attributes are excluded and only files with no attributes
-are returned. Conversely, if you pass FA_ALL, no attributes are excluded so all
-files are returned (which is what you would usually want).
+do <i>not</i> specify. Thus if you pass 'FA_DIREC | FA_RDONLY', normal files and
+directories will be included as well as read-only files and directories, but
+not hidden files and directories. Similarly, if you pass 'FA_ARCH' then both
+archived and non-archived files will be included. If FA_NONE is passed all
+attributes are excluded and only files with no attributes are returned.
+Conversely, if you pass FA_ALL, no attributes are excluded so all files are
+returned (which is what you would usually want).
 
 Functions which accept wildcards as file names support the meta characters
 `*' (which means, zero or any quantity of characters) and `?' (which means
@@ -10209,7 +10210,7 @@ any character, but only one).
 <codeblock>
       struct al_ffblk info;
 
-      if (al_findfirst("*.pcx", &info, FA_ALL) != 0) {
+      if (al_findfirst("*.pcx", &info, ~FA_DIREC) != 0) {
 	 /* Tell user there are no PCX files. */
 	 return;
       }<endblock>
@@ -10225,7 +10226,7 @@ any character, but only one).
 @shortdesc Finds the next file in a search started by al_findfirst().
    This finds the next file in a search started by al_findfirst(). Example:
 <codeblock>
-      if (al_findfirst("*.pcx", &info, 0) != 0)
+      if (al_findfirst("*.pcx", &info, ~FA_DIREC) != 0)
 	 return;
 
       do {
