@@ -124,6 +124,7 @@ static int create_test_capture_buffer(WAVEFORMATEX *wfx)
    HRESULT hr;
 
    /* create the capture buffer */
+   ZeroMemory(&dsc_trybuf, sizeof(DSCBUFFERDESC));
    dsc_trybuf_desc.dwSize  = sizeof(DSCBUFFERDESC);
    dsc_trybuf_desc.dwFlags = 0;
    dsc_trybuf_desc.dwBufferBytes = 1024;
@@ -465,6 +466,7 @@ int digi_directsound_rec_start(int rate, int bits, int stereo)
    digi_driver->rec_cap_stereo = (dsc_buf_wfx.nChannels == 2) ? 1 : 0;
 
    /* create the capture buffer */
+   ZeroMemory(&dscBufDesc, sizeof(DSCBUFFERDESC));
    dscBufDesc.dwSize  = sizeof(DSCBUFFERDESC);
    dscBufDesc.dwFlags = 0;
    dscBufDesc.dwBufferBytes = dsc_buf_wfx.nAvgBytesPerSec;
