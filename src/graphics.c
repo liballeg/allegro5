@@ -1042,7 +1042,9 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
 {
    GFX_VTABLE *vtable;
    BITMAP *bitmap;
+   int padding;
    int i;
+
    ASSERT(width >= 0);
    ASSERT(height > 0);
    ASSERT(system_driver);
@@ -1058,7 +1060,12 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    if (!bitmap)
       return NULL;
 
-   bitmap->dat = _AL_MALLOC_ATOMIC(width * height * BYTES_PER_PIXEL(color_depth));
+   /* This avoids a crash for assembler code accessing the last pixel, as it
+    * read 4 bytes instead of 3.
+    */
+   padding = (color_depth == 24) ? 1 : 0;
+
+   bitmap->dat = _AL_MALLOC_ATOMIC(width * height * BYTES_PER_PIXEL(color_depth) + padding);
    if (!bitmap->dat) {
       _AL_FREE(bitmap);
       return NULL;
