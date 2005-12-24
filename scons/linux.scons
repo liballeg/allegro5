@@ -1,0 +1,28 @@
+import os
+
+Import( 'sourceFiles' )
+
+env, files = SConscript( 'unix.scons', exports = [ 'sourceFiles' ] )
+
+files += sourceFiles( 'linux/', Split( """
+fbcon.c
+lconsole.c
+lgfxdrv.c
+ljoynu.c
+lkeybdnu.c
+lmemory.c
+lmouse.c
+lmsedrv.c
+lmseev.c
+lmsegpmd.c
+lmsems.c
+lmseps2.c
+lstddrv.c
+lsystem.c
+lvga.c
+lvgahelp.c
+svgalib.c
+vtswitch.c
+""" ) );
+
+Return( 'env', 'files' )
