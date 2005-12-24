@@ -1,10 +1,10 @@
 import os
 
-Import( 'sourceFiles' )
+Import('sourceFiles')
 
-env = Environment( ENV = os.environ )
+env = Environment(ENV = os.environ)
 
-files = sourceFiles( './', Split( """
+files = sourceFiles('./', Split( """
 allegro.c
 blit.c
 bmp.c
@@ -77,7 +77,7 @@ vtable32.c
 vtable8.c
 """ ) );
 
-files += sourceFiles( 'compat/', Split( """
+files += sourceFiles('compat/', Split("""
 coblit.c
 cogfx.c
 cojoy.c
@@ -85,13 +85,13 @@ cokeybd.c
 cotimer.c
 """ ) );
 
-files += sourceFiles( 'misc/', Split( """
+files += sourceFiles('misc/', Split("""
 vector.c
 colconv.c
 ccolconv.c
 """ ));
 
-files += sourceFiles( 'c/', Split( """
+files += sourceFiles('c/', Split("""
 cblit16.c
 cblit24.c
 cblit32.c
@@ -122,4 +122,4 @@ czscan32.c
 czscan8.c
 """ ));
 
-Return( 'env', 'files' )
+Return('env', 'files')

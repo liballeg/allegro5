@@ -1,8 +1,8 @@
 import os
 
-def CheckIntel( context ):
-    context.Message( "Checking for intel chip... " )
-    ret = context.TryCompile( """
+def CheckIntel(context):
+    context.Message("Checking for intel chip... ")
+    ret = context.TryCompile("""
         .globl _dummy_function
         _dummy_function:
         pushl %ebp
@@ -12,14 +12,14 @@ def CheckIntel( context ):
         addl %ebx, %eax
         popl %ebp
         ret
-    """, ".s" )
+    """, ".s")
 
-    context.Result( ret )
+    context.Result(ret)
     return ret
 
-def CheckAMD64( context ):
-    context.Message( "Checking for AMD64 chip... " )
-    ret = context.TryCompile( """
+def CheckAMD64(context):
+    context.Message("Checking for AMD64 chip... ")
+    ret = context.TryCompile("""
         .globl _dummy_function
         _dummy_function:
         pushq %rbp
@@ -28,13 +28,13 @@ def CheckAMD64( context ):
         callq *%rdx
         addl %ebx, %eax
         popq %rbp
-        ret""", ".s" )
-    context.Result( ret )
+        ret""", ".s")
+    context.Result(ret)
     return ret
 
-def CheckSparc( context ):
-    context.Message( "Checking for SPARC chip... " )
-    ret = context.TryCompile( """
+def CheckSparc(context):
+    context.Message("Checking for SPARC chip... ")
+    ret = context.TryCompile("""
         globl _dummy_function
         _dummy_function:
         pushq %rbp
@@ -43,13 +43,13 @@ def CheckSparc( context ):
         callq *%rdx
         addl %ebx, %eax
         popq %rbp
-        ret""", ".s" )
-    context.Result( ret )
+        ret""", ".s")
+    context.Result(ret)
     return ret
 
-def CheckMMX( context ):
-    context.Message( "Checking for MMX... " )
-    ret = context.TryCompile( """
+def CheckMMX(context):
+    context.Message("Checking for MMX... ")
+    ret = context.TryCompile("""
         .globl _dummy_function
         _dummy_function:
         pushl %ebp
@@ -63,13 +63,13 @@ def CheckMMX( context ):
         paddd %mm1, %mm0
         emms
         popl %ebp
-        ret""", ".s" )
-    context.Result( ret )
+        ret""", ".s")
+    context.Result(ret)
     return ret
 
-def CheckSSE( context ):
-    context.Message( "Checking for SSE... ")
-    ret = context.TryCompile( """
+def CheckSSE(context):
+    context.Message("Checking for SSE... ")
+    ret = context.TryCompile("""
         .globl _dummy_function
         _dummy_function:
         pushl %ebp
@@ -82,178 +82,178 @@ def CheckSSE( context ):
         paddd %mm1, %mm0
         emms
         popl %ebp
-        ret""", ".s" )
-    context.Result( ret )
+        ret""", ".s")
+    context.Result(ret)
     return ret
 
-def CheckASMUnderscores( context ):
-    context.Message( "Checking for asm prefix before symbol... ")
-    ret = context.TryLink( """
+def CheckASMUnderscores(context):
+    context.Message("Checking for asm prefix before symbol... ")
+    ret = context.TryLink("""
         int test_for_underscore(void);
         asm (".globl _test_for_undercore\\n"
-             "_test_for_underscore:" );
+             "_test_for_underscore:");
         int main(){
             test_for_underscore();
         }
-    """, ".c" )
-    context.Result( ret )
+    """, ".c")
+    context.Result(ret)
     return ret
 
-def CheckProcFS( context ):
-    context.Message( "Checking for System V sys/procfs... ")
-    ret = context.TryLink( """
+def CheckProcFS(context):
+    context.Message("Checking for System V sys/procfs... ")
+    ret = context.TryLink("""
         #include <sys/procfs.h>
         #include <sys/ioctl.h>
 
         int main(){
             struct prpsinfo_t psinfo;
-            ioctl(0, PIOCPSINFO, &psinfo );
+            ioctl(0, PIOCPSINFO, &psinfo);
         }
-        """, ".c" )
-    context.Result( ret )
+        """, ".c")
+    context.Result(ret)
     return ret
 
-def CheckProcFSArgCV( context ):
-    context.Message( "Checking if sys/procfs.h tells us argc/argv... ")
-    ret = context.TryLink( """
+def CheckProcFSArgCV(context):
+    context.Message("Checking if sys/procfs.h tells us argc/argv... ")
+    ret = context.TryLink("""
         #include <sys/procfs.h>
         int main(){
             prpsinfo_t psinfo;
             psinfo.pr_argc = 0;
         }
-        """, ".c" )
-    context.Result( ret )
+        """, ".c")
+    context.Result(ret)
     return ret
 
-def CheckBigEndian( context ):
-    context.Message( "Checking for big endianness... " )
+def CheckBigEndian(context):
+    context.Message("Checking for big endianness... ")
     import sys
     if sys.byteorder != 'big':
-        context.Result( 0 )
+        context.Result(0)
         return 0
-    context.Result( 1 )
+    context.Result(1)
     return 1
 
-def CheckLittleEndian( context ):
-    context.Message( "Checking for little endianness... " )
+def CheckLittleEndian(context):
+    context.Message("Checking for little endianness... ")
     import sys
     if sys.byteorder != 'little':
-        context.Result( 0 )
+        context.Result(0)
         return 0
-    context.Result( 1 )
+    context.Result(1)
     return 1
 
-def CheckDarwin( context ):
-    context.Message( "Checking if host is Darwin... " )
+def CheckDarwin(context):
+    context.Message("Checking if host is Darwin... ")
     import string
     uname = os.uname()
-    if string.lower( uname[ 0 ] ) == "darwin":
-        context.Result( 1 )
+    if string.lower(uname[ 0 ]) == "darwin":
+        context.Result(1)
         return 1
-    context.Result( 0 )
+    context.Result(0)
     return 0
 
-def CheckLinux( context ):
-    context.Message( "Checking if host is Linux... " )
+def CheckLinux(context):
+    context.Message("Checking if host is Linux... ")
     import string
     uname = os.uname()
-    if string.lower( uname[ 0 ] ) == "linux":
-        context.Result( 1 )
+    if string.lower(uname[ 0 ]) == "linux":
+        context.Result(1)
         return 1
-    context.Result( 0 )
+    context.Result(0)
     return 0
 
-def CheckFBCon( context ):
-    context.Message( "Checking for fbcon support... " )
-    ret = context.TryLink( """
+def CheckFBCon(context):
+    context.Message("Checking for fbcon support... ")
+    ret = context.TryLink("""
         #include <linux/fb.h>
         int main(){
             int x = FB_SYNC_ON_GREEN;
         }
-        """, ".c" );
-    context.Result( ret )
+        """, ".c");
+    context.Result(ret)
     return ret
 
-def CheckSVGALibVersion( context ):
-    context.Message( "Checking for SVGAlib version... " )
-    ret = context.TryLink( """
+def CheckSVGALibVersion(context):
+    context.Message("Checking for SVGAlib version... ")
+    ret = context.TryLink("""
         #include <vga.h>
         int main(){
             int x = vga_version; 
             x++;
         }
-        """, ".c" );
-    context.Result( ret )
+        """, ".c");
+    context.Result(ret)
     return ret
 
-def CheckConstructor( context ):
-    context.Message( "Checking if constructors are supported... " )
-    ret, message = context.TryRun( """
+def CheckConstructor(context):
+    context.Message("Checking if constructors are supported... ")
+    ret, message = context.TryRun("""
         static int notsupported = 1;
         void test_ctor (void) __attribute__ ((constructor));
         void test_ctor (void) { notsupported = 0; }
         int main (void) {
             return (notsupported);
         }
-        """, ".c" )
-    context.Result( ret )
+        """, ".c")
+    context.Result(ret)
     return ret
 
-def AlsaVersion( context ):
-    context.Message( "Checking ALSA version... " )
-    ret = context.TryLink( """
+def AlsaVersion(context):
+    context.Message("Checking ALSA version... ")
+    ret = context.TryLink("""
         #include <sys/asoundlib.h>
                   #if (SND_LIB_MAJOR > 0) || (SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9 && SND_LIB_SUBMINOR >= 1)
                   #else
                   #error
                   #endif
           int main(){}
-          """, ".c" );
+          """, ".c");
     if ret:
-        context.Result( ret )
+        context.Result(ret)
         return 9
-    ret = context.TryLink( """
+    ret = context.TryLink("""
         #include <sys/asoundlib.h>
                   #if SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 5
                   #else
                   #error
                   #endif
-          """, ".c" );
-    context.Result( ret )
+          """, ".c");
+    context.Result(ret)
     if ret:
         return 5
     return ret
 
-def CheckALSADigi( context ):
-    context.Message( "Checking for supported ALSA version for digital sound... " )
-    ret = context.TryLink( """
+def CheckALSADigi(context):
+    context.Message("Checking for supported ALSA version for digital sound... ")
+    ret = context.TryLink("""
         #include <sys/asoundlib.h>
                   #if (SND_LIB_MAJOR > 0) || (SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9 && SND_LIB_SUBMINOR >= 1)
                   #else
                   #error
                   #endif
           int main(){}
-          """, ".c" );
+          """, ".c");
     if ret:
-        context.Result( 1 )
+        context.Result(1)
         return 1
-    ret = context.TryLink( """
+    ret = context.TryLink("""
         #include <sys/asoundlib.h>
                   #if SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 5
                   #else
                   #error
                   #endif
-          """, ".c" );
-    context.Result( 1 )
+          """, ".c");
+    context.Result(1)
     if ret:
         return 1
     return ret
 
-def CheckXCursor( context ):
-    context.Message( "Checking for XCursor... " )
+def CheckXCursor(context):
+    context.Message("Checking for XCursor... ")
     tmpEnv = context.env.Copy()
-    context.env.Append( LIBS = 'Xcursor' )
-    ret = context.TryLink( """
+    context.env.Append(LIBS = 'Xcursor')
+    ret = context.TryLink("""
         #include <X11/Xlib.h>
         #include <X11/Xcursor/Xcursor.h>
 
@@ -262,120 +262,120 @@ def CheckXCursor( context ):
                         XcursorImageLoadCursor(0, xcursor_image);
                         XcursorSupportsARGB(0);
         }
-        """, ".c" );
+        """, ".c");
     if not ret:
         context.sconf.env = tmpEnv
-    context.Result( ret )
+    context.Result(ret)
     return ret
 
-def CheckALSAMidi( context ):
-    return CheckALSADigi( context )
+def CheckALSAMidi(context):
+    return CheckALSADigi(context)
 
-def CheckARTSDigi( context ):
-    context.Message( "Checking for ARTS digi... " )
+def CheckARTSDigi(context):
+    context.Message("Checking for ARTS digi... ")
     tmpEnv = context.env.Copy()
-    context.env.ParseConfig( 'artsc-config --libs --cflags' )
+    context.env.ParseConfig('artsc-config --libs --cflags')
 
-    ret = context.TryLink( """
+    ret = context.TryLink("""
         #include <artsc.h>
         int main(){
             arts_init();
         }
-        """, ".c" );
+        """, ".c");
     if not ret:
         context.sconf.env = tmpEnv
-    context.Result( ret )
+    context.Result(ret)
     return ret
 
-def CheckESDDigi( context ):
-    context.Message( "Checking for ESD... ")
+def CheckESDDigi(context):
+    context.Message("Checking for ESD... ")
     tmpEnv = context.env.Copy()
-    context.env.ParseConfig( 'esd-config --libs --cflags' )
-    ret = context.TryLink( """
+    context.env.ParseConfig('esd-config --libs --cflags')
+    ret = context.TryLink("""
         #include <esd.h>
         int main(){
             esd_open_sound(0);
         }
-        """, ".c" );
+        """, ".c");
     if not ret:
         context.sconf.env = tmpEnv
-    context.Result( ret )
+    context.Result(ret)
     return ret
 
-def CheckJackDigi( context ):
-    context.Message( "Checking for JACK... ")
+def CheckJackDigi(context):
+    context.Message("Checking for JACK... ")
     tmpEnv = context.env.Copy()
-    context.env.ParseConfig( 'pkg-config --libs jack --cflags jack' )
-    ret = context.TryLink( """
+    context.env.ParseConfig('pkg-config --libs jack --cflags jack')
+    ret = context.TryLink("""
         #include <jack/jack.h>
         int main(){
             jack_client_new(0);
         }
-        """, ".c" );
+        """, ".c");
     if not ret:
         context.sconf.env = tmpEnv
-    context.Result( ret )
+    context.Result(ret)
     return ret
 
-def CheckForX( context ):
+def CheckForX(context):
 
-    class NoX( Exception ):
+    class NoX(Exception):
         pass
     
-    context.Message( "Checking for X11 the default places...\n" )
+    context.Message("Checking for X11 the default places...\n")
     try:
-        ret = context.sconf.CheckHeader( 'X11/X.h' )
+        ret = context.sconf.CheckHeader('X11/X.h')
         if not ret:
             raise NoX
-        ret = context.sconf.CheckLib( 'X11', 'XOpenDisplay' )
+        ret = context.sconf.CheckLib('X11', 'XOpenDisplay')
         if not ret:
             raise NoX
     except NoX:
         oldEnv = context.env.Copy()
-        context.Message( "Checking for X11 in /usr/X11R6...\n" )
-        context.env.Append( CPPPATH = "/usr/X11R6/include" )
-        context.env.Append( LIBPATH = "/usr/X11R6/lib" )
+        context.Message("Checking for X11 in /usr/X11R6...\n")
+        context.env.Append(CPPPATH = "/usr/X11R6/include")
+        context.env.Append(LIBPATH = "/usr/X11R6/lib")
         import SCons.SConf
         try:
-            ret = context.sconf.CheckHeader( 'X11/X.h' )
+            ret = context.sconf.CheckHeader('X11/X.h')
             if not ret:
                 raise NoX
-            ret = context.sconf.CheckLib( 'X11', 'XOpenDisplay' )
+            ret = context.sconf.CheckLib('X11', 'XOpenDisplay')
             if not ret:
                 raise NoX
         except NoX:
             context.sconf.env = oldEnv
-            context.Result( ret )
+            context.Result(ret)
             return ret
-    context.Result( ret )
+    context.Result(ret)
     return ret
 
-def CheckOSSDigi( context ):
+def CheckOSSDigi(context):
     headers = [ 'soundcard.h', 'sys/soundcard.h', 'machine/soundcard.h', 'linux/soundcard.h' ]
     for i in headers:
-        if context.sconf.CheckHeader( i ):
-            context.Result( 1 )
+        if context.sconf.CheckHeader(i):
+            context.Result(1)
             return 1
-    context.Result( 0 )
+    context.Result(0)
     return 0
 
-def CheckOSSMidi( context ):
+def CheckOSSMidi(context):
     headers = [ 'soundcard.h', 'sys/soundcard.h', 'machine/soundcard.h', 'linux/soundcard.h' ]
     for i in headers:
-        if context.sconf.CheckHeader( i ):
-            if context.sconf.TryLink( """
+        if context.sconf.CheckHeader(i):
+            if context.sconf.TryLink("""
                 #include <%s>
                 int main(){
                     return SNDCTL_SEQ_NRSYNTHS;
-                } """ % i, ".c" ):
-                context.Result( 1 )
+                } """ % i, ".c"):
+                context.Result(1)
                 return 1
-    context.Result( 0 )
+    context.Result(0)
     return 0
 
-def CheckMapFailed( context ):
-    context.Message( "Checking for MAP_FAILED... " )
-    ret = context.TryCompile( """
+def CheckMapFailed(context):
+    context.Message("Checking for MAP_FAILED... ")
+    ret = context.TryCompile("""
         #include <unistd.h>
         #include <sys/mman.h>
 
@@ -385,8 +385,8 @@ def CheckMapFailed( context ):
 
         int main(){
         }
-        """, ".c" )
-    context.Result( ret )
+        """, ".c")
+    context.Result(ret)
     if ret:
         ret = 0
     return ret
