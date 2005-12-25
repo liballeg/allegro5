@@ -50,8 +50,11 @@ tests[ 'CheckOSSMidi' ] = checks.CheckOSSMidi
 
 config = env.Configure(custom_tests = tests)
 
-config.CheckIntel()
-config.CheckAMD64()
+if config.CheckIntel():
+	config.env.Append( CCFLAGS = [ '-mtune=pentium' ] )
+
+if config.CheckAMD64():
+	config.env.Append( CCFLAGS = [ '-mtune=athlon' ] )
 
 def getOption(name, default):
     if ARGUMENTS.get(name, default) == 'yes':
@@ -228,5 +231,10 @@ if useXWindows:
     xvtable.c
     xwin.c
     """));
+
+def pruneLibs(libs):
+    return list(set(libs))
+
+env.Replace(LIBS = pruneLibs(env[ 'LIBS' ]))
 
 Return('env', 'files')
