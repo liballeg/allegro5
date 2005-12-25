@@ -1,9 +1,9 @@
-Import('sourceFiles')
+Import('sourceFiles', 'addExtra')
 
 import os
 import checks
 
-env, files = SConscript('all.scons', exports = 'sourceFiles')
+env, files = SConscript('all.scons', exports = [ 'sourceFiles', 'addExtra' ])
 
 def OnX86():
     uname = os.uname()
@@ -231,6 +231,18 @@ if useXWindows:
     xvtable.c
     xwin.c
     """));
+
+    def tools(tenv,appendDir,buildDir):
+        tools = []
+        def addTool(name,files):
+            tool = tenv.Program('tools/' + name, appendDir(buildDir + '/tools/', files))
+            Alias(name, tool)
+            tools.append(tool)
+        addTool('x11/xf2pcx', [ 'x11/xf2pcx.c' ])
+        Alias('tools', tools)
+        return tools
+
+    addExtra(tools)
 
 def pruneLibs(libs):
     return list(set(libs))
