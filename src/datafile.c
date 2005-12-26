@@ -1435,7 +1435,7 @@ DATAFILE_INDEX *create_datafile_index(AL_CONST char *filename)
 
    count = pack_mgetl(f);     pos += 4;
 
-   index = malloc(sizeof(DATAFILE_INDEX));
+   index = _AL_MALLOC(sizeof(DATAFILE_INDEX));
    if (!index) {
       pack_fclose(f);
       *allegro_errno = ENOMEM;
@@ -1445,16 +1445,16 @@ DATAFILE_INDEX *create_datafile_index(AL_CONST char *filename)
    index->filename = ustrdup(filename);
    if (!index->filename) {
       pack_fclose(f);
-      free(index);
+      _AL_FREE(index);
       *allegro_errno = ENOMEM;
       return NULL;
    }
 
-   index->offset = malloc(sizeof(long) * count);
+   index->offset = _AL_MALLOC(sizeof(long) * count);
    if (!index->offset) {
       pack_fclose(f);
-      free(index->filename);
-      free(index);
+      _AL_FREE(index->filename);
+      _AL_FREE(index);
       *allegro_errno = ENOMEM;
       return NULL;
    }
@@ -1621,7 +1621,7 @@ DATAFILE *load_datafile_object_indexed(AL_CONST DATAFILE_INDEX *index, int item)
    if (!f)
       return NULL;
 
-   dat = malloc(sizeof(DATAFILE));
+   dat = _AL_MALLOC(sizeof(DATAFILE));
    if (!dat) {
       pack_fclose(f);
       *allegro_errno = ENOMEM;
@@ -1639,7 +1639,7 @@ DATAFILE *load_datafile_object_indexed(AL_CONST DATAFILE_INDEX *index, int item)
 
    if (load_object(dat, f, type) != 0) {
       pack_fclose(f);
-      free(dat);
+      _AL_FREE(dat);
       _destroy_property_list(list);
       return NULL;
    }
@@ -1707,9 +1707,9 @@ void unload_datafile(DATAFILE *dat)
 void destroy_datafile_index(DATAFILE_INDEX *index)
 {
    if (index) {
-      free(index->filename);
-      free(index->offset);
-      free(index);
+      _AL_FREE(index->filename);
+      _AL_FREE(index->offset);
+      _AL_FREE(index);
    }
 }
 
