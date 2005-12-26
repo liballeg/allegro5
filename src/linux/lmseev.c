@@ -533,6 +533,33 @@ static int analyse_data (AL_CONST char *buffer, int size)
 
 
 
+/* open_mouse_device:
+ *  Open the specified device file and check that it is a mouse device.
+ *  Returns the file descriptor if successful or a negative number on error.
+ */
+static int open_mouse_device (const char *device_file)
+{
+   int fd;
+
+   fd = open (device_file, O_RDONLY | O_NONBLOCK);
+   if (fd >= 0) {
+      TRACE(PREFIX_I "Opened device %s\n", device_file);
+      /* The device is a mouse if it has a BTN_MOUSE */
+      if (has_event(fd, EV_KEY, BTN_MOUSE)) {
+	 TRACE(PREFIX_I "Device %s was a mouse.\n", device_file);
+      }
+      else {
+	 TRACE(PREFIX_I "Device %s was not mouse, closing.\n", device_file);
+	 close(fd);
+	 fd = -1;
+      }
+   }
+
+   return fd;
+}
+
+
+
 /* mouse_init:
  *  Here we open the mouse device, initialise anything that needs it, 
  *  and chain to the framework init routine.
@@ -553,7 +580,7 @@ static int mouse_init (void)
    /* Open mouse device.  Devices are cool. */
    if (udevice) {
       TRACE(PREFIX_I "Trying %s device\n", udevice);
-      intdrv.device = open (uconvert_toascii (udevice, tmp1), O_RDONLY | O_NONBLOCK);
+      intdrv.device = open_mouse_device (uconvert_toascii (udevice, tmp1));
       if (intdrv.device < 0) {
          uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open %s: %s"),
                     udevice, ustrerror (errno));
@@ -573,28 +600,19 @@ static int mouse_init (void)
       TRACE(PREFIX_I "Trying /dev/input/event[0-3] devices\n");
 
       for (i=0; device_name[i]; i++) {
-         intdrv.device = open (device_name[i], O_RDONLY | O_NONBLOCK);
+         intdrv.device = open_mouse_device (device_name[i]);
          if (intdrv.device >= 0) {
-            TRACE(PREFIX_I "Opened device %s\n", device_name[i]);
-            /* The device is a mouse if it has a BTN_MOUSE */
-            if (has_event(intdrv.device, EV_KEY, BTN_MOUSE)) {
-               TRACE(PREFIX_I "Device %s was a mouse.\n", device_name[i]);
-               goto Found;
-            }
-            else {
-               TRACE(PREFIX_I "Device %s was not mouse, closing.\n",
-                     device_name[i]);
-               close(intdrv.device);
-            }
+	    break;
          }
       }
 
-      uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open a mouse device: %s"),
-                 ustrerror (errno));
-      return -1;
+      if (!device_name[i]) {
+	 uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open a mouse device: %s"),
+		    ustrerror (errno));
+	 return -1;
+      }
    }
 
- Found:
    intdrv.num_buttons = get_num_buttons(intdrv.device);
    /* Init the tablet data */
    init_tablet(intdrv.device);
