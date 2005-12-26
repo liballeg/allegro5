@@ -47,14 +47,19 @@ tests[ 'CheckJackDigi' ] = checks.CheckJackDigi
 tests[ 'CheckForX' ] = checks.CheckForX
 tests[ 'CheckOSSDigi' ] = checks.CheckOSSDigi
 tests[ 'CheckOSSMidi' ] = checks.CheckOSSMidi
+tests[ 'CheckMTune' ] = checks.CheckMTune
 
 config = env.Configure(custom_tests = tests)
 
+gccArchFlag = '-mcpu='
+if config.CheckMTune():
+    gccArchFlag = '-mtune='
+
 if config.CheckIntel():
-	config.env.Append( CCFLAGS = [ '-mtune=pentium' ] )
+    config.env.Append( CCFLAGS = [ gccArchFlag + 'pentium' ] )
 
 if config.CheckAMD64():
-	config.env.Append( CCFLAGS = [ '-mtune=athlon' ] )
+    config.env.Append( CCFLAGS = [ gccArchFlag + 'k8' ] )
 
 def getOption(name, default):
     if ARGUMENTS.get(name, default) == 'yes':

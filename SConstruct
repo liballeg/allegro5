@@ -4,7 +4,7 @@
 ## while any line starting with a single hash(#) is commenting old/broken code
 
 ## Possible targets should be
-## lib OR shared OR library - Shared allegro library. Either a .so( unix ) or .dll( windows )
+## shared - Shared allegro library. Either a .so( unix ) or .dll( windows )
 ## static - Static allegro library, .a file.
 ## debug-shared - Shared library with debugging turned on
 ## debug-static - Static library with debugging turned on
@@ -13,6 +13,10 @@
 ## docs - All the documentation
 ## tests - All the tests in tests/
 ## demo - The demo game
+
+## debug=1 is the same as prefixing debug- to the target and
+## static=1 is the same as using the static target
+## Thus debug=1 static=1 is the same as debug-static
 
 import os
 import sys
@@ -46,7 +50,7 @@ def addExtra(func):
 ## dir - directory where the library( dll, so ) should end up
 def getLibraryVariables():
     if getPlatform() == "openbsd3":
-        return SConscript('scons/bsd.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple( [ "lib/unix/" ] )
+        return SConscript('scons/bsd.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/unix/" ])
     if getPlatform() == "linux2":
         return SConscript('scons/linux.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/unix/" ])
 
@@ -89,34 +93,10 @@ debug = int(ARGUMENTS.get('debug',0))
 static = int(ARGUMENTS.get('static',0))
 
 library = getAllegroTarget(debug,static)
-Alias( 'library', library )
-
-if False:
-        ## Build the non-debug shared and static libraries
-        optimizedDir = 'build/release/'
-        env.BuildDir(optimizedDir, 'src', duplicate = 0)
-        sharedLib = env.SharedLibrary('alleg-' + allegroVersion, appendDir(optimizedDir, files))
-        staticLib = env.StaticLibrary('alleg-' + allegroVersion, appendDir(optimizedDir, files))
-        env.Install(libDir, sharedLib)
-
-        env.Alias('lib', sharedLib)
-        env.Alias('shared', sharedLib)
-        env.Alias('library', sharedLib)
-        env.Alias('static', staticLib)
-
-        ## Build the debug shared and static libraries
-        debugDir = 'build/debug/'
-        debugEnv = env.Copy()
-        debugEnv.Append(CCFLAGS = '-DDEBUG=1')
-        debugEnv.BuildDir(debugDir, 'src', duplicate = 0)
-        debugShared = debugEnv.SharedLibrary( 'allegd-' + allegroVersion, appendDir(debugDir, files))
-        Alias('debug-shared', debugShared)
-        Alias('debug', debugShared)
-        debugStatic = debugEnv.StaticLibrary( 'allegd-' + allegroVersion, appendDir(debugDir, files))
-        Alias('debug-static', debugStatic)
+Alias('library', library)
 
 ## Build the documentation
-docEnv = Environment( ENV = os.environ )
+docEnv = Environment(ENV = os.environ)
 docEnv.BuildDir(optimizedBuildDir + 'makedoc/', 'docs/src/makedoc', duplicate = 0)
 makeDocFiles = Split("""
    makechm.c
@@ -236,7 +216,7 @@ addExtra(buildDemo)
 ## that was used to build allegro but only link in liballeg
 extraEnv = env.Copy()
 liballeg = getLibraryName(debug)
-extraEnv.Append( LIBPATH = [ libDir ] )
+extraEnv.Append(LIBPATH = [ libDir ])
 if not static:
     extraEnv.Replace(LIBS = [ liballeg ])
 else:

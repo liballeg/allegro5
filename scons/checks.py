@@ -17,6 +17,17 @@ def CheckIntel(context):
     context.Result(ret)
     return ret
 
+def CheckMTune(context):
+    context.Message("Checking if -mtune is supported... ")
+    tmp = context.env.Copy()
+    context.env.Append(CCFLAGS = '-mtune=i386')
+    ret = context.TryCompile("""
+        int main(){}
+        """, ".c");
+    context.sconf.env = tmp
+    context.Result(ret)
+    return ret
+
 def CheckAMD64(context):
     context.Message("Checking for AMD64 chip... ")
     ret = context.TryCompile("""
