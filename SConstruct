@@ -46,38 +46,71 @@ def addExtra(func):
 ## dir - directory where the library( dll, so ) should end up
 def getLibraryVariables():
     if getPlatform() == "openbsd3":
-        return SConscript('scons/bsd.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple( [ "lib/unix" ] )
+        return SConscript('scons/bsd.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple( [ "lib/unix/" ] )
     if getPlatform() == "linux2":
-        return SConscript('scons/linux.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/unix" ])
+        return SConscript('scons/linux.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/unix/" ])
 
 env, files, libDir = getLibraryVariables()
 
-## Build the non-debug shared and static libraries
-optimizedDir = 'build/release/'
-env.BuildDir(optimizedDir, 'src', duplicate = 0)
-sharedLib = env.SharedLibrary('alleg-' + allegroVersion, appendDir(optimizedDir, files))
-staticLib = env.StaticLibrary('alleg-' + allegroVersion, appendDir(optimizedDir, files))
-env.Install(libDir, sharedLib)
+debugBuildDir = 'build/debug/'
+optimizedBuildDir = 'build/release/'
 
-env.Alias('lib', sharedLib)
-env.Alias('shared', sharedLib)
-env.Alias('library', sharedLib)
-env.Alias('static', staticLib)
+def getLibraryName(debug):
+    if debug:
+        return 'allegd-' + allegroVersion
+    else:
+        return 'alleg-' + allegroVersion
 
-## Build the debug shared and static libraries
-debugDir = 'build/debug/'
-debugEnv = env.Copy()
-debugEnv.Append(CCFLAGS = '-DDEBUG=1')
-debugEnv.BuildDir(debugDir, 'src', duplicate = 0)
-debugShared = debugEnv.SharedLibrary( 'allegd-' + allegroVersion, appendDir(debugDir, files))
-Alias('debug-shared', debugShared)
-Alias('debug', debugShared)
-debugStatic = debugEnv.StaticLibrary( 'allegd-' + allegroVersion, appendDir(debugDir, files))
-Alias('debug-static', debugStatic)
+def getAllegroTarget(debug,static):
+    if debug == 1 and static == 1:
+        env.BuildDir(debugBuildDir, 'src', duplicate = 0)
+        env.Append(CCFLAGS = '-DDEBUG=1')
+        return env.StaticLibrary(libDir + getLibraryName(debug), appendDir(debugBuildDir,files))
+    elif debug == 1:
+        env.BuildDir(debugBuildDir, 'src', duplicate = 0)
+        env.Append(CCFLAGS = '-DDEBUG=1')
+        return env.SharedLibrary(libDir + getLibraryName(debug), appendDir(debugBuildDir,files))
+    elif static == 1:
+        env.BuildDir(optimizedBuildDir, 'src', duplicate = 0)
+        return env.StaticLibrary(libDir + getLibraryName(debug), appendDir(optimizedBuildDir,files))
+    else:
+        env.BuildDir(optimizedBuildDir, 'src', duplicate = 0)
+        return env.SharedLibrary(libDir + getLibraryName(debug), appendDir(optimizedBuildDir,files))
+
+debug = int(ARGUMENTS.get('debug',0))
+static = int(ARGUMENTS.get('static',0))
+
+library = getAllegroTarget(debug,static)
+
+Alias( 'library', library )
+
+if False:
+        ## Build the non-debug shared and static libraries
+        optimizedDir = 'build/release/'
+        env.BuildDir(optimizedDir, 'src', duplicate = 0)
+        sharedLib = env.SharedLibrary('alleg-' + allegroVersion, appendDir(optimizedDir, files))
+        staticLib = env.StaticLibrary('alleg-' + allegroVersion, appendDir(optimizedDir, files))
+        env.Install(libDir, sharedLib)
+
+        env.Alias('lib', sharedLib)
+        env.Alias('shared', sharedLib)
+        env.Alias('library', sharedLib)
+        env.Alias('static', staticLib)
+
+        ## Build the debug shared and static libraries
+        debugDir = 'build/debug/'
+        debugEnv = env.Copy()
+        debugEnv.Append(CCFLAGS = '-DDEBUG=1')
+        debugEnv.BuildDir(debugDir, 'src', duplicate = 0)
+        debugShared = debugEnv.SharedLibrary( 'allegd-' + allegroVersion, appendDir(debugDir, files))
+        Alias('debug-shared', debugShared)
+        Alias('debug', debugShared)
+        debugStatic = debugEnv.StaticLibrary( 'allegd-' + allegroVersion, appendDir(debugDir, files))
+        Alias('debug-static', debugStatic)
 
 ## Build the documentation
 docEnv = Environment( ENV = os.environ )
-docEnv.BuildDir(optimizedDir + 'makedoc/', 'docs/src/makedoc', duplicate = 0)
+docEnv.BuildDir(optimizedBuildDir + 'makedoc/', 'docs/src/makedoc', duplicate = 0)
 makeDocFiles = Split("""
    makechm.c
    makedevh.c
@@ -92,7 +125,7 @@ makeDocFiles = Split("""
     """);
 
 docs = [] 
-docs.append(docEnv.Program('docs/makedoc', appendDir(optimizedDir + '/makedoc/', makeDocFiles)))
+docs.append(docEnv.Program('docs/makedoc', appendDir(optimizedBuildDir + '/makedoc/', makeDocFiles)))
 
 makeHTML = Builder(action = 'docs/makedoc -html $TARGETS $SOURCES', 
            suffix = '.html', 
@@ -195,12 +228,15 @@ addExtra(buildDemo)
 ## Build all other miscellaneous targets using the same environment
 ## that was used to build allegro but only link in liballeg
 extraEnv = env.Copy()
-liballeg = 'alleg-' + allegroVersion
+liballeg = getLibraryName(debug)
 extraEnv.Append( LIBPATH = [ libDir ] )
-extraEnv.Replace( LIBS = [ liballeg ] )
+if not static:
+    extraEnv.Replace(LIBS = [ liballeg ])
+else:
+    extraEnv.Append(LIBS = [ liballeg ])
 
 extraTargets = []
 for func in extras:
-    extraTargets.append(func(extraEnv,appendDir,optimizedDir))
+    extraTargets.append(func(extraEnv,appendDir,optimizedBuildDir))
 
-Default(sharedLib, extraTargets, docs)
+Default(library, extraTargets, docs)

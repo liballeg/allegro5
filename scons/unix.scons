@@ -51,10 +51,10 @@ tests[ 'CheckOSSMidi' ] = checks.CheckOSSMidi
 config = env.Configure(custom_tests = tests)
 
 if config.CheckIntel():
-	config.env.Append( CCFLAGS = [ '-mcpu=pentium' ] )
+	config.env.Append( CCFLAGS = [ '-mtune=pentium' ] )
 
 if config.CheckAMD64():
-	config.env.Append( CCFLAGS = [ '-mcpu=athlon' ] )
+	config.env.Append( CCFLAGS = [ '-mtune=athlon' ] )
 
 def getOption(name, default):
     if ARGUMENTS.get(name, default) == 'yes':
