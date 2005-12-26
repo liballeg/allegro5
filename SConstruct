@@ -62,26 +62,33 @@ def getLibraryName(debug):
         return 'alleg-' + allegroVersion
 
 def getAllegroTarget(debug,static):
+    def build(function,dir):
+        env.BuildDir(dir, 'src', duplicate = 0)
+        return function(libDir + getLibraryName(debug), appendDir(dir, files))
+
     if debug == 1 and static == 1:
-        env.BuildDir(debugBuildDir, 'src', duplicate = 0)
         env.Append(CCFLAGS = '-DDEBUG=1')
-        return env.StaticLibrary(libDir + getLibraryName(debug), appendDir(debugBuildDir,files))
+        lib = build(env.StaticLibrary, debugBuildDir)
+        Alias('static', lib)
+        return lib
     elif debug == 1:
-        env.BuildDir(debugBuildDir, 'src', duplicate = 0)
         env.Append(CCFLAGS = '-DDEBUG=1')
-        return env.SharedLibrary(libDir + getLibraryName(debug), appendDir(debugBuildDir,files))
+        lib = build(env.SharedLibrary, debugBuildDir)
+        Alias('shared', lib)
+        return lib
     elif static == 1:
-        env.BuildDir(optimizedBuildDir, 'src', duplicate = 0)
-        return env.StaticLibrary(libDir + getLibraryName(debug), appendDir(optimizedBuildDir,files))
+        lib = build(env.StaticLibrary, optimizedBuildDir)
+        Alias('debug-static', lib)
+        return lib
     else:
-        env.BuildDir(optimizedBuildDir, 'src', duplicate = 0)
-        return env.SharedLibrary(libDir + getLibraryName(debug), appendDir(optimizedBuildDir,files))
+        lib = build(env.SharedLibrary, optimizedBuildDir)
+        Alias('debug-shared', lib)
+        return lib
 
 debug = int(ARGUMENTS.get('debug',0))
 static = int(ARGUMENTS.get('static',0))
 
 library = getAllegroTarget(debug,static)
-
 Alias( 'library', library )
 
 if False:
