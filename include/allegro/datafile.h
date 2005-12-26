@@ -65,11 +65,21 @@ typedef struct DATAFILE
 } DATAFILE;
 
 
+typedef struct DATAFILE_INDEX
+{
+   char *filename;                     /* datafile name (path) */
+   long *offset;                       /* list of offsets */
+} DATAFILE_INDEX;
+
+
 AL_FUNC(DATAFILE *, load_datafile, (AL_CONST char *filename));
 AL_FUNC(DATAFILE *, load_datafile_callback, (AL_CONST char *filename, AL_METHOD(void, callback, (DATAFILE *))));
+AL_FUNC(DATAFILE_INDEX *, create_datafile_index, (AL_CONST char *filename));
 AL_FUNC(void, unload_datafile, (DATAFILE *dat));
+AL_FUNC(void, destroy_datafile_index, (DATAFILE_INDEX *index));
 
 AL_FUNC(DATAFILE *, load_datafile_object, (AL_CONST char *filename, AL_CONST char *objectname));
+AL_FUNC(DATAFILE *, load_datafile_object_indexed, (AL_CONST DATAFILE_INDEX *index, int item));
 AL_FUNC(void, unload_datafile_object, (DATAFILE *dat));
 
 AL_FUNC(DATAFILE *, find_datafile_object, (AL_CONST DATAFILE *dat, AL_CONST char *objectname));
@@ -102,5 +112,3 @@ AL_FUNC(void, register_bitmap_file_type, (AL_CONST char *ext, AL_METHOD(struct B
 #endif
 
 #endif          /* ifndef ALLEGRO_DATAFILE_H */
-
-
