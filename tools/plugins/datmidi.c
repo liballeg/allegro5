@@ -30,7 +30,7 @@ static void *makenew_midi(long *size)
    MIDI *mid;
    int c;
 
-   mid = _al_malloc(sizeof(MIDI));
+   mid = _AL_MALLOC(sizeof(MIDI));
    mid->divisions = 120;
 
    for (c=0; c<MIDI_TRACKS; c++) {

@@ -92,14 +92,14 @@ void _dos_irq_init(void)
    }
 
    for (c=0; c<IRQ_STACKS; c++) {
-      irq_stack[c] = malloc(STACK_SIZE);
+      irq_stack[c] = _AL_MALLOC(STACK_SIZE);
       if (irq_stack[c]) {
 	 LOCK_DATA(irq_stack[c], STACK_SIZE);
 	 irq_stack[c] += STACK_SIZE - 32;
       }
    }
 
-   rmcb_stack = malloc(STACK_SIZE);
+   rmcb_stack = _AL_MALLOC(STACK_SIZE);
    if (rmcb_stack) {
       LOCK_DATA(rmcb_stack, STACK_SIZE);
       rmcb_stack += STACK_SIZE - 32;
@@ -130,14 +130,14 @@ void _dos_irq_exit(void)
    for (c=0; c<IRQ_STACKS; c++) {
       if (irq_stack[c]) {
 	 irq_stack[c] -= STACK_SIZE - 32;
-	 free(irq_stack[c]);
+	 _AL_FREE(irq_stack[c]);
 	 irq_stack[c] = NULL;
       }
    }
 
    if (rmcb_stack) {
       rmcb_stack -= STACK_SIZE - 32;
-      free(rmcb_stack);
+      _AL_FREE(rmcb_stack);
       rmcb_stack = NULL;
    }
 

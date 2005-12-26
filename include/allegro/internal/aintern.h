@@ -50,6 +50,34 @@ enum {
 AL_VAR(int, _screensaver_policy);
 
 
+/* malloc wrappers */
+AL_VAR(void *, _al_memory_opaque);
+AL_FUNCPTR(void *, _al_malloc, (void *opaque, size_t size));
+AL_FUNCPTR(void *, _al_malloc_atomic, (void *opaque, size_t size));
+AL_FUNCPTR(void, _al_free, (void *opaque, void *ptr));
+AL_FUNCPTR(void *, _al_realloc, (void *opaque, void *ptr, size_t size));
+AL_FUNCPTR(void *, _al_debug_malloc, (int line, const char *file, const char *func,
+   void *opaque, size_t size));
+AL_FUNCPTR(void *, _al_debug_malloc_atomic, (int line, const char *file, const char *func,
+   void *opaque, size_t size));
+AL_FUNCPTR(void, _al_debug_free, (int line, const char *file, const char *func,
+   void *opaque, void *ptr));
+AL_FUNCPTR(void *, _al_debug_realloc, (int line, const char *file, const char *func,
+   void *opaque, void *ptr, size_t size));
+
+#ifdef DEBUGMODE
+   #define _AL_MALLOC(SIZE)         (_al_debug_malloc(__LINE__, __FILE__, __func__, _al_memory_opaque, SIZE))
+   #define _AL_MALLOC_ATOMIC(SIZE)  (_al_debug_malloc_atomic(__LINE__, __FILE__, __func__, _al_memory_opaque, SIZE))
+   #define _AL_FREE(PTR)            (_al_debug_free(__LINE__, __FILE__, __func__, _al_memory_opaque, PTR))
+   #define _AL_REALLOC(PTR, SIZE)   (_al_debug_realloc(__LINE__, __FILE__, __func__, _al_memory_opaque, PTR, SIZE))
+#else
+   #define _AL_MALLOC(SIZE)         (_al_malloc(_al_memory_opaque, SIZE))
+   #define _AL_MALLOC_ATOMIC(SIZE)  (_al_malloc_atomic(_al_memory_opaque, SIZE))
+   #define _AL_FREE(PTR)            (_al_free(_al_memory_opaque, PTR))
+   #define _AL_REALLOC(PTR, SIZE)   (_al_realloc(_al_memory_opaque, PTR, SIZE))
+#endif
+
+
 /* some Allegro functions need a block of scratch memory */
 AL_VAR(void *, _scratch_mem);
 AL_VAR(int, _scratch_mem_size);
@@ -59,16 +87,10 @@ AL_INLINE(void, _grow_scratch_mem, (int size),
 {
    if (size > _scratch_mem_size) {
       size = (size+1023) & 0xFFFFFC00;
-      _scratch_mem = realloc(_scratch_mem, size);
+      _scratch_mem = _AL_REALLOC(_scratch_mem, size);
       _scratch_mem_size = size;
    }
 })
-
-
-/* malloc wrappers for DLL <-> application shared memory */
-AL_FUNC(void *, _al_malloc, (int size));
-AL_FUNC(void, _al_free, (void *mem));
-AL_FUNC(void *, _al_realloc, (void *mem, int size));
 
 
 /* list of functions to call at program cleanup */

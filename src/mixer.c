@@ -278,7 +278,7 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
    }
 
    /* temporary buffer for sample mixing */
-   mix_buffer = malloc(mix_size*mix_channels * sizeof(*mix_buffer));
+   mix_buffer = _AL_MALLOC_ATOMIC(mix_size*mix_channels * sizeof(*mix_buffer));
    if (!mix_buffer) {
       mix_size = 0;
       mix_freq = 0;
@@ -295,9 +295,9 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
       _sound_hq = 0;
 
       /* volume table for mixing samples into the temporary buffer */
-      mix_vol_table = malloc(sizeof(MIXER_VOL_TABLE) * MIX_VOLUME_LEVELS);
+      mix_vol_table = _AL_MALLOC_ATOMIC(sizeof(MIXER_VOL_TABLE) * MIX_VOLUME_LEVELS);
       if (!mix_vol_table) {
-         free(mix_buffer);
+         _AL_FREE(mix_buffer);
          mix_buffer = NULL;
          mix_size = 0;
          mix_freq = 0;
@@ -336,11 +336,11 @@ void _mixer_exit(void)
 #endif
 
    if (mix_buffer)
-      free(mix_buffer);
+      _AL_FREE(mix_buffer);
    mix_buffer = NULL;
 
    if (mix_vol_table)
-      free(mix_vol_table);
+      _AL_FREE(mix_vol_table);
    mix_vol_table = NULL;
 
    mix_size = 0;

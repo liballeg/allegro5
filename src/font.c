@@ -566,14 +566,14 @@ static void mono_destroy(FONT* f)
         FONT_MONO_DATA* next = mf->next;
         int i = 0;
 
-        for(i = mf->begin; i < mf->end; i++) free(mf->glyphs[i - mf->begin]);
+        for(i = mf->begin; i < mf->end; i++) _AL_FREE(mf->glyphs[i - mf->begin]);
 
-        free(mf->glyphs);
-        free(mf);
+        _AL_FREE(mf->glyphs);
+        _AL_FREE(mf);
         mf = next;
     }
 
-    free(f);
+    _AL_FREE(f);
 }
 
 
@@ -680,7 +680,7 @@ static FONT_MONO_DATA *mono_copy_glyph_range(FONT_MONO_DATA *mf, int begin, int 
    if (begin<mf->begin || end>mf->end)
       return NULL;
    
-   newmf = _al_malloc(sizeof *newmf);
+   newmf = _AL_MALLOC(sizeof *newmf);
 
    if (!newmf)
       return NULL;
@@ -690,13 +690,13 @@ static FONT_MONO_DATA *mono_copy_glyph_range(FONT_MONO_DATA *mf, int begin, int 
    newmf->next = NULL;
    num = end - begin;
 
-   gl = newmf->glyphs = _al_malloc(num * sizeof *gl);
+   gl = newmf->glyphs = _AL_MALLOC(num * sizeof *gl);
    for (c=0; c<num; c++) {
       int sz;
       g = mf->glyphs[begin - mf->begin + c];
       sz = ((g->w + 7) / 8) * g->h;
 
-      gl[c] = _al_malloc(sz + sizeof *(gl[c]));
+      gl[c] = _AL_MALLOC(sz + sizeof *(gl[c]));
       gl[c]->w = g->w;
       gl[c]->h = g->h;
       memcpy(gl[c]->dat, g->dat, sz * sizeof *(g->dat));
@@ -737,7 +737,7 @@ static FONT *mono_extract_font_range(FONT *f, int begin, int end)
    }
 
    /* Get output font */
-   fontout = _al_malloc(sizeof *fontout);
+   fontout = _AL_MALLOC(sizeof *fontout);
 
    fontout->height = f->height;
    fontout->vtable = f->vtable;
@@ -794,7 +794,7 @@ static FONT *mono_merge_fonts(FONT *font1, FONT *font2)
       return NULL;
 
    /* Get output font */
-   fontout = _al_malloc(sizeof *fontout);
+   fontout = _AL_MALLOC(sizeof *fontout);
    fontout->height = MAX(font1->height, font2->height);
    fontout->vtable = font1->vtable;
    mf = fontout->data = NULL;
@@ -997,13 +997,13 @@ static void color_destroy(FONT* f)
 
         for(i = cf->begin; i < cf->end; i++) destroy_bitmap(cf->bitmaps[i - cf->begin]);
 
-        free(cf->bitmaps);
-        free(cf);
+        _AL_FREE(cf->bitmaps);
+        _AL_FREE(cf);
 
         cf = next;
     }
 
-    free(f);
+    _AL_FREE(f);
 }
 
 
@@ -1102,8 +1102,8 @@ static int color_get_font_range_end(FONT* f, int range)
  */
 static FONT_COLOR_DATA* upgrade_to_color_data(FONT_MONO_DATA* mf)
 {
-    FONT_COLOR_DATA* cf = _al_malloc(sizeof *cf);
-    BITMAP** bits = _al_malloc((mf->end - mf->begin)*sizeof *bits);
+    FONT_COLOR_DATA* cf = _AL_MALLOC(sizeof *cf);
+    BITMAP** bits = _AL_MALLOC((mf->end - mf->begin)*sizeof *bits);
     int i;
 
     cf->begin = mf->begin;
@@ -1132,7 +1132,7 @@ static FONT *upgrade_to_color(FONT* f)
     FONT *outf;
 
     if (is_color_font(f)) return NULL;
-    outf = _al_malloc(sizeof *outf);
+    outf = _AL_MALLOC(sizeof *outf);
     outf->vtable = font_vtable_color;
     outf->height = f->height;
 
@@ -1165,7 +1165,7 @@ static FONT_COLOR_DATA *color_copy_glyph_range(FONT_COLOR_DATA *cf, int begin, i
    if (begin<cf->begin || end>cf->end)
       return NULL;
    
-   newcf = _al_malloc(sizeof *newcf);
+   newcf = _AL_MALLOC(sizeof *newcf);
 
    if (!newcf)
       return NULL;
@@ -1175,7 +1175,7 @@ static FONT_COLOR_DATA *color_copy_glyph_range(FONT_COLOR_DATA *cf, int begin, i
    newcf->next = NULL;
    num = end - begin;
 
-   gl = newcf->bitmaps = _al_malloc(num * sizeof *gl);
+   gl = newcf->bitmaps = _AL_MALLOC(num * sizeof *gl);
    for (c=0; c<num; c++) {
       g = cf->bitmaps[begin - cf->begin + c];
       gl[c] = create_bitmap_ex(bitmap_color_depth(g), g->w, g->h);
@@ -1217,7 +1217,7 @@ static FONT *color_extract_font_range(FONT *f, int begin, int end)
    }
 
    /* Get output font */
-   fontout = _al_malloc(sizeof *fontout);
+   fontout = _AL_MALLOC(sizeof *fontout);
 
    fontout->height = f->height;
    fontout->vtable = f->vtable;
@@ -1287,7 +1287,7 @@ static FONT *color_merge_fonts(FONT *font1, FONT *font2)
       return NULL;
 
    /* Get output font */
-   fontout = _al_malloc(sizeof *fontout);
+   fontout = _AL_MALLOC(sizeof *fontout);
    fontout->height = MAX(font1->height, font2->height);
    fontout->vtable = font1->vtable;
    cf = fontout->data = NULL;

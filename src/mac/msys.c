@@ -285,15 +285,15 @@ BITMAP *mac_create_bitmap(int color_depth, int width, int height)
    if (!vtable)
       return NULL;
 
-   bitmap = malloc(sizeof(BITMAP) + (sizeof(char *) * height));
+   bitmap = _AL_MALLOC(sizeof(BITMAP) + (sizeof(char *) * height));
    if (!bitmap)
       return NULL;
 
    width_bytes=(width * BYTES_PER_PIXEL(color_depth) + (MEMORY_ALIGN - 1) ) & -MEMORY_ALIGN;
    
-   bitmap->dat = malloc(width_bytes * height + MEMORY_ALIGN);
+   bitmap->dat = _AL_MALLOC(width_bytes * height + MEMORY_ALIGN);
    if (!bitmap->dat) {
-      free(bitmap);
+      _AL_FREE(bitmap);
       return NULL;
    }
 
@@ -502,7 +502,7 @@ QDGlobals qd;
  * an strdup function to mac
  */
 char *strdup(const char *p){
-   char *tmp=malloc(strlen(p)+1);
+   char *tmp=_AL_MALLOC(strlen(p)+1);
    if(tmp){
       _al_sane_strncpy(tmp,p,strlen(p)+1);
    }

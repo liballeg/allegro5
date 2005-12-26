@@ -124,6 +124,7 @@ static int create_test_capture_buffer(WAVEFORMATEX *wfx)
    HRESULT hr;
 
    /* create the capture buffer */
+   ZeroMemory(&dsc_trybuf, sizeof(DSCBUFFERDESC));
    dsc_trybuf_desc.dwSize  = sizeof(DSCBUFFERDESC);
    dsc_trybuf_desc.dwFlags = 0;
    dsc_trybuf_desc.dwBufferBytes = 1024;
@@ -220,7 +221,7 @@ static int get_capture_format_support(int bits, int stereo, int rate,
    if (wfx)
       test_wfx = wfx;
    else
-      test_wfx = malloc(sizeof(WAVEFORMATEX));
+      test_wfx = _AL_MALLOC(sizeof(WAVEFORMATEX));
 
    for (i=0; ds_formats[i].type != WAVE_INVALIDFORMAT; i++)
       /* if the current format is supported */
@@ -246,13 +247,13 @@ static int get_capture_format_support(int bits, int stereo, int rate,
 
          if (create_test_capture_buffer(test_wfx) == 0) {
             if (!wfx)
-               free(test_wfx);
+               _AL_FREE(test_wfx);
             return 0;
          }
       }
 
    if (!wfx)
-      free(test_wfx);
+      _AL_FREE(test_wfx);
 
    _TRACE(PREFIX_W "No valid recording formats found.\n");
    return -1;
@@ -465,6 +466,7 @@ int digi_directsound_rec_start(int rate, int bits, int stereo)
    digi_driver->rec_cap_stereo = (dsc_buf_wfx.nChannels == 2) ? 1 : 0;
 
    /* create the capture buffer */
+   ZeroMemory(&dscBufDesc, sizeof(DSCBUFFERDESC));
    dscBufDesc.dwSize  = sizeof(DSCBUFFERDESC);
    dscBufDesc.dwFlags = 0;
    dscBufDesc.dwBufferBytes = dsc_buf_wfx.nAvgBytesPerSec;
@@ -488,7 +490,7 @@ int digi_directsound_rec_start(int rate, int bits, int stereo)
    }
 
    last_capture_pos = 0;
-   input_wave_data = malloc(ds_capture_buffer_size);
+   input_wave_data = _AL_MALLOC(ds_capture_buffer_size);
    input_wave_bytes_read = 0;
 
    return ds_capture_buffer_size;
@@ -508,7 +510,7 @@ void digi_directsound_rec_stop(void)
    }
 
    if (input_wave_data) {
-      free(input_wave_data);
+      _AL_FREE(input_wave_data);
       input_wave_data = NULL;
    }
 }
@@ -556,7 +558,7 @@ int digi_directsound_rec_read(void *buf)
    input_ptr2 = temp2;
 
    /* let's get the data aligned linearly */
-   linear_input_ptr = malloc(bytes_to_lock);
+   linear_input_ptr = _AL_MALLOC(bytes_to_lock);
    memcpy(linear_input_ptr, input_ptr1, input_bytes1);
 
    if (input_ptr2)
@@ -597,7 +599,7 @@ int digi_directsound_rec_read(void *buf)
       input_wave_bytes_read += bytes_to_lock;
    }
 
-   free(linear_input_ptr);
+   _AL_FREE(linear_input_ptr);
 
    last_capture_pos = capture_pos;
 

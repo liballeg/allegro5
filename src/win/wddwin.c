@@ -464,7 +464,7 @@ static void gfx_directx_destroy_video_bitmap_win(BITMAP *bmp)
       gfx_directx_destroy_surface(surf);
    }
 
-   free(bmp);
+   _AL_FREE(bmp);
 }
 
 
@@ -809,7 +809,7 @@ static void gfx_directx_win_exit(struct BITMAP *bmp)
 
    /* destroy dirty lines array */
    if (wd_dirty_lines) {
-      free(wd_dirty_lines);
+      _AL_FREE(wd_dirty_lines);
       wd_dirty_lines = NULL;
    }
 

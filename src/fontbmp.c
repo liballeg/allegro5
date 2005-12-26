@@ -85,7 +85,7 @@ static int import_bitmap_font_mono(BITMAP *import_bmp, FONT_GLYPH** gl, int num)
       if(w <= 0 || h <= 0) {
 	 int j;
 
-	 gl[i] = _al_malloc(sizeof(FONT_GLYPH) + 8);
+	 gl[i] = _AL_MALLOC(sizeof(FONT_GLYPH) + 8);
 	 gl[i]->w = 8;
 	 gl[i]->h = 8;
 
@@ -94,7 +94,7 @@ static int import_bitmap_font_mono(BITMAP *import_bmp, FONT_GLYPH** gl, int num)
       else {
 	 int sx = ((w + 7) / 8), j, k;
 
-	 gl[i] = _al_malloc(sizeof(FONT_GLYPH) + sx * h);
+	 gl[i] = _AL_MALLOC(sizeof(FONT_GLYPH) + sx * h);
 	 gl[i]->w = w;
 	 gl[i]->h = h;
 
@@ -222,18 +222,18 @@ FONT *grab_font_from_bitmap(BITMAP *bmp)
    import_x = 0;
    import_y = 0;
 
-   f = _al_malloc(sizeof *f);
+   f = _AL_MALLOC(sizeof *f);
    if (end == -1) end = bitmap_font_count(bmp) + begin;
 
    if (bitmap_font_ismono(bmp)) {
-      FONT_MONO_DATA* mf = _al_malloc(sizeof(FONT_MONO_DATA));
+      FONT_MONO_DATA* mf = _AL_MALLOC(sizeof(FONT_MONO_DATA));
 
-      mf->glyphs = _al_malloc(sizeof(FONT_GLYPH*) * (end - begin));
+      mf->glyphs = _AL_MALLOC(sizeof(FONT_GLYPH*) * (end - begin));
 
       if ( import_bitmap_font_mono(bmp, mf->glyphs, end - begin) ) {
-	 free(mf->glyphs);
-	 free(mf);
-	 free(f);
+	 _AL_FREE(mf->glyphs);
+	 _AL_FREE(mf);
+	 _AL_FREE(f);
 	 f = NULL;
       }
       else {
@@ -247,13 +247,13 @@ FONT *grab_font_from_bitmap(BITMAP *bmp)
       }
    }
    else {
-      FONT_COLOR_DATA* cf = _al_malloc(sizeof(FONT_COLOR_DATA));
-      cf->bitmaps = _al_malloc(sizeof(BITMAP*) * (end - begin));
+      FONT_COLOR_DATA* cf = _AL_MALLOC(sizeof(FONT_COLOR_DATA));
+      cf->bitmaps = _AL_MALLOC(sizeof(BITMAP*) * (end - begin));
 
       if( import_bitmap_font_color(bmp, cf->bitmaps, end - begin) ) {
-	 free(cf->bitmaps);
-	 free(cf);
-	 free(f);
+	 _AL_FREE(cf->bitmaps);
+	 _AL_FREE(cf);
+	 _AL_FREE(f);
 	 f = 0;
       }
       else {

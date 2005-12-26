@@ -121,11 +121,11 @@ static void destroy_patch(PATCH *pat)
 	 destroy_sample(pat->sample[i]);
 
 	 UNLOCK_DATA(pat->extra[i], sizeof(PATCH_EXTRA));
-	 free(pat->extra[i]);
+	 _AL_FREE(pat->extra[i]);
       }
 
       UNLOCK_DATA(pat, sizeof(PATCH));
-      free(pat);
+      _AL_FREE(pat);
    }
 }
 
@@ -218,7 +218,7 @@ static PATCH *load_patch(PACKFILE *f, int drum)
       goto getout;
    }
 
-   p = malloc(sizeof(PATCH));
+   p = _AL_MALLOC(sizeof(PATCH));
    if (!p) {
       *allegro_errno = ENOMEM;
       goto getout;
@@ -236,7 +236,7 @@ static PATCH *load_patch(PACKFILE *f, int drum)
       p->samples = MAX_LAYERS;
 
    for (i=0; i<p->samples; i++) {                  /* for each sample... */
-      p->sample[i] = malloc(sizeof(SAMPLE));
+      p->sample[i] = _AL_MALLOC(sizeof(SAMPLE));
       if (!p->sample[i]) {
 	 p->samples = i;
 	 destroy_patch(p);
@@ -245,9 +245,9 @@ static PATCH *load_patch(PACKFILE *f, int drum)
 	 goto getout;
       }
 
-      p->extra[i] = malloc(sizeof(PATCH_EXTRA));
+      p->extra[i] = _AL_MALLOC_ATOMIC(sizeof(PATCH_EXTRA));
       if (!p->extra[i])  {
-	 free(p->sample[i]);
+	 _AL_FREE(p->sample[i]);
 	 p->samples = i;
 	 destroy_patch(p);
 	 p = NULL;
@@ -395,10 +395,10 @@ static PATCH *load_patch(PACKFILE *f, int drum)
       p->sample[i]->priority = 128;                /* set some defaults */
       p->sample[i]->param = 0;
 
-      p->sample[i]->data = malloc(p->sample[i]->len*((p->sample[i]->bits==8) ? 1 : sizeof(short)));
+      p->sample[i]->data = _AL_MALLOC_ATOMIC(p->sample[i]->len*((p->sample[i]->bits==8) ? 1 : sizeof(short)));
       if (!p->sample[i]->data) {
-	 free(p->sample[i]);
-	 free(p->extra[i]);
+	 _AL_FREE(p->sample[i]);
+	 _AL_FREE(p->extra[i]);
 	 p->samples = i;
 	 destroy_patch(p);
 	 p = NULL;

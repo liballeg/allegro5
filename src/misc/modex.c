@@ -606,7 +606,7 @@ static void setup_x_magic(BITMAP *b)
    #else
 
       /* other platforms can put the buffer wherever they like */
-      _x_magic_buffer_addr = (unsigned long)malloc(b->w);
+      _x_magic_buffer_addr = (unsigned long)_AL_MALLOC(b->w);
 
    #endif
 
@@ -641,7 +641,7 @@ static void modex_exit(BITMAP *b)
 
       /* free normal memory buffer */
       if (_x_magic_buffer_addr) {
-	 free((void *)_x_magic_buffer_addr);
+	 _AL_FREE((void *)_x_magic_buffer_addr);
 	 _x_magic_buffer_addr = 0;
       }
 
@@ -882,10 +882,10 @@ static GFX_MODE_LIST *xtended_fetch_mode_list(void)
 {
    GFX_MODE_LIST *mode_list;
 
-   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   mode_list = _AL_MALLOC(sizeof(GFX_MODE_LIST));
    if (!mode_list) return NULL;
    
-   mode_list->mode = malloc(sizeof(xtended_gfx_modes));
+   mode_list->mode = _AL_MALLOC(sizeof(xtended_gfx_modes));
    if (!mode_list->mode) return NULL;
 
    memcpy(mode_list->mode, xtended_gfx_modes, sizeof(xtended_gfx_modes));
@@ -1636,10 +1636,10 @@ static GFX_MODE_LIST *modex_fetch_mode_list(void)
 {
    GFX_MODE_LIST *mode_list;
 
-   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   mode_list = _AL_MALLOC(sizeof(GFX_MODE_LIST));
    if (!mode_list) return NULL;
 
-   mode_list->mode = malloc(sizeof(modex_gfx_modes));
+   mode_list->mode = _AL_MALLOC(sizeof(modex_gfx_modes));
    if (!mode_list->mode) return NULL;
 
    memcpy(mode_list->mode, modex_gfx_modes, sizeof(modex_gfx_modes));

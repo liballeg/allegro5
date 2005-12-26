@@ -156,7 +156,7 @@ static GFX_MODE_LIST *_xdga2_private_fetch_mode_list(void)
    if (!mode)
       return NULL;
 
-   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   mode_list = _AL_MALLOC(sizeof(GFX_MODE_LIST));
    if (!mode_list)
       goto error;
    mode_list->mode = NULL;
@@ -174,7 +174,7 @@ static GFX_MODE_LIST *_xdga2_private_fetch_mode_list(void)
          }
       }
       if (!already_there) {
-	 tmp = realloc(mode_list->mode, sizeof(GFX_MODE) * (stored_modes + 1));
+	 tmp = _AL_REALLOC(mode_list->mode, sizeof(GFX_MODE) * (stored_modes + 1));
 	 if (!tmp)
             goto error;
          mode_list->mode = tmp;
@@ -185,7 +185,7 @@ static GFX_MODE_LIST *_xdga2_private_fetch_mode_list(void)
       }
    }
 
-   tmp = realloc(mode_list->mode, sizeof(GFX_MODE) * (stored_modes + 1));
+   tmp = _AL_REALLOC(mode_list->mode, sizeof(GFX_MODE) * (stored_modes + 1));
    if (!tmp)
       goto error;
    mode_list->mode = tmp;
@@ -199,8 +199,8 @@ static GFX_MODE_LIST *_xdga2_private_fetch_mode_list(void)
 
    error:
    if (mode_list) {
-      free(mode_list->mode);
-      free(mode_list);
+      _AL_FREE(mode_list->mode);
+      _AL_FREE(mode_list);
    }
    XFree (mode);
    return NULL;

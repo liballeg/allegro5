@@ -73,7 +73,7 @@ static BITMAP *add_vram_block(AL_DISPLAY *display, int x, int y, int w, int h)
    VRAM_BITMAP *b, *new_b;
    VRAM_BITMAP **last_p;
 
-   new_b = malloc(sizeof(VRAM_BITMAP));
+   new_b = _AL_MALLOC(sizeof(VRAM_BITMAP));
    if (!new_b)
       return NULL;
 
@@ -85,7 +85,7 @@ static BITMAP *add_vram_block(AL_DISPLAY *display, int x, int y, int w, int h)
 
    new_b->bmp = create_sub_bitmap(display->screen, x, y, w, h);
    if (!new_b->bmp) {
-      free(new_b);
+      _AL_FREE(new_b);
       return NULL;
    }
 
@@ -151,7 +151,7 @@ BITMAP *al_create_video_bitmap(AL_DISPLAY *display, int width, int height)
       if (!bmp)
 	 return NULL;
 
-      b = malloc(sizeof(VRAM_BITMAP));
+      b = _AL_MALLOC(sizeof(VRAM_BITMAP));
       b->x = -1;
       b->y = -1;
       b->w = 0;
@@ -313,7 +313,7 @@ void destroy_bitmap(BITMAP *bitmap)
 	       if (pos->x < 0) {
 		  /* the driver is in charge of this object */
 		  pos->root_display->gfx_driver->destroy_video_bitmap(bitmap);
-		  free(pos);
+		  _AL_FREE(pos);
 		  return;
 	       } 
 
@@ -329,7 +329,7 @@ void destroy_bitmap(BITMAP *bitmap)
 	       if (failed_bitmap_h > BMP_MAX_SIZE)
 		  failed_bitmap_h = BMP_MAX_SIZE;
 
-	       free(pos);
+	       _AL_FREE(pos);
 	       break;
 	    }
 
@@ -366,9 +366,9 @@ void destroy_bitmap(BITMAP *bitmap)
       }
 
       if (bitmap->dat)
-	 free(bitmap->dat);
+	 _AL_FREE(bitmap->dat);
 
-      free(bitmap);
+      _AL_FREE(bitmap);
    }
 }
 
@@ -683,7 +683,7 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
 	 system_driver->restore_console_state();
 
       if (_gfx_bank) {
-	 free(_gfx_bank);
+	 _AL_FREE(_gfx_bank);
 	 _gfx_bank = NULL;
       }
 
@@ -874,13 +874,13 @@ BITMAP *_make_bitmap(int w, int h, uintptr_t addr, GFX_DRIVER *driver, int color
 
    size = sizeof(BITMAP) + sizeof(char *) * h;
 
-   b = (BITMAP *)malloc(size);
+   b = (BITMAP *)_AL_MALLOC(size);
    if (!b)
       return NULL;
 
-   _gfx_bank = realloc(_gfx_bank, h * sizeof(int));
+   _gfx_bank = _AL_REALLOC(_gfx_bank, h * sizeof(int));
    if (!_gfx_bank) {
-      free(b);
+      _AL_FREE(b);
       return NULL;
    }
 
@@ -1132,7 +1132,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
       
    new_display_ptr = _al_vector_alloc_back(&display_list);
    if (!new_display_ptr) {
-      free (new_display);
+      _AL_FREE (new_display);
       return NULL;
    }
    (*new_display_ptr) = new_display;
@@ -1161,7 +1161,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
 
          if (new_display->gfx_capabilities & GFX_CAN_TRIPLE_BUFFER) {
             new_display->num_pages = 3;
-            new_display->page = malloc(new_display->num_pages * sizeof *(new_display->page));
+            new_display->page = _AL_MALLOC(new_display->num_pages * sizeof *(new_display->page));
 
             for (c=0; c<new_display->num_pages; c++)
                new_display->page[c] = al_create_video_bitmap(new_display, w, h);
@@ -1175,7 +1175,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
             else {
                for (c=0; c<new_display->num_pages; c++)
                   destroy_bitmap(new_display->page[c]);
-               free(new_display->page);
+               _AL_FREE(new_display->page);
                do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0);
 	       goto Error;
             }
@@ -1188,7 +1188,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
 
       case AL_UPDATE_PAGE_FLIP:
          new_display->num_pages = 2;
-         new_display->page = malloc(new_display->num_pages * sizeof *(new_display->page));
+         new_display->page = _AL_MALLOC(new_display->num_pages * sizeof *(new_display->page));
 
          for (c=0; c<new_display->num_pages; c++)
             new_display->page[c] = al_create_video_bitmap(new_display, w, h);
@@ -1202,7 +1202,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
          else {
             for (c=0; c<new_display->num_pages; c++)
                destroy_bitmap(new_display->page[c]);
-            free(new_display->page);
+            _AL_FREE(new_display->page);
             do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0);
 	    goto Error;
          }
@@ -1211,7 +1211,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
       case AL_UPDATE_SYSTEM_BUFFER:
       case AL_UPDATE_DOUBLE_BUFFER:
          new_display->num_pages = 1;
-         new_display->page = malloc(new_display->num_pages * sizeof *(new_display->page));
+         new_display->page = _AL_MALLOC(new_display->num_pages * sizeof *(new_display->page));
 
          for (c=0; c<new_display->num_pages; c++)
             if (new_display->flags & AL_UPDATE_SYSTEM_BUFFER)
@@ -1228,7 +1228,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
          else {
             for (c=0; c<new_display->num_pages; c++)
                destroy_bitmap(new_display->page[c]);
-            free(new_display->page);
+            _AL_FREE(new_display->page);
             do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0);
 	    goto Error;
          }
@@ -1246,7 +1246,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
 
    ASSERT(new_display);
    _al_vector_find_and_delete(&display_list, &new_display);
-   free(new_display);
+   _AL_FREE(new_display);
    return NULL;
 }
 
@@ -1278,7 +1278,7 @@ int al_set_update_method(AL_DISPLAY *display, int method)
    display->flags &= ~AL_UPDATE_ALL;
    for(c=0; c<display->num_pages; c++)
       destroy_bitmap(display->page[c]);
-   free(display->page);
+   _AL_FREE(display->page);
    display->page = NULL;
    display->num_pages = 0;
    display->active_page = 0;
@@ -1290,7 +1290,7 @@ int al_set_update_method(AL_DISPLAY *display, int method)
    switch(method) {
       case AL_UPDATE_TRIPLE_BUFFER:
          display->num_pages = 3;
-         display->page = malloc(display->num_pages * sizeof *(display->page));
+         display->page = _AL_MALLOC(display->num_pages * sizeof *(display->page));
 
          for (c=0; c<display->num_pages; c++)
             display->page[c] = al_create_video_bitmap(display, w, h);
@@ -1312,7 +1312,7 @@ int al_set_update_method(AL_DISPLAY *display, int method)
 
       case AL_UPDATE_PAGE_FLIP:
          display->num_pages = 2;
-         display->page = malloc(display->num_pages * sizeof *(display->page));
+         display->page = _AL_MALLOC(display->num_pages * sizeof *(display->page));
 
          for (c=0; c<display->num_pages; c++)
             display->page[c] = al_create_video_bitmap(display, w, h);
@@ -1335,7 +1335,7 @@ int al_set_update_method(AL_DISPLAY *display, int method)
       case AL_UPDATE_SYSTEM_BUFFER:
       case AL_UPDATE_DOUBLE_BUFFER:
          display->num_pages = 1;
-         display->page = malloc(display->num_pages * sizeof *(display->page));
+         display->page = _AL_MALLOC(display->num_pages * sizeof *(display->page));
 
          for (c=0; c<display->num_pages; c++)
             if (display->flags & AL_UPDATE_SYSTEM_BUFFER)
@@ -1376,7 +1376,7 @@ void al_destroy_display(AL_DISPLAY *display)
 
    for(n=0; n<display->num_pages; n++)
       destroy_bitmap(display->page[n]);
-   free(display->page);
+   _AL_FREE(display->page);
    
    do_set_gfx_mode(display, GFX_TEXT, 0, 0, 0, 0);
    
@@ -1386,7 +1386,7 @@ void al_destroy_display(AL_DISPLAY *display)
    /* Remove the display from the list */
    _al_vector_find_and_delete(&display_list, &display);
 
-   free(display);
+   _AL_FREE(display);
 }
 
 /* al_flip_display:

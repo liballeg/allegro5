@@ -66,7 +66,7 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
 
    /* lookup table avoids repeated color format conversions */
    if (_color_conv & COLORCONV_KEEP_TRANS) {
-      dest_palette_color = malloc(256*sizeof(int));
+      dest_palette_color = _AL_MALLOC_ATOMIC(256*sizeof(int));
       memcpy(dest_palette_color, _palette_expansion_table(bitmap_color_depth(dest)), 256*sizeof(int));
 
       rc = get_replacement_mask_color(dest);
@@ -149,7 +149,7 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
    }
 
    if (_color_conv & COLORCONV_KEEP_TRANS)
-      free(dest_palette_color);
+      _AL_FREE(dest_palette_color);
 
    #endif
 }
@@ -242,8 +242,8 @@ static void dither_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, in
 
    /* allocate memory for the error buffers */
    for (i=0; i<3; i++) {
-      errline[i] = malloc(sizeof(int) * w);
-      errnextline[i] = malloc(sizeof(int) * w);
+      errline[i] = _AL_MALLOC_ATOMIC(sizeof(int) * w);
+      errnextline[i] = _AL_MALLOC_ATOMIC(sizeof(int) * w);
    }
 
    /* free the buffers if there was an error allocating one */
@@ -325,10 +325,10 @@ static void dither_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, in
 
    for (i=0; i<3; i++) {
       if (errline[i])
-         free(errline[i]);
+         _AL_FREE(errline[i]);
 
       if (errnextline[i])
-         free(errnextline[i]);
+         _AL_FREE(errnextline[i]);
    }
 }
 

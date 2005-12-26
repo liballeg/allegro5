@@ -37,6 +37,7 @@
 #include <string.h>
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
 
 
 
@@ -72,7 +73,7 @@ static void delete_list(NODE *list)
 
    for (node = list; node != NULL; node = next) {
       next = node->next;
-      free (node);
+      _AL_FREE (node);
    }
 }
 
@@ -98,7 +99,7 @@ static void insert_node(int color)
 
    /* new color */
    if (p->count) {
-      p->next = malloc(sizeof(NODE));
+      p->next = _AL_MALLOC(sizeof(NODE));
       p = p->next;
    }
    if (p != NULL) {
@@ -281,7 +282,7 @@ static int generate_optimized_palette_ex(BITMAP *image, PALETTE pal, AL_CONST si
    if (imgdepth == 8)
       return 0;
 
-   hash_table = malloc(HASHTABLESIZE * sizeof(NODE));
+   hash_table = _AL_MALLOC(HASHTABLESIZE * sizeof(NODE));
    if (hash_table == NULL)
       return 0;
 
@@ -357,9 +358,9 @@ static int generate_optimized_palette_ex(BITMAP *image, PALETTE pal, AL_CONST si
    }
 
    /* convert the 'hash_table' to array 'colors' */
-   colors = malloc((rsvduse + distinct) * sizeof(ITEM));
+   colors = _AL_MALLOC((rsvduse + distinct) * sizeof(ITEM));
    if (colors == NULL) {
-      free(hash_table);
+      _AL_FREE(hash_table);
       return 0;
    }
 
@@ -378,7 +379,7 @@ static int generate_optimized_palette_ex(BITMAP *image, PALETTE pal, AL_CONST si
       }
    }
 
-   free(hash_table);
+   _AL_FREE(hash_table);
 
    /* sort the list with biggest count first */
    qsort(colors + rsvduse, distinct, sizeof(ITEM), qsort_helper_ITEM);
@@ -506,7 +507,7 @@ static int generate_optimized_palette_ex(BITMAP *image, PALETTE pal, AL_CONST si
       if (!rsvdcols[j])
 	 copy_color(&pal[j], colors[i++].color);
 
-   free(colors);
+   _AL_FREE(colors);
 
    return distinct;
 }

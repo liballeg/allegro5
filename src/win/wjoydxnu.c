@@ -711,7 +711,7 @@ static bool joydx_init(void)
  */
 static void free_caps_and_names_strings(CAPS_AND_NAMES *can)
 {
-#define FREE(x)   do{ if(x){free(x); x=NULL;} }while(0)
+#define FREE(x)   do{ if(x){_AL_FREE(x); x=NULL;} }while(0)
 
    int k;
  

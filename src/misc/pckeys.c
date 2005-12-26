@@ -647,7 +647,7 @@ static void update_key_descriptions(void)
    {
       int ascii = scancode_to_ascii (i);
       if (_pckeys_names[i])
-            free(_pckeys_names[i]);
+            _AL_FREE(_pckeys_names[i]);
       if (ascii > ' ') {
          uszprintf(str, sizeof str, "%c", ascii);
          _pckeys_names[i] = strdup (str);

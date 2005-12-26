@@ -98,7 +98,7 @@ _DRIVER_INFO *_get_win_midi_driver_list(void)
 
       /* MidiOut drivers */
       for (i=0; i<num_drivers; i++) {
-         driver = malloc(sizeof(MIDI_DRIVER));
+         driver = _AL_MALLOC(sizeof(MIDI_DRIVER));
          memcpy(driver, &_midi_none, sizeof(MIDI_DRIVER));
 
          if (i == 0)
@@ -122,7 +122,7 @@ _DRIVER_INFO *_get_win_midi_driver_list(void)
       /* MidiIn drivers */
       num_drivers = midiInGetNumDevs();
       for (i=0; i<num_drivers; i++) {
-	 driver = malloc(sizeof(MIDI_DRIVER));
+	 driver = _AL_MALLOC(sizeof(MIDI_DRIVER));
 	 memcpy(driver, &_midi_none, sizeof(MIDI_DRIVER));
 
 	 driver->id = MIDI_WIN32_IN(i); /* added MIDI_WIN32_IN to alwin.h */
@@ -157,7 +157,7 @@ void _free_win_midi_driver_list(void)
    if (driver_list) {
       while (driver_list[i].driver) {
          if (driver_list[i].id != MIDI_DIGMID)
-            free(driver_list[i].driver);
+            _AL_FREE(driver_list[i].driver);
          i++;
       }
 

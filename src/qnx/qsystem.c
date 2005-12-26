@@ -355,7 +355,7 @@ static int qnx_sys_init(void)
    PtSetArg(&arg[3], Pt_ARG_WINDOW_NOTIFY_FLAGS, Pt_TRUE, Ph_WM_CLOSE | Ph_WM_FOCUS);
    PtSetArg(&arg[4], Pt_ARG_WINDOW_RENDER_FLAGS, Pt_FALSE, Ph_WM_RENDER_MAX | Ph_WM_RENDER_RESIZE);
 
-   ph_event = (PhEvent_t *)malloc(EVENT_SIZE);
+   ph_event = (PhEvent_t *)_AL_MALLOC(EVENT_SIZE);
    
    if (!(ph_window = PtAppInit(NULL, NULL, NULL, 5, arg))) {
       qnx_sys_exit();
@@ -431,7 +431,7 @@ static void qnx_sys_exit(void)
    PtUnrealizeWidget(ph_window);
    
    if (ph_event) {
-      free(ph_event);
+      _AL_FREE(ph_event);
       ph_event = NULL;
    }
 }
@@ -472,7 +472,7 @@ static int qnx_sys_set_close_button_callback(void (*proc)(void))
 static void qnx_sys_message(AL_CONST char *msg)
 {
    const char *button[] = { "&Ok" };
-   char *tmp=malloc(ALLEGRO_MESSAGE_SIZE);
+   char *tmp=_AL_MALLOC(ALLEGRO_MESSAGE_SIZE);
 
    fputs(uconvert_toascii(msg, tmp), stderr);
    
@@ -488,7 +488,7 @@ static void qnx_sys_message(AL_CONST char *msg)
    pthread_mutex_unlock(&qnx_event_mutex);
    qnx_keyboard_focused(TRUE, 0);
 
-   free(tmp);
+   _AL_FREE(tmp);
 }
 
 

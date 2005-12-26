@@ -372,7 +372,7 @@ static int oss_init(int input, int voices)
    }
 
    oss_bufsize = bufinfo.fragsize;
-   oss_bufdata = malloc(oss_bufsize);
+   oss_bufdata = _AL_MALLOC_ATOMIC(oss_bufsize);
 
    if (oss_bufdata == 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not allocate audio buffer"));
@@ -419,7 +419,7 @@ static void oss_exit(int input)
 
    _unix_bg_man->unregister_func(oss_update);
 
-   free(oss_bufdata);
+   _AL_FREE(oss_bufdata);
    oss_bufdata = 0;
 
    _mixer_exit();

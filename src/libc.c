@@ -116,7 +116,7 @@ int _alemu_memcmp(AL_CONST void *s1, AL_CONST void *s2, size_t num)
 
 
 /* _al_sane_realloc:
- *  realloc() substitution with guaranteed behaviour.
+ *  _AL_REALLOC() substitution with guaranteed behaviour.
  */
 void *_al_sane_realloc(void *ptr, size_t size)
 {
@@ -125,15 +125,15 @@ void *_al_sane_realloc(void *ptr, size_t size)
    tmp_ptr = NULL;
 
    if (ptr && size) {
-      tmp_ptr = realloc(ptr, size);
-      if (!tmp_ptr && ptr) free(ptr);
+      tmp_ptr = _AL_REALLOC(ptr, size);
+      if (!tmp_ptr && ptr) _AL_FREE(ptr);
    }
    else if (!size) {
       tmp_ptr = NULL;
-      if (ptr) free(ptr);
+      if (ptr) _AL_FREE(ptr);
    }
    else if (!ptr) {
-      tmp_ptr = malloc(size);
+      tmp_ptr = _AL_MALLOC(size);
    }
    
    return tmp_ptr;

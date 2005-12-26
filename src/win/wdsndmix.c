@@ -216,7 +216,7 @@ DIGI_DRIVER *_get_dsalmix_driver(char *name, LPGUID guid, int num)
 {
    DIGI_DRIVER *driver;
 
-   driver = malloc(sizeof(DIGI_DRIVER));
+   driver = _AL_MALLOC(sizeof(DIGI_DRIVER));
    if (!driver)
       return NULL;
 
@@ -224,7 +224,7 @@ DIGI_DRIVER *_get_dsalmix_driver(char *name, LPGUID guid, int num)
 
    driver->id = DIGI_DIRECTAMX(num);
 
-   driver_names[num] = malloc(strlen(name)+10);
+   driver_names[num] = _AL_MALLOC_ATOMIC(strlen(name)+10);
    if (driver_names[num]) {
       _al_sane_strncpy(driver_names[num], "Allegmix ", strlen(name)+10);
       _al_sane_strncpy(driver_names[num]+9, name, strlen(name)+1);
@@ -609,7 +609,7 @@ static int digi_dsoundmix_init(int input, int voices)
 #if USE_NEW_CODE
    digidsbufsize /= 2;
 #endif
-   digidsbufdata = malloc(digidsbufsize);
+   digidsbufdata = _AL_MALLOC_ATOMIC(digidsbufsize);
    if (!digidsbufdata) {
       _TRACE(PREFIX_E "Can't create temp buffer\n");
       return -1;
@@ -666,7 +666,7 @@ static void digi_dsoundmix_exit(int input)
    remove_int(digi_dsoundmix_mixer_callback);
 
    if (digidsbufdata) {
-      free(digidsbufdata);
+      _AL_FREE(digidsbufdata);
       digidsbufdata = NULL;
    }
 

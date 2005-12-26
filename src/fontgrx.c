@@ -43,8 +43,8 @@ FONT *load_grx_font(AL_CONST char *filename, RGB *pal, void *param)
    }
    pack_igetl(pack);
 
-   f = _al_malloc(sizeof(FONT));
-   mf = _al_malloc(sizeof(FONT_MONO_DATA));
+   f = _AL_MALLOC(sizeof(FONT));
+   mf = _AL_MALLOC(sizeof(FONT_MONO_DATA));
 
    f->data = mf;
    f->vtable = font_vtable_mono;
@@ -59,11 +59,11 @@ FONT *load_grx_font(AL_CONST char *filename, RGB *pal, void *param)
    mf->end = pack_igetw(pack) + 1;
    num = mf->end - mf->begin;
 
-   gl = mf->glyphs = _al_malloc(sizeof(FONT_GLYPH*) * num);
+   gl = mf->glyphs = _AL_MALLOC(sizeof(FONT_GLYPH*) * num);
 
    if (pack_igetw(pack) == 0) {
       for (i = 0; i < 38; i++) pack_getc(pack);
-      wtab = _al_malloc(sizeof(int) * num);
+      wtab = _AL_MALLOC_ATOMIC(sizeof(int) * num);
       for (i = 0; i < num; i++) wtab[i] = pack_igetw(pack);
    }
    else {
@@ -76,7 +76,7 @@ FONT *load_grx_font(AL_CONST char *filename, RGB *pal, void *param)
       if (wtab) w = wtab[i];
 
       sz = ((w + 7) / 8) * h;
-      gl[i] = _al_malloc(sizeof(FONT_GLYPH) + sz);
+      gl[i] = _AL_MALLOC(sizeof(FONT_GLYPH) + sz);
       gl[i]->w = w;
       gl[i]->h = h;
 
@@ -84,7 +84,7 @@ FONT *load_grx_font(AL_CONST char *filename, RGB *pal, void *param)
    }
 
    pack_fclose(pack);
-   if (wtab) free(wtab);
+   if (wtab) _AL_FREE(wtab);
 
    return f;
 }

@@ -391,8 +391,8 @@ static void awe32_exit(int input)
       emu8k_terminatesound(i);
 
    destroy_useful_version_of_soundfont();
-   free(voice_envelope);
-   free(exclusive_class_info);
+   _AL_FREE(voice_envelope);
+   _AL_FREE(exclusive_class_info);
 }
 
 
@@ -455,11 +455,11 @@ static void destroy_useful_version_of_soundfont(void)
       if (midi_preset[p].num_splits > 0) {
 	 for (s=0; s<midi_preset[p].num_splits; s++)
 	    emu8k_destroyenvelope(midi_preset[p].split[s]);
-	 free(midi_preset[p].split);
+	 _AL_FREE(midi_preset[p].split);
       }
    }
 
-   free(midi_preset);
+   _AL_FREE(midi_preset);
 }
 
 
@@ -469,7 +469,7 @@ static void destroy_useful_version_of_soundfont(void)
  */
 void *_lock_malloc(size_t size)
 {
-   void *ret = malloc(size);
+   void *ret = _AL_MALLOC(size);
 
    if (!ret)
       return NULL;

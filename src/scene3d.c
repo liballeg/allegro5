@@ -59,27 +59,27 @@ int create_scene(int nedge, int npoly)
 {
    if (nedge != scene_maxedge) {        /* don't realloc, we don't need */
       scene_maxedge = 0;                /* the old data */
-      if (scene_edge) free(scene_edge);
-      scene_edge = malloc(nedge * sizeof(POLYGON_EDGE));
+      if (scene_edge) _AL_FREE(scene_edge);
+      scene_edge = _AL_MALLOC(nedge * sizeof(POLYGON_EDGE));
       if (!scene_edge) return -1;
    }
 
    if (npoly != scene_maxpoly) {
       scene_maxpoly = 0;
-      if (scene_poly) free(scene_poly);
-      scene_poly = malloc(npoly * sizeof(POLYGON_INFO));
+      if (scene_poly) _AL_FREE(scene_poly);
+      scene_poly = _AL_MALLOC(npoly * sizeof(POLYGON_INFO));
       if (!scene_poly) {
-         free(scene_edge);
+         _AL_FREE(scene_edge);
          scene_edge = NULL;
          return -2;
       }
    }
 
    if (!hash) {
-      hash = malloc(HASH_NUM * sizeof(POLYGON_EDGE*));
+      hash = _AL_MALLOC(HASH_NUM * sizeof(POLYGON_EDGE*));
       if (!hash) {
-         free(scene_edge);
-	 free(scene_poly);
+         _AL_FREE(scene_edge);
+	 _AL_FREE(scene_poly);
          return -3;
       }
    }
@@ -117,17 +117,17 @@ void clear_scene(BITMAP* bmp)
 void destroy_scene(void)
 {
    if (scene_edge) {
-      free(scene_edge);
+      _AL_FREE(scene_edge);
       scene_edge = NULL;
    }
 
    if (scene_poly) {
-      free(scene_poly);
+      _AL_FREE(scene_poly);
       scene_poly = NULL;
    }
 
    if (hash) {
-      free(hash);
+      _AL_FREE(hash);
       hash = NULL;
    }
 

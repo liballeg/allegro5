@@ -25,6 +25,7 @@
 #include "allegro/base.h"
 
 #include "allegro/system.h"
+#include "allegro/memory.h"
 #include "allegro/debug.h"
 
 #include "allegro/unicode.h"

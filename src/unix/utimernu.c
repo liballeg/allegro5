@@ -165,7 +165,7 @@ AL_TIMER* al_install_timer(msecs_t speed_msecs)
 {
    ASSERT(speed_msecs > 0);
    {
-      AL_TIMER *timer = malloc(sizeof *timer);
+      AL_TIMER *timer = _AL_MALLOC(sizeof *timer);
 
       ASSERT(timer);
 
@@ -197,7 +197,7 @@ void al_uninstall_timer(AL_TIMER *this)
    _al_unregister_destructor(this);
 
    _al_event_source_free(&this->es);
-   free(this);
+   _AL_FREE(this);
 }
 
 

@@ -2704,7 +2704,7 @@ static void *makenew_data(long *size)
 {
    static char msg[] = "Binary Data";
 
-   void *v = _al_malloc(sizeof(msg));
+   void *v = _AL_MALLOC(sizeof(msg));
 
    strcpy(v, msg);
    *size = sizeof(msg);

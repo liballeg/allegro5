@@ -351,10 +351,10 @@ static GFX_MODE_LIST *vga_fetch_mode_list(void)
 {
    GFX_MODE_LIST *mode_list;
 
-   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   mode_list = _AL_MALLOC(sizeof(GFX_MODE_LIST));
    if (!mode_list) return NULL;
    
-   mode_list->mode = malloc(sizeof(vga_gfx_modes));
+   mode_list->mode = _AL_MALLOC(sizeof(vga_gfx_modes));
    if (!mode_list->mode) return NULL;
    
    memcpy(mode_list->mode, vga_gfx_modes, sizeof(vga_gfx_modes));

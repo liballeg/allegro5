@@ -140,7 +140,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    int ret;
 
    /* allocate ff_data structure */
-   ff_data = malloc(sizeof(struct FF_DATA));
+   ff_data = _AL_MALLOC(sizeof(struct FF_DATA));
 
    if (!ff_data) {
       *allegro_errno = ENOMEM;
@@ -175,7 +175,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
 #else
       *allegro_errno = errno;
 #endif
-      free(ff_data);
+      _AL_FREE(ff_data);
       info->ff_data = NULL;
       return -1;
    }
@@ -229,7 +229,7 @@ void al_findclose(struct al_ffblk *info)
    struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
 
    if (ff_data) {
-      free(ff_data);
+      _AL_FREE(ff_data);
       info->ff_data = NULL;
    }
 }

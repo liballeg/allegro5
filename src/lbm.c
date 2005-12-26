@@ -152,7 +152,7 @@ BITMAP *load_lbm(AL_CONST char *filename, RGB *pal)
 	    }
 	    if (bpl & 1)            /* alignment            */
 	       bpl++;
-	    line_buf = malloc(bpl);
+	    line_buf = _AL_MALLOC_ATOMIC(bpl);
 	    if (!line_buf) {
 	       pack_fclose(f);
 	       return NULL;
@@ -258,7 +258,7 @@ BITMAP *load_lbm(AL_CONST char *filename, RGB *pal)
 		  }
 	       }
 	    }
-	    free(line_buf);
+	    _AL_FREE(line_buf);
 	    check_flags |= 2;       /* flag "bitmap read" */
 	    break;
 

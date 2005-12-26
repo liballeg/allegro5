@@ -408,7 +408,7 @@ static int alsa_init(int input, int voices)
    ALSA9_CHECK(snd_pcm_sw_params(pcm_handle, swparams));
 
    /* Allocate mixing buffer. */
-   alsa_bufdata = malloc(alsa_bufsize * alsa_sample_size);
+   alsa_bufdata = _AL_MALLOC_ATOMIC(alsa_bufsize * alsa_sample_size);
    if (!alsa_bufdata) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not allocate audio buffer"));
       goto Error;
@@ -431,7 +431,7 @@ static int alsa_init(int input, int voices)
       goto Error;
    }
 
-   ufds = malloc(sizeof(struct pollfd) * pdc);
+   ufds = _AL_MALLOC(sizeof(struct pollfd) * pdc);
    if (ufds == NULL) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory for poll descriptors"));
       goto Error;
@@ -476,7 +476,7 @@ static void alsa_exit(int input)
 
    _unix_bg_man->unregister_func(alsa_update);
 
-   free(alsa_bufdata);
+   _AL_FREE(alsa_bufdata);
    alsa_bufdata = NULL;
 
    _mixer_exit();

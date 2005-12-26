@@ -477,7 +477,7 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    gdi_dirty_lines[h] = 1;
 
    /* create the screen surface */
-   screen_surf = malloc(w * h * BYTES_PER_PIXEL(color_depth));
+   screen_surf = _AL_MALLOC_ATOMIC(w * h * BYTES_PER_PIXEL(color_depth));
    gdi_screen = _make_bitmap(w, h, (unsigned long)screen_surf, &gfx_gdi, color_depth, w * BYTES_PER_PIXEL(color_depth));
    gdi_screen->write_bank = gfx_gdi_write_bank; 
    _screen_vtable.acquire = gfx_gdi_lock;
@@ -532,11 +532,11 @@ static void gfx_gdi_exit(struct BITMAP *bmp)
    win_gfx_driver = NULL;
 
    /* destroy dirty lines array */   
-   free(gdi_dirty_lines);
+   _AL_FREE(gdi_dirty_lines);
    gdi_dirty_lines = NULL;   
 
    /* destroy screen surface */
-   free(screen_surf);
+   _AL_FREE(screen_surf);
    gdi_screen = NULL;
 
    /* destroy mouse bitmaps */

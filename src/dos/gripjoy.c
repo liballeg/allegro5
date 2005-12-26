@@ -646,7 +646,7 @@ static int grip_link(void)
    if ((f = pack_fopen(name, F_READ)) == NULL)
       return -1;
 
-   if ((image = malloc(size)) == NULL) {
+   if ((image = _AL_MALLOC(size)) == NULL) {
       pack_fclose(f);
       return -1;
    }
@@ -656,11 +656,11 @@ static int grip_link(void)
 
    /* link to the library (and free up the temporary memory) */
    if (!_GrLink(image, size)) {
-      free(image);
+      _AL_FREE(image);
       return -1;
    }
 
-   free(image);
+   _AL_FREE(image);
    already_linked = 1;
    return 0;
 }

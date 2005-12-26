@@ -49,10 +49,10 @@ void register_sample_file_type(AL_CONST char *ext, SAMPLE *(*load)(AL_CONST char
    if (strlen(aext) == 0) return;
 
    if (!iter) 
-      iter = sample_type_list = malloc(sizeof(struct SAMPLE_TYPE_INFO));
+      iter = sample_type_list = _AL_MALLOC(sizeof(struct SAMPLE_TYPE_INFO));
    else {
       for (iter = sample_type_list; iter->next; iter = iter->next);
-      iter = iter->next = malloc(sizeof(struct SAMPLE_TYPE_INFO));
+      iter = iter->next = _AL_MALLOC(sizeof(struct SAMPLE_TYPE_INFO));
    }
 
    if (iter) {
@@ -123,8 +123,8 @@ static void register_sample_file_type_exit(void)
 
    while (iter) {
       next = iter->next;
-      free(iter->ext);
-      free(iter);
+      _AL_FREE(iter->ext);
+      _AL_FREE(iter);
       iter = next;
    }
    
@@ -185,8 +185,8 @@ void _register_sample_file_type_init(void)
 
       while (iter) {
          next = iter->next;
-         free(iter->ext);
-         free(iter);
+         _AL_FREE(iter->ext);
+         _AL_FREE(iter);
          iter = next;
       }
    

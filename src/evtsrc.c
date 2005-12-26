@@ -99,7 +99,7 @@ void _al_event_source_free(AL_EVENT_SOURCE *this)
       for (event = this->all_events; event != NULL; event = next_event) {
          ASSERT(event->any._refcount == 0);
          next_event = event->any._next;
-         free(event);
+         _AL_FREE(event);
       }
    }
 
@@ -135,7 +135,7 @@ static AL_EVENT *make_new_event(AL_EVENT_SOURCE *this)
 {
    AL_EVENT *ret;
 
-   ret = malloc(sizeof *ret);
+   ret = _AL_MALLOC(sizeof *ret);
    ASSERT(ret);
 
    if (ret) {

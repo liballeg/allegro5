@@ -219,7 +219,7 @@ static int _al_arts_init(int input, int voices)
    /* Read buffer parameters and allocate buffer space.  */
    _al_arts_bufsize = arts_stream_get(_al_arts_stream, ARTS_P_PACKET_SIZE);
    _al_arts_fragments = arts_stream_get(_al_arts_stream, ARTS_P_PACKET_COUNT);
-   _al_arts_bufdata = malloc(_al_arts_bufsize);
+   _al_arts_bufdata = _AL_MALLOC_ATOMIC(_al_arts_bufsize);
    if (!_al_arts_bufdata) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE,
 	       get_config_text("Can not allocate audio buffer"));
@@ -255,7 +255,7 @@ static int _al_arts_init(int input, int voices)
   error:
 
    if (_al_arts_bufdata) {
-      free(_al_arts_bufdata);
+      _AL_FREE(_al_arts_bufdata);
       _al_arts_bufdata = NULL;
    }
 
@@ -283,7 +283,7 @@ static void _al_arts_exit(int input)
 
    _mixer_exit();
 
-   free(_al_arts_bufdata);
+   _AL_FREE(_al_arts_bufdata);
    _al_arts_bufdata = NULL;
 
    /* Do not call the cleanup routines if we are being

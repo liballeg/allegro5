@@ -260,9 +260,9 @@ void destroy_gfx_mode_list(GFX_MODE_LIST *gfx_mode_list)
 {
    if (gfx_mode_list) {
       if (gfx_mode_list->mode)
-         free(gfx_mode_list->mode);
+         _AL_FREE(gfx_mode_list->mode);
 
-      free(gfx_mode_list);
+      _AL_FREE(gfx_mode_list);
    }
 }
 
@@ -395,7 +395,9 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
 {
    GFX_VTABLE *vtable;
    BITMAP *bitmap;
+   int padding;
    int i;
+
    ASSERT(width >= 0);
    ASSERT(height > 0);
    ASSERT(system_driver);
@@ -407,13 +409,18 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    if (!vtable)
       return NULL;
 
-   bitmap = malloc(sizeof(BITMAP) + (sizeof(char *) * height));
+   bitmap = _AL_MALLOC(sizeof(BITMAP) + (sizeof(char *) * height));
    if (!bitmap)
       return NULL;
 
-   bitmap->dat = malloc(width * height * BYTES_PER_PIXEL(color_depth));
+   /* This avoids a crash for assembler code accessing the last pixel, as it
+    * read 4 bytes instead of 3.
+    */
+   padding = (color_depth == 24) ? 1 : 0;
+
+   bitmap->dat = _AL_MALLOC_ATOMIC(width * height * BYTES_PER_PIXEL(color_depth) + padding);
    if (!bitmap->dat) {
-      free(bitmap);
+      _AL_FREE(bitmap);
       return NULL;
    }
 
@@ -486,7 +493,7 @@ BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height)
       return system_driver->create_sub_bitmap(parent, x, y, width, height);
 
    /* get memory for structure and line pointers */
-   bitmap = malloc(sizeof(BITMAP) + (sizeof(char *) * height));
+   bitmap = _AL_MALLOC(sizeof(BITMAP) + (sizeof(char *) * height));
    if (!bitmap)
       return NULL;
 
