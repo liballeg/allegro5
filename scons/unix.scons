@@ -245,7 +245,8 @@ if useXWindows:
     addExtra(tools)
 
 def pruneLibs(libs):
-    return list(set(libs))
+    import sets # needed for Python 2.3 compatibility
+    return list(sets.Set(libs))
 
 env.Replace(LIBS = pruneLibs(env[ 'LIBS' ]))
 
