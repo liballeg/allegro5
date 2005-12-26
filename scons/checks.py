@@ -258,9 +258,9 @@ def CheckXCursor(context):
         #include <X11/Xcursor/Xcursor.h>
 
         int main(){
-                    XcursorImage *xcursor_image;
-                        XcursorImageLoadCursor(0, xcursor_image);
-                        XcursorSupportsARGB(0);
+            XcursorImage *xcursor_image;
+            XcursorImageLoadCursor(0, xcursor_image);
+            XcursorSupportsARGB(0);
         }
         """, ".c");
     if not ret:
