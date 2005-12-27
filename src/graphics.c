@@ -745,6 +745,8 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
       /* autodetect the driver */
       int found = FALSE;
 
+      tmp1[0] = '\0';
+
       /* first try the config variables */
       if (allow_config) {
 	 /* try the gfx_card variable if GFX_AUTODETECT or GFX_AUTODETECT_FULLSCREEN was selected */
@@ -758,7 +760,7 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
 
       /* go through the list of autodetected drivers if none was previously found */
       if (!found) {
-	 TRACE(PREFIX_I "Autodetecing graphic driver.\n");
+	 TRACE(PREFIX_I "Autodetecting graphic driver.\n");
 	 for (c=0; driver_list[c].driver; c++) {
 	    if (driver_list[c].autodetect) {
 	       drv = driver_list[c].driver;
@@ -795,7 +797,7 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
       if (system_driver->display_switch_lock)
 	 system_driver->display_switch_lock(FALSE, FALSE);
 
-      TRACE(PREFIX_E "Failed setting graphic driver %d.", card);
+      TRACE(PREFIX_E "Failed setting graphic driver %d.\n", card);
       return -1;
    }
 
