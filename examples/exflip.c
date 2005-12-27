@@ -20,6 +20,7 @@ int main(void)
    if (allegro_init() != 0)
       return 1;
    install_timer();
+   install_keyboard();
 
    /* Some platforms do page flipping by making one large screen that you
     * can then scroll, while others give you several smaller, unique
@@ -49,6 +50,7 @@ int main(void)
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
 
    /* first with a double buffer... */
+   clear_keybuf();
    c = retrace_count+32;
    while (retrace_count-c <= SCREEN_W+32) {
       clear_to_color(buffer, makecol(255, 255, 255));
@@ -56,6 +58,9 @@ int main(void)
       textprintf_ex(buffer, font, 0, 0, makecol(0, 0, 0), -1,
 		    "Double buffered (%s)", gfx_driver->name);
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+
+      if (keypressed())
+	 break;
    }
 
    destroy_bitmap(buffer);
@@ -73,6 +78,7 @@ int main(void)
    active_page = page2;
 
    /* do the animation using page flips... */
+   clear_keybuf();
    for (c=-32; c<=SCREEN_W+32; c++) {
       clear_to_color(active_page, makecol(255, 255, 255));
       circlefill(active_page, c, SCREEN_H/2, 32, makecol(0, 0, 0));
@@ -84,6 +90,9 @@ int main(void)
 	 active_page = page2;
       else
 	 active_page = page1;
+
+      if (keypressed())
+	 break;
    }
 
    destroy_bitmap(page1);
