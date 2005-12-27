@@ -382,6 +382,8 @@ static void resume_keyboard(void)
 
 static int linux_key_init (void)
 {
+        if (__al_linux_use_console()) return 1;
+
         std_keyboard.fd = dup (__al_linux_console_fd);
 
         /* Set terminal attributes we need */
@@ -415,6 +417,8 @@ static void linux_key_exit (void)
 
         __al_linux_remove_standard_driver (&std_keyboard);
         close (std_keyboard.fd);
+
+        __al_linux_leave_console();
 }
 
 static void linux_set_leds (int leds)

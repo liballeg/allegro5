@@ -71,10 +71,11 @@ static int get_tty (int fd)
    return (tty <= 24) ? tty : 0;
 }
 
-/* __al_linux_init_console:
+
+/* init_console:
  *  Initialises this subsystem.
  */
-int __al_linux_init_console(void)
+static int init_console(void)
 {
    char tmp[256];
 
@@ -226,10 +227,11 @@ int __al_linux_init_console(void)
    return 0;
 }
 
-/* __al_linux_done_console
+
+/* done_console
  *  Undo `init_console'.
  */
-int __al_linux_done_console (void)
+static int done_console (void)
 {
    char msg[256];
    int ret;
@@ -262,6 +264,40 @@ int __al_linux_done_console (void)
 }
 
 
+static int console_users = 0;
+
+/* __al_linux_use_console:
+ *   Init Linux console if not initialized yet.
+ */
+int __al_linux_use_console(void)
+{
+   console_users++;
+   if (console_users > 1) return 0;
+
+   if (init_console()) return 1;
+
+   /* Initialise the console switching system */
+   set_display_switch_mode (SWITCH_PAUSE);
+   return __al_linux_init_vtswitch();
+}
+
+
+/* __al_linux_leave_console:
+ *   Close Linux console if no driver uses it any more.
+ */
+int __al_linux_leave_console(void)
+{
+   ASSERT (console_users > 0);
+   console_users--;
+   if (console_users > 0) return 0;
+
+   /* shut down the console switching system */
+   if (__al_linux_done_vtswitch()) return 1;
+
+   return done_console();
+}
+
+
 static int graphics_mode = 0;
 
 /* __al_linux_console_graphics:
@@ -269,12 +305,16 @@ static int graphics_mode = 0;
  */
 int __al_linux_console_graphics (void)
 {
+   if (__al_linux_use_console()) return 1;
+
    if (graphics_mode) return 0;  /* shouldn't happen */
    ioctl(__al_linux_console_fd, KDSETMODE, KD_GRAPHICS);
    __al_linux_wait_for_display();
    graphics_mode = 1;
+
    return 0;
 }
+
 
 /* __al_linux_console_text:
  *  Returns the console to text mode.
@@ -295,6 +335,9 @@ int __al_linux_console_text (void)
    } while (ret < 10);
 
    graphics_mode = 0;
+   
+   __al_linux_leave_console();
+
    return 0;
 }
 
