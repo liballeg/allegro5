@@ -480,6 +480,8 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
       return NULL;
    }
 
+   __al_linux_use_console();
+
    /* Initialise SVGAlib.  */
    if (virgin) {
       if (!svga_version2())
@@ -516,6 +518,7 @@ static void svga_exit(BITMAP *b)
    }
 
    safe_vga_setmode(TEXT, 1);
+   __al_linux_leave_console();
 }
 
 
