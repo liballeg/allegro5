@@ -351,18 +351,18 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
          if (scancode == 0x00) {
             /* when pressing CTRL-ALT-DEL, Windows launches CTRL-ALT-EVERYTHING */
             ignore_three_finger_flag = TRUE;
-		 }
-		 else if (!ignore_three_finger_flag && (scancode == DIK_END || scancode == DIK_NUMPAD1)) {
-		    /* we can now safely assume the user hit CTRL-ALT-END as opposed to CTRL-ALT-DEL */
-		    _TRACE(PREFIX_I "Terminating application\n");
-			abort();
-		 }
-		 else if (ignore_three_finger_flag && scancode == 0xff) {
-            /* Windows is finished with CTRL-ALT-EVERYTHING - lets return to normality */
-			ignore_three_finger_flag = FALSE;
-			_key_shifts = 0;
-		 }
-	  }
+	 }
+	 else if (!ignore_three_finger_flag && (scancode == DIK_END || scancode == DIK_NUMPAD1)) {
+	    /* we can now safely assume the user hit CTRL-ALT-END as opposed to CTRL-ALT-DEL */
+	    _TRACE(PREFIX_I "Terminating application\n");
+	    abort();
+	 }
+	 else if (ignore_three_finger_flag && scancode == 0xff) {
+	    /* Windows is finished with CTRL-ALT-EVERYTHING - lets return to normality */
+	    ignore_three_finger_flag = FALSE;
+	    _key_shifts = 0;
+	 }
+      }
 
       if (pressed)
          handle_key_press(scancode);
