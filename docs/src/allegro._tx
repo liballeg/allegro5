@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.2.1 (CVS)" "Allegro" "Allegro manual"
+@manh="version 4.3.0 (SVN)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,12 +52,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.2.1 (CVS)
+				       \_/__/     Version 4.3.0 (SVN)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Nov 07, 2005.
+	     By Shawn Hargreaves, Dec 28, 2005.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -2155,6 +2155,47 @@ your game.
 @xref set_config_hex, set_config_int
 @shortdesc Writes a driver ID in the configuration file.
    Writes a 4-letter driver ID variable to the current config file. See the 
+@@int @list_config_entries(const char *section, const char ***names);
+@xref set_config_file, get_config_string
+@shortdesc Lists the names of all entries in a config section
+   This function can be used to get a list of all entries in the given config
+   section. The names parameter is a pointer to an array of strings. If it
+   points to a NULL pointer, the list will be allocated, else it will be
+   re-allocated. You should free the list yourself with free if you don't need
+   it anymore. See the following example for how you can use it, it will print
+   out the complete contents of the current configuration:
+<codeblock>
+   int i, n;
+   char const **sections = NULL;
+   char const **entries = NULL;
+
+   n = list_config_sections(&sections);
+   /* loop through all section names */
+   for (i = 0; i < n; i++)
+   {
+      int j, m;
+      printf("%s\n", sections[i]);
+      m = list_config_entries(sections[i], &entries);
+      /* loop through all entries in the section */
+      for (j = 0; j < m; j++)
+      {
+          printf(" %s=\"%s\"\n", entries[j], get_config_string(
+             sections[i], entries[j], "-"));
+      }
+   }
+   free(sections);
+   free(entries);<endblock>
+@retval
+   Returns the number of valid strings in the names array.
+
+@@int @list_config_sections(const char ***names);
+@xref list_config_entries, set_config_file, get_config_string
+@shortdesc Lists the names of all sections available in the current configuration.
+   The names parameter is a pointer to an array of strings. See
+   list_config_entries for more information and an example how to use it.
+@retval
+   Returns the number of valid strings in the names array.
+
    comments about set_config_string().
 
 @hnode Standard config variables

@@ -224,7 +224,8 @@ struct _AL_MUTEX
    PCRITICAL_SECTION cs;
 };
 
-#define _AL_MUTEX_UNINITED	{ NULL }
+#define _AL_MUTEX_UNINITED	       { NULL }
+#define _AL_MARK_MUTEX_UNINITED(M)     do { M.cs = NULL; } while (0)
 
 AL_INLINE(void, _al_mutex_lock, (_AL_MUTEX *m),
 {

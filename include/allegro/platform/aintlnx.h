@@ -110,8 +110,8 @@ extern int __al_linux_got_text_message;
 extern struct termios __al_linux_startup_termio;
 extern struct termios __al_linux_work_termio;
 
-int __al_linux_init_console (void);
-int __al_linux_done_console (void);
+int __al_linux_use_console (void);
+int __al_linux_leave_console (void);
 
 int __al_linux_console_graphics (void);
 int __al_linux_console_text (void);

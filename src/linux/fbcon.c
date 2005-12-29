@@ -113,6 +113,8 @@ static int fb_approx;                        /* emulate small resolution */
    static int vblank_flags;                  /* supports retrace detection? */
 #endif
 
+static int in_fb_restore;
+
 
 
 static int update_timings(struct fb_var_screeninfo *mode);
@@ -579,6 +581,10 @@ static void fb_save(void)
  */
 static void fb_restore(void)
 {
+   ASSERT(!in_fb_restore);
+
+   in_fb_restore = TRUE;
+   
    ioctl(fbfd, FBIOPUT_VSCREENINFO, &my_mode);
 
    if (fb_approx)
@@ -586,6 +592,8 @@ static void fb_restore(void)
 
    if (fix_info.visual == FB_VISUAL_DIRECTCOLOR)
       set_ramp_cmap(&fix_info, &my_mode);
+
+   in_fb_restore = FALSE;
 }
 
 
@@ -679,7 +687,11 @@ static void fb_vsync(void)
  #endif
 
    /* bodged implementation for when the framebuffer doesn't support it */
-   if (_timer_installed) {
+   /* We must not to run this loop while returning from a VT switch as timer
+    * "interrupts" will not be running at that time so retrace_count will
+    * remain constant.
+    */
+   if (_timer_installed && !in_fb_restore) {
       prev = retrace_count;
 
       do {

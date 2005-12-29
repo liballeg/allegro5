@@ -171,9 +171,6 @@ static int sys_linux_init (void)
 	/* Load dynamic modules */
 	_unix_load_modules(SYSTEM_LINUX);
     
-	/* Initialise the console subsystem */
-	if (__al_linux_init_console()) return -1;
-
 	/* Initialise VGA helpers */
 #ifdef ALLEGRO_LINUX_VGA
 	if (__al_linux_have_ioperms)
@@ -198,10 +195,6 @@ static int sys_linux_init (void)
 		return -1;
 	}
 
-	/* Initialise the console switching system */
-	set_display_switch_mode (SWITCH_PAUSE);
-	__al_linux_init_vtswitch();
-
 	/* Mark the beginning of time */
 	_al_unix_init_time();
 
@@ -215,9 +208,6 @@ static int sys_linux_init (void)
  */
 static void sys_linux_exit (void)
 {
-	/* shut down the console switching system */
-	__al_linux_done_vtswitch();
-
 	/* shut down asynchronous event processing */
 	__al_linux_bgman_exit();
 
@@ -237,9 +227,6 @@ static void sys_linux_exit (void)
  	if (__al_linux_have_ioperms)
 		__al_linux_shutdown_vga_helpers();
 #endif
-
-	/* shut down the console subsystem */
-	__al_linux_done_console();
 
 	/* unload dynamic modules */
 	_unix_unload_modules();

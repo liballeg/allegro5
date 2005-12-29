@@ -299,6 +299,8 @@ static bool lkeybd_init(void)
 
    memset(&the_keyboard, 0, sizeof the_keyboard);
 
+   if (__al_linux_use_console()) return false;
+
    the_keyboard.fd = dup(__al_linux_console_fd);
 
    /* Save the current terminal attributes, which we will restore when
@@ -364,6 +366,8 @@ static bool lkeybd_init(void)
 
    close(the_keyboard.fd);
 
+   __al_linux_leave_console();
+
    return false;
 }
 
@@ -384,6 +388,8 @@ static void lkeybd_exit(void)
    ioctl(the_keyboard.fd, KDSETLED, 8);
 
    close(the_keyboard.fd);
+
+   __al_linux_leave_console();
 
    /* This may help catch bugs in the user program, since the pointer
     * we return to the user is always the same.

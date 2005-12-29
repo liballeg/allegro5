@@ -47,14 +47,19 @@ tests[ 'CheckJackDigi' ] = checks.CheckJackDigi
 tests[ 'CheckForX' ] = checks.CheckForX
 tests[ 'CheckOSSDigi' ] = checks.CheckOSSDigi
 tests[ 'CheckOSSMidi' ] = checks.CheckOSSMidi
+tests[ 'CheckMTune' ] = checks.CheckMTune
 
 config = env.Configure(custom_tests = tests)
 
+gccArchFlag = '-mcpu='
+if config.CheckMTune():
+    gccArchFlag = '-mtune='
+
 if config.CheckIntel():
-	config.env.Append( CCFLAGS = [ '-mtune=pentium' ] )
+    config.env.Append( CCFLAGS = [ gccArchFlag + 'pentium' ] )
 
 if config.CheckAMD64():
-	config.env.Append( CCFLAGS = [ '-mtune=athlon' ] )
+    config.env.Append( CCFLAGS = [ gccArchFlag + 'k8' ] )
 
 def getOption(name, default):
     if ARGUMENTS.get(name, default) == 'yes':
@@ -163,12 +168,10 @@ platform[ 'const' ] = [ False, 'Define to empty if `const\' does not conform to 
 platform[ 'ALLEGRO_HAVE_SV_PROCFS' ] = [ False, 'Define to 1 if you have a System V sys/procfs.h' ]
 
 env = config.Finish()
-# print "Final env cpppath = " + str(env[ 'CPPPATH' ])
 
 flags = [ '-g', '-Wall', '-Wno-unused', '-O2', '-funroll-loops', '-ffast-math', '-fomit-frame-pointer' ]
 includes = [ "include", "include/allegro" ]
-# includes = []
-defines = [ "-DHAVE_CONFIG_H", "-DALLEGRO_SHARED", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD" ]
+defines = [ "-DHAVE_CONFIG_H", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD" ]
 
 env.Append(CCFLAGS = flags)
 env.Append(CCFLAGS = defines)
@@ -245,7 +248,8 @@ if useXWindows:
     addExtra(tools)
 
 def pruneLibs(libs):
-    return list(set(libs))
+    import sets # needed for Python 2.3 compatibility
+    return list(sets.Set(libs))
 
 env.Replace(LIBS = pruneLibs(env[ 'LIBS' ]))
 

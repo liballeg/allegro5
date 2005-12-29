@@ -667,43 +667,48 @@ static void handle_key_press(unsigned char scancode)
     * numlock state.
     */
 
-   /* we always want the number characters */
-   keystate[VK_NUMLOCK] |= 1;
+   /* MapVirtualKey always returns the arrow key VKEY, so adjust
+      it if num lock is on */
+   if (keystate[VK_NUMLOCK]) {
+      switch (scancode) {
+         case DIK_NUMPAD0:
+            vkey = VK_NUMPAD0;
+            break;
+         case DIK_NUMPAD1:
+            vkey = VK_NUMPAD1;
+            break;
+         case DIK_NUMPAD2:
+            vkey = VK_NUMPAD2;
+            break;
+         case DIK_NUMPAD3:
+            vkey = VK_NUMPAD3;
+            break;
+         case DIK_NUMPAD4:
+            vkey = VK_NUMPAD4;
+            break;
+         case DIK_NUMPAD5:
+            vkey = VK_NUMPAD5;
+            break;
+         case DIK_NUMPAD6:
+            vkey = VK_NUMPAD6;
+            break;
+         case DIK_NUMPAD7:
+            vkey = VK_NUMPAD7;
+            break;
+         case DIK_NUMPAD8:
+            vkey = VK_NUMPAD8;
+            break;
+         case DIK_NUMPAD9:
+            vkey = VK_NUMPAD9;
+            break;
+         case DIK_DECIMAL:
+            vkey = VK_DECIMAL;
+            break;
+     }
+   }
+
    /* what's life without a few special cases */
    switch (scancode) {
-      case DIK_NUMPAD0:
-         vkey = VK_NUMPAD0;
-         break;
-      case DIK_NUMPAD1:
-         vkey = VK_NUMPAD1;
-         break;
-      case DIK_NUMPAD2:
-         vkey = VK_NUMPAD2;
-         break;
-      case DIK_NUMPAD3:
-         vkey = VK_NUMPAD3;
-         break;
-      case DIK_NUMPAD4:
-         vkey = VK_NUMPAD4;
-         break;
-      case DIK_NUMPAD5:
-         vkey = VK_NUMPAD5;
-         break;
-      case DIK_NUMPAD6:
-         vkey = VK_NUMPAD6;
-         break;
-      case DIK_NUMPAD7:
-         vkey = VK_NUMPAD7;
-         break;
-      case DIK_NUMPAD8:
-         vkey = VK_NUMPAD8;
-         break;
-      case DIK_NUMPAD9:
-         vkey = VK_NUMPAD9;
-         break;
-      case DIK_DECIMAL:
-         vkey = VK_DECIMAL;
-         break;
       case DIK_DIVIDE:
          vkey = VK_DIVIDE;
          break;

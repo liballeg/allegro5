@@ -494,6 +494,33 @@ static void handle_axis_event(int dx, int dy, int dz)
 
 
 
+/* open_mouse_device:
+ *  Open the specified device file and check that it is a mouse device.
+ *  Returns the file descriptor if successful or a negative number on error.
+ */
+static int open_mouse_device (const char *device_file)
+{
+   int fd;
+
+   fd = open (device_file, O_RDONLY | O_NONBLOCK);
+   if (fd >= 0) {
+      TRACE(PREFIX_I "Opened device %s\n", device_file);
+      /* The device is a mouse if it has a BTN_MOUSE */
+      if (has_event(fd, EV_KEY, BTN_MOUSE)) {
+	 TRACE(PREFIX_I "Device %s was a mouse.\n", device_file);
+      }
+      else {
+	 TRACE(PREFIX_I "Device %s was not mouse, closing.\n", device_file);
+	 close(fd);
+	 fd = -1;
+      }
+   }
+
+   return fd;
+}
+
+
+
 /* mouse_init:
  *  Here we open the mouse device, initialise anything that needs it, 
  *  and chain to the framework init routine.
@@ -534,28 +561,18 @@ static bool mouse_init (void)
       TRACE(PREFIX_I "Trying /dev/input/event[0-3] devices\n");
 
       for (i=0; device_name[i]; i++) {
-         the_mouse.fd = open (device_name[i], O_RDONLY | O_NONBLOCK);
-         if (the_mouse.fd >= 0) {
-            TRACE(PREFIX_I "Opened device %s\n", device_name[i]);
-            /* The device is a mouse if it has a BTN_MOUSE */
-            if (has_event(the_mouse.fd, EV_KEY, BTN_MOUSE)) {
-               TRACE(PREFIX_I "Device %s was a mouse.\n", device_name[i]);
-               goto Found;
-            }
-            else {
-               TRACE(PREFIX_I "Device %s was not mouse, closing.\n",
-                     device_name[i]);
-               close(the_mouse.fd);
-            }
-         }
+         the_mouse.fd = open_mouse_device (device_name[i]);
+         if (the_mouse.fd >= 0)
+	    break;
       }
 
-      uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open a mouse device: %s"),
-                 ustrerror (errno));
-      return false;
+      if (!device_name[i]) {
+	 uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open a mouse device: %s"),
+		    ustrerror (errno));
+	 return false;
+      }
    }
 
- Found:
    /* Init the tablet data */
    init_tablet(the_mouse.fd);
 

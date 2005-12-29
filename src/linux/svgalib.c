@@ -93,6 +93,8 @@ static unsigned int display_start_mask;
 static unsigned char *screen_buffer;
 static int last_line;
 
+static int saved_palette[PAL_SIZE * 3];
+
 
 
 #ifdef ALLEGRO_MODULE
@@ -482,6 +484,8 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
       return NULL;
    }
 
+   __al_linux_use_console();
+
    /* Initialise SVGAlib.  */
    if (virgin) {
       if (!svga_version2())
@@ -518,6 +522,7 @@ static void svga_exit(BITMAP *b)
    }
 
    safe_vga_setmode(TEXT, 1);
+   __al_linux_leave_console();
 }
 
 
@@ -575,6 +580,7 @@ static void svga_set_palette(AL_CONST RGB *p, int from, int to, int vsync)
  */
 static void svga_save(void)
 {
+   vga_getpalvec(0, PAL_SIZE, saved_palette);
    safe_vga_setmode(TEXT, 0);
 }
 
@@ -587,6 +593,7 @@ static void svga_restore(void)
 {
    safe_vga_setmode(svga_mode, 0);
    vga_setpage(0);
+   vga_setpalvec(0, PAL_SIZE, saved_palette);
 }
 
 

@@ -51,6 +51,7 @@ AL_EVENT_QUEUE *al_create_event_queue(void)
    if (queue) {
       _al_vector_init(&queue->events, sizeof(AL_EVENT *));
       _al_vector_init(&queue->sources, sizeof(AL_EVENT_SOURCE *));
+      _AL_MARK_MUTEX_UNINITED(queue->mutex);
       _al_mutex_init(&queue->mutex);
       _al_cond_init(&queue->cond);
 
