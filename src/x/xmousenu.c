@@ -263,7 +263,7 @@ void _al_xwin_mouse_button_press_handler(unsigned int x_button)
 
    _al_event_source_lock(&the_mouse.parent.es);
    {
-      the_mouse.state.buttons |= al_button;
+      the_mouse.state.buttons |= (1 << (al_button - 1));
 
       generate_mouse_event(
          AL_EVENT_MOUSE_BUTTON_DOWN,
@@ -314,7 +314,7 @@ void _al_xwin_mouse_button_release_handler(unsigned int x_button)
 
    _al_event_source_lock(&the_mouse.parent.es);
    {
-      the_mouse.state.buttons &=~ al_button;
+      the_mouse.state.buttons &=~ (1 << (al_button - 1));
 
       generate_mouse_event(
          AL_EVENT_MOUSE_BUTTON_UP,
