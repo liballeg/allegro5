@@ -204,6 +204,7 @@ bool al_mouse_button_down(AL_MSESTATE *state, int button)
 AL_MOUSE_CURSOR *al_create_mouse_cursor(BITMAP *bmp, int x_focus, int y_focus)
 {
    ASSERT(gfx_driver);
+   ASSERT(bmp);
 
    if ((gfx_driver) && (gfx_driver->create_mouse_cursor))
       return gfx_driver->create_mouse_cursor(bmp, x_focus, y_focus);
@@ -220,6 +221,9 @@ AL_MOUSE_CURSOR *al_create_mouse_cursor(BITMAP *bmp, int x_focus, int y_focus)
 void al_destroy_mouse_cursor(AL_MOUSE_CURSOR *cursor)
 {
    ASSERT(gfx_driver);
+
+   if (!cursor)
+      return;
 
    if ((gfx_driver) && (gfx_driver->destroy_mouse_cursor))
       gfx_driver->destroy_mouse_cursor(cursor);
