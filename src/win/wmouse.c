@@ -108,10 +108,6 @@ HCURSOR _win_hcursor = NULL;	/* Hardware cursor to display */
 
 //XXX
 static int _mouse_on;
-#define _mouse_x the_mouse.state.x
-#define _mouse_y the_mouse.state.y
-#define _mouse_z the_mouse.state.z
-#define _mouse_b the_mouse.state.buttons
 //XXX end
 
 
@@ -124,12 +120,6 @@ static int dinput_buttons = 0;
 static int dinput_wheel = FALSE;
 
 static int mouse_swap_button = FALSE;     /* TRUE means buttons 1 and 2 are swapped */
-
-static int dinput_x = 0;              /* tracked dinput positon */
-static int dinput_y = 0;
-
-static int mouse_mx = 0;              /* internal position, in mickeys */
-static int mouse_my = 0;
 
 static int mouse_sx = 2;              /* mickey -> pixel scaling factor */
 static int mouse_sy = 2;
@@ -177,7 +167,7 @@ static int mymickey_oy = 0;
    }                                          \
 }
 
-#define READ_CURSOR_POS(p)                          \
+#define READ_CURSOR_POS(p, out_x, out_y)            \
 {                                                   \
    GetCursorPos(&p);                                \
                                                     \
@@ -196,9 +186,10 @@ static int mymickey_oy = 0;
          _mouse_on = TRUE;                          \
          wnd_schedule_proc(mouse_set_syscursor);    \
       }                                             \
-      _mouse_x = p.x;                               \
-      _mouse_y = p.y;                               \
    }                                                \
+                                                    \
+   out_x = MID(mouse_minx, p.x, mouse_maxx);        \
+   out_y = MID(mouse_miny, p.y, mouse_maxy);        \
 }
 
 
@@ -248,25 +239,113 @@ static char* dinput_err_str(long err)
 
 
 
-static void mouse_directx_button_handler(int button, bool is_down)
+/* mouse_directx_motion_handler: [input thread]
+ *  Called by mouse_dinput_handle_event().
+ */
+static void mouse_directx_motion_handler(int dx, int dy)
 {
-   int dz;
-   unsigned int al_button = button; /* XXX: I'm sure I had a reason for introducing 
-				       al_button but I'm not in windows at the moment
-				       to test
-				    */
-
    ASSERT(mouse_directx_installed);
 
    _al_event_source_lock(&the_mouse.parent.es);
    {
-      the_mouse.state.buttons |= al_button;
+      int dx = 
+      the_mouse.state.x += dx;
+      the_mouse.state.y += dy;
 
       generate_mouse_event(
-         AL_EVENT_MOUSE_BUTTON_DOWN,
+         AL_EVENT_MOUSE_AXES,
+         the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+         dx, dy, 0,
+         0);
+   }
+   _al_event_source_unlock(&the_mouse.parent.es);
+}
+
+
+
+/* mouse_directx_motion_handler: [input thread]
+ *  Called by mouse_dinput_handle().
+ */
+static void mouse_directx_motion_handler_abs(int x, int y)
+{
+   ASSERT(mouse_directx_installed);
+
+   _al_event_source_lock(&the_mouse.parent.es);
+   {
+      int dx = x - the_mouse.state.x;
+      int dy = y - the_mouse.state.y;
+      the_mouse.state.x = x;
+      the_mouse.state.y = y;
+
+      generate_mouse_event(
+         AL_EVENT_MOUSE_AXES,
+         the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+         dx, dy, 0,
+         0);
+   }
+   _al_event_source_unlock(&the_mouse.parent.es);
+}
+
+
+
+/* mouse_directx_wheel_motion_handler: [input thread]
+ *  Called by mouse_dinput_handle().
+ */
+static void mouse_directx_wheel_motion_handler(int dz)
+{
+   ASSERT(mouse_directx_installed);
+
+   _al_event_source_lock(&the_mouse.parent.es);
+   {
+      the_mouse.state.z += dz;
+
+      generate_mouse_event(
+         AL_EVENT_MOUSE_AXES,
+         the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+         0, 0, dz,
+         0);
+   }
+   _al_event_source_unlock(&the_mouse.parent.es);
+}
+
+
+
+/* mouse_directx_button_handler: [input thread]
+ *  Called by mouse_dinput_handle_event().
+ */
+static void mouse_directx_button_handler(int unswapped_button, bool is_down)
+{
+   int button0;
+   int dz;
+
+   ASSERT(mouse_directx_installed);
+
+   if (mouse_swap_button) {
+      if (unswapped_button == 0)
+	 button0 = 1;
+      else if (unswapped_button == 1)
+	 button0 = 0;
+      else
+	 button0 = unswapped_button;
+   }
+   else {
+      button0 = unswapped_button;
+   }
+
+   _al_event_source_lock(&the_mouse.parent.es);
+   {
+      if (is_down) {
+	 the_mouse.state.buttons |= (1 << button0);
+      }
+      else {
+	 the_mouse.state.buttons &=~ (1 << button0);
+      }
+
+      generate_mouse_event(
+	 is_down ?  AL_EVENT_MOUSE_BUTTON_DOWN : AL_EVENT_MOUSE_BUTTON_UP,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          0, 0, 0,
-         al_button);
+         button0 + 1);
    }
    _al_event_source_unlock(&the_mouse.parent.es);
 }
@@ -299,7 +378,7 @@ static void mouse_dinput_handle_event(int ofs, int data)
                   data *= mouse_accel_mult;
             }
 
-            dinput_x += data;
+	    mouse_directx_motion_handler(data, 0);
          }
          break;
 
@@ -317,62 +396,37 @@ static void mouse_dinput_handle_event(int ofs, int data)
                   data *= mouse_accel_mult;
             }
 
-            dinput_y += data;
+	    mouse_directx_motion_handler(0, data);
          }
          break;
 
       case DIMOFS_Z:
-         if (dinput_wheel && _mouse_on)
-            _mouse_z += data/120;
+	 // XXX: untested yet as the mouse wheel doesn't want to work on my
+	 // laptop
+         if (dinput_wheel && _mouse_on) {
+	    mouse_directx_wheel_motion_handler(data/120);
+	 }
          break;
 
       case DIMOFS_BUTTON0:
 	 mouse_directx_button_handler(0, data & 0x80);
-	 /* 
-         if (data & 0x80) {
-            if (_mouse_on)
-               _mouse_b |= (mouse_swap_button ? 2 : 1);
-         }
-         else
-            _mouse_b &= ~(mouse_swap_button ? 2 : 1);
-	 */
          break;
 
       case DIMOFS_BUTTON1:
 	 mouse_directx_button_handler(1, data & 0x80);
-	 /*
-         if (data & 0x80) {
-            if (_mouse_on)
-               _mouse_b |= (mouse_swap_button ? 1 : 2);
-         }
-         else
-            _mouse_b &= ~(mouse_swap_button ? 1 : 2);
-	 */
          break;
 
       case DIMOFS_BUTTON2:
 	 mouse_directx_button_handler(2, data & 0x80);
-	 /*
-         if (data & 0x80) {
-            if (_mouse_on)
-               _mouse_b |= 4;
-         }
-         else
-            _mouse_b &= ~4;
-	 */
          break;
 
       case DIMOFS_BUTTON3:
 	 mouse_directx_button_handler(3, data & 0x80);
-	 /*
-         if (data & 0x80) {
-            if (_mouse_on)
-               _mouse_b |= 8;
-         }
-         else
-            _mouse_b &= ~8;
-	 */
          break;
+
+      default:
+	 TRACE(PREFIX_I "unknown event at mouse_dinput_handle_event %d\n", ofs);
+	 break;
    }
 }
 
@@ -418,21 +472,35 @@ static void mouse_dinput_handle(void)
          /* windowed input mode */
          if (!wnd_sysmenu) {
             POINT p;
+	    int x, y;
 
-            READ_CURSOR_POS(p);
+	    GetCursorPos(&p);
 
-            mymickey_x += p.x - mymickey_ox;
-            mymickey_y += p.y - mymickey_oy;
+	    p.x -= wnd_x;
+	    p.y -= wnd_y;
 
-            mymickey_ox = p.x;
-            mymickey_oy = p.y;
-
-            //_handle_mouse_input();
+	    if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||
+		(p.y < mouse_miny) || (p.y > mouse_maxy)) {
+	       if (_mouse_on) {
+		  _mouse_on = FALSE;
+		  wnd_schedule_proc(mouse_set_syscursor);
+		  mouse_directx_motion_handler_abs(
+		     MID(mouse_minx, p.x, mouse_maxx),
+		     MID(mouse_miny, p.y, mouse_maxy));
+	       }
+	    }
+	    else {
+	       if (!_mouse_on) {
+		  _mouse_on = TRUE;
+		  wnd_schedule_proc(mouse_set_syscursor);
+	       }
+	       mouse_directx_motion_handler_abs(p.x, p.y);
+	    }
          }
       }
+#if 0
       else {
          /* fullscreen input mode */
-#if 0
          mymickey_x += dinput_x - mymickey_ox;
          mymickey_y += dinput_y - mymickey_oy;
 
@@ -460,8 +528,8 @@ static void mouse_dinput_handle(void)
          }
 
          _handle_mouse_input();
-#endif
       }
+#endif
    }
 }
 
@@ -475,7 +543,7 @@ int mouse_dinput_acquire(void)
    HRESULT hr;
 
    if (mouse_dinput_device) {
-      _mouse_b = 0;
+      //_mouse_b = 0;
 
       hr = IDirectInputDevice_Acquire(mouse_dinput_device);
 
@@ -505,7 +573,7 @@ int mouse_dinput_unacquire(void)
    if (mouse_dinput_device) {
       IDirectInputDevice_Unacquire(mouse_dinput_device);
 
-      _mouse_b = 0;
+      //_mouse_b = 0;
       _mouse_on = FALSE;
 
       return 0;
@@ -588,6 +656,7 @@ int mouse_set_syscursor(void)
 int mouse_set_sysmenu(int state)
 {
    POINT p;
+   int x, y;
 
    if (mouse_dinput_device) {
       if (state == TRUE) {
@@ -597,7 +666,8 @@ int mouse_set_sysmenu(int state)
          }
       }
       else {
-         READ_CURSOR_POS(p);
+         READ_CURSOR_POS(p, x, y);
+	 // XXX: what now?
       }
 
       //_handle_mouse_input();
@@ -751,6 +821,12 @@ static bool mouse_directx_init(void)
       return false;
    }
 
+   memset(&the_mouse, 0, sizeof the_mouse);
+
+   _al_event_source_init(&the_mouse.parent.es, _AL_ALL_MOUSE_EVENTS);
+
+   mouse_directx_installed = true;
+
    /* the mouse handler has successfully set up */
    _TRACE(PREFIX_I "mouse handler starts\n");
    return true;
@@ -766,6 +842,9 @@ static void mouse_directx_exit(void)
       /* command mouse handler shutdown */
       _TRACE(PREFIX_I "mouse handler exits\n");
       mouse_dinput_exit();
+      ASSERT(mouse_directx_installed);
+      mouse_directx_installed = false;
+      _al_event_source_free(&the_mouse.parent.es);
    }
 }
 
