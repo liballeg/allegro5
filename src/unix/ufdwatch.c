@@ -40,7 +40,7 @@ typedef struct WATCH_ITEM
 
 
 static _AL_THREAD fd_watch_thread;
-static _AL_MUTEX fd_watch_mutex;
+static _AL_MUTEX fd_watch_mutex = _AL_MUTEX_UNINITED;
 static _AL_VECTOR fd_watch_list = _AL_VECTOR_INITIALIZER(WATCH_ITEM);
 
 

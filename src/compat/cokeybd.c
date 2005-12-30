@@ -94,7 +94,7 @@ static AL_EVENT_QUEUE *cokeybd_event_queue;
  * just needed to use key_buffers_cond.  And the flawed KEY_BUFFER.lock
  * variables are still used.
  */
-static _AL_MUTEX key_buffers_lock;
+static _AL_MUTEX key_buffers_lock = _AL_MUTEX_UNINITED;
 static _AL_COND key_buffers_cond;
 
 
