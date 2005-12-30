@@ -68,6 +68,7 @@ void al_event_source_set_mask(AL_EVENT_SOURCE *source, unsigned long mask)
 void _al_event_source_init(AL_EVENT_SOURCE *this, unsigned long event_mask)
 {
    this->event_mask = event_mask;
+   _AL_MARK_MUTEX_UNINITED(this->mutex);
    _al_mutex_init(&this->mutex);
    _al_vector_init(&this->queues, sizeof(AL_EVENT_QUEUE *));
    this->all_events = NULL;
