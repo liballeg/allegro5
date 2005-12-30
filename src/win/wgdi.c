@@ -70,10 +70,8 @@ GFX_DRIVER gfx_gdi =
    NULL,                        // AL_METHOD(int poll_scroll, (void));
    NULL,                        // AL_METHOD(void, enable_triple_buffer, (void));
    NULL, NULL, NULL, NULL, NULL, NULL,
-   gfx_gdi_set_mouse_sprite,
-   gfx_gdi_show_mouse,
-   gfx_gdi_hide_mouse,
-   gfx_gdi_move_mouse,
+   NULL, NULL, NULL, NULL,	// OBSOLETE: gfx_gdi_set_mouse_sprite, gfx_gdi_show_mouse,
+				//	     gfx_gdi_hide_mouse, gfx_gdi_move_mouse,
    NULL,                        // AL_METHOD(void, drawing_mode, (void));
    NULL,                        // AL_METHOD(void, save_video_state, (void*));
    NULL,                        // AL_METHOD(void, restore_video_state, (void*));
@@ -88,6 +86,10 @@ GFX_DRIVER gfx_gdi =
    TRUE,                        // int windowed;
    /* new_api_branch additions */
    NULL, NULL, NULL, NULL, NULL, NULL
+	// XXX:	there used to be hardware cursor emulation (still in this file,
+	// in fact).  However I think we should hold off on reimplementing
+	// that.  The GDI driver looks like it will benefit greatly from the
+	// non-direct gfx structure (not doing rendering from a timer proc).
 };
 
 
