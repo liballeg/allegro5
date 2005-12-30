@@ -2819,6 +2819,11 @@ information for more details.
    pointer whenever you draw onto the screen. This is not needed if you are
    using a hardware cursor.
 
+   Note: you must not be showing a mouse pointer on a bitmap at the time that
+   the bitmap is destroyed with destroy_bitmap(), e.g. call show_mouse(NULL);
+   before destroying the bitmap. This does not apply to `screen' since you
+   never destroy `screen' with destroy_bitmap().
+
 @@void @scare_mouse();
 @xref unscare_mouse, scare_mouse_area, show_mouse
 @shortdesc Helper for hiding the mouse pointer before drawing.
@@ -4800,13 +4805,16 @@ Allegro supports several different types of bitmaps:
    destroy this bitmap before any subsequent call to set_gfx_mode().
    
 @@void @destroy_bitmap(BITMAP *bitmap);
-@xref create_bitmap, load_bitmap
+@xref create_bitmap, load_bitmap, show_mouse
 @eref Available Allegro examples
 @shortdesc Destroys any type of created bitmap.
    Destroys a memory bitmap, sub-bitmap, video memory bitmap, or system 
    bitmap when you are finished with it. If you pass a NULL pointer this
    function won't do anything. See above for the restrictions as to when you
    are allowed to destroy the various types of bitmaps.
+
+   The bitmap must not have a mouse cursor shown on it at the time it is
+   destroyed.
 
 @@void @lock_bitmap(BITMAP *bitmap);
 @shortdesc Locks the memory used by a bitmap.
