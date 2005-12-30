@@ -73,8 +73,6 @@ Linux todos:
 - fix fb 24-bit scrolling (allegro presuming padding?)
 - awaiting svgalib folks to provide an atexit-free vga_init
   [forget it, svgalib is dead]
-- some problems with display switching
-  [see AD thread "fbcon backgrounding" 2001-11-28 for symptoms]
 - make at least one sound driver take advantage of multiple hardware voices
 
 X11 todos:

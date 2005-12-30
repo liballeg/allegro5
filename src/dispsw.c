@@ -40,6 +40,7 @@ typedef struct BITMAP_INFORMATION
    struct BITMAP_INFORMATION *sibling;    /* linked list of siblings */
    struct BITMAP_INFORMATION *child;      /* tree of sub-bitmaps */
    void *acquire, *release;               /* need to bodge the vtable, too */
+   int blit_on_restore;                   /* whether the bitmap contents need to be copied back */
 } BITMAP_INFORMATION;
 
 static BITMAP_INFORMATION *info_list = NULL;
@@ -235,6 +236,7 @@ void _register_switch_bitmap(BITMAP *bmp, BITMAP *parent)
       info->child = NULL;
       info->acquire = NULL;
       info->release = NULL;
+      info->blit_on_restore = FALSE;
 
       parent_info->child = info;
    }
@@ -252,6 +254,7 @@ void _register_switch_bitmap(BITMAP *bmp, BITMAP *parent)
       info->child = NULL;
       info->acquire = NULL;
       info->release = NULL;
+      info->blit_on_restore = FALSE;
 
       info_list = info;
    }
@@ -331,13 +334,14 @@ static void reconstruct_kids(BITMAP *parent, BITMAP_INFORMATION *info)
 /* fudge_bitmap:
  *  Makes b2 be similar to b1 (duplicate clip settings, ID, etc).
  */
-static void fudge_bitmap(BITMAP *b1, BITMAP *b2)
+static void fudge_bitmap(BITMAP *b1, BITMAP *b2, int copy)
 {
    int s, x1, y1, x2, y2;
 
    set_clip_state(b2, FALSE);
 
-   blit(b1, b2, 0, 0, 0, 0, b1->w, b1->h);
+   if (copy)
+      blit(b1, b2, 0, 0, 0, 0, b1->w, b1->h);
 
    get_clip_rect(b1, &x1, &y1, &x2, &y2);
    s = get_clip_state(b1);
@@ -370,17 +374,24 @@ static void swap_bitmap_contents(BITMAP *b1, BITMAP *b2)
 
 /* save_bitmap_state:
  *  Remember everything important about a screen bitmap.
+ *
+ *  Note: this must run even for SWITCH_BACKAMNESIA.  With the fbcon driver,
+ *  writes to the screen would still show up while we are switched away.
+ *  So we let this function run to redirect the screen to a memory bitmap while
+ *  we are switched away.  We also let this run for SWITCH_AMNESIA just for
+ *  consistency.
  */
 static void save_bitmap_state(BITMAP_INFORMATION *info, int switch_mode)
 {
-   if ((switch_mode == SWITCH_AMNESIA) || (switch_mode == SWITCH_BACKAMNESIA))
-      return;
+   int copy;
 
    info->other = create_bitmap_ex(bitmap_color_depth(info->bmp), info->bmp->w, info->bmp->h);
    if (!info->other)
       return;
 
-   fudge_bitmap(info->bmp, info->other);
+   copy = (switch_mode != SWITCH_AMNESIA) && (switch_mode != SWITCH_BACKAMNESIA);
+   fudge_bitmap(info->bmp, info->other, copy);
+   info->blit_on_restore = copy;
 
    info->acquire = info->other->vtable->acquire;
    info->release = info->other->vtable->release;
@@ -442,7 +453,7 @@ static void restore_bitmap_state(BITMAP_INFORMATION *info)
       info->other->vtable->acquire = info->acquire;
       info->other->vtable->release = info->release;
       info->other->id &= ~INTERESTING_ID_BITS;
-      fudge_bitmap(info->other, info->bmp);
+      fudge_bitmap(info->other, info->bmp, info->blit_on_restore);
       destroy_bitmap(info->other);
       info->other = NULL;
    }
