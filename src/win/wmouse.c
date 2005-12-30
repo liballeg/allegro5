@@ -888,22 +888,42 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
 {
    ASSERT(mouse_directx_installed);
 
-/*
-   if ((x < 0) || (y < 0) || (x >= _xwin.window_width) || (y >= _xwin.window_height))
-      return false;*/
+   _enter_critical();
 
-   return false;
-
-      /*
    _al_event_source_lock(&the_mouse.parent.es);
    {
-      XWarpPointer(_xwin.display, _xwin.window, _xwin.window, 0, 0,
-                   _xwin.window_width, _xwin.window_height, x, y);
+      int new_x, new_y;
+      int dx, dy;
+
+      new_x = MID(mouse_minx, x, mouse_maxx);
+      new_y = MID(mouse_miny, y, mouse_maxy);
+
+      dx = new_x - the_mouse.state.x;
+      dy = new_y - the_mouse.state.y;
+
+      if ((dx != 0) || (dy != 0)) {
+	 the_mouse.state.x = x;
+	 the_mouse.state.y = y;
+
+	 generate_mouse_event(
+	    AL_EVENT_MOUSE_AXES,
+	    the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+	    dx, dy, 0,
+	    0);
+      }
+
+      if (gfx_driver && gfx_driver->windowed) {
+	 SetCursorPos(new_x+wnd_x, new_y+wnd_y);
+      }
    }
    _al_event_source_unlock(&the_mouse.parent.es);
 
+   /* force mouse update */
+   SetEvent(mouse_input_event);
+
+   _exit_critical();
+
    return true;
-      */
 }
 
 
