@@ -248,7 +248,6 @@ static void mouse_directx_motion_handler(int dx, int dy)
 
    _al_event_source_lock(&the_mouse.parent.es);
    {
-      int dx = 
       the_mouse.state.x += dx;
       the_mouse.state.y += dy;
 
