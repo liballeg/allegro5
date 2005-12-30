@@ -248,14 +248,22 @@ static void mouse_directx_motion_handler(int dx, int dy)
 
    _al_event_source_lock(&the_mouse.parent.es);
    {
-      the_mouse.state.x += dx;
-      the_mouse.state.y += dy;
+      int new_x = the_mouse.state.x + dx;
+      int new_y = the_mouse.state.y + dy;
 
-      generate_mouse_event(
-         AL_EVENT_MOUSE_AXES,
-         the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
-         dx, dy, 0,
-         0);
+      new_x = MID(mouse_minx, new_x, mouse_maxx);
+      new_y = MID(mouse_miny, new_y, mouse_maxy);
+
+      if ((new_x != the_mouse.state.x) || (new_y != the_mouse.state.y)) {
+	 the_mouse.state.x = new_x;
+	 the_mouse.state.y = new_y;
+
+	 generate_mouse_event(
+	    AL_EVENT_MOUSE_AXES,
+	    the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+	    dx, dy, 0,
+	    0);
+      }
    }
    _al_event_source_unlock(&the_mouse.parent.es);
 }
@@ -907,8 +915,6 @@ static bool mouse_directx_set_mouse_z(int z)
 {
    ASSERT(mouse_directx_installed);
 
-   return false;
-/*
    _al_event_source_lock(&the_mouse.parent.es);
    {
       int dz = (z - the_mouse.state.z);
@@ -926,7 +932,6 @@ static bool mouse_directx_set_mouse_z(int z)
    _al_event_source_unlock(&the_mouse.parent.es);
 
    return true;
-   */
 }
 
 
@@ -936,7 +941,38 @@ static bool mouse_directx_set_mouse_z(int z)
  */
 static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2)
 {
-   return false;
+   ASSERT(mouse_directx_installed);
+   
+   _al_event_source_lock(&the_mouse.parent.es);
+   {
+      int new_x, new_y;
+      int dx, dy;
+
+      mouse_minx = x1;
+      mouse_miny = y1;
+      mouse_maxx = x2;
+      mouse_maxy = y2;
+
+      new_x = MID(mouse_minx, the_mouse.state.x, mouse_maxx);
+      new_y = MID(mouse_miny, the_mouse.state.y, mouse_maxy);
+
+      dx = new_x - the_mouse.state.x;
+      dy = new_y - the_mouse.state.y;
+
+      if ((dx != 0) && (dy != 0)) {
+         the_mouse.state.x = new_x;
+         the_mouse.state.y = new_y;
+
+         generate_mouse_event(
+            AL_EVENT_MOUSE_AXES,
+            the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+            dx, dy, 0,
+            0);
+      }
+   }
+   _al_event_source_unlock(&the_mouse.parent.es);
+
+   return true;
 }
 
 
