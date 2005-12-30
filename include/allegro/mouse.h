@@ -53,6 +53,9 @@ AL_FUNC(void,           al_uninstall_mouse,     (void));
 AL_FUNC(AL_MOUSE*,      al_get_mouse,           (void));
 AL_FUNC(unsigned int,   al_get_mouse_num_buttons, (void));
 AL_FUNC(bool,           al_set_mouse_xy,        (int x, int y));
+    /* XXX: how is this going to work with multiple windows? 
+     * Probably it will require an AL_DISPLAY parameter.
+     */
 AL_FUNC(bool,           al_set_mouse_z,         (int z));
 AL_FUNC(bool,           al_set_mouse_range,     (int x1, int y1, int x2, int y2));
 AL_FUNC(void,           al_get_mouse_state,     (AL_MSESTATE *ret_state));
