@@ -73,6 +73,8 @@ static BITMAP *add_vram_block(AL_DISPLAY *display, int x, int y, int w, int h)
    VRAM_BITMAP *b, *new_b;
    VRAM_BITMAP **last_p;
 
+   ASSERT(display);
+
    new_b = _AL_MALLOC(sizeof(VRAM_BITMAP));
    if (!new_b)
       return NULL;
@@ -139,6 +141,8 @@ BITMAP *al_create_video_bitmap(AL_DISPLAY *display, int width, int height)
    BITMAP *bmp;
    int x = 0, y = 0;
 
+   ASSERT(display != NULL);
+   ASSERT(display->gfx_driver != NULL);
    ASSERT(width >= 0);
    ASSERT(height > 0);
    
@@ -157,6 +161,7 @@ BITMAP *al_create_video_bitmap(AL_DISPLAY *display, int width, int height)
       b->w = 0;
       b->h = 0;
       b->bmp = bmp;
+      b->root_display = display;
       b->next_y = vram_bitmap_list;
       vram_bitmap_list = b;
 
@@ -312,6 +317,9 @@ void destroy_bitmap(BITMAP *bitmap)
 
 	       if (pos->x < 0) {
 		  /* the driver is in charge of this object */
+		  ASSERT(pos->root_display);
+		  ASSERT(pos->root_display->gfx_driver);
+		  ASSERT(pos->root_display->gfx_driver->destroy_video_bitmap);
 		  pos->root_display->gfx_driver->destroy_video_bitmap(bitmap);
 		  _AL_FREE(pos);
 		  return;
@@ -345,6 +353,7 @@ void destroy_bitmap(BITMAP *bitmap)
          for (c = 0; c < _al_vector_size(&sysbmp_list); c++) {
             SYSTEM_BITMAP *sysbmp = _al_vector_ref(&sysbmp_list, c);
             if (sysbmp->bmp == bitmap) {
+	       ASSERT(sysbmp->root_display != NULL);
 	       ASSERT(sysbmp->root_display->gfx_driver != NULL);
 
 	       if (sysbmp->root_display->gfx_driver->destroy_system_bitmap) {
