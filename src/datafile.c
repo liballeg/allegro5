@@ -1406,6 +1406,84 @@ DATAFILE *load_datafile_callback(AL_CONST char *filename, void (*callback)(DATAF
 
 
 
+/* create_datafile_index
+ *  Reads offsets of all objects inside datafile.
+ *  On error, sets errno and returns NULL.
+ */
+DATAFILE_INDEX *create_datafile_index(AL_CONST char *filename)
+{
+   PACKFILE *f;
+   DATAFILE_INDEX *index;
+   long pos = 4;
+   int type, count, skip, i;
+
+   ASSERT(filename);
+
+   f = pack_fopen(filename, F_READ_PACKED);
+   if (!f)
+      return NULL;
+
+   if ((f->normal.flags & PACKFILE_FLAG_CHUNK) && (!(f->normal.flags & PACKFILE_FLAG_EXEDAT)))
+      type = (_packfile_type == DAT_FILE) ? DAT_MAGIC : 0;
+   else {
+      type = pack_mgetl(f);   pos += 4;
+   }
+
+   /* only support V2 datafile format */
+   if (type != DAT_MAGIC)
+      return NULL;
+
+   count = pack_mgetl(f);     pos += 4;
+
+   index = _AL_MALLOC(sizeof(DATAFILE_INDEX));
+   if (!index) {
+      pack_fclose(f);
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+
+   index->filename = ustrdup(filename);
+   if (!index->filename) {
+      pack_fclose(f);
+      _AL_FREE(index);
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+
+   index->offset = _AL_MALLOC(sizeof(long) * count);
+   if (!index->offset) {
+      pack_fclose(f);
+      _AL_FREE(index->filename);
+      _AL_FREE(index);
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+
+   for (i = 0; i < count; ++i) {
+      index->offset[i] = pos;
+
+      /* Skip properties */
+      while (pos += 4, pack_mgetl(f) == DAT_PROPERTY) {
+
+         /* Skip property name */
+         pack_fseek(f, 4);       pos += 4;
+
+         /* Skip rest of property */
+         skip = pack_mgetl(f);   pos += 4;      /* Get property size */
+         pack_fseek(f, skip);    pos += skip;
+      }
+
+      /* Skip rest of object */
+      skip = pack_mgetl(f) + 4;  pos += 4;
+      pack_fseek(f, skip);       pos += skip;
+
+   }
+   pack_fclose(f);
+   return index;
+}
+
+
+
 /* load_datafile_object:
  *  Loads a single object from a datafile.
  */
@@ -1519,6 +1597,55 @@ DATAFILE *load_datafile_object(AL_CONST char *filename, AL_CONST char *objectnam
    /* destroy the property list if not assigned to an object */
    if (list)
       _destroy_property_list(list);
+
+   pack_fclose(f);
+   return dat;
+}
+
+
+
+/* load_datafile_object_indexed
+ *  Loads a single object from a datafile using its offset.
+ *  On error, returns NULL.
+ */
+DATAFILE *load_datafile_object_indexed(AL_CONST DATAFILE_INDEX *index, int item)
+{
+   int type;
+   PACKFILE *f;
+   DATAFILE *dat;
+   DATAFILE_PROPERTY prop, *list = NULL;
+
+   ASSERT(index);
+
+   f = pack_fopen(index->filename, F_READ_PACKED);
+   if (!f)
+      return NULL;
+
+   dat = _AL_MALLOC(sizeof(DATAFILE));
+   if (!dat) {
+      pack_fclose(f);
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+
+   /* pack_fopen will read first 4 bytes for us */
+   pack_fseek(f, index->offset[item] - 4);
+
+   do
+      type = pack_mgetl(f);
+   while (type == DAT_PROPERTY && _load_property(&prop, f)  == 0 &&
+                                  _add_property(&list, &prop) == 0);
+
+
+   if (load_object(dat, f, type) != 0) {
+      pack_fclose(f);
+      _AL_FREE(dat);
+      _destroy_property_list(list);
+      return NULL;
+   }
+
+   /* attach the property list to the object */
+   dat->prop = list;
 
    pack_fclose(f);
    return dat;
@@ -2091,4 +2218,3 @@ void _initialize_datafile_types(void)
    register_datafile_object(DAT_C_SPRITE,     load_compiled_sprite_object,  (void (*)(void *data))destroy_compiled_sprite);
    register_datafile_object(DAT_XC_SPRITE,    load_xcompiled_sprite_object, (void (*)(void *data))destroy_compiled_sprite);
 }
-

@@ -52,6 +52,10 @@ AL_FUNC(void, set_config_hex, (AL_CONST char *section, AL_CONST char *name, int 
 AL_FUNC(void, set_config_float, (AL_CONST char *section, AL_CONST char *name, float val));
 AL_FUNC(void, set_config_id, (AL_CONST char *section, AL_CONST char *name, int val));
 
+AL_FUNC(int, list_config_entries, (AL_CONST char *section, AL_CONST char ***names));
+AL_FUNC(int, list_config_sections, (AL_CONST char ***names));
+AL_FUNC(void, free_config_entries, (AL_CONST char ***names));
+
 #ifdef __cplusplus
    }
 #endif

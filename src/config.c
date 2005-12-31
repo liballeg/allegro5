@@ -1401,3 +1401,104 @@ AL_CONST char *get_config_text(AL_CONST char *msg)
    return ret;
 }
 
+
+
+/* add_unique_name
+ *  Helper to add a name to a list of names.
+ */
+static int add_unique_name(AL_CONST char ***names, int n, char const *name)
+{
+   int i;
+   /* FIXME: use better search algorithm */
+   for (i = 0; i < n; i++)
+      if (!ustrcmp((*names)[i], name))
+         return n;
+
+   *names = _al_sane_realloc((void *)*names, (n + 1) * sizeof **names);
+   (*names)[n] = name;
+   return n + 1;
+}
+
+
+
+/* attach_config_entries
+ *  Helper function to attach key or section names to a list of strings.
+ */
+static int attach_config_entries(CONFIG *conf, AL_CONST char *section,
+   int n, AL_CONST char ***names, int list_sections)
+{
+   CONFIG_ENTRY *p;
+   char section_name[256];
+   prettify_section_name(section, section_name, sizeof(section_name));
+   int in_section;
+
+   if (conf) {
+      p = conf->head;
+
+      /* If section is NULL, only initial, section-less entries are used. */
+      if (ugetc(section_name))
+         in_section = FALSE;
+      else
+         in_section = TRUE;
+
+      while (p) {
+         if (p->name) {
+            /* a section start is just a list entry enclosed in [] */
+            if (ugetc(p->name) == '[' && ugetat(p->name, -1) == ']') {
+               if (list_sections) {
+                  n = add_unique_name(names, n, p->name);
+               }
+               in_section = (ustricmp(section_name, p->name) == 0);
+            }
+            else if (in_section && !list_sections) {
+               n = add_unique_name(names, n, p->name);
+            }
+         }
+         p = p->next;
+      }
+   }
+   return n;
+}
+
+
+
+/* list_config_entires:
+ *  Returns the names of all config entries in a section. The names parameter is
+ *  a pointer to a strings array that will contain the config keys. If it points to
+ *  a NULL pointer, it will be allocated, or else re-allocated accordingly. The
+ *  return value tells how many valid string pointers it contains after the
+ *  function returns.
+ */
+int list_config_entries(AL_CONST char *section, AL_CONST char ***names)
+{
+   int n = 0;
+   n = attach_config_entries(config_override, section, n, names, 0);
+   n = attach_config_entries(config[0], section, n, names, 0);
+   return n;
+}
+
+
+
+/* list_config_sections:
+ *  Returns the names of all current config sections, enclodes in []. The names
+ *  parameter and return value is like in list_config_entires above.
+ */
+int list_config_sections(AL_CONST char ***names)
+{
+   int n = 0;
+   n = attach_config_entries(config_override, NULL, n, names, 1);
+   n = attach_config_entries(config[0], NULL, n, names, 1);
+   return n;
+}
+
+
+
+/* free_config_entries:
+ *  Frees the entries list returned by list_config_entires or
+ *  list_config_sections again.
+ */
+void free_config_entries(AL_CONST char ***names)
+{
+    _AL_FREE(names);
+    *names = NULL;
+}
