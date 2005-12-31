@@ -136,7 +136,7 @@ static int joy_init(void)
 	    j->stick[s].num_axis = 2;
 	    j->stick[s].axis[0].name = get_config_text("X");
 	    j->stick[s].axis[1].name = get_config_text("Y");
-	    j->stick[s].name = malloc (32);
+	    j->stick[s].name = _AL_MALLOC_ATOMIC(32);
 	    ASSERT(j->stick[s].name);
 	    uszprintf((char *)j->stick[s].name, 32, get_config_text("Stick %d"), s+1);
 	    axis[i][a++] = &j->stick[s].axis[0];
@@ -147,7 +147,7 @@ static int joy_init(void)
       j->num_sticks = s;
 
       for (b = 0; b < num_buttons; b++) {
-	 j->button[b].name = malloc (16);
+	 j->button[b].name = _AL_MALLOC_ATOMIC(16);
 	 ASSERT(j->button[b].name);
 	 uszprintf((char *)j->button[b].name, 16, uconvert_ascii("%c", tmp), 'A' + b);
       }
@@ -173,9 +173,9 @@ static void joy_exit(void)
    for (i = 0; i < num_joysticks; i++) {
       close(joy_fd[i]);
       for (j = 0; j < joy[i].num_sticks; j++)
-	 free((void *)joy[i].stick[j].name);
+	 _AL_FREE((void *)joy[i].stick[j].name);
       for (j = 0; j < joy[i].num_buttons; j++)
-	 free((void *)joy[i].button[j].name);
+	 _AL_FREE((void *)joy[i].button[j].name);
    }
 }
 

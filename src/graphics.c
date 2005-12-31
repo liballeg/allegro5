@@ -711,7 +711,7 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
 	 system_driver->restore_console_state();
 
       if (_gfx_bank) {
-	 free(_gfx_bank);
+	 _AL_FREE(_gfx_bank);
 	 _gfx_bank = NULL;
       }
 
@@ -975,13 +975,13 @@ BITMAP *_make_bitmap(int w, int h, uintptr_t addr, GFX_DRIVER *driver, int color
 
    size = sizeof(BITMAP) + sizeof(char *) * h;
 
-   b = (BITMAP *)malloc(size);
+   b = (BITMAP *)_AL_MALLOC(size);
    if (!b)
       return NULL;
 
-   _gfx_bank = realloc(_gfx_bank, h * sizeof(int));
+   _gfx_bank = _AL_REALLOC(_gfx_bank, h * sizeof(int));
    if (!_gfx_bank) {
-      free(b);
+      _AL_FREE(b);
       return NULL;
    }
 
@@ -1214,7 +1214,7 @@ static BITMAP *add_vram_block(int x, int y, int w, int h)
    VRAM_BITMAP *b, *new_b;
    VRAM_BITMAP **last_p;
 
-   new_b = malloc(sizeof(VRAM_BITMAP));
+   new_b = _AL_MALLOC(sizeof(VRAM_BITMAP));
    if (!new_b)
       return NULL;
 
@@ -1225,7 +1225,7 @@ static BITMAP *add_vram_block(int x, int y, int w, int h)
 
    new_b->bmp = create_sub_bitmap(screen, x, y, w, h);
    if (!new_b->bmp) {
-      free(new_b);
+      _AL_FREE(new_b);
       return NULL;
    }
 
@@ -1291,7 +1291,7 @@ BITMAP *create_video_bitmap(int width, int height)
       if (!bmp)
 	 return NULL;
 
-      b = malloc(sizeof(VRAM_BITMAP));
+      b = _AL_MALLOC(sizeof(VRAM_BITMAP));
       b->x = -1;
       b->y = -1;
       b->w = 0;
@@ -1447,7 +1447,7 @@ void destroy_bitmap(BITMAP *bitmap)
 	       if (pos->x < 0) {
 		  /* the driver is in charge of this object */
 		  gfx_driver->destroy_video_bitmap(bitmap);
-		  free(pos);
+		  _AL_FREE(pos);
 		  return;
 	       } 
 
@@ -1463,7 +1463,7 @@ void destroy_bitmap(BITMAP *bitmap)
 	       if (failed_bitmap_h > BMP_MAX_SIZE)
 		  failed_bitmap_h = BMP_MAX_SIZE;
 
-	       free(pos);
+	       _AL_FREE(pos);
 	       break;
 	    }
 
@@ -1490,9 +1490,9 @@ void destroy_bitmap(BITMAP *bitmap)
       }
 
       if (bitmap->dat)
-	 free(bitmap->dat);
+	 _AL_FREE(bitmap->dat);
 
-      free(bitmap);
+      _AL_FREE(bitmap);
    }
 }
 

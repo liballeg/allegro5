@@ -320,7 +320,7 @@ void *_unix_create_mutex(void)
 {
    struct my_mutex *mx;
 
-   mx = malloc(sizeof(struct my_mutex));
+   mx = _AL_MALLOC(sizeof(struct my_mutex));
    if (!mx) {
       *allegro_errno = ENOMEM;
       return NULL;
@@ -345,7 +345,7 @@ void _unix_destroy_mutex(void *handle)
 
    pthread_mutex_destroy(&mx->actual_mutex);
 
-   free(mx);
+   _AL_FREE(mx);
 }
 
 

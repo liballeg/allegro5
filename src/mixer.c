@@ -322,9 +322,9 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
    mixer_mutex = system_driver->create_mutex();
    if (!mixer_mutex) {
       if(mix_vol_table)
-         free(mix_vol_table);
+         _AL_FREE(mix_vol_table);
       mix_vol_table = NULL;
-      free(mix_buffer);
+      _AL_FREE(mix_buffer);
       mix_buffer = NULL;
       mix_size = 0;
       mix_freq = 0;

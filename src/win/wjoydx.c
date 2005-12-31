@@ -473,14 +473,14 @@ static void joystick_dinput_exit(void)
 
       for (j=0; j<dinput_joystick[i].num_axes; j++) {
          if (dinput_joystick[i].axis_name[j])
-            free(dinput_joystick[i].axis_name[j]);
+            _AL_FREE(dinput_joystick[i].axis_name[j]);
       }
 
       if (dinput_joystick[i].caps & JOYCAPS_HASPOV)
-         free(dinput_joystick[i].hat_name);
+         _AL_FREE(dinput_joystick[i].hat_name);
 
       for (j=0; j<dinput_joystick[i].num_buttons; j++)
-         free(dinput_joystick[i].button_name[j]);
+         _AL_FREE(dinput_joystick[i].button_name[j]);
    }
 
    /* destroy the DirectInput interface */

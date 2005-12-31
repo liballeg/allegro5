@@ -98,7 +98,7 @@ void *sys_directx_create_mutex(void)
 {
    CRITICAL_SECTION *cs;
 
-   cs = malloc(sizeof(CRITICAL_SECTION));
+   cs = _AL_MALLOC(sizeof(CRITICAL_SECTION));
    if (!cs) {
       *allegro_errno = ENOMEM;
       return NULL;
@@ -120,7 +120,7 @@ void sys_directx_destroy_mutex(void *handle)
 
    DeleteCriticalSection(cs);
 
-   free(cs);
+   _AL_FREE(cs);
 }
 
 
