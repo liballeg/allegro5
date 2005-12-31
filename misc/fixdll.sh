@@ -3,7 +3,7 @@
 #  Shell script to scan the header files and build the DLL export definition files for the Windows port.
 #
 #  It uses misc/scanexp.c as a support for the preprocessing stage and can run in two modes:
-#    - without option: generates the export definition files for MSVC, MinGW32 and BCC32
+#    - without option: generates the export definition files for MSVC, MinGW and BCC32
 #    - with '--update-symbol-list': generates the reference symbol list misc/dllsyms.lst
 #
 #  If the reference symbol list misc/dllsyms.lst already exists, the script runs in an incremental way:

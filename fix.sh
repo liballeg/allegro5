@@ -9,7 +9,7 @@ proc_help()
    echo
    echo "Usage: $0 <platform> [--quick|--dtou|--utod|--utom|--mtou]"
    echo
-   echo "Where platform is one of: bcc32, beos, djgpp, mingw32, msvc, qnx, unix"
+   echo "Where platform is one of: bcc32, beos, djgpp, mingw, msvc, qnx, unix"
    echo "mac, macosx and watcom."
    echo "The --quick parameter turns off text file conversion, --dtou converts from"
    echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format,"
@@ -127,7 +127,8 @@ case "$1" in
    "bcc32"   ) proc_fix "Windows (BCC32)"   "makefile.bcc" "ALLEGRO_BCC32";;
    "beos"    ) proc_fix "BeOS"              "makefile.be"  "ALLEGRO_BEOS";;
    "djgpp"   ) proc_fix "DOS (djgpp)"       "makefile.dj"  "ALLEGRO_DJGPP";;
-   "mingw32" ) proc_fix "Windows (Mingw32)" "makefile.mgw" "ALLEGRO_MINGW32";;
+   "mingw"   ) proc_fix "Windows (MinGW)"   "makefile.mgw" "ALLEGRO_MINGW32";;
+   "mingw32" ) proc_fix "Windows (MinGW)"   "makefile.mgw" "ALLEGRO_MINGW32";;
    "msvc"    ) proc_fix "Windows (MSVC)"    "makefile.vc"  "ALLEGRO_MSVC";;
    "qnx"     ) proc_fix "QNX"               "makefile.qnx" "ALLEGRO_QNX";;
    "unix"    ) proc_fix "Unix"              "none"         "ALLEGRO_UNIX";;

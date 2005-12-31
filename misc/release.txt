@@ -67,7 +67,7 @@ necessary software installed.
     be run under djgpp Bash having MSVC installed.
     If you do not have these installed, create a new windows binary
     distro based on the old one, update all text files and scripts and
-    update the dlls with some you make with mingw32 using the newly
+    update the dlls with some you make with MinGW using the newly
     created .zip distro. (all403.zip)
 
 17. Upload all packages to Sourceforge using the FRS (File Release
