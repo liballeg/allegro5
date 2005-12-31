@@ -2208,13 +2208,11 @@ your game.
 @shortdesc Frees memory allocated for config entry lists.
 
    Once you are done with the string arrays filled in by list_config_entries and
-   list_config_entries you can free them again by passing to this functions. The
-   array pointer will be set to NULL, so you can pass the same point again to
-   list_config_entries or list_config_sections.
+   list_config_sections, you can free them again with this functions. The passed
+   array pointer will be set to NULL, and you directly can pass the same pointer
+   again to list_config_entries or list_config_sections later.
 
-   See list_config_entries for an example how to use it.
-@retval
-   Returns the number of valid strings in the names array.
+   See list_config_entries for an example of how to use it.
 
 @hnode Standard config variables
 @xref set_config_file, set_config_string, get_config_string
