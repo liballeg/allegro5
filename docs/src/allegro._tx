@@ -2154,16 +2154,20 @@ your game.
 @xref set_config_file, get_config_id, set_config_string, set_config_float
 @xref set_config_hex, set_config_int
 @shortdesc Writes a driver ID in the configuration file.
-   Writes a 4-letter driver ID variable to the current config file. See the 
+   Writes a 4-letter driver ID variable to the current config file. See the
+   comments about set_config_string().
+
 @@int @list_config_entries(const char *section, const char ***names);
-@xref set_config_file, get_config_string
+@xref set_config_file, get_config_string, list_config_sections
+@xref free_config_entries
 @shortdesc Lists the names of all entries in a config section
    This function can be used to get a list of all entries in the given config
    section. The names parameter is a pointer to an array of strings. If it
    points to a NULL pointer, the list will be allocated, else it will be
-   re-allocated. You should free the list yourself with free if you don't need
-   it anymore. See the following example for how you can use it, it will print
-   out the complete contents of the current configuration:
+   re-allocated. You should free the list again with free_config_entries if you
+   don't need it anymore, or you can pass it again to list_config_entries and
+   the memory will be re-used. See the following example for how you can use it,
+   it will print out the complete contents of the current configuration:
 <codeblock>
    int i, n;
    char const **sections = NULL;
@@ -2183,20 +2187,34 @@ your game.
              sections[i], entries[j], "-"));
       }
    }
-   free(sections);
-   free(entries);<endblock>
+   free_config_entries(&sections);
+   free_config_entries(&entries);<endblock>
 @retval
    Returns the number of valid strings in the names array.
 
 @@int @list_config_sections(const char ***names);
 @xref list_config_entries, set_config_file, get_config_string
+@xref free_config_entries
 @shortdesc Lists the names of all sections available in the current configuration.
-   The names parameter is a pointer to an array of strings. See
+   The names parameter is a pointer to an array of strings. After the function
+   returns, it will contain the names of all sections in the current
+   configuration. Use free_config_entries to free the allocated memory again.See
    list_config_entries for more information and an example how to use it.
 @retval
    Returns the number of valid strings in the names array.
 
-   comments about set_config_string().
+@@int @free_config_entries(const char ***names);
+@xref list_config_entries, list_config_sections
+@shortdesc Frees memory allocated for config entry lists.
+
+   Once you are done with the string arrays filled in by list_config_entries and
+   list_config_entries you can free them again by passing to this functions. The
+   array pointer will be set to NULL, so you can pass the same point again to
+   list_config_entries or list_config_sections.
+
+   See list_config_entries for an example how to use it.
+@retval
+   Returns the number of valid strings in the names array.
 
 @hnode Standard config variables
 @xref set_config_file, set_config_string, get_config_string

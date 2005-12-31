@@ -1490,3 +1490,15 @@ int list_config_sections(AL_CONST char ***names)
    n = attach_config_entries(config[0], NULL, n, names, 1);
    return n;
 }
+
+
+
+/* free_config_entries:
+ *  Frees the entries list returned by list_config_entires or
+ *  list_config_sections again.
+ */
+void free_config_entries(AL_CONST char ***names)
+{
+    free(names);
+    *names = NULL;
+}
