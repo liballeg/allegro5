@@ -674,18 +674,18 @@ static bool joydx_init(void)
 
    /* get the DirectInput interface */
    hr = DirectInputCreate(allegro_inst, DIRECTINPUT_VERSION, &joystick_dinput, NULL);
-   if (FAILED(hr))
-      return false;
-
-   /* enumerate the joysticks attached to the system */
-   hr = IDirectInput_EnumDevices(joystick_dinput, DIDEVTYPE_JOYSTICK, joystick_enum_callback, NULL, DIEDFL_ATTACHEDONLY);
    if (FAILED(hr)) {
-      IDirectInput_Release(joystick_dinput);
+      joystick_dinput = NULL;
       return false;
    }
 
-   if (joydx_num_joysticks == 0)
+   /* enumerate the joysticks attached to the system */
+   hr = IDirectInput_EnumDevices(joystick_dinput, DIDEVTYPE_JOYSTICK, joystick_enum_callback, NULL, DIEDFL_ATTACHEDONLY);
+   if (FAILED(hr) || (joydx_num_joysticks == 0)) {
+      IDirectInput_Release(joystick_dinput);
+      joystick_dinput = NULL;
       return false;
+   }
 
    /* acquire the devices */
    wnd_call_proc(_al_win_joystick_dinput_acquire);
