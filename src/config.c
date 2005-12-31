@@ -1499,6 +1499,6 @@ int list_config_sections(AL_CONST char ***names)
  */
 void free_config_entries(AL_CONST char ***names)
 {
-    free(names);
+    _AL_FREE(names);
     *names = NULL;
 }
