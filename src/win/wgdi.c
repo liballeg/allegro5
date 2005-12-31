@@ -471,7 +471,9 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    }
 
    /* the last flag serves as an end of loop delimiter */
-   gdi_dirty_lines = calloc(h+1, sizeof(char));
+   gdi_dirty_lines = _AL_MALLOC_ATOMIC((h+1) * sizeof(char));
+   ASSERT(gdi_dirty_lines);
+   memset(gdi_dirty_lines, 0, (h+1) * sizeof(char));
    gdi_dirty_lines[h] = 1;
 
    /* create the screen surface */
