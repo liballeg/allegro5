@@ -241,11 +241,12 @@ static AL_JOYSTICK *ljoy_get_joystick(int num)
       return NULL;
 
    /* Allocate a structure for the joystick. */
-   joy = calloc(1, sizeof *joy);
+   joy = _AL_MALLOC(sizeof *joy);
    if (!joy) {
       close(fd);
       return NULL;
    }
+   memset(joy, 0, sizeof *joy);
 
    /* Initialise the event source part of it. */
    _al_event_source_init(&joy->parent.es, _AL_ALL_JOYSTICK_EVENTS);

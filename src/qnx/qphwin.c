@@ -348,7 +348,9 @@ static BITMAP *qnx_private_ph_init_win(GFX_DRIVER *drv, int w, int h, int v_w, i
    }   
 
    /* the last flag serves as an end of loop delimiter */
-   ph_dirty_lines = calloc(h+1, sizeof(char));
+   ph_dirty_lines = _AL_MALLOC((h+1) * sizeof(char));
+   ASSERT(ph_dirty_lines);
+   memset(ph_dirty_lines, 0, (h+1) * sizeof(char));
    ph_dirty_lines[h] = 1;
 
    setup_driver(drv, w, h, color_depth);

@@ -1135,9 +1135,10 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
       return NULL;
 
    /* Create a new display object */
-   new_display = calloc(1, sizeof *new_display);
+   new_display = _AL_MALLOC(sizeof *new_display);
    if (!new_display)
       return NULL;
+   memset(new_display, 0, sizeof *new_display);
       
    new_display_ptr = _al_vector_alloc_back(&display_list);
    if (!new_display_ptr) {
