@@ -2154,8 +2154,69 @@ your game.
 @xref set_config_file, get_config_id, set_config_string, set_config_float
 @xref set_config_hex, set_config_int
 @shortdesc Writes a driver ID in the configuration file.
-   Writes a 4-letter driver ID variable to the current config file. See the 
+   Writes a 4-letter driver ID variable to the current config file. See the
    comments about set_config_string().
+
+@@int @list_config_entries(const char *section, const char ***names);
+@xref set_config_file, get_config_string, list_config_sections
+@xref free_config_entries
+@shortdesc Lists the names of all entries in a config section
+   This function can be used to get a list of all entries in the given config
+   section. The names parameter is a pointer to an array of strings. If it
+   points to a NULL pointer, the list will be allocated, else it will be
+   re-allocated. You should free the list again with free_config_entries if you
+   don't need it anymore, or you can pass it again to list_config_entries and
+   the memory will be re-used. See the following example for how you can use it,
+   it will print out the complete contents of the current configuration:
+<codeblock>
+   int i, n;
+   char const **sections = NULL;
+   char const **entries = NULL;
+
+   n = list_config_sections(&sections);
+   /* loop through all section names */
+   for (i = 0; i < n; i++)
+   {
+      int j, m;
+      printf("%s\n", sections[i]);
+      m = list_config_entries(sections[i], &entries);
+      /* loop through all entries in the section */
+      for (j = 0; j < m; j++)
+      {
+          printf(" %s=\"%s\"\n", entries[j], get_config_string(
+             sections[i], entries[j], "-"));
+      }
+   }
+   free_config_entries(&sections);
+   free_config_entries(&entries);<endblock>
+@retval
+   Returns the number of valid strings in the names array.
+
+@@int @list_config_sections(const char ***names);
+@xref list_config_entries, set_config_file, get_config_string
+@xref free_config_entries
+@shortdesc Lists the names of all sections available in the current configuration.
+   The names parameter is a pointer to an array of strings. If it points to a
+   NULL pointer, the list will be allocated, else it will be re-allocated. After
+   the function returns, it will contain the names of all sections in the
+   current configuration. Use free_config_entries to free the allocated memory
+   again. See list_config_entries for more information and an example how to use
+   it.
+@retval
+   Returns the number of valid strings in the names array.
+
+@@int @free_config_entries(const char ***names);
+@xref list_config_entries, list_config_sections
+@shortdesc Frees memory allocated for config entry lists.
+
+   Once you are done with the string arrays filled in by list_config_entries and
+   list_config_sections, you can free them again with this function. The passed
+   array pointer will be set to NULL, and you directly can pass the same pointer
+   again to list_config_entries or list_config_sections later - but you also
+   could pass them again without freeing first, since the memory is re-allocated
+   when the pointer is not NULL.
+
+   See list_config_entries for an example of how to use it.
 
 @hnode Standard config variables
 @xref set_config_file, set_config_string, get_config_string
@@ -10889,6 +10950,44 @@ below for several examples on how to access their data.
    Returns a pointer to a single DATAFILE element whose `dat' member points to
    the object, or NULL if the object could not be found.
 
+@\DATAFILE_INDEX *@create_datafile_index(const char *filename);
+@xref destroy_datafile_index, load_datafile_object_indexed
+@xref Using datafiles
+@shortdesc Creates an index for a datafile.
+   Creates an index for a datafile, to speed up loading single objects out of
+   it. This is mostly useful for big datafiles, which you don't want to load as
+   a whole. The index will store the offset of all objects inside the datafile,
+   and then you can load it quickly with "load_datafile_object_indexed" later.
+   Use destroy_datafile_index to free the memory used by it again.
+
+   Note: If the datafile uses global compression, there is no performance gain
+   from using an index, because seeking to the offset still requires to
+   uncompress the whole datafile up to that offset.
+   Example:
+<codeblock>
+   DATAFILE_INDEX *index = create_datafile_index("huge.dat");
+   DATAFILE *object = load_datafile_object_indexed(index, 1234);
+   ...
+   unload_datafile_object(object);
+   destroy_datafile_index(index);<endblock>
+@retval
+   A pointer value which you can pass to load_datafile_object_indexed.
+
+@@DATAFILE *@load_datafile_object_indexed(const DATAFILE_INDEX *index, int item)
+@xref create_datafile_index, load_datafile_object, unload_datafile_object
+@shortdesc Loads a single object from a datafile index.
+   This loads a single object, using the index created previously with
+   create_datafile_index. See create_datafile_index for an example.
+@retval
+   Returns a pointer to a single DATAFILE element whose "dat" member points to
+   the object, or NULL if the object could not be loaded.
+
+@@void @destroy_datafile_index(DATAFILE_INDEX *index)
+@xref create_datafile_index
+@shortdesc Destroys a datafile index.
+   This function frees the memory used by a datafile index created with
+   create_datafile_index earlier.
+
 @@const char *@get_datafile_property(const DATAFILE *dat, int type);
 @xref Using datafiles, DAT_ID, empty_string
 @shortdesc Returns the property string for the object.
@@ -15145,9 +15244,11 @@ and avoid missing any important bit of information.
 
 @@Example @exdata
 @xref DATAFILE, END_OF_MAIN, allegro_error, allegro_init, allegro_message
-@xref blit, font, install_keyboard, load_datafile, makecol, readkey
-@xref replace_filename, screen, set_color_conversion, set_gfx_mode
-@xref set_palette, textout_ex, unload_datafile
+@xref blit, create_datafile_index, destroy_datafile_index, font
+@xref install_keyboard, load_datafile, load_datafile_object_indexed
+@xref makecol, readkey, replace_filename, screen, set_color_conversion
+@xref set_gfx_mode, set_palette, textout_ex, unload_datafile
+@xref unload_datafile_object
 @shortdesc Accessing the contents of datafiles.
    This program demonstrates how to access the contents of an
    Allegro datafile (created by the grabber utility). The example
