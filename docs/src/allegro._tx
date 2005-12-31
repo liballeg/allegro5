@@ -2196,10 +2196,12 @@ your game.
 @xref list_config_entries, set_config_file, get_config_string
 @xref free_config_entries
 @shortdesc Lists the names of all sections available in the current configuration.
-   The names parameter is a pointer to an array of strings. After the function
-   returns, it will contain the names of all sections in the current
-   configuration. Use free_config_entries to free the allocated memory again.See
-   list_config_entries for more information and an example how to use it.
+   The names parameter is a pointer to an array of strings. If it points to a
+   NULL pointer, the list will be allocated, else it will be re-allocated. After
+   the function returns, it will contain the names of all sections in the
+   current configuration. Use free_config_entries to free the allocated memory
+   again. See list_config_entries for more information and an example how to use
+   it.
 @retval
    Returns the number of valid strings in the names array.
 
@@ -2208,9 +2210,11 @@ your game.
 @shortdesc Frees memory allocated for config entry lists.
 
    Once you are done with the string arrays filled in by list_config_entries and
-   list_config_sections, you can free them again with this functions. The passed
+   list_config_sections, you can free them again with this function. The passed
    array pointer will be set to NULL, and you directly can pass the same pointer
-   again to list_config_entries or list_config_sections later.
+   again to list_config_entries or list_config_sections later - but you also
+   could pass them again without freeing first, since the memory is re-allocated
+   when the pointer is not NULL.
 
    See list_config_entries for an example of how to use it.
 
