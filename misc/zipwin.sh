@@ -44,7 +44,7 @@ fi
 
 # convert Allegro to MSVC or Cygwin format
 if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
-   ./fix.sh mingw32 --dtou
+   ./fix.sh mingw --dtou
 else
    ./fix.sh msvc --utod
 fi
