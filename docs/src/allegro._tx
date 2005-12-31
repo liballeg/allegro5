@@ -10951,7 +10951,7 @@ below for several examples on how to access their data.
    Returns a pointer to a single DATAFILE element whose `dat' member points to
    the object, or NULL if the object could not be found.
 
-@\DATAFILE_INDEX *@create_datafile_index(const char *filename);
+@@DATAFILE_INDEX *@create_datafile_index(const char *filename);
 @xref destroy_datafile_index, load_datafile_object_indexed
 @xref Using datafiles
 @shortdesc Creates an index for a datafile.
