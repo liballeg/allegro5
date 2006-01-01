@@ -21,7 +21,7 @@ in the subject.
   http://www.allegro.cc/forums/view_thread.php?_id=493712
 - configure/OSS detection problems on Solaris
 - guilt's patches
-- settings CFLAGS from configure, as per gentoo bug
+- settings CFLAGS from configure, http://bugs.gentoo.org/show_bug.cgi?id=90049
 - grabber.txt was moved, so the grabber can't find it anymore
 - improved demo
 - if we keep the old demo, make it show correct characters with
@@ -46,7 +46,6 @@ General (Platform independent) todos:
 - The dependency generation seems to be quite broken, and far more
   complicated than necessary. Remove all the misc/dep*scripts, and simply
   call "gcc -M" on every source file.
-- RMI midi file support?
 - Investigate making the mixer mutex globally accessible, and add locking e.g.
   to set_volume
 
@@ -133,7 +132,6 @@ Wishlist:
   need of rewritting the user setup ui.
 - hook function to handle window resizing
 - DirectMusic 6 MIDI driver
-- Add caching system to speed up filename#object and load_datafile_object()
 - more modularity under Linux
 - Threaded Alsa driver, since the current one doesn't work properly for at
   least one person.
