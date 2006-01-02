@@ -26,6 +26,7 @@
 #include <string.h>
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
 
 #ifndef ALLEGRO_DOS
    #error something is wrong with the makefile

@@ -28,6 +28,7 @@
 #include <math.h>
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
 #include "emu8k.h"
 
 #ifndef ALLEGRO_DOS
