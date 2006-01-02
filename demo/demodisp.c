@@ -14,6 +14,49 @@ void init_display(int mode, int w, int h, int type)
    animation_type = type;
 
    switch (animation_type) {
+      case DOUBLE_BUFFER:
+      case DIRTY_RECTANGLE:
+         num_pages = 1;
+         break;
+
+      case PAGE_FLIP:
+         num_pages = 2;
+         break;
+
+      case TRIPLE_BUFFER:
+         num_pages = 3;
+         break;
+   }
+
+   set_color_depth(8);
+#ifdef ALLEGRO_VRAM_SINGLE_SURFACE
+   if (set_gfx_mode(mode, w, h, w, h * num_pages) != 0) {
+#else
+   if (set_gfx_mode(mode, w, h, 0, 0) != 0) {
+#endif
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message("Error setting 8bpp graphics mode\n%s\n",
+                      allegro_error);
+      exit(1);
+   }
+
+   page1 = NULL;
+   page2 = NULL;
+   page3 = NULL;
+   memory_buffer = NULL;
+
+   switch (animation_type) {
+
+      case DOUBLE_BUFFER:
+      case DIRTY_RECTANGLE:
+	 memory_buffer = create_bitmap(SCREEN_W, SCREEN_H);
+
+         if (!memory_buffer) {
+            set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+            allegro_message("Could not create memory buffer\n");
+            exit(1);
+         }
+	 break;
 
       case PAGE_FLIP:
          /* set up page flipping bitmaps */
@@ -61,36 +104,6 @@ void init_display(int mode, int w, int h, int type)
          }
          break;
    }
-
-
-   switch (animation_type) {
-
-      case PAGE_FLIP:
-         num_pages = 2;
-         break;
-
-      case TRIPLE_BUFFER:
-         num_pages = 3;
-         break;
-
-      default:
-         num_pages = 1;
-         break;
-   }
-
-   set_color_depth(8);
-#ifdef ALLEGRO_VRAM_SINGLE_SURFACE
-   if (set_gfx_mode(mode, w, h, w, h * num_pages) != 0) {
-#else
-   if (set_gfx_mode(mode, w, h, 0, 0) != 0) {
-#endif
-      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Error setting 8bpp graphics mode\n%s\n",
-                      allegro_error);
-      exit(1);
-   }
-
-   memory_buffer = create_bitmap(SCREEN_W, SCREEN_H);
 }
 
 
@@ -203,8 +216,10 @@ void flip_display(void)
 
 void destroy_display(void)
 {
-   destroy_bitmap(memory_buffer);
-   if (num_pages == 2) {
+   if (num_pages == 1) {
+      destroy_bitmap(memory_buffer);
+   }
+   else if (num_pages == 2) {
       destroy_bitmap(page1);
       destroy_bitmap(page2);
    }
@@ -212,5 +227,8 @@ void destroy_display(void)
       destroy_bitmap(page1);
       destroy_bitmap(page2);
       destroy_bitmap(page3);
+   }
+   else {
+      ASSERT(FALSE);
    }
 }
