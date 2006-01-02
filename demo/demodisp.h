@@ -1,5 +1,5 @@
-#ifndef DISPLAY_H_INCLUDED
-#define DISPLAY_H_INCLUDED
+#ifndef DEMODISP_H_INCLUDED
+#define DEMODISP_H_INCLUDED
 
 #include "demo.h"
 
