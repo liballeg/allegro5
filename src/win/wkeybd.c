@@ -525,12 +525,12 @@ static int key_dinput_exit(void)
 static void get_reverse_mapping(void)
 {
    int i, j;
-   for (i = 0; i < 256; i++) {
-      for (j = 0; j < 256; j++) {
-         if (hw_to_mycode[j] == i) {
-            reverse_mapping[i] = j;
-            break;
-         }
+
+   for (j = 0; j < 256; j++) {
+      i = hw_to_mycode[j];
+      if (i > 0) {
+         ASSERT(i < sizeof reverse_mapping/sizeof reverse_mapping[0]);
+         reverse_mapping[i] = j;
       }
    }
 }
