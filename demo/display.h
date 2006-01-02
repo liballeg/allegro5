@@ -4,14 +4,19 @@
 #include "demo.h"
 
 /* different ways to update the screen */
-#define DOUBLE_BUFFER      1
-#define PAGE_FLIP          2
-#define TRIPLE_BUFFER      3
-#define DIRTY_RECTANGLE    4
+typedef enum ANIMATION_TYPE ANIMATION_TYPE;
 
-extern int animation_type;
+enum ANIMATION_TYPE
+{
+   DOUBLE_BUFFER = 1,
+   PAGE_FLIP,
+   TRIPLE_BUFFER,
+   DIRTY_RECTANGLE
+};
 
-void init_display(int mode, int w, int h, int animation_type);
+extern ANIMATION_TYPE animation_type;
+
+void init_display(int mode, int w, int h, ANIMATION_TYPE animation_type);
 void destroy_display(void);
 BITMAP *prepare_display(void);
 void flip_display(void);

@@ -127,7 +127,7 @@ static int anim_desc_proc(int msg, DIALOG * d, int c)
 
 
 /* allows the user to choose an animation type */
-int pick_animation_type(int *type)
+int pick_animation_type(ANIMATION_TYPE *type)
 {
    int ret;
 
@@ -145,6 +145,8 @@ int pick_animation_type(int *type)
 
    *type = anim_type_dlg[2].d1 + 1;
    max_fps = anim_type_dlg[3].flags & D_SELECTED;
+
+   ASSERT(*type >= DOUBLE_BUFFER && *type <= DIRTY_RECTANGLE);
 
    return (ret == 6) ? -1 : ret;
 }

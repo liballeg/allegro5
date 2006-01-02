@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 {
    int c, w, h;
    char buf[256], buf2[256];
-   int type = 0;
+   ANIMATION_TYPE type;
 
    for (c = 1; c < argc; c++) {
       if (stricmp(argv[c], "-cheat") == 0)

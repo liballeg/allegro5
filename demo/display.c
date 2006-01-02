@@ -5,9 +5,9 @@ static BITMAP *page1, *page2, *page3;
 static int current_page = 0;
 static int num_pages;
 static BITMAP *memory_buffer, *back;
-int animation_type;
+ANIMATION_TYPE animation_type;
 
-void init_display(int mode, int w, int h, int type)
+void init_display(int mode, int w, int h, ANIMATION_TYPE type)
 {
    char buf[256];
 

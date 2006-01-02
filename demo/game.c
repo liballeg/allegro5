@@ -263,17 +263,19 @@ static void draw_screen(BITMAP *bmp)
    RLE_SPRITE *spr;
    char *animation_type_str;
 
-   if (animation_type == DOUBLE_BUFFER) {
-      animation_type_str = "double buffered";
-   }
-   else if (animation_type == PAGE_FLIP) {
-      animation_type_str = "page flipping";
-   }
-   else if (animation_type == TRIPLE_BUFFER) {
-      animation_type_str = "triple buffered";
-   }
-   else {
-      animation_type_str = "dirty rectangles";
+   switch (animation_type) {
+      case DOUBLE_BUFFER:
+	 animation_type_str = "double buffered";
+	 break;
+      case PAGE_FLIP:
+	 animation_type_str = "page flipping";
+	 break;
+      case TRIPLE_BUFFER:
+	 animation_type_str = "triple buffered";
+	 break;
+      case DIRTY_RECTANGLE:
+	 animation_type_str = "dirty rectangles";
+	 break;
    }
 
    acquire_bitmap(bmp);
