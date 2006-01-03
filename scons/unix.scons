@@ -235,7 +235,7 @@ if useXWindows:
     xwin.c
     """));
 
-    def tools(tenv,appendDir,buildDir):
+    def tools(tenv,appendDir,buildDir,libDir):
         tools = []
         def addTool(name,files):
             tool = tenv.Program('tools/' + name, appendDir(buildDir + '/tools/', files))
@@ -252,5 +252,8 @@ def pruneLibs(libs):
     return list(sets.Set(libs))
 
 env.Replace(LIBS = pruneLibs(env[ 'LIBS' ]))
+
+cat = Builder(action = 'cat $SOURCES > $TARGET')
+env.Append(BUILDERS = {'Cat' : cat})
 
 Return('env', 'files')

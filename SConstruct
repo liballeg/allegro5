@@ -56,6 +56,7 @@ def getLibraryVariables():
 
 env, files, libDir = getLibraryVariables()
 
+
 debugBuildDir = 'build/debug/'
 optimizedBuildDir = 'build/release/'
 
@@ -92,12 +93,19 @@ def getAllegroTarget(debug,static):
 debug = int(ARGUMENTS.get('debug',0))
 static = int(ARGUMENTS.get('static',0))
 
+if debug:
+    normalBuildDir = debugBuildDir
+else:
+    normalBuildDir = optimizedBuildDir
+
+env.Append(CPPPATH = [ normalBuildDir ])
+
 library = getAllegroTarget(debug,static)
 Alias('library', library)
 
 ## Build the documentation
 docEnv = Environment(ENV = os.environ)
-docEnv.BuildDir(optimizedBuildDir + 'makedoc/', 'docs/src/makedoc', duplicate = 0)
+docEnv.BuildDir(normalBuildDir + 'makedoc/', 'docs/src/makedoc', duplicate = 0)
 makeDocFiles = Split("""
    makechm.c
    makedevh.c
@@ -188,7 +196,7 @@ docs.append(docEnv.Command('readme.txt', 'docs/txt/readme.txt', Copy('$TARGET', 
 
 Alias('docs', docs)
 
-def buildDemo(env,appendDir,buildDir):
+def buildDemo(env,appendDir,buildDir,libDir):
     env.BuildDir(buildDir + 'demo', 'demo', duplicate = 0)
     files = Split("""
         animsel.c
@@ -208,6 +216,21 @@ def buildDemo(env,appendDir,buildDir):
 
 addExtra(buildDemo)
 
+plugins_h = env.Cat( normalBuildDir + 'plugins.h', appendDir( 'tools/plugins/', Split("""
+datalpha.inc
+datfli.inc
+datfname.inc
+datfont.inc
+datgrab.inc
+datgrid.inc
+datimage.inc
+datitype.inc
+datmidi.inc
+datpal.inc
+datsamp.inc
+datworms.inc
+""")));
+
 ## For some reason I have to call Program() from this file
 ## otherwise 'scons/' will be appended to all the sources
 ## and targets. 
@@ -224,6 +247,7 @@ else:
 
 extraTargets = []
 for func in extras:
-    extraTargets.append(func(extraEnv,appendDir,optimizedBuildDir))
+    extraTargets.append(func(extraEnv,appendDir,normalBuildDir,libDir))
 
+extraTargets.append(plugins_h)
 Default(library, extraTargets, docs)
