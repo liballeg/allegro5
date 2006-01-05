@@ -1,0 +1,76 @@
+Import('sourceFiles', 'addExtra')
+
+import os
+import checks
+
+env, files = SConscript('all.scons', exports = [ 'sourceFiles', 'addExtra' ])
+
+# config = env.Configure()
+
+# env = config.Finish()
+
+flags = [ '-g', '-Wall', '-Wno-unused', '-O2', '-funroll-loops', '-ffast-math', '-fomit-frame-pointer' ]
+includes = [ "include", "include/allegro" ]
+defines = [ "-DALLEGRO_SRC", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD" ]
+
+env.Append(CCFLAGS = flags)
+env.Append(CCFLAGS = defines)
+env.Append(CPPPATH = includes)
+
+assembler = Builder(action = 'gcc --x assembler-with-cpp $CCFLAGS $SOURCES -c -o $TARGET', src_suffic = '.s', suffic = '.o')
+
+import SCons.Tool
+
+static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+static_obj.src_builder.append('assembler')
+shared_obj.src_builder.append('assembler')
+
+# env.Append(BUILDERS = { 'Assembler' : assembler })
+
+env.Append(LIBS = [ 'kernel32', 'user32', 'gdi32', 'comdlg32', 'ole32', 'dinput', 'ddraw', 'dxguid', 'winmm', 'dsound' ])
+
+files += sourceFiles('c', ['cmiscs.s'])
+# f = sourceFiles('c', ['cmiscs.s'])
+# for i in f:
+#	files += [env.Assembler(i)]
+
+files += sourceFiles('win', Split("""
+asmlock.s
+gdi.c
+wddaccel.c
+wddbmp.c
+wddbmpl.c
+wddfull.c
+wddlock.c
+wddmode.c
+wddovl.c
+wddraw.c
+wddwin.c
+wdispsw.c
+wdsinput.c
+wdsndmix.c
+wdsound.c
+wdxver.c
+wfile.c
+wgdi.c
+wgfxdrv.c
+winput.c
+wjoydrv.c
+wjoydxnu.c
+wkeybdnu.c
+wmidi.c
+wmouse.c
+wsnddrv.c
+wsndwo.c
+wsystem.c
+wthread.c
+wtime.c
+wtimernu.c
+wwnd.c
+wxthread.c
+"""));
+
+cat = Builder(action = 'cat $SOURCES > $TARGET')
+env.Append(BUILDERS = {'Cat' : cat})
+
+Return('env', 'files')
