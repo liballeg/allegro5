@@ -53,6 +53,8 @@ def getLibraryVariables():
         return SConscript('scons/bsd.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/unix/" ])
     if getPlatform() == "linux2":
         return SConscript('scons/linux.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/unix/" ])
+    if getPlatform() == "win32":
+        return SConscript('scons/win32.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/win32/" ])
 
 env, files, libDir = getLibraryVariables()
 
