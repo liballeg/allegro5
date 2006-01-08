@@ -113,7 +113,7 @@ static const unsigned char hw_to_mycode[256] = {
 };
 
 /* Used in scancode_to_name. */
-static unsigned char reverse_mapping[256];
+static LONG reverse_mapping[KEY_MAX];
 
 
 /* dinput_err_str:
@@ -520,19 +520,149 @@ static int key_dinput_exit(void)
 
 
 /* get_reverse_mapping:
- *  Helper to build the reverse mapping table.
+ *  Build a table that maps Allegro "scancodes" to arguments to
+ *  GetKeyNameText() that will return the name of the key.
+ *  The format of the argument is given in the MSDN library, e.g. the
+ *  `lparam' argument for the WM_KEYDOWN message.  Most importantly:
+ *    bits 16-23:
+ *       Specifies the scan code.
+ *    bit 24:
+ *       Specifies whether the key is an extended key, such as the right-hand
+ *       ALT and CTRL keys that appear on an enhanced 101- or 102-key keyboard.
+ *       The value is 1 if it is an extended key; otherwise, it is 0.
+ *
+ *  We used to attempt to derive this table from `hw_to_mycode' but it is not
+ *  straight forward.  For example to get the name of the right Ctrl key we
+ *  need to pass the same scancode as for the left Ctrl key, but with the
+ *  extended key flag set.  The values below come from printing out the
+ *  value of the `lparam' argument for each WM_KEYDOWN message received.
+ *  There is code in wwnd.c to help someone else do this for more keys.
  */
 static void get_reverse_mapping(void)
 {
-   int i, j;
+#define REV reverse_mapping
 
-   for (j = 0; j < 256; j++) {
-      i = hw_to_mycode[j];
-      if (i > 0) {
-         ASSERT(i < sizeof reverse_mapping/sizeof reverse_mapping[0]);
-         reverse_mapping[i] = j;
-      }
-   }
+   REV[KEY_A] = 0x01E0000;
+   REV[KEY_B] = 0x0300000;
+   REV[KEY_C] = 0x02E0000;
+   REV[KEY_D] = 0x0200000;
+   REV[KEY_E] = 0x0120000;
+   REV[KEY_F] = 0x0210000;
+   REV[KEY_G] = 0x0220000;
+   REV[KEY_H] = 0x0230000;
+   REV[KEY_I] = 0x0170000;
+   REV[KEY_J] = 0x0240000;
+   REV[KEY_K] = 0x0250000;
+   REV[KEY_L] = 0x0260000;
+   REV[KEY_M] = 0x0320000;
+   REV[KEY_N] = 0x0310000;
+   REV[KEY_O] = 0x0180000;
+   REV[KEY_P] = 0x0190000;
+   REV[KEY_Q] = 0x0100000;
+   REV[KEY_R] = 0x0130000;
+   REV[KEY_S] = 0x01F0000;
+   REV[KEY_T] = 0x0140000;
+   REV[KEY_U] = 0x0160000;
+   REV[KEY_V] = 0x02F0000;
+   REV[KEY_W] = 0x0110000;
+   REV[KEY_X] = 0x02D0000;
+   REV[KEY_Y] = 0x0150000;
+   REV[KEY_Z] = 0x02C0000;
+   REV[KEY_0] = 0x00B0000;
+   REV[KEY_1] = 0x0020000;
+   REV[KEY_2] = 0x0030000;
+   REV[KEY_3] = 0x0040000;
+   REV[KEY_4] = 0x0050000;
+   REV[KEY_5] = 0x0060000;
+   REV[KEY_6] = 0x0070000;
+   REV[KEY_7] = 0x0080000;
+   REV[KEY_8] = 0x0090000;
+   REV[KEY_9] = 0x00A0000;
+   REV[KEY_0_PAD] = 0x0520000;
+   REV[KEY_1_PAD] = 0x04F0000;
+   REV[KEY_2_PAD] = 0x0500000;
+   REV[KEY_3_PAD] = 0x0510000;
+   REV[KEY_4_PAD] = 0x04B0000;
+   REV[KEY_5_PAD] = 0x04C0000;
+   REV[KEY_6_PAD] = 0x04D0000;
+   REV[KEY_7_PAD] = 0x0470000;
+   REV[KEY_8_PAD] = 0x0480000;
+   REV[KEY_9_PAD] = 0x0490000;
+   REV[KEY_F1] = 0x03B0000;
+   REV[KEY_F2] = 0x03C0000;
+   REV[KEY_F3] = 0x03D0000;
+   REV[KEY_F4] = 0x03E0000;
+   REV[KEY_F5] = 0x03F0000;
+   REV[KEY_F6] = 0x0400000;
+   REV[KEY_F7] = 0x0410000;
+   REV[KEY_F8] = 0x0420000;
+   REV[KEY_F9] = 0x0430000;
+   REV[KEY_F10] = 0x0440000;
+   REV[KEY_F11] = 0x0570000;
+   REV[KEY_F12] = 0x0580000;
+   REV[KEY_ESC] = 0x0010000;
+   REV[KEY_TILDE] = 0x0290000;
+   REV[KEY_MINUS] = 0x00C0000;
+   REV[KEY_EQUALS] = 0x00D0000;
+   REV[KEY_BACKSPACE] = 0x00E0000;
+   REV[KEY_TAB] = 0x00F0000;
+   REV[KEY_OPENBRACE] = 0x01A0000;
+   REV[KEY_CLOSEBRACE] = 0x01B0000;
+   REV[KEY_ENTER] = 0x01C0000;
+   REV[KEY_COLON] = 0x0270000;
+   REV[KEY_QUOTE] = 0x0280000;
+   REV[KEY_BACKSLASH] = 0x02B0000;
+   /* KEY_BACKSLASH2 */
+   REV[KEY_COMMA] = 0x0330000;
+   REV[KEY_STOP] = 0x0340000;
+   REV[KEY_SLASH] = 0x0350000;
+   REV[KEY_SPACE] = 0x0390000;
+   REV[KEY_INSERT] = 0x1520000;
+   REV[KEY_DEL] = 0x1530000;
+   REV[KEY_HOME] = 0x1470000;
+   REV[KEY_END] = 0x14F0000;
+   REV[KEY_PGUP] = 0x1490000;
+   REV[KEY_PGDN] = 0x1510000;
+   REV[KEY_LEFT] = 0x14B0000;
+   REV[KEY_RIGHT] = 0x14D0000;
+   REV[KEY_UP] = 0x1480000;
+   REV[KEY_DOWN] = 0x1500000;
+   REV[KEY_SLASH_PAD] = 0x1350000;
+   REV[KEY_ASTERISK] = 0x0370000;
+   REV[KEY_MINUS_PAD] = 0x04A0000;
+   REV[KEY_PLUS_PAD] = 0x04E0000;
+   REV[KEY_DEL_PAD] = 0x0530000;
+   REV[KEY_ENTER_PAD] = 0x11C0000;
+   /* XXX doesn't work
+   REV[KEY_PRTSCR] = 0x570000;
+   */
+   REV[KEY_PAUSE] = 0x0450000;
+   /* XXX Japanese keys missing
+   REV[KEY_ABNT_C1] =
+   REV[KEY_YEN] =
+   REV[KEY_KANA] =
+   REV[KEY_CONVERT] =
+   REV[KEY_NOCONVERT] =
+   REV[KEY_AT] =
+   REV[KEY_CIRCUMFLEX] =
+   REV[KEY_COLON2] =
+   REV[KEY_KANJI] =
+   */
+
+   REV[KEY_LSHIFT] = 0x02A0000;
+   REV[KEY_RSHIFT] = 0x0360000;
+   REV[KEY_LCONTROL] = 0x01D0000;
+   REV[KEY_RCONTROL] = 0x11D0000;
+   REV[KEY_ALT]	= 0x0380000;
+   REV[KEY_ALTGR] = 0x1380000;
+   REV[KEY_LWIN] = 0x15B0000;
+   REV[KEY_RWIN] = 0x15C0000;
+   REV[KEY_MENU] = 0x15D0000;
+   REV[KEY_SCRLOCK] = 0x0460000;
+   REV[KEY_NUMLOCK] = 0x1450000;
+   REV[KEY_CAPSLOCK] = 0x03A0000;
+
+#undef REV
 }
 
 
@@ -665,14 +795,15 @@ static void key_directx_stop_wait(void)
 /* scancode_to_name:
  *  Converts the given scancode to a description of the key.
  */
-static AL_CONST char *key_directx_scancode_to_name(int scancode)
+static AL_CONST char *key_directx_scancode_to_name(const int scancode)
 {
    static char name[256];
    TCHAR str[256];
    WCHAR wstr[256];
-   ASSERT (scancode >= 0 && scancode < KEY_MAX);
-   if (GetKeyNameText(reverse_mapping[scancode] << 16, str, sizeof str))
-   {
+
+   ASSERT(scancode >= 0 && scancode < KEY_MAX);
+
+   if (GetKeyNameText(reverse_mapping[scancode], str, sizeof str)) {
       /* let Windows translate from the current encoding into UTF16 */
       MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, wstr, sizeof wstr);
       /* translate from utf16 to Allegro's current encoding */

@@ -218,6 +218,18 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       return 0;
    }
 
+   /* See get_reverse_mapping() in wkeybd.c to see what this is for. */
+   if (FALSE && (message == WM_KEYDOWN || message == WM_SYSKEYDOWN)) {
+      static char name[256];
+      TCHAR str[256];
+      WCHAR wstr[256];
+
+      GetKeyNameText(lparam, str, sizeof str);
+      MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, wstr, sizeof wstr);
+      uconvert((char *)wstr, U_UNICODE, name, U_CURRENT, sizeof name);
+      _TRACE(PREFIX_I" key[%s] = 0x%08lx;\n", name, lparam & 0x1ff0000);
+   }
+
    switch (message) {
 
       case WM_CREATE:

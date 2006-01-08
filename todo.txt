@@ -26,7 +26,6 @@ in the subject.
 - improved demo
 - if we keep the old demo, make it show correct characters with
   accents or upgrade font (reported by Marcio Fialho)
-- exkey in Windows: scancode_to_name(NumLock) shows up as "Pause"
 - MacOS X problems with 8-bit mode, http://www.allegro.cc/forums/view_thread.php?_id=517057
 - 64-bit portability warnings with MSVC7.1, http://www.allegro.cc/forums/view_thread.php?_id=523945
 - DirectInput joystick bug, http://www.allegro.cc/forums/view_thread.php?_id=507375
