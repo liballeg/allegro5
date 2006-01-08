@@ -261,7 +261,7 @@ static void draw_screen(BITMAP *bmp)
 {
    int x;
    RLE_SPRITE *spr;
-   char *animation_type_str;
+   char *animation_type_str = NULL;
 
    switch (animation_type) {
       case DOUBLE_BUFFER:
