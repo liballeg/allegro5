@@ -4972,22 +4972,55 @@ Allegro supports several different types of bitmaps:
 @xref release_bitmap, acquire_screen, release_screen
 @eref ex3buf, exaccel, expat, exquat, exscroll, exswitch, exupdate
 @shortdesc Locks the bitmap before drawing onto it.
-   Locks the specified video memory bitmap prior to drawing onto it. This 
-   does not apply to memory bitmaps, and only affects some platforms 
-   (Windows needs it, DOS does not). These calls are not strictly required, 
-   because the drawing routines will automatically acquire the bitmap before 
-   accessing it, but locking a DirectDraw surface is very slow, so you will 
-   get much better performance if you acquire the screen just once at the 
-   start of your main redraw function, and only release it when the drawing 
-   is completely finished. Multiple acquire calls may be nested, and the 
-   bitmap will only be truly released when the lock count returns to zero. 
-   Be warned that DirectX programs activate a mutex lock whenever a surface 
-   is locked, which prevents them from getting any input messages, so you 
-   must be sure to release all your bitmaps before using any timer, 
-   keyboard, or other non-graphics routines!
-   
-   Note that if you are using hardware accelerated VRAM-&gtVRAM blits, you should
-   not call acquire_bitmap().
+   Acquires the specified video bitmap prior to drawing onto it. You never need
+   to call the function explicitly as it is low level, and will only give you a
+   speed up if you know what you are doing. Using it wrongly may cause slowdown,
+   or even lock up your program.
+
+   Note: You do never need to use acquire_bitmap on a memory bitmap, i.e. a
+   normal bitmap created with create_bitmap. It will simply do nothing in that
+   case.
+
+   It still can be useful, because e.g. under the current DirectDraw driver of
+   Allegro, most drawing functions need to lock a video bitmap before drawing to
+   it. But doing this is very slow, so you will get much better performance if
+   you acquire the screen just once at the start of your main redraw function,
+   then call multiple drawing operations which need the bitmap locked, and only
+   release it when done.
+
+   Multiple acquire calls may be nested, but you must make sure to match up the
+   acquire_bitmap and release_bitmap calls. Be warned that DirectX and X11
+   programs activate a mutex lock whenever a surface is locked, which prevents
+   them from getting any input messages, so you must be sure to release all your
+   bitmaps before using any timer, keyboard, or other non-graphics routines!
+
+   Note that if you are using hardware accelerated VRAM-&gtVRAM functions, you
+   should not call acquire_bitmap(). Such functions need an unlocked target
+   bitmap under DirectX, so there is now just the opposite case from before - if
+   the bitmap is already locked with acquire_bitmap, the drawing
+   operation has to unlock it.
+
+   Note: For backwards compatibility, the unlocking behavior of such functions
+   is permanent. That is, if you call acquire_bitmap first, then call e.g. an
+   accelerated blit, the DirectX bitmap will be unlocked internally (it won't
+   affect the nesting counter of acquire/release calls).
+
+   There is no clear cross-platform way in this Allegro version to know which
+   drawing operations need a locked/unlocked state. For example a normal
+   rectfill most probably is accelerated under DirectX, and therefore needs the
+   screen unlocked, but an XOR rectfill, or one with blending activated, most
+   probably is not, and therefore locks the screen. And while the DirectX driver
+   will do automatic unlocking, there is no such thing under X11, where the
+   function is used to synchronize X11 calls from different threads. Your best
+   bet is to never use acquire_bitmap - changes are you are doing something in
+   the wrong way if you think you need it.
+
+   Warning: This function can be very dangerous to use, since the whole program
+   may get locked while the bitmap is locked. So the lock should only be held
+   for a short time, and you should not call anything but drawing operations
+   onto the locked video bitmap while a lock is in place. Especially don't call
+   things like show_mouse (or scare_mouse which calls that) or readkey, since
+   it will most likely deadlock your entire program.
 
 @@void @release_bitmap(BITMAP *bmp);
 @xref acquire_bitmap, acquire_screen, release_screen
