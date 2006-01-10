@@ -5042,7 +5042,7 @@ Allegro supports several different types of bitmaps:
 
 @@void @add_clip_rect(BITMAP *bitmap, int x1, int y1, int x2, int y2);
 @xref set_clip_rect, get_clip_rect, set_clip_state, get_clip_state
-@shortdesc Expands a bitmap's clipping rectangle with a new area.
+@shortdesc Intersects a bitmap's clipping rectangle with the given area.
    Sets the clipping rectangle of the specified bitmap as the intersection of
    its current clipping rectangle and the rectangle described by the four
    coordinates.
