@@ -152,8 +152,8 @@ static void ddraw_draw_sprite(BITMAP * bmp, BITMAP * sprite, int x, int y)
    int sx, sy, w, h;
 
    if (is_video_bitmap(sprite) || is_system_bitmap(sprite)) {
-      sx = sprite->x_ofs;
-      sy = sprite->y_ofs;
+      sx = 0;  /* sprite->x_ofs & sprite->y_ofs will be accounted for in ddraw_masked_blit */
+      sy = 0;
       w = sprite->w;
       h = sprite->h;
 
