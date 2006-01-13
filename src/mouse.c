@@ -529,8 +529,11 @@ void set_mouse_sprite_focus(int x, int y)
  */
 int show_os_cursor(int cursor)
 {
+   int r = -1;
    if (!mouse_driver)
-      return -1;
+      return r;
+
+   remove_int(mouse_move);
 
    gfx_capabilities &= ~(GFX_HW_CURSOR|GFX_SYSTEM_CURSOR);
    if (cursor != MOUSE_CURSOR_NONE) {
@@ -544,24 +547,26 @@ int show_os_cursor(int cursor)
          if (mouse_driver->select_system_cursor) {
             if (mouse_driver->select_system_cursor(cursor) != 0) {
                gfx_capabilities |= (GFX_HW_CURSOR|GFX_SYSTEM_CURSOR);
-               return 0;
+               r = 0;
+               goto done;
             }
          }
-         return -1;
+         goto done;
       }
       else {
          /* set custom hardware cursor */
          if (gfx_driver) {
             if (gfx_driver->set_mouse_sprite) {
                if (gfx_driver->set_mouse_sprite(mouse_sprite, mouse_x_focus, mouse_y_focus))
-                  return -1;
+                  goto done;
             }
             if (gfx_driver->show_mouse) {
                if (gfx_driver->show_mouse(screen, mouse_x, mouse_y))
-                  return -1;
+                  goto done;
             }
             gfx_capabilities |= GFX_HW_CURSOR;
-            return 0;
+            r = 0;
+            goto done;
          }
       }
    }
@@ -570,7 +575,10 @@ int show_os_cursor(int cursor)
          gfx_driver->hide_mouse();
    }
 
-   return -1;
+done:
+   if (mouse_driver->timer_poll) 
+      install_int(mouse_move, 10);
+   return r;
 }
 
 
