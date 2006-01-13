@@ -42,10 +42,21 @@
 
 /* Describe this platform */
 #define ALLEGRO_PLATFORM_STR  "MacOS X"
-#define ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONSOLE_OK
 #define ALLEGRO_USE_CONSTRUCTOR
 #define ALLEGRO_MULTITHREADED
+
+/* Endianesse - different between Intel and PPC based Mac's */
+#ifdef __LITTLE_ENDIAN__
+   #define ALLEGRO_LITTLE_ENDIAN
+#endif
+#ifdef __BIG_ENDIAN__
+   #define ALLEGRO_BIG_ENDIAN
+#endif
+
+#ifdef __i386__
+   #define ALLEGRO_I386
+#endif
 
 /* Arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/platform/alosx.h"
