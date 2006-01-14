@@ -28,6 +28,7 @@
 
 #include "allegro.h"
 #include "allegro/platform/aintunix.h"
+#include "allegro/internal/aintern.h"
 
 
 #ifdef HAVE_LINUX_JOYSTICK_H
