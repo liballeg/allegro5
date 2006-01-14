@@ -347,6 +347,11 @@
                               (*((unsigned char *)(p) + 1) = (c) >> 8),  \
                               (*((unsigned char *)(p) + 2) = (c)))
 
+#elif defined SCAN_DEPEND
+
+   #define READ3BYTES(p)
+   #define WRITE3BYTES(p,c)
+
 #else
    #error endianess not defined
 #endif
