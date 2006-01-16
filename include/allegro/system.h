@@ -81,10 +81,12 @@ AL_INLINE(int, install_allegro, (int system_id, int *errno_ptr,
 {
    int r = _install_allegro(system_id, errno_ptr, atexit_ptr);
    int dll_v = _get_allegro_version(); /* This comes from the DLL. */
+   int dll_wip;
+   int dll_ver;
 
 #if ((ALLEGRO_SUB_VERSION&1) == 0)
-   int dll_wip = dll_v & 255;
-   int dll_ver = dll_v & ~255;
+   dll_wip = dll_v & 255;
+   dll_ver = dll_v & ~255;
 
    /* Check that the x.y versions match (eg. 4.2 = 4.2) and that the DLL WIP
     * version is at least as new as the headers we were compiled with */
