@@ -71,25 +71,40 @@ AL_VAR(int, os_multitasking);
 #define SYSTEM_AUTODETECT  0
 #define SYSTEM_NONE        AL_ID('N','O','N','E')
 
-#if (ALLEGRO_SUB_VERSION&1)
 #define MAKE_VERSION(a, b, c) (((a)<<16)|((b)<<8)|(c))
-#else
-#define MAKE_VERSION(a, b, c) (((a)<<16)|((b)<<8))
-#endif
 
 AL_FUNC(int, _get_allegro_version, (void));
 AL_FUNC(int, _install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))));
 
-AL_INLINE(int, install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))),
+AL_INLINE(int, install_allegro, (int system_id, int *errno_ptr,
+   AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))),
 {
-   if (MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION) !=
-       _get_allegro_version()) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Library version mismatch"));
+   int r = _install_allegro(system_id, errno_ptr, atexit_ptr);
+   int dll_v = _get_allegro_version(); /* This comes from the DLL. */
+
+#if ((ALLEGRO_SUB_VERSION&1) == 0)
+   int dll_wip = dll_v & 255;
+   int dll_ver = dll_v & ~255;
+
+   /* Check that the x.y versions match (eg. 4.2 = 4.2) and that the DLL WIP
+    * version is at least as new as the headers we were compiled with */
+   if ((dll_ver != MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, 0)) ||
+       (dll_wip < ALLEGRO_WIP_VERSION)) {
+#else
+   /* Enforce strict header x.y.z == lib x.y.z for WIP branches */
+   if (dll_v != MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, 
+      ALLEGRO_WIP_VERSION)) {
+#endif
+      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text(
+         "The detected dynamic Allegro library (%d.%d.%d) is "
+         "not compatible with this program (%d.%d.%d)."),
+         dll_ver >> 16, (dll_ver >> 8) & 255, dll_wip,
+         ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION);
       return !0;
    }
-
-   return _install_allegro(system_id, errno_ptr, atexit_ptr);
+   return r;
 })
+
 #define allegro_init()  install_allegro(SYSTEM_AUTODETECT, &errno, (int (*)(void (*)(void)))atexit)
 AL_FUNC(void, allegro_exit, (void));
 
