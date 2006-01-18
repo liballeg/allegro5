@@ -41,6 +41,8 @@ typedef struct FONT
    struct FONT_VTABLE *vtable;
 } FONT;
 
+AL_FUNC(void, make_trans_font, (FONT *f));
+
 AL_FUNC(int, is_color_font, (FONT *f));
 AL_FUNC(int, is_mono_font, (FONT *f));
 AL_FUNC(int, is_compatible_font, (FONT *f1, FONT *f2));

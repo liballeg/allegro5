@@ -27,27 +27,6 @@
 
 
 
-/* checks whether this bitmap has an alpha channel */
-static int bitmap_has_alpha(BITMAP *bmp)
-{
-   int x, y, c;
-
-   if (bitmap_color_depth(bmp) != 32)
-      return FALSE;
-
-   for (y=0; y<bmp->h; y++) {
-      for (x=0; x<bmp->w; x++) {
-	 c = getpixel(bmp, x, y);
-	 if (geta32(c))
-	    return TRUE;
-      }
-   }
-
-   return FALSE;
-}
-
-
-
 /* checks whether this RLE sprite has an alpha channel */
 static int rle_has_alpha(AL_CONST RLE_SPRITE *spr)
 {
@@ -105,7 +84,7 @@ static void get_bitmap_desc(AL_CONST DATAFILE *dat, char *s)
 
    sprintf(s, "bitmap (%dx%d, %d bit)", bmp->w, bmp->h, bitmap_color_depth(bmp));
 
-   if (bitmap_has_alpha(bmp))
+   if (_bitmap_has_alpha(bmp))
       strcat(s, " +alpha");
 }
 
@@ -381,7 +360,7 @@ static int save_datafile_bitmap(DATAFILE *dat, AL_CONST int *fixed_prop, int pac
    uint32_t *p32;
    int depth;
 
-   if (bitmap_has_alpha(bmp))
+   if (_bitmap_has_alpha(bmp))
       depth = -32;
    else
       depth = bitmap_color_depth(bmp);

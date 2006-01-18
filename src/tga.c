@@ -470,29 +470,6 @@ BITMAP *load_tga_pf(PACKFILE *f, RGB *pal)
 
 
 
-/* bitmap_has_alpha:
- *  Checks whether this bitmap has an alpha channel.
- */
-static int bitmap_has_alpha(BITMAP *bmp)
-{
-   int x, y, c;
-
-   if (bitmap_color_depth(bmp) != 32)
-      return FALSE;
-
-   for (y = 0; y < bmp->h; y++) {
-      for (x = 0; x < bmp->w; x++) {
-	 c = getpixel(bmp, x, y);
-	 if (geta32(c))
-	    return TRUE;
-      }
-   }
-
-   return FALSE;
-}
-
-
-
 /* save_tga:
  *  Writes a bitmap into a TGA file, using the specified palette (this
  *  should be an array of at least 256 RGB structures).
@@ -554,7 +531,7 @@ int save_tga_pf(PACKFILE *f, BITMAP *bmp, AL_CONST RGB *pal)
    pack_iputw(bmp->w, f);                    /* width */
    pack_iputw(bmp->h, f);                    /* height */
    pack_putc(depth, f);                      /* bits per pixel */
-   pack_putc(bitmap_has_alpha (bmp) ? 8 : 0, f); /* descriptor (bottom to top, 8-bit alpha) */
+   pack_putc(_bitmap_has_alpha (bmp) ? 8 : 0, f); /* descriptor (bottom to top, 8-bit alpha) */
 
    if (depth == 8) {
       for (y=0; y<256; y++) {
