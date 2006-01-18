@@ -32,7 +32,10 @@ static void font_find_character(BITMAP *bmp, int *x, int *y, int *w, int *h)
 {
    int c;
 
-   if (bitmap_color_depth(bmp) == 8) {
+   if (_bitmap_has_alpha(bmp)) {
+      c = getpixel(bmp, 0, 0);
+   }
+   else if (bitmap_color_depth(bmp) == 8) {
       c = 255;
    }
    else {

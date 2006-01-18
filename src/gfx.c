@@ -163,6 +163,29 @@ void clear_bitmap(BITMAP *bitmap)
 
 
 
+/* _bitmap_has_alpha:
+ *  Checks whether this bitmap has an alpha channel.
+ */
+int _bitmap_has_alpha(BITMAP *bmp)
+{
+   int x, y, c;
+
+   if (bitmap_color_depth(bmp) != 32)
+      return FALSE;
+
+   for (y = 0; y < bmp->h; y++) {
+      for (x = 0; x < bmp->w; x++) {
+	 c = getpixel(bmp, x, y);
+	 if (geta32(c))
+	    return TRUE;
+      }
+   }
+
+   return FALSE;
+}
+
+
+
 /* vsync:
  *  Waits for a retrace.
  */

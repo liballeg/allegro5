@@ -262,6 +262,8 @@ AL_VAR(FONT_VTABLE, _font_vtable_mono);
 AL_VAR(FONT_VTABLE *, font_vtable_mono);
 AL_VAR(FONT_VTABLE, _font_vtable_color);
 AL_VAR(FONT_VTABLE *, font_vtable_color);
+AL_VAR(FONT_VTABLE, _font_vtable_trans);
+AL_VAR(FONT_VTABLE *, font_vtable_trans);
 
 AL_FUNC(FONT_GLYPH *, _mono_find_glyph, (AL_CONST FONT *f, int ch));
 AL_FUNC(BITMAP *, _color_find_glyph, (AL_CONST FONT *f, int ch));
@@ -362,6 +364,7 @@ AL_VAR(int, _color_conv);
 
 AL_FUNC(BITMAP *, _fixup_loaded_bitmap, (BITMAP *bmp, PALETTE pal, int bpp));
 
+AL_FUNC(int, _bitmap_has_alpha, (BITMAP *bmp));
 
 /* default truecolor pixel format */
 #define DEFAULT_RGB_R_SHIFT_15  0
