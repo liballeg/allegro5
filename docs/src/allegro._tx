@@ -6954,6 +6954,22 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    should use this only on fonts you have loaded manually after you are done
    with them, to prevent memory leaks in your program.
 
+@@void @make_trans_font(FONT *f);
+@xref load_datafile_object, load_font, draw_trans_sprite
+@shortdesc Makes a font use transparency.
+   This function converts a font to use transparency for drawing. That is, each
+   glyph in the font will be drawn with draw_trans_sprite, so you can use the
+   same blenders as with draw_trans_sprite to draw the font. One common use of
+   this is to load a bitmap font with an alpha channel, and therefore get
+   anti-aliased text output by using Allegro alpha blender. Here's an example
+   how to do that:
+
+   <codeblock>
+   FONT *f = load_font("alphafont.tga", NULL, NULL);
+   make_trans_font(f);
+   set_alpha_blender();
+   textprintf_centre_ex(screen, f, 320, 240, -1, -1, "Anti-aliased Font!");<endblock>
+
 @@int @is_color_font(FONT *f)
 @xref is_mono_font
 @shortdesc Returns TRUE if a font is a color font.
