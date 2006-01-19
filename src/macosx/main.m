@@ -36,14 +36,28 @@ extern void *_mangled_main_address;
 static char *arg0, *arg1 = NULL;
 static int refresh_rate = 70;
 
-
+static BOOL in_bundle(void)
+{
+   /* This comes from the ADC tips & tricks section: how to detect if the app
+    * lives inside a bundle
+    */
+   FSRef processRef;
+   ProcessSerialNumber psn = { 0, kCurrentProcess };
+   FSCatalogInfo processInfo;
+   GetProcessBundleLocation(&psn, &processRef);
+   FSGetCatalogInfo(&processRef, kFSCatInfoNodeFlags, &processInfo, NULL, NULL, NULL);
+   if (processInfo.nodeFlags & kFSNodeIsDirectoryMask) 
+     return YES;
+   else
+     return NO;
+}
 
 @implementation AllegroAppDelegate
 
 - (BOOL)application: (NSApplication *)theApplication openFile: (NSString *)filename
 {
-	arg1 = strdup([filename lossyCString]);
-	return YES;
+  arg1 = strdup([filename lossyCString]);
+  return YES;
 }
 
 
@@ -55,25 +69,17 @@ static int refresh_rate = 70;
 - (void)applicationDidFinishLaunching: (NSNotification *)aNotification
 {
    NSAutoreleasePool *pool = NULL;
-   FSRef processRef;
-   FSCatalogInfo processInfo;
-   ProcessSerialNumber psn = { 0, kCurrentProcess };
    CFDictionaryRef mode;
    NSString* exename, *resdir;
    NSFileManager* fm;
    BOOL isDir;
 
    /* create mutex */
-    osx_event_mutex=_unix_create_mutex();
+   osx_event_mutex=_unix_create_mutex();
    
    pool = [[NSAutoreleasePool alloc] init];
-   
-   /* This comes from the ADC tips & tricks section: how to detect if the app
-    * lives inside a bundle
-    */
-   GetProcessBundleLocation(&psn, &processRef);
-   FSGetCatalogInfo(&processRef, kFSCatInfoNodeFlags, &processInfo, NULL, NULL, NULL);
-   if (processInfo.nodeFlags & kFSNodeIsDirectoryMask) {
+   if (in_bundle() == YES)   
+   {
       /* In a bundle, so chdir to the containing directory,
        * or to the 'magic' resource directory if it exists.
        * (see the readme.osx file for more info)
@@ -81,15 +87,18 @@ static int refresh_rate = 70;
       osx_bundle = [NSBundle mainBundle];
       exename = [[osx_bundle executablePath] lastPathComponent];
       resdir = [[osx_bundle resourcePath] stringByAppendingPathComponent: exename];
-      resdir = [resdir stringByStandardizingPath];
       fm = [NSFileManager defaultManager];
       if ([fm fileExistsAtPath: resdir isDirectory: &isDir] && isDir) {
           /* Yes, it exists inside the bundle */
           [fm changeCurrentDirectoryPath: resdir];
       }
       else {
-          /* No, change to the directory containing the bundle*/
-          [fm changeCurrentDirectoryPath: [osx_bundle bundlePath]];
+         /* No, change to the 'standard' OSX resource directory if it exists*/
+         if ([fm fileExistsAtPath: [osx_bundle resourcePath] isDirectory: &isDir] && isDir)
+         {
+            [fm changeCurrentDirectoryPath: [osx_bundle resourcePath]];
+         }
+         /* It doesn't exist - this is unusual for a bundle. Don't chdir */
       }
 
       arg0 = strdup([[osx_bundle bundlePath] fileSystemRepresentation]);
@@ -145,7 +154,8 @@ static int refresh_rate = 70;
    CFDictionaryRef mode;
    int new_refresh_rate;
    
-   if ((osx_window) && (osx_gfx_mode == OSX_GFX_WINDOW)) {
+   if ((osx_window) && (osx_gfx_mode == OSX_GFX_WINDOW)) 
+   {
       osx_setup_colorconv_blitter();
       [osx_window display];
    }
@@ -219,7 +229,7 @@ int main(int argc, char *argv[])
    if (!osx_bootstrap_ok()) /* not safe to use NSApplication */
       call_user_main();
       
-      [NSApplication sharedApplication];
+   [NSApplication sharedApplication];
    
    /* Creates a custom application menu */
    [NSApp setMainMenu: [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"]];
@@ -231,9 +241,21 @@ int main(int argc, char *argv[])
    [[NSApp mainMenu] addItem: temp_item];
    [[NSApp mainMenu] setSubmenu: menu forItem: temp_item];
    [NSApp setAppleMenu: menu];
-   NSString *quit = @"Quit ";
+   NSString *quit = nil;
+   if (in_bundle() == YES)
+   {
+      NSDictionary* d=[[NSBundle mainBundle] infoDictionary];
+      if (d) 
+      {
+         quit = [d objectForKey: @"CFBundleName"];
+      }
+   }
+   if (quit == nil)
+   {
+      quit = [[NSProcessInfo processInfo] processName];
+   }
    menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
-      initWithTitle: [quit stringByAppendingString: [[NSProcessInfo processInfo] processName]]
+      initWithTitle: [@"Quit " stringByAppendingString: quit]
       action: @selector(app_quit:)
       keyEquivalent: @"q"];
    [menu_item setKeyEquivalentModifierMask: NSCommandKeyMask];
@@ -247,3 +269,9 @@ int main(int argc, char *argv[])
    
    return 0;
 }
+
+/* Local variables:       */
+/* c-basic-offset: 3      */
+/* indent-tabs-mode: nil  */
+/* c-file-style: "linux" */
+/* End:                   */
