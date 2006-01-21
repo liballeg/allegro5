@@ -422,11 +422,15 @@ static int percent(int a, int b)
 
 
 /* saves an object */
-static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, PACKFILE *f)
+static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids,
+                       int strip, int sort, int verbose, PACKFILE * AL_CONST f)
 {
    int i, ret;
    DATAFILE_PROPERTY *prop;
    int (*save)(DATAFILE *, AL_CONST int *, int, int, int, int, int, int, PACKFILE *);
+   PACKFILE *fchunk;
+
+   ASSERT(f);
 
    prop = dat->prop;
    datedit_sort_properties(prop);
@@ -448,7 +452,10 @@ static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pa
       datedit_startmsg("%-28s", get_datafile_property(dat, DAT_NAME));
 
    pack_mputl(dat->type, f);
-   f = pack_fopen_chunk(f, ((!pack) && (pack_kids) && (dat->type != DAT_FILE)));
+   fchunk = pack_fopen_chunk(f, ((!pack) && (pack_kids) && (dat->type != DAT_FILE)));
+   if (!fchunk) {
+      return FALSE;
+   }
    file_datasize += 12;
 
    save = NULL;
@@ -467,15 +474,16 @@ static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pa
       if (verbose)
 	 datedit_endmsg("");
 
-      ret = save((DATAFILE *)dat->dat, fixed_prop, pack, pack_kids, strip, sort, verbose, FALSE, f);
+      ret = save((DATAFILE *)dat->dat, fixed_prop, pack, pack_kids, strip, sort, verbose, FALSE, fchunk);
 
       if (verbose)
 	 datedit_startmsg("End of %-21s", get_datafile_property(dat, DAT_NAME));
    }
    else
-      ret = save(dat, fixed_prop, (pack || pack_kids), FALSE, strip, sort, verbose, FALSE, f);
+      ret = save(dat, fixed_prop, (pack || pack_kids), FALSE, strip, sort, verbose, FALSE, fchunk);
 
-   pack_fclose_chunk(f);
+   pack_fclose_chunk(fchunk);
+   fchunk = NULL;
 
    if (verbose) {
       if ((!pack) && (pack_kids) && (dat->type != DAT_FILE)) {
@@ -501,6 +509,8 @@ static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pa
 static int save_datafile(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
 {
    int c, size;
+
+   ASSERT(f);
 
    if (sort)
       datedit_sort_datafile(dat);
