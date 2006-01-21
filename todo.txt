@@ -37,6 +37,8 @@ in the subject.
 - fix mouse coordinates in GFX_DIRECTX_WIN, [AD] 2005-12-09
   "Inconsistent behaviour with mouse coordinates in different windowed modes in Windows."
 - add is_mouse_inside_window() function
+- destroy_bitmap on subbitmap problems, http://www.allegro.cc/forums/view_thread.php?_id=559618
+- fix bad implementation of pack_fopen_chunk, http://www.allegro.cc/forums/view_thread.php?_id=558565
 
 General (Platform independent) todos:
 ---------------------------------------------------------------------------
