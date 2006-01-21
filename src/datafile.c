@@ -1701,6 +1701,20 @@ void unload_datafile(DATAFILE *dat)
 
 
 
+/* unload_datafile_index
+ *  Frees memory used by datafile index
+ */
+void destroy_datafile_index(DATAFILE_INDEX *index)
+{
+   if (index) {
+      _AL_FREE(index->filename);
+      _AL_FREE(index->offset);
+      _AL_FREE(index);
+   }
+}
+
+
+
 /* unload_datafile_object:
  *  Unloads a single datafile object, returned by load_datafile_object().
  */
