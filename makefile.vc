@@ -134,7 +134,7 @@ else
    MSVC_CL = $(MSVCDIR_U)/bin/cl
 endif
 MSVC_LINK = $(MSVCDIR_U)/bin/link
-MSVC_LIB = $(MSVCDIR_U)/bin/link /lib
+MSVC_LIB = $(MSVCDIR_U)/bin/link -lib
 MSVC_RC = rc
 
 
