@@ -6164,7 +6164,7 @@ and they, as well as lengths, are specified in pixel units.
       {
 	 ...
       }
-	 arc(screen, SCREEN_W/2, SCREEN_H/2,
+	 do_arc(screen, SCREEN_W/2, SCREEN_H/2,
 	     itofix(-21), itofix(43), 50, flame_color,
 	     draw_explosion_ring);<endblock>
 
