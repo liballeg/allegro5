@@ -606,7 +606,7 @@ Contributors
    Marco Marmulla (<email>Viper005@usa.net</a>).<br>
    Added 16 bit support to the load_voc() routine.
 
-   Marian Dvorsky (<email>mdvorsky@dodo.sk</a>).<br>
+   Marian Dvorsky (<email>marian@step.sk</a>).<br>
    Wrote the Windows GDI interface routines.
 
    Marius Fodor (<email>iceman@teleport.com</a>).<br>
