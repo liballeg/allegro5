@@ -79,6 +79,8 @@ X11 todos:
 ---------------------------------------------------------------------------
 
 - Investigate problems with the SIGALRM version
+- Investigate fullscreen without XVidMode if the desktop already has the right mode: http://www.allegro.cc/forums/thread/561876
+- Investigate quadruple color lookup in X11 color converter: http://www.allegro.cc/forums/thread/561876
 
 Unix todos:
 ---------------------------------------------------------------------------
