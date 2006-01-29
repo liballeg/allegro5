@@ -43,6 +43,12 @@ endif
 
 
 
+ifdef COMPILER_MSVC8
+   EMBED_MANIFEST = 1
+endif
+
+
+
 ifdef STATICLINK
 
 # -------- link as a static library --------
@@ -337,8 +343,16 @@ else
 
 # -------- link as a DLL --------
 
+ifdef EMBED_MANIFEST
 define MAKE_LIB
    $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -dll -def:lib/msvc/allegro.def -out:$(DLL_NAME) -implib:$(IMPLIB_NAME) $(OBJECTS) $(LIBRARIES)
+   misc\embedman.bat $(DLL_NAME) 2
+endef
+else
+define MAKE_LIB
+   $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -dll -def:lib/msvc/allegro.def -out:$(DLL_NAME) -implib:$(IMPLIB_NAME) $(OBJECTS) $(LIBRARIES)
+endef
+endif
 endef
 
 endif
@@ -381,12 +395,12 @@ ifdef STATICLINK
 else
    ifdef UNIX_TOOLS
 	cp tools/win/wfixicon.exe lib/msvc/wfixicon.exe
-      ifdef COMPILER_MSVC8
+      ifdef EMBED_MANIFEST
 		cp tools/win/wfixicon.exe.manifest lib/msvc/wfixicon.exe.manifest
       endif
    else
 	copy tools\win\wfixicon.exe lib\msvc\wfixicon.exe
-      ifdef COMPILER_MSVC8
+      ifdef EMBED_MANIFEST
 		copy tools\win\wfixicon.exe.manifest lib\msvc\wfixicon.exe.manifest
       endif
    endif
