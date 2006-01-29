@@ -1904,13 +1904,56 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 
       /* write a sub-chunk */ 
       int tmp_fd = -1;
+      char *tmp_dir = NULL;
+      char *tmp_name = NULL;
+      #ifndef HAVE_MKSTEMP
+      char* tmpnam_string;
+      #endif
+
+      #ifdef ALLEGRO_WINDOWS
+         int size;
+         int new_size = 64;
+         
+         /* Get the path of the temporary directory */
+         do {
+            size = new_size;
+            tmp_dir = realloc(tmp_dir, size);
+            new_size = GetTempPath(size, tmp_dir);
+         } while ( (size > new_size) && (new_size > 0) );
+         
+         /* Check if we retrieved the path OK */
+         if (new_size == 0)
+            sprintf(tmp_dir, "");
+      #else
+         /* Get the path of the temporary directory */
+
+         /* Try various possible locations to store the temporary file */
+         if (getenv("TEMP")) {
+            tmp_dir = strdup(getenv("TEMP"));
+         }
+         else if (getenv("TMP")) {
+            tmp_dir = strdup(getenv("TMP"));
+         }
+         else if (file_exists("/tmp", FA_DIREC, NULL)) {
+            tmp_dir = strdup("/tmp");
+         }
+         else if (getenv("HOME")) {
+            tmp_dir = strdup(getenv("HOME"));
+         }
+         else {
+            /* Give up - try current directory */
+            tmp_dir = strdup(".");
+         }
+
+      #endif
 
       /* the file is open in read/write mode, even if the pack file
        * seems to be in write only mode
        */
       #ifdef HAVE_MKSTEMP
 
-         char tmp_name[] = "XXXXXX";
+         tmp_name = malloc(strlen(tmp_dir) + 16);
+         sprintf(tmp_name, "%s/XXXXXX", tmp_dir);
          tmp_fd = mkstemp(tmp_name);
 
       #else
@@ -1918,7 +1961,13 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
          /* note: since the filename creation and the opening are not
           * an atomic operation, this is not secure
           */
-         char *tmp_name = tmpnam(NULL);
+         tmpnam_string = tmpnam(NULL);
+         tmp_name = malloc(strlen(tmp_dir) + strlen(tmpnam_string) + 2);
+         sprintf(tmp_name, "%s/%s", tmp_dir, tmpnam_string);
+         free(tmpnam_string);
+
+         tmp_fd = mkstemp(tmp_name);
+
          if (tmp_name) {
 #ifndef ALLEGRO_MPW
             tmp_fd = open(tmp_name, O_RDWR | O_BINARY | O_CREAT | O_EXCL, OPEN_PERMS);
@@ -1929,8 +1978,12 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 
       #endif
 
-      if (tmp_fd < 0)
+      if (tmp_fd < 0) {
+         free(tmp_dir);
+         free(tmp_name);
+      
          return NULL;
+      }
 
       name = uconvert_ascii(tmp_name, tmp);
       chunk = _pack_fdopen(tmp_fd, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
@@ -1945,6 +1998,9 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 
 	 chunk->normal.flags |= PACKFILE_FLAG_CHUNK;
       }
+      
+      free(tmp_dir);
+      free(tmp_name);
    }
    else {
       /* read a sub-chunk */
