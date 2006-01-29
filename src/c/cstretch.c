@@ -255,8 +255,8 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
    ASSERT(src);
    ASSERT(dst);
 
-   /* vtable hook */   
-   if (src->vtable->do_stretch_blit) {
+   /* vtable hook; not called if dest is a memory surface */   
+   if (src->vtable->do_stretch_blit && !is_memory_bitmap(dst)) {
       src->vtable->do_stretch_blit(src, dst, sx, sy, sw, sh, dx, dy, dw, dh, masked);
       return;
    }

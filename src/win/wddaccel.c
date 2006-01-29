@@ -16,6 +16,8 @@
  *
  *      Accelerated rectfill() and hline() added by Shawn Hargreaves.
  *
+ *      Accelerated stretch_blit() and friends by Thomas Harte.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -34,6 +36,7 @@ static void (*_orig_vline) (BITMAP * bmp, int x, int y1, int y2, int color);
 static void (*_orig_rectfill) (BITMAP * bmp, int x1, int y1, int x2, int y2, int color);
 static void (*_orig_draw_sprite) (BITMAP * bmp, BITMAP * sprite, int x, int y);
 static void (*_orig_masked_blit) (BITMAP * source, BITMAP * dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+static void (*_orig_stretch_blit) (BITMAP *source, BITMAP *dest, int source_x, int source_y, int source_width, int source_height, int dest_x, int dest_y, int dest_width, int dest_height, int masked);
 
 
 
@@ -188,6 +191,70 @@ static void ddraw_draw_sprite(BITMAP * bmp, BITMAP * sprite, int x, int y)
    else {
       /* have to use the original software version */
       _orig_draw_sprite(bmp, sprite, x, y);
+   }
+}
+
+
+
+/* ddraw_do_stretch_blit:
+ *   Accelerated stretch_blit, stretch_sprite, stretch_masked_blit
+ */
+static void ddraw_do_stretch_blit(struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int source_width, int source_height, int dest_x, int dest_y, int dest_width, int dest_height, int masked)
+{
+   RECT dest_rect, source_rect;
+   DDCOLORKEY src_key;
+   HRESULT hr;
+   BITMAP *dest_parent;
+   BITMAP *source_parent;
+
+   dest_rect.left = dest_x + dest->x_ofs;
+   dest_rect.top = dest_y + dest->y_ofs;
+   dest_rect.right = dest_x + dest->x_ofs + dest_width;
+   dest_rect.bottom = dest_y + dest->y_ofs + dest_height;
+
+   source_rect.left = source_x + source->x_ofs;
+   source_rect.top = source_y + source->y_ofs;
+   source_rect.right = source_x + source->x_ofs + source_width;
+   source_rect.bottom = source_y + source->y_ofs + source_height;
+
+   src_key.dwColorSpaceLowValue = source->vtable->mask_color;
+   src_key.dwColorSpaceHighValue = source->vtable->mask_color;
+
+   if ( ( (masked && (gfx_capabilities & GFX_HW_VRAM_STRETCH_BLIT_MASKED)) ||
+          (!masked && (gfx_capabilities & GFX_HW_VRAM_STRETCH_BLIT)) 
+        ) && ( is_video_bitmap(source) || is_system_bitmap(source) ) ) {
+
+      /* find parents */
+      dest_parent = dest;
+      while (dest_parent->id & BMP_ID_SUB)
+         dest_parent = (BITMAP *)dest_parent->extra;
+
+      source_parent = source;
+      while (source_parent->id & BMP_ID_SUB)
+         source_parent = (BITMAP *)source_parent->extra;
+
+      _enter_gfx_critical();
+      gfx_directx_release_lock(dest);
+      gfx_directx_release_lock(source);
+
+      IDirectDrawSurface2_SetColorKey(DDRAW_SURFACE_OF(source_parent)->id,
+                                      DDCKEY_SRCBLT, &src_key);
+
+      hr = IDirectDrawSurface2_Blt(DDRAW_SURFACE_OF(dest_parent)->id, &dest_rect,
+                                   DDRAW_SURFACE_OF(source_parent)->id, &source_rect,
+                                   (masked ? DDBLT_KEYSRC : 0) | DDBLT_WAIT, NULL);
+      _exit_gfx_critical();
+
+      if (FAILED(hr))
+	 _TRACE(PREFIX_E "Blt failed (%x)\n", hr);
+
+      /* only for windowed mode */
+      if ((gfx_driver->id == GFX_DIRECTX_WIN) && (dest_parent == gfx_directx_forefront_bitmap))
+         win_gfx_driver->paint(&dest_rect);
+   }
+   else {
+      /* have to use the original software version */
+      _orig_stretch_blit(source, dest, source_x, source_y, source_width, source_height, dest_x, dest_y, dest_width, dest_height, masked);
    }
 }
 
@@ -458,6 +525,7 @@ void gfx_directx_enable_acceleration(GFX_DRIVER * drv)
    _orig_rectfill = _screen_vtable.rectfill;
    _orig_draw_sprite = _screen_vtable.draw_sprite;
    _orig_masked_blit = _screen_vtable.masked_blit;
+   _orig_stretch_blit = _screen_vtable.do_stretch_blit;
 
    /* accelerated video to video blits? */
    if (ddcaps.dwCaps & DDCAPS_BLT) {
@@ -466,6 +534,11 @@ void gfx_directx_enable_acceleration(GFX_DRIVER * drv)
       _screen_vtable.blit_to_self_backward = ddraw_blit_to_self;
       _screen_vtable.blit_from_system = ddraw_blit_to_self;
       _screen_vtable.blit_to_system = ddraw_blit_to_self;
+
+      if (ddcaps.dwCaps & DDCAPS_BLTSTRETCH) {
+         _screen_vtable.do_stretch_blit = ddraw_do_stretch_blit;
+         gfx_capabilities |= GFX_HW_VRAM_STRETCH_BLIT | GFX_HW_SYS_STRETCH_BLIT;
+      }
 
       gfx_capabilities |= (GFX_HW_VRAM_BLIT | GFX_HW_SYS_TO_VRAM_BLIT);
    }
@@ -485,6 +558,12 @@ void gfx_directx_enable_acceleration(GFX_DRIVER * drv)
        (ddcaps.dwCKeyCaps & DDCKEYCAPS_SRCBLT)) {
       _screen_vtable.masked_blit = ddraw_masked_blit;
       _screen_vtable.draw_sprite = ddraw_draw_sprite;
+
+      if (ddcaps.dwCaps & DDCAPS_BLTSTRETCH) {
+         _screen_vtable.do_stretch_blit = ddraw_do_stretch_blit;
+         gfx_capabilities |= 
+            GFX_HW_VRAM_STRETCH_BLIT_MASKED|GFX_HW_SYS_STRETCH_BLIT_MASKED;
+      }
 
       if (_screen_vtable.color_depth == 8)
 	 _screen_vtable.draw_256_sprite = ddraw_draw_sprite;

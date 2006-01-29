@@ -4492,6 +4492,26 @@ GFX_SAFE:<br>
       will only be set if system bitmaps have further acceleration above and 
       beyond what is provided by GFX_HW_MEM_BLIT_MASKED.
 
+   <b>GFX_HW_VRAM_STRETCH_BLIT:</b><br>
+      Indicates that stretched blitting of video bitmaps onto the screen is
+      implemented using hardware acceleration. 
+
+   <b>GFX_HW_SYS_STRETCH_BLIT:</b><br>
+      Indicates that stretched blitting of system bitmaps onto the screen is
+      implemented using hardware acceleration. 
+
+   <b>GFX_HW_VRAM_STRETCH_BLIT_MASKED:</b><br>
+      Indicates that masked stretched blitting (including stretch_sprite) of 
+      video bitmaps onto the screen is implemented using hardware acceleration.
+      NOTE: some display drivers may show artefacts when this function is used.
+      If the image does not look correct try updating your video drivers.
+
+   <b>GFX_HW_SYS_STRETCH_BLIT_MASKED:</b><br>
+      Indicates that masked stretched blitting (including stretch_sprite) of 
+      system bitmaps onto the screen is implemented using hardware acceleration.
+      NOTE: some display drivers may show artefacts when this function is used.
+      If the image does not look correct try updating your video drivers.
+
    Note: even if the capabilities information says that patterned drawing is 
    supported by the hardware, it will not be possible for every size of 
    pattern. VBE/AF only supports patterns up to 8x8 in size, so Allegro will 

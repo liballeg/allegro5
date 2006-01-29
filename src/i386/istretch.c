@@ -287,8 +287,8 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
    char flags;
    int i;
 
-   /* vtable hook */   
-   if (source->vtable->do_stretch_blit) {
+   /* vtable hook; not called if dest is a memory surface */   
+   if (source->vtable->do_stretch_blit && !is_memory_bitmap(dest)) {
       source->vtable->do_stretch_blit(source, dest, source_x, source_y, source_width, source_height, dest_x, dest_y, dest_width, dest_height, masked);
       return;
    }
