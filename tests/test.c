@@ -1748,6 +1748,11 @@ static void caps(void)
       "masked mem->screen blit:",
       "system->screen blit:",
       "masked system->screen blit:",
+      "Mouse pointer:",
+      "stretch vram->vram blit:",
+      "masked stretch vram->vram blit:",
+      "stretch system->vram blit:",
+      "masked stretch system->vram blit:",
       NULL
    };
 
@@ -3385,6 +3390,10 @@ int do_profile(BITMAP *old_screen)
 	    if (gfx_capabilities & GFX_HW_MEM_BLIT_MASKED)           fprintf(f, "    masked mem->vram blits\n");
 	    if (gfx_capabilities & GFX_HW_SYS_TO_VRAM_BLIT)          fprintf(f, "    system->vram blits\n");
 	    if (gfx_capabilities & GFX_HW_SYS_TO_VRAM_BLIT_MASKED)   fprintf(f, "    masked system->vram blits\n");
+	    if (gfx_capabilities & GFX_HW_VRAM_STRETCH_BLIT)         fprintf(f, "    vram->vram stretch blits\n");
+	    if (gfx_capabilities & GFX_HW_VRAM_STRETCH_BLIT_MASKED)  fprintf(f, "    vram->vram masked stretch blits\n");
+	    if (gfx_capabilities & GFX_HW_SYS_STRETCH_BLIT)          fprintf(f, "    system->vram stretch blits\n");
+	    if (gfx_capabilities & GFX_HW_SYS_STRETCH_BLIT_MASKED)   fprintf(f, "    system->vram masked stretch blits\n");
 
 	    if (!(gfx_capabilities & ~(GFX_CAN_SCROLL | GFX_CAN_TRIPLE_BUFFER | GFX_HW_CURSOR)))
 	       fprintf(f, "    <none>\n");
