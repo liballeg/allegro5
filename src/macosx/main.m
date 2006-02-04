@@ -100,7 +100,6 @@ static BOOL in_bundle(void)
          }
          /* It doesn't exist - this is unusual for a bundle. Don't chdir */
       }
-
       arg0 = strdup([[osx_bundle bundlePath] fileSystemRepresentation]);
       if (arg1) {
          static char *args[2];
@@ -189,15 +188,16 @@ static void call_user_main(void)
 
 
 
-/* app_quit:
+/* applicationShouldTerminate:
  *  Called upon Command-Q or "Quit" menu item selection.
- *  If the window close callback is set, calls it, otherwise behaves like
- *  Ctrl-Alt-End.
+ *  If the window close callback is set, calls it, otherwise does
+ *  not exit.
  */
-- (void)app_quit: (id)sender
+- (NSApplicationTerminateReply) applicationShouldTerminate: (id)sender
 {
    if (osx_window_close_hook)
       osx_window_close_hook();
+   return NSTerminateCancel;
 }
 
 @end
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
    AllegroAppDelegate *app_delegate = [[AllegroAppDelegate alloc] init];
    NSMenu *menu;
    NSMenuItem *menu_item, *temp_item;
-   
+
    __crt0_argc = argc;
    __crt0_argv = argv;
    
@@ -230,37 +230,40 @@ int main(int argc, char *argv[])
       call_user_main();
       
    [NSApplication sharedApplication];
-   
-   /* Creates a custom application menu */
-   [NSApp setMainMenu: [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"]];
-   menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"];
-   temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
-      initWithTitle: @"temp"
-      action: NULL
-      keyEquivalent: @""];
-   [[NSApp mainMenu] addItem: temp_item];
-   [[NSApp mainMenu] setSubmenu: menu forItem: temp_item];
-   [NSApp setAppleMenu: menu];
-   NSString *quit = nil;
-   if (in_bundle() == YES)
+
+   /* Load the main menu nib if possible */
+   if ((!in_bundle()) || ([NSBundle loadNibNamed: @"MainMenu"
+                                    owner: NSApp] == NO))
    {
-      NSDictionary* d=[[NSBundle mainBundle] infoDictionary];
-      if (d) 
-      {
-         quit = [d objectForKey: @"CFBundleName"];
-      }
+       /* Didn't load the nib; create a default menu programmatically */
+       NSString* title = nil;
+       NSDictionary* app_dictionary = [[NSBundle mainBundle] infoDictionary];
+       if (app_dictionary) 
+       {
+          title = [app_dictionary objectForKey: @"CFBundleName"];
+       }
+       if (title == nil) 
+       {
+          title = [[NSProcessInfo processInfo] processName];
+       }
+       [NSApp setMainMenu: [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"]];
+       menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"];
+       temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
+		     initWithTitle: @"temp"
+		     action: NULL
+		     keyEquivalent: @""];
+       [[NSApp mainMenu] addItem: temp_item];
+       [[NSApp mainMenu] setSubmenu: menu forItem: temp_item];
+       [NSApp setAppleMenu: menu];
+       NSString *quit = [@"Quit " stringByAppendingString: title];
+       menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
+		     initWithTitle: quit
+		     action: @selector(terminate:)
+		     keyEquivalent: @"q"];
+       [menu_item setKeyEquivalentModifierMask: NSCommandKeyMask];
+       [menu_item setTarget: app_delegate];
+       [menu addItem: menu_item];
    }
-   if (quit == nil)
-   {
-      quit = [[NSProcessInfo processInfo] processName];
-   }
-   menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
-      initWithTitle: [@"Quit " stringByAppendingString: quit]
-      action: @selector(app_quit:)
-      keyEquivalent: @"q"];
-   [menu_item setKeyEquivalentModifierMask: NSCommandKeyMask];
-   [menu_item setTarget: app_delegate];
-   [menu addItem: menu_item];
 
    [NSApp setDelegate: app_delegate];
    

@@ -14268,6 +14268,18 @@ application will not shutdown, but you are supposed to set some quit flag
 in your callback and check for it on a regular basis in your main program
 loop.
 
+If you would like to use InterfaceBuilder to design a more
+fully-featured menu, Allegro will automatically load it if you create
+a bundle for your application. The use of InterfaceBuilder is beyond
+the scope of this document. Briefly, you need to create a Nib, called
+MainMenu.nib, containing a main menu and a controller. Then, when you
+create the bundle, install MainMenu.nib into the Contents/Resources
+subdirectory. Note that the actions attached to the menu items will be
+called from a different thread than the one in which your Allegro code
+is running. Therefore you should not do any work there (especially,
+don't call Allegro functions.) Instead, set a variable, and test it in
+your main loop.
+
 @@Drivers @GFX_*/MacOSX
 @xref set_gfx_mode
 @shortdesc Supported MacOSX graphic drivers.

@@ -194,13 +194,15 @@ void osx_event_handler()
          case NSKeyDown:
 	    if (_keyboard_installed)
 	       osx_keyboard_handler(TRUE, event);
-	    if (([[event charactersIgnoringModifiers] characterAtIndex: 0] == 'q') && ([event modifierFlags] & NSCommandKeyMask)) 
+	    if ([event modifierFlags] & NSCommandKeyMask) 
 	       [NSApp sendEvent: event];
 	    break;
 	
          case NSKeyUp:
 	    if (_keyboard_installed)
 	       osx_keyboard_handler(FALSE, event);
+	    if ([event modifierFlags] & NSCommandKeyMask) 
+	       [NSApp sendEvent: event];
 	    break;
 
          case NSFlagsChanged:
