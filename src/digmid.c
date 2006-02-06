@@ -519,7 +519,7 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 {
    PACKFILE *f;
    char dir[1024], file[1024], buf[1024], filename[1024];
-   char todo[256][32];
+   char todo[256][1024];
    char *argv[16], *p;
    char tmp[128];
    int argc;
@@ -679,8 +679,11 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
       /* read from regular disk files */
       for (i=0; i<256; i++) {
 	 if (ugetc(todo[i])) {
-	    ustrzcpy(filename, sizeof(filename), dir);
-	    ustrzcat(filename, sizeof(filename), todo[i]);
+	    if (is_relative_filename(todo[i])) {
+	       ustrzcpy(filename, sizeof(filename), dir);
+	       ustrzcat(filename, sizeof(filename), todo[i]);
+            } else
+	       ustrzcpy(filename, sizeof(filename), todo[i]);
 
 	    if (ugetc(get_extension(filename)) == 0)
 	       ustrzcat(filename, sizeof(filename), uconvert_ascii(".pat", tmp));
