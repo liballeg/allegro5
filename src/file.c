@@ -39,6 +39,9 @@
    #include <pwd.h>                 /* for tilde expansion */
 #endif
 
+#ifdef ALLEGRO_WINDOWS
+   #include "winalleg.h" /* for GetTempPath */
+#endif
 
 
 /* permissions to use when opening files */
