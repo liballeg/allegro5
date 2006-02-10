@@ -6476,8 +6476,8 @@ clipping rectangle of the destination bitmap.
 <codeblock>
       /* Create tunnel like effect. */
       for (step = 1; step < 16; step++) {
-	 int width = SCREEN_W / f;
-	 int height = SCREEN_H / f;
+	 int width = SCREEN_W / step;
+	 int height = SCREEN_H / step;
 	 stretch_sprite(screen, image, SCREEN_W / 2 - width / 2,
 			SCREEN_H / 2 - height / 2, width, height);
       }<endblock>
