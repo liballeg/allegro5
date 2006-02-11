@@ -39,6 +39,9 @@
    #include <pwd.h>                 /* for tilde expansion */
 #endif
 
+#ifdef ALLEGRO_WINDOWS
+   #include "winalleg.h" /* for GetTempPath */
+#endif
 
 
 /* permissions to use when opening files */
@@ -1923,7 +1926,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
          
          /* Check if we retrieved the path OK */
          if (new_size == 0)
-            sprintf(tmp_dir, "");
+            sprintf(tmp_dir, "%s", "");
       #else
          /* Get the path of the temporary directory */
 
@@ -1965,8 +1968,6 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
          tmp_name = malloc(strlen(tmp_dir) + strlen(tmpnam_string) + 2);
          sprintf(tmp_name, "%s/%s", tmp_dir, tmpnam_string);
          free(tmpnam_string);
-
-         tmp_fd = mkstemp(tmp_name);
 
          if (tmp_name) {
 #ifndef ALLEGRO_MPW
