@@ -74,12 +74,12 @@ def getAllegroTarget(debug,static):
         return function(libDir + getLibraryName(debug), appendDir(dir, files))
 
     if debug == 1 and static == 1:
-        env.Append(CCFLAGS = '-DDEBUG=1')
+        env.Append(CCFLAGS = '-DDEBUGMODE=1')
         lib = build(env.StaticLibrary, debugBuildDir)
         Alias('static', lib)
         return lib
     elif debug == 1:
-        env.Append(CCFLAGS = '-DDEBUG=1')
+        env.Append(CCFLAGS = '-DDEBUGMODE=1')
         lib = build(env.SharedLibrary, debugBuildDir)
         Alias('shared', lib)
         return lib
