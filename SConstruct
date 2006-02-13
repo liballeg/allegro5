@@ -21,6 +21,10 @@
 import os
 import sys
 
+## Generate build directory (since we put the signatures db there)
+try: os.mkdir("build")
+except OSError: pass
+
 allegroVersion = '4.3.0'
 
 def getPlatform():
@@ -58,6 +62,8 @@ def getLibraryVariables():
 
 env, files, libDir = getLibraryVariables()
 
+## Stop cluttering everything with .sconsign files, use a single db file instead
+env.SConsignFile("build/signatures")
 
 debugBuildDir = 'build/debug/'
 optimizedBuildDir = 'build/release/'
