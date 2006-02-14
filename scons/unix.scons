@@ -214,6 +214,7 @@ else:
     for setting in config_settings:
         val = env[setting]
         if hasattr(val, "data"): val = val.data # for CCFLAGS
+        if not type(val) == list: val = [val]
         settings.set("unix", setting, str(val))
 
     settings.write(file("build/settings.cfg", "w"))
