@@ -57,7 +57,7 @@ if ARGUMENTS.get("noconfig"):
         noconfig = True
 
 # the settings we cache in settings.cfg
-config_settings = ["CCFLAGS", "CPPPATH", "LIBS", "LIBPATH"]
+config_settings = ["CCFLAGS", "CPPPATH", "CPPFLAGS", "LIBS", "LIBPATH", "LINKFLAGS"]
 platform = {}
 settings = ConfigParser.ConfigParser()
 
