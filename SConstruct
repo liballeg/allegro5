@@ -128,7 +128,7 @@ makeDocFiles = Split("""
     """);
 
 docs = [] 
-docs.append(docEnv.Program('docs/makedoc', appendDir(optimizedBuildDir + '/makedoc/', makeDocFiles)))
+docs.append(docEnv.Program('docs/makedoc', appendDir(normalBuildDir + '/makedoc/', makeDocFiles)))
 
 makeHTML = Builder(action = 'docs/makedoc -html $TARGETS $SOURCES', 
            suffix = '.html', 
