@@ -16,6 +16,11 @@
 # static=1 is the same as using the static target
 # Thus debug=1 static=1 is the same as debug-static
 
+# TODO:
+# Compile the modules in unix( alsa, oss, etc )
+# Get the build system working on other platforms supported by Allegro, Windows being the most important one
+# Allow arbitrary libraries to be dropped into the Allegro directory and automatically compiled using the Allegro SCons environments 
+
 import os
 import sys
 
