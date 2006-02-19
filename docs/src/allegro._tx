@@ -5305,7 +5305,7 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
-@@int @save_bmp_pf(PACKFILE *f, RGB *pal);
+@@int @save_bmp_pf(PACKFILE *f, BITMAP *bmp, RGB *pal);
 @xref save_bmp
 @eref expackf
 @shortdesc Packfile version of save_bmp.
@@ -5318,7 +5318,7 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
-@@int @save_pcx_pf(PACKFILE *f, RGB *pal);
+@@int @save_pcx_pf(PACKFILE *f, BITMAP *bmp, RGB *pal);
 @xref save_pcx
 @shortdesc Packfile version of save_pcx.
    A version of save_pcx which writes to a packfile.
@@ -5331,7 +5331,7 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
-@@int @save_tga_pf(PACKFILE *f, RGB *pal);
+@@int @save_tga_pf(PACKFILE *f, BITMAP *bmp, RGB *pal);
 @xref save_tga
 @eref expackf
 @shortdesc Packfile version of save_tga.
