@@ -19,6 +19,34 @@
 import os
 import sys
 
+def allegroHelp():
+    return """
+scons [options] [targets]
+
+Possible options:
+static=1|0 : If static=1 is supplied a static Allegro library will be built and all extra programs will link using this library
+debug=1|0 : If debug=1 is supplied a debug Allegro library will be built and all extra programs will link using this library
+E.g:
+Build liballeg.a and link with this
+$ scons static=1
+Build liballeg.a in debug mode and link with this
+$ scons debug=1 static=1
+Build liballeg.so in debug mode and link with this
+$ scons debug=1
+
+Possible targets are:
+debug-static : Build a static library with debug mode on
+debug-shared : Build a shared library with debug mode on
+static : Build a static library with debug off
+shared : Build a shared library with debug off
+library : Build the library which is configured by static=X and debug=X
+examples : Build all the examples
+docs : Build the docs
+demo : Build the demo
+    """
+
+Help(allegroHelp())
+
 # Generate build directory (since we put the signatures db there)
 try: os.mkdir("build")
 except OSError: pass
@@ -73,29 +101,38 @@ def getLibraryName(debug):
         return 'alleg-' + allegroVersion
 
 def getAllegroTarget(debug,static):
-    def build(function,dir):
+    def build(function,lib,dir):
         env.BuildDir(dir, 'src', duplicate = 0)
-        return function(libDir + getLibraryName(debug), appendDir(dir, files))
+        return function(lib, appendDir(dir, files))
+
+    def buildStatic(env,debug,dir):
+        return build(env.StaticLibrary,libDir + '/static/' + getLibraryName(debug),dir)
+
+    def buildShared(env,debug,dir):
+        return build(env.SharedLibrary,libDir + '/shared/' + getLibraryName(debug),dir)
+
+    debugEnv = env.Copy()
+    debugEnv.Append(CCFLAGS = '-DDEBUGMODE=1')
+
+    debugStatic = buildStatic(debugEnv, 1, debugBuildDir)
+    debugShared = buildShared(debugEnv, 1, debugBuildDir)
+    normalStatic = buildStatic(env, 0, optimizedBuildDir)
+    normalShared = buildShared(env, 0, optimizedBuildDir)
+
+    Alias('debug-static',debugStatic)
+    Alias('debug-shared',debugShared)
+    Alias('static',normalStatic)
+    Alias('shared',normalShared)
 
     if debug == 1 and static == 1:
-        env.Append(CCFLAGS = '-DDEBUGMODE=1')
-        lib = build(env.StaticLibrary, debugBuildDir)
-        Alias('static', lib)
-        return lib
+        return debugStatic
     elif debug == 1:
-        env.Append(CCFLAGS = '-DDEBUGMODE=1')
-        lib = build(env.SharedLibrary, debugBuildDir)
-        Alias('shared', lib)
-        return lib
+        return debugShared
     elif static == 1:
-        lib = build(env.StaticLibrary, optimizedBuildDir)
-        Alias('debug-static', lib)
-        return lib
+        return normalStatic
     else:
-        lib = build(env.SharedLibrary, optimizedBuildDir)
-        Alias('debug-shared', lib)
-        return lib
-
+        return normalShared
+        
 debug = int(ARGUMENTS.get('debug',0))
 static = int(ARGUMENTS.get('static',0))
 
@@ -108,6 +145,7 @@ env.Append(CPPPATH = [ normalBuildDir ])
 
 library = getAllegroTarget(debug,static)
 Alias('library', library)
+Install(libDir, library)
 
 docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
 Alias('docs', docs)
