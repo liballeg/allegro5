@@ -257,15 +257,13 @@ utimernu.c
 uxthread.c
 """));
 
-def buildModule(module,sources):
-    def build(menv,appendDir,buildDir,libDir):
+if platform["ALLEGRO_WITH_ESDDIGI"]:
+    def buildESD(menv,appendDir,buildDir,libDir):
         esdEnv = menv.Copy()
         esdEnv.ParseConfig('esd-config --libs')
-        return esdEnv.SharedLibrary(libDir + "alleg-" + module,appendDir(buildDir + "/unix/", sources))
-    return build
-
-if platform["ALLEGRO_WITH_ESDDIGI"]:
-    addExtra(buildModule("esddigi",["uesd.c"]))
+        sources = ["uesd.c"]
+        return esdEnv.SharedLibrary(libDir + "alleg-esddigi",appendDir(buildDir + "/unix/", sources))
+    addExtra(buildESD)
 
 if platform["ALLEGRO_WITH_XWINDOWS"]:
     files += sourceFiles("x/", Split("""
