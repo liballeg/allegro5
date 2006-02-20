@@ -239,7 +239,6 @@ sgial.c
 udjgpp.c
 udrvlist.c
 udummy.c
-uesd.c
 ufdwatch.c
 ufile.c
 ugfxdrv.c
@@ -257,6 +256,16 @@ utime.c
 utimernu.c
 uxthread.c
 """));
+
+def buildModule(module,sources):
+    def build(menv,appendDir,buildDir,libDir):
+        esdEnv = menv.Copy()
+        esdEnv.ParseConfig('esd-config --libs')
+        return esdEnv.SharedLibrary(libDir + "alleg-" + module,appendDir(buildDir + "/unix/", sources))
+    return build
+
+if platform["ALLEGRO_WITH_ESDDIGI"]:
+    addExtra(buildModule("esddigi",["uesd.c"]))
 
 if platform["ALLEGRO_WITH_XWINDOWS"]:
     files += sourceFiles("x/", Split("""
