@@ -411,6 +411,48 @@ int _install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*fun
 
 
 
+/* _install_allegro_version_check:
+ *  Initialises the Allegro library, but return with an error if an incompatible version
+ *  is found.
+ */
+int _install_allegro_version_check(int system_id, int *errno_ptr,
+   int (*atexit_ptr)(void (*func)(void)), int version)
+{
+   int r = _install_allegro(system_id, errno_ptr, atexit_ptr);
+
+   int build_wip = version & 255;
+   int build_ver = version & ~255;
+
+   int version_ok;
+
+   if (r)
+      return r;
+
+#if ALLEGRO_SUB_VERSION&1
+   /* This is a WIP runtime, so enforce strict compatibility. */
+   version_ok = version == _get_allegro_version();
+#else
+   /* This is a stable runtime, so the runtime should be at least as new
+    * as the build headers (otherwise we may get a crash, since some
+    * functions may have been used which aren't available in this runtime).
+    */
+   version_ok = (MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, 0) == build_ver) &&
+      (ALLEGRO_WIP_VERSION >= build_wip);
+#endif
+
+   if (!version_ok) {
+      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text(
+         "The detected dynamic Allegro library (%d.%d.%d) is "
+         "not compatible with this program (%d.%d.%d)."),
+         ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION,
+         build_ver >> 16, (build_ver >> 8) & 255, build_wip);
+      return -1;
+   }
+   return 0;
+}
+
+
+
 /* allegro_exit:
  *  Closes down the Allegro system.
  */

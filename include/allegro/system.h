@@ -75,37 +75,21 @@ AL_VAR(int, os_multitasking);
 
 AL_FUNC(int, _get_allegro_version, (void));
 AL_FUNC(int, _install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))));
+AL_FUNC(int, _install_allegro_version_check, (int system_id, int *errno_ptr,
+   AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void)))), int version));
 
+/* This is only here because of binary compatibility with 4.2.0. */
 AL_INLINE(int, install_allegro, (int system_id, int *errno_ptr,
    AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))),
 {
-   int r = _install_allegro(system_id, errno_ptr, atexit_ptr);
-   int dll_v = _get_allegro_version(); /* This comes from the DLL. */
-   int dll_wip = dll_v & 255;
-   int dll_ver = dll_v & ~255;
-
-#if ((ALLEGRO_SUB_VERSION&1) == 0)
-
-   /* Check that the x.y versions match (eg. 4.2 = 4.2) and that the DLL WIP
-    * version is at least as new as the headers we were compiled with */
-   if ((dll_ver != MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, 0)) ||
-       (dll_wip < ALLEGRO_WIP_VERSION)) {
-#else
-   /* Enforce strict header x.y.z == lib x.y.z for WIP branches */
-   if (dll_v != MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, 
-      ALLEGRO_WIP_VERSION)) {
-#endif
-      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text(
-         "The detected dynamic Allegro library (%d.%d.%d) is "
-         "not compatible with this program (%d.%d.%d)."),
-         dll_ver >> 16, (dll_ver >> 8) & 255, dll_wip,
-         ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION);
-      return !0;
-   }
-   return r;
+   return _install_allegro_version_check(system_id, errno_ptr, atexit_ptr, \
+      MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION));
 })
 
-#define allegro_init()  install_allegro(SYSTEM_AUTODETECT, &errno, (int (*)(void (*)(void)))atexit)
+
+#define allegro_init()  _install_allegro_version_check(SYSTEM_AUTODETECT, &errno, \
+   (int (*)(void (*)(void)))atexit, \
+   MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION))
 AL_FUNC(void, allegro_exit, (void));
 
 AL_PRINTFUNC(void, allegro_message, (AL_CONST char *msg, ...), 1, 2);
