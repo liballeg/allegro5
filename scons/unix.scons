@@ -230,10 +230,6 @@ env.Append(CCFLAGS = defines)
 env.Append(CPPPATH = includes)
 
 files += sourceFiles("unix", Split("""
-alsa5.c
-alsa9.c
-alsamidi.c
-arts.c
 jack.c
 sgial.c
 udjgpp.c
@@ -264,6 +260,36 @@ if platform["ALLEGRO_WITH_ESDDIGI"]:
         sources = ["uesd.c"]
         return esdEnv.SharedLibrary(libDir + "alleg-esddigi",appendDir(buildDir + "/unix/", sources))
     addExtra(buildESD)
+
+if platform["ALLEGRO_WITH_ALSADIGI"]:
+    def buildAlsa(menv,appendDir,buildDir,libDir):
+        alsaEnv = menv.Copy()
+        alsaEnv.Append(LIBS = "asound")
+        sources = ["alsa5.c", "alsa9.c"]
+        return alsaEnv.SharedLibrary(libDir + "alleg-alsadigi",appendDir(buildDir + "/unix/", sources))
+    addExtra(buildAlsa)
+
+if platform["ALLEGRO_WITH_ALSAMIDI"]:
+    def buildAlsa(menv,appendDir,buildDir,libDir):
+        alsaEnv = menv.Copy()
+        alsaEnv.Append(LIBS = "asound")
+        sources = ["alsamidi.c"]
+        return alsaEnv.SharedLibrary(libDir + "alleg-alsamidi",appendDir(buildDir + "/unix/", sources))
+    addExtra(buildAlsa)
+
+if platform["ALLEGRO_WITH_ARTSDIGI"]:
+    def buildAlsa(menv,appendDir,buildDir,libDir):
+        artsEnv = menv.Copy()
+        artsEnv.ParseConfig("artsc-config --libs")
+        sources = ["arts.c"]
+        return artsEnv.SharedLibrary(libDir + "alleg-artsdigi",appendDir(buildDir + "/unix/", sources))
+    addExtra(buildAlsa)
+
+if platform["ALLEGRO_LINUX_FBCON"]:
+    def buildFBCon(menv,appendDir,buildDir,libDir):
+        sources = ["fbcon.c"]
+        return menv.SharedLibrary(libDir + "alleg-fbcon",appendDir(buildDir + "/linux/", sources))
+    addExtra(buildFBCon)
 
 if platform["ALLEGRO_WITH_XWINDOWS"]:
     files += sourceFiles("x/", Split("""

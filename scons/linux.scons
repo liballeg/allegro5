@@ -5,7 +5,6 @@ Import('sourceFiles', 'addExtra')
 env, files = SConscript('unix.scons', exports = [ 'sourceFiles', 'addExtra' ])
 
 files += sourceFiles('linux/', Split("""
-fbcon.c
 lconsole.c
 lgfxdrv.c
 ljoynu.c
