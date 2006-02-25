@@ -60,7 +60,7 @@ static int osx_sys_get_desktop_resolution(int *width, int *height);
 int    __crt0_argc;
 char **__crt0_argv;
 NSBundle *osx_bundle = NULL;
-void* osx_event_mutex;
+_AL_MUTEX osx_event_mutex;
 NSCursor *osx_cursor = NULL;
 NSCursor *osx_blank_cursor = NULL;
 AllegroWindow *osx_window = NULL;
@@ -130,13 +130,13 @@ SYSTEM_DRIVER system_macosx =
  */
 static RETSIGTYPE osx_signal_handler(int num)
 {
-   _unix_unlock_mutex(osx_event_mutex);
-   _unix_unlock_mutex(osx_window_mutex);
+   _al_mutex_unlock(&osx_event_mutex);
+   _al_mutex_unlock(&osx_window_mutex);
    
    allegro_exit();
    
-   _unix_destroy_mutex(osx_event_mutex);
-   _unix_destroy_mutex(osx_window_mutex);
+   _al_mutex_destroy(&osx_event_mutex);
+   _al_mutex_destroy(&osx_window_mutex);
    
    fprintf(stderr, "Shutting down Allegro due to signal #%d\n", num);
    raise(num);
@@ -153,7 +153,7 @@ void osx_event_handler()
    NSEvent *event;
    NSDate *distant_past = [NSDate distantPast];
    NSPoint point;
-   NSRect frame, view;
+   NSRect frame;
    CGMouseDelta fdx, fdy;
    int dx = 0, dy = 0, dz = 0;
    int mx=_mouse_x;
@@ -173,7 +173,6 @@ void osx_event_handler()
 	 continue;
       }
       
-      view = NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h);
       point = [event locationInWindow];
       if (osx_window) 
       {
@@ -186,22 +185,16 @@ void osx_event_handler()
       event_type = [event type];
       switch (event_type) {
 	 
-         case NSKeyDown:
-	    if (_keyboard_installed)
-	       osx_keyboard_handler(TRUE, event);
-	    if (([[event charactersIgnoringModifiers] characterAtIndex: 0] == 'q') && ([event modifierFlags] & NSCommandKeyMask)) 
-	       [NSApp sendEvent: event];
-	    break;
+//          case NSKeyDown:
+// 	    if (([[event charactersIgnoringModifiers] characterAtIndex: 0] == 'q') && ([event modifierFlags] & NSCommandKeyMask)) 
+// 	       [NSApp sendEvent: event];
+// 	    break;
 	
-         case NSKeyUp:
-	    if (_keyboard_installed)
-	       osx_keyboard_handler(FALSE, event);
-	    break;
+//          case NSKeyUp:
+// 	    break;
 
-         case NSFlagsChanged:
-	    if (_keyboard_installed)
-	       osx_keyboard_modifiers([event modifierFlags]);
-	    break;
+//          case NSFlagsChanged:
+// 	    break;
 	 
          case NSLeftMouseDown:
          case NSOtherMouseDown:
@@ -209,7 +202,7 @@ void osx_event_handler()
 	    if (![NSApp isActive]) {
 	       /* App is regaining focus */
 	       if (_mouse_installed) {
-	          if ((osx_window) && (NSPointInRect(point, view))) {
+	          if ((osx_window) && (NSPointInRect(point, NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h)))) {
                      mx = point.x;
 	             my = frame.size.height - point.y;
 		     buttons = 0;
@@ -231,7 +224,7 @@ void osx_event_handler()
          case NSRightMouseUp:
 	    if (osx_emulate_mouse_buttons) {
 	       if (event_type == NSLeftMouseDown) {
-                  if ((!osx_window) || (NSPointInRect(point, view))) {
+                  if ((!osx_window) || (NSPointInRect(point, NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h)))) {
 		     buttons = 0x1;
 		     if (key[KEY_ALT])
 		        buttons = 0x4;
@@ -243,7 +236,7 @@ void osx_event_handler()
 	          buttons &= ~0x7;
 	    }
 	    else {
-	       if ((!osx_window) || (NSPointInRect(point, view))) {
+	       if ((!osx_window) || (NSPointInRect(point, NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h)))) {
 	          /* Deliver mouse downs only if cursor is on the window */
 	          buttons |= ((event_type == NSLeftMouseDown) ? 0x1 : 0);
 	          buttons |= ((event_type == NSRightMouseDown) ? 0x2 : 0);
@@ -537,15 +530,15 @@ static void osx_sys_message(AL_CONST char *msg)
    ns_title = [NSString stringWithUTF8String: osx_window_title];
    ns_msg = [NSString stringWithUTF8String: tmp];
    
-   _unix_lock_mutex(osx_event_mutex);
+   _al_mutex_lock(&osx_event_mutex);
    skip_events_processing = TRUE;
-   _unix_unlock_mutex(osx_event_mutex);
+   _al_mutex_unlock(&osx_event_mutex);
    
    NSRunAlertPanel(ns_title, ns_msg, nil, nil, nil);
    
-   _unix_lock_mutex(osx_event_mutex);
+   _al_mutex_lock(&osx_event_mutex);
    skip_events_processing = FALSE;
-   _unix_unlock_mutex(osx_event_mutex);
+   _al_mutex_unlock(&osx_event_mutex);
 }
 
 

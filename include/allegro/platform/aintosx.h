@@ -83,6 +83,10 @@
 
 @interface AllegroView: NSQuickDrawView
 - (void)resetCursorRects;
+- (void)keyDown: (NSEvent*) event;
+- (void)keyUp: (NSEvent*) event;
+- (void)flagsChanged: (NSEvent*) event;
+- (void)drawRect: (NSRect) aRect;
 @end
 
 
@@ -161,8 +165,8 @@ void osx_hid_free(HID_DEVICE_COLLECTION *);
 
 
 AL_VAR(NSBundle *, osx_bundle);
-AL_VAR(void *, osx_event_mutex);
-AL_VAR(void *, osx_window_mutex);
+AL_VAR(_AL_MUTEX, osx_event_mutex);
+AL_VAR(_AL_MUTEX, osx_window_mutex);
 AL_VAR(int, osx_gfx_mode);
 AL_VAR(int, osx_screen_used);
 AL_VAR(NSCursor *, osx_blank_cursor);

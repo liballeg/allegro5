@@ -393,7 +393,6 @@ ALLEGRO_SRC_MACOSX_FILES = \
 	src/macosx/qzwindow.m \
 	src/macosx/soundman.m \
 	src/macosx/system.m \
-	src/unix/uevents.c \
 	src/unix/ufile.c \
 	src/unix/usystem.c \
 	src/unix/uthreads.c \
