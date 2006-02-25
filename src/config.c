@@ -1304,7 +1304,7 @@ void reload_config_texts(AL_CONST char *new_language)
 AL_CONST char *get_config_text(AL_CONST char *msg)
 {
    char tmp1[256];
-   AL_CONST char *section = uconvert_ascii("[language]", tmp1);
+   AL_CONST char *section;
    AL_CONST char *umsg;
    AL_CONST char *s;
    AL_CONST char *ret = NULL;
@@ -1314,7 +1314,18 @@ AL_CONST char *get_config_text(AL_CONST char *msg)
    int c, pos, size;
    ASSERT(msg);
 
+   /* Hack: the inline definition of install_allegro() from 4.2.0 calls
+    * get_config_text() even before Allegro has been initialised, leading
+    * to a crash in get_executable_name().  To retain binary compatibility
+    * we check for this case.
+    */
+   if (_allegro_count == 0) {
+      return msg;
+   }
+
    init_config(TRUE);
+
+   section = uconvert_ascii("[language]", tmp1);
 
    /* allocate memory and convert message to current encoding format */
    if (need_uconvert(msg, U_ASCII, U_CURRENT)) {
