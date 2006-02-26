@@ -361,7 +361,7 @@ static int alsa_init(int input, int voices)
 	 alsa_bits = 8;
 	 break;
 
-      case SND_PCM_FORMAT_U16_LE:
+      case SND_PCM_FORMAT_U16_NE:
 	 if (sizeof(short) != 2) {
 	    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported sample format"));
 	    goto Error;
