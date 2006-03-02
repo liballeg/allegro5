@@ -1,4 +1,4 @@
-/*         ______   ___    ___ 
+/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \ 
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
@@ -1440,8 +1440,9 @@ static int attach_config_entries(CONFIG *conf, AL_CONST char *section,
 {
    CONFIG_ENTRY *p;
    char section_name[256];
-   prettify_section_name(section, section_name, sizeof(section_name));
    int in_section;
+
+   prettify_section_name(section, section_name, sizeof(section_name));
 
    if (conf) {
       p = conf->head;
