@@ -353,7 +353,6 @@ define MAKE_LIB
    $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -dll -def:lib/msvc/allegro.def -out:$(DLL_NAME) -implib:$(IMPLIB_NAME) $(OBJECTS) $(LIBRARIES)
 endef
 endif
-endef
 
 endif
 
