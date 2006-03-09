@@ -55,6 +55,7 @@ AL_ARRAY(char, allegro_error);
 #define OSTYPE_SUNOS       AL_ID('S','U','N',' ')
 #define OSTYPE_FREEBSD     AL_ID('F','B','S','D')
 #define OSTYPE_NETBSD      AL_ID('N','B','S','D')
+#define OSTYPE_OPENBSD     AL_ID('O','B','S','D')
 #define OSTYPE_IRIX        AL_ID('I','R','I','X')
 #define OSTYPE_DARWIN      AL_ID('D','A','R','W')
 #define OSTYPE_QNX         AL_ID('Q','N','X',' ')

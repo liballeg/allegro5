@@ -32,6 +32,13 @@
 
 
 
+#ifdef HAVE_MPROTECT
+   #include <sys/types.h>
+   #include <sys/mman.h>
+#endif     /* ifdef HAVE_MPROTECT */
+
+
+
 /* helper macro for generating stretchers in each color depth */
 #define DECLARE_STRETCHER(sz, mask, scale)                                   \
 {                                                                            \
@@ -432,10 +439,14 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
 
    COMPILER_RET();
 
+ /* Play nice with executable memory protection: VirtualProtect on Windows,
+  * mprotect on UNIX based systems.
+  */
  #ifdef ALLEGRO_WINDOWS
-   /* Play nice with Windows executable memory protection */
    VirtualProtect(_scratch_mem, _scratch_mem_size, PAGE_EXECUTE_READWRITE, &old_protect);
- #endif     /* ifdef ALLEGRO_WINDOWS */
+ #elif defined(HAVE_MPROTECT)
+   mprotect(_scratch_mem, _scratch_mem_size, PROT_EXEC|PROT_READ|PROT_WRITE);
+ #endif
 
    /* call the stretcher */
    _do_stretch(source, dest, _scratch_mem, sx>>16, sy, syd, 
