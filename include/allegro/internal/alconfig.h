@@ -120,6 +120,10 @@
       #define ALLEGRO_AMD64
       #define _AL_SINCOS(x, s, c)  __asm__ ("fsincos" : "=t" (c), "=u" (s) : "0" (x))
    #endif
+   
+   #ifdef __arm__
+      #define ALLEGRO_ARM
+   #endif
 
    #ifndef AL_CONST
       #define AL_CONST     const
