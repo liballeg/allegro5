@@ -74,12 +74,9 @@ AL_VAR(int, os_multitasking);
 
 #define MAKE_VERSION(a, b, c) (((a)<<16)|((b)<<8)|(c))
 
-AL_FUNC(int, _get_allegro_version, (void));
-AL_FUNC(int, _install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))));
 AL_FUNC(int, _install_allegro_version_check, (int system_id, int *errno_ptr,
    AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void)))), int version));
 
-/* This is only here because of binary compatibility with 4.2.0. */
 AL_INLINE(int, install_allegro, (int system_id, int *errno_ptr,
    AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))),
 {
@@ -87,10 +84,10 @@ AL_INLINE(int, install_allegro, (int system_id, int *errno_ptr,
       MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION));
 })
 
-
 #define allegro_init()  _install_allegro_version_check(SYSTEM_AUTODETECT, &errno, \
    (int (*)(void (*)(void)))atexit, \
    MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION))
+
 AL_FUNC(void, allegro_exit, (void));
 
 AL_PRINTFUNC(void, allegro_message, (AL_CONST char *msg, ...), 1, 2);
