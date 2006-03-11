@@ -1,0 +1,43 @@
+import os
+import SCons
+
+Import('sourceFiles', 'addExtra')
+
+env, files = SConscript('all.scons', exports = [ 'sourceFiles', 'addExtra' ])
+
+## These lines tell SCons to treat .m files like .cpp files
+static_obj, shared_obj = SCons.Tool.createObjBuilders( env )
+shared_obj.add_action( '.m', SCons.Defaults.ShCXXAction )
+shared_obj.add_emitter( '.m', SCons.Defaults.SharedObjectEmitter )
+
+files += sourceFiles('macosx/', Split("""
+cadigi.m
+camidi.m
+drivers.m
+hidjoy.m
+hidman.m
+keybd.m
+main.m
+pcpu.m
+qtmidi.m
+quartz.m
+qzfull.m
+qzmouse.m
+qzwindow.m
+soundman.m
+system.m
+"""));
+
+flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
+includes = ["include", "include/allegro"]
+defines = ["-DHAVE_CONFIG_H", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD", "-DALLEGRO_SHARED"]
+
+env.Append(CCFLAGS = flags)
+env.Append(CCFLAGS = defines)
+env.Append(CPPPATH = includes)
+
+
+cat = Builder(action = "cat $SOURCES > $TARGET")
+env.Append(BUILDERS = {"Cat" : cat})
+
+Return('env', 'files')

@@ -24,6 +24,8 @@
 import os
 import sys
 
+import SCons
+
 def allegroHelp():
     return """
 scons [options] [targets]
@@ -90,6 +92,8 @@ def getLibraryVariables():
         return SConscript('scons/linux.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/unix/" ])
     if getPlatform() == "win32":
         return SConscript('scons/win32.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/win32/" ])
+    if getPlatform() == "darwin":
+        return SConscript('scons/osx.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/macosx/" ])
 
 env, files, libDir = getLibraryVariables()
 
