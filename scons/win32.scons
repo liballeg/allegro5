@@ -19,17 +19,22 @@ env.Append(CPPPATH = includes)
 
 assembler = Builder(action = 'gcc --x assembler-with-cpp $CCFLAGS $SOURCES -c -o $TARGET', src_suffic = '.s', suffic = '.o')
 
+AssemblerAction = Action( 'gcc -x assembler-with-cpp $CCFLAGS $_CPPINCFLAGS $SOURCES -c -o $TARGET' )
+
 import SCons.Tool
 
 static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
-static_obj.src_builder.append('assembler')
-shared_obj.src_builder.append('assembler')
+# static_obj.src_builder.append('assembler')
+# shared_obj.src_builder.append('assembler')
+# shared_obj.add_action('.s', SCons.Defaults.ASAction )
+shared_obj.add_action('.s', AssemblerAction )
+shared_obj.add_emitter('.s', SCons.Defaults.SharedObjectEmitter )
 
 # env.Append(BUILDERS = { 'Assembler' : assembler })
 
 env.Append(LIBS = [ 'kernel32', 'user32', 'gdi32', 'comdlg32', 'ole32', 'dinput', 'ddraw', 'dxguid', 'winmm', 'dsound' ])
 
-files += sourceFiles('c', ['cmiscs.s'])
+# files += sourceFiles('c', ['cmiscs.s'])
 # f = sourceFiles('c', ['cmiscs.s'])
 # for i in f:
 #	files += [env.Assembler(i)]
