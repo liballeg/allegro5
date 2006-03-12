@@ -88,6 +88,7 @@ cotimer.c
 files += sourceFiles('misc/', Split("""
 vector.c
 colconv.c
+ccolconv.c
 """ ));
 
 if False:
