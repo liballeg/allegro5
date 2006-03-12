@@ -385,7 +385,7 @@ static void _xwin_wait_mapped(Window win)
    XEvent event;
    do {
       XMaskEvent(_xwin.display, StructureNotifyMask, &event); 
-   } while ( (event.type != MapNotify) || (event.xmap.event != win) );
+   } while ((event.type != MapNotify) || (event.xmap.event != win));
 }
 
 /* _xwin_create_window:
@@ -767,12 +767,13 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
    if (fullscreen) {
       XSetWindowAttributes setattr;
-      /* local width and height vars used for fullscreen window size and for
-         storing the video_mode size which is then used to center the window */
+      /* Local width and height vars used for fullscreen window size and for
+       * storing the video_mode size which is then used to center the window.
+       */
       int fs_width  = DisplayWidth(_xwin.display, _xwin.screen);
       int fs_height = DisplayHeight(_xwin.display, _xwin.screen);
 
-      /* Create the fullscreen window */
+      /* Create the fullscreen window.  */
       setattr.override_redirect = True;
       setattr.background_pixel = XBlackPixel(_xwin.display, _xwin.screen);
       setattr.border_pixel = XBlackPixel(_xwin.display, _xwin.screen);
@@ -786,13 +787,14 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
                                    CWBackPixel | CWColormap | CWBorderPixel |
                                    CWEventMask, &setattr);
 
-      /* Map the fullscreen window */
+      /* Map the fullscreen window.  */
       XMapRaised(_xwin.display, _xwin.fs_window);
       _xwin_wait_mapped(_xwin.fs_window);
-      /* Make sure we got to the top of the window stack */
+
+      /* Make sure we got to the top of the window stack.  */
       XRaiseWindow(_xwin.display, _xwin.fs_window);
       
-      /* Reparent the real window */
+      /* Reparent the real window.  */
       XReparentWindow(_xwin.display, _xwin.window, _xwin.fs_window, 0, 0);
 
       /* Grab the keyboard and mouse.  */
@@ -812,23 +814,25 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
       /* Try to switch video mode. This must be done after the pointer is
-         grabbed, because otherwise it can be outside the window negating the
-         XF86VidModeSetViewPort done in set_fullscreen. This makes the old
-         center the window hack unnescesarry. Notice that since the XF86VM
-         extension requests do not go through the regular X output buffer? We
-         need to make sure that all above requests are processed first.  */
+       * grabbed, because otherwise it can be outside the window negating the
+       * XF86VidModeSetViewPort done in set_fullscreen. This makes the old
+       * center the window hack unnescesarry. Notice that since the XF86VM
+       * extension requests do not go through the regular X output buffer? We
+       * need to make sure that all above requests are processed first.
+       */
       XSync(_xwin.display, False);
       _xvidmode_private_set_fullscreen(w, h, &fs_width, &fs_height);
 #endif
       
-      /* Center the window (if nescesarry) */
+      /* Center the window (if necessary).  */
       if ((fs_width != w) || (fs_height != h))
          XMoveWindow(_xwin.display, _xwin.window, (fs_width - w) / 2,
             (fs_height - h) / 2);
 
-      /* Last: center the cursor */
+      /* Last: center the cursor.  */
       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w / 2, h / 2);
-   } else {
+   }
+   else {
       XSizeHints *hints = XAllocSizeHints();;
 
       /* Resize managed window.  */
@@ -844,7 +848,7 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
          XFree(hints);
       }
       
-      /* Map the window managed window */
+      /* Map the window managed window.  */
       XMapWindow(_xwin.display, _xwin.wm_window);
       _xwin_wait_mapped(_xwin.wm_window);
    }
@@ -935,8 +939,9 @@ static void _xwin_private_destroy_screen(void)
       XDestroyWindow(_xwin.display, _xwin.fs_window);
       _xwin.fs_window = None;
    }
-   else
+   else {
       XUnmapWindow (_xwin.display, _xwin.wm_window);
+   }
 
    (*_xwin_window_defaultor)();
 }
@@ -2759,7 +2764,8 @@ static int cmpmodes(const void *va, const void *vb)
 {
     const XF86VidModeModeInfo *a = *(const XF86VidModeModeInfo **)va;
     const XF86VidModeModeInfo *b = *(const XF86VidModeModeInfo **)vb;
-    if ( a->hdisplay == b->hdisplay )
+
+    if (a->hdisplay == b->hdisplay)
         return b->vdisplay - a->vdisplay;  
     else
         return b->hdisplay - a->hdisplay;
@@ -2791,7 +2797,7 @@ static void _xvidmode_private_set_fullscreen(int w, int h, int *vidmode_width,
 				   &_xwin.num_modes, &_xwin.modesinfo))
       return;
 
-   /* Remember the mode to restore */
+   /* Remember the mode to restore.  */
    _xwin.orig_modeinfo = _xwin.modesinfo[0];
 
    /* Search for an exact matching video mode.  */
@@ -2806,15 +2812,16 @@ static void _xvidmode_private_set_fullscreen(int w, int h, int *vidmode_width,
       int best_width = 0, best_height = 0;
       qsort(_xwin.modesinfo, _xwin.num_modes, sizeof(void *), cmpmodes);
       for (i = _xwin.num_modes-1; i > 0; i--) {
-          if ( ! best_width ) {
-              if ( (_xwin.modesinfo[i]->hdisplay >= w) &&
-                   (_xwin.modesinfo[i]->vdisplay >= h) ) {
+          if (!best_width) {
+              if ((_xwin.modesinfo[i]->hdisplay >= w) &&
+                  (_xwin.modesinfo[i]->vdisplay >= h)) {
                   best_width = _xwin.modesinfo[i]->hdisplay;   
                   best_height = _xwin.modesinfo[i]->vdisplay;  
               }
-          } else {
-              if ( (_xwin.modesinfo[i]->hdisplay != best_width) ||
-                   (_xwin.modesinfo[i]->vdisplay != best_height) ) {
+          }
+	  else {
+              if ((_xwin.modesinfo[i]->hdisplay != best_width) ||
+                  (_xwin.modesinfo[i]->vdisplay != best_height)) {
                   i++;
                   break;
               }
@@ -2829,10 +2836,11 @@ static void _xvidmode_private_set_fullscreen(int w, int h, int *vidmode_width,
       *vidmode_width  = _xwin.orig_modeinfo->hdisplay;
       *vidmode_height = _xwin.orig_modeinfo->vdisplay;
       _xwin.orig_modeinfo = NULL;
-   } else {
+   }
+   else {
       *vidmode_width  = _xwin.modesinfo[i]->hdisplay;
       *vidmode_height = _xwin.modesinfo[i]->vdisplay;
-      /* only kept / set for compatibility with apps which check this */
+      /* Only kept / set for compatibility with apps which check this.  */
       _xwin.mode_switched = 1;
    }
    
@@ -2902,13 +2910,13 @@ static GFX_MODE_LIST *_xwin_private_fetch_mode_list(void)
    int vid_major_version, vid_minor_version;
    XF86VidModeModeInfo **modesinfo;
    
-         /* Test that display is local.  */
-   if (  _xwin_private_display_is_local() && 
-         /* Test for presence of VidMode extension.  */
-         XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base) &&
-         XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version) &&
-         /* Get list of modelines.  */
-         XF86VidModeGetAllModeLines(_xwin.display, _xwin.screen, &num_modes, &modesinfo))
+   /* Test that display is local.  */
+   if (_xwin_private_display_is_local() && 
+       /* Test for presence of VidMode extension.  */
+       XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base) &&
+       XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version) &&
+       /* Get list of modelines.  */
+       XF86VidModeGetAllModeLines(_xwin.display, _xwin.screen, &num_modes, &modesinfo))
       has_vidmode = 1;
 #endif
 
@@ -2940,16 +2948,11 @@ static GFX_MODE_LIST *_xwin_private_fetch_mode_list(void)
 
    mode_list->mode = _AL_MALLOC(sizeof(GFX_MODE) * ((num_modes * num_bpp) + 1));
    if (!mode_list->mode) {
-<<<<<<< .mine
       _AL_FREE(mode_list);
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
       if (has_vidmode)
          free_modelines(modesinfo, num_modes);
 #endif
-=======
-      _AL_FREE(mode_list);
-      free_modelines(modesinfo, num_modes);
->>>>>>> .r5747
       return 0;
    }
 
