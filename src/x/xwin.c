@@ -142,7 +142,12 @@ struct _xwin_type _xwin =
    NULL,        /* mutex */
 #endif
 
-   NULL         /* window close hook */
+   NULL,        /* window close hook */
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   0,           /* orig_modeinfo */
+#endif
+   None,        /* fs_window */
+   None         /* wm_window */
 };
 
 void *allegro_icon = alex_xpm;
@@ -199,7 +204,6 @@ static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int t
 static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to);
 static void _xwin_private_set_window_defaults(void);
 static void _xwin_private_flush_buffers(void);
-static void _xwin_private_resize_window(int w, int h);
 static void _xwin_private_process_event(XEvent *event);
 static void _xwin_private_set_warped_mouse_mode(int permanent);
 static void _xwin_private_redraw_window(int x, int y, int w, int h);
@@ -261,7 +265,8 @@ static void _xwin_private_slow_palette_24(int sx, int sy, int sw, int sh);
 static void _xwin_private_slow_palette_32(int sx, int sy, int sw, int sh);
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-static int _xvidmode_private_set_fullscreen(int w, int h);
+static void _xvidmode_private_set_fullscreen(int w, int h, int *vidmode_width,
+   int *vidmode_height);
 static void _xvidmode_private_unset_fullscreen(void);
 #endif
 
@@ -372,10 +377,31 @@ static void _xwin_hide_x_mouse(void)
    }
 }
 
-
+/* _xwin_wait_mapped:
+ * wait for a window to become mapped. (shamelessly borrowed from SDL)
+ */
+static void _xwin_wait_mapped(Window win)
+{
+   XEvent event;
+   do {
+      XMaskEvent(_xwin.display, StructureNotifyMask, &event); 
+   } while ( (event.type != MapNotify) || (event.xmap.event != win) );
+}
 
 /* _xwin_create_window:
- *  Wrapper for XCreateWindow.
+ * We use 3 windows:
+ * -fs_window (for fullscreen)
+ * -wm_window (window managed)
+ * -window    (the real window)
+ * 2 of which will be created here: wm_window and window. The fullscreen
+ * window gets (re)created when needed, because reusing it causes trouble see:
+ * http://sourceforge.net/tracker/index.php?func=detail&aid=1441740&group_id=5665&atid=105665
+ * The real window uses wm_window as parent initially and will be reparened to
+ * the (freshly created) fullscreen window when requested and reparented
+ * back again in screen_destroy.
+ * 
+ * Idea / concept of 3 windows borrowed from SDL. But somehow SDL manages
+ * to reuse the fullscreen window too.
  */
 static int _xwin_private_create_window(void)
 {
@@ -389,21 +415,23 @@ static int _xwin_private_create_window(void)
 
    _mouse_on = FALSE;
 
-   /* Create window.  */
+   /* Create the managed window. */
+   setattr.background_pixel = XBlackPixel(_xwin.display, _xwin.screen);
    setattr.border_pixel = XBlackPixel(_xwin.display, _xwin.screen);
-   setattr.event_mask = (KeyPressMask | KeyReleaseMask
+   setattr.event_mask = (KeyPressMask | KeyReleaseMask | StructureNotifyMask
 			 | EnterWindowMask | LeaveWindowMask
 			 | FocusChangeMask | ExposureMask | PropertyChangeMask
 			 | ButtonPressMask | ButtonReleaseMask | PointerMotionMask
 			 /*| MappingNotifyMask (SubstructureRedirectMask?)*/);
-   _xwin.window = XCreateWindow(_xwin.display, XDefaultRootWindow(_xwin.display),
+   _xwin.wm_window = XCreateWindow(_xwin.display,
+				XDefaultRootWindow(_xwin.display),
 				0, 0, 320, 200, 0,
 				CopyFromParent, InputOutput, CopyFromParent,
-				CWBorderPixel | CWEventMask, &setattr);
-
+				CWBackPixel | CWBorderPixel | CWEventMask,
+				&setattr);
 
    /* Get associated visual and window depth (bits per pixel).  */
-   XGetWindowAttributes(_xwin.display, _xwin.window, &getattr);
+   XGetWindowAttributes(_xwin.display, _xwin.wm_window, &getattr);
    _xwin.visual = getattr.visual;
    _xwin.window_depth = getattr.depth;
 
@@ -411,15 +439,27 @@ static int _xwin_private_create_window(void)
    if ((_xwin.visual->class == PseudoColor)
        || (_xwin.visual->class == GrayScale)
        || (_xwin.visual->class == DirectColor))
-      _xwin.colormap = XCreateColormap(_xwin.display, _xwin.window, _xwin.visual, AllocAll);
+      _xwin.colormap = XCreateColormap(_xwin.display, _xwin.wm_window, _xwin.visual, AllocAll);
    else
-      _xwin.colormap = XCreateColormap(_xwin.display, _xwin.window, _xwin.visual, AllocNone);
-   XSetWindowColormap(_xwin.display, _xwin.window, _xwin.colormap);
+      _xwin.colormap = XCreateColormap(_xwin.display, _xwin.wm_window, _xwin.visual, AllocNone);
+   XSetWindowColormap(_xwin.display, _xwin.wm_window, _xwin.colormap);
    XInstallColormap(_xwin.display, _xwin.colormap);
+   
+   /* Create the real / drawing window (reuses setattr). */
+   setattr.colormap = _xwin.colormap;
+   _xwin.window = XCreateWindow(_xwin.display,
+				_xwin.wm_window,
+				0, 0, 320, 200, 0,
+				CopyFromParent, InputOutput, CopyFromParent,
+				CWBackPixel | CWBorderPixel | CWEventMask |
+				CWColormap, &setattr);
 
+   /* Map the real / drawing window it won't appear untill the parent does */
+   XMapWindow(_xwin.display, _xwin.window);
+   
    /* Set WM_DELETE_WINDOW atom in WM_PROTOCOLS property (to get window_delete requests).  */
    wm_delete_window = XInternAtom (_xwin.display, "WM_DELETE_WINDOW", False);
-   XSetWMProtocols (_xwin.display, _xwin.window, &wm_delete_window, 1);
+   XSetWMProtocols (_xwin.display, _xwin.wm_window, &wm_delete_window, 1);
 
    /* Set default window parameters.  */
    (*_xwin_window_defaultor)();
@@ -493,6 +533,11 @@ static void _xwin_private_destroy_window(void)
       XUnmapWindow(_xwin.display, _xwin.window);
       XDestroyWindow(_xwin.display, _xwin.window);
       _xwin.window = None;
+   }
+
+   if (_xwin.wm_window != None) {
+      XDestroyWindow(_xwin.display, _xwin.wm_window);
+      _xwin.wm_window = None;
    }
 }
 
@@ -673,10 +718,6 @@ static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv)
 static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 					   int vw, int vh, int depth, int fullscreen)
 {
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-   XSetWindowAttributes setattr;
-#endif
-
    if (_xwin.window == None) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("No window"));
       return 0;
@@ -711,55 +752,48 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
       return 0;
    }
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-   /* If we are going fullscreen, disable window decorations.  */
-   if (fullscreen) {
-      setattr.override_redirect = True;
-      XChangeWindowAttributes(_xwin.display, _xwin.window,
-			      CWOverrideRedirect, &setattr);
-      _xwin.override_redirected = 1;
-   }
-#endif
-
-   /* Set window size and save dimensions.  */
-   _xwin_private_resize_window(w, h);
+   
+   /* Save dimensions.  */
+   _xwin.window_width = w;
+   _xwin.window_height = h;
    _xwin.screen_width = w;
    _xwin.screen_height = h;
    _xwin.screen_depth = depth;
    _xwin.virtual_width = vw;
    _xwin.virtual_height = vh;
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   /* Resize the (real) window */
+   XResizeWindow(_xwin.display, _xwin.window, w, h);
+
    if (fullscreen) {
-      AL_CONST char *fc;
-      char tmp1[64], tmp2[128];
-      int i;
+      XSetWindowAttributes setattr;
+      /* local width and height vars used for fullscreen window size and for
+         storing the video_mode size which is then used to center the window */
+      int fs_width  = DisplayWidth(_xwin.display, _xwin.screen);
+      int fs_height = DisplayHeight(_xwin.display, _xwin.screen);
 
-      /* Switch video mode.  */
-      if (!_xvidmode_private_set_fullscreen(w, h)) {
-	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
-	 return 0;
-      }
+      /* Create the fullscreen window */
+      setattr.override_redirect = True;
+      setattr.background_pixel = XBlackPixel(_xwin.display, _xwin.screen);
+      setattr.border_pixel = XBlackPixel(_xwin.display, _xwin.screen);
+      setattr.event_mask = StructureNotifyMask;
+      setattr.colormap = _xwin.colormap;
+      _xwin.fs_window = XCreateWindow(_xwin.display,
+                                   XDefaultRootWindow(_xwin.display),
+                                   0, 0, fs_width, fs_height, 0,
+                                   CopyFromParent, InputOutput,
+                                   CopyFromParent, CWOverrideRedirect |
+                                   CWBackPixel | CWColormap | CWBorderPixel |
+                                   CWEventMask, &setattr);
 
-      /* Hack: make the window fully visible and center cursor.  */
-      XMoveWindow(_xwin.display, _xwin.window, 0, 0);
-      XF86VidModeSetViewPort(_xwin.display, _xwin.screen, 0, 0);
-
-      /* This chunk is disabled by default because of problems on KDE desktops.  */
-      fc = get_config_string(uconvert_ascii("graphics", tmp1),
-			     uconvert_ascii("force_centering", tmp2),
-			     NULL);
-
-      if ((fc) && ((i = ugetc(fc)) != 0) && ((i == 'y') || (i == 'Y') || (i == '1'))) {
-	 XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, 0);
-	 XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, 0);
-	 XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, h - 1);
-	 XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, h - 1);
-      }
-
-      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w / 2, h / 2);
-      XSync(_xwin.display, False);
+      /* Map the fullscreen window */
+      XMapRaised(_xwin.display, _xwin.fs_window);
+      _xwin_wait_mapped(_xwin.fs_window);
+      /* Make sure we got to the top of the window stack */
+      XRaiseWindow(_xwin.display, _xwin.fs_window);
+      
+      /* Reparent the real window */
+      XReparentWindow(_xwin.display, _xwin.window, _xwin.fs_window, 0, 0);
 
       /* Grab the keyboard and mouse.  */
       if (XGrabKeyboard(_xwin.display, XDefaultRootWindow(_xwin.display), False,
@@ -775,8 +809,45 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 	 return 0;
       }
       _xwin.mouse_grabbed = 1;
-   }
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+      /* Try to switch video mode. This must be done after the pointer is
+         grabbed, because otherwise it can be outside the window negating the
+         XF86VidModeSetViewPort done in set_fullscreen. This makes the old
+         center the window hack unnescesarry. Notice that since the XF86VM
+         extension requests do not go through the regular X output buffer? We
+         need to make sure that all above requests are processed first.  */
+      XSync(_xwin.display, False);
+      _xvidmode_private_set_fullscreen(w, h, &fs_width, &fs_height);
 #endif
+      
+      /* Center the window (if nescesarry) */
+      if ((fs_width != w) || (fs_height != h))
+         XMoveWindow(_xwin.display, _xwin.window, (fs_width - w) / 2,
+            (fs_height - h) / 2);
+
+      /* Last: center the cursor */
+      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w / 2, h / 2);
+   } else {
+      XSizeHints *hints = XAllocSizeHints();;
+
+      /* Resize managed window.  */
+      XResizeWindow(_xwin.display, _xwin.wm_window, w, h);
+      
+      /* Set size and position hints for Window Manager.  */
+      if (hints) {
+         hints->flags = PMinSize | PMaxSize | PBaseSize;
+         hints->min_width  = hints->max_width  = hints->base_width  = w;
+         hints->min_height = hints->max_height = hints->base_height = h;
+         XSetWMNormalHints(_xwin.display, _xwin.wm_window, hints);
+
+         XFree(hints);
+      }
+      
+      /* Map the window managed window */
+      XMapWindow(_xwin.display, _xwin.wm_window);
+      _xwin_wait_mapped(_xwin.wm_window);
+   }
 
    /* Create XImage with the size of virtual screen.  */
    if (_xwin_private_create_ximage(vw, vh) != 0) {
@@ -804,12 +875,6 @@ BITMAP *_xwin_create_screen(GFX_DRIVER *drv, int w, int h,
    bmp = _xwin_private_create_screen(drv, w, h, vw, vh, depth, fullscreen);
    if (bmp == 0) {
       _xwin_private_destroy_screen();
-      /* Work around a weird bug with some window managers (KWin, Window Maker).  */
-      if (fullscreen) {
-	 bmp = _xwin_private_create_screen(drv, w, h, vw, vh, depth, fullscreen);
-	 if (bmp == 0)
-	    _xwin_private_destroy_screen();
-      }
    }
    XUNLOCK();
    return bmp;
@@ -843,7 +908,6 @@ static void _xwin_private_destroy_screen(void)
 
    _xwin_private_destroy_ximage();
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    if (_xwin.mouse_grabbed) {
       XUngrabPointer(_xwin.display, CurrentTime);
       _xwin.mouse_grabbed = 0;
@@ -854,14 +918,8 @@ static void _xwin_private_destroy_screen(void)
       _xwin.keyboard_grabbed = 0;
    }
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    _xvidmode_private_unset_fullscreen();
-
-   if (_xwin.override_redirected) {
-      setattr.override_redirect = False;
-      XChangeWindowAttributes(_xwin.display, _xwin.window,
-			      CWOverrideRedirect, &setattr);
-      _xwin.override_redirected = 0;
-   }
 #endif
 
    /* whack color-conversion blitter */
@@ -869,8 +927,16 @@ static void _xwin_private_destroy_screen(void)
       _release_colorconv_blitter(blitter_func);
       blitter_func = NULL;
    }
-
-   XUnmapWindow (_xwin.display, _xwin.window);
+   
+   if (_xwin.fs_window != None) {
+      /* Reparent the real window! */
+      XReparentWindow(_xwin.display, _xwin.window, _xwin.wm_window, 0, 0);
+      XUnmapWindow(_xwin.display, _xwin.fs_window);
+      XDestroyWindow(_xwin.display, _xwin.fs_window);
+      _xwin.fs_window = None;
+   }
+   else
+      XUnmapWindow (_xwin.display, _xwin.wm_window);
 
    (*_xwin_window_defaultor)();
 }
@@ -2139,31 +2205,31 @@ static void _xwin_private_set_window_defaults(void)
    XpmAttributes attributes;
 #endif
 
-   if (_xwin.window == None)
+   if (_xwin.wm_window == None)
       return;
 
    /* Set window title.  */
-   XStoreName(_xwin.display, _xwin.window, _xwin.window_title);
+   XStoreName(_xwin.display, _xwin.wm_window, _xwin.window_title);
 
    /* Set hints.  */
    hint.res_name = _xwin.application_name;
    hint.res_class = _xwin.application_class;
-   XSetClassHint(_xwin.display, _xwin.window, &hint);
+   XSetClassHint(_xwin.display, _xwin.wm_window, &hint);
 
    wm_hints.flags = InputHint | StateHint | WindowGroupHint;
    wm_hints.input = True;
    wm_hints.initial_state = NormalState;
-   wm_hints.window_group = _xwin.window;
+   wm_hints.window_group = _xwin.wm_window;
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XPM
    if (allegro_icon) {
       wm_hints.flags |= IconPixmapHint | IconMaskHint;
       attributes.valuemask = XpmReturnAllocPixels | XpmReturnExtensions;
-      XpmCreatePixmapFromData(_xwin.display,_xwin.window,allegro_icon,&wm_hints.icon_pixmap,&wm_hints.icon_mask, &attributes);
+      XpmCreatePixmapFromData(_xwin.display,_xwin.wm_window,allegro_icon,&wm_hints.icon_pixmap,&wm_hints.icon_mask, &attributes);
    }
 #endif
 
-   XSetWMHints(_xwin.display, _xwin.window, &wm_hints);
+   XSetWMHints(_xwin.display, _xwin.wm_window, &wm_hints);
 }
 
 
@@ -2211,41 +2277,6 @@ void _xwin_vsync(void)
       XUNLOCK();
    }
 }
-
-
-
-/* _xwin_resize_window:
- *  Wrapper for XResizeWindow.
- */
-static void _xwin_private_resize_window(int w, int h)
-{
-   XSizeHints *hints;
-
-   if (_xwin.window == None)
-      return;
-
-   /* New window size.  */
-   _xwin.window_width = w;
-   _xwin.window_height = h;
-
-   /* Resize window.  */
-   XUnmapWindow(_xwin.display, _xwin.window);
-   XResizeWindow(_xwin.display, _xwin.window, w, h);
-   XMapWindow(_xwin.display, _xwin.window);
-
-   hints = XAllocSizeHints();
-   if (hints == 0)
-      return;
-
-   /* Set size and position hints for Window Manager.  */
-   hints->flags = PMinSize | PMaxSize | PBaseSize;
-   hints->min_width  = hints->max_width  = hints->base_width  = w;
-   hints->min_height = hints->max_height = hints->base_height = h;
-   XSetWMNormalHints(_xwin.display, _xwin.window, hints);
-
-   XFree(hints);
-}
-
 
 
 /* _xwin_process_event:
@@ -2723,51 +2754,93 @@ void _xwin_unwrite_line(BITMAP *bmp)
  * Support for XF86VidMode extension.
  */
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+/* qsort comparison function for sorting the modes */
+static int cmpmodes(const void *va, const void *vb)
+{
+    const XF86VidModeModeInfo *a = *(const XF86VidModeModeInfo **)va;
+    const XF86VidModeModeInfo *b = *(const XF86VidModeModeInfo **)vb;
+    if ( a->hdisplay == b->hdisplay )
+        return b->vdisplay - a->vdisplay;  
+    else
+        return b->hdisplay - a->hdisplay;
+}
+
 /* _xvidmode_private_set_fullscreen:
- *  Attempt to switch video mode and make window fullscreen.
+ *  Attempt to switch to a better matching video mode.
+ *  Matching code for non exact match (smallest bigger res) rather shamelessly
+ *  taken from SDL.
  */
-static int _xvidmode_private_set_fullscreen(int w, int h)
+static void _xvidmode_private_set_fullscreen(int w, int h, int *vidmode_width,
+   int *vidmode_height)
 {
    int vid_event_base, vid_error_base;
    int vid_major_version, vid_minor_version;
-   XF86VidModeModeInfo *mode;
    int i;
-
+   
    /* Test that display is local.  */
-   if (!_xwin_private_display_is_local()) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VidMode extension requires local display"));
-      return 0;
-   }
+   if (!_xwin_private_display_is_local())
+      return;
 
    /* Test for presence of VidMode extension.  */
    if (!XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base)
-       || !XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VidMode extension is not supported"));
-      return 0;
-   }
+       || !XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version))
+      return;
 
    /* Get list of modelines.  */
    if (!XF86VidModeGetAllModeLines(_xwin.display, _xwin.screen,
 				   &_xwin.num_modes, &_xwin.modesinfo))
-      return 0;
+      return;
 
-   /* Search for a matching video mode.  */
+   /* Remember the mode to restore */
+   _xwin.orig_modeinfo = _xwin.modesinfo[0];
+
+   /* Search for an exact matching video mode.  */
    for (i = 0; i < _xwin.num_modes; i++) {
-      mode = _xwin.modesinfo[i];
-      if ((mode->hdisplay == w) && (mode->vdisplay == h)) {
-	 /* Switch video mode.  */
-	 if (!XF86VidModeSwitchToMode(_xwin.display, _xwin.screen, mode))
-	    return 0;
-
-	 /* Lock mode switching.  */
-	 XF86VidModeLockModeSwitch(_xwin.display, _xwin.screen, True);
-
-	 _xwin.mode_switched = 1;
-	 return 1;
-      }
+      if ((_xwin.modesinfo[i]->hdisplay == w) && 
+          (_xwin.modesinfo[i]->vdisplay == h))
+         break;
    }
 
-   return 0;
+   /* Search for a non exact match (smallest bigger res).  */
+   if (i == _xwin.num_modes) {
+      int best_width = 0, best_height = 0;
+      qsort(_xwin.modesinfo, _xwin.num_modes, sizeof(void *), cmpmodes);
+      for (i = _xwin.num_modes-1; i > 0; i--) {
+          if ( ! best_width ) {
+              if ( (_xwin.modesinfo[i]->hdisplay >= w) &&
+                   (_xwin.modesinfo[i]->vdisplay >= h) ) {
+                  best_width = _xwin.modesinfo[i]->hdisplay;   
+                  best_height = _xwin.modesinfo[i]->vdisplay;  
+              }
+          } else {
+              if ( (_xwin.modesinfo[i]->hdisplay != best_width) ||
+                   (_xwin.modesinfo[i]->vdisplay != best_height) ) {
+                  i++;
+                  break;
+              }
+          }
+      }
+   }
+      
+   /* Switch video mode.  */
+   if ((_xwin.modesinfo[i] == _xwin.orig_modeinfo) ||
+       !XF86VidModeSwitchToMode(_xwin.display, _xwin.screen,
+         _xwin.modesinfo[i])) {
+      *vidmode_width  = _xwin.orig_modeinfo->hdisplay;
+      *vidmode_height = _xwin.orig_modeinfo->vdisplay;
+      _xwin.orig_modeinfo = NULL;
+   } else {
+      *vidmode_width  = _xwin.modesinfo[i]->hdisplay;
+      *vidmode_height = _xwin.modesinfo[i]->vdisplay;
+      /* only kept / set for compatibility with apps which check this */
+      _xwin.mode_switched = 1;
+   }
+   
+   /* Lock mode switching.  */
+   XF86VidModeLockModeSwitch(_xwin.display, _xwin.screen, True);
+	 
+   /* Set viewport. */
+   XF86VidModeSetViewPort(_xwin.display, _xwin.screen, 0, 0);
 }
 
 
@@ -2793,13 +2866,15 @@ static void free_modelines(XF86VidModeModeInfo **modesinfo, int num_modes)
 static void _xvidmode_private_unset_fullscreen(void)
 {
    if (_xwin.num_modes > 0) {
-      if (_xwin.mode_switched) {
-	 /* Unlock mode switching.  */
-	 XF86VidModeLockModeSwitch(_xwin.display, _xwin.screen, False);
+      /* Unlock mode switching.  */
+      XF86VidModeLockModeSwitch(_xwin.display, _xwin.screen, False);
 
+      if (_xwin.orig_modeinfo) {
 	 /* Restore the original video mode.  */
-	 XF86VidModeSwitchToMode(_xwin.display, _xwin.screen, _xwin.modesinfo[0]);
-
+	 XF86VidModeSwitchToMode(_xwin.display, _xwin.screen,
+            _xwin.orig_modeinfo);
+         _xwin.orig_modeinfo = 0;
+         /* only kept / set for compatibility with apps which check this */
 	 _xwin.mode_switched = 0;
       }
 
@@ -2809,36 +2884,35 @@ static void _xvidmode_private_unset_fullscreen(void)
       _xwin.modesinfo = 0;
    }
 }
+#endif
 
 
 
-/* _xvidmode_private_fetch_mode_list:
+/* _xwin_private_fetch_mode_list:
  *  Generates a list of valid video modes.
  */
-static GFX_MODE_LIST *_xvidmode_private_fetch_mode_list(void)
+static GFX_MODE_LIST *_xwin_private_fetch_mode_list(void)
 {
+   int num_modes = 1, num_bpp = 0;
+   GFX_MODE_LIST *mode_list;
+   int i, j;
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   int has_vidmode = 0;
    int vid_event_base, vid_error_base;
    int vid_major_version, vid_minor_version;
    XF86VidModeModeInfo **modesinfo;
-   int num_modes, num_bpp;
-   GFX_MODE_LIST *mode_list;
-   int i, j;
-
-   /* Test that display is local.  */
-   if (!_xwin_private_display_is_local())
-      return 0;
-
-   /* Test for presence of VidMode extension.  */
-   if (!XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base)
-       || !XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version))
-      return 0;
-
-   /* Get list of modelines.  */
-   if (!XF86VidModeGetAllModeLines(_xwin.display, _xwin.screen, &num_modes, &modesinfo))
-      return 0;
+   
+         /* Test that display is local.  */
+   if (  _xwin_private_display_is_local() && 
+         /* Test for presence of VidMode extension.  */
+         XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base) &&
+         XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version) &&
+         /* Get list of modelines.  */
+         XF86VidModeGetAllModeLines(_xwin.display, _xwin.screen, &num_modes, &modesinfo))
+      has_vidmode = 1;
+#endif
 
    /* Calculate the number of color depths we have to support.  */
-   num_bpp = 0;
 #ifdef ALLEGRO_COLOR8
    num_bpp++;
 #endif
@@ -2857,25 +2931,53 @@ static GFX_MODE_LIST *_xvidmode_private_fetch_mode_list(void)
    /* Allocate space for mode list.  */
    mode_list = _AL_MALLOC(sizeof(GFX_MODE_LIST));
    if (!mode_list) {
-      free_modelines(modesinfo, num_modes);
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+      if (has_vidmode)
+         free_modelines(modesinfo, num_modes);
+#endif
       return 0;
    }
 
    mode_list->mode = _AL_MALLOC(sizeof(GFX_MODE) * ((num_modes * num_bpp) + 1));
    if (!mode_list->mode) {
+<<<<<<< .mine
+      _AL_FREE(mode_list);
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+      if (has_vidmode)
+         free_modelines(modesinfo, num_modes);
+#endif
+=======
       _AL_FREE(mode_list);
       free_modelines(modesinfo, num_modes);
+>>>>>>> .r5747
       return 0;
    }
 
    /* Fill in mode list.  */
    j = 0;
    for (i = 0; i < num_modes; i++) {
-#define ADD_MODE(BPP)					    \
+
+#define ADD_SCREEN_MODE(BPP)                                                  \
+      mode_list->mode[j].width  = DisplayWidth(_xwin.display, _xwin.screen);  \
+      mode_list->mode[j].height = DisplayHeight(_xwin.display, _xwin.screen); \
+      mode_list->mode[j].bpp = BPP;			                      \
+      j++
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+#define ADD_VIDMODE_MODE(BPP)			            \
       mode_list->mode[j].width = modesinfo[i]->hdisplay;    \
       mode_list->mode[j].height = modesinfo[i]->vdisplay;   \
       mode_list->mode[j].bpp = BPP;			    \
       j++
+#define ADD_MODE(BPP)                                       \
+      if (has_vidmode) {                                    \
+         ADD_VIDMODE_MODE(BPP);                             \
+      } else {                                              \
+         ADD_SCREEN_MODE(BPP);                              \
+      }
+#else
+#define ADD_MODE(BPP) ADD_SCREEN_MODE(BPP)
+#endif
+
 #ifdef ALLEGRO_COLOR8
       ADD_MODE(8);
 #endif
@@ -2896,11 +2998,13 @@ static GFX_MODE_LIST *_xvidmode_private_fetch_mode_list(void)
    mode_list->mode[j].bpp = 0;
    mode_list->num_modes = j;
 
-   free_modelines(modesinfo, num_modes);
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   if (has_vidmode)
+      free_modelines(modesinfo, num_modes);
+#endif
 
    return mode_list;
 }
-#endif
 
 
 
@@ -2909,15 +3013,11 @@ static GFX_MODE_LIST *_xvidmode_private_fetch_mode_list(void)
  */
 GFX_MODE_LIST *_xwin_fetch_mode_list(void)
 {
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    GFX_MODE_LIST *list;
    XLOCK();
-   list = _xvidmode_private_fetch_mode_list();
+   list = _xwin_private_fetch_mode_list();
    XUNLOCK();
    return list;
-#else
-   return 0;
-#endif
 }
 
 

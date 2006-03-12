@@ -124,8 +124,8 @@ extern struct _xwin_type
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    XF86VidModeModeInfo **modesinfo;
    int num_modes;
-   int mode_switched;
-   int override_redirected;
+   int mode_switched;       /* only kept around and set for ABI compat */
+   int override_redirected; /* no longer used, kept for ABI compat */
 #endif
 
    char window_title[1024];
@@ -139,6 +139,18 @@ extern struct _xwin_type
 #endif
 
    void (*close_button_callback)(void);
+   
+   /* These are at the end of the struct to maintain abi compat with
+      allegro-4.2.0 (if and only if compiled with the same configuration).
+      Notice that IMHO apps really shouldnot be using _xwin, but we export it,
+      so its fair game. */
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   XF86VidModeModeInfo *orig_modeinfo;
+#endif
+   /* Seperate fullscreen and managed window id's, see
+      _xwin_private_create_window in src/x/xwin.c for more details. */
+   Window fs_window;
+   Window wm_window;
 } _xwin;
 
 
