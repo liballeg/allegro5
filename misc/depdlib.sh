@@ -145,7 +145,7 @@ fi
 
 # Special rule to create the plugins.h file
 inc_files=`echo tools/plugins/*.inc | sed 's,tools/plugins/,$(srcdir)/tools/plugins/,g'`
-echo "\$(OBJDIR)/plugins.h: $inc_files"
-echo "	cat $inc_files > tools/plugins/plugins.h"
+echo "\$(plugins_h): $inc_files"
+echo "	cat $inc_files > \$(plugins_h)"
 echo ""
 

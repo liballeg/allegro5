@@ -96,6 +96,7 @@ ALLEGRO_MODULE_TARGETS = @ALLEGRO_MODULE_TARGETS@
 
 PLUGIN_LIB = @PLUGIN_LIB@
 obj_unix_plugins_h = $(OBJDIR)/plugins.h
+plugins_h = tools/plugins.h
 
 default: $(DEFAULT_TARGETS)
 
