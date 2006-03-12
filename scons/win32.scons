@@ -1,7 +1,6 @@
 Import('sourceFiles', 'addExtra')
 
 import os
-import checks
 
 env, files = SConscript('all.scons', exports = [ 'sourceFiles', 'addExtra' ])
 
@@ -11,13 +10,14 @@ env, files = SConscript('all.scons', exports = [ 'sourceFiles', 'addExtra' ])
 
 flags = [ '-g', '-Wall', '-Wno-unused', '-O2', '-funroll-loops', '-ffast-math', '-fomit-frame-pointer' ]
 includes = [ "include", "include/allegro" ]
-defines = [ "-DALLEGRO_SRC", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD" ]
+# defines = [ "-DALLEGRO_SRC", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD" ]
+defines = [ "-DALLEGRO_SRC", "-DALLEGRO_LIB_BUILD" ]
 
 env.Append(CCFLAGS = flags)
 env.Append(CCFLAGS = defines)
 env.Append(CPPPATH = includes)
 
-assembler = Builder(action = 'gcc --x assembler-with-cpp $CCFLAGS $SOURCES -c -o $TARGET', src_suffic = '.s', suffic = '.o')
+# assembler = Builder(action = 'gcc --x assembler-with-cpp $CCFLAGS $SOURCES -c -o $TARGET', src_suffic = '.s', suffic = '.o')
 
 AssemblerAction = Action( 'gcc -x assembler-with-cpp $CCFLAGS $_CPPINCFLAGS $SOURCES -c -o $TARGET' )
 
@@ -39,7 +39,43 @@ env.Append(LIBS = [ 'kernel32', 'user32', 'gdi32', 'comdlg32', 'ole32', 'dinput'
 # for i in f:
 #	files += [env.Assembler(i)]
 
-files += sourceFiles('win', Split("""
+def addFiles(dir,fileList):
+	files.extend(sourceFiles( dir, fileList))
+
+addFiles('c',Split("""
+"""));
+# cmiscs.s
+
+addFiles('i386', Split("""
+iblit8.s
+iblit16.s
+iblit24.s
+iblit32.s
+icpu.c
+icpus.s
+icsprite.c
+igfx8.s
+igfx15.s
+igfx16.s
+igfx24.s
+igfx32.s
+imisc.s
+iscan.s
+iscanmmx.s
+ispr8.s
+ispr15.s
+ispr16.s
+ispr24.s
+ispr32.s
+istretch.c
+izbuf.s
+"""));
+
+addFiles('misc',Split("""
+icolconv.s
+"""));
+
+addFiles('win', Split("""
 asmlock.s
 gdi.c
 wddaccel.c

@@ -88,39 +88,39 @@ cotimer.c
 files += sourceFiles('misc/', Split("""
 vector.c
 colconv.c
-ccolconv.c
 """ ));
 
-files += sourceFiles('c/', Split("""
-cblit16.c
-cblit24.c
-cblit32.c
-cblit8.c
-ccpu.c
-ccsprite.c
-cgfx15.c
-cgfx16.c
-cgfx24.c
-cgfx32.c
-cgfx8.c
-cmisc.c
-cscan15.c
-cscan16.c
-cscan24.c
-cscan32.c
-cscan8.c
-cspr15.c
-cspr16.c
-cspr24.c
-cspr32.c
-cspr8.c
-cstretch.c
-czscan15.c
-czscan16.c
-czscan24.c
-czscan32.c
-czscan8.c
-""" ));
+if False:
+	files += sourceFiles('c/', Split("""
+	cblit16.c
+	cblit24.c
+	cblit32.c
+	cblit8.c
+	ccpu.c
+	ccsprite.c
+	cgfx15.c
+	cgfx16.c
+	cgfx24.c
+	cgfx32.c
+	cgfx8.c
+	cmisc.c
+	cscan15.c
+	cscan16.c
+	cscan24.c
+	cscan32.c
+	cscan8.c
+	cspr15.c
+	cspr16.c
+	cspr24.c
+	cspr32.c
+	cspr8.c
+	cstretch.c
+	czscan15.c
+	czscan16.c
+	czscan24.c
+	czscan32.c
+	czscan8.c
+	""" ));
 
 
 def tools(env,appendDir,buildDir,libDir):
