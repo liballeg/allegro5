@@ -1,10 +1,10 @@
 import os
 
-Import('sourceFiles', 'addExtra')
+Import('addFiles', 'addExtra')
 
 env = Environment(ENV = os.environ)
 
-files = sourceFiles('./', Split( """
+addFiles('./', Split( """
 allegro.c
 blit.c
 bmp.c
@@ -75,24 +75,24 @@ vtable16.c
 vtable24.c
 vtable32.c
 vtable8.c
-""" ) );
+""" ));
 
-files += sourceFiles('compat/', Split("""
+addFiles('compat/', Split("""
 coblit.c
 cogfx.c
 cojoy.c
 cokeybd.c
 cotimer.c
-""" ) );
+""" ));
 
-files += sourceFiles('misc/', Split("""
+addFiles('misc/', Split("""
 vector.c
 colconv.c
 ccolconv.c
 """ ));
 
 if False:
-	files += sourceFiles('c/', Split("""
+	addFiles('c/', Split("""
 	cblit16.c
 	cblit24.c
 	cblit32.c
@@ -266,4 +266,4 @@ addExtra(examples)
 addExtra(tools)
 addExtra(tests)
 
-Return('env', 'files')
+Return('env')

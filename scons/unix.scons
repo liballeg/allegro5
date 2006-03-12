@@ -1,10 +1,10 @@
 # vi: syntax=python
-Import("sourceFiles", "addExtra")
+Import("addFiles", "addExtra")
 
 import os, ConfigParser
 import checks
 
-env, files = SConscript("all.scons", exports = ["sourceFiles", "addExtra"])
+env = SConscript("all.scons", exports = ["addFiles", "addExtra"])
 
 def getOption(name, default):
     arg = ARGUMENTS.get(name,default)
@@ -229,7 +229,7 @@ env.Append(CCFLAGS = flags)
 env.Append(CCFLAGS = defines)
 env.Append(CPPPATH = includes)
 
-files += sourceFiles('c/', Split("""
+addFiles('c/', Split("""
 cblit16.c
 cblit24.c
 cblit32.c
@@ -260,7 +260,7 @@ czscan32.c
 czscan8.c
 """ ));
 
-files += sourceFiles("unix", Split("""
+addFiles("unix", Split("""
 jack.c
 sgial.c
 udjgpp.c
@@ -323,7 +323,7 @@ if platform["ALLEGRO_LINUX_FBCON"]:
     addExtra(buildFBCon)
 
 if platform["ALLEGRO_WITH_XWINDOWS"]:
-    files += sourceFiles("x/", Split("""
+    addFiles("x/", Split("""
     xgfxdrv.c
     xkeyboard.c
     xmouse.c
@@ -353,4 +353,4 @@ env.Replace(LIBS = pruneLibs(env["LIBS"]))
 cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})
 
-Return("env", "files")
+Return("env")

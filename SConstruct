@@ -66,6 +66,8 @@ def getPlatform():
 # Do not change directories when reading other scons files via SConscript
 SConscriptChdir(0)
 
+librarySource = []
+
 # Returns a function that takes a directory and a list of files
 # and returns a new list of files with a build directory prepended to it
 def sourceFiles(dir, files):
@@ -73,6 +75,9 @@ def sourceFiles(dir, files):
 
 def appendDir(dir, files):
     return map(lambda x: dir + '/' + x, files)
+
+def addFiles(dir,fileList):
+    librarySource.extend(sourceFiles(dir,fileList))
 
 # Subsequent scons files can call addExtra to add arbitrary targets
 # that will be evaluated in this file
@@ -87,15 +92,15 @@ def addExtra(func):
 # dir - directory where the library( dll, so ) should end up
 def getLibraryVariables():
     if getPlatform() == "openbsd3":
-        return SConscript('scons/bsd.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/unix/" ])
+        return tuple([SConscript('scons/bsd.scons', exports = [ 'addFiles', 'addExtra' ]),"lib/unix/"])
     if getPlatform() == "linux2":
-        return SConscript('scons/linux.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/unix/" ])
+        return tuple([SConscript('scons/linux.scons', exports = [ 'addFiles', 'addExtra' ]),"lib/unix/"])
     if getPlatform() == "win32":
-        return SConscript('scons/win32.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/win32/" ])
+        return tuple([SConscript('scons/win32.scons', exports = [ 'addFiles', 'addExtra' ]),"lib/win32/" ])
     if getPlatform() == "darwin":
-        return SConscript('scons/osx.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/macosx/" ])
+        return tuple([SConscript('scons/osx.scons', exports = [ 'addFiles', 'addExtra' ]),"lib/macosx/" ])
 
-env, files, libDir = getLibraryVariables()
+env, libDir = getLibraryVariables()
 
 # Stop cluttering everything with .sconsign files, use a single db file instead
 env.SConsignFile("build/signatures")
@@ -112,7 +117,7 @@ def getLibraryName(debug):
 def getAllegroTarget(debug,static):
     def build(function,lib,dir):
         env.BuildDir(dir, 'src', duplicate = 0)
-        return function(lib, appendDir(dir, files))
+        return function(lib, appendDir(dir, librarySource))
 
     def buildStatic(env,debug,dir):
         return build(env.StaticLibrary,libDir + '/static/' + getLibraryName(debug),dir)

@@ -1,16 +1,16 @@
 import os
 import SCons
 
-Import('sourceFiles', 'addExtra')
+Import('addFiles', 'addExtra')
 
-env, files = SConscript('all.scons', exports = [ 'sourceFiles', 'addExtra' ])
+env = SConscript('all.scons', exports = [ 'addFiles', 'addExtra' ])
 
 ## These lines tell SCons to treat .m files like .cpp files
 static_obj, shared_obj = SCons.Tool.createObjBuilders( env )
 shared_obj.add_action( '.m', SCons.Defaults.ShCXXAction )
 shared_obj.add_emitter( '.m', SCons.Defaults.SharedObjectEmitter )
 
-files += sourceFiles('macosx/', Split("""
+addFiles('macosx/', Split("""
 cadigi.m
 camidi.m
 drivers.m
@@ -40,4 +40,4 @@ env.Append(CPPPATH = includes)
 cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})
 
-Return('env', 'files')
+Return('env')

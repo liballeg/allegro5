@@ -1,8 +1,8 @@
-Import('sourceFiles', 'addExtra')
+Import('addFiles', 'addExtra')
 
 import os
 
-env, files = SConscript('all.scons', exports = [ 'sourceFiles', 'addExtra' ])
+env = SConscript('all.scons', exports = [ 'addFiles', 'addExtra' ])
 
 # config = env.Configure()
 
@@ -38,9 +38,6 @@ env.Append(LIBS = [ 'kernel32', 'user32', 'gdi32', 'comdlg32', 'ole32', 'dinput'
 # f = sourceFiles('c', ['cmiscs.s'])
 # for i in f:
 #	files += [env.Assembler(i)]
-
-def addFiles(dir,fileList):
-	files.extend(sourceFiles( dir, fileList))
 
 addFiles('c',Split("""
 """));
@@ -114,4 +111,4 @@ wxthread.c
 cat = Builder(action = 'cat $SOURCES > $TARGET')
 env.Append(BUILDERS = {'Cat' : cat})
 
-Return('env', 'files')
+Return('env')
