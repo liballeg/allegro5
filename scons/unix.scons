@@ -247,7 +247,7 @@ shared_obj.add_action('.s', AssemblerAction )
 shared_obj.add_emitter('.s', SCons.Defaults.SharedObjectEmitter )
 
 flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
-includes = ["include", "include/allegro"]
+includes = ["include", "include/allegro", "."]
 defines = ["-DHAVE_CONFIG_H", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD"]
 
 env.Append(CCFLAGS = flags)
@@ -338,7 +338,10 @@ if platform["ALLEGRO_LINUX_SVGALIB"]:
         vgaEnv = menv.Copy()
         vgaEnv.Append(LIBS = "vga")
         sources = ["svgalib.c","svgalibs.s"]
-        return vgaEnv.SharedLibrary(libDir + "alleg-svgalib",appendDir(buildDir + "/linux/", sources))
+        lib = vgaEnv.SharedLibrary(libDir + "alleg-svgalib",appendDir(buildDir + "/linux/", sources))
+        vgaEnv.Cat('obj/unix/asmdef.inc', 'src/i386/asmdefs.inc')
+        vgaEnv.Depends(lib,'obj/unix/asmdef.inc')
+        return lib
     addExtra(buildSVGA)
 
 if platform["ALLEGRO_WITH_ARTSDIGI"]:
