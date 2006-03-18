@@ -37,7 +37,8 @@ MIDI_DRIVER midi_beos =
    be_midi_detect,          /* AL_METHOD(int,  detect, (int input)); */
    be_midi_init,            /* AL_METHOD(int,  init, (int input, int voices)); */
    be_midi_exit,            /* AL_METHOD(void, exit, (int input)); */
-   be_midi_mixer_volume,    /* AL_METHOD(int,  mixer_volume, (int volume)); */
+   be_midi_set_mixer_volume,/* AL_METHOD(int,  set_mixer_volume, (int volume)); */
+   be_midi_get_mixer_volume,/* AL_METHOD(int,  get_mixer_volume, (void)); */
    NULL,                    /* AL_METHOD(void, raw_midi, (int data)); */
    _dummy_load_patches,     /* AL_METHOD(int,  load_patches, (AL_CONST char *patches, AL_CONST char *drums)); */
    _dummy_adjust_patches,   /* AL_METHOD(void, adjust_patches, (AL_CONST char *patches, AL_CONST char *drums)); */

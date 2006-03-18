@@ -83,7 +83,8 @@ static int oss_rec_bufsize;
 static int oss_detect(int input);
 static int oss_init(int input, int voices);
 static void oss_exit(int input);
-static int oss_mixer_volume(int volume);
+static int oss_set_mixer_volume(int volume);
+static int oss_get_mixer_volume(void);
 static int oss_buffer_size(void);
 static int oss_rec_cap_rate(int bits, int stereo);
 static int oss_rec_cap_parm(int rate, int bits, int stereo);
@@ -108,7 +109,8 @@ DIGI_DRIVER digi_oss =
    oss_detect,
    oss_init,
    oss_exit,
-   oss_mixer_volume,
+   oss_set_mixer_volume,
+   oss_get_mixer_volume,
 
    NULL,
    NULL,
@@ -429,10 +431,10 @@ static void oss_exit(int input)
 
 
 
-/* oss_mixer_volume:
+/* oss_set_mixer_volume:
  *  Set mixer volume.
  */
-static int oss_mixer_volume(int volume)
+static int oss_set_mixer_volume(int volume)
 {
    int fd, vol, ret;
    char tmp[128];
@@ -447,6 +449,28 @@ static int oss_mixer_volume(int volume)
    close(fd);
 
    return ret;
+}
+
+
+
+/* oss_get_mixer_volume:
+ *  Return mixer volume.
+ */
+static int oss_get_mixer_volume(void) {
+   int fd, vol, ret;
+   char tmp[128];
+
+   fd = open(uconvert_toascii(_oss_mixer_driver, tmp), O_RDONLY);
+   if (fd < 0)
+      return -1;
+
+   if (ioctl(fd, MIXER_READ(SOUND_MIXER_PCM), &vol) != 0)
+      return -1;
+   close(fd);
+
+   vol = ((vol & 0xff) + (vol >> 8)) / 2;
+   vol = vol * 255 / 100;
+   return vol;
 }
 
 

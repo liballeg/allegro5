@@ -36,7 +36,7 @@
 static int sb_detect(int input);
 static int sb_init(int input, int voices);
 static void sb_exit(int input);
-static int sb_mixer_volume(int volume);
+static int sb_set_mixer_volume(int volume);
 static int sb_buffer_size(void);
 static int sb_rec_cap_rate(int bits, int stereo);
 static int sb_rec_cap_parm(int rate, int bits, int stereo);
@@ -55,7 +55,8 @@ static char sb_desc[256] = EMPTY_STRING;
    sb_detect,                          \
    sb_init,                            \
    sb_exit,                            \
-   sb_mixer_volume,                    \
+   sb_set_mixer_volume,                \
+   NULL,                               \
    NULL,                               \
    NULL,                               \
    sb_buffer_size,                     \
@@ -314,10 +315,10 @@ int _sb_set_mixer(int digi_volume, int midi_volume)
 
 
 
-/* sb_mixer_volume:
+/* sb_set_mixer_volume:
  *  Sets the SB mixer volume for playing digital samples.
  */
-static int sb_mixer_volume(int volume)
+static int sb_set_mixer_volume(int volume)
 {
    return _sb_set_mixer(volume, -1);
 }

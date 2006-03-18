@@ -92,7 +92,7 @@
 static int wss_detect(int input);
 static int wss_init(int input, int voices);
 static void wss_exit(int input);
-static int wss_mixer_volume(int volume);
+static int wss_set_mixer_volume(int volume);
 static int wss_buffer_size(void);
 
 
@@ -109,7 +109,8 @@ DIGI_DRIVER digi_wss =
    wss_detect,
    wss_init,
    wss_exit,
-   wss_mixer_volume,
+   wss_set_mixer_volume,
+   NULL,
    NULL,
    NULL,
    wss_buffer_size,
@@ -407,7 +408,7 @@ static void wss_exit(int input)
 
 
 
-static int wss_mixer_volume(int volume)
+static int wss_set_mixer_volume(int volume)
 {
    if (volume > 255)
       volume = 255;

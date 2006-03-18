@@ -30,7 +30,7 @@
 static int ess_detect(int input);
 static int ess_init(int input, int voices);
 static void ess_exit(int input);
-static int ess_mixer_volume(int volume);
+static int ess_set_mixer_volume(int volume);
 static int ess_buffer_size(void);
 
 static char ess_desc[256] = EMPTY_STRING;
@@ -46,7 +46,8 @@ DIGI_DRIVER digi_audiodrive =
    ess_detect,
    ess_init,
    ess_exit,
-   ess_mixer_volume,
+   ess_set_mixer_volume,
+   NULL,
    NULL,
    NULL,
    ess_buffer_size,
@@ -145,10 +146,10 @@ static INLINE RET_VOLATILE int ess_write_dsp(unsigned char byte)
 
 
 
-/* ess_mixer_volume:
+/* ess_set_mixer_volume:
  *  Sets the AudioDrive mixer volume for playing digital samples.
  */
-static int ess_mixer_volume(int volume)
+static int ess_set_mixer_volume(int volume)
 {
    return _sb_set_mixer(volume, -1);
 }

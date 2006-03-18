@@ -47,7 +47,8 @@
 static int digi_waveout_detect(int input);
 static int digi_waveout_init(int input, int voices);
 static void digi_waveout_exit(int input);
-static int digi_waveout_mixer_volume(int volume);
+static int digi_waveout_set_mixer_volume(int volume);
+static int digi_waveout_get_mixer_volume(void);
 static int digi_waveout_buffer_size(void);
 
 
@@ -67,7 +68,8 @@ static DIGI_DRIVER digi_waveout =
    digi_waveout_detect,
    digi_waveout_init,
    digi_waveout_exit,
-   digi_waveout_mixer_volume,
+   digi_waveout_set_mixer_volume,
+   digi_waveout_get_mixer_volume,
 
    /* audiostream locking functions */
    NULL,  // AL_METHOD(void *, lock_voice, (int voice, int start, int end));
@@ -356,9 +358,9 @@ static void digi_waveout_exit(int input)
 
 
 
-/* digi_waveout_mixer_volume:
+/* digi_waveout_set_mixer_volume:
  */
-static int digi_waveout_mixer_volume(int volume)
+static int digi_waveout_set_mixer_volume(int volume)
 {
    DWORD realvol;
 
@@ -370,6 +372,24 @@ static int digi_waveout_mixer_volume(int volume)
    }
 
    return 0;
+}
+
+
+
+/* digi_waveout_get_mixer_volume:
+ */
+static int digi_waveout_get_mixer_volume(void)
+{
+   DWORD vol;
+   
+   if (!hWaveOut)
+      return -1;
+
+   if (waveOutGetVolume(hWaveOut, &vol) != MMSYSERR_NOERROR)
+      return -1;
+
+   vol &= 0xffff;
+   return vol / (0xffff / 255);
 }
 
 

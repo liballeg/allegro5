@@ -52,7 +52,8 @@
 static int oss_midi_detect(int input);
 static int oss_midi_init(int input, int voices);
 static void oss_midi_exit(int input);
-static int oss_midi_mixer_volume(int volume);
+static int oss_midi_set_mixer_volume(int volume);
+static int oss_midi_get_mixer_volume(void);
 static void oss_midi_key_on(int inst, int note, int bend, int vol, int pan);
 static void oss_midi_key_off(int voice);
 static void oss_midi_set_volume(int voice, int vol);
@@ -87,7 +88,8 @@ MIDI_DRIVER midi_oss =
    oss_midi_detect,
    oss_midi_init,
    oss_midi_exit,
-   oss_midi_mixer_volume, 
+   oss_midi_set_mixer_volume,
+   oss_midi_get_mixer_volume,
    NULL,
    _dummy_load_patches, 
    _dummy_adjust_patches, 
@@ -402,10 +404,10 @@ static int oss_midi_init(int input, int voices)
 
 
 
-/* oss_midi_mixer_volume:
+/* oss_midi_set_mixer_volume:
  *  Sets the mixer volume for output.
  */
-static int oss_midi_mixer_volume(int volume)
+static int oss_midi_set_mixer_volume(int volume)
 {
    int fd, vol, ret;
    char tmp[128];
@@ -420,6 +422,28 @@ static int oss_midi_mixer_volume(int volume)
    close(fd);
 
    return ((ret == -1) ? -1 : 0);
+}
+
+
+
+/* oss_midi_get_mixer_volume:
+ *  Returns mixer volume.
+ */
+static int oss_midi_get_mixer_volume(void) {
+   int fd, vol, ret;
+   char tmp[128];
+
+   fd = open(uconvert_toascii(mixer_driver, tmp), O_RDONLY);
+   if (fd < 0)
+      return -1;
+
+   if (ioctl(fd, MIXER_READ(SOUND_MIXER_SYNTH), &vol) != 0)
+      return -1;
+   close(fd);
+
+   vol = ((vol & 0xff) + (vol >> 8)) / 2;
+   vol = vol * 255 / 100;
+   return vol;
 }
 
 

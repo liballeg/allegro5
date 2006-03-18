@@ -145,13 +145,23 @@ extern "C" void be_midi_exit(int input)
 
 
 
-/* be_midi_mixer_volume:
+/* be_midi_set_mixer_volume:
  *  Sets MIDI mixer output volume.
  */
-extern "C" int be_midi_mixer_volume(int volume)
+extern "C" int be_midi_set_mixer_volume(int volume)
 {
    _be_midisynth->SetVolume((double)volume / 255.0);
    return 0;
+}
+
+
+
+/* be_midi_get_mixer_volume:
+ *  Returns MIDI mixer output volume.
+ */
+extern "C" int be_midi_get_mixer_volume(void)
+{
+   return (int)(_be_midisynth->Volume() * 255);
 }
 
 

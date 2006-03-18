@@ -68,7 +68,8 @@ MIDI_DRIVER midi_alsa =
    alsa_rawmidi_detect,      /* detect */
    alsa_rawmidi_init,        /* init */
    alsa_rawmidi_exit,        /* exit */
-   NULL,                     /* mixer_volume */
+   NULL,                     /* set_mixer_volume */
+   NULL,                     /* get_mixer_volume */
    alsa_rawmidi_output,      /* raw_midi */
    _dummy_load_patches,      /* load_patches */
    _dummy_adjust_patches,    /* adjust_patches */

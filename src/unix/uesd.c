@@ -40,7 +40,7 @@ static esd_format_t _al_esd_format;
 static int _al_esd_detect(int input);
 static int _al_esd_init(int input, int voices);
 static void _al_esd_exit(int input);
-static int _al_esd_mixer_volume(int volume);
+static int _al_esd_set_mixer_volume(int volume);
 static int _al_esd_buffer_size(void);
 
 static char _al_esd_desc[256] = EMPTY_STRING;
@@ -59,7 +59,8 @@ DIGI_DRIVER digi_esd =
    _al_esd_detect,
    _al_esd_init,
    _al_esd_exit,
-   _al_esd_mixer_volume,
+   _al_esd_set_mixer_volume,
+   NULL,
 
    NULL,
    NULL,
@@ -263,10 +264,10 @@ static void _al_esd_exit(int input)
 
 
 
-/* _al_esd_mixer_volume:
+/* _al_esd_set_mixer_volume:
  *  Set mixer volume.
  */
-static int _al_esd_mixer_volume(int volume)
+static int _al_esd_set_mixer_volume(int volume)
 {
    return 0;
 }

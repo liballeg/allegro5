@@ -245,10 +245,10 @@ extern "C" int be_sound_buffer_size()
 
 
 
-/* be_sound_mixer_volume:
+/* be_sound_set_mixer_volume:
  *  Set mixer volume.
  */
-extern "C" int be_sound_mixer_volume(int volume)
+extern "C" int be_sound_set_mixer_volume(int volume)
 {
    if (!be_sound)
       return -1;
@@ -258,6 +258,18 @@ extern "C" int be_sound_mixer_volume(int volume)
    return 0;
 }
 
+
+
+/* be_sound_get_mixer_volume:
+ *  Set mixer volume.
+ */
+extern "C" int be_sound_get_mixer_volume(void)
+{
+   if (!be_sound)
+      return -1;
+
+   return (int)(be_sound->Volume() * 255.0);
+}
 
 
 /* be_sound_suspend:

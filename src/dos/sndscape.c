@@ -95,7 +95,7 @@ static int soundscape_waveirq;               /* the PCM IRQ */
 static int soundscape_detect(int input);
 static int soundscape_init(int input, int voices);
 static void soundscape_exit(int input);
-static int soundscape_mixer_volume(int volume);
+static int soundscape_set_mixer_volume(int volume);
 static int soundscape_buffer_size(void);
 
 static int soundscape_int = -1;              /* interrupt vector */
@@ -165,7 +165,8 @@ DIGI_DRIVER digi_soundscape =
    soundscape_detect,
    soundscape_init,
    soundscape_exit,
-   soundscape_mixer_volume,
+   soundscape_set_mixer_volume,
+   NULL,
    NULL,
    NULL,
    soundscape_buffer_size,
@@ -554,10 +555,10 @@ static int detect_soundscape(void)
 
 
 
-/* soundscape_mixer_volume:
+/* soundscape_set_mixer_volume:
  *  Sets the Soundscape mixer volume for playing digital samples.
  */
-static int soundscape_mixer_volume(int volume)
+static int soundscape_set_mixer_volume(int volume)
 {
    if (volume >= 0)
       set_dac_vol(volume, volume);

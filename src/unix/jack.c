@@ -60,7 +60,7 @@ static int jack_detect(int input);
 static int jack_init(int input, int voices);
 static void jack_exit(int input);
 static int jack_buffer_size(void);
-static int jack_mixer_volume(int volume);
+static int jack_set_mixer_volume(int volume);
 
 DIGI_DRIVER digi_jack =
 {
@@ -76,7 +76,8 @@ DIGI_DRIVER digi_jack =
    jack_detect,
    jack_init,
    jack_exit,
-   jack_mixer_volume,
+   jack_set_mixer_volume,
+   NULL,
 
    NULL,
    NULL,

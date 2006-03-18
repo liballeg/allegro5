@@ -130,14 +130,16 @@ void be_sound_exit(int input);
 void *be_sound_lock_voice(int voice, int start, int end);
 void be_sound_unlock_voice(int voice);
 int be_sound_buffer_size(void);
-int be_sound_mixer_volume(int volume);
+int be_sound_set_mixer_volume(int volume);
+int be_sound_get_mixer_volume(void);
 void be_sound_suspend(void);
 void be_sound_resume(void);
 
 int be_midi_detect(int input);
 int be_midi_init(int input, int voices);
 void be_midi_exit(int input);
-int be_midi_mixer_volume(int volume);
+int be_midi_set_mixer_volume(int volume);
+int be_midi_get_mixer_volume(void);
 void be_midi_key_on(int inst, int note, int bend, int vol, int pan);
 void be_midi_key_off(int voice);
 void be_midi_set_volume(int voice, int vol);

@@ -89,7 +89,8 @@ MIDI_DRIVER midi_awe32 =
    awe32_detect,                /* detect */
    awe32_init,                  /* init */
    awe32_exit,                  /* exit */
-   NULL,                        /* mixer_volume */
+   NULL,                        /* mixer_set_volume */
+   NULL,                        /* mixer_get_volume */
    NULL,                        /* raw_midi */
    _dummy_load_patches,         /* load_patches */
    _dummy_adjust_patches,       /* adjust_patches */

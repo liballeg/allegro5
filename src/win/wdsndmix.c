@@ -53,7 +53,8 @@
 static int digi_dsoundmix_detect(int input);
 static int digi_dsoundmix_init(int input, int voices);
 static void digi_dsoundmix_exit(int input);
-static int digi_dsoundmix_mixer_volume(int volume);
+static int digi_dsoundmix_set_mixer_volume(int volume);
+static int digi_dsoundmix_get_mixer_volume(void);
 static int digi_dsoundmix_buffer_size(void);
 
 
@@ -73,7 +74,8 @@ static DIGI_DRIVER digi_dsoundmix =
    digi_dsoundmix_detect,
    digi_dsoundmix_init,
    digi_dsoundmix_exit,
-   digi_dsoundmix_mixer_volume,
+   digi_dsoundmix_set_mixer_volume,
+   digi_dsoundmix_get_mixer_volume,
 
    /* audiostream locking functions */
    NULL,  // AL_METHOD(void *, lock_voice, (int voice, int start, int end));
@@ -694,16 +696,33 @@ static void digi_dsoundmix_exit(int input)
 
 
 
-/* digi_dsoundmix_mixer_volume:
+/* digi_dsoundmix_set_mixer_volume:
  */
-static int digi_dsoundmix_mixer_volume(int volume)
+static int digi_dsoundmix_set_mixer_volume(int volume)
 {
    if (prim_buf) {
       alleg_buf_vol = alleg_to_dsound_volume[MID(0, volume, 255)];
-      IDirectSoundBuffer_SetVolume(alleg_buf, alleg_buf_vol); 
+      IDirectSoundBuffer_SetVolume(alleg_buf, alleg_buf_vol);
    }
 
    return 0;
+}
+
+
+
+/* digi_dsoundmix_get_mixer_volume:
+ */
+static int digi_dsoundmix_get_mixer_volume(void)
+{
+   LONG vol;
+
+   if (!prim_buf)
+     return -1;
+
+   IDirectSoundBuffer_GetVolume(alleg_buf, &vol);
+   vol = MID(0, pow(10, (vol/2000.0))*255.0 - DSBVOLUME_MAX, 255);
+
+   return vol;
 }
 
 

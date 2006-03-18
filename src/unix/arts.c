@@ -59,6 +59,7 @@ DIGI_DRIVER digi_arts =
    _al_arts_init,
    _al_arts_exit,
    NULL,
+   NULL,
 
    NULL,
    NULL,

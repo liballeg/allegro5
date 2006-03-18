@@ -37,7 +37,8 @@ DIGI_DRIVER digi_beos =
    be_sound_detect,
    be_sound_init,
    be_sound_exit,
-   be_sound_mixer_volume,
+   be_sound_set_mixer_volume,
+   be_sound_get_mixer_volume,
 
    be_sound_lock_voice,
    be_sound_unlock_voice,

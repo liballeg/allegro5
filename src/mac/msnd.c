@@ -32,7 +32,7 @@ static void pascal sound_mac_interrupt(SndChannelPtr chan, SndDoubleBufferPtr do
 static int sound_mac_detect(int input);
 static int sound_mac_init(int input, int voices);
 static void sound_mac_exit(int input);
-static int sound_mac_mixer_volume(int volume);
+static int sound_mac_set_mixer_volume(int volume);
 static int sound_mac_buffer_size(void);
 
 static char sb_desc[256] = EMPTY_STRING;
@@ -1216,7 +1216,8 @@ DIGI_DRIVER digi_macos={
    sound_mac_detect,
    sound_mac_init,
    sound_mac_exit,
-   sound_mac_mixer_volume,
+   sound_mac_set_mixer_volume,
+   NULL,
 
    /* for use by the audiostream functions */
    NULL,
@@ -1456,7 +1457,7 @@ static int sound_mac_init(int input, int voices){
    }
    else
       return -1;
-   sound_mac_mixer_volume(512);
+   sound_mac_set_mixer_volume(512);
    sound_mac_in_use = TRUE;
    sound_mac_lock_mem();
    return 0;
@@ -1515,7 +1516,7 @@ static int sound_mac_buffer_size(void)
 /*
  *
  */
-static int sound_mac_mixer_volume(int volume)
+static int sound_mac_set_mixer_volume(int volume)
 {
    SndCommand	theCommand;
    OSErr	e;
