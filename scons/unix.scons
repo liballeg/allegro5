@@ -58,9 +58,25 @@ if not getOption("config",0):
         print "Re-using old settings"
         noconfig = True
 
+class SimpleHash:
+    def __init__( self ):
+        self.hash = dict()
+
+    def __getitem__( self, key ):
+        try:
+            return self.hash[ key ]
+        except KeyError:
+            return 0
+
+    def __setitem__( self, key, value ):
+        self.hash[ key ] = value
+
+    def keys( self ):
+        return self.hash.keys()
+
 # the settings we cache in settings.cfg
 config_settings = ["CCFLAGS", "CPPPATH", "CPPFLAGS", "LIBS", "LIBPATH", "LINKFLAGS"]
-platform = {}
+platform = SimpleHash()
 settings = ConfigParser.ConfigParser()
 
 ## The platform variable will hold all configuration things we care about
@@ -221,6 +237,15 @@ else:
 
     settings.write(file("build/settings.cfg", "w"))
 
+## Maybe setting up the assembler should be in a gcc.scons or something?
+import SCons.Tool
+
+AssemblerAction = Action( 'gcc -x assembler-with-cpp $CCFLAGS $_CPPINCFLAGS $SOURCES -c -o $TARGET' )
+
+static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+shared_obj.add_action('.s', AssemblerAction )
+shared_obj.add_emitter('.s', SCons.Defaults.SharedObjectEmitter )
+
 flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
 includes = ["include", "include/allegro"]
 defines = ["-DHAVE_CONFIG_H", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD"]
@@ -307,6 +332,14 @@ if platform["ALLEGRO_WITH_ALSAMIDI"]:
         sources = ["alsamidi.c"]
         return alsaEnv.SharedLibrary(libDir + "alleg-alsamidi",appendDir(buildDir + "/unix/", sources))
     addExtra(buildAlsa)
+
+if platform["ALLEGRO_LINUX_SVGALIB"]:
+    def buildSVGA(menv,appendDir,buildDir,libDir):
+        vgaEnv = menv.Copy()
+        vgaEnv.Append(LIBS = "vga")
+        sources = ["svgalib.c","svgalibs.s"]
+        return vgaEnv.SharedLibrary(libDir + "alleg-svgalib",appendDir(buildDir + "/linux/", sources))
+    addExtra(buildSVGA)
 
 if platform["ALLEGRO_WITH_ARTSDIGI"]:
     def buildAlsa(menv,appendDir,buildDir,libDir):

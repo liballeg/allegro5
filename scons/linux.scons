@@ -4,6 +4,7 @@ Import('addFiles', 'addExtra')
 
 env = SConscript('unix.scons', exports = [ 'addFiles', 'addExtra' ])
 
+
 addFiles('linux/', Split("""
 lconsole.c
 lgfxdrv.c
