@@ -44,7 +44,12 @@ static MODULE *module_list = NULL;
 /* where to look for modules.lst */
 static char *module_path[] =
 {
-   "/usr/local/lib/allegro/", "/usr/lib/allegro/", NULL
+#ifdef ALLEGRO_MODULES_PATH
+   ALLEGRO_MODULES_PATH,
+#else
+   #error ALLEGRO_WITH_MODULES is defined, but not ALLEGRO_MODULES_PATH
+#endif
+   NULL
 };
 
 
