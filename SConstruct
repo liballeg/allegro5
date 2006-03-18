@@ -31,6 +31,7 @@ def allegroHelp():
 scons [options] [targets]
 
 Possible options:
+config=1 : Rerun the configure checks( UNIX only )
 static=1|0 : If static=1 is supplied a static Allegro library will be built and all extra programs will link using this library
 debug=1|0 : If debug=1 is supplied a debug Allegro library will be built and all extra programs will link using this library
 E.g:
