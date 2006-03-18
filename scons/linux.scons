@@ -21,7 +21,6 @@ lstddrv.c
 lsystem.c
 lvga.c
 lvgahelp.c
-svgalib.c
 vtswitch.c
 """));
 
