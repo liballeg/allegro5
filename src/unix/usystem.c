@@ -196,6 +196,9 @@ void _unix_read_os_type(void)
       else if (!strcmp(utsn.sysname, "NetBSD")) {
 	 os_type = OSTYPE_NETBSD;
       }
+      else if (!strcmp(utsn.sysname, "OpenBSD")) {
+	 os_type = OSTYPE_OPENBSD;
+      }
       else if ((!strcmp(utsn.sysname, "IRIX"))
 	       || (!strcmp(utsn.sysname, "IRIX64"))) {
 	 os_type = OSTYPE_IRIX;

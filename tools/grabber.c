@@ -3121,6 +3121,7 @@ static int sysinfo(void)
       case OSTYPE_SUNOS:      s = "SunOS/Solaris";              break;
       case OSTYPE_FREEBSD:    s = "FreeBSD";                    break;
       case OSTYPE_NETBSD:     s = "NetBSD";                     break;
+      case OSTYPE_OPENBSD:    s = "OpenBSD";                    break;
       case OSTYPE_IRIX:       s = "IRIX";                       break;
       case OSTYPE_DARWIN:     s = "Darwin";                     break;
       case OSTYPE_QNX:        s = "QNX";                        break;
