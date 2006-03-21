@@ -2270,6 +2270,7 @@ void _xwin_vsync(void)
       XUNLOCK();
 
       do {
+         rest(1);
       } while (retrace_count == prev);
    }
    else {
