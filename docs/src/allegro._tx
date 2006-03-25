@@ -12877,6 +12877,10 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
       return shutdown_dialog(player);<endblock>
 
+   Note that you are responsible for showing and hiding the mouse cursor, which
+   do_dialog would otherwise do for you, or saving and restoring the screen
+   contents, as popup_dialog would do for you.
+
 @@int @update_dialog(DIALOG_PLAYER *player);
 @xref init_dialog
 @shortdesc Low level function to update a dialog player.
