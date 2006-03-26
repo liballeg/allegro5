@@ -309,10 +309,10 @@ static void jack_exit(int input)
 
 
 
-/* jack_mixer_volume:
+/* jack_set_mixer_volume:
  *  Set mixer volume (0-255)
  */
-static int jack_mixer_volume(int volume)
+static int jack_set_mixer_volume(int volume)
 {
    /* Not implemented */
    return 0;
