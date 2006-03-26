@@ -429,8 +429,9 @@ static int oss_midi_set_mixer_volume(int volume)
 /* oss_midi_get_mixer_volume:
  *  Returns mixer volume.
  */
-static int oss_midi_get_mixer_volume(void) {
-   int fd, vol, ret;
+static int oss_midi_get_mixer_volume(void)
+{
+   int fd, vol;
    char tmp[128];
 
    fd = open(uconvert_toascii(mixer_driver, tmp), O_RDONLY);

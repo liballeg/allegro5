@@ -891,10 +891,6 @@ BITMAP *_xwin_create_screen(GFX_DRIVER *drv, int w, int h,
  */
 static void _xwin_private_destroy_screen(void)
 {
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-   XSetWindowAttributes setattr;
-#endif
-
    if (_xwin.buffer_line != 0) {
       _AL_FREE(_xwin.buffer_line);
       _xwin.buffer_line = 0;
