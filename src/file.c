@@ -1955,7 +1955,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
        */
       #ifdef HAVE_MKSTEMP
 
-         tmp_name = malloc(strlen(tmp_dir) + 16);
+         tmp_name = _AL_MALLOC_ATOMIC(strlen(tmp_dir) + 16);
          sprintf(tmp_name, "%s/XXXXXX", tmp_dir);
          tmp_fd = mkstemp(tmp_name);
 
@@ -1965,9 +1965,9 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
           * an atomic operation, this is not secure
           */
          tmpnam_string = tmpnam(NULL);
-         tmp_name = malloc(strlen(tmp_dir) + strlen(tmpnam_string) + 2);
+         tmp_name = _AL_MALLOC_ATOMIC(strlen(tmp_dir) + strlen(tmpnam_string) + 2);
          sprintf(tmp_name, "%s/%s", tmp_dir, tmpnam_string);
-         free(tmpnam_string);
+         _AL_FREE(tmpnam_string);
 
          if (tmp_name) {
 #ifndef ALLEGRO_MPW
@@ -1980,8 +1980,8 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       #endif
 
       if (tmp_fd < 0) {
-         free(tmp_dir);
-         free(tmp_name);
+         _AL_FREE(tmp_dir);
+         _AL_FREE(tmp_name);
       
          return NULL;
       }
