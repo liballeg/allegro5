@@ -53,8 +53,10 @@
    #define ALLEGRO_BIG_ENDIAN
 #endif
 
-#ifdef __i386__
-   #define ALLEGRO_I386
+/* Exclude ASM */
+
+#ifndef ALLEGRO_NO_ASM
+	#define ALLEGRO_NO_ASM
 #endif
 
 /* Arrange for other headers to be included later on */

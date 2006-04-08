@@ -125,8 +125,8 @@ static int osx_midi_init(int input, int voices)
       voice[i].vol = -1;
       voice[i].pan = -1;
       memset(&note_request, 0, sizeof(note_request));
-      note_request.info.polyphony = 8;
-      note_request.info.typicalPolyphony = 0x00010000;
+      note_request.info.polyphony.bigEndianValue = EndianU16_NtoB(8);
+	  note_request.info.typicalPolyphony.bigEndianValue = EndianS32_NtoB(X2Fix(1.0));
       result = NAStuffToneDescription(note_allocator, 1, &note_request.tone);
       result |= NANewNoteChannel(note_allocator, &note_request, &voice[i].channel);
       result |= NAResetNoteChannel(note_allocator, voice[i].channel);
