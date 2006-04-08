@@ -32,7 +32,7 @@
    #include ALLEGRO_ASMCAPA_HEADER
 #endif
 
-#ifdef ALLEGRO_USE_C
+#ifdef ALLEGRO_NO_ASM
    #undef ALLEGRO_MMX
 #endif
 

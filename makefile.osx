@@ -140,7 +140,7 @@ endif
 # -------- list platform specific objects and programs --------
 
 VPATH = src/macosx src/unix src/misc src/c tools/macosx
-CFLAGS += -DALLEGRO_USE_C
+CFLAGS += -DALLEGRO_NO_ASM
 
 ifdef STATICLINK
 ALLEGRO_SRC_MACOSX_FILES += src/macosx/main.m

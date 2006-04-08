@@ -110,7 +110,7 @@ ifdef ALLEGRO_USE_C
 
 VPATH += src/c
 MY_OBJECTS = $(C_OBJECTS) cmiscs
-CFLAGS += -DALLEGRO_USE_C
+CFLAGS += -DALLEGRO_NO_ASM
 
 else
 

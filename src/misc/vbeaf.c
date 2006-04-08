@@ -1183,7 +1183,7 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
     * The bank switchers assume asm-mode calling conventions, but the
     * library would try to call them with C calling conventions.
     */
-#ifdef ALLEGRO_USE_C
+#ifdef ALLEGRO_NO_ASM
    return NULL;
 #endif
 
