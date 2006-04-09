@@ -5993,7 +5993,8 @@ and they, as well as lengths, are specified in pixel units.
    mode.
 
 @@int @getpixel(BITMAP *bmp, int x, int y);
-@xref putpixel, _getpixel, is_inside_bitmap
+@xref putpixel, _getpixel, is_inside_bitmap, getr, getg, getb, geta
+@xref Truecolor pixel formats, Palette routines
 @eref ex12bit, exalpha, exflame, exlights
 @shortdesc Reads a pixel from a bitmap.
    Reads a pixel from point (x, y) in the bitmap.
@@ -6006,7 +6007,10 @@ and they, as well as lengths, are specified in pixel units.
    with alpha channel (when R,G,B,A are all equal to 255) so you can't use
    the test against -1 as a predicate for such bitmaps. In this cases, the
    only reliable predicate is is_inside_bitmap().
- 
+
+   To extract the individual color components, use the getr() / getg() /
+   getb() / geta() family of functions.
+
 @@int @_getpixel(BITMAP *bmp, int x, int y);
 @@int @_getpixel15(BITMAP *bmp, int x, int y);
 @@int @_getpixel16(BITMAP *bmp, int x, int y);
