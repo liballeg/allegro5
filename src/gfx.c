@@ -193,7 +193,7 @@ void vsync(void)
 {
    ASSERT(gfx_driver);
 
-   if (!_dispsw_status)
+   if (!_dispsw_status && gfx_driver->vsync)
       gfx_driver->vsync();
 }
 
