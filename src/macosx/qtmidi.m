@@ -125,7 +125,7 @@ static int osx_midi_init(int input, int voices)
       voice[i].vol = -1;
       voice[i].pan = -1;
       memset(&note_request, 0, sizeof(note_request));
-      #ifndef __i386__
+      #if TARGET_RT_BIG_ENDIAN
 	note_request.info.polyphony = 8;
 	note_request.info.typicalPolyphony = 0x00010000;
       #else
