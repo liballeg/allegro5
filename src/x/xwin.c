@@ -2657,7 +2657,7 @@ static void _xwin_private_set_window_title(AL_CONST char *name)
       _al_sane_strncpy(_xwin.window_title, name, sizeof(_xwin.window_title));
 
    if (_xwin.window != None)
-      XStoreName(_xwin.display, _xwin.window, _xwin.window_title);
+      XStoreName(_xwin.display, _xwin.wm_window, _xwin.window_title);
 }
 
 void _xwin_set_window_title(AL_CONST char *name)
