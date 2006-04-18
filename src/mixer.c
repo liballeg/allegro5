@@ -72,7 +72,7 @@ static signed int *mix_buffer = NULL;
 /* lookup table for converting sample volumes */
 #define MIX_VOLUME_LEVELS     32
 typedef signed int MIXER_VOL_TABLE[256];
-static MIXER_VOL_TABLE *mix_vol_table = NULL;
+static MIXER_VOL_TABLE mix_vol_table[MIX_VOLUME_LEVELS];
 
 /* stats for the mixing code */
 static int mix_voices;
@@ -290,30 +290,9 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
 
    LOCK_DATA(mix_buffer, mix_size*mix_channels * sizeof(*mix_buffer));
 
-   /* 16 bit output isn't required for the high quality mixers */
-   if ((!_sound_hq) || (mix_channels == 1)) {
-      /* no high quality mixer available */
-      _sound_hq = 0;
-
-      /* volume table for mixing samples into the temporary buffer */
-      mix_vol_table = _AL_MALLOC_ATOMIC(sizeof(MIXER_VOL_TABLE) * MIX_VOLUME_LEVELS);
-      if (!mix_vol_table) {
-         _AL_FREE(mix_buffer);
-         mix_buffer = NULL;
-         mix_size = 0;
-         mix_freq = 0;
-         mix_channels = 0;
-         mix_bits = 0;
-         return -1;
-      }
-
-      LOCK_DATA(mix_vol_table, sizeof(MIXER_VOL_TABLE) * MIX_VOLUME_LEVELS);
-
-      for (j=0; j<MIX_VOLUME_LEVELS; j++)
-         for (i=0; i<256; i++)
-            mix_vol_table[j][i] = ((i-128) * 256 * j / MIX_VOLUME_LEVELS) << 8;
-   }
-   /* We no longer need to use prebuilt stuff for the high quality mixers */
+   for (j=0; j<MIX_VOLUME_LEVELS; j++)
+      for (i=0; i<256; i++)
+	 mix_vol_table[j][i] = ((i-128) * 256 * j / MIX_VOLUME_LEVELS) << 8;
 
    mixer_lock_mem();
 
@@ -321,9 +300,6 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
    /* Woops. Forgot to clean up incase this fails. :) */
    mixer_mutex = system_driver->create_mutex();
    if (!mixer_mutex) {
-      if(mix_vol_table)
-         _AL_FREE(mix_vol_table);
-      mix_vol_table = NULL;
       _AL_FREE(mix_buffer);
       mix_buffer = NULL;
       mix_size = 0;
@@ -352,10 +328,6 @@ void _mixer_exit(void)
    if (mix_buffer)
       _AL_FREE(mix_buffer);
    mix_buffer = NULL;
-
-   if (mix_vol_table)
-      _AL_FREE(mix_vol_table);
-   mix_vol_table = NULL;
 
    mix_size = 0;
    mix_freq = 0;
