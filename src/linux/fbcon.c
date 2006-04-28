@@ -219,7 +219,11 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    if (_safe_gfx_mode_change) tries = -1;
    else tries = 0;
 
-   __al_linux_console_graphics();
+   if (__al_linux_console_graphics() != 0) {
+      ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
+      close(fbfd);
+      return NULL;
+   }
 
    for (; tries<3; tries++) {
       TRACE(PREFIX_I "...try number %d...\n", tries);
