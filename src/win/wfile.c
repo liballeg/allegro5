@@ -51,7 +51,8 @@ long _al_file_size(AL_CONST char *filename)
    struct _stat s;
    char tmp[1024];
 
-   if (_stat(uconvert_toascii(filename, tmp), &s) != 0) {
+   if (_wstat((wchar_t*)uconvert(filename, U_CURRENT, tmp, U_UNICODE,
+              sizeof(tmp)), &s) != 0) {
       *allegro_errno = errno;
       return 0;
    }
@@ -69,7 +70,8 @@ time_t _al_file_time(AL_CONST char *filename)
    struct _stat s;
    char tmp[1024];
 
-   if (_stat(uconvert_toascii(filename, tmp), &s) != 0) {
+   if (_wstat((wchar_t*)uconvert(filename, U_CURRENT, tmp, U_UNICODE,
+              sizeof(tmp)), &s) != 0) {
       *allegro_errno = errno;
       return 0;
    }
@@ -82,7 +84,7 @@ time_t _al_file_time(AL_CONST char *filename)
 /* structure for use by the directory scanning routines */
 struct FF_DATA
 {
-   struct _finddata_t data;
+   struct _wfinddata_t data;
    long handle;
    int attrib;
 };
@@ -100,7 +102,8 @@ static void fill_ffblk(struct al_ffblk *info)
    info->time = ff_data->data.time_write;
    info->size = ff_data->data.size;
 
-   do_uconvert(ff_data->data.name, U_ASCII, info->name, U_CURRENT, sizeof(info->name));
+   do_uconvert((const char*)ff_data->data.name, U_UNICODE, info->name, U_CURRENT,
+               sizeof(info->name));
 }
 
 
@@ -141,7 +144,8 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    /* start the search */
    errno = *allegro_errno = 0;
 
-   ff_data->handle = _findfirst(uconvert_toascii(pattern, tmp), &ff_data->data);
+   ff_data->handle = _wfindfirst((wchar_t*)uconvert(pattern, U_CURRENT, tmp,
+                                 U_UNICODE, sizeof(tmp)), &ff_data->data);
 
    if (ff_data->handle < 0) {
       *allegro_errno = errno;
@@ -173,7 +177,7 @@ int al_findnext(struct al_ffblk *info)
    struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
 
    do {
-      if (_findnext(ff_data->handle, &ff_data->data) != 0) {
+      if (_wfindnext(ff_data->handle, &ff_data->data) != 0) {
          *allegro_errno = errno;
          return -1;
       }
@@ -227,10 +231,10 @@ int _al_getdrive(void)
  */
 void _al_getdcwd(int drive, char *buf, int size)
 {
-   char tmp[1024];
+   wchar_t tmp[1024];
 
-   if (_getdcwd(drive+1, tmp, sizeof(tmp)))
-      do_uconvert(tmp, U_ASCII, buf, U_CURRENT, size);
+   if (_wgetdcwd(drive+1, tmp, sizeof(tmp)/sizeof(tmp[0])))
+      do_uconvert((const char*)tmp, U_UNICODE, buf, U_CURRENT, size);
    else
       usetc(buf, 0);
 }
