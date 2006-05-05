@@ -52,7 +52,7 @@ static const int mac_to_scancode[128] = {
 /* 0x40 */ 0,              KEY_STOP,       0,              KEY_ASTERISK,
 /* 0x44 */ 0,              KEY_PLUS_PAD,   0,              KEY_NUMLOCK,
 /* 0x48 */ 0,              0,              0,              KEY_SLASH_PAD,
-/* 0x4c */ KEY_ENTER_PAD,  0,              KEY_PLUS_PAD,   0,
+/* 0x4c */ KEY_ENTER_PAD,  0,              KEY_MINUS_PAD,   0,
 /* 0x50 */ 0,              KEY_EQUALS_PAD, KEY_0_PAD,      KEY_1_PAD,
 /* 0x54 */ KEY_2_PAD,      KEY_3_PAD,      KEY_4_PAD,      KEY_5_PAD,
 /* 0x58 */ KEY_6_PAD,      KEY_7_PAD,      0,              KEY_8_PAD,
