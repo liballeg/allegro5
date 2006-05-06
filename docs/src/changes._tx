@@ -10,7 +10,6 @@
 @heading
 Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
 <ul><li>
-<li>
   Peter Hull fixed a bug where Allegro detected keypresses on
   KEY_MINUS_PAD as KEY_PLUS_PAD.
 <li>
@@ -25,9 +24,10 @@ Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
   set_gfx_mode used to get stuck in a infinite loop when there wasn't a 
   console available.
 <li>
-  Evert Glebbeek made the C blitter use memmove for normal blits. This can
-  be disabled by removing a #define USE_MEMMOVE at the top of cblit.h so
-  that it can easliy be tested against the older versions of the code.
+  Evert Glebbeek made the C blitter use memmove for normal blits, with a bugfix
+  by Milan Mimica. This can be disabled by removing a #define USE_MEMMOVE at
+  the top of cblit.h so that it can easliy be tested against the older versions
+  of the code.
 <li>
   Christer Sandberg worked around a problem where one-line high bitmaps would
   crash with  Electric Fence.

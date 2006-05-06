@@ -88,7 +88,7 @@ void FUNC_LINEAR_BLIT(BITMAP *src, BITMAP *dst, int sx, int sy,
 	 PUT_PIXEL(d, c);
       }
 #else
-      memmove(d, s, w * sizeof *s);
+      memmove(d, s, w * sizeof(*s) * PTR_PER_PIXEL);
 #endif
    }
 
@@ -127,7 +127,7 @@ void FUNC_LINEAR_BLIT_BACKWARD(BITMAP *src, BITMAP *dst, int sx, int sy,
       PIXEL_PTR s = OFFSET_PIXEL_PTR(bmp_read_line(src, sy + y), sx);
       PIXEL_PTR d = OFFSET_PIXEL_PTR(bmp_write_line(dst, dy + y), dx);
 
-      memmove(d, s, w * sizeof *s);
+      memmove(d, s, w * sizeof(*s) * PTR_PER_PIXEL);
 #endif
    }
 
