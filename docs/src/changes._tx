@@ -10,6 +10,10 @@
 @heading
 Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
 <ul><li>
+   Michal Molhanec made msvchelp.exe work on Cygwin, where there was a
+   problem with the case-insensitivity of environment variables. Reported by
+   Milan Mimica.
+<li>
    Peter Hull fixed a bug where Allegro detected keypresses on
    KEY_MINUS_PAD as KEY_PLUS_PAD.
 <li>
