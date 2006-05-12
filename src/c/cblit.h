@@ -68,7 +68,10 @@ void FUNC_LINEAR_CLEAR_TO_COLOR(BITMAP *dst, int color)
 void FUNC_LINEAR_BLIT(BITMAP *src, BITMAP *dst, int sx, int sy,
 		      int dx, int dy, int w, int h)
 {
-   int x, y;
+   int y;
+#ifndef USE_MEMMOVE
+   int x;
+#endif
 
    ASSERT(src);
    ASSERT(dst);
@@ -104,7 +107,10 @@ void FUNC_LINEAR_BLIT(BITMAP *src, BITMAP *dst, int sx, int sy,
 void FUNC_LINEAR_BLIT_BACKWARD(BITMAP *src, BITMAP *dst, int sx, int sy,
 			       int dx, int dy, int w, int h)
 {
-   int x, y;
+   int y;
+#ifndef USE_MEMMOVE
+   int x;
+#endif
 
    ASSERT(src);
    ASSERT(dst);
