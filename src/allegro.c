@@ -471,8 +471,8 @@ void allegro_exit(void)
 {
    while (exit_func_list) {
       void (*func)(void) = exit_func_list->funcptr;
-      _remove_exit_func(exit_func_list->funcptr);
-      (*(func))();
+      _remove_exit_func(func);
+      (*func)();
    }
 
    if (system_driver) {
