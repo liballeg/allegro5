@@ -1572,6 +1572,8 @@ static DATAFILE_PROPERTY *clone_properties(DATAFILE_PROPERTY *prop)
        clone[i].type = prop[i].type;
        if (prop[i].dat)
           clone[i].dat = ustrdup(prop[i].dat);
+       else
+          clone[i].dat = NULL;
    }
 
    return clone;
