@@ -470,7 +470,9 @@ int _install_allegro_version_check(int system_id, int *errno_ptr,
 void allegro_exit(void)
 {
    while (exit_func_list) {
-      (*(exit_func_list->funcptr))();
+      void (*func)(void) = exit_func_list->funcptr;
+      _remove_exit_func(exit_func_list->funcptr);
+      (*(func))();
    }
 
    if (system_driver) {
