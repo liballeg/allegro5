@@ -243,11 +243,11 @@ static void memread_test(void)
    MEMREAD_INFO memread_info;
    BITMAP *bmp, *bmp2;
    unsigned char *block;
-   int l1, l2;
+   int64_t l1, l2;
    PACKFILE *f1, *f2;
 
-   l1 = file_size("allegro.pcx");
-   l2 = file_size("mysha.pcx");
+   l1 = file_size_ex("allegro.pcx");
+   l2 = file_size_ex("mysha.pcx");
 
    block = malloc(l1 + l2);
 

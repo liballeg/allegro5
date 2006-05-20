@@ -197,7 +197,7 @@ static int export_binary(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 static DATAFILE *grab_binary(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
 {
    void *mem;
-   long sz = file_size(filename);
+   int64_t sz = file_size_ex(filename);
    PACKFILE *f;
 
    if (sz <= 0)
@@ -1224,7 +1224,7 @@ int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixe
       delete_file(backup_name);
 
    if (options->verbose) {
-      int file_filesize = file_size(pretty_name);
+      uint64_t file_filesize = file_size_ex(pretty_name);
       datedit_msg("%-28s%7d bytes into %-7d (%d%%)", "- GLOBAL COMPRESSION -",
 		  file_datasize, file_filesize, percent(file_datasize, file_filesize));
    }
