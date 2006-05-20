@@ -238,3 +238,15 @@ void _al_getdcwd(int drive, char *buf, int size)
    else
       usetc(buf, 0);
 }
+
+
+/* _al_ffblk_get_size:
+ *  Returns the size out of an _al_ffblk structure.
+ */
+uint64_t al_ffblk_get_size(struct _al_ffblk *info)
+{
+   ASSERT(info);
+   struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
+
+   return ff_data->data.size;
+}
