@@ -749,12 +749,11 @@ available in past/future versions of Allegro.
    to obtain/use this structure.
 
 @@struct @al_ffblk
-@xref al_findfirst
+@xref al_findfirst, al_ffblk_get_size
 @shortdesc Cross platform structure storing file information.
 <codeblock>
    int attrib;       - actual attributes of the file found
    time_t time;      - modification time of file
-   long size;        - size of file
    char name[512];   - name of file
 <endblock>
    Read the description of al_findfirst for a description on how to
@@ -10262,7 +10261,7 @@ any character, but only one).
    name, it's out of date.
 
 @@int @file_exists(const char *filename, int attrib, int *aret);
-@xref exists, file_size, file_time
+@xref exists, file_size_ex, file_time
 @shortdesc Tells if a file exists.
    Checks whether a file matching the given name and attributes (see
    beginning of this chapter) exists. If `aret' is not NULL, it will be set
@@ -10276,7 +10275,7 @@ any character, but only one).
    specified attributes mask it out.
 
 @@int @exists(const char *filename);
-@xref file_exists, file_size, file_time
+@xref file_exists, file_size_ex, file_time
 @shortdesc Shortcut version of file_exists() for normal files.
    Shortcut version of file_exists(), which checks for normal files, which 
    may have the archive or read-only bits set, but are not hidden, 
@@ -10284,7 +10283,7 @@ any character, but only one).
 @retval
    Returns non-zero if the file exists, or zero if it doesn't.
 
-@@long @file_size(const char *filename);
+@@uint64_t @file_size_ex(const char *filename);
 @xref file_exists, file_time
 @eref expackf
 @shortdesc Returns the size of a file in bytes.
@@ -10293,7 +10292,7 @@ any character, but only one).
    errno.
 
 @@time_t @file_time(const char *filename);
-@xref file_exists, file_size
+@xref file_exists, file_size_ex
 @shortdesc Returns the modification time of a file.
    Returns the modification time (number of seconds since 00:00:00 GMT 
    1/1/1970) of a file. If the file does not exist or an error occurs, it 
@@ -10343,7 +10342,7 @@ any character, but only one).
    number of times callback() was called and returned 0.
 
 @@int @al_findfirst(const char *pattern, struct al_ffblk *info, int attrib);
-@xref al_findnext, al_findclose
+@xref al_findnext, al_findclose, al_ffblk_get_size
 @shortdesc Low-level function for searching files.
    Low-level function for searching files. This function finds the first 
    file which matches the given wildcard specification and file attributes 
@@ -10355,7 +10354,6 @@ any character, but only one).
       {
 	 int attrib;       - actual attributes of the file found
 	 time_t time;      - modification time of file
-	 long size;        - size of file
 	 char name[512];   - name of file
       };
 <endblock>
@@ -10398,6 +10396,11 @@ any character, but only one).
    This closes a previously opened search with al_findfirst(). You need to
    call this on all successfully opened searches to avoid memory leaks in
    your program.
+
+@@uint64_t @al_ffblk_get_size(struct al_ffblk *info);
+@xref al_findfirst, al_findnext, al_ffblk
+@shortdesc Get size of file returned by al_findfirst/al_findnext.
+   This returns the size of the file returned by al_findfirst or al_findnext.
 
 @\int @find_allegro_resource(char *dest, const char *resource, 
 @\                          const char *ext, const char *datafile, 
@@ -15990,7 +15993,7 @@ and avoid missing any important bit of information.
 @@Example @expackf
 @xref ASSERT, BITMAP, END_OF_MAIN, PACKFILE, PACKFILE_VTABLE, SCREEN_H
 @xref SCREEN_W, alert, allegro_error, allegro_init, allegro_message, blit
-@xref clear_bitmap, destroy_bitmap, file_size, font, install_keyboard
+@xref clear_bitmap, destroy_bitmap, file_size_ex, font, install_keyboard
 @xref key, load_bmp_pf, load_pcx, load_pcx_pf, load_tga_pf, pack_fclose
 @xref pack_fopen, pack_fopen_vtable, pack_fread, pack_fseek, readkey
 @xref save_bmp_pf, save_tga_pf, screen, set_color_depth, set_gfx_mode

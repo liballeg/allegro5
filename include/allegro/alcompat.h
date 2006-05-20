@@ -146,6 +146,8 @@ AL_INLINE_DEPRECATED(int, file_select, (AL_CONST char *message, char *path, AL_C
 
 /* the old (and broken!) file enumeration function */
 AL_FUNC_DEPRECATED(int, for_each_file, (AL_CONST char *name, int attrib, AL_METHOD(void, callback, (AL_CONST char *filename, int attrib, int param)), int param));
+/* long is 32-bit only on some systems, and we want to list DVDs! */
+AL_FUNC_DEPRECATED(long, file_size, (AL_CONST char *filename));
 
 
 /* the old state-based textout functions */

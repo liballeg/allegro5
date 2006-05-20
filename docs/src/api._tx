@@ -185,6 +185,8 @@ Deprecated materials
 <li>
    fhypot (fixhypot).
 <li>
+   file_size (file_size_ex)
+<li>
    file_select (file_select_ex, passing the two constants OLD_FILESEL_WIDTH
    and OLD_FILESEL_HEIGHT if you want the file selector to be displayed with
    the dimensions of the old file selector).

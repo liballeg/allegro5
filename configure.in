@@ -713,7 +713,7 @@ AC_TYPE_SIZE_T
 AC_STRUCT_TM
 AC_TYPE_SIGNAL
 
-AC_CHECK_FUNCS(mmap mprotect memcmp mkstemp stricmp strlwr strupr vprintf)
+AC_CHECK_FUNCS(mmap mprotect memcmp mkstemp stricmp strlwr strupr vprintf stat64)
 
 dnl Tweak header files for library build
 CFLAGS="$CFLAGS -DALLEGRO_LIB_BUILD"

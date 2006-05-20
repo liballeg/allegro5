@@ -18,11 +18,16 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/stat.h>
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
+#ifdef HAVE_SYS_STAT_H
+#ifdef HAVE_STAT64
+#define __USE_LARGEFILE64
+#endif
+#include <sys/stat.h>
+#endif
 
 #ifdef HAVE_DIRENT_H
    #include <sys/types.h>
@@ -53,6 +58,9 @@
    #endif
 #endif
 
+#ifdef HAVE_STAT64
+#define stat stat64
+#endif
 
 
 /* _al_file_isok:
@@ -69,7 +77,7 @@ int _al_file_isok(AL_CONST char *filename)
 /* _al_file_size:
  *  Measures the size of the specified file.
  */
-long _al_file_size(AL_CONST char *filename)
+uint64_t _al_file_size(AL_CONST char *filename)
 {
    struct stat s;
    char tmp[1024];
@@ -300,6 +308,7 @@ struct FF_DATA
    char dirname[FF_MAXPATHLEN];
    char pattern[FF_MAXPATHLEN];
    int attrib;
+   uint64_t size;
 };
 
 
@@ -315,10 +324,18 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    char tmp[1024];
    char *p;
 
+   /* allocate ff_data structure */
+   ff_data = _AL_MALLOC(sizeof(struct FF_DATA));
+   if (!ff_data) {
+      *allegro_errno = ENOMEM;
+      return -1;
+   }
+
+   memset(ff_data, 0, sizeof *ff_data);
+   info->ff_data = (void *) ff_data;
+
    /* if the pattern contains no wildcard, we use stat() */
    if (!ustrpbrk(pattern, uconvert("?*", U_ASCII, tmp, U_CURRENT, sizeof(tmp)))) {
-      info->ff_data = NULL;
-
       /* start the search */
       errno = *allegro_errno = 0;
 
@@ -330,28 +347,19 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
          if ((actual_attrib & ~attrib) == 0) {
             info->attrib = actual_attrib;
             info->time = s.st_mtime;
-            info->size = s.st_size;
+            info->size = s.st_size; /* overflows at 2GB */
+            ff_data->size = s.st_size;
             ustrzcpy(info->name, sizeof(info->name), get_filename(pattern));
             return 0;
          }
       }
 
+       _AL_FREE(ff_data);
+      info->ff_data = NULL;
       *allegro_errno = (errno ? errno : ENOENT);
       return -1;
    }
 
-   /* allocate ff_data structure */
-   ff_data = _AL_MALLOC(sizeof(struct FF_DATA));
-
-   if (!ff_data) {
-      *allegro_errno = ENOMEM;
-      return -1;
-   }
-
-   /* attach it to the info structure */
-   info->ff_data = (void *) ff_data;
-
-   /* initialize it */
    ff_data->attrib = attrib;
 
    do_uconvert(pattern, U_CURRENT, ff_data->dirname, U_UTF8, sizeof(ff_data->dirname));
@@ -400,8 +408,10 @@ int al_findnext(struct al_ffblk *info)
    struct stat s;
    struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
 
+   ASSERT(ff_data);
+
    /* if the pattern contained no wildcard */
-   if (!ff_data)
+   if (!ff_data->dir)
       return -1;
 
    while (TRUE) {
@@ -441,7 +451,8 @@ int al_findnext(struct al_ffblk *info)
 
    info->attrib = attrib;
    info->time = s.st_mtime;
-   info->size = s.st_size;
+   info->size = s.st_size; /* overflows at 2GB */
+   ff_data->size = s.st_size;
 
    do_uconvert(tempname, U_UTF8, info->name, U_CURRENT, sizeof(info->name));
 

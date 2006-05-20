@@ -39,7 +39,7 @@ AL_FUNC(char *, get_extension, (AL_CONST char *filename));
 AL_FUNC(void, put_backslash, (char *filename));
 AL_FUNC(int, file_exists, (AL_CONST char *filename, int attrib, int *aret));
 AL_FUNC(int, exists, (AL_CONST char *filename));
-AL_FUNC(long, file_size, (AL_CONST char *filename));
+AL_FUNC(uint64_t, file_size_ex, (AL_CONST char *filename));
 AL_FUNC(time_t, file_time, (AL_CONST char *filename));
 AL_FUNC(int, delete_file, (AL_CONST char *filename));
 AL_FUNC(int, for_each_file_ex, (AL_CONST char *name, int in_attrib, int out_attrib, AL_METHOD(int, callback, (AL_CONST char *filename, int attrib, void *param)), void *param));
@@ -54,6 +54,8 @@ struct al_ffblk        /* file info block for the al_find*() routines */
    char name[512];     /* name of file */
    void *ff_data;      /* private hook */
 };
+
+AL_FUNC(uint64_t, al_ffblk_get_size, (struct al_ffblk *info));
 
 AL_FUNC(int, al_findfirst, (AL_CONST char *pattern, struct al_ffblk *info, int attrib));
 AL_FUNC(int, al_findnext, (struct al_ffblk *info));
