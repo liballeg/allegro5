@@ -57,10 +57,10 @@ int _al_file_isok(AL_CONST char *filename)
 
 
 
-/* _al_file_size:
+/* _al_file_size_ex:
  *  Measures the size of the specified file.
  */
-long _al_file_size(AL_CONST char *filename)
+uint64_t _al_file_size_ex(AL_CONST char *filename)
 {
    struct stat s;
    char tmp[1024];

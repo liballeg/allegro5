@@ -747,11 +747,12 @@ uint64_t file_size_ex(AL_CONST char *filename)
    if (!_al_file_isok(filename))
       return 0;
 
-   return _al_file_size(filename);
+   return _al_file_size_ex(filename);
 }
 
 
 
+/* For binary compatibility with 4.2.0. */
 long file_size(AL_CONST char *filename)
 {
     return file_size_ex(filename);
