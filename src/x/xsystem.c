@@ -207,6 +207,9 @@ static int _xwin_sysdrv_init(void)
    get_executable_name(tmp, sizeof(tmp));
    set_window_title(get_filename(tmp));
 
+   if (get_config_int("system", "XInitThreads", 1))
+       XInitThreads();
+
    /* Open the display, create a window, and background-process 
     * events for it all. */
    if (_xwin_open_display(0) || _xwin_create_window()
