@@ -2264,6 +2264,11 @@ menu_opening_delay = x<br>
    Sets how long the menus take to auto-open. The time is given in
    milliseconds (default is `300'). Specifying `-1' will disable the 
    auto-opening feature.
+<li>
+XInitThreads = x<br>
+   If this is set to 0, the X11 port will not call XInitThreads. This can have
+   slight performance advantages and was required on some broken X11 servers,
+   but it makes Allegro incompatible with other X11 libraries like Mesa.
 </ul><li>
 [graphics]<br>
    Section containing graphics configuration information, using the
