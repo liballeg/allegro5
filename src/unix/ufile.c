@@ -15,6 +15,8 @@
  *      See readme.txt for copyright information.
  */
 
+/* libc should use 64-bit for file sizes when possible */
+#define _FILE_OFFSET_BITS 64
 
 #include <stdio.h>
 #include <string.h>
@@ -23,9 +25,6 @@
 #include "allegro/internal/aintern.h"
 
 #ifdef HAVE_SYS_STAT_H
-#ifdef HAVE_STAT64
-#define __USE_LARGEFILE64
-#endif
 #include <sys/stat.h>
 #endif
 
@@ -56,10 +55,6 @@
    #else
       #include <time.h>
    #endif
-#endif
-
-#ifdef HAVE_STAT64
-#define stat stat64
 #endif
 
 
