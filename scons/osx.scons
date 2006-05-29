@@ -7,8 +7,10 @@ env = SConscript('all.scons', exports = [ 'addFiles', 'addExtra' ])
 
 ## These lines tell SCons to treat .m files like .cpp files
 static_obj, shared_obj = SCons.Tool.createObjBuilders( env )
-shared_obj.add_action( '.m', SCons.Defaults.ShCXXAction )
+shared_obj.add_action( '.m', SCons.Defaults.ShCAction )
 shared_obj.add_emitter( '.m', SCons.Defaults.SharedObjectEmitter )
+
+env[ 'SHCCFLAGS' ] = SCons.Util.CLVar( '$CCFLAGS' )
 
 addFiles('macosx/', Split("""
 cadigi.m
@@ -17,7 +19,6 @@ drivers.m
 hidjoy.m
 hidman.m
 keybd.m
-main.m
 pcpu.m
 qtmidi.m
 quartz.m
@@ -28,14 +29,70 @@ soundman.m
 system.m
 """));
 
-flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
-includes = ["include", "include/allegro"]
-defines = ["-DHAVE_CONFIG_H", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD", "-DALLEGRO_SHARED"]
+addFiles("unix", Split("""
+ufile.c
+usystem.c
+uthreads.c
+utime.c
+utimernu.c
+uxthread.c
+"""));
+
+
+addFiles('c/', Split("""
+cblit16.c
+cblit24.c
+cblit32.c
+cblit8.c
+ccpu.c
+ccsprite.c
+cgfx15.c
+cgfx16.c
+cgfx24.c
+cgfx32.c
+cgfx8.c
+cmisc.c
+cscan15.c
+cscan16.c
+cscan24.c
+cscan32.c
+cscan8.c
+cspr15.c
+cspr16.c
+cspr24.c
+cspr32.c
+cspr8.c
+cstretch.c
+czscan15.c
+czscan16.c
+czscan24.c
+czscan32.c
+czscan8.c
+""" ));
+
+
+flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-fno-common", "-ffast-math", "-fomit-frame-pointer", "-Wno-long-double", "-pipe", "-dynamic" ]
+includes = ["include", "include/allegro", "."]
+defines = ["-DHAVE_CONFIG_H", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD", "-DALLEGRO_SHARED", "-DALLEGRO_SRC" ]
+linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", "4.3.0", "-current_version", "4.3.0", "-install_name", "liballeg-4.3.dylib" ]
+
+def addFramework( name ):
+	linkflags.append( "-framework" )
+	linkflags.append( name )
+
+addFramework( "Cocoa" )
+addFramework( "Carbon" )
+addFramework( "IOKit" )
+addFramework( "System" )
+addFramework( "CoreAudio" )
+addFramework( "AudioUnit" )
+addFramework( "AudioToolbox" )
+addFramework( "QuickTime" )	
 
 env.Append(CCFLAGS = flags)
 env.Append(CCFLAGS = defines)
 env.Append(CPPPATH = includes)
-
+env.Append(LINKFLAGS = linkflags)
 
 cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})

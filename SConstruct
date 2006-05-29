@@ -100,6 +100,8 @@ def getLibraryVariables():
         return tuple([SConscript('scons/win32.scons', exports = [ 'addFiles', 'addExtra' ]),"lib/win32/" ])
     if getPlatform() == "darwin":
         return tuple([SConscript('scons/osx.scons', exports = [ 'addFiles', 'addExtra' ]),"lib/macosx/" ])
+    if getPlatform() == "darwin":
+        return SConscript('scons/osx.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/macosx/" ])
 
 env, libDir = getLibraryVariables()
 
