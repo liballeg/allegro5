@@ -51,10 +51,18 @@ uint64_t _al_file_size_ex(AL_CONST char *filename)
    struct _stat s;
    char tmp[1024];
 
-   if (_wstat((wchar_t*)uconvert(filename, U_CURRENT, tmp, U_UNICODE,
-              sizeof(tmp)), &s) != 0) {
-      *allegro_errno = errno;
-      return 0;
+   if (IS_OLD_WINDOWS) {
+      if (_stat(uconvert(filename, U_CURRENT, tmp, U_ASCII, sizeof(tmp)), &s) != 0) {
+         *allegro_errno = errno;
+         return 0;
+      }
+   }
+   else {
+      if (_wstat((wchar_t*)uconvert(filename, U_CURRENT, tmp, U_UNICODE,
+                 sizeof(tmp)), &s) != 0) {
+         *allegro_errno = errno;
+         return 0;
+      }
    }
 
    return s.st_size;
@@ -70,10 +78,17 @@ time_t _al_file_time(AL_CONST char *filename)
    struct _stat s;
    char tmp[1024];
 
-   if (_wstat((wchar_t*)uconvert(filename, U_CURRENT, tmp, U_UNICODE,
-              sizeof(tmp)), &s) != 0) {
-      *allegro_errno = errno;
-      return 0;
+   if (IS_OLD_WINDOWS) {
+      if (_stat(uconvert(filename, U_CURRENT, tmp, U_ASCII, sizeof(tmp)), &s) != 0) {
+         *allegro_errno = errno;
+         return 0;
+      }
+   }
+   else {
+      if (_wstat((wchar_t*)uconvert(filename, U_CURRENT, tmp, U_UNICODE, sizeof(tmp)), &s) != 0) {
+         *allegro_errno = errno;
+         return 0;
+      }
    }
 
    return s.st_mtime;
@@ -84,7 +99,10 @@ time_t _al_file_time(AL_CONST char *filename)
 /* structure for use by the directory scanning routines */
 struct FF_DATA
 {
-   struct _wfinddata_t data;
+   union {
+      struct _finddata_t a;
+      struct _wfinddata_t w;
+   } data;
    long handle;
    int attrib;
 };
@@ -98,12 +116,22 @@ static void fill_ffblk(struct al_ffblk *info)
 {
    struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
 
-   info->attrib = ff_data->data.attrib;
-   info->time = ff_data->data.time_write;
-   info->size = ff_data->data.size;
+   if (IS_OLD_WINDOWS) {
+      info->attrib = ff_data->data.a.attrib;
+      info->time = ff_data->data.a.time_write;
+      info->size = ff_data->data.a.size;
 
-   do_uconvert((const char*)ff_data->data.name, U_UNICODE, info->name, U_CURRENT,
-               sizeof(info->name));
+      do_uconvert(ff_data->data.a.name, U_ASCII, info->name, U_CURRENT,
+                  sizeof(info->name));
+   }
+   else {
+      info->attrib = ff_data->data.w.attrib;
+      info->time = ff_data->data.w.time_write;
+      info->size = ff_data->data.w.size;
+
+      do_uconvert((const char*)ff_data->data.w.name, U_UNICODE, info->name,
+                  U_CURRENT, sizeof(info->name));
+   }
 }
 
 
@@ -144,23 +172,47 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    /* start the search */
    errno = *allegro_errno = 0;
 
-   ff_data->handle = _wfindfirst((wchar_t*)uconvert(pattern, U_CURRENT, tmp,
-                                 U_UNICODE, sizeof(tmp)), &ff_data->data);
+   if (IS_OLD_WINDOWS) {
+      ff_data->handle = _findfirst(uconvert(pattern, U_CURRENT, tmp,
+                                            U_ASCII, sizeof(tmp)),
+                                            &ff_data->data.a);
 
-   if (ff_data->handle < 0) {
-      *allegro_errno = errno;
-      _AL_FREE(ff_data);
-      info->ff_data = NULL;
-      return -1;
-   }
-
-   if (ff_data->data.attrib & ~ff_data->attrib) {
-      if (al_findnext(info) != 0) {
-         al_findclose(info);
+      if (ff_data->handle < 0) {
+         *allegro_errno = errno;
+         _AL_FREE(ff_data);
+         info->ff_data = NULL;
          return -1;
       }
-      else
-         return 0;
+
+      if (ff_data->data.a.attrib & ~ff_data->attrib) {
+         if (al_findnext(info) != 0) {
+            al_findclose(info);
+            return -1;
+         }
+         else
+            return 0;
+      }
+   }
+   else {
+      ff_data->handle = _wfindfirst((wchar_t*)uconvert(pattern, U_CURRENT, tmp,
+                                                       U_UNICODE, sizeof(tmp)),
+                                                       &ff_data->data.w);
+
+      if (ff_data->handle < 0) {
+         *allegro_errno = errno;
+         _AL_FREE(ff_data);
+         info->ff_data = NULL;
+         return -1;
+      }
+
+      if (ff_data->data.w.attrib & ~ff_data->attrib) {
+         if (al_findnext(info) != 0) {
+            al_findclose(info);
+            return -1;
+         }
+         else
+            return 0;
+      }
    }
 
    fill_ffblk(info);
@@ -176,13 +228,22 @@ int al_findnext(struct al_ffblk *info)
 {
    struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
 
-   do {
-      if (_wfindnext(ff_data->handle, &ff_data->data) != 0) {
-         *allegro_errno = errno;
-         return -1;
-      }
-
-   } while (ff_data->data.attrib & ~ff_data->attrib);
+   if (IS_OLD_WINDOWS) {
+      do {
+         if (_findnext(ff_data->handle, &ff_data->data.a) != 0) {
+            *allegro_errno = errno;
+            return -1;
+         }
+      } while (ff_data->data.a.attrib & ~ff_data->attrib);
+   }
+   else {
+      do {
+         if (_wfindnext(ff_data->handle, &ff_data->data.w) != 0) {
+            *allegro_errno = errno;
+            return -1;
+         }
+      } while (ff_data->data.w.attrib & ~ff_data->attrib);
+   }
 
    fill_ffblk(info);
    return 0;
@@ -233,10 +294,18 @@ void _al_getdcwd(int drive, char *buf, int size)
 {
    wchar_t tmp[1024];
 
-   if (_wgetdcwd(drive+1, tmp, sizeof(tmp)/sizeof(tmp[0])))
-      do_uconvert((const char*)tmp, U_UNICODE, buf, U_CURRENT, size);
-   else
-      usetc(buf, 0);
+   if (IS_OLD_WINDOWS) {
+      if (_getdcwd(drive+1, tmp, sizeof(tmp)))
+         do_uconvert(tmp, U_ASCII, buf, U_CURRENT, size);
+      else
+         usetc(buf, 0);
+   }
+   else {
+      if (_wgetdcwd(drive+1, (wchar_t*)tmp, sizeof(tmp)/sizeof(wchar_t*)))
+         do_uconvert(tmp, U_UNICODE, buf, U_CURRENT, size);
+      else
+         usetc(buf, 0);
+   }
 }
 
 
@@ -245,8 +314,25 @@ void _al_getdcwd(int drive, char *buf, int size)
  */
 uint64_t al_ffblk_get_size(struct al_ffblk *info)
 {
-   ASSERT(info);
-   struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
+   struct FF_DATA *ff_data;
 
-   return ff_data->data.size;
+   ASSERT(info);
+   ff_data = (struct FF_DATA *) info->ff_data;
+
+   if (IS_OLD_WINDOWS) {
+      return ff_data->data.a.size;
+   }
+   else {
+      return ff_data->data.w.size;
+   }
+}
+
+int _alwin_open(const char *filename, int mode, int perm)
+{
+   if (IS_OLD_WINDOWS) {
+      return open(filename, mode, perm);
+   }
+   else {
+      return _wopen((wchar_t*)filename, mode, perm);
+   }
 }
