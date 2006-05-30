@@ -59,6 +59,8 @@
 
 #define PREFIX_I "al-unix INFO: "
 
+#define PREFIX_I "al-unix INFO: "
+
 
 /* _al_file_isok:
  *  Helper function to check if it is safe to access a file on a floppy
@@ -509,10 +511,12 @@ void _unix_guess_file_encoding(void)
 {
    char const *encoding = "unknown";
    char *locale = getenv("LC_ALL");
-   if (!locale || !locale[0])
+
+   if (!locale || !locale[0]) {
       locale = getenv("LC_CTYPE");
-   if (!locale || !locale[0])
-      locale = getenv("LANG");
+      if (!locale || !locale[0])
+         locale = getenv("LANG");
+   }
 
    if (locale) {
       if (strstr(locale, "utf8") ||

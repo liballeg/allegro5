@@ -809,7 +809,7 @@ int delete_file(AL_CONST char *filename)
    if (!_al_file_isok(filename))
       return -1;
 
-   if (unlink(uconvert_tofilename(filename, tmp)) != 0) {
+   if (_al_unlink(uconvert_tofilename(filename, tmp)) != 0) {
       *allegro_errno = errno;
       return -1;
    }

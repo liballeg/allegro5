@@ -292,7 +292,7 @@ int _al_getdrive(void)
  */
 void _al_getdcwd(int drive, char *buf, int size)
 {
-   wchar_t tmp[1024];
+   char tmp[1024];
 
    if (IS_OLD_WINDOWS) {
       if (_getdcwd(drive+1, tmp, sizeof(tmp)))
@@ -301,7 +301,7 @@ void _al_getdcwd(int drive, char *buf, int size)
          usetc(buf, 0);
    }
    else {
-      if (_wgetdcwd(drive+1, (wchar_t*)tmp, sizeof(tmp)/sizeof(wchar_t*)))
+      if (_wgetdcwd(drive+1, (wchar_t*)tmp, sizeof(tmp)/sizeof(wchar_t)))
          do_uconvert(tmp, U_UNICODE, buf, U_CURRENT, size);
       else
          usetc(buf, 0);
@@ -336,3 +336,14 @@ int _alwin_open(const char *filename, int mode, int perm)
       return _wopen((wchar_t*)filename, mode, perm);
    }
 }
+
+int _alwin_unlink(const char *pathname)
+{
+   if (IS_OLD_WINDOWS) {
+      return unlink(pathname);
+   }
+   else {
+      return _wunlink((wchar_t*)pathname);
+   }
+}
+

@@ -170,10 +170,6 @@ AL_FUNC(int, pack_fputs, (AL_CONST char *p, PACKFILE *f));
 AL_FUNC(void *, pack_get_userdata, (PACKFILE *f));
 
 
-#ifndef _al_open
-   #define _al_open open
-#endif
-
 
 #ifdef __cplusplus
    }

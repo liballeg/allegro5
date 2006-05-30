@@ -226,6 +226,24 @@ AL_VAR(char *, _keyboard_layout);
 
 #endif
 
+#if (defined ALLEGRO_WINDOWS)
+
+AL_FUNC(int, _alwin_open, (const char*, int, int));
+AL_FUNC(int, _alwin_unlink, (const char*));
+
+   #define IS_OLD_WINDOWS (os_type==OSTYPE_WIN3  || os_type==OSTYPE_WIN95 || \
+                           os_type==OSTYPE_WIN98 || os_type==OSTYPE_WINME || \
+                           os_type==OSTYPE_UNKNOWN)
+   #define _al_open   _alwin_open
+   #define _al_unlink _alwin_unlink
+
+#else
+
+   #define _al_open   open
+   #define _al_unlink unlink
+
+#endif
+
 
 /* various bits of joystick stuff */
 AL_VAR(int, _joy_type);

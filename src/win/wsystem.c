@@ -191,8 +191,8 @@ static int sys_directx_init(void)
    if (init_directx_window() != 0)
       goto Error;
 
-   if (IS_OLD_WINDOWS) {
-      set_filename_encoding(U_UNICODE);
+   if (!IS_OLD_WINDOWS) {
+      set_file_encoding(U_UNICODE);
    }
 
    return 0;
