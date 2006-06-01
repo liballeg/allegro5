@@ -468,7 +468,9 @@ void al_findclose(struct al_ffblk *info)
    struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
 
    if (ff_data) {
-      closedir(ff_data->dir);
+      if (ff_data->dir) {
+         closedir(ff_data->dir);
+      }
       _AL_FREE(ff_data);
       info->ff_data = NULL;
 
