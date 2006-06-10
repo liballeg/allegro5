@@ -5,6 +5,10 @@ Import('addFiles', 'addExtra')
 
 env = SConscript('all.scons', exports = [ 'addFiles', 'addExtra' ])
 
+file = open( "include/allegro/platform/alplatf.h", "w" )
+file.write( "#define ALLEGRO_MACOSX" )
+file.close()
+
 ## These lines tell SCons to treat .m files like .cpp files
 static_obj, shared_obj = SCons.Tool.createObjBuilders( env )
 shared_obj.add_action( '.m', SCons.Defaults.ShCAction )
