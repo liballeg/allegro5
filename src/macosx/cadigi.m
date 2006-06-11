@@ -168,7 +168,11 @@ static int ca_init(int input, int voices)
    
    input_format_desc.mSampleRate = output_format_desc.mSampleRate;
    input_format_desc.mFormatID = kAudioFormatLinearPCM;
+#if TARGET_RT_BIG_ENDIAN
    input_format_desc.mFormatFlags = kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+#else
+   input_format_desc.mFormatFlags =  kAudioFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+#endif
    input_format_desc.mBytesPerPacket = 4;
    input_format_desc.mFramesPerPacket = 1;
    input_format_desc.mBytesPerFrame = 4;
