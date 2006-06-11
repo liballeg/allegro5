@@ -289,7 +289,7 @@ HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
       result = IOServiceGetMatchingServices(master_port, class_dictionary, &hid_object_iterator);
       if ((result == kIOReturnSuccess) && (hid_object_iterator)) {
          /* Ok, we have a list of attached HID devices; scan them. */
-         while ((hid_device = IOIteratorNext(hid_object_iterator))!=NULL) {
+         while ((hid_device = IOIteratorNext(hid_object_iterator)) != 0 ) {
             /* Mac OS X currently is not mirroring all USB properties to HID page so need to look at USB device page also
              * get dictionary for usb properties: step up two levels and get CF dictionary for USB properties.
              */
