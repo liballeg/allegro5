@@ -27,7 +27,7 @@
 
 struct BITMAP;
 
-#if (defined ALLEGRO_I386) && (!defined ALLEGRO_USE_C)
+#if (defined ALLEGRO_I386) && (!defined ALLEGRO_NO_ASM)
 
 /* compiled sprite structure */
 typedef struct COMPILED_SPRITE

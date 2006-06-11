@@ -77,7 +77,7 @@ czscan8.c
 
 flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-fno-common", "-ffast-math", "-fomit-frame-pointer", "-Wno-long-double", "-pipe", "-dynamic" ]
 includes = ["include", "include/allegro", "."]
-defines = ["-DHAVE_CONFIG_H", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD", "-DALLEGRO_SHARED", "-DALLEGRO_SRC" ]
+defines = ["-DHAVE_CONFIG_H", "-DALLEGRO_NO_ASM", "-DALLEGRO_LIB_BUILD", "-DALLEGRO_SHARED", "-DALLEGRO_SRC" ]
 linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", "4.3.0", "-current_version", "4.3.0", "-install_name", "liballeg-4.3.dylib" ]
 
 def addFramework( name ):

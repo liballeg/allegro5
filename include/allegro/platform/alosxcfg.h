@@ -54,10 +54,6 @@
    #define ALLEGRO_BIG_ENDIAN
 #endif
 
-#ifdef __i386__
-   #define ALLEGRO_I386
-#endif
-
 /* Arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/platform/alosx.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintosx.h"

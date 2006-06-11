@@ -216,7 +216,7 @@ xalleg_h = $(srcdir)/include/xalleg.h
 ifdef CROSSCOMPILE
 
 $(OBJDIR)/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h
-	$(CC) $(INCLUDES) `echo $(CFLAGS) | sed -e "s/.*\(-DALLEGRO_USE_C\).*/\1/"` -S -o $(OBJDIR)/asmdef.s src/i386/asmdef.c
+	$(CC) $(INCLUDES) `echo $(CFLAGS) | sed -e "s/.*\(-DALLEGRO_NO_ASM\).*/\1/"` -S -o $(OBJDIR)/asmdef.s src/i386/asmdef.c
 
 $(obj_unix_asmdef_inc): $(OBJDIR)/asmdef.s
 	@if [ ! -x misc/asmdef.sh ]; then chmod a+x misc/asmdef.sh; fi

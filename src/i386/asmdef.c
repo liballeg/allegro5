@@ -118,7 +118,7 @@ offset_entry_t list[] = {
   {"BMP_ID_MASK",     BMP_ID_MASK},
   {"#endif", 0 },
   {"NEWLINE", 0},
-#if !defined ALLEGRO_USE_C && defined ALLEGRO_I386
+#if !defined ALLEGRO_NO_ASM && defined ALLEGRO_I386
   {"CMP_PLANAR",      (int)offsetof(COMPILED_SPRITE, planar)},
   {"CMP_COLOR_DEPTH", (int)offsetof(COMPILED_SPRITE, color_depth)},
   {"CMP_DRAW",        (int)offsetof(COMPILED_SPRITE, proc)},

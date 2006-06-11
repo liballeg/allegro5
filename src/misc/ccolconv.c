@@ -26,7 +26,7 @@ extern int *_colorconv_rgb_scale_5x35;     /* for conversion from 15/16-bit */
 extern unsigned char *_colorconv_rgb_map;  /* for conversion from 8/12-bit to 8-bit */
 
 
-#if (defined ALLEGRO_USE_C || defined ALLEGRO_NO_ASM)
+#ifdef ALLEGRO_NO_ASM
 
 #ifdef ALLEGRO_COLOR8
 

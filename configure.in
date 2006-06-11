@@ -194,7 +194,7 @@ fi
 
 if test -z "$ALLEGRO_MAYBE_ASM_FILES"; then
   ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_C_FILES
-  CFLAGS="$CFLAGS -DALLEGRO_USE_C"
+  CFLAGS="$CFLAGS -DALLEGRO_NO_ASM"
   AC_DEFINE(ALLEGRO_NO_ASM,1,
 	    [Define for Unix platforms, to use C convention for bank switching.])
   _code_features="C only"
