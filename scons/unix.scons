@@ -248,7 +248,7 @@ shared_obj.add_emitter('.s', SCons.Defaults.SharedObjectEmitter )
 
 flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
 includes = ["include", "include/allegro", "."]
-defines = ["-DHAVE_CONFIG_H", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD"]
+defines = ["-DHAVE_CONFIG_H", "-DALLEGRO_NO_ASM", "-DALLEGRO_LIB_BUILD"]
 
 env.Append(CCFLAGS = flags)
 env.Append(CCFLAGS = defines)

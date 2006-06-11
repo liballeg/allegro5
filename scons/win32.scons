@@ -10,7 +10,7 @@ env = SConscript('all.scons', exports = [ 'addFiles', 'addExtra' ])
 
 flags = [ '-g', '-Wall', '-Wno-unused', '-O2', '-funroll-loops', '-ffast-math', '-fomit-frame-pointer' ]
 includes = [ "include", "include/allegro" ]
-# defines = [ "-DALLEGRO_SRC", "-DALLEGRO_USE_C", "-DALLEGRO_LIB_BUILD" ]
+# defines = [ "-DALLEGRO_SRC", "-DALLEGRO_NO_ASM", "-DALLEGRO_LIB_BUILD" ]
 defines = [ "-DALLEGRO_SRC", "-DALLEGRO_LIB_BUILD" ]
 
 env.Append(CCFLAGS = flags)
