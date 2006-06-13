@@ -1,6 +1,8 @@
 # Scons build scripts for Allegro by Jon Rafkind
 # Circa 12/25/2005
 
+# If you are on Linux/*NIX you need at least version 0.96.92 of SCons 
+
 # Possible targets should be
 # shared - Shared allegro library. Either a .so( unix ) or .dll( windows )
 # static - Static allegro library, .a file.
