@@ -17,9 +17,14 @@
 # Thus debug=1 static=1 is the same as debug-static
 
 # TODO:
-# Compile the modules in unix( alsa, oss, etc ) - Mostly done
-# Get the build system working on other platforms supported by Allegro, Windows being the most important one
-# Allow arbitrary libraries to be dropped into the Allegro directory and automatically compiled using the Allegro SCons environments 
+# 1. Compile the modules in unix( alsa, oss, etc ) - Mostly done( 90% )
+
+# 2. Get the build system working on other platforms supported by Allegro, Windows being the most important one
+# Linux - 95%
+# OSX - 80%
+# Windows - 80%
+
+# 3. Allow arbitrary libraries to be dropped into the Allegro directory and automatically compiled using the Allegro SCons environments - 0%
 
 import os
 import sys
@@ -59,96 +64,144 @@ Help(allegroHelp())
 try: os.mkdir("build")
 except OSError: pass
 
+## Version of Allegro
 allegroVersion = '4.3.0'
 
 def getPlatform():
     return sys.platform
+    
+def appendDir(dir, files):
+    return map(lambda x: dir + '/' + x, files)
 
 # Do not change directories when reading other scons files via SConscript
 SConscriptChdir(0)
 
-librarySource = []
+class AllegroContext:
+    def __init__(self):
+        self.librarySource = []
+        self.extraTargets = []
+        self.libDir = "lib/dummy"
+        self.libraryEnv = Environment()
+        self.exampleEnv = self.libraryEnv.Copy()
+        self.setEnvs()
+
+    def setLibraryDir(self,dir):
+        self.libDir = dir
+
+    def getLibraryDir(self):
+        return self.libDir
+
+    def getExtraTargets(self):
+        return self.extraTargets
+
+    def setEnvs(self):
+        self.envs = [self.libraryEnv,self.exampleEnv]
+
+    def getAllegroVersion(self):
+        return allegroVersion
+
+    def addExtra(self,func):
+        self.extraTargets.append(func)
+
+    def setLibraryEnv(self,env):
+        self.libraryEnv = env
+        self.setEnvs()
+
+    def getLibraryEnv(self):
+        return self.libraryEnv
+
+    def setSConsignFile(self,file):
+        for i in self.envs:
+            i.SConsignFile("build/signatures")
+
+    def setExampleEnv(self,env):
+        self.exampleEnv = env
+
+    def addFiles(self,dir,fileList):
+        self.librarySource.extend(appendDir(dir,fileList))
+
+    def getAllegroTarget(self,debug,static):
+        def build(function,lib,dir):
+            return function(lib, appendDir(dir, self.librarySource))
+
+        def buildStatic(env,debug,dir):
+            env.BuildDir(dir, 'src', duplicate = 0)
+            return build(env.StaticLibrary,self.libDir + '/static/' + getLibraryName(debug),dir)
+
+        def buildShared(env,debug,dir):
+            env.BuildDir(dir, 'src', duplicate = 0)
+            return build(env.SharedLibrary,self.libDir + '/shared/' + getLibraryName(debug),dir)
+
+        debugEnv = self.libraryEnv.Copy()
+        debugEnv.Append(CCFLAGS = '-DDEBUGMODE=1')
+
+        debugStatic = buildStatic(debugEnv, 1, debugBuildDir)
+        debugShared = buildShared(debugEnv, 1, debugBuildDir)
+        normalStatic = buildStatic(self.libraryEnv, 0, optimizedBuildDir)
+        normalShared = buildShared(self.libraryEnv, 0, optimizedBuildDir)
+
+        Alias('debug-static',debugStatic)
+        Alias('debug-shared',debugShared)
+        Alias('static',normalStatic)
+        Alias('shared',normalShared)
+
+        if debug == 1 and static == 1:
+            return debugStatic
+        elif debug == 1:
+            return debugShared
+        elif static == 1:
+            return normalStatic
+        else:
+            return normalShared
 
 # Returns a function that takes a directory and a list of files
 # and returns a new list of files with a build directory prepended to it
-def sourceFiles(dir, files):
-    return map(lambda x: dir + '/' + x, files)
+#def sourceFiles(dir, files):
+#    return map(lambda x: dir + '/' + x, files)
 
-def appendDir(dir, files):
-    return map(lambda x: dir + '/' + x, files)
-
-def addFiles(dir,fileList):
-    librarySource.extend(sourceFiles(dir,fileList))
 
 # Subsequent scons files can call addExtra to add arbitrary targets
 # that will be evaluated in this file
-extras = []
-def addExtra(func):
-    extras.append(func)
 
 # Returns a tuple( env, files, dir ). Each platform that Allegro supports should be
 # listed here and the proper scons/X.scons file should be SConscript()'ed.
 # env - environment
 # files - list of files that compose the Allegro library
 # dir - directory where the library( dll, so ) should end up
-def getLibraryVariables():
+def getAllegroContext():
+    context = AllegroContext()
+    file = ""
     if getPlatform() == "openbsd3":
-        return tuple([SConscript('scons/bsd.scons', exports = [ 'addFiles', 'addExtra' ]),"lib/unix/"])
+        file = 'scons/bsd.scons'
+        # , "lib/unix/"]
     if getPlatform() == "linux2":
-        return tuple([SConscript('scons/linux.scons', exports = [ 'addFiles', 'addExtra' ]),"lib/unix/"])
+        file = 'scons/linux.scons'
+        # ,"lib/unix/"])
     if getPlatform() == "win32":
-        return tuple([SConscript('scons/win32.scons', exports = [ 'addFiles', 'addExtra' ]),"lib/win32/" ])
+        file = 'scons/win32.scons'
+        # "lib/win32/" ])
     if getPlatform() == "darwin":
-        return tuple([SConscript('scons/osx.scons', exports = [ 'addFiles', 'addExtra' ]),"lib/macosx/" ])
+        file = 'scons/osx.scons'
+        # "lib/macosx/" ])
     if getPlatform() == "darwin":
-        return SConscript('scons/osx.scons', exports = [ 'sourceFiles', 'addExtra' ]) + tuple([ "lib/macosx/" ])
+        file = 'scons/osx.scons'
+        # "lib/macosx/" ])
+    SConscript(file, exports = ['context'])
+    return context
 
-env, libDir = getLibraryVariables()
+context = getAllegroContext()
 
 # Stop cluttering everything with .sconsign files, use a single db file instead
-env.SConsignFile("build/signatures")
+context.setSConsignFile("build/signatures")
 
 debugBuildDir = 'build/debug/'
 optimizedBuildDir = 'build/release/'
 
 def getLibraryName(debug):
     if debug:
-        return 'allegd-' + allegroVersion
+        return 'allegd-' + context.getAllegroVersion()
     else:
-        return 'alleg-' + allegroVersion
-
-def getAllegroTarget(debug,static):
-    def build(function,lib,dir):
-        env.BuildDir(dir, 'src', duplicate = 0)
-        return function(lib, appendDir(dir, librarySource))
-
-    def buildStatic(env,debug,dir):
-        return build(env.StaticLibrary,libDir + '/static/' + getLibraryName(debug),dir)
-
-    def buildShared(env,debug,dir):
-        return build(env.SharedLibrary,libDir + '/shared/' + getLibraryName(debug),dir)
-
-    debugEnv = env.Copy()
-    debugEnv.Append(CCFLAGS = '-DDEBUGMODE=1')
-
-    debugStatic = buildStatic(debugEnv, 1, debugBuildDir)
-    debugShared = buildShared(debugEnv, 1, debugBuildDir)
-    normalStatic = buildStatic(env, 0, optimizedBuildDir)
-    normalShared = buildShared(env, 0, optimizedBuildDir)
-
-    Alias('debug-static',debugStatic)
-    Alias('debug-shared',debugShared)
-    Alias('static',normalStatic)
-    Alias('shared',normalShared)
-
-    if debug == 1 and static == 1:
-        return debugStatic
-    elif debug == 1:
-        return debugShared
-    elif static == 1:
-        return normalStatic
-    else:
-        return normalShared
+        return 'alleg-' + context.getAllegroVersion()
         
 debug = int(ARGUMENTS.get('debug',0))
 static = int(ARGUMENTS.get('static',0))
@@ -158,11 +211,11 @@ if debug:
 else:
     normalBuildDir = optimizedBuildDir
 
-env.Append(CPPPATH = [ normalBuildDir ])
+context.getLibraryEnv().Append(CPPPATH = [ normalBuildDir ])
 
-library = getAllegroTarget(debug,static)
+library = context.getAllegroTarget(debug,static)
 Alias('library', library)
-Install(libDir, library)
+Install(context.getLibraryDir(), library)
 
 docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
 Alias('docs', docs)
@@ -185,9 +238,9 @@ def buildDemo(env,appendDir,buildDir,libDir):
     Alias('demo', demo)
     return demo
 
-addExtra(buildDemo)
+context.addExtra(buildDemo)
 
-plugins_h = env.Cat( normalBuildDir + 'plugins.h', appendDir( 'tools/plugins/', Split("""
+plugins_h = context.getLibraryEnv().Cat( normalBuildDir + 'plugins.h', appendDir( 'tools/plugins/', Split("""
 datalpha.inc
 datfli.inc
 datfname.inc
@@ -208,17 +261,17 @@ datworms.inc
 
 # Build all other miscellaneous targets using the same environment
 # that was used to build allegro but only link in liballeg
-extraEnv = env.Copy()
+extraEnv = context.getLibraryEnv().Copy()
 liballeg = getLibraryName(debug)
-extraEnv.Append(LIBPATH = [ libDir ])
+extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
 if not static:
-    extraEnv.Replace(LIBS = [ liballeg ])
+    extraEnv.Replace(LIBS = [liballeg])
 else:
-    extraEnv.Append(LIBS = [ liballeg ])
+    extraEnv.Append(LIBS = [liballeg])
 
 extraTargets = []
-for func in extras:
-    extraTargets.append(func(extraEnv,appendDir,normalBuildDir,libDir))
+for func in context.getExtraTargets():
+    extraTargets.append(func(extraEnv,appendDir,normalBuildDir,context.getLibraryDir()))
 
 extraTargets.append(plugins_h)
 Default(library, extraTargets, docs)

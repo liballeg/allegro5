@@ -1,10 +1,12 @@
 # vi: syntax=python
-Import("addFiles", "addExtra")
+Import('context')
 
 import os, ConfigParser
 import checks
 
-env = SConscript("all.scons", exports = ["addFiles", "addExtra"])
+SConscript("all.scons", exports = ["context"])
+
+context.setLibraryDir("lib/unix")
 
 def getOption(name, default):
     arg = ARGUMENTS.get(name,default)
@@ -84,6 +86,7 @@ settings = ConfigParser.ConfigParser()
 if noconfig:
     readAutoHeader("include/allegro/platform/alunixac.h", platform)
     settings.read("build/settings.cfg")
+    env = context.getLibraryEnv()
     for setting in config_settings:
         eval("env.Append(%s = %s)" % (setting, settings.get("unix", setting)))
 else:
@@ -116,17 +119,24 @@ else:
     tests["CheckOSSMidi"] = checks.CheckOSSMidi
     tests["CheckMTune"] = checks.CheckMTune
 
-    config = env.Configure(custom_tests = tests)
+    config = context.getLibraryEnv().Configure(custom_tests = tests)
 
     gccArchFlag = "-mcpu="
-    if config.CheckMTune():
-        gccArchFlag = "-mtune="
-
+    machine = "i386"
+    useArch = False
     if config.CheckIntel():
-        config.env.Append( CCFLAGS = [gccArchFlag + "pentium"] )
+        machine = "pentium"
+        useArch = True
 
     if config.CheckAMD64():
-        config.env.Append( CCFLAGS = [gccArchFlag + "k8"] )
+        machine = "k8"
+        useArch = True
+
+    if config.CheckMTune(machine):
+        gccArchFlag = "-mtune=" + machine
+
+    if useArch:
+        config.env.Append( CCFLAGS = [gccArchFlag] )
 
     config.CheckLib("m", "sin")
     platform["ALLEGRO_ALSA_VERSION"] = [config.AlsaVersion(), "Define to the installed ALSA version"]
@@ -223,7 +233,8 @@ else:
 
     platform["ALLEGRO_HAVE_SV_PROCFS"] = [False, "Define to 1 if you have a System V sys/procfs.h"]
 
-    env = config.Finish()
+    context.setLibraryEnv(config.Finish())
+    env = context.getLibraryEnv()
 
     ## Write
     writeAutoHeader("include/allegro/platform/alunixac.h", platform)
@@ -254,7 +265,7 @@ env.Append(CCFLAGS = flags)
 env.Append(CCFLAGS = defines)
 env.Append(CPPPATH = includes)
 
-addFiles('c/', Split("""
+context.addFiles('c/', Split("""
 cblit16.c
 cblit24.c
 cblit32.c
@@ -285,7 +296,7 @@ czscan32.c
 czscan8.c
 """ ));
 
-addFiles("unix", Split("""
+context.addFiles("unix", Split("""
 jack.c
 sgial.c
 udjgpp.c
@@ -315,7 +326,7 @@ if platform["ALLEGRO_WITH_ESDDIGI"]:
         esdEnv.ParseConfig('esd-config --libs')
         sources = ["uesd.c"]
         return esdEnv.SharedLibrary(libDir + "alleg-esddigi",appendDir(buildDir + "/unix/", sources))
-    addExtra(buildESD)
+    context.addExtra(buildESD)
 
 if platform["ALLEGRO_WITH_ALSADIGI"]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
@@ -323,7 +334,7 @@ if platform["ALLEGRO_WITH_ALSADIGI"]:
         alsaEnv.Append(LIBS = "asound")
         sources = ["alsa5.c", "alsa9.c"]
         return alsaEnv.SharedLibrary(libDir + "alleg-alsadigi",appendDir(buildDir + "/unix/", sources))
-    addExtra(buildAlsa)
+    context.addExtra(buildAlsa)
 
 if platform["ALLEGRO_WITH_ALSAMIDI"]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
@@ -331,7 +342,7 @@ if platform["ALLEGRO_WITH_ALSAMIDI"]:
         alsaEnv.Append(LIBS = "asound")
         sources = ["alsamidi.c"]
         return alsaEnv.SharedLibrary(libDir + "alleg-alsamidi",appendDir(buildDir + "/unix/", sources))
-    addExtra(buildAlsa)
+    context.addExtra(buildAlsa)
 
 if platform["ALLEGRO_LINUX_SVGALIB"]:
     def buildSVGA(menv,appendDir,buildDir,libDir):
@@ -342,7 +353,7 @@ if platform["ALLEGRO_LINUX_SVGALIB"]:
         vgaEnv.Cat('obj/unix/asmdef.inc', 'src/i386/asmdefs.inc')
         vgaEnv.Depends(lib,'obj/unix/asmdef.inc')
         return lib
-    addExtra(buildSVGA)
+    context.addExtra(buildSVGA)
 
 if platform["ALLEGRO_WITH_ARTSDIGI"]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
@@ -350,16 +361,16 @@ if platform["ALLEGRO_WITH_ARTSDIGI"]:
         artsEnv.ParseConfig("artsc-config --libs")
         sources = ["arts.c"]
         return artsEnv.SharedLibrary(libDir + "alleg-artsdigi",appendDir(buildDir + "/unix/", sources))
-    addExtra(buildAlsa)
+    context.addExtra(buildAlsa)
 
 if platform["ALLEGRO_LINUX_FBCON"]:
     def buildFBCon(menv,appendDir,buildDir,libDir):
         sources = ["fbcon.c"]
         return menv.SharedLibrary(libDir + "alleg-fbcon",appendDir(buildDir + "/linux/", sources))
-    addExtra(buildFBCon)
+    context.addExtra(buildFBCon)
 
 if platform["ALLEGRO_WITH_XWINDOWS"]:
-    addFiles("x/", Split("""
+    context.addFiles("x/", Split("""
     xgfxdrv.c
     xkeyboard.c
     xmouse.c
@@ -378,7 +389,7 @@ if platform["ALLEGRO_WITH_XWINDOWS"]:
         Alias("tools", tools)
         return tools
 
-    addExtra(tools)
+    context.addExtra(tools)
 
 def pruneLibs(libs):
     import sets # needed for Python 2.3 compatibility
@@ -388,5 +399,3 @@ env.Replace(LIBS = pruneLibs(env["LIBS"]))
 
 cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})
-
-Return("env")

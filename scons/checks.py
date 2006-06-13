@@ -17,10 +17,10 @@ def CheckIntel(context):
     context.Result(ret)
     return ret
 
-def CheckMTune(context):
+def CheckMTune(context,machine):
     context.Message("Checking if -mtune is supported... ")
     tmp = context.env.Copy()
-    context.env.Append(CCFLAGS = '-mtune=i386')
+    context.env.Append(CCFLAGS = '-mtune=' + machine)
     ret = context.TryCompile("""
         int main(){}
         """, ".c");

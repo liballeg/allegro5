@@ -1,10 +1,8 @@
 import os
 
-Import('addFiles', 'addExtra')
+Import('context')
 
-env = Environment(ENV = os.environ)
-
-addFiles('./', Split( """
+context.addFiles('./', Split( """
 allegro.c
 blit.c
 bmp.c
@@ -77,7 +75,7 @@ vtable32.c
 vtable8.c
 """ ));
 
-addFiles('compat/', Split("""
+context.addFiles('compat/', Split("""
 coblit.c
 cogfx.c
 cojoy.c
@@ -85,14 +83,14 @@ cokeybd.c
 cotimer.c
 """ ));
 
-addFiles('misc/', Split("""
+context.addFiles('misc/', Split("""
 vector.c
 colconv.c
 ccolconv.c
 """ ));
 
 if False:
-	addFiles('c/', Split("""
+	context.addFiles('c/', Split("""
 	cblit16.c
 	cblit24.c
 	cblit32.c
@@ -262,8 +260,6 @@ def examples(env,appendDir,buildDir,libDir):
     Alias('examples', examples)
     return examples
 
-addExtra(examples)
-addExtra(tools)
-addExtra(tests)
-
-Return('env')
+context.addExtra(examples)
+context.addExtra(tools)
+context.addExtra(tests)

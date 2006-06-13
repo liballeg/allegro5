@@ -1,11 +1,10 @@
 import os
 
-Import('addFiles', 'addExtra')
+Import('context')
 
-env = SConscript('unix.scons', exports = [ 'addFiles', 'addExtra' ])
+SConscript('unix.scons', exports = ['context'])
 
-
-addFiles('linux/', Split("""
+context.addFiles('linux/', Split("""
 lconsole.c
 lgfxdrv.c
 ljoynu.c
@@ -23,5 +22,3 @@ lvga.c
 lvgahelp.c
 vtswitch.c
 """));
-
-Return('env')
