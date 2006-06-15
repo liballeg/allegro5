@@ -123,6 +123,9 @@ AL_FUNC(int, _al_drive_exists, (int drive));
 AL_FUNC(int, _al_getdrive, (void));
 AL_FUNC(void, _al_getdcwd, (int drive, char *buf, int size));
 
+/* obsolete; only exists for binary compatibility with 4.2.0 */
+AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
+
 
 /* packfile stuff */
 AL_VAR(int, _packfile_filesize);
