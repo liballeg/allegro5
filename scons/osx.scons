@@ -1,9 +1,11 @@
 import os
 import SCons
 
-Import('addFiles', 'addExtra')
+Import('context')
 
-env = SConscript('all.scons', exports = [ 'addFiles', 'addExtra' ])
+SConscript('all.scons', exports = ['context'])
+
+env = context.getLibraryEnv()
 
 file = open( "include/allegro/platform/alplatf.h", "w" )
 file.write( "#define ALLEGRO_MACOSX" )
@@ -16,7 +18,7 @@ shared_obj.add_emitter( '.m', SCons.Defaults.SharedObjectEmitter )
 
 env[ 'SHCCFLAGS' ] = SCons.Util.CLVar( '$CCFLAGS' )
 
-addFiles('macosx/', Split("""
+context.addFiles('macosx/', Split("""
 cadigi.m
 camidi.m
 drivers.m
@@ -33,7 +35,7 @@ soundman.m
 system.m
 """));
 
-addFiles("unix", Split("""
+context.addFiles("unix", Split("""
 ufile.c
 usystem.c
 uthreads.c
@@ -43,7 +45,7 @@ uxthread.c
 """));
 
 
-addFiles('c/', Split("""
+context.addFiles('c/', Split("""
 cblit16.c
 cblit24.c
 cblit32.c
@@ -100,5 +102,3 @@ env.Append(LINKFLAGS = linkflags)
 
 cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})
-
-Return('env')
