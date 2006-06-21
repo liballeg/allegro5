@@ -118,6 +118,7 @@ class AllegroContext:
 
     def setExampleEnv(self,env):
         self.exampleEnv = env
+	self.setEnvs()
 
     def addFiles(self,dir,fileList):
         self.librarySource.extend(appendDir(dir,fileList))
