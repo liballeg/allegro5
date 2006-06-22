@@ -7,6 +7,8 @@ SConscript('all.scons', exports = ['context'])
 
 env = context.getLibraryEnv()
 
+context.setLibraryDir("lib/macosx")
+
 file = open( "include/allegro/platform/alplatf.h", "w" )
 file.write( "#define ALLEGRO_MACOSX" )
 file.close()
@@ -76,11 +78,29 @@ czscan32.c
 czscan8.c
 """ ));
 
+exampleEnv = Environment()
+
+flags = [ "-Wall", "-Wno-unused", "-Wno-long-double", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer", "-fno-common", "-pipe", "-dynamic" ]
+defines = [ "-DALLEGRO_NO_ASM", "-DALLEGRO_LIB_BUILD" ]
+includes = [ "include" ]
+linkflags = ["-prebind", "lib/macosx/liballeg-main.a", "-framework", "Cocoa"]
+
+# gcc -s -prebind -o examples/exupdate obj/macosx/alleg/exupdate.o lib/macosx/liballeg-4.3.0.dylib lib/macosx/liballeg-main.a -framework Cocoa
+
+exampleEnv.Append(CCFLAGS = flags)
+exampleEnv.Append(CCFLAGS = defines)
+exampleEnv.Append(CPPPATH = includes)
+exampleEnv.Append(LINKFLAGS = linkflags)
+
+context.setExampleEnv( exampleEnv )
+
+# gcc -DALLEGRO_LIB_BUILD -Wall -Wno-unused -Wno-long-double  -O2 -funroll-loops -ffast-math -fomit-frame-pointer -fno-common -pipe -dynamic -DALLEGRO_NO_ASM -I. -I./include -o obj/macosx/alleg/exupdate.o -c examples/exupdate.c
 
 flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-fno-common", "-ffast-math", "-fomit-frame-pointer", "-Wno-long-double", "-pipe", "-dynamic" ]
 includes = ["include", "include/allegro", "."]
 defines = ["-DHAVE_CONFIG_H", "-DALLEGRO_NO_ASM", "-DALLEGRO_LIB_BUILD", "-DALLEGRO_SHARED", "-DALLEGRO_SRC" ]
-linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", "4.3.0", "-current_version", "4.3.0", "-install_name", "liballeg-4.3.dylib" ]
+linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", str(context.getAllegroVersion()), "-current_version", str(context.getAllegroVersion()), "-install_name", "liballeg-" + str(context.getAllegroVersion()) + ".dylib" ]
+
 
 def addFramework( name ):
 	linkflags.append( "-framework" )

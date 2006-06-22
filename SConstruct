@@ -116,6 +116,9 @@ class AllegroContext:
         for i in self.envs:
             i.SConsignFile("build/signatures")
 
+    def getExampleEnv(self):
+        return self.exampleEnv
+
     def setExampleEnv(self,env):
         self.exampleEnv = env
 	self.setEnvs()
@@ -176,19 +179,16 @@ def getAllegroContext():
     file = ""
     if getPlatform() == "openbsd3":
         file = 'scons/bsd.scons'
-        # , "lib/unix/"]
-    if getPlatform() == "linux2":
+    elif getPlatform() == "linux2":
         file = 'scons/linux.scons'
-        # ,"lib/unix/"])
-    if getPlatform() == "win32":
+    elif getPlatform() == "win32":
         file = 'scons/win32.scons'
-        # "lib/win32/" ])
-    if getPlatform() == "darwin":
+    elif getPlatform() == "darwin":
         file = 'scons/osx.scons'
-        # "lib/macosx/" ])
-    if getPlatform() == "darwin":
+    elif getPlatform() == "darwin":
         file = 'scons/osx.scons'
-        # "lib/macosx/" ])
+    else:
+        file = 'scons/linux.scons'
     SConscript(file, exports = ['context'])
     return context
 
@@ -264,7 +264,7 @@ datworms.inc
 
 # Build all other miscellaneous targets using the same environment
 # that was used to build allegro but only link in liballeg
-extraEnv = context.getLibraryEnv().Copy()
+extraEnv = context.getExampleEnv().Copy()
 liballeg = getLibraryName(debug)
 extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
 if not static:
