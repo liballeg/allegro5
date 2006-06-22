@@ -399,3 +399,5 @@ env.Replace(LIBS = pruneLibs(env["LIBS"]))
 
 cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})
+    
+context.setExampleEnv(env.Copy())

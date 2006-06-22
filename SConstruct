@@ -84,7 +84,10 @@ class AllegroContext:
         self.extraTargets = []
         self.libDir = "lib/dummy"
         self.libraryEnv = Environment()
-        self.exampleEnv = self.libraryEnv.Copy()
+	# Platform specific scons scripts should set the example env via
+	# setExampleEnv(). In most cases the library env can be used:
+	# context.setExampleEnv(context.getLibraryEnv().Copy())
+        self.exampleEnv = False
         self.setEnvs()
 
     def setLibraryDir(self,dir):
