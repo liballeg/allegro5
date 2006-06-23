@@ -56,6 +56,10 @@
 #define ALLEGRO_LFN  0
 
 #define LONG_LONG    long long
+#ifdef ALLEGRO_GUESS_INTTYPES_OK
+   #define int64_t   signed long long
+   #define uint64_t  unsigned long long
+#endif
 
 #if __WATCOMC__ >= 1100
    #define ALLEGRO_MMX
