@@ -88,10 +88,20 @@ class AllegroContext:
 	# setExampleEnv(). In most cases the library env can be used:
 	# context.setExampleEnv(context.getLibraryEnv().Copy())
         self.exampleEnv = False
+        # libraries - list of libraries to link into Allegro test/example programs
+        # Usually is just liballeg.so/dylib/dll but could also be something
+        # like liballeg-main.a
+        self.libraries = []
         self.setEnvs()
 
     def setLibraryDir(self,dir):
         self.libDir = dir
+
+    def addLibrary(self,library):
+        self.libraries.append(library)
+
+    def getLibraries(self):
+        return self.libraries
 
     def getLibraryDir(self):
         return self.libDir
@@ -223,6 +233,8 @@ library = context.getAllegroTarget(debug,static)
 Alias('library', library)
 Install(context.getLibraryDir(), library)
 
+context.addLibrary(library)
+
 docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
 Alias('docs', docs)
 
@@ -268,12 +280,12 @@ datworms.inc
 # Build all other miscellaneous targets using the same environment
 # that was used to build allegro but only link in liballeg
 extraEnv = context.getExampleEnv().Copy()
-liballeg = getLibraryName(debug)
+# liballeg = getLibraryName(debug)
 extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
 if not static:
-    extraEnv.Replace(LIBS = [liballeg])
+    extraEnv.Replace(LIBS = [context.getLibraries()])
 else:
-    extraEnv.Append(LIBS = [liballeg])
+    extraEnv.Append(LIBS = [context.getLibraries()])
 
 extraTargets = []
 for func in context.getExtraTargets():
