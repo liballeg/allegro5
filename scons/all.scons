@@ -154,8 +154,10 @@ def tools(env,appendDir,buildDir,libDir):
             plugins/datsamp.c
             plugins/datworms.c
         """);
-        libaldat = env.StaticLibrary(libDir + '/aldat', appendDir(buildDir + '/tools/', aldatFiles))
-        env.Depends(buildDir + '/tools/datedit.o', buildDir + '/plugins.h')
+	aldatEnv = env.Copy()
+	aldatEnv.Append(CPPPATH = buildDir)
+        libaldat = aldatEnv.StaticLibrary(libDir + '/aldat', appendDir(buildDir + '/tools/', aldatFiles))
+        aldatEnv.Depends(buildDir + '/tools/datedit.o', buildDir + '/plugins.h')
         Alias('aldat', libaldat)
         tools.append(libaldat)
         datEnv = env.Copy()
