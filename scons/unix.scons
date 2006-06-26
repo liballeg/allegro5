@@ -48,7 +48,7 @@ def readAutoHeader(filename, platform):
     for line in file(filename):
         if line.startswith("#define "):
             name, use = line.split(None, 2)[1:]
-            platform[name] = use
+            platform[name] = [use,name]
 
 # With the noconfig option, simply re-use the last config if one is available.
 # Should this be default?
@@ -68,7 +68,7 @@ class SimpleHash:
         try:
             return self.hash[ key ]
         except KeyError:
-            return 0
+            return [False]
 
     def __setitem__( self, key, value ):
         self.hash[ key ] = value
@@ -320,7 +320,7 @@ utimernu.c
 uxthread.c
 """));
 
-if platform["ALLEGRO_WITH_ESDDIGI"]:
+if platform["ALLEGRO_WITH_ESDDIGI"][0]:
     def buildESD(menv,appendDir,buildDir,libDir):
         esdEnv = menv.Copy()
         esdEnv.ParseConfig('esd-config --libs')
@@ -328,7 +328,7 @@ if platform["ALLEGRO_WITH_ESDDIGI"]:
         return esdEnv.SharedLibrary(libDir + "alleg-esddigi",appendDir(buildDir + "/unix/", sources))
     context.addExtra(buildESD)
 
-if platform["ALLEGRO_WITH_ALSADIGI"]:
+if platform["ALLEGRO_WITH_ALSADIGI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
@@ -336,7 +336,7 @@ if platform["ALLEGRO_WITH_ALSADIGI"]:
         return alsaEnv.SharedLibrary(libDir + "alleg-alsadigi",appendDir(buildDir + "/unix/", sources))
     context.addExtra(buildAlsa)
 
-if platform["ALLEGRO_WITH_ALSAMIDI"]:
+if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
@@ -344,18 +344,21 @@ if platform["ALLEGRO_WITH_ALSAMIDI"]:
         return alsaEnv.SharedLibrary(libDir + "alleg-alsamidi",appendDir(buildDir + "/unix/", sources))
     context.addExtra(buildAlsa)
 
-if platform["ALLEGRO_LINUX_SVGALIB"]:
+# This might be broken. asmdefs.inc isnt generated until after svgalibs.s
+# is compiled, but svgalib.s depends on asmdefs.inc. Either this dependancy
+# needs to be fixed from scons or asmdefs.inc should be moved/generated elsewhere
+if platform["ALLEGRO_LINUX_SVGALIB"][0]:
     def buildSVGA(menv,appendDir,buildDir,libDir):
         vgaEnv = menv.Copy()
         vgaEnv.Append(LIBS = "vga")
+        vgaEnv.Depends(buildDir + '/linux/svgalibs.s','obj/unix/asmdef.inc')
         sources = ["svgalib.c","svgalibs.s"]
         lib = vgaEnv.SharedLibrary(libDir + "alleg-svgalib",appendDir(buildDir + "/linux/", sources))
         vgaEnv.Cat('obj/unix/asmdef.inc', 'src/i386/asmdefs.inc')
-        vgaEnv.Depends(lib,'obj/unix/asmdef.inc')
         return lib
     context.addExtra(buildSVGA)
 
-if platform["ALLEGRO_WITH_ARTSDIGI"]:
+if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         artsEnv = menv.Copy()
         artsEnv.ParseConfig("artsc-config --libs")
@@ -363,13 +366,13 @@ if platform["ALLEGRO_WITH_ARTSDIGI"]:
         return artsEnv.SharedLibrary(libDir + "alleg-artsdigi",appendDir(buildDir + "/unix/", sources))
     context.addExtra(buildAlsa)
 
-if platform["ALLEGRO_LINUX_FBCON"]:
+if platform["ALLEGRO_LINUX_FBCON"][0]:
     def buildFBCon(menv,appendDir,buildDir,libDir):
         sources = ["fbcon.c"]
         return menv.SharedLibrary(libDir + "alleg-fbcon",appendDir(buildDir + "/linux/", sources))
     context.addExtra(buildFBCon)
 
-if platform["ALLEGRO_WITH_XWINDOWS"]:
+if platform["ALLEGRO_WITH_XWINDOWS"][0]:
     context.addFiles("x/", Split("""
     xgfxdrv.c
     xkeyboard.c
