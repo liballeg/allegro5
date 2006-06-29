@@ -128,7 +128,7 @@ class AllegroContext:
 
     def setSConsignFile(self,file):
         for i in self.envs:
-            i.SConsignFile("build/signatures")
+            i.SConsignFile(file)
 
     def getExampleEnv(self):
         return self.exampleEnv

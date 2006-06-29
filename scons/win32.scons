@@ -1,20 +1,22 @@
-Import('addFiles', 'addExtra')
+Import('context')
 
 import os
 
-env = SConscript('all.scons', exports = [ 'addFiles', 'addExtra' ])
+SConscript('all.scons', exports = ['context']);
 
 # config = env.Configure()
 
 # env = config.Finish()
 
 flags = [ '-g', '-Wall', '-Wno-unused', '-O2', '-funroll-loops', '-ffast-math', '-fomit-frame-pointer' ]
-includes = [ "include", "include/allegro" ]
+includes = [ "include", "include/allegro", "." ]
 # defines = [ "-DALLEGRO_SRC", "-DALLEGRO_NO_ASM", "-DALLEGRO_LIB_BUILD" ]
-defines = [ "-DALLEGRO_SRC", "-DALLEGRO_LIB_BUILD" ]
+defines = [ "ALLEGRO_SRC", "ALLEGRO_LIB_BUILD" ]
+
+env = context.getLibraryEnv()
 
 env.Append(CCFLAGS = flags)
-env.Append(CCFLAGS = defines)
+env.Append(CPPDEFINES = defines)
 env.Append(CPPPATH = includes)
 
 # assembler = Builder(action = 'gcc --x assembler-with-cpp $CCFLAGS $SOURCES -c -o $TARGET', src_suffic = '.s', suffic = '.o')
@@ -39,11 +41,11 @@ env.Append(LIBS = [ 'kernel32', 'user32', 'gdi32', 'comdlg32', 'ole32', 'dinput'
 # for i in f:
 #	files += [env.Assembler(i)]
 
-addFiles('c',Split("""
+context.addFiles('c',Split("""
 """));
 # cmiscs.s
 
-addFiles('i386', Split("""
+context.addFiles('i386', Split("""
 iblit8.s
 iblit16.s
 iblit24.s
@@ -68,11 +70,11 @@ istretch.c
 izbuf.s
 """));
 
-addFiles('misc',Split("""
+context.addFiles('misc',Split("""
 icolconv.s
 """));
 
-addFiles('win', Split("""
+context.addFiles('win', Split("""
 asmlock.s
 gdi.c
 wddaccel.c
@@ -108,7 +110,14 @@ wwnd.c
 wxthread.c
 """));
 
+## crappy hack
+file = open('obj/mingw32/asmcapa.h', "w")
+file.write("#define ALLEGRO_GENERATED_BY_MAKEFILE_TST\n")
+file.write("#define ALLEGRO_MMX\n")
+file.write("#define ALLEGRO_SSE\n")
+file.close()
+
 cat = Builder(action = 'cat $SOURCES > $TARGET')
 env.Append(BUILDERS = {'Cat' : cat})
 
-Return('env')
+context.setExampleEnv(env)
