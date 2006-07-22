@@ -255,7 +255,7 @@ void getpix_demo(void)
    oy = -1;
 
    while (!next()) {
-      rest(50);
+      rest(1);
       poll_mouse();
 
       if ((mouse_x != ox) || (mouse_y != oy)) {
@@ -1773,7 +1773,7 @@ static void caps(void)
    release_screen();
 
    while (!next()) {
-      rest(50);
+      rest(1);
    }
 }
 
@@ -1789,7 +1789,7 @@ int mouse_proc(void)
    textout_centre_ex(screen, font, "Press a key", SCREEN_W/2, SCREEN_H-10, palette_color[15], palette_color[0]);
 
    do {
-      rest(50);
+      rest(1);
       poll_mouse();
       get_mouse_mickeys(&mickey_x, &mickey_y);
       sprintf(buf, "X axis:   pos=%-4d   ", mouse_x);
@@ -1847,7 +1847,7 @@ int keyboard_proc(void)
 	 textout_centre_ex(screen, font, buf, SCREEN_W/2, yoff+152, palette_color[15], palette_color[0]);
       }
       poll_mouse();
-      rest(50);
+      rest(1);
    } while (!mouse_b);
 
    do {
@@ -1920,7 +1920,7 @@ void interrupt_test(void)
       rectfill(screen, xoff+110, yoff+90, xoff+130, yoff+110, palette_color[int_c1]);
       rectfill(screen, xoff+150, yoff+90, xoff+170, yoff+110, palette_color[int_c2]);
       rectfill(screen, xoff+190, yoff+90, xoff+210, yoff+110, palette_color[int_c3]);
-      rest(50);
+      rest(1);
    }
 
    remove_int(int1);
@@ -2120,7 +2120,7 @@ void hscroll_test(void)
 	 y = VIRTUAL_H;
 
       scroll_screen(x, y);
-      rest(50);
+      rest(1);
    }
 
    do {
@@ -2303,7 +2303,7 @@ int floodfill_proc(void)
 	 }
       } 
 
-      rest(50);
+      rest(1);
    } while (c != 27);
 
    return D_REDRAW;
@@ -2406,7 +2406,7 @@ int spline_proc(void)
 
       ox = nx;
       oy = ny;
-      rest(50);
+      rest(1);
    }
 
    xor_mode(FALSE);
@@ -2439,7 +2439,7 @@ int polygon_proc(void)
 
    do {
       poll_mouse();
-      rest(50);
+      rest(1);
    } while (mouse_b);
 
    do {
@@ -2485,7 +2485,7 @@ int polygon_proc(void)
       if (keypressed())
 	 k = readkey() & 0xff;
 
-      rest(50);
+      rest(1);
    } while (k != 27);
 
    return D_REDRAW;
@@ -3114,7 +3114,7 @@ int polygon3d_proc(void)
 	       break;
 	 }
       }
-      rest(50);
+      rest(1);
    }
 
    getout:
