@@ -58,7 +58,7 @@ CONFIGURE_IN = configure.in
 ACLOCAL_M4 = aclocal.m4
 
 INCLUDES = -I. -Iinclude -Iinclude/allegro -I$(srcdir)/include -I$(srcdir)/include/allegro
-DEFS = @DEFS@
+DEFS = -DALLEGRO_MODULES_PATH=\"$(libdir)/allegro\" @DEFS@
 CPPFLAGS = @CPPFLAGS@
 override LDFLAGS += @LDFLAGS@
 PROG_LDFLAGS = @PROG_LDFLAGS@
