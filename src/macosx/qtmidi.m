@@ -43,7 +43,7 @@ static char driver_desc[256];
 static int osx_midi_detect(int input);
 static int osx_midi_init(int input, int voices);
 static void osx_midi_exit(int input);
-static int osx_midi_mixer_volume(int volume);
+static int osx_midi_set_mixer_volume(int volume);
 static void osx_midi_key_on(int inst, int note, int bend, int vol, int pan);
 static void osx_midi_key_off(int voice);
 static void osx_midi_set_volume(int voice, int vol);
@@ -65,7 +65,8 @@ MIDI_DRIVER midi_quicktime =
    osx_midi_detect,         /* AL_METHOD(int,  detect, (int input)); */
    osx_midi_init,           /* AL_METHOD(int,  init, (int input, int voices)); */
    osx_midi_exit,           /* AL_METHOD(void, exit, (int input)); */
-   osx_midi_mixer_volume,   /* AL_METHOD(int,  mixer_volume, (int volume)); */
+   osx_midi_set_mixer_volume,  /* AL_METHOD(int,  set_mixer_volume, (int volume)); */
+   NULL,                       /* AL_METHOD(int,  get_mixer_volume, (void)); */
    NULL,                    /* AL_METHOD(void, raw_midi, (int data)); */
    _dummy_load_patches,     /* AL_METHOD(int,  load_patches, (AL_CONST char *patches, AL_CONST char *drums)); */
    _dummy_adjust_patches,   /* AL_METHOD(void, adjust_patches, (AL_CONST char *patches, AL_CONST char *drums)); */
@@ -173,10 +174,10 @@ static void osx_midi_exit(int input)
 
 
 
-/* osx_midi_mixer_volume:
+/* osx_midi_set_mixer_volume:
  *  Sets QuickTime Music MIDI volume multiplier for all channels.
  */
-static int osx_midi_mixer_volume(int volume)
+static int osx_midi_set_mixer_volume(int volume)
 {
    int i;
    

@@ -32,7 +32,7 @@
 static int fm_detect(int input);
 static int fm_init(int input, int voices);
 static void fm_exit(int input);
-static int fm_mixer_volume(int volume);
+static int fm_set_mixer_volume(int volume);
 static int fm_load_patches(AL_CONST char *patches, AL_CONST char *drums);
 static void fm_key_on(int inst, int note, int bend, int vol, int pan);
 static void fm_key_off(int voice);
@@ -53,7 +53,8 @@ MIDI_DRIVER midi_opl2 =
    fm_detect,
    fm_init,
    fm_exit,
-   fm_mixer_volume,
+   fm_set_mixer_volume,
+   NULL,
    NULL,
    fm_load_patches,
    _dummy_adjust_patches,
@@ -77,7 +78,8 @@ MIDI_DRIVER midi_2xopl2 =
    fm_detect,
    fm_init,
    fm_exit,
-   fm_mixer_volume,
+   fm_set_mixer_volume,
+   NULL,
    NULL,
    fm_load_patches,
    _dummy_adjust_patches,
@@ -101,7 +103,8 @@ MIDI_DRIVER midi_opl3 =
    fm_detect,
    fm_init,
    fm_exit,
-   fm_mixer_volume,
+   fm_set_mixer_volume,
+   NULL,
    NULL,
    fm_load_patches,
    _dummy_adjust_patches,
@@ -640,10 +643,10 @@ END_OF_STATIC_FUNCTION(fm_load_patches);
 
 
 
-/* fm_mixer_volume:
+/* fm_set_mixer_volume:
  *  For SB-Pro cards, sets the mixer volume for FM output.
  */
-static int fm_mixer_volume(int volume)
+static int fm_set_mixer_volume(int volume)
 {
    return _sb_set_mixer(-1, volume);
 }

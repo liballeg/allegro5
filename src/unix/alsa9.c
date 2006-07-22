@@ -95,7 +95,8 @@ static char alsa_desc[256] = EMPTY_STRING;
 static int alsa_detect(int input);
 static int alsa_init(int input, int voices);
 static void alsa_exit(int input);
-static int alsa_mixer_volume(int volume);
+static int alsa_set_mixer_volume(int volume);
+static int alsa_get_mixer_volume(void);
 static int alsa_buffer_size(void);
 
 
@@ -114,7 +115,8 @@ DIGI_DRIVER digi_alsa =
    alsa_detect,
    alsa_init,
    alsa_exit,
-   alsa_mixer_volume,
+   alsa_set_mixer_volume,
+   alsa_get_mixer_volume,
 
    NULL,
    NULL,
@@ -492,16 +494,42 @@ static void alsa_exit(int input)
 
 
 
-/* alsa_mixer_volume:
+/* alsa_set_mixer_volume:
  *  Set mixer volume (0-255)
  */
-static int alsa_mixer_volume(int volume)
+static int alsa_set_mixer_volume(int volume)
 {
    if (alsa_mixer && alsa_mixer_elem) {
       snd_mixer_selem_set_playback_volume(alsa_mixer_elem, 0, volume * alsa_mixer_allegro_ratio);
       snd_mixer_selem_set_playback_volume(alsa_mixer_elem, 1, volume * alsa_mixer_allegro_ratio);
    }
    return 0;
+}
+
+
+
+/* alsa_get_mixer_volume:
+ *  Return mixer volume (0-255)
+ */
+static int alsa_get_mixer_volume(void)
+{
+   if (alsa_mixer && alsa_mixer_elem) {
+      long vol1, vol2;
+
+      snd_mixer_handle_events(alsa_mixer);
+
+      if (snd_mixer_selem_get_playback_volume(alsa_mixer_elem, 0, &vol1) < 0)
+	 return -1;
+      if (snd_mixer_selem_get_playback_volume(alsa_mixer_elem, 1, &vol2) < 0)
+         return -1;
+
+      vol1 /= alsa_mixer_allegro_ratio;
+      vol2 /= alsa_mixer_allegro_ratio;
+
+      return (vol1 + vol2) / 2;
+   }
+
+   return -1;
 }
 
 

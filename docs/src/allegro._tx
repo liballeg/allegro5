@@ -9067,7 +9067,20 @@ drivers.
    volume if it exists (i.e. the volume of all the applications on your
    machine will be affected), otherwise do nothing.
 
+@@void @get_volume(int *digi_volume, int *midi_volume);
+@xref set_volume, get_hardware_volume
+@shortdesc Retrieves the global sound output volume.
+   Retrieves the global sound output volume, both for digital samples and MIDI
+   playback, as integers from 0 to 255. Parameters digi_volume and midi_volume
+   must be valid pointers to int, or NULL if not interested in specific value.
 
+@@void @get_hardware_volume(int *digi_volume, int *midi_volume);
+@xref set_hardware_volume, get_volume
+@shortdesc Retrieves the hardware sound output volume.
+   Retrieves the hardware sound output volume, both for digital samples and MIDI
+   playback, as integers from 0 to 255, or -1 if the information is not
+   available. Parameters digi_volume and midi_volume must be valid pointers to
+   int, or NULL if not interested in specific value.
 
 @heading
 Mixer routines

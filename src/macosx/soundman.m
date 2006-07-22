@@ -31,7 +31,7 @@ static int osx_digi_sound_detect(int);
 static int osx_digi_sound_init(int, int);
 static void osx_digi_sound_exit(int);
 static int osx_digi_sound_buffer_size();
-static int osx_digi_sound_mixer_volume(int);
+static int osx_digi_sound_set_mixer_volume(int);
 
 
 static SndChannel *sound_channel = NULL;
@@ -54,7 +54,8 @@ DIGI_DRIVER digi_sound_manager =
    osx_digi_sound_detect,
    osx_digi_sound_init,
    osx_digi_sound_exit,
-   osx_digi_sound_mixer_volume,
+   osx_digi_sound_set_mixer_volume,
+   NULL,
 
    NULL,
    NULL,
@@ -275,10 +276,10 @@ static int osx_digi_sound_buffer_size()
 
 
 
-/* osx_digi_sound_mixer_volume:
+/* osx_digi_sound_set_mixer_volume:
  *  Sets the sound channel volume.
  */
-static int osx_digi_sound_mixer_volume(int volume)
+static int osx_digi_sound_set_mixer_volume(int volume)
 {
    SndCommand command;
    

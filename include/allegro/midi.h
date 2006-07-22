@@ -61,7 +61,8 @@ typedef struct MIDI_DRIVER             /* driver for playing midi music */
    AL_METHOD(int,  detect, (int input));
    AL_METHOD(int,  init, (int input, int voices));
    AL_METHOD(void, exit, (int input));
-   AL_METHOD(int,  mixer_volume, (int volume));
+   AL_METHOD(int,  set_mixer_volume, (int volume));
+   AL_METHOD(int,  get_mixer_volume, (void));
 
    /* raw MIDI output to MPU-401, etc. */
    AL_METHOD(void, raw_midi, (int data));

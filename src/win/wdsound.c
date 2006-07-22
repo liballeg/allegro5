@@ -1,4 +1,4 @@
-/*         ______   ___    ___ 
+/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \ 
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
@@ -55,7 +55,8 @@
 static int digi_directsound_detect(int input);
 static int digi_directsound_init(int input, int voices);
 static void digi_directsound_exit(int input);
-static int digi_directsound_mixer_volume(int volume);
+static int digi_directsound_set_mixer_volume(int volume);
+static int digi_directsound_get_mixer_volume(void);
 
 static void digi_directsound_init_voice(int voice, AL_CONST SAMPLE * sample);
 static void digi_directsound_release_voice(int voice);
@@ -95,7 +96,8 @@ static DIGI_DRIVER digi_directsound =
    digi_directsound_detect,
    digi_directsound_init,
    digi_directsound_exit,
-   digi_directsound_mixer_volume,
+   digi_directsound_set_mixer_volume,
+   digi_directsound_get_mixer_volume,
 
    /* audiostream locking functions */
    digi_directsound_lock_voice,
@@ -539,9 +541,9 @@ static void digi_directsound_exit(int input)
 
 
 
-/* digi_directsound_mixer_volume:
+/* digi_directsound_set_mixer_volume:
  */
-static int digi_directsound_mixer_volume(int volume)
+static int digi_directsound_set_mixer_volume(int volume)
 {
    int ds_vol;
 
@@ -551,6 +553,23 @@ static int digi_directsound_mixer_volume(int volume)
    }
 
    return 0;
+}
+
+
+
+/* digi_directsound_get_mixer_volume:
+ */
+static int digi_directsound_get_mixer_volume(void)
+{
+   LONG vol;
+
+   if (!prim_buf)
+      return -1;
+
+   IDirectSoundBuffer_GetVolume(prim_buf, &vol);
+   vol = MID(0, pow(10, (vol/2000.0))*255.0 - DSBVOLUME_MAX, 255);
+
+   return vol;
 }
 
 

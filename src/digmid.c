@@ -49,6 +49,7 @@ MIDI_DRIVER midi_digmid =
    digmid_exit,
    NULL,
    NULL,
+   NULL,
    digmid_load_patches,
    _dummy_adjust_patches,
    digmid_key_on,

@@ -64,7 +64,8 @@ typedef struct DIGI_DRIVER             /* driver for playing digital sfx */
    AL_METHOD(int,  detect, (int input));
    AL_METHOD(int,  init, (int input, int voices));
    AL_METHOD(void, exit, (int input));
-   AL_METHOD(int,  mixer_volume, (int volume));
+   AL_METHOD(int,  set_mixer_volume, (int volume));
+   AL_METHOD(int,  get_mixer_volume, (void));
 
    /* for use by the audiostream functions */
    AL_METHOD(void *, lock_voice, (int voice, int start, int end));
