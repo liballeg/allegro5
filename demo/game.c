@@ -224,7 +224,7 @@ static void move_everyone(void)
 
    /* fire bullet? */
    if (!player_hit) {
-      if ((key[KEY_SPACE] || key[KEY_LCONTROL] || key[KEY_RCONTROL]) ||
+      if ((key[KEY_SPACE] || key[KEY_ENTER] || key[KEY_LCONTROL] || key[KEY_RCONTROL]) ||
           (joy[0].button[0].b) || (joy[0].button[1].b)) {
          if (prev_bullet_time + BULLET_DELAY < game_time) {
             bullet = add_bullet((player_x_pos >> SPEED_SHIFT) - 2, SCREEN_H - 64);
