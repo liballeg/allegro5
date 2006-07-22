@@ -64,10 +64,28 @@ char buf[160];
 
 int xoff, yoff;
 
-long tm = 0;        /* counter, incremented once a second */
-int _tm = 0;
+long tm = 0;          /* counter, incremented once a second */
+volatile int _tm = 0; /* volatile so we can try to sync to the timer */
 
 long ct;
+
+#define SHOW_TIME_MACRO()               \
+      if (ct >= 0) {                    \
+	 if (tm >= TIME_SPEED) {        \
+	    if (profile)                \
+	       return;                  \
+	    show_time(ct, screen, 16);  \
+	    /* sync to timer */         \
+	    _tm = 0;                    \
+	    while (_tm < 2) ;           \
+	    ct = 0;                     \
+	    tm = 0;                     \
+	    _tm = 0;                    \
+	 }                              \
+	 else                           \
+	    ct++;                       \
+      }
+
 
 int profile = FALSE;
 
@@ -98,7 +116,7 @@ void show_time(long t, BITMAP *bmp, int y)
    get_clip_rect(bmp, &x1, &y1, &x2, &y2);
    s = get_clip_state(bmp);
 
-   sprintf(buf, "%ld per second", t / TIME_SPEED);
+   sprintf(buf, " %ld per second ", t / TIME_SPEED);
    set_clip_rect(bmp, 0, 0, SCREEN_W-1, SCREEN_H-1);
    set_clip_state(bmp, TRUE);
    textout_centre_ex(bmp, font, buf, SCREEN_W/2, y, palette_color[15], palette_color[0]);
@@ -573,16 +591,7 @@ void putpix_demo(void)
       if (++c >= 16)
 	 c = 0;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -611,16 +620,7 @@ void hline_demo(void)
       if (++c >= 16)
 	 c = 0;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -649,16 +649,7 @@ void vline_demo(void)
       if (++c >= 16)
 	 c = 0;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -688,16 +679,7 @@ void line_demo(void)
       if (++c >= 16)
 	 c = 0;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -727,16 +709,7 @@ void rectfill_demo(void)
       if (++c >= 16)
 	 c = 0;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -768,16 +741,7 @@ void triangle_demo(void)
       if (++c >= 16)
 	 c = 0;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -828,16 +792,7 @@ void triangle3d_demo(void)
 
       triangle3d(screen, type3d, pattern[AL_RAND()%NUM_PATTERNS], &v1, &v2, &v3);
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile) 
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -866,16 +821,7 @@ void circle_demo(void)
       if (++c >= 16)
 	 c = 0;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -904,16 +850,7 @@ void circlefill_demo(void)
       if (++c >= 16)
 	 c = 0;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -943,16 +880,7 @@ void ellipse_demo(void)
       if (++c >= 16)
 	 c = 0;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -982,16 +910,7 @@ void ellipsefill_demo(void)
       if (++c >= 16)
 	 c = 0;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -1023,16 +942,7 @@ void arc_demo(void)
       if (++c >= 16)
 	 c = 0;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -1057,16 +967,7 @@ void textout_demo(void)
       if (++c >= 16)
 	 c = 0;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -1089,16 +990,7 @@ void sprite_demo(void)
       y = (AL_RAND() & 127) + 30;
       draw_sprite(screen, global_sprite, xoff+x, yoff+y);
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -1125,16 +1017,7 @@ void xlu_sprite_demo(void)
 
       draw_trans_sprite(screen, global_sprite, xoff+x, yoff+y);
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -1164,16 +1047,7 @@ void lit_sprite_demo(void)
 
       c = (c+13) & 0xFF;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -1200,16 +1074,7 @@ void rle_xlu_sprite_demo(void)
 
       draw_trans_rle_sprite(screen, global_rle_sprite, xoff+x, yoff+y);
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -1239,16 +1104,7 @@ void rle_lit_sprite_demo(void)
 
       c = (c+13) & 0xFF;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -1271,16 +1127,7 @@ void rle_sprite_demo(void)
       y = (AL_RAND() & 127) + 30;
       draw_rle_sprite(screen, global_rle_sprite, xoff+x, yoff+y);
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -1303,16 +1150,7 @@ void compiled_sprite_demo(void)
       y = (AL_RAND() & 127) + 30;
       draw_compiled_sprite(screen, global_compiled_sprite, xoff+x, yoff+y);
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    ct = -1;
@@ -1382,16 +1220,7 @@ void blit_demo(void)
 	    blit(b, screen, 0, 0, xoff+x, yoff+y, 64, 32);
       }
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    if (profile)
-	       return;
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    destroy_bitmap(b);
@@ -1954,45 +1783,49 @@ void rotate_test(void)
 {
    fixed c = 0;
    BITMAP *b;
+   BITMAP *new_sprite;
+
+   solid_mode();
+   new_sprite = create_bitmap(33, 33);
+   clear_to_color(new_sprite, bitmap_mask_color(new_sprite));
+   circlefill(new_sprite, 16, 16, 9, palette_color[2]);
+   circle(new_sprite, 16, 16, 9, palette_color[1]);
+   line(new_sprite, 0, 0, 32, 32, palette_color[3]);
+   line(new_sprite, 32, 0, 0, 32, palette_color[3]);
+   textout_ex(new_sprite, font, "Test", 1, 12, palette_color[15], -1);
 
    set_clip_rect(screen, 0, 0, VIRTUAL_W-1, VIRTUAL_H-1);
    clear_to_color(screen, palette_color[0]);
    message("Bitmap rotation test");
 
-   b = create_bitmap(32, 32);
+   b = create_bitmap(33, 33);
 
-   draw_sprite(screen, global_sprite, SCREEN_W/2-16-32, SCREEN_H/2-16-32);
-   draw_sprite(screen, global_sprite, SCREEN_W/2-16-64, SCREEN_H/2-16-64);
+   draw_sprite(screen, new_sprite, SCREEN_W/2-16-33, SCREEN_H/2-16-33);
+   draw_sprite(screen, new_sprite, SCREEN_W/2-16-66, SCREEN_H/2-16-66);
 
-   draw_sprite_v_flip(screen, global_sprite, SCREEN_W/2-16-32, SCREEN_H/2-16+32);
-   draw_sprite_v_flip(screen, global_sprite, SCREEN_W/2-16-64, SCREEN_H/2-16+64);
+   draw_sprite_v_flip(screen, new_sprite, SCREEN_W/2-16-33, SCREEN_H/2-16+33);
+   draw_sprite_v_flip(screen, new_sprite, SCREEN_W/2-16-66, SCREEN_H/2-16+66);
 
-   draw_sprite_h_flip(screen, global_sprite, SCREEN_W/2-16+32, SCREEN_H/2-16-32);
-   draw_sprite_h_flip(screen, global_sprite, SCREEN_W/2-16+64, SCREEN_H/2-16-64);
+   draw_sprite_h_flip(screen, new_sprite, SCREEN_W/2-16+33, SCREEN_H/2-16-33);
+   draw_sprite_h_flip(screen, new_sprite, SCREEN_W/2-16+66, SCREEN_H/2-16-66);
 
-   draw_sprite_vh_flip(screen, global_sprite, SCREEN_W/2-16+32, SCREEN_H/2-16+32);
-   draw_sprite_vh_flip(screen, global_sprite, SCREEN_W/2-16+64, SCREEN_H/2-16+64);
+   draw_sprite_vh_flip(screen, new_sprite, SCREEN_W/2-16+33, SCREEN_H/2-16+33);
+   draw_sprite_vh_flip(screen, new_sprite, SCREEN_W/2-16+66, SCREEN_H/2-16+66);
 
    tm = 0; _tm = 0;
    ct = 0;
 
    while (!next()) {
       clear_to_color(b, palette_color[0]);
-      rotate_sprite(b, global_sprite, 0, 0, c);
+      rotate_sprite(b, new_sprite, 0, 0, c);
       blit(b, screen, 0, 0, SCREEN_W/2-16, SCREEN_H/2-16, b->w, b->h);
 
       c += itofix(1) / 16;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
+   destroy_bitmap(new_sprite);
    destroy_bitmap(b);
 }
 
@@ -2034,14 +1867,7 @@ void stretch_test(void)
       else
 	 c++;
 
-      if (ct >= 0) {
-	 if (tm >= TIME_SPEED) {
-	    show_time(ct, screen, 16);
-	    ct = -1;
-	 }
-	 else
-	    ct++;
-      }
+      SHOW_TIME_MACRO();
    }
 
    destroy_bitmap(b);
@@ -2700,50 +2526,224 @@ int textout_proc(void)
 
 
 
+/* Some helpers for blit_proc */
+int pause_mode = FALSE;
+
+
+int blit_pause_proc(void)
+{
+   static int pause_count = 0;
+   int ch;
+
+   /* Don't go too fast. We want to be able to see if it's working the way it
+    * was intended to and without this all you see are colors zipping arround.
+    */
+   pause_count++;
+   if (pause_count >= 2) {
+      pause_count = 0;
+      rest(5);
+   }
+
+   if (!pause_mode) {
+      if (mouse_needs_poll())
+         poll_mouse();
+
+      if (mouse_b)
+         return TRUE;
+
+      if (keypressed()) {
+         if (((ch = readkey()) & 0xff) == 'f') {
+            pause_mode = TRUE;
+            return FALSE;
+         }
+         return TRUE;
+      }
+   }
+   else {
+      while (!keypressed()) {
+         if (mouse_needs_poll())
+            poll_mouse();
+
+         if (mouse_b)
+            return FALSE;
+
+	 rest(2);
+      }
+      if (((ch = readkey()) & 0xff) == 'f') {
+         pause_mode = FALSE;
+         return FALSE;
+      }
+      if (((ch & 0xff) == 27) || ((ch & 0xff) == 'q'))
+         return TRUE;
+   }
+   return FALSE;
+}
+
+
+
 int blit_proc(void)
 {
-   int c;
+   int i, c, y, tpat_size=64;
+   int done = FALSE;
 
    scare_mouse();
    acquire_screen();
    set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
    clear_to_color(screen, palette_color[0]);
-   textout_centre_ex(screen, font, "Testing overlapping blits", SCREEN_W/2, 6, 15, palette_color[0]);
 
-   for (c=0; c<30; c++)
-      circle(screen, xoff+160, yoff+100, c, palette_color[c]);
+   textout_centre_ex(screen, font, "Blit to self test.  Options:           ", SCREEN_W/2,  4, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "  Press 'f' to toggle frame mode.      ", SCREEN_W/2, 12, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "  Press any other key to do next test. ", SCREEN_W/2, 20, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "Frame mode options:                    ", SCREEN_W/2, 40, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "  Press any key to draw next frame.    ", SCREEN_W/2, 48, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "  Press 'f' to toggle frame mode.      ", SCREEN_W/2, 56, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "  Press 'q' to continue with next test.", SCREEN_W/2, 64, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "Press a key or mouse button to start.",   SCREEN_W/2, 80, palette_color[15], palette_color[0]);
 
    release_screen();
+   unscare_mouse();
 
-   for (c=0; c<16; c++) {
-      blit(screen, screen, xoff+112, yoff+52, xoff+113, yoff+52, 96, 96);
-      rest(5);
+   while ((!keypressed()) && (!mouse_b)) {
+      if (mouse_needs_poll())
+         poll_mouse();
+
+      rest(2);
    }
 
-   for (c=0; c<32; c++) {
-      blit(screen, screen, xoff+113, yoff+52, xoff+112, yoff+52, 96, 96);
-      rest(5);
+   pause_mode = FALSE;
+   if (keypressed()) {
+      if ((readkey() & 0xff) == 'f')
+         pause_mode = TRUE;
+   }
+   else {
+      while (mouse_b) {
+         if (mouse_needs_poll())
+            poll_mouse();
+      }
    }
 
-   for (c=0; c<16; c++) {
-      blit(screen, screen, xoff+112, yoff+52, xoff+113, yoff+52, 96, 96);
-      rest(5);
+   scare_mouse();
+   acquire_screen();
+
+
+   /* Find a good size for the test pattern. If its too small its difficult
+    * to see and if its too big then the test can run too slow.
+    */
+   if ((SCREEN_W < 256) || (SCREEN_H < 256))
+      tpat_size = 32;
+   else if ((SCREEN_W < 640) || (SCREEN_H < 480))
+      tpat_size = 64;
+   else
+      tpat_size = 96;
+
+   /* Draw test pattern */
+   for (y=0; y < tpat_size; y+=(tpat_size/8)) {
+      for (c=0; c < 8; c++)
+         rectfill(screen, c*(tpat_size/8), y,
+                         (c*(tpat_size/8))+(tpat_size/8)-1, y+(tpat_size/8)-1,
+                         palette_color[(c+(y/8))&31]);
+   }
+   vline(screen, 5,           0, tpat_size-1, palette_color[15]);
+   vline(screen, tpat_size-6, 0, tpat_size-1, palette_color[15]);
+   vline(screen, 4,           0, tpat_size-1, palette_color[0]);
+   vline(screen, tpat_size-5, 0, tpat_size-1, palette_color[0]);
+   vline(screen, 3,           0, tpat_size-1, palette_color[15]);
+   vline(screen, tpat_size-4, 0, tpat_size-1, palette_color[15]);
+   hline(screen, 0,           5, tpat_size-1, palette_color[15]);
+   hline(screen, 0, tpat_size-6, tpat_size-1, palette_color[15]);
+   hline(screen, 0,           4, tpat_size-1, palette_color[0]);
+   hline(screen, 0, tpat_size-5, tpat_size-1, palette_color[0]);
+   hline(screen, 0,           3, tpat_size-1, palette_color[15]);
+   hline(screen, 0, tpat_size-4, tpat_size-1, palette_color[15]);
+   release_screen();
+
+   #define B2S_CHECK_X  \
+      rest(20);         \
+      if (done)         \
+         break;
+
+
+   /* Blit to self test */
+   for (i = 0; i < 2; i++) {
+      /* down+right */
+      for (c = y = 0; (c < SCREEN_W-tpat_size) && (y < SCREEN_H-tpat_size); c++, y++) {
+         blit(screen, screen, c, y, c+1, y+1, tpat_size, tpat_size);
+         vline(screen, c, y, y+tpat_size-1, palette_color[0]);
+         hline(screen, c, y, c+tpat_size-1, palette_color[0]);
+         if ((done = blit_pause_proc()))
+            break;
+      }
+      B2S_CHECK_X
+
+      /* up+left */
+      for ( ; (c > 0) && (y > 0); c--, y--) {
+         blit(screen, screen, c, y, c-1, y-1, tpat_size, tpat_size);
+         vline(screen, c+tpat_size-1, y, y+tpat_size-1, palette_color[0]);
+         hline(screen, c, y+tpat_size-1, c+tpat_size-1, palette_color[0]);
+         if ((done = blit_pause_proc()))
+            break;
+      }
+      B2S_CHECK_X
+
+      /* right */
+      for ( ; c < SCREEN_W-tpat_size; c++) {
+         blit(screen, screen, c, y, c+1, y, tpat_size, tpat_size);
+         vline(screen, c, y, y+tpat_size-1, palette_color[0]);
+         if ((done = blit_pause_proc()))
+            break;
+      }
+      B2S_CHECK_X
+
+      /* down+left */
+      for ( ; (c > 0) && (y < SCREEN_H-tpat_size); c--, y++) {
+         blit(screen, screen, c, y, c-1, y+1, tpat_size, tpat_size);
+         vline(screen, c+tpat_size-1, y, y+tpat_size-1, palette_color[0]);
+         hline(screen, c, y, c+tpat_size-1, palette_color[0]);
+         if ((done = blit_pause_proc()))
+            break;
+      }
+      B2S_CHECK_X
+
+      /* up+right */
+      for ( ; (c < SCREEN_W-tpat_size) && (y > 0); c++, y--) {
+         blit(screen, screen, c, y, c+1, y-1, tpat_size, tpat_size);
+         vline(screen, c, y, y+tpat_size-1, palette_color[0]);
+         hline(screen, c, y+tpat_size-1, c+tpat_size-1, palette_color[0]);
+         if ((done = blit_pause_proc()))
+            break;
+      }
+      B2S_CHECK_X
+
+      /* down */
+      for ( ; y < SCREEN_H-tpat_size; y++) {
+         blit(screen, screen, c, y, c, y+1, tpat_size, tpat_size);
+         hline(screen, c, y, c+tpat_size-1, palette_color[0]);
+         if ((done = blit_pause_proc()))
+            break;
+      }
+      B2S_CHECK_X
+
+      /* left */
+      for ( ; c > 0; c--) {
+         blit(screen, screen, c, y, c-1, y, tpat_size, tpat_size);
+         vline(screen, c+tpat_size-1, y, y+tpat_size-1, palette_color[0]);
+         if ((done = blit_pause_proc()))
+            break;
+      }
+      B2S_CHECK_X
+
+      /* up */
+      for ( ; y > 0; y--) {
+         blit(screen, screen, c, y, c, y-1, tpat_size, tpat_size);
+         hline(screen, c, y+tpat_size-1, c+tpat_size-1, palette_color[0]);
+         if ((done = blit_pause_proc()))
+            break;
+      }
+      B2S_CHECK_X
    }
 
-   for (c=0; c<16; c++) {
-      blit(screen, screen, xoff+112, yoff+52, xoff+112, yoff+53, 96, 96);
-      rest(5);
-   }
-
-   for (c=0; c<32; c++) {
-      blit(screen, screen, xoff+112, yoff+53, xoff+112, yoff+52, 96, 96);
-      rest(5);
-   }
-
-   for (c=0; c<16; c++) {
-      blit(screen, screen, xoff+112, yoff+52, xoff+112, yoff+53, 96, 96);
-      rest(5);
-   }
+   if (keypressed())
+      readkey();
 
    blit_from_screen = TRUE;
    do_it("timing blit screen->screen", FALSE, blit_demo);
@@ -4489,7 +4489,8 @@ int main(void)
    LOCK_FUNCTION(tm_tick);
    LOCK_VARIABLE(tm);
    LOCK_VARIABLE(_tm);
-
+   LOCK_VARIABLE(realscreen);
+   
    if (allegro_init() != 0)
       return 1;
 
