@@ -424,7 +424,7 @@ void _unix_get_executable_name(char *output, int size)
 
       if (linkname[len] == '[' && linkname[strlen(linkname)] == ']') {
          len++;
-         linkname[strlen(linkname)] == '\0';
+         linkname[strlen(linkname)] = '\0';
       }         
       
       /* Now, the filename should be in the last column */
