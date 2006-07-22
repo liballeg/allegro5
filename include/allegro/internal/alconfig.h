@@ -116,18 +116,18 @@
       #endif
    #endif
 
-   #if defined __i386__
-	  #define ALLEGRO_I386
-	  #ifndef ALLEGRO_NO_ASM
-		 #define _AL_SINCOS(x, s, c)  __asm__ ("fsincos" : "=t" (c), "=u" (s) : "0" (x))
-	  #endif
+   #ifdef __i386__
+      #define ALLEGRO_I386
+      #ifndef ALLEGRO_NO_ASM
+         #define _AL_SINCOS(x, s, c)  __asm__ ("fsincos" : "=t" (c), "=u" (s) : "0" (x))
+      #endif
    #endif
 
    #ifdef __amd64__
       #define ALLEGRO_AMD64
-	  #ifndef ALLEGRO_NO_ASM
-		#define _AL_SINCOS(x, s, c)  __asm__ ("fsincos" : "=t" (c), "=u" (s) : "0" (x))
-	  #endif
+      #ifndef ALLEGRO_NO_ASM
+         #define _AL_SINCOS(x, s, c)  __asm__ ("fsincos" : "=t" (c), "=u" (s) : "0" (x))
+      #endif
    #endif
    
    #ifdef __arm__

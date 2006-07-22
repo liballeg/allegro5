@@ -40,7 +40,6 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
    int compiler_pos = 0;
    int xc = planar ? 4 : 1;
    unsigned long *addr;
-   void *p;
 
    #ifdef ALLEGRO_COLOR16
       unsigned short *p16;
@@ -291,32 +290,32 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
    return _exec_map;
 
 #else
+   {
+      void *p = _AL_MALLOC(compiler_pos);
+      if (p) {
+	 memcpy(p, _scratch_mem, compiler_pos);
+	 *len = compiler_pos;
+	 #ifdef ALLEGRO_WINDOWS
+	 {
+	    DWORD old_protect;
+	    /* Play nice with Windows executable memory protection */
+	    VirtualProtect(p, compiler_pos, PAGE_EXECUTE_READWRITE, &old_protect);
+	 }
+	 #elif defined(HAVE_MPROTECT)
+	 {
+	    char *aligned_p = (char *)((unsigned long)p & ~(PAGE_SIZE-1ul));
+	    if (mprotect(aligned_p, compiler_pos + ((char *)p - aligned_p),
+		  PROT_EXEC|PROT_READ|PROT_WRITE)) {
+	       perror("allegro-error: mprotect failed during stretched blit!");
+	       _AL_FREE(p);
+	       return NULL;
+	    }
+	 }
+	 #endif
+      }
 
-   p = _AL_MALLOC(compiler_pos);
-   if (p) {
-      memcpy(p, _scratch_mem, compiler_pos);
-      *len = compiler_pos;
-      #ifdef ALLEGRO_WINDOWS
-      {
-         DWORD old_protect;
-         /* Play nice with Windows executable memory protection */
-         VirtualProtect(p, compiler_pos, PAGE_EXECUTE_READWRITE, &old_protect);
-      }
-      #elif defined(HAVE_MPROTECT)
-      {
-         char *aligned_p = (char *)((unsigned long)p & ~(PAGE_SIZE-1ul));
-         if (mprotect(aligned_p, compiler_pos + ((char *)p - aligned_p),
-               PROT_EXEC|PROT_READ|PROT_WRITE)) {
-            perror("allegro-error: mprotect failed during stretched blit!");
-            _AL_FREE(p);
-            return NULL;
-         }
-      }
-      #endif
+      return p;
    }
-
-   return p;
-
 #endif
 }
 

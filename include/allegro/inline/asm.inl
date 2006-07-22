@@ -46,6 +46,12 @@
 
 #endif
 
+/* Define ALLEGRO_USE_C for backwards compatibility. It should not be used
+ * anywhere else in the sources for now.
+ */
+#ifdef ALLEGRO_NO_ASM
+#define ALLEGRO_USE_C
+#endif
 
 #ifdef __cplusplus
    }

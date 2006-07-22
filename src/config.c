@@ -1304,7 +1304,7 @@ void reload_config_texts(AL_CONST char *new_language)
 AL_CONST char *get_config_text(AL_CONST char *msg)
 {
    char tmp1[256];
-   AL_CONST char *section = uconvert_ascii("[language]", tmp1);
+   AL_CONST char *section;
    AL_CONST char *umsg;
    AL_CONST char *s;
    AL_CONST char *ret = NULL;
@@ -1315,6 +1315,8 @@ AL_CONST char *get_config_text(AL_CONST char *msg)
    ASSERT(msg);
 
    init_config(TRUE);
+
+   section = uconvert_ascii("[language]", tmp1);
 
    /* allocate memory and convert message to current encoding format */
    if (need_uconvert(msg, U_ASCII, U_CURRENT)) {

@@ -137,7 +137,7 @@ goto end
 
 :convertmsvcdir
 echo Converting MSVCDir path...
-gcc -s -o msvchelp.exe misc/msvchelp.c
+gcc -mno-cygwin -s -o msvchelp.exe misc/msvchelp.c
 msvchelp MSVCDir
 del msvchelp.exe
 echo include makefile.helper >> makefile
