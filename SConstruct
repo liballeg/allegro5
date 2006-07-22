@@ -259,7 +259,7 @@ def buildDemo(env,appendDir,buildDir,libDir):
 
 context.addExtra(buildDemo)
 
-plugins_h = context.getLibraryEnv().Cat( normalBuildDir + 'plugins.h', appendDir( 'tools/plugins/', Split("""
+plugins_h = context.getLibraryEnv().Cat( 'tools/plugins/plugins.h', appendDir( 'tools/plugins/', Split("""
 datalpha.inc
 datfli.inc
 datfname.inc
