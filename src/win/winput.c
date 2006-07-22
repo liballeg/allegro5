@@ -59,7 +59,7 @@ static HANDLE input_thread = NULL;
  */
 static void input_thread_proc(LPVOID unused)
 {
-   int result;
+   DWORD result;
 
    _win_thread_init();
    _TRACE(PREFIX_I "input thread starts\n");

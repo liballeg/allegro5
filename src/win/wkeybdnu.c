@@ -25,6 +25,9 @@
 
 #define DIRECTINPUT_VERSION 0x0300
 
+/* For waitable timers */
+#define _WIN32_WINNT 0x400
+
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
@@ -787,9 +790,11 @@ static void handle_key_release(unsigned char scancode)
    if (mycode == 0)
       return;
 
-   BYTE keystate[256];
-   GetKeyboardState(keystate);
-   update_modifiers(keystate);
+   {
+      BYTE keystate[256];
+      GetKeyboardState(keystate);
+      update_modifiers(keystate);
+   }
 
    if (!_AL_KBDSTATE_KEY_DOWN(key_state, mycode))
       return;

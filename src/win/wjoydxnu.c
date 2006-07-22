@@ -49,9 +49,12 @@
  */
 
 
+#define ALLEGRO_NO_COMPATIBILITY
+
 #define DIRECTINPUT_VERSION 0x0500
 
-#define ALLEGRO_NO_COMPATIBILITY
+/* For waitable timers */
+#define _WIN32_WINNT 0x400
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
@@ -744,7 +747,7 @@ static void free_caps_and_names_strings(CAPS_AND_NAMES *can)
  */
 static void joydx_exit(void)
 {
-   int i, j;
+   int i;
 
    ASSERT(joydx_thread);
 

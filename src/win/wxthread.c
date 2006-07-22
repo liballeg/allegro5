@@ -40,8 +40,6 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*), voi
    ASSERT(thread);
    ASSERT(proc);
    {
-      int status;
-
       InitializeCriticalSection(&thread->cs);
 
       thread->should_stop = false;

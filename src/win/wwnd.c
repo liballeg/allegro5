@@ -447,7 +447,7 @@ static HWND create_directx_window(void)
  */
 static void wnd_thread_proc(HANDLE setup_event)
 {
-   int result;
+   DWORD result;
    MSG msg;
 
    _win_thread_init();
