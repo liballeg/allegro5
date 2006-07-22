@@ -325,7 +325,7 @@ if platform["ALLEGRO_WITH_ESDDIGI"][0]:
         esdEnv = menv.Copy()
         esdEnv.ParseConfig('esd-config --libs')
         sources = ["uesd.c"]
-        return esdEnv.SharedLibrary(libDir + "alleg-esddigi",appendDir(buildDir + "/unix/", sources))
+        return esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(buildDir + "/unix/", sources))
     context.addExtra(buildESD)
 
 if platform["ALLEGRO_WITH_ALSADIGI"][0]:
@@ -333,7 +333,7 @@ if platform["ALLEGRO_WITH_ALSADIGI"][0]:
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
         sources = ["alsa5.c", "alsa9.c"]
-        return alsaEnv.SharedLibrary(libDir + "alleg-alsadigi",appendDir(buildDir + "/unix/", sources))
+        return alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(buildDir + "/unix/", sources))
     context.addExtra(buildAlsa)
 
 if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
@@ -341,7 +341,7 @@ if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
         sources = ["alsamidi.c"]
-        return alsaEnv.SharedLibrary(libDir + "alleg-alsamidi",appendDir(buildDir + "/unix/", sources))
+        return alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(buildDir + "/unix/", sources))
     context.addExtra(buildAlsa)
 
 # This might be broken. asmdefs.inc isnt generated until after svgalibs.s
@@ -353,7 +353,7 @@ if platform["ALLEGRO_LINUX_SVGALIB"][0]:
         vgaEnv.Append(LIBS = "vga")
         vgaEnv.Depends(buildDir + '/linux/svgalibs.s','obj/unix/asmdef.inc')
         sources = ["svgalib.c","svgalibs.s"]
-        lib = vgaEnv.SharedLibrary(libDir + "alleg-svgalib",appendDir(buildDir + "/linux/", sources))
+        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/linux/", sources))
         vgaEnv.Cat('obj/unix/asmdef.inc', 'src/i386/asmdefs.inc')
         return lib
     context.addExtra(buildSVGA)
@@ -363,13 +363,13 @@ if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
         artsEnv = menv.Copy()
         artsEnv.ParseConfig("artsc-config --libs")
         sources = ["arts.c"]
-        return artsEnv.SharedLibrary(libDir + "alleg-artsdigi",appendDir(buildDir + "/unix/", sources))
+        return artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",appendDir(buildDir + "/unix/", sources))
     context.addExtra(buildAlsa)
 
 if platform["ALLEGRO_LINUX_FBCON"][0]:
     def buildFBCon(menv,appendDir,buildDir,libDir):
         sources = ["fbcon.c"]
-        return menv.SharedLibrary(libDir + "alleg-fbcon",appendDir(buildDir + "/linux/", sources))
+        return menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/linux/", sources))
     context.addExtra(buildFBCon)
 
 if platform["ALLEGRO_WITH_XWINDOWS"][0]:
