@@ -124,7 +124,7 @@ static int create_test_capture_buffer(WAVEFORMATEX *wfx)
    HRESULT hr;
 
    /* create the capture buffer */
-   ZeroMemory(&dsc_trybuf, sizeof(DSCBUFFERDESC));
+   ZeroMemory(&dsc_trybuf_desc, sizeof(DSCBUFFERDESC));
    dsc_trybuf_desc.dwSize  = sizeof(DSCBUFFERDESC);
    dsc_trybuf_desc.dwFlags = 0;
    dsc_trybuf_desc.dwBufferBytes = 1024;
