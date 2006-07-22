@@ -20,7 +20,7 @@ infodir = @infodir@
 mandir = @mandir@
 libdir = @libdir@
 modulebasedir = $(libdir)/allegro
-moduledir = $(modulebasedir)/$(shared_major_minor)
+moduledir = $(modulebasedir)/$(shared_version)
 
 EXE =
 OBJ = .o
