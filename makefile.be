@@ -265,12 +265,11 @@ define LINK_WITHOUT_LIB
 endef
 
 PLUGIN_LIB = lib/beos/lib$(VERY_SHORT_VERSION)dat.a
-PLUGINS_H = obj/beos/plugins.h
 PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
 PLUGIN_SCR = scr
 
 define GENERATE_PLUGINS_H
-cat tools/plugins/*.inc > obj/beos/plugins.h
+   cat tools/plugins/*.inc > $(PLUGINS_H)
 endef
 
 define MAKE_PLUGIN_LIB

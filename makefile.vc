@@ -444,16 +444,15 @@ endef
 
 PLUGIN_LIB = lib/msvc/$(VERY_SHORT_VERSION)dat.lib
 PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB) $(RUNNER)
-PLUGINS_H = obj/msvc/plugins.h
 PLUGIN_SCR = scv
 
 ifdef UNIX_TOOLS
    define GENERATE_PLUGINS_H
-      cat tools/plugins/*.inc > obj/msvc/plugins.h
+      cat tools/plugins/*.inc > $(PLUGINS_H)
    endef
 else
    define GENERATE_PLUGINS_H
-      copy /B tools\plugins\*.inc obj\msvc\plugins.h
+      copy /B tools\plugins\*.inc $(subst /,\,$(PLUGINS_H))
    endef
 endif
 

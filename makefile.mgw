@@ -481,16 +481,15 @@ endef
 
 PLUGIN_LIB = lib/mingw32/lib$(VERY_SHORT_VERSION)dat.a
 PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB) $(PLUGIN_RUNNER)
-PLUGINS_H = obj/mingw32/plugins.h
 PLUGIN_SCR = scm
 
 ifdef UNIX_TOOLS
    define GENERATE_PLUGINS_H
-      cat tools/plugins/*.inc > obj/mingw32/plugins.h
+      cat tools/plugins/*.inc > $(PLUGINS_H)
    endef
 else
    define GENERATE_PLUGINS_H
-      copy /B tools\plugins\*.inc obj\mingw32\plugins.h
+      copy /B tools\plugins\*.inc $(subst /,\,$(PLUGINS_H))
    endef
 endif
 

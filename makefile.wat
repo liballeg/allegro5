@@ -230,17 +230,16 @@ define LINK_WITHOUT_LIB
 endef
 
 PLUGIN_LIB = lib/watcom/$(VERY_SHORT_VERSION)dat.lib
-PLUGINS_H = obj/watcom/plugins.h
 PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB) $(RUNNER)
 PLUGIN_SCR = scw
 
 ifdef UNIX_TOOLS
    define GENERATE_PLUGINS_H
-      cat tools/plugins/*.inc > obj/watcom/plugins.h
+      cat tools/plugins/*.inc > $(PLUGINS_H)
    endef
 else
    define GENERATE_PLUGINS_H
-      copy /B tools\plugins\*.inc obj\watcom\plugins.h
+      copy /B tools\plugins\*.inc $(subst /,\,$(PLUGINS_H))
    endef
 endif
 

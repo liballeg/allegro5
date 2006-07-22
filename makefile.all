@@ -516,6 +516,9 @@ ifneq ($(PLUGIN_SCRIPTS),)
 PLUGIN_DEPS += $(PLUGIN_SCRIPTS)
 endif
 
+# Standardise on a single plugins.h.
+PLUGINS_H = tools/plugins/plugins.h
+
 $(PLUGINS_H): $(wildcard tools/plugins/*.inc)
 	$(GENERATE_PLUGINS_H)
 

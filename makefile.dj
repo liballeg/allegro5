@@ -390,22 +390,17 @@ define LINK_WITHOUT_LIB
 endef
 
 PLUGIN_LIB = lib/djgpp/lib$(VERY_SHORT_VERSION)dat.a
-PLUGINS_H = obj/djgpp/plugins.h
 PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
 PLUGIN_SCR = scr
 
 ifdef UNIX_TOOLS
-
-define GENERATE_PLUGINS_H
-   cat tools/plugins/*.inc > obj/djgpp/plugins.h
-endef
-
+   define GENERATE_PLUGINS_H
+      cat tools/plugins/*.inc > $(PLUGINS_H)
+   endef
 else
-
-define GENERATE_PLUGINS_H
-   copy /B tools\plugins\*.inc obj\djgpp\plugins.h
-endef
-
+   define GENERATE_PLUGINS_H
+      copy /B tools\plugins\*.inc $(subst /,\,$(PLUGINS_H))
+   endef
 endif
 
 define MAKE_PLUGIN_LIB
