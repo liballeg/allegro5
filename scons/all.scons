@@ -157,7 +157,7 @@ def tools(env,appendDir,buildDir,libDir):
 	aldatEnv = env.Copy()
 	aldatEnv.Append(CPPPATH = buildDir)
         libaldat = aldatEnv.StaticLibrary(libDir + '/aldat', appendDir(buildDir + '/tools/', aldatFiles))
-        aldatEnv.Depends(buildDir + '/tools/datedit.o', buildDir + '/plugins.h')
+        aldatEnv.Depends(buildDir + '/tools/datedit.o', 'tools/plugins/plugins.h')
         Alias('aldat', libaldat)
         tools.append(libaldat)
         datEnv = env.Copy()
