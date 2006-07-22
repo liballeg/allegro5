@@ -259,7 +259,7 @@ shared_obj.add_emitter('.s', SCons.Defaults.SharedObjectEmitter )
 
 flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
 includes = ["include", "include/allegro", "."]
-defines = ["HAVE_CONFIG_H", "ALLEGRO_NO_ASM", "ALLEGRO_LIB_BUILD"]
+defines = ["HAVE_CONFIG_H", "ALLEGRO_NO_ASM", "ALLEGRO_LIB_BUILD", "ALLEGRO_MODULES_PATH=\\\"%s/allegro\\\"" % context.getLibraryDir() ]
 
 env.Append(CCFLAGS = flags)
 env.Append(CPPDEFINES = defines)
