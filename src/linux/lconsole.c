@@ -148,7 +148,7 @@ static int init_console(void)
 
       /* tty0 is not really a console, so start counting at 2. */
       fd = -1;
-      for (tty = 1, mask = 2; mask; tty++, mask <<= 1)
+      for (tty = 1, mask = 2; mask; tty++, mask <<= 1) {
 	 if (!(vts.v_state & mask)) {
 	    snprintf (tty_name, sizeof(tty_name), "/dev/tty%d", tty);
 	    tty_name[sizeof(tty_name)-1] = 0;
@@ -157,6 +157,7 @@ static int init_console(void)
 	       break;
 	    }
 	 }
+      }
 
       seteuid (getuid());
 
@@ -259,6 +260,7 @@ static int done_console (void)
 
    tcsetattr (__al_linux_console_fd, TCSANOW, &__al_linux_startup_termio);
    close (__al_linux_console_fd);
+   __al_linux_console_fd = -1;
 
    return 0;
 }
@@ -274,7 +276,10 @@ int __al_linux_use_console(void)
    console_users++;
    if (console_users > 1) return 0;
 
-   if (init_console()) return 1;
+   if (init_console()) {
+      console_users--;
+      return 1;
+   }
 
    /* Initialise the console switching system */
    set_display_switch_mode (SWITCH_PAUSE);
@@ -293,8 +298,9 @@ int __al_linux_leave_console(void)
 
    /* shut down the console switching system */
    if (__al_linux_done_vtswitch()) return 1;
-
-   return done_console();
+   if (done_console()) return 1;
+   
+   return 0;
 }
 
 
