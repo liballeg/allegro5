@@ -68,6 +68,9 @@ extern "C" {
    AL_FUNC(void, _unix_register_midi_driver, (int id, MIDI_DRIVER *driver, int autodetect, int priority));
 
 
+   /* File system helpers */
+   AL_FUNC(void, _unix_guess_file_encoding, (void));
+
 #ifdef ALLEGRO_WITH_XWINDOWS
    AL_FUNCPTR(void, _xwin_mouse_interrupt, (int x, int y, int z, int buttons));
 

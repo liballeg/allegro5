@@ -57,6 +57,10 @@
    #endif
 #endif
 
+#define PREFIX_I "al-unix INFO: "
+
+#define PREFIX_I "al-unix INFO: "
+
 
 /* _al_file_isok:
  *  Helper function to check if it is safe to access a file on a floppy
@@ -501,4 +505,32 @@ uint64_t al_ffblk_get_size(struct al_ffblk *info)
    struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
    ASSERT(ff_data);
    return ff_data->size;
+}
+
+
+
+void _unix_guess_file_encoding(void)
+{
+   char const *encoding = "unknown";
+   char *locale = getenv("LC_ALL");
+
+   if (!locale || !locale[0]) {
+      locale = getenv("LC_CTYPE");
+      if (!locale || !locale[0])
+         locale = getenv("LANG");
+   }
+
+   if (locale) {
+      if (strstr(locale, "utf8") ||
+          strstr(locale, "UTF-8") ||
+          strstr(locale, "utf-8") ||
+          strstr(locale, "UTF8")) {
+         /* Note: UTF8 is default anyway. */
+         set_file_encoding(U_UTF8);
+         encoding = "UTF8";
+      }
+      /* TODO: detect other encodings, and support them in Allegro */
+   }
+
+   TRACE(PREFIX_I "Assumed libc encoding is %s.\n", encoding);
 }

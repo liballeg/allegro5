@@ -332,7 +332,9 @@ static int qnx_sys_init(void)
    struct sched_param sparam;
    int spolicy;
    char tmp[WINDOW_TITLE_SIZE];
-   
+
+   _unix_guess_file_encoding();
+
    /* install emergency-exit signal handlers */
    old_sig_abrt = signal(SIGABRT, qnx_signal_handler);
    old_sig_fpe  = signal(SIGFPE,  qnx_signal_handler);

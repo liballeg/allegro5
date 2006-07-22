@@ -188,6 +188,10 @@ static int sys_directx_init(void)
 
    _al_win_init_time();
 
+   if (!IS_OLD_WINDOWS) {
+      set_file_encoding(U_UNICODE);
+   }
+
    return 0;
 
  Error:

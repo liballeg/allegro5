@@ -219,6 +219,26 @@ AL_VAR(int, _key_accent4_flag);
 AL_VAR(int, _key_standard_kb);
 #endif /* 0 */
 
+
+#if (defined ALLEGRO_WINDOWS)
+
+AL_FUNC(int, _alwin_open, (const char*, int, int));
+AL_FUNC(int, _alwin_unlink, (const char*));
+
+   #define IS_OLD_WINDOWS (os_type==OSTYPE_WIN3  || os_type==OSTYPE_WIN95 || \
+                           os_type==OSTYPE_WIN98 || os_type==OSTYPE_WINME || \
+                           os_type==OSTYPE_UNKNOWN)
+   #define _al_open   _alwin_open
+   #define _al_unlink _alwin_unlink
+
+#else
+
+   #define _al_open   open
+   #define _al_unlink unlink
+
+#endif
+
+
 /* some GUI innards that other people need to use */
 AL_FUNC(int, _gui_shadow_box_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, _gui_ctext_proc, (int msg, DIALOG *d, int c));

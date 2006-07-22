@@ -74,6 +74,7 @@ static PACKFILE_VTABLE normal_vtable;
 
 static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode);
 
+static int file_encoding = U_ASCII;
 
 
 #define FA_DAT_FLAGS  (FA_RDONLY | FA_ARCH)
@@ -671,6 +672,26 @@ void put_backslash(char *filename)
  ***************************************************/
 
 
+/* set_file_encoding:
+ *  Sets the encoding to use for filenames. By default, UTF8 is assumed.
+ */
+void set_file_encoding(int encoding)
+{
+    file_encoding = encoding;
+}
+
+
+
+/* get_file_encoding:
+ *  Returns the encoding currently assumed for filenames.
+ */
+int get_file_encoding(void)
+{
+    return file_encoding ;
+}
+
+
+
 /* file_exists:
  *  Checks whether a file matching the given name and attributes exists,
  *  returning non zero if it does. The file attribute may contain any of
@@ -799,7 +820,7 @@ int delete_file(AL_CONST char *filename)
    if (!_al_file_isok(filename))
       return -1;
 
-   if (unlink(uconvert_toascii(filename, tmp)) != 0) {
+   if (_al_unlink(uconvert_tofilename(filename, tmp)) != 0) {
       *allegro_errno = errno;
       return -1;
    }
@@ -1208,7 +1229,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
 
    /* try any extra environment variable that the parameters say to use */
    if (envvar) {
-      s = getenv(uconvert_toascii(envvar, tmp));
+      s = getenv(uconvert_tofilename(envvar, tmp));
 
       if (s) {
 	 do_uconvert(s, U_ASCII, path, U_CURRENT, sizeof(path)-ucwidth(OTHER_PATH_SEPARATOR));
@@ -1803,14 +1824,14 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 
 #ifndef ALLEGRO_MPW
    if (strpbrk(mode, "wW"))  /* write mode? */
-      fd = open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, OPEN_PERMS);
+      fd = _al_open(uconvert_tofilename(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, OPEN_PERMS);
    else
-      fd = open(uconvert_toascii(filename, tmp), O_RDONLY | O_BINARY, OPEN_PERMS);
+      fd = _al_open(uconvert_tofilename(filename, tmp), O_RDONLY | O_BINARY, OPEN_PERMS);
 #else
    if (strpbrk(mode, "wW"))  /* write mode? */
-      fd = _al_open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC);
+      fd = _al_open(uconvert_tofilename(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC);
    else
-      fd = _al_open(uconvert_toascii(filename, tmp), O_RDONLY | O_BINARY);
+      fd = _al_open(uconvert_tofilename(filename, tmp), O_RDONLY | O_BINARY);
 #endif
 
    if (fd < 0) {
