@@ -2993,14 +2993,15 @@ static int helper(void)
    char buf[256];
    PACKFILE *f;
    char *help_text, *last, *s; 
-   int size, i, j, cr;
+   int i, j, cr;
+   int64_t size;
 
    CHECK_MENU_HOOK("Help", DATEDIT_MENU_HELP);
 
    get_executable_name(buf, sizeof(buf));
    strcpy(get_filename(buf), "grabber.txt");
 
-   size = file_size(buf);
+   size = file_size_ex(buf);
    if (size <= 0) {
       alert("Error reading grabber.txt", NULL, NULL, "Oh dear", NULL, 13, 0);
       return D_REDRAW;

@@ -120,11 +120,14 @@ AL_FUNC(UTYPE_INFO *, _find_utype, (int type));
 
 /* wrappers for implementing disk I/O on different platforms */
 AL_FUNC(int, _al_file_isok, (AL_CONST char *filename));
-AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
+AL_FUNC(uint64_t, _al_file_size_ex, (AL_CONST char *filename));
 AL_FUNC(time_t, _al_file_time, (AL_CONST char *filename));
 AL_FUNC(int, _al_drive_exists, (int drive));
 AL_FUNC(int, _al_getdrive, (void));
 AL_FUNC(void, _al_getdcwd, (int drive, char *buf, int size));
+
+/* obsolete; only exists for binary compatibility with 4.2.0 */
+AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
 
 
 /* packfile stuff */

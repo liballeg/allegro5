@@ -39,6 +39,7 @@
 #define HAVE_SYS_DIR_H
 #define HAVE_SYS_TIME_H
 #define TIME_WITH_SYS_TIME
+#define HAVE_SYS_STAT_H
 
 /* Describe this platform */
 #define ALLEGRO_PLATFORM_STR  "MacOS X"

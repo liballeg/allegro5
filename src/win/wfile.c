@@ -43,10 +43,10 @@ int _al_file_isok(AL_CONST char *filename)
 
 
 
-/* _al_file_size:
+/* _al_file_size_ex:
  *  Measures the size of the specified file.
  */
-long _al_file_size(AL_CONST char *filename)
+uint64_t _al_file_size_ex(AL_CONST char *filename)
 {
    struct _stat s;
    char tmp[1024];
@@ -233,4 +233,16 @@ void _al_getdcwd(int drive, char *buf, int size)
       do_uconvert(tmp, U_ASCII, buf, U_CURRENT, size);
    else
       usetc(buf, 0);
+}
+
+
+/* _al_ffblk_get_size:
+ *  Returns the size out of an _al_ffblk structure.
+ */
+uint64_t al_ffblk_get_size(struct al_ffblk *info)
+{
+   ASSERT(info);
+   struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
+
+   return ff_data->data.size;
 }

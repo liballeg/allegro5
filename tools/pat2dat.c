@@ -545,7 +545,7 @@ static void mem_write_file(PACKFILE *f, int size)
 static DATAFILE *grab_patch(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
 {
    PACKFILE *f;
-   long sz = file_size(filename);
+   int64_t sz = file_size_ex(filename);
    char buf[256];
    int inst, layer, sample, i;
    int data_size, data_size_pos;

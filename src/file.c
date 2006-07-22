@@ -725,12 +725,12 @@ int exists(AL_CONST char *filename)
 
 
 
-/* file_size:
+/* file_size_ex:
  *  Returns the size of a file, in bytes.
  *  If the file does not exist or an error occurs, it will return zero
  *  and store the system error code in errno.
  */
-long file_size(AL_CONST char *filename)
+uint64_t file_size_ex(AL_CONST char *filename)
 {
    ASSERT(filename);
    if (ustrchr(filename, '#')) {
@@ -747,7 +747,26 @@ long file_size(AL_CONST char *filename)
    if (!_al_file_isok(filename))
       return 0;
 
-   return _al_file_size(filename);
+   return _al_file_size_ex(filename);
+}
+
+
+
+/* For binary compatibility with 4.2.0. */
+long file_size(AL_CONST char *filename)
+{
+   return file_size_ex(filename);
+}
+
+
+
+/* For binary compatibility with 4.2.0.
+ * This is an internal symbol and only required because _al_file_size was
+ * exposed in the Windows DLL.
+ */
+long _al_file_size(AL_CONST char *filename)
+{
+   return _al_file_size_ex(filename);
 }
 
 

@@ -451,7 +451,7 @@ static void set_config(CONFIG **config, AL_CONST char *data, int length, AL_CONS
 static void load_config_file(CONFIG **config, AL_CONST char *filename, AL_CONST char *savefile)
 {
    char *tmp, *tmp2;
-   int length;
+   uint64_t length;
 
    if (*config) {
       destroy_config(*config);
@@ -464,7 +464,7 @@ static void load_config_file(CONFIG **config, AL_CONST char *filename, AL_CONST 
       return;
    }
 
-   length = file_size(filename);
+   length = file_size_ex(filename);
 
    if (length > 0) {
       PACKFILE *f = pack_fopen(filename, F_READ);
