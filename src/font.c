@@ -1465,7 +1465,7 @@ int is_color_font(FONT *f)
 {
    ASSERT(f);
    
-   return f->vtable == font_vtable_color;
+   return (f->vtable == font_vtable_color || f->vtable == font_vtable_trans);
 }
 
 
