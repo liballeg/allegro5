@@ -375,9 +375,6 @@ Contributors
    Gunter Ladwig (<email>gladwig@iname.com</a>).<br>
    Wrote the OS/2 detection routines and added the three-button mouse
    emulation.
-   
-   Harshavardhana Reddy N (<email>nharsha@gmail.com</a>).<br>
-   Added a Kannada greeting to exunicod.
 
    Hans de Goede.<be>
    Fixed a problem with dynamically generated stretcher code not being
@@ -997,9 +994,6 @@ Contributors
 
    Stephen Kittelson (<email>stickman2000@juno.com</a>).<br>
    Made bugfixes and tweaks to the keyboard system.
-   
-   Sveinung Kvilhaugsvik(email unknown).<br>
-   Pointed out that Allegro should respect DESTDIR under MacOS X.
 
    Stijn Wolters.<br>
    Clarified the documentation of init_dialog.
