@@ -8,6 +8,208 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
+<ul><li>
+   Michal Molhanec made msvchelp.exe work on Cygwin, where there was a
+   problem with the case-insensitivity of environment variables. Reported by
+   Milan Mimica.
+<li>
+   Peter Hull fixed a bug where Allegro detected keypresses on
+   KEY_MINUS_PAD as KEY_PLUS_PAD.
+<li>
+   Peter Hull made OSX work correctly with Logitech sticks, as discussed
+   with Ultio.
+<li>
+   Milan Mimica fixed some spin loops in the test program.
+<li>
+   Chris Robinson added UTF8/Unicode support for filenames in Windows.
+<li>
+   Milan Mimica made the Linux console driver more robust:
+   set_gfx_mode used to get stuck in a infinite loop when there wasn't a 
+   console available.
+<li>
+   Evert Glebbeek made the C blitter use memmove for normal blits, with a bugfix
+   by Milan Mimica. This can be disabled by removing a #define USE_MEMMOVE at
+   the top of cblit.h so that it can easliy be tested against the older versions
+   of the code.
+<li>
+   Christer Sandberg worked around a problem where one-line high bitmaps would
+   crash with  Electric Fence.
+<li>
+   Chris Robinson fixed a crash that occurred if the sound mixer quality
+   level was set to 0 after the mixer was already initialised.
+<li>
+   Evert Glebbeek fixed the window title under X11, which was broken by a
+   previous change.
+<li>
+   Peter Hull updated the endian detection under OSX as recommended by Apple.
+<li>
+   Miguel A. Gavidia and Jay Bernardo made qtmidi.m work on both PPC and Intel.
+<li>
+   Milan Mimica fixed a crash when vsync() on certain drivers.
+<li>
+   Elias Pschernig replaced the ALLEGRO_USE_C define with ALLEGRO_NO_ASM.
+<li>
+   Peter Wang restored the JACK driver to compiling state.
+<li>
+   Milan Mimica made the new transparent fonts be recognized as color fonts
+   with is_color_font.
+<li>
+   Elias Pschernig made the modules path WIP version specific, for enhanced
+   binary compatibility.
+<li>
+   Stijn Wolters clarified the documentation of init_dialog.
+<li>
+   Hans de Goede fixed a problem with dynamically generated stretcher code not
+   being properly marked as executable on Linux (esp. SELinux).
+<li>
+   Hans de Goede fixed a busy wait in the X11 vsync simulation.
+<li>
+   Elias Pschernig makde it so modules under Unix are now searched in libdir
+   as passed by the build machinery. Closes bug #1401840 from SF, reported by
+   Paul Eipper.
+<li>
+   Milan Mimica added a get_volume and a get_hardware_volume function, to
+   work as pendants to set_volume and set_hardware_volume.
+<li>
+   Milan Mimica corrected a case where a wrong structure on the stack was
+   being cleared in the DirectSound input driver.
+<li>
+   Hans de Goede added a fullscreen driver for X11 which does not need
+   XVidMode extension, and instead simply centers the window on the desktop
+   and draws a black border around.
+<li>
+   Hans de Goede fixed a problem where switching to fullscreen mode under X11.
+<li>
+   Serge Semashko added Enter as a fire key in the demo game.
+<li>
+   Serge Semashko added fixed problems with Allegro working on Nokia 770.
+<li>
+   Peter Wang fixed some problems with binary compatibility checking in the
+   4.2 branch.
+<li>
+   Catatonic Porpoise added OpenBSD detection (in addaition to FreeBSD and
+   NetBSD) and fixed an issue with executable rights not set on the memory
+   for the i386 stretcher on UNIX systems.
+<li>
+   Hans de Goede fixed a bug preventing the ALSA driver to work on big endian
+   systems.
+<li>
+   Elias Pschernig and Chris Robinson fixed binary compatibility checking in
+   allegro_init and install_allegro.
+<li>
+   Catatonic Porpoise fixed the example in the documentation of
+   stretch_sprite.
+<li>
+   Hans de Goede made DIGMID work with absolute paths in the patches.cfg file.
+<li>
+   Peter Hull added code to make Allegro work better with user-supplied Nibs
+   under OSX, as discussed with Thomas Harte.
+<li>
+   Matthew Leverton added embedding of manifests to the MSVC 8 build process.
+<li>
+   Neil Walker and Thomas Harte implemented a hardware accelerated
+   stretch_blit() for the Windows DX port.
+<li>
+   Evert Glebbeek corrected a bug when destroying sub-bitmaps under Windows.
+<li>
+   Evert Glebbeek fixed a bug in pack_fopen_chunk() where a temporary file
+   would be created in a non-writable location.
+<li>
+   Peter Wang changed a "/lib" option to MSVC's link utility to "-lib" as
+   reported to be problematic by Karthik Kumar.
+<li>
+   Peter Wang fixed a crash in dat and grabber due to the return value of
+   pack_fopen_chunk() not being checked.
+<li>
+   Elias Pschernig added support for anti-aliased bitmap fonts. 
+<li>
+   Dennis Busch fixed the short description of add_clip_rect.
+<li>
+   Thomas Harte and Neil Walker fixed a problem with draw_sprite() and
+   sub-bitmaps.
+<li>
+   Peter Wang fixed scancode_to_name(KEY_NUMLOCK) returning "PAUSE" in Windows.
+<li>
+   Peter Wang fixed page flipping and triple buffering in the demo game.
+<li>
+   Elias Pschernig added list_config_sections and list_config_entries
+   functions.
+<li>
+   Hrvoje Ban added create_datafile_index and load_datafile_object_indexed
+   functions.
+<li>
+   Peter Hull allowed use of "mingw" instead of  "mingw32" in fix.bat and
+   fix.sh.
+<li>
+   Peter Wang fixed a bug with SWITCH_BACKAMNESIA mode with the fbcon graphics
+   driver. 
+<li>
+   Peter Wang made the svgalib driver save and restore the palette on VT
+   switches.
+<li>
+   Peter Wand fixed a problem with the fbcon driver and VT switching.
+<li>
+   Milan Mimica delayed Linux console initialisation until it is required.
+   This way the user can write command-line programs using timers  without
+   needing a real console.
+<li>
+   Chris Jones fixed behavior of numeric keys when NumLock is on.
+<li>
+   Vincent Penecherc'h worked around a problem with 24-bit bitmaps in
+   the assembler code.
+<li>
+   Tobias Dammers fixed a problem with the DirectSound input driver.
+<li>
+   Matthew Leverton fixed Ctrl-Alt-Del mistakenly being captured by Allegro
+   under Windows
+<li>
+   Vincent Penecherc'h improved the implementation of set_ramp_cmap in the
+   fbcon driver.
+<li>
+   Vincent Penecherc'h implemented get_refresh_rate for the fbcon driver.
+<li>
+   Vincent Penecherc'h fixed problems with the fbcon driver not restoring the
+   original video mode when the driver exits.
+<li>
+   Victor Williams Stafusa da Silva made OS type detection handle Windows 2003
+   and Windows Vista.
+<li>
+   Chris Jones and Vincent Penecherc'h fixed load_wav to handle degenerate
+   stereo wave files with an odd length.
+<li>
+   Annie Testes fixed all sorts of problems with the linux evdev mouse driver
+   when using a tablet as the mouse.
+<li>
+   Annie Testes made the linux evdev mouse driver use the correct device files.
+<li>
+tjaden
+   Vincent Penecherc'h made the linux fbcon driver set a ramp colourmap for
+   directcolor modes, otherwise colours in those modes were all wrong.
+<li>
+tjaden
+   Vincent Penecherc'h fixed a problem with the linux fbcon driver, where it
+   would keep using the old pitch after changing resolutions.
+<li>
+   Serge Semashko fixed a typo causing crashs in
+   _linear_draw_trans_rgba_rle_sprite24.
+<li>
+   Annie Testes fixed cursor speed and incorrect mickey computation bugs in
+   the Linux evdev mouse driver.
+<li>
+   Vincent Penecherc'h made the Linux PS/2 mouse driver try /dev/input/mice
+   by default, in addition to /dev/mouse.
+<li>
+   Warnings, code formatting and minor changes to code and build system
+   by Milan Mimica, Evert Glebbeek, Elias Pschernig, Peter Wang, Peter
+   Hull, Thomas Harte, Vincent Penecherc'h and Chris Robinson.
+<li>
+   Documentation updates by Tore Halse, Elias Pschernig, Milan Mimica,
+   Peter Wang, Physics Dave, Ryan Patterson, Grzegorz Adam Hankiewicz,
+   Andrei Ellman and Evert Glebbeek.
+</ul>
+
+@heading
 Changes from 4.2.0 RC2 to 4.2.0 (November 2005)
 <ul><li>
    Peter Wang made fixmul() detect overflows as it used to do in the 4.0.x
