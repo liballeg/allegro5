@@ -507,7 +507,8 @@ Contributors
 
    Jon Rafkind (<email>workmin@ccs.neu.edu</a>).<br>
    Added more ASSERTs to the code, implemented the Cohen-Sutherland clipping 
-   algorithm for the line() function and supplied an m4 macro for allegro.
+   algorithm for the line() function, supplied an m4 macro for Allegro
+   and added SCons support.
 
    Jonas Petersen (<email>joXonoX@berlin.snafu.de</a>).<br>
    Added the save_bmp() function and support for the OS/2 BMP format.
