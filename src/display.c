@@ -682,8 +682,6 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
       display->gfx_capabilities = 0;
    }
 
-   display->gfx_capabilities = 0;
-
    _set_current_refresh_rate(0);
 
    /* return to text mode? */
@@ -780,6 +778,8 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
    gfx_driver = display->gfx_driver;
 
    /* set the basic capabilities of the driver */
+   display->gfx_capabilities = gfx_capabilities;
+
    if ((VIRTUAL_W > SCREEN_W) || (VIRTUAL_H > SCREEN_H)) {
       if (display->gfx_driver->scroll)
 	 display->gfx_capabilities |= GFX_CAN_SCROLL;
