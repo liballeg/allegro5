@@ -1241,11 +1241,11 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
             else
                new_display->page[c] = create_bitmap(w, h);
          
-         /* Check for success */
+         /* Check for succes */
          if (new_display->page[0]) {
             for (c=0; c<new_display->num_pages; c++)
                clear_bitmap(new_display->page[c]);
-            al_show_video_bitmap(new_display, new_display->page[0]);
+            al_show_video_bitmap(new_display, new_display->page[1]);
          }
          else {
             for (c=0; c<new_display->num_pages; c++)
