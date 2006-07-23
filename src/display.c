@@ -1003,6 +1003,8 @@ int al_request_scroll(AL_DISPLAY *display, int x, int y)
    int ret = 0;
    int h;
 
+   ASSERT(display);
+
    /* can driver handle triple buffering? */
    if ((!display->gfx_driver->request_scroll) || (_dispsw_status)) {
       al_scroll_display(display, x, y);
@@ -1046,6 +1048,8 @@ int al_request_scroll(AL_DISPLAY *display, int x, int y)
  */
 int al_poll_scroll(AL_DISPLAY *display)
 {
+   ASSERT(display);
+
    if ((!display->gfx_driver->poll_scroll) || (_dispsw_status))
       return FALSE;
 
@@ -1060,6 +1064,9 @@ int al_poll_scroll(AL_DISPLAY *display)
  */
 int al_show_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
 {
+   ASSERT(display);
+   ASSERT(bitmap);
+
    if ((!is_video_bitmap(bitmap)) || 
        (bitmap->w != SCREEN_W) || (bitmap->h != SCREEN_H) ||
        (_dispsw_status))
@@ -1079,6 +1086,9 @@ int al_show_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
  */
 int al_request_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
 {
+   ASSERT(display);
+   ASSERT(bitmap);
+
    if ((!is_video_bitmap(bitmap)) || 
        (bitmap->w != SCREEN_W) || (bitmap->h != SCREEN_H) ||
        (_dispsw_status))
@@ -1098,6 +1108,8 @@ int al_request_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
  */
 int al_enable_triple_buffer(AL_DISPLAY *display)
 {
+   ASSERT(display);
+
    if (display->gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)
       return 0;
 
