@@ -244,7 +244,7 @@ if False:
 
 # m = context.getLibraryEnv().Move(context.getLibraryDir(),library)
 # m = context.getLibraryEnv().Move(context.getLibraryDir(), library)
-m = Install(context.getLibraryDir(), library)
+install_to_lib_dir = Install(context.getLibraryDir(), library)
 
 if False:
 	for i in Flatten(library):
@@ -316,4 +316,4 @@ for func in context.getExtraTargets():
     extraTargets.append(func(extraEnv,appendDir,normalBuildDir,context.getLibraryDir()))
 
 extraTargets.append(plugins_h)
-Default(library, extraTargets, docs)
+Default(install_to_lib_dir, extraTargets, docs)
