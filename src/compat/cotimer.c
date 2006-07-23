@@ -20,6 +20,9 @@
  */
 
 
+#include <string.h>
+
+
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
@@ -159,6 +162,8 @@ static void timer_thread_func(_AL_THREAD *self, void *unused)
          bool found = false;
          TIMER_QUEUE copy;
          int x;
+
+         memset(&copy, 0, sizeof(copy));
 
          /* We delay the call until the timer_mutex is unlocked, to
           * avoid deadlocks. The callback itself can add or remove
