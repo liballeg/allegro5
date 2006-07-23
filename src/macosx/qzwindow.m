@@ -231,8 +231,65 @@ static void prepare_window_for_animation(int refresh_view)
 }
 -(void) drawRect:(NSRect) aRect
 {
-   osx_update_dirty_lines();
+   struct GRAPHICS_RECT src_gfx_rect, dest_gfx_rect;
+   Rect rect;
+   int i;
+   CGrafPtr qd_view_port;
+   int qd_view_pitch;
+   char *qd_view_addr;
+
    [super drawRect: aRect];
+   _al_mutex_lock(&osx_window_mutex);
+   
+   if ([self lockFocusIfCanDraw] == YES) {
+      while (!QDDone([self qdPort]));
+      LockPortBits([self qdPort]);
+   
+      qd_view_port = [self qdPort];
+      if (qd_view_port) {
+         qd_view_pitch = GetPixRowBytes(GetPortPixMap(qd_view_port));
+         qd_view_addr = GetPixBaseAddr(GetPortPixMap(qd_view_port)) +
+            ((int)([osx_window frame].size.height) - gfx_quartz_window.h) * qd_view_pitch;
+         
+         if (colorconv_blitter || (osx_setup_colorconv_blitter() == 0)) {
+            SetEmptyRgn(update_region);
+            
+            rect.left = NSMinX(aRect);
+            rect.right = NSMaxX(aRect);
+            rect.top = NSMinY(aRect);
+            rect.bottom = NSMaxY(aRect);
+               /* fill in source graphics rectangle description */
+               src_gfx_rect.width  = rect.right - rect.left;
+               src_gfx_rect.height = rect.bottom - rect.top;
+               src_gfx_rect.pitch  = pseudo_screen_pitch;
+               src_gfx_rect.data   = pseudo_screen->line[0] +
+                  (rect.top * pseudo_screen_pitch) +
+                  (rect.left * BYTES_PER_PIXEL(pseudo_screen_depth));
+               
+               /* fill in destination graphics rectangle description */
+               dest_gfx_rect.pitch = qd_view_pitch;
+               dest_gfx_rect.data  = qd_view_addr +
+                  (rect.top * qd_view_pitch) + 
+                  (rect.left * BYTES_PER_PIXEL(desktop_depth));
+      
+               /* function doing the hard work */
+               colorconv_blitter(&src_gfx_rect, &dest_gfx_rect);
+               /* Reset dirty lines */
+               for (i=rect.top; i<rect.bottom; ++i)
+               {
+                       dirty_lines[i]=0;
+               }
+               RectRgn(update_region, &rect);
+         }   
+         QDFlushPortBuffer(qd_view_port, update_region);
+      }
+      UnlockPortBits(qd_view_port);
+      [self unlockFocus];
+   }
+   _al_mutex_unlock(&osx_window_mutex);
+   
+   osx_signal_vsync();
+
 }
 @end
 
