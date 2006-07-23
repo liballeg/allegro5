@@ -146,11 +146,13 @@ class AllegroContext:
 
         def buildStatic(env,debug,dir):
             env.BuildDir(dir, 'src', duplicate = 0)
-            return build(env.StaticLibrary,self.libDir + '/static/' + getLibraryName(debug),dir)
+            # return build(env.StaticLibrary,self.libDir + '/static/' + getLibraryName(debug),dir)
+            return build(env.StaticLibrary, getLibraryName(debug),dir)
 
         def buildShared(env,debug,dir):
             env.BuildDir(dir, 'src', duplicate = 0)
-            return build(env.SharedLibrary,self.libDir + '/shared/' + getLibraryName(debug),dir)
+            # return build(env.SharedLibrary,self.libDir + '/shared/' + getLibraryName(debug),dir)
+            return build(env.SharedLibrary, getLibraryName(debug),dir)
 
         debugEnv = self.libraryEnv.Copy()
         debugEnv.Append(CCFLAGS = '-DDEBUGMODE=1')
@@ -232,7 +234,28 @@ context.getLibraryEnv().Append(CPPPATH = [ normalBuildDir ])
 
 library = context.getAllegroTarget(debug,static)
 Alias('library', library)
-Install(context.getLibraryDir(), library)
+
+# m = Move(context.getLibraryEnv(),library)
+
+if False:
+	mover = Builder(action = Move())
+	context.getLibraryEnv().Append( BUILDERS = { 'XMove' : mover } )
+	context.getLibraryEnv().XMove( Dir(context.getLibraryDir()), library )
+
+# m = context.getLibraryEnv().Move(context.getLibraryDir(),library)
+# m = context.getLibraryEnv().Move(context.getLibraryDir(), library)
+m = Install(context.getLibraryDir(), library)
+
+if False:
+	for i in Flatten(library):
+		# Execute(Move(context.getLibraryDir(), str(i)))
+		f = str(i)
+		to = context.getLibraryDir() + '/' + str(i)
+		print "Moving %s to %s" % (f,to)
+		Execute(Action(os.rename(f,to)))
+
+# Execute(Move(context.getLibraryDir(), library))
+# Execute(Action(os.rename(library,context.getLibraryDir() + '/' + library)))
 
 context.addLibrary(library)
 
