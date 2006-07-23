@@ -20,12 +20,12 @@
 # Thus debug=1 static=1 is the same as debug-static
 
 # TODO:
-# 1. Compile the modules in unix( alsa, oss, etc ) - Mostly done( 90% )
+# 1. Compile the modules in unix( alsa, oss, etc ) - Mostly done( 95% )
 
 # 2. Get the build system working on other platforms supported by Allegro, Windows being the most important one
-# Linux - 95%
-# OSX - 80%
-# Windows - 80%
+# Linux - 95%. Still need to handle install
+# OSX - 80%. Still need to handle install
+# Windows - 80%. asm doesnt compile yet
 
 # 3. Allow arbitrary libraries to be dropped into the Allegro directory and automatically compiled using the Allegro SCons environments - 0%
 
@@ -237,14 +237,33 @@ Alias('library', library)
 
 # m = Move(context.getLibraryEnv(),library)
 
-if False:
-	mover = Builder(action = Move())
-	context.getLibraryEnv().Append( BUILDERS = { 'XMove' : mover } )
-	context.getLibraryEnv().XMove( Dir(context.getLibraryDir()), library )
+# In scons 0.96.92 the Move() action only accepts strings for filenames
+# as opposed to targets. This method should replace Move() in scons at
+# some point.
+def XMove(env,target,source):
+    sources = env.arg2nodes(source, env.fs.File)
+    targets = env.arg2nodes(target, env.fs.Dir)
+    result = []
+    def moveFunc(target, source, env):
+        import shutil
+        shutil.move(source[0].path,target[0].path)
+        return 0
+
+    def moveStr(target, source, env):
+        return "Moving %s to %s" % (source[0].path,target[0].path)
+
+    MoveBuilder = SCons.Builder.Builder(action = SCons.Action.Action(moveFunc,moveStr), name='MoveBuilder')
+    for src, tgt in map(lambda x, y: (x, y), sources, targets):
+        result.extend(MoveBuilder(env, env.fs.File(src.name, tgt), src))
+    return result
+
+# mover = Builder(action = XMove)
+# context.getLibraryEnv().Append( BUILDERS = { 'XMove' : mover } )
+# context.getLibraryEnv().XMove( Dir(context.getLibraryDir()), library )
 
 # m = context.getLibraryEnv().Move(context.getLibraryDir(),library)
 # m = context.getLibraryEnv().Move(context.getLibraryDir(), library)
-install_to_lib_dir = Install(context.getLibraryDir(), library)
+install_to_lib_dir = XMove(context.getLibraryEnv(), context.getLibraryDir(), library)
 
 if False:
 	for i in Flatten(library):
@@ -317,3 +336,5 @@ for func in context.getExtraTargets():
 
 extraTargets.append(plugins_h)
 Default(install_to_lib_dir, extraTargets, docs)
+
+Depends(install_to_lib_dir,extraTargets)
