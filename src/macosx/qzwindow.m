@@ -495,10 +495,6 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return NULL;
    }
-   [osx_window setContentView: qd_view];
-   
-   set_window_title(osx_window_title);
-   [osx_window makeKeyAndOrderFront: nil];
    
    /* the last flag serves as an end of loop delimiter */
    dirty_lines = calloc(h + 1, sizeof(char));
@@ -558,6 +554,10 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
    osx_gfx_mode = OSX_GFX_WINDOW;
    osx_skip_mouse_move = TRUE;
    osx_window_first_expose = TRUE;
+
+   [osx_window setContentView: qd_view];
+   set_window_title(osx_window_title);
+   [osx_window makeKeyAndOrderFront: nil];
    
    return pseudo_screen;
 }
