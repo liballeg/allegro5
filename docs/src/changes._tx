@@ -8,6 +8,61 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.2 series to 4.3.0 (July 2006)
+<ul><li>
+   Basically we're just wrapping up what we have in version control up to
+   now.  See the commit logs if you want details.
+   <p>
+   This release introduces a few new subsystems.  We have an event system, a
+   new keyboard API, a new joystick API, a new timer API, and the start of a
+   new graphics API.  All of these are subject to change, as is usual for
+   a WIP.
+   <p>
+   We are maintaining a certain level of source compatibility with the 4.2
+   API.  If it's easy to maintain compatibility then we do it, otherwise
+   compatibility is dropped.  Obscure features are more likely to be dropped.
+   <p>
+   This release has had minimal testing on Linux/x86, Windows/x86 (MinGW) and
+   Windows/x86 (MSVC).  It seems to work on some Linux/x86-64 machines also.
+   Other ports are broken or untested.
+   <p>
+   The new functions are as follows (in no particular order).  No real
+   documentation exists at the moment but interesting header files
+   are: altime.h, display.h, draw.h, events.h, joystick.h, keyboard.h,
+   timer.h.
+   <ul><li>
+      al_current_time al_rest
+   <li>
+      al_create_video_bitmap al_create_system_bitmap al_scroll_display
+      al_request_scroll al_poll_scroll al_show_video_bitmap
+      al_request_video_bitmap al_enable_triple_buffer al_create_display
+      al_set_update_method al_destroy_display al_flip_display al_get_buffer
+      al_get_update_method al_enable_vsync al_disable_vsync al_toggle_vsync
+      al_vsync_is_enabled al_blit al_blit_region al_blit_scaled
+   <li>
+      al_event_source_set_mask al_event_source_mask
+   <li>
+      al_create_event_queue al_destroy_event_queue al_register_event_source
+      al_unregister_event_source al_event_queue_is_empty al_get_next_event
+      al_peek_next_event al_drop_next_event al_flush_event_queue
+      al_wait_for_event al_wait_for_specific_event
+   <li>
+      al_install_joystick al_uninstall_joystick al_num_joysticks
+      al_get_joystick al_release_joystick al_joystick_name
+      al_joystick_num_sticks al_joystick_stick_flags al_joystick_stick_name
+      al_joystick_num_axes al_joystick_axis_name al_joystick_button_name
+      al_get_joystick_state
+   <li>
+      al_install_keyboard al_uninstall_keyboard al_get_keyboard
+      al_set_keyboard_leds al_keycode_to_name al_get_keyboard_state al_key_down
+   <li>
+      al_install_timer al_uninstall_timer al_start_timer al_stop_timer
+      al_timer_is_started al_timer_get_speed al_timer_set_speed
+      al_timer_get_count al_timer_set_count
+   </ul>
+</ul>
+
+@heading
 Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
 <ul><li>
    Michal Molhanec made msvchelp.exe work on Cygwin, where there was a
