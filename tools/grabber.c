@@ -512,8 +512,10 @@ static void get_selection_info(DATAFILE **dat, DATAFILE ***parent)
    }
    else {
       *dat = data[SELECTED_ITEM].dat;
-      if ((*dat)->type == DAT_FILE)
-	 *parent = (DATAFILE **)&(*dat)->dat;
+      if ((*dat)->type == DAT_FILE) {
+         void *ptr = &(*dat)->dat;
+         *parent = (DATAFILE **)ptr;
+      }
       else
 	 *parent = data[SELECTED_ITEM].parent;
    }
@@ -1738,9 +1740,11 @@ static void add_datafile_to_list(DATAFILE **dat, char *prefix, int clear)
       add_to_list(d, dat, i, tmp, clear);
 
       if ((d->type == DAT_FILE) && (!folded)) {
-	 strcpy(tmp, prefix);
-	 strcat(tmp, "|");
-	 add_datafile_to_list((DATAFILE **)&d->dat, tmp, clear);
+         void *ptr;
+         strcpy(tmp, prefix);
+         strcat(tmp, "|");
+         ptr = &d->dat;
+         add_datafile_to_list((DATAFILE **)ptr, tmp, clear);
       }
    }
 }
@@ -3267,8 +3271,10 @@ static int add_new(int type)
 	 if (!v)
 	    v = makenew_data(&size);
 
-	 if ((dat->dat) && (dat->dat->type == DAT_FILE))
-	    df = (DATAFILE **)&dat->dat->dat;
+         if ((dat->dat) && (dat->dat->type == DAT_FILE)) {
+            void *ptr = &dat->dat->dat;
+            df = (DATAFILE **)ptr;
+         }
 	 else
 	    df = dat->parent;
 
