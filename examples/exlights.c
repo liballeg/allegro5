@@ -398,7 +398,9 @@ void blit_magic_format_to_screen(BITMAP *bmp)
 
 
 #else
-#error Unknown endianess!
+   #ifndef SCAN_DEPEND
+   #error Unknown endianess!
+   #endif
 #endif
 
 
