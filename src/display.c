@@ -1235,21 +1235,17 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
          new_display->num_pages = 1;
          new_display->page = _AL_MALLOC(new_display->num_pages * sizeof *(new_display->page));
 
-         for (c=0; c<new_display->num_pages; c++)
-            if (new_display->flags & AL_UPDATE_SYSTEM_BUFFER)
-               new_display->page[c] = al_create_system_bitmap(new_display, w, h);
-            else
-               new_display->page[c] = create_bitmap(w, h);
+         if (new_display->flags & AL_UPDATE_SYSTEM_BUFFER)
+            new_display->page[0] = al_create_system_bitmap(new_display, w, h);
+         else
+            new_display->page[0] = create_bitmap(w, h);
          
          /* Check for succes */
          if (new_display->page[0]) {
-            for (c=0; c<new_display->num_pages; c++)
-               clear_bitmap(new_display->page[c]);
-            al_show_video_bitmap(new_display, new_display->page[1]);
+            clear_bitmap(new_display->page[0]);
+            al_show_video_bitmap(new_display, new_display->page[0]);
          }
          else {
-            for (c=0; c<new_display->num_pages; c++)
-               destroy_bitmap(new_display->page[c]);
             _AL_FREE(new_display->page);
             do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0);
 	    goto Error;
