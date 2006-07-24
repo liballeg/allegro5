@@ -6108,8 +6108,7 @@ and they, as well as lengths, are specified in pixel units.
 
 @@void @rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 @xref rect, clear_bitmap, drawing_mode, makecol
-@eref exalpha, excolmap, exkeys, exmidi, expat, exscroll, exsprite
-@eref exstars, exswitch, extrans
+@eref Available Allegro examples
 @shortdesc Draws a solid filled rectangle.
    Draws a solid, filled rectangle with the two points as its opposite 
    corners.
@@ -7478,6 +7477,7 @@ allegro/text.h for details.
 @\void @textprintf_right_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
 @@                         const char *fmt, ...);
 @xref textprintf_ex, textout_right_ex
+@eref exnewapi
 @shortdesc Formatted right aligned output of a string.
    Like textprintf_ex(), but interprets the x coordinate as the right rather
    than the left edge of the string. This function shares the text length
@@ -15123,9 +15123,10 @@ and avoid missing any important bit of information.
 @@Example @exdbuf
 @xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen
 @xref allegro_error, allegro_init, allegro_message, blit, circlefill
-@xref clear_to_color, create_bitmap, desktop_palette, destroy_bitmap
-@xref font, install_timer, makecol, release_screen, retrace_count, screen
-@xref set_gfx_mode, set_palette, textprintf_ex
+@xref clear_keybuf, clear_to_color, create_bitmap, desktop_palette
+@xref destroy_bitmap, font, install_keyboard, install_timer, keypressed
+@xref makecol, release_screen, retrace_count, screen, set_gfx_mode
+@xref set_palette, textprintf_ex
 @shortdesc How to use double buffering to avoid flicker.
    This program demonstrates the use of double buffering.
    It moves a circle across the screen, first just erasing and
@@ -15133,10 +15134,11 @@ and avoid missing any important bit of information.
 
 @@Example @exflip
 @xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error
-@xref allegro_init, allegro_message, blit, circlefill, clear_to_color
-@xref create_bitmap, create_video_bitmap, desktop_palette, destroy_bitmap
-@xref font, install_timer, makecol, retrace_count, screen, set_gfx_mode
-@xref set_palette, show_video_bitmap, textprintf_ex
+@xref allegro_init, allegro_message, blit, circlefill, clear_keybuf
+@xref clear_to_color, create_bitmap, create_video_bitmap, desktop_palette
+@xref destroy_bitmap, font, install_keyboard, install_timer, keypressed
+@xref makecol, retrace_count, screen, set_gfx_mode, set_palette
+@xref show_video_bitmap, textprintf_ex
 @shortdesc Comparison of double buffering and page flipping.
    This program moves a circle across the screen, first with a
    double buffer and then using page flips.
@@ -15354,11 +15356,9 @@ and avoid missing any important bit of information.
 
 @@Example @exdata
 @xref DATAFILE, END_OF_MAIN, allegro_error, allegro_init, allegro_message
-@xref blit, create_datafile_index, destroy_datafile_index, font
-@xref install_keyboard, load_datafile, load_datafile_object_indexed
-@xref makecol, readkey, replace_filename, screen, set_color_conversion
-@xref set_gfx_mode, set_palette, textout_ex, unload_datafile
-@xref unload_datafile_object
+@xref blit, font, install_keyboard, load_datafile, makecol, readkey
+@xref replace_filename, screen, set_color_conversion, set_gfx_mode
+@xref set_palette, textout_ex, unload_datafile
 @shortdesc Accessing the contents of datafiles.
    This program demonstrates how to access the contents of an
    Allegro datafile (created by the grabber utility). The example
@@ -16018,6 +16018,16 @@ and avoid missing any important bit of information.
    
    The fourth test reads two bitmaps, and dumps them back into a
    single file, using a custom vtable again.
+
+@@Example @exnewapi
+@xref BITMAP, END_OF_MAIN, allegro_init, clear_to_color, font, key
+@xref makecol, rectfill, textprintf_right_ex
+   This is a temporary example to get a feeling for the new API, which was very
+   much in flux yet when this example was created.
+   
+   Right now, it moves a red rectangle across the screen with a speed of
+   100 pixels / second, limits the FPS to 100 Hz to save CPU, and prints the
+   current FPS in the top right corner.
 
 @# end genexamp.py chunk
 
