@@ -148,7 +148,7 @@ Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
    Peter Wang made the svgalib driver save and restore the palette on VT
    switches.
 <li>
-   Peter Wand fixed a problem with the fbcon driver and VT switching.
+   Peter Wang fixed a problem with the fbcon driver and VT switching.
 <li>
    Milan Mimica delayed Linux console initialisation until it is required.
    This way the user can write command-line programs using timers  without
