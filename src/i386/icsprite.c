@@ -306,7 +306,7 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
 	    char *aligned_p = (char *)((unsigned long)p & ~(PAGE_SIZE-1ul));
 	    if (mprotect(aligned_p, compiler_pos + ((char *)p - aligned_p),
 		  PROT_EXEC|PROT_READ|PROT_WRITE)) {
-	       perror("allegro-error: mprotect failed during stretched blit!");
+	       perror("allegro-error: mprotect failed during compile sprite!");
 	       _AL_FREE(p);
 	       return NULL;
 	    }
