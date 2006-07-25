@@ -76,6 +76,8 @@ class SimpleHash:
     def keys( self ):
         return self.hash.keys()
 
+unixLibs = [ 'm', 'pthread' ]
+
 # the settings we cache in settings.cfg
 config_settings = ["CCFLAGS", "CPPPATH", "CPPFLAGS", "LIBS", "LIBPATH", "LINKFLAGS"]
 platform = SimpleHash()
@@ -400,7 +402,7 @@ def allegroConfig(env,appendDir,buildDir,libDir):
     dict[ '@prefix@' ] = ARGUMENTS.get( 'prefix', '/usr/local/' )
     dict[ '@INCLUDE_PREFIX@' ] = ARGUMENTS.get( 'prefix', '/usr/local/' )
     dict[ '@LINK_WITH_STATIC_LIBS@' ] = 'something'
-    dict[ '@LIB_TO_LINK@' ] = 'something'
+    dict[ '@LIB_TO_LINK@' ] = '"' + ' '.join(['-l' + x for x in unixLibs]) + '"'
     dict[ '@LDFLAGS@' ] = 'something'
     dict[ '@LIBS@' ] = 'something'
     dict[ '@FRAMEWORKS@' ] = 'something'
