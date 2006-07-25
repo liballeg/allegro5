@@ -394,6 +394,37 @@ if platform["ALLEGRO_WITH_XWINDOWS"][0]:
 
     context.addExtra(tools)
 
+def allegroConfig(env,appendDir,buildDir,libDir):
+    """Builds the allegro-config shell script out of misc/allegro-config.in"""
+    dict = {}
+    dict[ '@prefix@' ] = ARGUMENTS.get( 'prefix', '/usr/local/' )
+    dict[ '@INCLUDE_PREFIX@' ] = ARGUMENTS.get( 'prefix', '/usr/local/' )
+    dict[ '@LINK_WITH_STATIC_LIBS@' ] = 'something'
+    dict[ '@LIB_TO_LINK@' ] = 'something'
+    dict[ '@LDFLAGS@' ] = 'something'
+    dict[ '@LIBS@' ] = 'something'
+    dict[ '@FRAMEWORKS@' ] = 'something'
+    dict[ '^version=.*' ] = 'version=%s' % context.getVersion()
+
+    def replaceVars(target,source,env):
+        writer = open( target[0].path, 'w' )
+        for line in file(source[0].path):
+            import re
+            for str in dict.keys():
+                regex = re.compile( str )
+                line = regex.sub(dict[str], line)
+
+            writer.write( line )
+
+        writer.close()
+        return 0
+
+    configure = Builder( action = replaceVars, name = "ConfigureBuilder" )
+    env.Append(BUILDERS = { "Configure" : configure })
+    return env.Configure( 'allegro-config', '#misc/allegro-config.in' )
+    
+context.addExtra(allegroConfig)
+
 def pruneLibs(libs):
     import sets # needed for Python 2.3 compatibility
     return list(sets.Set(libs))

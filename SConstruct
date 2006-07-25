@@ -107,6 +107,9 @@ class AllegroContext:
     def getLibraryDir(self):
         return self.libDir
 
+    def getVersion(self):
+        return allegroVersion
+
     def getExtraTargets(self):
         return self.extraTargets
 
