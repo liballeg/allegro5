@@ -741,6 +741,10 @@ if(SUPPORT_MODULES)
             audio)
     endif(SUPPORT_SGIAL)
 
+    install(FILES modules.lst
+            DESTINATION ${ALLEGRO_MODULES_PATH_TAIL}
+            )
+
 endif(SUPPORT_MODULES)
 
 #-----------------------------------------------------------------------------#
