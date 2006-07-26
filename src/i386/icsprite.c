@@ -28,6 +28,14 @@
 
 
 
+#ifdef HAVE_MPROTECT
+   #include <sys/types.h>
+   #include <sys/mman.h>
+   #include <sys/user.h>
+#endif     /* ifdef HAVE_MPROTECT */
+
+
+
 /* compile_sprite:
  *  Helper function for making compiled sprites.
  */
