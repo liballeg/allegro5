@@ -43,7 +43,7 @@ endmacro(add_document)
 
 macro(add_info n)
     if(MAKEINFO)
-        makedoc(src/${n}._tx -texi rtf/${n}.texi)
+        makedoc(src/${n}._tx -texi texi/${n}.texi)
 
         list(APPEND all_docs info/${n}.info)
         add_custom_command(
