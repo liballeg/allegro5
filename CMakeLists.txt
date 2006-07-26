@@ -24,6 +24,10 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 #-----------------------------------------------------------------------------#
 
 project(ALLEGRO C)
+
+# TODO soft-code the version number
+set(ALLEGRO_VERSION 4.3.1)
+
 include_directories( . include include/allegro)
 include(FileList)
 
@@ -240,11 +244,10 @@ if(UNIX)
         list(APPEND PLATFORM_LIBS pthread)
     endif(HAVE_LIBPTHREAD)
 
-    # TODO softcode the version number
     if(SUPPORT_MODULES)
-        set(ALLEGRO_MODULES_PATH_TAIL lib/allegro/4.3.1)
+        set(ALLEGRO_MODULES_PATH_TAIL lib/allegro)
         set(ALLEGRO_MODULES_PATH
-            \"${CMAKE_INSTALL_PREFIX}${ALLEGRO_MODULES_PATH_TAIL}\"
+            \"${CMAKE_INSTALL_PREFIX}/${ALLEGRO_MODULES_PATH_TAIL}\"
             )
     endif(SUPPORT_MODULES)
 
@@ -685,13 +688,17 @@ if(SUPPORT_MODULES)
         target_link_libraries(${target} ${ARGN})
 
         install(TARGETS ${target}
-                DESTINATION ${ALLEGRO_MODULES_PATH_TAIL}
+                DESTINATION ${ALLEGRO_MODULES_PATH_TAIL}/${ALLEGRO_VERSION}
                 PERMISSIONS
                     OWNER_READ OWNER_WRITE OWNER_EXECUTE
                     GROUP_READ             GROUP_EXECUTE
                     WORLD_READ             WORLD_EXECUTE
                 )
     endmacro(add_module)
+
+    install(FILES modules.lst
+            DESTINATION ${ALLEGRO_MODULES_PATH_TAIL}/${ALLEGRO_VERSION}
+            )
 
     if(SUPPORT_FBCON)
         add_module(alleg-fbcon "${ALLEGRO_MODULE_FBCON_FILES}")
@@ -740,10 +747,6 @@ if(SUPPORT_MODULES)
         add_module(alleg-sgialdigi ${ALLEGRO_MODULE_SGIAL_FILES}
             audio)
     endif(SUPPORT_SGIAL)
-
-    install(FILES modules.lst
-            DESTINATION ${ALLEGRO_MODULES_PATH_TAIL}
-            )
 
 endif(SUPPORT_MODULES)
 
