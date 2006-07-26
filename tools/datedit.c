@@ -102,7 +102,7 @@ void datedit_init(void)
    int done, i;
    AL_CONST char *prop_types;
 
-   #include "tools/plugins/plugins.h"
+   #include "plugins/plugins.h"
 
    do {
       done = TRUE;
