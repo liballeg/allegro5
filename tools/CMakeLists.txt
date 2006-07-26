@@ -21,7 +21,7 @@ add_custom_command(
     )
 
 file(GLOB plugins RELATIVE "" plugins/*.c)
-add_library(aldat STATIC datedit.c ${plugins} ${plugins_h})
+add_library(aldat STATIC datedit.c ${plugins})
 set_target_properties(aldat PROPERTIES
     COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
     LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
