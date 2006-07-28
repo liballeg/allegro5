@@ -5,14 +5,13 @@
 #define ALLEGRO_COLOR24 1
 #define ALLEGRO_COLOR32 1
 #define ALLEGRO_COLOR8 1
-#define ALLEGRO_MMX 1
-#define ALLEGRO_SSE 1
 #define RETSIGTYPE void
 
 #define ALLEGRO_ALSA_VERSION ${ALLEGRO_ALSA_VERSION}
 #define ALLEGRO_MODULES_PATH ${ALLEGRO_MODULES_PATH}
 
 /* Please keep sorted */
+
 #cmakedefine ALLEGRO_BIG_ENDIAN
 #cmakedefine ALLEGRO_HAVE_GETEXECNAME
 #cmakedefine ALLEGRO_HAVE_PROCFS_ARGCV
@@ -74,5 +73,9 @@
 #cmakedefine HAVE_SYS_UTSNAME_H
 #cmakedefine HAVE__BOOL
 #cmakedefine TIME_WITH_SYS_TIME
+
+/* ASM related */
+#cmakedefine ALLEGRO_MMX
+#cmakedefine ALLEGRO_SSE
 
 /* vi: set ft=c ts=3 sts=3 sw=3 et: */

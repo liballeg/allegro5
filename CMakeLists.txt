@@ -97,6 +97,9 @@ include(CheckSymbolExists)
 include(CheckTypeSize)
 include(UsePkgConfig)
 
+# Module for testing source, running compiled source, and asm source
+include(SrcTests)
+
 # For alplatf.h
 
 if(MINGW)
@@ -109,12 +112,10 @@ endif(UNIX)
 # Add corresponding lines to include/allegro/platform/alunixac.h.in
 
 include(TestBigEndian)
-test_big_endian(big_endian)
-if(big_endian)
-    set(ALLEGRO_BIG_ENDIAN 1)
-else(big_endian)
+test_big_endian(ALLEGRO_BIG_ENDIAN)
+if(NOT ALLEGRO_BIG_ENDIAN)
     set(ALLEGRO_LITTLE_ENDIAN 1)
-endif(big_endian)
+endif(NOT ALLEGRO_BIG_ENDIAN)
 
 check_include_files(dirent.h HAVE_DIRENT_H)
 check_include_files(inttypes.h HAVE_INTTYPES_H)
@@ -139,7 +140,8 @@ check_include_files(sys/utsname.h HAVE_SYS_UTSNAME_H)
 
 check_function_exists(getexecname ALLEGRO_SYS_GETEXECNAME)
 set(ALLEGRO_HAVE_GETEXECNAME ${ALLEGRO_SYS_GETEXECNAME})
-    # ??? both are used in the source
+     # ^ what's goin on here? That'll be set automatically with the check_function exists?
+     # ??? both are used in the source
 check_function_exists(memcmp HAVE_MEMCMP)
 check_function_exists(mkstemp HAVE_MKSTEMP)
 check_function_exists(mmap HAVE_MMAP)
@@ -149,43 +151,35 @@ check_function_exists(stricmp HAVE_STRICMP)
 check_function_exists(strlwr HAVE_STRLWR)
 check_function_exists(strupr HAVE_STRUPR)
 check_function_exists(strupr HAVE_STRUPR)
+check_type_size("_Bool" HAVE__BOOL)
 
 check_c_source_compiles("
-    #include <stdbool.h>
-    int main(void) {
-        _Bool x = false;
-        return 0;
-    }"
-    HAVE__BOOL
-    )
-
-check_c_source_compiles("
-    #include <sys/procfs.h>
+#include <sys/procfs.h>
     int main(void) {
         struct prpsinfo psinfo;
         psinfo.pr_argc = 0;
         return 0;
-    }"
+	}"
     ALLEGRO_HAVE_PROCFS_ARGCV
     )
 
 check_c_source_compiles("
-    #include <sys/procfs.h> 
-    #include <sys/ioctl.h>
+#include <sys/procfs.h> 
+#include <sys/ioctl.h>
     int main(void) {
         struct prpsinfo psinfo; 
         ioctl(0, PIOCPSINFO, &psinfo);
         return 0;
-    }"
+	}"
     ALLEGRO_HAVE_SV_PROCFS
     )
 
 check_c_source_compiles("
-    #include <time.h>
-    #include <sys/time.h>
+#include <time.h>
+#include <sys/time.h>
     int main(void) {
         return 0;
-    }"
+	}"
     TIME_WITH_SYS_TIME
     )
 
@@ -195,18 +189,51 @@ check_ctors(ALLEGRO_USE_CONSTRUCTOR)
 #-----------------------------------------------------------------------------#
 
 if(WANT_ASM)
-    # TODO check if assembly is support on this platform
+# TODO check if assembly is support on this platform
+# Write up another macro?
+
     set(SUPPORT_ASM 1)
+    
+# ASM processor checks placed here for the time being
+    asm_test(ALLEGRO_MMX "
+	.globl _dummy_function
+	_dummy_function:
+	pushl %ebp
+	movl %esp, %ebp
+	movq -8(%ebp), %mm0
+	movd %edi, %mm1
+	punpckldq %mm1, %mm1
+	psrld $ 19, %mm7
+	pslld $ 10, %mm6
+	por %mm6, %mm7
+	paddd %mm1, %mm0
+	emms
+	popl %ebp"
+	) 
+    asm_test(ALLEGRO_SSE "
+	.globl _dummy_function
+        _dummy_function:
+        pushl %ebp
+        movl %esp, %ebp
+        movq -8(%ebp), %mm0
+        movd %edi, %mm1
+        punpckldq %mm1, %mm1
+        psrld $ 10, %mm3
+        maskmovq %mm3, %mm1
+        paddd %mm1, %mm0
+        emms
+        popl %ebp
+        ret"
+	)
+else(WANT_ASM)
+# Added it to alplatf.h.cmake, if this isn't wise just uncomment
+# and remove the set and the entry in alplatf.h.cmake
+#add_definitions(-DALLEGRO_NO_ASM)
+    set(ALLEGRO_NO_ASM 1)
 endif(WANT_ASM)
 
-if(NOT SUPPORT_ASM)
-    # TODO Consider getting rid of this command-line option and use the
-    # config file.
-    add_definitions(-DALLEGRO_NO_ASM)
-endif(NOT SUPPORT_ASM)
-
 if(WANT_MODULES)
-    # Should ask CMake whether it can build modules on this platform.
+# Should ask CMake whether it can build modules on this platform.
     set(ALLEGRO_WITH_MODULES 1)
     set(SUPPORT_MODULES 1)
 endif(WANT_MODULES)
@@ -221,12 +248,12 @@ endif(WANT_MAGIC_MAIN)
 #
 #-----------------------------------------------------------------------------#
 
-    # Accumulate extra libraries needed for the platform.
-    #
+# Accumulate extra libraries needed for the platform.
+#
 set(PLATFORM_LIBS)
 
-    # Accumulate extra libraries needed due to drivers.
-    #
+# Accumulate extra libraries needed due to drivers.
+#
 set(DRIVER_LIBS_STATIC)
 set(DRIVER_LIBS_SHARED)
 
@@ -251,20 +278,20 @@ if(UNIX)
             )
     endif(SUPPORT_MODULES)
 
-    #
-    # Sound drivers
-    #
+#
+# Sound drivers
+#
 
     if(WANT_ALSADIGI)
         check_c_source_compiles("
-            #include <sys/asoundlib.h>
+#include <sys/asoundlib.h>
             int main(void) { 
-            #if(SND_LIB_MAJOR > 0) || (SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9 && SND_LIB_SUBMINOR >= 1)
+#if(SND_LIB_MAJOR > 0) || (SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9 && SND_LIB_SUBMINOR >= 1)
                 return 0;
-            #else
+#else
                 return 1;
-            #endif
-            }"
+#endif
+		}"
             SUPPORT_ALSADIGI
         )
         if(SUPPORT_ALSADIGI)
@@ -276,14 +303,14 @@ if(UNIX)
 
     if(WANT_ALSAMIDI)
         check_c_source_compiles("
-            #include <sys/asoundlib.h>
+#include <sys/asoundlib.h>
             int main(void) { 
-            #if(SND_LIB_MAJOR > 0) || (SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9)
+#if(SND_LIB_MAJOR > 0) || (SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9)
                 return 0;
-            #else
+#else
                 return 1;
-            #endif
-            }"
+#endif
+		}"
             SUPPORT_ALSAMIDI
         )
         if(SUPPORT_ALSAMIDI)
@@ -294,7 +321,7 @@ if(UNIX)
     endif(WANT_ALSAMIDI)
 
     if(WANT_ARTS)
-        # XXX artsc doesn't use pkg-config
+# XXX artsc doesn't use pkg-config
         pkgconfig(artsc
             ARTS_INCLUDEDIR ARTS_LIBDIR
             ARTS_LINKFLAGS ARTS_CFLAGS
@@ -307,7 +334,7 @@ if(UNIX)
     endif(WANT_ARTS)
 
     if(WANT_ESD)
-        # XXX esd doesn't use pkg-config
+# XXX esd doesn't use pkg-config
         pkgconfig(esd
             ESD_INCLUDEDIR ESD_LIBDIR
             ESD_LINKFLAGS ESD_CFLAGS
@@ -368,20 +395,22 @@ endif(UNIX)
 #
 
 # TODO check actually on Linux
-if(WANT_LINUX_CONSOLE AND UNIX)
+#if(WANT_LINUX_CONSOLE AND UNIX)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux") 
     set(SUPPORT_LINUX_CONSOLE 1)
     set(ALLEGRO_LINUX 1)
-endif(WANT_LINUX_CONSOLE AND UNIX)
+endif(CMAKE_SYSTEM_NAME STREQUAL "Linux") 
+#endif(WANT_LINUX_CONSOLE AND UNIX)
 
 if(SUPPORT_LINUX_CONSOLE)
 
     if(WANT_FBCON)
         check_c_source_compiles("
-            #include <linux/fb.h>
+#include <linux/fb.h>
             int main(void) {
                 int x = FB_SYNC_ON_GREEN;
                 return 0;
-            }"
+		}"
             SUPPORT_FBCON
         )
         if(SUPPORT_FBCON)
@@ -397,14 +426,15 @@ if(SUPPORT_LINUX_CONSOLE)
         endif(SUPPORT_SVGALIB)
 
         set(CMAKE_REQUIRED_LIBRARIES vga)
-        check_c_source_compiles("
-            #include <vga.h>
-            int main(void) {
-                int x = vga_version;
-                return 0;
-            }"
-            ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION
-        )
+	# Replaced with the macro run_test in SrcTests Module appends the
+	# Version number to the define in alunixac.h
+       check_c_source_compiles("
+	#include <vga.h>
+        int main(void) {
+             int x = vga_version;
+             return x;
+		}"
+        ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION NULL)
         set(CMAKE_REQUIRED_LIBRARIES)
     endif(WANT_SVGALIB)
 
@@ -496,18 +526,18 @@ endif(UNIX)
 #
 #-----------------------------------------------------------------------------#
 
-    # List of source files need to compile Allegro in this configuration on
-    # this platform.
-    #
+# List of source files need to compile Allegro in this configuration on
+# this platform.
+#
 set(LIBRARY_SOURCES ${ALLEGRO_SRC_FILES})
 
-    # Libraries that we always need to link against on this platform
-    # e.g. -lm on Unix.
-    #
+# Libraries that we always need to link against on this platform
+# e.g. -lm on Unix.
+#
 set(PLATFORM_LIBS)
 
-    # Whether using hand-written assembly code or C-only.
-    #
+# Whether using hand-written assembly code or C-only.
+#
 if(SUPPORT_ASM)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_I386_FILES})
 else(SUPPORT_ASM)
@@ -517,8 +547,8 @@ else(SUPPORT_ASM)
     endif(WIN32)
 endif(SUPPORT_ASM)
 
-    # Assembly code and Windows port both require generated asmdef.inc.
-    #
+# Assembly code and Windows port both require generated asmdef.inc.
+#
 add_executable(asmdef src/i386/asmdef.c)
 get_target_property(ASMDEF_EXE asmdef LOCATION)
 
@@ -554,7 +584,7 @@ endif(SUPPORT_X11)
 
 if(WIN32)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WIN_FILES})
-    # TODO this still needs to be produced with misc/fixdll.sh
+# TODO this still needs to be produced with misc/fixdll.sh
     if(MINGW)
         list(APPEND LIBRARY_SOURCES lib/mingw32/allegro.def)
     endif(MINGW)
@@ -577,11 +607,11 @@ macro(add_allegro_build nm extra_flags)
         "-DALLEGRO_LIB_BUILD -DALLEGRO_SRC ${WFLAGS} ${extra_flags}"
         )
 
-    #
-    # Assembly files.
-    # I can't get it to work by adding the asm source file to the library, so
-    # we add the object file to the library instead.
-    #
+#
+# Assembly files.
+# I can't get it to work by adding the asm source file to the library, so
+# we add the object file to the library instead.
+#
     set(ASM_OBJS)
     set(ASM_SOURCES)
     foreach(SOURCE ${LIBRARY_SOURCES})
