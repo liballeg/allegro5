@@ -11,7 +11,7 @@ MACRO(COMPILE_TEST VAR FLAGS LIBS SOURCE_TXT)
       		    ${CMAKE_BINARY_DIR}
                     ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeTmp/tmp.c
                     COMPILE_DEFINITIONS ${FLAGS}
-      		    CMAKE_FLAGS "-DLINK_LIBRARIES:STRING=${LIBS}"
+      		    "-DLINK_LIBRARIES:STRING=${LIBS}"
                     OUTPUT_VARIABLE OUTPUT)
                     IF(${VAR})
                     	MESSAGE("-- Compilation test for ${VAR} successfull!")
@@ -38,9 +38,7 @@ MACRO(RUN_TEST VAR_1 VAR_2 FLAGS LIBS SOURCE_TXT)
       		    ${CMAKE_BINARY_DIR}
                     ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeTmp/tmp.c
                     COMPILE_DEFINITIONS ${FLAGS}
-      		    CMAKE_FLAGS -DCOMPILE_DEFINITIONS:STRING=${MACRO_CHECK_FUNCTION_DEFINITIONS}
                     "-DLINK_LIBRARIES:STRING=${LIBS}"
-                    "${CHECK_C_SOURCE_COMPILES_ADD_INCLUDES}"
                     OUTPUT_VARIABLE OUTPUT)
                     IF(${VAR_1})
                     	MESSAGE("-- Test for ${VAR_1} successfull!")

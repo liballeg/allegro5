@@ -426,15 +426,14 @@ if(SUPPORT_LINUX_CONSOLE)
         endif(SUPPORT_SVGALIB)
 
         set(CMAKE_REQUIRED_LIBRARIES vga)
-	# Replaced with the macro run_test in SrcTests Module appends the
-	# Version number to the define in alunixac.h
-       check_c_source_compiles("
+        check_c_source_compiles("
 	#include <vga.h>
         int main(void) {
              int x = vga_version;
              return x;
-		}"
-        ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION NULL)
+	}"
+	ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION
+        )
         set(CMAKE_REQUIRED_LIBRARIES)
     endif(WANT_SVGALIB)
 
