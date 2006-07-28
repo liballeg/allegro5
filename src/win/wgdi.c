@@ -118,7 +118,6 @@ static HANDLE vsync_event;
 /* hardware mouse cursor emulation */
 static int mouse_on = FALSE;
 static int mouse_was_on = FALSE;
-static BITMAP *mouse_sprite = NULL;
 static BITMAP *mouse_frontbuffer = NULL;
 static BITMAP *mouse_backbuffer = NULL;
 static int mouse_xfocus, mouse_yfocus;
