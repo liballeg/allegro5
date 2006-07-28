@@ -97,7 +97,6 @@ include(CheckSymbolExists)
 include(CheckTypeSize)
 include(UsePkgConfig)
 
-# Module for testing source, running compiled source, and asm source
 include(SrcTests)
 
 # For alplatf.h
@@ -194,37 +193,9 @@ if(WANT_ASM)
 
     set(SUPPORT_ASM 1)
     
-# ASM processor checks placed here for the time being
-    asm_test(ALLEGRO_MMX "
-	.globl _dummy_function
-	_dummy_function:
-	pushl %ebp
-	movl %esp, %ebp
-	movq -8(%ebp), %mm0
-	movd %edi, %mm1
-	punpckldq %mm1, %mm1
-	psrld $ 19, %mm7
-	pslld $ 10, %mm6
-	por %mm6, %mm7
-	paddd %mm1, %mm0
-	emms
-	popl %ebp"
-	) 
-    asm_test(ALLEGRO_SSE "
-	.globl _dummy_function
-        _dummy_function:
-        pushl %ebp
-        movl %esp, %ebp
-        movq -8(%ebp), %mm0
-        movd %edi, %mm1
-        punpckldq %mm1, %mm1
-        psrld $ 10, %mm3
-        maskmovq %mm3, %mm1
-        paddd %mm1, %mm0
-        emms
-        popl %ebp
-        ret"
-	)
+    include(CheckAsm)
+    check_MMX(ALLEGRO_MMX)
+    check_SSE(ALLEGRO_SSE)
 else(WANT_ASM)
 # Added it to alplatf.h.cmake, if this isn't wise just uncomment
 # and remove the set and the entry in alplatf.h.cmake
