@@ -474,6 +474,14 @@ configure_file(
     include/allegro/platform/alplatf.h
     )
 
+if(MINGW)
+    # asmcapa.h wouldn't be necessary if we only supported CMake.
+    configure_file(
+        cmake/asmcapa.h.cmake
+        obj/mingw32/asmcapa.h
+        )
+endif(MINGW)
+
 if(UNIX)
 
     set(CONFIG_FILE include/allegro/platform/alunixac.h)
