@@ -123,8 +123,8 @@ else:
 
     config = context.getLibraryEnv().Configure(custom_tests = tests)
 
-    gccArchFlag = "-mcpu="
     machine = "i386"
+    archFlag = "-mcpu="
     useArch = False
     if config.CheckIntel():
         machine = "pentium"
@@ -135,10 +135,10 @@ else:
         useArch = True
 
     if config.CheckMTune(machine):
-        gccArchFlag = "-mtune=" + machine
+    	archFlag = '-mtune='
 
     if useArch:
-        config.env.Append( CCFLAGS = [gccArchFlag] )
+        config.env.Append( CCFLAGS = [archFlag + machine] )
 
     config.CheckLib("m", "sin")
     platform["ALLEGRO_ALSA_VERSION"] = [config.AlsaVersion(), "Define to the installed ALSA version"]
