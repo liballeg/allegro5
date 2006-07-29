@@ -135,6 +135,7 @@ HEADERS = $(INSTALL_DIR)/include/qnxalleg.h                  \
           $(INSTALL_DIR)/include/allegro/platform/al386gcc.h \
           $(INSTALL_DIR)/include/allegro/platform/alqnxcfg.h \
           $(INSTALL_DIR)/include/allegro/platform/alplatf.h  \
+          $(INSTALL_DIR)/include/allegro/platform/astdbool.h \
           $(INSTALL_DIR)/include/allegro/platform/astdint.h  \
           $(INSTALL_DIR)/include/allegro/platform/alqnx.h
 

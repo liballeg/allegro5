@@ -276,6 +276,7 @@ HEADERS = $(DJDIR_U)/include/allegro/platform/aintdos.h  \
           $(DJDIR_U)/include/allegro/platform/al386gcc.h \
           $(DJDIR_U)/include/allegro/platform/aldjgpp.h  \
           $(DJDIR_U)/include/allegro/platform/alplatf.h  \
+          $(DJDIR_U)/include/allegro/platform/astdbool.h \
           $(DJDIR_U)/include/allegro/platform/astdint.h  \
           $(DJDIR_U)/include/allegro/platform/aldos.h
 

@@ -177,6 +177,7 @@ HEADERS = $(INSTALLDIR)/$(INCDIR)/bealleg.h                   \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/al386gcc.h \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/albecfg.h  \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/alplatf.h  \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/astdbool.h \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/astdint.h  \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/albeos.h
 

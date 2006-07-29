@@ -218,6 +218,7 @@ HEADERS = $(INSTALLDIR)/$(INCDIR)/osxalleg.h                  \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintunix.h \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/alosxcfg.h \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/alplatf.h  \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/astdbool.h \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/astdint.h  \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/alosx.h
 
