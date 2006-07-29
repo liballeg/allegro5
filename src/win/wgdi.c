@@ -49,7 +49,6 @@ static void gfx_gdi_exit(struct BITMAP *b);
 static void gfx_gdi_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
 static void gfx_gdi_vsync(void);
 /* hardware mouse cursor emulation */
-static BITMAP *wgdi_mouse_sprite = NULL;
 static int  gfx_gdi_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus);
 static int  gfx_gdi_show_mouse(struct BITMAP *bmp, int x, int y);
 static void gfx_gdi_hide_mouse(void);
@@ -119,6 +118,7 @@ static HANDLE vsync_event;
 /* hardware mouse cursor emulation */
 static int mouse_on = FALSE;
 static int mouse_was_on = FALSE;
+static BITMAP *wgdi_mouse_sprite = NULL;
 static BITMAP *mouse_frontbuffer = NULL;
 static BITMAP *mouse_backbuffer = NULL;
 static int mouse_xfocus, mouse_yfocus;
