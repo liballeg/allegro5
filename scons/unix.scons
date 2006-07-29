@@ -353,10 +353,23 @@ if platform["ALLEGRO_LINUX_SVGALIB"][0]:
     def buildSVGA(menv,appendDir,buildDir,libDir):
         vgaEnv = menv.Copy()
         vgaEnv.Append(LIBS = "vga")
-        vgaEnv.Depends(buildDir + '/linux/svgalibs.s','obj/unix/asmdef.inc')
-        sources = ["svgalib.c","svgalibs.s"]
-        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/linux/", sources))
-        vgaEnv.Cat('obj/unix/asmdef.inc', 'src/i386/asmdefs.inc')
+
+	# asmdef environment doesnt need extra libraries
+	asmdefEnv = menv.Copy()
+	asmdefEnv.Replace(LIBS = [])
+	asmdef_inc = 'obj/unix/asmdef.inc'
+	asmdef = asmdefEnv.Program(buildDir + '/asmdef', buildDir + '/i386/asmdef.c')
+	# Produce asmdef.inc from asmdef
+	vgaEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
+        sources = ["svgalib.c"]
+
+	# svgalibs.s must explicitly depend on asmdef.inc. we can
+	# set that up by getting the resulting object file and set the
+	# dependancy with Depends(target,source)
+	assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/linux/",['svgalibs.s']))
+        vgaEnv.Depends(assembler_object,asmdef_inc)
+        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/linux/", ['svgalib.c']) + [assembler_object])
+
         return lib
     context.addExtra(buildSVGA)
 
