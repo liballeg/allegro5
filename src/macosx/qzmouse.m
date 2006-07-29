@@ -236,8 +236,6 @@ static void osx_mouse_set_range(int x1, int y1, int x2, int y2)
    osx_mouse_position(MID(mouse_minx, _mouse_x, mouse_maxx), MID(mouse_miny, _mouse_y, mouse_maxy));
 }
 
-
-
 /* osx_mouse_get_mickeys:
  *  Reads the mickey-mode count.
  */
@@ -252,104 +250,67 @@ static void osx_mouse_get_mickeys(int *mickeyx, int *mickeyy)
    _unix_unlock_mutex(osx_event_mutex);
 }
 
-
-
 /* osx_mouse_set_sprite:
- *  Sets the hardware cursor sprite.
- */
+*  Sets the hardware cursor sprite.
+*/
 int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
 {
-   int ix, iy;
-   int r = 0, g = 0, b = 0, a = 0, col;
-   unsigned int *d;
-   BITMAP *temp = NULL;
-#define GET_PIXEL_DATA(depth, getpix)                                \
-               case depth:                                           \
-                  for(iy=0; iy<sprite->h; iy++) {                    \
-                     for(ix=0; ix<sprite->w;  ix++) {                \
-                        col = getpix(sprite, ix, iy);                \
-                        if (col == (MASK_COLOR_ ## depth)) {         \
-                           r = g = b = a = 0;                        \
-                        }                                            \
-                        else {                                       \
-                           r = getr ## depth(col);                   \
-                           g = getg ## depth(col);                   \
-                           b = getb ## depth(col);                   \
-                           a = 255;                                  \
-                        }                                            \
-			*d++ = (r<<24)|(g<<16)|(b<<8)|(a);           \
-                     }                                               \
-                  }
+	int ix, iy;
+	int sw, sh;
+	
+	if (!sprite)
+		return -1;
+	sw = sprite->w;
+	sh = sprite->h;
+	if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_2) {
+		// Before MacOS X 10.3, NSCursor can handle only 16x16 cursor sprites
+		// Pad to 16x16 or fail if the sprite is already larger.
+		if (sw>16 || sh>16)
+			return -1;
+		sh = sw = 16;
+	}
+	
+	// Delete the old cursor (OK to send a message to nil)
+	[cursor release];
 
-   if (!sprite)
-      return -1;
-
-   if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_2) {
-      /* Before MacOS X 10.3, NSCursor can handle only 16x16 cursor sprites */
-      if ((sprite->w != 16) || (sprite->h != 16)) {
-         if ((sprite->w <= 16) && (sprite->h <= 16)) {
-	    /* Enlarge sprite to suit requirement */
-	    temp = create_bitmap_ex(bitmap_color_depth(sprite), 16, 16);
-	    clear_to_color(temp, bitmap_mask_color(temp));
-	    blit(sprite, temp, 0, 0, 0, 0, sprite->w, sprite->h);
-	    sprite = temp;
-	 }
-	 else
-	    return -1;
-      }
-   }
-   
-   if (cursor)
-      [cursor release];
-   if (cursor_image)
-      [cursor_image release];
-   if (cursor_rep)
-      [cursor_rep release];
-   if (cursor_data)
-      free(cursor_data);
-
-   cursor_data = malloc(sprite->w * sprite->h * 4);
-   d = (unsigned int *)cursor_data;
-   
-   switch(bitmap_color_depth(sprite)) {
-      GET_PIXEL_DATA(8, _getpixel)
-         break;
-
-      GET_PIXEL_DATA(15, _getpixel15)
-         break;
-
-      GET_PIXEL_DATA(16, _getpixel16)
-         break;
-
-      GET_PIXEL_DATA(24, _getpixel24)
-         break;
-
-      GET_PIXEL_DATA(32, _getpixel32)
-         break;
-   }
-   
-   cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: &cursor_data
-                                          pixelsWide: sprite->w
-                                          pixelsHigh: sprite->h
-                                          bitsPerSample: 8
-                                          samplesPerPixel: 4
-                                          hasAlpha: YES
-                                          isPlanar: NO
-                                          colorSpaceName: NSDeviceRGBColorSpace
-                                          bytesPerRow: sprite->w * 4
-                                          bitsPerPixel: 32];
-   cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(sprite->w, sprite->h)];
-   [cursor_image addRepresentation: cursor_rep];
-   cursor = [[NSCursor alloc] initWithImage: cursor_image
-                              hotSpot: NSMakePoint(x, y)];
-   _unix_lock_mutex(osx_event_mutex);
-   osx_cursor = requested_cursor = cursor;
-   _unix_unlock_mutex(osx_event_mutex);
-   if (temp)
-      destroy_bitmap(temp);
-
-#undef GET_PIXEL_DATA
-   return 0;
+	NSBitmapImageRep* cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: NULL
+														 pixelsWide: sw
+														 pixelsHigh: sh
+													  bitsPerSample: 8
+													samplesPerPixel: 4
+														   hasAlpha: YES
+														   isPlanar: NO
+													 colorSpaceName: NSDeviceRGBColorSpace
+														bytesPerRow: 0
+													   bitsPerPixel: 0];
+	int bpp = bitmap_color_depth(sprite);
+	int mask = bitmap_mask_color(sprite);
+	for (iy = 0; iy< sh; ++iy)
+	{
+		unsigned char* ptr = [cursor_rep bitmapData] + (iy * [cursor_rep bytesPerRow]);
+		for (ix = 0; ix< sw; ++ix)
+		{
+			int color = getpixel(sprite, ix, iy);
+			if (color == -1) color = mask;
+			int alpha = (color == mask) ? 0 : ((bpp == 32) ? geta_depth(bpp, color) : 255);
+			// BitmapImageReps use premultiplied alpha
+			ptr[0] = getb_depth(bpp, color) * alpha / 256;
+			ptr[1] = getg_depth(bpp, color) * alpha / 256;
+			ptr[2] = getr_depth(bpp, color) * alpha / 256;
+			ptr[3] = alpha;
+			ptr += 4;
+		}
+	}
+	NSImage* cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(sw, sh)];
+	[cursor_image addRepresentation: cursor_rep];
+	[cursor_rep release];
+	cursor = [[NSCursor alloc] initWithImage: cursor_image
+									 hotSpot: NSMakePoint(x, y)];
+	[cursor_image release];
+	 _unix_lock_mutex(osx_event_mutex);
+	osx_cursor = requested_cursor = cursor;
+	 _unix_unlock_mutex(osx_event_mutex);
+	return 0;
 }
 
 
