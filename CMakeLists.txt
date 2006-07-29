@@ -1,8 +1,6 @@
 #
 # TODO:
 #
-# - programs do not depend on library properly
-#
 # - sonames on Unix
 # - most Unix drivers require testing
 #
@@ -77,11 +75,10 @@ option(STRICT_WARN "Halt at warnings" off)
 
 #-----------------------------------------------------------------------------#
 
-set(ALLEGRO_EXE_PATH "bin" CACHE INTERNAL "internal")
-set(EXECUTABLE_OUTPUT_PATH ${ALLEGRO_EXE_PATH})
-
+    # Put libraries into `lib' by default.  This must be absolute.
+    #
 set(ALLEGRO_LIB_PATH "lib" CACHE INTERNAL "internal")
-set(LIBRARY_OUTPUT_PATH ${ALLEGRO_LIB_PATH})
+set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/${ALLEGRO_LIB_PATH})
 
 #-----------------------------------------------------------------------------#
 #
@@ -525,6 +522,9 @@ endif(SUPPORT_ASM)
     # Assembly code and Windows port both require generated asmdef.inc.
     #
 add_executable(asmdef src/i386/asmdef.c)
+set_target_properties(asmdef PROPERTIES
+    OUTPUT_NAME lib/asmdef
+    )
 get_target_property(ASMDEF_EXE asmdef LOCATION)
 
 if(MINGW)
@@ -592,7 +592,7 @@ macro(add_allegro_build nm extra_flags)
     foreach(SOURCE ${LIBRARY_SOURCES})
         if(${SOURCE} MATCHES "\\.s$")
             get_filename_component(FILE_BASE ${SOURCE} NAME_WE)
-            set(OBJ ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_OUTPUT_PATH}/${FILE_BASE}.o)
+            set(OBJ ${LIBRARY_OUTPUT_PATH}/${FILE_BASE}.o)
             set(_wflags ${WFLAGS})
             separate_arguments(_wflags)
             add_custom_command(
@@ -761,6 +761,10 @@ endif(SUPPORT_MODULES)
 #
 #-----------------------------------------------------------------------------#
 
+    # Select an Allegro library to link the programs with.  We choose
+    # standard, debug, profile in that order, and prefer statically linked
+    # over dynamically linked.  It would be worth making this configurable.
+    #
 if(GRADE_STANDARD)
     set(LINK_WITH alleg)
 endif(GRADE_STANDARD)
@@ -771,15 +775,12 @@ if(NOT LINK_WITH AND GRADE_PROFILE)
     set(LINK_WITH allp)
 endif(NOT LINK_WITH AND GRADE_PROFILE)
 
-if(NOT SHARED)
-    set(MAYBE_DRIVER_LIBS ${DRIVER_LIBS_STATIC})
+if(STATIC)
+    set(LINK_WITH ${LINK_WITH}_static)
     set(MAYBE_ALLEGRO_STATICLINK "-DALLEGRO_STATICLINK")
-endif(NOT SHARED)
-
-set(PROGRAM_LIBS
-    -L${CMAKE_BINARY_DIR}/${LIBRARY_OUTPUT_PATH} ${LINK_WITH}
-    ${PLATFORM_LIBS} ${MAYBE_DRIVER_LIBS}
-    )
+else(STATIC)
+    set(LINK_WITH ${LINK_WITH}_shared)
+endif(STATIC)
 
 macro(add_allegro_executable nm)
     add_executable(${nm} ${ARGN})
@@ -787,7 +788,7 @@ macro(add_allegro_executable nm)
         COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         )
-    target_link_libraries(${nm} ${PROGRAM_LIBS})
+    target_link_libraries(${nm} ${LINK_WITH})
 endmacro(add_allegro_executable)
 
 add_subdirectory(demo)

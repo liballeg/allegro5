@@ -1,11 +1,3 @@
-set(DEMO_EXE_PATH "" CACHE INTERNAL "internal")
-set(EXECUTABLE_OUTPUT_PATH ${DEMO_EXE_PATH})
-
-set(DEMO_LIB_PATH "" CACHE INTERNAL "internal")
-set(LIBRARY_OUTPUT_PATH ${DEMO_LIB_PATH})
-
-#-----------------------------------------------------------------------------#
-
 add_allegro_executable(demo
     animsel.c
     aster.c

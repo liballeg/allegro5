@@ -1,11 +1,3 @@
-set(TESTS_EXE_PATH "" CACHE INTERNAL "internal")
-set(EXECUTABLE_OUTPUT_PATH ${TESTS_EXE_PATH})
-
-set(TESTS_LIB_PATH "" CACHE INTERNAL "internal")
-set(LIBRARY_OUTPUT_PATH ${TESTS_LIB_PATH})
-
-#-----------------------------------------------------------------------------#
-
 macro(test nm)
     add_allegro_executable(${nm} ${nm}.c)
 endmacro(test nm)

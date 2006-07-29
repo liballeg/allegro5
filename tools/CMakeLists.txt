@@ -1,11 +1,3 @@
-set(TOOLS_EXE_PATH "" CACHE INTERNAL "internal")
-set(EXECUTABLE_OUTPUT_PATH ${TOOLS_EXE_PATH})
-
-set(TOOLS_LIB_PATH "" CACHE INTERNAL "internal")
-set(LIBRARY_OUTPUT_PATH ${TOOLS_LIB_PATH})
-
-#-----------------------------------------------------------------------------#
-
 #
 #   Building libaldat
 #
@@ -33,7 +25,7 @@ set_target_properties(aldat PROPERTIES
 
 macro(dat_tool nm)
     add_allegro_executable(${nm} ${nm}.c)
-    target_link_libraries(${nm} aldat ${PROGRAM_LIBS})
+    target_link_libraries(${nm} aldat ${LINK_WITH})
     install(TARGETS ${nm}
             DESTINATION bin
             )
