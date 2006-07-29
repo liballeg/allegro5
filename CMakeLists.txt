@@ -489,16 +489,9 @@ if(MINGW)
 endif(MINGW)
 
 if(UNIX)
-
     set(CONFIG_FILE include/allegro/platform/alunixac.h)
     configure_file(${CONFIG_FILE}.cmake ${CONFIG_FILE})
     add_definitions(-DHAVE_CONFIG_H)
-
-    configure_file(misc/allegro-config.in allegro-config)
-    install(PROGRAMS ${CMAKE_BINARY_DIR}/allegro-config
-            DESTINATION bin
-            )
-
 endif(UNIX)
 
 #-----------------------------------------------------------------------------#
@@ -782,20 +775,20 @@ endif(SUPPORT_MODULES)
     # over dynamically linked.  It would be worth making this configurable.
     #
 if(GRADE_STANDARD)
-    set(LINK_WITH alleg)
+    set(LIB_TO_LINK alleg)
 endif(GRADE_STANDARD)
-if(NOT LINK_WITH AND GRADE_DEBUG)
-    set(LINK_WITH alld)
-endif(NOT LINK_WITH AND GRADE_DEBUG)
-if(NOT LINK_WITH AND GRADE_PROFILE)
-    set(LINK_WITH allp)
-endif(NOT LINK_WITH AND GRADE_PROFILE)
+if(NOT LIB_TO_LINK AND GRADE_DEBUG)
+    set(LIB_TO_LINK alld)
+endif(NOT LIB_TO_LINK AND GRADE_DEBUG)
+if(NOT LIB_TO_LINK AND GRADE_PROFILE)
+    set(LIB_TO_LINK allp)
+endif(NOT LIB_TO_LINK AND GRADE_PROFILE)
 
 if(STATIC)
-    set(LINK_WITH ${LINK_WITH}_static)
+    set(LINK_WITH ${LIB_TO_LINK}_static)
     set(MAYBE_ALLEGRO_STATICLINK "-DALLEGRO_STATICLINK")
 else(STATIC)
-    set(LINK_WITH ${LINK_WITH}_shared)
+    set(LINK_WITH ${LIB_TO_LINK}_shared)
 endif(STATIC)
 
 macro(add_allegro_executable nm)
@@ -811,6 +804,43 @@ add_subdirectory(demo)
 add_subdirectory(examples)
 add_subdirectory(tests)
 add_subdirectory(tools)
+
+#-----------------------------------------------------------------------------#
+#
+#   allegro-config script
+#
+#-----------------------------------------------------------------------------#
+
+if(UNIX)
+
+    set(prefix "${CMAKE_INSTALL_PREFIX}")
+    set(INCLUDE_PREFIX "${prefix}")
+
+    if(SHARED)
+        set(LINK_WITH_STATIC_LIBS no)
+    else(SHARED)
+        set(LINK_WITH_STATIC_LIBS yes)
+    endif(SHARED)
+
+    set(LDFLAGS)
+    if(SUPPORT_MODULES)
+        set(LDFLAGS "-Wl,--export-dynamic ${LDFLAGS}")
+    endif(SUPPORT_MODULES)
+
+    set(LIBS)
+    foreach(lib ${PLATFORM_LIBS})
+        if("${lib}" MATCHES "^-l|^/")
+            set(LIBS "${LIBS}${lib} ")
+        else("${lib}" MATCHES "^-l|^/")
+            set(LIBS "${LIBS}-l${lib} ")
+        endif("${lib}" MATCHES "^-l|^/")
+    endforeach(lib)
+
+    configure_file(misc/allegro-config.in allegro-config)
+    install(PROGRAMS ${CMAKE_BINARY_DIR}/allegro-config
+            DESTINATION bin
+            )
+endif(UNIX)
 
 #-----------------------------------------------------------------------------#
 #
