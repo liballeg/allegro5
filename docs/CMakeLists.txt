@@ -18,14 +18,17 @@ add_executable(makedoc
     )
 get_target_property(MAKEDOC_EXE makedoc LOCATION)
 
-macro(makedoc src mode output)
-    list(APPEND all_docs ${output})
+macro(makedoc source mode output)
+    set(abs_source ${CMAKE_CURRENT_SOURCE_DIR}/${source})
+    set(abs_output ${CMAKE_CURRENT_BINARY_DIR}/${output})
+
+    list(APPEND all_docs ${abs_output})
     add_custom_command(
-	OUTPUT	${output}
-        COMMAND ${MAKEDOC_EXE} ${mode} ${output} ${src}
-        DEPENDS makedoc ${src}
+        OUTPUT  ${abs_output}
+        COMMAND ${MAKEDOC_EXE} ${mode} ${abs_output} ${abs_source}
+        DEPENDS makedoc ${abs_source}
         )
-endmacro(makedoc src mode output)
+endmacro(makedoc source mode output)
 
 macro(add_document n)
     makedoc(src/${n}._tx -ascii txt/${n}.txt)
@@ -37,11 +40,14 @@ macro(add_info n)
     if(MAKEINFO)
         makedoc(src/${n}._tx -texi texi/${n}.texi)
 
-        list(APPEND all_docs info/${n}.info)
+        set(abs_info ${CMAKE_CURRENT_BINARY_DIR}/info/${n}.info)
+        set(abs_texi ${CMAKE_CURRENT_BINARY_DIR}/texi/${n}.texi)
+
+        list(APPEND all_docs ${abs_info})
         add_custom_command(
-            OUTPUT info/${n}.info
-            DEPENDS texi/${n}.texi
-            COMMAND ${MAKEINFO} --no-split -o info/${n}.info texi/${n}.texi
+            OUTPUT  ${abs_info}
+            DEPENDS ${abs_texi}
+            COMMAND ${MAKEINFO} --no-split -o ${abs_info} ${abs_texi}
             )
     endif(MAKEINFO)
 endmacro(add_info)
@@ -95,6 +101,18 @@ add_custom_target(docs
     ALL
     DEPENDS ${all_docs}
     )
+
+#-----------------------------------------------------------------------------#
+
+    # Recreate directory structure for out-of-source builds.
+    #
+make_directory(${CMAKE_CURRENT_BINARY_DIR}/build)
+make_directory(${CMAKE_CURRENT_BINARY_DIR}/html/build)
+make_directory(${CMAKE_CURRENT_BINARY_DIR}/info)
+make_directory(${CMAKE_CURRENT_BINARY_DIR}/man)
+make_directory(${CMAKE_CURRENT_BINARY_DIR}/rtf)
+make_directory(${CMAKE_CURRENT_BINARY_DIR}/texi)
+make_directory(${CMAKE_CURRENT_BINARY_DIR}/txt)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

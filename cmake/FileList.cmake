@@ -518,15 +518,18 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro/platform/almsvc.h
     include/allegro/platform/alosx.h
     include/allegro/platform/alosxcfg.h
-    include/allegro/platform/alplatf.h
     include/allegro/platform/alqnx.h
     include/allegro/platform/alqnxcfg.h
     include/allegro/platform/alucfg.h
     include/allegro/platform/alunix.h
-    include/allegro/platform/alunixac.h
     include/allegro/platform/alwatcom.h
     include/allegro/platform/alwin.h
     include/allegro/platform/astdbool.h
     include/allegro/platform/astdint.h
     include/allegro/platform/macdef.h
+    )
+
+set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
+    include/allegro/platform/alplatf.h
+    include/allegro/platform/alunixac.h
     )

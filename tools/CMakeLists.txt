@@ -2,17 +2,29 @@
 #   Building libaldat
 #
 
-# Note: these lines are duplicated in GeneratePlugins.cmake
-set(plugins_h "plugins/plugins.h")
+set(plugins_h ${CMAKE_CURRENT_BINARY_DIR}/plugins/plugins.h)
 file(GLOB inc_files RELATIVE "" plugins/*.inc)
+file(GLOB plugins   RELATIVE "" plugins/*.c)
 
+add_custom_target(plugins_h
+    DEPENDS ${plugins_h}
+    )
 add_custom_command(
     OUTPUT  ${plugins_h}
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake/GeneratePlugins.cmake
     DEPENDS ${inc_files}
+    COMMAND ${CMAKE_COMMAND}
+            -D plugins_h=${plugins_h}
+            -D inc_files=${inc_files}
+            -P ${CMAKE_SOURCE_DIR}/cmake/GeneratePlugins.cmake
     )
 
-file(GLOB plugins RELATIVE "" plugins/*.c)
+    # Add this property so that out-of-source builds can find
+    # plugins/plugins.h.
+    #
+set_directory_properties(PROPERTIES
+    INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR}
+    )
+
 add_library(aldat STATIC datedit.c ${plugins})
 set_target_properties(aldat PROPERTIES
     COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"

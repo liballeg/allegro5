@@ -26,7 +26,16 @@ project(ALLEGRO C)
 # TODO soft-code the version number
 set(ALLEGRO_VERSION 4.3.1)
 
-include_directories( . include include/allegro)
+include_directories(
+    .
+    include
+    include/allegro
+
+    # For out-of-source builds.
+    ${CMAKE_BINARY_DIR}/include
+    ${CMAKE_BINARY_DIR}/include/allegro
+    ${CMAKE_BINARY_DIR}/include/allegro/platform
+    )
 include(FileList)
 
 #-----------------------------------------------------------------------------#
@@ -78,7 +87,7 @@ option(STRICT_WARN "Halt at warnings" off)
     # Put libraries into `lib' by default.  This must be absolute.
     #
 set(ALLEGRO_LIB_PATH "lib" CACHE INTERNAL "internal")
-set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/${ALLEGRO_LIB_PATH})
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${ALLEGRO_LIB_PATH})
 
 #-----------------------------------------------------------------------------#
 #
@@ -486,7 +495,7 @@ if(UNIX)
     add_definitions(-DHAVE_CONFIG_H)
 
     configure_file(misc/allegro-config.in allegro-config)
-    install(PROGRAMS allegro-config
+    install(PROGRAMS ${CMAKE_BINARY_DIR}/allegro-config
             DESTINATION bin
             )
 
@@ -523,15 +532,15 @@ endif(SUPPORT_ASM)
     #
 add_executable(asmdef src/i386/asmdef.c)
 set_target_properties(asmdef PROPERTIES
-    OUTPUT_NAME lib/asmdef
+    OUTPUT_NAME ${ALLEGRO_LIB_PATH}/asmdef
     )
 get_target_property(ASMDEF_EXE asmdef LOCATION)
 
 if(MINGW)
-    set(ASMDEF_INC obj/mingw32/asmdef.inc)
+    set(ASMDEF_INC ${CMAKE_BINARY_DIR}/obj/mingw32/asmdef.inc)
 endif(MINGW)
 if(UNIX)
-    set(ASMDEF_INC obj/unix/asmdef.inc)
+    set(ASMDEF_INC ${CMAKE_BINARY_DIR}/obj/unix/asmdef.inc)
 endif(UNIX)
 
 add_custom_target(asmdef_inc
@@ -600,7 +609,9 @@ macro(add_allegro_build nm extra_flags)
                 DEPENDS ${SOURCE} ${ASMDEF_INC}
                 COMMAND
                     ${CMAKE_C_COMPILER} -x assembler-with-cpp
-                    -I. -Iinclude ${_wflags} -c ${SOURCE} -o ${OBJ}
+                    -I. -Iinclude ${_wflags}
+                    -c ${CMAKE_SOURCE_DIR}/${SOURCE}
+                    -o ${OBJ}
                 )
             list(APPEND ASM_OBJS ${OBJ})
             list(APPEND ASM_SOURCES ${SOURCE})
@@ -674,6 +685,11 @@ install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES}
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
         DESTINATION include/allegro/platform
         )
+foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
+    install(FILES ${CMAKE_BINARY_DIR}/${genfile}
+            DESTINATION include/allegro/platform
+            )
+endforeach(genfile)
 
 #-----------------------------------------------------------------------------#
 #
@@ -803,6 +819,13 @@ add_subdirectory(tools)
 #-----------------------------------------------------------------------------#
 
 add_subdirectory(docs)
+
+#-----------------------------------------------------------------------------#
+
+    # Recreate directory structure for out-of-source builds.
+    #
+make_directory(obj/mingw32)
+make_directory(obj/unix)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
