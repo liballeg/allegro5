@@ -125,6 +125,7 @@ int save_bitmap(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 BITMAP *_fixup_loaded_bitmap(BITMAP *bmp, PALETTE pal, int bpp)
 {
    BITMAP *b2;
+   ASSERT(bmp);
 
    b2 = create_bitmap_ex(bpp, bmp->w, bmp->h);
    if (!b2) {

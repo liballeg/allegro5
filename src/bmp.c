@@ -679,7 +679,9 @@ BITMAP *load_bmp_pf(PACKFILE *f, RGB *pal)
       if ((bpp != 8) && (!want_palette))
 	 pal = NULL;
 
-      bmp = _fixup_loaded_bitmap(bmp, pal, dest_depth);
+      if (bmp) {
+	 bmp = _fixup_loaded_bitmap(bmp, pal, dest_depth);
+      }
    }
    
    /* construct a fake palette if 8-bit mode is not involved */
