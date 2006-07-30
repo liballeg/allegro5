@@ -370,11 +370,12 @@ endif(UNIX)
 # Linux-specific
 #
 
-# TODO check actually on Linux
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux") 
-    set(SUPPORT_LINUX_CONSOLE 1)
-    set(ALLEGRO_LINUX 1)
-endif(CMAKE_SYSTEM_NAME STREQUAL "Linux") 
+if(WANT_LINUX_CONSOLE)
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        set(SUPPORT_LINUX_CONSOLE 1)
+        set(ALLEGRO_LINUX 1)
+    endif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+endif(WANT_LINUX_CONSOLE)
 
 if(SUPPORT_LINUX_CONSOLE)
 
