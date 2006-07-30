@@ -531,24 +531,12 @@ static int key_dinput_init(void)
 
 
 
-static void key_directx_exit(void)
-{
-   if (key_dinput_device) {
-      /* command keyboard handler shutdown */
-      _TRACE(PREFIX_I "keyboard handler exits\n");
-      key_dinput_exit();
-   }
-}
-
-
-
 /*----------------------------------------------------------------------*/
 
 /* forward declarations */
 static bool wkeybd_init(void);
 static void wkeybd_exit(void);
 static AL_KEYBOARD *wkeybd_get_keyboard(void);
-static bool wkeybd_set_leds(int leds);
 static void wkeybd_get_state(AL_KBDSTATE *ret_state);
 
 

@@ -294,6 +294,7 @@ void _al_cond_wait(_AL_COND *cond, _AL_MUTEX *mtxExternal)
       int result = cond_wait(cond, mtxExternal, INFINITE);
 
       ASSERT(result != -1);
+      (void)result;
    }
 }
 

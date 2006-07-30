@@ -468,11 +468,11 @@ static void wnd_thread_proc(HANDLE setup_event)
    /* message loop */
    while (TRUE) {
       result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, INFINITE, QS_ALLINPUT);
-      if ((result >= WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + _win_input_events)) {
+      if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events) {
          /* one of the registered events is in signaled state */
          (*_win_input_event_handler[result - WAIT_OBJECT_0])();
       }
-      else if (result == WAIT_OBJECT_0 + _win_input_events) {
+      else if (result == (DWORD) WAIT_OBJECT_0 + _win_input_events) {
          /* messages are waiting in the queue */
          while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
             if (GetMessage(&msg, NULL, 0, 0)) {
