@@ -21,9 +21,7 @@ add_custom_command(
     # Add this property so that out-of-source builds can find
     # plugins/plugins.h.
     #
-set_directory_properties(PROPERTIES
-    INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR}
-    )
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(aldat STATIC datedit.c ${plugins})
 set_target_properties(aldat PROPERTIES
