@@ -75,7 +75,17 @@ static int mymickey_y = 0;
 
 static char driver_desc[256];
 
-
+/* osx_change_cursor:
+ * Actually change the current cursor. This can be called fom any thread 
+ * but ensures that the change is only called from the main thread.
+ */
+static void osx_change_cursor(NSCursor* cursor)
+{
+	_unix_lock_mutex(osx_event_mutex);
+	osx_cursor = cursor;
+	_unix_unlock_mutex(osx_event_mutex);
+	[cursor performSelectorOnMainThread: @selector(set) withObject: nil waitUntilDone: NO];
+}
 
 /* osx_mouse_handler:
  *  Mouse "interrupt" handler for mickey-mode driver.
@@ -290,13 +300,16 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
 		unsigned char* ptr = [cursor_rep bitmapData] + (iy * [cursor_rep bytesPerRow]);
 		for (ix = 0; ix< sw; ++ix)
 		{
-			int color = getpixel(sprite, ix, iy);
-			if (color == -1) color = mask;
-			int alpha = (color == mask) ? 0 : ((bpp == 32) ? geta_depth(bpp, color) : 255);
+			int color = is_inside_bitmap(sprite, ix, iy, 1) 
+				? getpixel(sprite, ix, iy) : mask; 
+			//	Disable the possibility of mouse sprites with alpha for now, because
+			// this causes the built-in cursors to be invisible in 32 bit mode.
+//			int alpha = (color == mask) ? 0 : ((bpp == 32) ? geta_depth(bpp, color) : 255);
+			int alpha = (color == mask) ? 0 : 255;
 			// BitmapImageReps use premultiplied alpha
-			ptr[0] = getb_depth(bpp, color) * alpha / 256;
-			ptr[1] = getg_depth(bpp, color) * alpha / 256;
-			ptr[2] = getr_depth(bpp, color) * alpha / 256;
+			ptr[0] = getb_depth(bpp, color) * alpha / 255;
+			ptr[1] = getg_depth(bpp, color) * alpha / 255;
+			ptr[2] = getr_depth(bpp, color) * alpha / 255;
 			ptr[3] = alpha;
 			ptr += 4;
 		}
@@ -307,9 +320,7 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
 	cursor = [[NSCursor alloc] initWithImage: cursor_image
 									 hotSpot: NSMakePoint(x, y)];
 	[cursor_image release];
-	 _unix_lock_mutex(osx_event_mutex);
-	osx_cursor = requested_cursor = cursor;
-	 _unix_unlock_mutex(osx_event_mutex);
+	osx_change_cursor(requested_cursor = cursor);
 	return 0;
 }
 
@@ -327,9 +338,7 @@ int osx_mouse_show(BITMAP *bmp, int x, int y)
    if (!requested_cursor)
       return -1;
 
-   _unix_lock_mutex(osx_event_mutex);
-   osx_cursor = requested_cursor;
-   _unix_unlock_mutex(osx_event_mutex);
+   osx_change_cursor(requested_cursor);
 
    return 0;
 }
@@ -341,9 +350,7 @@ int osx_mouse_show(BITMAP *bmp, int x, int y)
  */
 void osx_mouse_hide(void)
 {
-   _unix_lock_mutex(osx_event_mutex);
-   osx_cursor = osx_blank_cursor;
-   _unix_unlock_mutex(osx_event_mutex);
+   osx_change_cursor(osx_blank_cursor);
 }
 
 
@@ -383,9 +390,7 @@ static int osx_select_system_cursor(AL_CONST int cursor)
    default:
       return 0;
    }
-   _unix_lock_mutex(osx_event_mutex);
-   osx_cursor = requested_cursor;
-   _unix_unlock_mutex(osx_event_mutex);
+   osx_change_cursor(requested_cursor);
    return cursor;
 }
 
