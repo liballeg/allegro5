@@ -224,27 +224,23 @@ static void osx_qz_acquire_win(BITMAP *bmp)
 {
 	/* to prevent the drawing threads and the rendering proc
 	from concurrently accessing the dirty lines array */
-	if (lock_nesting == 0) {
-		_unix_lock_mutex(osx_window_mutex);
+	_unix_lock_mutex(osx_window_mutex);
+	if (lock_nesting++ == 0) {
 		bmp->id |= BMP_ID_LOCKED;
 	}
-	lock_nesting++;
-}
-
- 
+} 
 
 /* osx_qz_release_win:
  *  Bitmap unlocking for Quartz windowed mode.
  */
 static void osx_qz_release_win(BITMAP *bmp)
 {
-	if (lock_nesting > 0) {
-		lock_nesting--;
-		if (!lock_nesting) {
-			bmp->id &= ~BMP_ID_LOCKED;
-			_unix_unlock_mutex(osx_window_mutex);
-		}
+	ASSERT(lock_nesting > 0);
+	if (--lock_nesting == 0) {
+		bmp->id &= ~BMP_ID_LOCKED;
 	}
+	
+	_unix_unlock_mutex(osx_window_mutex);
 }
 
 
