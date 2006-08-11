@@ -123,6 +123,17 @@ Installing Allegro
    but you will not be able to install the framework nor the Project Builder
    template, which require a dynamically linked Allegro version.
 
+   If you have OS X 10.4 and you want to build a Universal Binary version of the library 
+   (i.e. one that will run on both PowerPC and Intel Macs) you can type
+<textblock>
+      ./fix.sh macosx-universal
+<endblock>
+   instead of the <tt>fix.sh</tt> line given above. Note that you'll still need to specify 
+   the appropriate flags when you link your program, otherwise gcc will 'thin' the binary 
+   so it only includes the native code.
+
+   For more information see 
+   http://developer.apple.com/documentation/MacOSX/Conceptual/universal_binary/
 
 
 @heading
