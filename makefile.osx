@@ -52,7 +52,10 @@ else
 LIB_NAME = lib/macosx/lib$(VERSION)-$(shared_version).dylib
 LIB_MAIN_NAME = lib/macosx/lib$(VERSION)-main.a
 
-DYLINK_FLAGS = -prebind -seg1addr 0x30000000 -compatibility_version $(compatibility_version) -current_version $(shared_version)
+DYLINK_FLAGS = -compatibility_version $(compatibility_version) -current_version $(shared_version)
+#ifdef UB
+DYLINK_FLAGS+=-arch ppc -arch i386
+#endif
 
 INSTALL_NAME = -install_name lib$(VERSION)-$(shared_major_minor).dylib
 INSTALL_NAME_EMBED = -install_name "`echo "@executable_path/../Frameworks/$(FRAMEWORK_NAME).framework/Versions/$(shared_version)/$(FRAMEWORK_NAME)" | sed 's!//*!/!g'`"
@@ -97,7 +100,7 @@ endif
 
 OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 
-CFLAGS = -DALLEGRO_LIB_BUILD
+CFLAGS = -DALLEGRO_LIB_BUILD 
 
 
 
@@ -123,9 +126,9 @@ CFLAGS += $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 
 ifndef SYMBOLMODE
-LFLAGS = -s -prebind
+LFLAGS = -s
 else
-LFLAGS = -prebind
+LFLAGS =
 endif
 
 endif
@@ -135,6 +138,13 @@ CFLAGS += -fno-common -pipe
 ifndef STATICLINK
 CFLAGS += -dynamic
 endif
+
+# ------- Universal binary -------------
+ifdef UB
+CFLAGS+= -arch ppc -arch i386
+LFLAGS+= -arch ppc -arch i386
+endif
+
 
 
 # -------- list platform specific objects and programs --------
@@ -228,9 +238,9 @@ else
    INSTALL_FILES += $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)-main.a
 endif
 
-INSTALL_FILES += $(HEADERS) $(INSTALLDIR)/bin/allegro-config
+INSTALL_FILES += $(HEADERS) $(INSTALLDIR)/bin/allegro-config $(INSTALLDIR)/bin/fixbundle
 
-install: generic-install
+install: generic-install install-fixbundle
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 	@if (printenv PATH |grep -q -v "$(INSTALLDIR)/bin"); then echo "Please check that $(INSTALLDIR)/bin is in your path (see docs/build/macosx.txt)"; fi
 	@echo Run make install-man if you wish to install the man pages.
@@ -329,7 +339,10 @@ install-man: docs docs/man/install_allegro.3
 	@echo Installing man files to $(MAN_DIR)/man3
 	@install docs/man/*.3 $(MAN_DIR)/man3/
 	
+install-fixbundle: tools/macosx/fixbundle
+	@install $< $(INSTALLDIR)/bin/
 
+	
 
 # -------- test capabilities --------
 
@@ -345,7 +358,7 @@ ifdef STATICLINK
 
 # -------- link as a static library --------
 define MAKE_LIB
-ar rs $(LIB_NAME) $(OBJECTS)
+libtool -static -s -o $(LIB_NAME) $(OBJECTS)
 endef
 
 else
@@ -360,7 +373,7 @@ endif # STATICLINK
 
 $(LIB_MAIN_NAME): obj/macosx/$(VERSION)/main.o
 ifndef STATICLINK
-	ar rs $(LIB_MAIN_NAME) obj/macosx/$(VERSION)/main.o
+	libtool -static -s -o  $(LIB_MAIN_NAME) obj/macosx/$(VERSION)/main.o
 endif
 
 
@@ -395,7 +408,7 @@ define GENERATE_PLUGINS_H
 endef
 
 define MAKE_PLUGIN_LIB
-   ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
+   libtool -static -s -o $(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS
