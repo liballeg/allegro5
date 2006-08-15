@@ -284,32 +284,37 @@ def CheckALSAMidi(context):
 
 def CheckARTSDigi(context):
     context.Message("Checking for ARTS digi... ")
-    tmpEnv = context.env.Copy()
-    context.env.ParseConfig('artsc-config --libs --cflags')
 
-    ret = context.TryLink("""
-        #include <artsc.h>
-        int main(){
-            arts_init();
-        }
-        """, ".c");
-    if not ret:
-        context.sconf.env = tmpEnv
+    ret = context.TryAction('artsc-config --version')[0]
+    if ret:
+        tmpEnv = context.env.Copy()
+        context.env.ParseConfig('artsc-config --libs --cflags')
+        ret = context.TryLink("""
+            #include <artsc.h>
+            int main(){
+                arts_init();
+            }
+            """, ".c");
+        if not ret:
+            context.sconf.env = tmpEnv
     context.Result(ret)
     return ret
 
 def CheckESDDigi(context):
     context.Message("Checking for ESD... ")
-    tmpEnv = context.env.Copy()
-    context.env.ParseConfig('esd-config --libs --cflags')
-    ret = context.TryLink("""
-        #include <esd.h>
-        int main(){
-            esd_open_sound(0);
-        }
-        """, ".c");
-    if not ret:
-        context.sconf.env = tmpEnv
+
+    ret = context.TryAction('esd-config --version')[0]
+    if ret:
+        tmpEnv = context.env.Copy()
+        context.env.ParseConfig('esd-config --libs --cflags')
+        ret = context.TryLink("""
+            #include <esd.h>
+            int main(){
+                esd_open_sound(0);
+            }
+            """, ".c");
+        if not ret:
+            context.sconf.env = tmpEnv
     context.Result(ret)
     return ret
 
@@ -332,8 +337,7 @@ def CheckForX(context):
 
     class NoX(Exception):
         pass
-    
-    context.Message("Checking for X11 the default places...\n")
+
     try:
         ret = context.sconf.CheckHeader('X11/X.h')
         if not ret:
@@ -343,7 +347,6 @@ def CheckForX(context):
             raise NoX
     except NoX:
         oldEnv = context.env.Copy()
-        context.Message("Checking for X11 in /usr/X11R6...\n")
         context.env.Append(CPPPATH = "/usr/X11R6/include")
         context.env.Append(LIBPATH = "/usr/X11R6/lib")
         import SCons.SConf
@@ -356,21 +359,22 @@ def CheckForX(context):
                 raise NoX
         except NoX:
             context.sconf.env = oldEnv
-            context.Result(ret)
-            return ret
+    context.Message("Checking if X11 found...")
     context.Result(ret)
     return ret
 
 def CheckOSSDigi(context):
+    result = False
     headers = [ 'soundcard.h', 'sys/soundcard.h', 'machine/soundcard.h', 'linux/soundcard.h' ]
     for i in headers:
         if context.sconf.CheckHeader(i):
-            context.Result(1)
-            return 1
-    context.Result(0)
-    return 0
+            result = True
+    context.Message("Checking for OSS...")
+    context.Result(result)
+    return result
 
 def CheckOSSMidi(context):
+    result = False
     headers = [ 'soundcard.h', 'sys/soundcard.h', 'machine/soundcard.h', 'linux/soundcard.h' ]
     for i in headers:
         if context.sconf.CheckHeader(i):
@@ -379,10 +383,10 @@ def CheckOSSMidi(context):
                 int main(){
                     return SNDCTL_SEQ_NRSYNTHS;
                 } """ % i, ".c"):
-                context.Result(1)
-                return 1
-    context.Result(0)
-    return 0
+                result = True
+    context.Message("Checking for OSS MIDI...")
+    context.Result(result)
+    return result
 
 def CheckMapFailed(context):
     context.Message("Checking for MAP_FAILED... ")
