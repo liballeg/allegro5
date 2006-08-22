@@ -48,12 +48,17 @@ enum {
 };
 
 enum {
+   AL_SEEK_SET = 1,
+   AL_SEEK_END,
+   AL_SEEK_CUR
+}
+
+enum {
    AL_FS_HOOK_FOPEN = 0,
    AL_FS_HOOK_FCLOSE,
    AL_FS_HOOK_FREAD,
    AL_FS_HOOK_FWRITE,
    AL_FS_HOOK_FFLUSH,
-   AL_FS_HOOK_FTRUNC,
    AL_FS_HOOK_FSEEK,
    AL_FS_HOOK_FTELL,
 
