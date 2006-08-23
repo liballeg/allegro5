@@ -22,6 +22,8 @@ AL_BEGIN_EXTERN_C
 
 // INTERNAL STUFF
 
+#define al_fs_call(c,a,b) system->fshooks[c](a,b)
+
 AL_END_EXTERN_C
 
 #endif          /* ifndef AINTERN_FHOOK_H */
