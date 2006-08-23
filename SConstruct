@@ -1,3 +1,4 @@
+# vi: syntax=python
 # Scons build scripts for Allegro by Jon Rafkind
 # Circa 12/25/2005
 
@@ -80,6 +81,8 @@ def appendDir(dir, files):
 SConscriptChdir(0)
 
 class AllegroContext:
+    """This is simply a class to hold together all the various build info."""
+
     def __init__(self):
         self.librarySource = []
         self.extraTargets = []
