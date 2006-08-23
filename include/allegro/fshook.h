@@ -45,6 +45,8 @@ enum {
    AL_STAT_WRITE   = 1 << 1,
    AL_STAT_EXECUTE = 1 << 2,
    AL_STAT_HIDDEN  = 1 << 3,
+   AL_STAT_ISFILE  = 1 << 4,
+   AL_STAT_ISDIR   = 1 << 5,
 };
 
 enum {
@@ -61,6 +63,8 @@ enum {
    AL_FS_HOOK_FFLUSH,
    AL_FS_HOOK_FSEEK,
    AL_FS_HOOK_FTELL,
+   AL_FS_HOOK_FERROR,
+   AL_FS_HOOK_FEOF,
 
    AL_FS_HOOK_FSTAT,
 
@@ -87,9 +91,9 @@ enum {
 /*
 set the given <phid> hook to <fshook>
 */
-int al_set_fs_hook(uint32_t phid, void *fshook);
+int al_fs_set_hook(uint32_t phid, void *fshook);
 
-void *al_get_fs_hook(uint32_t phid);
+void *al_fs_get_hook(uint32_t phid);
 
 AL_END_EXTERN_C
 
