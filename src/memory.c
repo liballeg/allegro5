@@ -95,7 +95,7 @@ static void *default_malloc(void *opaque, size_t size)
 static void default_free(void *opaque, void *ptr)
 {
    (void)opaque;
-   return free(ptr);
+   free(ptr);
 }
 
 static void *default_realloc(void *opaque, void *ptr, size_t size)
@@ -123,7 +123,7 @@ static void default_debug_free(int line, const char *file, const char *func,
    (void)file;
    (void)func;
 
-   return _al_free(opaque, ptr);
+   _al_free(opaque, ptr);
 }
 
 static void *default_debug_realloc(int line, const char *file, const char *func,

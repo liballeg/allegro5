@@ -149,6 +149,8 @@ static int _xwin_sysdrv_init(void)
 
    _unix_read_os_type();
 
+   _unix_guess_file_encoding();
+
    /* install emergency-exit signal handlers */
    old_sig_abrt = signal(SIGABRT, _xwin_signal_handler);
    old_sig_fpe  = signal(SIGFPE,  _xwin_signal_handler);
@@ -179,6 +181,9 @@ static int _xwin_sysdrv_init(void)
 
    get_executable_name(tmp, sizeof(tmp));
    set_window_title(get_filename(tmp));
+
+   if (get_config_int("system", "XInitThreads", 1))
+       XInitThreads();
 
    /* Open the display, create a window, and background-process 
     * events for it all. */

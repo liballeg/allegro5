@@ -120,11 +120,14 @@ AL_FUNC(UTYPE_INFO *, _find_utype, (int type));
 
 /* wrappers for implementing disk I/O on different platforms */
 AL_FUNC(int, _al_file_isok, (AL_CONST char *filename));
-AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
+AL_FUNC(uint64_t, _al_file_size_ex, (AL_CONST char *filename));
 AL_FUNC(time_t, _al_file_time, (AL_CONST char *filename));
 AL_FUNC(int, _al_drive_exists, (int drive));
 AL_FUNC(int, _al_getdrive, (void));
 AL_FUNC(void, _al_getdcwd, (int drive, char *buf, int size));
+
+/* obsolete; only exists for binary compatibility with 4.2.0 */
+AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
 
 
 /* packfile stuff */
@@ -207,6 +210,26 @@ AL_VAR(int, _key_accent4_flag);
 AL_VAR(int, _key_standard_kb);
 #endif /* 0 */
 
+
+#if (defined ALLEGRO_WINDOWS)
+
+AL_FUNC(int, _alwin_open, (const char*, int, int));
+AL_FUNC(int, _alwin_unlink, (const char*));
+
+   #define IS_OLD_WINDOWS (os_type==OSTYPE_WIN3  || os_type==OSTYPE_WIN95 || \
+                           os_type==OSTYPE_WIN98 || os_type==OSTYPE_WINME || \
+                           os_type==OSTYPE_UNKNOWN)
+   #define _al_open   _alwin_open
+   #define _al_unlink _alwin_unlink
+
+#else
+
+   #define _al_open   open
+   #define _al_unlink unlink
+
+#endif
+
+
 /* some GUI innards that other people need to use */
 AL_FUNC(int, _gui_shadow_box_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, _gui_ctext_proc, (int msg, DIALOG *d, int c));
@@ -245,6 +268,8 @@ AL_VAR(FONT_VTABLE, _font_vtable_mono);
 AL_VAR(FONT_VTABLE *, font_vtable_mono);
 AL_VAR(FONT_VTABLE, _font_vtable_color);
 AL_VAR(FONT_VTABLE *, font_vtable_color);
+AL_VAR(FONT_VTABLE, _font_vtable_trans);
+AL_VAR(FONT_VTABLE *, font_vtable_trans);
 
 AL_FUNC(FONT_GLYPH *, _mono_find_glyph, (AL_CONST FONT *f, int ch));
 AL_FUNC(BITMAP *, _color_find_glyph, (AL_CONST FONT *f, int ch));
@@ -345,6 +370,7 @@ AL_VAR(int, _color_conv);
 
 AL_FUNC(BITMAP *, _fixup_loaded_bitmap, (BITMAP *bmp, PALETTE pal, int bpp));
 
+AL_FUNC(int, _bitmap_has_alpha, (BITMAP *bmp));
 
 /* default truecolor pixel format */
 #define DEFAULT_RGB_R_SHIFT_15  0

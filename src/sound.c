@@ -33,7 +33,8 @@ static DIGI_DRIVER digi_none;
 int  _dummy_detect(int input) { return TRUE; }
 int  _dummy_init(int input, int voices) { digi_none.desc = _midi_none.desc = get_config_text("The sound of silence"); return 0; }
 void _dummy_exit(int input) { }
-int  _dummy_mixer_volume(int volume) { return 0; }
+int  _dummy_set_mixer_volume(int volume) { return 0; }
+int  _dummy_get_mixer_volume(void) { return -1; }
 void _dummy_init_voice(int voice, AL_CONST SAMPLE *sample) { }
 void _dummy_noop1(int p) { }
 void _dummy_noop2(int p1, int p2) { }
@@ -60,7 +61,8 @@ static DIGI_DRIVER digi_none =
    _dummy_detect,
    _dummy_init,
    _dummy_exit,
-   _dummy_mixer_volume,
+   _dummy_set_mixer_volume,
+   _dummy_get_mixer_volume,
    NULL,
    NULL,
    NULL,
@@ -101,7 +103,8 @@ MIDI_DRIVER _midi_none =
    _dummy_detect,
    _dummy_init,
    _dummy_exit,
-   _dummy_mixer_volume,
+   _dummy_set_mixer_volume,
+   _dummy_get_mixer_volume,
    _dummy_raw_midi,
    _dummy_load_patches,
    _dummy_adjust_patches,
@@ -762,6 +765,21 @@ void set_volume(int digi_volume, int midi_volume)
 
 
 
+/* get_volume:
+ * Retrieves the global sound output volume, both for digital samples and MIDI
+ * playback, as integers from 0 to 255. Parameters digi_volume and midi_volume
+ * must be valid pointers to int, or NULL if not interested in specific value.
+ */
+void get_volume(int *digi_volume, int *midi_volume)
+{
+   if (digi_volume)
+      (*digi_volume) = _digi_volume;
+   if (midi_volume)
+      (*midi_volume) = _midi_volume;
+}
+
+
+
 /* set_hardware_volume:
  *  Alters the hardware sound output volume. Specify volumes for both digital
  *  samples and MIDI playback, as integers from 0 to 255. This routine will
@@ -772,15 +790,44 @@ void set_hardware_volume(int digi_volume, int midi_volume)
    if (digi_volume >= 0) {
       digi_volume = MID(0, digi_volume, 255);
 
-      if (digi_driver->mixer_volume)
-	 digi_driver->mixer_volume(digi_volume);
+      if (digi_driver->set_mixer_volume)
+	 digi_driver->set_mixer_volume(digi_volume);
    }
 
    if (midi_volume >= 0) {
       midi_volume = MID(0, midi_volume, 255);
 
-      if (midi_driver->mixer_volume)
-	 midi_driver->mixer_volume(midi_volume);
+      if (midi_driver->set_mixer_volume)
+	 midi_driver->set_mixer_volume(midi_volume);
+   }
+}
+
+
+
+/* get_hardware_volume:
+ * Retrieves the hardware sound output volume, both for digital samples and MIDI
+ * playback, as integers from 0 to 255, or -1 if the information is not
+ * available. Parameters digi_volume and midi_volume must be valid pointers to
+ * int, or NULL if not interested in specific value.
+ */
+void get_hardware_volume(int *digi_volume, int *midi_volume)
+{
+   if (digi_volume) {
+      if (digi_driver->get_mixer_volume) {
+	 (*digi_volume) = digi_driver->get_mixer_volume();
+      }
+      else {
+	 (*digi_volume) = -1;
+      }
+   }
+
+   if (midi_volume) {
+      if (midi_driver->get_mixer_volume) {
+	 (*midi_volume) = midi_driver->get_mixer_volume();
+      }
+      else {
+	 (*midi_volume) = -1;
+      }
    }
 }
 

@@ -102,29 +102,7 @@ void datedit_init(void)
    int done, i;
    AL_CONST char *prop_types;
 
-   #if defined ALLEGRO_DJGPP
-      #include "obj/djgpp/plugins.h"
-   #elif defined ALLEGRO_MSVC
-      #include "obj/msvc/plugins.h"
-   #elif defined ALLEGRO_WATCOM
-      #include "obj/watcom/plugins.h"
-   #elif defined ALLEGRO_UNIX
-      #include "obj/unix/plugins.h"
-   #elif defined ALLEGRO_MINGW32
-      #include "obj/mingw32/plugins.h"
-   #elif defined ALLEGRO_BEOS
-      #include "obj/beos/plugins.h"
-   #elif defined ALLEGRO_BCC32
-      #include "obj/bcc32/plugins.h"
-   #elif defined ALLEGRO_MPW
-      #include "::obj:mpw:plugins.h"
-   #elif defined ALLEGRO_MACOSX
-      #include "obj/macosx/plugins.h"
-   #elif defined ALLEGRO_QNX
-      #include "obj/qnx/plugins.h"
-   #else
-      #error unknown platform
-   #endif
+   #include "plugins/plugins.h"
 
    do {
       done = TRUE;
@@ -197,7 +175,7 @@ static int export_binary(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 static DATAFILE *grab_binary(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
 {
    void *mem;
-   long sz = file_size(filename);
+   int64_t sz = file_size_ex(filename);
    PACKFILE *f;
 
    if (sz <= 0)
@@ -422,11 +400,15 @@ static int percent(int a, int b)
 
 
 /* saves an object */
-static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, PACKFILE *f)
+static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids,
+                       int strip, int sort, int verbose, PACKFILE * AL_CONST f)
 {
    int i, ret;
    DATAFILE_PROPERTY *prop;
    int (*save)(DATAFILE *, AL_CONST int *, int, int, int, int, int, int, PACKFILE *);
+   PACKFILE *fchunk;
+
+   ASSERT(f);
 
    prop = dat->prop;
    datedit_sort_properties(prop);
@@ -448,7 +430,10 @@ static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pa
       datedit_startmsg("%-28s", get_datafile_property(dat, DAT_NAME));
 
    pack_mputl(dat->type, f);
-   f = pack_fopen_chunk(f, ((!pack) && (pack_kids) && (dat->type != DAT_FILE)));
+   fchunk = pack_fopen_chunk(f, ((!pack) && (pack_kids) && (dat->type != DAT_FILE)));
+   if (!fchunk) {
+      return FALSE;
+   }
    file_datasize += 12;
 
    save = NULL;
@@ -467,15 +452,16 @@ static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pa
       if (verbose)
 	 datedit_endmsg("");
 
-      ret = save((DATAFILE *)dat->dat, fixed_prop, pack, pack_kids, strip, sort, verbose, FALSE, f);
+      ret = save((DATAFILE *)dat->dat, fixed_prop, pack, pack_kids, strip, sort, verbose, FALSE, fchunk);
 
       if (verbose)
 	 datedit_startmsg("End of %-21s", get_datafile_property(dat, DAT_NAME));
    }
    else
-      ret = save(dat, fixed_prop, (pack || pack_kids), FALSE, strip, sort, verbose, FALSE, f);
+      ret = save(dat, fixed_prop, (pack || pack_kids), FALSE, strip, sort, verbose, FALSE, fchunk);
 
-   pack_fclose_chunk(f);
+   pack_fclose_chunk(fchunk);
+   fchunk = NULL;
 
    if (verbose) {
       if ((!pack) && (pack_kids) && (dat->type != DAT_FILE)) {
@@ -501,6 +487,8 @@ static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pa
 static int save_datafile(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
 {
    int c, size;
+
+   ASSERT(f);
 
    if (sort)
       datedit_sort_datafile(dat);
@@ -1214,7 +1202,7 @@ int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixe
       delete_file(backup_name);
 
    if (options->verbose) {
-      int file_filesize = file_size(pretty_name);
+      uint64_t file_filesize = file_size_ex(pretty_name);
       datedit_msg("%-28s%7d bytes into %-7d (%d%%)", "- GLOBAL COMPRESSION -",
 		  file_datasize, file_filesize, percent(file_datasize, file_filesize));
    }
@@ -1562,6 +1550,8 @@ static DATAFILE_PROPERTY *clone_properties(DATAFILE_PROPERTY *prop)
        clone[i].type = prop[i].type;
        if (prop[i].dat)
           clone[i].dat = ustrdup(prop[i].dat);
+       else
+          clone[i].dat = NULL;
    }
 
    return clone;

@@ -395,6 +395,7 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
 {
    GFX_VTABLE *vtable;
    BITMAP *bitmap;
+   int nr_pointers;
    int padding;
    int i;
 
@@ -409,7 +410,12 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    if (!vtable)
       return NULL;
 
-   bitmap = _AL_MALLOC(sizeof(BITMAP) + (sizeof(char *) * height));
+   /* We need at least two pointers when drawing, otherwise we get crashes with
+    * Electric Fence.  We think some of the assembly code assumes a second line
+    * pointer is always available.
+    */
+   nr_pointers = MAX(2, height);
+   bitmap = _AL_MALLOC(sizeof(BITMAP) + (sizeof(char *) * nr_pointers));
    if (!bitmap)
       return NULL;
 
@@ -473,6 +479,7 @@ BITMAP *create_bitmap(int width, int height)
 BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height)
 {
    BITMAP *bitmap;
+   int nr_pointers;
    int i;
 
    ASSERT(parent);
@@ -493,7 +500,9 @@ BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height)
       return system_driver->create_sub_bitmap(parent, x, y, width, height);
 
    /* get memory for structure and line pointers */
-   bitmap = _AL_MALLOC(sizeof(BITMAP) + (sizeof(char *) * height));
+   /* (see create_bitmap for the reason we need at least two) */
+   nr_pointers = MAX(2, height);
+   bitmap = _AL_MALLOC(sizeof(BITMAP) + (sizeof(char *) * nr_pointers));
    if (!bitmap)
       return NULL;
 

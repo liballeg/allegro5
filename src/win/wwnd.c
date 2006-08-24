@@ -224,6 +224,18 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       return 0;
    }
 
+   /* See get_reverse_mapping() in wkeybd.c to see what this is for. */
+   if (FALSE && (message == WM_KEYDOWN || message == WM_SYSKEYDOWN)) {
+      static char name[256];
+      TCHAR str[256];
+      WCHAR wstr[256];
+
+      GetKeyNameText(lparam, str, sizeof str);
+      MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, wstr, sizeof wstr);
+      uconvert((char *)wstr, U_UNICODE, name, U_CURRENT, sizeof name);
+      _TRACE(PREFIX_I" key[%s] = 0x%08lx;\n", name, lparam & 0x1ff0000);
+   }
+
    switch (message) {
 
       case WM_CREATE:
@@ -437,7 +449,7 @@ static HWND create_directx_window(void)
  */
 static void wnd_thread_proc(HANDLE setup_event)
 {
-   int result;
+   DWORD result;
    MSG msg;
 
    _win_thread_init();
@@ -458,11 +470,11 @@ static void wnd_thread_proc(HANDLE setup_event)
    /* message loop */
    while (TRUE) {
       result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, INFINITE, QS_ALLINPUT);
-      if ((result >= WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + _win_input_events)) {
+      if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events) {
          /* one of the registered events is in signaled state */
          (*_win_input_event_handler[result - WAIT_OBJECT_0])();
       }
-      else if (result == WAIT_OBJECT_0 + _win_input_events) {
+      else if (result == (DWORD) WAIT_OBJECT_0 + _win_input_events) {
          /* messages are waiting in the queue */
          while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
             if (GetMessage(&msg, NULL, 0, 0)) {

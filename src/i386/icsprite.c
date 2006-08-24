@@ -22,6 +22,18 @@
 #include "allegro/internal/aintern.h"
 #include "opcodes.h"
 
+#ifdef ALLEGRO_WINDOWS
+   #include "winalleg.h"   /* For VirtualProtect */
+#endif     /* ifdef ALLEGRO_WINDOWS */
+
+
+
+#ifdef HAVE_MPROTECT
+   #include <sys/types.h>
+   #include <sys/mman.h>
+   #include <sys/user.h>
+#endif     /* ifdef HAVE_MPROTECT */
+
 
 
 /* compile_sprite:
@@ -36,7 +48,6 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
    int compiler_pos = 0;
    int xc = planar ? 4 : 1;
    unsigned long *addr;
-   void *p;
 
    #ifdef ALLEGRO_COLOR16
       unsigned short *p16;
@@ -44,6 +55,11 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
 
    #if defined ALLEGRO_COLOR24 || defined ALLEGRO_COLOR32
       unsigned long *p32;
+   #endif
+   
+   #ifdef USE_MMAP_GEN_CODE_BUF
+      /* make sure we get a new map */
+      _map_size = 0;
    #endif
 
    for (y=0; y<b->h; y++) {
@@ -270,13 +286,45 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
 
    COMPILER_RET();
 
-   p = _AL_MALLOC(compiler_pos);
-   if (p) {
-      memcpy(p, _scratch_mem, compiler_pos);
-      *len = compiler_pos;
-   }
+#ifdef USE_MMAP_GEN_CODE_BUF
 
-   return p;
+   /* Lie about the size, return the size mapped which >= size used /
+    * compiler_pos, because we need the size mapped for munmap.
+    */
+   *len = _map_size;
+   /* we don't need _rw_map or _map_fd anymore */
+   munmap(_rw_map, _map_size);
+   close(_map_fd);
+   return _exec_map;
+
+#else
+   {
+      void *p = _AL_MALLOC(compiler_pos);
+      if (p) {
+	 memcpy(p, _scratch_mem, compiler_pos);
+	 *len = compiler_pos;
+	 #ifdef ALLEGRO_WINDOWS
+	 {
+	    DWORD old_protect;
+	    /* Play nice with Windows executable memory protection */
+	    VirtualProtect(p, compiler_pos, PAGE_EXECUTE_READWRITE, &old_protect);
+	 }
+	 #elif defined(HAVE_MPROTECT)
+	 {
+	    char *aligned_p = (char *)((unsigned long)p & ~(PAGE_SIZE-1ul));
+	    if (mprotect(aligned_p, compiler_pos + ((char *)p - aligned_p),
+		  PROT_EXEC|PROT_READ|PROT_WRITE)) {
+	       perror("allegro-error: mprotect failed during stretched blit!");
+	       _AL_FREE(p);
+	       return NULL;
+	    }
+	 }
+	 #endif
+      }
+
+      return p;
+   }
+#endif
 }
 
 
@@ -325,10 +373,15 @@ void destroy_compiled_sprite(COMPILED_SPRITE *sprite)
    int plane;
 
    if (sprite) {
-      for (plane=0; plane<4; plane++)
-	 if (sprite->proc[plane].draw)
-	    _AL_FREE(sprite->proc[plane].draw);
-
+      for (plane=0; plane<4; plane++) {
+	 if (sprite->proc[plane].draw) {
+	    #ifdef USE_MMAP_GEN_CODE_BUF
+	       munmap(sprite->proc[plane].draw, sprite->proc[plane].len);
+	    #else
+	       _AL_FREE(sprite->proc[plane].draw);
+	    #endif
+	 }
+      }
       _AL_FREE(sprite);
    }
 }

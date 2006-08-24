@@ -110,16 +110,28 @@
    
    #ifndef LONG_LONG
       #define LONG_LONG       long long
+      #ifdef ALLEGRO_GUESS_INTTYPES_OK
+         #define int64_t      signed long long
+         #define uint64_t     unsigned long long
+      #endif
    #endif
 
    #ifdef __i386__
       #define ALLEGRO_I386
-      #define _AL_SINCOS(x, s, c)  __asm__ ("fsincos" : "=t" (c), "=u" (s) : "0" (x))
+      #ifndef ALLEGRO_NO_ASM
+         #define _AL_SINCOS(x, s, c)  __asm__ ("fsincos" : "=t" (c), "=u" (s) : "0" (x))
+      #endif
    #endif
 
    #ifdef __amd64__
       #define ALLEGRO_AMD64
-      #define _AL_SINCOS(x, s, c)  __asm__ ("fsincos" : "=t" (c), "=u" (s) : "0" (x))
+      #ifndef ALLEGRO_NO_ASM
+         #define _AL_SINCOS(x, s, c)  __asm__ ("fsincos" : "=t" (c), "=u" (s) : "0" (x))
+      #endif
+   #endif
+   
+   #ifdef __arm__
+      #define ALLEGRO_ARM
    #endif
 
    #ifndef AL_CONST
@@ -346,6 +358,11 @@
    #define WRITE3BYTES(p,c)  ((*(unsigned char *)(p) = (c) >> 16),       \
                               (*((unsigned char *)(p) + 1) = (c) >> 8),  \
                               (*((unsigned char *)(p) + 2) = (c)))
+
+#elif defined SCAN_DEPEND
+
+   #define READ3BYTES(p)
+   #define WRITE3BYTES(p,c)
 
 #else
    #error endianess not defined

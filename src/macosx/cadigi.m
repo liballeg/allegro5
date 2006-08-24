@@ -28,7 +28,7 @@ static int ca_detect(int);
 static int ca_init(int, int);
 static void ca_exit(int);
 static int ca_buffer_size();
-static int ca_mixer_volume(int);
+static int ca_set_mixer_volume(int);
 
 
 static AUGraph graph;
@@ -51,7 +51,8 @@ DIGI_DRIVER digi_core_audio =
    ca_detect,
    ca_init,
    ca_exit,
-   ca_mixer_volume,
+   ca_set_mixer_volume,
+   NULL,
 
    NULL,
    NULL,
@@ -168,7 +169,11 @@ static int ca_init(int input, int voices)
    
    input_format_desc.mSampleRate = output_format_desc.mSampleRate;
    input_format_desc.mFormatID = kAudioFormatLinearPCM;
+#if TARGET_RT_BIG_ENDIAN
    input_format_desc.mFormatFlags = kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+#else
+   input_format_desc.mFormatFlags =  kAudioFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+#endif
    input_format_desc.mBytesPerPacket = 4;
    input_format_desc.mFramesPerPacket = 1;
    input_format_desc.mBytesPerFrame = 4;
@@ -258,7 +263,7 @@ static int ca_buffer_size()
 
 
 
-static int ca_mixer_volume(int volume)
+static int ca_set_mixer_volume(int volume)
 {
    float value = (float)volume / 255.0;
 

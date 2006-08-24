@@ -40,11 +40,17 @@ typedef struct MODULE
 /* list of loaded modules */
 static MODULE *module_list = NULL;
 
+#define PREFIX_I "al-unix INFO: "
 
 /* where to look for modules.lst */
 static char *module_path[] =
 {
-   "/usr/local/lib/allegro/", "/usr/lib/allegro/", NULL
+#ifdef ALLEGRO_MODULES_PATH
+   ALLEGRO_MODULES_PATH,
+#else
+   #error ALLEGRO_WITH_MODULES is defined, but not ALLEGRO_MODULES_PATH
+#endif
+   NULL
 };
 
 
@@ -94,8 +100,8 @@ void _unix_load_modules(int system_driver)
    }
 
    for (pathptr = module_path; *pathptr; pathptr++) {
-      snprintf(fullpath, sizeof fullpath, "%s/%d.%d/modules.lst",
-	       *pathptr, ALLEGRO_VERSION, ALLEGRO_SUB_VERSION);
+      snprintf(fullpath, sizeof fullpath, "%s/%d.%d.%d/modules.lst",
+	       *pathptr, ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION);
       fullpath[(sizeof fullpath) - 1] = 0;
       f = pack_fopen(uconvert_ascii(fullpath, buf), F_READ);
       if (f) goto found;
@@ -104,6 +110,8 @@ void _unix_load_modules(int system_driver)
    return;
 
    found:
+
+   TRACE(PREFIX_I "Loading modules from \"%s\".\n", fullpath);
 
    fullpath_slash = strrchr(fullpath, '/');
    

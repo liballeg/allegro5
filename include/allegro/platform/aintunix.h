@@ -68,6 +68,9 @@ extern "C" {
    AL_FUNC(void, _unix_register_midi_driver, (int id, MIDI_DRIVER *driver, int autodetect, int priority));
 
 
+   /* File system helpers */
+   AL_FUNC(void, _unix_guess_file_encoding, (void));
+
 #ifdef ALLEGRO_WITH_XWINDOWS
    AL_ARRAY(_DRIVER_INFO, _xwin_gfx_driver_list);
    AL_ARRAY(_DRIVER_INFO, _al_xwin_keyboard_driver_list);

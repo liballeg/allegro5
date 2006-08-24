@@ -17,6 +17,8 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include ALLEGRO_INTERNAL_HEADER
+#include "allegro/internal/aintern2.h"
 #include "allegro/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
@@ -24,34 +26,35 @@
 #endif                
 
 
-static int hid_joy_init(void);
-static void hid_joy_exit(void);
-static int hid_joy_poll(void);
+static bool init_joystick(void);
+static void exit_joystick(void);
+static int poll(void);
+static int count_joysticks(void);
+static AL_JOYSTICK* get_joystick(int);
+static void release_joystick(AL_JOYSTICK*);
+static void get_state(AL_JOYSTICK*, AL_JOYSTATE*);
 
-
-JOYSTICK_DRIVER joystick_hid = {
-   JOYSTICK_HID,         // int  id;
-   empty_string,         // AL_CONST char *name;
-   empty_string,         // AL_CONST char *desc;
-   "HID Joystick",       // AL_CONST char *ascii_name;
-   hid_joy_init,         // AL_METHOD(int, init, (void));
-   hid_joy_exit,         // AL_METHOD(void, exit, (void));
-   hid_joy_poll,         // AL_METHOD(int, poll, (void));
-   NULL,                 // AL_METHOD(int, save_data, (void));
-   NULL,                 // AL_METHOD(int, load_data, (void));
-   NULL,                 // AL_METHOD(AL_CONST char *, calibrate_name, (int n));
-   NULL                  // AL_METHOD(int, calibrate, (int n));
+/* Driver table */
+AL_JOYSTICK_DRIVER joystick_hid = {
+   JOYSTICK_HID,        // int  id;
+   empty_string,        // AL_CONST char *name;
+   empty_string,        // AL_CONST char *desc;
+   "HID Joystick",      // AL_CONST char *ascii_name;
+   init_joystick,      	// AL_METHOD(bool, init, (void));
+   exit_joystick,      	// AL_METHOD(void, exit, (void));
+   count_joysticks,	// AL_METHOD(int, num_joysticks, (void));
+   get_joystick,        // AL_METHOD(AL_JOYSTICK*, get_joystick, (int joyn));
+   release_joystick, 	// AL_METHOD(void, release_joystick, (AL_JOYSTICK*));
+   get_state, 		// AL_METHOD(void, get_state, (AL_JOYSTICK*, AL_JOYSTATE *ret_state));
 };
 
 
 static HID_DEVICE_COLLECTION hid_devices;
 
-
-
-/* hid_joy_init:
+/* init_joystick:
  *  Initializes the HID joystick driver.
  */
-static int hid_joy_init(void)
+static bool init_joystick(void)
 {
    static char *name_stick = "stick";
    static char *name_hat = "hat";
@@ -62,6 +65,9 @@ static int hid_joy_init(void)
       { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
    HID_ELEMENT *element;
    int i, j, stick;
+   /* TODO: */
+   return 0;
+
    hid_devices.count=hid_devices.capacity=0;
    hid_devices.devices=NULL;
    osx_hid_scan(HID_JOYSTICK, &hid_devices);
@@ -126,25 +132,25 @@ static int hid_joy_init(void)
          }
       }
    }
-   return hid_joy_poll();
+   return poll();
 }
 
 
 
-/* hid_joy_exit:
+/* exit_joystick:
  *  Shuts down the HID joystick driver.
  */
-static void hid_joy_exit(void)
+static void exit_joystick(void)
 {
    osx_hid_free(&hid_devices);
 }
 
 
 
-/* hid_joy_poll:
+/* poll:
  *  Polls the active joystick devices and updates internal states.
  */
-static int hid_joy_poll(void)
+static int poll(void)
 {
    HID_DEVICE *device;
    HID_ELEMENT *element;
@@ -276,6 +282,37 @@ static int hid_joy_poll(void)
    }
    return 0;
 }
+
+/* num_joysticks:
+ *  Return number of active joysticks
+ */
+int count_joysticks(void) 
+{
+   return num_joysticks;
+}
+
+/* get_joystick:
+ * Get a pointer to a joystick structure
+ */
+AL_JOYSTICK* get_joystick(int index) 
+{
+   return NULL;
+}
+
+/* release_joystick:
+ * Release a pointer that has been obtained
+ */
+void release_joystick(AL_JOYSTICK* joy)
+{
+}
+
+/* get_state:
+ * Get the current status of a joystick
+ */
+void get_state(AL_JOYSTICK* joy, AL_JOYSTATE* state)
+{
+}
+
 /* Local variables:       */
 /* c-basic-offset: 3      */
 /* indent-tabs-mode: nil  */

@@ -19,6 +19,7 @@ int main(void)
    if (allegro_init() != 0)
       return 1;
    install_timer();
+   install_keyboard();
 
    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
@@ -37,6 +38,7 @@ int main(void)
     * Note use of the global retrace_counter to control the speed. We also
     * compensate screen size (GFX_SAFE) with a virtual 320 screen width.
     */
+   clear_keybuf();
    c = retrace_count+32;
    while (retrace_count-c <= 320+32) {
       acquire_screen();
@@ -45,9 +47,13 @@ int main(void)
       textprintf_ex(screen, font, 0, 0, makecol(0, 0, 0), -1, "No buffering (%s)",
 		    gfx_driver->name);
       release_screen();
+
+      if (keypressed())
+	 break;
    }
 
    /* and now with a double buffer... */
+   clear_keybuf();
    c = retrace_count+32;
    while (retrace_count-c <= 320+32) {
       clear_to_color(buffer, makecol(255, 255, 255));
@@ -55,6 +61,9 @@ int main(void)
       textprintf_ex(buffer, font, 0, 0, makecol(0, 0, 0), -1, "Double buffered (%s)",
 		    gfx_driver->name);
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+
+      if (keypressed())
+	 break;
    }
 
    destroy_bitmap(buffer);

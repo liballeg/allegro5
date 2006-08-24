@@ -290,7 +290,7 @@ static void put_time(char *buffer, time_t time)
 /* put_size:
  *  Helper function for displaying the file size.
  */
-static void put_size(char *buffer, long size)
+static void put_size(char *buffer, uint64_t size)
 {
    char tmp1[128];
 
@@ -354,10 +354,10 @@ static int fa_flist_putter(AL_CONST char *str, int attrib, void *param)
 
 #ifdef USE_FINDFIRST
       put_time(flist->name[c] + TIME_OFFSET, info->time);
-      put_size(flist->name[c] + SIZE_OFFSET, info->size);
+      put_size(flist->name[c] + SIZE_OFFSET, al_ffblk_get_size(info));
 #else
       put_time(flist->name[c] + TIME_OFFSET, file_time(str));
-      put_size(flist->name[c] + SIZE_OFFSET, file_size(str));
+      put_size(flist->name[c] + SIZE_OFFSET, file_size_ex(str));
 #endif
 
       ustrcpy(flist->name[c] + NAME_OFFSET, s);

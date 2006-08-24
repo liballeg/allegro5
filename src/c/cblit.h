@@ -18,6 +18,23 @@
 #ifndef __bma_cblit_h
 #define __bma_cblit_h
 
+
+
+/* Define USE_MEMMOVE to use libc's memmove command for doing blits.
+ * This helps some machines, while it doesn't seem to do much for others.
+ * Left as a define so the older blit version can be easily reactivated for
+ * testing.
+ */
+#define USE_MEMMOVE
+
+
+
+#ifdef USE_MEMMOVE
+   #include <string.h>
+#endif
+
+
+
 /* _linear_clear_to_color:
  *   Fills a linear bitmp with the specified color.
  */
@@ -51,7 +68,10 @@ void FUNC_LINEAR_CLEAR_TO_COLOR(BITMAP *dst, int color)
 void FUNC_LINEAR_BLIT(BITMAP *src, BITMAP *dst, int sx, int sy,
 		      int dx, int dy, int w, int h)
 {
-   int x, y;
+   int y;
+#ifndef USE_MEMMOVE
+   int x;
+#endif
 
    ASSERT(src);
    ASSERT(dst);
@@ -60,6 +80,7 @@ void FUNC_LINEAR_BLIT(BITMAP *src, BITMAP *dst, int sx, int sy,
       PIXEL_PTR s = OFFSET_PIXEL_PTR(bmp_read_line(src, sy + y), sx);
       PIXEL_PTR d = OFFSET_PIXEL_PTR(bmp_write_line(dst, dy + y), dx);
 
+#ifndef USE_MEMMOVE
       for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR(d), x--) {
 	 unsigned long c;
 
@@ -69,6 +90,9 @@ void FUNC_LINEAR_BLIT(BITMAP *src, BITMAP *dst, int sx, int sy,
 	 bmp_select(dst);
 	 PUT_PIXEL(d, c);
       }
+#else
+      memmove(d, s, w * sizeof(*s) * PTR_PER_PIXEL);
+#endif
    }
 
    bmp_unwrite_line(src);
@@ -83,12 +107,16 @@ void FUNC_LINEAR_BLIT(BITMAP *src, BITMAP *dst, int sx, int sy,
 void FUNC_LINEAR_BLIT_BACKWARD(BITMAP *src, BITMAP *dst, int sx, int sy,
 			       int dx, int dy, int w, int h)
 {
-   int x, y;
+   int y;
+#ifndef USE_MEMMOVE
+   int x;
+#endif
 
    ASSERT(src);
    ASSERT(dst);
 
    for (y = h - 1; y >= 0; y--) {
+#ifndef USE_MEMMOVE
       PIXEL_PTR s = OFFSET_PIXEL_PTR(bmp_read_line(src, sy + y), sx + w - 1);
       PIXEL_PTR d = OFFSET_PIXEL_PTR(bmp_write_line(dst, dy + y), dx + w - 1);
 
@@ -101,6 +129,12 @@ void FUNC_LINEAR_BLIT_BACKWARD(BITMAP *src, BITMAP *dst, int sx, int sy,
 	 bmp_select(dst);
 	 PUT_PIXEL(d, c);
       }
+#else
+      PIXEL_PTR s = OFFSET_PIXEL_PTR(bmp_read_line(src, sy + y), sx);
+      PIXEL_PTR d = OFFSET_PIXEL_PTR(bmp_write_line(dst, dy + y), dx);
+
+      memmove(d, s, w * sizeof(*s) * PTR_PER_PIXEL);
+#endif
    }
 
    bmp_unwrite_line(src);

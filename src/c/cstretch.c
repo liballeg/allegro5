@@ -256,8 +256,8 @@ void al_blit_scaled(int method, BITMAP *src, int sx, int sy, int sw, int sh,
    
    masked = (method&AL_MASK_SOURCE) == AL_MASK_SOURCE;
 
-   /* vtable hook */   
-   if (src->vtable->do_stretch_blit) {
+   /* vtable hook; not called if dest is a memory surface */   
+   if (src->vtable->do_stretch_blit && !is_memory_bitmap(dst)) {
       src->vtable->do_stretch_blit(src, dst, sx, sy, sw, sh, dx, dy, dw, dh, masked);
       return;
    }

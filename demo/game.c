@@ -224,7 +224,7 @@ static void move_everyone(void)
 
    /* fire bullet? */
    if (!player_hit) {
-      if ((key[KEY_SPACE] || key[KEY_LCONTROL] || key[KEY_RCONTROL]) ||
+      if ((key[KEY_SPACE] || key[KEY_ENTER] || key[KEY_LCONTROL] || key[KEY_RCONTROL]) ||
           (joy[0].button[0].b) || (joy[0].button[1].b)) {
          if (prev_bullet_time + BULLET_DELAY < game_time) {
             bullet = add_bullet((player_x_pos >> SPEED_SHIFT) - 2, SCREEN_H - 64);
@@ -261,19 +261,21 @@ static void draw_screen(BITMAP *bmp)
 {
    int x;
    RLE_SPRITE *spr;
-   char *animation_type_str;
+   char *animation_type_str = NULL;
 
-   if (animation_type == DOUBLE_BUFFER) {
-      animation_type_str = "double buffered";
-   }
-   else if (animation_type == PAGE_FLIP) {
-      animation_type_str = "page flipping";
-   }
-   else if (animation_type == TRIPLE_BUFFER) {
-      animation_type_str = "triple buffered";
-   }
-   else {
-      animation_type_str = "dirty rectangles";
+   switch (animation_type) {
+      case DOUBLE_BUFFER:
+	 animation_type_str = "double buffered";
+	 break;
+      case PAGE_FLIP:
+	 animation_type_str = "page flipping";
+	 break;
+      case TRIPLE_BUFFER:
+	 animation_type_str = "triple buffered";
+	 break;
+      case DIRTY_RECTANGLE:
+	 animation_type_str = "dirty rectangles";
+	 break;
    }
 
    acquire_bitmap(bmp);

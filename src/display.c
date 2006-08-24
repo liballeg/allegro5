@@ -682,8 +682,6 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
       display->gfx_capabilities = 0;
    }
 
-   display->gfx_capabilities = 0;
-
    _set_current_refresh_rate(0);
 
    /* return to text mode? */
@@ -780,6 +778,8 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
    gfx_driver = display->gfx_driver;
 
    /* set the basic capabilities of the driver */
+   display->gfx_capabilities = gfx_capabilities;
+
    if ((VIRTUAL_W > SCREEN_W) || (VIRTUAL_H > SCREEN_H)) {
       if (display->gfx_driver->scroll)
 	 display->gfx_capabilities |= GFX_CAN_SCROLL;
@@ -1003,6 +1003,8 @@ int al_request_scroll(AL_DISPLAY *display, int x, int y)
    int ret = 0;
    int h;
 
+   ASSERT(display);
+
    /* can driver handle triple buffering? */
    if ((!display->gfx_driver->request_scroll) || (_dispsw_status)) {
       al_scroll_display(display, x, y);
@@ -1046,6 +1048,8 @@ int al_request_scroll(AL_DISPLAY *display, int x, int y)
  */
 int al_poll_scroll(AL_DISPLAY *display)
 {
+   ASSERT(display);
+
    if ((!display->gfx_driver->poll_scroll) || (_dispsw_status))
       return FALSE;
 
@@ -1060,6 +1064,9 @@ int al_poll_scroll(AL_DISPLAY *display)
  */
 int al_show_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
 {
+   ASSERT(display);
+   ASSERT(bitmap);
+
    if ((!is_video_bitmap(bitmap)) || 
        (bitmap->w != SCREEN_W) || (bitmap->h != SCREEN_H) ||
        (_dispsw_status))
@@ -1079,6 +1086,9 @@ int al_show_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
  */
 int al_request_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
 {
+   ASSERT(display);
+   ASSERT(bitmap);
+
    if ((!is_video_bitmap(bitmap)) || 
        (bitmap->w != SCREEN_W) || (bitmap->h != SCREEN_H) ||
        (_dispsw_status))
@@ -1098,6 +1108,8 @@ int al_request_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
  */
 int al_enable_triple_buffer(AL_DISPLAY *display)
 {
+   ASSERT(display);
+
    if (display->gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)
       return 0;
 
@@ -1135,9 +1147,10 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
       return NULL;
 
    /* Create a new display object */
-   new_display = calloc(1, sizeof *new_display);
+   new_display = _AL_MALLOC(sizeof *new_display);
    if (!new_display)
       return NULL;
+   memset(new_display, 0, sizeof *new_display);
       
    new_display_ptr = _al_vector_alloc_back(&display_list);
    if (!new_display_ptr) {
@@ -1222,21 +1235,17 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
          new_display->num_pages = 1;
          new_display->page = _AL_MALLOC(new_display->num_pages * sizeof *(new_display->page));
 
-         for (c=0; c<new_display->num_pages; c++)
-            if (new_display->flags & AL_UPDATE_SYSTEM_BUFFER)
-               new_display->page[c] = al_create_system_bitmap(new_display, w, h);
-            else
-               new_display->page[c] = create_bitmap(w, h);
+         if (new_display->flags & AL_UPDATE_SYSTEM_BUFFER)
+            new_display->page[0] = al_create_system_bitmap(new_display, w, h);
+         else
+            new_display->page[0] = create_bitmap(w, h);
          
          /* Check for succes */
          if (new_display->page[0]) {
-            for (c=0; c<new_display->num_pages; c++)
-               clear_bitmap(new_display->page[c]);
-            al_show_video_bitmap(new_display, new_display->page[1]);
+            clear_bitmap(new_display->page[0]);
+            al_show_video_bitmap(new_display, new_display->page[0]);
          }
          else {
-            for (c=0; c<new_display->num_pages; c++)
-               destroy_bitmap(new_display->page[c]);
             _AL_FREE(new_display->page);
             do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0);
 	    goto Error;

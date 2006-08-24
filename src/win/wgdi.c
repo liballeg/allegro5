@@ -122,7 +122,7 @@ static HANDLE vsync_event;
 /* hardware mouse cursor emulation */
 static int mouse_on = FALSE;
 static int mouse_was_on = FALSE;
-static BITMAP *mouse_sprite = NULL;
+static BITMAP *wgdi_mouse_sprite = NULL;
 static BITMAP *mouse_frontbuffer = NULL;
 static BITMAP *mouse_backbuffer = NULL;
 static int mouse_xfocus, mouse_yfocus;
@@ -134,9 +134,9 @@ static int mouse_xpos, mouse_ypos;
  */
 static int gfx_gdi_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus)
 {
-   if (mouse_sprite) {
-      destroy_bitmap(mouse_sprite);
-      mouse_sprite = NULL;
+   if (wgdi_mouse_sprite) {
+      destroy_bitmap(wgdi_mouse_sprite);
+      wgdi_mouse_sprite = NULL;
 
       destroy_bitmap(mouse_frontbuffer);
       mouse_frontbuffer = NULL;
@@ -145,8 +145,8 @@ static int gfx_gdi_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocu
       mouse_backbuffer = NULL;
    }
 
-   mouse_sprite = create_bitmap(sprite->w, sprite->h);
-   blit(sprite, mouse_sprite, 0, 0, 0, 0, sprite->w, sprite->h);
+   wgdi_mouse_sprite = create_bitmap(sprite->w, sprite->h);
+   blit(sprite, wgdi_mouse_sprite, 0, 0, 0, 0, sprite->w, sprite->h);
 
    mouse_xfocus = xfocus;
    mouse_yfocus = yfocus;
@@ -171,7 +171,7 @@ static void update_mouse_pointer(int x, int y, int retrace)
    blit(gdi_screen, mouse_frontbuffer, x, y, 0, 0, mouse_frontbuffer->w, mouse_frontbuffer->h);
 
    /* draw the mouse pointer onto the frontbuffer */
-   draw_sprite(mouse_frontbuffer, mouse_sprite, 0, 0);
+   draw_sprite(mouse_frontbuffer, wgdi_mouse_sprite, 0, 0);
 
    hdc = GetDC(allegro_wnd);
 
@@ -316,7 +316,7 @@ static void render_proc(void)
 
       /* update mouse pointer if needed */
       if (mouse_on) {
-         if ((mouse_ypos+mouse_sprite->h > top_line) && (mouse_ypos <= bottom_line)) {
+         if ((mouse_ypos+wgdi_mouse_sprite->h > top_line) && (mouse_ypos <= bottom_line)) {
             blit(gdi_screen, mouse_backbuffer, mouse_xpos, mouse_ypos, 0, 0,
                  mouse_backbuffer->w, mouse_backbuffer->h);
 
@@ -475,7 +475,9 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    }
 
    /* the last flag serves as an end of loop delimiter */
-   gdi_dirty_lines = calloc(h+1, sizeof(char));
+   gdi_dirty_lines = _AL_MALLOC_ATOMIC((h+1) * sizeof(char));
+   ASSERT(gdi_dirty_lines);
+   memset(gdi_dirty_lines, 0, (h+1) * sizeof(char));
    gdi_dirty_lines[h] = 1;
 
    /* create the screen surface */
@@ -542,9 +544,9 @@ static void gfx_gdi_exit(struct BITMAP *bmp)
    gdi_screen = NULL;
 
    /* destroy mouse bitmaps */
-   if (mouse_sprite) {
-      destroy_bitmap(mouse_sprite);
-      mouse_sprite = NULL;
+   if (wgdi_mouse_sprite) {
+      destroy_bitmap(wgdi_mouse_sprite);
+      wgdi_mouse_sprite = NULL;
 
       destroy_bitmap(mouse_frontbuffer);
       mouse_frontbuffer = NULL;

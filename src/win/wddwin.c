@@ -773,8 +773,9 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    gfx_directx_forefront_bitmap->write_bank = gfx_directx_write_bank_win;
 
    /* the last flag serves as end of loop delimiter */
-   wd_dirty_lines = calloc(h+1, sizeof(char));
-   wd_dirty_lines[h] = 0;
+   wd_dirty_lines = _AL_MALLOC_ATOMIC((h+1) * sizeof(char));
+   ASSERT(wd_dirty_lines);
+   memset(wd_dirty_lines, 0, (h+1) * sizeof(char));
 
    /* connect to the system driver */
    win_gfx_driver = &win_gfx_driver_windowed;

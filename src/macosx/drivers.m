@@ -18,6 +18,8 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include ALLEGRO_INTERNAL_HEADER
+#include "allegro/internal/aintern2.h"
 #include "allegro/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
@@ -25,11 +27,6 @@
 #endif
 
 
-_DRIVER_INFO _keyboard_driver_list[] =
-{
-   { KEYBOARD_MACOSX,         &keyboard_macosx,         TRUE  },
-   { 0,                       NULL,                     0     }
-};
 
 
 _DRIVER_INFO _mouse_driver_list[] =
@@ -57,6 +54,5 @@ BEGIN_MIDI_DRIVER_LIST
 END_MIDI_DRIVER_LIST
 
 
-BEGIN_JOYSTICK_DRIVER_LIST
-{   JOYSTICK_HID,             &joystick_hid,            TRUE  },
-END_JOYSTICK_DRIVER_LIST
+ _AL_BEGIN_JOYSTICK_DRIVER_LIST
+ _AL_END_JOYSTICK_DRIVER_LIST

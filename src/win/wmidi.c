@@ -1,4 +1,4 @@
-/*         ______   ___    ___ 
+/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \ 
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
@@ -46,7 +46,8 @@
 int midi_win32_detect(int input);
 int midi_win32_init(int input, int voices);
 void midi_win32_exit(int input);
-int midi_win32_mixer_volume(int volume);
+int midi_win32_set_mixer_volume(int volume);
+int midi_win32_get_mixer_volume(void);
 void midi_win32_raw_midi(int data);
 
 int midi_win32_in_detect(int input);
@@ -113,7 +114,8 @@ _DRIVER_INFO *_get_win_midi_driver_list(void)
 	 driver->detect = midi_win32_detect;
 	 driver->init = midi_win32_init;
 	 driver->exit = midi_win32_exit;
-	 driver->mixer_volume = midi_win32_mixer_volume;
+	 driver->set_mixer_volume = midi_win32_set_mixer_volume;
+	 driver->get_mixer_volume = midi_win32_get_mixer_volume;
 	 driver->raw_midi = midi_win32_raw_midi;
 
          _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
@@ -284,14 +286,33 @@ void midi_win32_in_exit(int input)
 
 
 
-/* mixer_volume:
+/* midi_win32_set_mixer_volume:
  */
-int midi_win32_mixer_volume(int volume)
+int midi_win32_set_mixer_volume(int volume)
 {
    unsigned long win32_midi_vol = (volume << 8) + (volume << 24);
    midiOutSetVolume(midi_device, win32_midi_vol);
    return 1;
 }
+
+
+
+/* midi_win32_get_mixer_volume:
+ */
+int midi_win32_get_mixer_volume(void)
+{
+   DWORD vol;
+   
+   if (!midi_device)
+      return -1;
+
+   if (midiOutGetVolume(midi_device, &vol) != MMSYSERR_NOERROR)
+      return -1;
+
+   vol &= 0xffff;
+   return vol / (0xffff / 255);
+}
+
 
 
 /* midi_switch_out:

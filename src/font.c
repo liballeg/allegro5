@@ -952,6 +952,38 @@ static int color_render_char(AL_CONST FONT* f, int ch, int fg, int bg, BITMAP* b
 
 
 
+/* trans_render_char:
+ *  (trans vtable entry)
+ *
+ *  Renders a transparent character onto a bitmap, at the specified location,
+ *  using the specified colors. fg is ignored. if bg == -1, render as
+ *  transparent, else render as opaque. Returns the character width, in pixels.
+ */
+static int trans_render_char(AL_CONST FONT* f, int ch, int fg, int bg, BITMAP* bmp, int x, int y)
+{
+    int w = 0;
+    int h = f->vtable->font_height(f);
+    BITMAP *g = 0;
+
+    acquire_bitmap(bmp);
+
+    if(bg >= 0) {
+       rectfill(bmp, x, y, x + f->vtable->char_length(f, ch) - 1, y + h - 1, bg);
+    }
+
+    g = _color_find_glyph(f, ch);
+    if(g) {
+       draw_trans_sprite(bmp, g, x, y + (h-g->h)/2);
+       w = g->w;
+    }
+
+    release_bitmap(bmp);
+
+    return w;
+}
+
+
+
 /* color_render:
  *  (color vtable entry)
  *  Renders a color font onto a bitmap, at the specified location, using
@@ -1393,6 +1425,37 @@ FONT_VTABLE _font_vtable_color = {
 
 FONT_VTABLE* font_vtable_color = &_font_vtable_color;
 
+FONT_VTABLE _font_vtable_trans = {  
+    font_height,
+    color_char_length,
+    length,
+    trans_render_char,
+    color_render,
+    color_destroy,
+
+    color_get_font_ranges,
+    color_get_font_range_begin,
+    color_get_font_range_end,
+    color_extract_font_range,
+    color_merge_fonts,
+    color_transpose_font
+};
+
+FONT_VTABLE* font_vtable_trans = &_font_vtable_trans;
+
+
+
+/* make_trans_font:
+ *  Modifes a font so glyphs are drawn with draw_trans_sprite.
+ */
+void make_trans_font(FONT *f)
+{
+   ASSERT(f);
+   ASSERT(f->vtable == font_vtable_color);
+
+   f->vtable = font_vtable_trans;
+}
+
 
 
 /* is_color_font:
@@ -1402,7 +1465,7 @@ int is_color_font(FONT *f)
 {
    ASSERT(f);
    
-   return f->vtable == font_vtable_color;
+   return (f->vtable == font_vtable_color || f->vtable == font_vtable_trans);
 }
 
 

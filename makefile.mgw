@@ -203,7 +203,7 @@ ifdef ALLEGRO_USE_C
 
 VPATH += src/c
 MY_OBJECTS = $(C_OBJECTS) cmiscs
-CFLAGS += -DALLEGRO_USE_C
+CFLAGS += -DALLEGRO_NO_ASM
 
 else
 
@@ -268,6 +268,7 @@ HEADERS = $(MINGDIR_U)/include/winalleg.h                  \
           $(MINGDIR_U)/include/allegro/platform/al386gcc.h \
           $(MINGDIR_U)/include/allegro/platform/almngw32.h \
           $(MINGDIR_U)/include/allegro/platform/alplatf.h  \
+          $(MINGDIR_U)/include/allegro/platform/astdbool.h \
           $(MINGDIR_U)/include/allegro/platform/astdint.h  \
           $(MINGDIR_U)/include/allegro/platform/alwin.h
 
@@ -481,16 +482,15 @@ endef
 
 PLUGIN_LIB = lib/mingw32/lib$(VERY_SHORT_VERSION)dat.a
 PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB) $(PLUGIN_RUNNER)
-PLUGINS_H = obj/mingw32/plugins.h
 PLUGIN_SCR = scm
 
 ifdef UNIX_TOOLS
    define GENERATE_PLUGINS_H
-      cat tools/plugins/*.inc > obj/mingw32/plugins.h
+      cat tools/plugins/*.inc > $(PLUGINS_H)
    endef
 else
    define GENERATE_PLUGINS_H
-      copy /B tools\plugins\*.inc obj\mingw32\plugins.h
+      copy /B tools\plugins\*.inc $(subst /,\,$(PLUGINS_H))
    endef
 endif
 

@@ -196,6 +196,9 @@ void _unix_read_os_type(void)
       else if (!strcmp(utsn.sysname, "NetBSD")) {
 	 os_type = OSTYPE_NETBSD;
       }
+      else if (!strcmp(utsn.sysname, "OpenBSD")) {
+	 os_type = OSTYPE_OPENBSD;
+      }
       else if ((!strcmp(utsn.sysname, "IRIX"))
 	       || (!strcmp(utsn.sysname, "IRIX64"))) {
 	 os_type = OSTYPE_IRIX;
@@ -421,7 +424,7 @@ void _unix_get_executable_name(char *output, int size)
 
       if (linkname[len] == '[' && linkname[strlen(linkname)] == ']') {
          len++;
-         linkname[strlen(linkname)] == '\0';
+         linkname[strlen(linkname)] = '\0';
       }         
       
       /* Now, the filename should be in the last column */

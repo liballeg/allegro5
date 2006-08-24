@@ -65,7 +65,7 @@ static char alsa_desc[256] = EMPTY_STRING;
 static int alsa_detect(int input);
 static int alsa_init(int input, int voices);
 static void alsa_exit(int input);
-static int alsa_mixer_volume(int volume);
+static int alsa_set_mixer_volume(int volume);
 static int alsa_buffer_size(void);
 
 
@@ -84,7 +84,8 @@ DIGI_DRIVER digi_alsa =
    alsa_detect,
    alsa_init,
    alsa_exit,
-   alsa_mixer_volume,
+   alsa_set_mixer_volume,
+   NULL,
 
    NULL,
    NULL,
@@ -368,10 +369,10 @@ static void alsa_exit(int input)
 
 
 
-/* alsa_mixer_volume:
+/* alsa_set_mixer_volume:
  *  Set mixer volume (0-255)
  */
-static int alsa_mixer_volume(int volume)
+static int alsa_set_mixer_volume(int volume)
 {
    /* TODO */ 
 #if 0

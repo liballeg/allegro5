@@ -512,8 +512,10 @@ static void get_selection_info(DATAFILE **dat, DATAFILE ***parent)
    }
    else {
       *dat = data[SELECTED_ITEM].dat;
-      if ((*dat)->type == DAT_FILE)
-	 *parent = (DATAFILE **)&(*dat)->dat;
+      if ((*dat)->type == DAT_FILE) {
+         void *ptr = &(*dat)->dat;
+         *parent = (DATAFILE **)ptr;
+      }
       else
 	 *parent = data[SELECTED_ITEM].parent;
    }
@@ -1738,9 +1740,11 @@ static void add_datafile_to_list(DATAFILE **dat, char *prefix, int clear)
       add_to_list(d, dat, i, tmp, clear);
 
       if ((d->type == DAT_FILE) && (!folded)) {
-	 strcpy(tmp, prefix);
-	 strcat(tmp, "|");
-	 add_datafile_to_list((DATAFILE **)&d->dat, tmp, clear);
+         void *ptr;
+         strcpy(tmp, prefix);
+         strcat(tmp, "|");
+         ptr = &d->dat;
+         add_datafile_to_list((DATAFILE **)ptr, tmp, clear);
       }
    }
 }
@@ -2993,14 +2997,15 @@ static int helper(void)
    char buf[256];
    PACKFILE *f;
    char *help_text, *last, *s; 
-   int size, i, j, cr;
+   int i, j, cr;
+   int64_t size;
 
    CHECK_MENU_HOOK("Help", DATEDIT_MENU_HELP);
 
    get_executable_name(buf, sizeof(buf));
    strcpy(get_filename(buf), "grabber.txt");
 
-   size = file_size(buf);
+   size = file_size_ex(buf);
    if (size <= 0) {
       alert("Error reading grabber.txt", NULL, NULL, "Oh dear", NULL, 13, 0);
       return D_REDRAW;
@@ -3121,6 +3126,7 @@ static int sysinfo(void)
       case OSTYPE_SUNOS:      s = "SunOS/Solaris";              break;
       case OSTYPE_FREEBSD:    s = "FreeBSD";                    break;
       case OSTYPE_NETBSD:     s = "NetBSD";                     break;
+      case OSTYPE_OPENBSD:    s = "OpenBSD";                    break;
       case OSTYPE_IRIX:       s = "IRIX";                       break;
       case OSTYPE_DARWIN:     s = "Darwin";                     break;
       case OSTYPE_QNX:        s = "QNX";                        break;
@@ -3265,8 +3271,10 @@ static int add_new(int type)
 	 if (!v)
 	    v = makenew_data(&size);
 
-	 if ((dat->dat) && (dat->dat->type == DAT_FILE))
-	    df = (DATAFILE **)&dat->dat->dat;
+         if ((dat->dat) && (dat->dat->type == DAT_FILE)) {
+            void *ptr = &dat->dat->dat;
+            df = (DATAFILE **)ptr;
+         }
 	 else
 	    df = dat->parent;
 

@@ -198,6 +198,10 @@ void __al_linux_release_bitmap(BITMAP *bmp)
  */
 void __al_linux_display_switch_lock(int lock, int foreground)
 {
+	if (__al_linux_console_fd == -1) {
+		return;
+	}
+
 	if (foreground) {
 		__al_linux_wait_for_display();
 	}

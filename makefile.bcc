@@ -179,6 +179,7 @@ HEADERS = $(BCC32DIR_U)/include/winalleg.h                  \
           $(BCC32DIR_U)/include/allegro/platform/al386gcc.h \
           $(BCC32DIR_U)/include/allegro/platform/albcc32.h  \
           $(BCC32DIR_U)/include/allegro/platform/alplatf.h  \
+          $(BCC32DIR_U)/include/allegro/platform/astdbool.h \
           $(BCC32DIR_U)/include/allegro/platform/astdint.h  \
           $(BCC32DIR_U)/include/allegro/platform/alwin.h
 
@@ -377,17 +378,16 @@ else
 endif
 
 PLUGIN_LIB = lib/bcc32/$(VERY_SHORT_VERSION)dat.lib
-PLUGINS_H = obj/bcc32/plugins.h
 PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
 PLUGIN_SCR = scv
 
 ifdef UNIX_TOOLS
    define GENERATE_PLUGINS_H
-      cat tools/plugins/*.inc > obj/bcc32/plugins.h
+      cat tools/plugins/*.inc > $(PLUGINS_H)
    endef
 else
    define GENERATE_PLUGINS_H
-      copy /B tools\plugins\*.inc obj\bcc32\plugins.h
+      copy /B tools\plugins\*.inc $(subst /,\,$(PLUGINS_H))
    endef
 endif
 

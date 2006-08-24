@@ -44,7 +44,7 @@ fi
 
 # convert Allegro to MSVC or Cygwin format
 if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
-   ./fix.sh mingw32 --dtou
+   ./fix.sh mingw --dtou
 else
    ./fix.sh msvc --utod
 fi
@@ -167,7 +167,7 @@ s/obj\/msvc\/runner.exe //
 s/\\//\\\\/g
 
 # make sure were are using command.com copy, rather than cp
-s/^.*cat tools.*msvc.plugins.h/copy \/B tools\\\\plugins\\\\*.inc obj\\\\msvc\\\\plugins.h/
+s/^.*cat tools.*msvc.plugins.h/copy \/B tools\\\\plugins\\\\*.inc tools\\\\plugins\\\\plugins.h/
 
 # add blank lines, to make the batch output more readable
 s/^\([^@]*\)$/\\

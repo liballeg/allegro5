@@ -432,8 +432,10 @@ static void do_delete(DATAFILE **dat, char *parentname)
       }
       else {
 	 if ((*dat)[i].type == DAT_FILE) {
+	    DATAFILE *dattmp = (*dat)[i].dat;
 	    strcat(tmp, "/");
-	    do_delete((DATAFILE **)(&((*dat)[i].dat)), tmp);
+	    do_delete(&dattmp, tmp);
+	    (*dat)[i].dat = dattmp;
 	 }
       }
    }
@@ -681,8 +683,10 @@ static void do_setpal(DATAFILE **dat, char *parentname)
       }
       else {
 	 if ((*dat)[i].type == DAT_FILE) {
+	    DATAFILE *dattmp = (*dat)[i].dat;
 	    strcat(tmp, "/");
-	    do_setpal((DATAFILE **)(&((*dat)[i].dat)), tmp);
+	    do_setpal(&dattmp, tmp);
+	    (*dat)[i].dat = dattmp;
 	 }
       }
    }

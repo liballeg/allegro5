@@ -27,7 +27,7 @@
 static int ca_detect(int);
 static int ca_init(int, int);
 static void ca_exit(int);
-static int ca_mixer_volume(int);
+static int ca_set_mixer_volume(int);
 static void ca_raw_midi(int);
 
 
@@ -51,7 +51,8 @@ MIDI_DRIVER midi_core_audio =
    ca_detect,               /* AL_METHOD(int,  detect, (int input)); */
    ca_init,                 /* AL_METHOD(int,  init, (int input, int voices)); */
    ca_exit,                 /* AL_METHOD(void, exit, (int input)); */
-   ca_mixer_volume,         /* AL_METHOD(int,  mixer_volume, (int volume)); */
+   ca_set_mixer_volume,     /* AL_METHOD(int,  mixer_set_volume, (int volume)); */
+   NULL,                    /* AL_METHOD(int,  mixer_get_volume, (void)); */
    ca_raw_midi,             /* AL_METHOD(void, raw_midi, (int data)); */
    _dummy_load_patches,     /* AL_METHOD(int,  load_patches, (AL_CONST char *patches, AL_CONST char *drums)); */
    _dummy_adjust_patches,   /* AL_METHOD(void, adjust_patches, (AL_CONST char *patches, AL_CONST char *drums)); */
@@ -161,7 +162,7 @@ static void ca_exit(int input)
 
 
 
-static int ca_mixer_volume(int volume)
+static int ca_set_mixer_volume(int volume)
 {
    float value = (float)volume / 255.0;
 

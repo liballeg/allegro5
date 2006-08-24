@@ -39,6 +39,9 @@
    #include <pwd.h>                 /* for tilde expansion */
 #endif
 
+#ifdef ALLEGRO_WINDOWS
+   #include "winalleg.h" /* for GetTempPath */
+#endif
 
 
 /* permissions to use when opening files */
@@ -71,6 +74,7 @@ static PACKFILE_VTABLE normal_vtable;
 
 static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode);
 
+static int file_encoding = U_ASCII;
 
 
 #define FA_DAT_FLAGS  (FA_RDONLY | FA_ARCH)
@@ -668,6 +672,26 @@ void put_backslash(char *filename)
  ***************************************************/
 
 
+/* set_file_encoding:
+ *  Sets the encoding to use for filenames. By default, UTF8 is assumed.
+ */
+void set_file_encoding(int encoding)
+{
+    file_encoding = encoding;
+}
+
+
+
+/* get_file_encoding:
+ *  Returns the encoding currently assumed for filenames.
+ */
+int get_file_encoding(void)
+{
+    return file_encoding ;
+}
+
+
+
 /* file_exists:
  *  Checks whether a file matching the given name and attributes exists,
  *  returning non zero if it does. The file attribute may contain any of
@@ -722,12 +746,12 @@ int exists(AL_CONST char *filename)
 
 
 
-/* file_size:
+/* file_size_ex:
  *  Returns the size of a file, in bytes.
  *  If the file does not exist or an error occurs, it will return zero
  *  and store the system error code in errno.
  */
-long file_size(AL_CONST char *filename)
+uint64_t file_size_ex(AL_CONST char *filename)
 {
    ASSERT(filename);
    if (ustrchr(filename, '#')) {
@@ -744,7 +768,26 @@ long file_size(AL_CONST char *filename)
    if (!_al_file_isok(filename))
       return 0;
 
-   return _al_file_size(filename);
+   return _al_file_size_ex(filename);
+}
+
+
+
+/* For binary compatibility with 4.2.0. */
+long file_size(AL_CONST char *filename)
+{
+   return file_size_ex(filename);
+}
+
+
+
+/* For binary compatibility with 4.2.0.
+ * This is an internal symbol and only required because _al_file_size was
+ * exposed in the Windows DLL.
+ */
+long _al_file_size(AL_CONST char *filename)
+{
+   return _al_file_size_ex(filename);
 }
 
 
@@ -777,7 +820,7 @@ int delete_file(AL_CONST char *filename)
    if (!_al_file_isok(filename))
       return -1;
 
-   if (unlink(uconvert_toascii(filename, tmp)) != 0) {
+   if (_al_unlink(uconvert_tofilename(filename, tmp)) != 0) {
       *allegro_errno = errno;
       return -1;
    }
@@ -1186,7 +1229,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
 
    /* try any extra environment variable that the parameters say to use */
    if (envvar) {
-      s = getenv(uconvert_toascii(envvar, tmp));
+      s = getenv(uconvert_tofilename(envvar, tmp));
 
       if (s) {
 	 do_uconvert(s, U_ASCII, path, U_CURRENT, sizeof(path)-ucwidth(OTHER_PATH_SEPARATOR));
@@ -1781,14 +1824,14 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 
 #ifndef ALLEGRO_MPW
    if (strpbrk(mode, "wW"))  /* write mode? */
-      fd = open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, OPEN_PERMS);
+      fd = _al_open(uconvert_tofilename(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, OPEN_PERMS);
    else
-      fd = open(uconvert_toascii(filename, tmp), O_RDONLY | O_BINARY, OPEN_PERMS);
+      fd = _al_open(uconvert_tofilename(filename, tmp), O_RDONLY | O_BINARY, OPEN_PERMS);
 #else
    if (strpbrk(mode, "wW"))  /* write mode? */
-      fd = _al_open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC);
+      fd = _al_open(uconvert_tofilename(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC);
    else
-      fd = _al_open(uconvert_toascii(filename, tmp), O_RDONLY | O_BINARY);
+      fd = _al_open(uconvert_tofilename(filename, tmp), O_RDONLY | O_BINARY);
 #endif
 
    if (fd < 0) {
@@ -1904,13 +1947,56 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 
       /* write a sub-chunk */ 
       int tmp_fd = -1;
+      char *tmp_dir = NULL;
+      char *tmp_name = NULL;
+      #ifndef HAVE_MKSTEMP
+      char* tmpnam_string;
+      #endif
+
+      #ifdef ALLEGRO_WINDOWS
+         int size;
+         int new_size = 64;
+         
+         /* Get the path of the temporary directory */
+         do {
+            size = new_size;
+            tmp_dir = realloc(tmp_dir, size);
+            new_size = GetTempPath(size, tmp_dir);
+         } while ( (size > new_size) && (new_size > 0) );
+         
+         /* Check if we retrieved the path OK */
+         if (new_size == 0)
+            sprintf(tmp_dir, "%s", "");
+      #else
+         /* Get the path of the temporary directory */
+
+         /* Try various possible locations to store the temporary file */
+         if (getenv("TEMP")) {
+            tmp_dir = strdup(getenv("TEMP"));
+         }
+         else if (getenv("TMP")) {
+            tmp_dir = strdup(getenv("TMP"));
+         }
+         else if (file_exists("/tmp", FA_DIREC, NULL)) {
+            tmp_dir = strdup("/tmp");
+         }
+         else if (getenv("HOME")) {
+            tmp_dir = strdup(getenv("HOME"));
+         }
+         else {
+            /* Give up - try current directory */
+            tmp_dir = strdup(".");
+         }
+
+      #endif
 
       /* the file is open in read/write mode, even if the pack file
        * seems to be in write only mode
        */
       #ifdef HAVE_MKSTEMP
 
-         char tmp_name[] = "XXXXXX";
+         tmp_name = _AL_MALLOC_ATOMIC(strlen(tmp_dir) + 16);
+         sprintf(tmp_name, "%s/XXXXXX", tmp_dir);
          tmp_fd = mkstemp(tmp_name);
 
       #else
@@ -1918,7 +2004,11 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
          /* note: since the filename creation and the opening are not
           * an atomic operation, this is not secure
           */
-         char *tmp_name = tmpnam(NULL);
+         tmpnam_string = tmpnam(NULL);
+         tmp_name = _AL_MALLOC_ATOMIC(strlen(tmp_dir) + strlen(tmpnam_string) + 2);
+         sprintf(tmp_name, "%s/%s", tmp_dir, tmpnam_string);
+         _AL_FREE(tmpnam_string);
+
          if (tmp_name) {
 #ifndef ALLEGRO_MPW
             tmp_fd = open(tmp_name, O_RDWR | O_BINARY | O_CREAT | O_EXCL, OPEN_PERMS);
@@ -1929,8 +2019,12 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 
       #endif
 
-      if (tmp_fd < 0)
+      if (tmp_fd < 0) {
+         _AL_FREE(tmp_dir);
+         _AL_FREE(tmp_name);
+      
          return NULL;
+      }
 
       name = uconvert_ascii(tmp_name, tmp);
       chunk = _pack_fdopen(tmp_fd, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
@@ -1945,6 +2039,9 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 
 	 chunk->normal.flags |= PACKFILE_FLAG_CHUNK;
       }
+      
+      free(tmp_dir);
+      free(tmp_name);
    }
    else {
       /* read a sub-chunk */

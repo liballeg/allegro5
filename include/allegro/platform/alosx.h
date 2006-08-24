@@ -77,13 +77,13 @@ extern char **__crt0_argv;
 #define SYSTEM_MACOSX           AL_ID('O','S','X',' ')
 AL_VAR(SYSTEM_DRIVER, system_macosx);
 
-/* Timer driver */
-#define TIMERDRV_UNIX_PTHREADS  AL_ID('P','T','H','R')
-AL_VAR(TIMER_DRIVER, timerdrv_unix_pthreads);
+/* /\* Timer driver *\/ */
+/* #define TIMERDRV_UNIX_PTHREADS  AL_ID('P','T','H','R') */
+/* AL_VAR(TIMER_DRIVER, timerdrv_unix_pthreads); */
 
-/* Keyboard driver */
+/* /\* Keyboard driver *\/ */
 #define KEYBOARD_MACOSX         AL_ID('O','S','X','K')
-AL_VAR(KEYBOARD_DRIVER, keyboard_macosx);
+/*AL_VAR(AL_KEYBOARD_DRIVER, keyboard_macosx); */
 
 /* Mouse driver */
 #define MOUSE_MACOSX            AL_ID('O','S','X','M')
@@ -107,9 +107,14 @@ AL_VAR(DIGI_DRIVER, digi_sound_manager);
 AL_VAR(MIDI_DRIVER, midi_core_audio);
 AL_VAR(MIDI_DRIVER, midi_quicktime);
 
-/* Joystick drivers */
-#define JOYSTICK_HID            AL_ID('H','I','D','J')
-AL_VAR(JOYSTICK_DRIVER, joystick_hid);
-
+/* Joystick drivers */ 
+#define JOYSTICK_HID            AL_ID('H','I','D','J') 
+/*AL_VAR(AL_JOYSTICK_DRIVER, joystick_hid); */
 
 #endif
+
+/* Local variables:       */
+/* mode: objc             */
+/* c-basic-offset: 3      */
+/* indent-tabs-mode: nil  */
+/* End:                   */

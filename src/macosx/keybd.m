@@ -20,17 +20,49 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include ALLEGRO_INTERNAL_HEADER
+#include "allegro/internal/aintern2.h"
 #include "allegro/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
 #error Something is wrong with the makefile
 #endif
 
-
-static int osx_keyboard_init(void);
+static bool osx_keyboard_init(void);
 static void osx_keyboard_exit(void);
+static AL_KEYBOARD* osx_get_keyboard(void);
+static AL_KEYBOARD keyboard;
 
+static void _handle_key_press(int unicode, int scancode, int modifiers) {
+   AL_EVENT* event;
+   int is_repeat=0;
+   int type;
+   _al_event_source_lock(&keyboard.es);
+   {
+      /* Update the key_down array.  */
+      //      _AL_KBDSTATE_SET_KEY_DOWN(the_keyboard.state, mycode);
 
+      /* Generate the press event if necessary. */
+      type = is_repeat ? AL_EVENT_KEY_REPEAT : AL_EVENT_KEY_DOWN;
+      if ((_al_event_source_needs_to_generate_event(&keyboard.es, type)) \
+&&
+          (event = _al_event_source_get_unused_event(&keyboard.es)))
+         {
+            event->keyboard.type = type;
+            event->keyboard.timestamp = al_current_time();
+            event->keyboard.__display__dont_use_yet__ = NULL; /* TODO */
+            event->keyboard.keycode   = scancode;
+            event->keyboard.unichar   = unicode;
+            event->keyboard.modifiers = modifiers;
+            _al_event_source_emit_event(&keyboard.es, event);
+         }
+   }
+   _al_event_source_unlock(&keyboard.es);
+
+}
+static void _handle_key_release(int x) {
+
+}
 /* Mac keycode to Allegro scancode conversion table */
 static const int mac_to_scancode[128] = {
 /* 0x00 */ KEY_A,          KEY_S,          KEY_D,          KEY_F,
@@ -52,7 +84,7 @@ static const int mac_to_scancode[128] = {
 /* 0x40 */ 0,              KEY_STOP,       0,              KEY_ASTERISK,
 /* 0x44 */ 0,              KEY_PLUS_PAD,   0,              KEY_NUMLOCK,
 /* 0x48 */ 0,              0,              0,              KEY_SLASH_PAD,
-/* 0x4c */ KEY_ENTER_PAD,  0,              KEY_PLUS_PAD,   0,
+/* 0x4c */ KEY_ENTER_PAD,  0,              KEY_MINUS_PAD,   0,
 /* 0x50 */ 0,              KEY_EQUALS_PAD, KEY_0_PAD,      KEY_1_PAD,
 /* 0x54 */ KEY_2_PAD,      KEY_3_PAD,      KEY_4_PAD,      KEY_5_PAD,
 /* 0x58 */ KEY_6_PAD,      KEY_7_PAD,      0,              KEY_8_PAD,
@@ -70,26 +102,24 @@ static const int mac_to_scancode[128] = {
 
 static unsigned int old_mods = 0;
 
-
-KEYBOARD_DRIVER keyboard_macosx =
+AL_KEYBOARD_DRIVER keyboard_macosx =
 {
-   KEYBOARD_MACOSX,
-   empty_string,
-   empty_string,
-   "MacOS X keyboard",
-   TRUE,
-   osx_keyboard_init,
-   osx_keyboard_exit,
-   NULL,   // AL_METHOD(void, poll, (void));
-   NULL,   // AL_METHOD(void, set_leds, (int leds));
-   NULL,   // AL_METHOD(void, set_rate, (int delay, int rate));
-   NULL,   // AL_METHOD(void, wait_for_input, (void));
-   NULL,   // AL_METHOD(void, stop_waiting_for_input, (void));
-   NULL,   // AL_METHOD(int,  scancode_to_ascii, (int scancode));
-   NULL    // scancode_to_name
+  KEYBOARD_MACOSX, //int  id;
+  empty_string,//   AL_CONST char *name;
+  empty_string, // AL_CONST char *desc;
+  "MacOS X keyboard",// AL_CONST char *ascii_name;
+  osx_keyboard_init, // AL_METHOD(bool, init, (void));
+  osx_keyboard_exit, // AL_METHOD(void, exit, (void));
+  osx_get_keyboard, // AL_METHOD(AL_KEYBOARD*, get_keyboard, (void));
+  NULL, // AL_METHOD(bool, set_leds, (int leds));
+  NULL, // AL_METHOD(AL_CONST char *, keycode_to_name, (int keycode));
+  NULL, // AL_METHOD(void, get_state, (AL_KBDSTATE *ret_state));
 };
-
-
+_DRIVER_INFO _al_keyboard_driver_list[] =
+{
+   { KEYBOARD_MACOSX,         &keyboard_macosx,          1 },
+   { 0,                       NULL,                     0     }
+ };
 
 /* osx_keyboard_handler:
  *  Keyboard "interrupt" handler.
@@ -102,12 +132,12 @@ void osx_keyboard_handler(int pressed, NSEvent *event)
    
    if (pressed) {
       if (modifiers & NSAlternateKeyMask)
-         _handle_key_press(0, scancode);
+         _handle_key_press(0, scancode, AL_KEYMOD_ALT);
       else {
          if ((modifiers & NSControlKeyMask) && (isalpha(character)))
-            _handle_key_press(tolower(character) - 'a' + 1, scancode);
+            _handle_key_press(tolower(character) - 'a' + 1, scancode, AL_KEYMOD_CTRL);
 	 else
-            _handle_key_press(character, scancode);
+            _handle_key_press(character, scancode, 0);
       }
       if ((three_finger_flag) &&
 	  (scancode == KEY_END) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) {
@@ -137,7 +167,7 @@ void osx_keyboard_modifiers(unsigned int mods)
       if (changed) {
          if (mods & mod_info[i][0]) {
 	    _key_shifts |= mod_info[i][1];
-            _handle_key_press(-1, mod_info[i][2]);
+            _handle_key_press(-1, mod_info[i][2], 0);
 	    if (i == 0)
 	       /* Caps lock requires special handling */
 	       _handle_key_release(mod_info[0][2]);
@@ -145,7 +175,7 @@ void osx_keyboard_modifiers(unsigned int mods)
 	 else {
 	    _key_shifts &= ~mod_info[i][1];
 	    if (i == 0)
-	       _handle_key_press(-1, mod_info[0][2]);
+	       _handle_key_press(-1, mod_info[0][2], 0);
 	    _handle_key_release(mod_info[i][2]);
 	 }
       }
@@ -179,9 +209,12 @@ void osx_keyboard_focused(int focused, int state)
 /* osx_keyboard_init:
  *  Installs the keyboard handler.
  */
-static int osx_keyboard_init(void)
+static bool osx_keyboard_init(void)
 {
-   return 0;
+   memset(&keyboard, 0, sizeof keyboard);
+
+   _al_event_source_init(&keyboard.es, _AL_ALL_KEYBOARD_EVENTS);
+   return true;
 }
 
 
@@ -191,5 +224,19 @@ static int osx_keyboard_init(void)
  */
 static void osx_keyboard_exit(void)
 {
+   _al_event_source_free(&keyboard.es);
    osx_keyboard_focused(FALSE, 0);
 }
+
+/* osx_get_keyboard:
+ * returns the keyboard object
+ */
+static AL_KEYBOARD* osx_get_keyboard(void)
+{
+  return &keyboard;
+}
+
+/* Local variables:       */
+/* c-basic-offset: 3      */
+/* indent-tabs-mode: nil  */
+/* End:                   */

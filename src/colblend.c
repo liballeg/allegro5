@@ -43,7 +43,7 @@ unsigned long _blender_black(unsigned long x, unsigned long y, unsigned long n)
 
 
 
-#if (defined ALLEGRO_USE_C) || (!defined ALLEGRO_I386) 
+#if (defined ALLEGRO_NO_ASM) || (!defined ALLEGRO_I386) 
 				    /* i386 asm version is in imisc.s */
 
 

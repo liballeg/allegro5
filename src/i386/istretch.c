@@ -32,6 +32,14 @@
 
 
 
+#ifdef HAVE_MPROTECT
+   #include <sys/types.h>
+   #include <sys/mman.h>
+   #include <sys/user.h>
+#endif     /* ifdef HAVE_MPROTECT */
+
+
+
 /* helper macro for generating stretchers in each color depth */
 #define DECLARE_STRETCHER(sz, mask, scale)                                   \
 {                                                                            \
@@ -212,27 +220,19 @@ typedef struct STRETCHER_INFO
    char depth;
    char flags;
    int lru;
-   void *data;
+   void *exec; /* xr_ mapping in the mmap case, normally both in one. */
    int size;
+#ifdef USE_MMAP_GEN_CODE_BUF
+   void *rw;   /* _rw mapping for the mmap case. */
+   int fd;     /* mapping backing fd for the mmap case. */
+#endif
 } STRETCHER_INFO;
 
 
 #define NUM_STRETCHERS  8
 
 
-static STRETCHER_INFO stretcher_info[NUM_STRETCHERS] =
-{
-   { 0, 0, 0, 0, 0, 0, NULL, 0 },
-   { 0, 0, 0, 0, 0, 0, NULL, 0 },
-   { 0, 0, 0, 0, 0, 0, NULL, 0 },
-   { 0, 0, 0, 0, 0, 0, NULL, 0 },
-   { 0, 0, 0, 0, 0, 0, NULL, 0 },
-   { 0, 0, 0, 0, 0, 0, NULL, 0 },
-   { 0, 0, 0, 0, 0, 0, NULL, 0 },
-   { 0, 0, 0, 0, 0, 0, NULL, 0 }
-};
-
-
+static STRETCHER_INFO stretcher_info[NUM_STRETCHERS];
 static int stretcher_count = 0;
 
 static int stretcher_virgin = TRUE;
@@ -247,11 +247,14 @@ static void free_stretchers(void)
    int i;
 
    for (i=0; i<NUM_STRETCHERS; i++)
-      if (stretcher_info[i].data != NULL) {
-	 _AL_FREE(stretcher_info[i].data);
-	 /* leave things in a clean state, else if stretcher functions are
-	  * used later, we will be trying to execute random garbage... */
-	 memset(&stretcher_info[i], 0, sizeof(STRETCHER_INFO));
+      if (stretcher_info[i].exec != NULL) {
+	 #ifdef USE_MMAP_GEN_CODE_BUF
+	    munmap(stretcher_info[i].exec, stretcher_info[i].size);
+	    munmap(stretcher_info[i].rw, stretcher_info[i].size);
+	    close(stretcher_info[i].fd);
+	 #else
+	    _AL_FREE(stretcher_info[i].exec);
+	 #endif
       }
 
    _remove_exit_func(free_stretchers);
@@ -279,16 +282,18 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
  #ifdef ALLEGRO_WINDOWS
    DWORD old_protect;
  #endif     /* ifdef ALLEGRO_WINDOWS */
-   fixed sx, sy, sxd, syd;
+ #ifndef USE_MMAP_GEN_CODE_BUF
    void *prev_scratch_mem;
    int prev_scratch_mem_size;
+ #endif
+   fixed sx, sy, sxd, syd;
    int compiler_pos = 0;
    int best, best_lru;
    char flags;
    int i;
 
-   /* vtable hook */   
-   if (source->vtable->do_stretch_blit) {
+   /* vtable hook; not called if dest is a memory surface */   
+   if (source->vtable->do_stretch_blit && !is_memory_bitmap(dest)) {
       source->vtable->do_stretch_blit(source, dest, source_x, source_y, source_width, source_height, dest_x, dest_y, dest_width, dest_height, masked);
       return;
    }
@@ -297,6 +302,13 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
    if ((source_width <= 0) || (source_height <= 0) || 
        (dest_width <= 0) || (dest_height <= 0))
       return;
+
+   /* make sure all allocated memory is freed atexit */
+   if (stretcher_virgin) {
+      stretcher_virgin = FALSE;
+      memset(stretcher_info, 0, sizeof(stretcher_info));
+      _add_exit_func(free_stretchers, "free_stretchers");
+   }
 
    /* convert to fixed point */
    sx = itofix(source_x);
@@ -364,7 +376,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
 	 /* use a previously generated routine */
 	 if (stretcher_info[i].flags & 2)
 	    dest_x >>= 2;
-	 _do_stretch(source, dest, stretcher_info[i].data, sx>>16, sy, syd, 
+	 _do_stretch(source, dest, stretcher_info[i].exec, sx>>16, sy, syd,
 		     dest_x, dest_y, dest_height, dest->vtable->color_depth);
 	 stretcher_info[i].lru = stretcher_count;
 	 return;
@@ -378,17 +390,18 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
       }
    }
 
-   /* make sure all allocated memory is freed atexit */
-   if (stretcher_virgin) {
-      stretcher_virgin = FALSE;
-      _add_exit_func(free_stretchers, "free_stretchers");
-   }
-
+ #ifdef USE_MMAP_GEN_CODE_BUF
+   _exec_map = stretcher_info[best].exec;
+   _rw_map = stretcher_info[best].rw;
+   _map_size = stretcher_info[best].size;
+   _map_fd = stretcher_info[best].fd;
+ #else
    prev_scratch_mem = _scratch_mem;
    prev_scratch_mem_size = _scratch_mem_size;
 
-   _scratch_mem = stretcher_info[best].data;
+   _scratch_mem = stretcher_info[best].exec;
    _scratch_mem_size = stretcher_info[best].size;
+ #endif
 
    if (is_linear_bitmap(dest)) { 
       /* build a simple linear stretcher */
@@ -432,27 +445,43 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
 
    COMPILER_RET();
 
+ /* Play nice with executable memory protection: VirtualProtect on Windows,
+  * mprotect on UNIX based systems.
+  */
  #ifdef ALLEGRO_WINDOWS
-   /* Play nice with Windows executable memory protection */
    VirtualProtect(_scratch_mem, _scratch_mem_size, PAGE_EXECUTE_READWRITE, &old_protect);
- #endif     /* ifdef ALLEGRO_WINDOWS */
+ #elif defined(HAVE_MPROTECT) && !defined(USE_MMAP_GEN_CODE_BUF)
+   {
+      char *p = (char *)((uintptr_t)_scratch_mem & ~(PAGE_SIZE-1ul));
+      if (mprotect(p, _scratch_mem_size + ((char *)_scratch_mem - p),
+            PROT_EXEC|PROT_READ|PROT_WRITE))
+         perror("allegro-error: mprotect failed during stretched blit!");
+   }
+ #endif
 
-   /* call the stretcher */
-   _do_stretch(source, dest, _scratch_mem, sx>>16, sy, syd, 
-	       dest_x, dest_y, dest_height, dest->vtable->color_depth);
-
-   /* and store it in the cache */
+   /* store it in the cache */
    stretcher_info[best].sx = sx;
    stretcher_info[best].sxd = sxd;
    stretcher_info[best].dest_width = dest_width;
    stretcher_info[best].depth = dest->vtable->color_depth;
    stretcher_info[best].flags = flags;
    stretcher_info[best].lru = stretcher_count;
-   stretcher_info[best].data = _scratch_mem;
+ #ifdef USE_MMAP_GEN_CODE_BUF
+   stretcher_info[best].exec = _exec_map;
+   stretcher_info[best].rw = _rw_map;
+   stretcher_info[best].size = _map_size;
+   stretcher_info[best].fd = _map_fd;
+ #else
+   stretcher_info[best].exec = _scratch_mem;
    stretcher_info[best].size = _scratch_mem_size;
 
    _scratch_mem = prev_scratch_mem;
    _scratch_mem_size = prev_scratch_mem_size;
+ #endif
+
+   /* and call the stretcher */
+   _do_stretch(source, dest, stretcher_info[best].exec, sx>>16, sy, syd, 
+	       dest_x, dest_y, dest_height, dest->vtable->color_depth);
 }
 
 

@@ -155,6 +155,11 @@ Contributors
    Carsten Sorensen (<email>csorensen@ea.com</a>).<br>
    Wrote the the ESS AudioDrive soundcard driver.
 
+   Catatonic Porpoise (<email><graue@oceanbase.org></a>).<br>
+   Added OpenBSD detection, fixed an issue with executable rights not set
+   on the memory for the i386 stretcher on UNIX systems, and fixed the
+   documentation for stretch_sprite.
+
    Cloud Wu (<email>cloudwu@263.net</a>).<br>
    Optimised the truecolor pixel blending functions.
 
@@ -173,8 +178,9 @@ Contributors
    Fixed a bug with 16-bit samples loading, worked around a problem with DOS
    file attributes under Win2k, let the MIDI player pass controller events to
    the raw player by default, made the MIDI player handle the 'All Sound Off'
-   controller message and added support for the bitfield compressed BMP image
-   format.
+   controller message, added support for the bitfield compressed BMP image
+   format, fixed the behavior of numeric keys when NumLock is on, and fixed
+   loading of certain .wav files.
 
    Chris La Mantia (<email>celamantia@home.com</a>).<br>
    Wrote the d_radio_proc(), d_icon_proc(), and d_slider_proc() dialog
@@ -192,7 +198,8 @@ Contributors
    Christer Sandberg (<email>christer.sandberg@mdh.se</a>).<br>
    Made dat2c work better with ISO C90 compilers, made dat2c correctly detect
    the native line ending, fixed a problem with the include guard generated
-   by dat2c and fixed a bug in the 24-bit graphics code of fixup_datafile().
+   by dat2c, fixed a bug in the 24-bit graphics code of fixup_datafile(),
+   fixed a problem with Electric Fence.
 
    Christian Schueler (<email>cschueler@gmx.de</a>).<br>
    Changed the optimisation settings for better performance.
@@ -228,6 +235,9 @@ Contributors
    David Kuhling (<email>dkuelhin@hell1og.be.schule.de</a>).<br>
    Optimised the fsqrt() routine, and added fhypot().
 
+   Dave Physics.<br>
+   Some documentation fixes.
+
    Dave Thomson (<email>gameskitchen@geocities.com</a>).<br>
    Added the RGB &lt-&gt HSV conversion routines, the autocrop function to
    the grabber and wrote the 3d starfield example program (exstars.exe).
@@ -242,7 +252,8 @@ Contributors
    Fixed clipping in three C sprite drawing routines.
    
    Dennis Busch (email unknown).<br>
-   Fixed a bug in d_clear_proc and fixed a Unicode bug in the mode selector.
+   Fixed a bug in d_clear_proc, fixed a Unicode bug in the mode selector,
+   and fixed the short description of add_clip_rect.
 
    Dmitriy Kazimirow (<email>mariann@mail.ru</a>).<br>
    Provided the Russian keyboard mapping and message translation files.
@@ -364,6 +375,14 @@ Contributors
    Gunter Ladwig (<email>gladwig@iname.com</a>).<br>
    Wrote the OS/2 detection routines and added the three-button mouse
    emulation.
+
+   Hans de Goede.<be>
+   Fixed a problem with dynamically generated stretcher code not being
+   properly marked as executable on Linux, fixed a busy wait in the X11 vsync
+   simulation, added a fullscreen driver for X11 which does not need XVidMode
+   extension, fixed a problem where switching to fullscreen mode under X11,
+   made digmid work with absolute pathes in patches.cfg, and fixed a problem
+   with the Alsa driver on big endian systems.
    
    Harshavardhana Reddy N (<email>nharsha@gmail.com</a>).<br>
    Added a Kannada greeting to exunicod.
@@ -391,10 +410,10 @@ Contributors
    rewrote the mode-selector to use get_gfx_mode_list(), reworked the build
    system many times and did plenty of other things too.
    
-   Hrvoje Ban (email unknown).<br>
+   Hrvoje Ban (<email>spoofer255@gmail.com</a>).<br>
    Pointed out a bug in the mode selector, fixed several double ;'s, fixed 
-   ASSERT() in Windows and helped write a documentation section about common
-   pitfalls.
+   ASSERT() in Windows, helped write a documentation section about common
+   pitfalls, and added the create_datafile_index function.
 
    Igor Gnip (<email>gnipi@mindnever.org</a>).<br>
    Removed the requirements for fileutils on DOS/Windows platforms and added
@@ -488,7 +507,8 @@ Contributors
 
    Jon Rafkind (<email>workmin@ccs.neu.edu</a>).<br>
    Added more ASSERTs to the code, implemented the Cohen-Sutherland clipping 
-   algorithm for the line() function and supplied an m4 macro for allegro.
+   algorithm for the line() function, supplied an m4 macro for Allegro
+   and added SCons support.
 
    Jonas Petersen (<email>joXonoX@berlin.snafu.de</a>).<br>
    Added the save_bmp() function and support for the OS/2 BMP format.
@@ -606,7 +626,7 @@ Contributors
    Marco Marmulla (<email>Viper005@usa.net</a>).<br>
    Added 16 bit support to the load_voc() routine.
 
-   Marian Dvorsky (<email>mdvorsky@dodo.sk</a>).<br>
+   Marian Dvorsky (<email>marian@step.sk</a>).<br>
    Wrote the Windows GDI interface routines.
 
    Marius Fodor (<email>iceman@teleport.com</a>).<br>
@@ -691,8 +711,10 @@ Contributors
    Milan Mimica (<email>milan.mimica1@pu.htnet.hr</a>).<br>
    Fixed bugs in the keyconf utility, the alsa 9 volume settings and
    extract_font_range(), helped fix an off-by-one mistake for the last glyph
-   in extract_font_range and fixed a bug where a font would be converted to 8
-   bit.
+   in extract_font_range, fixed a bug where a font would be converted to 8
+   bit, a bug with is_color_font, made the Linux console driver more robust,
+   fixed some spin loops in the test program, and added the get_volume and
+   get_hardware_volume functions, and did plenty of other things too.
 
    Miran Amon (<email>miran.amon@gmail.com</a>).<br>
    Fixed an undocumented arbitrary limit in get_config_argv()
@@ -711,6 +733,10 @@ Contributors
 
    Neil Roy (<email>neilroy@cogeco.ca</a>).<br>
    Suggested many improvements to the documentation.
+
+   Neil Walker.<br>
+   Implemented a hardware accelerated stretch_blit() for the Windows DX port,
+   and fixed a bug with draw_sprite and sub-bitmaps.
 
    Nicholas Davies (<email>master_goodbytes@hotmail.com</a>).<br>
    Made the fix class not trigger warnings with gcc -Weffc++.
@@ -761,6 +787,9 @@ Contributors
 
    Paul Bartrum (<email>bartrum@xtra.co.nz</a>).<br>
    Contributed the ellipse drawing functions.
+
+   Paul Eipper.<br>
+   Reported a bug where libdir from autotools was not used for the modules path.
 
    Paul Furber (<email>paul@sprintlink.co.za</a>).<br>
    Provided the floating point apply_matrix_f() function.
@@ -874,8 +903,14 @@ Contributors
    Romano Signorelli (<email>romanos@bigfoot.com</a>).<br>
    Added an arc plotting routine.
 
+   Ron Novy<br>
+   Made several improvements to the test program.
+
    Ronaldo Hideki Yamada (<email>r.yamada@uol.com.br</a>).<br>
    Contributed the MacOS 9 port of Allegro.
+
+   Ryan Patterson.<br>
+   Some documentation fixes.
 
    S.Sakamaki (<email>emt@geocities.co.jp</a>).<br>
    Added the VESA 3.0 refresh rate control code.
@@ -914,7 +949,9 @@ Contributors
 
    Serge Semashko (<email>serge@lxnt.info</a>).<br>
    Fixed a bug with the letter P in the Russian keyboard configuration
-   file.
+   file, added Enter as a fire key to the demo game, fixed some
+   problems with Allegro working on Nokia 770, and fixed a crash in
+   _linear_draw_trans_rgba_rle_sprite24.
 
    Seymour Shlien (<email>seymour@dgbt.doc.ca</a>).<br>
    Contributed the Windows BMP file reader, bezier spline drawer, and
@@ -958,6 +995,9 @@ Contributors
 
    Stephen Kittelson (<email>stickman2000@juno.com</a>).<br>
    Made bugfixes and tweaks to the keyboard system.
+
+   Stijn Wolters.<br>
+   Clarified the documentation of init_dialog.
    
    Sveinung Kvilhaugsvik(email unknown).<br>
    Pointed out that Allegro should respect DESTDIR under MacOS X.
@@ -987,8 +1027,10 @@ Contributors
    Wrote the ALSA 0.5.x MIDI driver and added support for ALSA 0.9.x.
    
    Thomas Harte (email unknown).<br>
-   Helped fix a bug in show_video_bitmap() on MacOS X, helped optimise fixmul()
-   and helped find many bugs in the MacOS X port.
+   Helped fix a bug in show_video_bitmap() on MacOS X, helped optimise
+   fixmul(), helped find many bugs in the MacOS X port, like better support
+   for user-supplied Nibs, implemented a hardware accelerated stretch_blit
+   under DirectX, and fixed a bug with draw_sprite and sub-bitmaps.
 
    Thomas Klausner (<email>wiz@danbala.ifoer.tuwien.ac.at</a>).<br>
    Added NetBSD detection and fixed a problem with the allegro.m4 macro and
@@ -1012,6 +1054,9 @@ Contributors
    a static buffer, reported a problem with shutdown_dialog() when a
    menu was open, helped port the Windows keyboard driver to Windows 98
    and fixed a bug with hardware cursor detection in X11.
+
+   Tobias Dammers.<br>
+   Fixed a problem with the DirectSound input driver.
 
    Tom Breton (<email>tob@world.std.com</a>).<br>
    Added the functionality selection #ifndefs to allegro.h.
@@ -1038,7 +1083,8 @@ Contributors
    screensaver example.
    
    Victor Williams Stafusa da Silva (<email>vwss1984@yahoo.com.br</a>).<br>
-   Changed a few occurences of "256" to PAL_SIZE.
+   Changed a few occurences of "256" to PAL_SIZE and made OS type detection
+   handle Windows 2003 and Windows Vista.
 
    Ville Skyttä (<email>scop@users.sourceforge.net</a>).<br>
    Fixed a problem with make install libdir= and modules on Unix systems.

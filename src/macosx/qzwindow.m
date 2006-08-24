@@ -50,7 +50,7 @@ static char *dirty_lines = NULL;
 static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
-void* osx_window_mutex;
+_AL_MUTEX osx_window_mutex;
 
 
 GFX_DRIVER gfx_quartz_window =
@@ -107,7 +107,7 @@ static void prepare_window_for_animation(int refresh_view)
    unsigned int *addr;
    int pitch, y, x;
    
-   _unix_lock_mutex(osx_window_mutex);
+   _al_mutex_lock(&osx_window_mutex);
    while (![qd_view lockFocusIfCanDraw]);
    while (!QDDone([qd_view qdPort]));
    LockPortBits([qd_view qdPort]);
@@ -130,7 +130,7 @@ static void prepare_window_for_animation(int refresh_view)
    }
    UnlockPortBits([qd_view qdPort]);
    [qd_view unlockFocus];
-   _unix_unlock_mutex(osx_window_mutex);
+   _al_mutex_unlock(&osx_window_mutex);
 }
 
 
@@ -184,9 +184,9 @@ static void prepare_window_for_animation(int refresh_view)
  */
 - (void)windowDidDeminiaturize: (NSNotification *)aNotification
 {
-   _unix_lock_mutex(osx_window_mutex);
+   _al_mutex_lock(&osx_window_mutex);
    memset(dirty_lines, 1, gfx_quartz_window.h);
-   _unix_unlock_mutex(osx_window_mutex);
+   _al_mutex_unlock(&osx_window_mutex);
 }
 
 @end
@@ -207,6 +207,90 @@ static void prepare_window_for_animation(int refresh_view)
    [osx_cursor setOnMouseEntered: YES];
 }
 
+/* Keyboard event handler
+*/
+-(BOOL) acceptsFirstResponder
+{
+   return YES;
+}
+-(void) keyDown:(NSEvent*) event
+{
+   if (_keyboard_installed)
+      osx_keyboard_handler(TRUE, event);
+ }
+-(void) keyUp:(NSEvent*) event 
+{
+   if (_keyboard_installed)
+      osx_keyboard_handler(FALSE, event);
+   
+}
+-(void) flagsChanged:(NSEvent*) event
+{
+   if (_keyboard_installed)
+      osx_keyboard_modifiers([event modifierFlags]);
+}
+-(void) drawRect:(NSRect) aRect
+{
+   struct GRAPHICS_RECT src_gfx_rect, dest_gfx_rect;
+   Rect rect;
+   int i;
+   CGrafPtr qd_view_port;
+   int qd_view_pitch;
+   char *qd_view_addr;
+
+   [super drawRect: aRect];
+   _al_mutex_lock(&osx_window_mutex);
+   
+   if ([self lockFocusIfCanDraw] == YES) {
+      while (!QDDone([self qdPort]));
+      LockPortBits([self qdPort]);
+   
+      qd_view_port = [self qdPort];
+      if (qd_view_port) {
+         qd_view_pitch = GetPixRowBytes(GetPortPixMap(qd_view_port));
+         qd_view_addr = GetPixBaseAddr(GetPortPixMap(qd_view_port)) +
+            ((int)([osx_window frame].size.height) - gfx_quartz_window.h) * qd_view_pitch;
+         
+         if (colorconv_blitter || (osx_setup_colorconv_blitter() == 0)) {
+            SetEmptyRgn(update_region);
+            
+            rect.left = NSMinX(aRect);
+            rect.right = NSMaxX(aRect);
+            rect.top = NSMinY(aRect);
+            rect.bottom = NSMaxY(aRect);
+               /* fill in source graphics rectangle description */
+               src_gfx_rect.width  = rect.right - rect.left;
+               src_gfx_rect.height = rect.bottom - rect.top;
+               src_gfx_rect.pitch  = pseudo_screen_pitch;
+               src_gfx_rect.data   = pseudo_screen->line[0] +
+                  (rect.top * pseudo_screen_pitch) +
+                  (rect.left * BYTES_PER_PIXEL(pseudo_screen_depth));
+               
+               /* fill in destination graphics rectangle description */
+               dest_gfx_rect.pitch = qd_view_pitch;
+               dest_gfx_rect.data  = qd_view_addr +
+                  (rect.top * qd_view_pitch) + 
+                  (rect.left * BYTES_PER_PIXEL(desktop_depth));
+      
+               /* function doing the hard work */
+               colorconv_blitter(&src_gfx_rect, &dest_gfx_rect);
+               /* Reset dirty lines */
+               for (i=rect.top; i<rect.bottom; ++i)
+               {
+                       dirty_lines[i]=0;
+               }
+               RectRgn(update_region, &rect);
+         }   
+         QDFlushPortBuffer(qd_view_port, update_region);
+      }
+      UnlockPortBits(qd_view_port);
+      [self unlockFocus];
+   }
+   _al_mutex_unlock(&osx_window_mutex);
+   
+   osx_signal_vsync();
+
+}
 @end
 
 
@@ -219,7 +303,7 @@ static void osx_qz_acquire_win(BITMAP *bmp)
    /* to prevent the drawing threads and the rendering proc
       from concurrently accessing the dirty lines array */
   if (lock_nesting == 0) {
-      _unix_lock_mutex(osx_window_mutex);
+      _al_mutex_lock(&osx_window_mutex);
    bmp->id |= BMP_ID_LOCKED;
   }
    lock_nesting++;
@@ -236,7 +320,8 @@ static void osx_qz_release_win(BITMAP *bmp)
       lock_nesting--;
       if (!lock_nesting) {
 	bmp->id &= ~BMP_ID_LOCKED;
-         _unix_unlock_mutex(osx_window_mutex);
+         _al_mutex_unlock(&osx_window_mutex);
+         [[osx_window contentView] setNeedsDisplay: YES];
       }
    }
 }
@@ -294,11 +379,11 @@ void osx_update_dirty_lines(void)
       return;
    
    /* Skip everything if there are no dirty lines */
-   _unix_lock_mutex(osx_window_mutex);
+   _al_mutex_lock(&osx_window_mutex);
    for (rect.top = 0; (rect.top < gfx_quartz_window.h) && (!dirty_lines[rect.top]); rect.top++)
       ;
    if (rect.top >= gfx_quartz_window.h) {
-      _unix_unlock_mutex(osx_window_mutex);
+      _al_mutex_unlock(&osx_window_mutex);
       osx_signal_vsync();
       return;
    }
@@ -309,55 +394,55 @@ void osx_update_dirty_lines(void)
       LockPortBits([qd_view qdPort]);
    
       qd_view_port = [qd_view qdPort];
-   
-      qd_view_pitch = GetPixRowBytes(GetPortPixMap(qd_view_port));
-      qd_view_addr = GetPixBaseAddr(GetPortPixMap(qd_view_port)) +
-         ((int)([osx_window frame].size.height) - gfx_quartz_window.h) * qd_view_pitch;
-   
-      if (colorconv_blitter || (osx_setup_colorconv_blitter() == 0)) {
-         SetEmptyRgn(update_region);
-   
-         rect.left = 0;
-         rect.right = gfx_quartz_window.w;
-
-         while (rect.top < gfx_quartz_window.h) {
-            while ((!dirty_lines[rect.top]) && (rect.top < gfx_quartz_window.h))
-               rect.top++;
-            if (rect.top >= gfx_quartz_window.h)
-               break;
-            rect.bottom = rect.top;
-            while ((dirty_lines[rect.bottom]) && (rect.bottom < gfx_quartz_window.h)) {
-               dirty_lines[rect.bottom] = 0;
-               rect.bottom++;
+      if (qd_view_port) {
+         qd_view_pitch = GetPixRowBytes(GetPortPixMap(qd_view_port));
+         qd_view_addr = GetPixBaseAddr(GetPortPixMap(qd_view_port)) +
+            ((int)([osx_window frame].size.height) - gfx_quartz_window.h) * qd_view_pitch;
+         
+         if (colorconv_blitter || (osx_setup_colorconv_blitter() == 0)) {
+            SetEmptyRgn(update_region);
+            
+            rect.left = 0;
+            rect.right = gfx_quartz_window.w;
+            
+            while (rect.top < gfx_quartz_window.h) {
+               while ((!dirty_lines[rect.top]) && (rect.top < gfx_quartz_window.h))
+                  rect.top++;
+               if (rect.top >= gfx_quartz_window.h)
+                  break;
+               rect.bottom = rect.top;
+               while ((dirty_lines[rect.bottom]) && (rect.bottom < gfx_quartz_window.h)) {
+                  dirty_lines[rect.bottom] = 0;
+                  rect.bottom++;
+               }
+               /* fill in source graphics rectangle description */
+               src_gfx_rect.width  = rect.right - rect.left;
+               src_gfx_rect.height = rect.bottom - rect.top;
+               src_gfx_rect.pitch  = pseudo_screen_pitch;
+               src_gfx_rect.data   = pseudo_screen->line[0] +
+                  (rect.top * pseudo_screen_pitch) +
+                  (rect.left * BYTES_PER_PIXEL(pseudo_screen_depth));
+               
+               /* fill in destination graphics rectangle description */
+               dest_gfx_rect.pitch = qd_view_pitch;
+               dest_gfx_rect.data  = qd_view_addr +
+                  (rect.top * qd_view_pitch) + 
+                  (rect.left * BYTES_PER_PIXEL(desktop_depth));
+      
+               /* function doing the hard work */
+               colorconv_blitter(&src_gfx_rect, &dest_gfx_rect);
+      
+               RectRgn(temp_region, &rect);
+               UnionRgn(temp_region, update_region, update_region);
+               rect.top = rect.bottom;
             }
-            /* fill in source graphics rectangle description */
-            src_gfx_rect.width  = rect.right - rect.left;
-            src_gfx_rect.height = rect.bottom - rect.top;
-            src_gfx_rect.pitch  = pseudo_screen_pitch;
-            src_gfx_rect.data   = pseudo_screen->line[0] +
-               (rect.top * pseudo_screen_pitch) +
-               (rect.left * BYTES_PER_PIXEL(pseudo_screen_depth));
-
-            /* fill in destination graphics rectangle description */
-            dest_gfx_rect.pitch = qd_view_pitch;
-            dest_gfx_rect.data  = qd_view_addr +
-               (rect.top * qd_view_pitch) + 
-               (rect.left * BYTES_PER_PIXEL(desktop_depth));
-      
-            /* function doing the hard work */
-            colorconv_blitter(&src_gfx_rect, &dest_gfx_rect);
-      
-            RectRgn(temp_region, &rect);
-            UnionRgn(temp_region, update_region, update_region);
-            rect.top = rect.bottom;
-         }
-      }   
-      QDFlushPortBuffer(qd_view_port, update_region);
-   
+         }   
+         QDFlushPortBuffer(qd_view_port, update_region);
+      }
       UnlockPortBits([qd_view qdPort]);
       [qd_view unlockFocus];
    }
-   _unix_unlock_mutex(osx_window_mutex);
+   _al_mutex_unlock(&osx_window_mutex);
    
    osx_signal_vsync();
 }
@@ -384,7 +469,7 @@ int osx_setup_colorconv_blitter()
        dd = desktop_depth;
    }
    if (dd == 16) dd = 15;
-   _unix_lock_mutex(osx_window_mutex);
+//   _al_mutex_lock(&osx_window_mutex);
    if (colorconv_blitter)
       _release_colorconv_blitter(colorconv_blitter);
    colorconv_blitter = _get_colorconv_blitter(requested_color_depth, dd);
@@ -393,7 +478,7 @@ int osx_setup_colorconv_blitter()
       _set_colorconv_palette(_current_palette, 0, 255);
    /* Mark all the window as dirty */
    memset(dirty_lines, 1, gfx_quartz_window.h);
-   _unix_unlock_mutex(osx_window_mutex);
+//   _al_mutex_unlock(&osx_window_mutex);
    
    return (colorconv_blitter ? 0 : -1);
 }
@@ -413,7 +498,7 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
    
    pthread_cond_init(&vsync_cond, NULL);
    pthread_mutex_init(&vsync_mutex, NULL);
-   osx_window_mutex=_unix_create_mutex();
+   _al_mutex_init(&osx_window_mutex);
    lock_nesting = 0;
    
    if (1
@@ -467,10 +552,6 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return NULL;
    }
-   [osx_window setContentView: qd_view];
-   
-   set_window_title(osx_window_title);
-   [osx_window makeKeyAndOrderFront: nil];
    
    /* the last flag serves as an end of loop delimiter */
    dirty_lines = calloc(h + 1, sizeof(char));
@@ -530,6 +611,10 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
    osx_gfx_mode = OSX_GFX_WINDOW;
    osx_skip_mouse_move = TRUE;
    osx_window_first_expose = TRUE;
+
+   [osx_window setContentView: qd_view];
+   set_window_title(osx_window_title);
+   [osx_window makeKeyAndOrderFront: nil];
    
    return pseudo_screen;
 }
@@ -537,9 +622,9 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
 static BITMAP *osx_qz_window_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    BITMAP *bmp;
-   _unix_lock_mutex(osx_event_mutex);
+   _al_mutex_lock(&osx_event_mutex);
    bmp = private_osx_qz_window_init(w, h, v_w, v_h, color_depth);
-   _unix_unlock_mutex(osx_event_mutex);
+   _al_mutex_unlock(&osx_event_mutex);
    if (!bmp)
       osx_qz_window_exit(bmp);
    return bmp;
@@ -552,7 +637,7 @@ static BITMAP *osx_qz_window_init(int w, int h, int v_w, int v_h, int color_dept
  */
 static void osx_qz_window_exit(BITMAP *bmp)
 {
-   _unix_lock_mutex(osx_event_mutex);
+   _al_mutex_lock(&osx_event_mutex);
 
    if (update_region) {
       DisposeRgn(update_region);
@@ -583,7 +668,7 @@ static void osx_qz_window_exit(BITMAP *bmp)
       colorconv_blitter = NULL;
    }
    
-   _unix_destroy_mutex(osx_window_mutex);
+   _al_mutex_destroy(&osx_window_mutex);
    pthread_cond_destroy(&vsync_cond);
    pthread_mutex_destroy(&vsync_mutex);
    
@@ -591,7 +676,7 @@ static void osx_qz_window_exit(BITMAP *bmp)
    
    osx_gfx_mode = OSX_GFX_NONE;
    
-   _unix_unlock_mutex(osx_event_mutex);
+   _al_mutex_unlock(&osx_event_mutex);
 }
 
 
@@ -601,6 +686,7 @@ static void osx_qz_window_exit(BITMAP *bmp)
  */
 static void osx_qz_window_vsync(void)
 {
+   return;
   if (lock_nesting==0) {
     pthread_mutex_trylock(&vsync_mutex);
     pthread_cond_wait(&vsync_cond, &vsync_mutex);
@@ -621,13 +707,13 @@ static void osx_qz_window_set_palette(AL_CONST struct RGB *p, int from, int to, 
    if (vsync)
       osx_qz_window_vsync();
    
-   _unix_lock_mutex(osx_window_mutex);
+   _al_mutex_lock(&osx_window_mutex);
    _set_colorconv_palette(p, from, to);
          
    /* invalidate the whole screen */
    memset(dirty_lines, 1, gfx_quartz_window.h);
    
-   _unix_unlock_mutex(osx_window_mutex);
+   _al_mutex_unlock(&osx_window_mutex);
 }
 
 void osx_signal_vsync(void) 

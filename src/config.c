@@ -451,7 +451,7 @@ static void set_config(CONFIG **config, AL_CONST char *data, int length, AL_CONS
 static void load_config_file(CONFIG **config, AL_CONST char *filename, AL_CONST char *savefile)
 {
    char *tmp, *tmp2;
-   int length;
+   uint64_t length;
 
    if (*config) {
       destroy_config(*config);
@@ -464,7 +464,7 @@ static void load_config_file(CONFIG **config, AL_CONST char *filename, AL_CONST 
       return;
    }
 
-   length = file_size(filename);
+   length = file_size_ex(filename);
 
    if (length > 0) {
       PACKFILE *f = pack_fopen(filename, F_READ);
@@ -1304,7 +1304,7 @@ void reload_config_texts(AL_CONST char *new_language)
 AL_CONST char *get_config_text(AL_CONST char *msg)
 {
    char tmp1[256];
-   AL_CONST char *section = uconvert_ascii("[language]", tmp1);
+   AL_CONST char *section;
    AL_CONST char *umsg;
    AL_CONST char *s;
    AL_CONST char *ret = NULL;
@@ -1315,6 +1315,8 @@ AL_CONST char *get_config_text(AL_CONST char *msg)
    ASSERT(msg);
 
    init_config(TRUE);
+
+   section = uconvert_ascii("[language]", tmp1);
 
    /* allocate memory and convert message to current encoding format */
    if (need_uconvert(msg, U_ASCII, U_CURRENT)) {
@@ -1429,8 +1431,9 @@ static int attach_config_entries(CONFIG *conf, AL_CONST char *section,
 {
    CONFIG_ENTRY *p;
    char section_name[256];
-   prettify_section_name(section, section_name, sizeof(section_name));
    int in_section;
+
+   prettify_section_name(section, section_name, sizeof(section_name));
 
    if (conf) {
       p = conf->head;
@@ -1489,4 +1492,16 @@ int list_config_sections(AL_CONST char ***names)
    n = attach_config_entries(config_override, NULL, n, names, 1);
    n = attach_config_entries(config[0], NULL, n, names, 1);
    return n;
+}
+
+
+
+/* free_config_entries:
+ *  Frees the entries list returned by list_config_entires or
+ *  list_config_sections again.
+ */
+void free_config_entries(AL_CONST char ***names)
+{
+    _AL_FREE((char ***) names);
+    *names = NULL;
 }

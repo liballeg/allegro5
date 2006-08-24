@@ -40,8 +40,6 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*), voi
    ASSERT(thread);
    ASSERT(proc);
    {
-      int status;
-
       InitializeCriticalSection(&thread->cs);
 
       thread->should_stop = false;
@@ -296,6 +294,7 @@ void _al_cond_wait(_AL_COND *cond, _AL_MUTEX *mtxExternal)
       int result = cond_wait(cond, mtxExternal, INFINITE);
 
       ASSERT(result != -1);
+      (void)result;
    }
 }
 

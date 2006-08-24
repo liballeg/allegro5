@@ -139,8 +139,8 @@ endif
 
 # -------- list platform specific objects and programs --------
 
-VPATH = src/macosx src/unix src/misc src/c tools/macosx
-CFLAGS += -DALLEGRO_USE_C
+VPATH = src/macosx src/unix src/misc src/c tools/macosx src/compat
+CFLAGS += -DALLEGRO_NO_ASM
 
 ifdef STATICLINK
 ALLEGRO_SRC_MACOSX_FILES += src/macosx/main.m
@@ -218,6 +218,7 @@ HEADERS = $(INSTALLDIR)/$(INCDIR)/osxalleg.h                  \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintunix.h \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/alosxcfg.h \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/alplatf.h  \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/astdbool.h \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/astdint.h  \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/alosx.h
 
@@ -386,12 +387,11 @@ define LINK_WITHOUT_LIB
 endef
 
 PLUGIN_LIB = lib/macosx/lib$(VERY_SHORT_VERSION)dat.a
-PLUGINS_H = obj/macosx/plugins.h
 PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
 PLUGIN_SCR = scr
 
 define GENERATE_PLUGINS_H
-   cat tools/plugins/*.inc > obj/macosx/plugins.h
+   cat tools/plugins/*.inc > ${PLUGINS_H}
 endef
 
 define MAKE_PLUGIN_LIB

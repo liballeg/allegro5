@@ -277,7 +277,7 @@ Cross compilation
 	 XPREFIX=i386-mingw32msvc-
 	 INSTALL_BASE=/opt/cross-tools/i386-mingw32msvc
 <endblock>
-   4. Run '<tt>./fix.sh mingw32 --dtou</tt>' (<tt>--dtou</tt> is only needed if your Allegro
+   4. Run '<tt>./fix.sh mingw --dtou</tt>' (<tt>--dtou</tt> is only needed if your Allegro
       directory has text files in DOS format, otherwise you can use <tt>--quick</tt>).
       If you are using a CVS version of Allegro, run '<tt>make depend</tt>' to
       generate the build dependencies, then run '<tt>misc/fixdll.sh</tt>' to generate
@@ -308,14 +308,14 @@ Installing Allegro
    "<tt>command</tt>" or "<tt>cmd</tt>" to get a command prompt):
 <textblock>
       cd c:\allegro
-      fix.bat mingw32
+      fix.bat mingw
 <endblock>
    If you are using MSYS or Cygwin, start your environment, which you can
    find either on your desktop and/or on your Windows start menu. The
    following commands should then be used instead of the ones above:
 <textblock>
       cd /allegro
-      ./fix.sh mingw32 --dtou   (--dtou can be replaced by --quick for MSYS).
+      ./fix.sh mingw --dtou   (--dtou can be replaced by --quick for MSYS).
 <endblock>
    Now you're ready to build the Allegro library with:
 <textblock>

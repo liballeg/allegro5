@@ -25,6 +25,9 @@
 
 #define DIRECTINPUT_VERSION 0x0300
 
+/* For waitable timers */
+#define _WIN32_WINNT 0x400
+
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
@@ -528,24 +531,12 @@ static int key_dinput_init(void)
 
 
 
-static void key_directx_exit(void)
-{
-   if (key_dinput_device) {
-      /* command keyboard handler shutdown */
-      _TRACE(PREFIX_I "keyboard handler exits\n");
-      key_dinput_exit();
-   }
-}
-
-
-
 /*----------------------------------------------------------------------*/
 
 /* forward declarations */
 static bool wkeybd_init(void);
 static void wkeybd_exit(void);
 static AL_KEYBOARD *wkeybd_get_keyboard(void);
-static bool wkeybd_set_leds(int leds);
 static void wkeybd_get_state(AL_KBDSTATE *ret_state);
 
 
@@ -787,9 +778,11 @@ static void handle_key_release(unsigned char scancode)
    if (mycode == 0)
       return;
 
-   BYTE keystate[256];
-   GetKeyboardState(keystate);
-   update_modifiers(keystate);
+   {
+      BYTE keystate[256];
+      GetKeyboardState(keystate);
+      update_modifiers(keystate);
+   }
 
    if (!_AL_KBDSTATE_KEY_DOWN(key_state, mycode))
       return;

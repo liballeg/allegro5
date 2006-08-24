@@ -21,6 +21,7 @@
 #define PP_DEPTH               16
 
 #define PIXEL_PTR              unsigned short*
+#define PTR_PER_PIXEL          1
 #define OFFSET_PIXEL_PTR(p,x)  ((PIXEL_PTR) (p) + (x))
 #define INC_PIXEL_PTR(p)       ((p)++)
 #define DEC_PIXEL_PTR(p)       ((p)--)

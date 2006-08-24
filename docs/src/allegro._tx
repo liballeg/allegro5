@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.3.0 (SVN)" "Allegro" "Allegro manual"
+@manh="version 4.3.1 (SVN)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,12 +52,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.3.0 (SVN)
+				       \_/__/     Version 4.3.1 (SVN)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Dec 28, 2005.
+	     By Shawn Hargreaves, Jul 24, 2006.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -749,12 +749,11 @@ available in past/future versions of Allegro.
    to obtain/use this structure.
 
 @@struct @al_ffblk
-@xref al_findfirst
+@xref al_findfirst, al_ffblk_get_size
 @shortdesc Cross platform structure storing file information.
 <codeblock>
    int attrib;       - actual attributes of the file found
    time_t time;      - modification time of file
-   long size;        - size of file
    char name[512];   - name of file
 <endblock>
    Read the description of al_findfirst for a description on how to
@@ -2154,16 +2153,20 @@ your game.
 @xref set_config_file, get_config_id, set_config_string, set_config_float
 @xref set_config_hex, set_config_int
 @shortdesc Writes a driver ID in the configuration file.
-   Writes a 4-letter driver ID variable to the current config file. See the 
+   Writes a 4-letter driver ID variable to the current config file. See the
+   comments about set_config_string().
+
 @@int @list_config_entries(const char *section, const char ***names);
-@xref set_config_file, get_config_string
+@xref set_config_file, get_config_string, list_config_sections
+@xref free_config_entries
 @shortdesc Lists the names of all entries in a config section
    This function can be used to get a list of all entries in the given config
    section. The names parameter is a pointer to an array of strings. If it
    points to a NULL pointer, the list will be allocated, else it will be
-   re-allocated. You should free the list yourself with free if you don't need
-   it anymore. See the following example for how you can use it, it will print
-   out the complete contents of the current configuration:
+   re-allocated. You should free the list again with free_config_entries if you
+   don't need it anymore, or you can pass it again to list_config_entries and
+   the memory will be re-used. See the following example for how you can use it,
+   it will print out the complete contents of the current configuration:
 <codeblock>
    int i, n;
    char const **sections = NULL;
@@ -2183,20 +2186,36 @@ your game.
              sections[i], entries[j], "-"));
       }
    }
-   free(sections);
-   free(entries);<endblock>
+   free_config_entries(&sections);
+   free_config_entries(&entries);<endblock>
 @retval
    Returns the number of valid strings in the names array.
 
 @@int @list_config_sections(const char ***names);
 @xref list_config_entries, set_config_file, get_config_string
+@xref free_config_entries
 @shortdesc Lists the names of all sections available in the current configuration.
-   The names parameter is a pointer to an array of strings. See
-   list_config_entries for more information and an example how to use it.
+   The names parameter is a pointer to an array of strings. If it points to a
+   NULL pointer, the list will be allocated, else it will be re-allocated. After
+   the function returns, it will contain the names of all sections in the
+   current configuration. Use free_config_entries to free the allocated memory
+   again. See list_config_entries for more information and an example how to use
+   it.
 @retval
    Returns the number of valid strings in the names array.
 
-   comments about set_config_string().
+@@int @free_config_entries(const char ***names);
+@xref list_config_entries, list_config_sections
+@shortdesc Frees memory allocated for config entry lists.
+
+   Once you are done with the string arrays filled in by list_config_entries and
+   list_config_sections, you can free them again with this function. The passed
+   array pointer will be set to NULL, and you directly can pass the same pointer
+   again to list_config_entries or list_config_sections later - but you also
+   could pass them again without freeing first, since the memory is re-allocated
+   when the pointer is not NULL.
+
+   See list_config_entries for an example of how to use it.
 
 @hnode Standard config variables
 @xref set_config_file, set_config_string, get_config_string
@@ -2245,6 +2264,11 @@ menu_opening_delay = x<br>
    Sets how long the menus take to auto-open. The time is given in
    milliseconds (default is `300'). Specifying `-1' will disable the 
    auto-opening feature.
+<li>
+XInitThreads = x<br>
+   If this is set to 0, the X11 port will not call XInitThreads. This can have
+   slight performance advantages and was required on some broken X11 servers,
+   but it makes Allegro incompatible with other X11 libraries like Mesa.
 </ul><li>
 [graphics]<br>
    Section containing graphics configuration information, using the
@@ -2859,6 +2883,11 @@ information for more details.
    screen. To prevent this, you must make sure you turn off the mouse 
    pointer whenever you draw onto the screen. This is not needed if you are
    using a hardware cursor.
+
+   Note: you must not be showing a mouse pointer on a bitmap at the time that
+   the bitmap is destroyed with destroy_bitmap(), e.g. call show_mouse(NULL);
+   before destroying the bitmap. This does not apply to `screen' since you
+   never destroy `screen' with destroy_bitmap().
 
 @@void @scare_mouse();
 @xref unscare_mouse, scare_mouse_area, show_mouse
@@ -4467,6 +4496,26 @@ GFX_SAFE:<br>
       will only be set if system bitmaps have further acceleration above and 
       beyond what is provided by GFX_HW_MEM_BLIT_MASKED.
 
+   <b>GFX_HW_VRAM_STRETCH_BLIT:</b><br>
+      Indicates that stretched blitting of video bitmaps onto the screen is
+      implemented using hardware acceleration. 
+
+   <b>GFX_HW_SYS_STRETCH_BLIT:</b><br>
+      Indicates that stretched blitting of system bitmaps onto the screen is
+      implemented using hardware acceleration. 
+
+   <b>GFX_HW_VRAM_STRETCH_BLIT_MASKED:</b><br>
+      Indicates that masked stretched blitting (including stretch_sprite) of 
+      video bitmaps onto the screen is implemented using hardware acceleration.
+      NOTE: some display drivers may show artefacts when this function is used.
+      If the image does not look correct try updating your video drivers.
+
+   <b>GFX_HW_SYS_STRETCH_BLIT_MASKED:</b><br>
+      Indicates that masked stretched blitting (including stretch_sprite) of 
+      system bitmaps onto the screen is implemented using hardware acceleration.
+      NOTE: some display drivers may show artefacts when this function is used.
+      If the image does not look correct try updating your video drivers.
+
    Note: even if the capabilities information says that patterned drawing is 
    supported by the hardware, it will not be possible for every size of 
    pattern. VBE/AF only supports patterns up to 8x8 in size, so Allegro will 
@@ -4841,13 +4890,16 @@ Allegro supports several different types of bitmaps:
    destroy this bitmap before any subsequent call to set_gfx_mode().
    
 @@void @destroy_bitmap(BITMAP *bitmap);
-@xref create_bitmap, load_bitmap
+@xref create_bitmap, load_bitmap, show_mouse
 @eref Available Allegro examples
 @shortdesc Destroys any type of created bitmap.
    Destroys a memory bitmap, sub-bitmap, video memory bitmap, or system 
    bitmap when you are finished with it. If you pass a NULL pointer this
    function won't do anything. See above for the restrictions as to when you
    are allowed to destroy the various types of bitmaps.
+
+   The bitmap must not have a mouse cursor shown on it at the time it is
+   destroyed.
 
 @@void @lock_bitmap(BITMAP *bitmap);
 @shortdesc Locks the memory used by a bitmap.
@@ -4883,8 +4935,8 @@ Allegro supports several different types of bitmaps:
    draw_sprite() after drawing other stuff on it. Example:
 <codeblock>
       /* Replace mask color with another color. */
-      for (y = 0; y < bmp-&gth; y++)
-	 for (x = 0; x < bmp-&gtw; x++)
+      for (y = 0; y &lt bmp-&gth; y++)
+	 for (x = 0; x &lt bmp-&gtw; x++)
 	    if (getpixel(bmp, x, y) == bitmap_mask_color(bmp))
 	       putpixel(bmp, x, y, another_color);<endblock>
 
@@ -4944,22 +4996,55 @@ Allegro supports several different types of bitmaps:
 @xref release_bitmap, acquire_screen, release_screen
 @eref ex3buf, exaccel, expat, exquat, exscroll, exswitch, exupdate
 @shortdesc Locks the bitmap before drawing onto it.
-   Locks the specified video memory bitmap prior to drawing onto it. This 
-   does not apply to memory bitmaps, and only affects some platforms 
-   (Windows needs it, DOS does not). These calls are not strictly required, 
-   because the drawing routines will automatically acquire the bitmap before 
-   accessing it, but locking a DirectDraw surface is very slow, so you will 
-   get much better performance if you acquire the screen just once at the 
-   start of your main redraw function, and only release it when the drawing 
-   is completely finished. Multiple acquire calls may be nested, and the 
-   bitmap will only be truly released when the lock count returns to zero. 
-   Be warned that DirectX programs activate a mutex lock whenever a surface 
-   is locked, which prevents them from getting any input messages, so you 
-   must be sure to release all your bitmaps before using any timer, 
-   keyboard, or other non-graphics routines!
-   
-   Note that if you are using hardware accelerated VRAM-&gtVRAM blits, you should
-   not call acquire_bitmap().
+   Acquires the specified video bitmap prior to drawing onto it. You never need
+   to call the function explicitly as it is low level, and will only give you a
+   speed up if you know what you are doing. Using it wrongly may cause slowdown,
+   or even lock up your program.
+
+   Note: You do never need to use acquire_bitmap on a memory bitmap, i.e. a
+   normal bitmap created with create_bitmap. It will simply do nothing in that
+   case.
+
+   It still can be useful, because e.g. under the current DirectDraw driver of
+   Allegro, most drawing functions need to lock a video bitmap before drawing to
+   it. But doing this is very slow, so you will get much better performance if
+   you acquire the screen just once at the start of your main redraw function,
+   then call multiple drawing operations which need the bitmap locked, and only
+   release it when done.
+
+   Multiple acquire calls may be nested, but you must make sure to match up the
+   acquire_bitmap and release_bitmap calls. Be warned that DirectX and X11
+   programs activate a mutex lock whenever a surface is locked, which prevents
+   them from getting any input messages, so you must be sure to release all your
+   bitmaps before using any timer, keyboard, or other non-graphics routines!
+
+   Note that if you are using hardware accelerated VRAM-&gtVRAM functions, you
+   should not call acquire_bitmap(). Such functions need an unlocked target
+   bitmap under DirectX, so there is now just the opposite case from before - if
+   the bitmap is already locked with acquire_bitmap, the drawing
+   operation has to unlock it.
+
+   Note: For backwards compatibility, the unlocking behavior of such functions
+   is permanent. That is, if you call acquire_bitmap first, then call e.g. an
+   accelerated blit, the DirectX bitmap will be unlocked internally (it won't
+   affect the nesting counter of acquire/release calls).
+
+   There is no clear cross-platform way in this Allegro version to know which
+   drawing operations need a locked/unlocked state. For example a normal
+   rectfill most probably is accelerated under DirectX, and therefore needs the
+   screen unlocked, but an XOR rectfill, or one with blending activated, most
+   probably is not, and therefore locks the screen. And while the DirectX driver
+   will do automatic unlocking, there is no such thing under X11, where the
+   function is used to synchronize X11 calls from different threads. Your best
+   bet is to never use acquire_bitmap - changes are you are doing something in
+   the wrong way if you think you need it.
+
+   Warning: This function can be very dangerous to use, since the whole program
+   may get locked while the bitmap is locked. So the lock should only be held
+   for a short time, and you should not call anything but drawing operations
+   onto the locked video bitmap while a lock is in place. Especially don't call
+   things like show_mouse (or scare_mouse which calls that) or readkey, since
+   it will most likely deadlock your entire program.
 
 @@void @release_bitmap(BITMAP *bmp);
 @xref acquire_bitmap, acquire_screen, release_screen
@@ -5014,7 +5099,7 @@ Allegro supports several different types of bitmaps:
 
 @@void @add_clip_rect(BITMAP *bitmap, int x1, int y1, int x2, int y2);
 @xref set_clip_rect, get_clip_rect, set_clip_state, get_clip_state
-@shortdesc Expands a bitmap's clipping rectangle with a new area.
+@shortdesc Intersects a bitmap's clipping rectangle with the given area.
    Sets the clipping rectangle of the specified bitmap as the intersection of
    its current clipping rectangle and the rectangle described by the four
    coordinates.
@@ -5224,7 +5309,7 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
-@@int @save_bmp_pf(PACKFILE *f, RGB *pal);
+@@int @save_bmp_pf(PACKFILE *f, BITMAP *bmp, RGB *pal);
 @xref save_bmp
 @eref expackf
 @shortdesc Packfile version of save_bmp.
@@ -5237,7 +5322,7 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
-@@int @save_pcx_pf(PACKFILE *f, RGB *pal);
+@@int @save_pcx_pf(PACKFILE *f, BITMAP *bmp, RGB *pal);
 @xref save_pcx
 @shortdesc Packfile version of save_pcx.
    A version of save_pcx which writes to a packfile.
@@ -5250,7 +5335,7 @@ will not be known, so the file may be converted wrongly.
 @retval
    Returns non-zero on error.
 
-@@int @save_tga_pf(PACKFILE *f, RGB *pal);
+@@int @save_tga_pf(PACKFILE *f, BITMAP *bmp, RGB *pal);
 @xref save_tga
 @eref expackf
 @shortdesc Packfile version of save_tga.
@@ -5912,7 +5997,8 @@ and they, as well as lengths, are specified in pixel units.
    mode.
 
 @@int @getpixel(BITMAP *bmp, int x, int y);
-@xref putpixel, _getpixel, is_inside_bitmap
+@xref putpixel, _getpixel, is_inside_bitmap, getr, getg, getb, geta
+@xref Truecolor pixel formats, Palette routines
 @eref ex12bit, exalpha, exflame, exlights
 @shortdesc Reads a pixel from a bitmap.
    Reads a pixel from point (x, y) in the bitmap.
@@ -5925,7 +6011,10 @@ and they, as well as lengths, are specified in pixel units.
    with alpha channel (when R,G,B,A are all equal to 255) so you can't use
    the test against -1 as a predicate for such bitmaps. In this cases, the
    only reliable predicate is is_inside_bitmap().
- 
+
+   To extract the individual color components, use the getr() / getg() /
+   getb() / geta() family of functions.
+
 @@int @_getpixel(BITMAP *bmp, int x, int y);
 @@int @_getpixel15(BITMAP *bmp, int x, int y);
 @@int @_getpixel16(BITMAP *bmp, int x, int y);
@@ -6019,8 +6108,7 @@ and they, as well as lengths, are specified in pixel units.
 
 @@void @rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 @xref rect, clear_bitmap, drawing_mode, makecol
-@eref exalpha, excolmap, exkeys, exmidi, expat, exscroll, exsprite
-@eref exstars, exswitch, extrans
+@eref Available Allegro examples
 @shortdesc Draws a solid filled rectangle.
    Draws a solid, filled rectangle with the two points as its opposite 
    corners.
@@ -6103,7 +6191,7 @@ and they, as well as lengths, are specified in pixel units.
       {
 	 ...
       }
-	 arc(screen, SCREEN_W/2, SCREEN_H/2,
+	 do_arc(screen, SCREEN_W/2, SCREEN_H/2,
 	     itofix(-21), itofix(43), 50, flame_color,
 	     draw_explosion_ring);<endblock>
 
@@ -6395,8 +6483,8 @@ clipping rectangle of the destination bitmap.
 <codeblock>
       /* Create tunnel like effect. */
       for (step = 1; step < 16; step++) {
-	 int width = SCREEN_W / f;
-	 int height = SCREEN_H / f;
+	 int width = SCREEN_W / step;
+	 int height = SCREEN_H / step;
 	 stretch_sprite(screen, image, SCREEN_W / 2 - width / 2,
 			SCREEN_H / 2 - height / 2, width, height);
       }<endblock>
@@ -6893,6 +6981,22 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    should use this only on fonts you have loaded manually after you are done
    with them, to prevent memory leaks in your program.
 
+@@void @make_trans_font(FONT *f);
+@xref set_alpha_blender, load_font, draw_trans_sprite
+@shortdesc Makes a font use transparency.
+   This function converts a font to use transparency for drawing. That is, each
+   glyph in the font will be drawn with draw_trans_sprite, so you can use the
+   same blenders as with draw_trans_sprite to draw the font. One common use of
+   this is to load a bitmap font with an alpha channel, and therefore get
+   anti-aliased text output by using Allegro's alpha blender. Here's an example
+   how to do that:
+
+   <codeblock>
+   FONT *f = load_font("alphafont.tga", NULL, NULL);
+   make_trans_font(f);
+   set_alpha_blender();
+   textprintf_centre_ex(screen, f, 320, 240, -1, -1, "Anti-aliased Font!");<endblock>
+
 @@int @is_color_font(FONT *f)
 @xref is_mono_font
 @shortdesc Returns TRUE if a font is a color font.
@@ -7373,6 +7477,7 @@ allegro/text.h for details.
 @\void @textprintf_right_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
 @@                         const char *fmt, ...);
 @xref textprintf_ex, textout_right_ex
+@eref exnewapi
 @shortdesc Formatted right aligned output of a string.
    Like textprintf_ex(), but interprets the x coordinate as the right rather
    than the left edge of the string. This function shares the text length
@@ -8966,7 +9071,20 @@ drivers.
    volume if it exists (i.e. the volume of all the applications on your
    machine will be affected), otherwise do nothing.
 
+@@void @get_volume(int *digi_volume, int *midi_volume);
+@xref set_volume, get_hardware_volume
+@shortdesc Retrieves the global sound output volume.
+   Retrieves the global sound output volume, both for digital samples and MIDI
+   playback, as integers from 0 to 255. Parameters digi_volume and midi_volume
+   must be valid pointers to int, or NULL if not interested in specific value.
 
+@@void @get_hardware_volume(int *digi_volume, int *midi_volume);
+@xref set_hardware_volume, get_volume
+@shortdesc Retrieves the hardware sound output volume.
+   Retrieves the hardware sound output volume, both for digital samples and MIDI
+   playback, as integers from 0 to 255, or -1 if the information is not
+   available. Parameters digi_volume and midi_volume must be valid pointers to
+   int, or NULL if not interested in specific value.
 
 @heading
 Mixer routines
@@ -9915,34 +10033,33 @@ the value F_NOPACK_MAGIC.
 The following FA_* flags are guaranteed to work:
 <textblock>
       FA_NONE           - Exclude files that have any attribute set
-      FA_RDONLY         - Directory entries that are unwritable for current
-			  user
+      FA_RDONLY         - Directory entries that are unwritable for current user
       FA_HIDDEN         - Hidden flag
       FA_DIREC          - Directories
       FA_SYSTEM         - Files with system flag set (DOS/Windows only)
       FA_LABEL          - Files with volume label flag set (DOS/Windows only)
       FA_ARCH           - Files with archive flag set (DOS/Windows only)
-      FA_ALL            - Match all attributes
-<endblock>
+      FA_ALL            - Match all attributes<endblock>
 Do not use any other flags from DOS/Windows or your code will not compile on 
-another platform. FA_RDONLY is for directory entries with read-only flag on
-DOS-like systems or unwritable by current user on Unix-like systems. Hidden
-files are directory entries that have the hidden flag set (DOS/Windows) or
-have names starting with '.' (UNIX, excluding '.' and '..'). Flags can be
-combined using '|' (binary OR operator).
+another platform.
+FA_RDONLY is for directory entries with read-only flag on DOS-like systems or 
+unwritable by current user on Unix-like systems. Hidden files are directory
+entries that have the hidden flag set (DOS/Windows) or have names starting with
+'.' (UNIX, excluding '.' and '..').
+Flags can be combined using '|' (binary OR operator).
 
-When passed to the functions as the 'attrib' parameter, these flags represent
-an upper set in which the actual flag set of a matching file must be
-included. That is, in order for a file to be matching, its attributes may
-contain any of the specified flags but must not contain any of the
+When passed to the functions as the 'attrib' parameter, these flags 
+represent an upper set in which the actual flag set of a matching file must 
+be included. That is, in order for a file to be matching, its attributes 
+may contain any of the specified flags but must not contain any of the 
 unspecified flags. In other words, you explictly <i>exclude</i> the flags that you
-do <i>not</i> specify. Thus if you pass 'FA_DIREC | FA_RDONLY', normal files and
-directories will be included as well as read-only files and directories, but
-not hidden files and directories. Similarly, if you pass 'FA_ARCH' then both
-archived and non-archived files will be included. If FA_NONE is passed all
-attributes are excluded and only files with no attributes are returned.
-Conversely, if you pass FA_ALL, no attributes are excluded so all files are
-returned (which is what you would usually want).
+do <i>not</i> specify. Thus if you pass 'FA_DIREC | FA_RDONLY', normal files 
+and directories will be included as well as read-only files and 
+directories, but not hidden files and directories. Similarly, if you pass 
+'FA_ARCH' then both archived and non-archived files will be included. If
+FA_NONE is passed all attributes are excluded and only files with no attributes
+are returned. Conversely, if you pass FA_ALL, no attributes are excluded so all
+files are returned (which is what you would usually want).
 
 Functions which accept wildcards as file names support the meta characters
 `*' (which means, zero or any quantity of characters) and `?' (which means
@@ -10149,7 +10266,7 @@ any character, but only one).
    name, it's out of date.
 
 @@int @file_exists(const char *filename, int attrib, int *aret);
-@xref exists, file_size, file_time
+@xref exists, file_size_ex, file_time
 @shortdesc Tells if a file exists.
    Checks whether a file matching the given name and attributes (see
    beginning of this chapter) exists. If `aret' is not NULL, it will be set
@@ -10163,7 +10280,7 @@ any character, but only one).
    specified attributes mask it out.
 
 @@int @exists(const char *filename);
-@xref file_exists, file_size, file_time
+@xref file_exists, file_size_ex, file_time
 @shortdesc Shortcut version of file_exists() for normal files.
    Shortcut version of file_exists(), which checks for normal files, which 
    may have the archive or read-only bits set, but are not hidden, 
@@ -10171,7 +10288,7 @@ any character, but only one).
 @retval
    Returns non-zero if the file exists, or zero if it doesn't.
 
-@@long @file_size(const char *filename);
+@@uint64_t @file_size_ex(const char *filename);
 @xref file_exists, file_time
 @eref expackf
 @shortdesc Returns the size of a file in bytes.
@@ -10180,7 +10297,7 @@ any character, but only one).
    errno.
 
 @@time_t @file_time(const char *filename);
-@xref file_exists, file_size
+@xref file_exists, file_size_ex
 @shortdesc Returns the modification time of a file.
    Returns the modification time (number of seconds since 00:00:00 GMT 
    1/1/1970) of a file. If the file does not exist or an error occurs, it 
@@ -10230,7 +10347,7 @@ any character, but only one).
    number of times callback() was called and returned 0.
 
 @@int @al_findfirst(const char *pattern, struct al_ffblk *info, int attrib);
-@xref al_findnext, al_findclose
+@xref al_findnext, al_findclose, al_ffblk_get_size
 @shortdesc Low-level function for searching files.
    Low-level function for searching files. This function finds the first 
    file which matches the given wildcard specification and file attributes 
@@ -10242,7 +10359,6 @@ any character, but only one).
       {
 	 int attrib;       - actual attributes of the file found
 	 time_t time;      - modification time of file
-	 long size;        - size of file
 	 char name[512];   - name of file
       };
 <endblock>
@@ -10251,7 +10367,7 @@ any character, but only one).
 <codeblock>
       struct al_ffblk info;
 
-      if (al_findfirst("*.pcx", &info, ~FA_DIREC) != 0) {
+      if (al_findfirst("*.pcx", &info, FA_ALL) != 0) {
 	 /* Tell user there are no PCX files. */
 	 return;
       }<endblock>
@@ -10267,7 +10383,7 @@ any character, but only one).
 @shortdesc Finds the next file in a search started by al_findfirst().
    This finds the next file in a search started by al_findfirst(). Example:
 <codeblock>
-      if (al_findfirst("*.pcx", &info, ~FA_DIREC) != 0)
+      if (al_findfirst("*.pcx", &info, 0) != 0)
 	 return;
 
       do {
@@ -10285,6 +10401,11 @@ any character, but only one).
    This closes a previously opened search with al_findfirst(). You need to
    call this on all successfully opened searches to avoid memory leaks in
    your program.
+
+@@uint64_t @al_ffblk_get_size(struct al_ffblk *info);
+@xref al_findfirst, al_findnext, al_ffblk
+@shortdesc Get size of file returned by al_findfirst/al_findnext.
+   This returns the size of the file returned by al_findfirst or al_findnext.
 
 @\int @find_allegro_resource(char *dest, const char *resource, 
 @\                          const char *ext, const char *datafile, 
@@ -10922,6 +11043,44 @@ below for several examples on how to access their data.
 @retval
    Returns a pointer to a single DATAFILE element whose `dat' member points to
    the object, or NULL if the object could not be found.
+
+@@DATAFILE_INDEX *@create_datafile_index(const char *filename);
+@xref destroy_datafile_index, load_datafile_object_indexed
+@xref Using datafiles
+@shortdesc Creates an index for a datafile.
+   Creates an index for a datafile, to speed up loading single objects out of
+   it. This is mostly useful for big datafiles, which you don't want to load as
+   a whole. The index will store the offset of all objects inside the datafile,
+   and then you can load it quickly with "load_datafile_object_indexed" later.
+   Use destroy_datafile_index to free the memory used by it again.
+
+   Note: If the datafile uses global compression, there is no performance gain
+   from using an index, because seeking to the offset still requires to
+   uncompress the whole datafile up to that offset.
+   Example:
+<codeblock>
+   DATAFILE_INDEX *index = create_datafile_index("huge.dat");
+   DATAFILE *object = load_datafile_object_indexed(index, 1234);
+   ...
+   unload_datafile_object(object);
+   destroy_datafile_index(index);<endblock>
+@retval
+   A pointer value which you can pass to load_datafile_object_indexed.
+
+@@DATAFILE *@load_datafile_object_indexed(const DATAFILE_INDEX *index, int item)
+@xref create_datafile_index, load_datafile_object, unload_datafile_object
+@shortdesc Loads a single object from a datafile index.
+   This loads a single object, using the index created previously with
+   create_datafile_index. See create_datafile_index for an example.
+@retval
+   Returns a pointer to a single DATAFILE element whose "dat" member points to
+   the object, or NULL if the object could not be loaded.
+
+@@void @destroy_datafile_index(DATAFILE_INDEX *index)
+@xref create_datafile_index
+@shortdesc Destroys a datafile index.
+   This function frees the memory used by a datafile index created with
+   create_datafile_index earlier.
 
 @@const char *@get_datafile_property(const DATAFILE *dat, int type);
 @xref Using datafiles, DAT_ID, empty_string
@@ -12730,6 +12889,10 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
       return shutdown_dialog(player);<endblock>
 
+   Note that you are responsible for showing and hiding the mouse cursor, which
+   do_dialog would otherwise do for you, or saving and restoring the screen
+   contents, as popup_dialog would do for you.
+
 @@int @update_dialog(DIALOG_PLAYER *player);
 @xref init_dialog
 @shortdesc Low level function to update a dialog player.
@@ -14134,6 +14297,18 @@ application will not shutdown, but you are supposed to set some quit flag
 in your callback and check for it on a regular basis in your main program
 loop.
 
+If you would like to use InterfaceBuilder to design a more
+fully-featured menu, Allegro will automatically load it if you create
+a bundle for your application. The use of InterfaceBuilder is beyond
+the scope of this document. Briefly, you need to create a Nib, called
+MainMenu.nib, containing a main menu and a controller. Then, when you
+create the bundle, install MainMenu.nib into the Contents/Resources
+subdirectory. Note that the actions attached to the menu items will be
+called from a different thread than the one in which your Allegro code
+is running. Therefore you should not do any work there (especially,
+don't call Allegro functions.) Instead, set a variable, and test it in
+your main loop.
+
 @@Drivers @GFX_*/MacOSX
 @xref set_gfx_mode
 @shortdesc Supported MacOSX graphic drivers.
@@ -14948,9 +15123,10 @@ and avoid missing any important bit of information.
 @@Example @exdbuf
 @xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen
 @xref allegro_error, allegro_init, allegro_message, blit, circlefill
-@xref clear_to_color, create_bitmap, desktop_palette, destroy_bitmap
-@xref font, install_timer, makecol, release_screen, retrace_count, screen
-@xref set_gfx_mode, set_palette, textprintf_ex
+@xref clear_keybuf, clear_to_color, create_bitmap, desktop_palette
+@xref destroy_bitmap, font, install_keyboard, install_timer, keypressed
+@xref makecol, release_screen, retrace_count, screen, set_gfx_mode
+@xref set_palette, textprintf_ex
 @shortdesc How to use double buffering to avoid flicker.
    This program demonstrates the use of double buffering.
    It moves a circle across the screen, first just erasing and
@@ -14958,10 +15134,11 @@ and avoid missing any important bit of information.
 
 @@Example @exflip
 @xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error
-@xref allegro_init, allegro_message, blit, circlefill, clear_to_color
-@xref create_bitmap, create_video_bitmap, desktop_palette, destroy_bitmap
-@xref font, install_timer, makecol, retrace_count, screen, set_gfx_mode
-@xref set_palette, show_video_bitmap, textprintf_ex
+@xref allegro_init, allegro_message, blit, circlefill, clear_keybuf
+@xref clear_to_color, create_bitmap, create_video_bitmap, desktop_palette
+@xref destroy_bitmap, font, install_keyboard, install_timer, keypressed
+@xref makecol, retrace_count, screen, set_gfx_mode, set_palette
+@xref show_video_bitmap, textprintf_ex
 @shortdesc Comparison of double buffering and page flipping.
    This program moves a circle across the screen, first with a
    double buffer and then using page flips.
@@ -15821,7 +15998,7 @@ and avoid missing any important bit of information.
 @@Example @expackf
 @xref ASSERT, BITMAP, END_OF_MAIN, PACKFILE, PACKFILE_VTABLE, SCREEN_H
 @xref SCREEN_W, alert, allegro_error, allegro_init, allegro_message, blit
-@xref clear_bitmap, destroy_bitmap, file_size, font, install_keyboard
+@xref clear_bitmap, destroy_bitmap, file_size_ex, font, install_keyboard
 @xref key, load_bmp_pf, load_pcx, load_pcx_pf, load_tga_pf, pack_fclose
 @xref pack_fopen, pack_fopen_vtable, pack_fread, pack_fseek, readkey
 @xref save_bmp_pf, save_tga_pf, screen, set_color_depth, set_gfx_mode
@@ -15841,6 +16018,16 @@ and avoid missing any important bit of information.
    
    The fourth test reads two bitmaps, and dumps them back into a
    single file, using a custom vtable again.
+
+@@Example @exnewapi
+@xref BITMAP, END_OF_MAIN, allegro_init, clear_to_color, font, key
+@xref makecol, rectfill, textprintf_right_ex
+   This is a temporary example to get a feeling for the new API, which was very
+   much in flux yet when this example was created.
+   
+   Right now, it moves a red rectangle across the screen with a speed of
+   100 pixels / second, limits the FPS to 100 Hz to save CPU, and prints the
+   current FPS in the top right corner.
 
 @# end genexamp.py chunk
 

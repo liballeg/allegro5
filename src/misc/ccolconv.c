@@ -26,7 +26,7 @@ extern int *_colorconv_rgb_scale_5x35;     /* for conversion from 15/16-bit */
 extern unsigned char *_colorconv_rgb_map;  /* for conversion from 8/12-bit to 8-bit */
 
 
-#if (defined ALLEGRO_USE_C || defined ALLEGRO_NO_ASM)
+#ifdef ALLEGRO_NO_ASM
 
 #ifdef ALLEGRO_COLOR8
 
@@ -103,38 +103,98 @@ void _colorconv_blit_8_to_16(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_REC
    dest_feed = dest_rect->pitch - (width << 1);
    src = src_rect->data;
    dest = dest_rect->data;
+
+#ifdef ALLEGRO_ARM
+
+   /* ARM requires strict alignment for memory access. So this ARM branch of code 
+    * takes it into account. Combining data into 32-bit values when writing to
+    * memory really adds about 20% extra performance on Nokia 770. An interesting 
+    * thing is that this branch of code is not only correct, but also actually 
+    * a bit faster than the other one.
+    *
+    * TODO: Check performance of this code path on other architectures.  If it
+    * is reasonably similar or better to the non-aligned code path then we can
+    * remove this #ifdef.
+    */
+   #ifdef ALLEGRO_LITTLE_ENDIAN
+      #define FILL_DEST_DATA() \
+	 dest_data = _colorconv_indexed_palette[src[0]]; \
+	 dest_data |= _colorconv_indexed_palette[256 + src[1]]; \
+	 src += 2;
+   #else
+      #define FILL_DEST_DATA() \
+	 dest_data = _colorconv_indexed_palette[256 + src[0]]; \
+	 dest_data |= _colorconv_indexed_palette[src[1]]; \
+	 src += 2;
+   #endif
+
+   if (width <= 0)
+      return;
+
+   y = src_rect->height;
+   if (width & 0x1) {
+      width >>= 1;
+      while (--y >= 0) {
+         if ((int)dest & 0x3) {
+            *(unsigned short *)(dest) = _colorconv_indexed_palette[*src++]; dest += 2;
+            x = width; while (--x >= 0) { FILL_DEST_DATA(); *(unsigned int *)dest = dest_data; dest += 4; }
+         } else {
+            x = width; while (--x >= 0) { FILL_DEST_DATA(); *(unsigned int *)dest = dest_data; dest += 4; }
+            *(unsigned short *)(dest) = _colorconv_indexed_palette[*src++]; dest += 2;
+         }
+         src += src_feed;
+         dest += dest_feed;
+      }
+   }
+   else {
+      width >>= 1;
+      while (--y >= 0) {
+         if ((int)dest & 0x3) {
+            *(unsigned short *)(dest) = _colorconv_indexed_palette[*src++]; dest += 2;
+            x = width; while (--x > 0) { FILL_DEST_DATA(); *(unsigned int *)dest = dest_data; dest += 4; }
+            *(unsigned short *)(dest) = _colorconv_indexed_palette[*src++]; dest += 2;
+         } else {
+            x = width; while (--x >= 0) { FILL_DEST_DATA(); *(unsigned int *)dest = dest_data; dest += 4; }
+         }
+         src += src_feed;
+         dest += dest_feed;
+      }
+   }
+
+#else /* !ALLEGRO_ARM */
+
    for (y = src_rect->height; y; y--) {
       for (x = width >> 2; x; x--) {
          src_data = *(unsigned int *)src;
-#ifdef ALLEGRO_LITTLE_ENDIAN
-	 dest_data = _colorconv_indexed_palette[src_data & 0xff];
-	 dest_data |= _colorconv_indexed_palette[256 + ((src_data >> 8) & 0xff)];
-	 *(unsigned int *)dest = dest_data;
-	 dest_data = _colorconv_indexed_palette[(src_data >> 16) & 0xff];
-	 dest_data |= _colorconv_indexed_palette[256 + (src_data >> 24)];
-	 *(unsigned int *)(dest + 4) = dest_data;
-#else
-	 dest_data = _colorconv_indexed_palette[256 + (src_data >> 24)];
-	 dest_data |= _colorconv_indexed_palette[((src_data >> 16) & 0xff)];
-	 *(unsigned int *)dest = dest_data;
-	 dest_data = _colorconv_indexed_palette[256 + ((src_data >> 8) & 0xff)];
-	 dest_data |= _colorconv_indexed_palette[(src_data & 0xff)];
-	 *(unsigned int *)(dest + 4) = dest_data;
-#endif
+	 #ifdef ALLEGRO_LITTLE_ENDIAN
+	    dest_data = _colorconv_indexed_palette[src_data & 0xff];
+	    dest_data |= _colorconv_indexed_palette[256 + ((src_data >> 8) & 0xff)];
+	    *(unsigned int *)dest = dest_data;
+	    dest_data = _colorconv_indexed_palette[(src_data >> 16) & 0xff];
+	    dest_data |= _colorconv_indexed_palette[256 + (src_data >> 24)];
+	    *(unsigned int *)(dest + 4) = dest_data;
+	 #else
+	    dest_data = _colorconv_indexed_palette[256 + (src_data >> 24)];
+	    dest_data |= _colorconv_indexed_palette[((src_data >> 16) & 0xff)];
+	    *(unsigned int *)dest = dest_data;
+	    dest_data = _colorconv_indexed_palette[256 + ((src_data >> 8) & 0xff)];
+	    dest_data |= _colorconv_indexed_palette[(src_data & 0xff)];
+	    *(unsigned int *)(dest + 4) = dest_data;
+	 #endif
 	 src += 4;
 	 dest += 8;
       }
       if (width & 0x2) {
          src_data = *(unsigned short *)src;
-#ifdef ALLEGRO_LITTLE_ENDIAN
-	 dest_data = _colorconv_indexed_palette[src_data & 0xff];
-	 dest_data |= _colorconv_indexed_palette[256 + (src_data >> 8)];
-	 *(unsigned int *)dest = dest_data;
-#else
-	 dest_data = _colorconv_indexed_palette[src_data >> 8];
-	 dest_data |= _colorconv_indexed_palette[256 + (src_data & 0xff)];
-	 *(unsigned int *)dest = dest_data;
-#endif
+	 #ifdef ALLEGRO_LITTLE_ENDIAN
+	    dest_data = _colorconv_indexed_palette[src_data & 0xff];
+	    dest_data |= _colorconv_indexed_palette[256 + (src_data >> 8)];
+	    *(unsigned int *)dest = dest_data;
+	 #else
+	    dest_data = _colorconv_indexed_palette[src_data >> 8];
+	    dest_data |= _colorconv_indexed_palette[256 + (src_data & 0xff)];
+	    *(unsigned int *)dest = dest_data;
+	 #endif
 	 src += 2;
 	 dest += 4;
       }
@@ -148,6 +208,8 @@ void _colorconv_blit_8_to_16(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_REC
       src += src_feed;
       dest += dest_feed;
    }
+
+#endif	 /* !ALLEGRO_ARM */
 }
 
 

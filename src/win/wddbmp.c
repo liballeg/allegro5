@@ -655,6 +655,26 @@ BITMAP *gfx_directx_create_system_bitmap(int width, int height)
  */
 void gfx_directx_destroy_system_bitmap(BITMAP *bmp)
 {
+   /* Special case: use normal destroy_bitmap() for subbitmaps of system
+    * bitmaps. Checked here rather than in destroy_bitmap() because that
+    * function should not make assumptions about the relation between system
+    * bitmaps and subbitmaps thereof. This duplicates code though and a
+    * different solution would be better.
+    */
+   if (is_sub_bitmap(bmp)) {
+      if (system_driver->destroy_bitmap) {
+        if (system_driver->destroy_bitmap(bmp))
+           return;
+      }
+
+      if (bmp->dat)
+        _AL_FREE(bmp->dat);
+
+      _AL_FREE(bmp);
+
+      return;
+   }
+
    /* destroy the surface */
    gfx_directx_destroy_surface(DDRAW_SURFACE_OF(bmp));
 

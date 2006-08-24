@@ -20,7 +20,7 @@ infodir = @infodir@
 mandir = @mandir@
 libdir = @libdir@
 modulebasedir = $(libdir)/allegro
-moduledir = $(modulebasedir)/$(shared_major_minor)
+moduledir = $(modulebasedir)/$(shared_version)
 
 EXE =
 OBJ = .o
@@ -58,7 +58,7 @@ CONFIGURE_IN = configure.in
 ACLOCAL_M4 = aclocal.m4
 
 INCLUDES = -I. -Iinclude -Iinclude/allegro -I$(srcdir)/include -I$(srcdir)/include/allegro
-DEFS = @DEFS@
+DEFS = -DALLEGRO_MODULES_PATH=\"$(libdir)/allegro\" @DEFS@
 CPPFLAGS = @CPPFLAGS@
 override LDFLAGS += @LDFLAGS@
 PROG_LDFLAGS = @PROG_LDFLAGS@
@@ -95,7 +95,8 @@ ALLEGRO_LIB_TARGETS = @ALLEGRO_LIB_TARGETS@
 ALLEGRO_MODULE_TARGETS = @ALLEGRO_MODULE_TARGETS@
 
 PLUGIN_LIB = @PLUGIN_LIB@
-obj_unix_plugins_h = $(OBJDIR)/plugins.h
+PLUGINS_H = tools/plugins/plugins.h
+tools_plugins_plugins_h = $(PLUGINS_H)
 
 default: $(DEFAULT_TARGETS)
 
@@ -215,7 +216,7 @@ xalleg_h = $(srcdir)/include/xalleg.h
 ifdef CROSSCOMPILE
 
 $(OBJDIR)/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h
-	$(CC) $(INCLUDES) `echo $(CFLAGS) | sed -e "s/.*\(-DALLEGRO_USE_C\).*/\1/"` -S -o $(OBJDIR)/asmdef.s src/i386/asmdef.c
+	$(CC) $(INCLUDES) `echo $(CFLAGS) | sed -e "s/.*\(-DALLEGRO_NO_ASM\).*/\1/"` -S -o $(OBJDIR)/asmdef.s src/i386/asmdef.c
 
 $(obj_unix_asmdef_inc): $(OBJDIR)/asmdef.s
 	@if [ ! -x misc/asmdef.sh ]; then chmod a+x misc/asmdef.sh; fi

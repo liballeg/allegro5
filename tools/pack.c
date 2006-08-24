@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   s1 = file_size(f1);
+   s1 = file_size_ex(f1);
 
    in = pack_fopen(f1, m1);
    if (!in) {
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   s2 = file_size(f2);
+   s2 = file_size_ex(f2);
    if (s1 == 0)
       printf("\nInput size: %ld\nOutput size: %ld\n", s1, s2);
    else

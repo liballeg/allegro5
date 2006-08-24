@@ -55,6 +55,7 @@ AL_ARRAY(char, allegro_error);
 #define OSTYPE_SUNOS       AL_ID('S','U','N',' ')
 #define OSTYPE_FREEBSD     AL_ID('F','B','S','D')
 #define OSTYPE_NETBSD      AL_ID('N','B','S','D')
+#define OSTYPE_OPENBSD     AL_ID('O','B','S','D')
 #define OSTYPE_IRIX        AL_ID('I','R','I','X')
 #define OSTYPE_DARWIN      AL_ID('D','A','R','W')
 #define OSTYPE_QNX         AL_ID('Q','N','X',' ')
@@ -71,26 +72,22 @@ AL_VAR(int, os_multitasking);
 #define SYSTEM_AUTODETECT  0
 #define SYSTEM_NONE        AL_ID('N','O','N','E')
 
-#if (ALLEGRO_SUB_VERSION&1)
 #define MAKE_VERSION(a, b, c) (((a)<<16)|((b)<<8)|(c))
-#else
-#define MAKE_VERSION(a, b, c) (((a)<<16)|((b)<<8))
-#endif
 
-AL_FUNC(int, _get_allegro_version, (void));
-AL_FUNC(int, _install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))));
+AL_FUNC(int, _install_allegro_version_check, (int system_id, int *errno_ptr,
+   AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void)))), int version));
 
-AL_INLINE(int, install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))),
+AL_INLINE(int, install_allegro, (int system_id, int *errno_ptr,
+   AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))),
 {
-   if (MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION) !=
-       _get_allegro_version()) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Library version mismatch"));
-      return !0;
-   }
-
-   return _install_allegro(system_id, errno_ptr, atexit_ptr);
+   return _install_allegro_version_check(system_id, errno_ptr, atexit_ptr, \
+      MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION));
 })
-#define allegro_init()  install_allegro(SYSTEM_AUTODETECT, &errno, (int (*)(void (*)(void)))atexit)
+
+#define allegro_init()  _install_allegro_version_check(SYSTEM_AUTODETECT, &errno, \
+   (int (*)(void (*)(void)))atexit, \
+   MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION))
+
 AL_FUNC(void, allegro_exit, (void));
 
 AL_PRINTFUNC(void, allegro_message, (AL_CONST char *msg, ...), 1, 2);

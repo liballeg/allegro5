@@ -96,10 +96,10 @@ echo "Generating MSVC dependencies..."
 make depend UNIX_TOOLS=1 CC=gcc
 
 
-# generate dependencies for MinGW32
-echo "Generating MinGW32 dependencies..."
+# generate dependencies for MinGW
+echo "Generating MinGW dependencies..."
 
-./fix.sh mingw32 --quick
+./fix.sh mingw --quick
 
 make depend UNIX_TOOLS=1 CC=gcc
 

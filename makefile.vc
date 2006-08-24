@@ -43,6 +43,12 @@ endif
 
 
 
+ifdef COMPILER_MSVC8
+   EMBED_MANIFEST = 1
+endif
+
+
+
 ifdef STATICLINK
 
 # -------- link as a static library --------
@@ -134,7 +140,7 @@ else
    MSVC_CL = $(MSVCDIR_U)/bin/cl
 endif
 MSVC_LINK = $(MSVCDIR_U)/bin/link
-MSVC_LIB = $(MSVCDIR_U)/bin/link /lib
+MSVC_LIB = $(MSVCDIR_U)/bin/link -lib
 MSVC_RC = rc
 
 
@@ -220,7 +226,7 @@ endif
 
 # -------- list platform specific objects and programs --------
 
-VPATH = src/win src/i386 src/misc tests/win tools/win
+VPATH = src/win src/i386 src/misc src/compat tests/win tools/win
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
 
@@ -269,6 +275,7 @@ HEADERS = $(MSVCDIR_U)/include/winalleg.h                 \
           $(MSVCDIR_U)/include/allegro/platform/al386vc.h \
           $(MSVCDIR_U)/include/allegro/platform/almsvc.h  \
           $(MSVCDIR_U)/include/allegro/platform/alplatf.h \
+          $(MSVCDIR_U)/include/allegro/platform/astdbool.h \
           $(MSVCDIR_U)/include/allegro/platform/astdint.h \
           $(MSVCDIR_U)/include/allegro/platform/alwin.h
 
@@ -337,9 +344,16 @@ else
 
 # -------- link as a DLL --------
 
+ifdef EMBED_MANIFEST
+define MAKE_LIB
+   $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -dll -def:lib/msvc/allegro.def -out:$(DLL_NAME) -implib:$(IMPLIB_NAME) $(OBJECTS) $(LIBRARIES)
+   misc\embedman.bat $(DLL_NAME) 2
+endef
+else
 define MAKE_LIB
    $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -dll -def:lib/msvc/allegro.def -out:$(DLL_NAME) -implib:$(IMPLIB_NAME) $(OBJECTS) $(LIBRARIES)
 endef
+endif
 
 endif
 
@@ -381,12 +395,12 @@ ifdef STATICLINK
 else
    ifdef UNIX_TOOLS
 	cp tools/win/wfixicon.exe lib/msvc/wfixicon.exe
-      ifdef COMPILER_MSVC8
+      ifdef EMBED_MANIFEST
 		cp tools/win/wfixicon.exe.manifest lib/msvc/wfixicon.exe.manifest
       endif
    else
 	copy tools\win\wfixicon.exe lib\msvc\wfixicon.exe
-      ifdef COMPILER_MSVC8
+      ifdef EMBED_MANIFEST
 		copy tools\win\wfixicon.exe.manifest lib\msvc\wfixicon.exe.manifest
       endif
    endif
@@ -431,16 +445,15 @@ endef
 
 PLUGIN_LIB = lib/msvc/$(VERY_SHORT_VERSION)dat.lib
 PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB) $(RUNNER)
-PLUGINS_H = obj/msvc/plugins.h
 PLUGIN_SCR = scv
 
 ifdef UNIX_TOOLS
    define GENERATE_PLUGINS_H
-      cat tools/plugins/*.inc > obj/msvc/plugins.h
+      cat tools/plugins/*.inc > $(PLUGINS_H)
    endef
 else
    define GENERATE_PLUGINS_H
-      copy /B tools\plugins\*.inc obj\msvc\plugins.h
+      copy /B tools\plugins\*.inc $(subst /,\,$(PLUGINS_H))
    endef
 endif
 
