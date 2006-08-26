@@ -154,7 +154,7 @@ void osx_keyboard_handler(int pressed, NSEvent *event);
 void osx_keyboard_modifiers(unsigned int new_mods);
 void osx_keyboard_focused(int focused, int state);
 
-void osx_mouse_handler(int x, int y, int dx, int dy, int dz, int buttons);
+void osx_mouse_handler(NSEvent*);
 int osx_mouse_set_sprite(BITMAP *sprite, int x, int y);
 int osx_mouse_show(BITMAP *bmp, int x, int y);
 void osx_mouse_hide(void);

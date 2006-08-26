@@ -147,6 +147,7 @@ static RETSIGTYPE osx_signal_handler(int num)
 /* osx_event_handler:
  *  Event handling function; gets repeatedly called inside a dedicated thread.
  */
+ /*
 void osx_event_handler()
 {
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -206,7 +207,7 @@ void osx_event_handler()
          case NSOtherMouseDown:
          case NSRightMouseDown:
 	    if (![NSApp isActive]) {
-	       /* App is regaining focus */
+	       // App is regaining focus 
 	       if (_mouse_installed) {
 	          if ((osx_window) && (NSPointInRect(point, NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h)))) {
                      mx = point.x;
@@ -224,7 +225,7 @@ void osx_event_handler()
 	       [NSApp sendEvent: event];
 	       break;
 	    }
-	    /* fallthrough */
+	    // fallthrough 
          case NSLeftMouseUp:
          case NSOtherMouseUp:
          case NSRightMouseUp:
@@ -243,7 +244,7 @@ void osx_event_handler()
 	    }
 	    else {
 	       if ((!osx_window) || (NSPointInRect(point, NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h)))) {
-	          /* Deliver mouse downs only if cursor is on the window */
+	          // Deliver mouse downs only if cursor is on the window 
 	          buttons |= ((event_type == NSLeftMouseDown) ? 0x1 : 0);
 	          buttons |= ((event_type == NSRightMouseDown) ? 0x2 : 0);
 	          buttons |= ((event_type == NSOtherMouseDown) ? 0x4 : 0);
@@ -316,12 +317,12 @@ void osx_event_handler()
                   break;
 	       
 	       case NSWindowMovedEventType:
-                  /* This is needed to ensure the shadow gets drawn when the window is
-		   * created. It's weird, but when the window is created on another
-		   * thread, sometimes its shadow doesn't get drawn. The same applies
-		   * to the cursor rectangle, which doesn't seem to be set at window
-		   * creation (it works once you move the mouse though).
-		   */
+                  // This is needed to ensure the shadow gets drawn when the window is
+		   // created. It's weird, but when the window is created on another
+		   // thread, sometimes its shadow doesn't get drawn. The same applies
+		   // to the cursor rectangle, which doesn't seem to be set at window
+		   // creation (it works once you move the mouse though).
+		   
 	          if ((osx_window) && (osx_window_first_expose)) {
 		     osx_window_first_expose = FALSE;
                      [osx_window setHasShadow: NO];
@@ -342,7 +343,7 @@ void osx_event_handler()
       osx_mouse_handler(mx, my, dx, dy, dz, buttons);
    [pool release];
 }
-
+*/
 
 
 /* osx_tell_dock:

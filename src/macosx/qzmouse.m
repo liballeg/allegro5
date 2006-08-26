@@ -11,6 +11,7 @@
  *      MacOS X mouse driver.
  *
  *      By Angelo Mottola.
+ *      Modified for 4.3 mouse api by Peter Hull
  *
  *      See readme.txt for copyright information.
  */
@@ -19,37 +20,39 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintosx.h"
+#import "allegro/internal/aintern2.h"
 
 #ifndef ALLEGRO_MACOSX
 #error Something is wrong with the makefile
 #endif
 
 
-static int osx_mouse_init(void);
+static bool osx_mouse_init(void);
 static void osx_mouse_exit(void);
-static void osx_mouse_position(int, int);
-static void osx_mouse_set_range(int, int, int, int);
+static bool osx_mouse_position(int, int);
+static bool osx_mouse_set_range(int, int, int, int);
 static void osx_mouse_get_mickeys(int *, int *);
 static void osx_enable_hardware_cursor(AL_CONST int mode);
 static int osx_select_system_cursor(AL_CONST int cursor);
+static unsigned int osx_get_mouse_num_buttons(void);
+static AL_MOUSE* osx_get_mouse(void);
+static void osx_get_state(AL_MSESTATE *ret_state);
+void osx_mouse_generate_event(NSEvent* evt);
 
 
-MOUSE_DRIVER mouse_macosx = {
+AL_MOUSE_DRIVER mouse_macosx = {
    MOUSE_MACOSX,
    empty_string,
    empty_string,
    "MacOS X mouse",
    osx_mouse_init,
    osx_mouse_exit,
-   NULL,       // AL_METHOD(void, poll, (void));
-   NULL,       // AL_METHOD(void, timer_poll, (void));
-   osx_mouse_position,
-   osx_mouse_set_range,
-   NULL,       // AL_METHOD(void, set_speed, (int xspeed, int yspeed));
-   osx_mouse_get_mickeys,
-   NULL,       // AL_METHOD(int,  analyse_data, (AL_CONST char *buffer, int size));
-   osx_enable_hardware_cursor, 
-   osx_select_system_cursor
+   osx_get_mouse, // AL_METHOD(AL_MOUSE*, get_mouse, (void));
+   osx_get_mouse_num_buttons, // AL_METHOD(unsigned int, get_mouse_num_buttons, (void));
+   osx_mouse_position, // AL_METHOD(bool, set_mouse_xy, (int x, int y));
+   NULL, // AL_METHOD(bool, set_mouse_z, (int z));
+   osx_mouse_set_range, // AL_METHOD(bool, set_mouse_range, (int x1, int y1, int x2, int y2));
+   osx_get_state, // AL_METHOD(void, get_state, (AL_MSESTATE *ret_state));
 };
 
 
@@ -61,69 +64,132 @@ NSTrackingRectTag osx_mouse_tracking_rect = -1;
 
 static NSCursor *cursor = NULL, *current_cursor = NULL;
 static NSCursor *requested_cursor = NULL;
-static unsigned char *cursor_data = NULL;
-static NSBitmapImageRep *cursor_rep = NULL;
-static NSImage *cursor_image = NULL;
 
-static int mouse_minx = 0;
-static int mouse_miny = 0;
-static int mouse_maxx = 319;
-static int mouse_maxy = 199;
+/* Mouse info - includes extra info for OS X */
+static struct {
+	AL_MOUSE parent;
+	unsigned int button_count;
+	int minx, miny, maxx, maxy;
+	AL_MSESTATE state;
+} osx_mouse;
 
-static int mymickey_x = 0;
-static int mymickey_y = 0;
-
-static char driver_desc[256];
-
-
-
-/* osx_mouse_handler:
- *  Mouse "interrupt" handler for mickey-mode driver.
+/* osx_get_mouse:
+ * Return the Allegro mouse structure
  */
-void osx_mouse_handler(int ax, int ay, int x, int y, int z, int buttons)
+static AL_MOUSE* osx_get_mouse(void)
 {
-   if (!_mouse_on)
-      mymickey_x = mymickey_y = 0;
-
-   if ((!_mouse_installed) || (!_mouse_on) || (osx_gfx_mode == OSX_GFX_NONE))
-      return;
-
-   if (osx_cursor != current_cursor) {
-      if (osx_window) {
-         NSView* vw = [osx_window contentView];
-         [osx_window invalidateCursorRectsForView: vw];
-      }
-      else {
-         [osx_cursor set];
-      }
-      current_cursor = osx_cursor;
-   }
-
-   if (osx_mouse_warped) {
-      osx_mouse_warped = FALSE;
-      return;
-   }
-   
-   _mouse_b = buttons;
-   
-   mymickey_x += x;
-   mymickey_y += y;
-   _mouse_x = ax;
-   _mouse_y = ay;
-   _mouse_z += z;
-   
-   _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-   _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
-
-   _handle_mouse_input();
+	return (AL_MOUSE*) &osx_mouse.parent;
 }
 
-
+/* osx_mouse_generate_event:
+ * Convert an OS X mouse event to an Allegro event
+ * and push it into a queue.
+ * First check that the event is wanted.
+ */
+void osx_mouse_generate_event(NSEvent* evt)
+{
+	NSPoint pos;
+	switch ([evt type])
+	{
+		case NSMouseMoved:
+		case NSLeftMouseDragged:
+		case NSRightMouseDragged:
+		case NSOtherMouseDragged:
+			pos = [evt locationInWindow];
+			int px = pos.x, py;
+			if ([evt window])
+			{
+			    // Y-coordinates in OS X start from the bottom.
+				py = NSHeight([[[evt window] contentView] frame]) - pos.y;
+			}
+			else 
+			{
+				// To do: full screen handling 
+				py = pos.y;
+			}
+				
+			// Constrain in X and Y
+			if (px < osx_mouse.minx) 
+				px = osx_mouse.minx;
+			else if (px > osx_mouse.maxx)
+				px = osx_mouse.maxx;
+				
+			if (py < osx_mouse.miny) 
+				py = osx_mouse.miny;
+			else if (py > osx_mouse.maxy)
+				py = osx_mouse.maxy;
+			if (_al_event_source_needs_to_generate_event(&osx_mouse.parent.es, AL_EVENT_MOUSE_AXES))
+			{
+				_al_event_source_lock(&osx_mouse.parent.es);
+				AL_EVENT* new_event = _al_event_source_get_unused_event(&osx_mouse.parent.es);
+				AL_MOUSE_EVENT* mouse_event = &new_event->mouse;
+				mouse_event->type = AL_EVENT_MOUSE_AXES;
+				mouse_event->source = &osx_mouse.parent;
+				// Note: we use 'allegro time' rather than the time stamp 
+				// from the event 
+				mouse_event->timestamp = al_current_time();
+				//mouse_event->display = NULL;
+				mouse_event->button = 0;
+				mouse_event->x = px;
+				mouse_event->y = py; 
+				mouse_event->dx = [evt deltaX];
+				mouse_event->dy = [evt deltaY];
+				_al_event_source_emit_event(&osx_mouse.parent.es, new_event);
+				_al_event_source_unlock(&osx_mouse.parent.es);
+			}
+			// Record current state
+			osx_mouse.state.x = px;
+			osx_mouse.state.y = py;
+			break;
+		case NSLeftMouseDown:
+		case NSRightMouseDown:
+		case NSOtherMouseDown:
+			if (_al_event_source_needs_to_generate_event(&osx_mouse.parent.es, AL_EVENT_MOUSE_BUTTON_DOWN))
+			{
+				_al_event_source_lock(&osx_mouse.parent.es);
+				AL_EVENT* new_event = _al_event_source_get_unused_event(&osx_mouse.parent.es);
+				AL_MOUSE_EVENT* mouse_event = &new_event->mouse;
+				mouse_event->type = AL_EVENT_MOUSE_BUTTON_DOWN;
+				mouse_event->source = &osx_mouse.parent;
+				// Note: we use 'allegro time' rather than the time stamp 
+				// from the event 
+				mouse_event->timestamp = al_current_time();
+				//mouse_event->display = NULL;
+				mouse_event->button = [evt buttonNumber] + 1;
+				osx_mouse.state.buttons |= (1 << [evt buttonNumber]);
+				_al_event_source_emit_event(&osx_mouse.parent.es, new_event);
+				_al_event_source_unlock(&osx_mouse.parent.es);
+			}
+			break;
+		case NSLeftMouseUp:
+		case NSRightMouseUp:
+		case NSOtherMouseUp:
+			if (_al_event_source_needs_to_generate_event(&osx_mouse.parent.es, AL_EVENT_MOUSE_BUTTON_UP))
+			{
+				_al_event_source_lock(&osx_mouse.parent.es);
+				AL_EVENT* new_event = _al_event_source_get_unused_event(&osx_mouse.parent.es);
+				AL_MOUSE_EVENT* mouse_event = &new_event->mouse;
+				mouse_event->type = AL_EVENT_MOUSE_BUTTON_UP;
+				mouse_event->source = &osx_mouse.parent;
+				// Note: we use 'allegro time' rather than the time stamp 
+				// from the event 
+				mouse_event->timestamp = al_current_time();
+				//mouse_event->display = NULL;
+				mouse_event->button = [evt buttonNumber] + 1;
+				osx_mouse.state.buttons &= ~(1 << [evt buttonNumber]);
+				_al_event_source_emit_event(&osx_mouse.parent.es, new_event);
+				_al_event_source_unlock(&osx_mouse.parent.es);
+			}
+			break;
+		default:
+			break;
+	}
+}
 
 /* osx_mouse_init:
- *  Initializes the mickey-mode driver.
+ *  Initializes the driver.
  */
-static int osx_mouse_init(void)
+static bool osx_mouse_init(void)
 {
    HID_DEVICE_COLLECTION devices={0,0,NULL};
    int i, j;
@@ -147,15 +213,13 @@ static int osx_mouse_init(void)
 	       buttons++;
          }
          if (buttons > max_buttons) {
+			// Pick the mouse that has the most buttons.
             max_buttons = buttons;
-	    _al_sane_strncpy(driver_desc, "", sizeof(driver_desc));
-            if (device->manufacturer) {
-	       strncat(driver_desc, device->manufacturer, sizeof(driver_desc)-1);
-	       strncat(driver_desc, " ", sizeof(driver_desc)-1);
-	    }
-	    if (device->product)
-	       strncat(driver_desc, device->product, sizeof(driver_desc)-1);
-	    mouse_macosx.desc = driver_desc;
+			NSString* desc = [NSString stringWithFormat: @"%s %s",
+				device->manufacturer ? device->manufacturer : "",
+				device->product ? device->product : ""];
+			const char* str = [desc UTF8String];
+			mouse_macosx.desc = strcpy(malloc(strlen(str)+1), str);
 	 }
       }
       osx_hid_free(&devices);
@@ -164,47 +228,55 @@ static int osx_mouse_init(void)
    _al_mutex_lock(&osx_event_mutex);
    osx_emulate_mouse_buttons = (max_buttons == 1) ? TRUE : FALSE;
    _al_mutex_unlock(&osx_event_mutex);
-
-   return max_buttons;
+   _al_event_source_init(&osx_mouse.parent.es, _AL_ALL_MOUSE_EVENTS);
+   osx_mouse.button_count = max_buttons;
+   memset(&osx_mouse.state, 0, sizeof(AL_MSESTATE));
+   return TRUE;
 }
 
-
+/* osx_get_mouse_num_buttons:
+ * Return the number of buttons on the mouse
+ */
+static unsigned int osx_get_mouse_num_buttons(void)
+{
+	return osx_mouse.button_count;
+}
 
 /* osx_mouse_exit:
- *  Shuts down the mickey-mode driver.
+ *  Shuts down the driver.
  */
 static void osx_mouse_exit(void)
 {
    osx_cursor = osx_blank_cursor;
-   if (cursor)
-      [cursor release];
-   if (cursor_image)
-      [cursor_image release];
-   if (cursor_rep)
-      [cursor_rep release];
-   if (cursor_data)
-      free(cursor_data);
-   cursor = NULL;
-   cursor_image = NULL;
-   cursor_rep = NULL;
-   cursor_data = NULL;
+   // Go back to the system cursor
+   [[NSCursor arrowCursor] performSelectorOnMainThread: @selector(set)
+	withObject: nil
+	waitUntilDone: NO];
+   [cursor release];
+   cursor = nil;
+   free((char*) mouse_macosx.desc);
+   _al_event_source_free(&osx_mouse.parent.es);
+   osx_mouse.button_count = 0;
 }
 
 
 
 /* osx_mouse_position:
- *  Sets the position of the mickey-mode mouse.
+ *  Sets the position of the mouse.
  */
-static void osx_mouse_position(int x, int y)
+static bool osx_mouse_position(int x, int y)
 {
    CGPoint point;
    NSRect frame;
    int screen_height;
    
+   /* at the moment, disable this feature, as it doesn't work well on windowed mode */
+   return FALSE;
+   
    _al_mutex_lock(&osx_event_mutex);
    
-   _mouse_x = point.x = x;
-   _mouse_y = point.y = y;
+   point.x = x;
+   point.y = y;
    
    if (osx_window) {
       CFNumberGetValue(CFDictionaryGetValue(CGDisplayCurrentMode(kCGDirectMainDisplay), kCGDisplayHeight), kCFNumberSInt32Type, &screen_height);
@@ -215,143 +287,91 @@ static void osx_mouse_position(int x, int y)
    
    CGDisplayMoveCursorToPoint(kCGDirectMainDisplay, point);
    
-   mymickey_x = mymickey_y = 0;
    osx_mouse_warped = TRUE;
 
    _al_mutex_unlock(&osx_event_mutex);
+   return TRUE;
 }
 
 
 
 /* osx_mouse_set_range:
- *  Sets the range of the mickey-mode mouse.
+ *  Sets the range of the mouse.
  */
-static void osx_mouse_set_range(int x1, int y1, int x2, int y2)
+static bool osx_mouse_set_range(int x1, int y1, int x2, int y2)
 {
-   mouse_minx = x1;
-   mouse_miny = y1;
-   mouse_maxx = x2;
-   mouse_maxy = y2;
+   // Doesn't do anything at the moment.
+   osx_mouse.minx = x1;
+   osx_mouse.miny = y1;
+   osx_mouse.maxx = x2;
+   osx_mouse.maxy = y2;
    
-   osx_mouse_position(MID(mouse_minx, _mouse_x, mouse_maxx), MID(mouse_miny, _mouse_y, mouse_maxy));
+   return TRUE;
 }
-
-
-
-/* osx_mouse_get_mickeys:
- *  Reads the mickey-mode count.
- */
-static void osx_mouse_get_mickeys(int *mickeyx, int *mickeyy)
-{
-   _al_mutex_lock(&osx_event_mutex);
-   
-   *mickeyx = mymickey_x;
-   *mickeyy = mymickey_y;
-   mymickey_x = mymickey_y = 0;
-
-   _al_mutex_unlock(&osx_event_mutex);
-}
-
-
 
 /* osx_mouse_set_sprite:
- *  Sets the hardware cursor sprite.
- */
+*  Sets the hardware cursor sprite.
+*/
 int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
 {
-   int ix, iy;
-   int r = 0, g = 0, b = 0, a = 0, col;
-   unsigned int *d;
-   BITMAP *temp = NULL;
-#define GET_PIXEL_DATA(depth, getpix)                                \
-               case depth:                                           \
-                  for(iy=0; iy<sprite->h; iy++) {                    \
-                     for(ix=0; ix<sprite->w;  ix++) {                \
-                        col = getpix(sprite, ix, iy);                \
-                        if (col == (MASK_COLOR_ ## depth)) {         \
-                           r = g = b = a = 0;                        \
-                        }                                            \
-                        else {                                       \
-                           r = getr ## depth(col);                   \
-                           g = getg ## depth(col);                   \
-                           b = getb ## depth(col);                   \
-                           a = 255;                                  \
-                        }                                            \
-			*d++ = (r<<24)|(g<<16)|(b<<8)|(a);           \
-                     }                                               \
-                  }
+	int ix, iy;
+	int sw, sh;
+	
+	if (!sprite)
+		return -1;
+	sw = sprite->w;
+	sh = sprite->h;
+	if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_2) {
+		// Before MacOS X 10.3, NSCursor can handle only 16x16 cursor sprites
+		// Pad to 16x16 or fail if the sprite is already larger.
+		if (sw>16 || sh>16)
+			return -1;
+		sh = sw = 16;
+	}
+	
+	// release any previous cursor
+	[cursor release];
 
-   if (!sprite)
-      return -1;
-
-   if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_2) {
-      /* Before MacOS X 10.3, NSCursor can handle only 16x16 cursor sprites */
-      if ((sprite->w != 16) || (sprite->h != 16)) {
-         if ((sprite->w <= 16) && (sprite->h <= 16)) {
-	    /* Enlarge sprite to suit requirement */
-	    temp = create_bitmap_ex(bitmap_color_depth(sprite), 16, 16);
-	    clear_to_color(temp, bitmap_mask_color(temp));
-	    blit(sprite, temp, 0, 0, 0, 0, sprite->w, sprite->h);
-	    sprite = temp;
-	 }
-	 else
-	    return -1;
-      }
-   }
-   
-   if (cursor)
-      [cursor release];
-   if (cursor_image)
-      [cursor_image release];
-   if (cursor_rep)
-      [cursor_rep release];
-   if (cursor_data)
-      free(cursor_data);
-
-   cursor_data = malloc(sprite->w * sprite->h * 4);
-   d = (unsigned int *)cursor_data;
-   
-   switch(bitmap_color_depth(sprite)) {
-      GET_PIXEL_DATA(8, _getpixel)
-         break;
-
-      GET_PIXEL_DATA(15, _getpixel15)
-         break;
-
-      GET_PIXEL_DATA(16, _getpixel16)
-         break;
-
-      GET_PIXEL_DATA(24, _getpixel24)
-         break;
-
-      GET_PIXEL_DATA(32, _getpixel32)
-         break;
-   }
-   
-   cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: &cursor_data
-                                          pixelsWide: sprite->w
-                                          pixelsHigh: sprite->h
-                                          bitsPerSample: 8
-                                          samplesPerPixel: 4
-                                          hasAlpha: YES
-                                          isPlanar: NO
-                                          colorSpaceName: NSDeviceRGBColorSpace
-                                          bytesPerRow: sprite->w * 4
-                                          bitsPerPixel: 32];
-   cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(sprite->w, sprite->h)];
-   [cursor_image addRepresentation: cursor_rep];
-   cursor = [[NSCursor alloc] initWithImage: cursor_image
-                              hotSpot: NSMakePoint(x, y)];
-   _al_mutex_lock(&osx_event_mutex);
-   osx_cursor = requested_cursor = cursor;
-   _al_mutex_unlock(&osx_event_mutex);
-   if (temp)
-      destroy_bitmap(temp);
-
-#undef GET_PIXEL_DATA
-   return 0;
+	NSBitmapImageRep* cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: NULL
+														 pixelsWide: sw
+														 pixelsHigh: sh
+													  bitsPerSample: 8
+													samplesPerPixel: 4
+														   hasAlpha: YES
+														   isPlanar: NO
+													 colorSpaceName: NSDeviceRGBColorSpace
+														bytesPerRow: 0
+													   bitsPerPixel: 0];
+	int bpp = bitmap_color_depth(sprite);
+	int mask = bitmap_mask_color(sprite);
+	for (iy = 0; iy< sh; ++iy)
+	{
+		unsigned char* ptr = [cursor_rep bitmapData] + (iy * [cursor_rep bytesPerRow]);
+		for (ix = 0; ix< sw; ++ix)
+		{
+			int color = getpixel(sprite, ix, iy);
+			if (color == -1) color = mask;
+			int alpha = (color == mask) ? 0 : ((bpp == 32) ? geta_depth(bpp, color) : 255);
+			// NSBitmapImageRep uses premultiplied alpha
+			ptr[0] = getb_depth(bpp, color) * alpha / 256;
+			ptr[1] = getg_depth(bpp, color) * alpha / 256;
+			ptr[2] = getr_depth(bpp, color) * alpha / 256;
+			ptr[3] = alpha;
+			ptr += 4;
+		}
+	}
+	NSImage* cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(sw, sh)];
+	[cursor_image addRepresentation: cursor_rep];
+	[cursor_rep release];
+	cursor = [[NSCursor alloc] initWithImage: cursor_image
+									 hotSpot: NSMakePoint(x, y)];
+	[cursor_image release];
+	osx_cursor = requested_cursor = cursor;
+	[osx_cursor performSelectorOnMainThread: @selector(set)
+		withObject: nil
+		waitUntilDone: NO];
+	return 0;
 }
-
 
 
 /* osx_mouse_show:
@@ -366,9 +386,9 @@ int osx_mouse_show(BITMAP *bmp, int x, int y)
    if (!requested_cursor)
       return -1;
 
-   _al_mutex_lock(&osx_event_mutex);
-   osx_cursor = requested_cursor;
-   _al_mutex_unlock(&osx_event_mutex);
+   [NSCursor performSelectorOnMainThread: @selector(show) 
+	withObject: nil
+	waitUntilDone: NO];
 
    return 0;
 }
@@ -380,21 +400,11 @@ int osx_mouse_show(BITMAP *bmp, int x, int y)
  */
 void osx_mouse_hide(void)
 {
-   _al_mutex_lock(&osx_event_mutex);
-   osx_cursor = osx_blank_cursor;
-   _al_mutex_unlock(&osx_event_mutex);
+
+   [NSCursor performSelectorOnMainThread: @selector(hide) 
+	withObject: nil
+	waitUntilDone: NO];
 }
-
-
-
-/* osx_mouse_move:
- *  Get mouse move notification. Not that we need it...
- */
-void osx_mouse_move(int x, int y)
-{
-}
-
-
 
 /* osx_enable_hardware_cursor:
  *  Enable hardware cursor - on OSX it's always enabled.
@@ -422,13 +432,31 @@ static int osx_select_system_cursor(AL_CONST int cursor)
    default:
       return 0;
    }
-   _al_mutex_lock(&osx_event_mutex);
    osx_cursor = requested_cursor;
-   _al_mutex_unlock(&osx_event_mutex);
+   [osx_cursor performSelectorOnMainThread: @selector(set)
+		withObject: nil
+		waitUntilDone: NO];
    return cursor;
 }
 
+static void osx_get_state(AL_MSESTATE *ret_state)
+{
+	memcpy(ret_state, &osx_mouse.state, sizeof(AL_MSESTATE));
+}
+/* list the available drivers */
+_DRIVER_INFO _al_mouse_driver_list[] =
+{
+   {  MOUSE_MACOSX, &mouse_macosx, TRUE  },
+   {  0,  NULL,  0  }
+};
 
+/*
+* osx_mouse_move:
+*  Required for compatibility with 4.2 api, may disappear soon.
+*/
+void osx_mouse_move(int x, int y)
+{
+}
 
 /* Local variables:       */
 /* c-basic-offset: 3      */

@@ -49,7 +49,6 @@ static int pseudo_screen_depth;
 static char *dirty_lines = NULL;
 static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
-
 _AL_MUTEX osx_window_mutex;
 
 
@@ -291,6 +290,53 @@ static void prepare_window_for_animation(int refresh_view)
    osx_signal_vsync();
 
 }
+
+/* Mouse handling */
+-(void) mouseDown: (NSEvent*) evt
+{
+	osx_mouse_generate_event(evt);
+}
+-(void) mouseUp: (NSEvent*) evt
+{
+	osx_mouse_generate_event(evt);
+}
+-(void) mouseDragged: (NSEvent*) evt
+{
+	osx_mouse_generate_event(evt);
+}
+-(void) rightMouseDown: (NSEvent*) evt
+{
+	osx_mouse_generate_event(evt);
+}
+-(void) rightMouseUp: (NSEvent*) evt
+{
+	osx_mouse_generate_event(evt);
+}
+-(void) rightMouseDragged: (NSEvent*) evt
+{
+	osx_mouse_generate_event(evt);
+}
+-(void) otherMouseDown: (NSEvent*) evt
+{
+	osx_mouse_generate_event(evt);
+}
+-(void) otherMouseUp: (NSEvent*) evt
+{
+	osx_mouse_generate_event(evt);
+}
+-(void) otherMouseDragged: (NSEvent*) evt
+{
+	osx_mouse_generate_event(evt);
+}
+-(void) mouseMoved: (NSEvent*) evt
+{
+	osx_mouse_generate_event(evt);
+}
+-(void) scrollWheel: (NSEvent*) evt
+{
+	osx_mouse_generate_event(evt);
+}
+
 @end
 
 
