@@ -33,23 +33,29 @@ struct AL_FS_HOOK_VTABLE {
    AL_METHOD(uint32_t,  ftell,  (AL_FILE *fp) );
    AL_METHOD(uint32_t,  ferror, (AL_FILE *fp) );
    AL_METHOD(uint32_t,  feof,   (AL_FILE *fp) );
+
    AL_METHOD(uint32_t,  fstat, (AL_CONST char *path, AL_STAT *stbuf) );
+
    AL_METHOD(AL_DIR *,    opendir,  (AL_CONST char *path) );
    AL_METHOD(AL_DIRENT *, readdir,  (AL_DIR *dir) );
    AL_METHOD(uint32_t,    closedir, (AL_DIR *dir) );
+
    AL_METHOD(AL_FILE *, mktemp, (AL_CONST char *template) );
    AL_METHOD(uint32_t,  getcwd, (char *buf, size_t *len) );
    AL_METHOD(uint32_t,  chdir,  (AL_CONST char *path) );
    AL_METHOD(uint32_t,  getdir, (uint32_t id, char *dir, uint32_t *len) );
+
    AL_METHOD(uint32_t, add_search_path, (AL_CONST char *path) );
    AL_METHOD(uint32_t, search_path_count, (void) );
    AL_METHOD(uint32_t, get_search_path, (char *dest, uint32_t *len) );
+
    /* I had wanted to make these a single function with a few enum entries, but can I assume
       all the types are the same size? */
-   AL_METHOD(uint32_t, get_stat_mode,  (void) );
-   AL_METHOD(time_t,   get_stat_atime, (void) );
-   AL_METHOD(time_t,   get_stat_mtime, (void) );
-   AL_METHOD(time_t,   get_stat_ctime, (void) );
+   AL_METHOD(uint32_t, get_stat_mode,  (AL_STAT *) );
+   AL_METHOD(time_t,   get_stat_atime, (AL_STAT *) );
+   AL_METHOD(time_t,   get_stat_mtime, (AL_STAT *) );
+   AL_METHOD(time_t,   get_stat_ctime, (AL_STAT *) );
+   AL_METHOD(size_t,   get_stat_size,  (AL_STAT *) );
 
    AL_METHOD(uint32_t, path_to_sys, (const char *orig, uint32_t len, char *path) );
    AL_METHOD(uint32_t, path_to_uni, (const char *orig, uint32_t len, char *path) );
@@ -83,10 +89,11 @@ AL_VAR(struct AL_FS_HOOK_VTABLE, _al_fshooks);
 #define _al_fs_hook_search_path_count()        _al_fshooks.search_path_count()
 #define _al_fs_hook_get_search_path(dest, len) _al_fshooks.get_search_path(dest, len)
 
-#define _al_fs_hook_get_stat_mode()  _al_fshooks.get_stat_mode()
-#define _al_fs_hook_get_stat_atime() _al_fshooks.get_stat_atime()
-#define _al_fs_hook_get_stat_mtime() _al_fshooks.get_stat_mtime()
-#define _al_fs_hook_get_stat_ctime() _al_fshooks.get_stat_ctime()
+#define _al_fs_hook_get_stat_mode(st)  _al_fshooks.get_stat_mode(st)
+#define _al_fs_hook_get_stat_atime(st) _al_fshooks.get_stat_atime(st)
+#define _al_fs_hook_get_stat_mtime(st) _al_fshooks.get_stat_mtime(st)
+#define _al_fs_hook_get_stat_ctime(st) _al_fshooks.get_stat_ctime(st)
+#define _al_fs_hook_get_stat_size(st)  _al_fshooks.get_stat_size(st)
 
 #define _al_fs_hook_path_to_sys(orig, len, path) _al_fshooks.path_to_sys(orig, len, path)
 #define _al_fs_hook_path_to_uni(orig, len, path) _al_fshooks.path_to_uni(orig, len, path)

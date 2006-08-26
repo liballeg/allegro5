@@ -125,6 +125,10 @@ int al_fs_set_hook(uint32_t phid, void *fshook)
          _al_fshooks.get_stat_ctime = fshook;
          break;
 
+      case AL_FS_HOOK_GET_STAT_SIZE:
+         _al_fshooks.get_stat_size = fshook;
+         break;
+
       case AL_FS_HOOK_PATH_TO_SYS:
          _al_fshooks.path_to_sys = fshook;
          break;
@@ -214,6 +218,9 @@ void *al_fs_get_hook(uint32_t phid)
 
       case AL_FS_HOOK_GET_STAT_MTIME:
          return _al_fshooks.get_stat_mtime;
+
+      case AL_FS_HOOK_GET_STAT_SIZE:
+         return _al_fshooks.get_stat_size;
 
       case AL_FS_HOOK_GET_STAT_CTIME:
          return _al_fshooks.get_stat_ctime;
@@ -353,7 +360,7 @@ uint32_t al_fs_chdir(const char *path)
    return _al_fs_hook_chdir(path);
 }
 
-uint32_t al_fs_getdir(uint32_t id, char *dir, uint32_t *len)
+uint32_t al_fs_getdir(uint32_t id, char *dir, size_t *len)
 {
    ASSERT(id < 0 || id > AL_DIR_LAST);
    ASSERT(dir);
@@ -375,7 +382,7 @@ uint32_t al_fs_search_path_count()
    return _al_fs_hook_search_path_count();
 }
 
-uint32_t al_fs_get_search_path(char *dest, uint32_t *len)
+uint32_t al_fs_get_search_path(char *dest, size_t *len)
 {
    ASSERT(dest);
    ASSERT(len);
@@ -384,27 +391,34 @@ uint32_t al_fs_get_search_path(char *dest, uint32_t *len)
 }
 
 
-uint32_t al_fs_get_stat_mode()
+uint32_t al_fs_get_stat_mode(AL_STAT *st)
 {
-   return _al_fs_hook_get_stat_mode();
+   return _al_fs_hook_get_stat_mode(st);
 }
 
-time_t   al_fs_get_stat_atime()
+time_t   al_fs_get_stat_atime(AL_STAT *st)
 {
-   return _al_fs_hook_get_stat_atime();
+   return _al_fs_hook_get_stat_atime(st);
 }
 
-time_t   al_fs_get_stat_mtime()
+time_t   al_fs_get_stat_mtime(AL_STAT *st)
 {
-   return _al_fs_hook_get_stat_mtime();
+   return _al_fs_hook_get_stat_mtime(st);
 }
 
-time_t   al_fs_get_stat_ctime()
+time_t   al_fs_get_stat_ctime(AL_STAT *st)
 {
-   return _al_fs_hook_get_stat_ctime();
+   return _al_fs_hook_get_stat_ctime(st);
 }
 
-uint32_t al_fs_path_to_sys(const char *orig, uint32_t len, char *path)
+size_t   al_fs_get_stat_size(AL_STAT *st)
+{
+   ASSERT(st);
+
+   return _al_fs_hook_get_stat_size(st);
+}
+
+uint32_t al_fs_path_to_sys(const char *orig, size_t len, char *path)
 {
    ASSERT(orig);
    ASSERT(len > 0);
@@ -413,7 +427,7 @@ uint32_t al_fs_path_to_sys(const char *orig, uint32_t len, char *path)
    return _al_fs_hook_path_to_sys(orig, len, path);
 }
 
-uint32_t al_fs_path_to_uni(const char *orig, uint32_t len, char *path)
+uint32_t al_fs_path_to_uni(const char *orig, size_t len, char *path)
 {
    ASSERT(orig);
    ASSERT(len > 0);

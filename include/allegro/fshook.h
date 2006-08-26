@@ -78,9 +78,13 @@ enum {
    AL_FS_HOOK_GET_STAT_ATIME,
    AL_FS_HOOK_GET_STAT_MTIME,
    AL_FS_HOOK_GET_STAT_CTIME,
+   AL_FS_HOOK_GET_STAT_SIZE,
 
    AL_FS_HOOK_PATH_TO_SYS,
    AL_FS_HOOK_PATH_TO_UNI, /* universal */
+
+   AL_FS_HOOK_DRIVE_SEP,
+   AL_FS_HOOK_PATH_SEP,
 
    AL_FS_HOOK_LAST /* must be last */
 };
@@ -108,22 +112,27 @@ AL_DIR    *al_fs_opendir(const char *path);
 uint32_t   al_fs_closedir(AL_DIR *dir);
 AL_DIRENT *al_fs_readdir(AL_DIR *dir);
 
-AL_FILE *al_fs_mktemp(const char *template);
+AL_FILE *al_fs_mktemp(const char *tmpl);
 uint32_t al_fs_getcwd(char *buf, size_t *len);
 uint32_t al_fs_chdir(const char *path);
-uint32_t al_fs_getdir(uint32_t id, char *dir, uint32_t *len);
+uint32_t al_fs_getdir(uint32_t id, size_t len, char *dir);
 
 uint32_t al_fs_add_search_path(const char *path);
 uint32_t al_fs_search_path_count();
-uint32_t al_fs_get_search_path(char *dest, uint32_t *len);
+uint32_t al_fs_get_search_path(char *dest, size_t *len);
 
-uint32_t al_fs_get_stat_mode();
-time_t   al_fs_get_stat_atime();
-time_t   al_fs_get_stat_mtime();
-time_t   al_fs_get_stat_ctime();
+uint32_t al_fs_get_stat_mode(AL_STAT *st);
+time_t   al_fs_get_stat_atime(AL_STAT *st);
+time_t   al_fs_get_stat_mtime(AL_STAT *st);
+time_t   al_fs_get_stat_ctime(AL_STAT *st);
+size_t   al_fs_get_stat_size(AL_STAT *st);
 
-uint32_t al_fs_path_to_sys(const char *orig, uint32_t len, char *path);
-uint32_t al_fs_path_to_uni(const char *orig, uint32_t len, char *path);
+uint32_t al_fs_get_drive_sep(size_t len, char *sep);
+uint32_t al_fs_get_path_sep(size_t len, char *sep);
+
+uint32_t al_fs_path_to_sys(const char *orig, size_t len, char *path);
+uint32_t al_fs_path_to_uni(const char *orig, size_t len, char *path);
+
 
 AL_END_EXTERN_C
 
