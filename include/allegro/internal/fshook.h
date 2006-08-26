@@ -50,6 +50,9 @@ struct AL_FS_HOOK_VTABLE {
    AL_METHOD(time_t,   get_stat_atime, (void) );
    AL_METHOD(time_t,   get_stat_mtime, (void) );
    AL_METHOD(time_t,   get_stat_ctime, (void) );
+
+   AL_METHOD(uint32_t, path_to_sys, (const char *orig, uint32_t len, char *path) );
+   AL_METHOD(uint32_t, path_to_uni, (const char *orig, uint32_t len, char *path) );
 };
 
 /* Can't figure out a better way. Global it is */
@@ -84,6 +87,9 @@ AL_VAR(struct AL_FS_HOOK_VTABLE, _al_fshooks);
 #define _al_fs_hook_get_stat_atime() _al_fshooks.get_stat_atime()
 #define _al_fs_hook_get_stat_mtime() _al_fshooks.get_stat_mtime()
 #define _al_fs_hook_get_stat_ctime() _al_fshooks.get_stat_ctime()
+
+#define _al_fs_path_to_sys(orig, len, path) _al_fshooks.path_to_sys(orig, len, path)
+#define _al_fs_path_to_uni(orig, len, path) _al_fshooks.path_to_uni(orig, len, path)
 
 AL_END_EXTERN_C
 

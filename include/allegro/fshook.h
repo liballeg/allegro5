@@ -79,6 +79,9 @@ enum {
    AL_FS_HOOK_GET_STAT_MTIME,
    AL_FS_HOOK_GET_STAT_CTIME,
 
+   AL_FS_HOOK_PATH_TO_SYS,
+   AL_FS_HOOK_PATH_TO_UNI, /* universal */
+
    AL_FS_HOOK_LAST /* must be last */
 };
 
@@ -118,6 +121,9 @@ uint32_t al_fs_get_stat_mode();
 time_t   al_fs_get_stat_atime();
 time_t   al_fs_get_stat_mtime();
 time_t   al_fs_get_stat_ctime();
+
+uint32_t al_fs_path_to_sys(const char *orig, uint32_t len, char *path);
+uint32_t al_fs_path_to_uni(const char *orig, uint32_t len, char *path);
 
 AL_END_EXTERN_C
 

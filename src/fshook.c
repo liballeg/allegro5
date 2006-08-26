@@ -125,6 +125,14 @@ int al_fs_set_hook(uint32_t phid, void *fshook)
          _al_fshooks.get_stat_ctime = fshook;
          break;
 
+      case AL_FS_HOOK_PATH_TO_SYS:
+         _al_fshooks.path_to_sys = fshook;
+         break;
+
+      case AL_FS_HOOK_PATH_TO_UNI:
+         _al_fshooks.path_to_uni = fshook;
+         break;
+
       default:
          break;
    }
@@ -209,6 +217,12 @@ void *al_fs_get_hook(uint32_t phid)
 
       case AL_FS_HOOK_GET_STAT_CTIME:
          return _al_fshooks.get_stat_ctime;
+
+      case AL_FS_HOOK_PATH_TO_SYS:
+         return _al_fshooks.path_to_sys;
+
+      case AL_FS_HOOK_PATH_TO_UNI:
+         return _al_fshooks.path_to_uni;
 
       default:
          return NULL;
@@ -390,6 +404,23 @@ time_t   al_fs_get_stat_ctime()
    return _al_fs_hook_get_stat_ctime();
 }
 
+uint32_t al_fs_path_to_sys(const char *orig, uint32_t len, char *path)
+{
+   ASSERT(orig);
+   ASSERT(len > 0);
+   ASSERT(path);
+
+   return _al_fs_hook_path_to_sys(orig, len, path);
+}
+
+uint32_t al_fs_path_to_uni(const char *orig, uint32_t len, char *path)
+{
+   ASSERT(orig);
+   ASSERT(len > 0);
+   ASSERT(path);
+
+   return _al_fs_hook_path_to_uni(orig, len, path);
+}
 
 /* for you freaks running vim/emacs. */
 /*
