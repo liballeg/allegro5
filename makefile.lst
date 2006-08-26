@@ -14,7 +14,7 @@ ALLEGRO_SRC_FILES = \
 	src/digmid.c \
 	src/dither.c \
 	src/dispsw.c \
-        src/display.c \
+	src/display.c \
 	src/dtor.c \
 	src/drvlist.c \
 	src/events.c \
@@ -76,7 +76,8 @@ ALLEGRO_SRC_FILES = \
 	src/compat/cojoy.c \
 	src/compat/cokeybd.c \
 	src/compat/cotimer.c \
-	src/misc/vector.c
+	src/misc/vector.c \
+	src/fshook.c
 
 ALLEGRO_SRC_C_FILES = \
 	src/c/cblit16.c \
@@ -355,7 +356,7 @@ ALLEGRO_SRC_X_FILES = \
 	src/x/xdga2s.s \
 	src/x/xwins.s \
 	src/misc/colconv.c
-	
+
 ALLEGRO_SRC_QNX_FILES = \
 	src/qnx/qdrivers.c \
 	src/qnx/qkeydrv.c \
@@ -417,7 +418,7 @@ ALLEGRO_MODULE_FBCON_FILES = \
 ALLEGRO_MODULE_DGA2_FILES = \
 	src/x/xdga2.c \
 	src/x/xdga2s.s
-	
+
 ALLEGRO_MODULE_ALSADIGI_FILES = \
 	src/unix/alsa5.c \
 	src/unix/alsa9.c

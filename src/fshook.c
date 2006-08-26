@@ -16,167 +16,380 @@
  */
 
 #include "allegro.h"
+#include "allegro/debug.h"
+#include "allegro/fshook.h"
 #include "allegro/internal/fshook.h"
 #include ALLEGRO_INTERNAL_HEADER
 
-/* option one */
-typedef void (*AL_FS_HOOK)();
-typedef void AL_FS_HOOKS[AL_FS_HOOK_LAST];
-
-/* option two */
-#if 0
-struct AL_FS_HOOK_VTABLE {
-   AL_METHOD(AL_FILE *, fopen,  (AL_CONST char *path, AL_CONST char *mode) );
-   AL_METHOD(uint32_t,  fclose, (AL_FILE *fp) );
-   AL_METHOD(size_t,    fread,  (void *ptr, size_t size, AL_FILE *fp) );
-   AL_METHOD(size_t,    fwrite, (AL_CONST void *ptr, size_t size, AL_FILE *fp) );
-   AL_METHOD(uint32_t,  fflush, (AL_FILE *fp) );
-   AL_METHOD(uint32_t,  fseek,  (AL_FILE *fp, uint32_t offset, uint32_t whence) );
-   AL_METHOD(uint32_t,  ftell,  (AL_FILE *fp) );
-   AL_METHOD(uint32_t,  ferror, (AL_FILE *fp) );
-   AL_METHOD(uint32_t,  feof,   (AL_FILE *fp) );
-
-   AL_METHOD(uint32_t,  fstat, (AL_CONST char *path, AL_STAT *stbuf) );
-
-   AL_METHOD(AL_DIR *,    opendir,  (AL_CONST char *path) );
-   AL_METHOD(AL_DIRENT *, readdir,  (AL_DIR *dir) );
-   AL_METHOD(uint32_t,    closedir, (AL_DIR *dir) );
-
-   AL_METHOD(AL_FILE *, mktemp, (AL_CONST char *template) );
-   AL_METHOD(uint32_t,  getcwd, (char *buf, size_t *len) );
-   AL_METHOD(uint32_t,  chdir,  (AL_CONST char *path) );
-   AL_METHOD(uint32_t,  getdir, (uint32_t id, char *dir, uint32_t *len) );
-
-   AL_METHOD(uint32_t, add_search_path, (AL_CONST char *path) );
-   AL_METHOD(uint32_t, search_path_count, (void) );
-   AL_METHOD(uint32_t, get_search_path, (char *dest, uint32_t *len) );
-
-   /* I had wanted to make these a single function with a few enum entries, but can I assume
-      all the types are the same size? */
-   AL_METHOD(uint32_t, get_stat_mode,  (void) );
-   AL_METHOD(time_t,   get_stat_atime, (void) );
-   AL_METHOD(time_t,   get_stat_mtime, (void) );
-   AL_METHOD(time_t,   get_stat_ctime, (void) );
-};
-#endif
+struct AL_FS_HOOK_VTABLE _al_fshooks;
 
 int al_fs_set_hook(uint32_t phid, void *fshook)
 {
    if(phid < 0 || phid >= AL_FS_HOOK_LAST)
       return -1;
 
-   /* option one */
-   /* I (Thomas Fjellstrom), prefer this option. */
-   system->fshooks[phid] = fshook;
-
-#if 0
-   /* option two */
    switch(phid) {
       case AL_FS_HOOK_FOPEN:
-         system->fshooks->fopen = fshook;
+         _al_fshooks.fopen = fshook;
          break;
 
       case AL_FS_HOOK_FCLOSE:
-         system->fshooks->fclose = fshook;
+         _al_fshooks.fclose = fshook;
          break;
 
       case AL_FS_HOOK_FREAD:
-         system->fshooks->fread = fshook;
+         _al_fshooks.fread = fshook;
          break;
 
       case AL_FS_HOOK_FWRITE:
-         system->fshooks->fwrite = fshook;
+         _al_fshooks.fwrite = fshook;
          break;
 
       case AL_FS_HOOK_FFLUSH:
-         system->fshooks->fflush = fshook;
+         _al_fshooks.fflush = fshook;
          break;
 
       case AL_FS_HOOK_FSEEK:
-         system->fshooks->fseek = fshook;
+         _al_fshooks.fseek = fshook;
          break;
 
       case AL_FS_HOOK_FTELL:
-         system->fshooks->ftell = fshook;
+         _al_fshooks.ftell = fshook;
          break;
 
       case AL_FS_HOOK_FERROR:
-         system->fshooks->ferror = fshook;
+         _al_fshooks.ferror = fshook;
          break;
 
       case AL_FS_HOOK_FEOF:
-         system->fshooks->feof = fshook;
+         _al_fshooks.feof = fshook;
          break;
-
 
       case AL_FS_HOOK_FSTAT:
-         system->fshooks->fstat = fshook;
+         _al_fshooks.fstat = fshook;
          break;
 
-
       case AL_FS_HOOK_OPENDIR:
-         system->fshooks->opendir = fshook;
+         _al_fshooks.opendir = fshook;
          break;
 
       case AL_FS_HOOK_CLOSEDIR:
-         system->fshooks->closedir = fshook;
+         _al_fshooks.closedir = fshook;
          break;
 
       case AL_FS_HOOK_READDIR:
-         system->fshooks->readdir = fshook;
+         _al_fshooks.readdir = fshook;
          break;
 
-
       case AL_FS_HOOK_MKTEMP:
-         system->fshooks->mktemp = fshook;
+         _al_fshooks.mktemp = fshook;
          break;
 
       case AL_FS_HOOK_GETCWD:
-         system->fshooks->getcwd = fshook;
+         _al_fshooks.getcwd = fshook;
          break;
 
       case AL_FS_HOOK_CHDIR:
-         system->fshooks->chdir = fshook;
+         _al_fshooks.chdir = fshook;
          break;
 
       case AL_FS_HOOK_GETDIR:
-         system->fshooks->getdir = fshook;
+         _al_fshooks.getdir = fshook;
          break;
 
       case AL_FS_HOOK_ADD_SEARCH_PATH:
-         system->fshooks->add_search_path = fshook;
+         _al_fshooks.add_search_path = fshook;
          break;
 
       case AL_FS_HOOK_SEARCH_PATH_COUNT:
-         system->fshooks->search_path_count = fshook;
+         _al_fshooks.search_path_count = fshook;
          break;
 
       case AL_FS_HOOK_GET_SEARCH_PATH:
-         system->fshooks->get_search_path = fshook;
+         _al_fshooks.get_search_path = fshook;
          break;
 
-
       case AL_FS_HOOK_GET_STAT_MODE:
-         system->fshooks->get_stat_mode = fshook;
+         _al_fshooks.get_stat_mode = fshook;
          break;
 
       case AL_FS_HOOK_GET_STAT_ATIME:
-         system->fshooks->get_stat_atime = fshook;
+         _al_fshooks.get_stat_atime = fshook;
          break;
 
       case AL_FS_HOOK_GET_STAT_MTIME:
-         system->fshooks->get_stat_mtime = fshook;
+         _al_fshooks.get_stat_mtime = fshook;
          break;
 
       case AL_FS_HOOK_GET_STAT_CTIME:
-         system->fshooks->get_stat_ctime = fshook;
+         _al_fshooks.get_stat_ctime = fshook;
+         break;
+
+      default:
          break;
    }
-#endif
 
+   return 0;
 }
 
-void *al_fs_get_hook(uint32_t phid);
+void *al_fs_get_hook(uint32_t phid)
+{
+   if(phid < 0 || phid >= AL_FS_HOOK_LAST)
+      return NULL;
+
+   switch(phid) {
+      case AL_FS_HOOK_FOPEN:
+         return _al_fshooks.fopen;
+
+      case AL_FS_HOOK_FCLOSE:
+         return _al_fshooks.fclose;
+
+      case AL_FS_HOOK_FREAD:
+         return _al_fshooks.fread;
+
+      case AL_FS_HOOK_FWRITE:
+         return _al_fshooks.fwrite;
+
+      case AL_FS_HOOK_FFLUSH:
+         return _al_fshooks.fflush;
+
+      case AL_FS_HOOK_FSEEK:
+         return _al_fshooks.fseek;
+
+      case AL_FS_HOOK_FTELL:
+         return _al_fshooks.ftell;
+
+      case AL_FS_HOOK_FERROR:
+         return _al_fshooks.ferror;
+
+      case AL_FS_HOOK_FEOF:
+         return _al_fshooks.feof;
+
+      case AL_FS_HOOK_FSTAT:
+         return _al_fshooks.fstat;
+
+      case AL_FS_HOOK_OPENDIR:
+         return _al_fshooks.opendir;
+
+      case AL_FS_HOOK_CLOSEDIR:
+         return _al_fshooks.closedir;
+
+      case AL_FS_HOOK_READDIR:
+         return _al_fshooks.readdir;
+
+      case AL_FS_HOOK_MKTEMP:
+         return _al_fshooks.mktemp;
+
+      case AL_FS_HOOK_GETCWD:
+         return _al_fshooks.getcwd;
+
+      case AL_FS_HOOK_CHDIR:
+         return _al_fshooks.chdir;
+
+      case AL_FS_HOOK_GETDIR:
+         return _al_fshooks.getdir;
+
+      case AL_FS_HOOK_ADD_SEARCH_PATH:
+         return _al_fshooks.add_search_path;
+
+      case AL_FS_HOOK_SEARCH_PATH_COUNT:
+         return _al_fshooks.search_path_count;
+
+      case AL_FS_HOOK_GET_SEARCH_PATH:
+         return _al_fshooks.get_search_path;
+
+      case AL_FS_HOOK_GET_STAT_MODE:
+         return _al_fshooks.get_stat_mode;
+
+      case AL_FS_HOOK_GET_STAT_ATIME:
+         return _al_fshooks.get_stat_atime;
+
+      case AL_FS_HOOK_GET_STAT_MTIME:
+         return _al_fshooks.get_stat_mtime;
+
+      case AL_FS_HOOK_GET_STAT_CTIME:
+         return _al_fshooks.get_stat_ctime;
+
+      default:
+         return NULL;
+   }
+
+   return NULL;
+}
+
+AL_FILE *al_fs_fopen(const char *path, const char *mode)
+{
+   ASSERT(path != NULL);
+   ASSERT(mode != NULL);
+
+   return _al_fs_hook_fopen(path, mode);
+}
+
+uint32_t al_fs_fclose(AL_FILE *fp)
+{
+   ASSERT(fp != NULL);
+
+   return _al_fs_hook_fclose(fp);
+}
+
+size_t   al_fs_fread(void *ptr, size_t size, AL_FILE *fp)
+{
+   ASSERT(ptr != NULL);
+   ASSERT(fp != NULL);
+
+   return _al_fs_hook_fread(ptr, size, fp);
+}
+
+size_t   al_fs_fwrite(const void *ptr, size_t size, AL_FILE *fp)
+{
+   ASSERT(ptr != NULL);
+   ASSERT(fp != NULL);
+
+   return _al_fs_hook_fwrite(ptr, size, fp);
+}
+
+uint32_t al_fs_fflush(AL_FILE *fp)
+{
+   ASSERT(fp != NULL);
+
+   return _al_fs_hook_fflush(fp);
+}
+
+uint32_t al_fs_fseek(AL_FILE *fp, uint32_t offset, uint32_t whence)
+{
+   ASSERT(fp != NULL);
+   ASSERT(offset >= 0);
+   ASSERT(whence != AL_SEEK_SET && whence != AL_SEEK_CUR && whence != AL_SEEK_END);
+
+   return _al_fs_hook_fseek(fp, offset, whence);
+}
+
+uint32_t al_fs_ftell(AL_FILE *fp)
+{
+   ASSERT(fp != NULL);
+
+   return _al_fs_hook_ftell(fp);
+}
+
+uint32_t al_fs_ferror(AL_FILE *fp)
+{
+   ASSERT(fp != NULL);
+
+   return _al_fs_hook_ferror(fp);
+}
+
+uint32_t al_fs_feof(AL_FILE *fp)
+{
+   ASSERT(fp != NULL);
+
+   return _al_fs_hook_feof(fp);
+}
+
+
+uint32_t al_fs_fstat(const char *path, AL_STAT *stbuf)
+{
+   ASSERT(path != NULL);
+   ASSERT(stbuf != NULL);
+
+   return _al_fs_hook_fstat(path, stbuf);
+}
+
+
+AL_DIR    *al_fs_opendir(const char *path)
+{
+   ASSERT(path != NULL);
+
+   return _al_fs_hook_opendir(path);
+}
+
+uint32_t   al_fs_closedir(AL_DIR *dir)
+{
+   ASSERT(dir != NULL);
+
+   return _al_fs_hook_closedir(dir);
+}
+
+AL_DIRENT *al_fs_readdir(AL_DIR *dir)
+{
+   ASSERT(dir != NULL);
+
+   return _al_fs_hook_readdir(dir);
+}
+
+
+AL_FILE *al_fs_mktemp(const char *template)
+{
+   ASSERT(template != NULL);
+
+   return _al_fs_hook_mktemp(template);
+}
+
+uint32_t al_fs_getcwd(char *buf, size_t *len)
+{
+   ASSERT(buf != NULL);
+   ASSERT(len != NULL);
+
+   return _al_fs_hook_getcwd(buf, len);
+}
+
+uint32_t al_fs_chdir(const char *path)
+{
+   ASSERT(path);
+
+   return _al_fs_hook_chdir(path);
+}
+
+uint32_t al_fs_getdir(uint32_t id, char *dir, uint32_t *len)
+{
+   ASSERT(id < 0 || id > AL_DIR_LAST);
+   ASSERT(dir);
+   ASSERT(len);
+
+   return _al_fs_hook_getdir(id, dir, len);
+}
+
+
+uint32_t al_fs_add_search_path(const char *path)
+{
+   ASSERT(path);
+
+   return _al_fs_hook_add_search_path(path);
+}
+
+uint32_t al_fs_search_path_count()
+{
+   return _al_fs_hook_search_path_count();
+}
+
+uint32_t al_fs_get_search_path(char *dest, uint32_t *len)
+{
+   ASSERT(dest);
+   ASSERT(len);
+
+   return _al_fs_hook_get_search_path(dest, len);
+}
+
+
+uint32_t al_fs_get_stat_mode()
+{
+   return _al_fs_hook_get_stat_mode();
+}
+
+time_t   al_fs_get_stat_atime()
+{
+   return _al_fs_hook_get_stat_atime();
+}
+
+time_t   al_fs_get_stat_mtime()
+{
+   return _al_fs_hook_get_stat_mtime();
+}
+
+time_t   al_fs_get_stat_ctime()
+{
+   return _al_fs_hook_get_stat_ctime();
+}
+
 
 /* for you freaks running vim/emacs. */
 /*
