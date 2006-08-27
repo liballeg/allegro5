@@ -27,10 +27,13 @@ typedef struct AL_MOUSE AL_MOUSE;
 
 typedef struct AL_MSESTATE
 {
+   /* (x, y) Primary mouse position */
+   /* (z) Mouse wheel position (1D 'wheel'), or,  */
+   /* (w, z) Mouse wheel position (2D 'ball') */
    int x;
    int y;
    int z;
-   /* more axes? */
+   int w;
    int buttons;
 } AL_MSESTATE;
 

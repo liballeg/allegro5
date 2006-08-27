@@ -101,9 +101,11 @@ typedef struct AL_MOUSE_EVENT
 {
    _AL_EVENT_HEADER(struct AL_MOUSE);
    struct AL_DISPLAY *__display__dont_use_yet__;
-   int x,  y,  z;
-   int dx, dy, dz;
-   /* more axes? */
+   /* (x, y) Primary mouse position */
+   /* (z) Mouse wheel position (1D 'wheel'), or,  */
+   /* (w, z) Mouse wheel position (2D 'ball') */
+   int x,  y,  z, w;
+   int dx, dy, dz, dw;
    unsigned int button;
 } AL_MOUSE_EVENT;
 
