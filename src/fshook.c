@@ -280,7 +280,7 @@ uint32_t al_fs_fseek(AL_FILE *fp, uint32_t offset, uint32_t whence)
 {
    ASSERT(fp != NULL);
    ASSERT(offset >= 0);
-   ASSERT(whence != AL_SEEK_SET && whence != AL_SEEK_CUR && whence != AL_SEEK_END);
+   ASSERT(whence == AL_SEEK_SET || whence == AL_SEEK_CUR || whence == AL_SEEK_END);
 
    return _al_fs_hook_fseek(fp, offset, whence);
 }
@@ -362,7 +362,7 @@ uint32_t al_fs_chdir(const char *path)
 
 uint32_t al_fs_getdir(uint32_t id, char *dir, size_t *len)
 {
-   ASSERT(id < 0 || id > AL_DIR_LAST);
+   ASSERT(id >= 0 && id < AL_DIR_LAST);
    ASSERT(dir);
    ASSERT(len);
 
