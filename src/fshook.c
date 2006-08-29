@@ -21,15 +21,6 @@
 #include "allegro/internal/fshook.h"
 #include ALLEGRO_INTERNAL_HEADER
 
-AL_FUNC(void, _al_mutex_init, (_AL_MUTEX*));
-AL_FUNC(void, _al_mutex_destroy, (_AL_MUTEX*));
-void _al_mutex_lock(_AL_MUTEX *m);
-void _al_mutex_unlock(_AL_MUTEX *m);
-
-
-struct AL_FS_HOOK_VTABLE _al_fshooks;
-_AL_MUTEX _al_fshooks_mutex;
-
 int al_fs_set_hook(uint32_t phid, void *fshook)
 {
    if(phid < 0 || phid >= AL_FS_HOOK_LAST)
