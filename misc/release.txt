@@ -58,9 +58,12 @@ necessary software installed.
 13. Make .zip distro. Have the previous archive in parent directory.
 
     misc/zipup.sh all420.zip all421.zip
+    
+    The generated zip archive will be in the .dist subdirectory.
 
-14. Make Unix distros. In the parent directory:
-   
+14. Make Unix distros. From the top level directory:
+
+    cd .dist
     allegro/misc/mkunixdists.sh all421.zip
    
 15. Check that the RPM file can be installed and compiled without problems.
