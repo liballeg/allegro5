@@ -49,7 +49,7 @@ proc_fix_osx_ub()
 proc_filelist()
 {
    # common files.
-   AL_FILELIST=`find . -type f "(" \
+   AL_FILELIST=`find . -type f "(" ! -path "*/.*" ")" -a "(" \
       -name "*.c" -o -name "*.cfg" -o -name "*.cpp" -o -name "*.def" -o \
       -name "*.h" -o -name "*.hin" -o -name "*.in" -o -name "*.inc" -o \
       -name "*.m" -o -name "*.m4" -o -name "*.mft" -o -name "*.s" -o \
