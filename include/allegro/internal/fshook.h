@@ -25,25 +25,25 @@ AL_BEGIN_EXTERN_C
 /* This is totally internal. the access functions SHOULD be used instead. This vtable can change at any time. */
 struct AL_FS_HOOK_VTABLE {
    AL_METHOD(AL_FILE *, fopen,  (AL_CONST char *path, AL_CONST char *mode) );
-   AL_METHOD(uint32_t,  fclose, (AL_FILE *fp) );
+   AL_METHOD(int32_t,  fclose, (AL_FILE *fp) );
    AL_METHOD(size_t,    fread,  (void *ptr, size_t size, AL_FILE *fp) );
    AL_METHOD(size_t,    fwrite, (AL_CONST void *ptr, size_t size, AL_FILE *fp) );
-   AL_METHOD(uint32_t,  fflush, (AL_FILE *fp) );
-   AL_METHOD(uint32_t,  fseek,  (AL_FILE *fp, uint32_t offset, uint32_t whence) );
-   AL_METHOD(uint32_t,  ftell,  (AL_FILE *fp) );
-   AL_METHOD(uint32_t,  ferror, (AL_FILE *fp) );
-   AL_METHOD(uint32_t,  feof,   (AL_FILE *fp) );
+   AL_METHOD(int32_t,  fflush, (AL_FILE *fp) );
+   AL_METHOD(int32_t,  fseek,  (AL_FILE *fp, uint32_t offset, uint32_t whence) );
+   AL_METHOD(int32_t,  ftell,  (AL_FILE *fp) );
+   AL_METHOD(int32_t,  ferror, (AL_FILE *fp) );
+   AL_METHOD(int32_t,  feof,   (AL_FILE *fp) );
 
-   AL_METHOD(uint32_t,  fstat, (AL_CONST char *path, AL_STAT *stbuf) );
+   AL_METHOD(int32_t,  fstat, (AL_CONST char *path, AL_STAT *stbuf) );
 
    AL_METHOD(AL_DIR *,    opendir,  (AL_CONST char *path) );
    AL_METHOD(AL_DIRENT *, readdir,  (AL_DIR *dir) );
-   AL_METHOD(uint32_t,    closedir, (AL_DIR *dir) );
+   AL_METHOD(int32_t,    closedir, (AL_DIR *dir) );
 
    AL_METHOD(AL_FILE *, mktemp, (AL_CONST char *template) );
-   AL_METHOD(uint32_t,  getcwd, (char *buf, size_t *len) );
-   AL_METHOD(uint32_t,  chdir,  (AL_CONST char *path) );
-   AL_METHOD(uint32_t,  getdir, (uint32_t id, char *dir, uint32_t *len) );
+   AL_METHOD(int32_t,  getcwd, (char *buf, size_t len) );
+   AL_METHOD(int32_t,  chdir,  (AL_CONST char *path) );
+   AL_METHOD(int32_t,  getdir, (uint32_t id, char *dir, uint32_t *len) );
 
    AL_METHOD(uint32_t, add_search_path, (AL_CONST char *path) );
    AL_METHOD(uint32_t, search_path_count, (void) );
@@ -56,6 +56,9 @@ struct AL_FS_HOOK_VTABLE {
    AL_METHOD(time_t,   get_stat_mtime, (AL_STAT *) );
    AL_METHOD(time_t,   get_stat_ctime, (AL_STAT *) );
    AL_METHOD(size_t,   get_stat_size,  (AL_STAT *) );
+
+   AL_METHOD(uint32_t, drive_sep, (size_t len, char *sep) );
+   AL_METHOD(uint32_t, path_sep,  (size_t len, char *sep) );
 
    AL_METHOD(uint32_t, path_to_sys, (const char *orig, uint32_t len, char *path) );
    AL_METHOD(uint32_t, path_to_uni, (const char *orig, uint32_t len, char *path) );
@@ -94,6 +97,9 @@ AL_VAR(struct AL_FS_HOOK_VTABLE, _al_fshooks);
 #define _al_fs_hook_get_stat_mtime(st) _al_fshooks.get_stat_mtime(st)
 #define _al_fs_hook_get_stat_ctime(st) _al_fshooks.get_stat_ctime(st)
 #define _al_fs_hook_get_stat_size(st)  _al_fshooks.get_stat_size(st)
+
+#define _al_fs_hook_drive_sep(len, sep) _al_fshooks.drive_sep(len, sep)
+#define _al_fs_hook_path_sep(len, sep)  _al_fshooks.path_sep(len, sep)
 
 #define _al_fs_hook_path_to_sys(orig, len, path) _al_fshooks.path_to_sys(orig, len, path)
 #define _al_fs_hook_path_to_uni(orig, len, path) _al_fshooks.path_to_uni(orig, len, path)

@@ -28,7 +28,6 @@ typedef void *AL_DIRENT;
 enum {
    AL_PROGRAM_DIR = 0,
    AL_SYSTEM_DATA_DIR,
-   AL_APP_DATA_DIR,
    AL_USER_DATA_DIR,
    AL_USER_HOME_DIR,
    AL_DIR_LAST // must be last
@@ -97,25 +96,28 @@ int al_fs_set_hook(uint32_t phid, void *fshook);
 void *al_fs_get_hook(uint32_t phid);
 
 AL_FILE *al_fs_fopen(const char *path, const char *mode);
-uint32_t al_fs_fclose(AL_FILE *fp);
-size_t   al_fs_fread(void *ptr, size_t size, AL_FILE *fp);
-size_t   al_fs_fwrite(const void *ptr, size_t size, AL_FILE *fp);
-uint32_t al_fs_fflush(AL_FILE *fp);
-uint32_t al_fs_fseek(AL_FILE *fp, uint32_t offset, uint32_t whence);
-uint32_t al_fs_ftell(AL_FILE *fp);
-uint32_t al_fs_ferror(AL_FILE *fp);
-uint32_t al_fs_feof(AL_FILE *fp);
+int32_t al_fs_fclose(AL_FILE *fp);
+ssize_t  al_fs_fread(void *ptr, size_t size, AL_FILE *fp);
+ssize_t  al_fs_fwrite(const void *ptr, size_t size, AL_FILE *fp);
+int32_t al_fs_fflush(AL_FILE *fp);
+int32_t al_fs_fseek(AL_FILE *fp, uint32_t offset, uint32_t whence);
+int32_t al_fs_ftell(AL_FILE *fp);
+int32_t al_fs_ferror(AL_FILE *fp);
+int32_t al_fs_feof(AL_FILE *fp);
 
-uint32_t al_fs_fstat(const char *path, AL_STAT *stbuf);
+int32_t al_fs_fstat(const char *path);
+#warning "Implement/Fix al_fs_stat_free"
+int32_t al_fs_stat_free(AL_STAT *stbuf);
 
 AL_DIR    *al_fs_opendir(const char *path);
-uint32_t   al_fs_closedir(AL_DIR *dir);
+int32_t   al_fs_closedir(AL_DIR *dir);
 AL_DIRENT *al_fs_readdir(AL_DIR *dir);
 
 AL_FILE *al_fs_mktemp(const char *tmpl);
-uint32_t al_fs_getcwd(char *buf, size_t *len);
-uint32_t al_fs_chdir(const char *path);
-uint32_t al_fs_getdir(uint32_t id, size_t len, char *dir);
+int32_t al_fs_getcwd(char *buf, size_t len);
+int32_t al_fs_chdir(const char *path);
+
+int32_t al_fs_getdir(uint32_t id, char *dir, size_t *len);
 
 uint32_t al_fs_add_search_path(const char *path);
 uint32_t al_fs_search_path_count();
