@@ -131,6 +131,8 @@ int main(int argc, char *argv[])
 
       blit(s, screen, 0, 0, SCREEN_W/2 - 160, SCREEN_H/2 - 100, 320, 200);
 
+      rest(20); /* Avoid spinlock. */
+
    } while (!keypressed());
 
    clear_keybuf();
@@ -161,6 +163,8 @@ int main(int argc, char *argv[])
       draw_trans_sprite(s, spotlight, x, y);
 
       blit(s, screen, 0, 0, SCREEN_W/2 - 160, SCREEN_H/2 - 100, 320, 200);
+
+      rest(20); /* Avoid spinlock. */
 
    } while (!keypressed());
 
