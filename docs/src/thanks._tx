@@ -133,7 +133,8 @@ Contributors
    P3D library.
 
    Bobby Ferris (<email>baf@bafsoft.com</a>).<br>
-   Added the SciTE API output format to makedoc.
+   Added the SciTE API output format to makedoc and temporarily hosted
+   Allegro's SVN repository while SourceForge's SVN was in beta.
 
    Burton Radons (<email>loth@gec.net</a>).<br>
    Optimised the truecolor pixel blending function, converted the blenders

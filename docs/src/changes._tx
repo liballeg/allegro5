@@ -8,6 +8,27 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.2.1 RC1 to 4.2.1 (August 2006)
+<ul><li>
+   Andrei Ellman fixed a bug in datedit.c that could crash the grabber.
+<li>
+   Elias Pschernig added file_size_ex(), which returns a 64 bit integer
+   to handle large files.
+<li>
+   Ron Novy made improvements to the test program
+<li>
+   Peter Hull fixed problems with set_mouse_sprite() on Intel Macs.
+<li>
+   Peter Hull added universal binary support to the MacOS X port.
+<li>
+   Peter Wang and Evert Glebbeek independently fixed a problem with dependency
+   generation for MacOS X on non-Mac systems.
+<li>
+   Many smaller fixes and updates by Peter Hull, Elias Pschernig, Peter Wang
+   Milan Mimica
+</ul>
+
+@heading
 Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
 <ul><li>
    Michal Molhanec made msvchelp.exe work on Cygwin, where there was a
