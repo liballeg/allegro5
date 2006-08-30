@@ -1377,3 +1377,21 @@
     _zbuffer DATA
     font_vtable_color DATA
     font_vtable_mono DATA
+    _al_file_size_ex
+    _bitmap_has_alpha
+    _font_vtable_trans DATA
+    _install_allegro_version_check
+    al_ffblk_get_size
+    create_datafile_index
+    destroy_datafile_index
+    file_size_ex
+    font_vtable_trans DATA
+    free_config_entries
+    get_file_encoding
+    get_hardware_volume
+    get_volume
+    list_config_entries
+    list_config_sections
+    load_datafile_object_indexed
+    make_trans_font
+    set_file_encoding
