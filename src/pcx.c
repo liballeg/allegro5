@@ -119,7 +119,7 @@ BITMAP *load_pcx_pf(PACKFILE *f, RGB *pal)
       po = _rgb_r_shift_24/8;
 #elif defined ALLEGRO_BIG_ENDIAN
       po = 2 - _rgb_r_shift_24/8;
-#else
+#elif !defined SCAN_DEPEND
    #error endianess not defined
 #endif
 
@@ -150,7 +150,7 @@ BITMAP *load_pcx_pf(PACKFILE *f, RGB *pal)
 		  po = _rgb_g_shift_24/8;
 #elif defined ALLEGRO_BIG_ENDIAN
 		  po = 2 - _rgb_g_shift_24/8;
-#else
+#elif !defined SCAN_DEPEND
    #error endianess not defined
 #endif
 	       }
@@ -160,7 +160,7 @@ BITMAP *load_pcx_pf(PACKFILE *f, RGB *pal)
 		  po = _rgb_b_shift_24/8;
 #elif defined ALLEGRO_BIG_ENDIAN
 		  po = 2 - _rgb_b_shift_24/8;
-#else
+#elif !defined SCAN_DEPEND
    #error endianess not defined
 #endif
 	       }
