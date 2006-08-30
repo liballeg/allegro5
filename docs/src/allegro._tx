@@ -15123,9 +15123,10 @@ and avoid missing any important bit of information.
 @@Example @exdbuf
 @xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen
 @xref allegro_error, allegro_init, allegro_message, blit, circlefill
-@xref clear_to_color, create_bitmap, desktop_palette, destroy_bitmap
-@xref font, install_timer, makecol, release_screen, retrace_count, screen
-@xref set_gfx_mode, set_palette, textprintf_ex
+@xref clear_keybuf, clear_to_color, create_bitmap, desktop_palette
+@xref destroy_bitmap, font, install_keyboard, install_timer, keypressed
+@xref makecol, release_screen, retrace_count, screen, set_gfx_mode
+@xref set_palette, textprintf_ex
 @shortdesc How to use double buffering to avoid flicker.
    This program demonstrates the use of double buffering.
    It moves a circle across the screen, first just erasing and
@@ -15133,10 +15134,11 @@ and avoid missing any important bit of information.
 
 @@Example @exflip
 @xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error
-@xref allegro_init, allegro_message, blit, circlefill, clear_to_color
-@xref create_bitmap, create_video_bitmap, desktop_palette, destroy_bitmap
-@xref font, install_timer, makecol, retrace_count, screen, set_gfx_mode
-@xref set_palette, show_video_bitmap, textprintf_ex
+@xref allegro_init, allegro_message, blit, circlefill, clear_keybuf
+@xref clear_to_color, create_bitmap, create_video_bitmap, desktop_palette
+@xref destroy_bitmap, font, install_keyboard, install_timer, keypressed
+@xref makecol, retrace_count, screen, set_gfx_mode, set_palette
+@xref show_video_bitmap, textprintf_ex
 @shortdesc Comparison of double buffering and page flipping.
    This program moves a circle across the screen, first with a
    double buffer and then using page flips.
@@ -15354,11 +15356,9 @@ and avoid missing any important bit of information.
 
 @@Example @exdata
 @xref DATAFILE, END_OF_MAIN, allegro_error, allegro_init, allegro_message
-@xref blit, create_datafile_index, destroy_datafile_index, font
-@xref install_keyboard, load_datafile, load_datafile_object_indexed
-@xref makecol, readkey, replace_filename, screen, set_color_conversion
-@xref set_gfx_mode, set_palette, textout_ex, unload_datafile
-@xref unload_datafile_object
+@xref blit, font, install_keyboard, load_datafile, makecol, readkey
+@xref replace_filename, screen, set_color_conversion, set_gfx_mode
+@xref set_palette, textout_ex, unload_datafile
 @shortdesc Accessing the contents of datafiles.
    This program demonstrates how to access the contents of an
    Allegro datafile (created by the grabber utility). The example
