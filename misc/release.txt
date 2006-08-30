@@ -57,7 +57,7 @@ necessary software installed.
 
 13. Make .zip distro. Have the previous archive in parent directory.
 
-    misc/zipup.sh all420.zip all421.zip
+    misc/zipup.sh all421.zip all420.zip
     
     The generated zip archive will be in the .dist subdirectory.
 
