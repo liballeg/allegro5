@@ -202,10 +202,17 @@ scan_for_empties "."
 
 # build the main zip archive
 echo "Creating $name.zip..."
-cd ..
-if [ -f $name.zip ]; then rm $name.zip; fi
-rm -rf allegro/autom4te*
-find allegro -iname "CVS" -prune -o -iname ".*" -prune -o -iname "*.rej" -prune -o -iname "*.orig" -prune -o -print | zip -9 $name.zip -@
+if [ -f .dist/$name.zip ]; then rm .dist/$name.zip; fi
+rm -rf ./autom4te*
+ZIP_FILES=`find . -type f "(" -path "*/.*" -prune -o -iname "*.rej" \
+    -prune -o -iname "*.orig" -prune -o -print ")"`
+mkdir -p .dist/allegro
+cp -a --parents $ZIP_FILES .dist/allegro
+
+# from now on, the scripts runs inside .dist
+cd .dist
+
+zip -9  -r $name.zip allegro
 
 
 # generate the manifest file
