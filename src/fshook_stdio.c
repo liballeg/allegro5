@@ -337,8 +337,8 @@ int32_t al_fs_stdio_getdir(uint32_t id, char *dir, uint32_t *len)
 
 int32_t _al_find_home(char *dir, uint32_t len)
 {
-   char *home_env = getenv("home");
-   if(!home_env) {
+   char *home_env = getenv("HOME");
+   if(!home_env || home_env[0] == '\0') {
       /* since HOME isn't set, we have to ask libc for the info */
 
       /* get user id */
@@ -353,7 +353,7 @@ int32_t _al_find_home(char *dir, uint32_t len)
 
       if(pass->pw_dir) {
          /* hey, we got our home directory */
-         _al_sane_strncpy(dir, pass->pw_dir, path_max);
+         _al_sane_strncpy(dir, pass->pw_dir, strlen(pass->pw_dir)+1);
          return 0;
       }
       else if(pass->pw_name) {
@@ -370,7 +370,7 @@ int32_t _al_find_home(char *dir, uint32_t len)
             return -1;
          }
 */
-         _al_sane_strncpy(dir, "/home/", len);
+         _al_sane_strncpy(dir, "/home", strlen("/home")+1);
          strncat(dir, pass->pw_name, len);
          return 0;
       }
@@ -381,7 +381,7 @@ int32_t _al_find_home(char *dir, uint32_t len)
       }
    }
    else {
-      _al_sane_strncpy(dir, home_env, path_max);
+      _al_sane_strncpy(dir, home_env, strlen(home_env)+1);
       return 0;
    }
 
@@ -391,10 +391,12 @@ int32_t _al_find_home(char *dir, uint32_t len)
 
 int32_t _al_find_progam_dir(char *dir, uint32_t len)
 {
-   char path[PATH_MAX];
-   char *prog = system_driver->argv[0];
+   char path[PATH_MAX] = "";
+   char prog[PATH_MAX] = "";
    char *ptr = NULL;
-   uint32_t prog_len = strlen(prog), path_len = 0;
+   uint32_t prog_len = strlen(system_driver->argv[0]), path_len = 0;
+
+   strncat(prog, system_driver->argv[0], PATH_MAX);
 
    /* program name is longer than PATH_MAX, trying to grab the proper dir may result in garbled paths */
    /* Wait, is this even possible? */
@@ -405,7 +407,7 @@ int32_t _al_find_progam_dir(char *dir, uint32_t len)
 
    /* absolute path */
    if(prog[0] == '/') {
-      _al_sane_strncpy(path, prog, prog_len);
+      _al_sane_strncpy(path, prog, prog_len+1);
 
       ptr = strrchr(path, '/');
       if(!ptr) {
@@ -431,7 +433,11 @@ int32_t _al_find_progam_dir(char *dir, uint32_t len)
    }
    else {
       uint32_t cwd_len = 0;
-      char *cwd = getcwd(path, PATH_MAX);
+      char *cwd = NULL;
+
+      memmove(prog, prog+2, prog_len + 1);
+
+      cwd = getcwd(path, PATH_MAX);
       if(!cwd) {
          /* keep errno from getcwd */
          *allegro_errno = errno;
@@ -447,7 +453,10 @@ int32_t _al_find_progam_dir(char *dir, uint32_t len)
          return -1;
       }
 
-      strncat(path, prog, PATH_MAX);
+//      strncat(path, "/", PATH_MAX);
+//     strncat(path, prog, PATH_MAX);
+
+
       _al_sane_strncpy(dir, path, len);
       return 0;
    }
@@ -465,71 +474,67 @@ Return:
 FIXME:
    Replace hard coded paths with "configure checks".
 */
-int32_t al_fs_stdio_getdir(uint32_t id, char *dir, uint32_t *len)
+int32_t al_fs_stdio_getdir(uint32_t id, char *dir, uint32_t len)
 {
    /* this code should probably malloc the path and tmp arrays,
       theres a damn good chance it'll consume the entire stack */
 
    switch(id) {
       case AL_SYSTEM_PROGRAM_DIR: /* /usr/bin */
-         if(strlen("/usr/bin") > *len) {
+         if(strlen("/usr/bin") > len) {
             *allegro_errno = errno = ERANGE;
             return -1;
          }
 
-         _al_sane_strncpy(dir, "/usr/bin", *len);
+         _al_sane_strncpy(dir, "/usr/bin", strlen("/usr/bin")+1);
          break;
 
       case AL_PROGRAM_DIR:
-         if(_al_find_progam_dir(dir, *len) != 0) {
+         if(_al_find_progam_dir(dir, len) != 0) {
             return -1;
          }
       break;
 
       case AL_SYSTEM_DATA_DIR:
-         _al_sane_strncpy(dir, "/usr/share", *len);
+         _al_sane_strncpy(dir, "/usr/share", strlen("/usr/share")+1);
          break;
 
       case AL_USER_DATA_DIR: {
          int32_t ret = 0;
-         uint32_t path_len = 0, ptr_len = 0;
-         char path[PATH_MAX], tmp[PATH_MAX], *ptr = NULL;
+         uint32_t path_len = 0, ptr_len = 0, prog_len = 0;
+         char path[PATH_MAX] = "", tmp[PATH_MAX] = "", *ptr = NULL;
+         char prog[PATH_MAX] = "";
 
          if(_al_find_home(path, PATH_MAX) != 0) {
             return -1;
          }
 
+         strncat(path, "/.", 2);
+
          path_len = strlen(path);
 
-         if(_al_find_progam_dir(tmp, PATH_MAX) != 0) {
-            return -1;
-         }
+         /* get exe name */
 
-         ptr = strrchr(tmp, '/');
+         strncat(prog, system_driver->argv[0], PATH_MAX);
+         ptr = strrchr(prog, '/');
          if(!ptr) {
+            *allegro_errno = errno = EINVAL;
             return -1;
          }
 
          *ptr = '\0';
          ptr++;
-
          ptr_len = strlen(ptr);
-
-         if(path_len + ptr_len > *len) {
-            *allegro_errno = errno = ERANGE;
-            return -1;
-         }
-
-         /* got exe name */
-
-         strncat(path, ptr, PATH_MAX);
-         _al_sane_strncpy(dir, path, *len);
+         //
+         strncat(path, ptr, ptr_len+1);
+         //*(ptr-1) = '/';
+         _al_sane_strncpy(dir, path, strlen(path)+1);
 
          return 0;
       } break;
 
       case AL_USER_HOME_DIR:
-         if(_al_find_home(dir, *len) != 0) {
+         if(_al_find_home(dir, len) != 0) {
             return -1;
          }
 
