@@ -51,6 +51,7 @@ MIDI_DRIVER midi_mpu401 =
    mpu_init,
    mpu_exit,
    NULL,
+   NULL,
    mpu_output,
    _dummy_load_patches,
    _dummy_adjust_patches,

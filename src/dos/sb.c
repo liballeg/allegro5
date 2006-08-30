@@ -168,6 +168,7 @@ MIDI_DRIVER midi_sb_out =
    sb_midi_init,
    sb_midi_exit,
    NULL,
+   NULL,
    sb_midi_output,
    _dummy_load_patches,
    _dummy_adjust_patches,
