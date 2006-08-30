@@ -64,9 +64,6 @@ struct AL_FS_HOOK_VTABLE {
    AL_METHOD(uint32_t, path_to_uni, (const char *orig, uint32_t len, char *path) );
 };
 
-/* Can't figure out a better way. Global it is */
-AL_VAR(struct AL_FS_HOOK_VTABLE, _al_fshooks);
-
 #define _al_fs_hook_fopen(path, mode)         _al_fshooks.fopen(path, mode)
 #define _al_fs_hook_fclose(fp)                _al_fshooks.fclose(fp)
 #define _al_fs_hook_fread(ptr, size, fp)      _al_fshooks.fread(ptr, size, fp)

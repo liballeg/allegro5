@@ -21,6 +21,8 @@
 #include "allegro/internal/fshook.h"
 #include ALLEGRO_INTERNAL_HEADER
 
+static struct AL_FS_HOOK_VTABLE _al_fshooks;
+
 int al_fs_set_hook(uint32_t phid, void *fshook)
 {
    if(phid < 0 || phid >= AL_FS_HOOK_LAST)

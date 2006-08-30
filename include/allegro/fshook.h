@@ -106,7 +106,7 @@ int32_t al_fs_ftell(AL_FILE *fp);
 int32_t al_fs_ferror(AL_FILE *fp);
 int32_t al_fs_feof(AL_FILE *fp);
 
-int32_t al_fs_fstat(const char *path);
+int32_t al_fs_fstat(const char *path, AL_STAT *st);
 #warning "Implement/Fix al_fs_stat_free"
 int32_t al_fs_stat_free(AL_STAT *stbuf);
 
