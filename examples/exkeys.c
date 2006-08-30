@@ -97,6 +97,7 @@ int main(void)
    if (allegro_init() != 0)
       return 1;
    install_keyboard();
+   install_timer();
 
    if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
