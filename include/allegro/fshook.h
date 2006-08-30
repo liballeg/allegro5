@@ -27,6 +27,7 @@ typedef void *AL_DIRENT;
 
 enum {
    AL_PROGRAM_DIR = 0,
+   AL_SYSTEM_PROGRAM_DIR, /* eg: C:\Program Files\ on windows */
    AL_SYSTEM_DATA_DIR,
    AL_USER_DATA_DIR,
    AL_USER_HOME_DIR,
@@ -119,9 +120,9 @@ int32_t al_fs_chdir(const char *path);
 
 int32_t al_fs_getdir(uint32_t id, char *dir, size_t *len);
 
-uint32_t al_fs_add_search_path(const char *path);
-uint32_t al_fs_search_path_count();
-uint32_t al_fs_get_search_path(char *dest, size_t *len);
+int32_t al_fs_add_search_path(const char *path);
+int32_t al_fs_search_path_count();
+int32_t al_fs_get_search_path(uint32_t idx, char *dest, size_t len);
 
 uint32_t al_fs_get_stat_mode(AL_STAT *st);
 time_t   al_fs_get_stat_atime(AL_STAT *st);

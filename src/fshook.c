@@ -370,24 +370,24 @@ int32_t al_fs_getdir(uint32_t id, char *dir, size_t *len)
 }
 
 
-uint32_t al_fs_add_search_path(const char *path)
+int32_t al_fs_add_search_path(const char *path)
 {
    ASSERT(path);
 
    return _al_fs_hook_add_search_path(path);
 }
 
-uint32_t al_fs_search_path_count()
+int32_t al_fs_search_path_count()
 {
    return _al_fs_hook_search_path_count();
 }
 
-uint32_t al_fs_get_search_path(char *dest, size_t *len)
+int32_t al_fs_get_search_path(uint32_t idx, char *dest, size_t len)
 {
    ASSERT(dest);
    ASSERT(len);
 
-   return _al_fs_hook_get_search_path(dest, len);
+   return _al_fs_hook_get_search_path(idx, dest, len);
 }
 
 

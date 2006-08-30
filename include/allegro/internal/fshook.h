@@ -45,9 +45,9 @@ struct AL_FS_HOOK_VTABLE {
    AL_METHOD(int32_t,  chdir,  (AL_CONST char *path) );
    AL_METHOD(int32_t,  getdir, (uint32_t id, char *dir, uint32_t *len) );
 
-   AL_METHOD(uint32_t, add_search_path, (AL_CONST char *path) );
-   AL_METHOD(uint32_t, search_path_count, (void) );
-   AL_METHOD(uint32_t, get_search_path, (char *dest, uint32_t *len) );
+   AL_METHOD(int32_t, add_search_path, (AL_CONST char *path) );
+   AL_METHOD(int32_t, search_path_count, (void) );
+   AL_METHOD(int32_t, get_search_path, (uint32_t idx, char *dest, uint32_t len) );
 
    /* I had wanted to make these a single function with a few enum entries, but can I assume
       all the types are the same size? */
@@ -90,7 +90,7 @@ AL_VAR(struct AL_FS_HOOK_VTABLE, _al_fshooks);
 
 #define _al_fs_hook_add_search_path(path)      _al_fshooks.add_search_path(path)
 #define _al_fs_hook_search_path_count()        _al_fshooks.search_path_count()
-#define _al_fs_hook_get_search_path(dest, len) _al_fshooks.get_search_path(dest, len)
+#define _al_fs_hook_get_search_path(idx, dest, len) _al_fshooks.get_search_path(idx, dest, len)
 
 #define _al_fs_hook_get_stat_mode(st)  _al_fshooks.get_stat_mode(st)
 #define _al_fs_hook_get_stat_atime(st) _al_fshooks.get_stat_atime(st)
