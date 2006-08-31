@@ -131,7 +131,8 @@ int main(int argc, char *argv[])
 
       blit(s, screen, 0, 0, SCREEN_W/2 - 160, SCREEN_H/2 - 100, 320, 200);
 
-      rest(20); /* Avoid spinlock. */
+      /* reduce CPU usage */
+      rest(20);
 
    } while (!keypressed());
 
@@ -164,7 +165,8 @@ int main(int argc, char *argv[])
 
       blit(s, screen, 0, 0, SCREEN_W/2 - 160, SCREEN_H/2 - 100, 320, 200);
 
-      rest(20); /* Avoid spinlock. */
+      /* reduce CPU usage */
+      rest(20);
 
    } while (!keypressed());
 

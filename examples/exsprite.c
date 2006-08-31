@@ -70,9 +70,10 @@ void animate(void)
 {
    /* Wait for animation timer. */
    while (frame > ticks) {
-       /* Avoid a spinlock. */
+       /* Avoid busy wait. */
        rest(1);
    }
+
    /* Ideally, instead of using a timer, we would set the monitor refresh rate
     * to a multiple of the animation speed, and synchronize with the vertical
     * blank interrupt (vsync) - to get a completely smooth animation. But this
