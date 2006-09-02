@@ -444,8 +444,8 @@ def allegroConfig(env,appendDir,buildDir,libDir):
         return 0
 
     configure = Builder( action = replaceVars, name = "ConfigureBuilder" )
-    env.Append(BUILDERS = { "Configure" : configure })
-    return env.Configure( 'allegro-config', '#misc/allegro-config.in' )
+    env.Append(BUILDERS = { "ConfigMaker" : configure })
+    return env.ConfigMaker( 'allegro-config', '#misc/allegro-config.in' )
 
 def writeModulesList(env,appendDir,buildDir,libDir):
     def write(target,source,env):
@@ -458,9 +458,7 @@ def writeModulesList(env,appendDir,buildDir,libDir):
         for i in source:
             file.write(truncate(str(i)) + '\n')
         file.close
-    writer = Builder(action = write, name = 'ModuleWriter')
-    env.Append(BUILDERS = { 'WriteModules' : writer })
-    file = env.WriteModules('modules.lst',getModules())
+    file = env.Command('modules.lst',getModules(),write)
     return file
 
 context.addExtra(writeModulesList)
