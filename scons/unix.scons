@@ -116,7 +116,7 @@ else:
         useArch = True
 
     if config.CheckMTune(machine):
-    	archFlag = '-mtune='
+        archFlag = '-mtune='
 
     if useArch:
         config.env.Append( CCFLAGS = [archFlag + machine] )
@@ -313,7 +313,9 @@ if platform["ALLEGRO_WITH_ESDDIGI"][0]:
         esdEnv = menv.Copy()
         esdEnv.ParseConfig('esd-config --libs')
         sources = ["uesd.c"]
-        return esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(buildDir + "/unix/", sources))
+        lib = esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(buildDir + "/unix/", sources))
+        modules.append(lib)
+        return lib
     context.addExtra(buildESD)
 
 if platform["ALLEGRO_WITH_ALSADIGI"][0]:
@@ -321,7 +323,9 @@ if platform["ALLEGRO_WITH_ALSADIGI"][0]:
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
         sources = ["alsa5.c", "alsa9.c"]
-        return alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(buildDir + "/unix/", sources))
+        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(buildDir + "/unix/", sources))
+        modules.append(lib)
+        return lib
     context.addExtra(buildAlsa)
 
 if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
@@ -329,8 +333,12 @@ if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
         sources = ["alsamidi.c"]
-        return alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(buildDir + "/unix/", sources))
+        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(buildDir + "/unix/", sources))
+        modules.append(lib)
+        return lib
     context.addExtra(buildAlsa)
+
+modules = []
 
 # This might be broken. asmdefs.inc isnt generated until after svgalibs.s
 # is compiled, but svgalib.s depends on asmdefs.inc. Either this dependancy
@@ -340,22 +348,22 @@ if platform["ALLEGRO_LINUX_SVGALIB"][0]:
         vgaEnv = menv.Copy()
         vgaEnv.Append(LIBS = "vga")
 
-	# asmdef environment doesnt need extra libraries
-	asmdefEnv = menv.Copy()
-	asmdefEnv.Replace(LIBS = [])
-	asmdef_inc = 'obj/unix/asmdef.inc'
-	asmdef = asmdefEnv.Program(buildDir + '/asmdef', buildDir + '/i386/asmdef.c')
-	# Produce asmdef.inc from asmdef
-	vgaEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
+        # asmdef environment doesnt need extra libraries
+        asmdefEnv = menv.Copy()
+        asmdefEnv.Replace(LIBS = [])
+        asmdef_inc = 'obj/unix/asmdef.inc'
+        asmdef = asmdefEnv.Program(buildDir + '/asmdef', buildDir + '/i386/asmdef.c')
+    # Produce asmdef.inc from asmdef
+        vgaEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
         sources = ["svgalib.c"]
 
-	# svgalibs.s must explicitly depend on asmdef.inc. we can
-	# set that up by getting the resulting object file and set the
-	# dependancy with Depends(target,source)
-	assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/linux/",['svgalibs.s']))
+    # svgalibs.s must explicitly depend on asmdef.inc. we can
+    # set that up by getting the resulting object file and set the
+    # dependancy with Depends(target,source)
+        assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/linux/",['svgalibs.s']))
         vgaEnv.Depends(assembler_object,asmdef_inc)
         lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/linux/", ['svgalib.c']) + [assembler_object])
-
+        modules.append(lib)
         return lib
     context.addExtra(buildSVGA)
 
@@ -364,16 +372,23 @@ if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
         artsEnv = menv.Copy()
         artsEnv.ParseConfig("artsc-config --libs")
         sources = ["arts.c"]
-        return artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",appendDir(buildDir + "/unix/", sources))
+        lib = artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",appendDir(buildDir + "/unix/", sources))
+        modules.append(lib)
+        return lib
     context.addExtra(buildAlsa)
 
 if platform["ALLEGRO_LINUX_FBCON"][0]:
     def buildFBCon(menv,appendDir,buildDir,libDir):
         sources = ["fbcon.c"]
-        return menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/linux/", sources))
+        lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/linux/", sources))
+        modules.append(lib)
+        return lib
     context.addExtra(buildFBCon)
 
-if platform["ALLEGRO_WITH_XWINDOWS"][0]:
+def haveXWindows():
+    return platform["ALLEGRO_WITH_XWINDOWS"][0]
+
+if haveXWindows():
     context.addFiles("x/", Split("""
     xgfxdrv.c
     xkeyboard.c
@@ -395,6 +410,10 @@ if platform["ALLEGRO_WITH_XWINDOWS"][0]:
 
     context.addExtra(tools)
 
+## return a list of modules
+def getModules():
+    return modules
+
 def allegroConfig(env,appendDir,buildDir,libDir):
     """Builds the allegro-config shell script out of misc/allegro-config.in"""
     dict = {}
@@ -404,8 +423,8 @@ def allegroConfig(env,appendDir,buildDir,libDir):
     dict[ '@LIB_TO_LINK@' ] = 'alleg'
     ldflags = ''
     if supportModules():
-    	ldflags = '-Wl,--export-dynamic'
-    print env[ 'LIBPATH' ]	
+        ldflags = '-Wl,--export-dynamic'
+    print env[ 'LIBPATH' ]    
     dict[ '@LDFLAGS@' ] = 'something'
     dict[ '@LIBS@' ] = ' '.join(['-l' + x for x in unixLibs])
     dict[ '@FRAMEWORKS@' ] = 'something'
@@ -427,6 +446,29 @@ def allegroConfig(env,appendDir,buildDir,libDir):
     configure = Builder( action = replaceVars, name = "ConfigureBuilder" )
     env.Append(BUILDERS = { "Configure" : configure })
     return env.Configure( 'allegro-config', '#misc/allegro-config.in' )
+
+def install(library):
+    env = context.getLibraryEnv()
+    ## list of files to be installed
+    ret = []
+    ## add a file to be installed
+    def add(dir,file):
+        ret.append(env.Install(context.getInstallDir() + '/' + dir, file))
+    add('lib',library)
+    for root, dirs, files in os.walk('include/allegro'):
+        import re
+        for i in files:
+            if re.compile('.*((\.h)|(\.inl))\Z').match(i):
+                add(root,'#' + os.path.join(root,i))
+    if haveXWindows():
+        add('include','#include/xalleg.h')
+    add('include','#include/allegro.h')
+    add('include','#include/linalleg.h')
+    for i in getModules():
+        add('lib/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()),i)
+    return ret
+
+context.setInstaller(install)
     
 context.addExtra(allegroConfig)
 

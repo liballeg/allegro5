@@ -68,8 +68,12 @@ Help(allegroHelp())
 try: os.mkdir("build")
 except OSError: pass
 
+majorVersion = '4'
+minorVersion = '3'
+microVersion = '0'
+
 ## Version of Allegro
-allegroVersion = '4.3.0'
+allegroVersion = '%s.%s.%s' % (majorVersion,minorVersion,microVersion)
 
 def getPlatform():
     return sys.platform
@@ -86,8 +90,14 @@ class AllegroContext:
     def __init__(self):
         self.librarySource = []
         self.extraTargets = []
+	self.installDir = "tmp"
         self.libDir = "lib/dummy"
         self.libraryEnv = Environment()
+
+	## Each platform should set its own install function
+	## install :: library -> list of targets
+	self.install = lambda lib: []
+
 	# Platform specific scons scripts should set the example env via
 	# setExampleEnv(). In most cases the library env can be used:
 	# context.setExampleEnv(context.getLibraryEnv().Copy())
@@ -107,6 +117,9 @@ class AllegroContext:
     def getLibraries(self):
         return self.libraries
 
+    def setInstaller(self,installer):
+        self.install = installer
+
     def getLibraryDir(self):
         return self.libDir
 
@@ -119,8 +132,23 @@ class AllegroContext:
     def setEnvs(self):
         self.envs = [self.libraryEnv,self.exampleEnv]
 
+    def getMajorVersion(self):
+        return majorVersion
+    
+    def getMinorVersion(self):
+        return minorVersion
+    
+    def getMicroVersion(self):
+        return microVersion
+
     def getAllegroVersion(self):
         return allegroVersion
+
+    def getInstallDir(self):
+        return self.installDir
+
+    def setInstallDir(self,dir):
+        self.installDir = dir 
 
     def addExtra(self,func):
         self.extraTargets.append(func)
@@ -345,3 +373,5 @@ extraTargets.append(plugins_h)
 Default(library, extraTargets, docs)
 
 # Depends(library,extraTargets)
+
+Alias('install', context.install(library))
