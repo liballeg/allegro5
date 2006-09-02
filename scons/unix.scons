@@ -461,7 +461,6 @@ def writeModulesList(env,appendDir,buildDir,libDir):
     writer = Builder(action = write, name = 'ModuleWriter')
     env.Append(BUILDERS = { 'WriteModules' : writer })
     file = env.WriteModules('modules.lst',getModules())
-    env.Depends(file,getModules())
     return file
 
 context.addExtra(writeModulesList)
