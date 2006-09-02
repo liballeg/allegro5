@@ -447,6 +447,25 @@ def allegroConfig(env,appendDir,buildDir,libDir):
     env.Append(BUILDERS = { "Configure" : configure })
     return env.Configure( 'allegro-config', '#misc/allegro-config.in' )
 
+def writeModulesList(env,appendDir,buildDir,libDir):
+    def write(target,source,env):
+        file = open(target[0].path, 'w') 
+        file.write('# List of modules to be loaded by the Unix version of Allegro.\n\n')
+        ## convert 'lib/unix/whatever.so' to just 'whatever.so'
+        def truncate(name):
+            import re
+            return re.sub('.*/', '', name)
+        for i in source:
+            file.write(truncate(str(i)) + '\n')
+        file.close
+    writer = Builder(action = write, name = 'ModuleWriter')
+    env.Append(BUILDERS = { 'WriteModules' : writer })
+    file = env.WriteModules('modules.lst',getModules())
+    env.Depends(file,getModules())
+    return file
+
+context.addExtra(writeModulesList)
+
 def install(library):
     env = context.getLibraryEnv()
     ## list of files to be installed
@@ -464,6 +483,7 @@ def install(library):
         add('include','#include/xalleg.h')
     add('include','#include/allegro.h')
     add('include','#include/linalleg.h')
+    add('lib/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()), 'modules.lst')
     for i in getModules():
         add('lib/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()),i)
     return ret
