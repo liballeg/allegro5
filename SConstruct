@@ -148,7 +148,7 @@ class AllegroContext:
 
     def getAllegroTarget(self,debug,static):
         def build(function,lib,dir):
-            return function(lib, appendDir(dir, self.librarySource))
+            return function(self.getLibraryDir() + '/' + lib, appendDir(dir, self.librarySource))
 
         def buildStatic(env,debug,dir):
             env.BuildDir(dir, 'src', duplicate = 0)
@@ -269,7 +269,8 @@ def XMove(env,target,source):
 
 # m = context.getLibraryEnv().Move(context.getLibraryDir(),library)
 # m = context.getLibraryEnv().Move(context.getLibraryDir(), library)
-install_to_lib_dir = XMove(context.getLibraryEnv(), context.getLibraryDir(), library)
+# install_to_lib_dir = XMove(context.getLibraryEnv(), context.getLibraryDir(), library)
+# install_to_lib_dir = Install(context.getLibraryDir(),library)
 
 if False:
 	for i in Flatten(library):
@@ -330,7 +331,7 @@ datworms.inc
 # that was used to build allegro but only link in liballeg
 extraEnv = context.getExampleEnv().Copy()
 # liballeg = getLibraryName(debug)
-extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
+# extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
 if not static:
     extraEnv.Replace(LIBS = [context.getLibraries()])
 else:
@@ -341,6 +342,6 @@ for func in context.getExtraTargets():
     extraTargets.append(func(extraEnv,appendDir,normalBuildDir,context.getLibraryDir()))
 
 extraTargets.append(plugins_h)
-Default(install_to_lib_dir, extraTargets, docs)
+Default(library, extraTargets, docs)
 
-Depends(install_to_lib_dir,extraTargets)
+# Depends(library,extraTargets)

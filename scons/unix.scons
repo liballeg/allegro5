@@ -305,6 +305,9 @@ utimernu.c
 uxthread.c
 """));
 
+def supportModules():
+    return True
+
 if platform["ALLEGRO_WITH_ESDDIGI"][0]:
     def buildESD(menv,appendDir,buildDir,libDir):
         esdEnv = menv.Copy()
@@ -399,6 +402,10 @@ def allegroConfig(env,appendDir,buildDir,libDir):
     dict[ '@INCLUDE_PREFIX@' ] = ARGUMENTS.get( 'prefix', '/usr/local/' )
     dict[ '@LINK_WITH_STATIC_LIBS@' ] = 'something'
     dict[ '@LIB_TO_LINK@' ] = 'alleg'
+    ldflags = ''
+    if supportModules():
+    	ldflags = '-Wl,--export-dynamic'
+    print env[ 'LIBPATH' ]	
     dict[ '@LDFLAGS@' ] = 'something'
     dict[ '@LIBS@' ] = ' '.join(['-l' + x for x in unixLibs])
     dict[ '@FRAMEWORKS@' ] = 'something'

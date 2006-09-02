@@ -163,6 +163,7 @@ def tools(env,appendDir,buildDir,libDir):
         datEnv = env.Copy()
         # datEnv.Append(LIBPATH = '.')
         datEnv.Prepend(LIBS = 'aldat')
+	datEnv.Append(LIBPATH = libDir)
         def addDatTool(name,files): 
             tool = datEnv.Program('tools/' + name, appendDir(buildDir + '/tools/', files))
             Alias(name, tool)
