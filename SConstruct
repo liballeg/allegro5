@@ -85,13 +85,13 @@ class AllegroContext:
         self.libDir = "lib/dummy"
         self.libraryEnv = env
 
-    ## Each platform should set its own install function
-    ## install :: library -> list of targets
-    self.install = lambda lib: []
+        ## Each platform should set its own install function
+        ## install :: library -> list of targets
+        self.install = lambda lib: []
 
-    # Platform specific scons scripts should set the example env via
-    # setExampleEnv(). In most cases the library env can be used:
-    # context.setExampleEnv(context.getLibraryEnv().Copy())
+        # Platform specific scons scripts should set the example env via
+        # setExampleEnv(). In most cases the library env can be used:
+        # context.setExampleEnv(context.getLibraryEnv().Copy())
         self.exampleEnv = False
         # libraries - list of libraries to link into Allegro test/example programs
         # Usually is just liballeg.so/dylib/dll but could also be something
