@@ -39,18 +39,6 @@ def allegroHelp():
     return """
 scons [options] [targets]
 
-Possible options:
-config=1 : Rerun the configure checks( UNIX only )
-static=1|0 : If static=1 is supplied a static Allegro library will be built and all extra programs will link using this library
-debug=1|0 : If debug=1 is supplied a debug Allegro library will be built and all extra programs will link using this library
-E.g:
-Build liballeg.a and link with this
-$ scons static=1
-Build liballeg.a in debug mode and link with this
-$ scons debug=1 static=1
-Build liballeg.so in debug mode and link with this
-$ scons debug=1
-
 Possible targets are:
 debug-static : Build a static library with debug mode on
 debug-shared : Build a shared library with debug mode on
@@ -60,6 +48,9 @@ library : Build the library which is configured by static=X and debug=X
 examples : Build all the examples
 docs : Build the docs
 demo : Build the demo
+install : Install Allegro
+
+To turn an option on use the form option=1. Possible options are:
     """
 
 Help(allegroHelp())
@@ -87,20 +78,20 @@ SConscriptChdir(0)
 class AllegroContext:
     """This is simply a class to hold together all the various build info."""
 
-    def __init__(self):
+    def __init__(self,env):
         self.librarySource = []
         self.extraTargets = []
-	self.installDir = "tmp"
+        self.installDir = "tmp"
         self.libDir = "lib/dummy"
-        self.libraryEnv = Environment()
+        self.libraryEnv = env
 
-	## Each platform should set its own install function
-	## install :: library -> list of targets
-	self.install = lambda lib: []
+    ## Each platform should set its own install function
+    ## install :: library -> list of targets
+    self.install = lambda lib: []
 
-	# Platform specific scons scripts should set the example env via
-	# setExampleEnv(). In most cases the library env can be used:
-	# context.setExampleEnv(context.getLibraryEnv().Copy())
+    # Platform specific scons scripts should set the example env via
+    # setExampleEnv(). In most cases the library env can be used:
+    # context.setExampleEnv(context.getLibraryEnv().Copy())
         self.exampleEnv = False
         # libraries - list of libraries to link into Allegro test/example programs
         # Usually is just liballeg.so/dylib/dll but could also be something
@@ -169,7 +160,7 @@ class AllegroContext:
 
     def setExampleEnv(self,env):
         self.exampleEnv = env
-	self.setEnvs()
+        self.setEnvs()
 
     def addFiles(self,dir,fileList):
         self.librarySource.extend(appendDir(dir,fileList))
@@ -215,6 +206,15 @@ class AllegroContext:
 #def sourceFiles(dir, files):
 #    return map(lambda x: dir + '/' + x, files)
 
+def defaultEnvironment():
+    env = Environment()
+    opts = Options('options.py', ARGUMENTS)
+    opts.Add('static', 'Set Allegro to be built statically', 0)
+    opts.Add('debug', 'Build the debug version of Allegro', 0)
+    opts.Update(env)
+    opts.Save('options.py',env)
+    Help(opts.GenerateHelpText(env))
+    return env
 
 # Subsequent scons files can call addExtra to add arbitrary targets
 # that will be evaluated in this file
@@ -225,7 +225,8 @@ class AllegroContext:
 # files - list of files that compose the Allegro library
 # dir - directory where the library( dll, so ) should end up
 def getAllegroContext():
-    context = AllegroContext()
+    context = AllegroContext(defaultEnvironment())
+    
     file = ""
     if getPlatform() == "openbsd3":
         file = 'scons/bsd.scons'
@@ -256,8 +257,10 @@ def getLibraryName(debug):
     else:
         return 'alleg-' + context.getAllegroVersion()
         
-debug = int(ARGUMENTS.get('debug',0))
-static = int(ARGUMENTS.get('static',0))
+# debug = int(ARGUMENTS.get('debug',0))
+# static = int(ARGUMENTS.get('static',0))
+debug = int(context.getLibraryEnv()['debug'])
+static = int(context.getLibraryEnv()['static'])
 
 if debug:
     normalBuildDir = debugBuildDir
@@ -299,14 +302,6 @@ def XMove(env,target,source):
 # m = context.getLibraryEnv().Move(context.getLibraryDir(), library)
 # install_to_lib_dir = XMove(context.getLibraryEnv(), context.getLibraryDir(), library)
 # install_to_lib_dir = Install(context.getLibraryDir(),library)
-
-if False:
-	for i in Flatten(library):
-		# Execute(Move(context.getLibraryDir(), str(i)))
-		f = str(i)
-		to = context.getLibraryDir() + '/' + str(i)
-		print "Moving %s to %s" % (f,to)
-		Execute(Action(os.rename(f,to)))
 
 # Execute(Move(context.getLibraryDir(), library))
 # Execute(Action(os.rename(library,context.getLibraryDir() + '/' + library)))
