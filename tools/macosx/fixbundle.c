@@ -298,11 +298,11 @@ static int copy_file(AL_CONST char *filename, AL_CONST char *dest_path)
    char *buffer = NULL;
    char dest_file[1024];
    PACKFILE *f;
-   int size;
+   size_t size;
    
    if (!exists(filename))
       return -1;
-   buffer = malloc(size = file_size(filename));
+   buffer = malloc(size = file_size_ex(filename));
    if (!buffer)
       return -1;
    append_filename(dest_file, dest_path, get_filename(filename), 1024);
