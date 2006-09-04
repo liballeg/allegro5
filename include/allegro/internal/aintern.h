@@ -133,6 +133,8 @@ AL_VAR(int, _packfile_datasize);
 AL_VAR(int, _packfile_type);
 AL_FUNC(PACKFILE *, _pack_fdopen, (int fd, AL_CONST char *mode));
 
+AL_FUNC(int, _al_lzss_incomplete_state, (AL_CONST LZSS_UNPACK_DATA *dat));
+
 
 /* config stuff */
 void _reload_config(void);
