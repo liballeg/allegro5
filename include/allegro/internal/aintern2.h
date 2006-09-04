@@ -172,8 +172,9 @@ typedef struct AL_MOUSE_DRIVER  /* new mouse driver structure */
    AL_METHOD(void, exit, (void));
    AL_METHOD(AL_MOUSE*, get_mouse, (void));
    AL_METHOD(unsigned int, get_mouse_num_buttons, (void));
+   AL_METHOD(unsigned int, get_mouse_num_axes, (void));
    AL_METHOD(bool, set_mouse_xy, (int x, int y));
-   AL_METHOD(bool, set_mouse_z, (int z));
+   AL_METHOD(bool, set_mouse_axis, (int which, int value));
    AL_METHOD(bool, set_mouse_range, (int x1, int y1, int x2, int y2));
    AL_METHOD(void, get_state, (AL_MSESTATE *ret_state));
 } AL_MOUSE_DRIVER;

@@ -116,6 +116,16 @@ unsigned int al_get_mouse_num_buttons(void)
    return new_mouse_driver->get_mouse_num_buttons();
 }
 
+/* al_get_mouse_num_axes:
+ *  Return the number of buttons on the mouse.
+ */
+unsigned int al_get_mouse_num_axes(void)
+{
+   ASSERT(new_mouse_driver);
+
+   return new_mouse_driver->get_mouse_num_axes();
+}
+
 
 
 /* al_set_mouse_xy: [primary thread]
@@ -140,12 +150,22 @@ bool al_set_mouse_xy(int x, int y)
 bool al_set_mouse_z(int z)
 {
    ASSERT(new_mouse_driver);
-   ASSERT(new_mouse_driver->set_mouse_z);
+   ASSERT(new_mouse_driver->set_mouse_axis);
 
-   return new_mouse_driver->set_mouse_z(z);
+   return new_mouse_driver->set_mouse_axis(2, z);
 }
 
+/* al_set_mouse_w: [primary thread]
+ *  Set the mouse wheel position to the given value.
+ *  Returns true on success, false on failure.
+ */
+bool al_set_mouse_w(int w)
+{
+   ASSERT(new_mouse_driver);
+   ASSERT(new_mouse_driver->set_mouse_axis);
 
+   return new_mouse_driver->set_mouse_axis(3, w);
+}
 
 /* al_set_mouse_range: [primary thread]
  *  Sets the area of the screen within which the mouse can move.
@@ -173,6 +193,29 @@ void al_get_mouse_state(AL_MSESTATE *ret_state)
    ASSERT(ret_state);
 
    new_mouse_driver->get_state(ret_state);
+}
+
+/* al_get_state_axis: 
+ *  Extract the mouse axis value from the saved state.
+ */
+int al_mouse_state_axis(AL_MSESTATE *ret_state, int axis)
+{
+   ASSERT(ret_state);
+   ASSERT(axis >= 0);
+   ASSERT(axis < (sizeof(ret_state->more_axes) / sizeof(*ret_state->more_axes)) + 4);
+   switch(axis)
+   {
+      case 0:
+         return ret_state->x;
+      case 1:
+         return ret_state->y;
+      case 2:
+         return ret_state->z;
+      case 3:
+         return ret_state->w;
+      default:
+         return ret_state->more_axes[axis - 4];
+   }
 }
 
 

@@ -30,10 +30,12 @@ typedef struct AL_MSESTATE
    /* (x, y) Primary mouse position */
    /* (z) Mouse wheel position (1D 'wheel'), or,  */
    /* (w, z) Mouse wheel position (2D 'ball') */
+   /* Allows up to four extra axes for future expansion. */
    int x;
    int y;
    int z;
    int w;
+   int more_axes[4];
    int buttons;
 } AL_MSESTATE;
 
@@ -55,14 +57,18 @@ AL_FUNC(bool,           al_install_mouse,       (void));
 AL_FUNC(void,           al_uninstall_mouse,     (void));
 AL_FUNC(AL_MOUSE*,      al_get_mouse,           (void));
 AL_FUNC(unsigned int,   al_get_mouse_num_buttons, (void));
+AL_FUNC(unsigned int,   al_get_mouse_num_axes,  (void));
 AL_FUNC(bool,           al_set_mouse_xy,        (int x, int y));
     /* XXX: how is this going to work with multiple windows? 
      * Probably it will require an AL_DISPLAY parameter.
      */
 AL_FUNC(bool,           al_set_mouse_z,         (int z));
+AL_FUNC(bool,           al_set_mouse_w,         (int w));
+AL_FUNC(bool,           al_set_mouse_axis,      (int axis, int value));
 AL_FUNC(bool,           al_set_mouse_range,     (int x1, int y1, int x2, int y2));
 AL_FUNC(void,           al_get_mouse_state,     (AL_MSESTATE *ret_state));
 AL_FUNC(bool,           al_mouse_button_down,   (AL_MSESTATE *state, int button));
+AL_FUNC(int,            al_mouse_state_axis,    (AL_MSESTATE *state, int axis));
 
 
 /*
