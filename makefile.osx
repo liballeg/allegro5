@@ -223,6 +223,9 @@ endif
 	@chmod a+x $(INSTALLDIR)/bin/allegro-config
 	@echo allegro-config script created in $(INSTALLDIR)/bin
 
+$(INSTALLDIR)/bin/fixbundle: tools/macosx/fixbundle
+	@install $< $(INSTALLDIR)/bin/
+
 HEADERS = $(INSTALLDIR)/$(INCDIR)/osxalleg.h                  \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintosx.h  \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintunix.h \
@@ -240,7 +243,7 @@ endif
 
 INSTALL_FILES += $(HEADERS) $(INSTALLDIR)/bin/allegro-config $(INSTALLDIR)/bin/fixbundle
 
-install: generic-install install-fixbundle
+install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 	@if (printenv PATH |grep -q -v "$(INSTALLDIR)/bin"); then echo "Please check that $(INSTALLDIR)/bin is in your path (see docs/build/macosx.txt)"; fi
 	@echo Run make install-man if you wish to install the man pages.
@@ -258,7 +261,8 @@ UNINSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/liballeg_s.a                     \
                   $(INSTALLDIR)/$(LIBDIR)/liballd-main.a                   \
                   $(INSTALLDIR)/$(LIBDIR)/liballp-main.a                   \
                   $(HEADERS)                                         \
-                  $(INSTALLDIR)/bin/allegro-config
+                  $(INSTALLDIR)/bin/allegro-config                   \
+                  $(INSTALLDIR)/bin/fixbundle
 
 uninstall: generic-uninstall
 	rm -f $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)-$(shared_major_minor).dylib
@@ -339,9 +343,6 @@ install-man: docs docs/man/install_allegro.3
 	@echo Installing man files to $(MAN_DIR)/man3
 	@install docs/man/*.3 $(MAN_DIR)/man3/
 	
-install-fixbundle: tools/macosx/fixbundle
-	@install $< $(INSTALLDIR)/bin/
-
 	
 
 # -------- test capabilities --------
