@@ -15,6 +15,8 @@ defines = [ "ALLEGRO_SRC", "ALLEGRO_LIB_BUILD" ]
 
 env = context.getLibraryEnv()
 
+context.setLibraryDir('lib/win32')
+
 env.Append(CCFLAGS = flags)
 env.Append(CPPDEFINES = defines)
 env.Append(CPPPATH = includes)
@@ -109,6 +111,20 @@ wtimernu.c
 wwnd.c
 wxthread.c
 """));
+
+
+def asmdef(env,appendDir,buildDir,libDir):
+    # prog = env.Program('asmdef',appendDir(buildDir + 'i386/', ['asmdef.c']))
+    prog = env.Program('asmdef.exe','#' + buildDir + '/i386/asmdef.c')
+    file = env.Command('#obj/mingw32/asmdef.inc','#src/i386/asmdef.c','asmdef.exe $TARGET')
+    # env.Depends(file,prog)
+    # env.Depends('#obj/mingw32/asmdef.inc',prog)
+    env.Depends('#' + buildDir + '/i386/iblit8.o',prog)
+    # file = env.Cat('#obj/mingw32/asmdef.inc', 'x')
+    dep = env.Depends('#' + buildDir + '/i386/iblit8.o',file)
+    return dep
+
+context.addExtra(asmdef)
 
 ## crappy hack
 file = open('obj/mingw32/asmcapa.h', "w")
