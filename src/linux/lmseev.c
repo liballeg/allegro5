@@ -629,6 +629,19 @@ static unsigned int mouse_get_mouse_num_buttons(void)
 
 
 
+/* mouse_get_mouse_num_axes:
+ *  Return the number of axes on the mouse.
+ */
+static unsigned int mouse_get_mouse_num_axes(void)
+{
+   ASSERT(the_mouse.fd >= 0);
+
+   /* XXX get the right number later */
+   return 3;
+}
+
+
+
 /* mouse_set_mouse_xy:
  *
  */
@@ -664,12 +677,16 @@ static bool mouse_set_mouse_xy(int x, int y)
 
 
 
-/* mouse_set_mouse_z:
+/* mouse_set_mouse_axis:
  *
  *   Number of mickeys to cross the screen horizontally: speed * 320.
  */
-static bool mouse_set_mouse_z(int z)
+static bool mouse_set_mouse_axis(int which, int z)
 {
+   if (which != 2) {
+      return false;
+   }
+
    _al_event_source_lock(&the_mouse.parent.es);
    {
       int dz;
@@ -830,8 +847,9 @@ AL_MOUSE_DRIVER _al_mousedrv_linux_evdev =
    mouse_exit,
    mouse_get_mouse,
    mouse_get_mouse_num_buttons,
+   mouse_get_mouse_num_axes,
    mouse_set_mouse_xy,
-   mouse_set_mouse_z,
+   mouse_set_mouse_axis,
    mouse_set_mouse_range,
    mouse_get_state
 };

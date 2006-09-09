@@ -50,8 +50,9 @@ static bool xmouse_init(void);
 static void xmouse_exit(void);
 static AL_MOUSE *xmouse_get_mouse(void);
 static unsigned int xmouse_get_mouse_num_buttons(void);
+static unsigned int xmouse_get_mouse_num_axes(void);
 static bool xmouse_set_mouse_xy(int x, int y);
-static bool xmouse_set_mouse_z(int z);
+static bool xmouse_set_mouse_axis(int which, int z);
 static bool xmouse_set_mouse_range(int x1, int y1, int x2, int y2);
 static void xmouse_get_state(AL_MSESTATE *ret_state);
 
@@ -78,8 +79,9 @@ static AL_MOUSE_DRIVER mousedrv_xwin =
    xmouse_exit,
    xmouse_get_mouse,
    xmouse_get_mouse_num_buttons,
+   xmouse_get_mouse_num_axes,
    xmouse_set_mouse_xy,
-   xmouse_set_mouse_z,
+   xmouse_set_mouse_axis,
    xmouse_set_mouse_range,
    xmouse_get_state
 };
@@ -161,6 +163,19 @@ static unsigned int xmouse_get_mouse_num_buttons(void)
 
 
 
+/* xmouse_get_mouse_num_axes:
+ *  Return the number of axes on the mouse.
+ */
+static unsigned int xmouse_get_mouse_num_axes(void)
+{
+   ASSERT(xmouse_installed);
+
+   /* XXX get the right number later */
+   return 3;
+}
+
+
+
 /* xmouse_set_mouse_xy:
  *  Set the mouse position.  Return true if successful.
  */
@@ -183,12 +198,16 @@ static bool xmouse_set_mouse_xy(int x, int y)
 
 
 
-/* xmouse_set_mouse_z:
+/* xmouse_set_mouse_axis:
  *  Set the mouse wheel position.  Return true if successful.
  */
-static bool xmouse_set_mouse_z(int z)
+static bool xmouse_set_mouse_axis(int which, int z)
 {
    ASSERT(xmouse_installed);
+
+   if (which != 2) {
+      return false;
+   }
 
    _al_event_source_lock(&the_mouse.parent.es);
    {
