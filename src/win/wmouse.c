@@ -62,8 +62,9 @@ static bool mouse_directx_init(void);
 static void mouse_directx_exit(void);
 static AL_MOUSE *mouse_directx_get_mouse(void);
 static unsigned int mouse_directx_get_mouse_num_buttons(void);
+static unsigned int mouse_directx_get_mouse_num_axes(void);
 static bool mouse_directx_set_mouse_xy(int x, int y);
-static bool mouse_directx_set_mouse_z(int z);
+static bool mouse_directx_set_mouse_axis(int which, int z);
 static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2);
 static void mouse_directx_get_state(AL_MSESTATE *ret_state);
 
@@ -87,8 +88,9 @@ static AL_MOUSE_DRIVER mousedrv_directx =
    mouse_directx_exit,
    mouse_directx_get_mouse,
    mouse_directx_get_mouse_num_buttons,
+   mouse_directx_get_mouse_num_axes,
    mouse_directx_set_mouse_xy,
-   mouse_directx_set_mouse_z,
+   mouse_directx_set_mouse_axis,
    mouse_directx_set_mouse_range,
    mouse_directx_get_state
 };
@@ -881,6 +883,18 @@ static unsigned int mouse_directx_get_mouse_num_buttons(void)
 
 
 
+/* mouse_directx_get_mouse_num_axes:
+ *  Return the number of axes on the mouse.
+ */
+static unsigned int mouse_directx_get_mouse_num_axes(void)
+{
+   ASSERT(mouse_directx_installed);
+
+   return (dinput_wheel) ? 3 : 2;
+}
+
+
+
 /* mouse_directx_set_mouse_xy:
  *
  */
@@ -928,11 +942,15 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
 
 
 
-/* mouse_directx_set_mouse_xy:
+/* mouse_directx_set_mouse_axis:
  *
  */
-static bool mouse_directx_set_mouse_z(int z)
+static bool mouse_directx_set_mouse_axis(int which, int z)
 {
+   if (which != 2) {
+      return false;
+   }
+
    ASSERT(mouse_directx_installed);
 
    _al_event_source_lock(&the_mouse.parent.es);
