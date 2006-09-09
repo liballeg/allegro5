@@ -155,6 +155,8 @@ bool al_set_mouse_z(int z)
    return new_mouse_driver->set_mouse_axis(2, z);
 }
 
+
+
 /* al_set_mouse_w: [primary thread]
  *  Set the mouse wheel position to the given value.
  *  Returns true on success, false on failure.
@@ -166,6 +168,8 @@ bool al_set_mouse_w(int w)
 
    return new_mouse_driver->set_mouse_axis(3, w);
 }
+
+
 
 /* al_set_mouse_range: [primary thread]
  *  Sets the area of the screen within which the mouse can move.
@@ -195,6 +199,8 @@ void al_get_mouse_state(AL_MSESTATE *ret_state)
    new_mouse_driver->get_state(ret_state);
 }
 
+
+
 /* al_get_state_axis: 
  *  Extract the mouse axis value from the saved state.
  */
@@ -202,9 +208,9 @@ int al_mouse_state_axis(AL_MSESTATE *ret_state, int axis)
 {
    ASSERT(ret_state);
    ASSERT(axis >= 0);
-   ASSERT(axis < (sizeof(ret_state->more_axes) / sizeof(*ret_state->more_axes)) + 4);
-   switch(axis)
-   {
+   ASSERT(axis < (4 + (int)(sizeof(ret_state->more_axes) / sizeof(ret_state->more_axes[0]))));
+
+   switch (axis) {
       case 0:
          return ret_state->x;
       case 1:
