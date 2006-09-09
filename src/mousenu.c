@@ -171,6 +171,24 @@ bool al_set_mouse_w(int w)
 
 
 
+/* al_set_mouse_axis: [primary thread]
+ *  Set the given mouse axis to the given value.
+ *  Returns true on success, false on failure.
+ *
+ *  For now: the axis number must not be 0 or 1, which are the X and Y axes.
+ */
+bool al_set_mouse_axis(int which, int value)
+{
+   ASSERT(new_mouse_driver);
+   ASSERT(new_mouse_driver->set_mouse_axis);
+   ASSERT(which >= 2);
+   ASSERT(which < 4 + AL_MOUSE_MAX_EXTRA_AXES);
+
+   return new_mouse_driver->set_mouse_axis(which, value);
+}
+
+
+
 /* al_set_mouse_range: [primary thread]
  *  Sets the area of the screen within which the mouse can move.
  *  The coordinates are inclusive. (XXX: change this?)
@@ -208,7 +226,7 @@ int al_mouse_state_axis(AL_MSESTATE *ret_state, int axis)
 {
    ASSERT(ret_state);
    ASSERT(axis >= 0);
-   ASSERT(axis < (4 + (int)(sizeof(ret_state->more_axes) / sizeof(ret_state->more_axes[0]))));
+   ASSERT(axis < (4 + AL_MOUSE_MAX_EXTRA_AXES));
 
    switch (axis) {
       case 0:

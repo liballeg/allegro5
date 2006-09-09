@@ -22,6 +22,10 @@
 AL_BEGIN_EXTERN_C
 
 
+/* Allow up to four extra axes for future expansion. */
+#define AL_MOUSE_MAX_EXTRA_AXES	 4
+
+
 /* Abstract data type */
 typedef struct AL_MOUSE AL_MOUSE;
 
@@ -30,12 +34,11 @@ typedef struct AL_MSESTATE
    /* (x, y) Primary mouse position */
    /* (z) Mouse wheel position (1D 'wheel'), or,  */
    /* (w, z) Mouse wheel position (2D 'ball') */
-   /* Allows up to four extra axes for future expansion. */
    int x;
    int y;
    int z;
    int w;
-   int more_axes[4];
+   int more_axes[AL_MOUSE_MAX_EXTRA_AXES];
    int buttons;
 } AL_MSESTATE;
 
