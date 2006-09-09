@@ -224,6 +224,27 @@ endif(WANT_MAGIC_MAIN)
 #
 #-----------------------------------------------------------------------------#
 
+#
+# These are the conventions for this CMakeFile.
+#
+# The WANT_* variables indicate whether the user wants to have an optional
+# feature enabled, i.e. whether they have selected something in the CMake UI.
+#
+# The CAN_* variables indicate whether a feature *can* be enabled on this
+# system/platform.  As these variable values are cached, CAN_ variables could
+# be set even though the user has turned a corresponding WANT_* variable
+# off---it might have been tested and set in a previous run.
+#
+# The SUPPORT_* variables are the conjunction of WANT_FEATURE and CAN_FEATURE,
+# i.e. the user wants it and the system can support it.
+#
+# Those variables are internal to the CMake build.  Allegro header files use
+# preprocessor constants with names like ALLEGRO_WITH_* and HAVE_*.  Sometimes
+# we make use of those variables in this CMakeFile as well, but generally
+# that's just due to sloppiness.
+#
+
+
     # Accumulate extra libraries needed due to drivers.
     #
 set(DRIVER_LIBS_STATIC)
@@ -261,13 +282,14 @@ if(UNIX)
                 return 1;
             #endif
             }"
-            SUPPORT_ALSADIGI
+            CAN_ALSADIGI
         )
-        if(SUPPORT_ALSADIGI)
+        if(CAN_ALSADIGI)
+            set(SUPPORT_ALSADIGI 1)
             set(ALLEGRO_WITH_ALSADIGI 1)
             set(ALLEGRO_ALSA_VERSION 9)
             list(APPEND DRIVER_LIBS_STATIC asound)
-        endif(SUPPORT_ALSADIGI)
+        endif(CAN_ALSADIGI)
     endif(WANT_ALSADIGI)
 
     if(WANT_ALSAMIDI)
@@ -280,13 +302,14 @@ if(UNIX)
                 return 1;
             #endif
             }"
-            SUPPORT_ALSAMIDI
+            CAN_ALSAMIDI
         )
-        if(SUPPORT_ALSAMIDI)
+        if(CAN_ALSAMIDI)
+            set(SUPPORT_ALSAMIDI 1)
             set(ALLEGRO_WITH_ALSAMIDI 1)
             set(ALLEGRO_ALSA_VERSION 9)
             list(APPEND DRIVER_LIBS_STATIC asound)
-        endif(SUPPORT_ALSAMIDI)
+        endif(CAN_ALSAMIDI)
     endif(WANT_ALSAMIDI)
 
     if(WANT_ARTS)
@@ -340,6 +363,7 @@ if(UNIX)
             set(ALLEGRO_WITH_OSSMIDI 1)
         endif(WANT_OSSMIDI)
 
+        # XXX we assume that if libossaudio exists then we need to use it.
         check_library_exists(ossaudio _oss_ioctl "" HAVE_LIBOSSAUDIO)
         if(HAVE_LIBOSSAUDIO)
             list(APPEND DRIVER_LIBS_STATIC ossaudio)
@@ -350,11 +374,12 @@ if(UNIX)
         HAVE_MACHINE_SOUNDCARD_H OR HAVE_LINUX_SOUNDCARD_H)
 
     if(WANT_SGIAL)
-        check_library_exists(audio alOpenPort "" SUPPORT_SGIAL)
-        if(SUPPORT_SGIAL)
+        check_library_exists(audio alOpenPort "" CAN_SGIAL)
+        if(CAN_SGIAL)
+            set(SUPPORT_SGIAL 1)
             set(ALLEGRO_WITH_SGIALDIGI 1)
             list(append DRIVER_LIBS_STATIC audio)
-        endif(SUPPORT_SGIAL)
+        endif(CAN_SGIAL)
     endif(WANT_SGIAL)
 
 endif(UNIX)
@@ -379,19 +404,21 @@ if(SUPPORT_LINUX_CONSOLE)
                 int x = FB_SYNC_ON_GREEN;
                 return 0;
             }"
-            SUPPORT_FBCON
+            CAN_FBCON
         )
-        if(SUPPORT_FBCON)
+        if(CAN_FBCON)
+            set(SUPPORT_FBCON 1)
             set(ALLEGRO_LINUX_FBCON 1)
-        endif(SUPPORT_FBCON)
+        endif(CAN_FBCON)
     endif(WANT_FBCON)
 
     if(WANT_SVGALIB)
-        check_library_exists(vga vga_init "" SUPPORT_SVGALIB)
-        if(SUPPORT_SVGALIB)
+        check_library_exists(vga vga_init "" CAN_SVGALIB)
+        if(CAN_SVGALIB)
+            set(SUPPORT_SVGALIB 1)
             set(ALLEGRO_LINUX_SVGALIB 1)
             list(APPEND DRIVER_LIBS_STATIC vga)
-        endif(SUPPORT_SVGALIB)
+        endif(CAN_SVGALIB)
 
         set(CMAKE_REQUIRED_LIBRARIES vga)
         check_c_source_compiles("
@@ -427,39 +454,45 @@ endif(WANT_X11)
 if(SUPPORT_X11)
     set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES})
 
-    check_library_exists(Xext XShmQueryExtension ""
-        ALLEGRO_XWINDOWS_WITH_SHM)
+    check_library_exists(Xext XShmQueryExtension "" CAN_XSHM)
+    if(CAN_XSHM)
+        set(ALLEGRO_XWINDOWS_WITH_SHM 1)
+    endif(CAN_XSHM)
 
-    check_library_exists(Xcursor XcursorImageCreate ""
-        ALLEGRO_XWINDOWS_WITH_XCURSOR)
-    if(ALLEGRO_XWINDOWS_WITH_XCURSOR)
+    check_library_exists(Xcursor XcursorImageCreate "" CAN_XCURSOR)
+    if(CAN_XCURSOR)
+        set(ALLEGRO_XWINDOWS_WITH_XCURSOR 1)
         list(APPEND X11_LIBRARIES "Xcursor")
-    endif(ALLEGRO_XWINDOWS_WITH_XCURSOR)
+    endif(CAN_XCURSOR)
 
-    check_library_exists(Xxf86vm XF86VidModeQueryExtension ""
-        ALLEGRO_XWINDOWS_WITH_XF86VIDMODE)
-    if(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE)
+    check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)
+    if(CAN_XF86VIDMODE)
+        set(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE 1)
         list(APPEND X11_LIBRARIES "Xxf86vm")
-    endif(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE)
+    endif(CAN_XF86VIDMODE)
 
     if(WANT_DGA2)
-        check_library_exists(Xxf86dga XDGAQueryExtension ""
-            ALLEGRO_XWINDOWS_WITH_XF86DGA2)
-        if(ALLEGRO_XWINDOWS_WITH_XF86DGA2 AND NOT SUPPORT_MODULES)
-            list(APPEND X11_LIBRARIES "Xxf86dga")
-        endif(ALLEGRO_XWINDOWS_WITH_XF86DGA2 AND NOT SUPPORT_MODULES)
+        check_library_exists(Xxf86dga XDGAQueryExtension "" CAN_XF86DGA)
+        if(CAN_XF86DGA)
+            set(SUPPORT_DGA2 1)
+            set(ALLEGRO_XWINDOWS_WITH_XF86DGA2 1)
+            if(NOT SUPPORT_MODULES)
+                list(APPEND X11_LIBRARIES "Xxf86dga")
+            endif(NOT SUPPORT_MODULES)
+        endif(CAN_XF86DGA)
     endif(WANT_DGA2)
 
-    check_library_exists(X11 XOpenIM "" ALLEGRO_USE_XIM)
+    check_library_exists(X11 XOpenIM "" CAN_XIM)
+    if(CAN_XIM)
+        set(ALLEGRO_USE_XIM 1)
+    endif(CAN_XIM)
 
     check_include_files(X11/xpm.h HAVE_X11_XPM_H)
-    if(HAVE_X11_XPM_H)
-        check_library_exists(Xpm XpmCreatePixmapFromData ""
-            ALLEGRO_XWINDOWS_WITH_XPM)
-        if(ALLEGRO_XWINDOWS_WITH_XPM)
-            list(APPEND X11_LIBRARIES "Xpm")
-        endif(ALLEGRO_XWINDOWS_WITH_XPM)
-    endif(HAVE_X11_XPM_H)
+    check_library_exists(Xpm XpmCreatePixmapFromData "" CAN_XPM)
+    if(HAVE_X11_XPM_H AND CAN_XPM)
+        set(ALLEGRO_XWINDOWS_WITH_XPM 1)
+        list(APPEND X11_LIBRARIES "Xpm")
+    endif(HAVE_X11_XPM_H AND CAN_XPM)
 
     set(CMAKE_REQUIRED_LIBRARIES)
 endif(SUPPORT_X11)
@@ -724,10 +757,10 @@ if(SUPPORT_MODULES)
         add_module(alleg-vga "${ALLEGRO_MODULE_VGA_FILES}")
     endif(SUPPORT_VGA)
 
-    if(ALLEGRO_XWINDOWS_WITH_XF86DGA2)
+    if(SUPPORT_DGA2)
         add_module(alleg-dga2 "${ALLEGRO_MODULE_DGA2_FILES}"
             -L${X11_LIBRARY_DIR} Xxf86dga)
-    endif(ALLEGRO_XWINDOWS_WITH_XF86DGA2)
+    endif(SUPPORT_DGA2)
 
     if(SUPPORT_ALSADIGI)
         add_module(alleg-alsadigi "${ALLEGRO_MODULE_ALSADIGI_FILES}"
