@@ -224,10 +224,6 @@ endif(WANT_MAGIC_MAIN)
 #
 #-----------------------------------------------------------------------------#
 
-    # Accumulate extra libraries needed for the platform.
-    #
-set(PLATFORM_LIBS)
-
     # Accumulate extra libraries needed due to drivers.
     #
 set(DRIVER_LIBS_STATIC)
@@ -243,9 +239,6 @@ if(UNIX)
     if(CMAKE_USE_PTHREADS_INIT)
         set(HAVE_LIBPTHREAD 1)
     endif(CMAKE_USE_PTHREADS_INIT)
-    if(HAVE_LIBPTHREAD)
-        list(APPEND PLATFORM_LIBS pthread)
-    endif(HAVE_LIBPTHREAD)
 
     if(SUPPORT_MODULES)
         set(ALLEGRO_MODULES_PATH_TAIL lib/allegro)
@@ -452,9 +445,9 @@ if(SUPPORT_X11)
     if(WANT_DGA2)
         check_library_exists(Xxf86dga XDGAQueryExtension ""
             ALLEGRO_XWINDOWS_WITH_XF86DGA2)
-        if(ALLEGRO_XWINDOWS_WITH_XF86DGA2)
-            list(APPEND DRIVER_LIBS_STATIC "Xxf86dga")
-        endif(ALLEGRO_XWINDOWS_WITH_XF86DGA2)
+        if(ALLEGRO_XWINDOWS_WITH_XF86DGA2 AND NOT SUPPORT_MODULES)
+            list(APPEND X11_LIBRARIES "Xxf86dga")
+        endif(ALLEGRO_XWINDOWS_WITH_XF86DGA2 AND NOT SUPPORT_MODULES)
     endif(WANT_DGA2)
 
     check_library_exists(X11 XOpenIM "" ALLEGRO_USE_XIM)
@@ -549,6 +542,9 @@ add_custom_command(
 if(UNIX)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_UNIX_FILES})
     list(APPEND PLATFORM_LIBS m pthread)
+    if(NOT SUPPORT_MODULES)
+        list(APPEND PLATFORM_LIBS "${DRIVER_LIBS_STATIC}")
+    endif(NOT SUPPORT_MODULES)
 endif(UNIX)
 
 if(SUPPORT_LINUX_CONSOLE)
