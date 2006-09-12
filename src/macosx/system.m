@@ -21,7 +21,7 @@
 #include "allegro/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
-   #error something is wrong with the makefile
+#error something is wrong with the makefile
 #endif
 
 #ifndef SCAN_DEPEND
@@ -424,9 +424,11 @@ static int osx_sys_init(void)
    
    /* Setup OS type & version */
    os_type = OSTYPE_MACOSX;
-   Gestalt(gestaltSystemVersion, &result);
-   os_version = (((result >> 12) & 0xf) * 10) + ((result >> 8) & 0xf);
-   os_revision = (result >> 4) & 0xf;
+   NSDictionary* sysinfo = [NSDictionary dictionaryWithContentsOfFile: @"/System/Library/CoreServices/SystemVersion.plist"];
+   NSArray* version = [((NSString*) [sysinfo objectForKey:@"ProductVersion"]) componentsSeparatedByString:@"."];
+   os_version = 10 * [[version objectAtIndex: 0] intValue] + [[version objectAtIndex: 1] intValue];
+   os_revision = [[version objectAtIndex: 2] intValue];
+   [version release];
    os_multitasking = TRUE;
    
    /* Setup a blank cursor */
@@ -639,3 +641,18 @@ static int osx_sys_get_desktop_resolution(int *width, int *height)
    
    return 0;
 }
+
+/* osx_view_from_display:
+ * given an AL_DISPLAY, return the associated Cocoa View or nil
+ * if fullscreen 
+ */
+AllegroView* osx_view_from_display(AL_DISPLAY* disp)
+{
+ // At the moment, AL_DISPLAY has not been finalised
+ return (AllegroView*) (osx_window ? [osx_window contentView] : nil);
+}
+
+/* Local variables:       */
+/* c-basic-offset: 3      */
+/* indent-tabs-mode: nil  */
+/* End:                   */

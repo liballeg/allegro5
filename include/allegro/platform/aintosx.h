@@ -82,13 +82,26 @@
 
 
 @interface AllegroView: NSQuickDrawView
+{
+	NSTrackingRectTag _tracking;
+	NSCursor* _cursor;
+	BOOL _show_cursor;
+}
+- (id)initWithFrame:(NSRect) rc;
 - (void)resetCursorRects;
 - (void)keyDown: (NSEvent*) event;
 - (void)keyUp: (NSEvent*) event;
+- (void)mouseEntered: (NSEvent*) event;
+- (void)mouseExited: (NSEvent*) event;
 - (void)flagsChanged: (NSEvent*) event;
 - (void)drawRect: (NSRect) aRect;
+- (void)setCursor:(NSCursor*) cur;
+- (void)setCursorVisible;
+- (void)setCursorHidden;
+- (void) viewDidMoveToWindow;
 @end
 
+AllegroView* osx_view_from_display(AL_DISPLAY*);
 
 typedef void RETSIGTYPE;
 
