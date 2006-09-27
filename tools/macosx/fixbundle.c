@@ -360,11 +360,6 @@ int main(int argc, char *argv[])
    set_color_depth(32);
    set_color_conversion(COLORCONV_TOTAL | COLORCONV_KEEP_TRANS);
    
-   _rgb_a_shift_32 = 24;
-   _rgb_r_shift_32 = 16; 
-   _rgb_g_shift_32 = 8; 
-   _rgb_b_shift_32 = 0;
-   
    if (argc < 2)
       usage();
    
@@ -504,7 +499,16 @@ int main(int argc, char *argv[])
       for (i = 0; i < 4; i++) {
          if (flags & icon_data[i].defined) {
 	    /* Set 32bit RGBA data */
-	    PtrToHand(icon_data[i].scaled->line[0], &raw_data, icon_data[i].size * icon_data[i].size * 4);
+	        raw_data = NewHandle(icon_data[i].size * icon_data[i].size * 4);
+	    data = *(unsigned char **)raw_data;
+	    for (y = 0; y < icon_data[i].size; y++) {
+	       for (x = 0; x < icon_data[i].size; x++) {
+	          *data++ = geta32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
+	          *data++ = getr32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
+	          *data++ = getg32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
+	          *data++ = getb32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
+	       }
+	    }
 	    if (SetIconFamilyData(icon_family, icon_data[i].data, raw_data) != noErr) {
                DisposeHandle(raw_data);
 	       fprintf(stderr, "Error setting %dx%d icon resource RGBA data\n", icon_data[i].size, icon_data[i].size);
