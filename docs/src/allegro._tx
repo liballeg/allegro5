@@ -7159,7 +7159,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
       destroy_font(lower_range);
       destroy_font(upper_range);
       destroy_font(capitals);
-      destroy_font(combined_font);<endblock>
+      destroy_font(tempfont);<endblock>
 @retval
    Returns a pointer to the new font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
