@@ -3736,11 +3736,12 @@ incorrect data.
 @xref JOY_TYPE_*/DOS, JOY_TYPE_*/Windows, JOY_TYPE_*/Linux
 @eref exjoy
 @shortdesc Initialises the joystick.
-   Initialises the joystick, and calibrates the centre position value. The 
-   type parameter should usually be JOY_TYPE_AUTODETECT, or see the platform 
-   specific documentation for a list of the available drivers. You must call 
-   this routine before using any other joystick functions, and you should 
-   make sure that the joystick is in the middle position at the time. Example:
+   Installs Allegro's joystick handler, and calibrates the centre position
+   values. The type parameter should usually be JOY_TYPE_AUTODETECT, or see
+   the platform specific documentation for a list of the available drivers.
+   You must call this routine before using any other joystick functions, and
+   you should make sure that all joysticks are in the middle position at the
+   time. Example:
 <codeblock>
       textout_centre_ex(screen, font,
 			"Center the joystick and press a key",
@@ -3766,8 +3767,8 @@ incorrect data.
 @xref install_joystick, joy, num_joysticks
 @eref exjoy
 @shortdesc Polls the joystick.
-   The joystick is not interrupt driven, so you need to call this function 
-   every now and again to update the global position values. Example:
+   The joystick handler is not interrupt driven, so you need to call this
+   function every now and again to update the global position values. Example:
 <codeblock>
    do {
       /* Get joystick input */
@@ -3790,7 +3791,7 @@ incorrect data.
 @eref exjoy
 @shortdesc Global variable saying how many joysticks there are.
    Global variable containing the number of active joystick devices. The 
-   current drivers support a maximum of four controllers.
+   current drivers support a maximum of eight controllers.
 
 @@extern JOYSTICK_INFO @joy[n];
 @xref install_joystick, poll_joystick, num_joysticks, calibrate_joystick
@@ -3908,7 +3909,7 @@ incorrect data.
 @xref install_joystick, calibrate_joystick, joy, num_joysticks
 @eref exjoy
 @shortdesc Returns the next calibration text string.
-   As parameter pass the number of joystick you want to calibrate.
+   Pass the number of the joystick you want to calibrate as the parameter.
 @retval
    Returns a text description for the next type of calibration that will be
    done on the specified joystick, or NULL if no more calibration is 
