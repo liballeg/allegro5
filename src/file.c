@@ -2687,6 +2687,28 @@ static int normal_fclose(void *_f)
 
 
 
+/* normal_no_more_input:
+ *  Return non-zero if the number of bytes remaining in the file (todo) is
+ *  less than or equal to zero.
+ *
+ *  However, there is a special case.  If we are reading from a LZSS
+ *  compressed file, the latest call to lzss_read() may have suspended while
+ *  writing out a sequence of bytes due to the output buffer being too small.
+ *  In that case the `todo' count would be decremented (possibly to zero),
+ *  but the output isn't yet completely written out.
+ */
+static INLINE int normal_no_more_input(PACKFILE *f)
+{
+   /* see normal_refill_buffer() to see when lzss_read() is called */
+   if (f->normal.parent && (f->normal.flags & PACKFILE_FLAG_PACK) &&
+       _al_lzss_incomplete_state(f->normal.unpack_data))
+      return 0;
+
+   return (f->normal.todo <= 0);
+}
+
+
+
 static int normal_getc(void *_f)
 {
    PACKFILE *f = _f;
@@ -2696,7 +2718,7 @@ static int normal_getc(void *_f)
       return *(f->normal.buf_pos++);
 
    if (f->normal.buf_size == 0) {
-      if (f->normal.todo <= 0)
+      if (normal_no_more_input(f))
 	 f->normal.flags |= PACKFILE_FLAG_EOF;
       return *(f->normal.buf_pos++);
    }
@@ -2789,7 +2811,7 @@ static int normal_fseek(void *_f, int offset)
       f->normal.buf_size -= i;
       f->normal.buf_pos += i;
       offset -= i;
-      if ((f->normal.buf_size <= 0) && (f->normal.todo <= 0))
+      if ((f->normal.buf_size <= 0) && normal_no_more_input(f))
 	 f->normal.flags |= PACKFILE_FLAG_EOF;
    }
 
@@ -2814,7 +2836,7 @@ static int normal_fseek(void *_f, int offset)
 	    lseek(f->normal.hndl, i, SEEK_CUR);
 	 }
 	 f->normal.todo -= i;
-	 if (f->normal.todo <= 0)
+	 if (normal_no_more_input(f))
 	    f->normal.flags |= PACKFILE_FLAG_EOF;
       }
    }
@@ -2856,7 +2878,7 @@ static int normal_refill_buffer(PACKFILE *f)
    if (f->normal.flags & PACKFILE_FLAG_EOF)
       return EOF;
 
-   if (f->normal.todo <= 0) {
+   if (normal_no_more_input(f)) {
       f->normal.flags |= PACKFILE_FLAG_EOF;
       return EOF;
    }
@@ -2907,7 +2929,7 @@ static int normal_refill_buffer(PACKFILE *f)
    f->normal.buf_pos = f->normal.buf;
    f->normal.buf_size--;
    if (f->normal.buf_size <= 0)
-      if (f->normal.todo <= 0)
+      if (normal_no_more_input(f))
 	 f->normal.flags |= PACKFILE_FLAG_EOF;
 
    if (f->normal.buf_size < 0)
