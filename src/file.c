@@ -2007,7 +2007,6 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
          tmpnam_string = tmpnam(NULL);
          tmp_name = _AL_MALLOC_ATOMIC(strlen(tmp_dir) + strlen(tmpnam_string) + 2);
          sprintf(tmp_name, "%s/%s", tmp_dir, tmpnam_string);
-         _AL_FREE(tmpnam_string);
 
          if (tmp_name) {
 #ifndef ALLEGRO_MPW
