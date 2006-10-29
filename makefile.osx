@@ -213,6 +213,9 @@ endif
 	@chmod a+x $(INSTALLDIR)/bin/allegro-config
 	@echo allegro-config script created in $(INSTALLDIR)/bin
 
+$(INSTALLDIR)/bin/fixbundle: tools/macosx/fixbundle
+	@install $< $(INSTALLDIR)/bin/
+
 HEADERS = $(INSTALLDIR)/$(INCDIR)/osxalleg.h                  \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintosx.h  \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintunix.h \
@@ -249,7 +252,8 @@ UNINSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/liballeg_s.a                     \
                   $(INSTALLDIR)/$(LIBDIR)/liballd-main.a                   \
                   $(INSTALLDIR)/$(LIBDIR)/liballp-main.a                   \
                   $(HEADERS)                                         \
-                  $(INSTALLDIR)/bin/allegro-config
+                  $(INSTALLDIR)/bin/allegro-config                   \
+                  $(INSTALLDIR)/bin/fixbundle
 
 uninstall: generic-uninstall
 	rm -f $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)-$(shared_major_minor).dylib
