@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
 
    do_dialog(the_dialog, -1);
    
-   unload_datafile (datafile);
+   unload_datafile(datafile);
 
    return 0;
 }

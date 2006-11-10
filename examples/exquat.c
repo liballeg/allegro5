@@ -418,7 +418,7 @@ int main(void)
 	 blit(quat_buffer,  screen, 0, 0, 320, 120, 320, 240);
          release_bitmap(screen);
 
-	 rest (1);
+	 rest(1);
       }
 
       /* handle user input */

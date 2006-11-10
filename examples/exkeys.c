@@ -66,13 +66,14 @@ void keypress_handler(int scancode)
 {
    int i, x, y, color;
    char str[64];
+
    i = scancode & 0x7f;
    x = SCREEN_W - 100 * 3 + (i % 3) * 100;
    y = SCREEN_H / 2 + (i / 3 - 21) * 10;
-   color = scancode & 0x80 ? makecol (255, 255, 0) : makecol (128, 0, 0);
-   rectfill (screen, x, y, x + 95, y + 8, color);
-   ustrzncpy (str, sizeof str, scancode_to_name (i), 12);
-   textprintf_ex (screen, font, x + 1, y + 1, makecol (0, 0, 0), -1, "%s", str);
+   color = scancode & 0x80 ? makecol(255, 255, 0) : makecol(128, 0, 0);
+   rectfill(screen, x, y, x + 95, y + 8, color);
+   ustrzncpy(str, sizeof(str), scancode_to_name(i), 12);
+   textprintf_ex(screen, font, x + 1, y + 1, makecol(0, 0, 0), -1, "%s", str);
 }
 END_OF_FUNCTION(keypress_handler)
 
