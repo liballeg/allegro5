@@ -72,9 +72,7 @@ void keypress_handler(int scancode)
    color = scancode & 0x80 ? makecol (255, 255, 0) : makecol (128, 0, 0);
    rectfill (screen, x, y, x + 95, y + 8, color);
    ustrzncpy (str, sizeof str, scancode_to_name (i), 12);
-   if (str)
-      textprintf_ex (screen, font, x + 1, y + 1, makecol (0, 0, 0), -1,
-	 "%s", str);
+   textprintf_ex (screen, font, x + 1, y + 1, makecol (0, 0, 0), -1, "%s", str);
 }
 END_OF_FUNCTION(keypress_handler)
 
