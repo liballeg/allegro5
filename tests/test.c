@@ -4485,7 +4485,6 @@ int main(void)
 {
    int buttons;
    int c;
-   const char *vendor;
 
    LOCK_FUNCTION(tm_tick);
    LOCK_VARIABLE(tm);
