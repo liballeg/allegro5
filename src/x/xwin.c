@@ -2202,9 +2202,6 @@ static void _xwin_private_set_window_defaults(void)
 {
    XClassHint hint;
    XWMHints wm_hints;
-#ifdef ALLEGRO_XWINDOWS_WITH_XPM
-   XpmAttributes attributes;
-#endif
 
    if (_xwin.wm_window == None)
       return;
@@ -2225,8 +2222,8 @@ static void _xwin_private_set_window_defaults(void)
 #ifdef ALLEGRO_XWINDOWS_WITH_XPM
    if (allegro_icon) {
       wm_hints.flags |= IconPixmapHint | IconMaskHint;
-      attributes.valuemask = XpmReturnAllocPixels | XpmReturnExtensions;
-      XpmCreatePixmapFromData(_xwin.display,_xwin.wm_window,allegro_icon,&wm_hints.icon_pixmap,&wm_hints.icon_mask, &attributes);
+      XpmCreatePixmapFromData(_xwin.display, _xwin.wm_window, allegro_icon,
+         &wm_hints.icon_pixmap, &wm_hints.icon_mask, NULL);
    }
 #endif
 
