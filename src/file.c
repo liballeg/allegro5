@@ -1962,7 +1962,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
             size = new_size;
             tmp_dir = realloc(tmp_dir, size);
             new_size = GetTempPath(size, tmp_dir);
-         } while ( (size > new_size) && (new_size > 0) );
+         } while ( (size < new_size) && (new_size > 0) );
          
          /* Check if we retrieved the path OK */
          if (new_size == 0)
