@@ -632,7 +632,9 @@ macro(add_allegro_build nm extra_flags)
                 DEPENDS ${SOURCE} ${ASMDEF_INC}
                 COMMAND
                     ${CMAKE_C_COMPILER} -x assembler-with-cpp
-                    -I. -Iinclude ${_wflags}
+                    -I${CMAKE_SOURCE_DIR}
+                    -I${CMAKE_BINARY_DIR}
+                    -I${CMAKE_BINARY_DIR}/include ${_wflags}
                     -c ${CMAKE_SOURCE_DIR}/${SOURCE}
                     -o ${OBJ}
                 )
