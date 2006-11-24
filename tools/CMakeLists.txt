@@ -14,7 +14,7 @@ add_custom_command(
     DEPENDS ${inc_files}
     COMMAND ${CMAKE_COMMAND}
             -D plugins_h=${plugins_h}
-            -D inc_files=${inc_files}
+            -D inc_files="${inc_files}"
             -P ${CMAKE_SOURCE_DIR}/cmake/GeneratePlugins.cmake
     )
 
@@ -23,7 +23,7 @@ add_custom_command(
     #
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(aldat STATIC datedit.c ${plugins})
+add_library(aldat STATIC datedit.c ${plugins_h} ${plugins})
 set_target_properties(aldat PROPERTIES
     COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
     LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
