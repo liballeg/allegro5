@@ -56,6 +56,7 @@ necessary software installed.
 12. Make sure the installed version of GNU autoconf is the right one.
 
 13. Make .zip distro. Have the previous archive in parent directory.
+    You will need to have the dat tool in your path.
 
     misc/zipup.sh all421.zip all420.zip
     
