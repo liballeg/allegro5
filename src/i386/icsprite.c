@@ -16,15 +16,25 @@
  */
 
 
+#include <stdio.h>
 #include <string.h>
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "opcodes.h"
 
+#ifdef ALLEGRO_UNIX
+   #include "allegro/platform/aintunix.h"   /* for _unix_get_page_size */
+#endif
+
 #ifdef ALLEGRO_WINDOWS
    #include "winalleg.h"   /* For VirtualProtect */
 #endif     /* ifdef ALLEGRO_WINDOWS */
+
+#ifdef HAVE_MPROTECT
+   #include <sys/types.h>
+   #include <sys/mman.h>
+#endif     /* ifdef HAVE_MPROTECT */
 
 
 
@@ -303,7 +313,8 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
 	 }
 	 #elif defined(HAVE_MPROTECT)
 	 {
-	    char *aligned_p = (char *)((unsigned long)p & ~(PAGE_SIZE-1ul));
+	    long page_size = _unix_get_page_size();
+	    char *aligned_p = (char *)((unsigned long)p & ~(page_size-1ul));
 	    if (mprotect(aligned_p, compiler_pos + ((char *)p - aligned_p),
 		  PROT_EXEC|PROT_READ|PROT_WRITE)) {
 	       perror("allegro-error: mprotect failed during compile sprite!");
