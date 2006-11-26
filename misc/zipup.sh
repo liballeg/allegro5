@@ -20,6 +20,12 @@ if [ $# -lt 1 -o $# -gt 2 ]; then
    exit 1
 fi
 
+if [ -n "$2" ] && [ ! -r ../"$2" ]; then
+   echo "Previous archive $2 not in parent directory, aborting"
+   exit 1
+fi
+
+
 
 # strip off the path and extension from our arguments
 name=$(echo "$1" | sed -e 's/.*[\\\/]//; s/\.zip//')
@@ -171,7 +177,7 @@ rm _makedoc.exe
 
 
 # create language.dat and keyboard.dat files
-misc/mkdata.sh
+misc/mkdata.sh || exit 1
 
 
 # convert files to djgpp format for distribution
@@ -232,7 +238,7 @@ if [ $# -eq 2 ]; then
 
    echo "Inflating previous version ($2)..."
    mkdir previous
-   unzip -q "$2" -d previous
+   unzip -q ../../"$2" -d previous || exit 1
 
    echo "Generating diffs..."
    diff -U 3 -N --recursive previous/ current/ > $name.diff
