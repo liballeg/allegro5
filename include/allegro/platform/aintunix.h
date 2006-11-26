@@ -78,6 +78,11 @@ extern "C" {
    /* File system helpers */
    AL_FUNC(void, _unix_guess_file_encoding, (void));
 
+
+   /* Get size of a memory page in bytes */
+   AL_FUNC(size_t, _unix_get_page_size, (void));
+
+
 #ifdef ALLEGRO_WITH_XWINDOWS
    AL_FUNCPTR(void, _xwin_keyboard_interrupt, (int pressed, int code));
    AL_FUNCPTR(void, _xwin_keyboard_focused, (int focused, int state));

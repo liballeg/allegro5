@@ -450,3 +450,18 @@ void _unix_get_executable_name(char *output, int size)
 
 #endif
 
+
+
+/* _unix_get_page_size:
+ *  Get size of a memory page in bytes.  If we can't do it, we make a guess.
+ */
+size_t _unix_get_page_size(void)
+{
+#if defined(HAVE_SYSCONF) && defined(_SC_PAGESIZE)
+   long page_size = sysconf(_SC_PAGESIZE); 
+#else
+   long page_size = -1;
+#endif
+
+   return (page_size == -1) ? 4096 : page_size;
+}
