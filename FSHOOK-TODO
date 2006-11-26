@@ -1,0 +1,6 @@
+TODO
+====
+
+* Finish changing macros to use handle level vtables when nesesary
+* Fix fstat
+* Fix mktemp

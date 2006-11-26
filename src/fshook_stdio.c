@@ -15,6 +15,8 @@
  *      See readme.txt for copyright information.
  */
 
+#define ALLEGRO_FS_FILE_DEFINED
+
 #include "allegro.h"
 #include "allegro/debug.h"
 #include "allegro/fshook.h"
@@ -57,8 +59,33 @@
 
 #define PREFIX_I "al-fs-stdio INFO: "
 
+/* FIXME:
+
+should AL_FILE carry a vtable? so the io handler can be changed without fucking up
+
+*/
+
+typedef struct AL_FILE AL_FILE;
+struct AL_FILE {
+   AL_FS_HOOK_VTABLE vtable;
+   FILE *handle;
+   struct stat st;
+   char *path;
+   char *found;
+   char mode[6];
+   uint32_t free_on_fclose;
+   uint32_t ulink;
+};
+
+static char **search_path = NULL;
+static uint32_t search_path_count = 0;
+
 uint32_t al_fs_init_stdio(void)
 {
+   al_fs_set_hook(AL_FS_HOOK_CREATE_HANDLE,  al_fs_stdio_create_handle);
+   al_fs_set_hook(AL_FS_HOOK_DESTROY_HANDLE, al_fs_stdio_destroy_handle);
+   al_fs_set_hook(AL_FS_HOOK_OPEN_HANDLE,    al_fs_stdio_open_handle);
+   al_fs_set_hook(AL_FS_HOOK_CLOSE_HANDLE,   al_fs_stdio_close_handle);
 
    al_fs_set_hook(AL_FS_HOOK_FOPEN,  al_fs_stdio_fopen);
    al_fs_set_hook(AL_FS_HOOK_FCLOSE, al_fs_stdio_fclose);
@@ -79,7 +106,6 @@ uint32_t al_fs_init_stdio(void)
    al_fs_set_hook(AL_FS_HOOK_MKTEMP, al_fs_stdio_mktemp);
    al_fs_set_hook(AL_FS_HOOK_GETCWD, al_fs_stdio_getcwd);
    al_fs_set_hook(AL_FS_HOOK_CHDIR,  al_fs_stdio_chdir);
-   al_fs_set_hook(AL_FS_HOOK_GETDIR, al_fs_stdio_getdir);
 
    al_fs_set_hook(AL_FS_HOOK_ADD_SEARCH_PATH,   al_fs_stdio_add_search_path);
    al_fs_set_hook(AL_FS_HOOK_SEARCH_PATH_COUNT, al_fs_stdio_search_path_count);
@@ -97,40 +123,164 @@ uint32_t al_fs_init_stdio(void)
    return 0;
 }
 
-AL_FILE *al_fs_stdio_fopen(const char *path, const char *mode)
+/* BIG ASS FIXME: I just added this to the wrong function, move the new lookup code to open_handle */
+AL_FILE *al_fs_stdio_create_handle(AL_CONST char *path)
 {
-   FILE *fh = fopen(path, mode);
+   AL_FILE *fh = NULL;
+   uint32_t len = 0;
+
+   fh = AL_MALLOC(sizeof(AL_FILE));
    if(!fh) {
       *allegro_errno = errno;
       return NULL;
    }
 
-   return (AL_FILE *)fh;
+   len = strlen( path );
+   fh->path = AL_MALLOC(len+1);
+   if(!fh->path) {
+      *allegro_errno = errno;
+      AL_FREE(fh);
+      return NULL;
+   }
+
+   memcpy(fh->path, path, len+1);
+
+   return fh;
 }
 
-int32_t al_fs_stdio_fclose(AL_FILE *fp)
+void al_fs_stdio_destroy_handle(AL_FILE *handle)
 {
-   int32_t ret = fclose(fp);
-   if(ret == EOF) {
+   if(handle->found) {
+      if(handle->ulink)
+         unlink( handle->found );
+
+      AL_FREE(handle->found);
+   }
+   else {
+      if(handle->ulink)
+         unlink( handle->path );
+   }
+
+   if(handle->path)
+      AL_FREE(handle->path);
+
+   if(handle->handle)
+      fclose(handle->handle);
+
+   memset(handle, 0, sizeof(AL_FILE));
+   AL_FREE(handle);
+}
+
+int32_t al_fs_stdio_open_handle(AL_FILE *fh, AL_CONST char *mode)
+{
+   char *tmp = NULL;
+   int len = 0;
+   uint32_t spi = 0;
+
+   len = strlen(fh->path);
+
+   /* absolute path, just try and open, no search_path lookup */
+   if(fh->path[0] == '/') {
+      fh->handle = fopen( fh->path, mode );
+      if(!fh->handle) {
+         *allegro_errno = errno;
+         return -1;
+      }
+      return 0;
+   }
+
+   for(spi = 0; spi < search_path_count; ++spi) {
+      uint32_t splen = strlen( search_path[spi] );
+      tmp = _AL_REALLOC( tmp, splen + len + 1 );
+      memcpy(tmp, search_path[spi], MIN(splen, PATH_MAX));
+      if(tmp[splen-1] == '/') {
+         tmp[splen] = '/';
+         splen++;
+      }
+
+      memcpy(tmp+splen, fh->path, MIN(len + splen, PATH_MAX));
+      tmp[splen+len] = '\0';
+
+      fh->handle = fopen( tmp, mode );
+      if(!fh->handle)
+         continue;
+
+      fh->found = tmp;
+
+      return 0;
+   }
+
+   AL_FREE(tmp);
+
+   return -1;
+}
+
+void al_fs_stdio_close_handle(AL_FILE *handle)
+{
+   int32_t ret = 0;
+
+   if(handle->handle) {
+      ret = fclose(handle->handle);
+
+      /* unlink on close */
+      if(handle->found && handle->ulink) {
+         unlink( handle->found );
+         AL_FREE( handle->found );
+         handle->found = NULL;
+      }
+      else if(handle->path && handle->ulink) {
+         unlink( handle->found );
+      }
+
+      handle->handle = NULL;
+   }
+
+   return;
+}
+
+/* FIXME: lookup stuff in search path */
+AL_FILE *al_fs_stdio_fopen(const char *path, const char *mode)
+{
+   AL_FILE *fh = al_fs_stdio_create_handle(path);
+   if(al_fs_stdio_open_handle(fh, mode) != 0) {
+      return -1;
+   }
+
+   fh->free_on_fclose = 1;
+   return fh;
+}
+
+void al_fs_stdio_fclose(AL_FILE *fp)
+{
+   al_fs_stdio_close_handle(fp);
+
+   if(fp->free_on_fclose)
+      al_fs_stdio_destroy_handle(fp);
+}
+
+size_t   al_fs_stdio_fread(void *ptr, size_t size, AL_FILE *fp)
+{
+   size_t ret = fread(ptr, 1, size, fp->handle);
+   if(ret == 0) {
       *allegro_errno = errno;
    }
 
    return ret;
 }
 
-size_t   al_fs_stdio_fread(void *ptr, size_t size, AL_FILE *fp)
-{
-   return fread(ptr, 1, size, (FILE *)fp);
-}
-
 size_t   al_fs_stdio_fwrite(const void *ptr, size_t size, AL_FILE *fp)
 {
-   return fwrite(ptr, 1, size, (FILE *)fp);
+   size_t ret = fwrite(ptr, 1, size, fp->handle);
+   if(ret == 0) {
+      *allegro_errno = errno;
+   }
+
+   return ret;
 }
 
 int32_t al_fs_stdio_fflush(AL_FILE *fp)
 {
-   int32_t ret = fflush((FILE *)fp);
+   int32_t ret = fflush(fp->handle);
    if(ret == EOF) {
       *allegro_errno = errno;
    }
@@ -140,7 +290,7 @@ int32_t al_fs_stdio_fflush(AL_FILE *fp)
 
 int32_t al_fs_stdio_fseek(AL_FILE *fp, uint32_t offset, uint32_t whence)
 {
-   int32_t ret;
+   int32_t ret = 0;
 
    switch(whence) {
       case AL_SEEK_SET: whence = SEEK_SET; break;
@@ -148,7 +298,7 @@ int32_t al_fs_stdio_fseek(AL_FILE *fp, uint32_t offset, uint32_t whence)
       case AL_SEEK_END: whence = SEEK_END; break;
    }
 
-   ret = fseek((FILE *)fp, offset, whence);
+   ret = fseek(fp->handle, offset, whence);
    if(ret == -1) {
       *allegro_errno = errno;
    }
@@ -158,7 +308,7 @@ int32_t al_fs_stdio_fseek(AL_FILE *fp, uint32_t offset, uint32_t whence)
 
 int32_t al_fs_stdio_ftell(AL_FILE *fp)
 {
-   int32_t ret = ftell((FILE *)fp);
+   int32_t ret = ftell(fp->handle);
    if(ret == -1) {
       *allegro_errno = errno;
    }
@@ -168,34 +318,25 @@ int32_t al_fs_stdio_ftell(AL_FILE *fp)
 
 int32_t al_fs_stdio_ferror(AL_FILE *fp)
 {
-   return ferror((FILE *)fp);
+   return ferror(fp->handle);
 }
 
 int32_t al_fs_stdio_feof(AL_FILE *fp)
 {
-   return feof((FILE *)fp);
+   return feof(fp->handle);
 }
 
 
-AL_STAT *al_fs_stdio_fstat(const char *path)
+int32_t al_fs_stdio_fstat(AL_FILE *fp)
 {
-   struct stat *st = NULL;
    int32_t ret = 0;
 
-   st = malloc(sizeof(struct stat));
-   if(!st) {
-      *allegro_errno = ENOMEM;
-      return NULL;
-   }
-
-   ret = stat(path, st);
+   ret = stat(path, &(fp->st));
    if(ret == -1) {
       *allegro_errno = errno;
-      free(st);
-      return NULL;
    }
 
-   return (AL_STAT *)st;
+   return ret;
 }
 
 
@@ -230,25 +371,97 @@ AL_DIRENT *al_fs_stdio_readdir(AL_DIR *dir)
    return ent;
 }
 
+#define MAX_MKTEMP_TRIES 1000
+const char mktemp_ok_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-AL_FILE *al_fs_stdio_mktemp(const char *template)
+void _al_fs_mktemp_replace_XX(char *template, char *dst)
 {
-   int32_t fd = mkstemp(template);
-   FILE *fh = NULL;
+   size_t len = strlen(template);
+   uint32_t i = 0;
 
-   if(fd == -1) {
+   for(i=0; i<len; ++i) {
+      if(template[i] != 'X') {
+         dst[i] = template[i];
+      }
+      else {
+         dst[i] = mktemp_ok_chars[ _al_rand() % (sizeof(mktemp_ok_chars)-1) ];
+      }
+   }
+}
+
+/* FIXME: provide the filename created. */
+/* might have to make AL_FILE a strust to provide the filename, and unlink hint. */
+/* by default, temp file is NOT unlink'ed automatically */
+
+AL_FILE *al_fs_stdio_mktemp(const char *template, uint32_t ulink)
+{
+   int32_t fd = -1, tries = 0;
+   int32_t template_len = 0, tmpdir_len = 0;
+   AL_FILE *fh = NULL;
+   char *dest = NULL;
+   char tmpdir[PATH_MAX];
+
+   template_len = strlen( template );
+
+   if(al_get_path(AL_TEMP_PATH, tmpdir, PATH_MAX) != 0) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Failed to find temp directory"));
+      return NULL;
+   }
+
+   tmpdir_len = strlen( tmpdir_len );
+
+   dest = AL_MALLOC( template_len + tmpdir_len + 2 );
+   if(!dest) {
       *allegro_errno = errno;
       return NULL;
    }
 
-   fh = fdopen(fd, "r+");
-   if(!fh) {
-      *allegro_errno = errno;
-      close(fd);
-      return NULL;
+   memset(dest, 0, template_len + tmpdir_len + 2);
+   memcpy(dest, tmpdir, strlen( tmpdir ) );
+
+   /* doing this check makes the path prettier, no extra / laying around */
+   if(dest[tmpdir_len-1] != '/') {
+      dest[tmpdir_len] = '/';
+      tmpdir_len++;
    }
 
-   return fh;
+   memcpy(dest + tmpdir_len, template, template_len);
+
+   for(i=0; i<MAX_MKTEMP_TRIES; ++i) {
+      _al_fs_mktemp_replace_XX(template, dest + tmpdir_len);
+      fd = open( dest, O_EXCL | O_CREAT | O_RDWR );
+      if(fd == -1)
+         continue;
+
+      fh = al_fs_stdio_create_handle( dest );
+      if(!fh) {
+         close(fd);
+         free(dest);
+         return NULL;
+      }
+
+      fh->handle = fdopen( fd, "r+" );
+      if(!fh->handle) {
+         al_fs_stdio_destroy_handle(fh);
+         close(fd);
+         free(dest);
+         return NULL;
+      }
+
+      if(ulink == AL_FS_MKTEMP_UNLINK_NOW)
+         unlink( dest );
+      else if(ulink == AL_FS_MKTEMP_UNLINK_ON_CLOSE)
+         fh->ulink = 1;
+
+      fh->free_on_fclose = 1;
+      fh->path = dest;
+
+      return fh;
+   }
+
+   free(dest);
+   ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Failed to create a uniqe temporary file"));
+   return NULL;
 }
 
 int32_t al_fs_stdio_getcwd(char *buf, size_t len)
@@ -271,286 +484,6 @@ int32_t al_fs_stdio_chdir(const char *path)
 
    return ret;
 }
-
-#ifdef ALLEGRO_WINDOWS
-
-/*
-   Will at most copy MAX_PATH bytes including nul to "dir"
-   May cause some truncation, in some cases.
-*/
-int32_t al_fs_stdio_getdir(uint32_t id, char *dir, uint32_t *len)
-{
-   char path[MAX_PATH], tmp[256];
-   uint32_t csidl = 0, path_len = MIN(*len, MAX_PATH);
-   HRESULT ret = 0;
-   HANDLE process = GetCurrentProcess();
-
-   switch(id) {
-      case AL_SYSTEM_PROGRAM_DIR: /* CSIDL_PROGRAM_FILES + ApplicationName */
-         csidl = CSIDL_PROGRAM_FILES;
-         break;
-
-      case AL_PROGRAM_DIR: { /* where the program is in */
-         HMODULE module = GetModuleHandle(NULL); /* Get handle for this process */
-         DWORD mret = GetModuleFileNameEx(process, handle, path, MAX_PATH);
-         char *ptr = strrchr(path, '\\');
-         if(!ptr) { /* shouldn't happen */
-            return -1;
-         }
-
-         /* chop off everything including and after the last slash */
-         /* should this not chop the slash? */
-         *ptr = '\0';
-
-         return 0;
-      } break;
-
-      case AL_SYSTEM_DATA_DIR: /* CSIDL_COMMON_APPDATA */
-         csidl = CSIDL_COMMON_APPDATA;
-         break;
-
-      case AL_USER_DATA_DIR: /* CSIDL_APPDATA */
-         csidl = CSIDL_APPDATA;
-         break;
-
-      case AL_USER_HOME_DIR: /* CSIDL_PROFILE */
-         csidl = CSIDL_PROFILE;
-         break;
-
-      default:
-         return -1;
-   }
-
-   ret = SHGetFolderPath(NULL, csidl, NULL, SHGFP_TYPE_CURRENT, path);
-   if(ret != S_OK) {
-      return -1;
-   }
-
-   _al_sane_strncpy(dir, path, path_len);
-
-   *len = path_len;
-
-   return 0;
-}
-
-#else /* Unix */
-
-int32_t _al_find_home(char *dir, uint32_t len)
-{
-   char *home_env = getenv("HOME");
-   if(!home_env || home_env[0] == '\0') {
-      /* since HOME isn't set, we have to ask libc for the info */
-
-      /* get user id */
-      uid_t uid = getuid();
-
-      /* grab user information */
-      struct passwd *pass = getpwuid(uid);
-      if(!pass) {
-         *allegro_errno = errno;
-         return -1;
-      }
-
-      if(pass->pw_dir) {
-         /* hey, we got our home directory */
-         _al_sane_strncpy(dir, pass->pw_dir, strlen(pass->pw_dir)+1);
-         return 0;
-      }
-      else if(pass->pw_name) {
-         /* assume we live in /home/<username> */
-         /* TODO: might want to make a "configure" option for this (/home) */
-         /* should we check to see if the dir exists? */
-/*
-         struct stat st;
-         char tmp[path_max] = "/home/";
-         _al_sane_strncpy(tmp, pass->pw_name, path_max);
-
-         if(stat(tmp, &st) != 0) {
-            *allegro_errno = errno;
-            return -1;
-         }
-*/
-         _al_sane_strncpy(dir, "/home", strlen("/home")+1);
-         strncat(dir, pass->pw_name, len);
-         return 0;
-      }
-      else {
-         /* no home directory? */
-         /* what to set allegro_errno to? */
-         return -1;
-      }
-   }
-   else {
-      _al_sane_strncpy(dir, home_env, strlen(home_env)+1);
-      return 0;
-   }
-
-   /* should not reach here */
-   return -1;
-}
-
-int32_t _al_find_progam_dir(char *dir, uint32_t len)
-{
-   char path[PATH_MAX] = "";
-   char prog[PATH_MAX] = "";
-   char *ptr = NULL;
-   uint32_t prog_len = strlen(system_driver->argv[0]), path_len = 0;
-
-   strncat(prog, system_driver->argv[0], PATH_MAX);
-
-   /* program name is longer than PATH_MAX, trying to grab the proper dir may result in garbled paths */
-   /* Wait, is this even possible? */
-   if(prog_len > PATH_MAX) {
-      *allegro_errno = errno = ERANGE;
-      return -1;
-   }
-
-   /* absolute path */
-   if(prog[0] == '/') {
-      _al_sane_strncpy(path, prog, prog_len+1);
-
-      ptr = strrchr(path, '/');
-      if(!ptr) {
-         *allegro_errno = errno = EINVAL;
-         return -1;
-      }
-
-      /* chop off everything including and after the last slash */
-      /* should this not chop the slash? */
-      *ptr = '\0';
-
-      path_len = (uint32_t)( ptr - path  );
-
-      /* actual path is longer than the provided memory block, try agian with a larger block */
-      if(path_len > len) {
-         *allegro_errno = errno = ERANGE;
-         return -1;
-      }
-
-      _al_sane_strncpy(dir, path, len);
-
-      return 0;
-   }
-   else {
-      uint32_t cwd_len = 0;
-      char *cwd = NULL;
-
-      memmove(prog, prog+2, prog_len + 1);
-
-      cwd = getcwd(path, PATH_MAX);
-      if(!cwd) {
-         /* keep errno from getcwd */
-         *allegro_errno = errno;
-         return -1;
-      }
-
-      cwd_len = strlen(cwd);
-
-      /* properly cleaning up the path is a little long winded, todo for later */
-      /* eg: tilde/~ expansion, ./ removal, .. handling */
-      if(cwd_len+prog_len+1 >= PATH_MAX) {
-         *allegro_errno = errno = ERANGE;
-         return -1;
-      }
-
-//      strncat(path, "/", PATH_MAX);
-//     strncat(path, prog, PATH_MAX);
-
-
-      _al_sane_strncpy(dir, path, len);
-      return 0;
-   }
-
-   /* shouldn't reach here */
-   return -1;
-}
-
-/*
-
-Return:
-   0 on success
-   -1 on failure and sets allegro_errno and errno to the error code
-
-FIXME:
-   Replace hard coded paths with "configure checks".
-*/
-int32_t al_fs_stdio_getdir(uint32_t id, char *dir, uint32_t len)
-{
-   /* this code should probably malloc the path and tmp arrays,
-      theres a damn good chance it'll consume the entire stack */
-
-   switch(id) {
-      case AL_SYSTEM_PROGRAM_DIR: /* /usr/bin */
-         if(strlen("/usr/bin") > len) {
-            *allegro_errno = errno = ERANGE;
-            return -1;
-         }
-
-         _al_sane_strncpy(dir, "/usr/bin", strlen("/usr/bin")+1);
-         break;
-
-      case AL_PROGRAM_DIR:
-         if(_al_find_progam_dir(dir, len) != 0) {
-            return -1;
-         }
-      break;
-
-      case AL_SYSTEM_DATA_DIR:
-         _al_sane_strncpy(dir, "/usr/share", strlen("/usr/share")+1);
-         break;
-
-      case AL_USER_DATA_DIR: {
-         int32_t ret = 0;
-         uint32_t path_len = 0, ptr_len = 0, prog_len = 0;
-         char path[PATH_MAX] = "", tmp[PATH_MAX] = "", *ptr = NULL;
-         char prog[PATH_MAX] = "";
-
-         if(_al_find_home(path, PATH_MAX) != 0) {
-            return -1;
-         }
-
-         strncat(path, "/.", 2);
-
-         path_len = strlen(path);
-
-         /* get exe name */
-
-         strncat(prog, system_driver->argv[0], PATH_MAX);
-         ptr = strrchr(prog, '/');
-         if(!ptr) {
-            *allegro_errno = errno = EINVAL;
-            return -1;
-         }
-
-         *ptr = '\0';
-         ptr++;
-         ptr_len = strlen(ptr);
-         //
-         strncat(path, ptr, ptr_len+1);
-         //*(ptr-1) = '/';
-         _al_sane_strncpy(dir, path, strlen(path)+1);
-
-         return 0;
-      } break;
-
-      case AL_USER_HOME_DIR:
-         if(_al_find_home(dir, len) != 0) {
-            return -1;
-         }
-
-         break;
-
-      default:
-         return -1;
-   }
-
-   return 0;
-}
-
-#endif
-
-static char **search_path = NULL;
-static uint32_t search_path_count = 0;
 
 int32_t al_fs_stdio_add_search_path(const char *path)
 {
@@ -583,11 +516,18 @@ uint32_t al_fs_stdio_search_path_count()
    return search_path_count;
 }
 
-int32_t al_fs_stdio_get_search_path(uint32_t idx, char *dest, uint32_t *len)
+/* FIXME: is this the best way to handle the "search path" ? */
+int32_t al_fs_stdio_get_search_path(uint32_t idx, char *dest, uint32_t len)
 {
+   if(idx < search_path_count) {
+      uint32_t slen = strlen( search_path[idx] );
 
+      memcpy( dest, search_path[idx], MIN( slen, len-1 ) );
+      dest[len] = '\0';
+   }
+
+   return -1;
 }
-
 
 uint32_t al_fs_stdio_get_stat_mode(AL_STAT *st)
 {

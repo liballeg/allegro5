@@ -68,6 +68,7 @@ SYSTEM_DRIVER system_linux =
    sys_linux_init,
    sys_linux_exit,
    _unix_get_executable_name,
+   _unix_get_path,
    _unix_find_resource,
    NULL, /* set_window_title */
    NULL, /* set_close_button_callback */
@@ -168,7 +169,7 @@ static int sys_linux_init (void)
 
 	/* Load dynamic modules */
 	_unix_load_modules(SYSTEM_LINUX);
-    
+
 	/* Initialise VGA helpers */
 #ifdef ALLEGRO_LINUX_VGA
 	if (__al_linux_have_ioperms)

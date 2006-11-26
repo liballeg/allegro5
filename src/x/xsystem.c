@@ -62,6 +62,7 @@ SYSTEM_DRIVER system_xwin =
    _xwin_sysdrv_init,
    _xwin_sysdrv_exit,
    _unix_get_executable_name,
+   NULL, /* get_dir */
    _unix_find_resource,
    _xwin_sysdrv_set_window_title,
    _xwin_sysdrv_set_close_button_callback,
@@ -188,7 +189,7 @@ static int _xwin_sysdrv_init(void)
    if (get_config_int("system", "XInitThreads", 1))
        XInitThreads();
 
-   /* Open the display, create a window, and background-process 
+   /* Open the display, create a window, and background-process
     * events for it all. */
    if (_xwin_open_display(0) || _xwin_create_window()
        || _unix_bg_man->register_func (_xwin_bg_handler)) {
@@ -259,7 +260,7 @@ static void _xwin_sysdrv_set_window_title(AL_CONST char *name)
 static int _xwin_sysdrv_set_close_button_callback(void (*proc)(void))
 {
    _xwin.close_button_callback = proc;
-   
+
    return 0;
 }
 

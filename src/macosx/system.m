@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -94,6 +94,7 @@ SYSTEM_DRIVER system_macosx =
    osx_sys_init,
    osx_sys_exit,
    osx_sys_get_executable_name,
+   osx_sys_get_path, /* <Thomas> see defn. */
    osx_sys_find_resource,
    osx_sys_set_window_title,
    osx_sys_set_close_button_callback,
@@ -132,12 +133,12 @@ static RETSIGTYPE osx_signal_handler(int num)
 {
    _al_mutex_unlock(&osx_event_mutex);
    _al_mutex_unlock(&osx_window_mutex);
-   
+
    allegro_exit();
-   
+
    _al_mutex_destroy(&osx_event_mutex);
    _al_mutex_destroy(&osx_window_mutex);
-   
+
    fprintf(stderr, "Shutting down Allegro due to signal #%d\n", num);
    raise(num);
 }
@@ -162,7 +163,7 @@ void osx_event_handler()
    int old_buttons = buttons;
    int event_type;
    BOOL gotmouseevent = NO;
-   
+
    while ((event = [NSApp nextEventMatchingMask: NSAnyEventMask
          untilDate: distant_past
          inMode: NSDefaultRunLoopMode
@@ -172,9 +173,9 @@ void osx_event_handler()
          [NSApp sendEvent: event];
 	 continue;
       }
-      
+
       point = [event locationInWindow];
-      if (osx_window) 
+      if (osx_window)
       {
 	 frame = [[osx_window contentView] frame];
       }
@@ -184,24 +185,24 @@ void osx_event_handler()
       }
       event_type = [event type];
       switch (event_type) {
-	 
+
 //         case NSKeyDown:
 //	    if (_keyboard_installed)
 //	       osx_keyboard_handler(TRUE, event);
-//	    if ([event modifierFlags] & NSCommandKeyMask) 
+//	    if ([event modifierFlags] & NSCommandKeyMask)
 //	       [NSApp sendEvent: event];
 //	    break;
-	
+
 //         case NSKeyUp:
 //	    if (_keyboard_installed)
 //	       osx_keyboard_handler(FALSE, event);
-//	    if ([event modifierFlags] & NSCommandKeyMask) 
+//	    if ([event modifierFlags] & NSCommandKeyMask)
 //	       [NSApp sendEvent: event];
 //	    break;
 
 //          case NSFlagsChanged:
 // 	    break;
-	 
+
          case NSLeftMouseDown:
          case NSOtherMouseDown:
          case NSRightMouseDown:
@@ -255,7 +256,7 @@ void osx_event_handler()
 	    gotmouseevent = YES;
 	    [NSApp sendEvent: event];
 	    break;
-	    
+
          case NSLeftMouseDragged:
          case NSRightMouseDragged:
          case NSOtherMouseDragged:
@@ -269,12 +270,12 @@ void osx_event_handler()
 	    [NSApp sendEvent: event];
 	    gotmouseevent = YES;
 	    break;
-            
+
          case NSScrollWheel:
 	    dz += [event deltaY];
 	    gotmouseevent = YES;
             break;
-	    
+
 	 case NSMouseEntered:
 	    if (([event trackingNumber] == osx_mouse_tracking_rect) && ([NSApp isActive])) {
 	       if (_mouse_installed) {
@@ -287,7 +288,7 @@ void osx_event_handler()
 	    }
 	    [NSApp sendEvent: event];
 	    break;
-            
+
 	 case NSMouseExited:
 	    if ([event trackingNumber] == osx_mouse_tracking_rect) {
 	       if (_mouse_installed) {
@@ -297,7 +298,7 @@ void osx_event_handler()
 	    }
             [NSApp sendEvent: event];
 	    break;
-            
+
 	 case NSAppKitDefined:
             switch ([event subtype]) {
                case NSApplicationActivatedEventType:
@@ -308,13 +309,13 @@ void osx_event_handler()
 		  }
 		  _switch_in();
                   break;
-		  
+
                case NSApplicationDeactivatedEventType:
 		  if (osx_window && _keyboard_installed)
 		     osx_keyboard_focused(FALSE, 0);
 		  _switch_out();
                   break;
-	       
+
 	       case NSWindowMovedEventType:
                   /* This is needed to ensure the shadow gets drawn when the window is
 		   * created. It's weird, but when the window is created on another
@@ -332,7 +333,7 @@ void osx_event_handler()
 	    }
             [NSApp sendEvent: event];
             break;
-	 
+
 	 default:
 	    [NSApp sendEvent: event];
 	    break;
@@ -349,7 +350,7 @@ void osx_event_handler()
  *  Tell the dock about us; the origins of this hack are unknown, but it's
  *  currently the only way to make a Cocoa app to work when started from a
  *  console.
- *  For the future, (10.3 and above) investigate TranformProcessType in the 
+ *  For the future, (10.3 and above) investigate TranformProcessType in the
  *  HIServices framework.
  */
 static void osx_tell_dock(void)
@@ -397,7 +398,7 @@ static int osx_sys_init(void)
    long result;
    AL_CONST char *exe_name;
    char resource_dir[1024];
-   
+
    /* If we're in the 'dead bootstrap' environment, the Mac driver won't work. */
    if (!osx_bootstrap_ok()) {
       return -1;
@@ -413,21 +414,21 @@ static int osx_sys_init(void)
    old_sig_term = signal(SIGTERM, osx_signal_handler);
    old_sig_int  = signal(SIGINT,  osx_signal_handler);
    old_sig_quit = signal(SIGQUIT, osx_signal_handler);
-   
-    
+
+
 
    if (osx_bundle == NULL) {
        /* If in a bundle, the dock will recognise us automatically */
        osx_tell_dock();
    }
-   
+
    /* Setup OS type & version */
    os_type = OSTYPE_MACOSX;
    Gestalt(gestaltSystemVersion, &result);
    os_version = (((result >> 12) & 0xf) * 10) + ((result >> 8) & 0xf);
    os_revision = (result >> 4) & 0xf;
    os_multitasking = TRUE;
-   
+
    /* Setup a blank cursor */
    cursor_data = calloc(1, 16 * 16 * 4);
    cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: &cursor_data
@@ -445,12 +446,12 @@ static int osx_sys_init(void)
    osx_blank_cursor = [[NSCursor alloc] initWithImage: cursor_image
       hotSpot: NSMakePoint(0, 0)];
    osx_cursor = osx_blank_cursor;
-   
+
    osx_gfx_mode = OSX_GFX_NONE;
-   
+
    set_display_switch_mode(SWITCH_BACKGROUND);
    set_window_title([[[NSProcessInfo processInfo] processName] cString]);
-   
+
    /* Mark the beginning of time. */
    _al_unix_init_time();
 
@@ -471,7 +472,7 @@ static void osx_sys_exit(void)
    signal(SIGTERM, old_sig_term);
    signal(SIGINT,  old_sig_int);
    signal(SIGQUIT, old_sig_quit);
-   
+
    if (osx_blank_cursor)
       [osx_blank_cursor release];
    if (cursor_image)
@@ -500,7 +501,19 @@ static void osx_sys_get_executable_name(char *output, int size)
       do_uconvert(__crt0_argv[0], U_ASCII, output, U_CURRENT, size);
 }
 
+/* osx_sys_get_path:
+ *  Returns various system and user paths
+ *
+ */
 
+static int32_t osx_sys_get_path(uint32_t id, char *output, size_t size)
+{
+   /* Note: this should translate "osx" paths into standard looking unix paths.
+    * Not sure if OSX only uses unix style paths, or will pass filenames in some other format
+    */
+
+   return -1;
+}
 
 /* osx_sys_find_resource:
  *  Searches the resource in the bundle resource path if the app is in a
@@ -510,7 +523,7 @@ static int osx_sys_find_resource(char *dest, AL_CONST char *resource, int size)
 {
    const char *path;
    char buf[256], tmp[256];
-   
+
    if (osx_bundle) {
       path = [[osx_bundle resourcePath] cString];
       append_filename(buf, uconvert_ascii(path, tmp), resource, sizeof(buf));
@@ -531,19 +544,19 @@ static void osx_sys_message(AL_CONST char *msg)
 {
    char tmp[ALLEGRO_MESSAGE_SIZE];
    NSString *ns_title, *ns_msg;
-   
+
    fputs(uconvert_toascii(msg, tmp), stderr);
-   
+
    do_uconvert(msg, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE);
    ns_title = [NSString stringWithUTF8String: osx_window_title];
    ns_msg = [NSString stringWithUTF8String: tmp];
-   
+
    _al_mutex_lock(&osx_event_mutex);
    skip_events_processing = TRUE;
    _al_mutex_unlock(&osx_event_mutex);
-   
+
    NSRunAlertPanel(ns_title, ns_msg, nil, nil, nil);
-   
+
    _al_mutex_lock(&osx_event_mutex);
    skip_events_processing = FALSE;
    _al_mutex_unlock(&osx_event_mutex);
@@ -557,12 +570,12 @@ static void osx_sys_message(AL_CONST char *msg)
 static void osx_sys_set_window_title(AL_CONST char *title)
 {
    char tmp[ALLEGRO_MESSAGE_SIZE];
-   
+
    _al_sane_strncpy(osx_window_title, title, ALLEGRO_MESSAGE_SIZE);
    do_uconvert(title, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE);
 
    NSString *ns_title = [NSString stringWithUTF8String: tmp];
-   
+
    if (osx_window)
       [osx_window setTitle: ns_title];
 }
@@ -587,7 +600,7 @@ static int osx_sys_set_close_button_callback(void (*proc)(void))
 static int osx_sys_set_display_switch_mode(int mode)
 {
    if (mode != SWITCH_BACKGROUND)
-      return -1;   
+      return -1;
    return 0;
 }
 
@@ -613,12 +626,12 @@ static int osx_sys_desktop_color_depth(void)
 {
    CFDictionaryRef mode = NULL;
    int color_depth;
-   
+
    mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    if (!mode)
       return -1;
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &color_depth);
-   
+
    return color_depth == 16 ? 15 : color_depth;
 }
 
@@ -629,12 +642,12 @@ static int osx_sys_desktop_color_depth(void)
 static int osx_sys_get_desktop_resolution(int *width, int *height)
 {
    CFDictionaryRef mode = NULL;
-   
+
    mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    if (!mode)
       return -1;
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayWidth), kCFNumberSInt32Type, width);
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayHeight), kCFNumberSInt32Type, height);
-   
+
    return 0;
 }

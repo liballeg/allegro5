@@ -29,6 +29,22 @@ int al_fs_set_hook(uint32_t phid, void *fshook)
       return -1;
 
    switch(phid) {
+      case AL_FS_HOOK_CREATE_HANDLE:
+         _al_fshooks.create_handle = fshook;
+         break;
+
+      case AL_FS_HOOK_DESTROY_HANDLE:
+         _al_fshooks.destroy_handle = fshook;
+         break;
+
+      case AL_FS_HOOK_OPEN_HANDLE:
+         _al_fshooks.open_handle = fshook;
+         break;
+
+      case AL_FS_HOOK_CLOSE_HANDLE:
+         _al_fshooks.close_handle = fshook;
+         break;
+
       case AL_FS_HOOK_FOPEN:
          _al_fshooks.fopen = fshook;
          break;
@@ -93,10 +109,6 @@ int al_fs_set_hook(uint32_t phid, void *fshook)
          _al_fshooks.chdir = fshook;
          break;
 
-      case AL_FS_HOOK_GETDIR:
-         _al_fshooks.getdir = fshook;
-         break;
-
       case AL_FS_HOOK_ADD_SEARCH_PATH:
          _al_fshooks.add_search_path = fshook;
          break;
@@ -152,92 +164,162 @@ void *al_fs_get_hook(uint32_t phid)
       return NULL;
 
    switch(phid) {
+      case AL_FS_HOOK_CREATE_HANDLE:
+         ptr = _al_fshooks.create_handle;
+         break;
+
+      case AL_FS_HOOK_DESTROY_HANDLE:
+         ptr = _al_fshooks.destroy_handle;
+         break;
+
+      case AL_FS_HOOK_OPEN_HANDLE:
+         ptr = _al_fshooks.open_handle;
+         break;
+
+      case AL_FS_HOOK_CLOSE_HANDLE:
+         ptr = _al_fshooks.close_handle;
+         break;
+
       case AL_FS_HOOK_FOPEN:
          ptr = _al_fshooks.fopen;
+         break;
 
       case AL_FS_HOOK_FCLOSE:
          ptr = _al_fshooks.fclose;
+         break;
 
       case AL_FS_HOOK_FREAD:
          ptr = _al_fshooks.fread;
+         break;
 
       case AL_FS_HOOK_FWRITE:
          ptr = _al_fshooks.fwrite;
+         break;
 
       case AL_FS_HOOK_FFLUSH:
          ptr = _al_fshooks.fflush;
+         break;
 
       case AL_FS_HOOK_FSEEK:
          ptr = _al_fshooks.fseek;
+         break;
 
       case AL_FS_HOOK_FTELL:
          ptr = _al_fshooks.ftell;
+         break;
 
       case AL_FS_HOOK_FERROR:
          ptr = _al_fshooks.ferror;
+         break;
 
       case AL_FS_HOOK_FEOF:
          ptr = _al_fshooks.feof;
+         break;
 
       case AL_FS_HOOK_FSTAT:
          ptr = _al_fshooks.fstat;
+         break;
 
       case AL_FS_HOOK_OPENDIR:
          ptr = _al_fshooks.opendir;
+         break;
 
       case AL_FS_HOOK_CLOSEDIR:
          ptr = _al_fshooks.closedir;
+         break;
 
       case AL_FS_HOOK_READDIR:
          ptr = _al_fshooks.readdir;
+         break;
 
       case AL_FS_HOOK_MKTEMP:
          ptr = _al_fshooks.mktemp;
+         break;
 
       case AL_FS_HOOK_GETCWD:
          ptr = _al_fshooks.getcwd;
+         break;
 
       case AL_FS_HOOK_CHDIR:
          ptr = _al_fshooks.chdir;
+         break;
 
       case AL_FS_HOOK_GETDIR:
          ptr = _al_fshooks.getdir;
+         break;
 
       case AL_FS_HOOK_ADD_SEARCH_PATH:
          ptr = _al_fshooks.add_search_path;
+         break;
 
       case AL_FS_HOOK_SEARCH_PATH_COUNT:
          ptr = _al_fshooks.search_path_count;
+         break;
 
       case AL_FS_HOOK_GET_SEARCH_PATH:
          ptr = _al_fshooks.get_search_path;
+         break;
 
       case AL_FS_HOOK_GET_STAT_MODE:
          ptr = _al_fshooks.get_stat_mode;
+         break;
 
       case AL_FS_HOOK_GET_STAT_ATIME:
          ptr = _al_fshooks.get_stat_atime;
+         break;
 
       case AL_FS_HOOK_GET_STAT_MTIME:
          ptr = _al_fshooks.get_stat_mtime;
+         break;
 
       case AL_FS_HOOK_GET_STAT_SIZE:
          ptr = _al_fshooks.get_stat_size;
+         break;
 
       case AL_FS_HOOK_GET_STAT_CTIME:
          ptr = _al_fshooks.get_stat_ctime;
+         break;
 
       case AL_FS_HOOK_PATH_TO_SYS:
          ptr = _al_fshooks.path_to_sys;
+         break;
 
       case AL_FS_HOOK_PATH_TO_UNI:
          ptr = _al_fshooks.path_to_uni;
+         break;
 
       default:
          ptr = NULL;
+         break;
    }
 
    return ptr;
+}
+
+/* NULL is a valid value for path */
+AL_FILE *al_fs_create_handle(AL_CONST char *path)
+{
+   return _al_fs_hook_create_handle(path);
+}
+
+void al_fs_destroy_handle(AL_FILE *handle)
+{
+   _al_fs_hook_destroy_handle(handle);
+}
+
+int32_t al_fs_open_handle(AL_FILE *handle, AL_CONST char *mode)
+{
+   ASSERT(handle);
+   ASSERT(mode);
+
+   return _al_fs_hook_open_handle(handle, mode);
+}
+
+int32_t al_fs_close_handle(AL_FILE *handle)
+{
+   ASSERT(handle);
+
+   return _al_fs_hook_close_handle(handle);
 }
 
 AL_FILE *al_fs_fopen(const char *path, const char *mode)
@@ -309,12 +391,11 @@ int32_t al_fs_feof(AL_FILE *fp)
 }
 
 
-int32_t al_fs_fstat(const char *path, AL_STAT *stbuf)
+int32_t al_fs_fstat(AL_FILE *fp)
 {
-   ASSERT(path != NULL);
-   ASSERT(stbuf != NULL);
+   ASSERT(fp != NULL);
 
-   return _al_fs_hook_fstat(path, stbuf);
+   return _al_fs_hook_fstat(fp);
 }
 
 
@@ -362,16 +443,6 @@ int32_t al_fs_chdir(const char *path)
    return _al_fs_hook_chdir(path);
 }
 
-int32_t al_fs_getdir(uint32_t id, char *dir, size_t *len)
-{
-   ASSERT(id >= 0 && id < AL_DIR_LAST);
-   ASSERT(dir);
-   ASSERT(len);
-
-   return _al_fs_hook_getdir(id, dir, len);
-}
-
-
 int32_t al_fs_add_search_path(const char *path)
 {
    ASSERT(path);
@@ -392,6 +463,24 @@ int32_t al_fs_get_search_path(uint32_t idx, char *dest, size_t len)
    return _al_fs_hook_get_search_path(idx, dest, len);
 }
 
+int32_t al_fs_unlink( const char *path )
+{
+   AL_FILE *fp = NULL;
+   int32_t ret = 0;
+
+   ASSERT(path);
+   fp = al_fs_create_handle( path );
+   ret = al_fs_funlink( fp );
+   al_fs_destroy_handle( fp );
+   return fp;
+}
+
+int32_t al_fs_funlink( AL_FILE *fp )
+{
+   ASSERT(fp);
+
+   return _al_fs_hook_funlink( fp );
+}
 
 uint32_t al_fs_get_stat_mode(AL_STAT *st)
 {
