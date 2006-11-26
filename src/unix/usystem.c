@@ -323,9 +323,6 @@ void _unix_get_executable_name(char *output, int size)
       struct prpsinfo psinfo;
       int fd;
    #endif
-   #if defined ALLEGRO_HAVE_SV_PROCFS || defined ALLEGRO_SYS_GETEXECNAME
-      char *s;
-   #endif
    char linkname[1024];
    char filename[1024];
    struct stat finfo;
@@ -334,7 +331,8 @@ void _unix_get_executable_name(char *output, int size)
    int len;
    
    #ifdef ALLEGRO_HAVE_GETEXECNAME
-      s = getexecname();
+   {
+      const char *s = getexecname();
       if (s) {
          if (s[0] == '/') {   /* Absolute path */
             do_uconvert (s, U_ASCII, output, U_CURRENT, size);
@@ -345,7 +343,7 @@ void _unix_get_executable_name(char *output, int size)
                return;
          }
       }
-      s = NULL;
+   }
    #endif
 
    /* We need the PID in order to query procfs */
@@ -353,7 +351,7 @@ void _unix_get_executable_name(char *output, int size)
 
    /* Try a Linux-like procfs */   
    /* get symolic link to executable from proc fs */
-   sprintf (linkname, "/proc/%d/exe", pid);
+   sprintf (linkname, "/proc/%d/exe", (int)pid);
    if (stat (linkname, &finfo) == 0) {
       len = readlink (linkname, filename, sizeof(filename)-1);
       if (len>-1) {
@@ -366,7 +364,7 @@ void _unix_get_executable_name(char *output, int size)
    
    /* Use System V procfs calls if available */
    #ifdef ALLEGRO_HAVE_SV_PROCFS
-      sprintf (linkname, "/proc/%d/exe", pid);
+      sprintf (linkname, "/proc/%d/exe", (int)pid);
       fd = open(linkname, O_RDONLY);
       if (!fd == -1) {
          ioctl(fd, PIOCPSINFO, &psinfo);
@@ -388,7 +386,7 @@ void _unix_get_executable_name(char *output, int size)
 	     */
 	 
 	    /* Skip other args */
-	    s = strchr(psinfo.pr_psargs, ' ');
+	    char *s = strchr(psinfo.pr_psargs, ' ');
 	    if (s) s[0] = '\0';
 	    if (_find_executable_file(psinfo.pr_psargs, output, size))
 	       return;
@@ -402,7 +400,7 @@ void _unix_get_executable_name(char *output, int size)
    
    /* Last resort: try using the output of the ps command to at least find */
    /* the name of the file if not the full path */
-   uszprintf (linkname, sizeof(linkname), "ps -p %d", pid);
+   uszprintf (linkname, sizeof(linkname), "ps -p %d", (int)pid);
    do_uconvert (linkname, U_CURRENT, filename, U_ASCII, size);
    pipe = popen(filename, "r");
    if (pipe) {
