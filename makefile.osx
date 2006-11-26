@@ -276,8 +276,7 @@ uninstall: generic-uninstall
 	  | xargs -n 1 rm -f
 	-sed -n -e "s,^@@\(struct\|typedef\).*@\([a-zA-Z0-9_]*\),$(MAN_DIR)/man3/\2.3,p" docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
-	-rm -f $(HELPBUNDLE)/*
-	-rmdir $(HELPBUNDLE)
+	@test -d $(HELPBUNDLE) && rm -fR $(HELPBUNDLE) || true
 
 	@echo All gone!	
 
