@@ -1395,3 +1395,4 @@
     load_datafile_object_indexed
     make_trans_font
     set_file_encoding
+    _al_lzss_incomplete_state
