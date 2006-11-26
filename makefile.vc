@@ -41,13 +41,39 @@ ifneq (,$(findstring /sh.exe,$(SHELL)))
    UNIX_TOOLS = 1
 endif
 
+ifdef STATICRUNTIME
 
+# ======== USING A STATIC RUNTIME (/MT) ========
+
+ifdef STATICLINK
+
+# -------- link as a static library --------
+
+OBJ_DIR = obj/msvc/$(VERSION)_s_crt
+IMPLIB_BASENAME = $(VERSION)_s_crt.lib
+IMPLIB_NAME = lib/msvc/$(IMPLIB_BASENAME)
+LIB_NAME = $(IMPLIB_NAME)
+
+else
+
+# -------- link as a DLL --------
+
+OBJ_DIR = obj/msvc/$(VERSION)_crt
+DLL_BASENAME = $(VERSION)$(LIBRARY_VERSION)_crt.dll
+DLL_NAME = lib/msvc/$(DLL_BASENAME)
+IMPLIB_BASENAME = $(VERSION)_crt.lib
+IMPLIB_NAME = lib/msvc/$(IMPLIB_BASENAME)
+LIB_NAME = $(DLL_NAME) $(IMPLIB_NAME)
+
+endif
+
+else
+
+# ======== USING DYNAMIC RUNTIME (/MD) ========
 
 ifdef COMPILER_MSVC8
    EMBED_MANIFEST = 1
 endif
-
-
 
 ifdef STATICLINK
 
@@ -71,7 +97,7 @@ LIB_NAME = $(DLL_NAME) $(IMPLIB_NAME)
 
 endif
 
-
+endif
 
 # -------- check that environment path variables are set --------
 
