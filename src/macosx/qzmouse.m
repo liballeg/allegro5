@@ -75,17 +75,20 @@ static int mymickey_y = 0;
 
 static char driver_desc[256];
 
+
 /* osx_change_cursor:
  * Actually change the current cursor. This can be called fom any thread 
  * but ensures that the change is only called from the main thread.
  */
 static void osx_change_cursor(NSCursor* cursor)
 {
-	_unix_lock_mutex(osx_event_mutex);
-	osx_cursor = cursor;
-	_unix_unlock_mutex(osx_event_mutex);
-	[cursor performSelectorOnMainThread: @selector(set) withObject: nil waitUntilDone: NO];
+   _unix_lock_mutex(osx_event_mutex);
+   osx_cursor = cursor;
+   _unix_unlock_mutex(osx_event_mutex);
+   [cursor performSelectorOnMainThread: @selector(set) withObject: nil waitUntilDone: NO];
 }
+
+
 
 /* osx_mouse_handler:
  *  Mouse "interrupt" handler for mickey-mode driver.
@@ -246,6 +249,8 @@ static void osx_mouse_set_range(int x1, int y1, int x2, int y2)
    osx_mouse_position(MID(mouse_minx, _mouse_x, mouse_maxx), MID(mouse_miny, _mouse_y, mouse_maxy));
 }
 
+
+
 /* osx_mouse_get_mickeys:
  *  Reads the mickey-mode count.
  */
@@ -260,68 +265,68 @@ static void osx_mouse_get_mickeys(int *mickeyx, int *mickeyy)
    _unix_unlock_mutex(osx_event_mutex);
 }
 
+
+
 /* osx_mouse_set_sprite:
-*  Sets the hardware cursor sprite.
-*/
+ *  Sets the hardware cursor sprite.
+ */
 int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
 {
-	int ix, iy;
-	int sw, sh;
-	
-	if (!sprite)
-		return -1;
-	sw = sprite->w;
-	sh = sprite->h;
-	if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_2) {
-		// Before MacOS X 10.3, NSCursor can handle only 16x16 cursor sprites
-		// Pad to 16x16 or fail if the sprite is already larger.
-		if (sw>16 || sh>16)
-			return -1;
-		sh = sw = 16;
-	}
-	
-	// Delete the old cursor (OK to send a message to nil)
-	[cursor release];
+   int ix, iy;
+   int sw, sh;
+   
+   if (!sprite)
+      return -1;
+   sw = sprite->w;
+   sh = sprite->h;
+   if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_2) {
+      // Before MacOS X 10.3, NSCursor can handle only 16x16 cursor sprites
+      // Pad to 16x16 or fail if the sprite is already larger.
+      if (sw>16 || sh>16)
+         return -1;
+      sh = sw = 16;
+   }
+   
+   // Delete the old cursor (OK to send a message to nil)
+   [cursor release];
 
-	NSBitmapImageRep* cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: NULL
-														 pixelsWide: sw
-														 pixelsHigh: sh
-													  bitsPerSample: 8
-													samplesPerPixel: 4
-														   hasAlpha: YES
-														   isPlanar: NO
-													 colorSpaceName: NSDeviceRGBColorSpace
-														bytesPerRow: 0
-													   bitsPerPixel: 0];
-	int bpp = bitmap_color_depth(sprite);
-	int mask = bitmap_mask_color(sprite);
-	for (iy = 0; iy< sh; ++iy)
-	{
-		unsigned char* ptr = [cursor_rep bitmapData] + (iy * [cursor_rep bytesPerRow]);
-		for (ix = 0; ix< sw; ++ix)
-		{
-			int color = is_inside_bitmap(sprite, ix, iy, 1) 
-				? getpixel(sprite, ix, iy) : mask; 
-			//	Disable the possibility of mouse sprites with alpha for now, because
-			// this causes the built-in cursors to be invisible in 32 bit mode.
-//			int alpha = (color == mask) ? 0 : ((bpp == 32) ? geta_depth(bpp, color) : 255);
-			int alpha = (color == mask) ? 0 : 255;
-			// BitmapImageReps use premultiplied alpha
-			ptr[0] = getb_depth(bpp, color) * alpha / 255;
-			ptr[1] = getg_depth(bpp, color) * alpha / 255;
-			ptr[2] = getr_depth(bpp, color) * alpha / 255;
-			ptr[3] = alpha;
-			ptr += 4;
-		}
-	}
-	NSImage* cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(sw, sh)];
-	[cursor_image addRepresentation: cursor_rep];
-	[cursor_rep release];
-	cursor = [[NSCursor alloc] initWithImage: cursor_image
-									 hotSpot: NSMakePoint(x, y)];
-	[cursor_image release];
-	osx_change_cursor(requested_cursor = cursor);
-	return 0;
+   NSBitmapImageRep* cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: NULL
+                                       pixelsWide: sw
+                                       pixelsHigh: sh
+                                       bitsPerSample: 8
+                                       samplesPerPixel: 4
+                                       hasAlpha: YES
+                                       isPlanar: NO
+                                       colorSpaceName: NSDeviceRGBColorSpace
+                                       bytesPerRow: 0
+                                       bitsPerPixel: 0];
+   int bpp = bitmap_color_depth(sprite);
+   int mask = bitmap_mask_color(sprite);
+   for (iy = 0; iy< sh; ++iy) {
+      unsigned char* ptr = [cursor_rep bitmapData] + (iy * [cursor_rep bytesPerRow]);
+      for (ix = 0; ix< sw; ++ix) {
+         int color = is_inside_bitmap(sprite, ix, iy, 1) 
+            ? getpixel(sprite, ix, iy) : mask; 
+         // Disable the possibility of mouse sprites with alpha for now, because
+         // this causes the built-in cursors to be invisible in 32 bit mode.
+         // int alpha = (color == mask) ? 0 : ((bpp == 32) ? geta_depth(bpp, color) : 255);
+         int alpha = (color == mask) ? 0 : 255;
+         // BitmapImageReps use premultiplied alpha
+         ptr[0] = getb_depth(bpp, color) * alpha / 255;
+         ptr[1] = getg_depth(bpp, color) * alpha / 255;
+         ptr[2] = getr_depth(bpp, color) * alpha / 255;
+         ptr[3] = alpha;
+         ptr += 4;
+      }
+   }
+   NSImage* cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(sw, sh)];
+   [cursor_image addRepresentation: cursor_rep];
+   [cursor_rep release];
+   cursor = [[NSCursor alloc] initWithImage: cursor_image
+                            hotSpot: NSMakePoint(x, y)];
+   [cursor_image release];
+   osx_change_cursor(requested_cursor = cursor);
+   return 0;
 }
 
 
