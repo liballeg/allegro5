@@ -63,6 +63,64 @@ Changes from 4.2 series to 4.3.0 (July 2006)
 </ul>
 
 @heading
+Changes from 4.2.1 RC1 to 4.2.1 (November 2006)
+<ul><li>
+   Peter Wang made the Unix ports query the memory page size with sysconf()
+   when necessary, instead of using the PAGE_SIZE constant, which seems to be
+   Linux-specific.
+<li>
+   Matthew Leverton gave the STATICRUNTIME builds of MSVC new names by
+   appending _crt (c run time) to the libraries. He also fixed the problem of
+   incorrectly setting the EMBED_MANIFEST variable when using the
+   STATICRUNTIME.
+<li>
+   Andrei Ellman fixed an inverted test in pack_fopen_chunk on Windows.
+<li>
+   Peter Hull made 32-bit icon generation by fixbundle endian-independent
+   (colours were incorrect on Intel Macs).
+<li>
+   Peter Wang fixed a long standing bug where some compressed packfiles would not
+   be read back properly (premature EOF).  Reported by jman2050.
+<li>
+   Andrei Ellman spotted a free() of an internal buffer returned by tmpnam().
+<li>
+   Peter Hull fixed a problem with mouse-related deadlock on MacOS X as
+   reported by Mike Farrell.
+<li>
+   Peter Hull implemented simulation of video bitmaps on MacOS X, so that
+   page flipping will work.
+<li>
+   Peter Hull fixed an endian problem in the digital sound driver on MacOS X.
+<li>
+   Elias Pschernig and Chris Robinson fixed problems with UTF-8 filenames
+   under Unix, as reported by Grzegorz.  Non-ASCII non-UTF-8 filenames remain
+   broken.
+<li>
+   Chris Robinson fixed some problems with non-ASCII filenames under Windows.
+<li>
+   Elias Pschernig made the X11 driver call XInitThreads, to make Mesa-OpenGL
+   work together with Allegro.  It can be disabled at runtime through a config
+   variable.
+<li>
+   Andrei Ellman fixed a bug in datedit.c that could crash the grabber.
+<li>
+   Elias Pschernig added file_size_ex(), which returns a 64 bit integer
+   to handle large files.
+<li>
+   Ron Novy made improvements to the test program.
+<li>
+   Peter Hull fixed problems with set_mouse_sprite() on Intel Macs.
+<li>
+   Peter Hull added universal binary support to the MacOS X port.
+<li>
+   Peter Wang and Evert Glebbeek independently fixed a problem with dependency
+   generation for MacOS X on non-Mac systems.
+<li>
+   Many smaller fixes and updates by Peter Hull, Elias Pschernig, Peter Wang
+   and Milan Mimica.
+</ul>
+
+@heading
 Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
 <ul><li>
    Michal Molhanec made msvchelp.exe work on Cygwin, where there was a
@@ -143,7 +201,7 @@ Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
    Peter Wang fixed some problems with binary compatibility checking in the
    4.2 branch.
 <li>
-   Catatonic Porpoise added OpenBSD detection (in addaition to FreeBSD and
+   Catatonic Porpoise added OpenBSD detection (in addition to FreeBSD and
    NetBSD) and fixed an issue with executable rights not set on the memory
    for the i386 stretcher on UNIX systems.
 <li>
@@ -203,7 +261,7 @@ Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
    Peter Wang made the svgalib driver save and restore the palette on VT
    switches.
 <li>
-   Peter Wand fixed a problem with the fbcon driver and VT switching.
+   Peter Wang fixed a problem with the fbcon driver and VT switching.
 <li>
    Milan Mimica delayed Linux console initialisation until it is required.
    This way the user can write command-line programs using timers  without
@@ -238,11 +296,9 @@ Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
 <li>
    Annie Testes made the linux evdev mouse driver use the correct device files.
 <li>
-tjaden
    Vincent Penecherc'h made the linux fbcon driver set a ramp colourmap for
    directcolor modes, otherwise colours in those modes were all wrong.
 <li>
-tjaden
    Vincent Penecherc'h fixed a problem with the linux fbcon driver, where it
    would keep using the old pitch after changing resolutions.
 <li>
@@ -526,7 +582,7 @@ Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
    added a datedit_select() callback to datedit.
 <li>
    Evert Glebbeek fixed some unsafe assumptions on the size of integer 
-   datatypes.
+   data types.
 <li>
    Arthur Huillet fixed a typo in the docs.
 <li>
@@ -799,7 +855,7 @@ Changes from 4.1.16 to 4.1.17 (December 2004)
    Evert Glebbeek added support for the use of native window manager cursors.
 <li>
    Chris Robinson made install_allegro() check if the library version matches
-   the version of the headerfiles installed.
+   the version of the header files installed.
 <li>
    Peter Wang fixed some problems with rest() on UNIX systems.
 <li>
@@ -881,7 +937,7 @@ Changes from 4.1.16 to 4.1.17 (December 2004)
 <li>
    Matthew Leverton added support for a fourth mouse button to the Windows port.
 <li>
-   Michal Molhanec added a faq section about the giftware license.
+   Michal Molhanec added a FAQ section about the giftware license.
 <li>
    Elias Pschernig added the license disclaimer to the docs.
 <li>
@@ -957,7 +1013,7 @@ Changes from 4.1.15 to 4.1.16 (October 2004)
    Bobby Ferris added SciTE .api file generation to makedoc.
 <li>
    Sam Hocevar made is possible to put functions defined in assembler 
-   sourcefiles in a shared library in UNIX.
+   source files in a shared library in UNIX.
 <li>
    Evert Glebbeek removed the weak declaration of allegro_icon and changed
    xfixicon.sh accordingly.
@@ -984,17 +1040,17 @@ Changes from 4.1.14 to 4.1.15 (July 2004)
    Elias Pschernig fixed some gcc warnings.
 <li>
    Vincent Penquerc'h added the ability to pass extra CFLAGS and LDFLAGS on the
-   make commandline.
+   make command line.
 <li>
    Elias Pschernig made ex3buf work outside of DOS.
 <li>
-   Chris Robinson made the alleg mixer default instead of the directx one in 
+   Chris Robinson made the alleg mixer default instead of the DirectX one in 
    windows.
 <li>
    Angelo Mottola fixed a bug where vsync() was blocking on a mutex if called 
    when the screen was already acquired in windowed mode.
 <li>
-   Evert Glebbeek made tripple buffering work in the demo if VRAM is a single 
+   Evert Glebbeek made triple buffering work in the demo if VRAM is a single 
    surface.
 <li>
    Jon Rafkind provided an m4 macro for Allegro.
@@ -1002,7 +1058,7 @@ Changes from 4.1.14 to 4.1.15 (July 2004)
    Eric Botcazou and Henrik Stokseth made some improvements to the build
    process.
 <li>
-   Grzegroz Adam Hankiewicz added various fixes to the documentation and
+   Grzegorz Adam Hankiewicz added various fixes to the documentation and
    to the documentation generation system.
 <li>
    V Karthik Kumar added a Tamil language greeting to exunicode.
@@ -1031,7 +1087,7 @@ Changes from 4.1.14 to 4.1.15 (July 2004)
    Henrik Stokseth improved buffer security in various parts of the
    library.
 <li>
-   Evert Gebbek made strncpy use sizeof() for fixed length strings.
+   Evert Glebbeek made strncpy use sizeof() for fixed length strings.
 <li>
    Eric Botcazou made KEY_PAUSE work properly in windows.
 <li>
@@ -1050,7 +1106,7 @@ Changes from 4.1.14 to 4.1.15 (July 2004)
    Chris Robinson increased the default volume, which was set very quiet
    previously.
 <li>
-   Grzegroz Adam Hankiewicz clarified the bahavior of install_mouse.
+   Grzegorz Adam Hankiewicz clarified the behavior of install_mouse.
 <li>
    Elias Pschernig improved the pause key behavior.
 <li>

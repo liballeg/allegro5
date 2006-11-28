@@ -3208,7 +3208,8 @@ Allegro does not provide such devices.)
 @@void @rest(unsigned int time);
 @xref install_timer, rest_callback
 @xref vsync, d_yield_proc
-@eref exkeys, exmidi, exquat, exsample, exsprite, extimer, exunicod
+@eref exkeys, exmidi, exquat, exsample, exsprite, extimer, extrans
+@eref exunicod
 @shortdesc Waits a specified number of milliseconds or yields CPU.
    This function waits for the specified number of milliseconds.
 
@@ -15204,10 +15205,11 @@ and avoid missing any important bit of information.
 @xref END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, SCREEN_H, SCREEN_W
 @xref acquire_screen, allegro_error, allegro_init, allegro_message, blit
 @xref clear_keybuf, clear_to_color, desktop_palette, font
-@xref install_keyboard, key, key_shifts, keyboard_lowlevel_callback
-@xref keypressed, makecol, readkey, rectfill, release_screen, rest
-@xref scancode_to_name, screen, set_gfx_mode, set_palette
-@xref textprintf_centre_ex, textprintf_ex, ureadkey, usprintf, ustrzncpy
+@xref install_keyboard, install_timer, key, key_shifts
+@xref keyboard_lowlevel_callback, keypressed, makecol, readkey, rectfill
+@xref release_screen, rest, scancode_to_name, screen, set_gfx_mode
+@xref set_palette, textprintf_centre_ex, textprintf_ex, ureadkey
+@xref usprintf, ustrzncpy
 @shortdesc How to get input from the keyboard in different ways.
    This program demonstrates how to access the keyboard. The
    first part shows the basic use of readkey(). The second part
@@ -15445,7 +15447,7 @@ and avoid missing any important bit of information.
 @xref create_rgb_table, create_trans_table, destroy_bitmap
 @xref draw_trans_sprite, drawing_mode, install_keyboard, install_mouse
 @xref install_timer, keypressed, load_bitmap, mouse_x, mouse_y
-@xref poll_mouse, rectfill, replace_filename, rgb_map, screen
+@xref poll_mouse, rectfill, replace_filename, rest, rgb_map, screen
 @xref set_alpha_blender, set_gfx_mode, set_palette, set_trans_blender
 @xref set_write_alpha_blender, stretch_blit
 @shortdesc Lighting and translucency effects.

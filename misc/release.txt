@@ -56,6 +56,7 @@ necessary software installed.
 12. Make sure the installed version of GNU autoconf is the right one.
 
 13. Make .zip distro. Have the previous archive in parent directory.
+    You will need to have the dat tool in your path.
 
     misc/zipup.sh all421.zip all420.zip
     
@@ -64,6 +65,7 @@ necessary software installed.
 14. Make Unix distros. From the top level directory:
 
     cd .dist
+    unzip all421.zip allegro/misc
     allegro/misc/mkunixdists.sh all421.zip
    
 15. Check that the RPM file can be installed and compiled without problems.
@@ -91,7 +93,7 @@ necessary software installed.
 19. Convert local files back to Unix format, bump version number,
     and commit changed files.
     
-    ./fix.sh unix
+    ./fix.sh unix --dtou
     misc/fixver.sh 4 2 2 SVN
     svn commit -m "Bumped version to 4.2.2 (SVN)"
 

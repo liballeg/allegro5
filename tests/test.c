@@ -4539,7 +4539,9 @@ int main(void)
    #if defined ALLEGRO_I386 || defined ALLEGRO_AMD64
 
       #ifdef ALLEGRO_I386
-         sprintf(cpu_specs, "CPU family: %d86 (%s)", cpu_family, cpu_vendor?cpu_vendor:"unknown");
+         sprintf(cpu_specs, "CPU family: %d86 (%s)",
+                 cpu_family,
+                 (ustrlen(cpu_vendor) > 0) ? cpu_vendor : "unknown");
       #else
          sprintf(cpu_specs, "CPU family: AMD64 (%s)", cpu_vendor);
       #endif
