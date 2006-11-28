@@ -26,6 +26,10 @@
 #include "allegro/internal/aintern.h"
 #include "opcodes.h"
 
+#ifdef ALLEGRO_UNIX
+   #include "allegro/platform/aintunix.h"   /* for _unix_get_page_size */
+#endif
+
 #ifdef ALLEGRO_WINDOWS
    #include "winalleg.h"   /* For VirtualProtect */
 #endif     /* ifdef ALLEGRO_WINDOWS */
@@ -35,7 +39,6 @@
 #ifdef HAVE_MPROTECT
    #include <sys/types.h>
    #include <sys/mman.h>
-   #include <sys/user.h>
 #endif     /* ifdef HAVE_MPROTECT */
 
 
@@ -452,7 +455,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
    VirtualProtect(_scratch_mem, _scratch_mem_size, PAGE_EXECUTE_READWRITE, &old_protect);
  #elif defined(HAVE_MPROTECT) && !defined(USE_MMAP_GEN_CODE_BUF)
    {
-      char *p = (char *)((uintptr_t)_scratch_mem & ~(PAGE_SIZE-1ul));
+      char *p = (char *)((uintptr_t)_scratch_mem & ~(_unix_get_page_size() - 1ul));
       if (mprotect(p, _scratch_mem_size + ((char *)_scratch_mem - p),
             PROT_EXEC|PROT_READ|PROT_WRITE))
          perror("allegro-error: mprotect failed during stretched blit!");
