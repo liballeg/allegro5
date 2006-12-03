@@ -25,19 +25,28 @@ AL_BEGIN_EXTERN_C
  */
 
 #ifndef ALLEGRO_FS_FILE_DEFINED
-//typedef void *AL_FILE;
+
+#ifdef ALLEGRO_LIB_BUILD
 typedef struct AL_FILE {
-   AL_FS_HOOK_VTABLE vtable;
-};
-#endif
+   AL_FS_HOOK_FILE_VTABLE *vtable;
+} AL_FILE;
+#else
+typedef void *AL_FILE;
+#endif /* ALLEGRO_LIB_BUILD */
+
+#endif /* ALLEGRO_FS_FILE_DEFINED */
 
 #ifndef ALLEGRO_FS_DIR_DEFINED
+
+#ifdef ALLEGRO_LIB_BUILD
+typedef struct AL_DIR {
+   AL_FS_HOOK_DIR_VTABLE *vtable;
+} AL_DIR;
+#else
 typedef void *AL_DIR;
-#endif
+#endif /* ALLEGRO_LIB_BUILD */
 
-#ifndef ALLEGRO_FS_DIR_DEFINED
-typedef void *AL_DIRENT;
-#endif
+#endif /* ALLEGRO_FS_DIR_DEFINED */
 
 enum {
    AL_MKTEMP_UNLINK_NOW = 1,
@@ -45,12 +54,12 @@ enum {
 };
 
 enum {
-   AL_STAT_READ    = 1,
-   AL_STAT_WRITE   = 1 << 1,
-   AL_STAT_EXECUTE = 1 << 2,
-   AL_STAT_HIDDEN  = 1 << 3,
-   AL_STAT_ISFILE  = 1 << 4,
-   AL_STAT_ISDIR   = 1 << 5,
+   AL_FM_READ    = 1,
+   AL_FM_WRITE   = 1 << 1,
+   AL_FM_EXECUTE = 1 << 2,
+   AL_FM_HIDDEN  = 1 << 3,
+   AL_FM_ISFILE  = 1 << 4,
+   AL_FM_ISDIR   = 1 << 5,
 };
 
 enum {
@@ -74,6 +83,7 @@ enum {
    AL_FS_HOOK_FTELL,
    AL_FS_HOOK_FERROR,
    AL_FS_HOOK_FEOF,
+   AL_FS_HOOK_FNAME,
 
    AL_FS_HOOK_FSTAT,
 
@@ -89,17 +99,22 @@ enum {
    AL_FS_HOOK_SEARCH_PATH_COUNT,
    AL_FS_HOOK_GET_SEARCH_PATH,
 
-   AL_FS_HOOK_GET_STAT_MODE,
-   AL_FS_HOOK_GET_STAT_ATIME,
-   AL_FS_HOOK_GET_STAT_MTIME,
-   AL_FS_HOOK_GET_STAT_CTIME,
-   AL_FS_HOOK_GET_STAT_SIZE,
+   AL_FS_HOOK_FILE_MODE,
+   AL_FS_HOOK_FILE_ATIME,
+   AL_FS_HOOK_FILE_MTIME,
+   AL_FS_HOOK_FILE_CTIME,
+   AL_FS_HOOK_FILE_SIZE,
 
    AL_FS_HOOK_PATH_TO_SYS,
    AL_FS_HOOK_PATH_TO_UNI, /* universal */
 
    AL_FS_HOOK_DRIVE_SEP,
    AL_FS_HOOK_PATH_SEP,
+
+   AL_FS_HOOK_FEXITS,
+   AL_FS_HOOK_FILE_EXISTS,
+   AL_FS_HOOK_DIR_EXISTS,
+   AL_FS_HOOK_RMDIR,
 
    AL_FS_HOOK_LAST /* must be last */
 };
@@ -146,24 +161,25 @@ int32_t  al_fs_open_handle(AL_FILE *handle, AL_CONST char *mode);
 int32_t  al_fs_close_handle(AL_FILE *handle);
 
 AL_FILE *al_fs_fopen(const char *path, const char *mode);
+void    al_fs_fname(AL_FILE *fp, size_t, char *fn);
 int32_t al_fs_fclose(AL_FILE *fp);
-ssize_t  al_fs_fread(void *ptr, size_t size, AL_FILE *fp);
-ssize_t  al_fs_fwrite(const void *ptr, size_t size, AL_FILE *fp);
+ssize_t al_fs_fread(void *ptr, size_t size, AL_FILE *fp);
+ssize_t al_fs_fwrite(const void *ptr, size_t size, AL_FILE *fp);
 int32_t al_fs_fflush(AL_FILE *fp);
 int32_t al_fs_fseek(AL_FILE *fp, uint32_t offset, uint32_t whence);
 int32_t al_fs_ftell(AL_FILE *fp);
 int32_t al_fs_ferror(AL_FILE *fp);
 int32_t al_fs_feof(AL_FILE *fp);
 
-int32_t al_fs_funlink( AL_FILE *fp );
+int32_t al_fs_funlink(AL_FILE *fp);
 /* unlink is just a convienience function, it calls funlink */
-int32_t al_fs_unlink( const char *path );
+int32_t al_fs_unlink(const char *path);
 
 int32_t al_fs_fstat(AL_FILE *fp);
 
-AL_DIR    *al_fs_opendir(const char *path);
-int32_t   al_fs_closedir(AL_DIR *dir);
-AL_DIRENT *al_fs_readdir(AL_DIR *dir);
+AL_DIR  *al_fs_opendir(const char *path);
+int32_t al_fs_closedir(AL_DIR *dir);
+int32_t al_fs_readdir(AL_DIR *dir, size_t size, char *name);
 
 AL_FILE *al_fs_mktemp(const char *tmpl, uint32_t ulink);
 int32_t al_fs_getcwd(char *buf, size_t len);
@@ -173,18 +189,22 @@ int32_t al_fs_add_search_path(const char *path);
 int32_t al_fs_search_path_count();
 int32_t al_fs_get_search_path(uint32_t idx, char *dest, size_t len);
 
-uint32_t al_fs_get_stat_mode(AL_STAT *st);
-time_t   al_fs_get_stat_atime(AL_STAT *st);
-time_t   al_fs_get_stat_mtime(AL_STAT *st);
-time_t   al_fs_get_stat_ctime(AL_STAT *st);
-size_t   al_fs_get_stat_size(AL_STAT *st);
+uint32_t al_fs_file_mode(AL_FILE *st);
+time_t   al_fs_file_atime(AL_FILE *st);
+time_t   al_fs_file_mtime(AL_FILE *st);
+time_t   al_fs_file_ctime(AL_FILE *st);
+size_t   al_fs_file_size(AL_FILE *st);
 
-uint32_t al_fs_get_drive_sep(size_t len, char *sep);
-uint32_t al_fs_get_path_sep(size_t len, char *sep);
+int32_t al_fs_drive_sep(size_t len, char *sep);
+int32_t al_fs_path_sep(size_t len, char *sep);
 
-uint32_t al_fs_path_to_sys(const char *orig, size_t len, char *path);
-uint32_t al_fs_path_to_uni(const char *orig, size_t len, char *path);
+int32_t al_fs_path_to_sys(const char *orig, size_t len, char *path);
+int32_t al_fs_path_to_uni(const char *orig, size_t len, char *path);
 
+int32_t al_fs_fexists(AL_FILE *);
+int32_t al_fs_exists(AL_CONST char *);
+
+int32_t al_fs_rmdir(AL_CONST char *);
 
 AL_END_EXTERN_C
 

@@ -16,11 +16,7 @@
  */
 
 #define ALLEGRO_FS_FILE_DEFINED
-
-#include "allegro.h"
-#include "allegro/debug.h"
-#include "allegro/fshook.h"
-#include "allegro/internal/fshook.h"
+#define ALLEGRO_FS_DIR_DEFINED
 
 #include <stdio.h>
 
@@ -67,15 +63,26 @@ should AL_FILE carry a vtable? so the io handler can be changed without fucking 
 
 typedef struct AL_FILE AL_FILE;
 struct AL_FILE {
-   AL_FS_HOOK_VTABLE vtable;
+   AL_FS_HOOK_FILE_VTABLE *vtable;
    FILE *handle;
    struct stat st;
-   char *path;
-   char *found;
+   char *path;  // stores the path given by the user.
+   char *found; // used to store the proper path to a file opened and found via the search path.
    char mode[6];
    uint32_t free_on_fclose;
    uint32_t ulink;
 };
+
+typedef struct AL_DIR AL_DIR;
+struct AL_DIR {
+   AL_FS_HOOK_DIR_VTABLE *vtable;
+   DIR *handle;
+};
+
+#include "allegro.h"
+#include "allegro/debug.h"
+#include "allegro/fshook.h"
+#include "allegro/internal/fshook.h"
 
 static char **search_path = NULL;
 static uint32_t search_path_count = 0;
@@ -111,19 +118,23 @@ uint32_t al_fs_init_stdio(void)
    al_fs_set_hook(AL_FS_HOOK_SEARCH_PATH_COUNT, al_fs_stdio_search_path_count);
    al_fs_set_hook(AL_FS_HOOK_GET_SEARCH_PATH,   al_fs_stdio_get_search_path);
 
-   al_fs_set_hook(AL_FS_HOOK_GET_STAT_MODE,  al_fs_stdio_get_stat_mode);
-   al_fs_set_hook(AL_FS_HOOK_GET_STAT_ATIME, al_fs_stdio_get_stat_atime);
-   al_fs_set_hook(AL_FS_HOOK_GET_STAT_MTIME, al_fs_stdio_get_stat_mtime);
-   al_fs_set_hook(AL_FS_HOOK_GET_STAT_CTIME, al_fs_stdio_get_stat_ctime);
-   al_fs_set_hook(AL_FS_HOOK_GET_STAT_SIZE,  al_fs_stdio_get_stat_size);
+   al_fs_set_hook(AL_FS_HOOK_FILE_MODE,  al_fs_stdio_file_mode);
+   al_fs_set_hook(AL_FS_HOOK_FILE_ATIME, al_fs_stdio_file_atime);
+   al_fs_set_hook(AL_FS_HOOK_FILE_MTIME, al_fs_stdio_file_mtime);
+   al_fs_set_hook(AL_FS_HOOK_FILE_CTIME, al_fs_stdio_file_ctime);
+   al_fs_set_hook(AL_FS_HOOK_FILE_SIZE,  al_fs_stdio_file_size);
 
    al_fs_set_hook(AL_FS_HOOK_PATH_TO_SYS, al_fs_stdio_path_to_sys);
    al_fs_set_hook(AL_FS_HOOK_PATH_TO_UNI, al_fs_stdio_path_to_uni);
 
+   al_fs_set_hook(AL_FS_HOOK_FEXISTS, al_fs_stdio_fexists);
+   al_fs_set_hook(AL_FS_HOOK_FILE_EXISTS, al_fs_stdio_file_exists);
+   al_fs_set_hook(AL_FS_HOOK_DIR_EXISTS, al_fs_stdio_dir_exists);
+   al_fs_set_hook(AL_FS_HOOK_RMDIR, al_fs_stdio_rmdir);
+
    return 0;
 }
 
-/* BIG ASS FIXME: I just added this to the wrong function, move the new lookup code to open_handle */
 AL_FILE *al_fs_stdio_create_handle(AL_CONST char *path)
 {
    AL_FILE *fh = NULL;
@@ -238,12 +249,14 @@ void al_fs_stdio_close_handle(AL_FILE *handle)
    return;
 }
 
-/* FIXME: lookup stuff in search path */
+/* Has to use the base al_fs_* functions and not the stdio functions,
+   due to the base functions allocating and freeing the vtable. */
 AL_FILE *al_fs_stdio_fopen(const char *path, const char *mode)
 {
-   AL_FILE *fh = al_fs_stdio_create_handle(path);
-   if(al_fs_stdio_open_handle(fh, mode) != 0) {
-      return -1;
+   AL_FILE *fh = al_fs_create_handle(path);
+   if(al_fs_open_handle(fh, mode) != 0) {
+      al_fs_destroy_handle(fh);
+      return NULL;
    }
 
    fh->free_on_fclose = 1;
@@ -252,13 +265,13 @@ AL_FILE *al_fs_stdio_fopen(const char *path, const char *mode)
 
 void al_fs_stdio_fclose(AL_FILE *fp)
 {
-   al_fs_stdio_close_handle(fp);
+   al_fs_close_handle(fp);
 
    if(fp->free_on_fclose)
-      al_fs_stdio_destroy_handle(fp);
+      al_fs_destroy_handle(fp);
 }
 
-size_t   al_fs_stdio_fread(void *ptr, size_t size, AL_FILE *fp)
+size_t al_fs_stdio_fread(void *ptr, size_t size, AL_FILE *fp)
 {
    size_t ret = fread(ptr, 1, size, fp->handle);
    if(ret == 0) {
@@ -268,7 +281,7 @@ size_t   al_fs_stdio_fread(void *ptr, size_t size, AL_FILE *fp)
    return ret;
 }
 
-size_t   al_fs_stdio_fwrite(const void *ptr, size_t size, AL_FILE *fp)
+size_t al_fs_stdio_fwrite(const void *ptr, size_t size, AL_FILE *fp)
 {
    size_t ret = fwrite(ptr, 1, size, fp->handle);
    if(ret == 0) {
@@ -340,33 +353,46 @@ int32_t al_fs_stdio_fstat(AL_FILE *fp)
 }
 
 
-AL_DIR    *al_fs_stdio_opendir(const char *path)
+AL_DIR *al_fs_stdio_opendir(const char *path)
 {
-   DIR *dir = opendir(path);
+   AL_DIR *dir = AL_MALLOC(sizeof(AL_DIR));
+   if(!dir)
+      return NULL;
+
+   dir->handle = opendir(path);
    if(!dir) {
+      AL_FREE(dir);
       *allegro_errno = errno;
    }
 
-   return (AL_DIR)dir;
+   return dir;
 }
 
-int32_t   al_fs_stdio_closedir(AL_DIR *dir)
+int32_t al_fs_stdio_closedir(AL_DIR *dir)
 {
-   int32_t ret = closedir((DIR *)dir);
+   int32_t ret = closedir(dir->handle);
    if(ret == -1) {
       *allegro_errno = errno;
    }
 
+   dir->handle = NULL;
+   AL_FREE(dir);
+
    return ret;
 }
 
-AL_DIRENT *al_fs_stdio_readdir(AL_DIR *dir)
+int32_t al_fs_stdio_readdir(AL_DIR *dir, size_t size, char *buf)
 {
-   struct dirent *ent = readdir((struct dirent *)dir);
+   struct dirent *ent = readdir(dir->handle);
+   int32_t ent_len = 0;
+
    if(!ent) {
       *allegro_errno = errno;
       return NULL;
    }
+
+   ent_len = strlen(ent->d_name);
+   memcpy(buf, ent->d_name, MIN(ent_len+1, size));
 
    return ent;
 }
@@ -529,22 +555,22 @@ int32_t al_fs_stdio_get_search_path(uint32_t idx, char *dest, uint32_t len)
    return -1;
 }
 
-uint32_t al_fs_stdio_get_stat_mode(AL_STAT *st)
+uint32_t al_fs_stdio_file_mode(AL_STAT *st)
 {
 
 }
 
-time_t   al_fs_stdio_get_stat_atime(AL_STAT *st)
+time_t   al_fs_stdio_file_atime(AL_STAT *st)
 {
 
 }
 
-time_t   al_fs_stdio_get_stat_mtime(AL_STAT *st)
+time_t   al_fs_stdio_file_mtime(AL_STAT *st)
 {
 
 }
 
-time_t   al_fs_stdio_get_stat_ctime(AL_STAT *st)
+time_t   al_fs_stdio_file_cime(AL_STAT *st)
 {
 
 }
@@ -580,14 +606,71 @@ uint32_t al_fs_stdio_path_sep(size_t len, char *sep)
 }
 
 /* not sure these two conversion hooks are needed, should the path conversion be in the driver? */
-uint32_t al_fs_stdio_path_to_sys(const char *orig, uint32_t len, char *path)
+/* yup. */
+int32_t al_fs_stdio_path_to_sys(const char *orig, uint32_t len, char *path)
 {
    return 0;
 }
 
-uint32_t al_fs_stdio_path_to_uni(const char *orig, uint32_t len, char *path)
+int32_t al_fs_stdio_path_to_uni(const char *orig, uint32_t len, char *path)
 {
    return 0;
+}
+
+
+int32_t al_fs_stdio_fexists(AL_FILE *handle)
+{
+   struct stat st;
+   if(!stat(handle->name, &st)) {
+      if(errno == ENOEXIST) {
+         return 0;
+      }
+      else {
+         return -1;
+      }
+   }
+
+   return 1;
+}
+
+// FIXME
+int32_t al_fs_stdio_file_exists(AL_CONST char *path)
+{
+   struct stat st;
+   if(!stat(path, &st)) {
+      if(errno == ENOEXIST) {
+         return 0;
+      }
+      else {
+         return -1;
+      }
+   }
+
+   return 1;
+}
+
+// FIXME
+uint32_t al_fs_stdio_dir_exists(AL_CONST char *)
+{
+
+}
+
+int32_t al_fs_stdio_rmdir(AL_CONST char *path)
+{
+   int32_t err = rmdir(path);
+   if(err != 0) {
+      *allegro_errno = errno;
+      return -1;
+   }
+
+   return 0;
+}
+
+void al_fs_stdio_fname(AL_FILE *fp, size_t size, char *buf)
+{
+   int32_t len = strlen(fp->path);
+
+   memcpy(buf, fp->path, MIN(len+1, size));
 }
 
 #endif

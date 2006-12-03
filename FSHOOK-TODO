@@ -1,6 +1,12 @@
 TODO
 ====
 
-* Finish changing macros to use handle level vtables when nesesary
-* Fix fstat
-* Fix mktemp
+* Finish changing macros to use handle level vtables when nesesary - DONE 02-12-2006
+* Fix fstat and related struct and functions - half done, requested help with the stat api
+* Fix mktemp - DONE 02-12-2006
+* look at the path/drive sep and path conversion funcs to see if they should stay as is. - Yup, and DONE 02-12-2006
+
+* fix the exists functions, this is part of the stat problem
+  * maybe provide a is_* and a "exists()" set of functions.
+
+* finish fname - DONE 02-12-2006
