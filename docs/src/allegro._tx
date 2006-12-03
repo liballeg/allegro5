@@ -4826,7 +4826,7 @@ Allegro supports several different types of bitmaps:
    Creates a bitmap in a specific color depth (8, 15, 16, 24 or 32 bits per 
    pixel). Example:
 <codeblock>
-      /* Create screen sized bitmap in 32 bits per pixel. /*
+      /* Create screen sized bitmap in 32 bits per pixel. */
       BITMAP *bmp = create_bitmap_ex(32, SCREEN_W, SCREEN_H);
       if (!bmp)
 	 abort_on_error("Couldn't create bitmap!");
