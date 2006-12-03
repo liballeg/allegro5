@@ -1134,7 +1134,7 @@ int al_enable_triple_buffer(AL_DISPLAY *display)
  * Create a new Allegro display object, return NULL on failure
  * The first display object created becomes the al_main_display
  */
-AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h)
+AL_DISPLAY *al_create_display_emulated(int driver, int flags, int depth, int w, int h)
 {
    AL_DISPLAY *new_display;
    AL_DISPLAY **new_display_ptr;

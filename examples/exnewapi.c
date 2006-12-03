@@ -23,14 +23,16 @@ int main(void)
    int dx = 1;
 
    allegro_init();
-   
-   events = al_create_event_queue();
-   
-   al_install_keyboard();
-   al_register_event_source(events, (AL_EVENT_SOURCE *)al_get_keyboard());
+   al_init();
 
-   display = al_create_display(GFX_AUTODETECT, AL_UPDATE_DOUBLE_BUFFER,
-      AL_DEPTH_32, 640, 480);
+   events = al_create_event_queue();
+
+   display = al_create_display(640, 480, AL_WINDOWED | AL_OPENGL);
+   al_make_display_current(display);
+
+   al_install_keyboard();
+   // TODO: al_get_keyboard should have an AL_DISPLAY * parameter
+   al_register_event_source(events, (AL_EVENT_SOURCE *)al_get_keyboard());
 
    start_ticks = al_current_time();
    while (!quit) {
@@ -55,15 +57,11 @@ int main(void)
       
       /* render */
       if (ticks > last_rendered) {
-
-         buffer = al_get_buffer(display);
-         clear_to_color(buffer, makecol(0, 0, 0));
-         rectfill(buffer, x, y, x + 40, y + 40, makecol(255, 0, 0));
-         textprintf_right_ex(buffer, font, 640, 0, makecol(255, 255, 255), -1,
-            "%.1f", fps);
-         al_flip_display(display);
+         al_clear(al_color(0, 0, 0, 1));
+         al_filled_rectangle(x, y, x + 40, y + 40, al_color(1, 0, 0, 0.5));
+         al_flip();
          last_rendered = ticks;
-         
+
          {
             int d = al_current_time() - fps_time;
             fps_accumulator++;

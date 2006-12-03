@@ -191,9 +191,9 @@ static int _xwin_sysdrv_init(void)
    /* Open the display, create a window, and background-process 
     * events for it all. */
    if (_xwin_open_display(0) || _xwin_create_window()
-       || _unix_bg_man->register_func (_xwin_bg_handler)) {
-	 _xwin_sysdrv_exit();
-	 return -1;
+         || _unix_bg_man->register_func(_xwin_bg_handler)) {
+      _xwin_sysdrv_exit();
+      return -1;
    }
 
    set_display_switch_mode(SWITCH_BACKGROUND);
