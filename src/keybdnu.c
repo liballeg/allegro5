@@ -22,10 +22,14 @@
 #include "allegro/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro/internal/aintern2.h"
-
+#include "internal/system_new.h"
 
 
 /* the active keyboard driver */
+// FIXME: Clarify if we really can get away with a single driver. There will
+// only be one source, yes. But we might have one SDL window and one GLFW
+// window, both with a different driver (adding to the same event
+// queue/source/whatever).
 static AL_KEYBOARD_DRIVER *new_keyboard_driver = NULL;
 
 /* mode flags */
@@ -91,6 +95,11 @@ bool al_install_keyboard(void)
    if (new_keyboard_driver)
       return true;
 
+   // FIXME: of course, need to try all available drivers until one is found
+   // (but please, not a global static array..) right now, only my dummy driver
+   // is returned for testing..
+
+#if 0
    if (system_driver->keyboard_drivers)
       driver_list = system_driver->keyboard_drivers();
    else
@@ -109,6 +118,15 @@ bool al_install_keyboard(void)
    }
 
    //set_leds(-1);
+#endif
+
+   AL_SYSTEM *system = al_system_driver();
+   TRACE("al_install_keyboard: finding keyboard driver.\n");
+   new_keyboard_driver = system->vt->get_keyboard_driver();
+   TRACE("al_install_keyboard: Using %s.\n", new_keyboard_driver->name);
+
+   // FIXME: check return value
+   new_keyboard_driver->init();
 
    _add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
 

@@ -10,6 +10,7 @@ struct AL_SYSTEM_INTERFACE
 {
    AL_SYSTEM *(*initialize)(int flags);
    AL_DISPLAY_INTERFACE *(*get_display_driver)(void);
+   AL_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
 };
 
 struct AL_SYSTEM
@@ -17,6 +18,10 @@ struct AL_SYSTEM
    AL_SYSTEM_INTERFACE *vt;
 };
 
+// FIXME: later, there will be a general interface to find the best driver, and
+// some platform specific initialization code will fill in the available system
+// drivers.. for now, my dummy driver is the only available system driver,
+// always
 AL_SYSTEM_INTERFACE *_al_system_xdummy_driver(void);
 
 #endif

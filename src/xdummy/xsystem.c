@@ -6,8 +6,8 @@
 #include <string.h>
 
 #include "allegro.h"
-#include "platform/aintunix.h"
 #include "internal/aintern.h"
+#include "platform/aintunix.h"
 #include "internal/aintern2.h"
 #include "internal/system_new.h"
 
@@ -39,6 +39,13 @@ AL_DISPLAY_INTERFACE *get_display_driver(void)
     return _al_display_xdummy_driver();
 }
 
+// FIXME: Use the list.
+AL_KEYBOARD_DRIVER *get_keyboard_driver(void)
+{
+   // FIXME: i would prefer a dynamic way to list drivers, not a static list
+   return _al_xwin_keyboard_driver_list[0].driver;
+}
+
 /* Internal function to get a reference to this driver. */
 AL_SYSTEM_INTERFACE *_al_system_xdummy_driver(void)
 {
@@ -49,6 +56,7 @@ AL_SYSTEM_INTERFACE *_al_system_xdummy_driver(void)
 
    vt->initialize = initialize;
    vt->get_display_driver = get_display_driver;
+   vt->get_keyboard_driver = get_keyboard_driver;
 
    return vt;
 }

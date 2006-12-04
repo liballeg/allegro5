@@ -1,5 +1,9 @@
-#include "allegro/internal/system_new.h"
-#include "allegro/internal/display_new.h"
+#include "allegro.h"
+#include "internal/aintern.h"
+#include ALLEGRO_INTERNAL_HEADER
+#include "internal/aintern2.h"
+#include "internal/system_new.h"
+#include "internal/display_new.h"
 
 static AL_DISPLAY *current_display;
 
