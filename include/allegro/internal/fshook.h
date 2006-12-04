@@ -29,16 +29,16 @@ AL_BEGIN_EXTERN_C
 #ifdef ALLEGRO_LIB_BUILD
 
 struct AL_FS_HOOK_SYS_VTABLE {
-   AL_METHOD(AL_FILE *, create_handle,  (AL_CONST char *path) );
-   AL_METHOD(AL_DIR *,  opendir,  (AL_CONST char *path) );
+   AL_METHOD(AL_FILE *, create_handle, (AL_CONST char *path) );
+   AL_METHOD(AL_DIR *,  opendir,       (AL_CONST char *path) );
 
    AL_METHOD(AL_FILE *, mktemp, (AL_CONST char *t) );
    AL_METHOD(int32_t,   getcwd, (char *buf, size_t len) );
    AL_METHOD(int32_t,   chdir,  (AL_CONST char *path) );
 
-   AL_METHOD(int32_t,   add_search_path, (AL_CONST char *path) );
+   AL_METHOD(int32_t,   add_search_path,   (AL_CONST char *path) );
    AL_METHOD(int32_t,   search_path_count, (void) );
-   AL_METHOD(int32_t,   get_search_path, (uint32_t idx, char *dest, uint32_t len) );
+   AL_METHOD(int32_t,   get_search_path,   (uint32_t idx, char *dest, uint32_t len) );
 
    AL_METHOD(int32_t,  drive_sep, (size_t len, char *sep) );
    AL_METHOD(int32_t,  path_sep,  (size_t len, char *sep) );
@@ -46,8 +46,14 @@ struct AL_FS_HOOK_SYS_VTABLE {
    AL_METHOD(int32_t,  path_to_sys, (const char *orig, uint32_t len, char *path) );
    AL_METHOD(int32_t,  path_to_uni, (const char *orig, uint32_t len, char *path) );
 
-   AL_METHOD(int32_t, exists,   (AL_CONST char *) );
-   AL_METHOD(int32_t, rmdir, (AL_CONST char *) );
+   AL_METHOD(int32_t,  exists, (AL_CONST char *) );
+   AL_METHOD(int32_t,  rmdir,  (AL_CONST char *) );
+
+   AL_METHOD(size_t,   file_size,  (AL_CONST char *) );
+   AL_METHOD(uint32_t, file_mode,  (AL_CONST char *) );
+   AL_METHOD(time_t,   file_atime, (AL_CONST char *) );
+   AL_METHOD(time_t,   file_mtime, (AL_CONST char *) );
+   AL_METHOD(time_t,   file_ctime, (AL_CONST char *) );
 };
 
 struct AL_FS_HOOK_DIR_VTABLE {
