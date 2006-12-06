@@ -4,6 +4,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "allegro.h"
 #include "internal/aintern.h"
@@ -15,11 +16,34 @@
 
 static AL_SYSTEM_INTERFACE *vt;
 
+static void *background_thread(void *arg)
+{
+   AL_SYSTEM_XDUMMY *s = arg;
+   XEvent event;
+   while (1) {
+      XNextEvent(s->xdisplay, &event);
+      if (s->event_cb) {
+         s->event_cb(s, &event, s->event_cb_data);
+      }
+      switch (event.type) {
+         case KeyPress:
+            _al_xwin_keyboard_handler(&event.xkey, false);
+            break;
+         case KeyRelease:
+            _al_xwin_keyboard_handler(&event.xkey, false);
+            break;
+      }
+   }
+   return NULL;
+}
+
 /* Create a new system object for the dummy X11 driver. */
 static AL_SYSTEM *initialize(int flags)
 {
    AL_SYSTEM_XDUMMY *s = _AL_MALLOC(sizeof *s);
    memset(s, 0, sizeof *s);
+
+   XInitThreads();
 
    s->system.vt = vt;
 
@@ -27,6 +51,10 @@ static AL_SYSTEM *initialize(int flags)
    s->xdisplay = XOpenDisplay(0);
 
    TRACE("xsystem: XDummy driver connected to X11.\n");
+
+   pthread_create(&s->thread, NULL, background_thread, s);
+
+   TRACE("events thread spawned.\n");
 
    return &s->system;
 }

@@ -22,18 +22,32 @@ typedef struct AL_DISPLAY_XDUMMY AL_DISPLAY_XDUMMY;
 /* This is our version of AL_DISPLAY with driver specific extra data. */
 struct AL_DISPLAY_XDUMMY
 {
-    AL_DISPLAY display; /* This must be the first member. */
+   AL_DISPLAY display; /* This must be the first member. */
 
-    Window window;
-    GLXWindow glxwindow;
-    GLXContext context;
+   Window window;
+   GLXWindow glxwindow;
+   GLXContext context;
+    
+   int is_mapped;
+   pthread_mutex_t mapped_mutex;
+   pthread_cond_t mapped_cond;
 };
 
 static AL_DISPLAY_INTERFACE *vt;
 
-static Bool WaitForNotify(Display *d, XEvent *e, char *arg)
+// FIXME: right now, only one callback can be installed, so we cannot create
+// multiple windows in the same display yet (easy to fix: allow multiple
+// callbacks in xsystem.c, and remove this comment).
+/* Event callback to notify us when our window got mapped. */
+static void mapped_cb(AL_SYSTEM_XDUMMY *system, XEvent *event, void *arg)
 {
-   return (e->type == MapNotify) && (e->xmap.window == (Window)arg);
+   AL_DISPLAY_XDUMMY *d = arg;
+   pthread_mutex_lock(&d->mapped_mutex);
+   if ((event->type == MapNotify) && (event->xmap.window == d->window)) {
+      d->is_mapped = 1;
+      pthread_cond_signal(&d->mapped_cond);
+   }
+   pthread_mutex_unlock(&d->mapped_mutex);
 }
 
 /* Create a new X11 dummy display, which maps directly to a GLX window. */
@@ -60,27 +74,50 @@ static AL_DISPLAY *create_display(int w, int h, int flags)
    d->context = glXCreateNewContext(system->xdisplay, fbc[0], GLX_RGBA_TYPE, 0,
       GL_FALSE);
 
-    TRACE("xdisplay: Got GLX context.\n");
+   TRACE("xdisplay: Got GLX context.\n");
 
    /* Create a colormap. */
    Colormap cmap = XCreateColormap(system->xdisplay,
-    RootWindow(system->xdisplay, vi->screen), vi->visual, AllocNone);
+   RootWindow(system->xdisplay, vi->screen), vi->visual, AllocNone);
 
    /* Create an X11 window */
    XSetWindowAttributes swa;
    swa.colormap = cmap;
    swa.border_pixel = 0;
-   swa.event_mask = StructureNotifyMask;
+   swa.event_mask =
+      KeyPressMask |
+      KeyReleaseMask |
+      StructureNotifyMask |
+      EnterWindowMask |
+      LeaveWindowMask |
+      FocusChangeMask |
+      ExposureMask |
+      PropertyChangeMask |
+      ButtonPressMask |
+      ButtonReleaseMask |
+      PointerMotionMask;
    d->window = XCreateWindow(system->xdisplay, RootWindow(
       system->xdisplay, vi->screen), 0, 0, w, h, 0, vi->depth, InputOutput,
       vi->visual, CWBorderPixel | CWColormap | CWEventMask, &swa);
 
-    TRACE("xdisplay: X11 window created.\n");
+   TRACE("xdisplay: X11 window created.\n");
 
    /* X11 cludge: Wait for the window to get mapped, or nothing will work. */
-   XEvent event;
+   // FIXME: why?
+   pthread_mutex_init(&d->mapped_mutex, NULL);
+   pthread_cond_init(&d->mapped_cond, NULL);
+   pthread_mutex_lock(&d->mapped_mutex);
+   // FIXME: need a function to properly add a callback, with locking and all.
+   system->event_cb_data = d;
+   system->event_cb = mapped_cb;
    XMapWindow(system->xdisplay, d->window);
-   XIfEvent(system->xdisplay, &event, WaitForNotify, (void *)d->window);
+   XFlush(system->xdisplay);
+   while (!d->is_mapped)
+      pthread_cond_wait(&d->mapped_cond, &d->mapped_mutex);
+   system->event_cb = NULL;
+   pthread_mutex_unlock(&d->mapped_mutex);
+   pthread_mutex_destroy(&d->mapped_mutex);
+   pthread_cond_destroy(&d->mapped_cond);
 
    TRACE("xdisplay: X11 window mapped.\n");
 
