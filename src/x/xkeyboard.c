@@ -251,8 +251,7 @@ static void update_shifts(XKeyEvent *event)
    int mask = 0;
    int i;
 
-   for (i = 0; i < 8; i++)
-   {
+   for (i = 0; i < 8; i++) {
       int j;
       /* This is the state of the modifiers just before the key
        * press/release.
@@ -293,10 +292,9 @@ static void update_shifts(XKeyEvent *event)
  */
 static void dga2_update_shifts(XKeyEvent *event)
 {
-   int i;
-   for (i = 0; i < 8; i++)
-   {
-      int j;
+   int i, j;
+
+   for (i = 0; i < 8; i++) {
       for (j = 0; j < xmodmap->max_keypermod; j++) {
          if (event->keycode && event->keycode ==
             xmodmap->modifiermap[i * xmodmap->max_keypermod + j]) {
@@ -327,6 +325,7 @@ static void dga2_update_shifts(XKeyEvent *event)
 static int find_unknown_key_assignment (int i)
 {
    int j;
+
    for (j = 1; j < KEY_MAX; j++) {
       if (!used[j]) {
 	 AL_CONST char *str;
@@ -342,17 +341,17 @@ static int find_unknown_key_assignment (int i)
    }
 
    if (j == KEY_MAX) {
-      TRACE (PREFIX_E "You have more keys reported by X than Allegro's "
-	     "maximum of %i keys. Please send a bug report.\n", KEY_MAX);
+      TRACE(PREFIX_E "You have more keys reported by X than Allegro's "
+	    "maximum of %i keys. Please send a bug report.\n", KEY_MAX);
       _xwin.keycode_to_scancode[i] = 0;
    }
 
-   TRACE (PREFIX_I "Key %i missing:", i);
+   TRACE(PREFIX_I "Key %i missing:", i);
    for (j = 0; j < sym_per_key; j++) {
       char *sym_str = XKeysymToString(keysyms[sym_per_key * (i - min_keycode) + j]);
-      TRACE (" %s", sym_str ? sym_str : "NULL");
+      TRACE(" %s", sym_str ? sym_str : "NULL");
    }
-   TRACE (" - assigned to %i.\n", _xwin.keycode_to_scancode[i]);
+   TRACE(" - assigned to %i.\n", _xwin.keycode_to_scancode[i]);
 
    return _xwin.keycode_to_scancode[i];
 }
@@ -365,6 +364,7 @@ static int find_unknown_key_assignment (int i)
 void _xwin_keyboard_handler(XKeyEvent *event, int dga2_hack)
 {
    int keycode;
+
    if (!xkeyboard_installed)
       return;
 
@@ -373,12 +373,12 @@ void _xwin_keyboard_handler(XKeyEvent *event, int dga2_hack)
 
    keycode = _xwin.keycode_to_scancode[event->keycode];
    if (keycode == -1)
-      keycode = find_unknown_key_assignment (event->keycode);
+      keycode = find_unknown_key_assignment(event->keycode);
 
    if (dga2_hack)
-      dga2_update_shifts (event);
+      dga2_update_shifts(event);
    else
-      update_shifts (event);
+      update_shifts(event);
 
    /* Special case the pause key. */
    if (keycode == KEY_PAUSE) {
@@ -401,18 +401,21 @@ void _xwin_keyboard_handler(XKeyEvent *event, int dga2_hack)
       int unicode = 0, r = 0;
 
 #if defined (ALLEGRO_USE_XIM) && defined(X_HAVE_UTF8_STRING)
-      if (xic)
+      if (xic) {
 	 len = Xutf8LookupString(xic, event, buffer, sizeof buffer, NULL, NULL);
+      }
       else
 #endif
+      {
          /* XLookupString is supposed to only use ASCII. */
 	 len = XLookupString(event, buffer, sizeof buffer, NULL, NULL);
+      }
       buffer[len] = '\0';
       uconvert(buffer, U_UTF8, buffer2, U_UNICODE, sizeof buffer2);
       unicode = *(unsigned short *)buffer2;
 
 #ifdef ALLEGRO_USE_XIM
-      r = XFilterEvent ((XEvent *)event, _xwin.window);
+      r = XFilterEvent((XEvent *)event, _xwin.window);
 #endif
       if (keycode || unicode) {
 	 /* If we have a keycode, we want it to go to Allegro immediately, so the
@@ -434,18 +437,19 @@ void _xwin_keyboard_handler(XKeyEvent *event, int dga2_hack)
 
          /* Detect Ctrl-Alt-End. */
          if (keycode == KEY_END && (_key_shifts & KB_CTRL_FLAG) &&
-            (_key_shifts & KB_ALT_FLAG) && (three_finger_flag)) {
-            #ifndef HAVE_LIBPTHREAD
-            if (_unix_bg_man == &_bg_man_sigalrm)
+            (_key_shifts & KB_ALT_FLAG) && (three_finger_flag))
+         {
+         #ifndef HAVE_LIBPTHREAD
+            if (_unix_bg_man == &_bg_man_sigalrm) {
                _sigalrm_request_abort();
-            else {
-            #endif
+            }
+            else
+         #endif
+            {
                TRACE(PREFIX_W "Three finger combo detected. SIGTERMing "
                      "pid %d\n", main_pid);
                kill(main_pid, SIGTERM);
-            #ifndef HAVE_LIBPTHREAD
             }
-            #endif
          }
       }
    }
@@ -459,11 +463,12 @@ void _xwin_keyboard_handler(XKeyEvent *event, int dga2_hack)
 /* _xwin_keyboard_focus_handler:
  *  Handles switching of X keyboard focus.
  */
-void _xwin_keyboard_focus_handler (XFocusChangeEvent *event)
+void _xwin_keyboard_focus_handler(XFocusChangeEvent *event)
 {
    /* Simulate release of all keys on focus out. */
    if (event->type == FocusOut) {
       int i;
+
       for (i = 0; i < KEY_MAX; i++) {
 	 if (key[i])
 	    _handle_key_release(i);
@@ -481,6 +486,7 @@ static int find_allegro_key(KeySym sym)
 {
    int i;
    int n = sizeof translation_table / sizeof *translation_table;
+
    for (i = 0; i < n; i++) {
       if (translation_table[i].keysym == sym)
 	 return translation_table[i].allegro_key;
@@ -495,7 +501,8 @@ static int find_allegro_key(KeySym sym)
  */
 static AL_CONST char *x_scancode_to_name(int scancode)
 {
-   ASSERT (scancode >= 0 && scancode < KEY_MAX);
+   ASSERT(scancode >= 0 && scancode < KEY_MAX);
+
    return key_names[scancode];
 }
 
@@ -520,16 +527,17 @@ void _xwin_get_keyboard_mapping(void)
    int count;
    int missing = 0;
 
-   memset (used, 0, sizeof used);
-   memset (_xwin.keycode_to_scancode, 0, sizeof _xwin.keycode_to_scancode);
+   memset(used, 0, sizeof used);
+   memset(_xwin.keycode_to_scancode, 0, sizeof _xwin.keycode_to_scancode);
 
-   XLOCK ();
+   XLOCK();
 
    XDisplayKeycodes(_xwin.display, &min_keycode, &max_keycode);
    count = 1 + max_keycode - min_keycode;
 
-   if (keysyms)
-      XFree (keysyms);
+   if (keysyms) {
+      XFree(keysyms);
+   }
    keysyms = XGetKeyboardMapping(_xwin.display, min_keycode,
       count, &sym_per_key);
 
@@ -550,13 +558,11 @@ void _xwin_get_keyboard_mapping(void)
          sym2_str : "NULL");
 
       /* Hack for French keyboards, to correctly map KEY_0 to KEY_9. */
-      if (sym2 >= XK_0 && sym2 <= XK_9)
-      {
+      if (sym2 >= XK_0 && sym2 <= XK_9) {
 	 allegro_key = find_allegro_key(sym2);
       }
 
-      if (!allegro_key)
-      {
+      if (!allegro_key) {
 	 if (sym != NoSymbol) {
 	    allegro_key = find_allegro_key(sym);
 
@@ -565,8 +571,7 @@ void _xwin_get_keyboard_mapping(void)
 	       TRACE (" defering.\n");
 	    }
 	 }
-	 else
-	 {
+	 else {
 	    /* No KeySym for this key - ignore it. */
 	    _xwin.keycode_to_scancode[i] = -1;
 	    TRACE (" not assigned.\n");
@@ -574,13 +579,14 @@ void _xwin_get_keyboard_mapping(void)
       }
 
       if (allegro_key) {
-	 if (used[allegro_key])
-	    TRACE (" *double*");
+	 if (used[allegro_key]) {
+	    TRACE(" *double*");
+	 }
 	 _xwin.keycode_to_scancode[i] = allegro_key;
 	 key_names[allegro_key] =
 	    XKeysymToString(keysyms[sym_per_key * (i - min_keycode)]);
 	 used[allegro_key] = 1;
-	 TRACE (" assigned to %i.\n", allegro_key);
+	 TRACE(" assigned to %i.\n", allegro_key);
       }
    }
 
@@ -588,25 +594,25 @@ void _xwin_get_keyboard_mapping(void)
       /* The keys still not assigned are just assigned arbitrarily now. */
       for (i = min_keycode; i <= max_keycode; i++) {
 	 if (_xwin.keycode_to_scancode[i] == 0) {
-	    find_unknown_key_assignment (i);
+	    find_unknown_key_assignment(i);
 	 }
       }
    }
 
    if (xmodmap)
       XFreeModifiermap(xmodmap);
-   xmodmap = XGetModifierMapping (_xwin.display);
-   for (i = 0; i < 8; i++)
-   {
+   xmodmap = XGetModifierMapping(_xwin.display);
+   for (i = 0; i < 8; i++) {
       int j;
+
       TRACE (PREFIX_I "Modifier %d:", i + 1);
       for (j = 0; j < xmodmap->max_keypermod; j++) {
 	 KeySym sym = XKeycodeToKeysym(_xwin.display,
 	    xmodmap->modifiermap[i * xmodmap->max_keypermod + j], 0);
          char *sym_str = XKeysymToString(sym);
-         TRACE (" %s", sym_str ? sym_str : "NULL");
+         TRACE(" %s", sym_str ? sym_str : "NULL");
       }
-      TRACE ("\n");
+      TRACE("\n");
    }
 
    /* The [xkeymap] section can be useful, e.g. if trying to play a
@@ -618,6 +624,7 @@ void _xwin_get_keyboard_mapping(void)
    {
       char *section, *option_format;
       char option[128], tmp1[128], tmp2[128];
+
       section = uconvert_ascii("xkeymap", tmp1);
       option_format = uconvert_ascii("keycode%d", tmp2);
 
@@ -626,15 +633,14 @@ void _xwin_get_keyboard_mapping(void)
 
 	 uszprintf(option, sizeof(option), option_format, i);
 	 scancode = get_config_int(section, option, -1);
-	 if (scancode > 0)
-	 {
+	 if (scancode > 0) {
 	    _xwin.keycode_to_scancode[i] = scancode;
-	    TRACE (PREFIX_I "User override: KeySym %i assigned to %i.\n", i, scancode);
+	    TRACE(PREFIX_I "User override: KeySym %i assigned to %i.\n", i, scancode);
 	 }
       }
    }
 
-   XUNLOCK ();
+   XUNLOCK();
 }
 
 
@@ -685,7 +691,7 @@ static int x_keyboard_init(void)
 
    main_pid = getpid();
 
-   memcpy (key_names, _keyboard_common_names, sizeof key_names);
+   memcpy(key_names, _keyboard_common_names, sizeof key_names);
 
    XLOCK ();
 
@@ -695,7 +701,7 @@ static int x_keyboard_init(void)
       TRACE(PREFIX_W "Could not set default locale.\n");
    }
 
-   modifiers = XSetLocaleModifiers ("@im=none");
+   modifiers = XSetLocaleModifiers("@im=none");
    if (modifiers == NULL) {
       TRACE(PREFIX_W "XSetLocaleModifiers failed.\n");
    }
@@ -706,7 +712,7 @@ static int x_keyboard_init(void)
    }
 
    if (xim) {
-      imvalret = XGetIMValues (xim, XNQueryInputStyle, &xim_styles, NULL);
+      imvalret = XGetIMValues(xim, XNQueryInputStyle, &xim_styles, NULL);
       if (imvalret != NULL || xim_styles == NULL) {
 	 TRACE(PREFIX_W "Input method doesn't support any styles.\n");
       }
@@ -724,12 +730,12 @@ static int x_keyboard_init(void)
 	 if (xim_style == 0) {
 	    TRACE (PREFIX_W "Input method doesn't support the style we support.\n");
 	 }
-	 XFree (xim_styles);
+	 XFree(xim_styles);
       }
    }
 
    if (xim && xim_style) {
-      xic = XCreateIC (xim,
+      xic = XCreateIC(xim,
 		       XNInputStyle, xim_style,
 		       XNClientWindow, _xwin.window,
 		       XNFocusWindow, _xwin.window,
@@ -741,9 +747,9 @@ static int x_keyboard_init(void)
    }
 #endif
 
-   _xwin_get_keyboard_mapping ();
+   _xwin_get_keyboard_mapping();
 
-   XUNLOCK ();
+   XUNLOCK();
 
    xkeyboard_installed = 1;
 
@@ -761,7 +767,7 @@ static void x_keyboard_exit(void)
       return;
    xkeyboard_installed = 0;
 
-   XLOCK ();
+   XLOCK();
 
 #ifdef ALLEGRO_USE_XIM
 
@@ -783,11 +789,11 @@ static void x_keyboard_exit(void)
    }
 
    if (keysyms) {
-      XFree (keysyms);
+      XFree(keysyms);
       keysyms = NULL;
    }
 
-   XUNLOCK ();
+   XUNLOCK();
 }
 
 

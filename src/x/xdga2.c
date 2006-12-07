@@ -197,7 +197,7 @@ static GFX_MODE_LIST *_xdga2_private_fetch_mode_list(void)
       _AL_FREE(mode_list->mode);
       _AL_FREE(mode_list);
    }
-   XFree (mode);
+   XFree(mode);
    return NULL;
 }
 
@@ -319,13 +319,13 @@ static void _xdga2_handle_input(void)
          case KeyPress:
             XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
 	    key.type -= dga_event_base;
-	    _xwin_keyboard_handler (&key, TRUE);
+	    _xwin_keyboard_handler(&key, TRUE);
             break;
 
          case KeyRelease:
 	    XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
 	    key.type -= dga_event_base;
-	    _xwin_keyboard_handler (&key, TRUE);
+	    _xwin_keyboard_handler(&key, TRUE);
             break;
 
          case ButtonPress:
