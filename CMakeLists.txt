@@ -66,6 +66,7 @@ option(WANT_VGA "Enable VGA graphics driver (Linux)" on)
 
 option(WANT_X11 "X11 support" on)
 option(WANT_DGA2 "Enable DGA2 graphics driver (X11)" on)
+option(WANT_GLX "Enable OpenGL graphics driver (X11)" on)
 
 option(WANT_ALSADIGI "Enable ALSA digital audio driver (Unix)" on)
 option(WANT_ALSAMIDI "Enable ALSA MIDI driver (Unix)" on)
@@ -481,6 +482,15 @@ if(SUPPORT_X11)
             endif(NOT SUPPORT_MODULES)
         endif(CAN_XF86DGA)
     endif(WANT_DGA2)
+
+    if(WANT_GLX)
+        include(FindOpenGL)
+        if(OPENGL_FOUND)
+            set(SUPPORT_GLX 1)
+            set(HAVE_GLX 1)
+            list(APPEND X11_LIBRARIES ${OPENGL_LIBRARIES})
+        endif(OPENGL_FOUND)
+    endif(WANT_GLX)
 
     check_library_exists(X11 XOpenIM "" CAN_XIM)
     if(CAN_XIM)

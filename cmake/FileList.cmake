@@ -12,7 +12,7 @@ set(ALLEGRO_SRC_FILES
     src/digmid.c
     src/dither.c
     src/dispsw.c
-    src/display.c
+    src/display_new.c
     src/dtor.c
     src/drvlist.c
     src/events.c
@@ -60,6 +60,7 @@ set(ALLEGRO_SRC_FILES
     src/sound.c
     src/spline.c
     src/stream.c
+    src/system_new.c
     src/text.c
     src/tga.c
     src/unicode.c
@@ -328,6 +329,8 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xdga2.c
     src/x/xdga2s.s
     src/x/xwins.s
+    src/xdummy/xdisplay.c
+    src/xdummy/xsystem.c
     src/misc/colconv.c
     )
     

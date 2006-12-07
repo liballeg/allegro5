@@ -43,6 +43,7 @@
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XPM
 #cmakedefine HAVE_DIRENT_H
+#cmakedefine HAVE_GLX
 #cmakedefine HAVE_INTTYPES_H
 #cmakedefine HAVE_LIBOSSAUDIO
 #cmakedefine HAVE_LIBPTHREAD
