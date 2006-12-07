@@ -3,7 +3,7 @@
 
 typedef struct AL_COLOR AL_COLOR;
 
-#include "internal/display_new.h"
+typedef struct AL_DISPLAY AL_DISPLAY;
 
 struct AL_COLOR
 {

@@ -1,7 +1,6 @@
 #ifndef ALLEGRO_INTERNAL_DISPLAY_NEW_H
 #define ALLEGRO_INTERNAL_DISPLAY_NEW_H
 
-typedef struct AL_DISPLAY AL_DISPLAY;
 typedef struct AL_DISPLAY_INTERFACE AL_DISPLAY_INTERFACE;
 
 #include "../display_new.h"
@@ -20,6 +19,8 @@ struct AL_DISPLAY_INTERFACE
 
 struct AL_DISPLAY
 {
+   /* Must be first, so the display can be uses as event source. */
+   AL_EVENT_SOURCE es; 
    AL_DISPLAY_INTERFACE *vt;
    int w, h;
 };

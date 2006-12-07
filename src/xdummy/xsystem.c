@@ -20,6 +20,7 @@ static void *background_thread(void *arg)
 {
    AL_SYSTEM_XDUMMY *s = arg;
    XEvent event;
+   int i;
    while (1) {
       XNextEvent(s->xdisplay, &event);
       if (s->event_cb) {
@@ -32,6 +33,20 @@ static void *background_thread(void *arg)
          case KeyRelease:
             _al_xwin_keyboard_handler(&event.xkey, false);
             break;
+         case ConfigureNotify:
+            // FIXME: With many windows, it's bad to loop through them all,
+            // maybe can come up with a better system here.
+            // TODO: am I supposed to access ._size?
+            for (i = 0; i < s->displays._size; i++) {
+               AL_DISPLAY_XDUMMY **d = _al_vector_ref(&s->displays, i);
+               if ((*d)->window == event.xconfigure.window) {
+                  _al_display_xdummy_resize(&(*d)->display,  &event);
+                  break;
+               }
+            }
+            break;
+         default:
+            printf("event %d\n", event.type);
       }
    }
    return NULL;
@@ -42,6 +57,8 @@ static AL_SYSTEM *initialize(int flags)
 {
    AL_SYSTEM_XDUMMY *s = _AL_MALLOC(sizeof *s);
    memset(s, 0, sizeof *s);
+   
+   _al_vector_init(&s->displays, sizeof (AL_SYSTEM_XDUMMY *));
 
    XInitThreads();
 
@@ -88,4 +105,3 @@ AL_SYSTEM_INTERFACE *_al_system_xdummy_driver(void)
 
    return vt;
 }
-

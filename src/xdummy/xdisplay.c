@@ -3,9 +3,9 @@
  * display driver.
  */
 
-#include <GL/glx.h>
 #include <GL/gl.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "allegro.h"
 #include "system_new.h"
@@ -16,22 +16,6 @@
 #include "internal/display_new.h"
 
 #include "xdummy.h"
-
-typedef struct AL_DISPLAY_XDUMMY AL_DISPLAY_XDUMMY;
-
-/* This is our version of AL_DISPLAY with driver specific extra data. */
-struct AL_DISPLAY_XDUMMY
-{
-   AL_DISPLAY display; /* This must be the first member. */
-
-   Window window;
-   GLXWindow glxwindow;
-   GLXContext context;
-    
-   int is_mapped;
-   pthread_mutex_t mapped_mutex;
-   pthread_cond_t mapped_cond;
-};
 
 static AL_DISPLAY_INTERFACE *vt;
 
@@ -62,6 +46,13 @@ static AL_DISPLAY *create_display(int w, int h, int flags)
 
    AL_SYSTEM_XDUMMY *system = (AL_SYSTEM_XDUMMY *)al_system_driver();
 
+   /* Add ourself to the list of displays. */
+   AL_DISPLAY_XDUMMY **add = _al_vector_alloc_back(&system->displays);
+   *add = d;
+
+   /* Each display is an event source. */
+   _al_event_source_init(&d->display.es, _AL_ALL_DISPLAY_EVENTS);
+
    /* Let GLX choose an appropriate visual. */
    int nelements;
    GLXFBConfig *fbc = glXChooseFBConfig(system->xdisplay,
@@ -69,12 +60,6 @@ static AL_DISPLAY *create_display(int w, int h, int flags)
    XVisualInfo *vi = glXGetVisualFromFBConfig(system->xdisplay, fbc[0]);
 
    TRACE("xdisplay: Selected visual %lu.\n", vi->visualid);
-
-   /* Create a GLX context. */
-   d->context = glXCreateNewContext(system->xdisplay, fbc[0], GLX_RGBA_TYPE, 0,
-      GL_FALSE);
-
-   TRACE("xdisplay: Got GLX context.\n");
 
    /* Create a colormap. */
    Colormap cmap = XCreateColormap(system->xdisplay,
@@ -96,6 +81,7 @@ static AL_DISPLAY *create_display(int w, int h, int flags)
       ButtonPressMask |
       ButtonReleaseMask |
       PointerMotionMask;
+
    d->window = XCreateWindow(system->xdisplay, RootWindow(
       system->xdisplay, vi->screen), 0, 0, w, h, 0, vi->depth, InputOutput,
       vi->visual, CWBorderPixel | CWColormap | CWEventMask, &swa);
@@ -125,6 +111,12 @@ static AL_DISPLAY *create_display(int w, int h, int flags)
    d->glxwindow = glXCreateWindow(system->xdisplay, fbc[0], d->window, 0);
 
    TRACE("xdisplay: GLX window created.\n");
+   
+   /* Create a GLX context. */
+   d->context = glXCreateNewContext(system->xdisplay, fbc[0], GLX_RGBA_TYPE,
+      NULL, True);
+
+   TRACE("xdisplay: Got GLX context.\n");
 
    return (AL_DISPLAY *)d;
 }
@@ -190,6 +182,28 @@ static void flip(AL_DISPLAY *d)
    glXSwapBuffers(system->xdisplay, glx->glxwindow);
 }
 
+/* Handle a resize event. */
+void _al_display_xdummy_resize(AL_DISPLAY *d, XEvent *xevent)
+{
+   AL_SYSTEM_XDUMMY *system = (AL_SYSTEM_XDUMMY *)al_system_driver();
+   AL_DISPLAY_XDUMMY *glx = (AL_DISPLAY_XDUMMY *)d;
+   AL_EVENT_SOURCE *es = &glx->display.es;
+   _al_event_source_lock(es);
+   if (_al_event_source_needs_to_generate_event(es, AL_EVENT_DISPLAY_RESIZE)) {
+      AL_EVENT *event = _al_event_source_get_unused_event(es);
+      if (event) {
+         event->display.type = AL_EVENT_DISPLAY_RESIZE;
+         event->display.timestamp = al_current_time();
+         event->display.x = xevent->xconfigure.x;
+         event->display.y = xevent->xconfigure.y;
+         event->display.width = xevent->xconfigure.width;
+         event->display.height = xevent->xconfigure.height;
+         _al_event_source_emit_event(es, event);
+      }
+   }
+   _al_event_source_unlock(es);
+}
+
 /* Obtain a reference to this driver. */
 AL_DISPLAY_INTERFACE *_al_display_xdummy_driver(void)
 {
@@ -207,4 +221,3 @@ AL_DISPLAY_INTERFACE *_al_display_xdummy_driver(void)
 
    return vt;
 }
-

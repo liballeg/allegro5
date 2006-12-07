@@ -9,7 +9,7 @@
 
 int main(void)
 {
-   AL_DISPLAY *display;
+   AL_DISPLAY *display[3];
    AL_KEYBOARD *keyboard;
    AL_EVENT event;
    AL_EVENT_QUEUE *events;
@@ -21,17 +21,24 @@ int main(void)
    int FPS = 100;
    int x = 0, y = 0;
    int dx = 1;
+   int w = 640, h = 480;
 
    allegro_init();
    al_init();
 
    events = al_create_event_queue();
 
-   display = al_create_display(640, 480, AL_WINDOWED | AL_OPENGL);
-   al_make_display_current(display);
+   /* Create three windows. */
+   display[0] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL);
+   display[1] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL);
+   display[2] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL);
+
+   /* This is only needed since we want to receive resize events. */
+   al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
+   al_register_event_source(events, (AL_EVENT_SOURCE *)display[1]);
+   al_register_event_source(events, (AL_EVENT_SOURCE *)display[2]);
 
    al_install_keyboard();
-   // TODO: al_get_keyboard should have an AL_DISPLAY * parameter
    al_register_event_source(events, (AL_EVENT_SOURCE *)al_get_keyboard());
 
    start_ticks = al_current_time();
@@ -45,23 +52,35 @@ int main(void)
             if (key->keycode == AL_KEY_ESCAPE)
                quit = 1;
          }
+         if (event.type == AL_EVENT_DISPLAY_RESIZE) {
+            AL_DISPLAY_EVENT *display = &event.display;
+            w = display->width;
+            h = display->height;
+         }
       }
-      
+
       /* handle game ticks */
       while (ticks * 1000 < (al_current_time() - start_ticks) * FPS) {
           x += dx;
           if (x == 0) dx = 1;
-          if (x == 640 - 40) dx = -1;
+          if (x == w - 40) dx = -1;
           ticks++;
       }
-      
+
       /* render */
       if (ticks > last_rendered) {
-         al_clear(al_color(0, 0, 0, 1));
-         al_filled_rectangle(x, y, x + 40, y + 40, al_color(1, 0, 0, 0.5));
-         al_flip();
+         int i;
+         AL_COLOR colors[3] = {
+            al_color(1, 0, 0, 0.5),
+            al_color(0, 1, 0, 0.5),
+            al_color(0, 0, 1, 0.5)};
+         for (i = 0; i < 3; i++) {
+            al_make_display_current(display[i]);
+            al_clear(al_color(0, 0, 0, 1));
+            al_filled_rectangle(x, y, x + 40, y + 40, colors[i]);
+            al_flip();
+         }
          last_rendered = ticks;
-
          {
             int d = al_current_time() - fps_time;
             fps_accumulator++;

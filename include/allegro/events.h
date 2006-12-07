@@ -29,7 +29,8 @@ enum
 
    AL_EVENT_TIMER                       = 0x1000,
 
-   AL_EVENT_DISPLAY_EXPOSE              = 0x2000
+   AL_EVENT_DISPLAY_EXPOSE              = 0x2000,
+   AL_EVENT_DISPLAY_RESIZE              = 0x4000,
 };
 
 
@@ -146,7 +147,8 @@ union AL_EVENT
 
 enum
 {
-   _AL_ALL_DISPLAY_EVENTS = (AL_EVENT_DISPLAY_EXPOSE),
+   _AL_ALL_DISPLAY_EVENTS = (AL_EVENT_DISPLAY_EXPOSE |
+                             AL_EVENT_DISPLAY_RESIZE),
 
    _AL_ALL_JOYSTICK_EVENTS = (AL_EVENT_JOYSTICK_AXIS |
                               AL_EVENT_JOYSTICK_BUTTON_DOWN |
