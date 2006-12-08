@@ -23,9 +23,7 @@ static void *background_thread(void *arg)
    int i;
    while (1) {
       XNextEvent(s->xdisplay, &event);
-      if (s->event_cb) {
-         s->event_cb(s, &event, s->event_cb_data);
-      }
+
       switch (event.type) {
          case KeyPress:
             _al_xwin_keyboard_handler(&event.xkey, false);
@@ -45,8 +43,6 @@ static void *background_thread(void *arg)
                }
             }
             break;
-         default:
-            printf("event %d\n", event.type);
       }
    }
    return NULL;

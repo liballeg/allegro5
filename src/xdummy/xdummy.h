@@ -13,15 +13,6 @@ struct AL_SYSTEM_XDUMMY
    pthread_t thread; /* background thread. */
    
    _AL_VECTOR displays; /* Keep a list of all displays attached to us. */
-
-   // FIXME
-   /* Hack by which the display driver can wait on the map event. Eventually,
-    * this would be a proper way to install event listeners by making a list
-    * of callbacks. Then if multiple windows are created at the same time,
-    * each one would install its own callback.
-    */
-   void *event_cb_data;
-   void (*event_cb)(AL_SYSTEM_XDUMMY *system, XEvent *event, void *data);
 };
 
 /* This is our version of AL_DISPLAY with driver specific extra data. */

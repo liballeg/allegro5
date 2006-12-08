@@ -19,21 +19,6 @@
 
 static AL_DISPLAY_INTERFACE *vt;
 
-// FIXME: right now, only one callback can be installed, so we cannot create
-// multiple windows in the same display yet (easy to fix: allow multiple
-// callbacks in xsystem.c, and remove this comment).
-/* Event callback to notify us when our window got mapped. */
-static void mapped_cb(AL_SYSTEM_XDUMMY *system, XEvent *event, void *arg)
-{
-   AL_DISPLAY_XDUMMY *d = arg;
-   pthread_mutex_lock(&d->mapped_mutex);
-   if ((event->type == MapNotify) && (event->xmap.window == d->window)) {
-      d->is_mapped = 1;
-      pthread_cond_signal(&d->mapped_cond);
-   }
-   pthread_mutex_unlock(&d->mapped_mutex);
-}
-
 /* Create a new X11 dummy display, which maps directly to a GLX window. */
 static AL_DISPLAY *create_display(int w, int h, int flags)
 {
@@ -88,23 +73,9 @@ static AL_DISPLAY *create_display(int w, int h, int flags)
 
    TRACE("xdisplay: X11 window created.\n");
 
-   /* X11 cludge: Wait for the window to get mapped, or nothing will work. */
-   // FIXME: why?
-   pthread_mutex_init(&d->mapped_mutex, NULL);
-   pthread_cond_init(&d->mapped_cond, NULL);
-   pthread_mutex_lock(&d->mapped_mutex);
-   // FIXME: need a function to properly add a callback, with locking and all.
-   system->event_cb_data = d;
-   system->event_cb = mapped_cb;
+   
    XMapWindow(system->xdisplay, d->window);
-   XFlush(system->xdisplay);
-   while (!d->is_mapped)
-      pthread_cond_wait(&d->mapped_cond, &d->mapped_mutex);
-   system->event_cb = NULL;
-   pthread_mutex_unlock(&d->mapped_mutex);
-   pthread_mutex_destroy(&d->mapped_mutex);
-   pthread_cond_destroy(&d->mapped_cond);
-
+   // TODO: Do we need to wait here until the window is mapped?
    TRACE("xdisplay: X11 window mapped.\n");
 
    /* Create a GLX subwindow inside our window. */
