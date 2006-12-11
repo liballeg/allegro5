@@ -41,6 +41,7 @@ typedef struct FONT
    struct FONT_VTABLE *vtable;
 } FONT;
 
+AL_FUNC(int, font_has_alpha, (FONT *f));
 AL_FUNC(void, make_trans_font, (FONT *f));
 
 AL_FUNC(int, is_trans_font, (FONT *f));

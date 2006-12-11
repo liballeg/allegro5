@@ -7024,6 +7024,14 @@ bitmapped version of a TrueType font with tools like TTF2PCX
 @retval
    Returns TRUE if the font is a monochrome font, FALSE if it is not.
 
+@@int @font_has_alpha(FONT *f)
+@xref is_trans_font
+@shortdesc Search all pixels of a font for alpha values.
+   This function goes through all pixels of all glyphs in the font and looks for
+   alpha values.
+@retval
+   Returns TRUE if any alpha pixels are found, else FALSE.
+
 @@FONT *@is_compatible_font(FONT *f1, FONT *f2)
 @xref merge_fonts, is_trans_font, is_color_font, is_mono_font
 @shortdesc Check if two fonts are of the same type.
