@@ -59,6 +59,9 @@ enum {
 AL_VAR(int, _screensaver_policy);
 
 
+AL_FUNCPTR(int, _al_trace_handler, (AL_CONST char *msg));
+
+
 /* malloc wrappers */
 /* The 4.3 branch uses the following macro names to allow the user to customise
  * the memory management routines.  We don't have that feature in 4.2, but we

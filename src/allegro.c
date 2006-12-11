@@ -207,7 +207,7 @@ static FILE *assert_file = NULL;
 static FILE *trace_file = NULL;
 
 static int (*assert_handler)(AL_CONST char *msg) = NULL;
-static int (*trace_handler)(AL_CONST char *msg) = NULL;
+int (*_al_trace_handler)(AL_CONST char *msg) = NULL;
 
 
 /* Module linking system stuff: if an object file is linked in, then its
@@ -645,8 +645,8 @@ void al_trace(AL_CONST char *msg, ...)
    vsprintf(buf, msg, ap);
    va_end(ap);
 
-   if (trace_handler) {
-      if (trace_handler(buf))
+   if (_al_trace_handler) {
+      if (_al_trace_handler(buf))
 	 return;
    }
 
@@ -689,7 +689,7 @@ void register_assert_handler(int (*handler)(AL_CONST char *msg))
  */
 void register_trace_handler(int (*handler)(AL_CONST char *msg))
 {
-   trace_handler = handler;
+   _al_trace_handler = handler;
 }
 
 
