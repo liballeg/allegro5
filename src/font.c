@@ -1458,6 +1458,19 @@ void make_trans_font(FONT *f)
 
 
 
+/* is_trans_font:
+ *  Returns non-zero if the font passed is a bitmapped colour font using
+ *  draw_trans_sprite to render glyphs.
+ */
+int is_trans_font(FONT *f)
+{
+   ASSERT(f);
+
+   return (f->vtable == font_vtable_trans);
+}
+
+
+
 /* is_color_font:
  *  returns non-zero if the font passed is a bitmapped colour font
  */

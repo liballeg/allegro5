@@ -6985,7 +6985,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    with them, to prevent memory leaks in your program.
 
 @@void @make_trans_font(FONT *f);
-@xref set_alpha_blender, load_font, draw_trans_sprite
+@xref is_trans_font, set_alpha_blender, load_font, draw_trans_sprite
 @shortdesc Makes a font use transparency.
    This function converts a font to use transparency for drawing. That is, each
    glyph in the font will be drawn with draw_trans_sprite, so you can use the
@@ -7000,8 +7000,16 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    set_alpha_blender();
    textprintf_centre_ex(screen, f, 320, 240, -1, -1, "Anti-aliased Font!");<endblock>
 
+@@int @is_trans_font(FONT *f)
+@xref make_trans_font, is_color_font, is_mono_font
+@shortdesc Returns TRUE if a font uses transparency.
+   This function checks if the given font is a color font using
+   draw_trans_sprite to render glyphs.
+@retval
+   Returns TRUE if the font uses transparency, FALSE if it does not.
+
 @@int @is_color_font(FONT *f)
-@xref is_mono_font
+@xref is_trans_font, is_mono_font
 @shortdesc Returns TRUE if a font is a color font.
    This function checks if the given font is a color font, as opposed to a
    monochrome font.
@@ -7009,7 +7017,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    Returns TRUE if the font is a color font, FALSE if it is not.
 
 @@int @is_mono_font(FONT *f)
-@xref is_color_font
+@xref is_trans_font, is_color_font
 @shortdesc Returns TRUE if a font is a monochrome font.
    This function checks if the given font is a mono font, as opposed to a
    color font.
@@ -7017,7 +7025,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    Returns TRUE if the font is a monochrome font, FALSE if it is not.
 
 @@FONT *@is_compatible_font(FONT *f1, FONT *f2)
-@xref merge_fonts, is_color_font, is_mono_font
+@xref merge_fonts, is_trans_font, is_color_font, is_mono_font
 @shortdesc Check if two fonts are of the same type.
    This function compares the two fonts, which you can use to find out if
    Allegro is capable of merging them.
@@ -7131,7 +7139,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    Returns 0 on success, -1 on failure.
 
 @@FONT *@merge_fonts(FONT *f1, FONT *f2)
-@xref extract_font_range, is_color_font, is_mono_font
+@xref extract_font_range, is_trans_font, is_color_font, is_mono_font
 @eref exfont
 @shortdesc Merges two fonts into one font.
    This function merges the character ranges from two fonts and returns a new
