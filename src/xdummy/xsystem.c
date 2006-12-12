@@ -20,7 +20,8 @@ static void *background_thread(void *arg)
 {
    AL_SYSTEM_XDUMMY *s = arg;
    XEvent event;
-   int i;
+   unsigned int i;
+
    while (1) {
       XNextEvent(s->xdisplay, &event);
 
