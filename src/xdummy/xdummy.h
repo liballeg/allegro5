@@ -19,15 +19,14 @@ struct AL_SYSTEM_XDUMMY
 struct AL_DISPLAY_XDUMMY
 {
    AL_DISPLAY display; /* This must be the first member. */
+   
+   int flags;
 
    Window window;
    GLXWindow glxwindow;
    GLXContext context;
-    
-   int is_mapped;
-   pthread_mutex_t mapped_mutex;
-   pthread_cond_t mapped_cond;
+   int is_initialized;
 };
 
-void _al_display_xdummy_resize(AL_DISPLAY *d, XEvent *event);
+void _al_display_xdummy_configure(AL_DISPLAY *d, XEvent *event);
 void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack);

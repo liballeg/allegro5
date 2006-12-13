@@ -15,11 +15,13 @@ struct AL_DISPLAY_INTERFACE
    void (*filled_rectangle)(AL_DISPLAY *d, float fx, float fy, float tx,
     float ty, AL_COLOR color);
    void (*flip)(AL_DISPLAY *d);
+   void (*acknowledge_resize)(AL_DISPLAY *d);
+
 };
 
 struct AL_DISPLAY
 {
-   /* Must be first, so the display can be uses as event source. */
+   /* Must be first, so the display can be used as event source. */
    AL_EVENT_SOURCE es; 
    AL_DISPLAY_INTERFACE *vt;
    int w, h;

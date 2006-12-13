@@ -29,8 +29,8 @@ int main(void)
    events = al_create_event_queue();
 
    /* Create three windows. */
-   display[0] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL);
-   display[1] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL);
+   display[0] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL | AL_RESIZABLE);
+   display[1] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL | AL_RESIZABLE);
    display[2] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL);
 
    /* This is only needed since we want to receive resize events. */
@@ -56,6 +56,8 @@ int main(void)
             AL_DISPLAY_EVENT *display = &event.display;
             w = display->width;
             h = display->height;
+            al_make_display_current(display->source);
+            al_acknowledge_resize();
          }
       }
 

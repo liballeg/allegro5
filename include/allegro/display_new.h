@@ -10,6 +10,8 @@ struct AL_COLOR
    float r, g, b, a;
 };
 
+/* Possible bit combinations for the flags parameter of al_create_display. */
+
 #define AL_COLOR_AUTO 0
 #define AL_COLOR_32 1
 #define AL_COLOR_16 2
@@ -20,6 +22,7 @@ struct AL_COLOR
 
 #define AL_OPENGL 16
 #define AL_GENERATE_UPDATE_EVENTS 32
+#define AL_RESIZABLE 64
 
 #define al_color(r, g, b, a) (AL_COLOR){r, g, b, a}
 
@@ -29,6 +32,7 @@ void al_clear(AL_COLOR color);
 void al_line(float fx, float fy, float tx, float ty, AL_COLOR color);
 void al_filled_rectangle(float tlx, float tly, float brx, float bry,
     AL_COLOR color);
+void al_acknowledge_resize();
 void al_flip(void);
 AL_DISPLAY *al_get_current_display(void);
 

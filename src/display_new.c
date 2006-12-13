@@ -65,3 +65,14 @@ void al_flip(void)
 {
    current_display->vt->flip(current_display);
 }
+
+// TODO: maybe can be done in al_flip?
+// TODO: should the display parameter stay explicit?
+// TODO: find a better name
+/* Called from the main thread to actually resize the display after it has been
+ * resized by the user.
+ */
+void al_acknowledge_resize(void)
+{
+   current_display->vt->acknowledge_resize(current_display);
+}

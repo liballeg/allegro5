@@ -19,6 +19,19 @@
 
 static AL_DISPLAY_INTERFACE *vt;
 
+/* Helper to set up GL state as we want it. */
+static void setup_gl(AL_DISPLAY *d)
+{
+   glViewport(0, 0, d->w, d->h);
+
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   glOrtho(0, d->w, d->h, 0, -1, 1);
+
+   glMatrixMode(GL_MODELVIEW);
+   glLoadIdentity();
+}
+
 /* Create a new X11 dummy display, which maps directly to a GLX window. */
 static AL_DISPLAY *create_display(int w, int h, int flags)
 {
@@ -72,8 +85,18 @@ static AL_DISPLAY *create_display(int w, int h, int flags)
       vi->visual, CWBorderPixel | CWColormap | CWEventMask, &swa);
 
    TRACE("xdisplay: X11 window created.\n");
-
    
+   if (!(flags & AL_RESIZABLE)) {
+      XSizeHints *hints = XAllocSizeHints();;
+
+      hints->flags = PMinSize | PMaxSize | PBaseSize;
+      hints->min_width  = hints->max_width  = hints->base_width  = w;
+      hints->min_height = hints->max_height = hints->base_height = h;
+      XSetWMNormalHints(system->xdisplay, d->window, hints);
+
+      XFree(hints);
+   }
+
    XMapWindow(system->xdisplay, d->window);
    // TODO: Do we need to wait here until the window is mapped?
    TRACE("xdisplay: X11 window mapped.\n");
@@ -102,13 +125,10 @@ static void make_display_current(AL_DISPLAY *d)
    glXMakeContextCurrent(system->xdisplay, glx->glxwindow, glx->glxwindow,
       glx->context);
 
-   /* Set up GL state as we want it. */
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-   glOrtho(0, d->w, d->h, 0, -1, 1);
-
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
+   if (!glx->is_initialized) {
+      setup_gl(d);
+      glx->is_initialized = 1;
+   }
 
    TRACE("xdisplay: GLX context made current.\n");
 }
@@ -153,17 +173,56 @@ static void flip(AL_DISPLAY *d)
    glXSwapBuffers(system->xdisplay, glx->glxwindow);
 }
 
-/* Handle a resize event. */
-void _al_display_xdummy_resize(AL_DISPLAY *d, XEvent *xevent)
+static void acknowledge_resize(AL_DISPLAY *d)
 {
    AL_SYSTEM_XDUMMY *system = (AL_SYSTEM_XDUMMY *)al_system_driver();
    AL_DISPLAY_XDUMMY *glx = (AL_DISPLAY_XDUMMY *)d;
+
+   unsigned int w, h;
+   glXQueryDrawable(system->xdisplay, glx->glxwindow, GLX_WIDTH, &w);
+   glXQueryDrawable(system->xdisplay, glx->glxwindow, GLX_HEIGHT, &h);
+
+   d->w = w;
+   d->h = h;
+   glx->is_initialized = 0;
+}
+
+/* Handle an X11 configure event. */
+void _al_display_xdummy_configure(AL_DISPLAY *d, XEvent *xevent)
+{
+   AL_SYSTEM_XDUMMY *system = (AL_SYSTEM_XDUMMY *)al_system_driver();
+   AL_DISPLAY_XDUMMY *glx = (AL_DISPLAY_XDUMMY *)d;
+
    AL_EVENT_SOURCE *es = &glx->display.es;
    _al_event_source_lock(es);
-   if (_al_event_source_needs_to_generate_event(es, AL_EVENT_DISPLAY_RESIZE)) {
+
+   /* Generate a resize event if the size has changed. We cannot asynchronously
+    * change the display size here yet, since the user will only know about a
+    * changed size after receiving the resize event. Here we merely add the
+    * event to the queue.
+    */
+   if (d->w != xevent->xconfigure.width ||
+      d->h != xevent->xconfigure.height) {
+      if (_al_event_source_needs_to_generate_event(es,
+         AL_EVENT_DISPLAY_RESIZE)) {
+         AL_EVENT *event = _al_event_source_get_unused_event(es);
+         if (event) {
+            event->display.type = AL_EVENT_DISPLAY_RESIZE;
+            event->display.timestamp = al_current_time();
+            event->display.x = xevent->xconfigure.x;
+            event->display.y = xevent->xconfigure.y;
+            event->display.width = xevent->xconfigure.width;
+            event->display.height = xevent->xconfigure.height;
+            _al_event_source_emit_event(es, event);
+         }
+      }
+   }
+
+   /* Generate an expose event. */
+   if (_al_event_source_needs_to_generate_event(es, AL_EVENT_DISPLAY_EXPOSE)) {
       AL_EVENT *event = _al_event_source_get_unused_event(es);
       if (event) {
-         event->display.type = AL_EVENT_DISPLAY_RESIZE;
+         event->display.type = AL_EVENT_DISPLAY_EXPOSE;
          event->display.timestamp = al_current_time();
          event->display.x = xevent->xconfigure.x;
          event->display.y = xevent->xconfigure.y;
@@ -189,6 +248,7 @@ AL_DISPLAY_INTERFACE *_al_display_xdummy_driver(void)
    vt->line = draw_line;
    vt->filled_rectangle = filled_rectangle;
    vt->flip = flip;
+   vt->acknowledge_resize = acknowledge_resize;
 
    return vt;
 }

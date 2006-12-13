@@ -39,7 +39,7 @@ static void *background_thread(void *arg)
             for (i = 0; i < s->displays._size; i++) {
                AL_DISPLAY_XDUMMY **d = _al_vector_ref(&s->displays, i);
                if ((*d)->window == event.xconfigure.window) {
-                  _al_display_xdummy_resize(&(*d)->display,  &event);
+                  _al_display_xdummy_configure(&(*d)->display,  &event);
                   break;
                }
             }
