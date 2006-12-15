@@ -811,18 +811,15 @@ typedef struct AL_KEYBOARD_XWIN
 /* the one and only keyboard object */
 static AL_KEYBOARD_XWIN the_keyboard;
 
-/* the pid to kill when three finger saluting */
-static pid_t main_pid;
-
 
 
 /* forward declarations */
-static bool xkeybd_init(void);
-static void xkeybd_exit(void);
+static bool xkeybd_init_keyboard(void);
+static void xkeybd_exit_keyboard(void);
 static AL_KEYBOARD *xkeybd_get_keyboard(void);
-static bool xkeybd_set_leds(int leds);
+static bool xkeybd_set_keyboard_leds(int leds);
 static AL_CONST char *xkeybd_keycode_to_name(int keycode);
-static void xkeybd_get_state(AL_KBDSTATE *ret_state);
+static void xkeybd_get_keyboard_state(AL_KBDSTATE *ret_state);
 
 
 
@@ -835,12 +832,12 @@ static AL_KEYBOARD_DRIVER keydrv_xwin =
    empty_string,
    empty_string,
    "X11 keyboard",
-   xkeybd_init,
-   xkeybd_exit,
+   xkeybd_init_keyboard,
+   xkeybd_exit_keyboard,
    xkeybd_get_keyboard,
-   xkeybd_set_leds,
+   xkeybd_set_keyboard_leds,
    xkeybd_keycode_to_name,
-   xkeybd_get_state
+   xkeybd_get_keyboard_state
 };
 
 
@@ -854,10 +851,10 @@ _DRIVER_INFO _al_xwin_keyboard_driver_list[] =
 
 
 
-/* xkeybd_init:
+/* xkeybd_init_keyboard:
  *  Initialise the driver.
  */
-static bool xkeybd_init(void)
+static bool xkeybd_init_keyboard(void)
 {
    if (x_keyboard_init() != 0)
       return false;
@@ -876,10 +873,10 @@ static bool xkeybd_init(void)
 
 
 
-/* xkeybd_exit:
+/* xkeybd_exit_keyboard:
  *  Shut down the keyboard driver.
  */
-static void xkeybd_exit(void)
+static void xkeybd_exit_keyboard(void)
 {
    x_keyboard_exit();
 
@@ -898,10 +895,10 @@ static AL_KEYBOARD *xkeybd_get_keyboard(void)
 
 
 
-/* xkeybd_set_leds:
+/* xkeybd_set_keyboard_leds:
  *  Updates the LED state.
  */
-static bool xkeybd_set_leds(int leds)
+static bool xkeybd_set_keyboard_leds(int leds)
 {
    x_set_leds(leds);
    return true;
@@ -919,10 +916,10 @@ static AL_CONST char *xkeybd_keycode_to_name(int keycode)
 
 
 
-/* xkeybd_get_state:
+/* xkeybd_get_keyboard_state:
  *  Copy the current keyboard state into RET_STATE, with any necessary locking.
  */
-static void xkeybd_get_state(AL_KBDSTATE *ret_state)
+static void xkeybd_get_keyboard_state(AL_KBDSTATE *ret_state)
 {
    _al_event_source_lock(&the_keyboard.parent.es);
    {
@@ -943,7 +940,7 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers)
 {
    bool is_repeat;
    AL_EVENT *event;
-   unsigned int type;
+   AL_EVENT_TYPE type;
 
    is_repeat = (last_press_code == mycode);
    last_press_code = mycode;

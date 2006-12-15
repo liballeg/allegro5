@@ -6,18 +6,18 @@
 AL_BEGIN_EXTERN_C
 
 
-typedef struct AL_JOYSTICK_DRIVER /* new joystick driver structure */
+typedef struct AL_JOYSTICK_DRIVER
 {
-   int  id;
-   AL_CONST char *name;
-   AL_CONST char *desc;
-   AL_CONST char *ascii_name;
-   AL_METHOD(bool, init, (void));
-   AL_METHOD(void, exit, (void));
+   int  joydrv_id;
+   const char *joydrv_name;
+   const char *joydrv_desc;
+   const char *joydrv_ascii_name;
+   AL_METHOD(bool, init_joystick, (void));
+   AL_METHOD(void, exit_joystick, (void));
    AL_METHOD(int, num_joysticks, (void));
    AL_METHOD(AL_JOYSTICK*, get_joystick, (int joyn));
    AL_METHOD(void, release_joystick, (AL_JOYSTICK*));
-   AL_METHOD(void, get_state, (AL_JOYSTICK*, AL_JOYSTATE *ret_state));
+   AL_METHOD(void, get_joystick_state, (AL_JOYSTICK*, AL_JOYSTATE *ret_state));
 } AL_JOYSTICK_DRIVER;
 
 
@@ -37,24 +37,24 @@ AL_ARRAY(_DRIVER_INFO, _al_joystick_driver_list);
 /* information about a single joystick axis */
 typedef struct _AL_JOYSTICK_AXIS_INFO
 {
-   AL_CONST char *name;
+   const char *name;
 } _AL_JOYSTICK_AXIS_INFO;
 
 
 /* information about one or more axis (a slider or directional control) */
 typedef struct _AL_JOYSTICK_STICK_INFO
 {
-   int flags;
+   AL_JOYFLAGS flags;
    int num_axes;
    _AL_JOYSTICK_AXIS_INFO axis[_AL_MAX_JOYSTICK_AXES];
-   AL_CONST char *name;
+   const char *name;
 } _AL_JOYSTICK_STICK_INFO;
 
 
 /* information about a joystick button */
 typedef struct _AL_JOYSTICK_BUTTON_INFO
 {
-   AL_CONST char *name;
+   const char *name;
 } _AL_JOYSTICK_BUTTON_INFO;
 
 

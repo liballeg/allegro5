@@ -41,7 +41,8 @@ static _AL_VECTOR opened_joysticks = _AL_VECTOR_INITIALIZER(AL_JOYSTICK *);
 bool al_install_joystick(void)
 {
    _DRIVER_INFO *driver_list;
-   AL_JOYSTICK_DRIVER *driver;
+   AL_JOYSTICK_DRIVER *joydrv;
+   const char *name;
    int c;
 
    if (new_joystick_driver)
@@ -79,10 +80,12 @@ bool al_install_joystick(void)
    /* autodetect driver */
    for (c=0; driver_list[c].driver; c++) {
       if (driver_list[c].autodetect) {
-         driver = driver_list[c].driver;
-         driver->name = driver->desc = get_config_text(driver->ascii_name);
-         if (driver->init()) {
-            new_joystick_driver = driver;
+         joydrv = driver_list[c].driver;
+         name = get_config_text(joydrv->joydrv_ascii_name);
+         joydrv->joydrv_name = name;
+         joydrv->joydrv_desc = name;
+         if (joydrv->init_joystick()) {
+            new_joystick_driver = joydrv;
             break;
          }
       }
@@ -117,7 +120,7 @@ void al_uninstall_joystick(void)
       _al_vector_free(&opened_joysticks);
 
       /* perform driver clean up */
-      new_joystick_driver->exit();
+      new_joystick_driver->exit_joystick();
       new_joystick_driver = NULL;
    }
 
@@ -219,7 +222,7 @@ void al_release_joystick(AL_JOYSTICK *joy)
 /* al_joystick_name: [primary thread]
  *  Return the name of the given joystick.
  */
-AL_CONST char *al_joystick_name(AL_JOYSTICK *joy)
+const char *al_joystick_name(AL_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -231,7 +234,7 @@ AL_CONST char *al_joystick_name(AL_JOYSTICK *joy)
 /* al_joystick_num_sticks: [primary thread]
  *  Return the number of "sticks" on the given joystick.
  */
-int al_joystick_num_sticks(AL_JOYSTICK *joy)
+int al_joystick_num_sticks(const AL_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -244,7 +247,7 @@ int al_joystick_num_sticks(AL_JOYSTICK *joy)
  *  Return the flags of the given "stick".  If the stick doesn't
  *  exist, NULL is returned.
  */
-int al_joystick_stick_flags(AL_JOYSTICK *joy, int stick)
+int al_joystick_stick_flags(const AL_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
    ASSERT(stick >= 0);
@@ -261,7 +264,7 @@ int al_joystick_stick_flags(AL_JOYSTICK *joy, int stick)
  *  Return the name of the given "stick".  If the stick doesn't
  *  exist, NULL is returned.
  */
-AL_CONST char *al_joystick_stick_name(AL_JOYSTICK *joy, int stick)
+const char *al_joystick_stick_name(const AL_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
    ASSERT(stick >= 0);
@@ -278,7 +281,7 @@ AL_CONST char *al_joystick_stick_name(AL_JOYSTICK *joy, int stick)
  *  Return the number of axes on the given "stick".  If the stick
  *  doesn't exist, 0 is returned.
  */
-int al_joystick_num_axes(AL_JOYSTICK *joy, int stick)
+int al_joystick_num_axes(const AL_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
 
@@ -294,7 +297,7 @@ int al_joystick_num_axes(AL_JOYSTICK *joy, int stick)
  *  Return the name of the given axis.  If the axis doesn't exist,
  *  NULL is returned.
  */
-AL_CONST char *al_joystick_axis_name(AL_JOYSTICK *joy, int stick, int axis)
+const char *al_joystick_axis_name(const AL_JOYSTICK *joy, int stick, int axis)
 {
    ASSERT(joy);
    ASSERT(stick >= 0);
@@ -312,7 +315,7 @@ AL_CONST char *al_joystick_axis_name(AL_JOYSTICK *joy, int stick, int axis)
 /* al_joystick_num_buttons: [primary thread]
  *  Return the number of buttons on the joystick.
  */
-int al_joystick_num_buttons(AL_JOYSTICK *joy)
+int al_joystick_num_buttons(const AL_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -325,7 +328,7 @@ int al_joystick_num_buttons(AL_JOYSTICK *joy)
  *  Return the name of the given button.  If the button doesn't exist,
  *  NULL is returned.
  */
-AL_CONST char *al_joystick_button_name(AL_JOYSTICK *joy, int button)
+const char *al_joystick_button_name(const AL_JOYSTICK *joy, int button)
 {
    ASSERT(joy);
    ASSERT(button >= 0);
@@ -347,7 +350,7 @@ void al_get_joystick_state(AL_JOYSTICK *joy, AL_JOYSTATE *ret_state)
    ASSERT(joy);
    ASSERT(ret_state);
 
-   new_joystick_driver->get_state(joy, ret_state);
+   new_joystick_driver->get_joystick_state(joy, ret_state);
 }
 
 

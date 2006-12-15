@@ -498,7 +498,7 @@ void _al_event_queue_push_event(AL_EVENT_QUEUE *queue, AL_EVENT *event)
 /* _al_copy_event:
  *  Copies the contents of the event SRC to DEST.
  */
-void _al_copy_event(AL_EVENT *dest, AL_CONST AL_EVENT *src)
+void _al_copy_event(AL_EVENT *dest, const AL_EVENT *src)
 {
    ASSERT(dest);
    ASSERT(src);

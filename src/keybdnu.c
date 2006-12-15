@@ -41,7 +41,7 @@ bool _al_key_led_flag = true;
  * provide their own implementation though, especially if they use
  * positional mapping.
  */
-AL_CONST char *_al_keyboard_common_names[AL_KEY_MAX] =
+const char *_al_keyboard_common_names[AL_KEY_MAX] =
 {
    "(none)",     "A",          "B",          "C",
    "D",          "E",          "F",          "G",
@@ -86,6 +86,7 @@ AL_CONST char *_al_keyboard_common_names[AL_KEY_MAX] =
 bool al_install_keyboard(void)
 {
    _DRIVER_INFO *driver_list;
+   const char *name;
    int i;
 
    if (new_keyboard_driver)
@@ -98,8 +99,10 @@ bool al_install_keyboard(void)
 
    for (i=0; driver_list[i].driver; i++) {
       new_keyboard_driver = driver_list[i].driver;
-      new_keyboard_driver->name = new_keyboard_driver->desc = get_config_text(new_keyboard_driver->ascii_name);
-      if (new_keyboard_driver->init())
+      name = get_config_text(new_keyboard_driver->keydrv_ascii_name);
+      new_keyboard_driver->keydrv_name = name;
+      new_keyboard_driver->keydrv_desc = name;
+      if (new_keyboard_driver->init_keyboard())
 	 break;
    }
 
@@ -131,7 +134,7 @@ void al_uninstall_keyboard(void)
 
    //set_leds(-1);
 
-   new_keyboard_driver->exit();
+   new_keyboard_driver->exit_keyboard();
    new_keyboard_driver = NULL;
 
    _remove_exit_func(al_uninstall_keyboard);
@@ -165,8 +168,8 @@ bool al_set_keyboard_leds(int leds)
 {
    ASSERT(new_keyboard_driver);
 
-   if (new_keyboard_driver->set_leds)
-      return new_keyboard_driver->set_leds(leds);
+   if (new_keyboard_driver->set_keyboard_leds)
+      return new_keyboard_driver->set_keyboard_leds(leds);
 
    return false;
 }
@@ -176,9 +179,9 @@ bool al_set_keyboard_leds(int leds)
 /* al_keycode_to_name:
  *  Converts the given keycode to a description of the key.
  */
-AL_CONST char *al_keycode_to_name(int keycode)
+const char *al_keycode_to_name(int keycode)
 {
-   AL_CONST char *name = NULL;
+   const char *name = NULL;
 
    ASSERT(new_keyboard_driver);
    ASSERT((keycode >= 0) && (keycode < AL_KEY_MAX));
@@ -205,7 +208,7 @@ void al_get_keyboard_state(AL_KBDSTATE *ret_state)
    ASSERT(new_keyboard_driver);
    ASSERT(ret_state);
 
-   new_keyboard_driver->get_state(ret_state);
+   new_keyboard_driver->get_keyboard_state(ret_state);
 }
 
 
@@ -214,7 +217,7 @@ void al_get_keyboard_state(AL_KBDSTATE *ret_state)
  *  Return true if the key specified was held down in the state
  *  specified.
  */
-bool al_key_down(AL_KBDSTATE *state, int keycode)
+bool al_key_down(const AL_KBDSTATE *state, int keycode)
 {
    return _AL_KBDSTATE_KEY_DOWN(*state, keycode);
 }

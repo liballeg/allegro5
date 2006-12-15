@@ -35,7 +35,7 @@ typedef struct AL_KBDSTATE
    unsigned int __key_down__internal__[4]; /* internal */
    /* Was using uint32_t, but some machines don't have stdint.h. */ 
 #if AL_KEY_MAX >= (32 * 4)
-# error _key_down array not big enough for AL_KEY_MAX
+# error __key_down__internal__ array not big enough for AL_KEY_MAX
 #endif
 } AL_KBDSTATE;
 
@@ -50,7 +50,7 @@ AL_FUNC(bool,         al_set_keyboard_leds,  (int leds));
 AL_FUNC(AL_CONST char *, al_keycode_to_name, (int keycode));
 
 AL_FUNC(void,         al_get_keyboard_state, (AL_KBDSTATE *ret_state));
-AL_FUNC(bool,         al_key_down,           (AL_KBDSTATE *, int keycode));
+AL_FUNC(bool,         al_key_down,           (const AL_KBDSTATE *, int keycode));
 
 /* TODO: use the config system */
 AL_VAR(bool, _al_three_finger_flag);

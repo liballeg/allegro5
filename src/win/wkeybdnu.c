@@ -534,10 +534,10 @@ static int key_dinput_init(void)
 /*----------------------------------------------------------------------*/
 
 /* forward declarations */
-static bool wkeybd_init(void);
-static void wkeybd_exit(void);
+static bool wkeybd_init_keyboard(void);
+static void wkeybd_exit_keyboard(void);
 static AL_KEYBOARD *wkeybd_get_keyboard(void);
-static void wkeybd_get_state(AL_KBDSTATE *ret_state);
+static void wkeybd_get_keyboard_state(AL_KBDSTATE *ret_state);
 
 
 
@@ -550,12 +550,12 @@ static AL_KEYBOARD_DRIVER keyboard_directx =
    0,
    0,
    "DirectInput keyboard",
-   wkeybd_init,
-   wkeybd_exit,
+   wkeybd_init_keyboard,
+   wkeybd_exit_keyboard,
    wkeybd_get_keyboard,
    NULL, /* bool set_leds(int leds) */
    NULL, /* const char *keycode_to_name(int keycode) */
-   wkeybd_get_state
+   wkeybd_get_keyboard_state
 };
 
 
@@ -569,10 +569,10 @@ _DRIVER_INFO _al_keyboard_driver_list[] =
 
 
 
-/* wkeybd_init: [primary thread]
+/* wkeybd_init_keyboard: [primary thread]
  *  Initialise the keyboard driver.
  */
-static bool wkeybd_init(void)
+static bool wkeybd_init_keyboard(void)
 {
    if (key_dinput_init() != 0)
       return false;
@@ -588,10 +588,10 @@ static bool wkeybd_init(void)
 
 
 
-/* wkeybd_exit: [primary thread]
+/* wkeybd_exit_keyboard: [primary thread]
  *  Shut down the keyboard driver.
  */
-static void wkeybd_exit(void)
+static void wkeybd_exit_keyboard(void)
 {
    _al_event_source_free(&the_keyboard.es);
 
@@ -615,10 +615,10 @@ static AL_KEYBOARD *wkeybd_get_keyboard(void)
 
 
 
-/* wkeybd_get_state: [primary thread]
+/* wkeybd_get_keyboard_state: [primary thread]
  *  Copy the current keyboard state into RET_STATE, with any necessary locking.
  */
-static void wkeybd_get_state(AL_KBDSTATE *ret_state)
+static void wkeybd_get_keyboard_state(AL_KBDSTATE *ret_state)
 {
    _al_event_source_lock(&the_keyboard.es);
    {
@@ -638,7 +638,7 @@ static void handle_key_press(unsigned char scancode)
    int mycode;
    int unicode;
    bool is_repeat;
-   unsigned int event_type;
+   AL_EVENT_TYPE event_type;
    AL_EVENT *event;
    UINT vkey;
    BYTE keystate[256];

@@ -32,7 +32,7 @@
 /* al_event_source_mask:
  *  Return the event mask of an event source.
  */
-unsigned long al_event_source_mask(AL_EVENT_SOURCE *source)
+AL_EVENT_TYPE al_event_source_mask(AL_EVENT_SOURCE *source)
 {
    ASSERT(source);
 
@@ -44,7 +44,7 @@ unsigned long al_event_source_mask(AL_EVENT_SOURCE *source)
 /* al_event_source_set_mask:
  *  Change the event mask of an event source.
  */
-void al_event_source_set_mask(AL_EVENT_SOURCE *source, unsigned long mask)
+void al_event_source_set_mask(AL_EVENT_SOURCE *source, AL_EVENT_TYPE mask)
 {
    ASSERT(source);
 
@@ -64,7 +64,7 @@ void al_event_source_set_mask(AL_EVENT_SOURCE *source, unsigned long mask)
  *
  *  Initialise an event source structure.
  */
-void _al_event_source_init(AL_EVENT_SOURCE *this, unsigned long event_mask)
+void _al_event_source_init(AL_EVENT_SOURCE *this, AL_EVENT_TYPE event_mask)
 {
    this->event_mask = event_mask;
    _AL_MARK_MUTEX_UNINITED(this->mutex);
@@ -197,7 +197,7 @@ void _al_event_source_on_unregistration_from_queue(AL_EVENT_SOURCE *this, AL_EVE
  *
  *  The event source must be LOCKED before calling this function.
  */
-bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE *this, unsigned long event_type)
+bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE *this, AL_EVENT_TYPE event_type)
 {
    return !_al_vector_is_empty(&this->queues) && (this->event_mask & event_type);
 }

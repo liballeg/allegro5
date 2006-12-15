@@ -13,6 +13,8 @@ AL_BEGIN_EXTERN_C
  * Note: these have to be usable in masks.
  */
 
+typedef unsigned int AL_EVENT_TYPE;
+
 enum
 {
    AL_EVENT_JOYSTICK_AXIS               = 0x0001,
@@ -55,7 +57,7 @@ enum
  */
 
 #define _AL_EVENT_HEADER(srctype)               \
-   unsigned int type;                           \
+   AL_EVENT_TYPE type;                          \
    srctype *source;                             \
    unsigned long timestamp;                     \
    signed int _refcount;       /* internal */   \
@@ -125,7 +127,7 @@ typedef union AL_EVENT AL_EVENT;
 union AL_EVENT
 {
    /* This must be the same as the first field of _AL_EVENT_HEADER.  */
-   unsigned int type;
+   AL_EVENT_TYPE type;
    /* This is to allow the user to access the other fields which are
     * common to all event types, without using some specific type
     * structure.  A C hack.
@@ -167,8 +169,8 @@ enum
 
 typedef struct AL_EVENT_SOURCE AL_EVENT_SOURCE;
 
-AL_FUNC(void, al_event_source_set_mask, (AL_EVENT_SOURCE*, unsigned long mask));
-AL_FUNC(unsigned long, al_event_source_mask, (AL_EVENT_SOURCE*));
+AL_FUNC(void, al_event_source_set_mask, (AL_EVENT_SOURCE*, AL_EVENT_TYPE mask));
+AL_FUNC(AL_EVENT_TYPE, al_event_source_mask, (AL_EVENT_SOURCE*));
 
 
 

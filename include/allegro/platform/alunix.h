@@ -160,8 +160,6 @@ AL_VAR(GFX_DRIVER, gfx_xdga2_soft);
 #define MOUSEDRV_LINUX_IMS       AL_ID('I','M','S',' ')
 #define MOUSEDRV_LINUX_EVDEV     AL_ID('E','V',' ',' ')
 
-#define AL_JOY_TYPE_LINUX_ANALOGUE AL_ID('L','N','X','A')
-
 
 #ifdef ALLEGRO_LINUX
 

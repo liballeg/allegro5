@@ -138,12 +138,12 @@ typedef struct AL_JOYSTICK_DIRECTX {
 
 
 /* forward declarations */
-static bool joydx_init(void);
-static void joydx_exit(void);
+static bool joydx_init_joystick(void);
+static void joydx_exit_joystick(void);
 static int joydx_get_num_joysticks(void);
 static AL_JOYSTICK *joydx_get_joystick(int num);
 static void joydx_release_joystick(AL_JOYSTICK *joy);
-static void joydx_get_state(AL_JOYSTICK *joy, AL_JOYSTATE *ret_state);
+static void joydx_get_joystick_state(AL_JOYSTICK *joy, AL_JOYSTATE *ret_state);
 
 static void joydx_thread_proc(LPVOID unused);
 static void update_joystick(AL_JOYSTICK_DIRECTX *joy);
@@ -151,7 +151,7 @@ static void handle_axis_event(AL_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis
 static void handle_pov_event(AL_JOYSTICK_DIRECTX *joy, int stick, DWORD value);
 static void handle_button_event(AL_JOYSTICK_DIRECTX *joy, int button, bool down);
 static void generate_axis_event(AL_JOYSTICK_DIRECTX *joy, int stick, int axis, float pos);
-static void generate_button_event(AL_JOYSTICK_DIRECTX *joy, int button, unsigned int event_type);
+static void generate_button_event(AL_JOYSTICK_DIRECTX *joy, int button, AL_EVENT_TYPE event_type);
 
 
 
@@ -162,12 +162,12 @@ AL_JOYSTICK_DRIVER _al_joydrv_directx =
    empty_string,
    empty_string,
    "DirectInput joystick",
-   joydx_init,
-   joydx_exit,
+   joydx_init_joystick,
+   joydx_exit_joystick,
    joydx_get_num_joysticks,
    joydx_get_joystick,
    joydx_release_joystick,
-   joydx_get_state
+   joydx_get_joystick_state
 };
 
 
@@ -175,7 +175,7 @@ AL_JOYSTICK_DRIVER _al_joydrv_directx =
 /* a handle to the DirectInput interface */
 static LPDIRECTINPUT joystick_dinput = NULL;
 
-/* these are initialised by joydx_init */
+/* these are initialised by joydx_init_joystick */
 static int joydx_num_joysticks = 0;
 static AL_JOYSTICK_DIRECTX joydx_joystick[MAX_JOYSTICKS];
 
@@ -649,7 +649,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
 
 
 
-/* joydx_init: [primary thread]
+/* joydx_init_joystick: [primary thread]
  *
  *  Initialises the DirectInput joystick devices.
  *
@@ -658,7 +658,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
  *  of the devices. joydx_get_joystick() is left with very little work
  *  to do.
  */
-static bool joydx_init(void)
+static bool joydx_init_joystick(void)
 {
    HRESULT hr;
 
@@ -743,10 +743,10 @@ static void free_caps_and_names_strings(CAPS_AND_NAMES *can)
 
 
 
-/* joydx_exit: [primary thread]
+/* joydx_exit_joystick: [primary thread]
  *  Shuts down the DirectInput joystick devices.
  */
-static void joydx_exit(void)
+static void joydx_exit_joystick(void)
 {
    int i;
 
@@ -844,10 +844,10 @@ static void joydx_release_joystick(AL_JOYSTICK *joy_)
 
 
 
-/* joydx_get_state: [primary thread]
+/* joydx_get_joystick_state: [primary thread]
  *  Copy the internal joystick state to a user-provided structure.
  */
-static void joydx_get_state(AL_JOYSTICK *joy_, AL_JOYSTATE *ret_state)
+static void joydx_get_joystick_state(AL_JOYSTICK *joy_, AL_JOYSTATE *ret_state)
 {
    AL_JOYSTICK_DIRECTX *joy = (AL_JOYSTICK_DIRECTX *)joy_;
 
@@ -1090,7 +1090,7 @@ static void generate_axis_event(AL_JOYSTICK_DIRECTX *joy, int stick, int axis, f
  *  Helper to generate an event after a button is pressed or released.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void generate_button_event(AL_JOYSTICK_DIRECTX *joy, int button, unsigned int event_type)
+static void generate_button_event(AL_JOYSTICK_DIRECTX *joy, int button, AL_EVENT_TYPE event_type)
 {
    AL_EVENT *event;
 

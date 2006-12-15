@@ -4,24 +4,24 @@
 AL_BEGIN_EXTERN_C
 
 
-typedef struct AL_KEYBOARD_DRIVER /* new keyboard driver structure */
+typedef struct AL_KEYBOARD_DRIVER
 {
-   int  id;
-   AL_CONST char *name;
-   AL_CONST char *desc;
-   AL_CONST char *ascii_name;
-   AL_METHOD(bool, init, (void));
-   AL_METHOD(void, exit, (void));
+   int  keydrv_id;
+   const char *keydrv_name;
+   const char *keydrv_desc;
+   const char *keydrv_ascii_name;
+   AL_METHOD(bool, init_keyboard, (void));
+   AL_METHOD(void, exit_keyboard, (void));
    AL_METHOD(AL_KEYBOARD*, get_keyboard, (void));
-   AL_METHOD(bool, set_leds, (int leds));
-   AL_METHOD(AL_CONST char *, keycode_to_name, (int keycode));
-   AL_METHOD(void, get_state, (AL_KBDSTATE *ret_state));
+   AL_METHOD(bool, set_keyboard_leds, (int leds));
+   AL_METHOD(const char *, keycode_to_name, (int keycode));
+   AL_METHOD(void, get_keyboard_state, (AL_KBDSTATE *ret_state));
 } AL_KEYBOARD_DRIVER;
 
 
 AL_ARRAY(_DRIVER_INFO, _al_keyboard_driver_list);
 
-AL_ARRAY(AL_CONST char *, _al_keyboard_common_names);
+AL_ARRAY(const char *, _al_keyboard_common_names);
 
 
 struct AL_KEYBOARD
