@@ -19,6 +19,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include "allegro/internal/aintern_vector.h"
 
 #include "allegro/display.h"
 

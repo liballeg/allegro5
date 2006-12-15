@@ -1,8 +1,13 @@
 #ifndef _al_included_aintern_events_h
 #define _al_included_aintern_events_h
 
+#include "allegro/internal/aintern_thread.h"
+#include "allegro/internal/aintern_vector.h"
+
 AL_BEGIN_EXTERN_C
 
+
+union AL_EVENT;
 
 struct AL_EVENT_SOURCE
 {
@@ -12,6 +17,9 @@ struct AL_EVENT_SOURCE
    AL_EVENT *all_events;
    AL_EVENT *free_events;
 };
+
+
+AL_FUNC(void, _al_copy_event, (union AL_EVENT *dest, AL_CONST union AL_EVENT *src));
 
 AL_FUNC(void, _al_event_source_init, (AL_EVENT_SOURCE*, unsigned long event_mask));
 AL_FUNC(void, _al_event_source_free, (AL_EVENT_SOURCE*));
@@ -27,6 +35,8 @@ AL_FUNC(void, _al_release_event, (AL_EVENT*));
 
 AL_FUNC(void, _al_event_queue_push_event, (AL_EVENT_QUEUE*, AL_EVENT*));
 
+
+AL_END_EXTERN_C
 
 #endif
 

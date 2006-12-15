@@ -30,6 +30,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include "allegro/internal/aintern_vector.h"
 
 
 /* return the given item's starting address in the vector */

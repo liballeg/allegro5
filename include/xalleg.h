@@ -24,6 +24,7 @@
 
 
 #include "allegro/internal/aintern.h"
+#include "allegro/internal/aintern_thread.h"
 #include "allegro/platform/aintunix.h"
 
 #include <string.h>
