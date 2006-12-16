@@ -25,13 +25,15 @@ enum
    AL_EVENT_KEY_REPEAT                  = 0x0020,
    AL_EVENT_KEY_UP                      = 0x0040,
 
-   AL_EVENT_POINTER_AXES                = 0x0100,
-   AL_EVENT_POINTER_BUTTON_DOWN         = 0x0200,
-   AL_EVENT_POINTER_BUTTON_UP           = 0x0400,
+   AL_EVENT_MOUSE_AXES                  = 0x0100,
+   AL_EVENT_MOUSE_BUTTON_DOWN           = 0x0200,
+   AL_EVENT_MOUSE_BUTTON_UP             = 0x0400,
+   AL_EVENT_MOUSE_ENTER_DISPLAY         = 0x0800,
+   AL_EVENT_MOUSE_LEAVE_DISPLAY         = 0x1000,
 
-   AL_EVENT_TIMER                       = 0x1000,
+   AL_EVENT_TIMER                       = 0x2000,
 
-   AL_EVENT_DISPLAY_EXPOSE              = 0x2000
+   AL_EVENT_DISPLAY_EXPOSE              = 0x4000
 };
 
 
@@ -97,14 +99,17 @@ typedef struct AL_KEYBOARD_EVENT
 
 
 
-typedef struct AL_POINTER_EVENT
+typedef struct AL_MOUSE_EVENT
 {
-   _AL_EVENT_HEADER(struct AL_POINTER);
-   struct AL_DISPLAY *display;
-   /*int axis[_AL_MAX_POINTER_AXES];
-     int daxis[_AL_MAX_POINTER_AXES];*/
-   int button;
-} AL_POINTER_EVENT;
+   _AL_EVENT_HEADER(struct AL_MOUSE);
+   struct AL_DISPLAY *__display__dont_use_yet__;
+   /* (x, y) Primary mouse position */
+   /* (z) Mouse wheel position (1D 'wheel'), or,  */
+   /* (w, z) Mouse wheel position (2D 'ball') */
+   int x,  y,  z, w;
+   int dx, dy, dz, dw;
+   unsigned int button;
+} AL_MOUSE_EVENT;
 
 
 
@@ -138,7 +143,7 @@ union AL_EVENT
    AL_DISPLAY_EVENT  display;
    AL_JOYSTICK_EVENT joystick;
    AL_KEYBOARD_EVENT keyboard;
-   AL_POINTER_EVENT  pointer;
+   AL_MOUSE_EVENT    mouse;
    AL_TIMER_EVENT    timer;
 };
 
@@ -158,9 +163,11 @@ enum
                               AL_EVENT_KEY_REPEAT |
                               AL_EVENT_KEY_UP),
 
-   _AL_ALL_POINTER_EVENTS = (AL_EVENT_POINTER_AXES |
-                             AL_EVENT_POINTER_BUTTON_DOWN |
-                             AL_EVENT_POINTER_BUTTON_UP)
+   _AL_ALL_MOUSE_EVENTS = (AL_EVENT_MOUSE_AXES |
+                           AL_EVENT_MOUSE_BUTTON_DOWN |
+                           AL_EVENT_MOUSE_BUTTON_UP |
+                           AL_EVENT_MOUSE_ENTER_DISPLAY |
+                           AL_EVENT_MOUSE_LEAVE_DISPLAY)
 };
 
 

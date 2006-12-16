@@ -53,7 +53,7 @@ static void sys_linux_message (AL_CONST char *msg);
 	make_getter (_unix, digi)
 	make_getter (_unix, midi)
 	make_getter (_al_linux, keyboard)
-	make_getter (_linux, mouse)
+	make_getter (_al_linux, mouse)
 	make_getter (_al_linux, joystick)
 #undef make_getter
 
@@ -122,8 +122,12 @@ static RETSIGTYPE signal_handler (int num)
 static int __al_linux_bgman_init (void)
 {
 	_unix_bg_man = &_bg_man_pthreads;
-	if (_unix_bg_man->init() || _unix_bg_man->register_func (__al_linux_update_standard_drivers))
+	if (_unix_bg_man->init())
 		return -1;
+	/*
+	if (_unix_bg_man->register_func (__al_linux_update_standard_drivers))
+		return -1;
+	*/
 	return 0;
 }
 

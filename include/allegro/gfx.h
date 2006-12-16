@@ -86,10 +86,10 @@ typedef struct GFX_DRIVER        /* creates and manages the screen bitmap */
    AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap));
    AL_METHOD(struct BITMAP *, create_system_bitmap, (int width, int height));
    AL_METHOD(void, destroy_system_bitmap, (struct BITMAP *bitmap));
-   AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));
-   AL_METHOD(int, show_mouse, (struct BITMAP *bmp, int x, int y));
-   AL_METHOD(void, hide_mouse, (void));
-   AL_METHOD(void, move_mouse, (int x, int y));
+   AL_METHOD(int, __old__set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));
+   AL_METHOD(int, __old__show_mouse, (struct BITMAP *bmp, int x, int y));
+   AL_METHOD(void, __old__hide_mouse, (void));
+   AL_METHOD(void, __old__move_mouse, (int x, int y));
    AL_METHOD(void, drawing_mode, (void));
    AL_METHOD(void, save_video_state, (void));
    AL_METHOD(void, restore_video_state, (void));
@@ -102,6 +102,13 @@ typedef struct GFX_DRIVER        /* creates and manages the screen bitmap */
    long vid_mem;                 /* video memory size, in bytes */
    long vid_phys_base;           /* physical address of video memory */
    int windowed;                 /* true if driver runs windowed */
+   /* new_api_branch additions */
+   AL_METHOD(struct AL_MOUSE_CURSOR *, create_mouse_cursor, (struct BITMAP *sprite, int xfocus, int yfocus));
+   AL_METHOD(void, destroy_mouse_cursor, (struct AL_MOUSE_CURSOR *));
+   AL_METHOD(bool, set_mouse_cursor, (AL_MOUSE_CURSOR *cursor));
+   AL_METHOD(bool, set_system_mouse_cursor, (AL_SYSTEM_MOUSE_CURSOR cursor_id));
+   AL_METHOD(bool, show_mouse_cursor, (void));
+   AL_METHOD(bool, hide_mouse_cursor, (void));
 } GFX_DRIVER;
 
 

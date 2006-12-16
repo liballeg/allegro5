@@ -152,7 +152,9 @@ GFX_DRIVER gfx_modex =
    0, 0,
    0x40000,
    0,
-   FALSE
+   FALSE,
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -216,7 +218,9 @@ GFX_DRIVER gfx_xtended =
    0, 0,
    0x40000,
    0,
-   FALSE
+   FALSE,
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 

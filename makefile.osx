@@ -149,7 +149,7 @@ endif
 
 # -------- list platform specific objects and programs --------
 
-VPATH = src/macosx src/unix src/misc src/c tools/macosx src/compat
+VPATH = src/macosx src/unix src/compat src/misc src/c tools/macosx src/compat
 CFLAGS += -DALLEGRO_NO_ASM
 
 ifdef STATICLINK

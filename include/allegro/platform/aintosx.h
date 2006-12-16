@@ -82,13 +82,26 @@
 
 
 @interface AllegroView: NSQuickDrawView
+{
+   NSTrackingRectTag _tracking;
+   NSCursor* _cursor;
+   BOOL _show_cursor;
+}
+- (id)initWithFrame:(NSRect) rc;
 - (void)resetCursorRects;
 - (void)keyDown: (NSEvent*) event;
 - (void)keyUp: (NSEvent*) event;
+- (void)mouseEntered: (NSEvent*) event;
+- (void)mouseExited: (NSEvent*) event;
 - (void)flagsChanged: (NSEvent*) event;
 - (void)drawRect: (NSRect) aRect;
+- (void)setCursor:(NSCursor*) cur;
+- (void)setCursorVisible;
+- (void)setCursorHidden;
+- (void) viewDidMoveToWindow;
 @end
 
+AllegroView* osx_view_from_display(AL_DISPLAY*);
 
 typedef void RETSIGTYPE;
 
@@ -154,7 +167,7 @@ void osx_keyboard_handler(int pressed, NSEvent *event);
 void osx_keyboard_modifiers(unsigned int new_mods);
 void osx_keyboard_focused(int focused, int state);
 
-void osx_mouse_handler(int x, int y, int dx, int dy, int dz, int buttons);
+void osx_mouse_handler(NSEvent*);
 int osx_mouse_set_sprite(BITMAP *sprite, int x, int y);
 int osx_mouse_show(BITMAP *bmp, int x, int y);
 void osx_mouse_hide(void);

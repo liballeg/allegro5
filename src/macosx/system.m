@@ -147,6 +147,7 @@ static RETSIGTYPE osx_signal_handler(int num)
 /* osx_event_handler:
  *  Event handling function; gets repeatedly called inside a dedicated thread.
  */
+ /*
 void osx_event_handler()
 {
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -206,7 +207,7 @@ void osx_event_handler()
          case NSOtherMouseDown:
          case NSRightMouseDown:
 	    if (![NSApp isActive]) {
-	       /* App is regaining focus */
+	       // App is regaining focus 
 	       if (_mouse_installed) {
 	          if ((osx_window) && (NSPointInRect(point, NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h)))) {
                      mx = point.x;
@@ -224,7 +225,7 @@ void osx_event_handler()
 	       [NSApp sendEvent: event];
 	       break;
 	    }
-	    /* fallthrough */
+	    // fallthrough 
          case NSLeftMouseUp:
          case NSOtherMouseUp:
          case NSRightMouseUp:
@@ -243,7 +244,7 @@ void osx_event_handler()
 	    }
 	    else {
 	       if ((!osx_window) || (NSPointInRect(point, NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h)))) {
-	          /* Deliver mouse downs only if cursor is on the window */
+	          // Deliver mouse downs only if cursor is on the window 
 	          buttons |= ((event_type == NSLeftMouseDown) ? 0x1 : 0);
 	          buttons |= ((event_type == NSRightMouseDown) ? 0x2 : 0);
 	          buttons |= ((event_type == NSOtherMouseDown) ? 0x4 : 0);
@@ -316,12 +317,12 @@ void osx_event_handler()
                   break;
 	       
 	       case NSWindowMovedEventType:
-                  /* This is needed to ensure the shadow gets drawn when the window is
-		   * created. It's weird, but when the window is created on another
-		   * thread, sometimes its shadow doesn't get drawn. The same applies
-		   * to the cursor rectangle, which doesn't seem to be set at window
-		   * creation (it works once you move the mouse though).
-		   */
+                  // This is needed to ensure the shadow gets drawn when the window is
+		   // created. It's weird, but when the window is created on another
+		   // thread, sometimes its shadow doesn't get drawn. The same applies
+		   // to the cursor rectangle, which doesn't seem to be set at window
+		   // creation (it works once you move the mouse though).
+		   
 	          if ((osx_window) && (osx_window_first_expose)) {
 		     osx_window_first_expose = FALSE;
                      [osx_window setHasShadow: NO];
@@ -342,7 +343,7 @@ void osx_event_handler()
       osx_mouse_handler(mx, my, dx, dy, dz, buttons);
    [pool release];
 }
-
+*/
 
 
 /* osx_tell_dock:
@@ -423,9 +424,11 @@ static int osx_sys_init(void)
    
    /* Setup OS type & version */
    os_type = OSTYPE_MACOSX;
-   Gestalt(gestaltSystemVersion, &result);
-   os_version = (((result >> 12) & 0xf) * 10) + ((result >> 8) & 0xf);
-   os_revision = (result >> 4) & 0xf;
+   NSDictionary* sysinfo = [NSDictionary dictionaryWithContentsOfFile: @"/System/Library/CoreServices/SystemVersion.plist"];
+   NSArray* version = [((NSString*) [sysinfo objectForKey:@"ProductVersion"]) componentsSeparatedByString:@"."];
+   os_version = 10 * [[version objectAtIndex: 0] intValue] + [[version objectAtIndex: 1] intValue];
+   os_revision = [[version objectAtIndex: 2] intValue];
+   [version release];
    os_multitasking = TRUE;
    
    /* Setup a blank cursor */
@@ -638,3 +641,18 @@ static int osx_sys_get_desktop_resolution(int *width, int *height)
    
    return 0;
 }
+
+/* osx_view_from_display:
+ * given an AL_DISPLAY, return the associated Cocoa View or nil
+ * if fullscreen 
+ */
+AllegroView* osx_view_from_display(AL_DISPLAY* disp)
+{
+ // At the moment, AL_DISPLAY has not been finalised
+ return (AllegroView*) (osx_window ? [osx_window contentView] : nil);
+}
+
+/* Local variables:       */
+/* c-basic-offset: 3      */
+/* indent-tabs-mode: nil  */
+/* End:                   */

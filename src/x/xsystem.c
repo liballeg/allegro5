@@ -30,9 +30,6 @@
 
 
 
-void (*_xwin_mouse_interrupt)(int x, int y, int z, int buttons) = 0;
-
-
 static int _xwin_sysdrv_init(void);
 static void _xwin_sysdrv_exit(void);
 static void _xwin_sysdrv_set_window_title(AL_CONST char *name);
@@ -362,7 +359,7 @@ static _DRIVER_INFO *_xwin_sysdrv_keyboard_drivers(void)
  */
 static _DRIVER_INFO *_xwin_sysdrv_mouse_drivers(void)
 {
-   return _xwin_mouse_driver_list;
+   return _al_xwin_mouse_driver_list;
 }
 
 

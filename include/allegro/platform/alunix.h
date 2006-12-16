@@ -153,12 +153,7 @@ AL_VAR(GFX_DRIVER, gfx_xdga2_soft);
 #define GFX_VBEAF                AL_ID('V','B','A','F')
 #define GFX_SVGALIB              AL_ID('S','V','G','A')
 
-#define MOUSEDRV_LINUX_PS2       AL_ID('L','P','S','2')
-#define MOUSEDRV_LINUX_IPS2      AL_ID('L','I','P','S')
-#define MOUSEDRV_LINUX_GPMDATA   AL_ID('G','P','M','D')
-#define MOUSEDRV_LINUX_MS        AL_ID('M','S',' ',' ')
-#define MOUSEDRV_LINUX_IMS       AL_ID('I','M','S',' ')
-#define MOUSEDRV_LINUX_EVDEV     AL_ID('E','V',' ',' ')
+#define AL_MOUSEDRV_LINUX_EVDEV  AL_ID('E','V',' ',' ')
 
 
 #ifdef ALLEGRO_LINUX
@@ -187,12 +182,7 @@ AL_VAR(SYSTEM_DRIVER, system_linux);
    #define GFX_HAS_VBEAF
 #endif
 
-AL_VAR(MOUSE_DRIVER, mousedrv_linux_ps2);
-AL_VAR(MOUSE_DRIVER, mousedrv_linux_ips2);
-AL_VAR(MOUSE_DRIVER, mousedrv_linux_gpmdata);
-AL_VAR(MOUSE_DRIVER, mousedrv_linux_ms);
-AL_VAR(MOUSE_DRIVER, mousedrv_linux_ims);
-AL_VAR(MOUSE_DRIVER, mousedrv_linux_evdev);
+AL_VAR(struct AL_MOUSE_DRIVER, _al_mousedrv_linux_evdev);
 
 AL_FUNC_DEPRECATED(void, split_modex_screen, (int lyne));
 

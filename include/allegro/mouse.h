@@ -10,108 +10,93 @@
  *
  *      Mouse routines.
  *
- *      By Shawn Hargreaves.
- *
  *      See readme.txt for copyright information.
  */
 
 
-#ifndef ALLEGRO_MOUSE_H
-#define ALLEGRO_MOUSE_H
+#ifndef _al_included_mouse_h
+#define _al_included_mouse_h
 
-#include "base.h"
+#include "allegro/base.h"
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
-#define MOUSEDRV_AUTODETECT  -1
-#define MOUSEDRV_NONE         0
+AL_BEGIN_EXTERN_C
 
 
-typedef struct MOUSE_DRIVER
+/* Allow up to four extra axes for future expansion. */
+#define AL_MOUSE_MAX_EXTRA_AXES	 4
+
+
+/* Abstract data type */
+typedef struct AL_MOUSE AL_MOUSE;
+
+typedef struct AL_MSESTATE
 {
-   int  id;
-   AL_CONST char *name;
-   AL_CONST char *desc;
-   AL_CONST char *ascii_name;
-   AL_METHOD(int,  init, (void));
-   AL_METHOD(void, exit, (void));
-   AL_METHOD(void, poll, (void));
-   AL_METHOD(void, timer_poll, (void));
-   AL_METHOD(void, position, (int x, int y));
-   AL_METHOD(void, set_range, (int x1, int y_1, int x2, int y2));
-   AL_METHOD(void, set_speed, (int xspeed, int yspeed));
-   AL_METHOD(void, get_mickeys, (int *mickeyx, int *mickeyy));
-   AL_METHOD(int,  analyse_data, (AL_CONST char *buffer, int size));
-   AL_METHOD(void, enable_hardware_cursor, (int mode));
-   AL_METHOD(int,  select_system_cursor, (int cursor));
-} MOUSE_DRIVER;
-
-
-AL_VAR(MOUSE_DRIVER, mousedrv_none);
-AL_VAR(MOUSE_DRIVER *, mouse_driver);
-AL_ARRAY(_DRIVER_INFO, _mouse_driver_list);
-
-AL_FUNC(int, install_mouse, (void));
-AL_FUNC(void, remove_mouse, (void));
-
-AL_FUNC(int, poll_mouse, (void));
-AL_FUNC(int, mouse_needs_poll, (void));
-
-AL_FUNC(void, enable_hardware_cursor, (void));
-AL_FUNC(void, disable_hardware_cursor, (void));
+   /* (x, y) Primary mouse position */
+   /* (z) Mouse wheel position (1D 'wheel'), or,  */
+   /* (w, z) Mouse wheel position (2D 'ball') */
+   int x;
+   int y;
+   int z;
+   int w;
+   int more_axes[AL_MOUSE_MAX_EXTRA_AXES];
+   int buttons;
+} AL_MSESTATE;
 
 /* Mouse cursors */
-#define MOUSE_CURSOR_NONE        0
-#define MOUSE_CURSOR_ALLEGRO     1
-#define MOUSE_CURSOR_ARROW       2
-#define MOUSE_CURSOR_BUSY        3
-#define MOUSE_CURSOR_QUESTION    4
-#define MOUSE_CURSOR_EDIT        5
-#define NUM_MOUSE_CURSORS        6
+typedef struct AL_MOUSE_CURSOR AL_MOUSE_CURSOR;
 
-AL_VAR(struct BITMAP *, mouse_sprite);
-AL_VAR(int, mouse_x_focus);
-AL_VAR(int, mouse_y_focus);
+typedef enum AL_SYSTEM_MOUSE_CURSOR
+{
+   AL_SYSTEM_MOUSE_CURSOR_NONE        = 0,
+   AL_SYSTEM_MOUSE_CURSOR_ARROW       = 1,
+   AL_SYSTEM_MOUSE_CURSOR_BUSY        = 2,
+   AL_SYSTEM_MOUSE_CURSOR_QUESTION    = 3,
+   AL_SYSTEM_MOUSE_CURSOR_EDIT        = 4,
+   AL_NUM_SYSTEM_MOUSE_CURSORS
+} AL_SYSTEM_MOUSE_CURSOR;
 
-AL_VAR(volatile int, mouse_x);
-AL_VAR(volatile int, mouse_y);
-AL_VAR(volatile int, mouse_z);
-AL_VAR(volatile int, mouse_b);
-AL_VAR(volatile int, mouse_pos);
 
-AL_VAR(volatile int, freeze_mouse_flag);
+AL_FUNC(bool,           al_install_mouse,       (void));
+AL_FUNC(void,           al_uninstall_mouse,     (void));
+AL_FUNC(AL_MOUSE*,      al_get_mouse,           (void));
+AL_FUNC(unsigned int,   al_get_mouse_num_buttons, (void));
+AL_FUNC(unsigned int,   al_get_mouse_num_axes,  (void));
+AL_FUNC(bool,           al_set_mouse_xy,        (int x, int y));
+    /* XXX: how is this going to work with multiple windows? 
+     * Probably it will require an AL_DISPLAY parameter.
+     */
+AL_FUNC(bool,           al_set_mouse_z,         (int z));
+AL_FUNC(bool,           al_set_mouse_w,         (int w));
+AL_FUNC(bool,           al_set_mouse_axis,      (int axis, int value));
+AL_FUNC(bool,           al_set_mouse_range,     (int x1, int y1, int x2, int y2));
+AL_FUNC(void,           al_get_mouse_state,     (AL_MSESTATE *ret_state));
+AL_FUNC(bool,           al_mouse_button_down,   (AL_MSESTATE *state, int button));
+AL_FUNC(int,            al_mouse_state_axis,    (AL_MSESTATE *state, int axis));
 
-#define MOUSE_FLAG_MOVE             1
-#define MOUSE_FLAG_LEFT_DOWN        2
-#define MOUSE_FLAG_LEFT_UP          4
-#define MOUSE_FLAG_RIGHT_DOWN       8
-#define MOUSE_FLAG_RIGHT_UP         16
-#define MOUSE_FLAG_MIDDLE_DOWN      32
-#define MOUSE_FLAG_MIDDLE_UP        64
-#define MOUSE_FLAG_MOVE_Z           128
 
-AL_FUNCPTR(void, mouse_callback, (int flags));
+/*
+ * Cursors:
+ *
+ * This will probably become part of the display API.  It provides for
+ * hardware cursors only; software cursors may or may not be provided
+ * for later (it would need significant cooperation from the display
+ * API).
+ */
+AL_FUNC(AL_MOUSE_CURSOR *, al_create_mouse_cursor, (struct BITMAP *sprite, int xfocus, int yfocus));
+AL_FUNC(void, al_destroy_mouse_cursor, (AL_MOUSE_CURSOR *));
+AL_FUNC(bool, al_set_mouse_cursor, (AL_MOUSE_CURSOR *cursor));
+AL_FUNC(bool, al_set_system_mouse_cursor, (AL_SYSTEM_MOUSE_CURSOR cursor_id));
+AL_FUNC(bool, al_show_mouse_cursor, (void));
+AL_FUNC(bool, al_hide_mouse_cursor, (void));
 
-AL_FUNC(void, show_mouse, (struct BITMAP *bmp));
-AL_FUNC(void, scare_mouse, (void));
-AL_FUNC(void, scare_mouse_area, (int x, int y, int w, int h));
-AL_FUNC(void, unscare_mouse, (void));
-AL_FUNC(void, position_mouse, (int x, int y));
-AL_FUNC(void, position_mouse_z, (int z));
-AL_FUNC(void, set_mouse_range, (int x1, int y_1, int x2, int y2));
-AL_FUNC(void, set_mouse_speed, (int xspeed, int yspeed));
-AL_FUNC(void, select_mouse_cursor, (int cursor));
-AL_FUNC(void, set_mouse_cursor_bitmap, (int cursor, struct BITMAP *bmp));
-AL_FUNC(void, set_mouse_sprite_focus, (int x, int y));
-AL_FUNC(void, get_mouse_mickeys, (int *mickeyx, int *mickeyy));
-AL_FUNC(void, set_mouse_sprite, (struct BITMAP *sprite));
-AL_FUNC(int, show_os_cursor, (int cursor));
-#ifdef __cplusplus
-   }
-#endif
+
+AL_END_EXTERN_C
 
 #endif          /* ifndef ALLEGRO_MOUSE_H */
 
-
+/*
+ * Local Variables:
+ * c-basic-offset: 3
+ * indent-tabs-mode: nil
+ * End:
+ */

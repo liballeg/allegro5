@@ -144,12 +144,14 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
    }
 #endif
 
+#if 0 /* XXX */
    if (_mouse_installed) {
       if (wm)
          wm->mouse = TRUE;
 
       remove_mouse();
    }
+#endif
 
 #if 0 /* XXX */
    if (_joystick_installed) {
@@ -254,7 +256,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          break;
 
       case WM_SETCURSOR:
-         if (!user_wnd_proc || _mouse_installed) {
+         if (!user_wnd_proc /*|| _mouse_installed*/ ) {
             mouse_set_syscursor();
             return 1;  /* not TRUE */
          }

@@ -85,10 +85,12 @@ AL_FUNC(int, gfx_directx_request_video_bitmap, (BITMAP *bmp));
 AL_FUNC(BITMAP *, gfx_directx_create_system_bitmap, (int width, int height));
 AL_FUNC(void, gfx_directx_destroy_system_bitmap, (BITMAP *bmp));
 AL_FUNC(GFX_MODE_LIST *, gfx_directx_fetch_mode_list, (void));
-AL_FUNC(int, gfx_directx_set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));
-AL_FUNC(int, gfx_directx_show_mouse, (struct BITMAP *bmp, int x, int y));
-AL_FUNC(void, gfx_directx_hide_mouse, (void));
-AL_FUNC(void, gfx_directx_move_mouse, (int x, int y));
+AL_FUNC(AL_MOUSE_CURSOR *, _al_win_directx_create_mouse_cursor, (struct BITMAP *sprite, int xfocus, int yfocus));
+AL_FUNC(void, _al_win_directx_destroy_mouse_cursor, (AL_MOUSE_CURSOR *wrapper));
+AL_FUNC(bool, _al_win_directx_set_mouse_cursor, (AL_MOUSE_CURSOR *wrapper));
+AL_FUNC(bool, _al_win_directx_set_system_mouse_cursor, (AL_SYSTEM_MOUSE_CURSOR cursor_id));
+AL_FUNC(bool, _al_win_directx_show_mouse_cursor, (void));
+AL_FUNC(bool, _al_win_directx_hide_mouse_cursor, (void));
 
 
 /* driver initialisation and shutdown (from wddraw.c) */
