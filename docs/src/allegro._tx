@@ -14800,7 +14800,8 @@ debugging helper functions:
    return non-zero if it has processed the error, or zero to continue with 
    the default actions. You could use this to ignore assert failures, or to 
    display the error messages on a graphics mode screen without aborting the 
-   program. Example:
+   program. You can call this function even when Allegro has not been
+   initialised. Example:
 <codeblock>
    int show_but_continue(const char *text)
    {
@@ -14819,7 +14820,8 @@ debugging helper functions:
    callback will be passed a formatted error message in ASCII, and should 
    return non-zero if it has processed the message, or zero to continue with 
    the default actions. You could use this to ignore trace output, or to 
-   display the messages on a second monochrome monitor, etc. Example:
+   display the messages on a second monochrome monitor, etc. You can call
+   this function even when Allegro has not been initialised. Example:
 <codeblock>
    int network_broadcaster(const char *text)
    {
