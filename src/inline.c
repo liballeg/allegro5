@@ -26,3 +26,5 @@
    #include ALLEGRO_INTERNAL_HEADER
 #endif
 
+#include "allegro/internal/aintern_vector.h"
+
