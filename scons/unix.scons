@@ -270,7 +270,7 @@ static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 shared_obj.add_action('.s', AssemblerAction )
 shared_obj.add_emitter('.s', SCons.Defaults.SharedObjectEmitter )
 
-flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
+flags = ["-g", "-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"] #"-O2",
 includes = ["include", "include/allegro", "."]
 defines = ["HAVE_CONFIG_H", "ALLEGRO_LIB_BUILD", "ALLEGRO_SRC"]
 
@@ -428,7 +428,8 @@ if haveXWindows():
     """))
     context.addFiles("xdummy/", [
         "xsystem.c",
-        "xdisplay.c"])
+        "xdisplay.c",
+        "xbitmap.c"])
 
     def tools(tenv,appendDir,buildDir,libDir):
         tools = []

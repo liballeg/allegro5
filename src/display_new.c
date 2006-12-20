@@ -5,7 +5,7 @@
 #include "internal/system_new.h"
 #include "internal/display_new.h"
 
-static AL_DISPLAY *current_display;
+AL_DISPLAY *_al_current_display;
 
 // FIXME: The system driver must be used to get drivers!
 extern AL_DISPLAY_INTERFACE *_al_glx_vt(void);
@@ -34,19 +34,19 @@ AL_DISPLAY *al_create_display(int w, int h, int flags)
 void al_make_display_current(AL_DISPLAY *display)
 {
    display->vt->make_display_current(display);
-   current_display = display;
+   _al_current_display = display;
 }
 
 /* Clear a complete display, but confined by the clipping rectangle. */
 void al_clear(AL_COLOR color)
 {
-   current_display->vt->clear(current_display, color);
+   _al_current_display->vt->clear(_al_current_display, color);
 }
 
 /* Draws a line from fx/fy to tx/ty, including start as well as end pixel. */
 void al_line(float fx, float fy, float tx, float ty, AL_COLOR color)
 {
-   current_display->vt->line(current_display, fx, fy, tx, ty, color);
+   _al_current_display->vt->line(_al_current_display, fx, fy, tx, ty, color);
 }
 
 /* Draws a rectangle with top left corner tlx/tly abd bottom right corner
@@ -54,7 +54,7 @@ void al_line(float fx, float fy, float tx, float ty, AL_COLOR color)
 void al_filled_rectangle(float tlx, float tly, float brx, float bry,
    AL_COLOR color)
 {
-   current_display->vt->filled_rectangle(current_display,
+   _al_current_display->vt->filled_rectangle(_al_current_display,
       tlx, tly, brx, bry, color);
 }
 
@@ -63,7 +63,7 @@ void al_filled_rectangle(float tlx, float tly, float brx, float bry,
  */
 void al_flip(void)
 {
-   current_display->vt->flip(current_display);
+   _al_current_display->vt->flip(_al_current_display);
 }
 
 // TODO: maybe can be done in al_flip?
@@ -74,5 +74,5 @@ void al_flip(void)
  */
 void al_acknowledge_resize(void)
 {
-   current_display->vt->acknowledge_resize(current_display);
+   _al_current_display->vt->acknowledge_resize(_al_current_display);
 }

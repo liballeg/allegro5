@@ -8,6 +8,7 @@ typedef struct AL_SYSTEM_INTERFACE AL_SYSTEM_INTERFACE;
 
 struct AL_SYSTEM_INTERFACE
 {
+   int id;
    AL_SYSTEM *(*initialize)(int flags);
    AL_DISPLAY_INTERFACE *(*get_display_driver)(void);
    AL_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
@@ -16,6 +17,7 @@ struct AL_SYSTEM_INTERFACE
 struct AL_SYSTEM
 {
    AL_SYSTEM_INTERFACE *vt;
+   _AL_VECTOR displays; /* Keep a list of all displays attached to us. */
 };
 
 // FIXME: later, there will be a general interface to find the best driver, and

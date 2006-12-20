@@ -6,6 +6,7 @@ Import('context')
 context.addFiles('./', Split( """
 system_new.c
 display_new.c
+bitmap_new.c
 allegro.c
 blit.c
 bmp.c

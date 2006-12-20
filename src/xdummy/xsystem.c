@@ -11,6 +11,7 @@
 #include "platform/aintunix.h"
 #include "internal/aintern2.h"
 #include "internal/system_new.h"
+#include "internal/bitmap_new.h"
 
 #include "xdummy.h"
 
@@ -36,8 +37,8 @@ static void *background_thread(void *arg)
             // FIXME: With many windows, it's bad to loop through them all,
             // maybe can come up with a better system here.
             // TODO: am I supposed to access ._size?
-            for (i = 0; i < s->displays._size; i++) {
-               AL_DISPLAY_XDUMMY **d = _al_vector_ref(&s->displays, i);
+            for (i = 0; i < s->system.displays._size; i++) {
+               AL_DISPLAY_XDUMMY **d = _al_vector_ref(&s->system.displays, i);
                if ((*d)->window == event.xconfigure.window) {
                   _al_display_xdummy_configure(&(*d)->display,  &event);
                   break;
@@ -55,7 +56,7 @@ static AL_SYSTEM *initialize(int flags)
    AL_SYSTEM_XDUMMY *s = _AL_MALLOC(sizeof *s);
    memset(s, 0, sizeof *s);
    
-   _al_vector_init(&s->displays, sizeof (AL_SYSTEM_XDUMMY *));
+   _al_vector_init(&s->system.displays, sizeof (AL_SYSTEM_XDUMMY *));
 
    XInitThreads();
 

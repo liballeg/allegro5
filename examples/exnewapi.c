@@ -22,6 +22,7 @@ int main(void)
    int x = 0, y = 0;
    int dx = 1;
    int w = 640, h = 480;
+   AL_BITMAP *picture;
 
    allegro_init();
    al_init();
@@ -37,6 +38,13 @@ int main(void)
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[1]);
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[2]);
+
+   /* Apparently, need to think a bit more about memory/display bitmaps.. should
+    * only need to load it once (as memory bitmap), then make available on all
+    * displays.
+    */
+   al_make_display_current(display[2]);
+   picture = al_load_bitmap("mysha.pcx", 0);
 
    al_install_keyboard();
    al_register_event_source(events, (AL_EVENT_SOURCE *)al_get_keyboard());
@@ -78,8 +86,10 @@ int main(void)
             al_color(0, 0, 1, 0.5)};
          for (i = 0; i < 3; i++) {
             al_make_display_current(display[i]);
-            al_clear(al_color(0, 0, 0, 1));
+            al_clear(al_color(1, 1, 1, 1));
             al_filled_rectangle(x, y, x + 40, y + 40, colors[i]);
+            if (i == 2)
+                al_draw_bitmap(picture, x, y + 40);
             al_flip();
          }
          last_rendered = ticks;

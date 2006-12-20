@@ -14,6 +14,7 @@
 #include "internal/aintern2.h"
 #include "internal/system_new.h"
 #include "internal/display_new.h"
+#include "internal/bitmap_new.h"
 
 #include "xdummy.h"
 
@@ -45,7 +46,7 @@ static AL_DISPLAY *create_display(int w, int h, int flags)
    AL_SYSTEM_XDUMMY *system = (AL_SYSTEM_XDUMMY *)al_system_driver();
 
    /* Add ourself to the list of displays. */
-   AL_DISPLAY_XDUMMY **add = _al_vector_alloc_back(&system->displays);
+   AL_DISPLAY_XDUMMY **add = _al_vector_alloc_back(&system->system.displays);
    *add = d;
 
    /* Each display is an event source. */
@@ -234,6 +235,21 @@ void _al_display_xdummy_configure(AL_DISPLAY *d, XEvent *xevent)
    _al_event_source_unlock(es);
 }
 
+/* Dummy implementation. */
+// TODO: rename to create_bitmap once the A4 function of same name is out of the
+// way
+// FIXME: think about moving this to xbitmap.c instead..
+AL_BITMAP *xdummy_create_bitmap(AL_DISPLAY *d, int w, int h, int flags)
+{
+   AL_BITMAP_XDUMMY *bitmap = _AL_MALLOC(sizeof *bitmap);
+   bitmap->bitmap.vt = _al_bitmap_xdummy_driver();
+   bitmap->bitmap.w = w;
+   bitmap->bitmap.h = h;
+   bitmap->bitmap.flags = flags;
+   bitmap->texture = 0;
+   return &bitmap->bitmap;
+}
+
 /* Obtain a reference to this driver. */
 AL_DISPLAY_INTERFACE *_al_display_xdummy_driver(void)
 {
@@ -249,6 +265,7 @@ AL_DISPLAY_INTERFACE *_al_display_xdummy_driver(void)
    vt->filled_rectangle = filled_rectangle;
    vt->flip = flip;
    vt->acknowledge_resize = acknowledge_resize;
+   vt->create_bitmap = xdummy_create_bitmap;
 
    return vt;
 }

@@ -47,6 +47,11 @@ BITMAP *_make_bitmap(int w, int h, uintptr_t addr, GFX_DRIVER *driver, int color
 
 GFX_VTABLE *_get_vtable(int color_depth)
 {
+   int i;
+   for (i = 0; _vtable_list[i].vtable; i++) {
+      if (_vtable_list[i].color_depth == color_depth)
+         return _vtable_list[i].vtable; 
+   }
    return NULL;
 }
 

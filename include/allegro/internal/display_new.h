@@ -4,9 +4,11 @@
 typedef struct AL_DISPLAY_INTERFACE AL_DISPLAY_INTERFACE;
 
 #include "../display_new.h"
+#include "../bitmap_new.h"
 
 struct AL_DISPLAY_INTERFACE
 {
+   int id;
    AL_DISPLAY *(*create_display)(int w, int h, int flags);
    void (*make_display_current)(AL_DISPLAY *d);
    void (*clear)(AL_DISPLAY *d, AL_COLOR color);
@@ -17,6 +19,7 @@ struct AL_DISPLAY_INTERFACE
    void (*flip)(AL_DISPLAY *d);
    void (*acknowledge_resize)(AL_DISPLAY *d);
 
+   AL_BITMAP *(*create_bitmap)(AL_DISPLAY *d, int w, int h, int flags);
 };
 
 struct AL_DISPLAY
@@ -24,9 +27,11 @@ struct AL_DISPLAY
    /* Must be first, so the display can be used as event source. */
    AL_EVENT_SOURCE es; 
    AL_DISPLAY_INTERFACE *vt;
+   int flags;
    int w, h;
 };
 
+AL_DISPLAY *_al_current_display;
 AL_DISPLAY_INTERFACE *_al_display_xdummy_driver(void);
 
 #endif
