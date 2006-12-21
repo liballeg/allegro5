@@ -36,6 +36,6 @@ struct AL_BITMAP
 
 void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,
    int source_x, int source_y, int dest_x, int dest_y, int w, int h);
-AL_BITMAP_INTERFACE *_al_bitmap_xdummy_driver();
+AL_BITMAP_INTERFACE *_al_bitmap_xdummy_driver(void);
 
 #endif

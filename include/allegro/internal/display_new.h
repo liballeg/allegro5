@@ -1,10 +1,10 @@
 #ifndef ALLEGRO_INTERNAL_DISPLAY_NEW_H
 #define ALLEGRO_INTERNAL_DISPLAY_NEW_H
 
-typedef struct AL_DISPLAY_INTERFACE AL_DISPLAY_INTERFACE;
+#include "allegro/display_new.h"
+#include "allegro/bitmap_new.h"
 
-#include "../display_new.h"
-#include "../bitmap_new.h"
+typedef struct AL_DISPLAY_INTERFACE AL_DISPLAY_INTERFACE;
 
 struct AL_DISPLAY_INTERFACE
 {

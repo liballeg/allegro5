@@ -32,7 +32,7 @@ void al_clear(AL_COLOR color);
 void al_line(float fx, float fy, float tx, float ty, AL_COLOR color);
 void al_filled_rectangle(float tlx, float tly, float brx, float bry,
     AL_COLOR color);
-void al_acknowledge_resize();
+void al_acknowledge_resize(void);
 void al_flip(void);
 AL_DISPLAY *al_get_current_display(void);
 

@@ -89,8 +89,10 @@ AL_CONST char *_al_keyboard_common_names[AL_KEY_MAX] =
  */
 bool al_install_keyboard(void)
 {
+#if 0
    _DRIVER_INFO *driver_list;
    int i;
+#endif
 
    if (new_keyboard_driver)
       return true;

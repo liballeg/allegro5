@@ -191,7 +191,6 @@ static void acknowledge_resize(AL_DISPLAY *d)
 /* Handle an X11 configure event. */
 void _al_display_xdummy_configure(AL_DISPLAY *d, XEvent *xevent)
 {
-   AL_SYSTEM_XDUMMY *system = (AL_SYSTEM_XDUMMY *)al_system_driver();
    AL_DISPLAY_XDUMMY *glx = (AL_DISPLAY_XDUMMY *)d;
 
    AL_EVENT_SOURCE *es = &glx->display.es;
