@@ -1,5 +1,6 @@
 set(ALLEGRO_SRC_FILES
     src/allegro.c
+    src/bitmap_new.c
     src/blit.c
     src/bmp.c
     src/clip3d.c
@@ -329,6 +330,7 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xdga2.c
     src/x/xdga2s.s
     src/x/xwins.s
+    src/xdummy/xbitmap.c
     src/xdummy/xdisplay.c
     src/xdummy/xsystem.c
     src/misc/colconv.c
