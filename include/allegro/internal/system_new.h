@@ -1,8 +1,8 @@
 #ifndef ALLEGRO_INTERNAL_SYSTEM_NEW_H
 #define ALLEGRO_INTERNAL_SYSTEM_NEW_H
 
-#include "../system_new.h"
-#include "display_new.h"
+#include "allegro/system_new.h"
+#include "allegro/internal/display_new.h"
 
 typedef struct AL_SYSTEM_INTERFACE AL_SYSTEM_INTERFACE;
 
