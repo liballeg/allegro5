@@ -72,9 +72,9 @@ AL_FUNCPTR(int, _al_trace_handler, (AL_CONST char *msg));
 #define _AL_FREE(PTR)            (_al_free(PTR))
 #define _AL_REALLOC(PTR, SIZE)   (_al_realloc(PTR, SIZE))
 
-AL_FUNC(void *, _al_malloc, (int size));
+AL_FUNC(void *, _al_malloc, (size_t size));
 AL_FUNC(void, _al_free, (void *mem));
-AL_FUNC(void *, _al_realloc, (void *mem, int size));
+AL_FUNC(void *, _al_realloc, (void *mem, size_t size));
 
 
 

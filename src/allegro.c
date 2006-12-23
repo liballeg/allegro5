@@ -698,7 +698,7 @@ void register_trace_handler(int (*handler)(AL_CONST char *msg))
  *  Wrapper for when a program needs to manipulate memory that has been
  *  allocated by the Allegro DLL.
  */
-void *_al_malloc(int size)
+void *_al_malloc(size_t size)
 {
    return malloc(size);
 }
@@ -720,7 +720,7 @@ void _al_free(void *mem)
  *  Wrapper for when a program needs to manipulate memory that has been
  *  allocated by the Allegro DLL.
  */
-void *_al_realloc(void *mem, int size)
+void *_al_realloc(void *mem, size_t size)
 {
    return realloc(mem, size);
 }
