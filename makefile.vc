@@ -103,6 +103,14 @@ endif
 
 .PHONY: badwin badmsvc badspaces
 
+ifdef ALLEGRO_USE_CYGWIN
+
+WINDIR_S := $(shell cygpath -S)
+WINDIR_U = $(subst \,/,$(WINDIR_S))
+WINDIR_D = $(subst /,\,$(WINDIR_S))
+
+else
+
 ifeq ($(OS),Windows_NT)
    WINSYSDIR = $(SYSTEMROOT)
    ifeq ($(WINSYSDIR),)
@@ -125,19 +133,39 @@ badwin:
 	@echo Your SYSTEMROOT or windir environment variable is not set!
 endif
 
+endif # ALLEGRO_USE_CYGWIN
+
+
+# Different MSVC versions use different variables for storing the MSVC dir.
+# Make sure that MSVCDIR_MSVCDIR contains the MSVC dir.
 ifdef MSVCDIR
-   MSVCDIR_U = $(subst \,/,$(MSVCDIR))
-   MSVCDIR_D = $(subst /,\,$(MSVCDIR))
+   MSVCDIR_MSVCDIR = $(MSVCDIR)
 else
 ifdef MSVCDir
-   MSVCDIR_U = $(subst \,/,$(MSVCDir))
-   MSVCDIR_D = $(subst /,\,$(MSVCDir))
+   MSVCDIR_MSVCDIR = $(MSVCDir)
+else
+ifdef VCINSTALLDIR
+   MSVCDIR_MSVCDIR = $(VCINSTALLDIR)
 else
 badmsvc:
-	@echo Your MSVCDIR environment variable is not set!
+	@echo Your MSVCDIR or MSVCDir or VCINSTALLDIR environment variable is not set!
 	@echo See the docs/build/msvc.txt file!
 endif
 endif
+endif
+
+ifdef ALLEGRO_USE_CYGWIN
+# Note: In order to get the Cygwin-style path without spaces,
+# we must first convert the path to DOS 8.3 format using 'cygpath -d',
+# and then convert the result to Cygwin format.
+   MSVCDIR_S := $(shell cygpath `cygpath -d "$(MSVCDIR_MSVCDIR)"`)
+   MSVCDIR_U = $(subst \,/,$(MSVCDIR_S))
+   MSVCDIR_D = $(subst /,\,$(MSVCDIR_S))
+else
+   MSVCDIR_U = $(subst \,/,$(MSVCDIR_MSVCDIR))
+   MSVCDIR_D = $(subst /,\,$(MSVCDIR_MSVCDIR))
+endif  # ALLEGRO_USE_CYGWIN
+
 
 NULLSTRING :=
 SPACE := $(NULLSTRING) # special magic to get an isolated space character
@@ -160,13 +188,22 @@ endif
 
 # -------- Work out the absolute pathnames for some MSVC tools to avoid confusion --------
 
+ifdef ALLEGRO_USE_CYGWIN
+   # The runner.exe tool does not like paths in the /cygdrive/ format.
+   # ?: Is this because if an app was compiled with -mno-cygwin, it means that paths in the /cygdrive format do not make sense?
+   MSVCDIR_TOOLSDIR_U = $(subst \,/,$(MSVCDIR_MSVCDIR))
+else
+   MSVCDIR_TOOLSDIR_U = $(MSVCDIR_U)
+endif
+
+
 ifdef COMPILER_ICL
    MSVC_CL = icl
 else
-   MSVC_CL = $(MSVCDIR_U)/bin/cl
+   MSVC_CL = $(MSVCDIR_TOOLSDIR_U)/bin/cl
 endif
-MSVC_LINK = $(MSVCDIR_U)/bin/link
-MSVC_LIB = $(MSVCDIR_U)/bin/link -lib
+MSVC_LINK = $(MSVCDIR_TOOLSDIR_U)/bin/link
+MSVC_LIB = $(MSVCDIR_TOOLSDIR_U)/bin/link -lib
 MSVC_RC = rc
 
 
