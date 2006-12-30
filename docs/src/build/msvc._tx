@@ -93,34 +93,63 @@ Installing Allegro
    This is a source-only distribution, so you will have to compile Allegro 
    before you can use it. To do this you should:
 
+@hnode Setting up environment
+
    Set up your environment so that MSVC can be used from the commandline.
-   You probably have a <tt>vcvars32.bat</tt> file that will do this for you (usually
-   located in the <tt>VC98\BIN</tt> folder where you have MSVC installed, for example
-   <tt>C:\Program Files\Microsoft Visual Studio\</tt>). Under either Windows NT or
-   Windows 2000, you will have to run this file every time you open a DOS box
-   or configure the environment variables in Control Panel/System/Environment.
+   You probably have a <tt>vcvars32.bat</tt> file that will do this for you
+   (exact location of this file depends on your MSVC version and folder where
+   you have MSVC installed, e.g. for MSVC 6 it is usually 
+   <tt>C:\Program Files\Microsoft Visual Studio\VC98\Bin</tt>, for MSVC 8 
+   <tt>C:\Program Files\Microsoft Visual Studio 8\VC\Bin</tt> and the like).
+   You will have to run this file every time you open a DOS box or configure 
+   the environment variables in Control Panel/System/Environment (autoexec.bat
+   for Win 9x/ME). 
+
+@hnode Configuring Allegro
+
+   In the command line window type type "<tt>fix.bat msvc</tt>" to configure
+   Allegro for MSVC.
+
+   If you are using MSVC 7 you can specify "<tt>msvc7</tt>" instead of "<tt>msvc</tt>" to enable
+   better optimizations. Likewise, you can specify "<tt>icl</tt>" to use the Intel
+   commandline compiler. If you are using MSVC 8 you should specify "<tt>msvc8</tt>"
+   otherwise you will get a lot of deprecation warnings. For MSVC 6 and older
+   you can use also "<tt>msvc6</tt>".
+
+@hnode Long paths handling
+
+   Normally you can skip this section, unless you have some problem with
+   building Allegro.
 
    The make process needs all the path variables to be in DOS 8.3 format, and
    since MSVC is usually installed in something like
    "<tt>C:\Program Files\Microsoft\Microsoft Visual Studio .NET 2003</tt>",
-   this will cause a problem. Run "<tt>echo %MSVCDir%</tt>" (<tt>%VCINSTALLDIR%</tt>
-   under MSVC 8) from the command line to see if you have this problem. 
+   this may cause a problem. The <tt>fix.bat</tt> normally handles this for you so
+   you should not need to care about this. However you can run
+   "<tt>echo %MSVCDir%</tt>" (<tt>%VCINSTALLDIR%</tt> under MSVC 8)
+   from the command line to see if it contain spaces.
    If you are using MSVC 6 or lower the output should already be in DOS 8.3
    format so you should not have any troubles. With higher versions of MSVC
-   it will probably show the long path with spaces. There are two solutions
-   for this.
+   it will probably show the long path with spaces. The <tt>fix.bat</tt>
+   will automatically try to convert it to DOS 8.3 format. You can disable
+   this conversion by passing <tt>--nomsvcpaths</tt> parameter to <tt>fix.bat</tt>
+   (note that this conversion is automatically disabled when using "<tt>msvc6</tt>").
 
-   If you have chosen MinGW and have installed it with the w32api package
-   you can solve this problem simply by passing the <tt>--msvcpaths</tt>
-   parameter to <tt>fix.bat</tt> (see below).
-
-   Otherwise if you are using <tt>vcvars32.bat</tt>, you will have to
-   edit it so that it sets the 8.3 paths, not the long versions.
+   If you want to handle this by yourself manually, you will have to
+   edit <tt>vcvars32.bat</tt> so that it sets the 8.3 paths, not the long versions.
    To get 8.3 path names, you can use the command prompt (<tt>cmd.exe</tt>).
    Type in "<tt>dir /x</tt>" to get a listing of the 8.3 file and directory
    names alongside of their full names. You can also use the DOS prompt
    (<tt>command.exe</tt>) and "<tt>dir</tt>", but this will only show
    you the 8.3 names.
+
+@hnode Building from CVS
+
+   If you are compiling from CVS, before continuing you must run both
+   "<tt>make depend</tt>" and "<tt>misc/fixdll.sh</tt>" as explained below, or the build will
+   fail asking for some <tt>.inc</tt> file.
+
+@hnode Building Allegro
 
    If you are using Cygwin as the GNU environment, start the Cygwin bash shell
    from the command prompt (if you used the command prompt to run <tt>vcvars32.bat</tt>
@@ -130,24 +159,13 @@ Installing Allegro
 
    Go to the directory where you have installed Allegro by using '<tt>cd</tt>'.
 
-   If you are using Cygwin, type "<tt>./fix.sh msvc --utod</tt>". Otherwise (i.e if
-   you are using DJGPP or MinGW), type "<tt>fix.bat msvc</tt>". If you are 
-   using MinGW and want the <tt>fix.bat</tt> to solve problems with long paths,
-   type "<tt>fix.bat msvc --msvcpaths</tt>".
-   
-   If you are using MSVC 7 you can specify "msvc7" instead of "msvc" to enable
-   better optimizations. Likewise, you can specify "icl" to use the Intel
-   commandline compiler. If you are using MSVC 8 you should specify "msvc8"
-   otherwise you will get a lot of deprecation warnings. For MSVC 6 and older
-   you can use also "msvc6".
-
-   If you are compiling from CVS, before continuing you must run both
-   "<tt>make depend</tt>" and "<tt>misc/fixdll.sh</tt>" as explained below, or the build will
-   fail asking for some <tt>.inc</tt> file.
-
    Type "<tt>make</tt>". Then go do something interesting while everything compiles.
    When it finishes compiling, type "<tt>make install</tt>" to set the library up
    ready for use.
+
+   If you are using MSVC 8  and want to embed manifest files to executables
+   (by default is embedded just into the DLL), run from command prompt
+   "<tt>misc\embedman.bat all</tt>" ("<tt>./misc/embedman.bat all</tt>" under Cygwin).
 
    If you also want to install a debugging version of the library (highly 
    recommended), now type "<tt>make install DEBUGMODE=1</tt>". Case is important, so
@@ -210,4 +228,3 @@ Using Allegro
    If you use one of the DLL versions, you will obviously need to distribute 
    the appropriate DLL along with your program: these can be found in the 
    <tt>allegro/lib/msvc/</tt> directory.
-

@@ -32,9 +32,9 @@ HTML = html
 
 PLATFORM_DIR = obj/msvc
 
-ifdef ALLEGRO_USE_CYGWIN
+ifeq ($(TERM), cygwin)
+   ALLEGRO_USE_CYGWIN=1
    UNIX_TOOLS = 1
-   GCCFLAGS = -mno-cygwin
 endif
 
 ifneq (,$(findstring /sh.exe,$(SHELL)))
@@ -136,46 +136,24 @@ endif
 endif # ALLEGRO_USE_CYGWIN
 
 
-# Different MSVC versions use different variables for storing the MSVC dir.
-# Make sure that MSVCDIR_MSVCDIR contains the MSVC dir.
-ifdef MSVCDIR
-   MSVCDIR_MSVCDIR = $(MSVCDIR)
-else
-ifdef MSVCDir
-   MSVCDIR_MSVCDIR = $(MSVCDir)
-else
-ifdef VCINSTALLDIR
-   MSVCDIR_MSVCDIR = $(VCINSTALLDIR)
-else
+ifndef MSVCDir
 badmsvc:
-	@echo Your MSVCDIR or MSVCDir or VCINSTALLDIR environment variable is not set!
+	@echo Your MSVCDir environment variable is not set!
 	@echo See the docs/build/msvc.txt file!
-endif
-endif
 endif
 
 ifdef ALLEGRO_USE_CYGWIN
-# Note: In order to get the Cygwin-style path without spaces,
-# we must first convert the path to DOS 8.3 format using 'cygpath -d',
-# and then convert the result to Cygwin format.
-   MSVCDIR_S := $(shell cygpath `cygpath -d "$(MSVCDIR_MSVCDIR)"`)
+   MSVCDIR_S := $(shell cygpath "$(MSVCDir)")
    MSVCDIR_U = $(subst \,/,$(MSVCDIR_S))
    MSVCDIR_D = $(subst /,\,$(MSVCDIR_S))
 else
-   MSVCDIR_U = $(subst \,/,$(MSVCDIR_MSVCDIR))
-   MSVCDIR_D = $(subst /,\,$(MSVCDIR_MSVCDIR))
+   MSVCDIR_U = $(subst \,/,$(MSVCDir))
+   MSVCDIR_D = $(subst /,\,$(MSVCDir))
 endif  # ALLEGRO_USE_CYGWIN
 
 
 NULLSTRING :=
 SPACE := $(NULLSTRING) # special magic to get an isolated space character
-
-ifneq ($(findstring $(SPACE),$(MSVCDIR)),)
-badspaces:
-	@echo There are spaces in your MSVCDIR environment variable:
-	@echo please change it to the 8.3 short filename version,
-	@echo or move your compiler to a different directory.
-endif
 
 ifneq ($(findstring $(SPACE),$(MSVCDir)),)
 badspaces:
@@ -188,22 +166,13 @@ endif
 
 # -------- Work out the absolute pathnames for some MSVC tools to avoid confusion --------
 
-ifdef ALLEGRO_USE_CYGWIN
-   # The runner.exe tool does not like paths in the /cygdrive/ format.
-   # ?: Is this because if an app was compiled with -mno-cygwin, it means that paths in the /cygdrive format do not make sense?
-   MSVCDIR_TOOLSDIR_U = $(subst \,/,$(MSVCDIR_MSVCDIR))
-else
-   MSVCDIR_TOOLSDIR_U = $(MSVCDIR_U)
-endif
-
-
 ifdef COMPILER_ICL
    MSVC_CL = icl
 else
-   MSVC_CL = $(MSVCDIR_TOOLSDIR_U)/bin/cl
+   MSVC_CL = $(MSVCDIR_U)/bin/cl
 endif
-MSVC_LINK = $(MSVCDIR_TOOLSDIR_U)/bin/link
-MSVC_LIB = $(MSVCDIR_TOOLSDIR_U)/bin/link -lib
+MSVC_LINK = $(MSVCDIR_U)/bin/link
+MSVC_LIB = $(MSVCDIR_U)/bin/link -lib
 MSVC_RC = rc
 
 
@@ -407,9 +376,14 @@ else
 # -------- link as a DLL --------
 
 ifdef EMBED_MANIFEST
+ifdef ALLEGRO_USE_CYGWIN
+   EMBEDMAN_BAT = misc/embedman.bat
+else
+   EMBEDMAN_BAT = misc\embedman.bat
+endif
 define MAKE_LIB
    $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -dll -def:lib/msvc/allegro.def -out:$(DLL_NAME) -implib:$(IMPLIB_NAME) $(OBJECTS) $(LIBRARIES)
-   misc\embedman.bat $(DLL_NAME) 2
+   $(EMBEDMAN_BAT) "$(subst /,\,$(DLL_NAME))" 2
 endef
 else
 define MAKE_LIB
@@ -499,7 +473,7 @@ obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/msvc/
 	$(RUNNER) $(MSVC_CL) @ -nologo $(WFLAGS) $(CFLAGS) -I. -I./include -Foobj/msvc/asmdef.obj -Feobj/msvc/asmdef.exe src/i386/asmdef.c
 
 obj/msvc/runner.exe: src/misc/runner.c
-	$(GCC) -O -Wall -Werror $(GCCFLAGS) -o obj/msvc/runner.exe src/misc/runner.c
+	$(GCC) -O -Wall -Werror -o obj/msvc/runner.exe src/misc/runner.c
 
 define LINK_WITHOUT_LIB
    $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:console -out:$@ $^
