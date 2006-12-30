@@ -1256,7 +1256,7 @@ void misc(void)
       textout_ex(screen, font, buf, xoff+16, yoff+15, palette_color[15], palette_color[0]);
    }
 
-   x = y = 0;
+   x = y = z = 0;
    tm = 0; _tm = 0;
    ct = 0;
 
@@ -1272,7 +1272,7 @@ void misc(void)
    sprintf(buf, "fixmul(): %ld per second", ct/TIME_SPEED);
    textout_ex(screen, font, buf, xoff+16, yoff+25, palette_color[15], palette_color[0]);
 
-   fx = fy = 0;
+   fx = fy = fz = 0;
    tm = 0; _tm = 0;
    ct = 0;
 
