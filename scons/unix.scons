@@ -421,7 +421,7 @@ if haveXWindows():
     context.addFiles("x/", Split("""
     xgfxdrv.c
     xkeyboard.c
-    xmouse.c
+    xmousenu.c
     xsystem.c
     xvtable.c
     xwin.c
