@@ -72,6 +72,7 @@ DIGI_DRIVER digi_sgial =
    _al_sgial_init,
    _al_sgial_exit,
    _al_sgial_mixer_volume,
+   NULL,
 
    NULL,
    NULL,
