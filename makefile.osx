@@ -54,7 +54,7 @@ LIB_MAIN_NAME = lib/macosx/lib$(VERSION)-main.a
 
 DYLINK_FLAGS = -compatibility_version $(compatibility_version) -current_version $(shared_version)
 ifdef UB
-DYLINK_FLAGS+=-arch ppc -arch i386
+DYLINK_FLAGS+=-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk
 endif
 
 INSTALL_NAME = -install_name lib$(VERSION)-$(shared_major_minor).dylib
@@ -141,8 +141,8 @@ endif
 
 # ------- Universal binary -------------
 ifdef UB
-CFLAGS+= -arch ppc -arch i386
-LFLAGS+= -arch ppc -arch i386
+CFLAGS+= -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk
+LFLAGS+= -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk
 endif
 
 
