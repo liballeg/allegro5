@@ -332,8 +332,8 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 
       /* try to set the mode */
       if (ioctl(fbfd, FBIOPUT_VSCREENINFO, &my_mode) == 0) {
-	 set_color_depth(my_mode.bits_per_pixel);
-	 goto got_a_nice_mode;
+	 if (my_mode.bits_per_pixel == color_depth)
+	    goto got_a_nice_mode;
       }
    }
 
@@ -388,12 +388,11 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
       v_w = w;
       v_h = h;
 
-      p += (my_mode.xres-w)/2 * BYTES_PER_PIXEL(my_mode.bits_per_pixel) + 
+      p += (my_mode.xres-w)/2 * BYTES_PER_PIXEL(color_depth) + 
 	   (my_mode.yres-h)/2 * stride;
    }
 
-   b = _make_bitmap(v_w, v_h, (unsigned long)p, &gfx_fbcon,
-		    my_mode.bits_per_pixel, stride);
+   b = _make_bitmap(v_w, v_h, (unsigned long)p, &gfx_fbcon, color_depth, stride);
    if (!b) {
       ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
       munmap(fbaddr, fix_info.smem_len);
@@ -416,7 +415,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    gfx_fbcon.desc = fb_desc;
 
    /* set up the truecolor pixel format */
-   switch (my_mode.bits_per_pixel) {
+   switch (color_depth) {
 
       #ifdef ALLEGRO_COLOR16
 
