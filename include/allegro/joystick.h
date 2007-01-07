@@ -13,6 +13,9 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Joystick routines
+ */
+
 #ifndef _al_included_joystick_h
 #define _al_included_joystick_h
 
@@ -29,12 +32,21 @@ AL_BEGIN_EXTERN_C
 
 
 
-/* Abstract data type */
+/* Type: AL_JOYSTICK
+ *
+ *  This is an abstract data type representing a physical joystick.  Joystick
+ *  objects are also event sources.
+ */
 typedef struct AL_JOYSTICK AL_JOYSTICK;
 
 
 
-/* All fields public and read-only */
+/* Type: AL_JOYSTATE
+ *
+ * This is a structure that is used to hold a "snapshot" of a
+ * joystick's axes and buttons at a particular instant.
+ * All fields public and read-only.
+ */
 typedef struct AL_JOYSTATE
 {
    struct {
@@ -48,6 +60,8 @@ typedef struct AL_JOYSTATE
 /* Flags for al_joystick_stick_flags */
 typedef int AL_JOYFLAGS;
 
+/* Enum: AL_JOYFLAGS
+ */
 enum
 {
    AL_JOYFLAG_DIGITAL  = 0x01,

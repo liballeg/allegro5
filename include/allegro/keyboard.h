@@ -13,6 +13,8 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Keyboard routines
+ */
 
 #ifndef _al_included_keyboard_h
 #define _al_included_keyboard_h
@@ -24,11 +26,26 @@ AL_BEGIN_EXTERN_C
 
 
 
-/* Abstract data type */
+/* Type: AL_KEYBOARD
+ *  This is an abstract data type representing the physical keyboard.
+ *  Keyboard objects are also event sources.
+ */
 typedef struct AL_KEYBOARD AL_KEYBOARD;
 
 
 
+/* Type: AL_KBDSTATE
+ *  This is a structure that is used to hold a "snapshot" of a keyboard's
+ *  state at a particular instant.  It contains the following publically
+ *  readable fields:
+ *	display
+ *
+ *  `display' points to the display that had keyboard focus at the time the
+ *  state was saved.  If no display was focused, this points to NULL.
+ *
+ *  You cannot read the state of keys directly.  Use the function
+ *  al_key_down().
+ */
 typedef struct AL_KBDSTATE
 {
    struct AL_DISPLAY *display;  /* public */

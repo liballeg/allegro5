@@ -15,6 +15,9 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Joystick routines
+ */
+
 
 #define ALLEGRO_NO_COMPATIBILITY
 
@@ -33,7 +36,7 @@ static _AL_VECTOR opened_joysticks = _AL_VECTOR_INITIALIZER(AL_JOYSTICK *);
 
 
 
-/* al_install_joystick: [primary thread]
+/* Function: al_install_joystick
  *
  *  Install a joystick driver, returning true if successful.  If a
  *  joystick driver was already installed, returns true immediately.
@@ -101,7 +104,7 @@ bool al_install_joystick(void)
 
 
 
-/* al_uninstall_joystick: [primary thread]
+/* Function: al_uninstall_joystick
  *
  *  Uninstalls the active joystick driver.  All outstanding
  *  AL_JOYSTICKs are automatically released.  If no joystick driver
@@ -130,7 +133,7 @@ void al_uninstall_joystick(void)
 
 
 
-/* al_num_joysticks: [primary thread]
+/* Function: al_num_joysticks
  *
  *  Return the number of joysticks on the system (depending on the OS
  *  this may not be accurate).  The joystick driver must already be
@@ -169,7 +172,7 @@ static AL_JOYSTICK *find_opened_joystick_by_num(int num)
 
 
 
-/* al_get_joystick: [primary thread]
+/* Function: al_get_joystick
  *
  *  Get a handle for joystick number NUM on the system.  If successful
  *  a pointer to a joystick object is returned.  Otherwise NULL is
@@ -204,7 +207,7 @@ AL_JOYSTICK *al_get_joystick(int num)
 
 
 
-/* al_release_joystick: [primary thread]
+/* Function: al_release_joystick
  *  Release a previously 'gotten' joystick object.
  */
 void al_release_joystick(AL_JOYSTICK *joy)
@@ -219,7 +222,7 @@ void al_release_joystick(AL_JOYSTICK *joy)
 
 
 
-/* al_joystick_name: [primary thread]
+/* Function: al_joystick_name
  *  Return the name of the given joystick.
  */
 const char *al_joystick_name(AL_JOYSTICK *joy)
@@ -231,7 +234,7 @@ const char *al_joystick_name(AL_JOYSTICK *joy)
 
 
 
-/* al_joystick_num_sticks: [primary thread]
+/* Function: al_joystick_num_sticks
  *  Return the number of "sticks" on the given joystick.
  */
 int al_joystick_num_sticks(const AL_JOYSTICK *joy)
@@ -243,7 +246,7 @@ int al_joystick_num_sticks(const AL_JOYSTICK *joy)
 
 
 
-/* al_joystick_stick_flags: [primary thread]
+/* Function: al_joystick_stick_flags
  *  Return the flags of the given "stick".  If the stick doesn't
  *  exist, NULL is returned.
  */
@@ -260,7 +263,7 @@ int al_joystick_stick_flags(const AL_JOYSTICK *joy, int stick)
 
 
 
-/* al_joystick_stick_name: [primary thread]
+/* Function: al_joystick_stick_name
  *  Return the name of the given "stick".  If the stick doesn't
  *  exist, NULL is returned.
  */
@@ -277,7 +280,7 @@ const char *al_joystick_stick_name(const AL_JOYSTICK *joy, int stick)
 
 
 
-/* al_joystick_num_axes: [primary thread]
+/* Function: al_joystick_num_axes
  *  Return the number of axes on the given "stick".  If the stick
  *  doesn't exist, 0 is returned.
  */
@@ -293,7 +296,7 @@ int al_joystick_num_axes(const AL_JOYSTICK *joy, int stick)
 
 
 
-/* al_joystick_axis_name: [primary thread]
+/* Function: al_joystick_axis_name
  *  Return the name of the given axis.  If the axis doesn't exist,
  *  NULL is returned.
  */
@@ -312,7 +315,7 @@ const char *al_joystick_axis_name(const AL_JOYSTICK *joy, int stick, int axis)
 
 
 
-/* al_joystick_num_buttons: [primary thread]
+/* Function: al_joystick_num_buttons
  *  Return the number of buttons on the joystick.
  */
 int al_joystick_num_buttons(const AL_JOYSTICK *joy)
@@ -324,7 +327,7 @@ int al_joystick_num_buttons(const AL_JOYSTICK *joy)
 
 
 
-/* al_joystick_button_name: [primary thread]
+/* Function: al_joystick_button_name
  *  Return the name of the given button.  If the button doesn't exist,
  *  NULL is returned.
  */
@@ -341,7 +344,7 @@ const char *al_joystick_button_name(const AL_JOYSTICK *joy, int button)
 
 
 
-/* al_get_joystick_state: [primary thread]
+/* Function: al_get_joystick_state
  *  Get the current joystick state.
  */
 void al_get_joystick_state(AL_JOYSTICK *joy, AL_JOYSTATE *ret_state)

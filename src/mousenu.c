@@ -15,6 +15,9 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Mouse routines
+ */
+
 
 #define ALLEGRO_NO_COMPATIBILITY
 
@@ -29,7 +32,7 @@ static AL_MOUSE_DRIVER *new_mouse_driver = NULL;
 
 
 
-/* al_install_mouse: [primary thread]
+/* Function: al_install_mouse
  *  Install a mouse driver. Returns true if successful. If a driver
  *  was already installed, nothing happens and true is returned.
  */
@@ -71,7 +74,7 @@ bool al_install_mouse(void)
 
 
 
-/* al_uninstall_mouse: [primary thread]
+/* Function: al_uninstall_mouse
  *  Uninstalls the active mouse driver, if any.  This will
  *  automatically unregister the mouse event source with any event
  *  queues.
@@ -91,7 +94,7 @@ void al_uninstall_mouse(void)
 
 
 
-/* al_get_mouse:
+/* Function: al_get_mouse
  *  Return a pointer to an object representing the mouse, that can
  *  be used as an event source.
  */
@@ -109,7 +112,7 @@ AL_MOUSE *al_get_mouse(void)
 
 
 
-/* al_get_mouse_num_buttons:
+/* Function: al_get_mouse_num_buttons
  *  Return the number of buttons on the mouse.
  */
 unsigned int al_get_mouse_num_buttons(void)
@@ -119,7 +122,9 @@ unsigned int al_get_mouse_num_buttons(void)
    return new_mouse_driver->get_mouse_num_buttons();
 }
 
-/* al_get_mouse_num_axes:
+
+
+/* Function: al_get_mouse_num_axes
  *  Return the number of buttons on the mouse.
  */
 unsigned int al_get_mouse_num_axes(void)
@@ -131,7 +136,7 @@ unsigned int al_get_mouse_num_axes(void)
 
 
 
-/* al_set_mouse_xy: [primary thread]
+/* Function: al_set_mouse_xy
  *  Try to position the mouse at the given coordinates.
  *  Returns true on success, false on failure.
  *  XXX: This should be relative to an AL_DISPLAY.
@@ -146,7 +151,7 @@ bool al_set_mouse_xy(int x, int y)
 
 
 
-/* al_set_mouse_z: [primary thread]
+/* Function: al_set_mouse_z
  *  Set the mouse wheel position to the given value.
  *  Returns true on success, false on failure.
  */
@@ -160,7 +165,7 @@ bool al_set_mouse_z(int z)
 
 
 
-/* al_set_mouse_w: [primary thread]
+/* Function: al_set_mouse_w
  *  Set the mouse wheel position to the given value.
  *  Returns true on success, false on failure.
  */
@@ -174,7 +179,7 @@ bool al_set_mouse_w(int w)
 
 
 
-/* al_set_mouse_axis: [primary thread]
+/* Function: al_set_mouse_axis
  *  Set the given mouse axis to the given value.
  *  Returns true on success, false on failure.
  *
@@ -192,7 +197,7 @@ bool al_set_mouse_axis(int which, int value)
 
 
 
-/* al_set_mouse_range: [primary thread]
+/* Function: al_set_mouse_range
  *  Sets the area of the screen within which the mouse can move.
  *  The coordinates are inclusive. (XXX: change this?)
  *  XXX: This should be relative to an AL_DISPLAY.
@@ -208,7 +213,7 @@ bool al_set_mouse_range(int x1, int y1, int x2, int y2)
 
 
 
-/* al_get_mouse_state: [primary thread]
+/* Function: al_get_mouse_state
  *  Save the state of the mouse specified at the time the function
  *  is called into the structure pointed to by RET_STATE.
  */
@@ -222,7 +227,7 @@ void al_get_mouse_state(AL_MSESTATE *ret_state)
 
 
 
-/* al_get_state_axis: 
+/* Function: al_get_state_axis
  *  Extract the mouse axis value from the saved state.
  */
 int al_mouse_state_axis(AL_MSESTATE *ret_state, int axis)
@@ -247,7 +252,7 @@ int al_mouse_state_axis(AL_MSESTATE *ret_state, int axis)
 
 
 
-/* al_mouse_button_down:
+/* Function: al_mouse_button_down
  *  Return true if the mouse button specified was held down in the state
  *  specified.
  */
@@ -266,7 +271,7 @@ bool al_mouse_button_down(AL_MSESTATE *state, int button)
  *****************************************************************************/
 
 
-/* al_create_mouse_cursor:
+/* Function: al_create_mouse_cursor
  *  Create a mouse cursor from the bitmap provided.  There must be a
  *  graphics driver in effect.
  *  Returns a pointer to the cursor on success, or NULL on failure.
@@ -284,7 +289,7 @@ AL_MOUSE_CURSOR *al_create_mouse_cursor(BITMAP *bmp, int x_focus, int y_focus)
 
 
 
-/* al_destroy_mouse_cursor:
+/* Function: al_destroy_mouse_cursor
  *  Free the memory used by the given cursor.  The graphics driver that
  *  was in effect when the cursor was created must still be in effect.
  */
@@ -301,7 +306,7 @@ void al_destroy_mouse_cursor(AL_MOUSE_CURSOR *cursor)
 
 
 
-/* al_set_mouse_cursor:
+/* Function: al_set_mouse_cursor
  *  Set the given mouse cursor to be the current mouse cursor.  The
  *  graphics driver that was in effect when the cursor was created
  *  must still be in effect.  If the cursor is currently 'shown' (as
@@ -321,7 +326,7 @@ bool al_set_mouse_cursor(AL_MOUSE_CURSOR *cursor)
 
 
 
-/* al_set_system_mouse_cursor:
+/* Function: al_set_system_mouse_cursor
  *  Set the given system mouse cursor to be the current mouse cursor.
  *  The graphics driver that was in effect when the cursor was created
  *  must still be in effect.  If the cursor is currently 'shown' (as
@@ -340,7 +345,7 @@ bool al_set_system_mouse_cursor(AL_SYSTEM_MOUSE_CURSOR cursor_id)
 
 
 
-/* al_show_mouse_cursor:
+/* Function: al_show_mouse_cursor
  *  Make the current mouse cursor visible.  By default the mouse
  *  cursor is hidden.  A graphics driver must be in effect.
  *  Returns true on success, false on failure.
@@ -357,7 +362,7 @@ bool al_show_mouse_cursor(void)
 
 
 
-/* al_hide_mouse_cursor:
+/* Function: al_hide_mouse_cursor
  *  Hide the current mouse cursor.  This has no effect on what the
  *  current mouse cursor looks like; it just makes it disappear.
  *  A graphics driver must be in effect.

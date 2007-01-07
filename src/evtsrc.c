@@ -15,6 +15,9 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Event sources
+ */
+
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
@@ -29,7 +32,7 @@
  *----------------------------------------------------------------------*/
 
 
-/* al_event_source_mask:
+/* Function: al_event_source_mask
  *  Return the event mask of an event source.
  */
 AL_EVENT_TYPE al_event_source_mask(AL_EVENT_SOURCE *source)
@@ -41,8 +44,12 @@ AL_EVENT_TYPE al_event_source_mask(AL_EVENT_SOURCE *source)
 
 
 
-/* al_event_source_set_mask:
- *  Change the event mask of an event source.
+/* Function: al_event_source_set_mask
+ *  Set the event mask of an event source.  This will restrict the types of
+ *  event packets that the event source will generate.  MASK is made by
+ *  bitwise-OR'ing the event types that will be allowed to be generated.  By
+ *  default, event sources will generate all event types that they are capable
+ *  of.
  */
 void al_event_source_set_mask(AL_EVENT_SOURCE *source, AL_EVENT_TYPE mask)
 {

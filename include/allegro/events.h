@@ -1,3 +1,6 @@
+/* Title: Events
+ */
+
 #ifndef _al_included_events_h
 #define _al_included_events_h
 
@@ -15,6 +18,8 @@ AL_BEGIN_EXTERN_C
 
 typedef unsigned int AL_EVENT_TYPE;
 
+/* Enum: AL_EVENT_TYPE
+ */
 enum
 {
    AL_EVENT_JOYSTICK_AXIS               = 0x0001,
@@ -121,7 +126,11 @@ typedef struct AL_TIMER_EVENT
 
 
 
-/* An AL_EVENT is a union of all builtin event structures.  Although
+/* Type: AL_EVENT
+ *
+ * An AL_EVENT is a union of all builtin event structures.
+ */
+/* Although
  * we cannot extend this union later with user event structures, the
  * API is designed so that pointers to any user event structures can
  * be reliably cast to and from pointers to AL_EVENTs.  In that way,

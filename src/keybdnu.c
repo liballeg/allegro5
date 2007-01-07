@@ -15,6 +15,9 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Keyboard routines
+ */
+
 
 #define ALLEGRO_NO_COMPATIBILITY
 
@@ -79,7 +82,7 @@ const char *_al_keyboard_common_names[AL_KEY_MAX] =
 
 
 
-/* al_install_keyboard: [primary thread]
+/* Function: al_install_keyboard
  *  Install a keyboard driver. Returns true if successful. If a driver
  *  was already installed, nothing happens and true is returned.
  */
@@ -120,7 +123,7 @@ bool al_install_keyboard(void)
 
 
 
-/* al_uninstall_keyboard: [primary thread]
+/* Function: al_uninstall_keyboard
  *  Uninstalls the active keyboard driver, if any.  This will
  *  automatically unregister the keyboard event source with any event
  *  queues.
@@ -142,7 +145,7 @@ void al_uninstall_keyboard(void)
 
 
 
-/* al_get_keyboard:
+/* Function: al_get_keyboard
  *  Return a pointer to an object representing the keyboard, that can
  *  be used as an event source.
  */
@@ -159,7 +162,7 @@ AL_KEYBOARD *al_get_keyboard(void)
 
 
 
-/* al_set_keyboard_leds:
+/* Function: al_set_keyboard_leds
  *  Overrides the state of the keyboard LED indicators.
  *  Set to -1 to return to default behavior.
  *  False is returned if the current keyboard driver cannot set LED indicators.
@@ -176,7 +179,7 @@ bool al_set_keyboard_leds(int leds)
 
 
 
-/* al_keycode_to_name:
+/* Function: al_keycode_to_name
  *  Converts the given keycode to a description of the key.
  */
 const char *al_keycode_to_name(int keycode)
@@ -199,7 +202,7 @@ const char *al_keycode_to_name(int keycode)
 
 
 
-/* al_get_keyboard_state: [primary thread]
+/* Function: al_get_keyboard_state
  *  Save the state of the keyboard specified at the time the function
  *  is called into the structure pointed to by RET_STATE.
  */
@@ -213,7 +216,7 @@ void al_get_keyboard_state(AL_KBDSTATE *ret_state)
 
 
 
-/* al_key_down:
+/* Function: al_key_down
  *  Return true if the key specified was held down in the state
  *  specified.
  */
