@@ -4,4 +4,4 @@ docs: html
 		--style Default CustomStyle
 
 html:
-	$(MKDIR) html
+	mkdir html
