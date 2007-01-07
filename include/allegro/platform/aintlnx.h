@@ -248,5 +248,11 @@ void __al_linux_mouse_handler (int x, int y, int z, int b);
    #include "allegro/internal/aintvga.h"
 #endif
 
+/* Functions for querying the framebuffer, for the fbcon driver */
+#if (defined ALLEGRO_LINUX_FBCON) && (!defined ALLEGRO_WITH_MODULES)
+   extern int __al_linux_get_fb_color_depth(void);
+   extern int __al_linux_get_fb_resolution(int *width, int *height);
+#endif
+
 #endif /* ifndef AINTLNX_H */
 

@@ -86,8 +86,13 @@ SYSTEM_DRIVER system_linux =
    NULL, /* get_vtable */
    __al_linux_set_display_switch_mode,
    __al_linux_display_switch_lock,
+#if (defined ALLEGRO_LINUX_FBCON) && (!defined ALLEGRO_WITH_MODULES)
+   __al_linux_get_fb_color_depth,
+   __al_linux_get_fb_resolution,
+#else
    NULL, /* desktop_color_depth */
    NULL, /* get_desktop_resolution */
+#endif
    NULL, /* get_gfx_safe_mode */
    _unix_yield_timeslice,
 #ifdef HAVE_LIBPTHREAD
