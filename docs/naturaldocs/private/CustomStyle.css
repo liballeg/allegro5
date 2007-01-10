@@ -1,0 +1,7 @@
+/*
+ * Use blank line between paragraphs instead of indenting the first line.
+ */
+p {
+    text-indent: 0;
+    margin-bottom: 1em;
+  }
