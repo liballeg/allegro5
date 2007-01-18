@@ -76,7 +76,9 @@ GFX_DRIVER gfx_svgalib =
    NULL,			 /* svga_fetch_mode_list disabled */
    0, 0,
    TRUE,
-   0, 0, 0, 0, FALSE
+   0, 0, 0, 0, FALSE,
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 

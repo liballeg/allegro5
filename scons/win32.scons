@@ -23,6 +23,8 @@ env.Append(CPPPATH = includes)
 
 # assembler = Builder(action = 'gcc --x assembler-with-cpp $CCFLAGS $SOURCES -c -o $TARGET', src_suffic = '.s', suffic = '.o')
 
+# This shouldn't be needed. scons 0.96.93 can handle explicit assembly files
+# but it uses 'as' instead of gcc, so something needs to be changed here
 AssemblerAction = Action( 'gcc -x assembler-with-cpp $CCFLAGS $_CPPINCFLAGS $SOURCES -c -o $TARGET' )
 
 import SCons.Tool
@@ -115,14 +117,17 @@ wxthread.c
 
 def asmdef(env,appendDir,buildDir,libDir):
     # prog = env.Program('asmdef',appendDir(buildDir + 'i386/', ['asmdef.c']))
+    env = env.Copy()
+    env.Replace(LIBS = [])
     prog = env.Program('asmdef.exe','#' + buildDir + '/i386/asmdef.c')
-    file = env.Command('#obj/mingw32/asmdef.inc','#src/i386/asmdef.c','asmdef.exe $TARGET')
-    # env.Depends(file,prog)
+    file = env.Command('obj/mingw32/asmdef.inc','#src/i386/asmdef.c','asmdef.exe $TARGET')
+    env.Depends(file,prog)
     # env.Depends('#obj/mingw32/asmdef.inc',prog)
-    env.Depends('#' + buildDir + '/i386/iblit8.o',prog)
+    # env.Depends('#' + buildDir + '/i386/iblit8.o',prog)
+    env.Depends('#' + buildDir + '/i386/iblit8.o',file)
     # file = env.Cat('#obj/mingw32/asmdef.inc', 'x')
-    dep = env.Depends('#' + buildDir + '/i386/iblit8.o',file)
-    return dep
+    # dep = env.Depends('#' + buildDir + '/i386/iblit8.o',file)
+    return file
 
 context.addExtra(asmdef)
 

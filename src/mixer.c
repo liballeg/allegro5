@@ -32,7 +32,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include ALLEGRO_INTERNAL_HEADER
+#include "allegro/internal/aintern_thread.h"
 
 
 

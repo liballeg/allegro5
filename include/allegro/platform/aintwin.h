@@ -212,11 +212,11 @@ struct _AL_THREAD
    HANDLE thread;
    CRITICAL_SECTION cs;
    bool should_stop; /* XXX: use a dedicated terminate Event object? */
-   void (*proc)(_AL_THREAD *self, void *arg);
+   void (*proc)(struct _AL_THREAD *self, void *arg);
    void *arg;
 };
 
-AL_INLINE(bool, _al_thread_should_stop, (_AL_THREAD *t),
+AL_INLINE(bool, _al_thread_should_stop, (struct _AL_THREAD *t),
 {
    bool ret;
    EnterCriticalSection(&t->cs);
@@ -233,12 +233,12 @@ struct _AL_MUTEX
 #define _AL_MUTEX_UNINITED	       { NULL }
 #define _AL_MARK_MUTEX_UNINITED(M)     do { M.cs = NULL; } while (0)
 
-AL_INLINE(void, _al_mutex_lock, (_AL_MUTEX *m),
+AL_INLINE(void, _al_mutex_lock, (struct _AL_MUTEX *m),
 {
    if (m->cs)
       EnterCriticalSection(m->cs);
 })
-AL_INLINE(void, _al_mutex_unlock, (_AL_MUTEX *m),
+AL_INLINE(void, _al_mutex_unlock, (struct _AL_MUTEX *m),
 {
    if (m->cs)
       LeaveCriticalSection(m->cs);

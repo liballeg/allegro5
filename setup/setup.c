@@ -33,7 +33,7 @@
 #endif
 
  /* FIXME: for _al_joystick_driver_list */
-#include "allegro/internal/aintern2.h"
+#include "allegro/internal/aintern_joystick.h"
 
 #include "setup.h"
 

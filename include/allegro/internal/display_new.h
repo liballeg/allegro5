@@ -3,6 +3,7 @@
 
 #include "allegro/display_new.h"
 #include "allegro/bitmap_new.h"
+#include "aintern_events.h"
 
 typedef struct AL_DISPLAY_INTERFACE AL_DISPLAY_INTERFACE;
 

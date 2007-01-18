@@ -29,8 +29,7 @@ extern "C" {
 
 extern _DRIVER_INFO _linux_gfx_driver_list[];
 extern _DRIVER_INFO _al_linux_keyboard_driver_list[];
-extern _DRIVER_INFO _linux_mouse_driver_list[];
-extern _DRIVER_INFO _linux_timer_driver_list[];
+extern _DRIVER_INFO _al_linux_mouse_driver_list[];
 extern _DRIVER_INFO _al_linux_joystick_driver_list[];
 
 
@@ -53,43 +52,6 @@ int __al_linux_init_memory (void);
 int __al_linux_shutdown_memory (void);
 int __al_linux_map_memory (struct MAPPED_MEMORY *info);
 int __al_linux_unmap_memory (struct MAPPED_MEMORY *info);
-
-
-/******************************************/
-/************ Standard drivers ************/ /* (src/linux/lstddrv.c) */
-/******************************************/
-
-/* This "standard drivers" business is mostly a historical artifact.
- * It was highly over-engineered, now simplified.  It has been mostly
- * superseded by the newer, shinier, better bg_man.  But hey, at least
- * it didn't suffer the fate of its cousin lasyncio.c, now dead,
- * buried, and without a tombstone to show for it. --pw
- */
-
-typedef struct STD_DRIVER {
-   unsigned    type; /* One of the below STD_ constants */
-
-   int (*update) (void);
-   void (*resume) (void);
-   void (*suspend) (void);
-
-   int         fd;   /* Descriptor of the opened device */
-} STD_DRIVER;
-
-#define STD_MOUSE            0
-#define STD_KBD              1
-
-#define N_STD_DRIVERS        2
-
-/* List of standard drivers */
-extern STD_DRIVER *__al_linux_std_drivers[];
-
-/* Exported functions */
-int  __al_linux_add_standard_driver (STD_DRIVER *spec);
-int  __al_linux_remove_standard_driver (STD_DRIVER *spec);
-void __al_linux_update_standard_drivers (int threaded);
-void __al_linux_suspend_standard_drivers (void);
-void __al_linux_resume_standard_drivers (void);
 
 
 /******************************************/
@@ -216,25 +178,6 @@ BITMAP *__al_linux_gfx_mode_set_helper (
 	int (*set_video_mode) (GFX_MODE_INFO *mode),
 	void (*set_width) (int w)
 );
-
-
-/*******************************/
-/************ Mouse ************/ /* (src/linux/lmouse.c) */
-/*******************************/
-
-typedef struct INTERNAL_MOUSE_DRIVER {
-   int device;
-   int (*process) (unsigned char *buf, int buf_size);
-   int num_buttons;
-} INTERNAL_MOUSE_DRIVER;
-
-int  __al_linux_mouse_init (INTERNAL_MOUSE_DRIVER *drv);
-void __al_linux_mouse_exit (void);
-void __al_linux_mouse_position (int x, int y);
-void __al_linux_mouse_set_range (int x1, int y_1, int x2, int y2);
-void __al_linux_mouse_set_speed (int xspeed, int yspeed);
-void __al_linux_mouse_get_mickeys (int *mickeyx, int *mickeyy);
-void __al_linux_mouse_handler (int x, int y, int z, int b);
 
 
 #ifdef __cplusplus

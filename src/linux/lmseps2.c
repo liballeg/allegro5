@@ -1,3 +1,5 @@
+#error This driver has not been updated to the new mouse API.
+
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___

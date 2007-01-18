@@ -58,10 +58,13 @@ GFX_DRIVER gfx_directx_win =
    NULL,
    gfx_directx_create_system_bitmap,
    gfx_directx_destroy_system_bitmap,
-   gfx_directx_set_mouse_sprite,
-   gfx_directx_show_mouse,
-   gfx_directx_hide_mouse,
-   gfx_directx_move_mouse,
+   NULL, NULL, NULL, NULL,      // old hardware cursor methods
+				/*
+				 gfx_directx_set_mouse_sprite,
+				 gfx_directx_show_mouse,
+				 gfx_directx_hide_mouse,
+				 gfx_directx_move_mouse,
+				*/
    NULL,                        // AL_METHOD(void, drawing_mode, (void));
    NULL,                        // AL_METHOD(void, save_video_state, (void*));
    NULL,                        // AL_METHOD(void, restore_video_state, (void*));
@@ -73,7 +76,14 @@ GFX_DRIVER gfx_directx_win =
    0,                           // long bank_gran;
    0,                           // long vid_mem;
    0,                           // long vid_phys_base;
-   TRUE                         // int windowed;
+   TRUE,                        // int windowed;
+   /* new_api_branch additions */
+   _al_win_directx_create_mouse_cursor,
+   _al_win_directx_destroy_mouse_cursor,
+   _al_win_directx_set_mouse_cursor,
+   _al_win_directx_set_system_mouse_cursor,
+   _al_win_directx_show_mouse_cursor,
+   _al_win_directx_hide_mouse_cursor
 };
 
 

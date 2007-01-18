@@ -77,11 +77,9 @@ extern "C" {
 
 
 #ifdef ALLEGRO_WITH_XWINDOWS
-   AL_FUNCPTR(void, _xwin_mouse_interrupt, (int x, int y, int z, int buttons));
-
    AL_ARRAY(_DRIVER_INFO, _xwin_gfx_driver_list);
    AL_ARRAY(_DRIVER_INFO, _al_xwin_keyboard_driver_list);
-   AL_ARRAY(_DRIVER_INFO, _xwin_mouse_driver_list);
+   AL_ARRAY(_DRIVER_INFO, _al_xwin_mouse_driver_list);
 
    AL_FUNC(void, _xwin_handle_input, (void));
    AL_FUNC(void, _xwin_private_handle_input, (void));
@@ -162,7 +160,6 @@ extern struct bg_manager *_unix_bg_man;
 /* TODO: replace bg_man */
 
 #include <pthread.h>
-#include "allegro/internal/aintern.h"
 
 AL_BEGIN_EXTERN_C
 
@@ -173,11 +170,11 @@ struct _AL_THREAD
     pthread_t thread;
     pthread_mutex_t mutex;
     bool should_stop;
-    void (*proc)(_AL_THREAD *self, void *arg);
+    void (*proc)(struct _AL_THREAD *self, void *arg);
     void *arg;
 };
 
-AL_INLINE(bool, _al_thread_should_stop, (_AL_THREAD *t),
+AL_INLINE(bool, _al_thread_should_stop, (struct _AL_THREAD *t),
 {
     bool ret;
     pthread_mutex_lock(&t->mutex);
@@ -196,14 +193,14 @@ struct _AL_MUTEX
 				       /* makes no sense, but shuts gcc up */
 #define _AL_MARK_MUTEX_UNINITED(M)     do { M.inited = false; } while (0)
 
-AL_FUNC(void, _al_mutex_init, (_AL_MUTEX*));
-AL_FUNC(void, _al_mutex_destroy, (_AL_MUTEX*));
-AL_INLINE(void, _al_mutex_lock, (_AL_MUTEX *m),
+AL_FUNC(void, _al_mutex_init, (struct _AL_MUTEX*));
+AL_FUNC(void, _al_mutex_destroy, (struct _AL_MUTEX*));
+AL_INLINE(void, _al_mutex_lock, (struct _AL_MUTEX *m),
 {
    if (m->inited)
       pthread_mutex_lock(&m->mutex);
 })
-AL_INLINE(void, _al_mutex_unlock, (_AL_MUTEX *m),
+AL_INLINE(void, _al_mutex_unlock, (struct _AL_MUTEX *m),
 {
    if (m->inited)
       pthread_mutex_unlock(&m->mutex);
@@ -214,27 +211,27 @@ struct _AL_COND
    pthread_cond_t cond;
 };
 
-AL_INLINE(void, _al_cond_init, (_AL_COND *cond),
+AL_INLINE(void, _al_cond_init, (struct _AL_COND *cond),
 {
    pthread_cond_init(&cond->cond, NULL);
 })
 
-AL_INLINE(void, _al_cond_destroy, (_AL_COND *cond),
+AL_INLINE(void, _al_cond_destroy, (struct _AL_COND *cond),
 {
    pthread_cond_destroy(&cond->cond);
 })
 
-AL_INLINE(void, _al_cond_wait, (_AL_COND *cond, _AL_MUTEX *mutex),
+AL_INLINE(void, _al_cond_wait, (struct _AL_COND *cond, struct _AL_MUTEX *mutex),
 {
    pthread_cond_wait(&cond->cond, &mutex->mutex);
 })
 
-AL_INLINE(void, _al_cond_broadcast, (_AL_COND *cond),
+AL_INLINE(void, _al_cond_broadcast, (struct _AL_COND *cond),
 {
    pthread_cond_broadcast(&cond->cond);
 })
 
-AL_INLINE(void, _al_cond_signal, (_AL_COND *cond),
+AL_INLINE(void, _al_cond_signal, (struct _AL_COND *cond),
 {
    pthread_cond_signal(&cond->cond);
 })

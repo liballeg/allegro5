@@ -24,6 +24,7 @@
 
 
 #include "allegro/internal/aintern.h"
+#include "allegro/internal/aintern_thread.h"
 #include "allegro/platform/aintunix.h"
 
 #include <string.h>
@@ -64,12 +65,11 @@ extern struct _xwin_type
    Colormap colormap;
    XImage *ximage;
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-   XcursorImage *xcursor_image;
    XcursorBool support_argb_cursor;
 #endif
+   Cursor invisible_cursor;
    Cursor cursor;
-   int cursor_shape;
-   int hw_cursor_ok;
+   bool hw_cursor_ok;
 
    void (*screen_to_buffer)(int sx, int sy, int sw, int sh);
    void (*set_colors)(AL_CONST PALETTE p, int from, int to);

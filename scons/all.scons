@@ -52,7 +52,7 @@ memory.c
 midi.c
 mixer.c
 modesel.c
-mouse.c
+mousenu.c
 pcx.c
 poly3d.c
 polygon.c
@@ -83,6 +83,7 @@ coblit.c
 cogfx.c
 cojoy.c
 cokeybd.c
+comouse.c
 cotimer.c
 """ ));
 

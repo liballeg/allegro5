@@ -270,6 +270,14 @@ else:
 context.getLibraryEnv().Append(CPPPATH = [ normalBuildDir ])
 
 library = context.getAllegroTarget(debug,static)
+if static == 1 and debug == 1:
+	print "Building debugged static library"
+elif static == 1:
+	print "Building static library"
+elif debug == 1:
+	print "Building debug library"
+else:
+	print "Building normal library"
 Alias('library', library)
 
 # m = Move(context.getLibraryEnv(),library)

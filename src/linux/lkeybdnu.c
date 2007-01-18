@@ -46,8 +46,10 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include ALLEGRO_INTERNAL_HEADER
-#include "allegro/internal/aintern2.h"
+#include "allegro/internal/aintern_events.h"
+#include "allegro/internal/aintern_keyboard.h"
+
+
 
 #define PREFIX_I                "al-ckey INFO: "
 #define PREFIX_W                "al-ckey WARNING: "
@@ -77,11 +79,11 @@ static pid_t main_pid;
 
 
 /* forward declarations */
-static bool lkeybd_init(void);
-static void lkeybd_exit(void);
+static bool lkeybd_init_keyboard(void);
+static void lkeybd_exit_keyboard(void);
 static AL_KEYBOARD *lkeybd_get_keyboard(void);
-static bool lkeybd_set_leds(int leds);
-static void lkeybd_get_state(AL_KBDSTATE *ret_state);
+static bool lkeybd_set_keyboard_leds(int leds);
+static void lkeybd_get_keyboard_state(AL_KBDSTATE *ret_state);
 
 static void process_new_data(void *unused);
 static void process_character(unsigned char ch);
@@ -99,12 +101,12 @@ static AL_KEYBOARD_DRIVER keydrv_linux =
    empty_string,
    empty_string,
    "Linux console keyboard",
-   lkeybd_init,
-   lkeybd_exit,
+   lkeybd_init_keyboard,
+   lkeybd_exit_keyboard,
    lkeybd_get_keyboard,
-   lkeybd_set_leds,
+   lkeybd_set_keyboard_leds,
    NULL, /* const char *keycode_to_name(int keycode) */
-   lkeybd_get_state
+   lkeybd_get_keyboard_state
 };
 
 
@@ -290,10 +292,10 @@ static int keycode_to_char(int keycode)
 
 
 
-/* lkeybd_init: [primary thread]
+/* lkeybd_init_keyboard: [primary thread]
  *  Initialise the keyboard driver.
  */
-static bool lkeybd_init(void)
+static bool lkeybd_init_keyboard(void)
 {
    bool can_restore_termio_and_kbmode = false;
 
@@ -373,10 +375,10 @@ static bool lkeybd_init(void)
 
 
 
-/* lkeybd_exit: [primary thread]
+/* lkeybd_exit_keyboard: [primary thread]
  *  Shut down the keyboard driver.
  */
-static void lkeybd_exit(void)
+static void lkeybd_exit_keyboard(void)
 {
    _al_unix_stop_watching_fd(the_keyboard.fd);
 
@@ -409,10 +411,10 @@ static AL_KEYBOARD *lkeybd_get_keyboard(void)
 
 
 
-/* lkeybd_set_leds:
+/* lkeybd_set_keyboard_leds:
  *  Updates the LED state.
  */
-static bool lkeybd_set_leds(int leds)
+static bool lkeybd_set_keyboard_leds(int leds)
 {
    int val = 0;
 
@@ -425,10 +427,10 @@ static bool lkeybd_set_leds(int leds)
 
 
 
-/* lkeybd_get_state: [primary thread]
+/* lkeybd_get_keyboard_state: [primary thread]
  *  Copy the current keyboard state into RET_STATE, with any necessary locking.
  */
-static void lkeybd_get_state(AL_KBDSTATE *ret_state)
+static void lkeybd_get_keyboard_state(AL_KBDSTATE *ret_state)
 {
    _al_event_source_lock(&the_keyboard.parent.es);
    {
@@ -538,7 +540,7 @@ static void process_character(unsigned char ch)
  */
 static void handle_key_press(int mycode, unsigned int ascii)
 {
-   unsigned int event_type;
+   AL_EVENT_TYPE event_type;
    AL_EVENT *event;
 
    event_type = (_AL_KBDSTATE_KEY_DOWN(the_keyboard.state, mycode)

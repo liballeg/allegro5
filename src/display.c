@@ -15,14 +15,25 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Display routines
+ */
+
+
 #include <string.h>
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include "allegro/internal/aintern_vector.h"
 
 #include "allegro/display.h"
 
+
+
+/* Variable: al_main_display
+ */
 AL_DISPLAY *al_main_display = NULL;
+
+
 
 static _AL_VECTOR display_list = _AL_VECTOR_INITIALIZER(AL_DISPLAY *);
 
@@ -62,6 +73,7 @@ static void destroy_video_bitmaps(void)
    while (vram_bitmap_list)
       destroy_bitmap(vram_bitmap_list->bmp);
 }
+
 
 
 /* add_vram_block:
@@ -105,7 +117,7 @@ static BITMAP *add_vram_block(AL_DISPLAY *display, int x, int y, int w, int h)
 
 
 
-/* al_create_video_bitmap:
+/* Function: al_create_video_bitmap
  *  Attempts to make a bitmap object for accessing offscreen video memory.
  *
  *  The algorithm is similar to algorithms for drawing polygons. Think of
@@ -265,7 +277,7 @@ BITMAP *al_create_video_bitmap(AL_DISPLAY *display, int width, int height)
 
 
 
-/* al_create_system_bitmap:
+/* Function: al_create_system_bitmap
  *  Attempts to make a system-specific (eg. DirectX surface) bitmap object.
  */
 BITMAP *al_create_system_bitmap(AL_DISPLAY *display, int width, int height)
@@ -945,7 +957,7 @@ BITMAP *_make_bitmap(int w, int h, uintptr_t addr, GFX_DRIVER *driver, int color
 
 
 
-/* al_scroll_screen:
+/* Function: al_scroll_screen
  *  Attempts to scroll the hardware screen, returning 0 on success. 
  *  Check the VIRTUAL_W and VIRTUAL_H values to see how far the screen
  *  can be scrolled. Note that a lot of VESA drivers can only handle
@@ -994,7 +1006,7 @@ int al_scroll_display(AL_DISPLAY *display, int x, int y)
 
 
 
-/* al_request_scroll:
+/* Function: al_request_scroll
  *  Attempts to initiate a triple buffered hardware scroll, which will
  *  take place during the next retrace. Returns 0 on success.
  */
@@ -1043,7 +1055,7 @@ int al_request_scroll(AL_DISPLAY *display, int x, int y)
 
 
 
-/* al_poll_scroll:
+/* Function: al_poll_scroll
  *  Checks whether a requested triple buffer flip has actually taken place.
  */
 int al_poll_scroll(AL_DISPLAY *display)
@@ -1058,7 +1070,7 @@ int al_poll_scroll(AL_DISPLAY *display)
 
 
 
-/* al_show_video_bitmap:
+/* Function: al_show_video_bitmap
  *  Page flipping function: swaps to display the specified video memory 
  *  bitmap object (this must be the same size as the physical screen).
  */
@@ -1080,7 +1092,7 @@ int al_show_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
 
 
 
-/* al_request_video_bitmap:
+/* Function: al_request_video_bitmap
  *  Triple buffering function: triggers a swap to display the specified 
  *  video memory bitmap object, which will take place on the next retrace.
  */
@@ -1102,7 +1114,7 @@ int al_request_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
 
 
 
-/* al_enable_triple_buffer:
+/* Function: al_enable_triple_buffer
  *  Asks a driver to turn on triple buffering mode, if it is capable
  *  of that.
  */
@@ -1130,9 +1142,9 @@ int al_enable_triple_buffer(AL_DISPLAY *display)
 
 
 
-/* al_create_display
- * Create a new Allegro display object, return NULL on failure
- * The first display object created becomes the al_main_display
+/* Function: al_create_display
+ *  Create a new Allegro display object, return NULL on failure
+ *  The first display object created becomes the al_main_display.
  */
 AL_DISPLAY *al_create_display_emulated(int driver, int flags, int depth, int w, int h)
 {
@@ -1268,10 +1280,12 @@ AL_DISPLAY *al_create_display_emulated(int driver, int flags, int depth, int w, 
    return NULL;
 }
 
-/* al_set_update_method:
- * Change the update method for the selected display. If the method change 
- * fails the current method is either retained or reset to AL_UPDATE_NONE.
- * Returns the method being used after this call.
+
+
+/* Function: al_set_update_method
+ *  Change the update method for the selected display. If the method change 
+ *  fails the current method is either retained or reset to AL_UPDATE_NONE.
+ *  Returns the method being used after this call.
  */
 int al_set_update_method(AL_DISPLAY *display, int method)
 {
@@ -1380,8 +1394,11 @@ int al_set_update_method(AL_DISPLAY *display, int method)
    return display->flags & AL_UPDATE_ALL;
 }
 
-/* al_destroy_display:
- * Destroys an Allegro display and returns to text mode
+
+
+/* Function: al_destroy_display
+ *  Destroys an Allegro display. On some platforms this will return to text
+ *  mode.
  */
 void al_destroy_display(AL_DISPLAY *display)
 {
@@ -1407,8 +1424,10 @@ void al_destroy_display(AL_DISPLAY *display)
    _AL_FREE(display);
 }
 
-/* al_flip_display:
- * Flip the front and back buffers
+
+
+/* Function: al_flip_display
+ *  Flip the front and back buffers.
  */
 void al_flip_display(AL_DISPLAY *display)
 {
@@ -1435,11 +1454,13 @@ void al_flip_display(AL_DISPLAY *display)
             vsync();
          blit(display->page[0], display->screen, 0, 0, 0, 0, display->page[0]->w, display->page[0]->h);
          return;
-   } /* End of switch */
+   }
 }
 
-/* al_get_buffer:
- * Get a pointer to the backbuffer
+
+
+/* Function: al_get_buffer
+ *  Get a pointer to the backbuffer.
  */
 BITMAP *al_get_buffer(const AL_DISPLAY *display)
 {
@@ -1451,8 +1472,10 @@ BITMAP *al_get_buffer(const AL_DISPLAY *display)
    return display->screen;
 }
 
-/* al_get_update_method:
- * Get the update method being used to update the display
+
+
+/* Function: al_get_update_method
+ *  Get the update method being used to update the display.
  */
 int al_get_update_method(const AL_DISPLAY *display)
 {
@@ -1462,40 +1485,47 @@ int al_get_update_method(const AL_DISPLAY *display)
 }
 
 
+
 /* VSync settings */
 
-/* al_enable_vsync:
- * Enable vsync for the display
+/* Function: al_enable_vsync
+ *  Enable vsync for the display.
  */
 void al_enable_vsync(AL_DISPLAY *display)
 {
    ASSERT(display);
    
-   display->flags&=~AL_DISABLE_VSYNC;
+   display->flags &= ~AL_DISABLE_VSYNC;
 }
 
-/* al_disable_vsync:
- * disable vsync for the display
+
+
+/* Function: al_disable_vsync
+ *  Disable vsync for the display.
  */
 void al_disable_vsync(AL_DISPLAY *display)
 {
    ASSERT(display);
    
-   display->flags|=AL_DISABLE_VSYNC;
+   display->flags |= AL_DISABLE_VSYNC;
 }
 
-/* al_toggle_vsync:
- * Toggle vsync for the display
+
+
+/* Function: al_toggle_vsync
+ *  Toggle vsync for the display.
  */
 void al_toggle_vsync(AL_DISPLAY *display)
 {
    ASSERT(display);
    
-   display->flags^=AL_DISABLE_VSYNC;
+   display->flags ^= AL_DISABLE_VSYNC;
 }
 
-/* al_vsync_is_enabled:
- * returns TRUE if vsync is enabled on the display
+
+
+/* Function: al_vsync_is_enabled
+ *  Returns true if vsync is enabled on the display.
  */
 int al_vsync_is_enabled(const AL_DISPLAY *display)
 {

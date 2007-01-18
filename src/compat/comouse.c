@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -15,46 +15,41 @@
  *      Mark Wodrich added double-buffered drawing of the mouse pointer and
  *      the set_mouse_sprite_focus() function.
  *
+ *      Converted into an emulation layer by Peter Wang.
+ *
  *      See readme.txt for copyright information.
  */
 
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include "allegro/internal/aintern_mouse.h"
 
 
 
-/* dummy driver for systems without a mouse */
-static int nomouse_init(void) { return 0; }
-static void nomouse_exit(void) { }
-
-MOUSE_DRIVER mousedrv_none =
+/* dummy driver for this emulation */
+static MOUSE_DRIVER mouse_emu =
 {
-   MOUSEDRV_NONE,
-   empty_string,
-   empty_string,
-   "No mouse",
-   nomouse_init,
-   nomouse_exit,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   AL_ID('M','E','M','U'),
+   "comouse",
+   "Old mouse API emulation",
+   "comouse"
 };
 
 
 MOUSE_DRIVER *mouse_driver = NULL;     /* the active driver */
-int _mouse_type = MOUSEDRV_AUTODETECT;  /* driver ID */
-int _mouse_installed = FALSE;
 
 volatile int mouse_x = 0;              /* user-visible position */
 volatile int mouse_y = 0;
 volatile int mouse_z = 0;
-volatile int mouse_b = 0; 
-volatile int mouse_pos = 0; 
+volatile int mouse_b = 0;
+volatile int mouse_pos = 0;
 
-int _mouse_x = 0;                      /* internal position */
-int _mouse_y = 0;
-int _mouse_z = 0;
-int _mouse_b = 0;
-int _mouse_on = TRUE;
+static int _mouse_x = 0;               /* internal position */
+static int _mouse_y = 0;
+static int _mouse_z = 0;
+static int _mouse_b = 0;
+int _al_comouse_on = TRUE;
 
 static int mon = TRUE;
 
@@ -79,21 +74,21 @@ int mouse_y_focus = 1;
 /* TODO: add other shapes! */
 static char mouse_arrow_data[DEFAULT_SPRITE_H * DEFAULT_SPRITE_W] =
 {
-   2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-   2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-   2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-   2, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-   2, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-   2, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-   2, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 
-   2, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 
-   2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 
-   2, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 
-   2, 1, 1, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-   2, 1, 2, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 
-   0, 2, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 
-   0, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 
-   0, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 
+   2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   2, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   2, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   2, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   2, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+   2, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+   2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0,
+   2, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0,
+   2, 1, 1, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   2, 1, 2, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+   0, 2, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+   0, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+   0, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0,
    0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
@@ -118,11 +113,12 @@ static char mouse_busy_data[DEFAULT_SPRITE_H * DEFAULT_SPRITE_W] =
 };
 
 
-BITMAP *_mouse_pointer = NULL;         /* default mouse pointer */
+static BITMAP *_mouse_pointer = NULL;  /* default mouse pointer */
 
-BITMAP *mouse_sprite = NULL;	       /* current mouse pointer */
+BITMAP *mouse_sprite = NULL;           /* current mouse pointer */
 
 BITMAP *_mouse_screen = NULL;          /* where to draw the pointer */
+        /* XXX: should be static but for gui.c */
 
 static BITMAP *default_cursors[NUM_MOUSE_CURSORS];
 static BITMAP *cursors[NUM_MOUSE_CURSORS];
@@ -139,24 +135,32 @@ static BITMAP *mtemp = NULL;           /* double-buffer drawing area */
 
 #define SCARED_SIZE   16               /* for unscare_mouse() */
 
-static BITMAP *scared_screen[SCARED_SIZE]; 
-static int scared_freeze[SCARED_SIZE]; 
+static BITMAP *scared_screen[SCARED_SIZE];
+static int scared_freeze[SCARED_SIZE];
 static int scared_size = 0;
 
 static int mouse_polled = FALSE;       /* are we in polling mode? */
 
-static int mouse_semaphore = FALSE;    /* reentrant interrupt? */
+static _AL_THREAD comouse_thread;
+static _AL_MUTEX comouse_mutex = _AL_MUTEX_UNINITED;
+static AL_EVENT_QUEUE *comouse_event_queue;
+static bool comouse_thread_call_mouse_move = false;
+
+static int comouse_mickeyx = 0;
+static int comouse_mickeyy = 0;
+
+static void comouse_thread_func(_AL_THREAD *self, void *unused);
 
 
 
-/* draw_mouse_doublebuffer:
+/* draw_mouse_doublebuffer: [primary or comouse thread]
  *  Eliminates mouse-cursor flicker by using an off-screen buffer for
  *  updating the cursor, and blitting only the final screen image.
- *  newx and newy contain the new cursor position, and mx and my are 
- *  assumed to contain previous cursor pos. This routine is called if 
+ *  newx and newy contain the new cursor position, and mx and my are
+ *  assumed to contain previous cursor pos. This routine is called if
  *  mouse cursor is to be erased and redrawn, and the two position overlap.
  */
-static void draw_mouse_doublebuffer(int newx, int newy) 
+static void draw_mouse_doublebuffer(int newx, int newy)
 {
    int x1, y1, w, h;
 
@@ -177,7 +181,7 @@ static void draw_mouse_doublebuffer(int newx, int newy)
 
    /* blit saved image in 'ms' to corect place in this buffer */
    blit(ms, mtemp, 0, 0, mx-mouse_x_focus-x1, my-mouse_y_focus-y1,
-			 mouse_sprite->w, mouse_sprite->h);
+                         mouse_sprite->w, mouse_sprite->h);
 
    /* draw mouse at correct place in 'mtemp' */
    blit(mtemp, ms, newx, newy, 0, 0, mouse_sprite->w, mouse_sprite->h);
@@ -187,17 +191,15 @@ static void draw_mouse_doublebuffer(int newx, int newy)
    blit(mtemp, _mouse_screen, 0, 0, x1, y1, w, h);
 }
 
-END_OF_STATIC_FUNCTION(draw_mouse_doublebuffer);
 
 
-
-/* draw_mouse:
+/* draw_mouse: [primary or comouse thread]
  *  Mouse pointer drawing routine. If remove is set, deletes the old mouse
  *  pointer. If add is set, draws a new one.
  */
 static void draw_mouse(int remove, int add)
 {
-   int normal_draw = (remove ^ add); 
+   int normal_draw = (remove ^ add);
 
    int newmx = _mouse_x;
    int newmy = _mouse_y;
@@ -213,7 +215,7 @@ static void draw_mouse(int remove, int add)
    _mouse_screen->cr = _mouse_screen->w;
    _mouse_screen->cb = _mouse_screen->h;
 
-   if (!_mouse_on) {
+   if (!_al_comouse_on) {
       newmx = MOUSE_OFFSCREEN;
       newmy = MOUSE_OFFSCREEN;
       mon = FALSE;
@@ -223,21 +225,25 @@ static void draw_mouse(int remove, int add)
 
    if (!normal_draw) {
       if ((newmx <= mx-mouse_sprite->w) || (newmx >= mx+mouse_sprite->w) ||
-	  (newmy <= my-mouse_sprite->h) || (newmy >= my+mouse_sprite->h))
-	 normal_draw = 1;
+          (newmy <= my-mouse_sprite->h) || (newmy >= my+mouse_sprite->h))
+         normal_draw = 1;
    }
+
+   ASSERT(ms);
+   ASSERT(_mouse_screen);
 
    if (normal_draw) {
       if (remove)
-	 blit(ms, _mouse_screen, 0, 0, mx-mouse_x_focus, my-mouse_y_focus, mouse_sprite->w, mouse_sprite->h);
+         blit(ms, _mouse_screen, 0, 0, mx-mouse_x_focus, my-mouse_y_focus, mouse_sprite->w, mouse_sprite->h);
 
       if (add) {
-	 blit(_mouse_screen, ms, newmx-mouse_x_focus, newmy-mouse_y_focus, 0, 0, mouse_sprite->w, mouse_sprite->h);
-	 draw_sprite(_mouse_screen, cursors[current_cursor], newmx-mouse_x_focus, newmy-mouse_y_focus);
+         blit(_mouse_screen, ms, newmx-mouse_x_focus, newmy-mouse_y_focus, 0, 0, mouse_sprite->w, mouse_sprite->h);
+         draw_sprite(_mouse_screen, cursors[current_cursor], newmx-mouse_x_focus, newmy-mouse_y_focus);
       }
    }
-   else
+   else {
       draw_mouse_doublebuffer(newmx, newmy);
+   }
 
    mx = newmx;
    my = newmy;
@@ -249,14 +255,24 @@ static void draw_mouse(int remove, int add)
    _mouse_screen->cb = cb;
 }
 
-END_OF_STATIC_FUNCTION(draw_mouse);
 
 
-
-/* update_mouse:
+/* update_mouse: [primary or comouse thread]
  *  Worker function to update the mouse position variables with new values.
  */
+
+static void update_mouse_2(void);
+
 static void update_mouse(void)
+{
+   _al_mutex_lock(&comouse_mutex);
+   {
+      update_mouse_2();
+   }
+   _al_mutex_unlock(&comouse_mutex);
+}
+
+static void update_mouse_2(void)
 {
    int x, y, z, b, flags = 0;
 
@@ -274,126 +290,90 @@ static void update_mouse(void)
 
    if (emulate_three) {
       if ((b & 3) == 3)
-	 b = 4;
+         b = 4;
    }
 
-   if ((mouse_x != x) || 
+   if ((mouse_x != x) ||
        (mouse_y != y) ||
        (mouse_z != z) ||
        (mouse_b != b)) {
 
       if (mouse_callback) {
-	 if ((mouse_x != x) || (mouse_y != y))
-	    flags |= MOUSE_FLAG_MOVE;
+         if ((mouse_x != x) || (mouse_y != y))
+            flags |= MOUSE_FLAG_MOVE;
 
-	 if (mouse_z != z)
-	    flags |= MOUSE_FLAG_MOVE_Z;
+         if (mouse_z != z)
+            flags |= MOUSE_FLAG_MOVE_Z;
 
-	 if ((b & 1) && !(mouse_b & 1))
-	    flags |= MOUSE_FLAG_LEFT_DOWN;
-	 else if (!(b & 1) && (mouse_b & 1))
-	    flags |= MOUSE_FLAG_LEFT_UP;
+         if ((b & 1) && !(mouse_b & 1))
+            flags |= MOUSE_FLAG_LEFT_DOWN;
+         else if (!(b & 1) && (mouse_b & 1))
+            flags |= MOUSE_FLAG_LEFT_UP;
 
-	 if ((b & 2) && !(mouse_b & 2))
-	    flags |= MOUSE_FLAG_RIGHT_DOWN;
-	 else if (!(b & 2) && (mouse_b & 2))
-	    flags |= MOUSE_FLAG_RIGHT_UP;
+         if ((b & 2) && !(mouse_b & 2))
+            flags |= MOUSE_FLAG_RIGHT_DOWN;
+         else if (!(b & 2) && (mouse_b & 2))
+            flags |= MOUSE_FLAG_RIGHT_UP;
 
-	 if ((b & 4) && !(mouse_b & 4))
-	    flags |= MOUSE_FLAG_MIDDLE_DOWN;
-	 else if (!(b & 4) && (mouse_b & 4))
-	    flags |= MOUSE_FLAG_MIDDLE_UP;
+         if ((b & 4) && !(mouse_b & 4))
+            flags |= MOUSE_FLAG_MIDDLE_DOWN;
+         else if (!(b & 4) && (mouse_b & 4))
+            flags |= MOUSE_FLAG_MIDDLE_UP;
 
-	 mouse_x = x;
-	 mouse_y = y;
-	 mouse_z = z;
-	 mouse_b = b;
-	 mouse_pos = ((x & 0xFFFF) << 16) | (y & 0xFFFF);
+         mouse_x = x;
+         mouse_y = y;
+         mouse_z = z;
+         mouse_b = b;
+         mouse_pos = ((x & 0xFFFF) << 16) | (y & 0xFFFF);
 
-	 mouse_callback(flags);
+         mouse_callback(flags);
       }
       else {
-	 mouse_x = x;
-	 mouse_y = y;
-	 mouse_z = z;
-	 mouse_b = b;
-	 mouse_pos = ((x & 0xFFFF) << 16) | (y & 0xFFFF);
+         mouse_x = x;
+         mouse_y = y;
+         mouse_z = z;
+         mouse_b = b;
+         mouse_pos = ((x & 0xFFFF) << 16) | (y & 0xFFFF);
       }
    }
 }
 
-END_OF_STATIC_FUNCTION(update_mouse);
 
 
-
-/* mouse_move:
- *  Timer interrupt handler for redrawing the mouse pointer.
+/* mouse_move: [comouse thread]
+ *  Routine for redrawing the mouse pointer.
  */
 static void mouse_move(void)
 {
-   if (mouse_semaphore)
-      return;
-
-   mouse_semaphore = TRUE;
-
-   /* periodic poll */
-   if (mouse_driver->timer_poll) {
-      mouse_driver->timer_poll();
-      if (!mouse_polled)
-	 update_mouse();
-   }
+   /* ASSERT(_al_self_thread_is(&comouse_thread)); */
 
    /* redraw pointer */
-   if ((!freeze_mouse_flag) && (_mouse_screen) && ((mx != _mouse_x) || (my != _mouse_y) || (mon != _mouse_on))) {
+   if ((!freeze_mouse_flag) && (_mouse_screen) && ((mx != _mouse_x) || (my != _mouse_y) || (mon != _al_comouse_on))) {
       acquire_bitmap(_mouse_screen);
 
       if (gfx_capabilities & GFX_HW_CURSOR) {
-	 if (_mouse_on) {
-	    gfx_driver->move_mouse(mx=_mouse_x, my=_mouse_y);
-	    mon = TRUE;
-	 }
-	 else {
-	    gfx_driver->move_mouse(mx=MOUSE_OFFSCREEN, my=MOUSE_OFFSCREEN);
-	    mon = FALSE;
-	 }
+         if (_al_comouse_on) {
+            mx=_mouse_x, my=_mouse_y;
+            //gfx_driver->move_mouse(mx, my);
+            mon = TRUE;
+         }
+         else {
+            mx=MOUSE_OFFSCREEN, my=MOUSE_OFFSCREEN;
+            //gfx_driver->move_mouse(mx=MOUSE_OFFSCREEN, my=MOUSE_OFFSCREEN);
+            mon = FALSE;
+         }
       }
       else {
-#ifdef ALLEGRO_DOS
-	 /* bodge to avoid using non legacy 386 asm code inside a timer handler */
-	 int old_capabilities = cpu_capabilities;
-	 cpu_capabilities = 0;
-#endif
-	 draw_mouse(TRUE, TRUE);
-#ifdef ALLEGRO_DOS
-	 cpu_capabilities = old_capabilities;
-#endif
+         draw_mouse(TRUE, TRUE);
       }
 
       release_bitmap(_mouse_screen);
    }
-
-   mouse_semaphore = FALSE;
 }
 
-END_OF_STATIC_FUNCTION(mouse_move);
 
 
-
-/* _handle_mouse_input:
- *  Callback for an asynchronous driver to tell us when it has changed the
- *  position.
- */
-void _handle_mouse_input(void)
-{
-   if (!mouse_polled)
-      update_mouse();
-}
-
-END_OF_FUNCTION(_handle_mouse_input);
-
-
-
-/* create_mouse_pointer:
+/* create_mouse_pointer: [primary thread]
  *  Creates the default arrow mouse sprite using the current color depth
  *  and palette.
  */
@@ -402,17 +382,17 @@ static BITMAP *create_mouse_pointer(char *data)
    BITMAP *bmp;
    int x, y;
    int col;
-   
+
    bmp = create_bitmap(DEFAULT_SPRITE_W, DEFAULT_SPRITE_H);
 
    for (y=0; y<DEFAULT_SPRITE_H; y++) {
       for (x=0; x<DEFAULT_SPRITE_W; x++) {
-	 switch (data[x+y*DEFAULT_SPRITE_W]) {
-	    case 1:  col = makecol(255, 255, 255);  break;
-	    case 2:  col = makecol(0, 0, 0);        break;
-	    default: col = bmp->vtable->mask_color; break;
-	 }
-	 putpixel(bmp, x, y, col);
+         switch (data[x+y*DEFAULT_SPRITE_W]) {
+            case 1:  col = makecol(255, 255, 255);  break;
+            case 2:  col = makecol(0, 0, 0);        break;
+            default: col = bmp->vtable->mask_color; break;
+         }
+         putpixel(bmp, x, y, col);
       }
    }
 
@@ -440,21 +420,21 @@ void set_mouse_sprite(struct BITMAP *sprite)
       mouse_sprite = sprite;
    else {
       if (_mouse_pointer)
-	 destroy_bitmap(_mouse_pointer);
+         destroy_bitmap(_mouse_pointer);
       _mouse_pointer = create_mouse_pointer(mouse_arrow_data);
       mouse_sprite = _mouse_pointer;
    }
 
    cursors[MOUSE_CURSOR_ALLEGRO] = mouse_sprite;
-   
+
    lock_bitmap((struct BITMAP*)mouse_sprite);
 
    /* make sure the ms bitmap is big enough */
    if ((!ms) || (ms->w < mouse_sprite->w) || (ms->h < mouse_sprite->h) ||
        (bitmap_color_depth(mouse_sprite) != bitmap_color_depth(ms))) {
       if (ms) {
-	 destroy_bitmap(ms);
-	 destroy_bitmap(mtemp);
+         destroy_bitmap(ms);
+         destroy_bitmap(mtemp);
       }
 
       ms = create_bitmap(mouse_sprite->w, mouse_sprite->h);
@@ -481,7 +461,6 @@ void set_mouse_sprite(struct BITMAP *sprite)
  */
 void select_mouse_cursor(int cursor)
 {
-   ASSERT(cursor >= 0);
    ASSERT(cursor < NUM_MOUSE_CURSORS);
 
    current_cursor = cursor;
@@ -494,20 +473,18 @@ void select_mouse_cursor(int cursor)
  */
 void set_mouse_cursor_bitmap(int cursor, struct BITMAP *bmp)
 {
-   ASSERT(cursor >= 0);
-   ASSERT(cursor != MOUSE_CURSOR_NONE);
    ASSERT(cursor < NUM_MOUSE_CURSORS);
 
-   cursors[cursor] = bmp?bmp:default_cursors[cursor];
+   cursors[cursor] = (bmp) ? bmp : default_cursors[cursor];
 }
 
 
- 
+
 /* set_mouse_sprite_focus:
  *  Sets co-ordinate (x, y) in the sprite to be the mouse location.
  *  Call after set_mouse_sprite(). Doesn't redraw the sprite.
  */
-void set_mouse_sprite_focus(int x, int y) 
+void set_mouse_sprite_focus(int x, int y)
 {
    if (!mouse_driver)
       return;
@@ -520,107 +497,51 @@ void set_mouse_sprite_focus(int x, int y)
 
 
 
-/* show_os_cursor:
- *  Tries to display the OS cursor. Returns 0 if a cursor is displayed after the
- *  function returns, else -1. This is similar to calling show_mouse(screen)
- *  after calling enable_hardware_cursor and checking gfx_capabilities for
- *  GFX_HW_CURSOR, but is easier to use in cases where you don't need Allegro's
- *  software cursor even if no os cursor is available.
- */
-int show_os_cursor(int cursor)
-{
-   int r = -1;
-   if (!mouse_driver)
-      return r;
-
-   remove_int(mouse_move);
-
-   gfx_capabilities &= ~(GFX_HW_CURSOR|GFX_SYSTEM_CURSOR);
-   if (cursor != MOUSE_CURSOR_NONE) {
-
-      if (mouse_driver->enable_hardware_cursor) {
-         mouse_driver->enable_hardware_cursor(TRUE);
-      }
-
-      /* default system cursor? */
-      if (cursor != MOUSE_CURSOR_ALLEGRO) {
-         if (mouse_driver->select_system_cursor) {
-            if (mouse_driver->select_system_cursor(cursor) != 0) {
-               gfx_capabilities |= (GFX_HW_CURSOR|GFX_SYSTEM_CURSOR);
-               r = 0;
-               goto done;
-            }
-         }
-         goto done;
-      }
-      else {
-         /* set custom hardware cursor */
-         if (gfx_driver) {
-            if (gfx_driver->set_mouse_sprite) {
-               if (gfx_driver->set_mouse_sprite(mouse_sprite, mouse_x_focus, mouse_y_focus))
-                  goto done;
-            }
-            if (gfx_driver->show_mouse) {
-               if (gfx_driver->show_mouse(screen, mouse_x, mouse_y))
-                  goto done;
-            }
-            gfx_capabilities |= GFX_HW_CURSOR;
-            r = 0;
-            goto done;
-         }
-      }
-   }
-   else {
-      if (gfx_driver && gfx_driver->hide_mouse)
-         gfx_driver->hide_mouse();
-   }
-
-done:
-   if (mouse_driver->timer_poll) 
-      install_int(mouse_move, 10);
-   return r;
-}
-
-
-
-/* show_mouse:
- *  Tells Allegro to display a mouse pointer. This only works when the timer 
- *  module is active. The mouse pointer will be drawn onto the bitmap bmp, 
- *  which should normally be the hardware screen. To turn off the mouse 
- *  pointer, which you must do before you draw anything onto the screen, call 
- *  show_mouse(NULL). If you forget to turn off the mouse pointer when 
- *  drawing something, the SVGA bank switching code will become confused and 
+/* show_mouse: [primary thread]
+ *  Tells Allegro to display a mouse pointer. This only works when the timer
+ *  module is active. The mouse pointer will be drawn onto the bitmap bmp,
+ *  which should normally be the hardware screen. To turn off the mouse
+ *  pointer, which you must do before you draw anything onto the screen, call
+ *  show_mouse(NULL). If you forget to turn off the mouse pointer when
+ *  drawing something, the SVGA bank switching code will become confused and
  *  will produce garbage all over the screen.
  */
+static AL_MOUSE_CURSOR *hw_cursor; /* XXX */
 void show_mouse(BITMAP *bmp)
 {
    if (!mouse_driver)
       return;
 
-   remove_int(mouse_move);
+   comouse_thread_call_mouse_move = false;
 
    /* Remove the mouse cursor */
    if (_mouse_screen) {
       acquire_bitmap(_mouse_screen);
 
       if (gfx_capabilities & GFX_HW_CURSOR) {
-	 gfx_driver->hide_mouse();
-	 gfx_capabilities &= ~(GFX_HW_CURSOR|GFX_SYSTEM_CURSOR);
- 	 hw_cursor_dirty = TRUE;
+         //gfx_driver->hide_mouse();
+         al_hide_mouse_cursor();
+         gfx_capabilities &= ~(GFX_HW_CURSOR|GFX_SYSTEM_CURSOR);
       }
       else
-	 draw_mouse(TRUE, FALSE);
+         draw_mouse(TRUE, FALSE);
 
       release_bitmap(_mouse_screen);
    }
 
    _mouse_screen = bmp;
 
-   if (bmp && (current_cursor != MOUSE_CURSOR_NONE)) {
+   if (bmp && (current_cursor!=MOUSE_CURSOR_NONE)) {
       acquire_bitmap(_mouse_screen);
 
       /* Default system cursor? */
       if ((current_cursor != MOUSE_CURSOR_ALLEGRO) && allow_system_cursor) {
+         if (al_set_system_mouse_cursor(current_cursor)) {
+            gfx_capabilities |= GFX_HW_CURSOR|GFX_SYSTEM_CURSOR;
+            hw_cursor_dirty = FALSE;
+            got_hw_cursor = TRUE;
+         }
+#if 0
          if (mouse_driver && mouse_driver->select_system_cursor) {
             use_system_cursor = mouse_driver->select_system_cursor(current_cursor);
             if (use_system_cursor) {
@@ -629,40 +550,48 @@ void show_mouse(BITMAP *bmp)
                got_hw_cursor = TRUE;
             }
          }
-      }
-      else {
+#endif
+      } else {
          use_system_cursor = FALSE;
       }
 
       /* Custom hardware cursor? */
       if (hw_cursor_dirty) {
-	 got_hw_cursor = FALSE;
+         got_hw_cursor = FALSE;
 
-	 if ((gfx_driver) && (gfx_driver->set_mouse_sprite) && (!_dispsw_status))
-	    if (gfx_driver->set_mouse_sprite(mouse_sprite, mouse_x_focus, mouse_y_focus) == 0)
-	       got_hw_cursor = TRUE;
+         /*
+         if ((gfx_driver) && (gfx_driver->set_mouse_sprite) && (!_dispsw_status))
+            if (gfx_driver->set_mouse_sprite(mouse_sprite, mouse_x_focus, mouse_y_focus) == 0)
+               got_hw_cursor = TRUE;
+         */
+         hw_cursor = al_create_mouse_cursor(mouse_sprite, mouse_x_focus, mouse_y_focus);
+         if (hw_cursor)
+            got_hw_cursor = TRUE;
 
-	 hw_cursor_dirty = FALSE;
+         hw_cursor_dirty = FALSE;
       }
-      
+
       /* Try to display hardware (custom or system) cursor */
-      if ((got_hw_cursor) && (is_same_bitmap(bmp, screen)))
-	 if (gfx_driver->show_mouse(bmp, mx=mouse_x, my=mouse_y) == 0)
-	    gfx_capabilities |= GFX_HW_CURSOR;
+      if ((got_hw_cursor) && (is_same_bitmap(bmp, screen))) {
+//       if (gfx_driver->show_mouse(bmp, mx=mouse_x, my=mouse_y) == 0)
+         if (al_set_mouse_cursor(hw_cursor)) {
+            al_show_mouse_cursor();
+            gfx_capabilities |= GFX_HW_CURSOR;
+         }
+      }
 
       /* Draw cursor manually if we can't do that */
       if (!(gfx_capabilities & GFX_HW_CURSOR)) {
-	 draw_mouse(FALSE, TRUE);
+         draw_mouse(FALSE, TRUE);
          use_system_cursor = FALSE;
       }
 
       release_bitmap(_mouse_screen);
 
-      install_int(mouse_move, 10);
+      comouse_thread_call_mouse_move = true;
    }
    else {
-      if (mouse_driver->timer_poll) 
-	 install_int(mouse_move, 10);
+      comouse_thread_call_mouse_move = true;
    }
 }
 
@@ -681,19 +610,21 @@ void scare_mouse(void)
 
    if ((is_same_bitmap(screen, _mouse_screen)) && (!(gfx_capabilities & GFX_HW_CURSOR))) {
       if (scared_size < SCARED_SIZE) {
-	 scared_screen[scared_size] = _mouse_screen;
-	 scared_freeze[scared_size] = FALSE;
+         scared_screen[scared_size] = _mouse_screen;
+         scared_freeze[scared_size] = FALSE;
       }
       show_mouse(NULL);
    }
    else {
       if (scared_size < SCARED_SIZE) {
-	 scared_screen[scared_size] = NULL;
-	 scared_freeze[scared_size] = FALSE;
+         scared_screen[scared_size] = NULL;
+         scared_freeze[scared_size] = FALSE;
       }
    }
 
    scared_size++;
+
+   ASSERT(scared_size <= SCARED_SIZE);
 }
 
 
@@ -717,39 +648,41 @@ void scare_mouse_area(int x, int y, int w, int h)
       freeze_mouse_flag = TRUE;
 
       if ((mx - mouse_x_focus < x + w) &&
-	   (my - mouse_y_focus < y + h) &&
-	   (mx - mouse_x_focus + mouse_sprite->w >= x) &&
-	   (my - mouse_y_focus + mouse_sprite->h >= y)) {
+           (my - mouse_y_focus < y + h) &&
+           (mx - mouse_x_focus + mouse_sprite->w >= x) &&
+           (my - mouse_y_focus + mouse_sprite->h >= y)) {
 
-	 if (scared_size < SCARED_SIZE) {
-	    scared_screen[scared_size] = _mouse_screen;
-	    scared_freeze[scared_size] = FALSE;
-	 }
+         if (scared_size < SCARED_SIZE) {
+            scared_screen[scared_size] = _mouse_screen;
+            scared_freeze[scared_size] = FALSE;
+         }
 
-	 freeze_mouse_flag = was_frozen;
-	 show_mouse(NULL);
+         freeze_mouse_flag = was_frozen;
+         show_mouse(NULL);
       }
       else {
-	 if (scared_size < SCARED_SIZE) {
-	    scared_screen[scared_size] = NULL;
+         if (scared_size < SCARED_SIZE) {
+            scared_screen[scared_size] = NULL;
 
-	    if (was_frozen) {
-	       scared_freeze[scared_size] = FALSE;
-	       freeze_mouse_flag = was_frozen;
-	    }
-	    else
-	       scared_freeze[scared_size] = TRUE;
-	 }
+            if (was_frozen) {
+               scared_freeze[scared_size] = FALSE;
+               freeze_mouse_flag = was_frozen;
+            }
+            else
+               scared_freeze[scared_size] = TRUE;
+         }
       }
    }
    else {
       if (scared_size < SCARED_SIZE) {
-	 scared_screen[scared_size] = NULL;
-	 scared_freeze[scared_size] = FALSE;
+         scared_screen[scared_size] = NULL;
+         scared_freeze[scared_size] = FALSE;
       }
    }
 
    scared_size++;
+
+   ASSERT(scared_size <= SCARED_SIZE);
 }
 
 
@@ -763,15 +696,17 @@ void unscare_mouse(void)
    if (!mouse_driver)
       return;
 
+   ASSERT(scared_size > 0);
+
    if (scared_size > 0)
       scared_size--;
 
    if (scared_size < SCARED_SIZE) {
       if (scared_screen[scared_size])
-	 show_mouse(scared_screen[scared_size]);
+         show_mouse(scared_screen[scared_size]);
 
       if (scared_freeze[scared_size])
-	 freeze_mouse_flag = FALSE;
+         freeze_mouse_flag = FALSE;
 
       scared_screen[scared_size] = NULL;
       scared_freeze[scared_size] = FALSE;
@@ -794,15 +729,9 @@ void position_mouse(int x, int y)
    if (_mouse_screen)
       show_mouse(NULL);
 
-   if (mouse_driver->position) {
-      mouse_driver->position(x, y);
-   }
-   else {
-      _mouse_x = x;
-      _mouse_y = y;
-   }
+   al_set_mouse_xy(x, y);
 
-   update_mouse();
+   //update_mouse();
 
    if (old_mouse_screen)
       show_mouse(old_mouse_screen);
@@ -818,15 +747,16 @@ void position_mouse_z(int z)
    if (!mouse_driver)
       return;
 
-   _mouse_z = z;
-   update_mouse();
+   al_set_mouse_z(z);
+
+   //update_mouse();
 }
 
 
 
 /* set_mouse_range:
- *  Sets the screen area within which the mouse can move. Pass the top left 
- *  corner and the bottom right corner (inclusive). If you don't call this 
+ *  Sets the screen area within which the mouse can move. Pass the top left
+ *  corner and the bottom right corner (inclusive). If you don't call this
  *  function the range defaults to (0, 0, SCREEN_W-1, SCREEN_H-1).
  */
 void set_mouse_range(int x1, int y1, int x2, int y2)
@@ -843,10 +773,9 @@ void set_mouse_range(int x1, int y1, int x2, int y2)
    if (_mouse_screen)
       show_mouse(NULL);
 
-   if (mouse_driver->set_range)
-      mouse_driver->set_range(x1, y1, x2, y2);
+   al_set_mouse_range(x1, y1, x2, y2);
 
-   update_mouse();
+   //update_mouse();
 
    if (old_mouse_screen)
       show_mouse(old_mouse_screen);
@@ -855,13 +784,12 @@ void set_mouse_range(int x1, int y1, int x2, int y2)
 
 
 /* set_mouse_speed:
- *  Sets the mouse speed. Larger values of xspeed and yspeed represent 
+ *  Sets the mouse speed. Larger values of xspeed and yspeed represent
  *  slower mouse movement: the default for both is 2.
  */
 void set_mouse_speed(int xspeed, int yspeed)
 {
-   if ((mouse_driver) && (mouse_driver->set_speed))
-      mouse_driver->set_speed(xspeed, yspeed);
+   /* no longer supported */
 }
 
 
@@ -872,23 +800,27 @@ void set_mouse_speed(int xspeed, int yspeed)
  */
 void get_mouse_mickeys(int *mickeyx, int *mickeyy)
 {
-   if ((mouse_driver) && (mouse_driver->get_mickeys)) {
-      mouse_driver->get_mickeys(mickeyx, mickeyy);
+   _al_mutex_lock(&comouse_mutex);
+   {
+      *mickeyx = comouse_mickeyx;
+      *mickeyy = comouse_mickeyy;
+
+      comouse_mickeyx = 0;
+      comouse_mickeyy = 0;
    }
-   else {
-      *mickeyx = 0;
-      *mickeyy = 0;
-   }
+   _al_mutex_unlock(&comouse_mutex);
 }
 
 
 
 /* enable_hardware_cursor:
- *  enabels the hardware cursor on platforms where this needs to be done
+ *  Enables the hardware cursor on platforms where this needs to be done
  *  explicitly and allows system cursors to be used.
  */
 void enable_hardware_cursor(void)
 {
+#ifdef CANCELCANCELCANCEL
+
    if ((mouse_driver) && (mouse_driver->enable_hardware_cursor)) {
       mouse_driver->enable_hardware_cursor(TRUE);
       allow_system_cursor = TRUE;
@@ -898,16 +830,20 @@ void enable_hardware_cursor(void)
          show_mouse(bmp);
       }
    }
+
+#endif
 }
 
 
 
 /* disable_hardware_cursor:
- *  disables the hardware cursor on platforms where this interferes with 
+ *  Disables the hardware cursor on platforms where this interferes with
  *  mickeys and disables system cursors.
  */
 void disable_hardware_cursor(void)
 {
+#ifdef CANCELCANCELCANCEL
+
    if ((mouse_driver) && (mouse_driver->enable_hardware_cursor)) {
       mouse_driver->enable_hardware_cursor(FALSE);
       allow_system_cursor = FALSE;
@@ -917,6 +853,8 @@ void disable_hardware_cursor(void)
          show_mouse(bmp);
       }
    }
+
+#endif
 }
 
 
@@ -927,7 +865,7 @@ void disable_hardware_cursor(void)
  *  input, while on others it is only present to keep compatibility with
  *  systems that do need it. So that people can test their polling code
  *  even on platforms that don't strictly require it, after this function
- *  has been called once, the entire system will switch into polling mode 
+ *  has been called once, the entire system will switch into polling mode
  *  and will no longer operate asynchronously even if the driver actually
  *  does support that.
  */
@@ -936,17 +874,12 @@ int poll_mouse(void)
    if (!mouse_driver)
       return -1;
 
-   if (mouse_driver->poll)
-      mouse_driver->poll();
-
    update_mouse();
 
    mouse_polled = TRUE;
 
    return 0;
 }
-
-END_OF_FUNCTION(poll_mouse);
 
 
 
@@ -958,28 +891,27 @@ int mouse_needs_poll(void)
    return mouse_polled;
 }
 
-END_OF_FUNCTION(mouse_needs_poll);
-
 
 
 /* set_mouse_etc:
  *  Hook for setting up the motion range, cursor graphic, etc, called by
  *  the mouse init and whenever we change the graphics mode.
+ *  (see _al_linker_mouse below)
  */
 static void set_mouse_etc(void)
 {
    if ((!mouse_driver) || (!gfx_driver))
       return;
 
-   if ((!_mouse_pointer) || 
+   if ((!_mouse_pointer) ||
        ((screen) && (_mouse_pointer) &&
-	(bitmap_color_depth(_mouse_pointer) != bitmap_color_depth(screen))))
+        (bitmap_color_depth(_mouse_pointer) != bitmap_color_depth(screen))))
       set_mouse_sprite(NULL);
    else
       hw_cursor_dirty = TRUE;
 
    set_mouse_range(0, 0, SCREEN_W-1, SCREEN_H-1);
-   set_mouse_speed(2, 2);
+   //set_mouse_speed(2, 2);
    position_mouse(SCREEN_W/2, SCREEN_H/2);
 }
 
@@ -992,9 +924,8 @@ static void set_mouse_etc(void)
  */
 int install_mouse(void)
 {
-   _DRIVER_INFO *driver_list;
    int num_buttons = -1;
-   int config_num_buttons;
+   //int config_num_buttons;
    AL_CONST char *emulate;
    char tmp1[64], tmp2[64];
    int i;
@@ -1002,42 +933,6 @@ int install_mouse(void)
    if (mouse_driver)
       return 0;
 
-   LOCK_VARIABLE(mouse_driver);
-   LOCK_VARIABLE(mousedrv_none);
-   LOCK_VARIABLE(mouse_x);
-   LOCK_VARIABLE(mouse_y);
-   LOCK_VARIABLE(mouse_z);
-   LOCK_VARIABLE(mouse_b);
-   LOCK_VARIABLE(mouse_pos);
-   LOCK_VARIABLE(_mouse_x);
-   LOCK_VARIABLE(_mouse_y);
-   LOCK_VARIABLE(_mouse_z);
-   LOCK_VARIABLE(_mouse_b);
-   LOCK_VARIABLE(_mouse_on);
-   LOCK_VARIABLE(mon);
-   LOCK_VARIABLE(emulate_three);
-   LOCK_VARIABLE(freeze_mouse_flag);
-   LOCK_VARIABLE(mouse_callback);
-   LOCK_VARIABLE(mouse_x_focus);
-   LOCK_VARIABLE(mouse_y_focus);
-   LOCK_VARIABLE(mouse_sprite);
-   LOCK_VARIABLE(_mouse_pointer);
-   LOCK_VARIABLE(_mouse_screen);
-   LOCK_VARIABLE(mx);
-   LOCK_VARIABLE(my);
-   LOCK_VARIABLE(ms);
-   LOCK_VARIABLE(mtemp);
-   LOCK_VARIABLE(mouse_polled);
-   LOCK_VARIABLE(mouse_semaphore);
-   LOCK_VARIABLE(cursors);
-   LOCK_FUNCTION(draw_mouse_doublebuffer);
-   LOCK_FUNCTION(draw_mouse);
-   LOCK_FUNCTION(update_mouse);
-   LOCK_FUNCTION(mouse_move);
-   LOCK_FUNCTION(poll_mouse);
-   LOCK_FUNCTION(mouse_needs_poll);
-   LOCK_FUNCTION(_handle_mouse_input);
-   
    /* Construct mouse pointers */
    if (!default_cursors[MOUSE_CURSOR_ARROW])
       default_cursors[MOUSE_CURSOR_ARROW] = create_mouse_pointer(mouse_arrow_data);
@@ -1053,71 +948,52 @@ int install_mouse(void)
    cursors[MOUSE_CURSOR_QUESTION] = default_cursors[MOUSE_CURSOR_QUESTION];
    cursors[MOUSE_CURSOR_EDIT] = default_cursors[MOUSE_CURSOR_EDIT];
 
-   if (system_driver->mouse_drivers)
-      driver_list = system_driver->mouse_drivers();
-   else
-      driver_list = _mouse_driver_list;
+   if (!al_install_mouse())
+      return -1;
 
-   if (_mouse_type == MOUSEDRV_AUTODETECT)
-      _mouse_type = get_config_id(uconvert_ascii("mouse", tmp1), uconvert_ascii("mouse", tmp2), MOUSEDRV_AUTODETECT);
+   num_buttons = al_get_mouse_num_buttons();
 
-   if (_mouse_type != MOUSEDRV_AUTODETECT) {
-      for (i=0; driver_list[i].driver; i++) {
-	 if (driver_list[i].id == _mouse_type) {
-	    mouse_driver = driver_list[i].driver;
-	    break;
-	 }
-      }
-   }
-
-   if (mouse_driver) {
-      mouse_driver->name = mouse_driver->desc = get_config_text(mouse_driver->ascii_name);
-      num_buttons = mouse_driver->init();
-   } 
-   else {
-      for (i=0; num_buttons<0; i++) {
-	 if (!driver_list[i].driver)
-	    break;
-
-	 mouse_driver = driver_list[i].driver;
-	 mouse_driver->name = mouse_driver->desc = get_config_text(mouse_driver->ascii_name);
-	 num_buttons = mouse_driver->init();
-      }
-   }
-
-   if (num_buttons < 0) {
-      mouse_driver = NULL;
+   ASSERT(!comouse_event_queue);
+   comouse_event_queue = al_create_event_queue();
+   if (!comouse_event_queue) {
+      /* XXX: more stuff? */
+      al_uninstall_mouse();
       return -1;
    }
 
-   config_num_buttons = get_config_int(uconvert_ascii("mouse", tmp1), uconvert_ascii("num_buttons", tmp2), -1);
+   al_register_event_source(comouse_event_queue, (AL_EVENT_SOURCE *)al_get_mouse());
+
+
+   mouse_driver = &mouse_emu;
+
+   //config_num_buttons = get_config_int(uconvert_ascii("mouse", tmp1), uconvert_ascii("num_buttons", tmp2), -1);
    emulate = get_config_string(uconvert_ascii("mouse", tmp1), uconvert_ascii("emulate_three", tmp2), NULL);
 
    /* clamp config_num_buttons to zero/positive values */
-   if (config_num_buttons >= 0)
-      num_buttons = config_num_buttons;
+   /*if (config_num_buttons >= 0)
+      num_buttons = config_num_buttons;*/
 
    if ((emulate) && ((i = ugetc(emulate)) != 0)) {
       if ((i == 'y') || (i == 'Y') || (i == '1'))
-	 emulate_three = TRUE;
+         emulate_three = TRUE;
       else
-	 emulate_three = FALSE;
+         emulate_three = FALSE;
    }
    else {
       emulate_three = FALSE;
    }
 
-   mouse_polled = (mouse_driver->poll) ? TRUE : FALSE;
+   mouse_polled = FALSE;
 
-   _mouse_installed = TRUE;
-   
    disable_hardware_cursor();
 
    set_mouse_etc();
    _add_exit_func(remove_mouse, "remove_mouse");
 
-   if (mouse_driver->timer_poll)
-      install_int(mouse_move, 10);
+   comouse_mickeyx = comouse_mickeyy = 0;
+
+   _al_mutex_init(&comouse_mutex);
+   _al_thread_create(&comouse_thread, comouse_thread_func, NULL);
 
    return num_buttons;
 }
@@ -1134,12 +1010,18 @@ void remove_mouse(void)
       return;
 
    show_mouse(NULL);
-   remove_int(mouse_move);
+   comouse_thread_call_mouse_move = false;
 
-   mouse_driver->exit();
+   _al_thread_join(&comouse_thread);
+
+   _al_mutex_destroy(&comouse_mutex);
+
+   al_uninstall_mouse();
+
+   al_destroy_event_queue(comouse_event_queue);
+   comouse_event_queue = NULL;
+
    mouse_driver = NULL;
-
-   _mouse_installed = FALSE;
 
    mouse_x = mouse_y = _mouse_x = _mouse_y = 0;
    mouse_z = _mouse_z = 0;
@@ -1176,11 +1058,60 @@ void remove_mouse(void)
 
 
 
-/* _mouse_constructor:
- *  Register mouse functions if this object file is linked in.
+/* comouse_thread_func: [comouse thread]
+ *  The thread loop function.
  */
+static void comouse_thread_func(_AL_THREAD *self, void *unused)
+{
+   AL_EVENT event;
+
+   while (!_al_thread_should_stop(self)) {
+      /* wait for an event; wait up every so often to check if we
+       * should quit
+       */
+      if (!al_wait_for_event(comouse_event_queue, &event, 250))
+         continue;
+
+      _al_mutex_lock(&comouse_mutex);
+
+      switch (event.type) {
+
+         case AL_EVENT_MOUSE_BUTTON_DOWN:
+            _mouse_b |= (1 << (event.mouse.button-1));
+            break;
+
+         case AL_EVENT_MOUSE_BUTTON_UP:
+            _mouse_b &=~ (1 << (event.mouse.button-1));
+            break;
+
+         case AL_EVENT_MOUSE_AXES:
+            _mouse_x = event.mouse.x;
+            _mouse_y = event.mouse.y;
+            _mouse_z = event.mouse.z;
+            comouse_mickeyx += event.mouse.dx;
+            comouse_mickeyy += event.mouse.dy;
+            break;
+
+         default:
+            /* shouldn't happen */
+            TRACE("%s got unknown event of type = %d\n", __func__, event.type);
+            break;
+      }
+
+      _al_mutex_unlock(&comouse_mutex);
+
+      if (!mouse_polled)
+         update_mouse();
+
+      if (comouse_thread_call_mouse_move)
+         mouse_move();
+   }
+}
+
+
+
 #ifdef ALLEGRO_USE_CONSTRUCTOR
-   CONSTRUCTOR_FUNCTION(void _mouse_constructor(void));
+   CONSTRUCTOR_FUNCTION(void _al_comouse_constructor(void));
 #endif
 
 static struct _AL_LINKER_MOUSE mouse_linker = {
@@ -1189,7 +1120,16 @@ static struct _AL_LINKER_MOUSE mouse_linker = {
    &_mouse_screen
 };
 
-void _mouse_constructor(void)
+void _al_comouse_constructor(void)
 {
    _al_linker_mouse = &mouse_linker;
 }
+
+
+
+/*
+ * Local Variables:
+ * c-basic-offset: 3
+ * indent-tabs-mode: nil
+ * End:
+ */

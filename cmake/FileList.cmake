@@ -46,7 +46,7 @@ set(ALLEGRO_SRC_FILES
     src/midi.c
     src/mixer.c
     src/modesel.c
-    src/mouse.c
+    src/mousenu.c
     src/pcx.c
     src/poly3d.c
     src/polygon.c
@@ -75,6 +75,7 @@ set(ALLEGRO_SRC_FILES
     src/compat/cogfx.c
     src/compat/cojoy.c
     src/compat/cokeybd.c
+    src/compat/comouse.c
     src/compat/cotimer.c
     src/misc/vector.c
     )
@@ -269,13 +270,8 @@ set(ALLEGRO_SRC_LINUX_FILES
     src/linux/ljoynu.c
     src/linux/lkeybdnu.c
     src/linux/lmemory.c
-    src/linux/lmouse.c
     src/linux/lmsedrv.c
-    src/linux/lmsegpmd.c
-    src/linux/lmsems.c
-    src/linux/lmseps2.c
     src/linux/lmseev.c
-    src/linux/lstddrv.c
     src/linux/lsystem.c
     src/linux/lvga.c
     src/linux/lvgahelp.c
@@ -323,7 +319,7 @@ set(ALLEGRO_SRC_UNIX_FILES
 set(ALLEGRO_SRC_X_FILES
     src/x/xgfxdrv.c
     src/x/xkeyboard.c
-    src/x/xmouse.c
+    src/x/xmousenu.c
     src/x/xsystem.c
     src/x/xvtable.c
     src/x/xwin.c

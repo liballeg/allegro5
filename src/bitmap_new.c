@@ -2,7 +2,6 @@
 #include "allegro.h"
 #include "internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "internal/aintern2.h"
 #include "internal/display_new.h"
 #include "internal/bitmap_new.h"
 

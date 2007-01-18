@@ -15,11 +15,13 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Event sources
+ */
+
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include ALLEGRO_INTERNAL_HEADER
-#include "allegro/internal/aintern2.h"
+#include "allegro/internal/aintern_events.h"
 
 
 
@@ -30,10 +32,10 @@
  *----------------------------------------------------------------------*/
 
 
-/* al_event_source_mask:
+/* Function: al_event_source_mask
  *  Return the event mask of an event source.
  */
-unsigned long al_event_source_mask(AL_EVENT_SOURCE *source)
+AL_EVENT_TYPE al_event_source_mask(AL_EVENT_SOURCE *source)
 {
    ASSERT(source);
 
@@ -42,10 +44,14 @@ unsigned long al_event_source_mask(AL_EVENT_SOURCE *source)
 
 
 
-/* al_event_source_set_mask:
- *  Change the event mask of an event source.
+/* Function: al_event_source_set_mask
+ *  Set the event mask of an event source.  This will restrict the types of
+ *  event packets that the event source will generate.  MASK is made by
+ *  bitwise-OR'ing the event types that will be allowed to be generated.  By
+ *  default, event sources will generate all event types that they are capable
+ *  of.
  */
-void al_event_source_set_mask(AL_EVENT_SOURCE *source, unsigned long mask)
+void al_event_source_set_mask(AL_EVENT_SOURCE *source, AL_EVENT_TYPE mask)
 {
    ASSERT(source);
 
@@ -65,7 +71,7 @@ void al_event_source_set_mask(AL_EVENT_SOURCE *source, unsigned long mask)
  *
  *  Initialise an event source structure.
  */
-void _al_event_source_init(AL_EVENT_SOURCE *this, unsigned long event_mask)
+void _al_event_source_init(AL_EVENT_SOURCE *this, AL_EVENT_TYPE event_mask)
 {
    this->event_mask = event_mask;
    _AL_MARK_MUTEX_UNINITED(this->mutex);
@@ -198,7 +204,7 @@ void _al_event_source_on_unregistration_from_queue(AL_EVENT_SOURCE *this, AL_EVE
  *
  *  The event source must be LOCKED before calling this function.
  */
-bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE *this, unsigned long event_type)
+bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE *this, AL_EVENT_TYPE event_type)
 {
    return !_al_vector_is_empty(&this->queues) && (this->event_mask & event_type);
 }

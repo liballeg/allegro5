@@ -68,7 +68,9 @@ GFX_DRIVER gfx_vga =
    0, 0,
    0x10000,
    0,
-   FALSE
+   FALSE,
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 

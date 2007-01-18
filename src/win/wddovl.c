@@ -64,7 +64,9 @@ GFX_DRIVER gfx_directx_ovl =
    0,                           // long bank_gran;               /* bank granularity, in bytes */
    0,                           // long vid_mem;                 /* video memory size, in bytes */
    0,                           // long vid_phys_base;           /* physical address of video memory */
-   TRUE                         // int windowed;                 /* true if driver runs windowed */
+   TRUE,                        // int windowed;                 /* true if driver runs windowed */
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 

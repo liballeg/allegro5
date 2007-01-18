@@ -3,6 +3,7 @@
 
 #include "allegro/system_new.h"
 #include "allegro/internal/display_new.h"
+#include "aintern_keyboard.h"
 
 typedef struct AL_SYSTEM_INTERFACE AL_SYSTEM_INTERFACE;
 

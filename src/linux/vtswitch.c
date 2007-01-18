@@ -76,7 +76,7 @@ static void go_away(void)
 		_al_suspend_old_timer_emulation();
 
 	/* Disable input devices while we're away */
-	__al_linux_suspend_standard_drivers();
+	/* __al_linux_suspend_standard_drivers(); */
 
 	_save_switch_state(switch_mode);
 
@@ -113,7 +113,7 @@ static void come_back(void)
 	ioctl(__al_linux_console_fd, VT_RELDISP, VT_ACKACQ);
 	console_active = 1;
 
-	__al_linux_resume_standard_drivers();
+	/* __al_linux_resume_standard_drivers(); */
 
 	_unix_bg_man->enable_interrupts();
 

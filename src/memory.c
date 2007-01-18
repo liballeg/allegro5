@@ -15,6 +15,9 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Memory management routines
+ */
+
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
@@ -51,7 +54,7 @@ void *(*_al_debug_realloc)(int line, const char *file, const char *func,
 
 
 
-/* al_memory_management_functions:
+/* Function: al_memory_management_functions
  *  Customise the memory management functions used by the library.
  */
 void al_memory_management_functions(

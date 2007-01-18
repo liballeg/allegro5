@@ -1,3 +1,5 @@
+#error This file has been superceded by xmousenu.c
+
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
@@ -113,7 +115,7 @@ static int _xwin_mousedrv_init(void)
    int num_buttons;
    unsigned char map[8];
 
-   num_buttons = _xwin_get_pointer_mapping(map, sizeof(map));
+   num_buttons = _al_xwin_get_pointer_mapping(map, sizeof(map));
    num_buttons = MID(2, num_buttons, 3);
 
    XLOCK();

@@ -13,6 +13,9 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Joystick routines
+ */
+
 #ifndef _al_included_joystick_h
 #define _al_included_joystick_h
 
@@ -29,12 +32,21 @@ AL_BEGIN_EXTERN_C
 
 
 
-/* Abstract data type */
+/* Type: AL_JOYSTICK
+ *
+ *  This is an abstract data type representing a physical joystick.  Joystick
+ *  objects are also event sources.
+ */
 typedef struct AL_JOYSTICK AL_JOYSTICK;
 
 
 
-/* All fields public and read-only */
+/* Type: AL_JOYSTATE
+ *
+ * This is a structure that is used to hold a "snapshot" of a
+ * joystick's axes and buttons at a particular instant.
+ * All fields public and read-only.
+ */
 typedef struct AL_JOYSTATE
 {
    struct {
@@ -46,6 +58,10 @@ typedef struct AL_JOYSTATE
 
 
 /* Flags for al_joystick_stick_flags */
+typedef int AL_JOYFLAGS;
+
+/* Enum: AL_JOYFLAGS
+ */
 enum
 {
    AL_JOYFLAG_DIGITAL  = 0x01,
@@ -60,17 +76,17 @@ AL_FUNC(void,           al_uninstall_joystick,  (void));
 AL_FUNC(int,            al_num_joysticks,       (void));
 AL_FUNC(AL_JOYSTICK*,   al_get_joystick,        (int joyn));
 AL_FUNC(void,           al_release_joystick,    (AL_JOYSTICK*));
-AL_FUNC(AL_CONST char*, al_joystick_name,       (AL_JOYSTICK*));
+AL_FUNC(const char*,    al_joystick_name,       (AL_JOYSTICK*));
 
-AL_FUNC(int,            al_joystick_num_sticks, (AL_JOYSTICK*));
-AL_FUNC(int,            al_joystick_stick_flags,(AL_JOYSTICK*, int stick)); /* junk? */
-AL_FUNC(AL_CONST char*, al_joystick_stick_name, (AL_JOYSTICK*, int stick));
+AL_FUNC(int,            al_joystick_num_sticks, (const AL_JOYSTICK*));
+AL_FUNC(AL_JOYFLAGS,    al_joystick_stick_flags,(const AL_JOYSTICK*, int stick)); /* junk? */
+AL_FUNC(const char*,    al_joystick_stick_name, (const AL_JOYSTICK*, int stick));
 
-AL_FUNC(int,            al_joystick_num_axes,   (AL_JOYSTICK*, int stick));
-AL_FUNC(AL_CONST char*, al_joystick_axis_name,  (AL_JOYSTICK*, int stick, int axis));
+AL_FUNC(int,            al_joystick_num_axes,   (const AL_JOYSTICK*, int stick));
+AL_FUNC(const char*,    al_joystick_axis_name,  (const AL_JOYSTICK*, int stick, int axis));
 
-AL_FUNC(int,		al_joystick_num_buttons,(AL_JOYSTICK*));
-AL_FUNC(AL_CONST char*, al_joystick_button_name,(AL_JOYSTICK*, int buttonn));
+AL_FUNC(int,            al_joystick_num_buttons,(const AL_JOYSTICK*));
+AL_FUNC(const char*,    al_joystick_button_name,(const AL_JOYSTICK*, int buttonn));
 
 AL_FUNC(void,           al_get_joystick_state,  (AL_JOYSTICK*, AL_JOYSTATE *ret_state));
 

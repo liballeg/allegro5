@@ -15,13 +15,16 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Event queues
+ */
+
 
 #include <string.h>
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include ALLEGRO_INTERNAL_HEADER
-#include "allegro/internal/aintern2.h"
+#include "allegro/internal/aintern_dtor.h"
+#include "allegro/internal/aintern_events.h"
 
 
 
@@ -38,7 +41,7 @@ struct AL_EVENT_QUEUE
 
 
 
-/* al_create_event_queue: [primary thread]
+/* Function: al_create_event_queue
  *  Create a new, empty event queue, returning a pointer to object if
  *  successful.  Returns NULL on error.
  */
@@ -63,7 +66,7 @@ AL_EVENT_QUEUE *al_create_event_queue(void)
 
 
 
-/* al_destroy_event_queue: [primary thread]
+/* Function: al_destroy_event_queue
  *  Destroy the event queue specified.  All event sources currently
  *  registered with the queue will be automatically unregistered before
  *  the queue is destroyed.
@@ -94,7 +97,7 @@ void al_destroy_event_queue(AL_EVENT_QUEUE *queue)
 
 
 
-/* al_register_event_source: [primary thread]
+/* Function: al_register_event_source
  *  Register the event source with the event queue specified.  An
  *  event source may be registered with any number of event queues
  *  simultaneously, or none.  Trying to register an event source with
@@ -119,7 +122,7 @@ void al_register_event_source(AL_EVENT_QUEUE *queue, AL_EVENT_SOURCE *source)
 
 
 
-/* al_unregister_event_source: [primary thread]
+/* Function: al_unregister_event_source
  *  Unregister an event source with an event queue.  If the event
  *  source is not actually registered with the event queue, nothing
  *  happens.
@@ -161,7 +164,7 @@ void al_unregister_event_source(AL_EVENT_QUEUE *queue, AL_EVENT_SOURCE *source)
 
 
 
-/* al_event_queue_is_empty: [primary thread]
+/* Function: al_event_queue_is_empty
  *  Return true if the event queue specified is currently empty.
  */
 bool al_event_queue_is_empty(AL_EVENT_QUEUE *queue)
@@ -220,7 +223,7 @@ static bool get_peek_or_drop_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *do_copy
 
 
 
-/* al_get_next_event: [primary thread]
+/* Function: al_get_next_event
  *  Take the next event packet out of the event queue specified, and
  *  copy the contents into RET_EVENT, returning true.  The original
  *  event packet will be removed from the queue.  If the event queue is
@@ -236,7 +239,7 @@ bool al_get_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
 
 
 
-/* al_peek_next_event: [primary thread]
+/* Function: al_peek_next_event
  *  Copy the contents of the next event packet in the event queue
  *  specified into RET_EVENT and return true.  The original event
  *  packet will remain at the head of the queue.  If the event queue is
@@ -253,7 +256,7 @@ bool al_peek_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
 
 
 
-/* al_drop_next_event: [primary thread]
+/* Function: al_drop_next_event
  *  Drop the next event packet from the queue.  If the queue is empty,
  *  nothing happens.
  */
@@ -266,7 +269,7 @@ void al_drop_next_event(AL_EVENT_QUEUE *queue)
 
 
 
-/* al_flush_event_queue: [primary thread]
+/* Function: al_flush_event_queue
  *  Drops all events, if any, from the queue.
  */
 void al_flush_event_queue(AL_EVENT_QUEUE *queue)
@@ -363,7 +366,7 @@ static bool wait_on_queue_timed(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long
 
 
 
-/* al_wait_for_event: [primary thread]
+/* Function: al_wait_for_event
  *  Wait until the event queue specified is non-empty.  If RET_EVENT
  *  is not NULL, the first event packet in the queue will be copied
  *  into RET_EVENT and removed from the queue.  If RET_EVENT is NULL
@@ -388,7 +391,7 @@ bool al_wait_for_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
 
 
 
-/* al_wait_for_specific_event: [primary thread]
+/* Function: al_wait_for_specific_event
  *
  *  Wait until the head of the event queue contains an event packet
  *  that satisfies the following criteria.  If RET_EVENT is not NULL
@@ -498,7 +501,7 @@ void _al_event_queue_push_event(AL_EVENT_QUEUE *queue, AL_EVENT *event)
 /* _al_copy_event:
  *  Copies the contents of the event SRC to DEST.
  */
-void _al_copy_event(AL_EVENT *dest, AL_CONST AL_EVENT *src)
+void _al_copy_event(AL_EVENT *dest, const AL_EVENT *src)
 {
    ASSERT(dest);
    ASSERT(src);
