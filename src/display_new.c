@@ -1,8 +1,8 @@
 #include "allegro.h"
 #include "internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "internal/system_new.h"
-#include "internal/display_new.h"
+#include "internal/aintern_system.h"
+#include "internal/aintern_display.h"
 
 AL_DISPLAY *_al_current_display;
 

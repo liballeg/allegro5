@@ -2,8 +2,8 @@
 #include "allegro.h"
 #include "internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "internal/display_new.h"
-#include "internal/bitmap_new.h"
+#include "internal/aintern_display.h"
+#include "internal/aintern_bitmap.h"
 
 // FIXME: does not work if the areas overlap or anything is outside
 void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,

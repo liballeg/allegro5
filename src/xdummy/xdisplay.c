@@ -11,9 +11,9 @@
 #include "system_new.h"
 #include "internal/aintern.h"
 #include "platform/aintunix.h"
-#include "internal/system_new.h"
-#include "internal/display_new.h"
-#include "internal/bitmap_new.h"
+#include "internal/aintern_system.h"
+#include "internal/aintern_display.h"
+#include "internal/aintern_bitmap.h"
 
 #include "xdummy.h"
 

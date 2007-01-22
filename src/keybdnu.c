@@ -25,7 +25,7 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintern_events.h"
 #include "allegro/internal/aintern_keyboard.h"
-#include "internal/system_new.h"
+#include "internal/aintern_system.h"
 
 
 /* the active keyboard driver */

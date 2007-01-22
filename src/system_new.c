@@ -1,7 +1,7 @@
 #include "allegro.h"
 #include "internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "internal/system_new.h"
+#include "internal/aintern_system.h"
 
 static AL_SYSTEM *active;
 
