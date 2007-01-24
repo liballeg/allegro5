@@ -12,7 +12,7 @@
 #
 #  Note: if you write datestamp in the archive_name field, then the
 #  resulting archive will be datestamped. This is in particular useful
-#  for making CVS snapshots.
+#  for making SVN snapshots.
 
 
 if [ $# -lt 1 -o $# -gt 2 ]; then
@@ -45,7 +45,7 @@ for file in makefile.*; do
    rm _tmpfile
 done
 
-# fix some wrong permissions in the CVS repository
+# fix some wrong permissions in the SVN repository
 chmod +x misc/asmdef.sh misc/fixdll.sh
 
 

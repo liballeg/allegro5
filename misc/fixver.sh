@@ -6,7 +6,7 @@
 #
 #  Note: if you pass "datestamp" as the only argument, then the version
 #  digits will remain unchanged and the comment will be set to the date.
-#  This is in particular useful for making CVS snapshots.
+#  This is in particular useful for making SVN snapshots.
 
 
 if [ $# -lt 3 -o $# -gt 4 ]; then

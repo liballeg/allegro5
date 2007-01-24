@@ -209,8 +209,8 @@ information about how to install Allegro and link your program with it.
 @@#define @ALLEGRO_VERSION_STR
 @shortdesc Defined to a string with the full Allegro version number.
    Defined to a text string containing all version numbers and maybe some
-   additional text. This could be `4.1.16 (CVS)' for an Allegro version
-   obtained straight from the CVS repository.
+   additional text. This could be `4.2.1 (SVN)' for an Allegro version
+   obtained straight from the SVN repository.
    
 @@#define @ALLEGRO_DATE_STR
 @shortdesc Defined to a string with the year Allegro was released.
@@ -16100,11 +16100,11 @@ community that grew over the years when Shawn was in charge of everything has
 stepped forward to continue improving Allegro. Transformed into a meritocratic
 community, users keep sending bug reports to the mailing lists, developers
 around the world keep sending patches to fix them, and a few carefully chosen
-have write access to the CVS repository, from which releases are built every
+have write access to the SVN repository, from which releases are built every
 now and then.
 
 But, who decides when a build is stable enough? Who decides when somebody is
-granted write access to the CVS? Who chooses the lesser of two evils patching
+granted write access to the SVN? Who chooses the lesser of two evils patching
 some obscure bug? And more importantly, who decides what's Allegro's mascot?
 For all these reasons, the community decided to replace Shawn's position with
 the Allegro Dictator.

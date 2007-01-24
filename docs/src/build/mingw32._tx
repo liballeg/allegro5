@@ -185,7 +185,7 @@ Setting up Cygwin to build Allegro
 <blockquote>
    1. Make sure you have a working Cygwin installation. You can download the
       <tt>setup.exe</tt> program from '<link>http://sources.redhat.com/cygwin/</a>'.
-      You will need the followin packages: bash, binutils, cygwin, cygutils,
+      You will need the following packages: bash, binutils, cygwin, cygutils,
       fileutils, gcc, gdb, login, make, man, mingw-runtime, sed, sh-utils,
       texinfo, textutils and w32api.
 
@@ -279,7 +279,7 @@ Cross compilation
 <endblock>
    4. Run '<tt>./fix.sh mingw --dtou</tt>' (<tt>--dtou</tt> is only needed if your Allegro
       directory has text files in DOS format, otherwise you can use <tt>--quick</tt>).
-      If you are using a CVS version of Allegro, run '<tt>make depend</tt>' to
+      If you are using a SVN version of Allegro, run '<tt>make depend</tt>' to
       generate the build dependencies, then run '<tt>misc/fixdll.sh</tt>' to generate
       the <tt>allegro.def</tt> file. You are now finished with all the preparations.
 
@@ -368,7 +368,7 @@ Installing Allegro
    To activate any of these, type (for example) "<tt>make WARNMODE=1</tt>".
 
    If your copy of Allegro does not include the linker .def file (unlikely,
-   unless you have run "<tt>make veryclean</tt>" at some point, or are using the CVS
+   unless you have run "<tt>make veryclean</tt>" at some point, or are using the SVN
    version of Allegro), you can regenerate it by running "<tt>misc\fixdll.bat</tt>".
    You will need to have GNU sed and sort installed for this operation to
    work. The version of sed that is linked from the MinGW site does not

@@ -58,7 +58,7 @@ Installing Allegro
       chmod +x fix.sh
       ./fix.sh macosx
 <endblock>
-   If you have checked out a development version from Allegro's CVS
+   If you have checked out a development version from Allegro's SVN
    repository, run the following command. Otherwise, skip this step:
 <textblock>
       make depend

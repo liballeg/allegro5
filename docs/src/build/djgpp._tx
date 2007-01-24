@@ -53,9 +53,9 @@ Required software
 
 
 @heading
-Allegro CVS Notes
+Allegro SVN Notes
 
-   If you are using a CVS version of Allegro, then you will need to do some
+   If you are using a SVN version of Allegro, then you will need to do some
    extra things to ensure that your copy of Allegro will compile correctly.
    These are covered in detail below, but briefly:
 <blockquote>
@@ -118,12 +118,12 @@ Installing Allegro
    files and HTML format documentation).
 
    If your copy of Allegro is set up for use with some different compiler 
-   (if you downloaded a tar.gz archive or a CVS version), you will have to 
+   (if you downloaded a tar.gz archive or a SVN version), you will have to 
    run '<tt>fix.bat djgpp</tt>' before compiling it. If you are using bash you can run
    '<tt>fix.sh djgpp</tt>' instead.
 
    If your copy of Allegro doesn't include the makefile.dep dependency files 
-   (if you have run "<tt>make veryclean</tt>" or you have the CVS version), you can 
+   (if you have run "<tt>make veryclean</tt>" or you have the SVN version), you can 
    regenerate them by running "<tt>make depend</tt>".
 
    If `<tt>make</tt>' tells you that you need to download a new package, or if you
