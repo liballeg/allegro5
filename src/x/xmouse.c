@@ -40,7 +40,9 @@ static int mouse_maxy = 199;
 static int mymickey_x = 0;
 static int mymickey_y = 0;
 
-
+static int mouse_mult = -1;       /* mouse acceleration multiplier */
+static int mouse_div = -1;        /* mouse acceleration divisor */
+static int mouse_threshold = -1;  /* mouse acceleration threshold */
 
 static int _xwin_mousedrv_init(void);
 static void _xwin_mousedrv_exit(void);
@@ -134,6 +136,10 @@ static void _xwin_mousedrv_exit(void)
 {
    XLOCK();
 
+   if (mouse_mult >= 0)
+      XChangePointerControl(_xwin.display, 1, 1, mouse_mult,
+         mouse_div, mouse_threshold);
+
    _xwin_mouse_interrupt = 0;
 
    XUNLOCK();
@@ -190,10 +196,33 @@ static void _xwin_mousedrv_set_range(int x1, int y1, int x2, int y2)
 
 /* _xwin_mousedrv_set_speed:
  *  Sets the speed of the mickey-mode mouse.
+ *  Each step slows down or speeds the mouse up by 0.5x.
  */
 static void _xwin_mousedrv_set_speed(int xspeed, int yspeed)
 {
-   /* Use xset utility with "m" option.  */
+   int speed;
+   int hundredths;
+
+   XLOCK();
+
+   if (mouse_mult < 0)
+      XGetPointerControl(_xwin.display, &mouse_mult, &mouse_div,
+         &mouse_threshold);
+
+   speed = MAX(1, (xspeed + yspeed) / 2);
+
+   if (mouse_div == 0)
+      hundredths = mouse_mult * 100;
+   else
+      hundredths = (mouse_mult * 100 / mouse_div);
+   hundredths -= (speed - 2) * 50;
+   if (hundredths < 0)
+      hundredths = 0;
+
+   XChangePointerControl(_xwin.display, 1, 1, hundredths,
+      100, mouse_threshold);
+
+   XUNLOCK();
 }
 
 
