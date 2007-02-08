@@ -6576,7 +6576,7 @@ clipping rectangle of the destination bitmap.
 	 set_trans_blender(40, 40, 255, 255);
 
       /* Lit the cape with a blueish light. */
-      draw_lit_sprite(buffer, colored_cape, x, y);<endblock>
+      draw_lit_sprite(buffer, colored_cape, x, y, 64);<endblock>
 
 @\void @draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                         int c1, int c2, int c3, int c4);
