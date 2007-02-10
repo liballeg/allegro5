@@ -6826,7 +6826,7 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
 	 set_trans_blender(40, 40, 255, 255);
 
       /* Lit the cape with a blueish light. */
-      draw_lit_rle_sprite(buffer, rle_colored_cape, x, y);<endblock>
+      draw_lit_rle_sprite(buffer, rle_colored_cape, x, y, 64);<endblock>
 
 
 
