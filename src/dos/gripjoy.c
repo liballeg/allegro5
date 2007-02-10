@@ -636,7 +636,7 @@ static int grip_link(void)
    if (!exists(name))
       do_uconvert("c:\\grip\\grip.gll", U_ASCII, name, U_CURRENT, sizeof(name));
 
-   size = file_size(name);
+   size = file_size_ex(name);
 
    /* if size is greater than 32k, this is definitely not the correct file */
    if ((size <= 0) || (size > 32*1024))
