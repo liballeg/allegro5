@@ -1427,10 +1427,10 @@ is best to set it with set_uformat() just before you call these.
 @xref uconvert, ustrcpy, ustrzncpy
 @eref ex3buf, exgui
 @shortdesc Copies a string into another one, specifying size.
-   This function copies `src' (including the terminating NULL character into
+   This function copies `src' (including the terminating null character) into
    `dest', whose length in bytes is specified by `size' and which is
    guaranteed to be null-terminated even if `src' is bigger than `size'.
-   
+
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
    and your parameter size must reflect this. Otherwise, the debug version of
