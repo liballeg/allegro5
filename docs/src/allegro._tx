@@ -3266,12 +3266,12 @@ chapter "Configuration routines" for more information about this.
    before using any of the keyboard input routines. Once you have set up the 
    Allegro handler, you can no longer use operating system calls or C 
    library functions to access the keyboard.
-   
+
    Note that on some platforms the keyboard won't work unless you have set a
    graphics mode, even if this function returns a success value before
    calling set_gfx_mode. This can happen in environments with graphic
    windowed modes, since Allegro usually reads the keyboard through the
-   graphical window (which appears after the set_gfx_call). Example:
+   graphical window (which appears after the set_gfx_mode call). Example:
 <codeblock>
       allegro_init();
       install_timer();
