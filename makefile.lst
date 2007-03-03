@@ -546,6 +546,7 @@ ALLEGRO_EXAMPLE_FILES = \
 	examples/exmem.c \
 	examples/exmidi.c \
 	examples/exmouse.c \
+	examples/exnew_events.c \
 	examples/expackf.c \
 	examples/expal.c \
 	examples/expat.c \
@@ -597,6 +598,7 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/exmem \
 	examples/exmidi \
 	examples/exmouse \
+	examples/exnew_events \
 	examples/expackf \
 	examples/expal \
 	examples/expat \
