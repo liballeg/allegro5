@@ -133,10 +133,11 @@ void draw_timer_tick(AL_TIMER *timer, long count)
       y = 70;
    } else {
       fatal_error("draw_timer_tick");
+      y = -1;
    }
 
    buffer = al_get_buffer(al_main_display);
-   textprintf_ex(buffer, font, 400, y, black(), white(), "Timer: %d", count);
+   textprintf_ex(buffer, font, 400, y, black(), white(), "Timer: %ld", count);
    al_flip_display(al_main_display);
 }
 
