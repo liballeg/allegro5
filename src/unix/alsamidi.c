@@ -230,7 +230,6 @@ static void alsa_rawmidi_exit(int input)
 static void alsa_rawmidi_output(int data)
 {
    int err;
-   char temp[256];
 
    /* If there are too many errors, just give up.  Otherwise the calling thread
     * can end up consuming CPU time for no reason.  It probably means the user

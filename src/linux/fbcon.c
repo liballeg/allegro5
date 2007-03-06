@@ -361,7 +361,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 
       /* try to set the mode */
       if (ioctl(fbfd, FBIOPUT_VSCREENINFO, &my_mode) == 0) {
-	 if (my_mode.bits_per_pixel == color_depth)
+	 if (my_mode.bits_per_pixel == (unsigned)color_depth)
 	    goto got_a_nice_mode;
       }
    }
