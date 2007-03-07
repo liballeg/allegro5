@@ -336,8 +336,9 @@ void _al_getdcwd(int drive, char *buf, int size)
  */
 uint64_t al_ffblk_get_size(struct al_ffblk *info)
 {
+   struct FF_DATA *ff_data;
    ASSERT(info);
-   struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
+   ff_data = (struct FF_DATA *) info->ff_data;
 
    return ff_data->data.ff_fsize;
 }
