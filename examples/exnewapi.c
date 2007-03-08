@@ -67,6 +67,10 @@ int main(void)
             al_make_display_current(display->source);
             al_acknowledge_resize();
          }
+         if (event.type == AL_EVENT_DISPLAY_CLOSE)
+         {
+            quit = 1;
+         }
       }
 
       /* handle game ticks */
