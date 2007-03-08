@@ -31,7 +31,12 @@ struct AL_BITMAP
    int flags;
    int w, h;
    AL_DISPLAY *display; /* May be NULL for memory bitmaps. */
-   unsigned char *memory; /* A memory copy of the bitmap data. */
+
+   /* A memory copy of the bitmap data. May be NULL for an empty bitmap. */
+   unsigned char *memory;
+
+   /* TODO: Is it needed? */
+   unsigned char *palette;
 };
 
 void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,
