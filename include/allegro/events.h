@@ -22,24 +22,25 @@ typedef unsigned int AL_EVENT_TYPE;
  */
 enum
 {
-   AL_EVENT_JOYSTICK_AXIS               = 0x0001,
-   AL_EVENT_JOYSTICK_BUTTON_DOWN        = 0x0002,
-   AL_EVENT_JOYSTICK_BUTTON_UP          = 0x0004,
+   AL_EVENT_JOYSTICK_AXIS               = 0x00000001,
+   AL_EVENT_JOYSTICK_BUTTON_DOWN        = 0x00000002,
+   AL_EVENT_JOYSTICK_BUTTON_UP          = 0x00000004,
 
-   AL_EVENT_KEY_DOWN                    = 0x0010,
-   AL_EVENT_KEY_REPEAT                  = 0x0020,
-   AL_EVENT_KEY_UP                      = 0x0040,
+   AL_EVENT_KEY_DOWN                    = 0x00000010,
+   AL_EVENT_KEY_REPEAT                  = 0x00000020,
+   AL_EVENT_KEY_UP                      = 0x00000040,
 
-   AL_EVENT_MOUSE_AXES                  = 0x0100,
-   AL_EVENT_MOUSE_BUTTON_DOWN           = 0x0200,
-   AL_EVENT_MOUSE_BUTTON_UP             = 0x0400,
-   AL_EVENT_MOUSE_ENTER_DISPLAY         = 0x0800,
-   AL_EVENT_MOUSE_LEAVE_DISPLAY         = 0x1000,
+   AL_EVENT_MOUSE_AXES                  = 0x00000100,
+   AL_EVENT_MOUSE_BUTTON_DOWN           = 0x00000200,
+   AL_EVENT_MOUSE_BUTTON_UP             = 0x00000400,
+   AL_EVENT_MOUSE_ENTER_DISPLAY         = 0x00000800,
+   AL_EVENT_MOUSE_LEAVE_DISPLAY         = 0x00001000,
 
-   AL_EVENT_TIMER                       = 0x2000,
+   AL_EVENT_TIMER                       = 0x00002000,
 
-   AL_EVENT_DISPLAY_EXPOSE              = 0x4000,
-   AL_EVENT_DISPLAY_RESIZE              = 0x8000
+   AL_EVENT_DISPLAY_EXPOSE              = 0x00004000,
+   AL_EVENT_DISPLAY_RESIZE              = 0x00008000,
+   AL_EVENT_DISPLAY_CLOSE               = 0x00010000
 };
 
 
@@ -164,7 +165,8 @@ union AL_EVENT
 enum
 {
    _AL_ALL_DISPLAY_EVENTS = (AL_EVENT_DISPLAY_EXPOSE |
-                             AL_EVENT_DISPLAY_RESIZE),
+                             AL_EVENT_DISPLAY_RESIZE |
+                             AL_EVENT_DISPLAY_CLOSE),
 
    _AL_ALL_JOYSTICK_EVENTS = (AL_EVENT_JOYSTICK_AXIS |
                               AL_EVENT_JOYSTICK_BUTTON_DOWN |

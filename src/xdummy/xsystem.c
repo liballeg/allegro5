@@ -23,7 +23,19 @@ static void *background_thread(void *arg)
    unsigned int i;
 
    while (1) {
+      AL_DISPLAY_XDUMMY *d = NULL;
       XNextEvent(s->xdisplay, &event);
+
+      // FIXME: With many windows, it's bad to loop through them all,
+      // maybe can come up with a better system here.
+      // TODO: am I supposed to access ._size?
+      for (i = 0; i < s->system.displays._size; i++) {
+         AL_DISPLAY_XDUMMY **dptr = _al_vector_ref(&s->system.displays, i);
+         d = *dptr;
+         if (d->window == event.xconfigure.window) {
+            break;
+         }
+      }
 
       switch (event.type) {
          case KeyPress:
@@ -33,17 +45,13 @@ static void *background_thread(void *arg)
             _al_xwin_keyboard_handler(&event.xkey, false);
             break;
          case ConfigureNotify:
-            // FIXME: With many windows, it's bad to loop through them all,
-            // maybe can come up with a better system here.
-            // TODO: am I supposed to access ._size?
-            for (i = 0; i < s->system.displays._size; i++) {
-               AL_DISPLAY_XDUMMY **d = _al_vector_ref(&s->system.displays, i);
-               if ((*d)->window == event.xconfigure.window) {
-                  _al_display_xdummy_configure(&(*d)->display,  &event);
-                  break;
-               }
-            }
+            _al_display_xdummy_configure(&d->display,  &event);
             break;
+         case ClientMessage:
+            if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
+               _al_display_xdummy_closebutton(&d->display,  &event);
+               break;
+            }
       }
    }
    return NULL;

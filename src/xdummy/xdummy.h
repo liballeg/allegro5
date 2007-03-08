@@ -27,6 +27,7 @@ struct AL_DISPLAY_XDUMMY
    GLXWindow glxwindow;
    GLXContext context;
    int is_initialized;
+   Atom wm_delete_window_atom;
 };
 
 struct AL_BITMAP_XDUMMY
@@ -41,3 +42,5 @@ struct AL_BITMAP_XDUMMY
 
 void _al_display_xdummy_configure(AL_DISPLAY *d, XEvent *event);
 void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack);
+void _al_display_xdummy_closebutton(AL_DISPLAY *d, XEvent *xevent);
+

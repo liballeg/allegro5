@@ -97,6 +97,10 @@ static AL_DISPLAY *create_display(int w, int h, int flags)
       XFree(hints);
    }
 
+   d->wm_delete_window_atom = XInternAtom (system->xdisplay,
+      "WM_DELETE_WINDOW", False);
+   XSetWMProtocols (system->xdisplay, d->window, &d->wm_delete_window_atom, 1);
+
    XMapWindow(system->xdisplay, d->window);
    // TODO: Do we need to wait here until the window is mapped?
    TRACE("xdisplay: X11 window mapped.\n");
@@ -227,6 +231,25 @@ void _al_display_xdummy_configure(AL_DISPLAY *d, XEvent *xevent)
          event->display.y = xevent->xconfigure.y;
          event->display.width = xevent->xconfigure.width;
          event->display.height = xevent->xconfigure.height;
+         _al_event_source_emit_event(es, event);
+      }
+   }
+   _al_event_source_unlock(es);
+}
+
+/* Handle an X11 close button event. */
+void _al_display_xdummy_closebutton(AL_DISPLAY *d, XEvent *xevent)
+{
+   AL_DISPLAY_XDUMMY *glx = (AL_DISPLAY_XDUMMY *)d;
+
+   AL_EVENT_SOURCE *es = &glx->display.es;
+   _al_event_source_lock(es);
+
+   if (_al_event_source_needs_to_generate_event(es, AL_EVENT_DISPLAY_CLOSE)) {
+      AL_EVENT *event = _al_event_source_get_unused_event(es);
+      if (event) {
+         event->display.type = AL_EVENT_DISPLAY_CLOSE;
+         event->display.timestamp = al_current_time();
          _al_event_source_emit_event(es, event);
       }
    }
