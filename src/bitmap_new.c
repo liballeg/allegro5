@@ -62,9 +62,14 @@ void al_destroy_bitmap(AL_BITMAP *bitmap)
    _AL_FREE(bitmap);
 }
 
-/* Load a bitmap from a file into a display bitmap, ready to be drawn.
+/* TODO
+ * This will load a bitmap from a file into a memory bitmap, keeping it in the
+ * same format as on disk. That is, a paletted image will be stored as indices
+ * plus the palette, 16-bit color channels stay as 16-bit, and so on. If
+ * a format is not supported by Allegro, the closest one will be used. (E.g. we
+ * likely will throw away things like frame timings or gamma correction.)
  */
-AL_BITMAP *al_load_bitmap(char const *filename, int flags)
+AL_BITMAP *al_load_memory_bitmap(char const *filename, int flags)
 {
    // TODO:
    // The idea is, load_bitmap returns a memory representation of the bitmap,
@@ -93,6 +98,14 @@ AL_BITMAP *al_load_bitmap(char const *filename, int flags)
       }
    }
    destroy_bitmap(file_data);
+   return bitmap;
+}
+
+/* Load a bitmap from a file into a display bitmap, ready to be drawn.
+ */
+AL_BITMAP *al_load_bitmap(char const *filename, int flags)
+{
+   AL_BITMAP *bitmap = al_load_memory_bitmap(filename, flags);
    bitmap->vt->upload_bitmap(bitmap);
    return bitmap;
 }
@@ -106,4 +119,5 @@ void al_draw_bitmap(AL_BITMAP *bitmap, float x, float y)
 void al_draw_sub_bitmap(AL_BITMAP *bitmap, float x, float y,
     float sx, float sy, float sw, float sh)
 {
+   // TODO
 }
