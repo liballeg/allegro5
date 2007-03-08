@@ -122,7 +122,11 @@ if noconfig:
     settings.read("build/settings.cfg")
     env = context.getLibraryEnv()
     for setting in config_settings:
-        eval("env.Append(%s = %s)" % (setting, settings.get("unix", setting)))
+        try:
+            eval("env.Append(%s = %s)" % (
+                setting, settings.get("unix", setting)))
+        except ConfigParser.NoOptionError:
+            pass
 else:
     tests = {}
     # import all functions from checks.py as custom SCons checks
