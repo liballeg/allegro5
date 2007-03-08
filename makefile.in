@@ -96,7 +96,7 @@ ALLEGRO_MODULE_TARGETS = @ALLEGRO_MODULE_TARGETS@
 
 PLUGIN_LIB = @PLUGIN_LIB@
 PLUGINS_H = tools/plugins/plugins.h
-tools_plugins_plugins_h = $(PLUGINS_H)
+plugins_plugins_h = $(PLUGINS_H)
 
 default: $(DEFAULT_TARGETS)
 

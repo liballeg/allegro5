@@ -85,8 +85,8 @@ class AllegroContext:
         self.libDir = "lib/dummy"
         self.libraryEnv = env
 
-        ## Each platform should set its own install function
-        ## install :: library -> list of targets
+        # Each platform should set its own install function
+        # install :: library -> list of targets
         self.install = lambda lib: []
 
         # Platform specific scons scripts should set the example env via
@@ -318,6 +318,8 @@ context.addLibrary(library)
 
 docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
 Alias('docs', docs)
+
+SConscript("scons/naturaldocs.scons")
 
 def buildDemo(env,appendDir,buildDir,libDir):
     env.BuildDir(buildDir + 'demo', 'demo', duplicate = 0)

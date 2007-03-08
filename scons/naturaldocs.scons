@@ -1,0 +1,12 @@
+import os
+env = Environment(ENV = os.environ)
+
+path = "docs/naturaldocs"
+
+public_docs = env.Command(Dir(path + "/public"), None,
+   "make public -C docs/naturaldocs")
+private_docs = env.Command(Dir(path + "/private"), None,
+   "make private -C docs/naturaldocs")
+
+env.Alias("naturaldocs", [public_docs, private_docs])
+
