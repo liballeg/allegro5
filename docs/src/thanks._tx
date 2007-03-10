@@ -584,7 +584,7 @@ Contributors
    IRIX doesn't like at all, added IRIX detection and improved the
    performances of the SGI audio driver
 
-   Lorenzo Petrone (<email>_lano_@libero.it</a>).<br>
+   Lorenzo Petrone (<email>looris@gmail.com</a>).<br>
    Contributed the gfxinfo utility, added two FAQ entries, added a
    xwin_set_window_name() function to the X11 port, added support for
    switch callbacks under X11 and refactored the display switching code.
