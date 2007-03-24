@@ -86,7 +86,7 @@ extern "C" {
 #ifdef ALLEGRO_WITH_XWINDOWS
    AL_FUNCPTR(void, _xwin_keyboard_interrupt, (int pressed, int code));
    AL_FUNCPTR(void, _xwin_keyboard_focused, (int focused, int state));
-   AL_FUNCPTR(void, _xwin_mouse_interrupt, (int x, int y, int z, int buttons));
+   AL_FUNCPTR(void, _xwin_mouse_interrupt, (int x, int y, int z, int w, int buttons));
    AL_FUNCPTR(void, _xwin_timer_interrupt, (unsigned long interval));
 
    AL_ARRAY(_DRIVER_INFO, _xwin_gfx_driver_list);

@@ -340,7 +340,7 @@ static void _xdga2_handle_input(void)
             else if (cur_event->xbutton.button == Button5)
                dz = -1;
             if (_xwin_mouse_interrupt)
-               (*_xwin_mouse_interrupt)(0, 0, dz, mouse_buttons);
+               (*_xwin_mouse_interrupt)(0, 0, dz, 0, mouse_buttons);
             break;
 
          case ButtonRelease:
@@ -351,14 +351,14 @@ static void _xdga2_handle_input(void)
             else if (cur_event->xbutton.button == Button2)
                mouse_buttons &= ~4;
             if (_xwin_mouse_interrupt)
-               (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
+               (*_xwin_mouse_interrupt)(0, 0, 0, 0, mouse_buttons);
             break;
 
          case MotionNotify:
             dx = cur_event->xmotion.dx;
             dy = cur_event->xmotion.dy;
             if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt) {
-               (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
+               (*_xwin_mouse_interrupt)(dx, dy, 0, 0, mouse_buttons);
             }
             break;
 

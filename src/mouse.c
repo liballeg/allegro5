@@ -47,12 +47,14 @@ int _mouse_installed = FALSE;
 volatile int mouse_x = 0;              /* user-visible position */
 volatile int mouse_y = 0;
 volatile int mouse_z = 0;
-volatile int mouse_b = 0; 
-volatile int mouse_pos = 0; 
+volatile int mouse_w = 0;
+volatile int mouse_b = 0;
+volatile int mouse_pos = 0;
 
 int _mouse_x = 0;                      /* internal position */
 int _mouse_y = 0;
 int _mouse_z = 0;
+int _mouse_w = 0;
 int _mouse_b = 0;
 int _mouse_on = TRUE;
 
@@ -258,7 +260,7 @@ END_OF_STATIC_FUNCTION(draw_mouse);
  */
 static void update_mouse(void)
 {
-   int x, y, z, b, flags = 0;
+   int x, y, z, w, b, flags = 0;
 
    if (freeze_mouse_flag) {
       x = mx;
@@ -270,6 +272,7 @@ static void update_mouse(void)
    }
 
    z = _mouse_z;
+   w = _mouse_w;
    b = _mouse_b;
 
    if (emulate_three) {
@@ -277,9 +280,10 @@ static void update_mouse(void)
 	 b = 4;
    }
 
-   if ((mouse_x != x) || 
+   if ((mouse_x != x) ||
        (mouse_y != y) ||
        (mouse_z != z) ||
+       (mouse_w != w) ||
        (mouse_b != b)) {
 
       if (mouse_callback) {
@@ -288,6 +292,9 @@ static void update_mouse(void)
 
 	 if (mouse_z != z)
 	    flags |= MOUSE_FLAG_MOVE_Z;
+
+        if (mouse_w != w)
+	    flags |= MOUSE_FLAG_MOVE_W;
 
 	 if ((b & 1) && !(mouse_b & 1))
 	    flags |= MOUSE_FLAG_LEFT_DOWN;
@@ -307,6 +314,7 @@ static void update_mouse(void)
 	 mouse_x = x;
 	 mouse_y = y;
 	 mouse_z = z;
+         mouse_w = w;
 	 mouse_b = b;
 	 mouse_pos = ((x & 0xFFFF) << 16) | (y & 0xFFFF);
 
@@ -316,6 +324,7 @@ static void update_mouse(void)
 	 mouse_x = x;
 	 mouse_y = y;
 	 mouse_z = z;
+         mouse_w = w;
 	 mouse_b = b;
 	 mouse_pos = ((x & 0xFFFF) << 16) | (y & 0xFFFF);
       }
@@ -824,6 +833,20 @@ void position_mouse_z(int z)
 
 
 
+/* position_mouse_w:
+ *  Sets the mouse fourth axis to position w.
+ */
+void position_mouse_w(int w)
+{
+   if (!mouse_driver)
+      return;
+
+   _mouse_w = w;
+   update_mouse();
+}
+
+
+
 /* set_mouse_range:
  *  Sets the screen area within which the mouse can move. Pass the top left 
  *  corner and the bottom right corner (inclusive). If you don't call this 
@@ -1007,11 +1030,13 @@ int install_mouse(void)
    LOCK_VARIABLE(mouse_x);
    LOCK_VARIABLE(mouse_y);
    LOCK_VARIABLE(mouse_z);
+   LOCK_VARIABLE(mouse_w);
    LOCK_VARIABLE(mouse_b);
    LOCK_VARIABLE(mouse_pos);
    LOCK_VARIABLE(_mouse_x);
    LOCK_VARIABLE(_mouse_y);
    LOCK_VARIABLE(_mouse_z);
+   LOCK_VARIABLE(_mouse_w);
    LOCK_VARIABLE(_mouse_b);
    LOCK_VARIABLE(_mouse_on);
    LOCK_VARIABLE(mon);
@@ -1143,6 +1168,7 @@ void remove_mouse(void)
 
    mouse_x = mouse_y = _mouse_x = _mouse_y = 0;
    mouse_z = _mouse_z = 0;
+   mouse_w = _mouse_w = 0;
    mouse_b = _mouse_b = 0;
    mouse_pos = 0;
 

@@ -149,6 +149,7 @@ AL_FUNC(void, _handle_mouse_input, (void));
 AL_VAR(int, _mouse_x);
 AL_VAR(int, _mouse_y);
 AL_VAR(int, _mouse_z);
+AL_VAR(int, _mouse_w);
 AL_VAR(int, _mouse_b);
 AL_VAR(int, _mouse_on);
 

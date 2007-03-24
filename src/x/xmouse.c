@@ -93,7 +93,7 @@ _DRIVER_INFO _xwin_mouse_driver_list[] =
 /* _xwin_mousedrv_handler:
  *  Mouse "interrupt" handler for mickey-mode driver.
  */
-static void _xwin_mousedrv_handler(int x, int y, int z, int buttons)
+static void _xwin_mousedrv_handler(int x, int y, int z, int w, int buttons)
 {
    _mouse_b = buttons;
 
@@ -103,6 +103,7 @@ static void _xwin_mousedrv_handler(int x, int y, int z, int buttons)
    _mouse_x += x;
    _mouse_y += y;
    _mouse_z += z;
+   _mouse_w += w;
 
    if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx)
        || (_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {

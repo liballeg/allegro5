@@ -2295,7 +2295,7 @@ void _xwin_vsync(void)
  */
 static void _xwin_private_process_event(XEvent *event)
 {
-   int dx, dy, dz = 0;
+   int dx, dy, dz = 0, dw = 0;
    static int mouse_buttons = 0;
    static int mouse_savedx = 0;
    static int mouse_savedy = 0;
@@ -2325,12 +2325,24 @@ static void _xwin_private_process_event(XEvent *event)
 	    mouse_buttons |= 2;
 	 else if (event->xbutton.button == Button2)
 	    mouse_buttons |= 4;
-	 else if (event->xbutton.button == Button4)
+	 else if (event->xbutton.button == Button4) {
 	    dz = 1;
-	 else if (event->xbutton.button == Button5)
-	    dz = -1;
+         }
+         else if (event->xbutton.button == Button5) {
+            dz = -1;
+         }
+         else if (event->xbutton.button == 6) {
+            dw = -1; 
+         }
+         else if (event->xbutton.button == 7) {
+            dw = 1;
+         }
+         else if (event->xbutton.button == 8)
+	    mouse_buttons |= 8;
+         else if (event->xbutton.button == 9)
+	    mouse_buttons |= 16;
 	 if (_xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(0, 0, dz, mouse_buttons);
+	    (*_xwin_mouse_interrupt)(0, 0, dz, dw, mouse_buttons);
 	 break;
       case ButtonRelease:
 	 /* Mouse button released.  */
@@ -2340,8 +2352,12 @@ static void _xwin_private_process_event(XEvent *event)
 	    mouse_buttons &= ~2;
 	 else if (event->xbutton.button == Button2)
 	    mouse_buttons &= ~4;
+         else if (event->xbutton.button == 8)
+	    mouse_buttons &= ~8;
+         else if (event->xbutton.button == 9)
+	    mouse_buttons &= ~16;
 	 if (_xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
+	    (*_xwin_mouse_interrupt)(0, 0, 0, 0, mouse_buttons);
 	 break;
       case MotionNotify:
 	 /* Mouse moved.  */
@@ -2369,7 +2385,7 @@ static void _xwin_private_process_event(XEvent *event)
 			    mouse_savedx, mouse_savedy);
 	    }
 	    /* Move Allegro cursor.  */
-	    (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
+	    (*_xwin_mouse_interrupt)(dx, dy, 0, 0, mouse_buttons);
 	 }
 	 break;
       case EnterNotify:
@@ -2384,15 +2400,15 @@ static void _xwin_private_process_event(XEvent *event)
 	    dx = event->xcrossing.x - (_mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0));
 	    dy = event->xcrossing.y - (_mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
 	    if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt)
-	       (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
+	       (*_xwin_mouse_interrupt)(dx, dy, 0, 0, mouse_buttons);
 	 }
 	 else if (_xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
+	    (*_xwin_mouse_interrupt)(0, 0, 0, 0, mouse_buttons);
 	 break;
       case LeaveNotify:
 	 _mouse_on = FALSE;
 	 if (_xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
+	    (*_xwin_mouse_interrupt)(0, 0, 0, 0, mouse_buttons);
 	 _xwin_mouse_leave_notify();
 	 break;
       case Expose:

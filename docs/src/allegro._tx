@@ -2819,6 +2819,7 @@ information for more details.
 @@extern volatile int @mouse_x;
 @@extern volatile int @mouse_y;
 @@extern volatile int @mouse_z;
+@@extern volatile int @mouse_w;
 @@extern volatile int @mouse_b;
 @@extern volatile int @mouse_pos;
 @xref install_mouse, poll_mouse, mouse_needs_poll
@@ -2829,12 +2830,12 @@ information for more details.
    mouse_needs_poll() returns TRUE, you must manually call poll_mouse() to 
    update them with the current input state. The `mouse_x' and `mouse_y' 
    positions are integers ranging from zero to the bottom right corner of 
-   the screen. The `mouse_z' variable holds the current wheel position, when 
-   using an input driver that supports wheel mice. The `mouse_b' variable is 
-   a bitfield indicating the state of each button: bit 0 is the left button, 
-   bit 1 the right, and bit 2 the middle button. Additional non standard
-   mouse buttons might be available as higher bits in this variable. Usage
-   example:
+   the screen. The `mouse_z' and `mouse_w' variables hold the current vertical
+   and horizontal wheel position, when using an input driver that supports
+   wheel mice. The `mouse_b' variable is a bitfield indicating the state of
+   each button: bit 0 is the left button,  bit 1 the right, and bit 2 the
+   middle button. Additional non standard mouse buttons might be available
+   as higher bits in this variable. Usage example:
 <codeblock>
       if (mouse_b & 1)
 	 printf("Left button is pressed\n");
@@ -2950,14 +2951,20 @@ information for more details.
 
 @@void @position_mouse(int x, int y);
 @xref install_mouse, position_mouse_z, set_mouse_range, set_mouse_speed
+@xref position_mouse_w
 @shortdesc Moves the mouse to the specified screen position.
    Moves the mouse to the specified screen position. It is safe to call even 
    when a mouse pointer is being displayed.
 
 @@void @position_mouse_z(int z);
-@xref install_mouse, position_mouse
+@xref install_mouse, position_mouse, position_mouse_w
 @shortdesc Sets the mouse wheel position global variable.
    Sets the mouse wheel position variable to the specified value.
+
+@@void @position_mouse_w(int w);
+@xref install_mouse, position_mouse
+@shortdesc Sets the horizontal mouse wheel position.
+   Sets the horizontal mouse wheel position to the specified value.
 
 @@void @set_mouse_range(int x1, int y1, int x2, int y2);
 @xref install_mouse, set_mouse_speed, position_mouse
@@ -15188,7 +15195,7 @@ and avoid missing any important bit of information.
 @xref circle, clear_keybuf, clear_to_color, create_bitmap
 @xref desktop_palette, destroy_bitmap, font, get_mouse_mickeys
 @xref install_keyboard, install_mouse, install_timer, key, keypressed
-@xref makecol, mouse_b, mouse_x, mouse_y, mouse_z, palette_color
+@xref makecol, mouse_b, mouse_x, mouse_y, mouse_z, mouse_w, palette_color
 @xref poll_mouse, readkey, release_screen, screen, set_gfx_mode
 @xref set_mouse_sprite, set_mouse_sprite_focus, set_palette, show_mouse
 @xref textout_centre_ex, textout_ex, textprintf_centre_ex, textprintf_ex
