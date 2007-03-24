@@ -80,11 +80,6 @@
    #define HMONITOR_DECLARED 1
 #endif
 
-/* already defined... */
-#ifndef _LPCWAVEFORMATEX_DEFINED
-   #define _LPCWAVEFORMATEX_DEFINED
-#endif
-
 #endif /* ALLEGRO_SRC */
 
 /* another instance of missing constants in the mingw32 headers */
