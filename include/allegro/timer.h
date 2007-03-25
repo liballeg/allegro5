@@ -39,7 +39,8 @@ AL_BEGIN_EXTERN_C
 
 /* Type: AL_TIMER
  *  This is an abstract data type representing a timer object.
- *  A timer object can act as an event source.
+ *  A timer object can act as an event source so can be casted to
+ *  AL_EVENT_SOURCE*.
  */
 typedef struct AL_TIMER AL_TIMER;
 

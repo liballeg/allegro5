@@ -21,7 +21,9 @@ Changes from 4.3.0 to 4.3.1 (March 2007)
       al_set_system_mouse_cursor, al_show_mouse_cursor, al_hide_mouse_cursor
    </ul>
 <li>
-   Added NaturalDocs documentation for some parts of the 4.3 API.
+   Added documentation for some parts of the 4.3 API using the NaturalDocs
+   generation system. The documentation is nowhere near as good as a proper
+   manual, but it's still better than nothing.
 <li>
    Added a commented example demonstating the new API (exnew_events.c).
 <li>

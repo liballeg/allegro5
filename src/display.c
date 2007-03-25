@@ -30,6 +30,10 @@
 
 
 /* Variable: al_main_display
+ *  This variable points to the first display created with al_create_display().
+ *  This is a convenience for simple programs.  Programs using multiple Allegro
+ *  windows should use their own, more descriptive, variables to avoid
+ *  confusion.
  */
 AL_DISPLAY *al_main_display = NULL;
 
