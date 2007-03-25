@@ -422,9 +422,7 @@ int main(void)
    al_show_mouse_cursor();
 
    /* Install the joystick routines. */
-   if (!al_install_joystick()) {
-      fatal_error("al_install_joystick");
-   }
+   al_install_joystick();
 
    /* Create three timer objects.  Unlike in the earlier API, these
     * automatically increment a counter every n milliseconds.  They no longer
