@@ -8,6 +8,30 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.3.0 to 4.3.1 (March 2007)
+<ul><li>
+   Added a new mouse and cursor API. The new functions are:
+   <ul><li>
+      al_install_mouse, al_uninstall_mouse, al_get_mouse,
+      al_get_mouse_num_buttons, al_get_mouse_num_axes, al_set_mouse_xy,
+      al_set_mouse_z, al_set_mouse_w, al_set_mouse_axis, al_set_mouse_range,
+      al_get_mouse_state, al_mouse_button_down, al_mouse_state_axis
+   <li>
+      al_create_mouse_cursor, al_destroy_mouse_cursor, al_set_mouse_cursor,
+      al_set_system_mouse_cursor, al_show_mouse_cursor, al_hide_mouse_cursor
+   </ul>
+<li>
+   Added NaturalDocs documentation for some parts of the 4.3 API.
+<li>
+   Added a commented example demonstating the new API (exnew_events.c).
+<li>
+   Added CMake and SCons build systems. These are mainly for use by Allegro
+   developers at present.
+<li>
+   Various bug fixes and minor changes.
+</ul>
+
+@heading
 Changes from 4.2 series to 4.3.0 (July 2006)
 <ul><li>
    Basically we're just wrapping up what we have in version control up to
