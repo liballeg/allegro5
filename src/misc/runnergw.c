@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
    for (i=1; i < argc; i++) {
       if (argv[i][0] == '@') {
          if ((file=fopen(argv[i]+1, "r")) == NULL) {
-            fprintf(stderr, "Unable to open %s.\n", argv[i]);
+            fprintf(stderr, "runnergw: Unable to open '%s'.\n", argv[i]);
             exit(EXIT_FAILURE);
          }
 

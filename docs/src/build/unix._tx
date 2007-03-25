@@ -103,7 +103,7 @@ Installing Allegro
    Alternatively, you can add the path to your <tt>LD_LIBRARY_PATH</tt> environment
    variable.
 
-   If you are compiling a CVS version of Allegro, you need to generate the
+   If you are compiling a SVN version of Allegro, you need to generate the
    configure header and script prior to doing anything else. Make sure that
    GNU autoconf 2.53 or newer is installed on your system and type:
 <textblock>

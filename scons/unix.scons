@@ -457,7 +457,7 @@ def allegroConfig(env,appendDir,buildDir,libDir):
     ldflags = ''
     if supportModules():
         ldflags = '-Wl,--export-dynamic'
-    print env[ 'LIBPATH' ]    
+    #print env[ 'LIBPATH' ]    
     dict[ '@LDFLAGS@' ] = 'something'
     dict[ '@LIBS@' ] = ' '.join(['-l' + x for x in unixLibs])
     dict[ '@FRAMEWORKS@' ] = 'something'

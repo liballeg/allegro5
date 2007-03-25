@@ -9,7 +9,7 @@ proc_help()
    echo
    echo "Usage: $0 <platform> [--quick|--dtou|--utod|--utom|--mtou]"
    echo
-   echo "Where platform is one of: bcc32, beos, djgpp, mingw, msvc, qnx, unix"
+   echo "Where platform is one of: bcc32, beos, djgpp, mingw, qnx, unix"
    echo "mac, macosx, macosx-universal and watcom."
    echo "The --quick parameter turns off text file conversion, --dtou converts from"
    echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format,"
@@ -50,7 +50,7 @@ proc_fix_osx_ub()
 proc_filelist()
 {
    # common files.
-   AL_FILELIST=`find . -type f "(" \
+   AL_FILELIST=`find . -type f "(" ! -path "*/.*" ")" -a "(" \
       -name "*.c" -o -name "*.cfg" -o -name "*.cpp" -o -name "*.def" -o \
       -name "*.h" -o -name "*.hin" -o -name "*.in" -o -name "*.inc" -o \
       -name "*.m" -o -name "*.m4" -o -name "*.mft" -o -name "*.s" -o \
@@ -142,7 +142,6 @@ case "$1" in
    "djgpp"   ) proc_fix "DOS (djgpp)"       "makefile.dj"  "ALLEGRO_DJGPP";;
    "mingw"   ) proc_fix "Windows (MinGW)"   "makefile.mgw" "ALLEGRO_MINGW32";;
    "mingw32" ) proc_fix "Windows (MinGW)"   "makefile.mgw" "ALLEGRO_MINGW32";;
-   "msvc"    ) proc_fix "Windows (MSVC)"    "makefile.vc"  "ALLEGRO_MSVC";;
    "qnx"     ) proc_fix "QNX"               "makefile.qnx" "ALLEGRO_QNX";;
    "unix"    ) proc_fix "Unix"              "none"         "ALLEGRO_UNIX";;
    "mac"     ) proc_fix "Mac"               "none"         "ALLEGRO_MPW";;

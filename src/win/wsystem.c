@@ -177,7 +177,8 @@ static int sys_directx_init(void)
    InitializeCriticalSection(&allegro_critical_section);
 
    /* install a Windows specific trace handler */
-   register_trace_handler(sys_directx_trace_handler);
+   if (!_al_trace_handler)
+      register_trace_handler(sys_directx_trace_handler);
 
    /* setup the display switch system */
    sys_directx_display_switch_init();

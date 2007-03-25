@@ -54,7 +54,7 @@ LIB_MAIN_NAME = lib/macosx/lib$(VERSION)-main.a
 
 DYLINK_FLAGS = -compatibility_version $(compatibility_version) -current_version $(shared_version)
 ifdef UB
-DYLINK_FLAGS+=-arch ppc -arch i386
+DYLINK_FLAGS+=-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk
 endif
 
 INSTALL_NAME = -install_name lib$(VERSION)-$(shared_major_minor).dylib
@@ -141,8 +141,8 @@ endif
 
 # ------- Universal binary -------------
 ifdef UB
-CFLAGS+= -arch ppc -arch i386
-LFLAGS+= -arch ppc -arch i386
+CFLAGS+= -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk
+LFLAGS+= -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk
 endif
 
 
@@ -226,14 +226,15 @@ endif
 $(INSTALLDIR)/bin/fixbundle: tools/macosx/fixbundle
 	@install $< $(INSTALLDIR)/bin/
 
-HEADERS = $(INSTALLDIR)/$(INCDIR)/osxalleg.h                  \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintosx.h  \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintunix.h \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/alosxcfg.h \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/alplatf.h  \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/astdbool.h \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/astdint.h  \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/alosx.h
+BUILD_HEADERS = $(INCDIR)/osxalleg.h                  \
+          $(INCDIR)/allegro/platform/aintosx.h  \
+          $(INCDIR)/allegro/platform/aintunix.h \
+          $(INCDIR)/allegro/platform/alosxcfg.h \
+          $(INCDIR)/allegro/platform/alplatf.h  \
+          $(INCDIR)/allegro/platform/astdint.h  \
+          $(INCDIR)/allegro/platform/alosx.h
+
+HEADERS = $(addprefix $(INSTALLDIR)/,$(BUILD_HEADERS))
 
 ifdef STATICLINK
    INSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)_s.a 
@@ -244,7 +245,7 @@ endif
 
 INSTALL_FILES += $(HEADERS) $(INSTALLDIR)/bin/allegro-config $(INSTALLDIR)/bin/fixbundle
 
-install: generic-install install-fixbundle
+install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 	@if (printenv PATH |grep -q -v "$(INSTALLDIR)/bin"); then echo "Please check that $(INSTALLDIR)/bin is in your path (see docs/build/macosx.txt)"; fi
 	@echo Run make install-man if you wish to install the man pages.
@@ -277,8 +278,7 @@ uninstall: generic-uninstall
 	  | xargs -n 1 rm -f
 	-sed -n -e "s,^@@\(struct\|typedef\).*@\([a-zA-Z0-9_]*\),$(MAN_DIR)/man3/\2.3,p" docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
-	-rm -f $(HELPBUNDLE)/*
-	-rmdir $(HELPBUNDLE)
+	@test -d $(HELPBUNDLE) && rm -fR $(HELPBUNDLE) || true
 
 	@echo All gone!	
 
@@ -308,7 +308,7 @@ else
 endif
 	@install include/allegro.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@install include/osxalleg.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
-	@install $(HEADERS) $(FRAMEWORK)/Versions/$(shared_version)/Headers
+	@install $(BUILD_HEADERS) $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@(cd $(FRAMEWORK)/Versions; ln -s $(shared_version) Current)
 	@(cd $(FRAMEWORK); ln -s Versions/Current/Headers $(FRAMEWORK)/Headers)
 	@(cd $(FRAMEWORK); ln -s Versions/Current/Resources $(FRAMEWORK)/Resources)
@@ -344,9 +344,6 @@ install-man: docs docs/man/install_allegro.3
 	@echo Installing man files to $(MAN_DIR)/man3
 	@install docs/man/*.3 $(MAN_DIR)/man3/
 	
-install-fixbundle: tools/macosx/fixbundle
-	@install $< $(INSTALLDIR)/bin/
-
 	
 
 # -------- test capabilities --------

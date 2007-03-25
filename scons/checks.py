@@ -320,16 +320,19 @@ def CheckESDDigi(context):
 
 def CheckJackDigi(context):
     context.Message("Checking for JACK... ")
-    tmpEnv = context.env.Copy()
-    context.env.ParseConfig('pkg-config --libs jack --cflags jack')
-    ret = context.TryLink("""
-        #include <jack/jack.h>
-        int main(){
-            jack_client_new(0);
-        }
-        """, ".c");
-    if not ret:
-        context.sconf.env = tmpEnv
+
+    ret = context.TryAction('pkg-config --libs jack')[0]
+    if ret:
+	tmpEnv = context.env.Copy()
+	context.env.ParseConfig('pkg-config --libs jack --cflags jack')
+	ret = context.TryLink("""
+	    #include <jack/jack.h>
+	    int main(){
+		jack_client_new(0);
+	    }
+	    """, ".c");
+	if not ret:
+	    context.sconf.env = tmpEnv
     context.Result(ret)
     return ret
 

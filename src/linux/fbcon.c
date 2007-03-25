@@ -99,6 +99,8 @@ GFX_DRIVER gfx_fbcon =
 
 static char fb_desc[256] = EMPTY_STRING;     /* description string */
 
+static int fb_mode_read = FALSE;             /* has orig_mode been read? */
+
 static struct fb_fix_screeninfo fix_info;    /* read-only video mode info */
 static struct fb_var_screeninfo orig_mode;   /* original video mode info */
 static struct fb_var_screeninfo my_mode;     /* my video mode info */
@@ -190,6 +192,33 @@ static void calculate_refresh_rate(AL_CONST struct fb_var_screeninfo *mode)
 
 
 
+/* __al_linux_get_fb_color_depth:
+ *  Get the colour depth of the framebuffer
+ */
+int __al_linux_get_fb_color_depth(void)
+{
+   if ((!fb_mode_read) && (fb_open_device() != 0))
+      return 0;
+   return orig_mode.bits_per_pixel;
+}
+
+
+
+/* __al_linux_get_fb_resolution:
+ *  Get the resolution of the framebuffer
+ */
+int __al_linux_get_fb_resolution(int *width, int *height)
+{
+   if ((!fb_mode_read) && (fb_open_device() != 0))
+      return -1;
+
+   *width = orig_mode.xres;
+   *height = orig_mode.yres;
+   return 0;
+}
+
+
+
 /* fb_init:
  *  Sets a graphics mode.
  */
@@ -201,7 +230,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    char tmp[16];
 
    /* open framebuffer and store info in global variables */
-   if (fb_open_device() != 0)
+   if ((!fb_mode_read) && (fb_open_device() != 0))
       return NULL;
 
    /* look for a nice graphics mode in several passes */
@@ -333,8 +362,10 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 	 continue;
 
       /* try to set the mode */
-      if (ioctl(fbfd, FBIOPUT_VSCREENINFO, &my_mode) == 0)
-	 goto got_a_nice_mode;
+      if (ioctl(fbfd, FBIOPUT_VSCREENINFO, &my_mode) == 0) {
+	 if (my_mode.bits_per_pixel == (unsigned)color_depth)
+	    goto got_a_nice_mode;
+      }
    }
 
    /* oops! */
@@ -548,6 +579,7 @@ static int fb_open_device(void)
    }
 
    TRACE(PREFIX_I "fb device %s opened successfully.\n", fname);
+   fb_mode_read = TRUE;
    return 0;
 }
 
@@ -566,6 +598,7 @@ static void fb_exit(BITMAP *b)
    close(fbfd);
 
    __al_linux_console_text();
+   fb_mode_read = FALSE;
 }
 
 
@@ -1105,8 +1138,15 @@ static void _fb_set_pixclock(int new_val)
  */
 void _module_init(int system_driver)
 {
-   if (system_driver == SYSTEM_LINUX)
+   if (system_driver == SYSTEM_LINUX) {
       _unix_register_gfx_driver(GFX_FBCON, &gfx_fbcon, TRUE, TRUE);
+      /* Register resolution and colour depth getters.
+       * This is a bit ugly because these are actually part of the
+       * system driver rather than the graphics driver...
+       */
+      system_linux.desktop_color_depth = __al_linux_get_fb_color_depth;
+      system_linux.get_desktop_resolution = __al_linux_get_fb_resolution;
+   }
 }
 
 #endif      /* ifdef ALLEGRO_MODULE */

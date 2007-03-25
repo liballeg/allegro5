@@ -261,11 +261,11 @@ static void _xvidmode_private_set_fullscreen(int w, int h, int *vidmode_width,
 static void _xvidmode_private_unset_fullscreen(void);
 #endif
 
-uintptr_t _xwin_write_line (BITMAP *bmp, int line);
-void _xwin_unwrite_line (BITMAP *bmp);
+uintptr_t _xwin_write_line(BITMAP *bmp, int line);
+void _xwin_unwrite_line(BITMAP *bmp);
 #ifndef ALLEGRO_NO_ASM
-uintptr_t _xwin_write_line_asm (BITMAP *bmp, int line);
-void _xwin_unwrite_line_asm (BITMAP *bmp);
+uintptr_t _xwin_write_line_asm(BITMAP *bmp, int line);
+void _xwin_unwrite_line_asm(BITMAP *bmp);
 #endif
 
 
@@ -351,31 +351,37 @@ static void _xwin_hide_x_mouse(void)
    XDefineCursor(_xwin.display, _xwin.window, _xwin.invisible_cursor);
 }
 
+
+
 /* _xwin_wait_mapped:
- * wait for a window to become mapped. (shamelessly borrowed from SDL)
+ *  Wait for a window to become mapped. (shamelessly borrowed from SDL)
  */
 static void _xwin_wait_mapped(Window win)
 {
    XEvent event;
+
    do {
       XMaskEvent(_xwin.display, StructureNotifyMask, &event); 
    } while ((event.type != MapNotify) || (event.xmap.event != win));
 }
 
+
+
 /* _xwin_create_window:
- * We use 3 windows:
- * -fs_window (for fullscreen)
- * -wm_window (window managed)
- * -window    (the real window)
- * 2 of which will be created here: wm_window and window. The fullscreen
- * window gets (re)created when needed, because reusing it causes trouble see:
- * http://sourceforge.net/tracker/index.php?func=detail&aid=1441740&group_id=5665&atid=105665
- * The real window uses wm_window as parent initially and will be reparened to
- * the (freshly created) fullscreen window when requested and reparented
- * back again in screen_destroy.
- * 
- * Idea / concept of 3 windows borrowed from SDL. But somehow SDL manages
- * to reuse the fullscreen window too.
+ *  We use 3 windows:
+ *  - fs_window (for fullscreen)
+ *  - wm_window (window managed)
+ *  - window    (the real window)
+ *
+ *  Two of which will be created here: wm_window and window. The fullscreen
+ *  window gets (re)created when needed, because reusing it causes trouble see
+ *  http://sourceforge.net/tracker/index.php?func=detail&aid=1441740&group_id=5665&atid=105665
+ *  The real window uses wm_window as parent initially and will be reparented
+ *  to the (freshly created) fullscreen window when requested and reparented
+ *  back again in screen_destroy.
+ *  
+ *  Idea/concept of three windows borrowed from SDL. But somehow SDL manages
+ *  to reuse the fullscreen window too.
  */
 static int _xwin_private_create_window(void)
 {
@@ -413,9 +419,12 @@ static int _xwin_private_create_window(void)
    if ((_xwin.visual->class == PseudoColor)
        || (_xwin.visual->class == GrayScale)
        || (_xwin.visual->class == DirectColor))
+   {
       _xwin.colormap = XCreateColormap(_xwin.display, _xwin.wm_window, _xwin.visual, AllocAll);
-   else
+   }
+   else {
       _xwin.colormap = XCreateColormap(_xwin.display, _xwin.wm_window, _xwin.visual, AllocNone);
+   }
    XSetWindowColormap(_xwin.display, _xwin.wm_window, _xwin.colormap);
    XInstallColormap(_xwin.display, _xwin.colormap);
    
@@ -432,8 +441,8 @@ static int _xwin_private_create_window(void)
    XMapWindow(_xwin.display, _xwin.window);
    
    /* Set WM_DELETE_WINDOW atom in WM_PROTOCOLS property (to get window_delete requests).  */
-   wm_delete_window = XInternAtom (_xwin.display, "WM_DELETE_WINDOW", False);
-   XSetWMProtocols (_xwin.display, _xwin.wm_window, &wm_delete_window, 1);
+   wm_delete_window = XInternAtom(_xwin.display, "WM_DELETE_WINDOW", False);
+   XSetWMProtocols(_xwin.display, _xwin.wm_window, &wm_delete_window, 1);
 
    /* Set default window parameters.  */
    (*_xwin_window_defaultor)();
@@ -918,7 +927,7 @@ static void _xwin_private_destroy_screen(void)
       _xwin.fs_window = None;
    }
    else {
-      XUnmapWindow (_xwin.display, _xwin.wm_window);
+      XUnmapWindow(_xwin.display, _xwin.wm_window);
    }
 
    (*_xwin_window_defaultor)();
@@ -1606,11 +1615,14 @@ static int _xwin_private_fast_visual_depth(void)
 void _al_xwin_enable_hardware_cursor(bool mode)
 {
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-   if (_xwin.support_argb_cursor)
+   if (_xwin.support_argb_cursor) {
       _xwin.hw_cursor_ok = mode;
+   }
    else
 #endif
+   {
       _xwin.hw_cursor_ok = false;
+   }
 
    /* Switch to non-warped mode */
    if (_xwin.hw_cursor_ok) {

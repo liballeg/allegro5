@@ -202,7 +202,7 @@ static GFX_MODE_LIST *_xdga2_private_fetch_mode_list(void)
       _AL_FREE(mode_list->mode);
       _AL_FREE(mode_list);
    }
-   XFree (mode);
+   XFree(mode);
    return NULL;
 }
 
