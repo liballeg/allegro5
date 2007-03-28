@@ -236,8 +236,8 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
       gfx_quartz_full.move_mouse = osx_mouse_move;
    }
    else {
-      /* 8 bit modes have problems handling hardware cursor so we disable it */
-   /*   gfx_quartz_full.set_mouse_sprite = NULL;
+      / * 8 bit modes have problems handling hardware cursor so we disable it * /
+   / *   gfx_quartz_full.set_mouse_sprite = NULL;
       gfx_quartz_full.show_mouse = NULL;
       gfx_quartz_full.hide_mouse = NULL;
       gfx_quartz_full.move_mouse = NULL;

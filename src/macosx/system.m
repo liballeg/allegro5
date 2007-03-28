@@ -60,7 +60,7 @@ static int osx_sys_get_desktop_resolution(int *width, int *height);
 int    __crt0_argc;
 char **__crt0_argv;
 NSBundle *osx_bundle = NULL;
-_AL_MUTEX osx_event_mutex;
+struct _AL_MUTEX osx_event_mutex;
 NSCursor *osx_cursor = NULL;
 NSCursor *osx_blank_cursor = NULL;
 AllegroWindow *osx_window = NULL;

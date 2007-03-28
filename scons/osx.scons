@@ -115,7 +115,7 @@ libs = [ 'alleg-main' ]
 exampleEnv.Append(CCFLAGS = flags)
 exampleEnv.Append(CPPDEFINES = defines)
 exampleEnv.Append(CPPPATH = includes)
-# exampleEnv.Append(LIBPATH = libpath)
+exampleEnv.Append(LIBPATH = libpath)
 exampleEnv.Append(LINKFLAGS = linkflags)
 exampleEnv.Append(LIBS = libs)
 

@@ -50,7 +50,7 @@ static char *dirty_lines = NULL;
 static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
-_AL_MUTEX osx_window_mutex;
+struct _AL_MUTEX osx_window_mutex;
 
 
 GFX_DRIVER gfx_quartz_window =
@@ -408,7 +408,7 @@ static void osx_qz_acquire_win(BITMAP *bmp)
 {
 	/* to prevent the drawing threads and the rendering proc
 	from concurrently accessing the dirty lines array */
-	_unix_lock_mutex(osx_window_mutex);
+	_al_mutex_lock(&osx_window_mutex);
 	if (lock_nesting++ == 0) {
 		bmp->id |= BMP_ID_LOCKED;
 	}
@@ -424,7 +424,7 @@ static void osx_qz_release_win(BITMAP *bmp)
 		bmp->id &= ~BMP_ID_LOCKED;
 	}
 	
-	_unix_unlock_mutex(osx_window_mutex);
+	_al_mutex_unlock(&osx_window_mutex);
 }
 
 
