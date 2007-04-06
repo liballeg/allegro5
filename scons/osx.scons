@@ -87,12 +87,20 @@ context.addLibrary("alleg-main")
 # gcc -DALLEGRO_SRC -DALLEGRO_LIB_BUILD -Wall -Wno-unused -Wno-long-double  -O2 -funroll-loops -ffast-math -fomit-frame-pointer -fno-common -pipe -dynamic -DALLEGRO_NO_ASM -I. -I./include -o obj/macosx/alleg/main.o -c src/macosx/main.m
 # ar rs lib/macosx/liballeg-main.a obj/macosx/alleg/main.o
 
+libTool = Builder(action = 'libtool -static -s -o $TARGETS $SOURCES',
+           prefix = 'lib',
+           suffix = '.a', 
+           src_suffix = '.o');
+
 def buildMain(env,appendDir,buildDir,libDir):
     fenv = env.Copy()
     fenv.Replace(LIBS = [])
     # fenv.Append(CCFLAGS = ['-DALLEGRO_SRC'])
     fenv.Append(CPPDEFINES = 'ALLEGRO_SRC')
-    lib = fenv.StaticLibrary('alleg-main',appendDir(buildDir + '/macosx/', ['main.m']))
+    # lib = fenv.StaticLibrary('alleg-main',appendDir(buildDir + '/macosx/', ['main.m']))
+    fenv.Append(BUILDERS = {'LibTool' : libTool})
+    main_o = fenv.StaticObject(appendDir(buildDir+'/macosx/',['main.m']))
+    lib = fenv.LibTool('alleg-main',main_o)
     fenv.Install(libDir, lib)
     return lib
 
@@ -106,7 +114,8 @@ exampleEnv = Environment()
 flags = [ "-Wall", "-Wno-unused", "-Wno-long-double", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer", "-fno-common", "-pipe", "-dynamic" ]
 defines = [ "ALLEGRO_NO_ASM", "ALLEGRO_LIB_BUILD" ]
 includes = [ "include", "include/allegro" ]
-linkflags = ["-prebind", "-framework", "Cocoa"]
+# linkflags = ["-prebind", "-framework", "Cocoa"]
+linkflags = ["-framework", "Cocoa"]
 libpath = [ "lib/macosx" ]
 libs = [ 'alleg-main' ]
 
