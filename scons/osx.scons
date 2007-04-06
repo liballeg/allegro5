@@ -82,26 +82,22 @@ czscan8.c
 #mainLibrary = mainEnv.StaticLibrary( 'alleg-main', 'src/macosx/main.m' )
 #mainEnv.Install(context.getLibraryDir(),mainLibrary)
 
-context.addLibrary("alleg-main")
+# context.addLibrary(context.getLibraryDir() + "/alleg-main")
 
-# gcc -DALLEGRO_SRC -DALLEGRO_LIB_BUILD -Wall -Wno-unused -Wno-long-double  -O2 -funroll-loops -ffast-math -fomit-frame-pointer -fno-common -pipe -dynamic -DALLEGRO_NO_ASM -I. -I./include -o obj/macosx/alleg/main.o -c src/macosx/main.m
-# ar rs lib/macosx/liballeg-main.a obj/macosx/alleg/main.o
-
-libTool = Builder(action = 'libtool -static -s -o $TARGETS $SOURCES',
-           prefix = 'lib',
-           suffix = '.a', 
-           src_suffix = '.o');
+# context.addLibrary(context.getLibraryDir() + "/liballeg-main.a")
 
 def buildMain(env,appendDir,buildDir,libDir):
     fenv = env.Copy()
     fenv.Replace(LIBS = [])
-    # fenv.Append(CCFLAGS = ['-DALLEGRO_SRC'])
     fenv.Append(CPPDEFINES = 'ALLEGRO_SRC')
     # lib = fenv.StaticLibrary('alleg-main',appendDir(buildDir + '/macosx/', ['main.m']))
+    libTool = Builder(action = 'libtool -static -s -o $TARGETS $SOURCES',
+                      prefix = 'lib',
+		      suffix = '.a',
+		      src_builder = 'StaticObject',
+		      src_suffix = '.o');
     fenv.Append(BUILDERS = {'LibTool' : libTool})
-    main_o = fenv.StaticObject(appendDir(buildDir+'/macosx/',['main.m']))
-    lib = fenv.LibTool('alleg-main',main_o)
-    fenv.Install(libDir, lib)
+    lib = fenv.LibTool(libDir + '/alleg-main',appendDir(buildDir + '/macosx/', ['main.m']))
     return lib
 
 #env = context.getLibraryEnv()
@@ -116,27 +112,49 @@ defines = [ "ALLEGRO_NO_ASM", "ALLEGRO_LIB_BUILD" ]
 includes = [ "include", "include/allegro" ]
 # linkflags = ["-prebind", "-framework", "Cocoa"]
 linkflags = ["-framework", "Cocoa"]
-libpath = [ "lib/macosx" ]
-libs = [ 'alleg-main' ]
+# libpath = [ "lib/macosx" ]
+# libs = [ 'alleg-main' ]
+libs = [ 'lib/macosx/liballeg-main.a' ]
 
 # gcc -s -prebind -o examples/exupdate obj/macosx/alleg/exupdate.o lib/macosx/liballeg-4.3.0.dylib lib/macosx/liballeg-main.a -framework Cocoa
 
 exampleEnv.Append(CCFLAGS = flags)
 exampleEnv.Append(CPPDEFINES = defines)
 exampleEnv.Append(CPPPATH = includes)
-exampleEnv.Append(LIBPATH = libpath)
+# exampleEnv.Append(LIBPATH = libpath)
 exampleEnv.Append(LINKFLAGS = linkflags)
-exampleEnv.Append(LIBS = libs)
+# exampleEnv.Append(LIBS = libs)
+context.addLibrary(File('#%s/liballeg-main.a' % context.getLibraryDir()))
 
 context.setExampleEnv( exampleEnv )
 
 # gcc -DALLEGRO_LIB_BUILD -Wall -Wno-unused -Wno-long-double  -O2 -funroll-loops -ffast-math -fomit-frame-pointer -fno-common -pipe -dynamic -DALLEGRO_NO_ASM -I. -I./include -o obj/macosx/alleg/exupdate.o -c examples/exupdate.c
 
-flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-fno-common", "-ffast-math", "-fomit-frame-pointer", "-Wno-long-double", "-pipe", "-dynamic" ]
-includes = ["include", "include/allegro", "."]
-defines = ["-DHAVE_CONFIG_H", "-DALLEGRO_NO_ASM", "-DALLEGRO_LIB_BUILD", "-DALLEGRO_SHARED", "-DALLEGRO_SRC" ]
-linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", str(context.getAllegroVersion()), "-current_version", str(context.getAllegroVersion()), "-install_name", "liballeg-" + str(context.getAllegroVersion()) + ".dylib" ]
+flags = Split("""
+-O2
+-Wall
+-Wno-long-double
+-Wno-unused
+-dynamic
+-ffast-math
+-fno-common
+-fomit-frame-pointer
+-funroll-loops
+-g
+-pipe
+""");
 
+includes = ["include", "include/allegro", "."]
+
+defines = Split("""
+HAVE_CONFIG_H
+ALLEGRO_NO_ASM
+ALLEGRO_LIB_BUILD
+ALLEGRO_SHARED
+ALLEGRO_SRC
+""");
+
+linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", str(context.getAllegroVersion()), "-current_version", str(context.getAllegroVersion()), "-install_name", "liballeg-" + str(context.getAllegroVersion()) + ".dylib" ]
 
 def addFramework( name ):
 	linkflags.append( "-framework" )
@@ -152,7 +170,7 @@ addFramework( "AudioToolbox" )
 addFramework( "QuickTime" )	
 
 env.Append(CCFLAGS = flags)
-env.Append(CCFLAGS = defines)
+env.Append(CPPDEFINES = defines)
 env.Append(CPPPATH = includes)
 env.Append(LINKFLAGS = linkflags)
 
