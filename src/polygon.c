@@ -38,7 +38,7 @@ static void fill_edge_structure(POLYGON_EDGE *edge, AL_CONST int *i1, AL_CONST i
    }
 
    edge->top = i1[1];
-   edge->bottom = i2[1] - 1;
+   edge->bottom = i2[1];
    edge->dx = ((i2[0] - i1[0]) << POLYGON_FIX_SHIFT) / (i2[1] - i1[1]);
    edge->x = (i1[0] << POLYGON_FIX_SHIFT) + (1<<(POLYGON_FIX_SHIFT-1)) - 1;
    edge->prev = NULL;
@@ -158,6 +158,10 @@ void _soft_polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
 
    /* for each scanline in the polygon... */
    for (c=top; c<=bottom; c++) {
+      int up = 0;
+      int dn = 0;
+      int draw = 0;
+      int x = 0;
 
       /* check for newly active edges */
       edge = inactive_edges;
@@ -170,10 +174,22 @@ void _soft_polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
 
       /* draw horizontal line segments */
       edge = active_edges;
-      while ((edge) && (edge->next)) {
-	 bmp->vtable->hfill(bmp, edge->x>>POLYGON_FIX_SHIFT, c, 
-	       (edge->next->x+edge->next->w)>>POLYGON_FIX_SHIFT, color);
-	 edge = edge->next->next;
+      while (edge) {
+         if (edge->bottom != c) {
+            up = 1 - up;
+         }
+         if (edge->top != c) {
+            dn = 1 - dn;
+         }
+         if ((draw == 0) && (up + dn > 0)) {
+            x = edge->x >> POLYGON_FIX_SHIFT;
+         }
+         else if ((draw > 0) && (up + dn == 0)) {
+            bmp->vtable->hfill(bmp, x, c,
+               (edge->x + edge->w) >> POLYGON_FIX_SHIFT, color);
+         }
+         edge = edge->next;
+         draw = up + dn;
       }
 
       /* update edges, sorting and removing dead ones */
