@@ -132,7 +132,7 @@ information about how to install Allegro and link your program with it.
 
 @@void @allegro_exit();
 @xref install_allegro, allegro_init, destroy_bitmap
-@eref ex3d, exscn3d, exswitch, exxfade, exzbuf
+@eref ex3d, exnew_events, exscn3d, exswitch, exxfade, exzbuf
 @shortdesc Closes down the Allegro system.
    Closes down the Allegro system. This includes returning the system to
    text mode and removing whatever mouse, keyboard, and timer routines have
@@ -1747,7 +1747,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uszprintf(char *buf, int size, const char *format, ...);
 @xref uconvert, usprintf, uvszprintf
-@eref exgui
+@eref exgui, exnew_events
 @shortdesc Writes formatted data into a buffer, specifying size.
    This function writes formatted data into the output buffer, whose length
    in bytes is specified by `size' and which is guaranteed to be NULL
@@ -4842,7 +4842,7 @@ Allegro supports several different types of bitmaps:
 @@BITMAP *@create_sub_bitmap(BITMAP *parent, int x, y, width, height);
 @xref create_bitmap, create_bitmap_ex, destroy_bitmap, is_sub_bitmap
 @xref clear_bitmap, clear_to_color
-@eref expat, exscroll, exswitch
+@eref exnew_events, expat, exscroll, exswitch
 @shortdesc Creates a memory sub bitmap.
    Creates a sub-bitmap, ie. a bitmap sharing drawing memory with a 
    pre-existing bitmap, but possibly with a different size and clipping 
@@ -6104,7 +6104,7 @@ and they, as well as lengths, are specified in pixel units.
 
 @@void @rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 @xref rectfill, drawing_mode, makecol
-@eref ex3d, excamera
+@eref ex3d, excamera, exnew_events
 @shortdesc Draws an outline rectangle.
    Draws an outline rectangle with the two points as its opposite corners.
 
@@ -6135,7 +6135,8 @@ and they, as well as lengths, are specified in pixel units.
 
 @@void @circle(BITMAP *bmp, int x, int y, int radius, int color);
 @xref ellipse, arc, circlefill, do_circle, drawing_mode, makecol
-@eref ex12bit, exblend, excustom, exjoy, exmem, exmouse, exquat, exsprite
+@eref ex12bit, exblend, excustom, exjoy, exmem, exmouse, exnew_events
+@eref exquat, exsprite
 @shortdesc Draws a circle.
    Draws a circle with the specified centre and radius.
 
@@ -7391,7 +7392,8 @@ allegro/text.h for details.
 
 @@int @text_height(const FONT *f)
 @xref text_length
-@eref ex12bit, exmidi, expackf, expat, exsprite, exsyscur, exunicod
+@eref ex12bit, exmidi, exnew_events, expackf, expat, exsprite, exsyscur
+@eref exunicod
 @shortdesc Returns the height of a font in pixels.
    Returns the height (in pixels) of the specified font. Example:
 <codeblock>
@@ -16049,6 +16051,19 @@ and avoid missing any important bit of information.
    Right now, it moves a red rectangle across the screen with a speed of
    100 pixels / second, limits the FPS to 100 Hz to save CPU, and prints the
    current FPS in the top right corner.
+
+@@Example @exnew_events
+@xref BITMAP, END_OF_MAIN, allegro_exit, allegro_init, allegro_message
+@xref blit, circle, clear_to_color, create_sub_bitmap, destroy_bitmap
+@xref font, key, makecol, rect, rectfill, screen, set_gfx_mode
+@xref text_height, textout_ex, textprintf_ex, uszprintf
+   This is a very simple program showing how to use the new event
+   interface introduced in Allegro 4.3.0.  The graphics are mainly done
+   using the Allegro 4.2 interface, although a new display API is also
+   used.
+   
+   Everything is still subject to change, though the event interface is
+   unlikely to change very much now.  The new display API is less stable.
 
 @# end genexamp.py chunk
 

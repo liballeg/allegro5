@@ -55,7 +55,8 @@ examples_order = ["exhello", "exmem", "expal", "expat", "exflame",
    "exaccel", "exspline", "exsyscur", "exupdate", "exswitch",
    "exstream", "expackf",
    # 4.3 only
-   "exnewapi"]
+   "exnewapi",
+   "exnew_events"]
 
 # Holds examples' short descriptions. Loaded from disk at runtime.
 short_descriptions = {}
