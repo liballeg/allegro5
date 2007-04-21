@@ -70,8 +70,7 @@ def getPlatform():
     return sys.platform
 
 def matchPlatform(name):
-    import re
-    return re.compile(".*%s.*" % name).match(getPlatform())
+    return name in getPlatform()
 
 def onBsd():
     return matchPlatform('openbsd')
