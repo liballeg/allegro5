@@ -50,10 +50,10 @@ AL_BEGIN_EXTERN_C
 
 #define ALLEGRO_VERSION          4
 #define ALLEGRO_SUB_VERSION      3
-#define ALLEGRO_WIP_VERSION      1
-#define ALLEGRO_VERSION_STR      "4.3.1 (SVN)"
-#define ALLEGRO_DATE_STR         "2006"
-#define ALLEGRO_DATE             20060724    /* yyyymmdd */
+#define ALLEGRO_WIP_VERSION      2
+#define ALLEGRO_VERSION_STR      "4.3.2 (SVN)"
+#define ALLEGRO_DATE_STR         "2007"
+#define ALLEGRO_DATE             20070421    /* yyyymmdd */
 
 /*******************************************/
 /************ Some global stuff ************/
