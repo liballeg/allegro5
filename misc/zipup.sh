@@ -79,19 +79,19 @@ utod()
 
 
 # generate dependencies for DJGPP
-echo "Generating DJGPP dependencies..."
-
-./fix.sh djgpp --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
+#echo "Generating DJGPP dependencies..."
+#
+#./fix.sh djgpp --quick
+#
+#make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for Watcom
-echo "Generating Watcom dependencies..."
-
-./fix.sh watcom --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
+#echo "Generating Watcom dependencies..."
+#
+#./fix.sh watcom --quick
+#
+#make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for MSVC
@@ -119,19 +119,19 @@ make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for BeOS
-echo "Generating BeOS dependencies..."
-
-./fix.sh beos --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
+#echo "Generating BeOS dependencies..."
+#
+#./fix.sh beos --quick
+#
+#make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for QNX
-echo "Generating QNX dependencies..."
-
-./fix.sh qnx --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
+#echo "Generating QNX dependencies..."
+#
+#./fix.sh qnx --quick
+#
+#make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for MacOS X
