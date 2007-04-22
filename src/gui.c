@@ -1538,6 +1538,7 @@ static void draw_menu(MENU_PLAYER *m)
       gui_menu_draw_menu(m->x, m->y, m->w, m->h);
    else {
       BITMAP *gui_bmp = gui_get_screen();
+      rectfill(gui_bmp, m->x, m->y, m->x+m->w-2, m->y+m->h-2, gui_bg_color);
       rect(gui_bmp, m->x, m->y, m->x+m->w-2, m->y+m->h-2, gui_fg_color);
       vline(gui_bmp, m->x+m->w-1, m->y+1, m->y+m->h-1, gui_fg_color);
       hline(gui_bmp, m->x+1, m->y+m->h-1, m->x+m->w-1, gui_fg_color);
