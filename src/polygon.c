@@ -159,6 +159,12 @@ void _soft_polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
 
    /* for each scanline in the polygon... */
    for (c=top; c<=bottom; c++) {
+      int hid = 0;
+      int b1 = 0;
+      int e1 = 0;
+      int up = 0;
+      int draw = 0;
+      int e;
 
       /* check for newly active edges */
       edge = inactive_edges;
@@ -171,12 +177,6 @@ void _soft_polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
 
       /* draw horizontal line segments */
       edge = active_edges;
-      int hid = 0;
-      int b1 = 0;
-      int e1 = 0;
-      int up = 0;
-      int draw = 0;
-      int e;
       while (edge) {
 	 e = edge->w;
 	 if (edge->bottom != c) {
