@@ -1168,7 +1168,7 @@ is best to set it with set_uformat() just before you call these.
 @@               char *buf, int newtype, int size);
 @xref set_uformat, need_uconvert, uconvert, uconvert_ascii, uconvert_toascii
 @xref do_uconvert
-@shortdesc Hih level string encoding conversion wrapper.
+@shortdesc High level string encoding conversion wrapper.
    Higher level function running on top of do_uconvert(). This function 
    converts the specified string `s' from `type' to `newtype', storing at most
    `size' bytes into the output `buf' (including the terminating null
