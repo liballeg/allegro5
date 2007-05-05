@@ -258,9 +258,27 @@ endif
 
 # -------- list platform specific objects and programs --------
 
-VPATH = src/win src/i386 src/misc src/compat tests/win tools/win
+VPATH = src/win src/misc src/compat tests/win tools/win
 
-OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
+ifdef ALLEGRO_USE_C
+
+# ------ build a C-only version ------
+
+VPATH += src/c
+MY_OBJECTS = $(C_OBJECTS)
+CFLAGS += -DALLEGRO_NO_ASM
+SFLAGS += -DALLEGRO_NO_ASM
+
+else
+
+# ------ build the normal asm version ------
+
+VPATH += src/i386
+MY_OBJECTS = $(I386_OBJECTS)
+
+endif # ALLEGRO_USE_C
+
+OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
 
 LIBRARIES = kernel32.lib user32.lib gdi32.lib comdlg32.lib ole32.lib \
 		dinput.lib ddraw.lib dxguid.lib winmm.lib dsound.lib

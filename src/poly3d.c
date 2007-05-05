@@ -28,14 +28,9 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
-#ifdef ALLEGRO_ASMCAPA_HEADER
+#if defined ALLEGRO_ASMCAPA_HEADER && !defined ALLEGRO_NO_ASM
    #include ALLEGRO_ASMCAPA_HEADER
 #endif
-
-#ifdef ALLEGRO_NO_ASM
-   #undef ALLEGRO_MMX
-#endif
-
 
 #ifdef ALLEGRO_MMX
 
