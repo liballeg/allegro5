@@ -32,16 +32,59 @@
 #define PREFIX_E                "al-wgdi ERROR: "
 
 
-/* function from asmlock.s */ 
-extern void gfx_gdi_write_bank(void);
-extern void gfx_gdi_unwrite_bank(void);
-
-/* exported only for asmlock.s */
 static void gfx_gdi_autolock(struct BITMAP* bmp);
 static void gfx_gdi_unlock(struct BITMAP* bmp);
-void (*ptr_gfx_gdi_autolock) (struct BITMAP* bmp) = gfx_gdi_autolock;
-void (*ptr_gfx_gdi_unlock) (struct BITMAP* bmp) = gfx_gdi_unlock;
+
+/* This is used only in asmlock.s and this file. */
 char *gdi_dirty_lines = NULL; /* used in WRITE_BANK() */
+
+
+
+/* If custom (asm) calling conversions are used, then the code in asmlock.s is
+ * used instead.
+ */
+#if defined(ALLEGRO_NO_ASM)
+
+
+
+uintptr_t gfx_gdi_write_bank(BITMAP *bmp, int line)
+{
+   gdi_dirty_lines[bmp->y_ofs] = 1;
+
+   if (!(bmp->id & BMP_ID_LOCKED))
+      gfx_gdi_autolock(bmp);
+
+   return (uintptr_t) bmp->line[line];
+}
+
+
+
+void gfx_gdi_unwrite_bank(BITMAP *bmp)
+{
+   if (!(bmp->id & BMP_ID_AUTOLOCK))
+      return;
+
+   gfx_gdi_unlock(bmp);
+   bmp->id &= ~ BMP_ID_AUTOLOCK;
+}
+
+
+
+#else /* !defined(ALLEGRO_NO_ASM) */
+
+
+
+/* asmlock.s requires these two variables */
+void (*ptr_gfx_gdi_autolock)(struct BITMAP* bmp) = gfx_gdi_autolock;
+void (*ptr_gfx_gdi_unlock)(struct BITMAP* bmp) = gfx_gdi_unlock;
+
+/* wddraw.h, despite its name, includes the exports from asmlock.s */
+#include "wddraw.h"
+
+
+
+#endif /* !defined(ALLEGRO_NO_ASM) */
+
 
 
 static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_depth);
