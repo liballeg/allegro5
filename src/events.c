@@ -437,7 +437,7 @@ bool al_wait_for_specific_event(AL_EVENT_QUEUE *queue,
    else {
       /* XXX: Should get rid of long longs at some stage. */
       /* XXX: Watch out for al_current_time(), which could wrap. */
-      long long end, remaining;
+      LONG_LONG end, remaining;
 
       end = al_current_time() + msecs;
 

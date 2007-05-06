@@ -355,7 +355,7 @@ static void get_autorepeat_parameters(void)
 
    /* units are 100e-9 seconds; negative means relative time */
    /* 0 ==> 0.25 seconds, 3 ==> 1.0 second */
-   repeat_delay.QuadPart = -10000000LL * (delay+1)/4;
+   repeat_delay.QuadPart = (LONG_LONG) -10000000 * (delay+1)/4;
 
    /* units are milliseconds */
    /* 0 ==> 2.5 repetitions/sec, 31 ==> 31 repetitions/sec */
