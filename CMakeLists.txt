@@ -24,7 +24,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 project(ALLEGRO C)
 
 # TODO soft-code the version number
-set(ALLEGRO_VERSION 4.3.1)
+set(ALLEGRO_VERSION 4.3.2)
 
 include_directories(
     .
@@ -643,12 +643,12 @@ macro(add_allegro_build nm extra_flags)
         endif(${SOURCE} MATCHES "\\.s$")
     endforeach(SOURCE)
 
-    macro(really_add_allegro_build nm target libtype more_extra_flags)
+    macro(really_add_allegro_build nam target libtype more_extra_flags)
         add_library(${target} ${libtype} ${LIBRARY_SOURCES} ${ASM_OBJS})
         set_target_properties(${target}
             PROPERTIES
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
-            OUTPUT_NAME ${nm}
+            OUTPUT_NAME ${nam}
             )
         if(SUPPORT_ASM)
             add_dependencies(${target} asmdef_inc)
@@ -666,7 +666,7 @@ macro(add_allegro_build nm extra_flags)
     endmacro(really_add_allegro_build)
 
     if(SHARED)
-        really_add_allegro_build(${nm} ${nm}_shared SHARED "")
+        really_add_allegro_build(${nm}-${ALLEGRO_VERSION} ${nm}_shared SHARED "")
     endif(SHARED)
 
     if(STATIC)
@@ -690,6 +690,29 @@ if(GRADE_PROFILE)
     add_allegro_build(allp
         "-pg -O2 -funroll-loops -ffast-math")
 endif(GRADE_PROFILE)
+
+# XXX liballeg_unshareable should not be needed if WANT_ASM is disabled.
+# But allegro-config still expects it for now.
+if(SHARED)
+    add_library(alleg_unsharable STATIC ${ASM_OBJS})
+    set_target_properties(alleg_unsharable
+        PROPERTIES
+        COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
+        OUTPUT_NAME alleg_unsharable
+        LINKER_LANGUAGE C
+        )
+
+    target_link_libraries(alleg_unsharable ${PLATFORM_LIBS})
+
+    install(
+        TARGETS alleg_unsharable
+        DESTINATION lib
+        LIBRARY PERMISSIONS
+            OWNER_READ OWNER_WRITE OWNER_EXECUTE
+            GROUP_READ             GROUP_EXECUTE
+            WORLD_READ             WORLD_EXECUTE
+        )
+endif(SHARED)
 
 #
 # Install header files.
@@ -847,6 +870,10 @@ if(UNIX)
 
     set(prefix "${CMAKE_INSTALL_PREFIX}")
     set(INCLUDE_PREFIX "${prefix}")
+    # XXX these should be configurable separately
+    set(bindir "${prefix}/bin")
+    set(includedir "${prefix}/include")
+    set(libdir "${prefix}/lib")
 
     if(SHARED)
         set(LINK_WITH_STATIC_LIBS no)

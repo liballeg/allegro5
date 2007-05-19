@@ -486,7 +486,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro/internal/aintern.h
-    include/allegro/internal/aintern2.h
     include/allegro/internal/aintvga.h
     include/allegro/internal/alconfig.h
     )
