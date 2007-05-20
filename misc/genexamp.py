@@ -54,7 +54,7 @@ examples_order = ["exhello", "exmem", "expal", "expat", "exflame",
    "exstars", "exscn3d", "exzbuf", "exscroll", "ex3buf", "ex12bit",
    "exaccel", "exspline", "exsyscur", "exupdate", "exswitch",
    "exstream", "expackf",
-   # 4.3 only
+   # 4.9 only
    "exnewapi",
    "exnew_events"]
 

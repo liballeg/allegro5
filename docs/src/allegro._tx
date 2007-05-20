@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.3.2 (SVN)" "Allegro" "Allegro manual"
+@manh="version 4.9.2 (SVN)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,12 +52,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.3.2 (SVN)
+				       \_/__/     Version 4.9.2 (SVN)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Apr 21, 2007.
+	     By Shawn Hargreaves, May 20, 2007.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -16059,7 +16059,7 @@ and avoid missing any important bit of information.
 @xref font, key, makecol, rect, rectfill, screen, set_gfx_mode
 @xref text_height, textout_ex, textprintf_ex, uszprintf
    This is a very simple program showing how to use the new event
-   interface introduced in Allegro 4.3.0.  The graphics are mainly done
+   interface introduced in Allegro 4.9.0.  The graphics are mainly done
    using the Allegro 4.2 interface, although a new display API is also
    used.
    

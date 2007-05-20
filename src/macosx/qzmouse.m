@@ -12,7 +12,7 @@
  *
  *      By Angelo Mottola.
  *
- *      Modified for 4.3 mouse API by Peter Hull.
+ *      Modified for 4.9 mouse API by Peter Hull.
  *
  *      See readme.txt for copyright information.
  */

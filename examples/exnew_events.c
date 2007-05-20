@@ -2,7 +2,7 @@
  *    Example program for the Allegro library, by Peter Wang.
  *
  *    This is a very simple program showing how to use the new event
- *    interface introduced in Allegro 4.3.0.  The graphics are mainly done
+ *    interface introduced in Allegro 4.9.0.  The graphics are mainly done
  *    using the Allegro 4.2 interface, although a new display API is also
  *    used.
  *

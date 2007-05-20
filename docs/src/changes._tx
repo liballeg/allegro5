@@ -8,7 +8,9 @@
 @html_spaced_list_bullet
 
 @heading
-Changes from 4.3.0 to 4.3.1 (March 2007)
+Changes from 4.9.0 to 4.9.1 (March 2007)
+<p>
+   [Note that 4.9.1 was called 4.3.1 when it was originally released.]
 <ul><li>
    Added a new mouse and cursor API. The new functions are:
    <ul><li>
@@ -21,7 +23,7 @@ Changes from 4.3.0 to 4.3.1 (March 2007)
       al_set_system_mouse_cursor, al_show_mouse_cursor, al_hide_mouse_cursor
    </ul>
 <li>
-   Added documentation for some parts of the 4.3 API using the NaturalDocs
+   Added documentation for some parts of the 4.9 API using the NaturalDocs
    generation system. The documentation is nowhere near as good as a proper
    manual, but it's still better than nothing.
 <li>
@@ -34,7 +36,9 @@ Changes from 4.3.0 to 4.3.1 (March 2007)
 </ul>
 
 @heading
-Changes from 4.2 series to 4.3.0 (July 2006)
+Changes from 4.2 series to 4.9.0 (July 2006)
+<p>
+   [Note that 4.9.0 was called 4.3.0 when it was originally released.]
 <ul><li>
    Basically we're just wrapping up what we have in version control up to
    now.  See the commit logs if you want details.

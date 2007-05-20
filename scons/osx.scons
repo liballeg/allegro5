@@ -116,7 +116,7 @@ linkflags = ["-framework", "Cocoa"]
 # libs = [ 'alleg-main' ]
 libs = [ 'lib/macosx/liballeg-main.a' ]
 
-# gcc -s -prebind -o examples/exupdate obj/macosx/alleg/exupdate.o lib/macosx/liballeg-4.3.0.dylib lib/macosx/liballeg-main.a -framework Cocoa
+# gcc -s -prebind -o examples/exupdate obj/macosx/alleg/exupdate.o lib/macosx/liballeg-4.9.0.dylib lib/macosx/liballeg-main.a -framework Cocoa
 
 exampleEnv.Append(CCFLAGS = flags)
 exampleEnv.Append(CPPDEFINES = defines)
