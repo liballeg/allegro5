@@ -9324,11 +9324,12 @@ Digital sample routines
    not playing it has no effect.
 
 @@void @stop_sample(const SAMPLE *spl);
-@xref play_sample
-@shortdesc Kills off a sample.
-   Kills off a sample, which is required if you have set a sample going in 
-   looped mode. If there are several copies of the sample playing, it will 
-   stop them all.
+@xref play_sample, destroy_sample
+@shortdesc Stops a sample from playing.
+   Stop a sample from playing, which is required if you have set a sample
+   going in looped mode. If there are several copies of the sample playing,
+   it will stop them all. You must still destory the sample using
+   destroy_sample().
 
 @hnode Voice control
 @xref install_sound, allocate_voice, deallocate_voice, reallocate_voice
