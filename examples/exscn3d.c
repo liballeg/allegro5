@@ -1,7 +1,7 @@
 /*
  *    Example program for the Allegro library, by Bertrand Coconnier.
  *
- *    This program demonstrates how to use scanline sorting algo
+ *    This program demonstrates how to use scanline sorting algorithm
  *    in Allegro (create_scene, clear_scene, ... functions). It
  *    also provides an example of how to use the 3D clipping
  *    function. The example consists of a flyby through a lot of

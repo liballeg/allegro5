@@ -312,7 +312,7 @@ int main(void)
    /* the camera is backed away from the origin and turned to face it */
    get_camera_matrix_f(&camera, 5, 0, 0, -1, 0, 0, 0, 0, 1, 46, 1.33f);
 
-   /* this is a 'for'ever loop */
+   /* this is a for-ever loop */
    for (;;) {
       float t;
 

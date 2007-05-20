@@ -127,7 +127,7 @@ char *mode_desc[] =
 {
    "Wireframe",
    "Flat shaded",
-   "Single color gouraud shaded",
+   "Single color Gouraud shaded",
    "Gouraud shaded",
    "Texture mapped",
    "Perspective correct texture mapped",

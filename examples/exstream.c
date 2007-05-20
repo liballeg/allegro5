@@ -2,7 +2,7 @@
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
  *    This program shows how to use the audio stream functions to
- *    transfer large blocks of sample data to the soundcard. In
+ *    transfer large blocks of sample data to the sound card. In
  *    this case, the sample data is generated during runtime,
  *    and the resulting sound reminds of a car engine when you
  *    are accelerating.
