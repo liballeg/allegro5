@@ -75,7 +75,7 @@ int main(void)
    /* you must always release bitmaps before calling any input functions */
    release_screen();
 
-   /* wait for a keypress */
+   /* wait for a key press */
    readkey();
 
    return 0;

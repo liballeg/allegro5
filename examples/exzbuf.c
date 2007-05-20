@@ -7,7 +7,7 @@
  *    selecting a screen resolution through the standard GUI dialog,
  *    the example shows two 3D cubes rotating and intersecting each
  *    other. Rather than having full polygons incorrectly overlap
- *    other polgons due to per-polygon sorting, each pixel is drawn
+ *    other polygons due to per-polygon sorting, each pixel is drawn
  *    at the correct depth.
  */
 

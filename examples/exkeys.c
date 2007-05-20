@@ -3,11 +3,11 @@
  *
  *    This program demonstrates how to access the keyboard. The
  *    first part shows the basic use of readkey(). The second part
- *    shows how to extract the ASCII value. Next come the scancodes.
+ *    shows how to extract the ASCII value. Next come the scan codes.
  *    The fourth test detects modifier keys like alt or shift. The
  *    fifth test requires some focus to be passed. The final step
  *    shows how to use the global key array to read simultaneous
- *    keypresses.
+ *    key presses.
  *    The last method to detect key presses are keyboard callbacks.
  *    This is demonstrated by by installing a keyboard callback,
  *    which marks all pressed keys by drawing to a grid.
@@ -151,7 +151,7 @@ int main(void)
 		    "ASCII code is %d", k&0xFF);
    } while ((k&0xFF) != 27);
 
-   /* the hardware scancode is in the high byte of the return value */
+   /* the hardware scan code is in the high byte of the return value */
    scroll(); scroll(); scroll();
    textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255),
 		 "Press some more keys (ESC to finish)");
@@ -163,7 +163,7 @@ int main(void)
       acquire_screen();
       scroll();
       textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255),
-		    "Scancode is %d (%s)", k>>8, key_names[k>>8]);
+		    "Scan code is %d (%s)", k>>8, key_names[k>>8]);
    } while ((k&0xFF) != 27);
 
    /* key qualifiers are stored in the key_shifts variable. Note that this
@@ -196,7 +196,7 @@ int main(void)
       textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255), buf);
    } while (k != 27);
 
-   /* various scancodes are defined in allegro.h as KEY_* constants */
+   /* various scan codes are defined in allegro.h as KEY_* constants */
    scroll(); scroll(); scroll();
    textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255), "Press F6");
    scroll();
@@ -214,7 +214,7 @@ int main(void)
       acquire_screen();
    }
 
-   /* for detecting multiple simultaneous keypresses, use the key[] array */
+   /* for detecting multiple simultaneous key presses, use the key[] array */
    scroll(); scroll(); scroll();
    textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255),
 		 "Press a combination of numbers");

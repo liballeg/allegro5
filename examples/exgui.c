@@ -14,7 +14,7 @@
 #include "example.h"
 
 
-/* maximum number of bytes a single (unicode) character can have */
+/* maximum number of bytes a single (Unicode) character can have */
 #define MAX_BYTES_PER_CHAR 4
 
 /* for the d_edit_proc object */

@@ -13,7 +13,7 @@
  *    block of memory, using a custom packfile vtable.
  *
  *    The second test reads in a bitmap with another custom packfile
- *    vtable, which uses libc's filestream functions.
+ *    vtable, which uses libc's file stream functions.
  *
  *    The third test demonstrates seeking with a custom vtable.
  *
