@@ -6516,7 +6516,7 @@ clipping rectangle of the destination bitmap.
       if (key[KEY_RIGHT])
 	 draw_sprite(screen, hero_right, pos_x, pos_y);
       else if (key[KEY_LEFT])
-	 draw_h_sprite(screen, hero_right, pos_x, pos_y);
+	 draw_sprite_h_flip(screen, hero_right, pos_x, pos_y);
       else
 	 draw_sprite(screen, hero_idle, pos_x, pos_y);<endblock>
 
