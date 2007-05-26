@@ -240,9 +240,6 @@ union AL_EVENT
  */
 typedef struct AL_EVENT_SOURCE AL_EVENT_SOURCE;
 
-AL_FUNC(void, al_event_source_set_mask, (AL_EVENT_SOURCE*, AL_EVENT_TYPE mask));
-AL_FUNC(AL_EVENT_TYPE, al_event_source_mask, (AL_EVENT_SOURCE*));
-
 
 
 /* Event queues */
