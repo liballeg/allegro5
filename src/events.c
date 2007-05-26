@@ -376,20 +376,21 @@ static bool wait_on_queue_timed(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long
  *  the first event packet is left at the head of the queue.
  *
  *  TIMEOUT_MSECS determines approximately how many milliseconds to
- *  wait.  If it is zero, the call will wait indefinitely.  If the
+ *  wait.  If it is AL_WAIT_FOREVER, the call will wait indefinitely.  If the
  *  call times out, false is returned.  Otherwise true is returned.
  */
 bool al_wait_for_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
 {
    ASSERT(queue);
-   ASSERT(msecs >= 0);
+   ASSERT(msecs == AL_WAIT_FOREVER || msecs >= 0);
 
-   if (msecs == 0) {
+   if (msecs == AL_WAIT_FOREVER) {
       wait_on_queue_forever(queue, ret_event);
       return true;
    }
-   else
+   else {
       return wait_on_queue_timed(queue, ret_event, msecs);
+   }
 }
 
 

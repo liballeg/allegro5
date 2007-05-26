@@ -251,7 +251,7 @@ void main_loop(void)
        * to return even if no event arrives within the time period specified.
        * Zero represents infinite timeout.
        */
-      al_wait_for_event(event_queue, &event, 0);
+      al_wait_for_event(event_queue, &event, AL_WAIT_FOREVER);
 
       /* Check what type of event we got and act accordingly.  AL_EVENT is a
        * union type and interpretation of its contents is dependent on the

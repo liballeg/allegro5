@@ -246,6 +246,8 @@ typedef struct AL_EVENT_SOURCE AL_EVENT_SOURCE;
 
 typedef struct AL_EVENT_QUEUE AL_EVENT_QUEUE;
 
+#define AL_WAIT_FOREVER (-1)
+
 AL_FUNC(AL_EVENT_QUEUE*, al_create_event_queue, (void));
 AL_FUNC(void, al_destroy_event_queue, (AL_EVENT_QUEUE*));
 AL_FUNC(void, al_register_event_source, (AL_EVENT_QUEUE*, AL_EVENT_SOURCE*));
