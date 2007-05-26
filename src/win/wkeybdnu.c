@@ -581,7 +581,7 @@ static bool wkeybd_init_keyboard(void)
    memset(&key_state, 0, sizeof key_state);
 
    /* Initialise the keyboard object for use as an event source. */
-   _al_event_source_init(&the_keyboard.es, _AL_ALL_KEYBOARD_EVENTS);
+   _al_event_source_init(&the_keyboard.es);
 
    return true;
 }
@@ -738,7 +738,7 @@ static void handle_key_press(unsigned char scancode)
 
    /* Generate key press/repeat events if necessary. */   
    event_type = is_repeat ? AL_EVENT_KEY_REPEAT : AL_EVENT_KEY_DOWN;
-   if (!_al_event_source_needs_to_generate_event(&the_keyboard.es, event_type))
+   if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
       return;
 
    event = _al_event_source_get_unused_event(&the_keyboard.es);

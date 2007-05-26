@@ -27,41 +27,6 @@
 
 /*----------------------------------------------------------------------*
  *                                                                      *
- *      User API                                                        *
- *                                                                      *
- *----------------------------------------------------------------------*/
-
-
-/* Function: al_event_source_mask
- *  Return the event mask of an event source.
- */
-AL_EVENT_TYPE al_event_source_mask(AL_EVENT_SOURCE *source)
-{
-   ASSERT(source);
-
-   return source->event_mask;
-}
-
-
-
-/* Function: al_event_source_set_mask
- *  Set the event mask of an event source.  This will restrict the types of
- *  event packets that the event source will generate.  MASK is made by
- *  bitwise-OR'ing the event types that will be allowed to be generated.  By
- *  default, event sources will generate all event types that they are capable
- *  of.
- */
-void al_event_source_set_mask(AL_EVENT_SOURCE *source, AL_EVENT_TYPE mask)
-{
-   ASSERT(source);
-
-   source->event_mask = mask;
-}
-
-
-
-/*----------------------------------------------------------------------*
- *                                                                      *
  *      Internal event source API                                       *
  *                                                                      *
  *----------------------------------------------------------------------*/
@@ -71,9 +36,8 @@ void al_event_source_set_mask(AL_EVENT_SOURCE *source, AL_EVENT_TYPE mask)
  *
  *  Initialise an event source structure.
  */
-void _al_event_source_init(AL_EVENT_SOURCE *this, AL_EVENT_TYPE event_mask)
+void _al_event_source_init(AL_EVENT_SOURCE *this)
 {
-   this->event_mask = event_mask;
    _AL_MARK_MUTEX_UNINITED(this->mutex);
    _al_mutex_init(&this->mutex);
    _al_vector_init(&this->queues, sizeof(AL_EVENT_QUEUE *));
@@ -198,15 +162,14 @@ void _al_event_source_on_unregistration_from_queue(AL_EVENT_SOURCE *this, AL_EVE
  *  when some interesting thing happens.  They call this to check if
  *  they should bother generating an event of the given type, i.e. if
  *  the given event source is actually registered with one or more
- *  event queues, and if the event type is not masked out.  This is an
- *  optimisation to avoid allocating an filling in unwanted event
- *  structures.
+ *  event queues.  This is an optimisation to avoid allocating and
+ *  filling in unwanted event structures.
  *
  *  The event source must be LOCKED before calling this function.
  */
-bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE *this, AL_EVENT_TYPE event_type)
+bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE *this)
 {
-   return !_al_vector_is_empty(&this->queues) && (this->event_mask & event_type);
+   return !_al_vector_is_empty(&this->queues);
 }
 
 

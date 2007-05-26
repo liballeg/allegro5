@@ -815,7 +815,7 @@ static AL_JOYSTICK *joydx_get_joystick(int num)
 
    EnterCriticalSection(&joydx_thread_cs);
    {
-      _al_event_source_init(&joy->parent.es, _AL_ALL_JOYSTICK_EVENTS);
+      _al_event_source_init(&joy->parent.es);
       joy->gotten = true;
    }
    LeaveCriticalSection(&joydx_thread_cs);
@@ -1067,7 +1067,7 @@ static void generate_axis_event(AL_JOYSTICK_DIRECTX *joy, int stick, int axis, f
 {
    AL_EVENT *event;
 
-   if (!_al_event_source_needs_to_generate_event(&joy->parent.es, AL_EVENT_JOYSTICK_AXIS))
+   if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&joy->parent.es);
@@ -1094,7 +1094,7 @@ static void generate_button_event(AL_JOYSTICK_DIRECTX *joy, int button, AL_EVENT
 {
    AL_EVENT *event;
 
-   if (!_al_event_source_needs_to_generate_event(&joy->parent.es, event_type))
+   if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&joy->parent.es);

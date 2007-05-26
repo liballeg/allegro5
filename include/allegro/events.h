@@ -34,8 +34,6 @@ AL_BEGIN_EXTERN_C
 
 /*
  * Event type tags
- *
- * Note: these have to be usable in masks.
  */
 
 typedef unsigned int AL_EVENT_TYPE;
@@ -84,23 +82,23 @@ typedef unsigned int AL_EVENT_TYPE;
  */
 enum
 {
-   AL_EVENT_JOYSTICK_AXIS               = 0x0001,
-   AL_EVENT_JOYSTICK_BUTTON_DOWN        = 0x0002,
-   AL_EVENT_JOYSTICK_BUTTON_UP          = 0x0004,
+   AL_EVENT_JOYSTICK_AXIS               =  1,
+   AL_EVENT_JOYSTICK_BUTTON_DOWN        =  2,
+   AL_EVENT_JOYSTICK_BUTTON_UP          =  3,
 
-   AL_EVENT_KEY_DOWN                    = 0x0010,
-   AL_EVENT_KEY_REPEAT                  = 0x0020,
-   AL_EVENT_KEY_UP                      = 0x0040,
+   AL_EVENT_KEY_DOWN                    = 10,
+   AL_EVENT_KEY_REPEAT                  = 11,
+   AL_EVENT_KEY_UP                      = 12,
 
-   AL_EVENT_MOUSE_AXES                  = 0x0100,
-   AL_EVENT_MOUSE_BUTTON_DOWN           = 0x0200,
-   AL_EVENT_MOUSE_BUTTON_UP             = 0x0400,
-   AL_EVENT_MOUSE_ENTER_DISPLAY         = 0x0800,
-   AL_EVENT_MOUSE_LEAVE_DISPLAY         = 0x1000,
+   AL_EVENT_MOUSE_AXES                  = 20,
+   AL_EVENT_MOUSE_BUTTON_DOWN           = 21,
+   AL_EVENT_MOUSE_BUTTON_UP             = 22,
+   AL_EVENT_MOUSE_ENTER_DISPLAY         = 23,
+   AL_EVENT_MOUSE_LEAVE_DISPLAY         = 24,
 
-   AL_EVENT_TIMER                       = 0x2000,
+   AL_EVENT_TIMER                       = 30,
 
-   AL_EVENT_DISPLAY_EXPOSE              = 0x4000
+   AL_EVENT_DISPLAY_EXPOSE              = 40
 };
 
 
@@ -231,29 +229,6 @@ union AL_EVENT
 
 
 
-/* internals */
-
-enum
-{
-   _AL_ALL_DISPLAY_EVENTS = (AL_EVENT_DISPLAY_EXPOSE),
-
-   _AL_ALL_JOYSTICK_EVENTS = (AL_EVENT_JOYSTICK_AXIS |
-                              AL_EVENT_JOYSTICK_BUTTON_DOWN |
-                              AL_EVENT_JOYSTICK_BUTTON_UP),
-
-   _AL_ALL_KEYBOARD_EVENTS = (AL_EVENT_KEY_DOWN |
-                              AL_EVENT_KEY_REPEAT |
-                              AL_EVENT_KEY_UP),
-
-   _AL_ALL_MOUSE_EVENTS = (AL_EVENT_MOUSE_AXES |
-                           AL_EVENT_MOUSE_BUTTON_DOWN |
-                           AL_EVENT_MOUSE_BUTTON_UP |
-                           AL_EVENT_MOUSE_ENTER_DISPLAY |
-                           AL_EVENT_MOUSE_LEAVE_DISPLAY)
-};
-
-
-
 /* Event sources */
 
 /* Type: AL_EVENT_SOURCE
@@ -286,11 +261,6 @@ AL_FUNC(void, al_flush_event_queue, (AL_EVENT_QUEUE*));
 AL_FUNC(bool, al_wait_for_event, (AL_EVENT_QUEUE*,
                                   AL_EVENT *ret_event,
                                   long msecs));
-AL_FUNC(bool, al_wait_for_specific_event, (AL_EVENT_QUEUE*,
-                                           AL_EVENT *ret_event,
-                                           long msecs,
-                                           AL_EVENT_SOURCE *source_or_null,
-                                           unsigned long event_mask));
 
 
 

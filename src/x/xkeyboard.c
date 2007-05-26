@@ -867,7 +867,7 @@ static bool xkeybd_init_keyboard(void)
 
    memset(&the_keyboard, 0, sizeof the_keyboard);
 
-   _al_event_source_init(&the_keyboard.parent.es, _AL_ALL_KEYBOARD_EVENTS);
+   _al_event_source_init(&the_keyboard.parent.es);
 
    //_xwin_keydrv_set_leds(_key_shifts);
    
@@ -958,7 +958,7 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers)
 
       /* Generate the press event if necessary. */
       type = is_repeat ? AL_EVENT_KEY_REPEAT : AL_EVENT_KEY_DOWN;
-      if ((_al_event_source_needs_to_generate_event(&the_keyboard.parent.es, type)) &&
+      if ((_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) &&
           (event = _al_event_source_get_unused_event(&the_keyboard.parent.es)))
       {
          event->keyboard.type = type;
@@ -1003,7 +1003,7 @@ static void handle_key_release(int mycode)
       _AL_KBDSTATE_CLEAR_KEY_DOWN(the_keyboard.state, mycode);
 
       /* Generate the release event if necessary. */
-      if ((_al_event_source_needs_to_generate_event(&the_keyboard.parent.es, AL_EVENT_KEY_UP)) &&
+      if ((_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) &&
           (event = _al_event_source_get_unused_event(&the_keyboard.parent.es)))
       {
          event->keyboard.type = AL_EVENT_KEY_UP;

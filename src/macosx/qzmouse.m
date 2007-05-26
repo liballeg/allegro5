@@ -167,7 +167,7 @@ void osx_mouse_generate_event(NSEvent* evt)
          // To do: full screen handling 
       }
    _al_event_source_lock(&osx_mouse.parent.es);
-   if ((within || osx_mouse.captured) && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es, type))
+   if ((within || osx_mouse.captured) && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
       {
          AL_EVENT* new_event = _al_event_source_get_unused_event(&osx_mouse.parent.es);
          AL_MOUSE_EVENT* mouse_event = &new_event->mouse;

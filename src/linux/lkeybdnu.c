@@ -349,7 +349,7 @@ static bool lkeybd_init_keyboard(void)
       goto Error;
 
    /* Initialise the keyboard object for use as an event source. */
-   _al_event_source_init(&the_keyboard.parent.es, _AL_ALL_KEYBOARD_EVENTS);
+   _al_event_source_init(&the_keyboard.parent.es);
 
    /* Start watching for data on the fd. */
    _al_unix_start_watching_fd(the_keyboard.fd, process_new_data, NULL);
@@ -551,7 +551,7 @@ static void handle_key_press(int mycode, unsigned int ascii)
    _AL_KBDSTATE_SET_KEY_DOWN(the_keyboard.state, mycode);
 
    /* Generate key press/repeat events if necessary. */   
-   if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es, event_type))
+   if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&the_keyboard.parent.es);
@@ -587,7 +587,7 @@ static void handle_key_release(int mycode)
    _AL_KBDSTATE_CLEAR_KEY_DOWN(the_keyboard.state, mycode);
 
    /* Generate key release events if necessary. */
-   if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es, AL_EVENT_KEY_UP))
+   if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&the_keyboard.parent.es);
