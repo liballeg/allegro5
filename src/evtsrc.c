@@ -32,8 +32,7 @@
  *----------------------------------------------------------------------*/
 
 
-/* _al_event_source_init:
- *
+/* Internal function: _al_event_source_init
  *  Initialise an event source structure.
  */
 void _al_event_source_init(AL_EVENT_SOURCE *this)
@@ -47,8 +46,7 @@ void _al_event_source_init(AL_EVENT_SOURCE *this)
 
 
 
-/* _al_event_source_free:
- *
+/* Internal function: _al_event_source_free
  *  Free the resources using by an event source structure.  It
  *  automatically unregisters the event source from all the event
  *  queues it is currently registered with.
@@ -79,7 +77,7 @@ void _al_event_source_free(AL_EVENT_SOURCE *this)
 
 
 
-/* _al_event_source_lock:
+/* Internal function: _al_event_source_lock
  *  Lock the event source.  See below for when you should call this function.
  */
 void _al_event_source_lock(AL_EVENT_SOURCE *this)
@@ -89,7 +87,7 @@ void _al_event_source_lock(AL_EVENT_SOURCE *this)
 
 
 
-/* _al_event_source_unlock:
+/* Internal function: _al_event_source_unlock
  *  Unlock the event source.
  */
 void _al_event_source_unlock(AL_EVENT_SOURCE *this)
@@ -120,8 +118,7 @@ static AL_EVENT *make_new_event(AL_EVENT_SOURCE *this)
 
 
 
-/* _al_event_source_on_registration_to_queue:
- *
+/* Internal function: _al_event_source_on_registration_to_queue
  *  This function is called by al_register_event_source() when an
  *  event source is registered to an event queue.  This gives the
  *  event source a chance to remember which queues it is registered
@@ -140,8 +137,7 @@ void _al_event_source_on_registration_to_queue(AL_EVENT_SOURCE *this, AL_EVENT_Q
 
 
 
-/* _al_event_source_on_unregistration_from_queue:
- *
+/* Internal function: _al_event_source_on_unregistration_from_queue
  *  This function is called by al_unregister_event_source() when an
  *  event source is unregistered from a queue.
  */
@@ -156,8 +152,7 @@ void _al_event_source_on_unregistration_from_queue(AL_EVENT_SOURCE *this, AL_EVE
 
 
 
-/* _al_event_source_needs_to_generate_event: [background threads]
- *
+/* Internal function: _al_event_source_needs_to_generate_event
  *  This function is called by modules that implement event sources
  *  when some interesting thing happens.  They call this to check if
  *  they should bother generating an event of the given type, i.e. if
@@ -165,7 +160,9 @@ void _al_event_source_on_unregistration_from_queue(AL_EVENT_SOURCE *this, AL_EVE
  *  event queues.  This is an optimisation to avoid allocating and
  *  filling in unwanted event structures.
  *
- *  The event source must be LOCKED before calling this function.
+ *  The event source must be _locked_ before calling this function.
+ *
+ *  [runs in background threads]
  */
 bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE *this)
 {
@@ -174,13 +171,15 @@ bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE *this)
 
 
 
-/* _al_event_source_get_unused_event: [background threads]
- *
+/* Internal function: _al_event_source_get_unused_event
  *  Once it is determined that an event source needs to generate an
  *  event, this function is called.  It returns an allocated event
- *  structure that can be filled in.
+ *  structure that can be filled in, or NULL if no event structure is
+ *  available.
  *
- *  The event source must be LOCKED before calling this function.
+ *  The event source must be _locked_ before calling this function.
+ *
+ *  [runs in background threads]
  */
 AL_EVENT *_al_event_source_get_unused_event(AL_EVENT_SOURCE *this)
 {
@@ -202,14 +201,15 @@ AL_EVENT *_al_event_source_get_unused_event(AL_EVENT_SOURCE *this)
 
 
 
-/* _al_event_source_emit_event: [background threads]
- *
+/* Internal function: _al_event_source_emit_event
  *  After an event structure has been filled in, it is time for the
  *  event source to tell the event queues it knows of about the new
  *  event.  Afterwards, the caller of this function should not touch
- *  the EVENT any more.
+ *  the event any more.
  *
- *  The event source must be LOCKED before calling this function.
+ *  The event source must be _locked_ before calling this function.
+ *
+ *  [runs in background threads]
  */
 void _al_event_source_emit_event(AL_EVENT_SOURCE *this, AL_EVENT *event)
 {
@@ -252,8 +252,7 @@ void _al_event_source_emit_event(AL_EVENT_SOURCE *this, AL_EVENT *event)
 
 
 
-/* _al_release_event:
- *
+/* Internal function: _al_release_event
  *  This function is called by event queue implementations when they
  *  no longer need a reference to the given event structure.  It
  *  decrements the refcount of the event by one.  Once the refcount

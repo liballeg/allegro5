@@ -399,7 +399,7 @@ bool al_wait_for_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
 
 
 
-/* _al_event_queue_push_event:
+/* Internal function: _al_event_queue_push_event
  *  Event sources call this function when they have something to add to
  *  the queue.  If a queue cannot accept the event, the event's
  *  refcount will not be incremented.
@@ -438,7 +438,7 @@ void _al_event_queue_push_event(AL_EVENT_QUEUE *queue, AL_EVENT *event)
 
 
 
-/* _al_copy_event:
+/* Internal function: _al_copy_event
  *  Copies the contents of the event SRC to DEST.
  */
 void _al_copy_event(AL_EVENT *dest, const AL_EVENT *src)
