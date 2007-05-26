@@ -24,6 +24,10 @@
 .text
 
 
+#if !defined(ALLEGRO_NO_ASM)
+
+
+
 /* gfx_directx_write_bank:
  *  edx = bitmap
  *  eax = line
@@ -91,9 +95,9 @@ FUNC (gfx_directx_write_bank_win)
       pushl %ecx
 
       /* clobber the line */
-      movl GLOBL(wd_dirty_lines), %ecx
+      movl GLOBL(_al_wd_dirty_lines), %ecx
       addl BMP_YOFFSET(%edx), %ecx
-      movb $1, (%ecx,%eax)   /* wd_dirty_lines[line] = 1; (line has changed) */
+      movb $1, (%ecx,%eax)   /* _al_wd_dirty_lines[line] = 1; (line has changed) */
 
       /* check whether bitmap is already locked */
       testl $BMP_ID_LOCKED, BMP_ID(%edx)
@@ -198,29 +202,29 @@ update_dirty_lines:
       movl $0, RECT_LEFT
       movl BMP_W(%edx), %ecx           /* ecx = dd_frontbuffer->w */
       movl %ecx, RECT_RIGHT
-      movl GLOBL(wd_dirty_lines), %ebx /* ebx = wd_dirty_lines   */
-      movl BMP_H(%edx), %esi           /* esi = dd_frontbuffer->h */
+      movl GLOBL(_al_wd_dirty_lines), %ebx  /* ebx = _al_wd_dirty_lines   */
+      movl BMP_H(%edx), %esi		     /* esi = dd_frontbuffer->h */
       movl $0, %edi  
 
    _align_
    next_line:
-      movb (%ebx,%edi), %al  /* al = wd_dirty_lines[edi] */
+      movb (%ebx,%edi), %al  /* al = _al_wd_dirty_lines[edi] */
       testb %al, %al         /* is dirty? */
       jz test_end            /* no ! */
 
       movl %edi, RECT_TOP
    _align_
    loop_dirty_lines:
-      movb $0, (%ebx,%edi)   /* wd_dirty_lines[edi] = 0  */
+      movb $0, (%ebx,%edi)   /* _al_wd_dirty_lines[edi] = 0  */
       incl %edi
-      movb (%ebx,%edi), %al  /* al = wd_dirty_lines[edi] */
+      movb (%ebx,%edi), %al  /* al = _al_wd_dirty_lines[edi] */
       testb %al, %al         /* is still dirty? */
       jnz loop_dirty_lines   /* yes ! */
 
       movl %edi, RECT_BOTTOM
       leal RECT_LEFT, %eax
       pushl %eax
-      call *GLOBL(update_window) 
+      call *GLOBL(_al_wd_update_window) 
       popl %eax
 
    _align_
@@ -297,3 +301,7 @@ FUNC (gfx_gdi_unwrite_bank)
 
    No_unlock_gdi:
       ret
+
+
+
+#endif	/* !defined(ALLEGRO_NO_ASM) */

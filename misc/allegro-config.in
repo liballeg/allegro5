@@ -1,6 +1,8 @@
 #!/bin/sh
 #
 #  Note: allegro-config is generated from allegro-config.in, by autoconf.
+#  It's also generated from allegro-config.in by CMake.  Do not use $ {brace}
+#  syntax in this file as CMake will expand them.
 #
 #  This script returns suitable commandline options for compiling programs
 #  using the Allegro library, for example:
@@ -9,12 +11,15 @@
 #
 #  This is heavily based on a similar script from GTK.
 
-version=4.3.1
+version=4.9.2
 
 prefix=@prefix@
 exec_prefix=$prefix
 exec_prefix_set=no
 include_prefix=@INCLUDE_PREFIX@
+include_path=@includedir@
+lib_path=@libdir@
+bin_path=@bindir@
 
 static_libs=@LINK_WITH_STATIC_LIBS@
 lib_type=@LIB_TO_LINK@
@@ -163,7 +168,7 @@ fi
 
 if test "$echo_cflags" = "yes"; then
    if test -n "$include_prefix"; then
-      echo -I${include_prefix}/include $allegro_cflags
+      echo -I$include_path $allegro_cflags
    else
       echo $allegro_cflags
    fi
@@ -171,18 +176,18 @@ fi
 
 if test "$echo_cppflags" = "yes"; then
    if test -n "$include_prefix"; then
-      echo -I${include_prefix}/include $allegro_cppflags
+      echo -I$include_path $allegro_cppflags
    else
       echo $allegro_cppflags
    fi
 fi
 
 if test "$echo_libs" = "yes"; then
-   libdirs=-L${exec_prefix}/lib
+   libdirs=-L$lib_path
    if test "$static_libs" = "yes"; then
-      echo $libdirs $allegro_ldflags -l${lib_type} $allegro_libs
+      echo $libdirs $allegro_ldflags -l$lib_type $allegro_libs
    else
-      echo $libdirs $allegro_ldflags -l${lib_type}-${version} -l${lib_type}_unsharable
+      echo $libdirs $allegro_ldflags -l$lib_type-$version -l$lib_type\_unsharable
    fi
 fi
 
@@ -191,11 +196,11 @@ if test "$echo_frameworks" = "yes"; then
 fi
 
 if test "$echo_env" = "yes"; then
-   echo "export PATH=\$PATH:$prefix/bin"
-   echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$prefix/lib"
-   echo "export LIBRARY_PATH=\$LIBRARY_PATH:$prefix/lib"
-   echo "export C_INCLUDE_PATH=\$C_INCLUDE_PATH:$prefix/include"
-   echo "export CPLUS_INCLUDE_PATH=\$CPLUS_INCLUDE_PATH:$prefix/include"
-   echo "export OBJC_INCLUDE_PATH=\$OBJC_INCLUDE_PATH:$prefix/include"
+   echo "export PATH=\$PATH:$bin_path"
+   echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$lib_path"
+   echo "export LIBRARY_PATH=\$LIBRARY_PATH:$lib_path"
+   echo "export C_INCLUDE_PATH=\$C_INCLUDE_PATH:$include_path"
+   echo "export CPLUS_INCLUDE_PATH=\$CPLUS_INCLUDE_PATH:$include_path"
+   echo "export OBJC_INCLUDE_PATH=\$OBJC_INCLUDE_PATH:$include_path"
 fi
 

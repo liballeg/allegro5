@@ -50,7 +50,7 @@ static char *dirty_lines = NULL;
 static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
-_AL_MUTEX osx_window_mutex;
+struct _AL_MUTEX osx_window_mutex;
 
 
 GFX_DRIVER gfx_quartz_window =
@@ -406,30 +406,25 @@ static void prepare_window_for_animation(int refresh_view)
  */
 static void osx_qz_acquire_win(BITMAP *bmp)
 {
-   /* to prevent the drawing threads and the rendering proc
-      from concurrently accessing the dirty lines array */
-   if (lock_nesting == 0) {
-      _al_mutex_lock(&osx_window_mutex);
-      bmp->id |= BMP_ID_LOCKED;
-   }
-   lock_nesting++;
-}
-
- 
+	/* to prevent the drawing threads and the rendering proc
+	from concurrently accessing the dirty lines array */
+	_al_mutex_lock(&osx_window_mutex);
+	if (lock_nesting++ == 0) {
+		bmp->id |= BMP_ID_LOCKED;
+	}
+} 
 
 /* osx_qz_release_win:
  *  Bitmap unlocking for Quartz windowed mode.
  */
 static void osx_qz_release_win(BITMAP *bmp)
 {
-   if (lock_nesting > 0) {
-      lock_nesting--;
-      if (!lock_nesting) {
-         bmp->id &= ~BMP_ID_LOCKED;
-         _al_mutex_unlock(&osx_window_mutex);
-         [[osx_window contentView] setNeedsDisplay: YES];
-      }
-   }
+	ASSERT(lock_nesting > 0);
+	if (--lock_nesting == 0) {
+		bmp->id &= ~BMP_ID_LOCKED;
+	}
+	
+	_al_mutex_unlock(&osx_window_mutex);
 }
 
 

@@ -566,26 +566,27 @@ resulting patch, but that can be error prone.
 
 
 
-@hnode Building your patch against a CVS version
+@hnode Building your patch against a SVN version
 
-If you are working with the cvs version of Allegro which you can get from
+If you are working with the SVN version of Allegro which you can get from
 Sourceforge (<link>http://sourceforge.net/projects/alleg/</a>), you won't need
 to copy any files at all. Just modify the files you want, go to the root
-directory of the cvs copy and type:
+directory of the SVN copy and type:
 <textblock>
-   cvs diff -u > patch
+   svn diff > patch
 <endblock>
-Unlike the standalone diff, the cvs diff command will work recursively
+Unlike the standalone diff, the <tt>svn diff</tt> command will work recursively
 through the Allegro source tree, comparing each file against the Sourceforge
 repository. The patch will have slightly different headers, but that's ok,
 once you have it follow the previous process to send it to the developers
-mailing list. Of course, check cvs' manual for more information and options.
+mailing list. Of course, check the Subversion manual for more information and
+options.
 
 
 
 @hnode Online patch creation
 
-Sometimes you don't have the diff tool around, or don't have the cvs tool to
+Sometimes you don't have the diff tool around, or don't have the SVN tool to
 check out the bleeding edge version of Allegro, or you are too lazy to care
 how to actually make the patch yourself. For any of those cases, you can use
 the online Allegro patcher at <link>http://www.allegro.cc/dev/make-diff.php</a>.

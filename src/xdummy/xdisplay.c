@@ -49,7 +49,7 @@ static AL_DISPLAY *create_display(int w, int h, int flags)
    *add = d;
 
    /* Each display is an event source. */
-   _al_event_source_init(&d->display.es, _AL_ALL_DISPLAY_EVENTS);
+   _al_event_source_init(&d->display.es);
 
    /* Let GLX choose an appropriate visual. */
    int nelements;
@@ -206,8 +206,7 @@ void _al_display_xdummy_configure(AL_DISPLAY *d, XEvent *xevent)
     */
    if (d->w != xevent->xconfigure.width ||
       d->h != xevent->xconfigure.height) {
-      if (_al_event_source_needs_to_generate_event(es,
-         AL_EVENT_DISPLAY_RESIZE)) {
+      if (_al_event_source_needs_to_generate_event(es)) {
          AL_EVENT *event = _al_event_source_get_unused_event(es);
          if (event) {
             event->display.type = AL_EVENT_DISPLAY_RESIZE;
@@ -222,7 +221,7 @@ void _al_display_xdummy_configure(AL_DISPLAY *d, XEvent *xevent)
    }
 
    /* Generate an expose event. */
-   if (_al_event_source_needs_to_generate_event(es, AL_EVENT_DISPLAY_EXPOSE)) {
+   if (_al_event_source_needs_to_generate_event(es)) {
       AL_EVENT *event = _al_event_source_get_unused_event(es);
       if (event) {
          event->display.type = AL_EVENT_DISPLAY_EXPOSE;
@@ -245,7 +244,7 @@ void _al_display_xdummy_closebutton(AL_DISPLAY *d, XEvent *xevent)
    AL_EVENT_SOURCE *es = &glx->display.es;
    _al_event_source_lock(es);
 
-   if (_al_event_source_needs_to_generate_event(es, AL_EVENT_DISPLAY_CLOSE)) {
+   if (_al_event_source_needs_to_generate_event(es)) {
       AL_EVENT *event = _al_event_source_get_unused_event(es);
       if (event) {
          event->display.type = AL_EVENT_DISPLAY_CLOSE;

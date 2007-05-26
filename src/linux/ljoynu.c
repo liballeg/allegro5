@@ -253,7 +253,7 @@ static AL_JOYSTICK *ljoy_get_joystick(int num)
    memset(joy, 0, sizeof *joy);
 
    /* Initialise the event source part of it. */
-   _al_event_source_init(&joy->parent.es, _AL_ALL_JOYSTICK_EVENTS);
+   _al_event_source_init(&joy->parent.es);
 
    /* Fill in the joystick information fields. */
    {
@@ -443,7 +443,7 @@ static void ljoy_generate_axis_event(AL_JOYSTICK_LINUX *joy, int stick, int axis
 {
    AL_EVENT *event;
 
-   if (!_al_event_source_needs_to_generate_event(&joy->parent.es, AL_EVENT_JOYSTICK_AXIS))
+   if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&joy->parent.es);
@@ -471,7 +471,7 @@ static void ljoy_generate_button_event(AL_JOYSTICK_LINUX *joy, int button, AL_EV
 {
    AL_EVENT *event;
 
-   if (!_al_event_source_needs_to_generate_event(&joy->parent.es, event_type))
+   if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&joy->parent.es);

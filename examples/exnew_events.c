@@ -2,7 +2,7 @@
  *    Example program for the Allegro library, by Peter Wang.
  *
  *    This is a very simple program showing how to use the new event
- *    interface introduced in Allegro 4.3.0.  The graphics are mainly done
+ *    interface introduced in Allegro 4.9.0.  The graphics are mainly done
  *    using the Allegro 4.2 interface, although a new display API is also
  *    used.
  *
@@ -251,7 +251,7 @@ void main_loop(void)
        * to return even if no event arrives within the time period specified.
        * Zero represents infinite timeout.
        */
-      al_wait_for_event(event_queue, &event, 0);
+      al_wait_for_event(event_queue, &event, AL_WAIT_FOREVER);
 
       /* Check what type of event we got and act accordingly.  AL_EVENT is a
        * union type and interpretation of its contents is dependent on the
@@ -422,9 +422,7 @@ int main(void)
    al_show_mouse_cursor();
 
    /* Install the joystick routines. */
-   if (!al_install_joystick()) {
-      fatal_error("al_install_joystick");
-   }
+   al_install_joystick();
 
    /* Create three timer objects.  Unlike in the earlier API, these
     * automatically increment a counter every n milliseconds.  They no longer

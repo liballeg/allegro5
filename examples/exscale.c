@@ -1,8 +1,8 @@
 /*
  *    Example program for the Allegro library, by Grzegorz Ludorowski.
  *
- *    This example demonstrates how to use pcx files, palettes and stretch
- *    blits. It loads a pcx file, sets its palette and does some random
+ *    This example demonstrates how to use PCX files, palettes and stretch
+ *    blits. It loads a PCX file, sets its palette and does some random
  *    stretch_blits. Don't worry - it's VERY slowed down using vsync().
  */
 

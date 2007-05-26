@@ -105,7 +105,7 @@ static bool xmouse_init(void)
 
    memset(&the_mouse, 0, sizeof the_mouse);
 
-   _al_event_source_init(&the_mouse.parent.es, _AL_ALL_MOUSE_EVENTS);
+   _al_event_source_init(&the_mouse.parent.es);
 
    xmouse_installed = true;
 
@@ -452,7 +452,7 @@ static void generate_mouse_event(unsigned int type,
 {
    AL_EVENT *event;
 
-   if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es, type))
+   if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&the_mouse.parent.es);

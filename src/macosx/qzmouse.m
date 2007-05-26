@@ -12,7 +12,7 @@
  *
  *      By Angelo Mottola.
  *
- *      Modified for 4.3 mouse API by Peter Hull.
+ *      Modified for 4.9 mouse API by Peter Hull.
  *
  *      See readme.txt for copyright information.
  */
@@ -20,8 +20,9 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include "allegro/internal/aintern_mouse.h"
 #include "allegro/platform/aintosx.h"
-#import "allegro/internal/aintern2.h"
+// #import "allegro/internal/aintern2.h"
 
 #ifndef ALLEGRO_MACOSX
 #error Something is wrong with the makefile
@@ -99,7 +100,7 @@ static AL_MOUSE* osx_get_mouse(void)
 void osx_mouse_generate_event(NSEvent* evt)
 {
    NSPoint pos;
-   int type, b_change = 0, dx, dy, dz = 0, dw = 0, b = 0;
+   int type, b_change = 0, dx = 0, dy = 0, dz = 0, dw = 0, b = 0;
    switch ([evt type])
       {
       case NSMouseMoved:
@@ -166,7 +167,7 @@ void osx_mouse_generate_event(NSEvent* evt)
          // To do: full screen handling 
       }
    _al_event_source_lock(&osx_mouse.parent.es);
-   if ((within || osx_mouse.captured) && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es, type))
+   if ((within || osx_mouse.captured) && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
       {
          AL_EVENT* new_event = _al_event_source_get_unused_event(&osx_mouse.parent.es);
          AL_MOUSE_EVENT* mouse_event = &new_event->mouse;
@@ -201,9 +202,9 @@ void osx_mouse_generate_event(NSEvent* evt)
 static bool osx_mouse_init(void)
 {
    HID_DEVICE_COLLECTION devices={0,0,NULL};
-   int i, j;
-   int axes, buttons;
-   HID_DEVICE* device;
+   int i = 0, j = 0;
+   int axes = 0, buttons = 0;
+   HID_DEVICE* device = nil;
    NSString* desc = nil;
 	
    if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_1) {
@@ -245,7 +246,8 @@ static bool osx_mouse_init(void)
    if (buttons <= 0) return FALSE;
    _al_mutex_lock(&osx_event_mutex);
    const char* str = [desc UTF8String];
-   mouse_macosx.desc = strcpy(malloc(strlen(str) + 1), str);
+   /* FIXME */
+   // mouse_macosx.desc = strcpy(malloc(strlen(str) + 1), str);
    osx_emulate_mouse_buttons = (buttons == 1) ? TRUE : FALSE;
    _al_event_source_init(&osx_mouse.parent.es, _AL_ALL_MOUSE_EVENTS);
    osx_mouse.button_count = buttons;
@@ -283,7 +285,8 @@ static void osx_mouse_exit(void)
                            waitUntilDone: NO];
    [osx_mouse.cursor release];
    osx_mouse.cursor = nil;
-   free((char*) mouse_macosx.desc);
+   /* FIXME */
+   // free((char*) mouse_macosx.desc);
    _al_event_source_free(&osx_mouse.parent.es);
    osx_mouse.button_count = 0;
 }

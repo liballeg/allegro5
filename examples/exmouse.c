@@ -6,7 +6,7 @@
  *    and displays it on the screen without using any mouse
  *    cursor. When you press a key the standard arrow-like mouse
  *    cursor appears.  You are not restricted to this shape,
- *    and a second keypress modifies the cursor to be several
+ *    and a second key press modifies the cursor to be several
  *    concentric colored circles. They are not joined together,
  *    so you can still see bits of what's behind when you move the
  *    cursor over the printed text message.

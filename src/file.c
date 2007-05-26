@@ -1960,7 +1960,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
          /* Get the path of the temporary directory */
          do {
             size = new_size;
-            tmp_dir = realloc(tmp_dir, size);
+            tmp_dir = _AL_REALLOC(tmp_dir, size);
             new_size = GetTempPath(size, tmp_dir);
          } while ( (size < new_size) && (new_size > 0) );
          
@@ -2039,8 +2039,8 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 	 chunk->normal.flags |= PACKFILE_FLAG_CHUNK;
       }
       
-      free(tmp_dir);
-      free(tmp_name);
+      _AL_FREE(tmp_dir);
+      _AL_FREE(tmp_name);
    }
    else {
       /* read a sub-chunk */

@@ -1,4 +1,26 @@
 /* Title: Events
+ *
+ * Overview of the event system
+ *
+ * An "event" is a thing that happens at some instant in time.  The fact that
+ * this event occurred is captured in a piece of data, known also as an
+ * "event".
+ *
+ * Event can be created by some certain types of objects, collectively known as
+ * "event sources", and then placed into "event queues", in chronological
+ * order.  The user can take events out of event queues, also in chronological
+ * order, and examine them.
+ *
+ * >  event source 1 \
+ * >                   \
+ * >  event source 2 ---->--- event queue ----->---- user
+ * >                   /
+ * >  event source 3 /
+ * >
+ * >               Events are             The user takes events
+ * >               generated and          out of the queue,
+ * >               placed into		  examines them,
+ * >               event queues.          and acts on them.
  */
 
 #ifndef _al_included_events_h
@@ -12,35 +34,73 @@ AL_BEGIN_EXTERN_C
 
 /*
  * Event type tags
- *
- * Note: these have to be usable in masks.
  */
 
 typedef unsigned int AL_EVENT_TYPE;
 
 /* Enum: AL_EVENT_TYPE
+ *
+ * Each event is of one of the following types
+ *
+ *  AL_EVENT_JOYSTICK_AXIS - a joystick axis value changed.
+ *    Fields are: joystick.stick, joystick.axis, joystick.pos (-1.0 to 1.0).
+ *
+ *  AL_EVENT_JOYSTICK_BUTTON_DOWN - a joystick button was pressed.
+ *    Fields are: joystick.button.
+ *    
+ *  AL_EVENT_JOYSTICK_BUTTON_UP - a joystick button was released.
+ *    Fields are: joystick.button.
+ *
+ *  AL_EVENT_KEY_DOWN - a keyboard key was pressed.
+ *    Fields: keyboard.keycode, keyboard.unichar, keyboard.modifiers.
+ *
+ *  AL_EVENT_KEY_REPEAT - a typed character auto-repeated.
+ *    Fields: keyboard.keycode (AL_KEY_*), keyboard.unichar (unicode
+ *    character), keyboard.modifiers (AL_KEYMOD_*).
+ *
+ *  AL_EVENT_KEY_UP - a keyboard key was released.
+ *    Fields: keyboard.keycode.
+ *
+ *  AL_EVENT_MOUSE_AXES - one or more mouse axis values changed.
+ *    Fields: mouse.x, mouse.y, mouse.z, mouse.dx, mouse.dy, mouse.dz.
+ *
+ *  AL_EVENT_MOUSE_BUTTON_DOWN - a mouse button was pressed.
+ *    Fields: mouse.x, mouse.y, mouse.z, mouse.button.
+ *
+ *  AL_EVENT_MOUSE_BUTTON_UP - a mouse button was released.
+ *    Fields: mouse.x, mouse.y, mouse.z, mouse.button.
+ *
+ *  AL_EVENT_MOUSE_ENTER_DISPLAY - the mouse cursor entered a window opened
+ *    by the program.  Fields: mouse.x, mouse.y, mouse.z.
+ *
+ *  AL_EVENT_MOUSE_LEAVE_DISPLAY - the mouse cursor leave the boundaries of a
+ *    window opened by the program.
+ *    Fields: mouse.x, mouse.y, mouse.z.
+ *
+ *  AL_EVENT_TIMER - a timer counter incremented.
+ *    Fields: timer.count.
  */
 enum
 {
-   AL_EVENT_JOYSTICK_AXIS               = 0x00000001,
-   AL_EVENT_JOYSTICK_BUTTON_DOWN        = 0x00000002,
-   AL_EVENT_JOYSTICK_BUTTON_UP          = 0x00000004,
+   AL_EVENT_JOYSTICK_AXIS               =  1,
+   AL_EVENT_JOYSTICK_BUTTON_DOWN        =  2,
+   AL_EVENT_JOYSTICK_BUTTON_UP          =  3,
 
-   AL_EVENT_KEY_DOWN                    = 0x00000010,
-   AL_EVENT_KEY_REPEAT                  = 0x00000020,
-   AL_EVENT_KEY_UP                      = 0x00000040,
+   AL_EVENT_KEY_DOWN                    = 10,
+   AL_EVENT_KEY_REPEAT                  = 11,
+   AL_EVENT_KEY_UP                      = 12,
 
-   AL_EVENT_MOUSE_AXES                  = 0x00000100,
-   AL_EVENT_MOUSE_BUTTON_DOWN           = 0x00000200,
-   AL_EVENT_MOUSE_BUTTON_UP             = 0x00000400,
-   AL_EVENT_MOUSE_ENTER_DISPLAY         = 0x00000800,
-   AL_EVENT_MOUSE_LEAVE_DISPLAY         = 0x00001000,
+   AL_EVENT_MOUSE_AXES                  = 20,
+   AL_EVENT_MOUSE_BUTTON_DOWN           = 21,
+   AL_EVENT_MOUSE_BUTTON_UP             = 22,
+   AL_EVENT_MOUSE_ENTER_DISPLAY         = 23,
+   AL_EVENT_MOUSE_LEAVE_DISPLAY         = 24,
 
-   AL_EVENT_TIMER                       = 0x00002000,
+   AL_EVENT_TIMER                       = 30,
 
-   AL_EVENT_DISPLAY_EXPOSE              = 0x00004000,
-   AL_EVENT_DISPLAY_RESIZE              = 0x00008000,
-   AL_EVENT_DISPLAY_CLOSE               = 0x00010000
+   AL_EVENT_DISPLAY_EXPOSE              = 40,
+   AL_EVENT_DISPLAY_RESIZE              = 41,
+   AL_EVENT_DISPLAY_CLOSE               = 42
 };
 
 
@@ -130,7 +190,18 @@ typedef struct AL_TIMER_EVENT
 
 /* Type: AL_EVENT
  *
- * An AL_EVENT is a union of all builtin event structures.
+ * An AL_EVENT is a union of all builtin event structures, i.e. it is an
+ * object large enough to hold the data of any event type.  All events
+ * have the following fields in common:
+ *
+ * >	AL_EVENT_TYPE	    type;
+ * >	AL_EVENT_SOURCE *   any.source;
+ * >	unsigned long	    any.timestamp;
+ *
+ * By examining the type field you can then access type-specific fields.  The
+ * any.source field tells you which event source generated that particular
+ * event.  The any.timestamp field tells you when the event was generated.  The
+ * time is referenced to the same starting point as al_current_time().
  */
 /* Although
  * we cannot extend this union later with user event structures, the
@@ -160,43 +231,24 @@ union AL_EVENT
 
 
 
-/* internals */
-
-enum
-{
-   _AL_ALL_DISPLAY_EVENTS = (AL_EVENT_DISPLAY_EXPOSE |
-                             AL_EVENT_DISPLAY_RESIZE |
-                             AL_EVENT_DISPLAY_CLOSE),
-
-   _AL_ALL_JOYSTICK_EVENTS = (AL_EVENT_JOYSTICK_AXIS |
-                              AL_EVENT_JOYSTICK_BUTTON_DOWN |
-                              AL_EVENT_JOYSTICK_BUTTON_UP),
-
-   _AL_ALL_KEYBOARD_EVENTS = (AL_EVENT_KEY_DOWN |
-                              AL_EVENT_KEY_REPEAT |
-                              AL_EVENT_KEY_UP),
-
-   _AL_ALL_MOUSE_EVENTS = (AL_EVENT_MOUSE_AXES |
-                           AL_EVENT_MOUSE_BUTTON_DOWN |
-                           AL_EVENT_MOUSE_BUTTON_UP |
-                           AL_EVENT_MOUSE_ENTER_DISPLAY |
-                           AL_EVENT_MOUSE_LEAVE_DISPLAY)
-};
-
-
-
 /* Event sources */
 
+/* Type: AL_EVENT_SOURCE
+ *
+ * An event source is any object which can generate events.  Event sources are
+ * usually referred to by distinct types, e.g. AL_KEYBOARD*, but can be
+ * casted to AL_EVENT_SOURCE* when used in contexts that accept generic event
+ * sources.
+ */
 typedef struct AL_EVENT_SOURCE AL_EVENT_SOURCE;
-
-AL_FUNC(void, al_event_source_set_mask, (AL_EVENT_SOURCE*, AL_EVENT_TYPE mask));
-AL_FUNC(AL_EVENT_TYPE, al_event_source_mask, (AL_EVENT_SOURCE*));
 
 
 
 /* Event queues */
 
 typedef struct AL_EVENT_QUEUE AL_EVENT_QUEUE;
+
+#define AL_WAIT_FOREVER (-1)
 
 AL_FUNC(AL_EVENT_QUEUE*, al_create_event_queue, (void));
 AL_FUNC(void, al_destroy_event_queue, (AL_EVENT_QUEUE*));
@@ -210,11 +262,6 @@ AL_FUNC(void, al_flush_event_queue, (AL_EVENT_QUEUE*));
 AL_FUNC(bool, al_wait_for_event, (AL_EVENT_QUEUE*,
                                   AL_EVENT *ret_event,
                                   long msecs));
-AL_FUNC(bool, al_wait_for_specific_event, (AL_EVENT_QUEUE*,
-                                           AL_EVENT *ret_event,
-                                           long msecs,
-                                           AL_EVENT_SOURCE *source_or_null,
-                                           unsigned long event_mask));
 
 
 

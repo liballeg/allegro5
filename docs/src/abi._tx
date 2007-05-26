@@ -56,7 +56,7 @@ Introduction
 Windows notes
 
    If you don't need a modified version of Allegro then just link your
-   program against an officially blessed non-WIP, non-CVS, non-dodgy
+   program against an officially blessed non-WIP, non-SVN, non-dodgy
    version. Don't disable any features (eg. colour depths, drivers) in
    the DLL.
 

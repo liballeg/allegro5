@@ -214,7 +214,7 @@ def examples(env,appendDir,buildDir,libDir):
         examples.append(example)
 
     addExample('exnewapi', [ 'exnewapi.c' ])
-    addExample('exnew_events', [ 'exnew_events.c' ])
+    #addExample('exnew_events', [ 'exnew_events.c' ])
 
     Alias('examples', examples)
     return examples

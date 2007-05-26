@@ -20,6 +20,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include "allegro/internal/aintern_events.h"
 #include "allegro/internal/aintern_keyboard.h"
 #include "allegro/platform/aintosx.h"
 
@@ -43,8 +44,7 @@ static void _handle_key_press(int unicode, int scancode, int modifiers) {
 
       /* Generate the press event if necessary. */
       type = is_repeat ? AL_EVENT_KEY_REPEAT : AL_EVENT_KEY_DOWN;
-      if ((_al_event_source_needs_to_generate_event(&keyboard.es, type)) \
-&&
+      if ((_al_event_source_needs_to_generate_event(&keyboard.es)) &&
           (event = _al_event_source_get_unused_event(&keyboard.es)))
          {
             event->keyboard.type = type;

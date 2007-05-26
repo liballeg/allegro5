@@ -720,7 +720,7 @@ static int load_vbeaf_driver(AL_CONST char *filename)
    #else
 
       /* simple version for other platforms */
-      size = file_size(filename);
+      size = file_size_ex(filename);
       if (size <= 0)
 	 return 0;
 

@@ -60,7 +60,7 @@ static int osx_sys_get_desktop_resolution(int *width, int *height);
 int    __crt0_argc;
 char **__crt0_argv;
 NSBundle *osx_bundle = NULL;
-_AL_MUTEX osx_event_mutex;
+struct _AL_MUTEX osx_event_mutex;
 NSCursor *osx_cursor = NULL;
 NSCursor *osx_blank_cursor = NULL;
 AllegroWindow *osx_window = NULL;
@@ -398,6 +398,7 @@ static int osx_sys_init(void)
    long result;
    AL_CONST char *exe_name;
    char resource_dir[1024];
+   int v1 = 0, v2 = 0, v3 = 0; // version numbers read from ProductVersion
    
    /* If we're in the 'dead bootstrap' environment, the Mac driver won't work. */
    if (!osx_bootstrap_ok()) {
@@ -426,8 +427,20 @@ static int osx_sys_init(void)
    os_type = OSTYPE_MACOSX;
    NSDictionary* sysinfo = [NSDictionary dictionaryWithContentsOfFile: @"/System/Library/CoreServices/SystemVersion.plist"];
    NSArray* version = [((NSString*) [sysinfo objectForKey:@"ProductVersion"]) componentsSeparatedByString:@"."];
-   os_version = 10 * [[version objectAtIndex: 0] intValue] + [[version objectAtIndex: 1] intValue];
-   os_revision = [[version objectAtIndex: 2] intValue];
+   switch ( [version count] ){
+   	/* if there are more than 3 versions just use the first 3 */
+   	default :
+	/* micro */
+   	case 3 : v3 = [[version objectAtIndex: 2] intValue];
+	/* minor */
+	case 2 : v2 = [[version objectAtIndex: 1] intValue];
+	/* major */
+	case 1 : v1 = [[version objectAtIndex: 0] intValue];
+	/* nothing at all */
+	case 0 : break;
+   }
+   os_version = 10 * v1 + v2;
+   os_revision = v3;
    [version release];
    os_multitasking = TRUE;
    

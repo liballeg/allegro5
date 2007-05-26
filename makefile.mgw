@@ -68,7 +68,7 @@ endif # STATICLINK
 
 ifdef ALLEGRO_USE_CYGWIN
 
-WINDIR_S = $(shell cygpath -S)
+WINDIR_S := $(shell cygpath -S)
 WINDIR_U = $(subst \,/,$(WINDIR_S))
 WINDIR_D = $(subst /,\,$(WINDIR_S))
 
@@ -202,8 +202,9 @@ ifdef ALLEGRO_USE_C
 # ------ build a C-only version ------
 
 VPATH += src/c
-MY_OBJECTS = $(C_OBJECTS) cmiscs
+MY_OBJECTS = $(C_OBJECTS)
 CFLAGS += -DALLEGRO_NO_ASM
+SFLAGS += -DALLEGRO_NO_ASM
 
 else
 

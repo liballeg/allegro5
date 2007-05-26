@@ -167,6 +167,7 @@ void osx_keyboard_handler(int pressed, NSEvent *event);
 void osx_keyboard_modifiers(unsigned int new_mods);
 void osx_keyboard_focused(int focused, int state);
 
+void osx_mouse_generate_event(NSEvent*);
 void osx_mouse_handler(NSEvent*);
 int osx_mouse_set_sprite(BITMAP *sprite, int x, int y);
 int osx_mouse_show(BITMAP *bmp, int x, int y);
@@ -178,8 +179,8 @@ void osx_hid_free(HID_DEVICE_COLLECTION *);
 
 
 AL_VAR(NSBundle *, osx_bundle);
-AL_VAR(_AL_MUTEX, osx_event_mutex);
-AL_VAR(_AL_MUTEX, osx_window_mutex);
+AL_VAR(struct _AL_MUTEX, osx_event_mutex);
+AL_VAR(struct _AL_MUTEX, osx_window_mutex);
 AL_VAR(int, osx_gfx_mode);
 AL_VAR(int, osx_screen_used);
 AL_VAR(NSCursor *, osx_blank_cursor);

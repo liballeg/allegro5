@@ -299,7 +299,7 @@ int load_vbeaf_driver(char *filename)
    long size;
    PACKFILE *f;
 
-   size = file_size(filename);
+   size = file_size_ex(filename);
    if (size <= 0)
       return -1;
 

@@ -134,7 +134,7 @@ static RETSIGTYPE _xwin_signal_handler(int num)
 /* _xwin_bg_handler:
  *  Really used for synchronous stuff.
  */
-static void _xwin_bg_handler (int threaded)
+static void _xwin_bg_handler(int threaded)
 {
    _xwin_handle_input();
 }
@@ -183,12 +183,12 @@ static int _xwin_sysdrv_init(void)
    set_window_title(get_filename(tmp));
 
    if (get_config_int("system", "XInitThreads", 1))
-       XInitThreads();
+      XInitThreads();
 
    /* Open the display, create a window, and background-process 
     * events for it all. */
    if (_xwin_open_display(0) || _xwin_create_window()
-         || _unix_bg_man->register_func(_xwin_bg_handler)) {
+       || _unix_bg_man->register_func(_xwin_bg_handler)) {
       _xwin_sysdrv_exit();
       return -1;
    }

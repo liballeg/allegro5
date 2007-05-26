@@ -14,7 +14,7 @@
 #include "example.h"
 
 
-/* maximum number of bytes a single (unicode) character can have */
+/* maximum number of bytes a single (Unicode) character can have */
 #define MAX_BYTES_PER_CHAR 4
 
 /* for the d_edit_proc object */
@@ -25,9 +25,9 @@ char the_string[(LEN + 1) * MAX_BYTES_PER_CHAR] = "Change Me!";
 char the_text[] =
    "I'm text inside a text box.\n\n"
    "I can have multiple lines.\n\n"
-   "If I grow too big to fit into my box, I get a scrollbar to"
-   "the right, so you can scroll me in the vertical direction. I will never"
-   "let you scroll in the horizontal direction, but instead I will try to"
+   "If I grow too big to fit into my box, I get a scrollbar to "
+   "the right, so you can scroll me in the vertical direction. I will never "
+   "let you scroll in the horizontal direction, but instead I will try to "
    "word wrap the text.";
 
 /* for the multiple selection list */

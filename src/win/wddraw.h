@@ -118,18 +118,23 @@ AL_FUNC(int, gfx_directx_update_color_format, (DDRAW_SURFACE *surf, int color_de
 AL_FUNC(int, set_video_mode, (int w, int h, int v_w, int v_h, int color_depth));
 
 
-/* bitmap locking (from wddlock.c and asmlock.s) */
+/* bitmap locking (from wddlock.c and wgdi.c and possibly asmlock.s) */
 AL_FUNC(void, gfx_directx_lock, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_autolock, (BITMAP* bmp));
 AL_FUNC(void, gfx_directx_unlock, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_unlock_win, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_release_lock, (BITMAP * bmp));
-AL_FUNC(void, gfx_directx_write_bank, (void));
-AL_FUNC(void, gfx_directx_unwrite_bank, (void));
-AL_FUNC(void, gfx_directx_write_bank_win, (void));
-AL_FUNC(void, gfx_directx_unwrite_bank_win, (void));
-AL_FUNCPTR(void, ptr_gfx_directx_autolock, (BITMAP* bmp));
-AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
+AL_FUNC(uintptr_t, gfx_directx_write_bank, (BITMAP *bmp, int line));
+AL_FUNC(void,      gfx_directx_unwrite_bank, (BITMAP *bmp));
+AL_FUNC(uintptr_t, gfx_directx_write_bank_win, (BITMAP *bmp, int line));
+AL_FUNC(void,      gfx_directx_unwrite_bank_win, (BITMAP *bmp));
+AL_FUNC(void,      gfx_gdi_autolock, (struct BITMAP* bmp));
+AL_FUNC(void,      gfx_gdi_unlock, (struct BITMAP* bmp));
+AL_FUNC(uintptr_t, gfx_gdi_write_bank, (BITMAP *bmp, int line));
+AL_FUNC(void,      gfx_gdi_unwrite_bank, (BITMAP *bmp));
+/* dirty window updating (from wddwin.c, used in wddlock.c or asmlock.s) */
+AL_VAR(char *,     _al_wd_dirty_lines);
+AL_FUNCPTR(void,   _al_wd_update_window, (RECT *rect));
 
 
 /* bitmap creation (from wddbmp.c) */

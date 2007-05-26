@@ -50,6 +50,9 @@ enum {
 AL_VAR(int, _screensaver_policy);
 
 
+AL_FUNCPTR(int, _al_trace_handler, (AL_CONST char *msg));
+
+
 /* malloc wrappers */
 AL_VAR(void *, _al_memory_opaque);
 AL_FUNCPTR(void *, _al_malloc, (void *opaque, size_t size));

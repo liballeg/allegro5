@@ -9,18 +9,20 @@ goto help
 
 :arg3
 rem Test if third arg is ok.
-if [%3] == [--crlf]      goto arg2
-if [%3] == [--quick]     goto arg2
-if [%3] == [--msvcpaths] goto arg2
-if [%3] == []            goto arg2
+if [%3] == [--crlf]        goto arg2
+if [%3] == [--quick]       goto arg2
+if [%3] == [--msvcpaths]   goto arg2
+if [%3] == [--nomsvcpaths] goto arg2
+if [%3] == []              goto arg2
 goto help
 
 :arg2
 rem Test if second arg is ok.
-if [%2] == [--crlf]      goto arg1
-if [%2] == [--quick]     goto arg1
-if [%2] == [--msvcpaths] goto arg1
-if [%2] == []            goto arg1
+if [%2] == [--crlf]        goto arg1
+if [%2] == [--quick]       goto arg1
+if [%2] == [--msvcpaths]   goto arg1
+if [%2] == [--nomsvcpaths] goto arg1
+if [%2] == []              goto arg1
 goto help
 
 :arg1
@@ -108,6 +110,24 @@ goto msvccommon
 echo MAKEFILE_INC = makefile.vc >> makefile
 echo #define ALLEGRO_MSVC >> include\allegro\platform\alplatf.h
 if "%MSVCDir%" == "" set MSVCDir=%VCINSTALLDIR%
+if "%MSVCDir%" == "" echo Your MSVCDir environment variable is not set!
+
+REM msvc6 does not need this, msvc is fallback so we should do it anyway
+if [%1] == [msvc6]         goto skipconvert
+if [%2] == [--nomsvcpaths] goto skipconvert
+if [%3] == [--nomsvcpaths] goto skipconvert
+
+echo Converting MSVCDir path...
+cl /nologo /w misc/msvchelp.c >NUL
+msvchelp MSVCDir
+del msvchelp.exe
+del msvchelp.obj
+echo include makefile.helper >> makefile
+goto tail
+
+:skipconvert
+REM Don't put space before >> !
+echo MSVCDir = %MSVCDir%>> makefile
 goto tail
 
 :watcom
@@ -118,37 +138,18 @@ goto tail
 
 :help
 echo.
-echo Usage: fix platform [--crlf] [--msvcpaths]
+echo Usage: fix platform [--crlf] [--nomsvcpaths]
 echo.
 echo Where platform is one of:
 echo     bcc32, djgpp, mingw, msvc6, msvc7, msvc8, icl, or watcom.
 echo.
 echo The --crlf parameter is used to turn on LF to CR/LF conversion.
-echo.
-echo Use the --msvcpaths parameter if your MSVCDir variable contains 
-echo spaces (you can view content of that variable by typing 
-echo echo %%MSVCDir%%
-echo on the command line). Remember that this will only work if you
-echo have MinGW gcc in your PATH.
-echo With MSVC 8 and higher the variable name is VCINSTALLDIR instead
-echo of MSVCDir.
+echo The --nomsvcpaths parameter is used to turn off special MS Visual C++
+echo path handling.
 echo.
 goto end
 
-:convertmsvcdir
-echo Converting MSVCDir path...
-gcc -mno-cygwin -s -o msvchelp.exe misc/msvchelp.c
-msvchelp MSVCDir
-del msvchelp.exe
-echo include makefile.helper >> makefile
-goto realtail
-
 :tail
-
-if [%3] == [--msvcpaths] goto convertmsvcdir
-if [%2] == [--msvcpaths] goto convertmsvcdir
-
-:realtail
 rem Generate last line of makefile and optionally convert CR/LF.
 echo include makefile.all >> makefile
 

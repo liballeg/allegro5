@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   /* specifiy that images should be loaded in a truecolor pixel format */
+   /* specify that images should be loaded in a truecolor pixel format */
    set_color_conversion(COLORCONV_TOTAL);
 
    /* load the first picture */

@@ -35,7 +35,7 @@ AL_BEGIN_EXTERN_C
 /* Type: AL_JOYSTICK
  *
  *  This is an abstract data type representing a physical joystick.  Joystick
- *  objects are also event sources.
+ *  objects are also event sources so can be casted to AL_EVENT_SOURCE*.
  */
 typedef struct AL_JOYSTICK AL_JOYSTICK;
 
@@ -46,6 +46,11 @@ typedef struct AL_JOYSTICK AL_JOYSTICK;
  * This is a structure that is used to hold a "snapshot" of a
  * joystick's axes and buttons at a particular instant.
  * All fields public and read-only.
+ *
+ * > struct {
+ * >	float axis[num_axes];		    // -1.0 to 1.0 
+ * > } stick[num_sticks];
+ * > int button[num_buttons];		    // 0 to 32767
  */
 typedef struct AL_JOYSTATE
 {
@@ -61,6 +66,13 @@ typedef struct AL_JOYSTATE
 typedef int AL_JOYFLAGS;
 
 /* Enum: AL_JOYFLAGS
+ *
+ * Joystick flags.
+ *
+ * AL_JOYFLAG_DIGITAL  - the stick provides digital input
+ * AL_JOYFLAG_ANALOGUE - the stick provides analogue input
+ *
+ * (this enum is a holdover from the old API and may be removed)
  */
 enum
 {

@@ -68,6 +68,21 @@ allegroVersion = '%s.%s.%s' % (majorVersion,minorVersion,microVersion)
 
 def getPlatform():
     return sys.platform
+
+def matchPlatform(name):
+    return name in getPlatform()
+
+def onBsd():
+    return matchPlatform('openbsd')
+
+def onLinux():
+    return matchPlatform('linux')
+
+def onWindows():
+    return matchPlatform('win32')
+
+def onOSX():
+    return matchPlatform('darwin')
     
 def appendDir(dir, files):
     return map(lambda x: dir + '/' + x, files)
@@ -228,17 +243,16 @@ def getAllegroContext():
     context = AllegroContext(defaultEnvironment())
     
     file = ""
-    if getPlatform() == "openbsd3":
+    if onBsd():
         file = 'scons/bsd.scons'
-    elif getPlatform() == "linux2":
+    elif onLinux():
         file = 'scons/linux.scons'
-    elif getPlatform() == "win32":
+    elif onWindows():
         file = 'scons/win32.scons'
-    elif getPlatform() == "darwin":
-        file = 'scons/osx.scons'
-    elif getPlatform() == "darwin":
+    elif onOSX():
         file = 'scons/osx.scons'
     else:
+        print "Warning: unknown system type %s" % getPlatform()
         file = 'scons/linux.scons'
     SConscript(file, exports = ['context'])
     return context

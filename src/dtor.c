@@ -13,12 +13,14 @@
  *	By Peter Wang.
  *
  *      See readme.txt for copyright information.
+ */
+
+/* Title: Destructors
  *
- *
- *      This file records a list of objects created by the user and/or
- *      Allegro itself, that need to be destroyed when Allegro is shut down.
- *      Strictly speaking, this list should not be necessary if the user is
- *      careful to destroy all the objects he creates.
+ * This file records a list of objects created by the user and/or Allegro
+ * itself, that need to be destroyed when Allegro is shut down.  Strictly
+ * speaking, this list should not be necessary if the user is careful to
+ * destroy all the objects he creates.
  */
 
 
@@ -45,8 +47,7 @@ static _AL_VECTOR dtors = _AL_VECTOR_INITIALIZER(DTOR);
 
 
 
-/* _al_init_destructors:
- *
+/* Internal function: _al_init_destructors
  *  This is called from allegro_init() and nowhere else.  It adds an exit
  *  function using _add_exit_func.  When that exit func is called, all the
  *  registered destructors will be called in reverse order to the order in
@@ -97,10 +98,11 @@ static void shutdown_destructors(void)
 
 
 
-/* _al_register_destructor: [thread-safe]
- *
+/* Internal function: _al_register_destructor
  *  Register OBJECT to be destroyed by FUNC during allegro_exit().
  *  This would be done in the object's constructor function.
+ *
+ *  [thread-safe]
  */
 void _al_register_destructor(void *object, void (*func)(void*))
 {
@@ -135,10 +137,11 @@ void _al_register_destructor(void *object, void (*func)(void*))
 
 
 
-/* _al_unregister_destructor: [thread-safe]
- *
+/* Internal function: _al_unregister_destructor
  *  Unregister a previously registered object.  This must be called
  *  in the normal object destroyer routine, e.g. al_uninstall_timer.
+ *
+ *  [thread-safe]
  */
 void _al_unregister_destructor(void *object)
 {

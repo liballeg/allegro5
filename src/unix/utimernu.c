@@ -170,7 +170,7 @@ AL_TIMER* al_install_timer(msecs_t speed_msecs)
       ASSERT(timer);
 
       if (timer) {
-         _al_event_source_init(&timer->es, AL_EVENT_TIMER);
+         _al_event_source_init(&timer->es);
          timer->started = false;
          timer->count = 0;
          timer->speed_usecs = speed_msecs * 1000;
@@ -358,7 +358,7 @@ static void timer_handle_tick(AL_TIMER *this)
       this->count++;
 
       /* Generate an event, maybe.  */
-      if (_al_event_source_needs_to_generate_event(&this->es, AL_EVENT_TIMER)) {
+      if (_al_event_source_needs_to_generate_event(&this->es)) {
          AL_EVENT *event = _al_event_source_get_unused_event(&this->es);
          if (event) {
             event->timer.type = AL_EVENT_TIMER;
