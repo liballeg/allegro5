@@ -10670,6 +10670,17 @@ any character, but only one).
    Returns the next character from the stream `f', or EOF if the end of the
    file has been reached.
 
+@@int @pack_ungetc(int c, PACKFILE *f);
+@xref pack_getc, pack_fgets
+@shortdesc Moves one single character back to the input buffer.
+   Puts a character back to the file's input buffer. Like with ungetc from
+   libc, only a single push back is guaranteed.
+
+   Note: pack_fgets internally uses pack_ungetc, so never use pack_ungetc
+   directly after using pack_fgets on a PACKFILE.
+@retval
+   Returns c on success, or EOF on error.
+
 @@int @pack_putc(int c, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk
 @shortdesc Puts a character in the stream.
@@ -10749,7 +10760,7 @@ any character, but only one).
    error occurs. Error codes are stored in errno.
 
 @@char *@pack_fgets(char *p, int max, PACKFILE *f);
-@xref pack_fopen, pack_fopen_chunk, pack_fread, pack_getc
+@xref pack_fopen, pack_fopen_chunk, pack_fread, pack_getc, pack_ungetc
 @shortdesc Reads a line from the stream.
    Reads a line from the stream `f', storing it at location pointed to by
    `p'. Stops when a linefeed is encountered, or `max' bytes have been read.
@@ -10758,7 +10769,12 @@ any character, but only one).
    (Mac) formats. However, the trailing carriage return is not included in the
    returned string, in order to provide easy code portability across
    platforms. If you need the carriage return, use pack_fread() and/or
-   pack_getc() instead. Example:
+   pack_getc() instead.
+
+   Note: This function internally may make calls to pack_ungetc, so you cannot
+   use pack_ungetc directly afterwards.
+
+   Example:
 <codeblock>
       char buf[256];
       ...
