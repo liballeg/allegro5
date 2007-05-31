@@ -797,7 +797,7 @@ static void handle_key_release(unsigned char scancode)
    }
 
    /* Generate key release events if necessary. */
-   if (!_al_event_source_needs_to_generate_event(&the_keyboard.es, AL_EVENT_KEY_UP))
+   if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
       return;
 
    event = _al_event_source_get_unused_event(&the_keyboard.es);
