@@ -543,13 +543,13 @@ if(SUPPORT_ASM)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_I386_FILES})
 else(SUPPORT_ASM)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_C_FILES})
-    if(WIN32)
-        list(APPEND LIBRARY_SOURCES src/c/cmiscs.s)
-    endif(WIN32)
 endif(SUPPORT_ASM)
 
     # Assembly code and Windows port both require generated asmdef.inc.
     #
+
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
+
 add_executable(asmdef src/i386/asmdef.c)
 set_target_properties(asmdef PROPERTIES
     OUTPUT_NAME ${ALLEGRO_LIB_PATH}/asmdef
