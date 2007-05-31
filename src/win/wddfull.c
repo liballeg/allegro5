@@ -252,7 +252,7 @@ static void switch_in_fullscreen(void)
    restore_all_ddraw_surfaces();
 
    if (_color_depth == 8)
-     set_palette(wdfull_saved_palette);
+     set_palette(wddfull_saved_palette);
 }
 
 
@@ -263,5 +263,5 @@ static void switch_in_fullscreen(void)
 static void switch_out_fullscreen(void)
 {
    if (_color_depth == 8)
-      get_palette(wdfull_saved_palette);
+      get_palette(wddfull_saved_palette);
 }
