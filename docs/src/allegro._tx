@@ -6976,7 +6976,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
       textout_centre_ex(screen, myfont, "This is my own pretty font!",
 			SCREEN_W / 2, SCREEN_H / 2, white, black);
       ...
-      destroy_font(bmp);<endblock>
+      destroy_font(myfont);<endblock>
 @retval
    Returns a pointer to the font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
