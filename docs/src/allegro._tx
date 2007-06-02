@@ -7032,7 +7032,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
 @retval
    Returns TRUE if any alpha pixels are found, else FALSE.
 
-@@FONT *@is_compatible_font(FONT *f1, FONT *f2)
+@@int *@is_compatible_font(FONT *f1, FONT *f2)
 @xref merge_fonts, is_trans_font, is_color_font, is_mono_font
 @shortdesc Check if two fonts are of the same type.
    This function compares the two fonts, which you can use to find out if
