@@ -202,7 +202,6 @@ $(INSTALLDIR)/lib/lib$(VERSION)-$(shared_version).dylib: $(LIB_NAME)
 endif
 
 
-# XXX: Un-hardcode the @prefix@ substitution.
 $(INSTALLDIR)/bin/allegro-config: $(LIB_NAME)
 	install -d $(INSTALLDIR)/bin
 ifdef STATICLINK
@@ -210,11 +209,15 @@ ifdef STATICLINK
 else
 	@sed -e "s/@LINK_WITH_STATIC_LIBS@/no/" misc/allegro-config.in >temp
 endif
-	@sed -e "s/@prefix@/\/usr\/local/" temp > temp2
+	@sed -e "s#@prefix@#$(INSTALLDIR)#" temp > temp2
+	@sed -e "s#@INCLUDE_PREFIX@#$(INSTALLDIR)#" temp2 > temp
+	@sed -e "s#@includedir@#$(INSTALLDIR)/include#" temp > temp2
+	@sed -e "s#@libdir@#$(INSTALLDIR)/lib#" temp2 > temp
+	@sed -e "s#@bindir@#$(INSTALLDIR)/bin#" temp > temp2
 	@sed -e "s/@LIB_TO_LINK@/$(VERSION)/" temp2 > temp
 	@sed -e "s/@LDFLAGS@//" temp > temp2
 	@sed -e "s/@LIBS@/$(STATIC_LIBRARIES)/" temp2 > temp
-	@sed -e "s/@INCLUDE_PREFIX@/\/usr\/local/" temp >temp2
+	@cat temp > temp2
 	@sed -e "s/@FRAMEWORKS@/-framework Cocoa -framework $(FRAMEWORK_NAME) -l$(VERSION)-main/" temp2 > temp
 	@sed -e "s/accepts_frameworks=no/accepts_frameworks=yes/" temp > temp2
 	@sed -e "s/{lib_type} \$$allegro_libs/{lib_type}_s \$$allegro_libs/" temp2 > temp
