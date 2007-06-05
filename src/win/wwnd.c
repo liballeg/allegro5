@@ -34,6 +34,8 @@
 #define PREFIX_W                "al-wwnd WARNING: "
 #define PREFIX_E                "al-wwnd ERROR: "
 
+#include "platform/ald3d.h"
+
 
 /* general */
 static HWND allegro_wnd = NULL;
@@ -67,8 +69,8 @@ static int old_style = 0;
 
 /* custom window msgs */
 #define SWITCH_TIMER  1
-static UINT msg_call_proc = 0;
-static UINT msg_suicide = 0;
+//static UINT msg_call_proc = 0;
+//static UINT msg_suicide = 0;
 
 /* window modules management */
 struct WINDOW_MODULES {
@@ -193,21 +195,19 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
  */
 int wnd_call_proc(int (*proc) (void))
 {
-   return SendMessage(allegro_wnd, msg_call_proc, (DWORD) proc, 0);
+   return SendMessage(win_get_window(), msg_call_proc, (DWORD) proc, 0);
 }
 
 
 
 /* wnd_schedule_proc:
- *  Instructs the window thread to call the specified procedure but
+ *  instructs the window thread to call the specified procedure but
  *  doesn't wait until the procedure has returned.
  */
 void wnd_schedule_proc(int (*proc) (void))
 {
-   PostMessage(allegro_wnd, msg_call_proc, (DWORD) proc, 0);
+   PostMessage(win_get_window(), msg_call_proc, (DWORD) proc, 0);
 }
-
-
 
 /* directx_wnd_proc:
  *  Window procedure for the Allegro window class.
@@ -269,7 +269,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          else {
             if (gfx_driver && !gfx_driver->windowed) {
                /* 1.2s delay to let Windows complete the switch in fullscreen mode */
-               SetTimer(allegro_wnd, SWITCH_TIMER, 1200, NULL);
+               SetTimer(win_get_window(), SWITCH_TIMER, 1200, NULL);
             }
             else {
                /* no delay in windowed mode */
@@ -280,7 +280,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_TIMER:
          if (wparam == SWITCH_TIMER) {
-            KillTimer(allegro_wnd, SWITCH_TIMER);
+            KillTimer(win_get_window(), SWITCH_TIMER);
             _win_switch_in();
             return 0;
          }
@@ -297,8 +297,8 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          break;
 
       case WM_MOVE:
-         if (GetActiveWindow() == allegro_wnd) {
-            if (!IsIconic(allegro_wnd)) {
+         if (GetActiveWindow() == win_get_window()) {
+            if (!IsIconic(win_get_window())) {
                wnd_x = (short) LOWORD(lparam);
                wnd_y = (short) HIWORD(lparam);
 
@@ -507,6 +507,8 @@ int init_directx_window(void)
    HANDLE events[2];
    long result;
 
+   TRACE("init_directx_window\n");
+
    /* setup globals */
    msg_call_proc = RegisterWindowMessage("Allegro call proc");
    msg_suicide = RegisterWindowMessage("Allegro window suicide");
@@ -581,7 +583,8 @@ void exit_directx_window(void)
       /* Destroy the window: we cannot directly use DestroyWindow() because
        * we are not running in the same thread as that of the window.
        */
-      PostMessage(allegro_wnd, msg_suicide, 0, 0);
+
+      PostMessage(win_get_window(), msg_suicide, 0, 0);
 
       /* wait until the window thread ends */
       WaitForSingleObject(wnd_thread, INFINITE);
@@ -602,8 +605,8 @@ void exit_directx_window(void)
  */
 void restore_window_style(void)
 {
-   SetWindowLong(allegro_wnd, GWL_STYLE, old_style);
-   SetWindowPos(allegro_wnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+   SetWindowLong(win_get_window(), GWL_STYLE, old_style);
+   SetWindowPos(win_get_window(), 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 }
 
 
@@ -750,7 +753,12 @@ void win_set_window(HWND wnd)
  */
 HWND win_get_window(void)
 {
-   return allegro_wnd;
+   if (d3d_active_window != 0) {
+      return d3d_active_window;
+   }
+   else {
+      return allegro_wnd;
+   }
 }
 
 
@@ -762,8 +770,6 @@ void win_set_wnd_create_proc(HWND (*proc)(WNDPROC))
 {
    wnd_create_proc = proc;
 }
-
-
 
 /* win_grab_input:
  *  Grabs the input devices.

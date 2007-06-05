@@ -690,7 +690,7 @@ static void blit_to_self(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
       return;
 
 
-
+#if 0
 /* al_blit:
  * Copies a rectangular area of the source bitmap to the destination bitmap.
  * The dest_x and dest_y are the coordinates of the top-left corner in the
@@ -811,3 +811,4 @@ void al_blit_region(int method, BITMAP *src, int s_x, int s_y, int w, int h, BIT
 }
 
 END_OF_FUNCTION(al_blit_region);
+#endif

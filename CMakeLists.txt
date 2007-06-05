@@ -598,6 +598,10 @@ if(WIN32)
     list(APPEND PLATFORM_LIBS
         kernel32 user32 gdi32 comdlg32 ole32 dinput ddraw dxguid winmm dsound
         )
+    if(WANT_D3D)
+        list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
+        list(APPEND PLATFORM_LIBS d3d8 d3dx8)
+    endif(WANT_D3D)
 endif(WIN32)
 
 #-----------------------------------------------------------------------------#
@@ -855,10 +859,10 @@ macro(add_allegro_executable nm)
     target_link_libraries(${nm} ${LINK_WITH})
 endmacro(add_allegro_executable)
 
-add_subdirectory(demo)
-add_subdirectory(examples)
-add_subdirectory(tests)
-add_subdirectory(tools)
+#add_subdirectory(demo)
+#add_subdirectory(examples)
+#add_subdirectory(tests)
+#add_subdirectory(tools)
 
 #-----------------------------------------------------------------------------#
 #

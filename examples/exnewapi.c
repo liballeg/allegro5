@@ -5,11 +5,16 @@
  * 100 pixels / second, limits the FPS to 100 Hz to save CPU, and prints the
  * current FPS in the top right corner.
  */
-#include <allegro.h>
+#include "allegro.h"
+#include "allegro/platform/ald3d.h"
+#include "allegro/internal/aintern_bitmap.h"
+#include <winalleg.h>
+
+#include "d3d.h"
 
 int main(void)
 {
-   AL_DISPLAY *display;
+   AL_DISPLAY *display[3];
    AL_KEYBOARD *keyboard;
    AL_EVENT event;
    AL_EVENT_QUEUE *events;
@@ -21,49 +26,108 @@ int main(void)
    int FPS = 100;
    int x = 0, y = 0;
    int dx = 1;
+   int w = 640, h = 480;
+   AL_BITMAP *picture;
+   AL_BITMAP *mask;
 
-   allegro_init();
-   
+	allegro_init();
+	set_color_depth(32);
+   al_init();
+
    events = al_create_event_queue();
-   
-   al_install_keyboard();
-   al_register_event_source(events, (AL_EVENT_SOURCE *)al_get_keyboard());
 
-   display = al_create_display(GFX_AUTODETECT, AL_UPDATE_DOUBLE_BUFFER,
-      AL_DEPTH_32, 640, 480);
+   /* Create three windows. */
+   display[0] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL | AL_RESIZABLE);
+   display[1] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL | AL_RESIZABLE);
+   display[2] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL);
+
+   printf("display[0]=%p %p\n", display[0], ((AL_DISPLAY_D3D *)display[0])->window);
+   printf("display[1]=%p %p\n", display[1], ((AL_DISPLAY_D3D *)display[1])->window);
+   printf("display[2]=%p %p\n", display[2], ((AL_DISPLAY_D3D *)display[2])->window);
+
+   printf("d3d_ok=%d\n", D3D_OK);
+
+   /* This is only needed since we want to receive resize events. */
+   al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
+   al_register_event_source(events, (AL_EVENT_SOURCE *)display[1]);
+   al_register_event_source(events, (AL_EVENT_SOURCE *)display[2]);
+
+   /* Apparently, need to think a bit more about memory/display bitmaps.. should
+    * only need to load it once (as memory bitmap), then make available on all
+    * displays.
+    */
+   al_make_display_current(display[2]);
+   picture = al_load_bitmap("mysha.tga", 0);
+   mask = al_load_bitmap("mask.pcx", 0);
+
+   al_install_keyboard();
+   printf("registering kb as event source\n");
+   al_register_event_source(events, (AL_EVENT_SOURCE *)al_get_keyboard());
+   printf("kb registered as event source\n");
 
    start_ticks = al_current_time();
+
+   al_set_light_color(picture, &al_color(1.0f, 1.0f, 0.0f, 0.5f));
+
    while (!quit) {
       /* read input */
       while (!al_event_queue_is_empty(events)) {
+      	printf("event queue not empty %d\n", event.type);
          al_get_next_event(events, &event);
+	 	printf("got next event\n");
          if (event.type == AL_EVENT_KEY_DOWN)
          {
             AL_KEYBOARD_EVENT *key = &event.keyboard;
-            if (key->keycode == AL_KEY_ESCAPE)
+            if (key->keycode == AL_KEY_ESCAPE) {
+	    	printf("esc\n");
                quit = 1;
+	    }
+         }
+         if (event.type == AL_EVENT_DISPLAY_RESIZE) {
+	 printf("exnewapi receive resize event\n");
+            AL_DISPLAY_EVENT *display = &event.display;
+            w = display->width;
+            h = display->height;
+	    printf("w=%d h=%d\n", w, h);
+            al_make_display_current(display->source);
+            al_acknowledge_resize();
+	    printf("exnewapi resized\n");
+         }
+         if (event.type == AL_EVENT_DISPLAY_CLOSE)
+         {
+            quit = 1;
          }
       }
-      
+
       /* handle game ticks */
       while (ticks * 1000 < (al_current_time() - start_ticks) * FPS) {
           x += dx;
           if (x == 0) dx = 1;
-          if (x == 640 - 40) dx = -1;
+          if (x == w - 40) dx = -1;
           ticks++;
       }
-      
+
       /* render */
       if (ticks > last_rendered) {
-
-         buffer = al_get_buffer(display);
-         clear_to_color(buffer, makecol(0, 0, 0));
-         rectfill(buffer, x, y, x + 40, y + 40, makecol(255, 0, 0));
-         textprintf_right_ex(buffer, font, 640, 0, makecol(255, 255, 255), -1,
-            "%.1f", fps);
-         al_flip_display(display);
+         int i;
+         AL_COLOR colors[3] = {
+            al_color(1, 1, 0, 1.0),
+            al_color(0, 1, 0, 0.5),
+            al_color(0, 0, 1, 0.5)};
+         for (i = 0; i < 3; i++) {
+            al_make_display_current(display[i]);
+            al_clear(al_color(1.0f, 1.0f, 1.0f, 1.0));
+	    if (i == 0) {
+	    	al_line(50, 50, 150, 150, colors[0]);
+	    }
+            else if (i == 2) {
+	    	al_blit(0, mask, 0, 0, 0);
+		al_blit(AL_BLEND|AL_MASK_SOURCE|AL_MASK_INV_DEST, picture, 0, 0, 0);
+	    }
+            al_filled_rectangle(x, y, x + 40, y + 40, colors[i]);
+            al_flip();
+         }
          last_rendered = ticks;
-         
          {
             int d = al_current_time() - fps_time;
             fps_accumulator++;
@@ -75,10 +139,12 @@ int main(void)
          }
       }
       else {
-         al_rest(start_ticks + 1000 * ticks / FPS - al_current_time());
+      	int r = start_ticks + 1000 * ticks / FPS - al_current_time();
+	al_rest(r < 0 ? 0 : r);
       }
    }
    
    return 0;
 }
-END_OF_MAIN()
+END_OF_MAIN();
+

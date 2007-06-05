@@ -98,7 +98,9 @@ enum
 
    AL_EVENT_TIMER                       = 30,
 
-   AL_EVENT_DISPLAY_EXPOSE              = 40
+   AL_EVENT_DISPLAY_EXPOSE              = 40,
+   AL_EVENT_DISPLAY_RESIZE              = 41,
+   AL_EVENT_DISPLAY_CLOSE               = 42
 };
 
 

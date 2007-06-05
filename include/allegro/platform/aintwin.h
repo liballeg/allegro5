@@ -257,6 +257,8 @@ struct _AL_COND
 /* time */
 AL_FUNC(void, _al_win_init_time, (void));
 
+AL_FUNC(int, key_dinput_set_cooperation_level, (HWND wnd));
+
 AL_END_EXTERN_C
 
 

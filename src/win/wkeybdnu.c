@@ -480,47 +480,61 @@ static int key_dinput_init(void)
 
    /* Get DirectInput interface */
    hr = DirectInputCreate(allegro_inst, DIRECTINPUT_VERSION, &key_dinput, NULL);
-   if (FAILED(hr))
+   if (FAILED(hr)) {
+      TRACE("DirectInputCreate failed.\n");
       goto Error;
+   }
 
    /* Create the keyboard device */
    hr = IDirectInput_CreateDevice(key_dinput, &GUID_SysKeyboard, &key_dinput_device, NULL);
-   if (FAILED(hr))
+   if (FAILED(hr)) {
+      TRACE("IDirectInput_CreateDevice failed.\n");
       goto Error;
+   }
 
    /* Set data format */
    hr = IDirectInputDevice_SetDataFormat(key_dinput_device, &c_dfDIKeyboard);
-   if (FAILED(hr))
+   if (FAILED(hr)) {
+      TRACE("IDirectInputDevice_SetDataFormat failed.\n");
       goto Error;
+   }
 
    /* Set buffer size */
    hr = IDirectInputDevice_SetProperty(key_dinput_device, DIPROP_BUFFERSIZE, &property_buf_size.diph);
-   if (FAILED(hr))
+   if (FAILED(hr)) {
+      TRACE("IDirectInputDevice_SetProperty failed.\n");
       goto Error;
+   }
 
-   /* Set cooperative level */
-   hr = IDirectInputDevice_SetCooperativeLevel(key_dinput_device, allegro_wnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-   if (FAILED(hr))
+/*
+   if (key_dinput_set_cooperation_level(allegro_wnd)) {
       goto Error;
-
+   }
+*/
    /* Enable event notification */
    key_input_event = CreateEvent(NULL, FALSE, FALSE, NULL);
    hr = IDirectInputDevice_SetEventNotification(key_dinput_device, key_input_event);
-   if (FAILED(hr))
+   if (FAILED(hr)) {
+      TRACE("IDirectInputDevice_SetEventNotification failed.\n");
       goto Error;
+   }
 
    /* Set up the timer for autorepeat emulation */
    key_autorepeat_timer = CreateWaitableTimer(NULL, FALSE, NULL);
-   if (!key_autorepeat_timer)
+   if (!key_autorepeat_timer) {
+      TRACE("CreateWaitableTimer failed.\n");
       goto Error;
+   }
 
    /* Register event handlers */
    if (_win_input_register_event(key_input_event, key_dinput_handle) != 0 ||
-       _win_input_register_event(key_autorepeat_timer, key_dinput_repeat) != 0)
+       _win_input_register_event(key_autorepeat_timer, key_dinput_repeat) != 0) {
+      TRACE("Registering dinput keyboard event handlers failed.\n");
       goto Error;
+   }
 
    /* Acquire the device */
-   wnd_call_proc(key_dinput_acquire);
+   //wnd_call_proc(key_dinput_acquire);
 
    return 0;
 
@@ -814,7 +828,16 @@ static void handle_key_release(unsigned char scancode)
    _al_event_source_emit_event(&the_keyboard.es, event);
 }
 
-
+int key_dinput_set_cooperation_level(HWND wnd)
+{
+   /* Set cooperative level */
+   HRESULT hr = IDirectInputDevice_SetCooperativeLevel(key_dinput_device, wnd, DISCL_FOREGROUND | DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
+   if (FAILED(hr)) {
+      TRACE("IDirectInputDevice_SetCooperativeLevel failed.\n");
+      return 1;
+   }
+   return 0;
+}
 
 /*
  * Local Variables:

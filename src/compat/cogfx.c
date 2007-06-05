@@ -22,6 +22,7 @@
 
 int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 {
+/*
    al_destroy_display(al_main_display);
    
    al_create_display(card, AL_UPDATE_NONE, get_color_depth(), w, h);
@@ -31,8 +32,9 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
    screen = al_main_display->screen;
    gfx_driver = al_main_display->gfx_driver;
-   
    return 0;
+  */ 
+  return -1;
 }
 
 

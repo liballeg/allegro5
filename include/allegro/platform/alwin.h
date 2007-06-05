@@ -125,3 +125,4 @@ AL_VAR(struct AL_JOYSTICK_DRIVER, _al_joydrv_directx);
 
 #define _AL_JOYSTICK_DRIVER_DIRECTX                                     \
    { AL_JOY_TYPE_DIRECTX,  &_al_joydrv_directx,    TRUE  },
+

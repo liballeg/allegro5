@@ -184,8 +184,11 @@ static int sys_directx_init(void)
    sys_directx_display_switch_init();
 
    /* either use a user window or create a new window */
+
+   /*
    if (init_directx_window() != 0)
       goto Error;
+   */
 
    _al_win_init_time();
 

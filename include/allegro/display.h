@@ -42,6 +42,7 @@
 /* Misc. flags */
 #define AL_DISABLE_VSYNC            0x1000
 
+#if 0
 typedef struct AL_DISPLAY {   /* Allegro display struct */
    GFX_DRIVER *gfx_driver;    /* Graphics driver for this display */
    BITMAP *screen;            /* Screen bitmap */
@@ -52,6 +53,7 @@ typedef struct AL_DISPLAY {   /* Allegro display struct */
    int depth;                 /* Colour depth */
    int gfx_capabilities;      /* Driver capabilities */
 } AL_DISPLAY;
+#endif
 
 AL_VAR(AL_DISPLAY *, al_main_display);
 
@@ -65,7 +67,7 @@ AL_FUNC(int, al_show_video_bitmap, (AL_DISPLAY *display, BITMAP *bitmap));
 AL_FUNC(int, al_request_video_bitmap, (AL_DISPLAY *display, BITMAP *bitmap));
 AL_FUNC(int, al_enable_triple_buffer, (AL_DISPLAY *display));
 
-AL_FUNC(AL_DISPLAY *, al_create_display, (int driver, int flags, int depth, int w, int h));
+//AL_FUNC(AL_DISPLAY *, al_create_display, (int driver, int flags, int depth, int w, int h));
 AL_FUNC(int, al_set_update_method, (AL_DISPLAY *display, int method));
 AL_FUNC(void, al_destroy_display, (AL_DISPLAY *display));
 

@@ -1,5 +1,6 @@
 set(ALLEGRO_SRC_FILES
     src/allegro.c
+    src/bitmap_new.c
     src/blit.c
     src/bmp.c
     src/clip3d.c
@@ -10,9 +11,9 @@ set(ALLEGRO_SRC_FILES
     src/datafile.c
     src/dataregi.c
     src/digmid.c
+    src/display_new.c
     src/dither.c
     src/dispsw.c
-    src/display.c
     src/dtor.c
     src/drvlist.c
     src/events.c
@@ -60,6 +61,7 @@ set(ALLEGRO_SRC_FILES
     src/sound.c
     src/spline.c
     src/stream.c
+    src/system_new.c
     src/text.c
     src/tga.c
     src/unicode.c
@@ -223,6 +225,14 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/wxthread.c
     src/misc/colconv.c
     )
+
+set(ALLEGRO_SRC_D3D_FILES
+	src/d3d/d3d_bitmap.c
+	src/d3d/d3d_display.c
+	src/d3d/d3d_keyboard.c
+	src/d3d/d3d_system.c
+	src/d3d/d3d_window.c
+	)
 
 set(ALLEGRO_SRC_BEOS_FILES
     src/beos/baccel.cpp
@@ -439,7 +449,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro/datafile.h
     include/allegro/debug.h
     include/allegro/digi.h
-    include/allegro/display.h
     include/allegro/draw.h
     include/allegro/events.h
     include/allegro/file.h

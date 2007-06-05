@@ -56,10 +56,21 @@ AL_FUNC(void, stretch_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x,
 AL_FUNC(void, _soft_draw_gouraud_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4));
 
 /* Blitting method */
-#define AL_MASK_SOURCE     0x0001
-AL_FUNC(void, al_blit, (int method, struct BITMAP *source, struct BITMAP *dest, int dest_x, int dest_y));
-AL_FUNC(void, al_blit_region, (int method, struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y));
-AL_FUNC(void, al_blit_scaled, (int method, struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y, int dest_w, int dest_h));
+
+/* Flags for the blitting functions */
+#define AL_MASK_SOURCE           0x00001
+#define AL_MASK_INV_SOURCE       0x00002
+#define AL_MASK_DEST             0x00004
+#define AL_MASK_INV_DEST         0x00008
+#define AL_FLIP_HORIZONTAL       0x00010
+#define AL_FLIP_VERTICAL         0x00020
+#define AL_BLEND                 0x00040
+#define AL_LIT                   0x00080
+
+//AL_FUNC(void, al_blit, (int method, struct BITMAP *source, struct BITMAP *dest, int dest_x, int dest_y));
+//AL_FUNC(void, al_blit_region, (int method, struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y));
+//AL_FUNC(void, al_blit_scaled, (int method, struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y, int dest_w, int dest_h));
+AL_FUNC(void, al_compat_blit_scaled, (int method, struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y, int dest_w, int dest_h));
 
 
 /* Compatibility stuff */
