@@ -440,7 +440,6 @@ AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d, int w, int h, int flags)
    //bitmap->bitmap.display = d;
    bitmap->video_texture = 0;
    bitmap->system_texture = 0;
-   bitmap->pot_bmp = 0;
    bitmap->created = false;
    return &bitmap->bitmap;
 }

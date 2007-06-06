@@ -34,7 +34,9 @@ struct AL_BITMAP_D3D
 
 	/* Driver specifics. */
 
-	AL_BITMAP *pot_bmp; 
+	unsigned int texture_w;
+	unsigned int texture_h;
+
 	LPDIRECT3DTEXTURE8 video_texture;
 	LPDIRECT3DTEXTURE8 system_texture;
 

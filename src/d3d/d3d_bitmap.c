@@ -301,26 +301,26 @@ void d3d_draw_textured_quad(int flag, AL_BITMAP_D3D *bmp,
 	right  = dx + dw;
 	bottom = dy + dh;
 
-	tu_start = (sx+0.5f) / bmp->pot_bmp->w;
-	tv_start = (sy+0.5f) / bmp->pot_bmp->h;
-	tu_end = sw / bmp->pot_bmp->w + tu_start;
-	tv_end = sh / bmp->pot_bmp->h + tv_start;
+	tu_start = (sx+0.5f) / bmp->texture_w;
+	tv_start = (sy+0.5f) / bmp->texture_h;
+	tu_end = sw / bmp->texture_w + tu_start;
+	tv_end = sh / bmp->texture_h + tv_start;
 
 	if (flag & AL_FLIP_HORIZONTAL) {
 		float temp = tu_start;
 		tu_start = tu_end;
 		tu_end = temp;
 		/* Weird hack -- not sure why this is needed */
-		tu_start -= 1.0f / bmp->pot_bmp->w;
-		tu_end -= 1.0f / bmp->pot_bmp->w;
+		tu_start -= 1.0f / bmp->texture_w;
+		tu_end -= 1.0f / bmp->texture_w;
 	}
 	if (flag & AL_FLIP_VERTICAL) {
 		float temp = tv_start;
 		tv_start = tv_end;
 		tv_end = temp;
 		/* Weird hack -- not sure why this is needed */
-		tv_start -= 1.0f / bmp->pot_bmp->h;
-		tv_end -= 1.0f / bmp->pot_bmp->h;
+		tv_start -= 1.0f / bmp->texture_h;
+		tv_end -= 1.0f / bmp->texture_h;
 	}
 
 	D3D_TL_VERTEX vertices[4] = {
@@ -363,6 +363,12 @@ void d3d_draw_textured_quad(int flag, AL_BITMAP_D3D *bmp,
 		return;
 	}
 
+	IDirect3DDevice8_SetTextureStageState(_al_d3d_device,
+		0, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
+	
+	IDirect3DDevice8_SetTextureStageState(_al_d3d_device,
+		0, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
+	
 	if (IDirect3DDevice8_DrawPrimitiveUP(_al_d3d_device, D3DPT_TRIANGLEFAN, 2,
 			vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
 		TRACE("d3d_draw_textured_quad: DrawPrimitive failed.\n");
@@ -401,15 +407,35 @@ static void d3d_copy_bitmap_data(AL_BITMAP *bmp, LPDIRECT3DTEXTURE8 texture)
    if (IDirect3DTexture8_LockRect(texture, 0, &locked_rect, NULL, 0) == D3D_OK) {
 	unsigned int x;
 	unsigned int y;
+	int p;
+	int d3d_pixel;
 	// FIXME: use proper getpixel
 	for (y = 0; y < bmp->h; y++) {
 		for (x = 0; x < bmp->w; x++) {
-			int p = *(uintptr_t *)(bmp->memory+(x+y*bmp->w)*4);
-			int d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
+			p = *(uintptr_t *)(bmp->memory+(x+y*bmp->w)*4);
+			d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
 				(getg32(p) << 8) | getb32(p);
 			*(uintptr_t *)
 				(locked_rect.pBits+(locked_rect.Pitch*y)+(x*4)) = d3d_pixel;
 		}
+	}
+	/* Copy an extra row so the texture ends nicely */
+	y = bmp->h;
+	for (x = 0; x <= bmp->w; x++) {
+		p = *(uintptr_t *)(bmp->memory+(MIN(bmp->w-1, x)+(MIN(bmp->h-1, y))*bmp->w)*4);
+		d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
+			(getg32(p) << 8) | getb32(p);
+		*(uintptr_t *)
+			(locked_rect.pBits+(locked_rect.Pitch*y)+(x*4)) = d3d_pixel;
+	}
+	/* Copy an extra column so the texture ends nicely */
+	x = bmp->w;
+	for (y = 0; y <= bmp->h; y++) {
+		p = *(uintptr_t *)(bmp->memory+(MIN(bmp->w-1, x)+(MIN(bmp->h-1, y))*bmp->w)*4);
+		d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
+			(getg32(p) << 8) | getb32(p);
+		*(uintptr_t *)
+			(locked_rect.pBits+(locked_rect.Pitch*y)+(x*4)) = d3d_pixel;
 	}
 	IDirect3DTexture8_UnlockRect(texture, 0);
    }
@@ -420,7 +446,7 @@ static void d3d_copy_bitmap_data(AL_BITMAP *bmp, LPDIRECT3DTEXTURE8 texture)
 
 static void d3d_do_upload(AL_BITMAP_D3D *d3d_bmp)
 {
-	d3d_copy_bitmap_data(d3d_bmp->pot_bmp, d3d_bmp->system_texture);
+	d3d_copy_bitmap_data((AL_BITMAP *)d3d_bmp, d3d_bmp->system_texture);
 		
 	if (IDirect3DDevice8_UpdateTexture(_al_d3d_device,
 			(IDirect3DBaseTexture8 *)d3d_bmp->system_texture,
@@ -456,7 +482,7 @@ static bool d3d_create_textures(int w, int h,
 			return 1;
 		}
 	}
-	
+
 	if (system_texture) {
 		if (IDirect3DDevice8_CreateTexture(_al_d3d_device, w, h, 1,
 				0,/*D3DUSAGE_DYNAMIC,*/ D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM,
@@ -483,9 +509,9 @@ void _al_d3d_refresh_texture_memory()
 	for (i = 0; i < created_bitmaps._size; i++) {
 		AL_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
 		AL_BITMAP_D3D *bmp = *bptr;
-		d3d_create_textures(bmp->pot_bmp->w, bmp->pot_bmp->h,
+		d3d_create_textures(bmp->texture_w, bmp->texture_h,
 			&bmp->video_texture, 0);
-		d3d_copy_bitmap_data(bmp->pot_bmp, bmp->system_texture);
+		d3d_copy_bitmap_data((AL_BITMAP *)bmp, bmp->system_texture);
 		IDirect3DDevice8_UpdateTexture(_al_d3d_device,
 			(IDirect3DBaseTexture8 *)bmp->system_texture,
 			(IDirect3DBaseTexture8 *)bmp->video_texture);
@@ -504,15 +530,16 @@ static void d3d_upload_bitmap(AL_BITMAP *bitmap)
 
 	if (d3d_bmp->created != true) {
 		// Some drivers (like mine) need power of two textures.
-		int tw = pot(w);
-		int th = pot(h);
-
-		d3d_bmp->pot_bmp = al_create_memory_bitmap(tw, th, 0);
+		//int tw = pot(w);
+		//int th = pot(h);
+		d3d_bmp->texture_w = pot(w);
+		d3d_bmp->texture_h = pot(h);
 
 		if (d3d_bmp->video_texture == 0)
-		d3d_create_textures(tw, th,
-		&d3d_bmp->video_texture,
-		&d3d_bmp->system_texture);
+			d3d_create_textures(d3d_bmp->texture_w,
+			d3d_bmp->texture_h,
+			&d3d_bmp->video_texture,
+			&d3d_bmp->system_texture);
 
 		/*
 		 * Keep track of created bitmaps, in case the display is lost
@@ -522,13 +549,6 @@ static void d3d_upload_bitmap(AL_BITMAP *bitmap)
 
 		d3d_bmp->created = true;
 	}
-
-	_al_blit_memory_bitmap(bitmap, d3d_bmp->pot_bmp, 0, 0, 0, 0, w, h);
-	// HACK: To avoid seams, double last pixel. This is no issue when not using
-	// power of two textures - any maybe there's a texture mode or something to
-	// do the same? AllegroGL scales textures, but that looks really ugly.
-	_al_blit_memory_bitmap(bitmap, d3d_bmp->pot_bmp, w, 0, w, 0, 1, h + 1);
-	_al_blit_memory_bitmap(bitmap, d3d_bmp->pot_bmp, 0, h, 0, h, w, 1);
 
 	d3d_do_upload(d3d_bmp);
 }
@@ -750,8 +770,8 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 
 				_al_d3d_get_current_ortho_projection_parameters(&old_ortho_w, &old_ortho_h);
 				_al_d3d_set_ortho_projection(
-					((AL_BITMAP_D3D *)dest_as_bmp)->pot_bmp->w,
-					((AL_BITMAP_D3D *)dest_as_bmp)->pot_bmp->h);
+					((AL_BITMAP_D3D *)dest_as_bmp)->texture_w,
+					((AL_BITMAP_D3D *)dest_as_bmp)->texture_h);
 				IDirect3DDevice8_BeginScene(_al_d3d_device);
 			}
 
@@ -832,7 +852,7 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 			return;
 		}
 		_al_d3d_get_current_ortho_projection_parameters(&old_ortho_w, &old_ortho_h);
-		_al_d3d_set_ortho_projection(d3d_dest->pot_bmp->w, d3d_dest->pot_bmp->h);
+		_al_d3d_set_ortho_projection(d3d_dest->texture_w, d3d_dest->texture_h);
 		IDirect3DDevice8_BeginScene(_al_d3d_device);
 	}
 	
@@ -905,7 +925,6 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 		IDirect3DTexture8_Release(texture_render_target);
 
 		d3d_copy_texture_data(d3d_dest->system_texture, (AL_BITMAP *)d3d_dest);
-		d3d_copy_texture_data(d3d_dest->system_texture, d3d_dest->pot_bmp);
 
 		IDirect3DDevice8_SetRenderTarget(_al_d3d_device, old_render_target, 0);
 		IDirect3DSurface8_Release(old_render_target);
@@ -996,8 +1015,6 @@ static void d3d_destroy_bitmap(AL_BITMAP *bitmap)
    if (d3d_bmp->system_texture) {
    	IDirect3DTexture8_Release(d3d_bmp->system_texture);
    }
-   al_destroy_memory_bitmap(d3d_bmp->pot_bmp);
-
    for (i = 0; i < created_bitmaps._size; i++) {
    	AL_BITMAP_D3D **bmp = _al_vector_ref(&created_bitmaps, i);
 	if (*bmp == d3d_bmp) {

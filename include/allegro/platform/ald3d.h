@@ -22,7 +22,6 @@ struct AL_DISPLAY_D3D
    LPDIRECT3DSWAPCHAIN8 swap_chain;
    LPDIRECT3DSURFACE8 render_target;
    LPDIRECT3DSURFACE8 stencil_buffer;
-   unsigned int num_backbuffers;
    bool keyboard_initialized;
 };
 

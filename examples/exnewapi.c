@@ -121,6 +121,8 @@ int main(void)
 	    	al_line(50, 50, 150, 150, colors[0]);
 	    }
             else if (i == 2) {
+	    	al_blit_scaled(0, picture, 0, 0, picture->w, picture->h,
+			0, 0, 0, 640, 479);
 	    	al_blit(0, mask, 0, 0, 0);
 		al_blit(AL_BLEND|AL_MASK_SOURCE|AL_MASK_INV_DEST, picture, 0, 0, 0);
 	    }
