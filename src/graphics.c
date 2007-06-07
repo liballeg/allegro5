@@ -21,6 +21,8 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
+#include "allegro/internal/aintern_display.h"
+
 extern void blit_end(void);   /* for LOCK_FUNCTION; defined in blit.c */
 
 
@@ -366,7 +368,7 @@ int _color_load_depth(int depth, int hasalpha)
 
    int i;
 
-   ASSERT((_gfx_mode_set_count > 0) || (color_conv_set));
+   //ASSERT((_gfx_mode_set_count > 0) || (color_conv_set));
 
    if (depth == _color_depth)
       return depth;
@@ -403,8 +405,8 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    ASSERT(height > 0);
    ASSERT(system_driver);
 
-   if (system_driver->create_bitmap)
-      return system_driver->create_bitmap(color_depth, width, height);
+   //if (system_driver->create_bitmap)
+     // return system_driver->create_bitmap(color_depth, width, height);
 
    vtable = _get_vtable(color_depth);
    if (!vtable)
@@ -450,6 +452,11 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
 
    if (system_driver->created_bitmap)
       system_driver->created_bitmap(bitmap);
+
+   // FIXME: check return value
+   bitmap->al_bitmap = _al_current_display->vt->create_bitmap(_al_current_display, width, height, 0);
+   // FIXME: not always
+   bitmap->needs_upload = true;
 
    return bitmap;
 }

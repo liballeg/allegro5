@@ -33,8 +33,6 @@ static AL_BITMAP *d3d_munge_bitmap(int flag,
 	unsigned int x;
 	unsigned int y;
 
-	ret->memory = _AL_MALLOC(dw * dh * 4);
-
 	/* Hack so we don't have to rewrite stretch_blit for AL_BITMAP */
 	
 	if (sw != dw || sh != dh) {
@@ -81,7 +79,7 @@ static AL_BITMAP *d3d_munge_bitmap(int flag,
 		for (y = 0; y < read_bmp->h; y++) {
 			for (x = 0; x < read_bmp->w; x++) {
 				/* FIXME: use proper getpixel/putpixel */
-				int pixel = *(uintptr_t *)(read_bmp->memory+(y*read_bmp->w+x)*4);
+				int pixel = *(uint32_t *)(read_bmp->memory+(y*read_bmp->w+x)*4);
 				/* FIXME: use the mask color */
 				if ((pixel & 0xFFFFFF) == 0xFF00FF) {
 					pixel = 0x00FF00FF;
@@ -89,7 +87,7 @@ static AL_BITMAP *d3d_munge_bitmap(int flag,
 				else {
 					pixel = (pixel & pixel_mask) | alpha_mask;
 				}
-				*(uintptr_t *)(ret->memory+(y*ret->w+x)*4) = pixel;
+				*(uint32_t *)(ret->memory+(y*ret->w+x)*4) = pixel;
 			}
 		}
 	}
@@ -97,7 +95,7 @@ static AL_BITMAP *d3d_munge_bitmap(int flag,
 		for (y = 0; y < read_bmp->h; y++) {
 			for (x = 0; x < read_bmp->w; x++) {
 				/* FIXME: use proper getpixel/putpixel */
-				int pixel = *(uintptr_t *)(read_bmp->memory+(y*read_bmp->w+x)*4);
+				int pixel = *(uint32_t *)(read_bmp->memory+(y*read_bmp->w+x)*4);
 				/* FIXME: use the mask color */
 				if ((pixel & 0xFFFFFF) != 0xFF00FF) {
 					pixel = pixel & 0xFFFFFF;
@@ -105,7 +103,7 @@ static AL_BITMAP *d3d_munge_bitmap(int flag,
 				else {
 					/* Do nothing */
 				}
-				*(uintptr_t *)(ret->memory+(y*ret->w+x)*4) = pixel;
+				*(uint32_t *)(ret->memory+(y*ret->w+x)*4) = pixel;
 			}
 		}
 	}
@@ -128,8 +126,8 @@ static AL_BITMAP *d3d_munge_bitmap(int flag,
 		for (y = start_y; y < end_y; y++) {
 			for (x = start_x; x < end_x; x++) {
 				/* FIXME: use proper getpixel/putpixel */
-				int src_pix = *(uintptr_t *)(read_bmp->memory+(y*read_bmp->w+x)*4);
-				int dst_pix = *(uintptr_t *)(dest_surface+((dy+y)*dest_pitch+(dx+x)*4));
+				int src_pix = *(uint32_t *)(read_bmp->memory+(y*read_bmp->w+x)*4);
+				int dst_pix = *(uint32_t *)(dest_surface+((dy+y)*dest_pitch+(dx+x)*4));
 				int pixel;
 				/* FIXME: use the mask color */
 				if ((dst_pix & 0xFFFFFF) == 0xFF00FF) {
@@ -138,7 +136,7 @@ static AL_BITMAP *d3d_munge_bitmap(int flag,
 				else {
 					pixel = src_pix & 0xFFFFFF;
 				}
-				*(uintptr_t *)(ret->memory+(y*ret->w+x)*4) = pixel;
+				*(uint32_t *)(ret->memory+(y*ret->w+x)*4) = pixel;
 			}
 		}
 	}
@@ -161,8 +159,8 @@ static AL_BITMAP *d3d_munge_bitmap(int flag,
 		for (y = start_y; y < end_y; y++) {
 			for (x = start_x; x < end_x; x++) {
 				/* FIXME: use proper getpixel/putpixel */
-				int src_pix = *(uintptr_t *)(read_bmp->memory+(y*read_bmp->w+x)*4);
-				int dst_pix = *(uintptr_t *)(dest_surface+((dy+y)*dest_pitch+(dx+x)*4));
+				int src_pix = *(uint32_t *)(read_bmp->memory+(y*read_bmp->w+x)*4);
+				int dst_pix = *(uint32_t *)(dest_surface+((dy+y)*dest_pitch+(dx+x)*4));
 				int pixel;
 				/* FIXME: use the mask color */
 				if ((dst_pix & 0xFFFFFF) != 0xFF00FF) {
@@ -171,7 +169,7 @@ static AL_BITMAP *d3d_munge_bitmap(int flag,
 				else {
 					pixel = src_pix & 0xFFFFFF;
 				}
-				*(uintptr_t *)(ret->memory+(y*ret->w+x)*4) = pixel;
+				*(uint32_t *)(ret->memory+(y*ret->w+x)*4) = pixel;
 			}
 		}
 	}
@@ -191,14 +189,14 @@ static void d3d_remove_mask_alpha(int flag, AL_BITMAP *bmp)
 
 	for (y = 0; y < bmp->h; y++) {
 		for (x = 0; x < bmp->w; x++) {
-			int pixel = *(uintptr_t *)(bmp->memory+((y*bmp->w+x)*4));
+			int pixel = *(uint32_t *)(bmp->memory+((y*bmp->w+x)*4));
 			if ((pixel & 0xFFFFFF) == 0xFF00FF) {
 				pixel = 0xFF00FF;
 			}
 			else {
 				pixel = (pixel & 0xFFFFFF) | 0xFF000000;
 			}
-			*(uintptr_t *)(bmp->memory+((y*bmp->w+x)*4)) = pixel;
+			*(uint32_t *)(bmp->memory+((y*bmp->w+x)*4)) = pixel;
 		}
 	}
 }
@@ -389,8 +387,8 @@ static void d3d_copy_texture_data(LPDIRECT3DTEXTURE8 texture, AL_BITMAP *bmp)
 	// FIXME: use proper getpixel
 	for (y = 0; y < bmp->h; y++) {
 		for (x = 0; x < bmp->w; x++) {
-			int p = *(uintptr_t *)(locked_rect.pBits+locked_rect.Pitch*y+x*4);
-			*(uintptr_t *)(bmp->memory+(x+y*bmp->w)*4) = p;
+			int p = *(uint32_t *)(locked_rect.pBits+locked_rect.Pitch*y+x*4);
+			*(uint32_t *)(bmp->memory+(x+y*bmp->w)*4) = p;
 		}
 	}
 	IDirect3DTexture8_UnlockRect(texture, 0);
@@ -400,42 +398,60 @@ static void d3d_copy_texture_data(LPDIRECT3DTEXTURE8 texture, AL_BITMAP *bmp)
    }
 }
 
-static void d3d_copy_bitmap_data(AL_BITMAP *bmp, LPDIRECT3DTEXTURE8 texture)
+static void d3d_copy_bitmap_data(AL_BITMAP *bmp, LPDIRECT3DTEXTURE8 texture,
+	unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
    D3DLOCKED_RECT locked_rect;
+   RECT rect;
 
-   if (IDirect3DTexture8_LockRect(texture, 0, &locked_rect, NULL, 0) == D3D_OK) {
-	unsigned int x;
-	unsigned int y;
+   rect.left = x;
+   rect.top = y;
+   rect.right = x + width;
+   rect.bottom = y + height;
+
+   if (rect.right != pot(x + width))
+   	rect.right++;
+   if (rect.bottom != pot(y + height))
+   	rect.bottom++;
+
+   if (IDirect3DTexture8_LockRect(texture, 0, &locked_rect, &rect, 0) == D3D_OK) {
+	unsigned int cx;
+	unsigned int cy;
+	int p;
+	int d3d_pixel;
 	int p;
 	int d3d_pixel;
 	// FIXME: use proper getpixel
-	for (y = 0; y < bmp->h; y++) {
-		for (x = 0; x < bmp->w; x++) {
-			p = *(uintptr_t *)(bmp->memory+(x+y*bmp->w)*4);
+	for (cy = y; cy < y+height; cy++) {
+		for (cx = x; cx < x+width; cx++) {
+			p = *(uint32_t *)(bmp->memory+(cx+cy*bmp->w)*4);
 			d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
-				(getg32(p) << 8) | getb32(p);
-			*(uintptr_t *)
-				(locked_rect.pBits+(locked_rect.Pitch*y)+(x*4)) = d3d_pixel;
+			*(uint32_t *)
+				(locked_rect.pBits+(locked_rect.Pitch*cy)+(cx*4)) = d3d_pixel;
 		}
 	}
 	/* Copy an extra row so the texture ends nicely */
-	y = bmp->h;
-	for (x = 0; x <= bmp->w; x++) {
-		p = *(uintptr_t *)(bmp->memory+(MIN(bmp->w-1, x)+(MIN(bmp->h-1, y))*bmp->w)*4);
-		d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
-			(getg32(p) << 8) | getb32(p);
-		*(uintptr_t *)
-			(locked_rect.pBits+(locked_rect.Pitch*y)+(x*4)) = d3d_pixel;
+	if (rect.bottom >= bmp->h) {
+		cy = bmp->h;
+		for (cx = x; cx <= x+width; cx++) {
+			p = *(uint32_t *)(bmp->memory+(MIN(bmp->w-1, cx)+(MIN(bmp->h-1, cy))*bmp->w)*4);
+			d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
+				(getg32(p) << 8) | getb32(p);
+			*(uint32_t *)
+				(locked_rect.pBits+(locked_rect.Pitch*cy)+(cx*4)) = d3d_pixel;
+		}
 	}
+
 	/* Copy an extra column so the texture ends nicely */
-	x = bmp->w;
-	for (y = 0; y <= bmp->h; y++) {
-		p = *(uintptr_t *)(bmp->memory+(MIN(bmp->w-1, x)+(MIN(bmp->h-1, y))*bmp->w)*4);
-		d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
-			(getg32(p) << 8) | getb32(p);
-		*(uintptr_t *)
-			(locked_rect.pBits+(locked_rect.Pitch*y)+(x*4)) = d3d_pixel;
+	if (rect.right >= bmp->w) {
+		cx = bmp->w;
+		for (cy = y; cy <= y+height; cy++) {
+			p = *(uint32_t *)(bmp->memory+(MIN(bmp->w-1, cx)+(MIN(bmp->h-1, cy))*bmp->w)*4);
+			d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
+				(getg32(p) << 8) | getb32(p);
+			*(uint32_t *)
+				(locked_rect.pBits+(locked_rect.Pitch*cy)+(cx*4)) = d3d_pixel;
+		}
 	}
 	IDirect3DTexture8_UnlockRect(texture, 0);
    }
@@ -444,9 +460,11 @@ static void d3d_copy_bitmap_data(AL_BITMAP *bmp, LPDIRECT3DTEXTURE8 texture)
    }
 }
 
-static void d3d_do_upload(AL_BITMAP_D3D *d3d_bmp)
+static void d3d_do_upload(AL_BITMAP_D3D *d3d_bmp, int x, int y, int width,
+	int height)
 {
-	d3d_copy_bitmap_data((AL_BITMAP *)d3d_bmp, d3d_bmp->system_texture);
+	d3d_copy_bitmap_data((AL_BITMAP *)d3d_bmp, d3d_bmp->system_texture,
+		x, y, width, height);
 		
 	if (IDirect3DDevice8_UpdateTexture(_al_d3d_device,
 			(IDirect3DBaseTexture8 *)d3d_bmp->system_texture,
@@ -509,9 +527,11 @@ void _al_d3d_refresh_texture_memory()
 	for (i = 0; i < created_bitmaps._size; i++) {
 		AL_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
 		AL_BITMAP_D3D *bmp = *bptr;
+		AL_BITMAP *al_bmp = (AL_BITMAP *)bmp;
 		d3d_create_textures(bmp->texture_w, bmp->texture_h,
 			&bmp->video_texture, 0);
-		d3d_copy_bitmap_data((AL_BITMAP *)bmp, bmp->system_texture);
+		d3d_copy_bitmap_data(al_bmp, bmp->system_texture,
+			0, 0, al_bmp->w, al_bmp->h);
 		IDirect3DDevice8_UpdateTexture(_al_d3d_device,
 			(IDirect3DBaseTexture8 *)bmp->system_texture,
 			(IDirect3DBaseTexture8 *)bmp->video_texture);
@@ -520,21 +540,16 @@ void _al_d3d_refresh_texture_memory()
 
 // FIXME: need to do all the logic AllegroGL does, checking extensions,
 // proxy textures, formats, limits ...
-static void d3d_upload_bitmap(AL_BITMAP *bitmap)
+static void d3d_upload_bitmap(AL_BITMAP *bitmap, int x, int y,
+	int width, int height)
 {
 	AL_BITMAP_D3D *d3d_bmp = (void *)bitmap;
 	int w = bitmap->w;
 	int h = bitmap->h;
-	int x;
-	int y;
 
 	if (d3d_bmp->created != true) {
-		// Some drivers (like mine) need power of two textures.
-		//int tw = pot(w);
-		//int th = pot(h);
 		d3d_bmp->texture_w = pot(w);
 		d3d_bmp->texture_h = pot(h);
-
 		if (d3d_bmp->video_texture == 0)
 			d3d_create_textures(d3d_bmp->texture_w,
 			d3d_bmp->texture_h,
@@ -550,11 +565,10 @@ static void d3d_upload_bitmap(AL_BITMAP *bitmap)
 		d3d_bmp->created = true;
 	}
 
-	d3d_do_upload(d3d_bmp);
+	d3d_do_upload(d3d_bmp, x, y, width, height);
 }
 
-static AL_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE8 surface,
-	bool upload)
+static AL_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE8 surface)
 {
 	D3DSURFACE_DESC desc;
 	D3DLOCKED_RECT locked_rect;
@@ -573,7 +587,6 @@ static AL_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE8 surface,
 
 	bmp = _al_d3d_create_bitmap(0, desc.Width, desc.Height, 0);
 	// FIXME support other pixel formats
-	bmp->memory = _AL_MALLOC(desc.Width * desc.Height * 4);
 
 	for (y = 0; y < desc.Height; y++) {
 		memcpy(
@@ -584,10 +597,6 @@ static AL_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE8 surface,
 	}
 
 	IDirect3DSurface8_UnlockRect(surface);
-
-	if (upload) {
-		d3d_upload_bitmap(bmp);
-	}
 
 	return bmp;
 }
@@ -624,7 +633,7 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 	if (flag & AL_MASK_SOURCE || flag & AL_MASK_INV_SOURCE) {
 		AL_BITMAP *munged_bmp = d3d_munge_bitmap(flag, src, src->w, src->h, 0, 0, 0, src->w, src->h, 0);
 
-		d3d_upload_bitmap(munged_bmp);
+		d3d_upload_bitmap(munged_bmp, 0, 0, src->w, src->h);
 
 		flag = flag & ~(AL_MASK_SOURCE | AL_MASK_INV_SOURCE);
 
@@ -690,7 +699,7 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 			AL_BITMAP *munged_bmp = d3d_munge_bitmap(flag, src, src->w, src->h, locked_rect.pBits, dx, dy, dw, dh, locked_rect.Pitch);
 			IDirect3DSurface8_UnlockRect(read_surface);
 			IDirect3DSurface8_Release(read_surface);
-			d3d_upload_bitmap(munged_bmp);
+			d3d_upload_bitmap(munged_bmp, 0, 0, dw, dh);
 			flag = flag & ~(AL_MASK_DEST | AL_MASK_INV_DEST);
 			start_x = sx * (dw / sw);
 			start_y = sy * (dh / sh);
@@ -719,7 +728,7 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 					return;
 				}
 
-				dest_as_bmp = d3d_create_bitmap_from_surface(dest_surface, false);
+				dest_as_bmp = d3d_create_bitmap_from_surface(dest_surface);
 
 				if (!dest_as_bmp) {
 					IDirect3DSurface8_Release(dest_surface);
@@ -728,7 +737,7 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 
 				d3d_remove_mask_alpha(flag, dest_as_bmp);
 
-				d3d_upload_bitmap(dest_as_bmp);
+				d3d_upload_bitmap(dest_as_bmp, 0, 0, dest_as_bmp->w, dest_as_bmp->h);
 			}
 			else {
 				if (IDirect3DTexture8_GetSurfaceLevel(d3d_dest->system_texture, 0, &dest_surface) != D3D_OK) {
@@ -754,7 +763,7 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 					return;
 				}
 
-				dest_as_bmp = d3d_create_bitmap_from_surface(dest_surface, false);
+				dest_as_bmp = d3d_create_bitmap_from_surface(dest_surface);
 
 				if (!dest_as_bmp) {
 					TRACE("d3d_blit_real: d3d_create_bitmap_from_surface failed (MASK_DEST, rotated).\n");
@@ -766,7 +775,7 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 
 				d3d_remove_mask_alpha(flag, dest_as_bmp);
 
-				d3d_upload_bitmap(dest_as_bmp);
+				d3d_upload_bitmap(dest_as_bmp, 0, 0, dest_as_bmp->w, dest_as_bmp->h);
 
 				_al_d3d_get_current_ortho_projection_parameters(&old_ortho_w, &old_ortho_h);
 				_al_d3d_set_ortho_projection(
@@ -1000,6 +1009,17 @@ static void d3d_blit_region_3(int flag,
 		dest, dest_x, dest_y, dest_w, dest_h);
 }
 
+static void d3d_put_pixel(int flag, AL_BITMAP *bitmap, int x, int y,
+	AL_COLOR *color)
+{
+	*(uint32_t *)(bitmap->memory+(y*bitmap->w+x)*4) = makeacol32(
+		color->r*255, color->g*255, color->b*255, color->a*255);
+
+	if (bitmap->locked == false) {
+		d3d_do_upload((AL_BITMAP_D3D *)bitmap, x, y, 1, 1);
+	}
+}
+
 static void d3d_download_bitmap(AL_BITMAP *bitmap)
 {
 }
@@ -1024,8 +1044,74 @@ static void d3d_destroy_bitmap(AL_BITMAP *bitmap)
    }
 }
 
+/*
+ * Upload a rectangle of a compatibility bitmap.
+ */
+static void d3d_upload_compat_bitmap(BITMAP *bitmap, int x, int y, int w, int h)
+{
+	AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap->al_bitmap;
+	int cx;
+	int cy;
+	int pixel;
+	AL_COLOR d3d_pixel;
+
+	al_lock_bitmap((AL_BITMAP *)d3d_bmp, x, y, w, h);
+
+	for (cy = y; cy < y+h; cy++) {
+		if (bitmap_color_depth(bitmap) == 32) {
+			for (cx = x; cx < x+w; cx++) {
+				pixel = _getpixel32(bitmap, cx, cy);
+				AL_PIXEL32_TO_COLOR(pixel, d3d_pixel);
+				al_put_pixel(0, (AL_BITMAP *)d3d_bmp, cx, cy, &d3d_pixel);
+			}
+		}
+		if (bitmap_color_depth(bitmap) == 24) {
+			for (cx = x; cx < x+w; cx++) {
+				pixel = _getpixel24(bitmap, cx, cy);
+				AL_PIXEL24_TO_COLOR(pixel, d3d_pixel);
+				al_put_pixel(0, (AL_BITMAP *)d3d_bmp, cx, cy, &d3d_pixel);
+			}
+		}
+		if (bitmap_color_depth(bitmap) == 16) {
+			for (cx = x; cx < x+w; cx++) {
+				pixel = _getpixel16(bitmap, cx, cy);
+				AL_PIXEL16_TO_COLOR(pixel, d3d_pixel);
+				al_put_pixel(0, (AL_BITMAP *)d3d_bmp, cx, cy, &d3d_pixel);
+			}
+		}
+		if (bitmap_color_depth(bitmap) == 15) {
+			for (cx = x; cx < x+w; cx++) {
+				pixel = _getpixel15(bitmap, cx, cy);
+				AL_PIXEL15_TO_COLOR(pixel, d3d_pixel);
+				al_put_pixel(0, (AL_BITMAP *)d3d_bmp, cx, cy, &d3d_pixel);
+			}
+		}
+		if (bitmap_color_depth(bitmap) == 8) {
+			for (cx = x; cx < x+w; cx++) {
+				pixel = _getpixel(bitmap, cx, cy);
+				AL_PIXEL8_TO_COLOR(pixel, d3d_pixel);
+				al_put_pixel(0, (AL_BITMAP *)d3d_bmp, cx, cy, &d3d_pixel);
+			}
+		}
+	}
+
+	al_unlock_bitmap((AL_BITMAP *)d3d_bmp);
+
+	if (d3d_bmp->is_screen) {
+		al_blit(0, (AL_BITMAP *)bitmap->al_bitmap, 0, 0, 0);
+
+		al_flip();
+	}
+}
+
+static void d3d_make_compat_screen(AL_BITMAP *bitmap)
+{
+	AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap;
+	d3d_bmp->is_screen = true;
+}
+
 /* Obtain a reference to this driver. */
-AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
+AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(int flag)
 {
    if (vt) return vt;
 
@@ -1038,9 +1124,12 @@ AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
    vt->rotate_bitmap = d3d_rotate_bitmap;
    vt->rotate_scaled = d3d_rotate_scaled;
    vt->blit_region_3 = d3d_blit_region_3;
+   vt->put_pixel = d3d_put_pixel;
    vt->upload_bitmap = d3d_upload_bitmap;
    vt->download_bitmap = d3d_download_bitmap;
    vt->destroy_bitmap = d3d_destroy_bitmap;
+   vt->upload_compat_bitmap = d3d_upload_compat_bitmap;
+   vt->make_compat_screen = d3d_make_compat_screen;
 
    return vt;
 }

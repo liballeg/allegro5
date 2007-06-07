@@ -553,6 +553,10 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
 
    pack_fclose(f);
 
+   if (bmp && bmp->needs_upload) {
+      bmp->al_bitmap->vt->upload_compat_bitmap(bmp, 0, 0, bmp->w, bmp->h);
+   }
+
    return bmp;
 }
 

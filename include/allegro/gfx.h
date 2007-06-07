@@ -23,6 +23,8 @@
 #include "base.h"
 #include "fixed.h"
 
+#include "allegro/internal/aintern_bitmap.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
@@ -267,6 +269,8 @@ AL_ARRAY(_VTABLE_INFO, _vtable_list);
 
 typedef struct BITMAP            /* a bitmap structure */
 {
+   struct AL_BITMAP *al_bitmap;  /* new bitmap structure */
+   bool needs_upload;            /* true if upload needed after change */
    int w, h;                     /* width and height in pixels */
    int clip;                     /* flag if clipping is turned on */
    int cl, cr, ct, cb;           /* clip left, right, top and bottom values */

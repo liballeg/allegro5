@@ -79,6 +79,7 @@ void al_acknowledge_resize(void)
    _al_current_display->vt->acknowledge_resize(_al_current_display);
 }
 
+#if 0
 /* destroy_bitmap:
  *  Destroys a memory bitmap.
  */
@@ -196,3 +197,4 @@ int al_enable_triple_buffer(AL_DISPLAY *display)
 int al_request_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
 {
 }
+#endif

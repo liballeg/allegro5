@@ -55,8 +55,9 @@ typedef struct AL_DISPLAY {   /* Allegro display struct */
 } AL_DISPLAY;
 #endif
 
-AL_VAR(AL_DISPLAY *, al_main_display);
+//AL_VAR(AL_DISPLAY *, al_main_display);
 
+/*
 AL_FUNC(BITMAP *, al_create_video_bitmap, (AL_DISPLAY *display, int width, int height));
 AL_FUNC(BITMAP *, al_create_system_bitmap, (AL_DISPLAY *display, int width, int height));
 
@@ -79,7 +80,31 @@ AL_FUNC(void, al_enable_vsync, (AL_DISPLAY *display));
 AL_FUNC(void, al_disable_vsync, (AL_DISPLAY *display));
 AL_FUNC(void, al_toggle_vsync, (AL_DISPLAY *display));
 AL_FUNC(int, al_vsync_is_enabled, (const AL_DISPLAY *display));
+*/
 
+AL_FUNC(BITMAP *, al_create_video_bitmap, ( int width, int height));
+AL_FUNC(BITMAP *, al_create_system_bitmap, ( int width, int height));
+
+AL_FUNC(int, al_scroll_display, (int x, int y));
+AL_FUNC(int, al_request_scroll, (int x, int y));
+AL_FUNC(int, al_poll_scroll, ());
+AL_FUNC(int, al_show_video_bitmap, (BITMAP *bitmap));
+AL_FUNC(int, al_request_video_bitmap, (BITMAP *bitmap));
+AL_FUNC(int, al_enable_triple_buffer, ());
+/*
+AL_FUNC(AL_DISPLAY *, al_create_display, (int driver, int flags, int depth, int w, int h));
+AL_FUNC(int, al_set_update_method, (int method));
+AL_FUNC(void, al_destroy_display, ());
+
+AL_FUNC(void, al_flip_display, ());
+AL_FUNC(BITMAP *, al_get_buffer, (const AL_DISPLAY *display));
+AL_FUNC(int, al_get_update_method, (const AL_DISPLAY *display));
+
+AL_FUNC(void, al_enable_vsync, (AL_DISPLAY *display));
+AL_FUNC(void, al_disable_vsync, (AL_DISPLAY *display));
+AL_FUNC(void, al_toggle_vsync, (AL_DISPLAY *display));
+AL_FUNC(int, al_vsync_is_enabled, (const AL_DISPLAY *display));
+*/
 #ifdef __cplusplus
    }
 #endif

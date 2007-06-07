@@ -246,25 +246,17 @@ static AL_DISPLAY *d3d_create_display(int w, int h, int flags)
 
 	_al_d3d_last_created_display = d;
 
-	printf("creating window\n");
-
 	d->window = _al_d3d_create_window(w, h);
-
-	printf("created window\n");
 
 	if (d3d_create_swap_chain(d) != 0) {
 		return 0;
 	}
-
-	printf("created swap chain\n");
 
 	/* Keep track of the displays created */
 	add = _al_vector_alloc_back(&d3d_created_displays);
 	*add = d;
 
 	_al_d3d_win_grab_input();
-
-	printf("created display\n");
 
 	return (AL_DISPLAY *)d;
 }
@@ -433,7 +425,8 @@ static void d3d_acknowledge_resize(AL_DISPLAY *d)
 AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d, int w, int h, int flags)
 {
    AL_BITMAP_D3D *bitmap = (AL_BITMAP_D3D*)_AL_MALLOC(sizeof *bitmap);
-   bitmap->bitmap.vt = _al_bitmap_d3d_driver();
+   bitmap->bitmap.memory = _AL_MALLOC(w * h * 4);
+   bitmap->bitmap.vt = _al_bitmap_d3d_driver(flags);
    bitmap->bitmap.w = w;
    bitmap->bitmap.h = h;
    bitmap->bitmap.flags = flags;
@@ -441,6 +434,8 @@ AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d, int w, int h, int flags)
    bitmap->video_texture = 0;
    bitmap->system_texture = 0;
    bitmap->created = false;
+   bitmap->bitmap.pixel_format = AL_PIXELFORMAT_A8R8G8B8; // FIXME
+   bitmap->is_screen = false;
    return &bitmap->bitmap;
 }
 

@@ -51,9 +51,11 @@ AL_BITMAP *al_create_bitmap(int w, int h, int flags)
 {
    AL_BITMAP *bitmap = _al_current_display->vt->create_bitmap(
        _al_current_display, w, h, flags);
-   bitmap->memory = _AL_MALLOC(w * h * 4);
-   memset(bitmap->memory, 0, w * h * 4);
-   bitmap->vt->upload_bitmap(bitmap);
+   if (!bitmap->memory) {
+   	bitmap->memory = _AL_MALLOC(w * h * 4);
+        memset(bitmap->memory, 0, w * h * 4);
+   }
+   bitmap->vt->upload_bitmap(bitmap, 0, 0, w, h);
    return bitmap;
 }
 
@@ -112,7 +114,7 @@ AL_BITMAP *al_load_memory_bitmap(char const *filename, int flags)
 AL_BITMAP *al_load_bitmap(char const *filename, int flags)
 {
    AL_BITMAP *bitmap = al_load_memory_bitmap(filename, flags);
-   bitmap->vt->upload_bitmap(bitmap);
+   bitmap->vt->upload_bitmap(bitmap, 0, 0, bitmap->w, bitmap->h);
    return bitmap;
 }
 
@@ -183,4 +185,28 @@ void al_draw_sub_bitmap(AL_BITMAP *bitmap, float x, float y,
 void al_set_light_color(AL_BITMAP *bitmap, AL_COLOR *light_color)
 {
 	memcpy(&bitmap->light_color, light_color, sizeof(AL_COLOR));
+}
+
+void al_lock_bitmap(AL_BITMAP *bitmap, int x, int y, int width, int height)
+{
+	bitmap->locked = true;
+	bitmap->lock_x = x;
+	bitmap->lock_y = y;
+	bitmap->lock_width = width;
+	bitmap->lock_height = height;
+}
+
+void al_unlock_bitmap(AL_BITMAP *bitmap)
+{
+	bitmap->vt->upload_bitmap(bitmap,
+		bitmap->lock_x,
+		bitmap->lock_y,
+		bitmap->lock_width,
+		bitmap->lock_height);
+	bitmap->locked = false;
+}
+
+void al_put_pixel(int flag, AL_BITMAP *bitmap, int x, int y, AL_COLOR *color)
+{
+	bitmap->vt->put_pixel(flag, bitmap, x, y, color);
 }

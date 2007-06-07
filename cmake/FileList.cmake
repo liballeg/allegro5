@@ -11,6 +11,7 @@ set(ALLEGRO_SRC_FILES
     src/datafile.c
     src/dataregi.c
     src/digmid.c
+    src/display.c
     src/display_new.c
     src/dither.c
     src/dispsw.c

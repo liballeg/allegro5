@@ -17,10 +17,12 @@
 
 #include "allegro.h"
 
+/*
 void blit(BITMAP *source, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    //al_blit_region(0, source, s_x, s_y, w, h, dest, d_x, d_y);
 }
+*/
 
 void masked_blit(BITMAP *source, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {

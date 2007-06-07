@@ -34,6 +34,8 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    gfx_driver = al_main_display->gfx_driver;
    return 0;
   */ 
+
+  do_set_gfx_mode(card, w, h, 0);
   return -1;
 }
 
@@ -41,44 +43,44 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
 BITMAP *create_video_bitmap(int width, int height)
 {
-   return al_create_video_bitmap(al_main_display, width, height);
+   //return al_create_video_bitmap(al_main_display, width, height);
 }
 
 
 
 BITMAP *create_system_bitmap(int width, int height)
 {
-   return al_create_system_bitmap(al_main_display, width, height);
+ //  return al_create_system_bitmap(al_main_display, width, height);
 }
 
 
 
 int scroll_screen(int x, int y)
 {
-   return al_scroll_display(al_main_display, x, y);
+   //return al_scroll_display(al_main_display, x, y);
 }
 
 int request_scroll(int x, int y)
 {
-   return al_request_scroll(al_main_display, x, y);
+   //return al_request_scroll(al_main_display, x, y);
 }
 
 int poll_scroll(void)
 {
-   return al_poll_scroll(al_main_display);
+   //return al_poll_scroll(al_main_display);
 }
 
 int show_video_bitmap(BITMAP *bitmap)
 {
-   return al_show_video_bitmap(al_main_display, bitmap);
+   //return al_show_video_bitmap(al_main_display, bitmap);
 }
 
 int request_video_bitmap(BITMAP *bitmap)
 {
-   return al_request_video_bitmap(al_main_display, bitmap);
+   //return al_request_video_bitmap(al_main_display, bitmap);
 }
 
 int enable_triple_buffer(void)
 {
-   return al_enable_triple_buffer(al_main_display);
+   //return al_enable_triple_buffer(al_main_display);
 }

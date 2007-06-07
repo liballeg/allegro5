@@ -35,7 +35,7 @@
  *  windows should use their own, more descriptive, variables to avoid
  *  confusion.
  */
-AL_DISPLAY *al_main_display = NULL;
+//AL_DISPLAY *al_main_display = NULL;
 
 
 
@@ -48,7 +48,7 @@ typedef struct VRAM_BITMAP             /* list of video memory bitmaps */
    int x, y, w, h;
    BITMAP *bmp;
    struct VRAM_BITMAP *next_x, *next_y;
-   AL_DISPLAY *root_display;
+   //AL_DISPLAY *root_display;
 } VRAM_BITMAP;
 
 static VRAM_BITMAP *vram_bitmap_list = NULL;
@@ -56,7 +56,7 @@ static VRAM_BITMAP *vram_bitmap_list = NULL;
 typedef struct SYSTEM_BITMAP
 {
    BITMAP *bmp;
-   AL_DISPLAY *root_display;
+   //AL_DISPLAY *root_display;
 } SYSTEM_BITMAP;
 
 static _AL_VECTOR sysbmp_list = _AL_VECTOR_INITIALIZER(SYSTEM_BITMAP);
@@ -67,6 +67,9 @@ static _AL_VECTOR sysbmp_list = _AL_VECTOR_INITIALIZER(SYSTEM_BITMAP);
 static int failed_bitmap_w = BMP_MAX_SIZE;
 static int failed_bitmap_h = BMP_MAX_SIZE;
 
+
+static AL_DISPLAY *new_display;
+static AL_BITMAP *new_screen;
 
 
 /* destroy_video_bitmaps:
@@ -84,12 +87,13 @@ static void destroy_video_bitmaps(void)
  *  Creates a video memory bitmap out of the specified region
  *  of the larger screen surface, returning a pointer to it.
  */
-static BITMAP *add_vram_block(AL_DISPLAY *display, int x, int y, int w, int h)
+//static BITMAP *add_vram_block(AL_DISPLAY *display, int x, int y, int w, int h)
+static BITMAP *add_vram_block(int x, int y, int w, int h)
 {
    VRAM_BITMAP *b, *new_b;
    VRAM_BITMAP **last_p;
 
-   ASSERT(display);
+   //ASSERT(display);
 
    new_b = _AL_MALLOC(sizeof(VRAM_BITMAP));
    if (!new_b)
@@ -99,9 +103,11 @@ static BITMAP *add_vram_block(AL_DISPLAY *display, int x, int y, int w, int h)
    new_b->y = y;
    new_b->w = w;
    new_b->h = h;
-   new_b->root_display = display;
+   //new_b->root_display = display;
 
-   new_b->bmp = create_sub_bitmap(display->screen, x, y, w, h);
+   //new_b->bmp = create_sub_bitmap(display->screen, x, y, w, h);
+   new_b->bmp = create_sub_bitmap(screen, x, y, w, h);
+
    if (!new_b->bmp) {
       _AL_FREE(new_b);
       return NULL;
@@ -150,15 +156,17 @@ static BITMAP *add_vram_block(AL_DISPLAY *display, int x, int y, int w, int h)
  *  requested bitmap, so that next time we can detect very quickly that this
  *  size is too large (this needs to be maintained when destroying bitmaps).
  */
-BITMAP *al_create_video_bitmap(AL_DISPLAY *display, int width, int height)
+//BITMAP *al_create_video_bitmap(AL_DISPLAY *display, int width, int height)
+BITMAP *al_create_video_bitmap(int width, int height)
 {
    VRAM_BITMAP *active_list, *b, *vram_bitmap;
    VRAM_BITMAP **last_p;
    BITMAP *bmp;
    int x = 0, y = 0;
 
-   ASSERT(display != NULL);
-   ASSERT(display->gfx_driver != NULL);
+   //ASSERT(display != NULL);
+   //ASSERT(display->gfx_driver != NULL);
+   ASSERT(gfx_driver != NULL);
    ASSERT(width >= 0);
    ASSERT(height > 0);
    
@@ -166,8 +174,10 @@ BITMAP *al_create_video_bitmap(AL_DISPLAY *display, int width, int height)
       return NULL;
 
    /* let the driver handle the request if it can */
-   if (display->gfx_driver->create_video_bitmap) {
-      bmp = display->gfx_driver->create_video_bitmap(width, height);
+   //if (display->gfx_driver->create_video_bitmap) {
+   if (gfx_driver->create_video_bitmap) {
+      //bmp = display->gfx_driver->create_video_bitmap(width, height);
+      bmp = gfx_driver->create_video_bitmap(width, height);
       if (!bmp)
 	 return NULL;
 
@@ -177,7 +187,7 @@ BITMAP *al_create_video_bitmap(AL_DISPLAY *display, int width, int height)
       b->w = 0;
       b->h = 0;
       b->bmp = bmp;
-      b->root_display = display;
+      //b->root_display = display;
       b->next_y = vram_bitmap_list;
       vram_bitmap_list = b;
 
@@ -225,7 +235,8 @@ BITMAP *al_create_video_bitmap(AL_DISPLAY *display, int width, int height)
        */
       for (b = active_list; b; b = b->next_x) {
 	 if (x+width <= b->x)  /* hole is big enough? */
-	    return add_vram_block(display, x, y, width, height);
+	    //return add_vram_block(display, x, y, width, height);
+	    return add_vram_block(x, y, width, height);
 
          /* Move search x-position to the right edge of the
           * skipped bitmap if we are not already past it.
@@ -242,7 +253,8 @@ BITMAP *al_create_video_bitmap(AL_DISPLAY *display, int width, int height)
        * enough hole to the right of the rightmost bitmap.
        */
       if (b == NULL)
-	 return add_vram_block(display, x, y, width, height);
+	 //return add_vram_block(display, x, y, width, height);
+	 return add_vram_block(x, y, width, height);
 
       /* Move search y-position to the topmost bottom edge
        * of the bitmaps intersecting the stripe.
@@ -284,25 +296,29 @@ BITMAP *al_create_video_bitmap(AL_DISPLAY *display, int width, int height)
 /* Function: al_create_system_bitmap
  *  Attempts to make a system-specific (eg. DirectX surface) bitmap object.
  */
-BITMAP *al_create_system_bitmap(AL_DISPLAY *display, int width, int height)
+//BITMAP *al_create_system_bitmap(AL_DISPLAY *display, int width, int height)
+BITMAP *al_create_system_bitmap(int width, int height)
 {
    SYSTEM_BITMAP *sysbmp;
    
    ASSERT(width >= 0);
    ASSERT(height > 0);
-   ASSERT(display);
-   ASSERT(display->gfx_driver != NULL);
+   //ASSERT(display);
+   //ASSERT(display->gfx_driver != NULL);
+   ASSERT(gfx_driver != NULL);
 
 
    sysbmp = _al_vector_alloc_back(&sysbmp_list);
-   if (display->gfx_driver->create_system_bitmap) {
-      sysbmp->bmp = display->gfx_driver->create_system_bitmap(width, height);
+   //if (display->gfx_driver->create_system_bitmap) {
+   if (gfx_driver->create_system_bitmap) {
+      //sysbmp->bmp = display->gfx_driver->create_system_bitmap(width, height);
+      sysbmp->bmp = gfx_driver->create_system_bitmap(width, height);
    } else {
       sysbmp->bmp = create_bitmap(width, height);
       sysbmp->bmp->id |= BMP_ID_SYSTEM;
    }
 
-   sysbmp->root_display = display;
+   //sysbmp->root_display = display;
 
    return sysbmp->bmp;
 }
@@ -333,10 +349,13 @@ void destroy_bitmap(BITMAP *bitmap)
 
 	       if (pos->x < 0) {
 		  /* the driver is in charge of this object */
-		  ASSERT(pos->root_display);
-		  ASSERT(pos->root_display->gfx_driver);
-		  ASSERT(pos->root_display->gfx_driver->destroy_video_bitmap);
-		  pos->root_display->gfx_driver->destroy_video_bitmap(bitmap);
+		  //ASSERT(pos->root_display);
+		  //ASSERT(pos->root_display->gfx_driver);
+		  ASSERT(gfx_driver);
+		  //ASSERT(pos->root_display->gfx_driver->destroy_video_bitmap);
+		  ASSERT(gfx_driver->destroy_video_bitmap);
+		  //pos->root_display->gfx_driver->destroy_video_bitmap(bitmap);
+		  gfx_driver->destroy_video_bitmap(bitmap);
 		  _AL_FREE(pos);
 		  return;
 	       } 
@@ -369,11 +388,14 @@ void destroy_bitmap(BITMAP *bitmap)
          for (c = 0; c < _al_vector_size(&sysbmp_list); c++) {
             SYSTEM_BITMAP *sysbmp = _al_vector_ref(&sysbmp_list, c);
             if (sysbmp->bmp == bitmap) {
-	       ASSERT(sysbmp->root_display != NULL);
-	       ASSERT(sysbmp->root_display->gfx_driver != NULL);
+	       //ASSERT(sysbmp->root_display != NULL);
+	       //ASSERT(sysbmp->root_display->gfx_driver != NULL);
+	       ASSERT(gfx_driver != NULL);
 
-	       if (sysbmp->root_display->gfx_driver->destroy_system_bitmap) {
-	          sysbmp->root_display->gfx_driver->destroy_system_bitmap(bitmap);
+	       //if (sysbmp->root_display->gfx_driver->destroy_system_bitmap) {
+	       if (gfx_driver->destroy_system_bitmap) {
+	          //sysbmp->root_display->gfx_driver->destroy_system_bitmap(bitmap);
+	          gfx_driver->destroy_system_bitmap(bitmap);
                   _al_vector_delete_at(&sysbmp_list, c);
 	          return;
 	       }
@@ -442,12 +464,12 @@ GFX_VTABLE *_get_vtable(int color_depth)
 static void shutdown_gfx(void)
 {
    /* Destroy all remaining displays */
-   while (!_al_vector_is_empty(&display_list)) {
-      AL_DISPLAY **display = _al_vector_ref_back(&display_list);
+   //while (!_al_vector_is_empty(&display_list)) {
+     // AL_DISPLAY **display = _al_vector_ref_back(&display_list);
       
-      al_destroy_display(*display);
-   }
-   _al_vector_free(&display_list);
+     // al_destroy_display(*display);
+  // }
+  // _al_vector_free(&display_list);
    
    if (system_driver->restore_console_state)
       system_driver->restore_console_state();
@@ -500,14 +522,16 @@ static GFX_DRIVER *get_gfx_driver_from_id(int card, _DRIVER_INFO *driver_list)
 /* init_gfx_driver:
  *  Helper function for initializing a graphics driver.
  */
-static BITMAP *init_gfx_driver(AL_DISPLAY *display, GFX_DRIVER *drv, int w, int h, int depth, int flags)
+//static BITMAP *init_gfx_driver(AL_DISPLAY *display, GFX_DRIVER *drv, int w, int h, int depth, int flags)
+static BITMAP *init_gfx_driver(GFX_DRIVER *drv, int w, int h, int depth, int flags)
 {
    int v_w = 0; 
    int v_h = 0;
    drv->name = drv->desc = get_config_text(drv->ascii_name);
 
    /* set gfx_driver so that it is visible when initializing the driver */
-   display->gfx_driver = drv;
+   //display->gfx_driver = drv;
+   gfx_driver = drv;
 
    #ifdef ALLEGRO_VRAM_SINGLE_SURFACE
    if (flags&(AL_UPDATE_TRIPLE_BUFFER|AL_UPDATE_PAGE_FLIP)) {
@@ -526,7 +550,8 @@ static BITMAP *init_gfx_driver(AL_DISPLAY *display, GFX_DRIVER *drv, int w, int 
  *  tries to set the graphics mode if a matching driver is found. Returns TRUE if
  *  at least one matching driver was found, FALSE otherwise.
  */
-static int get_config_gfx_driver(AL_DISPLAY *display, char *gfx_card, int w, int h, int v_w, int v_h, int depth, int flags, int drv_flags, _DRIVER_INFO *driver_list)
+//static int get_config_gfx_driver(AL_DISPLAY *display, char *gfx_card, int w, int h, int v_w, int v_h, int depth, int flags, int drv_flags, _DRIVER_INFO *driver_list)
+static int get_config_gfx_driver(char *gfx_card, int w, int h, int v_w, int v_h, int depth, int flags, int drv_flags, _DRIVER_INFO *driver_list)
 {
    char buf[512], tmp[64];
    GFX_DRIVER *drv;
@@ -565,9 +590,11 @@ static int get_config_gfx_driver(AL_DISPLAY *display, char *gfx_card, int w, int
 
 	 if (drv && gfx_driver_is_valid(drv, drv_flags)) {
 	    found = TRUE;
-	    display->screen = init_gfx_driver(display, drv, w, h, depth, flags);
+	    //display->screen = init_gfx_driver(display, drv, w, h, depth, flags);
+	    screen = init_gfx_driver(drv, w, h, depth, flags);
 
-	    if (display->screen)
+	    //if (display->screen)
+	    if (screen)
 	       break;
 	 }
       }
@@ -596,8 +623,10 @@ static int get_config_gfx_driver(AL_DISPLAY *display, char *gfx_card, int w, int
  *  set the mode. If unable to select an appropriate mode, this function 
  *  returns -1.
  */
-static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int depth, int flags)
+//static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int depth, int flags)
+int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 {
+#if 0
    static int allow_config = TRUE;
    extern void blit_end(void);
    _DRIVER_INFO *driver_list;
@@ -622,14 +651,16 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
 	 system_driver->get_gfx_safe_mode(&driver, &mode);
 
 	 /* try using the specified depth and resolution */
-	 if (do_set_gfx_mode(display, driver, w, h, depth, flags) == 0)
+	 //if (do_set_gfx_mode(display, driver, w, h, depth, flags) == 0)
+	 if (do_set_gfx_mode(driver, w, h, depth, flags) == 0)
 	    return 0;
 
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, buf);
 
 	 /* finally use the safe settings */
 	 set_color_depth(mode.bpp);
-	 if (do_set_gfx_mode(display, driver, mode.width, mode.height, depth, flags) == 0)
+	 //if (do_set_gfx_mode(display, driver, mode.width, mode.height, depth, flags) == 0)
+	 if (do_set_gfx_mode(driver, mode.width, mode.height, depth, flags) == 0)
 	    return 0;
 
 	 ASSERT(FALSE);  /* the safe graphics mode must always work */
@@ -639,7 +670,8 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
 	 allow_config = FALSE;
 	 _safe_gfx_mode_change = 1;
 
-	 ret = do_set_gfx_mode(display, GFX_AUTODETECT, w, h, depth, flags);
+	 //ret = do_set_gfx_mode(display, GFX_AUTODETECT, w, h, depth, flags);
+	 ret = do_set_gfx_mode(GFX_AUTODETECT, w, h, depth, flags);
 
 	 _safe_gfx_mode_change = 0;
 	 allow_config = TRUE;
@@ -649,7 +681,8 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
       }
 
       /* failing to set GFX_SAFE is a fatal error */
-      do_set_gfx_mode(display, GFX_TEXT, 0, 0, 0, 0);
+      //do_set_gfx_mode(display, GFX_TEXT, 0, 0, 0, 0);
+      do_set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message(uconvert_ascii("%s\n", tmp1), get_config_text("Fatal error: unable to set GFX_SAFE"));
       return -1;
    }
@@ -675,27 +708,39 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
    _screen_split_position = 0;
 
    /* close down any existing graphics driver */
-   if (display->gfx_driver) {
+   //if (display->gfx_driver) {
+   if (gfx_driver) {
       if (_al_linker_mouse)
          _al_linker_mouse->show_mouse(NULL);
 
       destroy_video_bitmaps();
       
-      bmp_read_line(display->screen, 0);
-      bmp_write_line(display->screen, 0);
-      bmp_unwrite_line(display->screen);
+      //bmp_read_line(display->screen, 0);
+      //bmp_write_line(display->screen, 0);
+      //bmp_unwrite_line(display->screen);
+      bmp_read_line(screen, 0);
+      bmp_write_line(screen, 0);
+      bmp_unwrite_line(screen);
 
-      if (display->gfx_driver->scroll)
-	 display->gfx_driver->scroll(0, 0);
+      //if (display->gfx_driver->scroll)
+      if (gfx_driver->scroll)
+	 //display->gfx_driver->scroll(0, 0);
+	 gfx_driver->scroll(0, 0);
 
-      if (display->gfx_driver->exit)
-	 display->gfx_driver->exit(display->screen);
+      //if (display->gfx_driver->exit)
+      if (gfx_driver->exit)
+	 //display->gfx_driver->exit(display->screen);
+	 gfx_driver->exit(screen);
 
-      destroy_bitmap(display->screen);
+      //destroy_bitmap(display->screen);
+      destroy_bitmap(screen);
 
-      display->gfx_driver = NULL;
-      display->screen = NULL;
-      display->gfx_capabilities = 0;
+      //display->gfx_driver = NULL;
+      //display->screen = NULL;
+      //display->gfx_capabilities = 0;
+      gfx_driver = NULL;
+      screen = NULL;
+      gfx_capabilities = 0;
    }
 
    _set_current_refresh_rate(0);
@@ -743,11 +788,13 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
       if (allow_config) {
 	 /* try the gfx_card variable if GFX_AUTODETECT or GFX_AUTODETECT_FULLSCREEN was selected */
 	 if (!(drv_flags & GFX_DRIVER_WINDOWED_FLAG))
-	    found = get_config_gfx_driver(display, uconvert_ascii("gfx_card", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
+	    //found = get_config_gfx_driver(display, uconvert_ascii("gfx_card", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
+	    found = get_config_gfx_driver(uconvert_ascii("gfx_card", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
 
 	 /* try the gfx_cardw variable if GFX_AUTODETECT or GFX_AUTODETECT_WINDOWED was selected */
 	 if (!(drv_flags & GFX_DRIVER_FULLSCREEN_FLAG) && !found)
-	    found = get_config_gfx_driver(display, uconvert_ascii("gfx_cardw", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
+	    //found = get_config_gfx_driver(display, uconvert_ascii("gfx_cardw", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
+	    found = get_config_gfx_driver(uconvert_ascii("gfx_cardw", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
       }
 
       /* go through the list of autodetected drivers if none was previously found */
@@ -759,9 +806,11 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
 	       drv = driver_list[c].driver;
 
 	       if (gfx_driver_is_valid(drv, drv_flags)) {
-		  display->screen = init_gfx_driver(display, drv, w, h, depth, flags);
+		  //display->screen = init_gfx_driver(display, drv, w, h, depth, flags);
+		  screen = init_gfx_driver(drv, w, h, depth, flags);
 
-		  if (display->screen)
+		  //if (display->screen)
+		  if (screen)
 		     break;
 	       }
 	    }
@@ -773,12 +822,15 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
       drv = get_gfx_driver_from_id(card, driver_list);
 
       if (drv)
-	 display->screen = init_gfx_driver(display, drv, w, h, depth, flags);
+	 //display->screen = init_gfx_driver(display, drv, w, h, depth, flags);
+	 screen = init_gfx_driver(drv, w, h, depth, flags);
    }
 
    /* gracefully handle failure */
-   if (!display->screen) {
-      display->gfx_driver = NULL;  /* set by init_gfx_driver() */
+   //if (!display->screen) {
+   if (!screen) {
+      //display->gfx_driver = NULL;  /* set by init_gfx_driver() */
+      gfx_driver = NULL;  /* set by init_gfx_driver() */
 
       if (!ugetc(allegro_error))
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unable to find a suitable graphics driver"));
@@ -790,21 +842,25 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
    }
    
    /* Set global variables */
-   screen = display->screen;
-   gfx_driver = display->gfx_driver;
+   //screen = display->screen;
+   //gfx_driver = display->gfx_driver;
 
    /* set the basic capabilities of the driver */
-   display->gfx_capabilities = gfx_capabilities;
+   //display->gfx_capabilities = gfx_capabilities;
 
    if ((VIRTUAL_W > SCREEN_W) || (VIRTUAL_H > SCREEN_H)) {
-      if (display->gfx_driver->scroll)
-	 display->gfx_capabilities |= GFX_CAN_SCROLL;
+      //if (display->gfx_driver->scroll)
+      if (gfx_driver->scroll)
+	 //display->gfx_capabilities |= GFX_CAN_SCROLL;
+	 gfx_capabilities |= GFX_CAN_SCROLL;
 
-      if ((display->gfx_driver->request_scroll) || (display->gfx_driver->request_video_bitmap))
-	 display->gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
+      //if ((display->gfx_driver->request_scroll) || (display->gfx_driver->request_video_bitmap))
+      if ((gfx_driver->request_scroll) || (gfx_driver->request_video_bitmap))
+	 //display->gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
+	 gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
    }
    
-   gfx_capabilities = display->gfx_capabilities;
+   //gfx_capabilities = display->gfx_capabilities;
 
    /* check whether we are instructed to disable vsync */
    dv = get_config_string(uconvert_ascii("graphics", tmp1),
@@ -838,12 +894,19 @@ static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int dept
    if (_al_linker_mouse)
       _al_linker_mouse->set_mouse_etc();
 
-   LOCK_DATA(display->gfx_driver, sizeof(GFX_DRIVER));
+   //LOCK_DATA(display->gfx_driver, sizeof(GFX_DRIVER));
+   LOCK_DATA(gfx_driver, sizeof(GFX_DRIVER));
 
    _register_switch_bitmap(screen, NULL);
 
    if (system_driver->display_switch_lock)
       system_driver->display_switch_lock(FALSE, FALSE);
+#endif
+
+   new_display = al_create_display(w, h, 0);
+   al_make_display_current(new_display);
+   screen = create_bitmap_ex(32, w, h);
+   screen->al_bitmap->vt->make_compat_screen(screen->al_bitmap);
 
    return 0;
 }
@@ -967,15 +1030,17 @@ BITMAP *_make_bitmap(int w, int h, uintptr_t addr, GFX_DRIVER *driver, int color
  *  can be scrolled. Note that a lot of VESA drivers can only handle
  *  horizontal scrolling in four pixel increments.
  */
-int al_scroll_display(AL_DISPLAY *display, int x, int y)
+//int al_scroll_display(AL_DISPLAY *display, int x, int y)
+int al_scroll_display(int x, int y)
 {
    int ret = 0;
    int h;
    
-   ASSERT(display);
+   //ASSERT(display);
 
    /* can driver handle hardware scrolling? */
-   if ((!display->gfx_driver->scroll) || (_dispsw_status))
+   //if ((!display->gfx_driver->scroll) || (_dispsw_status))
+   if ((!gfx_driver->scroll) || (_dispsw_status))
       return -1;
 
    /* clip x */
@@ -1002,7 +1067,8 @@ int al_scroll_display(AL_DISPLAY *display, int x, int y)
    }
 
    /* scroll! */
-   if (display->gfx_driver->scroll(x, y) != 0)
+   //if (display->gfx_driver->scroll(x, y) != 0)
+   if (gfx_driver->scroll(x, y) != 0)
       ret = -1;
 
    return ret;
@@ -1014,16 +1080,19 @@ int al_scroll_display(AL_DISPLAY *display, int x, int y)
  *  Attempts to initiate a triple buffered hardware scroll, which will
  *  take place during the next retrace. Returns 0 on success.
  */
-int al_request_scroll(AL_DISPLAY *display, int x, int y)
+//int al_request_scroll(AL_DISPLAY *display, int x, int y)
+int al_request_scroll(int x, int y)
 {
    int ret = 0;
    int h;
 
-   ASSERT(display);
+   //ASSERT(display);
 
    /* can driver handle triple buffering? */
-   if ((!display->gfx_driver->request_scroll) || (_dispsw_status)) {
-      al_scroll_display(display, x, y);
+   //if ((!display->gfx_driver->request_scroll) || (_dispsw_status)) {
+   if ((!gfx_driver->request_scroll) || (_dispsw_status)) {
+      //al_scroll_display(display, x, y);
+      al_scroll_display(x, y);
       return -1;
    }
 
@@ -1051,7 +1120,8 @@ int al_request_scroll(AL_DISPLAY *display, int x, int y)
    }
 
    /* scroll! */
-   if (display->gfx_driver->request_scroll(x, y) != 0)
+   //if (display->gfx_driver->request_scroll(x, y) != 0)
+   if (gfx_driver->request_scroll(x, y) != 0)
       ret = -1;
 
    return ret;
@@ -1062,14 +1132,17 @@ int al_request_scroll(AL_DISPLAY *display, int x, int y)
 /* Function: al_poll_scroll
  *  Checks whether a requested triple buffer flip has actually taken place.
  */
-int al_poll_scroll(AL_DISPLAY *display)
+//int al_poll_scroll(AL_DISPLAY *display)
+int al_poll_scroll()
 {
-   ASSERT(display);
+   //ASSERT(display);
 
-   if ((!display->gfx_driver->poll_scroll) || (_dispsw_status))
+   //if ((!display->gfx_driver->poll_scroll) || (_dispsw_status))
+   if ((!gfx_driver->poll_scroll) || (_dispsw_status))
       return FALSE;
 
-   return display->gfx_driver->poll_scroll();
+   //return display->gfx_driver->poll_scroll();
+   return gfx_driver->poll_scroll();
 }
 
 
@@ -1078,9 +1151,10 @@ int al_poll_scroll(AL_DISPLAY *display)
  *  Page flipping function: swaps to display the specified video memory 
  *  bitmap object (this must be the same size as the physical screen).
  */
-int al_show_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
+//int al_show_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
+int al_show_video_bitmap(BITMAP *bitmap)
 {
-   ASSERT(display);
+   //ASSERT(display);
    ASSERT(bitmap);
 
    if ((!is_video_bitmap(bitmap)) || 
@@ -1088,10 +1162,13 @@ int al_show_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
        (_dispsw_status))
       return -1;
 
-   if (display->gfx_driver->show_video_bitmap)
-      return display->gfx_driver->show_video_bitmap(bitmap);
+   //if (display->gfx_driver->show_video_bitmap)
+   if (gfx_driver->show_video_bitmap)
+      //return display->gfx_driver->show_video_bitmap(bitmap);
+      return gfx_driver->show_video_bitmap(bitmap);
 
-   return al_scroll_display(display, bitmap->x_ofs, bitmap->y_ofs);
+   //return al_scroll_display(display, bitmap->x_ofs, bitmap->y_ofs);
+   return al_scroll_display(bitmap->x_ofs, bitmap->y_ofs);
 }
 
 
@@ -1100,9 +1177,10 @@ int al_show_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
  *  Triple buffering function: triggers a swap to display the specified 
  *  video memory bitmap object, which will take place on the next retrace.
  */
-int al_request_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
+//int al_request_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
+int al_request_video_bitmap(BITMAP *bitmap)
 {
-   ASSERT(display);
+   //ASSERT(display);
    ASSERT(bitmap);
 
    if ((!is_video_bitmap(bitmap)) || 
@@ -1110,10 +1188,13 @@ int al_request_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
        (_dispsw_status))
       return -1;
 
-   if (display->gfx_driver->request_video_bitmap)
-      return display->gfx_driver->request_video_bitmap(bitmap);
+   //if (display->gfx_driver->request_video_bitmap)
+   if (gfx_driver->request_video_bitmap)
+      //return display->gfx_driver->request_video_bitmap(bitmap);
+      return gfx_driver->request_video_bitmap(bitmap);
 
-   return al_request_scroll(display, bitmap->x_ofs, bitmap->y_ofs);
+   //return al_request_scroll(display, bitmap->x_ofs, bitmap->y_ofs);
+   return al_request_scroll(bitmap->x_ofs, bitmap->y_ofs);
 }
 
 
@@ -1122,21 +1203,27 @@ int al_request_video_bitmap(AL_DISPLAY *display, BITMAP *bitmap)
  *  Asks a driver to turn on triple buffering mode, if it is capable
  *  of that.
  */
-int al_enable_triple_buffer(AL_DISPLAY *display)
+//int al_enable_triple_buffer(AL_DISPLAY *display)
+int al_enable_triple_buffer()
 {
-   ASSERT(display);
+   //ASSERT(display);
 
-   if (display->gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)
+   //if (display->gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)
+   if (gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)
       return 0;
 
    if (_dispsw_status)
       return -1;
 
-   if (display->gfx_driver->enable_triple_buffer) {
-      display->gfx_driver->enable_triple_buffer();
+   //if (display->gfx_driver->enable_triple_buffer) {
+   if (gfx_driver->enable_triple_buffer) {
+      //display->gfx_driver->enable_triple_buffer();
+      gfx_driver->enable_triple_buffer();
 
-      if ((display->gfx_driver->request_scroll) || (display->gfx_driver->request_video_bitmap)) {
-	 display->gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
+      //if ((display->gfx_driver->request_scroll) || (display->gfx_driver->request_video_bitmap)) {
+      if ((gfx_driver->request_scroll) || (gfx_driver->request_video_bitmap)) {
+	 //display->gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
+	 gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
 	 return 0;
       }
    }
@@ -1145,7 +1232,7 @@ int al_enable_triple_buffer(AL_DISPLAY *display)
 }
 
 
-
+#if 0
 /* Function: al_create_display
  *  Create a new Allegro display object, return NULL on failure
  *  The first display object created becomes the al_main_display.
@@ -1537,3 +1624,4 @@ int al_vsync_is_enabled(const AL_DISPLAY *display)
    
    return (display->flags&AL_DISABLE_VSYNC) == 0;
 }
+#endif

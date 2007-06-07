@@ -13,6 +13,12 @@
 #define AL_COLOR_TO_D3D(color) \
 	(D3DCOLOR_COLORVALUE(color.r, color.g, color.b, color.a))
 
+#define AL_COLOR_TO_A8R8G8B8(color) \
+	(((int)(color.a * 255) << 24) | \
+	((int)(color.r * 255) << 16) | \
+	((int)(color.g * 255) << 8) | \
+	(int)(color.b * 255))
+
 /* Flexible vertex formats */
 #define D3DFVF_COLORED_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE)
 #define D3DFVF_TL_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
@@ -41,6 +47,7 @@ struct AL_BITMAP_D3D
 	LPDIRECT3DTEXTURE8 system_texture;
 
 	bool created;
+	bool is_screen;
 };
 
 
@@ -67,7 +74,7 @@ typedef struct D3D_TL_VERTEX
 
 AL_SYSTEM_D3D *_al_d3d_system;
 
-AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void);
+AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(int flag);
 AL_SYSTEM_INTERFACE *_al_system_d3d_driver(void);
 AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void);
 
