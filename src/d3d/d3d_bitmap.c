@@ -419,19 +419,18 @@ static void d3d_copy_bitmap_data(AL_BITMAP *bmp, LPDIRECT3DTEXTURE8 texture,
 	unsigned int cy;
 	int p;
 	int d3d_pixel;
-	int p;
-	int d3d_pixel;
 	// FIXME: use proper getpixel
 	for (cy = y; cy < y+height; cy++) {
 		for (cx = x; cx < x+width; cx++) {
 			p = *(uint32_t *)(bmp->memory+(cx+cy*bmp->w)*4);
 			d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
+				(getg32(p) << 8) | getb32(p);
 			*(uint32_t *)
 				(locked_rect.pBits+(locked_rect.Pitch*cy)+(cx*4)) = d3d_pixel;
 		}
 	}
 	/* Copy an extra row so the texture ends nicely */
-	if (rect.bottom >= bmp->h) {
+	if ((unsigned)rect.bottom >= bmp->h) {
 		cy = bmp->h;
 		for (cx = x; cx <= x+width; cx++) {
 			p = *(uint32_t *)(bmp->memory+(MIN(bmp->w-1, cx)+(MIN(bmp->h-1, cy))*bmp->w)*4);
@@ -443,7 +442,7 @@ static void d3d_copy_bitmap_data(AL_BITMAP *bmp, LPDIRECT3DTEXTURE8 texture,
 	}
 
 	/* Copy an extra column so the texture ends nicely */
-	if (rect.right >= bmp->w) {
+	if ((unsigned)rect.right >= bmp->w) {
 		cx = bmp->w;
 		for (cy = y; cy <= y+height; cy++) {
 			p = *(uint32_t *)(bmp->memory+(MIN(bmp->w-1, cx)+(MIN(bmp->h-1, cy))*bmp->w)*4);
