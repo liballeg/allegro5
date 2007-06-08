@@ -18,11 +18,6 @@ static WNDCLASS window_class;
 // FIXME: must be deleted with display
 static _AL_VECTOR thread_handles = _AL_VECTOR_INITIALIZER(DWORD);
 
-UINT msg_call_proc = 0;
-UINT msg_suicide = 0;
-
-HWND d3d_active_window = 0;
-
 static void d3d_destroy_window(AL_DISPLAY_D3D *display)
 {
 	_al_vector_find_and_delete(&thread_handles, &display->thread_handle);
@@ -112,7 +107,7 @@ HWND _al_d3d_create_window(int width, int height)
 		key_dinput_set_cooperation_level(new_window);
 		d->keyboard_initialized = true;
 	}
-	d3d_active_window = new_window;
+	_al_win_wnd = new_window;
 	return new_window;
 }
 
@@ -130,11 +125,12 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 	int fActive;
 	AL_EVENT_SOURCE *es = NULL;
 
-	if (message == msg_call_proc) {
+	if (message == _al_win_msg_call_proc) {
 		return ((int (*)(void))wParam) ();
 	}
 
-	if (message == msg_suicide) {
+	if (message == _al_win_msg_suicide) {
+		SendMessage(_al_win_compat_wnd, _al_win_msg_suicide, 0, 0);
 		DestroyWindow(hWnd);
 		return 0;
 	}
@@ -154,7 +150,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 			case WM_ACTIVATEAPP:
 				if (wParam == TRUE) {
 					al_make_display_current((AL_DISPLAY *)d);
-					d3d_active_window = d->window;
+					_al_win_wnd = d->window;
 					_al_d3d_win_grab_input();
 				}
 				else {
@@ -233,7 +229,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
  */
 int d3d_wnd_call_proc(int (*proc) (void))
 {
-   return SendMessage(d3d_active_window, msg_call_proc, (DWORD) proc, 0);
+   return SendMessage(_al_win_wnd, _al_win_msg_call_proc, (DWORD) proc, 0);
 }
 
 /* d3d_wnd_schedule_proc:
@@ -242,7 +238,7 @@ int d3d_wnd_call_proc(int (*proc) (void))
  */
 void d3d_wnd_schedule_proc(int (*proc) (void))
 {
-   PostMessage(d3d_active_window, msg_call_proc, (DWORD) proc, 0);
+   PostMessage(_al_win_wnd, _al_win_msg_call_proc, (DWORD) proc, 0);
 }
 
 /* d3d_grab_input:
@@ -262,13 +258,15 @@ void _al_d3d_win_ungrab_input()
 
 HWND d3d_win_get_window()
 {
-	return d3d_active_window;
+	return _al_win_wnd;
 }
 
 int _al_d3d_init_window()
 {
-	msg_call_proc = RegisterWindowMessage("Allegro call proc");
-	msg_suicide = RegisterWindowMessage("Allegro window suicide");
+	if (_al_win_msg_call_proc == 0 && _al_win_msg_suicide == 0) {
+		_al_win_msg_call_proc = RegisterWindowMessage("Allegro call proc");
+		_al_win_msg_suicide = RegisterWindowMessage("Allegro window suicide");
+	}
 
 	// Create A Window Class Structure 
 	window_class.cbClsExtra = 0;
@@ -294,7 +292,7 @@ static void d3d_window_exit()
        * we are not running in the same thread as that of the window.
        */
       // for each window
-      PostMessage(allegro_wnd, msg_suicide, 0, 0);
+      PostMessage(allegro_wnd, _al_win_msg_suicide, 0, 0);
 
       /* wait until the window thread ends */
       WaitForSingleObject(d3d_wnd_thread, INFINITE);

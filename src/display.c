@@ -27,6 +27,8 @@
 
 #include "allegro/display.h"
 
+#include ALLEGRO_INTERNAL_HEADER
+
 
 
 /* Variable: al_main_display
@@ -626,7 +628,6 @@ static int get_config_gfx_driver(char *gfx_card, int w, int h, int v_w, int v_h,
 //static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int depth, int flags)
 int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 {
-#if 0
    static int allow_config = TRUE;
    extern void blit_end(void);
    _DRIVER_INFO *driver_list;
@@ -641,6 +642,15 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
    ASSERT(system_driver);
 
    _gfx_mode_set_count++;
+
+   if (card == GFX_DIRECT3D) {
+   	al_init();
+	new_display = al_create_display(w, h, 0);
+	al_make_display_current(new_display);
+	screen = create_bitmap_ex(32, w, h);
+	screen->al_bitmap->vt->make_compat_screen(screen->al_bitmap);
+	return 0;
+   }
 
    /* special bodge for the GFX_SAFE driver */
    if (card == GFX_SAFE) {
@@ -901,12 +911,6 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 
    if (system_driver->display_switch_lock)
       system_driver->display_switch_lock(FALSE, FALSE);
-#endif
-
-   new_display = al_create_display(w, h, 0);
-   al_make_display_current(new_display);
-   screen = create_bitmap_ex(32, w, h);
-   screen->al_bitmap->vt->make_compat_screen(screen->al_bitmap);
 
    return 0;
 }

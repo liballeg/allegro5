@@ -18,7 +18,6 @@ int main(void)
    AL_KEYBOARD *keyboard;
    AL_EVENT event;
    AL_EVENT_QUEUE *events;
-   BITMAP *buffer;
    int quit = 0;
    int ticks = 0, last_rendered = 0, start_ticks;
    int fps_accumulator = 0, fps_time = 0;
@@ -41,12 +40,6 @@ int main(void)
    display[1] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL | AL_RESIZABLE);
    display[2] = al_create_display(w, h, AL_WINDOWED | AL_OPENGL);
 
-   printf("display[0]=%p %p\n", display[0], ((AL_DISPLAY_D3D *)display[0])->window);
-   printf("display[1]=%p %p\n", display[1], ((AL_DISPLAY_D3D *)display[1])->window);
-   printf("display[2]=%p %p\n", display[2], ((AL_DISPLAY_D3D *)display[2])->window);
-
-   printf("d3d_ok=%d\n", D3D_OK);
-
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[1]);
@@ -61,9 +54,7 @@ int main(void)
    mask = al_load_bitmap("mask.pcx", 0);
 
    al_install_keyboard();
-   printf("registering kb as event source\n");
    al_register_event_source(events, (AL_EVENT_SOURCE *)al_get_keyboard());
-   printf("kb registered as event source\n");
 
    start_ticks = al_current_time();
 
@@ -72,26 +63,20 @@ int main(void)
    while (!quit) {
       /* read input */
       while (!al_event_queue_is_empty(events)) {
-      	printf("event queue not empty %d\n", event.type);
          al_get_next_event(events, &event);
-	 	printf("got next event\n");
          if (event.type == AL_EVENT_KEY_DOWN)
          {
             AL_KEYBOARD_EVENT *key = &event.keyboard;
             if (key->keycode == AL_KEY_ESCAPE) {
-	    	printf("esc\n");
                quit = 1;
 	    }
          }
          if (event.type == AL_EVENT_DISPLAY_RESIZE) {
-	 printf("exnewapi receive resize event\n");
             AL_DISPLAY_EVENT *display = &event.display;
             w = display->width;
             h = display->height;
-	    printf("w=%d h=%d\n", w, h);
             al_make_display_current(display->source);
             al_acknowledge_resize();
-	    printf("exnewapi resized\n");
          }
          if (event.type == AL_EVENT_DISPLAY_CLOSE)
          {
@@ -145,7 +130,7 @@ int main(void)
 	al_rest(r < 0 ? 0 : r);
       }
    }
-   
+
    return 0;
 }
 END_OF_MAIN();

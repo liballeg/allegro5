@@ -30,9 +30,11 @@ static AL_SYSTEM *d3d_initialize(int flags)
 	memset(_al_d3d_system, 0, sizeof *_al_d3d_system);
 
 	_al_d3d_init_window();
-	_al_d3d_init_keyboard();
 
-	_win_input_init(TRUE);
+	if (system_driver == NULL) {
+		_al_d3d_init_keyboard();
+		_win_input_init(TRUE);
+	}
 
 	if (_al_d3d_init_display() != false) {
 		_AL_FREE(_al_d3d_system);

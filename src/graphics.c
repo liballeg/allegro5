@@ -443,6 +443,7 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    bitmap->x_ofs = 0;
    bitmap->y_ofs = 0;
    bitmap->seg = _default_ds();
+   bitmap->needs_upload = false;
 
    if (height > 0) {
       bitmap->line[0] = bitmap->dat;
@@ -453,10 +454,10 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    if (system_driver->created_bitmap)
       system_driver->created_bitmap(bitmap);
 
-   // FIXME: check return value
-   bitmap->al_bitmap = _al_current_display->vt->create_bitmap(_al_current_display, width, height, 0);
-   // FIXME: not always
-   bitmap->needs_upload = true;
+   if (_al_current_display != NULL) {
+      bitmap->al_bitmap = _al_current_display->vt->create_bitmap(_al_current_display, width, height, 0);
+      bitmap->needs_upload = true;
+   }
 
    return bitmap;
 }

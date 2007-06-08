@@ -29,19 +29,21 @@ static bool _d3d_keyboard_init()
 
 	orig_keyboard_init();
 
-	for (i = 0; i < _al_d3d_system->system.displays._size; i++) {
-		AL_DISPLAY_D3D **dptr = _al_vector_ref(&_al_d3d_system->system.displays, i);
-		AL_DISPLAY_D3D *d = *dptr;
-		if (d->keyboard_initialized == false) {
-			d->keyboard_initialized = true;
-			key_dinput_set_cooperation_level(d->window);
+	if (_al_d3d_system) {
+		for (i = 0; i < _al_d3d_system->system.displays._size; i++) {
+			AL_DISPLAY_D3D **dptr = _al_vector_ref(&_al_d3d_system->system.displays, i);
+			AL_DISPLAY_D3D *d = *dptr;
+			if (d->keyboard_initialized == false) {
+				d->keyboard_initialized = true;
+				key_dinput_set_cooperation_level(d->window);
+			}
 		}
-	}
-	
-	if (i > 0)
-		_al_d3d_win_grab_input();
+		
+		if (i > 0)
+			_al_d3d_win_grab_input();
 
-	_al_d3d_keyboard_initialized = true;
+		_al_d3d_keyboard_initialized = true;
+	}
 
 	return true;
 }

@@ -35,8 +35,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    return 0;
   */ 
 
-  do_set_gfx_mode(card, w, h, 0);
-  return -1;
+  return do_set_gfx_mode(card, w, h, get_color_depth(), 0);
 }
 
 

@@ -3,6 +3,7 @@
 
 #include "allegro/display_new.h"
 #include "allegro/bitmap_new.h"
+#include "allegro/internal/aintern.h"
 #include "allegro/internal/aintern_events.h"
 
 typedef struct AL_DISPLAY_INTERFACE AL_DISPLAY_INTERFACE;
@@ -35,5 +36,9 @@ struct AL_DISPLAY
 AL_DISPLAY *_al_current_display;
 //AL_DISPLAY_INTERFACE *_al_display_xdummy_driver(void);
 AL_DISPLAY_INTERFACE *_al_display_d3ddummy_driver(void);
+
+#if defined ALLEGRO_D3D
+	#include "allegro/platform/ald3d.h"
+#endif
 
 #endif

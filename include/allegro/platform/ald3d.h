@@ -26,9 +26,4 @@ struct AL_DISPLAY_D3D
 };
 
 
-AL_VAR(HWND, d3d_active_window);
-AL_VAR(UINT, msg_call_proc);
-AL_VAR(UINT, msg_suicide);
-
-
-#endif
+#endif /* _AL_D3D_H */

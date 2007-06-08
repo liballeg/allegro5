@@ -315,6 +315,7 @@ BITMAP *gfx_directx_make_bitmap_from_surface(DDRAW_SURFACE *surf, int w, int h, 
    if (!bmp)
       return NULL;
 
+   bmp->needs_upload = false;
    bmp->w =w;
    bmp->cr = w;
    bmp->h = h;

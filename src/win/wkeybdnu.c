@@ -511,6 +511,7 @@ static int key_dinput_init(void)
       goto Error;
    }
 */
+
    /* Enable event notification */
    key_input_event = CreateEvent(NULL, FALSE, FALSE, NULL);
    hr = IDirectInputDevice_SetEventNotification(key_dinput_device, key_input_event);
@@ -534,7 +535,7 @@ static int key_dinput_init(void)
    }
 
    /* Acquire the device */
-   //wnd_call_proc(key_dinput_acquire);
+   wnd_call_proc(key_dinput_acquire);
 
    return 0;
 
