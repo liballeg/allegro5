@@ -1,7 +1,7 @@
 #ifndef _al_included_aintern_thread_h
 #define _al_included_aintern_thread_h
 
-#include ALLEGRO_INTERNAL_HEADER
+#include ALLEGRO_INTERNAL_THREAD_HEADER
 
 AL_BEGIN_EXTERN_C
 

@@ -20,10 +20,10 @@ struct AL_BITMAP
    AL_COLOR light_color;  /* color to tint to when drawing with AL_LIT */
    int pixel_format;
    bool locked;
-   int lock_x;
-   int lock_y;
-   int lock_width;
-   int lock_height;
+   unsigned int lock_x;
+   unsigned int lock_y;
+   unsigned int lock_width;
+   unsigned int lock_height;
 
    /*AL_DISPLAY *display;*/ /* May be NULL for memory bitmaps. */
 

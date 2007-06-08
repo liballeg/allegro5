@@ -56,6 +56,10 @@ AL_INLINE(void, _allegro_hline, (BITMAP *bmp, int x1, int y, int x2, int color),
    ASSERT(bmp);
 
    bmp->vtable->hline(bmp, x1, y, x2, color);
+
+   if (bmp->needs_upload) {
+      bmp->al_bitmap->vt->upload_compat_bitmap(bmp, x1, y, x2-x1+1, 1);
+   }
 })
 
 
@@ -90,6 +94,10 @@ AL_INLINE(void, rectfill, (BITMAP *bmp, int x1, int y_1, int x2, int y2, int col
    ASSERT(bmp);
 
    bmp->vtable->rectfill(bmp, x1, y_1, x2, y2, color);
+
+   if (bmp->needs_upload) {
+      bmp->al_bitmap->vt->upload_compat_bitmap(bmp, x1, y_1, x2-x1+1, y2-y_1+1);
+   }
 })
 
 
@@ -247,6 +255,10 @@ AL_INLINE(void, draw_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y),
       ASSERT(bmp->vtable->color_depth == sprite->vtable->color_depth);
       bmp->vtable->draw_sprite(bmp, sprite, x, y);
    }
+
+   if (bmp->needs_upload) {
+      bmp->al_bitmap->vt->upload_compat_bitmap(bmp, x, y, sprite->w, sprite->h);
+   }
 })
 
 
@@ -256,6 +268,10 @@ AL_INLINE(void, draw_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y),
    ASSERT(bmp->vtable->color_depth == sprite->vtable->color_depth);
 
    bmp->vtable->draw_sprite_v_flip(bmp, sprite, x, y);
+   
+   if (bmp->needs_upload) {
+      bmp->al_bitmap->vt->upload_compat_bitmap(bmp, x, y, sprite->w, sprite->h);
+   }
 })
 
 
@@ -265,6 +281,10 @@ AL_INLINE(void, draw_sprite_h_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y),
    ASSERT(bmp->vtable->color_depth == sprite->vtable->color_depth);
 
    bmp->vtable->draw_sprite_h_flip(bmp, sprite, x, y);
+   
+   if (bmp->needs_upload) {
+      bmp->al_bitmap->vt->upload_compat_bitmap(bmp, x, y, sprite->w, sprite->h);
+   }
 })
 
 
@@ -275,6 +295,10 @@ AL_INLINE(void, draw_sprite_vh_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y)
    ASSERT(bmp->vtable->color_depth == sprite->vtable->color_depth);
 
    bmp->vtable->draw_sprite_vh_flip(bmp, sprite, x, y);
+   
+   if (bmp->needs_upload) {
+      bmp->al_bitmap->vt->upload_compat_bitmap(bmp, x, y, sprite->w, sprite->h);
+   }
 })
 
 
@@ -293,6 +317,10 @@ AL_INLINE(void, draw_trans_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y),
               (sprite->vtable->color_depth == 8)));
       bmp->vtable->draw_trans_sprite(bmp, sprite, x, y);
    }
+   
+   if (bmp->needs_upload) {
+      bmp->al_bitmap->vt->upload_compat_bitmap(bmp, x, y, sprite->w, sprite->h);
+   }
 })
 
 
@@ -303,6 +331,10 @@ AL_INLINE(void, draw_lit_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, int
    ASSERT(bmp->vtable->color_depth == sprite->vtable->color_depth);
 
    bmp->vtable->draw_lit_sprite(bmp, sprite, x, y, color);
+   
+   if (bmp->needs_upload) {
+      bmp->al_bitmap->vt->upload_compat_bitmap(bmp, x, y, sprite->w, sprite->h);
+   }
 })
 
 
@@ -313,6 +345,10 @@ AL_INLINE(void, draw_gouraud_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y,
    ASSERT(bmp->vtable->color_depth == sprite->vtable->color_depth);
 
    bmp->vtable->draw_gouraud_sprite(bmp, sprite, x, y, c1, c2, c3, c4);
+   
+   if (bmp->needs_upload) {
+      bmp->al_bitmap->vt->upload_compat_bitmap(bmp, x, y, sprite->w, sprite->h);
+   }
 })
 
 

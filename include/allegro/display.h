@@ -31,6 +31,7 @@
 #define AL_DEPTH_32     32
 
 /* Update method flags */
+/*
 #define AL_UPDATE_NONE              0x0000
 #define AL_UPDATE_TRIPLE_BUFFER     0x0001
 #define AL_UPDATE_PAGE_FLIP         0x0002
@@ -38,6 +39,7 @@
 #define AL_UPDATE_DOUBLE_BUFFER     0x0008
 
 #define AL_UPDATE_ALL               0x000F
+*/
 
 /* Misc. flags */
 #define AL_DISABLE_VSYNC            0x1000

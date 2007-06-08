@@ -23,6 +23,7 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintern_mouse.h"
+#include "allegro/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #include <process.h>

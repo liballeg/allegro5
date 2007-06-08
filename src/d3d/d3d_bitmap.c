@@ -426,7 +426,7 @@ static void d3d_copy_bitmap_data(AL_BITMAP *bmp, LPDIRECT3DTEXTURE8 texture,
 			d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
 				(getg32(p) << 8) | getb32(p);
 			*(uint32_t *)
-				(locked_rect.pBits+(locked_rect.Pitch*cy)+(cx*4)) = d3d_pixel;
+				(locked_rect.pBits+(locked_rect.Pitch*(cy-y))+((cx-x)*4)) = d3d_pixel;
 		}
 	}
 	/* Copy an extra row so the texture ends nicely */
@@ -437,7 +437,7 @@ static void d3d_copy_bitmap_data(AL_BITMAP *bmp, LPDIRECT3DTEXTURE8 texture,
 			d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
 				(getg32(p) << 8) | getb32(p);
 			*(uint32_t *)
-				(locked_rect.pBits+(locked_rect.Pitch*cy)+(cx*4)) = d3d_pixel;
+				(locked_rect.pBits+(locked_rect.Pitch*(cy-y))+((cx-x)*4)) = d3d_pixel;
 		}
 	}
 
@@ -449,7 +449,7 @@ static void d3d_copy_bitmap_data(AL_BITMAP *bmp, LPDIRECT3DTEXTURE8 texture,
 			d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
 				(getg32(p) << 8) | getb32(p);
 			*(uint32_t *)
-				(locked_rect.pBits+(locked_rect.Pitch*cy)+(cx*4)) = d3d_pixel;
+				(locked_rect.pBits+(locked_rect.Pitch*(cy-y))+((cx-x)*4)) = d3d_pixel;
 		}
 	}
 	IDirect3DTexture8_UnlockRect(texture, 0);
@@ -1053,6 +1053,23 @@ static void d3d_upload_compat_bitmap(BITMAP *bitmap, int x, int y, int w, int h)
 	int cy;
 	int pixel;
 	AL_COLOR d3d_pixel;
+	
+	if (x < 0) {
+		w -= -x;
+		x = 0;
+	}
+	if (y < 0) {
+		h -= -y;
+		y = 0;
+	}
+
+	if (w <= 0 || h <= 0)
+		return;
+
+	if (x+w >= bitmap->w)
+		w--;
+	if (y+h >= bitmap->h)
+		h--;
 
 	al_lock_bitmap((AL_BITMAP *)d3d_bmp, x, y, w, h);
 
@@ -1099,7 +1116,7 @@ static void d3d_upload_compat_bitmap(BITMAP *bitmap, int x, int y, int w, int h)
 	if (d3d_bmp->is_screen) {
 		al_blit(0, (AL_BITMAP *)bitmap->al_bitmap, 0, 0, 0);
 
-		al_flip();
+		al_flip(x, y, w, h);
 	}
 }
 

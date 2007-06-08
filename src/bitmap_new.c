@@ -187,7 +187,9 @@ void al_set_light_color(AL_BITMAP *bitmap, AL_COLOR *light_color)
 	memcpy(&bitmap->light_color, light_color, sizeof(AL_COLOR));
 }
 
-void al_lock_bitmap(AL_BITMAP *bitmap, int x, int y, int width, int height)
+void al_lock_bitmap(AL_BITMAP *bitmap,
+	unsigned int x, unsigned int y,
+	unsigned int width, unsigned int height)
 {
 	bitmap->locked = true;
 	bitmap->lock_x = x;

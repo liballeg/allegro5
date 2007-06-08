@@ -233,8 +233,7 @@ void set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
    for (c=from; c<=to; c++) {
       _current_palette[c] = p[c];
 
-      if (_color_depth != 8)
-	 palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
+      palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
    }
 
    _current_palette_changed = 0xFFFFFFFF & ~(1<<(_color_depth-1));
@@ -271,11 +270,9 @@ void select_palette(AL_CONST PALETTE p)
       _current_palette[c] = p[c];
    }
 
-   if (_color_depth != 8) {
-      for (c=0; c<PAL_SIZE; c++) {
-	 prev_palette_color[c] = palette_color[c];
-	 palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
-      }
+   for (c=0; c<PAL_SIZE; c++) {
+      prev_palette_color[c] = palette_color[c];
+      palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
    }
 
    _got_prev_current_palette = TRUE;
@@ -295,10 +292,8 @@ void unselect_palette(void)
    for (c=0; c<PAL_SIZE; c++)
       _current_palette[c] = _prev_current_palette[c];
 
-   if (_color_depth != 8) {
-      for (c=0; c<PAL_SIZE; c++)
-	 palette_color[c] = prev_palette_color[c];
-   }
+   for (c=0; c<PAL_SIZE; c++)
+      palette_color[c] = prev_palette_color[c];
 
    ASSERT(_got_prev_current_palette == TRUE);
    _got_prev_current_palette = FALSE;

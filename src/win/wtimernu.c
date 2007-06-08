@@ -24,6 +24,7 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintern_dtor.h"
 #include "allegro/internal/aintern_events.h"
+#include "allegro/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #include <mmsystem.h>

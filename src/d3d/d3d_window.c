@@ -1,9 +1,10 @@
 #include <allegro.h>
-
-#include "allegro/internal/aintern_vector.h"
-
 #include <winalleg.h>
 #include <process.h>
+
+#include "allegro/internal/aintern_vector.h"
+#include "allegro/platform/aintwin.h"
+
 #include <d3d8.h>
 
 #include "d3d.h"

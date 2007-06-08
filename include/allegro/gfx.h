@@ -299,9 +299,6 @@ typedef struct BITMAP            /* a bitmap structure */
 
 AL_VAR(BITMAP *, screen);
 
-#define SCREEN_W     (gfx_driver ? gfx_driver->w : 0)
-#define SCREEN_H     (gfx_driver ? gfx_driver->h : 0)
-
 #define VIRTUAL_W    (screen ? screen->w : 0)
 #define VIRTUAL_H    (screen ? screen->h : 0)
 
@@ -448,6 +445,11 @@ AL_FUNC(void, lock_bitmap, (struct BITMAP *bmp));
 #endif
 
 #include "inline/gfx.inl"
+
+#include "allegro/internal/aintern_display.h"
+
+#define SCREEN_W     (gfx_driver ? gfx_driver->w : _al_current_display ? _al_current_display->w : 0)
+#define SCREEN_H     (gfx_driver ? gfx_driver->h : _al_current_display ? _al_current_display->h : 0)
 
 #endif          /* ifndef ALLEGRO_GFX_H */
 

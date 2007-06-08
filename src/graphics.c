@@ -454,10 +454,12 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    if (system_driver->created_bitmap)
       system_driver->created_bitmap(bitmap);
 
+/*
    if (_al_current_display != NULL) {
       bitmap->al_bitmap = _al_current_display->vt->create_bitmap(_al_current_display, width, height, 0);
       bitmap->needs_upload = true;
    }
+*/
 
    return bitmap;
 }

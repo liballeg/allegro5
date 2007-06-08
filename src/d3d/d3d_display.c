@@ -188,7 +188,7 @@ IDirect3DSurface8 *al_d3d_get_current_render_target(void)
 	return disp->render_target;
 }
 
-static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d)
+static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d, int flags)
 {
 	D3DDISPLAYMODE d3d_dm;
 
@@ -200,7 +200,13 @@ static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d)
 	d3d_pp.BackBufferHeight = d->display.h;
 	d3d_pp.BackBufferCount = 1;
 	d3d_pp.Windowed = 1;
-	d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	if (flags & AL_UPDATE_IMMEDIATE) {
+		d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
+		d->immediate = true;
+	}
+	else {
+		d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	}
 	d3d_pp.hDeviceWindow = d->window;
 	d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 	d3d_pp.EnableAutoDepthStencil = true;
@@ -248,7 +254,7 @@ static AL_DISPLAY *d3d_create_display(int w, int h, int flags)
 
 	d->window = _al_d3d_create_window(w, h);
 
-	if (d3d_create_swap_chain(d) != 0) {
+	if (d3d_create_swap_chain(d, flags) != 0) {
 		return 0;
 	}
 
@@ -343,13 +349,25 @@ static void d3d_filled_rectangle(AL_DISPLAY *d, float tlx, float tly,
 }
 
 /* Dummy implementation of flip. */
-static void d3d_flip(AL_DISPLAY *d)
+static void d3d_flip(AL_DISPLAY *d,
+	unsigned int x, unsigned int y,
+	unsigned int width, unsigned int height)
 {
 	AL_DISPLAY_D3D* disp = (AL_DISPLAY_D3D*)d;
 
 	IDirect3DDevice8_EndScene(_al_d3d_device);
 
-	IDirect3DSwapChain8_Present(disp->swap_chain, 0, 0, disp->window, 0);
+	if (disp->immediate) {
+		RECT rect;
+		rect.left = x;
+		rect.right = x+width;
+		rect.top = y;
+		rect.bottom = y+height;
+		IDirect3DSwapChain8_Present(disp->swap_chain, &rect, &rect, disp->window, 0);
+	}
+	else {
+		IDirect3DSwapChain8_Present(disp->swap_chain, 0, 0, disp->window, 0);
+	}
 
 	IDirect3DDevice8_BeginScene(_al_d3d_device);
 }
@@ -408,8 +426,12 @@ static void d3d_acknowledge_resize(AL_DISPLAY *d)
 		for (i = 0; i < d3d_created_displays._size; i++) {
 			AL_DISPLAY_D3D **dptr = _al_vector_ref(&d3d_created_displays, i);
 			AL_DISPLAY_D3D *d = *dptr;
+			int flags = 0;
 
-			d3d_create_swap_chain(d);
+			if (d->immediate)
+				flags |= AL_UPDATE_IMMEDIATE;
+
+			d3d_create_swap_chain(d, flags);
 		}
 
 		d3d_reset_state();

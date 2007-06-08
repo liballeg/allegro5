@@ -16,6 +16,7 @@
 #include "allegro/internal/aintern_display.h"
 #include "allegro/platform/ald3d.h"
 #include "allegro/internal/aintern_keyboard.h"
+#include "allegro/platform/aintwin.h"
 
 #include "d3d.h"
 

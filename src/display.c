@@ -645,10 +645,13 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 
    if (card == GFX_DIRECT3D) {
    	al_init();
-	new_display = al_create_display(w, h, 0);
+	new_display = al_create_display(w, h, AL_UPDATE_IMMEDIATE);
 	al_make_display_current(new_display);
-	screen = create_bitmap_ex(32, w, h);
+	screen = create_bitmap(w, h);
+	screen->al_bitmap = _al_current_display->vt->create_bitmap(_al_current_display, w, h, 0);
+	screen->needs_upload = true;
 	screen->al_bitmap->vt->make_compat_screen(screen->al_bitmap);
+	screen->al_bitmap->vt->upload_compat_bitmap(screen, 0, 0, w, h);
 	return 0;
    }
 

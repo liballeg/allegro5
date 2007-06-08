@@ -47,9 +47,9 @@ typedef struct AL_BITMAP AL_BITMAP;
 		color.a = 0.0f;
 
 #define AL_PIXEL8_TO_COLOR(pixel, color) \
-		color.r = (float)getr8(pixel) / 0x3F; \
-		color.g = (float)getg8(pixel) / 0x3F; \
-		color.b = (float)getb8(pixel) / 0x3F; \
+		color.r = (float)getr8(pixel) / 255; \
+		color.g = (float)getg8(pixel) / 255; \
+		color.b = (float)getb8(pixel) / 255; \
 		color.a = 0.0f;
 
 
@@ -83,7 +83,8 @@ void al_blit_region_3(int flag,
 	AL_BITMAP *dest, int dest_x, int dest_y,
 	int dest_w, int dest_h);
 void al_set_light_color(AL_BITMAP *bitmap, AL_COLOR *light_color);
-void al_lock_bitmap(AL_BITMAP *bitmap, int x, int y, int width, int height);
+void al_lock_bitmap(AL_BITMAP *bitmap, unsigned int x, unsigned int y,
+	unsigned int width, unsigned int height);
 void al_unlock_bitmap(AL_BITMAP *bitmap);
 void al_put_pixel(int flag, AL_BITMAP *bitmap, int x, int y, AL_COLOR *color);
 

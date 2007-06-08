@@ -98,6 +98,10 @@ AL_INLINE(void, clear_to_color, (BITMAP *bitmap, int color),
    ASSERT(bitmap);
 
    bitmap->vtable->clear_to_color(bitmap, color);
+
+   if (bitmap->needs_upload) {
+      bitmap->al_bitmap->vt->upload_compat_bitmap(bitmap, 0, 0, bitmap->w, bitmap->h);
+   }
 })
 
 

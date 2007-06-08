@@ -63,9 +63,16 @@ void al_filled_rectangle(float tlx, float tly, float brx, float bry,
 /* Makes all graphics which were drawn since the display was created or since
  * the last call to al_flip visible.
  */
-void al_flip(void)
+void al_flip(unsigned int x, unsigned int y,
+	unsigned int width, unsigned int height)
 {
-   _al_current_display->vt->flip(_al_current_display);
+   if (width <= 0 || height <= 0) {
+      _al_current_display->vt->flip(_al_current_display, x, y,
+         _al_current_display->w, _al_current_display->h);
+   }
+   else {
+      _al_current_display->vt->flip(_al_current_display, x, y, width, height);
+   }
 }
 
 // TODO: maybe can be done in al_flip?

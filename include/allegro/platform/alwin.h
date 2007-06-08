@@ -51,7 +51,7 @@ AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nS
 
    #define END_OF_MAIN()                                                     \
                                                                              \
-      int __stdcall WinMain(void *hInst, void *hPrev, char *Cmd, int nShow)  \
+      int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *Cmd, int nShow)  \
       {                                                                      \
          return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);   \
       }

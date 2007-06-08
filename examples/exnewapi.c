@@ -112,7 +112,7 @@ int main(void)
 		al_blit(AL_BLEND|AL_MASK_SOURCE|AL_MASK_INV_DEST, picture, 0, 0, 0);
 	    }
             al_filled_rectangle(x, y, x + 40, y + 40, colors[i]);
-            al_flip();
+            al_flip(0, 0, 0, 0);
          }
          last_rendered = ticks;
          {
