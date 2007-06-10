@@ -30,11 +30,8 @@ static AL_SYSTEM *d3d_initialize(int flags)
 	memset(_al_d3d_system, 0, sizeof *_al_d3d_system);
 
 	_al_d3d_init_window();
-
-	if (system_driver == NULL) {
-		_al_d3d_init_keyboard();
-		_win_input_init(TRUE);
-	}
+	_al_d3d_init_keyboard();
+	//_win_input_init(TRUE);
 
 	if (_al_d3d_init_display() != false) {
 		_AL_FREE(_al_d3d_system);
@@ -51,13 +48,13 @@ static AL_SYSTEM *d3d_initialize(int flags)
 // FIXME: This is just for now, the real way is of course a list of
 // available display drivers. Possibly such drivers can be attached at runtime
 // to the system driver, so addons could provide additional drivers.
-AL_DISPLAY_INTERFACE *get_display_driver(void)
+AL_DISPLAY_INTERFACE *d3d_get_display_driver(void)
 {
     return _al_display_d3d_driver();
 }
 
 // FIXME: Use the list.
-AL_KEYBOARD_DRIVER *get_keyboard_driver(void)
+AL_KEYBOARD_DRIVER *d3d_get_keyboard_driver(void)
 {
    // FIXME: i would prefer a dynamic way to list drivers, not a static list
 //   return _al_xwin_keyboard_driver_list[0].driver;
@@ -72,11 +69,22 @@ AL_SYSTEM_INTERFACE *_al_system_d3d_driver(void)
    memset(vt, 0, sizeof *vt);
 
    vt->initialize = d3d_initialize;
-   vt->get_display_driver = get_display_driver;
-   vt->get_keyboard_driver = get_keyboard_driver;
+   vt->get_display_driver = d3d_get_display_driver;
+   vt->get_keyboard_driver = d3d_get_keyboard_driver;
 
    TRACE("AL_SYSTEM_INTERFACE created.\n");
 
    return vt;
 }
 
+void _al_d3d_delete_from_vector(_AL_VECTOR *vec, void *item)
+{
+   unsigned int i;
+   for (i = 0; i < vec->_size; i++) {
+   	void **curr = _al_vector_ref(vec, i);
+	if (*curr == item) {
+		_al_vector_delete_at(vec, i);
+		return;
+	}
+   }
+}

@@ -35,15 +35,15 @@ typedef struct AL_BITMAP AL_BITMAP;
 		color.a = 0.0f;
 
 #define AL_PIXEL16_TO_COLOR(pixel, color) \
-		color.r = (float)getr16(pixel) / 0x1F; \
-		color.g = (float)getg16(pixel) / 0x3F; \
-		color.b = (float)getb16(pixel) / 0x1F; \
+		color.r = (float)getr16(pixel) / 255; \
+		color.g = (float)getg16(pixel) / 255; \
+		color.b = (float)getb16(pixel) / 255; \
 		color.a = 0.0f;
 
 #define AL_PIXEL15_TO_COLOR(pixel, color) \
-		color.r = (float)getr15(pixel) / 0x1F; \
-		color.g = (float)getg15(pixel) / 0x1F; \
-		color.b = (float)getb15(pixel) / 0x1F; \
+		color.r = (float)getr15(pixel) / 255; \
+		color.g = (float)getg15(pixel) / 255; \
+		color.b = (float)getb15(pixel) / 255; \
 		color.a = 0.0f;
 
 #define AL_PIXEL8_TO_COLOR(pixel, color) \

@@ -829,10 +829,10 @@ static void handle_key_release(unsigned char scancode)
    _al_event_source_emit_event(&the_keyboard.es, event);
 }
 
-int key_dinput_set_cooperation_level(HWND wnd)
+int key_dinput_set_cooperative_level(HWND wnd)
 {
    /* Set cooperative level */
-   HRESULT hr = IDirectInputDevice_SetCooperativeLevel(key_dinput_device, wnd, DISCL_FOREGROUND | DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
+   HRESULT hr = IDirectInputDevice_SetCooperativeLevel(key_dinput_device, wnd, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
    if (FAILED(hr)) {
       TRACE("IDirectInputDevice_SetCooperativeLevel failed.\n");
       return 1;

@@ -91,14 +91,15 @@ int main(int argc, char *argv[])
       install_joystick(JOY_TYPE_NONE);
    }
 
-   if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
-      if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
+   //if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_DIRECT3D, 320, 200, 0, 0) != 0) {
+      //if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
          set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
          allegro_message("Unable to set any graphic mode\n%s\n",
                          allegro_error);
          return 1;
       }
-   }
+   //}
 
    get_executable_name(buf, sizeof(buf));
    replace_filename(buf2, buf, "demo.dat", sizeof(buf2));

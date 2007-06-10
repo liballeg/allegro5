@@ -503,11 +503,15 @@ BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height)
    if (y+height > parent->h) 
       height = parent->h-y;
 
-   if (parent->vtable->create_sub_bitmap)
-      return parent->vtable->create_sub_bitmap(parent, x, y, width, height);
+   if (parent->vtable->create_sub_bitmap) {
+      bitmap = parent->vtable->create_sub_bitmap(parent, x, y, width, height);
+      goto done;
+   }
 
-   if (system_driver->create_sub_bitmap)
-      return system_driver->create_sub_bitmap(parent, x, y, width, height);
+   if (system_driver->create_sub_bitmap) {
+      bitmap = system_driver->create_sub_bitmap(parent, x, y, width, height);
+      goto done;
+   }
 
    /* get memory for structure and line pointers */
    /* (see create_bitmap for the reason we need at least two) */
@@ -569,6 +573,17 @@ BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height)
       _register_switch_bitmap(bitmap, parent);
 
    release_bitmap(parent);
+
+done:
+
+   if (parent == screen) {
+      bitmap->al_bitmap = _al_current_display->vt->create_sub_bitmap(_al_current_display, parent->al_bitmap, x, y, width, height, 0);
+      bitmap->needs_upload = true;
+   }
+   else {
+      bitmap->al_bitmap = NULL;
+      bitmap->needs_upload = false;
+   }
 
    return bitmap;
 }

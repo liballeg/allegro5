@@ -408,6 +408,10 @@ void destroy_bitmap(BITMAP *bitmap)
          }
       }
 
+      if (bitmap->needs_upload) {
+         al_destroy_bitmap(bitmap->al_bitmap);
+      }
+
       /* normal memory or sub-bitmap destruction */
       if (system_driver->destroy_bitmap) {
 	 if (system_driver->destroy_bitmap(bitmap))
@@ -644,7 +648,10 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
    _gfx_mode_set_count++;
 
    if (card == GFX_DIRECT3D) {
-   	al_init();
+	if (gfx_driver) {
+		destroy_bitmap(screen);
+	}
+	al_init();
 	new_display = al_create_display(w, h, AL_UPDATE_IMMEDIATE);
 	al_make_display_current(new_display);
 	screen = create_bitmap(w, h);
@@ -652,6 +659,9 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 	screen->needs_upload = true;
 	screen->al_bitmap->vt->make_compat_screen(screen->al_bitmap);
 	screen->al_bitmap->vt->upload_compat_bitmap(screen, 0, 0, w, h);
+	for (c=0; c<256; c++)
+	  _palette_color8[c] = c;
+        set_palette(default_palette);
 	return 0;
    }
 

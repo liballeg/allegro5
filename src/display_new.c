@@ -30,6 +30,11 @@ AL_DISPLAY *al_create_display(int w, int h, int flags)
    return display;
 }
 
+void al_destroy_display(AL_DISPLAY *display)
+{
+	display->vt->destroy_display(display);
+}
+
 /* Make a display the current display. All the following Allegro commands in
  * the same thread will implicitly use this display from now on.
  */

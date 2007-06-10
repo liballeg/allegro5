@@ -216,7 +216,7 @@ AL_BEGIN_EXTERN_C
 /* time */
 AL_FUNC(void, _al_win_init_time, (void));
 
-AL_FUNC(int, key_dinput_set_cooperation_level, (HWND wnd));
+AL_FUNC(int, key_dinput_set_cooperative_level, (HWND wnd));
 
 AL_END_EXTERN_C
 

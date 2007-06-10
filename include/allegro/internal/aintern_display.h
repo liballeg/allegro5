@@ -11,6 +11,7 @@ struct AL_DISPLAY_INTERFACE
 {
    int id;
    AL_DISPLAY *(*create_display)(int w, int h, int flags);
+   void (*destroy_display)(AL_DISPLAY *display);
    void (*make_display_current)(AL_DISPLAY *d);
    void (*clear)(AL_DISPLAY *d, AL_COLOR color);
    void (*line)(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
@@ -21,7 +22,11 @@ struct AL_DISPLAY_INTERFACE
    	unsigned int width, unsigned int height);
    void (*acknowledge_resize)(AL_DISPLAY *d);
 
-   AL_BITMAP *(*create_bitmap)(AL_DISPLAY *d, int w, int h, int flags);
+   AL_BITMAP *(*create_bitmap)(AL_DISPLAY *d,
+   	unsigned int w, unsigned int h, int flags);
+   AL_BITMAP *(*create_sub_bitmap)(AL_DISPLAY *d, AL_BITMAP *parent,
+   	unsigned int x, unsigned int y,
+	unsigned int w, unsigned int h, int flags);
 };
 
 struct AL_DISPLAY

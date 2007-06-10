@@ -13,6 +13,7 @@
 #include "internal/aintern_display.h"
 #include "internal/aintern_bitmap.h"
 #include "internal/aintern_vector.h"
+#include "allegro/platform/aintwin.h"
 
 #include "d3d.h"
 
@@ -88,6 +89,8 @@ static bool d3d_create_device()
 		TRACE("Failed to create hidden window.\n");
 		return 1;
 	}
+
+	_al_d3d_set_kb_cooperative_level(d3d_hidden_window);
 
 	IDirect3D8_GetAdapterDisplayMode(_al_d3d, D3DADAPTER_DEFAULT, &d3d_dm);
 
@@ -262,9 +265,41 @@ static AL_DISPLAY *d3d_create_display(int w, int h, int flags)
 	add = _al_vector_alloc_back(&d3d_created_displays);
 	*add = d;
 
-	_al_d3d_win_grab_input();
+	win_grab_input();
 
 	return (AL_DISPLAY *)d;
+}
+
+static void d3d_destroy_display(AL_DISPLAY *display)
+{
+	unsigned int i;
+	AL_DISPLAY_D3D *d3d_display = (AL_DISPLAY_D3D *)display;
+	AL_SYSTEM_D3D *system = (AL_SYSTEM_D3D *)al_system_driver();
+
+	IDirect3DSurface8_Release(d3d_display->render_target);
+	IDirect3DSurface8_Release(d3d_display->stencil_buffer);
+	IDirect3DSwapChain8_Release(d3d_display->swap_chain);
+
+	_al_d3d_win_ungrab_input();
+
+	SendMessage(d3d_display->window, _al_win_msg_suicide, 0, 0);
+
+	_al_event_source_free(&display->es);
+
+	//_al_vector_find_and_delete(&system->system.displays, display);
+	_al_d3d_delete_from_vector(&system->system.displays, display);
+
+	//_al_vector_find_and_delete(&d3d_created_displays, display);
+	_al_d3d_delete_from_vector(&d3d_created_displays, display);
+
+	if (d3d_created_displays._size > 0) {
+		AL_DISPLAY_D3D **dptr = _al_vector_ref(&d3d_created_displays, 0);
+		AL_DISPLAY_D3D *d = *dptr;
+		_al_win_wnd = d->window;
+		win_grab_input();
+	}
+
+	_AL_FREE(display);
 }
 
 static void d3d_make_display_current(AL_DISPLAY *d)
@@ -280,7 +315,6 @@ static void d3d_make_display_current(AL_DISPLAY *d)
 
 		IDirect3DDevice8_BeginScene(_al_d3d_device);
 	}
-
 }
 
 /* Dummy implementation of clear. */
@@ -383,6 +417,10 @@ static void d3d_acknowledge_resize(AL_DISPLAY *d)
 	d->w = wi.rcClient.right - wi.rcClient.left;
 	d->h = wi.rcClient.bottom - wi.rcClient.top;
 
+	if (gfx_driver) {
+		gfx_driver->w = d->w;
+		gfx_driver->h = d->h;
+	}
 
 	if (_al_d3d_device) {
 		unsigned int i;
@@ -444,7 +482,8 @@ static void d3d_acknowledge_resize(AL_DISPLAY *d)
 // TODO: rename to create_bitmap once the A4 function of same name is out of the
 // way
 // FIXME: think about moving this to xbitmap.c instead..
-AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d, int w, int h, int flags)
+AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
+	unsigned int w, unsigned int h, int flags)
 {
    AL_BITMAP_D3D *bitmap = (AL_BITMAP_D3D*)_AL_MALLOC(sizeof *bitmap);
    bitmap->bitmap.memory = _AL_MALLOC(w * h * 4);
@@ -457,7 +496,37 @@ AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d, int w, int h, int flags)
    bitmap->system_texture = 0;
    bitmap->created = false;
    bitmap->bitmap.pixel_format = AL_PIXELFORMAT_A8R8G8B8; // FIXME
+   bitmap->is_sub_bitmap = false;
    bitmap->is_screen = false;
+   bitmap->xo = 0;
+   bitmap->yo = 0;
+   return &bitmap->bitmap;
+}
+
+/* Dummy implementation. */
+// TODO: rename to create_bitmap once the A4 function of same name is out of the
+// way
+// FIXME: think about moving this to xbitmap.c instead..
+AL_BITMAP *_al_d3d_create_sub_bitmap(AL_DISPLAY *d, AL_BITMAP *parent,
+	unsigned int x, unsigned int y, unsigned int w, unsigned int h,
+	int flags)
+{
+   AL_BITMAP_D3D *d3d_parent = (AL_BITMAP_D3D *)parent;
+   AL_BITMAP_D3D *bitmap = (AL_BITMAP_D3D*)_AL_MALLOC(sizeof *bitmap);
+   bitmap->bitmap.memory = parent->memory;
+   bitmap->bitmap.vt = _al_bitmap_d3d_driver(flags);
+   bitmap->bitmap.w = w;
+   bitmap->bitmap.h = h;
+   bitmap->bitmap.flags = flags;
+   //bitmap->bitmap.display = d;
+   bitmap->video_texture = d3d_parent->video_texture;
+   bitmap->system_texture = d3d_parent->system_texture;
+   bitmap->created = true;
+   bitmap->bitmap.pixel_format = AL_PIXELFORMAT_A8R8G8B8; // FIXME
+   bitmap->is_sub_bitmap = true;
+   bitmap->is_screen = d3d_parent->is_screen;
+   bitmap->xo = x;
+   bitmap->yo = y;
    return &bitmap->bitmap;
 }
 
@@ -470,6 +539,7 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    memset(vt, 0, sizeof *vt);
 
    vt->create_display = d3d_create_display;
+   vt->destroy_display = d3d_destroy_display;
    vt->make_display_current = d3d_make_display_current;
    vt->clear = d3d_clear;
    vt->line = d3d_draw_line;
@@ -477,6 +547,7 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->flip = d3d_flip;
    vt->acknowledge_resize = d3d_acknowledge_resize;
    vt->create_bitmap = _al_d3d_create_bitmap;
+   vt->create_sub_bitmap = _al_d3d_create_sub_bitmap;
 
    return vt;
 }

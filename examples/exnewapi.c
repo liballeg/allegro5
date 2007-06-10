@@ -80,7 +80,13 @@ int main(void)
          }
          if (event.type == AL_EVENT_DISPLAY_CLOSE)
          {
-            quit = 1;
+	   int i;
+	    for (i = 0; i < 3; i++) {
+	      if (display[i] == event.display.source)
+	      	display[i] = 0;
+	    }
+	    al_destroy_display(event.display.source);
+            //quit = 1;
          }
       }
 
@@ -100,6 +106,8 @@ int main(void)
             al_color(0, 1, 0, 0.5),
             al_color(0, 0, 1, 0.5)};
          for (i = 0; i < 3; i++) {
+	    if (!display[i])
+	       continue;
             al_make_display_current(display[i]);
             al_clear(al_color(1.0f, 1.0f, 1.0f, 1.0));
 	    if (i == 0) {

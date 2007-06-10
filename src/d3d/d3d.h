@@ -47,7 +47,11 @@ struct AL_BITMAP_D3D
 	LPDIRECT3DTEXTURE8 system_texture;
 
 	bool created;
+	bool is_sub_bitmap;
 	bool is_screen;
+
+	unsigned int xo;	/* offsets for sub bitmaps */
+	unsigned int yo;
 };
 
 
@@ -85,19 +89,23 @@ AL_VAR(AL_DISPLAY_D3D *, _al_d3d_last_created_display);
 
 AL_VAR(bool, _al_d3d_keyboard_initialized);
 
+void _al_d3d_delete_from_vector(_AL_VECTOR *vec, void *item);
+
 bool _al_d3d_init_display();
-AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d, int w, int h, int flags);
+AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
+	unsigned int w, unsigned int h,
+	int flags);
 void _al_d3d_get_current_ortho_projection_parameters(float *w, float *h);
 void _al_d3d_set_ortho_projection(float w, float h);
 
 bool _al_d3d_init_keyboard();
+void _al_d3d_set_kb_cooperative_level(HWND window);
 
-void _al_d3d_win_grab_input();
-void _al_d3d_win_ungrab_input();
 HWND _al_d3d_create_hidden_window(void);
 HWND _al_d3d_create_window(int, int);
 HWND _al_d3d_win_get_window();
 int _al_d3d_init_window();
+void _al_d3d_win_ungrab_input();
 
 void _al_d3d_release_default_pool_textures();
 void _al_d3d_refresh_texture_memory();

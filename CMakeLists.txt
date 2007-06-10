@@ -864,7 +864,7 @@ macro(add_allegro_executable nm)
     target_link_libraries(${nm} ${LINK_WITH})
 endmacro(add_allegro_executable)
 
-#add_subdirectory(demo)
+add_subdirectory(demo)
 #add_subdirectory(examples)
 #add_subdirectory(tests)
 #add_subdirectory(tools)

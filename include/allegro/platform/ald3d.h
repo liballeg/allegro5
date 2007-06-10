@@ -22,7 +22,7 @@ struct AL_DISPLAY_D3D
    LPDIRECT3DSWAPCHAIN8 swap_chain;
    LPDIRECT3DSURFACE8 render_target;
    LPDIRECT3DSURFACE8 stencil_buffer;
-   bool keyboard_initialized;
+   //bool keyboard_initialized;
    bool immediate; /* immitating screen bitmap */
 };
 

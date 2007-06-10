@@ -30,6 +30,7 @@ struct AL_COLOR
 #define al_color(r, g, b, a) (AL_COLOR){r, g, b, a}
 
 AL_DISPLAY *al_create_display(int w, int h, int flags);
+void al_destroy_display(AL_DISPLAY *display);
 void al_make_display_current(AL_DISPLAY *display);
 void al_clear(AL_COLOR color);
 void al_line(float fx, float fy, float tx, float ty, AL_COLOR color);

@@ -63,15 +63,23 @@ static void d3d_wnd_thread_proc(HANDLE unused)
 	
 	new_window = my_window;
 
-	_win_thread_init();
+	//_win_thread_init();
 
 	for (;;) {
-		while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-			if (GetMessage(&msg, NULL, 0, 0)) {
-				DispatchMessage(&msg);
-			}
-			else {
-				goto End;
+		result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, INFINITE, QS_ALLINPUT);
+		if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events) {
+			/* one of the registered events is in signaled state */
+			(*_win_input_event_handler[result - WAIT_OBJECT_0])();
+		}
+		else if (result == (DWORD) WAIT_OBJECT_0 + _win_input_events) {
+			/* messages are waiting in the queue */
+			while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+				if (GetMessage(&msg, NULL, 0, 0)) {
+					DispatchMessage(&msg);
+				}
+				else {
+					goto End;
+				}
 			}
 		}
 	}
@@ -79,7 +87,7 @@ static void d3d_wnd_thread_proc(HANDLE unused)
 End:
    _TRACE("window thread exits\n");
 
-   _win_thread_exit();
+   //_win_thread_exit();
 }
 
 HWND _al_d3d_create_hidden_window()
@@ -103,11 +111,14 @@ HWND _al_d3d_create_window(int width, int height)
 
 	while (new_window == (HWND)-1)
 		al_rest(1);
+	/*
 	if (_al_d3d_keyboard_initialized) {
 		AL_DISPLAY_D3D *d = (AL_DISPLAY_D3D *)_al_current_display;
-		key_dinput_set_cooperation_level(new_window);
+		//key_dinput_set_cooperation_level(new_window);
 		d->keyboard_initialized = true;
 	}
+	*/
+
 	_al_win_wnd = new_window;
 	return new_window;
 }
@@ -152,7 +163,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 				if (wParam == TRUE) {
 					al_make_display_current((AL_DISPLAY *)d);
 					_al_win_wnd = d->window;
-					_al_d3d_win_grab_input();
+					win_grab_input();
 				}
 				else {
 					if (_al_vector_find(&thread_handles, &lParam) < 0) {
@@ -242,21 +253,6 @@ void d3d_wnd_schedule_proc(int (*proc) (void))
    PostMessage(_al_win_wnd, _al_win_msg_call_proc, (DWORD) proc, 0);
 }
 
-/* d3d_grab_input:
- *  Grabs the input devices.
- */
-void _al_d3d_win_grab_input()
-{
-   wnd_schedule_proc(key_dinput_acquire);
-//   wnd_schedule_proc(mouse_dinput_grab);
-//   wnd_schedule_proc(_al_win_joystick_dinput_acquire);
-}
-
-void _al_d3d_win_ungrab_input()
-{
-   wnd_schedule_proc(key_dinput_unacquire);
-}
-
 HWND d3d_win_get_window()
 {
 	return _al_win_wnd;
@@ -285,6 +281,12 @@ int _al_d3d_init_window()
 
 	return true;
 }
+
+void _al_d3d_win_ungrab_input()
+{
+   wnd_schedule_proc(key_dinput_unacquire);
+}
+
 
 #if 0
 static void d3d_window_exit()
