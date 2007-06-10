@@ -1819,6 +1819,8 @@ which begin with a `[sectionname]' line. Each section has a unique
 namespace, to prevent variable name conflicts, but any variables that aren't 
 in a section are considered to belong to all the sections simultaneously.
 
+Note that variable and section names cannot contain spaces.
+
 By default the configuration data is read from a file called `allegro.cfg',
 which can be located either in the same directory as the program executable, 
 or the directory pointed to by the ALLEGRO environment variable. Under Unix, 
@@ -2172,6 +2174,13 @@ your game.
    char const **sections = NULL;
    char const **entries = NULL;
 
+   /* List all entries not in any section. */
+   n = list_config_entries(NULL, &entries);
+   for (i = 0; i < n; i++)
+      printf(" %s=\"%s\"\n", entries[i], get_config_string(
+             NULL, entries[i], "-"));
+
+   /* List all sections (and entries in them). */
    n = list_config_sections(&sections);
    /* loop through all section names */
    for (i = 0; i < n; i++)
@@ -2186,6 +2195,7 @@ your game.
              sections[i], entries[j], "-"));
       }
    }
+   /* It is enough to free the arrays once at the end. */
    free_config_entries(&sections);
    free_config_entries(&entries);<endblock>
 @retval
