@@ -198,7 +198,7 @@ int main(void)
       return 1;
    }
 
-   set_palette(pal);
+   set_palette_range(pal, 0, 127, FALSE);
 
    /* double buffer the animation and create the Z-buffer */
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
