@@ -266,6 +266,8 @@ int main(int argc, char *argv[])
       }
    }
 
+   destroy_bitmap(buffer);
+
    unload_datafile(data);
 
    return 0;
