@@ -66,8 +66,8 @@ int main(void)
    if (allegro_init() != 0)
       return 1;
    install_keyboard(); 
-   if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
-      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_DIRECT3D, 320, 200, 0, 0) != 0) {
+      if (set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0) != 0) {
 	 allegro_message("Error setting graphics mode\n%s\n", allegro_error);
 	 return 1;
       }
@@ -145,30 +145,41 @@ int main(void)
       acquire_screen();
       draw_bottom_line_of_fire();
 
+	printf("select\n");
       bmp_select(screen);
+      	printf("selected\n");
 
       for (y=64; y<SCREEN_H-1; y++) {
 	 /* get an address for reading line y+1 */
+	 printf("read\n");
 	 address = bmp_read_line(screen, y+1);
+	 printf("red\n");
 
+	printf("read8\n");
 	 /* read line with farptr functions */
 	 for (x=0; x<SCREEN_W; x++)
 	    temp[x] = bmp_read8(address+x);
+	    printf("red8\n");
 
 	 /* adjust it */
 	 for (x=0; x<SCREEN_W; x++)
 	    if (temp[x] > 0)
 	       temp[x]--;
 
+	printf("write line\n");
 	 /* get an address for writing line y */
 	 address = bmp_write_line(screen, y);
+	printf("written line\n");
 
+	printf("write8\n");
 	 /* write line with farptr functions */
 	 for (x=0; x<SCREEN_W; x++)
 	    bmp_write8(address+x, temp[x]);
+	    printf("wrote8\n");
       }
-
+	printf("before\n");
       bmp_unwrite_line(screen);
+      	printf("after\n");
       release_screen();
    }
 

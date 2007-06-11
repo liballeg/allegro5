@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
 { 
    PALETTE pal;
    BITMAP *bmp[3];
-   int card = GFX_AUTODETECT;
+   int card = GFX_DIRECT3D;
    int w, h, bpp, page, i;
 
    if (allegro_init() != 0)

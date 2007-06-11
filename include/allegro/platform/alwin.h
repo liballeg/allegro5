@@ -95,6 +95,7 @@ AL_VAR(GFX_DRIVER, gfx_directx_soft);
 AL_VAR(GFX_DRIVER, gfx_directx_win);
 AL_VAR(GFX_DRIVER, gfx_directx_ovl);
 AL_VAR(GFX_DRIVER, gfx_gdi);
+AL_VAR(GFX_DRIVER, _al_d3d_dummy_gfx_driver);
 
 #define GFX_DRIVER_DIRECTX                                              \
    {  GFX_DIRECTX_ACCEL,   &gfx_directx_accel,     TRUE  },             \

@@ -15,6 +15,7 @@
 #include "internal/aintern_vector.h"
 #include "allegro/platform/aintwin.h"
 
+#include "wddraw.h"
 #include "d3d.h"
 
 /* The window code needs this to set a thread handle */
@@ -33,6 +34,49 @@ static float d3d_ortho_h;
 
 /* Preserved vertex buffers for speed */
 static IDirect3DVertexBuffer8 *d3d_line_vertex_buffer;
+
+GFX_DRIVER _al_d3d_dummy_gfx_driver = {
+	0,
+	"Dummy Compatibility GFX driver",
+	"Dummy Compatibility GFX driver",
+	"Dummy Compatibility GFX driver",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	0, 0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+   _al_win_directx_create_mouse_cursor,
+   _al_win_directx_destroy_mouse_cursor,
+   _al_win_directx_set_mouse_cursor,
+   _al_win_directx_set_system_mouse_cursor,
+   _al_win_directx_show_mouse_cursor,
+   _al_win_directx_hide_mouse_cursor
+};
 
 
 static bool d3d_create_vertex_buffers()
@@ -478,6 +522,94 @@ static void d3d_acknowledge_resize(AL_DISPLAY *d)
 	}
 }
 
+/*
+ * Upload a rectangle of a compatibility bitmap.
+ */
+static void d3d_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h)
+{
+	int cx;
+	int cy;
+	int pixel;
+	LPDIRECT3DSURFACE8 render_target;
+	RECT rect;
+	D3DLOCKED_RECT locked_rect;
+
+	x += bitmap->x_ofs;
+	y += bitmap->y_ofs;
+	
+	if (x < 0) {
+		w -= -x;
+		x = 0;
+	}
+	if (y < 0) {
+		h -= -y;
+		y = 0;
+	}
+
+	if (w <= 0 || h <= 0)
+		return;
+
+	/*
+	if (x+w >= bitmap->w)
+		w--;
+	if (y+h >= bitmap->h)
+		h--;
+	*/
+
+	if (IDirect3DDevice8_GetRenderTarget(_al_d3d_device, &render_target) != D3D_OK) {
+		TRACE("d3d_upload_compat_bitmap: GetRenderTarget failed.\n");
+		return;
+	}
+
+	rect.left = x;
+	rect.top = y;
+	rect.right = x + w;
+	rect.bottom = y + h;
+
+	if (IDirect3DSurface8_LockRect(render_target, &locked_rect, &rect, 0) != D3D_OK) {
+		IDirect3DSurface8_Release(render_target);
+		return;
+	}
+
+	for (cy = y; cy < y+h; cy++) {
+		if (bitmap_color_depth(bitmap) == 8 || bitmap_color_depth(bitmap) == 12) {
+			for (cx = x; cx < x+w; cx++) {
+				int pixel = *(unsigned char *)(bitmap->line[cy]+cx);
+				*(uint32_t *)(locked_rect.pBits+(cy-y)*locked_rect.Pitch+(cx-x)*4) = D3DCOLOR_ARGB(0, getr8(pixel), getg8(pixel), getb8(pixel));
+			}
+		}
+		if (bitmap_color_depth(bitmap) == 15) {
+			for (cx = x; cx < x+w; cx++) {
+				int pixel = *(uint16_t *)(bitmap->line[cy]+cx*2);
+				*(uint32_t *)(locked_rect.pBits+(cy-y)*locked_rect.Pitch+(cx-x)*4) = D3DCOLOR_ARGB(0, getr15(pixel), getg15(pixel), getb15(pixel));
+			}
+		}
+		if (bitmap_color_depth(bitmap) == 16) {
+			for (cx = x; cx < x+w; cx++) {
+				int pixel = *(uint16_t *)(bitmap->line[cy]+cx*2);
+				*(uint32_t *)(locked_rect.pBits+(cy-y)*locked_rect.Pitch+(cx-x)*4) = D3DCOLOR_ARGB(0, getr16(pixel), getg16(pixel), getb16(pixel));
+			}
+		}
+		if (bitmap_color_depth(bitmap) == 24) {
+			for (cx = x; cx < x+w; cx++) {
+				int pixel = READ3BYTES(bitmap->line[cy]+cx*3);
+				*(uint32_t *)(locked_rect.pBits+(cy-y)*locked_rect.Pitch+(cx-x)*4) = D3DCOLOR_ARGB(0, getr24(pixel), getg24(pixel), getb24(pixel));
+			}
+		}
+		if (bitmap_color_depth(bitmap) == 32) {
+			for (cx = x; cx < x+w; cx++) {
+				int pixel = *(uint32_t *)(bitmap->line[cy]+cx*4);
+				*(uint32_t *)(locked_rect.pBits+(cy-y)*locked_rect.Pitch+(cx-x)*4) = D3DCOLOR_ARGB(0, getr32(pixel), getg32(pixel), getb32(pixel));
+			}
+		}
+	}
+
+	IDirect3DSurface8_UnlockRect(render_target);
+	IDirect3DSurface8_Release(render_target);
+
+	al_flip(x, y, w, h);
+}
+
 /* Dummy implementation. */
 // TODO: rename to create_bitmap once the A4 function of same name is out of the
 // way
@@ -548,6 +680,7 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->acknowledge_resize = d3d_acknowledge_resize;
    vt->create_bitmap = _al_d3d_create_bitmap;
    vt->create_sub_bitmap = _al_d3d_create_sub_bitmap;
+   vt->upload_compat_screen = d3d_upload_compat_screen;
 
    return vt;
 }

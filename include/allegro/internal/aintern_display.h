@@ -27,6 +27,8 @@ struct AL_DISPLAY_INTERFACE
    AL_BITMAP *(*create_sub_bitmap)(AL_DISPLAY *d, AL_BITMAP *parent,
    	unsigned int x, unsigned int y,
 	unsigned int w, unsigned int h, int flags);
+   
+   void (*upload_compat_screen)(struct BITMAP *bitmap, int x, int y, int width, int height);
 };
 
 struct AL_DISPLAY

@@ -109,6 +109,7 @@ static BITMAP *add_vram_block(int x, int y, int w, int h)
 
    //new_b->bmp = create_sub_bitmap(display->screen, x, y, w, h);
    new_b->bmp = create_sub_bitmap(screen, x, y, w, h);
+   new_b->bmp->id |= BMP_ID_VIDEO;
 
    if (!new_b->bmp) {
       _AL_FREE(new_b);
@@ -407,9 +408,9 @@ void destroy_bitmap(BITMAP *bitmap)
             }
          }
       }
-
-      if (bitmap->needs_upload) {
-         al_destroy_bitmap(bitmap->al_bitmap);
+      else if (bitmap->needs_upload && bitmap == screen) {
+   	al_destroy_display(_al_current_display);
+	_al_current_display = NULL;
       }
 
       /* normal memory or sub-bitmap destruction */
@@ -529,22 +530,25 @@ static GFX_DRIVER *get_gfx_driver_from_id(int card, _DRIVER_INFO *driver_list)
  *  Helper function for initializing a graphics driver.
  */
 //static BITMAP *init_gfx_driver(AL_DISPLAY *display, GFX_DRIVER *drv, int w, int h, int depth, int flags)
-static BITMAP *init_gfx_driver(GFX_DRIVER *drv, int w, int h, int depth, int flags)
+//static BITMAP *init_gfx_driver(GFX_DRIVER *drv, int w, int h, int depth, int flags)
+static BITMAP *init_gfx_driver(GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int depth)
 {
-   int v_w = 0; 
-   int v_h = 0;
+//   int v_w = 0; 
+  // int v_h = 0;
    drv->name = drv->desc = get_config_text(drv->ascii_name);
 
    /* set gfx_driver so that it is visible when initializing the driver */
    //display->gfx_driver = drv;
    gfx_driver = drv;
 
+/*
    #ifdef ALLEGRO_VRAM_SINGLE_SURFACE
    if (flags&(AL_UPDATE_TRIPLE_BUFFER|AL_UPDATE_PAGE_FLIP)) {
       v_w = w;
       v_h = h * (flags&AL_UPDATE_TRIPLE_BUFFER?3:2);
    }
    #endif
+*/
 
    return drv->init(w, h, v_w, v_h, depth);
 }
@@ -597,7 +601,8 @@ static int get_config_gfx_driver(char *gfx_card, int w, int h, int v_w, int v_h,
 	 if (drv && gfx_driver_is_valid(drv, drv_flags)) {
 	    found = TRUE;
 	    //display->screen = init_gfx_driver(display, drv, w, h, depth, flags);
-	    screen = init_gfx_driver(drv, w, h, depth, flags);
+	    //screen = init_gfx_driver(drv, w, h, depth, flags);
+	    screen = init_gfx_driver(drv, w, h, v_w, v_h, depth);
 
 	    //if (display->screen)
 	    if (screen)
@@ -630,7 +635,8 @@ static int get_config_gfx_driver(char *gfx_card, int w, int h, int v_w, int v_h,
  *  returns -1.
  */
 //static int do_set_gfx_mode(AL_DISPLAY *display, int card, int w, int h, int depth, int flags)
-int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
+int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
+//int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 {
    static int allow_config = TRUE;
    extern void blit_end(void);
@@ -641,29 +647,12 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
    AL_CONST char *dv;
    int drv_flags = 0;
    int c, driver, ret;
-   int v_w = 0;
-   int v_h = 0;
+   //int v_w = 0;
+   //int v_h = 0;
    ASSERT(system_driver);
+   int depth = get_color_depth();
 
    _gfx_mode_set_count++;
-
-   if (card == GFX_DIRECT3D) {
-	if (gfx_driver) {
-		destroy_bitmap(screen);
-	}
-	al_init();
-	new_display = al_create_display(w, h, AL_UPDATE_IMMEDIATE);
-	al_make_display_current(new_display);
-	screen = create_bitmap(w, h);
-	screen->al_bitmap = _al_current_display->vt->create_bitmap(_al_current_display, w, h, 0);
-	screen->needs_upload = true;
-	screen->al_bitmap->vt->make_compat_screen(screen->al_bitmap);
-	screen->al_bitmap->vt->upload_compat_bitmap(screen, 0, 0, w, h);
-	for (c=0; c<256; c++)
-	  _palette_color8[c] = c;
-        set_palette(default_palette);
-	return 0;
-   }
 
    /* special bodge for the GFX_SAFE driver */
    if (card == GFX_SAFE) {
@@ -675,7 +664,8 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 
 	 /* try using the specified depth and resolution */
 	 //if (do_set_gfx_mode(display, driver, w, h, depth, flags) == 0)
-	 if (do_set_gfx_mode(driver, w, h, depth, flags) == 0)
+	 //if (do_set_gfx_mode(driver, w, h, depth, flags) == 0)
+	 if (set_gfx_mode(driver, w, h, v_w, v_h) == 0)
 	    return 0;
 
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, buf);
@@ -683,7 +673,8 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 	 /* finally use the safe settings */
 	 set_color_depth(mode.bpp);
 	 //if (do_set_gfx_mode(display, driver, mode.width, mode.height, depth, flags) == 0)
-	 if (do_set_gfx_mode(driver, mode.width, mode.height, depth, flags) == 0)
+	 //if (do_set_gfx_mode(driver, mode.width, mode.height, depth, flags) == 0)
+	 if (set_gfx_mode(driver, mode.width, mode.height, v_w, v_h) == 0)
 	    return 0;
 
 	 ASSERT(FALSE);  /* the safe graphics mode must always work */
@@ -694,7 +685,8 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 	 _safe_gfx_mode_change = 1;
 
 	 //ret = do_set_gfx_mode(display, GFX_AUTODETECT, w, h, depth, flags);
-	 ret = do_set_gfx_mode(GFX_AUTODETECT, w, h, depth, flags);
+	 //ret = do_set_gfx_mode(GFX_AUTODETECT, w, h, depth, flags);
+	 ret = set_gfx_mode(GFX_AUTODETECT, w, h, v_w, v_h);
 
 	 _safe_gfx_mode_change = 0;
 	 allow_config = TRUE;
@@ -705,7 +697,8 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 
       /* failing to set GFX_SAFE is a fatal error */
       //do_set_gfx_mode(display, GFX_TEXT, 0, 0, 0, 0);
-      do_set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      //do_set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message(uconvert_ascii("%s\n", tmp1), get_config_text("Fatal error: unable to set GFX_SAFE"));
       return -1;
    }
@@ -737,7 +730,7 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
          _al_linker_mouse->show_mouse(NULL);
 
       destroy_video_bitmaps();
-      
+
       //bmp_read_line(display->screen, 0);
       //bmp_write_line(display->screen, 0);
       //bmp_unwrite_line(display->screen);
@@ -803,7 +796,36 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
       card = GFX_AUTODETECT;
    }
 
-   if (card == GFX_AUTODETECT) {
+   if (card == GFX_DIRECT3D) {
+	if (gfx_driver) {
+		destroy_bitmap(screen);
+		screen = NULL;
+		gfx_driver = NULL;
+	}
+	al_init();
+	if (v_w != 0 || v_h != 0) {
+		return -1;
+	}
+	screen = create_bitmap(w, h);
+	screen->display = al_create_display(w, h, AL_UPDATE_IMMEDIATE);
+	al_make_display_current(screen->display);
+	screen->needs_upload = true;
+	//screen->al_bitmap->vt->make_compat_screen(screen->al_bitmap);
+	screen->display->vt->upload_compat_screen(screen, 0, 0, w, h);
+
+	gfx_driver = &_al_d3d_dummy_gfx_driver;
+	gfx_driver->w = w;
+	gfx_driver->h = h;
+	gfx_driver->windowed = true;
+
+	for (c=0; c<256; c++)
+	  _palette_color8[c] = c;
+        set_palette(default_palette);
+	if (_al_linker_mouse)
+		_al_linker_mouse->set_mouse_etc();
+	return 0;
+   }
+   else if (card == GFX_AUTODETECT) {
       /* autodetect the driver */
       int found = FALSE;
 
@@ -812,12 +834,14 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 	 /* try the gfx_card variable if GFX_AUTODETECT or GFX_AUTODETECT_FULLSCREEN was selected */
 	 if (!(drv_flags & GFX_DRIVER_WINDOWED_FLAG))
 	    //found = get_config_gfx_driver(display, uconvert_ascii("gfx_card", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
-	    found = get_config_gfx_driver(uconvert_ascii("gfx_card", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
+	    //found = get_config_gfx_driver(uconvert_ascii("gfx_card", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
+	    found = get_config_gfx_driver(uconvert_ascii("gfx_card", tmp1), w, h, v_w, v_h, depth, 0, drv_flags, driver_list);
 
 	 /* try the gfx_cardw variable if GFX_AUTODETECT or GFX_AUTODETECT_WINDOWED was selected */
 	 if (!(drv_flags & GFX_DRIVER_FULLSCREEN_FLAG) && !found)
 	    //found = get_config_gfx_driver(display, uconvert_ascii("gfx_cardw", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
-	    found = get_config_gfx_driver(uconvert_ascii("gfx_cardw", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
+	    //found = get_config_gfx_driver(uconvert_ascii("gfx_cardw", tmp1), w, h, v_w, v_h, depth, flags, drv_flags, driver_list);
+	    found = get_config_gfx_driver(uconvert_ascii("gfx_cardw", tmp1), w, h, v_w, v_h, depth, 0, drv_flags, driver_list);
       }
 
       /* go through the list of autodetected drivers if none was previously found */
@@ -830,7 +854,8 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 
 	       if (gfx_driver_is_valid(drv, drv_flags)) {
 		  //display->screen = init_gfx_driver(display, drv, w, h, depth, flags);
-		  screen = init_gfx_driver(drv, w, h, depth, flags);
+		  //screen = init_gfx_driver(drv, w, h, depth, flags);
+		  screen = init_gfx_driver(drv, w, h, v_w, v_h, depth);
 
 		  //if (display->screen)
 		  if (screen)
@@ -846,7 +871,8 @@ int do_set_gfx_mode(int card, int w, int h, int depth, int flags)
 
       if (drv)
 	 //display->screen = init_gfx_driver(display, drv, w, h, depth, flags);
-	 screen = init_gfx_driver(drv, w, h, depth, flags);
+	 //screen = init_gfx_driver(drv, w, h, depth, flags);
+	 screen = init_gfx_driver(drv, w, h, v_w, v_h, depth);
    }
 
    /* gracefully handle failure */
@@ -1004,6 +1030,8 @@ BITMAP *_make_bitmap(int w, int h, uintptr_t addr, GFX_DRIVER *driver, int color
    b->x_ofs = 0;
    b->y_ofs = 0;
    b->seg = _video_ds();
+   b->needs_upload = false;
+   b->dirty_x1 = b->dirty_x2 = b->dirty_y1 = b->dirty_y2 = -1;
 
    memcpy(&_screen_vtable, vtable, sizeof(GFX_VTABLE));
    LOCK_DATA(&_screen_vtable, sizeof(GFX_VTABLE));
@@ -1052,7 +1080,7 @@ int al_scroll_display(int x, int y)
 {
    int ret = 0;
    int h;
-   
+
    //ASSERT(display);
 
    /* can driver handle hardware scrolling? */

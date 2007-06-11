@@ -16,50 +16,6 @@
 #include "d3d.h"
 
 
-static GFX_DRIVER d3d_dummy_gfx_driver = {
-	0,
-	"D3D dummy GFX driver",
-	"D3D dummy GFX driver",
-	"D3D dummy GFX driver",
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	0, 0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-
-
 static AL_BITMAP_INTERFACE *vt;
 static _AL_VECTOR created_bitmaps = _AL_VECTOR_INITIALIZER(AL_BITMAP_D3D *);
 
@@ -1078,120 +1034,17 @@ static void d3d_destroy_bitmap(AL_BITMAP *bitmap)
    	IDirect3DTexture8_Release(d3d_bmp->system_texture);
    }
 
+/*
    if (d3d_bmp->is_screen && !d3d_bmp->is_sub_bitmap) {
    	al_destroy_display(_al_current_display);
 	_al_current_display = NULL;
    }
+   */
 
    _al_d3d_delete_from_vector(&created_bitmaps, d3d_bmp);
 }
 
 /*
- * Upload a rectangle of a compatibility bitmap.
- */
-static void d3d_upload_compat_bitmap(BITMAP *bitmap, int x, int y, int w, int h)
-{
-	AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap->al_bitmap;
-	int cx;
-	int cy;
-	int pixel;
-	AL_COLOR d3d_pixel;
-	LPDIRECT3DSURFACE8 render_target;
-	RECT rect;
-	D3DLOCKED_RECT locked_rect;
-
-	x += d3d_bmp->xo;
-	y += d3d_bmp->yo;
-	
-	if (x < 0) {
-		w -= -x;
-		x = 0;
-	}
-	if (y < 0) {
-		h -= -y;
-		y = 0;
-	}
-
-	if (w <= 0 || h <= 0)
-		return;
-
-	if (x+w >= bitmap->w)
-		w--;
-	if (y+h >= bitmap->h)
-		h--;
-
-	if (IDirect3DDevice8_GetRenderTarget(_al_d3d_device, &render_target) != D3D_OK) {
-		TRACE("d3d_upload_compat_bitmap: GetRenderTarget failed.\n");
-		return;
-	}
-
-	rect.left = x;
-	rect.top = y;
-	rect.right = x + w + 1;
-	rect.bottom = y + h + 1;
-
-	//FIXME: check return value
-	IDirect3DSurface8_LockRect(render_target, &locked_rect, &rect, 0);
-
-//	al_lock_bitmap((AL_BITMAP *)d3d_bmp, x, y, w, h);
-
-	for (cy = y; cy < y+h; cy++) {
-		if (bitmap_color_depth(bitmap) == 32) {
-			for (cx = x; cx < x+w; cx++) {
-				pixel = _getpixel32(bitmap, cx, cy);
-				AL_PIXEL32_TO_COLOR(pixel, d3d_pixel);
-				al_put_pixel(0, (AL_BITMAP *)d3d_bmp, cx, cy, &d3d_pixel);
-			}
-		}
-		if (bitmap_color_depth(bitmap) == 24) {
-			for (cx = x; cx < x+w; cx++) {
-				pixel = _getpixel24(bitmap, cx, cy);
-				AL_PIXEL24_TO_COLOR(pixel, d3d_pixel);
-				al_put_pixel(0, (AL_BITMAP *)d3d_bmp, cx, cy, &d3d_pixel);
-			}
-		}
-		if (bitmap_color_depth(bitmap) == 16) {
-			for (cx = x; cx < x+w; cx++) {
-				pixel = _getpixel16(bitmap, cx, cy);
-				AL_PIXEL16_TO_COLOR(pixel, d3d_pixel);
-				al_put_pixel(0, (AL_BITMAP *)d3d_bmp, cx, cy, &d3d_pixel);
-			}
-		}
-		if (bitmap_color_depth(bitmap) == 15) {
-			for (cx = x; cx < x+w; cx++) {
-				pixel = _getpixel15(bitmap, cx, cy);
-				AL_PIXEL15_TO_COLOR(pixel, d3d_pixel);
-				al_put_pixel(0, (AL_BITMAP *)d3d_bmp, cx, cy, &d3d_pixel);
-			}
-		}
-		if (bitmap_color_depth(bitmap) == 8) {
-			for (cx = x; cx < x+w; cx++) {
-				int pixel = *(unsigned char *)(bitmap->line[cy]+cx);
-				*(uint32_t *)(locked_rect.pBits+(cy-y)*locked_rect.Pitch+(cx-x)*4) = D3DCOLOR_ARGB(0, getr8(pixel), getg8(pixel), getb8(pixel));
-				//pixel = _getpixel(bitmap, cx, cy);
-				//AL_PIXEL8_TO_COLOR(pixel, d3d_pixel);
-				//al_put_pixel(0, (AL_BITMAP *)d3d_bmp, cx, cy, &d3d_pixel);
-			}
-		}
-	}
-
-//	al_unlock_bitmap((AL_BITMAP *)d3d_bmp);
-
-	IDirect3DSurface8_UnlockRect(render_target);
-	IDirect3DSurface8_Release(render_target);
-
-
-	al_flip(x, y, w, h);
-/*
-	if (d3d_bmp->is_screen) {
-		al_blit_region(0, (AL_BITMAP *)bitmap->al_bitmap, x, y,
-			0, x, y, w, h);
-
-		al_flip(x, y, w, h);
-	}
-	*/
-}
-
 static void d3d_make_compat_screen(AL_BITMAP *bitmap)
 {
 	AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap;
@@ -1200,6 +1053,7 @@ static void d3d_make_compat_screen(AL_BITMAP *bitmap)
 	gfx_driver->w = bitmap->w;
 	gfx_driver->h = bitmap->h;
 }
+*/
 
 /* Obtain a reference to this driver. */
 AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(int flag)
@@ -1219,8 +1073,8 @@ AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(int flag)
    vt->upload_bitmap = d3d_upload_bitmap;
    vt->download_bitmap = d3d_download_bitmap;
    vt->destroy_bitmap = d3d_destroy_bitmap;
-   vt->upload_compat_bitmap = d3d_upload_compat_bitmap;
-   vt->make_compat_screen = d3d_make_compat_screen;
+   //vt->upload_compat_bitmap = d3d_upload_compat_bitmap;
+   //vt->make_compat_screen = d3d_make_compat_screen;
 
    return vt;
 }

@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
    LOCK_VARIABLE(ticks);
    install_int_ex(ticker, BPS_TO_TIMER(30));
 
-   //if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+   //if (set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0) != 0) {
    if (set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);

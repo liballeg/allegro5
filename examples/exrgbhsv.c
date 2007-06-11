@@ -242,15 +242,15 @@ int main(void)
 
    /* Set the deepest color depth we can set */
    set_color_depth(32);
-   if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0) != 0) {
       set_color_depth(24);
-      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+      if (set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0) != 0) {
 	 set_color_depth(16);
-	 if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+	 if (set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0) != 0) {
 	    set_color_depth(15);
-	    if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+	    if (set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0) != 0) {
 	       set_color_depth(8);
-	       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+	       if (set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0) != 0) {
 		 allegro_message("Error setting a graphics mode\n%s\n",
 				 allegro_error);
 		 return 1;

@@ -176,9 +176,11 @@ int main(void)
 
    /* see comments in exflip.c */
 #ifdef ALLEGRO_VRAM_SINGLE_SURFACE
-   if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, h * 3) != 0) {
+   //if (set_gfx_mode(GFX_DIRECT3D, w, h, 0, h * 3) != 0) {
+   if (set_gfx_mode(GFX_DIRECT3D, w, h, 0, h * 3) != 0) {
 #else
-   if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0) != 0) {
+   //if (set_gfx_mode(GFX_DIRECT3D, w, h, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_DIRECT3D, w, h, 0, 0) != 0) {
 #endif
       if (set_gfx_mode(GFX_SAFE, w, h, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);

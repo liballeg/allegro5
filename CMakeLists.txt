@@ -865,7 +865,7 @@ macro(add_allegro_executable nm)
 endmacro(add_allegro_executable)
 
 add_subdirectory(demo)
-#add_subdirectory(examples)
+add_subdirectory(examples)
 #add_subdirectory(tests)
 #add_subdirectory(tools)
 

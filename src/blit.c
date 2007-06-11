@@ -812,9 +812,11 @@ void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, 
          dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
    }
 
+/*
    if (dest->needs_upload) {
-   	dest->al_bitmap->vt->upload_compat_bitmap(dest, d_x, d_y, w, h);
+   	dest->display->vt->upload_compat_screen(dest, d_x, d_y, w, h);
    }
+   */
 }
 
 END_OF_FUNCTION(al_blit_region);

@@ -25,7 +25,7 @@ int main(void)
       return 1;
    install_keyboard();
 
-   if (set_gfx_mode(GFX_AUTODETECT, 320, 240, 640, 240) != 0) {
+   if (set_gfx_mode(GFX_DIRECT3D, 320, 240, 640, 240) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Unable to set a 320x240 mode with 640x240 "
 		      "virtual dimensions\n");

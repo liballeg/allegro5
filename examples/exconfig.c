@@ -68,9 +68,9 @@ int main(void)
     * If the entry is not found, we use "FALSE" by default
     */
    if (ustricmp(get_config_string("graphics", "windowed", "FALSE"), "FALSE") == 0)
-      windowed = GFX_AUTODETECT_FULLSCREEN;
+      windowed = GFX_DIRECT3D;
    else
-      windowed = GFX_AUTODETECT_WINDOWED;
+      windowed = GFX_DIRECT3D;
 
    /* the title string 
     * The string returned is stored inside of the config system
@@ -115,7 +115,8 @@ int main(void)
 
    /* set the graphics mode */
    set_color_depth(bpp);
-   if (set_gfx_mode(windowed, w, h, 0, 0) != 0) {
+   //if (set_gfx_mode(windowed, w, h, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_DIRECT3D, w, h, 0, 0) != 0) {
       allegro_message("Unable to set mode %ix%i with %ibpp\n", w, h, bpp);
       free(filename);
       free(title);

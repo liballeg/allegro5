@@ -247,7 +247,7 @@ void set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
       system_driver->set_palette_range(p, from, to, vsync);
 
    if (screen->needs_upload) {
-      screen->al_bitmap->vt->upload_compat_bitmap(screen, 0, 0, screen->w, screen->h);
+      screen->display->vt->upload_compat_screen(screen, 0, 0, screen->w, screen->h);
    }
 }
 

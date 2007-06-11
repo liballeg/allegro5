@@ -19,6 +19,27 @@ static WNDCLASS window_class;
 // FIXME: must be deleted with display
 static _AL_VECTOR thread_handles = _AL_VECTOR_INITIALIZER(DWORD);
 
+/*
+ * Find the top left position of the client area of a window.
+ */
+static void d3d_get_window_pos(HWND window, RECT *pos)
+{
+	RECT with_decorations;
+	RECT adjusted;
+	int top;
+	int left;
+
+	GetWindowRect(window, &with_decorations);
+	memcpy(&adjusted, &with_decorations, sizeof(RECT));
+	AdjustWindowRect(&adjusted, GetWindowLong(window, GWL_STYLE), FALSE);
+
+	top = with_decorations.top - adjusted.top;
+	left = with_decorations.left - adjusted.left;
+
+	pos->top = with_decorations.top + top;
+	pos->left = with_decorations.left + left;
+}
+
 static void d3d_destroy_window(AL_DISPLAY_D3D *display)
 {
 	_al_vector_find_and_delete(&thread_handles, &display->thread_handle);
@@ -35,6 +56,7 @@ static void d3d_wnd_thread_proc(HANDLE unused)
 	HWND my_window;
 	RECT working_area;
 	RECT win_size;
+	RECT pos;
 
 	/* Save the thread handle for later use */
 	*((DWORD *)_al_vector_alloc_back(&thread_handles)) = GetCurrentThreadId();
@@ -60,7 +82,11 @@ static void d3d_wnd_thread_proc(HANDLE unused)
 		win_size.right - win_size.left,
 		win_size.bottom - win_size.top,
 		TRUE);
-	
+
+	d3d_get_window_pos(my_window, &pos);
+	wnd_x = pos.left;
+	wnd_y = pos.top;
+
 	new_window = my_window;
 
 	//_win_thread_init();
@@ -136,6 +162,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 	unsigned int i;
 	int fActive;
 	AL_EVENT_SOURCE *es = NULL;
+	RECT pos;
 
 	if (message == _al_win_msg_call_proc) {
 		return ((int (*)(void))wParam) ();
@@ -159,11 +186,26 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
 	if (i != _al_d3d_system->system.displays._size) {
 		switch (message) { 
+			case WM_MOVE:
+				if (GetActiveWindow() == win_get_window()) {
+					if (!IsIconic(win_get_window())) {
+						wnd_x = (short) LOWORD(lParam);
+						wnd_y = (short) HIWORD(lParam);
+					}
+				}
+				break;
+			case WM_SETCURSOR:
+				mouse_set_syscursor();
+				return 1;  /* not TRUE */
+			break;
 			case WM_ACTIVATEAPP:
 				if (wParam == TRUE) {
 					al_make_display_current((AL_DISPLAY *)d);
 					_al_win_wnd = d->window;
 					win_grab_input();
+					d3d_get_window_pos(d->window, &pos);
+					wnd_x = pos.left;
+					wnd_y = pos.top;
 				}
 				else {
 					if (_al_vector_find(&thread_handles, &lParam) < 0) {

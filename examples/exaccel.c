@@ -77,9 +77,11 @@ int main(int argc, char *argv[])
 
    /* see comments in exflip.c */
 #ifdef ALLEGRO_VRAM_SINGLE_SURFACE
-   if (set_gfx_mode(GFX_AUTODETECT, 1024, 768, 0, 2 * 768 + 200) != 0) {
+   //if (set_gfx_mode(GFX_DIRECT3D, 1024, 768, 0, 2 * 768 + 200) != 0) {
+   if (set_gfx_mode(GFX_DIRECT3D, 1024, 768, 0, 0) != 0) {
 #else
-   if (set_gfx_mode(GFX_AUTODETECT, 1024, 768, 0, 0) != 0) {
+   //if (set_gfx_mode(GFX_DIRECT3D, 1024, 768, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_DIRECT3D, 1024, 768, 0, 0) != 0) {
 #endif
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Error setting graphics mode\n%s\n", allegro_error);

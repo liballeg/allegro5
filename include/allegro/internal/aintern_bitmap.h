@@ -76,7 +76,7 @@ struct AL_BITMAP_INTERFACE
     * This is used by the compatibility layer after a BITMAP has
     * been changed.
     */
-   void (*upload_compat_bitmap)(struct BITMAP *bitmap, int x, int y, int width, int height);
+   //void (*upload_compat_bitmap)(struct BITMAP *bitmap, int x, int y, int width, int height);
    void (*download_bitmap)(struct AL_BITMAP *bitmap);
    /* Destroy any driver specific stuff. The struct AL_BITMAP and its memory copy
     * itself should not be touched.
@@ -86,7 +86,7 @@ struct AL_BITMAP_INTERFACE
    /*
     * Make this into the "screen" bitmap (for compatibility layer)
     */
-   void (*make_compat_screen)(struct AL_BITMAP *bitmap);
+   //void (*make_compat_screen)(struct AL_BITMAP *bitmap);
 };
 
 void _al_blit_memory_bitmap(struct AL_BITMAP *source, struct AL_BITMAP *dest,

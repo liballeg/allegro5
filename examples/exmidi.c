@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
    beats = -midi_pos; /* get_midi_length updates midi_pos to the negative
                          number of beats (quarter notes) in the midi. */
 
-   if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_DIRECT3D, 320, 200, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
 	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);

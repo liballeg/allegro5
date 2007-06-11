@@ -269,8 +269,16 @@ AL_ARRAY(_VTABLE_INFO, _vtable_list);
 
 typedef struct BITMAP            /* a bitmap structure */
 {
-   struct AL_BITMAP *al_bitmap;  /* new bitmap structure */
+   //struct AL_BITMAP *al_bitmap;  /* new bitmap structure */
+   struct AL_DISPLAY *display;   /* display for compatibility screen */
    bool needs_upload;            /* true if upload needed after change */
+   /*
+    * Needed by the new driver for compatibility
+    */
+   int dirty_x1;
+   int dirty_y1;
+   int dirty_x2;
+   int dirty_y2;
    int w, h;                     /* width and height in pixels */
    int clip;                     /* flag if clipping is turned on */
    int cl, cr, ct, cb;           /* clip left, right, top and bottom values */

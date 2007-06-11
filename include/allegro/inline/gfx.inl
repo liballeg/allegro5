@@ -25,6 +25,28 @@
 #include "asm.inl"
 #undef ALLEGRO_IMPORT_GFX_ASM
 
+#include "allegro/internal/aintern_display.h"
+
+
+#define _AL_UPDATE_DIRTY_REGION(bmp, x, y, w, h) \
+	if (bmp->dirty_x1 < 0) { \
+		bmp->dirty_x1 = x; \
+		bmp->dirty_y1 = y; \
+		bmp->dirty_x2 = x+w; \
+		bmp->dirty_y2 = y+h; \
+	} \
+	else { \
+		if (x < bmp->dirty_x1) \
+			bmp->dirty_x1 = x; \
+		if (x+w > bmp->dirty_x2) \
+			bmp->dirty_x2 = x+w; \
+		if (y < bmp->dirty_y1) \
+			bmp->dirty_y1 = y; \
+		if (y+h > bmp->dirty_y2) \
+			bmp->dirty_y2 = y+h; \
+	} 
+
+
 #ifdef __cplusplus
    extern "C" {
 #endif
@@ -61,6 +83,7 @@ typedef AL_METHOD(void, _BMP_UNBANK_SWITCHER, (BITMAP *bmp));
 
 AL_INLINE(uintptr_t, bmp_write_line, (BITMAP *bmp, int lyne),
 {
+   _AL_UPDATE_DIRTY_REGION(bmp, 0, lyne, bmp->w, 1);
    _BMP_BANK_SWITCHER switcher = (_BMP_BANK_SWITCHER)bmp->write_bank;
    return switcher(bmp, lyne);
 })
@@ -77,6 +100,14 @@ AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
 {
    _BMP_UNBANK_SWITCHER switcher = (_BMP_UNBANK_SWITCHER)bmp->vtable->unwrite_bank;
    switcher(bmp);
+
+   if (bmp->needs_upload) {
+   	bmp->display->vt->upload_compat_screen(bmp,
+		bmp->dirty_x1, bmp->dirty_y1,
+		bmp->dirty_x2-bmp->dirty_x1,
+		bmp->dirty_y2-bmp->dirty_y1);
+	bmp->dirty_x1 = bmp->dirty_x2 = bmp->dirty_y1 = bmp->dirty_y2 = -1;
+   }
 })
 
 #endif      /* defined ALLEGRO_BCC32 */
@@ -100,7 +131,7 @@ AL_INLINE(void, clear_to_color, (BITMAP *bitmap, int color),
    bitmap->vtable->clear_to_color(bitmap, color);
 
    if (bitmap->needs_upload) {
-      bitmap->al_bitmap->vt->upload_compat_bitmap(bitmap, 0, 0, bitmap->w, bitmap->h);
+      bitmap->display->vt->upload_compat_screen(bitmap, 0, 0, bitmap->w, bitmap->h);
    }
 })
 

@@ -326,7 +326,8 @@ int main(void)
    /* first set your graphics mode as normal, except twice as wide because
     * we are using 2-bytes per pixel, but the graphics card doesn't know this.
     */
-   if (set_gfx_mode(GFX_AUTODETECT, GFXW * 2, GFXH, 0, 0) != 0) {
+   //if (set_gfx_mode(GFX_DIRECT3D, GFXW * 2, GFXH, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_DIRECT3D, GFXW * 2, GFXH, 0, 0) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Error setting %ix%ix12 (really %ix%ix8, but we fake "
 		      "it):\n%s\n", GFXW, GFXH, GFXW* 2, GFXH,

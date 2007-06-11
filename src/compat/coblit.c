@@ -34,7 +34,7 @@ void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int 
    al_compat_blit_scaled(0, s, s_x, s_y, s_w, s_h,  d, d_x, d_y, d_w, d_h);
 
    if (d->needs_upload) {
-      d->al_bitmap->vt->upload_compat_bitmap(d, d_x, d_y, d_w, d_h);
+      d->display->vt->upload_compat_screen(d, d_x, d_y, d_w, d_h);
    }
 }
 
