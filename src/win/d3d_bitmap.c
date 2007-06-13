@@ -20,6 +20,7 @@ static AL_BITMAP_INTERFACE *vt;
 static _AL_VECTOR created_bitmaps = _AL_VECTOR_INITIALIZER(AL_BITMAP_D3D *);
 
 
+
 static AL_BITMAP *d3d_munge_bitmap(int flag,
 	AL_BITMAP *src, unsigned int sw, unsigned int sh,
 	void *dest_surface, int dx, int dy,

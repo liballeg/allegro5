@@ -23,8 +23,6 @@
 #include "base.h"
 #include "fixed.h"
 
-#include "allegro/internal/aintern_bitmap.h"
-
 #ifdef __cplusplus
    extern "C" {
 #endif
@@ -269,7 +267,6 @@ AL_ARRAY(_VTABLE_INFO, _vtable_list);
 
 typedef struct BITMAP            /* a bitmap structure */
 {
-   //struct AL_BITMAP *al_bitmap;  /* new bitmap structure */
    struct AL_DISPLAY *display;   /* display for compatibility screen */
    bool needs_upload;            /* true if upload needed after change */
    /*

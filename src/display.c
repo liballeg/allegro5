@@ -807,8 +807,9 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 		return -1;
 	}
 	screen = create_bitmap(w, h);
-	screen->display = al_create_display(w, h, AL_UPDATE_IMMEDIATE);
-	al_make_display_current(screen->display);
+	al_set_display_parameters(0, 0, AL_UPDATE_IMMEDIATE);
+	screen->display = al_create_display(w, h);
+	al_change_current_display(screen->display);
 	screen->needs_upload = true;
 	//screen->al_bitmap->vt->make_compat_screen(screen->al_bitmap);
 	screen->display->vt->upload_compat_screen(screen, 0, 0, w, h);

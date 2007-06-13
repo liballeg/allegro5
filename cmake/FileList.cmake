@@ -233,6 +233,7 @@ set(ALLEGRO_SRC_D3D_FILES
 	src/win/d3d_keyboard.c
 	src/win/d3d_system.c
 	src/win/d3d_window.c
+	src/win/d3d_convert.c
 	)
 
 set(ALLEGRO_SRC_BEOS_FILES

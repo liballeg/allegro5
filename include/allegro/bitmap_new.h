@@ -18,39 +18,10 @@ typedef struct AL_BITMAP AL_BITMAP;
 /*
  * Pixel formats
  */
-#define AL_PIXELFORMAT_R8G8B8A8      1
-#define AL_PIXELFORMAT_A8R8G8B8      2
-
-
-#define AL_PIXEL32_TO_COLOR(pixel, color) \
-		color.r = (float)getr32(pixel) / 255; \
-		color.g = (float)getg32(pixel) / 255; \
-		color.b = (float)getb32(pixel) / 255; \
-		color.a = (float)geta32(pixel) / 255;
-
-#define AL_PIXEL24_TO_COLOR(pixel, color) \
-		color.r = (float)getr24(pixel) / 255; \
-		color.g = (float)getg24(pixel) / 255; \
-		color.b = (float)getb24(pixel) / 255; \
-		color.a = 0.0f;
-
-#define AL_PIXEL16_TO_COLOR(pixel, color) \
-		color.r = (float)getr16(pixel) / 255; \
-		color.g = (float)getg16(pixel) / 255; \
-		color.b = (float)getb16(pixel) / 255; \
-		color.a = 0.0f;
-
-#define AL_PIXEL15_TO_COLOR(pixel, color) \
-		color.r = (float)getr15(pixel) / 255; \
-		color.g = (float)getg15(pixel) / 255; \
-		color.b = (float)getb15(pixel) / 255; \
-		color.a = 0.0f;
-
-#define AL_PIXEL8_TO_COLOR(pixel, color) \
-		color.r = (float)getr8(pixel) / 255; \
-		color.g = (float)getg8(pixel) / 255; \
-		color.b = (float)getb8(pixel) / 255; \
-		color.a = 0.0f;
+#define AL_FORMAT_ANY            0
+#define AL_FORMAT_ARGB_8888      1
+#define AL_FORMAT_ARGB_4444      2
+#define AL_FORMAT_RGB_888        3
 
 
 AL_BITMAP *al_create_bitmap(int w, int h, int flags);

@@ -2,6 +2,7 @@
 #define ALLEGRO_INTERNAL_BITMAP_NEW_H
 
 #include "allegro/display_new.h"
+#include "allegro/internal/aintern_display.h"
 
 typedef struct AL_BITMAP_INTERFACE AL_BITMAP_INTERFACE;
 
@@ -15,17 +16,16 @@ struct BITMAP;
 struct AL_BITMAP
 {
    AL_BITMAP_INTERFACE *vt;
+   AL_DISPLAY *display;
+   int format;
    int flags;
    unsigned int w, h;
    AL_COLOR light_color;  /* color to tint to when drawing with AL_LIT */
-   int pixel_format;
    bool locked;
    unsigned int lock_x;
    unsigned int lock_y;
    unsigned int lock_width;
    unsigned int lock_height;
-
-   /*AL_DISPLAY *display;*/ /* May be NULL for memory bitmaps. */
 
    /* A memory copy of the bitmap data. May be NULL for an empty bitmap. */
    unsigned char *memory;

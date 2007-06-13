@@ -200,7 +200,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 			break;
 			case WM_ACTIVATEAPP:
 				if (wParam == TRUE) {
-					al_make_display_current((AL_DISPLAY *)d);
+					al_change_current_display((AL_DISPLAY *)d);
 					_al_win_wnd = d->window;
 					win_grab_input();
 					d3d_get_window_pos(d->window, &pos);

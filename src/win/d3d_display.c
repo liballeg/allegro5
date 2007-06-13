@@ -1,4 +1,5 @@
-/* This is only a dummy driver, not implementing most required things properly,
+/*
+ * This is only a dummy driver, not implementing most required things properly,
  * it's just here to give me some understanding of the base framework of a
  * display driver.
  */
@@ -18,9 +19,6 @@
 #include "wddraw.h"
 #include "d3d.h"
 
-/* The window code needs this to set a thread handle */
-AL_DISPLAY_D3D *_al_d3d_last_created_display = 0;
-
 static AL_DISPLAY_INTERFACE *vt = 0;
 
 static D3DPRESENT_PARAMETERS d3d_pp;
@@ -35,6 +33,10 @@ static float d3d_ortho_h;
 /* Preserved vertex buffers for speed */
 static IDirect3DVertexBuffer8 *d3d_line_vertex_buffer;
 
+/* The window code needs this to set a thread handle */
+AL_DISPLAY_D3D *_al_d3d_last_created_display = 0;
+
+/* Dummy graphics driver for compatibility */
 GFX_DRIVER _al_d3d_dummy_gfx_driver = {
 	0,
 	"Dummy Compatibility GFX driver",
@@ -70,14 +72,45 @@ GFX_DRIVER _al_d3d_dummy_gfx_driver = {
 	0,
 	0,
 	0,
-   _al_win_directx_create_mouse_cursor,
-   _al_win_directx_destroy_mouse_cursor,
-   _al_win_directx_set_mouse_cursor,
-   _al_win_directx_set_system_mouse_cursor,
-   _al_win_directx_show_mouse_cursor,
-   _al_win_directx_hide_mouse_cursor
+	_al_win_directx_create_mouse_cursor,
+	_al_win_directx_destroy_mouse_cursor,
+	_al_win_directx_set_mouse_cursor,
+	_al_win_directx_set_system_mouse_cursor,
+	_al_win_directx_show_mouse_cursor,
+	_al_win_directx_hide_mouse_cursor
 };
 
+static int d3d_valid_formats[] = {
+	AL_FORMAT_ANY,
+	AL_FORMAT_ARGB_8888,
+	AL_FORMAT_ARGB_4444,
+	-1
+};
+
+
+static bool d3d_format_is_valid(int format)
+{
+	int i;
+
+	for (i = 0; d3d_valid_formats[i] >= 0; i++) {
+		if (d3d_valid_formats[i] == format)
+			return true;
+	}
+
+	return false;
+}
+
+
+static bool d3d_parameters_are_valid(int format, int refresh_rate, int flags)
+{
+	if (!d3d_format_is_valid(format))
+		return false;
+	
+	if ((flags & AL_DIRECT3D) == 0)
+		return false;
+	
+	return true;
+}
 
 static bool d3d_create_vertex_buffers()
 {
@@ -235,7 +268,8 @@ IDirect3DSurface8 *al_d3d_get_current_render_target(void)
 	return disp->render_target;
 }
 
-static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d, int flags)
+static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d,
+	int format, int refresh_rate, int flags)
 {
 	D3DDISPLAYMODE d3d_dm;
 
@@ -249,7 +283,6 @@ static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d, int flags)
 	d3d_pp.Windowed = 1;
 	if (flags & AL_UPDATE_IMMEDIATE) {
 		d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
-		d->immediate = true;
 	}
 	else {
 		d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
@@ -279,9 +312,20 @@ static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d, int flags)
 }
 
 /* Create a new X11 dummy display, which maps directly to a GLX window. */
-static AL_DISPLAY *d3d_create_display(int w, int h, int flags)
+static AL_DISPLAY *d3d_create_display(int w, int h)
 {
-	AL_DISPLAY_D3D *d = _AL_MALLOC(sizeof *d);
+	int format;
+	int refresh_rate;
+	int flags;
+	AL_DISPLAY_D3D *d;
+
+	al_get_display_parameters(&format, &refresh_rate, &flags);
+
+	if (!d3d_parameters_are_valid(format, refresh_rate, flags)) {
+		return NULL;
+	}
+
+	d = _AL_MALLOC(sizeof *d);
 	memset(d, 0, sizeof *d);
 
 	d->display.w = w;
@@ -301,7 +345,11 @@ static AL_DISPLAY *d3d_create_display(int w, int h, int flags)
 
 	d->window = _al_d3d_create_window(w, h);
 
-	if (d3d_create_swap_chain(d, flags) != 0) {
+	d->display.format = format;
+	d->display.refresh_rate = refresh_rate;
+	d->display.flags = flags;
+
+	if (d3d_create_swap_chain(d, format, refresh_rate, flags) != 0) {
 		return 0;
 	}
 
@@ -346,7 +394,7 @@ static void d3d_destroy_display(AL_DISPLAY *display)
 	_AL_FREE(display);
 }
 
-static void d3d_make_display_current(AL_DISPLAY *d)
+static void d3d_change_current_display(AL_DISPLAY *d)
 {
 	if (_al_d3d_device) {
 		AL_DISPLAY_D3D *disp = (AL_DISPLAY_D3D *)d;
@@ -427,30 +475,41 @@ static void d3d_filled_rectangle(AL_DISPLAY *d, float tlx, float tly,
 }
 
 /* Dummy implementation of flip. */
-static void d3d_flip(AL_DISPLAY *d,
-	unsigned int x, unsigned int y,
-	unsigned int width, unsigned int height)
+static void d3d_flip_display(AL_DISPLAY *d)
 {
 	AL_DISPLAY_D3D* disp = (AL_DISPLAY_D3D*)d;
 
 	IDirect3DDevice8_EndScene(_al_d3d_device);
 
-	if (disp->immediate) {
+	IDirect3DSwapChain8_Present(disp->swap_chain, 0, 0, disp->window, 0);
+
+	IDirect3DDevice8_BeginScene(_al_d3d_device);
+}
+
+/* Dummy implementation of flip. */
+static void d3d_flip_display_region(AL_DISPLAY *d,
+	unsigned int x, unsigned int y,
+	unsigned int width, unsigned int height)
+{
+	AL_DISPLAY_D3D* disp = (AL_DISPLAY_D3D*)d;
+
+	if (d->flags & AL_UPDATE_IMMEDIATE) {
+		AL_DISPLAY_D3D* disp = (AL_DISPLAY_D3D*)d;
+
+		IDirect3DDevice8_EndScene(_al_d3d_device);
+
 		RECT rect;
 		rect.left = x;
 		rect.right = x+width;
 		rect.top = y;
 		rect.bottom = y+height;
 		IDirect3DSwapChain8_Present(disp->swap_chain, &rect, &rect, disp->window, 0);
-	}
-	else {
-		IDirect3DSwapChain8_Present(disp->swap_chain, 0, 0, disp->window, 0);
-	}
 
-	IDirect3DDevice8_BeginScene(_al_d3d_device);
+		IDirect3DDevice8_BeginScene(_al_d3d_device);
+	}
 }
 
-static void d3d_acknowledge_resize(AL_DISPLAY *d)
+static void d3d_notify_resize(AL_DISPLAY *d)
 {
 	AL_DISPLAY_D3D *disp = (AL_DISPLAY_D3D *)d;
 	WINDOWINFO wi;
@@ -499,7 +558,7 @@ static void d3d_acknowledge_resize(AL_DISPLAY *d)
 		hr = IDirect3DDevice8_Reset(_al_d3d_device, &d3d_pp);
 
 		if (hr) {
-			TRACE("d3d_acknowledge_resize: Reset failed.\n");
+			TRACE("d3d_notify_resize: Reset failed.\n");
 		}
 
 		IDirect3DDevice8_GetRenderTarget(_al_d3d_device, &render_target);
@@ -508,12 +567,10 @@ static void d3d_acknowledge_resize(AL_DISPLAY *d)
 		for (i = 0; i < d3d_created_displays._size; i++) {
 			AL_DISPLAY_D3D **dptr = _al_vector_ref(&d3d_created_displays, i);
 			AL_DISPLAY_D3D *d = *dptr;
+			AL_DISPLAY *al_display = (AL_DISPLAY *)d;
 			int flags = 0;
 
-			if (d->immediate)
-				flags |= AL_UPDATE_IMMEDIATE;
-
-			d3d_create_swap_chain(d, flags);
+			d3d_create_swap_chain(d, al_display->format, al_display->refresh_rate, al_display->flags);
 		}
 
 		d3d_reset_state();
@@ -607,7 +664,7 @@ static void d3d_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h)
 	IDirect3DSurface8_UnlockRect(render_target);
 	IDirect3DSurface8_Release(render_target);
 
-	al_flip(x, y, w, h);
+	al_flip_display_region(x, y, w, h);
 }
 
 /* Dummy implementation. */
@@ -623,13 +680,13 @@ AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
    bitmap->bitmap.w = w;
    bitmap->bitmap.h = h;
    bitmap->bitmap.flags = flags;
-   //bitmap->bitmap.display = d;
+   bitmap->bitmap.display = d;
    bitmap->video_texture = 0;
    bitmap->system_texture = 0;
    bitmap->created = false;
-   bitmap->bitmap.pixel_format = AL_PIXELFORMAT_A8R8G8B8; // FIXME
-   bitmap->is_sub_bitmap = false;
-   bitmap->is_screen = false;
+   bitmap->bitmap.format = AL_FORMAT_ARGB_8888; // FIXME
+   //bitmap->is_sub_bitmap = false;
+   //bitmap->is_screen = false;
    bitmap->xo = 0;
    bitmap->yo = 0;
    return &bitmap->bitmap;
@@ -650,13 +707,13 @@ AL_BITMAP *_al_d3d_create_sub_bitmap(AL_DISPLAY *d, AL_BITMAP *parent,
    bitmap->bitmap.w = w;
    bitmap->bitmap.h = h;
    bitmap->bitmap.flags = flags;
-   //bitmap->bitmap.display = d;
+   bitmap->bitmap.display = d;
    bitmap->video_texture = d3d_parent->video_texture;
    bitmap->system_texture = d3d_parent->system_texture;
    bitmap->created = true;
-   bitmap->bitmap.pixel_format = AL_PIXELFORMAT_A8R8G8B8; // FIXME
-   bitmap->is_sub_bitmap = true;
-   bitmap->is_screen = d3d_parent->is_screen;
+   bitmap->bitmap.format = AL_FORMAT_ARGB_8888; // FIXME
+   //bitmap->is_sub_bitmap = true;
+   //bitmap->is_screen = d3d_parent->is_screen;
    bitmap->xo = x;
    bitmap->yo = y;
    return &bitmap->bitmap;
@@ -672,12 +729,13 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 
    vt->create_display = d3d_create_display;
    vt->destroy_display = d3d_destroy_display;
-   vt->make_display_current = d3d_make_display_current;
+   vt->change_current_display = d3d_change_current_display;
    vt->clear = d3d_clear;
    vt->line = d3d_draw_line;
    vt->filled_rectangle = d3d_filled_rectangle;
-   vt->flip = d3d_flip;
-   vt->acknowledge_resize = d3d_acknowledge_resize;
+   vt->flip_display = d3d_flip_display;
+   vt->flip_display_region = d3d_flip_display_region;
+   vt->notify_resize = d3d_notify_resize;
    vt->create_bitmap = _al_d3d_create_bitmap;
    vt->create_sub_bitmap = _al_d3d_create_sub_bitmap;
    vt->upload_compat_screen = d3d_upload_compat_screen;

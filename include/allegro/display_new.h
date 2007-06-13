@@ -21,23 +21,27 @@ struct AL_COLOR
 #define AL_FULLSCREEN 8
 
 #define AL_OPENGL 16
-#define AL_GENERATE_UPDATE_EVENTS 32
-#define AL_RESIZABLE 64
+#define AL_DIRECT3D 32
+#define AL_GENERATE_UPDATE_EVENTS 64
+#define AL_RESIZABLE 128
 
 #define AL_UPDATE_IMMEDIATE         0x0001
 #define AL_UPDATE_DOUBLE_BUFFER     0x0002
 
 #define al_color(r, g, b, a) (AL_COLOR){r, g, b, a}
 
-AL_DISPLAY *al_create_display(int w, int h, int flags);
+void al_set_display_parameters(int format, int refresh_rate, int flags);
+void al_get_display_parameters(int *format, int *refresh_rate, int *flags);
+AL_DISPLAY *al_create_display(int w, int h);
 void al_destroy_display(AL_DISPLAY *display);
-void al_make_display_current(AL_DISPLAY *display);
+void al_change_current_display(AL_DISPLAY *display);
 void al_clear(AL_COLOR color);
 void al_line(float fx, float fy, float tx, float ty, AL_COLOR color);
 void al_filled_rectangle(float tlx, float tly, float brx, float bry,
     AL_COLOR color);
-void al_acknowledge_resize(void);
-void al_flip(unsigned int x, unsigned int y,
+void al_notify_resize(void);
+void al_flip_display(void);
+void al_flip_display_region(unsigned int x, unsigned int y,
 	unsigned int width, unsigned int height);
 AL_DISPLAY *al_get_current_display(void);
 
