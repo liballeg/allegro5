@@ -26,6 +26,7 @@
    #include <stddef.h>
    #include <stdlib.h>
    #include <time.h>
+   #include <string.h>
 #endif
 
 #if (defined DEBUGMODE) && (defined FORTIFY)
