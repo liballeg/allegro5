@@ -71,11 +71,11 @@ int main(void)
    install_keyboard(); 
 
    /* try each of the possible possible color depths... */
+   test(32);
    test(8);
    test(15);
    test(16);
    test(24);
-   test(32);
 
    return 0;
 }

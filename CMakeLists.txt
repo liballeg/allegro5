@@ -605,7 +605,7 @@ if(WIN32)
         )
     if(WANT_D3D)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
-        list(APPEND PLATFORM_LIBS d3d8 d3dx8)
+        list(APPEND PLATFORM_LIBS d3d9 d3dx9)
     endif(WANT_D3D)
 endif(WIN32)
 

@@ -8,24 +8,20 @@ typedef struct AL_BITMAP_INTERFACE AL_BITMAP_INTERFACE;
 
 struct BITMAP;
 
-/*
- * Bitmap creation flags
- */
-#define AL_BITMAP_SCREEN  0x000001 /* Draw to screen after upload_compat_bitmap */
-
 struct AL_BITMAP
 {
    AL_BITMAP_INTERFACE *vt;
    AL_DISPLAY *display;
    int format;
    int flags;
-   unsigned int w, h;
+   int w, h;
    AL_COLOR light_color;  /* color to tint to when drawing with AL_LIT */
    bool locked;
-   unsigned int lock_x;
-   unsigned int lock_y;
-   unsigned int lock_width;
-   unsigned int lock_height;
+   int lock_x;
+   int lock_y;
+   int lock_width;
+   int lock_height;
+   int lock_flags;
 
    /* A memory copy of the bitmap data. May be NULL for an empty bitmap. */
    unsigned char *memory;
@@ -58,8 +54,6 @@ struct AL_BITMAP_INTERFACE
 	struct AL_BITMAP *source2, int source2_x, int source2_y,
 	struct AL_BITMAP *dest, int dest_x, int dest_y,
 	int dest_w, int dest_h);
-   void (*put_pixel)(int flag,
-   	struct AL_BITMAP *bitmap, int x, int y, AL_COLOR *color);
 //   void (*draw_bitmap)(int flag, struct AL_BITMAP *bitmap, float x, float y);
    void (*draw_sub)(struct AL_BITMAP *bitmap, float x, float y,
       float sx, float sy, float sw, float sh);
@@ -87,6 +81,12 @@ struct AL_BITMAP_INTERFACE
     * Make this into the "screen" bitmap (for compatibility layer)
     */
    //void (*make_compat_screen)(struct AL_BITMAP *bitmap);
+   AL_LOCKED_RECTANGLE * (*lock_region)(struct AL_BITMAP *bitmap,
+   	int x, int y, int w, int h,
+   	AL_LOCKED_RECTANGLE *locked_rectangle,
+	int flags);
+
+   void (*unlock_region)(struct AL_BITMAP *bitmap);
 };
 
 void _al_blit_memory_bitmap(struct AL_BITMAP *source, struct AL_BITMAP *dest,

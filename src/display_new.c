@@ -133,8 +133,8 @@ void al_flip_display(void)
  * Makes a region of the graphics which were drawn since the
  * display was created or since the last call to al_flip visible.
  */
-void al_flip_display_region(unsigned int x, unsigned int y,
-	unsigned int width, unsigned int height)
+void al_flip_display_region(int x, int y,
+	int width, int height)
 {
    _al_current_display->vt->flip_display_region(_al_current_display, x, y,
       width, height);

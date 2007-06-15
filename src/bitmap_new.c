@@ -5,10 +5,25 @@
 #include "internal/aintern_display.h"
 #include "internal/aintern_bitmap.h"
 
+
+static int _bitmap_format = 0;
+static int _bitmap_flags = 0;
+
+
 // FIXME: does not work if the areas overlap or anything is outside
 void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,
    int source_x, int source_y, int dest_x, int dest_y, int w, int h)
 {
+	_al_convert_bitmap_data(
+		source->memory,
+		source->format, _al_pixel_size(source->format)*source->w,
+		dest->memory,
+		dest->format, _al_pixel_size(dest->format)*dest->w,
+		source_x, source_y,
+		dest_x, dest_y,
+		w, h);
+	
+	/*
    int y;
    unsigned char *sptr = source->memory + (source_y * source->w + source_x) * 4;
    unsigned char *dptr = dest->memory + (dest_y * dest->w + dest_x) * 4;
@@ -18,27 +33,43 @@ void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,
       sptr += source->w * 4;
       dptr += dest->w * 4;
    }
+   */
+}
+
+void al_set_bitmap_parameters(int format, int flags)
+{
+	_bitmap_format = format;
+	_bitmap_flags = flags;
+}
+
+void al_get_bitmap_parameters(int *format, int *flags)
+{
+	if (format)
+		*format = _bitmap_format;
+	if (flags)
+		*flags = _bitmap_flags;
 }
 
 /* Creates a memory bitmap. A memory bitmap can only be drawn to other memory
  * bitmaps, not to a display.
  */
-AL_BITMAP *al_create_memory_bitmap(int w, int h, int flags)
+static AL_BITMAP *_al_create_memory_bitmap(int w, int h)
 {
    AL_BITMAP *bitmap = _AL_MALLOC(sizeof *bitmap);
    memset(bitmap, 0, sizeof *bitmap);
-   bitmap->flags = flags;
+   bitmap->format = _bitmap_format;
+   bitmap->flags = _bitmap_flags;
    bitmap->w = w;
    bitmap->h = h;
    // FIXME: Of course, we do need to handle all the possible different formats,
    // this will easily fill up its own file of 1000 lines, but for now,
    // RGBA with 8-bit per component is hardcoded.
-   bitmap->memory = _AL_MALLOC(w * h * 4);
-   memset(bitmap->memory, 0, w * h * 4);
+   bitmap->memory = _AL_MALLOC(w * h * _al_pixel_size(_bitmap_format));
+   memset(bitmap->memory, 0, w * h * _al_pixel_size(_bitmap_format));
    return bitmap;
 }
 
-void al_destroy_memory_bitmap(AL_BITMAP *bmp)
+static void _al_destroy_memory_bitmap(AL_BITMAP *bmp)
 {
    _AL_FREE(bmp->memory);
    _AL_FREE(bmp);
@@ -47,15 +78,26 @@ void al_destroy_memory_bitmap(AL_BITMAP *bmp)
 /* Creates an empty display bitmap. A display bitmap can only be drawn to a
  * display.
  */
-AL_BITMAP *al_create_bitmap(int w, int h, int flags)
+AL_BITMAP *al_create_bitmap(int w, int h)
 {
-   AL_BITMAP *bitmap = _al_current_display->vt->create_bitmap(
-       _al_current_display, w, h, flags);
-   if (!bitmap->memory) {
-   	bitmap->memory = _AL_MALLOC(w * h * 4);
-        memset(bitmap->memory, 0, w * h * 4);
+   AL_BITMAP *bitmap;
+   
+   if (_bitmap_flags & AL_MEMORY_BITMAP) {
+   	return _al_create_memory_bitmap(w, h);
    }
+
+   /* Else it's a display bitmap */
+
+   bitmap = _al_current_display->vt->create_bitmap(
+       _al_current_display, w, h);
+
+   if (!bitmap->memory) {
+   	bitmap->memory = _AL_MALLOC(w * h * _al_pixel_size(bitmap->format));
+        memset(bitmap->memory, 0, w * h * _al_pixel_size(bitmap->format));
+   }
+
    bitmap->vt->upload_bitmap(bitmap, 0, 0, w, h);
+
    return bitmap;
 }
 
@@ -64,9 +106,19 @@ AL_BITMAP *al_create_bitmap(int w, int h, int flags)
  */
 void al_destroy_bitmap(AL_BITMAP *bitmap)
 {
-   if (bitmap->vt) bitmap->vt->destroy_bitmap(bitmap);
+   if (bitmap->flags & AL_MEMORY_BITMAP) {
+   	_al_destroy_memory_bitmap(bitmap);
+	return;
+   }
+
+   /* Else it's a display bitmap */
+
+   if (bitmap->vt)
+      bitmap->vt->destroy_bitmap(bitmap);
+
    if (bitmap->memory)
       _AL_FREE(bitmap->memory);
+
    _AL_FREE(bitmap);
 }
 
@@ -77,7 +129,7 @@ void al_destroy_bitmap(AL_BITMAP *bitmap)
  * a format is not supported by Allegro, the closest one will be used. (E.g. we
  * likely will throw away things like frame timings or gamma correction.)
  */
-AL_BITMAP *al_load_memory_bitmap(char const *filename, int flags)
+static AL_BITMAP *_al_load_memory_bitmap(char const *filename)
 {
    // TODO:
    // The idea is, load_bitmap returns a memory representation of the bitmap,
@@ -92,7 +144,15 @@ AL_BITMAP *al_load_memory_bitmap(char const *filename, int flags)
    select_palette(pal);
    if (!file_data)
       return NULL;
-   AL_BITMAP *bitmap = al_create_bitmap(file_data->w, file_data->h, flags);
+   AL_BITMAP *bitmap = al_create_bitmap(file_data->w, file_data->h);
+
+   _al_convert_compat_bitmap(
+   	file_data,
+	bitmap->memory, bitmap->format, _al_pixel_size(bitmap->format)*bitmap->w,
+	0, 0, 0, 0,
+	file_data->w, file_data->h);
+
+   /*
    int x, y;
    int alpha = _bitmap_has_alpha(file_data);
    unsigned char *ptr = bitmap->memory;
@@ -105,16 +165,28 @@ AL_BITMAP *al_load_memory_bitmap(char const *filename, int flags)
          *(ptr++) = alpha ? geta(c) : 255;
       }
    }
+   */
+
    destroy_bitmap(file_data);
    return bitmap;
 }
 
 /* Load a bitmap from a file into a display bitmap, ready to be drawn.
  */
-AL_BITMAP *al_load_bitmap(char const *filename, int flags)
+AL_BITMAP *al_load_bitmap(char const *filename)
 {
-   AL_BITMAP *bitmap = al_load_memory_bitmap(filename, flags);
+   AL_BITMAP *bitmap;
+   
+   if (_bitmap_flags & AL_MEMORY_BITMAP) {
+   	return _al_load_memory_bitmap(filename);
+   }
+
+   /* Else it's a display bitmap */
+
+   bitmap = _al_load_memory_bitmap(filename);
+
    bitmap->vt->upload_bitmap(bitmap, 0, 0, bitmap->w, bitmap->h);
+
    return bitmap;
 }
 
@@ -187,28 +259,54 @@ void al_set_light_color(AL_BITMAP *bitmap, AL_COLOR *light_color)
 	memcpy(&bitmap->light_color, light_color, sizeof(AL_COLOR));
 }
 
-void al_lock_bitmap(AL_BITMAP *bitmap,
-	unsigned int x, unsigned int y,
-	unsigned int width, unsigned int height)
+AL_LOCKED_RECTANGLE *al_lock_bitmap_region(AL_BITMAP *bitmap,
+	int x, int y,
+	int width, int height,
+	AL_LOCKED_RECTANGLE *locked_rectangle,
+	int flags)
 {
 	bitmap->locked = true;
 	bitmap->lock_x = x;
 	bitmap->lock_y = y;
 	bitmap->lock_width = width;
 	bitmap->lock_height = height;
+	bitmap->lock_flags = flags;
+
+	if (bitmap->flags & AL_MEMORY_BITMAP || bitmap->flags & AL_SYNC_MEMORY_COPY) {
+		locked_rectangle->data = bitmap->memory+(bitmap->w*y+x)*_al_pixel_size(bitmap->format);
+		locked_rectangle->format = bitmap->format;
+		locked_rectangle->pitch = bitmap->w*_al_pixel_size(bitmap->format);
+	}
+	else {
+		locked_rectangle = bitmap->vt->lock_region(bitmap,
+			x, y, width, height,
+			locked_rectangle,
+			flags);
+	}
+
+	return locked_rectangle;
+}
+
+AL_LOCKED_RECTANGLE *al_lock_bitmap(AL_BITMAP *bitmap,
+	AL_LOCKED_RECTANGLE *locked_rectangle,
+	int flags)
+{
+	return al_lock_bitmap_region(bitmap, 0, 0, bitmap->w, bitmap->h,
+		locked_rectangle, flags);
 }
 
 void al_unlock_bitmap(AL_BITMAP *bitmap)
 {
-	bitmap->vt->upload_bitmap(bitmap,
-		bitmap->lock_x,
-		bitmap->lock_y,
-		bitmap->lock_width,
-		bitmap->lock_height);
-	bitmap->locked = false;
-}
+	if (bitmap->flags & AL_SYNC_MEMORY_COPY && !(bitmap->flags & AL_MEMORY_BITMAP)) {
+		bitmap->vt->upload_bitmap(bitmap,
+			bitmap->lock_x,
+			bitmap->lock_y,
+			bitmap->lock_width,
+			bitmap->lock_height);
+	}
+	else if (!(bitmap->flags & AL_MEMORY_BITMAP)) {
+		bitmap->vt->unlock_region(bitmap);
+	}
 
-void al_put_pixel(int flag, AL_BITMAP *bitmap, int x, int y, AL_COLOR *color)
-{
-	bitmap->vt->put_pixel(flag, bitmap, x, y, color);
+	bitmap->locked = false;
 }

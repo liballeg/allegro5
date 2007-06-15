@@ -41,8 +41,8 @@ void al_filled_rectangle(float tlx, float tly, float brx, float bry,
     AL_COLOR color);
 void al_notify_resize(void);
 void al_flip_display(void);
-void al_flip_display_region(unsigned int x, unsigned int y,
-	unsigned int width, unsigned int height);
+void al_flip_display_region(int x, int y,
+	int width, int height);
 AL_DISPLAY *al_get_current_display(void);
 
 #endif

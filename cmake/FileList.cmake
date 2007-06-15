@@ -8,6 +8,7 @@ set(ALLEGRO_SRC_FILES
     src/colblend.c
     src/color.c
     src/config.c
+    src/convert.c
     src/datafile.c
     src/dataregi.c
     src/digmid.c
@@ -49,6 +50,7 @@ set(ALLEGRO_SRC_FILES
     src/modesel.c
     src/mousenu.c
     src/pcx.c
+    src/pixels.c
     src/poly3d.c
     src/polygon.c
     src/quantize.c
@@ -233,7 +235,6 @@ set(ALLEGRO_SRC_D3D_FILES
 	src/win/d3d_keyboard.c
 	src/win/d3d_system.c
 	src/win/d3d_window.c
-	src/win/d3d_convert.c
 	)
 
 set(ALLEGRO_SRC_BEOS_FILES

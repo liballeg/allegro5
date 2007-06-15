@@ -332,6 +332,7 @@ BITMAP *gfx_directx_make_bitmap_from_surface(DDRAW_SURFACE *surf, int w, int h, 
    bmp->y_ofs = 0;
    bmp->seg = _video_ds();
    bmp->needs_upload = false;
+   bmp->acquired = false;
    bmp->dirty_x1 = bmp->dirty_x2 = bmp->dirty_y1 = bmp->dirty_y2;
    for (i = 0; i < h; i++)
       bmp->line[i] = pseudo_surf_mem;

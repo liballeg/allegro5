@@ -13,15 +13,14 @@
 #include "internal/aintern_bitmap.h"
 
 #include "winalleg.h"
-#include <d3d8.h>
 
 #include "d3d.h"
 
 static AL_SYSTEM_INTERFACE *vt=0;
 
 AL_SYSTEM_D3D *_al_d3d_system;
-LPDIRECT3D8 _al_d3d = 0;
-LPDIRECT3DDEVICE8 _al_d3d_device = 0;
+LPDIRECT3D9 _al_d3d = 0;
+LPDIRECT3DDEVICE9 _al_d3d_device = 0;
 
 /* Create a new system object for the dummy D3D driver. */
 static AL_SYSTEM *d3d_initialize(int flags)

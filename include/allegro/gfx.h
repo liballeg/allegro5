@@ -276,6 +276,7 @@ typedef struct BITMAP            /* a bitmap structure */
    int dirty_y1;
    int dirty_x2;
    int dirty_y2;
+   bool acquired;
    int w, h;                     /* width and height in pixels */
    int clip;                     /* flag if clipping is turned on */
    int cl, cr, ct, cb;           /* clip left, right, top and bottom values */

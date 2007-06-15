@@ -71,7 +71,6 @@ static int failed_bitmap_h = BMP_MAX_SIZE;
 
 
 static AL_DISPLAY *new_display;
-static AL_BITMAP *new_screen;
 
 
 /* destroy_video_bitmaps:

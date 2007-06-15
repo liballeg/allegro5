@@ -18,16 +18,48 @@ typedef struct AL_BITMAP AL_BITMAP;
 /*
  * Pixel formats
  */
-#define AL_FORMAT_ANY            0
-#define AL_FORMAT_ARGB_8888      1
-#define AL_FORMAT_ARGB_4444      2
-#define AL_FORMAT_RGB_888        3
+enum ALLEGRO_PIXEL_FORMAT {
+	ALLEGRO_PIXEL_FORMAT_ANY = 0,
+	ALLEGRO_PIXEL_FORMAT_ARGB_8888,
+	ALLEGRO_PIXEL_FORMAT_RGBA_8888,
+	ALLEGRO_PIXEL_FORMAT_ARGB_4444,
+	ALLEGRO_PIXEL_FORMAT_RGB_888,	/* 24 bit format */
+	ALLEGRO_PIXEL_FORMAT_RGB_565,
+	ALLEGRO_PIXEL_FORMAT_RGB_555,
+	ALLEGRO_PIXEL_FORMAT_PALETTE_8,
+	ALLEGRO_PIXEL_FORMAT_RGBA_5551,
+	ALLEGRO_PIXEL_FORMAT_ARGB_1555,
+	ALLEGRO_PIXEL_FORMAT_ABGR_8888,
+	ALLEGRO_PIXEL_FORMAT_XBGR_8888
+	/*ALLEGRO_PIXEL_FORMAT_RGBA_32F*/
+};
+
+/*
+ * Bitmap flags
+ */
+#define AL_MEMORY_BITMAP     0x0001
+#define AL_SYNC_MEMORY_COPY  0x0002
+#define AL_NO_ALPHA          0x0004
+#define AL_HAS_ALPHA         0x0008
+
+/*
+ * Locking flags
+ */
+#define AL_LOCK_READONLY 1
+
+typedef struct AL_LOCKED_RECTANGLE {
+	void *data;
+	int format;
+	int pitch;
+} AL_LOCKED_RECTANGLE;
 
 
-AL_BITMAP *al_create_bitmap(int w, int h, int flags);
-AL_BITMAP *al_create_memory_bitmap(int w, int h, int flags);
-void al_destroy_memory_bitmap(AL_BITMAP *bitmap);
-AL_BITMAP *al_load_bitmap(char const *filename, int flags);
+void al_set_bitmap_parameters(int format, int flags);
+void al_get_bitmap_parameters(int *format, int *flags);
+AL_BITMAP *al_create_bitmap(int w, int h);
+//AL_BITMAP *al_create_memory_bitmap(int w, int h, int flags);
+//void al_destroy_memory_bitmap(AL_BITMAP *bitmap);
+AL_BITMAP *al_load_bitmap(char const *filename);
 void al_destroy_bitmap(AL_BITMAP *bitmap);
 //void al_draw_bitmap(int flag, AL_BITMAP *bitmap, float x, float y);
 void al_draw_sub_bitmap(AL_BITMAP *bitmap, float x, float y,
@@ -54,9 +86,30 @@ void al_blit_region_3(int flag,
 	AL_BITMAP *dest, int dest_x, int dest_y,
 	int dest_w, int dest_h);
 void al_set_light_color(AL_BITMAP *bitmap, AL_COLOR *light_color);
-void al_lock_bitmap(AL_BITMAP *bitmap, unsigned int x, unsigned int y,
-	unsigned int width, unsigned int height);
+AL_LOCKED_RECTANGLE *al_lock_bitmap(AL_BITMAP *bitmap,
+	AL_LOCKED_RECTANGLE *locked_rectangle, int flags);
+AL_LOCKED_RECTANGLE *al_lock_bitmap_region(AL_BITMAP *bitmap,
+	int x, int y, int width, int height,
+	AL_LOCKED_RECTANGLE *locked_rectangle,
+	int flags);
 void al_unlock_bitmap(AL_BITMAP *bitmap);
-void al_put_pixel(int flag, AL_BITMAP *bitmap, int x, int y, AL_COLOR *color);
+
+void _al_put_pixel(void *data, int format, AL_COLOR *color);
+AL_COLOR *_al_get_pixel(void *data, int format, AL_COLOR *color);
+
+void al_put_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color);
+AL_COLOR *al_get_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color);
+
+void _al_convert_bitmap_data(
+	void *src, int src_format, int src_pitch,
+	void *dst, int dst_format, int dst_pitch,
+	int sx, int sy, int dx, int dy,
+	int width, int height);
+void _al_convert_compat_bitmap(
+	BITMAP *src,
+	void *dst, int dst_format, int dst_pitch,
+	int sx, int sy, int dx, int dy,
+	int width, int height);
+int _al_pixel_size(int format);
 
 #endif

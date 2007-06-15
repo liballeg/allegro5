@@ -101,7 +101,7 @@ AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
    _BMP_UNBANK_SWITCHER switcher = (_BMP_UNBANK_SWITCHER)bmp->vtable->unwrite_bank;
    switcher(bmp);
 
-   if (bmp->needs_upload) {
+   if (bmp->needs_upload && !bmp->acquired) {
    	bmp->display->vt->upload_compat_screen(bmp,
 		bmp->dirty_x1, bmp->dirty_y1,
 		bmp->dirty_x2-bmp->dirty_x1,
@@ -252,12 +252,24 @@ AL_INLINE(void, release_bitmap, (BITMAP *bmp),
 AL_INLINE(void, acquire_screen, (void),
 {
    acquire_bitmap(screen);
+
+   if (screen->needs_upload) {
+      screen->acquired = true;
+   }
 })
 
 
 AL_INLINE(void, release_screen, (void),
 {
    release_bitmap(screen);
+
+   if (screen->needs_upload && screen->acquired) {
+   	screen->acquired = false;
+	screen->display->vt->upload_compat_screen(screen,
+		screen->dirty_x1, screen->dirty_y1,
+		screen->dirty_x2-screen->dirty_x1, screen->dirty_y2-screen->dirty_y1);
+	screen->dirty_x1 = screen->dirty_x2 = screen->dirty_y1 = screen->dirty_y2 = -1;
+   }
 })
 
 #endif

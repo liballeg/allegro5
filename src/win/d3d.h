@@ -4,10 +4,10 @@
 #include "platform/ald3d.h"
 
 #include <windows.h>
-#include <d3d8.h>
+#include <d3d9.h>
 // FIXME: these are for gcc
 #define D3DXINLINE static inline
-#include <d3dx8.h>
+#include <d3dx9.h>
 
 
 #define AL_COLOR_TO_D3D(color) \
@@ -44,13 +44,15 @@ struct AL_BITMAP_D3D
 	unsigned int texture_w;
 	unsigned int texture_h;
 
-	LPDIRECT3DTEXTURE8 video_texture;
-	LPDIRECT3DTEXTURE8 system_texture;
+	LPDIRECT3DTEXTURE9 video_texture;
+	LPDIRECT3DTEXTURE9 system_texture;
 
 	bool created;
 
 	unsigned int xo;	/* offsets for sub bitmaps */
 	unsigned int yo;
+
+	D3DLOCKED_RECT locked_rect;
 };
 
 
@@ -78,12 +80,12 @@ typedef struct D3D_TL_VERTEX
 
 AL_SYSTEM_D3D *_al_d3d_system;
 
-AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(int flag);
+AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void);
 AL_SYSTEM_INTERFACE *_al_system_d3d_driver(void);
 AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void);
 
-AL_VAR(LPDIRECT3D8, _al_d3d);
-AL_VAR(LPDIRECT3DDEVICE8, _al_d3d_device);
+AL_VAR(LPDIRECT3D9, _al_d3d);
+AL_VAR(LPDIRECT3DDEVICE9, _al_d3d_device);
 
 AL_VAR(AL_DISPLAY_D3D *, _al_d3d_last_created_display);
 
@@ -93,8 +95,7 @@ void _al_d3d_delete_from_vector(_AL_VECTOR *vec, void *item);
 
 bool _al_d3d_init_display();
 AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
-	unsigned int w, unsigned int h,
-	int flags);
+	unsigned int w, unsigned int h);
 void _al_d3d_get_current_ortho_projection_parameters(float *w, float *h);
 void _al_d3d_set_ortho_projection(float w, float h);
 
@@ -108,6 +109,7 @@ int _al_d3d_init_window();
 void _al_d3d_win_ungrab_input();
 
 void _al_d3d_release_default_pool_textures();
+void _al_d3d_prepare_bitmaps_for_reset();
 void _al_d3d_refresh_texture_memory();
 
 /* Helper to get smallest fitting power of two. */
@@ -117,9 +119,3 @@ static inline int pot(int x)
    while (y < x) y *= 2;
    return y;
 }
-
-void _al_convert_bitmap_data(void *src, int src_pitch,
-	void *dst, int dst_format, int dst_pitch,
-	unsigned int x, unsigned int y,
-	unsigned int width, unsigned int height);
-

@@ -444,6 +444,7 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    bitmap->y_ofs = 0;
    bitmap->seg = _default_ds();
    bitmap->needs_upload = false;
+   bitmap->acquired = false;
    bitmap->dirty_x1 = bitmap->dirty_x2 = bitmap->dirty_y1 = bitmap->dirty_y2 = -1;
 
    if (height > 0) {
@@ -535,7 +536,7 @@ BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height)
    bitmap->x_ofs = x + parent->x_ofs;
    bitmap->y_ofs = y + parent->y_ofs;
    bitmap->seg = parent->seg;
-   bitmap->needs_upload = false;
+   bitmap->acquired = false;
    bitmap->dirty_x1 = bitmap->dirty_x2 = bitmap->dirty_y1 = bitmap->dirty_y2 = -1;
 
    /* All bitmaps are created with zero ID's. When a sub-bitmap is created,

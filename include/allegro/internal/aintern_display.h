@@ -20,15 +20,15 @@ struct AL_DISPLAY_INTERFACE
    void (*filled_rectangle)(AL_DISPLAY *d, float fx, float fy, float tx,
     float ty, AL_COLOR color);
    void (*flip_display)(AL_DISPLAY *d);
-   void (*flip_display_region)(AL_DISPLAY *d, unsigned int x, unsigned int y,
-   	unsigned int width, unsigned int height);
+   void (*flip_display_region)(AL_DISPLAY *d, int x, int y,
+   	int width, int height);
    void (*notify_resize)(AL_DISPLAY *d);
 
    AL_BITMAP *(*create_bitmap)(AL_DISPLAY *d,
-   	unsigned int w, unsigned int h, int flags);
+   	unsigned int w, unsigned int h);
    AL_BITMAP *(*create_sub_bitmap)(AL_DISPLAY *d, AL_BITMAP *parent,
    	unsigned int x, unsigned int y,
-	unsigned int w, unsigned int h, int flags);
+	unsigned int w, unsigned int h);
    
    void (*upload_compat_screen)(struct BITMAP *bitmap, int x, int y, int width, int height);
 };

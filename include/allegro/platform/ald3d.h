@@ -3,10 +3,10 @@
 
 #include "allegro/internal/aintern_display.h"
 
-#include <d3d8.h>
+#include <d3d9.h>
 // FIXME: these are for gcc
 #define D3DXINLINE static inline
-#include <d3dx8.h>
+#include <d3dx9.h>
 
 
 typedef struct AL_DISPLAY_D3D AL_DISPLAY_D3D;
@@ -19,9 +19,9 @@ struct AL_DISPLAY_D3D
    /* Driver specifics */
    HWND window;
    DWORD thread_handle;
-   LPDIRECT3DSWAPCHAIN8 swap_chain;
-   LPDIRECT3DSURFACE8 render_target;
-   LPDIRECT3DSURFACE8 stencil_buffer;
+   LPDIRECT3DSWAPCHAIN9 swap_chain;
+   LPDIRECT3DSURFACE9 render_target;
+   //LPDIRECT3DSURFACE8 stencil_buffer;
 };
 
 
