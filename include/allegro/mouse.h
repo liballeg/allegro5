@@ -69,7 +69,7 @@ AL_FUNC(void, disable_hardware_cursor, (void));
 #define MOUSE_CURSOR_BUSY        3
 #define MOUSE_CURSOR_QUESTION    4
 #define MOUSE_CURSOR_EDIT        5
-#define NUM_MOUSE_CURSORS        6
+#define AL_NUM_MOUSE_CURSORS        6
 
 AL_VAR(struct BITMAP *, mouse_sprite);
 AL_VAR(int, mouse_x_focus);

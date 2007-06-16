@@ -21,7 +21,7 @@
 #include "allegro/platform/aintunix.h"
 
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
 
 #include <pthread.h>
 #include <signal.h>
@@ -31,7 +31,7 @@
 
 /* See hack later.  */
 #ifdef ALLEGRO_LINUX_VGA
-#ifdef HAVE_SYS_IO_H
+#ifdef ALLEGRO_HAVE_SYS_IO_H
 /* iopl() exists in here instead of unistd.h in glibc */
 #include <sys/io.h>
 #endif

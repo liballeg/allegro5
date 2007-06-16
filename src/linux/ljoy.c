@@ -31,7 +31,7 @@
 #include "allegro/internal/aintern.h"
 
 
-#ifdef HAVE_LINUX_JOYSTICK_H
+#ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
 
 #include <linux/joystick.h>
 
@@ -275,7 +275,7 @@ static JOYSTICK_DRIVER joystick_linux_analogue = {
 
 /* list the available drivers */
 _DRIVER_INFO _linux_joystick_driver_list[] = {
-#ifdef HAVE_LINUX_JOYSTICK_H
+#ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
 	{    JOY_TYPE_LINUX_ANALOGUE,  &joystick_linux_analogue,  TRUE   },
 #endif
 	{    JOY_TYPE_NONE,            &joystick_none,            TRUE   },

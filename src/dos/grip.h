@@ -36,8 +36,8 @@
 **                                                                      **
 \************************************************************************/
 
-#ifndef GRIP_H
-#define GRIP_H
+#ifndef ALLEGRO_DOS_GRIP_H
+#define ALLEGRO_DOS_GRIP_H
 
 /* 2. Type Definitions */
    typedef unsigned char GRIP_SLOT;
@@ -108,4 +108,4 @@
    typedef unsigned char GRIP_THUNK[14];
    extern GRIP_THUNK _GRIP_Thunk;
 
-#endif                          /* GRIP_H */
+#endif                          /* ALLEGRO_DOS_GRIP_H */

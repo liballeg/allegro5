@@ -38,8 +38,8 @@
 
 /* these are available in OpenWatcom 1.3 (12.3) */
 #if __WATCOMC__ >= 1230
-   #define HAVE_INTTYPES_H
-   #define HAVE_STDINT_H
+   #define ALLEGRO_HAVE_INTTYPES_H	1
+   #define ALLEGRO_HAVE_STDINT_H	1
 #else
    #define ALLEGRO_GUESS_INTTYPES_OK
 #endif

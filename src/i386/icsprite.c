@@ -31,10 +31,10 @@
    #include "winalleg.h"   /* For VirtualProtect */
 #endif     /* ifdef ALLEGRO_WINDOWS */
 
-#ifdef HAVE_MPROTECT
+#ifdef ALLEGRO_HAVE_MPROTECT
    #include <sys/types.h>
    #include <sys/mman.h>
-#endif     /* ifdef HAVE_MPROTECT */
+#endif     /* ifdef ALLEGRO_HAVE_MPROTECT */
 
 
 
@@ -59,7 +59,7 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
       unsigned long *p32;
    #endif
    
-   #ifdef USE_MMAP_GEN_CODE_BUF
+   #ifdef ALLEGRO_USE_MMAP_GEN_CODE_BUF
       /* make sure we get a new map */
       _map_size = 0;
    #endif
@@ -288,7 +288,7 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
 
    COMPILER_RET();
 
-#ifdef USE_MMAP_GEN_CODE_BUF
+#ifdef ALLEGRO_USE_MMAP_GEN_CODE_BUF
 
    /* Lie about the size, return the size mapped which >= size used /
     * compiler_pos, because we need the size mapped for munmap.
@@ -311,7 +311,7 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
 	    /* Play nice with Windows executable memory protection */
 	    VirtualProtect(p, compiler_pos, PAGE_EXECUTE_READWRITE, &old_protect);
 	 }
-	 #elif defined(HAVE_MPROTECT)
+	 #elif defined(ALLEGRO_HAVE_MPROTECT)
 	 {
 	    long page_size = _unix_get_page_size();
 	    char *aligned_p = (char *)((unsigned long)p & ~(page_size-1ul));
@@ -378,7 +378,7 @@ void destroy_compiled_sprite(COMPILED_SPRITE *sprite)
    if (sprite) {
       for (plane=0; plane<4; plane++) {
 	 if (sprite->proc[plane].draw) {
-	    #ifdef USE_MMAP_GEN_CODE_BUF
+	    #ifdef ALLEGRO_USE_MMAP_GEN_CODE_BUF
 	       munmap(sprite->proc[plane].draw, sprite->proc[plane].len);
 	    #else
 	       _AL_FREE(sprite->proc[plane].draw);

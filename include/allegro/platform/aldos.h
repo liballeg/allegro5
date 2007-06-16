@@ -212,8 +212,8 @@ AL_FUNC(int, calibrate_joystick_hat, (int direction));
 /************ Graphics routines ************/
 /*******************************************/
 
-#define GFX_HAS_VGA
-#define GFX_HAS_VBEAF
+#define ALLEGRO_GFX_HAS_VGA
+#define ALLEGRO_GFX_HAS_VBEAF
 
 #define GFX_VGA                  AL_ID('V','G','A',' ')
 #define GFX_MODEX                AL_ID('M','O','D','X')

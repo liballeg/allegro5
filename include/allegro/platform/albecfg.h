@@ -25,12 +25,10 @@
 #define ALLEGRO_NO_STRUPR
 
 /* a static auto config */
-#define HAVE_DIRENT_H
-#define HAVE_INTTYPES_H		/* TODO: check this */
-#define HAVE_STDINT_H		/* TODO: check this */
-#define HAVE_SYS_DIR_H
-#define HAVE_SYS_TIME_H
-#define TIME_WITH_SYS_TIME
+#define ALLEGRO_HAVE_DIRENT_H   1
+#define ALLEGRO_HAVE_INTTYPES_H 1       /* TODO: check this */
+#define ALLEGRO_HAVE_STDINT_H   1       /* TODO: check this */
+#define ALLEGRO_HAVE_SYS_TIME_H 1
 
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "BeOS"

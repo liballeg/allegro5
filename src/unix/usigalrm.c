@@ -28,7 +28,7 @@
 #endif
 
 
-#ifndef HAVE_LIBPTHREAD
+#ifndef ALLEGRO_HAVE_LIBPTHREAD
 
 
 #include <signal.h>

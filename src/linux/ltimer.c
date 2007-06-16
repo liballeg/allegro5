@@ -23,7 +23,7 @@
 /* list the available drivers */
 _DRIVER_INFO _linux_timer_driver_list[] =
 {
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
    {  TIMERDRV_UNIX_PTHREADS,  &timerdrv_unix_pthreads, TRUE  },
 #else
    {  TIMERDRV_UNIX_SIGALRM,   &timerdrv_unix_sigalrm,  TRUE  },

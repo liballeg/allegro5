@@ -28,8 +28,8 @@
 
 /* a static auto config */
 /* older mingw's don't seem to have inttypes.h */
-/* #define HAVE_INTTYPES_H */
-#define HAVE_STDINT_H
+/* #define ALLEGRO_HAVE_INTTYPES_H */
+#define ALLEGRO_HAVE_STDINT_H	1
 
 
 /* describe this platform */

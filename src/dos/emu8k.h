@@ -21,8 +21,8 @@
  */
 
 
-#ifndef EMU8K_H
-#define EMU8K_H
+#ifndef ALLEGRO_DOS_EMU8K_H
+#define ALLEGRO_DOS_EMU8K_H
 
 
 typedef struct envparms_t 

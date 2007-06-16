@@ -69,7 +69,7 @@ static struct {
 
 
 
-#ifdef GFX_HAS_VGA
+#ifdef ALLEGRO_GFX_HAS_VGA
 /*
  * Mode-X line stretcher.
  */
@@ -272,7 +272,7 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
 	 case 8:
 	    if (is_linear_bitmap(dst))
 	       stretch_line = stretch_masked_line8;
-#ifdef GFX_HAS_VGA
+#ifdef ALLEGRO_GFX_HAS_VGA
 	    else
 	       stretch_line = stretch_masked_linex;
 #endif
@@ -309,7 +309,7 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
 	 case 8:
 	    if (is_linear_bitmap(dst))
 	       stretch_line = stretch_line8;
-#ifdef GFX_HAS_VGA
+#ifdef ALLEGRO_GFX_HAS_VGA
 	    else
 	       stretch_line = stretch_linex;
 #endif

@@ -145,10 +145,6 @@ make depend UNIX_TOOLS=1 CC=gcc
 # generate the DLL export definition files for Windows compilers
 misc/fixdll.sh
 
-# running autoheader
-echo "Running autoheader to generate configure header..."
-autoheader
-
 # running autoconf
 echo "Running autoconf to generate configure script..."
 autoconf || exit 1

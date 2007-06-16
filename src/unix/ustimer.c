@@ -22,7 +22,7 @@
 
 
 
-#ifndef HAVE_LIBPTHREAD
+#ifndef ALLEGRO_HAVE_LIBPTHREAD
 
 
 static int sigalrm_timer_init(void);

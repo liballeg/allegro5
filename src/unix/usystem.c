@@ -27,8 +27,8 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
 
-#if defined(ALLEGRO_USE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
-   /* ALLEGRO_USE_SCHED_YIELD is set by configure */
+#if defined(ALLEGRO_HAVE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
+   /* ALLEGRO_HAVE_SCHED_YIELD is set by configure */
    /* Manpages say systems providing sched_yield() define
     * _POSIX_PRIORITY_SCHEDULING in unistd.h
     */
@@ -37,11 +37,11 @@
    #include <sys/time.h>
 #endif
 
-#ifdef HAVE_SYS_UTSNAME_H
+#ifdef ALLEGRO_HAVE_SYS_UTSNAME_H
    #include <sys/utsname.h>
 #endif
 
-#ifdef ALLEGRO_HAVE_SV_PROCFS
+#ifdef ALLEGRO_HAVE_SV_PROCFS_H
    #include <sys/procfs.h>
    #include <sys/ioctl.h>
    #include <fcntl.h>
@@ -157,7 +157,7 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
  */
 void _unix_read_os_type(void)
 {
-   #ifdef HAVE_SYS_UTSNAME_H
+   #ifdef ALLEGRO_HAVE_SYS_UTSNAME_H
 
       struct utsname utsn;
       char *tmpstr, *tmpstr2;
@@ -231,7 +231,7 @@ void _unix_read_os_type(void)
  */
 void _unix_yield_timeslice(void)
 {
-   #if defined(ALLEGRO_USE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
+   #if defined(ALLEGRO_HAVE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
 
       sched_yield();
 
@@ -319,7 +319,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
  */
 void _unix_get_executable_name(char *output, int size)
 {
-   #ifdef ALLEGRO_HAVE_SV_PROCFS
+   #ifdef ALLEGRO_HAVE_SV_PROCFS_H
       struct prpsinfo psinfo;
       int fd;
    #endif
@@ -363,7 +363,7 @@ void _unix_get_executable_name(char *output, int size)
    }
    
    /* Use System V procfs calls if available */
-   #ifdef ALLEGRO_HAVE_SV_PROCFS
+   #ifdef ALLEGRO_HAVE_SV_PROCFS_H
       sprintf (linkname, "/proc/%d/exe", (int)pid);
       fd = open(linkname, O_RDONLY);
       if (!fd == -1) {
@@ -455,7 +455,7 @@ void _unix_get_executable_name(char *output, int size)
  */
 size_t _unix_get_page_size(void)
 {
-#if defined(HAVE_SYSCONF) && defined(_SC_PAGESIZE)
+#if defined(ALLEGRO_HAVE_SYSCONF) && defined(_SC_PAGESIZE)
    long page_size = sysconf(_SC_PAGESIZE); 
 #else
    long page_size = -1;

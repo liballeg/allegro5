@@ -28,12 +28,12 @@
 #include <unistd.h>
 #include <dmedia/audio.h>
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
 #include <pthread.h>
 #endif
 
 #define _AL_SGIAL_PORTSIZE 12288
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
    #define _AL_SGIAL_BUFFERSIZE 2048
 #else
    #define _AL_SGIAL_BUFFERSIZE 4096
@@ -53,7 +53,7 @@ static int _al_sgial_buffer_size(void);
 
 static char _al_sgial_desc[256] = EMPTY_STRING;
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
 static pthread_t thread;
 #endif
 
@@ -125,7 +125,7 @@ static int _al_sgial_buffer_size(void)
 
 
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
 
 /* _al_sgial_puller_thread_func: [dedicated thread]
  *  We have threads, therefore we can use a thread to pull sound data
@@ -255,7 +255,7 @@ static int _al_sgial_init(int input, int voices)
 
    _mix_some_samples((uintptr_t) _al_sgial_bufdata, 0, _al_sgial_signed);
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
    /* Add audio thread. */
    pthread_create(&thread, NULL, _al_sgial_puller_thread_func, NULL);
 #else
@@ -283,7 +283,7 @@ static void _al_sgial_exit(int input)
    if (input)
       return;
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
    pthread_cancel(thread);
 #else
    _unix_bg_man->unregister_func(_al_sgial_update);

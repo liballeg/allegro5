@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
    /* Synchronization routines using POSIX threads */
    AL_FUNC(void *, _unix_create_mutex, (void));
    AL_FUNC(void, _unix_destroy_mutex, (void *handle));

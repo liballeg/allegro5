@@ -126,8 +126,8 @@ BITMAP *mouse_sprite = NULL;	       /* current mouse pointer */
 
 BITMAP *_mouse_screen = NULL;          /* where to draw the pointer */
 
-static BITMAP *default_cursors[NUM_MOUSE_CURSORS];
-static BITMAP *cursors[NUM_MOUSE_CURSORS];
+static BITMAP *default_cursors[AL_NUM_MOUSE_CURSORS];
+static BITMAP *cursors[AL_NUM_MOUSE_CURSORS];
 
 static int allow_system_cursor;        /* Allow native OS cursor? */
 static int use_system_cursor = FALSE;  /* Use native OS cursor? */
@@ -491,7 +491,7 @@ void set_mouse_sprite(struct BITMAP *sprite)
 void select_mouse_cursor(int cursor)
 {
    ASSERT(cursor >= 0);
-   ASSERT(cursor < NUM_MOUSE_CURSORS);
+   ASSERT(cursor < AL_NUM_MOUSE_CURSORS);
 
    current_cursor = cursor;
 }
@@ -505,7 +505,7 @@ void set_mouse_cursor_bitmap(int cursor, struct BITMAP *bmp)
 {
    ASSERT(cursor >= 0);
    ASSERT(cursor != MOUSE_CURSOR_NONE);
-   ASSERT(cursor < NUM_MOUSE_CURSORS);
+   ASSERT(cursor < AL_NUM_MOUSE_CURSORS);
 
    cursors[cursor] = bmp?bmp:default_cursors[cursor];
 }

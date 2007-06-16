@@ -173,7 +173,7 @@ void update_file(char *filename, char *dataname)
    char *tmpname;
    int c;
 
-   #ifdef HAVE_MKSTEMP
+   #ifdef ALLEGRO_HAVE_MKSTEMP
 
       char tmp_buf[] = "XXXXXX";
       char tmp[512];

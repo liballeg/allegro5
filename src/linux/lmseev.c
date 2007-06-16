@@ -24,7 +24,7 @@
 #define ALLEGRO_NO_KEY_DEFINES
 #include "allegro.h"
 
-#ifdef HAVE_LINUX_INPUT_H
+#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
 
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"

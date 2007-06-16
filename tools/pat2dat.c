@@ -1896,7 +1896,7 @@ static void add_soundfont_patches(void)
    char tm[80];
    int i;
 
-   #ifdef HAVE_MKSTEMP
+   #ifdef ALLEGRO_HAVE_MKSTEMP
 
       int tmp_fd;
 

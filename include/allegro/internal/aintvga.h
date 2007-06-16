@@ -23,7 +23,7 @@
    #error must include allegro.h first
 #endif
 
-#ifdef GFX_HAS_VGA
+#ifdef ALLEGRO_GFX_HAS_VGA
 
 #ifdef __cplusplus
    extern "C" {
@@ -134,6 +134,6 @@ AL_INLINE(void, _write_hpp, (int value),
    }
 #endif
 
-#endif          /* ifdef GFX_HAS_VGA */
+#endif          /* ifdef ALLEGRO_GFX_HAS_VGA */
 
 #endif          /* ifndef AINTVGA_H */

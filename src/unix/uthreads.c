@@ -22,7 +22,7 @@
 #include "allegro/platform/aintunix.h"
 #include "allegro/internal/aintern.h"
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
 
 #include <pthread.h>
 #include <signal.h>

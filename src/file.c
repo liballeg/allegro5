@@ -1949,7 +1949,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       int tmp_fd = -1;
       char *tmp_dir = NULL;
       char *tmp_name = NULL;
-      #ifndef HAVE_MKSTEMP
+      #ifndef ALLEGRO_HAVE_MKSTEMP
       char* tmpnam_string;
       #endif
 
@@ -1993,7 +1993,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       /* the file is open in read/write mode, even if the pack file
        * seems to be in write only mode
        */
-      #ifdef HAVE_MKSTEMP
+      #ifdef ALLEGRO_HAVE_MKSTEMP
 
          tmp_name = _AL_MALLOC_ATOMIC(strlen(tmp_dir) + 16);
          sprintf(tmp_name, "%s/XXXXXX", tmp_dir);

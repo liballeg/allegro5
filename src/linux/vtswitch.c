@@ -28,11 +28,11 @@
 #include "allegro/platform/aintunix.h"
 #include "linalleg.h"
 
-#ifdef HAVE_MMAP
+#ifdef ALLEGRO_HAVE_MMAP
 #include <sys/mman.h>
 #endif
 
-#if !defined(_POSIX_MAPPED_FILES) || !defined(HAVE_MMAP)
+#if !defined(_POSIX_MAPPED_FILES) || !defined(ALLEGRO_HAVE_MMAP)
 #error "Sorry, mapped files are required for Allegro/Linux to work!"
 #endif
 

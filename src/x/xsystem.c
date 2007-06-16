@@ -86,7 +86,7 @@ SYSTEM_DRIVER system_xwin =
    _xwin_sysdrv_get_desktop_resolution,
    _xwin_sysdrv_get_gfx_safe_mode,
    _unix_yield_timeslice,
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
    _unix_create_mutex,
    _unix_destroy_mutex,
    _unix_lock_mutex,
@@ -187,7 +187,7 @@ static int _xwin_sysdrv_init(void)
       _driver_list_append_list(&_unix_gfx_driver_list, _xwin_gfx_driver_list);
    _unix_load_modules(SYSTEM_XWINDOWS);
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
    _unix_bg_man = &_bg_man_pthreads;
 #else
    _unix_bg_man = &_bg_man_sigalrm;

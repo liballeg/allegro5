@@ -42,23 +42,23 @@
 #include "alunixac.h"
 
 /* Enable multithreaded library */
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
 #define ALLEGRO_MULTITHREADED
 #endif
 
 /* Provide implementations of missing functions.  */
-#ifndef HAVE_STRICMP
+#ifndef ALLEGRO_HAVE_STRICMP
 #define ALLEGRO_NO_STRICMP
 #endif
 
-#ifndef HAVE_STRLWR
+#ifndef ALLEGRO_HAVE_STRLWR
 #define ALLEGRO_NO_STRLWR
 #endif
 
-#ifndef HAVE_STRUPR
+#ifndef ALLEGRO_HAVE_STRUPR
 #define ALLEGRO_NO_STRUPR
 #endif
 
-#ifndef HAVE_MEMCMP
+#ifndef ALLEGRO_HAVE_MEMCMP
 #define ALLEGRO_NO_MEMCMP
 #endif
