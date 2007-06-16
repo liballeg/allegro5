@@ -28,7 +28,6 @@
 #undef ALLEGRO_HAVE_SYS_STAT_H
 #undef ALLEGRO_HAVE_SYS_TIME_H
 #undef ALLEGRO_HAVE_SYS_UTSNAME_H
-#undef ALLEGRO_HAVE_UNISTD_H
 
 /* Define to 1 if the corresponding functions are available. */
 #undef ALLEGRO_HAVE_GETEXECNAME

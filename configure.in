@@ -756,7 +756,6 @@ AC_CHECK_HEADER(sys/stat.h, AC_DEFINE(ALLEGRO_HAVE_SYS_STAT_H, 1))
 AC_CHECK_HEADER(sys/time.h, AC_DEFINE(ALLEGRO_HAVE_SYS_TIME_H, 1))
 AC_CHECK_HEADER(sys/time.h, AC_DEFINE(ALLEGRO_HAVE_SYS_TIME_H, 1))
 AC_CHECK_HEADER(sys/utsname.h, AC_DEFINE(ALLEGRO_HAVE_SYS_UTSNAME_H, 1))
-AC_CHECK_HEADER(unistd.h, AC_DEFINE(ALLEGRO_HAVE_UNISTD_H, 1))
 
 # If the C compiler does not fully support the `const' keyword,
 # define `const' to be empty.
