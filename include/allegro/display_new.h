@@ -12,21 +12,13 @@ struct AL_COLOR
 
 /* Possible bit combinations for the flags parameter of al_create_display. */
 
-#define AL_COLOR_AUTO 0
-#define AL_COLOR_32 1
-#define AL_COLOR_16 2
-#define AL_COLOR_8 3
-
-#define AL_WINDOWED 4
-#define AL_FULLSCREEN 8
-
-#define AL_OPENGL 16
-#define AL_DIRECT3D 32
-#define AL_GENERATE_UPDATE_EVENTS 64
-#define AL_RESIZABLE 128
-
-#define AL_UPDATE_IMMEDIATE         0x0001
-#define AL_UPDATE_DOUBLE_BUFFER     0x0002
+#define AL_WINDOWED     1
+#define AL_FULLSCREEN   2
+#define AL_OPENGL       4
+#define AL_DIRECT3D     8
+//#define AL_GENERATE_UPDATE_EVENTS 64
+#define AL_RESIZABLE    16
+#define AL_SINGLEBUFFER 32
 
 #define al_color(r, g, b, a) (AL_COLOR){r, g, b, a}
 

@@ -21,6 +21,7 @@ struct AL_DISPLAY_D3D
    DWORD thread_handle;
    LPDIRECT3DSWAPCHAIN9 swap_chain;
    LPDIRECT3DSURFACE9 render_target;
+   bool keyboard_initialized;
    //LPDIRECT3DSURFACE8 stencil_buffer;
 };
 

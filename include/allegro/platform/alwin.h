@@ -87,7 +87,8 @@ AL_VAR(SYSTEM_DRIVER, system_directx);
 #define GFX_DIRECTX_OVL          AL_ID('D','X','O','V')
 #define GFX_GDI                  AL_ID('G','D','I','B')
 /* Direct3D driver */
-#define GFX_DIRECT3D             AL_ID('D','X','3','D')
+#define GFX_DIRECT3D             AL_ID('D','3','D','W')
+#define GFX_DIRECT3D_FULLSCREEN  AL_ID('D','3','D','F')
 
 AL_VAR(GFX_DRIVER, gfx_directx_accel);
 AL_VAR(GFX_DRIVER, gfx_directx_safe);

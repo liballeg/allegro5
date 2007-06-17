@@ -580,8 +580,9 @@ void _al_d3d_prepare_bitmaps_for_reset()
 		AL_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
 		AL_BITMAP_D3D *bmp = *bptr;
 		AL_BITMAP *al_bmp = (AL_BITMAP *)bmp;
-		if (!(al_bmp->flags & AL_SYNC_MEMORY_COPY) || !(al_bmp->flags & AL_MEMORY_BITMAP))
+		if (!(al_bmp->flags & AL_SYNC_MEMORY_COPY) || !(al_bmp->flags & AL_MEMORY_BITMAP)) {
 			d3d_copy_texture_data(al_bmp, al_bmp);
+		}
 	}
 }
 
@@ -609,12 +610,16 @@ void _al_d3d_refresh_texture_memory()
 
 // FIXME: need to do all the logic AllegroGL does, checking extensions,
 // proxy textures, formats, limits ...
+/* FIXME: maybe this should return success/failure */
 static void d3d_upload_bitmap(AL_BITMAP *bitmap, int x, int y,
 	int width, int height)
 {
 	AL_BITMAP_D3D *d3d_bmp = (void *)bitmap;
 	int w = bitmap->w;
 	int h = bitmap->h;
+
+	if (_al_d3d_is_device_lost()) return;
+	_al_d3d_lock_device();
 
 	if (d3d_bmp->created != true) {
 		d3d_bmp->texture_w = pot(w);
@@ -633,6 +638,8 @@ static void d3d_upload_bitmap(AL_BITMAP *bitmap, int x, int y,
 
 		d3d_bmp->created = true;
 	}
+
+	_al_d3d_unlock_device();
 
 	d3d_do_upload(d3d_bmp, x, y, width, height, true);
 }
@@ -688,6 +695,7 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 	DWORD light_color = 0xFFFFFF;
 	static bool alpha_test = false; /* Used for masking */
 
+	if (_al_d3d_is_device_lost()) return;
 
 	IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CULLMODE, D3DCULL_NONE);
 	IDirect3DDevice9_SetFVF(_al_d3d_device, D3DFVF_TL_VERTEX);
@@ -698,6 +706,7 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 	angle = -angle;
 
 
+	/*
 	if (flag & AL_MASK_SOURCE) {
 		AL_BITMAP *munged_bmp = d3d_munge_bitmap(flag, src, src->w, src->h, 0, 0, 0, src->w, src->h, 0);
 
@@ -726,6 +735,7 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 
 		return;
 	}
+	*/
 
 #if 0
 	else if (flag & AL_MASK_DEST || flag & AL_MASK_INV_DEST) {
@@ -915,6 +925,7 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 
 	/* Drawing to something other than the display */
 	if (dest != NULL) {
+		_al_d3d_lock_device();
 		IDirect3DDevice9_EndScene(_al_d3d_device);
 		if (IDirect3DDevice9_GetRenderTarget(_al_d3d_device, 0, &old_render_target) != D3D_OK) {
 			TRACE("d3d_blit_real: Unable to get current render target.\n");
@@ -931,10 +942,15 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 			IDirect3DSurface9_Release(texture_render_target);
 			return;
 		}
+		_al_d3d_unlock_device();
 		_al_d3d_get_current_ortho_projection_parameters(&old_ortho_w, &old_ortho_h);
 		_al_d3d_set_ortho_projection(d3d_dest->texture_w, d3d_dest->texture_h);
+		_al_d3d_lock_device();
 		IDirect3DDevice9_BeginScene(_al_d3d_device);
+		_al_d3d_unlock_device();
 	}
+
+	_al_d3d_lock_device();
 	
 	if (flag & AL_BLEND) {
 		IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, TRUE);
@@ -971,11 +987,15 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 		IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHATESTENABLE, FALSE);
 	}
 
+	_al_d3d_unlock_device();
+
 	/* Were drawing to something other than the display */
 	if (dest != NULL) {
 		LPDIRECT3DSURFACE9 system_texture_surface;
 		RECT rect;
 		POINT point;
+	
+		_al_d3d_lock_device();
 
 		IDirect3DDevice9_EndScene(_al_d3d_device);
 
@@ -1005,12 +1025,14 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 
 		IDirect3DTexture9_Release(system_texture_surface);
 		IDirect3DTexture9_Release(texture_render_target);
-
-		d3d_copy_texture_data((AL_BITMAP *)d3d_dest, (AL_BITMAP *)d3d_dest);
-
 		IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, old_render_target);
 		IDirect3DSurface9_Release(old_render_target);
 		IDirect3DDevice9_BeginScene(_al_d3d_device);
+
+		d3d_copy_texture_data((AL_BITMAP *)d3d_dest, (AL_BITMAP *)d3d_dest);
+
+		_al_d3d_unlock_device();
+
 		_al_d3d_set_ortho_projection(old_ortho_w, old_ortho_h);
 	}
 }

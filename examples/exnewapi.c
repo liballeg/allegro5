@@ -35,16 +35,22 @@ int main(void)
 
    events = al_create_event_queue();
 
-   al_set_display_parameters(ALLEGRO_PIXEL_FORMAT_ARGB_1555, 0, 0);
+   al_set_display_parameters(ALLEGRO_PIXEL_FORMAT_ARGB_8888, 0, AL_WINDOWED|AL_RESIZABLE);
 
    /* Create three windows. */
    display[0] = al_create_display(w, h);
+   al_destroy_display(display[0]);
+   display[0] = al_create_display(w, h);
    display[1] = al_create_display(w, h);
+
+   al_set_display_parameters(ALLEGRO_PIXEL_FORMAT_RGB_565, 0, AL_WINDOWED);
+
    display[2] = al_create_display(w, h);
 
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[1]);
+
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[2]);
 
    /* Apparently, need to think a bit more about memory/display bitmaps.. should
@@ -95,7 +101,11 @@ int main(void)
 	      	display[i] = 0;
 	    }
 	    al_destroy_display(event.display.source);
-            //quit = 1;
+	    for (i = 0; i < 3; i++)
+	    	if (display[i])
+			goto not_done;
+            quit = 1;
+	    not_done:;
          }
       }
 

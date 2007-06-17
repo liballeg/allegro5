@@ -98,15 +98,20 @@ AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
 	unsigned int w, unsigned int h);
 void _al_d3d_get_current_ortho_projection_parameters(float *w, float *h);
 void _al_d3d_set_ortho_projection(float w, float h);
+bool _al_d3d_is_device_lost(void);
+void _al_d3d_lock_device();
+void _al_d3d_unlock_device();
 
 bool _al_d3d_init_keyboard();
 void _al_d3d_set_kb_cooperative_level(HWND window);
 
 HWND _al_d3d_create_hidden_window(void);
-HWND _al_d3d_create_window(int, int);
+HWND _al_d3d_create_window(int width, int height, int flags);
 HWND _al_d3d_win_get_window();
 int _al_d3d_init_window();
 void _al_d3d_win_ungrab_input();
+//void _al_d3d_destroy_window(AL_DISPLAY_D3D *display);
+//extern bool _al_d3d_switched_in;
 
 void _al_d3d_release_default_pool_textures();
 void _al_d3d_prepare_bitmaps_for_reset();

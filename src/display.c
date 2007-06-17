@@ -795,18 +795,21 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       card = GFX_AUTODETECT;
    }
 
-   if (card == GFX_DIRECT3D) {
+   if (card == GFX_DIRECT3D || card == GFX_DIRECT3D_FULLSCREEN) {
+   	int windowed_flag = (card == GFX_DIRECT3D) ? AL_WINDOWED : 0;
+	/*
 	if (gfx_driver) {
 		destroy_bitmap(screen);
 		screen = NULL;
 		gfx_driver = NULL;
 	}
+	*/
 	al_init();
 	if (v_w != 0 || v_h != 0) {
 		return -1;
 	}
 	screen = create_bitmap(w, h);
-	al_set_display_parameters(0, 0, AL_UPDATE_IMMEDIATE);
+	al_set_display_parameters(0, 0, AL_SINGLEBUFFER|windowed_flag);
 	screen->display = al_create_display(w, h);
 	al_change_current_display(screen->display);
 	screen->needs_upload = true;

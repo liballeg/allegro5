@@ -418,11 +418,6 @@ AL_INLINE(void, _putpixel, (BITMAP *bmp, int x, int y, int color),
    bmp_select(bmp);
    addr = bmp_write_line(bmp, y);
    bmp_write8(addr+x, color);
-
-   if (bmp->needs_upload) {
-      _AL_UPDATE_DIRTY_REGION(bmp, x, y, 1, 1);
-   }
-
    bmp_unwrite_line(bmp);
 })
 
@@ -448,11 +443,6 @@ AL_INLINE(void, _putpixel15, (BITMAP *bmp, int x, int y, int color),
    bmp_select(bmp);
    addr = bmp_write_line(bmp, y);
    bmp_write15(addr+x*sizeof(short), color);
-   
-   if (bmp->needs_upload) {
-      _AL_UPDATE_DIRTY_REGION(bmp, x, y, 1, 1);
-   }
-
    bmp_unwrite_line(bmp);
 })
 
@@ -478,11 +468,6 @@ AL_INLINE(void, _putpixel16, (BITMAP *bmp, int x, int y, int color),
    bmp_select(bmp);
    addr = bmp_write_line(bmp, y);
    bmp_write16(addr+x*sizeof(short), color);
-   
-   if (bmp->needs_upload) {
-      _AL_UPDATE_DIRTY_REGION(bmp, x, y, 1, 1);
-   }
-
    bmp_unwrite_line(bmp);
 })
 
@@ -508,11 +493,6 @@ AL_INLINE(void, _putpixel24, (BITMAP *bmp, int x, int y, int color),
    bmp_select(bmp);
    addr = bmp_write_line(bmp, y);
    bmp_write24(addr+x*3, color);
-   
-   if (bmp->needs_upload) {
-      _AL_UPDATE_DIRTY_REGION(bmp, x, y, 1, 1);
-   }
-
    bmp_unwrite_line(bmp);
 })
 
@@ -538,11 +518,6 @@ AL_INLINE(void, _putpixel32, (BITMAP *bmp, int x, int y, int color),
    bmp_select(bmp);
    addr = bmp_write_line(bmp, y);
    bmp_write32(addr+x*sizeof(int32_t), color);
-   
-   if (bmp->needs_upload) {
-      _AL_UPDATE_DIRTY_REGION(bmp, x, y, 1, 1);
-   }
-
    bmp_unwrite_line(bmp);
 })
 

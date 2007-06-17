@@ -12,6 +12,8 @@
 static HWND new_window;
 static int new_window_width;
 static int new_window_height;
+static bool new_window_resizable;
+static bool new_window_fullscreen;
 static ATOM window_identifier;
 static WNDCLASS window_class;
 // FIXME: must be deleted with display
@@ -38,16 +40,17 @@ static void d3d_get_window_pos(HWND window, RECT *pos)
 	pos->left = with_decorations.left + left;
 }
 
-static void d3d_destroy_window(AL_DISPLAY_D3D *display)
+HWND _al_d3d_create_hidden_window()
 {
-	_al_vector_find_and_delete(&thread_handles, &display->thread_handle);
+	return CreateWindowEx(0, 
+		"ALEX", "D3D Window",0,
+		100, 100, 100, 100,
+		NULL,NULL,window_class.hInstance,0);
 }
 
-/* wnd_thread_proc:
- *  Thread function that handles the messages of the directx window.
- */
-static void d3d_wnd_thread_proc(HANDLE unused)
+HWND _al_d3d_create_window(int width, int height, int flags)
 {
+	HANDLE hThread;
 	DWORD result;
 	MSG msg;
 	unsigned int i;
@@ -55,6 +58,14 @@ static void d3d_wnd_thread_proc(HANDLE unused)
 	RECT working_area;
 	RECT win_size;
 	RECT pos;
+	DWORD style;
+	DWORD ex_style;
+
+	new_window = (HWND)-1;
+	new_window_width = width;
+	new_window_height = height;
+	new_window_resizable = flags & AL_RESIZABLE;
+	new_window_fullscreen = !(flags & AL_WINDOWED);
 
 	/* Save the thread handle for later use */
 	*((DWORD *)_al_vector_alloc_back(&thread_handles)) = GetCurrentThreadId();
@@ -67,11 +78,24 @@ static void d3d_wnd_thread_proc(HANDLE unused)
 	win_size.right = win_size.left + new_window_width;
 	win_size.bottom = win_size.top + new_window_height;
 
-	// Create Window 
-	my_window = CreateWindowEx(0, 
-		"ALEX", "D3D Window", 
-		WS_OVERLAPPEDWINDOW|WS_VISIBLE,
-		100, 100, 100, 100, //new_window_width, new_window_height,
+	if (new_window_fullscreen) {
+		style = WS_POPUP|WS_VISIBLE;
+		ex_style = 0;
+	}
+	else {
+		if  (new_window_resizable) {
+			style = WS_OVERLAPPEDWINDOW|WS_VISIBLE;
+			ex_style = WS_EX_APPWINDOW|WS_EX_OVERLAPPEDWINDOW;
+		}
+		else {
+			style = WS_VISIBLE|WS_SYSMENU;
+			ex_style = WS_EX_APPWINDOW;
+		}
+	}
+
+	my_window = CreateWindowEx(ex_style,
+		"ALEX", "D3D Window", style,
+		100, 100, 100, 100,
 		NULL,NULL,window_class.hInstance,0);
 
 	AdjustWindowRect(&win_size, GetWindowLong(my_window, GWL_STYLE), FALSE);
@@ -85,66 +109,32 @@ static void d3d_wnd_thread_proc(HANDLE unused)
 	wnd_x = pos.left;
 	wnd_y = pos.top;
 
-	new_window = my_window;
-
-	//_win_thread_init();
-
-	for (;;) {
-		result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, INFINITE, QS_ALLINPUT);
-		if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events) {
-			/* one of the registered events is in signaled state */
-			(*_win_input_event_handler[result - WAIT_OBJECT_0])();
-		}
-		else if (result == (DWORD) WAIT_OBJECT_0 + _win_input_events) {
-			/* messages are waiting in the queue */
-			while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-				if (GetMessage(&msg, NULL, 0, 0)) {
-					DispatchMessage(&msg);
-				}
-				else {
-					goto End;
-				}
-			}
-		}
+	if (!new_window_resizable) {
+		/* Make the window non-resizable */
+		HMENU menu;
+		menu = GetSystemMenu(my_window, FALSE);
+		DeleteMenu(menu, SC_SIZE, MF_BYCOMMAND);
+		DeleteMenu(menu, SC_MAXIMIZE, MF_BYCOMMAND);
+		DrawMenuBar(my_window);
 	}
 
-End:
-   _TRACE("window thread exits\n");
+	new_window = my_window;
 
-   //_win_thread_exit();
-}
-
-HWND _al_d3d_create_hidden_window()
-{
-	return CreateWindowEx(0, 
-		"ALEX", "D3D Window",
-		0,
-		100, 100, 100, 100,
-		NULL,NULL,window_class.hInstance,0);
-}
-
-HWND _al_d3d_create_window(int width, int height)
-{
-	HANDLE hThread;
-
-	new_window = (HWND)-1;
-	new_window_width = width;
-	new_window_height = height;
-
-	hThread = (HANDLE) _beginthread(d3d_wnd_thread_proc, 0, 0);
-
-	while (new_window == (HWND)-1)
-		al_rest(1);
 	/*
 	if (_al_d3d_keyboard_initialized) {
 		AL_DISPLAY_D3D *d = (AL_DISPLAY_D3D *)_al_current_display;
-		//key_dinput_set_cooperation_level(new_window);
+		key_dinput_set_cooperative_level(new_window);
 		d->keyboard_initialized = true;
 	}
 	*/
 
 	_al_win_wnd = new_window;
 	return new_window;
+}
+
+static void d3d_delete_thread_handle(AL_DISPLAY_D3D *display)
+{
+	_al_d3d_delete_from_vector(&thread_handles, &display->thread_handle);
 }
 
 /* Quit the program on close button press for now */
@@ -166,13 +156,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 		return ((int (*)(void))wParam) ();
 	}
 
-	if (message == _al_win_msg_suicide) {
-		SendMessage(_al_win_compat_wnd, _al_win_msg_suicide, 0, 0);
-		DestroyWindow(hWnd);
-		return 0;
-	}
-
-
 	for (i = 0; i < _al_d3d_system->system.displays._size; i++) {
 		AL_DISPLAY_D3D **dptr = _al_vector_ref(&_al_d3d_system->system.displays, i);
 		d = *dptr;
@@ -181,6 +164,14 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 			break;
 		}
 	}
+
+	if (message == _al_win_msg_suicide) {
+		d3d_delete_thread_handle(d);
+		SendMessage(_al_win_compat_wnd, _al_win_msg_suicide, 0, 0);
+		DestroyWindow(hWnd);
+		return 0;
+	}
+
 
 	if (i != _al_d3d_system->system.displays._size) {
 		switch (message) { 
@@ -197,20 +188,29 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 				return 1;  /* not TRUE */
 			break;
 			case WM_ACTIVATEAPP:
-				if (wParam == TRUE) {
+				if (wParam) {
 					al_change_current_display((AL_DISPLAY *)d);
 					_al_win_wnd = d->window;
 					win_grab_input();
 					d3d_get_window_pos(d->window, &pos);
 					wnd_x = pos.left;
 					wnd_y = pos.top;
+					return 0;
 				}
 				else {
 					if (_al_vector_find(&thread_handles, &lParam) < 0) {
+						/*
+						 * Device can be lost here, so
+						 * backup textures.
+						 */
+						if (!(d->display.flags & AL_WINDOWED)) {
+							_al_d3d_prepare_bitmaps_for_reset();
+						}
 						_al_d3d_win_ungrab_input();
+						return 0;
 					}
 				}
-				return 0;
+				break;
 			case WM_CLOSE:
 				_al_event_source_lock(es);
 				if (_al_event_source_needs_to_generate_event(es)) {

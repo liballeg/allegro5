@@ -29,7 +29,8 @@ void init_display(int mode, int w, int h, ANIMATION_TYPE type)
    }
 
    // FIXME:
-   mode = GFX_DIRECT3D;
+   mode = GFX_DIRECT3D_FULLSCREEN;
+   //mode = GFX_DIRECT3D;
 
    set_color_depth(8);
 #ifdef ALLEGRO_VRAM_SINGLE_SURFACE
