@@ -29,7 +29,7 @@
 #include "allegro/platform/aintlnx.h"
 
 #ifdef ALLEGRO_LINUX_VGA
-#ifdef HAVE_SYS_IO_H
+#ifdef ALLEGRO_HAVE_SYS_IO_H
 /* iopl() exists in here instead of unistd.h in glibc */
 #include <sys/io.h>
 #endif

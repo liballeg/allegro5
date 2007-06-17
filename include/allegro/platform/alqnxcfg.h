@@ -25,28 +25,23 @@
 
 
 /* a static auto config */
-#define HAVE_INTTYPES_H		/* TODO: check this */
-#define HAVE_STDINT_H		/* TODO: check this */
-#define HAVE_STRICMP
-#define HAVE_STRLWR
-#define HAVE_STRUPR
-#define HAVE_MEMCMP
-#define HAVE_MKSTEMP
-#define HAVE_UNISTD_H
-#define HAVE_FCNTL_H
-#define HAVE_LIMITS_H
-#define HAVE_DIRENT_H
-#define HAVE_SYS_DIR_H
-#define HAVE_SYS_UTSNAME_H
-#define HAVE_SYS_TIME_H
-#define TIME_WITH_SYS_TIME
-#define HAVE_LIBPTHREAD
+#define ALLEGRO_HAVE_INTTYPES_H 1
+#define ALLEGRO_HAVE_STDINT_H   1
+#define ALLEGRO_HAVE_STRICMP    1
+#define ALLEGRO_HAVE_STRLWR     1
+#define ALLEGRO_HAVE_STRUPR     1
+#define ALLEGRO_HAVE_MEMCMP     1
+#define ALLEGRO_HAVE_MKSTEMP    1
+#define ALLEGRO_HAVE_DIRENT_H   1
+#define ALLEGRO_HAVE_SYS_UTSNAME_H 1
+#define ALLEGRO_HAVE_SYS_TIME_H 1
+#define ALLEGRO_HAVE_LIBPTHREAD 1
 
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "QNX"
 #define ALLEGRO_LITTLE_ENDIAN
 #define ALLEGRO_CONSOLE_OK
-#define ALLEGRO_USE_SCHED_YIELD
+#define ALLEGRO_HAVE_SCHED_YIELD
 #define ALLEGRO_USE_CONSTRUCTOR
 #undef ALLEGRO_MULTITHREADED  /* FIXME */
 

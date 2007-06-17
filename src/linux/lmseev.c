@@ -25,7 +25,7 @@
 
 #include "allegro.h"
 
-#ifdef HAVE_LINUX_INPUT_H
+#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
 
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintern_mouse.h"
@@ -855,7 +855,7 @@ AL_MOUSE_DRIVER _al_mousedrv_linux_evdev =
 
 
 
-#endif /* HAVE_LINUX_INPUT_H */
+#endif /* ALLEGRO_HAVE_LINUX_INPUT_H */
 
 /*
  * Local Variables:

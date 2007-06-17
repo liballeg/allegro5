@@ -32,7 +32,7 @@ _DRIVER_INFO _al_linux_mouse_driver_list[] =
 /* {  MOUSEDRV_LINUX_IMS,      &mousedrv_linux_ims,      TRUE  },*/
 /* {  MOUSEDRV_LINUX_PS2,      &mousedrv_linux_ps2,      TRUE  },*/
 /* {  MOUSEDRV_LINUX_IPS2,     &mousedrv_linux_ips2,     TRUE  },*/
-#ifdef HAVE_LINUX_INPUT_H
+#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
    {  AL_MOUSEDRV_LINUX_EVDEV, &_al_mousedrv_linux_evdev, TRUE  },
 #endif
    {  0,                       NULL,                     0     }

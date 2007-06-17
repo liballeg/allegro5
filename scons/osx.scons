@@ -147,7 +147,6 @@ flags = Split("""
 includes = ["include", "include/allegro", "."]
 
 defines = Split("""
-HAVE_CONFIG_H
 ALLEGRO_NO_ASM
 ALLEGRO_LIB_BUILD
 ALLEGRO_SHARED

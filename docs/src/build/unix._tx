@@ -107,7 +107,6 @@ Installing Allegro
    configure header and script prior to doing anything else. Make sure that
    GNU autoconf 2.53 or newer is installed on your system and type:
 <textblock>
-      autoheader   
       autoconf
 <endblock>
    It is possible to add compilation and link flags to the make command line.

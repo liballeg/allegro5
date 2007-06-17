@@ -50,7 +50,7 @@ for (; d < dend; d += (size), s = (type *)                                \
       dd += _al_stretch.i1;                                               \
 }
 
-#ifdef GFX_HAS_VGA
+#ifdef ALLEGRO_GFX_HAS_VGA
 /*
  * Mode-X line stretcher.
  */
@@ -153,7 +153,7 @@ for (; d < dend; d += (size), s = (type*)                                 \
       dd += _al_stretch.i1;                                               \
 }
 
-#ifdef GFX_HAS_VGA
+#ifdef ALLEGRO_GFX_HAS_VGA
 /*
  * Mode-X masked line stretcher.
  */
@@ -345,7 +345,7 @@ void al_blit_scaled(int method, BITMAP *src, int sx, int sy, int sw, int sh,
 	    if (is_linear_bitmap(dst))
 	       stretch_line = stretch_masked_line8;
 	    else {
-#ifdef GFX_HAS_VGA
+#ifdef ALLEGRO_GFX_HAS_VGA
 	       stretch_line = stretch_masked_linex;
 #else
 	       return;
@@ -382,7 +382,7 @@ void al_blit_scaled(int method, BITMAP *src, int sx, int sy, int sw, int sh,
 	    if (is_linear_bitmap(dst))
 	       stretch_line = stretch_line8;
 	    else {
-#ifdef GFX_HAS_VGA
+#ifdef ALLEGRO_GFX_HAS_VGA
 	       stretch_line = stretch_linex;
 #else
 	       return;

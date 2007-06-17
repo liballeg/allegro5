@@ -24,37 +24,24 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
-#ifdef HAVE_SYS_STAT_H
+#ifdef ALLEGRO_HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
 
-#ifdef HAVE_DIRENT_H
+#ifdef ALLEGRO_HAVE_DIRENT_H
    #include <sys/types.h>
    #include <dirent.h>
    #define NAMLEN(dirent) (strlen((dirent)->d_name))
 #else
-   #define dirent direct
-   #define NAMLEN(dirent) ((dirent)->d_namlen)
-   #ifdef HAVE_SYS_NDIR_H
-      #include <sys/ndir.h>
-   #endif
-   #ifdef HAVE_SYS_DIR_H
-      #include <sys/dir.h>
-   #endif
-   #ifdef HAVE_NDIR_H
-      #include <ndir.h>
-   #endif
+   /* Apparently all new systems have `dirent.h'. */
+   #error ALLEGRO_HAVE_DIRENT_H not defined
 #endif
 
-#ifdef TIME_WITH_SYS_TIME
-   #include <sys/time.h>
-   #include <time.h>
-#else
-   #ifdef HAVE_SYS_TIME_H
-      #include <sys/time.h>
-   #else
-      #include <time.h>
-   #endif
+#ifdef ALLEGRO_HAVE_SYS_TIME_H
+  #include <sys/time.h>
+#endif
+#ifdef ALLEGRO_HAVE_TIME_H
+  #include <time.h>
 #endif
 
 #define PREFIX_I "al-unix INFO: "

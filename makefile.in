@@ -31,7 +31,6 @@ DESTDIR =
 
 ACLOCAL = aclocal
 AUTOCONF = autoconf
-AUTOHEADER = autoheader
 
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -116,7 +115,6 @@ stamp-h: $(srcdir)/$(CONFIG_H_IN) config.status
 	@echo timestamp > stamp-h
 $(srcdir)/$(CONFIG_H_IN): $(srcdir)/stamp-h.in
 $(srcdir)/stamp-h.in: $(srcdir)/$(CONFIGURE_IN) $(srcdir)/$(ACLOCAL_M4)
-	cd $(srcdir) && $(AUTOHEADER) $(CONFIGURE_IN) >$(CONFIG_H_IN)
 	@echo timestamp > $(srcdir)/stamp-h.in
 
 @SET_MAKE@

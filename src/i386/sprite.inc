@@ -16,8 +16,8 @@
  */
 
 
-#ifndef SPRITE_INC
-#define SPRITE_INC
+#ifndef ALLEGRO_I386_SPRITE_INC
+#define ALLEGRO_I386_SPRITE_INC
 
 
 
@@ -445,5 +445,5 @@ name##_done:                                                               ; \
 
 
 
-#endif          /* ifndef SPRITE_INC */
+#endif          /* ifndef ALLEGRO_I386_SPRITE_INC */
 

@@ -46,7 +46,7 @@ static int _key_shifts;
 #define PREFIX_W                "al-xkey WARNING: "
 #define PREFIX_E                "al-xkey ERROR: "
 
-#ifdef ALLEGRO_USE_XIM
+#ifdef ALLEGRO_XWINDOWS_WITH_XIM
 static XIM xim = NULL;
 static XIC xic = NULL;
 #endif
@@ -410,7 +410,7 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack)
       char buffer2[16];
       int unicode = 0, r = 0;
 
-#if defined (ALLEGRO_USE_XIM) && defined(X_HAVE_UTF8_STRING)
+#if defined (ALLEGRO_XWINDOWS_WITH_XIM) && defined(X_HAVE_UTF8_STRING)
       if (xic) {
 	 len = Xutf8LookupString(xic, event, buffer, sizeof buffer, NULL, NULL);
       }
@@ -424,7 +424,7 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack)
       uconvert(buffer, U_UTF8, buffer2, U_UNICODE, sizeof buffer2);
       unicode = *(unsigned short *)buffer2;
 
-#ifdef ALLEGRO_USE_XIM
+#ifdef ALLEGRO_XWINDOWS_WITH_XIM
       r = XFilterEvent((XEvent *)event, _xwin.window);
 #endif
       if (keycode || unicode) {
@@ -679,7 +679,7 @@ static void x_set_leds(int leds)
  */
 static int x_keyboard_init(void)
 {
-#ifdef ALLEGRO_USE_XIM
+#ifdef ALLEGRO_XWINDOWS_WITH_XIM
    XIMStyles *xim_styles;
    XIMStyle xim_style = 0;
    char *imvalret;
@@ -695,7 +695,7 @@ static int x_keyboard_init(void)
 
    XLOCK ();
 
-#ifdef ALLEGRO_USE_XIM
+#ifdef ALLEGRO_XWINDOWS_WITH_XIM
 /* TODO: is this needed?
    if (setlocale(LC_ALL,"") == NULL) {
       TRACE(PREFIX_W "Could not set default locale.\n");
@@ -769,7 +769,7 @@ static void x_keyboard_exit(void)
 
    XLOCK();
 
-#ifdef ALLEGRO_USE_XIM
+#ifdef ALLEGRO_XWINDOWS_WITH_XIM
 
    if (xic) {
       XDestroyIC(xic);

@@ -16,16 +16,16 @@
  */
 
 
-#ifndef OPCODES_H
-#define OPCODES_H
+#ifndef ALLEGRO_I386_OPCODES_H
+#define ALLEGRO_I386_OPCODES_H
 
 /*
- * SELinux is the only target for which USE_MMAP_GEN_CODE_BUF has to be
+ * SELinux is the only target for which ALLEGRO_USE_MMAP_GEN_CODE_BUF has to be
  * defined.  So it's okay, for now, if code conditional to
- * USE_MMAP_GEN_CODE_BUF uses a Linux-specific feature.
+ * ALLEGRO_USE_MMAP_GEN_CODE_BUF uses a Linux-specific feature.
  */
 #ifdef ALLEGRO_LINUX 
-   #define USE_MMAP_GEN_CODE_BUF
+   #define ALLEGRO_USE_MMAP_GEN_CODE_BUF
    #define __USE_GNU     /* for mremap */
    #include <stdlib.h>   /* for mkstemp */
    #include <unistd.h>   /* for unlink */
@@ -443,5 +443,5 @@
 }
 
 
-#endif          /* ifndef OPCODES_H */
+#endif          /* ifndef ALLEGRO_I386_OPCODES_H */
 

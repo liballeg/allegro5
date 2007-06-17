@@ -16,8 +16,8 @@
  */
 
 
-#ifndef ASMDEFS_INC
-#define ASMDEFS_INC
+#ifndef ALLEGRO_ASMDEFS_INC
+#define ALLEGRO_ASMDEFS_INC
 
 
 #ifndef SCAN_DEPEND
@@ -98,5 +98,5 @@
 
 
 
-#endif   /* ifndef ASMDEFS_INC */
+#endif   /* ifndef ALLEGRO_ASMDEFS_INC */
 

@@ -33,7 +33,7 @@
 #include "allegro/internal/aintern_events.h"
 #include "allegro/internal/aintern_joystick.h"
 
-#ifdef HAVE_LINUX_JOYSTICK_H
+#ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
 
 #include <linux/joystick.h>
 
@@ -488,14 +488,14 @@ static void ljoy_generate_button_event(AL_JOYSTICK_LINUX *joy, int button, AL_EV
    _al_event_source_emit_event(&joy->parent.es, event);
 }
 
-#endif /* HAVE_LINUX_JOYSTICK_H */
+#endif /* ALLEGRO_HAVE_LINUX_JOYSTICK_H */
 
 
 
 /* list the available drivers */
 _DRIVER_INFO _al_linux_joystick_driver_list[] =
 {
-#ifdef HAVE_LINUX_JOYSTICK_H
+#ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
    { JOYDRV_LINUX,                &joydrv_linux,               TRUE  },
 #endif
    { 0,                           NULL,                        FALSE }
