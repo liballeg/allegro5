@@ -1,14 +1,8 @@
 #ifndef ALLEGRO_DISPLAY_NEW_H
 #define ALLEGRO_DISPLAY_NEW_H
 
-typedef struct AL_COLOR AL_COLOR;
-
-typedef struct AL_DISPLAY AL_DISPLAY;
-
-struct AL_COLOR
-{
-   float r, g, b, a;
-};
+#include "allegro/color_new.h"
+#include "allegro/bitmap_new.h"
 
 /* Possible bit combinations for the flags parameter of al_create_display. */
 
@@ -26,11 +20,16 @@ void al_set_display_parameters(int format, int refresh_rate, int flags);
 void al_get_display_parameters(int *format, int *refresh_rate, int *flags);
 AL_DISPLAY *al_create_display(int w, int h);
 void al_destroy_display(AL_DISPLAY *display);
-void al_change_current_display(AL_DISPLAY *display);
-void al_clear(AL_COLOR color);
-void al_line(float fx, float fy, float tx, float ty, AL_COLOR color);
-void al_filled_rectangle(float tlx, float tly, float brx, float bry,
-    AL_COLOR color);
+void al_set_current_display(AL_DISPLAY *display);
+AL_DISPLAY *al_get_current_display(void);
+void al_set_target_bitmap(AL_BITMAP *bitmap);
+AL_BITMAP *al_get_backbuffer(void);
+AL_BITMAP *al_get_frontbuffer(void);
+AL_BITMAP *al_get_target_bitmap(void);
+void al_clear(AL_COLOR *color);
+void al_draw_line(float fx, float fy, float tx, float ty, AL_COLOR *color);
+void al_draw_filled_rectangle(float tlx, float tly, float brx, float bry,
+    AL_COLOR *color);
 void al_notify_resize(void);
 void al_flip_display(void);
 void al_flip_display_region(int x, int y,

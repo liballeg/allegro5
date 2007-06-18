@@ -1,6 +1,8 @@
 #ifndef ALLEGRO_BITMAP_NEW_H
 #define ALLEGRO_BITMAP_NEW_H
 
+#include "allegro/color_new.h"
+
 typedef struct AL_BITMAP AL_BITMAP;
 
 /* This is just a proof-of-concept implementation. The basic idea is to leave 
@@ -62,6 +64,8 @@ AL_BITMAP *al_create_bitmap(int w, int h);
 AL_BITMAP *al_load_bitmap(char const *filename);
 void al_destroy_bitmap(AL_BITMAP *bitmap);
 //void al_draw_bitmap(int flag, AL_BITMAP *bitmap, float x, float y);
+void al_draw_bitmap(AL_BITMAP *bitmap, float x, float y, int flags);
+/*
 void al_draw_sub_bitmap(AL_BITMAP *bitmap, float x, float y,
     float sx, float sy, float sw, float sh);
 void al_blit(int flag, AL_BITMAP *src, AL_BITMAP *dest,
@@ -86,6 +90,7 @@ void al_blit_region_3(int flag,
 	AL_BITMAP *dest, int dest_x, int dest_y,
 	int dest_w, int dest_h);
 void al_set_light_color(AL_BITMAP *bitmap, AL_COLOR *light_color);
+*/
 AL_LOCKED_RECTANGLE *al_lock_bitmap(AL_BITMAP *bitmap,
 	AL_LOCKED_RECTANGLE *locked_rectangle, int flags);
 AL_LOCKED_RECTANGLE *al_lock_bitmap_region(AL_BITMAP *bitmap,

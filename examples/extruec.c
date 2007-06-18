@@ -21,7 +21,7 @@ void test(int colordepth)
    /* set the screen mode */
    set_color_depth(colordepth);
 
-   if (set_gfx_mode(GFX_DIRECT3D_FULLSCREEN, 640, 480, 0, 0) != 0)
+   if (set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0) != 0)
       return;
 
    /* in case this is a 256 color mode, we'd better make sure that the
@@ -71,11 +71,11 @@ int main(void)
    install_keyboard(); 
 
    /* try each of the possible possible color depths... */
-   test(16);
-   test(32);
-   test(15);
-   test(24);
    test(8);
+   test(15);
+   test(16);
+   test(24);
+   test(32);
 
    return 0;
 }

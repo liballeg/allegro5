@@ -2,7 +2,7 @@
 #define ALLEGRO_INTERNAL_BITMAP_NEW_H
 
 #include "allegro/display_new.h"
-#include "allegro/internal/aintern_display.h"
+#include "allegro/bitmap_new.h"
 
 typedef struct AL_BITMAP_INTERFACE AL_BITMAP_INTERFACE;
 
@@ -33,6 +33,7 @@ struct AL_BITMAP
 struct AL_BITMAP_INTERFACE
 {
    int id;
+   /*
    void (*blit)(int flag, struct AL_BITMAP *src, struct AL_BITMAP *dest,
    	float dx, float dy);
    void (*blit_region)(int flag, struct AL_BITMAP *src, float sx, float sy,
@@ -54,14 +55,16 @@ struct AL_BITMAP_INTERFACE
 	struct AL_BITMAP *source2, int source2_x, int source2_y,
 	struct AL_BITMAP *dest, int dest_x, int dest_y,
 	int dest_w, int dest_h);
-//   void (*draw_bitmap)(int flag, struct AL_BITMAP *bitmap, float x, float y);
-   void (*draw_sub)(struct AL_BITMAP *bitmap, float x, float y,
+	*/
+   void (*draw_bitmap)(struct AL_BITMAP *bitmap, float x, float y, int flags);
+/*   void (*draw_sub)(struct AL_BITMAP *bitmap, float x, float y,
       float sx, float sy, float sw, float sh);
+      */
    /* After the memory-copy of the bitmap has been modified, need to call this
     * to update the display-specific copy. E.g. with an OpenGL driver, this
     * might create/update a texture.
     */
-   void (*upload_bitmap)(struct AL_BITMAP *bitmap, int x, int y, int width, int height);
+   void (*upload_bitmap)(AL_BITMAP *bitmap, int x, int y, int width, int height);
    /* If the display version of the bitmap has been modified, use this to update
     * the memory copy accordingly. E.g. with an OpenGL driver, this might
     * read the contents of an associated texture.
@@ -71,25 +74,24 @@ struct AL_BITMAP_INTERFACE
     * been changed.
     */
    //void (*upload_compat_bitmap)(struct BITMAP *bitmap, int x, int y, int width, int height);
-   void (*download_bitmap)(struct AL_BITMAP *bitmap);
    /* Destroy any driver specific stuff. The struct AL_BITMAP and its memory copy
     * itself should not be touched.
     */
-   void (*destroy_bitmap)(struct AL_BITMAP *bitmap);
+   void (*destroy_bitmap)(AL_BITMAP *bitmap);
 
    /*
     * Make this into the "screen" bitmap (for compatibility layer)
     */
    //void (*make_compat_screen)(struct AL_BITMAP *bitmap);
-   AL_LOCKED_RECTANGLE * (*lock_region)(struct AL_BITMAP *bitmap,
+   AL_LOCKED_RECTANGLE * (*lock_region)(AL_BITMAP *bitmap,
    	int x, int y, int w, int h,
    	AL_LOCKED_RECTANGLE *locked_rectangle,
 	int flags);
 
-   void (*unlock_region)(struct AL_BITMAP *bitmap);
+   void (*unlock_region)(AL_BITMAP *bitmap);
 };
 
-void _al_blit_memory_bitmap(struct AL_BITMAP *source, struct AL_BITMAP *dest,
+void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,
    int source_x, int source_y, int dest_x, int dest_y, int w, int h);
 //AL_BITMAP_INTERFACE *_al_bitmap_xdummy_driver(void);
 AL_BITMAP_INTERFACE *_al_bitmap_d3ddummy_driver(void);

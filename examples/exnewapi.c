@@ -6,7 +6,6 @@
  * current FPS in the top right corner.
  */
 #include "allegro.h"
-#include "allegro/platform/ald3d.h"
 #include "allegro/internal/aintern_bitmap.h"
 #include <winalleg.h>
 
@@ -35,7 +34,7 @@ int main(void)
 
    events = al_create_event_queue();
 
-   al_set_display_parameters(ALLEGRO_PIXEL_FORMAT_ARGB_8888, 0, AL_WINDOWED|AL_RESIZABLE);
+   al_set_display_parameters(ALLEGRO_PIXEL_FORMAT_RGB_565, 0, AL_WINDOWED|AL_RESIZABLE);
 
    /* Create three windows. */
    display[0] = al_create_display(w, h);
@@ -57,23 +56,28 @@ int main(void)
     * only need to load it once (as memory bitmap), then make available on all
     * displays.
     */
-   al_change_current_display(display[2]);
+   al_set_current_display(display[2]);
+
+   al_set_bitmap_parameters(ALLEGRO_PIXEL_FORMAT_RGB_565, AL_SYNC_MEMORY_COPY);
    picture = al_load_bitmap("mysha.tga");
    mask = al_load_bitmap("mask.pcx");
 
+/*
 	AL_COLOR color;
 	for (y = 0; y < 100; y++) {
 		for (x = 0; x < 160; x++) {
 			al_put_pixel(picture, x+160, y+100, al_get_pixel(picture, x, y, &color));
 		}
 	}
+*/
 
    al_install_keyboard();
    al_register_event_source(events, (AL_EVENT_SOURCE *)al_get_keyboard());
 
    start_ticks = al_current_time();
 
-   al_set_light_color(picture, &al_color(1.0f, 1.0f, 0.0f, 0.5f));
+   al_set_target_bitmap(mask);
+   al_draw_bitmap(picture, 0, 0, 0);
 
    while (!quit) {
       /* read input */
@@ -90,7 +94,7 @@ int main(void)
             AL_DISPLAY_EVENT *display = &event.display;
             w = display->width;
             h = display->height;
-            al_change_current_display(display->source);
+            al_set_current_display(display->source);
             al_notify_resize();
          }
          if (event.type == AL_EVENT_DISPLAY_CLOSE)
@@ -127,18 +131,16 @@ int main(void)
          for (i = 0; i < 3; i++) {
 	    if (!display[i])
 	       continue;
-            al_change_current_display(display[i]);
-            al_clear(al_color(1.0f, 1.0f, 1.0f, 1.0));
+            al_set_current_display(display[i]);
+	    al_set_target_bitmap(al_get_backbuffer());
+            al_clear(&al_color(1.0f, 1.0f, 1.0f, 1.0));
 	    if (i == 1) {
-	    	al_line(50, 50, 150, 150, colors[0]);
+	    	al_draw_line(50, 50, 150, 150, &colors[0]);
 	    }
             else if (i == 2) {
-	    	al_blit_scaled(0, picture, 0, 0, picture->w, picture->h,
-			0, 0, 0, 640, 479);
-	    	al_blit(0, mask, 0, 0, 0);
-		al_blit(0, picture, 0, 0, 0);
+		al_draw_bitmap(mask, 0, 0, 0);
 	    }
-            al_filled_rectangle(x, y, x + 40, y + 40, colors[i]);
+            al_draw_filled_rectangle(x, y, x + 40, y + 40, &colors[i]);
             al_flip_display();
          }
          last_rendered = ticks;
