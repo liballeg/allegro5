@@ -16,6 +16,10 @@ static int pixel_sizes[] = {
 	2,
 	2,
 	4,
+	4,
+	3,
+	2,
+	2,
 	4
 };
 
@@ -67,7 +71,7 @@ void _get_pixel_rgb_888(void *data, AL_COLOR *color)
 void _get_pixel_rgb_565(void *data, AL_COLOR *color)
 {
 	uint16_t pixel = *(uint16_t *)(data);
-	color->r = (float)((pixel & 0xF100) >>  8) / 255.0f;
+	color->r = (float)((pixel & 0x8100) >>  8) / 255.0f;
 	color->g = (float)((pixel & 0x07E0) >>  3) / 255.0f;
 	color->b = (float)((pixel & 0x001F) <<  3) / 255.0f;
 	color->a = 0.0f;
@@ -127,6 +131,42 @@ void _get_pixel_xbgr_8888(void *data, AL_COLOR *color)
 	color->a = 0.0f;
 }
 
+void _get_pixel_bgr_888(void *data, AL_COLOR *color)
+{
+	uint32_t pixel = READ3BYTES(data);
+	color->r = (float)((pixel & 0x000000FF) >>  0) / 255.0f;
+	color->g = (float)((pixel & 0x0000FF00) >>  8) / 255.0f;
+	color->b = (float)((pixel & 0x00FF0000) >> 16) / 255.0f;
+	color->a = 0.0f;
+}
+
+void _get_pixel_bgr_565(void *data, AL_COLOR *color)
+{
+	uint16_t pixel = *(uint16_t *)(data);
+	color->r = (float)((pixel & 0x001F) <<  3) / 255.0f;
+	color->g = (float)((pixel & 0x07E0) >>  3) / 255.0f;
+	color->b = (float)((pixel & 0xF800) >>  8) / 255.0f;
+	color->a = 0.0f;
+}
+
+void _get_pixel_bgr_555(void *data, AL_COLOR *color)
+{
+	uint16_t pixel = *(uint16_t *)(data);
+	color->r = (float)((pixel & 0x001F) <<  3) / 255.0f;
+	color->g = (float)((pixel & 0x03E0) >>  2) / 255.0f;
+	color->b = (float)((pixel & 0x7C00) >>  7) / 255.0f;
+	color->a = 0.0f;
+}
+
+void _get_pixel_rgbx_8888(void *data, AL_COLOR *color)
+{
+	uint32_t pixel = *(uint32_t *)(data);
+	color->r = (float)((pixel & 0xFF000000) >> 24) / 255.0f;
+	color->g = (float)((pixel & 0x00FF0000) >> 16) / 255.0f;
+	color->b = (float)((pixel & 0x0000FF00) >>  8) / 255.0f;
+	color->a = 0.0f;
+}
+
 /* get pixel lookup table */
 
 typedef void (*p_get_pixel_func)(void *, AL_COLOR *);
@@ -143,7 +183,11 @@ p_get_pixel_func get_pixel_funcs[] = {
 	_get_pixel_rgba_5551,
 	_get_pixel_argb_1555,
 	_get_pixel_abgr_8888,
-	_get_pixel_xbgr_8888
+	_get_pixel_xbgr_8888,
+	_get_pixel_bgr_888,
+	_get_pixel_bgr_565,
+	_get_pixel_bgr_555,
+	_get_pixel_rgbx_8888
 };
 
 AL_COLOR *_al_get_pixel(void *data, int format, AL_COLOR *color) {
@@ -288,6 +332,43 @@ void _put_pixel_xbgr_8888(void *data, AL_COLOR *color)
 	*(uint32_t *)(data) = pixel;
 }
 
+void _put_pixel_bgr_888(void *data, AL_COLOR *color)
+{
+	uint32_t pixel = 0;
+	pixel |= (int)(color->r * 255) <<  0;
+	pixel |= (int)(color->g * 255) <<  8;
+	pixel |= (int)(color->b * 255) << 16;
+	WRITE3BYTES(data, pixel);
+}
+
+void _put_pixel_bgr_565(void *data, AL_COLOR *color)
+{
+	uint16_t pixel = 0;
+	pixel |= (int)(color->r * 0x1F) <<   0;
+	pixel |= (int)(color->g * 0x3F) <<   5;
+	pixel |= (int)(color->b * 0x1F) <<  11;
+	*(uint16_t *)(data) = pixel;
+}
+
+void _put_pixel_bgr_555(void *data, AL_COLOR *color)
+{
+	uint16_t pixel = 0;
+	pixel |= (int)(color->r * 0x1F) <<   0;
+	pixel |= (int)(color->g * 0x1F) <<   5;
+	pixel |= (int)(color->b * 0x1F) <<  10;
+	*(uint16_t *)(data) = pixel;
+}
+
+void _put_pixel_rgbx_8888(void *data, AL_COLOR *color)
+{
+	uint32_t pixel = 0;
+	pixel |= (int)(color->r * 255) << 24;
+	pixel |= (int)(color->g * 255) << 16;
+	pixel |= (int)(color->b * 255) <<  8;
+
+	*(uint32_t *)(data) = pixel;
+}
+
 /* put pixel lookup table */
 
 typedef void (*p_put_pixel_func)(void *data, AL_COLOR *);
@@ -304,7 +385,11 @@ p_put_pixel_func put_pixel_funcs[] = {
 	_put_pixel_rgba_5551,
 	_put_pixel_argb_1555,
 	_put_pixel_abgr_8888,
-	_put_pixel_xbgr_8888
+	_put_pixel_xbgr_8888,
+	_put_pixel_bgr_888,
+	_put_pixel_bgr_565,
+	_put_pixel_bgr_555,
+	_put_pixel_rgbx_8888
 };
 
 void _al_put_pixel(void *data, int format, AL_COLOR *color)
