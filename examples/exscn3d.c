@@ -70,7 +70,7 @@ END_OF_FUNCTION(tick)
 int init_gfx(PALETTE *pal)
 {
    int i;
-   int gfx_mode = GFX_DIRECT3D;
+   int gfx_mode = GFX_AUTODETECT;
    int w, h ,bpp;
    
    /* color 0 = black */
@@ -94,7 +94,7 @@ int init_gfx(PALETTE *pal)
 
    /* set the graphics mode */
    //if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
-   if (set_gfx_mode(GFX_DIRECT3D, 320, 200, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
       return 1;
@@ -111,8 +111,7 @@ int init_gfx(PALETTE *pal)
 
    set_color_depth(bpp);
 
-   //if (set_gfx_mode(gfx_mode, w, h, 0, 0) != 0) {
-   if (set_gfx_mode(GFX_DIRECT3D, w, h, 0, 0) != 0) {
+   if (set_gfx_mode(gfx_mode, w, h, 0, 0) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Error setting graphics mode\n%s\n", allegro_error);
       return 1;

@@ -127,7 +127,7 @@ int main(void)
    V3D_f x1[8], x2[8];
 
    int i;
-   int c = GFX_DIRECT3D;
+   int c = GFX_AUTODETECT;
    int w, h, bpp;
    
    int frame = 0;

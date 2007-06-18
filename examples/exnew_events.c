@@ -396,7 +396,7 @@ int main(void)
    /* Open a window. This function is part of the new display API and is
     * still in flux.
     */
-   if (!al_create_display(GFX_DIRECT3D_WINDOWED, AL_UPDATE_DOUBLE_BUFFER,
+   if (!al_create_display(GFX_AUTODETECT_WINDOWED, AL_UPDATE_DOUBLE_BUFFER,
          AL_DEPTH_32, 640, 480))
    {
       fatal_error("al_create_display");

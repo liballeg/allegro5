@@ -82,6 +82,9 @@ AL_DISPLAY *al_create_display(int w, int h)
    AL_SYSTEM *system = al_system_driver();
    AL_DISPLAY_INTERFACE *driver = system->vt->get_display_driver();
    AL_DISPLAY *display = driver->create_display(w, h);
+   al_set_current_display(display);
+   al_clear(&al_color(0, 0, 0, 0));
+   al_set_target_bitmap(al_get_backbuffer());
 
    return display;
 }

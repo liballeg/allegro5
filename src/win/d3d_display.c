@@ -819,11 +819,9 @@ static void d3d_display_thread_proc(HANDLE unused)
 	d3d_waiting_for_display = false;
 
 	for (;;) {
-		/*
 		if (d == d3d_destroyed_display) {
 			break;
 		}
-		*/
 		/* FIXME: How long should we wait? */
 		result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, 5/*INFINITE*/, QS_ALLINPUT);
 		if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events) {

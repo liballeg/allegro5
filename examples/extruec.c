@@ -21,7 +21,7 @@ void test(int colordepth)
    /* set the screen mode */
    set_color_depth(colordepth);
 
-   if (set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0) != 0)
+   if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0)
       return;
 
    /* in case this is a 256 color mode, we'd better make sure that the

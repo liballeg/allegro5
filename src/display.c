@@ -653,6 +653,14 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
    _gfx_mode_set_count++;
 
+   /* FIXME: */
+   if (card == GFX_AUTODETECT) {
+   	card = GFX_DIRECT3D;
+   }
+   else if (card == GFX_AUTODETECT_FULLSCREEN) {
+   	card = GFX_DIRECT3D_FULLSCREEN;
+   }
+
    /* special bodge for the GFX_SAFE driver */
    if (card == GFX_SAFE) {
       if (system_driver->get_gfx_safe_mode) {
@@ -809,7 +817,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 		return -1;
 	}
 	screen = create_bitmap(w, h);
-	al_set_display_parameters(0, 0, AL_SINGLEBUFFER|windowed_flag);
+	al_set_display_parameters(ALLEGRO_PIXEL_FORMAT_RGB_565, 0, AL_SINGLEBUFFER|windowed_flag);
 	screen->display = al_create_display(w, h);
 	al_set_current_display(screen->display);
 	al_set_target_bitmap(al_get_backbuffer());

@@ -444,7 +444,7 @@ int main(void)
       return 1;
    install_keyboard();
    set_color_depth(32);
-   if (set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Unable to set a 640x480x32 windowed mode\n%s\n", allegro_error);
       return 1;

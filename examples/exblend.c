@@ -48,7 +48,6 @@ int main(int argc, char *argv[])
    if (bpp > 0) {
       /* set a user-requested color depth */
       set_color_depth(bpp);
-      //ret = set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0);
       ret = set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0);
    }
    else {
@@ -57,7 +56,6 @@ int main(int argc, char *argv[])
       for (a=0; color_depths[a]; a++) {
 	 bpp = color_depths[a];
 	 set_color_depth(bpp);
-	 //ret = set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0);
 	 ret = set_gfx_mode(GFX_DIRECT3D, 640, 480, 0, 0);
 	 if (ret == 0)
 	    break;
