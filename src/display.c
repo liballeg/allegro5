@@ -811,7 +811,8 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	screen = create_bitmap(w, h);
 	al_set_display_parameters(0, 0, AL_SINGLEBUFFER|windowed_flag);
 	screen->display = al_create_display(w, h);
-	al_change_current_display(screen->display);
+	al_set_current_display(screen->display);
+	al_set_target_bitmap(al_get_backbuffer());
 	screen->needs_upload = true;
 	//screen->al_bitmap->vt->make_compat_screen(screen->al_bitmap);
 	screen->display->vt->upload_compat_screen(screen, 0, 0, w, h);

@@ -37,7 +37,11 @@ static bool _al_d3d_device_lost;
 static bool d3d_waiting_for_display = true;
 static int d3d_new_display_w;
 static int d3d_new_display_h;
-static bool d3d_fullscreen_display_destroyed = false;
+static AL_DISPLAY_D3D *d3d_destroyed_display = NULL;
+static LPDIRECT3DSURFACE9 d3d_current_texture_render_target = NULL;
+
+static AL_DISPLAY *d3d_target_display_before_device_lost = NULL;
+static AL_BITMAP *d3d_target_bitmap_before_device_lost = NULL;
 
 /* Preserved vertex buffers for speed */
 static IDirect3DVertexBuffer9 *d3d_line_vertex_buffer;
@@ -93,6 +97,11 @@ GFX_DRIVER _al_d3d_dummy_gfx_driver = {
 	_al_win_directx_hide_mouse_cursor
 };
 
+/* Dummy front/back buffer bitmaps */
+
+AL_BITMAP_D3D d3d_frontbuffer;
+AL_BITMAP_D3D d3d_backbuffer;
+
 static int d3d_valid_formats[] = {
 	ALLEGRO_PIXEL_FORMAT_ANY,
 	ALLEGRO_PIXEL_FORMAT_ARGB_8888,
@@ -123,7 +132,7 @@ static int d3d_formats[] = {
 	-1
 };
 
-static int al_format_to_d3d(int format)
+int _al_pixel_format_to_d3d(int format)
 {
 	int i;
 	D3DDISPLAYMODE d3d_dm;
@@ -188,6 +197,7 @@ static void d3d_reset_state()
 	IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ZENABLE, D3DZB_FALSE);
 	IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ZWRITEENABLE, FALSE);
 	IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_LIGHTING, FALSE);
+	IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CULLMODE, D3DCULL_NONE);
 	
 	_al_d3d_unlock_device();
 }
@@ -226,7 +236,7 @@ static bool d3d_display_mode_matches(D3DDISPLAYMODE *dm, int w, int h, int forma
 	if ((dm->Width == (unsigned int)w) &&
 	    (dm->Height == (unsigned int)h) &&
 	    ((!refresh_rate) || (dm->RefreshRate == (unsigned int)refresh_rate)) &&
-	    (dm->Format == (unsigned int)al_format_to_d3d(format))) {
+	    (dm->Format == (unsigned int)_al_pixel_format_to_d3d(format))) {
 	    	return true;
 	}
 	return false;
@@ -234,13 +244,13 @@ static bool d3d_display_mode_matches(D3DDISPLAYMODE *dm, int w, int h, int forma
 
 static int d3d_get_max_refresh_rate(int w, int h, int format)
 {
-	UINT num_modes = IDirect3D9_GetAdapterModeCount(_al_d3d, D3DADAPTER_DEFAULT, al_format_to_d3d(format));
+	UINT num_modes = IDirect3D9_GetAdapterModeCount(_al_d3d, D3DADAPTER_DEFAULT, _al_pixel_format_to_d3d(format));
 	UINT i;
 	D3DDISPLAYMODE display_mode;
 	UINT max = 0;
 
 	for (i = 0; i < num_modes; i++) {
-		if (IDirect3D9_EnumAdapterModes(_al_d3d, D3DADAPTER_DEFAULT, al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
+		if (IDirect3D9_EnumAdapterModes(_al_d3d, D3DADAPTER_DEFAULT, _al_pixel_format_to_d3d(format), i, &display_mode) != D3D_OK) {
 			TRACE("d3d_get_max_refresh_rate: EnumAdapterModes failed.\n");
 			return -1;
 		}
@@ -256,12 +266,12 @@ static int d3d_get_max_refresh_rate(int w, int h, int format)
 
 static bool d3d_check_mode(int w, int h, int format, int refresh_rate)
 {
-	UINT num_modes = IDirect3D9_GetAdapterModeCount(_al_d3d, D3DADAPTER_DEFAULT, al_format_to_d3d(format));
+	UINT num_modes = IDirect3D9_GetAdapterModeCount(_al_d3d, D3DADAPTER_DEFAULT, _al_pixel_format_to_d3d(format));
 	UINT i;
 	D3DDISPLAYMODE display_mode;
 
 	for (i = 0; i < num_modes; i++) {
-		if (IDirect3D9_EnumAdapterModes(_al_d3d, D3DADAPTER_DEFAULT, al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
+		if (IDirect3D9_EnumAdapterModes(_al_d3d, D3DADAPTER_DEFAULT, _al_pixel_format_to_d3d(format), i, &display_mode) != D3D_OK) {
 			TRACE("d3d_check_mode: EnumAdapterModes failed.\n");
 			return false;
 		}
@@ -356,7 +366,7 @@ static bool d3d_create_fullscreen_device(AL_DISPLAY_D3D *d,
 	}
 
 	ZeroMemory(&d3d_pp, sizeof(d3d_pp));
-	d3d_pp.BackBufferFormat = al_format_to_d3d(format);
+	d3d_pp.BackBufferFormat = _al_pixel_format_to_d3d(format);
 	d3d_pp.BackBufferWidth = d->display.w;
 	d3d_pp.BackBufferHeight = d->display.h;
 	d3d_pp.BackBufferCount = 1;
@@ -463,6 +473,13 @@ bool _al_d3d_init_display()
 
 	_al_mutex_init(&d3d_device_mutex);
 
+	d3d_frontbuffer.is_frontbuffer = 1;
+	d3d_frontbuffer.is_backbuffer = 0;
+
+	d3d_backbuffer.is_frontbuffer = 0;
+	d3d_backbuffer.is_backbuffer = 1;
+
+
 	/*
 	if (d3d_create_device() != 0) {
 		return 1;
@@ -476,7 +493,7 @@ static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d,
 	int format, int refresh_rate, int flags)
 {
 	ZeroMemory(&d3d_pp, sizeof(d3d_pp));
-	d3d_pp.BackBufferFormat = al_format_to_d3d(format);
+	d3d_pp.BackBufferFormat = _al_pixel_format_to_d3d(format);
 	d3d_pp.BackBufferWidth = d->display.w;
 	d3d_pp.BackBufferHeight = d->display.h;
 	d3d_pp.BackBufferCount = 1;
@@ -519,6 +536,9 @@ static void d3d_destroy_display(AL_DISPLAY *display)
 	AL_DISPLAY_D3D *d3d_display = (AL_DISPLAY_D3D *)display;
 	AL_SYSTEM_D3D *system = (AL_SYSTEM_D3D *)al_system_driver();
 
+	if (d3d_current_texture_render_target) {
+		IDirect3DSurface9_Release(d3d_current_texture_render_target);
+	}
 	if (d3d_display->render_target)
 		IDirect3DSurface9_Release(d3d_display->render_target);
 	if (d3d_display->swap_chain)
@@ -534,13 +554,15 @@ static void d3d_destroy_display(AL_DISPLAY *display)
 		d3d_destroy_vertex_buffers();
 		//d3d_destroy_fullscreen_device();
 		d3d_already_fullscreen = false;
-		d3d_fullscreen_display_destroyed = true;
-		al_rest(100);
 	}
 
-	win_ungrab_input();
+	d3d_destroyed_display = d3d_display;
+	al_rest(100);
+	d3d_destroyed_display = NULL;
 
-	SendMessage(d3d_display->window, _al_win_msg_suicide, 0, 0);
+	_al_d3d_win_ungrab_input();
+
+	PostMessage(d3d_display->window, _al_win_msg_suicide, 0, 0);
 
 	_al_event_source_free(&display->es);
 
@@ -565,6 +587,11 @@ void _al_d3d_prepare_for_reset()
 	//_al_d3d_prepare_bitmaps_for_reset();
 	_al_d3d_release_default_pool_textures();
 
+	if (d3d_current_texture_render_target) {
+		IDirect3DSurface9_Release(d3d_current_texture_render_target);
+		d3d_current_texture_render_target = NULL;
+	}
+
 	for (i = 0; i < d3d_created_displays._size; i++) {
 		AL_DISPLAY_D3D **dptr = _al_vector_ref(&d3d_created_displays, i);
 		AL_DISPLAY_D3D *disp = *dptr;
@@ -586,7 +613,7 @@ static bool _al_d3d_reset_device()
 			_al_d3d_prepare_for_reset();
 
 			ZeroMemory(&d3d_pp, sizeof(d3d_pp));
-			d3d_pp.BackBufferFormat = al_format_to_d3d(d3d_fullscreen_display->display.format);
+			d3d_pp.BackBufferFormat = _al_pixel_format_to_d3d(d3d_fullscreen_display->display.format);
 			d3d_pp.BackBufferWidth = d3d_fullscreen_display->display.w;
 			d3d_pp.BackBufferHeight = d3d_fullscreen_display->display.h;
 			d3d_pp.BackBufferCount = 1;
@@ -622,10 +649,6 @@ static bool _al_d3d_reset_device()
 			IDirect3DDevice9_GetSwapChain(_al_d3d_device, 0, &d3d_fullscreen_display->swap_chain);
 
 			_al_d3d_unlock_device();
-
-			d3d_reset_state();
-
-			_al_d3d_refresh_texture_memory();
 		}
 		else {
 			unsigned int i;
@@ -672,12 +695,17 @@ static bool _al_d3d_reset_device()
 				d3d_create_swap_chain(d, al_display->format, al_display->refresh_rate, al_display->flags);
 			}
 
-			d3d_reset_state();
 
-			_al_d3d_refresh_texture_memory();
 		}
 	}
-	
+
+	_al_d3d_refresh_texture_memory();
+
+	al_set_current_display(d3d_target_display_before_device_lost);
+	al_set_target_bitmap(d3d_target_bitmap_before_device_lost);
+
+	d3d_reset_state();
+
 	return 1;
 }
 
@@ -711,6 +739,7 @@ static void d3d_display_thread_proc(HANDLE unused)
 	DWORD result;
 	MSG msg;
 	HRESULT hr;
+	bool lost_event_generated = false;
 
 	al_get_display_parameters(&format, &refresh_rate, &flags);
 
@@ -790,10 +819,11 @@ static void d3d_display_thread_proc(HANDLE unused)
 	d3d_waiting_for_display = false;
 
 	for (;;) {
-		if (d3d_fullscreen_display_destroyed) {
-			d3d_fullscreen_display_destroyed = false;
+		/*
+		if (d == d3d_destroyed_display) {
 			break;
 		}
+		*/
 		/* FIXME: How long should we wait? */
 		result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, 5/*INFINITE*/, QS_ALLINPUT);
 		if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events) {
@@ -811,6 +841,7 @@ static void d3d_display_thread_proc(HANDLE unused)
 				}
 			}
 			if (_al_d3d_device) {
+				_al_d3d_lock_device();
 				hr = IDirect3DDevice9_TestCooperativeLevel(_al_d3d_device);
 
 				if (hr == D3D_OK) {
@@ -818,12 +849,37 @@ static void d3d_display_thread_proc(HANDLE unused)
 				}
 				else if (hr == D3DERR_DEVICELOST) {
 					/* device remains lost */
+					if (!lost_event_generated) {
+						_al_event_source_lock(&d->display.es);
+						if (_al_event_source_needs_to_generate_event(&d->display.es)) {
+							AL_EVENT *event = _al_event_source_get_unused_event(&d->display.es);
+							if (event) {
+								event->display.type = AL_EVENT_DISPLAY_LOST;
+								event->display.timestamp = al_current_time();
+								_al_event_source_emit_event(&d->display.es, event);
+							}
+						}
+						_al_event_source_unlock(&d->display.es);
+						lost_event_generated = true;
+					}
 				}
 				else if (hr == D3DERR_DEVICENOTRESET) {
 					if (_al_d3d_reset_device()) {
 						_al_d3d_device_lost = false;
+						_al_event_source_lock(&d->display.es);
+						if (_al_event_source_needs_to_generate_event(&d->display.es)) {
+							AL_EVENT *event = _al_event_source_get_unused_event(&d->display.es);
+							if (event) {
+								event->display.type = AL_EVENT_DISPLAY_FOUND;
+								event->display.timestamp = al_current_time();
+								_al_event_source_emit_event(&d->display.es, event);
+							}
+						}
+						_al_event_source_unlock(&d->display.es);
+						lost_event_generated = false;
 					}
 				}
+				_al_d3d_unlock_device();
 			}
 		}
 	}
@@ -870,27 +926,28 @@ static AL_DISPLAY *d3d_create_display(int w, int h)
 }
 
 /* FIXME: this will have to return a success/failure */
-static void d3d_change_current_display(AL_DISPLAY *d)
+static void d3d_set_current_display(AL_DISPLAY *d)
 {
 	if (_al_d3d_is_device_lost()) return;
-
+	
+	/*
 	if (_al_d3d_device) {
 		AL_DISPLAY_D3D *disp = (AL_DISPLAY_D3D *)d;
 
 		_al_d3d_set_ortho_projection(d->w, d->h);
 
 		_al_d3d_lock_device();
-		IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, disp->render_target);
+		//IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, disp->render_target);
 		IDirect3DDevice9_BeginScene(_al_d3d_device);
 		_al_d3d_unlock_device();
 
 		d3d_reset_state();
 	}
-
+	*/
 }
 
 /* Dummy implementation of clear. */
-static void d3d_clear(AL_DISPLAY *d, AL_COLOR color)
+static void d3d_clear(AL_DISPLAY *d, AL_COLOR *color)
 {
 	AL_DISPLAY_D3D* disp = (AL_DISPLAY_D3D*)d;
 
@@ -899,7 +956,7 @@ static void d3d_clear(AL_DISPLAY *d, AL_COLOR color)
 
 	IDirect3DDevice9_Clear(_al_d3d_device, 0, NULL,
 		D3DCLEAR_TARGET,
-		AL_COLOR_TO_D3D(color),
+		AL_COLOR_TO_D3D((*color)),
 		1, 0);
 	
 	_al_d3d_unlock_device();
@@ -907,10 +964,10 @@ static void d3d_clear(AL_DISPLAY *d, AL_COLOR color)
 
 /* Dummy implementation of line. */
 static void d3d_draw_line(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
-   AL_COLOR color)
+   AL_COLOR *color)
 {
 	static D3D_COLORED_VERTEX points[2] = { { 0.0f, 0.0f, 0.0f, 0 }, };
-	DWORD d3d_color = AL_COLOR_TO_D3D(color);
+	DWORD d3d_color = AL_COLOR_TO_D3D((*color));
 	BYTE *vertex_buffer_data;
 	
 	if (_al_d3d_is_device_lost()) return;
@@ -949,26 +1006,41 @@ static void d3d_draw_line(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
 }
  
 /* Dummy implementation of a filled rectangle. */
-static void d3d_filled_rectangle(AL_DISPLAY *d, float tlx, float tly,
-   float brx, float bry, AL_COLOR color)
+static void d3d_draw_filled_rectangle(AL_DISPLAY *d, float tlx, float tly,
+   float brx, float bry, AL_COLOR *color)
 {
 	D3DRECT rect;
+	float w = brx - tlx;
+	float h = bry - tly;
+	D3DXVECTOR2 center;
+
+	if (_al_d3d_is_device_lost()) return;
 	
-	if ((brx-tlx) < 1 || (bry-tly) < 1) {
+	if (w < 1 || h < 1) {
 		return;
 	}
 	
-	if (_al_d3d_is_device_lost()) return;
-	_al_d3d_lock_device();
-
 	rect.x1 = tlx;
 	rect.y1 = tly;
 	rect.x2 = brx;
 	rect.y2 = bry;
 
+	center.x = w/2;
+	center.y = h/2;
+
+	_al_d3d_lock_device();
+
+	_al_d3d_draw_textured_quad(NULL,
+		0.0f, 0.0f, w, h,
+		tlx, tly, w, h,
+		&center, 0.0f,
+		AL_COLOR_TO_D3D((*color)), 0);
+
+		/*
 	IDirect3DDevice9_Clear(_al_d3d_device,
 		1, &rect, D3DCLEAR_TARGET, AL_COLOR_TO_D3D(color),
 		1.0f, 0);
+		*/
 	
 	_al_d3d_unlock_device();
 }
@@ -1146,6 +1218,8 @@ AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
    bitmap->video_texture = 0;
    bitmap->system_texture = 0;
    bitmap->created = false;
+   bitmap->is_frontbuffer = false;
+   bitmap->is_backbuffer = false;
    bitmap->xo = 0;
    bitmap->yo = 0;
 
@@ -1154,33 +1228,91 @@ AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
    return &bitmap->bitmap;
 }
 
-AL_BITMAP *_al_d3d_create_sub_bitmap(AL_DISPLAY *d, AL_BITMAP *parent,
-	unsigned int x, unsigned int y, unsigned int w, unsigned int h)
+static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 {
-   if (_al_d3d_is_device_lost()) return NULL;
-   _al_d3d_lock_device();
+	AL_DISPLAY_D3D *d3d_display = (AL_DISPLAY_D3D *)display;
+	AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap;
 
+	if (_al_d3d_is_device_lost()) return;
 
-   AL_BITMAP_D3D *d3d_parent = (AL_BITMAP_D3D *)parent;
-   AL_BITMAP_D3D *bitmap = (AL_BITMAP_D3D*)_AL_MALLOC(sizeof *bitmap);
+	/* Release the previous render target */
+	_al_d3d_lock_device();
+	if (d3d_current_texture_render_target != NULL) {
+		IDirect3DSurface9_Release(d3d_current_texture_render_target);
+		d3d_current_texture_render_target = NULL;
+	}
+	_al_d3d_unlock_device();
 
-   bitmap->bitmap.memory = parent->memory;
-   bitmap->bitmap.vt = _al_bitmap_d3d_driver();
-   bitmap->bitmap.w = w;
-   bitmap->bitmap.h = h;
-   bitmap->bitmap.format = parent->format;
-   bitmap->bitmap.flags = parent->flags;
-   bitmap->bitmap.display = d;
+	/* Set the render target */
+	/*
+	if (d3d_bmp->is_frontbuffer) {
+		if (IDirect3DSwapChain9_GetFrontBufferData(d3d_display->swap_chain,
+				d3d_current_texture_render_target) != D3D_OK) {
+			return;
+		}
+		if (IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, d3d_current_texture_render_target) != D3D_OK) {
+			TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
+			IDirect3DSurface9_Release(d3d_current_texture_render_target);
+			return;
+		}
+		_al_d3d_unlock_device();
+		_al_d3d_set_ortho_projection(display->w, display->h);
+		_al_d3d_lock_device();
+		IDirect3DDevice9_BeginScene(_al_d3d_device);
+		_al_d3d_unlock_device();
+	}
+	else*/ if (d3d_bmp->is_backbuffer) {
+	/*
+		if (IDirect3DSwapChain9_GetBackBuffer(d3d_display->swap_chain,
+				0, D3DBACKBUFFER_TYPE_MONO, &d3d_current_texture_render_target) != D3D_OK) {
+			return;
+		}
+		*/
+		if (IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, d3d_display->render_target) != D3D_OK) {
+			TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
+			IDirect3DSurface9_Release(d3d_current_texture_render_target);
+			return;
+		}
+		_al_d3d_unlock_device();
+		_al_d3d_set_ortho_projection(display->w, display->h);
+		_al_d3d_lock_device();
+		IDirect3DDevice9_BeginScene(_al_d3d_device);
+		_al_d3d_unlock_device();
+	}
+	else {
+		_al_d3d_lock_device();
+		IDirect3DDevice9_EndScene(_al_d3d_device);
+		if (IDirect3DTexture9_GetSurfaceLevel(d3d_bmp->video_texture, 0, &d3d_current_texture_render_target) != D3D_OK) {
+			TRACE("d3d_set_target_bitmap: Unable to get texture surface level.\n");
+			return;
+		}
+		if (IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, d3d_current_texture_render_target) != D3D_OK) {
+			TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
+			IDirect3DSurface9_Release(d3d_current_texture_render_target);
+			return;
+		}
+		_al_d3d_unlock_device();
+		_al_d3d_set_ortho_projection(d3d_bmp->texture_w, d3d_bmp->texture_h);
+		_al_d3d_lock_device();
+		IDirect3DDevice9_BeginScene(_al_d3d_device);
+		_al_d3d_unlock_device();
+	}
 
-   bitmap->video_texture = d3d_parent->video_texture;
-   bitmap->system_texture = d3d_parent->system_texture;
-   bitmap->created = true;
-   bitmap->xo = x;
-   bitmap->yo = y;
+	d3d_target_display_before_device_lost = display;
+	d3d_target_bitmap_before_device_lost = bitmap;
 
-   _al_d3d_unlock_device();
+	d3d_reset_state();
+}
 
-   return &bitmap->bitmap;
+static AL_BITMAP *d3d_get_backbuffer()
+{
+	return (AL_BITMAP *)&d3d_backbuffer;
+}
+
+static AL_BITMAP *d3d_get_frontbuffer()
+{
+	//return (AL_BITMAP *)&d3d_frontbuffer;
+	return NULL;
 }
 
 /* Obtain a reference to this driver. */
@@ -1193,16 +1325,21 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 
    vt->create_display = d3d_create_display;
    vt->destroy_display = d3d_destroy_display;
-   vt->change_current_display = d3d_change_current_display;
+   vt->set_current_display = d3d_set_current_display;
    vt->clear = d3d_clear;
-   vt->line = d3d_draw_line;
-   vt->filled_rectangle = d3d_filled_rectangle;
+   vt->draw_line = d3d_draw_line;
+   vt->draw_filled_rectangle = d3d_draw_filled_rectangle;
    vt->flip_display = d3d_flip_display;
    vt->flip_display_region = d3d_flip_display_region;
    vt->notify_resize = d3d_notify_resize;
    vt->create_bitmap = _al_d3d_create_bitmap;
-   vt->create_sub_bitmap = _al_d3d_create_sub_bitmap;
    vt->upload_compat_screen = d3d_upload_compat_screen;
+   vt->set_target_bitmap = d3d_set_target_bitmap;
+   vt->get_backbuffer = d3d_get_backbuffer;
+   vt->get_frontbuffer = d3d_get_frontbuffer;
+
+   d3d_backbuffer.bitmap.vt = (AL_BITMAP_INTERFACE *)vt;
+   d3d_frontbuffer.bitmap.vt = (AL_BITMAP_INTERFACE *)vt;
 
    return vt;
 }

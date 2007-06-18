@@ -152,6 +152,7 @@ static AL_BITMAP *_al_load_memory_bitmap(char const *filename)
 	0, 0, 0, 0,
 	file_data->w, file_data->h);
 
+
    /*
    int x, y;
    int alpha = _bitmap_has_alpha(file_data);
@@ -191,14 +192,22 @@ AL_BITMAP *al_load_bitmap(char const *filename)
 }
 
 /*
-void al_draw_bitmap(int flag, AL_BITMAP *bitmap, float x, float y)
+ * Returns true if the bitmap can be drawn to the current display.
+ */
+bool al_is_compatible_bitmap(AL_BITMAP *bitmap)
 {
-   // TODO: What if the bitmap cannot be drawn to the current display?
-   bitmap->vt->draw_bitmap(flag, bitmap, x, y);
+	/* FIXME */
+	return true;
 }
-*/
+
+void al_draw_bitmap(AL_BITMAP *bitmap, float x, float y, int flags)
+{
+   if (al_is_compatible_bitmap(bitmap))
+      bitmap->vt->draw_bitmap(bitmap, x, y, flags);
+}
 
 
+#if 0
 /*
  * Draw an entire bitmap to another. Use NULL for the destination
  * bitmap to draw to the current display.
@@ -258,6 +267,7 @@ void al_set_light_color(AL_BITMAP *bitmap, AL_COLOR *light_color)
 {
 	memcpy(&bitmap->light_color, light_color, sizeof(AL_COLOR));
 }
+#endif
 
 AL_LOCKED_RECTANGLE *al_lock_bitmap_region(AL_BITMAP *bitmap,
 	int x, int y,

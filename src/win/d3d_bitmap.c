@@ -3,6 +3,8 @@
  * bitmap driver.
  */
 
+/* FIXME: do we need AL_BITMAP->memory for display textures? */
+
 #include <string.h>
 #include <stdio.h>
 
@@ -69,6 +71,7 @@ static AL_BITMAP *d3d_munge_bitmap(int flag,
 	if (flag & AL_MASK_SOURCE) {
 		int alpha_mask;
 		int pixel_mask;
+		/*
 		if (flag & AL_BLEND) {
 			alpha_mask = 0;
 			pixel_mask = 0xFFFFFFFF;
@@ -77,6 +80,9 @@ static AL_BITMAP *d3d_munge_bitmap(int flag,
 			alpha_mask = 0xFF000000;
 			pixel_mask = 0xFFFFFF;
 		}
+		*/
+		alpha_mask = 0;
+		pixel_mask = 0xFFFFFFFF;
 		for (y = 0; y < read_bmp->h; y++) {
 			for (x = 0; x < read_bmp->w; x++) {
 				/* FIXME: use proper getpixel/putpixel */
@@ -270,7 +276,7 @@ static void d3d_transform_vertices(D3D_TL_VERTEX vertices[], D3DXVECTOR2* center
 }
 
 /*
- * Draw a textured quad
+ * Draw a textured quad (or filled rectangle)
  *
  * texture - The source texture
  * x - x coordinate to draw the texture at
@@ -284,11 +290,11 @@ static void d3d_transform_vertices(D3D_TL_VERTEX vertices[], D3DXVECTOR2* center
  * color - RGB and alpha channels are modulated by this value.
  *         Use 0xFFFFFFFF for an unmodified blit.
  */
-void d3d_draw_textured_quad(int flag, AL_BITMAP_D3D *bmp,
+void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
 	float sx, float sy, float sw, float sh,
 	float dx, float dy, float dw, float dh,
 	D3DXVECTOR2* center, float angle,
-	D3DCOLOR color)
+	D3DCOLOR color, int flags)
 {
 	float right;
 	float bottom;
@@ -296,34 +302,44 @@ void d3d_draw_textured_quad(int flag, AL_BITMAP_D3D *bmp,
 	float tv_start;
 	float tu_end;
 	float tv_end;
-	D3DXVECTOR2 default_center;
 	D3DXVECTOR2 dest;
+	int texture_w;
+	int texture_h;
 
 	const float z = 0.0f;
 
 	right  = dx + dw;
 	bottom = dy + dh;
 
-	tu_start = (sx+0.5f) / bmp->texture_w;
-	tv_start = (sy+0.5f) / bmp->texture_h;
-	tu_end = sw / bmp->texture_w + tu_start;
-	tv_end = sh / bmp->texture_h + tv_start;
+	if (bmp) {
+		texture_w = bmp->texture_w;
+		texture_h = bmp->texture_h;
+	}
+	else {
+		texture_w = 0;
+		texture_h = 0;
+	}
 
-	if (flag & AL_FLIP_HORIZONTAL) {
+	tu_start = (sx+0.5f) / texture_w;
+	tv_start = (sy+0.5f) / texture_h;
+	tu_end = sw / texture_w + tu_start;
+	tv_end = sh / texture_h + tv_start;
+
+	if (flags & AL_FLIP_HORIZONTAL) {
 		float temp = tu_start;
 		tu_start = tu_end;
 		tu_end = temp;
 		/* Weird hack -- not sure why this is needed */
-		tu_start -= 1.0f / bmp->texture_w;
-		tu_end -= 1.0f / bmp->texture_w;
+		tu_start -= 1.0f / texture_w;
+		tu_end -= 1.0f / texture_w;
 	}
-	if (flag & AL_FLIP_VERTICAL) {
+	if (flags & AL_FLIP_VERTICAL) {
 		float temp = tv_start;
 		tv_start = tv_end;
 		tv_end = temp;
 		/* Weird hack -- not sure why this is needed */
-		tv_start -= 1.0f / bmp->texture_h;
-		tv_end -= 1.0f / bmp->texture_h;
+		tv_start -= 1.0f / texture_h;
+		tv_end -= 1.0f / texture_h;
 	}
 
 	D3D_TL_VERTEX vertices[4] = {
@@ -359,11 +375,15 @@ void d3d_draw_textured_quad(int flag, AL_BITMAP_D3D *bmp,
 
 	d3d_transform_vertices(vertices, center, &dest, angle);
 
-	// Draw the sprite
-	if (IDirect3DDevice9_SetTexture(_al_d3d_device, 0,
-			(IDirect3DBaseTexture9 *)bmp->video_texture) != D3D_OK) {
-		TRACE("d3d_draw_textured_quad: SetTexture failed.\n");
-		return;
+	if (bmp) {
+		if (IDirect3DDevice9_SetTexture(_al_d3d_device, 0,
+				(IDirect3DBaseTexture9 *)bmp->video_texture) != D3D_OK) {
+			TRACE("_al_d3d_draw_textured_quad: SetTexture failed.\n");
+			return;
+		}
+	}
+	else {
+		IDirect3DDevice9_SetTexture(_al_d3d_device, 0, NULL);
 	}
 
 /*
@@ -376,47 +396,36 @@ void d3d_draw_textured_quad(int flag, AL_BITMAP_D3D *bmp,
 	
 	if (IDirect3DDevice9_DrawPrimitiveUP(_al_d3d_device, D3DPT_TRIANGLEFAN, 2,
 			vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
-		TRACE("d3d_draw_textured_quad: DrawPrimitive failed.\n");
+		TRACE("_al_d3d_draw_textured_quad: DrawPrimitive failed.\n");
 		return;
 	}
 
 
-	IDirect3DDevice9_SetTexture(_al_d3d_device, 0, 0);
+	IDirect3DDevice9_SetTexture(_al_d3d_device, 0, NULL);
 }
 
-static void d3d_copy_texture_data(AL_BITMAP *src, AL_BITMAP *dst)
+static void d3d_sync_bitmap_memory(AL_BITMAP *bitmap)
 {
    D3DLOCKED_RECT locked_rect;
-   AL_BITMAP_D3D *d3d_src = (AL_BITMAP_D3D *)src;
+   AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap;
 
-   if (IDirect3DTexture9_LockRect(d3d_src->system_texture, 0, &locked_rect, NULL, 0) == D3D_OK) {
-	_al_convert_bitmap_data(locked_rect.pBits, src->format, locked_rect.Pitch,
-		dst->memory, dst->format, _al_pixel_size(dst->format)*dst->w,
-		0, 0, 0, 0, dst->w, dst->h);
-#if 0
-	unsigned int x;
-	unsigned int y;
-	// FIXME: use proper getpixel
-	for (y = 0; y < bmp->h; y++) {
-		for (x = 0; x < bmp->w; x++) {
-			int p = *(uint32_t *)(locked_rect.pBits+locked_rect.Pitch*y+x*4);
-			*(uint32_t *)(bmp->memory+(x+y*bmp->w)*4) = p;
-		}
-	}
-#endif
-	IDirect3DTexture9_UnlockRect(d3d_src->system_texture, 0);
+   if (IDirect3DTexture9_LockRect(d3d_bmp->system_texture, 0, &locked_rect, NULL, 0) == D3D_OK) {
+	_al_convert_bitmap_data(locked_rect.pBits, bitmap->format, locked_rect.Pitch,
+		bitmap->memory, bitmap->format, _al_pixel_size(bitmap->format)*bitmap->w,
+		0, 0, 0, 0, bitmap->w, bitmap->h);
+	IDirect3DTexture9_UnlockRect(d3d_bmp->system_texture, 0);
    }
    else {
-   	TRACE("d3d_copy_texture_data: Couldn't lock texture.\n");
+   	TRACE("d3d_sync_bitmap_memory: Couldn't lock texture.\n");
    }
 }
 
-static void d3d_copy_bitmap_data(AL_BITMAP *src, AL_BITMAP *dst,
+static void d3d_sync_bitmap_texture(AL_BITMAP *bitmap,
 	unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
    D3DLOCKED_RECT locked_rect;
    RECT rect;
-   AL_BITMAP_D3D *d3d_dst = (AL_BITMAP_D3D *)dst;
+   AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap;
 
    rect.left = x;
    rect.top = y;
@@ -428,92 +437,53 @@ static void d3d_copy_bitmap_data(AL_BITMAP *src, AL_BITMAP *dst,
    if (rect.bottom != pot(y + height))
    	rect.bottom++;
 
-   if (IDirect3DTexture9_LockRect(d3d_dst->system_texture, 0, &locked_rect, &rect, 0) == D3D_OK) {
-	_al_convert_bitmap_data(src->memory, src->format, src->w*_al_pixel_size(src->format),
-		locked_rect.pBits, dst->format, locked_rect.Pitch,
+   if (IDirect3DTexture9_LockRect(d3d_bmp->system_texture, 0, &locked_rect, &rect, 0) == D3D_OK) {
+	_al_convert_bitmap_data(bitmap->memory, bitmap->format, bitmap->w*_al_pixel_size(bitmap->format),
+		locked_rect.pBits, bitmap->format, locked_rect.Pitch,
 		x, y, 0, 0, width, height);
 	/* Copy an extra row and column so the texture ends nicely */
-	if (rect.bottom > src->h) {
+	if (rect.bottom > bitmap->h) {
 		_al_convert_bitmap_data(
-			src->memory,
-			src->format, src->w*_al_pixel_size(src->format),
+			bitmap->memory,
+			bitmap->format, bitmap->w*_al_pixel_size(bitmap->format),
 			locked_rect.pBits,
-			dst->format, locked_rect.Pitch,
-			0, src->h-1,
+			bitmap->format, locked_rect.Pitch,
+			0, bitmap->h-1,
 			0, height,
 			width, 1);
 	}
-	if (rect.right > src->w) {
+	if (rect.right > bitmap->w) {
 		_al_convert_bitmap_data(
-			src->memory,
-			src->format, src->w*_al_pixel_size(src->format),
+			bitmap->memory,
+			bitmap->format, bitmap->w*_al_pixel_size(bitmap->format),
 			locked_rect.pBits,
-			dst->format, locked_rect.Pitch,
-			src->w-1, 0,
+			bitmap->format, locked_rect.Pitch,
+			bitmap->w-1, 0,
 			width, 0,
 			1, height);
 	}
-	if (rect.bottom > src->h && rect.right > src->w) {
+	if (rect.bottom > bitmap->h && rect.right > bitmap->w) {
 		_al_convert_bitmap_data(
-			src->memory,
-			src->format, src->w*_al_pixel_size(src->format),
+			bitmap->memory,
+			bitmap->format, bitmap->w*_al_pixel_size(bitmap->format),
 			locked_rect.pBits,
-			dst->format, locked_rect.Pitch,
-			src->w-1, src->h-1,
+			bitmap->format, locked_rect.Pitch,
+			bitmap->w-1, bitmap->h-1,
 			width, height,
 			1, 1);
 	}
-#if 0
-	unsigned int cx;
-	unsigned int cy;
-	int p;
-	int d3d_pixel;
-	// FIXME: use proper getpixel
-	for (cy = y; cy < y+height; cy++) {
-		for (cx = x; cx < x+width; cx++) {
-			p = *(uint32_t *)(bmp->memory+(cx+cy*bmp->w)*4);
-			d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
-				(getg32(p) << 8) | getb32(p);
-			*(uint32_t *)
-				(locked_rect.pBits+(locked_rect.Pitch*(cy-y))+((cx-x)*4)) = d3d_pixel;
-		}
-	}
-	/* Copy an extra row so the texture ends nicely */
-	if ((unsigned)rect.bottom >= bmp->h) {
-		cy = bmp->h;
-		for (cx = x; cx <= x+width; cx++) {
-			p = *(uint32_t *)(bmp->memory+(MIN(bmp->w-1, cx)+(MIN(bmp->h-1, cy))*bmp->w)*4);
-			d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
-				(getg32(p) << 8) | getb32(p);
-			*(uint32_t *)
-				(locked_rect.pBits+(locked_rect.Pitch*(cy-y))+((cx-x)*4)) = d3d_pixel;
-		}
-	}
-
-	/* Copy an extra column so the texture ends nicely */
-	if ((unsigned)rect.right >= bmp->w) {
-		cx = bmp->w;
-		for (cy = y; cy <= y+height; cy++) {
-			p = *(uint32_t *)(bmp->memory+(MIN(bmp->w-1, cx)+(MIN(bmp->h-1, cy))*bmp->w)*4);
-			d3d_pixel = (geta32(p) << 24) | (getr32(p) << 16) |
-				(getg32(p) << 8) | getb32(p);
-			*(uint32_t *)
-				(locked_rect.pBits+(locked_rect.Pitch*(cy-y))+((cx-x)*4)) = d3d_pixel;
-		}
-	}
-#endif
-	IDirect3DTexture9_UnlockRect(d3d_dst->system_texture, 0);
+	IDirect3DTexture9_UnlockRect(d3d_bmp->system_texture, 0);
    }
    else {
-   	TRACE("d3d_copy_bitmap_data: Couldn't lock texture to upload.\n");
+   	TRACE("d3d_sync_bitmap_texture: Couldn't lock texture to upload.\n");
    }
 }
 
 static void d3d_do_upload(AL_BITMAP_D3D *d3d_bmp, int x, int y, int width,
-	int height, bool sync_to_memory)
+	int height, bool sync_from_memory)
 {
-	if (sync_to_memory) {
-		d3d_copy_bitmap_data((AL_BITMAP *)d3d_bmp, (AL_BITMAP *)d3d_bmp,
+	if (sync_from_memory) {
+		d3d_sync_bitmap_texture((AL_BITMAP *)d3d_bmp,
 			x, y, width, height);
 	}
 		
@@ -541,11 +511,12 @@ void _al_d3d_release_default_pool_textures()
 }
 
 static bool d3d_create_textures(int w, int h,
-	LPDIRECT3DTEXTURE9 *video_texture, LPDIRECT3DTEXTURE9 *system_texture)
+	LPDIRECT3DTEXTURE9 *video_texture, LPDIRECT3DTEXTURE9 *system_texture,
+	int format)
 {
 	if (video_texture) {
 		if (IDirect3DDevice9_CreateTexture(_al_d3d_device, w, h, 1,
-				D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT,
+				D3DUSAGE_RENDERTARGET, _al_pixel_format_to_d3d(format), D3DPOOL_DEFAULT,
 				video_texture, NULL) != D3D_OK) {
 			TRACE("d3d_create_textures: Unable to create video texture.\n");
 			return 1;
@@ -554,7 +525,7 @@ static bool d3d_create_textures(int w, int h,
 
 	if (system_texture) {
 		if (IDirect3DDevice9_CreateTexture(_al_d3d_device, w, h, 1,
-				0,/*D3DUSAGE_DYNAMIC,*/ D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM,
+				0,/*D3DUSAGE_DYNAMIC,*/ _al_pixel_format_to_d3d(format), D3DPOOL_SYSTEMMEM,
 				system_texture, NULL) != D3D_OK) {
 			TRACE("d3d_create_textures: Unable to create system texture.\n");
 			if (video_texture) {
@@ -581,7 +552,7 @@ void _al_d3d_prepare_bitmaps_for_reset()
 		AL_BITMAP_D3D *bmp = *bptr;
 		AL_BITMAP *al_bmp = (AL_BITMAP *)bmp;
 		if (!(al_bmp->flags & AL_SYNC_MEMORY_COPY) || !(al_bmp->flags & AL_MEMORY_BITMAP)) {
-			d3d_copy_texture_data(al_bmp, al_bmp);
+			d3d_sync_bitmap_memory(al_bmp);
 		}
 	}
 }
@@ -599,12 +570,14 @@ void _al_d3d_refresh_texture_memory()
 		AL_BITMAP_D3D *bmp = *bptr;
 		AL_BITMAP *al_bmp = (AL_BITMAP *)bmp;
 		d3d_create_textures(bmp->texture_w, bmp->texture_h,
-			&bmp->video_texture, 0);
-		d3d_copy_bitmap_data(al_bmp, al_bmp,
-			0, 0, al_bmp->w, al_bmp->h);
-		IDirect3DDevice9_UpdateTexture(_al_d3d_device,
-			(IDirect3DBaseTexture9 *)bmp->system_texture,
-			(IDirect3DBaseTexture9 *)bmp->video_texture);
+			&bmp->video_texture, 0, al_bmp->format);
+		if (al_bmp->flags & AL_SYNC_MEMORY_COPY) {
+			d3d_sync_bitmap_texture(al_bmp,
+				0, 0, al_bmp->w, al_bmp->h);
+			IDirect3DDevice9_UpdateTexture(_al_d3d_device,
+				(IDirect3DBaseTexture9 *)bmp->system_texture,
+				(IDirect3DBaseTexture9 *)bmp->video_texture);
+		}
 	}
 }
 
@@ -628,7 +601,8 @@ static void d3d_upload_bitmap(AL_BITMAP *bitmap, int x, int y,
 			d3d_create_textures(d3d_bmp->texture_w,
 			d3d_bmp->texture_h,
 			&d3d_bmp->video_texture,
-			&d3d_bmp->system_texture);
+			&d3d_bmp->system_texture,
+			bitmap->format);
 
 		/*
 		 * Keep track of created bitmaps, in case the display is lost
@@ -678,18 +652,16 @@ static AL_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface)
 }
 
 /* Draw the bitmap at the specified position. */
-static void d3d_blit_real(int flag, AL_BITMAP *src,
+static void d3d_blit_real(AL_BITMAP *src,
 	float sx, float sy, float sw, float sh,
 	float source_center_x, float source_center_y,
-	AL_BITMAP *dest,
 	float dx, float dy, float dw, float dh,
-	float angle)
+	float angle, int flags)
 {
 	AL_BITMAP_D3D *d3d_src = (AL_BITMAP_D3D *)src;
-	AL_BITMAP_D3D *d3d_dest = (AL_BITMAP_D3D *)dest;
+	AL_BITMAP *dest = al_get_target_bitmap();
+	AL_BITMAP_D3D *d3d_dest = (AL_BITMAP_D3D *)al_get_target_bitmap();
 	D3DXVECTOR2 center;
-	LPDIRECT3DSURFACE9 old_render_target;
-	LPDIRECT3DSURFACE9 texture_render_target;
 	float old_ortho_w;
 	float old_ortho_h;
 	DWORD light_color = 0xFFFFFF;
@@ -697,7 +669,6 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 
 	if (_al_d3d_is_device_lost()) return;
 
-	IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CULLMODE, D3DCULL_NONE);
 	IDirect3DDevice9_SetFVF(_al_d3d_device, D3DFVF_TL_VERTEX);
 
 	center.x = source_center_x;// * (dw/sw);
@@ -706,17 +677,16 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 	angle = -angle;
 
 
-	/*
-	if (flag & AL_MASK_SOURCE) {
-		AL_BITMAP *munged_bmp = d3d_munge_bitmap(flag, src, src->w, src->h, 0, 0, 0, src->w, src->h, 0);
+	if (flags & AL_MASK_SOURCE) {
+		AL_BITMAP *munged_bmp = d3d_munge_bitmap(flags, src, src->w, src->h, 0, 0, 0, src->w, src->h, 0);
 
 		d3d_upload_bitmap(munged_bmp, 0, 0, src->w, src->h);
 
-		flag = flag & ~(AL_MASK_SOURCE);
+		flags = flags & ~(AL_MASK_SOURCE);
 
 		alpha_test = true;
 		IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHATESTENABLE, TRUE);
-		if (flag & AL_MASK_SOURCE) {
+		if (flags & AL_MASK_SOURCE) {
 			IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHAFUNC, D3DCMP_EQUAL);
 		}
 		else {
@@ -726,232 +696,19 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 
 		memcpy(&munged_bmp->light_color, &src->light_color, sizeof(AL_COLOR));
 
-		d3d_blit_real(flag, munged_bmp, sx, sy, sw, sh,
+		d3d_blit_real(munged_bmp, sx, sy, sw, sh,
 			source_center_x, source_center_y,
-			dest, dx, dy, dw, dh,
-			angle);
+			dx, dy, dw, dh,
+			angle, flags);
 
 		al_destroy_bitmap(munged_bmp);
 
 		return;
 	}
-	*/
-
-#if 0
-	else if (flag & AL_MASK_DEST || flag & AL_MASK_INV_DEST) {
-		if (angle == 0.0f) {
-			LPDIRECT3DSURFACE9 read_surface;
-			D3DLOCKED_RECT locked_rect;
-			void *pBits;
-			D3DSURFACE_DESC desc;
-			int rw;	// read buffer width
-			int rh; // read buffer height
-			float start_x, start_y;
-			if (dest == 0) {
-				LPDIRECT3DSURFACE9 render_target;
-				if (IDirect3DDevice9_GetRenderTarget(_al_d3d_device, 0, &render_target) != D3D_OK) {
-					TRACE("d3d_blit_real: GetRenderTarget failed (MASK_DEST, no rotation).\n");
-					return;
-				}
-				read_surface = render_target;
-			}
-			else {
-				IDirect3DTexture9_GetSurfaceLevel(d3d_dest->system_texture, 0, &read_surface);
-			}
-
-			if (IDirect3DSurface9_GetDesc(read_surface, &desc) != D3D_OK) {
-				TRACE("d3d_blit_real: GetDesc failed (MASK_DEST, no rotation).\n");
-				IDirect3DSurface9_Release(read_surface);
-				return;
-			}
-
-			rw = desc.Width;
-			rh = desc.Height;
-
-			if (IDirect3DSurface9_LockRect(read_surface, &locked_rect, 0, D3DLOCK_READONLY) != D3D_OK) {
-				TRACE("d3d_blit_real: LockRect failed (MASK_DEST, no rotation).\n");
-				IDirect3DSurface9_Release(read_surface);
-				return;
-			}
-			if (alpha_test == true) {
-				flag |= AL_BLEND;
-			}
-			AL_BITMAP *munged_bmp = d3d_munge_bitmap(flag, src, src->w, src->h, locked_rect.pBits, dx, dy, dw, dh, locked_rect.Pitch);
-			IDirect3DSurface9_UnlockRect(read_surface);
-			IDirect3DSurface9_Release(read_surface);
-			d3d_upload_bitmap(munged_bmp, 0, 0, dw, dh);
-			flag = flag & ~(AL_MASK_DEST | AL_MASK_INV_DEST);
-			start_x = sx * (dw / sw);
-			start_y = sy * (dh / sh);
-			d3d_blit_real(flag|AL_BLEND,
-				munged_bmp, start_x, start_y, dw, dh,
-				source_center_x, source_center_y,
-				dest, dx, dy, dw, dh,
-				angle);
-			al_destroy_bitmap(munged_bmp);
-			if (dest != 0) {
-				IDirect3DDevice9_UpdateTexture(_al_d3d_device,
-					(IDirect3DBaseTexture9 *)d3d_dest->system_texture,
-					(IDirect3DBaseTexture9 *)d3d_dest->video_texture);
-			}
-			return;
-		}
-		else {  /* Since we're rotating, use the stencil buffer */
-			LPDIRECT3DSURFACE9 dest_surface;
-			AL_BITMAP *dest_as_bmp;
-			D3DXVECTOR2 mask_center;
-			DWORD old_alphatest_value;
-
-			if (dest == NULL) {
-				if (IDirect3DDevice9_GetRenderTarget(_al_d3d_device, 0, &dest_surface) != D3D_OK) {
-					TRACE("d3d_blit_real: GetRenderTarget failed (MASK_DEST, rotated).\n");
-					return;
-				}
-
-				dest_as_bmp = d3d_create_bitmap_from_surface(dest_surface);
-
-				if (!dest_as_bmp) {
-					IDirect3DSurface9_Release(dest_surface);
-					return;
-				}
-
-				d3d_remove_mask_alpha(flag, dest_as_bmp);
-
-				d3d_upload_bitmap(dest_as_bmp, 0, 0, dest_as_bmp->w, dest_as_bmp->h);
-			}
-			else {
-				if (IDirect3DTexture9_GetSurfaceLevel(d3d_dest->system_texture, 0, &dest_surface) != D3D_OK) {
-					TRACE("d3d_blit_real: GetSurfaceLevel failed (MASK_DEST, rotated).\n");
-					return;
-				}
-				if (IDirect3DDevice9_GetRenderTarget(_al_d3d_device, 0, &old_render_target) != D3D_OK) {
-					TRACE("d3d_blit_real: GetRenderTarget failed (MASK_DEST, rotated).\n");
-					IDirect3DSurface9_Release(dest_surface);
-					return;
-				}
-				if (IDirect3DDevice9_GetDepthStencilSurface(_al_d3d_device, &old_stencil_buffer) != D3D_OK) {
-					TRACE("d3d_blit_real: Unable to get current stencil buffer (MASK_DEST, rotated).\n");
-					IDirect3DSurface9_Release(dest_surface);
-					IDirect3DSurface9_Release(old_render_target);
-					return;
-				}
-				if (IDirect3DDevice9_SetRenderTarget(_al_d3d_device, dest_surface) != D3D_OK) {
-					TRACE("d3d_blit_real: Unable to set render target to texture surface (MASK_DEST, rotated).\n");
-					IDirect3DSurface9_Release(dest_surface);
-					IDirect3DSurface9_Release(old_render_target);
-					IDirect3DSurface9_Release(old_stencil_buffer);
-					return;
-				}
-
-				dest_as_bmp = d3d_create_bitmap_from_surface(dest_surface);
-
-				if (!dest_as_bmp) {
-					TRACE("d3d_blit_real: d3d_create_bitmap_from_surface failed (MASK_DEST, rotated).\n");
-					IDirect3DSurface9_Release(dest_surface);
-					IDirect3DSurface9_Release(old_render_target);
-					IDirect3DSurface9_Release(old_stencil_buffer);
-					return;
-				}
-
-				d3d_remove_mask_alpha(flag, dest_as_bmp);
-
-				d3d_upload_bitmap(dest_as_bmp, 0, 0, dest_as_bmp->w, dest_as_bmp->h);
-
-				_al_d3d_get_current_ortho_projection_parameters(&old_ortho_w, &old_ortho_h);
-				_al_d3d_set_ortho_projection(
-					((AL_BITMAP_D3D *)dest_as_bmp)->texture_w,
-					((AL_BITMAP_D3D *)dest_as_bmp)->texture_h);
-				IDirect3DDevice9_BeginScene(_al_d3d_device);
-			}
-
-			IDirect3DSurface9_Release(dest_surface);
-
-			/* Clear the stencil buffer */
-			IDirect3DDevice9_Clear(_al_d3d_device, 1, 0, D3DCLEAR_STENCIL, 0, 0.0f, 0);
-
-			/* Set these states to write 1's to the stencil buffer */
-			IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_STENCILENABLE, TRUE);
-			IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
-			IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
-			IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_STENCILREF, 1);
-
-			/* Save the old ALPHATEST state */
-			IDirect3DDevice9_GetRenderState(_al_d3d_device, D3DRS_ALPHATESTENABLE, &old_alphatest_value);
-
-			IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHATESTENABLE, TRUE);
-
-			/* Turn off drawing to the color buffer */
-			IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHATESTENABLE, TRUE);
-			if (flag & AL_MASK_DEST) {
-				IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHAFUNC, D3DCMP_EQUAL);
-			}
-			else {
-				IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHAFUNC, D3DCMP_NOTEQUAL);
-			}
-			IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHAREF, 0);
-
-			mask_center.x = dest_as_bmp->w / 2;
-			mask_center.y = dest_as_bmp->h / 2;
-
-			d3d_draw_textured_quad(0, (AL_BITMAP_D3D *)dest_as_bmp,
-				0, 0, dest_as_bmp->w, dest_as_bmp->h,
-				0, 0, dest_as_bmp->w, dest_as_bmp->h,
-				&mask_center, 0.0f, 0xFFFFFF);
-
-			/*
-			 * Turn off blending, and set the stencil states
-			 * to only accept pixels where there is a 1 in the
-			 * stencil buffer. The stencil buffer will be disabled
-			 * after drawing the image below.
-			 */
-			IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHATESTENABLE, old_alphatest_value);
-			IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_STENCILENABLE, TRUE);
-			IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_STENCILFUNC, D3DCMP_EQUAL);
-			IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_STENCILREF, 1);
-			
-			al_destroy_bitmap(dest_as_bmp);
-
-			if (dest != NULL) {
-				IDirect3DDevice9_EndScene(_al_d3d_device);
-				IDirect3DDevice9_SetRenderTarget(_al_d3d_device, old_render_target, old_stencil_buffer);
-				IDirect3DSurface9_Release(old_render_target);
-				IDirect3DSurface9_Release(old_stencil_buffer);
-				IDirect3DDevice9_BeginScene(_al_d3d_device);
-				_al_d3d_set_ortho_projection(old_ortho_w, old_ortho_h);
-			}
-		}
-	}
-#endif
-
-	/* Drawing to something other than the display */
-	if (dest != NULL) {
-		_al_d3d_lock_device();
-		IDirect3DDevice9_EndScene(_al_d3d_device);
-		if (IDirect3DDevice9_GetRenderTarget(_al_d3d_device, 0, &old_render_target) != D3D_OK) {
-			TRACE("d3d_blit_real: Unable to get current render target.\n");
-			return;
-		}
-		if (IDirect3DTexture9_GetSurfaceLevel(d3d_dest->video_texture, 0, &texture_render_target) != D3D_OK) {
-			TRACE("d3d_blit_real: Unable to get texture surface level.\n");
-			IDirect3DSurface9_Release(old_render_target);
-			return;
-		}
-		if (IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, texture_render_target) != D3D_OK) {
-			TRACE("d3d_blit_real: Unable to set render target to texture surface.\n");
-			IDirect3DSurface9_Release(old_render_target);
-			IDirect3DSurface9_Release(texture_render_target);
-			return;
-		}
-		_al_d3d_unlock_device();
-		_al_d3d_get_current_ortho_projection_parameters(&old_ortho_w, &old_ortho_h);
-		_al_d3d_set_ortho_projection(d3d_dest->texture_w, d3d_dest->texture_h);
-		_al_d3d_lock_device();
-		IDirect3DDevice9_BeginScene(_al_d3d_device);
-		_al_d3d_unlock_device();
-	}
 
 	_al_d3d_lock_device();
-	
+
+	/*
 	if (flag & AL_BLEND) {
 		IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, TRUE);
 		IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -963,18 +720,22 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 		IDirect3DDevice9_SetTextureStageState(_al_d3d_device, 0, D3DTSS_COLORARG1, D3DTA_DIFFUSE);
 		light_color = AL_COLOR_TO_D3D(src->light_color);
 	}
+	*/
 
-	d3d_draw_textured_quad(flag, d3d_src,
+	_al_d3d_draw_textured_quad(d3d_src,
 		sx, sy, sw, sh,
 		dx, dy, dw, dh,
-		&center, angle, light_color);
+		&center, angle, light_color,
+		flags);
 
+	/*
 	if (flag & AL_BLEND) {
 		IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, FALSE);
 	}
 	else if (flag & AL_LIT) {
 		IDirect3DDevice9_SetTextureStageState(_al_d3d_device, 0, D3DTSS_COLOROP, D3DTOP_MODULATE);
 	}
+	*/
 
 #if 0
 	if (((flag & AL_MASK_DEST) || (flag & AL_MASK_INV_DEST)) && angle != 0.0f) {
@@ -989,9 +750,14 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 
 	_al_d3d_unlock_device();
 
-	/* Were drawing to something other than the display */
-	if (dest != NULL) {
+	/* 
+	 * If we're rendering to a texture, and the bitmap has the
+	 * AL_SYNC_MEMORY_COPY flag, sync the texture to system memory.
+	 */
+	if (!d3d_dest->is_frontbuffer && !d3d_dest->is_backbuffer &&
+			(dest->flags & AL_SYNC_MEMORY_COPY)) {
 		LPDIRECT3DSURFACE9 system_texture_surface;
+		LPDIRECT3DSURFACE9 video_texture_surface;
 		RECT rect;
 		POINT point;
 	
@@ -1002,6 +768,14 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 		if (IDirect3DTexture9_GetSurfaceLevel(d3d_dest->system_texture,
 				0, &system_texture_surface) != D3D_OK) {
 			TRACE("d3d_blit_real: GetSurfaceLevel failed while updating video texture.\n");
+			_al_d3d_unlock_device();
+			return;
+		}
+
+		if (IDirect3DTexture9_GetSurfaceLevel(d3d_dest->video_texture,
+				0, &video_texture_surface) != D3D_OK) {
+			TRACE("d3d_blit_real: GetSurfaceLevel failed while updating video texture.\n");
+			_al_d3d_unlock_device();
 			return;
 		}
 
@@ -1013,30 +787,56 @@ static void d3d_blit_real(int flag, AL_BITMAP *src,
 		point.x = 0;
 		point.y = 0;
 
+		if (IDirect3DDevice9_GetRenderTargetData(_al_d3d_device,
+				video_texture_surface,
+				system_texture_surface) != D3D_OK) {
+			TRACE("d3d_blit_real: GetRenderTargetData failed.\n");
+			_al_d3d_unlock_device();
+			return;
+		}
+
+		d3d_sync_bitmap_memory(dest);
+
+		/*
+		d3d_copy_surface_to_texture(system_texture_surface,
+			d3d_dest->system_texture, dest->w,
+			dest->h);
+			*/
+
 		/* FIXME: the device can be lost here */
+		/*
 		if (IDirect3DDevice9_UpdateSurface(_al_d3d_device,
-				texture_render_target,
+				video_texture_surface,
 				&rect,
 				system_texture_surface,
 				&point) != D3D_OK) {
-			TRACE("d3d_blit_real: CopyRects failed while updating video texture.\n");
+			TRACE("d3d_blit_real: UpdateSurface failed while updating video texture.\n");
 			IDirect3DSurface9_Release(system_texture_surface);
+			IDirect3DSurface9_Release(video_texture_surface);
+			return;
 		}
+		*/
 
-		IDirect3DTexture9_Release(system_texture_surface);
-		IDirect3DTexture9_Release(texture_render_target);
-		IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, old_render_target);
-		IDirect3DSurface9_Release(old_render_target);
+		IDirect3DSurface9_Release(system_texture_surface);
+		IDirect3DSurface9_Release(video_texture_surface);
+		
 		IDirect3DDevice9_BeginScene(_al_d3d_device);
 
-		d3d_copy_texture_data((AL_BITMAP *)d3d_dest, (AL_BITMAP *)d3d_dest);
+		d3d_sync_bitmap_memory(dest);
 
 		_al_d3d_unlock_device();
-
-		_al_d3d_set_ortho_projection(old_ortho_w, old_ortho_h);
 	}
 }
 
+static void d3d_draw_bitmap(AL_BITMAP *bitmap, float x, float y, int flags)
+{
+	d3d_blit_real(bitmap, 0.0f, 0.0f, bitmap->w, bitmap->h,
+		bitmap->w/2, bitmap->h/2,
+		x, y, bitmap->w, bitmap->h,
+		0.0f, flags);
+}
+
+#if 0
 static void d3d_blit(int flag, AL_BITMAP *src,
 	AL_BITMAP *dest, float dx, float dy)
 {
@@ -1103,10 +903,7 @@ static void d3d_blit_region_3(int flag,
 	d3d_blit_region(flag, source1, source1_x, source1_y,
 		dest, dest_x, dest_y, dest_w, dest_h);
 }
-
-static void d3d_download_bitmap(AL_BITMAP *bitmap)
-{
-}
+#endif
 
 static void d3d_destroy_bitmap(AL_BITMAP *bitmap)
 {
@@ -1190,14 +987,17 @@ AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
    vt = _AL_MALLOC(sizeof *vt);
    memset(vt, 0, sizeof *vt);
 
+   vt->draw_bitmap = d3d_draw_bitmap;
+/*
    vt->blit = d3d_blit;
    vt->blit_region = d3d_blit_region;
    vt->blit_scaled = d3d_blit_scaled;
    vt->rotate_bitmap = d3d_rotate_bitmap;
    vt->rotate_scaled = d3d_rotate_scaled;
    vt->blit_region_3 = d3d_blit_region_3;
+   */
    vt->upload_bitmap = d3d_upload_bitmap;
-   vt->download_bitmap = d3d_download_bitmap;
+   //vt->download_bitmap = d3d_download_bitmap;
    vt->destroy_bitmap = d3d_destroy_bitmap;
    vt->lock_region = d3d_lock_region;
    vt->unlock_region = d3d_unlock_region;

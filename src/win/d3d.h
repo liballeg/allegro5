@@ -1,7 +1,6 @@
 #include "internal/aintern_system.h"
 #include "internal/aintern_display.h"
 #include "internal/aintern_bitmap.h"
-#include "platform/ald3d.h"
 
 #include <windows.h>
 #include <d3d9.h>
@@ -27,12 +26,26 @@
 
 typedef struct AL_SYSTEM_D3D AL_SYSTEM_D3D;
 typedef struct AL_BITMAP_D3D AL_BITMAP_D3D;
+typedef struct AL_DISPLAY_D3D AL_DISPLAY_D3D;
 
 
 /* This is our version of AL_SYSTEM with driver specific extra data. */
 struct AL_SYSTEM_D3D
 {
 	AL_SYSTEM system; /* This must be the first member, we "derive" from it. */
+};
+
+struct AL_DISPLAY_D3D
+{
+   AL_DISPLAY display; /* This must be the first member. */
+
+   /* Driver specifics */
+   HWND window;
+   DWORD thread_handle;
+   LPDIRECT3DSWAPCHAIN9 swap_chain;
+   LPDIRECT3DSURFACE9 render_target;
+   bool keyboard_initialized;
+   //LPDIRECT3DSURFACE8 stencil_buffer;
 };
 
 struct AL_BITMAP_D3D
@@ -48,6 +61,8 @@ struct AL_BITMAP_D3D
 	LPDIRECT3DTEXTURE9 system_texture;
 
 	bool created;
+	bool is_frontbuffer;
+	bool is_backbuffer;
 
 	unsigned int xo;	/* offsets for sub bitmaps */
 	unsigned int yo;
@@ -101,6 +116,7 @@ void _al_d3d_set_ortho_projection(float w, float h);
 bool _al_d3d_is_device_lost(void);
 void _al_d3d_lock_device();
 void _al_d3d_unlock_device();
+int _al_pixel_format_to_d3d(int format);
 
 bool _al_d3d_init_keyboard();
 void _al_d3d_set_kb_cooperative_level(HWND window);
@@ -116,6 +132,11 @@ void _al_d3d_win_ungrab_input();
 void _al_d3d_release_default_pool_textures();
 void _al_d3d_prepare_bitmaps_for_reset();
 void _al_d3d_refresh_texture_memory();
+void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
+	float sx, float sy, float sw, float sh,
+	float dx, float dy, float dw, float dh,
+	D3DXVECTOR2* center, float angle,
+	D3DCOLOR color, int flags);
 
 /* Helper to get smallest fitting power of two. */
 static inline int pot(int x)

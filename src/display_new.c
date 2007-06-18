@@ -3,6 +3,7 @@
 #include ALLEGRO_INTERNAL_HEADER
 #include "internal/aintern_system.h"
 #include "internal/aintern_display.h"
+#include "internal/aintern_bitmap.h"
 
 
 /* Display parameters */
@@ -12,6 +13,7 @@ static int _display_flags = 0;
 
 
 AL_DISPLAY *_al_current_display;
+AL_BITMAP *_al_target_bitmap;
 
 
 // FIXME: The system driver must be used to get drivers!
@@ -93,31 +95,46 @@ void al_destroy_display(AL_DISPLAY *display)
  * Make a display the current display. All the following Allegro commands in
  * the same thread will implicitly use this display from now on.
  */
-void al_change_current_display(AL_DISPLAY *display)
+void al_set_current_display(AL_DISPLAY *display)
 {
-   display->vt->change_current_display(display);
+   display->vt->set_current_display(display);
    _al_current_display = display;
 }
 
-/* Clear a complete display, but confined by the clipping rectangle. */
-void al_clear(AL_COLOR color)
+/*
+ * Get the current display.
+ */
+AL_DISPLAY *al_get_current_display(void)
 {
-   _al_current_display->vt->clear(_al_current_display, color);
+	return _al_current_display;
 }
 
-/* Draws a line from fx/fy to tx/ty, including start as well as end pixel. */
-void al_line(float fx, float fy, float tx, float ty, AL_COLOR color)
+/*
+ * Select the bitmap to which all subsequent drawing operation
+ * will draw.
+ */
+void al_set_target_bitmap(AL_BITMAP *bitmap)
 {
-   _al_current_display->vt->line(_al_current_display, fx, fy, tx, ty, color);
+	_al_target_bitmap = bitmap;
+	_al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
 }
 
-/* Draws a rectangle with top left corner tlx/tly abd bottom right corner
- * brx/bry. Both points are inclusive. */
-void al_filled_rectangle(float tlx, float tly, float brx, float bry,
-   AL_COLOR color)
+/*
+ * Retrieve the target for drawing operations.
+ */
+AL_BITMAP *al_get_target_bitmap(void)
 {
-   _al_current_display->vt->filled_rectangle(_al_current_display,
-      tlx, tly, brx, bry, color);
+	return _al_target_bitmap;
+}
+
+AL_BITMAP *al_get_backbuffer(void)
+{
+	return _al_current_display->vt->get_backbuffer(_al_current_display);
+}
+
+AL_BITMAP *al_get_frontbuffer(void)
+{
+	return _al_current_display->vt->get_frontbuffer(_al_current_display);
 }
 
 /*
@@ -150,3 +167,24 @@ void al_notify_resize(void)
 {
    _al_current_display->vt->notify_resize(_al_current_display);
 }
+/* Clear a complete display, but confined by the clipping rectangle. */
+void al_clear(AL_COLOR *color)
+{
+   _al_current_display->vt->clear(_al_current_display, color);
+}
+
+/* Draws a line from fx/fy to tx/ty, including start as well as end pixel. */
+void al_draw_line(float fx, float fy, float tx, float ty, AL_COLOR* color)
+{
+   _al_current_display->vt->draw_line(_al_current_display, fx, fy, tx, ty, color);
+}
+
+/* Draws a rectangle with top left corner tlx/tly abd bottom right corner
+ * brx/bry. Both points are inclusive. */
+void al_draw_filled_rectangle(float tlx, float tly, float brx, float bry,
+   AL_COLOR *color)
+{
+   _al_current_display->vt->draw_filled_rectangle(_al_current_display,
+      tlx, tly, brx, bry, color);
+}
+

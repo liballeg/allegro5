@@ -42,10 +42,12 @@ static void d3d_get_window_pos(HWND window, RECT *pos)
 
 HWND _al_d3d_create_hidden_window()
 {
-	return CreateWindowEx(0, 
+	HWND window = CreateWindowEx(0, 
 		"ALEX", "D3D Window",0,
-		100, 100, 100, 100,
+		-100, -100, 0, 0,
 		NULL,NULL,window_class.hInstance,0);
+	SetWindowPos(window, HWND_BOTTOM, 0, 0, 0, 0, SWP_HIDEWINDOW);
+	return window;
 }
 
 HWND _al_d3d_create_window(int width, int height, int flags)
@@ -95,7 +97,7 @@ HWND _al_d3d_create_window(int width, int height, int flags)
 
 	my_window = CreateWindowEx(ex_style,
 		"ALEX", "D3D Window", style,
-		100, 100, 100, 100,
+		0, 0, width, height,
 		NULL,NULL,window_class.hInstance,0);
 
 	AdjustWindowRect(&win_size, GetWindowLong(my_window, GWL_STYLE), FALSE);
@@ -167,7 +169,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
 	if (message == _al_win_msg_suicide) {
 		d3d_delete_thread_handle(d);
-		SendMessage(_al_win_compat_wnd, _al_win_msg_suicide, 0, 0);
+		//SendMessage(_al_win_compat_wnd, _al_win_msg_suicide, 0, 0);
 		DestroyWindow(hWnd);
 		return 0;
 	}
@@ -189,7 +191,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 			break;
 			case WM_ACTIVATEAPP:
 				if (wParam) {
-					al_change_current_display((AL_DISPLAY *)d);
+					al_set_current_display((AL_DISPLAY *)d);
 					_al_win_wnd = d->window;
 					win_grab_input();
 					d3d_get_window_pos(d->window, &pos);

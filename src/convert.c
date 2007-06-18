@@ -892,7 +892,7 @@ static void func4 ( \
 { \
 	DO_CONVERT(macro4, \
 		src, type, size, src_pitch, get, \
-		dst, char, 3, dst_pitch, WRITE3BYTES, \
+		dst, unsigned char, 3, dst_pitch, WRITE3BYTES, \
 		sx, sy, dx, dy, width, height) \
 } \
  \

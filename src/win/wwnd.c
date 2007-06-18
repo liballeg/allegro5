@@ -34,8 +34,6 @@
 #define PREFIX_W                "al-wwnd WARNING: "
 #define PREFIX_E                "al-wwnd ERROR: "
 
-#include "platform/ald3d.h"
-
 
 /* general */
 //static HWND _al_win_wnd = NULL;
@@ -586,7 +584,7 @@ void exit_directx_window(void)
        * we are not running in the same thread as that of the window.
        */
 
-      PostMessage(win_get_window(), _al_win_msg_suicide, 0, 0);
+      PostMessage(_al_win_compat_wnd, _al_win_msg_suicide, 0, 0);
 
       /* wait until the window thread ends */
       WaitForSingleObject(wnd_thread, INFINITE);
