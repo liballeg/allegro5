@@ -56,9 +56,9 @@ static _AL_MUTEX d3d_device_mutex;
 /* Dummy graphics driver for compatibility */
 GFX_DRIVER _al_d3d_dummy_gfx_driver = {
 	0,
-	"Dummy Compatibility GFX driver",
-	"Dummy Compatibility GFX driver",
-	"Dummy Compatibility GFX driver",
+	"D3D Compatibility GFX driver",
+	"D3D Compatibility GFX driver",
+	"D3D Compatibility GFX driver",
 	NULL,
 	NULL,
 	NULL,

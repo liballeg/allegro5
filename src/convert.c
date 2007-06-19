@@ -1832,7 +1832,6 @@ void _al_convert_compat_bitmap(
 
 	switch (bitmap_color_depth(src)) {
 		case 8:
-		case 12:
 			src_format = ALLEGRO_PIXEL_FORMAT_PALETTE_8;
 			break;
 		case 15:
@@ -1868,7 +1867,7 @@ void _al_convert_compat_bitmap(
 			}
 			break;
 		default:
-			TRACE("src has invalid format in _al_convert_compat_bitmap.\n");
+			TRACE("src has unsupported pixel format in _al_convert_compat_bitmap.\n");
 			return;
 	}
 

@@ -111,8 +111,13 @@ int main(void)
    clear_to_color(screen, makecol(255, 255, 255));
 
    /* Draw the initial keys grid by simulating release of every key. */
+
+   acquire_screen();
+
    for (k = 0; k < KEY_MAX; k++)
       keypress_handler (k + 0x80);
+
+   release_screen();
 
    /* Install our keyboard callback. */
    LOCK_FUNCTION(keypress_handler);

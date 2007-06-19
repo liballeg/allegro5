@@ -49,7 +49,7 @@ char *gdi_dirty_lines = NULL; /* used in WRITE_BANK() */
 
 uintptr_t gfx_gdi_write_bank(BITMAP *bmp, int line)
 {
-   gdi_dirty_lines[bmp->y_ofs] = 1;
+   gdi_dirty_lines[bmp->y_ofs + line] = 1;
 
    if (!(bmp->id & BMP_ID_LOCKED))
       gfx_gdi_autolock(bmp);
