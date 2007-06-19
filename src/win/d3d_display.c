@@ -208,19 +208,67 @@ void _al_d3d_get_current_ortho_projection_parameters(float *w, float *h)
 	*h = d3d_ortho_h;
 }
 
+static void d3d_get_ortho_matrix(float w, float h, D3DMATRIX *matrix)
+{
+	float left = 0.0f;
+	float right = w;
+	float top = 0.0f;
+	float bottom = h;
+	float neer = -1.0f;
+	float farr = 1.0f;
+
+	matrix->m[1][0] = 0.0f;
+	matrix->m[2][0] = 0.0f;
+	matrix->m[0][1] = 0.0f;
+	matrix->m[2][1] = 0.0f;
+	matrix->m[0][2] = 0.0f;
+	matrix->m[1][2] = 0.0f;
+	matrix->m[0][3] = 0.0f;
+	matrix->m[1][3] = 0.0f;
+	matrix->m[2][3] = 0.0f;
+
+	matrix->m[0][0] = 2.0f / (right - left);
+	matrix->m[1][1] = 2.0f / (top - bottom);
+	matrix->m[2][2] = 2.0f / (farr - neer);
+
+	matrix->m[3][0] = -((right+left)/(right-left));
+	matrix->m[3][1] = -((top+bottom)/(top-bottom));
+	matrix->m[3][2] = -((farr+neer)/(farr-neer));
+	matrix->m[3][3] = 1.0f;
+}
+
+static void d3d_get_identity_matrix(D3DMATRIX *matrix)
+{
+	int i, j;
+	int one = 0;
+
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 4; j++) {
+			if (j == one)
+				matrix->m[j][i] = 1.0f;
+			else
+				matrix->m[j][i] = 0.0f;
+		}
+		one++;
+	}
+}
+
 void _al_d3d_set_ortho_projection(float w, float h)
 {
-	D3DXMATRIX matOrtho;
-	D3DXMATRIX matIdentity;
+	D3DMATRIX matOrtho;
+	D3DMATRIX matIdentity;
 
 	if (_al_d3d_is_device_lost()) return;
 
 	d3d_ortho_w = w;
 	d3d_ortho_h = h;
 
-	D3DXMatrixOrthoOffCenterLH(&matOrtho, 0.0f, d3d_ortho_w, d3d_ortho_h, 0.0f, -1.0f, 1.0f);
+//	D3DXMatrixOrthoOffCenterLH(&matOrtho, 0.0f, d3d_ortho_w, d3d_ortho_h, 0.0f, -1.0f, 1.0f);
 
-	D3DXMatrixIdentity(&matIdentity);
+//	D3DXMatrixIdentity(&matIdentity);
+
+	d3d_get_identity_matrix(&matIdentity);
+	d3d_get_ortho_matrix(w, h, &matOrtho);
 
 	_al_d3d_lock_device();
 
@@ -1010,7 +1058,6 @@ static void d3d_draw_filled_rectangle(AL_DISPLAY *d, float tlx, float tly,
 	D3DRECT rect;
 	float w = brx - tlx;
 	float h = bry - tly;
-	D3DXVECTOR2 center;
 
 	if (_al_d3d_is_device_lost()) return;
 	
@@ -1023,15 +1070,12 @@ static void d3d_draw_filled_rectangle(AL_DISPLAY *d, float tlx, float tly,
 	rect.x2 = brx;
 	rect.y2 = bry;
 
-	center.x = w/2;
-	center.y = h/2;
-
 	_al_d3d_lock_device();
 
 	_al_d3d_draw_textured_quad(NULL,
 		0.0f, 0.0f, w, h,
 		tlx, tly, w, h,
-		&center, 0.0f,
+		w/2, h/2, 0.0f,
 		AL_COLOR_TO_D3D((*color)), 0);
 
 		/*

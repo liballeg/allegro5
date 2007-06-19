@@ -5,8 +5,8 @@
 #include <windows.h>
 #include <d3d9.h>
 // FIXME: these are for gcc
-#define D3DXINLINE static inline
-#include <d3dx9.h>
+//#define D3DXINLINE static inline
+//#include <d3dx9.h>
 
 
 #define AL_COLOR_TO_D3D(color) \
@@ -135,7 +135,7 @@ void _al_d3d_refresh_texture_memory();
 void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
 	float sx, float sy, float sw, float sh,
 	float dx, float dy, float dw, float dh,
-	D3DXVECTOR2* center, float angle,
+	float cx, float cy, float angle,
 	D3DCOLOR color, int flags);
 
 /* Helper to get smallest fitting power of two. */

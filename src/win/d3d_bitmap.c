@@ -7,6 +7,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "allegro.h"
 #include "system_new.h"
@@ -213,6 +214,7 @@ static void d3d_remove_mask_alpha(int flag, AL_BITMAP *bmp)
 #endif
 
 
+#if 0
 /*
  * Build a transformation matrix from the arguments.
  * 
@@ -274,6 +276,77 @@ static void d3d_transform_vertices(D3D_TL_VERTEX vertices[], D3DXVECTOR2* center
 		vertices[i].z = result.m[i][2];
 	}
 }
+#endif
+
+static void d3d_allegro_matrix_to_d3d(MATRIX_f *alleg_matrix,
+	D3DMATRIX *d3d_matrix)
+{
+	d3d_matrix->m[0][0] = alleg_matrix->v[0][0];
+	d3d_matrix->m[1][0] = alleg_matrix->v[1][0];
+	d3d_matrix->m[2][0] = alleg_matrix->v[2][0];
+	d3d_matrix->m[0][1] = alleg_matrix->v[0][1];
+	d3d_matrix->m[1][1] = alleg_matrix->v[1][1];
+	d3d_matrix->m[2][1] = alleg_matrix->v[2][1];
+	d3d_matrix->m[0][2] = alleg_matrix->v[0][2];
+	d3d_matrix->m[1][2] = alleg_matrix->v[1][2];
+	d3d_matrix->m[2][2] = alleg_matrix->v[2][2];
+
+	d3d_matrix->m[3][0] = alleg_matrix->t[0];
+	d3d_matrix->m[3][1] = alleg_matrix->t[1];
+	d3d_matrix->m[3][2] = alleg_matrix->t[2];
+
+	d3d_matrix->m[0][3] = 0.0f;
+	d3d_matrix->m[1][3] = 0.0f;
+	d3d_matrix->m[2][3] = 0.0f;
+	d3d_matrix->m[3][3] = 1.0f;
+}
+
+/*
+ * Do a transformation for a quad drawing.
+ */
+static void d3d_transform(D3D_TL_VERTEX vertices[],
+	float cx, float cy, float dx, float dy, 
+	float angle)
+{
+	MATRIX_f center_matrix;
+	MATRIX_f rotation_matrix;
+	MATRIX_f dest_matrix;
+	MATRIX_f verts_matrix;
+	MATRIX_f tmp1, tmp2;
+	MATRIX_f result;
+	//D3DMATRIX d3d_matrix;
+	int i;
+
+	get_translation_matrix_f(&center_matrix, -cx, -cy, 0.0f);
+	get_z_rotate_matrix_f(&rotation_matrix, angle*256.0f/(M_PI*2));
+	get_translation_matrix_f(&dest_matrix, dx, dy, 0.0f);
+
+	for (i = 0; i < 3; i++)	{
+		verts_matrix.v[i][0] = vertices[i].x;
+		verts_matrix.v[i][1] = vertices[i].y;
+		verts_matrix.v[i][2] = vertices[i].z;
+	}
+	verts_matrix.t[0] = vertices[i].x;
+	verts_matrix.t[1] = vertices[i].y;
+	verts_matrix.t[2] = vertices[i].z;
+
+	matrix_mul_f(&center_matrix, &rotation_matrix, &tmp1);
+	matrix_mul_f(&tmp1, &dest_matrix, &tmp2);
+	matrix_mul_f(&tmp2, &verts_matrix, &result);
+
+	for (i = 0; i < 3; i++) {
+		vertices[i].x = result.v[i][0];
+		vertices[i].y = result.v[i][1];
+		vertices[i].z = result.v[i][2];
+	}
+	vertices[i].x = result.t[0];
+	vertices[i].y = result.t[1];
+	vertices[i].z = result.t[2];
+
+	//d3d_allegro_matrix_to_d3d(&result3, &d3d_matrix);
+
+	//IDirect3DDevice9_SetTransform(_al_d3d_device, D3DTS_VIEW, &d3d_matrix);
+}
 
 /*
  * Draw a textured quad (or filled rectangle)
@@ -293,7 +366,7 @@ static void d3d_transform_vertices(D3D_TL_VERTEX vertices[], D3DXVECTOR2* center
 void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
 	float sx, float sy, float sw, float sh,
 	float dx, float dy, float dw, float dh,
-	D3DXVECTOR2* center, float angle,
+	float cx, float cy, float angle,
 	D3DCOLOR color, int flags)
 {
 	float right;
@@ -302,9 +375,10 @@ void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
 	float tv_start;
 	float tu_end;
 	float tv_end;
-	D3DXVECTOR2 dest;
 	int texture_w;
 	int texture_h;
+	float dest_x;
+	float dest_y;
 
 	const float z = 0.0f;
 
@@ -350,30 +424,26 @@ void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
 		{ dx,    bottom, z, color, tu_start,  tv_end   }
 	};
 
-	D3DXVECTOR2 v_center;
-
 	if (angle == 0.0f) {
-		v_center.x = dx + center->x;
-		v_center.y = dy + center->y;
+		cx = dx + cx;
+		cy = dy + cy;
 	}
 	else {
-		v_center.x = dx + center->x * (dw / sw);
-		v_center.y = dy + center->y * (dh / sh);
+		cx = dx + cx * (dw / sw);
+		cy = dy + cy * (dh / sh);
 	}
-
-	/* Don't modify the argument passed in */
-	center = &v_center;
 
 	if (angle == 0.0f) {
-		dest.x = center->x;
-		dest.y = center->y;
+		dest_x = cx;
+		dest_y = cy;
 	}
 	else {
-		dest.x = dx;
-		dest.y = dy;
+		dest_x = dx;
+		dest_y = dy;
 	}
 
-	d3d_transform_vertices(vertices, center, &dest, angle);
+	d3d_transform(vertices, cx, cy, dest_x, dest_y, angle);
+	//d3d_transform_vertices(vertices, center, &dest, angle);
 
 	if (bmp) {
 		if (IDirect3DDevice9_SetTexture(_al_d3d_device, 0,
@@ -661,7 +731,6 @@ static void d3d_blit_real(AL_BITMAP *src,
 	AL_BITMAP_D3D *d3d_src = (AL_BITMAP_D3D *)src;
 	AL_BITMAP *dest = al_get_target_bitmap();
 	AL_BITMAP_D3D *d3d_dest = (AL_BITMAP_D3D *)al_get_target_bitmap();
-	D3DXVECTOR2 center;
 	float old_ortho_w;
 	float old_ortho_h;
 	DWORD light_color = 0xFFFFFF;
@@ -670,9 +739,6 @@ static void d3d_blit_real(AL_BITMAP *src,
 	if (_al_d3d_is_device_lost()) return;
 
 	IDirect3DDevice9_SetFVF(_al_d3d_device, D3DFVF_TL_VERTEX);
-
-	center.x = source_center_x;// * (dw/sw);
-	center.y = source_center_y;// * (dh/sh);
 
 	angle = -angle;
 
@@ -725,7 +791,8 @@ static void d3d_blit_real(AL_BITMAP *src,
 	_al_d3d_draw_textured_quad(d3d_src,
 		sx, sy, sw, sh,
 		dx, dy, dw, dh,
-		&center, angle, light_color,
+		source_center_x, source_center_y,
+		angle, light_color,
 		flags);
 
 	/*
