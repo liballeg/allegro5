@@ -27,6 +27,9 @@ int main(void)
    int w = 640, h = 480;
    AL_BITMAP *picture;
    AL_BITMAP *mask;
+   AL_COLOR colors[3];
+   AL_COLOR white;
+   int i;
 
 	allegro_init();
 	set_color_depth(32);
@@ -62,14 +65,12 @@ int main(void)
    picture = al_load_bitmap("mysha.tga");
    mask = al_load_bitmap("mask.pcx");
 
-/*
 	AL_COLOR color;
 	for (y = 0; y < 100; y++) {
 		for (x = 0; x < 160; x++) {
 			al_put_pixel(picture, x+160, y+100, al_get_pixel(picture, x, y, &color));
 		}
 	}
-*/
 
    al_install_keyboard();
    al_register_event_source(events, (AL_EVENT_SOURCE *)al_get_keyboard());
@@ -78,6 +79,16 @@ int main(void)
 
    al_set_target_bitmap(mask);
    al_draw_bitmap(picture, 0, 0, 0);
+
+   for (i = 0; i < 3; i++) {
+   	al_set_current_display(display[i]);
+	if (i == 0)
+		al_map_rgba_f(al_get_backbuffer(), &colors[0], 1, 0, 0, 0.5f);
+	else if (i == 1)
+		al_map_rgba_f(al_get_backbuffer(), &colors[1], 0, 1, 0, 0.5f);
+	else
+		al_map_rgba_f(al_get_backbuffer(), &colors[2], 0, 0, 1, 0.5f);
+   }
 
    while (!quit) {
       /* read input */
@@ -123,17 +134,13 @@ int main(void)
 
       /* render */
       if (ticks > last_rendered) {
-         int i;
-         AL_COLOR colors[3] = {
-            al_color(1, 1, 0, 1.0),
-            al_color(0, 1, 0, 0.5),
-            al_color(0, 0, 1, 0.5)};
          for (i = 0; i < 3; i++) {
 	    if (!display[i])
 	       continue;
             al_set_current_display(display[i]);
+	    al_map_rgb_f(al_get_backbuffer(), &white, 1, 1, 1);
 	    al_set_target_bitmap(al_get_backbuffer());
-            al_clear(&al_color(1.0f, 1.0f, 1.0f, 1.0));
+            al_clear(&white);
 	    if (i == 1) {
 	    	al_draw_line(50, 50, 150, 150, &colors[0]);
 	    }

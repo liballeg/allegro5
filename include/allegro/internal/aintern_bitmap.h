@@ -96,4 +96,31 @@ void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,
 //AL_BITMAP_INTERFACE *_al_bitmap_xdummy_driver(void);
 AL_BITMAP_INTERFACE *_al_bitmap_d3ddummy_driver(void);
 
+int _al_pixel_size(int format);
+
+AL_COLOR* _al_map_rgba(int format, AL_COLOR *color,
+	unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+AL_COLOR* _al_map_rgba_f(int format, AL_COLOR *color,
+	float r, float g, float b, float a);
+AL_COLOR* _al_map_rgba_i(int format, AL_COLOR *color,
+	int r, int g, int b, int a);
+
+void _al_unmap_rgba(int format, AL_COLOR *color,
+	unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a);
+void _al_unmap_rgba_f(int format, AL_COLOR *color,
+	float *r, float *g, float *b, float *a);
+void _al_unmap_rgba_i(int format, AL_COLOR *color,
+	int *r, int *g, int *b, int *a);
+
+void _al_convert_bitmap_data(
+	void *src, int src_format, int src_pitch,
+	void *dst, int dst_format, int dst_pitch,
+	int sx, int sy, int dx, int dy,
+	int width, int height);
+void _al_convert_compat_bitmap(
+	BITMAP *src,
+	void *dst, int dst_format, int dst_pitch,
+	int sx, int sy, int dx, int dy,
+	int width, int height);
+
 #endif

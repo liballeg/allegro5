@@ -94,6 +94,19 @@ int _rgb_b_shift_32 = DEFAULT_RGB_B_SHIFT_32;
 int _rgb_a_shift_32 = DEFAULT_RGB_A_SHIFT_32;
 
 
+/* lookup table for scaling 1 bit colors up to 8 bits */
+int _rgb_scale_1[2] = {
+	0, 255
+};
+
+/* lookup table for scaling 4 bit colors up to 8 bits */
+int _rgb_scale_4[16] =
+{
+     0,  17,  34,  51,  68,  85, 102, 120,
+   137, 154, 171, 188, 205, 222, 239, 255
+};
+
+
 /* lookup table for scaling 5 bit colors up to 8 bits */
 int _rgb_scale_5[32] =
 {

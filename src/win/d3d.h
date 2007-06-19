@@ -9,16 +9,6 @@
 //#include <d3dx9.h>
 
 
-#define AL_COLOR_TO_D3D(color) \
-	(D3DCOLOR_COLORVALUE(color.r, color.g, color.b, color.a))
-
-#define AL_COLOR_TO_ARGB_8888(color) \
-	(((int)(color.a * 255) << 24) | \
-	((int)(color.r * 255) << 16) | \
-	((int)(color.g * 255) << 8) | \
-	(int)(color.b * 255))
-
-
 /* Flexible vertex formats */
 #define D3DFVF_COLORED_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE)
 #define D3DFVF_TL_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)

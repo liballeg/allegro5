@@ -11,7 +11,6 @@ static int _display_format = 0;
 static int _display_refresh_rate = 0;
 static int _display_flags = 0;
 
-
 AL_DISPLAY *_al_current_display;
 AL_BITMAP *_al_target_bitmap;
 
@@ -82,8 +81,10 @@ AL_DISPLAY *al_create_display(int w, int h)
    AL_SYSTEM *system = al_system_driver();
    AL_DISPLAY_INTERFACE *driver = system->vt->get_display_driver();
    AL_DISPLAY *display = driver->create_display(w, h);
+   AL_COLOR black;
    al_set_current_display(display);
-   al_clear(&al_color(0, 0, 0, 0));
+   _al_map_rgba(display->format, &black, 0, 0, 0, 0);
+   al_clear(&black);
    al_set_target_bitmap(al_get_backbuffer());
 
    return display;

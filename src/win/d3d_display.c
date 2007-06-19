@@ -150,6 +150,13 @@ int _al_pixel_format_to_d3d(int format)
 	return d3d_dm.Format;
 }
 
+static int d3d_al_color_to_d3d(int format, AL_COLOR *color)
+{
+	unsigned char r, g, b, a;
+	_al_unmap_rgba(format, color, &r, &g, &b, &a);
+	return D3DCOLOR_ARGB(a, r, g, b);
+}
+
 static bool d3d_format_is_valid(int format)
 {
 	int i;
@@ -1002,7 +1009,7 @@ static void d3d_clear(AL_DISPLAY *d, AL_COLOR *color)
 
 	IDirect3DDevice9_Clear(_al_d3d_device, 0, NULL,
 		D3DCLEAR_TARGET,
-		AL_COLOR_TO_D3D((*color)),
+		d3d_al_color_to_d3d(d->format, color),
 		1, 0);
 	
 	_al_d3d_unlock_device();
@@ -1013,7 +1020,7 @@ static void d3d_draw_line(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
    AL_COLOR *color)
 {
 	static D3D_COLORED_VERTEX points[2] = { { 0.0f, 0.0f, 0.0f, 0 }, };
-	DWORD d3d_color = AL_COLOR_TO_D3D((*color));
+	DWORD d3d_color = d3d_al_color_to_d3d(d->format, color);
 	BYTE *vertex_buffer_data;
 	
 	if (_al_d3d_is_device_lost()) return;
@@ -1076,7 +1083,7 @@ static void d3d_draw_filled_rectangle(AL_DISPLAY *d, float tlx, float tly,
 		0.0f, 0.0f, w, h,
 		tlx, tly, w, h,
 		w/2, h/2, 0.0f,
-		AL_COLOR_TO_D3D((*color)), 0);
+		d3d_al_color_to_d3d(d->format, color), 0);
 
 		/*
 	IDirect3DDevice9_Clear(_al_d3d_device,
@@ -1348,6 +1355,7 @@ static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 
 static AL_BITMAP *d3d_get_backbuffer()
 {
+	d3d_backbuffer.bitmap.format = _al_current_display->format;
 	return (AL_BITMAP *)&d3d_backbuffer;
 }
 

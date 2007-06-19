@@ -103,22 +103,35 @@ AL_LOCKED_RECTANGLE *al_lock_bitmap_region(AL_BITMAP *bitmap,
 	int flags);
 void al_unlock_bitmap(AL_BITMAP *bitmap);
 
-void _al_put_pixel(void *data, int format, AL_COLOR *color);
-AL_COLOR *_al_get_pixel(void *data, int format, AL_COLOR *color);
-
 void al_put_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color);
 AL_COLOR *al_get_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color);
 
-void _al_convert_bitmap_data(
-	void *src, int src_format, int src_pitch,
-	void *dst, int dst_format, int dst_pitch,
-	int sx, int sy, int dx, int dy,
-	int width, int height);
-void _al_convert_compat_bitmap(
-	BITMAP *src,
-	void *dst, int dst_format, int dst_pitch,
-	int sx, int sy, int dx, int dy,
-	int width, int height);
-int _al_pixel_size(int format);
+/* Pixel mapping */
+AL_COLOR *al_map_rgb(AL_BITMAP *bitmap, AL_COLOR *color,
+	unsigned char r, unsigned char g, unsigned char b);
+AL_COLOR *al_map_rgba(AL_BITMAP *bitmap, AL_COLOR *color,
+	unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+AL_COLOR *al_map_rgb_f(AL_BITMAP *bitmap, AL_COLOR *color,
+	float r, float g, float b);
+AL_COLOR *al_map_rgba_f(AL_BITMAP *bitmap, AL_COLOR *color,
+	float r, float g, float b, float a);
+AL_COLOR *al_map_rgb_i(AL_BITMAP *bitmap, AL_COLOR *color,
+	int r, int g, int b);
+AL_COLOR *al_map_rgba_i(AL_BITMAP *bitmap, AL_COLOR *color,
+	int r, int g, int b, int a);
+
+/* Pixel unmapping */
+void al_umap_rgb(AL_BITMAP *bitmap, AL_COLOR *color,
+	unsigned char *r, unsigned char *g, unsigned char *b);
+void al_umap_rgba(AL_BITMAP *bitmap, AL_COLOR *color,
+	unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a);
+void al_umap_rgb_f(AL_BITMAP *bitmap, AL_COLOR *color,
+	float *r, float *g, float *b);
+void al_umap_rgba_f(AL_BITMAP *bitmap, AL_COLOR *color,
+	float *r, float *g, float *b, float *a);
+void al_umap_rgb_i(AL_BITMAP *bitmap, AL_COLOR *color,
+	int *r, int *g, int *b);
+void al_umap_rgba_i(AL_BITMAP *bitmap, AL_COLOR *color,
+	int *r, int *g, int *b, int *a);
 
 #endif

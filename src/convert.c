@@ -15,6 +15,34 @@
 	 (((p & g_mask) >> g_rshift) << g_lshift) | \
 	 (((p & b_mask) >> b_rshift) << b_lshift))
 
+/* Converting 565 to 888 */
+#define SHIFT_CONVERT_565(p, \
+		r_mask, r_lshift, r_rshift, \
+		g_mask, g_lshift, g_rshift, \
+		b_mask, b_lshift, b_rshift) \
+	((_rgb_scale_5[((p & r_mask) >> r_rshift)] << r_lshift) | \
+	 (_rgb_scale_6[((p & g_mask) >> g_rshift)] << g_lshift) | \
+	 (_rgb_scale_5[((p & b_mask) >> b_rshift)] << b_lshift))
+
+/* Converting 555(1) to 888 */
+#define SHIFT_CONVERT_555(p, \
+		a_mask, a_lshift, a_rshift, \
+		r_mask, r_lshift, r_rshift, \
+		g_mask, g_lshift, g_rshift, \
+		b_mask, b_lshift, b_rshift) \
+	((_rgb_scale_1[((p & a_mask) >> a_rshift)] << a_lshift) | \
+	 (_rgb_scale_5[((p & r_mask) >> r_rshift)] << r_lshift) | \
+	 (_rgb_scale_5[((p & g_mask) >> g_rshift)] << g_lshift) | \
+	 (_rgb_scale_5[((p & b_mask) >> b_rshift)] << b_lshift))
+
+/* Converting 444 to 888 */
+#define SHIFT_CONVERT_4444(p, \
+		r_mask, r_lshift, r_rshift, \
+		g_mask, g_lshift, g_rshift, \
+		b_mask, b_lshift, b_rshift) \
+	((_rgb_scale_4[((p & r_mask) >> r_rshift)] << r_lshift) | \
+	 (_rgb_scale_4[((p & g_mask) >> g_rshift)] << g_lshift) | \
+	 (_rgb_scale_4[((p & b_mask) >> b_rshift)] << b_lshift))
 
 /* Left shift conversion */
 #define LS_CONVERT(p, \
@@ -419,19 +447,17 @@
 
 #define AL_CONVERT_RGB_565_TO_ARGB_8888(p) \
 	(0xFF000000 | \
-		LS_CONVERT(p, \
-		0, 0, \
-		0xF800, 8, \
-		0x07E0, 5, \
-		0x001F, 3))
+		SHIFT_CONVERT_565(p, \
+		0xF800, 19, 11, \
+		0x07E0, 10, 5, \
+		0x001F, 3, 0))
 
 #define AL_CONVERT_RGB_565_TO_RGBA_8888(p) \
 	(0xFF | \
-		LS_CONVERT(p, \
-		0, 0, \
-		0xF800, 16, \
-		0x07E0, 13, \
-		0x001F, 11))
+		SHIFT_CONVERT_565(p, \
+		0xF800, 27, 11, \
+		0x07E0, 18, 5, \
+		0x001F, 11, 0))
 
 #define AL_CONVERT_RGB_565_TO_ARGB_4444(p) \
 	(0xF000 | \
@@ -442,11 +468,10 @@
 		0x001E, 1))
 
 #define AL_CONVERT_RGB_565_TO_RGB_888(p) \
-	LS_CONVERT(p, \
-		0, 0, \
-		0xF800, 8, \
-		0x07E0, 5, \
-		0x001F, 3)
+	SHIFT_CONVERT_565(p, \
+		0xF800, 19, 11, \
+		0x07E0, 10, 5, \
+		0x001F, 3, 0)
 
 #define AL_CONVERT_RGB_565_TO_RGB_555(p) \
 	RS_CONVERT(p, \
@@ -456,9 +481,9 @@
 		0x001F, 0)
 
 #define AL_CONVERT_RGB_565_TO_PALETTE_8(p) \
-	makecol8((p & 0xF800) >> 8, \
-		 (p & 0x07E0) >> 3, \
-		 (p & 0x001F) << 3)
+	makecol8(_rgb_scale_5[(p & 0xF800) >> 8], \
+		 _rgb_scale_6[(p & 0x07E0) >> 3], \
+		 _rgb_scale_5[(p & 0x001F) << 3])
 
 #define AL_CONVERT_RGB_565_TO_RGBA_5551(p) \
 	(1 | \
@@ -478,24 +503,21 @@
 
 #define AL_CONVERT_RGB_565_TO_ABGR_8888(p) \
 	(0xFF000000 | \
-		LS_CONVERT(p, \
-		0, 0, \
-		0xF800, 0, \
-		0x07E0, 13, \
-		0x001F, 27))
+		SHIFT_CONVERT_565(p, \
+		0xF800, 11, 11, \
+		0x07E0, 18, 5, \
+		0x001F, 27, 0))
 
 #define AL_CONVERT_RGB_565_TO_XBGR_8888(p) \
-	LS_CONVERT(p, \
-		0, 0, \
-		0xF800, 0, \
-		0x07E0, 13, \
-		0x001F, 27)
+	SHIFT_CONVERT_565(p, \
+		0xF800, 11, 11, \
+		0x07E0, 18, 5, \
+		0x001F, 27, 0)
 
 #define AL_CONVERT_RGB_565_TO_BGR_888(p) \
-	SHIFT_CONVERT(p, \
-		0, 0, 0, \
-		0xF800, 0, 8, \
-		0x07E0, 5, 0, \
+	SHIFT_CONVERT_565(p, \
+		0xF800, 3, 11, \
+		0x07E0, 10, 5, \
 		0x001F, 19, 0)
 
 #define AL_CONVERT_RGB_565_TO_BGR_565(p) \
@@ -513,11 +535,10 @@
 		0x001F, 10, 0)
 
 #define AL_CONVERT_RGB_565_TO_RGBX_8888(p) \
-	LS_CONVERT(p, \
-		0, 0, \
-		0xF800, 16, \
-		0x07E0, 13, \
-		0x001F, 11)
+	SHIFT_CONVERT_565(p, \
+		0xF800, 27, 11, \
+		0x07E0, 18, 5, \
+		0x001F, 11, 0)
 
 /* RGB_555 */
 
@@ -525,19 +546,19 @@
 
 #define AL_CONVERT_RGB_555_TO_ARGB_8888(p) \
 	(0xFF000000 | \
-		LS_CONVERT(p, \
-		0, 0, \
-		0x7C00, 9, \
-		0x03E0, 6, \
-		0x001F, 3))
+		SHIFT_CONVERT_555(p, \
+		0, 0, 0, \
+		0x7C00, 19, 10, \
+		0x03E0, 11, 5, \
+		0x001F, 3, 0))
 
 #define AL_CONVERT_RGB_555_TO_RGBA_8888(p) \
 	(0xFF | \
-		LS_CONVERT(p, \
-		0, 0, \
-		0x7C00, 17, \
-		0x03E0, 14, \
-		0x001F, 11))
+		SHIFT_CONVERT_555(p, \
+		0, 0, 0, \
+		0x7C00, 27, 10, \
+		0x03E0, 19, 5, \
+		0x001F, 11, 0))
 
 #define AL_CONVERT_RGB_555_TO_ARGB_4444(p) \
 	(0xF000 | \
@@ -548,11 +569,11 @@
 		0x001F, 1))
 
 #define AL_CONVERT_RGB_555_TO_RGB_888(p) \
-	LS_CONVERT(p, \
-		0, 0, \
-		0x7C00, 9, \
-		0x03E0, 6, \
-		0x001F, 3)
+	SHIFT_CONVERT_555(p, \
+		0, 0, 0, \
+		0x7C00, 19, 10, \
+		0x03E0, 11, 5, \
+		0x001F, 3, 0)
 
 #define AL_CONVERT_RGB_555_TO_RGB_565(p) \
 	LS_CONVERT(p, \
@@ -562,9 +583,9 @@
 		0x001F, 0)
 
 #define AL_CONVERT_RGB_555_TO_PALETTE_8(p) \
-	makecol8((p & 0x7C00) >> 7, \
-		 (p & 0x03E0) >> 2, \
-		 (p & 0x001F) << 3)
+	makecol8(_rgb_scale_5[(p & 0x7C00) >> 7], \
+		 _rgb_scale_5[(p & 0x03E0) >> 2], \
+		 _rgb_scale_5[(p & 0x001F) << 3])
 
 #define AL_CONVERT_RGB_555_TO_RGBA_5551(p) \
 	((p << 1) | 1)
@@ -574,24 +595,24 @@
 
 #define AL_CONVERT_RGB_555_TO_ABGR_8888(p) \
 	(0xFF000000 | \
-		LS_CONVERT(p, \
-		0, 0, \
-		0x7C00, 1, \
-		0x03E0, 14, \
-		0x001F, 27))
+		SHIFT_CONVERT_555(p, \
+		0, 0, 0, \
+		0x7C00, 11, 10, \
+		0x03E0, 19, 5, \
+		0x001F, 27, 0))
 
 #define AL_CONVERT_RGB_555_TO_XBGR_8888(p) \
-	LS_CONVERT(p, \
-		0, 0, \
-		0x7C00, 1, \
-		0x03E0, 14, \
-		0x001F, 27)
+	SHIFT_CONVERT_555(p, \
+		0, 0, 0, \
+		0x7C00, 11, 10, \
+		0x03E0, 19, 5, \
+		0x001F, 27, 0)
 
 #define AL_CONVERT_RGB_555_TO_BGR_888(p) \
-	SHIFT_CONVERT(p, \
+	SHIFT_CONVERT_555(p, \
 		0, 0, 0, \
-		0x7C00, 0, 7, \
-		0x03E0, 6, 0, \
+		0x7C00, 3, 10, \
+		0x03E0, 11, 5, \
 		0x001F, 19, 0)
 
 #define AL_CONVERT_RGB_555_TO_BGR_565(p) \
@@ -609,11 +630,11 @@
 		0x001F, 10, 0)
 
 #define AL_CONVERT_RGB_555_TO_RGBX_8888(p) \
-	LS_CONVERT(p, \
-		0, 0, \
-		0x7C00, 17, \
-		0x03E0, 14, \
-		0x001F, 11)
+	SHIFT_CONVERT_555(p, \
+		0, 0, 0, \
+		0x7C00, 27, 10, \
+		0x03E0, 19, 5, \
+		0x001F, 11, 0)
 
 /* PALETTE_8 */
 
@@ -698,18 +719,18 @@
 #define AL_CONVERT_RGBA_5551_TO_RGBA_5551(p) (p)
 
 #define AL_CONVERT_RGBA_5551_TO_ARGB_8888(p) \
-	LS_CONVERT(p, \
-		0x1, 31, \
-		0xF800, 8, \
-		0x07C0, 5, \
-		0x003E, 2)
+	SHIFT_CONVERT_555(p, \
+		0x1, 31, 0, \
+		0xF800, 19, 11, \
+		0x07C0, 11, 6, \
+		0x003E, 3, 1)
 
 #define AL_CONVERT_RGBA_5551_TO_RGBA_8888(p) \
-	LS_CONVERT(p, \
-		0x1, 7, \
-		0xF800, 16, \
-		0x07C0, 13, \
-		0x003E, 10)
+	SHIFT_CONVERT_555(p, \
+		0x1, 7, 0, \
+		0xF800, 27, 11, \
+		0x07C0, 19, 6, \
+		0x003E, 11, 1)
 
 #define AL_CONVERT_RGBA_5551_TO_ARGB_4444(p) \
 	SHIFT_CONVERT(p, \
@@ -719,11 +740,11 @@
 		0x003C, 0, 2)
 
 #define AL_CONVERT_RGBA_5551_TO_RGB_888(p) \
-	LS_CONVERT(p, \
-		0, 0, \
-		0xF800, 8, \
-		0x07C0, 5, \
-		0x003E, 2)
+	SHIFT_CONVERT_555(p, \
+		0, 0, 0, \
+		0xF800, 19, 11, \
+		0x07C0, 11, 6, \
+		0x003E, 3, 1)
 
 #define AL_CONVERT_RGBA_5551_TO_RGB_565(p) \
 	RS_CONVERT(p, \
@@ -736,33 +757,33 @@
 	(p >> 1)
 
 #define AL_CONVERT_RGBA_5551_TO_PALETTE_8(p) \
-	makecol8((p & 0xF800) >> 8, \
-		 (p & 0x07C0) >> 3, \
-		 (p & 0x003E) << 2)
+	makecol8(_rgb_scale_5[(p & 0xF800) >> 8], \
+		 _rgb_scale_5[(p & 0x07C0) >> 3], \
+		 _rgb_scale_5[(p & 0x003E) << 2])
 
 #define AL_CONVERT_RGBA_5551_TO_ARGB_1555(p) \
 	(((p & 1) << 15) | (p >> 1))
 
 #define AL_CONVERT_RGBA_5551_TO_ABGR_8888(p) \
-	LS_CONVERT(p, \
-		0x1, 31, \
-		0xF800, 0, \
-		0x07C0, 8, \
-		0x003E, 26)
+	SHIFT_CONVERT_555(p, \
+		0x1, 31, 0, \
+		0xF800, 3, 11, \
+		0x07C0, 14, 6, \
+		0x003E, 27, 1)
 
 #define AL_CONVERT_RGBA_5551_TO_XBGR_8888(p) \
-	SHIFT_CONVERT(p, \
+	SHIFT_CONVERT_555(p, \
 		0, 0, 0, \
-		0xF800, 0, 8, \
-		0x07C0, 5, 0, \
-		0x003E, 18, 0)
+		0xF800, 3, 11, \
+		0x07C0, 11, 6, \
+		0x003E, 19, 1)
 
 #define AL_CONVERT_RGBA_5551_TO_BGR_888(p) \
-	SHIFT_CONVERT(p, \
+	SHIFT_CONVERT_555(p, \
 		0, 0, 0, \
-		0xF800, 0, 8, \
-		0x07C0, 5, 0, \
-		0x003E, 18, 0)
+		0xF800, 3, 11, \
+		0x07C0, 11, 6, \
+		0x003E, 19, 1)
 
 #define AL_CONVERT_RGBA_5551_TO_BGR_565(p) \
 	SHIFT_CONVERT(p, \
@@ -779,28 +800,28 @@
 		0x003E, 9, 0)
 
 #define AL_CONVERT_RGBA_5551_TO_RGBX_8888(p) \
-	LS_CONVERT(p, \
-		0, 0, \
-		0xF800, 16, \
-		0x07C0, 13, \
-		0x003E, 10)
+	SHIFT_CONVERT_555(p, \
+		0, 0, 0, \
+		0xF800, 27, 11, \
+		0x07C0, 19, 6, \
+		0x003E, 11, 1)
 
 /* ARGB_1555 */
 
 #define AL_CONVERT_ARGB_1555_TO_ARGB_1555(p) (p)
 
 #define AL_CONVERT_ARGB_1555_TO_ARGB_8888(p) \
-	LS_CONVERT(p, \
-		0x8000, 16, \
-		0x7C00, 9, \
-		0x03E0, 6, \
-		0x001F, 3)
+	SHIFT_CONVERT_555(p, \
+		0x8000, 31, 15, \
+		0x7C00, 19, 10, \
+		0x03E0, 11, 5, \
+		0x001F, 3, 0)
 
 #define AL_CONVERT_ARGB_1555_TO_RGBA_8888(p) \
-	SHIFT_CONVERT(p, \
-		0x8000, 0, 8, \
-		0x7C00, 17, 0, \
-		0x03E0, 14, 0, \
+	SHIFT_CONVERT_555(p, \
+		0x8000, 7, 15, \
+		0x7C00, 27, 10, \
+		0x03E0, 19, 5, \
 		0x001F, 11, 0)
 
 #define AL_CONVERT_ARGB_1555_TO_ARGB_4444(p) \
@@ -811,11 +832,11 @@
 		0x001F, 1)
 
 #define AL_CONVERT_ARGB_1555_TO_RGB_888(p) \
-	LS_CONVERT(p, \
-		0, 0, \
-		0x7C00, 9, \
-		0x03E0, 6, \
-		0x001F, 3)
+	SHIFT_CONVERT_555(p, \
+		0, 0, 0, \
+		0x7C00, 19, 10, \
+		0x03E0, 11, 5, \
+		0x001F, 3, 0)
 
 #define AL_CONVERT_ARGB_1555_TO_RGB_565(p) \
 	LS_CONVERT(p, \
@@ -828,32 +849,32 @@
 	(p & 0x7FFF)
 
 #define AL_CONVERT_ARGB_1555_TO_PALETTE_8(p) \
-	makecol8((p & 0x7C00) >> 7, \
-		 (p & 0x03E0) >> 2, \
-		 (p & 0x001F) << 3)
+	makecol8(_rgb_scale_5[(p & 0x7C00) >> 7], \
+		 _rgb_scale_5[(p & 0x03E0) >> 2], \
+		 _rgb_scale_5[(p & 0x001F) << 3])
 
 #define AL_CONVERT_ARGB_1555_TO_RGBA_5551(p) \
 	((p << 1) | (p >> 15))
 
 #define AL_CONVERT_ARGB_1555_TO_ABGR_8888(p) \
-	SHIFT_CONVERT(p, \
-		0x8000, 16, 0, \
-		0x7C00, 1, 0, \
-		0x03E0, 14, 0, \
+	SHIFT_CONVERT_555(p, \
+		0x8000, 31, 15, \
+		0x7C00, 11, 10, \
+		0x03E0, 19, 5, \
 		0x001F, 11, 0)
 
 #define AL_CONVERT_ARGB_1555_TO_XBGR_8888(p) \
 	SHIFT_CONVERT(p, \
 		0, 0, 0, \
-		0x7C00, 0, 7, \
-		0x03E0, 6, 0, \
+		0x7C00, 3, 10, \
+		0x03E0, 11, 5, \
 		0x001F, 19, 0)
 
 #define AL_CONVERT_ARGB_1555_TO_BGR_888(p) \
 	SHIFT_CONVERT(p, \
 		0, 0, 0, \
-		0x7C00, 0, 3, \
-		0x03E0, 6, 0, \
+		0x7C00, 3, 10, \
+		0x03E0, 11, 5, \
 		0x001F, 19, 0)
 
 #define AL_CONVERT_ARGB_1555_TO_BGR_565(p) \
@@ -873,8 +894,8 @@
 #define AL_CONVERT_ARGB_1555_TO_RGBX_8888(p) \
 	SHIFT_CONVERT(p, \
 		0, 0, 0, \
-		0x7C00, 17, 0, \
-		0x03E0, 14, 0, \
+		0x7C00, 27, 10, \
+		0x03E0, 19, 5, \
 		0x001F, 11, 0)
 
 /* ABGR_8888 */
@@ -1171,19 +1192,17 @@
 
 #define AL_CONVERT_BGR_565_TO_ARGB_8888(p) \
 	(0xFF000000 | \
-		SHIFT_CONVERT(p, \
-		0, 0, 0, \
+		SHIFT_CONVERT_565(p, \
 		0x001F, 19, 0, \
-		0x07E0, 5, 0, \
-		0xF800, 0, 8))
+		0x07E0, 10, 5, \
+		0xF800, 3, 11))
 
 #define AL_CONVERT_BGR_565_TO_RGBA_8888(p) \
 	(0xFF | \
-		SHIFT_CONVERT(p, \
-		0, 0, 0, \
+		SHIFT_CONVERT_565(p, \
 		0x001F, 27, 0, \
-		0x07E0, 13, 0, \
-		0xF800, 0, 0))
+		0x07E0, 18, 5, \
+		0xF800, 11, 11))
 
 
 #define AL_CONVERT_BGR_565_TO_ARGB_4444(p) \
@@ -1195,11 +1214,10 @@
 		0xF000, 0, 8))
 
 #define AL_CONVERT_BGR_565_TO_RGB_888(p) \
-	SHIFT_CONVERT(p, \
-		0, 0, 0, \
+	SHIFT_CONVERT_565(p, \
 		0x001F, 19, 0, \
-		0x07E0, 5, 0, \
-		0xF800, 0, 8)
+		0x07E0, 10, 5, \
+		0xF800, 3, 11)
 
 #define AL_CONVERT_BGR_565_TO_RGB_565(p) \
 	SHIFT_CONVERT(p, \
@@ -1216,9 +1234,9 @@
 		0xF800, 0, 11)
 
 #define AL_CONVERT_BGR_565_TO_PALETTE_8(p) \
-	makecol8((p & 0x001F) << 3, \
-		 (p & 0x07E0) >> 3, \
-		 (p & 0xF800) >> 8)
+	makecol8(_rgb_scale_5[(p & 0x001F) << 3], \
+		 _rgb_scale_6[(p & 0x07E0) >> 3], \
+		 _rgb_scale_5[(p & 0xF800) >> 8])
 
 #define AL_CONVERT_BGR_565_TO_RGBA_5551(p) \
 	(1 | \
@@ -1238,25 +1256,22 @@
 
 #define AL_CONVERT_BGR_565_TO_ABGR_8888(p) \
 	(0xFF000000 | \
-		SHIFT_CONVERT(p, \
-		0, 0, 0, \
+		SHIFT_CONVERT_565(p, \
 		0x001F, 3, 0, \
-		0x07E0, 5, 0, \
-		0xF800, 8, 0))
+		0x07E0, 10, 5, \
+		0xF800, 19, 11))
 
 #define AL_CONVERT_BGR_565_TO_XBGR_8888(p) \
-	SHIFT_CONVERT(p, \
-		0, 0, 0, \
+	SHIFT_CONVERT_565(p, \
 		0x001F, 3, 0, \
-		0x07E0, 5, 0, \
-		0xF800, 8, 0)
+		0x07E0, 10, 5, \
+		0xF800, 19, 11)
 
 #define AL_CONVERT_BGR_565_TO_BGR_888(p) \
-	SHIFT_CONVERT(p, \
-		0, 0, 0, \
+	SHIFT_CONVERT_565(p, \
 		0x001F, 3, 0, \
-		0x07E0, 5, 0, \
-		0xF800, 8, 0)
+		0x07E0, 10, 5, \
+		0xF800, 19, 11)
 
 #define AL_CONVERT_BGR_565_TO_BGR_565(p) \
 	(p)
@@ -1269,29 +1284,28 @@
 		0xF800, 0, 1)
 
 #define AL_CONVERT_BGR_565_TO_RGBX_8888(p) \
-	SHIFT_CONVERT(p, \
-		0, 0, 0, \
+	SHIFT_CONVERT_565(p, \
 		0x001F, 27, 0, \
-		0x07E0, 13, 0, \
-		0xF800, 0, 0)
+		0x07E0, 18, 5, \
+		0xF800, 11, 11)
 
 /* BGR_555 */
 
 #define AL_CONVERT_BGR_555_TO_ARGB_8888(p) \
 	(0xFF000000 | \
-		SHIFT_CONVERT(p, \
+		SHIFT_CONVERT_555(p, \
 		0, 0, 0, \
 		0x001F, 19, 0, \
-		0x03E0, 6, 0, \
-		0x7C00, 0, 7))
+		0x03E0, 11, 5, \
+		0x7C00, 3, 10))
 
 #define AL_CONVERT_BGR_555_TO_RGBA_8888(p) \
 	(0xFF | \
-		SHIFT_CONVERT(p, \
+		SHIFT_CONVERT_555(p, \
 		0, 0, 0, \
 		0x001F, 27, 0, \
-		0x03E0, 14, 0, \
-		0x7C00, 1, 0))
+		0x03E0, 19, 5, \
+		0x7C00, 11, 10))
 
 #define AL_CONVERT_BGR_555_TO_ARGB_4444(p) \
 	(0xF000 | \
@@ -1302,11 +1316,11 @@
 		0x7800, 0, 11))
 
 #define AL_CONVERT_BGR_555_TO_RGB_888(p) \
-	SHIFT_CONVERT(p, \
+	SHIFT_CONVERT_555(p, \
 		0, 0, 0, \
 		0x001F, 19, 0, \
-		0x03E0, 6, 0, \
-		0x7C00, 0, 7)
+		0x03E0, 11, 5, \
+		0x7C00, 3, 10)
 
 #define AL_CONVERT_BGR_555_TO_RGB_565(p) \
 	SHIFT_CONVERT(p, \
@@ -1323,9 +1337,9 @@
 		0x7C00, 0, 10)
 
 #define AL_CONVERT_BGR_555_TO_PALETTE_8(p) \
-	makecol8((p & 0x001F) << 3, \
-		 (p & 0x03E0) >> 2, \
-		 (p & 0x7C00) >> 7)
+	makecol8(_rgb_scale_5[(p & 0x001F) << 3], \
+		 _rgb_scale_6[(p & 0x03E0) >> 2], \
+		 _rgb_scale_5[(p & 0x7C00) >> 7])
 
 #define AL_CONVERT_BGR_555_TO_RGBA_5551(p) \
 	(1 | \
@@ -1345,25 +1359,25 @@
 
 #define AL_CONVERT_BGR_555_TO_ABGR_8888(p) \
 	(0xFF000000 | \
-		SHIFT_CONVERT(p, \
+		SHIFT_CONVERT_555(p, \
 		0, 0, 0, \
 		0x001F, 3, 0, \
-		0x03E0, 6, 0, \
-		0x7C00, 9, 0))
+		0x03E0, 11, 5, \
+		0x7C00, 19, 10))
 
 #define AL_CONVERT_BGR_555_TO_XBGR_8888(p) \
-	SHIFT_CONVERT(p, \
+	SHIFT_CONVERT_555(p, \
 		0, 0, 0, \
 		0x001F, 3, 0, \
-		0x03E0, 6, 0, \
-		0x7C00, 9, 0)
+		0x03E0, 11, 5, \
+		0x7C00, 19, 10)
 
 #define AL_CONVERT_BGR_555_TO_BGR_888(p) \
-	SHIFT_CONVERT(p, \
+	SHIFT_CONVERT_555(p, \
 		0, 0, 0, \
 		0x001F, 3, 0, \
-		0x03E0, 6, 0, \
-		0x7C00, 9, 0)
+		0x03E0, 11, 5, \
+		0x7C00, 19, 10)
 
 #define AL_CONVERT_BGR_555_TO_BGR_565(p) \
 	LS_CONVERT(p, \
@@ -1376,11 +1390,11 @@
 	(p)
 
 #define AL_CONVERT_BGR_555_TO_RGBX_8888(p) \
-	SHIFT_CONVERT(p, \
+	SHIFT_CONVERT_555(p, \
 		0, 0, 0, \
 		0x001F, 27, 0, \
-		0x03E0, 14, 0, \
-		0x7C00, 1, 0)
+		0x03E0, 19, 5, \
+		0x7C00, 11, 10)
 
 /* RGBX_8888 */
 

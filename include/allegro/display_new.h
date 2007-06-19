@@ -14,8 +14,6 @@
 #define AL_RESIZABLE    16
 #define AL_SINGLEBUFFER 32
 
-#define al_color(r, g, b, a) (AL_COLOR){r, g, b, a}
-
 void al_set_display_parameters(int format, int refresh_rate, int flags);
 void al_get_display_parameters(int *format, int *refresh_rate, int *flags);
 AL_DISPLAY *al_create_display(int w, int h);
