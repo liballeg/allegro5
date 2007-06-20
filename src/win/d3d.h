@@ -51,7 +51,6 @@ struct AL_BITMAP_D3D
 	LPDIRECT3DTEXTURE9 system_texture;
 
 	bool initialized;
-	bool is_frontbuffer;
 	bool is_backbuffer;
 
 	unsigned int xo;	/* offsets for sub bitmaps */

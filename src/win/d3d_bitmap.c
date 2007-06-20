@@ -75,28 +75,55 @@ static AL_BITMAP *_al_d3d_create_masked_bitmap(AL_BITMAP *original)
 	return masked_bmp;
 }
 
-static void d3d_allegro_matrix_to_d3d(MATRIX_f *alleg_matrix,
-	D3DMATRIX *d3d_matrix)
+static void d3d_set_matrix(float *src, D3DMATRIX *dest)
 {
-	d3d_matrix->m[0][0] = alleg_matrix->v[0][0];
-	d3d_matrix->m[1][0] = alleg_matrix->v[1][0];
-	d3d_matrix->m[2][0] = alleg_matrix->v[2][0];
-	d3d_matrix->m[0][1] = alleg_matrix->v[0][1];
-	d3d_matrix->m[1][1] = alleg_matrix->v[1][1];
-	d3d_matrix->m[2][1] = alleg_matrix->v[2][1];
-	d3d_matrix->m[0][2] = alleg_matrix->v[0][2];
-	d3d_matrix->m[1][2] = alleg_matrix->v[1][2];
-	d3d_matrix->m[2][2] = alleg_matrix->v[2][2];
+	int x, y;
+	int i = 0;
 
-	d3d_matrix->m[3][0] = alleg_matrix->t[0];
-	d3d_matrix->m[3][1] = alleg_matrix->t[1];
-	d3d_matrix->m[3][2] = alleg_matrix->t[2];
-
-	d3d_matrix->m[0][3] = 0.0f;
-	d3d_matrix->m[1][3] = 0.0f;
-	d3d_matrix->m[2][3] = 0.0f;
-	d3d_matrix->m[3][3] = 1.0f;
+	for (y = 0; y < 4; y++) {
+		for (x = 0; x < 4; x++) {
+			dest->m[x][y] = src[i++];
+		}
+	}
 }
+
+static void d3d_get_identity_matrix(D3DMATRIX *result)
+{
+	float identity[16] = {
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
+
+	d3d_set_matrix(identity, result);
+}
+
+static void d3d_get_translation_matrix(float tx, float ty, float tz,
+	D3DMATRIX *result)
+{
+	float translation[16] = {
+		1.0f, 0.0f, 0.0f,   tx,
+		0.0f, 1.0f, 0.0f,   ty,
+		0.0f, 0.0f, 1.0f,   tz,
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
+
+	d3d_set_matrix(translation, result);
+}
+
+static void d3d_get_z_rotation_matrix(float a, D3DMATRIX *result)
+{
+	float rotation[16] = {
+	 	 cos(a), -sin(a), 0.0f, 0.0f,
+		 sin(a),  cos(a), 0.0f, 0.0f,
+		   0.0f,    0.0f, 1.0f, 0.0f,
+		   0.0f,    0.0f, 0.0f, 1.0f
+	}; 
+
+	d3d_set_matrix(rotation, result);
+}
+
 
 /*
  * Do a transformation for a quad drawing.
@@ -105,40 +132,18 @@ static void d3d_transform(D3D_TL_VERTEX vertices[],
 	float cx, float cy, float dx, float dy, 
 	float angle)
 {
-	MATRIX_f center_matrix;
-	MATRIX_f rotation_matrix;
-	MATRIX_f dest_matrix;
-	MATRIX_f verts_matrix;
-	MATRIX_f tmp1, tmp2;
-	MATRIX_f result;
-	//D3DMATRIX d3d_matrix;
-	int i;
+	D3DMATRIX center_matrix;
+	D3DMATRIX rotation_matrix;
+	D3DMATRIX dest_matrix;
+	
+	d3d_get_identity_matrix(&identity_matrix);
+	d3d_get_translation_matrix(-cx, -cy, 0.0f, &center_matrix);
+	d3d_get_z_rotation_matrix(angle, &rotation_matrix);
+	d3d_get_translation_matrix(dx, dy, 0.0f, &dest_matrix);
 
-	get_translation_matrix_f(&center_matrix, -cx, -cy, 0.0f);
-	get_z_rotate_matrix_f(&rotation_matrix, angle*256.0f/(M_PI*2));
-	get_translation_matrix_f(&dest_matrix, dx, dy, 0.0f);
-
-	for (i = 0; i < 3; i++)	{
-		verts_matrix.v[i][0] = vertices[i].x;
-		verts_matrix.v[i][1] = vertices[i].y;
-		verts_matrix.v[i][2] = vertices[i].z;
-	}
-	verts_matrix.t[0] = vertices[i].x;
-	verts_matrix.t[1] = vertices[i].y;
-	verts_matrix.t[2] = vertices[i].z;
-
-	matrix_mul_f(&center_matrix, &rotation_matrix, &tmp1);
-	matrix_mul_f(&tmp1, &dest_matrix, &tmp2);
-	matrix_mul_f(&tmp2, &verts_matrix, &result);
-
-	for (i = 0; i < 3; i++) {
-		vertices[i].x = result.v[i][0];
-		vertices[i].y = result.v[i][1];
-		vertices[i].z = result.v[i][2];
-	}
-	vertices[i].x = result.t[0];
-	vertices[i].y = result.t[1];
-	vertices[i].z = result.t[2];
+	IDirect3DDevice9_SetTransform(_al_d3d_device, D3DTS_VIEW, &dest_matrix);
+	IDirect3DDevice9_MultiplyTransform(_al_d3d_device, D3DTS_VIEW, &rotation_matrix);
+	IDirect3DDevice9_MultiplyTransform(_al_d3d_device, D3DTS_VIEW, &center_matrix);
 }
 
 /*
@@ -575,7 +580,7 @@ static void d3d_blit_real(AL_BITMAP *src,
 	 * If we're rendering to a texture, and the bitmap has the
 	 * AL_SYNC_MEMORY_COPY flag, sync the texture to system memory.
 	 */
-	if (!d3d_dest->is_frontbuffer && !d3d_dest->is_backbuffer &&
+	if (!d3d_dest->is_backbuffer &&
 			(dest->flags & AL_SYNC_MEMORY_COPY)) {
 		LPDIRECT3DSURFACE9 system_texture_surface;
 		LPDIRECT3DSURFACE9 video_texture_surface;
@@ -629,12 +634,54 @@ static void d3d_blit_real(AL_BITMAP *src,
 	}
 }
 
-static void d3d_draw_bitmap(AL_BITMAP *bitmap, float x, float y, int flags)
+/* Blitting functions */
+
+static void d3d_draw_bitmap(AL_BITMAP *bitmap, float dx, float dy, int flags)
 {
 	d3d_blit_real(bitmap, 0.0f, 0.0f, bitmap->w, bitmap->h,
 		bitmap->w/2, bitmap->h/2,
-		x, y, bitmap->w, bitmap->h,
+		dx, dy, bitmap->w, bitmap->h,
 		0.0f, flags);
+}
+
+static void d3d_draw_bitmap_region(AL_BITMAP *bitmap, float sx, float sy,
+	float sw, float sh, float dx, float dy, int flags)
+{
+	d3d_blit_real(bitmap,
+		sx, sy, sw, sh,
+		0.0f, 0.0f,
+		dx, dy, sw, sh,
+		0.0f, flags);
+}
+
+void d3d_draw_scaled_bitmap(AL_BITMAP *bitmap, float sx, float sy,
+	float sw, float sh, float dx, float dy, float dw, float dh, int flags)
+{
+	d3d_blit_real(bitmap,
+		sx, sy, sw, sh, (sw-sx)/2, (sh-sy)/2,
+		dx, dy, dw, dh, 0.0f,
+		flags);
+}
+
+void d3d_draw_rotated_bitmap(AL_BITMAP *bitmap, float cx, float cy,
+	float angle, float dx, float dy, int flags)
+{
+	d3d_blit_real(bitmap,
+		0.0f, 0.0f, bitmap->w, bitmap->h,
+		cx, cy,
+		dx, dy, bitmap->w, bitmap->h,
+		angle, flags);
+}
+
+void d3d_draw_rotated_scaled_bitmap(AL_BITMAP *bitmap, float cx, float cy,
+	float angle, float dx, float dy, float xscale, float yscale,
+	float flags)
+{
+	d3d_blit_real(bitmap,
+		0.0f, 0.0f, bitmap->w, bitmap->h,
+		cx, cy,
+		dx, dy, bitmap->w*xscale, bitmap->h*yscale,
+		angle, flags);
 }
 
 #if 0
@@ -721,13 +768,6 @@ static void d3d_destroy_bitmap(AL_BITMAP *bitmap)
 	}
    }
 
-/*
-   if (d3d_bmp->is_screen && !d3d_bmp->is_sub_bitmap) {
-   	al_destroy_display(_al_current_display);
-	_al_current_display = NULL;
-   }
-   */
-
    _al_d3d_delete_from_vector(&created_bitmaps, d3d_bmp);
 }
 
@@ -801,6 +841,10 @@ AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
    memset(vt, 0, sizeof *vt);
 
    vt->draw_bitmap = d3d_draw_bitmap;
+   vt->draw_bitmap_region = d3d_draw_bitmap_region;
+   vt->draw_scaled_bitmap = d3d_draw_scaled_bitmap;
+   vt->draw_rotated_bitmap = d3d_draw_rotated_bitmap;
+   vt->draw_rotated_scaled_bitmap = d3d_draw_rotated_scaled_bitmap;
    vt->upload_bitmap = d3d_upload_bitmap;
    vt->destroy_bitmap = d3d_destroy_bitmap;
    vt->lock_region = d3d_lock_region;

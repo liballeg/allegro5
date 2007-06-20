@@ -205,21 +205,42 @@ AL_BITMAP *al_load_bitmap(char const *filename)
    return bitmap;
 }
 
-/*
- * Returns true if the bitmap can be drawn to the current display.
- */
-bool al_is_compatible_bitmap(AL_BITMAP *bitmap)
-{
-	/* FIXME */
-	return true;
-}
-
-void al_draw_bitmap(AL_BITMAP *bitmap, float x, float y, int flags)
+void al_draw_bitmap(AL_BITMAP *bitmap, float dx, float dy, int flags)
 {
    if (al_is_compatible_bitmap(bitmap))
-      bitmap->vt->draw_bitmap(bitmap, x, y, flags);
+      bitmap->vt->draw_bitmap(bitmap, dx, dy, flags);
 }
 
+void al_draw_bitmap_region(AL_BITMAP *bitmap, float sx, float sy,
+	float sw, float sh, float dx, float dy, int flags)
+{
+   if (al_is_compatible_bitmap(bitmap))
+      bitmap->vt->draw_bitmap_region(bitmap, sx, sy, sw, sh, dx, dy, flags);
+}
+
+void al_draw_scaled_bitmap(AL_BITMAP *bitmap, float sx, float sy,
+	float sw, float sh, float dx, float dy, float dw, float dh, int flags)
+{
+   if (al_is_compatible_bitmap(bitmap))
+      bitmap->vt->draw_scaled_bitmap(bitmap, sx, sy, sw, sh,
+         dx, dy, dw, dh, flags);
+}
+
+void al_draw_rotated_bitmap(AL_BITMAP *bitmap, float cx, float cy,
+	float angle, float dx, float dy, int flags)
+{
+   if (al_is_compatible_bitmap(bitmap))
+      bitmap->vt->draw_rotated_bitmap(bitmap, cx, cy, angle, dx, dy, flags);
+}
+
+void al_draw_rotated_scaled_bitmap(AL_BITMAP *bitmap, float cx, float cy,
+	float angle, float dx, float dy, float xscale, float yscale,
+	int flags)
+{
+   if (al_is_compatible_bitmap(bitmap))
+      bitmap->vt->draw_rotated_scaled_bitmap(bitmap, cx, cy, angle,
+         dx, dy, xscale, yscale, flags);
+}
 
 #if 0
 /*

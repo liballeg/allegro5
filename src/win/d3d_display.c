@@ -99,7 +99,6 @@ GFX_DRIVER _al_d3d_dummy_gfx_driver = {
 
 /* Dummy front/back buffer bitmaps */
 
-AL_BITMAP_D3D d3d_frontbuffer;
 AL_BITMAP_D3D d3d_backbuffer;
 
 static int d3d_valid_formats[] = {
@@ -528,10 +527,7 @@ bool _al_d3d_init_display()
 
 	_al_mutex_init(&d3d_device_mutex);
 
-	d3d_frontbuffer.is_frontbuffer = 1;
-	d3d_frontbuffer.is_backbuffer = 0;
 
-	d3d_backbuffer.is_frontbuffer = 0;
 	d3d_backbuffer.is_backbuffer = 1;
 
 
@@ -1260,7 +1256,6 @@ AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
    bitmap->video_texture = 0;
    bitmap->system_texture = 0;
    bitmap->initialized = false;
-   bitmap->is_frontbuffer = false;
    bitmap->is_backbuffer = false;
    bitmap->xo = 0;
    bitmap->yo = 0;
@@ -1284,30 +1279,7 @@ static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 	_al_d3d_unlock_device();
 
 	/* Set the render target */
-	/*
-	if (d3d_bmp->is_frontbuffer) {
-		if (IDirect3DSwapChain9_GetFrontBufferData(d3d_display->swap_chain,
-				d3d_current_texture_render_target) != D3D_OK) {
-			return;
-		}
-		if (IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, d3d_current_texture_render_target) != D3D_OK) {
-			TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
-			IDirect3DSurface9_Release(d3d_current_texture_render_target);
-			return;
-		}
-		_al_d3d_unlock_device();
-		_al_d3d_set_ortho_projection(display->w, display->h);
-		_al_d3d_lock_device();
-		IDirect3DDevice9_BeginScene(_al_d3d_device);
-		_al_d3d_unlock_device();
-	}
-	else*/ if (d3d_bmp->is_backbuffer) {
-	/*
-		if (IDirect3DSwapChain9_GetBackBuffer(d3d_display->swap_chain,
-				0, D3DBACKBUFFER_TYPE_MONO, &d3d_current_texture_render_target) != D3D_OK) {
-			return;
-		}
-		*/
+	if (d3d_bmp->is_backbuffer) {
 		if (IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, d3d_display->render_target) != D3D_OK) {
 			TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
 			IDirect3DSurface9_Release(d3d_current_texture_render_target);
@@ -1357,8 +1329,12 @@ static AL_BITMAP *d3d_get_backbuffer()
 
 static AL_BITMAP *d3d_get_frontbuffer()
 {
-	//return (AL_BITMAP *)&d3d_frontbuffer;
 	return NULL;
+}
+
+static bool d3d_is_compatible_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
+{
+	return true;
 }
 
 /* Obtain a reference to this driver. */
@@ -1383,9 +1359,9 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->set_target_bitmap = d3d_set_target_bitmap;
    vt->get_backbuffer = d3d_get_backbuffer;
    vt->get_frontbuffer = d3d_get_frontbuffer;
+   vt->is_compatible_bitmap = d3d_is_compatible_bitmap;
 
    d3d_backbuffer.bitmap.vt = (AL_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
-   d3d_frontbuffer.bitmap.vt = (AL_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
 
    return vt;
 }

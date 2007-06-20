@@ -45,13 +45,13 @@ extern AL_DISPLAY_INTERFACE *_al_glx_vt(void);
  */
 void al_set_display_parameters(int format, int refresh_rate, int flags)
 {
-	_display_format = format;
+   _display_format = format;
 
-	if (refresh_rate)
-		_display_refresh_rate = refresh_rate;
+   if (refresh_rate)
+      _display_refresh_rate = refresh_rate;
 
-	if (flags)
-		_display_flags = flags;
+   if (flags)
+      _display_flags = flags;
 }
 
 /*
@@ -59,12 +59,12 @@ void al_set_display_parameters(int format, int refresh_rate, int flags)
  */
 void al_get_display_parameters(int *format, int *refresh_rate, int *flags)
 {
-	if (format)
-		*format = _display_format;
-	if (refresh_rate)
-		*refresh_rate = _display_refresh_rate;
-	if (flags)
-		*flags = _display_flags;
+   if (format)
+      *format = _display_format;
+   if (refresh_rate)
+      *refresh_rate = _display_refresh_rate;
+   if (flags)
+      *flags = _display_flags;
 }
 
 /*
@@ -111,7 +111,7 @@ void al_set_current_display(AL_DISPLAY *display)
  */
 AL_DISPLAY *al_get_current_display(void)
 {
-	return _al_current_display;
+   return _al_current_display;
 }
 
 /*
@@ -120,8 +120,8 @@ AL_DISPLAY *al_get_current_display(void)
  */
 void al_set_target_bitmap(AL_BITMAP *bitmap)
 {
-	_target_bitmap = bitmap;
-	_al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
+   _target_bitmap = bitmap;
+   _al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
 }
 
 /*
@@ -129,17 +129,17 @@ void al_set_target_bitmap(AL_BITMAP *bitmap)
  */
 AL_BITMAP *al_get_target_bitmap(void)
 {
-	return _target_bitmap;
+   return _target_bitmap;
 }
 
 AL_BITMAP *al_get_backbuffer(void)
 {
-	return _al_current_display->vt->get_backbuffer(_al_current_display);
+   return _al_current_display->vt->get_backbuffer(_al_current_display);
 }
 
 AL_BITMAP *al_get_frontbuffer(void)
 {
-	return _al_current_display->vt->get_frontbuffer(_al_current_display);
+   return _al_current_display->vt->get_frontbuffer(_al_current_display);
 }
 
 /*
@@ -195,11 +195,18 @@ void al_draw_filled_rectangle(float tlx, float tly, float brx, float bry,
 
 void _al_push_target_bitmap(void)
 {
-	_target_bitmap_backup = _target_bitmap;
+   _target_bitmap_backup = _target_bitmap;
 }
 
 void _al_pop_target_bitmap(void)
 {
-	_target_bitmap = _target_bitmap_backup;
-	al_set_target_bitmap(_target_bitmap);
+   _target_bitmap = _target_bitmap_backup;
+   al_set_target_bitmap(_target_bitmap);
 }
+
+bool al_is_compatible_bitmap(AL_BITMAP *bitmap)
+{
+   return _al_current_display->vt->is_compatible_bitmap(
+      _al_current_display, bitmap);
+}
+
