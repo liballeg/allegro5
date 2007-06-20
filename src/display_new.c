@@ -7,64 +7,47 @@
 
 
 /* Display parameters */
-static int _display_format = 0;
-static int _display_refresh_rate = 0;
-static int _display_flags = 0;
+static int _new_display_format = 0;
+static int _new_display_refresh_rate = 0;
+static int _new_display_flags = 0;
 
 AL_DISPLAY *_al_current_display;
 static AL_BITMAP *_target_bitmap;
+/* For pushing/popping target bitmap */
 static AL_BITMAP *_target_bitmap_backup;
 
 
 // FIXME: The system driver must be used to get drivers!
 extern AL_DISPLAY_INTERFACE *_al_glx_vt(void);
 
-
-/*
- * Sets the format, refresh rate, and flags for all displays created after this call.
- * format determines the pixel format of the display's buffers. For example:
- * AL_FORMAT_ANY = 0    // Let the driver decide the best format
- * AL_FORMAT_ARGB_8888
- * AL_FORMAT_RGBA_8888
- * AL_FORMAT_PALETTE_8
- * AL_FORMAT_RGBA_2222
- * ...
- *
- * refresh_rate sets the refresh rate to use for new displays. This only has effect
- * with fullscreen displays, and may be ignored if the requested refresh rate
- *  cannot be set. Specifying 0 as a refresh rate will use a default value.
- * 
- * The flags parameter can be 0 for default settings, or else a combination of:
- * AL_WINDOWED - prefer a windowed mode
- * AL_FULLSCREEN - prefer a fullscreen mode
- * AL_OPENGL - require the driver to provide an initialized opengl context after returning successfully
- * AL_DIRECT3D - require the driver to do rendering with Direct3D and provide a Direct3D device
- * AL_DOUBLEBUFFER - use double buffering
- * AL_PAGEFLIP - use page flipping
- *
- */
-void al_set_display_parameters(int format, int refresh_rate, int flags)
+void al_set_new_display_format(int format)
 {
-   _display_format = format;
-
-   if (refresh_rate)
-      _display_refresh_rate = refresh_rate;
-
-   if (flags)
-      _display_flags = flags;
+   _new_display_format = format;
 }
 
-/*
- * Retrieve the display parameters.
- */
-void al_get_display_parameters(int *format, int *refresh_rate, int *flags)
+void al_set_new_display_refresh_rate(int refresh_rate)
 {
-   if (format)
-      *format = _display_format;
-   if (refresh_rate)
-      *refresh_rate = _display_refresh_rate;
-   if (flags)
-      *flags = _display_flags;
+   _new_display_refresh_rate = refresh_rate;
+}
+
+void al_set_new_display_flags(int flags)
+{
+   _new_display_flags = flags;
+}
+
+int al_get_new_display_format(void)
+{
+   return _new_display_format;
+}
+
+int al_get_new_display_refresh_rate(void)
+{
+   return _new_display_refresh_rate;
+}
+
+int al_get_new_display_flags(void)
+{
+   return _new_display_flags;
 }
 
 /*
@@ -152,14 +135,12 @@ void al_flip_display(void)
 }
 
 /* 
- * Makes a region of the graphics which were drawn since the
- * display was created or since the last call to al_flip visible.
  */
-void al_flip_display_region(int x, int y,
+bool al_update_display_region(int x, int y,
 	int width, int height)
 {
-   _al_current_display->vt->flip_display_region(_al_current_display, x, y,
-      width, height);
+   return _al_current_display->vt->update_display_region(
+      _al_current_display, x, y, width, height);
 }
 
 /*

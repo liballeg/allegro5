@@ -101,7 +101,7 @@ GFX_DRIVER _al_d3d_dummy_gfx_driver = {
 
 AL_BITMAP_D3D d3d_backbuffer;
 
-static int d3d_valid_formats[] = {
+static int allegro_formats[] = {
 	ALLEGRO_PIXEL_FORMAT_ANY,
 	ALLEGRO_PIXEL_FORMAT_ARGB_8888,
 	ALLEGRO_PIXEL_FORMAT_ARGB_4444,
@@ -136,8 +136,8 @@ int _al_pixel_format_to_d3d(int format)
 	int i;
 	D3DDISPLAYMODE d3d_dm;
 
-	for (i = 1; d3d_valid_formats[i] >= 0; i++) {
-		if (d3d_valid_formats[i] == format) {
+	for (i = 1; allegro_formats[i] >= 0; i++) {
+		if (allegro_formats[i] == format) {
 			return d3d_formats[i];
 		}
 	}
@@ -147,6 +147,19 @@ int _al_pixel_format_to_d3d(int format)
 	IDirect3D9_GetAdapterDisplayMode(_al_d3d, D3DADAPTER_DEFAULT, &d3d_dm);
 
 	return d3d_dm.Format;
+}
+
+int _al_d3d_format_to_allegro_format(int d3d_fmt)
+{
+	int i;
+
+	for (i = 1; d3d_formats[i] >= 0; i++) {
+		if (d3d_formats[i] == d3d_fmt) {
+			return allegro_formats[i];
+		}
+	}
+
+	return -1;
 }
 
 static int d3d_al_color_to_d3d(int format, AL_COLOR *color)
@@ -160,8 +173,8 @@ static bool d3d_format_is_valid(int format)
 {
 	int i;
 
-	for (i = 0; d3d_valid_formats[i] >= 0; i++) {
-		if (d3d_valid_formats[i] == format)
+	for (i = 0; allegro_formats[i] >= 0; i++) {
+		if (allegro_formats[i] == format)
 			return true;
 	}
 
@@ -792,7 +805,9 @@ static void d3d_display_thread_proc(HANDLE unused)
 	HRESULT hr;
 	bool lost_event_generated = false;
 
-	al_get_display_parameters(&format, &refresh_rate, &flags);
+	format = al_get_new_display_format();
+	refresh_rate = al_get_new_display_refresh_rate();
+	flags = al_get_new_display_flags();
 
 	_al_d3d_last_created_display = NULL;
 
@@ -948,7 +963,9 @@ static AL_DISPLAY *d3d_create_display(int w, int h)
 
 	int format, refresh_rate, flags;
 
-	al_get_display_parameters(&format, &refresh_rate, &flags);
+	format = al_get_new_display_format();
+	refresh_rate = al_get_new_display_refresh_rate();
+	flags = al_get_new_display_flags();
 
 	if (d3d_created_displays._size == 0 && (flags & AL_WINDOWED)) {
 		if (!d3d_create_hidden_device()) {
@@ -1114,13 +1131,14 @@ static void d3d_flip_display(AL_DISPLAY *d)
 	_al_d3d_unlock_device();
 }
 
-/* Dummy implementation of flip. */
-static void d3d_flip_display_region(AL_DISPLAY *d,
+static bool d3d_update_display_region(AL_DISPLAY *d,
 	int x, int y,
 	int width, int height)
 {
+#if 0
 	AL_DISPLAY_D3D* disp = (AL_DISPLAY_D3D*)d;
 	HRESULT hr;
+	bool ret;
 	
 	if (_al_d3d_is_device_lost()) return;
 	_al_d3d_lock_device();
@@ -1147,12 +1165,20 @@ static void d3d_flip_display_region(AL_DISPLAY *d,
 		}
 
 		IDirect3DDevice9_BeginScene(_al_d3d_device);
+
+		ret = true;
 	}
 	else {
-		d3d_flip_display(d);
+		ret = false;
 	}
 	
 	_al_d3d_unlock_device();
+
+	return ret;
+#endif
+	/* This is too slow so return false */
+
+	return false;
 }
 
 static void d3d_notify_resize(AL_DISPLAY *d)
@@ -1242,7 +1268,8 @@ AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
    int format;
    int flags;
 
-   al_get_bitmap_parameters(&format, &flags);
+   format = al_get_new_bitmap_format();
+   flags = al_get_new_bitmap_flags();
 
    if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
    	format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
@@ -1265,7 +1292,7 @@ AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
 
 static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 {
-	AL_DISPLAY_D3D *d3d_display = (AL_DISPLAY_D3D *)display;
+	AL_DISPLAY_D3D *d3d_display = (AL_DISPLAY_D3D *)bitmap->display;
 	AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap;
 
 	if (_al_d3d_is_device_lost()) return;
@@ -1352,7 +1379,7 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->draw_line = d3d_draw_line;
    vt->draw_filled_rectangle = d3d_draw_filled_rectangle;
    vt->flip_display = d3d_flip_display;
-   vt->flip_display_region = d3d_flip_display_region;
+   vt->update_display_region = d3d_update_display_region;
    vt->notify_resize = d3d_notify_resize;
    vt->create_bitmap = _al_d3d_create_bitmap;
    vt->upload_compat_screen = d3d_upload_compat_screen;

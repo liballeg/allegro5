@@ -817,7 +817,8 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 		return -1;
 	}
 	screen = create_bitmap(w, h);
-	al_set_display_parameters(ALLEGRO_PIXEL_FORMAT_RGB_565, 0, AL_SINGLEBUFFER|windowed_flag);
+	al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
+	al_set_new_display_flags(AL_SINGLEBUFFER|windowed_flag);
 	screen->display = al_create_display(w, h);
 	al_set_current_display(screen->display);
 	al_set_target_bitmap(al_get_backbuffer());

@@ -106,6 +106,7 @@ bool _al_d3d_is_device_lost(void);
 void _al_d3d_lock_device();
 void _al_d3d_unlock_device();
 int _al_pixel_format_to_d3d(int format);
+int _al_d3d_format_to_allegro_format(int d3d_fmt);
 
 bool _al_d3d_init_keyboard();
 void _al_d3d_set_kb_cooperative_level(HWND window);

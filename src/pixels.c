@@ -792,10 +792,10 @@ AL_COLOR *_al_get_pixel(AL_BITMAP *bitmap, void *data, AL_COLOR *color) {
 	return color;
 }
 
-AL_COLOR *al_get_pixel(AL_BITMAP *bitmap,
-	int x, int y, AL_COLOR *color)
+AL_COLOR *al_get_pixel(int x, int y, AL_COLOR *color)
 {
 	AL_LOCKED_RECTANGLE lr;
+	AL_BITMAP *bitmap = al_get_target_bitmap();
 
 	if (bitmap->locked) {
 		x -= bitmap->lock_x;
@@ -1002,9 +1002,10 @@ void _al_put_pixel(void *data, int format, AL_COLOR *color)
 	(*put_pixel_funcs[format])(data, color);
 }
 
-void al_put_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color)
+void al_put_pixel(AL_COLOR *color, int x, int y)
 {
 	AL_LOCKED_RECTANGLE lr;
+	AL_BITMAP *bitmap = al_get_target_bitmap();
 
 	/* FIXME: must use clip not full bitmap */
 	if (bitmap->locked) {

@@ -6,11 +6,11 @@
 #include "internal/aintern_bitmap.h"
 
 
-static int _bitmap_format = 0;
-static int _bitmap_flags = 0;
+static int _new_bitmap_format = 0;
+static int _new_bitmap_flags = 0;
 /* For pushing/popping bitmap parameters */
-static int _bitmap_format_backup;
-static int _bitmap_flags_backup;
+static int _new_bitmap_format_backup;
+static int _new_bitmap_flags_backup;
 
 static AL_COLOR _mask_color = { { 0, 0, 0, 0 } };
 
@@ -41,18 +41,24 @@ void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,
    */
 }
 
-void al_set_bitmap_parameters(int format, int flags)
+void al_set_new_bitmap_format(int format)
 {
-	_bitmap_format = format;
-	_bitmap_flags = flags;
+   _new_bitmap_format = format;
 }
 
-void al_get_bitmap_parameters(int *format, int *flags)
+void al_set_new_bitmap_flags(int flags)
 {
-	if (format)
-		*format = _bitmap_format;
-	if (flags)
-		*flags = _bitmap_flags;
+   _new_bitmap_flags = flags;
+}
+
+int al_get_new_bitmap_format(void)
+{
+   return _new_bitmap_format;
+}
+
+int al_get_new_bitmap_flags(void)
+{
+   return _new_bitmap_flags;
 }
 
 /* Creates a memory bitmap. A memory bitmap can only be drawn to other memory
@@ -62,8 +68,8 @@ static AL_BITMAP *_al_create_memory_bitmap(int w, int h)
 {
    AL_BITMAP *bitmap = _AL_MALLOC(sizeof *bitmap);
    memset(bitmap, 0, sizeof *bitmap);
-   bitmap->format = _bitmap_format;
-   bitmap->flags = _bitmap_flags;
+   bitmap->format = _new_bitmap_format;
+   bitmap->flags = _new_bitmap_flags;
    bitmap->w = w;
    bitmap->h = h;
    bitmap->display = NULL;
@@ -71,8 +77,8 @@ static AL_BITMAP *_al_create_memory_bitmap(int w, int h)
    // FIXME: Of course, we do need to handle all the possible different formats,
    // this will easily fill up its own file of 1000 lines, but for now,
    // RGBA with 8-bit per component is hardcoded.
-   bitmap->memory = _AL_MALLOC(w * h * _al_pixel_size(_bitmap_format));
-   memset(bitmap->memory, 0, w * h * _al_pixel_size(_bitmap_format));
+   bitmap->memory = _AL_MALLOC(w * h * _al_pixel_size(_new_bitmap_format));
+   memset(bitmap->memory, 0, w * h * _al_pixel_size(_new_bitmap_format));
    return bitmap;
 }
 
@@ -89,7 +95,7 @@ AL_BITMAP *al_create_bitmap(int w, int h)
 {
    AL_BITMAP *bitmap;
    
-   if (_bitmap_flags & AL_MEMORY_BITMAP) {
+   if (_new_bitmap_flags & AL_MEMORY_BITMAP) {
    	return _al_create_memory_bitmap(w, h);
    }
 
@@ -166,22 +172,6 @@ static AL_BITMAP *_al_load_memory_bitmap(char const *filename)
 	0, 0, 0, 0,
 	file_data->w, file_data->h);
 
-
-   /*
-   int x, y;
-   int alpha = _bitmap_has_alpha(file_data);
-   unsigned char *ptr = bitmap->memory;
-   for (y = 0; y < file_data->h; y++) {
-      for (x = 0; x < file_data->w; x++) {
-         int c = getpixel(file_data, x, y);
-         *(ptr++) = getr(c);
-         *(ptr++) = getg(c);
-         *(ptr++) = getb(c);
-         *(ptr++) = alpha ? geta(c) : 255;
-      }
-   }
-   */
-
    destroy_bitmap(file_data);
    return bitmap;
 }
@@ -192,7 +182,7 @@ AL_BITMAP *al_load_bitmap(char const *filename)
 {
    AL_BITMAP *bitmap;
    
-   if (_bitmap_flags & AL_MEMORY_BITMAP) {
+   if (_new_bitmap_flags & AL_MEMORY_BITMAP) {
    	return _al_load_memory_bitmap(filename);
    }
 
@@ -227,82 +217,20 @@ void al_draw_scaled_bitmap(AL_BITMAP *bitmap, float sx, float sy,
 }
 
 void al_draw_rotated_bitmap(AL_BITMAP *bitmap, float cx, float cy,
-	float angle, float dx, float dy, int flags)
+	float dx, float dy, float angle, int flags)
 {
    if (al_is_compatible_bitmap(bitmap))
-      bitmap->vt->draw_rotated_bitmap(bitmap, cx, cy, angle, dx, dy, flags);
+      bitmap->vt->draw_rotated_bitmap(bitmap, cx, cy, dx, dy, angle, flags);
 }
 
 void al_draw_rotated_scaled_bitmap(AL_BITMAP *bitmap, float cx, float cy,
-	float angle, float dx, float dy, float xscale, float yscale,
+	float dx, float dy, float xscale, float yscale, float angle,
 	int flags)
 {
    if (al_is_compatible_bitmap(bitmap))
-      bitmap->vt->draw_rotated_scaled_bitmap(bitmap, cx, cy, angle,
-         dx, dy, xscale, yscale, flags);
+      bitmap->vt->draw_rotated_scaled_bitmap(bitmap, cx, cy,
+         dx, dy, xscale, yscale, angle, flags);
 }
-
-#if 0
-/*
- * Draw an entire bitmap to another. Use NULL for the destination
- * bitmap to draw to the current display.
- */
-void al_blit(int flag, AL_BITMAP *src, AL_BITMAP *dest, float dx, float dy)
-{
-	src->vt->blit(flag, src, dest, dx, dy);
-}
-
-/*
- * Draw a rectangle of one bitmap to another. Use NULL for the
- * destination bitmap to draw to the current display.
- */
-void al_blit_region(int flag, AL_BITMAP *src, float sx, float sy,
-	AL_BITMAP *dest, float dx, float dy, float w, float h)
-{
-	src->vt->blit_region(flag, src, sx, sy, dest, dx, dy, w, h);
-}
-
-/*
- * Draw a rectangle of one bitmap to another. Use NULL for the
- * destination bitmap to draw to the current display.
- */
-void al_blit_scaled(int flag,
-	AL_BITMAP *src,	float sx, float sy, float sw, float sh,
-	AL_BITMAP *dest, float dx, float dy, float dw, float dh)
-{
-	src->vt->blit_scaled(flag, src, sx, sy, sw, sh, dest, dx, dy, dw, dh);
-}
-
-void al_rotate_bitmap(int flag,
-	AL_BITMAP *src,
-	float source_center_x, float source_center_y,
-	AL_BITMAP *dest, float dest_x, float dest_y,
-	float angle)
-{
-	src->vt->rotate_bitmap(flag, src, source_center_x, source_center_y, dest, dest_x, dest_y, angle);
-}
-
-void al_rotate_scaled(int flag,
-	AL_BITMAP *src,
-	float source_center_x, float source_center_y,
-	AL_BITMAP *dest, float dest_x, float dest_y,
-	float xscale, float yscale,
-	float angle)
-{
-	src->vt->rotate_scaled(flag, src, source_center_x, source_center_y, dest, dest_x, dest_y, xscale, yscale, angle);
-}
-
-void al_draw_sub_bitmap(AL_BITMAP *bitmap, float x, float y,
-    float sx, float sy, float sw, float sh)
-{
-   // TODO
-}
-
-void al_set_light_color(AL_BITMAP *bitmap, AL_COLOR *light_color)
-{
-	memcpy(&bitmap->light_color, light_color, sizeof(AL_COLOR));
-}
-#endif
 
 AL_LOCKED_RECTANGLE *al_lock_bitmap_region(AL_BITMAP *bitmap,
 	int x, int y,
@@ -384,28 +312,33 @@ void al_convert_mask_to_alpha(AL_BITMAP *bitmap, AL_COLOR *mask_color)
 		return;
 	}
 
+	_al_push_target_bitmap();
+	al_set_target_bitmap(bitmap);
+
 	al_map_rgba(bitmap, &alpha_pixel, 0, 0, 0, 0);
 
 	for (y = 0; y < bitmap->h; y++) {
 		for (x = 0; x < bitmap->w; x++) {
-			al_get_pixel(bitmap, x, y, &pixel);
+			al_get_pixel(x, y, &pixel);
 			if (memcmp(&pixel, mask_color, sizeof(AL_COLOR)) == 0) {
-				al_put_pixel(bitmap, x, y, &alpha_pixel);
+				al_put_pixel(&alpha_pixel, x, y);
 			}
 		}
 	}
+
+	_al_pop_target_bitmap();
 
 	al_unlock_bitmap(bitmap);
 }
 
 void _al_push_bitmap_parameters()
 {
-	_bitmap_format_backup = _bitmap_format;
-	_bitmap_flags_backup = _bitmap_flags;
+	_new_bitmap_format_backup = _new_bitmap_format;
+	_new_bitmap_flags_backup = _new_bitmap_flags;
 }
 
 void _al_pop_bitmap_parameters()
 {
-	_bitmap_format = _bitmap_format_backup;
-	_bitmap_flags = _bitmap_flags_backup;
+	_new_bitmap_format = _new_bitmap_format_backup;
+	_new_bitmap_flags = _new_bitmap_flags_backup;
 }
