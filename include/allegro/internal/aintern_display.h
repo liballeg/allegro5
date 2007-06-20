@@ -31,6 +31,8 @@ struct AL_DISPLAY_INTERFACE
    void (*set_target_bitmap)(AL_DISPLAY *display, AL_BITMAP *bitmap);
    AL_BITMAP *(*get_backbuffer)(AL_DISPLAY *display);
    AL_BITMAP *(*get_frontbuffer)(AL_DISPLAY *display);
+
+   bool (*is_compatible_bitmap)(AL_DISPLAY *display, AL_BITMAP *bitmap);
 };
 
 struct AL_DISPLAY

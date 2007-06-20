@@ -8,6 +8,7 @@
 #include "allegro.h"
 #include "allegro/internal/aintern_bitmap.h"
 #include <winalleg.h>
+#include <math.h>
 
 #include "d3d.h"
 
@@ -151,6 +152,12 @@ int main(void)
 	    	al_draw_line(50, 50, 150, 150, &colors[0]);
 	    }
             else if (i == 2) {
+	    	al_draw_scaled_bitmap(picture, 0, 0, picture->w, picture->h,
+			0, 0, 640, 480, 0);
+		al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
+		al_draw_rotated_scaled_bitmap(picture, 160, 100, M_PI/4, 320, 240, 1.5f, 1.5f, 0);
+		al_draw_rotated_bitmap(picture, 160, 100, M_PI/4, 320, 240, 0);
+	    	/*
 	    	AL_COLOR mask_color;
 		al_map_rgb(mask, &mask_color, 255, 0, 255);
 		al_set_mask_color(&mask_color);
@@ -167,6 +174,7 @@ int main(void)
 			}
 		}
 		al_unlock_bitmap(backbuffer);
+		*/
 	    }
             al_draw_filled_rectangle(x, y, x + 40, y + 40, &colors[i]);
             al_flip_display();

@@ -21,6 +21,13 @@ env.Append(CCFLAGS = flags)
 env.Append(CPPDEFINES = defines)
 env.Append(CPPPATH = includes)
 
+opts = Options('options-win32.py', ARGUMENTS)
+opts.Add('d3d', 'Enable Direct3D', 0)
+opts.Update(context.getLibraryEnv())
+
+def getOption(name, default = 0):
+    return context.getLibraryEnv()[name]
+
 # assembler = Builder(action = 'gcc --x assembler-with-cpp $CCFLAGS $SOURCES -c -o $TARGET', src_suffic = '.s', suffic = '.o')
 
 # This shouldn't be needed. scons 0.96.93 can handle explicit assembly files
@@ -115,6 +122,17 @@ wxthread.c
 """));
 
 
+if getOption('d3d') == 1:
+	context.addFiles('win', Split("""
+	d3d_system.c
+	d3d_display.c
+	d3d_bitmap.c
+	d3d_keyboard.c
+	d3d_window.c
+	"""));
+	env.Append(LIBS = [ 'd3d9' ])
+
+
 def asmdef(env,appendDir,buildDir,libDir):
     # prog = env.Program('asmdef',appendDir(buildDir + 'i386/', ['asmdef.c']))
     env = env.Copy()
@@ -128,6 +146,7 @@ def asmdef(env,appendDir,buildDir,libDir):
     # file = env.Cat('#obj/mingw32/asmdef.inc', 'x')
     # dep = env.Depends('#' + buildDir + '/i386/iblit8.o',file)
     return file
+
 
 context.addExtra(asmdef)
 

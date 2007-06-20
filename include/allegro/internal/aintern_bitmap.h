@@ -43,33 +43,16 @@ struct AL_BITMAP
 struct AL_BITMAP_INTERFACE
 {
    int id;
-   /*
-   void (*blit)(int flag, struct AL_BITMAP *src, struct AL_BITMAP *dest,
-   	float dx, float dy);
-   void (*blit_region)(int flag, struct AL_BITMAP *src, float sx, float sy,
-	struct AL_BITMAP *dest, float dx, float dy, float w, float h);
-   void (*blit_scaled)(int flag,
-   	struct AL_BITMAP *src,	float sx, float sy, float sw, float sh,
-	struct AL_BITMAP *dest, float dx, float dy, float dw, float dh);
-   void (*rotate_bitmap)(int flag, struct AL_BITMAP *source,
-	float source_center_x, float source_center_y,
-	struct AL_BITMAP *dest, float dest_x, float dest_y,
-	float angle);
-   void (*rotate_scaled)(int flag, struct AL_BITMAP *source,
-	float source_center_x, float source_center_y,
-	struct AL_BITMAP *dest, float dest_x, float dest_y,
-	float xscale, float yscale,
-	float angle);
-   void (*blit_region_3)(int flag,
-	struct AL_BITMAP *source1, int source1_x, int source1_y,
-	struct AL_BITMAP *source2, int source2_x, int source2_y,
-	struct AL_BITMAP *dest, int dest_x, int dest_y,
-	int dest_w, int dest_h);
-	*/
    void (*draw_bitmap)(struct AL_BITMAP *bitmap, float x, float y, int flags);
-/*   void (*draw_sub)(struct AL_BITMAP *bitmap, float x, float y,
-      float sx, float sy, float sw, float sh);
-      */
+   void (*draw_bitmap_region)(AL_BITMAP *bitmap, float sx, float sy,
+      float sw, float sh, float dx, float dy, int flags);
+   void (*draw_scaled_bitmap)(AL_BITMAP *bitmap, float sx, float sy,
+      float sw, float sh, float dx, float dy, float dw, float dh, int flags);
+   void (*draw_rotated_bitmap)(AL_BITMAP *bitmap, float cx, float cy,
+      float angle, float dx, float dy, int flags);
+   void (*draw_rotated_scaled_bitmap)(AL_BITMAP *bitmap, float cx, float cy,
+      float angle, float dx, float dy, float xscale, float yscale,
+      float flags);
    /* After the memory-copy of the bitmap has been modified, need to call this
     * to update the display-specific copy. E.g. with an OpenGL driver, this
     * might create/update a texture.
@@ -79,20 +62,9 @@ struct AL_BITMAP_INTERFACE
     * the memory copy accordingly. E.g. with an OpenGL driver, this might
     * read the contents of an associated texture.
     */
-   /*
-    * This is used by the compatibility layer after a BITMAP has
-    * been changed.
-    */
-   //void (*upload_compat_bitmap)(struct BITMAP *bitmap, int x, int y, int width, int height);
-   /* Destroy any driver specific stuff. The struct AL_BITMAP and its memory copy
-    * itself should not be touched.
-    */
+
    void (*destroy_bitmap)(AL_BITMAP *bitmap);
 
-   /*
-    * Make this into the "screen" bitmap (for compatibility layer)
-    */
-   //void (*make_compat_screen)(struct AL_BITMAP *bitmap);
    AL_LOCKED_RECTANGLE * (*lock_region)(AL_BITMAP *bitmap,
    	int x, int y, int w, int h,
    	AL_LOCKED_RECTANGLE *locked_rectangle,

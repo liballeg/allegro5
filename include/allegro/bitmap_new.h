@@ -68,7 +68,19 @@ AL_BITMAP *al_create_bitmap(int w, int h);
 AL_BITMAP *al_load_bitmap(char const *filename);
 void al_destroy_bitmap(AL_BITMAP *bitmap);
 //void al_draw_bitmap(int flag, AL_BITMAP *bitmap, float x, float y);
-void al_draw_bitmap(AL_BITMAP *bitmap, float x, float y, int flags);
+
+/* Blitting */
+void al_draw_bitmap(AL_BITMAP *bitmap, float dx, float dy, int flags);
+void al_draw_bitmap_region(AL_BITMAP *bitmap, float sx, float sy,
+	float sw, float sh, float dx, float dy, int flags);
+void al_draw_scaled_bitmap(AL_BITMAP *bitmap, float sx, float sy,
+	float sw, float sh, float dx, float dy, float dw, float dh, int flags);
+void al_draw_rotated_bitmap(AL_BITMAP *bitmap, float cx, float cy,
+	float angle, float dx, float dy, int flags);
+void al_draw_rotated_scaled_bitmap(AL_BITMAP *bitmap, float cx, float cy,
+	float angle, float dx, float dy, float xscale, float yscale,
+	int flags);
+
 /*
 void al_draw_sub_bitmap(AL_BITMAP *bitmap, float x, float y,
     float sx, float sy, float sw, float sh);

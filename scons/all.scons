@@ -10,6 +10,7 @@ clip3d.c
 clip3df.c
 colblend.c
 color.c
+convert.c
 config.c
 datafile.c
 dataregi.c
@@ -51,6 +52,7 @@ mixer.c
 modesel.c
 mousenu.c
 pcx.c
+pixels.c
 poly3d.c
 polygon.c
 quantize.c

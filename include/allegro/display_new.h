@@ -33,6 +33,7 @@ void al_flip_display(void);
 void al_flip_display_region(int x, int y,
 	int width, int height);
 AL_DISPLAY *al_get_current_display(void);
+bool al_is_compatible_bitmap(AL_BITMAP *bitmap);
 
 void _al_push_target_bitmap(void);
 void _al_pop_target_bitmap(void);
