@@ -50,7 +50,7 @@ struct AL_BITMAP_D3D
 	LPDIRECT3DTEXTURE9 video_texture;
 	LPDIRECT3DTEXTURE9 system_texture;
 
-	bool created;
+	bool initialized;
 	bool is_frontbuffer;
 	bool is_backbuffer;
 

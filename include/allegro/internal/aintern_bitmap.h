@@ -16,12 +16,22 @@ struct AL_BITMAP
    int flags;
    int w, h;
    AL_COLOR light_color;  /* color to tint to when drawing with AL_LIT */
+   /*
+    * Locking info.
+    *
+    * locked - locked or not?
+    * lock_x/y - top left of the locked region
+    * lock_w/h - width and height of the locked region
+    * lock_flags - flags the region was locked with
+    * locked_rectangle - a copy of the locked rectangle
+    */
    bool locked;
    int lock_x;
    int lock_y;
-   int lock_width;
-   int lock_height;
+   int lock_w;
+   int lock_h;
    int lock_flags;
+   AL_LOCKED_RECTANGLE locked_rectangle;
 
    /* A memory copy of the bitmap data. May be NULL for an empty bitmap. */
    unsigned char *memory;
@@ -122,5 +132,8 @@ void _al_convert_compat_bitmap(
 	void *dst, int dst_format, int dst_pitch,
 	int sx, int sy, int dx, int dy,
 	int width, int height);
+
+void _al_push_bitmap_parameters();
+void _al_pop_bitmap_parameters();
 
 #endif

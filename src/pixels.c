@@ -797,20 +797,37 @@ AL_COLOR *al_get_pixel(AL_BITMAP *bitmap,
 {
 	AL_LOCKED_RECTANGLE lr;
 
-	/* FIXME: must use clip not full bitmap */
-	if (x < 0 || y < 0 || x >= bitmap->w || y >= bitmap->h) {
-		memset(color, 0, sizeof(AL_COLOR));
-		return color;
+	if (bitmap->locked) {
+		x -= bitmap->lock_x;
+		y -= bitmap->lock_y;
+		if (x < 0 || y < 0 || x > bitmap->lock_w || y > bitmap->lock_h) {
+			TRACE("al_get_pixel out of bounds\n");
+			memset(color, 0, sizeof(AL_COLOR));
+			return color;
+		}
+
+		_al_get_pixel(bitmap,
+			bitmap->locked_rectangle.data+y*bitmap->locked_rectangle.pitch+x*_al_pixel_size(bitmap->format),
+			color);
 	}
+	else {
+		/* FIXME: must use clip not full bitmap */
+		if (x < 0 || y < 0 || x >= bitmap->w || y >= bitmap->h) {
+			memset(color, 0, sizeof(AL_COLOR));
+			return color;
+		}
 
-	if (!al_lock_bitmap_region(bitmap, x, y, 1, 1, &lr, AL_LOCK_READONLY))
-		return color;
-	
-	/* FIXME: check for valid pixel format */
+		if (!al_lock_bitmap_region(bitmap, x, y, 1, 1, &lr, AL_LOCK_READONLY)) {
+			memset(color, 0, sizeof(AL_COLOR));
+			return color;
+		}
+		
+		/* FIXME: check for valid pixel format */
 
-	_al_get_pixel(bitmap, lr.data, color);
+		_al_get_pixel(bitmap, lr.data, color);
 
-	al_unlock_bitmap(bitmap);
+		al_unlock_bitmap(bitmap);
+	}
 
 	return color;
 }
@@ -990,18 +1007,30 @@ void al_put_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color)
 	AL_LOCKED_RECTANGLE lr;
 
 	/* FIXME: must use clip not full bitmap */
-	if (x < 0 || y < 0 || x >= bitmap->w || y >= bitmap->h) {
-		return;
+	if (bitmap->locked) {
+		x -= bitmap->lock_x;
+		y -= bitmap->lock_y;
+		if (x < 0 || y < 0 || x > bitmap->lock_w || y > bitmap->lock_h) {
+			return;
+		}
+
+		_al_put_pixel(bitmap->locked_rectangle.data+y*bitmap->locked_rectangle.pitch+x*_al_pixel_size(bitmap->format),
+			bitmap->format, color);
 	}
+	else {
+		if (x < 0 || y < 0 || x >= bitmap->w || y >= bitmap->h) {
+			return;
+		}
 
-	if (!al_lock_bitmap_region(bitmap, x, y, 1, 1, &lr, 0))
-		return;
+		if (!al_lock_bitmap_region(bitmap, x, y, 1, 1, &lr, 0))
+			return;
 
-	/* FIXME: check for valid pixel format */
+		/* FIXME: check for valid pixel format */
 
-	_al_put_pixel(lr.data, bitmap->format, color);
+		_al_put_pixel(lr.data, bitmap->format, color);
 
-	al_unlock_bitmap(bitmap);
+		al_unlock_bitmap(bitmap);
+	}
 }
 
 
@@ -1172,13 +1201,13 @@ void _al_unmap_rgba(int format, AL_COLOR *color,
 	(*_unmap_rgba_funcs[format])(color, r, g, b, a);
 }
 
-void al_umap_rgba(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgba(AL_BITMAP *bitmap, AL_COLOR *color,
 	unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
 	_al_unmap_rgba(bitmap->format, color, r, g, b, a);
 }
 
-void al_umap_rgb(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgb(AL_BITMAP *bitmap, AL_COLOR *color,
 	unsigned char *r, unsigned char *g, unsigned char *b)
 {
 	unsigned char tmp_a;
@@ -1352,13 +1381,13 @@ void _al_unmap_rgba_f(int format, AL_COLOR *color,
 	(*_unmap_rgba_f_funcs[format])(color, r, g, b, a);
 }
 
-void al_umap_rgba_f(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgba_f(AL_BITMAP *bitmap, AL_COLOR *color,
 	float *r, float *g, float *b, float *a)
 {
 	_al_unmap_rgba_f(bitmap->format, color, r, g, b, a);
 }
 
-void al_umap_rgb_f(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgb_f(AL_BITMAP *bitmap, AL_COLOR *color,
 	float *r, float *g, float *b)
 {
 	float tmp_a;
@@ -1378,13 +1407,13 @@ void _al_unmap_rgba_i(int format, AL_COLOR *color,
 	*a = fa * INT_MAX;
 }
 
-void al_umap_rgba_i(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgba_i(AL_BITMAP *bitmap, AL_COLOR *color,
 	int *r, int *g, int *b, int *a)
 {
 	_al_unmap_rgba_i(bitmap->format, color, r, g, b, a);
 }
 
-void al_umap_rgb_i(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgb_i(AL_BITMAP *bitmap, AL_COLOR *color,
 	int *r, int *g, int *b)
 {
 	int tmp_a;

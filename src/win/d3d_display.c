@@ -1246,33 +1246,24 @@ AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
    int format;
    int flags;
 
-   if (_al_d3d_is_device_lost()) return NULL;
-   _al_d3d_lock_device();
-
    al_get_bitmap_parameters(&format, &flags);
 
    if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
-   	/* FIXME: use display format */
    	format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
    }
 
-   bitmap->bitmap.memory = _AL_MALLOC(w * h * _al_pixel_size(format));
    bitmap->bitmap.vt = _al_bitmap_d3d_driver();
-   bitmap->bitmap.w = w;
-   bitmap->bitmap.h = h;
+   bitmap->bitmap.memory = NULL;
    bitmap->bitmap.format = format;
    bitmap->bitmap.flags = flags;
-   bitmap->bitmap.display = d;
 
    bitmap->video_texture = 0;
    bitmap->system_texture = 0;
-   bitmap->created = false;
+   bitmap->initialized = false;
    bitmap->is_frontbuffer = false;
    bitmap->is_backbuffer = false;
    bitmap->xo = 0;
    bitmap->yo = 0;
-
-   _al_d3d_unlock_device();
 
    return &bitmap->bitmap;
 }
@@ -1326,6 +1317,8 @@ static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 		_al_d3d_set_ortho_projection(display->w, display->h);
 		_al_d3d_lock_device();
 		IDirect3DDevice9_BeginScene(_al_d3d_device);
+		d3d_target_display_before_device_lost = display;
+		d3d_target_bitmap_before_device_lost = bitmap;
 		_al_d3d_unlock_device();
 	}
 	else {
@@ -1344,18 +1337,21 @@ static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 		_al_d3d_set_ortho_projection(d3d_bmp->texture_w, d3d_bmp->texture_h);
 		_al_d3d_lock_device();
 		IDirect3DDevice9_BeginScene(_al_d3d_device);
+		d3d_target_display_before_device_lost = display;
+		d3d_target_bitmap_before_device_lost = bitmap;
 		_al_d3d_unlock_device();
 	}
 
-	d3d_target_display_before_device_lost = display;
-	d3d_target_bitmap_before_device_lost = bitmap;
 
 	d3d_reset_state();
 }
 
 static AL_BITMAP *d3d_get_backbuffer()
 {
+	d3d_backbuffer.bitmap.display = _al_current_display;
 	d3d_backbuffer.bitmap.format = _al_current_display->format;
+	d3d_backbuffer.bitmap.w = _al_current_display->w;
+	d3d_backbuffer.bitmap.h = _al_current_display->h;
 	return (AL_BITMAP *)&d3d_backbuffer;
 }
 
@@ -1388,8 +1384,8 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->get_backbuffer = d3d_get_backbuffer;
    vt->get_frontbuffer = d3d_get_frontbuffer;
 
-   d3d_backbuffer.bitmap.vt = (AL_BITMAP_INTERFACE *)vt;
-   d3d_frontbuffer.bitmap.vt = (AL_BITMAP_INTERFACE *)vt;
+   d3d_backbuffer.bitmap.vt = (AL_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
+   d3d_frontbuffer.bitmap.vt = (AL_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
 
    return vt;
 }

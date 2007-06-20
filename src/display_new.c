@@ -12,7 +12,8 @@ static int _display_refresh_rate = 0;
 static int _display_flags = 0;
 
 AL_DISPLAY *_al_current_display;
-AL_BITMAP *_al_target_bitmap;
+static AL_BITMAP *_target_bitmap;
+static AL_BITMAP *_target_bitmap_backup;
 
 
 // FIXME: The system driver must be used to get drivers!
@@ -119,7 +120,7 @@ AL_DISPLAY *al_get_current_display(void)
  */
 void al_set_target_bitmap(AL_BITMAP *bitmap)
 {
-	_al_target_bitmap = bitmap;
+	_target_bitmap = bitmap;
 	_al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
 }
 
@@ -128,7 +129,7 @@ void al_set_target_bitmap(AL_BITMAP *bitmap)
  */
 AL_BITMAP *al_get_target_bitmap(void)
 {
-	return _al_target_bitmap;
+	return _target_bitmap;
 }
 
 AL_BITMAP *al_get_backbuffer(void)
@@ -192,3 +193,13 @@ void al_draw_filled_rectangle(float tlx, float tly, float brx, float bry,
       tlx, tly, brx, bry, color);
 }
 
+void _al_push_target_bitmap(void)
+{
+	_target_bitmap_backup = _target_bitmap;
+}
+
+void _al_pop_target_bitmap(void)
+{
+	_target_bitmap = _target_bitmap_backup;
+	al_set_target_bitmap(_target_bitmap);
+}

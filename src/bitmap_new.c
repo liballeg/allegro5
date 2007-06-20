@@ -8,6 +8,11 @@
 
 static int _bitmap_format = 0;
 static int _bitmap_flags = 0;
+/* For pushing/popping bitmap parameters */
+static int _bitmap_format_backup;
+static int _bitmap_flags_backup;
+
+static AL_COLOR _mask_color = { { 0, 0, 0, 0 } };
 
 
 // FIXME: does not work if the areas overlap or anything is outside
@@ -61,6 +66,8 @@ static AL_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->flags = _bitmap_flags;
    bitmap->w = w;
    bitmap->h = h;
+   bitmap->display = NULL;
+   bitmap->locked = false;
    // FIXME: Of course, we do need to handle all the possible different formats,
    // this will easily fill up its own file of 1000 lines, but for now,
    // RGBA with 8-bit per component is hardcoded.
@@ -88,8 +95,12 @@ AL_BITMAP *al_create_bitmap(int w, int h)
 
    /* Else it's a display bitmap */
 
-   bitmap = _al_current_display->vt->create_bitmap(
-       _al_current_display, w, h);
+   bitmap = _al_current_display->vt->create_bitmap(_al_current_display, w, h);
+
+   bitmap->display = _al_current_display;
+   bitmap->w = w;
+   bitmap->h = h;
+   bitmap->locked = false;
 
    if (!bitmap->memory) {
    	bitmap->memory = _AL_MALLOC(w * h * _al_pixel_size(bitmap->format));
@@ -112,6 +123,9 @@ void al_destroy_bitmap(AL_BITMAP *bitmap)
    }
 
    /* Else it's a display bitmap */
+
+   if (bitmap->locked)
+      al_unlock_bitmap(bitmap);
 
    if (bitmap->vt)
       bitmap->vt->destroy_bitmap(bitmap);
@@ -275,11 +289,14 @@ AL_LOCKED_RECTANGLE *al_lock_bitmap_region(AL_BITMAP *bitmap,
 	AL_LOCKED_RECTANGLE *locked_rectangle,
 	int flags)
 {
+	if (bitmap->locked)
+		return NULL;
+
 	bitmap->locked = true;
 	bitmap->lock_x = x;
 	bitmap->lock_y = y;
-	bitmap->lock_width = width;
-	bitmap->lock_height = height;
+	bitmap->lock_w = width;
+	bitmap->lock_h = height;
 	bitmap->lock_flags = flags;
 
 	if (bitmap->flags & AL_MEMORY_BITMAP || bitmap->flags & AL_SYNC_MEMORY_COPY) {
@@ -293,6 +310,8 @@ AL_LOCKED_RECTANGLE *al_lock_bitmap_region(AL_BITMAP *bitmap,
 			locked_rectangle,
 			flags);
 	}
+
+	memcpy(&bitmap->locked_rectangle, locked_rectangle, sizeof(AL_LOCKED_RECTANGLE));
 
 	return locked_rectangle;
 }
@@ -311,12 +330,61 @@ void al_unlock_bitmap(AL_BITMAP *bitmap)
 		bitmap->vt->upload_bitmap(bitmap,
 			bitmap->lock_x,
 			bitmap->lock_y,
-			bitmap->lock_width,
-			bitmap->lock_height);
+			bitmap->lock_w,
+			bitmap->lock_h);
 	}
 	else if (!(bitmap->flags & AL_MEMORY_BITMAP)) {
 		bitmap->vt->unlock_region(bitmap);
 	}
 
 	bitmap->locked = false;
+}
+
+AL_COLOR *al_get_mask_color(AL_COLOR *color)
+{
+	memcpy(color, &_mask_color, sizeof(AL_COLOR));
+	return color;
+}
+
+void al_set_mask_color(AL_COLOR *color)
+{
+	memcpy(&_mask_color, color, sizeof(AL_COLOR));
+}
+
+void al_convert_mask_to_alpha(AL_BITMAP *bitmap, AL_COLOR *mask_color)
+{
+	AL_LOCKED_RECTANGLE lr;
+	int x, y;
+	AL_COLOR pixel;
+	AL_COLOR alpha_pixel;
+
+	if (!al_lock_bitmap(bitmap, &lr, 0)) {
+		TRACE("al_convert_mask_to_alpha: Couldn't lock bitmap.\n");
+		return;
+	}
+
+	al_map_rgba(bitmap, &alpha_pixel, 0, 0, 0, 0);
+
+	for (y = 0; y < bitmap->h; y++) {
+		for (x = 0; x < bitmap->w; x++) {
+			al_get_pixel(bitmap, x, y, &pixel);
+			if (memcmp(&pixel, mask_color, sizeof(AL_COLOR)) == 0) {
+				al_put_pixel(bitmap, x, y, &alpha_pixel);
+			}
+		}
+	}
+
+	al_unlock_bitmap(bitmap);
+}
+
+void _al_push_bitmap_parameters()
+{
+	_bitmap_format_backup = _bitmap_format;
+	_bitmap_flags_backup = _bitmap_flags;
+}
+
+void _al_pop_bitmap_parameters()
+{
+	_bitmap_format = _bitmap_format_backup;
+	_bitmap_flags = _bitmap_flags_backup;
 }

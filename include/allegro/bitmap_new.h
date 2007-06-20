@@ -46,7 +46,7 @@ enum ALLEGRO_PIXEL_FORMAT {
 #define AL_MEMORY_BITMAP     0x0001
 #define AL_SYNC_MEMORY_COPY  0x0002
 #define AL_NO_ALPHA          0x0004
-#define AL_HAS_ALPHA         0x0008
+#define AL_USE_ALPHA         0x0008
 
 /*
  * Locking flags
@@ -121,17 +121,21 @@ AL_COLOR *al_map_rgba_i(AL_BITMAP *bitmap, AL_COLOR *color,
 	int r, int g, int b, int a);
 
 /* Pixel unmapping */
-void al_umap_rgb(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgb(AL_BITMAP *bitmap, AL_COLOR *color,
 	unsigned char *r, unsigned char *g, unsigned char *b);
-void al_umap_rgba(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgba(AL_BITMAP *bitmap, AL_COLOR *color,
 	unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a);
-void al_umap_rgb_f(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgb_f(AL_BITMAP *bitmap, AL_COLOR *color,
 	float *r, float *g, float *b);
-void al_umap_rgba_f(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgba_f(AL_BITMAP *bitmap, AL_COLOR *color,
 	float *r, float *g, float *b, float *a);
-void al_umap_rgb_i(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgb_i(AL_BITMAP *bitmap, AL_COLOR *color,
 	int *r, int *g, int *b);
-void al_umap_rgba_i(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgba_i(AL_BITMAP *bitmap, AL_COLOR *color,
 	int *r, int *g, int *b, int *a);
+
+/* Masking */
+void al_set_mask_color(AL_COLOR *color);
+AL_COLOR *al_get_mask_color(AL_COLOR *color);
 
 #endif

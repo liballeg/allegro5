@@ -43,10 +43,10 @@ static void d3d_get_window_pos(HWND window, RECT *pos)
 HWND _al_d3d_create_hidden_window()
 {
 	HWND window = CreateWindowEx(0, 
-		"ALEX", wnd_title,0,
+		"ALEX", wnd_title, WS_POPUP,
 		-100, -100, 0, 0,
 		NULL,NULL,window_class.hInstance,0);
-	SetWindowPos(window, HWND_BOTTOM, 0, 0, 0, 0, SWP_HIDEWINDOW);
+	ShowWindow(_al_win_compat_wnd, SW_HIDE);
 	return window;
 }
 

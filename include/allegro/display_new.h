@@ -34,4 +34,7 @@ void al_flip_display_region(int x, int y,
 	int width, int height);
 AL_DISPLAY *al_get_current_display(void);
 
+void _al_push_target_bitmap(void);
+void _al_pop_target_bitmap(void);
+
 #endif
