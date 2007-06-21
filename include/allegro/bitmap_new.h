@@ -53,21 +53,21 @@ enum ALLEGRO_PIXEL_FORMAT {
  */
 #define AL_LOCK_READONLY 1
 
-typedef struct AL_LOCKED_RECTANGLE {
+typedef struct AL_LOCKED_REGION {
 	void *data;
 	int format;
 	int pitch;
-} AL_LOCKED_RECTANGLE;
+} AL_LOCKED_REGION;
 
 
-void al_set_bitmap_parameters(int format, int flags);
-void al_get_bitmap_parameters(int *format, int *flags);
+void al_set_new_bitmap_format(int format);
+void al_set_new_bitmap_flags(int flags);
+int al_get_new_bitmap_format(void);
+int al_get_new_bitmap_flags(void);
+
 AL_BITMAP *al_create_bitmap(int w, int h);
-//AL_BITMAP *al_create_memory_bitmap(int w, int h, int flags);
-//void al_destroy_memory_bitmap(AL_BITMAP *bitmap);
 AL_BITMAP *al_load_bitmap(char const *filename);
 void al_destroy_bitmap(AL_BITMAP *bitmap);
-//void al_draw_bitmap(int flag, AL_BITMAP *bitmap, float x, float y);
 
 /* Blitting */
 void al_draw_bitmap(AL_BITMAP *bitmap, float dx, float dy, int flags);
@@ -76,46 +76,20 @@ void al_draw_bitmap_region(AL_BITMAP *bitmap, float sx, float sy,
 void al_draw_scaled_bitmap(AL_BITMAP *bitmap, float sx, float sy,
 	float sw, float sh, float dx, float dy, float dw, float dh, int flags);
 void al_draw_rotated_bitmap(AL_BITMAP *bitmap, float cx, float cy,
-	float angle, float dx, float dy, int flags);
+	float dx, float dy, float angle, int flags);
 void al_draw_rotated_scaled_bitmap(AL_BITMAP *bitmap, float cx, float cy,
-	float angle, float dx, float dy, float xscale, float yscale,
+	float dx, float dy, float xscale, float yscale, float angle,
 	int flags);
 
-/*
-void al_draw_sub_bitmap(AL_BITMAP *bitmap, float x, float y,
-    float sx, float sy, float sw, float sh);
-void al_blit(int flag, AL_BITMAP *src, AL_BITMAP *dest,
-	float dx, float dy);
-void al_blit_region(int flag, AL_BITMAP *src, float sx, float sy,
-	AL_BITMAP *dest, float dx, float dy, float w, float h);
-void al_blit_scaled(int flag,
-	AL_BITMAP *src,	float sx, float sy, float sw, float sh,
-	AL_BITMAP *dest, float dx, float dy, float dw, float dh);
-void al_rotate_bitmap(int flag, AL_BITMAP *source,
-	float source_center_x, float source_center_y,
-	AL_BITMAP *dest, float dest_x, float dest_y,
-	float angle);
-void al_rotate_scaled(int flag, AL_BITMAP *source,
-	float source_center_x, float source_center_y,
-	AL_BITMAP *dest, float dest_x, float dest_y,
-	float xscale, float yscale,
-	float angle);
-void al_blit_region_3(int flag,
-	AL_BITMAP *source1, int source1_x, int source1_y,
-	AL_BITMAP *source2, int source2_x, int source2_y,
-	AL_BITMAP *dest, int dest_x, int dest_y,
-	int dest_w, int dest_h);
-void al_set_light_color(AL_BITMAP *bitmap, AL_COLOR *light_color);
-*/
-AL_LOCKED_RECTANGLE *al_lock_bitmap(AL_BITMAP *bitmap,
-	AL_LOCKED_RECTANGLE *locked_rectangle, int flags);
-AL_LOCKED_RECTANGLE *al_lock_bitmap_region(AL_BITMAP *bitmap,
+AL_LOCKED_REGION *al_lock_bitmap(AL_BITMAP *bitmap,
+	AL_LOCKED_REGION *locked_region, int flags);
+AL_LOCKED_REGION *al_lock_bitmap_region(AL_BITMAP *bitmap,
 	int x, int y, int width, int height,
-	AL_LOCKED_RECTANGLE *locked_rectangle,
+	AL_LOCKED_REGION *locked_region,
 	int flags);
 void al_unlock_bitmap(AL_BITMAP *bitmap);
 
-void al_put_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color);
+void al_put_pixel(int x, int y, AL_COLOR *color);
 AL_COLOR *al_get_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color);
 
 /* Pixel mapping */

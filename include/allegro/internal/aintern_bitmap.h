@@ -23,7 +23,7 @@ struct AL_BITMAP
     * lock_x/y - top left of the locked region
     * lock_w/h - width and height of the locked region
     * lock_flags - flags the region was locked with
-    * locked_rectangle - a copy of the locked rectangle
+    * locked_region - a copy of the locked rectangle
     */
    bool locked;
    int lock_x;
@@ -31,7 +31,7 @@ struct AL_BITMAP
    int lock_w;
    int lock_h;
    int lock_flags;
-   AL_LOCKED_RECTANGLE locked_rectangle;
+   AL_LOCKED_REGION locked_region;
 
    /* A memory copy of the bitmap data. May be NULL for an empty bitmap. */
    unsigned char *memory;
@@ -65,9 +65,9 @@ struct AL_BITMAP_INTERFACE
 
    void (*destroy_bitmap)(AL_BITMAP *bitmap);
 
-   AL_LOCKED_RECTANGLE * (*lock_region)(AL_BITMAP *bitmap,
+   AL_LOCKED_REGION * (*lock_region)(AL_BITMAP *bitmap,
    	int x, int y, int w, int h,
-   	AL_LOCKED_RECTANGLE *locked_rectangle,
+   	AL_LOCKED_REGION *locked_region,
 	int flags);
 
    void (*unlock_region)(AL_BITMAP *bitmap);
@@ -94,6 +94,7 @@ void _al_unmap_rgba_f(int format, AL_COLOR *color,
 void _al_unmap_rgba_i(int format, AL_COLOR *color,
 	int *r, int *g, int *b, int *a);
 
+/* Bitmap conversion */
 void _al_convert_bitmap_data(
 	void *src, int src_format, int src_pitch,
 	void *dst, int dst_format, int dst_pitch,
@@ -107,5 +108,12 @@ void _al_convert_compat_bitmap(
 
 void _al_push_bitmap_parameters();
 void _al_pop_bitmap_parameters();
+
+/* Memory bitmap blitting */
+void _al_draw_bitmap_region_memory(AL_BITMAP *bitmap,
+   int sx, int sy, int sw, int sh,
+   int dx, int dy, int flags);
+void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
+  int dx, int dy, int flags);
 
 #endif

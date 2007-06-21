@@ -14,33 +14,6 @@ static int _new_bitmap_flags_backup;
 
 static AL_COLOR _mask_color = { { 0, 0, 0, 0 } };
 
-
-// FIXME: does not work if the areas overlap or anything is outside
-void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,
-   int source_x, int source_y, int dest_x, int dest_y, int w, int h)
-{
-	_al_convert_bitmap_data(
-		source->memory,
-		source->format, _al_pixel_size(source->format)*source->w,
-		dest->memory,
-		dest->format, _al_pixel_size(dest->format)*dest->w,
-		source_x, source_y,
-		dest_x, dest_y,
-		w, h);
-	
-	/*
-   int y;
-   unsigned char *sptr = source->memory + (source_y * source->w + source_x) * 4;
-   unsigned char *dptr = dest->memory + (dest_y * dest->w + dest_x) * 4;
-   for (y = 0; y < h; y++)
-   {
-      memcpy(dptr, sptr, w * 4);
-      sptr += source->w * 4;
-      dptr += dest->w * 4;
-   }
-   */
-}
-
 void al_set_new_bitmap_format(int format)
 {
    _new_bitmap_format = format;
@@ -197,14 +170,26 @@ AL_BITMAP *al_load_bitmap(char const *filename)
 
 void al_draw_bitmap(AL_BITMAP *bitmap, float dx, float dy, int flags)
 {
-   if (al_is_compatible_bitmap(bitmap))
+   AL_BITMAP *dest = al_get_target_bitmap();
+
+   /* If one is a memory bitmap, do memory blit */
+   if ((bitmap->flags & AL_MEMORY_BITMAP) || (dest->flags & AL_MEMORY_BITMAP)) {
+      _al_draw_bitmap_memory(bitmap, dx, dy, flags);
+   }
+   else if (al_is_compatible_bitmap(bitmap))
       bitmap->vt->draw_bitmap(bitmap, dx, dy, flags);
 }
 
 void al_draw_bitmap_region(AL_BITMAP *bitmap, float sx, float sy,
 	float sw, float sh, float dx, float dy, int flags)
 {
-   if (al_is_compatible_bitmap(bitmap))
+   AL_BITMAP *dest = al_get_target_bitmap();
+
+   /* If one is a memory bitmap, do memory blit */
+   if ((bitmap->flags & AL_MEMORY_BITMAP) || (dest->flags & AL_MEMORY_BITMAP)) {
+      _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
+   }
+   else if (al_is_compatible_bitmap(bitmap))
       bitmap->vt->draw_bitmap_region(bitmap, sx, sy, sw, sh, dx, dy, flags);
 }
 
@@ -232,10 +217,10 @@ void al_draw_rotated_scaled_bitmap(AL_BITMAP *bitmap, float cx, float cy,
          dx, dy, xscale, yscale, angle, flags);
 }
 
-AL_LOCKED_RECTANGLE *al_lock_bitmap_region(AL_BITMAP *bitmap,
+AL_LOCKED_REGION *al_lock_bitmap_region(AL_BITMAP *bitmap,
 	int x, int y,
 	int width, int height,
-	AL_LOCKED_RECTANGLE *locked_rectangle,
+	AL_LOCKED_REGION *locked_region,
 	int flags)
 {
 	if (bitmap->locked)
@@ -249,28 +234,28 @@ AL_LOCKED_RECTANGLE *al_lock_bitmap_region(AL_BITMAP *bitmap,
 	bitmap->lock_flags = flags;
 
 	if (bitmap->flags & AL_MEMORY_BITMAP || bitmap->flags & AL_SYNC_MEMORY_COPY) {
-		locked_rectangle->data = bitmap->memory+(bitmap->w*y+x)*_al_pixel_size(bitmap->format);
-		locked_rectangle->format = bitmap->format;
-		locked_rectangle->pitch = bitmap->w*_al_pixel_size(bitmap->format);
+		locked_region->data = bitmap->memory+(bitmap->w*y+x)*_al_pixel_size(bitmap->format);
+		locked_region->format = bitmap->format;
+		locked_region->pitch = bitmap->w*_al_pixel_size(bitmap->format);
 	}
 	else {
-		locked_rectangle = bitmap->vt->lock_region(bitmap,
+		locked_region = bitmap->vt->lock_region(bitmap,
 			x, y, width, height,
-			locked_rectangle,
+			locked_region,
 			flags);
 	}
 
-	memcpy(&bitmap->locked_rectangle, locked_rectangle, sizeof(AL_LOCKED_RECTANGLE));
+	memcpy(&bitmap->locked_region, locked_region, sizeof(AL_LOCKED_REGION));
 
-	return locked_rectangle;
+	return locked_region;
 }
 
-AL_LOCKED_RECTANGLE *al_lock_bitmap(AL_BITMAP *bitmap,
-	AL_LOCKED_RECTANGLE *locked_rectangle,
+AL_LOCKED_REGION *al_lock_bitmap(AL_BITMAP *bitmap,
+	AL_LOCKED_REGION *locked_region,
 	int flags)
 {
 	return al_lock_bitmap_region(bitmap, 0, 0, bitmap->w, bitmap->h,
-		locked_rectangle, flags);
+		locked_region, flags);
 }
 
 void al_unlock_bitmap(AL_BITMAP *bitmap)
@@ -302,7 +287,7 @@ void al_set_mask_color(AL_COLOR *color)
 
 void al_convert_mask_to_alpha(AL_BITMAP *bitmap, AL_COLOR *mask_color)
 {
-	AL_LOCKED_RECTANGLE lr;
+	AL_LOCKED_REGION lr;
 	int x, y;
 	AL_COLOR pixel;
 	AL_COLOR alpha_pixel;
@@ -319,9 +304,9 @@ void al_convert_mask_to_alpha(AL_BITMAP *bitmap, AL_COLOR *mask_color)
 
 	for (y = 0; y < bitmap->h; y++) {
 		for (x = 0; x < bitmap->w; x++) {
-			al_get_pixel(x, y, &pixel);
+			al_get_pixel(bitmap, x, y, &pixel);
 			if (memcmp(&pixel, mask_color, sizeof(AL_COLOR)) == 0) {
-				al_put_pixel(&alpha_pixel, x, y);
+				al_put_pixel(x, y, &alpha_pixel);
 			}
 		}
 	}

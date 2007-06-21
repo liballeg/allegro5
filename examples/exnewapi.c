@@ -28,6 +28,7 @@ int main(void)
    int w = 640, h = 480;
    AL_BITMAP *picture;
    AL_BITMAP *mask;
+   AL_BITMAP *mem_bmp;
    AL_COLOR colors[3];
    AL_COLOR white;
    int i;
@@ -38,13 +39,15 @@ int main(void)
 
    events = al_create_event_queue();
 
-   al_set_display_parameters(ALLEGRO_PIXEL_FORMAT_RGB_565, 0, AL_WINDOWED|AL_RESIZABLE);
+   al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
+   al_set_new_display_flags(AL_WINDOWED|AL_RESIZABLE);
 
    /* Create three windows. */
    display[0] = al_create_display(w, h);
    display[1] = al_create_display(w, h);
 
-   al_set_display_parameters(ALLEGRO_PIXEL_FORMAT_ARGB_8888, 0, AL_WINDOWED);
+   al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+   al_set_new_display_flags(AL_WINDOWED);
 
    display[2] = al_create_display(w, h);
 
@@ -60,17 +63,25 @@ int main(void)
     */
    al_set_current_display(display[2]);
 
-   al_set_bitmap_parameters(ALLEGRO_PIXEL_FORMAT_ARGB_8888, AL_SYNC_MEMORY_COPY|AL_USE_ALPHA);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+   al_set_new_bitmap_flags(AL_SYNC_MEMORY_COPY|AL_USE_ALPHA);
+
    picture = al_load_bitmap("mysha.tga");
-   al_set_bitmap_parameters(ALLEGRO_PIXEL_FORMAT_ARGB_4444, AL_SYNC_MEMORY_COPY|AL_USE_ALPHA);
+
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_4444);
    mask = al_load_bitmap("mask.pcx");
+   
+   al_set_new_bitmap_flags(AL_MEMORY_BITMAP);
+   mem_bmp = al_load_bitmap("mysha.pcx");
+
 
    AL_COLOR color;
-   AL_LOCKED_RECTANGLE lr;
+   AL_LOCKED_REGION lr;
    al_lock_bitmap(picture, &lr, 0);
+   al_set_target_bitmap(picture);
    for (y = 0; y < 100; y++) {
 	for (x = 0; x < 160; x++) {
-		al_put_pixel(picture, x+160, y+100, al_get_pixel(picture, x, y, &color));
+		al_put_pixel(x+160, y+100, al_get_pixel(picture, x, y, &color)) ;
 	}
    }
    al_unlock_bitmap(picture);
@@ -80,12 +91,12 @@ int main(void)
 
    start_ticks = al_current_time();
 
-   //al_set_mask_color(al_map_rgb(picture, &colors[0], 255, 0, 255));
+   al_set_mask_color(al_map_rgb(picture, &colors[0], 255, 0, 255));
    //al_set_target_bitmap(mask);
    //al_draw_bitmap(picture, 0, 0, AL_MASK_SOURCE);
-   al_set_target_bitmap(mask);
+   //al_set_target_bitmap(mask);
    al_convert_mask_to_alpha(picture, al_map_rgb(picture, &colors[0], 255, 0, 255));
-   al_draw_bitmap(picture, 0, 0, 0);
+   //al_draw_bitmap(picture, 0, 0, 0);
 
    for (i = 0; i < 3; i++) {
    	al_set_current_display(display[i]);
@@ -155,26 +166,11 @@ int main(void)
 	    	al_draw_scaled_bitmap(picture, 0, 0, picture->w, picture->h,
 			0, 0, 640, 480, 0);
 		al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
-		al_draw_rotated_scaled_bitmap(picture, 160, 100, M_PI/4, 320, 240, 1.5f, 1.5f, 0);
-		al_draw_rotated_bitmap(picture, 160, 100, M_PI/4, 320, 240, 0);
-	    	/*
-	    	AL_COLOR mask_color;
-		al_map_rgb(mask, &mask_color, 255, 0, 255);
-		al_set_mask_color(&mask_color);
-		al_draw_bitmap(mask, 0, 0, 0);
-		al_draw_bitmap(picture, 0, 200, 0);
-	    	AL_LOCKED_RECTANGLE lr;
-		AL_BITMAP *backbuffer = al_get_backbuffer();
-		int x, y;
-		AL_COLOR color;
-		al_lock_bitmap(backbuffer, &lr, 0);
-		for (y = 0; y < 200; y++) {
-			for (x = 0; x < 320; x++) {
-				al_put_pixel(backbuffer, x+320, y+200, al_get_pixel(backbuffer, x, y, &color));
-			}
-		}
-		al_unlock_bitmap(backbuffer);
-		*/
+		al_draw_rotated_scaled_bitmap(picture, 160, 100, 320, 240, 1.5f, 1.5f, M_PI/4, 0);
+		al_draw_rotated_bitmap(picture, 160, 100, 320, 240, M_PI/4, 0);
+		//al_draw_bitmap_region(al_get_backbuffer(), 0, 0, 320, 240, 320, 240, 0);
+		//al_draw_rotated_bitmap(al_get_backbuffer(), 320, 240, 320, 240, M_PI/8, 0);
+		al_draw_bitmap_region(mem_bmp, 50, 50, 100, 100, 200, 200, 0);
 	    }
             al_draw_filled_rectangle(x, y, x + 40, y + 40, &colors[i]);
             al_flip_display();

@@ -14,8 +14,13 @@
 #define AL_RESIZABLE    16
 #define AL_SINGLEBUFFER 32
 
-void al_set_display_parameters(int format, int refresh_rate, int flags);
-void al_get_display_parameters(int *format, int *refresh_rate, int *flags);
+void al_set_new_display_format(int format);
+void al_set_new_display_refresh_rate(int refresh_rate);
+void al_set_new_display_flags(int flags);
+int al_get_new_display_format(void);
+int al_get_new_display_refresh_rate(void);
+int al_get_new_display_flags(void);
+
 AL_DISPLAY *al_create_display(int w, int h);
 void al_destroy_display(AL_DISPLAY *display);
 void al_set_current_display(AL_DISPLAY *display);

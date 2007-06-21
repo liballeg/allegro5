@@ -652,9 +652,9 @@
 
 #define AL_CONVERT_PALETTE_8_TO_ARGB_4444(p) \
 	(0xF000 | \
-		((getr8(p) & 0xF0) << 12) | \
-		(getg8(p) & 0xF0) | \
-		((getb8(p) & 0xF0) >> 4))
+		(((getr8(p) & 0xF0) << 4) | \
+		  (getg8(p) & 0xF0) | \
+		  (getb8(p) & 0xF0) >> 4))
 
 #define AL_CONVERT_PALETTE_8_TO_RGB_888(p) \
 	((getr8(p) << 16) | \
@@ -1884,6 +1884,8 @@ void _al_convert_compat_bitmap(
 			TRACE("src has unsupported pixel format in _al_convert_compat_bitmap.\n");
 			return;
 	}
+
+	printf("src_format = %d\n", src_format);
 
 	(*convert_funcs[src_format][dst_format])(src->dat,
 		src_format, _al_pixel_size(src_format)*src->w,

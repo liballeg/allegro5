@@ -20,7 +20,7 @@ struct AL_DISPLAY_INTERFACE
    void (*draw_filled_rectangle)(AL_DISPLAY *d, float fx, float fy, float tx,
     float ty, AL_COLOR *color);
    void (*flip_display)(AL_DISPLAY *d);
-   void (*flip_display_region)(AL_DISPLAY *d, int x, int y,
+   bool (*update_display_region)(AL_DISPLAY *d, int x, int y,
    	int width, int height);
    void (*notify_resize)(AL_DISPLAY *d);
 

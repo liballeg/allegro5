@@ -27,7 +27,7 @@ static AL_BITMAP *_al_d3d_create_masked_bitmap(AL_BITMAP *original)
 {
 	AL_BITMAP *masked_bmp;
 	AL_COLOR mask_color;
-	AL_LOCKED_RECTANGLE lr;
+	AL_LOCKED_REGION lr;
 	int x, y;
 	AL_COLOR pixel;
 	AL_COLOR alpha_pixel;
@@ -59,16 +59,16 @@ static AL_BITMAP *_al_d3d_create_masked_bitmap(AL_BITMAP *original)
 
 	for (y = 0; y < masked_bmp->h; y++) {
 		for (x = 0; x < masked_bmp->w; x++) {
-			al_get_pixel(x, y, &pixel);
+			al_get_pixel(masked_bmp, x, y, &pixel);
 			if (memcmp(&pixel, &mask_color, sizeof(AL_COLOR)) == 0) {
-				al_put_pixel(&alpha_pixel, x, y);
+				al_put_pixel(x, y, &alpha_pixel);
 			}
 			else if (!(original->flags & AL_USE_ALPHA)) {
 				al_unmap_rgba(masked_bmp, &pixel, &r, &g, &b, &a);
 				if (a < 255) {
 					a = 255;
 					al_map_rgba(masked_bmp, &pixel, r, g, b, a);
-					al_put_pixel(&pixel, x, y);
+					al_put_pixel(x, y, &pixel);
 				}
 			}
 		}
@@ -753,8 +753,8 @@ static void d3d_destroy_bitmap(AL_BITMAP *bitmap)
    _al_d3d_delete_from_vector(&created_bitmaps, d3d_bmp);
 }
 
-static AL_LOCKED_RECTANGLE *d3d_lock_region(AL_BITMAP *bitmap,
-	int x, int y, int w, int h, AL_LOCKED_RECTANGLE *locked_rectangle,
+static AL_LOCKED_REGION *d3d_lock_region(AL_BITMAP *bitmap,
+	int x, int y, int w, int h, AL_LOCKED_REGION *locked_region,
 	int flags)
 {
 	AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap;
@@ -781,11 +781,11 @@ static AL_LOCKED_RECTANGLE *d3d_lock_region(AL_BITMAP *bitmap,
 		}
 	}
 
-	locked_rectangle->data = d3d_bmp->locked_rect.pBits;
-	locked_rectangle->format = bitmap->format;
-	locked_rectangle->pitch = d3d_bmp->locked_rect.Pitch;
+	locked_region->data = d3d_bmp->locked_rect.pBits;
+	locked_region->format = bitmap->format;
+	locked_region->pitch = d3d_bmp->locked_rect.Pitch;
 
-	return locked_rectangle;
+	return locked_region;
 }
 
 static void d3d_unlock_region(AL_BITMAP *bitmap)

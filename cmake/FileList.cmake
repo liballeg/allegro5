@@ -44,6 +44,7 @@ set(ALLEGRO_SRC_FILES
     src/lzss.c
     src/math.c
     src/math3d.c
+    src/memblit.c
     src/memory.c
     src/midi.c
     src/mixer.c
