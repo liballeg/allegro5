@@ -11,6 +11,7 @@
  *      Bitmap stretching functions.
  *
  *      By Michael Bukin.
+ *      Fixed and improved in 2007 by Trent Gamblin.
  *
  *      See readme.txt for copyright information.
  */
@@ -20,35 +21,53 @@
 
 
 
-/* Information for stretching line (saved state of Bresenham line algorithm).  */
-static struct
-{
-   int i1, i2;
-   int dd, dw;
-   int sinc;
+/* Information for stretching line */
+static struct {
+   int xcstart; /* x counter start */
+   int sxinc; /* amount to increment src x every time */
+   int xcdec; /* amount to deccrement counter by, increase sptr when this reaches 0 */
+   int xcinc; /* amount to increment counter by when it reaches 0 */
+   int linesize; /* size of a whole row of pixels */
 } _al_stretch;
 
 
-/*
- * Line stretchers.
- */
-#define DECLARE_STRETCHER(type, size, set, get)                           \
-int dd = _al_stretch.dd;                                                  \
-type *s = (type*) sptr;                                                   \
-uintptr_t d = dptr;							  \
-uintptr_t dend = d + _al_stretch.dw;					  \
-ASSERT(s);                                                                \
-ASSERT(d);                                                                \
-for (; d < dend; d += (size), s = (type *)                                \
-   ((unsigned char*)s + _al_stretch.sinc)) {                              \
-   set(d, get(s));                                                        \
-   if (dd >= 0) {                                                         \
-      s = (type *) ((unsigned char*)s + (size));                          \
-      dd += _al_stretch.i2;                                               \
-   }                                                                      \
-   else                                                                   \
-      dd += _al_stretch.i1;                                               \
-}
+
+/* Stretcher macros */
+#define DECLARE_STRETCHER(type, size, put, get) \
+   int xc = _al_stretch.xcstart; \
+   uintptr_t dend = dptr + _al_stretch.linesize; \
+   ASSERT(dptr); \
+   ASSERT(sptr); \
+   for (; dptr < dend; dptr += size, sptr += _al_stretch.sxinc) { \
+      put(dptr, get((type*)sptr)); \
+      if (xc <= 0) { \
+	 sptr += size; \
+	 xc += _al_stretch.xcinc; \
+      } \
+      else \
+	 xc -= _al_stretch.xcdec; \
+   }
+
+
+
+#define DECLARE_MASKED_STRETCHER(type, size, put, get, mask) \
+   int xc = _al_stretch.xcstart; \
+   uintptr_t dend = dptr + _al_stretch.linesize; \
+   ASSERT(dptr); \
+   ASSERT(sptr); \
+   for (; dptr < dend; dptr += size, sptr += _al_stretch.sxinc) { \
+      int color = get((type*)sptr); \
+      if (color != mask) \
+	 put(dptr, get((type*)sptr)); \
+      if (xc <= 0) { \
+	 sptr += size; \
+	 xc += _al_stretch.xcinc; \
+      } \
+      else \
+	 xc -= _al_stretch.xcdec; \
+   }
+
+
 
 #ifdef GFX_HAS_VGA
 /*
@@ -57,202 +76,186 @@ for (; d < dend; d += (size), s = (type *)                                \
 static void stretch_linex(uintptr_t dptr, unsigned char *sptr)
 {
    int plane;
-   int dw = _al_stretch.dw;
-   int first_dd = _al_stretch.dd;
+   int first_xc = _al_stretch.xcstart;
+   int dw = _al_stretch.linesize;
 
    ASSERT(dptr);
    ASSERT(sptr);
 
    for (plane = 0; plane < 4; plane++) {
-      int dd = first_dd;
+      int xc = first_xc;
       unsigned char *s = sptr;
       uintptr_t d = dptr / 4;
       uintptr_t dend = (dptr + dw) / 4;
 
       outportw(0x3C4, (0x100 << (dptr & 3)) | 2);
-      for (; d < dend; d++, s += 4 * _al_stretch.sinc) {
+
+      for (; d < dend; d++, s += 4 * _al_stretch.sxinc) {
 	 bmp_write8(d, *s);
-	 if (dd >= 0) s++, dd += _al_stretch.i2;
-	 else dd += _al_stretch.i1;
-	 if (dd >= 0) s++, dd += _al_stretch.i2;
-	 else dd += _al_stretch.i1;
-	 if (dd >= 0) s++, dd += _al_stretch.i2;
-	 else dd += _al_stretch.i1;
-	 if (dd >= 0) s++, dd += _al_stretch.i2;
-	 else dd += _al_stretch.i1;
+	 if (xc <= 0) s++, xc += _al_stretch.xcinc;
+	 else xc -= _al_stretch.xcdec;
+	 if (xc <= 0) s++, xc += _al_stretch.xcinc;
+	 else xc -= _al_stretch.xcdec;
+	 if (xc <= 0) s++, xc += _al_stretch.xcinc;
+	 else xc -= _al_stretch.xcdec;
+	 if (xc <= 0) s++, xc += _al_stretch.xcinc;
+	 else xc -= _al_stretch.xcdec;
       }
 
       /* Move to the beginning of next plane.  */
-      if (first_dd >= 0)
-	 sptr++, first_dd += _al_stretch.i2;
+      if (first_xc <= 0) {
+	  sptr++;
+	  first_xc += _al_stretch.xcinc;
+      }
       else
-	 first_dd += _al_stretch.i1;
+	 first_xc -= _al_stretch.xcdec;
+
       dptr++;
-      sptr += _al_stretch.sinc;
+      sptr += _al_stretch.sxinc;
       dw--;
    }
 }
-#endif
 
-#ifdef ALLEGRO_COLOR8
-static void stretch_line8(uintptr_t dptr, unsigned char *sptr)
-{
-   DECLARE_STRETCHER(unsigned char, 1, bmp_write8, *);
-}
-#endif
-
-#ifdef ALLEGRO_COLOR16
-static void stretch_line15(uintptr_t dptr, unsigned char *sptr)
-{
-   DECLARE_STRETCHER(unsigned short, sizeof(unsigned short), bmp_write15, *);
-}
-
-static void stretch_line16(uintptr_t dptr, unsigned char *sptr)
-{
-   DECLARE_STRETCHER(unsigned short, sizeof(unsigned short), bmp_write16, *);
-}
-#endif
-
-#ifdef ALLEGRO_COLOR24
-
-static void stretch_line24(uintptr_t dptr, unsigned char *sptr)
-{
-   DECLARE_STRETCHER(unsigned char, 3, bmp_write24, READ3BYTES);
-}
-#endif
-
-#ifdef ALLEGRO_COLOR32
-static void stretch_line32(uintptr_t dptr, unsigned char *sptr)
-{
-   DECLARE_STRETCHER(uint32_t, sizeof(uint32_t), bmp_write32, *);
-}
-#endif
-
-
-
-/*
- * Masked line stretchers.
- */
-#define DECLARE_MASKED_STRETCHER(type, size, set, get, mask)              \
-int dd = _al_stretch.dd;                                                  \
-type *s = (type*) sptr;                                                   \
-uintptr_t d = dptr;                                                   \
-uintptr_t dend = d + _al_stretch.dw;                                  \
-ASSERT(s);                                                                \
-ASSERT(d);                                                                \
-for (; d < dend; d += (size), s = (type*)                                 \
-      ((unsigned char*)s + _al_stretch.sinc)) {                           \
-   unsigned long color = get(s);                                          \
-   if (color != (mask))                                                   \
-   set(d, color);                                                         \
-   if (dd >= 0) {                                                         \
-      s = (type *) ((unsigned char*)s + (size));                          \
-      dd += _al_stretch.i2;                                               \
-   }                                                                      \
-   else                                                                   \
-      dd += _al_stretch.i1;                                               \
-}
-
-#ifdef GFX_HAS_VGA
 /*
  * Mode-X masked line stretcher.
  */
 static void stretch_masked_linex(uintptr_t dptr, unsigned char *sptr)
 {
    int plane;
-   int dw = _al_stretch.dw;
-   int first_dd = _al_stretch.dd;
+   int dw = _al_stretch.linesize;
+   int first_xc = _al_stretch.xcstart;
 
    ASSERT(dptr);
    ASSERT(sptr);
 
    for (plane = 0; plane < 4; plane++) {
-      int dd = first_dd;
+      int xc = first_xc;
       unsigned char *s = sptr;
       uintptr_t d = dptr / 4;
       uintptr_t dend = (dptr + dw) / 4;
 
       outportw(0x3C4, (0x100 << (dptr & 3)) | 2);
-      for (; d < dend; d++, s += 4 * _al_stretch.sinc) {
+
+      for (; d < dend; d++, s += 4 * _al_stretch.sxinc) {
 	 unsigned long color = *s;
 	 if (color != 0)
 	    bmp_write8(d, color);
-	 if (dd >= 0) s++, dd += _al_stretch.i2;
-	 else dd += _al_stretch.i1;
-	 if (dd >= 0) s++, dd += _al_stretch.i2;
-	 else dd += _al_stretch.i1;
-	 if (dd >= 0) s++, dd += _al_stretch.i2;
-	 else dd += _al_stretch.i1;
-	 if (dd >= 0) s++, dd += _al_stretch.i2;
-	 else dd += _al_stretch.i1;
+	 if (xc <= 0) s++, xc += _al_stretch.xcinc;
+	 else xc -= _al_stretch.xcdec;
+	 if (xc <= 0) s++, xc += _al_stretch.xcinc;
+	 else xc -= _al_stretch.xcdec;
+	 if (xc <= 0) s++, xc += _al_stretch.xcinc;
+	 else xc -= _al_stretch.xcdec;
+	 if (xc <= 0) s++, xc += _al_stretch.xcinc;
+	 else xc -= _al_stretch.xcdec;
       }
 
       /* Move to the beginning of next plane.  */
-      if (first_dd >= 0)
-	 sptr++, first_dd += _al_stretch.i2;
+      if (first_xc <= 0) {
+	 sptr++;
+	 first_xc += _al_stretch.xcinc;
+      }
       else
-	 first_dd += _al_stretch.i1;
+	 first_xc -= _al_stretch.xcdec;
+
       dptr++;
-      sptr += _al_stretch.sinc;
+      sptr += _al_stretch.sxinc;
       dw--;
    }
 }
 #endif
 
+
+
 #ifdef ALLEGRO_COLOR8
+static void stretch_line8(uintptr_t dptr, unsigned char *sptr)
+{
+   DECLARE_STRETCHER(unsigned char, 1, bmp_write8, *);
+}
+
 static void stretch_masked_line8(uintptr_t dptr, unsigned char *sptr)
 {
    DECLARE_MASKED_STRETCHER(unsigned char, 1, bmp_write8, *, 0);
 }
 #endif
 
+
+
 #ifdef ALLEGRO_COLOR16
-static void stretch_masked_line15(uintptr_t dptr, unsigned char *sptr)
+static void stretch_line15(uintptr_t dptr, unsigned char* sptr)
 {
-   DECLARE_MASKED_STRETCHER(unsigned short, sizeof(unsigned short),
-			    bmp_write15, *, MASK_COLOR_15);
+   DECLARE_STRETCHER(unsigned short, 2, bmp_write15, *);
 }
 
-static void stretch_masked_line16(uintptr_t dptr, unsigned char *sptr)
+static void stretch_line16(uintptr_t dptr, unsigned char* sptr)
 {
-   DECLARE_MASKED_STRETCHER(unsigned short, sizeof(unsigned short),
-			    bmp_write16, *, MASK_COLOR_16);
+   DECLARE_STRETCHER(unsigned short, 2, bmp_write16, *);
+}
+
+static void stretch_masked_line15(uintptr_t dptr, unsigned char* sptr)
+{
+   DECLARE_MASKED_STRETCHER(unsigned short, 2, bmp_write15, *, MASK_COLOR_15);
+}
+
+static void stretch_masked_line16(uintptr_t dptr, unsigned char* sptr)
+{
+   DECLARE_MASKED_STRETCHER(unsigned short, 2, bmp_write16, *, MASK_COLOR_16);
 }
 #endif
 
+
+
 #ifdef ALLEGRO_COLOR24
-static void stretch_masked_line24(uintptr_t dptr, unsigned char *sptr)
+static void stretch_line24(uintptr_t dptr, unsigned char* sptr)
+{
+   DECLARE_STRETCHER(unsigned char, 3, bmp_write24, READ3BYTES);
+}
+
+static void stretch_masked_line24(uintptr_t dptr, unsigned char* sptr)
 {
    DECLARE_MASKED_STRETCHER(unsigned char, 3, bmp_write24, READ3BYTES, MASK_COLOR_24);
 }
 #endif
 
+
+
 #ifdef ALLEGRO_COLOR32
-static void stretch_masked_line32(uintptr_t dptr, unsigned char *sptr)
+static void stretch_line32(uintptr_t dptr, unsigned char* sptr)
 {
-   DECLARE_MASKED_STRETCHER(uint32_t, sizeof(uint32_t), bmp_write32, *, MASK_COLOR_32);
+   DECLARE_STRETCHER(uint32_t, 4, bmp_write32, *);
+}
+
+static void stretch_masked_line32(uintptr_t dptr, unsigned char* sptr)
+{
+   DECLARE_MASKED_STRETCHER(uint32_t, 4, bmp_write32, *, MASK_COLOR_32);
 }
 #endif
 
 
-/* al_blit_scaled:
- *  Bitmap scaling function.
+
+/*
+ * Stretch blit work-horse.
  */
-void al_compat_blit_scaled(int method, BITMAP *src, int sx, int sy, int sw, int sh,
+void al_blit_scaled(int method, BITMAP *src, int sx, int sy, int sw, int sh,
                                BITMAP *dst, int dx, int dy, int dw, int dh)
 {
-   int x, y, fixup;
-   int i1, i2, dd;
-   int xinc, yinc;
-   int dxbeg, dxend;
+   int y; /* current dst y */
+   int yc; /* y counter */
+   int sxofs, dxofs; /* start offsets */
+   int syinc; /* amount to increment src y each time */
+   int ycdec; /* amount to deccrement counter by, increase sy when this reaches 0 */
+   int ycinc; /* amount to increment counter by when it reaches 0 */
+   int size = 0; /* pixel size */
+   int dxbeg, dxend; /* clipping information */
    int dybeg, dyend;
-   int sxofs, dxofs;
-   void (*stretch_line)(uintptr_t dptr, unsigned char *sptr);
-   int masked;
+   int i;
+   bool masked;
+
+   void (*stretch_line)(uintptr_t, unsigned char*) = 0;
 
    ASSERT(src);
    ASSERT(dst);
-   
+
    masked = (method&AL_MASK_SOURCE) == AL_MASK_SOURCE;
 
    /* vtable hook; not called if dest is a memory surface */   
@@ -263,6 +266,84 @@ void al_compat_blit_scaled(int method, BITMAP *src, int sx, int sy, int sw, int 
 
    if ((sw <= 0) || (sh <= 0) || (dw <= 0) || (dh <= 0))
       return;
+
+   /* Find out which stretcher should be used */
+   if (masked) {
+      switch (bitmap_color_depth(dst)) {
+#ifdef ALLEGRO_COLOR8
+	 case 8:
+	    if (is_linear_bitmap(dst))
+	       stretch_line = stretch_masked_line8;
+#ifdef GFX_HAS_VGA
+	    else
+	       stretch_line = stretch_masked_linex;
+#endif
+	    size = 1;
+	    break;
+#endif
+#ifdef ALLEGRO_COLOR16
+	 case 15:
+	    stretch_line = stretch_masked_line15;
+	    size = 2;
+	    break;
+	 case 16:
+	    stretch_line = stretch_masked_line16;
+	    size = 2;
+	    break;
+#endif
+#ifdef ALLEGRO_COLOR24
+	 case 24:
+	    stretch_line = stretch_masked_line24;
+	    size = 3;
+	    break;
+#endif
+#ifdef ALLEGRO_COLOR32
+	 case 32:
+	    stretch_line = stretch_masked_line32;
+	    size = 4;
+	    break;
+#endif
+      }
+   }
+   else {
+      switch (bitmap_color_depth(dst)) {
+#ifdef ALLEGRO_COLOR8
+	 case 8:
+	    if (is_linear_bitmap(dst))
+	       stretch_line = stretch_line8;
+#ifdef GFX_HAS_VGA
+	    else
+	       stretch_line = stretch_linex;
+#endif
+	    size = 1;
+	    break;
+#endif
+#ifdef ALLEGRO_COLOR16
+	 case 15:
+	    stretch_line = stretch_line15;
+	    size = 2;
+	    break;
+	 case 16:
+	    stretch_line = stretch_line16;
+	    size = 2;
+	    break;
+#endif
+#ifdef ALLEGRO_COLOR24
+	 case 24:
+	    stretch_line = stretch_line24;
+	    size = 3;
+	    break;
+#endif
+#ifdef ALLEGRO_COLOR32
+	 case 32:
+	    stretch_line = stretch_line32;
+	    size = 4;
+	    break;
+#endif
+      }
+   }
+
+   ASSERT(stretch_line);
 
    if (dst->clip) {
       dybeg = ((dy > dst->ct) ? dy : dst->ct);
@@ -282,155 +363,54 @@ void al_compat_blit_scaled(int method, BITMAP *src, int sx, int sy, int sw, int 
       dyend = dy + dh;
    }
 
-   /* Bresenham algorithm uses difference between points, not number of points.  */
-   sw--;
-   sh--;
-   dw--;
-   dh--;
+   syinc = sh / dh;
+   ycdec = sh - (syinc*dh);
+   ycinc = dh - ycdec;
+   yc = ycinc;
+   sxofs = sx * size;
+   dxofs = dx * size;
 
-   /* How much to add to src-coordinates, when moving to the next dst-coordinate.  */
-   if (dw == 0)
-      xinc = 0;
-   else {
-      xinc = sw / dw;
-      sw %= dw;
-   }
+   _al_stretch.sxinc = sw / dw * size;
+   _al_stretch.xcdec = sw - ((sw/dw)*dw);
+   _al_stretch.xcinc = dw - _al_stretch.xcdec;
+   _al_stretch.linesize = (dxend-dxbeg)*size;
 
-   if (dh == 0)
-      yinc = 0;
-   else {
-      yinc = sh / dh;
-      sh %= dh;
-   }
-
-   /* Walk in x direction until dxbeg and save Bresenham state there.  */
-   i2 = (dd = (i1 = 2 * sw) - dw) - dw;
-   for (x = dx, y = sx; x < dxbeg; x++, y += xinc) {
-      if (dd >= 0)
-	 y++, dd += i2;
-      else
-	 dd += i1;
-   }
-
-   /* Save Bresenham algorithm state with offset fixups.  */
-   switch (bitmap_color_depth(dst)) {
-      case 15:
-      case 16:
-	 fixup = sizeof(uint16_t);
-	 break;
-      case 24:
-	 fixup = 3;
-	 break;
-      case 32:
-	 fixup = sizeof(uint32_t);
-	 break;
-      default:
-	 fixup = 1;
-	 break;
-   }
-   sxofs = y * fixup;
-   dxofs = x * fixup;
-   _al_stretch.i1 = i1;
-   _al_stretch.i2 = i2;
-   _al_stretch.dd = dd;
-   _al_stretch.dw = (dxend - dxbeg) * fixup;
-   _al_stretch.sinc = xinc * fixup;
-
-   /* Find out which stretcher should be used.  */
-   if (masked) {
-      switch (bitmap_color_depth(dst)) {
-#ifdef ALLEGRO_COLOR8
-	 case 8:
-	    if (is_linear_bitmap(dst))
-	       stretch_line = stretch_masked_line8;
-	    else {
-#ifdef GFX_HAS_VGA
-	       stretch_line = stretch_masked_linex;
-#else
-	       return;
-#endif
-	    }
-	    break;
-#endif
-#ifdef ALLEGRO_COLOR16
-	 case 15:
-	    stretch_line = stretch_masked_line15;
-	    break;
-	 case 16:
-	    stretch_line = stretch_masked_line16;
-	    break;
-#endif
-#ifdef ALLEGRO_COLOR24
-	 case 24:
-	    stretch_line = stretch_masked_line24;
-	    break;
-#endif
-#ifdef ALLEGRO_COLOR32
-	 case 32:
-	    stretch_line = stretch_masked_line32;
-	    break;
-#endif
-	 default:
-	    return;
+   /* get start state (clip) */
+   _al_stretch.xcstart = _al_stretch.xcinc;
+   for (i = 0; i < dxbeg-dx; i++, sxofs += _al_stretch.sxinc) {
+      if (_al_stretch.xcstart <= 0) {
+	 _al_stretch.xcstart += _al_stretch.xcinc;
+	 sxofs += size;
       }
-   }
-   else {
-      switch (bitmap_color_depth(dst)) {
-#ifdef ALLEGRO_COLOR8
-	 case 8:
-	    if (is_linear_bitmap(dst))
-	       stretch_line = stretch_line8;
-	    else {
-#ifdef GFX_HAS_VGA
-	       stretch_line = stretch_linex;
-#else
-	       return;
-#endif
-	    }
-	    break;
-#endif
-#ifdef ALLEGRO_COLOR16
-	 case 15:
-	    stretch_line = stretch_line15;
-	    break;
-	 case 16:
-	    stretch_line = stretch_line16;
-	    break;
-#endif
-#ifdef ALLEGRO_COLOR24
-	 case 24:
-	    stretch_line = stretch_line24;
-	    break;
-#endif
-#ifdef ALLEGRO_COLOR32
-	 case 32:
-	    stretch_line = stretch_line32;
-	    break;
-#endif
-	 default:
-	    return;
-      }
-   }
-
-   ASSERT(stretch_line);
-
-   /* Walk in y direction until we reach first non-clipped line.  */
-   i2 = (dd = (i1 = 2 * sh) - dh) - dh;
-   for (x = dy, y = sy; x < dybeg; x++, y += yinc) {
-      if (dd >= 0)
-	 y++, dd += i2;
       else
-	 dd += i1;
+	 _al_stretch.xcstart -= _al_stretch.xcdec;
    }
 
-   /* Stretch all non-clipped lines.  */
+   dxofs += i * size;
+
+   /* skip clipped lines */
+   for (y = dy; y < dybeg; y++, sy += syinc) {
+      if (yc <= 0) {
+	 sy++;
+	 yc += ycinc;
+      }
+      else
+	    yc -= ycdec;
+   }
+
+   /* Stretch it */
+
    bmp_select(dst);
-   for (; x < dyend; x++, y += yinc) {
-      (*stretch_line)(bmp_write_line(dst, x) + dxofs, src->line[y] + sxofs);
-      if (dd >= 0)
-	 y++, dd += i2;
+
+   for (; y < dyend; y++, sy += syinc) {
+      (*stretch_line)(bmp_write_line(dst, y) + dxofs, src->line[sy] + sxofs);
+      if (yc <= 0) {
+	 sy++;
+	 yc += ycinc;
+      }
       else
-	 dd += i1;
+	    yc -= ycdec;
    }
+   
    bmp_unwrite_line(dst);
 }

@@ -690,7 +690,6 @@ static void blit_to_self(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
       return;
 
 
-#if 0
 /* al_blit:
  * Copies a rectangular area of the source bitmap to the destination bitmap.
  * The dest_x and dest_y are the coordinates of the top-left corner in the
@@ -754,15 +753,14 @@ void al_blit(int method, BITMAP *src, BITMAP *dest, int d_x, int d_y)
 }
 
 END_OF_FUNCTION(al_blit);
-#endif
 
 /* al_blit_region:
  * Copies a rectangular area of the source bitmap to the destination bitmap.
  * The dest_x and dest_y are the coordinates of the top-left corner in the
  * destination bitmap where the source bitmap will be drawn.
  */
-//void al_blit_region(int method, BITMAP *src, int s_x, int s_y, int w, int h, BITMAP *dest, int d_x, int d_y)
-void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+void al_blit_region(int method, BITMAP *src, int s_x, int s_y, int w, int h, BITMAP *dest, int d_x, int d_y)
+//void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    ASSERT(src);
    ASSERT(dest);
@@ -811,12 +809,6 @@ void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, 
       else
          dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
    }
-
-/*
-   if (dest->needs_upload) {
-   	dest->display->vt->upload_compat_screen(dest, d_x, d_y, w, h);
-   }
-   */
 }
 
 END_OF_FUNCTION(al_blit_region);

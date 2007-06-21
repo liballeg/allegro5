@@ -62,10 +62,10 @@ AL_FUNC(void, _soft_draw_gouraud_sprite, (struct BITMAP *bmp, struct BITMAP *spr
 #define AL_FLIP_HORIZONTAL       0x00002
 #define AL_FLIP_VERTICAL         0x00004
 
-//AL_FUNC(void, al_blit, (int method, struct BITMAP *source, struct BITMAP *dest, int dest_x, int dest_y));
-//AL_FUNC(void, al_blit_region, (int method, struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y));
-//AL_FUNC(void, al_blit_scaled, (int method, struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y, int dest_w, int dest_h));
-AL_FUNC(void, al_compat_blit_scaled, (int method, struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y, int dest_w, int dest_h));
+AL_FUNC(void, al_blit, (int method, struct BITMAP *source, struct BITMAP *dest, int dest_x, int dest_y));
+AL_FUNC(void, al_blit_region, (int method, struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y));
+AL_FUNC(void, al_blit_scaled, (int method, struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y, int dest_w, int dest_h));
+AL_FUNC(void, al_blit_scaled, (int method, struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y, int dest_w, int dest_h));
 
 
 /* Compatibility stuff */
