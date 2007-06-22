@@ -35,7 +35,7 @@ void al_draw_filled_rectangle(float tlx, float tly, float brx, float bry,
     AL_COLOR *color);
 void al_notify_resize(void);
 void al_flip_display(void);
-void al_flip_display_region(int x, int y,
+bool al_update_display_region(int x, int y,
 	int width, int height);
 AL_DISPLAY *al_get_current_display(void);
 bool al_is_compatible_bitmap(AL_BITMAP *bitmap);

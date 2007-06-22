@@ -6,12 +6,14 @@
 static AL_SYSTEM *active;
 
 /* Initialize the Allegro system. */
-void al_init(void)
+void _al_init(void)
 {
-    // FIXME: detect the system driver to use
-    AL_SYSTEM_INTERFACE *driver = _al_system_d3d_driver();
+   AL_SYSTEM_INTERFACE *driver;
 
-    active = driver->initialize(0);
+   // FIXME: detect the system driver to use
+   driver = _al_system_d3d_driver();
+
+   active = driver->initialize(0);
 }
 
 /* Returns the currently active system driver. */

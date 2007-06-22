@@ -1003,6 +1003,34 @@ void _al_put_pixel(void *data, int format, AL_COLOR *color)
 	(*put_pixel_funcs[format])(data, color);
 }
 
+int _al_get_pixel_value(int src_format, AL_COLOR *src_color)
+{
+	switch (_al_pixel_size(src_format)) {
+		case 1: {
+			unsigned char pixel;
+			_al_put_pixel(&pixel, src_format, src_color);
+			return pixel;
+		}
+		case 2: {
+			uint16_t pixel;
+			_al_put_pixel(&pixel, src_format, src_color);
+			return pixel;
+		}
+		case 3: {
+			uint32_t pixel;
+			_al_put_pixel(&pixel, src_format, src_color);
+			return pixel & 0xFFFFFF00 >> 8;
+		}
+		case 4: {
+			uint32_t pixel;
+			_al_put_pixel(&pixel, src_format, src_color);
+			return pixel;
+		}
+	}
+
+	return 0;
+}
+
 void al_put_pixel(int x, int y, AL_COLOR *color)
 {
 	AL_LOCKED_REGION lr;

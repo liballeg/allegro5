@@ -1135,12 +1135,12 @@ static bool d3d_update_display_region(AL_DISPLAY *d,
 	int x, int y,
 	int width, int height)
 {
-#if 0
 	AL_DISPLAY_D3D* disp = (AL_DISPLAY_D3D*)d;
 	HRESULT hr;
+	RGNDATA *rgndata;
 	bool ret;
 	
-	if (_al_d3d_is_device_lost()) return;
+	if (_al_d3d_is_device_lost()) return false;
 	_al_d3d_lock_device();
 
 	if (d->flags & AL_SINGLEBUFFER) {
@@ -1154,14 +1154,22 @@ static bool d3d_update_display_region(AL_DISPLAY *d,
 		rect.top = y;
 		rect.bottom = y+height;
 
-		long start = al_current_time();
+		rgndata = malloc(sizeof(RGNDATA)+sizeof(RECT)-1);
+		rgndata->rdh.dwSize = sizeof(RGNDATAHEADER);
+		rgndata->rdh.iType = RDH_RECTANGLES;
+		rgndata->rdh.nCount = 1;
+		rgndata->rdh.nRgnSize = sizeof(RECT);
+		memcpy(&rgndata->rdh.rcBound, &rect, sizeof(RECT));
+		memcpy(rgndata->Buffer, &rect, sizeof(RECT));
 
-		hr = IDirect3DSwapChain9_Present(disp->swap_chain, &rect, &rect, disp->window, NULL, 0);
+		hr = IDirect3DSwapChain9_Present(disp->swap_chain, &rect, &rect, disp->window, rgndata, 0);
+
+		free(rgndata);
 
 		if (hr == D3DERR_DEVICELOST) {
 			_al_d3d_device_lost = true;
 			_al_d3d_unlock_device();
-			return;
+			return true;
 		}
 
 		IDirect3DDevice9_BeginScene(_al_d3d_device);
@@ -1175,10 +1183,6 @@ static bool d3d_update_display_region(AL_DISPLAY *d,
 	_al_d3d_unlock_device();
 
 	return ret;
-#endif
-	/* This is too slow so return false */
-
-	return false;
 }
 
 static void d3d_notify_resize(AL_DISPLAY *d)
@@ -1257,8 +1261,7 @@ static void d3d_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h)
 
 	_al_d3d_unlock_device();
 
-///	al_flip_display_region(x, y, w, h);
-	al_flip_display();
+	al_update_display_region(x, y, w, h);
 }
 
 AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
@@ -1349,6 +1352,7 @@ static AL_BITMAP *d3d_get_backbuffer()
 {
 	d3d_backbuffer.bitmap.display = _al_current_display;
 	d3d_backbuffer.bitmap.format = _al_current_display->format;
+	d3d_backbuffer.bitmap.flags = 0;
 	d3d_backbuffer.bitmap.w = _al_current_display->w;
 	d3d_backbuffer.bitmap.h = _al_current_display->h;
 	return (AL_BITMAP *)&d3d_backbuffer;

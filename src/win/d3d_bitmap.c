@@ -258,6 +258,7 @@ void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
 		IDirect3DDevice9_SetTexture(_al_d3d_device, 0, NULL);
 	}
 
+	IDirect3DDevice9_SetFVF(_al_d3d_device, D3DFVF_TL_VERTEX);
 	
 	if (IDirect3DDevice9_DrawPrimitiveUP(_al_d3d_device, D3DPT_TRIANGLEFAN, 2,
 			vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
@@ -562,16 +563,9 @@ static void d3d_blit_real(AL_BITMAP *src,
 	AL_BITMAP_D3D *d3d_src = (AL_BITMAP_D3D *)src;
 	AL_BITMAP *dest = al_get_target_bitmap();
 	AL_BITMAP_D3D *d3d_dest = (AL_BITMAP_D3D *)al_get_target_bitmap();
-	float old_ortho_w;
-	float old_ortho_h;
-	DWORD light_color = 0xFFFFFF;
-	static bool alpha_test = false; /* Used for masking */
-
+	DWORD light_color = 0xFFFFFFFF;
 
 	if (_al_d3d_is_device_lost()) return;
-
-
-	IDirect3DDevice9_SetFVF(_al_d3d_device, D3DFVF_TL_VERTEX);
 
 	angle = -angle;
 
@@ -618,11 +612,6 @@ static void d3d_blit_real(AL_BITMAP *src,
 
 	if (src && (src->flags & AL_USE_ALPHA)) {
 		IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, FALSE);
-	}
-
-	if (alpha_test == true) {
-		alpha_test = false;
-		IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHATESTENABLE, FALSE);
 	}
 
 	_al_d3d_unlock_device();
@@ -770,7 +759,6 @@ static AL_LOCKED_REGION *d3d_lock_region(AL_BITMAP *bitmap,
 		AL_DISPLAY_D3D *d3d_disp = (AL_DISPLAY_D3D *)bitmap->display;
 		if (IDirect3DSurface9_LockRect(d3d_disp->render_target, &d3d_bmp->locked_rect, &rect, Flags) != D3D_OK) {
 			TRACE("LockRect failed in d3d_lock_region.\n");
-			printf("lock surface failed\n");
 			return NULL;
 		}
 	}

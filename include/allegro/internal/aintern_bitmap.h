@@ -105,6 +105,7 @@ void _al_convert_compat_bitmap(
 	void *dst, int dst_format, int dst_pitch,
 	int sx, int sy, int dx, int dy,
 	int width, int height);
+int _al_get_pixel_value(int src_format, AL_COLOR *src_color);
 
 void _al_push_bitmap_parameters();
 void _al_pop_bitmap_parameters();
@@ -114,6 +115,8 @@ void _al_draw_bitmap_region_memory(AL_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags);
 void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
-  int dx, int dy, int flags);
+   int dx, int dy, int flags);
+void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
+   int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, int flags);
 
 #endif

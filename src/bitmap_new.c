@@ -5,6 +5,7 @@
 #include "internal/aintern_display.h"
 #include "internal/aintern_bitmap.h"
 
+/* Bitmap state is thread local */
 
 static int _new_bitmap_format = 0;
 static int _new_bitmap_flags = 0;
@@ -196,7 +197,13 @@ void al_draw_bitmap_region(AL_BITMAP *bitmap, float sx, float sy,
 void al_draw_scaled_bitmap(AL_BITMAP *bitmap, float sx, float sy,
 	float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
-   if (al_is_compatible_bitmap(bitmap))
+   AL_BITMAP *dest = al_get_target_bitmap();
+
+   if ((bitmap->flags & AL_MEMORY_BITMAP) || (dest->flags & AL_MEMORY_BITMAP)) {
+      _al_draw_scaled_bitmap_memory(bitmap, sx, sy, sw, sh,
+         dx, dy, dw, dh, flags);
+   }
+   else if (al_is_compatible_bitmap(bitmap))
       bitmap->vt->draw_scaled_bitmap(bitmap, sx, sy, sw, sh,
          dx, dy, dw, dh, flags);
 }
@@ -245,7 +252,8 @@ AL_LOCKED_REGION *al_lock_bitmap_region(AL_BITMAP *bitmap,
 			flags);
 	}
 
-	memcpy(&bitmap->locked_region, locked_region, sizeof(AL_LOCKED_REGION));
+	if (locked_region)
+		memcpy(&bitmap->locked_region, locked_region, sizeof(AL_LOCKED_REGION));
 
 	return locked_region;
 }

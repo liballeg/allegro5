@@ -22,7 +22,7 @@ int main(void)
    int ticks = 0, last_rendered = 0, start_ticks;
    int fps_accumulator = 0, fps_time = 0;
    double fps = 0;
-   int FPS = 100;
+   int FPS = 500;
    int x = 0, y = 0;
    int dx = 1;
    int w = 640, h = 480;
@@ -31,10 +31,9 @@ int main(void)
    AL_BITMAP *mem_bmp;
    AL_COLOR colors[3];
    AL_COLOR white;
+   AL_COLOR mask_color;
    int i;
 
-	allegro_init();
-	set_color_depth(32);
    al_init();
 
    events = al_create_event_queue();
@@ -72,7 +71,7 @@ int main(void)
    mask = al_load_bitmap("mask.pcx");
    
    al_set_new_bitmap_flags(AL_MEMORY_BITMAP);
-   mem_bmp = al_load_bitmap("mysha.pcx");
+   mem_bmp = al_load_bitmap("mysha.tga");
 
 
    AL_COLOR color;
@@ -92,11 +91,10 @@ int main(void)
    start_ticks = al_current_time();
 
    al_set_mask_color(al_map_rgb(picture, &colors[0], 255, 0, 255));
-   //al_set_target_bitmap(mask);
-   //al_draw_bitmap(picture, 0, 0, AL_MASK_SOURCE);
-   //al_set_target_bitmap(mask);
+   al_set_target_bitmap(mask);
+   al_draw_bitmap(picture, 0, 0, AL_MASK_SOURCE);
+   al_set_target_bitmap(mask);
    al_convert_mask_to_alpha(picture, al_map_rgb(picture, &colors[0], 255, 0, 255));
-   //al_draw_bitmap(picture, 0, 0, 0);
 
    for (i = 0; i < 3; i++) {
    	al_set_current_display(display[i]);
@@ -107,6 +105,10 @@ int main(void)
 	else
 		al_map_rgba_f(al_get_backbuffer(), &colors[2], 0, 0, 1, 0.5f);
    }
+	
+   long start = al_current_time();
+   long last_move = al_current_time();
+   int frames = 0;
 
    while (!quit) {
       /* read input */
@@ -142,6 +144,14 @@ int main(void)
          }
       }
 
+      while (last_move < al_current_time()) {
+         last_move++;
+	 x += dx;
+         if (x == 0) dx = 1;
+         if (x == w - 40) dx = -1;
+      }
+
+	#if 0
       /* handle game ticks */
       while (ticks * 1000 < (al_current_time() - start_ticks) * FPS) {
           x += dx;
@@ -149,10 +159,12 @@ int main(void)
           if (x == w - 40) dx = -1;
           ticks++;
       }
+      #endif
 
       /* render */
-      if (ticks > last_rendered) {
-         for (i = 0; i < 3; i++) {
+      //if (ticks > last_rendered) {
+         frames++;
+         for (i = 2; i < 3; i++) {
 	    if (!display[i])
 	       continue;
             al_set_current_display(display[i]);
@@ -163,6 +175,7 @@ int main(void)
 	    	al_draw_line(50, 50, 150, 150, &colors[0]);
 	    }
             else if (i == 2) {
+	    	al_draw_bitmap(picture, 0, 0, 0);
 	    	al_draw_scaled_bitmap(picture, 0, 0, picture->w, picture->h,
 			0, 0, 640, 480, 0);
 		al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
@@ -170,12 +183,17 @@ int main(void)
 		al_draw_rotated_bitmap(picture, 160, 100, 320, 240, M_PI/4, 0);
 		//al_draw_bitmap_region(al_get_backbuffer(), 0, 0, 320, 240, 320, 240, 0);
 		//al_draw_rotated_bitmap(al_get_backbuffer(), 320, 240, 320, 240, M_PI/8, 0);
-		al_draw_bitmap_region(mem_bmp, 50, 50, 100, 100, 200, 200, 0);
+		//al_draw_bitmap_region(mem_bmp, 50, 50, 100, 100, 200, 200, AL_MASK_SOURCE);
+		al_set_mask_color(al_map_rgb(mem_bmp, &mask_color, 255, 0, 255));
+		//al_draw_scaled_bitmap(mem_bmp, 0, 0, 320, 200, 0, 0, 640, 480, AL_MASK_SOURCE);
+		//al_draw_bitmap(mem_bmp, 0, 0, AL_MASK_SOURCE);
+		al_draw_scaled_bitmap(mem_bmp, 100, 100, 100, 100,
+			0, 0, 150, 150, AL_MASK_SOURCE);
 	    }
             al_draw_filled_rectangle(x, y, x + 40, y + 40, &colors[i]);
             al_flip_display();
          }
-         last_rendered = ticks;
+         /*last_rendered = ticks;
          {
             int d = al_current_time() - fps_time;
             fps_accumulator++;
@@ -185,12 +203,18 @@ int main(void)
                fps_accumulator = 0;
             }
          }
-      }
+	 */
+      //}
+      /*
       else {
       	int r = start_ticks + 1000 * ticks / FPS - al_current_time();
 	al_rest(r < 0 ? 0 : r);
       }
+      */
    }
+
+   printf("frames=%d start=%ld now=%ld\n", frames, start, al_current_time());
+   printf("fps=%f\n", (float)(frames * 1000) / (float)(al_current_time()-start));
 
    return 0;
 }
