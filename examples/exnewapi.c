@@ -179,16 +179,9 @@ int main(void)
 	    	al_draw_scaled_bitmap(picture, 0, 0, picture->w, picture->h,
 			0, 0, 640, 480, 0);
 		al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
-		al_draw_rotated_scaled_bitmap(picture, 160, 100, 320, 240, 1.5f, 1.5f, M_PI/4, 0);
-		al_draw_rotated_bitmap(picture, 160, 100, 320, 240, M_PI/4, 0);
-		//al_draw_bitmap_region(al_get_backbuffer(), 0, 0, 320, 240, 320, 240, 0);
-		//al_draw_rotated_bitmap(al_get_backbuffer(), 320, 240, 320, 240, M_PI/8, 0);
-		//al_draw_bitmap_region(mem_bmp, 50, 50, 100, 100, 200, 200, AL_MASK_SOURCE);
 		al_set_mask_color(al_map_rgb(mem_bmp, &mask_color, 255, 0, 255));
-		//al_draw_scaled_bitmap(mem_bmp, 0, 0, 320, 200, 0, 0, 640, 480, AL_MASK_SOURCE);
-		//al_draw_bitmap(mem_bmp, 0, 0, AL_MASK_SOURCE);
-		al_draw_scaled_bitmap(mem_bmp, 100, 100, 100, 100,
-			0, 0, 150, 150, AL_MASK_SOURCE);
+		al_draw_rotated_scaled_bitmap(mem_bmp, 160, 100, 320, 240, 1.5f, 1.5f, M_PI/4, AL_MASK_SOURCE|AL_FLIP_VERTICAL);
+		al_draw_rotated_bitmap(mem_bmp, 160, 100, 320, 240, M_PI/4, 0);
 	    }
             al_draw_filled_rectangle(x, y, x + 40, y + 40, &colors[i]);
             al_flip_display();

@@ -118,5 +118,13 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
    int dx, int dy, int flags);
 void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
    int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, int flags);
+void _al_draw_rotated_bitmap_memory(AL_BITMAP *bitmap,
+   int center_x, int center_y, int dx, int dy, float angle, int flags);
+void _al_draw_rotated_bitmap_memory(AL_BITMAP *bitmap,
+   int center_x, int center_y, int dx, int dy,
+   float angle, int flags);
+void _al_draw_rotated_scaled_bitmap_memory(AL_BITMAP *bitmap,
+   int center_x, int center_y, int dx, int dy,
+   float xscale, float yscale, float angle, int flags);
 
 #endif

@@ -211,7 +211,14 @@ void al_draw_scaled_bitmap(AL_BITMAP *bitmap, float sx, float sy,
 void al_draw_rotated_bitmap(AL_BITMAP *bitmap, float cx, float cy,
 	float dx, float dy, float angle, int flags)
 {
-   if (al_is_compatible_bitmap(bitmap))
+   AL_BITMAP *dest = al_get_target_bitmap();
+
+   /* If one is a memory bitmap, do memory blit */
+   if ((bitmap->flags & AL_MEMORY_BITMAP) || (dest->flags & AL_MEMORY_BITMAP)) {
+      _al_draw_rotated_bitmap_memory(bitmap, cx, cy,
+         dx, dy, angle, flags);
+   }
+   else if (al_is_compatible_bitmap(bitmap))
       bitmap->vt->draw_rotated_bitmap(bitmap, cx, cy, dx, dy, angle, flags);
 }
 
@@ -219,7 +226,14 @@ void al_draw_rotated_scaled_bitmap(AL_BITMAP *bitmap, float cx, float cy,
 	float dx, float dy, float xscale, float yscale, float angle,
 	int flags)
 {
-   if (al_is_compatible_bitmap(bitmap))
+   AL_BITMAP *dest = al_get_target_bitmap();
+
+   /* If one is a memory bitmap, do memory blit */
+   if ((bitmap->flags & AL_MEMORY_BITMAP) || (dest->flags & AL_MEMORY_BITMAP)) {
+      _al_draw_rotated_scaled_bitmap_memory(bitmap, cx, cy,
+         dx, dy, xscale, yscale, angle, flags);
+   }
+   else if (al_is_compatible_bitmap(bitmap))
       bitmap->vt->draw_rotated_scaled_bitmap(bitmap, cx, cy,
          dx, dy, xscale, yscale, angle, flags);
 }
