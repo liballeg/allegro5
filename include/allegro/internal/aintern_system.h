@@ -5,6 +5,7 @@
 #include "aintern_display.h"
 #include "aintern_events.h"
 #include "aintern_keyboard.h"
+#include "allegro/internal/aintern_vector.h"
 
 typedef struct AL_SYSTEM_INTERFACE AL_SYSTEM_INTERFACE;
 
@@ -27,7 +28,10 @@ struct AL_SYSTEM
 // drivers.. for now, my dummy driver is the only available system driver,
 // always
 //AL_SYSTEM_INTERFACE *_al_system_xdummy_driver(void);
-AL_SYSTEM_INTERFACE *_al_system_d3d_driver(void);
+//AL_SYSTEM_INTERFACE *_al_system_d3d_driver(void);
+
+AL_FUNC(void, _al_register_system_interfaces, (void));
+AL_VAR(_AL_VECTOR, _al_system_interfaces);
 
 #ifdef ALLEGRO_MINGW32
 #define _al_tls_init _al_tls_init

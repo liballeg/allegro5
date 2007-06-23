@@ -507,6 +507,8 @@ static int key_dinput_init(void)
    }
 
    if (key_dinput_set_cooperative_level(allegro_wnd)) {
+   	TRACE("SetCooperativeLevel failed.\n");
+   }
 
    /* Enable event notification */
    key_input_event = CreateEvent(NULL, FALSE, FALSE, NULL);

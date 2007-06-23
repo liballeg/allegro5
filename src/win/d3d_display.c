@@ -61,6 +61,10 @@ static int d3d_new_display_format = 0;
 static int d3d_new_display_refresh_rate = 0;
 static int d3d_new_display_flags = 0;
 
+LPDIRECT3D9 _al_d3d = 0;
+LPDIRECT3DDEVICE9 _al_d3d_device = 0;
+static bool d3d_display_initialized = false;
+
 /* Dummy graphics driver for compatibility */
 GFX_DRIVER _al_d3d_dummy_gfx_driver = {
 	0,
@@ -361,7 +365,7 @@ static bool d3d_create_hidden_device()
 	LPDIRECT3DSURFACE9 render_target;
 	int ret;
 
-	d3d_hidden_window = _al_d3d_create_hidden_window();
+	d3d_hidden_window = _al_win_create_hidden_window();
 	if (d3d_hidden_window == 0) {
 		TRACE("Failed to create hidden window.\n");
 		return 0;
@@ -596,7 +600,7 @@ static void d3d_destroy_display(AL_DISPLAY *display)
 {
 	unsigned int i;
 	AL_DISPLAY_D3D *d3d_display = (AL_DISPLAY_D3D *)display;
-	AL_SYSTEM_D3D *system = (AL_SYSTEM_D3D *)al_system_driver();
+	AL_SYSTEM_WIN *system = (AL_SYSTEM_WIN *)al_system_driver();
 
 	if (d3d_current_texture_render_target) {
 		IDirect3DSurface9_Release(d3d_current_texture_render_target);
@@ -622,15 +626,15 @@ static void d3d_destroy_display(AL_DISPLAY *display)
 	al_rest(100);
 	d3d_destroyed_display = NULL;
 
-	_al_d3d_win_ungrab_input();
+	_al_win_ungrab_input();
 
 	PostMessage(d3d_display->window, _al_win_msg_suicide, 0, 0);
 
 	_al_event_source_free(&display->es);
 
-	_al_d3d_delete_from_vector(&system->system.displays, display);
+	_al_win_delete_from_vector(&system->system.displays, display);
 
-	_al_d3d_delete_from_vector(&d3d_created_displays, display);
+	_al_win_delete_from_vector(&d3d_created_displays, display);
 
 	if (d3d_created_displays._size > 0) {
 		AL_DISPLAY_D3D **dptr = _al_vector_ref(&d3d_created_displays, 0);
@@ -830,7 +834,7 @@ static void d3d_display_thread_proc(HANDLE unused)
 	d->display.h = d3d_new_display_h;
 	d->display.vt = vt;
 
-	AL_SYSTEM_D3D *system = (AL_SYSTEM_D3D *)al_system_driver();
+	AL_SYSTEM_WIN *system = (AL_SYSTEM_WIN *)al_system_driver();
 
 	/* Add ourself to the list of displays. */
 	AL_DISPLAY_D3D **add = _al_vector_alloc_back(&system->system.displays);
@@ -841,16 +845,18 @@ static void d3d_display_thread_proc(HANDLE unused)
 
 	_al_d3d_last_created_display = d;
 
+	/*
 	if (_al_d3d_keyboard_initialized) {
 		key_dinput_set_cooperative_level(d->window);
 		d->keyboard_initialized = true;
 	}
 	else 
 		d->keyboard_initialized = false;
+		*/
 
-	d->window = _al_d3d_create_window(d3d_new_display_w,
+	d->window = _al_win_create_window((AL_DISPLAY *)d, d3d_new_display_w,
 		d3d_new_display_h, d3d_new_display_flags);
-
+	
 	if (!d->window) {
 		d3d_waiting_for_display = false;
 		return;
@@ -954,6 +960,9 @@ End:
 		IDirect3DDevice9_Release(_al_d3d_device);
 	}
 
+	_al_win_delete_thread_handle(GetCurrentThreadId());
+
+
 	TRACE("d3d display thread exits\n");
 }
 
@@ -965,6 +974,13 @@ static AL_DISPLAY *d3d_create_display(int w, int h)
 
 	_al_d3d_lock_device();
 
+	if (!d3d_display_initialized) {
+		if (_al_d3d_init_display() != false) {
+			return NULL;
+		}
+		d3d_display_initialized = true;
+	}
+	
 	format = al_get_new_display_format();
 	refresh_rate = al_get_new_display_refresh_rate();
 	flags = al_get_new_display_flags();
@@ -989,6 +1005,10 @@ static AL_DISPLAY *d3d_create_display(int w, int h)
 		al_rest(1);
 
 	d3d_waiting_for_display = true;
+
+	if (_al_d3d_last_created_display == NULL) {
+		return NULL;
+	}
 
 	if (!(flags & AL_WINDOWED)) {
 		d3d_already_fullscreen = true;
@@ -1377,6 +1397,11 @@ static bool d3d_is_compatible_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 	return true;
 }
 
+static void d3d_switch_out(void)
+{
+	_al_d3d_prepare_bitmaps_for_reset();
+}
+
 /* Obtain a reference to this driver. */
 AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 {
@@ -1400,8 +1425,10 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->get_backbuffer = d3d_get_backbuffer;
    vt->get_frontbuffer = d3d_get_frontbuffer;
    vt->is_compatible_bitmap = d3d_is_compatible_bitmap;
+   vt->switch_out = d3d_switch_out;
 
    d3d_backbuffer.bitmap.vt = (AL_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
 
    return vt;
 }
+

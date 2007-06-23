@@ -14,69 +14,76 @@
 
 #include "winalleg.h"
 
-#include "d3d.h"
+#include "win_new.h"
 
 static AL_SYSTEM_INTERFACE *vt=0;
 
-AL_SYSTEM_D3D *_al_d3d_system;
-LPDIRECT3D9 _al_d3d = 0;
-LPDIRECT3DDEVICE9 _al_d3d_device = 0;
+AL_SYSTEM_WIN *_al_win_system;
 
 /* Create a new system object for the dummy D3D driver. */
-static AL_SYSTEM *d3d_initialize(int flags)
+static AL_SYSTEM *win_initialize(int flags)
 {
-	_al_d3d_system = _AL_MALLOC(sizeof *_al_d3d_system);
-	memset(_al_d3d_system, 0, sizeof *_al_d3d_system);
+	_al_win_system = _AL_MALLOC(sizeof *_al_win_system);
+	memset(_al_win_system, 0, sizeof *_al_win_system);
 
-	_al_d3d_init_window();
-	_al_d3d_init_keyboard();
-	//_win_input_init(TRUE);
+	_al_win_init_window();
+	//_al_win_init_keyboard();
 
-	if (_al_d3d_init_display() != false) {
-		_AL_FREE(_al_d3d_system);
-		return 0;
-	}
-	
-	_al_vector_init(&_al_d3d_system->system.displays, sizeof (AL_SYSTEM_D3D *));
+	_al_vector_init(&_al_win_system->system.displays, sizeof (AL_SYSTEM_WIN *));
 
-	_al_d3d_system->system.vt = vt;
+	_al_win_system->system.vt = vt;
 
-	return &_al_d3d_system->system;
+	return &_al_win_system->system;
 }
 
 // FIXME: This is just for now, the real way is of course a list of
 // available display drivers. Possibly such drivers can be attached at runtime
 // to the system driver, so addons could provide additional drivers.
-AL_DISPLAY_INTERFACE *d3d_get_display_driver(void)
+AL_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
+   /* FIXME: should detect one */
     return _al_display_d3d_driver();
 }
 
 // FIXME: Use the list.
-AL_KEYBOARD_DRIVER *d3d_get_keyboard_driver(void)
+AL_KEYBOARD_DRIVER *win_get_keyboard_driver(void)
 {
    // FIXME: i would prefer a dynamic way to list drivers, not a static list
 //   return _al_xwin_keyboard_driver_list[0].driver;
 	return _al_keyboard_driver_list[0].driver;
 }
 
-AL_SYSTEM_INTERFACE *_al_system_d3d_driver(void)
+AL_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
 
    vt = _AL_MALLOC(sizeof *vt);
    memset(vt, 0, sizeof *vt);
 
-   vt->initialize = d3d_initialize;
-   vt->get_display_driver = d3d_get_display_driver;
-   vt->get_keyboard_driver = d3d_get_keyboard_driver;
+   vt->initialize = win_initialize;
+   vt->get_display_driver = win_get_display_driver;
+   vt->get_keyboard_driver = win_get_keyboard_driver;
 
    TRACE("AL_SYSTEM_INTERFACE created.\n");
 
    return vt;
 }
 
-void _al_d3d_delete_from_vector(_AL_VECTOR *vec, void *item)
+void _al_register_system_interfaces()
+{
+   AL_SYSTEM_INTERFACE **add;
+
+#if defined ALLEGRO_D3D
+   /* This is the only system driver right now */
+   add = _al_vector_alloc_back(&_al_system_interfaces);
+   *add = _al_system_win_driver();
+#endif
+}
+
+/*
+ * For some reason _al_vector_find_and_delete isn't working
+ */
+void _al_win_delete_from_vector(_AL_VECTOR *vec, void *item)
 {
    unsigned int i;
    for (i = 0; i < vec->_size; i++) {

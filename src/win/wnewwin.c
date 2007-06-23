@@ -2,27 +2,27 @@
 #include <winalleg.h>
 #include <process.h>
 
+#include "allegro/internal/aintern.h"
 #include "allegro/internal/aintern_vector.h"
 #include "allegro/platform/aintwin.h"
 
-#include "d3d.h"
+#include "win_new.h"
 
-//#define ALLEGRO_WND_CLASS "ALLEG"
-
-static HWND new_window;
-static int new_window_width;
-static int new_window_height;
-static bool new_window_resizable;
-static bool new_window_fullscreen;
 static ATOM window_identifier;
 static WNDCLASS window_class;
-// FIXME: must be deleted with display
 static _AL_VECTOR thread_handles = _AL_VECTOR_INITIALIZER(DWORD);
+
+/* We have to keep track of windows some how */
+typedef struct WIN_WINDOW {
+   AL_DISPLAY *display;
+   HWND window;
+} WIN_WINDOW;
+static _AL_VECTOR win_window_list = _AL_VECTOR_INITIALIZER(WIN_WINDOW *);
 
 /*
  * Find the top left position of the client area of a window.
  */
-static void d3d_get_window_pos(HWND window, RECT *pos)
+static void win_get_window_pos(HWND window, RECT *pos)
 {
 	RECT with_decorations;
 	RECT adjusted;
@@ -40,7 +40,7 @@ static void d3d_get_window_pos(HWND window, RECT *pos)
 	pos->left = with_decorations.left + left;
 }
 
-HWND _al_d3d_create_hidden_window()
+HWND _al_win_create_hidden_window()
 {
 	HWND window = CreateWindowEx(0, 
 		"ALEX", wnd_title, WS_POPUP,
@@ -50,7 +50,8 @@ HWND _al_d3d_create_hidden_window()
 	return window;
 }
 
-HWND _al_d3d_create_window(int width, int height, int flags)
+
+HWND _al_win_create_window(AL_DISPLAY *display, int width, int height, int flags)
 {
 	HANDLE hThread;
 	DWORD result;
@@ -62,30 +63,21 @@ HWND _al_d3d_create_window(int width, int height, int flags)
 	RECT pos;
 	DWORD style;
 	DWORD ex_style;
-
-	new_window = (HWND)-1;
-	new_window_width = width;
-	new_window_height = height;
-	new_window_resizable = flags & AL_RESIZABLE;
-	new_window_fullscreen = !(flags & AL_WINDOWED);
+	WIN_WINDOW *win_window;
+	WIN_WINDOW **add;
 
 	/* Save the thread handle for later use */
 	*((DWORD *)_al_vector_alloc_back(&thread_handles)) = GetCurrentThreadId();
-	_al_d3d_last_created_display->thread_handle = GetCurrentThreadId();
 
 	SystemParametersInfo(SPI_GETWORKAREA, 0, &working_area, 0);
 
-	win_size.left = (working_area.left + working_area.right - new_window_width) / 2;
-	win_size.top = (working_area.top + working_area.bottom - new_window_height) / 2;
-	win_size.right = win_size.left + new_window_width;
-	win_size.bottom = win_size.top + new_window_height;
+	win_size.left = (working_area.left + working_area.right - width) / 2;
+	win_size.top = (working_area.top + working_area.bottom - height) / 2;
+	win_size.right = win_size.left + width;
+	win_size.bottom = win_size.top + height;
 
-	if (new_window_fullscreen) {
-		style = WS_POPUP|WS_VISIBLE;
-		ex_style = 0;
-	}
-	else {
-		if  (new_window_resizable) {
+	if (flags & AL_WINDOWED) {
+		if  (flags & AL_RESIZABLE) {
 			style = WS_OVERLAPPEDWINDOW|WS_VISIBLE;
 			ex_style = WS_EX_APPWINDOW|WS_EX_OVERLAPPEDWINDOW;
 		}
@@ -94,11 +86,22 @@ HWND _al_d3d_create_window(int width, int height, int flags)
 			ex_style = WS_EX_APPWINDOW;
 		}
 	}
+	else {
+		style = WS_POPUP|WS_VISIBLE;
+		ex_style = 0;
+	}
 
 	my_window = CreateWindowEx(ex_style,
 		"ALEX", wnd_title, style,
 		0, 0, width, height,
 		NULL,NULL,window_class.hInstance,0);
+	ShowWindow(_al_win_compat_wnd, SW_HIDE);
+
+	win_window = _AL_MALLOC(sizeof(WIN_WINDOW));
+	win_window->display = display;
+	win_window->window = my_window;
+	add = _al_vector_alloc_back(&win_window_list);
+	*add = win_window;
 
 	AdjustWindowRect(&win_size, GetWindowLong(my_window, GWL_STYLE), FALSE);
 
@@ -107,11 +110,11 @@ HWND _al_d3d_create_window(int width, int height, int flags)
 		win_size.bottom - win_size.top,
 		TRUE);
 
-	d3d_get_window_pos(my_window, &pos);
+	win_get_window_pos(my_window, &pos);
 	wnd_x = pos.left;
 	wnd_y = pos.top;
 
-	if (!new_window_resizable) {
+	if (!(flags & AL_RESIZABLE)) {
 		/* Make the window non-resizable */
 		HMENU menu;
 		menu = GetSystemMenu(my_window, FALSE);
@@ -120,62 +123,60 @@ HWND _al_d3d_create_window(int width, int height, int flags)
 		DrawMenuBar(my_window);
 	}
 
-	new_window = my_window;
-
-	/*
-	if (_al_d3d_keyboard_initialized) {
-		AL_DISPLAY_D3D *d = (AL_DISPLAY_D3D *)_al_current_display;
-		key_dinput_set_cooperative_level(new_window);
-		d->keyboard_initialized = true;
-	}
-	*/
-
-	_al_win_wnd = new_window;
-	return new_window;
+	_al_win_wnd = my_window;
+	return my_window;
 }
 
-static void d3d_delete_thread_handle(AL_DISPLAY_D3D *display)
+/* This must be called by Windows drivers after their window is deleted */
+void _al_win_delete_thread_handle(DWORD handle)
 {
-	_al_d3d_delete_from_vector(&thread_handles, &display->thread_handle);
+	_al_win_delete_from_vector(&thread_handles, (void *)handle);
 }
 
-/* Quit the program on close button press for now */
 static LRESULT CALLBACK window_callback(HWND hWnd, UINT message, 
     WPARAM wParam, LPARAM lParam)
 {
-	AL_DISPLAY_D3D *d = NULL;
+	AL_DISPLAY *d = NULL;
 	WINDOWINFO wi;
 	int w;
 	int h;
 	int x;
 	int y;
-	unsigned int i;
+	unsigned int i, j;
 	int fActive;
 	AL_EVENT_SOURCE *es = NULL;
 	RECT pos;
+	AL_SYSTEM *system = al_system_driver();
+	WIN_WINDOW *win;
 
 	if (message == _al_win_msg_call_proc) {
 		return ((int (*)(void))wParam) ();
 	}
 
-	for (i = 0; i < _al_d3d_system->system.displays._size; i++) {
-		AL_DISPLAY_D3D **dptr = _al_vector_ref(&_al_d3d_system->system.displays, i);
+	for (i = 0; i < system->displays._size; i++) {
+		AL_DISPLAY **dptr = _al_vector_ref(&system->displays, i);
 		d = *dptr;
-		if (d->window == hWnd) {
-			es = &d->display.es;
-			break;
+		for (j = 0; j < win_window_list._size; j++) {
+		   WIN_WINDOW **wptr = _al_vector_ref(&win_window_list, j);
+		   win = *wptr;
+		   if (win->display == d && win->window == hWnd) {
+		      es = &d->es;
+		      goto found;
+		   }
 		}
 	}
+	found:
 
 	if (message == _al_win_msg_suicide) {
-		d3d_delete_thread_handle(d);
+		_AL_FREE(win);
+		_al_win_delete_from_vector(&win_window_list, win);
 		//SendMessage(_al_win_compat_wnd, _al_win_msg_suicide, 0, 0);
 		DestroyWindow(hWnd);
 		return 0;
 	}
 
 
-	if (i != _al_d3d_system->system.displays._size) {
+	if (i != system->displays._size) {
 		switch (message) { 
 			case WM_MOVE:
 				if (GetActiveWindow() == win_get_window()) {
@@ -192,9 +193,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 			case WM_ACTIVATEAPP:
 				if (wParam) {
 					al_set_current_display((AL_DISPLAY *)d);
-					_al_win_wnd = d->window;
+					_al_win_wnd = win->window;
 					win_grab_input();
-					d3d_get_window_pos(d->window, &pos);
+					win_get_window_pos(win->window, &pos);
 					wnd_x = pos.left;
 					wnd_y = pos.top;
 					return 0;
@@ -205,10 +206,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 						 * Device can be lost here, so
 						 * backup textures.
 						 */
-						if (!(d->display.flags & AL_WINDOWED)) {
-							_al_d3d_prepare_bitmaps_for_reset();
+						if (!(d->flags & AL_WINDOWED)) {
+							d->vt->switch_out();
 						}
-						_al_d3d_win_ungrab_input();
+						_al_win_ungrab_input();
 						return 0;
 					}
 				}
@@ -235,10 +236,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 					h = HIWORD(lParam);
 					w = LOWORD(lParam);
 					wi.cbSize = sizeof(WINDOWINFO);
-					GetWindowInfo(d->window, &wi);
+					GetWindowInfo(win->window, &wi);
 					x = wi.rcClient.left;
 					y = wi.rcClient.top;
-					if (d->display.w != w || d->display.h != h) {
+					if (d->w != w || d->h != h) {
 						_al_event_source_lock(es);
 						if (_al_event_source_needs_to_generate_event(es)) {
 							AL_EVENT *event = _al_event_source_get_unused_event(es);
@@ -277,30 +278,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 	return DefWindowProc(hWnd,message,wParam,lParam); 
 }
 
-/* wnd_call_proc:
- *  Instructs the window thread to call the specified procedure and
- *  waits until the procedure has returned.
- */
-int d3d_wnd_call_proc(int (*proc) (void))
-{
-   return SendMessage(_al_win_wnd, _al_win_msg_call_proc, (DWORD) proc, 0);
-}
-
-/* d3d_wnd_schedule_proc:
- *  instructs the window thread to call the specified procedure but
- *  doesn't wait until the procedure has returned.
- */
-void d3d_wnd_schedule_proc(int (*proc) (void))
-{
-   PostMessage(_al_win_wnd, _al_win_msg_call_proc, (DWORD) proc, 0);
-}
-
-HWND d3d_win_get_window()
-{
-	return _al_win_wnd;
-}
-
-int _al_d3d_init_window()
+int _al_win_init_window()
 {
 	if (_al_win_msg_call_proc == 0 && _al_win_msg_suicide == 0) {
 		_al_win_msg_call_proc = RegisterWindowMessage("Allegro call proc");
@@ -324,25 +302,8 @@ int _al_d3d_init_window()
 	return true;
 }
 
-void _al_d3d_win_ungrab_input()
+void _al_win_ungrab_input()
 {
    wnd_schedule_proc(key_dinput_unacquire);
 }
-
-
-#if 0
-static void d3d_window_exit()
-{
-      /* Destroy the window: we cannot directly use DestroyWindow() because
-       * we are not running in the same thread as that of the window.
-       */
-      // for each window
-      PostMessage(allegro_wnd, _al_win_msg_suicide, 0, 0);
-
-      /* wait until the window thread ends */
-      WaitForSingleObject(d3d_wnd_thread, INFINITE);
-      d3d_wnd_thread = NULL;
-}
-#endif
-
 

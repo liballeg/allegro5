@@ -739,7 +739,7 @@ static void d3d_destroy_bitmap(AL_BITMAP *bitmap)
 	}
    }
 
-   _al_d3d_delete_from_vector(&created_bitmaps, d3d_bmp);
+   _al_win_delete_from_vector(&created_bitmaps, d3d_bmp);
 }
 
 static AL_LOCKED_REGION *d3d_lock_region(AL_BITMAP *bitmap,

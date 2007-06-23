@@ -73,7 +73,6 @@ int main(void)
    al_set_new_bitmap_flags(AL_MEMORY_BITMAP);
    mem_bmp = al_load_bitmap("mysha.tga");
 
-
    AL_COLOR color;
    AL_LOCKED_REGION lr;
    al_lock_bitmap(picture, &lr, 0);
@@ -164,7 +163,7 @@ int main(void)
       /* render */
       //if (ticks > last_rendered) {
          frames++;
-         for (i = 2; i < 3; i++) {
+         for (i = 0; i < 3; i++) {
 	    if (!display[i])
 	       continue;
             al_set_current_display(display[i]);

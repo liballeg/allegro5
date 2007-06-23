@@ -23,6 +23,10 @@ int al_get_new_display_format(void);
 int al_get_new_display_refresh_rate(void);
 int al_get_new_display_flags(void);
 
+int al_get_display_format(AL_DISPLAY *display);
+int al_get_display_refresh_rate(AL_DISPLAY *display);
+int al_get_display_flags(AL_DISPLAY *display);
+
 AL_DISPLAY *al_create_display(int w, int h);
 void al_destroy_display(AL_DISPLAY *display);
 void al_set_current_display(AL_DISPLAY *display);

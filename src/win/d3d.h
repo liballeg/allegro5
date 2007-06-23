@@ -4,9 +4,8 @@
 
 #include <windows.h>
 #include <d3d9.h>
-// FIXME: these are for gcc
-//#define D3DXINLINE static inline
-//#include <d3dx9.h>
+
+#include "win_new.h"
 
 
 /* Flexible vertex formats */
@@ -18,23 +17,15 @@ typedef struct AL_SYSTEM_D3D AL_SYSTEM_D3D;
 typedef struct AL_BITMAP_D3D AL_BITMAP_D3D;
 typedef struct AL_DISPLAY_D3D AL_DISPLAY_D3D;
 
-
-/* This is our version of AL_SYSTEM with driver specific extra data. */
-struct AL_SYSTEM_D3D
-{
-	AL_SYSTEM system; /* This must be the first member, we "derive" from it. */
-};
-
 struct AL_DISPLAY_D3D
 {
    AL_DISPLAY display; /* This must be the first member. */
 
    /* Driver specifics */
    HWND window;
-   DWORD thread_handle;
    LPDIRECT3DSWAPCHAIN9 swap_chain;
    LPDIRECT3DSURFACE9 render_target;
-   bool keyboard_initialized;
+   //bool keyboard_initialized;
    //LPDIRECT3DSURFACE8 stencil_buffer;
 };
 
@@ -82,11 +73,8 @@ typedef struct D3D_TL_VERTEX
 } D3D_TL_VERTEX;
 
 
-AL_SYSTEM_D3D *_al_d3d_system;
-
 AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void);
 AL_SYSTEM_INTERFACE *_al_system_d3d_driver(void);
-AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void);
 
 AL_VAR(LPDIRECT3D9, _al_d3d);
 AL_VAR(LPDIRECT3DDEVICE9, _al_d3d_device);
@@ -94,8 +82,6 @@ AL_VAR(LPDIRECT3DDEVICE9, _al_d3d_device);
 AL_VAR(AL_DISPLAY_D3D *, _al_d3d_last_created_display);
 
 AL_VAR(bool, _al_d3d_keyboard_initialized);
-
-void _al_d3d_delete_from_vector(_AL_VECTOR *vec, void *item);
 
 bool _al_d3d_init_display();
 AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
@@ -109,15 +95,7 @@ int _al_pixel_format_to_d3d(int format);
 int _al_d3d_format_to_allegro_format(int d3d_fmt);
 
 bool _al_d3d_init_keyboard();
-void _al_d3d_set_kb_cooperative_level(HWND window);
-
-HWND _al_d3d_create_hidden_window(void);
-HWND _al_d3d_create_window(int width, int height, int flags);
-HWND _al_d3d_win_get_window();
-int _al_d3d_init_window();
-void _al_d3d_win_ungrab_input();
-//void _al_d3d_destroy_window(AL_DISPLAY_D3D *display);
-//extern bool _al_d3d_switched_in;
+//void _al_d3d_set_kb_cooperative_level(HWND window);
 
 void _al_d3d_release_default_pool_textures();
 void _al_d3d_prepare_bitmaps_for_reset();

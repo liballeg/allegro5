@@ -229,14 +229,13 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/wwnd.c
     src/win/wxthread.c
     src/misc/colconv.c
+    src/win/wnewsys.c
+    src/win/wnewwin.c
     )
 
 set(ALLEGRO_SRC_D3D_FILES
 	src/win/d3d_bitmap.c
 	src/win/d3d_display.c
-	src/win/d3d_keyboard.c
-	src/win/d3d_system.c
-	src/win/d3d_window.c
 	)
 
 set(ALLEGRO_SRC_BEOS_FILES

@@ -104,3 +104,17 @@ bool al_is_compatible_bitmap(AL_BITMAP *bitmap)
       _al_current_display, bitmap);
 }
 
+int al_get_display_format(AL_DISPLAY *display)
+{
+   return display->format;
+}
+
+int al_get_display_refresh_rate(AL_DISPLAY *display)
+{
+   return display->refresh_rate;
+}
+
+int al_get_display_flags(AL_DISPLAY *display)
+{
+   return display->flags;
+}
