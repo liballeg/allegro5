@@ -841,7 +841,12 @@ static void d3d_display_thread_proc(HANDLE unused)
 
 	_al_d3d_last_created_display = d;
 
-	d->keyboard_initialized = false;
+	if (_al_d3d_keyboard_initialized) {
+		key_dinput_set_cooperative_level(d->window);
+		d->keyboard_initialized = true;
+	}
+	else 
+		d->keyboard_initialized = false;
 
 	d->window = _al_d3d_create_window(d3d_new_display_w,
 		d3d_new_display_h, d3d_new_display_flags);

@@ -29,8 +29,6 @@ static bool _d3d_keyboard_init()
 
 	orig_keyboard_init();
 
-	/*
-
 	if (_al_d3d_system) {
 		for (i = 0; i < _al_d3d_system->system.displays._size; i++) {
 			AL_DISPLAY_D3D **dptr = _al_vector_ref(&_al_d3d_system->system.displays, i);
@@ -46,12 +44,11 @@ static bool _d3d_keyboard_init()
 
 		_al_d3d_keyboard_initialized = true;
 	}
-	*/
 
 	if (_al_d3d_system->system.displays._size > 0)
 		win_grab_input();
 
-//	_al_d3d_set_kb_cooperative_level(NULL);
+	_al_d3d_set_kb_cooperative_level(NULL);
 
 	_al_d3d_keyboard_initialized = true;
 

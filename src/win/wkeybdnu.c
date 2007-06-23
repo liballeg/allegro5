@@ -506,11 +506,7 @@ static int key_dinput_init(void)
       goto Error;
    }
 
-   /*
-   if (key_dinput_set_cooperation_level(allegro_wnd)) {
-      goto Error;
-   }
-   */
+   if (key_dinput_set_cooperative_level(allegro_wnd)) {
 
    /* Enable event notification */
    key_input_event = CreateEvent(NULL, FALSE, FALSE, NULL);

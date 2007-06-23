@@ -46,7 +46,8 @@ struct AL_DISPLAY
    int w, h;
 };
 
-AL_VAR(AL_DISPLAY *, _al_current_display);
+#define _al_current_display al_get_current_display()
+
 AL_DISPLAY_INTERFACE *_al_display_d3ddummy_driver(void);
 
 #endif
