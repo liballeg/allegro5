@@ -3,7 +3,7 @@
 
 typedef struct AL_SYSTEM AL_SYSTEM;
 
-void _al_init(void);
+bool _al_init(void);
 
 #define al_init() { allegro_init(); _al_init(); }
 
