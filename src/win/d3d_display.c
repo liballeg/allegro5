@@ -290,10 +290,6 @@ void _al_d3d_set_ortho_projection(float w, float h)
 	d3d_ortho_w = w;
 	d3d_ortho_h = h;
 
-//	D3DXMatrixOrthoOffCenterLH(&matOrtho, 0.0f, d3d_ortho_w, d3d_ortho_h, 0.0f, -1.0f, 1.0f);
-
-//	D3DXMatrixIdentity(&matIdentity);
-
 	d3d_get_identity_matrix(&matIdentity);
 	d3d_get_ortho_matrix(w, h, &matOrtho);
 
@@ -584,14 +580,12 @@ static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d,
 
 	if ((hr = IDirect3DDevice9_CreateAdditionalSwapChain(_al_d3d_device, &d3d_pp, &d->swap_chain)) != D3D_OK) {
 		TRACE("d3d_create_swap_chain: CreateAdditionalSwapChain failed.\n");
-		_al_d3d_unlock_device();
 		return 0;
 	}
 
 	if (IDirect3DSwapChain9_GetBackBuffer(d->swap_chain, 0, D3DBACKBUFFER_TYPE_MONO, &d->render_target) != D3D_OK) {
 		IDirect3DSwapChain9_Release(d->swap_chain);
 		TRACE("d3d_create_swap_chain: GetBackBuffer failed.\n");
-		_al_d3d_unlock_device();
 		return 0;
 	}
 
@@ -813,6 +807,7 @@ static void d3d_display_thread_proc(HANDLE unused)
 	 */
 	if (d3d_already_fullscreen ||
 		((d3d_created_displays._size > 0) && !(d3d_new_display_flags & AL_WINDOWED))) {
+		d3d_waiting_for_display = false;
 		return;
 	}
 
@@ -823,6 +818,7 @@ static void d3d_display_thread_proc(HANDLE unused)
 
 	if (!d3d_parameters_are_valid(d3d_new_display_format, d3d_new_display_refresh_rate, d3d_new_display_flags)) {
 		TRACE("d3d_create_display: Invalid parameters.\n");
+		d3d_waiting_for_display = false;
 		return;
 	}
 
@@ -849,9 +845,11 @@ static void d3d_display_thread_proc(HANDLE unused)
 
 	d->window = _al_d3d_create_window(d3d_new_display_w,
 		d3d_new_display_h, d3d_new_display_flags);
-	
-	if (!d->window)
+
+	if (!d->window) {
+		d3d_waiting_for_display = false;
 		return;
+	}
 
 	d->display.format = d3d_new_display_format;
 	d->display.refresh_rate = d3d_new_display_refresh_rate;
@@ -861,6 +859,7 @@ static void d3d_display_thread_proc(HANDLE unused)
 		if (!d3d_create_swap_chain(d, d3d_new_display_format, d3d_new_display_refresh_rate, d3d_new_display_flags)) {
 			d3d_destroy_display((AL_DISPLAY *)d);
 			_al_d3d_last_created_display = NULL;
+			d3d_waiting_for_display = false;
 			return;
 		}
 	}
@@ -868,6 +867,7 @@ static void d3d_display_thread_proc(HANDLE unused)
 		if (!d3d_create_fullscreen_device(d, d3d_new_display_format, d3d_new_display_refresh_rate, d3d_new_display_flags)) {
 			d3d_destroy_display((AL_DISPLAY *)d);
 			_al_d3d_last_created_display = NULL;
+			d3d_waiting_for_display = false;
 			return;
 		}
 	}
@@ -956,7 +956,6 @@ End:
 /* Create a new X11 dummy display, which maps directly to a GLX window. */
 static AL_DISPLAY *d3d_create_display(int w, int h)
 {
-
 	int format, refresh_rate, flags;
 
 	_al_d3d_lock_device();

@@ -6,6 +6,8 @@
 
 /* Possible bit combinations for the flags parameter of al_create_display. */
 
+#define _al_current_display al_get_current_display()
+
 #define AL_WINDOWED     1
 #define AL_FULLSCREEN   2
 #define AL_OPENGL       4

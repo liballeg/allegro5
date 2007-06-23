@@ -68,6 +68,7 @@ set(ALLEGRO_SRC_FILES
     src/system_new.c
     src/text.c
     src/tga.c
+    src/tls.c
     src/unicode.c
     src/vtable.c
     src/vtable15.c

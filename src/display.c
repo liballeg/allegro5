@@ -408,8 +408,10 @@ void destroy_bitmap(BITMAP *bitmap)
          }
       }
       else if (bitmap->needs_upload && bitmap == screen) {
-   	al_destroy_display(_al_current_display);
-	al_set_current_display(NULL);
+        if (_al_current_display) {
+   	   al_destroy_display(_al_current_display);
+	   al_set_current_display(NULL);
+	}
       }
 
       /* normal memory or sub-bitmap destruction */
@@ -822,9 +824,16 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 		return -1;
 	}
 	screen = create_bitmap(w, h);
+	if (!screen) {
+		return 1;
+	}
 	al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
 	al_set_new_display_flags(AL_SINGLEBUFFER|windowed_flag);
 	screen->display = al_create_display(w, h);
+	if (!screen->display) {
+		destroy_bitmap(screen);
+		return 1;
+	}
 	al_set_current_display(screen->display);
 	al_set_target_bitmap(al_get_backbuffer());
 	screen->needs_upload = true;

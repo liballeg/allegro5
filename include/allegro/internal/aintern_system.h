@@ -29,4 +29,8 @@ struct AL_SYSTEM
 //AL_SYSTEM_INTERFACE *_al_system_xdummy_driver(void);
 AL_SYSTEM_INTERFACE *_al_system_d3d_driver(void);
 
+#ifdef ALLEGRO_MINGW32
+#define _al_tls_init _al_tls_init
+#endif
+
 #endif

@@ -23,6 +23,8 @@ AL_DISPLAY *al_create_display(int w, int h)
    AL_SYSTEM *system = al_system_driver();
    AL_DISPLAY_INTERFACE *driver = system->vt->get_display_driver();
    AL_DISPLAY *display = driver->create_display(w, h);
+   if (!display)
+      return NULL;
    AL_COLOR black;
    al_set_current_display(display);
    _al_map_rgba(display->format, &black, 0, 0, 0, 0);

@@ -57,7 +57,8 @@ int al_get_new_display_flags(void)
  */
 void al_set_current_display(AL_DISPLAY *display)
 {
-   display->vt->set_current_display(display);
+   if (display)
+      display->vt->set_current_display(display);
    TlsSetValue(_al_current_display_tls, (LPVOID)display);
 }
 
@@ -204,7 +205,8 @@ int al_get_new_display_flags(void)
  */
 void al_set_current_display(AL_DISPLAY *display)
 {
-   display->vt->set_current_display(display);
+   if (display)
+      display->vt->set_current_display(display);
    _al_current_display_tls = display;
 }
 
