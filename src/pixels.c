@@ -1,3 +1,4 @@
+#include <string.h> /* for memset */
 #include "allegro.h"
 #include "allegro/bitmap_new.h"
 #include "internal/aintern.h"
@@ -288,7 +289,7 @@ static AL_COLOR *_map_rgba_f_palette_8(AL_COLOR *p,
 	float r, float g, float b, float a)
 {
 	p->raw[0] = (uint64_t)(makecol8(r*255, g*255, b*255));
-	p->raw[1] = (uint64_t)(p->raw[2] = (uint64_t)p->raw[3] = (uint64_t)0);
+	p->raw[1] = p->raw[2] = p->raw[3] = 0;
 	return p;
 }
 
