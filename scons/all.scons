@@ -6,6 +6,7 @@ context.addFiles('./', Split( """
 allegro.c
 blit.c
 bmp.c
+bitmap_new.c
 clip3d.c
 clip3df.c
 colblend.c
@@ -15,6 +16,7 @@ config.c
 datafile.c
 dataregi.c
 display.c
+display_new.c
 digmid.c
 dispsw.c
 dither.c
@@ -46,6 +48,7 @@ libc.c
 lzss.c
 math.c
 math3d.c
+memblit.c
 memory.c
 midi.c
 mixer.c
@@ -66,8 +69,10 @@ scene3d.c
 sound.c
 spline.c
 stream.c
+system_new.c
 text.c
 tga.c
+tls.c
 unicode.c
 vtable.c
 vtable15.c

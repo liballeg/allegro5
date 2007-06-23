@@ -192,6 +192,7 @@ else:
     platform["HAVE_DIRENT_H"] = [config.CheckCHeader("dirent.h"), "Define to 1 if you have the <dirent.h> header file, and it defines \"DIR\". "]
     platform["HAVE_DLFCN_H"] = [config.CheckCHeader("dlfcn.h"), "Define to 1 if you have the <dlfcn.h> header file."]
     platform["HAVE_FCNTL_H"] = [config.CheckCHeader("fcntl.h"), "Define to 1 if you have the <fcntl.h> header file."]
+    platform["HAVE_GLX"] = [config.CheckForGLX(), "Define to 1 if GLX is available."]
     platform["HAVE_INTTYPES_H"] = [config.CheckCHeader("inttypes.h"), "Define to 1 if you have the <inttypes.h> header file."]
     platform["HAVE_LIBOSSAUDIO"] = [config.CheckLib("ossaudio", "_oss_ioctl"), "Define to 1 if you have the \"ossaudio\" library (-lossaudio)."]
     platform["HAVE_LIBPTHREAD"] = [config.CheckLib("pthread", "pthread_create"), "Define if you have the pthread library."]
@@ -429,6 +430,13 @@ if haveXWindows():
     xsystem.c
     xvtable.c
     xwin.c
+    """));
+    
+    context.addFiles('xdummy/', Split("""
+    xbitmap.c
+    xcompat.c
+    xdisplay.c
+    xsystem.c
     """));
 
     def tools(tenv,appendDir,buildDir,libDir):

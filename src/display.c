@@ -654,12 +654,15 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    _gfx_mode_set_count++;
 
    /* FIXME: */
+   #ifdef ALLEGRO_UNIX
+   #else
    if (card == GFX_AUTODETECT) {
    	card = GFX_DIRECT3D;
    }
    else if (card == GFX_AUTODETECT_FULLSCREEN) {
    	card = GFX_DIRECT3D_FULLSCREEN;
    }
+   #endif
 
    /* special bodge for the GFX_SAFE driver */
    if (card == GFX_SAFE) {
@@ -803,6 +806,8 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       card = GFX_AUTODETECT;
    }
 
+   #ifdef ALLEGRO_UNIX
+   #else
    if (card == GFX_DIRECT3D || card == GFX_DIRECT3D_FULLSCREEN) {
    	int windowed_flag = (card == GFX_DIRECT3D) ? AL_WINDOWED : 0;
 	/*
@@ -838,7 +843,9 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 		_al_linker_mouse->set_mouse_etc();
 	return 0;
    }
-   else if (card == GFX_AUTODETECT) {
+   else
+   #endif
+   if (card == GFX_AUTODETECT) {
       /* autodetect the driver */
       int found = FALSE;
 
