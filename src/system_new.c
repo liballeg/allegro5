@@ -6,7 +6,7 @@
 static AL_SYSTEM *active;
 
 /* Initialize the Allegro system. */
-void _al_init(void)
+bool _al_init(void)
 {
    AL_SYSTEM_INTERFACE *driver;
 
@@ -14,6 +14,14 @@ void _al_init(void)
    driver = _al_system_d3d_driver();
 
    active = driver->initialize(0);
+
+#ifdef _al_tls_init
+   bool _al_tls_init();
+   if (!_al_tls_init())
+      return false;
+#endif
+
+   return true;
 }
 
 /* Returns the currently active system driver. */

@@ -409,7 +409,7 @@ void destroy_bitmap(BITMAP *bitmap)
       }
       else if (bitmap->needs_upload && bitmap == screen) {
    	al_destroy_display(_al_current_display);
-	_al_current_display = NULL;
+	al_set_current_display(NULL);
       }
 
       /* normal memory or sub-bitmap destruction */

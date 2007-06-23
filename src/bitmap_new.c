@@ -7,33 +7,7 @@
 
 /* Bitmap state is thread local */
 
-static int _new_bitmap_format = 0;
-static int _new_bitmap_flags = 0;
-/* For pushing/popping bitmap parameters */
-static int _new_bitmap_format_backup;
-static int _new_bitmap_flags_backup;
-
 static AL_COLOR _mask_color = { { 0, 0, 0, 0 } };
-
-void al_set_new_bitmap_format(int format)
-{
-   _new_bitmap_format = format;
-}
-
-void al_set_new_bitmap_flags(int flags)
-{
-   _new_bitmap_flags = flags;
-}
-
-int al_get_new_bitmap_format(void)
-{
-   return _new_bitmap_format;
-}
-
-int al_get_new_bitmap_flags(void)
-{
-   return _new_bitmap_flags;
-}
 
 /* Creates a memory bitmap. A memory bitmap can only be drawn to other memory
  * bitmaps, not to a display.
@@ -42,8 +16,8 @@ static AL_BITMAP *_al_create_memory_bitmap(int w, int h)
 {
    AL_BITMAP *bitmap = _AL_MALLOC(sizeof *bitmap);
    memset(bitmap, 0, sizeof *bitmap);
-   bitmap->format = _new_bitmap_format;
-   bitmap->flags = _new_bitmap_flags;
+   bitmap->format = al_get_new_bitmap_format();
+   bitmap->flags = al_get_new_bitmap_flags();
    bitmap->w = w;
    bitmap->h = h;
    bitmap->display = NULL;
@@ -51,8 +25,8 @@ static AL_BITMAP *_al_create_memory_bitmap(int w, int h)
    // FIXME: Of course, we do need to handle all the possible different formats,
    // this will easily fill up its own file of 1000 lines, but for now,
    // RGBA with 8-bit per component is hardcoded.
-   bitmap->memory = _AL_MALLOC(w * h * _al_pixel_size(_new_bitmap_format));
-   memset(bitmap->memory, 0, w * h * _al_pixel_size(_new_bitmap_format));
+   bitmap->memory = _AL_MALLOC(w * h * _al_pixel_size(al_get_new_bitmap_format()));
+   memset(bitmap->memory, 0, w * h * _al_pixel_size(al_get_new_bitmap_format()));
    return bitmap;
 }
 
@@ -69,7 +43,7 @@ AL_BITMAP *al_create_bitmap(int w, int h)
 {
    AL_BITMAP *bitmap;
    
-   if (_new_bitmap_flags & AL_MEMORY_BITMAP) {
+   if (al_get_new_bitmap_flags() & AL_MEMORY_BITMAP) {
    	return _al_create_memory_bitmap(w, h);
    }
 
@@ -156,7 +130,7 @@ AL_BITMAP *al_load_bitmap(char const *filename)
 {
    AL_BITMAP *bitmap;
    
-   if (_new_bitmap_flags & AL_MEMORY_BITMAP) {
+   if (al_get_new_bitmap_flags() & AL_MEMORY_BITMAP) {
    	return _al_load_memory_bitmap(filename);
    }
 
@@ -338,14 +312,3 @@ void al_convert_mask_to_alpha(AL_BITMAP *bitmap, AL_COLOR *mask_color)
 	al_unlock_bitmap(bitmap);
 }
 
-void _al_push_bitmap_parameters()
-{
-	_new_bitmap_format_backup = _new_bitmap_format;
-	_new_bitmap_flags_backup = _new_bitmap_flags;
-}
-
-void _al_pop_bitmap_parameters()
-{
-	_new_bitmap_format = _new_bitmap_format_backup;
-	_new_bitmap_flags = _new_bitmap_flags_backup;
-}

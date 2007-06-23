@@ -34,9 +34,6 @@ static float d3d_ortho_h;
 
 static bool d3d_already_fullscreen = false;
 static bool _al_d3d_device_lost;
-static bool d3d_waiting_for_display = true;
-static int d3d_new_display_w;
-static int d3d_new_display_h;
 static AL_DISPLAY_D3D *d3d_destroyed_display = NULL;
 static LPDIRECT3DSURFACE9 d3d_current_texture_render_target = NULL;
 
@@ -52,6 +49,17 @@ AL_DISPLAY_D3D *_al_d3d_last_created_display = 0;
 static AL_DISPLAY_D3D *d3d_fullscreen_display;
 
 static _AL_MUTEX d3d_device_mutex;
+
+static bool d3d_waiting_for_display = true;
+static int d3d_new_display_w;
+static int d3d_new_display_h;
+/*
+ * These parameters cannot be gotten by the display thread because
+ * they're thread local. We get them in the calling thread first.
+ */
+static int d3d_new_display_format = 0;
+static int d3d_new_display_refresh_rate = 0;
+static int d3d_new_display_flags = 0;
 
 /* Dummy graphics driver for compatibility */
 GFX_DRIVER _al_d3d_dummy_gfx_driver = {
@@ -574,8 +582,6 @@ static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d,
 
 	HRESULT hr;
 
-	_al_d3d_lock_device();
-
 	if ((hr = IDirect3DDevice9_CreateAdditionalSwapChain(_al_d3d_device, &d3d_pp, &d->swap_chain)) != D3D_OK) {
 		TRACE("d3d_create_swap_chain: CreateAdditionalSwapChain failed.\n");
 		_al_d3d_unlock_device();
@@ -588,8 +594,6 @@ static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d,
 		_al_d3d_unlock_device();
 		return 0;
 	}
-
-	_al_d3d_unlock_device();
 
 	return 1;
 }
@@ -748,8 +752,6 @@ static bool _al_d3d_reset_device()
 			IDirect3DDevice9_GetRenderTarget(_al_d3d_device, 0, &render_target);
 			IDirect3DSurface9_Release(render_target);
 
-			_al_d3d_unlock_device();
-
 			for (i = 0; i < d3d_created_displays._size; i++) {
 				AL_DISPLAY_D3D **dptr = _al_vector_ref(&d3d_created_displays, i);
 				AL_DISPLAY_D3D *d = *dptr;
@@ -758,7 +760,8 @@ static bool _al_d3d_reset_device()
 
 				d3d_create_swap_chain(d, al_display->format, al_display->refresh_rate, al_display->flags);
 			}
-
+			
+			_al_d3d_unlock_device();
 
 		}
 	}
@@ -796,18 +799,11 @@ static void d3d_do_resize(AL_DISPLAY *d)
 
 static void d3d_display_thread_proc(HANDLE unused)
 {
-	int format;
-	int refresh_rate;
-	int flags;
 	AL_DISPLAY_D3D *d;
 	DWORD result;
 	MSG msg;
 	HRESULT hr;
 	bool lost_event_generated = false;
-
-	format = al_get_new_display_format();
-	refresh_rate = al_get_new_display_refresh_rate();
-	flags = al_get_new_display_flags();
 
 	_al_d3d_last_created_display = NULL;
 
@@ -816,16 +812,16 @@ static void d3d_display_thread_proc(HANDLE unused)
 	 * combine fullscreen and windowed swap chains.
 	 */
 	if (d3d_already_fullscreen ||
-		((d3d_created_displays._size > 0) && !(flags & AL_WINDOWED))) {
+		((d3d_created_displays._size > 0) && !(d3d_new_display_flags & AL_WINDOWED))) {
 		return;
 	}
 
-	if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
+	if (d3d_new_display_format == ALLEGRO_PIXEL_FORMAT_ANY) {
 		/* FIXME: Use desktop format? */
-		format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+		d3d_new_display_format = ALLEGRO_PIXEL_FORMAT_RGB_565;
 	}
 
-	if (!d3d_parameters_are_valid(format, refresh_rate, flags)) {
+	if (!d3d_parameters_are_valid(d3d_new_display_format, d3d_new_display_refresh_rate, d3d_new_display_flags)) {
 		TRACE("d3d_create_display: Invalid parameters.\n");
 		return;
 	}
@@ -852,24 +848,24 @@ static void d3d_display_thread_proc(HANDLE unused)
 	d->keyboard_initialized = false;
 
 	d->window = _al_d3d_create_window(d3d_new_display_w,
-		d3d_new_display_h, flags);
+		d3d_new_display_h, d3d_new_display_flags);
 	
 	if (!d->window)
 		return;
 
-	d->display.format = format;
-	d->display.refresh_rate = refresh_rate;
-	d->display.flags = flags;
+	d->display.format = d3d_new_display_format;
+	d->display.refresh_rate = d3d_new_display_refresh_rate;
+	d->display.flags = d3d_new_display_flags;
 
-	if (flags & AL_WINDOWED) {
-		if (!d3d_create_swap_chain(d, format, refresh_rate, flags)) {
+	if (d3d_new_display_flags & AL_WINDOWED) {
+		if (!d3d_create_swap_chain(d, d3d_new_display_format, d3d_new_display_refresh_rate, d3d_new_display_flags)) {
 			d3d_destroy_display((AL_DISPLAY *)d);
 			_al_d3d_last_created_display = NULL;
 			return;
 		}
 	}
 	else {
-		if (!d3d_create_fullscreen_device(d, format, refresh_rate, flags)) {
+		if (!d3d_create_fullscreen_device(d, d3d_new_display_format, d3d_new_display_refresh_rate, d3d_new_display_flags)) {
 			d3d_destroy_display((AL_DISPLAY *)d);
 			_al_d3d_last_created_display = NULL;
 			return;
@@ -963,19 +959,26 @@ static AL_DISPLAY *d3d_create_display(int w, int h)
 
 	int format, refresh_rate, flags;
 
+	_al_d3d_lock_device();
+
 	format = al_get_new_display_format();
 	refresh_rate = al_get_new_display_refresh_rate();
 	flags = al_get_new_display_flags();
 
 	if (d3d_created_displays._size == 0 && (flags & AL_WINDOWED)) {
 		if (!d3d_create_hidden_device()) {
+			_al_d3d_unlock_device();
 			return NULL;
 		}
 	}
 
 	d3d_new_display_w = w;
 	d3d_new_display_h = h;
-	
+
+	d3d_new_display_format = al_get_new_display_format();
+	d3d_new_display_refresh_rate = al_get_new_display_refresh_rate();
+	d3d_new_display_flags = al_get_new_display_flags();
+
 	_beginthread(d3d_display_thread_proc, 0, 0);
 
 	while (d3d_waiting_for_display)
@@ -987,6 +990,8 @@ static AL_DISPLAY *d3d_create_display(int w, int h)
 		d3d_already_fullscreen = true;
 		d3d_fullscreen_display = _al_d3d_last_created_display;
 	}
+
+	_al_d3d_unlock_device();
 
 	return (AL_DISPLAY *)_al_d3d_last_created_display;
 }

@@ -5,50 +5,8 @@
 #include "internal/aintern_display.h"
 #include "internal/aintern_bitmap.h"
 
-
-/* Display parameters */
-static int _new_display_format = 0;
-static int _new_display_refresh_rate = 0;
-static int _new_display_flags = 0;
-
-AL_DISPLAY *_al_current_display;
-static AL_BITMAP *_target_bitmap;
-/* For pushing/popping target bitmap */
-static AL_BITMAP *_target_bitmap_backup;
-
-
 // FIXME: The system driver must be used to get drivers!
 extern AL_DISPLAY_INTERFACE *_al_glx_vt(void);
-
-void al_set_new_display_format(int format)
-{
-   _new_display_format = format;
-}
-
-void al_set_new_display_refresh_rate(int refresh_rate)
-{
-   _new_display_refresh_rate = refresh_rate;
-}
-
-void al_set_new_display_flags(int flags)
-{
-   _new_display_flags = flags;
-}
-
-int al_get_new_display_format(void)
-{
-   return _new_display_format;
-}
-
-int al_get_new_display_refresh_rate(void)
-{
-   return _new_display_refresh_rate;
-}
-
-int al_get_new_display_flags(void)
-{
-   return _new_display_flags;
-}
 
 /*
  * Create a new display. This is usually a window or fullscreen display.
@@ -77,42 +35,6 @@ AL_DISPLAY *al_create_display(int w, int h)
 void al_destroy_display(AL_DISPLAY *display)
 {
 	display->vt->destroy_display(display);
-}
-
-/*
- * Make a display the current display. All the following Allegro commands in
- * the same thread will implicitly use this display from now on.
- */
-void al_set_current_display(AL_DISPLAY *display)
-{
-   display->vt->set_current_display(display);
-   _al_current_display = display;
-}
-
-/*
- * Get the current display.
- */
-AL_DISPLAY *al_get_current_display(void)
-{
-   return _al_current_display;
-}
-
-/*
- * Select the bitmap to which all subsequent drawing operation
- * will draw.
- */
-void al_set_target_bitmap(AL_BITMAP *bitmap)
-{
-   _target_bitmap = bitmap;
-   _al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
-}
-
-/*
- * Retrieve the target for drawing operations.
- */
-AL_BITMAP *al_get_target_bitmap(void)
-{
-   return _target_bitmap;
 }
 
 AL_BITMAP *al_get_backbuffer(void)
@@ -172,17 +94,6 @@ void al_draw_filled_rectangle(float tlx, float tly, float brx, float bry,
 {
    _al_current_display->vt->draw_filled_rectangle(_al_current_display,
       tlx, tly, brx, bry, color);
-}
-
-void _al_push_target_bitmap(void)
-{
-   _target_bitmap_backup = _target_bitmap;
-}
-
-void _al_pop_target_bitmap(void)
-{
-   _target_bitmap = _target_bitmap_backup;
-   al_set_target_bitmap(_target_bitmap);
 }
 
 bool al_is_compatible_bitmap(AL_BITMAP *bitmap)
