@@ -185,7 +185,7 @@ void al_set_new_display_flags(int flags)
 
 int al_get_new_display_format(void)
 {
-   return _new_display_format;
+   return _new_display_format_tls;
 }
 
 int al_get_new_display_refresh_rate(void)
