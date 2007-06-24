@@ -112,6 +112,8 @@ void datedit_init(void)
       #include "obj/unix/plugins.h"
    #elif defined ALLEGRO_MINGW32
       #include "obj/mingw32/plugins.h"
+   #elif defined ALLEGRO_DMC
+      #include "obj/dmc/plugins.h"
    #elif defined ALLEGRO_BEOS
       #include "obj/beos/plugins.h"
    #elif defined ALLEGRO_BCC32

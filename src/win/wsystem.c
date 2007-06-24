@@ -30,6 +30,14 @@
 #error something is wrong with the makefile
 #endif
 
+/* DMC requires a DllMain() function, or else the DLL hangs. */
+#ifndef ALLEGRO_STATICLINK
+BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason, LPVOID lpReserved)
+{
+   return TRUE;
+}
+#endif
+
 
 static int sys_directx_init(void);
 static void sys_directx_exit(void);

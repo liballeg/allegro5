@@ -49,6 +49,8 @@ echo "Patching include/allegro/base.h..."
 cp include/allegro/base.h fixver.tmp
 sed -f fixver.sed fixver.tmp > include/allegro/base.h
 
+# Note: DMC does not support { and } in resource files so we use
+# BEGIN and END instead.
 echo "Patching src/win/dllver.rc..."
 cat > src/win/dllver.rc << END_OF_DLLVER
 // Windows resource file for the version info sheet
@@ -62,11 +64,11 @@ FILEVERSION $1, $2, $3, 0
 PRODUCTVERSION $1, $2, $3, 0
 FILEOS VOS__WINDOWS32
 FILETYPE VFT_DLL
-{
+BEGIN
    BLOCK "StringFileInfo"
-   {
+   BEGIN
       BLOCK "040904E4"
-      {
+      BEGIN
          VALUE "Comments", "Please see AUTHORS for a list of contributors\000"
          VALUE "CompanyName", "Allegro Developers\000\000"
          VALUE "FileDescription", "Allegro\000"
@@ -76,14 +78,14 @@ FILETYPE VFT_DLL
          VALUE "OriginalFilename", "ALLEG$1$2.DLL\000"
          VALUE "ProductName", "Allegro\000"
          VALUE "ProductVersion", "$verstr\000"
-      }
-   }
+      END
+   END
 
    BLOCK "VarFileInfo"
-   {
+   BEGIN
       VALUE "Translation", 0x0809, 1252
-   }
-}
+   END
+END
 
 END_OF_DLLVER
 
