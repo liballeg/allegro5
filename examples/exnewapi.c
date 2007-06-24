@@ -7,10 +7,8 @@
  */
 #include "allegro.h"
 #include "allegro/internal/aintern_bitmap.h"
-#include <winalleg.h>
 #include <math.h>
-
-#include "d3d.h"
+#include <stdio.h>
 
 int main(void)
 {
