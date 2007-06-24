@@ -98,6 +98,20 @@ AL_SYSTEM_INTERFACE *_al_system_xdummy_driver(void)
    vt->initialize = initialize;
    vt->get_display_driver = get_display_driver;
    vt->get_keyboard_driver = get_keyboard_driver;
-
+   
    return vt;
+}
+
+/* This is a function each platform must define to register all available
+ * system drivers.
+ */
+void _al_register_system_interfaces()
+{
+   AL_SYSTEM_INTERFACE **add;
+
+#if defined ALLEGRO_UNIX
+   /* This is the only system driver right now */
+   add = _al_vector_alloc_back(&_al_system_interfaces);
+   *add = _al_system_xdummy_driver();
+#endif
 }

@@ -23,14 +23,29 @@ static void setup_gl(AL_DISPLAY *d)
 /* Create a new X11 dummy display, which maps directly to a GLX window. */
 static AL_DISPLAY *create_display(int w, int h)
 {
-   int flags = 0;
-
    AL_DISPLAY_XDUMMY *d = _AL_MALLOC(sizeof *d);
    memset(d, 0, sizeof *d);
 
    d->display.w = w;
    d->display.h = h;
    d->display.vt = vt;
+   //FIXME
+   //d->display.format = al_get_new_display_format();
+   d->display.format = ALLEGRO_PIXEL_FORMAT_RGBA_8888,
+
+   d->display.refresh_rate = al_get_new_display_refresh_rate();
+   d->display.flags = al_get_new_display_flags();
+
+   d->backbuffer = xdummy_create_bitmap(&d->display, w, h);
+   AL_BITMAP_XDUMMY *backbuffer = (void *)d->backbuffer;
+   backbuffer->is_backbuffer = 1;
+   /* Create a memory cache for the whole screen. */
+   //TODO: Maybe we should do this lazily and defer to lock_bitmap_region
+   if (!d->backbuffer->memory) {
+      int n = w * h * _al_get_pixel_size(d->backbuffer->format);
+      d->backbuffer->memory = _AL_MALLOC(n);
+      memset(d->backbuffer->memory, 0, n);
+   }
 
    AL_SYSTEM_XDUMMY *system = (AL_SYSTEM_XDUMMY *)al_system_driver();
 
@@ -76,7 +91,7 @@ static AL_DISPLAY *create_display(int w, int h)
 
    TRACE("xdisplay: X11 window created.\n");
    
-   if (!(flags & AL_RESIZABLE)) {
+   if (!(d->display.flags & AL_RESIZABLE)) {
       XSizeHints *hints = XAllocSizeHints();;
 
       hints->flags = PMinSize | PMaxSize | PBaseSize;
@@ -107,6 +122,11 @@ static AL_DISPLAY *create_display(int w, int h)
    TRACE("xdisplay: Got GLX context.\n");
 
    return (AL_DISPLAY *)d;
+}
+
+static void destroy_display(AL_DISPLAY *d)
+{
+   //FIXME!
 }
 
 static void set_current_display(AL_DISPLAY *d)
@@ -260,13 +280,44 @@ void _al_display_xdummy_closebutton(AL_DISPLAY *d, XEvent *xevent)
 // FIXME: think about moving this to xbitmap.c instead..
 AL_BITMAP *xdummy_create_bitmap(AL_DISPLAY *d, unsigned int w, unsigned int h)
 {
+   int format = al_get_new_bitmap_format();
+   int flags = al_get_new_bitmap_flags();
+
+   //FIXME
+   format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
+
    AL_BITMAP_XDUMMY *bitmap = _AL_MALLOC(sizeof *bitmap);
    bitmap->bitmap.vt = _al_bitmap_xdummy_driver();
    bitmap->bitmap.w = w;
    bitmap->bitmap.h = h;
-   bitmap->bitmap.flags = 0;
+   bitmap->bitmap.memory = NULL;
+   bitmap->bitmap.format = format;
+   bitmap->bitmap.flags = flags;
+
    bitmap->texture = 0;
+
    return &bitmap->bitmap;
+}
+
+static AL_BITMAP *get_backbuffer(AL_DISPLAY *d)
+{
+   AL_DISPLAY_XDUMMY *glx = (AL_DISPLAY_XDUMMY *)d;
+   return glx->backbuffer;
+}
+
+static AL_BITMAP *get_frontbuffer(AL_DISPLAY *d)
+{
+   return NULL;
+}
+
+static void set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
+{
+   //FIXME: change to offscreen targets and so on
+}
+
+static bool is_compatible_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
+{
+   return true;
 }
 
 /* Obtain a reference to this driver. */
@@ -278,6 +329,7 @@ AL_DISPLAY_INTERFACE *_al_display_xdummy_driver(void)
    memset(vt, 0, sizeof *vt);
 
    vt->create_display = create_display;
+   vt->destroy_display = destroy_display;
    vt->set_current_display = set_current_display;
    vt->clear = clear;
    vt->draw_line = draw_line;
@@ -285,6 +337,10 @@ AL_DISPLAY_INTERFACE *_al_display_xdummy_driver(void)
    vt->flip_display = flip_display;
    vt->notify_resize = acknowledge_resize;
    vt->create_bitmap = xdummy_create_bitmap;
+   vt->get_backbuffer = get_backbuffer;
+   vt->get_frontbuffer = get_backbuffer;
+   vt->set_target_bitmap = set_target_bitmap;
+   vt->is_compatible_bitmap = is_compatible_bitmap;
 
    return vt;
 }
