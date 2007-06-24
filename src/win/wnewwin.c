@@ -123,6 +123,11 @@ HWND _al_win_create_window(AL_DISPLAY *display, int width, int height, int flags
 		DrawMenuBar(my_window);
 	}
 
+	if (!(flags & AL_WINDOWED)) {
+	   wnd_x = 0;
+	   wnd_y = 0;
+	}
+
 	_al_win_wnd = my_window;
 	return my_window;
 }

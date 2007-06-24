@@ -658,11 +658,11 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    /* FIXME: */
    #ifdef ALLEGRO_UNIX
    #else
-   if (card == GFX_AUTODETECT) {
-   	card = GFX_DIRECT3D;
-   }
-   else if (card == GFX_AUTODETECT_FULLSCREEN) {
+   if (card == GFX_AUTODETECT || card == GFX_AUTODETECT_FULLSCREEN) {
    	card = GFX_DIRECT3D_FULLSCREEN;
+   }
+   else if (card == GFX_AUTODETECT_WINDOWED) {
+   	card = GFX_DIRECT3D_WINDOWED;
    }
    #endif
 
@@ -811,7 +811,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    #ifdef ALLEGRO_UNIX
    #else
    if (card == GFX_DIRECT3D || card == GFX_DIRECT3D_FULLSCREEN) {
-   	int windowed_flag = (card == GFX_DIRECT3D) ? AL_WINDOWED : 0;
+   	int windowed_flag = (card == GFX_DIRECT3D_WINDOWED) ? AL_WINDOWED : 0;
 	/*
 	if (gfx_driver) {
 		destroy_bitmap(screen);

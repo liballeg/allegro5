@@ -45,6 +45,10 @@ bool _al_init(void)
 {
    AL_SYSTEM_INTERFACE *driver = NULL;
 
+   if (active) {
+      return true;
+   }
+
    /* Register builtin system drivers */
    _al_register_system_interfaces();
 

@@ -381,9 +381,9 @@ void _al_draw_bitmap_region_memory(AL_BITMAP *bitmap,
 
    (*_draw_region_funcs[bitmap->format][dest->format])(
       src_region.data, sx, sy, sw, sh,
-      src_region.pitch, _al_pixel_size(bitmap->format), bitmap->format,
+      src_region.pitch, _al_get_pixel_size(bitmap->format), bitmap->format,
       dst_region.data, dx, dy,
-      dst_region.pitch, _al_pixel_size(dest->format), dest->format,
+      dst_region.pitch, _al_get_pixel_size(dest->format), dest->format,
       flags);
 
    al_unlock_bitmap(bitmap);
@@ -874,9 +874,9 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int dw, int dh, int flags)
 {
-   int ssize = _al_pixel_size(bitmap->format);
+   int ssize = _al_get_pixel_size(bitmap->format);
    AL_BITMAP *dest = al_get_target_bitmap();
-   int dsize = _al_pixel_size(dest->format);
+   int dsize = _al_get_pixel_size(dest->format);
 
    (*_draw_scaled_funcs[bitmap->format][dest->format])(
    	bitmap, sx, sy, sw, sh, ssize,
@@ -903,6 +903,8 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
 #define right_spr_x  corner_spr_x[1]
 #define bottom_spr_x corner_spr_x[2]
 #define left_spr_x   corner_spr_x[3]
+
+/* Copied from rotate.c */
 
 /* _parallelogram_map:
  *  Worker routine for drawing rotated and/or scaled and/or flipped sprites:
@@ -1154,8 +1156,8 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
    al_get_mask_color(&mask_color); \
    mask_pixel = _al_get_pixel_value(src->format, &mask_color); \
  \
-   ssize = _al_pixel_size(src->format); \
-   dsize = _al_pixel_size(dst->format); \
+   ssize = _al_get_pixel_size(src->format); \
+   dsize = _al_get_pixel_size(dst->format); \
  \
    /* \
     * Loop through scanlines. \

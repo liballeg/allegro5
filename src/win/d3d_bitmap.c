@@ -154,17 +154,14 @@ static void d3d_transform(D3D_TL_VERTEX vertices[],
 /*
  * Draw a textured quad (or filled rectangle)
  *
- * texture - The source texture
- * x - x coordinate to draw the texture at
- * y - y coordinate to draw the texture at
- * w - The width of the actual texture image. This can differ from the size
- *     of the texture because texture sizes are sometimes made bigger so
- *     they will be a power of two.
- * h - The width of the actual texture image.
- * center - Center of scaling and rotation relative to x,y
- * angle - Angle of rotation in radians
- * color - RGB and alpha channels are modulated by this value.
- *         Use 0xFFFFFFFF for an unmodified blit.
+ * bmp - bitmap with texture to draw
+ * sx, sy, sw, sh - source x, y, width, height
+ * dx, dy, dw, dh - destination x, y, width, height
+ * cx, cy - center of rotation and scaling
+ * angle - rotation angle in radians (counter clockwise)
+ * color - tint color?
+ * flags - flipping flags
+ *
  */
 void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
 	float sx, float sy, float sw, float sh,
@@ -277,7 +274,7 @@ static void d3d_sync_bitmap_memory(AL_BITMAP *bitmap)
 
    if (IDirect3DTexture9_LockRect(d3d_bmp->system_texture, 0, &locked_rect, NULL, 0) == D3D_OK) {
 	_al_convert_bitmap_data(locked_rect.pBits, bitmap->format, locked_rect.Pitch,
-		bitmap->memory, bitmap->format, _al_pixel_size(bitmap->format)*bitmap->w,
+		bitmap->memory, bitmap->format, _al_get_pixel_size(bitmap->format)*bitmap->w,
 		0, 0, 0, 0, bitmap->w, bitmap->h);
 	IDirect3DTexture9_UnlockRect(d3d_bmp->system_texture, 0);
    }
@@ -304,14 +301,14 @@ static void d3d_sync_bitmap_texture(AL_BITMAP *bitmap,
    	rect.bottom++;
 
    if (IDirect3DTexture9_LockRect(d3d_bmp->system_texture, 0, &locked_rect, &rect, 0) == D3D_OK) {
-	_al_convert_bitmap_data(bitmap->memory, bitmap->format, bitmap->w*_al_pixel_size(bitmap->format),
+	_al_convert_bitmap_data(bitmap->memory, bitmap->format, bitmap->w*_al_get_pixel_size(bitmap->format),
 		locked_rect.pBits, bitmap->format, locked_rect.Pitch,
 		x, y, 0, 0, width, height);
 	/* Copy an extra row and column so the texture ends nicely */
 	if (rect.bottom > bitmap->h) {
 		_al_convert_bitmap_data(
 			bitmap->memory,
-			bitmap->format, bitmap->w*_al_pixel_size(bitmap->format),
+			bitmap->format, bitmap->w*_al_get_pixel_size(bitmap->format),
 			locked_rect.pBits,
 			bitmap->format, locked_rect.Pitch,
 			0, bitmap->h-1,
@@ -321,7 +318,7 @@ static void d3d_sync_bitmap_texture(AL_BITMAP *bitmap,
 	if (rect.right > bitmap->w) {
 		_al_convert_bitmap_data(
 			bitmap->memory,
-			bitmap->format, bitmap->w*_al_pixel_size(bitmap->format),
+			bitmap->format, bitmap->w*_al_get_pixel_size(bitmap->format),
 			locked_rect.pBits,
 			bitmap->format, locked_rect.Pitch,
 			bitmap->w-1, 0,
@@ -331,7 +328,7 @@ static void d3d_sync_bitmap_texture(AL_BITMAP *bitmap,
 	if (rect.bottom > bitmap->h && rect.right > bitmap->w) {
 		_al_convert_bitmap_data(
 			bitmap->memory,
-			bitmap->format, bitmap->w*_al_pixel_size(bitmap->format),
+			bitmap->format, bitmap->w*_al_get_pixel_size(bitmap->format),
 			locked_rect.pBits,
 			bitmap->format, locked_rect.Pitch,
 			bitmap->w-1, bitmap->h-1,

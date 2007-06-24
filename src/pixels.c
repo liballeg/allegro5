@@ -25,7 +25,7 @@ static int pixel_sizes[] = {
 };
 
 
-int _al_pixel_size(int format)
+int _al_get_pixel_size(int format)
 {
 	return pixel_sizes[format];
 }
@@ -809,7 +809,7 @@ AL_COLOR *al_get_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color)
 		}
 
 		_al_get_pixel(bitmap,
-			bitmap->locked_region.data+y*bitmap->locked_region.pitch+x*_al_pixel_size(bitmap->format),
+			bitmap->locked_region.data+y*bitmap->locked_region.pitch+x*_al_get_pixel_size(bitmap->format),
 			color);
 	}
 	else {
@@ -1006,7 +1006,7 @@ void _al_put_pixel(void *data, int format, AL_COLOR *color)
 
 int _al_get_pixel_value(int src_format, AL_COLOR *src_color)
 {
-	switch (_al_pixel_size(src_format)) {
+	switch (_al_get_pixel_size(src_format)) {
 		case 1: {
 			unsigned char pixel;
 			_al_put_pixel(&pixel, src_format, src_color);
@@ -1045,7 +1045,7 @@ void al_put_pixel(int x, int y, AL_COLOR *color)
 			return;
 		}
 
-		_al_put_pixel(bitmap->locked_region.data+y*bitmap->locked_region.pitch+x*_al_pixel_size(bitmap->format),
+		_al_put_pixel(bitmap->locked_region.data+y*bitmap->locked_region.pitch+x*_al_get_pixel_size(bitmap->format),
 			bitmap->format, color);
 	}
 	else {

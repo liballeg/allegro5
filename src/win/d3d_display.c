@@ -223,14 +223,11 @@ static void d3d_destroy_vertex_buffers()
 static void d3d_reset_state()
 {
 	if (_al_d3d_is_device_lost()) return;
-	_al_d3d_lock_device();
 
 	IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ZENABLE, D3DZB_FALSE);
 	IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ZWRITEENABLE, FALSE);
 	IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_LIGHTING, FALSE);
 	IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CULLMODE, D3DCULL_NONE);
-	
-	_al_d3d_unlock_device();
 }
 
 void _al_d3d_get_current_ortho_projection_parameters(float *w, float *h)
@@ -416,8 +413,6 @@ static bool d3d_create_hidden_device()
 	IDirect3DDevice9_GetRenderTarget(_al_d3d_device, 0, &render_target);
 	IDirect3DSurface9_Release(render_target);
 
-	d3d_reset_state();
-
 	if (d3d_create_vertex_buffers() != false) {
 		TRACE("Failed to create vertex buffers.\n");
 		IDirect3DDevice9_Release(_al_d3d_device);
@@ -593,6 +588,8 @@ static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d,
 		return 0;
 	}
 
+	d3d_reset_state();
+
 	return 1;
 }
 
@@ -619,6 +616,7 @@ static void d3d_destroy_display(AL_DISPLAY *display)
 	else {
 		d3d_destroy_vertex_buffers();
 		//d3d_destroy_fullscreen_device();
+		//d3d_destroy_device();
 		d3d_already_fullscreen = false;
 	}
 
@@ -769,7 +767,11 @@ static bool _al_d3d_reset_device()
 	al_set_current_display(d3d_target_display_before_device_lost);
 	al_set_target_bitmap(d3d_target_bitmap_before_device_lost);
 
+	_al_d3d_lock_device();
+
 	d3d_reset_state();
+
+	_al_d3d_unlock_device();
 
 	return 1;
 }
@@ -886,8 +888,6 @@ static void d3d_display_thread_proc(HANDLE unused)
 	/* Keep track of the displays created */
 	add = _al_vector_alloc_back(&d3d_created_displays);
 	*add = d;
-
-	win_grab_input();
 
 	d3d_waiting_for_display = false;
 
@@ -1009,6 +1009,8 @@ static AL_DISPLAY *d3d_create_display(int w, int h)
 	if (_al_d3d_last_created_display == NULL) {
 		return NULL;
 	}
+
+	win_grab_input();
 
 	if (!(flags & AL_WINDOWED)) {
 		d3d_already_fullscreen = true;
@@ -1373,8 +1375,11 @@ static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 		_al_d3d_unlock_device();
 	}
 
+	_al_d3d_lock_device();
 
 	d3d_reset_state();
+
+	_al_d3d_unlock_device();
 }
 
 static AL_BITMAP *d3d_get_backbuffer()

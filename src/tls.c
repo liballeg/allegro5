@@ -1,4 +1,5 @@
 #include "allegro.h"
+#include "allegro/internal/aintern_bitmap.h"
 
 /* Thread local storage for graphics API state */
 
@@ -77,7 +78,8 @@ AL_DISPLAY *al_get_current_display(void)
 void al_set_target_bitmap(AL_BITMAP *bitmap)
 {
    TlsSetValue(_target_bitmap_tls, (LPVOID)bitmap);
-   _al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
+   if (!(bitmap->flags & AL_MEMORY_BITMAP))
+      _al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
 }
 
 /*
@@ -225,7 +227,8 @@ AL_DISPLAY *al_get_current_display(void)
 void al_set_target_bitmap(AL_BITMAP *bitmap)
 {
    _target_bitmap_tls = bitmap;
-   _al_current_display->vt->set_target_bitmap(_al_current_display_tls, bitmap);
+   if (!(bitmap->flags & AL_MEMORY_BITMAP))
+      _al_current_display->vt->set_target_bitmap(_al_current_display_tls, bitmap);
 }
 
 /*

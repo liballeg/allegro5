@@ -399,7 +399,7 @@ void _al_convert_compat_bitmap(
 	}
 
 	(*convert_funcs[src_format][dst_format])(src->dat,
-		src_format, _al_pixel_size(src_format)*src->w,
+		src_format, _al_get_pixel_size(src_format)*src->w,
 		dst, dst_format, dst_pitch, sx, sy, dx, dy, width, height);
 }
 

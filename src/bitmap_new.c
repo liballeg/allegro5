@@ -25,8 +25,8 @@ static AL_BITMAP *_al_create_memory_bitmap(int w, int h)
    // FIXME: Of course, we do need to handle all the possible different formats,
    // this will easily fill up its own file of 1000 lines, but for now,
    // RGBA with 8-bit per component is hardcoded.
-   bitmap->memory = _AL_MALLOC(w * h * _al_pixel_size(al_get_new_bitmap_format()));
-   memset(bitmap->memory, 0, w * h * _al_pixel_size(al_get_new_bitmap_format()));
+   bitmap->memory = _AL_MALLOC(w * h * _al_get_pixel_size(al_get_new_bitmap_format()));
+   memset(bitmap->memory, 0, w * h * _al_get_pixel_size(al_get_new_bitmap_format()));
    return bitmap;
 }
 
@@ -57,8 +57,8 @@ AL_BITMAP *al_create_bitmap(int w, int h)
    bitmap->locked = false;
 
    if (!bitmap->memory) {
-   	bitmap->memory = _AL_MALLOC(w * h * _al_pixel_size(bitmap->format));
-        memset(bitmap->memory, 0, w * h * _al_pixel_size(bitmap->format));
+   	bitmap->memory = _AL_MALLOC(w * h * _al_get_pixel_size(bitmap->format));
+        memset(bitmap->memory, 0, w * h * _al_get_pixel_size(bitmap->format));
    }
 
    bitmap->vt->upload_bitmap(bitmap, 0, 0, w, h);
@@ -116,7 +116,7 @@ static AL_BITMAP *_al_load_memory_bitmap(char const *filename)
 
    _al_convert_compat_bitmap(
    	file_data,
-	bitmap->memory, bitmap->format, _al_pixel_size(bitmap->format)*bitmap->w,
+	bitmap->memory, bitmap->format, _al_get_pixel_size(bitmap->format)*bitmap->w,
 	0, 0, 0, 0,
 	file_data->w, file_data->h);
 
@@ -229,9 +229,9 @@ AL_LOCKED_REGION *al_lock_bitmap_region(AL_BITMAP *bitmap,
 	bitmap->lock_flags = flags;
 
 	if (bitmap->flags & AL_MEMORY_BITMAP || bitmap->flags & AL_SYNC_MEMORY_COPY) {
-		locked_region->data = bitmap->memory+(bitmap->w*y+x)*_al_pixel_size(bitmap->format);
+		locked_region->data = bitmap->memory+(bitmap->w*y+x)*_al_get_pixel_size(bitmap->format);
 		locked_region->format = bitmap->format;
-		locked_region->pitch = bitmap->w*_al_pixel_size(bitmap->format);
+		locked_region->pitch = bitmap->w*_al_get_pixel_size(bitmap->format);
 	}
 	else {
 		locked_region = bitmap->vt->lock_region(bitmap,
