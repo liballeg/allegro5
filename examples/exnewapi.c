@@ -70,8 +70,12 @@ int main(void)
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_4444);
    mask = al_load_bitmap("mask.pcx");
    
-   al_set_new_bitmap_flags(AL_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(AL_MEMORY_BITMAP|AL_USE_ALPHA);
    mem_bmp = al_load_bitmap("mysha.tga");
+   al_set_target_bitmap(mem_bmp);
+   //al_draw_filled_rectangle(0, 0, 100, 100, al_map_rgb(mem_bmp, &colors[0], 0, 255, 0));
+   al_draw_filled_rectangle(0, 0, 100, 100, al_map_rgb(mem_bmp, &colors[0], 0, 255, 0));
+   al_draw_line(0, 0, 320, 200, al_map_rgb(mem_bmp, &colors[0], 0, 0, 255));
 
    AL_COLOR color;
    AL_LOCKED_REGION lr;

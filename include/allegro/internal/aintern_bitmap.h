@@ -78,7 +78,7 @@ void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,
 //AL_BITMAP_INTERFACE *_al_bitmap_xdummy_driver(void);
 AL_BITMAP_INTERFACE *_al_bitmap_d3ddummy_driver(void);
 
-int _al_pixel_size(int format);
+int _al_get_pixel_size(int format);
 
 AL_COLOR* _al_map_rgba(int format, AL_COLOR *color,
 	unsigned char r, unsigned char g, unsigned char b, unsigned char a);
