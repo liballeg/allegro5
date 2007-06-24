@@ -210,6 +210,10 @@ int main(void)
    printf("frames=%d start=%ld now=%ld\n", frames, start, al_current_time());
    printf("fps=%f\n", (float)(frames * 1000) / (float)(al_current_time()-start));
 
+   al_destroy_bitmap(picture);
+   al_destroy_bitmap(mask);
+   al_destroy_bitmap(mem_bmp);
+
    return 0;
 }
 END_OF_MAIN();

@@ -165,8 +165,8 @@ void al_draw_bitmap(AL_BITMAP *bitmap, float dx, float dy, int flags)
 
    /* If one is a memory bitmap, do memory blit */
    if ((bitmap->flags & AL_MEMORY_BITMAP) || (dest->flags & AL_MEMORY_BITMAP)) {
-      if (_al_current_display->draw_memory_bitmap_region)
-         _al_current_display->draw_memory_bitmap_region(_al_current_display,
+      if (_al_current_display->vt->draw_memory_bitmap_region)
+         _al_current_display->vt->draw_memory_bitmap_region(_al_current_display,
 	    bitmap, 0, 0, bitmap->w, bitmap->h, dx, dy, flags);
       else
          _al_draw_bitmap_memory(bitmap, dx, dy, flags);
@@ -182,8 +182,8 @@ void al_draw_bitmap_region(AL_BITMAP *bitmap, float sx, float sy,
 
    /* If one is a memory bitmap, do memory blit */
    if ((bitmap->flags & AL_MEMORY_BITMAP) || (dest->flags & AL_MEMORY_BITMAP)) {
-      if (_al_current_display->draw_memory_bitmap_region)
-         _al_current_display->draw_memory_bitmap_region(_al_current_display,
+      if (_al_current_display->vt->draw_memory_bitmap_region)
+         _al_current_display->vt->draw_memory_bitmap_region(_al_current_display,
 	    bitmap, sx, sy, sw, sh, dx, dy, flags);
       else
       _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);

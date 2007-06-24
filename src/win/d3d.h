@@ -79,7 +79,7 @@ AL_VAR(LPDIRECT3DDEVICE9, _al_d3d_device);
 
 AL_FUNC(bool, _al_d3d_init_display, ());
 AL_FUNC(AL_BITMAP *, _al_d3d_create_bitmap,
-   (AL_DISPLAY *d, unsigned int w, unsigned int h));
+   (AL_DISPLAY *d, int w, int h));
 bool _al_d3d_is_device_lost(void);
 void _al_d3d_lock_device();
 void _al_d3d_unlock_device();

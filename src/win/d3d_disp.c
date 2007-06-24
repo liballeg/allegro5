@@ -626,9 +626,9 @@ static void d3d_destroy_display(AL_DISPLAY *display)
 
 	_al_event_source_free(&display->es);
 
-	_al_win_delete_from_vector(&system->system.displays, display);
+	_al_vector_find_and_delete(&system->system.displays, &display);
 
-	_al_win_delete_from_vector(&d3d_created_displays, display);
+	_al_vector_find_and_delete(&d3d_created_displays, &display);
 
 	if (d3d_created_displays._size > 0) {
 		AL_DISPLAY_D3D **dptr = _al_vector_ref(&d3d_created_displays, 0);
@@ -1286,7 +1286,7 @@ static void d3d_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h)
 }
 
 AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
-	unsigned int w, unsigned int h)
+	int w, int h)
 {
    AL_BITMAP_D3D *bitmap = (AL_BITMAP_D3D*)_AL_MALLOC(sizeof *bitmap);
    int format;

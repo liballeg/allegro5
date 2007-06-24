@@ -87,17 +87,3 @@ void _al_register_system_interfaces()
 #endif
 }
 
-/*
- * For some reason _al_vector_find_and_delete isn't working
- */
-void _al_win_delete_from_vector(_AL_VECTOR *vec, void *item)
-{
-   unsigned int i;
-   for (i = 0; i < vec->_size; i++) {
-   	void **curr = _al_vector_ref(vec, i);
-	if (*curr == item) {
-		_al_vector_delete_at(vec, i);
-		return;
-	}
-   }
-}

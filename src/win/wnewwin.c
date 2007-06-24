@@ -151,7 +151,7 @@ HWND _al_win_create_window(AL_DISPLAY *display, int width, int height, int flags
 /* This must be called by Windows drivers after their window is deleted */
 void _al_win_delete_thread_handle(DWORD handle)
 {
-	_al_win_delete_from_vector(&thread_handles, (void *)handle);
+	_al_vector_find_and_delete(&thread_handles, &handle);
 }
 
 static LRESULT CALLBACK window_callback(HWND hWnd, UINT message, 
@@ -190,7 +190,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
 	if (message == _al_win_msg_suicide) {
 		_AL_FREE(win);
-		_al_win_delete_from_vector(&win_window_list, win);
+		_al_vector_find_and_delete(&win_window_list, &win);
 		//SendMessage(_al_win_compat_wnd, _al_win_msg_suicide, 0, 0);
 		DestroyWindow(hWnd);
 		return 0;

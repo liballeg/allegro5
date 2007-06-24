@@ -15,7 +15,6 @@ AL_SYSTEM_WIN *_al_win_system;
 
 AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void);
 
-void _al_win_delete_from_vector(_AL_VECTOR *vec, void *item);
 void _al_win_delete_thread_handle(DWORD handle);
 
 HWND _al_win_create_window(AL_DISPLAY *display, int width, int height, int flags);
