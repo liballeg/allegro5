@@ -40,14 +40,19 @@ typedef struct thread_local_state {
    AL_COLOR mask_color;
 } thread_local_state;
 
-static AL_COLOR black = { { 0, 0, 0, 0 } };
+#if defined ALLEGRO_MINGW32
 
-#if defined ALLEGRO_MINGW32 || defined ALLEGRO_MSVC
+/*
+ * MinGW doesn't have builtin thread local storage, so we
+ * must use the Windows API. This means that the MinGW
+ * build must be built as a DLL.
+ */
 
 #include "winalleg.h"
 
 static DWORD tls_index;
 static thread_local_state *tls;
+static AL_COLOR black = { { 0, 0, 0, 0 } };
 
 static thread_local_state *tls_get(void)
 {
@@ -245,8 +250,146 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 #else
 
-/* FIXME: this will have to use pthreads, as the data will need to
- * be destructed when the threads exit.
+#if defined ALLEGRO_MSVC
+#define THREAD_LOCAL __declspec(thread)
+#else
+#define THREAD_LOCAL __thread
+#endif
+
+static THREAD_LOCAL thread_local_state tls = {
+   0,
+   0,
+   0
+   NULL,
+   NULL,
+   NULL,
+   0,
+   0,
+   0,
+   0,
+   { 0, 0, 0, 0 }
+};
+
+void al_set_new_display_format(int format)
+{
+   tls.new_display_format = format;
+}
+
+void al_set_new_display_refresh_rate(int refresh_rate)
+{
+   tls.new_display_refresh_rate = refresh_rate;
+}
+
+void al_set_new_display_flags(int flags)
+{
+   tls.new_display_flags = flags;
+}
+
+int al_get_new_display_format(void)
+{
+   return tls.new_display_format;
+}
+
+int al_get_new_display_refresh_rate(void)
+{
+   return tls.new_display_refresh_rate;
+}
+
+int al_get_new_display_flags(void)
+{
+   return tls.new_display_flags;
+}
+
+/*
+ * Make a display the current display. All the following Allegro commands in
+ * the same thread will implicitly use this display from now on.
  */
+void al_set_current_display(AL_DISPLAY *display)
+{
+   if (display)
+      display->vt->set_current_display(display);
+   tls.current_display = display;
+}
+
+/*
+ * Get the current display.
+ */
+AL_DISPLAY *al_get_current_display(void)
+{
+   return tls.current_display;
+}
+
+/*
+ * Select the bitmap to which all subsequent drawing operation
+ * will draw.
+ */
+void al_set_target_bitmap(AL_BITMAP *bitmap)
+{
+   tls.target_bitmap = bitmap;
+   if (!(bitmap->flags & AL_MEMORY_BITMAP))
+      _al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
+}
+
+/*
+ * Retrieve the target for drawing operations.
+ */
+AL_BITMAP *al_get_target_bitmap(void)
+{
+   return tls.target_bitmap;
+}
+
+void _al_push_target_bitmap(void)
+{
+   tls.target_bitmap_backup = tls.target_bitmap;
+}
+
+void _al_pop_target_bitmap(void)
+{
+   tls.target_bitmap = tls.target_bitmap_backup;
+   al_set_target_bitmap(tls.target_bitmap);
+}
+
+void al_set_new_bitmap_format(int format)
+{
+   tls.new_bitmap_format = format;
+}
+
+void al_set_new_bitmap_flags(int flags)
+{
+   tls.new_bitmap_flags = flags;
+}
+
+int al_get_new_bitmap_format(void)
+{
+   return tls.new_bitmap_format;
+}
+
+int al_get_new_bitmap_flags(void)
+{
+   return tls.new_bitmap_flags;
+}
+
+void _al_push_bitmap_parameters()
+{
+   tls.new_bitmap_format_backup = tls.new_bitmap_format;
+   tls.new_bitmap_flags_backup = tls.new_bitmap_flags;
+}
+
+void _al_pop_bitmap_parameters()
+{
+   tls.new_bitmap_format = tls.new_bitmap_format_backup;
+   tls.new_bitmap_flags = tls.new_bitmap_flags_backup;
+}
+
+void al_set_mask_color(AL_COLOR *color)
+{
+   memcpy(&tls.mask_color, color, sizeof(AL_COLOR));
+}
+
+AL_COLOR *al_get_mask_color(AL_COLOR *color)
+{
+   memcpy(color, &tls.mask_color, sizeof(AL_COLOR));
+   return color;
+}
 
 #endif
