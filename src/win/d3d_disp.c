@@ -1422,6 +1422,7 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->get_frontbuffer = d3d_get_frontbuffer;
    vt->is_compatible_bitmap = d3d_is_compatible_bitmap;
    vt->switch_out = d3d_switch_out;
+   vt->draw_memory_bitmap_region = NULL;
 
    d3d_backbuffer.bitmap.vt = (AL_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
 

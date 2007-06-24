@@ -25,7 +25,7 @@ struct AL_DISPLAY_INTERFACE
    void (*notify_resize)(AL_DISPLAY *d);
 
    AL_BITMAP *(*create_bitmap)(AL_DISPLAY *d,
-   	unsigned int w, unsigned int h);
+   	int w, int h);
    
    void (*upload_compat_screen)(struct BITMAP *bitmap, int x, int y, int width, int height);
    void (*set_target_bitmap)(AL_DISPLAY *display, AL_BITMAP *bitmap);
@@ -34,6 +34,9 @@ struct AL_DISPLAY_INTERFACE
 
    bool (*is_compatible_bitmap)(AL_DISPLAY *display, AL_BITMAP *bitmap);
    void (*switch_out)(void);
+
+   void (*draw_memory_bitmap_region)(AL_DISPLAY *display, AL_BITMAP *bitmap,
+      float sx, float sy, float sw, float sh, float dx, float dy, int flags);
 };
 
 struct AL_DISPLAY
