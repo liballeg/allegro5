@@ -1,3 +1,19 @@
+/*         ______   ___    ___ 
+ *        /\  _  \ /\_ \  /\_ \ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      New Windows window handling
+ *
+ *      By Trent Gamblin.
+ *
+ */
+
 #include <allegro.h>
 #include <winalleg.h>
 #include <process.h>
@@ -193,7 +209,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 				break;
 			case WM_SETCURSOR:
 				mouse_set_syscursor();
-				return 1;  /* not TRUE */
+				return 1;
 			break;
 			case WM_ACTIVATEAPP:
 				if (wParam) {

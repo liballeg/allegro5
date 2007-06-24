@@ -1,3 +1,21 @@
+/*         ______   ___    ___ 
+ *        /\  _  \ /\_ \  /\_ \ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Memory bitmap drawing routines
+ *
+ *      Original rotation code by Shawn Hargreaves.
+ *      Original scaling code by Michael Bukin.
+ *      Conversion draw_region by Trent Gamblin.
+ *
+ */
+
 #include "allegro.h"
 #include "internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER

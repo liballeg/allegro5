@@ -1,13 +1,26 @@
+/*         ______   ___    ___ 
+ *        /\  _  \ /\_ \  /\_ \ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      New bitmap routines
+ *
+ *      By Elias Pschernig
+ *      Heavily modified by Trent Gamblin.
+ *
+ */
+
 #include <string.h>
 #include "allegro.h"
 #include "internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
 #include "internal/aintern_display.h"
 #include "internal/aintern_bitmap.h"
-
-/* Bitmap state is thread local */
-
-static AL_COLOR _mask_color = { { 0, 0, 0, 0 } };
 
 /* Creates a memory bitmap. A memory bitmap can only be drawn to other memory
  * bitmaps, not to a display.
@@ -61,7 +74,10 @@ AL_BITMAP *al_create_bitmap(int w, int h)
         memset(bitmap->memory, 0, w * h * _al_get_pixel_size(bitmap->format));
    }
 
-   bitmap->vt->upload_bitmap(bitmap, 0, 0, w, h);
+   if (!bitmap->vt->upload_bitmap(bitmap, 0, 0, w, h)) {
+   	al_destroy_bitmap(bitmap);
+	return NULL;
+   }
 
    return bitmap;
 }
@@ -268,17 +284,6 @@ void al_unlock_bitmap(AL_BITMAP *bitmap)
 	}
 
 	bitmap->locked = false;
-}
-
-AL_COLOR *al_get_mask_color(AL_COLOR *color)
-{
-	memcpy(color, &_mask_color, sizeof(AL_COLOR));
-	return color;
-}
-
-void al_set_mask_color(AL_COLOR *color)
-{
-	memcpy(&_mask_color, color, sizeof(AL_COLOR));
 }
 
 void al_convert_mask_to_alpha(AL_BITMAP *bitmap, AL_COLOR *mask_color)

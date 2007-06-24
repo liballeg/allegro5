@@ -1,9 +1,18 @@
-/* This is only a dummy driver, not implementing most required things properly,
- * it's just here to give me some understanding of the base framework of a
- * bitmap driver.
+/*         ______   ___    ___ 
+ *        /\  _  \ /\_ \  /\_ \ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Direct3D bitmap driver
+ *
+ *      By Trent Gamblin.
+ *
  */
-
-/* FIXME: do we need AL_BITMAP->memory for display textures? */
 
 #include <string.h>
 #include <stdio.h>
@@ -379,7 +388,7 @@ static bool d3d_create_textures(int w, int h,
 {
 	if (video_texture) {
 		if (IDirect3DDevice9_CreateTexture(_al_d3d_device, w, h, 1,
-				D3DUSAGE_RENDERTARGET, _al_pixel_format_to_d3d(format), D3DPOOL_DEFAULT,
+				D3DUSAGE_RENDERTARGET, _al_format_to_d3d(format), D3DPOOL_DEFAULT,
 				video_texture, NULL) != D3D_OK) {
 			TRACE("d3d_create_textures: Unable to create video texture.\n");
 			return false;
@@ -388,7 +397,7 @@ static bool d3d_create_textures(int w, int h,
 
 	if (system_texture) {
 		if (IDirect3DDevice9_CreateTexture(_al_d3d_device, w, h, 1,
-				0,/*D3DUSAGE_DYNAMIC,*/ _al_pixel_format_to_d3d(format), D3DPOOL_SYSTEMMEM,
+				0, _al_format_to_d3d(format), D3DPOOL_SYSTEMMEM,
 				system_texture, NULL) != D3D_OK) {
 			TRACE("d3d_create_textures: Unable to create system texture.\n");
 			if (video_texture) {
@@ -424,7 +433,7 @@ static AL_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface,
 
 	_al_push_bitmap_parameters();
 
-	format = _al_d3d_format_to_allegro_format(desc.Format);
+	format = _al_d3d_format_to_allegro(desc.Format);
 
 	al_set_new_bitmap_format(format);
 	al_set_new_bitmap_flags(flags);
@@ -509,17 +518,14 @@ void _al_d3d_refresh_texture_memory()
 	}
 }
 
-// FIXME: need to do all the logic AllegroGL does, checking extensions,
-// proxy textures, formats, limits ...
-/* FIXME: maybe this should return success/failure */
-static void d3d_upload_bitmap(AL_BITMAP *bitmap, int x, int y,
+static bool d3d_upload_bitmap(AL_BITMAP *bitmap, int x, int y,
 	int width, int height)
 {
 	AL_BITMAP_D3D *d3d_bmp = (void *)bitmap;
 	int w = bitmap->w;
 	int h = bitmap->h;
 
-	if (_al_d3d_is_device_lost()) return;
+	if (_al_d3d_is_device_lost()) return false;
 	_al_d3d_lock_device();
 
 	if (d3d_bmp->initialized != true) {
@@ -532,7 +538,7 @@ static void d3d_upload_bitmap(AL_BITMAP *bitmap, int x, int y,
 					&d3d_bmp->system_texture,
 					bitmap->format)) {
 				_al_d3d_unlock_device();
-				return;
+				return false;
 			}
 
 		/*
@@ -547,6 +553,8 @@ static void d3d_upload_bitmap(AL_BITMAP *bitmap, int x, int y,
 	_al_d3d_unlock_device();
 
 	d3d_do_upload(d3d_bmp, x, y, width, height, true);
+
+	return true;
 }
 
 
@@ -748,9 +756,9 @@ static AL_LOCKED_REGION *d3d_lock_region(AL_BITMAP *bitmap,
 	DWORD Flags = flags & AL_LOCK_READONLY ? D3DLOCK_READONLY : 0;
 
 	rect.left = x;
-	rect.right = x + w;   /* FIXME: add 1 ? */
+	rect.right = x + w;
 	rect.top = y;
-	rect.bottom = y + h;  /* FIXME: add 1 ? */
+	rect.bottom = y + h;
 
 	if (d3d_bmp->is_backbuffer) {
 		AL_DISPLAY_D3D *d3d_disp = (AL_DISPLAY_D3D *)bitmap->display;
@@ -819,3 +827,4 @@ AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
 
    return vt;
 }
+

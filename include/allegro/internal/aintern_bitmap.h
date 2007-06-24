@@ -55,9 +55,9 @@ struct AL_BITMAP_INTERFACE
       float flags);
    /* After the memory-copy of the bitmap has been modified, need to call this
     * to update the display-specific copy. E.g. with an OpenGL driver, this
-    * might create/update a texture.
+    * might create/update a texture. Returns false on failure.
     */
-   void (*upload_bitmap)(AL_BITMAP *bitmap, int x, int y, int width, int height);
+   bool (*upload_bitmap)(AL_BITMAP *bitmap, int x, int y, int width, int height);
    /* If the display version of the bitmap has been modified, use this to update
     * the memory copy accordingly. E.g. with an OpenGL driver, this might
     * read the contents of an associated texture.

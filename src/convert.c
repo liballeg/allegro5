@@ -1,22 +1,24 @@
+/*         ______   ___    ___ 
+ *        /\  _  \ /\_ \  /\_ \ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Bitmap conversion routines
+ *
+ *      By Trent Gamblin.
+ *
+ */
+
 #include "allegro.h"
 #include "allegro/bitmap_new.h"
 #include "internal/aintern.h"
 #include "internal/aintern_bitmap.h"
 #include "allegro/convert.h"
-
-#if 0
-/* Fast copy for when pixel formats match */
-#define FAST_CONVERT(src, spitch, dst, dpitch, size, x, y, w, h) \
-	void *sptr = (void *)(src + y*spitch + x*size); \
-	void *dptr = (void *)(dst + y*dpitch + x*size); \
-	int numbytes = w * size; \
-	unsigned int y; \
-	for (y = 0; y < h; y++) { \
-		memcpy(dptr, sptr, numbytes); \
-		sptr += spitch; \
-		sptr += dpitch; \
-	}
-#endif
 
 /* Copy with conversion */
 #define DO_CONVERT(convert, src, stype, ssize, spitch, get, \

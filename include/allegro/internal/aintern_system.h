@@ -33,8 +33,4 @@ struct AL_SYSTEM
 AL_FUNC(void, _al_register_system_interfaces, (void));
 AL_VAR(_AL_VECTOR, _al_system_interfaces);
 
-#ifdef ALLEGRO_MINGW32
-#define _al_tls_init _al_tls_init
-#endif
-
 #endif
