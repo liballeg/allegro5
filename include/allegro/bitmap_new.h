@@ -123,5 +123,6 @@ void al_unmap_rgba_i(AL_BITMAP *bitmap, AL_COLOR *color,
 /* Masking */
 void al_set_mask_color(AL_COLOR *color);
 AL_COLOR *al_get_mask_color(AL_COLOR *color);
+void al_convert_mask_to_alpha(AL_BITMAP *bitmap, AL_COLOR *mask_color);
 
 #endif
