@@ -14,6 +14,7 @@
  *
  */
 
+#include <string.h>
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintern_bitmap.h"
@@ -175,14 +176,14 @@ int al_get_new_bitmap_flags(void)
    return tls->new_bitmap_flags;
 }
 
-void _al_push_bitmap_parameters()
+void _al_push_bitmap_parameters(void)
 {
    if ((tls = tls_get()) == NULL) return;
    tls->new_bitmap_format_backup = tls->new_bitmap_format;
    tls->new_bitmap_flags_backup = tls->new_bitmap_flags;
 }
 
-void _al_pop_bitmap_parameters()
+void _al_pop_bitmap_parameters(void)
 {
    if ((tls = tls_get()) == NULL) return;
    tls->new_bitmap_format = tls->new_bitmap_format_backup;
@@ -259,7 +260,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 static THREAD_LOCAL thread_local_state tls = {
    0,
    0,
-   0
+   0,
    NULL,
    NULL,
    NULL,
@@ -267,7 +268,7 @@ static THREAD_LOCAL thread_local_state tls = {
    0,
    0,
    0,
-   { 0, 0, 0, 0 }
+   {{ 0, 0, 0, 0 }}
 };
 
 void al_set_new_display_format(int format)
@@ -369,13 +370,13 @@ int al_get_new_bitmap_flags(void)
    return tls.new_bitmap_flags;
 }
 
-void _al_push_bitmap_parameters()
+void _al_push_bitmap_parameters(void)
 {
    tls.new_bitmap_format_backup = tls.new_bitmap_format;
    tls.new_bitmap_flags_backup = tls.new_bitmap_flags;
 }
 
-void _al_pop_bitmap_parameters()
+void _al_pop_bitmap_parameters(void)
 {
    tls.new_bitmap_format = tls.new_bitmap_format_backup;
    tls.new_bitmap_flags = tls.new_bitmap_flags_backup;
@@ -383,12 +384,16 @@ void _al_pop_bitmap_parameters()
 
 void al_set_mask_color(AL_COLOR *color)
 {
-   memcpy(&tls.mask_color, color, sizeof(AL_COLOR));
+   /* This temporary is to work around a compiler abort in gcc 3.4.6. */
+   thread_local_state *tmp = &tls; 
+   memcpy(&(tmp->mask_color), color, sizeof(AL_COLOR));
 }
 
 AL_COLOR *al_get_mask_color(AL_COLOR *color)
 {
-   memcpy(color, &tls.mask_color, sizeof(AL_COLOR));
+   /* This temporary is to work around a compiler abort in gcc 3.4.6. */
+   thread_local_state *tmp = &tls; 
+   memcpy(color, &(tmp->mask_color), sizeof(AL_COLOR));
    return color;
 }
 
