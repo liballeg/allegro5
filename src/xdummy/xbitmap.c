@@ -7,6 +7,8 @@
 
 static AL_BITMAP_INTERFACE *vt;
 
+
+
 static void quad(AL_BITMAP *bitmap, float sx, float sy, float sw, float sh,
     float cx, float cy, float dx, float dy, float dw, float dh, float angle,
     int flags)
@@ -114,22 +116,44 @@ static bool upload_bitmap(AL_BITMAP *bitmap, int x, int y, int w, int h)
    return 1;
 }
 
+/* OpenGL cannot "lock" pixels, so instead we update our memory copy and
+ * return a pointer into that.
+ */
 static AL_LOCKED_REGION *lock_region(AL_BITMAP *bitmap,
 	int x, int y, int w, int h, AL_LOCKED_REGION *locked_region,
 	int flags)
 {
-    // FIXME
+    AL_BITMAP_XDUMMY *xbitmap = (void *)bitmap;
+    glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap->memory);
+
     int pixelsize = _al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
     locked_region->data = bitmap->memory + pitch * y + pixelsize * x;
     locked_region->format = bitmap->format;
     locked_region->pitch = pitch;
+    bitmap->lock_x = x;
+    bitmap->lock_y = y;
+    bitmap->lock_w = w;
+    bitmap->lock_h = h;
+    bitmap->locked = 1;
     return locked_region;
 }
 
+/* Synchronizes the texture back to the (possibly modified) bitmap data.
+ */
 static void unlock_region(AL_BITMAP *bitmap)
 {
-    // FIXME
+    int y;
+    AL_BITMAP_XDUMMY *xbitmap = (void *)bitmap;
+    int pixelsize = _al_get_pixel_size(bitmap->format);
+    int pitch = pixelsize * bitmap->w;
+    glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
+    for (y = bitmap->lock_y; y < bitmap->lock_y + bitmap->lock_h; y++)
+        glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, y,
+            bitmap->lock_w, 1, GL_RGBA, GL_UNSIGNED_BYTE,
+            bitmap->memory + pitch * y + pixelsize * bitmap->lock_x);
+    bitmap->locked = 0;
 }
 
 static void xdummy_destroy_bitmap(AL_BITMAP *bitmap)
