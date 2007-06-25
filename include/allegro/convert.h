@@ -686,9 +686,9 @@
 
 #define AL_CONVERT_PALETTE_8_TO_ABGR_8888(p) \
 	(0xFF000000 | \
-	(getr8(p) << 8) | \
-	(getg8(p) << 16) | \
-	(getb8(p) << 24))
+	(getr8(p) << 0) | \
+	(getg8(p) << 8) | \
+	(getb8(p) << 16))
 
 #define AL_CONVERT_PALETTE_8_TO_XBGR_8888(p) \
 	(getr8(p) | \
