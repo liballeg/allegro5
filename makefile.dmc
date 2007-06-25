@@ -293,7 +293,7 @@ LINKER_IMPLIB  = $(subst /,\,$(IMPLIB_NAME))
 
 define MAKE_LIB
    $(RESOURCE_COMPILER) -32 src/win/dllver.rc -o$(OBJ_DIR)/dllver.res
-   $(CC) -v0 -L/implib:$(LINKER_IMPLIB) -o$(LINKER_DLL) $(subst /,\,$(OBJECTS)) $(subst /,\,$(LIBRARIES)) $(LINKER_EXDEF) $(OBJ_DIR)\dllver.res
+   $(CC) -v0 -L/EXETYPE:NT -L/SUBSYSTEM:CONSOLE -L/IMPLIB:$(LINKER_IMPLIB) -o$(LINKER_DLL) $(subst /,\,$(OBJECTS)) $(subst /,\,$(LIBRARIES)) $(LINKER_EXDEF) $(OBJ_DIR)\dllver.res
 endef
 
 endif # STATICLINK
