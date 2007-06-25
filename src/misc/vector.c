@@ -235,7 +235,7 @@ void _al_vector_delete_at(_AL_VECTOR *vec, unsigned int idx)
 /* Internal function: _al_vector_find_and_delete
  *
  *  Similar to _al_vector_delete_at(_al_vector_find(vec, ptr_item)) but is
- *  lenient if the item is not found.  Returns true is the item was found and
+ *  lenient if the item is not found.  Returns true if the item was found and
  *  deleted.
  */
 bool _al_vector_find_and_delete(_AL_VECTOR *vec, const void *ptr_item)
