@@ -26,7 +26,14 @@ struct AL_DISPLAY_D3D
    LPDIRECT3DSWAPCHAIN9 swap_chain;
    LPDIRECT3DSURFACE9 render_target;
 
-   bool destroyed;
+   /*
+    * The display thread must communicate with the main thread
+    * through these variables.
+    */
+   bool end_thread;    /* The display thread should end */
+   bool initialized;   /* Fully initialized */
+   bool init_failed;   /* Initialization failed */
+   bool thread_ended;  /* The display thread has ended */
 };
 
 struct AL_BITMAP_D3D
@@ -77,7 +84,6 @@ AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void);
 
 AL_VAR(LPDIRECT3DDEVICE9, _al_d3d_device);
 
-AL_FUNC(bool, _al_d3d_init_display, ());
 AL_FUNC(AL_BITMAP *, _al_d3d_create_bitmap,
    (AL_DISPLAY *d, int w, int h));
 bool _al_d3d_is_device_lost(void);

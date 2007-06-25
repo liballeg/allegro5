@@ -16,6 +16,15 @@
 #define AL_RESIZABLE    16
 #define AL_SINGLEBUFFER 32
 
+/* Used for display mode queries */
+typedef struct AL_DISPLAY_MODE
+{
+   int width;
+   int height;
+   int format;
+   int refresh_rate;
+} AL_DISPLAY_MODE;
+
 void al_set_new_display_format(int format);
 void al_set_new_display_refresh_rate(int refresh_rate);
 void al_set_new_display_flags(int flags);
@@ -48,5 +57,17 @@ bool al_is_compatible_bitmap(AL_BITMAP *bitmap);
 
 void _al_push_target_bitmap(void);
 void _al_pop_target_bitmap(void);
+
+int al_get_num_display_modes(void);
+AL_DISPLAY_MODE *al_get_display_mode(int index, AL_DISPLAY_MODE *mode);
+
+
+#if defined ALLEGRO_D3D
+AL_FUNC(int, _al_d3d_get_num_display_modes,
+   (int format, int refresh_rate, int flags));
+AL_FUNC(AL_DISPLAY_MODE *, _al_d3d_get_display_mode,
+   (int index, int format, int refresh_rate, int flags, AL_DISPLAY_MODE *mode));
+#endif
+
 
 #endif

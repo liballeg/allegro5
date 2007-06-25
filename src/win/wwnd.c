@@ -26,6 +26,8 @@
    #include <time.h>
 #endif
 
+#include "win_new.h"
+
 #ifndef ALLEGRO_WINDOWS
    #error something is wrong with the makefile
 #endif

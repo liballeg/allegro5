@@ -83,12 +83,6 @@ AL_FUNCPTR(void, user_close_proc, (void));
 AL_VAR(CRITICAL_SECTION, gfx_crit_sect);
 AL_VAR(int, gfx_crit_sect_nesting);
 
-/* Stuff shared with the D3D driver */
-AL_VAR(HWND, _al_win_wnd);
-AL_VAR(HWND, _al_win_compat_wnd);
-AL_VAR(UINT, _al_win_msg_call_proc);
-AL_VAR(UINT, _al_win_msg_suicide);
-
 #define _enter_gfx_critical()  EnterCriticalSection(&gfx_crit_sect); \
                                gfx_crit_sect_nesting++
 #define _exit_gfx_critical()   LeaveCriticalSection(&gfx_crit_sect); \

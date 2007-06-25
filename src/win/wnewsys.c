@@ -45,6 +45,11 @@ static AL_SYSTEM *win_initialize(int flags)
 
    _al_win_system->system.vt = vt;
 
+#if defined ALLEGRO_D3D
+   if (_al_d3d_init_display() != true)
+      return NULL;
+#endif
+   
    return &_al_win_system->system;
 }
 

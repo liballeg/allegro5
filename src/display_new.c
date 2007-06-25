@@ -154,3 +154,56 @@ int al_get_display_flags(AL_DISPLAY *display)
 {
    return display->flags;
 }
+
+/*
+ * Returns the number of fullscreen display modes
+ * possible with the current display parameters.
+ */
+int al_get_num_display_modes(void)
+{
+   int format = al_get_new_display_format();
+   int refresh_rate = al_get_new_display_refresh_rate();
+   int flags = al_get_new_display_flags();
+
+   if (flags & AL_WINDOWED)
+      return -1;
+
+#if defined ALLEGRO_D3D
+   if (flags & AL_DIRECT3D) {
+      return _al_d3d_get_num_display_modes(format, refresh_rate, flags);
+   }
+#endif
+
+   if (flags & AL_OPENGL) {
+      /* FIXME */
+   }
+
+   return 0;
+}
+
+/*
+ * Get a fullscreen display mode by index, using the current
+ * display parameters.
+ */
+AL_DISPLAY_MODE *al_get_display_mode(int index, AL_DISPLAY_MODE *mode)
+{
+   int format = al_get_new_display_format();
+   int refresh_rate = al_get_new_display_refresh_rate();
+   int flags = al_get_new_display_flags();
+
+   if (flags & AL_WINDOWED)
+      return NULL;
+
+#if defined ALLEGRO_D3D
+   if (flags & AL_DIRECT3D) {
+      return _al_d3d_get_display_mode(index, format, refresh_rate, flags, mode);
+   }
+#endif
+
+   if (flags & AL_OPENGL) {
+      /* FIXME */
+   }
+
+   return NULL;
+}
+

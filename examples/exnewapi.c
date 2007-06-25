@@ -34,6 +34,16 @@ int main(void)
 
    al_init();
 
+   al_set_new_display_flags(AL_DIRECT3D);
+   al_set_new_display_refresh_rate(60);
+
+   int nm = al_get_num_display_modes();
+   for (i = 0; i < nm; i++) {
+      AL_DISPLAY_MODE dm;
+      al_get_display_mode(i, &dm);
+      printf("found mode: %dx%d @ %dhz (%d)\n", dm.width, dm.height, dm.refresh_rate, dm.format);
+   }
+
    events = al_create_event_queue();
 
    al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
