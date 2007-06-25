@@ -30,8 +30,6 @@
 
 #define LONG_LONG long long
 
-#define UINT_PTR  uintptr_t
-
 /* describe this platform */
 #ifdef ALLEGRO_STATICLINK
    #define ALLEGRO_PLATFORM_STR  "DMC.s"
@@ -73,10 +71,6 @@
    #define S_IWUSR   S_IWRITE
 #endif
 
-#ifndef FILENAME_MAX
-   #define FILENAME_MAX (260)
-#endif
-
 typedef unsigned long   _fsize_t;
 
 struct _wfinddata_t {
@@ -85,7 +79,7 @@ struct _wfinddata_t {
    time_t   time_access;         /* -1 for FAT file systems */
    time_t   time_write;
    _fsize_t size;
-   wchar_t  name[FILENAME_MAX];  /* may include spaces. */
+   wchar_t  name[260];           /* may include spaces. */
 };
 
 #endif /* ALLEGRO_SRC */
