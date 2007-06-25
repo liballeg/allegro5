@@ -7,7 +7,7 @@
 
 static AL_SYSTEM_INTERFACE *vt;
 
-static void *background_thread(void *arg)
+static void background_thread(_AL_THREAD *thread, void *arg)
 {
    AL_SYSTEM_XDUMMY *s = arg;
    XEvent event;
@@ -16,6 +16,8 @@ static void *background_thread(void *arg)
    while (1) {
       AL_DISPLAY_XDUMMY *d = NULL;
       XNextEvent(s->xdisplay, &event);
+
+      _al_mutex_lock(&s->lock);
 
       // FIXME: With many windows, it's bad to loop through them all,
       // maybe can come up with a better system here.
@@ -44,8 +46,9 @@ static void *background_thread(void *arg)
                break;
             }
       }
+
+      _al_mutex_unlock(&s->lock);
    }
-   return NULL;
 }
 
 /* Create a new system object for the dummy X11 driver. */
@@ -53,6 +56,8 @@ static AL_SYSTEM *initialize(int flags)
 {
    AL_SYSTEM_XDUMMY *s = _AL_MALLOC(sizeof *s);
    memset(s, 0, sizeof *s);
+
+   _al_mutex_init(&s->lock);
    
    _al_vector_init(&s->system.displays, sizeof (AL_SYSTEM_XDUMMY *));
 
@@ -65,7 +70,7 @@ static AL_SYSTEM *initialize(int flags)
 
    TRACE("xsystem: XDummy driver connected to X11.\n");
 
-   pthread_create(&s->thread, NULL, background_thread, s);
+   _al_thread_create(&s->thread, background_thread, s);
 
    TRACE("events thread spawned.\n");
 

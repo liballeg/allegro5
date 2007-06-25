@@ -26,17 +26,21 @@ static AL_DISPLAY *create_display(int w, int h)
    AL_DISPLAY_XDUMMY *d = _AL_MALLOC(sizeof *d);
    memset(d, 0, sizeof *d);
 
+   AL_SYSTEM_XDUMMY *system = (void *)al_system_driver();
+
+   _al_mutex_lock(&system->lock);
+
    d->display.w = w;
    d->display.h = h;
    d->display.vt = vt;
    //FIXME
    //d->display.format = al_get_new_display_format();
-   d->display.format = ALLEGRO_PIXEL_FORMAT_RGBA_8888,
+   d->display.format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
 
    d->display.refresh_rate = al_get_new_display_refresh_rate();
    d->display.flags = al_get_new_display_flags();
 
-   d->backbuffer = xdummy_create_bitmap(&d->display, w, h);
+   d->backbuffer = _al_xdummy_create_bitmap(&d->display, w, h);
    AL_BITMAP_XDUMMY *backbuffer = (void *)d->backbuffer;
    backbuffer->is_backbuffer = 1;
    /* Create a memory cache for the whole screen. */
@@ -46,8 +50,6 @@ static AL_DISPLAY *create_display(int w, int h)
       d->backbuffer->memory = _AL_MALLOC(n);
       memset(d->backbuffer->memory, 0, n);
    }
-
-   AL_SYSTEM_XDUMMY *system = (AL_SYSTEM_XDUMMY *)al_system_driver();
 
    /* Add ourself to the list of displays. */
    AL_DISPLAY_XDUMMY **add = _al_vector_alloc_back(&system->system.displays);
@@ -121,12 +123,26 @@ static AL_DISPLAY *create_display(int w, int h)
 
    TRACE("xdisplay: Got GLX context.\n");
 
+   _al_mutex_unlock(&system->lock);
+
    return (AL_DISPLAY *)d;
 }
 
 static void destroy_display(AL_DISPLAY *d)
 {
-   //FIXME!
+   int i;
+   AL_SYSTEM_XDUMMY *s = (void *)al_system_driver();
+   AL_DISPLAY_XDUMMY *glx = (void *)d;
+   _al_mutex_lock(&s->lock);
+   for (i = 0; i < s->system.displays._size; i++) {
+      AL_DISPLAY_XDUMMY **dptr = _al_vector_ref(&s->system.displays, i);
+      if (glx == *dptr) {
+         _al_vector_delete_at(&s->system.displays, i);
+         break;
+      }
+   }
+   XDestroyWindow(s->xdisplay, glx->window);
+   _al_mutex_unlock(&s->lock);
 }
 
 static void set_current_display(AL_DISPLAY *d)
@@ -145,46 +161,6 @@ static void set_current_display(AL_DISPLAY *d)
    }
 
    TRACE("xdisplay: GLX context made current.\n");
-}
-
-static void set_opengl_color(AL_DISPLAY *d, AL_COLOR *color)
-{
-    unsigned char r, g, b, a;
-    _al_unmap_rgba(d->format, color, &r, &g, &b, &a);
-    glColor4b(r, g, b, a);
-}
-
-/* Dummy implementation of clear. */
-static void clear(AL_DISPLAY *d, AL_COLOR *color)
-{
-   unsigned char r, g, b, a;
-   _al_unmap_rgba(d->format, color, &r, &g, &b, &a);
-   glClearColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
-   glClear(GL_COLOR_BUFFER_BIT);
-}
-
-/* Dummy implementation of line. */
-static void draw_line(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
-   AL_COLOR *color)
-{
-   set_opengl_color(d, color);
-   glBegin(GL_LINES);
-   glVertex2d(fx, fy);
-   glVertex2d(tx, ty);
-   glEnd();
-}
-
-/* Dummy implementation of a filled rectangle. */
-static void draw_filled_rectangle(AL_DISPLAY *d, float tlx, float tly,
-   float brx, float bry, AL_COLOR *color)
-{
-   set_opengl_color(d, color);
-   glBegin(GL_QUADS);
-   glVertex2d(tlx, tly);
-   glVertex2d(brx, tly);
-   glVertex2d(brx, bry);
-   glVertex2d(tlx, bry);
-   glEnd();
 }
 
 /* Dummy implementation of flip. */
@@ -210,7 +186,9 @@ static void acknowledge_resize(AL_DISPLAY *d)
    glx->is_initialized = 0;
 }
 
-/* Handle an X11 configure event. */
+/* Handle an X11 configure event. [X11 thread]
+ * Only called from the event handler with the system locked.
+ */
 void _al_display_xdummy_configure(AL_DISPLAY *d, XEvent *xevent)
 {
    AL_DISPLAY_XDUMMY *glx = (AL_DISPLAY_XDUMMY *)d;
@@ -255,7 +233,9 @@ void _al_display_xdummy_configure(AL_DISPLAY *d, XEvent *xevent)
    _al_event_source_unlock(es);
 }
 
-/* Handle an X11 close button event. */
+/* Handle an X11 close button event. [X11 thread]
+ * Only called from the event handler with the system locked.
+ */
 void _al_display_xdummy_closebutton(AL_DISPLAY *d, XEvent *xevent)
 {
    AL_DISPLAY_XDUMMY *glx = (AL_DISPLAY_XDUMMY *)d;
@@ -275,16 +255,14 @@ void _al_display_xdummy_closebutton(AL_DISPLAY *d, XEvent *xevent)
 }
 
 /* Dummy implementation. */
-// TODO: rename to create_bitmap once the A4 function of same name is out of the
-// way
 // FIXME: think about moving this to xbitmap.c instead..
-AL_BITMAP *xdummy_create_bitmap(AL_DISPLAY *d, unsigned int w, unsigned int h)
+AL_BITMAP *_al_xdummy_create_bitmap(AL_DISPLAY *d, int w, int h)
 {
    int format = al_get_new_bitmap_format();
    int flags = al_get_new_bitmap_flags();
 
    //FIXME
-   format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
+   format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
 
    AL_BITMAP_XDUMMY *bitmap = _AL_MALLOC(sizeof *bitmap);
    bitmap->bitmap.vt = _al_bitmap_xdummy_driver();
@@ -331,16 +309,14 @@ AL_DISPLAY_INTERFACE *_al_display_xdummy_driver(void)
    vt->create_display = create_display;
    vt->destroy_display = destroy_display;
    vt->set_current_display = set_current_display;
-   vt->clear = clear;
-   vt->draw_line = draw_line;
-   vt->draw_filled_rectangle = draw_filled_rectangle;
    vt->flip_display = flip_display;
    vt->notify_resize = acknowledge_resize;
-   vt->create_bitmap = xdummy_create_bitmap;
+   vt->create_bitmap = _al_xdummy_create_bitmap;
    vt->get_backbuffer = get_backbuffer;
    vt->get_frontbuffer = get_backbuffer;
    vt->set_target_bitmap = set_target_bitmap;
    vt->is_compatible_bitmap = is_compatible_bitmap;
+   _xdummy_add_drawing_functions(vt);
 
    return vt;
 }

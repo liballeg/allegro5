@@ -438,6 +438,7 @@ if haveXWindows():
     xcompat.c
     xdisplay.c
     xsystem.c
+    xdraw.c
     """));
 
     def tools(tenv,appendDir,buildDir,libDir):

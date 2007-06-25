@@ -24,7 +24,8 @@ struct AL_SYSTEM_XDUMMY
    /* Driver specifics. */
 
    Display *xdisplay; /* The X11 display. */
-   pthread_t thread; /* background thread. */
+   _AL_THREAD thread; /* background thread. */
+   _AL_MUTEX lock; /* thread lock for whenever we access internals. */
 };
 
 struct AL_BITMAP_XDUMMY
@@ -54,7 +55,9 @@ struct AL_DISPLAY_XDUMMY
    Atom wm_delete_window_atom;
 };
 
+/* Functions private to the X11 driver. */
 void _al_display_xdummy_configure(AL_DISPLAY *d, XEvent *event);
 void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack);
 void _al_display_xdummy_closebutton(AL_DISPLAY *d, XEvent *xevent);
-AL_BITMAP *xdummy_create_bitmap(AL_DISPLAY *d, unsigned int w, unsigned int h);
+AL_BITMAP *_al_xdummy_create_bitmap(AL_DISPLAY *d, int w, int h);
+void _xdummy_add_drawing_functions(AL_DISPLAY_INTERFACE *vt);
