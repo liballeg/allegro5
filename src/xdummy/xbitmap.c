@@ -91,6 +91,21 @@ static int pot(int x)
    return y;
 }
 
+static void upside_down(AL_BITMAP *bitmap)
+{
+    int pixelsize = _al_get_pixel_size(bitmap->format);
+    int pitch = pixelsize * bitmap->w;
+    int i;
+    unsigned char temp[pitch];
+    unsigned char *ptr = bitmap->memory;
+    for (i = 0; i < bitmap->h / 2; i++)
+    {
+        memcpy(temp, ptr + pitch * i, pitch);
+        memcpy(ptr + pitch * i, ptr + pitch * (bitmap->h - 1 - i), pitch);
+        memcpy(ptr + pitch * (bitmap->h - 1 - i), temp, pitch);
+    }
+}
+
 // FIXME: need to do all the logic AllegroGL does, checking extensions,
 // proxy textures, formats, limits ...
 static bool upload_bitmap(AL_BITMAP *bitmap, int x, int y, int w, int h)
@@ -124,11 +139,22 @@ static AL_LOCKED_REGION *lock_region(AL_BITMAP *bitmap,
 	int flags)
 {
     AL_BITMAP_XDUMMY *xbitmap = (void *)bitmap;
-    glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap->memory);
-
     int pixelsize = _al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
+
+    if (xbitmap->is_backbuffer) {
+        //FIXME: don't synchronize the whole screen, just the needed part
+        glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE,
+            bitmap->memory);
+    }
+    else {
+        //FIXME: use glPixelStore or similar to only synchronize the required
+        //region
+        glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+            bitmap->memory);
+    }
+
     locked_region->data = bitmap->memory + pitch * y + pixelsize * x;
     locked_region->format = bitmap->format;
     locked_region->pitch = pitch;
@@ -136,7 +162,10 @@ static AL_LOCKED_REGION *lock_region(AL_BITMAP *bitmap,
     bitmap->lock_y = y;
     bitmap->lock_w = w;
     bitmap->lock_h = h;
-    bitmap->locked = 1;
+
+    //FIXME: ugh. isn't there a better way?
+    upside_down(bitmap);
+
     return locked_region;
 }
 
@@ -144,16 +173,28 @@ static AL_LOCKED_REGION *lock_region(AL_BITMAP *bitmap,
  */
 static void unlock_region(AL_BITMAP *bitmap)
 {
-    int y;
     AL_BITMAP_XDUMMY *xbitmap = (void *)bitmap;
     int pixelsize = _al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
-    glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
-    for (y = bitmap->lock_y; y < bitmap->lock_y + bitmap->lock_h; y++)
-        glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, y,
-            bitmap->lock_w, 1, GL_RGBA, GL_UNSIGNED_BYTE,
-            bitmap->memory + pitch * y + pixelsize * bitmap->lock_x);
-    bitmap->locked = 0;
+
+    if (xbitmap->is_backbuffer) {
+        // FIXME: don't synchronize the whole screen, but just the locked
+        //        rectangle
+    
+        //FIXME: ugh. isn't there a better way?
+        upside_down(bitmap);
+
+        glRasterPos2i(0, bitmap->h);
+        glDrawPixels(bitmap->lock_w, bitmap->lock_h, GL_RGBA, GL_UNSIGNED_BYTE,
+            bitmap->memory);
+    }
+    else {
+        // FIXME: don't copy the whole bitmap
+        glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+            bitmap->w, bitmap->h, GL_RGBA, GL_UNSIGNED_BYTE,
+            bitmap->memory);
+    }
 }
 
 static void xdummy_destroy_bitmap(AL_BITMAP *bitmap)
