@@ -37,13 +37,6 @@ int main(void)
    al_set_new_display_flags(AL_DIRECT3D|AL_FULLSCREEN);
    al_set_new_display_refresh_rate(60);
 
-   int nm = al_get_num_display_modes();
-   for (i = 0; i < nm; i++) {
-      AL_DISPLAY_MODE dm;
-      al_get_display_mode(i, &dm);
-      printf("found mode: %dx%d @ %dhz (%d)\n", dm.width, dm.height, dm.refresh_rate, dm.format);
-   }
-
    events = al_create_event_queue();
 
    al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
@@ -223,8 +216,8 @@ int main(void)
       */
    }
 
-   printf("frames=%d start=%ld now=%ld\n", frames, start, al_current_time());
-   printf("fps=%f\n", (float)(frames * 1000) / (float)(al_current_time()-start));
+   //printf("frames=%d start=%ld now=%ld\n", frames, start, al_current_time());
+   //printf("fps=%f\n", (float)(frames * 1000) / (float)(al_current_time()-start));
 
    al_destroy_bitmap(picture);
    al_destroy_bitmap(mask);
