@@ -65,6 +65,50 @@ AL_KEYBOARD_DRIVER *win_get_keyboard_driver(void)
    return _al_keyboard_driver_list[0].driver;
 }
 
+int win_get_num_display_modes(void)
+{
+   int format = al_get_new_display_format();
+   int refresh_rate = al_get_new_display_refresh_rate();
+   int flags = al_get_new_display_flags();
+
+   if (!(flags & AL_FULLSCREEN))
+      return -1;
+
+#if defined ALLEGRO_D3D
+   if (flags & AL_DIRECT3D) {
+      return _al_d3d_get_num_display_modes(format, refresh_rate, flags);
+   }
+#endif
+
+   if (flags & AL_OPENGL) {
+      /* FIXME */
+   }
+
+   return 0;
+}
+
+AL_DISPLAY_MODE *win_get_display_mode(int index, AL_DISPLAY_MODE *mode)
+{
+   int format = al_get_new_display_format();
+   int refresh_rate = al_get_new_display_refresh_rate();
+   int flags = al_get_new_display_flags();
+
+   if (!(flags & AL_FULLSCREEN))
+      return NULL;
+
+#if defined ALLEGRO_D3D
+   if (flags & AL_DIRECT3D) {
+      return _al_d3d_get_display_mode(index, format, refresh_rate, flags, mode);
+   }
+#endif
+
+   if (flags & AL_OPENGL) {
+      /* FIXME */
+   }
+
+   return NULL;
+}
+
 AL_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
@@ -75,6 +119,8 @@ AL_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->initialize = win_initialize;
    vt->get_display_driver = win_get_display_driver;
    vt->get_keyboard_driver = win_get_keyboard_driver;
+   vt->get_num_display_modes = win_get_num_display_modes;
+   vt->get_display_mode = win_get_display_mode;
 
    TRACE("AL_SYSTEM_INTERFACE created.\n");
 

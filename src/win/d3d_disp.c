@@ -83,6 +83,7 @@ static int allegro_formats[] = {
    ALLEGRO_PIXEL_FORMAT_ARGB_4444,
    ALLEGRO_PIXEL_FORMAT_RGB_565,
    ALLEGRO_PIXEL_FORMAT_ARGB_1555,
+   ALLEGRO_PIXEL_FORMAT_XRGB_8888,
    -1
 };
 
@@ -93,6 +94,7 @@ static int d3d_formats[] = {
    D3DFMT_A4R4G4B4,
    D3DFMT_R5G6B5,
    D3DFMT_A1R5G5B5,
+   D3DFMT_X8R8G8B8,
    -1
 };
 
@@ -503,7 +505,7 @@ bool _al_d3d_init_display()
 
    if (IDirect3D9_CheckDeviceFormat(_al_d3d, D3DADAPTER_DEFAULT,
          D3DDEVTYPE_HAL, d3d_dm.Format, D3DUSAGE_RENDERTARGET,
-         D3DRTYPE_TEXTURE, D3DFMT_A8R8G8B8) != D3D_OK) {
+         D3DRTYPE_TEXTURE, d3d_dm.Format) != D3D_OK) {
       IDirect3D9_Release(_al_d3d);
       TRACE("Texture rendering not supported.\n");
       return false;
@@ -568,7 +570,7 @@ static void d3d_destroy_display(AL_DISPLAY *display)
    if (d3d_display->swap_chain)
       IDirect3DSwapChain9_Release(d3d_display->swap_chain);
 
-   if (display->flags & AL_WINDOWED) {
+   if (!(display->flags & AL_FULLSCREEN)) {
       if (d3d_created_displays._size <= 1) {
          d3d_destroy_hidden_device();
       }
@@ -763,14 +765,14 @@ static void d3d_display_thread_proc(void *arg)
     * combine fullscreen and windowed swap chains.
     */
    if (d3d_already_fullscreen ||
-      ((d3d_created_displays._size > 0) && !(params->flags & AL_WINDOWED))) {
+      ((d3d_created_displays._size > 0) && params->flags & AL_FULLSCREEN)) {
       params->display->init_failed = true;
       return;
    }
 
    if (params->format == ALLEGRO_PIXEL_FORMAT_ANY) {
       /* Choose the desktop format for windowed modes */
-      if (params->flags & AL_WINDOWED) {
+      if (!(params->flags & AL_FULLSCREEN)) {
          D3DDISPLAYMODE d3d_dm;
          IDirect3D9_GetAdapterDisplayMode(_al_d3d, D3DADAPTER_DEFAULT, &d3d_dm);
          params->format = _al_d3d_format_to_allegro(d3d_dm.Format);
@@ -785,7 +787,7 @@ static void d3d_display_thread_proc(void *arg)
    }
 
    if (!d3d_parameters_are_valid(params->format, params->refresh_rate, params->flags)) {
-      TRACE("d3d_create_display: Invalid parameters.\n");
+      TRACE("d3d_display_thread_proc: Invalid parameters.\n");
       params->display->init_failed = true;
       return;
    }
@@ -819,7 +821,7 @@ static void d3d_display_thread_proc(void *arg)
    d->display.refresh_rate = params->refresh_rate;
    d->display.flags = params->flags;
 
-   if (params->flags & AL_WINDOWED) {
+   if (!(params->flags & AL_FULLSCREEN)) {
       if (!d3d_create_swap_chain(d, params->format, params->refresh_rate, params->flags)) {
          d3d_destroy_display((AL_DISPLAY *)d);
          _al_d3d_last_created_display = NULL;
@@ -909,7 +911,7 @@ static void d3d_display_thread_proc(void *arg)
    }
 
 End:
-   if (!(d->display.flags & AL_WINDOWED)) {
+   if (d->display.flags & AL_FULLSCREEN) {
       IDirect3DDevice9_Release(_al_d3d_device);
    }
 
@@ -933,7 +935,7 @@ static AL_DISPLAY *d3d_create_display(int w, int h)
    refresh_rate = al_get_new_display_refresh_rate();
    flags = al_get_new_display_flags();
 
-   if (d3d_created_displays._size == 0 && (flags & AL_WINDOWED)) {
+   if (d3d_created_displays._size == 0 && !(flags & AL_FULLSCREEN)) {
       if (!d3d_create_hidden_device()) {
          _al_d3d_unlock_device();
          return NULL;
@@ -966,7 +968,7 @@ static AL_DISPLAY *d3d_create_display(int w, int h)
 
    win_grab_input();
 
-   if (!(flags & AL_WINDOWED)) {
+   if (flags & AL_FULLSCREEN) {
       d3d_already_fullscreen = true;
       d3d_fullscreen_display = _al_d3d_last_created_display;
    }

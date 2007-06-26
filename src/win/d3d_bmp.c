@@ -283,7 +283,7 @@ static void d3d_sync_bitmap_memory(AL_BITMAP *bitmap)
 
    if (IDirect3DTexture9_LockRect(d3d_bmp->system_texture, 0, &locked_rect, NULL, 0) == D3D_OK) {
    _al_convert_bitmap_data(locked_rect.pBits, bitmap->format, locked_rect.Pitch,
-      bitmap->memory, bitmap->format, _al_get_pixel_size(bitmap->format)*bitmap->w,
+      bitmap->memory, bitmap->format, al_get_pixel_size(bitmap->format)*bitmap->w,
       0, 0, 0, 0, bitmap->w, bitmap->h);
    IDirect3DTexture9_UnlockRect(d3d_bmp->system_texture, 0);
    }
@@ -310,14 +310,14 @@ static void d3d_sync_bitmap_texture(AL_BITMAP *bitmap,
       rect.bottom++;
 
    if (IDirect3DTexture9_LockRect(d3d_bmp->system_texture, 0, &locked_rect, &rect, 0) == D3D_OK) {
-   _al_convert_bitmap_data(bitmap->memory, bitmap->format, bitmap->w*_al_get_pixel_size(bitmap->format),
+   _al_convert_bitmap_data(bitmap->memory, bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
       locked_rect.pBits, bitmap->format, locked_rect.Pitch,
       x, y, 0, 0, width, height);
    /* Copy an extra row and column so the texture ends nicely */
    if (rect.bottom > bitmap->h) {
       _al_convert_bitmap_data(
          bitmap->memory,
-         bitmap->format, bitmap->w*_al_get_pixel_size(bitmap->format),
+         bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
          locked_rect.pBits,
          bitmap->format, locked_rect.Pitch,
          0, bitmap->h-1,
@@ -327,7 +327,7 @@ static void d3d_sync_bitmap_texture(AL_BITMAP *bitmap,
    if (rect.right > bitmap->w) {
       _al_convert_bitmap_data(
          bitmap->memory,
-         bitmap->format, bitmap->w*_al_get_pixel_size(bitmap->format),
+         bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
          locked_rect.pBits,
          bitmap->format, locked_rect.Pitch,
          bitmap->w-1, 0,
@@ -337,7 +337,7 @@ static void d3d_sync_bitmap_texture(AL_BITMAP *bitmap,
    if (rect.bottom > bitmap->h && rect.right > bitmap->w) {
       _al_convert_bitmap_data(
          bitmap->memory,
-         bitmap->format, bitmap->w*_al_get_pixel_size(bitmap->format),
+         bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
          locked_rect.pBits,
          bitmap->format, locked_rect.Pitch,
          bitmap->w-1, bitmap->h-1,
@@ -793,18 +793,15 @@ static void d3d_unlock_region(AL_BITMAP *bitmap)
    }
    else {
       IDirect3DTexture9_UnlockRect(d3d_bmp->system_texture, 0);
+      if (bitmap->lock_flags & AL_LOCK_READONLY)
+         return;
+      if (bitmap->flags & AL_SYNC_MEMORY_COPY)
+         sync = true;
+      else
+         sync = false;
       d3d_do_upload(d3d_bmp, bitmap->lock_x, bitmap->lock_y,
          bitmap->lock_w, bitmap->lock_h, sync);
    }
-
-   if (bitmap->lock_flags & AL_LOCK_READONLY)
-      return;
-
-   if (bitmap->flags & AL_SYNC_MEMORY_COPY)
-      sync = true;
-   else
-      sync = false;
-
 }
 
 /* Obtain a reference to this driver. */

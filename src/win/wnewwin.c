@@ -92,7 +92,7 @@ HWND _al_win_create_window(AL_DISPLAY *display, int width, int height, int flags
    win_size.right = win_size.left + width;
    win_size.bottom = win_size.top + height;
 
-   if (flags & AL_WINDOWED) {
+   if (!(flags & AL_FULLSCREEN)) {
       if  (flags & AL_RESIZABLE) {
          style = WS_OVERLAPPEDWINDOW|WS_VISIBLE;
          ex_style = WS_EX_APPWINDOW|WS_EX_OVERLAPPEDWINDOW;
@@ -139,7 +139,7 @@ HWND _al_win_create_window(AL_DISPLAY *display, int width, int height, int flags
       DrawMenuBar(my_window);
    }
 
-   if (!(flags & AL_WINDOWED)) {
+   if (flags & AL_FULLSCREEN) {
       wnd_x = 0;
       wnd_y = 0;
    }
@@ -227,7 +227,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                    * Device can be lost here, so
                    * backup textures.
                    */
-                  if (!(d->flags & AL_WINDOWED)) {
+                  if (d->flags & AL_FULLSCREEN) {
                      d->vt->switch_out();
                   }
                   _al_win_ungrab_input();
