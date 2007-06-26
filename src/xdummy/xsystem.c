@@ -25,7 +25,7 @@ static void background_thread(_AL_THREAD *thread, void *arg)
       for (i = 0; i < s->system.displays._size; i++) {
          AL_DISPLAY_XDUMMY **dptr = _al_vector_ref(&s->system.displays, i);
          d = *dptr;
-         if (d->window == event.xconfigure.window) {
+         if (d->window == event.xany.window) {
             break;
          }
       }
@@ -42,7 +42,7 @@ static void background_thread(_AL_THREAD *thread, void *arg)
             break;
          case ClientMessage:
             if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
-               _al_display_xdummy_closebutton(&d->display,  &event);
+               _al_display_xdummy_closebutton(&d->display, &event);
                break;
             }
       }
