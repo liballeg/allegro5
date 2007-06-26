@@ -1149,7 +1149,7 @@ static bool d3d_resize_display(AL_DISPLAY *d, int width, int height)
          SWP_NOMOVE|SWP_NOZORDER);
 }
 
-static bool d3d_notify_resize(AL_DISPLAY *d)
+static bool d3d_acknowledge_resize(AL_DISPLAY *d)
 {
    if (_al_d3d_device) {
       WINDOWINFO wi;
@@ -1369,7 +1369,7 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->draw_filled_rectangle = d3d_draw_filled_rectangle;
    vt->flip_display = d3d_flip_display;
    vt->update_display_region = d3d_update_display_region;
-   vt->notify_resize = d3d_notify_resize;
+   vt->acknowledge_resize = d3d_acknowledge_resize;
    vt->resize_display = d3d_resize_display;
    vt->create_bitmap = _al_d3d_create_bitmap;
    vt->upload_compat_screen = d3d_upload_compat_screen;

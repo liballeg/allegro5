@@ -32,9 +32,11 @@ int al_get_new_display_format(void);
 int al_get_new_display_refresh_rate(void);
 int al_get_new_display_flags(void);
 
-int al_get_display_format(AL_DISPLAY *display);
-int al_get_display_refresh_rate(AL_DISPLAY *display);
-int al_get_display_flags(AL_DISPLAY *display);
+int al_get_display_width(void);
+int al_get_display_height(void);
+int al_get_display_format(void);
+int al_get_display_refresh_rate(void);
+int al_get_display_flags(void);
 
 AL_DISPLAY *al_create_display(int w, int h);
 void al_destroy_display(AL_DISPLAY *display);
@@ -48,7 +50,7 @@ void al_clear(AL_COLOR *color);
 void al_draw_line(float fx, float fy, float tx, float ty, AL_COLOR *color);
 void al_draw_filled_rectangle(float tlx, float tly, float brx, float bry,
     AL_COLOR *color);
-bool al_notify_resize(void);
+bool al_acknowledge_resize(void);
 bool al_resize_display(int width, int height);
 void al_flip_display(void);
 bool al_update_display_region(int x, int y,
@@ -61,14 +63,5 @@ void _al_pop_target_bitmap(void);
 
 int al_get_num_display_modes(void);
 AL_DISPLAY_MODE *al_get_display_mode(int index, AL_DISPLAY_MODE *mode);
-
-
-#if defined ALLEGRO_D3D
-AL_FUNC(int, _al_d3d_get_num_display_modes,
-   (int format, int refresh_rate, int flags));
-AL_FUNC(AL_DISPLAY_MODE *, _al_d3d_get_display_mode,
-   (int index, int format, int refresh_rate, int flags, AL_DISPLAY_MODE *mode));
-#endif
-
 
 #endif

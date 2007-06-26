@@ -28,4 +28,11 @@ AL_VAR(HWND, _al_win_compat_wnd);
 AL_VAR(UINT, _al_win_msg_call_proc);
 AL_VAR(UINT, _al_win_msg_suicide);
 
+#if defined ALLEGRO_D3D
+AL_FUNC(int, _al_d3d_get_num_display_modes,
+   (int format, int refresh_rate, int flags));
+AL_FUNC(AL_DISPLAY_MODE *, _al_d3d_get_display_mode,
+   (int index, int format, int refresh_rate, int flags, AL_DISPLAY_MODE *mode));
+#endif
+
 #endif

@@ -136,7 +136,7 @@ int main(void)
             w = display->width;
             h = display->height;
             al_set_current_display(display->source);
-            al_notify_resize();
+            al_acknowledge_resize();
          }
          if (event.type == AL_EVENT_DISPLAY_CLOSE)
          {

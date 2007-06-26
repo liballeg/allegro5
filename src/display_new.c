@@ -91,11 +91,11 @@ bool al_update_display_region(int x, int y,
  * function to let the graphics driver know that it can now resize
  * the display. Returns true on success.
  */
-bool al_notify_resize(void)
+bool al_acknowledge_resize(void)
 {
    if (!(_al_current_display->flags & AL_FULLSCREEN)) {
-      if (_al_current_display->vt->notify_resize)
-         return _al_current_display->vt->notify_resize(_al_current_display);
+      if (_al_current_display->vt->acknowledge_resize)
+         return _al_current_display->vt->acknowledge_resize(_al_current_display);
    }
    return false;
 }
@@ -158,19 +158,29 @@ bool al_is_compatible_bitmap(AL_BITMAP *bitmap)
       _al_current_display, bitmap);
 }
 
-int al_get_display_format(AL_DISPLAY *display)
+int al_get_display_width(void)
 {
-   return display->format;
+   return _al_current_display->w;
 }
 
-int al_get_display_refresh_rate(AL_DISPLAY *display)
+int al_get_display_height(void)
 {
-   return display->refresh_rate;
+   return _al_current_display->h;
 }
 
-int al_get_display_flags(AL_DISPLAY *display)
+int al_get_display_format(void)
 {
-   return display->flags;
+   return _al_current_display->format;
+}
+
+int al_get_display_refresh_rate(void)
+{
+   return _al_current_display->refresh_rate;
+}
+
+int al_get_display_flags(void)
+{
+   return _al_current_display->flags;
 }
 
 /*
