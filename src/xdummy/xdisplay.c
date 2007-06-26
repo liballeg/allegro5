@@ -172,7 +172,7 @@ static void flip_display(AL_DISPLAY *d)
    glXSwapBuffers(system->xdisplay, glx->glxwindow);
 }
 
-static void acknowledge_resize(AL_DISPLAY *d)
+static bool acknowledge_resize(AL_DISPLAY *d)
 {
    AL_SYSTEM_XDUMMY *system = (AL_SYSTEM_XDUMMY *)al_system_driver();
    AL_DISPLAY_XDUMMY *glx = (AL_DISPLAY_XDUMMY *)d;
@@ -184,6 +184,8 @@ static void acknowledge_resize(AL_DISPLAY *d)
    d->w = w;
    d->h = h;
    glx->is_initialized = 0;
+
+   return true;
 }
 
 /* Handle an X11 configure event. [X11 thread]
@@ -265,14 +267,12 @@ AL_BITMAP *_al_xdummy_create_bitmap(AL_DISPLAY *d, int w, int h)
    format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
 
    AL_BITMAP_XDUMMY *bitmap = _AL_MALLOC(sizeof *bitmap);
+   memset(bitmap, 0, sizeof *bitmap);
    bitmap->bitmap.vt = _al_bitmap_xdummy_driver();
    bitmap->bitmap.w = w;
    bitmap->bitmap.h = h;
-   bitmap->bitmap.memory = NULL;
    bitmap->bitmap.format = format;
    bitmap->bitmap.flags = flags;
-
-   bitmap->texture = 0;
 
    return &bitmap->bitmap;
 }
