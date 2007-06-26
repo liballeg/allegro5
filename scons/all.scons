@@ -268,6 +268,9 @@ def examples(env,appendDir,buildDir,libDir):
 #    addExample('exxfade', [ 'exxfade.c' ])
 #    addExample('exzbuf', [ 'exzbuf.c' ])
     addExample('exnewapi', [ 'exnewapi.c' ])
+    addExample('exnew_bitmap', [ 'exnew_bitmap.c' ])
+    addExample('exnew_lockscreen', [ 'exnew_lockscreen.c' ])
+    addExample('exnew_lockbitmap', [ 'exnew_lockbitmap.c' ])
 #    addExample('exnew_events', [ 'exnew_events.c' ])
 
     Alias('examples', examples)
