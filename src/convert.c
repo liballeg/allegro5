@@ -58,7 +58,8 @@
 	func12, macro12, \
 	func13, macro13, \
 	func14, macro14, \
-	func15, macro15) \
+	func15, macro15, \
+	func16, macro16) \
 	\
 static void func1 ( \
 	void *src, int src_format, int src_pitch, \
@@ -235,6 +236,18 @@ static void func15 ( \
 		dst, uint32_t, 4, dst_pitch, bmp_write32, \
 		sx, sy, dx, dy, width, height) \
 } \
+\
+static void func16 ( \
+	void *src, int src_format, int src_pitch, \
+	void *dst, int dst_format, int dst_pitch, \
+	int sx, int sy, int dx, int dy, \
+	int width, int height) \
+{ \
+	DO_CONVERT(macro16, \
+		src, type, size, src_pitch, get, \
+		dst, uint32_t, 4, dst_pitch, bmp_write32, \
+		sx, sy, dx, dy, width, height) \
+} \
 
 
 #define DEFINE_CONVERSION(type, size, get, fprefix, mprefix) \
@@ -253,7 +266,8 @@ static void func15 ( \
 	fprefix ## _to_bgr_888, mprefix ## _TO_BGR_888, \
 	fprefix ## _to_bgr_565, mprefix ## _TO_BGR_565, \
 	fprefix ## _to_bgr_555, mprefix ## _TO_BGR_555, \
-	fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888)
+	fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888, \
+	fprefix ## _to_xrgb_8888, mprefix ## _TO_XRGB_8888)
 
 DEFINE_CONVERSION(uint32_t, 4, bmp_read32, _argb_8888, AL_CONVERT_ARGB_8888)
 DEFINE_CONVERSION(uint32_t, 4, bmp_read32, _rgba_8888, AL_CONVERT_RGBA_8888)
@@ -270,6 +284,7 @@ DEFINE_CONVERSION(unsigned char, 3, READ3BYTES, _bgr_888, AL_CONVERT_BGR_888)
 DEFINE_CONVERSION(uint16_t, 2, bmp_read16, _bgr_565, AL_CONVERT_BGR_565)
 DEFINE_CONVERSION(uint16_t, 2, bmp_read16, _bgr_555, AL_CONVERT_BGR_555)
 DEFINE_CONVERSION(uint32_t, 4, bmp_read32, _rgbx_8888, AL_CONVERT_RGBX_8888)
+DEFINE_CONVERSION(uint32_t, 4, bmp_read32, _xrgb_8888, AL_CONVERT_XRGB_8888)
 
 /* Conversion map */
 
@@ -294,7 +309,8 @@ typedef void (*p_convert_func)(void *, int, int,
 		prefix ## _to_bgr_888, \
 		prefix ## _to_bgr_565, \
 		prefix ## _to_bgr_555, \
-		prefix ## _to_rgbx_8888 \
+		prefix ## _to_rgbx_8888, \
+		prefix ## _to_xrgb_8888 \
 	}, \
 
 static p_convert_func convert_funcs[NUM_PIXEL_FORMATS][NUM_PIXEL_FORMATS] = {
@@ -332,6 +348,7 @@ static p_convert_func convert_funcs[NUM_PIXEL_FORMATS][NUM_PIXEL_FORMATS] = {
 	DECLARE_FUNCS(_bgr_565)
 	DECLARE_FUNCS(_bgr_555)
 	DECLARE_FUNCS(_rgbx_8888)
+	DECLARE_FUNCS(_xrgb_8888)
 };
 
 
@@ -401,7 +418,7 @@ void _al_convert_compat_bitmap(
 	}
 
 	(*convert_funcs[src_format][dst_format])(src->dat,
-		src_format, _al_get_pixel_size(src_format)*src->w,
+		src_format, al_get_pixel_size(src_format)*src->w,
 		dst, dst_format, dst_pitch, sx, sy, dx, dy, width, height);
 }
 

@@ -37,11 +37,12 @@ static int pixel_sizes[] = {
 	3,
 	2,
 	2,
+	4,
 	4
 };
 
 
-int _al_get_pixel_size(int format)
+int al_get_pixel_size(int format)
 {
 	return pixel_sizes[format];
 }
@@ -196,6 +197,16 @@ static AL_COLOR *_map_rgba_rgbx_8888(AL_COLOR *p,
 	return p;
 }
 
+static AL_COLOR *_map_rgba_xrgb_8888(AL_COLOR *p,
+	unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+{
+	p->raw[0] = 0;
+	p->raw[1] = r;
+	p->raw[2] = g;
+	p->raw[3] = b;
+	return p;
+}
+
 /* map_rgba map */
 
 typedef AL_COLOR *(*_map_rgba_func)(AL_COLOR *,
@@ -217,7 +228,8 @@ static _map_rgba_func _map_rgba_funcs[] = {
 	_map_rgba_bgr_888,
 	_map_rgba_bgr_565,
 	_map_rgba_bgr_555,
-	_map_rgba_rgbx_8888
+	_map_rgba_rgbx_8888,
+	_map_rgba_xrgb_8888
 };
 
 AL_COLOR* _al_map_rgba(int format, AL_COLOR *color,
@@ -389,6 +401,16 @@ static AL_COLOR *_map_rgba_f_rgbx_8888(AL_COLOR *p,
 	return p;
 }
 
+static AL_COLOR *_map_rgba_f_xrgb_8888(AL_COLOR *p,
+	float r, float g, float b, float a)
+{
+	p->raw[0] = 0;
+	p->raw[1] = (uint64_t)(r * 0xFF);
+	p->raw[2] = (uint64_t)(g * 0xFF);
+	p->raw[3] = (uint64_t)(b * 0xFF);
+	return p;
+}
+
 /* map_rgba_f map */
 
 typedef AL_COLOR *(*_map_rgba_f_func)(AL_COLOR *, float, float, float, float);
@@ -409,7 +431,8 @@ static _map_rgba_f_func _map_rgba_f_funcs[] = {
 	_map_rgba_f_bgr_888,
 	_map_rgba_f_bgr_565,
 	_map_rgba_f_bgr_555,
-	_map_rgba_f_rgbx_8888
+	_map_rgba_f_rgbx_8888,
+	_map_rgba_f_xrgb_8888
 };
 
 AL_COLOR *_al_map_rgba_f(int format, AL_COLOR *color,
@@ -590,6 +613,16 @@ static AL_COLOR *_map_rgba_i_rgbx_8888(AL_COLOR *p,
 	return p;
 }
 
+static AL_COLOR *_map_rgba_i_xrgb_8888(AL_COLOR *p,
+	int r, int g, int b, int a)
+{
+	p->raw[0] = 0;
+	p->raw[1] = r >> int_to_8_bit_shift;
+	p->raw[2] = g >> int_to_8_bit_shift;
+	p->raw[3] = b >> int_to_8_bit_shift;
+	return p;
+}
+
 /* map_rgba_i map */
 
 typedef AL_COLOR *(*_map_rgba_i_func)(AL_COLOR *, int, int, int, int);
@@ -610,7 +643,8 @@ static _map_rgba_i_func _map_rgba_i_funcs[] = {
 	_map_rgba_i_bgr_888,
 	_map_rgba_i_bgr_565,
 	_map_rgba_i_bgr_555,
-	_map_rgba_i_rgbx_8888
+	_map_rgba_i_rgbx_8888,
+	_map_rgba_i_xrgb_8888
 };
 
 AL_COLOR *_al_map_rgba_i(int format, AL_COLOR *color,
@@ -783,6 +817,16 @@ void _get_pixel_rgbx_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
 		0.0f);
 }
 
+void _get_pixel_xrgb_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+{
+	uint32_t pixel = *(uint32_t *)(data);
+	al_map_rgba(bitmap, color,
+		(pixel & 0x00FF0000) >> 16,
+		(pixel & 0x0000FF00) >>  8,
+		(pixel & 0x000000FF),
+		0.0f);
+}
+
 /* get pixel lookup table */
 
 typedef void (*p_get_pixel_func)(AL_BITMAP *, void *, AL_COLOR *);
@@ -803,7 +847,8 @@ p_get_pixel_func get_pixel_funcs[] = {
 	_get_pixel_bgr_888,
 	_get_pixel_bgr_565,
 	_get_pixel_bgr_555,
-	_get_pixel_rgbx_8888
+	_get_pixel_rgbx_8888,
+	_get_pixel_xrgb_8888
 };
 
 AL_COLOR *_al_get_pixel(AL_BITMAP *bitmap, void *data, AL_COLOR *color) {
@@ -825,7 +870,7 @@ AL_COLOR *al_get_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color)
 		}
 
 		_al_get_pixel(bitmap,
-			bitmap->locked_region.data+y*bitmap->locked_region.pitch+x*_al_get_pixel_size(bitmap->format),
+			bitmap->locked_region.data+y*bitmap->locked_region.pitch+x*al_get_pixel_size(bitmap->format),
 			color);
 	}
 	else {
@@ -992,6 +1037,16 @@ void _put_pixel_rgbx_8888(void *data, AL_COLOR *p)
 	*(uint32_t *)(data) = pixel;
 }
 
+void _put_pixel_xrgb_8888(void *data, AL_COLOR *p)
+{
+	uint32_t pixel = 0;
+	pixel |= p->raw[1] << 16;
+	pixel |= p->raw[2] <<  8;
+	pixel |= p->raw[3];
+
+	*(uint32_t *)(data) = pixel;
+}
+
 /* put pixel lookup table */
 
 typedef void (*p_put_pixel_func)(void *data, AL_COLOR *);
@@ -1012,7 +1067,8 @@ p_put_pixel_func put_pixel_funcs[] = {
 	_put_pixel_bgr_888,
 	_put_pixel_bgr_565,
 	_put_pixel_bgr_555,
-	_put_pixel_rgbx_8888
+	_put_pixel_rgbx_8888,
+	_put_pixel_xrgb_8888
 };
 
 void _al_put_pixel(void *data, int format, AL_COLOR *color)
@@ -1022,7 +1078,7 @@ void _al_put_pixel(void *data, int format, AL_COLOR *color)
 
 int _al_get_pixel_value(int src_format, AL_COLOR *src_color)
 {
-	switch (_al_get_pixel_size(src_format)) {
+	switch (al_get_pixel_size(src_format)) {
 		case 1: {
 			unsigned char pixel;
 			_al_put_pixel(&pixel, src_format, src_color);
@@ -1061,7 +1117,7 @@ void al_put_pixel(int x, int y, AL_COLOR *color)
 			return;
 		}
 
-		_al_put_pixel(bitmap->locked_region.data+y*bitmap->locked_region.pitch+x*_al_get_pixel_size(bitmap->format),
+		_al_put_pixel(bitmap->locked_region.data+y*bitmap->locked_region.pitch+x*al_get_pixel_size(bitmap->format),
 			bitmap->format, color);
 	}
 	else {
@@ -1218,6 +1274,15 @@ static void _unmap_rgba_rgbx_8888(AL_COLOR *p,
 	*a = 0;
 }
 
+static void _unmap_rgba_xrgb_8888(AL_COLOR *p,
+	unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
+{
+	*r = p->raw[1];
+	*g = p->raw[2];
+	*b = p->raw[3];
+	*a = 0;
+}
+
 /* unmap_rgba map */
 
 typedef void (*_unmap_rgba_func)(AL_COLOR *,
@@ -1239,7 +1304,8 @@ static _unmap_rgba_func _unmap_rgba_funcs[] = {
 	_unmap_rgba_bgr_888,
 	_unmap_rgba_bgr_565,
 	_unmap_rgba_bgr_555,
-	_unmap_rgba_rgbx_8888
+	_unmap_rgba_rgbx_8888,
+	_unmap_rgba_xrgb_8888
 };
 
 void _al_unmap_rgba(int format, AL_COLOR *color,
@@ -1398,6 +1464,15 @@ static void _unmap_rgba_f_rgbx_8888(AL_COLOR *p,
 	*a = 0.0f;
 }
 
+static void _unmap_rgba_f_xrgb_8888(AL_COLOR *p,
+	float *r, float *g, float *b, float *a)
+{
+	*r = p->raw[1] / 0xFF;
+	*g = p->raw[2] / 0xFF;
+	*b = p->raw[3] / 0xFF;
+	*a = 0.0f;
+}
+
 /* unmap_rgba_f map */
 
 typedef void (*_unmap_rgba_f_func)(AL_COLOR *,
@@ -1419,7 +1494,8 @@ static _unmap_rgba_f_func _unmap_rgba_f_funcs[] = {
 	_unmap_rgba_f_bgr_888,
 	_unmap_rgba_f_bgr_565,
 	_unmap_rgba_f_bgr_555,
-	_unmap_rgba_f_rgbx_8888
+	_unmap_rgba_f_rgbx_8888,
+	_unmap_rgba_f_xrgb_8888
 };
 
 void _al_unmap_rgba_f(int format, AL_COLOR *color,

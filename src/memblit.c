@@ -100,7 +100,8 @@
 	func12, macro12, \
 	func13, macro13, \
 	func14, macro14, \
-	func15, macro15) \
+	func15, macro15, \
+	func16, macro16) \
 \
 static void func1 (void *src, \
    int sx, int sy, int sw, int sh, int spitch, int ssize, int sformat, \
@@ -280,6 +281,18 @@ static void func15 (void *src, \
       sx, sy, sw, sh, spitch, ssize, sformat, get, \
       dst, dx, dy, dpitch, 4, dformat, bmp_write32, \
       macro15, flags) \
+} \
+\
+static void func16 (void *src, \
+   int sx, int sy, int sw, int sh, int spitch, int ssize, int sformat, \
+   void *dst, \
+   int dx, int dy, int dpitch, int dsize, int dformat, \
+   int flags) \
+{ \
+   DO_DRAW_REGION(src, \
+      sx, sy, sw, sh, spitch, ssize, sformat, get, \
+      dst, dx, dy, dpitch, 4, dformat, bmp_write32, \
+      macro16, flags) \
 }
 
 #define DEFINE_DRAW_REGION(get, fprefix, mprefix) \
@@ -298,7 +311,8 @@ static void func15 (void *src, \
 	fprefix ## _to_bgr_888, mprefix ## _TO_BGR_888, \
 	fprefix ## _to_bgr_565, mprefix ## _TO_BGR_565, \
 	fprefix ## _to_bgr_555, mprefix ## _TO_BGR_555, \
-	fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888)
+	fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888, \
+	fprefix ## _to_xrgb_8888, mprefix ## _TO_XRGB_8888)
 
 DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_argb_8888, AL_CONVERT_ARGB_8888)
 DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_rgba_8888, AL_CONVERT_RGBA_8888)
@@ -315,6 +329,7 @@ DEFINE_DRAW_REGION(READ3BYTES, _draw_region_memory_bgr_888, AL_CONVERT_BGR_888)
 DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_bgr_565, AL_CONVERT_BGR_565)
 DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_bgr_555, AL_CONVERT_BGR_555)
 DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_rgbx_8888, AL_CONVERT_RGBX_8888)
+DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_xrgb_8888, AL_CONVERT_XRGB_8888)
 
 typedef void (*_draw_region_func)(void *src,
    int sx, int sy, int sw, int sh, int spitch, int ssize, int sformat,
@@ -339,7 +354,8 @@ typedef void (*_draw_region_func)(void *src,
 		prefix ## _to_bgr_888, \
 		prefix ## _to_bgr_565, \
 		prefix ## _to_bgr_555, \
-		prefix ## _to_rgbx_8888 \
+		prefix ## _to_rgbx_8888, \
+		prefix ## _to_xrgb_8888 \
 	}, \
 
 static _draw_region_func _draw_region_funcs[NUM_PIXEL_FORMATS][NUM_PIXEL_FORMATS] = {
@@ -377,6 +393,7 @@ static _draw_region_func _draw_region_funcs[NUM_PIXEL_FORMATS][NUM_PIXEL_FORMATS
 	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_bgr_565)
 	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_bgr_555)
 	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgbx_8888)
+	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_xrgb_8888)
 };
 
 
@@ -399,9 +416,9 @@ void _al_draw_bitmap_region_memory(AL_BITMAP *bitmap,
 
    (*_draw_region_funcs[bitmap->format][dest->format])(
       src_region.data, sx, sy, sw, sh,
-      src_region.pitch, _al_get_pixel_size(bitmap->format), bitmap->format,
+      src_region.pitch, al_get_pixel_size(bitmap->format), bitmap->format,
       dst_region.data, dx, dy,
-      dst_region.pitch, _al_get_pixel_size(dest->format), dest->format,
+      dst_region.pitch, al_get_pixel_size(dest->format), dest->format,
       flags);
 
    al_unlock_bitmap(bitmap);
@@ -550,15 +567,6 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
 	    pixel = convert(pixel); \
 	    set(dst_region.data+dst_region.pitch*y+dsize*x, pixel); \
 	 } \
-         /* \
-         al_get_pixel(bitmap, _sx, sy, &src_pixel); \
-	 if (!(flags & AL_MASK_SOURCE) || \
-	       memcmp(&src_pixel, &mask_color, sizeof(AL_COLOR)) != 0) { \
-	    al_unmap_rgba_i(bitmap, &src_pixel, &r, &g, &b, &a); \
-            al_map_rgba_i(dest, &dst_pixel, r, g, b, a); \
-	    al_put_pixel(x, y, &dst_pixel); \
-	 } \
-	 */ \
          if (xc <= 0) { \
 	    _sx++; \
 	    xc += xcinc; \
@@ -595,7 +603,8 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
 	func12, macro12, \
 	func13, macro13, \
 	func14, macro14, \
-	func15, macro15) \
+	func15, macro15, \
+	func16, macro16) \
 \
 static void func1(AL_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
@@ -790,6 +799,19 @@ static void func15(AL_BITMAP *bitmap, \
       flags, get, \
       bmp_write32, \
       macro15) \
+} \
+\
+static void func16(AL_BITMAP *bitmap, \
+	int sx, int sy, int sw, int sh, int ssize, \
+	int dx, int dy, int dw, int dh, int dsize, \
+	int flags) \
+{ \
+   DO_DRAW_SCALED(bitmap, \
+      sx, sy, sw, sh, ssize, \
+      dx, dy, dw, dh, dsize, \
+      flags, get, \
+      bmp_write32, \
+      macro16) \
 }
 
 #define DEFINE_DRAW_SCALED(get, fprefix, mprefix) \
@@ -808,7 +830,8 @@ static void func15(AL_BITMAP *bitmap, \
 	fprefix ## _to_bgr_888, mprefix ## _TO_BGR_888, \
 	fprefix ## _to_bgr_565, mprefix ## _TO_BGR_565, \
 	fprefix ## _to_bgr_555, mprefix ## _TO_BGR_555, \
-	fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888)
+	fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888, \
+	fprefix ## _to_xrgb_8888, mprefix ## _TO_XRGB_8888)
 
 DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_argb_8888, AL_CONVERT_ARGB_8888)
 DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_rgba_8888, AL_CONVERT_RGBA_8888)
@@ -825,6 +848,7 @@ DEFINE_DRAW_SCALED(READ3BYTES, _draw_scaled_memory_bgr_888, AL_CONVERT_BGR_888)
 DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_bgr_565, AL_CONVERT_BGR_565)
 DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_bgr_555, AL_CONVERT_BGR_555)
 DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_rgbx_8888, AL_CONVERT_RGBX_8888)
+DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_xrgb_8888, AL_CONVERT_XRGB_8888)
 
 typedef void (*_draw_scaled_func)(AL_BITMAP *,
 	int sx, int sy, int sw, int sh, int ssize,
@@ -848,7 +872,8 @@ typedef void (*_draw_scaled_func)(AL_BITMAP *,
 		prefix ## _to_bgr_888, \
 		prefix ## _to_bgr_565, \
 		prefix ## _to_bgr_555, \
-		prefix ## _to_rgbx_8888 \
+		prefix ## _to_rgbx_8888, \
+		prefix ## _to_xrgb_8888 \
 	}, \
 
 static _draw_scaled_func _draw_scaled_funcs[NUM_PIXEL_FORMATS][NUM_PIXEL_FORMATS] = {
@@ -886,15 +911,16 @@ static _draw_scaled_func _draw_scaled_funcs[NUM_PIXEL_FORMATS][NUM_PIXEL_FORMATS
 	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_bgr_565)
 	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_bgr_555)
 	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgbx_8888)
+	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_xrgb_8888)
 };
 
 void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int dw, int dh, int flags)
 {
-   int ssize = _al_get_pixel_size(bitmap->format);
+   int ssize = al_get_pixel_size(bitmap->format);
    AL_BITMAP *dest = al_get_target_bitmap();
-   int dsize = _al_get_pixel_size(dest->format);
+   int dsize = al_get_pixel_size(dest->format);
 
    (*_draw_scaled_funcs[bitmap->format][dest->format])(
    	bitmap, sx, sy, sw, sh, ssize,
@@ -1174,8 +1200,8 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
    al_get_mask_color(&mask_color); \
    mask_pixel = _al_get_pixel_value(src->format, &mask_color); \
  \
-   ssize = _al_get_pixel_size(src->format); \
-   dsize = _al_get_pixel_size(dst->format); \
+   ssize = al_get_pixel_size(src->format); \
+   dsize = al_get_pixel_size(dst->format); \
  \
    /* \
     * Loop through scanlines. \
@@ -1448,7 +1474,8 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
 	func12, macro12, \
 	func13, macro13, \
 	func14, macro14, \
-	func15, macro15) \
+	func15, macro15, \
+	func16, macro16) \
 \
 static void func1 (AL_BITMAP *src, AL_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
@@ -1673,6 +1700,21 @@ static void func15 (AL_BITMAP *src, AL_BITMAP *dst, \
       bmp_write32, \
       macro15, \
       flags) \
+} \
+\
+static void func16 (AL_BITMAP *src, AL_BITMAP *dst, \
+   float cx, float cy, float dx, float dy,  float xscale, float yscale, \
+   float angle, int flags) \
+{ \
+   DO_DRAW_ROTATED_SCALED(src, dst, \
+      cx, cy, \
+      dx, dy, \
+      xscale, yscale, \
+      angle, \
+      get, \
+      bmp_write32, \
+      macro16, \
+      flags) \
 }
 
 #define DEFINE_DRAW_ROTATED_SCALED(get, fprefix, mprefix) \
@@ -1691,7 +1733,8 @@ static void func15 (AL_BITMAP *src, AL_BITMAP *dst, \
 	fprefix ## _to_bgr_888, mprefix ## _TO_BGR_888, \
 	fprefix ## _to_bgr_565, mprefix ## _TO_BGR_565, \
 	fprefix ## _to_bgr_555, mprefix ## _TO_BGR_555, \
-	fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888)
+	fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888, \
+	fprefix ## _to_xrgb_8888, mprefix ## _TO_XRGB_8888)
 
 DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_argb_8888, AL_CONVERT_ARGB_8888)
 DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_rgba_8888, AL_CONVERT_RGBA_8888)
@@ -1708,6 +1751,7 @@ DEFINE_DRAW_ROTATED_SCALED(READ3BYTES, _draw_rotated_scaled_memory_bgr_888, AL_C
 DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_bgr_565, AL_CONVERT_BGR_565)
 DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_bgr_555, AL_CONVERT_BGR_555)
 DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_rgbx_8888, AL_CONVERT_RGBX_8888)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_xrgb_8888, AL_CONVERT_XRGB_8888)
 
 #define DECLARE_DRAW_ROTATED_SCALED_FUNCS(prefix) \
 	{ \
@@ -1726,7 +1770,8 @@ DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_rgbx_8888, AL
 		prefix ## _to_bgr_888, \
 		prefix ## _to_bgr_565, \
 		prefix ## _to_bgr_555, \
-		prefix ## _to_rgbx_8888 \
+		prefix ## _to_rgbx_8888, \
+		prefix ## _to_xrgb_8888 \
 	}, \
 
 typedef void (*_draw_rotated_scaled_func)(AL_BITMAP *src, AL_BITMAP *dst,
@@ -1768,6 +1813,7 @@ static _draw_rotated_scaled_func _draw_rotated_scaled_funcs[NUM_PIXEL_FORMATS][N
 	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_bgr_565)
 	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_bgr_555)
 	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgbx_8888)
+	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_xrgb_8888)
 };
 
 

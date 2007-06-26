@@ -44,7 +44,7 @@ void _al_clear_memory(AL_COLOR *color)
 
    al_lock_bitmap(bitmap, &lr, 0);
 
-   switch (_al_get_pixel_size(bitmap->format)) {
+   switch (al_get_pixel_size(bitmap->format)) {
       case 1:
          DO_FILLED_RECTANGLE(lr, 1, bmp_write8, bitmap->w, bitmap->h, pixel_value);
 	 break;
@@ -102,7 +102,7 @@ void _al_draw_filled_rectangle_memory(int x1, int y1, int x2, int y2,
 
    al_lock_bitmap_region(bitmap, x1, y1, w, h, &lr, 0);
 
-   switch (_al_get_pixel_size(bitmap->format)) {
+   switch (al_get_pixel_size(bitmap->format)) {
       case 1:
          DO_FILLED_RECTANGLE(lr, 1, bmp_write8, w, h, pixel_value);
 	 break;
@@ -199,7 +199,7 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, AL_COLOR *color)
    y2 -= y1;
    x1 = y1 = 0;
 
-   switch (_al_get_pixel_size(bitmap->format)) {
+   switch (al_get_pixel_size(bitmap->format)) {
       case 1:
          DO_LINE(+, x, <=, +, y, >=, bmp_write8, 1);
          break;

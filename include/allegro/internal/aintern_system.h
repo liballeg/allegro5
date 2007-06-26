@@ -15,6 +15,8 @@ struct AL_SYSTEM_INTERFACE
    AL_SYSTEM *(*initialize)(int flags);
    AL_DISPLAY_INTERFACE *(*get_display_driver)(void);
    AL_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
+   int (*get_num_display_modes)(void);
+   AL_DISPLAY_MODE *(*get_display_mode)(int index, AL_DISPLAY_MODE *mode);
 };
 
 struct AL_SYSTEM

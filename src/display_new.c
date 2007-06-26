@@ -91,9 +91,9 @@ bool al_update_display_region(int x, int y,
  * function to let the graphics driver know that it can now resize
  * the display. Returns true on success.
  */
-void al_notify_resize(void)
+bool al_notify_resize(void)
 {
-   if (_al_current_display->flags & AL_WINDOWED) {
+   if (!(_al_current_display->flags & AL_FULLSCREEN)) {
       if (_al_current_display->vt->notify_resize)
          return _al_current_display->vt->notify_resize(_al_current_display);
    }
@@ -105,7 +105,7 @@ void al_notify_resize(void)
  */
 bool al_resize_display(int width, int height)
 {
-   if (_al_current_display->flags & AL_WINDOWED) {
+   if (!(_al_current_display->flags & AL_FULLSCREEN)) {
       if (_al_current_display->vt->resize_display)
          return _al_current_display->vt->resize_display(_al_current_display,
             width, height);
@@ -179,24 +179,8 @@ int al_get_display_flags(AL_DISPLAY *display)
  */
 int al_get_num_display_modes(void)
 {
-   int format = al_get_new_display_format();
-   int refresh_rate = al_get_new_display_refresh_rate();
-   int flags = al_get_new_display_flags();
-
-   if (flags & AL_WINDOWED)
-      return -1;
-
-#if defined ALLEGRO_D3D
-   if (flags & AL_DIRECT3D) {
-      return _al_d3d_get_num_display_modes(format, refresh_rate, flags);
-   }
-#endif
-
-   if (flags & AL_OPENGL) {
-      /* FIXME */
-   }
-
-   return 0;
+   AL_SYSTEM *system = al_system_driver();
+   return system->vt->get_num_display_modes();
 }
 
 /*
@@ -205,23 +189,7 @@ int al_get_num_display_modes(void)
  */
 AL_DISPLAY_MODE *al_get_display_mode(int index, AL_DISPLAY_MODE *mode)
 {
-   int format = al_get_new_display_format();
-   int refresh_rate = al_get_new_display_refresh_rate();
-   int flags = al_get_new_display_flags();
-
-   if (flags & AL_WINDOWED)
-      return NULL;
-
-#if defined ALLEGRO_D3D
-   if (flags & AL_DIRECT3D) {
-      return _al_d3d_get_display_mode(index, format, refresh_rate, flags, mode);
-   }
-#endif
-
-   if (flags & AL_OPENGL) {
-      /* FIXME */
-   }
-
-   return NULL;
+   AL_SYSTEM *system = al_system_driver();
+   return system->vt->get_display_mode(index, mode);
 }
 

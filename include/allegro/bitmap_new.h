@@ -36,7 +36,8 @@ enum ALLEGRO_PIXEL_FORMAT {
 	ALLEGRO_PIXEL_FORMAT_BGR_888,	/* 24 bit format */
 	ALLEGRO_PIXEL_FORMAT_BGR_565,
 	ALLEGRO_PIXEL_FORMAT_BGR_555,
-	ALLEGRO_PIXEL_FORMAT_RGBX_8888
+	ALLEGRO_PIXEL_FORMAT_RGBX_8888,
+	ALLEGRO_PIXEL_FORMAT_XRGB_8888
 	/*ALLEGRO_PIXEL_FORMAT_RGBA_32F*/
 };
 
@@ -91,6 +92,7 @@ void al_unlock_bitmap(AL_BITMAP *bitmap);
 
 void al_put_pixel(int x, int y, AL_COLOR *color);
 AL_COLOR *al_get_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color);
+int al_get_pixel_size(int format);
 
 /* Pixel mapping */
 AL_COLOR *al_map_rgb(AL_BITMAP *bitmap, AL_COLOR *color,

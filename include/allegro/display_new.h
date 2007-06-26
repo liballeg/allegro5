@@ -48,7 +48,7 @@ void al_clear(AL_COLOR *color);
 void al_draw_line(float fx, float fy, float tx, float ty, AL_COLOR *color);
 void al_draw_filled_rectangle(float tlx, float tly, float brx, float bry,
     AL_COLOR *color);
-void al_notify_resize(void);
+bool al_notify_resize(void);
 bool al_resize_display(int width, int height);
 void al_flip_display(void);
 bool al_update_display_region(int x, int y,
