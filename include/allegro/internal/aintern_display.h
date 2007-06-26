@@ -22,7 +22,8 @@ struct AL_DISPLAY_INTERFACE
    void (*flip_display)(AL_DISPLAY *d);
    bool (*update_display_region)(AL_DISPLAY *d, int x, int y,
    	int width, int height);
-   void (*notify_resize)(AL_DISPLAY *d);
+   bool (*notify_resize)(AL_DISPLAY *d);
+   bool (*resize_display)(AL_DISPLAY *d, int width, int height);
 
    AL_BITMAP *(*create_bitmap)(AL_DISPLAY *d,
    	int w, int h);

@@ -58,6 +58,9 @@ int main(void)
 
    display[2] = al_create_display(w, h);
 
+   al_set_current_display(display[2]);
+   al_resize_display(700, 700);
+
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[1]);
@@ -75,9 +78,10 @@ int main(void)
 
    picture = al_load_bitmap("mysha.tga");
 
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_4444);
+   //al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_4444);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGBA_8888);
    mask = al_load_bitmap("mask.pcx");
-   
+
    al_set_new_bitmap_flags(AL_MEMORY_BITMAP|AL_USE_ALPHA);
    mem_bmp = al_load_bitmap("mysha.tga");
    al_set_target_bitmap(mem_bmp);
