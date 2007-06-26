@@ -742,27 +742,6 @@ static bool _al_d3d_reset_device()
    return 1;
 }
 
-static void d3d_do_resize(AL_DISPLAY *d)
-{
-   WINDOWINFO wi;
-   D3DDISPLAYMODE d3d_dm;
-   AL_DISPLAY_D3D *disp = (AL_DISPLAY_D3D *)d;
-   
-   if (_al_d3d_device) {
-      wi.cbSize = sizeof(WINDOWINFO);
-      GetWindowInfo(disp->window, &wi);
-      d->w = wi.rcClient.right - wi.rcClient.left;
-      d->h = wi.rcClient.bottom - wi.rcClient.top;
-
-      if (gfx_driver) {
-         gfx_driver->w = d->w;
-         gfx_driver->h = d->h;
-      }
-   }
-
-   _al_d3d_reset_device();
-}
-
 /*
  * The window and swap chain must be created in the same
  * thread that runs the message loop. It also must be
@@ -1153,11 +1132,38 @@ static bool d3d_update_display_region(AL_DISPLAY *d,
    return ret;
 }
 
-static void d3d_notify_resize(AL_DISPLAY *d)
+static bool d3d_resize_display(AL_DISPLAY *d, int width, int height)
 {
-   if (d->flags & AL_WINDOWED) {
-      d3d_do_resize(d);
+   AL_DISPLAY_D3D *disp = (AL_DISPLAY_D3D *)d;
+
+   d->w = width;
+   d->h = height;
+
+   _al_d3d_reset_device();
+
+   return SetWindowPos(disp->window, HWND_TOP,
+         0, 0,
+         width, height,
+         SWP_NOMOVE|SWP_NOZORDER);
+}
+
+static bool d3d_notify_resize(AL_DISPLAY *d)
+{
+   if (_al_d3d_device) {
+      WINDOWINFO wi;
+      AL_DISPLAY_D3D *disp = (AL_DISPLAY_D3D *)d;
+
+      wi.cbSize = sizeof(WINDOWINFO);
+      GetWindowInfo(disp->window, &wi);
+      d->w = wi.rcClient.right - wi.rcClient.left;
+      d->h = wi.rcClient.bottom - wi.rcClient.top;
+
+      _al_d3d_reset_device();
+
+      return true;
    }
+
+   return false;
 }
 
 /*
@@ -1362,6 +1368,7 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->flip_display = d3d_flip_display;
    vt->update_display_region = d3d_update_display_region;
    vt->notify_resize = d3d_notify_resize;
+   vt->resize_display = d3d_resize_display;
    vt->create_bitmap = _al_d3d_create_bitmap;
    vt->upload_compat_screen = d3d_upload_compat_screen;
    vt->set_target_bitmap = d3d_set_target_bitmap;

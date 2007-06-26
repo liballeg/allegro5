@@ -89,12 +89,30 @@ bool al_update_display_region(int x, int y,
  * When the user receives a resize event from a resizable display,
  * if they wish the display to be resized they must call this
  * function to let the graphics driver know that it can now resize
- * the display.
+ * the display. Returns true on success.
  */
 void al_notify_resize(void)
 {
-   _al_current_display->vt->notify_resize(_al_current_display);
+   if (_al_current_display->flags & AL_WINDOWED) {
+      if (_al_current_display->vt->notify_resize)
+         return _al_current_display->vt->notify_resize(_al_current_display);
+   }
+   return false;
 }
+
+/*
+ * Resize the current display from code.
+ */
+bool al_resize_display(int width, int height)
+{
+   if (_al_current_display->flags & AL_WINDOWED) {
+      if (_al_current_display->vt->resize_display)
+         return _al_current_display->vt->resize_display(_al_current_display,
+            width, height);
+   }
+   return false;
+}
+
 /* Clear a complete display, but confined by the clipping rectangle. */
 void al_clear(AL_COLOR *color)
 {
