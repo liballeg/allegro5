@@ -17,3 +17,4 @@ int main(void)
     al_rest(5000);
     return 0;
 }
+END_OF_MAIN()

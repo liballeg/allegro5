@@ -34,7 +34,7 @@ int main(void)
 
    al_init();
 
-   al_set_new_display_flags(AL_DIRECT3D);
+   al_set_new_display_flags(AL_DIRECT3D|AL_FULLSCREEN);
    al_set_new_display_refresh_rate(60);
 
    int nm = al_get_num_display_modes();
@@ -58,8 +58,10 @@ int main(void)
 
    display[2] = al_create_display(w, h);
 
+   /*
    al_set_current_display(display[2]);
    al_resize_display(700, 700);
+   */
 
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
@@ -230,5 +232,4 @@ int main(void)
 
    return 0;
 }
-END_OF_MAIN();
-
+END_OF_MAIN()
