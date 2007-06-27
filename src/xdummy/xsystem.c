@@ -40,6 +40,8 @@ static void background_thread(_AL_THREAD *thread, void *arg)
          case ConfigureNotify:
             _al_display_xdummy_configure(&d->display,  &event);
             break;
+         case ConfigureRequest:
+            break;
          case ClientMessage:
             if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
                _al_display_xdummy_closebutton(&d->display, &event);

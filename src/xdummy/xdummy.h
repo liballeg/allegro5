@@ -51,7 +51,6 @@ struct AL_DISPLAY_XDUMMY
    Window window;
    GLXWindow glxwindow;
    GLXContext context;
-   int is_initialized;
    Atom wm_delete_window_atom;
 };
 

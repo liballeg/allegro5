@@ -40,13 +40,16 @@ static AL_DISPLAY *create_display(int w, int h)
    d->display.refresh_rate = al_get_new_display_refresh_rate();
    d->display.flags = al_get_new_display_flags();
 
+   //FIXME
+   d->display.flags |= AL_WINDOWED;
+
    d->backbuffer = _al_xdummy_create_bitmap(&d->display, w, h);
    AL_BITMAP_XDUMMY *backbuffer = (void *)d->backbuffer;
    backbuffer->is_backbuffer = 1;
    /* Create a memory cache for the whole screen. */
    //TODO: Maybe we should do this lazily and defer to lock_bitmap_region
    if (!d->backbuffer->memory) {
-      int n = w * h * _al_get_pixel_size(d->backbuffer->format);
+      int n = w * h * al_get_pixel_size(d->backbuffer->format);
       d->backbuffer->memory = _AL_MALLOC(n);
       memset(d->backbuffer->memory, 0, n);
    }
@@ -125,7 +128,9 @@ static AL_DISPLAY *create_display(int w, int h)
 
    _al_mutex_unlock(&system->lock);
 
-   return (AL_DISPLAY *)d;
+   setup_gl(&d->display);
+
+   return &d->display;
 }
 
 static void destroy_display(AL_DISPLAY *d)
@@ -155,11 +160,6 @@ static void set_current_display(AL_DISPLAY *d)
    glXMakeContextCurrent(system->xdisplay, glx->glxwindow, glx->glxwindow,
       glx->context);
 
-   if (!glx->is_initialized) {
-      setup_gl(d);
-      glx->is_initialized = 1;
-   }
-
    TRACE("xdisplay: GLX context made current.\n");
 }
 
@@ -183,8 +183,18 @@ static bool acknowledge_resize(AL_DISPLAY *d)
 
    d->w = w;
    d->h = h;
-   glx->is_initialized = 0;
 
+   setup_gl(d);
+
+   return true;
+}
+
+static bool resize_display(AL_DISPLAY *d, int w, int h)
+{
+   AL_SYSTEM_XDUMMY *s = (AL_SYSTEM_XDUMMY *)al_system_driver();
+   AL_DISPLAY_XDUMMY *glx = (AL_DISPLAY_XDUMMY *)d;
+   XResizeWindow(s->xdisplay, glx->window, w, h);
+   XSync(s->xdisplay, False);
    return true;
 }
 
@@ -310,12 +320,13 @@ AL_DISPLAY_INTERFACE *_al_display_xdummy_driver(void)
    vt->destroy_display = destroy_display;
    vt->set_current_display = set_current_display;
    vt->flip_display = flip_display;
-   vt->notify_resize = acknowledge_resize;
+   vt->acknowledge_resize = acknowledge_resize;
    vt->create_bitmap = _al_xdummy_create_bitmap;
    vt->get_backbuffer = get_backbuffer;
    vt->get_frontbuffer = get_backbuffer;
    vt->set_target_bitmap = set_target_bitmap;
    vt->is_compatible_bitmap = is_compatible_bitmap;
+   vt->resize_display = resize_display;
    _xdummy_add_drawing_functions(vt);
 
    return vt;

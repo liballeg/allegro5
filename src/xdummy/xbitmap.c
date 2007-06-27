@@ -93,7 +93,7 @@ static int pot(int x)
 
 static void upside_down(AL_BITMAP *bitmap)
 {
-    int pixelsize = _al_get_pixel_size(bitmap->format);
+    int pixelsize = al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
     int i;
     unsigned char temp[pitch];
@@ -139,7 +139,7 @@ static AL_LOCKED_REGION *lock_region(AL_BITMAP *bitmap,
 	int flags)
 {
     AL_BITMAP_XDUMMY *xbitmap = (void *)bitmap;
-    int pixelsize = _al_get_pixel_size(bitmap->format);
+    int pixelsize = al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
 
     if (xbitmap->is_backbuffer) {
@@ -174,7 +174,7 @@ static AL_LOCKED_REGION *lock_region(AL_BITMAP *bitmap,
 static void unlock_region(AL_BITMAP *bitmap)
 {
     AL_BITMAP_XDUMMY *xbitmap = (void *)bitmap;
-    int pixelsize = _al_get_pixel_size(bitmap->format);
+    int pixelsize = al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
 
     if (xbitmap->is_backbuffer) {
