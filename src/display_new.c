@@ -105,11 +105,9 @@ bool al_acknowledge_resize(void)
  */
 bool al_resize_display(int width, int height)
 {
-   if (!(_al_current_display->flags & AL_FULLSCREEN)) {
-      if (_al_current_display->vt->resize_display)
-         return _al_current_display->vt->resize_display(_al_current_display,
-            width, height);
-   }
+   if (_al_current_display->vt->resize_display)
+      return _al_current_display->vt->resize_display(_al_current_display,
+         width, height);
    return false;
 }
 

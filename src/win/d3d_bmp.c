@@ -495,6 +495,47 @@ void _al_d3d_prepare_bitmaps_for_reset()
 }
 
 /*
+ * Must be done for fullscreen devices when their thread exits so
+ * that they aren't lost in a resize.
+ */
+void _al_d3d_release_bitmap_textures(void)
+{
+   unsigned int i;
+
+   for (i = 0; i < created_bitmaps._size; i++) {
+      AL_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
+      AL_BITMAP_D3D *bmp = *bptr;
+      AL_BITMAP *al_bmp = (AL_BITMAP *)bmp;
+      d3d_sync_bitmap_memory(al_bmp);
+      IDirect3DTexture9_Release(bmp->system_texture);
+      IDirect3DTexture9_Release(bmp->video_texture);
+   }
+}
+
+/*
+ * Called after the resize is done.
+ */
+bool _al_d3d_recreate_bitmap_textures(void)
+{
+   unsigned int i;
+
+   for (i = 0; i < created_bitmaps._size; i++) {
+      AL_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
+      AL_BITMAP_D3D *bmp = *bptr;
+      AL_BITMAP *al_bmp = (AL_BITMAP *)bmp;
+      if (!d3d_create_textures(bmp->texture_w,
+            bmp->texture_h,
+            &bmp->video_texture,
+            &bmp->system_texture,
+            al_bmp->format))
+         return false;
+      d3d_do_upload(bmp, 0, 0, al_bmp->w, al_bmp->h, true);
+   }
+
+   return true;
+}
+
+/*
  * Refresh the texture memory. This must be done after a device is
  * lost or after it is reset.
  */

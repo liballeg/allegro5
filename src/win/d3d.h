@@ -100,6 +100,8 @@ void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
    float dx, float dy, float dw, float dh,
    float cx, float cy, float angle,
    D3DCOLOR color, int flags);
+void _al_d3d_release_bitmap_textures(void);
+bool _al_d3d_recreate_bitmap_textures(void);
 
 /* Helper to get smallest fitting power of two. */
 static inline int pot(int x)

@@ -38,6 +38,7 @@ LPDIRECT3DDEVICE9 _al_d3d_device = 0;
 
 static D3DPRESENT_PARAMETERS d3d_pp;
 
+/* FIXME: This can probably go, it's kept in the system driver too */
 static _AL_VECTOR d3d_created_displays = _AL_VECTOR_INITIALIZER(AL_DISPLAY_D3D *);
 
 static HWND d3d_hidden_window;
@@ -51,9 +52,6 @@ static LPDIRECT3DSURFACE9 d3d_current_texture_render_target = NULL;
 
 static AL_DISPLAY *d3d_target_display_before_device_lost = NULL;
 static AL_BITMAP *d3d_target_bitmap_before_device_lost = NULL;
-
-/* The window code needs this to set a thread handle */
-AL_DISPLAY_D3D *_al_d3d_last_created_display = 0;
 
 static AL_DISPLAY_D3D *d3d_fullscreen_display;
 
@@ -70,6 +68,7 @@ typedef struct new_display_parameters {
    int flags;
    int width;
    int height;
+   bool is_resize;
 } new_display_parameters;
 
 static bool d3d_bitmaps_prepared_for_reset = false;
@@ -513,7 +512,6 @@ bool _al_d3d_init_display()
 
    _al_mutex_init(&d3d_device_mutex);
 
-
    d3d_backbuffer.is_backbuffer = 1;
 
    return true;
@@ -556,38 +554,42 @@ static bool d3d_create_swap_chain(AL_DISPLAY_D3D *d,
    return 1;
 }
 
-static void d3d_destroy_display(AL_DISPLAY *display)
+static void d3d_destroy_display_internals(AL_DISPLAY_D3D *display)
 {
    unsigned int i;
-   AL_DISPLAY_D3D *d3d_display = (AL_DISPLAY_D3D *)display;
-   AL_SYSTEM_WIN *system = (AL_SYSTEM_WIN *)al_system_driver();
 
    if (d3d_current_texture_render_target) {
       IDirect3DSurface9_Release(d3d_current_texture_render_target);
    }
-   if (d3d_display->render_target)
-      IDirect3DSurface9_Release(d3d_display->render_target);
-   if (d3d_display->swap_chain)
-      IDirect3DSwapChain9_Release(d3d_display->swap_chain);
+   if (display->render_target)
+      IDirect3DSurface9_Release(display->render_target);
+   if (display->swap_chain)
+      IDirect3DSwapChain9_Release(display->swap_chain);
 
-   if (!(display->flags & AL_FULLSCREEN)) {
+   if (!(display->display.flags & AL_FULLSCREEN)) {
       if (d3d_created_displays._size <= 1) {
          d3d_destroy_hidden_device();
       }
    }
-   else {
-      d3d_already_fullscreen = false;
-   }
 
-   d3d_display->end_thread = true;
-   while (!d3d_display->thread_ended)
+   display->end_thread = true;
+   while (!display->thread_ended)
       al_rest(1);
+   
+   d3d_already_fullscreen = false;
 
    _al_win_ungrab_input();
 
-   PostMessage(d3d_display->window, _al_win_msg_suicide, 0, 0);
+   PostMessage(display->window, _al_win_msg_suicide, 0, 0);
+   
+   _al_event_source_free(&display->display.es);
+}
 
-   _al_event_source_free(&display->es);
+static void d3d_destroy_display(AL_DISPLAY *display)
+{
+   AL_SYSTEM_WIN *system = (AL_SYSTEM_WIN *)al_system_driver();
+
+   d3d_destroy_display_internals((AL_DISPLAY_D3D *)display);
 
    _al_vector_find_and_delete(&system->system.displays, &display);
 
@@ -758,14 +760,12 @@ static void d3d_display_thread_proc(void *arg)
    bool lost_event_generated = false;
    new_display_parameters *params = arg;
 
-   _al_d3d_last_created_display = NULL;
-
    /*
     * Direct3D will only allow 1 fullscreen swap chain, and you can't
     * combine fullscreen and windowed swap chains.
     */
-   if (d3d_already_fullscreen ||
-      ((d3d_created_displays._size > 0) && params->flags & AL_FULLSCREEN)) {
+   if (!params->is_resize && (d3d_already_fullscreen ||
+      ((d3d_created_displays._size > 0) && params->flags & AL_FULLSCREEN))) {
       params->display->init_failed = true;
       return;
    }
@@ -798,17 +798,6 @@ static void d3d_display_thread_proc(void *arg)
    d->display.h = params->height;
    d->display.vt = vt;
 
-   AL_SYSTEM_WIN *system = (AL_SYSTEM_WIN *)al_system_driver();
-
-   /* Add ourself to the list of displays. */
-   AL_DISPLAY_D3D **add = _al_vector_alloc_back(&system->system.displays);
-   *add = d;
-
-   /* Each display is an event source. */
-   _al_event_source_init(&d->display.es);
-
-   _al_d3d_last_created_display = d;
-
    d->window = _al_win_create_window((AL_DISPLAY *)d, params->width,
       params->height, params->flags);
    
@@ -824,7 +813,6 @@ static void d3d_display_thread_proc(void *arg)
    if (!(params->flags & AL_FULLSCREEN)) {
       if (!d3d_create_swap_chain(d, params->format, params->refresh_rate, params->flags)) {
          d3d_destroy_display((AL_DISPLAY *)d);
-         _al_d3d_last_created_display = NULL;
          params->display->init_failed = true;
          return;
       }
@@ -832,17 +820,12 @@ static void d3d_display_thread_proc(void *arg)
    else {
       if (!d3d_create_fullscreen_device(d, params->format, params->refresh_rate, params->flags)) {
          d3d_destroy_display((AL_DISPLAY *)d);
-         _al_d3d_last_created_display = NULL;
          params->display->init_failed = true;
          return;
       }
    }
 
    d->thread_ended = false;
-
-   /* Keep track of the displays created */
-   add = _al_vector_alloc_back(&d3d_created_displays);
-   *add = d;
 
    params->display->initialized = true;
 
@@ -912,7 +895,10 @@ static void d3d_display_thread_proc(void *arg)
 
 End:
    if (d->display.flags & AL_FULLSCREEN) {
-      IDirect3DDevice9_Release(_al_d3d_device);
+      _al_d3d_release_bitmap_textures();
+      if (IDirect3DDevice9_Release(_al_d3d_device) != D3D_OK) {
+         TRACE("Releasing fullscreen D3D device failed.\n");
+      }
    }
 
    _al_win_delete_thread_handle(GetCurrentThreadId());
@@ -922,60 +908,83 @@ End:
    TRACE("d3d display thread exits\n");
 }
 
-
-/* Create a new X11 dummy display, which maps directly to a GLX window. */
-static AL_DISPLAY *d3d_create_display(int w, int h)
+static bool d3d_create_display_internals(AL_DISPLAY_D3D *display, bool is_resize)
 {
-   int format, refresh_rate, flags;
-   new_display_parameters params;
+   static new_display_parameters params;
 
    _al_d3d_lock_device();
 
-   format = al_get_new_display_format();
-   refresh_rate = al_get_new_display_refresh_rate();
-   flags = al_get_new_display_flags();
+   params.width = display->display.w;
+   params.height = display->display.h;
+   params.display = display;
+   params.format = display->display.format;
+   params.refresh_rate = display->display.refresh_rate;
+   params.flags = display->display.flags;
+   params.is_resize = is_resize;
 
-   if (d3d_created_displays._size == 0 && !(flags & AL_FULLSCREEN)) {
+   if (d3d_created_displays._size == 0 && !(params.flags & AL_FULLSCREEN)) {
       if (!d3d_create_hidden_device()) {
          _al_d3d_unlock_device();
-         return NULL;
+         return false;
       }
    }
-
-   params.width = w;
-   params.height = h;
-
-   params.format = al_get_new_display_format();
-   params.refresh_rate = al_get_new_display_refresh_rate();
-   params.flags = al_get_new_display_flags();
-
-   params.display = _AL_MALLOC(sizeof *params.display);
-   memset(params.display, 0, sizeof *params.display);
 
    _beginthread(d3d_display_thread_proc, 0, &params);
 
    while (!params.display->initialized && !params.display->init_failed)
       al_rest(1);
-   
-   if (params.display->init_failed) {
-      _AL_FREE(params.display);
-      return NULL;
-   }
 
-   if (_al_d3d_last_created_display == NULL) {
-      return NULL;
+   if (params.display->init_failed) {
+      _al_d3d_unlock_device();
+      return false;
    }
 
    win_grab_input();
 
-   if (flags & AL_FULLSCREEN) {
+   if (params.flags & AL_FULLSCREEN) {
       d3d_already_fullscreen = true;
-      d3d_fullscreen_display = _al_d3d_last_created_display;
+      d3d_fullscreen_display = params.display;
    }
 
    _al_d3d_unlock_device();
 
-   return (AL_DISPLAY *)_al_d3d_last_created_display;
+   return true;
+}
+
+
+/* Create a new X11 dummy display, which maps directly to a GLX window. */
+static AL_DISPLAY *d3d_create_display(int w, int h)
+{
+   AL_SYSTEM_WIN *system = (AL_SYSTEM_WIN *)al_system_driver();
+   AL_DISPLAY_D3D *display = _AL_MALLOC(sizeof *display);
+   AL_DISPLAY_D3D **add;
+
+   memset(display, 0, sizeof *display);
+   
+   display->display.w = w;
+   display->display.h = h;
+   display->display.format = al_get_new_display_format();
+   display->display.refresh_rate = al_get_new_display_refresh_rate();
+   display->display.flags = al_get_new_display_flags();
+
+   if (!d3d_create_display_internals(display, false)) {
+      TRACE("d3d_create_display failed.\n");
+      _AL_FREE(display);
+      return NULL;
+   }
+
+   /* Add ourself to the list of displays. */
+   add = _al_vector_alloc_back(&system->system.displays);
+   *add = display;
+
+   /* Each display is an event source. */
+   _al_event_source_init(&display->display.es);
+
+   /* Keep track of the displays created */
+   add = _al_vector_alloc_back(&d3d_created_displays);
+   *add = display;
+
+   return (AL_DISPLAY *)display;
 }
 
 /* FIXME: this will have to return a success/failure */
@@ -1138,15 +1147,34 @@ static bool d3d_resize_display(AL_DISPLAY *d, int width, int height)
 {
    AL_DISPLAY_D3D *disp = (AL_DISPLAY_D3D *)d;
 
-   d->w = width;
-   d->h = height;
+   if (d3d_already_fullscreen) {
+      d3d_destroy_display_internals(disp);
+      d->w = width;
+      d->h = height;
+      disp->end_thread = false;
+      disp->initialized = false;
+      disp->init_failed = false;
+      disp->thread_ended = false;
+      if (!d3d_create_display_internals(disp, true)) {
+         _AL_FREE(disp);
+         return false;
+      }
+      al_set_current_display(d);
+      al_set_target_bitmap(al_get_backbuffer());
+      _al_d3d_recreate_bitmap_textures();
+      return true;
+   }
+   else {
+      d->w = width;
+      d->h = height;
 
-   _al_d3d_reset_device();
+      _al_d3d_reset_device();
 
-   return SetWindowPos(disp->window, HWND_TOP,
+      return SetWindowPos(disp->window, HWND_TOP,
          0, 0,
          width, height,
          SWP_NOMOVE|SWP_NOZORDER);
+   }
 }
 
 static bool d3d_acknowledge_resize(AL_DISPLAY *d)

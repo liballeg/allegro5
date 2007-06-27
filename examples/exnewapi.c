@@ -47,14 +47,12 @@ int main(void)
    display[1] = al_create_display(w, h);
 
    al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-   al_set_new_display_flags(AL_WINDOWED);
+   al_set_new_display_flags(AL_WINDOWED|AL_RESIZABLE);
 
    display[2] = al_create_display(w, h);
 
-   /*
    al_set_current_display(display[2]);
    al_resize_display(700, 700);
-   */
 
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
@@ -83,6 +81,7 @@ int main(void)
    //al_draw_filled_rectangle(0, 0, 100, 100, al_map_rgb(mem_bmp, &colors[0], 0, 255, 0));
    al_draw_filled_rectangle(0, 0, 100, 100, al_map_rgb(mem_bmp, &colors[0], 0, 255, 0));
    al_draw_line(0, 0, 320, 200, al_map_rgb(mem_bmp, &colors[0], 0, 0, 255));
+  
 
    AL_COLOR color;
    AL_LOCKED_REGION lr;
@@ -119,6 +118,14 @@ int main(void)
    long start = al_current_time();
    long last_move = al_current_time();
    int frames = 0;
+   
+   al_set_target_bitmap(al_get_backbuffer());
+   al_draw_bitmap(picture, 0, 0, 0);
+   for (i = 0; i < 3; i++) {
+      al_set_current_display(display[i]);
+      al_flip_display();
+   }
+
 
    while (!quit) {
       /* read input */
