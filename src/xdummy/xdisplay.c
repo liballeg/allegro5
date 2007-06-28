@@ -20,6 +20,22 @@ static void setup_gl(AL_DISPLAY *d)
    glLoadIdentity();
 }
 
+static void set_size_hints(AL_DISPLAY *d, int w, int h)
+{
+   if (!(d->flags & AL_RESIZABLE)) {
+      AL_SYSTEM_XDUMMY *system = (void *)al_system_driver();
+      AL_DISPLAY_XDUMMY *glx = (void *)d;
+      XSizeHints *hints = XAllocSizeHints();;
+
+      hints->flags = PMinSize | PMaxSize | PBaseSize;
+      hints->min_width  = hints->max_width  = hints->base_width  = w;
+      hints->min_height = hints->max_height = hints->base_height = h;
+      XSetWMNormalHints(system->xdisplay, glx->window, hints);
+
+      XFree(hints);
+   }
+}
+
 /* Create a new X11 dummy display, which maps directly to a GLX window. */
 static AL_DISPLAY *create_display(int w, int h)
 {
@@ -96,16 +112,7 @@ static AL_DISPLAY *create_display(int w, int h)
 
    TRACE("xdisplay: X11 window created.\n");
    
-   if (!(d->display.flags & AL_RESIZABLE)) {
-      XSizeHints *hints = XAllocSizeHints();;
-
-      hints->flags = PMinSize | PMaxSize | PBaseSize;
-      hints->min_width  = hints->max_width  = hints->base_width  = w;
-      hints->min_height = hints->max_height = hints->base_height = h;
-      XSetWMNormalHints(system->xdisplay, d->window, hints);
-
-      XFree(hints);
-   }
+   set_size_hints(&d->display, w, h);
 
    d->wm_delete_window_atom = XInternAtom (system->xdisplay,
       "WM_DELETE_WINDOW", False);
@@ -194,6 +201,7 @@ static bool resize_display(AL_DISPLAY *d, int w, int h)
 {
    AL_SYSTEM_XDUMMY *s = (AL_SYSTEM_XDUMMY *)al_system_driver();
    AL_DISPLAY_XDUMMY *glx = (AL_DISPLAY_XDUMMY *)d;
+   set_size_hints(d, w, h);
    XResizeWindow(s->xdisplay, glx->window, w, h);
    XSync(s->xdisplay, False);
    return true;
