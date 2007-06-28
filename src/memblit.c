@@ -451,6 +451,7 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
    int xcinc, xcdec; \
    int xcstart; \
    int sxinc; \
+   int sxdir, sydir; \
    int i, j; \
    AL_COLOR mask_color; \
    int mask_pixel; \
@@ -502,16 +503,16 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
    sxinc = sw / dw; \
    xcdec = sw - ((sw/dw)*dw); \
    xcinc = dw - xcdec; \
+   xcstart = xcinc; \
  \
    /* get start state (clip) */ \
-   xcstart = xcinc; \
    for (i = 0, j = 0; i < dxbeg-dx; i++, j += sxinc) { \
       if (xcstart <= 0) { \
-	 xcstart += xcinc; \
-	 j++; \
+         xcstart += xcinc; \
+         j++; \
       } \
       else \
-	 xcstart -= xcdec; \
+         xcstart -= xcdec; \
    } \
  \
    sx += j; \
@@ -553,8 +554,23 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
    dxbeg = 0; \
    dyend = dyend - dy; \
  \
-   sx = 0; \
-   sy = 0; \
+   if (flags & AL_FLIP_HORIZONTAL) { \
+      sx = sw - 1; \
+      sxdir = -1; \
+   } \
+   else { \
+      sx = 0; \
+      sxdir = 1; \
+   } \
+   if (flags & AL_FLIP_VERTICAL) { \
+      sy = sh - 1; \
+      syinc = -syinc; \
+      sydir = -1; \
+   } \
+   else { \
+      sy = 0; \
+      sydir = 1; \
+   } \
  \
    /* Stretch it */ \
  \
@@ -568,7 +584,7 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
 	    set(dst_region.data+dst_region.pitch*y+dsize*x, pixel); \
 	 } \
          if (xc <= 0) { \
-	    _sx++; \
+	    _sx += sxdir; \
 	    xc += xcinc; \
          } \
          else \
@@ -576,11 +592,11 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
       } \
  \
       if (yc <= 0) { \
-	 sy++; \
+	 sy += sydir; \
 	 yc += ycinc; \
       } \
       else \
-	    yc -= ycdec; \
+	 yc -= ycdec; \
    } \
  \
    al_unlock_bitmap(bitmap); \
