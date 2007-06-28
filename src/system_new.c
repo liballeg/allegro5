@@ -81,6 +81,8 @@ bool _al_init(void)
       return false;
    }
 
+   _al_generate_integer_unmap_table();
+
    return true;
 }
 

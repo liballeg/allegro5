@@ -21,6 +21,27 @@
 #include "allegro/internal/aintern_bitmap.h"
 
 
+/*
+ * This table is used to unmap 8 bit color components
+ * into the 0-INT_MAX range.
+ */
+static int _integer_unmap_table[256];
+
+/* Generate _integer_unmap_table */
+void _al_generate_integer_unmap_table(void)
+{
+   int c = INT_MAX;
+   int d = INT_MAX / 255;
+   int i;
+   
+   for (i = 255; i > 0; i--) {
+      _integer_unmap_table[i] = c;
+      c -= d;
+   }
+   _integer_unmap_table[i] = 0;
+}
+
+
 static int pixel_sizes[] = {
 	0,
 	4,
@@ -1519,32 +1540,177 @@ void al_unmap_rgb_f(AL_BITMAP *bitmap, AL_COLOR *color,
 
 /* unmap_rgba_i */
 
+static void _unmap_rgba_i_argb_8888(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *a = _integer_unmap_table[color->raw[0]];
+   *r = _integer_unmap_table[color->raw[1]];
+   *g = _integer_unmap_table[color->raw[2]];
+   *b = _integer_unmap_table[color->raw[3]];
+}
+
+static void _unmap_rgba_i_rgba_8888(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *r = _integer_unmap_table[color->raw[0]];
+   *g = _integer_unmap_table[color->raw[1]];
+   *b = _integer_unmap_table[color->raw[2]];
+   *a = _integer_unmap_table[color->raw[3]];
+}
+
+static void _unmap_rgba_i_argb_4444(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *a = _integer_unmap_table[_rgb_scale_4[color->raw[0]]];
+   *r = _integer_unmap_table[_rgb_scale_4[color->raw[1]]];
+   *g = _integer_unmap_table[_rgb_scale_4[color->raw[2]]];
+   *b = _integer_unmap_table[_rgb_scale_4[color->raw[3]]];
+}
+
+static void _unmap_rgba_i_rgb_888(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *r = _integer_unmap_table[color->raw[0]];
+   *g = _integer_unmap_table[color->raw[1]];
+   *b = _integer_unmap_table[color->raw[2]];
+   *a = 0;
+}
+
+static void _unmap_rgba_i_rgb_565(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *r = _integer_unmap_table[_rgb_scale_5[color->raw[0]]];
+   *g = _integer_unmap_table[_rgb_scale_6[color->raw[1]]];
+   *b = _integer_unmap_table[_rgb_scale_5[color->raw[2]]];
+   *a = 0;
+}
+
+static void _unmap_rgba_i_rgb_555(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *r = _integer_unmap_table[_rgb_scale_5[color->raw[0]]];
+   *g = _integer_unmap_table[_rgb_scale_5[color->raw[1]]];
+   *b = _integer_unmap_table[_rgb_scale_5[color->raw[2]]];
+   *a = 0;
+}
+
+static void _unmap_rgba_i_palette_8(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *r = _integer_unmap_table[getr8(color->raw[0])];
+   *g = _integer_unmap_table[getg8(color->raw[0])];
+   *b = _integer_unmap_table[getb8(color->raw[0])];
+   *a = 0;
+}
+
+static void _unmap_rgba_i_rgba_5551(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *r = _integer_unmap_table[_rgb_scale_5[color->raw[0]]];
+   *g = _integer_unmap_table[_rgb_scale_5[color->raw[1]]];
+   *b = _integer_unmap_table[_rgb_scale_5[color->raw[2]]];
+   *a = _integer_unmap_table[_rgb_scale_1[color->raw[3]]];
+}
+
+static void _unmap_rgba_i_argb_1555(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *a = _integer_unmap_table[_rgb_scale_1[color->raw[0]]];
+   *r = _integer_unmap_table[_rgb_scale_5[color->raw[1]]];
+   *g = _integer_unmap_table[_rgb_scale_5[color->raw[2]]];
+   *b = _integer_unmap_table[_rgb_scale_5[color->raw[3]]];
+}
+
+static void _unmap_rgba_i_abgr_8888(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *a = _integer_unmap_table[color->raw[0]];
+   *b = _integer_unmap_table[color->raw[1]];
+   *g = _integer_unmap_table[color->raw[2]];
+   *r = _integer_unmap_table[color->raw[3]];
+}
+
+static void _unmap_rgba_i_xbgr_8888(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *a = 0;
+   *b = _integer_unmap_table[color->raw[1]];
+   *g = _integer_unmap_table[color->raw[2]];
+   *r = _integer_unmap_table[color->raw[3]];
+}
+
+static void _unmap_rgba_i_bgr_888(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *b = _integer_unmap_table[color->raw[0]];
+   *g = _integer_unmap_table[color->raw[1]];
+   *r = _integer_unmap_table[color->raw[2]];
+   *a = 0;
+}
+
+static void _unmap_rgba_i_bgr_565(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *b = _integer_unmap_table[_rgb_scale_5[color->raw[0]]];
+   *g = _integer_unmap_table[_rgb_scale_6[color->raw[1]]];
+   *r = _integer_unmap_table[_rgb_scale_5[color->raw[2]]];
+   *a = 0;
+}
+
+static void _unmap_rgba_i_bgr_555(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *b = _integer_unmap_table[_rgb_scale_5[color->raw[0]]];
+   *g = _integer_unmap_table[_rgb_scale_5[color->raw[1]]];
+   *r = _integer_unmap_table[_rgb_scale_5[color->raw[2]]];
+   *a = 0;
+}
+
+static void _unmap_rgba_i_rgbx_8888(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *r = _integer_unmap_table[color->raw[0]];
+   *g = _integer_unmap_table[color->raw[1]];
+   *b = _integer_unmap_table[color->raw[2]];
+   *a = 0;
+}
+
+static void _unmap_rgba_i_xrgb_8888(AL_COLOR *color,
+   int *r, int *g, int *b, int *a)
+{
+   *a = 0;
+   *r = _integer_unmap_table[color->raw[1]];
+   *g = _integer_unmap_table[color->raw[2]];
+   *b = _integer_unmap_table[color->raw[3]];
+}
+
+typedef void (*_unmap_rgba_i_func)(AL_COLOR *,
+	int *, int *, int *, int *);
+
+static _unmap_rgba_i_func _unmap_rgba_i_funcs[] = {
+	NULL,
+	_unmap_rgba_i_argb_8888,
+	_unmap_rgba_i_rgba_8888,
+	_unmap_rgba_i_argb_4444,
+	_unmap_rgba_i_rgb_888,
+	_unmap_rgba_i_rgb_565,
+	_unmap_rgba_i_rgb_555,
+	_unmap_rgba_i_palette_8,
+	_unmap_rgba_i_rgba_5551,
+	_unmap_rgba_i_argb_1555,
+	_unmap_rgba_i_abgr_8888,
+	_unmap_rgba_i_xbgr_8888,
+	_unmap_rgba_i_bgr_888,
+	_unmap_rgba_i_bgr_565,
+	_unmap_rgba_i_bgr_555,
+	_unmap_rgba_i_rgbx_8888,
+	_unmap_rgba_i_xrgb_8888
+};
+
 void _al_unmap_rgba_i(int format, AL_COLOR *color,
 	int *r, int *g, int *b, int *a)
 {
-	float fr, fg, fb, fa;
-
-	(*_unmap_rgba_f_funcs[format])(color, &fr, &fg, &fb, &fa);
-
-	if (fr >= 1.0f)
-		*r = INT_MAX;
-	else
-		*r = (int)(fr * INT_MAX);
-
-	if (fg >= 1.0f)
-		*g = INT_MAX;
-	else
-		*g = (int)(fg * INT_MAX);
-
-	if (fb >= 1.0f)
-		*b = INT_MAX;
-	else
-		*b = (int)(fb * INT_MAX);
-
-	if (fa >= 1.0f)
-		*a = INT_MAX;
-	else
-		*a = (int)(fa * INT_MAX);
+	(*_unmap_rgba_i_funcs[format])(color, r, g, b, a);
 }
 
 void al_unmap_rgba_i(AL_BITMAP *bitmap, AL_COLOR *color,

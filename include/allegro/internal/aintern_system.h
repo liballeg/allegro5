@@ -25,14 +25,10 @@ struct AL_SYSTEM
    _AL_VECTOR displays; /* Keep a list of all displays attached to us. */
 };
 
-// FIXME: later, there will be a general interface to find the best driver, and
-// some platform specific initialization code will fill in the available system
-// drivers.. for now, my dummy driver is the only available system driver,
-// always
-//AL_SYSTEM_INTERFACE *_al_system_xdummy_driver(void);
-//AL_SYSTEM_INTERFACE *_al_system_d3d_driver(void);
 
 AL_FUNC(void, _al_register_system_interfaces, (void));
 AL_VAR(_AL_VECTOR, _al_system_interfaces);
+
+AL_FUNC(void, _al_generate_integer_unmap_table, (void));
 
 #endif

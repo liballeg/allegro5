@@ -21,7 +21,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/internal/platform/aintwin.h"
+#include "allegro/platform/aintwin.h"
 #include "allegro/internal/aintern_system.h"
 #include "allegro/internal/aintern_bitmap.h"
 
