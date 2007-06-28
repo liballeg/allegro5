@@ -2,134 +2,7 @@ import os
 
 Import('context')
 
-context.addFiles('./', Split( """
-allegro.c
-blit.c
-bmp.c
-bitmap_new.c
-clip3d.c
-clip3df.c
-colblend.c
-color.c
-convert.c
-config.c
-datafile.c
-dataregi.c
-display.c
-display_new.c
-digmid.c
-dispsw.c
-dither.c
-drvlist.c
-dtor.c
-events.c
-evtsrc.c
-file.c
-fli.c
-flood.c
-font.c
-fontbios.c
-fontbmp.c
-fontdat.c
-fontgrx.c
-fonttxt.c
-fsel.c
-gfx.c
-glyph.c
-graphics.c
-gsprite.c
-gui.c
-guiproc.c
-inline.c
-joynu.c
-keybdnu.c
-lbm.c
-libc.c
-lzss.c
-math.c
-math3d.c
-memblit.c
-memdraw.c
-memory.c
-midi.c
-mixer.c
-modesel.c
-mousenu.c
-pcx.c
-pixels.c
-poly3d.c
-polygon.c
-quantize.c
-quat.c
-readbmp.c
-readfont.c
-readsmp.c
-rle.c
-rotate.c
-scene3d.c
-sound.c
-spline.c
-stream.c
-system_new.c
-text.c
-tga.c
-tls.c
-unicode.c
-vtable.c
-vtable15.c
-vtable16.c
-vtable24.c
-vtable32.c
-vtable8.c
-""" ));
-
-context.addFiles('compat/', Split("""
-coblit.c
-cogfx.c
-cojoy.c
-cokeybd.c
-comouse.c
-cotimer.c
-""" ));
-
-context.addFiles('misc/', Split("""
-vector.c
-colconv.c
-ccolconv.c
-""" ));
-
-if False:
-	context.addFiles('c/', Split("""
-	cblit16.c
-	cblit24.c
-	cblit32.c
-	cblit8.c
-	ccpu.c
-	ccsprite.c
-	cgfx15.c
-	cgfx16.c
-	cgfx24.c
-	cgfx32.c
-	cgfx8.c
-	cmisc.c
-	cscan15.c
-	cscan16.c
-	cscan24.c
-	cscan32.c
-	cscan8.c
-	cspr15.c
-	cspr16.c
-	cspr24.c
-	cspr32.c
-	cspr8.c
-	cstretch.c
-	czscan15.c
-	czscan16.c
-	czscan24.c
-	czscan32.c
-	czscan8.c
-	""" ));
-
+context.add_files(context.cmake["ALLEGRO_SRC_FILES"])
 
 def tools(env,appendDir,buildDir,libDir):
     tools = []
@@ -271,6 +144,7 @@ def examples(env,appendDir,buildDir,libDir):
     addExample('exnew_bitmap', [ 'exnew_bitmap.c' ])
     addExample('exnew_lockscreen', [ 'exnew_lockscreen.c' ])
     addExample('exnew_lockbitmap', [ 'exnew_lockbitmap.c' ])
+    addExample('exnew_resize', [ 'exnew_resize.c' ])
 #    addExample('exnew_events', [ 'exnew_events.c' ])
 
     Alias('examples', examples)

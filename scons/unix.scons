@@ -284,60 +284,13 @@ env.Append(CCFLAGS = flags)
 env.Append(CPPDEFINES = defines)
 env.Append(CPPPATH = includes)
 
-context.addFiles('c/', Split("""
-cblit16.c
-cblit24.c
-cblit32.c
-cblit8.c
-ccpu.c
-ccsprite.c
-cgfx15.c
-cgfx16.c
-cgfx24.c
-cgfx32.c
-cgfx8.c
-cmisc.c
-cscan15.c
-cscan16.c
-cscan24.c
-cscan32.c
-cscan8.c
-cspr15.c
-cspr16.c
-cspr24.c
-cspr32.c
-cspr8.c
-cstretch.c
-czscan15.c
-czscan16.c
-czscan24.c
-czscan32.c
-czscan8.c
-""" ));
-
-context.addFiles("unix", Split("""
-jack.c
-sgial.c
-udjgpp.c
-udrvlist.c
-udummy.c
-ufdwatch.c
-ufile.c
-ugfxdrv.c
-ujoydrv.c
-ukeybd.c
-umain.c
-umodules.c
-umouse.c
-uoss.c
-uossmidi.c
-usnddrv.c
-usystem.c
-uthreads.c
-utime.c
-utimernu.c
-uxthread.c
-"""));
+context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
+unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
+# TODO: How does the modules stuff work? Shouldn't they still be linked in?
+unixfiles.remove("src/unix/alsa5.c")
+unixfiles.remove("src/unix/alsa9.c")
+unixfiles.remove("src/unix/alsamidi.c")
+context.add_files(unixfiles)
 
 def supportModules():
     return True

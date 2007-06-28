@@ -30,10 +30,10 @@
 
 # 3. Allow arbitrary libraries to be dropped into the Allegro directory and automatically compiled using the Allegro SCons environments - 0%
 
-import os
-import sys
-
+import os, sys
 import SCons
+sys.path.append("scons")
+import  helpers
 
 def allegroHelp():
     return """
@@ -177,6 +177,10 @@ class AllegroContext:
         self.exampleEnv = env
         self.setEnvs()
 
+    def add_files(self, files):
+        # strip leading "src/"
+        self.librarySource.extend([x[4:] for x in files])
+
     def addFiles(self,dir,fileList):
         self.librarySource.extend(appendDir(dir,fileList))
 
@@ -241,7 +245,8 @@ def defaultEnvironment():
 # dir - directory where the library( dll, so ) should end up
 def getAllegroContext():
     context = AllegroContext(defaultEnvironment())
-    
+    context.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
+
     file = ""
     if onBsd():
         file = 'scons/bsd.scons'
@@ -353,7 +358,7 @@ def buildDemo(env,appendDir,buildDir,libDir):
     Alias('demo', demo)
     return demo
 
-context.addExtra(buildDemo)
+# context.addExtra(buildDemo)
 
 plugins_h = context.getLibraryEnv().Cat( 'tools/plugins/plugins.h', appendDir( 'tools/plugins/', Split("""
 datalpha.inc
