@@ -377,22 +377,7 @@ def haveXWindows():
     return platform["ALLEGRO_WITH_XWINDOWS"][0]
 
 if haveXWindows():
-    context.addFiles("x/", Split("""
-    xgfxdrv.c
-    xkeyboard.c
-    xmousenu.c
-    xsystem.c
-    xvtable.c
-    xwin.c
-    """));
-    
-    context.addFiles('xdummy/', Split("""
-    xbitmap.c
-    xcompat.c
-    xdisplay.c
-    xsystem.c
-    xdraw.c
-    """));
+    context.add_files(context.cmake["ALLEGRO_SRC_X_FILES"])
 
     def tools(tenv,appendDir,buildDir,libDir):
         tools = []

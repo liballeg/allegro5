@@ -145,6 +145,7 @@ def examples(env,appendDir,buildDir,libDir):
     addExample('exnew_lockscreen', [ 'exnew_lockscreen.c' ])
     addExample('exnew_lockbitmap', [ 'exnew_lockbitmap.c' ])
     addExample('exnew_resize', [ 'exnew_resize.c' ])
+    addExample('exnew_fs_resize', [ 'exnew_fs_resize.c' ])
 #    addExample('exnew_events', [ 'exnew_events.c' ])
 
     Alias('examples', examples)
