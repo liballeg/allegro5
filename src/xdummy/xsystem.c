@@ -74,6 +74,8 @@ static AL_SYSTEM *initialize(int flags)
 
    TRACE("events thread spawned.\n");
 
+   _al_xdummy_store_video_mode(s);
+
    return &s->system;
 }
 
@@ -103,6 +105,8 @@ AL_SYSTEM_INTERFACE *_al_system_xdummy_driver(void)
    vt->initialize = initialize;
    vt->get_display_driver = get_display_driver;
    vt->get_keyboard_driver = get_keyboard_driver;
+   vt->get_num_display_modes = _al_xdummy_get_num_display_modes;
+   vt->get_display_mode = _al_xdummy_get_display_mode;
    
    return vt;
 }

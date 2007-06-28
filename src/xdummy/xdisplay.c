@@ -56,6 +56,9 @@ static AL_DISPLAY *create_display(int w, int h)
    d->display.refresh_rate = al_get_new_display_refresh_rate();
    d->display.flags = al_get_new_display_flags();
 
+   if (d->display.flags | AL_FULLSCREEN)
+      _al_xdummy_set_mode(system, w, h, 0, 0);
+
    //FIXME
    d->display.flags |= AL_WINDOWED;
 
@@ -151,6 +154,12 @@ static void destroy_display(AL_DISPLAY *d)
       }
    }
    XDestroyWindow(s->xdisplay, glx->window);
+
+   if (d->flags | AL_FULLSCREEN)
+      _al_xdummy_restore_video_mode(s);
+
+   // FIXME: deallocate ourselves?
+
    _al_mutex_unlock(&s->lock);
 }
 
