@@ -1008,6 +1008,8 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
    fixed clip_left, clip_right; \
    /* Temporary variable. */ \
    fixed extra_scanline_fraction; \
+   /* Top scanline of destination */ \
+   int clip_top_i; \
  \
    AL_LOCKED_REGION src_region; \
    AL_LOCKED_REGION dst_region; \
@@ -1211,7 +1213,15 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
  \
    /* Lock the bitmaps */ \
    al_lock_bitmap(src, &src_region, AL_LOCK_READONLY); \
-   al_lock_bitmap(dst, &dst_region, 0); \
+   \
+   clip_top_i = bmp_y_i; \
+   \
+   al_lock_bitmap_region(dst, \
+      clip_left>>16, \
+      clip_top_i, \
+      (clip_right>>16)-(clip_left>>16), \
+      clip_bottom_i-clip_top_i, \
+      &dst_region, 0); \
  \
    al_get_mask_color(&mask_color); \
    mask_pixel = _al_get_pixel_value(src->format, &mask_color); \
@@ -1408,8 +1418,8 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
       int my_l_bmp_x_i = l_bmp_x >> 16;                               \
       fixed my_l_spr_x = l_spr_x;                                     \
       fixed my_l_spr_y = l_spr_y;                                     \
-      addr = dst_region.data+bmp_y_i*dst_region.pitch;                \
-      end_addr = addr + my_r_bmp_x_i * dsize;                         \
+      addr = dst_region.data+(bmp_y_i-clip_top_i)*dst_region.pitch;   \
+      end_addr = addr + (my_r_bmp_x_i-(clip_left>>16)) * dsize;       \
       addr += my_l_bmp_x_i * dsize;                                   \
       for (; addr < end_addr; addr += dsize) {                        \
          c = get(src_region.data+(my_l_spr_y>>16)*src_region.pitch+ssize*(my_l_spr_x>>16)); \
