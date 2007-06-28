@@ -17,10 +17,10 @@
 
 #include <string.h>
 #include "allegro.h"
-#include "internal/aintern.h"
+#include "allegro/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "internal/aintern_display.h"
-#include "internal/aintern_bitmap.h"
+#include "allegro/internal/aintern_display.h"
+#include "allegro/internal/aintern_bitmap.h"
 
 /* Creates a memory bitmap. A memory bitmap can only be drawn to other memory
  * bitmaps, not to a display.

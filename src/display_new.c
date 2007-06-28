@@ -16,11 +16,11 @@
  */
 
 #include "allegro.h"
-#include "internal/aintern.h"
+#include "allegro/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "internal/aintern_system.h"
-#include "internal/aintern_display.h"
-#include "internal/aintern_bitmap.h"
+#include "allegro/internal/aintern_system.h"
+#include "allegro/internal/aintern_display.h"
+#include "allegro/internal/aintern_bitmap.h"
 
 // FIXME: The system driver must be used to get drivers!
 extern AL_DISPLAY_INTERFACE *_al_glx_vt(void);

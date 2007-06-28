@@ -17,8 +17,8 @@
 #include <string.h> /* for memset */
 #include "allegro.h"
 #include "allegro/bitmap_new.h"
-#include "internal/aintern.h"
-#include "internal/aintern_bitmap.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/aintern_bitmap.h"
 
 
 static int pixel_sizes[] = {

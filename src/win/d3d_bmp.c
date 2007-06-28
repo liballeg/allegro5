@@ -19,11 +19,11 @@
 #include <math.h>
 
 #include "allegro.h"
-#include "system_new.h"
-#include "internal/aintern.h"
-#include "internal/aintern_system.h"
-#include "internal/aintern_display.h"
-#include "internal/aintern_bitmap.h"
+#include "allegro/system_new.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/aintern_system.h"
+#include "allegro/internal/aintern_display.h"
+#include "allegro/internal/aintern_bitmap.h"
 
 #include "d3d.h"
 

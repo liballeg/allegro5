@@ -19,12 +19,12 @@
 #include <process.h>
 
 #include "allegro.h"
-#include "system_new.h"
-#include "internal/aintern.h"
-#include "internal/aintern_system.h"
-#include "internal/aintern_display.h"
-#include "internal/aintern_bitmap.h"
-#include "internal/aintern_vector.h"
+#include "allegro/system_new.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/aintern_system.h"
+#include "allegro/internal/aintern_display.h"
+#include "allegro/internal/aintern_bitmap.h"
+#include "allegro/internal/aintern_vector.h"
 #include "allegro/platform/aintwin.h"
 #include "allegro/internal/aintern_thread.h"
 

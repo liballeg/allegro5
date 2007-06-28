@@ -17,9 +17,9 @@
  */
 
 #include "allegro.h"
-#include "internal/aintern.h"
+#include "allegro/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "internal/aintern_bitmap.h"
+#include "allegro/internal/aintern_bitmap.h"
 #include "allegro/convert.h"
 #include <math.h>
 

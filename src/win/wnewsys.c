@@ -20,10 +20,10 @@
 #include <stdio.h>
 
 #include "allegro.h"
-#include "internal/aintern.h"
-#include "platform/aintwin.h"
-#include "internal/aintern_system.h"
-#include "internal/aintern_bitmap.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/platform/aintwin.h"
+#include "allegro/internal/aintern_system.h"
+#include "allegro/internal/aintern_bitmap.h"
 
 #include "winalleg.h"
 
