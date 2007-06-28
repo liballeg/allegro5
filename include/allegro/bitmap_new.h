@@ -17,6 +17,9 @@ typedef struct AL_BITMAP AL_BITMAP;
  */
 
 
+#define NUM_PIXEL_FORMATS 17
+
+
 /*
  * Pixel formats
  */

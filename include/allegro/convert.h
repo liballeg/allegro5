@@ -3,8 +3,6 @@
 
 #include "allegro.h"
 
-#define NUM_PIXEL_FORMATS 17
-
 /* Conversionf for most pixels */
 #define SHIFT_CONVERT(p, \
 		a_mask, a_lshift, a_rshift, \
