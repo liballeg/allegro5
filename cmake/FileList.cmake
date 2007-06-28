@@ -337,9 +337,12 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xvtable.c
     src/x/xwin.c
     src/x/xdga2.c
-    src/x/xdga2s.s
-    src/x/xwins.s
-    src/misc/colconv.c
+    src/xdummy/xbitmap.c
+    src/xdummy/xcompat.c
+    src/xdummy/xdisplay.c
+    src/xdummy/xsystem.c
+    src/xdummy/xdraw.c
+    src/xdummy/xfullscreen.c
     )
     
 set(ALLEGRO_SRC_QNX_FILES
