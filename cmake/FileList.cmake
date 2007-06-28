@@ -83,6 +83,7 @@ set(ALLEGRO_SRC_FILES
     src/compat/cokeybd.c
     src/compat/comouse.c
     src/compat/cotimer.c
+    src/misc/colconv.c
     src/misc/vector.c
     )
 
@@ -229,7 +230,6 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/wtimernu.c
     src/win/wwnd.c
     src/win/wxthread.c
-    src/misc/colconv.c
     src/win/wnewsys.c
     src/win/wnewwin.c
     )
