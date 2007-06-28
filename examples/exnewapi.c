@@ -118,13 +118,15 @@ int main(void)
    long start = al_current_time();
    long last_move = al_current_time();
    int frames = 0;
-   
+  
+   /*
    al_set_target_bitmap(al_get_backbuffer());
    al_draw_bitmap(picture, 0, 0, 0);
    for (i = 0; i < 3; i++) {
       al_set_current_display(display[i]);
       al_flip_display();
    }
+   */
 
 
    while (!quit) {
@@ -223,8 +225,8 @@ int main(void)
       */
    }
 
-   //printf("frames=%d start=%ld now=%ld\n", frames, start, al_current_time());
-   //printf("fps=%f\n", (float)(frames * 1000) / (float)(al_current_time()-start));
+   printf("frames=%d start=%ld now=%ld\n", frames, start, al_current_time());
+   printf("fps=%f\n", (float)(frames * 1000) / (float)(al_current_time()-start));
 
    al_destroy_bitmap(picture);
    al_destroy_bitmap(mask);

@@ -66,6 +66,11 @@ void al_set_new_bitmap_flags(int flags);
 int al_get_new_bitmap_format(void);
 int al_get_new_bitmap_flags(void);
 
+int al_get_bitmap_width(AL_BITMAP *bitmap);
+int al_get_bitmap_height(AL_BITMAP *bitmap);
+int al_get_bitmap_format(AL_BITMAP *bitmap);
+int al_get_bitmap_flags(AL_BITMAP *bitmap);
+
 AL_BITMAP *al_create_bitmap(int w, int h);
 AL_BITMAP *al_load_bitmap(char const *filename);
 void al_destroy_bitmap(AL_BITMAP *bitmap);

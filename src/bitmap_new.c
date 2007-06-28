@@ -325,3 +325,23 @@ void al_convert_mask_to_alpha(AL_BITMAP *bitmap, AL_COLOR *mask_color)
 	al_unlock_bitmap(bitmap);
 }
 
+int al_get_bitmap_width(AL_BITMAP *bitmap)
+{
+   return bitmap->w;
+}
+
+int al_get_bitmap_height(AL_BITMAP *bitmap)
+{
+   return bitmap->h;
+}
+
+int al_get_bitmap_format(AL_BITMAP *bitmap)
+{
+   return bitmap->format;
+}
+
+int al_get_bitmap_flags(AL_BITMAP *bitmap)
+{
+   return bitmap->flags;
+}
+
