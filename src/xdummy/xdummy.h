@@ -46,6 +46,8 @@ struct AL_DISPLAY_XDUMMY
    
    /* Driver specifics. */
 
+   int opengl_initialized; /* Did we have a chance to set up OpenGL? */
+
    AL_BITMAP *backbuffer;
 
    Window window;

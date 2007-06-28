@@ -112,7 +112,6 @@ static AL_DISPLAY *create_display(int w, int h)
    XSetWMProtocols (system->xdisplay, d->window, &d->wm_delete_window_atom, 1);
 
    XMapWindow(system->xdisplay, d->window);
-   // TODO: Do we need to wait here until the window is mapped?
    TRACE("xdisplay: X11 window mapped.\n");
 
    /* Create a GLX subwindow inside our window. */
@@ -127,8 +126,6 @@ static AL_DISPLAY *create_display(int w, int h)
    TRACE("xdisplay: Got GLX context.\n");
 
    _al_mutex_unlock(&system->lock);
-
-   setup_gl(&d->display);
 
    return &d->display;
 }
@@ -159,6 +156,10 @@ static void set_current_display(AL_DISPLAY *d)
     */
    glXMakeContextCurrent(system->xdisplay, glx->glxwindow, glx->glxwindow,
       glx->context);
+
+   if (!glx->opengl_initialized) {
+      setup_gl(d);
+   }
 
    TRACE("xdisplay: GLX context made current.\n");
 }
@@ -274,7 +275,7 @@ AL_BITMAP *_al_xdummy_create_bitmap(AL_DISPLAY *d, int w, int h)
    int flags = al_get_new_bitmap_flags();
 
    //FIXME
-   format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+   format = d->format;
 
    AL_BITMAP_XDUMMY *bitmap = _AL_MALLOC(sizeof *bitmap);
    memset(bitmap, 0, sizeof *bitmap);
