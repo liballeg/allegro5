@@ -79,6 +79,19 @@ static AL_SYSTEM *initialize(int flags)
    return &s->system;
 }
 
+static void shutdown_system(void)
+{
+   TRACE("shutting down.\n");
+   /* Close all open displays. */
+   AL_SYSTEM *s = al_system_driver();
+   while (s->displays._size)
+   {
+      AL_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
+      AL_DISPLAY *d = *dptr;
+      al_destroy_display(d);
+   }
+}
+
 // FIXME: This is just for now, the real way is of course a list of
 // available display drivers. Possibly such drivers can be attached at runtime
 // to the system driver, so addons could provide additional drivers.
@@ -107,6 +120,7 @@ AL_SYSTEM_INTERFACE *_al_system_xdummy_driver(void)
    vt->get_keyboard_driver = get_keyboard_driver;
    vt->get_num_display_modes = _al_xdummy_get_num_display_modes;
    vt->get_display_mode = _al_xdummy_get_display_mode;
+   vt->shutdown_system = shutdown_system;
    
    return vt;
 }

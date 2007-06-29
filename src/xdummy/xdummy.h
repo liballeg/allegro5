@@ -84,8 +84,8 @@ AL_BITMAP *_al_xdummy_create_bitmap(AL_DISPLAY *d, int w, int h);
 void _xdummy_add_drawing_functions(AL_DISPLAY_INTERFACE *vt);
 
 /* fullscreen */
-int _al_xdummy_get_num_display_modes(AL_SYSTEM_XDUMMY *s);
-AL_DISPLAY_MODE *_al_xdummy_get_display_mode(AL_SYSTEM_XDUMMY *s,
+int _al_xdummy_get_num_display_modes(void);
+AL_DISPLAY_MODE *_al_xdummy_get_display_mode(
    int index, AL_DISPLAY_MODE *mode);
 bool _al_xdummy_set_mode(AL_SYSTEM_XDUMMY *s, int w, int h, int format,
    int refresh_rate);

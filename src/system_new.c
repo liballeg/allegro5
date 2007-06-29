@@ -57,6 +57,14 @@ static AL_SYSTEM *find_system(_AL_VECTOR *vector)
    return NULL;
 }
 
+void _al_exit(void)
+{
+   if (active) {
+      active->vt->shutdown_system();
+      active = NULL;
+   }
+}
+
 /* Initialize the Allegro system. */
 bool _al_init(void)
 {
@@ -82,6 +90,9 @@ bool _al_init(void)
    }
 
    _al_generate_integer_unmap_table();
+
+   static char const *description = "Old-API exit function for new API o_O";
+   _add_exit_func(_al_exit, description);
 
    return true;
 }
