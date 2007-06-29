@@ -135,4 +135,10 @@ void al_set_mask_color(AL_COLOR *color);
 AL_COLOR *al_get_mask_color(AL_COLOR *color);
 void al_convert_mask_to_alpha(AL_BITMAP *bitmap, AL_COLOR *mask_color);
 
+/* Clipping */
+void al_set_bitmap_clip(AL_BITMAP *bitmap, int x, int y,
+   int width, int height);
+void al_get_bitmap_clip(AL_BITMAP *bitmap, int *x, int *y,
+   int *w, int *h);
+
 #endif

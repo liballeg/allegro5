@@ -73,9 +73,6 @@ typedef struct new_display_parameters {
 
 static bool d3d_bitmaps_prepared_for_reset = false;
 
-/* Dummy back buffer bitmap */
-AL_BITMAP_D3D d3d_backbuffer;
-
 static int allegro_formats[] = {
    ALLEGRO_PIXEL_FORMAT_ANY,
    ALLEGRO_PIXEL_FORMAT_ARGB_8888,
@@ -512,8 +509,6 @@ bool _al_d3d_init_display()
 
    _al_mutex_init(&d3d_device_mutex);
 
-   d3d_backbuffer.is_backbuffer = 1;
-
    return true;
 }
 
@@ -946,6 +941,18 @@ static bool d3d_create_display_internals(AL_DISPLAY_D3D *display, bool is_resize
       d3d_fullscreen_display = params.display;
    }
 
+   display->backbuffer_bmp.is_backbuffer = true;
+   display->backbuffer_bmp.bitmap.display = (AL_DISPLAY *)display;
+   display->backbuffer_bmp.bitmap.format = display->display.format;
+   display->backbuffer_bmp.bitmap.flags = 0;
+   display->backbuffer_bmp.bitmap.w = display->display.w;
+   display->backbuffer_bmp.bitmap.h = display->display.h;
+   display->backbuffer_bmp.bitmap.cl = 0;
+   display->backbuffer_bmp.bitmap.ct = 0;
+   display->backbuffer_bmp.bitmap.cr = display->display.w-1;
+   display->backbuffer_bmp.bitmap.cb = display->display.h-1;
+   display->backbuffer_bmp.bitmap.vt = (AL_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
+
    _al_d3d_unlock_device();
 
    return true;
@@ -1352,17 +1359,14 @@ static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 
    d3d_reset_state();
 
+   _al_d3d_set_bitmap_clip(bitmap);
+
    _al_d3d_unlock_device();
 }
 
 static AL_BITMAP *d3d_get_backbuffer()
 {
-   d3d_backbuffer.bitmap.display = _al_current_display;
-   d3d_backbuffer.bitmap.format = _al_current_display->format;
-   d3d_backbuffer.bitmap.flags = 0;
-   d3d_backbuffer.bitmap.w = _al_current_display->w;
-   d3d_backbuffer.bitmap.h = _al_current_display->h;
-   return (AL_BITMAP *)&d3d_backbuffer;
+   return (AL_BITMAP *)&(((AL_DISPLAY_D3D *)_al_current_display)->backbuffer_bmp);
 }
 
 static AL_BITMAP *d3d_get_frontbuffer()
@@ -1407,8 +1411,6 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->is_compatible_bitmap = d3d_is_compatible_bitmap;
    vt->switch_out = d3d_switch_out;
    vt->draw_memory_bitmap_region = NULL;
-
-   d3d_backbuffer.bitmap.vt = (AL_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
 
    return vt;
 }

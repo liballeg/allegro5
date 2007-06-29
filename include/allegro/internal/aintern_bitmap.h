@@ -15,7 +15,11 @@ struct AL_BITMAP
    int format;
    int flags;
    int w, h;
-   AL_COLOR light_color;  /* color to tint to when drawing with AL_LIT */
+   /* 
+    * clip left, right, top, bottom
+    * Clip anything outside of this
+    */
+   int cl, cr, ct, cb;
    /*
     * Locking info.
     *
@@ -71,6 +75,8 @@ struct AL_BITMAP_INTERFACE
 	int flags);
 
    void (*unlock_region)(AL_BITMAP *bitmap);
+
+   void (*set_bitmap_clip)(AL_BITMAP *bitmap);
 };
 
 void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,

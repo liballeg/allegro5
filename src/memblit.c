@@ -64,8 +64,6 @@
       dyi = 1; \
    } \
 \
-   /* FIXME: do clipping */ \
-\
    for (y = 0; y < sh; y++) { \
       cdx = 0; \
       for (x = 0; x < sw; x++) { \
@@ -404,12 +402,35 @@ void _al_draw_bitmap_region_memory(AL_BITMAP *bitmap,
    AL_LOCKED_REGION src_region;
    AL_LOCKED_REGION dst_region;
    AL_BITMAP *dest = al_get_target_bitmap();
+   
+   /* Do clipping */
+   if (dx < dest->cl) {
+      int inc = dest->cl - dx;
+      sx += inc;
+      dx = dest->cl;
+      sw -= inc;
+   }
+   if (dx+sw-1 > dest->cr) {
+      int inc = (dx+sw-1) - dest->cr;
+      sw -= inc;
+   }
+
+   if (dy < dest->ct) {
+      int inc = dest->ct - dy;
+      sy += inc;
+      dy = dest->ct;
+      sh -= inc;
+   }
+   if (dy+sh-1 > dest->cb) {
+      int inc = (dy+sh-1) - dest->cb;
+      sh -= inc;
+   }
 
    /* Lock the bitmaps */
    if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region, AL_LOCK_READONLY)) {
       return;
    }
-   if (!al_lock_bitmap_region(dest, sx, sy, sw, sh, &dst_region, 0)) {
+   if (!al_lock_bitmap_region(dest, dx, dy, sw, sh, &dst_region, 0)) {
       al_unlock_bitmap(bitmap);
       return;
    }
@@ -447,9 +468,9 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
    int ycdec; /* amount to decrement counter by, increase sy when this reaches 0 */ \
    int ycinc; /* amount to increment counter by when it reaches 0 */ \
    int dxbeg, dxend; /* clipping information */ \
+   int xcstart; /* x counter start */ \
    int dybeg, dyend; \
    int xcinc, xcdec; \
-   int xcstart; \
    int sxinc; \
    int sxdir, sydir; \
    int i, j; \
@@ -463,35 +484,13 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
    if ((sw <= 0) || (sh <= 0) || (dw <= 0) || (dh <= 0)) \
       return; \
  \
-   /* \
-   if (dst->clip) { \
-      dybeg = ((dy > dst->ct) ? dy : dst->ct); \
-      dyend = (((dy + dh) < dst->cb) ? (dy + dh) : dst->cb); \
-      if (dybeg >= dyend) \
-	 return; \
- \
-      dxbeg = ((dx > dst->cl) ? dx : dst->cl); \
-      dxend = (((dx + dw) < dst->cr) ? (dx + dw) : dst->cr); \
-      if (dxbeg >= dxend) \
-	 return; \
-   } \
-   else { \
-      dxbeg = dx; \
-      dxend = dx + dw; \
-      dybeg = dy; \
-      dyend = dy + dh; \
-   } \
-   */ \
-    \
-   /* FIXME: use clipping rectangle */ \
- \
-   dybeg = ((dy > 0) ? dy : 0); \
-   dyend = (((dy + dh) < dest->h) ? (dy + dh) : dest->h); \
+   dybeg = ((dy > dest->ct) ? dy : dest->ct); \
+   dyend = (((dy + dh) < dest->cb) ? (dy + dh) : dest->cb); \
    if (dybeg >= dyend) \
       return; \
  \
-   dxbeg = ((dx > 0) ? dx : 0); \
-   dxend = (((dx + dw) < dest->w) ? (dx + dw) : dest->w); \
+   dxbeg = ((dx > dest->cl) ? dx : dest->cl); \
+   dxend = (((dx + dw) < dest->cr) ? (dx + dw) : dest->cr); \
    if (dxbeg >= dxend) \
       return; \
  \
@@ -506,33 +505,33 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
    xcstart = xcinc; \
  \
    /* get start state (clip) */ \
-   for (i = 0, j = 0; i < dxbeg-dx; i++, j += sxinc) { \
+   for (i = 0, j = 0; i < dxbeg-dx; i++/*, j += sxinc*/) { \
       if (xcstart <= 0) { \
          xcstart += xcinc; \
-         j++; \
+         /*j++;*/ \
       } \
       else \
          xcstart -= xcdec; \
    } \
  \
-   sx += j; \
-   sw -= j; \
-   dxbeg += i; \
- \
    /* skip clipped lines */ \
-   for (y = dy, i = 0; y < dybeg; y++, i += syinc) { \
+   for (y = dy/*, i = 0*/; y < dybeg; y++/*, i += syinc*/) { \
       if (yc <= 0) { \
-	 i++; \
+	 /*i++;*/ \
 	 yc += ycinc; \
       } \
       else \
          yc -= ycdec; \
    } \
  \
-   sy += i; \
-   sh -= i; \
- \
    al_get_mask_color(&mask_color); \
+ \
+   i = (dxbeg-dx) * sw / dw; \
+   sx += i; \
+   sw = (dxend-dxbeg) * sw / dw; \
+   i = (dybeg-dy) * sh / dh; \
+   sy += i; \
+   sh = (dyend-dybeg) * sh / dh; \
  \
    dx = dxbeg; \
    dy = dybeg; \
@@ -551,7 +550,6 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
    mask_pixel = _al_get_pixel_value(bitmap->format, &mask_color); \
  \
    y = 0; \
-   dxbeg = 0; \
    dyend = dyend - dy; \
  \
    if (flags & AL_FLIP_HORIZONTAL) { \
@@ -577,7 +575,7 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
    for (; y < dyend; y++, sy += syinc) { \
       int xc = xcstart; \
       _sx = sx; \
-      for (x = dxbeg; x < dxend; x++) { \
+      for (x = 0; x < (dxend-dxbeg); x++) { \
          pixel = get(src_region.data+src_region.pitch*sy+ssize*_sx); \
 	 if (!(flags & AL_MASK_SOURCE) || pixel != mask_pixel) { \
 	    pixel = convert(pixel); \
@@ -1104,8 +1102,8 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
       clip_left = 0; \
       clip_right = (dst->w << 16) - 1; \
    }*/ \
-   clip_left = 0; \
-   clip_right = (dst->w << 16) - 1; \
+   clip_left = dst->cl << 16; \
+   clip_right = (dst->cr << 16) - 1; \
    \
    /* Quit if we're totally outside. */ \
    if ((left_bmp_x > clip_right) && \
@@ -1133,6 +1131,9 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
     \
       ASSERT(clip_bottom_i <= dst->h); \
    }*/ \
+   if (clip_bottom_i > dst->cb) \
+      clip_bottom_i = dst->cb; \
+   \
    if (clip_bottom_i > dst->h-1) \
       clip_bottom_i = dst->h-1; \
  \
@@ -1151,6 +1152,9 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
    else { \
       ASSERT(bmp_y_i >= 0); \
    }*/ \
+   if (bmp_y_i < dst->ct) \
+      bmp_y_i = dst->ct; \
+   \
    if (bmp_y_i < 0) \
       bmp_y_i = 0; \
  \
@@ -1222,7 +1226,7 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
       (clip_right>>16)-(clip_left>>16), \
       clip_bottom_i-clip_top_i, \
       &dst_region, 0); \
- \
+   \
    al_get_mask_color(&mask_color); \
    mask_pixel = _al_get_pixel_value(src->format, &mask_color); \
  \
@@ -1414,12 +1418,14 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
       int x;                                                          \
       unsigned char *addr;                                            \
       unsigned char *end_addr;                                        \
-      int my_r_bmp_x_i = r_bmp_x >> 16;                               \
-      int my_l_bmp_x_i = l_bmp_x >> 16;                               \
-      fixed my_l_spr_x = l_spr_x;                                     \
-      fixed my_l_spr_y = l_spr_y;                                     \
+      int my_r_bmp_x_i = r_bmp_x_rounded >> 16;                       \
+      int my_l_bmp_x_i = l_bmp_x_rounded >> 16;                       \
+      fixed my_l_spr_x = l_spr_x_rounded;                             \
+      fixed my_l_spr_y = l_spr_y_rounded;                             \
       addr = dst_region.data+(bmp_y_i-clip_top_i)*dst_region.pitch;   \
-      end_addr = addr + (my_r_bmp_x_i-(clip_left>>16)) * dsize;       \
+      /* adjust for locking offset */                                 \
+      addr -= (clip_left >> 16) * dsize;                              \
+      end_addr = addr + my_r_bmp_x_i * dsize;                         \
       addr += my_l_bmp_x_i * dsize;                                   \
       for (; addr < end_addr; addr += dsize) {                        \
          c = get(src_region.data+(my_l_spr_y>>16)*src_region.pitch+ssize*(my_l_spr_x>>16)); \
@@ -1481,7 +1487,7 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
 		  fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale, \
 		  flags & AL_FLIP_HORIZONTAL, flags & AL_FLIP_VERTICAL, xs, ys); \
  \
-   DO_PARALLELOGRAM_MAP(true, get, set, convert, flags) \
+   DO_PARALLELOGRAM_MAP(false, get, set, convert, flags) \
 }
 
 /* draw_region_memory functions */

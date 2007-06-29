@@ -35,6 +35,9 @@ static AL_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->h = h;
    bitmap->display = NULL;
    bitmap->locked = false;
+   bitmap->cl = bitmap->ct = 0;
+   bitmap->cr = w-1;
+   bitmap->cb = h-1;
    // FIXME: Of course, we do need to handle all the possible different formats,
    // this will easily fill up its own file of 1000 lines, but for now,
    // RGBA with 8-bit per component is hardcoded.
@@ -68,6 +71,9 @@ AL_BITMAP *al_create_bitmap(int w, int h)
    bitmap->w = w;
    bitmap->h = h;
    bitmap->locked = false;
+   bitmap->cl = bitmap->ct = 0;
+   bitmap->cr = w-1;
+   bitmap->cb = h-1;
 
    if (!bitmap->memory) {
    	bitmap->memory = _AL_MALLOC(w * h * al_get_pixel_size(bitmap->format));
@@ -186,7 +192,7 @@ void al_draw_bitmap_region(AL_BITMAP *bitmap, float sx, float sy,
          _al_current_display->vt->draw_memory_bitmap_region(_al_current_display,
 	    bitmap, sx, sy, sw, sh, dx, dy, flags);
       else
-      _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
+         _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
    }
    else if (al_is_compatible_bitmap(bitmap))
       bitmap->vt->draw_bitmap_region(bitmap, sx, sy, sw, sh, dx, dy, flags);
@@ -343,5 +349,41 @@ int al_get_bitmap_format(AL_BITMAP *bitmap)
 int al_get_bitmap_flags(AL_BITMAP *bitmap)
 {
    return bitmap->flags;
+}
+
+void al_set_bitmap_clip(AL_BITMAP *bitmap, int x, int y,
+   int width, int height)
+{
+   if (x < 0) {
+      width += x;
+      x = 0;
+   }
+   if (y < 0) {
+      height += y;
+      y = 0;
+   }
+   if (x+width > bitmap->w) {
+      width = bitmap->w - x;
+   }
+   if (y+height > bitmap->h) {
+      height = bitmap->h - y;
+   }
+
+   bitmap->cl = x;
+   bitmap->ct = y;
+   bitmap->cr = x + width - 1;
+   bitmap->cb = y + height - 1;
+
+   if (bitmap->vt && bitmap->vt->set_bitmap_clip)
+      bitmap->vt->set_bitmap_clip(bitmap);
+}
+
+void al_get_bitmap_clip(AL_BITMAP *bitmap, int *x, int *y,
+   int *w, int *h)
+{
+   *x = bitmap->cl;
+   *y = bitmap->ct;
+   *w = bitmap->cr - bitmap->cl + 1;
+   *h = bitmap->cb - bitmap->ct + 1;
 }
 

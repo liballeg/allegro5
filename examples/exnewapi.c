@@ -51,9 +51,6 @@ int main(void)
 
    display[2] = al_create_display(w, h);
 
-   al_set_current_display(display[2]);
-   al_resize_display(700, 700);
-
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[1]);
@@ -119,16 +116,6 @@ int main(void)
    long last_move = al_current_time();
    int frames = 0;
   
-   /*
-   al_set_target_bitmap(al_get_backbuffer());
-   al_draw_bitmap(picture, 0, 0, 0);
-   for (i = 0; i < 3; i++) {
-      al_set_current_display(display[i]);
-      al_flip_display();
-   }
-   */
-
-
    while (!quit) {
       /* read input */
       while (!al_event_queue_is_empty(events)) {
@@ -195,8 +182,8 @@ int main(void)
 	    }
             else if (i == 2) {
 	    	al_draw_bitmap(picture, 0, 0, 0);
-	    	al_draw_scaled_bitmap(picture, 0, 0, picture->w, picture->h,
-			0, 0, 640, 480, AL_FLIP_HORIZONTAL);
+	    	al_draw_scaled_bitmap(mem_bmp, 0, 0, picture->w, picture->h,
+			0, 0, 640, 480, 0);
 		al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
 		al_set_mask_color(al_map_rgb(mem_bmp, &mask_color, 255, 0, 255));
 		al_draw_rotated_scaled_bitmap(mem_bmp, 160, 100, 320, 240, 1.5f, 1.5f, M_PI/4, AL_MASK_SOURCE|AL_FLIP_VERTICAL);

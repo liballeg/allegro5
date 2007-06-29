@@ -17,25 +17,6 @@ typedef struct AL_SYSTEM_D3D AL_SYSTEM_D3D;
 typedef struct AL_BITMAP_D3D AL_BITMAP_D3D;
 typedef struct AL_DISPLAY_D3D AL_DISPLAY_D3D;
 
-struct AL_DISPLAY_D3D
-{
-   AL_DISPLAY display; /* This must be the first member. */
-
-   /* Driver specifics */
-   HWND window;
-   LPDIRECT3DSWAPCHAIN9 swap_chain;
-   LPDIRECT3DSURFACE9 render_target;
-
-   /*
-    * The display thread must communicate with the main thread
-    * through these variables.
-    */
-   bool end_thread;    /* The display thread should end */
-   bool initialized;   /* Fully initialized */
-   bool init_failed;   /* Initialization failed */
-   bool thread_ended;  /* The display thread has ended */
-};
-
 struct AL_BITMAP_D3D
 {
    AL_BITMAP bitmap; /* This must be the first member. */
@@ -55,6 +36,27 @@ struct AL_BITMAP_D3D
    unsigned int yo;
 
    D3DLOCKED_RECT locked_rect;
+};
+
+struct AL_DISPLAY_D3D
+{
+   AL_DISPLAY display; /* This must be the first member. */
+
+   /* Driver specifics */
+   HWND window;
+   LPDIRECT3DSWAPCHAIN9 swap_chain;
+   LPDIRECT3DSURFACE9 render_target;
+
+   /*
+    * The display thread must communicate with the main thread
+    * through these variables.
+    */
+   bool end_thread;    /* The display thread should end */
+   bool initialized;   /* Fully initialized */
+   bool init_failed;   /* Initialization failed */
+   bool thread_ended;  /* The display thread has ended */
+
+   AL_BITMAP_D3D backbuffer_bmp;
 };
 
 
@@ -102,6 +104,7 @@ void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
    D3DCOLOR color, int flags);
 void _al_d3d_release_bitmap_textures(void);
 bool _al_d3d_recreate_bitmap_textures(void);
+void _al_d3d_set_bitmap_clip(AL_BITMAP *bitmap);
 
 /* Helper to get smallest fitting power of two. */
 static inline int pot(int x)
