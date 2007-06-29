@@ -40,6 +40,9 @@ static void background_thread(_AL_THREAD *thread, void *arg)
          case ConfigureNotify:
             _al_display_xdummy_configure(&d->display,  &event);
             break;
+         case MapNotify:
+            _al_cond_signal(&s->mapped);
+            break;
          case ClientMessage:
             if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
                _al_display_xdummy_closebutton(&d->display, &event);
@@ -58,6 +61,7 @@ static AL_SYSTEM *initialize(int flags)
    memset(s, 0, sizeof *s);
 
    _al_mutex_init(&s->lock);
+   _al_cond_init(&s->mapped);
 
    _al_vector_init(&s->system.displays, sizeof (AL_SYSTEM_XDUMMY *));
 

@@ -57,7 +57,7 @@ static AL_DISPLAY *create_display(int w, int h)
    d->display.flags = al_get_new_display_flags();
 
    if (d->display.flags | AL_FULLSCREEN)
-      _al_xdummy_set_mode(system, w, h, 0, 0);
+      _al_xdummy_fullscreen_set_mode(system, w, h, 0, 0);
 
    //FIXME
    d->display.flags |= AL_WINDOWED;
@@ -124,11 +124,29 @@ static AL_DISPLAY *create_display(int w, int h)
    XMapWindow(system->xdisplay, d->window);
    TRACE("xdisplay: X11 window mapped.\n");
 
+   /* Send the pending request to the X server. */
+   XSync(system->xdisplay, False);
+   /* To avoid race conditions where some X11 functions fail before the window
+    * is mapped, we wait here until it is mapped. Note that the thread is
+    * locked, so the event could not possibly have processed yet in the
+    * events thread. So as long as no other map events occur, the condition
+    * should only be signalled when our window gets mapped.
+    */
+   _al_cond_wait(&system->mapped, &system->lock);
+
    /* Create a GLX subwindow inside our window. */
    d->glxwindow = glXCreateWindow(system->xdisplay, fbc[0], d->window, 0);
 
    TRACE("xdisplay: GLX window created.\n");
-   
+
+   if (d->display.flags | AL_FULLSCREEN) {
+      int x, y;
+      Window child;
+      XTranslateCoordinates(system->xdisplay, d->window,
+         RootWindow(system->xdisplay, 0), 0, 0, &x, &y, &child);
+      _al_xdummy_fullscreen_set_origin(system, x, y);
+   }
+
    /* Create a GLX context. */
    d->context = glXCreateNewContext(system->xdisplay, fbc[0], GLX_RGBA_TYPE,
       NULL, True);

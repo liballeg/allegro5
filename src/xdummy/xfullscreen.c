@@ -43,7 +43,7 @@ AL_DISPLAY_MODE *_al_xdummy_get_display_mode(
    return get_display_mode((void *)al_system_driver(), i, mode);
 }
 
-bool _al_xdummy_set_mode(AL_SYSTEM_XDUMMY *s,
+bool _al_xdummy_fullscreen_set_mode(AL_SYSTEM_XDUMMY *s,
    int w, int h, int format, int refresh_rate)
 {
    int i;
@@ -79,6 +79,11 @@ bool _al_xdummy_set_mode(AL_SYSTEM_XDUMMY *s,
       return false;
 
    return true;
+}
+
+void _al_xdummy_fullscreen_set_origin(AL_SYSTEM_XDUMMY *s, int x, int y)
+{
+   XF86VidModeSetViewPort(s->xdisplay, 0, x, y);
 }
 
 void _al_xdummy_store_video_mode(AL_SYSTEM_XDUMMY *s)

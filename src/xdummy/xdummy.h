@@ -38,6 +38,7 @@ struct AL_SYSTEM_XDUMMY
    
    _AL_THREAD thread; /* background thread. */
    _AL_MUTEX lock; /* thread lock for whenever we access internals. */
+   _AL_COND mapped; /* condition variable to wait for mapping a window. */
 };
 
 struct AL_BITMAP_XDUMMY
@@ -87,7 +88,8 @@ void _xdummy_add_drawing_functions(AL_DISPLAY_INTERFACE *vt);
 int _al_xdummy_get_num_display_modes(void);
 AL_DISPLAY_MODE *_al_xdummy_get_display_mode(
    int index, AL_DISPLAY_MODE *mode);
-bool _al_xdummy_set_mode(AL_SYSTEM_XDUMMY *s, int w, int h, int format,
-   int refresh_rate);
+bool _al_xdummy_fullscreen_set_mode(AL_SYSTEM_XDUMMY *s, int w, int h,
+   int format, int refresh_rate);
 void _al_xdummy_store_video_mode(AL_SYSTEM_XDUMMY *s);
 void _al_xdummy_restore_video_mode(AL_SYSTEM_XDUMMY *s);
+void _al_xdummy_fullscreen_set_origin(AL_SYSTEM_XDUMMY *s, int x, int y);
