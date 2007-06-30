@@ -60,7 +60,8 @@ static AL_SYSTEM *find_system(_AL_VECTOR *vector)
 void _al_exit(void)
 {
    if (active) {
-      active->vt->shutdown_system();
+      if (active->vt && active->vt->shutdown_system)
+         active->vt->shutdown_system();
       active = NULL;
    }
 }

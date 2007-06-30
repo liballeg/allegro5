@@ -21,7 +21,7 @@ int main(void)
    int fps_accumulator = 0, fps_time = 0;
    double fps = 0;
    int FPS = 500;
-   int x = 0, y = 0;
+   int x = 0, y = 100;
    int dx = 1;
    int w = 640, h = 480;
    AL_BITMAP *picture;
@@ -31,6 +31,7 @@ int main(void)
    AL_COLOR white;
    AL_COLOR mask_color;
    int i;
+   bool clip = false;
 
    al_init();
 
@@ -50,6 +51,8 @@ int main(void)
    al_set_new_display_flags(AL_WINDOWED|AL_RESIZABLE);
 
    display[2] = al_create_display(w, h);
+
+   al_set_bitmap_clip(al_get_backbuffer(), 100, 100, 440, 280);
 
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
@@ -74,12 +77,8 @@ int main(void)
 
    al_set_new_bitmap_flags(AL_MEMORY_BITMAP|AL_USE_ALPHA);
    mem_bmp = al_load_bitmap("mysha.tga");
-   al_set_target_bitmap(mem_bmp);
-   //al_draw_filled_rectangle(0, 0, 100, 100, al_map_rgb(mem_bmp, &colors[0], 0, 255, 0));
-   al_draw_filled_rectangle(0, 0, 100, 100, al_map_rgb(mem_bmp, &colors[0], 0, 255, 0));
-   al_draw_line(0, 0, 320, 200, al_map_rgb(mem_bmp, &colors[0], 0, 0, 255));
-  
 
+   /*
    AL_COLOR color;
    AL_LOCKED_REGION lr;
    al_lock_bitmap(picture, &lr, 0);
@@ -90,17 +89,20 @@ int main(void)
 	}
    }
    al_unlock_bitmap(picture);
+   */
 
    al_install_keyboard();
    al_register_event_source(events, (AL_EVENT_SOURCE *)al_get_keyboard());
 
    start_ticks = al_current_time();
 
+/*
    al_set_mask_color(al_map_rgb(picture, &colors[0], 255, 0, 255));
    al_set_target_bitmap(mask);
    al_draw_bitmap(picture, 0, 0, AL_MASK_SOURCE);
    al_set_target_bitmap(mask);
    al_convert_mask_to_alpha(picture, al_map_rgb(picture, &colors[0], 255, 0, 255));
+   */
 
    for (i = 0; i < 3; i++) {
    	al_set_current_display(display[i]);
@@ -126,6 +128,13 @@ int main(void)
             if (key->keycode == AL_KEY_ESCAPE) {
                quit = 1;
 	    }
+            else {
+               clip = !clip;
+               for (i = 0; i < 3; i++) {
+                  al_set_current_display(display[0]);
+                  al_enable_bitmap_clip(al_get_backbuffer(), clip);
+               }
+            }
          }
          if (event.type == AL_EVENT_DISPLAY_RESIZE) {
             AL_DISPLAY_EVENT *display = &event.display;
@@ -181,13 +190,12 @@ int main(void)
 	    	al_draw_line(50, 50, 150, 150, &colors[0]);
 	    }
             else if (i == 2) {
-	    	al_draw_bitmap(picture, 0, 0, 0);
-	    	al_draw_scaled_bitmap(mem_bmp, 0, 0, picture->w, picture->h,
-			0, 0, 640, 480, 0);
-		al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
-		al_set_mask_color(al_map_rgb(mem_bmp, &mask_color, 255, 0, 255));
-		al_draw_rotated_scaled_bitmap(mem_bmp, 160, 100, 320, 240, 1.5f, 1.5f, M_PI/4, AL_MASK_SOURCE|AL_FLIP_VERTICAL);
-		al_draw_rotated_bitmap(mem_bmp, 160, 100, 320, 240, M_PI/4, 0);
+               al_draw_scaled_bitmap(picture, 0, 0, picture->w, picture->h,
+                  0, 0, 640, 480, 0);
+               al_draw_bitmap_region(mem_bmp, 50, 50, 220, 100, 80, 80, 0);
+               al_draw_bitmap(picture, 0, 0, 0);
+               al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
+               al_set_mask_color(al_map_rgb(mem_bmp, &mask_color, 255, 0, 255));
 	    }
             al_draw_filled_rectangle(x, y, x + 40, y + 40, &colors[i]);
             al_flip_display();

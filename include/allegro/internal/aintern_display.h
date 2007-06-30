@@ -38,6 +38,9 @@ struct AL_DISPLAY_INTERFACE
 
    void (*draw_memory_bitmap_region)(AL_DISPLAY *display, AL_BITMAP *bitmap,
       float sx, float sy, float sw, float sh, float dx, float dy, int flags);
+
+   AL_BITMAP *(*create_sub_bitmap)(AL_DISPLAY *display, AL_BITMAP *parent,
+      int x, int y, int width, int height);
 };
 
 struct AL_DISPLAY

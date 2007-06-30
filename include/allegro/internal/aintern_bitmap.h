@@ -16,9 +16,11 @@ struct AL_BITMAP
    int flags;
    int w, h;
    /* 
+    * clipping enabled?
     * clip left, right, top, bottom
     * Clip anything outside of this
     */
+   int clip;
    int cl, cr, ct, cb;
    /*
     * Locking info.
@@ -36,6 +38,11 @@ struct AL_BITMAP
    int lock_h;
    int lock_flags;
    AL_LOCKED_REGION locked_region;
+
+   /* Info for sub-bitmaps */
+   AL_BITMAP *parent;
+   int xofs;
+   int yofs;
 
    /* A memory copy of the bitmap data. May be NULL for an empty bitmap. */
    unsigned char *memory;

@@ -417,6 +417,8 @@ void _al_convert_compat_bitmap(
 			return;
 	}
 
+        printf("src=%d dst=%d\n", src_format, dst_format);
+
 	(*convert_funcs[src_format][dst_format])(src->dat,
 		src_format, al_get_pixel_size(src_format)*src->w,
 		dst, dst_format, dst_pitch, sx, sy, dx, dy, width, height);

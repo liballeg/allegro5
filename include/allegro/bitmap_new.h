@@ -140,5 +140,11 @@ void al_set_bitmap_clip(AL_BITMAP *bitmap, int x, int y,
    int width, int height);
 void al_get_bitmap_clip(AL_BITMAP *bitmap, int *x, int *y,
    int *w, int *h);
+void al_enable_bitmap_clip(AL_BITMAP *bitmap, bool enable);
+bool al_is_bitmap_clip_enabled(AL_BITMAP *bitmap);
+
+/* Sub bitmaps */
+AL_BITMAP *al_create_sub_bitmap(AL_BITMAP *parent,
+   int x, int y, int w, int h);
 
 #endif

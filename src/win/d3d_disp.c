@@ -1004,16 +1004,44 @@ static void d3d_set_current_display(AL_DISPLAY *d)
 static void d3d_clear(AL_DISPLAY *d, AL_COLOR *color)
 {
    AL_DISPLAY_D3D* disp = (AL_DISPLAY_D3D*)d;
+   D3DRECT rect;
+   AL_BITMAP *target = al_get_target_bitmap();
 
    if (_al_d3d_is_device_lost()) return;
    _al_d3d_lock_device();
 
-   IDirect3DDevice9_Clear(_al_d3d_device, 0, NULL,
+   rect.x1 = 0;
+   rect.y1 = 0;
+   rect.x2 = target->w;
+   rect.y2 = target->h;
+
+   /* Clip */
+   if (rect.x1 < target->cl)
+      rect.x1 = target->cl;
+   if (rect.y1 < target->ct)
+      rect.y1 = target->ct;
+   if (rect.x2 > target->cr)
+      rect.x2 = target->cr;
+   if (rect.y2 > target->cb)
+      rect.y2 = target->cb;
+
+   if (target->parent) {
+      rect.x1 += target->xofs;
+      rect.y1 += target->yofs;
+      rect.x2 += target->xofs;
+      rect.y2 += target->yofs;
+   }
+
+   IDirect3DDevice9_Clear(_al_d3d_device, 1, &rect,
       D3DCLEAR_TARGET,
       d3d_al_color_to_d3d(d->format, color),
       1, 0);
    
    _al_d3d_unlock_device();
+   
+   if (target->flags & AL_SYNC_MEMORY_COPY) {
+      _al_d3d_sync_bitmap(target);
+   }
 }
 
 /* Dummy implementation of line. */
@@ -1022,9 +1050,16 @@ static void d3d_draw_line(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
 {
    static D3D_COLORED_VERTEX points[2] = { { 0.0f, 0.0f, 0.0f, 0 }, };
    DWORD d3d_color = d3d_al_color_to_d3d(d->format, color);
+   AL_BITMAP *target = al_get_target_bitmap();
    
    if (_al_d3d_is_device_lost()) return;
-   _al_d3d_lock_device();
+
+   if (target->parent) {
+      fx += target->xofs;
+      tx += target->xofs;
+      fy += target->yofs;
+      ty += target->yofs;
+   }
 
    points[0].x = fx;
    points[0].y = fy;
@@ -1034,12 +1069,20 @@ static void d3d_draw_line(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
    points[1].y = ty;
    points[1].color = d3d_color;
 
+   _al_d3d_lock_device();
+
    IDirect3DDevice9_SetFVF(_al_d3d_device, D3DFVF_COLORED_VERTEX);
 
-   IDirect3DDevice9_DrawPrimitiveUP(_al_d3d_device, D3DPT_LINELIST, 1,
-      points, sizeof(D3D_COLORED_VERTEX));
+   if (IDirect3DDevice9_DrawPrimitiveUP(_al_d3d_device, D3DPT_LINELIST, 1,
+         points, sizeof(D3D_COLORED_VERTEX)) != D3D_OK) {
+      TRACE("DrawPrimitive failed in d3d_draw_line.\n");
+   }
    
    _al_d3d_unlock_device();
+   
+   if (target->flags & AL_SYNC_MEMORY_COPY) {
+      _al_d3d_sync_bitmap(target);
+   }
 }
  
 /* Dummy implementation of a filled rectangle. */
@@ -1049,11 +1092,19 @@ static void d3d_draw_filled_rectangle(AL_DISPLAY *d, float tlx, float tly,
    D3DRECT rect;
    float w = brx - tlx;
    float h = bry - tly;
+   AL_BITMAP *target = al_get_target_bitmap();
 
    if (_al_d3d_is_device_lost()) return;
    
    if (w < 1 || h < 1) {
       return;
+   }
+
+   if (target->parent) {
+      tlx += target->xofs;
+      brx += target->xofs;
+      tly += target->yofs;
+      bry += target->yofs;
    }
    
    rect.x1 = tlx;
@@ -1070,6 +1121,10 @@ static void d3d_draw_filled_rectangle(AL_DISPLAY *d, float tlx, float tly,
       d3d_al_color_to_d3d(d->format, color), 0);
 
    _al_d3d_unlock_device();
+   
+   if (target->flags & AL_SYNC_MEMORY_COPY) {
+      _al_d3d_sync_bitmap(target);
+   }
 }
 
 /* Dummy implementation of flip. */
@@ -1298,29 +1353,49 @@ AL_BITMAP *_al_d3d_create_bitmap(AL_DISPLAY *d,
    bitmap->system_texture = 0;
    bitmap->initialized = false;
    bitmap->is_backbuffer = false;
-   bitmap->xo = 0;
-   bitmap->yo = 0;
 
    return &bitmap->bitmap;
+}
+
+AL_BITMAP *d3d_create_sub_bitmap(AL_DISPLAY *display, AL_BITMAP *parent,
+   int x, int y, int width, int height)
+{
+   AL_BITMAP_D3D *bitmap = (AL_BITMAP_D3D*)_AL_MALLOC(sizeof *bitmap);
+   bitmap->texture_w = 0;
+   bitmap->texture_h = 0;
+   bitmap->video_texture = NULL;
+   bitmap->system_texture = NULL;
+   bitmap->initialized = false;
+   bitmap->is_backbuffer = ((AL_BITMAP_D3D *)parent)->is_backbuffer;
+   return (AL_BITMAP *)bitmap;
 }
 
 static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 {
    AL_DISPLAY_D3D *d3d_display = (AL_DISPLAY_D3D *)bitmap->display;
-   AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap;
+   AL_BITMAP *target;
+   AL_BITMAP_D3D *d3d_target;
 
    if (_al_d3d_is_device_lost()) return;
+   
+   if (bitmap->parent) {
+      target = bitmap->parent;
+   }
+   else {
+      target = bitmap;
+   }
+   d3d_target = (AL_BITMAP_D3D *)target;
 
    /* Release the previous render target */
-   _al_d3d_lock_device();
    if (d3d_current_texture_render_target != NULL) {
+      _al_d3d_lock_device();
       IDirect3DSurface9_Release(d3d_current_texture_render_target);
+      _al_d3d_unlock_device();
       d3d_current_texture_render_target = NULL;
    }
-   _al_d3d_unlock_device();
 
    /* Set the render target */
-   if (d3d_bmp->is_backbuffer) {
+   if (d3d_target->is_backbuffer) {
       if (IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, d3d_display->render_target) != D3D_OK) {
          TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
          IDirect3DSurface9_Release(d3d_current_texture_render_target);
@@ -1331,13 +1406,13 @@ static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
       _al_d3d_lock_device();
       IDirect3DDevice9_BeginScene(_al_d3d_device);
       d3d_target_display_before_device_lost = display;
-      d3d_target_bitmap_before_device_lost = bitmap;
+      d3d_target_bitmap_before_device_lost = target;
       _al_d3d_unlock_device();
    }
    else {
       _al_d3d_lock_device();
       IDirect3DDevice9_EndScene(_al_d3d_device);
-      if (IDirect3DTexture9_GetSurfaceLevel(d3d_bmp->video_texture, 0, &d3d_current_texture_render_target) != D3D_OK) {
+      if (IDirect3DTexture9_GetSurfaceLevel(d3d_target->video_texture, 0, &d3d_current_texture_render_target) != D3D_OK) {
          TRACE("d3d_set_target_bitmap: Unable to get texture surface level.\n");
          return;
       }
@@ -1347,11 +1422,11 @@ static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
          return;
       }
       _al_d3d_unlock_device();
-      _al_d3d_set_ortho_projection(d3d_bmp->texture_w, d3d_bmp->texture_h);
+      _al_d3d_set_ortho_projection(d3d_target->texture_w, d3d_target->texture_h);
       _al_d3d_lock_device();
       IDirect3DDevice9_BeginScene(_al_d3d_device);
       d3d_target_display_before_device_lost = display;
-      d3d_target_bitmap_before_device_lost = bitmap;
+      d3d_target_bitmap_before_device_lost = target;
       _al_d3d_unlock_device();
    }
 
@@ -1411,6 +1486,7 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->is_compatible_bitmap = d3d_is_compatible_bitmap;
    vt->switch_out = d3d_switch_out;
    vt->draw_memory_bitmap_region = NULL;
+   vt->create_sub_bitmap = d3d_create_sub_bitmap;
 
    return vt;
 }

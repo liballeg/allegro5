@@ -598,6 +598,55 @@ static bool d3d_upload_bitmap(AL_BITMAP *bitmap, int x, int y,
    return true;
 }
 
+void _al_d3d_sync_bitmap(AL_BITMAP *dest)
+{
+   AL_BITMAP_D3D *d3d_dest;
+   LPDIRECT3DSURFACE9 system_texture_surface;
+   LPDIRECT3DSURFACE9 video_texture_surface;
+
+   if (dest->parent) {
+      dest = dest->parent;
+   }
+   d3d_dest = (AL_BITMAP_D3D *)dest;
+
+   _al_d3d_lock_device();
+
+   IDirect3DDevice9_EndScene(_al_d3d_device);
+
+   if (IDirect3DTexture9_GetSurfaceLevel(d3d_dest->system_texture,
+         0, &system_texture_surface) != D3D_OK) {
+      TRACE("_al_d3d_sync_bitmap: GetSurfaceLevel failed while updating video texture.\n");
+      _al_d3d_unlock_device();
+      return;
+   }
+
+   if (IDirect3DTexture9_GetSurfaceLevel(d3d_dest->video_texture,
+         0, &video_texture_surface) != D3D_OK) {
+      TRACE("_al_d3d_sync_bitmap: GetSurfaceLevel failed while updating video texture.\n");
+      _al_d3d_unlock_device();
+      return;
+   }
+
+   if (IDirect3DDevice9_GetRenderTargetData(_al_d3d_device,
+         video_texture_surface,
+         system_texture_surface) != D3D_OK) {
+      TRACE("_al_d3d_sync_bitmap: GetRenderTargetData failed.\n");
+      _al_d3d_unlock_device();
+      return;
+   }
+
+   d3d_sync_bitmap_memory(dest);
+
+   IDirect3DSurface9_Release(system_texture_surface);
+   IDirect3DSurface9_Release(video_texture_surface);
+   
+   IDirect3DDevice9_BeginScene(_al_d3d_device);
+
+   d3d_sync_bitmap_memory(dest);
+
+   _al_d3d_unlock_device();
+}
+
 
 /* Draw the bitmap at the specified position. */
 static void d3d_blit_real(AL_BITMAP *src,
@@ -612,6 +661,20 @@ static void d3d_blit_real(AL_BITMAP *src,
    DWORD light_color = 0xFFFFFFFF;
 
    if (_al_d3d_is_device_lost()) return;
+
+   /* For sub-bitmaps */
+   if (src->parent) {
+      sx += src->xofs;
+      sy += src->yofs;
+      src = src->parent;
+      d3d_src = (AL_BITMAP_D3D *)src;
+   }
+   if (dest->parent) {
+      dx += dest->xofs;
+      dy += dest->yofs;
+      dest = dest->parent;
+      d3d_dest = (AL_BITMAP_D3D *)dest;
+   }
 
    angle = -angle;
 
@@ -666,57 +729,8 @@ static void d3d_blit_real(AL_BITMAP *src,
     * If we're rendering to a texture, and the bitmap has the
     * AL_SYNC_MEMORY_COPY flag, sync the texture to system memory.
     */
-   if (!d3d_dest->is_backbuffer &&
-         (dest->flags & AL_SYNC_MEMORY_COPY)) {
-      LPDIRECT3DSURFACE9 system_texture_surface;
-      LPDIRECT3DSURFACE9 video_texture_surface;
-      RECT rect;
-      POINT point;
-   
-      _al_d3d_lock_device();
-
-      IDirect3DDevice9_EndScene(_al_d3d_device);
-
-      if (IDirect3DTexture9_GetSurfaceLevel(d3d_dest->system_texture,
-            0, &system_texture_surface) != D3D_OK) {
-         TRACE("d3d_blit_real: GetSurfaceLevel failed while updating video texture.\n");
-         _al_d3d_unlock_device();
-         return;
-      }
-
-      if (IDirect3DTexture9_GetSurfaceLevel(d3d_dest->video_texture,
-            0, &video_texture_surface) != D3D_OK) {
-         TRACE("d3d_blit_real: GetSurfaceLevel failed while updating video texture.\n");
-         _al_d3d_unlock_device();
-         return;
-      }
-
-      rect.left = 0;
-      rect.top = 0;
-      rect.right = d3d_dest->bitmap.w;
-      rect.bottom = d3d_dest->bitmap.h;
-
-      point.x = 0;
-      point.y = 0;
-
-      if (IDirect3DDevice9_GetRenderTargetData(_al_d3d_device,
-            video_texture_surface,
-            system_texture_surface) != D3D_OK) {
-         TRACE("d3d_blit_real: GetRenderTargetData failed.\n");
-         _al_d3d_unlock_device();
-         return;
-      }
-
-      d3d_sync_bitmap_memory(dest);
-
-      IDirect3DSurface9_Release(system_texture_surface);
-      IDirect3DSurface9_Release(video_texture_surface);
-      
-      IDirect3DDevice9_BeginScene(_al_d3d_device);
-
-      d3d_sync_bitmap_memory(dest);
-
-      _al_d3d_unlock_device();
+   if (dest->flags & AL_SYNC_MEMORY_COPY) {
+      _al_d3d_sync_bitmap(dest);
    }
 }
 
@@ -859,34 +873,50 @@ static void d3d_disable_clip(void)
 void _al_d3d_set_bitmap_clip(AL_BITMAP *bitmap)
 {
    float plane[4];
+   int left, right, top, bottom;
 
-   if (bitmap->cl == 0 && bitmap->ct == 0 &&
-         bitmap->cr == (bitmap->w-1) &&
-         bitmap->cb == (bitmap->h-1)) {
-      d3d_disable_clip();
-      return;
+   if (bitmap->parent) {
+      left = bitmap->xofs + bitmap->cl;
+      right = bitmap->xofs + bitmap->cr;
+      top = bitmap->yofs + bitmap->ct;
+      bottom = bitmap->yofs + bitmap->cb;
+   }
+   else {
+      left = bitmap->cl;
+      right = bitmap->cr;
+      top = bitmap->ct;
+      bottom = bitmap->cb;
+      if (!bitmap->clip || (left == 0 && top == 0 &&
+            right == (bitmap->w-1) &&
+            bottom == (bitmap->h-1))) {
+         d3d_disable_clip();
+         return;
+      }
    }
 
-   plane[0] = 1.0f / bitmap->cl;
+   //right--;
+   //bottom--;
+
+   plane[0] = 1.0f / left;
    plane[1] = 0.0f;
    plane[2] = 0.0f;
    plane[3] = -1;
    IDirect3DDevice9_SetClipPlane(_al_d3d_device, 0, plane);
 
-   plane[0] = -1.0f / bitmap->cr;
+   plane[0] = -1.0f / right;
    plane[1] = 0.0f;
    plane[2] = 0.0f;
    plane[3] = 1;
    IDirect3DDevice9_SetClipPlane(_al_d3d_device, 1, plane);
 
    plane[0] = 0.0f;
-   plane[1] = 1.0f / bitmap->ct;
+   plane[1] = 1.0f / top;
    plane[2] = 0.0f;
    plane[3] = -1;
    IDirect3DDevice9_SetClipPlane(_al_d3d_device, 2, plane);
 
    plane[0] = 0.0f;
-   plane[1] = -1.0f / bitmap->cb;
+   plane[1] = -1.0f / bottom;
    plane[2] = 0.0f;
    plane[3] = 1;
    IDirect3DDevice9_SetClipPlane(_al_d3d_device, 3, plane);

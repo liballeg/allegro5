@@ -35,9 +35,12 @@ static AL_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->h = h;
    bitmap->display = NULL;
    bitmap->locked = false;
+   bitmap->clip = true;
    bitmap->cl = bitmap->ct = 0;
    bitmap->cr = w-1;
    bitmap->cb = h-1;
+   bitmap->parent = NULL;
+   bitmap->xofs = bitmap->yofs = 0;
    // FIXME: Of course, we do need to handle all the possible different formats,
    // this will easily fill up its own file of 1000 lines, but for now,
    // RGBA with 8-bit per component is hardcoded.
@@ -71,9 +74,12 @@ AL_BITMAP *al_create_bitmap(int w, int h)
    bitmap->w = w;
    bitmap->h = h;
    bitmap->locked = false;
+   bitmap->clip = true;
    bitmap->cl = bitmap->ct = 0;
    bitmap->cr = w-1;
    bitmap->cb = h-1;
+   bitmap->parent = NULL;
+   bitmap->xofs = bitmap->yofs = 0;
 
    if (!bitmap->memory) {
    	bitmap->memory = _AL_MALLOC(w * h * al_get_pixel_size(bitmap->format));
@@ -96,6 +102,11 @@ void al_destroy_bitmap(AL_BITMAP *bitmap)
    if (bitmap->flags & AL_MEMORY_BITMAP) {
    	_al_destroy_memory_bitmap(bitmap);
 	return;
+   }
+   else if (bitmap->parent) {
+      /* It's a sub-bitmap */
+      _AL_FREE(bitmap);
+      return;
    }
 
    /* Else it's a display bitmap */
@@ -248,87 +259,99 @@ AL_LOCKED_REGION *al_lock_bitmap_region(AL_BITMAP *bitmap,
 	AL_LOCKED_REGION *locked_region,
 	int flags)
 {
-	if (bitmap->locked)
-		return NULL;
+   /* For sub-bitmaps */
+   if (bitmap->parent) {
+      x += bitmap->xofs;
+      y += bitmap->yofs;
+      bitmap = bitmap->parent;
+   }
 
-	bitmap->locked = true;
-	bitmap->lock_x = x;
-	bitmap->lock_y = y;
-	bitmap->lock_w = width;
-	bitmap->lock_h = height;
-	bitmap->lock_flags = flags;
+   if (bitmap->locked)
+      return NULL;
 
-	if (bitmap->flags & AL_MEMORY_BITMAP || bitmap->flags & AL_SYNC_MEMORY_COPY) {
-		locked_region->data = bitmap->memory+(bitmap->w*y+x)*al_get_pixel_size(bitmap->format);
-		locked_region->format = bitmap->format;
-		locked_region->pitch = bitmap->w*al_get_pixel_size(bitmap->format);
-	}
-	else {
-		locked_region = bitmap->vt->lock_region(bitmap,
-			x, y, width, height,
-			locked_region,
-			flags);
-	}
+   bitmap->locked = true;
+   bitmap->lock_x = x;
+   bitmap->lock_y = y;
+   bitmap->lock_w = width;
+   bitmap->lock_h = height;
+   bitmap->lock_flags = flags;
 
-	if (locked_region)
-		memcpy(&bitmap->locked_region, locked_region, sizeof(AL_LOCKED_REGION));
+   if (bitmap->flags & AL_MEMORY_BITMAP || bitmap->flags & AL_SYNC_MEMORY_COPY) {
+     locked_region->data = bitmap->memory+(bitmap->w*y+x)*al_get_pixel_size(bitmap->format);
+      locked_region->format = bitmap->format;
+      locked_region->pitch = bitmap->w*al_get_pixel_size(bitmap->format);
+   }
+   else {
+      locked_region = bitmap->vt->lock_region(bitmap,
+         x, y, width, height,
+         locked_region,
+         flags);
+   }
 
-	return locked_region;
+   if (locked_region)
+      memcpy(&bitmap->locked_region, locked_region, sizeof(AL_LOCKED_REGION));
+
+   return locked_region;
 }
 
 AL_LOCKED_REGION *al_lock_bitmap(AL_BITMAP *bitmap,
-	AL_LOCKED_REGION *locked_region,
-	int flags)
+   AL_LOCKED_REGION *locked_region,
+   int flags)
 {
-	return al_lock_bitmap_region(bitmap, 0, 0, bitmap->w, bitmap->h,
-		locked_region, flags);
+   return al_lock_bitmap_region(bitmap, 0, 0, bitmap->w, bitmap->h,
+      locked_region, flags);
 }
 
 void al_unlock_bitmap(AL_BITMAP *bitmap)
 {
-	if (bitmap->flags & AL_SYNC_MEMORY_COPY && !(bitmap->flags & AL_MEMORY_BITMAP)) {
-		bitmap->vt->upload_bitmap(bitmap,
-			bitmap->lock_x,
-			bitmap->lock_y,
-			bitmap->lock_w,
-			bitmap->lock_h);
-	}
-	else if (!(bitmap->flags & AL_MEMORY_BITMAP)) {
-		bitmap->vt->unlock_region(bitmap);
-	}
+   /* For sub-bitmaps */
+   if (bitmap->parent) {
+      bitmap = bitmap->parent;
+   }
 
-	bitmap->locked = false;
+   if (bitmap->flags & AL_SYNC_MEMORY_COPY && !(bitmap->flags & AL_MEMORY_BITMAP)) {
+      bitmap->vt->upload_bitmap(bitmap,
+      bitmap->lock_x,
+      bitmap->lock_y,
+      bitmap->lock_w,
+      bitmap->lock_h);
+   }
+   else if (!(bitmap->flags & AL_MEMORY_BITMAP)) {
+      bitmap->vt->unlock_region(bitmap);
+   }
+
+   bitmap->locked = false;
 }
 
 void al_convert_mask_to_alpha(AL_BITMAP *bitmap, AL_COLOR *mask_color)
 {
-	AL_LOCKED_REGION lr;
-	int x, y;
-	AL_COLOR pixel;
-	AL_COLOR alpha_pixel;
+   AL_LOCKED_REGION lr;
+   int x, y;
+   AL_COLOR pixel;
+   AL_COLOR alpha_pixel;
 
-	if (!al_lock_bitmap(bitmap, &lr, 0)) {
-		TRACE("al_convert_mask_to_alpha: Couldn't lock bitmap.\n");
-		return;
-	}
+   if (!al_lock_bitmap(bitmap, &lr, 0)) {
+      TRACE("al_convert_mask_to_alpha: Couldn't lock bitmap.\n");
+      return;
+   }
 
-	_al_push_target_bitmap();
-	al_set_target_bitmap(bitmap);
+   _al_push_target_bitmap();
+   al_set_target_bitmap(bitmap);
 
-	al_map_rgba(bitmap, &alpha_pixel, 0, 0, 0, 0);
+   al_map_rgba(bitmap, &alpha_pixel, 0, 0, 0, 0);
 
-	for (y = 0; y < bitmap->h; y++) {
-		for (x = 0; x < bitmap->w; x++) {
-			al_get_pixel(bitmap, x, y, &pixel);
-			if (memcmp(&pixel, mask_color, sizeof(AL_COLOR)) == 0) {
-				al_put_pixel(x, y, &alpha_pixel);
-			}
-		}
-	}
+   for (y = 0; y < bitmap->h; y++) {
+      for (x = 0; x < bitmap->w; x++) {
+         al_get_pixel(bitmap, x, y, &pixel);
+         if (memcmp(&pixel, mask_color, sizeof(AL_COLOR)) == 0) {
+            al_put_pixel(x, y, &alpha_pixel);
+         }
+      }
+   }
 
-	_al_pop_target_bitmap();
+   _al_pop_target_bitmap();
 
-	al_unlock_bitmap(bitmap);
+   al_unlock_bitmap(bitmap);
 }
 
 int al_get_bitmap_width(AL_BITMAP *bitmap)
@@ -351,6 +374,13 @@ int al_get_bitmap_flags(AL_BITMAP *bitmap)
    return bitmap->flags;
 }
 
+void al_enable_bitmap_clip(AL_BITMAP *bitmap, bool enable)
+{
+   bitmap->clip = enable;
+   if (bitmap->vt && bitmap->vt->set_bitmap_clip)
+      bitmap->vt->set_bitmap_clip(bitmap);
+}
+
 void al_set_bitmap_clip(AL_BITMAP *bitmap, int x, int y,
    int width, int height)
 {
@@ -371,11 +401,10 @@ void al_set_bitmap_clip(AL_BITMAP *bitmap, int x, int y,
 
    bitmap->cl = x;
    bitmap->ct = y;
-   bitmap->cr = x + width - 1;
-   bitmap->cb = y + height - 1;
+   bitmap->cr = x + width;
+   bitmap->cb = y + height;
 
-   if (bitmap->vt && bitmap->vt->set_bitmap_clip)
-      bitmap->vt->set_bitmap_clip(bitmap);
+   al_enable_bitmap_clip(bitmap, true);
 }
 
 void al_get_bitmap_clip(AL_BITMAP *bitmap, int *x, int *y,
@@ -385,5 +414,61 @@ void al_get_bitmap_clip(AL_BITMAP *bitmap, int *x, int *y,
    *y = bitmap->ct;
    *w = bitmap->cr - bitmap->cl + 1;
    *h = bitmap->cb - bitmap->ct + 1;
+}
+
+bool al_is_bitmap_clip_enabled(AL_BITMAP *bitmap)
+{
+   return bitmap->clip;
+}
+
+AL_BITMAP *al_create_sub_bitmap(AL_BITMAP *parent,
+   int x, int y, int w, int h)
+{
+   AL_BITMAP *bitmap;
+
+   if (parent->display && parent->display->vt &&
+         parent->display->vt->create_sub_bitmap) {
+      bitmap = parent->display->vt->create_sub_bitmap(
+         parent->display, parent, x, y, w, h);
+   }
+   else {
+      bitmap = _AL_MALLOC(sizeof *bitmap);
+   }
+
+   memset(bitmap, 0, sizeof *bitmap);
+
+   bitmap->format = parent->format;
+   bitmap->flags = parent->flags;
+
+   /* Clip */
+   if (x < 0) {
+      w += x;
+      x = 0;
+   }
+   if (y < 0) {
+      h += y;
+      y = 0;
+   }
+   if (x+w > parent->w) {
+      w = parent->w - x;
+   }
+   if (y+h > parent->h) {
+      h = parent->h - y;
+   }
+
+   bitmap->w = w;
+   bitmap->h = h;
+   bitmap->display = parent->display;
+   bitmap->locked = false;
+   bitmap->clip = true;
+   bitmap->cl = bitmap->ct = 0;
+   bitmap->cr = w-1;
+   bitmap->cb = h-1;
+   bitmap->parent = parent;
+   bitmap->xofs = x;
+   bitmap->yofs = y;
+   bitmap->memory = NULL;
+
+   return bitmap;
 }
 

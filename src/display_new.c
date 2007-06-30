@@ -54,7 +54,7 @@ AL_DISPLAY *al_create_display(int w, int h)
 
 void al_destroy_display(AL_DISPLAY *display)
 {
-	display->vt->destroy_display(display);
+   display->vt->destroy_display(display);
 }
 
 AL_BITMAP *al_get_backbuffer(void)

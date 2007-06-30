@@ -32,9 +32,6 @@ struct AL_BITMAP_D3D
    bool initialized;
    bool is_backbuffer;
 
-   unsigned int xo;   /* offsets for sub bitmaps */
-   unsigned int yo;
-
    D3DLOCKED_RECT locked_rect;
 };
 
@@ -105,6 +102,7 @@ void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
 void _al_d3d_release_bitmap_textures(void);
 bool _al_d3d_recreate_bitmap_textures(void);
 void _al_d3d_set_bitmap_clip(AL_BITMAP *bitmap);
+void _al_d3d_sync_bitmap(AL_BITMAP *dest);
 
 /* Helper to get smallest fitting power of two. */
 static inline int pot(int x)

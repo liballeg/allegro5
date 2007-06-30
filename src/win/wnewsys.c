@@ -121,6 +121,7 @@ AL_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_keyboard_driver = win_get_keyboard_driver;
    vt->get_num_display_modes = win_get_num_display_modes;
    vt->get_display_mode = win_get_display_mode;
+   vt->shutdown_system = NULL; /* might need something here */
 
    TRACE("AL_SYSTEM_INTERFACE created.\n");
 
