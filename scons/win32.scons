@@ -52,73 +52,76 @@ env.Append(LIBS = [ 'kernel32', 'user32', 'gdi32', 'comdlg32', 'ole32', 'dinput'
 # for i in f:
 #	files += [env.Assembler(i)]
 
-context.addFiles('c',Split("""
-"""));
-# cmiscs.s
+context.add_files(context.cmake["ALLEGRO_SRC_WIN_FILES"])
 
-context.addFiles('i386', Split("""
-iblit8.s
-iblit16.s
-iblit24.s
-iblit32.s
-icpu.c
-icpus.s
-icsprite.c
-igfx8.s
-igfx15.s
-igfx16.s
-igfx24.s
-igfx32.s
-imisc.s
-iscan.s
-iscanmmx.s
-ispr8.s
-ispr15.s
-ispr16.s
-ispr24.s
-ispr32.s
-istretch.c
-izbuf.s
-"""));
+if False:
+	context.addFiles('c',Split("""
+	"""));
+	# cmiscs.s
 
-context.addFiles('misc',Split("""
-icolconv.s
-"""));
+	context.addFiles('i386', Split("""
+	iblit8.s
+	iblit16.s
+	iblit24.s
+	iblit32.s
+	icpu.c
+	icpus.s
+	icsprite.c
+	igfx8.s
+	igfx15.s
+	igfx16.s
+	igfx24.s
+	igfx32.s
+	imisc.s
+	iscan.s
+	iscanmmx.s
+	ispr8.s
+	ispr15.s
+	ispr16.s
+	ispr24.s
+	ispr32.s
+	istretch.c
+	izbuf.s
+	"""));
 
-context.addFiles('win', Split("""
-asmlock.s
-gdi.c
-wddaccel.c
-wddbmp.c
-wddbmpl.c
-wddfull.c
-wddlock.c
-wddmode.c
-wddovl.c
-wddraw.c
-wddwin.c
-wdispsw.c
-wdsinput.c
-wdsndmix.c
-wdsound.c
-wdxver.c
-wfile.c
-wgdi.c
-wgfxdrv.c
-winput.c
-wjoydrv.c
-wjoydxnu.c
-wkeybdnu.c
-wmidi.c
-wmouse.c
-wsnddrv.c
-wsndwo.c
-wsystem.c
-wthread.c
-wtime.c
-wtimernu.c
-wwnd.c
-wxthread.c
+	context.addFiles('misc',Split("""
+	icolconv.s
+	"""));
+
+	context.addFiles('win', Split("""
+	asmlock.s
+	gdi.c
+	wddaccel.c
+	wddbmp.c
+	wddbmpl.c
+	wddfull.c
+	wddlock.c
+	wddmode.c
+	wddovl.c
+	wddraw.c
+	wddwin.c
+	wdispsw.c
+	wdsinput.c
+	wdsndmix.c
+	wdsound.c
+	wdxver.c
+	wfile.c
+	wgdi.c
+	wgfxdrv.c
+	winput.c
+	wjoydrv.c
+	wjoydxnu.c
+	wkeybdnu.c
+	wmidi.c
+	wmouse.c
+	wsnddrv.c
+	wsndwo.c
+	wsystem.c
+	wthread.c
+	wtime.c
+	wtimernu.c
+	wwnd.c
+	wxthread.c
 """));
 
 
