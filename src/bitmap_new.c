@@ -410,10 +410,10 @@ void al_set_bitmap_clip(AL_BITMAP *bitmap, int x, int y,
 void al_get_bitmap_clip(AL_BITMAP *bitmap, int *x, int *y,
    int *w, int *h)
 {
-   *x = bitmap->cl;
-   *y = bitmap->ct;
-   *w = bitmap->cr - bitmap->cl + 1;
-   *h = bitmap->cb - bitmap->ct + 1;
+   if (x) *x = bitmap->cl;
+   if (y) *y = bitmap->ct;
+   if (w) *w = bitmap->cr - bitmap->cl + 1;
+   if (h) *h = bitmap->cb - bitmap->ct + 1;
 }
 
 bool al_is_bitmap_clip_enabled(AL_BITMAP *bitmap)

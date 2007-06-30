@@ -274,8 +274,6 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, AL_COLOR *color)
    y2 -= y1;
    x1 = y1 = 0;
 
-   printf("clip=%d %d %d %d %d\n", clip, clip_x1, clip_y1, clip_x2, clip_y2);
-
    if (clip) {
       switch (al_get_pixel_size(bitmap->format)) {
          case 1:

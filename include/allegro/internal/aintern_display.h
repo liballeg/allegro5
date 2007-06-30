@@ -41,6 +41,8 @@ struct AL_DISPLAY_INTERFACE
 
    AL_BITMAP *(*create_sub_bitmap)(AL_DISPLAY *display, AL_BITMAP *parent,
       int x, int y, int width, int height);
+
+   bool (*wait_for_vsync)(AL_DISPLAY *display);
 };
 
 struct AL_DISPLAY

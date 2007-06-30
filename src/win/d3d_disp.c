@@ -57,6 +57,8 @@ static AL_DISPLAY_D3D *d3d_fullscreen_display;
 
 static _AL_MUTEX d3d_device_mutex;
 
+static bool d3d_can_wait_for_vsync;
+
 /*
  * These parameters cannot be gotten by the display thread because
  * they're thread local. We get them in the calling thread first.
@@ -754,6 +756,7 @@ static void d3d_display_thread_proc(void *arg)
    HRESULT hr;
    bool lost_event_generated = false;
    new_display_parameters *params = arg;
+   D3DCAPS9 caps;
 
    /*
     * Direct3D will only allow 1 fullscreen swap chain, and you can't
@@ -819,6 +822,9 @@ static void d3d_display_thread_proc(void *arg)
          return;
       }
    }
+
+   IDirect3DDevice9_GetDeviceCaps(_al_d3d_device, &caps);
+   d3d_can_wait_for_vsync = caps.Caps & D3DCAPS_READ_SCANLINE;
 
    d->thread_ended = false;
 
@@ -1460,6 +1466,21 @@ static void d3d_switch_out(void)
    d3d_bitmaps_prepared_for_reset = true;
 }
 
+static bool d3d_wait_for_vsync(AL_DISPLAY *display)
+{
+   AL_DISPLAY_D3D *d3d_display;
+   D3DRASTER_STATUS status;
+
+   if (!d3d_can_wait_for_vsync)
+      return false;
+
+   d3d_display = (AL_DISPLAY_D3D *)display;
+
+   do {
+      IDirect3DSwapChain9_GetRasterStatus(d3d_display->swap_chain, &status);
+   } while (!status.InVBlank);
+}
+
 /* Obtain a reference to this driver. */
 AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 {
@@ -1487,6 +1508,7 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->switch_out = d3d_switch_out;
    vt->draw_memory_bitmap_region = NULL;
    vt->create_sub_bitmap = d3d_create_sub_bitmap;
+   vt->wait_for_vsync = d3d_wait_for_vsync;
 
    return vt;
 }

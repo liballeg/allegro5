@@ -201,3 +201,15 @@ AL_DISPLAY_MODE *al_get_display_mode(int index, AL_DISPLAY_MODE *mode)
    return system->vt->get_display_mode(index, mode);
 }
 
+/*
+ * Wait for vsync.
+ * Returns false if it is not possible.
+ */
+bool al_wait_for_vsync(void)
+{
+   if (_al_current_display->vt && _al_current_display->vt->wait_for_vsync)
+      return _al_current_display->vt->wait_for_vsync(_al_current_display);
+   else
+      return false;
+}
+

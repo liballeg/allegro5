@@ -64,4 +64,6 @@ void _al_pop_target_bitmap(void);
 int al_get_num_display_modes(void);
 AL_DISPLAY_MODE *al_get_display_mode(int index, AL_DISPLAY_MODE *mode);
 
+bool al_wait_for_vsync(void);
+
 #endif
