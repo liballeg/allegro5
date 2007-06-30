@@ -56,7 +56,11 @@ static AL_SYSTEM *win_initialize(int flags)
 /* FIXME: autodetect a driver */
 AL_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
+#if defined ALLEGRO_D3D
    return _al_display_d3d_driver();
+#else
+   return NULL;
+#endif
 }
 
 /* FIXME: use the list */
