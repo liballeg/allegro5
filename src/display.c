@@ -658,12 +658,14 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    /* FIXME: */
    #ifdef ALLEGRO_UNIX
    #else
+   #if defined ALLEGRO_D3D
    if (card == GFX_AUTODETECT || card == GFX_AUTODETECT_FULLSCREEN) {
    	card = GFX_DIRECT3D_FULLSCREEN;
    }
    else if (card == GFX_AUTODETECT_WINDOWED) {
    	card = GFX_DIRECT3D_WINDOWED;
    }
+   #endif
    #endif
 
    /* special bodge for the GFX_SAFE driver */
@@ -810,6 +812,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
    #ifdef ALLEGRO_UNIX
    #else
+   #if defined ALLEGRO_D3D
    if (card == GFX_DIRECT3D || card == GFX_DIRECT3D_FULLSCREEN) {
    	int windowed_flag = (card == GFX_DIRECT3D_WINDOWED) ? AL_WINDOWED : 0;
 	/*
@@ -853,6 +856,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	return 0;
    }
    else
+   #endif
    #endif
    if (card == GFX_AUTODETECT) {
       /* autodetect the driver */
