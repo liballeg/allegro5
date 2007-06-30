@@ -38,7 +38,10 @@ struct AL_SYSTEM_XDUMMY
    
    _AL_THREAD thread; /* background thread. */
    _AL_MUTEX lock; /* thread lock for whenever we access internals. */
-   _AL_COND mapped; /* condition variable to wait for mapping a window. */
+   // FIXME: One condition variable really would be enough.
+   _AL_COND mapped; /* Condition variable to wait for mapping a window. */
+   _AL_COND resized; /* Condition variable to wait for resizing a window. */
+   bool pointer_grabbed; /* Is an XGrabPointer in effect? */
 };
 
 struct AL_BITMAP_XDUMMY
@@ -64,6 +67,7 @@ struct AL_DISPLAY_XDUMMY
    AL_BITMAP *backbuffer;
 
    Window window;
+   int xscreen; /* TODO: what is this? something with multi-monitor? */
    GLXWindow glxwindow;
    GLXContext context;
    Atom wm_delete_window_atom;
@@ -92,4 +96,5 @@ bool _al_xdummy_fullscreen_set_mode(AL_SYSTEM_XDUMMY *s, int w, int h,
    int format, int refresh_rate);
 void _al_xdummy_store_video_mode(AL_SYSTEM_XDUMMY *s);
 void _al_xdummy_restore_video_mode(AL_SYSTEM_XDUMMY *s);
-void _al_xdummy_fullscreen_set_origin(AL_SYSTEM_XDUMMY *s, int x, int y);
+void _al_xdummy_fullscreen_to_display(AL_SYSTEM_XDUMMY *s,
+   AL_DISPLAY_XDUMMY *d);

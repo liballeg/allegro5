@@ -39,6 +39,7 @@ static void background_thread(_AL_THREAD *thread, void *arg)
             break;
          case ConfigureNotify:
             _al_display_xdummy_configure(&d->display,  &event);
+            _al_cond_signal(&s->resized);
             break;
          case MapNotify:
             _al_cond_signal(&s->mapped);
@@ -62,6 +63,7 @@ static AL_SYSTEM *initialize(int flags)
 
    _al_mutex_init(&s->lock);
    _al_cond_init(&s->mapped);
+   _al_cond_init(&s->resized);
 
    _al_vector_init(&s->system.displays, sizeof (AL_SYSTEM_XDUMMY *));
 

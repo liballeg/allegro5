@@ -56,6 +56,9 @@ static AL_DISPLAY *create_display(int w, int h)
    d->display.refresh_rate = al_get_new_display_refresh_rate();
    d->display.flags = al_get_new_display_flags();
 
+   // TODO: What is this?
+   d->xscreen = DefaultScreen(system->xdisplay);
+
    if (d->display.flags | AL_FULLSCREEN)
       _al_xdummy_fullscreen_set_mode(system, w, h, 0, 0);
 
@@ -67,6 +70,7 @@ static AL_DISPLAY *create_display(int w, int h)
    backbuffer->is_backbuffer = 1;
    /* Create a memory cache for the whole screen. */
    //TODO: Maybe we should do this lazily and defer to lock_bitmap_region
+   //FIXME: need to resize this on resizing
    if (!d->backbuffer->memory) {
       int n = w * h * al_get_pixel_size(d->backbuffer->format);
       d->backbuffer->memory = _AL_MALLOC(n);
@@ -83,7 +87,7 @@ static AL_DISPLAY *create_display(int w, int h)
    /* Let GLX choose an appropriate visual. */
    int nelements;
    GLXFBConfig *fbc = glXChooseFBConfig(system->xdisplay,
-      DefaultScreen(system->xdisplay), 0, &nelements);
+      d->xscreen, 0, &nelements);
    XVisualInfo *vi = glXGetVisualFromFBConfig(system->xdisplay, fbc[0]);
 
    TRACE("xdisplay: Selected visual %lu.\n", vi->visualid);
@@ -139,12 +143,8 @@ static AL_DISPLAY *create_display(int w, int h)
 
    TRACE("xdisplay: GLX window created.\n");
 
-   if (d->display.flags | AL_FULLSCREEN) {
-      int x, y;
-      Window child;
-      XTranslateCoordinates(system->xdisplay, d->window,
-         RootWindow(system->xdisplay, 0), 0, 0, &x, &y, &child);
-      _al_xdummy_fullscreen_set_origin(system, x, y);
+   if (d->display.flags & AL_FULLSCREEN) {
+      _al_xdummy_fullscreen_to_display(system, d);
    }
 
    /* Create a GLX context. */
@@ -226,11 +226,30 @@ static bool acknowledge_resize(AL_DISPLAY *d)
 
 static bool resize_display(AL_DISPLAY *d, int w, int h)
 {
-   AL_SYSTEM_XDUMMY *s = (AL_SYSTEM_XDUMMY *)al_system_driver();
+   AL_SYSTEM_XDUMMY *system = (AL_SYSTEM_XDUMMY *)al_system_driver();
    AL_DISPLAY_XDUMMY *glx = (AL_DISPLAY_XDUMMY *)d;
+
+   _al_mutex_lock(&system->lock);
+
    set_size_hints(d, w, h);
-   XResizeWindow(s->xdisplay, glx->window, w, h);
-   XSync(s->xdisplay, False);
+   XResizeWindow(system->xdisplay, glx->window, w, h);
+   XSync(system->xdisplay, False);
+
+   /* Wait until we are actually resized. There might be a better way.. */
+   _al_cond_wait(&system->resized, &system->lock);
+
+   /* The user can expect the display to already be resized when resize_display
+    * returns.
+    * TODO: Right now, we still generate a resize event - maybe we should not.
+    */
+   acknowledge_resize(d);
+
+   if (d->flags & AL_FULLSCREEN) {
+      _al_xdummy_fullscreen_set_mode(system, w, h, 0, 0);
+      _al_xdummy_fullscreen_to_display(system, glx);
+   }
+
+   _al_mutex_unlock(&system->lock);
    return true;
 }
 

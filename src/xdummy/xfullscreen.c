@@ -81,8 +81,20 @@ bool _al_xdummy_fullscreen_set_mode(AL_SYSTEM_XDUMMY *s,
    return true;
 }
 
-void _al_xdummy_fullscreen_set_origin(AL_SYSTEM_XDUMMY *s, int x, int y)
+void _al_xdummy_fullscreen_to_display(AL_SYSTEM_XDUMMY *s, AL_DISPLAY_XDUMMY *d)
 {
+   int x, y;
+   Window child;
+
+   /* First, make sure the mouse stays inside the window. */
+   XGrabPointer(s->xdisplay, d->window, False,
+      PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
+      GrabModeAsync, GrabModeAsync, d->window, None, CurrentTime);
+   //FIXME: handle possible errors here
+   s->pointer_grabbed = true;
+
+   XTranslateCoordinates(s->xdisplay, d->window,
+      RootWindow(s->xdisplay, d->xscreen), 0, 0, &x, &y, &child);
    XF86VidModeSetViewPort(s->xdisplay, 0, x, y);
 }
 
@@ -95,6 +107,10 @@ void _al_xdummy_store_video_mode(AL_SYSTEM_XDUMMY *s)
 void _al_xdummy_restore_video_mode(AL_SYSTEM_XDUMMY *s)
 {
    XF86VidModeSwitchToMode(s->xdisplay, 0, s->original_mode);
+   if (s->pointer_grabbed) {
+      XUngrabPointer(s->xdisplay, CurrentTime);
+      s->pointer_grabbed = false;
+   }
 }
 #else
 int _al_xdummy_get_num_display_modes(void)
