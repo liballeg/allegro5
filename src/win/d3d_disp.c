@@ -1479,6 +1479,8 @@ static bool d3d_wait_for_vsync(AL_DISPLAY *display)
    do {
       IDirect3DSwapChain9_GetRasterStatus(d3d_display->swap_chain, &status);
    } while (!status.InVBlank);
+
+   return true;
 }
 
 /* Obtain a reference to this driver. */
