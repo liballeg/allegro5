@@ -91,18 +91,19 @@ static int pot(int x)
    return y;
 }
 
-static void upside_down(AL_BITMAP *bitmap)
+static void upside_down(AL_BITMAP *bitmap, int x, int y, int w, int h)
 {
     int pixelsize = al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
+    int bytes = w * pixelsize;
     int i;
     unsigned char temp[pitch];
-    unsigned char *ptr = bitmap->memory;
-    for (i = 0; i < bitmap->h / 2; i++)
+    unsigned char *ptr = bitmap->memory + pitch * y + pixelsize * x;
+    for (i = 0; i < h / 2; i++)
     {
-        memcpy(temp, ptr + pitch * i, pitch);
-        memcpy(ptr + pitch * i, ptr + pitch * (bitmap->h - 1 - i), pitch);
-        memcpy(ptr + pitch * (bitmap->h - 1 - i), temp, pitch);
+        memcpy(temp, ptr + pitch * i, bytes);
+        memcpy(ptr + pitch * i, ptr + pitch * (h - 1 - i), bytes);
+        memcpy(ptr + pitch * (h - 1 - i), temp, bytes);
     }
 }
 
@@ -142,29 +143,28 @@ static AL_LOCKED_REGION *lock_region(AL_BITMAP *bitmap,
     int pixelsize = al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
 
-    if (xbitmap->is_backbuffer) {
-        //FIXME: don't synchronize the whole screen, just the needed part
-        glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE,
-            bitmap->memory);
-    }
-    else {
-        //FIXME: use glPixelStore or similar to only synchronize the required
-        //region
-        glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-            bitmap->memory);
+    if (!(flags & AL_LOCK_WRITEONLY)) {
+        if (xbitmap->is_backbuffer) {
+            glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
+            glReadPixels(0, bitmap->h - y - h, w, h,
+                GL_RGBA, GL_UNSIGNED_BYTE,
+                bitmap->memory + pitch * y + pixelsize * x);
+        }
+        else {
+            //FIXME: use glPixelStore or similar to only synchronize the required
+            //region
+            glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
+            glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                bitmap->memory);
+        }
+
+        //FIXME: ugh. isn't there a better way?
+        upside_down(bitmap, x, y, w, h);
     }
 
     locked_region->data = bitmap->memory + pitch * y + pixelsize * x;
     locked_region->format = bitmap->format;
     locked_region->pitch = pitch;
-    bitmap->lock_x = x;
-    bitmap->lock_y = y;
-    bitmap->lock_w = w;
-    bitmap->lock_h = h;
-
-    //FIXME: ugh. isn't there a better way?
-    upside_down(bitmap);
 
     return locked_region;
 }
@@ -177,16 +177,17 @@ static void unlock_region(AL_BITMAP *bitmap)
     int pixelsize = al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
 
-    if (xbitmap->is_backbuffer) {
-        // FIXME: don't synchronize the whole screen, but just the locked
-        //        rectangle
+    if (bitmap->lock_flags & AL_LOCK_READONLY) return;
     
+    if (xbitmap->is_backbuffer) {
         //FIXME: ugh. isn't there a better way?
-        upside_down(bitmap);
+        upside_down(bitmap, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
 
-        glRasterPos2i(0, bitmap->h);
+        int y_offset = bitmap->h - (bitmap->lock_y + bitmap->lock_h);
+        glRasterPos2i(0, bitmap->lock_y + bitmap->lock_h);
+        glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
         glDrawPixels(bitmap->lock_w, bitmap->lock_h, GL_RGBA, GL_UNSIGNED_BYTE,
-            bitmap->memory);
+            bitmap->memory + bitmap->lock_y * pitch + pixelsize * bitmap->lock_x);
     }
     else {
         // FIXME: don't copy the whole bitmap
