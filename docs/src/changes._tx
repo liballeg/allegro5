@@ -10,6 +10,9 @@
 @heading
 Changes from 4.2.1 to 4.2.2 RC1 (July 2007)
 <ul><li>
+   Matthew Leverton added project files for MSVC 6/7/8 (see the build
+   directory and Allegro Wiki for instructions).
+<li>
    Matthew Leverton added initial support for the Digital Mars C compiler
    (for the Windows port).  It only works with the C-only port and
    obj\dmc\plugins.h needs to be built by hand.
