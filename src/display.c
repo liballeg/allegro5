@@ -657,6 +657,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
    /* FIXME: */
    #ifdef ALLEGRO_UNIX
+   card = GFX_XDUMMY_WINDOWED;
    #else
    #if defined ALLEGRO_D3D
    if (card == GFX_AUTODETECT || card == GFX_AUTODETECT_FULLSCREEN) {
@@ -811,6 +812,25 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    }
 
    #ifdef ALLEGRO_UNIX
+   if (card == GFX_XDUMMY_FULLSCREEN || card == GFX_XDUMMY_WINDOWED) {
+      int windowed_flag = (card == GFX_XDUMMY_WINDOWED) ? AL_WINDOWED : 0;
+      al_init();
+      screen = create_bitmap(w, h);
+      al_set_new_display_flags(AL_SINGLEBUFFER | windowed_flag);
+      screen->display = al_create_display(w, h);
+      if (!screen->display) {
+         destroy_bitmap(screen);
+	 return 1;
+      }
+      screen->needs_upload = true;
+      screen->display->vt->upload_compat_screen(screen, 0, 0, w, h);
+      gfx_driver = &_al_xdummy_gfx_driver;
+      gfx_driver->w = w;
+      gfx_driver->h = h;
+      gfx_driver->windowed = true;
+      return 0;
+   }
+   else
    #else
    #if defined ALLEGRO_D3D
    if (card == GFX_DIRECT3D || card == GFX_DIRECT3D_FULLSCREEN) {

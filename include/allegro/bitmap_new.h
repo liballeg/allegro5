@@ -67,6 +67,7 @@ enum ALLEGRO_PATTERN_MODE {
  * Locking flags
  */
 #define AL_LOCK_READONLY 1
+#define AL_LOCK_WRITEONLY 2
 
 typedef struct AL_LOCKED_REGION {
 	void *data;
