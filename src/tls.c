@@ -176,14 +176,14 @@ int al_get_new_bitmap_flags(void)
    return tls->new_bitmap_flags;
 }
 
-void _al_push_bitmap_parameters(void)
+void _al_push_new_bitmap_parameters(void)
 {
    if ((tls = tls_get()) == NULL) return;
    tls->new_bitmap_format_backup = tls->new_bitmap_format;
    tls->new_bitmap_flags_backup = tls->new_bitmap_flags;
 }
 
-void _al_pop_bitmap_parameters(void)
+void _al_pop_new_bitmap_parameters(void)
 {
    if ((tls = tls_get()) == NULL) return;
    tls->new_bitmap_format = tls->new_bitmap_format_backup;
@@ -370,13 +370,13 @@ int al_get_new_bitmap_flags(void)
    return tls.new_bitmap_flags;
 }
 
-void _al_push_bitmap_parameters(void)
+void _al_push_new_bitmap_parameters(void)
 {
    tls.new_bitmap_format_backup = tls.new_bitmap_format;
    tls.new_bitmap_flags_backup = tls.new_bitmap_flags;
 }
 
-void _al_pop_bitmap_parameters(void)
+void _al_pop_new_bitmap_parameters(void)
 {
    tls.new_bitmap_format = tls.new_bitmap_format_backup;
    tls.new_bitmap_flags = tls.new_bitmap_flags_backup;

@@ -120,6 +120,9 @@ void al_destroy_bitmap(AL_BITMAP *bitmap)
    if (bitmap->memory)
       _AL_FREE(bitmap->memory);
 
+   if (bitmap->pattern_copy)
+      al_destroy_bitmap(bitmap->pattern_copy);
+
    _AL_FREE(bitmap);
 }
 
@@ -344,7 +347,7 @@ void al_convert_mask_to_alpha(AL_BITMAP *bitmap, AL_COLOR *mask_color)
       for (x = 0; x < bitmap->w; x++) {
          al_get_pixel(bitmap, x, y, &pixel);
          if (memcmp(&pixel, mask_color, sizeof(AL_COLOR)) == 0) {
-            al_put_pixel(x, y, &alpha_pixel);
+            al_put_pixel(x, y, &alpha_pixel, 0);
          }
       }
    }
@@ -470,5 +473,85 @@ AL_BITMAP *al_create_sub_bitmap(AL_BITMAP *parent,
    bitmap->memory = NULL;
 
    return bitmap;
+}
+
+bool al_set_drawing_pattern(AL_BITMAP *bitmap, AL_BITMAP *pattern,
+   int anchor_x, int anchor_y)
+{
+   AL_LOCKED_REGION src_region;
+   AL_LOCKED_REGION dst_region;
+
+   if (pattern == NULL || bitmap->pattern_copy) {
+      bitmap->drawing_x_anchor = bitmap->drawing_y_anchor = 0;
+      bitmap->drawing_x_mask = bitmap->drawing_y_mask = 0;
+      bitmap->pattern = NULL;
+      al_destroy_bitmap(bitmap->pattern_copy);
+      bitmap->pattern_copy = NULL;
+   }
+   if (pattern == NULL)
+      return true;
+
+   _al_push_new_bitmap_parameters();
+   al_set_new_bitmap_format(pattern->format);
+   al_set_new_bitmap_flags(AL_MEMORY_BITMAP);
+   bitmap->pattern_copy = al_create_bitmap(pattern->w, pattern->h);
+   _al_pop_new_bitmap_parameters();
+
+   if (!al_lock_bitmap(pattern, &src_region, AL_LOCK_READONLY)) {
+      al_destroy_bitmap(bitmap->pattern_copy);
+      bitmap->pattern_copy = NULL;
+      return false;
+   }
+   if (!al_lock_bitmap(bitmap->pattern_copy, &dst_region, 0)) {
+      al_unlock_bitmap(pattern);
+      al_destroy_bitmap(bitmap->pattern_copy);
+      bitmap->pattern_copy = NULL;
+      return false;
+   }
+
+   _al_convert_bitmap_data(src_region.data, pattern->format, src_region.pitch,
+      dst_region.data, pattern->format, dst_region.pitch,
+      0, 0, 0, 0, pattern->w, pattern->h);
+
+   al_unlock_bitmap(pattern);
+   al_unlock_bitmap(bitmap->pattern_copy);
+
+   bitmap->drawing_x_anchor = anchor_x;
+   bitmap->drawing_y_anchor = anchor_y;
+   bitmap->pattern = pattern;
+   bitmap->pattern_pitch = pattern->w * al_get_pixel_size(pattern->format);
+
+   /* from gfx.c */
+   bitmap->drawing_x_mask = 1; 
+   while (bitmap->drawing_x_mask < (unsigned)pattern->w)
+      bitmap->drawing_x_mask <<= 1;        /* find power of two greater than w */
+
+   if (bitmap->drawing_x_mask > (unsigned)pattern->w) {
+      ASSERT(FALSE);
+      bitmap->drawing_x_mask >>= 1;        /* round down if required */
+   }
+
+   bitmap->drawing_x_mask--;               /* convert to AND mask */
+
+   bitmap->drawing_y_mask = 1;
+   while (bitmap->drawing_y_mask < (unsigned)pattern->h)
+      bitmap->drawing_y_mask <<= 1;        /* find power of two greater than h */
+
+   if (bitmap->drawing_y_mask > (unsigned)pattern->h) {
+      ASSERT(FALSE);
+      bitmap->drawing_y_mask >>= 1;        /* round down if required */
+   }
+
+   bitmap->drawing_y_mask--;               /* convert to AND mask */
+
+   return true;
+}
+
+void al_get_drawing_pattern(AL_BITMAP *bitmap, AL_BITMAP **pattern,
+   int *anchor_x, int *anchor_y)
+{
+   *pattern = bitmap->pattern;
+   *anchor_x = bitmap->drawing_x_anchor;
+   *anchor_y = bitmap->drawing_y_anchor;
 }
 

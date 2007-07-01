@@ -187,7 +187,7 @@ int main(void)
 	    al_set_target_bitmap(al_get_backbuffer());
             al_clear(&white);
 	    if (i == 1) {
-	    	al_draw_line(50, 50, 150, 150, &colors[0]);
+	    	al_draw_line(50, 50, 150, 150, &colors[0], 0);
 	    }
             else if (i == 2) {
                al_draw_scaled_bitmap(picture, 0, 0, picture->w, picture->h,
@@ -197,7 +197,7 @@ int main(void)
                al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
                al_set_mask_color(al_map_rgb(mem_bmp, &mask_color, 255, 0, 255));
 	    }
-            al_draw_filled_rectangle(x, y, x + 40, y + 40, &colors[i]);
+            al_draw_rectangle(x, y, x + 40, y + 40, &colors[i], AL_FILLED);
             al_flip_display();
          }
          /*last_rendered = ticks;

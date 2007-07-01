@@ -124,12 +124,12 @@ void al_clear(AL_COLOR *color)
 }
 
 /* Draws a line from fx/fy to tx/ty, including start as well as end pixel. */
-void al_draw_line(float fx, float fy, float tx, float ty, AL_COLOR* color)
+void al_draw_line(float fx, float fy, float tx, float ty, AL_COLOR* color, int flags)
 {
    AL_BITMAP *target = al_get_target_bitmap();
 
-   if (target->flags & AL_MEMORY_BITMAP) {
-      _al_draw_line_memory(fx, fy, tx, ty, color);
+   if ((target->flags & AL_MEMORY_BITMAP) || (flags & AL_PATTERNED)) {
+      _al_draw_line_memory(fx, fy, tx, ty, color, flags);
    }
    else
       _al_current_display->vt->draw_line(_al_current_display, fx, fy, tx, ty, color);
@@ -137,13 +137,13 @@ void al_draw_line(float fx, float fy, float tx, float ty, AL_COLOR* color)
 
 /* Draws a rectangle with top left corner tlx/tly abd bottom right corner
  * brx/bry. Both points are inclusive. */
-void al_draw_filled_rectangle(float tlx, float tly, float brx, float bry,
-   AL_COLOR *color)
+void al_draw_rectangle(float tlx, float tly, float brx, float bry,
+   AL_COLOR *color, int flags)
 {
    AL_BITMAP *target = al_get_target_bitmap();
 
-   if (target->flags & AL_MEMORY_BITMAP) {
-      _al_draw_filled_rectangle_memory(tlx, tly, brx, bry, color);
+   if ((target->flags & AL_MEMORY_BITMAP) || (flags & AL_PATTERNED)) {
+      _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
    }
    else
       _al_current_display->vt->draw_filled_rectangle(_al_current_display,

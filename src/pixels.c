@@ -1198,16 +1198,42 @@ p_put_pixel_func put_pixel_funcs[] = {
    _put_pixel_xrgb_8888
 };
 
-void _al_put_pixel(void *data, int format, AL_COLOR *color)
+void _al_put_pixel(void *data, int format, int color)
 {
-   int pixel = _al_get_pixel_value(format, color);
-   (*put_pixel_funcs[format])(data, pixel);
+   (*put_pixel_funcs[format])(data, color);
 }
 
-void al_put_pixel(int x, int y, AL_COLOR *color)
+void al_put_pixel(int x, int y, AL_COLOR *color, int flags)
 {
    AL_LOCKED_REGION lr;
    AL_BITMAP *bitmap = al_get_target_bitmap();
+   int color_value;
+
+   if (flags & AL_PATTERNED) {
+      #define GET_PATTERN_PIXEL(get, x, y, size) \
+         get(bitmap->pattern_copy->memory + \
+            ((y - bitmap->drawing_y_anchor) & bitmap->drawing_y_mask)*bitmap->pattern_pitch + \
+            ((x - bitmap->drawing_x_anchor) & bitmap->drawing_x_mask)*size)
+
+      switch (al_get_pixel_size(bitmap->format)) {
+         case 1:
+            color_value = GET_PATTERN_PIXEL(bmp_read8, x,  y, 1);
+            break;
+         case 2:
+            color_value = GET_PATTERN_PIXEL(bmp_read16, x,  y, 2);
+            break;
+         case 3:
+            color_value = GET_PATTERN_PIXEL(READ3BYTES, x,  y, 3);
+            break;
+         case 4:
+            color_value = GET_PATTERN_PIXEL(bmp_read32, x,  y, 4);
+            break;
+      }
+
+      #undef GET_PATTERN_PIXEL
+   }
+   else
+      color_value = _al_get_pixel_value(bitmap->format, color);
 
    /* FIXME: must use clip not full bitmap */
    if (bitmap->locked) {
@@ -1218,7 +1244,7 @@ void al_put_pixel(int x, int y, AL_COLOR *color)
       }
 
       _al_put_pixel(bitmap->locked_region.data+y*bitmap->locked_region.pitch+x*al_get_pixel_size(bitmap->format),
-         bitmap->format, color);
+         bitmap->format, color_value);
    }
    else {
       if (x < 0 || y < 0 || x >= bitmap->w || y >= bitmap->h) {
@@ -1230,7 +1256,7 @@ void al_put_pixel(int x, int y, AL_COLOR *color)
 
       /* FIXME: check for valid pixel format */
 
-      _al_put_pixel(lr.data, bitmap->format, color);
+      _al_put_pixel(lr.data, bitmap->format, color_value);
 
       al_unlock_bitmap(bitmap);
    }

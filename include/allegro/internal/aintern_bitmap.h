@@ -44,6 +44,19 @@ struct AL_BITMAP
    int xofs;
    int yofs;
 
+   /* Info for patterned drawing */
+   AL_BITMAP *pattern;
+   /*
+    * We have to keep a copy of the pattern bitmap, because it can be
+    * a display bitmap, and would have to be locked to be used. This would
+    * mean that the pattern couldn't be used for more than one bitmap.
+    * We keep the copy in system memory so it doesn't have to be locked.
+    */
+   AL_BITMAP *pattern_copy;
+   int pattern_pitch;
+   int drawing_x_anchor, drawing_y_anchor;
+   unsigned int drawing_x_mask, drawing_y_mask;
+
    /* A memory copy of the bitmap data. May be NULL for an empty bitmap. */
    unsigned char *memory;
 
@@ -118,8 +131,8 @@ void _al_convert_compat_bitmap(
 	int width, int height);
 int _al_get_pixel_value(int src_format, AL_COLOR *src_color);
 
-void _al_push_bitmap_parameters();
-void _al_pop_bitmap_parameters();
+void _al_push_new_bitmap_parameters();
+void _al_pop_new_bitmap_parameters();
 
 /* Memory bitmap blitting */
 void _al_draw_bitmap_region_memory(AL_BITMAP *bitmap,

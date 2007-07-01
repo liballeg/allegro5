@@ -61,6 +61,9 @@ AL_FUNC(void, _soft_draw_gouraud_sprite, (struct BITMAP *bmp, struct BITMAP *spr
 #define AL_MASK_SOURCE           0x00001
 #define AL_FLIP_HORIZONTAL       0x00002
 #define AL_FLIP_VERTICAL         0x00004
+/* Flags for primitives */
+#define AL_FILLED                0x00008
+#define AL_PATTERNED             0x00010
 
 AL_FUNC(void, al_blit, (int method, struct BITMAP *source, struct BITMAP *dest, int dest_x, int dest_y));
 AL_FUNC(void, al_blit_region, (int method, struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y));

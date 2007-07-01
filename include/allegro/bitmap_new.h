@@ -98,7 +98,7 @@ AL_LOCKED_REGION *al_lock_bitmap_region(AL_BITMAP *bitmap,
 	int flags);
 void al_unlock_bitmap(AL_BITMAP *bitmap);
 
-void al_put_pixel(int x, int y, AL_COLOR *color);
+void al_put_pixel(int x, int y, AL_COLOR *color, int flags);
 AL_COLOR *al_get_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color);
 int al_get_pixel_size(int format);
 

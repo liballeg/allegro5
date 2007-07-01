@@ -42,11 +42,11 @@ static AL_BITMAP *_al_d3d_create_masked_bitmap(AL_BITMAP *original)
    AL_COLOR alpha_pixel;
    unsigned char r, g, b, a;
 
-   _al_push_bitmap_parameters();
+   _al_push_new_bitmap_parameters();
    al_set_new_bitmap_format(original->format);
    al_set_new_bitmap_flags(AL_USE_ALPHA|AL_SYNC_MEMORY_COPY);
    masked_bmp = al_create_bitmap(original->w, original->h);
-   _al_pop_bitmap_parameters();
+   _al_pop_new_bitmap_parameters();
 
    _al_push_target_bitmap();
    al_set_target_bitmap(masked_bmp);
@@ -70,14 +70,14 @@ static AL_BITMAP *_al_d3d_create_masked_bitmap(AL_BITMAP *original)
       for (x = 0; x < masked_bmp->w; x++) {
          al_get_pixel(masked_bmp, x, y, &pixel);
          if (memcmp(&pixel, &mask_color, sizeof(AL_COLOR)) == 0) {
-            al_put_pixel(x, y, &alpha_pixel);
+            al_put_pixel(x, y, &alpha_pixel, 0);
          }
          else if (!(original->flags & AL_USE_ALPHA)) {
             al_unmap_rgba(masked_bmp, &pixel, &r, &g, &b, &a);
             if (a < 255) {
                a = 255;
                al_map_rgba(masked_bmp, &pixel, r, g, b, a);
-               al_put_pixel(x, y, &pixel);
+               al_put_pixel(x, y, &pixel, 0);
             }
          }
       }
@@ -431,7 +431,7 @@ static AL_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface,
       return NULL;
    }
 
-   _al_push_bitmap_parameters();
+   _al_push_new_bitmap_parameters();
 
    format = _al_d3d_format_to_allegro(desc.Format);
 
@@ -441,7 +441,7 @@ static AL_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface,
    bitmap = al_create_bitmap(desc.Width, desc.Height);
    d3d_bmp = (AL_BITMAP_D3D *)bitmap;
 
-   _al_pop_bitmap_parameters();
+   _al_pop_new_bitmap_parameters();
 
    if (!bitmap) {
       IDirect3DSurface9_UnlockRect(surface);

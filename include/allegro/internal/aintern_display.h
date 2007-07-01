@@ -61,7 +61,7 @@ struct AL_DISPLAY
 //AL_DISPLAY_INTERFACE *_al_display_d3ddummy_driver(void);
 
 void _al_clear_memory(AL_COLOR *color);
-void _al_draw_filled_rectangle_memory(int x1, int y1, int x2, int y2, AL_COLOR *color);
-void _al_draw_line_memory(int x1, int y1, int x2, int y2, AL_COLOR *color);
+void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2, AL_COLOR *color, int flags);
+void _al_draw_line_memory(int x1, int y1, int x2, int y2, AL_COLOR *color, int flags);
 
 #endif

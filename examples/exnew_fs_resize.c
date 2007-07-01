@@ -6,8 +6,8 @@ void redraw(AL_BITMAP *picture)
    al_map_rgb(al_get_backbuffer(), &color, rand()%255, rand()%255, rand()%255);
    al_clear(&color);
    al_map_rgb(al_get_backbuffer(), &color, 255, 0, 0);
-   al_draw_line(0, 0, 640, 480, &color);
-   al_draw_line(0, 480, 640, 0, &color);
+   al_draw_line(0, 0, 640, 480, &color, 0);
+   al_draw_line(0, 480, 640, 0, &color, 0);
    al_draw_bitmap(picture, 0, 0, 0);
    al_flip_display();
 }
