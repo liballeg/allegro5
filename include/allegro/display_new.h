@@ -64,10 +64,6 @@ AL_DISPLAY_MODE *al_get_display_mode(int index, AL_DISPLAY_MODE *mode);
 bool al_wait_for_vsync(void);
 
 /* Primitives */
-bool al_set_drawing_pattern(AL_BITMAP *bitmap, AL_BITMAP *pattern,
-   int anchor_x, int anchor_y);
-void al_get_drawing_pattern(AL_BITMAP *bitmap, AL_BITMAP **pattern,
-   int *anchor_x, int *anchor_y);
 void al_clear(AL_COLOR *color);
 void al_draw_line(float fx, float fy, float tx, float ty, AL_COLOR *color, int flags);
 void al_draw_rectangle(float tlx, float tly, float brx, float bry,

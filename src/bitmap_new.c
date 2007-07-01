@@ -41,6 +41,7 @@ static AL_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->cb = h-1;
    bitmap->parent = NULL;
    bitmap->xofs = bitmap->yofs = 0;
+   bitmap->pattern = bitmap->pattern_copy = NULL;
    // FIXME: Of course, we do need to handle all the possible different formats,
    // this will easily fill up its own file of 1000 lines, but for now,
    // RGBA with 8-bit per component is hardcoded.
@@ -80,6 +81,7 @@ AL_BITMAP *al_create_bitmap(int w, int h)
    bitmap->cb = h-1;
    bitmap->parent = NULL;
    bitmap->xofs = bitmap->yofs = 0;
+   bitmap->pattern = bitmap->pattern_copy = NULL;
 
    if (!bitmap->memory) {
    	bitmap->memory = _AL_MALLOC(w * h * al_get_pixel_size(bitmap->format));
@@ -475,7 +477,7 @@ AL_BITMAP *al_create_sub_bitmap(AL_BITMAP *parent,
    return bitmap;
 }
 
-bool al_set_drawing_pattern(AL_BITMAP *bitmap, AL_BITMAP *pattern,
+bool al_set_drawing_pattern(AL_BITMAP *bitmap, int mode, AL_BITMAP *pattern,
    int anchor_x, int anchor_y)
 {
    AL_LOCKED_REGION src_region;
@@ -488,6 +490,11 @@ bool al_set_drawing_pattern(AL_BITMAP *bitmap, AL_BITMAP *pattern,
       al_destroy_bitmap(bitmap->pattern_copy);
       bitmap->pattern_copy = NULL;
    }
+
+   bitmap->drawing_mode = mode;
+   bitmap->drawing_x_anchor = anchor_x;
+   bitmap->drawing_y_anchor = anchor_y;
+
    if (pattern == NULL)
       return true;
 
@@ -516,8 +523,6 @@ bool al_set_drawing_pattern(AL_BITMAP *bitmap, AL_BITMAP *pattern,
    al_unlock_bitmap(pattern);
    al_unlock_bitmap(bitmap->pattern_copy);
 
-   bitmap->drawing_x_anchor = anchor_x;
-   bitmap->drawing_y_anchor = anchor_y;
    bitmap->pattern = pattern;
    bitmap->pattern_pitch = pattern->w * al_get_pixel_size(pattern->format);
 
@@ -547,9 +552,10 @@ bool al_set_drawing_pattern(AL_BITMAP *bitmap, AL_BITMAP *pattern,
    return true;
 }
 
-void al_get_drawing_pattern(AL_BITMAP *bitmap, AL_BITMAP **pattern,
-   int *anchor_x, int *anchor_y)
+void al_get_drawing_pattern(AL_BITMAP *bitmap,
+   int *mode, AL_BITMAP **pattern, int *anchor_x, int *anchor_y)
 {
+   *mode = bitmap->drawing_mode;
    *pattern = bitmap->pattern;
    *anchor_x = bitmap->drawing_x_anchor;
    *anchor_y = bitmap->drawing_y_anchor;

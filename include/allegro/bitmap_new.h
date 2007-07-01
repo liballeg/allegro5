@@ -44,6 +44,7 @@ enum ALLEGRO_PIXEL_FORMAT {
 	/*ALLEGRO_PIXEL_FORMAT_RGBA_32F*/
 };
 
+
 /*
  * Bitmap flags
  */
@@ -51,6 +52,16 @@ enum ALLEGRO_PIXEL_FORMAT {
 #define AL_SYNC_MEMORY_COPY  0x0002
 #define AL_NO_ALPHA          0x0004
 #define AL_USE_ALPHA         0x0008
+
+
+enum ALLEGRO_PATTERN_MODE {
+   AL_PATTERN_SOLID = 0,
+   AL_PATTERN_XOR,
+   AL_PATTERN_COPY_PATTERN,
+   AL_PATTERN_SOLID_PATTERN,
+   AL_PATTERN_MASKED_PATTERN
+};
+
 
 /*
  * Locking flags
@@ -146,5 +157,11 @@ bool al_is_bitmap_clip_enabled(AL_BITMAP *bitmap);
 /* Sub bitmaps */
 AL_BITMAP *al_create_sub_bitmap(AL_BITMAP *parent,
    int x, int y, int w, int h);
+
+/* Pattern drawing */
+bool al_set_drawing_pattern(AL_BITMAP *bitmap, int mode, AL_BITMAP *pattern,
+   int anchor_x, int anchor_y);
+void al_get_drawing_pattern(AL_BITMAP *bitmap,
+   int *mode, AL_BITMAP **pattern, int *anchor_x, int *anchor_y);
 
 #endif

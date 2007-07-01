@@ -30,10 +30,62 @@ static void name(AL_BITMAP *dst, void *dst_addr, int dx, int dy, int color, int 
    if (dst->clip && ((dx < dst->cl) || (dx >= dst->cr) || (dy < dst->ct) || (dy >= dst->cb))) \
       return; \
  \
-   if (flags & AL_PATTERNED) { \
-      color = get(dst->pattern_copy->memory + \
-         ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
-         ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*size); \
+   if (dst->drawing_mode == AL_PATTERN_SOLID) { \
+      /* do nothing */ \
+   } \
+   else if (dst->drawing_mode == DRAW_MODE_XOR) { \
+      int dst_color_value = get(dst_addr); \
+      color = dst_color_value ^ color; \
+   } \
+   else { \
+ \
+      int pattern_value; \
+ \
+      switch (al_get_pixel_size(dst->format)) { \
+         case 1: \
+            pattern_value = bmp_read8(dst->pattern_copy->memory + \
+                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
+                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)); \
+            break; \
+         case 2: \
+            pattern_value = bmp_read16(dst->pattern_copy->memory + \
+                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
+                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*2); \
+            break; \
+         case 3: \
+            pattern_value = READ3BYTES(dst->pattern_copy->memory + \
+                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
+                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*3); \
+            break; \
+         case 4: \
+            pattern_value = bmp_read32(dst->pattern_copy->memory + \
+                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
+                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*4); \
+            break; \
+      } \
+ \
+      if (dst->drawing_mode == AL_PATTERN_SOLID_PATTERN) { \
+         AL_COLOR mask_color; \
+         int mask_value; \
+         al_get_mask_color(&mask_color); \
+         mask_value = _al_get_pixel_value(dst->format, &mask_color); \
+	 if (pattern_value == mask_value) { \
+            color = pattern_value; \
+	 } \
+      } \
+      else if (dst->drawing_mode == AL_PATTERN_MASKED_PATTERN) { \
+         AL_COLOR mask_color; \
+         int mask_value; \
+         al_get_mask_color(&mask_color); \
+         mask_value = _al_get_pixel_value(dst->format, &mask_color); \
+	 if (pattern_value == mask_value) { \
+            return; \
+	 } \
+         color = pattern_value; \
+      } \
+      else { \
+         color = pattern_value; \
+      } \
    } \
  \
    set(dst_addr, color); \
@@ -44,10 +96,62 @@ static void name(AL_BITMAP *dst, void *dst_addr, int dx, int dy, int color, int 
 { \
    ASSERT(dst); \
  \
-   if (flags & AL_PATTERNED) { \
-      color = get(dst->pattern_copy->memory + \
-         ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
-         ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*size); \
+   if (dst->drawing_mode == AL_PATTERN_SOLID) { \
+      /* do nothing */ \
+   } \
+   else if (dst->drawing_mode == DRAW_MODE_XOR) { \
+      int dst_color_value = get(dst_addr); \
+      color = dst_color_value ^ color; \
+   } \
+   else { \
+ \
+      int pattern_value; \
+ \
+      switch (al_get_pixel_size(dst->format)) { \
+         case 1: \
+            pattern_value = bmp_read8(dst->pattern_copy->memory + \
+                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
+                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)); \
+            break; \
+         case 2: \
+            pattern_value = bmp_read16(dst->pattern_copy->memory + \
+                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
+                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*2); \
+            break; \
+         case 3: \
+            pattern_value = READ3BYTES(dst->pattern_copy->memory + \
+                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
+                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*3); \
+            break; \
+         case 4: \
+            pattern_value = bmp_read32(dst->pattern_copy->memory + \
+                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
+                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*4); \
+            break; \
+      } \
+ \
+      if (dst->drawing_mode == AL_PATTERN_SOLID_PATTERN) { \
+         AL_COLOR mask_color; \
+         int mask_value; \
+         al_get_mask_color(&mask_color); \
+         mask_value = _al_get_pixel_value(dst->format, &mask_color); \
+	 if (pattern_value == mask_value) { \
+            color = pattern_value; \
+	 } \
+      } \
+      else if (dst->drawing_mode == AL_PATTERN_MASKED_PATTERN) { \
+         AL_COLOR mask_color; \
+         int mask_value; \
+         al_get_mask_color(&mask_color); \
+         mask_value = _al_get_pixel_value(dst->format, &mask_color); \
+	 if (pattern_value == mask_value) { \
+            return; \
+	 } \
+         color = pattern_value; \
+      } \
+      else { \
+         color = pattern_value; \
+      } \
    } \
  \
    set(dst_addr, color); \
@@ -73,27 +177,29 @@ static void name(AL_BITMAP *dst, unsigned char *dst_addr, int dx1, int dy, int d
  \
    ASSERT(dst); \
  \
-   if (dx1 > dx2) { \
-      int tmp = dx1; \
-      dx1 = dx2; \
-      dx2 = tmp; \
-   } \
-   if (dst->clip) { \
-      if (dx1 < dst->cl) \
-	 dx1 = dst->cl; \
-      if (dx2 >= dst->cr) \
-	 dx2 = dst->cr - 1; \
-      if ((dx1 > dx2) || (dy < dst->ct) || (dy >= dst->cb)) \
-	 return; \
-   } \
- \
    w = dx2 - dx1; \
     \
-   if (flags & AL_PATTERNED) { \
+   if (dst->drawing_mode == AL_PATTERN_SOLID) { \
+      do { \
+	 set(dst_addr, color); \
+         dst_addr += size; \
+      } while (--w >= 0); \
+   } \
+   else if (dst->drawing_mode == AL_PATTERN_XOR) { \
+      unsigned char *ptr = dst_addr; \
+      do { \
+         unsigned long c = get(ptr) ^ color; \
+         set(ptr, c); \
+         ptr += size; \
+      } while (--w >= 0); \
+   } \
+   else { \
       int x, curw; \
       unsigned char *sline = dst->pattern_copy->memory + \
          (((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch); \
       unsigned char *s; \
+      AL_COLOR mask_color; \
+      unsigned int mask_value; \
  \
       x = (dx1 - dst->drawing_x_anchor) & dst->drawing_x_mask; \
       s = sline + (x*size); \
@@ -102,23 +208,55 @@ static void name(AL_BITMAP *dst, unsigned char *dst_addr, int dx1, int dy, int d
       if (curw > w) \
 	 curw = w; \
  \
-      do { \
-         w -= curw; \
+      al_get_mask_color(&mask_color); \
+      mask_value = _al_get_pixel_value(dst->format, &mask_color); \
+ \
+      if (dst->drawing_mode == AL_PATTERN_COPY_PATTERN) { \
          do { \
-            unsigned long c = get(s); \
-            set(dst_addr, c); \
-            s += size; \
-            dst_addr += size; \
-         } while (--curw > 0); \
-         s = sline; \
-         curw = MIN(w, (int)dst->drawing_x_mask+1); \
-      } while (curw > 0); \
-   } \
-   else { \
-      do { \
-	 set(dst_addr, color); \
-         dst_addr += size; \
-      } while (--w >= 0); \
+            w -= curw; \
+            do { \
+               unsigned long c = get(s); \
+               set(dst_addr, c); \
+               s += size; \
+               dst_addr += size; \
+            } while (--curw > 0); \
+            s = sline; \
+            curw = MIN(w, (int)dst->drawing_x_mask+1); \
+         } while (curw > 0); \
+      } \
+      else if (dst->drawing_mode == AL_PATTERN_SOLID_PATTERN) { \
+	 do { \
+	    w -= curw; \
+	    do { \
+	       unsigned long c = get(s); \
+	       if (c != mask_value) { \
+                  set(dst_addr, color); \
+	       } \
+	       else { \
+                  set(dst_addr, c); \
+	       } \
+               s += size; \
+               dst_addr += size; \
+	    } while (--curw > 0); \
+	    s = sline; \
+	    curw = MIN(w, (int)dst->drawing_x_mask+1); \
+	 } while (curw > 0); \
+      } \
+      else if (dst->drawing_mode == AL_PATTERN_MASKED_PATTERN) { \
+	 do { \
+	    w -= curw; \
+	    do { \
+	       unsigned long c = get(s); \
+	       if (c != mask_value) { \
+		  set(dst_addr, color); \
+	       } \
+               s += size; \
+               dst_addr += size; \
+	    } while (--curw > 0); \
+	    s = sline; \
+	    curw = MIN(w, (int)dst->drawing_x_mask+1); \
+	 } while (curw > 0); \
+      } \
    } \
 }
 
@@ -137,6 +275,20 @@ void _al_draw_hline_memory(int dx1, int dy, int dx2, AL_COLOR *color, int flags)
 
    target = al_get_target_bitmap();
    color_value = _al_get_pixel_value(target->format, color);
+
+   if (dx1 > dx2) {
+      int tmp = dx1;
+      dx1 = dx2;
+      dx2 = tmp;
+   }
+   if (target->clip) {
+      if (dx1 < target->cl)
+	 dx1 = target->cl;
+      if (dx2 >= target->cr)
+	 dx2 = target->cr - 1;
+      if ((dx1 > dx2) || (dy < target->ct) || (dy >= target->cb))
+	 return;
+   }
 
    if (!al_lock_bitmap_region(target, dx1, dy, dx2-dx1+1, 1, &lr, 0))
       return;
@@ -267,6 +419,15 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, AL_COLOR *color, int f
    int clip_x1, clip_y1, clip_x2, clip_y2;
    int xo, yo; /* offset to top left */
 
+   if (y1 == y2) {
+      _al_draw_hline_memory(x1, y1, x2, color, flags);
+      return;
+   }
+   else if (x1 == x2) {
+      _al_draw_vline_memory(x1, y1, y2, color, flags);
+      return;
+   }
+
    /* worker macro */
    #define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond,     \
       set, size)                                                             \
@@ -307,15 +468,6 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, AL_COLOR *color, int f
       tmp = y1;
       y1 = y2;
       y2 = tmp;
-   }
-
-   if (y1 == y2) {
-      _al_draw_hline_memory(x1, y1, x2, color, flags);
-      return;
-   }
-   else if (x1 == x2) {
-      _al_draw_vline_memory(x1, y1, y2, color, flags);
-      return;
    }
 
    bitmap = al_get_target_bitmap();
@@ -364,7 +516,9 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, AL_COLOR *color, int f
 
    d = _al_get_pixel_value(bitmap->format, color);
 
-   al_lock_bitmap_region(bitmap, x1, y1, dx+1, dy+1, &lr, 0);
+   if (!al_lock_bitmap_region(bitmap, x1, y1, dx+1, dy+1, &lr, 0)) {
+      return;
+   }
 
    if (clip) {
       clip_x1 = bitmap->cl - x1;
@@ -440,10 +594,10 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
    int pixel_value;
 
    if (!(flags & AL_FILLED)) {
-      _al_draw_line_memory(x1, y1, x2, y1, color, flags);
-      _al_draw_line_memory(x2, y1, x2, y2, color, flags);
-      _al_draw_line_memory(x1, y1, x1, y2, color, flags);
-      _al_draw_line_memory(x1, y2, x2, y2, color, flags);
+      _al_draw_hline_memory(x1, y1, x2, color, flags);
+      _al_draw_vline_memory(x2, y1, y2, color, flags);
+      _al_draw_vline_memory(x1, y1, y2, color, flags);
+      _al_draw_hline_memory(x1, y2, x2, color, flags);
       return;
    }
 

@@ -1203,17 +1203,26 @@ void _al_put_pixel(void *data, int format, int color)
    (*put_pixel_funcs[format])(data, color);
 }
 
-void al_put_pixel(int x, int y, AL_COLOR *color, int flags)
+static int _get_pattern_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color)
 {
-   AL_LOCKED_REGION lr;
-   AL_BITMAP *bitmap = al_get_target_bitmap();
-   int color_value;
-
-   if (flags & AL_PATTERNED) {
+   if (bitmap->drawing_mode == AL_PATTERN_SOLID) {
+      return _al_get_pixel_value(bitmap->format, color);
+   }
+   else if (bitmap->drawing_mode == DRAW_MODE_XOR) {
+      AL_COLOR dst_color;
+      int color_value = _al_get_pixel_value(bitmap->format, color);
+      int dst_color_value;
+      al_get_pixel(al_get_target_bitmap(), x, y, &dst_color);
+      dst_color_value = _al_get_pixel_value(bitmap->format, &dst_color);
+      return dst_color_value ^ color_value;
+   }
+   else {
       #define GET_PATTERN_PIXEL(get, x, y, size) \
          get(bitmap->pattern_copy->memory + \
             ((y - bitmap->drawing_y_anchor) & bitmap->drawing_y_mask)*bitmap->pattern_pitch + \
             ((x - bitmap->drawing_x_anchor) & bitmap->drawing_x_mask)*size)
+
+      int color_value;
 
       switch (al_get_pixel_size(bitmap->format)) {
          case 1:
@@ -1231,9 +1240,41 @@ void al_put_pixel(int x, int y, AL_COLOR *color, int flags)
       }
 
       #undef GET_PATTERN_PIXEL
+
+      if (bitmap->drawing_mode == AL_PATTERN_SOLID_PATTERN) {
+         AL_COLOR mask_color;
+         int mask_value;
+         al_get_mask_color(&mask_color);
+         mask_value = _al_get_pixel_value(bitmap->format, &mask_color);
+	 if (color_value != mask_value) {
+            return _al_get_pixel_value(bitmap->format, color);
+	 }
+	 else {
+            return color_value;
+	 }
+      }
+      else {
+         return color_value;
+      }
    }
-   else
-      color_value = _al_get_pixel_value(bitmap->format, color);
+}
+
+
+void al_put_pixel(int x, int y, AL_COLOR *color, int flags)
+{
+   AL_LOCKED_REGION lr;
+   AL_BITMAP *bitmap = al_get_target_bitmap();
+   int color_value;
+
+   color_value = _get_pattern_pixel(bitmap, x, y, color);
+   if (bitmap->drawing_mode == AL_PATTERN_MASKED_PATTERN) {
+      AL_COLOR mask_color;
+      int mask_value;
+      al_get_mask_color(&mask_color);
+      mask_value = _al_get_pixel_value(bitmap->format, &mask_color);
+      if (color_value == mask_value)
+         return;
+   }
 
    /* FIXME: must use clip not full bitmap */
    if (bitmap->locked) {

@@ -53,6 +53,7 @@ struct AL_BITMAP
     * We keep the copy in system memory so it doesn't have to be locked.
     */
    AL_BITMAP *pattern_copy;
+   int drawing_mode;
    int pattern_pitch;
    int drawing_x_anchor, drawing_y_anchor;
    unsigned int drawing_x_mask, drawing_y_mask;
