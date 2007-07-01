@@ -1396,3 +1396,9 @@
     make_trans_font
     set_file_encoding
     _al_lzss_incomplete_state
+    _al_trace_handler DATA
+    _mouse_w DATA
+    font_has_alpha
+    is_trans_font
+    mouse_w DATA
+    position_mouse_w
