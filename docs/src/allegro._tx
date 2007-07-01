@@ -5549,6 +5549,7 @@ before including Allegro headers).
 
 @@void @set_palette_range(const PALETTE p, int from, int to, int vsync);
 @xref set_palette, get_palette_range
+@eref exzbuf
 @shortdesc Sets a specific range of the palette.
    Sets the palette entries between from and to (inclusive: pass 0 and 255 
    to set the entire palette). If vsync is set it waits for the vertical 
@@ -15354,11 +15355,12 @@ and avoid missing any important bit of information.
 @@Example @exunicod
 @xref BITMAP, DATAFILE, END_OF_MAIN, FONT, SCREEN_H, SCREEN_W
 @xref allegro_error, allegro_init, allegro_message, blit, clear_to_color
-@xref create_bitmap, font, install_int_ex, install_keyboard
-@xref install_timer, keypressed, load_datafile, replace_filename, rest
-@xref screen, set_gfx_mode, set_uformat, set_window_title, text_height
-@xref text_length, textout_ex, uconvert_ascii, unload_datafile, ustrcat
-@xref ustrcpy, ustrsize, ustrsizez
+@xref create_bitmap, destroy_bitmap, font, install_int_ex
+@xref install_keyboard, install_timer, keypressed, load_datafile
+@xref replace_filename, rest, screen, set_gfx_mode, set_uformat
+@xref set_window_title, text_height, text_length, textout_ex
+@xref uconvert_ascii, unload_datafile, ustrcat, ustrcpy, ustrsize
+@xref ustrsizez
 @shortdesc Using Unicode string functions.
    This program demonstrates the use of the 16-bit Unicode text
    encoding format with Allegro. The example displays a message
@@ -15821,8 +15823,8 @@ and avoid missing any important bit of information.
 @xref gfx_mode_select_ex, install_int, install_keyboard, install_mouse
 @xref install_timer, keypressed, palette_color, persp_project_f
 @xref polygon_z_normal_f, quad3d_f, readkey, screen, set_color_depth
-@xref set_gfx_mode, set_palette, set_projection_viewport, set_zbuffer
-@xref textprintf_ex, vsync
+@xref set_gfx_mode, set_palette, set_palette_range
+@xref set_projection_viewport, set_zbuffer, textprintf_ex, vsync
 @shortdesc Z-buffered polygons demo.
    This program demonstrates how to use Z-buffered polygons and
    floating point 3D math routines. It also provides a simple
