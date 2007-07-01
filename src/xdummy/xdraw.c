@@ -18,7 +18,7 @@ static void clear(AL_DISPLAY *d, AL_COLOR *color)
 
 /* Dummy implementation of line. */
 static void draw_line(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
-   AL_COLOR *color)
+   AL_COLOR *color, int flags)
 {
    set_opengl_color(d, color);
    glBegin(GL_LINES);
@@ -28,8 +28,8 @@ static void draw_line(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
 }
 
 /* Dummy implementation of a filled rectangle. */
-static void draw_filled_rectangle(AL_DISPLAY *d, float tlx, float tly,
-   float brx, float bry, AL_COLOR *color)
+static void draw_rectangle(AL_DISPLAY *d, float tlx, float tly,
+   float brx, float bry, AL_COLOR *color, int flags)
 {
    set_opengl_color(d, color);
    glBegin(GL_QUADS);
@@ -45,5 +45,5 @@ void _xdummy_add_drawing_functions(AL_DISPLAY_INTERFACE *vt)
 {
    vt->clear = clear;
    vt->draw_line = draw_line;
-   vt->draw_filled_rectangle = draw_filled_rectangle;
+   vt->draw_rectangle = draw_rectangle;
 }
