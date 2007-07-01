@@ -16,9 +16,9 @@ struct AL_DISPLAY_INTERFACE
    void (*set_current_display)(AL_DISPLAY *d);
    void (*clear)(AL_DISPLAY *d, AL_COLOR *color);
    void (*draw_line)(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
-      AL_COLOR *color);
-   void (*draw_filled_rectangle)(AL_DISPLAY *d, float fx, float fy, float tx,
-    float ty, AL_COLOR *color);
+      AL_COLOR *color, int flags);
+   void (*draw_rectangle)(AL_DISPLAY *d, float fx, float fy, float tx,
+    float ty, AL_COLOR *color, int flags);
    void (*flip_display)(AL_DISPLAY *d);
    bool (*update_display_region)(AL_DISPLAY *d, int x, int y,
    	int width, int height);

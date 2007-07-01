@@ -124,7 +124,8 @@ void al_clear(AL_COLOR *color)
 }
 
 /* Draws a line from fx/fy to tx/ty, including start as well as end pixel. */
-void al_draw_line(float fx, float fy, float tx, float ty, AL_COLOR* color, int flags)
+void al_draw_line(float fx, float fy, float tx, float ty,
+   AL_COLOR* color, int flags)
 {
    AL_BITMAP *target = al_get_target_bitmap();
 
@@ -132,7 +133,8 @@ void al_draw_line(float fx, float fy, float tx, float ty, AL_COLOR* color, int f
       _al_draw_line_memory(fx, fy, tx, ty, color, flags);
    }
    else
-      _al_current_display->vt->draw_line(_al_current_display, fx, fy, tx, ty, color);
+      _al_current_display->vt->draw_line(_al_current_display,
+         fx, fy, tx, ty, color, flags);
 }
 
 /* Draws a rectangle with top left corner tlx/tly abd bottom right corner
@@ -146,8 +148,8 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
       _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
    }
    else
-      _al_current_display->vt->draw_filled_rectangle(_al_current_display,
-         tlx, tly, brx, bry, color);
+      _al_current_display->vt->draw_rectangle(_al_current_display,
+         tlx, tly, brx, bry, color, flags);
 }
 
 bool al_is_compatible_bitmap(AL_BITMAP *bitmap)

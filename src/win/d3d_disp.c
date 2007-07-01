@@ -1052,7 +1052,7 @@ static void d3d_clear(AL_DISPLAY *d, AL_COLOR *color)
 
 /* Dummy implementation of line. */
 static void d3d_draw_line(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
-   AL_COLOR *color)
+   AL_COLOR *color, int flags)
 {
    static D3D_COLORED_VERTEX points[2] = { { 0.0f, 0.0f, 0.0f, 0 }, };
    DWORD d3d_color = d3d_al_color_to_d3d(d->format, color);
@@ -1092,15 +1092,25 @@ static void d3d_draw_line(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
 }
  
 /* Dummy implementation of a filled rectangle. */
-static void d3d_draw_filled_rectangle(AL_DISPLAY *d, float tlx, float tly,
-   float brx, float bry, AL_COLOR *color)
+static void d3d_draw_rectangle(AL_DISPLAY *d, float tlx, float tly,
+   float brx, float bry, AL_COLOR *color, int flags)
 {
    D3DRECT rect;
    float w = brx - tlx;
    float h = bry - tly;
-   AL_BITMAP *target = al_get_target_bitmap();
+   AL_BITMAP *target;
+
+   if (!(flags & AL_FILLED)) {
+      d3d_draw_line(d, tlx, tly, brx, tly, color, flags);
+      d3d_draw_line(d, tlx, bry, brx, bry, color, flags);
+      d3d_draw_line(d, tlx, tly, tlx, bry, color, flags);
+      d3d_draw_line(d, brx, tly, brx, bry, color, flags);
+      return;
+   }
 
    if (_al_d3d_is_device_lost()) return;
+   
+   target = al_get_target_bitmap();
    
    if (w < 1 || h < 1) {
       return;
@@ -1496,7 +1506,7 @@ AL_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->set_current_display = d3d_set_current_display;
    vt->clear = d3d_clear;
    vt->draw_line = d3d_draw_line;
-   vt->draw_filled_rectangle = d3d_draw_filled_rectangle;
+   vt->draw_rectangle = d3d_draw_rectangle;
    vt->flip_display = d3d_flip_display;
    vt->update_display_region = d3d_update_display_region;
    vt->acknowledge_resize = d3d_acknowledge_resize;
