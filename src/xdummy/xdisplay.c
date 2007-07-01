@@ -394,6 +394,7 @@ AL_DISPLAY_INTERFACE *_al_display_xdummy_driver(void)
    vt->set_target_bitmap = set_target_bitmap;
    vt->is_compatible_bitmap = is_compatible_bitmap;
    vt->resize_display = resize_display;
+   vt->upload_compat_screen = _al_xdummy_display_upload_compat_screen;
    _xdummy_add_drawing_functions(vt);
 
    return vt;

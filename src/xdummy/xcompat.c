@@ -1,5 +1,7 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include "allegro/internal/aintern_bitmap.h"
+
 /* This is just a temporary gfx driver for the compatibility layer. It will
  * provide a screen BITMAP to old Allegro programs, which then is blitted to
  * the new X11 driver on updates. The idea is taken from Trent's D3D driver.
@@ -52,7 +54,11 @@ GFX_DRIVER _al_xdummy_gfx_driver = {
     NULL
 };
 
-static void upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h)
+void _al_xdummy_display_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h)
 {
-    
+   AL_LOCKED_REGION locked;
+   al_lock_bitmap_region(al_get_backbuffer(), x, y, w, h, &locked, 0);
+   _al_convert_compat_bitmap(bitmap, locked.data, locked.format, locked.pitch,
+      x, y, 0, 0, w, h);
+   al_unlock_bitmap(al_get_backbuffer());
 }

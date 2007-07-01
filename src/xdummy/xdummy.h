@@ -98,3 +98,6 @@ void _al_xdummy_store_video_mode(AL_SYSTEM_XDUMMY *s);
 void _al_xdummy_restore_video_mode(AL_SYSTEM_XDUMMY *s);
 void _al_xdummy_fullscreen_to_display(AL_SYSTEM_XDUMMY *s,
    AL_DISPLAY_XDUMMY *d);
+
+/* compat */
+void _al_xdummy_display_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h);
