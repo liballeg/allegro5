@@ -142,6 +142,9 @@ case "$1" in
    "djgpp"   ) proc_fix "DOS (djgpp)"       "makefile.dj"  "ALLEGRO_DJGPP";;
    "mingw"   ) proc_fix "Windows (MinGW)"   "makefile.mgw" "ALLEGRO_MINGW32";;
    "mingw32" ) proc_fix "Windows (MinGW)"   "makefile.mgw" "ALLEGRO_MINGW32";;
+   # The 'msvc' target is undocumented in the help message, but is used
+   # during the release process by misc/zipup.sh.
+   "msvc"    ) proc_fix "Windows (MSVC)"    "makefile.vc"  "ALLEGRO_MSVC";;
    "qnx"     ) proc_fix "QNX"               "makefile.qnx" "ALLEGRO_QNX";;
    "unix"    ) proc_fix "Unix"              "none"         "ALLEGRO_UNIX";;
    "mac"     ) proc_fix "Mac"               "none"         "ALLEGRO_MPW";;
