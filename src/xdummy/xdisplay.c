@@ -59,11 +59,11 @@ static AL_DISPLAY *create_display(int w, int h)
    // TODO: What is this?
    d->xscreen = DefaultScreen(system->xdisplay);
 
-   if (d->display.flags | AL_FULLSCREEN)
+   if (d->display.flags & AL_FULLSCREEN)
       _al_xdummy_fullscreen_set_mode(system, w, h, 0, 0);
 
    //FIXME
-   d->display.flags |= AL_WINDOWED;
+   //d->display.flags |= AL_WINDOWED;
 
    d->backbuffer = _al_xdummy_create_bitmap(&d->display, w, h);
    AL_BITMAP_XDUMMY *backbuffer = (void *)d->backbuffer;
@@ -85,12 +85,26 @@ static AL_DISPLAY *create_display(int w, int h)
    _al_event_source_init(&d->display.es);
 
    /* Let GLX choose an appropriate visual. */
+   int double_buffer = True;
+   int red_bits = 0;
+   int green_bits = 0;
+   int blue_bits = 0;
+   int alpha_bits = 0;
+   if (d->display.flags & AL_SINGLEBUFFER)
+      double_buffer = False;
+   int attributes[]  = {
+      GLX_DOUBLEBUFFER, double_buffer,
+      GLX_RED_SIZE, red_bits,
+      GLX_GREEN_SIZE, green_bits,
+      GLX_BLUE_SIZE, blue_bits,
+      GLX_ALPHA_SIZE, alpha_bits, 
+      None};
    int nelements;
    GLXFBConfig *fbc = glXChooseFBConfig(system->xdisplay,
-      d->xscreen, 0, &nelements);
+      d->xscreen, attributes, &nelements);
    XVisualInfo *vi = glXGetVisualFromFBConfig(system->xdisplay, fbc[0]);
 
-   TRACE("xdisplay: Selected visual %lu.\n", vi->visualid);
+   TRACE("xdisplay: Selected visual %lx.\n", vi->visualid);
 
    /* Create a colormap. */
    Colormap cmap = XCreateColormap(system->xdisplay,
@@ -173,7 +187,7 @@ static void destroy_display(AL_DISPLAY *d)
    }
    XDestroyWindow(s->xdisplay, glx->window);
 
-   if (d->flags | AL_FULLSCREEN)
+   if (d->flags & AL_FULLSCREEN)
       _al_xdummy_restore_video_mode(s);
 
    // FIXME: deallocate ourselves?
@@ -194,8 +208,6 @@ static void set_current_display(AL_DISPLAY *d)
    if (!glx->opengl_initialized) {
       setup_gl(d);
    }
-
-   TRACE("xdisplay: GLX context made current.\n");
 }
 
 /* Dummy implementation of flip. */
