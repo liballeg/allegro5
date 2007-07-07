@@ -3,7 +3,7 @@
  * bitmap driver.
  */
 
-#include "xdummy.h"
+#include "xglx.h"
 
 static AL_BITMAP_INTERFACE *vt;
 
@@ -14,7 +14,7 @@ static void quad(AL_BITMAP *bitmap, float sx, float sy, float sw, float sh,
     int flags)
 {
    float l, t, r, b, w, h;
-   AL_BITMAP_XDUMMY *xbitmap = (void *)bitmap;
+   AL_BITMAP_XGLX *xbitmap = (void *)bitmap;
    GLboolean on;
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on)
@@ -112,7 +112,7 @@ static void upside_down(AL_BITMAP *bitmap, int x, int y, int w, int h)
 static bool upload_bitmap(AL_BITMAP *bitmap, int x, int y, int w, int h)
 {
    // FIXME: Some OpenGL drivers need power of two textures.
-   AL_BITMAP_XDUMMY *xbitmap = (void *)bitmap;
+   AL_BITMAP_XGLX *xbitmap = (void *)bitmap;
 
    if (xbitmap->texture == 0)
       glGenTextures(1, &xbitmap->texture);
@@ -139,7 +139,7 @@ static AL_LOCKED_REGION *lock_region(AL_BITMAP *bitmap,
 	int x, int y, int w, int h, AL_LOCKED_REGION *locked_region,
 	int flags)
 {
-    AL_BITMAP_XDUMMY *xbitmap = (void *)bitmap;
+    AL_BITMAP_XGLX *xbitmap = (void *)bitmap;
     int pixelsize = al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
 
@@ -173,7 +173,7 @@ static AL_LOCKED_REGION *lock_region(AL_BITMAP *bitmap,
  */
 static void unlock_region(AL_BITMAP *bitmap)
 {
-    AL_BITMAP_XDUMMY *xbitmap = (void *)bitmap;
+    AL_BITMAP_XGLX *xbitmap = (void *)bitmap;
     int pixelsize = al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
 
@@ -198,9 +198,9 @@ static void unlock_region(AL_BITMAP *bitmap)
     }
 }
 
-static void xdummy_destroy_bitmap(AL_BITMAP *bitmap)
+static void xglx_destroy_bitmap(AL_BITMAP *bitmap)
 {
-   AL_BITMAP_XDUMMY *xbitmap = (void *)bitmap;
+   AL_BITMAP_XGLX *xbitmap = (void *)bitmap;
    if (xbitmap->texture) {
       glDeleteTextures(1, &xbitmap->texture);
       xbitmap->texture = 0;
@@ -208,7 +208,7 @@ static void xdummy_destroy_bitmap(AL_BITMAP *bitmap)
 }
 
 /* Obtain a reference to this driver. */
-AL_BITMAP_INTERFACE *_al_bitmap_xdummy_driver(void)
+AL_BITMAP_INTERFACE *_al_bitmap_xglx_driver(void)
 {
    if (vt) return vt;
 
@@ -217,7 +217,7 @@ AL_BITMAP_INTERFACE *_al_bitmap_xdummy_driver(void)
 
    vt->draw_bitmap = draw_bitmap;
    vt->upload_bitmap = upload_bitmap;
-   vt->destroy_bitmap = xdummy_destroy_bitmap;
+   vt->destroy_bitmap = xglx_destroy_bitmap;
    vt->draw_scaled_bitmap = draw_scaled_bitmap;
    vt->draw_bitmap_region = draw_bitmap_region;
    vt->draw_rotated_scaled_bitmap = draw_rotated_scaled_bitmap;

@@ -1,15 +1,15 @@
-#include "xdummy.h"
+#include "xglx.h"
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 
-static int check(AL_SYSTEM_XDUMMY *s)
+static int check(AL_SYSTEM_XGLX *s)
 {
    int x, y;
    return XF86VidModeQueryExtension(s->xdisplay, &x, &y)
       && XF86VidModeQueryVersion(s->xdisplay, &x, &y);
 }
 
-int get_num_display_modes(AL_SYSTEM_XDUMMY *s)
+int get_num_display_modes(AL_SYSTEM_XGLX *s)
 {
    if (!check(s)) return 0;
 
@@ -19,12 +19,12 @@ int get_num_display_modes(AL_SYSTEM_XDUMMY *s)
    return s->modes_count;
 }
 
-int _al_xdummy_get_num_display_modes(void)
+int _al_xglx_get_num_display_modes(void)
 {
    return get_num_display_modes((void *)al_system_driver());
 }
 
-AL_DISPLAY_MODE *get_display_mode(AL_SYSTEM_XDUMMY *s,
+AL_DISPLAY_MODE *get_display_mode(AL_SYSTEM_XGLX *s,
    int i, AL_DISPLAY_MODE *mode)
 {
    if (!s->modes) return NULL;
@@ -37,13 +37,13 @@ AL_DISPLAY_MODE *get_display_mode(AL_SYSTEM_XDUMMY *s,
    return mode;
 }
 
-AL_DISPLAY_MODE *_al_xdummy_get_display_mode(
+AL_DISPLAY_MODE *_al_xglx_get_display_mode(
    int i, AL_DISPLAY_MODE *mode)
 {
    return get_display_mode((void *)al_system_driver(), i, mode);
 }
 
-bool _al_xdummy_fullscreen_set_mode(AL_SYSTEM_XDUMMY *s,
+bool _al_xglx_fullscreen_set_mode(AL_SYSTEM_XGLX *s,
    int w, int h, int format, int refresh_rate)
 {
    int i;
@@ -81,7 +81,7 @@ bool _al_xdummy_fullscreen_set_mode(AL_SYSTEM_XDUMMY *s,
    return true;
 }
 
-void _al_xdummy_fullscreen_to_display(AL_SYSTEM_XDUMMY *s, AL_DISPLAY_XDUMMY *d)
+void _al_xglx_fullscreen_to_display(AL_SYSTEM_XGLX *s, AL_DISPLAY_XGLX *d)
 {
    int x, y;
    Window child;
@@ -98,13 +98,13 @@ void _al_xdummy_fullscreen_to_display(AL_SYSTEM_XDUMMY *s, AL_DISPLAY_XDUMMY *d)
    XF86VidModeSetViewPort(s->xdisplay, 0, x, y);
 }
 
-void _al_xdummy_store_video_mode(AL_SYSTEM_XDUMMY *s)
+void _al_xglx_store_video_mode(AL_SYSTEM_XGLX *s)
 {
    get_num_display_modes(s);
    s->original_mode = s->modes[0];
 }
 
-void _al_xdummy_restore_video_mode(AL_SYSTEM_XDUMMY *s)
+void _al_xglx_restore_video_mode(AL_SYSTEM_XGLX *s)
 {
    XF86VidModeSwitchToMode(s->xdisplay, 0, s->original_mode);
    if (s->pointer_grabbed) {
@@ -113,26 +113,26 @@ void _al_xdummy_restore_video_mode(AL_SYSTEM_XDUMMY *s)
    }
 }
 #else
-int _al_xdummy_get_num_display_modes(void)
+int _al_xglx_get_num_display_modes(void)
 {
    return 0;
 }
 
-AL_DISPLAY_MODE *_al_xdummy_get_display_mode(int index, AL_DISPLAY_MODE *mode)
+AL_DISPLAY_MODE *_al_xglx_get_display_mode(int index, AL_DISPLAY_MODE *mode)
 {
    return NULL;
 }
 
-bool _al_xdummy_set_mode(int w, int h, int format, int refresh_rate)
+bool _al_xglx_set_mode(int w, int h, int format, int refresh_rate)
 {
    return false;
 }
 
-void _al_xdummy_store_video_mode(AL_SYSTEM_XDUMMY *s)
+void _al_xglx_store_video_mode(AL_SYSTEM_XGLX *s)
 {
 }
 
-void _al_xdummy_restore_video_mode(AL_SYSTEM_XDUMMY *s)
+void _al_xglx_restore_video_mode(AL_SYSTEM_XGLX *s)
 {
 }
 #endif

@@ -25,7 +25,7 @@
 extern int    __crt0_argc;
 extern char **__crt0_argv;
 
-extern GFX_DRIVER _al_xdummy_gfx_driver;
+extern GFX_DRIVER _al_xglx_gfx_driver;
 
 #ifdef ALLEGRO_WITH_MAGIC_MAIN
 
@@ -127,8 +127,8 @@ AL_VAR(DIGI_DRIVER, digi_jack);
 #define GFX_XDGA_FULLSCREEN      AL_ID('X','D','F','S')
 #define GFX_XDGA2                AL_ID('D','G','A','2')
 #define GFX_XDGA2_SOFT           AL_ID('D','G','A','S')
-#define GFX_XDUMMY_FULLSCREEN    AL_ID('X','D','U','F')
-#define GFX_XDUMMY_WINDOWED      AL_ID('X','D','U','W')
+#define GFX_XGLX_FULLSCREEN      AL_ID('X','G','L','F')
+#define GFX_XGLX_WINDOWED        AL_ID('X','G','L','W')
 
 #ifdef ALLEGRO_WITH_XWINDOWS
 AL_VAR(SYSTEM_DRIVER, system_xwin);

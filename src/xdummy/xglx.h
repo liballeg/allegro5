@@ -10,18 +10,18 @@
 #include "allegro/platform/aintunix.h"
 #include "allegro/internal/aintern_system.h"
 #include "allegro/internal/aintern_bitmap.h"
-#include "allegro/platform/aintxdummy.h"
+#include "allegro/platform/aintxglx.h"
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 #include <X11/extensions/xf86vmode.h>
 #endif
 
-typedef struct AL_SYSTEM_XDUMMY AL_SYSTEM_XDUMMY;
-typedef struct AL_DISPLAY_XDUMMY AL_DISPLAY_XDUMMY;
-typedef struct AL_BITMAP_XDUMMY AL_BITMAP_XDUMMY;
+typedef struct AL_SYSTEM_XGLX AL_SYSTEM_XGLX;
+typedef struct AL_DISPLAY_XGLX AL_DISPLAY_XGLX;
+typedef struct AL_BITMAP_XGLX AL_BITMAP_XGLX;
 
 /* This is our version of AL_SYSTEM with driver specific extra data. */
-struct AL_SYSTEM_XDUMMY
+struct AL_SYSTEM_XGLX
 {
    AL_SYSTEM system; /* This must be the first member, we "derive" from it. */
 
@@ -44,7 +44,7 @@ struct AL_SYSTEM_XDUMMY
    bool pointer_grabbed; /* Is an XGrabPointer in effect? */
 };
 
-struct AL_BITMAP_XDUMMY
+struct AL_BITMAP_XGLX
 {
    AL_BITMAP bitmap; /* This must be the first member. */
    
@@ -56,7 +56,7 @@ struct AL_BITMAP_XDUMMY
 };
 
 /* This is our version of AL_DISPLAY with driver specific extra data. */
-struct AL_DISPLAY_XDUMMY
+struct AL_DISPLAY_XGLX
 {
    AL_DISPLAY display; /* This must be the first member. */
    
@@ -76,28 +76,28 @@ struct AL_DISPLAY_XDUMMY
 /* Functions private to the X11 driver. */
 
 /* display */
-void _al_display_xdummy_configure(AL_DISPLAY *d, XEvent *event);
-void _al_display_xdummy_closebutton(AL_DISPLAY *d, XEvent *xevent);
+void _al_display_xglx_configure(AL_DISPLAY *d, XEvent *event);
+void _al_display_xglx_closebutton(AL_DISPLAY *d, XEvent *xevent);
 
 /* keyboard */
 void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack);
 
 /* bitmap */
-AL_BITMAP *_al_xdummy_create_bitmap(AL_DISPLAY *d, int w, int h);
+AL_BITMAP *_al_xglx_create_bitmap(AL_DISPLAY *d, int w, int h);
 
 /* draw */
-void _xdummy_add_drawing_functions(AL_DISPLAY_INTERFACE *vt);
+void _xglx_add_drawing_functions(AL_DISPLAY_INTERFACE *vt);
 
 /* fullscreen */
-int _al_xdummy_get_num_display_modes(void);
-AL_DISPLAY_MODE *_al_xdummy_get_display_mode(
+int _al_xglx_get_num_display_modes(void);
+AL_DISPLAY_MODE *_al_xglx_get_display_mode(
    int index, AL_DISPLAY_MODE *mode);
-bool _al_xdummy_fullscreen_set_mode(AL_SYSTEM_XDUMMY *s, int w, int h,
+bool _al_xglx_fullscreen_set_mode(AL_SYSTEM_XGLX *s, int w, int h,
    int format, int refresh_rate);
-void _al_xdummy_store_video_mode(AL_SYSTEM_XDUMMY *s);
-void _al_xdummy_restore_video_mode(AL_SYSTEM_XDUMMY *s);
-void _al_xdummy_fullscreen_to_display(AL_SYSTEM_XDUMMY *s,
-   AL_DISPLAY_XDUMMY *d);
+void _al_xglx_store_video_mode(AL_SYSTEM_XGLX *s);
+void _al_xglx_restore_video_mode(AL_SYSTEM_XGLX *s);
+void _al_xglx_fullscreen_to_display(AL_SYSTEM_XGLX *s,
+   AL_DISPLAY_XGLX *d);
 
 /* compat */
-void _al_xdummy_display_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h);
+void _al_xglx_display_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h);

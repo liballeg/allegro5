@@ -3,18 +3,18 @@
  * system driver.
  */
 
-#include "xdummy.h"
+#include "xglx.h"
 
 static AL_SYSTEM_INTERFACE *vt;
 
 static void background_thread(_AL_THREAD *thread, void *arg)
 {
-   AL_SYSTEM_XDUMMY *s = arg;
+   AL_SYSTEM_XGLX *s = arg;
    XEvent event;
    unsigned int i;
 
    while (1) {
-      AL_DISPLAY_XDUMMY *d = NULL;
+      AL_DISPLAY_XGLX *d = NULL;
       XNextEvent(s->xdisplay, &event);
 
       _al_mutex_lock(&s->lock);
@@ -23,7 +23,7 @@ static void background_thread(_AL_THREAD *thread, void *arg)
       // maybe can come up with a better system here.
       // TODO: am I supposed to access ._size?
       for (i = 0; i < s->system.displays._size; i++) {
-         AL_DISPLAY_XDUMMY **dptr = _al_vector_ref(&s->system.displays, i);
+         AL_DISPLAY_XGLX **dptr = _al_vector_ref(&s->system.displays, i);
          d = *dptr;
          if (d->window == event.xany.window) {
             break;
@@ -38,7 +38,7 @@ static void background_thread(_AL_THREAD *thread, void *arg)
             _al_xwin_keyboard_handler(&event.xkey, false);
             break;
          case ConfigureNotify:
-            _al_display_xdummy_configure(&d->display,  &event);
+            _al_display_xglx_configure(&d->display,  &event);
             _al_cond_signal(&s->resized);
             break;
          case MapNotify:
@@ -46,7 +46,7 @@ static void background_thread(_AL_THREAD *thread, void *arg)
             break;
          case ClientMessage:
             if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
-               _al_display_xdummy_closebutton(&d->display, &event);
+               _al_display_xglx_closebutton(&d->display, &event);
                break;
             }
       }
@@ -58,14 +58,14 @@ static void background_thread(_AL_THREAD *thread, void *arg)
 /* Create a new system object for the dummy X11 driver. */
 static AL_SYSTEM *initialize(int flags)
 {
-   AL_SYSTEM_XDUMMY *s = _AL_MALLOC(sizeof *s);
+   AL_SYSTEM_XGLX *s = _AL_MALLOC(sizeof *s);
    memset(s, 0, sizeof *s);
 
    _al_mutex_init(&s->lock);
    _al_cond_init(&s->mapped);
    _al_cond_init(&s->resized);
 
-   _al_vector_init(&s->system.displays, sizeof (AL_SYSTEM_XDUMMY *));
+   _al_vector_init(&s->system.displays, sizeof (AL_SYSTEM_XGLX *));
 
    XInitThreads();
 
@@ -80,7 +80,7 @@ static AL_SYSTEM *initialize(int flags)
 
    TRACE("events thread spawned.\n");
 
-   _al_xdummy_store_video_mode(s);
+   _al_xglx_store_video_mode(s);
 
    return &s->system;
 }
@@ -103,7 +103,7 @@ static void shutdown_system(void)
 // to the system driver, so addons could provide additional drivers.
 AL_DISPLAY_INTERFACE *get_display_driver(void)
 {
-    return _al_display_xdummy_driver();
+    return _al_display_xglx_driver();
 }
 
 // FIXME: Use the list.
@@ -114,7 +114,7 @@ AL_KEYBOARD_DRIVER *get_keyboard_driver(void)
 }
 
 /* Internal function to get a reference to this driver. */
-AL_SYSTEM_INTERFACE *_al_system_xdummy_driver(void)
+AL_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
 {
    if (vt) return vt;
 
@@ -124,8 +124,8 @@ AL_SYSTEM_INTERFACE *_al_system_xdummy_driver(void)
    vt->initialize = initialize;
    vt->get_display_driver = get_display_driver;
    vt->get_keyboard_driver = get_keyboard_driver;
-   vt->get_num_display_modes = _al_xdummy_get_num_display_modes;
-   vt->get_display_mode = _al_xdummy_get_display_mode;
+   vt->get_num_display_modes = _al_xglx_get_num_display_modes;
+   vt->get_display_mode = _al_xglx_get_display_mode;
    vt->shutdown_system = shutdown_system;
    
    return vt;
@@ -141,6 +141,6 @@ void _al_register_system_interfaces()
 #if defined ALLEGRO_UNIX
    /* This is the only system driver right now */
    add = _al_vector_alloc_back(&_al_system_interfaces);
-   *add = _al_system_xdummy_driver();
+   *add = _al_system_xglx_driver();
 #endif
 }

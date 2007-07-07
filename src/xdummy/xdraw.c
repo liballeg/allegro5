@@ -1,4 +1,4 @@
-#include "xdummy.h"
+#include "xglx.h"
 
 static void set_opengl_color(AL_DISPLAY *d, AL_COLOR *color)
 {
@@ -41,7 +41,7 @@ static void draw_rectangle(AL_DISPLAY *d, float tlx, float tly,
 }
 
 /* Add drawing commands to the vtable. */
-void _xdummy_add_drawing_functions(AL_DISPLAY_INTERFACE *vt)
+void _xglx_add_drawing_functions(AL_DISPLAY_INTERFACE *vt)
 {
    vt->clear = clear;
    vt->draw_line = draw_line;

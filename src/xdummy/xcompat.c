@@ -11,7 +11,7 @@
  * implementing the Allegro 4.0 API with 5.0 functions (which has the advantage
  * that it can then benefit from HW acceleration).
  */
-GFX_DRIVER _al_xdummy_gfx_driver = {
+GFX_DRIVER _al_xglx_gfx_driver = {
     0,
     "Dummy X11 compatibility driver",
     "Dummy X11 compatibility driver",
@@ -54,7 +54,7 @@ GFX_DRIVER _al_xdummy_gfx_driver = {
     NULL
 };
 
-void _al_xdummy_display_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h)
+void _al_xglx_display_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h)
 {
    AL_LOCKED_REGION locked;
    al_lock_bitmap_region(al_get_backbuffer(), x, y, w, h, &locked, 0);
