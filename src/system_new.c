@@ -59,6 +59,10 @@ static AL_SYSTEM *find_system(_AL_VECTOR *vector)
 
 void _al_exit(void)
 {
+   if (screen && _al_current_display != NULL) {
+   	al_destroy_display(_al_current_display);
+	al_set_current_display(NULL);
+   }
    if (active) {
       if (active->vt && active->vt->shutdown_system)
          active->vt->shutdown_system();

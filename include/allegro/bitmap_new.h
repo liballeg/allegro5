@@ -54,6 +54,16 @@ enum ALLEGRO_PIXEL_FORMAT {
 #define AL_USE_ALPHA         0x0008
 
 
+/* Flags for the blitting functions */
+#define AL_MASK_SOURCE           0x00001
+#define AL_FLIP_HORIZONTAL       0x00002
+#define AL_FLIP_VERTICAL         0x00004
+/* Flags for primitives */
+#define AL_OUTLINED              0x00000
+#define AL_FILLED                0x00008
+#define AL_PATTERNED             0x00010
+
+
 enum ALLEGRO_PATTERN_MODE {
    AL_PATTERN_SOLID = 0,
    AL_PATTERN_XOR,

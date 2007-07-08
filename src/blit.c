@@ -690,33 +690,13 @@ static void blit_to_self(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
       return;
 
 
-/* al_blit:
- * Copies a rectangular area of the source bitmap to the destination bitmap.
- * The dest_x and dest_y are the coordinates of the top-left corner in the
- * destination bitmap where the source bitmap will be drawn.
- */
-void al_blit(int method, BITMAP *src, BITMAP *dest, int d_x, int d_y)
+void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
-   int w, h;
-   int s_x = 0, s_y = 0;
    ASSERT(src);
    ASSERT(dest);
 
-   /* If method!=0, then bitmaps must be of the same colour depth */
-   ASSERT(method !=0 || src->vtable->color_depth == dest->vtable->color_depth);
-   
-   w = src->w;
-   h = src->h;
    BLIT_CLIP();
    
-
-   
-   /* Masked blit */
-   if (method == AL_MASK_SOURCE) {
-      dest->vtable->masked_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
-      return;
-   }
-
    if (src->vtable->color_depth != dest->vtable->color_depth) {
       /* need to do a color conversion */
       dest->vtable->blit_between_formats(src, dest, s_x, s_y, d_x, d_y, w, h);
@@ -752,63 +732,46 @@ void al_blit(int method, BITMAP *src, BITMAP *dest, int d_x, int d_y)
    }
 }
 
-END_OF_FUNCTION(al_blit);
-
-/* al_blit_region:
- * Copies a rectangular area of the source bitmap to the destination bitmap.
- * The dest_x and dest_y are the coordinates of the top-left corner in the
- * destination bitmap where the source bitmap will be drawn.
- */
-void al_blit_region(int method, BITMAP *src, int s_x, int s_y, int w, int h, BITMAP *dest, int d_x, int d_y)
-//void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+void masked_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    ASSERT(src);
    ASSERT(dest);
+
+   /* bitmaps must be of the same colour depth */
+   ASSERT(src->vtable->color_depth == dest->vtable->color_depth);
+   
    BLIT_CLIP();
    
    /* Masked blit */
-   /*
-   if (method == AL_MASK_SOURCE) {
-      ASSERT(src->vtable->color_depth == dest->vtable->color_depth);
+   dest->vtable->masked_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
+}
 
-      dest->vtable->masked_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
-      return;
-   }
-   */
+void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h)
+{
+   _al_stretch_blit(s, s_x, s_y, s_w, s_h,  d, d_x, d_y, d_w, d_h, false);
 
-   if (src->vtable->color_depth != dest->vtable->color_depth) {
-      /* need to do a color conversion */
-      dest->vtable->blit_between_formats(src, dest, s_x, s_y, d_x, d_y, w, h);
-   }
-   else if (is_same_bitmap(src, dest)) {
-      /* special handling for overlapping regions */
-      blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
-   }
-   else if (is_video_bitmap(dest)) {
-      /* drawing onto video bitmaps */
-      if (is_video_bitmap(src))
-         dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
-      else if (is_system_bitmap(src))
-         dest->vtable->blit_from_system(src, dest, s_x, s_y, d_x, d_y, w, h);
-      else
-         dest->vtable->blit_from_memory(src, dest, s_x, s_y, d_x, d_y, w, h);
-   }
-   else if (is_system_bitmap(dest)) {
-      /* drawing onto system bitmaps */
-      if (is_video_bitmap(src))
-         src->vtable->blit_to_system(src, dest, s_x, s_y, d_x, d_y, w, h);
-      else if (is_system_bitmap(src))
-         dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
-      else
-         dest->vtable->blit_from_memory(src, dest, s_x, s_y, d_x, d_y, w, h);
-   }
-   else {
-      /* drawing onto memory bitmaps */
-      if ((is_video_bitmap(src)) || (is_system_bitmap(src)))
-         src->vtable->blit_to_memory(src, dest, s_x, s_y, d_x, d_y, w, h);
-      else
-         dest->vtable->blit_to_self(src, dest, s_x, s_y, d_x, d_y, w, h);
+   if (d->needs_upload) {
+      d->display->vt->upload_compat_screen(d, d_x, d_y, d_w, d_h);
    }
 }
 
-END_OF_FUNCTION(al_blit_region);
+void masked_stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h)
+{
+   _al_stretch_blit(s, s_x, s_y, s_w, s_h,  d, d_x, d_y, d_w, d_h, true);
+
+   if (d->needs_upload) {
+      d->display->vt->upload_compat_screen(d, d_x, d_y, d_w, d_h);
+   }
+}
+
+void stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h)
+{
+   ASSERT(sprite);
+
+   _al_stretch_blit(sprite, 0, 0, sprite->w, sprite->h, bmp, x, y, w, h, true);
+
+   if (bmp->needs_upload) {
+      bmp->display->vt->upload_compat_screen(bmp, x, y, w, h);
+   }
+}
+

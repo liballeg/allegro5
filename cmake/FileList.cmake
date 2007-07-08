@@ -77,7 +77,6 @@ set(ALLEGRO_SRC_FILES
     src/vtable24.c
     src/vtable32.c
     src/vtable8.c
-    src/compat/coblit.c
     src/compat/cojoy.c
     src/compat/cokeybd.c
     src/compat/comouse.c

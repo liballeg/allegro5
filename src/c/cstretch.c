@@ -236,8 +236,9 @@ static void stretch_masked_line32(uintptr_t dptr, unsigned char* sptr)
 /*
  * Stretch blit work-horse.
  */
-void al_blit_scaled(int method, BITMAP *src, int sx, int sy, int sw, int sh,
-                               BITMAP *dst, int dx, int dy, int dw, int dh)
+void _al_stretch_blit(BITMAP *src, int sx, int sy, int sw, int sh,
+                               BITMAP *dst, int dx, int dy, int dw, int dh,
+			       bool mask)
 {
    int y; /* current dst y */
    int yc; /* y counter */
@@ -249,18 +250,15 @@ void al_blit_scaled(int method, BITMAP *src, int sx, int sy, int sw, int sh,
    int dxbeg, dxend; /* clipping information */
    int dybeg, dyend;
    int i;
-   bool masked;
 
    void (*stretch_line)(uintptr_t, unsigned char*) = 0;
 
    ASSERT(src);
    ASSERT(dst);
 
-   masked = (method&AL_MASK_SOURCE) == AL_MASK_SOURCE;
-
    /* vtable hook; not called if dest is a memory surface */   
    if (src->vtable->do_stretch_blit && !is_memory_bitmap(dst)) {
-      src->vtable->do_stretch_blit(src, dst, sx, sy, sw, sh, dx, dy, dw, dh, masked);
+      src->vtable->do_stretch_blit(src, dst, sx, sy, sw, sh, dx, dy, dw, dh, mask);
       return;
    }
 
@@ -268,7 +266,7 @@ void al_blit_scaled(int method, BITMAP *src, int sx, int sy, int sw, int sh,
       return;
 
    /* Find out which stretcher should be used */
-   if (masked) {
+   if (mask) {
       switch (bitmap_color_depth(dst)) {
 #ifdef ALLEGRO_COLOR8
 	 case 8:
