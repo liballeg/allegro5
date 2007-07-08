@@ -52,7 +52,7 @@ int main(void)
 
    display[2] = al_create_display(w, h);
 
-   al_set_bitmap_clip(al_get_backbuffer(), 100, 100, 440, 280);
+   //al_set_bitmap_clip(al_get_backbuffer(), 100, 100, 440, 280);
 
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);

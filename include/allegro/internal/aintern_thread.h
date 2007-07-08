@@ -2,8 +2,8 @@
 #define _al_included_aintern_thread_h
 
 #ifndef SCAN_EXPORT
-
 #include ALLEGRO_INTERNAL_THREAD_HEADER
+#endif
 
 AL_BEGIN_EXTERN_C
 
@@ -36,8 +36,6 @@ AL_FUNC(void, _al_cond_signal, (_AL_COND*));
 
 
 AL_END_EXTERN_C
-
-#endif // SCAN_EXPORT
 
 #endif
 
