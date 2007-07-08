@@ -1002,7 +1002,7 @@ BITMAP *_make_bitmap(int w, int h, uintptr_t addr, GFX_DRIVER *driver, int color
  *  can be scrolled. Note that a lot of VESA drivers can only handle
  *  horizontal scrolling in four pixel increments.
  */
-int scroll_display(int x, int y)
+int scroll_screen(int x, int y)
 {
    int ret = 0;
    int h;
@@ -1054,7 +1054,7 @@ int request_scroll(int x, int y)
 
    /* can driver handle triple buffering? */
    if ((!gfx_driver->request_scroll) || (_dispsw_status)) {
-      scroll_display(x, y);
+      scroll_screen(x, y);
       return -1;
    }
 
@@ -1119,7 +1119,7 @@ int show_video_bitmap(BITMAP *bitmap)
    if (gfx_driver->show_video_bitmap)
       return gfx_driver->show_video_bitmap(bitmap);
 
-   return scroll_display(bitmap->x_ofs, bitmap->y_ofs);
+   return scroll_screen(bitmap->x_ofs, bitmap->y_ofs);
 }
 
 
