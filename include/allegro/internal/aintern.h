@@ -237,19 +237,20 @@ AL_VAR(char *, _keyboard_layout);
 
 #if (defined ALLEGRO_WINDOWS)
 
-AL_FUNC(int, _alwin_open, (const char*, int, int));
-AL_FUNC(int, _alwin_unlink, (const char*));
+   AL_FUNC(int, _al_win_open, (const char *filename, int mode, int perm));
+   AL_FUNC(int, _al_win_unlink, (const char *filename));
 
    #define IS_OLD_WINDOWS (os_type==OSTYPE_WIN3  || os_type==OSTYPE_WIN95 || \
                            os_type==OSTYPE_WIN98 || os_type==OSTYPE_WINME || \
                            os_type==OSTYPE_UNKNOWN)
-   #define _al_open   _alwin_open
-   #define _al_unlink _alwin_unlink
+
+   #define _al_open(filename, mode, perm)   _al_win_open(filename, mode, perm)
+   #define _al_unlink(filename)             _al_win_unlink(filename)
 
 #else
 
-   #define _al_open   open
-   #define _al_unlink unlink
+   #define _al_open(filename, mode, perm)   open(filename, mode, perm)
+   #define _al_unlink(filename)             unlink(filename)
 
 #endif
 

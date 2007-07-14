@@ -207,12 +207,6 @@ AL_FUNC(void, thread_safe_trace, (char *msg, ...));
    #define _TRACE                 1 ? (void) 0 : thread_safe_trace
 #endif
 
-#define IS_OLD_WINDOWS (os_type==OSTYPE_WIN3  || os_type==OSTYPE_WIN95 || \
-                        os_type==OSTYPE_WIN98 || os_type==OSTYPE_WINME || \
-                        os_type==OSTYPE_UNKNOWN)
-
-AL_FUNC(int, _alwin_open, (const char*, int, int));
-#define _al_open _alwin_open
 
 #ifdef __cplusplus
    }

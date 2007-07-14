@@ -309,6 +309,7 @@ void _al_getdcwd(int drive, char *buf, int size)
 }
 
 
+
 /* _al_ffblk_get_size:
  *  Returns the size out of an _al_ffblk structure.
  */
@@ -327,7 +328,13 @@ uint64_t al_ffblk_get_size(struct al_ffblk *info)
    }
 }
 
-int _alwin_open(const char *filename, int mode, int perm)
+
+
+/* _al_win_open:
+ *  Open a file with open() or _wopen() depending on whether Unicode filenames
+ *  are supported by this version of Windows and compiler.
+ */
+int _al_win_open(const char *filename, int mode, int perm)
 {
    if (IS_OLD_WINDOWS) {
       return open(filename, mode, perm);
@@ -337,7 +344,13 @@ int _alwin_open(const char *filename, int mode, int perm)
    }
 }
 
-int _alwin_unlink(const char *pathname)
+
+
+/* _al_win_unlink:
+ *  Remove a file with unlink() or _wunlink() depending on whether Unicode
+ *  filenames are supported by this version of Windows and compiler.
+ */
+int _al_win_unlink(const char *pathname)
 {
    if (IS_OLD_WINDOWS) {
       return unlink(pathname);
