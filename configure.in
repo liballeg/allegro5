@@ -552,13 +552,6 @@ AC_ARG_ENABLE(linux,
 test "X$enableval" != "Xno" && allegro_enable_linux=yes,
 allegro_enable_linux=yes)
 
-_linux_console="Linux console support:"
-if test "X$allegro_enable_linux" != "Xyes"; then
-  _linux_console="$_linux_console disabled"
-else
-  _linux_console="$_linux_console enabled"
-fi
-
 dnl Enable Linux console VGA driver
 AC_ARG_ENABLE(vga,
 [  --enable-vga[=x]        enable VGA graphics driver [default=yes]],
@@ -586,6 +579,7 @@ allegro_enable_svgalib=yes)
 dnl Some miscellaneous defines.
 ALLEGRO_MAYBE_LINUX_FILES=ALLEGRO_EMPTY_LIST
 
+allegro_support_linux=no
 allegro_system=`uname -s | tr A-Z a-z`
 case "$allegro_system" in
 
@@ -593,6 +587,8 @@ case "$allegro_system" in
   if test "X$allegro_enable_linux" = "Xyes"; then
     AC_DEFINE(ALLEGRO_LINUX,1,[Define if target platform is linux.])
     ALLEGRO_MAYBE_LINUX_FILES=ALLEGRO_SRC_LINUX_FILES
+
+    allegro_support_linux=yes
 
     AC_CHECK_HEADER(sys/io.h,
       AC_DEFINE(ALLEGRO_HAVE_SYS_IO_H, 1))
@@ -662,6 +658,13 @@ case "$allegro_system" in
   ;;
 
 esac
+
+_linux_console="Linux console support:"
+if test "X$allegro_support_linux" != "Xyes"; then
+  _linux_console="$_linux_console disabled"
+else
+  _linux_console="$_linux_console enabled"
+fi
 
 AC_SUBST(ALLEGRO_MAYBE_LINUX_FILES)
 
@@ -892,7 +895,7 @@ EOF
 dnl Warn if neither X11 nor Linux console support is going to be built,
 dnl or just if X11 support is not going to be built.
 if test "X$allegro_support_xwindows" != "Xyes"; then
-  if test "X$allegro_enable_linux" != "Xyes"; then
+  if test "X$allegro_support_linux" != "Xyes"; then
     cat >> makefile.info << EOF
  Warning: the library will not be built with either X11 or Linux console
           support.  This configuration is useless for most purposes.
