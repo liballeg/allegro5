@@ -200,6 +200,32 @@ static void call_user_main(void)
    return NSTerminateCancel;
 }
 
+
+
+/* quitAction:
+ *  This is connected to the Quit menu.  The menu sends this message to the
+ *  delegate, rather than sending terminate: directly to NSApp, so that we get a
+ *  chance to validate the menu item first.
+ */
+- (void) quitAction: (id) sender {
+   [NSApp terminate: self];
+}
+
+
+
+/* validateMenuItem:
+ *  If the user has not set a window close hook, return NO from this function so
+ *  that the Quit menu item is greyed out.
+ */
+- (BOOL) validateMenuItem: (NSMenuItem*) item {
+   if ([item action] == @selector(quitAction:)) {
+      return (osx_window_close_hook == NULL) ? NO : YES;
+   }
+   /* Default, all other items are valid (there are none at the moment */
+   return YES;
+}
+
+/* end of AllegroAppDelegate implementation */
 @end
 
 
@@ -258,7 +284,7 @@ int main(int argc, char *argv[])
        NSString *quit = [@"Quit " stringByAppendingString: title];
        menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
 		     initWithTitle: quit
-		     action: @selector(terminate:)
+		     action: @selector(quitAction:)
 		     keyEquivalent: @"q"];
        [menu_item setKeyEquivalentModifierMask: NSCommandKeyMask];
        [menu_item setTarget: app_delegate];
