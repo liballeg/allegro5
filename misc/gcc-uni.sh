@@ -20,7 +20,7 @@
 
 # set up defaults
 mode=link
-output=a.out
+output=
 cmd=
 
 # check whether to use gcc or g++
@@ -60,6 +60,9 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 
+# remember the arguments in case there's no output files
+args=$*
+
 while [ -n "$1" ]; do
 	case "$1" in
 		-arch)
@@ -81,10 +84,9 @@ while [ -n "$1" ]; do
 	shift
 done
 
-# if no output, bail...
+# if no output file, just pass the original command as-is and hope for the best
 if [ -z "$output" ]; then
-	echo "Error! $0 requires the -o switch."
-	exit 1
+	exec $gcc $args
 fi
 
 # figure out if we are compiling or linking
