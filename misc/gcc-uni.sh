@@ -98,7 +98,7 @@ case "$mode" in
 		FLAGS_PPC="$CFLAGS_PPC"
 		;;
 	*)
-		echo "internel error"
+		echo "internal error in gcc-uni.sh script"
 		exit 1
 		;;
 esac
