@@ -45,9 +45,9 @@
 #endif
 
 #define ALLEGRO_VERSION          4
-#define ALLEGRO_SUB_VERSION      2
-#define ALLEGRO_WIP_VERSION      3
-#define ALLEGRO_VERSION_STR      "4.2.3 (SVN)"
+#define ALLEGRO_SUB_VERSION      3
+#define ALLEGRO_WIP_VERSION      10
+#define ALLEGRO_VERSION_STR      "4.3.10 (SVN)"
 #define ALLEGRO_DATE_STR         "2007"
 #define ALLEGRO_DATE             20070722    /* yyyymmdd */
 
