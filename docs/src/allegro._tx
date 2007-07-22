@@ -14473,6 +14473,10 @@ various attributes of the current platform:
    Defined if you are building for a relevant system. Often several of these 
    will apply, eg. DOS+Watcom, or Windows+GCC+MinGW.
 
+   Note that ALLEGRO_LINUX is a misnomer. It will only be defined if
+   <i>Linux console</i> support is enabled. It is not a reliable way to check
+   if the program is being built on a Linux system.
+
 <b>ALLEGRO_AMD64</b><br>
 <b>ALLEGRO_I386</b><br>
 <b>ALLEGRO_BIG_ENDIAN</b><br>
