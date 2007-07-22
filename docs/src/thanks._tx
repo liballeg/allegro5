@@ -649,6 +649,9 @@ Contributors
    code we are still using today and added support for the more recent
    Trident chipsets (now available as part of the FreeBE/AF project).
 
+   Mark Keller.<br>
+   Reported two minor mistakes in the manual.
+
    Mark Wodrich (<email>mwodric@eleceng.uct.ac.za</a>).<br>
    The brain behind sub-bitmaps, flicker-free mouse pointers, and the
    ability to import GRX .FNT files into the grabber.
@@ -896,6 +899,9 @@ Contributors
 
    Richard Reeve (<email>r.e.reeve@stir.ac.uk</a>).<br>
    Fixed a silly mistake with gcc 3.0.x detection.
+
+   Rikard Peterson.<br>
+   Fixed a small problem with the Mac OS X joystick driver.
 
    Robert J. Ragno (<email>rjr@mit.edu</a>).<br>
    Wrote the Gravis GrIP driver, made some improvements to the Wingman, PSX
