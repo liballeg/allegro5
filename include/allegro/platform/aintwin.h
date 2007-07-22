@@ -197,6 +197,10 @@ AL_FUNC(void, _free_win_midi_driver_list, (void));
 AL_FUNC(void, midi_switch_out, (void));
 
 
+/* file routines */
+AL_VAR(int, _al_win_unicode_filenames);
+
+
 /* error handling */
 AL_FUNC(char* , win_err_str, (long err));
 AL_FUNC(void, thread_safe_trace, (char *msg, ...));

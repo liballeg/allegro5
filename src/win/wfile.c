@@ -30,6 +30,13 @@
 #endif
 
 
+/* Set to true in if the compiler and version of Windows support wide-character
+ * file name functions.
+ * TODO: currently we only set this in the SYSTEM_DIRECTX case.
+ */
+int _al_win_unicode_filenames = FALSE;
+
+
 
 /* _al_file_isok:
  *  Helper function to check if it is safe to access a file on a floppy
@@ -51,7 +58,7 @@ uint64_t _al_file_size_ex(AL_CONST char *filename)
    struct _stat s;
    char tmp[1024];
 
-   if (IS_OLD_WINDOWS) {
+   if (!_al_win_unicode_filenames) {
       if (_stat(uconvert(filename, U_CURRENT, tmp, U_ASCII, sizeof(tmp)), &s) != 0) {
          *allegro_errno = errno;
          return 0;
@@ -78,7 +85,7 @@ time_t _al_file_time(AL_CONST char *filename)
    struct _stat s;
    char tmp[1024];
 
-   if (IS_OLD_WINDOWS) {
+   if (!_al_win_unicode_filenames) {
       if (_stat(uconvert(filename, U_CURRENT, tmp, U_ASCII, sizeof(tmp)), &s) != 0) {
          *allegro_errno = errno;
          return 0;
@@ -116,7 +123,7 @@ static void fill_ffblk(struct al_ffblk *info)
 {
    struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
 
-   if (IS_OLD_WINDOWS) {
+   if (!_al_win_unicode_filenames) {
       info->attrib = ff_data->data.a.attrib;
       info->time = ff_data->data.a.time_write;
       info->size = ff_data->data.a.size;
@@ -172,7 +179,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    /* start the search */
    errno = *allegro_errno = 0;
 
-   if (IS_OLD_WINDOWS) {
+   if (!_al_win_unicode_filenames) {
       ff_data->handle = _findfirst(uconvert(pattern, U_CURRENT, tmp,
                                             U_ASCII, sizeof(tmp)),
                                             &ff_data->data.a);
@@ -228,7 +235,7 @@ int al_findnext(struct al_ffblk *info)
 {
    struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
 
-   if (IS_OLD_WINDOWS) {
+   if (!_al_win_unicode_filenames) {
       do {
          if (_findnext(ff_data->handle, &ff_data->data.a) != 0) {
             *allegro_errno = errno;
@@ -294,7 +301,7 @@ void _al_getdcwd(int drive, char *buf, int size)
 {
    char tmp[1024];
 
-   if (IS_OLD_WINDOWS) {
+   if (!_al_win_unicode_filenames) {
       if (_getdcwd(drive+1, tmp, sizeof(tmp)))
          do_uconvert(tmp, U_ASCII, buf, U_CURRENT, size);
       else
@@ -320,7 +327,7 @@ uint64_t al_ffblk_get_size(struct al_ffblk *info)
    ASSERT(info);
    ff_data = (struct FF_DATA *) info->ff_data;
 
-   if (IS_OLD_WINDOWS) {
+   if (!_al_win_unicode_filenames) {
       return ff_data->data.a.size;
    }
    else {
@@ -336,7 +343,7 @@ uint64_t al_ffblk_get_size(struct al_ffblk *info)
  */
 int _al_win_open(const char *filename, int mode, int perm)
 {
-   if (IS_OLD_WINDOWS) {
+   if (!_al_win_unicode_filenames) {
       return open(filename, mode, perm);
    }
    else {
@@ -352,7 +359,7 @@ int _al_win_open(const char *filename, int mode, int perm)
  */
 int _al_win_unlink(const char *pathname)
 {
-   if (IS_OLD_WINDOWS) {
+   if (!_al_win_unicode_filenames) {
       return unlink(pathname);
    }
    else {

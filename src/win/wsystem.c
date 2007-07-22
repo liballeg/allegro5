@@ -180,6 +180,14 @@ static int sys_directx_init(void)
    else
       os_type = OSTYPE_WIN3;
 
+#ifdef ALLEGRO_DMC
+   /* DMC's C library does not support _wfinddata_t */
+   _al_win_unicode_filenames = FALSE;
+#else
+   /* Windows NT 4.0, 2000, XP, etc support unicode filenames */
+   _al_win_unicode_filenames = !(win_ver & 0x80000000);
+#endif
+
    _dx_ver = get_dx_ver();
 
    uszprintf(sys_directx_desc, sizeof(sys_directx_desc),
@@ -200,7 +208,7 @@ static int sys_directx_init(void)
    if (init_directx_window() != 0)
       goto Error;
 
-   if (!IS_OLD_WINDOWS) {
+   if (_al_win_unicode_filenames) {
       set_file_encoding(U_UNICODE);
    }
 
