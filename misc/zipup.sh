@@ -206,10 +206,11 @@ scan_for_empties "."
 echo "Creating $name.zip..."
 if [ -f .dist/$name.zip ]; then rm .dist/$name.zip; fi
 rm -rf ./autom4te*
-ZIP_FILES=`find . -type f "(" -path "*/.*" -prune -o -iname "*.rej" \
-    -prune -o -iname "*.orig" -prune -o -print ")"`
 mkdir -p .dist/allegro
-cp -a --parents $ZIP_FILES .dist/allegro
+# Note: we use -print0 and xargs -0 to handle file names with spaces.
+find . -type f "(" -path "*/.*" -prune -o -iname "*.rej" \
+    -prune -o -iname "*.orig" -prune -o -print0 ")" | \
+    xargs -0 cp -a --parents -t .dist/allegro
 
 # from now on, the scripts runs inside .dist
 cd .dist
