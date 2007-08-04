@@ -286,9 +286,9 @@ install-applehelp:
 	install docs/html/*.html $(HELPBUNDLE)
 	sed -n -e '1,6p' docs/html/index.html > $(HELPBUNDLE)/index.html
 	echo "<META NAME=\"AppleTitle\" CONTENT=\"Allegro Help\">" >> $(HELPBUNDLE)/index.html 
-	echo "<META NAME=\"AppleIcon\" CONTENT=\"alex.png\">" >> $(HELPBUNDLE)/index.html 
+	echo "<META NAME=\"AppleIcon\" CONTENT=\"icon.png\">" >> $(HELPBUNDLE)/index.html 
 	sed -n -e '7,$$p' docs/html/index.html >> $(HELPBUNDLE)/index.html
-	install misc/alex.png $(HELPBUNDLE) 	
+	install misc/icon.png $(HELPBUNDLE) 	
 
 $(FRAMEWORK): $(LIB_NAME)
 ifdef STATICLINK

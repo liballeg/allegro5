@@ -1,5 +1,5 @@
 /* XPM */
-static char * alex_xpm[] = {
+static char *icon_xpm[] = {
 "48 48 6 1",
 " 	c None",
 ".	c #080808",
