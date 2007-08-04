@@ -49,7 +49,7 @@
 #ifdef ALLEGRO_XWINDOWS_WITH_XPM
 #include <X11/xpm.h>
 #endif
-#include "alex.xpm"
+#include "icon.xpm"
 
 
 #define XWIN_DEFAULT_WINDOW_TITLE "Allegro application"
@@ -150,7 +150,7 @@ struct _xwin_type _xwin =
    None         /* wm_window */
 };
 
-void *allegro_icon = alex_xpm;
+void *allegro_icon = icon_xpm;
 
 int _xwin_last_line = -1;
 int _xwin_in_gfx_call = 0;
