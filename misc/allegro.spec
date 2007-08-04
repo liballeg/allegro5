@@ -14,7 +14,7 @@ Group: System/Libraries
 Source: ftp://sunsite.dk/allegro/%{name}-%{version}.tar.gz
 URL: http://alleg.sourceforge.net
 # If you don't have the icon, just comment it out.
-Icon: alex.xpm
+Icon: icon.xpm
 Buildroot: %{_tmppath}/%{name}-buildroot
 # Older rpms don't support this; just make sure you have it.
 #BuildRequires: texinfo
