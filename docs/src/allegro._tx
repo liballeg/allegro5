@@ -1849,13 +1849,10 @@ your game.
 @xref Standard config variables, set_config_string, get_config_string
 @eref exconfig
 @shortdesc Sets the configuration file.
-   Sets the configuration file to be used by all subsequent config 
-   functions. If you don't call this function, Allegro will use the default 
-   `allegro.cfg' file, looking first in the same directory as your program
-   and then in the directory pointed to by the ALLEGRO environment variable
-   and the usual platform-specific paths for configuration files. For example
-   it will look for `/etc/allegro.cfg' under Unix.
-
+   Sets the configuration file to be used by all subsequent config
+   functions. (Allegro will not search for this file in other locations
+   as it does with allegro.cfg at the time of initialization.)
+   
    All pointers returned by previous calls to get_config_string() and
    other related functions are invalidated when you call this function!
    You can call this function before install_allegro() to change the
