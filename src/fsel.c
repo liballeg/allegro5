@@ -465,7 +465,7 @@ static int fs_flist_putter(AL_CONST char *str, int attrib, void *check_attrib)
          flist->capacity *= 2;
 	 flist->name = _al_sane_realloc(flist->name, sizeof(char *) * flist->capacity);
 	 if (flist->name == NULL) {
-	    *allegro_error = ENOMEM;
+	    *allegro_errno = ENOMEM;
 	    /* Stop the enumeration by returning non-zero */
 	    return -1;
 	 }
