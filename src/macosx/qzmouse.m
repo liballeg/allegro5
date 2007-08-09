@@ -125,8 +125,8 @@ void osx_mouse_handler(int ax, int ay, int x, int y, int z, int buttons)
    _mouse_y = ay;
    _mouse_z += z;
    
-   _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-   _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
+   _mouse_x = CLAMP(mouse_minx, _mouse_x, mouse_maxx);
+   _mouse_y = CLAMP(mouse_miny, _mouse_y, mouse_maxy);
 
    _handle_mouse_input();
 }
@@ -246,7 +246,7 @@ static void osx_mouse_set_range(int x1, int y1, int x2, int y2)
    mouse_maxx = x2;
    mouse_maxy = y2;
    
-   osx_mouse_position(MID(mouse_minx, _mouse_x, mouse_maxx), MID(mouse_miny, _mouse_y, mouse_maxy));
+   osx_mouse_position(CLAMP(mouse_minx, _mouse_x, mouse_maxx), CLAMP(mouse_miny, _mouse_y, mouse_maxy));
 }
 
 

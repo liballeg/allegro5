@@ -856,7 +856,7 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
 	 return NULL;
    }
 
-   type = MID(0, type & ~POLYTYPE_ZBUF, POLYTYPE_MAX-1);
+   type = CLAMP(0, type & ~POLYTYPE_ZBUF, POLYTYPE_MAX-1);
    *flags = interpinfo[type];
 
    if (texture) {

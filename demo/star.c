@@ -126,7 +126,7 @@ void draw_starfield_3d(BITMAP *bmp)
    int c, c2;
    for (c = 0; c < star_count; c++) {
       c2 = 7 - (int)(star[c].z >> 18);
-      putpixel(bmp, star[c].ox, star[c].oy, MID(0, c2, 7));
+      putpixel(bmp, star[c].ox, star[c].oy, CLAMP(0, c2, 7));
       if (animation_type == DIRTY_RECTANGLE)
          dirty_rectangle(star[c].ox, star[c].oy, 1, 1);
    }

@@ -461,8 +461,8 @@ static int processor (unsigned char *buf, int buf_size)
    }
 
    if (current_tool!=no_tool) {
-      x_axis.out_abs = MID(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
-      y_axis.out_abs = MID(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
+      x_axis.out_abs = CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
+      y_axis.out_abs = CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
       /* There's no range for z */
 
       _mouse_x = x_axis.out_abs;
@@ -664,8 +664,8 @@ static void mouse_set_range(int x1, int y1, int x2, int y2)
 
    DISABLE();
 
-   _mouse_x = MID(x1, _mouse_x, x2);
-   _mouse_y = MID(y1, _mouse_y, y2);
+   _mouse_x = CLAMP(x1, _mouse_x, x2);
+   _mouse_y = CLAMP(y1, _mouse_y, y2);
 
    ENABLE();
 }

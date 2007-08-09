@@ -472,7 +472,7 @@ static pascal void mouse_adb_interrupt(Ptr buffer, TempADBServiceRoutineUPP comp
       tmp &= 0x3F;
    _mouse_y += tmp;
    mickey_y += tmp;
-   _mouse_y = MID(mouse_y_min,mouse_y_max,_mouse_y);
+   _mouse_y = CLAMP(mouse_y_min,mouse_y_max,_mouse_y);
 
    tmp=buffer[2];
    _mouse_b |= tmp&0x80?0:2;
@@ -482,7 +482,7 @@ static pascal void mouse_adb_interrupt(Ptr buffer, TempADBServiceRoutineUPP comp
       tmp &= 0x3F;
    _mouse_x += tmp;
    mickey_x += tmp;
-   _mouse_x = MID(mouse_x_min,mouse_x_max,_mouse_x);
+   _mouse_x = CLAMP(mouse_x_min,mouse_x_max,_mouse_x);
    
    _handle_mouse_input();
 }
@@ -512,8 +512,8 @@ static void mouse_adb_set_range(int x1, int y1, int x2, int y2)
    mouse_x_max = x2;
    mouse_y_max = y2;
 
-   _mouse_x = MID(mouse_x_min, _mouse_x, mouse_x_max);
-   _mouse_y = MID(mouse_x_min, _mouse_y, mouse_y_max);
+   _mouse_x = CLAMP(mouse_x_min, _mouse_x, mouse_x_max);
+   _mouse_y = CLAMP(mouse_x_min, _mouse_y, mouse_y_max);
 }
 
 

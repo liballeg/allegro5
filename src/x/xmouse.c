@@ -107,8 +107,8 @@ static void _xwin_mousedrv_handler(int x, int y, int z, int w, int buttons)
 
    if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx)
        || (_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {
-      _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-      _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
+      _mouse_x = CLAMP(mouse_minx, _mouse_x, mouse_maxx);
+      _mouse_y = CLAMP(mouse_miny, _mouse_y, mouse_maxy);
    }
 
    _handle_mouse_input();
@@ -125,7 +125,7 @@ static int _xwin_mousedrv_init(void)
    unsigned char map[8];
 
    num_buttons = _xwin_get_pointer_mapping(map, sizeof(map));
-   num_buttons = MID(2, num_buttons, 3);
+   num_buttons = CLAMP(2, num_buttons, 3);
 
    last_xspeed = -1;
    last_yspeed = -1;
@@ -198,8 +198,8 @@ static void _xwin_mousedrv_set_range(int x1, int y1, int x2, int y2)
 
    XLOCK();
 
-   _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-   _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
+   _mouse_x = CLAMP(mouse_minx, _mouse_x, mouse_maxx);
+   _mouse_y = CLAMP(mouse_miny, _mouse_y, mouse_maxy);
 
    XUNLOCK();
 }

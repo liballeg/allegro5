@@ -72,7 +72,7 @@ extern "C" int be_midi_init(int input, int voices)
    }
    
    /* Checks if instruments are available */
-   mode = MID(0, get_config_int(sound, uconvert_ascii("be_midi_quality", tmp), 1), 1);
+   mode = CLAMP(0, get_config_int(sound, uconvert_ascii("be_midi_quality", tmp), 1), 1);
    if (mode)
       sm = B_BIG_SYNTH;
    else
@@ -92,7 +92,7 @@ extern "C" int be_midi_init(int input, int voices)
    _be_midisynth->FlushInstrumentCache(true);
    
    /* Reverberation is cool */
-   reverb = MID(0, get_config_int(sound, uconvert_ascii("be_midi_reverb", tmp), 0), 5);
+   reverb = CLAMP(0, get_config_int(sound, uconvert_ascii("be_midi_reverb", tmp), 0), 5);
    if (reverb) {
       be_synth->SetReverb((reverb_mode)reverb);
       be_synth->EnableReverb(true);
@@ -102,7 +102,7 @@ extern "C" int be_midi_init(int input, int voices)
          
    /* Sets sampling rate and sample interpolation method */
    freq = get_config_int(sound, uconvert_ascii("be_midi_freq", tmp), 22050);
-   quality = MID(0, get_config_int(sound, uconvert_ascii("be_midi_interpolation", tmp), 1), 2);
+   quality = CLAMP(0, get_config_int(sound, uconvert_ascii("be_midi_interpolation", tmp), 1), 2);
    be_synth->SetSamplingRate(freq);
    switch (quality) {
       case 0:

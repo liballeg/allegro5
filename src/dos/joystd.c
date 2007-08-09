@@ -754,7 +754,7 @@ static int joy_poll(void)
       /* throttle */
       if ((joystick_flags & JOYSTICK_CALIB_THRTL_MIN) && (joystick_flags & JOYSTICK_CALIB_THRTL_MAX)) {
 	 i = (y2 - joy_thr_min) * 255 / (joy_thr_max - joy_thr_min);
-	 joy[0].stick[2].axis[0].pos = MID(0, i, 255);
+	 joy[0].stick[2].axis[0].pos = CLAMP(0, i, 255);
 	 if (joy[0].stick[2].axis[0].pos > 255*2/3)
 	    joy[0].stick[2].axis[0].d2 = TRUE;
 	 else

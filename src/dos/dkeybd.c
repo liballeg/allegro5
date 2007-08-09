@@ -181,7 +181,7 @@ static void pcdos_set_rate(int delay, int rate)
    else
       delay = 3;
 
-   rate = MID(0, (rate-33) * 31 / (500-33), 31);
+   rate = CLAMP(0, (rate-33) * 31 / (500-33), 31);
 
    DISABLE();
 

@@ -371,8 +371,8 @@ static void mouse_dinput_handle(void)
          if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx) ||
              (_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {
 
-            _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-            _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
+            _mouse_x = CLAMP(mouse_minx, _mouse_x, mouse_maxx);
+            _mouse_y = CLAMP(mouse_miny, _mouse_y, mouse_maxy);
 
             mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
             mouse_my = COORD_TO_MICKEY_Y(_mouse_y);
@@ -734,8 +734,8 @@ static void mouse_directx_set_range(int x1, int y1, int x2, int y2)
 
    _enter_critical();
 
-   _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-   _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
+   _mouse_x = CLAMP(mouse_minx, _mouse_x, mouse_maxx);
+   _mouse_y = CLAMP(mouse_miny, _mouse_y, mouse_maxy);
 
    mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
    mouse_my = COORD_TO_MICKEY_Y(_mouse_y);
