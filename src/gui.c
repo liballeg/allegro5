@@ -1788,8 +1788,8 @@ static MENU_PLAYER *init_single_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *di
    layout_menu(player, menu, bar, x, y, minw, minh);
 
    if (repos) {
-      player->x = MID(0, player->x, SCREEN_W-player->w-1);
-      player->y = MID(0, player->y, SCREEN_H-player->h-1);
+      player->x = CLAMP(0, player->x, SCREEN_W-player->w-1);
+      player->y = CLAMP(0, player->y, SCREEN_H-player->h-1);
    }
 
    if (scare)

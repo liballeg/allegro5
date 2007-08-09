@@ -591,8 +591,8 @@ static int griddler(void)
    if (griddle_dlg[GRIDDLE_DLG_BOXES].flags & D_SELECTED)
       selitem = box_griddle(parent, griddle_name, type, skipempty, autocrop, depth);
    else {
-      xgrid = MID(1, atoi(griddle_xgrid), 0xFFFF);
-      ygrid = MID(1, atoi(griddle_ygrid), 0xFFFF);
+      xgrid = CLAMP(1, atoi(griddle_xgrid), 0xFFFF);
+      ygrid = CLAMP(1, atoi(griddle_ygrid), 0xFFFF);
       selitem = grid_griddle(parent, griddle_name, type, skipempty, autocrop, depth, xgrid, ygrid);
    }
 

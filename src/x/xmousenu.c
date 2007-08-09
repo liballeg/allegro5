@@ -156,7 +156,7 @@ static unsigned int xmouse_get_mouse_num_buttons(void)
    num_buttons = XGetPointerMapping(_xwin.display, map, sizeof(map));
    XUNLOCK();
 
-   num_buttons = MID(2, num_buttons, 3);
+   num_buttons = CLAMP(2, num_buttons, 3);
    return num_buttons;
 }
 
@@ -389,8 +389,8 @@ void _al_xwin_mouse_motion_notify_handler_dga2(int dx, int dy,
       int x = the_mouse.state.x + dx;
       int y = the_mouse.state.y + dy;
 
-      the_mouse.state.x = MID(min_x, x, max_x);
-      the_mouse.state.y = MID(min_y, y, max_y);
+      the_mouse.state.x = CLAMP(min_x, x, max_x);
+      the_mouse.state.y = CLAMP(min_y, y, max_y);
 
       generate_mouse_event(
          AL_EVENT_MOUSE_AXES,

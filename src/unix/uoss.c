@@ -258,8 +258,8 @@ static int open_oss_device(int input)
    for (fragbits = 0; (fragbits < 16) && (fragsize > 1); fragbits++)
       fragsize /= 2;
 
-   fragbits = MID(4, fragbits, 16);
-   _oss_numfrags = MID(2, _oss_numfrags, 0x7FFF);
+   fragbits = CLAMP(4, fragbits, 16);
+   _oss_numfrags = CLAMP(2, _oss_numfrags, 0x7FFF);
 
    fragsize = (_oss_numfrags << 16) | fragbits;
 
