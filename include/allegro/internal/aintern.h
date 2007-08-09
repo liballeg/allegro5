@@ -40,15 +40,6 @@ AL_VAR(int, _allegro_count);
 AL_VAR(int, _allegro_in_exit);
 
 
-/* These functions are referenced by 4.2.0 binaries, but should no longer be
- * used by newer versions directly.
- * _get_allegro_version would be marked deprecated except that misc/fixdll.*
- * would complain about it being missing.
- */
-AL_FUNC(int, _get_allegro_version, (void));
-AL_FUNC(int, _install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))));
-
-
 /* flag to decide whether to disable the screensaver */
 enum {
   NEVER_DISABLED,

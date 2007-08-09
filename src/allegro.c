@@ -231,22 +231,6 @@ static struct al_exit_func *exit_func_list = NULL;
 
 
 
-/* _get_allegro_version:
- *  Retrieves the library version.  This is an obsolete definition which should
- *  only be used by Allegro 4.2.0 binaries, which have a call to this function
- *  embedded.
- */
-int _get_allegro_version(void)
-{
-#if ALLEGRO_VERSION == 4 && ALLEGRO_SUB_VERSION == 2
-   return MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, 0);
-#else
-#error _get_allegro_version should not exist in other versions of Allegro
-#endif
-}
-
-
-
 /* _add_exit_func:
  *  Adds a function to the list that need to be called by allegro_exit().
  *  `desc' should point to a statically allocated string to help with
@@ -309,11 +293,8 @@ static void allegro_exit_stub(void)
 
 /* _install_allegro:
  *  Initialises the Allegro library, activating the system driver.
- *
- *  This is non-static because 4.2.0 binaries reference it.  Newer binaries
- *  should only call this through _install_allegro_version_check().
  */
-int _install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func)(void)))
+static int _install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func)(void)))
 {
    RGB black_rgb = {0, 0, 0, 0};
    char tmp1[64], tmp2[64];
