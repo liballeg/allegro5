@@ -16,11 +16,9 @@ struct AL_BITMAP
    int flags;
    int w, h;
    /* 
-    * clipping enabled?
     * clip left, right, top, bottom
     * Clip anything outside of this
     */
-   int clip;
    int cl, cr, ct, cb;
    /*
     * Locking info.

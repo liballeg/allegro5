@@ -27,7 +27,7 @@ static void name(AL_BITMAP *dst, void *dst_addr, int dx, int dy, int color, int 
 { \
    ASSERT(dst); \
  \
-   if (dst->clip && ((dx < dst->cl) || (dx >= dst->cr) || (dy < dst->ct) || (dy >= dst->cb))) \
+   if ((dx < dst->cl) || (dx >= dst->cr) || (dy < dst->ct) || (dy >= dst->cb)) \
       return; \
  \
    if (dst->drawing_mode == AL_PATTERN_SOLID) { \
@@ -281,14 +281,13 @@ void _al_draw_hline_memory(int dx1, int dy, int dx2, AL_COLOR *color, int flags)
       dx1 = dx2;
       dx2 = tmp;
    }
-   if (target->clip) {
-      if (dx1 < target->cl)
-	 dx1 = target->cl;
-      if (dx2 >= target->cr)
-	 dx2 = target->cr - 1;
-      if ((dx1 > dx2) || (dy < target->ct) || (dy >= target->cb))
-	 return;
-   }
+
+   if (dx1 < target->cl)
+      dx1 = target->cl;
+   if (dx2 >= target->cr)
+      dx2 = target->cr - 1;
+   if ((dx1 > dx2) || (dy < target->ct) || (dy >= target->cb))
+      return;
 
    if (!al_lock_bitmap_region(target, dx1, dy, dx2-dx1+1, 1, &lr, 0))
       return;
@@ -327,14 +326,13 @@ void _al_draw_vline_memory(int dx, int dy1, int dy2, AL_COLOR *color, int flags)
       dy1 = dy2;
       dy2 = tmp;
    }
-   if (dst->clip) {
-      if (dy1 < dst->ct)
-	 dy1 = dst->ct;
-      if (dy2 >= dst->cb)
-	 dy2 = dst->cb - 1;
-      if ((dx < dst->cl) || (dx >= dst->cr) || (dy1 > dy2))
-	 return;
-   }
+
+   if (dy1 < dst->ct)
+      dy1 = dst->ct;
+   if (dy2 >= dst->cb)
+      dy2 = dst->cb - 1;
+   if ((dx < dst->cl) || (dx >= dst->cr) || (dy1 > dy2))
+      return;
 
    if (!al_lock_bitmap_region(dst, dx, dy1, 1, dy2-dy1+1, &lr, 0))
       return;
@@ -343,7 +341,6 @@ void _al_draw_vline_memory(int dx, int dy1, int dy2, AL_COLOR *color, int flags)
    color_value = _al_get_pixel_value(dst->format, color);
 
    if (flags & AL_PATTERNED) {
-      int clip = dst->clip;
       unsigned char *d = lr.data;
       void (*pp)(AL_BITMAP *, void *, int, int, int, int);
 
@@ -362,12 +359,10 @@ void _al_draw_vline_memory(int dx, int dy1, int dy2, AL_COLOR *color, int flags)
             break;
       }
 
-      dst->clip = 0;
       for (y = dy1; y <= dy2; y++) {
          pp(dst, d, dx, y, color_value, flags);
          d += lr.pitch;
       }
-      dst->clip = clip;
    }
    else {
       #define DO_SOLID_VLINE(set, size) \
@@ -415,7 +410,7 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, AL_COLOR *color, int f
    int d;
    AL_BITMAP *bitmap;
    int sx, sy, t;
-   bool clip;
+   int clip;
    int clip_x1, clip_y1, clip_x2, clip_y2;
    int xo, yo; /* offset to top left */
 
@@ -473,34 +468,30 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, AL_COLOR *color, int f
    bitmap = al_get_target_bitmap();
 
    /* use a bounding box to check if the line needs clipping */
-   if (bitmap->clip) {
-      sx = x1;
-      sy = y1;
-      dx = x2;
-      dy = y2;
+   sx = x1;
+   sy = y1;
+   dx = x2;
+   dy = y2;
 
-      if (sx > dx) {
-	 t = sx;
-	 sx = dx;
-	 dx = t;
-      }
-
-      if (sy > dy) {
-	 t = sy;
-	 sy = dy;
-	 dy = t;
-      }
-
-      if ((sx >= bitmap->cr) || (sy >= bitmap->cb) || (dx < bitmap->cl) || (dy < bitmap->ct))
-	 return;
-
-      if ((sx >= bitmap->cl) && (sy >= bitmap->ct) && (dx < bitmap->cr) && (dy < bitmap->cb))
-	 clip = FALSE;
-      else
-         clip = TRUE;
+   if (sx > dx) {
+      t = sx;
+      sx = dx;
+      dx = t;
    }
-   else
+
+   if (sy > dy) {
+      t = sy;
+      sy = dy;
+      dy = t;
+   }
+
+   if ((sx >= bitmap->cr) || (sy >= bitmap->cb) || (dx < bitmap->cl) || (dy < bitmap->ct))
+      return;
+
+   if ((sx >= bitmap->cl) && (sy >= bitmap->ct) && (dx < bitmap->cr) && (dy < bitmap->cb))
       clip = FALSE;
+   else
+      clip = TRUE;
 
    if (x1 < 0)
       x1 = 0;
@@ -616,31 +607,19 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
    }
 
    /* Do clipping */
-   if (bitmap->clip) {
-      if (x1 < bitmap->cl) {
-         w -= (bitmap->cl - x1);
-         x1 = bitmap->cl;
-      }
-      if (y1 < bitmap->ct) {
-         h -= (bitmap->ct - y1);
-         y1 = bitmap->ct;
-      }
-      if (x2 > bitmap->cr) {
-         x2 = bitmap->cr;
-      }
-      if (y2 > bitmap->cb) {
-         y2 = bitmap->cb;
-      }
+   if (x1 < bitmap->cl) {
+      w -= (bitmap->cl - x1);
+      x1 = bitmap->cl;
    }
-   else {
-      if (x1 < 0)
-         x1 = 0;
-      if (y1 < 0)
-         y1 = 0;
-      if (x2 > bitmap->w-1)
-         x2 = bitmap->w-1;
-      if (y2 > bitmap->h-1)
-         y2 = bitmap->h-1;
+   if (y1 < bitmap->ct) {
+      h -= (bitmap->ct - y1);
+      y1 = bitmap->ct;
+   }
+   if (x2 > bitmap->cr) {
+      x2 = bitmap->cr;
+   }
+   if (y2 > bitmap->cb) {
+      y2 = bitmap->cb;
    }
 
    w = x2 - x1 + 1;

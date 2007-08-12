@@ -35,7 +35,6 @@ static AL_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->h = h;
    bitmap->display = NULL;
    bitmap->locked = false;
-   bitmap->clip = true;
    bitmap->cl = bitmap->ct = 0;
    bitmap->cr = w-1;
    bitmap->cb = h-1;
@@ -75,7 +74,6 @@ AL_BITMAP *al_create_bitmap(int w, int h)
    bitmap->w = w;
    bitmap->h = h;
    bitmap->locked = false;
-   bitmap->clip = true;
    bitmap->cl = bitmap->ct = 0;
    bitmap->cr = w-1;
    bitmap->cb = h-1;
@@ -379,16 +377,10 @@ int al_get_bitmap_flags(AL_BITMAP *bitmap)
    return bitmap->flags;
 }
 
-void al_enable_bitmap_clip(AL_BITMAP *bitmap, bool enable)
+void al_set_clipping_rectangle(int x, int y, int width, int height)
 {
-   bitmap->clip = enable;
-   if (bitmap->vt && bitmap->vt->set_bitmap_clip)
-      bitmap->vt->set_bitmap_clip(bitmap);
-}
+   AL_BITMAP *bitmap = al_get_target_bitmap();
 
-void al_set_bitmap_clip(AL_BITMAP *bitmap, int x, int y,
-   int width, int height)
-{
    if (x < 0) {
       width += x;
       x = 0;
@@ -408,22 +400,15 @@ void al_set_bitmap_clip(AL_BITMAP *bitmap, int x, int y,
    bitmap->ct = y;
    bitmap->cr = x + width;
    bitmap->cb = y + height;
-
-   al_enable_bitmap_clip(bitmap, true);
 }
 
-void al_get_bitmap_clip(AL_BITMAP *bitmap, int *x, int *y,
-   int *w, int *h)
+void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
 {
+   AL_BITMAP *bitmap = al_get_target_bitmap();
    if (x) *x = bitmap->cl;
    if (y) *y = bitmap->ct;
    if (w) *w = bitmap->cr - bitmap->cl + 1;
    if (h) *h = bitmap->cb - bitmap->ct + 1;
-}
-
-bool al_is_bitmap_clip_enabled(AL_BITMAP *bitmap)
-{
-   return bitmap->clip;
 }
 
 AL_BITMAP *al_create_sub_bitmap(AL_BITMAP *parent,
@@ -465,7 +450,6 @@ AL_BITMAP *al_create_sub_bitmap(AL_BITMAP *parent,
    bitmap->h = h;
    bitmap->display = parent->display;
    bitmap->locked = false;
-   bitmap->clip = true;
    bitmap->cl = bitmap->ct = 0;
    bitmap->cr = w-1;
    bitmap->cb = h-1;

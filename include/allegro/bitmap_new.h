@@ -158,12 +158,8 @@ AL_COLOR *al_get_mask_color(AL_COLOR *color);
 void al_convert_mask_to_alpha(AL_BITMAP *bitmap, AL_COLOR *mask_color);
 
 /* Clipping */
-void al_set_bitmap_clip(AL_BITMAP *bitmap, int x, int y,
-   int width, int height);
-void al_get_bitmap_clip(AL_BITMAP *bitmap, int *x, int *y,
-   int *w, int *h);
-void al_enable_bitmap_clip(AL_BITMAP *bitmap, bool enable);
-bool al_is_bitmap_clip_enabled(AL_BITMAP *bitmap);
+void al_set_clipping_rectangle(int x, int y, int width, int height);
+void al_get_clipping_rectangle(int *x, int *y, int *w, int *h);
 
 /* Sub bitmaps */
 AL_BITMAP *al_create_sub_bitmap(AL_BITMAP *parent,

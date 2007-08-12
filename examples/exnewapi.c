@@ -52,7 +52,7 @@ int main(void)
 
    display[2] = al_create_display(w, h);
 
-   //al_set_bitmap_clip(al_get_backbuffer(), 100, 100, 440, 280);
+   al_set_clipping_rectangle(100, 100, 440, 280);
 
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
@@ -128,13 +128,15 @@ int main(void)
             if (key->keycode == AL_KEY_ESCAPE) {
                quit = 1;
 	    }
+	    /*
             else {
                clip = !clip;
                for (i = 0; i < 3; i++) {
-                  al_set_current_display(display[0]);
+                  al_set_current_display(display[i]);
                   al_enable_bitmap_clip(al_get_backbuffer(), clip);
                }
             }
+	    */
          }
          if (event.type == AL_EVENT_DISPLAY_RESIZE) {
             AL_DISPLAY_EVENT *display = &event.display;

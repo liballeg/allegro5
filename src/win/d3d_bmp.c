@@ -886,9 +886,9 @@ void _al_d3d_set_bitmap_clip(AL_BITMAP *bitmap)
       right = bitmap->cr;
       top = bitmap->ct;
       bottom = bitmap->cb;
-      if (!bitmap->clip || (left == 0 && top == 0 &&
+      if (left == 0 && top == 0 &&
             right == (bitmap->w-1) &&
-            bottom == (bitmap->h-1))) {
+            bottom == (bitmap->h-1)) {
          d3d_disable_clip();
          return;
       }
