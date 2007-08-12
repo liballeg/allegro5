@@ -367,7 +367,26 @@ static AL_BITMAP *get_frontbuffer(AL_DISPLAY *d)
 
 static void set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 {
+   AL_DISPLAY_XGLX *glx = (AL_DISPLAY_XGLX *)display;
+   int x_1, y_1, x_2, y_2;
    //FIXME: change to offscreen targets and so on
+
+   if (bitmap->cl == 0 && bitmap->cr == bitmap->w - 1 &&
+      bitmap->ct == 0 && bitmap->cb == bitmap->h - 1) {
+      glDisable(GL_SCISSOR_TEST);
+   }
+   glEnable(GL_SCISSOR_TEST);
+
+   x_1 = bitmap->cl;
+   y_1 = bitmap->ct;
+   /* In OpenGL, coordinates are the top-left corner of pixels, so we need to
+    * add one to the right abd bottom edge.
+    */
+   x_2 = bitmap->cr + 1;
+   y_2 = bitmap->cb + 1;
+
+   /* OpenGL is upside down, so must adjust y_2 to the height. */
+   glScissor(x_1, bitmap->h - y_2, x_2 - x_1, y_2 - y_1);
 }
 
 static bool is_compatible_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
