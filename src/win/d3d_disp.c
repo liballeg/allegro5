@@ -1386,6 +1386,64 @@ AL_BITMAP *d3d_create_sub_bitmap(AL_DISPLAY *display, AL_BITMAP *parent,
    return (AL_BITMAP *)bitmap;
 }
 
+/*
+ * Sets a clipping rectangle
+ */
+static void d3d_set_bitmap_clip(AL_BITMAP *bitmap)
+{
+   float plane[4];
+   int left, right, top, bottom;
+
+   if (bitmap->parent) {
+      left = bitmap->xofs + bitmap->cl;
+      right = bitmap->xofs + bitmap->cr;
+      top = bitmap->yofs + bitmap->ct;
+      bottom = bitmap->yofs + bitmap->cb;
+   }
+   else {
+      left = bitmap->cl;
+      right = bitmap->cr;
+      top = bitmap->ct;
+      bottom = bitmap->cb;
+      if (left == 0 && top == 0 &&
+            right == (bitmap->w-1) &&
+            bottom == (bitmap->h-1)) {
+         IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CLIPPLANEENABLE, 0);
+         return;
+      }
+   }
+
+   //right--;
+   //bottom--;
+
+   plane[0] = 1.0f / left;
+   plane[1] = 0.0f;
+   plane[2] = 0.0f;
+   plane[3] = -1;
+   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 0, plane);
+
+   plane[0] = -1.0f / right;
+   plane[1] = 0.0f;
+   plane[2] = 0.0f;
+   plane[3] = 1;
+   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 1, plane);
+
+   plane[0] = 0.0f;
+   plane[1] = 1.0f / top;
+   plane[2] = 0.0f;
+   plane[3] = -1;
+   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 2, plane);
+
+   plane[0] = 0.0f;
+   plane[1] = -1.0f / bottom;
+   plane[2] = 0.0f;
+   plane[3] = 1;
+   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 3, plane);
+
+   /* Enable the first four clipping planes */
+   IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CLIPPLANEENABLE, 0xF);
+}
+
 static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 {
    AL_DISPLAY_D3D *d3d_display = (AL_DISPLAY_D3D *)bitmap->display;
@@ -1450,7 +1508,7 @@ static void d3d_set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
 
    d3d_reset_state();
 
-   _al_d3d_set_bitmap_clip(bitmap);
+   d3d_set_bitmap_clip(bitmap);
 
    _al_d3d_unlock_device();
 }

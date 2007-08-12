@@ -859,72 +859,6 @@ static void d3d_unlock_region(AL_BITMAP *bitmap)
    }
 }
 
-/*
- * Deactivate any clipping rectangles
- */
-static void d3d_disable_clip(void)
-{
-   IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CLIPPLANEENABLE, 0);
-}
-
-/*
- * Activate a clipping rectangle
- */
-void _al_d3d_set_bitmap_clip(AL_BITMAP *bitmap)
-{
-   float plane[4];
-   int left, right, top, bottom;
-
-   if (bitmap->parent) {
-      left = bitmap->xofs + bitmap->cl;
-      right = bitmap->xofs + bitmap->cr;
-      top = bitmap->yofs + bitmap->ct;
-      bottom = bitmap->yofs + bitmap->cb;
-   }
-   else {
-      left = bitmap->cl;
-      right = bitmap->cr;
-      top = bitmap->ct;
-      bottom = bitmap->cb;
-      if (left == 0 && top == 0 &&
-            right == (bitmap->w-1) &&
-            bottom == (bitmap->h-1)) {
-         d3d_disable_clip();
-         return;
-      }
-   }
-
-   //right--;
-   //bottom--;
-
-   plane[0] = 1.0f / left;
-   plane[1] = 0.0f;
-   plane[2] = 0.0f;
-   plane[3] = -1;
-   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 0, plane);
-
-   plane[0] = -1.0f / right;
-   plane[1] = 0.0f;
-   plane[2] = 0.0f;
-   plane[3] = 1;
-   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 1, plane);
-
-   plane[0] = 0.0f;
-   plane[1] = 1.0f / top;
-   plane[2] = 0.0f;
-   plane[3] = -1;
-   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 2, plane);
-
-   plane[0] = 0.0f;
-   plane[1] = -1.0f / bottom;
-   plane[2] = 0.0f;
-   plane[3] = 1;
-   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 3, plane);
-
-   /* Enable the first four clipping planes */
-   IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CLIPPLANEENABLE, 0xF);
-}
-
 /* Obtain a reference to this driver. */
 AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
 {
@@ -942,7 +876,6 @@ AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
    vt->destroy_bitmap = d3d_destroy_bitmap;
    vt->lock_region = d3d_lock_region;
    vt->unlock_region = d3d_unlock_region;
-   vt->set_bitmap_clip = _al_d3d_set_bitmap_clip;
 
    return vt;
 }

@@ -94,8 +94,6 @@ struct AL_BITMAP_INTERFACE
 	int flags);
 
    void (*unlock_region)(AL_BITMAP *bitmap);
-
-   void (*set_bitmap_clip)(AL_BITMAP *bitmap);
 };
 
 void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,
