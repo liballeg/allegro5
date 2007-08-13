@@ -23,12 +23,12 @@
 #include "allegro/internal/aintern_bitmap.h"
 
 // FIXME: The system driver must be used to get drivers!
-extern AL_DISPLAY_INTERFACE *_al_glx_vt(void);
+extern ALLEGRO_DISPLAY_INTERFACE *_al_glx_vt(void);
 
 /*
  * Create a new display. This is usually a window or fullscreen display.
  */
-AL_DISPLAY *al_create_display(int w, int h)
+ALLEGRO_DISPLAY *al_create_display(int w, int h)
 {
    // FIXME: We need to ask the system driver for a list of possible display
    // drivers here, then select a suitable one according to configuration
@@ -37,12 +37,12 @@ AL_DISPLAY *al_create_display(int w, int h)
 
    // Right now, the X11 driver is hardcoded.
 
-   AL_SYSTEM *system = al_system_driver();
-   AL_DISPLAY_INTERFACE *driver = system->vt->get_display_driver();
-   AL_DISPLAY *display = driver->create_display(w, h);
+   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_DISPLAY_INTERFACE *driver = system->vt->get_display_driver();
+   ALLEGRO_DISPLAY *display = driver->create_display(w, h);
    if (!display)
       return NULL;
-   AL_COLOR black;
+   ALLEGRO_COLOR black;
    al_set_current_display(display);
    al_set_target_bitmap(al_get_backbuffer());
    _al_map_rgba(display->format, &black, 0, 0, 0, 0);
@@ -52,17 +52,17 @@ AL_DISPLAY *al_create_display(int w, int h)
    return display;
 }
 
-void al_destroy_display(AL_DISPLAY *display)
+void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
    display->vt->destroy_display(display);
 }
 
-AL_BITMAP *al_get_backbuffer(void)
+ALLEGRO_BITMAP *al_get_backbuffer(void)
 {
    return _al_current_display->vt->get_backbuffer(_al_current_display);
 }
 
-AL_BITMAP *al_get_frontbuffer(void)
+ALLEGRO_BITMAP *al_get_frontbuffer(void)
 {
    return _al_current_display->vt->get_frontbuffer(_al_current_display);
 }
@@ -93,7 +93,7 @@ bool al_update_display_region(int x, int y,
  */
 bool al_acknowledge_resize(void)
 {
-   if (!(_al_current_display->flags & AL_FULLSCREEN)) {
+   if (!(_al_current_display->flags & ALLEGRO_FULLSCREEN)) {
       if (_al_current_display->vt->acknowledge_resize)
          return _al_current_display->vt->acknowledge_resize(_al_current_display);
    }
@@ -112,11 +112,11 @@ bool al_resize_display(int width, int height)
 }
 
 /* Clear a complete display, but confined by the clipping rectangle. */
-void al_clear(AL_COLOR *color)
+void al_clear(ALLEGRO_COLOR *color)
 {
-   AL_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
-   if (target->flags & AL_MEMORY_BITMAP) {
+   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_clear_memory(color);
    }
    else
@@ -125,11 +125,11 @@ void al_clear(AL_COLOR *color)
 
 /* Draws a line from fx/fy to tx/ty, including start as well as end pixel. */
 void al_draw_line(float fx, float fy, float tx, float ty,
-   AL_COLOR* color, int flags)
+   ALLEGRO_COLOR* color, int flags)
 {
-   AL_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
-   if ((target->flags & AL_MEMORY_BITMAP) || (flags & AL_PATTERNED)) {
+   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_line_memory(fx, fy, tx, ty, color, flags);
    }
    else
@@ -140,11 +140,11 @@ void al_draw_line(float fx, float fy, float tx, float ty,
 /* Draws a rectangle with top left corner tlx/tly abd bottom right corner
  * brx/bry. Both points are inclusive. */
 void al_draw_rectangle(float tlx, float tly, float brx, float bry,
-   AL_COLOR *color, int flags)
+   ALLEGRO_COLOR *color, int flags)
 {
-   AL_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
-   if ((target->flags & AL_MEMORY_BITMAP) || (flags & AL_PATTERNED)) {
+   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
    }
    else
@@ -152,7 +152,7 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
          tlx, tly, brx, bry, color, flags);
 }
 
-bool al_is_compatible_bitmap(AL_BITMAP *bitmap)
+bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    return _al_current_display->vt->is_compatible_bitmap(
       _al_current_display, bitmap);
@@ -189,7 +189,7 @@ int al_get_display_flags(void)
  */
 int al_get_num_display_modes(void)
 {
-   AL_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_system_driver();
    return system->vt->get_num_display_modes();
 }
 
@@ -197,9 +197,9 @@ int al_get_num_display_modes(void)
  * Get a fullscreen display mode by index, using the current
  * display parameters.
  */
-AL_DISPLAY_MODE *al_get_display_mode(int index, AL_DISPLAY_MODE *mode)
+ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
 {
-   AL_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_system_driver();
    return system->vt->get_display_mode(index, mode);
 }
 

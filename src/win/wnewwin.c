@@ -30,7 +30,7 @@ static _AL_VECTOR thread_handles = _AL_VECTOR_INITIALIZER(DWORD);
 
 /* We have to keep track of windows some how */
 typedef struct WIN_WINDOW {
-   AL_DISPLAY *display;
+   ALLEGRO_DISPLAY *display;
    HWND window;
 } WIN_WINDOW;
 static _AL_VECTOR win_window_list = _AL_VECTOR_INITIALIZER(WIN_WINDOW *);
@@ -67,7 +67,7 @@ HWND _al_win_create_hidden_window()
 }
 
 
-HWND _al_win_create_window(AL_DISPLAY *display, int width, int height, int flags)
+HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int flags)
 {
    HANDLE hThread;
    DWORD result;
@@ -92,8 +92,8 @@ HWND _al_win_create_window(AL_DISPLAY *display, int width, int height, int flags
    win_size.right = win_size.left + width;
    win_size.bottom = win_size.top + height;
 
-   if (!(flags & AL_FULLSCREEN)) {
-      if  (flags & AL_RESIZABLE) {
+   if (!(flags & ALLEGRO_FULLSCREEN)) {
+      if  (flags & ALLEGRO_RESIZABLE) {
          style = WS_OVERLAPPEDWINDOW|WS_VISIBLE;
          ex_style = WS_EX_APPWINDOW|WS_EX_OVERLAPPEDWINDOW;
       }
@@ -130,7 +130,7 @@ HWND _al_win_create_window(AL_DISPLAY *display, int width, int height, int flags
    wnd_x = pos.left;
    wnd_y = pos.top;
 
-   if (!(flags & AL_RESIZABLE)) {
+   if (!(flags & ALLEGRO_RESIZABLE)) {
       /* Make the window non-resizable */
       HMENU menu;
       menu = GetSystemMenu(my_window, FALSE);
@@ -139,7 +139,7 @@ HWND _al_win_create_window(AL_DISPLAY *display, int width, int height, int flags
       DrawMenuBar(my_window);
    }
 
-   if (flags & AL_FULLSCREEN) {
+   if (flags & ALLEGRO_FULLSCREEN) {
       wnd_x = 0;
       wnd_y = 0;
    }
@@ -157,7 +157,7 @@ void _al_win_delete_thread_handle(DWORD handle)
 static LRESULT CALLBACK window_callback(HWND hWnd, UINT message, 
     WPARAM wParam, LPARAM lParam)
 {
-   AL_DISPLAY *d = NULL;
+   ALLEGRO_DISPLAY *d = NULL;
    WINDOWINFO wi;
    int w;
    int h;
@@ -167,7 +167,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    int fActive;
    AL_EVENT_SOURCE *es = NULL;
    RECT pos;
-   AL_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_system_driver();
    WIN_WINDOW *win;
 
    if (message == _al_win_msg_call_proc) {
@@ -175,7 +175,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    }
 
    for (i = 0; i < system->displays._size; i++) {
-      AL_DISPLAY **dptr = _al_vector_ref(&system->displays, i);
+      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, i);
       d = *dptr;
       for (j = 0; j < win_window_list._size; j++) {
          WIN_WINDOW **wptr = _al_vector_ref(&win_window_list, j);
@@ -213,7 +213,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          break;
          case WM_ACTIVATEAPP:
             if (wParam) {
-               al_set_current_display((AL_DISPLAY *)d);
+               al_set_current_display((ALLEGRO_DISPLAY *)d);
                _al_win_wnd = win->window;
                win_grab_input();
                win_get_window_pos(win->window, &pos);
@@ -227,7 +227,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                    * Device can be lost here, so
                    * backup textures.
                    */
-                  if (d->flags & AL_FULLSCREEN) {
+                  if (d->flags & ALLEGRO_FULLSCREEN) {
                      d->vt->switch_out();
                   }
                   _al_win_ungrab_input();

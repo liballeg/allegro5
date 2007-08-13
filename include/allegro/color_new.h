@@ -1,11 +1,11 @@
 #ifndef _ALLEGRO_COLORNEW_H
 #define _ALLEGRO_COLORNEW_H
 
-typedef struct AL_COLOR AL_COLOR;
+typedef struct ALLEGRO_COLOR ALLEGRO_COLOR;
 
-typedef struct AL_DISPLAY AL_DISPLAY;
+typedef struct ALLEGRO_DISPLAY ALLEGRO_DISPLAY;
 
-struct AL_COLOR
+struct ALLEGRO_COLOR
 {
 	uint64_t raw[4];
 };

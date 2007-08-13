@@ -29,19 +29,19 @@
 
 #include "win_new.h"
 
-static AL_SYSTEM_INTERFACE *vt = 0;
+static ALLEGRO_SYSTEM_INTERFACE *vt = 0;
 
-AL_SYSTEM_WIN *_al_win_system;
+ALLEGRO_SYSTEM_WIN *_al_win_system;
 
 /* Create a new system object for the dummy D3D driver. */
-static AL_SYSTEM *win_initialize(int flags)
+static ALLEGRO_SYSTEM *win_initialize(int flags)
 {
    _al_win_system = _AL_MALLOC(sizeof *_al_win_system);
    memset(_al_win_system, 0, sizeof *_al_win_system);
 
    _al_win_init_window();
 
-   _al_vector_init(&_al_win_system->system.displays, sizeof (AL_SYSTEM_WIN *));
+   _al_vector_init(&_al_win_system->system.displays, sizeof (ALLEGRO_SYSTEM_WIN *));
 
    _al_win_system->system.vt = vt;
 
@@ -54,7 +54,7 @@ static AL_SYSTEM *win_initialize(int flags)
 }
 
 /* FIXME: autodetect a driver */
-AL_DISPLAY_INTERFACE *win_get_display_driver(void)
+ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
 #if defined ALLEGRO_D3D
    return _al_display_d3d_driver();
@@ -75,45 +75,45 @@ int win_get_num_display_modes(void)
    int refresh_rate = al_get_new_display_refresh_rate();
    int flags = al_get_new_display_flags();
 
-   if (!(flags & AL_FULLSCREEN))
+   if (!(flags & ALLEGRO_FULLSCREEN))
       return -1;
 
 #if defined ALLEGRO_D3D
-   if (flags & AL_DIRECT3D) {
+   if (flags & ALLEGRO_DIRECT3D) {
       return _al_d3d_get_num_display_modes(format, refresh_rate, flags);
    }
 #endif
 
-   if (flags & AL_OPENGL) {
+   if (flags & ALLEGRO_OPENGL) {
       /* FIXME */
    }
 
    return 0;
 }
 
-AL_DISPLAY_MODE *win_get_display_mode(int index, AL_DISPLAY_MODE *mode)
+ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
 {
    int format = al_get_new_display_format();
    int refresh_rate = al_get_new_display_refresh_rate();
    int flags = al_get_new_display_flags();
 
-   if (!(flags & AL_FULLSCREEN))
+   if (!(flags & ALLEGRO_FULLSCREEN))
       return NULL;
 
 #if defined ALLEGRO_D3D
-   if (flags & AL_DIRECT3D) {
+   if (flags & ALLEGRO_DIRECT3D) {
       return _al_d3d_get_display_mode(index, format, refresh_rate, flags, mode);
    }
 #endif
 
-   if (flags & AL_OPENGL) {
+   if (flags & ALLEGRO_OPENGL) {
       /* FIXME */
    }
 
    return NULL;
 }
 
-AL_SYSTEM_INTERFACE *_al_system_win_driver(void)
+ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
 
@@ -127,14 +127,14 @@ AL_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_display_mode = win_get_display_mode;
    vt->shutdown_system = NULL; /* might need something here */
 
-   TRACE("AL_SYSTEM_INTERFACE created.\n");
+   TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
 
    return vt;
 }
 
 void _al_register_system_interfaces()
 {
-   AL_SYSTEM_INTERFACE **add;
+   ALLEGRO_SYSTEM_INTERFACE **add;
 
 #if defined ALLEGRO_D3D
    /* This is the only system driver right now */

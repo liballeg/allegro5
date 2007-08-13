@@ -21,30 +21,30 @@
 #include "allegro/internal/aintern_system.h"
 #include "allegro/internal/aintern_vector.h"
 
-static AL_SYSTEM *active;
+static ALLEGRO_SYSTEM *active;
 
-_AL_VECTOR _al_system_interfaces = _AL_VECTOR_INITIALIZER(AL_SYSTEM_INTERFACE *);
-static _AL_VECTOR _user_system_interfaces = _AL_VECTOR_INITIALIZER(AL_SYSTEM_INTERFACE *);
+_AL_VECTOR _al_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
+static _AL_VECTOR _user_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
 
-bool al_register_system_driver(AL_SYSTEM_INTERFACE *sys_interface)
+bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
 {
-   AL_SYSTEM_INTERFACE **add = _al_vector_alloc_back(&_user_system_interfaces);
+   ALLEGRO_SYSTEM_INTERFACE **add = _al_vector_alloc_back(&_user_system_interfaces);
    if (!add)
       return false;
    *add = sys_interface;
    return true;
 }
 
-void al_unregister_system_driver(AL_SYSTEM_INTERFACE *sys_interface)
+void al_unregister_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
 {
    _al_vector_find_and_delete(&_user_system_interfaces, sys_interface);
 }
 
-static AL_SYSTEM *find_system(_AL_VECTOR *vector)
+static ALLEGRO_SYSTEM *find_system(_AL_VECTOR *vector)
 {
-   AL_SYSTEM_INTERFACE **sptr;
-   AL_SYSTEM_INTERFACE *sys_interface;
-   AL_SYSTEM *system;
+   ALLEGRO_SYSTEM_INTERFACE **sptr;
+   ALLEGRO_SYSTEM_INTERFACE *sys_interface;
+   ALLEGRO_SYSTEM *system;
    unsigned int i;
 
    for (i = 0; i < vector->_size; i++) {
@@ -73,7 +73,7 @@ void _al_exit(void)
 /* Initialize the Allegro system. */
 bool _al_init(void)
 {
-   AL_SYSTEM_INTERFACE *driver = NULL;
+   ALLEGRO_SYSTEM_INTERFACE *driver = NULL;
 
    if (active) {
       return true;
@@ -103,7 +103,7 @@ bool _al_init(void)
 }
 
 /* Returns the currently active system driver. */
-AL_SYSTEM *al_system_driver(void)
+ALLEGRO_SYSTEM *al_system_driver(void)
 {
     return active;
 }

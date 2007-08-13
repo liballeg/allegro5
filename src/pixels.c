@@ -70,7 +70,7 @@ int al_get_pixel_size(int format)
 
 /* map_rgba functions */
 
-static AL_COLOR *_map_rgba_argb_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_argb_8888(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = a;
@@ -80,7 +80,7 @@ static AL_COLOR *_map_rgba_argb_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_rgba_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_rgba_8888(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = r;
@@ -90,7 +90,7 @@ static AL_COLOR *_map_rgba_rgba_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_argb_4444(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_argb_4444(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = a >> 4;
@@ -100,7 +100,7 @@ static AL_COLOR *_map_rgba_argb_4444(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_rgb_888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_rgb_888(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = r;
@@ -110,7 +110,7 @@ static AL_COLOR *_map_rgba_rgb_888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_rgb_565(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_rgb_565(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = r >> 3;
@@ -120,7 +120,7 @@ static AL_COLOR *_map_rgba_rgb_565(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_rgb_555(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_rgb_555(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = r >> 3;
@@ -130,7 +130,7 @@ static AL_COLOR *_map_rgba_rgb_555(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_palette_8(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_palette_8(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = makecol8(r, g, b);
@@ -138,7 +138,7 @@ static AL_COLOR *_map_rgba_palette_8(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_rgba_5551(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_rgba_5551(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = r >> 3;
@@ -148,7 +148,7 @@ static AL_COLOR *_map_rgba_rgba_5551(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_argb_1555(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_argb_1555(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = a >> 7;
@@ -158,7 +158,7 @@ static AL_COLOR *_map_rgba_argb_1555(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_abgr_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_abgr_8888(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = a;
@@ -168,7 +168,7 @@ static AL_COLOR *_map_rgba_abgr_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_xbgr_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_xbgr_8888(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = 0;
@@ -178,7 +178,7 @@ static AL_COLOR *_map_rgba_xbgr_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_bgr_888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_bgr_888(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = b;
@@ -188,7 +188,7 @@ static AL_COLOR *_map_rgba_bgr_888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_bgr_565(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_bgr_565(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = b >> 3;
@@ -198,7 +198,7 @@ static AL_COLOR *_map_rgba_bgr_565(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_bgr_555(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_bgr_555(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = b >> 3;
@@ -208,7 +208,7 @@ static AL_COLOR *_map_rgba_bgr_555(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_rgbx_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_rgbx_8888(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = r;
@@ -218,7 +218,7 @@ static AL_COLOR *_map_rgba_rgbx_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_xrgb_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_xrgb_8888(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    p->raw[0] = 0;
@@ -230,7 +230,7 @@ static AL_COLOR *_map_rgba_xrgb_8888(AL_COLOR *p,
 
 /* map_rgba map */
 
-typedef AL_COLOR *(*_map_rgba_func)(AL_COLOR *,
+typedef ALLEGRO_COLOR *(*_map_rgba_func)(ALLEGRO_COLOR *,
    unsigned char, unsigned char, unsigned char, unsigned char);
 
 static _map_rgba_func _map_rgba_funcs[] = {
@@ -253,19 +253,19 @@ static _map_rgba_func _map_rgba_funcs[] = {
    _map_rgba_xrgb_8888
 };
 
-AL_COLOR* _al_map_rgba(int format, AL_COLOR *color,
+ALLEGRO_COLOR* _al_map_rgba(int format, ALLEGRO_COLOR *color,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    return (*_map_rgba_funcs[format])(color, r, g, b, a);
 }
 
-AL_COLOR* al_map_rgba(AL_BITMAP *bitmap, AL_COLOR *color,
+ALLEGRO_COLOR* al_map_rgba(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    return _al_map_rgba(bitmap->format, color, r, g, b, a);
 }
 
-AL_COLOR* al_map_rgb(AL_BITMAP *bitmap, AL_COLOR *color,
+ALLEGRO_COLOR* al_map_rgb(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    unsigned char r, unsigned char g, unsigned char b)
 {
    return _al_map_rgba(bitmap->format, color, r, g, b, 255);
@@ -273,7 +273,7 @@ AL_COLOR* al_map_rgb(AL_BITMAP *bitmap, AL_COLOR *color,
 
 /* map_rgba_f functions */
 
-static AL_COLOR *_map_rgba_f_argb_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_argb_8888(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(a * 0xFF);
@@ -284,7 +284,7 @@ static AL_COLOR *_map_rgba_f_argb_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_rgba_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_rgba_8888(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(r * 0xFF);
@@ -294,7 +294,7 @@ static AL_COLOR *_map_rgba_f_rgba_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_argb_4444(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_argb_4444(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(a * 0xF);
@@ -304,7 +304,7 @@ static AL_COLOR *_map_rgba_f_argb_4444(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_rgb_888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_rgb_888(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(r * 0xFF);
@@ -314,7 +314,7 @@ static AL_COLOR *_map_rgba_f_rgb_888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_rgb_565(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_rgb_565(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(r * 0x1F);
@@ -324,7 +324,7 @@ static AL_COLOR *_map_rgba_f_rgb_565(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_rgb_555(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_rgb_555(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(r * 0x1F);
@@ -334,7 +334,7 @@ static AL_COLOR *_map_rgba_f_rgb_555(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_palette_8(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_palette_8(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(makecol8(r*255, g*255, b*255));
@@ -342,7 +342,7 @@ static AL_COLOR *_map_rgba_f_palette_8(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_rgba_5551(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_rgba_5551(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(r * 0x1F);
@@ -352,7 +352,7 @@ static AL_COLOR *_map_rgba_f_rgba_5551(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_argb_1555(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_argb_1555(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(a);
@@ -362,7 +362,7 @@ static AL_COLOR *_map_rgba_f_argb_1555(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_abgr_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_abgr_8888(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(a * 0xFF);
@@ -372,7 +372,7 @@ static AL_COLOR *_map_rgba_f_abgr_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_xbgr_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_xbgr_8888(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(0);
@@ -382,7 +382,7 @@ static AL_COLOR *_map_rgba_f_xbgr_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_bgr_888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_bgr_888(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(b * 0xFF);
@@ -392,7 +392,7 @@ static AL_COLOR *_map_rgba_f_bgr_888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_bgr_565(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_bgr_565(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(b * 0x1F);
@@ -402,7 +402,7 @@ static AL_COLOR *_map_rgba_f_bgr_565(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_bgr_555(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_bgr_555(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(b * 0x1F);
@@ -412,7 +412,7 @@ static AL_COLOR *_map_rgba_f_bgr_555(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_rgbx_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_rgbx_8888(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = (uint64_t)(r * 0xFF);
@@ -422,7 +422,7 @@ static AL_COLOR *_map_rgba_f_rgbx_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_f_xrgb_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_f_xrgb_8888(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
    p->raw[0] = 0;
@@ -434,7 +434,7 @@ static AL_COLOR *_map_rgba_f_xrgb_8888(AL_COLOR *p,
 
 /* map_rgba_f map */
 
-typedef AL_COLOR *(*_map_rgba_f_func)(AL_COLOR *, float, float, float, float);
+typedef ALLEGRO_COLOR *(*_map_rgba_f_func)(ALLEGRO_COLOR *, float, float, float, float);
 
 static _map_rgba_f_func _map_rgba_f_funcs[] = {
    NULL,
@@ -456,19 +456,19 @@ static _map_rgba_f_func _map_rgba_f_funcs[] = {
    _map_rgba_f_xrgb_8888
 };
 
-AL_COLOR *_al_map_rgba_f(int format, AL_COLOR *color,
+ALLEGRO_COLOR *_al_map_rgba_f(int format, ALLEGRO_COLOR *color,
    float r, float g, float b, float a)
 {
    return (*_map_rgba_f_funcs[format])(color, r, g, b, a);
 }
 
-AL_COLOR *al_map_rgba_f(AL_BITMAP *bitmap, AL_COLOR *color,
+ALLEGRO_COLOR *al_map_rgba_f(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    float r, float g, float b, float a)
 {
    return _al_map_rgba_f(bitmap->format, color, r, g, b, a);
 }
 
-AL_COLOR *al_map_rgb_f(AL_BITMAP *bitmap, AL_COLOR *color,
+ALLEGRO_COLOR *al_map_rgb_f(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    float r, float g, float b)
 {
    return _al_map_rgba_f(bitmap->format, color, r, g, b, 1.0f);
@@ -482,7 +482,7 @@ const int int_to_5_bit_shift = (sizeof(int) * 8) - 5 - 1;
 const int int_to_4_bit_shift = (sizeof(int) * 8) - 4 - 1;
 const int int_to_1_bit_shift = (sizeof(int) * 8) - 1 - 1;
 
-static AL_COLOR *_map_rgba_i_argb_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_argb_8888(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = a >> int_to_8_bit_shift;
@@ -493,7 +493,7 @@ static AL_COLOR *_map_rgba_i_argb_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_rgba_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_rgba_8888(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = r >> int_to_8_bit_shift;
@@ -503,7 +503,7 @@ static AL_COLOR *_map_rgba_i_rgba_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_argb_4444(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_argb_4444(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = a >> int_to_4_bit_shift;
@@ -513,7 +513,7 @@ static AL_COLOR *_map_rgba_i_argb_4444(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_rgb_888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_rgb_888(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = r >> int_to_8_bit_shift;
@@ -523,7 +523,7 @@ static AL_COLOR *_map_rgba_i_rgb_888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_rgb_565(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_rgb_565(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = r >> int_to_5_bit_shift;
@@ -533,7 +533,7 @@ static AL_COLOR *_map_rgba_i_rgb_565(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_rgb_555(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_rgb_555(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = r >> int_to_5_bit_shift;
@@ -543,7 +543,7 @@ static AL_COLOR *_map_rgba_i_rgb_555(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_palette_8(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_palette_8(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = makecol8(
@@ -554,7 +554,7 @@ static AL_COLOR *_map_rgba_i_palette_8(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_rgba_5551(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_rgba_5551(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = r >> int_to_5_bit_shift;
@@ -564,7 +564,7 @@ static AL_COLOR *_map_rgba_i_rgba_5551(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_argb_1555(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_argb_1555(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = a >> int_to_1_bit_shift;
@@ -574,7 +574,7 @@ static AL_COLOR *_map_rgba_i_argb_1555(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_abgr_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_abgr_8888(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = a >> int_to_8_bit_shift;
@@ -584,7 +584,7 @@ static AL_COLOR *_map_rgba_i_abgr_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_xbgr_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_xbgr_8888(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = 0;
@@ -594,7 +594,7 @@ static AL_COLOR *_map_rgba_i_xbgr_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_bgr_888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_bgr_888(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = b >> int_to_8_bit_shift;
@@ -604,7 +604,7 @@ static AL_COLOR *_map_rgba_i_bgr_888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_bgr_565(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_bgr_565(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = b >> int_to_5_bit_shift;
@@ -614,7 +614,7 @@ static AL_COLOR *_map_rgba_i_bgr_565(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_bgr_555(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_bgr_555(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = b >> int_to_5_bit_shift;
@@ -624,7 +624,7 @@ static AL_COLOR *_map_rgba_i_bgr_555(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_rgbx_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_rgbx_8888(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = r >> int_to_8_bit_shift;
@@ -634,7 +634,7 @@ static AL_COLOR *_map_rgba_i_rgbx_8888(AL_COLOR *p,
    return p;
 }
 
-static AL_COLOR *_map_rgba_i_xrgb_8888(AL_COLOR *p,
+static ALLEGRO_COLOR *_map_rgba_i_xrgb_8888(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
    p->raw[0] = 0;
@@ -646,7 +646,7 @@ static AL_COLOR *_map_rgba_i_xrgb_8888(AL_COLOR *p,
 
 /* map_rgba_i map */
 
-typedef AL_COLOR *(*_map_rgba_i_func)(AL_COLOR *, int, int, int, int);
+typedef ALLEGRO_COLOR *(*_map_rgba_i_func)(ALLEGRO_COLOR *, int, int, int, int);
 
 static _map_rgba_i_func _map_rgba_i_funcs[] = {
    NULL,
@@ -668,19 +668,19 @@ static _map_rgba_i_func _map_rgba_i_funcs[] = {
    _map_rgba_i_xrgb_8888
 };
 
-AL_COLOR *_al_map_rgba_i(int format, AL_COLOR *color,
+ALLEGRO_COLOR *_al_map_rgba_i(int format, ALLEGRO_COLOR *color,
    int r, int g, int b, int a)
 {
    return (*_map_rgba_i_funcs[format])(color, r, g, b, a);
 }
 
-AL_COLOR *al_map_rgba_i(AL_BITMAP *bitmap, AL_COLOR *color,
+ALLEGRO_COLOR *al_map_rgba_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    int r, int g, int b, int a)
 {
    return _al_map_rgba_i(bitmap->format, color, r, g, b, a);
 }
 
-AL_COLOR *al_map_rgb_i(AL_BITMAP *bitmap, AL_COLOR *color,
+ALLEGRO_COLOR *al_map_rgb_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    int r, int g, int b)
 {
    return _al_map_rgba_i(bitmap->format, color, r, g, b, 1.0f);
@@ -688,7 +688,7 @@ AL_COLOR *al_map_rgb_i(AL_BITMAP *bitmap, AL_COLOR *color,
 
 /* Get pixel functions */
 
-void _get_pixel_argb_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_argb_8888(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = *(uint32_t *)(data);
    al_map_rgba(bitmap, color,
@@ -698,7 +698,7 @@ void _get_pixel_argb_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       (pixel & 0xFF000000) >> 24);
 }
 
-void _get_pixel_rgba_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_rgba_8888(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = *(uint32_t *)(data);
    al_map_rgba(bitmap, color,
@@ -708,7 +708,7 @@ void _get_pixel_rgba_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       (pixel & 0x000000FF) >>  0);
 }
 
-void _get_pixel_argb_4444(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_argb_4444(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
    al_map_rgba(bitmap, color,
@@ -718,7 +718,7 @@ void _get_pixel_argb_4444(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       _rgb_scale_4[(pixel & 0xF000) >>  12]);
 }
 
-void _get_pixel_rgb_888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_rgb_888(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = READ3BYTES(data);   
    al_map_rgba(bitmap, color,
@@ -728,7 +728,7 @@ void _get_pixel_rgb_888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       0.0f);
 }
 
-void _get_pixel_rgb_565(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_rgb_565(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
    al_map_rgba(bitmap, color,
@@ -738,7 +738,7 @@ void _get_pixel_rgb_565(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       0.0f);
 }
 
-void _get_pixel_rgb_555(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_rgb_555(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
    al_map_rgba(bitmap, color,
@@ -748,7 +748,7 @@ void _get_pixel_rgb_555(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       0.0f);
 }
 
-void _get_pixel_palette_8(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_palette_8(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    int pixel = *(unsigned char *)(data);
    al_map_rgba(bitmap, color,
@@ -758,7 +758,7 @@ void _get_pixel_palette_8(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       0.0f);
 }
 
-void _get_pixel_rgba_5551(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_rgba_5551(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
    al_map_rgba(bitmap, color,
@@ -768,7 +768,7 @@ void _get_pixel_rgba_5551(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       0.0f);
 }
 
-void _get_pixel_argb_1555(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_argb_1555(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
    al_map_rgba(bitmap, color,
@@ -778,7 +778,7 @@ void _get_pixel_argb_1555(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       0.0f);
 }
 
-void _get_pixel_abgr_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_abgr_8888(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = *(uint32_t *)(data);
    al_map_rgba(bitmap, color,
@@ -788,7 +788,7 @@ void _get_pixel_abgr_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       (pixel & 0xFF000000) >> 24);
 }
 
-void _get_pixel_xbgr_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_xbgr_8888(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = *(uint32_t *)(data);
    al_map_rgba(bitmap, color,
@@ -798,7 +798,7 @@ void _get_pixel_xbgr_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       0.0f);
 }
 
-void _get_pixel_bgr_888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_bgr_888(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = READ3BYTES(data);
    al_map_rgba(bitmap, color,
@@ -808,7 +808,7 @@ void _get_pixel_bgr_888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       0.0f);
 }
 
-void _get_pixel_bgr_565(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_bgr_565(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
    al_map_rgba(bitmap, color,
@@ -818,7 +818,7 @@ void _get_pixel_bgr_565(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       0.0f);
 }
 
-void _get_pixel_bgr_555(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_bgr_555(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
    al_map_rgba(bitmap, color,
@@ -828,7 +828,7 @@ void _get_pixel_bgr_555(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       0.0f);
 }
 
-void _get_pixel_rgbx_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_rgbx_8888(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = *(uint32_t *)(data);
    al_map_rgba(bitmap, color,
@@ -838,7 +838,7 @@ void _get_pixel_rgbx_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
       0.0f);
 }
 
-void _get_pixel_xrgb_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
+void _get_pixel_xrgb_8888(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = *(uint32_t *)(data);
    al_map_rgba(bitmap, color,
@@ -850,7 +850,7 @@ void _get_pixel_xrgb_8888(AL_BITMAP *bitmap, void *data, AL_COLOR *color)
 
 /* get pixel lookup table */
 
-typedef void (*p_get_pixel_func)(AL_BITMAP *, void *, AL_COLOR *);
+typedef void (*p_get_pixel_func)(ALLEGRO_BITMAP *, void *, ALLEGRO_COLOR *);
 
 p_get_pixel_func get_pixel_funcs[] = {
    NULL,
@@ -872,21 +872,21 @@ p_get_pixel_func get_pixel_funcs[] = {
    _get_pixel_xrgb_8888
 };
 
-AL_COLOR *_al_get_pixel(AL_BITMAP *bitmap, void *data, AL_COLOR *color) {
+ALLEGRO_COLOR *_al_get_pixel(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color) {
    (*get_pixel_funcs[bitmap->format])(bitmap, data, color);
    return color;
 }
 
-AL_COLOR *al_get_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color)
+ALLEGRO_COLOR *al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR *color)
 {
-   AL_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION lr;
 
    if (bitmap->locked) {
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;
       if (x < 0 || y < 0 || x > bitmap->lock_w || y > bitmap->lock_h) {
          TRACE("al_get_pixel out of bounds\n");
-         memset(color, 0, sizeof(AL_COLOR));
+         memset(color, 0, sizeof(ALLEGRO_COLOR));
          return color;
       }
 
@@ -897,12 +897,12 @@ AL_COLOR *al_get_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color)
    else {
       /* FIXME: must use clip not full bitmap */
       if (x < 0 || y < 0 || x >= bitmap->w || y >= bitmap->h) {
-         memset(color, 0, sizeof(AL_COLOR));
+         memset(color, 0, sizeof(ALLEGRO_COLOR));
          return color;
       }
 
-      if (!al_lock_bitmap_region(bitmap, x, y, 1, 1, &lr, AL_LOCK_READONLY)) {
-         memset(color, 0, sizeof(AL_COLOR));
+      if (!al_lock_bitmap_region(bitmap, x, y, 1, 1, &lr, ALLEGRO_LOCK_READONLY)) {
+         memset(color, 0, sizeof(ALLEGRO_COLOR));
          return color;
       }
       
@@ -918,7 +918,7 @@ AL_COLOR *al_get_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color)
 
 /* get_pixel_value functions */
 
-int _get_pixel_value_argb_8888(AL_COLOR *p)
+int _get_pixel_value_argb_8888(ALLEGRO_COLOR *p)
 {
    uint32_t pixel = 0;
    pixel |= p->raw[0] << 24;
@@ -928,7 +928,7 @@ int _get_pixel_value_argb_8888(AL_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_rgba_8888(AL_COLOR *p)
+int _get_pixel_value_rgba_8888(ALLEGRO_COLOR *p)
 {
    uint32_t pixel = 0;
    pixel |= p->raw[0] << 24;
@@ -939,7 +939,7 @@ int _get_pixel_value_rgba_8888(AL_COLOR *p)
 }
 
 
-int _get_pixel_value_argb_4444(AL_COLOR *p)
+int _get_pixel_value_argb_4444(ALLEGRO_COLOR *p)
 {
    uint16_t pixel = 0;
    pixel |= p->raw[0] << 12;
@@ -949,7 +949,7 @@ int _get_pixel_value_argb_4444(AL_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_rgb_888(AL_COLOR *p)
+int _get_pixel_value_rgb_888(ALLEGRO_COLOR *p)
 {
    uint32_t pixel = 0;
    pixel |= p->raw[0] << 16;
@@ -958,7 +958,7 @@ int _get_pixel_value_rgb_888(AL_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_rgb_565(AL_COLOR *p)
+int _get_pixel_value_rgb_565(ALLEGRO_COLOR *p)
 {
    uint16_t pixel = 0;
    pixel |= p->raw[0] <<  11;
@@ -967,7 +967,7 @@ int _get_pixel_value_rgb_565(AL_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_rgb_555(AL_COLOR *p)
+int _get_pixel_value_rgb_555(ALLEGRO_COLOR *p)
 {
    uint16_t pixel = 0;
    pixel |= p->raw[0] << 10;
@@ -976,12 +976,12 @@ int _get_pixel_value_rgb_555(AL_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_palette_8(AL_COLOR *p)
+int _get_pixel_value_palette_8(ALLEGRO_COLOR *p)
 {
    return p->raw[0];
 }
 
-int _get_pixel_value_rgba_5551(AL_COLOR *p)
+int _get_pixel_value_rgba_5551(ALLEGRO_COLOR *p)
 {
    uint16_t pixel = 0;
    pixel |= p->raw[0] <<  0;
@@ -991,7 +991,7 @@ int _get_pixel_value_rgba_5551(AL_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_argb_1555(AL_COLOR *p)
+int _get_pixel_value_argb_1555(ALLEGRO_COLOR *p)
 {
    uint16_t pixel = 0;
    pixel |= p->raw[0] << 15;
@@ -1001,7 +1001,7 @@ int _get_pixel_value_argb_1555(AL_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_abgr_8888(AL_COLOR *p)
+int _get_pixel_value_abgr_8888(ALLEGRO_COLOR *p)
 {
    uint32_t pixel = 0;
    pixel |= p->raw[0] << 24;
@@ -1011,7 +1011,7 @@ int _get_pixel_value_abgr_8888(AL_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_xbgr_8888(AL_COLOR *p)
+int _get_pixel_value_xbgr_8888(ALLEGRO_COLOR *p)
 {
    uint32_t pixel = 0;
    pixel |= p->raw[0] << 16;
@@ -1020,7 +1020,7 @@ int _get_pixel_value_xbgr_8888(AL_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_bgr_888(AL_COLOR *p)
+int _get_pixel_value_bgr_888(ALLEGRO_COLOR *p)
 {
    uint32_t pixel = 0;
    pixel |= p->raw[0] << 16;
@@ -1029,7 +1029,7 @@ int _get_pixel_value_bgr_888(AL_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_bgr_565(AL_COLOR *p)
+int _get_pixel_value_bgr_565(ALLEGRO_COLOR *p)
 {
    uint16_t pixel = 0;
    pixel |= p->raw[0] <<  11;
@@ -1038,7 +1038,7 @@ int _get_pixel_value_bgr_565(AL_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_bgr_555(AL_COLOR *p)
+int _get_pixel_value_bgr_555(ALLEGRO_COLOR *p)
 {
    uint16_t pixel = 0;
    pixel |= p->raw[0] <<  10;
@@ -1047,7 +1047,7 @@ int _get_pixel_value_bgr_555(AL_COLOR *p)
    return pixel;
 }
    
-int _get_pixel_value_rgbx_8888(AL_COLOR *p)
+int _get_pixel_value_rgbx_8888(ALLEGRO_COLOR *p)
 {
         uint32_t pixel = 0;
    pixel |= p->raw[0] << 24;
@@ -1056,7 +1056,7 @@ int _get_pixel_value_rgbx_8888(AL_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_xrgb_8888(AL_COLOR *p)
+int _get_pixel_value_xrgb_8888(ALLEGRO_COLOR *p)
 {
    uint32_t pixel = 0;
    pixel |= p->raw[1] << 16;
@@ -1065,7 +1065,7 @@ int _get_pixel_value_xrgb_8888(AL_COLOR *p)
    return pixel;
 }
 
-typedef int (*_get_pixel_value_func)(AL_COLOR *color);
+typedef int (*_get_pixel_value_func)(ALLEGRO_COLOR *color);
 
 static _get_pixel_value_func _get_pixel_value_funcs[NUM_PIXEL_FORMATS] = {
    NULL,
@@ -1087,7 +1087,7 @@ static _get_pixel_value_func _get_pixel_value_funcs[NUM_PIXEL_FORMATS] = {
    _get_pixel_value_xrgb_8888
 };
 
-int _al_get_pixel_value(int src_format, AL_COLOR *src_color)
+int _al_get_pixel_value(int src_format, ALLEGRO_COLOR *src_color)
 {
    return (*_get_pixel_value_funcs[src_format])(src_color);
 }
@@ -1203,84 +1203,19 @@ void _al_put_pixel(void *data, int format, int color)
    (*put_pixel_funcs[format])(data, color);
 }
 
-static int _get_pattern_pixel(AL_BITMAP *bitmap, int x, int y, AL_COLOR *color)
+void al_put_pixel(int x, int y, ALLEGRO_COLOR *color, int flags)
 {
-   if (bitmap->drawing_mode == AL_PATTERN_SOLID) {
-      return _al_get_pixel_value(bitmap->format, color);
-   }
-   else if (bitmap->drawing_mode == DRAW_MODE_XOR) {
-      AL_COLOR dst_color;
-      int color_value = _al_get_pixel_value(bitmap->format, color);
-      int dst_color_value;
-      al_get_pixel(al_get_target_bitmap(), x, y, &dst_color);
-      dst_color_value = _al_get_pixel_value(bitmap->format, &dst_color);
-      return dst_color_value ^ color_value;
-   }
-   else {
-      #define GET_PATTERN_PIXEL(get, x, y, size) \
-         get(bitmap->pattern_copy->memory + \
-            ((y - bitmap->drawing_y_anchor) & bitmap->drawing_y_mask)*bitmap->pattern_pitch + \
-            ((x - bitmap->drawing_x_anchor) & bitmap->drawing_x_mask)*size)
-
-      int color_value;
-
-      switch (al_get_pixel_size(bitmap->format)) {
-         case 1:
-            color_value = GET_PATTERN_PIXEL(bmp_read8, x,  y, 1);
-            break;
-         case 2:
-            color_value = GET_PATTERN_PIXEL(bmp_read16, x,  y, 2);
-            break;
-         case 3:
-            color_value = GET_PATTERN_PIXEL(READ3BYTES, x,  y, 3);
-            break;
-         case 4:
-            color_value = GET_PATTERN_PIXEL(bmp_read32, x,  y, 4);
-            break;
-      }
-
-      #undef GET_PATTERN_PIXEL
-
-      if (bitmap->drawing_mode == AL_PATTERN_SOLID_PATTERN) {
-         AL_COLOR mask_color;
-         int mask_value;
-         al_get_mask_color(&mask_color);
-         mask_value = _al_get_pixel_value(bitmap->format, &mask_color);
-	 if (color_value != mask_value) {
-            return _al_get_pixel_value(bitmap->format, color);
-	 }
-	 else {
-            return color_value;
-	 }
-      }
-      else {
-         return color_value;
-      }
-   }
-}
-
-
-void al_put_pixel(int x, int y, AL_COLOR *color, int flags)
-{
-   AL_LOCKED_REGION lr;
-   AL_BITMAP *bitmap = al_get_target_bitmap();
+   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
    int color_value;
 
-   color_value = _get_pattern_pixel(bitmap, x, y, color);
-   if (bitmap->drawing_mode == AL_PATTERN_MASKED_PATTERN) {
-      AL_COLOR mask_color;
-      int mask_value;
-      al_get_mask_color(&mask_color);
-      mask_value = _al_get_pixel_value(bitmap->format, &mask_color);
-      if (color_value == mask_value)
-         return;
-   }
+   color_value = _al_get_pixel_value(bitmap->format, color);
 
-   /* FIXME: must use clip not full bitmap */
    if (bitmap->locked) {
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;
-      if (x < 0 || y < 0 || x > bitmap->lock_w || y > bitmap->lock_h) {
+      if (x < bitmap->cl || y < bitmap->ct ||
+            x > bitmap->cr || y > bitmap->cb) {
          return;
       }
 
@@ -1306,7 +1241,7 @@ void al_put_pixel(int x, int y, AL_COLOR *color, int flags)
 
 /* unmap_rgba functions */
 
-static void _unmap_rgba_argb_8888(AL_COLOR *p,
+static void _unmap_rgba_argb_8888(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *a = p->raw[0];
@@ -1315,7 +1250,7 @@ static void _unmap_rgba_argb_8888(AL_COLOR *p,
    *b = p->raw[3];
 }
 
-static void _unmap_rgba_rgba_8888(AL_COLOR *p,
+static void _unmap_rgba_rgba_8888(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *r = p->raw[0];
@@ -1324,7 +1259,7 @@ static void _unmap_rgba_rgba_8888(AL_COLOR *p,
    *a = p->raw[3];
 }
 
-static void _unmap_rgba_argb_4444(AL_COLOR *p,
+static void _unmap_rgba_argb_4444(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *a = _rgb_scale_4[p->raw[0]];
@@ -1333,7 +1268,7 @@ static void _unmap_rgba_argb_4444(AL_COLOR *p,
    *b = _rgb_scale_4[p->raw[3]];
 }
 
-static void _unmap_rgba_rgb_888(AL_COLOR *p,
+static void _unmap_rgba_rgb_888(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *r = p->raw[0];
@@ -1342,7 +1277,7 @@ static void _unmap_rgba_rgb_888(AL_COLOR *p,
    *a = 0;
 }
 
-static void _unmap_rgba_rgb_565(AL_COLOR *p,
+static void _unmap_rgba_rgb_565(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *r = _rgb_scale_5[p->raw[0]];
@@ -1351,7 +1286,7 @@ static void _unmap_rgba_rgb_565(AL_COLOR *p,
    *a = 0;
 }
 
-static void _unmap_rgba_rgb_555(AL_COLOR *p,
+static void _unmap_rgba_rgb_555(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *r = _rgb_scale_5[p->raw[0]];
@@ -1360,7 +1295,7 @@ static void _unmap_rgba_rgb_555(AL_COLOR *p,
    *a = 0;
 }
 
-static void _unmap_rgba_palette_8(AL_COLOR *p,
+static void _unmap_rgba_palette_8(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *r = getr8(p->raw[0]);
@@ -1369,7 +1304,7 @@ static void _unmap_rgba_palette_8(AL_COLOR *p,
    *a = 0;
 }
 
-static void _unmap_rgba_rgba_5551(AL_COLOR *p,
+static void _unmap_rgba_rgba_5551(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *r = _rgb_scale_5[p->raw[0]];
@@ -1378,7 +1313,7 @@ static void _unmap_rgba_rgba_5551(AL_COLOR *p,
    *a = _rgb_scale_1[p->raw[3]];
 }
 
-static void _unmap_rgba_argb_1555(AL_COLOR *p,
+static void _unmap_rgba_argb_1555(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *a = _rgb_scale_1[p->raw[0]];
@@ -1387,7 +1322,7 @@ static void _unmap_rgba_argb_1555(AL_COLOR *p,
    *b = _rgb_scale_5[p->raw[3]];
 }
 
-static void _unmap_rgba_abgr_8888(AL_COLOR *p,
+static void _unmap_rgba_abgr_8888(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *a = p->raw[0];
@@ -1396,7 +1331,7 @@ static void _unmap_rgba_abgr_8888(AL_COLOR *p,
    *r = p->raw[3];
 }
 
-static void _unmap_rgba_xbgr_8888(AL_COLOR *p,
+static void _unmap_rgba_xbgr_8888(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *a = 0;
@@ -1405,7 +1340,7 @@ static void _unmap_rgba_xbgr_8888(AL_COLOR *p,
    *r = p->raw[3];
 }
 
-static void _unmap_rgba_bgr_888(AL_COLOR *p,
+static void _unmap_rgba_bgr_888(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *a = 0;
@@ -1414,7 +1349,7 @@ static void _unmap_rgba_bgr_888(AL_COLOR *p,
    *r = p->raw[2];
 }
 
-static void _unmap_rgba_bgr_565(AL_COLOR *p,
+static void _unmap_rgba_bgr_565(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *a = 0;
@@ -1423,7 +1358,7 @@ static void _unmap_rgba_bgr_565(AL_COLOR *p,
    *r = _rgb_scale_5[p->raw[2]];
 }
 
-static void _unmap_rgba_bgr_555(AL_COLOR *p,
+static void _unmap_rgba_bgr_555(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *a = 0;
@@ -1432,7 +1367,7 @@ static void _unmap_rgba_bgr_555(AL_COLOR *p,
    *r = _rgb_scale_5[p->raw[2]];
 }
 
-static void _unmap_rgba_rgbx_8888(AL_COLOR *p,
+static void _unmap_rgba_rgbx_8888(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *r = p->raw[0];
@@ -1441,7 +1376,7 @@ static void _unmap_rgba_rgbx_8888(AL_COLOR *p,
    *a = 0;
 }
 
-static void _unmap_rgba_xrgb_8888(AL_COLOR *p,
+static void _unmap_rgba_xrgb_8888(ALLEGRO_COLOR *p,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *r = p->raw[1];
@@ -1452,7 +1387,7 @@ static void _unmap_rgba_xrgb_8888(AL_COLOR *p,
 
 /* unmap_rgba map */
 
-typedef void (*_unmap_rgba_func)(AL_COLOR *,
+typedef void (*_unmap_rgba_func)(ALLEGRO_COLOR *,
    unsigned char *, unsigned char *, unsigned char *, unsigned char *);
 
 static _unmap_rgba_func _unmap_rgba_funcs[] = {
@@ -1475,19 +1410,19 @@ static _unmap_rgba_func _unmap_rgba_funcs[] = {
    _unmap_rgba_xrgb_8888
 };
 
-void _al_unmap_rgba(int format, AL_COLOR *color,
+void _al_unmap_rgba(int format, ALLEGRO_COLOR *color,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    (*_unmap_rgba_funcs[format])(color, r, g, b, a);
 }
 
-void al_unmap_rgba(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgba(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    _al_unmap_rgba(bitmap->format, color, r, g, b, a);
 }
 
-void al_unmap_rgb(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgb(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    unsigned char *r, unsigned char *g, unsigned char *b)
 {
    unsigned char tmp_a;
@@ -1496,7 +1431,7 @@ void al_unmap_rgb(AL_BITMAP *bitmap, AL_COLOR *color,
 
 /* unmap_rgba_f functions */
 
-static void _unmap_rgba_f_argb_8888(AL_COLOR *p,
+static void _unmap_rgba_f_argb_8888(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = (float)p->raw[0] / 0xFF;
@@ -1505,7 +1440,7 @@ static void _unmap_rgba_f_argb_8888(AL_COLOR *p,
    *b = (float)p->raw[3] / 0xFF;
 }
 
-static void _unmap_rgba_f_rgba_8888(AL_COLOR *p,
+static void _unmap_rgba_f_rgba_8888(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *r = (float)p->raw[0] / 0xFF;
@@ -1514,7 +1449,7 @@ static void _unmap_rgba_f_rgba_8888(AL_COLOR *p,
    *a = (float)p->raw[3] / 0xFF;
 }
 
-static void _unmap_rgba_f_argb_4444(AL_COLOR *p,
+static void _unmap_rgba_f_argb_4444(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = (float)p->raw[0] / 0xF;
@@ -1523,7 +1458,7 @@ static void _unmap_rgba_f_argb_4444(AL_COLOR *p,
    *b = (float)p->raw[3] / 0xF;
 }
 
-static void _unmap_rgba_f_rgb_888(AL_COLOR *p,
+static void _unmap_rgba_f_rgb_888(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = 0.0f;
@@ -1532,7 +1467,7 @@ static void _unmap_rgba_f_rgb_888(AL_COLOR *p,
    *b = (float)p->raw[2] / 0xFF;
 }
 
-static void _unmap_rgba_f_rgb_565(AL_COLOR *p,
+static void _unmap_rgba_f_rgb_565(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = 0.0f;
@@ -1541,7 +1476,7 @@ static void _unmap_rgba_f_rgb_565(AL_COLOR *p,
    *b = (float)p->raw[2] / 0x1F;
 }
 
-static void _unmap_rgba_f_rgb_555(AL_COLOR *p,
+static void _unmap_rgba_f_rgb_555(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = 0.0f;
@@ -1550,7 +1485,7 @@ static void _unmap_rgba_f_rgb_555(AL_COLOR *p,
    *b = (float)p->raw[2] / 0x1F;
 }
 
-static void _unmap_rgba_f_palette_8(AL_COLOR *p,
+static void _unmap_rgba_f_palette_8(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = 0.0f;
@@ -1559,7 +1494,7 @@ static void _unmap_rgba_f_palette_8(AL_COLOR *p,
    *b = (float)getb8(p->raw[0]);
 }
 
-static void _unmap_rgba_f_rgba_5551(AL_COLOR *p,
+static void _unmap_rgba_f_rgba_5551(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *r = (float)p->raw[0] / 0x1F;
@@ -1568,7 +1503,7 @@ static void _unmap_rgba_f_rgba_5551(AL_COLOR *p,
    *a = (float)p->raw[3];
 }
 
-static void _unmap_rgba_f_argb_1555(AL_COLOR *p,
+static void _unmap_rgba_f_argb_1555(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = (float)p->raw[0];
@@ -1577,7 +1512,7 @@ static void _unmap_rgba_f_argb_1555(AL_COLOR *p,
    *b = (float)p->raw[3] / 0x1F;
 }
 
-static void _unmap_rgba_f_abgr_8888(AL_COLOR *p,
+static void _unmap_rgba_f_abgr_8888(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = p->raw[0] / 0xFF;
@@ -1586,7 +1521,7 @@ static void _unmap_rgba_f_abgr_8888(AL_COLOR *p,
    *r = p->raw[3] / 0xFF;
 }
 
-static void _unmap_rgba_f_xbgr_8888(AL_COLOR *p,
+static void _unmap_rgba_f_xbgr_8888(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = 0.0f;
@@ -1595,7 +1530,7 @@ static void _unmap_rgba_f_xbgr_8888(AL_COLOR *p,
    *r = (float)p->raw[3] / 0xFF;
 }
 
-static void _unmap_rgba_f_bgr_888(AL_COLOR *p,
+static void _unmap_rgba_f_bgr_888(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = 0.0f;
@@ -1604,7 +1539,7 @@ static void _unmap_rgba_f_bgr_888(AL_COLOR *p,
    *r = (float)p->raw[2] / 0xFF;
 }
 
-static void _unmap_rgba_f_bgr_565(AL_COLOR *p,
+static void _unmap_rgba_f_bgr_565(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = 0.0f;
@@ -1613,7 +1548,7 @@ static void _unmap_rgba_f_bgr_565(AL_COLOR *p,
    *r = p->raw[2] / 0x1F;
 }
 
-static void _unmap_rgba_f_bgr_555(AL_COLOR *p,
+static void _unmap_rgba_f_bgr_555(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = 0.0f;
@@ -1622,7 +1557,7 @@ static void _unmap_rgba_f_bgr_555(AL_COLOR *p,
    *r = p->raw[2] / 0x1F;
 }
 
-static void _unmap_rgba_f_rgbx_8888(AL_COLOR *p,
+static void _unmap_rgba_f_rgbx_8888(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *r = p->raw[0] / 0xFF;
@@ -1631,7 +1566,7 @@ static void _unmap_rgba_f_rgbx_8888(AL_COLOR *p,
    *a = 0.0f;
 }
 
-static void _unmap_rgba_f_xrgb_8888(AL_COLOR *p,
+static void _unmap_rgba_f_xrgb_8888(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *r = p->raw[1] / 0xFF;
@@ -1642,7 +1577,7 @@ static void _unmap_rgba_f_xrgb_8888(AL_COLOR *p,
 
 /* unmap_rgba_f map */
 
-typedef void (*_unmap_rgba_f_func)(AL_COLOR *,
+typedef void (*_unmap_rgba_f_func)(ALLEGRO_COLOR *,
    float *, float *, float *, float *);
 
 static _unmap_rgba_f_func _unmap_rgba_f_funcs[] = {
@@ -1665,19 +1600,19 @@ static _unmap_rgba_f_func _unmap_rgba_f_funcs[] = {
    _unmap_rgba_f_xrgb_8888
 };
 
-void _al_unmap_rgba_f(int format, AL_COLOR *color,
+void _al_unmap_rgba_f(int format, ALLEGRO_COLOR *color,
    float *r, float *g, float *b, float *a)
 {
    (*_unmap_rgba_f_funcs[format])(color, r, g, b, a);
 }
 
-void al_unmap_rgba_f(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgba_f(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    float *r, float *g, float *b, float *a)
 {
    _al_unmap_rgba_f(bitmap->format, color, r, g, b, a);
 }
 
-void al_unmap_rgb_f(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgb_f(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    float *r, float *g, float *b)
 {
    float tmp_a;
@@ -1686,7 +1621,7 @@ void al_unmap_rgb_f(AL_BITMAP *bitmap, AL_COLOR *color,
 
 /* unmap_rgba_i */
 
-static void _unmap_rgba_i_argb_8888(AL_COLOR *color,
+static void _unmap_rgba_i_argb_8888(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *a = _integer_unmap_table[color->raw[0]];
@@ -1695,7 +1630,7 @@ static void _unmap_rgba_i_argb_8888(AL_COLOR *color,
    *b = _integer_unmap_table[color->raw[3]];
 }
 
-static void _unmap_rgba_i_rgba_8888(AL_COLOR *color,
+static void _unmap_rgba_i_rgba_8888(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *r = _integer_unmap_table[color->raw[0]];
@@ -1704,7 +1639,7 @@ static void _unmap_rgba_i_rgba_8888(AL_COLOR *color,
    *a = _integer_unmap_table[color->raw[3]];
 }
 
-static void _unmap_rgba_i_argb_4444(AL_COLOR *color,
+static void _unmap_rgba_i_argb_4444(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *a = _integer_unmap_table[_rgb_scale_4[color->raw[0]]];
@@ -1713,7 +1648,7 @@ static void _unmap_rgba_i_argb_4444(AL_COLOR *color,
    *b = _integer_unmap_table[_rgb_scale_4[color->raw[3]]];
 }
 
-static void _unmap_rgba_i_rgb_888(AL_COLOR *color,
+static void _unmap_rgba_i_rgb_888(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *r = _integer_unmap_table[color->raw[0]];
@@ -1722,7 +1657,7 @@ static void _unmap_rgba_i_rgb_888(AL_COLOR *color,
    *a = 0;
 }
 
-static void _unmap_rgba_i_rgb_565(AL_COLOR *color,
+static void _unmap_rgba_i_rgb_565(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *r = _integer_unmap_table[_rgb_scale_5[color->raw[0]]];
@@ -1731,7 +1666,7 @@ static void _unmap_rgba_i_rgb_565(AL_COLOR *color,
    *a = 0;
 }
 
-static void _unmap_rgba_i_rgb_555(AL_COLOR *color,
+static void _unmap_rgba_i_rgb_555(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *r = _integer_unmap_table[_rgb_scale_5[color->raw[0]]];
@@ -1740,7 +1675,7 @@ static void _unmap_rgba_i_rgb_555(AL_COLOR *color,
    *a = 0;
 }
 
-static void _unmap_rgba_i_palette_8(AL_COLOR *color,
+static void _unmap_rgba_i_palette_8(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *r = _integer_unmap_table[getr8(color->raw[0])];
@@ -1749,7 +1684,7 @@ static void _unmap_rgba_i_palette_8(AL_COLOR *color,
    *a = 0;
 }
 
-static void _unmap_rgba_i_rgba_5551(AL_COLOR *color,
+static void _unmap_rgba_i_rgba_5551(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *r = _integer_unmap_table[_rgb_scale_5[color->raw[0]]];
@@ -1758,7 +1693,7 @@ static void _unmap_rgba_i_rgba_5551(AL_COLOR *color,
    *a = _integer_unmap_table[_rgb_scale_1[color->raw[3]]];
 }
 
-static void _unmap_rgba_i_argb_1555(AL_COLOR *color,
+static void _unmap_rgba_i_argb_1555(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *a = _integer_unmap_table[_rgb_scale_1[color->raw[0]]];
@@ -1767,7 +1702,7 @@ static void _unmap_rgba_i_argb_1555(AL_COLOR *color,
    *b = _integer_unmap_table[_rgb_scale_5[color->raw[3]]];
 }
 
-static void _unmap_rgba_i_abgr_8888(AL_COLOR *color,
+static void _unmap_rgba_i_abgr_8888(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *a = _integer_unmap_table[color->raw[0]];
@@ -1776,7 +1711,7 @@ static void _unmap_rgba_i_abgr_8888(AL_COLOR *color,
    *r = _integer_unmap_table[color->raw[3]];
 }
 
-static void _unmap_rgba_i_xbgr_8888(AL_COLOR *color,
+static void _unmap_rgba_i_xbgr_8888(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *a = 0;
@@ -1785,7 +1720,7 @@ static void _unmap_rgba_i_xbgr_8888(AL_COLOR *color,
    *r = _integer_unmap_table[color->raw[3]];
 }
 
-static void _unmap_rgba_i_bgr_888(AL_COLOR *color,
+static void _unmap_rgba_i_bgr_888(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *b = _integer_unmap_table[color->raw[0]];
@@ -1794,7 +1729,7 @@ static void _unmap_rgba_i_bgr_888(AL_COLOR *color,
    *a = 0;
 }
 
-static void _unmap_rgba_i_bgr_565(AL_COLOR *color,
+static void _unmap_rgba_i_bgr_565(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *b = _integer_unmap_table[_rgb_scale_5[color->raw[0]]];
@@ -1803,7 +1738,7 @@ static void _unmap_rgba_i_bgr_565(AL_COLOR *color,
    *a = 0;
 }
 
-static void _unmap_rgba_i_bgr_555(AL_COLOR *color,
+static void _unmap_rgba_i_bgr_555(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *b = _integer_unmap_table[_rgb_scale_5[color->raw[0]]];
@@ -1812,7 +1747,7 @@ static void _unmap_rgba_i_bgr_555(AL_COLOR *color,
    *a = 0;
 }
 
-static void _unmap_rgba_i_rgbx_8888(AL_COLOR *color,
+static void _unmap_rgba_i_rgbx_8888(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *r = _integer_unmap_table[color->raw[0]];
@@ -1821,7 +1756,7 @@ static void _unmap_rgba_i_rgbx_8888(AL_COLOR *color,
    *a = 0;
 }
 
-static void _unmap_rgba_i_xrgb_8888(AL_COLOR *color,
+static void _unmap_rgba_i_xrgb_8888(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    *a = 0;
@@ -1830,7 +1765,7 @@ static void _unmap_rgba_i_xrgb_8888(AL_COLOR *color,
    *b = _integer_unmap_table[color->raw[3]];
 }
 
-typedef void (*_unmap_rgba_i_func)(AL_COLOR *,
+typedef void (*_unmap_rgba_i_func)(ALLEGRO_COLOR *,
    int *, int *, int *, int *);
 
 static _unmap_rgba_i_func _unmap_rgba_i_funcs[] = {
@@ -1853,19 +1788,19 @@ static _unmap_rgba_i_func _unmap_rgba_i_funcs[] = {
    _unmap_rgba_i_xrgb_8888
 };
 
-void _al_unmap_rgba_i(int format, AL_COLOR *color,
+void _al_unmap_rgba_i(int format, ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    (*_unmap_rgba_i_funcs[format])(color, r, g, b, a);
 }
 
-void al_unmap_rgba_i(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgba_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
    _al_unmap_rgba_i(bitmap->format, color, r, g, b, a);
 }
 
-void al_unmap_rgb_i(AL_BITMAP *bitmap, AL_COLOR *color,
+void al_unmap_rgb_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    int *r, int *g, int *b)
 {
    int tmp_a;

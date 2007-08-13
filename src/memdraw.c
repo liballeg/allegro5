@@ -22,137 +22,24 @@
 #include "allegro/internal/aintern_bitmap.h"
 
 
+/*
+ * FIXME: these were defined for patterned drawing
+ */
 #define DEFINE_PUT_PIXEL(name, size, get, set) \
-static void name(AL_BITMAP *dst, void *dst_addr, int dx, int dy, int color, int flags) \
+static void name(ALLEGRO_BITMAP *dst, void *dst_addr, int dx, int dy, int color, int flags) \
 { \
    ASSERT(dst); \
  \
    if ((dx < dst->cl) || (dx >= dst->cr) || (dy < dst->ct) || (dy >= dst->cb)) \
       return; \
  \
-   if (dst->drawing_mode == AL_PATTERN_SOLID) { \
-      /* do nothing */ \
-   } \
-   else if (dst->drawing_mode == DRAW_MODE_XOR) { \
-      int dst_color_value = get(dst_addr); \
-      color = dst_color_value ^ color; \
-   } \
-   else { \
- \
-      int pattern_value; \
- \
-      switch (al_get_pixel_size(dst->format)) { \
-         case 1: \
-            pattern_value = bmp_read8(dst->pattern_copy->memory + \
-                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
-                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)); \
-            break; \
-         case 2: \
-            pattern_value = bmp_read16(dst->pattern_copy->memory + \
-                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
-                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*2); \
-            break; \
-         case 3: \
-            pattern_value = READ3BYTES(dst->pattern_copy->memory + \
-                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
-                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*3); \
-            break; \
-         case 4: \
-            pattern_value = bmp_read32(dst->pattern_copy->memory + \
-                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
-                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*4); \
-            break; \
-      } \
- \
-      if (dst->drawing_mode == AL_PATTERN_SOLID_PATTERN) { \
-         AL_COLOR mask_color; \
-         int mask_value; \
-         al_get_mask_color(&mask_color); \
-         mask_value = _al_get_pixel_value(dst->format, &mask_color); \
-	 if (pattern_value == mask_value) { \
-            color = pattern_value; \
-	 } \
-      } \
-      else if (dst->drawing_mode == AL_PATTERN_MASKED_PATTERN) { \
-         AL_COLOR mask_color; \
-         int mask_value; \
-         al_get_mask_color(&mask_color); \
-         mask_value = _al_get_pixel_value(dst->format, &mask_color); \
-	 if (pattern_value == mask_value) { \
-            return; \
-	 } \
-         color = pattern_value; \
-      } \
-      else { \
-         color = pattern_value; \
-      } \
-   } \
- \
    set(dst_addr, color); \
 }
 
 #define DEFINE_PUT_PIXEL_NC(name, size, get, set) \
-static void name(AL_BITMAP *dst, void *dst_addr, int dx, int dy, int color, int flags) \
+static void name(ALLEGRO_BITMAP *dst, void *dst_addr, int dx, int dy, int color, int flags) \
 { \
    ASSERT(dst); \
- \
-   if (dst->drawing_mode == AL_PATTERN_SOLID) { \
-      /* do nothing */ \
-   } \
-   else if (dst->drawing_mode == DRAW_MODE_XOR) { \
-      int dst_color_value = get(dst_addr); \
-      color = dst_color_value ^ color; \
-   } \
-   else { \
- \
-      int pattern_value; \
- \
-      switch (al_get_pixel_size(dst->format)) { \
-         case 1: \
-            pattern_value = bmp_read8(dst->pattern_copy->memory + \
-                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
-                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)); \
-            break; \
-         case 2: \
-            pattern_value = bmp_read16(dst->pattern_copy->memory + \
-                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
-                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*2); \
-            break; \
-         case 3: \
-            pattern_value = READ3BYTES(dst->pattern_copy->memory + \
-                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
-                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*3); \
-            break; \
-         case 4: \
-            pattern_value = bmp_read32(dst->pattern_copy->memory + \
-                  ((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch + \
-                  ((dx - dst->drawing_x_anchor) & dst->drawing_x_mask)*4); \
-            break; \
-      } \
- \
-      if (dst->drawing_mode == AL_PATTERN_SOLID_PATTERN) { \
-         AL_COLOR mask_color; \
-         int mask_value; \
-         al_get_mask_color(&mask_color); \
-         mask_value = _al_get_pixel_value(dst->format, &mask_color); \
-	 if (pattern_value == mask_value) { \
-            color = pattern_value; \
-	 } \
-      } \
-      else if (dst->drawing_mode == AL_PATTERN_MASKED_PATTERN) { \
-         AL_COLOR mask_color; \
-         int mask_value; \
-         al_get_mask_color(&mask_color); \
-         mask_value = _al_get_pixel_value(dst->format, &mask_color); \
-	 if (pattern_value == mask_value) { \
-            return; \
-	 } \
-         color = pattern_value; \
-      } \
-      else { \
-         color = pattern_value; \
-      } \
-   } \
  \
    set(dst_addr, color); \
 }
@@ -170,7 +57,7 @@ DEFINE_PUT_PIXEL_NC(_al_put_pixel_nc32, 4, bmp_read32, bmp_write32)
 
 
 #define DEFINE_HLINE(name, size, get, set) \
-static void name(AL_BITMAP *dst, unsigned char *dst_addr, int dx1, int dy, int dx2, \
+static void name(ALLEGRO_BITMAP *dst, unsigned char *dst_addr, int dx1, int dy, int dx2, \
    int color, int flags) \
 { \
    int w; \
@@ -179,85 +66,10 @@ static void name(AL_BITMAP *dst, unsigned char *dst_addr, int dx1, int dy, int d
  \
    w = dx2 - dx1; \
     \
-   if (dst->drawing_mode == AL_PATTERN_SOLID) { \
-      do { \
-	 set(dst_addr, color); \
-         dst_addr += size; \
-      } while (--w >= 0); \
-   } \
-   else if (dst->drawing_mode == AL_PATTERN_XOR) { \
-      unsigned char *ptr = dst_addr; \
-      do { \
-         unsigned long c = get(ptr) ^ color; \
-         set(ptr, c); \
-         ptr += size; \
-      } while (--w >= 0); \
-   } \
-   else { \
-      int x, curw; \
-      unsigned char *sline = dst->pattern_copy->memory + \
-         (((dy - dst->drawing_y_anchor) & dst->drawing_y_mask)*dst->pattern_pitch); \
-      unsigned char *s; \
-      AL_COLOR mask_color; \
-      unsigned int mask_value; \
- \
-      x = (dx1 - dst->drawing_x_anchor) & dst->drawing_x_mask; \
-      s = sline + (x*size); \
-      w++; \
-      curw = dst->drawing_x_mask + 1 - x; \
-      if (curw > w) \
-	 curw = w; \
- \
-      al_get_mask_color(&mask_color); \
-      mask_value = _al_get_pixel_value(dst->format, &mask_color); \
- \
-      if (dst->drawing_mode == AL_PATTERN_COPY_PATTERN) { \
-         do { \
-            w -= curw; \
-            do { \
-               unsigned long c = get(s); \
-               set(dst_addr, c); \
-               s += size; \
-               dst_addr += size; \
-            } while (--curw > 0); \
-            s = sline; \
-            curw = MIN(w, (int)dst->drawing_x_mask+1); \
-         } while (curw > 0); \
-      } \
-      else if (dst->drawing_mode == AL_PATTERN_SOLID_PATTERN) { \
-	 do { \
-	    w -= curw; \
-	    do { \
-	       unsigned long c = get(s); \
-	       if (c != mask_value) { \
-                  set(dst_addr, color); \
-	       } \
-	       else { \
-                  set(dst_addr, c); \
-	       } \
-               s += size; \
-               dst_addr += size; \
-	    } while (--curw > 0); \
-	    s = sline; \
-	    curw = MIN(w, (int)dst->drawing_x_mask+1); \
-	 } while (curw > 0); \
-      } \
-      else if (dst->drawing_mode == AL_PATTERN_MASKED_PATTERN) { \
-	 do { \
-	    w -= curw; \
-	    do { \
-	       unsigned long c = get(s); \
-	       if (c != mask_value) { \
-		  set(dst_addr, color); \
-	       } \
-               s += size; \
-               dst_addr += size; \
-	    } while (--curw > 0); \
-	    s = sline; \
-	    curw = MIN(w, (int)dst->drawing_x_mask+1); \
-	 } while (curw > 0); \
-      } \
-   } \
+   do { \
+      set(dst_addr, color); \
+      dst_addr += size; \
+   } while (--w >= 0); \
 }
 
 
@@ -267,11 +79,11 @@ DEFINE_HLINE(_hline24, 3, READ3BYTES, WRITE3BYTES)
 DEFINE_HLINE(_hline32, 4, bmp_read32, bmp_write32)
 
 
-void _al_draw_hline_memory(int dx1, int dy, int dx2, AL_COLOR *color, int flags)
+void _al_draw_hline_memory(int dx1, int dy, int dx2, ALLEGRO_COLOR *color, int flags)
 {
-   AL_BITMAP *target;
+   ALLEGRO_BITMAP *target;
    int color_value;
-   AL_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION lr;
 
    target = al_get_target_bitmap();
    color_value = _al_get_pixel_value(target->format, color);
@@ -311,11 +123,11 @@ void _al_draw_hline_memory(int dx1, int dy, int dx2, AL_COLOR *color, int flags)
 }
 
 
-void _al_draw_vline_memory(int dx, int dy1, int dy2, AL_COLOR *color, int flags)
+void _al_draw_vline_memory(int dx, int dy1, int dy2, ALLEGRO_COLOR *color, int flags)
 {
    int y;
-   AL_BITMAP *dst = al_get_target_bitmap();
-   AL_LOCKED_REGION lr;
+   ALLEGRO_BITMAP *dst = al_get_target_bitmap();
+   ALLEGRO_LOCKED_REGION lr;
    int size;
    int color_value;
 
@@ -340,75 +152,49 @@ void _al_draw_vline_memory(int dx, int dy1, int dy2, AL_COLOR *color, int flags)
    size = al_get_pixel_size(dst->format);
    color_value = _al_get_pixel_value(dst->format, color);
 
-   if (flags & AL_PATTERNED) {
-      unsigned char *d = lr.data;
-      void (*pp)(AL_BITMAP *, void *, int, int, int, int);
-
-      switch (size) {
-         case 1:
-            pp = _al_put_pixel8;
-            break;
-         case 2:
-            pp = _al_put_pixel16;
-            break;
-         case 3:
-            pp = _al_put_pixel24;
-            break;
-         case 4:
-            pp = _al_put_pixel32;
-            break;
-      }
-
-      for (y = dy1; y <= dy2; y++) {
-         pp(dst, d, dx, y, color_value, flags);
-         d += lr.pitch;
-      }
+   #define DO_SOLID_VLINE(set, size) \
+   { \
+      for (y = dy1; y <= dy2; y++) { \
+         set(d, color_value); \
+         d += lr.pitch; \
+      } \
    }
-   else {
-      #define DO_SOLID_VLINE(set, size) \
-      { \
-         for (y = dy1; y <= dy2; y++) { \
-            set(d, color_value); \
-            d += lr.pitch; \
-         } \
-      }
 
-      unsigned char *d = lr.data;
+   unsigned char *d = lr.data;
 
-      switch (size) {
-         case 1:
-            DO_SOLID_VLINE(bmp_write8, size)
-            break;
-         case 2:
-            DO_SOLID_VLINE(bmp_write16, size)
-            break;
-         case 3:
-            DO_SOLID_VLINE(WRITE3BYTES, size)
-            break;
-         case 4:
-            DO_SOLID_VLINE(bmp_write32, size)
-            break;
-      }
-
-      #undef DO_SOLID_VLINE
+   switch (size) {
+      case 1:
+         DO_SOLID_VLINE(bmp_write8, size)
+         break;
+      case 2:
+         DO_SOLID_VLINE(bmp_write16, size)
+         break;
+      case 3:
+         DO_SOLID_VLINE(WRITE3BYTES, size)
+         break;
+      case 4:
+         DO_SOLID_VLINE(bmp_write32, size)
+         break;
    }
+
+   #undef DO_SOLID_VLINE
 
    al_unlock_bitmap(dst);
 }
 
 
 /* Copied from do_line in gfx.c */
-void _al_draw_line_memory(int x1, int y1, int x2, int y2, AL_COLOR *color, int flags)
+void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, int flags)
 {
    int dx;
    int dy;
    int i1, i2;
    int x, y;
    int dd;
-   AL_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION lr;
    int tmp;
    int d;
-   AL_BITMAP *bitmap;
+   ALLEGRO_BITMAP *bitmap;
    int sx, sy, t;
    int clip;
    int clip_x1, clip_y1, clip_x2, clip_y2;
@@ -576,15 +362,15 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, AL_COLOR *color, int f
 
 
 void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
-   AL_COLOR *color, int flags)
+   ALLEGRO_COLOR *color, int flags)
 {
-   AL_BITMAP *bitmap;
-   AL_LOCKED_REGION lr;
+   ALLEGRO_BITMAP *bitmap;
+   ALLEGRO_LOCKED_REGION lr;
    int w, h;
    int tmp;
    int pixel_value;
 
-   if (!(flags & AL_FILLED)) {
+   if (!(flags & ALLEGRO_FILLED)) {
       _al_draw_hline_memory(x1, y1, x2, color, flags);
       _al_draw_vline_memory(x2, y1, y2, color, flags);
       _al_draw_vline_memory(x1, y1, y2, color, flags);
@@ -651,10 +437,10 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
 }
 
 
-void _al_clear_memory(AL_COLOR *color)
+void _al_clear_memory(ALLEGRO_COLOR *color)
 {
-   AL_BITMAP *bitmap = al_get_target_bitmap();
+   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
 
-   _al_draw_rectangle_memory(0, 0, bitmap->w-1, bitmap->h-1, color, AL_FILLED);
+   _al_draw_rectangle_memory(0, 0, bitmap->w-1, bitmap->h-1, color, ALLEGRO_FILLED);
 }
 

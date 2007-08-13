@@ -267,8 +267,8 @@ AL_ARRAY(_VTABLE_INFO, _vtable_list);
 
 typedef struct BITMAP            /* a bitmap structure */
 {
-   struct AL_DISPLAY *display;   /* display for compatibility screen */
-   bool needs_upload;            /* true if upload needed after change */
+   struct ALLEGRO_DISPLAY *display;   /* display for compatibility screen */
+   bool needs_upload;                 /* true if upload needed after change */
    /*
     * Needed by the new driver for compatibility
     */

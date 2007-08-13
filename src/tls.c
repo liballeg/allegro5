@@ -26,11 +26,11 @@ typedef struct thread_local_state {
    int new_display_refresh_rate;
    int new_display_flags;
    /* Current display */
-   AL_DISPLAY *current_display;
+   ALLEGRO_DISPLAY *current_display;
    /* Target bitmap */
-   AL_BITMAP *target_bitmap;
+   ALLEGRO_BITMAP *target_bitmap;
    /* For pushing/popping target bitmap */
-   AL_BITMAP *target_bitmap_backup;
+   ALLEGRO_BITMAP *target_bitmap_backup;
    /* Bitmap parameters */
    int new_bitmap_format;
    int new_bitmap_flags;
@@ -38,7 +38,7 @@ typedef struct thread_local_state {
    int new_bitmap_format_backup;
    int new_bitmap_flags_backup;
    /* Mask color */
-   AL_COLOR mask_color;
+   ALLEGRO_COLOR mask_color;
 } thread_local_state;
 
 #if defined ALLEGRO_MINGW32
@@ -53,7 +53,7 @@ typedef struct thread_local_state {
 
 static DWORD tls_index;
 static thread_local_state *tls;
-static AL_COLOR black = { { 0, 0, 0, 0 } };
+static ALLEGRO_COLOR black = { { 0, 0, 0, 0 } };
 
 static thread_local_state *tls_get(void)
 {
@@ -101,7 +101,7 @@ int al_get_new_display_flags(void)
  * Make a display the current display. All the following Allegro commands in
  * the same thread will implicitly use this display from now on.
  */
-void al_set_current_display(AL_DISPLAY *display)
+void al_set_current_display(ALLEGRO_DISPLAY *display)
 {
    if (display)
       display->vt->set_current_display(display);
@@ -112,7 +112,7 @@ void al_set_current_display(AL_DISPLAY *display)
 /*
  * Get the current display.
  */
-AL_DISPLAY *al_get_current_display(void)
+ALLEGRO_DISPLAY *al_get_current_display(void)
 {
    if ((tls = tls_get()) == NULL) return 0;
    return tls->current_display;
@@ -122,18 +122,18 @@ AL_DISPLAY *al_get_current_display(void)
  * Select the bitmap to which all subsequent drawing operation
  * will draw.
  */
-void al_set_target_bitmap(AL_BITMAP *bitmap)
+void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    if ((tls = tls_get()) == NULL) return;
    tls->target_bitmap = bitmap;
-   if (!(bitmap->flags & AL_MEMORY_BITMAP))
+   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
       _al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
 }
 
 /*
  * Retrieve the target for drawing operations.
  */
-AL_BITMAP *al_get_target_bitmap(void)
+ALLEGRO_BITMAP *al_get_target_bitmap(void)
 {
    if ((tls = tls_get()) == NULL) return 0;
    return tls->target_bitmap;
@@ -190,16 +190,16 @@ void _al_pop_new_bitmap_parameters(void)
    tls->new_bitmap_flags = tls->new_bitmap_flags_backup;
 }
 
-void al_set_mask_color(AL_COLOR *color)
+void al_set_mask_color(ALLEGRO_COLOR *color)
 {
    if ((tls = tls_get()) == NULL) return;
-   memcpy(&tls->mask_color, color, sizeof(AL_COLOR));
+   memcpy(&tls->mask_color, color, sizeof(ALLEGRO_COLOR));
 }
 
-AL_COLOR *al_get_mask_color(AL_COLOR *color)
+ALLEGRO_COLOR *al_get_mask_color(ALLEGRO_COLOR *color)
 {
    if ((tls = tls_get()) == NULL) return &black;
-   memcpy(color, &tls->mask_color, sizeof(AL_COLOR));
+   memcpy(color, &tls->mask_color, sizeof(ALLEGRO_COLOR));
    return color;
 }
 
@@ -305,7 +305,7 @@ int al_get_new_display_flags(void)
  * Make a display the current display. All the following Allegro commands in
  * the same thread will implicitly use this display from now on.
  */
-void al_set_current_display(AL_DISPLAY *display)
+void al_set_current_display(ALLEGRO_DISPLAY *display)
 {
    if (display)
       display->vt->set_current_display(display);
@@ -315,7 +315,7 @@ void al_set_current_display(AL_DISPLAY *display)
 /*
  * Get the current display.
  */
-AL_DISPLAY *al_get_current_display(void)
+ALLEGRO_DISPLAY *al_get_current_display(void)
 {
    return tls.current_display;
 }
@@ -324,17 +324,17 @@ AL_DISPLAY *al_get_current_display(void)
  * Select the bitmap to which all subsequent drawing operation
  * will draw.
  */
-void al_set_target_bitmap(AL_BITMAP *bitmap)
+void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    tls.target_bitmap = bitmap;
-   if (!(bitmap->flags & AL_MEMORY_BITMAP))
+   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
       _al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
 }
 
 /*
  * Retrieve the target for drawing operations.
  */
-AL_BITMAP *al_get_target_bitmap(void)
+ALLEGRO_BITMAP *al_get_target_bitmap(void)
 {
    return tls.target_bitmap;
 }
@@ -382,18 +382,18 @@ void _al_pop_new_bitmap_parameters(void)
    tls.new_bitmap_flags = tls.new_bitmap_flags_backup;
 }
 
-void al_set_mask_color(AL_COLOR *color)
+void al_set_mask_color(ALLEGRO_COLOR *color)
 {
    /* This temporary is to work around a compiler abort in gcc 3.4.6. */
    thread_local_state *tmp = &tls; 
-   memcpy(&(tmp->mask_color), color, sizeof(AL_COLOR));
+   memcpy(&(tmp->mask_color), color, sizeof(ALLEGRO_COLOR));
 }
 
-AL_COLOR *al_get_mask_color(AL_COLOR *color)
+ALLEGRO_COLOR *al_get_mask_color(ALLEGRO_COLOR *color)
 {
    /* This temporary is to work around a compiler abort in gcc 3.4.6. */
    thread_local_state *tmp = &tls; 
-   memcpy(color, &(tmp->mask_color), sizeof(AL_COLOR));
+   memcpy(color, &(tmp->mask_color), sizeof(ALLEGRO_COLOR));
    return color;
 }
 

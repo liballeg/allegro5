@@ -2,9 +2,9 @@
 
 int main(void)
 {
-    AL_DISPLAY *display;
-    AL_BITMAP *bitmap;
-    AL_LOCKED_REGION locked;
+    ALLEGRO_DISPLAY *display;
+    ALLEGRO_BITMAP *bitmap;
+    ALLEGRO_LOCKED_REGION locked;
     int i;
     al_init();
     display = al_create_display(100, 100);

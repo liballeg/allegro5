@@ -5,16 +5,16 @@
 
 #include "xglx.h"
 
-static AL_BITMAP_INTERFACE *vt;
+static ALLEGRO_BITMAP_INTERFACE *vt;
 
 
 
-static void quad(AL_BITMAP *bitmap, float sx, float sy, float sw, float sh,
+static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
     float cx, float cy, float dx, float dy, float dw, float dh, float angle,
     int flags)
 {
    float l, t, r, b, w, h;
-   AL_BITMAP_XGLX *xbitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
    GLboolean on;
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on)
@@ -50,32 +50,32 @@ static void quad(AL_BITMAP *bitmap, float sx, float sy, float sw, float sh,
 }
 
 /* Draw the bitmap at the specified position. */
-static void draw_bitmap(AL_BITMAP *bitmap, float x, float y, int flags)
+static void draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y, int flags)
 {
    quad(bitmap, 0, 0, bitmap->w, bitmap->h,
       0, 0, x, y, bitmap->w, bitmap->h, 0, flags);
 }
 
-static void draw_scaled_bitmap(AL_BITMAP *bitmap, float sx, float sy,
+static void draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
    quad(bitmap, 0, 0, sw, sh, 0, 0, dx, dy, dw, dh, 0, flags);
 }
 
-static void draw_bitmap_region(AL_BITMAP *bitmap, float sx, float sy,
+static void draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, int flags)
 {
    quad(bitmap, sy, sy, sw, sh, 0, 0, dx, dy, sw, sh, 0, flags);
 }
 
-static void draw_rotated_bitmap(AL_BITMAP *bitmap, float cx, float cy,
+static void draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    float dx, float dy, float angle, int flags)
 {
    quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy,
       dx, dy, bitmap->w, bitmap->h, angle, flags);
 }
 
-static void draw_rotated_scaled_bitmap(AL_BITMAP *bitmap, float cx, float cy,
+static void draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    float dx, float dy, float xscale, float yscale, float angle,
 	float flags)
 {
@@ -91,7 +91,7 @@ static int pot(int x)
    return y;
 }
 
-static void upside_down(AL_BITMAP *bitmap, int x, int y, int w, int h)
+static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
 {
     int pixelsize = al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
@@ -109,10 +109,10 @@ static void upside_down(AL_BITMAP *bitmap, int x, int y, int w, int h)
 
 // FIXME: need to do all the logic AllegroGL does, checking extensions,
 // proxy textures, formats, limits ...
-static bool upload_bitmap(AL_BITMAP *bitmap, int x, int y, int w, int h)
+static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
 {
    // FIXME: Some OpenGL drivers need power of two textures.
-   AL_BITMAP_XGLX *xbitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
 
    if (xbitmap->texture == 0)
       glGenTextures(1, &xbitmap->texture);
@@ -135,15 +135,15 @@ static bool upload_bitmap(AL_BITMAP *bitmap, int x, int y, int w, int h)
 /* OpenGL cannot "lock" pixels, so instead we update our memory copy and
  * return a pointer into that.
  */
-static AL_LOCKED_REGION *lock_region(AL_BITMAP *bitmap,
-	int x, int y, int w, int h, AL_LOCKED_REGION *locked_region,
+static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
+	int x, int y, int w, int h, ALLEGRO_LOCKED_REGION *locked_region,
 	int flags)
 {
-    AL_BITMAP_XGLX *xbitmap = (void *)bitmap;
+    ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
     int pixelsize = al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
 
-    if (!(flags & AL_LOCK_WRITEONLY)) {
+    if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
         if (xbitmap->is_backbuffer) {
             glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
             glReadPixels(0, bitmap->h - y - h, w, h,
@@ -171,13 +171,13 @@ static AL_LOCKED_REGION *lock_region(AL_BITMAP *bitmap,
 
 /* Synchronizes the texture back to the (possibly modified) bitmap data.
  */
-static void unlock_region(AL_BITMAP *bitmap)
+static void unlock_region(ALLEGRO_BITMAP *bitmap)
 {
-    AL_BITMAP_XGLX *xbitmap = (void *)bitmap;
+    ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
     int pixelsize = al_get_pixel_size(bitmap->format);
     int pitch = pixelsize * bitmap->w;
 
-    if (bitmap->lock_flags & AL_LOCK_READONLY) return;
+    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) return;
     
     if (xbitmap->is_backbuffer) {
         //FIXME: ugh. isn't there a better way?
@@ -198,9 +198,9 @@ static void unlock_region(AL_BITMAP *bitmap)
     }
 }
 
-static void xglx_destroy_bitmap(AL_BITMAP *bitmap)
+static void xglx_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   AL_BITMAP_XGLX *xbitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
    if (xbitmap->texture) {
       glDeleteTextures(1, &xbitmap->texture);
       xbitmap->texture = 0;
@@ -208,7 +208,7 @@ static void xglx_destroy_bitmap(AL_BITMAP *bitmap)
 }
 
 /* Obtain a reference to this driver. */
-AL_BITMAP_INTERFACE *_al_bitmap_xglx_driver(void)
+ALLEGRO_BITMAP_INTERFACE *_al_bitmap_xglx_driver(void)
 {
    if (vt) return vt;
 

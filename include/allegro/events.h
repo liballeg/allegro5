@@ -139,7 +139,7 @@ enum
 
 typedef struct AL_DISPLAY_EVENT
 {
-   _AL_EVENT_HEADER(struct AL_DISPLAY);
+   _AL_EVENT_HEADER(struct ALLEGRO_DISPLAY);
    int x, y;
    int width, height;
 } AL_DISPLAY_EVENT;
@@ -160,7 +160,7 @@ typedef struct AL_JOYSTICK_EVENT
 typedef struct AL_KEYBOARD_EVENT
 {
    _AL_EVENT_HEADER(struct AL_KEYBOARD);
-   struct AL_DISPLAY *__display__dont_use_yet__;
+   struct ALLEGRO_DISPLAY *__display__dont_use_yet__;
    int keycode;                 /* the physical key pressed */
    unsigned int unichar;        /* unicode character */
    unsigned int modifiers;      /* bitfield */
@@ -171,7 +171,7 @@ typedef struct AL_KEYBOARD_EVENT
 typedef struct AL_MOUSE_EVENT
 {
    _AL_EVENT_HEADER(struct AL_MOUSE);
-   struct AL_DISPLAY *__display__dont_use_yet__;
+   struct ALLEGRO_DISPLAY *__display__dont_use_yet__;
    /* (x, y) Primary mouse position */
    /* (z) Mouse wheel position (1D 'wheel'), or,  */
    /* (w, z) Mouse wheel position (2D 'ball') */

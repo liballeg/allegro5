@@ -56,7 +56,7 @@ GFX_DRIVER _al_xglx_gfx_driver = {
 
 void _al_xglx_display_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h)
 {
-   AL_LOCKED_REGION locked;
+   ALLEGRO_LOCKED_REGION locked;
    al_lock_bitmap_region(al_get_backbuffer(), x, y, w, h, &locked, 0);
    _al_convert_compat_bitmap(bitmap, locked.data, locked.format, locked.pitch,
       x, y, 0, 0, w, h);

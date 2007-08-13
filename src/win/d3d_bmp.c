@@ -28,23 +28,23 @@
 #include "d3d.h"
 
 
-static AL_BITMAP_INTERFACE *vt;
-static _AL_VECTOR created_bitmaps = _AL_VECTOR_INITIALIZER(AL_BITMAP_D3D *);
+static ALLEGRO_BITMAP_INTERFACE *vt;
+static _AL_VECTOR created_bitmaps = _AL_VECTOR_INITIALIZER(ALLEGRO_BITMAP_D3D *);
 
 
-static AL_BITMAP *_al_d3d_create_masked_bitmap(AL_BITMAP *original)
+static ALLEGRO_BITMAP *_al_d3d_create_masked_bitmap(ALLEGRO_BITMAP *original)
 {
-   AL_BITMAP *masked_bmp;
-   AL_COLOR mask_color;
-   AL_LOCKED_REGION lr;
+   ALLEGRO_BITMAP *masked_bmp;
+   ALLEGRO_COLOR mask_color;
+   ALLEGRO_LOCKED_REGION lr;
    int x, y;
-   AL_COLOR pixel;
-   AL_COLOR alpha_pixel;
+   ALLEGRO_COLOR pixel;
+   ALLEGRO_COLOR alpha_pixel;
    unsigned char r, g, b, a;
 
    _al_push_new_bitmap_parameters();
    al_set_new_bitmap_format(original->format);
-   al_set_new_bitmap_flags(AL_USE_ALPHA|AL_SYNC_MEMORY_COPY);
+   al_set_new_bitmap_flags(ALLEGRO_USE_ALPHA|ALLEGRO_SYNC_MEMORY_COPY);
    masked_bmp = al_create_bitmap(original->w, original->h);
    _al_pop_new_bitmap_parameters();
 
@@ -69,10 +69,10 @@ static AL_BITMAP *_al_d3d_create_masked_bitmap(AL_BITMAP *original)
    for (y = 0; y < masked_bmp->h; y++) {
       for (x = 0; x < masked_bmp->w; x++) {
          al_get_pixel(masked_bmp, x, y, &pixel);
-         if (memcmp(&pixel, &mask_color, sizeof(AL_COLOR)) == 0) {
+         if (memcmp(&pixel, &mask_color, sizeof(ALLEGRO_COLOR)) == 0) {
             al_put_pixel(x, y, &alpha_pixel, 0);
          }
-         else if (!(original->flags & AL_USE_ALPHA)) {
+         else if (!(original->flags & ALLEGRO_USE_ALPHA)) {
             al_unmap_rgba(masked_bmp, &pixel, &r, &g, &b, &a);
             if (a < 255) {
                a = 255;
@@ -172,7 +172,7 @@ static void d3d_transform(D3D_TL_VERTEX vertices[],
  * flags - flipping flags
  *
  */
-void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
+void _al_d3d_draw_textured_quad(ALLEGRO_BITMAP_D3D *bmp,
    float sx, float sy, float sw, float sh,
    float dx, float dy, float dw, float dh,
    float cx, float cy, float angle,
@@ -208,7 +208,7 @@ void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
    tu_end = sw / texture_w + tu_start;
    tv_end = sh / texture_h + tv_start;
 
-   if (flags & AL_FLIP_HORIZONTAL) {
+   if (flags & ALLEGRO_FLIP_HORIZONTAL) {
       float temp = tu_start;
       tu_start = tu_end;
       tu_end = temp;
@@ -216,7 +216,7 @@ void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
       tu_start -= 1.0f / texture_w;
       tu_end -= 1.0f / texture_w;
    }
-   if (flags & AL_FLIP_VERTICAL) {
+   if (flags & ALLEGRO_FLIP_VERTICAL) {
       float temp = tv_start;
       tv_start = tv_end;
       tv_end = temp;
@@ -276,10 +276,10 @@ void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
    IDirect3DDevice9_SetTexture(_al_d3d_device, 0, NULL);
 }
 
-static void d3d_sync_bitmap_memory(AL_BITMAP *bitmap)
+static void d3d_sync_bitmap_memory(ALLEGRO_BITMAP *bitmap)
 {
    D3DLOCKED_RECT locked_rect;
-   AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap;
+   ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
 
    if (IDirect3DTexture9_LockRect(d3d_bmp->system_texture, 0, &locked_rect, NULL, 0) == D3D_OK) {
    _al_convert_bitmap_data(locked_rect.pBits, bitmap->format, locked_rect.Pitch,
@@ -292,12 +292,12 @@ static void d3d_sync_bitmap_memory(AL_BITMAP *bitmap)
    }
 }
 
-static void d3d_sync_bitmap_texture(AL_BITMAP *bitmap,
+static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
    unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
    D3DLOCKED_RECT locked_rect;
    RECT rect;
-   AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap;
+   ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
 
    rect.left = x;
    rect.top = y;
@@ -351,11 +351,11 @@ static void d3d_sync_bitmap_texture(AL_BITMAP *bitmap,
    }
 }
 
-static void d3d_do_upload(AL_BITMAP_D3D *d3d_bmp, int x, int y, int width,
+static void d3d_do_upload(ALLEGRO_BITMAP_D3D *d3d_bmp, int x, int y, int width,
    int height, bool sync_from_memory)
 {
    if (sync_from_memory) {
-      d3d_sync_bitmap_texture((AL_BITMAP *)d3d_bmp,
+      d3d_sync_bitmap_texture((ALLEGRO_BITMAP *)d3d_bmp,
          x, y, width, height);
    }
       
@@ -376,8 +376,8 @@ void _al_d3d_release_default_pool_textures()
    unsigned int i;
 
    for (i = 0; i < created_bitmaps._size; i++) {
-      AL_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
-      AL_BITMAP_D3D *bmp = *bptr;
+      ALLEGRO_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
+      ALLEGRO_BITMAP_D3D *bmp = *bptr;
       IDirect3DTexture9_Release(bmp->video_texture);
    }
 }
@@ -410,11 +410,11 @@ static bool d3d_create_textures(int w, int h,
    return true;
 }
 
-static AL_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface,
+static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface,
    int flags)
 {
-   AL_BITMAP *bitmap;
-   AL_BITMAP_D3D *d3d_bmp;
+   ALLEGRO_BITMAP *bitmap;
+   ALLEGRO_BITMAP_D3D *d3d_bmp;
    D3DSURFACE_DESC desc;
    D3DLOCKED_RECT surf_locked_rect;
    D3DLOCKED_RECT sys_locked_rect;
@@ -439,7 +439,7 @@ static AL_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface,
    al_set_new_bitmap_flags(flags);
 
    bitmap = al_create_bitmap(desc.Width, desc.Height);
-   d3d_bmp = (AL_BITMAP_D3D *)bitmap;
+   d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
 
    _al_pop_new_bitmap_parameters();
 
@@ -485,10 +485,10 @@ void _al_d3d_prepare_bitmaps_for_reset()
    unsigned int i;
 
    for (i = 0; i < created_bitmaps._size; i++) {
-      AL_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
-      AL_BITMAP_D3D *bmp = *bptr;
-      AL_BITMAP *al_bmp = (AL_BITMAP *)bmp;
-      if (!(al_bmp->flags & AL_SYNC_MEMORY_COPY) || !(al_bmp->flags & AL_MEMORY_BITMAP)) {
+      ALLEGRO_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
+      ALLEGRO_BITMAP_D3D *bmp = *bptr;
+      ALLEGRO_BITMAP *al_bmp = (ALLEGRO_BITMAP *)bmp;
+      if (!(al_bmp->flags & ALLEGRO_SYNC_MEMORY_COPY) || !(al_bmp->flags & ALLEGRO_MEMORY_BITMAP)) {
          d3d_sync_bitmap_memory(al_bmp);
       }
    }
@@ -503,9 +503,9 @@ void _al_d3d_release_bitmap_textures(void)
    unsigned int i;
 
    for (i = 0; i < created_bitmaps._size; i++) {
-      AL_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
-      AL_BITMAP_D3D *bmp = *bptr;
-      AL_BITMAP *al_bmp = (AL_BITMAP *)bmp;
+      ALLEGRO_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
+      ALLEGRO_BITMAP_D3D *bmp = *bptr;
+      ALLEGRO_BITMAP *al_bmp = (ALLEGRO_BITMAP *)bmp;
       d3d_sync_bitmap_memory(al_bmp);
       IDirect3DTexture9_Release(bmp->system_texture);
       IDirect3DTexture9_Release(bmp->video_texture);
@@ -520,9 +520,9 @@ bool _al_d3d_recreate_bitmap_textures(void)
    unsigned int i;
 
    for (i = 0; i < created_bitmaps._size; i++) {
-      AL_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
-      AL_BITMAP_D3D *bmp = *bptr;
-      AL_BITMAP *al_bmp = (AL_BITMAP *)bmp;
+      ALLEGRO_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
+      ALLEGRO_BITMAP_D3D *bmp = *bptr;
+      ALLEGRO_BITMAP *al_bmp = (ALLEGRO_BITMAP *)bmp;
       if (!d3d_create_textures(bmp->texture_w,
             bmp->texture_h,
             &bmp->video_texture,
@@ -544,12 +544,12 @@ void _al_d3d_refresh_texture_memory()
    unsigned int i;
 
    for (i = 0; i < created_bitmaps._size; i++) {
-      AL_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
-      AL_BITMAP_D3D *bmp = *bptr;
-      AL_BITMAP *al_bmp = (AL_BITMAP *)bmp;
+      ALLEGRO_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
+      ALLEGRO_BITMAP_D3D *bmp = *bptr;
+      ALLEGRO_BITMAP *al_bmp = (ALLEGRO_BITMAP *)bmp;
       d3d_create_textures(bmp->texture_w, bmp->texture_h,
          &bmp->video_texture, 0, al_bmp->format);
-      if (al_bmp->flags & AL_SYNC_MEMORY_COPY) {
+      if (al_bmp->flags & ALLEGRO_SYNC_MEMORY_COPY) {
          d3d_sync_bitmap_texture(al_bmp,
             0, 0, al_bmp->w, al_bmp->h);
          IDirect3DDevice9_UpdateTexture(_al_d3d_device,
@@ -559,10 +559,10 @@ void _al_d3d_refresh_texture_memory()
    }
 }
 
-static bool d3d_upload_bitmap(AL_BITMAP *bitmap, int x, int y,
+static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
    int width, int height)
 {
-   AL_BITMAP_D3D *d3d_bmp = (void *)bitmap;
+   ALLEGRO_BITMAP_D3D *d3d_bmp = (void *)bitmap;
    int w = bitmap->w;
    int h = bitmap->h;
 
@@ -586,7 +586,7 @@ static bool d3d_upload_bitmap(AL_BITMAP *bitmap, int x, int y,
        * Keep track of created bitmaps, in case the display is lost
        * or resized.
        */
-      *(AL_BITMAP_D3D **)_al_vector_alloc_back(&created_bitmaps) = d3d_bmp;
+      *(ALLEGRO_BITMAP_D3D **)_al_vector_alloc_back(&created_bitmaps) = d3d_bmp;
 
       d3d_bmp->initialized = true;
    }
@@ -598,16 +598,16 @@ static bool d3d_upload_bitmap(AL_BITMAP *bitmap, int x, int y,
    return true;
 }
 
-void _al_d3d_sync_bitmap(AL_BITMAP *dest)
+void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
 {
-   AL_BITMAP_D3D *d3d_dest;
+   ALLEGRO_BITMAP_D3D *d3d_dest;
    LPDIRECT3DSURFACE9 system_texture_surface;
    LPDIRECT3DSURFACE9 video_texture_surface;
 
    if (dest->parent) {
       dest = dest->parent;
    }
-   d3d_dest = (AL_BITMAP_D3D *)dest;
+   d3d_dest = (ALLEGRO_BITMAP_D3D *)dest;
 
    _al_d3d_lock_device();
 
@@ -649,15 +649,15 @@ void _al_d3d_sync_bitmap(AL_BITMAP *dest)
 
 
 /* Draw the bitmap at the specified position. */
-static void d3d_blit_real(AL_BITMAP *src,
+static void d3d_blit_real(ALLEGRO_BITMAP *src,
    float sx, float sy, float sw, float sh,
    float source_center_x, float source_center_y,
    float dx, float dy, float dw, float dh,
    float angle, int flags)
 {
-   AL_BITMAP_D3D *d3d_src = (AL_BITMAP_D3D *)src;
-   AL_BITMAP *dest = al_get_target_bitmap();
-   AL_BITMAP_D3D *d3d_dest = (AL_BITMAP_D3D *)al_get_target_bitmap();
+   ALLEGRO_BITMAP_D3D *d3d_src = (ALLEGRO_BITMAP_D3D *)src;
+   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
+   ALLEGRO_BITMAP_D3D *d3d_dest = (ALLEGRO_BITMAP_D3D *)al_get_target_bitmap();
    DWORD light_color = 0xFFFFFFFF;
 
    if (_al_d3d_is_device_lost()) return;
@@ -667,20 +667,20 @@ static void d3d_blit_real(AL_BITMAP *src,
       sx += src->xofs;
       sy += src->yofs;
       src = src->parent;
-      d3d_src = (AL_BITMAP_D3D *)src;
+      d3d_src = (ALLEGRO_BITMAP_D3D *)src;
    }
    if (dest->parent) {
       dx += dest->xofs;
       dy += dest->yofs;
       dest = dest->parent;
-      d3d_dest = (AL_BITMAP_D3D *)dest;
+      d3d_dest = (ALLEGRO_BITMAP_D3D *)dest;
    }
 
    angle = -angle;
 
    if (d3d_src->is_backbuffer) {
-      AL_DISPLAY_D3D *d3d_display = (AL_DISPLAY_D3D *)src->display;
-      AL_BITMAP *tmp_bmp =
+      ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)src->display;
+      ALLEGRO_BITMAP *tmp_bmp =
          d3d_create_bitmap_from_surface(
             d3d_display->render_target,
             src->flags);
@@ -692,13 +692,13 @@ static void d3d_blit_real(AL_BITMAP *src,
       return;
    }
 
-   if (flags & AL_MASK_SOURCE) {
-      AL_BITMAP *tmp_bmp = _al_d3d_create_masked_bitmap(src);
+   if (flags & ALLEGRO_MASK_SOURCE) {
+      ALLEGRO_BITMAP *tmp_bmp = _al_d3d_create_masked_bitmap(src);
       if (tmp_bmp) {
          d3d_blit_real(tmp_bmp, sx, sy, sw, sh,
             source_center_x, source_center_y,
             dx, dy, dw, dh,
-            angle, flags & ~AL_MASK_SOURCE);
+            angle, flags & ~ALLEGRO_MASK_SOURCE);
          al_destroy_bitmap(tmp_bmp);
       }
       return;
@@ -706,7 +706,7 @@ static void d3d_blit_real(AL_BITMAP *src,
 
    _al_d3d_lock_device();
 
-   if (src && (src->flags & AL_USE_ALPHA)) {
+   if (src && (src->flags & ALLEGRO_USE_ALPHA)) {
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, TRUE);
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
@@ -719,7 +719,7 @@ static void d3d_blit_real(AL_BITMAP *src,
       angle, light_color,
       flags);
 
-   if (src && (src->flags & AL_USE_ALPHA)) {
+   if (src && (src->flags & ALLEGRO_USE_ALPHA)) {
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, FALSE);
    }
 
@@ -727,16 +727,16 @@ static void d3d_blit_real(AL_BITMAP *src,
 
    /* 
     * If we're rendering to a texture, and the bitmap has the
-    * AL_SYNC_MEMORY_COPY flag, sync the texture to system memory.
+    * ALLEGRO_SYNC_MEMORY_COPY flag, sync the texture to system memory.
     */
-   if (dest->flags & AL_SYNC_MEMORY_COPY) {
+   if (dest->flags & ALLEGRO_SYNC_MEMORY_COPY) {
       _al_d3d_sync_bitmap(dest);
    }
 }
 
 /* Blitting functions */
 
-static void d3d_draw_bitmap(AL_BITMAP *bitmap, float dx, float dy, int flags)
+static void d3d_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
 {
    d3d_blit_real(bitmap, 0.0f, 0.0f, bitmap->w, bitmap->h,
       bitmap->w/2, bitmap->h/2,
@@ -744,7 +744,7 @@ static void d3d_draw_bitmap(AL_BITMAP *bitmap, float dx, float dy, int flags)
       0.0f, flags);
 }
 
-static void d3d_draw_bitmap_region(AL_BITMAP *bitmap, float sx, float sy,
+static void d3d_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, int flags)
 {
    d3d_blit_real(bitmap,
@@ -754,7 +754,7 @@ static void d3d_draw_bitmap_region(AL_BITMAP *bitmap, float sx, float sy,
       0.0f, flags);
 }
 
-void d3d_draw_scaled_bitmap(AL_BITMAP *bitmap, float sx, float sy,
+void d3d_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
    d3d_blit_real(bitmap,
@@ -763,7 +763,7 @@ void d3d_draw_scaled_bitmap(AL_BITMAP *bitmap, float sx, float sy,
       flags);
 }
 
-void d3d_draw_rotated_bitmap(AL_BITMAP *bitmap, float cx, float cy,
+void d3d_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    float dx, float dy, float angle, int flags)
 {
    d3d_blit_real(bitmap,
@@ -773,7 +773,7 @@ void d3d_draw_rotated_bitmap(AL_BITMAP *bitmap, float cx, float cy,
       angle, flags);
 }
 
-void d3d_draw_rotated_scaled_bitmap(AL_BITMAP *bitmap, float cx, float cy,
+void d3d_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    float dx, float dy, float xscale, float yscale, float angle,
    float flags)
 {
@@ -784,9 +784,9 @@ void d3d_draw_rotated_scaled_bitmap(AL_BITMAP *bitmap, float cx, float cy,
       angle, flags);
 }
 
-static void d3d_destroy_bitmap(AL_BITMAP *bitmap)
+static void d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   AL_BITMAP_D3D *d3d_bmp = (void *)bitmap;
+   ALLEGRO_BITMAP_D3D *d3d_bmp = (void *)bitmap;
 
    if (d3d_bmp->video_texture) {
       if (IDirect3DTexture9_Release(d3d_bmp->video_texture) != D3D_OK) {
@@ -802,13 +802,13 @@ static void d3d_destroy_bitmap(AL_BITMAP *bitmap)
    _al_vector_find_and_delete(&created_bitmaps, &d3d_bmp);
 }
 
-static AL_LOCKED_REGION *d3d_lock_region(AL_BITMAP *bitmap,
-   int x, int y, int w, int h, AL_LOCKED_REGION *locked_region,
+static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
+   int x, int y, int w, int h, ALLEGRO_LOCKED_REGION *locked_region,
    int flags)
 {
-   AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap;
+   ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
    RECT rect;
-   DWORD Flags = flags & AL_LOCK_READONLY ? D3DLOCK_READONLY : 0;
+   DWORD Flags = flags & ALLEGRO_LOCK_READONLY ? D3DLOCK_READONLY : 0;
 
    rect.left = x;
    rect.right = x + w;
@@ -816,7 +816,7 @@ static AL_LOCKED_REGION *d3d_lock_region(AL_BITMAP *bitmap,
    rect.bottom = y + h;
 
    if (d3d_bmp->is_backbuffer) {
-      AL_DISPLAY_D3D *d3d_disp = (AL_DISPLAY_D3D *)bitmap->display;
+      ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)bitmap->display;
       if (IDirect3DSurface9_LockRect(d3d_disp->render_target, &d3d_bmp->locked_rect, &rect, Flags) != D3D_OK) {
          TRACE("LockRect failed in d3d_lock_region.\n");
          return NULL;
@@ -836,21 +836,21 @@ static AL_LOCKED_REGION *d3d_lock_region(AL_BITMAP *bitmap,
    return locked_region;
 }
 
-static void d3d_unlock_region(AL_BITMAP *bitmap)
+static void d3d_unlock_region(ALLEGRO_BITMAP *bitmap)
 {
-   AL_BITMAP_D3D *d3d_bmp = (AL_BITMAP_D3D *)bitmap;
+   ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
    bool sync;
 
 
    if (d3d_bmp->is_backbuffer) {
-      AL_DISPLAY_D3D *d3d_disp = (AL_DISPLAY_D3D *)bitmap->display;
+      ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)bitmap->display;
       IDirect3DSurface9_UnlockRect(d3d_disp->render_target);
    }
    else {
       IDirect3DTexture9_UnlockRect(d3d_bmp->system_texture, 0);
-      if (bitmap->lock_flags & AL_LOCK_READONLY)
+      if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY)
          return;
-      if (bitmap->flags & AL_SYNC_MEMORY_COPY)
+      if (bitmap->flags & ALLEGRO_SYNC_MEMORY_COPY)
          sync = true;
       else
          sync = false;
@@ -860,7 +860,7 @@ static void d3d_unlock_region(AL_BITMAP *bitmap)
 }
 
 /* Obtain a reference to this driver. */
-AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
+ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
 {
    if (vt) return vt;
 

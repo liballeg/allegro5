@@ -1,6 +1,6 @@
 #include "xglx.h"
 
-static void set_opengl_color(AL_DISPLAY *d, AL_COLOR *color)
+static void set_opengl_color(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
     unsigned char r, g, b, a;
     _al_unmap_rgba(d->format, color, &r, &g, &b, &a);
@@ -8,7 +8,7 @@ static void set_opengl_color(AL_DISPLAY *d, AL_COLOR *color)
 }
 
 /* Dummy implementation of clear. */
-static void clear(AL_DISPLAY *d, AL_COLOR *color)
+static void clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
    unsigned char r, g, b, a;
    _al_unmap_rgba(d->format, color, &r, &g, &b, &a);
@@ -17,8 +17,8 @@ static void clear(AL_DISPLAY *d, AL_COLOR *color)
 }
 
 /* Dummy implementation of line. */
-static void draw_line(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
-   AL_COLOR *color, int flags)
+static void draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
+   ALLEGRO_COLOR *color, int flags)
 {
    set_opengl_color(d, color);
    glBegin(GL_LINES);
@@ -28,8 +28,8 @@ static void draw_line(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
 }
 
 /* Dummy implementation of a filled rectangle. */
-static void draw_rectangle(AL_DISPLAY *d, float tlx, float tly,
-   float brx, float bry, AL_COLOR *color, int flags)
+static void draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
+   float brx, float bry, ALLEGRO_COLOR *color, int flags)
 {
    set_opengl_color(d, color);
    glBegin(GL_QUADS);
@@ -41,7 +41,7 @@ static void draw_rectangle(AL_DISPLAY *d, float tlx, float tly,
 }
 
 /* Add drawing commands to the vtable. */
-void _xglx_add_drawing_functions(AL_DISPLAY_INTERFACE *vt)
+void _xglx_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
 {
    vt->clear = clear;
    vt->draw_line = draw_line;

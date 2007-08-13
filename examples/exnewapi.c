@@ -12,7 +12,7 @@
 
 int main(void)
 {
-   AL_DISPLAY *display[3];
+   ALLEGRO_DISPLAY *display[3];
    AL_KEYBOARD *keyboard;
    AL_EVENT event;
    AL_EVENT_QUEUE *events;
@@ -24,31 +24,31 @@ int main(void)
    int x = 0, y = 100;
    int dx = 1;
    int w = 640, h = 480;
-   AL_BITMAP *picture;
-   AL_BITMAP *mask;
-   AL_BITMAP *mem_bmp;
-   AL_COLOR colors[3];
-   AL_COLOR white;
-   AL_COLOR mask_color;
+   ALLEGRO_BITMAP *picture;
+   ALLEGRO_BITMAP *mask;
+   ALLEGRO_BITMAP *mem_bmp;
+   ALLEGRO_COLOR colors[3];
+   ALLEGRO_COLOR white;
+   ALLEGRO_COLOR mask_color;
    int i;
    bool clip = false;
 
    al_init();
 
-   al_set_new_display_flags(AL_DIRECT3D|AL_FULLSCREEN);
+   al_set_new_display_flags(ALLEGRO_DIRECT3D|ALLEGRO_FULLSCREEN);
    al_set_new_display_refresh_rate(60);
 
    events = al_create_event_queue();
 
    al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
-   al_set_new_display_flags(AL_WINDOWED|AL_RESIZABLE);
+   al_set_new_display_flags(ALLEGRO_WINDOWED|ALLEGRO_RESIZABLE);
 
    /* Create three windows. */
    display[0] = al_create_display(w, h);
    display[1] = al_create_display(w, h);
 
    al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-   al_set_new_display_flags(AL_WINDOWED|AL_RESIZABLE);
+   al_set_new_display_flags(ALLEGRO_WINDOWED|ALLEGRO_RESIZABLE);
 
    display[2] = al_create_display(w, h);
 
@@ -67,7 +67,7 @@ int main(void)
    al_set_current_display(display[2]);
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-   al_set_new_bitmap_flags(AL_SYNC_MEMORY_COPY|AL_USE_ALPHA);
+   al_set_new_bitmap_flags(ALLEGRO_SYNC_MEMORY_COPY|ALLEGRO_USE_ALPHA);
 
    picture = al_load_bitmap("mysha.tga");
 
@@ -75,12 +75,12 @@ int main(void)
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGBA_8888);
    mask = al_load_bitmap("mask.pcx");
 
-   al_set_new_bitmap_flags(AL_MEMORY_BITMAP|AL_USE_ALPHA);
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP|ALLEGRO_USE_ALPHA);
    mem_bmp = al_load_bitmap("mysha.tga");
 
    /*
-   AL_COLOR color;
-   AL_LOCKED_REGION lr;
+   ALLEGRO_COLOR color;
+   ALLEGRO_LOCKED_REGION lr;
    al_lock_bitmap(picture, &lr, 0);
    al_set_target_bitmap(picture);
    for (y = 0; y < 100; y++) {
@@ -199,7 +199,7 @@ int main(void)
                al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
                al_set_mask_color(al_map_rgb(mem_bmp, &mask_color, 255, 0, 255));
 	    }
-            al_draw_rectangle(x, y, x + 40, y + 40, &colors[i], AL_FILLED);
+            al_draw_rectangle(x, y, x + 40, y + 40, &colors[i], ALLEGRO_FILLED);
             al_flip_display();
          }
          /*last_rendered = ticks;

@@ -13,13 +13,13 @@
 #define D3DFVF_TL_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
 
-typedef struct AL_SYSTEM_D3D AL_SYSTEM_D3D;
-typedef struct AL_BITMAP_D3D AL_BITMAP_D3D;
-typedef struct AL_DISPLAY_D3D AL_DISPLAY_D3D;
+typedef struct ALLEGRO_SYSTEM_D3D ALLEGRO_SYSTEM_D3D;
+typedef struct ALLEGRO_BITMAP_D3D ALLEGRO_BITMAP_D3D;
+typedef struct ALLEGRO_DISPLAY_D3D ALLEGRO_DISPLAY_D3D;
 
-struct AL_BITMAP_D3D
+struct ALLEGRO_BITMAP_D3D
 {
-   AL_BITMAP bitmap; /* This must be the first member. */
+   ALLEGRO_BITMAP bitmap; /* This must be the first member. */
 
    /* Driver specifics. */
 
@@ -35,9 +35,9 @@ struct AL_BITMAP_D3D
    D3DLOCKED_RECT locked_rect;
 };
 
-struct AL_DISPLAY_D3D
+struct ALLEGRO_DISPLAY_D3D
 {
-   AL_DISPLAY display; /* This must be the first member. */
+   ALLEGRO_DISPLAY display; /* This must be the first member. */
 
    /* Driver specifics */
    HWND window;
@@ -53,7 +53,7 @@ struct AL_DISPLAY_D3D
    bool init_failed;   /* Initialization failed */
    bool thread_ended;  /* The display thread has ended */
 
-   AL_BITMAP_D3D backbuffer_bmp;
+   ALLEGRO_BITMAP_D3D backbuffer_bmp;
 };
 
 
@@ -79,12 +79,12 @@ typedef struct D3D_TL_VERTEX
 } D3D_TL_VERTEX;
 
 
-AL_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void);
+ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void);
 
 AL_VAR(LPDIRECT3DDEVICE9, _al_d3d_device);
 
-AL_FUNC(AL_BITMAP *, _al_d3d_create_bitmap,
-   (AL_DISPLAY *d, int w, int h));
+AL_FUNC(ALLEGRO_BITMAP *, _al_d3d_create_bitmap,
+   (ALLEGRO_DISPLAY *d, int w, int h));
 bool _al_d3d_is_device_lost(void);
 void _al_d3d_lock_device();
 void _al_d3d_unlock_device();
@@ -94,15 +94,15 @@ int _al_d3d_format_to_allegro(int d3d_fmt);
 void _al_d3d_release_default_pool_textures();
 void _al_d3d_prepare_bitmaps_for_reset();
 void _al_d3d_refresh_texture_memory();
-void _al_d3d_draw_textured_quad(AL_BITMAP_D3D *bmp,
+void _al_d3d_draw_textured_quad(ALLEGRO_BITMAP_D3D *bmp,
    float sx, float sy, float sw, float sh,
    float dx, float dy, float dw, float dh,
    float cx, float cy, float angle,
    D3DCOLOR color, int flags);
 void _al_d3d_release_bitmap_textures(void);
 bool _al_d3d_recreate_bitmap_textures(void);
-void _al_d3d_set_bitmap_clip(AL_BITMAP *bitmap);
-void _al_d3d_sync_bitmap(AL_BITMAP *dest);
+void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
+void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest);
 
 /* Helper to get smallest fitting power of two. */
 static inline int pot(int x)

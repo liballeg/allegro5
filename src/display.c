@@ -53,7 +53,7 @@ static int failed_bitmap_w = BMP_MAX_SIZE;
 static int failed_bitmap_h = BMP_MAX_SIZE;
 
 
-static AL_DISPLAY *new_display;
+static ALLEGRO_DISPLAY *new_display;
 
 
 /* destroy_video_bitmaps:
@@ -718,10 +718,10 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
    #ifdef ALLEGRO_UNIX
    if (card == GFX_XGLX_FULLSCREEN || card == GFX_XGLX_WINDOWED) {
-      int windowed_flag = (card == GFX_XGLX_WINDOWED) ? AL_WINDOWED : 0;
+      int windowed_flag = (card == GFX_XGLX_WINDOWED) ? ALLEGRO_WINDOWED : 0;
       al_init();
       screen = create_bitmap(w, h);
-      al_set_new_display_flags(AL_SINGLEBUFFER | windowed_flag);
+      al_set_new_display_flags(ALLEGRO_SINGLEBUFFER | windowed_flag);
       screen->display = al_create_display(w, h);
       if (!screen->display) {
          destroy_bitmap(screen);
@@ -739,7 +739,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    #else
    #if defined ALLEGRO_D3D
    if (card == GFX_DIRECT3D || card == GFX_DIRECT3D_FULLSCREEN) {
-   	int windowed_flag = (card == GFX_DIRECT3D_WINDOWED) ? AL_WINDOWED : 0;
+   	int windowed_flag = (card == GFX_DIRECT3D_WINDOWED) ? ALLEGRO_WINDOWED : 0;
 	al_init();
 	if (v_w != 0 || v_h != 0) {
 		return -1;
@@ -749,7 +749,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 		return 1;
 	}
 	al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
-	al_set_new_display_flags(AL_SINGLEBUFFER|windowed_flag);
+	al_set_new_display_flags(ALLEGRO_SINGLEBUFFER|windowed_flag);
 	screen->display = al_create_display(w, h);
 	if (!screen->display) {
 		destroy_bitmap(screen);

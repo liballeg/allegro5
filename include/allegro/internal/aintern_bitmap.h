@@ -4,14 +4,14 @@
 #include "allegro/display_new.h"
 #include "allegro/bitmap_new.h"
 
-typedef struct AL_BITMAP_INTERFACE AL_BITMAP_INTERFACE;
+typedef struct ALLEGRO_BITMAP_INTERFACE ALLEGRO_BITMAP_INTERFACE;
 
 struct BITMAP;
 
-struct AL_BITMAP
+struct ALLEGRO_BITMAP
 {
-   AL_BITMAP_INTERFACE *vt;
-   AL_DISPLAY *display;
+   ALLEGRO_BITMAP_INTERFACE *vt;
+   ALLEGRO_DISPLAY *display;
    int format;
    int flags;
    int w, h;
@@ -35,26 +35,12 @@ struct AL_BITMAP
    int lock_w;
    int lock_h;
    int lock_flags;
-   AL_LOCKED_REGION locked_region;
+   ALLEGRO_LOCKED_REGION locked_region;
 
    /* Info for sub-bitmaps */
-   AL_BITMAP *parent;
+   ALLEGRO_BITMAP *parent;
    int xofs;
    int yofs;
-
-   /* Info for patterned drawing */
-   AL_BITMAP *pattern;
-   /*
-    * We have to keep a copy of the pattern bitmap, because it can be
-    * a display bitmap, and would have to be locked to be used. This would
-    * mean that the pattern couldn't be used for more than one bitmap.
-    * We keep the copy in system memory so it doesn't have to be locked.
-    */
-   AL_BITMAP *pattern_copy;
-   int drawing_mode;
-   int pattern_pitch;
-   int drawing_x_anchor, drawing_y_anchor;
-   unsigned int drawing_x_mask, drawing_y_mask;
 
    /* A memory copy of the bitmap data. May be NULL for an empty bitmap. */
    unsigned char *memory;
@@ -63,56 +49,56 @@ struct AL_BITMAP
    /*unsigned char *palette;*/
 };
 
-struct AL_BITMAP_INTERFACE
+struct ALLEGRO_BITMAP_INTERFACE
 {
    int id;
-   void (*draw_bitmap)(struct AL_BITMAP *bitmap, float x, float y, int flags);
-   void (*draw_bitmap_region)(AL_BITMAP *bitmap, float sx, float sy,
+   void (*draw_bitmap)(struct ALLEGRO_BITMAP *bitmap, float x, float y, int flags);
+   void (*draw_bitmap_region)(ALLEGRO_BITMAP *bitmap, float sx, float sy,
       float sw, float sh, float dx, float dy, int flags);
-   void (*draw_scaled_bitmap)(AL_BITMAP *bitmap, float sx, float sy,
+   void (*draw_scaled_bitmap)(ALLEGRO_BITMAP *bitmap, float sx, float sy,
       float sw, float sh, float dx, float dy, float dw, float dh, int flags);
-   void (*draw_rotated_bitmap)(AL_BITMAP *bitmap, float cx, float cy,
+   void (*draw_rotated_bitmap)(ALLEGRO_BITMAP *bitmap, float cx, float cy,
       float angle, float dx, float dy, int flags);
-   void (*draw_rotated_scaled_bitmap)(AL_BITMAP *bitmap, float cx, float cy,
+   void (*draw_rotated_scaled_bitmap)(ALLEGRO_BITMAP *bitmap, float cx, float cy,
       float angle, float dx, float dy, float xscale, float yscale,
       float flags);
    /* After the memory-copy of the bitmap has been modified, need to call this
     * to update the display-specific copy. E.g. with an OpenGL driver, this
     * might create/update a texture. Returns false on failure.
     */
-   bool (*upload_bitmap)(AL_BITMAP *bitmap, int x, int y, int width, int height);
+   bool (*upload_bitmap)(ALLEGRO_BITMAP *bitmap, int x, int y, int width, int height);
    /* If the display version of the bitmap has been modified, use this to update
     * the memory copy accordingly. E.g. with an OpenGL driver, this might
     * read the contents of an associated texture.
     */
 
-   void (*destroy_bitmap)(AL_BITMAP *bitmap);
+   void (*destroy_bitmap)(ALLEGRO_BITMAP *bitmap);
 
-   AL_LOCKED_REGION * (*lock_region)(AL_BITMAP *bitmap,
+   ALLEGRO_LOCKED_REGION * (*lock_region)(ALLEGRO_BITMAP *bitmap,
    	int x, int y, int w, int h,
-   	AL_LOCKED_REGION *locked_region,
+   	ALLEGRO_LOCKED_REGION *locked_region,
 	int flags);
 
-   void (*unlock_region)(AL_BITMAP *bitmap);
+   void (*unlock_region)(ALLEGRO_BITMAP *bitmap);
 };
 
-void _al_blit_memory_bitmap(AL_BITMAP *source, AL_BITMAP *dest,
+void _al_blit_memory_bitmap(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest,
    int source_x, int source_y, int dest_x, int dest_y, int w, int h);
-//AL_BITMAP_INTERFACE *_al_bitmap_xdummy_driver(void);
-AL_BITMAP_INTERFACE *_al_bitmap_d3ddummy_driver(void);
+//ALLEGRO_BITMAP_INTERFACE *_al_bitmap_xdummy_driver(void);
+ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3ddummy_driver(void);
 
-AL_COLOR* _al_map_rgba(int format, AL_COLOR *color,
+ALLEGRO_COLOR* _al_map_rgba(int format, ALLEGRO_COLOR *color,
 	unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-AL_COLOR* _al_map_rgba_f(int format, AL_COLOR *color,
+ALLEGRO_COLOR* _al_map_rgba_f(int format, ALLEGRO_COLOR *color,
 	float r, float g, float b, float a);
-AL_COLOR* _al_map_rgba_i(int format, AL_COLOR *color,
+ALLEGRO_COLOR* _al_map_rgba_i(int format, ALLEGRO_COLOR *color,
 	int r, int g, int b, int a);
 
-void _al_unmap_rgba(int format, AL_COLOR *color,
+void _al_unmap_rgba(int format, ALLEGRO_COLOR *color,
 	unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a);
-void _al_unmap_rgba_f(int format, AL_COLOR *color,
+void _al_unmap_rgba_f(int format, ALLEGRO_COLOR *color,
 	float *r, float *g, float *b, float *a);
-void _al_unmap_rgba_i(int format, AL_COLOR *color,
+void _al_unmap_rgba_i(int format, ALLEGRO_COLOR *color,
 	int *r, int *g, int *b, int *a);
 
 /* Bitmap conversion */
@@ -126,25 +112,25 @@ void _al_convert_compat_bitmap(
 	void *dst, int dst_format, int dst_pitch,
 	int sx, int sy, int dx, int dy,
 	int width, int height);
-int _al_get_pixel_value(int src_format, AL_COLOR *src_color);
+int _al_get_pixel_value(int src_format, ALLEGRO_COLOR *src_color);
 
 void _al_push_new_bitmap_parameters();
 void _al_pop_new_bitmap_parameters();
 
 /* Memory bitmap blitting */
-void _al_draw_bitmap_region_memory(AL_BITMAP *bitmap,
+void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags);
-void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
+void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int dx, int dy, int flags);
-void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
+void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, int flags);
-void _al_draw_rotated_bitmap_memory(AL_BITMAP *bitmap,
+void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int center_x, int center_y, int dx, int dy, float angle, int flags);
-void _al_draw_rotated_bitmap_memory(AL_BITMAP *bitmap,
+void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int center_x, int center_y, int dx, int dy,
    float angle, int flags);
-void _al_draw_rotated_scaled_bitmap_memory(AL_BITMAP *bitmap,
+void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int center_x, int center_y, int dx, int dy,
    float xscale, float yscale, float angle, int flags);
 

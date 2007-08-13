@@ -6,50 +6,50 @@
 #include "allegro/bitmap_new.h"
 #include "allegro/internal/aintern_events.h"
 
-typedef struct AL_DISPLAY_INTERFACE AL_DISPLAY_INTERFACE;
+typedef struct ALLEGRO_DISPLAY_INTERFACE ALLEGRO_DISPLAY_INTERFACE;
 
-struct AL_DISPLAY_INTERFACE
+struct ALLEGRO_DISPLAY_INTERFACE
 {
    int id;
-   AL_DISPLAY *(*create_display)(int w, int h);
-   void (*destroy_display)(AL_DISPLAY *display);
-   void (*set_current_display)(AL_DISPLAY *d);
-   void (*clear)(AL_DISPLAY *d, AL_COLOR *color);
-   void (*draw_line)(AL_DISPLAY *d, float fx, float fy, float tx, float ty,
-      AL_COLOR *color, int flags);
-   void (*draw_rectangle)(AL_DISPLAY *d, float fx, float fy, float tx,
-    float ty, AL_COLOR *color, int flags);
-   void (*flip_display)(AL_DISPLAY *d);
-   bool (*update_display_region)(AL_DISPLAY *d, int x, int y,
+   ALLEGRO_DISPLAY *(*create_display)(int w, int h);
+   void (*destroy_display)(ALLEGRO_DISPLAY *display);
+   void (*set_current_display)(ALLEGRO_DISPLAY *d);
+   void (*clear)(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color);
+   void (*draw_line)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
+      ALLEGRO_COLOR *color, int flags);
+   void (*draw_rectangle)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx,
+    float ty, ALLEGRO_COLOR *color, int flags);
+   void (*flip_display)(ALLEGRO_DISPLAY *d);
+   bool (*update_display_region)(ALLEGRO_DISPLAY *d, int x, int y,
    	int width, int height);
-   bool (*acknowledge_resize)(AL_DISPLAY *d);
-   bool (*resize_display)(AL_DISPLAY *d, int width, int height);
+   bool (*acknowledge_resize)(ALLEGRO_DISPLAY *d);
+   bool (*resize_display)(ALLEGRO_DISPLAY *d, int width, int height);
 
-   AL_BITMAP *(*create_bitmap)(AL_DISPLAY *d,
+   ALLEGRO_BITMAP *(*create_bitmap)(ALLEGRO_DISPLAY *d,
    	int w, int h);
    
    void (*upload_compat_screen)(struct BITMAP *bitmap, int x, int y, int width, int height);
-   void (*set_target_bitmap)(AL_DISPLAY *display, AL_BITMAP *bitmap);
-   AL_BITMAP *(*get_backbuffer)(AL_DISPLAY *display);
-   AL_BITMAP *(*get_frontbuffer)(AL_DISPLAY *display);
+   void (*set_target_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+   ALLEGRO_BITMAP *(*get_backbuffer)(ALLEGRO_DISPLAY *display);
+   ALLEGRO_BITMAP *(*get_frontbuffer)(ALLEGRO_DISPLAY *display);
 
-   bool (*is_compatible_bitmap)(AL_DISPLAY *display, AL_BITMAP *bitmap);
+   bool (*is_compatible_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
    void (*switch_out)(void);
 
-   void (*draw_memory_bitmap_region)(AL_DISPLAY *display, AL_BITMAP *bitmap,
+   void (*draw_memory_bitmap_region)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap,
       float sx, float sy, float sw, float sh, float dx, float dy, int flags);
 
-   AL_BITMAP *(*create_sub_bitmap)(AL_DISPLAY *display, AL_BITMAP *parent,
+   ALLEGRO_BITMAP *(*create_sub_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *parent,
       int x, int y, int width, int height);
 
-   bool (*wait_for_vsync)(AL_DISPLAY *display);
+   bool (*wait_for_vsync)(ALLEGRO_DISPLAY *display);
 };
 
-struct AL_DISPLAY
+struct ALLEGRO_DISPLAY
 {
    /* Must be first, so the display can be used as event source. */
    struct AL_EVENT_SOURCE es; 
-   AL_DISPLAY_INTERFACE *vt;
+   ALLEGRO_DISPLAY_INTERFACE *vt;
    int format;
    int refresh_rate;
    int flags;
@@ -58,10 +58,10 @@ struct AL_DISPLAY
 
 #define _al_current_display al_get_current_display()
 
-//AL_DISPLAY_INTERFACE *_al_display_d3ddummy_driver(void);
+//ALLEGRO_DISPLAY_INTERFACE *_al_display_d3ddummy_driver(void);
 
-void _al_clear_memory(AL_COLOR *color);
-void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2, AL_COLOR *color, int flags);
-void _al_draw_line_memory(int x1, int y1, int x2, int y2, AL_COLOR *color, int flags);
+void _al_clear_memory(ALLEGRO_COLOR *color);
+void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, int flags);
+void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, int flags);
 
 #endif

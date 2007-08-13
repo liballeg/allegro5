@@ -2,7 +2,7 @@
 
 static void redraw(void)
 {
-    AL_COLOR black, white;
+    ALLEGRO_COLOR black, white;
     int i, w, h;
     al_map_rgba_f(al_get_backbuffer(), &white, 1, 1, 1, 1);
     al_map_rgba_f(al_get_backbuffer(), &black, 0, 0, 0, 1);
@@ -18,7 +18,7 @@ static void redraw(void)
 
 int main(void)
 {
-    AL_DISPLAY *display;
+    ALLEGRO_DISPLAY *display;
     AL_EVENT_QUEUE *events;
     AL_EVENT event;
     AL_KEYBOARD *keyboard;
@@ -31,7 +31,7 @@ int main(void)
     events = al_create_event_queue();
 
     /* Setup a display driver and register events from it. */
-    al_set_new_display_flags(AL_RESIZABLE);
+    al_set_new_display_flags(ALLEGRO_RESIZABLE);
     display = al_create_display(rs, rs);
     al_register_event_source(events, (AL_EVENT_SOURCE *)display);
 

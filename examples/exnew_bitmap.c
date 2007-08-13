@@ -2,8 +2,8 @@
 
 int main(void)
 {
-    AL_DISPLAY *display;
-    AL_BITMAP *bitmap;
+    ALLEGRO_DISPLAY *display;
+    ALLEGRO_BITMAP *bitmap;
     al_init();
     display = al_create_display(320, 200);
     bitmap = al_load_bitmap("mysha.pcx");

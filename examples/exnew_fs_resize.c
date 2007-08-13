@@ -1,8 +1,8 @@
 #include "allegro.h"
 
-void redraw(AL_BITMAP *picture)
+void redraw(ALLEGRO_BITMAP *picture)
 {
-   AL_COLOR color;
+   ALLEGRO_COLOR color;
    al_map_rgb(al_get_backbuffer(), &color, rand()%255, rand()%255, rand()%255);
    al_clear(&color);
    al_map_rgb(al_get_backbuffer(), &color, 255, 0, 0);
@@ -14,12 +14,12 @@ void redraw(AL_BITMAP *picture)
 
 int main(void)
 {
-   AL_DISPLAY *display;
-   AL_BITMAP *picture;
+   ALLEGRO_DISPLAY *display;
+   ALLEGRO_BITMAP *picture;
 
    al_init();
 
-   al_set_new_display_flags(AL_FULLSCREEN);
+   al_set_new_display_flags(ALLEGRO_FULLSCREEN);
    display = al_create_display(640, 480);
 
    picture = al_load_bitmap("mysha.pcx");

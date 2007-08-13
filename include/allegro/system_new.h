@@ -1,7 +1,7 @@
 #ifndef ALLEGRO_SYSTEM_NEW_H
 #define ALLEGRO_SYSTEM_NEW_H
 
-typedef struct AL_SYSTEM AL_SYSTEM;
+typedef struct ALLEGRO_SYSTEM ALLEGRO_SYSTEM;
 
 bool _al_init(void);
 
@@ -11,6 +11,6 @@ bool _al_init(void);
    _al_init(); \
 }
 
-AL_SYSTEM *al_system_driver(void);
+ALLEGRO_SYSTEM *al_system_driver(void);
 
 #endif

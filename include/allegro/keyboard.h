@@ -49,7 +49,7 @@ typedef struct AL_KEYBOARD AL_KEYBOARD;
  */
 typedef struct AL_KBDSTATE
 {
-   struct AL_DISPLAY *display;  /* public */
+   struct ALLEGRO_DISPLAY *display;  /* public */
    unsigned int __key_down__internal__[4]; /* internal */
    /* Was using uint32_t, but some machines don't have stdint.h. */ 
 #if AL_KEY_MAX >= (32 * 4)

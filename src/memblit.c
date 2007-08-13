@@ -34,10 +34,10 @@
 { \
    int x; \
    int y; \
-   AL_LOCKED_REGION lr; \
+   ALLEGRO_LOCKED_REGION lr; \
    int cdx, cdy;         /* current dest */ \
    int dxi, dyi;         /* dest increments */ \
-   AL_COLOR mask_color; \
+   ALLEGRO_COLOR mask_color; \
    int pixel; \
    int mask_pixel; \
 \
@@ -46,7 +46,7 @@
 \
    /* Adjust for flipping */ \
 \
-   if (flags & AL_FLIP_HORIZONTAL) { \
+   if (flags & ALLEGRO_FLIP_HORIZONTAL) { \
       cdx = sw - 1; \
       dxi = -1; \
    } \
@@ -55,7 +55,7 @@
       dxi = 1; \
    } \
 \
-   if (flags & AL_FLIP_VERTICAL) { \
+   if (flags & ALLEGRO_FLIP_VERTICAL) { \
       cdy = sh - 1; \
       dyi = -1; \
    } \
@@ -69,7 +69,7 @@
       for (x = 0; x < sw; x++) { \
          pixel = get(src+y*spitch+x*ssize); \
 	 /* Skip masked pixels if flag set */ \
-	 if ((flags & AL_MASK_SOURCE) && pixel == mask_pixel) { \
+	 if ((flags & ALLEGRO_MASK_SOURCE) && pixel == mask_pixel) { \
 	    /* skip masked pixels */ \
 	 } \
 	 else { \
@@ -312,22 +312,22 @@ static void func16 (void *src, \
 	fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888, \
 	fprefix ## _to_xrgb_8888, mprefix ## _TO_XRGB_8888)
 
-DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_argb_8888, AL_CONVERT_ARGB_8888)
-DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_rgba_8888, AL_CONVERT_RGBA_8888)
-DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_argb_4444, AL_CONVERT_ARGB_4444)
-DEFINE_DRAW_REGION(READ3BYTES, _draw_region_memory_rgb_888, AL_CONVERT_RGB_888)
-DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_rgb_565, AL_CONVERT_RGB_565)
-DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_rgb_555, AL_CONVERT_RGB_555)
-DEFINE_DRAW_REGION(bmp_read8, _draw_region_memory_palette_8, AL_CONVERT_PALETTE_8)
-DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_rgba_5551, AL_CONVERT_RGBA_5551)
-DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_argb_1555, AL_CONVERT_ARGB_1555)
-DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_abgr_8888, AL_CONVERT_ABGR_8888)
-DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_xbgr_8888, AL_CONVERT_XBGR_8888)
-DEFINE_DRAW_REGION(READ3BYTES, _draw_region_memory_bgr_888, AL_CONVERT_BGR_888)
-DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_bgr_565, AL_CONVERT_BGR_565)
-DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_bgr_555, AL_CONVERT_BGR_555)
-DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_rgbx_8888, AL_CONVERT_RGBX_8888)
-DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_xrgb_8888, AL_CONVERT_XRGB_8888)
+DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_argb_8888, ALLEGRO_CONVERT_ARGB_8888)
+DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_rgba_8888, ALLEGRO_CONVERT_RGBA_8888)
+DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_argb_4444, ALLEGRO_CONVERT_ARGB_4444)
+DEFINE_DRAW_REGION(READ3BYTES, _draw_region_memory_rgb_888, ALLEGRO_CONVERT_RGB_888)
+DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_rgb_565, ALLEGRO_CONVERT_RGB_565)
+DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_rgb_555, ALLEGRO_CONVERT_RGB_555)
+DEFINE_DRAW_REGION(bmp_read8, _draw_region_memory_palette_8, ALLEGRO_CONVERT_PALETTE_8)
+DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_rgba_5551, ALLEGRO_CONVERT_RGBA_5551)
+DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_argb_1555, ALLEGRO_CONVERT_ARGB_1555)
+DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_abgr_8888, ALLEGRO_CONVERT_ABGR_8888)
+DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_xbgr_8888, ALLEGRO_CONVERT_XBGR_8888)
+DEFINE_DRAW_REGION(READ3BYTES, _draw_region_memory_bgr_888, ALLEGRO_CONVERT_BGR_888)
+DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_bgr_565, ALLEGRO_CONVERT_BGR_565)
+DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_bgr_555, ALLEGRO_CONVERT_BGR_555)
+DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_rgbx_8888, ALLEGRO_CONVERT_RGBX_8888)
+DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_xrgb_8888, ALLEGRO_CONVERT_XRGB_8888)
 
 typedef void (*_draw_region_func)(void *src,
    int sx, int sy, int sw, int sh, int spitch, int ssize, int sformat,
@@ -395,13 +395,13 @@ static _draw_region_func _draw_region_funcs[NUM_PIXEL_FORMATS][NUM_PIXEL_FORMATS
 };
 
 
-void _al_draw_bitmap_region_memory(AL_BITMAP *bitmap,
+void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags)
 {
-   AL_LOCKED_REGION src_region;
-   AL_LOCKED_REGION dst_region;
-   AL_BITMAP *dest = al_get_target_bitmap();
+   ALLEGRO_LOCKED_REGION src_region;
+   ALLEGRO_LOCKED_REGION dst_region;
+   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    
    /* Do clipping */
    if (dx < dest->cl) {
@@ -427,7 +427,7 @@ void _al_draw_bitmap_region_memory(AL_BITMAP *bitmap,
    }
 
    /* Lock the bitmaps */
-   if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region, AL_LOCK_READONLY)) {
+   if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region, ALLEGRO_LOCK_READONLY)) {
       return;
    }
    if (!al_lock_bitmap_region(dest, dx, dy, sw, sh, &dst_region, 0)) {
@@ -446,7 +446,7 @@ void _al_draw_bitmap_region_memory(AL_BITMAP *bitmap,
    al_unlock_bitmap(dest);
 }
 
-void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
+void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
   int dx, int dy, int flags)
 {
    _al_draw_bitmap_region_memory(bitmap, 0, 0, bitmap->w, bitmap->h,
@@ -474,12 +474,12 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
    int sxinc; \
    int sxdir, sydir; \
    int i, j; \
-   AL_COLOR mask_color; \
+   ALLEGRO_COLOR mask_color; \
    int mask_pixel; \
-   AL_BITMAP *dest = al_get_target_bitmap(); \
+   ALLEGRO_BITMAP *dest = al_get_target_bitmap(); \
    int pixel; \
-   AL_LOCKED_REGION src_region; \
-   AL_LOCKED_REGION dst_region; \
+   ALLEGRO_LOCKED_REGION src_region; \
+   ALLEGRO_LOCKED_REGION dst_region; \
  \
    if ((sw <= 0) || (sh <= 0) || (dw <= 0) || (dh <= 0)) \
       return; \
@@ -539,7 +539,7 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
    dw = dxend - dxbeg; \
    dh = dyend - dybeg; \
  \
-   if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region, AL_LOCK_READONLY)) \
+   if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region, ALLEGRO_LOCK_READONLY)) \
       return; \
  \
    if (!al_lock_bitmap_region(dest, dx, dy, dw, dh, &dst_region, 0)) { \
@@ -553,7 +553,7 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
    y = 0; \
    dyend = dyend - dy; \
  \
-   if (flags & AL_FLIP_HORIZONTAL) { \
+   if (flags & ALLEGRO_FLIP_HORIZONTAL) { \
       sx = sw - 1; \
       sxdir = -1; \
    } \
@@ -561,7 +561,7 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
       sx = 0; \
       sxdir = 1; \
    } \
-   if (flags & AL_FLIP_VERTICAL) { \
+   if (flags & ALLEGRO_FLIP_VERTICAL) { \
       sy = sh - 1; \
       syinc = -syinc; \
       sydir = -1; \
@@ -578,7 +578,7 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
       _sx = sx; \
       for (x = 0; x < (dxend-dxbeg); x++) { \
          pixel = get(src_region.data+src_region.pitch*sy+ssize*_sx); \
-	 if (!(flags & AL_MASK_SOURCE) || pixel != mask_pixel) { \
+	 if (!(flags & ALLEGRO_MASK_SOURCE) || pixel != mask_pixel) { \
 	    pixel = convert(pixel); \
 	    set(dst_region.data+dst_region.pitch*y+dsize*x, pixel); \
 	 } \
@@ -621,7 +621,7 @@ void _al_draw_bitmap_memory(AL_BITMAP *bitmap,
 	func15, macro15, \
 	func16, macro16) \
 \
-static void func1(AL_BITMAP *bitmap, \
+static void func1(ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -634,7 +634,7 @@ static void func1(AL_BITMAP *bitmap, \
       macro1) \
 } \
 \
-static void func2(AL_BITMAP *bitmap, \
+static void func2(ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -647,7 +647,7 @@ static void func2(AL_BITMAP *bitmap, \
       macro2) \
 } \
 \
-static void func3(AL_BITMAP *bitmap, \
+static void func3(ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -660,7 +660,7 @@ static void func3(AL_BITMAP *bitmap, \
       macro3) \
 } \
 \
-static void func4(AL_BITMAP *bitmap, \
+static void func4(ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -673,7 +673,7 @@ static void func4(AL_BITMAP *bitmap, \
       macro4) \
 } \
 \
-static void func5(AL_BITMAP *bitmap, \
+static void func5(ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -686,7 +686,7 @@ static void func5(AL_BITMAP *bitmap, \
       macro5) \
 } \
 \
-static void func6(AL_BITMAP *bitmap, \
+static void func6(ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -699,7 +699,7 @@ static void func6(AL_BITMAP *bitmap, \
       macro6) \
 } \
 \
-static void func7(AL_BITMAP *bitmap, \
+static void func7(ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -712,7 +712,7 @@ static void func7(AL_BITMAP *bitmap, \
       macro7) \
 } \
 \
-static void func8(AL_BITMAP *bitmap, \
+static void func8(ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -725,7 +725,7 @@ static void func8(AL_BITMAP *bitmap, \
       macro8) \
 } \
 \
-static void func9(AL_BITMAP *bitmap, \
+static void func9(ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -738,7 +738,7 @@ static void func9(AL_BITMAP *bitmap, \
       macro9) \
 } \
 \
-static void func10 (AL_BITMAP *bitmap, \
+static void func10 (ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -751,7 +751,7 @@ static void func10 (AL_BITMAP *bitmap, \
       macro10) \
 } \
 \
-static void func11 (AL_BITMAP *bitmap, \
+static void func11 (ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -764,7 +764,7 @@ static void func11 (AL_BITMAP *bitmap, \
       macro11) \
 } \
 \
-static void func12 (AL_BITMAP *bitmap, \
+static void func12 (ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -777,7 +777,7 @@ static void func12 (AL_BITMAP *bitmap, \
       macro12) \
 } \
 \
-static void func13 (AL_BITMAP *bitmap, \
+static void func13 (ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -790,7 +790,7 @@ static void func13 (AL_BITMAP *bitmap, \
       macro13) \
 } \
 \
-static void func14(AL_BITMAP *bitmap, \
+static void func14(ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -803,7 +803,7 @@ static void func14(AL_BITMAP *bitmap, \
       macro14) \
 } \
 \
-static void func15(AL_BITMAP *bitmap, \
+static void func15(ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -816,7 +816,7 @@ static void func15(AL_BITMAP *bitmap, \
       macro15) \
 } \
 \
-static void func16(AL_BITMAP *bitmap, \
+static void func16(ALLEGRO_BITMAP *bitmap, \
 	int sx, int sy, int sw, int sh, int ssize, \
 	int dx, int dy, int dw, int dh, int dsize, \
 	int flags) \
@@ -848,24 +848,24 @@ static void func16(AL_BITMAP *bitmap, \
 	fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888, \
 	fprefix ## _to_xrgb_8888, mprefix ## _TO_XRGB_8888)
 
-DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_argb_8888, AL_CONVERT_ARGB_8888)
-DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_rgba_8888, AL_CONVERT_RGBA_8888)
-DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_argb_4444, AL_CONVERT_ARGB_4444)
-DEFINE_DRAW_SCALED(READ3BYTES, _draw_scaled_memory_rgb_888, AL_CONVERT_RGB_888)
-DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_rgb_565, AL_CONVERT_RGB_565)
-DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_rgb_555, AL_CONVERT_RGB_555)
-DEFINE_DRAW_SCALED(bmp_read8, _draw_scaled_memory_palette_8, AL_CONVERT_PALETTE_8)
-DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_rgba_5551, AL_CONVERT_RGBA_5551)
-DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_argb_1555, AL_CONVERT_ARGB_1555)
-DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_abgr_8888, AL_CONVERT_ABGR_8888)
-DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_xbgr_8888, AL_CONVERT_XBGR_8888)
-DEFINE_DRAW_SCALED(READ3BYTES, _draw_scaled_memory_bgr_888, AL_CONVERT_BGR_888)
-DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_bgr_565, AL_CONVERT_BGR_565)
-DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_bgr_555, AL_CONVERT_BGR_555)
-DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_rgbx_8888, AL_CONVERT_RGBX_8888)
-DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_xrgb_8888, AL_CONVERT_XRGB_8888)
+DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_argb_8888, ALLEGRO_CONVERT_ARGB_8888)
+DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_rgba_8888, ALLEGRO_CONVERT_RGBA_8888)
+DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_argb_4444, ALLEGRO_CONVERT_ARGB_4444)
+DEFINE_DRAW_SCALED(READ3BYTES, _draw_scaled_memory_rgb_888, ALLEGRO_CONVERT_RGB_888)
+DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_rgb_565, ALLEGRO_CONVERT_RGB_565)
+DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_rgb_555, ALLEGRO_CONVERT_RGB_555)
+DEFINE_DRAW_SCALED(bmp_read8, _draw_scaled_memory_palette_8, ALLEGRO_CONVERT_PALETTE_8)
+DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_rgba_5551, ALLEGRO_CONVERT_RGBA_5551)
+DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_argb_1555, ALLEGRO_CONVERT_ARGB_1555)
+DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_abgr_8888, ALLEGRO_CONVERT_ABGR_8888)
+DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_xbgr_8888, ALLEGRO_CONVERT_XBGR_8888)
+DEFINE_DRAW_SCALED(READ3BYTES, _draw_scaled_memory_bgr_888, ALLEGRO_CONVERT_BGR_888)
+DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_bgr_565, ALLEGRO_CONVERT_BGR_565)
+DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_bgr_555, ALLEGRO_CONVERT_BGR_555)
+DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_rgbx_8888, ALLEGRO_CONVERT_RGBX_8888)
+DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_xrgb_8888, ALLEGRO_CONVERT_XRGB_8888)
 
-typedef void (*_draw_scaled_func)(AL_BITMAP *,
+typedef void (*_draw_scaled_func)(ALLEGRO_BITMAP *,
 	int sx, int sy, int sw, int sh, int ssize,
 	int dx, int dy, int dw, int dh, int dsize,
 	int flags);
@@ -929,12 +929,12 @@ static _draw_scaled_func _draw_scaled_funcs[NUM_PIXEL_FORMATS][NUM_PIXEL_FORMATS
 	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_xrgb_8888)
 };
 
-void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
+void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int dw, int dh, int flags)
 {
    int ssize = al_get_pixel_size(bitmap->format);
-   AL_BITMAP *dest = al_get_target_bitmap();
+   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    int dsize = al_get_pixel_size(dest->format);
 
    (*_draw_scaled_funcs[bitmap->format][dest->format])(
@@ -1010,11 +1010,11 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
    /* Top scanline of destination */ \
    int clip_top_i; \
  \
-   AL_LOCKED_REGION src_region; \
-   AL_LOCKED_REGION dst_region; \
+   ALLEGRO_LOCKED_REGION src_region; \
+   ALLEGRO_LOCKED_REGION dst_region; \
    int ssize; \
    int dsize; \
-   AL_COLOR mask_color; \
+   ALLEGRO_COLOR mask_color; \
    int mask_pixel; \
  \
    /* \
@@ -1181,7 +1181,7 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
 		     (xs[1] - xs[0]) * (double)(ys[3] - ys[0]))); \
  \
    /* Lock the bitmaps */ \
-   al_lock_bitmap(src, &src_region, AL_LOCK_READONLY); \
+   al_lock_bitmap(src, &src_region, ALLEGRO_LOCK_READONLY); \
    \
    clip_top_i = bmp_y_i; \
    \
@@ -1395,7 +1395,7 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
       addr += my_l_bmp_x_i * dsize;                                   \
       for (; addr < end_addr; addr += dsize) {                        \
          c = get(src_region.data+(my_l_spr_y>>16)*src_region.pitch+ssize*(my_l_spr_x>>16)); \
-         if (!(flags & AL_MASK_SOURCE) || c != mask_pixel) {          \
+         if (!(flags & ALLEGRO_MASK_SOURCE) || c != mask_pixel) {          \
 	    c = convert(c);                                           \
 	    set(addr, c);                                             \
 	 } \
@@ -1451,7 +1451,7 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
  \
    _rotate_scale_flip_coordinates(src->w << 16, src->h << 16, \
 		  fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale, \
-		  flags & AL_FLIP_HORIZONTAL, flags & AL_FLIP_VERTICAL, xs, ys); \
+		  flags & ALLEGRO_FLIP_HORIZONTAL, flags & ALLEGRO_FLIP_VERTICAL, xs, ys); \
  \
    DO_PARALLELOGRAM_MAP(false, get, set, convert, flags) \
 }
@@ -1475,7 +1475,7 @@ void _al_draw_scaled_bitmap_memory(AL_BITMAP *bitmap,
 	func15, macro15, \
 	func16, macro16) \
 \
-static void func1 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func1 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1490,7 +1490,7 @@ static void func1 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func2 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func2 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1505,7 +1505,7 @@ static void func2 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func3 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func3 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1520,7 +1520,7 @@ static void func3 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func4 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func4 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1535,7 +1535,7 @@ static void func4 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func5 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func5 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1550,7 +1550,7 @@ static void func5 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func6 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func6 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1565,7 +1565,7 @@ static void func6 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func7 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func7 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1580,7 +1580,7 @@ static void func7 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func8 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func8 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1595,7 +1595,7 @@ static void func8 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func9 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func9 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1610,7 +1610,7 @@ static void func9 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func10 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func10 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1625,7 +1625,7 @@ static void func10 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func11 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func11 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1640,7 +1640,7 @@ static void func11 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func12 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func12 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1655,7 +1655,7 @@ static void func12 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func13 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func13 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1670,7 +1670,7 @@ static void func13 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func14 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func14 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1685,7 +1685,7 @@ static void func14 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func15 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func15 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1700,7 +1700,7 @@ static void func15 (AL_BITMAP *src, AL_BITMAP *dst, \
       flags) \
 } \
 \
-static void func16 (AL_BITMAP *src, AL_BITMAP *dst, \
+static void func16 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst, \
    float cx, float cy, float dx, float dy,  float xscale, float yscale, \
    float angle, int flags) \
 { \
@@ -1734,22 +1734,22 @@ static void func16 (AL_BITMAP *src, AL_BITMAP *dst, \
 	fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888, \
 	fprefix ## _to_xrgb_8888, mprefix ## _TO_XRGB_8888)
 
-DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_argb_8888, AL_CONVERT_ARGB_8888)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_rgba_8888, AL_CONVERT_RGBA_8888)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_argb_4444, AL_CONVERT_ARGB_4444)
-DEFINE_DRAW_ROTATED_SCALED(READ3BYTES, _draw_rotated_scaled_memory_rgb_888, AL_CONVERT_RGB_888)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_rgb_565, AL_CONVERT_RGB_565)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_rgb_555, AL_CONVERT_RGB_555)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read8, _draw_rotated_scaled_memory_palette_8, AL_CONVERT_PALETTE_8)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_rgba_5551, AL_CONVERT_RGBA_5551)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_argb_1555, AL_CONVERT_ARGB_1555)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_abgr_8888, AL_CONVERT_ABGR_8888)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_xbgr_8888, AL_CONVERT_XBGR_8888)
-DEFINE_DRAW_ROTATED_SCALED(READ3BYTES, _draw_rotated_scaled_memory_bgr_888, AL_CONVERT_BGR_888)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_bgr_565, AL_CONVERT_BGR_565)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_bgr_555, AL_CONVERT_BGR_555)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_rgbx_8888, AL_CONVERT_RGBX_8888)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_xrgb_8888, AL_CONVERT_XRGB_8888)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_argb_8888, ALLEGRO_CONVERT_ARGB_8888)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_rgba_8888, ALLEGRO_CONVERT_RGBA_8888)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_argb_4444, ALLEGRO_CONVERT_ARGB_4444)
+DEFINE_DRAW_ROTATED_SCALED(READ3BYTES, _draw_rotated_scaled_memory_rgb_888, ALLEGRO_CONVERT_RGB_888)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_rgb_565, ALLEGRO_CONVERT_RGB_565)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_rgb_555, ALLEGRO_CONVERT_RGB_555)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read8, _draw_rotated_scaled_memory_palette_8, ALLEGRO_CONVERT_PALETTE_8)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_rgba_5551, ALLEGRO_CONVERT_RGBA_5551)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_argb_1555, ALLEGRO_CONVERT_ARGB_1555)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_abgr_8888, ALLEGRO_CONVERT_ABGR_8888)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_xbgr_8888, ALLEGRO_CONVERT_XBGR_8888)
+DEFINE_DRAW_ROTATED_SCALED(READ3BYTES, _draw_rotated_scaled_memory_bgr_888, ALLEGRO_CONVERT_BGR_888)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_bgr_565, ALLEGRO_CONVERT_BGR_565)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_bgr_555, ALLEGRO_CONVERT_BGR_555)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_rgbx_8888, ALLEGRO_CONVERT_RGBX_8888)
+DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_xrgb_8888, ALLEGRO_CONVERT_XRGB_8888)
 
 #define DECLARE_DRAW_ROTATED_SCALED_FUNCS(prefix) \
 	{ \
@@ -1772,7 +1772,7 @@ DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_xrgb_8888, AL
 		prefix ## _to_xrgb_8888 \
 	}, \
 
-typedef void (*_draw_rotated_scaled_func)(AL_BITMAP *src, AL_BITMAP *dst,
+typedef void (*_draw_rotated_scaled_func)(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,
    float cx, float cy, float dx, float dy,  float xscale, float yscale,
    float angle, int flags);
 
@@ -1815,17 +1815,17 @@ static _draw_rotated_scaled_func _draw_rotated_scaled_funcs[NUM_PIXEL_FORMATS][N
 };
 
 
-void _al_draw_rotated_scaled_bitmap_memory(AL_BITMAP *bitmap,
+void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
 	int cx, int cy, int dx, int dy, float xscale, float yscale,
 	float angle, int flags)
 {
-   AL_BITMAP *dest = al_get_target_bitmap();
+   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
 
    (*_draw_rotated_scaled_funcs[bitmap->format][dest->format])(
       bitmap, dest, cx, cy, dx, dy, xscale, yscale, -angle, flags);
 }
 
-void _al_draw_rotated_bitmap_memory(AL_BITMAP *bitmap,
+void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *bitmap,
 	int cx, int cy, int dx, int dy, float angle, int flags)
 {
 	_al_draw_rotated_scaled_bitmap_memory(bitmap,

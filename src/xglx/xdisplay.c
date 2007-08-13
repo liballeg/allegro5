@@ -5,10 +5,10 @@
 
 #include "xglx.h"
 
-static AL_DISPLAY_INTERFACE *vt;
+static ALLEGRO_DISPLAY_INTERFACE *vt;
 
 /* Helper to set up GL state as we want it. */
-static void setup_gl(AL_DISPLAY *d)
+static void setup_gl(ALLEGRO_DISPLAY *d)
 {
    glViewport(0, 0, d->w, d->h);
 
@@ -20,11 +20,11 @@ static void setup_gl(AL_DISPLAY *d)
    glLoadIdentity();
 }
 
-static void set_size_hints(AL_DISPLAY *d, int w, int h)
+static void set_size_hints(ALLEGRO_DISPLAY *d, int w, int h)
 {
-   if (!(d->flags & AL_RESIZABLE)) {
-      AL_SYSTEM_XGLX *system = (void *)al_system_driver();
-      AL_DISPLAY_XGLX *glx = (void *)d;
+   if (!(d->flags & ALLEGRO_RESIZABLE)) {
+      ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+      ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
       XSizeHints *hints = XAllocSizeHints();;
 
       hints->flags = PMinSize | PMaxSize | PBaseSize;
@@ -37,12 +37,12 @@ static void set_size_hints(AL_DISPLAY *d, int w, int h)
 }
 
 /* Create a new X11 dummy display, which maps directly to a GLX window. */
-static AL_DISPLAY *create_display(int w, int h)
+static ALLEGRO_DISPLAY *create_display(int w, int h)
 {
-   AL_DISPLAY_XGLX *d = _AL_MALLOC(sizeof *d);
+   ALLEGRO_DISPLAY_XGLX *d = _AL_MALLOC(sizeof *d);
    memset(d, 0, sizeof *d);
 
-   AL_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
 
    _al_mutex_lock(&system->lock);
 
@@ -59,14 +59,14 @@ static AL_DISPLAY *create_display(int w, int h)
    // TODO: What is this?
    d->xscreen = DefaultScreen(system->xdisplay);
 
-   if (d->display.flags & AL_FULLSCREEN)
+   if (d->display.flags & ALLEGRO_FULLSCREEN)
       _al_xglx_fullscreen_set_mode(system, w, h, 0, 0);
 
    //FIXME
-   //d->display.flags |= AL_WINDOWED;
+   //d->display.flags |= ALLEGRO_WINDOWED;
 
    d->backbuffer = _al_xglx_create_bitmap(&d->display, w, h);
-   AL_BITMAP_XGLX *backbuffer = (void *)d->backbuffer;
+   ALLEGRO_BITMAP_XGLX *backbuffer = (void *)d->backbuffer;
    backbuffer->is_backbuffer = 1;
    /* Create a memory cache for the whole screen. */
    //TODO: Maybe we should do this lazily and defer to lock_bitmap_region
@@ -78,7 +78,7 @@ static AL_DISPLAY *create_display(int w, int h)
    }
 
    /* Add ourself to the list of displays. */
-   AL_DISPLAY_XGLX **add = _al_vector_alloc_back(&system->system.displays);
+   ALLEGRO_DISPLAY_XGLX **add = _al_vector_alloc_back(&system->system.displays);
    *add = d;
 
    /* Each display is an event source. */
@@ -90,7 +90,7 @@ static AL_DISPLAY *create_display(int w, int h)
    int green_bits = 0;
    int blue_bits = 0;
    int alpha_bits = 0;
-   if (d->display.flags & AL_SINGLEBUFFER)
+   if (d->display.flags & ALLEGRO_SINGLEBUFFER)
       double_buffer = False;
    int attributes[]  = {
       GLX_DOUBLEBUFFER, double_buffer,
@@ -157,7 +157,7 @@ static AL_DISPLAY *create_display(int w, int h)
 
    TRACE("xdisplay: GLX window created.\n");
 
-   if (d->display.flags & AL_FULLSCREEN) {
+   if (d->display.flags & ALLEGRO_FULLSCREEN) {
       _al_xglx_fullscreen_to_display(system, d);
    }
 
@@ -172,14 +172,14 @@ static AL_DISPLAY *create_display(int w, int h)
    return &d->display;
 }
 
-static void destroy_display(AL_DISPLAY *d)
+static void destroy_display(ALLEGRO_DISPLAY *d)
 {
    int i;
-   AL_SYSTEM_XGLX *s = (void *)al_system_driver();
-   AL_DISPLAY_XGLX *glx = (void *)d;
+   ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
    _al_mutex_lock(&s->lock);
    for (i = 0; i < s->system.displays._size; i++) {
-      AL_DISPLAY_XGLX **dptr = _al_vector_ref(&s->system.displays, i);
+      ALLEGRO_DISPLAY_XGLX **dptr = _al_vector_ref(&s->system.displays, i);
       if (glx == *dptr) {
          _al_vector_delete_at(&s->system.displays, i);
          break;
@@ -187,7 +187,7 @@ static void destroy_display(AL_DISPLAY *d)
    }
    XDestroyWindow(s->xdisplay, glx->window);
 
-   if (d->flags & AL_FULLSCREEN)
+   if (d->flags & ALLEGRO_FULLSCREEN)
       _al_xglx_restore_video_mode(s);
 
    // FIXME: deallocate ourselves?
@@ -195,10 +195,10 @@ static void destroy_display(AL_DISPLAY *d)
    _al_mutex_unlock(&s->lock);
 }
 
-static void set_current_display(AL_DISPLAY *d)
+static void set_current_display(ALLEGRO_DISPLAY *d)
 {
-   AL_SYSTEM_XGLX *system = (AL_SYSTEM_XGLX *)al_system_driver();
-   AL_DISPLAY_XGLX *glx = (AL_DISPLAY_XGLX *)d;
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    /* Make our GLX context current for reading and writing in the current
     * thread.
     */
@@ -211,18 +211,18 @@ static void set_current_display(AL_DISPLAY *d)
 }
 
 /* Dummy implementation of flip. */
-static void flip_display(AL_DISPLAY *d)
+static void flip_display(ALLEGRO_DISPLAY *d)
 {
-   AL_SYSTEM_XGLX *system = (AL_SYSTEM_XGLX *)al_system_driver();
-   AL_DISPLAY_XGLX *glx = (AL_DISPLAY_XGLX *)d;
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    glFlush();
    glXSwapBuffers(system->xdisplay, glx->glxwindow);
 }
 
-static bool acknowledge_resize(AL_DISPLAY *d)
+static bool acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
-   AL_SYSTEM_XGLX *system = (AL_SYSTEM_XGLX *)al_system_driver();
-   AL_DISPLAY_XGLX *glx = (AL_DISPLAY_XGLX *)d;
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
    unsigned int w, h;
    glXQueryDrawable(system->xdisplay, glx->glxwindow, GLX_WIDTH, &w);
@@ -236,10 +236,10 @@ static bool acknowledge_resize(AL_DISPLAY *d)
    return true;
 }
 
-static bool resize_display(AL_DISPLAY *d, int w, int h)
+static bool resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 {
-   AL_SYSTEM_XGLX *system = (AL_SYSTEM_XGLX *)al_system_driver();
-   AL_DISPLAY_XGLX *glx = (AL_DISPLAY_XGLX *)d;
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
    _al_mutex_lock(&system->lock);
 
@@ -256,7 +256,7 @@ static bool resize_display(AL_DISPLAY *d, int w, int h)
     */
    acknowledge_resize(d);
 
-   if (d->flags & AL_FULLSCREEN) {
+   if (d->flags & ALLEGRO_FULLSCREEN) {
       _al_xglx_fullscreen_set_mode(system, w, h, 0, 0);
       _al_xglx_fullscreen_to_display(system, glx);
    }
@@ -268,9 +268,9 @@ static bool resize_display(AL_DISPLAY *d, int w, int h)
 /* Handle an X11 configure event. [X11 thread]
  * Only called from the event handler with the system locked.
  */
-void _al_display_xglx_configure(AL_DISPLAY *d, XEvent *xevent)
+void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
 {
-   AL_DISPLAY_XGLX *glx = (AL_DISPLAY_XGLX *)d;
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
    AL_EVENT_SOURCE *es = &glx->display.es;
    _al_event_source_lock(es);
@@ -315,9 +315,9 @@ void _al_display_xglx_configure(AL_DISPLAY *d, XEvent *xevent)
 /* Handle an X11 close button event. [X11 thread]
  * Only called from the event handler with the system locked.
  */
-void _al_display_xglx_closebutton(AL_DISPLAY *d, XEvent *xevent)
+void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
 {
-   AL_DISPLAY_XGLX *glx = (AL_DISPLAY_XGLX *)d;
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
    AL_EVENT_SOURCE *es = &glx->display.es;
    _al_event_source_lock(es);
@@ -335,7 +335,7 @@ void _al_display_xglx_closebutton(AL_DISPLAY *d, XEvent *xevent)
 
 /* Dummy implementation. */
 // FIXME: think about moving this to xbitmap.c instead..
-AL_BITMAP *_al_xglx_create_bitmap(AL_DISPLAY *d, int w, int h)
+ALLEGRO_BITMAP *_al_xglx_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 {
    int format = al_get_new_bitmap_format();
    int flags = al_get_new_bitmap_flags();
@@ -343,7 +343,7 @@ AL_BITMAP *_al_xglx_create_bitmap(AL_DISPLAY *d, int w, int h)
    //FIXME
    format = d->format;
 
-   AL_BITMAP_XGLX *bitmap = _AL_MALLOC(sizeof *bitmap);
+   ALLEGRO_BITMAP_XGLX *bitmap = _AL_MALLOC(sizeof *bitmap);
    memset(bitmap, 0, sizeof *bitmap);
    bitmap->bitmap.vt = _al_bitmap_xglx_driver();
    bitmap->bitmap.w = w;
@@ -354,18 +354,18 @@ AL_BITMAP *_al_xglx_create_bitmap(AL_DISPLAY *d, int w, int h)
    return &bitmap->bitmap;
 }
 
-static AL_BITMAP *get_backbuffer(AL_DISPLAY *d)
+static ALLEGRO_BITMAP *get_backbuffer(ALLEGRO_DISPLAY *d)
 {
-   AL_DISPLAY_XGLX *glx = (AL_DISPLAY_XGLX *)d;
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    return glx->backbuffer;
 }
 
-static AL_BITMAP *get_frontbuffer(AL_DISPLAY *d)
+static ALLEGRO_BITMAP *get_frontbuffer(ALLEGRO_DISPLAY *d)
 {
    return NULL;
 }
 
-static void set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
+static void set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    AL_DISPLAY_XGLX *glx = (AL_DISPLAY_XGLX *)display;
    int x_1, y_1, x_2, y_2;
@@ -389,13 +389,13 @@ static void set_target_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
    glScissor(x_1, bitmap->h - y_2, x_2 - x_1, y_2 - y_1);
 }
 
-static bool is_compatible_bitmap(AL_DISPLAY *display, AL_BITMAP *bitmap)
+static bool is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    return true;
 }
 
 /* Obtain a reference to this driver. */
-AL_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
+ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
 {
    if (vt) return vt;
 

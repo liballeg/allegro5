@@ -7,22 +7,22 @@
 #include "aintern_keyboard.h"
 #include "allegro/internal/aintern_vector.h"
 
-typedef struct AL_SYSTEM_INTERFACE AL_SYSTEM_INTERFACE;
+typedef struct ALLEGRO_SYSTEM_INTERFACE ALLEGRO_SYSTEM_INTERFACE;
 
-struct AL_SYSTEM_INTERFACE
+struct ALLEGRO_SYSTEM_INTERFACE
 {
    int id;
-   AL_SYSTEM *(*initialize)(int flags);
-   AL_DISPLAY_INTERFACE *(*get_display_driver)(void);
+   ALLEGRO_SYSTEM *(*initialize)(int flags);
+   ALLEGRO_DISPLAY_INTERFACE *(*get_display_driver)(void);
    AL_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
    int (*get_num_display_modes)(void);
-   AL_DISPLAY_MODE *(*get_display_mode)(int index, AL_DISPLAY_MODE *mode);
+   ALLEGRO_DISPLAY_MODE *(*get_display_mode)(int index, ALLEGRO_DISPLAY_MODE *mode);
    void (*shutdown_system)(void);
 };
 
-struct AL_SYSTEM
+struct ALLEGRO_SYSTEM
 {
-   AL_SYSTEM_INTERFACE *vt;
+   ALLEGRO_SYSTEM_INTERFACE *vt;
    _AL_VECTOR displays; /* Keep a list of all displays attached to us. */
 };
 
