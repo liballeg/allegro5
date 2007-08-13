@@ -1223,7 +1223,8 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR *color, int flags)
          bitmap->format, color_value);
    }
    else {
-      if (x < 0 || y < 0 || x >= bitmap->w || y >= bitmap->h) {
+      if (x < bitmap->cl || y < bitmap->ct ||
+            x > bitmap->cr || y > bitmap->cb) {
          return;
       }
 
