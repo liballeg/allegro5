@@ -367,7 +367,7 @@ static ALLEGRO_BITMAP *get_frontbuffer(ALLEGRO_DISPLAY *d)
 
 static void set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   AL_DISPLAY_XGLX *glx = (AL_DISPLAY_XGLX *)display;
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    int x_1, y_1, x_2, y_2;
    //FIXME: change to offscreen targets and so on
 
