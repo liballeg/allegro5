@@ -44,6 +44,7 @@ void _al_generate_integer_unmap_table(void)
 
 static int pixel_sizes[] = {
    0,
+   0,
    4,
    4,
    2,
@@ -66,6 +67,32 @@ static int pixel_sizes[] = {
 int al_get_pixel_size(int format)
 {
    return pixel_sizes[format];
+}
+
+static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   true,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false,
+   false,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+};
+
+bool al_format_has_alpha(int format)
+{
+   return format_alpha_table[format];
 }
 
 /* map_rgba functions */
@@ -234,6 +261,7 @@ typedef ALLEGRO_COLOR *(*_map_rgba_func)(ALLEGRO_COLOR *,
    unsigned char, unsigned char, unsigned char, unsigned char);
 
 static _map_rgba_func _map_rgba_funcs[] = {
+   NULL,
    NULL,
    _map_rgba_argb_8888,
    _map_rgba_rgba_8888,
@@ -437,6 +465,7 @@ static ALLEGRO_COLOR *_map_rgba_f_xrgb_8888(ALLEGRO_COLOR *p,
 typedef ALLEGRO_COLOR *(*_map_rgba_f_func)(ALLEGRO_COLOR *, float, float, float, float);
 
 static _map_rgba_f_func _map_rgba_f_funcs[] = {
+   NULL,
    NULL,
    _map_rgba_f_argb_8888,
    _map_rgba_f_rgba_8888,
@@ -650,6 +679,7 @@ typedef ALLEGRO_COLOR *(*_map_rgba_i_func)(ALLEGRO_COLOR *, int, int, int, int);
 
 static _map_rgba_i_func _map_rgba_i_funcs[] = {
    NULL,
+   NULL,
    _map_rgba_i_argb_8888,
    _map_rgba_i_rgba_8888,
    _map_rgba_i_argb_4444,
@@ -853,6 +883,7 @@ void _get_pixel_xrgb_8888(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *col
 typedef void (*p_get_pixel_func)(ALLEGRO_BITMAP *, void *, ALLEGRO_COLOR *);
 
 p_get_pixel_func get_pixel_funcs[] = {
+   NULL,
    NULL,
    _get_pixel_argb_8888,
    _get_pixel_rgba_8888,
@@ -1067,7 +1098,8 @@ int _get_pixel_value_xrgb_8888(ALLEGRO_COLOR *p)
 
 typedef int (*_get_pixel_value_func)(ALLEGRO_COLOR *color);
 
-static _get_pixel_value_func _get_pixel_value_funcs[NUM_PIXEL_FORMATS] = {
+static _get_pixel_value_func _get_pixel_value_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   NULL,
    NULL,
    _get_pixel_value_argb_8888,
    _get_pixel_value_rgba_8888,
@@ -1180,6 +1212,7 @@ typedef void (*p_put_pixel_func)(void *data, int pixel);
 
 p_put_pixel_func put_pixel_funcs[] = {
    NULL,
+   NULL,
    _put_pixel_argb_8888,
    _put_pixel_rgba_8888,
    _put_pixel_argb_4444,
@@ -1203,7 +1236,7 @@ void _al_put_pixel(void *data, int format, int color)
    (*put_pixel_funcs[format])(data, color);
 }
 
-void al_put_pixel(int x, int y, ALLEGRO_COLOR *color, int flags)
+void al_put_pixel(int x, int y, ALLEGRO_COLOR *color)
 {
    ALLEGRO_LOCKED_REGION lr;
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
@@ -1392,6 +1425,7 @@ typedef void (*_unmap_rgba_func)(ALLEGRO_COLOR *,
    unsigned char *, unsigned char *, unsigned char *, unsigned char *);
 
 static _unmap_rgba_func _unmap_rgba_funcs[] = {
+   NULL,
    NULL,
    _unmap_rgba_argb_8888,
    _unmap_rgba_rgba_8888,
@@ -1583,6 +1617,7 @@ typedef void (*_unmap_rgba_f_func)(ALLEGRO_COLOR *,
 
 static _unmap_rgba_f_func _unmap_rgba_f_funcs[] = {
    NULL,
+   NULL,
    _unmap_rgba_f_argb_8888,
    _unmap_rgba_f_rgba_8888,
    _unmap_rgba_f_argb_4444,
@@ -1770,6 +1805,7 @@ typedef void (*_unmap_rgba_i_func)(ALLEGRO_COLOR *,
    int *, int *, int *, int *);
 
 static _unmap_rgba_i_func _unmap_rgba_i_funcs[] = {
+   NULL,
    NULL,
    _unmap_rgba_i_argb_8888,
    _unmap_rgba_i_rgba_8888,

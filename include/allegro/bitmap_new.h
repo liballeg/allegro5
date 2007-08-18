@@ -17,14 +17,15 @@ typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
  */
 
 
-#define NUM_PIXEL_FORMATS 17
+#define ALLEGRO_NUM_PIXEL_FORMATS 18
 
 
 /*
  * Pixel formats
  */
 enum ALLEGRO_PIXEL_FORMAT {
-	ALLEGRO_PIXEL_FORMAT_ANY = 0,
+	ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA = 0,
+        ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA,
 	ALLEGRO_PIXEL_FORMAT_ARGB_8888,
 	ALLEGRO_PIXEL_FORMAT_RGBA_8888,
 	ALLEGRO_PIXEL_FORMAT_ARGB_4444,
@@ -50,17 +51,17 @@ enum ALLEGRO_PIXEL_FORMAT {
  */
 #define ALLEGRO_MEMORY_BITMAP     0x0001
 #define ALLEGRO_SYNC_MEMORY_COPY  0x0002
-#define ALLEGRO_NO_ALPHA          0x0004
-#define ALLEGRO_USE_ALPHA         0x0008
+#define ALLEGRO_USE_ALPHA         0x0004
+#define ALLEGRO_USE_MASKING       0x0008
 
 
 /* Flags for the blitting functions */
-#define ALLEGRO_MASK_SOURCE           0x00001
-#define ALLEGRO_FLIP_HORIZONTAL       0x00002
-#define ALLEGRO_FLIP_VERTICAL         0x00004
+#define ALLEGRO_FLIP_HORIZONTAL       0x00001
+#define ALLEGRO_FLIP_VERTICAL         0x00002
+
 /* Flags for primitives */
 #define ALLEGRO_OUTLINED              0x00000
-#define ALLEGRO_FILLED                0x00008
+#define ALLEGRO_FILLED                0x00001
 
 
 /*
@@ -110,9 +111,10 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 	int flags);
 void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap);
 
-void al_put_pixel(int x, int y, ALLEGRO_COLOR *color, int flags);
+void al_put_pixel(int x, int y, ALLEGRO_COLOR *color);
 ALLEGRO_COLOR *al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR *color);
 int al_get_pixel_size(int format);
+bool al_format_has_alpha(int format);
 
 /* Pixel mapping */
 ALLEGRO_COLOR *al_map_rgb(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
@@ -143,8 +145,8 @@ void al_unmap_rgba_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
 	int *r, int *g, int *b, int *a);
 
 /* Masking */
-void al_set_mask_color(ALLEGRO_COLOR *color);
-ALLEGRO_COLOR *al_get_mask_color(ALLEGRO_COLOR *color);
+void al_set_bitmap_mask_color(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color);
+ALLEGRO_COLOR *al_get_bitmap_mask_color(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color);
 void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color);
 
 /* Clipping */

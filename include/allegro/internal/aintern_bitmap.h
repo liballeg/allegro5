@@ -42,6 +42,9 @@ struct ALLEGRO_BITMAP
    int xofs;
    int yofs;
 
+   /* Masking color */
+   ALLEGRO_COLOR mask_color;
+
    /* A memory copy of the bitmap data. May be NULL for an empty bitmap. */
    unsigned char *memory;
 
@@ -80,6 +83,8 @@ struct ALLEGRO_BITMAP_INTERFACE
 	int flags);
 
    void (*unlock_region)(ALLEGRO_BITMAP *bitmap);
+
+   void (*set_mask_color)(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color);
 };
 
 void _al_blit_memory_bitmap(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest,

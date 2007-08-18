@@ -294,7 +294,8 @@ typedef void (*p_convert_func)(void *, int, int,
 
 #define DECLARE_FUNCS(prefix) \
 	{ \
-		NULL, /* ALLEGRO_PIXEL_FORMAT_ANY */ \
+		NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */ \
+                NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */ \
 		prefix ## _to_argb_8888, \
 		prefix ## _to_rgba_8888, \
 		prefix ## _to_argb_4444, \
@@ -313,8 +314,27 @@ typedef void (*p_convert_func)(void *, int, int,
 		prefix ## _to_xrgb_8888 \
 	}, \
 
-static p_convert_func convert_funcs[NUM_PIXEL_FORMATS][NUM_PIXEL_FORMATS] = {
-	/* ALLEGRO_PIXEL_FORMAT_ANY */
+static p_convert_func convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] = {
+	/* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */
+	{
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+	},
+	/* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */
 	{
 		NULL,
 		NULL,
@@ -358,8 +378,10 @@ void _al_convert_bitmap_data(
 	int sx, int sy, int dx, int dy,
 	int width, int height)
 {
-	ASSERT(src_format != ALLEGRO_PIXEL_FORMAT_ANY);
-	ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY);
+	ASSERT(src_format != ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+	ASSERT(src_format != ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA);
+	ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+	ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA);
 
 	(*convert_funcs[src_format][dst_format])(src, src_format, src_pitch,
 		dst, dst_format, dst_pitch, sx, sy, dx, dy, width, height);
@@ -374,7 +396,8 @@ void _al_convert_compat_bitmap(
 {
 	int src_format;
 
-	ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY);
+	ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+	ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA);
 
 	switch (bitmap_color_depth(src)) {
 		case 8:
@@ -421,4 +444,3 @@ void _al_convert_compat_bitmap(
 		src_format, al_get_pixel_size(src_format)*src->w,
 		dst, dst_format, dst_pitch, sx, sy, dx, dy, width, height);
 }
-

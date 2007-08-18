@@ -12,7 +12,7 @@
  *
  *      Original rotation code by Shawn Hargreaves.
  *      Original scaling code by Michael Bukin.
- *      Conversion draw_region by Trent Gamblin.
+ *      Conversion and draw_region by Trent Gamblin.
  *
  */
 
@@ -40,9 +40,15 @@
    ALLEGRO_COLOR mask_color; \
    int pixel; \
    int mask_pixel; \
+   bool do_masking; \
 \
-   al_get_mask_color(&mask_color); \
-   mask_pixel = _al_get_pixel_value(sformat, &mask_color); \
+   if (flags & ALLEGRO_USE_MASKING) { \
+      al_get_bitmap_mask_color(src, &mask_color); \
+      mask_pixel = _al_get_pixel_value(sformat, &mask_color); \
+      do_masking = true; \
+   } \
+   else \
+      do_masking = false; \
 \
    /* Adjust for flipping */ \
 \
@@ -69,10 +75,7 @@
       for (x = 0; x < sw; x++) { \
          pixel = get(src+y*spitch+x*ssize); \
 	 /* Skip masked pixels if flag set */ \
-	 if ((flags & ALLEGRO_MASK_SOURCE) && pixel == mask_pixel) { \
-	    /* skip masked pixels */ \
-	 } \
-	 else { \
+	 if (!do_masking || pixel != mask_pixel) { \
   	    pixel = convert(pixel); \
             set(dst+cdy*dpitch+cdx*dsize, pixel); \
 	 } \
@@ -337,7 +340,8 @@ typedef void (*_draw_region_func)(void *src,
 
 #define DECLARE_DRAW_REGION_FUNCS(prefix) \
 	{ \
-		NULL, /* ALLEGRO_PIXEL_FORMAT_ANY */ \
+		NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */ \
+                NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */ \
 		prefix ## _to_argb_8888, \
 		prefix ## _to_rgba_8888, \
 		prefix ## _to_argb_4444, \
@@ -356,8 +360,27 @@ typedef void (*_draw_region_func)(void *src,
 		prefix ## _to_xrgb_8888 \
 	}, \
 
-static _draw_region_func _draw_region_funcs[NUM_PIXEL_FORMATS][NUM_PIXEL_FORMATS] = {
-	/* ALLEGRO_PIXEL_FORMAT_ANY */
+static _draw_region_func _draw_region_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] = {
+	/* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */
+	{
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+	},
+	/* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */
 	{
 		NULL,
 		NULL,
@@ -480,6 +503,7 @@ void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int pixel; \
    ALLEGRO_LOCKED_REGION src_region; \
    ALLEGRO_LOCKED_REGION dst_region; \
+   bool do_masking; \
  \
    if ((sw <= 0) || (sh <= 0) || (dw <= 0) || (dh <= 0)) \
       return; \
@@ -525,8 +549,6 @@ void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
          yc -= ycdec; \
    } \
  \
-   al_get_mask_color(&mask_color); \
- \
    i = (dxbeg-dx) * sw / dw; \
    sx += i; \
    sw = (dxend-dxbeg) * sw / dw; \
@@ -547,8 +569,13 @@ void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
       return; \
    } \
  \
-   al_get_mask_color(&mask_color); \
-   mask_pixel = _al_get_pixel_value(bitmap->format, &mask_color); \
+   if (bitmap->flags & ALLEGRO_USE_MASKING) { \
+      al_get_bitmap_mask_color(bitmap, &mask_color); \
+      mask_pixel = _al_get_pixel_value(bitmap->format, &mask_color); \
+      do_masking = true; \
+   } \
+   else \
+      do_masking = false; \
  \
    y = 0; \
    dyend = dyend - dy; \
@@ -578,7 +605,7 @@ void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
       _sx = sx; \
       for (x = 0; x < (dxend-dxbeg); x++) { \
          pixel = get(src_region.data+src_region.pitch*sy+ssize*_sx); \
-	 if (!(flags & ALLEGRO_MASK_SOURCE) || pixel != mask_pixel) { \
+	 if (!do_masking || pixel != mask_pixel) { \
 	    pixel = convert(pixel); \
 	    set(dst_region.data+dst_region.pitch*y+dsize*x, pixel); \
 	 } \
@@ -872,7 +899,8 @@ typedef void (*_draw_scaled_func)(ALLEGRO_BITMAP *,
 
 #define DECLARE_DRAW_SCALED_FUNCS(prefix) \
 	{ \
-		NULL, /* ALLEGRO_PIXEL_FORMAT_ANY */ \
+		NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */ \
+                NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */ \
 		prefix ## _to_argb_8888, \
 		prefix ## _to_rgba_8888, \
 		prefix ## _to_argb_4444, \
@@ -891,8 +919,27 @@ typedef void (*_draw_scaled_func)(ALLEGRO_BITMAP *,
 		prefix ## _to_xrgb_8888 \
 	}, \
 
-static _draw_scaled_func _draw_scaled_funcs[NUM_PIXEL_FORMATS][NUM_PIXEL_FORMATS] = {
-	/* ALLEGRO_PIXEL_FORMAT_ANY */
+static _draw_scaled_func _draw_scaled_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] = {
+	/* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */
+	{
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+	},
+	/* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */
 	{
 		NULL,
 		NULL,
@@ -1016,6 +1063,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int dsize; \
    ALLEGRO_COLOR mask_color; \
    int mask_pixel; \
+   bool do_masking; \
  \
    /* \
     * Variables used in the loop \
@@ -1193,8 +1241,13 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
          &dst_region, 0)) \
       return; \
    \
-   al_get_mask_color(&mask_color); \
-   mask_pixel = _al_get_pixel_value(src->format, &mask_color); \
+   if (src->flags & ALLEGRO_USE_MASKING) { \
+      al_get_bitmap_mask_color(src, &mask_color); \
+      mask_pixel = _al_get_pixel_value(src->format, &mask_color); \
+      do_masking = true; \
+   } \
+   else \
+      do_masking = false; \
  \
    ssize = al_get_pixel_size(src->format); \
    dsize = al_get_pixel_size(dst->format); \
@@ -1395,7 +1448,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
       addr += my_l_bmp_x_i * dsize;                                   \
       for (; addr < end_addr; addr += dsize) {                        \
          c = get(src_region.data+(my_l_spr_y>>16)*src_region.pitch+ssize*(my_l_spr_x>>16)); \
-         if (!(flags & ALLEGRO_MASK_SOURCE) || c != mask_pixel) {          \
+         if (!do_masking || c != mask_pixel) {          \
 	    c = convert(c);                                           \
 	    set(addr, c);                                             \
 	 } \
@@ -1753,7 +1806,8 @@ DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_xrgb_8888, AL
 
 #define DECLARE_DRAW_ROTATED_SCALED_FUNCS(prefix) \
 	{ \
-		NULL, /* ALLEGRO_PIXEL_FORMAT_ANY */ \
+		NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */ \
+                NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */ \
 		prefix ## _to_argb_8888, \
 		prefix ## _to_rgba_8888, \
 		prefix ## _to_argb_4444, \
@@ -1776,8 +1830,27 @@ typedef void (*_draw_rotated_scaled_func)(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *d
    float cx, float cy, float dx, float dy,  float xscale, float yscale,
    float angle, int flags);
 
-static _draw_rotated_scaled_func _draw_rotated_scaled_funcs[NUM_PIXEL_FORMATS][NUM_PIXEL_FORMATS] = {
-	/* ALLEGRO_PIXEL_FORMAT_ANY */
+static _draw_rotated_scaled_func _draw_rotated_scaled_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] = {
+	/* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */
+	{
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+	},
+	/* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */
 	{
 		NULL,
 		NULL,

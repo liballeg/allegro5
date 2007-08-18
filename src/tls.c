@@ -37,8 +37,6 @@ typedef struct thread_local_state {
    /* For pushing/popping bitmap parameters */
    int new_bitmap_format_backup;
    int new_bitmap_flags_backup;
-   /* Mask color */
-   ALLEGRO_COLOR mask_color;
 } thread_local_state;
 
 #if defined ALLEGRO_MINGW32
@@ -190,19 +188,6 @@ void _al_pop_new_bitmap_parameters(void)
    tls->new_bitmap_flags = tls->new_bitmap_flags_backup;
 }
 
-void al_set_mask_color(ALLEGRO_COLOR *color)
-{
-   if ((tls = tls_get()) == NULL) return;
-   memcpy(&tls->mask_color, color, sizeof(ALLEGRO_COLOR));
-}
-
-ALLEGRO_COLOR *al_get_mask_color(ALLEGRO_COLOR *color)
-{
-   if ((tls = tls_get()) == NULL) return &black;
-   memcpy(color, &tls->mask_color, sizeof(ALLEGRO_COLOR));
-   return color;
-}
-
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 { 
    thread_local_state *data;
@@ -267,8 +252,7 @@ static THREAD_LOCAL thread_local_state tls = {
    0,
    0,
    0,
-   0,
-   {{ 0, 0, 0, 0 }}
+   0
 };
 
 void al_set_new_display_format(int format)
@@ -380,21 +364,6 @@ void _al_pop_new_bitmap_parameters(void)
 {
    tls.new_bitmap_format = tls.new_bitmap_format_backup;
    tls.new_bitmap_flags = tls.new_bitmap_flags_backup;
-}
-
-void al_set_mask_color(ALLEGRO_COLOR *color)
-{
-   /* This temporary is to work around a compiler abort in gcc 3.4.6. */
-   thread_local_state *tmp = &tls; 
-   memcpy(&(tmp->mask_color), color, sizeof(ALLEGRO_COLOR));
-}
-
-ALLEGRO_COLOR *al_get_mask_color(ALLEGRO_COLOR *color)
-{
-   /* This temporary is to work around a compiler abort in gcc 3.4.6. */
-   thread_local_state *tmp = &tls; 
-   memcpy(color, &(tmp->mask_color), sizeof(ALLEGRO_COLOR));
-   return color;
 }
 
 #endif

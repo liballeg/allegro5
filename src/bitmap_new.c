@@ -28,8 +28,15 @@
 static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap = _AL_MALLOC(sizeof *bitmap);
+   int format = al_get_new_bitmap_format();
+   ALLEGRO_COLOR mask_color;
+   
    memset(bitmap, 0, sizeof *bitmap);
-   bitmap->format = al_get_new_bitmap_format();
+   if (format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA)
+      format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
+   else if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
+      format = ALLEGRO_PIXEL_FORMAT_RGBX_8888;
+   bitmap->format = format;
    bitmap->flags = al_get_new_bitmap_flags();
    bitmap->w = w;
    bitmap->h = h;
@@ -43,8 +50,9 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    // FIXME: Of course, we do need to handle all the possible different formats,
    // this will easily fill up its own file of 1000 lines, but for now,
    // RGBA with 8-bit per component is hardcoded.
-   bitmap->memory = _AL_MALLOC(w * h * al_get_pixel_size(al_get_new_bitmap_format()));
-   memset(bitmap->memory, 0, w * h * al_get_pixel_size(al_get_new_bitmap_format()));
+   bitmap->memory = _AL_MALLOC(w * h * al_get_pixel_size(format));
+   memset(bitmap->memory, 0, w * h * al_get_pixel_size(format));
+   al_set_bitmap_mask_color(bitmap, al_map_rgb(bitmap, &mask_color, 255, 0, 255));
    return bitmap;
 }
 
@@ -60,6 +68,7 @@ static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap;
+   ALLEGRO_COLOR mask_color;
    
    if (al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) {
    	return _al_create_memory_bitmap(w, h);
@@ -88,6 +97,8 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
    	al_destroy_bitmap(bitmap);
 	return NULL;
    }
+
+   al_set_bitmap_mask_color(bitmap, al_map_rgb(bitmap, &mask_color, 255, 0, 255));
 
    return bitmap;
 }
@@ -288,6 +299,8 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
    if (locked_region)
       memcpy(&bitmap->locked_region, locked_region, sizeof(ALLEGRO_LOCKED_REGION));
+   else
+      bitmap->locked = false;
 
    return locked_region;
 }
@@ -342,7 +355,7 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color)
       for (x = 0; x < bitmap->w; x++) {
          al_get_pixel(bitmap, x, y, &pixel);
          if (memcmp(&pixel, mask_color, sizeof(ALLEGRO_COLOR)) == 0) {
-            al_put_pixel(x, y, &alpha_pixel, 0);
+            al_put_pixel(x, y, &alpha_pixel);
          }
       }
    }
@@ -455,3 +468,27 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 
    return bitmap;
 }
+
+/*
+ * Set the mask color of the target bitmap
+ */
+void al_set_bitmap_mask_color(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
+{
+   if (bitmap->vt && bitmap->vt->set_mask_color) {
+      bitmap->vt->set_mask_color(bitmap, color);
+   }
+   else {
+      memcpy(&bitmap->mask_color, color, sizeof(ALLEGRO_COLOR));
+   }
+}
+
+/*
+ * Get the mask color of the target bitmap
+ */
+ALLEGRO_COLOR *al_get_bitmap_mask_color(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR *color)
+{
+   memcpy(color, &bitmap->mask_color, sizeof(ALLEGRO_COLOR));
+   return color;
+}
+

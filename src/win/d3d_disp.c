@@ -76,7 +76,8 @@ typedef struct new_display_parameters {
 static bool d3d_bitmaps_prepared_for_reset = false;
 
 static int allegro_formats[] = {
-   ALLEGRO_PIXEL_FORMAT_ANY,
+   ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA,
    ALLEGRO_PIXEL_FORMAT_ARGB_8888,
    ALLEGRO_PIXEL_FORMAT_ARGB_4444,
    ALLEGRO_PIXEL_FORMAT_RGB_565,
@@ -87,7 +88,8 @@ static int allegro_formats[] = {
 
 /* Mapping of Allegro formats to D3D formats */
 static int d3d_formats[] = {
-   ALLEGRO_PIXEL_FORMAT_ANY,
+   ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA,
    D3DFMT_A8R8G8B8,
    D3DFMT_A4R4G4B4,
    D3DFMT_R5G6B5,
@@ -157,13 +159,13 @@ int _al_format_to_d3d(int format)
    int i;
    D3DDISPLAYMODE d3d_dm;
 
-   for (i = 1; allegro_formats[i] >= 0; i++) {
+   for (i = 2; allegro_formats[i] >= 0; i++) {
       if (allegro_formats[i] == format) {
          return d3d_formats[i];
       }
    }
 
-   /* If not found or ALLEGRO_PIXEL_FORMAT_ANY, return desktop format */
+   /* If not found or ALLEGRO_PIXEL_FORMAT_ANY_*, return desktop format */
    
    IDirect3D9_GetAdapterDisplayMode(_al_d3d, D3DADAPTER_DEFAULT, &d3d_dm);
 
@@ -768,7 +770,8 @@ static void d3d_display_thread_proc(void *arg)
       return;
    }
 
-   if (params->format == ALLEGRO_PIXEL_FORMAT_ANY) {
+   if (params->format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA ||
+         params->format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA) {
       /* Choose the desktop format for windowed modes */
       if (!(params->flags & ALLEGRO_FULLSCREEN)) {
          D3DDISPLAYMODE d3d_dm;
@@ -1356,8 +1359,11 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    format = al_get_new_bitmap_format();
    flags = al_get_new_bitmap_flags();
 
-   if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
+   if (format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA) {
       format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+   }
+   else if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA) {
+      format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
    }
 
    bitmap->bitmap.vt = _al_bitmap_d3d_driver();
@@ -1591,8 +1597,9 @@ int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
    int matches = 0;
 
    /* If any, go through all formats */
-   if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
-      j = 1;
+   if (format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA ||
+         format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA) {
+      j = 2;
    }
    /* Else find the matching format */
    else {
@@ -1616,7 +1623,8 @@ int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
          matches++;
       }
    
-      if (format != ALLEGRO_PIXEL_FORMAT_ANY)
+      if (format != ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA &&
+            format != ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
          break;
    }
 
@@ -1632,8 +1640,9 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
    int matches = 0;
 
    /* If any, go through all formats */
-   if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
-      j = 1;
+   if (format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA ||
+         format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA) {
+      j = 2;
    }
    /* Else find the matching format */
    else {
@@ -1664,7 +1673,8 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
          matches++;
       }
    
-      if (format != ALLEGRO_PIXEL_FORMAT_ANY)
+      if (format != ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA &&
+            format != ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
          break;
    }
 

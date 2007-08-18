@@ -32,6 +32,8 @@ static ALLEGRO_BITMAP_INTERFACE *vt;
 static _AL_VECTOR created_bitmaps = _AL_VECTOR_INITIALIZER(ALLEGRO_BITMAP_D3D *);
 
 
+/* Old stuff */
+/*
 static ALLEGRO_BITMAP *_al_d3d_create_masked_bitmap(ALLEGRO_BITMAP *original)
 {
    ALLEGRO_BITMAP *masked_bmp;
@@ -89,6 +91,7 @@ static ALLEGRO_BITMAP *_al_d3d_create_masked_bitmap(ALLEGRO_BITMAP *original)
 
    return masked_bmp;
 }
+*/
 
 static void d3d_set_matrix(float *src, D3DMATRIX *dest)
 {
@@ -293,7 +296,7 @@ static void d3d_sync_bitmap_memory(ALLEGRO_BITMAP *bitmap)
 }
 
 static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
-   unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+   int x, int y, int width, int height)
 {
    D3DLOCKED_RECT locked_rect;
    RECT rect;
@@ -351,12 +354,110 @@ static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
    }
 }
 
+static void d3d_sync_bitmap_texture_masked(ALLEGRO_BITMAP *bitmap,
+   int x, int y, int width, int height)
+{
+   D3DLOCKED_RECT locked_rect;
+   RECT rect;
+   ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
+   ALLEGRO_COLOR mask_color;
+   int mask_value;
+   int i, j;
+   ALLEGRO_LOCKED_REGION lr;
+   
+   rect.left = x;
+   rect.top = y;
+   rect.right = x + width;
+   rect.bottom = y + height;
+
+   if (rect.right != pot(x + width))
+      rect.right++;
+   if (rect.bottom != pot(y + height))
+      rect.bottom++;
+
+   if (IDirect3DTexture9_LockRect(d3d_bmp->system_texture, 0, &locked_rect, &rect, 0) == D3D_OK) {
+   _al_convert_bitmap_data(bitmap->memory, bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
+      locked_rect.pBits, bitmap->format, locked_rect.Pitch,
+      x, y, 0, 0, width, height);
+   /* Copy an extra row and column so the texture ends nicely */
+   if (rect.bottom > bitmap->h) {
+      _al_convert_bitmap_data(
+         bitmap->memory,
+         bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
+         locked_rect.pBits,
+         bitmap->format, locked_rect.Pitch,
+         0, bitmap->h-1,
+         0, height,
+         width, 1);
+   }
+   if (rect.right > bitmap->w) {
+      _al_convert_bitmap_data(
+         bitmap->memory,
+         bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
+         locked_rect.pBits,
+         bitmap->format, locked_rect.Pitch,
+         bitmap->w-1, 0,
+         width, 0,
+         1, height);
+   }
+   if (rect.bottom > bitmap->h && rect.right > bitmap->w) {
+      _al_convert_bitmap_data(
+         bitmap->memory,
+         bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
+         locked_rect.pBits,
+         bitmap->format, locked_rect.Pitch,
+         bitmap->w-1, bitmap->h-1,
+         width, height,
+         1, 1);
+   }
+
+   /* Convert mask to alpha */
+
+   al_get_bitmap_mask_color(bitmap, &mask_color);
+   mask_value = _al_get_pixel_value(bitmap->format, &mask_color);
+
+   IDirect3DTexture9_UnlockRect(d3d_bmp->system_texture, 0);
+   }
+   else {
+      TRACE("d3d_sync_bitmap_texture: Couldn't lock texture to upload.\n");
+   }
+
+   _al_push_target_bitmap();
+   al_set_target_bitmap(bitmap);
+   al_lock_bitmap(bitmap, &lr, 0);
+
+   for (j = y; j < y+height; j++) {
+      for (i = x; i < x+width; i++) {
+         ALLEGRO_COLOR color;
+         al_get_pixel(bitmap, i, j, &color);
+         /* Is it a mask pixel? */
+         if (!memcmp(&color, &mask_color, sizeof(ALLEGRO_COLOR))) {
+            /* Convert it to 0 alpha */
+            unsigned char r, g, b, a;
+            al_unmap_rgba(bitmap, &color, &r, &g, &b, &a);
+            a = 0;
+            al_map_rgba(bitmap, &color, r, g, b, a);
+            al_put_pixel(i, j, &color);
+         }
+      }
+   }
+
+   al_unlock_bitmap(bitmap);
+   _al_pop_target_bitmap();
+}
+
 static void d3d_do_upload(ALLEGRO_BITMAP_D3D *d3d_bmp, int x, int y, int width,
    int height, bool sync_from_memory)
 {
+   ALLEGRO_BITMAP *bmp = (ALLEGRO_BITMAP *)d3d_bmp;
+
    if (sync_from_memory) {
-      d3d_sync_bitmap_texture((ALLEGRO_BITMAP *)d3d_bmp,
-         x, y, width, height);
+      if (bmp->flags & ALLEGRO_USE_MASKING && al_format_has_alpha(bmp->format)) {
+         d3d_sync_bitmap_texture_masked(bmp, x, y, width, height);
+      }
+      else {
+         d3d_sync_bitmap_texture(bmp, x, y, width, height);
+      }
    }
       
    if (IDirect3DDevice9_UpdateTexture(_al_d3d_device,
@@ -365,6 +466,7 @@ static void d3d_do_upload(ALLEGRO_BITMAP_D3D *d3d_bmp, int x, int y, int width,
       TRACE("d3d_do_upload: Couldn't update texture.\n");
       return;
    }
+
 }
 
 /*
@@ -559,6 +661,15 @@ void _al_d3d_refresh_texture_memory()
    }
 }
 
+static void d3d_set_mask_color(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR *color)
+{
+   
+   memcpy(&bitmap->mask_color, color, sizeof(ALLEGRO_COLOR));
+   d3d_do_upload((ALLEGRO_BITMAP_D3D *)bitmap, 0, 0,
+      bitmap->w, bitmap->h, true);
+}
+
 static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
    int width, int height)
 {
@@ -692,6 +803,8 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
       return;
    }
 
+   /* Old stuff */
+   /*
    if (flags & ALLEGRO_MASK_SOURCE) {
       ALLEGRO_BITMAP *tmp_bmp = _al_d3d_create_masked_bitmap(src);
       if (tmp_bmp) {
@@ -703,10 +816,11 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
       }
       return;
    }
+   */
 
    _al_d3d_lock_device();
 
-   if (src && (src->flags & ALLEGRO_USE_ALPHA)) {
+   if (src && ((src->flags & ALLEGRO_USE_ALPHA) || (src->flags & ALLEGRO_USE_MASKING))) {
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, TRUE);
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
@@ -719,7 +833,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
       angle, light_color,
       flags);
 
-   if (src && (src->flags & ALLEGRO_USE_ALPHA)) {
+   if (src && ((src->flags & ALLEGRO_USE_ALPHA) || (src->flags & ALLEGRO_USE_MASKING))) {
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, FALSE);
    }
 
@@ -876,6 +990,7 @@ ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
    vt->destroy_bitmap = d3d_destroy_bitmap;
    vt->lock_region = d3d_lock_region;
    vt->unlock_region = d3d_unlock_region;
+   vt->set_mask_color = d3d_set_mask_color;
 
    return vt;
 }
