@@ -350,6 +350,10 @@ ALLEGRO_BITMAP *_al_xglx_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    bitmap->bitmap.h = h;
    bitmap->bitmap.format = format;
    bitmap->bitmap.flags = flags;
+   bitmap->bitmap.cl = 0;
+   bitmap->bitmap.ct = 0;
+   bitmap->bitmap.cr = w - 1;
+   bitmap->bitmap.cb = h - 1;
 
    return &bitmap->bitmap;
 }
@@ -375,18 +379,20 @@ static void set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       bitmap->ct == 0 && bitmap->cb == bitmap->h - 1) {
       glDisable(GL_SCISSOR_TEST);
    }
-   glEnable(GL_SCISSOR_TEST);
+   else {
+      glEnable(GL_SCISSOR_TEST);
 
-   x_1 = bitmap->cl;
-   y_1 = bitmap->ct;
-   /* In OpenGL, coordinates are the top-left corner of pixels, so we need to
-    * add one to the right abd bottom edge.
-    */
-   x_2 = bitmap->cr + 1;
-   y_2 = bitmap->cb + 1;
+      x_1 = bitmap->cl;
+      y_1 = bitmap->ct;
+      /* In OpenGL, coordinates are the top-left corner of pixels, so we need to
+       * add one to the right abd bottom edge.
+       */
+      x_2 = bitmap->cr + 1;
+      y_2 = bitmap->cb + 1;
 
-   /* OpenGL is upside down, so must adjust y_2 to the height. */
-   glScissor(x_1, bitmap->h - y_2, x_2 - x_1, y_2 - y_1);
+      /* OpenGL is upside down, so must adjust y_2 to the height. */
+      glScissor(x_1, bitmap->h - y_2, x_2 - x_1, y_2 - y_1);
+   }
 }
 
 static bool is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
