@@ -19,6 +19,15 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on)
       glEnable(GL_TEXTURE_2D);
+
+   if (bitmap->flags & ALLEGRO_USE_MASKING) {
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   }
+   else {
+      glDisable(GL_BLEND);
+   }
+
    glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
    l = xbitmap->left;
    t = xbitmap->top;
@@ -117,8 +126,31 @@ static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
    if (xbitmap->texture == 0)
       glGenTextures(1, &xbitmap->texture);
    glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
+
+   unsigned char *memory = bitmap->memory;
+   if (bitmap->flags & ALLEGRO_USE_MASKING) {
+      int x, y, size = bitmap->w * bitmap->h * 4;
+      memory = _AL_MALLOC(size);
+      memcpy(memory, bitmap->memory, size);
+      uint32_t *mem = (void *)memory;
+      unsigned char red, green, blue, alpha;
+      al_unmap_rgba(bitmap, &bitmap->mask_color, &red, &green, &blue, &alpha);
+      uint32_t mask = red + (green << 8) + (blue << 16) + (alpha << 24);
+      for (y = 0; y < bitmap->h; y++) {
+         for (x = 0; x < bitmap->w; x++) {
+            if (*mem == mask)
+               *mem = 0;
+            mem++;
+         }
+      }
+   }
+
    glTexImage2D(GL_TEXTURE_2D, 0, 4, bitmap->w, bitmap->h, 0, GL_RGBA,
-      GL_UNSIGNED_BYTE, bitmap->memory);
+      GL_UNSIGNED_BYTE, memory);
+
+   if (memory != bitmap->memory)
+      _AL_FREE(memory);
+
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
