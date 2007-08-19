@@ -147,6 +147,8 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    // images, should not reduce to 8-bit channels).
    // Then, it is converted to a display specific bitmap, which can be used
    // for blitting to the current display.
+   int flags = al_get_new_bitmap_flags();
+
    set_color_conversion(COLORCONV_NONE);
    // FIXME: should not use the 4.2 function here of course
    PALETTE pal;
@@ -154,7 +156,20 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    select_palette(pal);
    if (!file_data)
       return NULL;
+
+   if (flags & ALLEGRO_KEEP_BITMAP_FORMAT) {
+      _al_push_bitmap_parameters();
+      al_set_new_bitmap_format(_al_get_compat_bitmap_format(file_data));
+   }
+
    ALLEGRO_BITMAP *bitmap = al_create_bitmap(file_data->w, file_data->h);
+
+   if (flags & ALLEGRO_KEEP_BITMAP_FORMAT) {
+      _al_pop_bitmap_parameters();
+   }
+
+   if (!bitmap)
+      return NULL;
 
    _al_convert_compat_bitmap(
    	file_data,
@@ -171,16 +186,13 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
 ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 {
    ALLEGRO_BITMAP *bitmap;
-   
-   if (al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) {
-   	return _al_load_memory_bitmap(filename);
-   }
-
-   /* Else it's a display bitmap */
-
+  
    bitmap = _al_load_memory_bitmap(filename);
 
-   bitmap->vt->upload_bitmap(bitmap, 0, 0, bitmap->w, bitmap->h);
+   /* If it's a display bitmap */
+   if (!(al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) && bitmap) {
+      bitmap->vt->upload_bitmap(bitmap, 0, 0, bitmap->w, bitmap->h);
+   }
 
    return bitmap;
 }

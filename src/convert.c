@@ -388,59 +388,69 @@ void _al_convert_bitmap_data(
 }
 
 
+int _al_get_compat_bitmap_format(BITMAP *bmp)
+{
+   int format;
+
+   switch (bitmap_color_depth(bmp)) {
+      case 8:
+         format = ALLEGRO_PIXEL_FORMAT_PALETTE_8;
+         break;
+      case 15:
+         if (_rgb_r_shift_15 > _rgb_b_shift_15)
+            format = ALLEGRO_PIXEL_FORMAT_RGB_555;
+         else
+            format = ALLEGRO_PIXEL_FORMAT_BGR_555;
+         break;
+      case 16:
+         if (_rgb_r_shift_16 > _rgb_b_shift_16)
+            format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+         else
+            format = ALLEGRO_PIXEL_FORMAT_BGR_565;
+         break;
+      case 24:
+         if (_rgb_r_shift_24 > _rgb_b_shift_24)
+            format = ALLEGRO_PIXEL_FORMAT_RGB_888;
+         else
+            format = ALLEGRO_PIXEL_FORMAT_BGR_888;
+         break;
+      case 32:
+            if (_rgb_r_shift_32 > _rgb_b_shift_32) {
+               if (_bitmap_has_alpha(bmp))
+                  format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
+               else
+                  format = ALLEGRO_PIXEL_FORMAT_RGBX_8888;
+            }
+            else {
+               if (_bitmap_has_alpha(bmp))
+                  format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+               else
+                  format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
+            }
+            break;
+      default:
+         TRACE("src has unsupported pixel format in _al_convert_compat_bitmap.\n");
+         return -1;
+   }
+
+   return format;
+}
+
+
 void _al_convert_compat_bitmap(
 	BITMAP *src,
 	void *dst, int dst_format, int dst_pitch,
 	int sx, int sy, int dx, int dy,
 	int width, int height)
 {
-	int src_format;
+   int src_format;
 
-	ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-	ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA);
+   ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+   ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA);
 
-	switch (bitmap_color_depth(src)) {
-		case 8:
-			src_format = ALLEGRO_PIXEL_FORMAT_PALETTE_8;
-			break;
-		case 15:
-			if (_rgb_r_shift_15 > _rgb_b_shift_15)
-				src_format = ALLEGRO_PIXEL_FORMAT_RGB_555;
-			else
-				src_format = ALLEGRO_PIXEL_FORMAT_BGR_555;
-			break;
-		case 16:
-			if (_rgb_r_shift_16 > _rgb_b_shift_16)
-				src_format = ALLEGRO_PIXEL_FORMAT_RGB_565;
-			else
-				src_format = ALLEGRO_PIXEL_FORMAT_BGR_565;
-			break;
-		case 24:
-			if (_rgb_r_shift_24 > _rgb_b_shift_24)
-				src_format = ALLEGRO_PIXEL_FORMAT_RGB_888;
-			else
-				src_format = ALLEGRO_PIXEL_FORMAT_BGR_888;
-			break;
-		case 32:
-			if (_rgb_r_shift_32 > _rgb_b_shift_32) {
-				if (_bitmap_has_alpha(src))
-					src_format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
-				else
-					src_format = ALLEGRO_PIXEL_FORMAT_RGBX_8888;
-			}
-			else {
-				if (_bitmap_has_alpha(src))
-					src_format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-				else
-					src_format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
-			}
-			break;
-		default:
-			TRACE("src has unsupported pixel format in _al_convert_compat_bitmap.\n");
-			return;
-	}
+   src_format = _al_get_compat_bitmap_format(src);
 
-	(*convert_funcs[src_format][dst_format])(src->dat,
-		src_format, al_get_pixel_size(src_format)*src->w,
-		dst, dst_format, dst_pitch, sx, sy, dx, dy, width, height);
+   (*convert_funcs[src_format][dst_format])(src->dat,
+     src_format, al_get_pixel_size(src_format)*src->w,
+      dst, dst_format, dst_pitch, sx, sy, dx, dy, width, height);
 }

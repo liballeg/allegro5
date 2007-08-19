@@ -49,10 +49,11 @@ enum ALLEGRO_PIXEL_FORMAT {
 /*
  * Bitmap flags
  */
-#define ALLEGRO_MEMORY_BITMAP     0x0001
-#define ALLEGRO_SYNC_MEMORY_COPY  0x0002
-#define ALLEGRO_USE_ALPHA         0x0004
-#define ALLEGRO_USE_MASKING       0x0008
+#define ALLEGRO_MEMORY_BITMAP      0x0001
+#define ALLEGRO_SYNC_MEMORY_COPY   0x0002
+#define ALLEGRO_USE_ALPHA          0x0004
+#define ALLEGRO_USE_MASKING        0x0008
+#define ALLEGRO_KEEP_BITMAP_FORMAT 0x0010
 
 
 /* Flags for the blitting functions */

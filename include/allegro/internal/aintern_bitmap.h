@@ -118,6 +118,7 @@ void _al_convert_compat_bitmap(
 	int sx, int sy, int dx, int dy,
 	int width, int height);
 int _al_get_pixel_value(int src_format, ALLEGRO_COLOR *src_color);
+int _al_get_compat_bitmap_format(BITMAP *bmp);
 
 void _al_push_new_bitmap_parameters();
 void _al_pop_new_bitmap_parameters();
