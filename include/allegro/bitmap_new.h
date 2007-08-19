@@ -52,8 +52,7 @@ enum ALLEGRO_PIXEL_FORMAT {
 #define ALLEGRO_MEMORY_BITMAP      0x0001
 #define ALLEGRO_SYNC_MEMORY_COPY   0x0002
 #define ALLEGRO_USE_ALPHA          0x0004
-#define ALLEGRO_USE_MASKING        0x0008
-#define ALLEGRO_KEEP_BITMAP_FORMAT 0x0010
+#define ALLEGRO_KEEP_BITMAP_FORMAT 0x0008
 
 
 /* Flags for the blitting functions */
@@ -157,5 +156,8 @@ void al_get_clipping_rectangle(int *x, int *y, int *w, int *h);
 /* Sub bitmaps */
 ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    int x, int y, int w, int h);
+
+/* Miscellaneous */
+ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap);
 
 #endif

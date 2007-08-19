@@ -354,6 +354,8 @@ static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
    }
 }
 
+/* legacy stuff from when we had ALLEGRO_USE_MASKING */
+#if 0
 static void d3d_sync_bitmap_texture_masked(ALLEGRO_BITMAP *bitmap,
    int x, int y, int width, int height)
 {
@@ -445,6 +447,7 @@ static void d3d_sync_bitmap_texture_masked(ALLEGRO_BITMAP *bitmap,
    al_unlock_bitmap(bitmap);
    _al_pop_target_bitmap();
 }
+#endif
 
 static void d3d_do_upload(ALLEGRO_BITMAP_D3D *d3d_bmp, int x, int y, int width,
    int height, bool sync_from_memory)
@@ -452,12 +455,7 @@ static void d3d_do_upload(ALLEGRO_BITMAP_D3D *d3d_bmp, int x, int y, int width,
    ALLEGRO_BITMAP *bmp = (ALLEGRO_BITMAP *)d3d_bmp;
 
    if (sync_from_memory) {
-      if (bmp->flags & ALLEGRO_USE_MASKING && al_format_has_alpha(bmp->format)) {
-         d3d_sync_bitmap_texture_masked(bmp, x, y, width, height);
-      }
-      else {
-         d3d_sync_bitmap_texture(bmp, x, y, width, height);
-      }
+      d3d_sync_bitmap_texture(bmp, x, y, width, height);
    }
       
    if (IDirect3DDevice9_UpdateTexture(_al_d3d_device,
@@ -820,7 +818,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
 
    _al_d3d_lock_device();
 
-   if (src && ((src->flags & ALLEGRO_USE_ALPHA) || (src->flags & ALLEGRO_USE_MASKING))) {
+   if (src && (src->flags & ALLEGRO_USE_ALPHA)) {
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, TRUE);
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
@@ -833,7 +831,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
       angle, light_color,
       flags);
 
-   if (src && ((src->flags & ALLEGRO_USE_ALPHA) || (src->flags & ALLEGRO_USE_MASKING))) {
+   if (src && (src->flags & ALLEGRO_USE_ALPHA)) {
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, FALSE);
    }
 

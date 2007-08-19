@@ -158,14 +158,14 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
       return NULL;
 
    if (flags & ALLEGRO_KEEP_BITMAP_FORMAT) {
-      _al_push_bitmap_parameters();
+      _al_push_new_bitmap_parameters();
       al_set_new_bitmap_format(_al_get_compat_bitmap_format(file_data));
    }
 
    ALLEGRO_BITMAP *bitmap = al_create_bitmap(file_data->w, file_data->h);
 
    if (flags & ALLEGRO_KEEP_BITMAP_FORMAT) {
-      _al_pop_bitmap_parameters();
+      _al_pop_new_bitmap_parameters();
    }
 
    if (!bitmap)
@@ -202,7 +202,8 @@ void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
 
    /* If one is a memory bitmap, do memory blit */
-   if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) || (dest->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
+         (dest->flags & ALLEGRO_MEMORY_BITMAP)) {
       if (_al_current_display->vt->draw_memory_bitmap_region)
          _al_current_display->vt->draw_memory_bitmap_region(_al_current_display,
 	    bitmap, 0, 0, bitmap->w, bitmap->h, dx, dy, flags);
@@ -502,5 +503,38 @@ ALLEGRO_COLOR *al_get_bitmap_mask_color(ALLEGRO_BITMAP *bitmap,
 {
    memcpy(color, &bitmap->mask_color, sizeof(ALLEGRO_COLOR));
    return color;
+}
+
+/*
+ * Clone a bitmap "exactly", formats can be different
+ */
+ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
+{
+   
+   ALLEGRO_BITMAP *clone = al_create_bitmap(bitmap->w, bitmap->h);
+   int flags = al_get_new_bitmap_flags();
+   ALLEGRO_LOCKED_REGION dst_region;
+   ALLEGRO_LOCKED_REGION src_region;
+
+   if (!clone)
+      return NULL;
+
+   if (!al_lock_bitmap(bitmap, &src_region, ALLEGRO_LOCK_READONLY))
+      return NULL;
+
+   if (!al_lock_bitmap(clone, &dst_region, 0)) {
+      al_unlock_bitmap(bitmap);
+      return NULL;
+   }
+
+   _al_convert_bitmap_data(
+	src_region.data, src_region.format, src_region.pitch,
+        dst_region.data, dst_region.format, dst_region.pitch,
+        0, 0, 0, 0, bitmap->w, bitmap->h);
+
+   al_unlock_bitmap(bitmap);
+   al_unlock_bitmap(clone);
+
+   return clone;
 }
 

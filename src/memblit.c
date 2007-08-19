@@ -40,15 +40,6 @@
    ALLEGRO_COLOR mask_color; \
    int pixel; \
    int mask_pixel; \
-   bool do_masking; \
-\
-   if (flags & ALLEGRO_USE_MASKING) { \
-      al_get_bitmap_mask_color(src, &mask_color); \
-      mask_pixel = _al_get_pixel_value(sformat, &mask_color); \
-      do_masking = true; \
-   } \
-   else \
-      do_masking = false; \
 \
    /* Adjust for flipping */ \
 \
@@ -74,11 +65,8 @@
       cdx = 0; \
       for (x = 0; x < sw; x++) { \
          pixel = get(src+y*spitch+x*ssize); \
-	 /* Skip masked pixels if flag set */ \
-	 if (!do_masking || pixel != mask_pixel) { \
-  	    pixel = convert(pixel); \
-            set(dst+cdy*dpitch+cdx*dsize, pixel); \
-	 } \
+  	 pixel = convert(pixel); \
+         set(dst+cdy*dpitch+cdx*dsize, pixel); \
 	 cdx += dxi; \
       } \
       cdy += dyi; \
@@ -503,7 +491,6 @@ void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int pixel; \
    ALLEGRO_LOCKED_REGION src_region; \
    ALLEGRO_LOCKED_REGION dst_region; \
-   bool do_masking; \
  \
    if ((sw <= 0) || (sh <= 0) || (dw <= 0) || (dh <= 0)) \
       return; \
@@ -569,14 +556,6 @@ void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
       return; \
    } \
  \
-   if (bitmap->flags & ALLEGRO_USE_MASKING) { \
-      al_get_bitmap_mask_color(bitmap, &mask_color); \
-      mask_pixel = _al_get_pixel_value(bitmap->format, &mask_color); \
-      do_masking = true; \
-   } \
-   else \
-      do_masking = false; \
- \
    y = 0; \
    dyend = dyend - dy; \
  \
@@ -605,10 +584,8 @@ void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
       _sx = sx; \
       for (x = 0; x < (dxend-dxbeg); x++) { \
          pixel = get(src_region.data+src_region.pitch*sy+ssize*_sx); \
-	 if (!do_masking || pixel != mask_pixel) { \
-	    pixel = convert(pixel); \
-	    set(dst_region.data+dst_region.pitch*y+dsize*x, pixel); \
-	 } \
+	 pixel = convert(pixel); \
+	 set(dst_region.data+dst_region.pitch*y+dsize*x, pixel); \
          if (xc <= 0) { \
 	    _sx += sxdir; \
 	    xc += xcinc; \
@@ -1063,7 +1040,6 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int dsize; \
    ALLEGRO_COLOR mask_color; \
    int mask_pixel; \
-   bool do_masking; \
  \
    /* \
     * Variables used in the loop \
@@ -1241,14 +1217,6 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
          &dst_region, 0)) \
       return; \
    \
-   if (src->flags & ALLEGRO_USE_MASKING) { \
-      al_get_bitmap_mask_color(src, &mask_color); \
-      mask_pixel = _al_get_pixel_value(src->format, &mask_color); \
-      do_masking = true; \
-   } \
-   else \
-      do_masking = false; \
- \
    ssize = al_get_pixel_size(src->format); \
    dsize = al_get_pixel_size(dst->format); \
  \
@@ -1448,10 +1416,8 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
       addr += my_l_bmp_x_i * dsize;                                   \
       for (; addr < end_addr; addr += dsize) {                        \
          c = get(src_region.data+(my_l_spr_y>>16)*src_region.pitch+ssize*(my_l_spr_x>>16)); \
-         if (!do_masking || c != mask_pixel) {          \
-	    c = convert(c);                                           \
-	    set(addr, c);                                             \
-	 } \
+	 c = convert(c);                                           \
+	 set(addr, c);                                             \
 	 my_l_spr_x += spr_dx;                                        \
 	 my_l_spr_y += spr_dy;                                        \
       }                                                               \
