@@ -8,6 +8,7 @@ int main(void)
     int i;
     al_init();
     display = al_create_display(100, 100);
+    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA);
     bitmap = al_create_bitmap(100, 100);
     al_lock_bitmap(bitmap, &locked, 0);
     for (i = 0; i < 100 * locked.pitch; i++)

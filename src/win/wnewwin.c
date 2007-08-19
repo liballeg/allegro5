@@ -44,10 +44,13 @@ static void win_get_window_pos(HWND window, RECT *pos)
    RECT adjusted;
    int top;
    int left;
+   WINDOWINFO wi;
 
    GetWindowRect(window, &with_decorations);
    memcpy(&adjusted, &with_decorations, sizeof(RECT));
-   AdjustWindowRect(&adjusted, GetWindowLong(window, GWL_STYLE), FALSE);
+
+   GetWindowInfo(window, &wi);
+   AdjustWindowRectEx(&adjusted, wi.dwStyle, FALSE, wi.dwExStyle);
 
    top = with_decorations.top - adjusted.top;
    left = with_decorations.left - adjusted.left;
@@ -81,6 +84,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    DWORD ex_style;
    WIN_WINDOW *win_window;
    WIN_WINDOW **add;
+   WINDOWINFO wi;
 
    /* Save the thread handle for later use */
    *((DWORD *)_al_vector_alloc_back(&thread_handles)) = GetCurrentThreadId();
@@ -119,7 +123,8 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    add = _al_vector_alloc_back(&win_window_list);
    *add = win_window;
 
-   AdjustWindowRect(&win_size, GetWindowLong(my_window, GWL_STYLE), FALSE);
+   GetWindowInfo(my_window, &wi);
+   AdjustWindowRectEx(&win_size, wi.dwStyle, FALSE, wi.dwExStyle);
 
    MoveWindow(my_window, win_size.left, win_size.top,
       win_size.right - win_size.left,

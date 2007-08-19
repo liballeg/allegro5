@@ -327,83 +327,237 @@ typedef void (*_draw_region_func)(void *src,
    int flags);
 
 #define DECLARE_DRAW_REGION_FUNCS(prefix) \
-	{ \
-		NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */ \
-                NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */ \
-		prefix ## _to_argb_8888, \
-		prefix ## _to_rgba_8888, \
-		prefix ## _to_argb_4444, \
-		prefix ## _to_rgb_888, \
-		prefix ## _to_rgb_565, \
-		prefix ## _to_rgb_555, \
-		prefix ## _to_palette_8, \
-		prefix ## _to_rgba_5551, \
-		prefix ## _to_argb_1555, \
-		prefix ## _to_abgr_8888, \
-		prefix ## _to_xbgr_8888, \
-		prefix ## _to_bgr_888, \
-		prefix ## _to_bgr_565, \
-		prefix ## _to_bgr_555, \
-		prefix ## _to_rgbx_8888, \
-		prefix ## _to_xrgb_8888 \
-	}, \
+   { \
+      /* Fake formats */ \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      /* End fake formats */ \
+      prefix ## _to_argb_8888, \
+      prefix ## _to_rgba_8888, \
+      prefix ## _to_argb_4444, \
+      prefix ## _to_rgb_888, \
+      prefix ## _to_rgb_565, \
+      prefix ## _to_rgb_555, \
+      prefix ## _to_palette_8, \
+      prefix ## _to_rgba_5551, \
+      prefix ## _to_argb_1555, \
+      prefix ## _to_abgr_8888, \
+      prefix ## _to_xbgr_8888, \
+      prefix ## _to_bgr_888, \
+      prefix ## _to_bgr_565, \
+      prefix ## _to_bgr_555, \
+      prefix ## _to_rgbx_8888, \
+      prefix ## _to_xrgb_8888 \
+   }, \
 
 static _draw_region_func _draw_region_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] = {
-	/* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */
-	{
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	},
-	/* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */
-	{
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	},
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_argb_8888)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgba_8888)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_argb_4444)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgb_888)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgb_565)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgb_555)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_palette_8)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgba_5551)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_argb_1555)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_abgr_8888)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_xbgr_8888)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_bgr_888)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_bgr_565)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_bgr_555)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgbx_8888)
-	DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_xrgb_8888)
-};
+      /* Fake formats */
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      /* End fake formats */
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_argb_8888)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgba_8888)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_argb_4444)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgb_888)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgb_565)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgb_555)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_palette_8)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgba_5551)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_argb_1555)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_abgr_8888)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_xbgr_8888)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_bgr_888)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_bgr_565)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_bgr_555)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgbx_8888)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_xrgb_8888)
+   };
 
 
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
@@ -413,6 +567,9 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_LOCKED_REGION src_region;
    ALLEGRO_LOCKED_REGION dst_region;
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
+
+   ASSERT(_al_pixel_format_is_real(bitmap->format));
+   ASSERT(_al_pixel_format_is_real(dest->format));
    
    /* Do clipping */
    if (dx < dest->cl) {
@@ -875,83 +1032,237 @@ typedef void (*_draw_scaled_func)(ALLEGRO_BITMAP *,
 	int flags);
 
 #define DECLARE_DRAW_SCALED_FUNCS(prefix) \
-	{ \
-		NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */ \
-                NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */ \
-		prefix ## _to_argb_8888, \
-		prefix ## _to_rgba_8888, \
-		prefix ## _to_argb_4444, \
-		prefix ## _to_rgb_888, \
-		prefix ## _to_rgb_565, \
-		prefix ## _to_rgb_555, \
-		prefix ## _to_palette_8, \
-		prefix ## _to_rgba_5551, \
-		prefix ## _to_argb_1555, \
-		prefix ## _to_abgr_8888, \
-		prefix ## _to_xbgr_8888, \
-		prefix ## _to_bgr_888, \
-		prefix ## _to_bgr_565, \
-		prefix ## _to_bgr_555, \
-		prefix ## _to_rgbx_8888, \
-		prefix ## _to_xrgb_8888 \
-	}, \
+   { \
+      /* Fake formats */ \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      /* End fake formats */ \
+      prefix ## _to_argb_8888, \
+      prefix ## _to_rgba_8888, \
+      prefix ## _to_argb_4444, \
+      prefix ## _to_rgb_888, \
+      prefix ## _to_rgb_565, \
+      prefix ## _to_rgb_555, \
+      prefix ## _to_palette_8, \
+      prefix ## _to_rgba_5551, \
+      prefix ## _to_argb_1555, \
+      prefix ## _to_abgr_8888, \
+      prefix ## _to_xbgr_8888, \
+      prefix ## _to_bgr_888, \
+      prefix ## _to_bgr_565, \
+      prefix ## _to_bgr_555, \
+      prefix ## _to_rgbx_8888, \
+      prefix ## _to_xrgb_8888 \
+   }, \
 
 static _draw_scaled_func _draw_scaled_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] = {
-	/* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */
-	{
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	},
-	/* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */
-	{
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	},
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_argb_8888)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgba_8888)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_argb_4444)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgb_888)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgb_565)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgb_555)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_palette_8)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgba_5551)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_argb_1555)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_abgr_8888)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_xbgr_8888)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_bgr_888)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_bgr_565)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_bgr_555)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgbx_8888)
-	DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_xrgb_8888)
-};
+      /* Fake formats */
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      /* End fake formats */
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_argb_8888)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgba_8888)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_argb_4444)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgb_888)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgb_565)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgb_555)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_palette_8)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgba_5551)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_argb_1555)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_abgr_8888)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_xbgr_8888)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_bgr_888)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_bgr_565)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_bgr_555)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgbx_8888)
+      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_xrgb_8888)
+   };
 
 void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
@@ -960,6 +1271,9 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int ssize = al_get_pixel_size(bitmap->format);
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    int dsize = al_get_pixel_size(dest->format);
+
+   ASSERT(_al_pixel_format_is_real(bitmap->format));
+   ASSERT(_al_pixel_format_is_real(dest->format));
 
    (*_draw_scaled_funcs[bitmap->format][dest->format])(
    	bitmap, sx, sy, sw, sh, ssize,
@@ -1771,87 +2085,241 @@ DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_rgbx_8888, AL
 DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_xrgb_8888, ALLEGRO_CONVERT_XRGB_8888)
 
 #define DECLARE_DRAW_ROTATED_SCALED_FUNCS(prefix) \
-	{ \
-		NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */ \
-                NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */ \
-		prefix ## _to_argb_8888, \
-		prefix ## _to_rgba_8888, \
-		prefix ## _to_argb_4444, \
-		prefix ## _to_rgb_888, \
-		prefix ## _to_rgb_565, \
-		prefix ## _to_rgb_555, \
-		prefix ## _to_palette_8, \
-		prefix ## _to_rgba_5551, \
-		prefix ## _to_argb_1555, \
-		prefix ## _to_abgr_8888, \
-		prefix ## _to_xbgr_8888, \
-		prefix ## _to_bgr_888, \
-		prefix ## _to_bgr_565, \
-		prefix ## _to_bgr_555, \
-		prefix ## _to_rgbx_8888, \
-		prefix ## _to_xrgb_8888 \
-	}, \
+   { \
+      /* Fake formats */ \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      /* End fake formats */ \
+      prefix ## _to_argb_8888, \
+      prefix ## _to_rgba_8888, \
+      prefix ## _to_argb_4444, \
+      prefix ## _to_rgb_888, \
+      prefix ## _to_rgb_565, \
+      prefix ## _to_rgb_555, \
+      prefix ## _to_palette_8, \
+      prefix ## _to_rgba_5551, \
+      prefix ## _to_argb_1555, \
+      prefix ## _to_abgr_8888, \
+      prefix ## _to_xbgr_8888, \
+      prefix ## _to_bgr_888, \
+      prefix ## _to_bgr_565, \
+      prefix ## _to_bgr_555, \
+      prefix ## _to_rgbx_8888, \
+      prefix ## _to_xrgb_8888 \
+   }, \
 
 typedef void (*_draw_rotated_scaled_func)(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,
    float cx, float cy, float dx, float dy,  float xscale, float yscale,
    float angle, int flags);
 
 static _draw_rotated_scaled_func _draw_rotated_scaled_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] = {
-	/* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */
-	{
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	},
-	/* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */
-	{
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	},
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_argb_8888)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgba_8888)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_argb_4444)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgb_888)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgb_565)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgb_555)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_palette_8)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgba_5551)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_argb_1555)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_abgr_8888)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_xbgr_8888)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_bgr_888)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_bgr_565)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_bgr_555)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgbx_8888)
-	DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_xrgb_8888)
-};
+      /* Fake formats */
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      {
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+      },
+      /* End fake formats */
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_argb_8888)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgba_8888)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_argb_4444)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgb_888)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgb_565)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgb_555)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_palette_8)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgba_5551)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_argb_1555)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_abgr_8888)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_xbgr_8888)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_bgr_888)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_bgr_565)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_bgr_555)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgbx_8888)
+      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_xrgb_8888)
+   };
 
 
 void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
@@ -1859,6 +2327,9 @@ void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
 	float angle, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
+
+   ASSERT(_al_pixel_format_is_real(bitmap->format));
+   ASSERT(_al_pixel_format_is_real(dest->format));
 
    (*_draw_rotated_scaled_funcs[bitmap->format][dest->format])(
       bitmap, dest, cx, cy, dx, dy, xscale, yscale, -angle, flags);

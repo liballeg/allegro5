@@ -78,6 +78,14 @@ static bool d3d_bitmaps_prepared_for_reset = false;
 static int allegro_formats[] = {
    ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
    ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA,
    ALLEGRO_PIXEL_FORMAT_ARGB_8888,
    ALLEGRO_PIXEL_FORMAT_ARGB_4444,
    ALLEGRO_PIXEL_FORMAT_RGB_565,
@@ -90,6 +98,14 @@ static int allegro_formats[] = {
 static int d3d_formats[] = {
    ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
    ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA,
    D3DFMT_A8R8G8B8,
    D3DFMT_A4R4G4B4,
    D3DFMT_R5G6B5,
@@ -159,7 +175,9 @@ int _al_format_to_d3d(int format)
    int i;
    D3DDISPLAYMODE d3d_dm;
 
-   for (i = 2; allegro_formats[i] >= 0; i++) {
+   for (i = 0; allegro_formats[i] >= 0; i++) {
+      if (!_al_pixel_format_is_real(allegro_formats[i]))
+         continue;
       if (allegro_formats[i] == format) {
          return d3d_formats[i];
       }
@@ -176,7 +194,9 @@ int _al_d3d_format_to_allegro(int d3d_fmt)
 {
    int i;
 
-   for (i = 1; d3d_formats[i] >= 0; i++) {
+   for (i = 0; d3d_formats[i] >= 0; i++) {
+      if (!_al_pixel_format_is_real(allegro_formats[i]))
+         continue;
       if (d3d_formats[i] == d3d_fmt) {
          return allegro_formats[i];
       }
@@ -700,13 +720,13 @@ static bool _al_d3d_reset_device()
          d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 
          /* Try to reset a few times */
-         for (i = 0; i < 10; i++) {
+         for (i = 0; i < 5; i++) {
             if (IDirect3DDevice9_Reset(_al_d3d_device, &d3d_pp) == D3D_OK) {
                break;
             }
             al_rest(100);
          }
-         if (i == 10) {
+         if (i == 5) {
             _al_d3d_unlock_device();
             return 0;
          }
@@ -745,6 +765,41 @@ static bool _al_d3d_reset_device()
    return 1;
 }
 
+static int d3d_choose_format(int fake)
+{
+   /* Pick an appropriate format if the user is vague */
+   switch (fake) {
+      case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_RGB_565;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_ARGB_1555;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_ARGB_4444;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_RGB_565;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
+         fake = -1;
+         break;
+      default:
+         break;
+   }
+
+   return fake;
+}
+
 /*
  * The window and swap chain must be created in the same
  * thread that runs the message loop. It also must be
@@ -770,21 +825,14 @@ static void d3d_display_thread_proc(void *arg)
       return;
    }
 
-   if (params->format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA ||
-         params->format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA) {
-      /* Choose the desktop format for windowed modes */
-      if (!(params->flags & ALLEGRO_FULLSCREEN)) {
-         D3DDISPLAYMODE d3d_dm;
-         IDirect3D9_GetAdapterDisplayMode(_al_d3d, D3DADAPTER_DEFAULT, &d3d_dm);
-         params->format = _al_d3d_format_to_allegro(d3d_dm.Format);
+   if (!_al_pixel_format_is_real(params->format)) {
+      int f = d3d_choose_format(params->format);
+      if (f < 0) {
+         d->init_failed = true;
+         return;
       }
-      else {
-         /*
-          * This format should be supported by any D3D9-capable computer
-          * in fullscreen mode.
-          */
-         params->format = ALLEGRO_PIXEL_FORMAT_RGB_565;
-      }
+      params->format = f;
+
    }
 
    if (!d3d_parameters_are_valid(params->format, params->refresh_rate, params->flags)) {
@@ -1009,50 +1057,6 @@ static void d3d_set_current_display(ALLEGRO_DISPLAY *d)
    /* Don't need to do anything */
 }
 
-/* Dummy implementation of clear. */
-static void d3d_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
-{
-   ALLEGRO_DISPLAY_D3D* disp = (ALLEGRO_DISPLAY_D3D*)d;
-   D3DRECT rect;
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-
-   if (_al_d3d_is_device_lost()) return;
-   _al_d3d_lock_device();
-
-   rect.x1 = 0;
-   rect.y1 = 0;
-   rect.x2 = target->w;
-   rect.y2 = target->h;
-
-   /* Clip */
-   if (rect.x1 < target->cl)
-      rect.x1 = target->cl;
-   if (rect.y1 < target->ct)
-      rect.y1 = target->ct;
-   if (rect.x2 > target->cr)
-      rect.x2 = target->cr;
-   if (rect.y2 > target->cb)
-      rect.y2 = target->cb;
-
-   if (target->parent) {
-      rect.x1 += target->xofs;
-      rect.y1 += target->yofs;
-      rect.x2 += target->xofs;
-      rect.y2 += target->yofs;
-   }
-
-   IDirect3DDevice9_Clear(_al_d3d_device, 1, &rect,
-      D3DCLEAR_TARGET,
-      d3d_al_color_to_d3d(d->format, color),
-      1, 0);
-   
-   _al_d3d_unlock_device();
-   
-   if (target->flags & ALLEGRO_SYNC_MEMORY_COPY) {
-      _al_d3d_sync_bitmap(target);
-   }
-}
-
 /* Dummy implementation of line. */
 static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
    ALLEGRO_COLOR *color, int flags)
@@ -1146,6 +1150,38 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    }
 }
 
+/* Dummy implementation of clear. */
+static void d3d_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
+{
+   ALLEGRO_DISPLAY_D3D* disp = (ALLEGRO_DISPLAY_D3D*)d;
+   D3DRECT rect;
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   rect.x1 = 0;
+   rect.y1 = 0;
+   rect.x2 = target->w;
+   rect.y2 = target->h;
+
+   /* Clip */
+   if (rect.x1 < target->cl)
+      rect.x1 = target->cl;
+   if (rect.y1 < target->ct)
+      rect.y1 = target->ct;
+   if (rect.x2 > target->cr)
+      rect.x2 = target->cr;
+   if (rect.y2 > target->cb)
+      rect.y2 = target->cb;
+
+   if (target->parent) {
+      rect.x1 += target->xofs;
+      rect.y1 += target->yofs;
+      rect.x2 += target->xofs;
+      rect.y2 += target->yofs;
+   }
+
+   d3d_draw_rectangle(d, rect.x1, rect.y1, rect.x2+1, rect.y2+1, color, ALLEGRO_FILLED);
+}
+
 /* Dummy implementation of flip. */
 static void d3d_flip_display(ALLEGRO_DISPLAY *d)
 {
@@ -1224,6 +1260,64 @@ static bool d3d_update_display_region(ALLEGRO_DISPLAY *d,
    return ret;
 }
 
+/*
+ * Sets a clipping rectangle
+ */
+static void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
+{
+   float plane[4];
+   int left, right, top, bottom;
+
+   if (bitmap->parent) {
+      left = bitmap->xofs + bitmap->cl;
+      right = bitmap->xofs + bitmap->cr;
+      top = bitmap->yofs + bitmap->ct;
+      bottom = bitmap->yofs + bitmap->cb;
+   }
+   else {
+      left = bitmap->cl;
+      right = bitmap->cr;
+      top = bitmap->ct;
+      bottom = bitmap->cb;
+      if (left == 0 && top == 0 &&
+            right == (bitmap->w-1) &&
+            bottom == (bitmap->h-1)) {
+         IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CLIPPLANEENABLE, 0);
+         return;
+      }
+   }
+
+   //right--;
+   //bottom--;
+
+   plane[0] = 1.0f / left;
+   plane[1] = 0.0f;
+   plane[2] = 0.0f;
+   plane[3] = -1;
+   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 0, plane);
+
+   plane[0] = -1.0f / right;
+   plane[1] = 0.0f;
+   plane[2] = 0.0f;
+   plane[3] = 1;
+   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 1, plane);
+
+   plane[0] = 0.0f;
+   plane[1] = 1.0f / top;
+   plane[2] = 0.0f;
+   plane[3] = -1;
+   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 2, plane);
+
+   plane[0] = 0.0f;
+   plane[1] = -1.0f / bottom;
+   plane[2] = 0.0f;
+   plane[3] = 1;
+   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 3, plane);
+
+   /* Enable the first four clipping planes */
+   IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CLIPPLANEENABLE, 0xF);
+}
+
 static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 {
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
@@ -1246,15 +1340,64 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       return true;
    }
    else {
-      d->w = width;
-      d->h = height;
+      bool ret;
+      RECT win_size;
+      WINDOWINFO wi;
 
-      _al_d3d_reset_device();
+      //_al_d3d_reset_device();
 
-      return SetWindowPos(disp->window, HWND_TOP,
+      win_size.left = 0;
+      win_size.top = 0;
+      win_size.right = width;
+      win_size.bottom = height;
+
+      wi.cbSize = sizeof(WINDOWINFO);
+      GetWindowInfo(disp->window, &wi);
+
+      AdjustWindowRectEx(&win_size, wi.dwStyle, FALSE, wi.dwExStyle);
+
+      ret = SetWindowPos(disp->window, HWND_TOP,
          0, 0,
-         width, height,
+         win_size.right-win_size.left,
+         win_size.bottom-win_size.top,
          SWP_NOMOVE|SWP_NOZORDER);
+
+      /*
+       * The clipping rectangle and bitmap size must be
+       * changed to match the new size.
+       */
+      _al_push_target_bitmap();
+      al_set_target_bitmap(&disp->backbuffer_bmp.bitmap);
+      disp->backbuffer_bmp.bitmap.w = width;
+      disp->backbuffer_bmp.bitmap.h = height;
+      al_set_clipping_rectangle(0, 0, width-1, height-1);
+      d3d_set_bitmap_clip(&disp->backbuffer_bmp.bitmap);
+      _al_pop_target_bitmap();
+
+      return ret;
+
+      /*
+      wi.cbSize = sizeof(WINDOWINFO);
+      GetWindowInfo(disp->window, &wi);
+      x = wi.rcClient.left;
+      y = wi.rcClient.top;
+
+      _al_event_source_lock(es);
+      if (_al_event_source_needs_to_generate_event(es)) {
+         AL_EVENT *event = _al_event_source_get_unused_event(es);
+         if (event) {
+            event->display.type = AL_EVENT_DISPLAY_RESIZE;
+            event->display.timestamp = al_current_time();
+            event->display.x = x;
+            event->display.y = y;
+            event->display.width = width;
+            event->display.height = height;
+            _al_event_source_emit_event(es, event);
+         }
+      }
+      _al_event_source_unlock(es);
+      */
+
    }
 }
 
@@ -1269,9 +1412,7 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
       d->w = wi.rcClient.right - wi.rcClient.left;
       d->h = wi.rcClient.bottom - wi.rcClient.top;
 
-      _al_d3d_reset_device();
-
-      return true;
+      return _al_d3d_reset_device();
    }
 
    return false;
@@ -1359,13 +1500,13 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    format = al_get_new_bitmap_format();
    flags = al_get_new_bitmap_flags();
 
-   if (format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA) {
-      format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+   if (!_al_pixel_format_is_real(format)) {
+      format = d3d_choose_format(format);
+      if (format < 0) {
+         return NULL;
+      }
    }
-   else if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA) {
-      format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
-   }
-
+   
    bitmap->bitmap.vt = _al_bitmap_d3d_driver();
    bitmap->bitmap.memory = NULL;
    bitmap->bitmap.format = format;
@@ -1390,64 +1531,6 @@ ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *
    bitmap->initialized = false;
    bitmap->is_backbuffer = ((ALLEGRO_BITMAP_D3D *)parent)->is_backbuffer;
    return (ALLEGRO_BITMAP *)bitmap;
-}
-
-/*
- * Sets a clipping rectangle
- */
-static void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
-{
-   float plane[4];
-   int left, right, top, bottom;
-
-   if (bitmap->parent) {
-      left = bitmap->xofs + bitmap->cl;
-      right = bitmap->xofs + bitmap->cr;
-      top = bitmap->yofs + bitmap->ct;
-      bottom = bitmap->yofs + bitmap->cb;
-   }
-   else {
-      left = bitmap->cl;
-      right = bitmap->cr;
-      top = bitmap->ct;
-      bottom = bitmap->cb;
-      if (left == 0 && top == 0 &&
-            right == (bitmap->w-1) &&
-            bottom == (bitmap->h-1)) {
-         IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CLIPPLANEENABLE, 0);
-         return;
-      }
-   }
-
-   //right--;
-   //bottom--;
-
-   plane[0] = 1.0f / left;
-   plane[1] = 0.0f;
-   plane[2] = 0.0f;
-   plane[3] = -1;
-   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 0, plane);
-
-   plane[0] = -1.0f / right;
-   plane[1] = 0.0f;
-   plane[2] = 0.0f;
-   plane[3] = 1;
-   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 1, plane);
-
-   plane[0] = 0.0f;
-   plane[1] = 1.0f / top;
-   plane[2] = 0.0f;
-   plane[3] = -1;
-   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 2, plane);
-
-   plane[0] = 0.0f;
-   plane[1] = -1.0f / bottom;
-   plane[2] = 0.0f;
-   plane[3] = 1;
-   IDirect3DDevice9_SetClipPlane(_al_d3d_device, 3, plane);
-
-   /* Enable the first four clipping planes */
-   IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CLIPPLANEENABLE, 0xF);
 }
 
 static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
@@ -1597,9 +1680,8 @@ int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
    int matches = 0;
 
    /* If any, go through all formats */
-   if (format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA ||
-         format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA) {
-      j = 2;
+   if (!_al_pixel_format_is_real(format)) {
+      j = 0;
    }
    /* Else find the matching format */
    else {
@@ -1612,6 +1694,9 @@ int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
    }
 
    for (; allegro_formats[j] != -1; j++) {
+      if (!_al_pixel_format_is_real(allegro_formats[j]))
+         continue;
+
       num_modes = IDirect3D9_GetAdapterModeCount(_al_d3d, D3DADAPTER_DEFAULT, d3d_formats[j]);
    
       for (i = 0; i < num_modes; i++) {
@@ -1623,8 +1708,7 @@ int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
          matches++;
       }
    
-      if (format != ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA &&
-            format != ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
+      if (_al_pixel_format_is_real(format))
          break;
    }
 
@@ -1640,9 +1724,8 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
    int matches = 0;
 
    /* If any, go through all formats */
-   if (format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA ||
-         format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA) {
-      j = 2;
+   if (!_al_pixel_format_is_real(format)) {
+      j = 0;
    }
    /* Else find the matching format */
    else {
@@ -1655,6 +1738,9 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
    }
 
    for (; allegro_formats[j] != -1; j++) {
+      if (!_al_pixel_format_is_real(allegro_formats[j]))
+         continue;
+
       num_modes = IDirect3D9_GetAdapterModeCount(_al_d3d, D3DADAPTER_DEFAULT, d3d_formats[j]);
    
       for (i = 0; i < num_modes; i++) {
@@ -1673,8 +1759,7 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
          matches++;
       }
    
-      if (format != ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA &&
-            format != ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
+      if (_al_pixel_format_is_real(format))
          break;
    }
 

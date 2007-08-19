@@ -27,15 +27,47 @@
  */
 static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 {
-   ALLEGRO_BITMAP *bitmap = _AL_MALLOC(sizeof *bitmap);
-   int format = al_get_new_bitmap_format();
+   ALLEGRO_BITMAP *bitmap;
+   int format;
    ALLEGRO_COLOR mask_color;
    
+   /* Pick an appropriate format if the user is vague */
+   switch (format) {
+      case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_ARGB_1555;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_RGB_555;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_ARGB_4444;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
+         /* We don't support any 24 bit formats with alpha */
+         return NULL;
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_RGB_888;
+         break;
+      default:
+         break;
+   }
+
+   bitmap = _AL_MALLOC(sizeof *bitmap);
+   format = al_get_new_bitmap_format();
+
    memset(bitmap, 0, sizeof *bitmap);
-   if (format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA)
-      format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
-   else if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
-      format = ALLEGRO_PIXEL_FORMAT_RGBX_8888;
+
    bitmap->format = format;
    bitmap->flags = al_get_new_bitmap_flags();
    bitmap->w = w;
@@ -410,11 +442,11 @@ void al_set_clipping_rectangle(int x, int y, int width, int height)
       height += y;
       y = 0;
    }
-   if (x+width > bitmap->w) {
-      width = bitmap->w - x;
+   if (x+width >= bitmap->w) {
+      width = bitmap->w - x - 1;
    }
-   if (y+height > bitmap->h) {
-      height = bitmap->h - y;
+   if (y+height >= bitmap->h) {
+      height = bitmap->h - y - 1;
    }
 
    bitmap->cl = x;

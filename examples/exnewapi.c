@@ -52,7 +52,7 @@ int main(void)
 
    display[2] = al_create_display(w, h);
 
-   al_set_clipping_rectangle(100, 100, 440, 280);
+   //al_set_clipping_rectangle(100, 100, 440, 280);
 
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
@@ -66,7 +66,7 @@ int main(void)
     */
    al_set_current_display(display[2]);
 
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
    al_set_new_bitmap_flags(ALLEGRO_SYNC_MEMORY_COPY|ALLEGRO_USE_ALPHA);
 
    picture = al_load_bitmap("mysha.tga");
@@ -78,7 +78,6 @@ int main(void)
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP|ALLEGRO_USE_ALPHA);
    mem_bmp = al_load_bitmap("mysha.tga");
 
-   /*
    ALLEGRO_COLOR color;
    ALLEGRO_LOCKED_REGION lr;
    al_lock_bitmap(picture, &lr, 0);
@@ -89,7 +88,6 @@ int main(void)
 	}
    }
    al_unlock_bitmap(picture);
-   */
 
    al_install_keyboard();
    al_register_event_source(events, (AL_EVENT_SOURCE *)al_get_keyboard());

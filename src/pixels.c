@@ -45,6 +45,14 @@ void _al_generate_integer_unmap_table(void)
 static int pixel_sizes[] = {
    0,
    0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
    4,
    4,
    2,
@@ -70,8 +78,16 @@ int al_get_pixel_size(int format)
 }
 
 static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   false,
    true,
    false,
+   true,
+   false,
+   true,
+   false,
+   true,
+   false,
+   true,
    true,
    true,
    true,
@@ -90,9 +106,44 @@ static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    false
 };
 
-bool al_format_has_alpha(int format)
+bool _al_format_has_alpha(int format)
 {
    return format_alpha_table[format];
+}
+
+static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
+{
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+};
+
+bool _al_pixel_format_is_real(int format)
+{
+   return format_is_real[format];
 }
 
 /* map_rgba functions */
@@ -260,9 +311,19 @@ static ALLEGRO_COLOR *_map_rgba_xrgb_8888(ALLEGRO_COLOR *p,
 typedef ALLEGRO_COLOR *(*_map_rgba_func)(ALLEGRO_COLOR *,
    unsigned char, unsigned char, unsigned char, unsigned char);
 
-static _map_rgba_func _map_rgba_funcs[] = {
+static _map_rgba_func _map_rgba_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   /* Fake formats */
    NULL,
    NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   /* End fake formats */
    _map_rgba_argb_8888,
    _map_rgba_rgba_8888,
    _map_rgba_argb_4444,
@@ -284,6 +345,8 @@ static _map_rgba_func _map_rgba_funcs[] = {
 ALLEGRO_COLOR* _al_map_rgba(int format, ALLEGRO_COLOR *color,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
+   ASSERT(_al_pixel_format_is_real(format));
+
    return (*_map_rgba_funcs[format])(color, r, g, b, a);
 }
 
@@ -464,9 +527,19 @@ static ALLEGRO_COLOR *_map_rgba_f_xrgb_8888(ALLEGRO_COLOR *p,
 
 typedef ALLEGRO_COLOR *(*_map_rgba_f_func)(ALLEGRO_COLOR *, float, float, float, float);
 
-static _map_rgba_f_func _map_rgba_f_funcs[] = {
+static _map_rgba_f_func _map_rgba_f_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   /* Fake formats */
    NULL,
    NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   /* End fake formats */
    _map_rgba_f_argb_8888,
    _map_rgba_f_rgba_8888,
    _map_rgba_f_argb_4444,
@@ -677,9 +750,19 @@ static ALLEGRO_COLOR *_map_rgba_i_xrgb_8888(ALLEGRO_COLOR *p,
 
 typedef ALLEGRO_COLOR *(*_map_rgba_i_func)(ALLEGRO_COLOR *, int, int, int, int);
 
-static _map_rgba_i_func _map_rgba_i_funcs[] = {
+static _map_rgba_i_func _map_rgba_i_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   /* Fake pixel formats */
    NULL,
    NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   /* End fake pixel formats */
    _map_rgba_i_argb_8888,
    _map_rgba_i_rgba_8888,
    _map_rgba_i_argb_4444,
@@ -701,6 +784,8 @@ static _map_rgba_i_func _map_rgba_i_funcs[] = {
 ALLEGRO_COLOR *_al_map_rgba_i(int format, ALLEGRO_COLOR *color,
    int r, int g, int b, int a)
 {
+   ASSERT(_al_pixel_format_is_real(format));
+
    return (*_map_rgba_i_funcs[format])(color, r, g, b, a);
 }
 
@@ -882,9 +967,19 @@ void _get_pixel_xrgb_8888(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *col
 
 typedef void (*p_get_pixel_func)(ALLEGRO_BITMAP *, void *, ALLEGRO_COLOR *);
 
-p_get_pixel_func get_pixel_funcs[] = {
+p_get_pixel_func get_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   /* Fake pixel formats */
    NULL,
    NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   /* End fake pixel formats */
    _get_pixel_argb_8888,
    _get_pixel_rgba_8888,
    _get_pixel_argb_4444,
@@ -904,7 +999,10 @@ p_get_pixel_func get_pixel_funcs[] = {
 };
 
 ALLEGRO_COLOR *_al_get_pixel(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color) {
+   ASSERT(_al_pixel_format_is_real(bitmap->format));
+
    (*get_pixel_funcs[bitmap->format])(bitmap, data, color);
+
    return color;
 }
 
@@ -1099,8 +1197,18 @@ int _get_pixel_value_xrgb_8888(ALLEGRO_COLOR *p)
 typedef int (*_get_pixel_value_func)(ALLEGRO_COLOR *color);
 
 static _get_pixel_value_func _get_pixel_value_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   /* Fake formats */
    NULL,
    NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   /* End fake formats */
    _get_pixel_value_argb_8888,
    _get_pixel_value_rgba_8888,
    _get_pixel_value_argb_4444,
@@ -1121,6 +1229,8 @@ static _get_pixel_value_func _get_pixel_value_funcs[ALLEGRO_NUM_PIXEL_FORMATS] =
 
 int _al_get_pixel_value(int src_format, ALLEGRO_COLOR *src_color)
 {
+   ASSERT(_al_pixel_format_is_real(src_format));
+
    return (*_get_pixel_value_funcs[src_format])(src_color);
 }
 
@@ -1210,9 +1320,19 @@ void _put_pixel_xrgb_8888(void *data, int pixel)
 
 typedef void (*p_put_pixel_func)(void *data, int pixel);
 
-p_put_pixel_func put_pixel_funcs[] = {
+p_put_pixel_func put_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   /* Fake pixel formats */
    NULL,
    NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   /* End fake pixel formats */
    _put_pixel_argb_8888,
    _put_pixel_rgba_8888,
    _put_pixel_argb_4444,
@@ -1233,6 +1353,8 @@ p_put_pixel_func put_pixel_funcs[] = {
 
 void _al_put_pixel(void *data, int format, int color)
 {
+   ASSERT(_al_pixel_format_is_real(format));
+
    (*put_pixel_funcs[format])(data, color);
 }
 
@@ -1424,9 +1546,19 @@ static void _unmap_rgba_xrgb_8888(ALLEGRO_COLOR *p,
 typedef void (*_unmap_rgba_func)(ALLEGRO_COLOR *,
    unsigned char *, unsigned char *, unsigned char *, unsigned char *);
 
-static _unmap_rgba_func _unmap_rgba_funcs[] = {
+static _unmap_rgba_func _unmap_rgba_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   /* Fake pixel formats */
    NULL,
    NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   /* End fake pixel formats */
    _unmap_rgba_argb_8888,
    _unmap_rgba_rgba_8888,
    _unmap_rgba_argb_4444,
@@ -1448,6 +1580,8 @@ static _unmap_rgba_func _unmap_rgba_funcs[] = {
 void _al_unmap_rgba(int format, ALLEGRO_COLOR *color,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
+   ASSERT(_al_pixel_format_is_real(format));
+
    (*_unmap_rgba_funcs[format])(color, r, g, b, a);
 }
 
@@ -1615,9 +1749,19 @@ static void _unmap_rgba_f_xrgb_8888(ALLEGRO_COLOR *p,
 typedef void (*_unmap_rgba_f_func)(ALLEGRO_COLOR *,
    float *, float *, float *, float *);
 
-static _unmap_rgba_f_func _unmap_rgba_f_funcs[] = {
+static _unmap_rgba_f_func _unmap_rgba_f_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   /* Fake pixel formats */
    NULL,
    NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   /* End fake pixel formats */
    _unmap_rgba_f_argb_8888,
    _unmap_rgba_f_rgba_8888,
    _unmap_rgba_f_argb_4444,
@@ -1639,6 +1783,8 @@ static _unmap_rgba_f_func _unmap_rgba_f_funcs[] = {
 void _al_unmap_rgba_f(int format, ALLEGRO_COLOR *color,
    float *r, float *g, float *b, float *a)
 {
+   ASSERT(_al_pixel_format_is_real(format));
+
    (*_unmap_rgba_f_funcs[format])(color, r, g, b, a);
 }
 
@@ -1804,9 +1950,20 @@ static void _unmap_rgba_i_xrgb_8888(ALLEGRO_COLOR *color,
 typedef void (*_unmap_rgba_i_func)(ALLEGRO_COLOR *,
    int *, int *, int *, int *);
 
-static _unmap_rgba_i_func _unmap_rgba_i_funcs[] = {
+static _unmap_rgba_i_func _unmap_rgba_i_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   /* Fake pixel formats */
+
    NULL,
    NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   /* End fake pixel formats */
    _unmap_rgba_i_argb_8888,
    _unmap_rgba_i_rgba_8888,
    _unmap_rgba_i_argb_4444,
@@ -1828,6 +1985,8 @@ static _unmap_rgba_i_func _unmap_rgba_i_funcs[] = {
 void _al_unmap_rgba_i(int format, ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {
+   ASSERT(_al_pixel_format_is_real(format));
+
    (*_unmap_rgba_i_funcs[format])(color, r, g, b, a);
 }
 
@@ -1843,3 +2002,4 @@ void al_unmap_rgb_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    int tmp_a;
    _al_unmap_rgba_i(bitmap->format, color, r, g, b, &tmp_a);
 }
+

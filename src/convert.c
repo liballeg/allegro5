@@ -293,82 +293,244 @@ typedef void (*p_convert_func)(void *, int, int,
 	int, int, int, int, int, int);
 
 #define DECLARE_FUNCS(prefix) \
-	{ \
-		NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */ \
-                NULL, /* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */ \
-		prefix ## _to_argb_8888, \
-		prefix ## _to_rgba_8888, \
-		prefix ## _to_argb_4444, \
-		prefix ## _to_rgb_888, \
-		prefix ## _to_rgb_565, \
-		prefix ## _to_rgb_555, \
-		prefix ## _to_palette_8, \
-		prefix ## _to_rgba_5551, \
-		prefix ## _to_argb_1555, \
-		prefix ## _to_abgr_8888, \
-		prefix ## _to_xbgr_8888, \
-		prefix ## _to_bgr_888, \
-		prefix ## _to_bgr_565, \
-		prefix ## _to_bgr_555, \
-		prefix ## _to_rgbx_8888, \
-		prefix ## _to_xrgb_8888 \
-	}, \
+   { \
+      /* Fake formats */ \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      NULL, \
+      /* End fake formats */ \
+      prefix ## _to_argb_8888, \
+      prefix ## _to_rgba_8888, \
+      prefix ## _to_argb_4444, \
+      prefix ## _to_rgb_888, \
+      prefix ## _to_rgb_565, \
+      prefix ## _to_rgb_555, \
+      prefix ## _to_palette_8, \
+      prefix ## _to_rgba_5551, \
+      prefix ## _to_argb_1555, \
+      prefix ## _to_abgr_8888, \
+      prefix ## _to_xbgr_8888, \
+      prefix ## _to_bgr_888, \
+      prefix ## _to_bgr_565, \
+      prefix ## _to_bgr_555, \
+      prefix ## _to_rgbx_8888, \
+      prefix ## _to_xrgb_8888 \
+   }, \
 
 static p_convert_func convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] = {
-	/* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA */
-	{
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	},
-	/* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA */
-	{
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	},
-	DECLARE_FUNCS(_argb_8888)
-	DECLARE_FUNCS(_rgba_8888)
-	DECLARE_FUNCS(_argb_4444)
-	DECLARE_FUNCS(_rgb_888)
-	DECLARE_FUNCS(_rgb_565)
-	DECLARE_FUNCS(_rgb_555)
-	DECLARE_FUNCS(_palette_8)
-	DECLARE_FUNCS(_rgba_5551)
-	DECLARE_FUNCS(_argb_1555)
-	DECLARE_FUNCS(_abgr_8888)
-	DECLARE_FUNCS(_xbgr_8888)
-	DECLARE_FUNCS(_bgr_888)
-	DECLARE_FUNCS(_bgr_565)
-	DECLARE_FUNCS(_bgr_555)
-	DECLARE_FUNCS(_rgbx_8888)
-	DECLARE_FUNCS(_xrgb_8888)
+   /* ANY_WITH_ALPHA */
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL
+   },
+   /* ANY_NO_ALPHA */
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL
+   },
+   /* ANY_15_WITH_ALPHA */
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL
+   },
+   /* ANY_15_NO_ALPHA */
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL
+   },
+   /* ANY_16_WITH_ALPHA */
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL
+   },
+   /* ANY_16_NO_ALPHA */
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL
+   },
+   /* ANY_24_WITH_ALPHA */
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL
+   },
+   /* ANY_24_NO_ALPHA */
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL
+   },
+   /* ANY_32_WITH_ALPHA */
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL
+   },
+   /* ANY_32_NO_ALPHA */
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL
+   },
+   DECLARE_FUNCS(_argb_8888)
+   DECLARE_FUNCS(_rgba_8888)
+   DECLARE_FUNCS(_argb_4444)
+   DECLARE_FUNCS(_rgb_888)
+   DECLARE_FUNCS(_rgb_565)
+   DECLARE_FUNCS(_rgb_555)
+   DECLARE_FUNCS(_palette_8)
+   DECLARE_FUNCS(_rgba_5551)
+   DECLARE_FUNCS(_argb_1555)
+   DECLARE_FUNCS(_abgr_8888)
+   DECLARE_FUNCS(_xbgr_8888)
+   DECLARE_FUNCS(_bgr_888)
+   DECLARE_FUNCS(_bgr_565)
+   DECLARE_FUNCS(_bgr_555)
+   DECLARE_FUNCS(_rgbx_8888)
+   DECLARE_FUNCS(_xrgb_8888)
 };
 
 
@@ -445,8 +607,7 @@ void _al_convert_compat_bitmap(
 {
    int src_format;
 
-   ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-   ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA);
+   ASSERT(_al_pixel_format_is_real(dst_format));
 
    src_format = _al_get_compat_bitmap_format(src);
 
