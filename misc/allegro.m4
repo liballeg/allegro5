@@ -163,7 +163,7 @@ main()
           AC_TRY_LINK([
 #include <allegro.h>
 #include <stdio.h>
-],      [ ALLEGRO_TEST_VERSION; return 0;],
+],      [ allegro_error; return 0;],
         [ echo "*** The test program compiled, but did not run. This usually means"
           echo "*** that the run-time linker is not finding Allegro or finding the wrong"
           echo "*** version of Allegro. If it is not finding Allegro, you'll need to set your"
