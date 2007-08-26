@@ -166,18 +166,18 @@ GFX_DRIVER gfx_vesa_3 =
 
 typedef struct VESA_INFO         /* VESA information block structure */
 { 
-   char           VESASignature[4]     __PACKED__;
+   char           VESASignature[4];
    unsigned short VESAVersion          __PACKED__;
    unsigned long  OEMStringPtr         __PACKED__;
-   unsigned char  Capabilities[4]      __PACKED__;
+   unsigned char  Capabilities[4];
    unsigned long  VideoModePtr         __PACKED__; 
    unsigned short TotalMemory          __PACKED__; 
    unsigned short OemSoftwareRev       __PACKED__; 
    unsigned long  OemVendorNamePtr     __PACKED__; 
    unsigned long  OemProductNamePtr    __PACKED__; 
    unsigned long  OemProductRevPtr     __PACKED__; 
-   unsigned char  Reserved[222]        __PACKED__; 
-   unsigned char  OemData[256]         __PACKED__; 
+   unsigned char  Reserved[222]; 
+   unsigned char  OemData[256]; 
 } VESA_INFO;
 
 
@@ -185,8 +185,8 @@ typedef struct VESA_INFO         /* VESA information block structure */
 typedef struct MODE_INFO         /* VESA information for a specific mode */
 {
    unsigned short ModeAttributes       __PACKED__; 
-   unsigned char  WinAAttributes       __PACKED__; 
-   unsigned char  WinBAttributes       __PACKED__; 
+   unsigned char  WinAAttributes; 
+   unsigned char  WinBAttributes; 
    unsigned short WinGranularity       __PACKED__; 
    unsigned short WinSize              __PACKED__; 
    unsigned short WinASegment          __PACKED__; 
@@ -195,24 +195,24 @@ typedef struct MODE_INFO         /* VESA information for a specific mode */
    unsigned short BytesPerScanLine     __PACKED__; 
    unsigned short XResolution          __PACKED__; 
    unsigned short YResolution          __PACKED__; 
-   unsigned char  XCharSize            __PACKED__; 
-   unsigned char  YCharSize            __PACKED__; 
-   unsigned char  NumberOfPlanes       __PACKED__; 
-   unsigned char  BitsPerPixel         __PACKED__; 
-   unsigned char  NumberOfBanks        __PACKED__; 
-   unsigned char  MemoryModel          __PACKED__; 
-   unsigned char  BankSize             __PACKED__; 
-   unsigned char  NumberOfImagePages   __PACKED__;
-   unsigned char  Reserved_page        __PACKED__; 
-   unsigned char  RedMaskSize          __PACKED__; 
-   unsigned char  RedMaskPos           __PACKED__; 
-   unsigned char  GreenMaskSize        __PACKED__; 
-   unsigned char  GreenMaskPos         __PACKED__;
-   unsigned char  BlueMaskSize         __PACKED__; 
-   unsigned char  BlueMaskPos          __PACKED__; 
-   unsigned char  ReservedMaskSize     __PACKED__; 
-   unsigned char  ReservedMaskPos      __PACKED__; 
-   unsigned char  DirectColorModeInfo  __PACKED__;
+   unsigned char  XCharSize; 
+   unsigned char  YCharSize; 
+   unsigned char  NumberOfPlanes; 
+   unsigned char  BitsPerPixel; 
+   unsigned char  NumberOfBanks; 
+   unsigned char  MemoryModel; 
+   unsigned char  BankSize; 
+   unsigned char  NumberOfImagePages;
+   unsigned char  Reserved_page; 
+   unsigned char  RedMaskSize; 
+   unsigned char  RedMaskPos; 
+   unsigned char  GreenMaskSize; 
+   unsigned char  GreenMaskPos;
+   unsigned char  BlueMaskSize; 
+   unsigned char  BlueMaskPos; 
+   unsigned char  ReservedMaskSize; 
+   unsigned char  ReservedMaskPos; 
+   unsigned char  DirectColorModeInfo;
 
    /* VBE 2.0 extensions */
    unsigned long  PhysBasePtr          __PACKED__; 
@@ -221,19 +221,19 @@ typedef struct MODE_INFO         /* VESA information for a specific mode */
 
    /* VBE 3.0 extensions */
    unsigned short LinBytesPerScanLine  __PACKED__;
-   unsigned char  BnkNumberOfPages     __PACKED__;
-   unsigned char  LinNumberOfPages     __PACKED__;
-   unsigned char  LinRedMaskSize       __PACKED__;
-   unsigned char  LinRedFieldPos       __PACKED__;
-   unsigned char  LinGreenMaskSize     __PACKED__;
-   unsigned char  LinGreenFieldPos     __PACKED__;
-   unsigned char  LinBlueMaskSize      __PACKED__;
-   unsigned char  LinBlueFieldPos      __PACKED__;
-   unsigned char  LinRsvdMaskSize      __PACKED__;
-   unsigned char  LinRsvdFieldPos      __PACKED__;
+   unsigned char  BnkNumberOfPages;
+   unsigned char  LinNumberOfPages;
+   unsigned char  LinRedMaskSize;
+   unsigned char  LinRedFieldPos;
+   unsigned char  LinGreenMaskSize;
+   unsigned char  LinGreenFieldPos;
+   unsigned char  LinBlueMaskSize;
+   unsigned char  LinBlueFieldPos;
+   unsigned char  LinRsvdMaskSize;
+   unsigned char  LinRsvdFieldPos;
    unsigned long  MaxPixelClock        __PACKED__;
 
-   unsigned char  Reserved[190]        __PACKED__; 
+   unsigned char  Reserved[190]; 
 } MODE_INFO;
 
 
@@ -256,10 +256,10 @@ typedef struct CRTCInfoBlock     /* VESA 3.0 CRTC timings structure */
     unsigned short VerticalTotal       __PACKED__;
     unsigned short VerticalSyncStart   __PACKED__;
     unsigned short VerticalSyncEnd     __PACKED__;
-    unsigned char  Flags               __PACKED__;
+    unsigned char  Flags;
     unsigned long  PixelClock          __PACKED__;    /* units of Hz */
     unsigned short RefreshRate         __PACKED__;    /* units of 0.01 Hz */
-    unsigned char  reserved[40]        __PACKED__;
+    unsigned char  reserved[40];
 } CRTCInfoBlock;
 
 
