@@ -24,6 +24,7 @@
 #include "allegro/internal/aintern_system.h"
 #include "allegro/internal/aintern_display.h"
 #include "allegro/internal/aintern_bitmap.h"
+#include "allegro/internal/aintern_color.h"
 
 #include "d3d.h"
 
@@ -767,9 +768,18 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
    ALLEGRO_BITMAP_D3D *d3d_src = (ALLEGRO_BITMAP_D3D *)src;
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    ALLEGRO_BITMAP_D3D *d3d_dest = (ALLEGRO_BITMAP_D3D *)al_get_target_bitmap();
-   DWORD light_color = 0xFFFFFFFF;
+   DWORD color;
+   ALLEGRO_INDEPENDANT_COLOR *bc;
+   unsigned char r, g, b, a;
 
    if (_al_d3d_is_device_lost()) return;
+
+   bc = _al_get_blend_color();
+   a = (unsigned char)(bc->a*255.0f);
+   r = (unsigned char)(bc->r*255.0f);
+   g = (unsigned char)(bc->g*255.0f);
+   b = (unsigned char)(bc->b*255.0f);
+   color = D3DCOLOR_ARGB(a, r, g, b);
 
    /* For sub-bitmaps */
    if (src->parent) {
@@ -818,22 +828,29 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
 
    _al_d3d_lock_device();
 
+   _al_d3d_set_blender();
+
+   /*
+
    if (src && (src->flags & ALLEGRO_USE_ALPHA)) {
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, TRUE);
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
    }
+   */
 
    _al_d3d_draw_textured_quad(d3d_src,
       sx, sy, sw, sh,
       dx, dy, dw, dh,
       source_center_x, source_center_y,
-      angle, light_color,
+      angle, color,
       flags);
 
+   /*
    if (src && (src->flags & ALLEGRO_USE_ALPHA)) {
       IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, FALSE);
    }
+   */
 
    _al_d3d_unlock_device();
 

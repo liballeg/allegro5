@@ -76,6 +76,18 @@ enum ALLEGRO_PIXEL_FORMAT {
 #define ALLEGRO_LOCK_READONLY 1
 #define ALLEGRO_LOCK_WRITEONLY 2
 
+
+/*
+ * Blending modes
+ */
+enum ALLEGRO_BLEND_MODE {
+   ALLEGRO_ZERO = 0,
+   ALLEGRO_ONE = 1,
+   ALLEGRO_ALPHA = 2,
+   ALLEGRO_INVERSE_ALPHA = 3
+};
+
+
 typedef struct ALLEGRO_LOCKED_REGION {
 	void *data;
 	int format;
@@ -164,5 +176,9 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 
 /* Miscellaneous */
 ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap);
+
+/* Blending */
+void al_set_blender(int source, int dest, ALLEGRO_COLOR *color);
+void al_get_blender(int *source, int *dest, ALLEGRO_COLOR *color);
 
 #endif

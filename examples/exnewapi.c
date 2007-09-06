@@ -195,8 +195,13 @@ int main(void)
                al_draw_bitmap_region(mem_bmp, 50, 50, 220, 100, 80, 80, 0);
                al_draw_bitmap(picture, 0, 0, 0);
                al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
+               ALLEGRO_COLOR test;
+               al_map_rgba_f(al_get_backbuffer(), &test, 1.0f, 1.0f, 1.0f, 1.0f);
+               al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, &test);
+               al_draw_bitmap(picture, 0, 0, 0);
+               al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &test);
 	    }
-            al_draw_rectangle(x, y, x + 40, y + 40, &colors[i], ALLEGRO_FILLED);
+            al_draw_rectangle(x, y, x + 140, y + 140, &colors[i], ALLEGRO_FILLED);
             al_flip_display();
          }
          /*last_rendered = ticks;

@@ -241,6 +241,7 @@ static void d3d_reset_state()
    IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ZWRITEENABLE, FALSE);
    IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_LIGHTING, FALSE);
    IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_CULLMODE, D3DCULL_NONE);
+   IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, TRUE);
 }
 
 void _al_d3d_get_current_ortho_projection_parameters(float *w, float *h)
@@ -769,12 +770,12 @@ static int d3d_choose_format(int fake)
 {
    /* Pick an appropriate format if the user is vague */
    switch (fake) {
+      case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_RGB_565;
+         break;
       case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
       case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
          fake = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
-         break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
-         fake = ALLEGRO_PIXEL_FORMAT_RGB_565;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
          fake = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
@@ -782,11 +783,11 @@ static int d3d_choose_format(int fake)
       case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
          fake = ALLEGRO_PIXEL_FORMAT_ARGB_1555;
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
-         fake = ALLEGRO_PIXEL_FORMAT_ARGB_4444;
-         break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
          fake = ALLEGRO_PIXEL_FORMAT_RGB_565;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_ARGB_4444;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
       case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
@@ -1010,6 +1011,13 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display, bool is_r
    display->backbuffer_bmp.bitmap.cb = display->display.h-1;
    display->backbuffer_bmp.bitmap.vt = (ALLEGRO_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
 
+   /* Alpha blending is the default */
+   if (d3d_created_displays._size == 1) {
+      IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_ALPHABLENDENABLE, TRUE);
+      IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+      IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+   }
+
    _al_d3d_unlock_device();
 
    return true;
@@ -1057,15 +1065,82 @@ static void d3d_set_current_display(ALLEGRO_DISPLAY *d)
    /* Don't need to do anything */
 }
 
+
+static int d3d_al_blender_to_d3d(int al_mode)
+{
+   int num_modes = 4;
+
+   int allegro_modes[] = {
+      ALLEGRO_ZERO,
+      ALLEGRO_ONE,
+      ALLEGRO_ALPHA,
+      ALLEGRO_INVERSE_ALPHA
+   };
+
+   int d3d_modes[] = {
+      D3DBLEND_ZERO,
+      D3DBLEND_ONE,
+      D3DBLEND_SRCALPHA,
+      D3DBLEND_INVSRCALPHA
+   };
+
+   int i;
+
+   for (i = 0; i < num_modes; i++) {
+      if (al_mode == allegro_modes[i]) {
+         return d3d_modes[i];
+      }
+   }
+
+   return D3DBLEND_ONE;
+}
+
+void _al_d3d_set_blender(void)
+{
+   int src, dst;
+
+   al_get_blender(&src, &dst, NULL);
+
+   src = d3d_al_blender_to_d3d(src);
+   dst = d3d_al_blender_to_d3d(dst);
+
+   IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_SRCBLEND, src);
+   IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_DESTBLEND, dst);
+}
+
+
+
+static DWORD d3d_blend_colors(
+   ALLEGRO_BITMAP *target,
+   ALLEGRO_COLOR *color,
+   ALLEGRO_INDEPENDANT_COLOR *bc)
+{
+   ALLEGRO_COLOR result;
+   float r, g, b, a;
+
+   al_unmap_rgba_f(target, color, &r, &g, &b, &a);
+
+   al_map_rgba_f(target, &result,
+      r*bc->r,
+      g*bc->g,
+      b*bc->b,
+      a*bc->a);
+
+   return d3d_al_color_to_d3d(target->format, &result);
+}
+
 /* Dummy implementation of line. */
 static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
    ALLEGRO_COLOR *color, int flags)
 {
    static D3D_COLORED_VERTEX points[2] = { { 0.0f, 0.0f, 0.0f, 0 }, };
-   DWORD d3d_color = d3d_al_color_to_d3d(d->format, color);
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_INDEPENDANT_COLOR *bc = _al_get_blend_color();
+   DWORD d3d_color;
    
    if (_al_d3d_is_device_lost()) return;
+
+   d3d_color = d3d_blend_colors(target, color, bc);
 
    if (target->parent) {
       fx += target->xofs;
@@ -1083,6 +1158,8 @@ static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, floa
    points[1].color = d3d_color;
 
    _al_d3d_lock_device();
+
+   _al_d3d_set_blender();
 
    IDirect3DDevice9_SetFVF(_al_d3d_device, D3DFVF_COLORED_VERTEX);
 
@@ -1106,6 +1183,8 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    float w = brx - tlx;
    float h = bry - tly;
    ALLEGRO_BITMAP *target;
+   ALLEGRO_INDEPENDANT_COLOR *bc = _al_get_blend_color();
+   DWORD d3d_color;
 
    if (!(flags & ALLEGRO_FILLED)) {
       d3d_draw_line(d, tlx, tly, brx, tly, color, flags);
@@ -1118,6 +1197,8 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    if (_al_d3d_is_device_lost()) return;
    
    target = al_get_target_bitmap();
+
+   d3d_color = d3d_blend_colors(target, color, bc);
    
    if (w < 1 || h < 1) {
       return;
@@ -1137,11 +1218,13 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
 
    _al_d3d_lock_device();
 
+   _al_d3d_set_blender();
+
    _al_d3d_draw_textured_quad(NULL,
       0.0f, 0.0f, w, h,
       tlx, tly, w, h,
       w/2, h/2, 0.0f,
-      d3d_al_color_to_d3d(d->format, color), 0);
+      d3d_color, 0);
 
    _al_d3d_unlock_device();
    

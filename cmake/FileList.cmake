@@ -1,6 +1,7 @@
 set(ALLEGRO_SRC_FILES
     src/allegro.c
     src/bitmap_new.c
+    src/blenders.c
     src/blit.c
     src/bmp.c
     src/clip3d.c

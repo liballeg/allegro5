@@ -3,6 +3,7 @@
 
 #include "allegro/display_new.h"
 #include "allegro/bitmap_new.h"
+#include "allegro/internal/aintern_color.h"
 
 typedef struct ALLEGRO_BITMAP_INTERFACE ALLEGRO_BITMAP_INTERFACE;
 
@@ -141,5 +142,35 @@ void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *bitmap,
 void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int center_x, int center_y, int dx, int dy,
    float xscale, float yscale, float angle, int flags);
+
+
+/* For blending memory bitmaps */
+typedef void (*ALLEGRO_MEMORY_BLENDER)(
+   ALLEGRO_BITMAP *src,
+   ALLEGRO_COLOR *src_color,
+   ALLEGRO_BITMAP *dest,
+   ALLEGRO_COLOR *dest_color,
+   ALLEGRO_COLOR *result);
+
+/* Blending stuff (should this be somewhere else? */
+ALLEGRO_INDEPENDANT_COLOR *_al_get_blend_color();
+void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color);
+ALLEGRO_MEMORY_BLENDER _al_get_memory_blender();
+void _al_blender_zero_zero(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_zero_one(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_zero_alpha(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_zero_inverse_alpha(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_one_zero(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_one_one(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_one_alpha(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_one_inverse_alpha(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_alpha_zero(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_alpha_one(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_alpha_alpha(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_alpha_inverse_alpha(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_inverse_alpha_zero(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_inverse_alpha_one(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_inverse_alpha_alpha(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+void _al_blender_inverse_alpha_inverse_alpha(ALLEGRO_BITMAP *src, ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dst, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 
 #endif

@@ -33,32 +33,32 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    
    /* Pick an appropriate format if the user is vague */
    switch (format) {
-      case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
-      case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
-         break;
       case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
       case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_ARGB_1555;
+      case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_555;
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_ARGB_4444;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_ARGB_1555;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_565;
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
-         /* We don't support any 24 bit formats with alpha */
-         return NULL;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_ARGB_4444;
+         break;
       case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_888;
          break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
+         /* We don't support any 24 bit formats with alpha */
+         return NULL;
       default:
          break;
    }
