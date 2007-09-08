@@ -21,7 +21,6 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintern_bitmap.h"
 
-
 /*
  * FIXME: these were defined for patterned drawing
  */
@@ -79,7 +78,7 @@ DEFINE_HLINE(_hline24, 3, READ3BYTES, WRITE3BYTES)
 DEFINE_HLINE(_hline32, 4, bmp_read32, bmp_write32)
 
 
-void _al_draw_hline_memory(int dx1, int dy, int dx2, ALLEGRO_COLOR *color, int flags)
+void _al_draw_hline_memory_fast(int dx1, int dy, int dx2, ALLEGRO_COLOR *color, int flags)
 {
    ALLEGRO_BITMAP *target;
    int color_value;
@@ -123,7 +122,7 @@ void _al_draw_hline_memory(int dx1, int dy, int dx2, ALLEGRO_COLOR *color, int f
 }
 
 
-void _al_draw_vline_memory(int dx, int dy1, int dy2, ALLEGRO_COLOR *color, int flags)
+void _al_draw_vline_memory_fast(int dx, int dy1, int dy2, ALLEGRO_COLOR *color, int flags)
 {
    int y;
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
@@ -184,7 +183,7 @@ void _al_draw_vline_memory(int dx, int dy1, int dy2, ALLEGRO_COLOR *color, int f
 
 
 /* Copied from do_line in gfx.c */
-void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, int flags)
+void _al_draw_line_memory_fast(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, int flags)
 {
    int dx;
    int dy;
@@ -201,11 +200,11 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, 
    int xo, yo; /* offset to top left */
 
    if (y1 == y2) {
-      _al_draw_hline_memory(x1, y1, x2, color, flags);
+      _al_draw_hline_memory_fast(x1, y1, x2, color, flags);
       return;
    }
    else if (x1 == x2) {
-      _al_draw_vline_memory(x1, y1, y2, color, flags);
+      _al_draw_vline_memory_fast(x1, y1, y2, color, flags);
       return;
    }
 
@@ -349,7 +348,7 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, 
    #undef DO_LINE
 }
 
-#define DO_FILLED_RECTANGLE(dst, dst_addr, func, dx, dy, w, h, value, flags) \
+#define DO_FILLED_RECTANGLE_FAST(dst, dst_addr, func, dx, dy, w, h, value, flags) \
 { \
    int y; \
    unsigned char *line_ptr = dst_addr; \
@@ -357,6 +356,324 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, 
    for (y = 0; y < h; y++) { \
       func(dst, line_ptr, dx, dy+y, dx+w-1, value, flags); \
       line_ptr += lr.pitch; \
+   } \
+}
+
+
+void _al_draw_rectangle_memory_fast(int x1, int y1, int x2, int y2,
+   ALLEGRO_COLOR *color, int flags)
+{
+   ALLEGRO_BITMAP *bitmap;
+   ALLEGRO_LOCKED_REGION lr;
+   int w, h;
+   int tmp;
+   int pixel_value;
+
+   if (!(flags & ALLEGRO_FILLED)) {
+      _al_draw_hline_memory_fast(x1, y1, x2, color, flags);
+      _al_draw_vline_memory_fast(x2, y1, y2, color, flags);
+      _al_draw_vline_memory_fast(x1, y1, y2, color, flags);
+      _al_draw_hline_memory_fast(x1, y2, x2, color, flags);
+      return;
+   }
+
+   bitmap = al_get_target_bitmap();
+
+   /* Make sure it's top left first */
+   if (x1 > x2) {
+      tmp = x1;
+      x1 = x2;
+      x2 = tmp;
+   }
+   if (y1 > y2) {
+      tmp = y1;
+      y1 = y2;
+      y2 = tmp;
+   }
+
+   /* Do clipping */
+   if (x1 < bitmap->cl) {
+      w -= (bitmap->cl - x1);
+      x1 = bitmap->cl;
+   }
+   if (y1 < bitmap->ct) {
+      h -= (bitmap->ct - y1);
+      y1 = bitmap->ct;
+   }
+   if (x2 > bitmap->cr) {
+      x2 = bitmap->cr;
+   }
+   if (y2 > bitmap->cb) {
+      y2 = bitmap->cb;
+   }
+
+   w = x2 - x1 + 1;
+   h = y2 - y1 + 1;
+
+   if (w <= 0 || h <= 0)
+      return;
+
+   pixel_value = _al_get_pixel_value(bitmap->format, color);
+
+   al_lock_bitmap_region(bitmap, x1, y1, w, h, &lr, 0);
+
+   switch (al_get_pixel_size(bitmap->format)) {
+      case 1:
+         DO_FILLED_RECTANGLE_FAST(bitmap, lr.data, _hline8, x1, y1, w, h, pixel_value, flags)
+	 break;
+      case 2:
+         DO_FILLED_RECTANGLE_FAST(bitmap, lr.data, _hline16, x1, y1, w, h, pixel_value, flags)
+	 break;
+      case 3:
+         DO_FILLED_RECTANGLE_FAST(bitmap, lr.data, _hline24, x1, y1, w, h, pixel_value, flags)
+	 break;
+      case 4:
+         DO_FILLED_RECTANGLE_FAST(bitmap, lr.data, _hline32, x1, y1, w, h, pixel_value, flags)
+	 break;
+   }
+
+   al_unlock_bitmap(bitmap);
+}
+
+
+void _al_clear_memory_fast(ALLEGRO_COLOR *color)
+{
+   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+
+   _al_draw_rectangle_memory_fast(0, 0, bitmap->w-1, bitmap->h-1, color, ALLEGRO_FILLED);
+}
+
+
+
+static void _hline(int x1, int y, int x2, ALLEGRO_COLOR *color)
+{
+   int x;
+
+   for (x = x1; x <= x2; x++) {
+      al_put_pixel(x, y, color);
+   }
+}
+
+
+
+static void _vline(int x, int y1, int y2, ALLEGRO_COLOR *color)
+{
+   int y;
+
+   for (y = y1; y <= y2; y++) {
+      al_put_pixel(x, y, color);
+   }
+}
+
+
+
+void _al_draw_hline_memory(int dx1, int dy, int dx2, ALLEGRO_COLOR *color, int flags)
+{
+   ALLEGRO_BITMAP *target;
+   ALLEGRO_LOCKED_REGION lr;
+
+   target = al_get_target_bitmap();
+
+   if (dx1 > dx2) {
+      int tmp = dx1;
+      dx1 = dx2;
+      dx2 = tmp;
+   }
+
+   if (dx1 < target->cl)
+      dx1 = target->cl;
+   if (dx2 >= target->cr)
+      dx2 = target->cr - 1;
+   if ((dx1 > dx2) || (dy < target->ct) || (dy >= target->cb))
+      return;
+
+   if (!al_lock_bitmap_region(target, dx1, dy, dx2-dx1+1, 1, &lr, 0))
+      return;
+
+   _hline(dx1, dy, dx2, color);
+
+   al_unlock_bitmap(target);
+}
+
+
+void _al_draw_vline_memory(int dx, int dy1, int dy2, ALLEGRO_COLOR *color, int flags)
+{
+   int y;
+   ALLEGRO_BITMAP *dst = al_get_target_bitmap();
+   ALLEGRO_LOCKED_REGION lr;
+   int size;
+
+   ASSERT(dst);
+
+   if (dy1 > dy2) {
+      int tmp = dy1;
+      dy1 = dy2;
+      dy2 = tmp;
+   }
+
+   if (dy1 < dst->ct)
+      dy1 = dst->ct;
+   if (dy2 >= dst->cb)
+      dy2 = dst->cb - 1;
+   if ((dx < dst->cl) || (dx >= dst->cr) || (dy1 > dy2))
+      return;
+
+   if (!al_lock_bitmap_region(dst, dx, dy1, 1, dy2-dy1+1, &lr, 0))
+      return;
+
+   _vline(dx, dy1, dy2, color);
+
+   al_unlock_bitmap(dst);
+}
+
+
+/* Copied from do_line in gfx.c */
+void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color,
+   int flags)
+{
+   int dx;
+   int dy;
+   int i1, i2;
+   int x, y;
+   int dd;
+   ALLEGRO_LOCKED_REGION lr;
+   int tmp;
+   ALLEGRO_BITMAP *bitmap;
+   int sx, sy, t;
+   int clip;
+   int clip_x1, clip_y1, clip_x2, clip_y2;
+   int xo, yo; /* offset to top left */
+   int src_mode, dst_mode;
+   ALLEGRO_INDEPENDANT_COLOR *ic;
+
+   al_get_blender(&src_mode, &dst_mode, NULL);
+   ic = _al_get_blend_color();
+   if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
+         ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f) {
+      _al_draw_line_memory_fast(x1, y1, x2, y2, color, flags);
+      return;
+   }
+
+   if (y1 == y2) {
+      _al_draw_hline_memory(x1, y1, x2, color, flags);
+      return;
+   }
+   else if (x1 == x2) {
+      _al_draw_vline_memory(x1, y1, y2, color, flags);
+      return;
+   }
+
+   /* worker macro */
+   #define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond,     \
+      set)                                                                   \
+   {                                                                         \
+      if (d##pri_c == 0) {                                                   \
+         set(x1+xo, y1+yo, color);                                           \
+         al_unlock_bitmap(bitmap);                                           \
+	 return;                                                             \
+      }                                                                      \
+									     \
+      i1 = 2 * d##sec_c;                                                     \
+      dd = i1 - (sec_sign (pri_sign d##pri_c));                              \
+      i2 = dd - (sec_sign (pri_sign d##pri_c));                              \
+									     \
+      x = x1;                                                                \
+      y = y1;                                                                \
+									     \
+      while (pri_c pri_cond pri_c##2) {                                      \
+	 set(x+xo, y+yo, color);                                             \
+									     \
+	 if (dd sec_cond 0) {                                                \
+	    sec_c = sec_c sec_sign 1;                                        \
+	    dd += i2;                                                        \
+	 }                                                                   \
+	 else                                                                \
+	    dd += i1;                                                        \
+									     \
+	 pri_c = pri_c pri_sign 1;                                           \
+      }                                                                      \
+   }
+
+   if (x1 > x2) {
+      tmp = x1;
+      x1 = x2;
+      x2 = tmp;
+   }
+   if (y1 > y2) {
+      tmp = y1;
+      y1 = y2;
+      y2 = tmp;
+   }
+
+   bitmap = al_get_target_bitmap();
+
+   /* use a bounding box to check if the line needs clipping */
+   sx = x1;
+   sy = y1;
+   dx = x2;
+   dy = y2;
+
+   if (sx > dx) {
+      t = sx;
+      sx = dx;
+      dx = t;
+   }
+
+   if (sy > dy) {
+      t = sy;
+      sy = dy;
+      dy = t;
+   }
+
+   if ((sx >= bitmap->cr) || (sy >= bitmap->cb) || (dx < bitmap->cl) || (dy < bitmap->ct))
+      return;
+
+   if ((sx >= bitmap->cl) && (sy >= bitmap->ct) && (dx < bitmap->cr) && (dy < bitmap->cb))
+      clip = FALSE;
+   else
+      clip = TRUE;
+
+   if (x1 < 0)
+      x1 = 0;
+   if (y1 < 0)
+      y1 = 0;
+   if (x2 > bitmap->w-1)
+      x2 = bitmap->w-1;
+   if (y2 > bitmap->h-1)
+      y2 = bitmap->h-1;
+
+   dx = x2 - x1;
+   dy = y2 - y1;
+
+   if (!al_lock_bitmap_region(bitmap, x1, y1, dx+1, dy+1, &lr, 0)) {
+      return;
+   }
+
+   if (clip) {
+      clip_x1 = bitmap->cl - x1;
+      clip_y1 = bitmap->ct - y1;
+      clip_x2 = (x1 + dx - 1) - x1;
+      clip_y2 = (y1 + dy - 1) - y1;
+   }
+
+   xo = x1;
+   yo = y1;
+
+   x2 -= x1;
+   y2 -= y1;
+   x1 = y1 = 0;
+
+   DO_LINE(+, x, <=, +, y, >=, al_put_pixel);
+
+   al_unlock_bitmap(bitmap);
+}
+
+#define DO_FILLED_RECTANGLE(func, dx, dy, w, h, color) \
+{ \
+   int y; \
+ \
+   for (y = 0; y < h; y++) { \
+      func(dx, dy+y, dx+w-1, color); \
    } \
 }
 
@@ -369,6 +686,16 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
    int w, h;
    int tmp;
    int pixel_value;
+   int src_mode, dst_mode;
+   ALLEGRO_INDEPENDANT_COLOR *ic;
+
+   al_get_blender(&src_mode, &dst_mode, NULL);
+   ic = _al_get_blend_color();
+   if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
+         ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f) {
+      _al_draw_rectangle_memory_fast(x1, y1, x2, y2, color, flags);
+      return;
+   }
 
    if (!(flags & ALLEGRO_FILLED)) {
       _al_draw_hline_memory(x1, y1, x2, color, flags);
@@ -418,20 +745,7 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
 
    al_lock_bitmap_region(bitmap, x1, y1, w, h, &lr, 0);
 
-   switch (al_get_pixel_size(bitmap->format)) {
-      case 1:
-         DO_FILLED_RECTANGLE(bitmap, lr.data, _hline8, x1, y1, w, h, pixel_value, flags)
-	 break;
-      case 2:
-         DO_FILLED_RECTANGLE(bitmap, lr.data, _hline16, x1, y1, w, h, pixel_value, flags)
-	 break;
-      case 3:
-         DO_FILLED_RECTANGLE(bitmap, lr.data, _hline24, x1, y1, w, h, pixel_value, flags)
-	 break;
-      case 4:
-         DO_FILLED_RECTANGLE(bitmap, lr.data, _hline32, x1, y1, w, h, pixel_value, flags)
-	 break;
-   }
+   DO_FILLED_RECTANGLE(_hline, x1, y1, w, h, color)
 
    al_unlock_bitmap(bitmap);
 }
@@ -440,6 +754,16 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
 void _al_clear_memory(ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+   int src_mode, dst_mode;
+   ALLEGRO_INDEPENDANT_COLOR *ic;
+
+   al_get_blender(&src_mode, &dst_mode, NULL);
+   ic = _al_get_blend_color();
+   if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
+         ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f) {
+      _al_clear_memory_fast(color);
+      return;
+   }
 
    _al_draw_rectangle_memory(0, 0, bitmap->w-1, bitmap->h-1, color, ALLEGRO_FILLED);
 }

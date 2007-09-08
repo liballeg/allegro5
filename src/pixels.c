@@ -1363,8 +1363,12 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR *color)
    ALLEGRO_LOCKED_REGION lr;
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
    int color_value;
+   ALLEGRO_MEMORY_BLENDER blender = _al_get_memory_blender();
+   ALLEGRO_COLOR dst_color, result;
 
-   color_value = _al_get_pixel_value(bitmap->format, color);
+   al_get_pixel(bitmap, x, y, &dst_color);
+   blender(bitmap->format, color, bitmap->format, &dst_color, &result);
+   color_value = _al_get_pixel_value(bitmap->format, &result);
 
    if (bitmap->locked) {
       x -= bitmap->lock_x;

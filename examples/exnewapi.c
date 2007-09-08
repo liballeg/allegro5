@@ -40,15 +40,14 @@ int main(void)
 
    events = al_create_event_queue();
 
-   al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
    al_set_new_display_flags(ALLEGRO_WINDOWED|ALLEGRO_RESIZABLE);
+   al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ARGB_1555);
 
    /* Create three windows. */
    display[0] = al_create_display(w, h);
    display[1] = al_create_display(w, h);
 
    al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-   al_set_new_display_flags(ALLEGRO_WINDOWED|ALLEGRO_RESIZABLE);
 
    display[2] = al_create_display(w, h);
 
@@ -66,8 +65,8 @@ int main(void)
     */
    al_set_current_display(display[2]);
 
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
-   al_set_new_bitmap_flags(ALLEGRO_SYNC_MEMORY_COPY|ALLEGRO_USE_ALPHA);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_4444);
+   al_set_new_bitmap_flags(ALLEGRO_SYNC_MEMORY_COPY|ALLEGRO_USE_ALPHA|ALLEGRO_MEMORY_BITMAP);
 
    picture = al_load_bitmap("mysha.tga");
 
@@ -111,6 +110,15 @@ int main(void)
 	else
 		al_map_rgba_f(al_get_backbuffer(), &colors[2], 0, 0, 1, 0.5f);
    }
+
+   ALLEGRO_COLOR c;
+   al_map_rgba_f(picture, &c, 1.0f, 1.0f, 0.0f, 1.0f);
+   al_set_target_bitmap(picture);
+   al_draw_line(0, 0, 320, 200, &c, 0);
+   al_map_rgba_f(picture, &c, 1.0f, 1.0f, 0.0f, 0.5f);
+   //al_draw_rectangle(0, 0, 320, 200, &c, ALLEGRO_FILLED);
+   al_draw_line(0, 0, 100, 0, &c, 0);
+   al_draw_line(0, 0, 0, 100, &c, 0);
 	
    long start = al_current_time();
    long last_move = al_current_time();
@@ -189,17 +197,20 @@ int main(void)
 	    if (i == 1) {
 	    	al_draw_line(50, 50, 150, 150, &colors[0], 0);
 	    }
-            else if (i == 2) {
-               al_draw_scaled_bitmap(picture, 0, 0, picture->w, picture->h,
-                  0, 0, 640, 480, 0);
+
+            if (i == 2) {
+               /*
                al_draw_bitmap_region(mem_bmp, 50, 50, 220, 100, 80, 80, 0);
                al_draw_bitmap(picture, 0, 0, 0);
                al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
+               */
                ALLEGRO_COLOR test;
                al_map_rgba_f(al_get_backbuffer(), &test, 1.0f, 1.0f, 1.0f, 1.0f);
-               al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, &test);
-               al_draw_bitmap(picture, 0, 0, 0);
+               al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, &test);
+               al_draw_scaled_bitmap(picture, 0, 0, picture->w, picture->h,
+                  0, 0, 640, 480, 0);
                al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &test);
+               al_draw_rotated_bitmap(picture, 160, 100, 320, 240, M_PI/4, 0);
 	    }
             al_draw_rectangle(x, y, x + 140, y + 140, &colors[i], ALLEGRO_FILLED);
             al_flip_display();

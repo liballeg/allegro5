@@ -1092,6 +1092,8 @@ static int d3d_al_blender_to_d3d(int al_mode)
       }
    }
 
+   TRACE("Unknown blend mode.");
+
    return D3DBLEND_ONE;
 }
 

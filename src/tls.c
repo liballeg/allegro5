@@ -382,14 +382,15 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
       case DLL_THREAD_ATTACH: 
           // Initialize the TLS index for this thread.
           data = _AL_MALLOC(sizeof(*data));
-          memset(data, 0, sizeof(*data));
-          data->blend_source = ALLEGRO_ALPHA;
-          data->blend_dest = ALLEGRO_INVERSE_ALPHA;
-          data->blend_color.r = data->blend_color.g = data->blend_color.b
-             = data->blend_color.a = 1.0f;
-          if (data != NULL) 
+          if (data != NULL) {
+             memset(data, 0, sizeof(*data));
+             data->blend_source = ALLEGRO_ALPHA;
+             data->blend_dest = ALLEGRO_INVERSE_ALPHA;
+             data->blend_color.r = data->blend_color.g = data->blend_color.b
+                = data->blend_color.a = 1.0f;
+             data->memory_blender = _al_blender_alpha_inverse_alpha;
              TlsSetValue(tls_index, data); 
- 
+          }
              break; 
  
         // The thread of the attached process terminates.
@@ -442,7 +443,7 @@ static THREAD_LOCAL thread_local_state tls = {
    ALLEGRO_ALPHA,
    ALLEGRO_INVERSE_ALPHA,
    { 1.0f, 1.0f, 1.0f, 1.0f },
-   NULL
+   _al_blender_alpha_inverse_alpha
 };
 
 
