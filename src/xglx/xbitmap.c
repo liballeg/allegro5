@@ -16,17 +16,17 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
    float l, t, r, b, w, h;
    ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
    GLboolean on;
+   ALLEGRO_INDEPENDANT_COLOR *bc;
+
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on)
       glEnable(GL_TEXTURE_2D);
 
-   if (bitmap->flags & ALLEGRO_USE_MASKING) {
-      glEnable(GL_BLEND);
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-   }
-   else {
-      glDisable(GL_BLEND);
-   }
+   //FIXME: Blending
+   //if (bitmap->flags & ALLEGRO_USE_MASKING) {
+   //   glEnable(GL_BLEND);
+   //   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   //}
 
    glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
    l = xbitmap->left;
@@ -41,7 +41,8 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
    r -= (w - sx - sw) / w;
    b -= (h - sy - sh) / h;
 
-   glColor4f(1, 1, 1, 1);
+   bc = _al_get_blend_color();
+   glColor4f(bc->r, bc->g, bc->b, bc->a);
 
    glBegin(GL_QUADS);
    glTexCoord2f(l, t);
@@ -128,7 +129,7 @@ static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
    glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
 
    unsigned char *memory = bitmap->memory;
-   if (bitmap->flags & ALLEGRO_USE_MASKING) {
+   /*if (bitmap->flags & ALLEGRO_USE_MASKING) {
       int x, y, size = bitmap->w * bitmap->h * 4;
       memory = _AL_MALLOC(size);
       memcpy(memory, bitmap->memory, size);
@@ -143,7 +144,7 @@ static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
             mem++;
          }
       }
-   }
+   }*/
 
    glTexImage2D(GL_TEXTURE_2D, 0, 4, bitmap->w, bitmap->h, 0, GL_RGBA,
       GL_UNSIGNED_BYTE, memory);
