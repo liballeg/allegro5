@@ -110,6 +110,9 @@ AL_FUNC(void, check_cpu, (void));
 #define CPU_AMD64    0x0200
 #define CPU_IA64     0x0400
 #define CPU_SSE3     0x0800
+#define CPU_SSSE3    0x1000
+#define CPU_SSE41    0x2000
+#define CPU_SSE42    0x4000
 
 /* CPU families - PC */
 #define CPU_FAMILY_UNKNOWN  0
