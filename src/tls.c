@@ -443,6 +443,7 @@ static THREAD_LOCAL thread_local_state tls = {
    ALLEGRO_ALPHA,
    ALLEGRO_INVERSE_ALPHA,
    { 1.0f, 1.0f, 1.0f, 1.0f },
+   {.raw = {0, 0, 0, 0}},
    _al_blender_alpha_inverse_alpha
 };
 
@@ -629,9 +630,7 @@ void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
 
 ALLEGRO_INDEPENDANT_COLOR *_al_get_blend_color()
 {
-   if ((tls = tls_get()) == NULL) return;
-
-   return &tls->blend_color;
+   return &tls.blend_color;
 }
 
 

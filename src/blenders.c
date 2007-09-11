@@ -18,7 +18,7 @@
 #include "allegro.h"
 #include "allegro/internal/aintern_bitmap.h"
 #include "allegro/internal/aintern_color.h"
-
+#include <string.h>
 
 #define GET_DEST() \
    _al_unmap_rgba_f(dst_format, dst_color, &rd, &gd, &bd, &ad);
