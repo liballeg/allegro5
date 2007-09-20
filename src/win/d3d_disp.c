@@ -1649,7 +1649,6 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
          IDirect3DSurface9_Release(d3d_current_texture_render_target);
          return;
       }
-      _al_d3d_unlock_device();
       _al_d3d_set_ortho_projection(display->w, display->h);
       _al_d3d_lock_device();
       IDirect3DDevice9_BeginScene(_al_d3d_device);

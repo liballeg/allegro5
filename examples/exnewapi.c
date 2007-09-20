@@ -66,7 +66,7 @@ int main(void)
    al_set_current_display(display[2]);
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_4444);
-   al_set_new_bitmap_flags(ALLEGRO_SYNC_MEMORY_COPY|ALLEGRO_USE_ALPHA|ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(ALLEGRO_SYNC_MEMORY_COPY|ALLEGRO_USE_ALPHA);
 
    picture = al_load_bitmap("mysha.tga");
 
@@ -209,8 +209,11 @@ int main(void)
                al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, &test);
                al_draw_scaled_bitmap(picture, 0, 0, picture->w, picture->h,
                   0, 0, 640, 480, 0);
-               al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &test);
+               al_map_rgba_f(al_get_backbuffer(), &test, 1.0f, 1.0f, 0.0f, 1.0f);
+               al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, &test);
                al_draw_rotated_bitmap(picture, 160, 100, 320, 240, M_PI/4, 0);
+               al_map_rgba_f(al_get_backbuffer(), &test, 1.0f, 1.0f, 1.0f, 1.0f);
+               al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &test);
 	    }
             al_draw_rectangle(x, y, x + 140, y + 140, &colors[i], ALLEGRO_FILLED);
             al_flip_display();
