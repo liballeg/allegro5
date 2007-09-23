@@ -450,12 +450,15 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro/alinline.h
     include/allegro/altime.h
     include/allegro/base.h
+    include/allegro/bitmap_new.h
     include/allegro/color.h
+    include/allegro/color_new.h
     include/allegro/compiled.h
     include/allegro/config.h
     include/allegro/datafile.h
     include/allegro/debug.h
     include/allegro/digi.h
+    include/allegro/display_new.h
     include/allegro/draw.h
     include/allegro/events.h
     include/allegro/file.h
@@ -481,6 +484,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro/sound.h
     include/allegro/stream.h
     include/allegro/system.h
+    include/allegro/system_new.h
     include/allegro/text.h
     include/allegro/timer.h
     include/allegro/unicode.h
@@ -502,6 +506,17 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro/internal/aintern.h
+    include/allegro/internal/aintern_bitmap.h
+    include/allegro/internal/aintern_color.h
+    include/allegro/internal/aintern_display.h
+    include/allegro/internal/aintern_dtor.h
+    include/allegro/internal/aintern_events.h
+    include/allegro/internal/aintern_joystick.h
+    include/allegro/internal/aintern_keyboard.h
+    include/allegro/internal/aintern_mouse.h
+    include/allegro/internal/aintern_system.h
+    include/allegro/internal/aintern_thread.h
+    include/allegro/internal/aintern_vector.h
     include/allegro/internal/aintvga.h
     include/allegro/internal/alconfig.h
     )
@@ -515,6 +530,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro/platform/aintqnx.h
     include/allegro/platform/aintunix.h
     include/allegro/platform/aintwin.h
+    include/allegro/platform/aintwthr.h
     include/allegro/platform/al386gcc.h
     include/allegro/platform/al386vc.h
     include/allegro/platform/al386wat.h

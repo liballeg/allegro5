@@ -78,6 +78,10 @@ option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" on)
 
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" off)
 
+# Addons
+
+option(WANT_FONT "Enable bitmap font add-on" on)
+
 #
 # For developers.
 #
@@ -653,6 +657,7 @@ macro(add_allegro_build nm extra_flags)
     endforeach(SOURCE)
 
     macro(really_add_allegro_build nam target libtype more_extra_flags)
+        set(OUTPUT_LIBRARY ${nam})
         add_library(${target} ${libtype} ${LIBRARY_SOURCES} ${ASM_OBJS})
         set_target_properties(${target}
             PROPERTIES
@@ -924,6 +929,13 @@ add_subdirectory(docs)
     #
 make_directory(obj/mingw32)
 make_directory(obj/unix)
+
+#-----------------------------------------------------------------------------#
+#
+# Add-ons
+#
+#-----------------------------------------------------------------------------#
+add_subdirectory(addons)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
