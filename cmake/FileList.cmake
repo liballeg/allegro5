@@ -558,5 +558,8 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
 
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
     include/allegro/platform/alplatf.h
-    include/allegro/platform/alunixac.h
     )
+
+if(UNIX)
+   LIST(APPEND ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED include/allegro/platform/alunixac.h)
+endif(UNIX)
