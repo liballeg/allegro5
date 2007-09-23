@@ -210,6 +210,7 @@ allegro_aintdos_h = $(srcdir)/include/allegro/platform/aintdos.h \
 obj_unix_asmdef_inc = $(OBJDIR)/asmdef.inc
 xalleg_h = $(srcdir)/include/xalleg.h
 
+# required to get asmdef.inc to be built automatically in all cases on unix
 $(ALLEGRO_SRC_I386_FILES): $(obj_unix_asmdef_inc)
 
 ifdef CROSSCOMPILE
@@ -344,6 +345,7 @@ info:
 
 -include makefile.dep
 
+# required to fix parallel make builds, makes the lib targets a dependency of the exe targets
 $(ALLEGRO_EXE_TARGETS): $(ALLEGRO_LIB_TARGETS)
 
 ifdef CROSSCOMPILE
