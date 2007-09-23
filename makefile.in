@@ -210,6 +210,8 @@ allegro_aintdos_h = $(srcdir)/include/allegro/platform/aintdos.h \
 obj_unix_asmdef_inc = $(OBJDIR)/asmdef.inc
 xalleg_h = $(srcdir)/include/xalleg.h
 
+$(ALLEGRO_SRC_I386_FILES): $(obj_unix_asmdef_inc)
+
 ifdef CROSSCOMPILE
 
 $(OBJDIR)/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h
@@ -341,6 +343,8 @@ info:
 # -------- dependencies and rules for building libraries and simple programs --------
 
 -include makefile.dep
+
+$(ALLEGRO_EXE_TARGETS): $(ALLEGRO_LIB_TARGETS)
 
 ifdef CROSSCOMPILE
 
