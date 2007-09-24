@@ -4,7 +4,7 @@ Import('context')
 
 SConscript('unix.scons', exports = ['context'])
 
-context.addFiles('linux/', Split("""
+context.addFiles('src/linux/', Split("""
 lconsole.c
 lgfxdrv.c
 ljoynu.c

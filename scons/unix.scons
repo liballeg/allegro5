@@ -312,7 +312,7 @@ if platform["ALLEGRO_WITH_ALSADIGI"][0]:
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
         sources = ["alsa5.c", "alsa9.c"]
-        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(buildDir + "/unix/", sources))
+        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(buildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildAlsa)
@@ -322,7 +322,7 @@ if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
         sources = ["alsamidi.c"]
-        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(buildDir + "/unix/", sources))
+        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(buildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildAlsa)
@@ -348,9 +348,9 @@ if platform["ALLEGRO_LINUX_SVGALIB"][0]:
     # svgalibs.s must explicitly depend on asmdef.inc. we can
     # set that up by getting the resulting object file and set the
     # dependancy with Depends(target,source)
-        assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/linux/",['svgalibs.s']))
+        assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/src/linux/",['svgalibs.s']))
         vgaEnv.Depends(assembler_object,asmdef_inc)
-        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/linux/", ['svgalib.c']) + [assembler_object])
+        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/src/linux/", ['svgalib.c']) + [assembler_object])
         modules.append(lib)
         return lib
     context.addExtra(buildSVGA)
@@ -360,7 +360,7 @@ if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
         artsEnv = menv.Copy()
         artsEnv.ParseConfig("artsc-config --libs")
         sources = ["arts.c"]
-        lib = artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",appendDir(buildDir + "/unix/", sources))
+        lib = artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",appendDir(buildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildAlsa)
@@ -368,7 +368,7 @@ if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
 if platform["ALLEGRO_LINUX_FBCON"][0]:
     def buildFBCon(menv,appendDir,buildDir,libDir):
         sources = ["fbcon.c"]
-        lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/linux/", sources))
+        lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/src/linux/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildFBCon)
