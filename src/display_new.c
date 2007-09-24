@@ -45,7 +45,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_COLOR black;
    al_set_current_display(display);
    al_set_target_bitmap(al_get_backbuffer());
-   _al_map_rgba(display->format, &black, 0, 0, 0, 0);
+   __al_map_rgba(display->format, &black, 0, 0, 0, 0);
    al_clear(&black);
    al_set_target_bitmap(al_get_backbuffer());
 

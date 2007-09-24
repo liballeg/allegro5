@@ -93,20 +93,6 @@ void _al_blit_memory_bitmap(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest,
 //ALLEGRO_BITMAP_INTERFACE *_al_bitmap_xdummy_driver(void);
 ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3ddummy_driver(void);
 
-ALLEGRO_COLOR* _al_map_rgba(int format, ALLEGRO_COLOR *color,
-	unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-ALLEGRO_COLOR* _al_map_rgba_f(int format, ALLEGRO_COLOR *color,
-	float r, float g, float b, float a);
-ALLEGRO_COLOR* _al_map_rgba_i(int format, ALLEGRO_COLOR *color,
-	int r, int g, int b, int a);
-
-void _al_unmap_rgba(int format, ALLEGRO_COLOR *color,
-	unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a);
-void _al_unmap_rgba_f(int format, ALLEGRO_COLOR *color,
-	float *r, float *g, float *b, float *a);
-void _al_unmap_rgba_i(int format, ALLEGRO_COLOR *color,
-	int *r, int *g, int *b, int *a);
-
 /* Bitmap conversion */
 void _al_convert_bitmap_data(
 	void *src, int src_format, int src_pitch,
@@ -172,5 +158,48 @@ void _al_blender_inverse_alpha_zero(int src_format, ALLEGRO_COLOR *src_color, in
 void _al_blender_inverse_alpha_one(int src_format, ALLEGRO_COLOR *src_color, int dst_format, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 void _al_blender_inverse_alpha_alpha(int src_format, ALLEGRO_COLOR *src_color, int dst_format, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 void _al_blender_inverse_alpha_inverse_alpha(int src_format, ALLEGRO_COLOR *src_color, int dst_format, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
+
+/* Pixel mapping */
+ALLEGRO_COLOR* __al_map_rgba(int format, ALLEGRO_COLOR *color,
+	unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+ALLEGRO_COLOR* __al_map_rgba_f(int format, ALLEGRO_COLOR *color,
+	float r, float g, float b, float a);
+ALLEGRO_COLOR* __al_map_rgba_i(int format, ALLEGRO_COLOR *color,
+	int r, int g, int b, int a);
+
+ALLEGRO_COLOR *_al_map_rgb(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
+	unsigned char r, unsigned char g, unsigned char b);
+ALLEGRO_COLOR *_al_map_rgba(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
+	unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+ALLEGRO_COLOR *_al_map_rgb_f(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
+	float r, float g, float b);
+ALLEGRO_COLOR *_al_map_rgba_f(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
+	float r, float g, float b, float a);
+ALLEGRO_COLOR *_al_map_rgb_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
+	int r, int g, int b);
+ALLEGRO_COLOR *_al_map_rgba_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
+	int r, int g, int b, int a);
+
+/* Pixel unmapping */
+void __al_unmap_rgba(int format, ALLEGRO_COLOR *color,
+	unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a);
+void __al_unmap_rgba_f(int format, ALLEGRO_COLOR *color,
+	float *r, float *g, float *b, float *a);
+void __al_unmap_rgba_i(int format, ALLEGRO_COLOR *color,
+	int *r, int *g, int *b, int *a);
+
+void _al_unmap_rgb(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
+	unsigned char *r, unsigned char *g, unsigned char *b);
+void _al_unmap_rgba(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
+	unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a);
+void _al_unmap_rgb_f(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
+	float *r, float *g, float *b);
+void _al_unmap_rgba_f(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
+	float *r, float *g, float *b, float *a);
+void _al_unmap_rgb_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
+	int *r, int *g, int *b);
+void _al_unmap_rgba_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
+	int *r, int *g, int *b, int *a);
+
 
 #endif

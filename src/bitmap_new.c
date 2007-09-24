@@ -84,7 +84,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    // RGBA with 8-bit per component is hardcoded.
    bitmap->memory = _AL_MALLOC(w * h * al_get_pixel_size(format));
    memset(bitmap->memory, 0, w * h * al_get_pixel_size(format));
-   al_set_bitmap_mask_color(bitmap, al_map_rgb(bitmap, &mask_color, 255, 0, 255));
+   al_set_bitmap_mask_color(bitmap, _al_map_rgb(bitmap, &mask_color, 255, 0, 255));
    return bitmap;
 }
 
@@ -130,7 +130,7 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 	return NULL;
    }
 
-   al_set_bitmap_mask_color(bitmap, al_map_rgb(bitmap, &mask_color, 255, 0, 255));
+   al_set_bitmap_mask_color(bitmap, _al_map_rgb(bitmap, &mask_color, 255, 0, 255));
 
    return bitmap;
 }
@@ -394,7 +394,7 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color)
    _al_push_target_bitmap();
    al_set_target_bitmap(bitmap);
 
-   al_map_rgba(bitmap, &alpha_pixel, 0, 0, 0, 0);
+   _al_map_rgba(bitmap, &alpha_pixel, 0, 0, 0, 0);
 
    for (y = 0; y < bitmap->h; y++) {
       for (x = 0; x < bitmap->w; x++) {

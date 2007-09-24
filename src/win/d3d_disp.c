@@ -208,7 +208,7 @@ int _al_d3d_format_to_allegro(int d3d_fmt)
 static int d3d_al_color_to_d3d(int format, ALLEGRO_COLOR *color)
 {
    unsigned char r, g, b, a;
-   _al_unmap_rgba(format, color, &r, &g, &b, &a);
+   __al_unmap_rgba(format, color, &r, &g, &b, &a);
    return D3DCOLOR_ARGB(a, r, g, b);
 }
 
@@ -1120,9 +1120,9 @@ static DWORD d3d_blend_colors(
    ALLEGRO_COLOR result;
    float r, g, b, a;
 
-   al_unmap_rgba_f(target, color, &r, &g, &b, &a);
+   _al_unmap_rgba_f(target, color, &r, &g, &b, &a);
 
-   al_map_rgba_f(target, &result,
+   _al_map_rgba_f(target, &result,
       r*bc->r,
       g*bc->g,
       b*bc->b,

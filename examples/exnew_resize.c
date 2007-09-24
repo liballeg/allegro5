@@ -4,8 +4,8 @@ static void redraw(void)
 {
     ALLEGRO_COLOR black, white;
     int i, w, h;
-    al_map_rgba_f(al_get_backbuffer(), &white, 1, 1, 1, 1);
-    al_map_rgba_f(al_get_backbuffer(), &black, 0, 0, 0, 1);
+    al_map_rgba_f(&white, 1, 1, 1, 1);
+    al_map_rgba_f(&black, 0, 0, 0, 1);
 
     al_clear(&white);
     w = al_get_display_width();

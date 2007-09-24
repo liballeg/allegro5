@@ -21,10 +21,10 @@
 #include <string.h>
 
 #define GET_DEST() \
-   _al_unmap_rgba_f(dst_format, dst_color, &rd, &gd, &bd, &ad);
+   __al_unmap_rgba_f(dst_format, dst_color, &rd, &gd, &bd, &ad);
 
 #define GET_SRC() \
-   _al_unmap_rgba_f(src_format, src_color, &rs, &gs, &bs, &as);
+   __al_unmap_rgba_f(src_format, src_color, &rs, &gs, &bs, &as);
 
 
 
@@ -51,7 +51,7 @@ void _al_blender_zero_alpha(int src_format, ALLEGRO_COLOR *src_color,
 
    GET_DEST();
 
-   _al_map_rgba_f(dst_format, result,
+   __al_map_rgba_f(dst_format, result,
       rd*ad,
       gd*ad,
       bd*ad,
@@ -69,7 +69,7 @@ void _al_blender_zero_inverse_alpha(int src_format, ALLEGRO_COLOR *src_color,
    GET_SRC();
    GET_DEST();
 
-   _al_map_rgba_f(dst_format, result,
+   __al_map_rgba_f(dst_format, result,
       rd*(1.0f-as),
       gd*(1.0f-as),
       bd*(1.0f-as),
@@ -86,7 +86,7 @@ void _al_blender_one_zero(int src_format, ALLEGRO_COLOR *src_color,
 
    GET_SRC();
 
-   _al_map_rgba_f(dst_format, result,
+   __al_map_rgba_f(dst_format, result,
       rs*bc->r,
       gs*bc->g,
       bs*bc->b,
@@ -120,7 +120,7 @@ void _al_blender_one_alpha(int src_format, ALLEGRO_COLOR *src_color,
    b = MIN(1.0f, bd*ad + bs * bc->b);
    a = MIN(1.0f, ad*ad + as * bc->a);
 
-   _al_map_rgba_f(dst_format, result, r, g, b, a);
+   __al_map_rgba_f(dst_format, result, r, g, b, a);
 }
 
 
@@ -141,7 +141,7 @@ void _al_blender_one_inverse_alpha(int src_format, ALLEGRO_COLOR *src_color,
    b = MIN(1.0f, bd*(1.0f-as) + bs * bc->b);
    a = MIN(1.0f, ad*(1.0f-as) + as * bc->a);
 
-   _al_map_rgba_f(dst_format, result, r, g, b, a);
+   __al_map_rgba_f(dst_format, result, r, g, b, a);
 }
 
 
@@ -154,7 +154,7 @@ void _al_blender_alpha_zero(int src_format, ALLEGRO_COLOR *src_color,
 
    GET_SRC();
 
-   _al_map_rgba_f(dst_format, result,
+   __al_map_rgba_f(dst_format, result,
       rs*as*bc->r,
       gs*as*bc->g,
       bs*as*bc->b,
@@ -173,7 +173,7 @@ void _al_blender_alpha_one(int src_format, ALLEGRO_COLOR *src_color,
    GET_SRC();
    GET_DEST();
 
-   _al_map_rgba_f(dst_format, result,
+   __al_map_rgba_f(dst_format, result,
       MIN(1.0f, rs*as*bc->r + rd),
       MIN(1.0f, gs*as*bc->g + gd),
       MIN(1.0f, bs*as*bc->b + bd),
@@ -192,7 +192,7 @@ void _al_blender_alpha_alpha(int src_format, ALLEGRO_COLOR *src_color,
    GET_SRC();
    GET_DEST();
 
-   _al_map_rgba_f(dst_format, result,
+   __al_map_rgba_f(dst_format, result,
       MIN(1.0f, rs*as*bc->r + rd*ad),
       MIN(1.0f, gs*as*bc->g + gd*ad),
       MIN(1.0f, bs*as*bc->b + bd*ad),
@@ -211,7 +211,7 @@ void _al_blender_alpha_inverse_alpha(int src_format, ALLEGRO_COLOR *src_color,
    GET_SRC();
    GET_DEST();
 
-   _al_map_rgba_f(dst_format, result,
+   __al_map_rgba_f(dst_format, result,
       MIN(1.0f, rs*as*bc->r + rd*(1.0f-as)),
       MIN(1.0f, gs*as*bc->g + gd*(1.0f-as)),
       MIN(1.0f, bs*as*bc->b + bd*(1.0f-as)),
@@ -228,7 +228,7 @@ void _al_blender_inverse_alpha_zero(int src_format, ALLEGRO_COLOR *src_color,
 
    GET_SRC();
 
-   _al_map_rgba_f(dst_format, result,
+   __al_map_rgba_f(dst_format, result,
       rs*(1.0f-as)*bc->r,
       gs*(1.0f-as)*bc->g,
       bs*(1.0f-as)*bc->b,
@@ -247,7 +247,7 @@ void _al_blender_inverse_alpha_one(int src_format, ALLEGRO_COLOR *src_color,
    GET_SRC();
    GET_DEST();
 
-   _al_map_rgba_f(dst_format, result,
+   __al_map_rgba_f(dst_format, result,
       MIN(1.0f, rs*(1.0f-as)*bc->r + rd),
       MIN(1.0f, gs*(1.0f-as)*bc->g + gd),
       MIN(1.0f, bs*(1.0f-as)*bc->b + bd),
@@ -266,7 +266,7 @@ void _al_blender_inverse_alpha_alpha(int src_format, ALLEGRO_COLOR *src_color,
    GET_SRC();
    GET_DEST();
 
-   _al_map_rgba_f(dst_format, result,
+   __al_map_rgba_f(dst_format, result,
       MIN(1.0f, rs*(1.0f-as)*bc->r + rd*ad),
       MIN(1.0f, gs*(1.0f-as)*bc->g + gd*ad),
       MIN(1.0f, bs*(1.0f-as)*bc->b + bd*ad),
@@ -285,7 +285,7 @@ void _al_blender_inverse_alpha_inverse_alpha(int src_format, ALLEGRO_COLOR *src_
    GET_SRC();
    GET_DEST();
 
-   _al_map_rgba_f(dst_format, result,
+   __al_map_rgba_f(dst_format, result,
       MIN(1.0f, rs*(1.0f-as)*bc->r + rd*(1.0f-as)),
       MIN(1.0f, gs*(1.0f-as)*bc->g + gd*(1.0f-as)),
       MIN(1.0f, bs*(1.0f-as)*bc->b + bd*(1.0f-as)),

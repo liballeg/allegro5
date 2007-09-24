@@ -242,14 +242,12 @@ void _al_pop_new_bitmap_parameters(void)
 
 void al_set_blender(int src, int dst, ALLEGRO_COLOR *color)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   
    if ((tls = tls_get()) == NULL) return;
 
    tls->blend_source = src;
    tls->blend_dest = dst;
 
-   al_unmap_rgba_f(target, color,
+   al_unmap_rgba_f(color,
       &tls->blend_color.r,
       &tls->blend_color.g,
       &tls->blend_color.b,
@@ -598,12 +596,10 @@ void _al_pop_new_bitmap_parameters(void)
 
 void al_set_blender(int src, int dst, ALLEGRO_COLOR *color)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   
    tls.blend_source = src;
    tls.blend_dest = dst;
 
-   al_unmap_rgba_f(target, color,
+   al_unmap_rgba_f(color,
       &tls.blend_color.r,
       &tls.blend_color.g,
       &tls.blend_color.b,

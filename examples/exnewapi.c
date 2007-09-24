@@ -104,18 +104,18 @@ int main(void)
    for (i = 0; i < 3; i++) {
    	al_set_current_display(display[i]);
 	if (i == 0)
-		al_map_rgba_f(al_get_backbuffer(), &colors[0], 1, 0, 0, 0.5f);
+		al_map_rgba_f(&colors[0], 1, 0, 0, 0.5f);
 	else if (i == 1)
-		al_map_rgba_f(al_get_backbuffer(), &colors[1], 0, 1, 0, 0.5f);
+		al_map_rgba_f(&colors[1], 0, 1, 0, 0.5f);
 	else
-		al_map_rgba_f(al_get_backbuffer(), &colors[2], 0, 0, 1, 0.5f);
+		al_map_rgba_f(&colors[2], 0, 0, 1, 0.5f);
    }
 
    ALLEGRO_COLOR c;
-   al_map_rgba_f(picture, &c, 1.0f, 1.0f, 0.0f, 1.0f);
    al_set_target_bitmap(picture);
+   al_map_rgba_f(&c, 1.0f, 1.0f, 0.0f, 1.0f);
    al_draw_line(0, 0, 320, 200, &c, 0);
-   al_map_rgba_f(picture, &c, 1.0f, 1.0f, 0.0f, 0.5f);
+   al_map_rgba_f(&c, 1.0f, 1.0f, 0.0f, 0.5f);
    //al_draw_rectangle(0, 0, 320, 200, &c, ALLEGRO_FILLED);
    al_draw_line(0, 0, 100, 0, &c, 0);
    al_draw_line(0, 0, 0, 100, &c, 0);
@@ -191,8 +191,8 @@ int main(void)
 	    if (!display[i])
 	       continue;
             al_set_current_display(display[i]);
-	    al_map_rgb_f(al_get_backbuffer(), &white, 1, 1, 1);
 	    al_set_target_bitmap(al_get_backbuffer());
+	    al_map_rgb_f(&white, 1, 1, 1);
             al_clear(&white);
 	    if (i == 1) {
 	    	al_draw_line(50, 50, 150, 150, &colors[0], 0);
@@ -205,14 +205,14 @@ int main(void)
                al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
                */
                ALLEGRO_COLOR test;
-               al_map_rgba_f(al_get_backbuffer(), &test, 1.0f, 1.0f, 1.0f, 1.0f);
+               al_map_rgba_f(&test, 1.0f, 1.0f, 1.0f, 1.0f);
                al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, &test);
                al_draw_scaled_bitmap(picture, 0, 0, picture->w, picture->h,
                   0, 0, 640, 480, 0);
-               al_map_rgba_f(al_get_backbuffer(), &test, 1.0f, 1.0f, 0.0f, 1.0f);
+               al_map_rgba_f(&test, 1.0f, 1.0f, 0.0f, 1.0f);
                al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, &test);
                al_draw_rotated_bitmap(picture, 160, 100, 320, 240, M_PI/4, 0);
-               al_map_rgba_f(al_get_backbuffer(), &test, 1.0f, 1.0f, 1.0f, 1.0f);
+               al_map_rgba_f(&test, 1.0f, 1.0f, 1.0f, 1.0f);
                al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &test);
 	    }
             al_draw_rectangle(x, y, x + 140, y + 140, &colors[i], ALLEGRO_FILLED);
