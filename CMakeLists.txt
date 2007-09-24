@@ -115,6 +115,8 @@ include(SrcTests)
 
 if(MINGW)
     set(ALLEGRO_MINGW32 1)
+    STRING(REPLACE "\\" "/" MINGDIR "$ENV{MINGDIR}")
+    set(CMAKE_INSTALL_PREFIX ${MINGDIR})
 endif(MINGW)
 if(UNIX)
     set(ALLEGRO_UNIX 1)
