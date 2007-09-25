@@ -60,8 +60,8 @@ try: os.mkdir("build")
 except OSError: pass
 
 majorVersion = '4'
-minorVersion = '3'
-microVersion = '0'
+minorVersion = '9'
+microVersion = '2'
 
 ## Version of Allegro
 allegroVersion = '%s.%s.%s' % (majorVersion, minorVersion, microVersion)
