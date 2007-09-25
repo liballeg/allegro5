@@ -111,12 +111,17 @@ include(UsePkgConfig)
 
 include(SrcTests)
 
-# For alplatf.h
-
 if(MINGW)
+    # For alplatf.h
     set(ALLEGRO_MINGW32 1)
+    # Install to MINGDIR
     STRING(REPLACE "\\" "/" MINGDIR "$ENV{MINGDIR}")
     set(CMAKE_INSTALL_PREFIX ${MINGDIR})
+    if(STATIC)
+        message("The MinGW build cannot be static because MinGW doesn't")
+        message("support proper TLS yet. Disabling the static build.")
+        set(STATIC off)
+    endif(STATIC)
 endif(MINGW)
 if(UNIX)
     set(ALLEGRO_UNIX 1)
