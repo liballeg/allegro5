@@ -290,6 +290,7 @@ unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 unixfiles.remove("src/unix/alsa5.c")
 unixfiles.remove("src/unix/alsa9.c")
 unixfiles.remove("src/unix/alsamidi.c")
+unixfiles.remove("src/unix/uesd.c")
 context.add_files(unixfiles)
 
 def supportModules():
@@ -302,7 +303,7 @@ if platform["ALLEGRO_WITH_ESDDIGI"][0]:
         esdEnv = menv.Copy()
         esdEnv.ParseConfig('esd-config --libs')
         sources = ["uesd.c"]
-        lib = esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(buildDir + "/unix/", sources))
+        lib = esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(buildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildESD)
