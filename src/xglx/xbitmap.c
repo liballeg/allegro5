@@ -7,6 +7,9 @@
 
 static ALLEGRO_BITMAP_INTERFACE *vt;
 
+extern void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
+   int sx, int sy, int sw, int sh,
+   int dx, int dy, int flags);
 
 
 static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
@@ -18,15 +21,22 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
    GLboolean on;
    ALLEGRO_INDEPENDANT_COLOR *bc;
 
+   // FIXME: hack
+   // FIXME: need format conversion if they don't match
+   // FIXME: won't work that way if it is scaled or rotated
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)al_get_current_display();
+   if (glx->temporary_hack) {
+      _al_draw_bitmap_region_memory_fast(bitmap, sx, sy, sw, sh, dx, dy, flags);
+      return;
+   }
+
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on)
       glEnable(GL_TEXTURE_2D);
 
    //FIXME: Blending
-   //if (bitmap->flags & ALLEGRO_USE_MASKING) {
-   //   glEnable(GL_BLEND);
-   //   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-   //}
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
    glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
    l = xbitmap->left;
@@ -75,7 +85,7 @@ static void draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 static void draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, int flags)
 {
-   quad(bitmap, sy, sy, sw, sh, 0, 0, dx, dy, sw, sh, 0, flags);
+   quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, sw, sh, 0, flags);
 }
 
 static void draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
@@ -128,29 +138,8 @@ static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
       glGenTextures(1, &xbitmap->texture);
    glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
 
-   unsigned char *memory = bitmap->memory;
-   /*if (bitmap->flags & ALLEGRO_USE_MASKING) {
-      int x, y, size = bitmap->w * bitmap->h * 4;
-      memory = _AL_MALLOC(size);
-      memcpy(memory, bitmap->memory, size);
-      uint32_t *mem = (void *)memory;
-      unsigned char red, green, blue, alpha;
-      al_unmap_rgba(bitmap, &bitmap->mask_color, &red, &green, &blue, &alpha);
-      uint32_t mask = red + (green << 8) + (blue << 16) + (alpha << 24);
-      for (y = 0; y < bitmap->h; y++) {
-         for (x = 0; x < bitmap->w; x++) {
-            if (*mem == mask)
-               *mem = 0;
-            mem++;
-         }
-      }
-   }*/
-
    glTexImage2D(GL_TEXTURE_2D, 0, 4, bitmap->w, bitmap->h, 0, GL_RGBA,
-      GL_UNSIGNED_BYTE, memory);
-
-   if (memory != bitmap->memory)
-      _AL_FREE(memory);
+      GL_UNSIGNED_BYTE, bitmap->memory);
 
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -161,6 +150,12 @@ static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
    xbitmap->right = 1;
    xbitmap->top = 0;
    xbitmap->bottom = 1;
+
+   // FIXME: TODO
+   //if (xbitmap->fbo == 0) {
+   //   glGenFramebuffersEXT(1, &xbitmap->fbo);
+   //   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, xbitmap->fbo);
+   //}
 
    return 1;
 }
@@ -182,6 +177,8 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
             glReadPixels(0, bitmap->h - y - h, w, h,
                 GL_RGBA, GL_UNSIGNED_BYTE,
                 bitmap->memory + pitch * y + pixelsize * x);
+            //FIXME: ugh. isn't there a better way?
+            upside_down(bitmap, x, y, w, h);
         }
         else {
             //FIXME: use glPixelStore or similar to only synchronize the required
@@ -190,9 +187,6 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
             glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                 bitmap->memory);
         }
-
-        //FIXME: ugh. isn't there a better way?
-        upside_down(bitmap, x, y, w, h);
     }
 
     locked_region->data = bitmap->memory + pitch * y + pixelsize * x;

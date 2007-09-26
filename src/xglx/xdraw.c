@@ -3,7 +3,7 @@
 static void set_opengl_color(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
     unsigned char r, g, b, a;
-    _al_unmap_rgba(d->format, color, &r, &g, &b, &a);
+    __al_unmap_rgba(d->format, color, &r, &g, &b, &a);
     glColor4b(r, g, b, a);
 }
 
@@ -11,7 +11,17 @@ static void set_opengl_color(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 static void clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
    unsigned char r, g, b, a;
-   _al_unmap_rgba(d->format, color, &r, &g, &b, &a);
+   __al_unmap_rgba(d->format, color, &r, &g, &b, &a);
+
+   // FIXME: hack
+   // FIXME: need format conversion if they don't match
+   // FIXME: won't work that way if it is scaled or rotated
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)al_get_current_display();
+   if (glx->temporary_hack) {
+      _al_clear_memory(color);
+      return;
+   }
+
    glClearColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
    glClear(GL_COLOR_BUFFER_BIT);
 }

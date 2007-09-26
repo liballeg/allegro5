@@ -371,11 +371,23 @@ static ALLEGRO_BITMAP *get_frontbuffer(ALLEGRO_DISPLAY *d)
 
 static void set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
+   /* If it is a memory bitmap, this display vtable entry would not even get
+    * called, so the cast below is always safe.
+    */
+   ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
    int x_1, y_1, x_2, y_2;
-   //FIXME: change to offscreen targets and so on
 
-   if (bitmap->cl == 0 && bitmap->cr == bitmap->w - 1 &&
+   //FIXME: change to offscreen targets and so on
+   if (!xbitmap->is_backbuffer) {
+      glx->temporary_hack = bitmap;
+   }
+   else {
+      glx->temporary_hack = NULL;
+   }
+
+   if (glx->temporary_hack == NULL &&
+      bitmap->cl == 0 && bitmap->cr == bitmap->w - 1 &&
       bitmap->ct == 0 && bitmap->cb == bitmap->h - 1) {
       glDisable(GL_SCISSOR_TEST);
    }
@@ -385,7 +397,7 @@ static void set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       x_1 = bitmap->cl;
       y_1 = bitmap->ct;
       /* In OpenGL, coordinates are the top-left corner of pixels, so we need to
-       * add one to the right abd bottom edge.
+       * add one to the right and bottom edge.
        */
       x_2 = bitmap->cr + 1;
       y_2 = bitmap->cb + 1;
