@@ -46,7 +46,7 @@ AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nS
    #define NO_STRICT
 
    #ifdef __cplusplus
-      extern "C" int __stdcall WinMain(void *hInst, void *hPrev, char *Cmd, int nShow);
+      extern "C" int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *Cmd, int nShow);
    #endif
 
    #define END_OF_MAIN()                                                     \

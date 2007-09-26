@@ -23,11 +23,6 @@
 #define ALLEGRO_H
 
 
-#ifdef ALLEGRO_EXTRA_HEADER
-   #include ALLEGRO_EXTRA_HEADER
-#endif
-
-
 #include "allegro/base.h"
 
 #include "allegro/system.h"
@@ -84,6 +79,11 @@
    #ifdef __cplusplus
       #include "allegro/fix.h"
    #endif
+#endif
+
+
+#ifdef ALLEGRO_EXTRA_HEADER
+   #include ALLEGRO_EXTRA_HEADER
 #endif
 
 

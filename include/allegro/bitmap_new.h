@@ -3,6 +3,10 @@
 
 #include "allegro/color_new.h"
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
 
 /* This is just a proof-of-concept implementation. The basic idea is to leave 
@@ -180,5 +184,9 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap);
 /* Blending */
 void al_set_blender(int source, int dest, ALLEGRO_COLOR *color);
 void al_get_blender(int *source, int *dest, ALLEGRO_COLOR *color);
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif

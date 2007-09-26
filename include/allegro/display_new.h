@@ -4,6 +4,10 @@
 #include "allegro/color_new.h"
 #include "allegro/bitmap_new.h"
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 /* Possible bit combinations for the flags parameter of al_create_display. */
 
 #define _al_current_display al_get_current_display()
@@ -68,5 +72,9 @@ void al_clear(ALLEGRO_COLOR *color);
 void al_draw_line(float fx, float fy, float tx, float ty, ALLEGRO_COLOR *color, int flags);
 void al_draw_rectangle(float tlx, float tly, float brx, float bry,
     ALLEGRO_COLOR *color, int flags);
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
