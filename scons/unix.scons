@@ -284,13 +284,15 @@ env.Append(CCFLAGS = flags)
 env.Append(CPPDEFINES = defines)
 env.Append(CPPPATH = includes)
 
+# This is where the source for the unix files comes from
 context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
 unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
+
 # TODO: How does the modules stuff work? Shouldn't they still be linked in?
-unixfiles.remove("src/unix/alsa5.c")
-unixfiles.remove("src/unix/alsa9.c")
-unixfiles.remove("src/unix/alsamidi.c")
-unixfiles.remove("src/unix/uesd.c")
+# unixfiles.remove("src/unix/alsa5.c")
+# unixfiles.remove("src/unix/alsa9.c")
+# unixfiles.remove("src/unix/alsamidi.c")
+# unixfiles.remove("src/unix/uesd.c")
 context.add_files(unixfiles)
 
 def supportModules():
@@ -298,12 +300,15 @@ def supportModules():
 
 modules = []
 
+# These should probably also pass -DALLEGRO_MODULE or something
 if platform["ALLEGRO_WITH_ESDDIGI"][0]:
     def buildESD(menv,appendDir,buildDir,libDir):
         esdEnv = menv.Copy()
         esdEnv.ParseConfig('esd-config --libs')
+        esdBuildDir = buildDir + '/modules'
+        esdEnv.BuildDir(esdBuildDir, '.')
         sources = ["uesd.c"]
-        lib = esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(buildDir + "/src/unix/", sources))
+        lib = esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(esdBuildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildESD)
@@ -312,8 +317,10 @@ if platform["ALLEGRO_WITH_ALSADIGI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
+        alsaBuildDir = buildDir + '/modules'
+        alsaEnv.BuildDir(alsaBuildDir, '.')
         sources = ["alsa5.c", "alsa9.c"]
-        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(buildDir + "/src/unix/", sources))
+        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(alsaBuildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildAlsa)
@@ -322,8 +329,10 @@ if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
+        alsaBuildDir = buildDir + '/modules'
+        alsaEnv.BuildDir(alsaBuildDir, '.')
         sources = ["alsamidi.c"]
-        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(buildDir + "/src/unix/", sources))
+        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(alsaBuildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildAlsa)
