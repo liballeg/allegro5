@@ -41,7 +41,7 @@ int main(void)
    events = al_create_event_queue();
 
    al_set_new_display_flags(ALLEGRO_WINDOWED|ALLEGRO_RESIZABLE);
-   al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ARGB_1555);
+   al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
 
    /* Create three windows. */
    display[0] = al_create_display(w, h);
@@ -103,6 +103,7 @@ int main(void)
 
    for (i = 0; i < 3; i++) {
    	al_set_current_display(display[i]);
+        al_set_target_bitmap(al_get_backbuffer());
 	if (i == 0)
 		al_map_rgba_f(&colors[0], 1, 0, 0, 0.5f);
 	else if (i == 1)

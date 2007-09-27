@@ -59,6 +59,8 @@ static _AL_MUTEX d3d_device_mutex;
 
 static bool d3d_can_wait_for_vsync;
 
+static bool render_to_texture_supported;
+
 /*
  * These parameters cannot be gotten by the display thread because
  * they're thread local. We get them in the calling thread first.
@@ -513,6 +515,11 @@ static void d3d_destroy_hidden_device()
    d3d_hidden_window = 0;
 }
 
+bool _al_d3d_render_to_texture_supported()
+{
+   return render_to_texture_supported;
+}
+
 bool _al_d3d_init_display()
 {
    if ((_al_d3d = Direct3DCreate9(D3D_SDK_VERSION)) == NULL) {
@@ -526,11 +533,10 @@ bool _al_d3d_init_display()
 
    if (IDirect3D9_CheckDeviceFormat(_al_d3d, D3DADAPTER_DEFAULT,
          D3DDEVTYPE_HAL, d3d_dm.Format, D3DUSAGE_RENDERTARGET,
-         D3DRTYPE_TEXTURE, d3d_dm.Format) != D3D_OK) {
-      IDirect3D9_Release(_al_d3d);
-      TRACE("Texture rendering not supported.\n");
-      return false;
-   }
+         D3DRTYPE_TEXTURE, d3d_dm.Format) != D3D_OK)
+      render_to_texture_supported = false;
+   else
+      render_to_texture_supported = true;
 
    _al_mutex_init(&d3d_device_mutex);
 
@@ -1142,6 +1148,11 @@ static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, floa
    
    if (_al_d3d_is_device_lost()) return;
 
+   if (!_al_d3d_render_to_texture_supported()) {
+      _al_draw_line_memory(fx, fy, tx, ty, color, flags);
+      return;
+   }
+
    d3d_color = d3d_blend_colors(target, color, bc);
 
    if (target->parent) {
@@ -1198,6 +1209,11 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
 
    if (_al_d3d_is_device_lost()) return;
    
+   if (!_al_d3d_render_to_texture_supported()) {
+      _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
+      return;
+   }
+
    target = al_get_target_bitmap();
 
    d3d_color = d3d_blend_colors(target, color, bc);
@@ -1657,24 +1673,26 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
       _al_d3d_unlock_device();
    }
    else {
-      _al_d3d_lock_device();
-      IDirect3DDevice9_EndScene(_al_d3d_device);
-      if (IDirect3DTexture9_GetSurfaceLevel(d3d_target->video_texture, 0, &d3d_current_texture_render_target) != D3D_OK) {
-         TRACE("d3d_set_target_bitmap: Unable to get texture surface level.\n");
-         return;
-      }
-      if (IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, d3d_current_texture_render_target) != D3D_OK) {
-         TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
-         IDirect3DSurface9_Release(d3d_current_texture_render_target);
-         return;
-      }
-      _al_d3d_unlock_device();
-      _al_d3d_set_ortho_projection(d3d_target->texture_w, d3d_target->texture_h);
-      _al_d3d_lock_device();
-      IDirect3DDevice9_BeginScene(_al_d3d_device);
       d3d_target_display_before_device_lost = display;
       d3d_target_bitmap_before_device_lost = target;
-      _al_d3d_unlock_device();
+      if (_al_d3d_render_to_texture_supported()) {
+         _al_d3d_lock_device();
+         IDirect3DDevice9_EndScene(_al_d3d_device);
+         if (IDirect3DTexture9_GetSurfaceLevel(d3d_target->video_texture, 0, &d3d_current_texture_render_target) != D3D_OK) {
+            TRACE("d3d_set_target_bitmap: Unable to get texture surface level.\n");
+            return;
+         }
+         if (IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, d3d_current_texture_render_target) != D3D_OK) {
+            TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
+            IDirect3DSurface9_Release(d3d_current_texture_render_target);
+            return;
+         }
+         _al_d3d_unlock_device();
+         _al_d3d_set_ortho_projection(d3d_target->texture_w, d3d_target->texture_h);
+         _al_d3d_lock_device();
+         IDirect3DDevice9_BeginScene(_al_d3d_device);
+         _al_d3d_unlock_device();
+      }
    }
 
    _al_d3d_lock_device();
