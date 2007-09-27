@@ -515,29 +515,6 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 }
 
 /*
- * Set the mask color of the target bitmap
- */
-void al_set_bitmap_mask_color(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
-{
-   if (bitmap->vt && bitmap->vt->set_mask_color) {
-      bitmap->vt->set_mask_color(bitmap, color);
-   }
-   else {
-      memcpy(&bitmap->mask_color, color, sizeof(ALLEGRO_COLOR));
-   }
-}
-
-/*
- * Get the mask color of the target bitmap
- */
-ALLEGRO_COLOR *al_get_bitmap_mask_color(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR *color)
-{
-   memcpy(color, &bitmap->mask_color, sizeof(ALLEGRO_COLOR));
-   return color;
-}
-
-/*
  * Clone a bitmap "exactly", formats can be different
  */
 ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)

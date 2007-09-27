@@ -166,8 +166,6 @@ void al_unmap_rgba_i(ALLEGRO_COLOR *color,
 	int *r, int *g, int *b, int *a);
 
 /* Masking */
-void al_set_bitmap_mask_color(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color);
-ALLEGRO_COLOR *al_get_bitmap_mask_color(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color);
 void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color);
 
 /* Clipping */
