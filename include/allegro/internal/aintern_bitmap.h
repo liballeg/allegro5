@@ -84,8 +84,6 @@ struct ALLEGRO_BITMAP_INTERFACE
 	int flags);
 
    void (*unlock_region)(ALLEGRO_BITMAP *bitmap);
-
-   void (*set_mask_color)(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color);
 };
 
 void _al_blit_memory_bitmap(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest,
