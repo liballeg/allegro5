@@ -533,7 +533,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
       DEVICE_BUFFER_SIZE        // number of data items
    };
 
-   ASSERT(joydx_num_joysticks > 0 && joydx_num_joysticks < MAX_JOYSTICKS-1);
+   ASSERT(joydx_num_joysticks >= 0 && joydx_num_joysticks < MAX_JOYSTICKS-1);
    ASSERT(!JOYSTICK_WAKER(joydx_num_joysticks));
 
    memset(&joydx_joystick[joydx_num_joysticks], 0, sizeof(joydx_joystick[joydx_num_joysticks]));
