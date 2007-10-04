@@ -471,9 +471,8 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    }
    else {
       bitmap = _AL_MALLOC(sizeof *bitmap);
+      memset(bitmap, 0, sizeof *bitmap);
    }
-
-   memset(bitmap, 0, sizeof *bitmap);
 
    bitmap->format = parent->format;
    bitmap->flags = parent->flags;

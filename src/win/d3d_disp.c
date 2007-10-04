@@ -1631,6 +1631,7 @@ ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *
    bitmap->system_texture = NULL;
    bitmap->initialized = false;
    bitmap->is_backbuffer = ((ALLEGRO_BITMAP_D3D *)parent)->is_backbuffer;
+   bitmap->bitmap.vt = parent->vt;
    return (ALLEGRO_BITMAP *)bitmap;
 }
 
