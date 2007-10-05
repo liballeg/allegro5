@@ -28,7 +28,7 @@
 static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap;
-   int format;
+   int format = al_get_new_bitmap_format();
    
    /* Pick an appropriate format if the user is vague */
    switch (format) {
@@ -63,7 +63,6 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    }
 
    bitmap = _AL_MALLOC(sizeof *bitmap);
-   format = al_get_new_bitmap_format();
 
    memset(bitmap, 0, sizeof *bitmap);
 
@@ -248,7 +247,7 @@ void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 
    /* If one is a memory bitmap, do memory blit */
    if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) || (dest->flags & ALLEGRO_MEMORY_BITMAP)) {
-      if (_al_current_display->vt->draw_memory_bitmap_region)
+      if (_al_current_display && _al_current_display->vt->draw_memory_bitmap_region)
          _al_current_display->vt->draw_memory_bitmap_region(_al_current_display,
 	    bitmap, sx, sy, sw, sh, dx, dy, flags);
       else
