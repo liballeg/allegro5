@@ -38,7 +38,6 @@
 
 
 /* general */
-//static HWND _al_win_wnd = NULL;
 HWND _al_win_wnd = NULL;
 HWND _al_win_compat_wnd = NULL;
 char wnd_title[WND_TITLE_SIZE];  /* ASCII string */
