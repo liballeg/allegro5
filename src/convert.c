@@ -325,25 +325,6 @@ typedef void (*p_convert_func)(void *, int, int,
    }, \
 
 static p_convert_func convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] = {
-   /* ANY_WITH_ALPHA */
-   {
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL
-   },
    /* ANY_NO_ALPHA */
    {
       NULL,
@@ -363,7 +344,7 @@ static p_convert_func convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL
       NULL,
       NULL
    },
-   /* ANY_15_WITH_ALPHA */
+   /* ANY_WITH_ALPHA */
    {
       NULL,
       NULL,
@@ -401,7 +382,7 @@ static p_convert_func convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL
       NULL,
       NULL
    },
-   /* ANY_16_WITH_ALPHA */
+   /* ANY_15_WITH_ALPHA */
    {
       NULL,
       NULL,
@@ -439,7 +420,7 @@ static p_convert_func convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL
       NULL,
       NULL
    },
-   /* ANY_24_WITH_ALPHA */
+   /* ANY_16_WITH_ALPHA */
    {
       NULL,
       NULL,
@@ -477,7 +458,7 @@ static p_convert_func convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL
       NULL,
       NULL
    },
-   /* ANY_32_WITH_ALPHA */
+   /* ANY_24_WITH_ALPHA */
    {
       NULL,
       NULL,
@@ -497,6 +478,25 @@ static p_convert_func convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL
       NULL
    },
    /* ANY_32_NO_ALPHA */
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL
+   },
+   /* ANY_32_WITH_ALPHA */
    {
       NULL,
       NULL,
@@ -540,13 +540,10 @@ void _al_convert_bitmap_data(
 	int sx, int sy, int dx, int dy,
 	int width, int height)
 {
-	ASSERT(src_format != ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-	ASSERT(src_format != ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA);
-	ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-	ASSERT(dst_format != ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA);
+   ASSERT(_al_pixel_format_is_real(dst_format));
 
-	(*convert_funcs[src_format][dst_format])(src, src_format, src_pitch,
-		dst, dst_format, dst_pitch, sx, sy, dx, dy, width, height);
+   (*convert_funcs[src_format][dst_format])(src, src_format, src_pitch,
+      dst, dst_format, dst_pitch, sx, sy, dx, dy, width, height);
 }
 
 
