@@ -755,8 +755,6 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 		destroy_bitmap(screen);
 		return 1;
 	}
-	al_set_current_display(screen->display);
-	al_set_target_bitmap(al_get_backbuffer());
 	screen->needs_upload = true;
 	screen->display->vt->upload_compat_screen(screen, 0, 0, w, h);
 
