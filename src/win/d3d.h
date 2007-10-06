@@ -54,6 +54,11 @@ struct ALLEGRO_DISPLAY_D3D
    bool thread_ended;  /* The display thread has ended */
 
    ALLEGRO_BITMAP_D3D backbuffer_bmp;
+
+   int mouse_range_x1;
+   int mouse_range_y1;
+   int mouse_range_x2;
+   int mouse_range_y2;
 };
 
 

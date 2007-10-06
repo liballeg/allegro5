@@ -224,6 +224,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                win_get_window_pos(win->window, &pos);
                wnd_x = pos.left;
                wnd_y = pos.top;
+               if (d->vt->switch_in)
+                  d->vt->switch_in(d);
                return 0;
             }
             else {
@@ -233,7 +235,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                    * backup textures.
                    */
                   if (d->flags & ALLEGRO_FULLSCREEN) {
-                     d->vt->switch_out();
+                     d->vt->switch_out(d);
                   }
                   _al_win_ungrab_input();
                   return 0;

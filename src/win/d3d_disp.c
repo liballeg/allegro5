@@ -627,6 +627,9 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
       _al_win_wnd = d->window;
       win_grab_input();
    }
+   else {
+      gfx_driver = 0;
+   }
 
    _AL_FREE(display);
 }
@@ -1061,6 +1064,22 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    /* Keep track of the displays created */
    add = _al_vector_alloc_back(&d3d_created_displays);
    *add = display;
+
+   /* Set up a dummy gfx_driver */
+   gfx_driver = &_al_d3d_dummy_gfx_driver;
+   gfx_driver->w = w;
+   gfx_driver->h = h;
+   gfx_driver->windowed = (display->display.flags & ALLEGRO_FULLSCREEN) ? 0 : 1;
+
+   /* Setup the mouse */
+   display->mouse_range_x1 = 0;
+   display->mouse_range_y1 = 0;
+   display->mouse_range_x2 = w;
+   display->mouse_range_y2 = h;
+   if (al_is_mouse_installed()) {
+      al_set_mouse_xy(w/2, h/2);
+      al_set_mouse_range(0, 0, w, h);
+   }
 
    return (ALLEGRO_DISPLAY *)display;
 }
@@ -1720,10 +1739,18 @@ static bool d3d_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *b
    return true;
 }
 
-static void d3d_switch_out(void)
+static void d3d_switch_out(ALLEGRO_DISPLAY *display)
 {
    _al_d3d_prepare_bitmaps_for_reset();
    d3d_bitmaps_prepared_for_reset = true;
+}
+
+static void  d3d_switch_in(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
+
+   al_set_mouse_range(d3d_disp->mouse_range_x1, d3d_disp->mouse_range_y1,
+      d3d_disp->mouse_range_x2, d3d_disp->mouse_range_y2);
 }
 
 static bool d3d_wait_for_vsync(ALLEGRO_DISPLAY *display)
@@ -1768,6 +1795,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->get_frontbuffer = d3d_get_frontbuffer;
    vt->is_compatible_bitmap = d3d_is_compatible_bitmap;
    vt->switch_out = d3d_switch_out;
+   vt->switch_in = d3d_switch_in;
    vt->draw_memory_bitmap_region = NULL;
    vt->create_sub_bitmap = d3d_create_sub_bitmap;
    vt->wait_for_vsync = d3d_wait_for_vsync;

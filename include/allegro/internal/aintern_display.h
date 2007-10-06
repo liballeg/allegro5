@@ -34,7 +34,8 @@ struct ALLEGRO_DISPLAY_INTERFACE
    ALLEGRO_BITMAP *(*get_frontbuffer)(ALLEGRO_DISPLAY *display);
 
    bool (*is_compatible_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
-   void (*switch_out)(void);
+   void (*switch_out)(ALLEGRO_DISPLAY *display);
+   void (*switch_in)(ALLEGRO_DISPLAY *display);
 
    void (*draw_memory_bitmap_region)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap,
       float sx, float sy, float sw, float sh, float dx, float dy, int flags);

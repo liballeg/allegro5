@@ -56,6 +56,7 @@ typedef enum AL_SYSTEM_MOUSE_CURSOR
 } AL_SYSTEM_MOUSE_CURSOR;
 
 
+AL_FUNC(bool,           al_is_mouse_installed,  (void));
 AL_FUNC(bool,           al_install_mouse,       (void));
 AL_FUNC(void,           al_uninstall_mouse,     (void));
 AL_FUNC(AL_MOUSE*,      al_get_mouse,           (void));

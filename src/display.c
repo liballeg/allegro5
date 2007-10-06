@@ -761,7 +761,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	gfx_driver = &_al_d3d_dummy_gfx_driver;
 	gfx_driver->w = w;
 	gfx_driver->h = h;
-	gfx_driver->windowed = true;
+	gfx_driver->windowed = card == GFX_DIRECT3D_WINDOWED ? 1 : 0;
 
 	for (c=0; c<256; c++)
 	  _palette_color8[c] = c;
