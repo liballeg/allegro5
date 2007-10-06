@@ -822,6 +822,8 @@ static void d3d_display_thread_proc(void *arg)
    new_display_parameters *params = arg;
    D3DCAPS9 caps;
 
+   d = params->display;
+
    /*
     * Direct3D will only allow 1 fullscreen swap chain, and you can't
     * combine fullscreen and windowed swap chains.
@@ -847,8 +849,6 @@ static void d3d_display_thread_proc(void *arg)
       params->display->init_failed = true;
       return;
    }
-
-   d = params->display;
 
    d->display.w = params->width;
    d->display.h = params->height;
