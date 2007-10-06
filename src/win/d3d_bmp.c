@@ -146,8 +146,8 @@ void _al_d3d_draw_textured_quad(ALLEGRO_BITMAP_D3D *bmp,
       texture_h = 0;
    }
 
-   tu_start = (sx+0.5f) / texture_w;
-   tv_start = (sy+0.5f) / texture_h;
+   tu_start = sx / texture_w;
+   tv_start = sy / texture_h;
    tu_end = sw / texture_w + tu_start;
    tv_end = sh / texture_h + tv_start;
 
