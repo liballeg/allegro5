@@ -1,0 +1,315 @@
+AllegroGL HOWTO
+===============
+
+HOWTO file
+
+
+AllegroGL web site:  http://allegrogl.sourceforge.net/
+
+Table of contents:
+1.0 Introduction
+  1.1 About the library
+  1.2 About OpenGL
+  1.3 About this document
+2.0 The Basic
+  2.1 Using AllegroGL for your Window
+  2.2 States and screen update
+  2.3 Coordinate Systems
+  2.4 Text and fonts
+  2.5 The Mouse
+3.0 I just want OpenGL! Help!
+4.0 Contact information
+
+
+
+1.1 About the library
+~~~~~~~~~~~~~~~~~~~~~
+
+The library mostly provides functions to allow you to use OpenGL alongside
+Allegro -- you use OpenGL for your rendering to the screen, and Allegro
+for miscellaneous tasks like gathering input, doing timers, getting
+cross-platform portability, loading data, playing samples and drawing your
+textures. So this library fills the same hole that things like GLUT do.
+
+AllegroGL works with X Window, Microsoft Windows, DOS (via Mesa) and
+Mac OS X.
+
+
+
+1.2 About OpenGL
+~~~~~~~~~~~~~~~~
+
+OpenGL is a long-standing Graphics API originally developed by SGI, but
+now controlled by the people at http://www.opengl.org. It is just an API
+and not an actual library; there are various libraries that implement the
+OpenGL standard from the likes of Microsoft (supplied with Windows). There
+is also a free implementation of the OpenGL standard called Mesa, but this
+is unofficial and shouldn't really be called OpenGL. You can get it at
+http://www.mesa3d.org. Mesa3D is a cross-platform library and even works
+in DOS.
+
+The OpenGL specification has reached version 1.4. As of October 2002 not all
+OpenGL drivers are compliant with 1.4 but many of them are compliant with 1.3.
+However Microsoft Windows OpenGL implementation is still only version 1.1.
+
+However, it is possible to access the OpenGL 1.3 functionality within Windows
+as long as the drivers supports it. You'll need to get the modified GLsdk
+(created by SGI and Intel). AllegroGL will automatically detect its presence
+and link to it.
+
+
+
+1.3 About this document
+~~~~~~~~~~~~~~~~~~~~~~~
+
+This document serves as a guide to using AllegroGL from the perspective of
+an Allegro user, but it should be useful for anyone getting to know
+AllegroGL. It is intended to be read from start to end, as I've used
+explanations of how features work to explain other features.
+
+To install AllegroGL please read the readme file.
+See the included FAQ before asking any questions to the developpers.
+
+There is also a reference built from comments within the AllegroGL code,
+available as a download from the AllegroGL site. This details many
+commands and options that I haven't talked about here.
+
+
+
+2.0 The Basics
+--------------
+
+AllegroGL replaces much of Allegro's rendering code on initialisation with
+code that interfaces with OpenGL. Your old commands such as blit() and line()
+will still work and this is called AllegroGL Direct Mode. Unfortunately
+Direct Mode is incomplete and not very fast, so it is probably a better
+idea for you to use your own calls to OpenGL. It is important to remember
+that AllegroGL Direct Mode is emulated and the functions you are calling
+all end up as OpenGL modes. You should note that the above only applies
+to drawing stuff on the screen or on video bitmaps. Memory operations are
+still done using regular Allegro, so they work properly.
+
+If you don't already know OpenGL here are some suggested resources:
+
+ - The "OpenGL Programming Guide" aka "The Red Book".
+   This is a lengthy book which can be downloaded from
+   http://www.opengl.org/ in pdf format.
+ - If you need the OpenGL syntax reference, check out the OpenGL.org
+   reference: http://www.opengl.org/developers/documentation/specs.html
+ - Various specific tutorials are available from http://www.gamedev.net/ .
+   This is also another place to try and download the Red Book.
+ - NeHe's tutorials are available from http://nehe.gamedev.net/
+ - The AllegroGL sourcecode and examples!
+ - There's a page full of links at
+    http://members.net-tech.com.au/alaneb/assemble.htm
+ - There is a set of teaching notes that I don't know the URL of entitled
+    "CPEN 461/661, Spring 1997  OpenGL Tutorial"
+
+
+2.1 Using AllegroGL for your Window
+-----------------------------------
+
+ - AllegroGL needs to be initialized like nearly all Allegro addons. You
+   use the install_allegro_gl() command. I suggest you do it just after 
+   allegro_init().
+ - When you set your graphics mode, via set_gfx_mode(), you have to use
+   one of the following devices:
+    - GFX_OPENGL             - Either a fullscreen or window, depending
+                               on platform and configuration.
+    - GFX_OPENGL_FULLSCREEN  - Fullscreen driver. Only supports "normal"
+                               resolutions, like 640x480.
+    - GFX_OPENGL_WINDOWED    - Supports any resolution, such as 543x365
+
+    Virtual screens are not supported. Regular Allegro screen modes are
+    still available though, so using GFX_AUTODETECT will behave as if
+    AllegroGL wasn't present. Allegro alone does not support an OpenGL
+    rendering context, so OpenGL calls will *fail* when in an Allegro
+    mode, and can even crash the computer. Only run OpenGL commands when
+    in an OpenGL mode.
+
+    If you want your program to be more portable, you should use
+    GFX_OPENGL exclusively and let the driver decide whether to use
+    fullscreen or a window. You can still give the driver a hint as to
+    which one you'd like by using allegro_gl_set(AGL_WINDOWED, TRUE) or
+    the likes. See the docs for details.
+   
+    IMPORTANT NOTE: 
+    If you switch out of an OpenGL mode, you will lose the current
+    context. This means that all your converted fonts, display lists,
+    textures, video bitmaps, and so on, will be LOST. Remember to
+    destroy AllegroGL fonts before switching out of OpenGL to avoid
+    problems when switching back in.
+
+
+2.2 States and screen update
+----------------------------
+
+Now this is where I'm going to stress how OpenGL and therefore AllegroGL
+is/are a state machine. Basically this means you apply various states to
+OpenGL/AllegroGL which affect the behaviour of future functions. This is
+opposed to how Allegro normally does things as Allegro normally just uses
+lots of function arguments instead.
+
+ - OpenGL/AllegroGL have their own page flipping code. You do it
+   differently to Allegro. First, before you set the graphics mode,
+   you need to set an AllegroGL state
+    - allegro_gl_set(AGL_DOUBLEBUFFER, 1);
+    - allegro_gl_set(AGL_REQUIRE, AGL_DOUBLEBUFFER);
+
+This shows how to do AllegroGL states. You set a state, then you tell
+AllegroGL if it is AGL_REQUIRE (required) or AGL_SUGGEST (suggested)
+or AGL_DONTCARE (irrelevant).
+
+  - allegro_gl_flip() will do the page flipping. You don't need to
+    bother juggling multiple screens.
+
+IMPORTANT NOTE:
+The page flip may be implemented as a double buffer. That's
+driver-dependant, and there's no way to control it from your program
+unless you interface directly with the drivers. The other important
+bit is that the 'screen' BITMAP may not be what you see on the screen.
+If you've flipped page, then 'screen' will contain the *previous*
+frame, and not the current one. In fact, the OpenGL defines the content
+of the 'screen' as *undefined* after a flip, so you are not guaranteed to
+have anything meaningful in there. It is recommended that you either clear
+the screen, or redraw the screen completely at every frame.
+
+Now how do you select the colour depth? Here's how to suggest an 8-bit colour
+depth:
+
+ - allegro_gl_set (AGL_COLOR_DEPTH, 8);
+ - allegro_gl_set (AGL_SUGGEST, AGL_COLOR_DEPTH);
+
+set_color_depth() will also work, but like Allegro, it becomes a required
+depth, which means that your application may not work on some machines if
+you don't support multiple depths. This is where AllegroGL comes in.
+
+If no color depth was specified by either calls to allegro_gl_set() or
+set_color_depth(), then AllegroGL will use the Allegro default depth - 8 bpp.
+
+One last graphics mode option: AGL_RENDERMETHOD can be set to 1
+for hardware acceleration and 0 for software mode.
+
+Of course, all these graphics options must be set before you switch
+graphics modes. Graphic options will have no effect until set_gfx_mode()
+is called.
+
+OpenGL states are done with the glEnable and glDisable commands.
+
+
+2.3 Coordinate Systems
+----------------------
+
+Allegro and OpenGL/AllegroGL use different co-ordinate systems. The
+AllegroGL Direct Mode commands should work the same as Allegros'.
+If you are using Allegro commands, and you are inside an
+allegro_gl_set_allegro_mode()/unset_allegro_mode() block, then the commands
+will behave like their Allegro counterparts. Otherwise, the behaviour is
+undefined.
+
+In Allegro, the Top-left corner of the screen is the origin. The X-axis
+goes to the right and the Y-axis goes down. The Screen is the same width
+and height as the resolution (eg. 640 x 480).
+
+In OpenGL, the centre of the screen is the origin. The X-axis goes to
+the right and the Y-axis goes *up* (not down). The Z-axis starts from the
+screen and goes out to you. This isn't important for using Allegro
+functions, but it is for OpenGL related functions. Screen coordinates are
+evaluated as 'units', where 1.0 unit may be different on each axis
+depending on the current modelview or projection matrix. We recommend
+you have a look at the Red Book for further details.
+
+
+
+2.4 Text and fonts
+------------------
+
+AllegroGL handles fonts and text differently than Allegro does.
+
+Allegro fonts need to be converted to AllegroGL fonts using the
+ - FONT * allegro_gl_convert_allegro_font(FONT * f, int type, float scale)
+   function.
+
+  where type is one of:
+
+   - AGL_FONT_TYPE_DONT_CARE   - font is either of the following...
+   - AGL_FONT_TYPE_BITMAP      - font as a bitmap
+   - AGL_FONT_TYPE_TEXTURED    - font as a textured quad
+
+  Look up the accompanying documentation for details.
+
+ - Fonts should be destroyed by using:
+   void allegro_gl_destroy_font()
+
+To use textured fonts you must:
+ - glEnable(GL_TEXTURE_2D);
+
+You can use the allegro_gl_printf function to draw AllegroGL fonts OpenGL 
+style. You can NOT use Allegro's textout and textprintf on AllegroGL
+converted FONTs. Only regular Allegro FONTs work with the Allegro
+function.
+
+System fonts can also be loaded into AllegroGL. This method is depricated
+and will eventually be removed.
+
+
+2.5 The Mouse Cursor
+--------------------
+
+Allegro's functions for mouse management (show_mouse, set_mouse_cursor,...) can
+be used while an OpenGL mode is set. However two cases should be considered :
+
+1. You are using Allegro's GUI : the cursor is automatically drawn by the
+   GUI routines. You can manage your mouse cursor the same way you do with
+   Allegro.
+
+2. You are not using Allegro's GUI : you have to use algl_draw_mouse() to
+   decide when the mouse cursor have to be drawn. In most cases, the best place
+   to call algl_draw_mouse() is just before allegro_gl_flip().
+
+
+3.0 I just want OpenGL! Help!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ 1. Make sure you installed AllegroGL correctly. Refer to the readme.txt
+    file for detailed installation instructions
+
+ 2. Add this code at the top of your file:
+    #include <allegro.h>
+    #include <alleggl.h>
+
+ 3. Initialize AllegroGL by calling install_allegrogl() after allegro_init()
+    but before set_gfx_mode() or other AllegroGL or OpenGL commands.
+ 
+ 4. Use set_color_depth() then set_gfx_mode(GFX_OPENGL, ...) to set up a
+    screen mode. If you need more control (like z-buffer depth), see the
+    documentation on the allegro_gl_set() function.
+ 
+ 5. Use various OpenGL, Allegro or AllegroGL commands.
+
+ 6. Link with AllegroGL and OpenGL libraries. Note that the link ORDER
+    MATTERS.
+
+    Those are:
+      For Mingw:
+        -lagl -lalleg -luser32 -lgdi32 -lopengl32 -lglu32
+      For MSVC:
+        agl.lib alleg.lib user32.lib gdi32.lib opengl32.lib glu32.lib
+      For Unix and Linux:
+        -lagl `allegro-config --libs` -lGL -lGLU
+      For DOS (Mesa):
+        -lagl -lalleg -lmesagl -lmesaglu
+      For Mac OS X:
+        -lagl `allegro-config --libs` -framework Carbon -framework OpenGL
+
+ 7. Compile your program.
+ 
+ 8. Rejoice!
+
+
+
+Contact information
+~~~~~~~~~~~~~~~~~~~
+
+Web page:     http://allegrogl.sourceforge.net/
+Mailing list: allegrogl-general@lists.sourceforge.net

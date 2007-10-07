@@ -1,0 +1,1024 @@
+Changes from 0.4.2 to 0.4.3
+-------------------------------
+
+* Milan Mimica
+ - [Allegro driver] Made FBO extension handling more robust.
+ - [Allegro driver] Fixed a clipping problem with large video bitmaps and FBO.
+ - [Allegro driver] Added support for DRAW_MODE_COPY_PATTERN drawing mode.
+ - [Allegro driver] Added support for POLYTYPE_[A|P]TEX and POLYTYPE_[A|P]TEX_TRANS
+   in 3d polygon rendering.
+ - [Allegro driver] Fixed plenty of clipping bugs.
+
+* Matthew Leverton
+ - [Build] Added Digital Mars Compiler support.
+
+* Dennis Busch
+ - [Build] Fixed the breakage when building DLL Release configuration in batch build.
+
+
+Changes from 0.4.1 to 0.4.2
+-------------------------------
+
+*  Milan Mimica
+ - [Allegro driver] Implemented video <-> video and memory -> video blit(),
+   masked_blit(), [pivot_scaled|draw]_sprite[_vh_flip], and draw_trans_sprite().
+ - [Allegro driver] Accelerated clear_to_color() on video bitmaps by using
+   FBO when available.
+ - [Allegro driver] Made drawing to video bitmaps work again when
+   EXT_packed_pixels is not available.
+ - [Allegro driver] Implemented video -> screen and video <-> video
+   stretch_blit(), masked_stretch_blit() and stretch_sprite().
+ - [Allegro driver] Implemented drawing of allegro fonts onto video bitmaps.
+ - [Build] Made compatible with allegro 4.2.2
+
+
+Changes from 0.4.0 to 0.4.1
+-------------------------------
+
+*  Milan Mimica
+ - [Allegro driver] Fixed wrong coordinate system for getpixel.
+ - [Allegro driver] Made video->screen maked_blit work in color depth 16 or lower.
+ - [Build] Added version suffixes to unix dynamic link libraries and set SONAME
+   appropriately.
+ - [Allegro driver] Introduced the allegro_gl_set_video_bitmap_color_depth() function.
+ - [Allegro driver] Implemented set_blender_mode() and draw_trans_sprite().
+ - [Examples] Added a new example exblend.
+ - [Allegro driver] Fixed triangle() on video bitmap.
+ - [Allegro driver] Fixed video bitmaps which size is not multiple of
+   4/bytes-per-pixel.
+ - [Allegro driver] Added support for NPOT video bitmaps even if hardware doesn't
+   support NPOT textures.
+ - [Allegro driver] Implemented rect() and polygon() onto screen bitmap using
+   OpenGL methods.
+ - [Allegro driver] Partialy implemented polygon3d(_f), quad3d(_f) and
+   triangle3d(_f) using OpenGL. Only color shaded polygons are supported.
+ - [Allegro driver] Partialy implemented drawing_mode() when drawing to the
+   screen. Only DRAW_MODE_XOR and DRAW_MODE_TRANS are supported.
+ - [Build] Added MSVC6 and MSVC2005 project files for building AllegroGL.
+ - [Allegro driver] Fixed screen->video blit.
+ - [Allegro driver] Fixed putpixel() on video bitmaps.
+
+
+Changes from 0.2.4 to 0.4.0
+-------------------------------
+
+* Robert J Ohannessian
+ - [GLext] Added in the following extensions:
+    - GL_ARB_fragment_program_shadow
+    - GL_ARB_draw_buffers
+    - GL_ARB_texture_rectangle
+    - GL_EXT_pixel_buffer_object
+    - GL_NV_fragment_program_option
+    - GL_NV_fragment_program2
+    - GL_NV_vertex_program2_option
+    - GL_NV_vertex_program3
+    - GLX_SGIX_hyperpipe
+    - GLX_MESA_agp_offset
+    - GL_ARB_color_buffer_float 
+    - GL_ARB_half_float_pixel 
+    - GL_ARB_texture_float
+    - GL_EXT_texture_compression_dxt1
+    - WGL_ARB_pixel_format_float
+    - GLX_ARB_fbconfig_float
+    - GL_ARB_pixel_buffer_object
+    - GL_EXT_framebuffer_object
+    - GL_GREMEDY_string_marker
+    - GL_EXT_packed_depth_stencil
+    - GL_EXT_bindable_uniform
+    - GL_EXT_draw_buffers2
+    - GL_EXT_draw_instanced
+    - GL_EXT_framebuffer_sRGB
+    - WGL_EXT_framebuffer_sRGB
+    - GLX_EXT_framebuffer_sRGB
+    - GL_EXT_geometry_shader4
+    - GL_EXT_gpu_shader4
+    - GL_EXT_packed_float
+    - WGL_EXT_packed_float
+    - GLX_EXT_packed_float
+    - GL_EXT_texture_array
+    - GL_EXT_texture_buffer_object
+    - GL_EXT_texture_compression_latc
+    - GL_EXT_texture_compression_rgtc
+    - GL_EXT_texture_integer
+    - GL_EXT_texture_shared_exponent
+    - GL_NV_depth_buffer_float
+    - GL_NV_fragment_program4
+    - GL_NV_framebuffer_multisample_coverage
+    - GL_NV_geometry_program4
+    - GL_NV_gpu_program4
+    - GL_NV_parameter_buffer_object
+    - GL_NV_transform_feedback
+    - GL_NV_vertex_program4
+ - [GLext] Added OpenGL 2.0 support.
+ - [GLext] Added missing GL_SAMPLER_* defines for ARB_shader_objects
+ - [Examples] Removed text from extextur and put it in exalpfnt.
+ - [Examples] Cleaned up exalpfnt code.
+ - [Examples] Added an NV_vp2 path to exext, just because it's simpler.
+ - [AGLF] Default format for monochrome fonts is now GL_INTENSITY4. This
+   should resolve many issues people had with font formats.
+ - [AGLF] Fixed color fonts.
+ - [GLext] Fixed the API alias script to correctly ignore whitespaces.
+ - [AGLF] Added agl_printf_ex() which uses the current GL primary color
+   instead of overwriting it with Allegro's. This should solve issues
+   with alpha blending when the screen is not in 32-bpp.
+ - [Texture] Added support for ARB_texture_non_power_of_two in
+   allegro_gl_make_texture_ex(). Now non-power-of-two textures are
+   automagically used.
+ - [Texture] Resize textures to the maximum supported size if they exceed the
+   max supported size and AGL_TEXTURE_RESCALE is used.
+ - [Windows driver] Fixed uninitialized memory used for pixel format. This
+   greatly speeds up context creation on NV drivers.
+ - [Core] Removed Direct/Indirect screen modes. They have been deprecated
+   for the last 4 years anyway.
+ - [Core] Added support for floating-point color and depth buffers in the core
+   and in Windows. X support is still lacking.
+ - [Windows Driver] Fixed some uninitialized variables as pointed out by
+   Daniel Schlyder.
+ - [Examples] Added a mipmapping w/ aniso example.
+ - [Windows Driver] Fixed a crash that happens on full-screen modes due to
+   not having set-up the HDC correctly in some cases.
+ - [Core] Now suggesting settings that were not explicitly set by the user.
+   This fixes some performance issues, where AGL would pick high-sample 
+   multisampling modes when none was needed.
+ - [Texture] NP2 textures now fail to load if RESCALE is not specified and
+   ARB_texture_non_power_of_2 is not supported.
+ - [Texture] Added many more helpful debug messages when uploading textures
+   in the debug log.
+ - [Allegro Driver] Added support for clipping and subbitmaps to the video
+   bitmap vtable.
+ - [Allegro Driver] Use ARB_texture_np2 and ARB/NV_texture_rectangle if
+   available. Removed support for non-power-of-2 bitmaps if neither of these
+   extensions are present.
+ - [AGLF] Fix crash bug detected by MSVC.
+ - [Examples] extext needs to work around an Allegro 4.2.0 bug :(
+ - [Examples] Fixed the mysha.pcx, which seems to have been corrupted.
+ - [Build] Add Allegro's GCC version detect for the -mtune/-mcpu switch crap.
+ - [Build] Fixed cygwin build to match Allegro's.
+ - [Allegro driver] Fixed some depricated API calls into Allegro.
+ - [Texture] Disable support for non-power-of-2 textures on NVIDIA and ATI
+   cards that don't really support them put still report that they do.
+
+
+* Elias Pschernig
+ - [GLext] Fixed build break under Linux.
+ - [Allegro Driver] Added vtable entries for Allegro 4.1.17 WIP.
+ - [Allegro Driver] Added vtable entries for Allegro 4.1.18 (patch was applied
+   with modifications to work with older versions of Allegro).
+ - [X Driver] Fixed random crashes due to a misplaced XUNLOCK() call. Some X
+   functions were still being called after the unlock.
+ - [X Driver] Fixed "X connection to :0.0 broken (explicit kill or server
+ shutdown)" problem.
+ - [GLext & Texture] Fixed some pointer sign-ess issues.
+ - [X Driver] Fix broken hardware cursor hiding under X11
+ with AllegroGL. 
+ - [AGLF] Add proper support for truecolor fonts.
+ - [X Driver] Fixed an async reply introduced by the previous cursor fix.
+ - [AGLF] Fixed get_text_length() for AllegroGL fonts with a non-integer scale.
+ - [Build] removed bogus default makefile from SVN.
+ - [Windows Driver] Added a hack which creates a temporary window to retain
+   focus with the application while switching from windowed to fullscreen mode
+   under Windows XP.
+ - [Docs] Only create HTML (not RTF) per default.
+ - fixed doxygen markup
+ - Added a new example "fonttest.c".
+ - Hacked in a cludge to make AllegroGL work together with changed X11 window handling in Allegro 4.2.1
+ - Adjusted the log style to match Allegro's, basically, have a prefix for each line, and no more empty lines
+ - Added license information
+ - GL_MODELVIEW_MATRIX was used instead of GL_MODELVIEW
+
+
+* Milan Mimica
+ - [Examples] Fixed the examples so that they compile under MSVC again.
+ - [Windows Driver] Added the ability to query the list of supported display
+   modes through get_gfx_mode_list().
+ - [AGLF] Fixed a potential return of garbage value from font_height().
+ - [AGLF] Updated font vtable entries for allegro 4.2.0b. 
+ - [Allegro Driver] Fixed a compiler warning.
+ - [AGLF] Fixed detection of recent versions of Allegro.
+ - [Core] Fixed texture generation for 1-high bitmaps.
+ - [AGLF] Added vtable implementation for all of the Allegro font routines.
+ - [AGLF] Fixed extract_font_range() to match the new Allegro behavior.
+ - [X driver] Fix build problem from X icon fix.
+ - [Examples & Allegro Driver] Fixed pointer sign-ness issues.
+ - [Windows Driver] Windows refresh rate fix.
+ - [Build] MSVC build fix.
+ - [Build] Added STATICTUNTIME, MSVC7 and MSVC8 support.
+ - [AGLF] Made new translucent fonts (created with make_trans_font in Allegro)
+   work.
+ - [Docs] Docs update for new MSVC targets and user-frendly messages.
+ - using M4 script to detect installed allegro version
+ - MSVC makefile fixes: fixed linking problem and changed 'delete' to 'del'
+ - adding rest() calls to some examples
+ - fixing compiler errors with nvidia OGL headers installed
+ - set executable permissions to libagl.so on unix
+ - adding directories for static linking on unix
+ - fixed memory leak in agl_merge_fonts and agl_extract_font_range
+ - fixed several Xlib async replies
+ - fixed font splitting
+ - some fixes to the windows msg logging
+ - msvc makefile fix: put obj files in right places
+ - fixed floating point color format detection under windows
+ - fixed a bug that lead to inconsistnecy in scorer on windows
+ - added the ability to use GLXFBConfig instead of XVisualInfo routines on
+   X11 port, if available
+ - fixed blitters for NPOT bitmapts when no NPOT extension is available.
+ - fixed make install with MSVC
+ - made windows select_pixel_format more robust
+ - workaround the problem when system headers do not define GLX_SAMPLES
+ - fixed a issue with some Intel drivers that do not export
+   glSampleCoverageARB but do export the non-ARB version
+ - made LOGLEVEL env variable work on MSVC build
+ - added full support for OpenGL version 2.1.
+    Added 9 new extensions:
+    - GL_EXT_stencil_clear_tag
+    - GL_EXT_texture_sRGB
+    - GL_EXT_framebuffer_blit
+    - GL_EXT_framebuffer_multisample
+    - GL_MESAX_texture_stack
+    - GL_EXT_timer_query
+    - GL_EXT_gpu_program_parameters
+    - GL_APPLE_flush_buffer_renge
+    - GL_EXT_stencil_clear_tag
+
+
+* Milan Mimica & Daniel Schlyder
+ - [Windows Driver] Added support for requesting a refresh rate.
+
+
+* Peter Wang
+ - [X Driver] Fixed the double-free-of-screen problem that's been plaguing the
+   X port.
+ - [GLext] Release the GL driver shared object once we're done querying it.
+ - [Build] Added a --quick parameter to fix.sh.
+ - [X Driver] Fixed an async reply due to glXSwapBuffers.
+ - [Build] Added support for @libdir@ to the unix makefile.
+
+
+
+* Evert Glebbeek
+ - [X Driver] Fixed icon. A generic icon gets loaded instead of the Allegro
+   one.
+
+
+* Andreas Rönnquist
+ - [X Driver] Reported a bug where availability of XCursor extension at compile
+   time was not checked for.
+
+
+* Peter Hull
+  - [Allegro Driver] Fixed double free when creating a video bitmap fails.
+  - [OSX Driver] Mapping of allegro_gl_set constants to Apple pixel format was
+    faulty (for example, requested Stereo even if the programmer asked for 'not
+    Stereo').
+  - [OSX Driver] Default setting of Scissor region appears not to be the full
+    screen (see exmipmaps) - now set explicitly.
+  - [OSX Driver] Mouse setup not correct w.r.t hardware cursor (see recent
+    change to Allegro proper).
+  - [OSX Driver] Used an NSOpenGLView instead of plain of NSView - code is a bit
+    neater.
+  - [OSX Driver] Threads now use the _unix_* functions defined by Allegro
+    instead of the bare pthreads.
+  - [Allegro Driver] Workaround for crash in glRasterPos for Mac OSX 10.2.x
+  - [GLext] On Mac OSX 10.2.x, NV_texture_rectangle is called EXT_texture_rectangle
+  - Fixed a problem in screen_masked_blit_standard.
+  - Added different blit modes, such as masked_blit and draw_sprite with power of
+    two and non power of two bitmaps
+  - Removed some unused variables and fixed colour conversion on Intel Mac
+  - Fixed crash if mysha.pcx is not present
+
+
+* Sam Hocevar
+ -fixed an oversight breaking 4.2.0 compatibility
+
+
+* Daniel Schlyder
+ - Fixed an assertion when changing graphics modes under Windows.
+
+
+* Inphernic
+ - made AGL on Windows pick a refresh rate as close as possible to 60Hz, if
+   the requested refresh rate is not available.
+
+
+Changes from 0.2.2 to 0.2.4
+---------------------------
+
+* Robert J Ohannessian
+ - [Windows driver] Re-fixed the second-set_gfx_mode()-call-fails problem.
+   This was fixed on CVS at some point, but the fix was undone due to the
+   input focus problem. This has since been corrected.
+ - [Windows driver] Fixed the WGL_p_f problems under NV1x. Basically, we
+    were querying for multisampling when multisampling wasn't supported.
+ - [Windows driver / X driver] Screen video ID is now MAX_ID, not 1000. This
+   should fix issues with programs that create more than 1000 video bitmaps.
+ - [Allegro driver] Using GL_MESA_pack_invert when we can.
+ - [Allegro driver] Added screen->video blits (untested)
+ - [Windows driver] Overhauled error detection.
+ - [Windows driver] Code clean-up.
+
+
+* Bertrand Coconnier
+ - [Allegro Driver] Added support for RLE sprites.
+ - [X driver] Added an error handler for X windows : X errors are now caught
+   by AGL and reported to the log file.
+ - [X driver] Elias Pschernig reported a bug in the DRI drivers for ATI card
+   with R200 chip. A workaround has been added in order not to crash DRI drivers
+   when AGL quits.
+
+
+
+Changes from 0.2.0 to 0.2.2
+---------------------------
+
+Note: AllegroGL 0.2.2 is NOT ABI compatible with AllegroGL 0.2.0
+
+* Bertrand Coconnier
+ - [Core] Added multisampling support.
+ - [GLext] Changed the namespace of extension pointers in order to
+   avoid name clashes between libagl.* and libGL.so under Linux.
+ - [Build] Windows build does not install glX headers anymore
+           *nix build does not install wgl headers anymore.
+ - [X Driver] Made vsync() functional for GL drivers that support 
+   GLX_SGI_video_sync.
+ - [Build & GLext] Alias headers are now automagically built
+ - [Build] By default, AGL is now built as a shared library under *nix
+ - [GLext] AGL now tries to use static linking for glXGetProcAddress[ARB]
+   when libdl.so is not available.
+
+
+* Robert J Ohannessian
+ - [Windows Driver] Fixed Multisampling support in the Windows port.
+ - [Windows Driver] Using WGL_ARB_pixel_format for the pixel format
+   selection, if available.
+ - [Build] Fixed MSVC makefile to use -GF (read-only string pooling) instead
+   of -Gf (read/write string pooling), as -Gf is deprecated.
+ - [GLext] Added GL_EXT_blend_equation_separate, GL_MESA_pack_invert and
+   GL_MESA_ycbcr_texture.
+ - [Allegro Driver] Updated for 4.1.13 vtable changes. Bug pointed out
+   by Peter Hull.
+ - [Scorer] Correctly set the color depth if not set by user.
+ - [GUI] Fixed potential memory leak.
+ - [Windows driver] Improved error checking.
+ - [GUI] Fixed mouse cursor being incorrectly displayed.
+
+
+
+Changes from 0.1.4 to 0.2.0
+---------------------------
+
+* Elias Pschernig
+ - [Allegro Driver] Fixed a bug when dealing with blitting memory sub-bitmaps
+   to the screen.
+ - [Allegro Driver] Fixed a bug when blitting from memory to video bitmaps.
+ - [Allegro Driver] Added support for blitting to video subbitmaps.
+ - [Allegro Driver] Fixed drawing method of flipped sprites in order to prevent
+   (some) OpenGL drivers to clip the whole sprite whenever it touches the
+   screen edge.
+
+
+* Robert J Ohannessian
+ - [Examples] Added missing text_mode(-1) call in dumbtest.
+ - [Examples] Fixed exalpfnt to redraw itself continuously. Resolves issue
+   with occluded window under Windows.
+ - [GUI] Fixed GUI viewport DIALOG proc not clearing depth buffer bug
+ - [Allegro Driver] Fixed function prototypes so that text output would work
+   with Allegro WIP 4.1.4 and up. 
+ - [Allegro Driver] textout() on monochrome fonts now supports opaque
+   background colors.
+ - [Allegro Driver] Colored fonts text output uses alpha testing instead of
+   blending to draw transparently.
+ - [Allegro Driver] Replaced some get/set pairs with push/pop attribs.
+ - [Allegro Driver] In Allegro mode, depth writes are disabled.
+ - [Build] Batch files removed. They never worked right anyway.
+ - [Windows Driver] We now set up some default values for the modelview and
+   projection matrices and the viewport. This is a workaround for buggy
+   drivers.
+ - [Docs] Updated howto, quickstart and readme.
+ - [Allegro Driver] Default filtering for video bitmaps is now GL_NEAREST.
+ - [Windows Driver] Added a workaround for the input focus problem on 
+   app launch.
+ - [Docs] Updated font section, depricating the system fonts functions.
+ - [Windows Driver] Binding to texture 0 on init to go around a bug in
+   some GL drivers.
+ - [Core] Added GL extension library, to automatically load all known
+   GL extensions. Removed need for GLsdk.
+ - [Font] Fixed font splitting code.
+ - [Texture] Updated texturing code. Removed the ever increasing need
+   for more state, using automatic mipmap generation or our own mipmap
+   generator, depending on availability, to avoid dependency issues
+   with GLU.
+ - [Examples] Fixed excamera's text drawing code
+ - [All] Updated AllegroGL to build with Allegro 4.0 and Allegro WIP 4.1.12
+   and over.
+ - [All] OpenGL Extensions are better detected and used.
+ - [aglf] Textures used by fonts are queryable now
+ - [Docs] Various doc updates
+ - [GLext] Workaround for broken MESA/SGI headers.
+ - [Build] Removed extra space character in fix.sh script
+ - [Texture] Packed pixel formats don't seem to be correctly supported
+   on any Voodoo cards. Disabling them for now.
+ - [Texture] Voodoo cards seem to be limited to 32x32 textures when
+   mipmapping is used. We rescale if possible, or otherwise disable
+   mipmaps. Credit to 'Mutator' for helping in debugging.
+ - [Texture] Workaround for crash on Matrox G200 cards. gluBuidl2DMipmaps
+   doesn't seem to be affected, so we're using that; up-converting
+   bitmaps to 24-bpp if needed. Credit to 'Rash' for helping in debugging.
+ - [Texture] Workaround for Matrox G200 not interpreting the internalformat
+   parameter to glTexImage?D correctly.
+ - [Font] Better spaced out fonts to avoid glitches.
+ - [Font] Fixed a bug that would sometimes cause fonts to allocate twice
+   the texture space it really needs.
+ - [Font] Fixed maximum texture size to 32k * 32k for fonts.
+ - [Allegro Driver] Priliminary fix for problems drawing on an ATI Rage Pro
+   glVertex2i is incorrectly implemented. Using glVertex2f instead.
+ - [GLext] Added OpenGL 1.5 support
+ - [GLext] Exposing the list of available GL extensions.
+ - [Examples] Fixed some issues with the exext example.
+ - [Texture] agl_check_texture() now uses agl_make_texture_ex() to check for
+   texture validity, which makes it much more accurate. Also saves us from
+   having the same code written twice.
+ - [Texture] Added the missing agl_check_texture_ex().
+ - [AGLF] Logging gross font area as well as net.
+ - [Core] Moved Voodoo 1/2/3 detection code with the others.
+ - [Texture] Using max texture sizes check before trying to upload textures.
+   Should prevent Radeon drivers from crashing.
+ - [Texture] Lots of little doc updates.
+ - [Texture] agl_make/check_texture[_ex]() now restores the texture binding.
+ - [Texture] Texture flip flag was ignored (AGL always flipped). Fixed now.
+ - [Windows Driver] Screen mode reset code simplified and corrected. Hangs on
+   mode reset, and double resets shouldn't happen any more.
+ - [Windows Driver] Input focus bug on full-screen modes should be fixed now
+   for Win2k/XP/98.
+ - [Windows Driver] Some minor code clean-up.
+ - [AGLF] Correctly checking for valid texture before uploading.
+ - [Texture] Correctly round on downsampling when building mipmap stack.
+ - [Core] Setting up Allegro RGBA shift values to be compatible with GL
+   (instead of the other way around). This should solve the discoloration
+   issues some people were having.
+ - [Examples] Simplified some examples, removed dead code.
+ - [Examples] Added more test cases to extextur.
+ - [Texture] Using GL_INTENSITY instead of GL_ALPHA for 8-bpp textures.
+ - [Core] Added Radeon 7000 detection
+ - [Texture] Workaround for SGIS_generate_mipmap bug in Radeon 7000.
+ - [Texture] Fixed mipmap generation code (Allegro path). Thanks to
+   'Kitty Cat' on allegro.cc for his help.
+ - [Examples] Added new example (exext.c) to show how to use the GL extension
+   mechanism present in AGL.
+ - [X Driver] Fixed a crash bug due to a bug in some DRI implementations.
+   Elias Pschernig provided both the bug report and the initial fix.
+ - [Allegro Driver] Binding to a 1x1 white texture when ATI Rage Pro is
+   detected to work around a a bug in ATI's OpenGL drivers.
+ - [Examples] Fixed some issues with the exext example.
+
+
+* Bertrand Coconnier
+ - [Windows Driver] Fixed the gfx mode setting so that the desktop
+   does not flicker anymore when AGL tests pixel formats on temporary
+   windows.
+ - [X Driver] Sync with Allegro : disabled hackish centering code in
+   fullscreen mode (after Eric Botcazou's fix in Allegro).
+ - [Allegro Driver] For clarity sake, splitted glvtable.c into
+   glvtable.c (for screen vtable) and videovtb.c (for video bitmaps
+   vtable)
+ - [Ext] Fixed a typo in the definition of AGL_DEFINE_PROC_TYPE.
+ - [Examples] exmasked now uses alpha test instead of blending.
+ - [Texture] Fixed a bug that prevented OpenGL 1.1 ICDs to use the packed
+   pixels extension.
+ - [Allegro Driver] Added "standard" masked_blit methods for memory->screen
+   and video->screen blits.
+ - [Allegro Driver] Fixed a bug in the clipping code of blits (destination
+   bitmaps were not correctly clipped).
+ - [X & Win Driver] Constified extensions strings of WGL and glX.
+ - [Texture] Moved the code chunk that converts mask colored pixels into
+   RGBA values. It is now in a separate function so that the masked_blit
+   method can also reference it.
+ - [Allegro Driver] Added an optimized version of masked_blit that uses
+   GL_NV_register_combiners to convert mask colored pixels into RGBA pixels.
+ - [Allegro Driver] Modified masked_blit and draw_sprite_*_flip methods in
+   order to make them fully functionnal (added horizontal & vertical flipping)
+ - [Allegro Driver] Implemented the pivot_scaled_sprite_flip method.
+ - [Headers] Moved internal structs from alleggl.h to allglint.h
+ - [Allegro Driver] Added a new AGL_VIDEO_MEMORY_POLICY option to
+   allegro_gl_get/set.
+ - [Allegro Driver] Added another optimized version of masked_blit which
+   implements the method that Bob has suggested in the mailing list (textures
+   combination).
+ - [Allegro Driver] Modified the drawing routine of the mouse cursor so that
+   it uses alpha testing instead of blending.
+ - [Build] Modified the makefile for Unix platforms in order to use the common
+   makefile "makefile.all"
+ - [X Driver] Fixed some memory leaks.
+ - [X Driver] X window should now be correctly restored when XF86Vidmod fails.
+ - [X Driver] Fullscreen modes can now be fetched by Allegro.
+ - [Build] AllegroGL can now be built as a shared library under *nix.
+ - [Texture] Added a new function allegro_gl_flip_texture() so that textures
+   can optionnaly not be flipped when allegro_gl_make_texture() or
+   allegro_gl_make_masked_texture() are called.
+ - [Allegro Driver] Fixed typo in masked blit code, standard path.
+ - [Allegro Driver] Driver vtable is now built after extensions are loaded
+   to be able to use them properly.
+ - [Allegro Driver] Numerous bug fixes to the blit() code.
+ - [Makefiles] Fixed install/uninstall of GL extension headers.
+ - [Extensions] Fixed compilation error under GCC 3
+
+
+* Angelo Mottola
+ - [OSX Driver] Added MacOSX port.
+ - [Allegro Driver] Fixed incorrect computation of triangle()'s dirty rectangle
+   for video bitmaps.
+ - [Allegro Driver] Fix for vline/hline missing-a-pixel-at-the-end bug, using
+   work-around by Robert J Ohannessian.
+ - [Docs] Documented installation procedure for Mac OS X
+
+
+
+Changes from 0.1.2 to 0.1.4:
+----------------------------
+
+* Bertrand Coconnier
+ - [X Driver] Fixed the 'motion blur' bug for mouse cursor.
+ - [Generic Driver] Modified AMesa in order to support Mesa 4.0.2 and higher.
+ - [Generic Driver] Added partial support of Allegro 3D primitives for faster
+   rendering.
+ - [X Driver] AGL now checks at run-time if pthread support is enabled. (The
+   current behaviour is to generate a fatal error if pthreads are disabled
+   but this may change in the future).
+ - [Allegro Driver] Fixed a bug in allegro_gl_screen_draw_glyph that made
+   glyphs to be drawn at the wrong location on sub-bitmaps.
+ - [Core] Fixed a bug in allegro_gl_set_projection : glViewport values were
+   not taken into account.
+ - [Build] Fixed a bug in the Unix install process (bug reported by Benny
+   Kramek).
+ - [GUI] Added the GL viewport object : d_algl_viewport_proc
+ - [X Driver] Fixed a bug that prevented SCREEN_W and SCREEN_H to be set to
+   correct values if the dimensions of the fullscreen display did not match
+   those asked by the user (bug reported by Benny Kramek).
+ - [X Driver] Added size and position hints for the Window Manager in order to
+   prevent the window to be resized (issue reported by Benny Kramek).
+ - [Ext] Added AGL_DEFINE_PROC_TYPE in order to hide the need of APIENTRY for
+   Windows platforms (issue reported by Andrew Bainbridge).
+ - [Ext] Cleaned up the code. AllegroGL no longer tries to define GL 1.2
+   features itself. Use GLsdk instead. This removes some conflicts with
+   GL/glext.h in Windows.
+ - [Docs] Some tiny documentation updates.
+ - [Allegro Driver] Added ability to draw characters and 256 color sprites on
+   the screen bitmap.
+ - [X Driver] Fixed a bug that made AGL crash when trying to switch several
+   times between the Allegro's DGA2 driver and the AGL's OpenGL driver
+   (thanks to Chris Martens for pointing out the fix).
+ - [Texture] Changed the default settings of the texture created by
+   'allegro_gl_make_texture' with mipmapping disabled : bilinear filtering
+   is now disabled for consistency with the behaviour of the same function
+   when mipmapping is enabled (issue reported by Steve Apostol).
+ - [Core] Fixed a bug where AGL overwrited mask colors of Allegro's vtables
+   and did not set them back to their previous values when switching back
+   to a non-OpenGL mode (bug reported by Chris Martens).
+ - [Core] Added the ability to manipulate AGL's mouse cursor with Allegro's
+   functions : show_mouse, set_mouse_sprite, scare_mouse,...
+ - [Build] Fixed a bug in the DJGPP build process : agl_ext.h was not built
+   (bug reported by Jeff Hurdle)
+ - [Windows Driver] Fixed a bug that prevented WGL extensions to be written
+   in the log file.
+ - [Ext] Fixed GLsdk integration : renamed AGL_EXTENSIONS to AGL_USE_EXTENSIONS
+   (issue reported by Igor Gnip)
+ - [Core] Added a workaround for buggy proxy textures management of GL drivers
+   based on Mesa/DRI (bug reported by Steffen Hein).
+ - [Generic driver] Fixed a bug related to generation of masked textures from
+   a 15 bpp bitmap.
+
+* Peter Hull
+ - [AGLF] Fixed a bug in fontconv.c where texture sizes were sorted before
+   they were set up.
+
+* Eric Botcazou
+ - [Windows Driver] Fixed a bug that made AGL unable to change the color
+   depth of the window (Allegro 4.1.1 WIP or higher is needed). The bug was
+   reported by Martin Dusek.
+
+* Robert J Ohannessian
+ - [Allegro driver] Fixed video bitmap creation code for bitmaps that
+   have a dimension that is a multiple of 256.
+ - [Build] Fixed warning with -mpentium on DJGPP and Mingw. Now
+   using -mcpu=i586.
+
+* Chris Graham
+ - [Allegro driver] Switched the y1 and y2 coordinates in agl_screen_rectfill.
+   (Some drivers seem not to like upside-down rectangles).
+ - [Ext] Fixed a bug where AGL claimed in the log file that it both failed and
+   succeeded to load an extension (actually AGL failed).
+ - [Core] Fixed a bug where OpenGL strings returned as NULL caused
+    "allegro_gl_is_extension_supported" to crash (issue reported with Mesa).
+ - [Windows driver] Made the test window size the same as the requested
+   resolution so that fullscreen-only drivers do not crash anymore.
+ - [Core] Made AllegroGL to default the OpenGL version to 1.0 when the drivers
+   do not return any version info.
+
+* Igor Gnip
+ - [Build] Fixed the Windows build with Mingw tools so that the build sequence
+   can run even if sh.exe is found in PATH
+ - [Ext] Fixed our copy of GLsdk so that it can be built with Mingw32-2.0.0.3
+
+Changes from 0.1.0 to 0.1.2:
+----------------------------
+
+* Robert J Ohannessian
+ - [Texture] Workaround for GL drivers that convert textures to 16-bit
+   even when 32-bit was requested (thanks to Nick Davies for
+   pointing out the fix).
+ - [Docs] Fixed the demo program in quickstart.txt
+ - [Build] Fixed include dir in makefiles
+ - [AGLF] Made scale factor in AGLF conversion be able to flip y-axis.
+ - [Allegro Driver] Added clip support for the screen and sub-bitmaps
+   thereof.
+ - [Build] Fixed various issues with the Windows makefiles.
+ - [Allegro Driver] Added ability to blit from memory bitmaps of
+   arbitrary depth to the screen and video bitmaps.
+ - [Ext] GLsdk integration. AGL should now be able to detect and link
+   to GLsdk if the user puts it in the add-on directory.
+   This allows usage of GL 1.3 and extensions under Windows
+   and Linux.
+ - [Core] Made double buffering, and hardware acceleration default
+   settings. You don't need to specify those any longer unless
+   you want to require them.
+ - [Windows Driver] Bug fix in the Windows full screen color depth
+   detection code.
+   (thanks to George Foot for pointing it out)
+ - [Docs] Various documentation updates
+ - [AGLF] Fixed a bug in the system fonts in AGLF. A float was
+   accidentally type changed to an int.
+ - [Examples] Fixed yaw/pitch/roll in excamera.c. Thanks to George
+   Foot for the correct equations!
+ - [Math] Fixed a bug in excamera.c and maths.c which caused glRotate
+   to rotate around a zero vector.
+ - [Allegro Driver] Text partially off screen renders correctly now.
+ - [Scorer] Added RGBA accumulator depth
+ - [Core] Added extra checks to make sure the user doesn't call
+   GL commands without a valid context.
+
+
+* Hein Zelle
+ - [Build] Changed the schell script of utod and dtou so that they can work
+   on more platforms (Irix comes to mind).
+
+* Bertrand Coconnier
+ - [Allegro Driver] Added sub-bitmap support for the screen
+ - [Ext] Added GLsdk integration to the Unix build process.
+ - [X Driver] Fixed a bug that prevented the Packed Pixels extension to be
+   correctly handled.
+ - [X Driver] Added a specific "Expose" event handler to AGL.
+ - [Core] Added 'allegro_gl_error' variable in order to complete usual allegro
+   error messages
+ - [Core] Added 'allegro_gl_set/unset_allegro_mode' functions. These functions
+   should now replace the 'allegro_gl_set/unset_projection' pair (which have
+   been kept for backward compatibility).
+
+* George Foot
+ - [GUI] Added GUI manager routines
+ - [Build] Updated the MSVC build batch files to include gui.c and exgui.c
+ - [GUI] Made the mouse cursor hide when the pointer is outside the window
+
+* Nick Sumner
+ - [Texture] Fixed internal type for 32 bpp textures
+
+
+Changes from 0.0.24 to 0.1.0:
+-----------------------------
+
+Note: AllegroGL 0.1.0 is NOT source compatible with AllegroGL 0.0.24
+
+* Bertrand Coconnier:
+ - Changed the DOS port into a generic driver that can either be built on DOS
+   or Unix platforms (thanks to Allegro and Mesa portability !).
+ - Upgraded the DOS (aka generic) driver to Mesa 4.0 (splitted amesa.c into
+   amesa.c and raster.c)
+ - allegro_gl_get_proc_address now works for the DOS (aka generic) driver too.
+ - Added automatic dependencies generation for the Unix build.
+ - Fixed the draw_glyph method of the generic driver.
+ - Fixed the DJGPP makefile (according to Bob's new makefile system).
+ - Fixed the color conversion problem of the generic driver (RGB components
+   were sometimes mixed up)
+ - Fixed a bug in the glClear method of the generic driver : it now takes 
+   glClearColor into account.
+ - Fixed a bug that made the generic driver overwrite Allegro's vtables, thus
+   rendering Allegro graphic functions useless.
+ - Fixed a bug in 'remove_allegro_gl' : Allegro's gfx drivers are now correctly
+   restored .
+ - In alleggl.h, the prototypes of the functions that manage OpenGL extensions
+   are now included in 'extern "C"' : they can now be used in a C++ prog.
+ - Added an example (exgui.c) of how to use Allegro GUI routines within
+   AllegroGL
+ - Fixed a tiny bug in (and BTW simplified) the clear_to_color method.
+
+* Robert J Ohannessian:
+ - Updated the Mingw compilation instructions.
+ - Updated makefile system to be more consistent with itself and with
+   Allegro's. MSVC and Mingw are done. Unix and DJGPP are pending.
+ - Fixed a bug in allegro_gl_printf() that caused it to not restore
+   the texture binding in some circumstances.
+ - Documented strange behaviour of OpenGL - the default texture is not 0
+   if you use glGetIntegerv(GL_TEXTURE_2D_BINDING).
+ - Added a new example/tutorial to show how to use a camera with
+   quaternions in OpenGL.
+ - Removed ability to draw AllegroGL fonts using Allegro functions.
+   Use AGL functions for AGL fonts, and AL functions for AL fonts.
+ - Glyphs are now sorted and fitted to textures. This should reduce wasted
+   texture space, and fix some problems on Voodoos (but not all).
+ - AllegroGL now *requires* Allegro 4.0.0.
+ - Fixed most compilation warnings.
+ - Cleaned up conversion code, and split aglf.c to fontconv.c
+ - Reduced memory used by converted font.
+ - Blank space in glyphs is now cropped to save more texture space.
+   The example programs should now work on the Voodoos.
+ - Font conversion code now takes a scaling factor (see docs for details).
+   Use 16.0 so fonts get generated as in 0.0.24-.
+ - Slight tweak in the alpha font converter so that end value range is
+   [0..255] and not [0..254].
+ - Added ability to save/load current configuration.
+ - Made set_color_depth be respected by AllegroGL, but only if the other
+   AllegroGL functions weren't being used.
+
+* George Foot:
+ - Fixed the Unix makefile
+ - Added the capability of having glyphs placed arbitrarily in a texture.
+
+* Julien Cugniere:
+ - Fixed a bug in allegro_gl_screen_triangle so that 2D triangles are not drawn
+   twice anymore.
+
+* Igor Gnip:
+ - Added the STATICLINK option for Mingw and MSVC compilers
+
+
+Changes from 0.0.22 to 0.0.24:
+------------------------------
+
+* Bertrand Coconnier:
+ - Added 24 bpp support to the DOS port
+ - Added an experimental scorer to the DOS port
+ - The Read and Draw buffers are now handled by two different pointers on the
+   DOS port.
+ - Changed every GL_TEXTURE_2D_BINDING to GL_TEXTURE_BINDING_2D (the later is
+   the only one which is compliant with OpenGL specifications).
+
+* George Foot
+ - made the fix scripts create target directories
+
+
+Changes from 0.0.20 to 0.0.22:
+------------------------------
+
+* Bertrand Coconnier:
+ - Revamped the DOS build process
+ - Fixed a bug in "allegro_gl_check_texture"
+ - Added support for OpenGL extensions mechanism
+ - Fixed GFX_VTABLE and Allegro headers location to compile with WIP 40
+ - Fixed a bug in "allegro_gl_make_masked_texture" (mask color sometimes needs
+   to be updated).
+ - Fixed the color conversion bug for video bitmaps thanks to Bob's Allegro
+   patch (e.g. blit_between_formats)
+ - Added support for X fonts
+ 
+* Robert J Ohannessian
+ - Fixed MSVC makefile so that "make clean" works again
+ - Made allegro_gl_begin/end nops.
+
+* George Foot
+ - Added alpha map fonts
+ - Updated vtable checks to support Allegro 4
+
+
+Changes from 0.0.18 to 0.0.20:
+------------------------------
+
+* Bertrand Coconnier:
+ - Doc updates.
+ - Fixed the GFX_VTABLE 'hfill' entry which must not be NULL.
+
+* Robert J Ohannessian
+ - Fixed textout not working on non-square fonts. The bug crept back
+   during an earlier patch, sorry.
+ - Doc updates.
+ - Fixed windowed mode bug in Windows.
+ - Fixed GFX_VTABLE to compile with WIP 39 (added hrect field)
+ - Fixed multi-range TEXTURED fonts.
+
+
+Changes from 0.0.16 to 0.0.18:
+------------------------------
+
+* Bertrand Coconnier:
+ - Fixed the allegro_gl_screen and __allegro_gl_memory deallocation bug.
+ - Fixed the reinitialization of keyboard and mouse when set_gfx_mode is
+   called.
+ - Added lots of debug info on the Unix build.
+ - Added a DOS driver for rendering via Mesa. OpenGL programs can now be
+   written for DOS!
+ - Added the ability to hint windowness to the graphics driver.
+ - Fixed a bug in exalleg which caused textures to not show up in 32bpp.
+ - Determined the glvtable bug.
+ - Added alpha channel support for 32 bpp in X. 
+ - Fixed the problematic color depth problem.
+ - allegro_gl_printf now behaves accordingly to the value set with
+   allegro_gl_use_alpha_channel.
+
+* Robert J Ohannessian
+ - Lots of doc updates.
+ - Bug fixes in the mono glyph drawing routine
+   (incorrect width, and texture binding)
+ - Allegro functions (glvtable) now reset the texture binding to 0 when
+   called to fix problems when lines and points were drawn with a texture;
+   Bertrand found the bug.
+ - Added warning for unsupported platforms.
+ - Fixed blitting to the screen from a < 24bpp bitmap in Windows. 
+ - Fixed a crashing bug when AGL wasn't able to properly set up a mode.
+ - Added extra debug info to the Windows driver
+ - Tweaked the scorer a bit to get better modes. Color depth is now better
+   considered, and acceleration gets a bonus.
+
+
+
+Changes from 0.0.14 to 0.0.16:
+------------------------------
+
+* Steffen Hein
+ - Fixed compilation warning
+
+* Robert J Ohannessian
+ - Fixed error in texture uploading code.
+ - Added a new example (extextur) which tests texturing and blending.
+ - Added another example that tests the texture-bitmap masking code.
+ - Fixed a bug that made AllegroGL overwrite Allegro's vtables, thus
+   rendering Allegro graphic functions useless.
+ - Added the (incomplete) video bitmap vtable. Only create/destroy/
+   putpixel/getpixel are supported.
+ - Added an fps counter, and fixed the double buffering bug in dumbtest.
+ - Added some simple Allegro calls in exalleg.
+ - Updated docs, added a buglist.
+ - Added RGBA depths to the scorer system, including depth guessing.
+ - Replaced incorrect blending modes with ones that work.
+ - Added priliminary support for video bitmaps through textures.
+   vline/hline/line/rectfill and video->screen blits are supported.
+   (need latest CVS of Allegro, or 3.9.38).
+ - Fixed the 2D projection matrix to work with exact coordinates (according
+   to the red book anyway)
+ - Fixed a bug that made AllegroGL crash when doing screen->memory blits.
+  
+
+* Bertrand Coconnier
+ - Removed the -g switch for the Unix optimized build
+ - Fixed a bug that generates a segmentation fault when
+   the app switches between fullscreen and windowed mode
+   in X.
+ - The X fullscreen functions have been merged with the
+   windowed ones (it allows to share much code between the
+   two drivers)
+ - Mouse should work under fullscreen in X.
+ - X Fullscreen driver should also cleanly quit.
+ - Cosmetic changes in the X code (ustrzcpy, h/w acceleration detection,
+   extra debug info)
+   
+ 
+* George Foot
+ - Updated the screen vtable to fix pixel alignement issues.
+ - Fixed the draw_glyph() problem: textout with regular Allegro fonts works!
+ - Added blit_to_self to the screen vtable. Now screen->screen blits work.
+ - Added a configure script. Now AGL can be compiled in X by running
+   configure/make/make install. Video driver is now detected dynamically.
+ - Debugging those incorrect blending modes (see above)
+ 
+   
+ 
+ 
+
+Changes from 0.0.12 to 0.0.14:
+------------------------------
+
+* Eric Botcazou
+ - made AGL re-read the desktop depth in select_pixel_format() to go
+   around a bug in Win95.
+ - Fixed the window-can-be-resized bug in the Windows port.
+
+* Robert J Ohannessian
+ - Fixed a bad bug in the texture uploading code. AllegroGL should now
+   properly work in alternate color depths (thanks to stoney``,
+   _deserel and networm, from #allegro on EFNet for the bug reports!)
+ - Added the allegro_gl_opengl_version() function.
+ - Bug in 32bpp modes - Allegro loads bitmaps with alpha channel set to 0.
+   This causes textures to not show up (documented)
+ - Updated the docs for the texture routines.
+ - Renamed the LOG macro to AGL_LOG to avoid conflicts.
+ - Added a compile-time version check for Allegro.
+ - Added a compile-time version check for OpenGL 1.1
+ - Removed the AGL_PPT and AGL_PPF macros - they don't make sense anymore,
+   and replaced them with new functions (allegro_gl_get_texture_format()
+   allegro_gl_bitmap_color_format() and allegro_gl_bitmap_type())
+ - Fixed the color bug in extext
+ - Merged the texturing code from AGLF and AllegroGL
+ - Added a new option for mipmapping.
+ - Improved the visuals in the extext example.
+ - Split alleggl.c into alleggl.c and texture.c
+ - Fixed character alignment bug in AGLF.
+ - Fixed incorrect character sizes in AGLF. Also made 16 pixels = 1.0 units
+   in the Allegro->Textured code (documented).
+ - Fixed "polygons being always culled" bug in AGLF (thanks to Bertrand &
+   dusekm for the bug reports).
+ - Added a main page to the Doxygen generated documentation. Rearanged
+   the readme and quickstart guides. Added a FAQ.
+
+* Bertrand Coconnier
+ - Fixed the warnings when compiling texture.c 
+
+
+
+
+Changes from 0.0.10 to 0.0.12:
+------------------------------
+
+* Eric Botcazou
+ - removed all the Windows specific hooks into Allegro internals. 
+   It lets AllegroGL reuse the Allegro window in a way similar
+   to that of the Allegro windowed drivers.
+   AGL now requires WIP 34-35 to compile.
+ - Fixed the mode set/reset bug.
+
+* Javier González
+ - Changed the Mingw makefile to use DOS's 'copy' instead of 'cp'
+ - Added the missing agl_begin/end around allegro_gl_make_texture().
+ - Made allegro_gl_make_texture upload bitmaps upside down, as they should be.
+
+* Bertrand Coconnier
+ - added fullscreen support in X
+
+* Günter Ladwig
+ - Fixed compilation warnings in glvtable.c
+
+* Peter Wang
+ - Fixed warnings about 'memcpy' and 'memset'
+
+* Robert J Ohannessian
+ - Merged AGLF into AGL. Now AllegroGL has proper text output support,
+   can convert Allegro fonts, load system fonts...
+ - Fixed the MSVC makefile to work with the Mingw tools, and under Win2k.
+ - Made the Dialog example useful as a screen mode testing program.
+ - Updated the MSVC batch files.
+ - Documented aglf
+ - Updated aglf to work with Allegro's new FONT structure.
+
+* Georges Foot
+ - Changed documentation system to work with Doxygen, and documented
+   most of the lib.
+ - Added a new package: alleggl_docs for holding the generated documentation.
+
+
+
+
+
+Changes from alpha-8 to 0.0.10:
+-------------------------------
+
+* John Harger
+ - added support for Mingw.
+ - made the Allegro window close, and new window open to make up for
+   difficulties with Win95.
+ - fixed the windowed mode border/title bar problem.
+
+* Igor Gnip
+ - fixed Ming support (accidently broken by Robert)
+
+* Robert J Ohannessian
+ - added the fixmsvc.bat script
+ - fixed a bug in makefile.win where the command line would be too
+   long to be passed to cl. Now using 'echo' to write to a temporary
+   file.
+ - added a todo/bug list file.
+ - modified the 'tex' example to use H/W acceleration and no stencil
+   buffer.
+ - fixed the linking errors with C++ program (thanks to martinik for
+   pointing it out!)
+ - added a font conversion routine. Now textout works in AllegroGL
+   (but breaks it in Allegro *grin*)
+ - fixed up the scorer a bit and beautified its output.
+ - added support for 32bpp.
+ - added a Quat to glRotate conversion function.
+ - added a work-around to get the proper color depth in Win95.
+ - fixed various things in the full-screen mode-setting code for
+   Windows.
+ - made the windowed mode work regardless of suggested color depth.
+
+* Günter Ladwig
+ - added the fixunix.sh script
+ - removed the showing of the echo'ed commands in makefile.win
+ - fixed the hardware acceleration bug on Voodoo's.
+ - changed the color depth setting mechanism for full screen modes
+   in Windows.
+
+* George Foot
+ - did minor aesthetic changes to fixunix.sh
+ - rearranged the directory structure of AGL
+ - moved the documentation to a seperate tree.
+ - fixed a bug in 'tex' regarding texturing being turned off.
+ - added a logging facility and trace calls in 'glvtable.c'
+ - disabled the mouse cursor in X
+ - added 8bpp support and fixed the X mouse warping.
+ - fixed various things in the full-screen mode-setting code for
+   Windows.

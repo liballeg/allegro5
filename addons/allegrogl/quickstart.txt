@@ -1,0 +1,194 @@
+AllegroGL Quickstart
+====================
+
+
+AllegroGL web site:  http://allegrogl.sourceforge.net/
+This document:       http://allegrogl.sourceforge.net/quickstart.txt
+
+
+Introduction
+~~~~~~~~~~~~
+
+You should read the rest of the documentation for details. This guide
+only contains minimal details on how to set up and use AllegroGL.
+
+
+Requirements
+~~~~~~~~~~~~
+
+See readme.txt or the HTML docs for the proper list of requirements.
+
+
+Installation
+~~~~~~~~~~~~
+
+See readme.txt or the HTML docs for the full installation procedure. This
+is just to get you quickly started, so a lot of details are skipped.
+
+Unix: Check that Allegro has been compiled with pthreads support enabled.
+	If not then recompile it (you must not use the '--disable-pthreads'
+	option when running './configure' at Allegro compilation).
+	
+	Unzip the AllegroGL archive, and run './configure' and `make' from the
+	top directory.  That should build the library (in `lib') and example
+	programs (in `examp').  Then run 'make install' to install the header
+	files and the library.
+
+
+Windows: Unzip the archive. First run 'fix msvc' or 'fix mingw32' depending on
+	which compiler you will be using (You'll also need to run vcvars32.bat
+	if you're building with MSVC). Then simply run 'make' followed by
+	'make install' to build the library and install it.
+	You can use the DEBUGMODE=1 switch if you need to the debug build of
+	the library.
+
+
+DOS:    Unzip the archive files MesaLib-4.0.zip wherever you want.
+	Unzip AllegroGL
+
+	Go to the root directory of AllegroGL type 'fixdjgpp' (without
+	quotes) followed by 'make MESADIR=xxxx' where 'xxx' is the path to the
+	Mesa root directory. Finally type 'make install' to install the library
+
+
+Mac OS X: Unzip the archive. First run './fix.sh macosx', then
+	simply run 'make' and 'sudo make install'. The last step will
+	require your root password.
+
+
+Using AllegroGL:
+~~~~~~~~~~~~~~~~
+
+Unix: 	For the compilation process, all you need to do is
+	#include <alleggl.h>.
+	You'll need to link with -lagl (or -lagld), `allegro-config --libs`
+	(or `allegro-config --libs debug`), -lGL and -lGLU
+
+Windows: For the compilation process, all you need to do is
+	#include <alleggl.h>.
+
+	For MSVC: You'll need to link with agl.lib (or agld.lib),
+	alleg.lib (or alld.lib), user32.lib, gdi32.lib, opengl32.lib,
+	and glu32.lib (note: the link order is important).
+
+	For Mingw: You'll need to link with -lagl (or -lagld), 
+	-lalleg (or -lalld), -luser32 -lgdi32 -lopengl32 and -lglu32
+	(note: the link order is important).
+
+DOS:	For the compilation process, all you need to do is
+	#include <alleggl.h>.
+	You'll need to link with -lagl (or -lagld), 
+	-lalleg (or -lalld), -lmesagl and -lmesaglu
+
+Mac OS X: For the compilation process, all you need to do is
+	#include <alleggl.h>.
+	You'll need to link with -lagl (or -lagld), `allegro-config --libs`
+	(or `allegro-config --libs debug`), -framework Carbon and
+	-framework OpenGL.
+	There is no support to build from Project Builder or XCode at the
+	moment, sorry.
+
+
+Tests/Examples
+~~~~~~~~~~~~~~
+
+You can try out any of the example programs in `examp'. Most of them
+require mysha.pcx, which you can find in the Allegro example directory.
+
+- test.c and tex.c Show a very simple OpenGL program.
+- extextur.c       Shows how to load and display textures.
+- exalleg.c        Shows how to use Allegro code with AllegroGL to
+                   read/write to the screen.
+- exmasked.c       Shows how to draw sprites that are masked using
+                   OpenGL.
+- extext.c         Shows how to use the extended text and font facilities
+                   in AllegroGL.
+- exalpfnt.c       Shows how to use FONTs that are alpha channel only, to
+                   save on texture memory.
+- excamera.c       Shows how to use a camera in OpenGL. It uses Allegro to
+                   manage a quaternion.
+- exgui.c          Demonstrates the use of the Allegro GUI routines with an
+                   OpenGL back-end.
+- exext.c          Shows how to use OpenGL extensions with AllegroGL.
+- dialog.c         Demonstrates switching in between Allegro screen modes
+                   and OpenGL. It can also serve as a test application for
+                   resolution/color depths.
+- dumbtest.c       Just tests various features of AllegroGL, like
+                   mix-matching Allegro's rendering with OpenGL's.
+- exmipmaps.c      Shows how to use a mipmap stack in AllegroGL for texture
+                   filtering.
+- fonttest.c       Shows various AllegroGL FONT rendering types.
+- exblend.c        Shows how to use Allegro/AllegroGL API to do accelerated
+                   blending of the bitmaps to the screen.
+
+
+Example code:
+~~~~~~~~~~~~~
+
+#include <allegro.h>
+#include <alleggl.h>
+
+int main() {
+	
+	/* Initialize both Allegro and AllegroGL */
+	if (allegro_init())
+		return 1;
+
+	if (install_allegro_gl())
+		return 1;
+	
+	/* Tell Allegro we want to use the keyboard */
+	install_keyboard();
+
+	/* Suggest a good screen mode for OpenGL */
+	allegro_gl_set(AGL_Z_DEPTH, 8);
+	allegro_gl_set(AGL_COLOR_DEPTH, 16);
+	allegro_gl_set(AGL_SUGGEST, AGL_Z_DEPTH | AGL_COLOR_DEPTH);
+
+	/* Set the graphics mode */
+	if (set_gfx_mode(GFX_OPENGL_WINDOWED, 640, 480, 0, 0)) {
+		set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+		allegro_message("Unable to set graphic mode\n%s\n", allegro_error);
+		return 1;
+	}
+	
+	/* Clear the screen */
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	/* Set up the view frustum */
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glFrustum(-1.0, 1.0, -1.0, 1.0, 1, 60.0);
+
+	/* Draw a quad using OpenGL */
+	glBegin(GL_QUADS);
+		glColor3ub(255, 255, 255);
+		glVertex3f(-1, -1, -2);
+		glVertex3f( 1, -1, -2);
+		glVertex3f( 1,  1, -2);
+		glVertex3f(-1,  1, -2);
+	glEnd();
+	
+	/* Flip the backbuffer on screen */
+	allegro_gl_flip();
+	
+	/* Wait for the user to press a key */
+	readkey();
+	
+	/* Finished. */
+	return 0;
+}
+END_OF_MAIN()
+
+
+
+
+
+
+
+Contact information
+~~~~~~~~~~~~~~~~~~~
+
+Web page:     http://allegrogl.sourceforge.net/
+Mailing list: allegrogl-general@lists.sourceforge.net
+

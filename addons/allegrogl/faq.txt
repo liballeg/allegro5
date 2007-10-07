@@ -1,0 +1,184 @@
+
+AllegroGL FAQ
+=============
+
+This is the AllegroGL Frequenly Asked Questions document. It contains
+answers to some of the questions which have been repeatedly asked by
+users of AllegroGL. The collection of these questions/answers was taken
+mainly from the nice people in the #allegro channel (EFNet) and the
+AllegroGL mailing list.
+
+Documentation you should read:
+ The Allegro FAQ - http://www.talula.demon.co.uk/allegro/faq.html
+ The various OpenGL FAQs 
+	- http://www.opengl.org/developers/faqs/technical.html
+	- http://www.3dgamedev.com/resources/openglfaq.txt
+	- http://www.sgi.com/software/opengl/faq.html
+	- http://www.faqs.org/faqs/graphics/opengl-faq/
+
+
+Table of Contents:
+------------------
+
+- License
+- Installation and Configuration
+- AllegroGL and MSVC
+- AllegroGL and Mingw
+- AllegroGL and Windows
+- AllegroGL and Linux/X
+- Allegro/AllegroGL and OpenGL
+
+
+
+License
+-------
+
+Q: What is the license of AllegroGL?
+
+A: It is double licensed under GPL and zlib.
+
+
+Q: So is AllegroGL GPL? Can I use it without open sourcing my own code?
+
+A: No, it is not GPL. You just can choose to use it with the GPL license, in
+   which case you are bound to open source your own code as well. You can just
+   as well choose to use the zlib license though. See gpl.txt and zlib.txt for
+   details of both licenses.
+
+
+Q: So does this mean, AllegroGL has not the same license as Allegro? Why is
+   that? Will it change?
+
+A: Apparently, it seems to not be the same license. We (current developers) do
+   not know why this is either - but it's how the original authors licensed it.
+   We would like to change the license to be the same as Allegro and likely
+   will do so for new versions.
+
+
+
+Installation and configuration
+------------------------------
+
+Q: How do I compile AllegroGL?
+
+A: See readme.txt for detailed instructions.
+
+
+Q: I ran the makefile file, but it complains about a missing
+   'alleg.lib' or 'liballeg.a'. What's going on?
+
+A: You need to make sure you built Allegro before being able to build
+   AllegroGL. You'll also need to build Allegro and AllegroGL using the
+   same compiler - mix and matching compilers will not work.
+   
+
+
+AllegroGL and MSVC
+------------------
+
+Q: I made my own program/game with AllegroGL and MSVC, and it
+   successfully compiles. However, it crashes when I run it, complaining
+   about "DescribePixelFormat" not being in opengl32.dll. Is it a bug in
+   AllegroGL?
+   - or -
+   I made my own program/game with AllegroGL and MSVC, and when
+   I try to compile it, it gives me some linker error about missing
+   functions. Is it a bug in AllegroGL?
+   
+A: No, it's not. You just need to properly set up the libraries to link to.
+   You should be using: user32.lib gdi32.lib alleg.lib agl.lib opengl32.lib
+   glu32.lib. Any other library is optional.
+
+
+Q: I can't compile AllegroGL programs. I get tons of errors about _imp_malloc()
+   being redefined. Help!
+
+A: Make sure you compiled with Multithreaded DLL runtime (Debug Multithreaded
+   DLL in debug mode). The command line switch is -MD or -MDd (and NOT -ML).
+
+
+AllegroGL and Mingw
+-------------------
+
+Q: I made my own program/game with AllegroGL and Mingw/Dev-C++, and it
+   successfully compiles. However, it crashes when I run it, complaining
+   about "DescribePixelFormat" not being in opengl32.dll. Is it a bug in
+   AllegroGL?
+   - or -
+   I made my own program/game with AllegroGL and Mingw/Dev-C++, and when
+   I try to compile it, it gives me some linker error about missing
+   functions. Is it a bug in AllegroGL?
+   
+A: No, it's not. You just need to properly set up the libraries to link to.
+   You should be using: -lagl -lalleg -luser32 -lgdi32 -lopengl32 -lglu32.
+
+
+
+AllegroGL and Windows
+---------------------
+
+
+
+AllegroGL and Linux/X
+---------------------
+
+Q: AllegroGL doesn't work if I build it in Linux. I am using GCC 2.96 and
+   RedHat 7.0.
+
+A: Either upgrade or downgrade your version of GCC to 3.0.x or 2.95.x.
+   RedHat 7's version was taken directly from CVS and was in an
+   unstable state.
+
+
+Q : My X server crashes whenever I use an AllegroGL application.
+    - or -
+    AllegroGL apps crash when I move the window or maximize it.
+
+A : This is likely to be a race condition. Allegro must be compiled with
+    pthreads support enabled.
+
+
+
+Allegro/AllegroGL and OpenGL
+----------------------------
+
+Q: How do I convert a direction vector and up vector into something
+   OpenGL can use?
+
+A: First, you'll need to use Allegro's matrix function.
+   See get_camera_matrix[_f]() on how to use it. Then you can convert the
+   Allegro MATRIX[_f] into an OpenGL matrix (GLfloat[16]) using
+   allegro_gl_MATRIX[_f]_to_GLfloat(). After that, it's a simple matter
+   of calling glMultMatrixf with the array of floats to apply the
+   transformation to the current matrix.
+
+
+Q: Can I use Allegro's matrix and quaternion code with OpenGL?
+
+A: You can use most of Allegro's matrix and quat code in OpenGL if you
+   need to do your own transformations. However, apply_matrix[_f]() and
+   apply_quat() will NOT work properly due to the difference of coordinate
+   system in between Allegro and OpenGL (see relevant docs). You should use
+   allegro_gl_apply_quat() (or allegro_gl_quat_to_glRotatef()) instead.
+   Sorry, there is no matrix application code yet.
+
+
+Q: Can I use GLUT 3D primitives with AllegroGL?
+
+A: You can use safely 3D primitives of the GLUT library since it uses "pure"
+   OpenGL functions and makes no hardware nor platform specific calls.
+   (Successfully tested on Linux/XFree 4.0,  AllegroGL 0.0.18 and GLUT from
+   Mesa 3.4.1).
+
+
+Q: How can I force textures built with 'allegro_gl_make_texture' to
+   use bilinear filtering ?
+
+A: Use the GL command 'glTexParameteri' to change the way the texture is
+   magnified or minified. For example, if you want to force bilinear filtering
+   after a texture has been created by AllegroGL, you should add the following
+   lines just after the call of 'allegro_gl_make_texture' :
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   You can also read the man pages of 'glTexParameteri' or the red book for
+   more information.

@@ -1,0 +1,66 @@
+#----------------------------------#
+#--- Source file list -------------#
+
+C_SOURCE = alleggl.c glvtable.c scorer.c math.c aglf.c fontconv.c texture.c glext.c gui.c videovtb.c
+WIN_SOURCE = win.c
+DOS_SOURCE = djgpp.c
+MACOSX_SOURCE = macosx.m
+
+C_DEPEND = alleggl.h allglint.h allegrogl/gl_ext.h allegrogl/gl_header_detect.h
+
+EXAMP_SOURCE = test.c tex.c dumbtest.c dialog.c extext.c extextur.c exmasked.c \
+    exalleg.c exalpfnt.c excamera.c exgui.c exext.c exmipmaps.c fonttest.c exblend.c
+
+HEADERS = include/alleggl.h include/allegrogl/gl_ext.h include/allegrogl/gl_header_detect.h
+EXT_HEADERS_PATH = include/allegrogl/GLext
+EXT_HEADERS = $(EXT_HEADERS_PATH)/gl_ext_defs.h $(EXT_HEADERS_PATH)/gl_ext_api.h $(EXT_HEADERS_PATH)/gl_ext_list.h $(EXT_HEADERS_PATH)/gl_ext_alias.h
+
+default: all
+all: examples lib
+	@echo -
+	@echo Success!
+	@echo Now run 'make install' to install AllegroGL.
+
+
+#----------------------------------#
+#-- Set up names and dependencies -#
+
+
+SRC_DIR = src
+LIB_DIR = lib/$(COMPILER)
+EXAMPLE_DIR = examp
+INCLUDE_DIR = include include/allegrogl include/allegrogl/GLext
+
+ifdef STATICLINK
+  STATICALLEGRO=1
+  ifdef STATICRUNTIME
+    SUFFIX = _s_crt
+  else
+    SUFFIX = _s
+  endif
+else
+  ifdef STATICRUNTIME
+    SUFFIX = _crt
+  else
+    SUFFIX =
+  endif
+endif
+
+ifdef STATICALLEGRO
+  ifdef STATICRUNTIME
+    ALLEG_SUFFIX = _s_crt
+  else
+    ALLEG_SUFFIX = _s
+  endif
+endif
+
+ifdef DEBUGMODE
+  OBJ_DIR = $(addsuffix $(SUFFIX),obj/$(COMPILER)/debug)
+  LIB_NAME = $(addsuffix $(SUFFIX),agld)
+  LINK_LIB = $(addsuffix $(ALLEG_SUFFIX),alld)
+else
+  OBJ_DIR = $(addsuffix $(SUFFIX),obj/$(COMPILER)/release)
+  LIB_NAME = $(addsuffix $(SUFFIX),agl)
+  LINK_LIB = $(addsuffix $(ALLEG_SUFFIX),alleg)
+endif
+

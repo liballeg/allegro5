@@ -1,0 +1,63 @@
+AllegroGL Know Bug List
+-----------------------
+
+* Voodoo 5 only seems to support mipmapping for textures that are
+  32x32 and under. Voodoo 3 supports larger textures with mipmaps.
+  GLU also resizes down to 32x32. Needs investigation
+
+* Catalyst 3.10 drivers aren't able to correctly compile the code
+  in exext.c. This looks like a bug in Cat 3.10; with ATI not
+  following the ARB grammar for VP. Works on NV drivers.
+  
+* "In extextur, the space character is rendered as a small dot when
+  the background is not transparent".
+  This is a bug in the font generation code. We need to make it more
+  solid. Should we remove the cropping code? Should we draw a rectangle
+  before the text?
+  
+* Using unsupported features crashes. We should fix that.
+
+* AGL cannot deal with extensions which name starts with a number
+  (e.g WGL_3DL_stereo_control). It fails at compile-time trying to
+  construct an invalid struct member variable name like
+  allegro_gl_extensions_WGL.3DL_stereo_control.
+
+* Functions that do text drawing, rotating and/or flipping to video
+  bitmaps do not work correctly for dest bitmaps that have textures in
+  segments. Bitmap is made segmented if the texture of the size of the
+  bitmap is not supported by the GFX driver (too large or non-power-of-2).
+  The work-around is obvious.
+
+* Functions that do text drawing, stretching, rotating and/or flipping
+  to video bitmaps do not work correctly if EXT_framebuffer_object
+  OpenGL extension is not available.
+
+* Functions that do stretching, rotating and/or flipping to video bitmaps
+  do not apply rotation and scale to the memory copy. Thus reading from
+  such bitmaps may return unexpected images.
+
+* Before any drawing to the video bitmap occurs, when using FBO
+  feature, at least one call to allegro_gl_set_allegro_mode() must be
+  made. This is needed in order for __allegro_gl_pool_texture texture
+  to be created, which is used for FBO drawing.
+
+* Since Allegro 4.2.2, it is possible to build ASM-free version of Allegro
+  for Windows (using the ALLEGRO_USE_C mode or MSVC project files).
+  Programs that use such Allegro library and AllegroGL need to define
+  ALLEGRO_NO_ASM preprocessor macro when compiling, otherwise a crash at
+  program start-up happens. The exact cause is unknow at the moment.
+
+
+Here's a list of known bugs, that are either unresolved, lack debug
+information, or the original discoverer dispeared without confirming
+whether the bug still exists or not. We would appreciate some feedback
+on those:
+
+* The Allegro mouse cursor doesn't work. This is due to GL not being
+  able to operate accross threads and assynchronously.
+  Potential resolve: make agl_flip() draw the mouse cursor.
+
+* On Win32 platforms, the mouse cursor (Windows style) is not always hidden
+  in fullscreen mode.
+  Workaround while the bug is not fixed : call 'set_gfx_mode(GFX_TEXT,0,0,0,0)'
+  before the actual 'set_gfx_mode' (workaround suggested by Martin Dusek).

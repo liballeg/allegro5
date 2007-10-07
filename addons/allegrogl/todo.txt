@@ -1,0 +1,52 @@
+AllegroGL Todo/bug list for version 1.00
+========================================
+
+Core:
+-----
+? Resizable window support. This will need lots of changes to Allegro
+  though, unless AGL manages the window and DirectX (or whatever is the
+  equivalent in X).
+
+
+* Font and text support:
+------------------------
+* Check the font code with proportional and non-proportional fonts
+* Sort characters by texture before rendering.
+* Combine all ranges into one texture if possible.
+
+
+Allegro driver:
+---------------
+* video subbitmap and clipping support
+* Combine video bitmaps in textures into less textures.
+* Ability to draw 256 color sprites on video bitmaps
+* fix flip&rotate drawing on video bitmaps when the bitmap is segmented
+* drawing rle sprites -> video bitmaps
+* rewrite drawing of primitives to video bitmaps using FBO
+? System bitmaps
+
+
+Windows:
+--------
+*
+
+
+X:
+--
+? Use GLX extension for full-screen support, when it comes out
+* When available use FBConfig facilities in scorer (through extension or GLX 1.3)
+
+
+Generic driver : (was DOS port)
+---------------
+* Update the code to take advantage of Allegro graphics primitives (lines,
+  triangles, ...).Currently the driver draws to BITMAPs pixel per pixel.
+* 8 bits support does not work at all. Especially indexed colors modes.
+* Complete GLUT for AMesa if somebody is interested in.
+* Use regular video bitmaps
+
+
+Misc:
+-----
+? Maybe convert a few of NeHe's tutorials to Allegro/AGL :)
+
