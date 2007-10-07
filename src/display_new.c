@@ -22,11 +22,18 @@
 #include "allegro/internal/aintern_display.h"
 #include "allegro/internal/aintern_bitmap.h"
 
+
+
 // FIXME: The system driver must be used to get drivers!
 extern ALLEGRO_DISPLAY_INTERFACE *_al_glx_vt(void);
 
-/*
- * Create a new display. This is usually a window or fullscreen display.
+
+
+/* Function: al_create_display
+ *
+ * Create a display, or window, with the specified dimensions.
+ * The parameters of the display are determined by the last calls to al_set_new_display_*. Default parameters are used if none are set explicitly.
+ * Creating a new display will automatically make it the active one, with the backbuffer selected for drawing. 
  */
 ALLEGRO_DISPLAY *al_create_display(int w, int h)
 {
@@ -52,31 +59,66 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    return display;
 }
 
+
+
+/* Function: al_destroy_display
+ *
+ * Destroy a display.
+ */
 void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
    display->vt->destroy_display(display);
 }
 
+
+
+/* Function: al_get_backbuffer
+ *
+ * Return a special bitmap representing the back-buffer of the
+ * current display.
+ */
 ALLEGRO_BITMAP *al_get_backbuffer(void)
 {
    return _al_current_display->vt->get_backbuffer(_al_current_display);
 }
 
+
+
+/* Function: al_get_frontbuffer
+ *
+ * Return a special bitmap representing the front-buffer of
+ * the current display. This may not be supported by the driver;
+ * returns NULL in that case.
+ */
 ALLEGRO_BITMAP *al_get_frontbuffer(void)
 {
    return _al_current_display->vt->get_frontbuffer(_al_current_display);
 }
 
-/*
- * Make all of the graphics which were drawn since the display
- * was created or since the last to to al_flip visible.
+
+
+/* Function: al_flip_display
+ *
+ * Copies or updates the front and back buffers so that what has
+ * been drawn previously on the currently selected display becomes
+ * visible on screen. Pointers to the special back and front buffer
+ * bitmaps remain valid and retain their semantics as back and front
+ * buffers respectively, although their contents may have changed.
  */
 void al_flip_display(void)
 {
    _al_current_display->vt->flip_display(_al_current_display);
 }
 
-/* 
+
+
+/* Function: al_update_display_region
+ *
+ * Update the the front buffer from the backbuffer in the
+ * specified region. This does not flip the whole buffer
+ * and preserves the contents of the front buffer outside of
+ * the given rectangle. This may not be supported by all drivers,
+ * in which case it returns false.
  */
 bool al_update_display_region(int x, int y,
 	int width, int height)
@@ -85,7 +127,10 @@ bool al_update_display_region(int x, int y,
       _al_current_display, x, y, width, height);
 }
 
-/*
+
+
+/* Function: al_acknowledge_resize
+ *
  * When the user receives a resize event from a resizable display,
  * if they wish the display to be resized they must call this
  * function to let the graphics driver know that it can now resize
@@ -100,8 +145,13 @@ bool al_acknowledge_resize(void)
    return false;
 }
 
-/*
- * Resize the current display from code.
+
+
+/* Function: al_resize_display
+ *
+ * Resize the current display. Returns false on error,
+ * true on success. This works on both fullscreen and windowed
+ * displays, regardless of the ALLEGRO_RESIZABLE flag.
  */
 bool al_resize_display(int width, int height)
 {
@@ -110,6 +160,8 @@ bool al_resize_display(int width, int height)
          width, height);
    return false;
 }
+
+
 
 /* Clear a complete display, but confined by the clipping rectangle. */
 void al_clear(ALLEGRO_COLOR *color)
@@ -122,6 +174,8 @@ void al_clear(ALLEGRO_COLOR *color)
    else
       _al_current_display->vt->clear(_al_current_display, color);
 }
+
+
 
 /* Draws a line from fx/fy to tx/ty, including start as well as end pixel. */
 void al_draw_line(float fx, float fy, float tx, float ty,
@@ -136,6 +190,8 @@ void al_draw_line(float fx, float fy, float tx, float ty,
       _al_current_display->vt->draw_line(_al_current_display,
          fx, fy, tx, ty, color, flags);
 }
+
+
 
 /* Draws a rectangle with top left corner tlx/tly abd bottom right corner
  * brx/bry. Both points are inclusive. */
@@ -152,40 +208,81 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
          tlx, tly, brx, bry, color, flags);
 }
 
+
+
 bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    return _al_current_display->vt->is_compatible_bitmap(
       _al_current_display, bitmap);
 }
 
+
+
+/* Function: al_get_display_width
+ *
+ * Gets the width of the current display. This is like SCREEN_W in Allegro 4.x.
+ */
 int al_get_display_width(void)
 {
    return _al_current_display->w;
 }
 
+
+
+/*
+ * Function: al_get_display_height
+ *
+ * Gets the height of the current display. This is like SCREEN_H in Allegro 4.x.
+ */
 int al_get_display_height(void)
 {
    return _al_current_display->h;
 }
 
+
+
+/* Function: al_get_display_format
+ *
+ * Gets the pixel format of the current display.
+ */
 int al_get_display_format(void)
 {
    return _al_current_display->format;
 }
 
+
+
+/* Function: al_get_display_refresh_rate
+ *
+ * Gets the refresh rate of the current display.
+ */
 int al_get_display_refresh_rate(void)
 {
    return _al_current_display->refresh_rate;
 }
 
+
+
+/* Function: al_get_display_flags
+ *
+ * Gets the flags of the current display.
+ */
 int al_get_display_flags(void)
 {
    return _al_current_display->flags;
 }
 
-/*
- * Returns the number of fullscreen display modes
- * possible with the current display parameters.
+
+
+/* Function: al_get_num_display_modes
+ *
+ * Get the number of available fullscreen display modes
+ * for the current set of display parameters. This will
+ * use the values set with al_set_new_display_format,
+ * al_set_new_display_refresh_rate, and al_set_new_display_flags
+ * to find the number of modes that match. Settings the new
+ * display parameters to zero will give a list of all modes
+ * for the default driver.
  */
 int al_get_num_display_modes(void)
 {
@@ -193,9 +290,17 @@ int al_get_num_display_modes(void)
    return system->vt->get_num_display_modes();
 }
 
-/*
- * Get a fullscreen display mode by index, using the current
- * display parameters.
+
+
+/* Function: al_get_display_mode
+ *
+ * Retrieves a display mode. Display parameters should not be
+ * changed between a call of al_get_num_display_modes and
+ * al_get_display_mode. index must be between 0 and the number
+ * returned from al_get_num_display_modes-1. mode must be an
+ * allocated ALLEGRO_DISPLAY_MODE structure. This function will
+ * return NULL on failure, and the mode parameter that was passed
+ * in on success.
  */
 ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
 {
@@ -203,9 +308,13 @@ ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
    return system->vt->get_display_mode(index, mode);
 }
 
-/*
- * Wait for vsync.
- * Returns false if it is not possible.
+
+
+/* Function: al_wait_for_vsync
+ *
+ * Wait for the beginning of a vertical retrace. Some
+ * driver/card/monitor combinations may not be capable
+ * of this. Returns false if not possible, true if successful.
  */
 bool al_wait_for_vsync(void)
 {
@@ -214,4 +323,55 @@ bool al_wait_for_vsync(void)
    else
       return false;
 }
+
+
+
+/* Function: al_set_clipping_rectangle
+ *
+ * Set the region of the target bitmap or display that
+ * pixels get clipped to. The default is to clip pixels
+ * to the entire bitmap.
+ */
+void al_set_clipping_rectangle(int x, int y, int width, int height)
+{
+   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+
+   if (x < 0) {
+      width += x;
+      x = 0;
+   }
+   if (y < 0) {
+      height += y;
+      y = 0;
+   }
+   if (x+width >= bitmap->w) {
+      width = bitmap->w - x - 1;
+   }
+   if (y+height >= bitmap->h) {
+      height = bitmap->h - y - 1;
+   }
+
+   bitmap->cl = x;
+   bitmap->ct = y;
+   bitmap->cr = x + width;
+   bitmap->cb = y + height;
+}
+
+
+
+/* Function: al_get_clipping_rectangle
+ *
+ * Gets the clipping rectangle of the target bitmap.
+ */
+void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
+{
+   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+   if (x) *x = bitmap->cl;
+   if (y) *y = bitmap->ct;
+   if (w) *w = bitmap->cr - bitmap->cl + 1;
+   if (h) *h = bitmap->cb - bitmap->ct + 1;
+}
+
+
+
 

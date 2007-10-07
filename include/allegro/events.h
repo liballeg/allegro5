@@ -79,6 +79,18 @@ typedef unsigned int AL_EVENT_TYPE;
  *
  *  AL_EVENT_TIMER - a timer counter incremented.
  *    Fields: timer.count.
+ *
+ *  AL_EVENT_DISPLAY_EXPOSE - The display (or a portion thereof) has become visible.
+ *    Fields: display.x, display.y, display.width, display.height
+ *
+ *  AL_EVENT_DISPLAY_RESIZE - The window has been resized.
+ *    Fields: display.x, display.y, display.width, display.height
+ *
+ *  AL_EVENT_DISPLAY_CLOSE - The close button of the window has been pressed.
+ *
+ *  AL_EVENT_DISPLAY_LOST - Displays can be lost with some drivers (just Direct3D?). This means that rendering is impossible. The device will be restored as soon as it is possible. The program should be able to ignore this event and continue rendering however it will have no effect.
+ *
+ *  AL_EVENT_DISPLAY_FOUND - Generated when a lost device is regained. Bitmaps created without the ALLEGRO_SYNC_MEMORY_COPY flag may lose their data when the device is lost, so they should be recreated when this event is received.
  */
 enum
 {

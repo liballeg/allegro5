@@ -22,6 +22,8 @@
 #include "allegro/internal/aintern_display.h"
 #include "allegro/internal/aintern_bitmap.h"
 
+
+
 /* Creates a memory bitmap. A memory bitmap can only be drawn to other memory
  * bitmaps, not to a display.
  */
@@ -85,11 +87,15 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    return bitmap;
 }
 
+
+
 static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 {
    _AL_FREE(bmp->memory);
    _AL_FREE(bmp);
 }
+
+
 
 /* Creates an empty display bitmap. A display bitmap can only be drawn to a
  * display.
@@ -129,6 +135,8 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
    return bitmap;
 }
 
+
+
 /* Destroy a (memory or display) bitmap. The passed pointer will be invalid
  * afterwards, so best set it to NULL.
  */
@@ -157,6 +165,8 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 
    _AL_FREE(bitmap);
 }
+
+
 
 /* TODO
  * This will load a bitmap from a file into a memory bitmap, keeping it in the
@@ -207,6 +217,8 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    return bitmap;
 }
 
+
+
 /* Load a bitmap from a file into a display bitmap, ready to be drawn.
  */
 ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
@@ -222,6 +234,8 @@ ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 
    return bitmap;
 }
+
+
 
 void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
 {
@@ -240,6 +254,8 @@ void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
       bitmap->vt->draw_bitmap(bitmap, dx, dy, flags);
 }
 
+
+
 void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 	float sw, float sh, float dx, float dy, int flags)
 {
@@ -257,6 +273,8 @@ void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
       bitmap->vt->draw_bitmap_region(bitmap, sx, sy, sw, sh, dx, dy, flags);
 }
 
+
+
 void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 	float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
@@ -271,6 +289,8 @@ void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
          dx, dy, dw, dh, flags);
 }
 
+
+
 void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 	float dx, float dy, float angle, int flags)
 {
@@ -284,6 +304,8 @@ void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    else if (al_is_compatible_bitmap(bitmap))
       bitmap->vt->draw_rotated_bitmap(bitmap, cx, cy, dx, dy, angle, flags);
 }
+
+
 
 void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 	float dx, float dy, float xscale, float yscale, float angle,
@@ -300,6 +322,8 @@ void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
       bitmap->vt->draw_rotated_scaled_bitmap(bitmap, cx, cy,
          dx, dy, xscale, yscale, angle, flags);
 }
+
+
 
 ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 	int x, int y,
@@ -344,6 +368,9 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    return locked_region;
 }
 
+
+
+
 ALLEGRO_LOCKED_REGION *al_lock_bitmap(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_LOCKED_REGION *locked_region,
    int flags)
@@ -351,6 +378,8 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap(ALLEGRO_BITMAP *bitmap,
    return al_lock_bitmap_region(bitmap, 0, 0, bitmap->w, bitmap->h,
       locked_region, flags);
 }
+
+
 
 void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
 {
@@ -372,6 +401,8 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
 
    bitmap->locked = false;
 }
+
+
 
 void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color)
 {
@@ -404,59 +435,35 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color)
    al_unlock_bitmap(bitmap);
 }
 
+
+
 int al_get_bitmap_width(ALLEGRO_BITMAP *bitmap)
 {
    return bitmap->w;
 }
+
+
 
 int al_get_bitmap_height(ALLEGRO_BITMAP *bitmap)
 {
    return bitmap->h;
 }
 
+
+
 int al_get_bitmap_format(ALLEGRO_BITMAP *bitmap)
 {
    return bitmap->format;
 }
+
+
 
 int al_get_bitmap_flags(ALLEGRO_BITMAP *bitmap)
 {
    return bitmap->flags;
 }
 
-void al_set_clipping_rectangle(int x, int y, int width, int height)
-{
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
 
-   if (x < 0) {
-      width += x;
-      x = 0;
-   }
-   if (y < 0) {
-      height += y;
-      y = 0;
-   }
-   if (x+width >= bitmap->w) {
-      width = bitmap->w - x - 1;
-   }
-   if (y+height >= bitmap->h) {
-      height = bitmap->h - y - 1;
-   }
-
-   bitmap->cl = x;
-   bitmap->ct = y;
-   bitmap->cr = x + width;
-   bitmap->cb = y + height;
-}
-
-void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
-{
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
-   if (x) *x = bitmap->cl;
-   if (y) *y = bitmap->ct;
-   if (w) *w = bitmap->cr - bitmap->cl + 1;
-   if (h) *h = bitmap->cb - bitmap->ct + 1;
-}
 
 ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    int x, int y, int w, int h)
@@ -506,6 +513,8 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 
    return bitmap;
 }
+
+
 
 /*
  * Clone a bitmap "exactly", formats can be different

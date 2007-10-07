@@ -75,6 +75,13 @@ static thread_local_state *tls_get(void)
 
 
 
+/* Function: al_set_new_display_format
+ *
+ * Set the pixel format for al displays created after this call.
+ *
+ * Parameters:
+ *    format - The format to use
+ */
 void al_set_new_display_format(int format)
 {
    if ((tls = tls_get()) == NULL) return;
@@ -82,7 +89,13 @@ void al_set_new_display_format(int format)
 }
 
 
-
+/* Function: al_set_new_display_refresh_rate
+ *
+ * Sets the refresh rate to use for newly created displays. If the refresh rate is not available, al_create_display will fail. A list of modes with refresh rates can be found with al_get_num_display_modes and al_get_display_mode, documented above.
+ *
+ * See Also:
+ *    <al_get_display_mode>
+ */
 void al_set_new_display_refresh_rate(int refresh_rate)
 {
    if ((tls = tls_get()) == NULL) return;
@@ -91,6 +104,21 @@ void al_set_new_display_refresh_rate(int refresh_rate)
 
 
 
+/* Function: al_set_new_display_flags
+ *
+ * Sets various flags for display creation. flags is a bitfield containing any reasonable combination of the following:
+ *
+ * > ALLEGRO_WINDOWED - prefer a windowed mode
+ * > ALLEGRO_FULLSCREEN - prefer a fullscreen mode
+ * > ALLEGRO_RESIZABLE - The display is resizable (only applicable if combined with ALLEGRO_WINDOWED)
+ * > ALLEGRO_OPENGL - require the driver to provide an initialized opengl context after returning successfully
+ * > ALLEGRO_DIRECT3D - require the driver to do rendering with Direct3D and provide a Direct3D device
+ * > ALLEGRO_DOUBLEBUFFER - use double buffering
+ * > ALLEGRO_PAGEFLIP - use page flipping
+ * > ALLEGRO_SINGLEBUFFER - Use only 1 buffer (front and back buffer are the same) 
+ * 
+ * 0 can be used for default values. 
+ */
 void al_set_new_display_flags(int flags)
 {
    if ((tls = tls_get()) == NULL) return;
@@ -99,6 +127,10 @@ void al_set_new_display_flags(int flags)
 
 
 
+/* Function: al_get_new_display_format
+ *
+ * Gets the current pixel format used for newly created displays.
+ */
 int al_get_new_display_format(void)
 {
    if ((tls = tls_get()) == NULL) return 0;
@@ -107,6 +139,10 @@ int al_get_new_display_format(void)
 
 
 
+/* Function al_get_new_display_refresh_rate
+ *
+ * Gets the current refresh rate used for newly created displays.
+ */
 int al_get_new_display_refresh_rate(void)
 {
    if ((tls = tls_get()) == NULL) return 0;
@@ -115,6 +151,10 @@ int al_get_new_display_refresh_rate(void)
 
 
 
+/* Function: al_get_new_display_flags
+ *
+ * Gets the current flags used for newly created displays.
+ */
 int al_get_new_display_flags(void)
 {
    if ((tls = tls_get()) == NULL) return 0;
@@ -123,9 +163,9 @@ int al_get_new_display_flags(void)
 
 
 
-/*
- * Make a display the current display. All the following Allegro commands in
- * the same thread will implicitly use this display from now on.
+/* Function: al_set_current_display
+ *
+ * Change the current display for the calling thread.
  */
 void al_set_current_display(ALLEGRO_DISPLAY *display)
 {
@@ -137,8 +177,9 @@ void al_set_current_display(ALLEGRO_DISPLAY *display)
 
 
 
-/*
- * Get the current display.
+/* Function: al_get_current_display
+ *
+ * Query for the current display in the calling thread.
  */
 ALLEGRO_DISPLAY *al_get_current_display(void)
 {
@@ -148,9 +189,9 @@ ALLEGRO_DISPLAY *al_get_current_display(void)
 
 
 
-/*
- * Select the bitmap to which all subsequent drawing operation
- * will draw.
+/* Function: al_set_target_bitmap
+ *
+ * Select the bitmap to which all subsequent drawing operations in the calling thread will draw. 
  */
 void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 {
@@ -162,8 +203,9 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 
 
 
-/*
- * Retrieve the target for drawing operations.
+/* Function: al_get_target_bitmap
+ *
+ * Return the target bitmap of the current display.
  */
 ALLEGRO_BITMAP *al_get_target_bitmap(void)
 {

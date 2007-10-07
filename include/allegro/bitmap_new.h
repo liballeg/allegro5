@@ -23,8 +23,61 @@ typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
 
 #define ALLEGRO_NUM_PIXEL_FORMATS      26
 
-/*
- * Pixel formats
+/* Enum: ALLEGRO_PIXEL_FORMAT
+ * 
+ * Pixel formats.
+ *
+ * ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA - Let the driver choose a format without alpha
+ *
+ * ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA - Let the driver choose a format with alpha
+ *
+ * ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA - Let the driver choose a 15 bit format without alpha
+ *
+ * ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA - Let the driver choose a 15 bit format with alpha
+ *
+ * ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA - Let the driver choose a 16 bit format without alpha
+ *
+ * ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA - Let the driver choose a 16 bit format with alpha
+ *
+ * ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA - Let the driver choose a 24 bit format without alpha
+ *
+ * ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA - Let the driver choose a 24 bit format with alpha
+ *
+ * ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA - Let the driver choose a 32 bit format without alpha
+ *
+ * ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA - Let the driver choose a 32 bit format with alpha
+ *
+ * ALLEGRO_PIXEL_FORMAT_ARGB_8888 - 32 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_RGBA_8888 - 32 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_ARGB_4444 - 16 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_RGB_888 - 24 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_RGB_565 - 16 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_RGB_555 - 15 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_PALETTE_8 - 8 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_RGBA_5551 - 16 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_ARGB_1555 - 16 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_ABGR_8888 - 32 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_XBGR_8888 - 32 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_BGR_888 - 24 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_BGR_565 - 16 bit 
+ *
+ * ALLEGRO_PIXEL_FORMAT_BGR_555 - 15 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_RGBX_8888 - 32 bit
+ *
+ * ALLEGRO_PIXEL_FORMAT_XRGB_8888 - 32 bit
  */
 enum ALLEGRO_PIXEL_FORMAT {
         ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA = 0,

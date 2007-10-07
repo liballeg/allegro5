@@ -20,7 +20,19 @@
 #define ALLEGRO_RESIZABLE    16
 #define ALLEGRO_SINGLEBUFFER 32
 
-/* Used for display mode queries */
+/* Type: ALLEGRO_DISPLAY_MODE
+ *
+ * Used for display mode queries. Contains information
+ * about a supported fullscreen display mode.
+ *
+ * >
+ * > typedef struct ALLEGRO_DISPLAY_MODE {
+ * >        int width;          // Screen width
+ * >        int height;         // Screen height
+ * >        int format;         // The pixel format of the mode
+ * >        int refresh_rate;   // The refresh rate of the mode
+ * > } ALLEGRO_DISPLAY_MODE;
+ */
 typedef struct ALLEGRO_DISPLAY_MODE
 {
    int width;
