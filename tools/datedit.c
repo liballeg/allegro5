@@ -91,7 +91,12 @@ static void insert_builtin_prop(AL_CONST char *prop_types)
 /* main cleanup routine */
 static void datedit_exit(void)
 {
-   _AL_FREE(builtin_prop);
+   DATAFILE_PROPERTY *iter;
+   if (builtin_prop) {
+      for (iter=builtin_prop; iter->type != DAT_END; iter++)
+         _AL_FREE(iter->dat);
+      _AL_FREE(builtin_prop);
+   }
 }
 
 
