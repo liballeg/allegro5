@@ -8,12 +8,16 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      New bitmap routines
+ *      New bitmap routines.
  *
- *      By Elias Pschernig
- *      Heavily modified by Trent Gamblin.
+ *      By Elias Pschernig and Trent Gamblin.
  *
+ *      See readme.txt for copyright information.
  */
+
+/* Title: Bitmaps routines
+ */
+
 
 #include <string.h>
 #include "allegro.h"
@@ -99,14 +103,16 @@ static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 
 /* Function: al_create_bitmap
  *
- * Creates a new bitmap using the bitmap flags for the current thread. Blitting between bitmaps of differing formats, or blitting between memory bitmaps and display bitmaps may be slow.
+ * Creates a new bitmap using the bitmap flags for the current thread.
+ * Blitting between bitmaps of differing formats, or blitting between memory
+ * bitmaps and display bitmaps may be slow.
  */
 ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap;
    
    if (al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) {
-   	return _al_create_memory_bitmap(w, h);
+      return _al_create_memory_bitmap(w, h);
    }
 
    /* Else it's a display bitmap */
@@ -124,13 +130,13 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
    bitmap->xofs = bitmap->yofs = 0;
 
    if (!bitmap->memory) {
-   	bitmap->memory = _AL_MALLOC(w * h * al_get_pixel_size(bitmap->format));
-        memset(bitmap->memory, 0, w * h * al_get_pixel_size(bitmap->format));
+      bitmap->memory = _AL_MALLOC(w * h * al_get_pixel_size(bitmap->format));
+      memset(bitmap->memory, 0, w * h * al_get_pixel_size(bitmap->format));
    }
 
    if (!bitmap->vt->upload_bitmap(bitmap, 0, 0, w, h)) {
-   	al_destroy_bitmap(bitmap);
-	return NULL;
+      al_destroy_bitmap(bitmap);
+      return NULL;
    }
 
    return bitmap;
@@ -145,8 +151,8 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
-   	_al_destroy_memory_bitmap(bitmap);
-	return;
+      _al_destroy_memory_bitmap(bitmap);
+      return;
    }
    else if (bitmap->parent) {
       /* It's a sub-bitmap */
@@ -192,8 +198,9 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    PALETTE pal;
    BITMAP *file_data = load_bitmap(filename, pal);
    select_palette(pal);
-   if (!file_data)
+   if (!file_data) {
       return NULL;
+   }
 
    if (flags & ALLEGRO_KEEP_BITMAP_FORMAT) {
       _al_push_new_bitmap_parameters();
@@ -210,10 +217,11 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
       return NULL;
 
    _al_convert_compat_bitmap(
-   	file_data,
-	bitmap->memory, bitmap->format, al_get_pixel_size(bitmap->format)*bitmap->w,
-	0, 0, 0, 0,
-	file_data->w, file_data->h);
+      file_data,
+      bitmap->memory, bitmap->format,
+      al_get_pixel_size(bitmap->format) * bitmap->w,
+      0, 0, 0, 0,
+      file_data->w, file_data->h);
 
    destroy_bitmap(file_data);
    return bitmap;
@@ -221,7 +229,7 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
 
 
 
-/* al_load_bitmap
+/* Function: al_load_bitmap
  *
  * Load a bitmap from a file.
  */
@@ -279,15 +287,22 @@ void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
 
    /* If one is a memory bitmap, do memory blit */
-   if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) || (dest->flags & ALLEGRO_MEMORY_BITMAP)) {
-      if (_al_current_display && _al_current_display->vt->draw_memory_bitmap_region)
+   if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
+       (dest->flags & ALLEGRO_MEMORY_BITMAP))
+   {
+      if (_al_current_display &&
+          _al_current_display->vt->draw_memory_bitmap_region)
+      {
          _al_current_display->vt->draw_memory_bitmap_region(_al_current_display,
 	    bitmap, sx, sy, sw, sh, dx, dy, flags);
-      else
+      }
+      else {
          _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
+      }
    }
-   else if (al_is_compatible_bitmap(bitmap))
+   else if (al_is_compatible_bitmap(bitmap)) {
       bitmap->vt->draw_bitmap_region(bitmap, sx, sy, sw, sh, dx, dy, flags);
+   }
 }
 
 
@@ -301,13 +316,16 @@ void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
 
-   if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) || (dest->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
+       (dest->flags & ALLEGRO_MEMORY_BITMAP))
+   {
       _al_draw_scaled_bitmap_memory(bitmap, sx, sy, sw, sh,
          dx, dy, dw, dh, flags);
    }
-   else if (al_is_compatible_bitmap(bitmap))
+   else if (al_is_compatible_bitmap(bitmap)) {
       bitmap->vt->draw_scaled_bitmap(bitmap, sx, sy, sw, sh,
          dx, dy, dw, dh, flags);
+   }
 }
 
 
@@ -316,7 +334,8 @@ void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
  *
  * Draws a rotated version of the given bitmap to the target bitmap.
  * The bitmap is rotated by 'angle' radians counter clockwise.
- * The point center_x, center_y will be drawn at dx, dy with the bitmap rotated around that point.
+ * The point center_x, center_y will be drawn at dx, dy with the bitmap rotated
+ * around that point.
  */
 void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 	float dx, float dy, float angle, int flags)
@@ -324,19 +343,23 @@ void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
 
    /* If one is a memory bitmap, do memory blit */
-   if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) || (dest->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
+       (dest->flags & ALLEGRO_MEMORY_BITMAP))
+   {
       _al_draw_rotated_bitmap_memory(bitmap, cx, cy,
          dx, dy, angle, flags);
    }
-   else if (al_is_compatible_bitmap(bitmap))
+   else if (al_is_compatible_bitmap(bitmap)) {
       bitmap->vt->draw_rotated_bitmap(bitmap, cx, cy, dx, dy, angle, flags);
+   }
 }
 
 
 
 /* Function: al_draw_rotated_scaled_bitmap
  *
- * Like al_draw_rotated_bitmap, but can also scale the bitmap. center_x and center_y are in source bitmap coordinates.
+ * Like al_draw_rotated_bitmap, but can also scale the bitmap.
+ * center_x and center_y are in source bitmap coordinates.
  */
 void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 	float dx, float dy, float xscale, float yscale, float angle,
@@ -345,13 +368,16 @@ void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
 
    /* If one is a memory bitmap, do memory blit */
-   if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) || (dest->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
+       (dest->flags & ALLEGRO_MEMORY_BITMAP))
+   {
       _al_draw_rotated_scaled_bitmap_memory(bitmap, cx, cy,
          dx, dy, xscale, yscale, angle, flags);
    }
-   else if (al_is_compatible_bitmap(bitmap))
+   else if (al_is_compatible_bitmap(bitmap)) {
       bitmap->vt->draw_rotated_scaled_bitmap(bitmap, cx, cy,
          dx, dy, xscale, yscale, angle, flags);
+   }
 }
 
 
@@ -388,8 +414,11 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    bitmap->lock_h = height;
    bitmap->lock_flags = flags;
 
-   if (bitmap->flags & ALLEGRO_MEMORY_BITMAP || bitmap->flags & ALLEGRO_SYNC_MEMORY_COPY) {
-     locked_region->data = bitmap->memory+(bitmap->w*y+x)*al_get_pixel_size(bitmap->format);
+   if (bitmap->flags & ALLEGRO_MEMORY_BITMAP ||
+       bitmap->flags & ALLEGRO_SYNC_MEMORY_COPY)
+   {
+      locked_region->data = bitmap->memory
+         + (bitmap->w * y + x) * al_get_pixel_size(bitmap->format);
       locked_region->format = bitmap->format;
       locked_region->pitch = bitmap->w*al_get_pixel_size(bitmap->format);
    }
@@ -400,10 +429,13 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
          flags);
    }
 
-   if (locked_region)
-      memcpy(&bitmap->locked_region, locked_region, sizeof(ALLEGRO_LOCKED_REGION));
-   else
+   if (locked_region) {
+      memcpy(&bitmap->locked_region, locked_region,
+         sizeof(ALLEGRO_LOCKED_REGION));
+   }
+   else {
       bitmap->locked = false;
+   }
 
    return locked_region;
 }
@@ -415,9 +447,10 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
  *
  * Lock an entire bitmap for reading or writing. If the bitmap is a
  * display bitmap it will be updated from system memory after the bitmap
- * is unlocked (unless locked read only). locked_region must point to an already allocated
- * ALLEGRO_LOCKED_REGION structure. Returns false if the bitmap cannot
- * be locked, e.g. the bitmap was locked previously and not unlocked.
+ * is unlocked (unless locked read only). locked_region must point to an
+ * already allocated ALLEGRO_LOCKED_REGION structure. Returns false if the
+ * bitmap cannot be locked, e.g. the bitmap was locked previously and not
+ * unlocked.
  *
  * Flags are:
  * > ALLEGRO_LOCK_READONLY - The locked region will not be written to.
@@ -448,7 +481,9 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
       bitmap = bitmap->parent;
    }
 
-   if (bitmap->flags & ALLEGRO_SYNC_MEMORY_COPY && !(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if (bitmap->flags & ALLEGRO_SYNC_MEMORY_COPY &&
+       !(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
+   {
       bitmap->vt->upload_bitmap(bitmap,
       bitmap->lock_x,
       bitmap->lock_y,
@@ -532,8 +567,8 @@ int al_get_bitmap_flags(ALLEGRO_BITMAP *bitmap)
  *
  * Creates a sub-bitmap of the parent, at the specified coordinates and of the
  * specified size. A sub-bitmap is a bitmap that shares drawing memory with a
- * pre-existing (parent) bitmap, but possibly with a different size and clipping
- * settings.
+ * pre-existing (parent) bitmap, but possibly with a different size and
+ * clipping settings.
  *
  * If the sub-bitmap does not lie completely inside the parent bitmap, then
  * it is automatically clipped so that it does.
@@ -552,7 +587,8 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    ALLEGRO_BITMAP *bitmap;
 
    if (parent->display && parent->display->vt &&
-         parent->display->vt->create_sub_bitmap) {
+         parent->display->vt->create_sub_bitmap)
+   {
       bitmap = parent->display->vt->create_sub_bitmap(
          parent->display, parent, x, y, w, h);
    }
@@ -597,8 +633,11 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 
 
 
-/*
- * Clone a bitmap "exactly", formats can be different
+/* Function: al_clone_bitmap
+ *
+ * Clone a bitmap "exactly", formats can be different.
+ *
+ * XXX is this supposed to be public? --pw
  */
 ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 {
@@ -630,3 +669,4 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
    return clone;
 }
 
+/* vim: set ts=8 sts=3 sw=3 et: */

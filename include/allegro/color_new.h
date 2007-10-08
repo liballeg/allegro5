@@ -1,3 +1,6 @@
+/* Title: Colors
+ */
+
 #ifndef _ALLEGRO_COLORNEW_H
 #define _ALLEGRO_COLORNEW_H
 
@@ -26,7 +29,7 @@ typedef struct ALLEGRO_DISPLAY ALLEGRO_DISPLAY;
  */
 struct ALLEGRO_COLOR
 {
-	uint64_t raw[4];
+   uint64_t raw[4];
 };
 
 #ifdef __cplusplus
@@ -34,3 +37,5 @@ struct ALLEGRO_COLOR
 #endif
 
 #endif
+
+/* vim: set ts=8 sts=3 sw=3 et: */

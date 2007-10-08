@@ -1,3 +1,6 @@
+/* Title: Bitmap routines
+ */
+
 #ifndef ALLEGRO_BITMAP_NEW_H
 #define ALLEGRO_BITMAP_NEW_H
 
@@ -27,25 +30,35 @@ typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
  * 
  * Pixel formats.
  *
- * ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA - Let the driver choose a format without alpha
+ * ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA - Let the driver choose a format without
+ * alpha
  *
- * ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA - Let the driver choose a format with alpha
+ * ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA - Let the driver choose a format with
+ * alpha
  *
- * ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA - Let the driver choose a 15 bit format without alpha
+ * ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA - Let the driver choose a 15 bit format
+ * without alpha
  *
- * ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA - Let the driver choose a 15 bit format with alpha
+ * ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA - Let the driver choose a 15 bit
+ * format with alpha
  *
- * ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA - Let the driver choose a 16 bit format without alpha
+ * ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA - Let the driver choose a 16 bit format
+ * without alpha
  *
- * ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA - Let the driver choose a 16 bit format with alpha
+ * ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA - Let the driver choose a 16 bit
+ * format with alpha
  *
- * ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA - Let the driver choose a 24 bit format without alpha
+ * ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA - Let the driver choose a 24 bit format
+ * without alpha
  *
- * ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA - Let the driver choose a 24 bit format with alpha
+ * ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA - Let the driver choose a 24 bit
+ * format with alpha
  *
- * ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA - Let the driver choose a 32 bit format without alpha
+ * ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA - Let the driver choose a 32 bit format
+ * without alpha
  *
- * ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA - Let the driver choose a 32 bit format with alpha
+ * ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA - Let the driver choose a 32 bit
+ * format with alpha
  *
  * ALLEGRO_PIXEL_FORMAT_ARGB_8888 - 32 bit
  *
@@ -200,7 +213,8 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap);
 
 void al_put_pixel(int x, int y, ALLEGRO_COLOR *color);
-ALLEGRO_COLOR *al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR *color);
+ALLEGRO_COLOR *al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y,
+        ALLEGRO_COLOR *color);
 int al_get_pixel_size(int format);
 
 /* Pixel mapping */

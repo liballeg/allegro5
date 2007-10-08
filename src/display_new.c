@@ -8,12 +8,19 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      New display driver
+ *      New display driver.
  *
- *      By Elias Pschernig
+ *      By Elias Pschernig.
+ *
  *      Modified by Trent Gamblin.
  *
+ *      See readme.txt for copyright information.
  */
+
+/* Title: Display routines
+ */
+
+
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
@@ -32,8 +39,11 @@ extern ALLEGRO_DISPLAY_INTERFACE *_al_glx_vt(void);
 /* Function: al_create_display
  *
  * Create a display, or window, with the specified dimensions.
- * The parameters of the display are determined by the last calls to al_set_new_display_*. Default parameters are used if none are set explicitly.
- * Creating a new display will automatically make it the active one, with the backbuffer selected for drawing. 
+ * The parameters of the display are determined by the last calls to
+ * al_set_new_display_*. Default parameters are used if none are set
+ * explicitly.
+ * Creating a new display will automatically make it the active one, with the
+ * backbuffer selected for drawing. 
  */
 ALLEGRO_DISPLAY *al_create_display(int w, int h)
 {
@@ -49,6 +59,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_DISPLAY *display = driver->create_display(w, h);
    if (!display)
       return NULL;
+
    ALLEGRO_COLOR black;
    al_set_current_display(display);
    al_set_target_bitmap(al_get_backbuffer());
@@ -155,15 +166,19 @@ bool al_acknowledge_resize(void)
  */
 bool al_resize_display(int width, int height)
 {
-   if (_al_current_display->vt->resize_display)
+   if (_al_current_display->vt->resize_display) {
       return _al_current_display->vt->resize_display(_al_current_display,
          width, height);
+   }
    return false;
 }
 
 
 
-/* Clear a complete display, but confined by the clipping rectangle. */
+/* Function: al_clear
+ *
+ * Clear a complete display, but confined by the clipping rectangle.
+ */
 void al_clear(ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
@@ -171,8 +186,9 @@ void al_clear(ALLEGRO_COLOR *color)
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_clear_memory(color);
    }
-   else
+   else {
       _al_current_display->vt->clear(_al_current_display, color);
+   }
 }
 
 
@@ -189,9 +205,10 @@ void al_draw_line(float fx, float fy, float tx, float ty,
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_line_memory(fx, fy, tx, ty, color);
    }
-   else
+   else {
       _al_current_display->vt->draw_line(_al_current_display,
          fx, fy, tx, ty, color);
+   }
 }
 
 
@@ -214,9 +231,10 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
    }
-   else
+   else {
       _al_current_display->vt->draw_rectangle(_al_current_display,
          tlx, tly, brx, bry, color, flags);
+   }
 }
 
 
@@ -253,8 +271,7 @@ int al_get_display_width(void)
 
 
 
-/*
- * Function: al_get_display_height
+/* Function: al_get_display_height
  *
  * Gets the height of the current display. This is like SCREEN_H in Allegro 4.x.
  */
@@ -390,12 +407,9 @@ void al_set_clipping_rectangle(int x, int y, int width, int height)
 void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
 {
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+
    if (x) *x = bitmap->cl;
    if (y) *y = bitmap->ct;
    if (w) *w = bitmap->cr - bitmap->cl + 1;
    if (h) *h = bitmap->cb - bitmap->ct + 1;
 }
-
-
-
-

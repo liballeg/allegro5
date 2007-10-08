@@ -14,6 +14,8 @@
  *
  */
 
+/* File: Thread local storage
+ */
 
 
 #include <string.h>
@@ -84,21 +86,27 @@ static thread_local_state *tls_get(void)
  */
 void al_set_new_display_format(int format)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
    tls->new_display_format = format;
 }
 
 
+
 /* Function: al_set_new_display_refresh_rate
  *
- * Sets the refresh rate to use for newly created displays. If the refresh rate is not available, al_create_display will fail. A list of modes with refresh rates can be found with al_get_num_display_modes and al_get_display_mode, documented above.
+ * Sets the refresh rate to use for newly created displays. If the refresh rate
+ * is not available, al_create_display will fail. A list of modes with refresh
+ * rates can be found with al_get_num_display_modes and al_get_display_mode,
+ * documented above.
  *
  * See Also:
  *    <al_get_display_mode>
  */
 void al_set_new_display_refresh_rate(int refresh_rate)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
    tls->new_display_refresh_rate = refresh_rate;
 }
 
@@ -106,22 +114,35 @@ void al_set_new_display_refresh_rate(int refresh_rate)
 
 /* Function: al_set_new_display_flags
  *
- * Sets various flags for display creation. flags is a bitfield containing any reasonable combination of the following:
+ * Sets various flags for display creation. flags is a bitfield containing any
+ * reasonable combination of the following:
  *
- * > ALLEGRO_WINDOWED - prefer a windowed mode
- * > ALLEGRO_FULLSCREEN - prefer a fullscreen mode
- * > ALLEGRO_RESIZABLE - The display is resizable (only applicable if combined with ALLEGRO_WINDOWED)
- * > ALLEGRO_OPENGL - require the driver to provide an initialized opengl context after returning successfully
- * > ALLEGRO_DIRECT3D - require the driver to do rendering with Direct3D and provide a Direct3D device
- * > ALLEGRO_DOUBLEBUFFER - use double buffering
- * > ALLEGRO_PAGEFLIP - use page flipping
- * > ALLEGRO_SINGLEBUFFER - Use only 1 buffer (front and back buffer are the same) 
+ * ALLEGRO_WINDOWED - prefer a windowed mode
+ *
+ * ALLEGRO_FULLSCREEN - prefer a fullscreen mode
+ *
+ * ALLEGRO_RESIZABLE - the display is resizable (only applicable if combined
+ * with ALLEGRO_WINDOWED)
+ *
+ * ALLEGRO_OPENGL - require the driver to provide an initialized opengl context
+ * after returning successfully
+ *
+ * ALLEGRO_DIRECT3D - require the driver to do rendering with Direct3D and
+ * provide a Direct3D device
+ *
+ * ALLEGRO_DOUBLEBUFFER - use double buffering
+ *
+ * ALLEGRO_PAGEFLIP - use page flipping
+ *
+ * ALLEGRO_SINGLEBUFFER - use only one buffer (front and back buffer are the
+ * same) 
  * 
  * 0 can be used for default values. 
  */
 void al_set_new_display_flags(int flags)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
    tls->new_display_flags = flags;
 }
 
@@ -133,7 +154,8 @@ void al_set_new_display_flags(int flags)
  */
 int al_get_new_display_format(void)
 {
-   if ((tls = tls_get()) == NULL) return 0;
+   if ((tls = tls_get()) == NULL)
+      return 0;
    return tls->new_display_format;
 }
 
@@ -145,7 +167,8 @@ int al_get_new_display_format(void)
  */
 int al_get_new_display_refresh_rate(void)
 {
-   if ((tls = tls_get()) == NULL) return 0;
+   if ((tls = tls_get()) == NULL)
+      return 0;
    return tls->new_display_refresh_rate;
 }
 
@@ -157,7 +180,8 @@ int al_get_new_display_refresh_rate(void)
  */
 int al_get_new_display_flags(void)
 {
-   if ((tls = tls_get()) == NULL) return 0;
+   if ((tls = tls_get()) == NULL)
+      return 0;
    return tls->new_display_flags;
 }
 
@@ -171,7 +195,9 @@ void al_set_current_display(ALLEGRO_DISPLAY *display)
 {
    if (display)
       display->vt->set_current_display(display);
-   if ((tls = tls_get()) == NULL) return;
+
+   if ((tls = tls_get()) == NULL)
+      return;
    tls->current_display = display;
 }
 
@@ -183,7 +209,8 @@ void al_set_current_display(ALLEGRO_DISPLAY *display)
  */
 ALLEGRO_DISPLAY *al_get_current_display(void)
 {
-   if ((tls = tls_get()) == NULL) return 0;
+   if ((tls = tls_get()) == NULL)
+      return 0;
    return tls->current_display;
 }
 
@@ -191,12 +218,15 @@ ALLEGRO_DISPLAY *al_get_current_display(void)
 
 /* Function: al_set_target_bitmap
  *
- * Select the bitmap to which all subsequent drawing operations in the calling thread will draw. 
+ * Select the bitmap to which all subsequent drawing operations in the calling
+ * thread will draw. 
  */
 void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
    tls->target_bitmap = bitmap;
+
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
       _al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
 }
@@ -209,7 +239,8 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
  */
 ALLEGRO_BITMAP *al_get_target_bitmap(void)
 {
-   if ((tls = tls_get()) == NULL) return 0;
+   if ((tls = tls_get()) == NULL)
+      return 0;
    return tls->target_bitmap;
 }
 
@@ -217,7 +248,8 @@ ALLEGRO_BITMAP *al_get_target_bitmap(void)
 
 void _al_push_target_bitmap(void)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
    tls->target_bitmap_backup = tls->target_bitmap;
 }
 
@@ -225,7 +257,8 @@ void _al_push_target_bitmap(void)
 
 void _al_pop_target_bitmap(void)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
    tls->target_bitmap = tls->target_bitmap_backup;
    al_set_target_bitmap(tls->target_bitmap);
 }
@@ -241,7 +274,8 @@ void _al_pop_target_bitmap(void)
  */
 void al_set_new_bitmap_format(int format)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
    tls->new_bitmap_format = format;
 }
 
@@ -251,17 +285,28 @@ void al_set_new_bitmap_format(int format)
  *
  * Sets the flags to use for newly created bitmaps. Valid flags are:
  *
- * ALLEGRO_MEMORY_BITMAP - The bitmap will use a format most closely resembling the format used in the bitmap file and al_create_memory_bitmap will be used to create it. If this flag is not specified, al_create_bitmap will be used instead and the display driver will determine the format.
+ * ALLEGRO_MEMORY_BITMAP - The bitmap will use a format most closely resembling
+ * the format used in the bitmap file and al_create_memory_bitmap will be used
+ * to create it. If this flag is not specified, al_create_bitmap will be used
+ * instead and the display driver will determine the format.
  *
- * ALLEGRO_SYNC_MEMORY_COPY - When modifying the bitmap, always keep the memory copy synchronized. This may mean copying back from the texture after render-to-texture operations which is slow, or it may mean doing each operation twice, once with render-to-texture, and once with a software renderer on the memory copy. Some drivers also may always have to do software rendering first then upload the modified parts, so this flag would have no effect.
+ * ALLEGRO_SYNC_MEMORY_COPY - When modifying the bitmap, always keep the memory
+ * copy synchronized. This may mean copying back from the texture after
+ * render-to-texture operations which is slow, or it may mean doing each
+ * operation twice, once with render-to-texture, and once with a software
+ * renderer on the memory copy. Some drivers also may always have to do
+ * software rendering first then upload the modified parts, so this flag would
+ * have no effect.
  *
  * ALLEGRO_USE_ALPHA - Use alpha blending when drawing the bitmap
  *
- * ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files, forces the resulting ALLEGRO_BITMAP to use the same format as the file. 
+ * ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files,
+ * forces the resulting ALLEGRO_BITMAP to use the same format as the file. 
  */
 void al_set_new_bitmap_flags(int flags)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
    tls->new_bitmap_flags = flags;
 }
 
@@ -273,7 +318,8 @@ void al_set_new_bitmap_flags(int flags)
  */
 int al_get_new_bitmap_format(void)
 {
-   if ((tls = tls_get()) == NULL) return 0;
+   if ((tls = tls_get()) == NULL)
+      return 0;
    return tls->new_bitmap_format;
 }
 
@@ -285,7 +331,8 @@ int al_get_new_bitmap_format(void)
  */
 int al_get_new_bitmap_flags(void)
 {
-   if ((tls = tls_get()) == NULL) return 0;
+   if ((tls = tls_get()) == NULL)
+      return 0;
    return tls->new_bitmap_flags;
 }
 
@@ -293,7 +340,8 @@ int al_get_new_bitmap_flags(void)
 
 void _al_push_new_bitmap_parameters(void)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
    tls->new_bitmap_format_backup = tls->new_bitmap_format;
    tls->new_bitmap_flags_backup = tls->new_bitmap_flags;
 }
@@ -302,7 +350,8 @@ void _al_push_new_bitmap_parameters(void)
 
 void _al_pop_new_bitmap_parameters(void)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
    tls->new_bitmap_format = tls->new_bitmap_format_backup;
    tls->new_bitmap_flags = tls->new_bitmap_flags_backup;
 }
@@ -321,7 +370,8 @@ void _al_pop_new_bitmap_parameters(void)
  */
 void al_set_blender(int src, int dst, ALLEGRO_COLOR *color)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
 
    tls->blend_source = src;
    tls->blend_dest = dst;
@@ -345,12 +395,15 @@ void al_set_blender(int src, int dst, ALLEGRO_COLOR *color)
  */
 void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
 
    if (src)
       *src = tls->blend_source;
+
    if (dst)
       *dst = tls->blend_dest;
+
    if (color)
       memcpy(color, &tls->orig_blend_color, sizeof(ALLEGRO_COLOR));
 }
@@ -359,8 +412,8 @@ void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
 
 ALLEGRO_INDEPENDANT_COLOR *_al_get_blend_color()
 {
-   if ((tls = tls_get()) == NULL) return NULL;
-
+   if ((tls = tls_get()) == NULL)
+      return NULL;
    return &tls->blend_color;
 }
 
@@ -368,9 +421,11 @@ ALLEGRO_INDEPENDANT_COLOR *_al_get_blend_color()
 
 void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
 {
-   if ((tls = tls_get()) == NULL) return;
+   if ((tls = tls_get()) == NULL)
+      return;
 
    switch (src) {
+
       case ALLEGRO_ZERO:
          switch (dst) {
             case ALLEGRO_ZERO:
@@ -387,6 +442,7 @@ void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
                break;
          }
          break;
+
       case ALLEGRO_ONE:
          switch (dst) {
             case ALLEGRO_ZERO:
@@ -403,6 +459,7 @@ void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
                break;
          }
          break;
+
       case ALLEGRO_ALPHA:
          switch (dst) {
             case ALLEGRO_ZERO:
@@ -419,6 +476,7 @@ void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
                break;
          }
          break;
+
       case ALLEGRO_INVERSE_ALPHA:
          switch (dst) {
             case ALLEGRO_ZERO:
@@ -442,8 +500,8 @@ void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
 
 ALLEGRO_MEMORY_BLENDER _al_get_memory_blender()
 {
-   if ((tls = tls_get()) == NULL) return NULL;
-
+   if ((tls = tls_get()) == NULL)
+      return NULL;
    return tls->memory_blender;
 }
 
@@ -500,7 +558,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
    return true; 
 }
 
-#else
+#else /* not defined ALLEGRO_MINGW32 */
 
 #if defined ALLEGRO_MSVC
 #define THREAD_LOCAL __declspec(thread)
@@ -572,9 +630,9 @@ int al_get_new_display_flags(void)
 
 
 
-/*
- * Make a display the current display. All the following Allegro commands in
- * the same thread will implicitly use this display from now on.
+/* al_set_current_display:
+ *
+ * See documentation for previous definition of this function.
  */
 void al_set_current_display(ALLEGRO_DISPLAY *display)
 {
@@ -585,8 +643,9 @@ void al_set_current_display(ALLEGRO_DISPLAY *display)
 
 
 
-/*
- * Get the current display.
+/* al_get_current_display:
+ *
+ * See documentation for previous definition of this function.
  */
 ALLEGRO_DISPLAY *al_get_current_display(void)
 {
@@ -595,9 +654,9 @@ ALLEGRO_DISPLAY *al_get_current_display(void)
 
 
 
-/*
- * Select the bitmap to which all subsequent drawing operation
- * will draw.
+/* al_set_target_bitmap:
+ *
+ * See documentation for previous definition of this function.
  */
 void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 {
@@ -608,8 +667,9 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 
 
 
-/*
- * Retrieve the target for drawing operations.
+/* al_get_target_bitmap:
+ *
+ * See documentation for previous definition of this function.
  */
 ALLEGRO_BITMAP *al_get_target_bitmap(void)
 {
@@ -699,8 +759,10 @@ void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
 {
    if (src)
      *src = tls.blend_source;
+
    if (dst)
       *dst = tls.blend_dest;
+
    if (color)
      memcpy(color, &tls.orig_blend_color, sizeof(ALLEGRO_COLOR));
 }
@@ -717,6 +779,7 @@ ALLEGRO_INDEPENDANT_COLOR *_al_get_blend_color()
 void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
 {
    switch (src) {
+
       case ALLEGRO_ZERO:
          switch (dst) {
             case ALLEGRO_ZERO:
@@ -733,6 +796,7 @@ void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
                break;
          }
          break;
+
       case ALLEGRO_ONE:
          switch (dst) {
             case ALLEGRO_ZERO:
@@ -749,6 +813,7 @@ void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
                break;
          }
          break;
+
       case ALLEGRO_ALPHA:
          switch (dst) {
             case ALLEGRO_ZERO:
@@ -765,6 +830,7 @@ void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
                break;
          }
          break;
+
       case ALLEGRO_INVERSE_ALPHA:
          switch (dst) {
             case ALLEGRO_ZERO:
@@ -791,4 +857,4 @@ ALLEGRO_MEMORY_BLENDER _al_get_memory_blender()
    return tls.memory_blender;
 }
 
-#endif
+#endif /* not defined ALLEGRO_MINGW32 */ 

@@ -1,3 +1,6 @@
+/* Title: Display routines
+ */
+
 #ifndef ALLEGRO_DISPLAY_NEW_H
 #define ALLEGRO_DISPLAY_NEW_H
 
@@ -75,18 +78,22 @@ void _al_push_target_bitmap(void);
 void _al_pop_target_bitmap(void);
 
 int al_get_num_display_modes(void);
-ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode);
+ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index,
+    ALLEGRO_DISPLAY_MODE *mode);
 
 bool al_wait_for_vsync(void);
 
 /* Primitives */
 void al_clear(ALLEGRO_COLOR *color);
-void al_draw_line(float fx, float fy, float tx, float ty, ALLEGRO_COLOR *color, int flags);
+void al_draw_line(float fx, float fy, float tx, float ty, ALLEGRO_COLOR *color,
+   int flags);
 void al_draw_rectangle(float tlx, float tly, float brx, float bry,
-    ALLEGRO_COLOR *color, int flags);
+   ALLEGRO_COLOR *color, int flags);
 
 #ifdef __cplusplus
    }
 #endif
 
 #endif
+
+/* vim: set ts=8 sts=3 sw=3 et: */
