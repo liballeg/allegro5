@@ -97,8 +97,9 @@ static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 
 
 
-/* Creates an empty display bitmap. A display bitmap can only be drawn to a
- * display.
+/* Function: al_create_bitmap
+ *
+ * Creates a new bitmap using the bitmap flags for the current thread. Blitting between bitmaps of differing formats, or blitting between memory bitmaps and display bitmaps may be slow.
  */
 ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
@@ -137,8 +138,9 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 
 
 
-/* Destroy a (memory or display) bitmap. The passed pointer will be invalid
- * afterwards, so best set it to NULL.
+/* Function: al_destroy_bitmap
+ *
+ * Destroys the given bitmap, freeing all resources used by it.
  */
 void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
@@ -219,7 +221,9 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
 
 
 
-/* Load a bitmap from a file into a display bitmap, ready to be drawn.
+/* al_load_bitmap
+ *
+ * Load a bitmap from a file.
  */
 ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 {
@@ -237,6 +241,15 @@ ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 
 
 
+/* Function: al_draw_bitmap
+ *
+ * Draws an unscaled, unrotated bitmap at the given position
+ * to the current target bitmap.
+ * flags can be:
+ *
+ * > ALLEGRO_FLIP_HORIZONTAL
+ * > ALLEGRO_FLIP_VERTICAL
+ */
 void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
@@ -256,6 +269,10 @@ void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
 
 
 
+/* Function: al_draw_bitmap_region
+ *
+ * Draws a region of the given bitmap to the target bitmap.
+ */
 void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 	float sw, float sh, float dx, float dy, int flags)
 {
@@ -275,6 +292,10 @@ void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 
 
 
+/* Function: al_draw_scaled_bitmap
+ *
+ * Draws a scaled version of the given bitmap to the target bitmap.
+ */
 void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 	float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
@@ -291,6 +312,12 @@ void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 
 
 
+/* Function: al_draw_rotated_bitmap
+ *
+ * Draws a rotated version of the given bitmap to the target bitmap.
+ * The bitmap is rotated by 'angle' radians counter clockwise.
+ * The point center_x, center_y will be drawn at dx, dy with the bitmap rotated around that point.
+ */
 void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 	float dx, float dy, float angle, int flags)
 {
@@ -307,6 +334,10 @@ void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 
 
 
+/* Function: al_draw_rotated_scaled_bitmap
+ *
+ * Like al_draw_rotated_bitmap, but can also scale the bitmap. center_x and center_y are in source bitmap coordinates.
+ */
 void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 	float dx, float dy, float xscale, float yscale, float angle,
 	int flags)
@@ -325,6 +356,15 @@ void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 
 
 
+/* Function: al_lock_bitmap_region
+ *
+ * Like al_lock_bitmap, but only locks a specific area of the bitmap.
+ * If the bitmap is a display bitmap, only that area of the texture will
+ * be updated when it is unlocked. Locking only the region you indend to
+ * modify will be faster than locking the whole bitmap.
+ *
+ * See Also: <al_lock_bitmap>
+ */
 ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 	int x, int y,
 	int width, int height,
@@ -371,6 +411,20 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
 
 
+/* Function: al_lock_bitmap
+ *
+ * Lock an entire bitmap for reading or writing. If the bitmap is a
+ * display bitmap it will be updated from system memory after the bitmap
+ * is unlocked (unless locked read only). locked_region must point to an already allocated
+ * ALLEGRO_LOCKED_REGION structure. Returns false if the bitmap cannot
+ * be locked, e.g. the bitmap was locked previously and not unlocked.
+ *
+ * Flags are:
+ * > ALLEGRO_LOCK_READONLY - The locked region will not be written to.
+ * >                         This can be faster if the bitmap is a video
+ * >                         texture, as it can be discarded after the lock
+ * >                         instead of uploaded back to the card. 
+ */
 ALLEGRO_LOCKED_REGION *al_lock_bitmap(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_LOCKED_REGION *locked_region,
    int flags)
@@ -381,6 +435,12 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap(ALLEGRO_BITMAP *bitmap,
 
 
 
+/* Function: al_unlock_bitmap
+ *
+ * Unlock a previously locked bitmap or bitmap region. If the bitmap
+ * is a display bitmap, the texture will be updated to match the system
+ * memory copy (unless it was locked read only).
+ */
 void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    /* For sub-bitmaps */
@@ -404,6 +464,10 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
 
 
 
+/* Function al_convert_mask_to_alpha
+ *
+ * Convert the given mask color to an alpha channel.
+ */
 void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color)
 {
    ALLEGRO_LOCKED_REGION lr;
@@ -464,7 +528,24 @@ int al_get_bitmap_flags(ALLEGRO_BITMAP *bitmap)
 }
 
 
-
+/* Function: al_create_sub_bitmap
+ *
+ * Creates a sub-bitmap of the parent, at the specified coordinates and of the
+ * specified size. A sub-bitmap is a bitmap that shares drawing memory with a
+ * pre-existing (parent) bitmap, but possibly with a different size and clipping
+ * settings.
+ *
+ * If the sub-bitmap does not lie completely inside the parent bitmap, then
+ * it is automatically clipped so that it does.
+ *
+ * The parent bitmap's clipping rectangles are ignored.
+ *
+ * If a sub-bitmap was not or cannot be created then NULL is returned.
+ *
+ * Note that destroying parents of sub-bitmaps will not destroy the
+ * sub-bitmaps; instead the sub-bitmaps become invalid and should no
+ * longer be used.
+ */
 ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    int x, int y, int w, int h)
 {

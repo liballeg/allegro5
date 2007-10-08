@@ -232,6 +232,13 @@ void _al_pop_target_bitmap(void)
 
 
 
+/* Function: al_set_new_bitmap_format
+ *
+ * Sets the pixel format for newly created bitmaps. format
+ * is one of the same values as used for al_set_new_display_format.
+ * The default format is 0 and means the display driver will choose
+ * the best format.
+ */
 void al_set_new_bitmap_format(int format)
 {
    if ((tls = tls_get()) == NULL) return;
@@ -240,6 +247,18 @@ void al_set_new_bitmap_format(int format)
 
 
 
+/* Function: al_set_new_bitmap_flags
+ *
+ * Sets the flags to use for newly created bitmaps. Valid flags are:
+ *
+ * ALLEGRO_MEMORY_BITMAP - The bitmap will use a format most closely resembling the format used in the bitmap file and al_create_memory_bitmap will be used to create it. If this flag is not specified, al_create_bitmap will be used instead and the display driver will determine the format.
+ *
+ * ALLEGRO_SYNC_MEMORY_COPY - When modifying the bitmap, always keep the memory copy synchronized. This may mean copying back from the texture after render-to-texture operations which is slow, or it may mean doing each operation twice, once with render-to-texture, and once with a software renderer on the memory copy. Some drivers also may always have to do software rendering first then upload the modified parts, so this flag would have no effect.
+ *
+ * ALLEGRO_USE_ALPHA - Use alpha blending when drawing the bitmap
+ *
+ * ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files, forces the resulting ALLEGRO_BITMAP to use the same format as the file. 
+ */
 void al_set_new_bitmap_flags(int flags)
 {
    if ((tls = tls_get()) == NULL) return;
@@ -248,6 +267,10 @@ void al_set_new_bitmap_flags(int flags)
 
 
 
+/* Function: al_get_new_bitmap_format
+ *
+ * Returns the format used for newly created bitmaps.
+ */
 int al_get_new_bitmap_format(void)
 {
    if ((tls = tls_get()) == NULL) return 0;
@@ -256,6 +279,10 @@ int al_get_new_bitmap_format(void)
 
 
 
+/* Function: al_get_new_bitmap_flags
+ *
+ * Returns the flags used for newly created bitmaps.
+ */
 int al_get_new_bitmap_flags(void)
 {
    if ((tls = tls_get()) == NULL) return 0;
@@ -282,6 +309,16 @@ void _al_pop_new_bitmap_parameters(void)
 
 
 
+/* Function: al_set_blender
+ *
+ * Sets the function to use for blending for the current thread.
+ * Valid values for src and dst are:
+ *
+ * > ALLEGRO_ZERO
+ * > ALLEGRO_ONE
+ * > ALLEGRO_ALPHA
+ * > ALLEGRO_INVERSE_ALPHA
+ */
 void al_set_blender(int src, int dst, ALLEGRO_COLOR *color)
 {
    if ((tls = tls_get()) == NULL) return;
@@ -302,6 +339,10 @@ void al_set_blender(int src, int dst, ALLEGRO_COLOR *color)
 
 
 
+/* Function: al_get_blender
+ *
+ * Returns the active blender for the current thread.
+ */
 void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
 {
    if ((tls = tls_get()) == NULL) return;

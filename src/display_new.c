@@ -177,24 +177,35 @@ void al_clear(ALLEGRO_COLOR *color)
 
 
 
-/* Draws a line from fx/fy to tx/ty, including start as well as end pixel. */
+/* Function: al_draw_line
+ *
+ * Draws a line to the current target.
+ */
 void al_draw_line(float fx, float fy, float tx, float ty,
-   ALLEGRO_COLOR* color, int flags)
+   ALLEGRO_COLOR* color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_draw_line_memory(fx, fy, tx, ty, color, flags);
+      _al_draw_line_memory(fx, fy, tx, ty, color);
    }
    else
       _al_current_display->vt->draw_line(_al_current_display,
-         fx, fy, tx, ty, color, flags);
+         fx, fy, tx, ty, color);
 }
 
 
 
-/* Draws a rectangle with top left corner tlx/tly abd bottom right corner
- * brx/bry. Both points are inclusive. */
+/* Function: al_draw_rectangle
+ *
+ * Draws a rectangle to the current target.
+ * flags can be:
+ *
+ * > ALLEGRO_FILLED
+ * > ALLEGRO_OUTLINED
+ * 
+ * Outlined is the default.
+ */
 void al_draw_rectangle(float tlx, float tly, float brx, float bry,
    ALLEGRO_COLOR *color, int flags)
 {
@@ -210,6 +221,19 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
 
 
 
+/* Function: al_is_compatible_bitmap
+ *
+ * D3D and OpenGL allow sharing a texture in a way so it can be used for
+ * multiple windows. Each ALLEGRO_BITMAP created with al_create_bitmap
+ * however is usually tied to a single ALLEGRO_DISPLAY. This function can
+ * be used to know if the bitmap is compatible with the current display,
+ * even if it is another display than the one it was created with. It
+ * returns true if the bitmap is compatible (things like a cached texture
+ * version can be used) and false otherwise (blitting in the current
+ * display will be slow). The only time this function is useful is if you
+ * are using multiple windows and need accelerated blitting of the same
+ * bitmaps to both. 
+ */
 bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    return _al_current_display->vt->is_compatible_bitmap(

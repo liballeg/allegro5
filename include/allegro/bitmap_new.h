@@ -145,6 +145,19 @@ enum ALLEGRO_BLEND_MODE {
 };
 
 
+/* Type: ALLEGRO_LOCKED_REGION
+ * Users who wish to manually edit or read from a bitmap
+ * are required to lock it first. The ALLEGRO_LOCKED_REGION
+ * structure represents the locked region of the bitmap. This
+ * call will work with any bitmap, including memory bitmaps.
+ *
+ * > typedef struct ALLEGRO_LOCKED_REGION {
+ * >         void *data; // the bitmap data
+ * >         int format; // the pixel format of the data
+ * >         int pitch;  // the size in bytes of a single line
+ * >                     // pitch may be greater than pixel_size*bitmap->w
+ * > }
+ */
 typedef struct ALLEGRO_LOCKED_REGION {
 	void *data;
 	int format;

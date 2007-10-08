@@ -28,7 +28,7 @@ static void clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 
 /* Dummy implementation of line. */
 static void draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
-   ALLEGRO_COLOR *color, int flags)
+   ALLEGRO_COLOR *color)
 {
    set_opengl_color(d, color);
    glBegin(GL_LINES);

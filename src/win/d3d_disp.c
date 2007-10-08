@@ -1131,8 +1131,10 @@ void _al_d3d_set_blender(void)
    src = d3d_al_blender_to_d3d(src);
    dst = d3d_al_blender_to_d3d(dst);
 
-   IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_SRCBLEND, src);
-   IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_DESTBLEND, dst);
+   if (IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_SRCBLEND, src) != D3D_OK)
+      TRACE("Failed to set source blender");
+   if (IDirect3DDevice9_SetRenderState(_al_d3d_device, D3DRS_DESTBLEND, dst) != D3D_OK)
+      TRACE("Failed to set dest blender");
 }
 
 
@@ -1158,7 +1160,7 @@ static DWORD d3d_blend_colors(
 
 /* Dummy implementation of line. */
 static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
-   ALLEGRO_COLOR *color, int flags)
+   ALLEGRO_COLOR *color)
 {
    static D3D_COLORED_VERTEX points[2] = { { 0.0f, 0.0f, 0.0f, 0 }, };
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
@@ -1168,7 +1170,7 @@ static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, floa
    if (_al_d3d_is_device_lost()) return;
 
    if (!_al_d3d_render_to_texture_supported()) {
-      _al_draw_line_memory(fx, fy, tx, ty, color, flags);
+      _al_draw_line_memory(fx, fy, tx, ty, color);
       return;
    }
 

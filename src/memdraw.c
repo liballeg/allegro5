@@ -22,7 +22,7 @@
 #include "allegro/internal/aintern_bitmap.h"
 
 #define DEFINE_PUT_PIXEL(name, size, get, set) \
-static void name(ALLEGRO_BITMAP *dst, void *dst_addr, int dx, int dy, int color, int flags) \
+static void name(ALLEGRO_BITMAP *dst, void *dst_addr, int dx, int dy, int color) \
 { \
    ASSERT(dst); \
  \
@@ -33,7 +33,7 @@ static void name(ALLEGRO_BITMAP *dst, void *dst_addr, int dx, int dy, int color,
 }
 
 #define DEFINE_PUT_PIXEL_NC(name, size, get, set) \
-static void name(ALLEGRO_BITMAP *dst, void *dst_addr, int dx, int dy, int color, int flags) \
+static void name(ALLEGRO_BITMAP *dst, void *dst_addr, int dx, int dy, int color) \
 { \
    ASSERT(dst); \
  \
@@ -54,7 +54,7 @@ DEFINE_PUT_PIXEL_NC(_al_put_pixel_nc32, 4, bmp_read32, bmp_write32)
 
 #define DEFINE_HLINE(name, size, get, set) \
 static void name(ALLEGRO_BITMAP *dst, unsigned char *dst_addr, int dx1, int dy, int dx2, \
-   int color, int flags) \
+   int color) \
 { \
    int w; \
  \
@@ -75,7 +75,7 @@ DEFINE_HLINE(_hline24, 3, READ3BYTES, WRITE3BYTES)
 DEFINE_HLINE(_hline32, 4, bmp_read32, bmp_write32)
 
 
-void _al_draw_hline_memory_fast(int dx1, int dy, int dx2, ALLEGRO_COLOR *color, int flags)
+void _al_draw_hline_memory_fast(int dx1, int dy, int dx2, ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *target;
    int color_value;
@@ -102,16 +102,16 @@ void _al_draw_hline_memory_fast(int dx1, int dy, int dx2, ALLEGRO_COLOR *color, 
 
    switch (al_get_pixel_size(target->format)) {
       case 1:
-         _hline8(target, lr.data, dx1, dy, dx2, color_value, flags);
+         _hline8(target, lr.data, dx1, dy, dx2, color_value);
          break;
       case 2:
-         _hline16(target, lr.data, dx1, dy, dx2, color_value, flags);
+         _hline16(target, lr.data, dx1, dy, dx2, color_value);
          break;
       case 3:
-         _hline24(target, lr.data, dx1, dy, dx2, color_value, flags);
+         _hline24(target, lr.data, dx1, dy, dx2, color_value);
          break;
       case 4:
-         _hline32(target, lr.data, dx1, dy, dx2, color_value, flags);
+         _hline32(target, lr.data, dx1, dy, dx2, color_value);
          break;
    }
 
@@ -119,7 +119,7 @@ void _al_draw_hline_memory_fast(int dx1, int dy, int dx2, ALLEGRO_COLOR *color, 
 }
 
 
-void _al_draw_vline_memory_fast(int dx, int dy1, int dy2, ALLEGRO_COLOR *color, int flags)
+void _al_draw_vline_memory_fast(int dx, int dy1, int dy2, ALLEGRO_COLOR *color)
 {
    int y;
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
@@ -180,7 +180,7 @@ void _al_draw_vline_memory_fast(int dx, int dy1, int dy2, ALLEGRO_COLOR *color, 
 
 
 /* Copied from do_line in gfx.c */
-void _al_draw_line_memory_fast(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, int flags)
+void _al_draw_line_memory_fast(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color)
 {
    int dx;
    int dy;
@@ -197,11 +197,11 @@ void _al_draw_line_memory_fast(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *co
    int xo, yo; /* offset to top left */
 
    if (y1 == y2) {
-      _al_draw_hline_memory_fast(x1, y1, x2, color, flags);
+      _al_draw_hline_memory_fast(x1, y1, x2, color);
       return;
    }
    else if (x1 == x2) {
-      _al_draw_vline_memory_fast(x1, y1, y2, color, flags);
+      _al_draw_vline_memory_fast(x1, y1, y2, color);
       return;
    }
 
@@ -210,7 +210,7 @@ void _al_draw_line_memory_fast(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *co
       set, size)                                                             \
    {                                                                         \
       if (d##pri_c == 0) {                                                   \
-         set(bitmap, lr.data+y1*lr.pitch+x1*size, x1+xo, y1+yo, d, flags);   \
+         set(bitmap, lr.data+y1*lr.pitch+x1*size, x1+xo, y1+yo, d);          \
          al_unlock_bitmap(bitmap);                                           \
 	 return;                                                             \
       }                                                                      \
@@ -223,7 +223,7 @@ void _al_draw_line_memory_fast(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *co
       y = y1;                                                                \
 									     \
       while (pri_c pri_cond pri_c##2) {                                      \
-	 set(bitmap, lr.data+y*lr.pitch+x*size, x+xo, y+yo, d, flags);       \
+	 set(bitmap, lr.data+y*lr.pitch+x*size, x+xo, y+yo, d);              \
 									     \
 	 if (dd sec_cond 0) {                                                \
 	    sec_c = sec_c sec_sign 1;                                        \
@@ -464,7 +464,7 @@ static void _vline(int x, int y1, int y2, ALLEGRO_COLOR *color)
 
 
 
-void _al_draw_hline_memory(int dx1, int dy, int dx2, ALLEGRO_COLOR *color, int flags)
+void _al_draw_hline_memory(int dx1, int dy, int dx2, ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *target;
    ALLEGRO_LOCKED_REGION lr;
@@ -493,7 +493,7 @@ void _al_draw_hline_memory(int dx1, int dy, int dx2, ALLEGRO_COLOR *color, int f
 }
 
 
-void _al_draw_vline_memory(int dx, int dy1, int dy2, ALLEGRO_COLOR *color, int flags)
+void _al_draw_vline_memory(int dx, int dy1, int dy2, ALLEGRO_COLOR *color)
 {
    int y;
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
@@ -525,8 +525,7 @@ void _al_draw_vline_memory(int dx, int dy1, int dy2, ALLEGRO_COLOR *color, int f
 
 
 /* Copied from do_line in gfx.c */
-void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color,
-   int flags)
+void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color)
 {
    int dx;
    int dy;
@@ -547,16 +546,16 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color,
    ic = _al_get_blend_color();
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
          ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f) {
-      _al_draw_line_memory_fast(x1, y1, x2, y2, color, flags);
+      _al_draw_line_memory_fast(x1, y1, x2, y2, color);
       return;
    }
 
    if (y1 == y2) {
-      _al_draw_hline_memory(x1, y1, x2, color, flags);
+      _al_draw_hline_memory(x1, y1, x2, color);
       return;
    }
    else if (x1 == x2) {
-      _al_draw_vline_memory(x1, y1, y2, color, flags);
+      _al_draw_vline_memory(x1, y1, y2, color);
       return;
    }
 

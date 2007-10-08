@@ -362,12 +362,22 @@ ALLEGRO_COLOR* _al_map_rgb(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    return __al_map_rgba(bitmap->format, color, r, g, b, 255);
 }
 
+/* Function: al_map_rgb
+ *
+ * Converts from hardware independant RGB values ranging from 0 to 255
+ * into an ALLEGRO_COLOR in the format of the current target bitmap of
+ * the active display. Alpha is assumed to be 255.
+ */
 ALLEGRO_COLOR *al_map_rgb(ALLEGRO_COLOR *color,
    unsigned char r, unsigned char g, unsigned char b)
 {
    return _al_map_rgb(al_get_target_bitmap(), color, r, g, b);
 }
 
+/* Function: al_map_rgba
+ *
+ * Like al_map_rgb but allows for an alpha component.
+ */
 ALLEGRO_COLOR *al_map_rgba(ALLEGRO_COLOR *color,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
@@ -588,12 +598,21 @@ ALLEGRO_COLOR *_al_map_rgb_f(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    return __al_map_rgba_f(bitmap->format, color, r, g, b, 1.0f);
 }
 
+/* Function: al_map_rgb_f
+ *
+ * Like al_map_rgb but the compenents are specified as floating point
+ * values ranging from 0.0f to 1.0f.
+ */
 ALLEGRO_COLOR *al_map_rgb_f(ALLEGRO_COLOR *color,
    float r, float g, float b)
 {
    return _al_map_rgb_f(al_get_target_bitmap(), color, r, g, b);
 }
 
+/* Function: al_map_rgba_f
+ *
+ * Like al_map_rgb_f but allows for an alpha component.
+ */
 ALLEGRO_COLOR *al_map_rgba_f(ALLEGRO_COLOR *color,
    float r, float g, float b, float a)
 {
@@ -825,12 +844,21 @@ ALLEGRO_COLOR *_al_map_rgb_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    return __al_map_rgba_i(bitmap->format, color, r, g, b, 1.0f);
 }
 
+/* Function: al_map_rgb_i
+ *
+ * Like al_map_rgb but components are specified as integers ranging from
+ * 0 to INT_MAX.
+ */
 ALLEGRO_COLOR *al_map_rgb_i(ALLEGRO_COLOR *color,
    int r, int g, int b)
 {
    return _al_map_rgb_i(al_get_target_bitmap(), color, r, g, b);
 }
 
+/* Function: al_map_rgba_i
+ *
+ * Like al_map_rgb_i but allows for an alpha component to be specified.
+ */
 ALLEGRO_COLOR *al_map_rgba_i(ALLEGRO_COLOR *color,
    int r, int g, int b, int a)
 {
@@ -1042,6 +1070,10 @@ ALLEGRO_COLOR *_al_get_pixel(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *
    return color;
 }
 
+/* Function: al_get_pixel
+ *
+ * Get a pixel's color value from the specified bitmap.
+ */
 ALLEGRO_COLOR *al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR *color)
 {
    ALLEGRO_LOCKED_REGION lr;
@@ -1394,6 +1426,10 @@ void _al_put_pixel(void *data, int format, int color)
    (*put_pixel_funcs[format])(data, color);
 }
 
+/* Function: al_put_pixel
+ *
+ * Draw a single pixel on the target bitmap.
+ */
 void al_put_pixel(int x, int y, ALLEGRO_COLOR *color)
 {
    ALLEGRO_LOCKED_REGION lr;
@@ -1638,12 +1674,23 @@ void _al_unmap_rgb(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    __al_unmap_rgba(bitmap->format, color, r, g, b, &tmp_a);
 }
 
+/* Function: al_unmap_rgb
+ *
+ * Convert from an ALLEGRO_COLOR to hardware independant r, g, b values
+ * ranging from 0 to 255.
+ * color is interpreted in the format of the current target bitmap of the
+ * active thread.
+ */
 void al_unmap_rgb(ALLEGRO_COLOR *color,
    unsigned char *r, unsigned char *g, unsigned char *b)
 {
    _al_unmap_rgb(al_get_target_bitmap(), color, r, g, b);
 }
 
+/* Function: al_unmap_rgba
+ *
+ * Like al_unmap_rgb, but also retrieves the alpha component.
+ */
 void al_unmap_rgba(ALLEGRO_COLOR *color,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
@@ -1853,13 +1900,22 @@ void _al_unmap_rgb_f(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    __al_unmap_rgba_f(bitmap->format, color, r, g, b, &tmp_a);
 }
 
+/* Function: al_unmap_rgb_f
+ *
+ * Like al_unmap_rgb, except retrieves colors as floating point values
+ * ranging from 0.0f to 1.0f.
+ */
 void al_unmap_rgb_f(ALLEGRO_COLOR *color,
    float *r, float *g, float *b)
 {
    _al_unmap_rgb_f(al_get_target_bitmap(), color, r, g, b);
 }
 
-void al_unmap_rgba_f(ALLEGRO_COLOR *color,
+/* Function: al_unmap_rgba_f
+ *
+ * Like al_unmap_rgb_f but retrieves the alpha component as well.
+ */
+void al_unmap_rgba_f(ALLEGR_COLOR *color,
    float *r, float *g, float *b, float *a)
 {
    _al_unmap_rgba_f(al_get_target_bitmap(), color, r, g, b, a);
@@ -2067,12 +2123,21 @@ void _al_unmap_rgb_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
    __al_unmap_rgba_i(bitmap->format, color, r, g, b, &tmp_a);
 }
 
+/* Function: al_unmap_rgb_i
+ *
+ * Like al_unmap_rgb except the resulting colors are integers
+ * ranging from 0 to INT_MAX.
+ */
 void al_unmap_rgb_i(ALLEGRO_COLOR *color,
    int *r, int *g, int *b)
 {
    _al_unmap_rgb_i(al_get_target_bitmap(), color, r, g, b);
 }
 
+/* Function: al_unmap_rgba_i
+ *
+ * Like al_unmap_rgb_i but also retrieves the alpha component.
+ */
 void al_unmap_rgba_i(ALLEGRO_COLOR *color,
    int *r, int *g, int *b, int *a)
 {

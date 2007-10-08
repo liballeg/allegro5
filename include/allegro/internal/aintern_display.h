@@ -16,7 +16,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*set_current_display)(ALLEGRO_DISPLAY *d);
    void (*clear)(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color);
    void (*draw_line)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
-      ALLEGRO_COLOR *color, int flags);
+      ALLEGRO_COLOR *color);
    void (*draw_rectangle)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx,
     float ty, ALLEGRO_COLOR *color, int flags);
    void (*flip_display)(ALLEGRO_DISPLAY *d);
