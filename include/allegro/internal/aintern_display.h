@@ -63,6 +63,6 @@ struct ALLEGRO_DISPLAY
 
 void _al_clear_memory(ALLEGRO_COLOR *color);
 void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, int flags);
-void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, int flags);
+void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color);
 
 #endif

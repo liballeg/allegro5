@@ -345,13 +345,13 @@ void _al_draw_line_memory_fast(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *co
    #undef DO_LINE
 }
 
-#define DO_FILLED_RECTANGLE_FAST(dst, dst_addr, func, dx, dy, w, h, value, flags) \
+#define DO_FILLED_RECTANGLE_FAST(dst, dst_addr, func, dx, dy, w, h, value) \
 { \
    int y; \
    unsigned char *line_ptr = dst_addr; \
  \
    for (y = 0; y < h; y++) { \
-      func(dst, line_ptr, dx, dy+y, dx+w-1, value, flags); \
+      func(dst, line_ptr, dx, dy+y, dx+w-1, value); \
       line_ptr += lr.pitch; \
    } \
 }
@@ -367,10 +367,10 @@ void _al_draw_rectangle_memory_fast(int x1, int y1, int x2, int y2,
    int pixel_value;
 
    if (!(flags & ALLEGRO_FILLED)) {
-      _al_draw_hline_memory_fast(x1, y1, x2, color, flags);
-      _al_draw_vline_memory_fast(x2, y1, y2, color, flags);
-      _al_draw_vline_memory_fast(x1, y1, y2, color, flags);
-      _al_draw_hline_memory_fast(x1, y2, x2, color, flags);
+      _al_draw_hline_memory_fast(x1, y1, x2, color);
+      _al_draw_vline_memory_fast(x2, y1, y2, color);
+      _al_draw_vline_memory_fast(x1, y1, y2, color);
+      _al_draw_hline_memory_fast(x1, y2, x2, color);
       return;
    }
 
@@ -416,16 +416,16 @@ void _al_draw_rectangle_memory_fast(int x1, int y1, int x2, int y2,
 
    switch (al_get_pixel_size(bitmap->format)) {
       case 1:
-         DO_FILLED_RECTANGLE_FAST(bitmap, lr.data, _hline8, x1, y1, w, h, pixel_value, flags)
+         DO_FILLED_RECTANGLE_FAST(bitmap, lr.data, _hline8, x1, y1, w, h, pixel_value)
 	 break;
       case 2:
-         DO_FILLED_RECTANGLE_FAST(bitmap, lr.data, _hline16, x1, y1, w, h, pixel_value, flags)
+         DO_FILLED_RECTANGLE_FAST(bitmap, lr.data, _hline16, x1, y1, w, h, pixel_value)
 	 break;
       case 3:
-         DO_FILLED_RECTANGLE_FAST(bitmap, lr.data, _hline24, x1, y1, w, h, pixel_value, flags)
+         DO_FILLED_RECTANGLE_FAST(bitmap, lr.data, _hline24, x1, y1, w, h, pixel_value)
 	 break;
       case 4:
-         DO_FILLED_RECTANGLE_FAST(bitmap, lr.data, _hline32, x1, y1, w, h, pixel_value, flags)
+         DO_FILLED_RECTANGLE_FAST(bitmap, lr.data, _hline32, x1, y1, w, h, pixel_value)
 	 break;
    }
 
@@ -694,10 +694,10 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
    }
 
    if (!(flags & ALLEGRO_FILLED)) {
-      _al_draw_hline_memory(x1, y1, x2, color, flags);
-      _al_draw_vline_memory(x2, y1, y2, color, flags);
-      _al_draw_vline_memory(x1, y1, y2, color, flags);
-      _al_draw_hline_memory(x1, y2, x2, color, flags);
+      _al_draw_hline_memory(x1, y1, x2, color);
+      _al_draw_vline_memory(x2, y1, y2, color);
+      _al_draw_vline_memory(x1, y1, y2, color);
+      _al_draw_hline_memory(x1, y2, x2, color);
       return;
    }
 

@@ -115,11 +115,11 @@ int main(void)
    ALLEGRO_COLOR c;
    al_set_target_bitmap(picture);
    al_map_rgba_f(&c, 1.0f, 1.0f, 0.0f, 1.0f);
-   al_draw_line(0, 0, 320, 200, &c, 0);
+   al_draw_line(0, 0, 320, 200, &c);
    al_map_rgba_f(&c, 1.0f, 1.0f, 0.0f, 0.5f);
    //al_draw_rectangle(0, 0, 320, 200, &c, ALLEGRO_FILLED);
-   al_draw_line(0, 0, 100, 0, &c, 0);
-   al_draw_line(0, 0, 0, 100, &c, 0);
+   al_draw_line(0, 0, 100, 0, &c);
+   al_draw_line(0, 0, 0, 100, &c);
 	
    long start = al_current_time();
    long last_move = al_current_time();
@@ -196,7 +196,7 @@ int main(void)
 	    al_map_rgb_f(&white, 1, 1, 1);
             al_clear(&white);
 	    if (i == 1) {
-	    	al_draw_line(50, 50, 150, 150, &colors[0], 0);
+	    	al_draw_line(50, 50, 150, 150, &colors[0]);
 	    }
 
             if (i == 2) {

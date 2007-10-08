@@ -1931,7 +1931,7 @@ void al_unmap_rgb_f(ALLEGRO_COLOR *color,
  *
  * Like al_unmap_rgb_f but retrieves the alpha component as well.
  */
-void al_unmap_rgba_f(ALLEGR_COLOR *color,
+void al_unmap_rgba_f(ALLEGRO_COLOR *color,
    float *r, float *g, float *b, float *a)
 {
    _al_unmap_rgba_f(al_get_target_bitmap(), color, r, g, b, a);

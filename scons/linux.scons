@@ -4,17 +4,7 @@ Import('context')
 
 SConscript('unix.scons', exports = ['context'])
 
-context.addFiles('src/linux/', Split("""
-lconsole.c
-lgfxdrv.c
-ljoynu.c
-lkeybdnu.c
-lmemory.c
-lmsedrv.c
-lmseev.c
-lsystem.c
-lvga.c
-lvgahelp.c
-vtswitch.c
-"""));
+linuxfiles = context.cmake["ALLEGRO_SRC_LINUX_FILES"]
+linuxfiles.remove("src/linux/fbcon.c")
+context.add_files(linuxfiles);
 

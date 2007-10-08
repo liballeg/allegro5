@@ -85,8 +85,7 @@ bool al_wait_for_vsync(void);
 
 /* Primitives */
 void al_clear(ALLEGRO_COLOR *color);
-void al_draw_line(float fx, float fy, float tx, float ty, ALLEGRO_COLOR *color,
-   int flags);
+void al_draw_line(float fx, float fy, float tx, float ty, ALLEGRO_COLOR *color);
 void al_draw_rectangle(float tlx, float tly, float brx, float bry,
    ALLEGRO_COLOR *color, int flags);
 
