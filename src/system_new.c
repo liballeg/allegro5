@@ -37,7 +37,7 @@ bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
 
 void al_unregister_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
 {
-   _al_vector_find_and_delete(&_user_system_interfaces, sys_interface);
+   _al_vector_find_and_delete(&_user_system_interfaces, &sys_interface);
 }
 
 static ALLEGRO_SYSTEM *find_system(_AL_VECTOR *vector)
