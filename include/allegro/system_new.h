@@ -7,12 +7,15 @@
 
 typedef struct ALLEGRO_SYSTEM ALLEGRO_SYSTEM;
 
-bool _al_init(void);
+AL_FUNC(bool, _al_init, (void));
 
-#define al_init() { \
-   if (!system_driver) \
-      allegro_init(); \
-   _al_init(); \
+static inline bool al_init(void)
+{
+   if (!system_driver) {
+      if (allegro_init())
+         return false;
+   }
+   return _al_init();
 }
 
 ALLEGRO_SYSTEM *al_system_driver(void);
