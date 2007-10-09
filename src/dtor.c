@@ -67,7 +67,7 @@ void _al_init_destructors(void)
  */
 static void shutdown_destructors(void)
 {
-   TRACE("shutdown_destructors called\n");
+   //TRACE("shutdown_destructors called\n");
 
    /* call the destructors in reverse order */
    _al_mutex_lock(&mutex);
