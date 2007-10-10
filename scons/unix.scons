@@ -271,9 +271,10 @@ import SCons.Tool
 
 AssemblerAction = Action( 'gcc -x assembler-with-cpp $CCFLAGS $_CPPINCFLAGS $SOURCES -c -o $TARGET' )
 
-static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+static_obj, shared_obj = SCons.Tool.createObjBuilders(context.getLibraryEnv())
 shared_obj.add_action('.s', AssemblerAction )
 shared_obj.add_emitter('.s', SCons.Defaults.SharedObjectEmitter )
+SourceFileScanner.add_scanner('.s', SCons.Scanner.C.CScanner() )
 
 # "-O2"
 flags = ["-g", "-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
@@ -287,6 +288,14 @@ env.Append(CPPPATH = includes)
 # This is where the source for the unix files comes from
 context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
 unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
+
+# Build asmdef. In the future asmdef.inc can probably be built directly by scons
+# instead of building the asmdef program.
+asmdefEnv = Environment()
+asmdef_inc = '#obj/unix/asmdef.inc'
+asmdefEnv.BuildDir('#build','#src')
+asmdef = asmdefEnv.Program('#build/asmdef', '#build/i386/asmdef.c')
+asmdefEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
 
 # TODO: How does the modules stuff work? Shouldn't they still be linked in?
 # unixfiles.remove("src/unix/alsa5.c")
@@ -345,22 +354,9 @@ if platform["ALLEGRO_LINUX_SVGALIB"][0]:
     def buildSVGA(menv,appendDir,buildDir,libDir):
         vgaEnv = menv.Copy()
         vgaEnv.Append(LIBS = "vga")
-
-        # asmdef environment doesnt need extra libraries
-        asmdefEnv = menv.Copy()
-        asmdefEnv.Replace(LIBS = [])
-        asmdef_inc = 'obj/unix/asmdef.inc'
-        asmdef = asmdefEnv.Program(buildDir + '/asmdef', buildDir + '/i386/asmdef.c')
-    # Produce asmdef.inc from asmdef
-        vgaEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
         sources = ["svgalib.c"]
-
-    # svgalibs.s must explicitly depend on asmdef.inc. we can
-    # set that up by getting the resulting object file and set the
-    # dependancy with Depends(target,source)
         assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/src/linux/",['svgalibs.s']))
-        vgaEnv.Depends(assembler_object,asmdef_inc)
-        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/src/linux/", ['svgalib.c']) + [assembler_object])
+        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/src/linux/", sources) + [assembler_object])
         modules.append(lib)
         return lib
     context.addExtra(buildSVGA)
@@ -378,7 +374,7 @@ if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
 if platform["ALLEGRO_LINUX_FBCON"][0]:
     def buildFBCon(menv,appendDir,buildDir,libDir):
         sources = ["fbcon.c"]
-        lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/src/linux/", sources))
+        lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/modules/src/linux/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildFBCon)

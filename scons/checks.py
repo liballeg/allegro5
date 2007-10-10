@@ -76,7 +76,7 @@ def CheckMMX(context):
         popl %ebp
         ret""", ".s")
     context.Result(ret)
-    return ret
+    return 0
 
 def CheckSSE(context):
     context.Message("Checking for SSE... ")

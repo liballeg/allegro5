@@ -5,6 +5,6 @@ Import('context')
 SConscript('unix.scons', exports = ['context'])
 
 linuxfiles = context.cmake["ALLEGRO_SRC_LINUX_FILES"]
-linuxfiles.remove("src/linux/fbcon.c")
+# linuxfiles.remove("src/linux/fbcon.c")
 context.add_files(linuxfiles);
 
