@@ -146,6 +146,8 @@ bool al_update_display_region(int x, int y,
  * if they wish the display to be resized they must call this
  * function to let the graphics driver know that it can now resize
  * the display. Returns true on success.
+ *
+ * Adjusts the clipping rectangle to the full size of the backbuffer.
  */
 bool al_acknowledge_resize(void)
 {
@@ -163,6 +165,8 @@ bool al_acknowledge_resize(void)
  * Resize the current display. Returns false on error,
  * true on success. This works on both fullscreen and windowed
  * displays, regardless of the ALLEGRO_RESIZABLE flag.
+ *
+ * Adjusts the clipping rectangle to the full size of the backbuffer.
  */
 bool al_resize_display(int width, int height)
 {

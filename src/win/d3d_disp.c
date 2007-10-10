@@ -1274,7 +1274,6 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    }
 }
 
-/* Dummy implementation of clear. */
 static void d3d_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY_D3D* disp = (ALLEGRO_DISPLAY_D3D*)d;
@@ -1461,14 +1460,16 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       al_set_current_display(d);
       al_set_target_bitmap(al_get_backbuffer());
       _al_d3d_recreate_bitmap_textures();
+
+      disp->backbuffer_bmp.bitmap.w = width;
+      disp->backbuffer_bmp.bitmap.h = height;
+
       return true;
    }
    else {
       bool ret;
       RECT win_size;
       WINDOWINFO wi;
-
-      //_al_d3d_reset_device();
 
       win_size.left = 0;
       win_size.top = 0;
@@ -1499,29 +1500,6 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       _al_pop_target_bitmap();
 
       return ret;
-
-      /*
-      wi.cbSize = sizeof(WINDOWINFO);
-      GetWindowInfo(disp->window, &wi);
-      x = wi.rcClient.left;
-      y = wi.rcClient.top;
-
-      _al_event_source_lock(es);
-      if (_al_event_source_needs_to_generate_event(es)) {
-         AL_EVENT *event = _al_event_source_get_unused_event(es);
-         if (event) {
-            event->display.type = AL_EVENT_DISPLAY_RESIZE;
-            event->display.timestamp = al_current_time();
-            event->display.x = x;
-            event->display.y = y;
-            event->display.width = width;
-            event->display.height = height;
-            _al_event_source_emit_event(es, event);
-         }
-      }
-      _al_event_source_unlock(es);
-      */
-
    }
 }
 
@@ -1535,6 +1513,14 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
       GetWindowInfo(disp->window, &wi);
       d->w = wi.rcClient.right - wi.rcClient.left;
       d->h = wi.rcClient.bottom - wi.rcClient.top;
+
+      disp->backbuffer_bmp.bitmap.w = d->w;
+      disp->backbuffer_bmp.bitmap.h = d->h;
+
+      ALLEGRO_DISPLAY *old = _al_current_display;
+      al_set_current_display(d);
+      al_set_clipping_rectangle(0, 0, d->w-1, d->h-1);
+      al_set_current_display(old);
 
       return _al_d3d_reset_device();
    }

@@ -190,6 +190,8 @@ int al_get_new_display_flags(void)
 /* Function: al_set_current_display
  *
  * Change the current display for the calling thread.
+ * Also sets the target bitmap to the display's
+ * backbuffer.
  */
 void al_set_current_display(ALLEGRO_DISPLAY *display)
 {
@@ -199,6 +201,8 @@ void al_set_current_display(ALLEGRO_DISPLAY *display)
    if ((tls = tls_get()) == NULL)
       return;
    tls->current_display = display;
+
+   al_set_target_bitmap(al_get_backbuffer());
 }
 
 
@@ -639,6 +643,8 @@ void al_set_current_display(ALLEGRO_DISPLAY *display)
    if (display)
       display->vt->set_current_display(display);
    tls.current_display = display;
+
+   al_set_target_bitmap(al_get_backbuffer());
 }
 
 

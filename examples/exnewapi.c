@@ -103,7 +103,6 @@ int main(void)
 
    for (i = 0; i < 3; i++) {
    	al_set_current_display(display[i]);
-        al_set_target_bitmap(al_get_backbuffer());
 	if (i == 0)
 		al_map_rgba_f(&colors[0], 1, 0, 0, 0.5f);
 	else if (i == 1)
@@ -124,7 +123,7 @@ int main(void)
    long start = al_current_time();
    long last_move = al_current_time();
    int frames = 0;
-  
+
    while (!quit) {
       /* read input */
       while (!al_event_queue_is_empty(events)) {
@@ -192,7 +191,6 @@ int main(void)
 	    if (!display[i])
 	       continue;
             al_set_current_display(display[i]);
-	    al_set_target_bitmap(al_get_backbuffer());
 	    al_map_rgb_f(&white, 1, 1, 1);
             al_clear(&white);
 	    if (i == 1) {
