@@ -522,7 +522,7 @@ bool _al_d3d_render_to_texture_supported()
 
 bool _al_d3d_init_display()
 {
-   if ((_al_d3d = Direct3DCreate9(D3D_SDK_VERSION)) == NULL) {
+   if ((_al_d3d = Direct3DCreate9(D3D9b_SDK_VERSION)) == NULL) {
       TRACE("Direct3DCreate9 failed.\n");
       return false;
    }
@@ -871,6 +871,7 @@ static void d3d_display_thread_proc(void *arg)
 
    if (!(params->flags & ALLEGRO_FULLSCREEN)) {
       if (!d3d_create_swap_chain(d, params->format, params->refresh_rate, params->flags)) {
+         d->thread_ended = true;
          d3d_destroy_display((ALLEGRO_DISPLAY *)d);
          params->display->init_failed = true;
          return;
@@ -878,6 +879,7 @@ static void d3d_display_thread_proc(void *arg)
    }
    else {
       if (!d3d_create_fullscreen_device(d, params->format, params->refresh_rate, params->flags)) {
+         d->thread_ended = true;
          d3d_destroy_display((ALLEGRO_DISPLAY *)d);
          params->display->init_failed = true;
          return;
@@ -1221,10 +1223,10 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    DWORD d3d_color;
 
    if (!(flags & ALLEGRO_FILLED)) {
-      d3d_draw_line(d, tlx, tly, brx, tly, color, flags);
-      d3d_draw_line(d, tlx, bry, brx, bry, color, flags);
-      d3d_draw_line(d, tlx, tly, tlx, bry, color, flags);
-      d3d_draw_line(d, brx, tly, brx, bry, color, flags);
+      d3d_draw_line(d, tlx, tly, brx, tly, color);
+      d3d_draw_line(d, tlx, bry, brx, bry, color);
+      d3d_draw_line(d, tlx, tly, tlx, bry, color);
+      d3d_draw_line(d, brx, tly, brx, bry, color);
       return;
    }
 
@@ -1751,8 +1753,9 @@ static void  d3d_switch_in(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
 
-   al_set_mouse_range(d3d_disp->mouse_range_x1, d3d_disp->mouse_range_y1,
-      d3d_disp->mouse_range_x2, d3d_disp->mouse_range_y2);
+   if (al_is_mouse_installed())
+      al_set_mouse_range(d3d_disp->mouse_range_x1, d3d_disp->mouse_range_y1,
+         d3d_disp->mouse_range_x2, d3d_disp->mouse_range_y2);
 }
 
 static bool d3d_wait_for_vsync(ALLEGRO_DISPLAY *display)
