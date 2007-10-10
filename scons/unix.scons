@@ -274,6 +274,8 @@ AssemblerAction = Action( 'gcc -x assembler-with-cpp $CCFLAGS $_CPPINCFLAGS $SOU
 static_obj, shared_obj = SCons.Tool.createObjBuilders(context.getLibraryEnv())
 shared_obj.add_action('.s', AssemblerAction )
 shared_obj.add_emitter('.s', SCons.Defaults.SharedObjectEmitter )
+static_obj.add_action( '.s', AssemblerAction )
+static_obj.add_emitter( '.s', SCons.Defaults.StaticObjectEmitter )
 SourceFileScanner.add_scanner('.s', SCons.Scanner.C.CScanner() )
 
 # "-O2"
