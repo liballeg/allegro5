@@ -295,6 +295,7 @@ unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 # instead of building the asmdef program.
 asmdefEnv = Environment()
 asmdef_inc = '#obj/unix/asmdef.inc'
+asmdefEnv.Append(CPPPATH = '#include')
 asmdefEnv.BuildDir('#build','#src')
 asmdef = asmdefEnv.Program('#build/asmdef', '#build/i386/asmdef.c')
 asmdefEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
