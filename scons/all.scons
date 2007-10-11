@@ -93,8 +93,9 @@ def demo(env,appendDir,buildDir,libDir):
         star.c
         title.c
     """);
-
-    return env.Program('demo/demo', appendDir(buildDir + '/demo', sources))
+    demo = env.Program('demo/demo', appendDir(buildDir + '/demo', sources))
+    Alias('demo', demo)
+    return demo
 
 def examples(env,appendDir,buildDir,libDir):
     examples = []
