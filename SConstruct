@@ -339,26 +339,6 @@ Alias('docs', docs)
 
 SConscript("scons/naturaldocs.scons")
 
-def buildDemo(env, appendDir, buildDir, libDir):
-    env.BuildDir(buildDir + 'demo', 'demo', duplicate = 0)
-    files = Split("""
-        animsel.c
-        aster.c
-        bullet.c
-        demo.c
-        demodisp.c
-        dirty.c
-        expl.c
-        game.c
-        star.c
-        title.c
-    """);
-    demo = env.Program('demo/demo', appendDir(buildDir + '/demo/', files))
-    Alias('demo', demo)
-    return demo
-
-# context.addExtra(buildDemo)
-
 plugins_h = context.getLibraryEnv().Cat( 'tools/plugins/plugins.h', appendDir( 'tools/plugins/', Split("""
 datalpha.inc
 datfli.inc
