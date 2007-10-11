@@ -80,6 +80,22 @@ def tests(env,appendDir,buildDir,libDir):
     Alias('tests', tests)
     return tests
 
+def demo(env,appendDir,buildDir,libDir):
+    sources = Split("""
+        animsel.c
+        aster.c
+        bullet.c
+        demo.c
+        demodisp.c
+        dirty.c
+        expl.c
+        game.c
+        star.c
+        title.c
+    """);
+
+    return env.Program('demo/demo', appendDir(buildDir + '/demo', sources))
+
 def examples(env,appendDir,buildDir,libDir):
     examples = []
     env.BuildDir(buildDir + 'examples', 'examples', duplicate = 0)
@@ -163,6 +179,7 @@ def addons(env, appendDir, buildDir, libDir):
         "font/fontbmp.c", "font/readfont.c", "font/text.c"])
     return examples
 
+context.addExtra(demo)
 context.addExtra(examples)
 context.addExtra(addons)
 # context.addExtra(tools)
