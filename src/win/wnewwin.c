@@ -212,9 +212,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                }
             }
             break;
-         case WM_SETCURSOR:
-            mouse_set_syscursor();
-            return 1;
+         //case WM_SETCURSOR:
+         //   mouse_set_syscursor();
+         //   return 1;
          break;
          case WM_ACTIVATEAPP:
             if (wParam) {

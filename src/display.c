@@ -739,7 +739,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    #else
    #if defined ALLEGRO_D3D
    if (card == GFX_DIRECT3D || card == GFX_DIRECT3D_FULLSCREEN || card == GFX_DIRECT3D_WINDOWED) {
-   	int windowed_flag = (card == GFX_DIRECT3D_WINDOWED) ? ALLEGRO_WINDOWED : 0;
+   	int windowed_flag = (card == GFX_DIRECT3D_WINDOWED) ? ALLEGRO_WINDOWED : ALLEGRO_FULLSCREEN;
 	al_init();
 	if (v_w != 0 || v_h != 0) {
 		return -1;
