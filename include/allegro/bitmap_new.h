@@ -230,6 +230,19 @@ ALLEGRO_COLOR *al_map_rgb_i(ALLEGRO_COLOR *color,
 	int r, int g, int b);
 ALLEGRO_COLOR *al_map_rgba_i(ALLEGRO_COLOR *color,
 	int r, int g, int b, int a);
+ALLEGRO_COLOR* al_map_rgba_ex(int format, ALLEGRO_COLOR *color,
+	unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+ALLEGRO_COLOR* al_map_rgba_f_ex(int format, ALLEGRO_COLOR *color,
+	float r, float g, float b, float a);
+ALLEGRO_COLOR* al_map_rgba_i_ex(int format, ALLEGRO_COLOR *color,
+	int r, int g, int b, int a);
+ALLEGRO_COLOR* al_map_rgb_ex(int format, ALLEGRO_COLOR *color,
+	unsigned char r, unsigned char g, unsigned char b);
+ALLEGRO_COLOR* al_map_rgb_f_ex(int format, ALLEGRO_COLOR *color,
+	float r, float g, float b);
+ALLEGRO_COLOR* al_map_rgb_i_ex(int format, ALLEGRO_COLOR *color,
+	int r, int g, int b);
+
 
 /* Pixel unmapping */
 void al_unmap_rgb(ALLEGRO_COLOR *color,
@@ -244,6 +257,19 @@ void al_unmap_rgb_i(ALLEGRO_COLOR *color,
 	int *r, int *g, int *b);
 void al_unmap_rgba_i(ALLEGRO_COLOR *color,
 	int *r, int *g, int *b, int *a);
+void al_unmap_rgba_ex(int format, ALLEGRO_COLOR *color,
+	unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a);
+void al_unmap_rgba_f_ex(int format, ALLEGRO_COLOR *color,
+	float *r, float *g, float *b, float *a);
+void al_unmap_rgba_i_ex(int format, ALLEGRO_COLOR *color,
+	int *r, int *g, int *b, int *a);
+void al_unmap_rgb_ex(int format, ALLEGRO_COLOR *color,
+	unsigned char *r, unsigned char *g, unsigned char *b);
+void al_unmap_rgb_f_ex(int format, ALLEGRO_COLOR *color,
+	float *r, float *g, float *b);
+void al_unmap_rgb_i_ex(int format, ALLEGRO_COLOR *color,
+	int *r, int *g, int *b);
+
 
 /* Masking */
 void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color);

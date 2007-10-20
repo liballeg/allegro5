@@ -158,13 +158,6 @@ void _al_blender_inverse_alpha_alpha(int src_format, ALLEGRO_COLOR *src_color, i
 void _al_blender_inverse_alpha_inverse_alpha(int src_format, ALLEGRO_COLOR *src_color, int dst_format, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 
 /* Pixel mapping */
-ALLEGRO_COLOR* __al_map_rgba(int format, ALLEGRO_COLOR *color,
-	unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-ALLEGRO_COLOR* __al_map_rgba_f(int format, ALLEGRO_COLOR *color,
-	float r, float g, float b, float a);
-ALLEGRO_COLOR* __al_map_rgba_i(int format, ALLEGRO_COLOR *color,
-	int r, int g, int b, int a);
-
 ALLEGRO_COLOR *_al_map_rgb(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
 	unsigned char r, unsigned char g, unsigned char b);
 ALLEGRO_COLOR *_al_map_rgba(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
@@ -179,13 +172,6 @@ ALLEGRO_COLOR *_al_map_rgba_i(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
 	int r, int g, int b, int a);
 
 /* Pixel unmapping */
-void __al_unmap_rgba(int format, ALLEGRO_COLOR *color,
-	unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a);
-void __al_unmap_rgba_f(int format, ALLEGRO_COLOR *color,
-	float *r, float *g, float *b, float *a);
-void __al_unmap_rgba_i(int format, ALLEGRO_COLOR *color,
-	int *r, int *g, int *b, int *a);
-
 void _al_unmap_rgb(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
 	unsigned char *r, unsigned char *g, unsigned char *b);
 void _al_unmap_rgba(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,

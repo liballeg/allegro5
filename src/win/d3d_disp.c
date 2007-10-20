@@ -210,7 +210,7 @@ int _al_d3d_format_to_allegro(int d3d_fmt)
 static int d3d_al_color_to_d3d(int format, ALLEGRO_COLOR *color)
 {
    unsigned char r, g, b, a;
-   __al_unmap_rgba(format, color, &r, &g, &b, &a);
+   al_unmap_rgba_ex(format, color, &r, &g, &b, &a);
    return D3DCOLOR_ARGB(a, r, g, b);
 }
 
@@ -398,11 +398,11 @@ static bool d3d_create_hidden_device()
    /* FIXME: try hardware vertex processing first? */
    if ((ret = IDirect3D9_CreateDevice(_al_d3d, D3DADAPTER_DEFAULT,
          D3DDEVTYPE_HAL, d3d_hidden_window,
-         D3DCREATE_HARDWARE_VERTEXPROCESSING,
+         D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE,
          &d3d_pp, &_al_d3d_device)) != D3D_OK) {
       if ((ret = IDirect3D9_CreateDevice(_al_d3d, D3DADAPTER_DEFAULT,
             D3DDEVTYPE_HAL, d3d_hidden_window,
-            D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+            D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE,
             &d3d_pp, &_al_d3d_device)) != D3D_OK) {
          switch (ret) {
             case D3DERR_INVALIDCALL:
@@ -468,11 +468,11 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
    /* FIXME: try hardware vertex processing first? */
    if ((ret = IDirect3D9_CreateDevice(_al_d3d, D3DADAPTER_DEFAULT,
          D3DDEVTYPE_HAL, d->window,
-         D3DCREATE_HARDWARE_VERTEXPROCESSING,
+         D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE,
          &d3d_pp, &_al_d3d_device)) != D3D_OK) {
       if ((ret = IDirect3D9_CreateDevice(_al_d3d, D3DADAPTER_DEFAULT,
             D3DDEVTYPE_HAL, d->window,
-            D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+            D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE,
             &d3d_pp, &_al_d3d_device)) != D3D_OK) {
          switch (ret) {
             case D3DERR_INVALIDCALL:
@@ -1265,7 +1265,7 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
       0.0f, 0.0f, w, h,
       tlx, tly, w, h,
       w/2, h/2, 0.0f,
-      d3d_color, 0);
+      d3d_color, 0, false);
 
    _al_d3d_unlock_device();
    

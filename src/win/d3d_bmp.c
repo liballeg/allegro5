@@ -119,7 +119,7 @@ void _al_d3d_draw_textured_quad(ALLEGRO_BITMAP_D3D *bmp,
    float sx, float sy, float sw, float sh,
    float dx, float dy, float dw, float dh,
    float cx, float cy, float angle,
-   D3DCOLOR color, int flags)
+   D3DCOLOR color, int flags, bool pivot)
 {
    float right;
    float bottom;
@@ -176,22 +176,17 @@ void _al_d3d_draw_textured_quad(ALLEGRO_BITMAP_D3D *bmp,
       { dx,    bottom, z, color, tu_start,  tv_end   }
    };
 
-   if (angle == 0.0f) {
-      cx = dx + cx;
-      cy = dy + cy;
-   }
-   else {
+   if (pivot) {
       cx = dx + cx * (dw / sw);
       cy = dy + cy * (dh / sh);
-   }
-
-   if (angle == 0.0f) {
-      dest_x = cx;
-      dest_y = cy;
-   }
-   else {
       dest_x = dx;
       dest_y = dy;
+   }
+   else {
+      cx = dx + cx;
+      cy = dy + cy;
+      dest_x = cx;
+      dest_y = cy;
    }
 
    d3d_transform(vertices, cx, cy, dest_x, dest_y, angle);
@@ -637,7 +632,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
    float sx, float sy, float sw, float sh,
    float source_center_x, float source_center_y,
    float dx, float dy, float dw, float dh,
-   float angle, int flags)
+   float angle, int flags, bool pivot)
 {
    ALLEGRO_BITMAP_D3D *d3d_src = (ALLEGRO_BITMAP_D3D *)src;
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
@@ -680,7 +675,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
       d3d_blit_real(tmp_bmp, sx, sy, sw, sh,
          source_center_x, source_center_y,
          dx, dy, dw, dh,
-         angle, flags);
+         angle, flags, pivot);
       al_destroy_bitmap(tmp_bmp);
       return;
    }
@@ -694,7 +689,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
       dx, dy, dw, dh,
       source_center_x, source_center_y,
       angle, color,
-      flags);
+      flags, pivot);
 
    _al_d3d_unlock_device();
 
@@ -719,7 +714,7 @@ static void d3d_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flag
    d3d_blit_real(bitmap, 0.0f, 0.0f, bitmap->w, bitmap->h,
       bitmap->w/2, bitmap->h/2,
       dx, dy, bitmap->w, bitmap->h,
-      0.0f, flags);
+      0.0f, flags, false);
 }
 
 static void d3d_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
@@ -734,7 +729,7 @@ static void d3d_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
       sx, sy, sw, sh,
       0.0f, 0.0f,
       dx, dy, sw, sh,
-      0.0f, flags);
+      0.0f, flags, false);
 }
 
 void d3d_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
@@ -748,7 +743,7 @@ void d3d_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    d3d_blit_real(bitmap,
       sx, sy, sw, sh, (sw-sx)/2, (sh-sy)/2,
       dx, dy, dw, dh, 0.0f,
-      flags);
+      flags, false);
 }
 
 void d3d_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
@@ -763,7 +758,7 @@ void d3d_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
       0.0f, 0.0f, bitmap->w, bitmap->h,
       cx, cy,
       dx, dy, bitmap->w, bitmap->h,
-      angle, flags);
+      angle, flags, true);
 }
 
 void d3d_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
@@ -779,7 +774,7 @@ void d3d_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
       0.0f, 0.0f, bitmap->w, bitmap->h,
       cx, cy,
       dx, dy, bitmap->w*xscale, bitmap->h*yscale,
-      angle, flags);
+      angle, flags, true);
 }
 
 static void d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
