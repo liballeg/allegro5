@@ -37,6 +37,7 @@ def a5font(env, appendDir, buildDir, libDir):
         return targets
 
     Alias('install', install())
+    Alias('install-addons/font', install())
     return examples
 
 context.addExtra(a5font)
