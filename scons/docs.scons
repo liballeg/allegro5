@@ -23,7 +23,8 @@ makeDocFiles = Split("""
     """);
 
 docs = [] 
-docs.append(env.Program('#docs/makedoc', [os.path.join(BUILDDIR, x) for x in makeDocFiles]))
+makedoc = env.Program('#docs/makedoc', [os.path.join(BUILDDIR, x) for x in makeDocFiles])
+docs.append(makedoc)
 
 makeHTML = Builder(action = 'docs/makedoc -html $TARGETS $SOURCES', 
            suffix = '.html', 
@@ -61,25 +62,37 @@ env.Append(BUILDERS = {'DocHTML' : makeHTML,
               'DocASCII' : makeASCII})
 
 def addRTF(source, target):
-    docs.append(env.DocRTF(target,source))
+    rtf = env.DocRTF(target,source)
+    docs.append(rtf)
+    env.Depends(rtf,makedoc)
 
 def addHTML(source, target):
-    docs.append(env.DocHTML(target,source))
+    html = env.DocHTML(target,source)
+    docs.append(html)
+    env.Depends(html,makedoc)
 
 def addTexi(source, target):
-    docs.append(env.DocTexi(target,source))
+    texi = env.DocTexi(target,source)
+    docs.append(texi)
+    env.Depends(texi,makedoc)
 
 def addInfo(source, target):
     docs.append(env.DocInfo(target,source))
 
 def addMan(source, target):
-    docs.append(env.DocMan(target,source))
+    man = env.DocMan(target,source)
+    docs.append(man)
+    env.Depends(man,makedoc)
 
 def addScite(source, target):
-    docs.append(env.DocScite(target,source))
+    scite = env.DocScite(target,source)
+    docs.append(scite)
+    env.Depends(scite,makedoc)
 
 def addASCII(source, target):
-    docs.append(env.DocASCII(target,source))
+    ascii = env.DocASCII(target,source)
+    docs.append(ascii)
+    env.Depends(ascii,makedoc)
 
 addHTML('#docs/src/changes._tx', '#docs/html/changes')
 addHTML('#docs/src/allegro._tx', '#docs/html/allegro.html')
