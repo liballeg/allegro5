@@ -1,13 +1,16 @@
 Import( 'context' )
 
+def getOption(name, default = 0):
+    return context.getLibraryEnv()[name]
+
 def a5font(env, appendDir, buildDir, libDir):
     examples = []
 
     source = Split("""
-    	font.c
+        font.c
         fontbmp.c
-	readfont.c
-	text.c
+        readfont.c
+        text.c
     """);
 
     lib = env.SharedLibrary( libDir + '/a5_font', appendDir(buildDir + '/addons/font',source))
@@ -24,6 +27,16 @@ def a5font(env, appendDir, buildDir, libDir):
 
     Alias('addons/font', examples + lib)
 
+    def install():
+        installDir = getOption('install')
+        targets = []
+        def add(t):
+            targets.append(t)
+        add(env.Install(installDir + '/lib/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()) , lib))
+	add(env.Install(installDir + '/include/addons/font', 'addons/font/a5_font.h'))
+        return targets
+
+    Alias('install', install())
     return examples
 
 context.addExtra(a5font)
