@@ -612,3 +612,24 @@ void _al_convert_compat_bitmap(
      src_format, al_get_pixel_size(src_format)*src->w,
       dst, dst_format, dst_pitch, sx, sy, dx, dy, width, height);
 }
+
+void _al_convert_to_compat_bitmap(
+	ALLEGRO_BITMAP *src,
+        BITMAP *dst)
+{
+   int src_format;
+   int dst_format;
+   ALLEGRO_LOCKED_REGION lr;
+
+   src_format = al_get_bitmap_format(src);
+   dst_format = _al_get_compat_bitmap_format(dst);
+
+   al_lock_bitmap(src, &lr, ALLEGRO_LOCK_READONLY);
+   
+   (*convert_funcs[src_format][dst_format])(lr.data,
+      src_format, lr.pitch,
+      dst->dat, dst_format, dst->w*al_get_pixel_size(dst_format),
+      0, 0, 0, 0, dst->w, dst->h);
+
+   al_unlock_bitmap(src);
+}

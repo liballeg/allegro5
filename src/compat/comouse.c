@@ -564,7 +564,7 @@ void show_mouse(BITMAP *bmp)
             if (gfx_driver->set_mouse_sprite(mouse_sprite, mouse_x_focus, mouse_y_focus) == 0)
                got_hw_cursor = TRUE;
          */
-         hw_cursor = al_create_mouse_cursor(mouse_sprite, mouse_x_focus, mouse_y_focus);
+         hw_cursor = al_create_mouse_cursor_old(mouse_sprite, mouse_x_focus, mouse_y_focus);
          if (hw_cursor)
             got_hw_cursor = TRUE;
 

@@ -24,6 +24,7 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintern_mouse.h"
+#include "allegro/internal/aintern_bitmap.h"
 
 
 
@@ -279,12 +280,7 @@ bool al_mouse_button_down(AL_MSESTATE *state, int button)
  *****************************************************************************/
 
 
-/* Function: al_create_mouse_cursor
- *  Create a mouse cursor from the bitmap provided.  There must be a
- *  graphics driver in effect.
- *  Returns a pointer to the cursor on success, or NULL on failure.
- */
-AL_MOUSE_CURSOR *al_create_mouse_cursor(BITMAP *bmp, int x_focus, int y_focus)
+AL_MOUSE_CURSOR *al_create_mouse_cursor_old(BITMAP *bmp, int x_focus, int y_focus)
 {
    ASSERT(gfx_driver);
    ASSERT(bmp);
@@ -293,6 +289,43 @@ AL_MOUSE_CURSOR *al_create_mouse_cursor(BITMAP *bmp, int x_focus, int y_focus)
       return gfx_driver->create_mouse_cursor(bmp, x_focus, y_focus);
 
    return NULL;
+}
+
+
+/* Function: al_create_mouse_cursor
+ *  Create a mouse cursor from the bitmap provided.  There must be a
+ *  graphics driver in effect.
+ *  Returns a pointer to the cursor on success, or NULL on failure.
+ */
+AL_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int x_focus, int y_focus)
+{
+   ASSERT(gfx_driver);
+   ASSERT(bmp);
+
+   /* Convert to BITMAP */
+   BITMAP *oldbmp = create_bitmap_ex(32,
+      al_get_bitmap_width(bmp), al_get_bitmap_height(bmp));
+   int x, y;
+   for (y = 0; y < oldbmp->h; y++) {
+      for (x = 0; x < oldbmp->w; x++) {
+         ALLEGRO_COLOR color;
+         al_get_pixel(bmp, x, y, &color);
+         unsigned char r, g, b, a;
+         al_unmap_rgba_ex(al_get_bitmap_format(bmp), &color, &r, &g, &b, &a);
+         int oldcolor;
+         if (a == 0)
+            oldcolor = makecol32(255, 0, 255);
+         else
+            oldcolor = makecol32(r, g, b);
+         putpixel(oldbmp, x, y, oldcolor);
+      }
+   }
+
+   AL_MOUSE_CURSOR *result = al_create_mouse_cursor_old(oldbmp, x_focus, y_focus);
+
+   destroy_bitmap(oldbmp);
+
+   return result;
 }
 
 

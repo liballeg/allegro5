@@ -75,6 +75,8 @@ AL_FUNC(bool,           al_mouse_button_down,   (AL_MSESTATE *state, int button)
 AL_FUNC(int,            al_mouse_state_axis,    (AL_MSESTATE *state, int axis));
 
 
+struct ALLEGRO_BITMAP;
+
 /*
  * Cursors:
  *
@@ -83,7 +85,8 @@ AL_FUNC(int,            al_mouse_state_axis,    (AL_MSESTATE *state, int axis));
  * for later (it would need significant cooperation from the display
  * API).
  */
-AL_FUNC(AL_MOUSE_CURSOR *, al_create_mouse_cursor, (struct BITMAP *sprite, int xfocus, int yfocus));
+AL_FUNC(AL_MOUSE_CURSOR *, al_create_mouse_cursor_old, (struct BITMAP *sprite, int xfocus, int yfocus));
+AL_FUNC(AL_MOUSE_CURSOR *, al_create_mouse_cursor, (struct ALLEGRO_BITMAP *sprite, int xfocus, int yfocus));
 AL_FUNC(void, al_destroy_mouse_cursor, (AL_MOUSE_CURSOR *));
 AL_FUNC(bool, al_set_mouse_cursor, (AL_MOUSE_CURSOR *cursor));
 AL_FUNC(bool, al_set_system_mouse_cursor, (AL_SYSTEM_MOUSE_CURSOR cursor_id));
