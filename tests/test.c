@@ -54,6 +54,9 @@ BITMAP *pattern[NUM_PATTERNS];
 int cpu_has_capabilities = 0;
 int type3d = POLYTYPE_FLAT;
 
+char allegro_version_str[120];
+char internal_version_str[80];
+
 char gfx_specs[80];
 char gfx_specs2[80];
 char gfx_specs3[80];
@@ -3365,7 +3368,7 @@ int do_profile(BITMAP *old_screen)
 	 alert("Error writing", fname, NULL, "OK", NULL, 13, 0);
       }
       else {
-	 fprintf(f, "Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR " profile results\n\n");
+	 fprintf(f, "%s %sprofile results\n\n", allegro_version_str, internal_version_str);
 
 	 if (old_screen) {
 	    fprintf(f, "Memory bitmap size: %dx%d\n", SCREEN_W, SCREEN_H);
@@ -3645,7 +3648,7 @@ int p3d_profile_proc(void)
 	 alert("Error writing", fname, NULL, "OK", NULL, 13, 0);
       }
       else {
-	 fprintf(f, "Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR " profile results (3D rendering)\n\n");
+	 fprintf(f, "%s %sprofile results (3D rendering)\n\n", allegro_version_str, internal_version_str);
 
 	 fprintf(f, "Graphics driver: %s\n", gfx_driver->name);
 	 fprintf(f, "Description: %s\n\n", gfx_driver->desc);
@@ -4197,8 +4200,9 @@ DIALOG title_screen[] =
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)           (dp2) (dp3) */
    { d_clear_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,          NULL, NULL  },
    { d_menu_proc,       0,    0,    0,    0,    255,  0,    0,    0,       0,    0,    menu,          NULL, NULL  },
-   { d_ctext_proc,      0,    0,    0,    0,    255,  0,    0,    0,       0,    0,    "Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR, NULL, NULL },
-   { d_ctext_proc,      0,    16,   0,    0,    255,  0,    0,    0,       0,    0,    "By Shawn Hargreaves, " ALLEGRO_DATE_STR, NULL, NULL },
+   { d_ctext_proc,      0,    0,    0,    0,    255,  0,    0,    0,       0,    0,    allegro_version_str, NULL, NULL },
+   { d_ctext_proc,      0,    8,    0,    0,    255,  0,    0,    0,       0,    0,    internal_version_str, NULL, NULL  },
+   { d_ctext_proc,      0,    24,   0,    0,    255,  0,    0,    0,       0,    0,    "By Shawn Hargreaves, " ALLEGRO_DATE_STR, NULL, NULL },
    { d_ctext_proc,      0,    64,   0,    0,    255,  0,    0,    0,       0,    0,    "",            NULL, NULL  },
    { d_ctext_proc,      0,    80,   0,    0,    255,  0,    0,    0,       0,    0,    "",            NULL, NULL  },
    { d_ctext_proc,      0,    96,   0,    0,    255,  0,    0,    0,       0,    0,    gfx_specs,     NULL, NULL  },
@@ -4210,8 +4214,8 @@ DIALOG title_screen[] =
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,          NULL, NULL  }
 };
 
-#define DIALOG_NAME     4
-#define DIALOG_DESC     5
+#define DIALOG_NAME     5
+#define DIALOG_DESC     6
 
 
 
@@ -4481,6 +4485,25 @@ void refresh_rate(void)
 
 
 
+char *get_allegro_build_string(void)
+{
+   /* No need to print whether or not ALLEGRO_STATICLINK is defined.
+    * This is implied by the presence of ".s" in ALLEGRO_PLATFORM_STR.
+    */
+
+   #ifdef DEBUGMODE
+      return "DEBUG build";
+   #else
+   #ifdef PROFILEMODE
+      return "PROFILE build";
+   #else
+      return "RELEASE build";
+   #endif
+   #endif
+}
+
+
+
 int main(void)
 {
    int buttons;
@@ -4605,6 +4628,16 @@ int main(void)
    }
 
    set_mode_str();
+
+
+   sprintf(allegro_version_str, "Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR " %s", get_allegro_build_string());
+
+   /* If using a dynamically linked version of Allegro, the version may be different. */
+   #ifdef ALLEGRO_STATICLINK
+      sprintf(internal_version_str, "");
+   #else
+      sprintf(internal_version_str, "(linked: %s) ", allegro_id);
+   #endif
 
    do_dialog(title_screen, -1);
 
