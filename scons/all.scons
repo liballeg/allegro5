@@ -180,8 +180,11 @@ def addons(env, appendDir, buildDir, libDir):
         "font/fontbmp.c", "font/readfont.c", "font/text.c"])
     return examples
 
+addon_dirs = ['#addons/font']
+SConscript( dirs = addon_dirs, exports = 'context' )
+
 context.addExtra(demo)
 context.addExtra(examples)
-context.addExtra(addons)
+# context.addExtra(addons)
 # context.addExtra(tools)
 # context.addExtra(tests)

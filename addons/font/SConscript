@@ -1,0 +1,29 @@
+Import( 'context' )
+
+def a5font(env, appendDir, buildDir, libDir):
+    examples = []
+
+    source = Split("""
+    	font.c
+        fontbmp.c
+	readfont.c
+	text.c
+    """);
+
+    lib = env.SharedLibrary( libDir + '/a5_font', appendDir(buildDir + '/addons/font',source))
+
+    exampleEnv = env.Copy()
+    exampleEnv.Append( LIBS = lib )
+
+    def addExample(name, files):
+        example = exampleEnv.Program(name, appendDir(buildDir + '/addons/font/', files))
+        Alias(name, example)
+        examples.append(example)
+
+    addExample("addons/font/ex", ["ex.c"])
+
+    Alias('addons/font', examples + lib)
+
+    return examples
+
+context.addExtra(a5font)
