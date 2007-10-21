@@ -330,28 +330,6 @@ static bool d3d_display_mode_matches(D3DDISPLAYMODE *dm, int w, int h, int forma
    return false;
 }
 
-static int d3d_get_max_refresh_rate(int w, int h, int format)
-{
-   UINT num_modes = IDirect3D9_GetAdapterModeCount(_al_d3d, D3DADAPTER_DEFAULT, _al_format_to_d3d(format));
-   UINT i;
-   D3DDISPLAYMODE display_mode;
-   UINT max = 0;
-
-   for (i = 0; i < num_modes; i++) {
-      if (IDirect3D9_EnumAdapterModes(_al_d3d, D3DADAPTER_DEFAULT, _al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
-         TRACE("d3d_get_max_refresh_rate: EnumAdapterModes failed.\n");
-         return -1;
-      }
-      if (d3d_display_mode_matches(&display_mode, w, h, format, 0)) {
-         if (display_mode.RefreshRate > max) {
-            max = display_mode.RefreshRate;
-         }
-      }
-   }
-
-   return max;
-}
-
 static bool d3d_check_mode(int w, int h, int format, int refresh_rate)
 {
    UINT num_modes = IDirect3D9_GetAdapterModeCount(_al_d3d, D3DADAPTER_DEFAULT, _al_format_to_d3d(format));
@@ -461,8 +439,7 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
       d3d_pp.FullScreen_RefreshRateInHz = refresh_rate;
    }
    else {
-      d3d_pp.FullScreen_RefreshRateInHz =
-         d3d_get_max_refresh_rate(d->display.w, d->display.h, format);
+      d3d_pp.FullScreen_RefreshRateInHz = 60;
    }
 
    /* FIXME: try hardware vertex processing first? */
@@ -690,10 +667,7 @@ static bool _al_d3d_reset_device()
                d3d_fullscreen_display->display.refresh_rate;
          }
          else {
-            d3d_pp.FullScreen_RefreshRateInHz =
-               d3d_get_max_refresh_rate(d3d_fullscreen_display->display.w,
-                  d3d_fullscreen_display->display.h,
-                  d3d_fullscreen_display->display.format);
+            d3d_pp.FullScreen_RefreshRateInHz = 60;
          }
 
          while ((hr = IDirect3DDevice9_Reset(_al_d3d_device, &d3d_pp)) != D3D_OK) {
