@@ -20,6 +20,10 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
    ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
    GLboolean on;
    ALLEGRO_INDEPENDANT_COLOR *bc;
+   int src_mode, dst_mode;
+   int blend_modes[4] = {
+      GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+   };
 
    // FIXME: hack
    // FIXME: need format conversion if they don't match
@@ -34,9 +38,9 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
    if (!on)
       glEnable(GL_TEXTURE_2D);
 
-   //FIXME: Blending
+   al_get_blender(&src_mode, &dst_mode, NULL);
    glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   glBlendFunc(blend_modes[src_mode], blend_modes[dst_mode]);
 
    glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
    l = xbitmap->left;
