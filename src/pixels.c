@@ -1864,10 +1864,10 @@ static void _unmap_rgba_f_argb_1555(ALLEGRO_COLOR *p,
 static void _unmap_rgba_f_abgr_8888(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
-   *a = p->raw[0] / 0xFF;
-   *b = p->raw[1] / 0xFF;
-   *g = p->raw[2] / 0xFF;
-   *r = p->raw[3] / 0xFF;
+   *a = (float)p->raw[0] / 0xFF;
+   *b = (float)p->raw[1] / 0xFF;
+   *g = (float)p->raw[2] / 0xFF;
+   *r = (float)p->raw[3] / 0xFF;
 }
 
 static void _unmap_rgba_f_xbgr_8888(ALLEGRO_COLOR *p,
@@ -1892,35 +1892,35 @@ static void _unmap_rgba_f_bgr_565(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = 1.0f;
-   *b = p->raw[0] / 0x1F;
-   *g = p->raw[1] / 0x3F;
-   *r = p->raw[2] / 0x1F;
+   *b = (float)p->raw[0] / 0x1F;
+   *g = (float)p->raw[1] / 0x3F;
+   *r = (float)p->raw[2] / 0x1F;
 }
 
 static void _unmap_rgba_f_bgr_555(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
    *a = 1.0f;
-   *b = p->raw[0] / 0x1F;
-   *g = p->raw[1] / 0x1F;
-   *r = p->raw[2] / 0x1F;
+   *b = (float)p->raw[0] / 0x1F;
+   *g = (float)p->raw[1] / 0x1F;
+   *r = (float)p->raw[2] / 0x1F;
 }
 
 static void _unmap_rgba_f_rgbx_8888(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
-   *r = p->raw[0] / 0xFF;
-   *g = p->raw[1] / 0xFF;
-   *b = p->raw[2] / 0xFF;
+   *r = (float)p->raw[0] / 0xFF;
+   *g = (float)p->raw[1] / 0xFF;
+   *b = (float)p->raw[2] / 0xFF;
    *a = 1.0f;
 }
 
 static void _unmap_rgba_f_xrgb_8888(ALLEGRO_COLOR *p,
    float *r, float *g, float *b, float *a)
 {
-   *r = p->raw[1] / 0xFF;
-   *g = p->raw[2] / 0xFF;
-   *b = p->raw[3] / 0xFF;
+   *r = (float)p->raw[1] / 0xFF;
+   *g = (float)p->raw[2] / 0xFF;
+   *b = (float)p->raw[3] / 0xFF;
    *a = 1.0f;
 }
 
