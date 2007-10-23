@@ -49,7 +49,7 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
    int major, minor;
    glXQueryVersion(system->xdisplay, &major, &minor);
    d->glx_version = major + minor * 0.1;
-   TRACE("xdisplay: GLX %f.\n", d->glx_version);
+   TRACE("xdisplay: GLX %.1f.\n", d->glx_version);
 
    d->display.w = w;
    d->display.h = h;
