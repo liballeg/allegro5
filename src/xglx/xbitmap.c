@@ -58,12 +58,10 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
    bc = _al_get_blend_color();
    glColor4f(bc->r, bc->g, bc->b, bc->a);
 
-   if (angle != 0) {
-      glPushMatrix();
-      glTranslatef(dx, dy, 0);
-      glRotatef(angle * 180 / AL_PI, 0, 0, -1);
-      glTranslatef(-dx - cx, -dy - cy, 0);
-   }
+   glPushMatrix();
+   glTranslatef(dx, dy, 0);
+   glRotatef(angle * 180 / AL_PI, 0, 0, -1);
+   glTranslatef(-dx - cx, -dy - cy, 0);
 
    glBegin(GL_QUADS);
    glTexCoord2f(l, t);
@@ -76,9 +74,7 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
    glVertex2f(dx, dy + dh);
    glEnd();
 
-   if (angle != 0) {
-      glPopMatrix();
-   }
+   glPopMatrix();
 
    if (!on)
       glDisable(GL_TEXTURE_2D);
