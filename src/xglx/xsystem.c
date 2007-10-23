@@ -74,11 +74,14 @@ static ALLEGRO_SYSTEM *initialize(int flags)
    /* Get an X11 display handle. */
    s->xdisplay = XOpenDisplay(0);
 
-   TRACE("xsystem: XDummy driver connected to X11.\n");
+   TRACE("xsystem: XGLX driver connected to X11 (%s %d).\n",
+      ServerVendor(s->xdisplay), VendorRelease(s->xdisplay));
+   TRACE("xsystem: X11 protocol version %d.%d.\n",
+      ProtocolVersion(s->xdisplay), ProtocolRevision(s->xdisplay));
 
    _al_thread_create(&s->thread, background_thread, s);
 
-   TRACE("events thread spawned.\n");
+   TRACE("xsystem: events thread spawned.\n");
 
    _al_xglx_store_video_mode(s);
 

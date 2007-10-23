@@ -342,6 +342,7 @@ set(ALLEGRO_SRC_X_FILES
     src/xglx/xsystem.c
     src/xglx/xdraw.c
     src/xglx/xfullscreen.c
+    src/xglx/xglx_config.c
     )
     
 set(ALLEGRO_SRC_QNX_FILES

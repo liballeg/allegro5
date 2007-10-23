@@ -46,6 +46,11 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
 
    _al_mutex_lock(&system->lock);
 
+   int major, minor;
+   glXQueryVersion(system->xdisplay, &major, &minor);
+   d->glx_version = major + minor * 0.1;
+   TRACE("xdisplay: GLX %f.\n", d->glx_version);
+
    d->display.w = w;
    d->display.h = h;
    d->display.vt = vt;
@@ -84,31 +89,14 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
    /* Each display is an event source. */
    _al_event_source_init(&d->display.es);
 
-   /* Let GLX choose an appropriate visual. */
-   int double_buffer = True;
-   int red_bits = 0;
-   int green_bits = 0;
-   int blue_bits = 0;
-   int alpha_bits = 0;
-   if (d->display.flags & ALLEGRO_SINGLEBUFFER)
-      double_buffer = False;
-   int attributes[]  = {
-      GLX_DOUBLEBUFFER, double_buffer,
-      GLX_RED_SIZE, red_bits,
-      GLX_GREEN_SIZE, green_bits,
-      GLX_BLUE_SIZE, blue_bits,
-      GLX_ALPHA_SIZE, alpha_bits, 
-      None};
-   int nelements;
-   GLXFBConfig *fbc = glXChooseFBConfig(system->xdisplay,
-      d->xscreen, attributes, &nelements);
-   XVisualInfo *vi = glXGetVisualFromFBConfig(system->xdisplay, fbc[0]);
+   _xglx_config_select_visual(d);
 
-   TRACE("xdisplay: Selected visual %lx.\n", vi->visualid);
+   TRACE("xdisplay: Selected visual %lx.\n", d->xvinfo->visualid);
 
    /* Create a colormap. */
    Colormap cmap = XCreateColormap(system->xdisplay,
-   RootWindow(system->xdisplay, vi->screen), vi->visual, AllocNone);
+      RootWindow(system->xdisplay, d->xvinfo->screen),
+      d->xvinfo->visual, AllocNone);
 
    /* Create an X11 window */
    XSetWindowAttributes swa;
@@ -128,8 +116,9 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
       PointerMotionMask;
 
    d->window = XCreateWindow(system->xdisplay, RootWindow(
-      system->xdisplay, vi->screen), 0, 0, w, h, 0, vi->depth, InputOutput,
-      vi->visual, CWBorderPixel | CWColormap | CWEventMask, &swa);
+      system->xdisplay, d->xvinfo->screen), 0, 0, w, h, 0, d->xvinfo->depth,
+      InputOutput, d->xvinfo->visual,
+      CWBorderPixel | CWColormap | CWEventMask, &swa);
 
    TRACE("xdisplay: X11 window created.\n");
    
@@ -137,7 +126,7 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
 
    d->wm_delete_window_atom = XInternAtom (system->xdisplay,
       "WM_DELETE_WINDOW", False);
-   XSetWMProtocols (system->xdisplay, d->window, &d->wm_delete_window_atom, 1);
+   XSetWMProtocols(system->xdisplay, d->window, &d->wm_delete_window_atom, 1);
 
    XMapWindow(system->xdisplay, d->window);
    TRACE("xdisplay: X11 window mapped.\n");
@@ -146,26 +135,17 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
    XSync(system->xdisplay, False);
    /* To avoid race conditions where some X11 functions fail before the window
     * is mapped, we wait here until it is mapped. Note that the thread is
-    * locked, so the event could not possibly have processed yet in the
+    * locked, so the event could not possibly have been processed yet in the
     * events thread. So as long as no other map events occur, the condition
     * should only be signalled when our window gets mapped.
     */
    _al_cond_wait(&system->mapped, &system->lock);
 
-   /* Create a GLX subwindow inside our window. */
-   d->glxwindow = glXCreateWindow(system->xdisplay, fbc[0], d->window, 0);
-
-   TRACE("xdisplay: GLX window created.\n");
+   _xglx_config_create_context(d);
 
    if (d->display.flags & ALLEGRO_FULLSCREEN) {
       _al_xglx_fullscreen_to_display(system, d);
    }
-
-   /* Create a GLX context. */
-   d->context = glXCreateNewContext(system->xdisplay, fbc[0], GLX_RGBA_TYPE,
-      NULL, True);
-
-   TRACE("xdisplay: Got GLX context.\n");
 
    _al_mutex_unlock(&system->lock);
 
@@ -202,8 +182,11 @@ static void set_current_display(ALLEGRO_DISPLAY *d)
    /* Make our GLX context current for reading and writing in the current
     * thread.
     */
-   glXMakeContextCurrent(system->xdisplay, glx->glxwindow, glx->glxwindow,
-      glx->context);
+   if (glx->fbc)
+      glXMakeContextCurrent(system->xdisplay, glx->glxwindow, glx->glxwindow,
+         glx->context);
+   else
+      glXMakeCurrent(system->xdisplay, glx->glxwindow, glx->context);
 
    if (!glx->opengl_initialized) {
       setup_gl(d);
@@ -380,7 +363,7 @@ static void set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
    //FIXME: change to offscreen targets and so on
    if (!xbitmap->is_backbuffer) {
-      glx->temporary_hack = bitmap;
+      glx->temporary_hack = xbitmap;
    }
    else {
       glx->temporary_hack = NULL;

@@ -81,6 +81,9 @@ struct ALLEGRO_DISPLAY_XGLX
    GLXWindow glxwindow;
    GLXContext context;
    Atom wm_delete_window_atom;
+   XVisualInfo *xvinfo; /* Used when selecting the X11 visual to use. */
+   GLXFBConfig *fbc; /* Used when creating the OpenGL context. */
+   float glx_version;
 };
 
 /* Functions private to the X11 driver. */
@@ -110,4 +113,9 @@ void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
    ALLEGRO_DISPLAY_XGLX *d);
 
 /* compat */
-void _al_xglx_display_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h);
+void _al_xglx_display_upload_compat_screen(BITMAP *bitmap,
+   int x, int y, int w, int h);
+
+/* glx_config */
+void _xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx);
+void _xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx);
