@@ -15,9 +15,6 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Display routines
- */
-
 
 #include <string.h>
 
@@ -107,7 +104,7 @@ static BITMAP *add_vram_block(int x, int y, int w, int h)
 
 
 
-/* Function: create_video_bitmap
+/* create_video_bitmap:
  *  Attempts to make a bitmap object for accessing offscreen video memory.
  *
  *  The algorithm is similar to algorithms for drawing polygons. Think of
@@ -265,7 +262,7 @@ BITMAP *create_video_bitmap(int width, int height)
 
 
 
-/* Function: create_system_bitmap
+/* create_system_bitmap:
  *  Attempts to make a system-specific (eg. DirectX surface) bitmap object.
  */
 BITMAP *create_system_bitmap(int width, int height)
@@ -994,7 +991,7 @@ BITMAP *_make_bitmap(int w, int h, uintptr_t addr, GFX_DRIVER *driver, int color
 
 
 
-/* Function: scroll_screen
+/* scroll_screen:
  *  Attempts to scroll the hardware screen, returning 0 on success. 
  *  Check the VIRTUAL_W and VIRTUAL_H values to see how far the screen
  *  can be scrolled. Note that a lot of VESA drivers can only handle
@@ -1041,7 +1038,7 @@ int scroll_screen(int x, int y)
 
 
 
-/* Function: request_scroll
+/* request_scroll:
  *  Attempts to initiate a triple buffered hardware scroll, which will
  *  take place during the next retrace. Returns 0 on success.
  */
@@ -1088,7 +1085,7 @@ int request_scroll(int x, int y)
 
 
 
-/* Function: poll_scroll
+/* poll_scroll:
  *  Checks whether a requested triple buffer flip has actually taken place.
  */
 int poll_scroll()
@@ -1101,7 +1098,7 @@ int poll_scroll()
 
 
 
-/* Function: show_video_bitmap
+/* show_video_bitmap:
  *  Page flipping function: swaps to display the specified video memory 
  *  bitmap object (this must be the same size as the physical screen).
  */
@@ -1122,7 +1119,7 @@ int show_video_bitmap(BITMAP *bitmap)
 
 
 
-/* Function: request_video_bitmap
+/* request_video_bitmap:
  *  Triple buffering function: triggers a swap to display the specified 
  *  video memory bitmap object, which will take place on the next retrace.
  */
@@ -1143,7 +1140,7 @@ int request_video_bitmap(BITMAP *bitmap)
 
 
 
-/* Function: enable_triple_buffer
+/* enable_triple_buffer:
  *  Asks a driver to turn on triple buffering mode, if it is capable
  *  of that.
  */
