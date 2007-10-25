@@ -147,9 +147,14 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 /* Function: al_destroy_bitmap
  *
  * Destroys the given bitmap, freeing all resources used by it.
+ * Does nothing if given the null pointer.
  */
 void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
+   if (!bitmap) {
+      return;
+   }
+
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_destroy_memory_bitmap(bitmap);
       return;
