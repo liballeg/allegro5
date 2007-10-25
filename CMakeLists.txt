@@ -115,7 +115,7 @@ if(MINGW)
     # For alplatf.h
     set(ALLEGRO_MINGW32 1)
     # Install to MINGDIR
-    STRING(REPLACE "\\" "/" MINGDIR "$ENV{MINGDIR}")
+    string(REPLACE "\\" "/" MINGDIR "$ENV{MINGDIR}")
     set(CMAKE_INSTALL_PREFIX ${MINGDIR})
     if(STATIC)
         message("The MinGW build cannot be static because MinGW doesn't")
@@ -509,6 +509,12 @@ if(SUPPORT_X11)
         set(ALLEGRO_XWINDOWS_WITH_XPM 1)
         list(APPEND X11_LIBRARIES "Xpm")
     endif(HAVE_X11_XPM_H AND CAN_XPM)
+
+    # Will OpenGL be optional?
+    include(FindOpenGL)
+    if(OPENGL_FOUND)
+        list(APPEND X11_LIBRARIES ${OPENGL_LIBRARIES})
+    endif(OPENGL_FOUND)
 
     set(CMAKE_REQUIRED_LIBRARIES)
 endif(SUPPORT_X11)
