@@ -1275,7 +1275,7 @@
 
 
 #define ALLEGRO_CONVERT_BGR_565_TO_ARGB_4444(p) \
-	(0xFF000000, \
+	(0xFF000000 | \
 		ALLEGRO_SHIFT_CONVERT(p, \
 		0, 0, 0, \
 		0x001E, 7, 0, \
