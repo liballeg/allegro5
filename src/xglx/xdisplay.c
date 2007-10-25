@@ -154,7 +154,7 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
 
 static void destroy_display(ALLEGRO_DISPLAY *d)
 {
-   int i;
+   unsigned int i;
    ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
    _al_mutex_lock(&s->lock);
