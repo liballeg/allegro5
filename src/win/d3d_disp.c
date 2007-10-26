@@ -376,11 +376,11 @@ static bool d3d_create_hidden_device()
    /* FIXME: try hardware vertex processing first? */
    if ((ret = IDirect3D9_CreateDevice(_al_d3d, D3DADAPTER_DEFAULT,
          D3DDEVTYPE_HAL, d3d_hidden_window,
-         D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE,
+         D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
          &d3d_pp, &_al_d3d_device)) != D3D_OK) {
       if ((ret = IDirect3D9_CreateDevice(_al_d3d, D3DADAPTER_DEFAULT,
             D3DDEVTYPE_HAL, d3d_hidden_window,
-            D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE,
+            D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
             &d3d_pp, &_al_d3d_device)) != D3D_OK) {
          switch (ret) {
             case D3DERR_INVALIDCALL:
@@ -445,11 +445,11 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
    /* FIXME: try hardware vertex processing first? */
    if ((ret = IDirect3D9_CreateDevice(_al_d3d, D3DADAPTER_DEFAULT,
          D3DDEVTYPE_HAL, d->window,
-         D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE,
+         D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
          &d3d_pp, &_al_d3d_device)) != D3D_OK) {
       if ((ret = IDirect3D9_CreateDevice(_al_d3d, D3DADAPTER_DEFAULT,
             D3DDEVTYPE_HAL, d->window,
-            D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE,
+            D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
             &d3d_pp, &_al_d3d_device)) != D3D_OK) {
          switch (ret) {
             case D3DERR_INVALIDCALL:
