@@ -149,11 +149,11 @@ bool al_update_display_region(int x, int y,
  *
  * Adjusts the clipping rectangle to the full size of the backbuffer.
  */
-bool al_acknowledge_resize(void)
+bool al_acknowledge_resize(ALLEGRO_DISPLAY *display)
 {
-   if (!(_al_current_display->flags & ALLEGRO_FULLSCREEN)) {
-      if (_al_current_display->vt->acknowledge_resize)
-         return _al_current_display->vt->acknowledge_resize(_al_current_display);
+   if (!(display->flags & ALLEGRO_FULLSCREEN)) {
+      if (display->vt->acknowledge_resize)
+         return display->vt->acknowledge_resize(display);
    }
    return false;
 }

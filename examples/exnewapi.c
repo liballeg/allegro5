@@ -148,8 +148,7 @@ int main(void)
             AL_DISPLAY_EVENT *display = &event.display;
             w = display->width;
             h = display->height;
-            al_set_current_display(display->source);
-            al_acknowledge_resize();
+            al_acknowledge_resize(display->source);
          }
          if (event.type == AL_EVENT_DISPLAY_CLOSE)
          {

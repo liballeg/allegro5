@@ -66,7 +66,7 @@ ALLEGRO_BITMAP *al_get_backbuffer(void);
 ALLEGRO_BITMAP *al_get_frontbuffer(void);
 ALLEGRO_BITMAP *al_get_target_bitmap(void);
 
-bool al_acknowledge_resize(void);
+bool al_acknowledge_resize(ALLEGRO_DISPLAY *display);
 bool al_resize_display(int width, int height);
 void al_flip_display(void);
 bool al_update_display_region(int x, int y,

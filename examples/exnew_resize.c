@@ -49,7 +49,7 @@ int main(void)
         {
             if (event.type == AL_EVENT_DISPLAY_RESIZE) {
                 AL_DISPLAY_EVENT *de = &event.display;
-                al_acknowledge_resize();
+                al_acknowledge_resize(de->source);
                 redraw();
             }
             if (event.type == AL_EVENT_DISPLAY_CLOSE) {
