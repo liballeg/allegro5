@@ -76,7 +76,7 @@ option(WANT_OSSDIGI "Enable OSS digital audio driver (Unix)" on)
 option(WANT_OSSMIDI "Enable OSS MIDI driver (Unix)" on)
 option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" on)
 
-option(WANT_D3D "Enable Direct3D graphics driver (Windows)" off)
+option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 
 # Addons
 
@@ -121,9 +121,6 @@ endif(MINGW)
 if(UNIX)
     set(ALLEGRO_UNIX 1)
 endif(UNIX)
-if(WANT_D3D)
-    set(ALLEGRO_D3D 1)
-endif(WANT_D3D)
 
 # Add corresponding lines to include/allegro/platform/alunixac.h.in
 
@@ -616,6 +613,7 @@ if(WIN32)
         kernel32 user32 gdi32 comdlg32 ole32 dinput ddraw dxguid winmm dsound
         )
     if(WANT_D3D)
+        set(ALLEGRO_D3D 1)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
         list(APPEND PLATFORM_LIBS d3d9)
     endif(WANT_D3D)
