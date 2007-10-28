@@ -1160,8 +1160,8 @@ is best to set it with set_uformat() just before you call these.
 <endblock>
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
-   and your parameter size must reflect this. Otherwise, the debug version of
-   Allegro will abort at an assertion, and the release version of Allegro
+   and your parameter `size' must reflect this. Otherwise, the debug version
+   of Allegro will abort at an assertion, and the release version of Allegro
    will overrun the destination buffer.
    
 @\char *@uconvert(const char *s, int type,
@@ -1433,8 +1433,8 @@ is best to set it with set_uformat() just before you call these.
 
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
-   and your parameter size must reflect this. Otherwise, the debug version of
-   Allegro will abort at an assertion, and the release version of Allegro
+   and your parameter `size' must reflect this. Otherwise, the debug version
+   of Allegro will abort at an assertion, and the release version of Allegro
    will overrun the destination buffer.
 @retval
    Returns the value of `dest'.
@@ -1459,8 +1459,8 @@ is best to set it with set_uformat() just before you call these.
 
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
-   and your parameter size must reflect this. Otherwise, the debug version of
-   Allegro will abort at an assertion, and the release version of Allegro
+   and your parameter `size' must reflect this. Otherwise, the debug version
+   of Allegro will abort at an assertion, and the release version of Allegro
    will overrun the destination buffer.
 @retval
    Returns the value of `dest'.
@@ -1497,7 +1497,9 @@ is best to set it with set_uformat() just before you call these.
 @eref exkeys
 @shortdesc Copies a string into another one, specifying size.
    This function is like ustrzcpy() except that no more than `n' characters
-   from `src' are copied into `dest'. If `src' is shorter than `n' characters,
+   from `src' are copied into `dest' whose length in bytes is specified by
+   `size' and which is guaranteed to be null-terminated even if `src' is
+   bigger than `size'. If `src' is shorter than `n' characters,
    null characters are appended to `dest' as padding until `n' characters have
    been written. In any case, `dest' is guaranteed to be null-terminated.
 
