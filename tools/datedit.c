@@ -1351,7 +1351,7 @@ int datedit_save_header(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST ch
    FILE *f;
    int c;
 
-   #ifdef HAVE_MKSTEMP
+   #ifdef ALLEGRO_HAVE_MKSTEMP
 
       char tmp_buf[] = "XXXXXX";
       char tmp[512];

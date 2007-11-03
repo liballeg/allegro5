@@ -31,16 +31,13 @@
 #define AL_RAND()    ((rand() >> 16) & 0x7fff)
 
 /* A static auto config */
-#define HAVE_LIBPTHREAD
-#define HAVE_DIRENT_H
-#define HAVE_INTTYPES_H
-#define HAVE_STDINT_H
-#define HAVE_STDBOOL_H
-#define HAVE_SYS_DIR_H
-#define HAVE_SYS_TIME_H
-#define TIME_WITH_SYS_TIME
-#define HAVE_SYS_STAT_H
-#define HAVE_MKSTEMP
+#define ALLEGRO_HAVE_LIBPTHREAD 1
+#define ALLEGRO_HAVE_DIRENT_H   1
+#define ALLEGRO_HAVE_INTTYPES_H 1
+#define ALLEGRO_HAVE_STDINT_H   1
+#define ALLEGRO_HAVE_SYS_TIME_H 1
+#define ALLEGRO_HAVE_SYS_STAT_H 1
+#define ALLEGRO_HAVE_MKSTEMP    1
 
 /* Describe this platform */
 #define ALLEGRO_PLATFORM_STR  "MacOS X"

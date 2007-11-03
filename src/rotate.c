@@ -141,7 +141,7 @@ SCANLINE_DRAWER_GENERIC(generic
 		       [l_spr_x>>16])
 #endif
 
-#ifdef GFX_HAS_VGA
+#ifdef ALLEGRO_GFX_HAS_VGA
    static void draw_scanline_modex(
     BITMAP *bmp, BITMAP *spr, fixed l_bmp_x, int bmp_y_i, fixed r_bmp_x,
     fixed l_spr_x, fixed l_spr_y, fixed spr_dx, fixed spr_dy)
@@ -700,7 +700,7 @@ void _parallelogram_map_standard(BITMAP *bmp, BITMAP *sprite,
 	    ASSERT(0);
       }
    }
-   #ifdef GFX_HAS_VGA
+   #ifdef ALLEGRO_GFX_HAS_VGA
       else {
 	 _parallelogram_map(bmp, sprite, xs, ys,
 			    draw_scanline_modex, FALSE);

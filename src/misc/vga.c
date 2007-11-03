@@ -24,7 +24,7 @@
 
 #include "allegro.h"
 
-#ifdef GFX_HAS_VGA
+#ifdef ALLEGRO_GFX_HAS_VGA
 
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintvga.h"
@@ -385,4 +385,4 @@ void _module_init(int system_driver)
 
 
 #endif      /* (!defined ALLEGRO_LINUX) || ((defined ALLEGRO_LINUX_VGA) && ...) */
-#endif      /* ifdef GFX_HAS_VGA */
+#endif      /* ifdef ALLEGRO_GFX_HAS_VGA */

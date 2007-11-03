@@ -113,7 +113,7 @@ void al_register_event_source(AL_EVENT_QUEUE *queue, AL_EVENT_SOURCE *source)
    {
       AL_EVENT_SOURCE **slot;
 
-      if (_al_vector_contains(&queue->sources, source))
+      if (_al_vector_contains(&queue->sources, &source))
          return;
 
       _al_event_source_on_registration_to_queue(source, queue);

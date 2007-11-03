@@ -27,7 +27,7 @@
 
 #if (defined ALLEGRO_LINUX_FBCON) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
-#if !defined(_POSIX_MAPPED_FILES) || !defined(HAVE_MMAP)
+#if !defined(_POSIX_MAPPED_FILES) || !defined(ALLEGRO_HAVE_MMAP)
 #error "Sorry, mapped files are required for Linux console Allegro to work!"
 #endif
 

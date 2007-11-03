@@ -19,10 +19,10 @@
 #define ASTDBOOL_H
 
 /* This code is recommended by the autoconf manual */
-#ifdef HAVE_STDBOOL_H
+#ifdef ALLEGRO_HAVE_STDBOOL_H
 # include <stdbool.h>
 #else
-# ifndef HAVE__BOOL
+# ifndef ALLEGRO_HAVE__BOOL
 #  ifdef __cplusplus
 typedef bool _Bool;
 #  else

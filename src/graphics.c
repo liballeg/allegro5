@@ -623,10 +623,10 @@ void set_clip_rect(BITMAP *bitmap, int x1, int y1, int x2, int y2)
    x2++;
    y2++;
 
-   bitmap->cl = MID(0, x1, bitmap->w-1);
-   bitmap->ct = MID(0, y1, bitmap->h-1);
-   bitmap->cr = MID(0, x2, bitmap->w);
-   bitmap->cb = MID(0, y2, bitmap->h);
+   bitmap->cl = CLAMP(0, x1, bitmap->w-1);
+   bitmap->ct = CLAMP(0, y1, bitmap->h-1);
+   bitmap->cr = CLAMP(0, x2, bitmap->w);
+   bitmap->cb = CLAMP(0, y2, bitmap->h);
 
    if (bitmap->vtable->set_clip)
       bitmap->vtable->set_clip(bitmap);

@@ -25,7 +25,7 @@
 
 #include "allegro.h"
 
-#ifdef HAVE_LINUX_INPUT_H
+#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
 
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintern_mouse.h"
@@ -475,8 +475,8 @@ static void process_abs(AL_CONST struct input_event *event)
 static void handle_axis_event(int dx, int dy, int dz)
 {
    if (current_tool != no_tool) {
-      x_axis.out_abs = MID(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
-      y_axis.out_abs = MID(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
+      x_axis.out_abs = CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
+      y_axis.out_abs = CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
       /* There's no range for z */
 
       the_mouse.state.x = x_axis.out_abs;
@@ -650,8 +650,8 @@ static bool mouse_set_mouse_xy(int x, int y)
    {
       int dx, dy;
 
-      x_axis.out_abs = MID(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
-      y_axis.out_abs = MID(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
+      x_axis.out_abs = CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
+      y_axis.out_abs = CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
       x_axis.mickeys = 0;
       y_axis.mickeys = 0;
 
@@ -725,8 +725,8 @@ static bool mouse_set_mouse_range(int x1, int y1, int x2, int y2)
       x_axis.out_max = x2;
       y_axis.out_max = y2;
 
-      x_axis.out_abs = MID(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
-      y_axis.out_abs = MID(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
+      x_axis.out_abs = CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
+      y_axis.out_abs = CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
 
       dx = x_axis.out_abs - the_mouse.state.x;
       dy = y_axis.out_abs - the_mouse.state.y;
@@ -855,7 +855,7 @@ AL_MOUSE_DRIVER _al_mousedrv_linux_evdev =
 
 
 
-#endif /* HAVE_LINUX_INPUT_H */
+#endif /* ALLEGRO_HAVE_LINUX_INPUT_H */
 
 /*
  * Local Variables:

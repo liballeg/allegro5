@@ -190,8 +190,8 @@ static int mymickey_oy = 0;
       }                                             \
    }                                                \
                                                     \
-   out_x = MID(mouse_minx, p.x, mouse_maxx);        \
-   out_y = MID(mouse_miny, p.y, mouse_maxy);        \
+   out_x = CLAMP(mouse_minx, p.x, mouse_maxx);        \
+   out_y = CLAMP(mouse_miny, p.y, mouse_maxy);        \
 }
 
 
@@ -253,8 +253,8 @@ static void mouse_directx_motion_handler(int dx, int dy)
       int new_x = the_mouse.state.x + dx;
       int new_y = the_mouse.state.y + dy;
 
-      new_x = MID(mouse_minx, new_x, mouse_maxx);
-      new_y = MID(mouse_miny, new_y, mouse_maxy);
+      new_x = CLAMP(mouse_minx, new_x, mouse_maxx);
+      new_y = CLAMP(mouse_miny, new_y, mouse_maxy);
 
       if ((new_x != the_mouse.state.x) || (new_y != the_mouse.state.y)) {
 	 the_mouse.state.x = new_x;
@@ -494,8 +494,8 @@ static void mouse_dinput_handle(void)
 		  _mouse_on = FALSE;
 		  wnd_schedule_proc(mouse_set_syscursor);
 		  mouse_directx_motion_handler_abs(
-		     MID(mouse_minx, p.x, mouse_maxx),
-		     MID(mouse_miny, p.y, mouse_maxy));
+		     CLAMP(mouse_minx, p.x, mouse_maxx),
+		     CLAMP(mouse_miny, p.y, mouse_maxy));
 	       }
 	    }
 	    else {
@@ -522,8 +522,8 @@ static void mouse_dinput_handle(void)
          if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx) ||
              (_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {
 
-            _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-            _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
+            _mouse_x = CLAMP(mouse_minx, _mouse_x, mouse_maxx);
+            _mouse_y = CLAMP(mouse_miny, _mouse_y, mouse_maxy);
 
             mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
             mouse_my = COORD_TO_MICKEY_Y(_mouse_y);
@@ -909,8 +909,8 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
       int new_x, new_y;
       int dx, dy;
 
-      new_x = MID(mouse_minx, x, mouse_maxx);
-      new_y = MID(mouse_miny, y, mouse_maxy);
+      new_x = CLAMP(mouse_minx, x, mouse_maxx);
+      new_y = CLAMP(mouse_miny, y, mouse_maxy);
 
       dx = new_x - the_mouse.state.x;
       dy = new_y - the_mouse.state.y;
@@ -991,8 +991,8 @@ static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2)
       mouse_maxx = x2;
       mouse_maxy = y2;
 
-      new_x = MID(mouse_minx, the_mouse.state.x, mouse_maxx);
-      new_y = MID(mouse_miny, the_mouse.state.y, mouse_maxy);
+      new_x = CLAMP(mouse_minx, the_mouse.state.x, mouse_maxx);
+      new_y = CLAMP(mouse_miny, the_mouse.state.y, mouse_maxy);
 
       dx = new_x - the_mouse.state.x;
       dy = new_y - the_mouse.state.y;
@@ -1104,8 +1104,8 @@ static void mouse_directx_set_range(int x1, int y1, int x2, int y2)
 
    _enter_critical();
 
-   _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-   _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
+   _mouse_x = CLAMP(mouse_minx, _mouse_x, mouse_maxx);
+   _mouse_y = CLAMP(mouse_miny, _mouse_y, mouse_maxy);
 
    mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
    mouse_my = COORD_TO_MICKEY_Y(_mouse_y);

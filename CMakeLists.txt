@@ -130,40 +130,32 @@ if(NOT ALLEGRO_BIG_ENDIAN)
     set(ALLEGRO_LITTLE_ENDIAN 1)
 endif(NOT ALLEGRO_BIG_ENDIAN)
 
-check_include_files(dirent.h HAVE_DIRENT_H)
-check_include_files(inttypes.h HAVE_INTTYPES_H)
-check_include_files(limits.h HAVE_LIMITS_H)
-check_include_files(linux/awe_voice.h HAVE_LINUX_AWE_VOICE_H)
-check_include_files(linux/input.h HAVE_LINUX_INPUT_H)
-check_include_files(linux/joystick.h HAVE_LINUX_JOYSTICK_H)
-check_include_files(linux/soundcard.h HAVE_LINUX_SOUNDCARD_H)
-check_include_files(machine/soundcard.h HAVE_MACHINE_SOUNDCARD_H)
-check_include_files(memory.h HAVE_MEMORY_H)
-check_include_files(ndir.h HAVE_NDIR_H)
-check_include_files(soundcard.h HAVE_SOUNDCARD_H)
-check_include_files(stdbool.h HAVE_STDBOOL_H)
-check_include_files(stdint.h HAVE_STDINT_H)
-check_include_files(sys/dir.h HAVE_SYS_DIR_H)
-check_include_files(sys/io.h HAVE_SYS_IO_H)
-check_include_files(sys/ndir.h HAVE_SYS_NDIR_H)
-check_include_files(sys/soundcard.h HAVE_SYS_SOUNDCARD_H)
-check_include_files(sys/stat.h HAVE_SYS_STAT_H)
-check_include_files(sys/time.h HAVE_SYS_TIME_H)
-check_include_files(sys/utsname.h HAVE_SYS_UTSNAME_H)
+check_include_files(dirent.h ALLEGRO_HAVE_DIRENT_H)
+check_include_files(inttypes.h ALLEGRO_HAVE_INTTYPES_H)
+check_include_files(linux/awe_voice.h ALLEGRO_HAVE_LINUX_AWE_VOICE_H)
+check_include_files(linux/input.h ALLEGRO_HAVE_LINUX_INPUT_H)
+check_include_files(linux/joystick.h ALLEGRO_HAVE_LINUX_JOYSTICK_H)
+check_include_files(linux/soundcard.h ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
+check_include_files(machine/soundcard.h ALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
+check_include_files(soundcard.h ALLEGRO_HAVE_SOUNDCARD_H)
+check_include_files(stdbool.h ALLEGRO_HAVE_STDBOOL_H)
+check_include_files(stdint.h ALLEGRO_HAVE_STDINT_H)
+check_include_files(sys/io.h ALLEGRO_HAVE_SYS_IO_H)
+check_include_files(sys/soundcard.h ALLEGRO_HAVE_SYS_SOUNDCARD_H)
+check_include_files(sys/stat.h ALLEGRO_HAVE_SYS_STAT_H)
+check_include_files(sys/time.h ALLEGRO_HAVE_SYS_TIME_H)
+check_include_files(sys/utsname.h ALLEGRO_HAVE_SYS_UTSNAME_H)
 
-check_function_exists(getexecname ALLEGRO_SYS_GETEXECNAME)
-set(ALLEGRO_HAVE_GETEXECNAME ${ALLEGRO_SYS_GETEXECNAME})
-    # ??? both are used in the source
-check_function_exists(memcmp HAVE_MEMCMP)
-check_function_exists(mkstemp HAVE_MKSTEMP)
-check_function_exists(mmap HAVE_MMAP)
-check_function_exists(mprotect HAVE_MPROTECT)
-check_function_exists(sched_yield ALLEGRO_USE_SCHED_YIELD)
-check_function_exists(stricmp HAVE_STRICMP)
-check_function_exists(strlwr HAVE_STRLWR)
-check_function_exists(strupr HAVE_STRUPR)
-check_function_exists(strupr HAVE_STRUPR)
-check_type_size("_Bool" HAVE__BOOL)
+check_function_exists(getexecname ALLEGRO_HAVE_GETEXECNAME)
+check_function_exists(mkstemp ALLEGRO_HAVE_MKSTEMP)
+check_function_exists(mmap ALLEGRO_HAVE_MMAP)
+check_function_exists(mprotect ALLEGRO_HAVE_MPROTECT)
+check_function_exists(sched_yield ALLEGRO_HAVE_SCHED_YIELD)
+check_function_exists(stricmp ALLEGRO_HAVE_STRICMP)
+check_function_exists(strlwr ALLEGRO_HAVE_STRLWR)
+check_function_exists(strupr ALLEGRO_HAVE_STRUPR)
+check_function_exists(sysconf, ALLEGRO_HAVE_SYSCONF)
+check_type_size("_Bool" ALLEGRO_HAVE__BOOL)
 
 check_c_source_compiles("
     #include <sys/procfs.h>
@@ -183,16 +175,7 @@ check_c_source_compiles("
         ioctl(0, PIOCPSINFO, &psinfo);
         return 0;
     }"
-    ALLEGRO_HAVE_SV_PROCFS
-    )
-
-check_c_source_compiles("
-    #include <time.h>
-    #include <sys/time.h>
-    int main(void) {
-        return 0;
-    }"
-    TIME_WITH_SYS_TIME
+    ALLEGRO_HAVE_SV_PROCFS_H
     )
 
 include(CheckCtors)
@@ -247,9 +230,9 @@ endif(WANT_MAGIC_MAIN)
 # i.e. the user wants it and the system can support it.
 #
 # Those variables are internal to the CMake build.  Allegro header files use
-# preprocessor constants with names like ALLEGRO_WITH_* and HAVE_*.  Sometimes
-# we make use of those variables in this CMakeFile as well, but generally
-# that's just due to sloppiness.
+# preprocessor constants with names like ALLEGRO_WITH_* and ALLEGRO_HAVE_*.
+# Sometimes we make use of those variables in this CMakeFile as well, but
+# generally that's just due to sloppiness.
 #
 
 
@@ -266,7 +249,7 @@ if(UNIX)
 
     include(FindThreads)
     if(CMAKE_USE_PTHREADS_INIT)
-        set(HAVE_LIBPTHREAD 1)
+        set(ALLEGRO_HAVE_LIBPTHREAD 1)
     endif(CMAKE_USE_PTHREADS_INIT)
 
     if(SUPPORT_MODULES)
@@ -358,8 +341,8 @@ if(UNIX)
         endif(JACK_INCLUDEDIR)
     endif(WANT_JACK)
 
-    if(HAVE_SOUNDCARD_H OR HAVE_SYS_SOUNDCARD_H OR 
-        HAVE_MACHINE_SOUNDCARD_H OR HAVE_LINUX_SOUNDCARD_H)
+    if(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR 
+        ALLEGRO_HAVE_MACHINE_SOUNDCARD_H OR ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
         
         if(WANT_OSSDIGI)
             set(SUPPORT_OSSDIGI 1)
@@ -372,14 +355,14 @@ if(UNIX)
         endif(WANT_OSSMIDI)
 
         # XXX we assume that if libossaudio exists then we need to use it.
-        check_library_exists(ossaudio _oss_ioctl "" HAVE_LIBOSSAUDIO)
-        if(HAVE_LIBOSSAUDIO)
+        check_library_exists(ossaudio _oss_ioctl "" ALLEGRO_HAVE_LIBOSSAUDIO)
+        if(ALLEGRO_HAVE_LIBOSSAUDIO)
             list(APPEND DRIVER_LIBS_STATIC ossaudio)
             list(APPEND DRIVER_LIBS_SHARED ossaudio)
-        endif(HAVE_LIBOSSAUDIO)
+        endif(ALLEGRO_HAVE_LIBOSSAUDIO)
 
-    endif(HAVE_SOUNDCARD_H OR HAVE_SYS_SOUNDCARD_H OR
-        HAVE_MACHINE_SOUNDCARD_H OR HAVE_LINUX_SOUNDCARD_H)
+    endif(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR
+        ALLEGRO_HAVE_MACHINE_SOUNDCARD_H OR ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
 
     if(WANT_SGIAL)
         check_library_exists(audio alOpenPort "" CAN_SGIAL)
@@ -492,7 +475,7 @@ if(SUPPORT_X11)
 
     check_library_exists(X11 XOpenIM "" CAN_XIM)
     if(CAN_XIM)
-        set(ALLEGRO_USE_XIM 1)
+        set(ALLEGRO_XWINDOWS_WITH_XIM 1)
     endif(CAN_XIM)
 
     check_include_files(X11/xpm.h HAVE_X11_XPM_H)
@@ -532,7 +515,6 @@ endif(MINGW)
 if(UNIX)
     set(CONFIG_FILE include/allegro/platform/alunixac.h)
     configure_file(${CONFIG_FILE}.cmake ${CONFIG_FILE})
-    add_definitions(-DHAVE_CONFIG_H)
 endif(UNIX)
 
 #-----------------------------------------------------------------------------#
@@ -851,13 +833,11 @@ endif(SUPPORT_MODULES)
     #
 if(GRADE_STANDARD)
     set(LIB_TO_LINK alleg)
-endif(GRADE_STANDARD)
-if(NOT LIB_TO_LINK AND GRADE_DEBUG)
+elseif(GRADE_DEBUG)
     set(LIB_TO_LINK alld)
-endif(NOT LIB_TO_LINK AND GRADE_DEBUG)
-if(NOT LIB_TO_LINK AND GRADE_PROFILE)
+elseif(GRADE_PROFILE)
     set(LIB_TO_LINK allp)
-endif(NOT LIB_TO_LINK AND GRADE_PROFILE)
+endif(GRADE_STANDARD)
 
 if(STATIC)
     set(LINK_WITH ${LIB_TO_LINK}_static)

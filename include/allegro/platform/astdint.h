@@ -24,9 +24,9 @@
 
 
 
-#if defined HAVE_INTTYPES_H
+#if defined ALLEGRO_HAVE_INTTYPES_H
    #include <inttypes.h>
-#elif defined HAVE_STDINT_H
+#elif defined ALLEGRO_HAVE_STDINT_H
    #include <stdint.h>
 #elif defined ALLEGRO_I386 && defined ALLEGRO_LITTLE_ENDIAN
    #ifndef ALLEGRO_GUESS_INTTYPES_OK

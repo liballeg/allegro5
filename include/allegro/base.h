@@ -26,6 +26,7 @@
    #include <stddef.h>
    #include <stdlib.h>
    #include <time.h>
+   #include <string.h>
 #endif
 
 #if (defined DEBUGMODE) && (defined FORTIFY)
@@ -70,7 +71,14 @@ AL_BEGIN_EXTERN_C
      
 #define MIN(x,y)     (((x) < (y)) ? (x) : (y))
 #define MAX(x,y)     (((x) > (y)) ? (x) : (y))
-#define MID(x,y,z)   MAX((x), MIN((y), (z)))
+
+/* Returns the median of x, y, z */
+#define MID(x,y,z)   ((x) > (y) ? ((y) > (z) ? (y) : ((x) > (z) ?    \
+                       (z) : (x))) : ((y) > (z) ? ((z) > (x) ? (z) : \
+                       (x)): (y)))
+
+/* Optimized version of MID for when x <= z. */
+#define CLAMP(x,y,z) MAX((x), MIN((y), (z)))
      
 #undef ABS
 #define ABS(x)       (((x) >= 0) ? (x) : (-(x)))

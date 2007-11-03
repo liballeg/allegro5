@@ -225,7 +225,7 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
 
 
 
-#if (defined ALLEGRO_COLOR8) || (defined GFX_HAS_VGA)
+#if (defined ALLEGRO_COLOR8) || (defined ALLEGRO_GFX_HAS_VGA)
 
 /* dither_blit:
  *  Blits with Floyd-Steinberg error diffusion.
@@ -527,7 +527,7 @@ static void blit_from_32(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
  */
 static void blit_to_or_from_modex(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
-   #ifdef GFX_HAS_VGA
+   #ifdef ALLEGRO_GFX_HAS_VGA
 
    int x, y, c, r, g, b;
    int src_depth = bitmap_color_depth(src);

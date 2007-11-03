@@ -1160,8 +1160,8 @@ is best to set it with set_uformat() just before you call these.
 <endblock>
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
-   and your parameter size must reflect this. Otherwise, the debug version of
-   Allegro will abort at an assertion, and the release version of Allegro
+   and your parameter `size' must reflect this. Otherwise, the debug version
+   of Allegro will abort at an assertion, and the release version of Allegro
    will overrun the destination buffer.
    
 @\char *@uconvert(const char *s, int type,
@@ -1433,8 +1433,8 @@ is best to set it with set_uformat() just before you call these.
 
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
-   and your parameter size must reflect this. Otherwise, the debug version of
-   Allegro will abort at an assertion, and the release version of Allegro
+   and your parameter `size' must reflect this. Otherwise, the debug version
+   of Allegro will abort at an assertion, and the release version of Allegro
    will overrun the destination buffer.
 @retval
    Returns the value of `dest'.
@@ -1459,8 +1459,8 @@ is best to set it with set_uformat() just before you call these.
 
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
-   and your parameter size must reflect this. Otherwise, the debug version of
-   Allegro will abort at an assertion, and the release version of Allegro
+   and your parameter `size' must reflect this. Otherwise, the debug version
+   of Allegro will abort at an assertion, and the release version of Allegro
    will overrun the destination buffer.
 @retval
    Returns the value of `dest'.
@@ -1497,7 +1497,9 @@ is best to set it with set_uformat() just before you call these.
 @eref exkeys
 @shortdesc Copies a string into another one, specifying size.
    This function is like ustrzcpy() except that no more than `n' characters
-   from `src' are copied into `dest'. If `src' is shorter than `n' characters,
+   from `src' are copied into `dest' whose length in bytes is specified by
+   `size' and which is guaranteed to be null-terminated even if `src' is
+   bigger than `size'. If `src' is shorter than `n' characters,
    null characters are appended to `dest' as padding until `n' characters have
    been written. In any case, `dest' is guaranteed to be null-terminated.
 
@@ -1847,13 +1849,10 @@ your game.
 @xref Standard config variables, set_config_string, get_config_string
 @eref exconfig
 @shortdesc Sets the configuration file.
-   Sets the configuration file to be used by all subsequent config 
-   functions. If you don't call this function, Allegro will use the default 
-   `allegro.cfg' file, looking first in the same directory as your program
-   and then in the directory pointed to by the ALLEGRO environment variable
-   and the usual platform-specific paths for configuration files. For example
-   it will look for `/etc/allegro.cfg' under Unix.
-
+   Sets the configuration file to be used by all subsequent config
+   functions. (Allegro will not search for this file in other locations
+   as it does with allegro.cfg at the time of initialization.)
+   
    All pointers returned by previous calls to get_config_string() and
    other related functions are invalidated when you call this function!
    You can call this function before install_allegro() to change the
