@@ -44,9 +44,9 @@
 
 typedef struct AL_MOUSE_EVDEV
 {
-   AL_MOUSE parent;
+   ALLEGRO_MOUSE parent;
    int fd;
-   AL_MSESTATE state;
+   ALLEGRO_MSESTATE state;
 } AL_MOUSE_EVDEV;
 
 
@@ -391,11 +391,11 @@ static void handle_button_event(unsigned int button, bool is_down)
 
    if (is_down) {
       the_mouse.state.buttons |= (1 << (button-1));
-      event_type = AL_EVENT_MOUSE_BUTTON_DOWN;
+      event_type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN;
    }
    else {
       the_mouse.state.buttons &=~ (1 << (button-1));
-      event_type = AL_EVENT_MOUSE_BUTTON_UP;
+      event_type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;
    }
 
    generate_mouse_event(
@@ -484,7 +484,7 @@ static void handle_axis_event(int dx, int dy, int dz)
       the_mouse.state.z = z_axis.out_abs;
 
       generate_mouse_event(
-         AL_EVENT_MOUSE_AXES,
+         ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          dx, dy, dz,
          0);
@@ -607,11 +607,11 @@ static void mouse_exit (void)
 
 
 /* mouse_get_mouse:
- *  Returns the address of a AL_MOUSE structure representing the mouse.
+ *  Returns the address of a ALLEGRO_MOUSE structure representing the mouse.
  */
-static AL_MOUSE *mouse_get_mouse(void)
+static ALLEGRO_MOUSE *mouse_get_mouse(void)
 {
-   return (AL_MOUSE *)&the_mouse;
+   return (ALLEGRO_MOUSE *)&the_mouse;
 }
 
 
@@ -663,7 +663,7 @@ static bool mouse_set_mouse_xy(int x, int y)
          the_mouse.state.y = y_axis.out_abs;
 
          generate_mouse_event(
-            AL_EVENT_MOUSE_AXES,
+            ALLEGRO_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             dx, dy, 0,
             0);
@@ -698,7 +698,7 @@ static bool mouse_set_mouse_axis(int which, int z)
          the_mouse.state.z = z_axis.out_abs;
 
          generate_mouse_event(
-            AL_EVENT_MOUSE_AXES,
+            ALLEGRO_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             0, 0, dz,
             0);
@@ -736,7 +736,7 @@ static bool mouse_set_mouse_range(int x1, int y1, int x2, int y2)
          the_mouse.state.y = y_axis.out_abs;
 
          generate_mouse_event(
-            AL_EVENT_MOUSE_AXES,
+            ALLEGRO_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             dx, dy, 0,
             0);
@@ -752,7 +752,7 @@ static bool mouse_set_mouse_range(int x1, int y1, int x2, int y2)
 /* mouse_get_state:
  *  Copy the current mouse state into RET_STATE, with any necessary locking.
  */
-static void mouse_get_state(AL_MSESTATE *ret_state)
+static void mouse_get_state(ALLEGRO_MSESTATE *ret_state)
 {
    _al_event_source_lock(&the_mouse.parent.es);
    {
@@ -811,7 +811,7 @@ static void generate_mouse_event(unsigned int type,
                                  int dx, int dy, int dz,
                                  unsigned int button)
 {
-   AL_EVENT *event;
+   ALLEGRO_EVENT *event;
 
    if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es))
       return;
@@ -836,7 +836,7 @@ static void generate_mouse_event(unsigned int type,
 
 
 /* the driver vtable */
-AL_MOUSE_DRIVER _al_mousedrv_linux_evdev =
+ALLEGRO_MOUSE_DRIVER _al_mousedrv_linux_evdev =
 {
    AL_MOUSEDRV_LINUX_EVDEV,
    empty_string,

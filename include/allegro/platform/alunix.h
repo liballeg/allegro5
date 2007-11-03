@@ -185,7 +185,7 @@ AL_VAR(SYSTEM_DRIVER, system_linux);
    #define ALLEGRO_GFX_HAS_VBEAF
 #endif
 
-AL_VAR(struct AL_MOUSE_DRIVER, _al_mousedrv_linux_evdev);
+AL_VAR(struct ALLEGRO_MOUSE_DRIVER, _al_mousedrv_linux_evdev);
 
 AL_FUNC_DEPRECATED(void, split_modex_screen, (int lyne));
 

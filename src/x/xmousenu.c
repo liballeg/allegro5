@@ -27,33 +27,33 @@
 
 
 
-typedef struct AL_MOUSE_XWIN
+typedef struct ALLEGRO_MOUSE_XWIN
 {
-   AL_MOUSE parent;
-   AL_MSESTATE state;
+   ALLEGRO_MOUSE parent;
+   ALLEGRO_MSESTATE state;
    int min_x, min_y;
    int max_x, max_y;
-} AL_MOUSE_XWIN;
+} ALLEGRO_MOUSE_XWIN;
 
 
 
 static bool xmouse_installed = false;
 
 /* the one and only mouse object */
-static AL_MOUSE_XWIN the_mouse;
+static ALLEGRO_MOUSE_XWIN the_mouse;
 
 
 
 /* forward declarations */
 static bool xmouse_init(void);
 static void xmouse_exit(void);
-static AL_MOUSE *xmouse_get_mouse(void);
+static ALLEGRO_MOUSE *xmouse_get_mouse(void);
 static unsigned int xmouse_get_mouse_num_buttons(void);
 static unsigned int xmouse_get_mouse_num_axes(void);
 static bool xmouse_set_mouse_xy(int x, int y);
 static bool xmouse_set_mouse_axis(int which, int z);
 static bool xmouse_set_mouse_range(int x1, int y1, int x2, int y2);
-static void xmouse_get_state(AL_MSESTATE *ret_state);
+static void xmouse_get_state(ALLEGRO_MSESTATE *ret_state);
 
 static void wheel_motion_handler(int dz);
 static int x_button_to_wheel(unsigned int x_button);
@@ -68,7 +68,7 @@ static void generate_mouse_event(unsigned int type,
 /* the driver vtable */
 #define MOUSEDRV_XWIN  AL_ID('X','W','I','N')
 
-static AL_MOUSE_DRIVER mousedrv_xwin =
+static ALLEGRO_MOUSE_DRIVER mousedrv_xwin =
 {
    MOUSEDRV_XWIN,
    empty_string,
@@ -131,13 +131,13 @@ static void xmouse_exit(void)
 
 
 /* xmouse_get_mouse:
- *  Returns the address of a AL_MOUSE structure representing the mouse.
+ *  Returns the address of a ALLEGRO_MOUSE structure representing the mouse.
  */
-static AL_MOUSE *xmouse_get_mouse(void)
+static ALLEGRO_MOUSE *xmouse_get_mouse(void)
 {
    ASSERT(xmouse_installed);
 
-   return (AL_MOUSE *)&the_mouse;
+   return (ALLEGRO_MOUSE *)&the_mouse;
 }
 
 
@@ -216,7 +216,7 @@ static bool xmouse_set_mouse_axis(int which, int z)
          the_mouse.state.z = z;
 
          generate_mouse_event(
-            AL_EVENT_MOUSE_AXES,
+            ALLEGRO_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             0, 0, dz,
             0);
@@ -242,7 +242,7 @@ static bool xmouse_set_mouse_range(int x1, int y1, int x2, int y2)
 /* xmouse_get_state:
  *  Copy the current mouse state into RET_STATE, with any necessary locking.
  */
-static void xmouse_get_state(AL_MSESTATE *ret_state)
+static void xmouse_get_state(ALLEGRO_MSESTATE *ret_state)
 {
    ASSERT(xmouse_installed);
 
@@ -284,7 +284,7 @@ void _al_xwin_mouse_button_press_handler(unsigned int x_button)
       the_mouse.state.buttons |= (1 << (al_button - 1));
 
       generate_mouse_event(
-         AL_EVENT_MOUSE_BUTTON_DOWN,
+         ALLEGRO_EVENT_MOUSE_BUTTON_DOWN,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          0, 0, 0,
          al_button);
@@ -305,7 +305,7 @@ static void wheel_motion_handler(int dz)
       the_mouse.state.z += dz;
 
       generate_mouse_event(
-         AL_EVENT_MOUSE_AXES,
+         ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          0, 0, dz,
          0);
@@ -335,7 +335,7 @@ void _al_xwin_mouse_button_release_handler(unsigned int x_button)
       the_mouse.state.buttons &=~ (1 << (al_button - 1));
 
       generate_mouse_event(
-         AL_EVENT_MOUSE_BUTTON_UP,
+         ALLEGRO_EVENT_MOUSE_BUTTON_UP,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          0, 0, 0,
          al_button);
@@ -362,7 +362,7 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y)
       the_mouse.state.y = y;
 
       generate_mouse_event(
-         AL_EVENT_MOUSE_AXES,
+         ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          dx, dy, 0,
          0);
@@ -393,7 +393,7 @@ void _al_xwin_mouse_motion_notify_handler_dga2(int dx, int dy,
       the_mouse.state.y = CLAMP(min_y, y, max_y);
 
       generate_mouse_event(
-         AL_EVENT_MOUSE_AXES,
+         ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          dx, dy, 0,
          0);
@@ -450,7 +450,7 @@ static void generate_mouse_event(unsigned int type,
                                  int dx, int dy, int dz,
                                  unsigned int button)
 {
-   AL_EVENT *event;
+   ALLEGRO_EVENT *event;
 
    if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es))
       return;

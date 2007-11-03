@@ -1643,11 +1643,11 @@ void _al_xwin_enable_hardware_cursor(bool mode)
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
 
-static AL_MOUSE_CURSOR *_al_xwin_private_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus);
-static bool _al_xwin_private_set_system_mouse_cursor(AL_SYSTEM_MOUSE_CURSOR cursor_id);
+static ALLEGRO_MOUSE_CURSOR *_al_xwin_private_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus);
+static bool _al_xwin_private_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id);
 
 
-struct AL_MOUSE_CURSOR {
+struct ALLEGRO_MOUSE_CURSOR {
    Cursor cursor;
 };
 
@@ -1658,9 +1658,9 @@ static bool cursor_shown = false; /* XXX */
 /* _xwin_create_mouse_cursor:
  *
  */
-AL_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus)
+ALLEGRO_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus)
 {
-   AL_MOUSE_CURSOR *wrapper;
+   ALLEGRO_MOUSE_CURSOR *wrapper;
 
    XLOCK();
    {
@@ -1671,7 +1671,7 @@ AL_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(struct BITMAP *sprite, int xfocus,
    return wrapper;
 }
 
-static AL_MOUSE_CURSOR *
+static ALLEGRO_MOUSE_CURSOR *
 _al_xwin_private_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus)
 {
 #define GET_PIXEL_DATA(DEPTH, GETPIX)					\
@@ -1696,7 +1696,7 @@ _al_xwin_private_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfoc
             }								\
          }
 
-   AL_MOUSE_CURSOR *wrapper;
+   ALLEGRO_MOUSE_CURSOR *wrapper;
    XcursorImage *image;
 
    ASSERT(sprite);
@@ -1745,7 +1745,7 @@ _al_xwin_private_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfoc
 
 
 
-void _al_xwin_destroy_mouse_cursor(AL_MOUSE_CURSOR *wrapper)
+void _al_xwin_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *wrapper)
 {
    ASSERT(wrapper);
 
@@ -1765,7 +1765,7 @@ void _al_xwin_destroy_mouse_cursor(AL_MOUSE_CURSOR *wrapper)
 }
 
 
-bool _al_xwin_set_mouse_cursor(AL_MOUSE_CURSOR *wrapper)
+bool _al_xwin_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *wrapper)
 {
    ASSERT(wrapper);
 
@@ -1783,7 +1783,7 @@ bool _al_xwin_set_mouse_cursor(AL_MOUSE_CURSOR *wrapper)
 }
 
 
-bool _al_xwin_set_system_mouse_cursor(AL_SYSTEM_MOUSE_CURSOR cursor_id)
+bool _al_xwin_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
    bool ret;
 
@@ -1796,25 +1796,25 @@ bool _al_xwin_set_system_mouse_cursor(AL_SYSTEM_MOUSE_CURSOR cursor_id)
    return ret;
 }
 
-static bool _al_xwin_private_set_system_mouse_cursor(AL_SYSTEM_MOUSE_CURSOR cursor_id)
+static bool _al_xwin_private_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
    unsigned int cursor_shape;
 
    switch (cursor_id) {
 
-      case AL_SYSTEM_MOUSE_CURSOR_ARROW:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
          cursor_shape = XC_left_ptr;
          break;
 
-      case AL_SYSTEM_MOUSE_CURSOR_BUSY:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY:
          cursor_shape = XC_watch;
          break;
 
-      case AL_SYSTEM_MOUSE_CURSOR_QUESTION:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION:
          cursor_shape = XC_question_arrow;
          break;
 
-      case AL_SYSTEM_MOUSE_CURSOR_EDIT:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT:
          cursor_shape = XC_xterm;
          break;
 

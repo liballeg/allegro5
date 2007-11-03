@@ -110,7 +110,7 @@ ALLEGRO_DISPLAY_INTERFACE *get_display_driver(void)
 }
 
 // FIXME: Use the list.
-AL_KEYBOARD_DRIVER *get_keyboard_driver(void)
+ALLEGRO_KEYBOARD_DRIVER *get_keyboard_driver(void)
 {
    // FIXME: i would prefer a dynamic way to list drivers, not a static list
    return _al_xwin_keyboard_driver_list[0].driver;

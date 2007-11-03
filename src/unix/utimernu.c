@@ -33,12 +33,12 @@ typedef long usecs_t;
 
 /* forward declarations */
 static usecs_t timer_thread_handle_tick(usecs_t interval);
-static void timer_handle_tick(AL_TIMER *this);
+static void timer_handle_tick(ALLEGRO_TIMER *this);
 
 
-struct AL_TIMER
+struct ALLEGRO_TIMER
 {
-   AL_EVENT_SOURCE es;
+   ALLEGRO_EVENT_SOURCE es;
    bool started;
    usecs_t speed_usecs;
    long count;
@@ -53,7 +53,7 @@ struct AL_TIMER
 
 static _AL_THREAD timer_thread;
 static _AL_MUTEX timer_thread_mutex = _AL_MUTEX_UNINITED;
-static _AL_VECTOR active_timers = _AL_VECTOR_INITIALIZER(AL_TIMER *);
+static _AL_VECTOR active_timers = _AL_VECTOR_INITIALIZER(ALLEGRO_TIMER *);
 
 
 /* timer_thread_proc: [timer thread]
@@ -134,8 +134,8 @@ static usecs_t timer_thread_handle_tick(usecs_t interval)
    unsigned int i;
 
    for (i = 0; i < _al_vector_size(&active_timers); i++) {
-      AL_TIMER **slot = _al_vector_ref(&active_timers, i);
-      AL_TIMER *timer = *slot;
+      ALLEGRO_TIMER **slot = _al_vector_ref(&active_timers, i);
+      ALLEGRO_TIMER *timer = *slot;
 
       timer->counter -= interval;
 
@@ -161,11 +161,11 @@ static usecs_t timer_thread_handle_tick(usecs_t interval)
 /* al_install_timer: [primary thread]
  *  Create a new timer object.
  */
-AL_TIMER* al_install_timer(msecs_t speed_msecs)
+ALLEGRO_TIMER* al_install_timer(msecs_t speed_msecs)
 {
    ASSERT(speed_msecs > 0);
    {
-      AL_TIMER *timer = _AL_MALLOC(sizeof *timer);
+      ALLEGRO_TIMER *timer = _AL_MALLOC(sizeof *timer);
 
       ASSERT(timer);
 
@@ -188,7 +188,7 @@ AL_TIMER* al_install_timer(msecs_t speed_msecs)
 /* al_uninstall_timer: [primary thread]
  *  Destroy this timer object.
  */
-void al_uninstall_timer(AL_TIMER *this)
+void al_uninstall_timer(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
 
@@ -206,7 +206,7 @@ void al_uninstall_timer(AL_TIMER *this)
  *  Start this timer.  If it is the first started timer, the
  *  background timer thread is subsequently started.
  */
-void al_start_timer(AL_TIMER *this)
+void al_start_timer(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
    {
@@ -217,7 +217,7 @@ void al_start_timer(AL_TIMER *this)
 
       _al_mutex_lock(&timer_thread_mutex);
       {
-         AL_TIMER **slot;
+         ALLEGRO_TIMER **slot;
 
          this->started = true;
          this->counter = this->speed_usecs;
@@ -242,7 +242,7 @@ void al_start_timer(AL_TIMER *this)
  *  Stop this timer.  If it is the last started timer, the background
  *  timer thread is subsequently stopped.
  */
-void al_stop_timer(AL_TIMER *this)
+void al_stop_timer(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
    {
@@ -273,7 +273,7 @@ void al_stop_timer(AL_TIMER *this)
 /* al_timer_is_started: [primary thread]
  *  Return if this timer is started.
  */
-bool al_timer_is_started(AL_TIMER *this)
+bool al_timer_is_started(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
 
@@ -285,7 +285,7 @@ bool al_timer_is_started(AL_TIMER *this)
 /* al_timer_get_speed: [primary thread]
  *  Return this timer's speed.
  */
-msecs_t al_timer_get_speed(AL_TIMER *this)
+msecs_t al_timer_get_speed(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
 
@@ -297,7 +297,7 @@ msecs_t al_timer_get_speed(AL_TIMER *this)
 /* al_timer_set_speed: [primary thread]
  *  Change this timer's speed.
  */
-void al_timer_set_speed(AL_TIMER *this, msecs_t new_speed_msecs)
+void al_timer_set_speed(ALLEGRO_TIMER *this, msecs_t new_speed_msecs)
 {
    ASSERT(this);
    ASSERT(new_speed_msecs > 0);
@@ -319,7 +319,7 @@ void al_timer_set_speed(AL_TIMER *this, msecs_t new_speed_msecs)
 /* al_timer_get_count: [primary thread]
  *  Return this timer's count.
  */
-long al_timer_get_count(AL_TIMER *this)
+long al_timer_get_count(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
 
@@ -331,7 +331,7 @@ long al_timer_get_count(AL_TIMER *this)
 /* al_timer_set_count: [primary thread]
  *  Change this timer's count.
  */
-void al_timer_set_count(AL_TIMER *this, long new_count)
+void al_timer_set_count(ALLEGRO_TIMER *this, long new_count)
 {
    ASSERT(this);
 
@@ -347,7 +347,7 @@ void al_timer_set_count(AL_TIMER *this, long new_count)
 /* timer_handle_tick: [timer thread]
  *  Handle a single tick.
  */
-static void timer_handle_tick(AL_TIMER *this)
+static void timer_handle_tick(ALLEGRO_TIMER *this)
 {
    /* Lock out event source helper functions (e.g. the release hook
     * could be invoked simultaneously with this function).
@@ -359,9 +359,9 @@ static void timer_handle_tick(AL_TIMER *this)
 
       /* Generate an event, maybe.  */
       if (_al_event_source_needs_to_generate_event(&this->es)) {
-         AL_EVENT *event = _al_event_source_get_unused_event(&this->es);
+         ALLEGRO_EVENT *event = _al_event_source_get_unused_event(&this->es);
          if (event) {
-            event->timer.type = AL_EVENT_TIMER;
+            event->timer.type = ALLEGRO_EVENT_TIMER;
             event->timer.timestamp = al_current_time();
             event->timer.count = this->count;
             _al_event_source_emit_event(&this->es, event);

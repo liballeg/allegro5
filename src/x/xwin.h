@@ -52,10 +52,10 @@ AL_FUNC(void, _xwin_change_keyboard_control, (int led, int on));
 AL_FUNC(void, _xwin_init_keyboard_tables, (void));
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-AL_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus);
-void _al_xwin_destroy_mouse_cursor(AL_MOUSE_CURSOR *);
-bool _al_xwin_set_mouse_cursor(AL_MOUSE_CURSOR *cursor);
-bool _al_xwin_set_system_mouse_cursor(AL_SYSTEM_MOUSE_CURSOR cursor_id);
+ALLEGRO_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus);
+void _al_xwin_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *);
+bool _al_xwin_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor);
+bool _al_xwin_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id);
 bool _al_xwin_show_mouse_cursor(void);
 bool _al_xwin_hide_mouse_cursor(void);
 #endif
