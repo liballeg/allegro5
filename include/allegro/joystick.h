@@ -32,7 +32,7 @@ AL_BEGIN_EXTERN_C
 
 
 
-/* Type: ALLEGRO__JOYSTICK
+/* Type: ALLEGRO_JOYSTICK
  *
  *  This is an abstract data type representing a physical joystick.  Joystick
  *  objects are also event sources so can be casted to ALLEGRO_EVENT_SOURCE*.
