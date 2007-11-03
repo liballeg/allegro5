@@ -682,6 +682,8 @@ int install_keyboard(void)
    if ((keyboard_driver->autorepeat) && (!_timer_installed))
       install_timer();
 
+   update_shifts();
+
    return 0;
 }
 
