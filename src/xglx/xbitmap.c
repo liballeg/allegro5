@@ -30,7 +30,7 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
    // FIXME: won't work that way if it is scaled or rotated
    ALLEGRO_DISPLAY_XGLX *glx = (void *)al_get_current_display();
    if (glx->temporary_hack) {
-      _al_draw_bitmap_region_memory_fast(bitmap, sx, sy, sw, sh, dx, dy, flags);
+      _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;
    }
 
