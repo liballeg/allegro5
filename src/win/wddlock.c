@@ -218,7 +218,7 @@ void gfx_directx_lock(BITMAP *bmp)
 
 	    /* lock failed, use pseudo surface memory */
 	    surf->flags |= DDRAW_SURFACE_LOST;
-	    data = pseudo_surf_mem;
+	    data = (unsigned char *)pseudo_surf_mem;
 	    pitch = 0;
 	 } 
 	 else {

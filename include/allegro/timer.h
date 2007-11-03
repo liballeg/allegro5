@@ -32,17 +32,17 @@ AL_BEGIN_EXTERN_C
  *
  *  These macros convert from various time units into milliseconds.
  */
-#define AL_SECS_TO_MSECS(x)      ((long)(x) * 1000)
-#define AL_BPS_TO_MSECS(x)       (1000 / (long)(x))
-#define AL_BPM_TO_MSECS(x)       ((60 * 1000) / (long)(x))
+#define ALLEGRO_SECS_TO_MSECS(x)      ((long)(x) * 1000)
+#define ALLEGRO_BPS_TO_MSECS(x)       (1000 / (long)(x))
+#define ALLEGRO_BPM_TO_MSECS(x)       ((60 * 1000) / (long)(x))
 
 
-/* Type: AL_TIMER
+/* Type: ALLEGRO_TIMER
  *  This is an abstract data type representing a timer object.
  *  A timer object can act as an event source so can be casted to
- *  AL_EVENT_SOURCE*.
+ *  ALLEGRO_EVENT_SOURCE*.
  */
-typedef struct AL_TIMER AL_TIMER;
+typedef struct ALLEGRO_TIMER ALLEGRO_TIMER;
 
 
 /* Function: al_install_timer
@@ -54,7 +54,7 @@ typedef struct AL_TIMER AL_TIMER;
  * 
  *  Usage note: typical granularity is on the order of milliseconds.
  */
-AL_FUNC(AL_TIMER*, al_install_timer, (long speed_msecs));
+AL_FUNC(ALLEGRO_TIMER*, al_install_timer, (long speed_msecs));
 
 
 /* Function: al_uninstall_timer
@@ -64,7 +64,7 @@ AL_FUNC(AL_TIMER*, al_install_timer, (long speed_msecs));
  *
  *  TIMER may not be NULL.
  */
-AL_FUNC(void, al_uninstall_timer, (AL_TIMER *timer));
+AL_FUNC(void, al_uninstall_timer, (ALLEGRO_TIMER *timer));
 
 
 /* Function: al_start_timer
@@ -72,7 +72,7 @@ AL_FUNC(void, al_uninstall_timer, (AL_TIMER *timer));
  *  at a constant rate, and it will begin generating events.  Starting a
  *  timer that is already started does nothing.
  */
-AL_FUNC(void, al_start_timer, (AL_TIMER *timer));
+AL_FUNC(void, al_start_timer, (ALLEGRO_TIMER *timer));
 
 
 /* Function: al_stop_timer
@@ -80,19 +80,19 @@ AL_FUNC(void, al_start_timer, (AL_TIMER *timer));
  *  it will stop generating events.  Stopping a timer that is already stopped
  *  does nothing.
  */
-AL_FUNC(void, al_stop_timer, (AL_TIMER *timer));
+AL_FUNC(void, al_stop_timer, (ALLEGRO_TIMER *timer));
 
 
 /* Function: al_timer_is_started
  *  Return true if the timer specified is currently started.
  */
-AL_FUNC(bool, al_timer_is_started, (AL_TIMER *timer));
+AL_FUNC(bool, al_timer_is_started, (ALLEGRO_TIMER *timer));
 
 
 /* Function: al_timer_get_speed
  *  Return the timer's speed.
  */
-AL_FUNC(long, al_timer_get_speed, (AL_TIMER *timer));
+AL_FUNC(long, al_timer_get_speed, (ALLEGRO_TIMER *timer));
 
 
 /* Function: al_timer_set_speed
@@ -104,13 +104,13 @@ AL_FUNC(long, al_timer_get_speed, (AL_TIMER *timer));
  * 
  *  Usage note: typical granularity is on the order of milliseconds.
  */
-AL_FUNC(void, al_timer_set_speed, (AL_TIMER *timer, long speed_msecs));
+AL_FUNC(void, al_timer_set_speed, (ALLEGRO_TIMER *timer, long speed_msecs));
 
 
 /* Function: al_timer_get_count
  *  Return the timer's counter value.  The timer can be started or stopped.
  */
-AL_FUNC(long, al_timer_get_count, (AL_TIMER *timer));
+AL_FUNC(long, al_timer_get_count, (ALLEGRO_TIMER *timer));
 
 
 /* Function: al_timer_set_count
@@ -118,7 +118,7 @@ AL_FUNC(long, al_timer_get_count, (AL_TIMER *timer));
  *  COUNT value may be positive or negative, but will always be incremented
  *  by +1.
  */
-AL_FUNC(void, al_timer_set_count, (AL_TIMER *timer, long count));
+AL_FUNC(void, al_timer_set_count, (ALLEGRO_TIMER *timer, long count));
 
 
 

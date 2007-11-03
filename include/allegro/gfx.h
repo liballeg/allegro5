@@ -103,10 +103,10 @@ typedef struct GFX_DRIVER        /* creates and manages the screen bitmap */
    long vid_phys_base;           /* physical address of video memory */
    int windowed;                 /* true if driver runs windowed */
    /* new_api_branch additions */
-   AL_METHOD(struct AL_MOUSE_CURSOR *, create_mouse_cursor, (struct BITMAP *sprite, int xfocus, int yfocus));
-   AL_METHOD(void, destroy_mouse_cursor, (struct AL_MOUSE_CURSOR *));
-   AL_METHOD(bool, set_mouse_cursor, (AL_MOUSE_CURSOR *cursor));
-   AL_METHOD(bool, set_system_mouse_cursor, (AL_SYSTEM_MOUSE_CURSOR cursor_id));
+   AL_METHOD(struct ALLEGRO_MOUSE_CURSOR *, create_mouse_cursor, (struct BITMAP *sprite, int xfocus, int yfocus));
+   AL_METHOD(void, destroy_mouse_cursor, (struct ALLEGRO_MOUSE_CURSOR *));
+   AL_METHOD(bool, set_mouse_cursor, (ALLEGRO_MOUSE_CURSOR *cursor));
+   AL_METHOD(bool, set_system_mouse_cursor, (ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id));
    AL_METHOD(bool, show_mouse_cursor, (void));
    AL_METHOD(bool, hide_mouse_cursor, (void));
 } GFX_DRIVER;
@@ -267,6 +267,16 @@ AL_ARRAY(_VTABLE_INFO, _vtable_list);
 
 typedef struct BITMAP            /* a bitmap structure */
 {
+   struct ALLEGRO_DISPLAY *display;   /* display for compatibility screen */
+   bool needs_upload;                 /* true if upload needed after change */
+   /*
+    * Needed by the new driver for compatibility
+    */
+   int dirty_x1;
+   int dirty_y1;
+   int dirty_x2;
+   int dirty_y2;
+   bool acquired;
    int w, h;                     /* width and height in pixels */
    int clip;                     /* flag if clipping is turned on */
    int cl, cr, ct, cb;           /* clip left, right, top and bottom values */
@@ -294,9 +304,6 @@ typedef struct BITMAP            /* a bitmap structure */
 
 
 AL_VAR(BITMAP *, screen);
-
-#define SCREEN_W     (gfx_driver ? gfx_driver->w : 0)
-#define SCREEN_H     (gfx_driver ? gfx_driver->h : 0)
 
 #define VIRTUAL_W    (screen ? screen->w : 0)
 #define VIRTUAL_H    (screen ? screen->h : 0)
@@ -444,6 +451,11 @@ AL_FUNC(void, lock_bitmap, (struct BITMAP *bmp));
 #endif
 
 #include "inline/gfx.inl"
+
+#include "allegro/internal/aintern_display.h"
+
+#define SCREEN_W     (gfx_driver ? gfx_driver->w : _al_current_display ? _al_current_display->w : 0)
+#define SCREEN_H     (gfx_driver ? gfx_driver->h : _al_current_display ? _al_current_display->h : 0)
 
 #endif          /* ifndef ALLEGRO_GFX_H */
 

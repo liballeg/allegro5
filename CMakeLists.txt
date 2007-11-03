@@ -76,6 +76,12 @@ option(WANT_OSSDIGI "Enable OSS digital audio driver (Unix)" on)
 option(WANT_OSSMIDI "Enable OSS MIDI driver (Unix)" on)
 option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" on)
 
+option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
+
+# Addons
+
+option(WANT_FONT "Enable bitmap font add-on" on)
+
 #
 # For developers.
 #
@@ -105,10 +111,12 @@ include(UsePkgConfig)
 
 include(SrcTests)
 
-# For alplatf.h
-
 if(MINGW)
+    # For alplatf.h
     set(ALLEGRO_MINGW32 1)
+    # Install to MINGDIR
+    string(REPLACE "\\" "/" MINGDIR "$ENV{MINGDIR}")
+    set(CMAKE_INSTALL_PREFIX ${MINGDIR})
 endif(MINGW)
 if(UNIX)
     set(ALLEGRO_UNIX 1)
@@ -477,8 +485,20 @@ if(SUPPORT_X11)
         list(APPEND X11_LIBRARIES "Xpm")
     endif(HAVE_X11_XPM_H AND CAN_XPM)
 
+    # Will OpenGL be optional?
+    include(FindOpenGL)
+    if(OPENGL_FOUND)
+        list(APPEND X11_LIBRARIES ${OPENGL_LIBRARIES})
+    endif(OPENGL_FOUND)
+
     set(CMAKE_REQUIRED_LIBRARIES)
 endif(SUPPORT_X11)
+
+if(WIN32)
+    if(WANT_D3D)
+        set(ALLEGRO_D3D 1)
+    endif(WANT_D3D)
+endif(WIN32)
 
 #
 # Produce configuration files.
@@ -580,6 +600,10 @@ if(WIN32)
     list(APPEND PLATFORM_LIBS
         kernel32 user32 gdi32 comdlg32 ole32 dinput ddraw dxguid winmm dsound
         )
+    if(WANT_D3D)
+        list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
+        list(APPEND PLATFORM_LIBS d3d9)
+    endif(WANT_D3D)
 endif(WIN32)
 
 #-----------------------------------------------------------------------------#
@@ -626,6 +650,7 @@ macro(add_allegro_build nm extra_flags)
     endforeach(SOURCE)
 
     macro(really_add_allegro_build nam target libtype more_extra_flags)
+        set(OUTPUT_LIBRARY ${nam})
         add_library(${target} ${libtype} ${LIBRARY_SOURCES} ${ASM_OBJS})
         set_target_properties(${target}
             PROPERTIES
@@ -837,8 +862,8 @@ endmacro(add_allegro_executable)
 
 add_subdirectory(demo)
 add_subdirectory(examples)
-add_subdirectory(tests)
-add_subdirectory(tools)
+#add_subdirectory(tests)
+#add_subdirectory(tools)
 
 #-----------------------------------------------------------------------------#
 #
@@ -895,6 +920,13 @@ add_subdirectory(docs)
     #
 make_directory(obj/mingw32)
 make_directory(obj/unix)
+
+#-----------------------------------------------------------------------------#
+#
+# Add-ons
+#
+#-----------------------------------------------------------------------------#
+add_subdirectory(addons)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

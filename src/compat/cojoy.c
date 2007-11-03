@@ -44,7 +44,7 @@ int num_joysticks = 0;
 
 static int joy_loading = FALSE;
 
-static AL_JOYSTICK *new_joy[MAX_JOYSTICKS];
+static ALLEGRO_JOYSTICK *new_joy[MAX_JOYSTICKS];
 
 
 
@@ -91,7 +91,7 @@ static void clear_joystick_vars(void)
  *  Fill parts of the joy[] structure for joystick number N
  *  using information from NEW_JOY.
  */
-static void fill_old_joystick_info(int n, AL_JOYSTICK *new_joy)
+static void fill_old_joystick_info(int n, ALLEGRO_JOYSTICK *new_joy)
 {
    int s, a, b;
    int new_flags;
@@ -109,8 +109,8 @@ static void fill_old_joystick_info(int n, AL_JOYSTICK *new_joy)
 
       new_flags = al_joystick_stick_flags(new_joy, s);
       joy[n].stick[s].flags =
-         ((new_flags & AL_JOYFLAG_DIGITAL)  ? JOYFLAG_DIGITAL  : 0) |
-         ((new_flags & AL_JOYFLAG_ANALOGUE) ? JOYFLAG_ANALOGUE : 0);
+         ((new_flags & ALLEGRO_JOYFLAG_DIGITAL)  ? JOYFLAG_DIGITAL  : 0) |
+         ((new_flags & ALLEGRO_JOYFLAG_ANALOGUE) ? JOYFLAG_ANALOGUE : 0);
 
       if (joy[n].stick[s].num_axis == 1)
          joy[n].stick[s].flags |= JOYFLAG_UNSIGNED;
@@ -229,10 +229,10 @@ void remove_joystick(void)
 
 
 /* convert_joystick_state:
- *  Stores the information in a AL_JOYSTATE structure into an
+ *  Stores the information in a ALLEGRO_JOYSTATE structure into an
  *  older-style JOYSTICK_INFO structure.
  */
-static void convert_joystick_state(JOYSTICK_INFO *old_info, AL_JOYSTATE *state)
+static void convert_joystick_state(JOYSTICK_INFO *old_info, ALLEGRO_JOYSTATE *state)
 {
    int axis, i, j;
 
@@ -273,7 +273,7 @@ static void convert_joystick_state(JOYSTICK_INFO *old_info, AL_JOYSTATE *state)
  */
 int poll_joystick()
 {
-   AL_JOYSTATE state;
+   ALLEGRO_JOYSTATE state;
    int c;
 
    if (!_joystick_installed)

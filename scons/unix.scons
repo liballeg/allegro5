@@ -189,6 +189,7 @@ else:
     platform["ALLEGRO_XWINDOWS_WITH_XF86DGA2"] = [config.CheckLib("Xxf86dga", "XDGAQueryExtension"), "Define if DGA version 2.0 or newer is supported"]
     platform["ALLEGRO_XWINDOWS_WITH_XF86VIDMODE"] = [config.CheckLib("Xxf86vm", "XF86VidModeQueryExtension"), "Define if XF86VidMode extension is supported."]
     platform["ALLEGRO_XWINDOWS_WITH_XPM"] = [config.CheckLib("Xpm", "XpmCreatePixmapFromData"), "Define if xpm bitmap support is available."]
+    platform["ALLEGRO_GLX"] = [config.CheckForGLX(), "Define to 1 if GLX is available."]
     platform["ALLEGRO_HAVE_DIRENT_H"] = [config.CheckCHeader("dirent.h"), "Define to 1 if you have the <dirent.h> header file, and it defines \"DIR\". "]
     platform["ALLEGRO_HAVE_DLFCN_H"] = [config.CheckCHeader("dlfcn.h"), "Define to 1 if you have the <dlfcn.h> header file."]
     platform["ALLEGRO_HAVE_FCNTL_H"] = [config.CheckCHeader("fcntl.h"), "Define to 1 if you have the <fcntl.h> header file."]
@@ -269,11 +270,15 @@ import SCons.Tool
 
 AssemblerAction = Action( 'gcc -x assembler-with-cpp $CCFLAGS $_CPPINCFLAGS $SOURCES -c -o $TARGET' )
 
-static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+static_obj, shared_obj = SCons.Tool.createObjBuilders(context.getLibraryEnv())
 shared_obj.add_action('.s', AssemblerAction )
 shared_obj.add_emitter('.s', SCons.Defaults.SharedObjectEmitter )
+static_obj.add_action( '.s', AssemblerAction )
+static_obj.add_emitter( '.s', SCons.Defaults.StaticObjectEmitter )
+SourceFileScanner.add_scanner('.s', SCons.Scanner.C.CScanner() )
 
-flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
+# "-O2"
+flags = ["-g", "-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
 includes = ["include", "include/allegro", "."]
 defines = ["ALLEGRO_LIB_BUILD", "ALLEGRO_SRC"]
 
@@ -281,72 +286,40 @@ env.Append(CCFLAGS = flags)
 env.Append(CPPDEFINES = defines)
 env.Append(CPPPATH = includes)
 
-context.addFiles('c/', Split("""
-cblit16.c
-cblit24.c
-cblit32.c
-cblit8.c
-ccpu.c
-ccsprite.c
-cgfx15.c
-cgfx16.c
-cgfx24.c
-cgfx32.c
-cgfx8.c
-cmisc.c
-cscan15.c
-cscan16.c
-cscan24.c
-cscan32.c
-cscan8.c
-cspr15.c
-cspr16.c
-cspr24.c
-cspr32.c
-cspr8.c
-cstretch.c
-czscan15.c
-czscan16.c
-czscan24.c
-czscan32.c
-czscan8.c
-""" ));
+# This is where the source for the unix files comes from
+context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
+unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 
-context.addFiles("unix", Split("""
-jack.c
-sgial.c
-udjgpp.c
-udrvlist.c
-udummy.c
-ufdwatch.c
-ufile.c
-ugfxdrv.c
-ujoydrv.c
-ukeybd.c
-umain.c
-umodules.c
-umouse.c
-uoss.c
-uossmidi.c
-usnddrv.c
-usystem.c
-uthreads.c
-utime.c
-utimernu.c
-uxthread.c
-"""));
+# Build asmdef. In the future asmdef.inc can probably be built directly by scons
+# instead of building the asmdef program.
+asmdefEnv = Environment()
+asmdef_inc = '#obj/unix/asmdef.inc'
+asmdefEnv.Append(CPPPATH = '#include')
+asmdefEnv.BuildDir('#build','#src')
+asmdef = asmdefEnv.Program('#build/asmdef', '#build/i386/asmdef.c')
+asmdefEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
+
+# TODO: How does the modules stuff work? Shouldn't they still be linked in?
+# unixfiles.remove("src/unix/alsa5.c")
+# unixfiles.remove("src/unix/alsa9.c")
+# unixfiles.remove("src/unix/alsamidi.c")
+# unixfiles.remove("src/unix/uesd.c")
+context.add_files(unixfiles)
 
 def supportModules():
     return True
 
 modules = []
 
+# These should probably also pass -DALLEGRO_MODULE or something
 if platform["ALLEGRO_WITH_ESDDIGI"][0]:
     def buildESD(menv,appendDir,buildDir,libDir):
         esdEnv = menv.Copy()
         esdEnv.ParseConfig('esd-config --libs')
+        esdBuildDir = buildDir + '/modules'
+        esdEnv.BuildDir(esdBuildDir, '.')
         sources = ["uesd.c"]
-        lib = esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(buildDir + "/unix/", sources))
+        lib = esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(esdBuildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildESD)
@@ -355,8 +328,10 @@ if platform["ALLEGRO_WITH_ALSADIGI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
+        alsaBuildDir = buildDir + '/modules'
+        alsaEnv.BuildDir(alsaBuildDir, '.')
         sources = ["alsa5.c", "alsa9.c"]
-        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(buildDir + "/unix/", sources))
+        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(alsaBuildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildAlsa)
@@ -365,8 +340,10 @@ if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
+        alsaBuildDir = buildDir + '/modules'
+        alsaEnv.BuildDir(alsaBuildDir, '.')
         sources = ["alsamidi.c"]
-        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(buildDir + "/unix/", sources))
+        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(alsaBuildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildAlsa)
@@ -379,22 +356,9 @@ if platform["ALLEGRO_LINUX_SVGALIB"][0]:
     def buildSVGA(menv,appendDir,buildDir,libDir):
         vgaEnv = menv.Copy()
         vgaEnv.Append(LIBS = "vga")
-
-        # asmdef environment doesnt need extra libraries
-        asmdefEnv = menv.Copy()
-        asmdefEnv.Replace(LIBS = [])
-        asmdef_inc = 'obj/unix/asmdef.inc'
-        asmdef = asmdefEnv.Program(buildDir + '/asmdef', buildDir + '/i386/asmdef.c')
-    # Produce asmdef.inc from asmdef
-        vgaEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
         sources = ["svgalib.c"]
-
-    # svgalibs.s must explicitly depend on asmdef.inc. we can
-    # set that up by getting the resulting object file and set the
-    # dependancy with Depends(target,source)
-        assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/linux/",['svgalibs.s']))
-        vgaEnv.Depends(assembler_object,asmdef_inc)
-        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/linux/", ['svgalib.c']) + [assembler_object])
+        assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/src/linux/",['svgalibs.s']))
+        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/src/linux/", sources) + [assembler_object])
         modules.append(lib)
         return lib
     context.addExtra(buildSVGA)
@@ -404,7 +368,7 @@ if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
         artsEnv = menv.Copy()
         artsEnv.ParseConfig("artsc-config --libs")
         sources = ["arts.c"]
-        lib = artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",appendDir(buildDir + "/unix/", sources))
+        lib = artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",appendDir(buildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildAlsa)
@@ -412,7 +376,7 @@ if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
 if platform["ALLEGRO_LINUX_FBCON"][0]:
     def buildFBCon(menv,appendDir,buildDir,libDir):
         sources = ["fbcon.c"]
-        lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/linux/", sources))
+        lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/modules/src/linux/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildFBCon)
@@ -421,14 +385,7 @@ def haveXWindows():
     return platform["ALLEGRO_WITH_XWINDOWS"][0]
 
 if haveXWindows():
-    context.addFiles("x/", Split("""
-    xgfxdrv.c
-    xkeyboard.c
-    xmousenu.c
-    xsystem.c
-    xvtable.c
-    xwin.c
-    """));
+    context.add_files(context.cmake["ALLEGRO_SRC_X_FILES"])
 
     def tools(tenv,appendDir,buildDir,libDir):
         tools = []
@@ -436,7 +393,7 @@ if haveXWindows():
             tool = tenv.Program("tools/" + name, appendDir(buildDir + "/tools/", files))
             Alias(name, tool)
             tools.append(tool)
-        addTool("x11/xf2pcx", ["x11/xf2pcx.c"])
+        # addTool("x11/xf2pcx", ["x11/xf2pcx.c"])
         Alias("tools", tools)
         return tools
 

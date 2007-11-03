@@ -539,6 +539,7 @@ static void mono_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, B
 {
     int ch = 0;
     AL_CONST char* p = text;
+    int orig_x = x;
 
     acquire_bitmap(bmp);
 
@@ -547,6 +548,12 @@ static void mono_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, B
     }
 
     release_bitmap(bmp);
+
+	/*
+    if (bmp->needs_upload) {
+       bmp->display->vt->upload_compat_screen(bmp, orig_x, y, text_length(f, text), text_height(f));
+    }
+    */
 }
 
 
@@ -994,6 +1001,7 @@ static void color_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, 
 {
     AL_CONST char* p = text;
     int ch = 0;
+    int orig_x = x;
 
     acquire_bitmap(bmp);
 
@@ -1007,6 +1015,12 @@ static void color_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, 
     }
 
     release_bitmap(bmp);
+   
+   /*
+    if (bmp->needs_upload) {
+       bmp->display->vt->upload_compat_screen(bmp, orig_x, y, text_length(f, text), text_height(f));
+    }
+    */
 }
 
 

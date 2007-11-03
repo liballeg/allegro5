@@ -1,5 +1,7 @@
 set(ALLEGRO_SRC_FILES
     src/allegro.c
+    src/bitmap_new.c
+    src/blenders.c
     src/blit.c
     src/bmp.c
     src/clip3d.c
@@ -7,12 +9,14 @@ set(ALLEGRO_SRC_FILES
     src/colblend.c
     src/color.c
     src/config.c
+    src/convert.c
     src/datafile.c
     src/dataregi.c
     src/digmid.c
+    src/display.c
+    src/display_new.c
     src/dither.c
     src/dispsw.c
-    src/display.c
     src/dtor.c
     src/drvlist.c
     src/events.c
@@ -41,12 +45,15 @@ set(ALLEGRO_SRC_FILES
     src/lzss.c
     src/math.c
     src/math3d.c
+    src/memblit.c
+    src/memdraw.c
     src/memory.c
     src/midi.c
     src/mixer.c
     src/modesel.c
     src/mousenu.c
     src/pcx.c
+    src/pixels.c
     src/poly3d.c
     src/polygon.c
     src/quantize.c
@@ -60,8 +67,10 @@ set(ALLEGRO_SRC_FILES
     src/sound.c
     src/spline.c
     src/stream.c
+    src/system_new.c
     src/text.c
     src/tga.c
+    src/tls.c
     src/unicode.c
     src/vtable.c
     src/vtable15.c
@@ -69,12 +78,11 @@ set(ALLEGRO_SRC_FILES
     src/vtable24.c
     src/vtable32.c
     src/vtable8.c
-    src/compat/coblit.c
-    src/compat/cogfx.c
     src/compat/cojoy.c
     src/compat/cokeybd.c
     src/compat/comouse.c
     src/compat/cotimer.c
+    src/misc/colconv.c
     src/misc/vector.c
     )
 
@@ -221,8 +229,14 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/wtimernu.c
     src/win/wwnd.c
     src/win/wxthread.c
-    src/misc/colconv.c
+    src/win/wnewsys.c
+    src/win/wnewwin.c
     )
+
+set(ALLEGRO_SRC_D3D_FILES
+	src/win/d3d_bmp.c
+	src/win/d3d_disp.c
+	)
 
 set(ALLEGRO_SRC_BEOS_FILES
     src/beos/baccel.cpp
@@ -322,9 +336,13 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xvtable.c
     src/x/xwin.c
     src/x/xdga2.c
-    src/x/xdga2s.s
-    src/x/xwins.s
-    src/misc/colconv.c
+    src/xglx/xbitmap.c
+    src/xglx/xcompat.c
+    src/xglx/xdisplay.c
+    src/xglx/xsystem.c
+    src/xglx/xdraw.c
+    src/xglx/xfullscreen.c
+    src/xglx/xglx_config.c
     )
     
 set(ALLEGRO_SRC_QNX_FILES
@@ -433,13 +451,15 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro/alinline.h
     include/allegro/altime.h
     include/allegro/base.h
+    include/allegro/bitmap_new.h
     include/allegro/color.h
+    include/allegro/color_new.h
     include/allegro/compiled.h
     include/allegro/config.h
     include/allegro/datafile.h
     include/allegro/debug.h
     include/allegro/digi.h
-    include/allegro/display.h
+    include/allegro/display_new.h
     include/allegro/draw.h
     include/allegro/events.h
     include/allegro/file.h
@@ -465,6 +485,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro/sound.h
     include/allegro/stream.h
     include/allegro/system.h
+    include/allegro/system_new.h
     include/allegro/text.h
     include/allegro/timer.h
     include/allegro/unicode.h
@@ -486,6 +507,17 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro/internal/aintern.h
+    include/allegro/internal/aintern_bitmap.h
+    include/allegro/internal/aintern_color.h
+    include/allegro/internal/aintern_display.h
+    include/allegro/internal/aintern_dtor.h
+    include/allegro/internal/aintern_events.h
+    include/allegro/internal/aintern_joystick.h
+    include/allegro/internal/aintern_keyboard.h
+    include/allegro/internal/aintern_mouse.h
+    include/allegro/internal/aintern_system.h
+    include/allegro/internal/aintern_thread.h
+    include/allegro/internal/aintern_vector.h
     include/allegro/internal/aintvga.h
     include/allegro/internal/alconfig.h
     )
@@ -499,6 +531,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro/platform/aintqnx.h
     include/allegro/platform/aintunix.h
     include/allegro/platform/aintwin.h
+    include/allegro/platform/aintwthr.h
     include/allegro/platform/al386gcc.h
     include/allegro/platform/al386vc.h
     include/allegro/platform/al386wat.h
@@ -526,5 +559,8 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
 
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
     include/allegro/platform/alplatf.h
-    include/allegro/platform/alunixac.h
     )
+
+if(UNIX)
+   LIST(APPEND ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED include/allegro/platform/alunixac.h)
+endif(UNIX)

@@ -6,7 +6,7 @@
 AL_BEGIN_EXTERN_C
 
 
-typedef struct AL_JOYSTICK_DRIVER
+typedef struct ALLEGRO_JOYSTICK_DRIVER
 {
    int  joydrv_id;
    const char *joydrv_name;
@@ -15,10 +15,10 @@ typedef struct AL_JOYSTICK_DRIVER
    AL_METHOD(bool, init_joystick, (void));
    AL_METHOD(void, exit_joystick, (void));
    AL_METHOD(int, num_joysticks, (void));
-   AL_METHOD(AL_JOYSTICK*, get_joystick, (int joyn));
-   AL_METHOD(void, release_joystick, (AL_JOYSTICK*));
-   AL_METHOD(void, get_joystick_state, (AL_JOYSTICK*, AL_JOYSTATE *ret_state));
-} AL_JOYSTICK_DRIVER;
+   AL_METHOD(ALLEGRO_JOYSTICK*, get_joystick, (int joyn));
+   AL_METHOD(void, release_joystick, (ALLEGRO_JOYSTICK*));
+   AL_METHOD(void, get_joystick_state, (ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTATE *ret_state));
+} ALLEGRO_JOYSTICK_DRIVER;
 
 
 AL_ARRAY(_DRIVER_INFO, _al_joystick_driver_list);
@@ -44,7 +44,7 @@ typedef struct _AL_JOYSTICK_AXIS_INFO
 /* information about one or more axis (a slider or directional control) */
 typedef struct _AL_JOYSTICK_STICK_INFO
 {
-   AL_JOYFLAGS flags;
+   ALLEGRO_JOYFLAGS flags;
    int num_axes;
    _AL_JOYSTICK_AXIS_INFO axis[_AL_MAX_JOYSTICK_AXES];
    const char *name;
@@ -68,9 +68,9 @@ typedef struct _AL_JOYSTICK_INFO
 } _AL_JOYSTICK_INFO;
 
 
-struct AL_JOYSTICK
+struct ALLEGRO_JOYSTICK
 {
-   AL_EVENT_SOURCE es;
+   ALLEGRO_EVENT_SOURCE es;
    _AL_JOYSTICK_INFO info;
    int num;
 };

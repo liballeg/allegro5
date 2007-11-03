@@ -46,12 +46,12 @@ AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nS
    #define NO_STRICT
 
    #ifdef __cplusplus
-      extern "C" int __stdcall WinMain(void *hInst, void *hPrev, char *Cmd, int nShow);
+      extern "C" int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *Cmd, int nShow);
    #endif
 
    #define END_OF_MAIN()                                                     \
                                                                              \
-      int __stdcall WinMain(void *hInst, void *hPrev, char *Cmd, int nShow)  \
+      int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *Cmd, int nShow)  \
       {                                                                      \
          return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);   \
       }
@@ -86,6 +86,10 @@ AL_VAR(SYSTEM_DRIVER, system_directx);
 #define GFX_DIRECTX_WIN          AL_ID('D','X','W','N')
 #define GFX_DIRECTX_OVL          AL_ID('D','X','O','V')
 #define GFX_GDI                  AL_ID('G','D','I','B')
+/* Direct3D driver */
+#define GFX_DIRECT3D_WINDOWED    AL_ID('D','3','D','W')
+#define GFX_DIRECT3D_FULLSCREEN  AL_ID('D','3','D','F')
+#define GFX_DIRECT3D             GFX_DIRECT3D_FULLSCREEN
 
 AL_VAR(GFX_DRIVER, gfx_directx_accel);
 AL_VAR(GFX_DRIVER, gfx_directx_safe);
@@ -93,6 +97,7 @@ AL_VAR(GFX_DRIVER, gfx_directx_soft);
 AL_VAR(GFX_DRIVER, gfx_directx_win);
 AL_VAR(GFX_DRIVER, gfx_directx_ovl);
 AL_VAR(GFX_DRIVER, gfx_gdi);
+AL_VAR(GFX_DRIVER, _al_d3d_dummy_gfx_driver);
 
 #define GFX_DRIVER_DIRECTX                                              \
    {  GFX_DIRECTX_ACCEL,   &gfx_directx_accel,     TRUE  },             \
@@ -121,7 +126,8 @@ AL_VAR(GFX_DRIVER, gfx_gdi);
 /*******************************************/
 #define AL_JOY_TYPE_DIRECTX      AL_ID('D','X',' ',' ')
 
-AL_VAR(struct AL_JOYSTICK_DRIVER, _al_joydrv_directx);
+AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_joydrv_directx);
 
 #define _AL_JOYSTICK_DRIVER_DIRECTX                                     \
    { AL_JOY_TYPE_DIRECTX,  &_al_joydrv_directx,    TRUE  },
+

@@ -29,7 +29,7 @@
 
 
 /* the active keyboard driver */
-static AL_KEYBOARD_DRIVER *new_keyboard_driver = NULL;
+static ALLEGRO_KEYBOARD_DRIVER *new_keyboard_driver = NULL;
 
 /* mode flags */
 /* TODO: use the config system for these */
@@ -44,7 +44,7 @@ bool _al_key_led_flag = true;
  * provide their own implementation though, especially if they use
  * positional mapping.
  */
-const char *_al_keyboard_common_names[AL_KEY_MAX] =
+const char *_al_keyboard_common_names[ALLEGRO_KEY_MAX] =
 {
    "(none)",     "A",          "B",          "C",
    "D",          "E",          "F",          "G",
@@ -149,11 +149,11 @@ void al_uninstall_keyboard(void)
  *  Return a pointer to an object representing the keyboard, that can
  *  be used as an event source.
  */
-AL_KEYBOARD *al_get_keyboard(void)
+ALLEGRO_KEYBOARD *al_get_keyboard(void)
 {
    ASSERT(new_keyboard_driver);
    {
-      AL_KEYBOARD *kbd = new_keyboard_driver->get_keyboard();
+      ALLEGRO_KEYBOARD *kbd = new_keyboard_driver->get_keyboard();
       ASSERT(kbd);
 
       return kbd;
@@ -187,7 +187,7 @@ const char *al_keycode_to_name(int keycode)
    const char *name = NULL;
 
    ASSERT(new_keyboard_driver);
-   ASSERT((keycode >= 0) && (keycode < AL_KEY_MAX));
+   ASSERT((keycode >= 0) && (keycode < ALLEGRO_KEY_MAX));
 
    if (new_keyboard_driver->keycode_to_name)
       name = new_keyboard_driver->keycode_to_name(keycode);
@@ -206,7 +206,7 @@ const char *al_keycode_to_name(int keycode)
  *  Save the state of the keyboard specified at the time the function
  *  is called into the structure pointed to by RET_STATE.
  */
-void al_get_keyboard_state(AL_KBDSTATE *ret_state)
+void al_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state)
 {
    ASSERT(new_keyboard_driver);
    ASSERT(ret_state);
@@ -220,7 +220,7 @@ void al_get_keyboard_state(AL_KBDSTATE *ret_state)
  *  Return true if the key specified was held down in the state
  *  specified.
  */
-bool al_key_down(const AL_KBDSTATE *state, int keycode)
+bool al_key_down(const ALLEGRO_KBDSTATE *state, int keycode)
 {
    return _AL_KBDSTATE_KEY_DOWN(*state, keycode);
 }

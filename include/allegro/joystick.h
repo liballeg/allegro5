@@ -32,16 +32,16 @@ AL_BEGIN_EXTERN_C
 
 
 
-/* Type: AL_JOYSTICK
+/* Type: ALLEGRO_JOYSTICK
  *
  *  This is an abstract data type representing a physical joystick.  Joystick
- *  objects are also event sources so can be casted to AL_EVENT_SOURCE*.
+ *  objects are also event sources so can be casted to ALLEGRO_EVENT_SOURCE*.
  */
-typedef struct AL_JOYSTICK AL_JOYSTICK;
+typedef struct ALLEGRO_JOYSTICK ALLEGRO_JOYSTICK;
 
 
 
-/* Type: AL_JOYSTATE
+/* Type: ALLEGRO_JOYSTATE
  *
  * This is a structure that is used to hold a "snapshot" of a
  * joystick's axes and buttons at a particular instant.
@@ -52,32 +52,32 @@ typedef struct AL_JOYSTICK AL_JOYSTICK;
  * > } stick[num_sticks];
  * > int button[num_buttons];		    // 0 to 32767
  */
-typedef struct AL_JOYSTATE
+typedef struct ALLEGRO_JOYSTATE
 {
    struct {
       float axis[_AL_MAX_JOYSTICK_AXES];        /* -1.0 to 1.0 */
    } stick[_AL_MAX_JOYSTICK_STICKS];
    int button[_AL_MAX_JOYSTICK_BUTTONS];        /* 0 to 32767 */
-} AL_JOYSTATE;
+} ALLEGRO_JOYSTATE;
 
 
 
 /* Flags for al_joystick_stick_flags */
-typedef int AL_JOYFLAGS;
+typedef int ALLEGRO_JOYFLAGS;
 
-/* Enum: AL_JOYFLAGS
+/* Enum: ALLEGRO_JOYFLAGS
  *
  * Joystick flags.
  *
- * AL_JOYFLAG_DIGITAL  - the stick provides digital input
- * AL_JOYFLAG_ANALOGUE - the stick provides analogue input
+ * ALLEGRO_JOYFLAG_DIGITAL  - the stick provides digital input
+ * ALLEGRO_JOYFLAG_ANALOGUE - the stick provides analogue input
  *
  * (this enum is a holdover from the old API and may be removed)
  */
 enum
 {
-   AL_JOYFLAG_DIGITAL  = 0x01,
-   AL_JOYFLAG_ANALOGUE = 0x02
+   ALLEGRO_JOYFLAG_DIGITAL  = 0x01,
+   ALLEGRO_JOYFLAG_ANALOGUE = 0x02
 };
 
 
@@ -86,21 +86,21 @@ AL_FUNC(bool,           al_install_joystick,    (void));
 AL_FUNC(void,           al_uninstall_joystick,  (void));
 
 AL_FUNC(int,            al_num_joysticks,       (void));
-AL_FUNC(AL_JOYSTICK*,   al_get_joystick,        (int joyn));
-AL_FUNC(void,           al_release_joystick,    (AL_JOYSTICK*));
-AL_FUNC(const char*,    al_joystick_name,       (AL_JOYSTICK*));
+AL_FUNC(ALLEGRO_JOYSTICK*,   al_get_joystick,        (int joyn));
+AL_FUNC(void,           al_release_joystick,    (ALLEGRO_JOYSTICK*));
+AL_FUNC(const char*,    al_joystick_name,       (ALLEGRO_JOYSTICK*));
 
-AL_FUNC(int,            al_joystick_num_sticks, (const AL_JOYSTICK*));
-AL_FUNC(AL_JOYFLAGS,    al_joystick_stick_flags,(const AL_JOYSTICK*, int stick)); /* junk? */
-AL_FUNC(const char*,    al_joystick_stick_name, (const AL_JOYSTICK*, int stick));
+AL_FUNC(int,            al_joystick_num_sticks, (const ALLEGRO_JOYSTICK*));
+AL_FUNC(ALLEGRO_JOYFLAGS,    al_joystick_stick_flags,(const ALLEGRO_JOYSTICK*, int stick)); /* junk? */
+AL_FUNC(const char*,    al_joystick_stick_name, (const ALLEGRO_JOYSTICK*, int stick));
 
-AL_FUNC(int,            al_joystick_num_axes,   (const AL_JOYSTICK*, int stick));
-AL_FUNC(const char*,    al_joystick_axis_name,  (const AL_JOYSTICK*, int stick, int axis));
+AL_FUNC(int,            al_joystick_num_axes,   (const ALLEGRO_JOYSTICK*, int stick));
+AL_FUNC(const char*,    al_joystick_axis_name,  (const ALLEGRO_JOYSTICK*, int stick, int axis));
 
-AL_FUNC(int,            al_joystick_num_buttons,(const AL_JOYSTICK*));
-AL_FUNC(const char*,    al_joystick_button_name,(const AL_JOYSTICK*, int buttonn));
+AL_FUNC(int,            al_joystick_num_buttons,(const ALLEGRO_JOYSTICK*));
+AL_FUNC(const char*,    al_joystick_button_name,(const ALLEGRO_JOYSTICK*, int buttonn));
 
-AL_FUNC(void,           al_get_joystick_state,  (AL_JOYSTICK*, AL_JOYSTATE *ret_state));
+AL_FUNC(void,           al_get_joystick_state,  (ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTATE *ret_state));
 
 
 

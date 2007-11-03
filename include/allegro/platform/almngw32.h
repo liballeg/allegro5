@@ -95,3 +95,4 @@
 #define ALLEGRO_EXTRA_HEADER     "allegro/platform/alwin.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintwin.h"
 #define ALLEGRO_ASMCAPA_HEADER   "obj/mingw32/asmcapa.h"
+#define ALLEGRO_INTERNAL_THREAD_HEADER "allegro/platform/aintwthr.h"

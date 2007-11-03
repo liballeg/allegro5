@@ -76,3 +76,4 @@ char *strdup(const char *);
 
 #define ALLEGRO_EXTRA_HEADER     "allegro/platform/almac.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintmac.h"
+#define ALLEGRO_INTERNAL_THREAD_HEADER "allegro/platform/aintuthr.h"

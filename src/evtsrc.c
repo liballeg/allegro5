@@ -35,11 +35,11 @@
 /* Internal function: _al_event_source_init
  *  Initialise an event source structure.
  */
-void _al_event_source_init(AL_EVENT_SOURCE *this)
+void _al_event_source_init(ALLEGRO_EVENT_SOURCE *this)
 {
    _AL_MARK_MUTEX_UNINITED(this->mutex);
    _al_mutex_init(&this->mutex);
-   _al_vector_init(&this->queues, sizeof(AL_EVENT_QUEUE *));
+   _al_vector_init(&this->queues, sizeof(ALLEGRO_EVENT_QUEUE *));
    this->all_events = NULL;
    this->free_events = NULL;
 }
@@ -51,11 +51,11 @@ void _al_event_source_init(AL_EVENT_SOURCE *this)
  *  automatically unregisters the event source from all the event
  *  queues it is currently registered with.
  */
-void _al_event_source_free(AL_EVENT_SOURCE *this)
+void _al_event_source_free(ALLEGRO_EVENT_SOURCE *this)
 {
    /* Unregister from all queues. */
    while (!_al_vector_is_empty(&this->queues)) {
-      AL_EVENT_QUEUE **slot = _al_vector_ref_back(&this->queues);
+      ALLEGRO_EVENT_QUEUE **slot = _al_vector_ref_back(&this->queues);
       al_unregister_event_source(*slot, this);
    }
 
@@ -63,7 +63,7 @@ void _al_event_source_free(AL_EVENT_SOURCE *this)
 
    /* Free all allocated event structures.  */
    {
-      AL_EVENT *event, *next_event;
+      ALLEGRO_EVENT *event, *next_event;
 
       for (event = this->all_events; event != NULL; event = next_event) {
          ASSERT(event->any._refcount == 0);
@@ -80,7 +80,7 @@ void _al_event_source_free(AL_EVENT_SOURCE *this)
 /* Internal function: _al_event_source_lock
  *  Lock the event source.  See below for when you should call this function.
  */
-void _al_event_source_lock(AL_EVENT_SOURCE *this)
+void _al_event_source_lock(ALLEGRO_EVENT_SOURCE *this)
 {
    _al_mutex_lock(&this->mutex);
 }
@@ -90,7 +90,7 @@ void _al_event_source_lock(AL_EVENT_SOURCE *this)
 /* Internal function: _al_event_source_unlock
  *  Unlock the event source.
  */
-void _al_event_source_unlock(AL_EVENT_SOURCE *this)
+void _al_event_source_unlock(ALLEGRO_EVENT_SOURCE *this)
 {
    _al_mutex_unlock(&this->mutex);
 }
@@ -100,9 +100,9 @@ void _al_event_source_unlock(AL_EVENT_SOURCE *this)
 /* make_new_event:
  *  Helper to allocate event structures for the event source.
  */
-static AL_EVENT *make_new_event(AL_EVENT_SOURCE *this)
+static ALLEGRO_EVENT *make_new_event(ALLEGRO_EVENT_SOURCE *this)
 {
-   AL_EVENT *ret;
+   ALLEGRO_EVENT *ret;
 
    ret = _AL_MALLOC(sizeof *ret);
    ASSERT(ret);
@@ -124,12 +124,12 @@ static AL_EVENT *make_new_event(AL_EVENT_SOURCE *this)
  *  event source a chance to remember which queues it is registered
  *  to.
  */
-void _al_event_source_on_registration_to_queue(AL_EVENT_SOURCE *this, AL_EVENT_QUEUE *queue)
+void _al_event_source_on_registration_to_queue(ALLEGRO_EVENT_SOURCE *this, ALLEGRO_EVENT_QUEUE *queue)
 {
    _al_event_source_lock(this);
    {
       /* Add the queue to the source's list.  */
-      AL_EVENT_QUEUE **slot = _al_vector_alloc_back(&this->queues);
+      ALLEGRO_EVENT_QUEUE **slot = _al_vector_alloc_back(&this->queues);
       *slot = queue;
    }
    _al_event_source_unlock(this);
@@ -141,7 +141,7 @@ void _al_event_source_on_registration_to_queue(AL_EVENT_SOURCE *this, AL_EVENT_Q
  *  This function is called by al_unregister_event_source() when an
  *  event source is unregistered from a queue.
  */
-void _al_event_source_on_unregistration_from_queue(AL_EVENT_SOURCE *this, AL_EVENT_QUEUE *queue)
+void _al_event_source_on_unregistration_from_queue(ALLEGRO_EVENT_SOURCE *this, ALLEGRO_EVENT_QUEUE *queue)
 {
    _al_event_source_lock(this);
    {
@@ -164,7 +164,7 @@ void _al_event_source_on_unregistration_from_queue(AL_EVENT_SOURCE *this, AL_EVE
  *
  *  [runs in background threads]
  */
-bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE *this)
+bool _al_event_source_needs_to_generate_event(ALLEGRO_EVENT_SOURCE *this)
 {
    return !_al_vector_is_empty(&this->queues);
 }
@@ -181,9 +181,9 @@ bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE *this)
  *
  *  [runs in background threads]
  */
-AL_EVENT *_al_event_source_get_unused_event(AL_EVENT_SOURCE *this)
+ALLEGRO_EVENT *_al_event_source_get_unused_event(ALLEGRO_EVENT_SOURCE *this)
 {
-   AL_EVENT *event;
+   ALLEGRO_EVENT *event;
 
    event = this->free_events;
    if (event) {
@@ -211,7 +211,7 @@ AL_EVENT *_al_event_source_get_unused_event(AL_EVENT_SOURCE *this)
  *
  *  [runs in background threads]
  */
-void _al_event_source_emit_event(AL_EVENT_SOURCE *this, AL_EVENT *event)
+void _al_event_source_emit_event(ALLEGRO_EVENT_SOURCE *this, ALLEGRO_EVENT *event)
 {
    event->any.source = this;
    ASSERT(event->any._refcount == 0);
@@ -222,7 +222,7 @@ void _al_event_source_emit_event(AL_EVENT_SOURCE *this, AL_EVENT *event)
    {
       size_t num_queues = _al_vector_size(&this->queues);
       unsigned int i;
-      AL_EVENT_QUEUE **slot;
+      ALLEGRO_EVENT_QUEUE **slot;
 
       for (i = 0; i < num_queues; i++) {
          slot = _al_vector_ref(&this->queues, i);
@@ -259,11 +259,11 @@ void _al_event_source_emit_event(AL_EVENT_SOURCE *this, AL_EVENT *event)
  *  reaches zero, the event structure is put on a 'free list', where
  *  it can be reused for later events.
  */
-void _al_release_event(AL_EVENT *event)
+void _al_release_event(ALLEGRO_EVENT *event)
 {
    ASSERT(event);
    {
-      AL_EVENT_SOURCE *source = event->any.source;
+      ALLEGRO_EVENT_SOURCE *source = event->any.source;
 
       _al_event_source_lock(source);
       {

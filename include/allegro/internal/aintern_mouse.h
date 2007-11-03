@@ -6,7 +6,7 @@
 AL_BEGIN_EXTERN_C
 
 
-typedef struct AL_MOUSE_DRIVER
+typedef struct ALLEGRO_MOUSE_DRIVER
 {
    int  msedrv_id;
    const char *msedrv_name;
@@ -14,22 +14,22 @@ typedef struct AL_MOUSE_DRIVER
    const char *msedrv_ascii_name;
    AL_METHOD(bool, init_mouse, (void));
    AL_METHOD(void, exit_mouse, (void));
-   AL_METHOD(AL_MOUSE*, get_mouse, (void));
+   AL_METHOD(ALLEGRO_MOUSE*, get_mouse, (void));
    AL_METHOD(unsigned int, get_mouse_num_buttons, (void));
    AL_METHOD(unsigned int, get_mouse_num_axes, (void));
    AL_METHOD(bool, set_mouse_xy, (int x, int y));
    AL_METHOD(bool, set_mouse_axis, (int which, int value));
    AL_METHOD(bool, set_mouse_range, (int x1, int y1, int x2, int y2));
-   AL_METHOD(void, get_mouse_state, (AL_MSESTATE *ret_state));
-} AL_MOUSE_DRIVER;
+   AL_METHOD(void, get_mouse_state, (ALLEGRO_MSESTATE *ret_state));
+} ALLEGRO_MOUSE_DRIVER;
 
 
 AL_ARRAY(_DRIVER_INFO, _al_mouse_driver_list);
 
 
-struct AL_MOUSE
+struct ALLEGRO_MOUSE
 {
-   AL_EVENT_SOURCE es;
+   ALLEGRO_EVENT_SOURCE es;
 };
 
 

@@ -489,15 +489,10 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
 
 
 
-/* al_blit_scaled:
+/* _al_stretch_blit:
  *  Bitmap scaling function.
  */
-void al_blit_scaled(int method, struct BITMAP *s, int s_x, int s_y, int s_w, int s_h, struct BITMAP *d, int d_x, int d_y, int d_w, int d_h)
+void _al_stretch_blit(struct BITMAP *s, int s_x, int s_y, int s_w, int s_h, struct BITMAP *d, int d_x, int d_y, int d_w, int d_h, bool mask)
 {
-   if (method == AL_MASK_SOURCE) {
-      do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, 1);
-   }
-   else {
-      do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, 0);
-   }
+   do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, mask);
 }

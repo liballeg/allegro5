@@ -4,7 +4,7 @@
 AL_BEGIN_EXTERN_C
 
 
-typedef struct AL_KEYBOARD_DRIVER
+typedef struct ALLEGRO_KEYBOARD_DRIVER
 {
    int  keydrv_id;
    const char *keydrv_name;
@@ -12,11 +12,11 @@ typedef struct AL_KEYBOARD_DRIVER
    const char *keydrv_ascii_name;
    AL_METHOD(bool, init_keyboard, (void));
    AL_METHOD(void, exit_keyboard, (void));
-   AL_METHOD(AL_KEYBOARD*, get_keyboard, (void));
+   AL_METHOD(ALLEGRO_KEYBOARD*, get_keyboard, (void));
    AL_METHOD(bool, set_keyboard_leds, (int leds));
    AL_METHOD(const char *, keycode_to_name, (int keycode));
-   AL_METHOD(void, get_keyboard_state, (AL_KBDSTATE *ret_state));
-} AL_KEYBOARD_DRIVER;
+   AL_METHOD(void, get_keyboard_state, (ALLEGRO_KBDSTATE *ret_state));
+} ALLEGRO_KEYBOARD_DRIVER;
 
 
 AL_ARRAY(_DRIVER_INFO, _al_keyboard_driver_list);
@@ -24,9 +24,9 @@ AL_ARRAY(_DRIVER_INFO, _al_keyboard_driver_list);
 AL_ARRAY(const char *, _al_keyboard_common_names);
 
 
-struct AL_KEYBOARD
+struct ALLEGRO_KEYBOARD
 {
-   AL_EVENT_SOURCE es;
+   ALLEGRO_EVENT_SOURCE es;
 };
 
 

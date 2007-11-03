@@ -143,7 +143,7 @@ static int mouse_polled = FALSE;       /* are we in polling mode? */
 
 static _AL_THREAD comouse_thread;
 static _AL_MUTEX comouse_mutex = _AL_MUTEX_UNINITED;
-static AL_EVENT_QUEUE *comouse_event_queue;
+static ALLEGRO_EVENT_QUEUE *comouse_event_queue;
 static bool comouse_thread_call_mouse_move = false;
 
 static int comouse_mickeyx = 0;
@@ -506,7 +506,7 @@ void set_mouse_sprite_focus(int x, int y)
  *  drawing something, the SVGA bank switching code will become confused and
  *  will produce garbage all over the screen.
  */
-static AL_MOUSE_CURSOR *hw_cursor; /* XXX */
+static ALLEGRO_MOUSE_CURSOR *hw_cursor; /* XXX */
 void show_mouse(BITMAP *bmp)
 {
    if (!mouse_driver)
@@ -564,7 +564,7 @@ void show_mouse(BITMAP *bmp)
             if (gfx_driver->set_mouse_sprite(mouse_sprite, mouse_x_focus, mouse_y_focus) == 0)
                got_hw_cursor = TRUE;
          */
-         hw_cursor = al_create_mouse_cursor(mouse_sprite, mouse_x_focus, mouse_y_focus);
+         hw_cursor = al_create_mouse_cursor_old(mouse_sprite, mouse_x_focus, mouse_y_focus);
          if (hw_cursor)
             got_hw_cursor = TRUE;
 
@@ -961,7 +961,7 @@ int install_mouse(void)
       return -1;
    }
 
-   al_register_event_source(comouse_event_queue, (AL_EVENT_SOURCE *)al_get_mouse());
+   al_register_event_source(comouse_event_queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
 
 
    mouse_driver = &mouse_emu;
@@ -1063,7 +1063,7 @@ void remove_mouse(void)
  */
 static void comouse_thread_func(_AL_THREAD *self, void *unused)
 {
-   AL_EVENT event;
+   ALLEGRO_EVENT event;
 
    while (!_al_thread_should_stop(self)) {
       /* wait for an event; wait up every so often to check if we
@@ -1076,15 +1076,15 @@ static void comouse_thread_func(_AL_THREAD *self, void *unused)
 
       switch (event.type) {
 
-         case AL_EVENT_MOUSE_BUTTON_DOWN:
+         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
             _mouse_b |= (1 << (event.mouse.button-1));
             break;
 
-         case AL_EVENT_MOUSE_BUTTON_UP:
+         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
             _mouse_b &=~ (1 << (event.mouse.button-1));
             break;
 
-         case AL_EVENT_MOUSE_AXES:
+         case ALLEGRO_EVENT_MOUSE_AXES:
             _mouse_x = event.mouse.x;
             _mouse_y = event.mouse.y;
             _mouse_z = event.mouse.z;

@@ -22,6 +22,7 @@
 #include "allegro/debug.h"
 #include "allegro/3d.h"
 #include "gfx.inl"
+#include "allegro/fmaths.h"
 
 #ifdef __cplusplus
    extern "C" {

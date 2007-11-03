@@ -17,7 +17,7 @@
 #define ALLEGRO_MEMORY_H
 
 
-void al_memory_management_functions(
+void al_set_memory_management_functions(
    void *(*malloc)(void *opaque, size_t size),
    void *(*malloc_atomic)(void *opaque, size_t size),
    void (*free)(void *opaque, void *ptr),
@@ -30,7 +30,7 @@ void al_memory_management_functions(
       void *opaque, void *ptr),
    void *(*debug_realloc)(int line, const char *file, const char *func,
       void *opaque, void *ptr, size_t size),
-   void *use_opaque);
+   void *user_opaque);
 
 
 #endif          /* ifndef ALLEGRO_MEMORY_H */

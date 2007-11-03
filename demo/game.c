@@ -64,6 +64,8 @@ static void draw_intro_item(int item, int size)
    clear_bitmap(screen);
    stretch_blit(b, screen, 0, 0, b->w, b->h, (SCREEN_W - w) / 2,
                 (SCREEN_H - h) / 2, w, h);
+
+   set_palette(data[GAME_PAL].dat);
 }
 
 

@@ -1,7 +1,9 @@
 #ifndef _al_included_aintern_thread_h
 #define _al_included_aintern_thread_h
 
-#include ALLEGRO_INTERNAL_HEADER
+#ifndef SCAN_EXPORT
+#include ALLEGRO_INTERNAL_THREAD_HEADER
+#endif
 
 AL_BEGIN_EXTERN_C
 

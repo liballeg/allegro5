@@ -76,7 +76,7 @@ def CheckMMX(context):
         popl %ebp
         ret""", ".s")
     context.Result(ret)
-    return ret
+    return 0
 
 def CheckSSE(context):
     context.Message("Checking for SSE... ")
@@ -365,6 +365,16 @@ def CheckForX(context):
     context.Message("Checking if X11 found...")
     context.Result(ret)
     return ret
+
+def CheckForGLX(context):
+
+    result = context.sconf.CheckHeader('GL/glx.h') and\
+        context.sconf.CheckHeader('GL/gl.h') and\
+        context.sconf.CheckLib('GL', 'glXCreateWindow')
+
+    context.Message("Checking if GLX found...")
+    context.Result(result)
+    return result
 
 def CheckOSSDigi(context):
     result = False

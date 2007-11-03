@@ -165,7 +165,7 @@ int gfx_directx_setup_driver(GFX_DRIVER *drv, int w, int h, int color_depth)
    drv->h = h;
    drv->linear = 1;
    ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY;
-   IDirectDraw2_GetAvailableVidMem(directdraw, &ddsCaps, &drv->vid_mem, NULL);
+   IDirectDraw2_GetAvailableVidMem(directdraw, &ddsCaps, (unsigned long *)&drv->vid_mem, NULL);
    drv->vid_mem += w * h * BYTES_PER_PIXEL(color_depth);
 
    /* create our pseudo surface memory */
@@ -189,7 +189,7 @@ int gfx_directx_setup_driver(GFX_DRIVER *drv, int w, int h, int color_depth)
 int finalize_directx_init(void)
 {
    HRESULT hr;
-   long int freq;
+   unsigned long int freq;
 
    /* set current refresh rate */
    hr = IDirectDraw2_GetMonitorFrequency(directdraw, &freq);
@@ -373,7 +373,7 @@ void gfx_directx_exit(struct BITMAP *bmp)
 
 
 
-struct AL_MOUSE_CURSOR
+struct ALLEGRO_MOUSE_CURSOR
 {
    HCURSOR hcursor;
 };
@@ -486,10 +486,10 @@ static HCURSOR _al_win_directx_create_mouse_hcursor(struct BITMAP *sprite, int x
 
 
 
-AL_MOUSE_CURSOR *_al_win_directx_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus)
+ALLEGRO_MOUSE_CURSOR *_al_win_directx_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus)
 {
    HCURSOR hcursor;
-   AL_MOUSE_CURSOR *wrapper;
+   ALLEGRO_MOUSE_CURSOR *wrapper;
 
    hcursor = _al_win_directx_create_mouse_hcursor(sprite, xfocus, yfocus);
    if (!hcursor) {
@@ -508,12 +508,12 @@ AL_MOUSE_CURSOR *_al_win_directx_create_mouse_cursor(struct BITMAP *sprite, int 
 
 
 
-void _al_win_directx_destroy_mouse_cursor(AL_MOUSE_CURSOR *wrapper)
+void _al_win_directx_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *wrapper)
 {
    ASSERT(wrapper->hcursor);
 
    if (wrapper->hcursor == selected_cursor) {
-      al_set_system_mouse_cursor(AL_SYSTEM_MOUSE_CURSOR_ARROW);
+      al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
       ASSERT(wrapper->hcursor != selected_cursor);
    }
 
@@ -523,7 +523,7 @@ void _al_win_directx_destroy_mouse_cursor(AL_MOUSE_CURSOR *wrapper)
 
 
 
-bool _al_win_directx_set_mouse_cursor(AL_MOUSE_CURSOR *wrapper)
+bool _al_win_directx_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *wrapper)
 {
    ASSERT(wrapper);
    ASSERT(wrapper->hcursor);
@@ -539,23 +539,23 @@ bool _al_win_directx_set_mouse_cursor(AL_MOUSE_CURSOR *wrapper)
 
 
 
-bool _al_win_directx_set_system_mouse_cursor(AL_SYSTEM_MOUSE_CURSOR cursor_id)
+bool _al_win_directx_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
    HCURSOR wc;
    HWND allegro_wnd = win_get_window();
 
    wc = NULL;
    switch (cursor_id) {
-      case AL_SYSTEM_MOUSE_CURSOR_ARROW:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
          wc = LoadCursor(NULL, IDC_ARROW);
          break;
-      case AL_SYSTEM_MOUSE_CURSOR_BUSY:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY:
          wc = LoadCursor(NULL, IDC_WAIT);
          break;
-      case AL_SYSTEM_MOUSE_CURSOR_QUESTION:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION:
          wc = LoadCursor(NULL, IDC_HELP);
          break;
-      case AL_SYSTEM_MOUSE_CURSOR_EDIT:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT:
          wc = LoadCursor(NULL, IDC_IBEAM);
          break;
       default:
@@ -578,7 +578,7 @@ bool _al_win_directx_set_system_mouse_cursor(AL_SYSTEM_MOUSE_CURSOR cursor_id)
 bool _al_win_directx_show_mouse_cursor(void)
 {
    if (!selected_cursor) {
-      al_set_system_mouse_cursor(AL_SYSTEM_MOUSE_CURSOR_ARROW);
+      al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
       ASSERT(selected_cursor);
    }
 

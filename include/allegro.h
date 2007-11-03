@@ -22,9 +22,11 @@
 #ifndef ALLEGRO_H
 #define ALLEGRO_H
 
+
 #include "allegro/base.h"
 
 #include "allegro/system.h"
+#include "allegro/system_new.h"
 #include "allegro/memory.h"
 #include "allegro/debug.h"
 
@@ -41,7 +43,8 @@
 
 #include "allegro/palette.h"
 #include "allegro/gfx.h"
-#include "allegro/display.h"
+#include "allegro/display_new.h"
+#include "allegro/bitmap_new.h"
 #include "allegro/color.h"
 #include "allegro/draw.h"
 #include "allegro/rle.h"
@@ -82,6 +85,7 @@
 #ifdef ALLEGRO_EXTRA_HEADER
    #include ALLEGRO_EXTRA_HEADER
 #endif
+
 
 #endif          /* ifndef ALLEGRO_H */
 
