@@ -349,6 +349,13 @@ static bool d3d_check_mode(int w, int h, int format, int refresh_rate)
    return false;
 }
 
+static int d3d_get_default_refresh_rate(void)
+{
+   D3DDISPLAYMODE d3d_dm;
+   IDirect3D9_GetAdapterDisplayMode(_al_d3d, D3DADAPTER_DEFAULT, &d3d_dm);
+   return d3d_dm.RefreshRate;
+}
+
 /* FIXME: release swap chain too? */
 static bool d3d_create_hidden_device()
 {
@@ -439,7 +446,7 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
       d3d_pp.FullScreen_RefreshRateInHz = refresh_rate;
    }
    else {
-      d3d_pp.FullScreen_RefreshRateInHz = 60;
+      d3d_pp.FullScreen_RefreshRateInHz = d3d_get_default_refresh_rate();
    }
 
    /* FIXME: try hardware vertex processing first? */
@@ -667,7 +674,7 @@ static bool _al_d3d_reset_device()
                d3d_fullscreen_display->display.refresh_rate;
          }
          else {
-            d3d_pp.FullScreen_RefreshRateInHz = 60;
+            d3d_pp.FullScreen_RefreshRateInHz = d3d_get_default_refresh_rate();
          }
 
          while ((hr = IDirect3DDevice9_Reset(_al_d3d_device, &d3d_pp)) != D3D_OK) {

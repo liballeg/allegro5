@@ -24,6 +24,7 @@
 #include "allegro/platform/aintwin.h"
 #include "allegro/internal/aintern_system.h"
 #include "allegro/internal/aintern_bitmap.h"
+#include "allegro/platform/alplatf.h"
 
 #include "winalleg.h"
 

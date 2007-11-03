@@ -24,6 +24,7 @@
 #include <math.h>
 
 
+#ifndef DEBUGMODE
 
 /* draw_region_memory workhorse */
 #define DO_DRAW_REGION_FAST(src, \
@@ -2339,6 +2340,7 @@ void _al_draw_rotated_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
       cx, cy, dx, dy, 1.0f, 1.0f, angle, flags);
 }
 
+#endif
 
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
@@ -2355,11 +2357,14 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
 
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
+
+#ifndef DEBUGMODE
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
       ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f) {
       _al_draw_bitmap_region_memory_fast(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;
    }
+#endif
 
    ASSERT(_al_pixel_format_is_real(bitmap->format));
    ASSERT(_al_pixel_format_is_real(dest->format));
@@ -2449,12 +2454,15 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
 
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
+
+#ifndef DEBUGMODE
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
       ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f) {
       _al_draw_scaled_bitmap_memory_fast(bitmap,
             sx, sy, sw, sh, dx, dy, dw, dh, flags);
       return;
    }
+#endif
 
    if ((sw <= 0) || (sh <= 0) || (dw <= 0) || (dh <= 0))
       return;
@@ -3106,12 +3114,15 @@ void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
+
+#ifndef DEBUGMODE
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
       ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f) {
       _al_draw_rotated_scaled_bitmap_memory_fast(src,
          cx, cy, dx, dy, xscale, yscale, angle, flags);
       return;
    }
+#endif
 
    ASSERT(_al_pixel_format_is_real(src->format));
    ASSERT(_al_pixel_format_is_real(dst->format));

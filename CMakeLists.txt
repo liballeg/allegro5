@@ -494,6 +494,12 @@ if(SUPPORT_X11)
     set(CMAKE_REQUIRED_LIBRARIES)
 endif(SUPPORT_X11)
 
+if(WIN32)
+    if(WANT_D3D)
+        set(ALLEGRO_D3D 1)
+    endif(WANT_D3D)
+endif(WIN32)
+
 #
 # Produce configuration files.
 # All relevant variables must be set before here.
@@ -595,7 +601,6 @@ if(WIN32)
         kernel32 user32 gdi32 comdlg32 ole32 dinput ddraw dxguid winmm dsound
         )
     if(WANT_D3D)
-        set(ALLEGRO_D3D 1)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
         list(APPEND PLATFORM_LIBS d3d9)
     endif(WANT_D3D)
