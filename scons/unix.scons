@@ -189,6 +189,7 @@ else:
     platform["ALLEGRO_XWINDOWS_WITH_XF86DGA2"] = [config.CheckLib("Xxf86dga", "XDGAQueryExtension"), "Define if DGA version 2.0 or newer is supported"]
     platform["ALLEGRO_XWINDOWS_WITH_XF86VIDMODE"] = [config.CheckLib("Xxf86vm", "XF86VidModeQueryExtension"), "Define if XF86VidMode extension is supported."]
     platform["ALLEGRO_XWINDOWS_WITH_XPM"] = [config.CheckLib("Xpm", "XpmCreatePixmapFromData"), "Define if xpm bitmap support is available."]
+    platform["ALLEGRO_GLX"] = [config.CheckForGLX(), "Define to 1 if GLX is available."]
     platform["ALLEGRO_HAVE_DIRENT_H"] = [config.CheckCHeader("dirent.h"), "Define to 1 if you have the <dirent.h> header file, and it defines \"DIR\". "]
     platform["ALLEGRO_HAVE_DLFCN_H"] = [config.CheckCHeader("dlfcn.h"), "Define to 1 if you have the <dlfcn.h> header file."]
     platform["ALLEGRO_HAVE_FCNTL_H"] = [config.CheckCHeader("fcntl.h"), "Define to 1 if you have the <fcntl.h> header file."]
