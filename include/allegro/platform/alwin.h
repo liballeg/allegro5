@@ -126,7 +126,7 @@ AL_VAR(GFX_DRIVER, _al_d3d_dummy_gfx_driver);
 /*******************************************/
 #define AL_JOY_TYPE_DIRECTX      AL_ID('D','X',' ',' ')
 
-AL_VAR(struct AL_JOYSTICK_DRIVER, _al_joydrv_directx);
+AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_joydrv_directx);
 
 #define _AL_JOYSTICK_DRIVER_DIRECTX                                     \
    { AL_JOY_TYPE_DIRECTX,  &_al_joydrv_directx,    TRUE  },

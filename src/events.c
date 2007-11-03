@@ -34,7 +34,7 @@
 #define MAX_QUEUE_SIZE  512  /* power of 2 for max use of _AL_VECTOR */
 
 
-struct AL_EVENT_QUEUE
+struct ALLEGRO_EVENT_QUEUE
 {
    _AL_VECTOR events; /* XXX: better a deque */
    _AL_VECTOR sources;
@@ -48,15 +48,15 @@ struct AL_EVENT_QUEUE
  *  Create a new, empty event queue, returning a pointer to object if
  *  successful.  Returns NULL on error.
  */
-AL_EVENT_QUEUE *al_create_event_queue(void)
+ALLEGRO_EVENT_QUEUE *al_create_event_queue(void)
 {
-   AL_EVENT_QUEUE *queue = _AL_MALLOC(sizeof *queue);
+   ALLEGRO_EVENT_QUEUE *queue = _AL_MALLOC(sizeof *queue);
 
    ASSERT(queue);
 
    if (queue) {
-      _al_vector_init(&queue->events, sizeof(AL_EVENT *));
-      _al_vector_init(&queue->sources, sizeof(AL_EVENT_SOURCE *));
+      _al_vector_init(&queue->events, sizeof(ALLEGRO_EVENT *));
+      _al_vector_init(&queue->sources, sizeof(ALLEGRO_EVENT_SOURCE *));
       _AL_MARK_MUTEX_UNINITED(queue->mutex);
       _al_mutex_init(&queue->mutex);
       _al_cond_init(&queue->cond);
@@ -74,7 +74,7 @@ AL_EVENT_QUEUE *al_create_event_queue(void)
  *  registered with the queue will be automatically unregistered before
  *  the queue is destroyed.
  */
-void al_destroy_event_queue(AL_EVENT_QUEUE *queue)
+void al_destroy_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 {
    ASSERT(queue);
 
@@ -82,7 +82,7 @@ void al_destroy_event_queue(AL_EVENT_QUEUE *queue)
 
    /* Unregister any event sources registered with this queue.  */
    while (_al_vector_is_nonempty(&queue->sources)) {
-      AL_EVENT_SOURCE **slot = _al_vector_ref_back(&queue->sources);
+      ALLEGRO_EVENT_SOURCE **slot = _al_vector_ref_back(&queue->sources);
       al_unregister_event_source(queue, *slot);
    }
 
@@ -106,12 +106,12 @@ void al_destroy_event_queue(AL_EVENT_QUEUE *queue)
  *  simultaneously, or none.  Trying to register an event source with
  *  the same event queue more than once does nothing.
  */
-void al_register_event_source(AL_EVENT_QUEUE *queue, AL_EVENT_SOURCE *source)
+void al_register_event_source(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT_SOURCE *source)
 {
    ASSERT(queue);
    ASSERT(source);
    {
-      AL_EVENT_SOURCE **slot;
+      ALLEGRO_EVENT_SOURCE **slot;
 
       if (_al_vector_contains(&queue->sources, &source))
          return;
@@ -133,7 +133,7 @@ void al_register_event_source(AL_EVENT_QUEUE *queue, AL_EVENT_SOURCE *source)
  *  If the queue had any events in it which originated from the event
  *  source, they will no longer be in the queue after this call.
  */
-void al_unregister_event_source(AL_EVENT_QUEUE *queue, AL_EVENT_SOURCE *source)
+void al_unregister_event_source(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT_SOURCE *source)
 {
    ASSERT(queue);
    ASSERT(source);
@@ -148,8 +148,8 @@ void al_unregister_event_source(AL_EVENT_QUEUE *queue, AL_EVENT_SOURCE *source)
    /* Drop all the events in the queue that belonged to the source.  */
    {
       unsigned int i = 0;
-      AL_EVENT **slot;
-      AL_EVENT *event;
+      ALLEGRO_EVENT **slot;
+      ALLEGRO_EVENT *event;
 
       while (i < _al_vector_size(&queue->events)) {
          slot = _al_vector_ref(&queue->events, i);
@@ -170,7 +170,7 @@ void al_unregister_event_source(AL_EVENT_QUEUE *queue, AL_EVENT_SOURCE *source)
 /* Function: al_event_queue_is_empty
  *  Return true if the event queue specified is currently empty.
  */
-bool al_event_queue_is_empty(AL_EVENT_QUEUE *queue)
+bool al_event_queue_is_empty(ALLEGRO_EVENT_QUEUE *queue)
 {
    ASSERT(queue);
 
@@ -186,13 +186,13 @@ bool al_event_queue_is_empty(AL_EVENT_QUEUE *queue)
  *  responsibility).  The event queue must be locked before entering
  *  this function.
  */
-static AL_EVENT *get_next_event_if_any(AL_EVENT_QUEUE *queue, bool delete)
+static ALLEGRO_EVENT *get_next_event_if_any(ALLEGRO_EVENT_QUEUE *queue, bool delete)
 {
    if (_al_vector_is_empty(&queue->events))
       return NULL;
    else {
-      AL_EVENT **slot = _al_vector_ref_front(&queue->events);
-      AL_EVENT *event = *slot;
+      ALLEGRO_EVENT **slot = _al_vector_ref_front(&queue->events);
+      ALLEGRO_EVENT *event = *slot;
       if (delete)
          _al_vector_delete_at(&queue->events, 0); /* inefficient */
       return event;
@@ -206,9 +206,9 @@ static AL_EVENT *get_next_event_if_any(AL_EVENT_QUEUE *queue, bool delete)
  *  al_peek_next_event and al_drop_next_event which are all very
  *  similar.
  */
-static bool get_peek_or_drop_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *do_copy, bool do_release)
+static bool get_peek_or_drop_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *do_copy, bool do_release)
 {
-   AL_EVENT *next_event;
+   ALLEGRO_EVENT *next_event;
 
    _al_mutex_lock(&queue->mutex);
    next_event = get_next_event_if_any(queue, do_release);
@@ -232,7 +232,7 @@ static bool get_peek_or_drop_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *do_copy
  *  event packet will be removed from the queue.  If the event queue is
  *  empty, return false and the contents of RET_EVENT are unspecified.
  */
-bool al_get_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
+bool al_get_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 {
    ASSERT(queue);
    ASSERT(ret_event);
@@ -249,7 +249,7 @@ bool al_get_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
  *  actually empty, this function returns false and the contents of
  *  RET_EVENT are unspecified.
  */
-bool al_peek_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
+bool al_peek_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 {
    ASSERT(queue);
    ASSERT(ret_event);
@@ -263,7 +263,7 @@ bool al_peek_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
  *  Drop the next event packet from the queue.  If the queue is empty,
  *  nothing happens.
  */
-void al_drop_next_event(AL_EVENT_QUEUE *queue)
+void al_drop_next_event(ALLEGRO_EVENT_QUEUE *queue)
 {
    ASSERT(queue);
 
@@ -275,7 +275,7 @@ void al_drop_next_event(AL_EVENT_QUEUE *queue)
 /* Function: al_flush_event_queue
  *  Drops all events, if any, from the queue.
  */
-void al_flush_event_queue(AL_EVENT_QUEUE *queue)
+void al_flush_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 {
    ASSERT(queue);
 
@@ -283,8 +283,8 @@ void al_flush_event_queue(AL_EVENT_QUEUE *queue)
    {
       while (_al_vector_is_nonempty(&queue->events)) {
          unsigned int i = _al_vector_size(&queue->events) - 1;
-         AL_EVENT **slot = _al_vector_ref(&queue->events, i);
-         AL_EVENT *event = *slot;
+         ALLEGRO_EVENT **slot = _al_vector_ref(&queue->events, i);
+         ALLEGRO_EVENT *event = *slot;
          _al_vector_delete_at(&queue->events, i);
 
          /* must release while queue is unlocked */
@@ -302,9 +302,9 @@ void al_flush_event_queue(AL_EVENT_QUEUE *queue)
  *  Helper for al_wait_for_event.  The caller must lock the queue
  *  before calling.
  */
-static void wait_on_queue_forever(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
+static void wait_on_queue_forever(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 {
-   AL_EVENT *next_event = NULL;
+   ALLEGRO_EVENT *next_event = NULL;
 
    _al_mutex_lock(&queue->mutex);
    {
@@ -330,11 +330,11 @@ static void wait_on_queue_forever(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
  *  Helper for al_wait_for_event.  The caller must lock the queue
  *  before calling.
  */
-static bool wait_on_queue_timed(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
+static bool wait_on_queue_timed(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event, long msecs)
 {
    unsigned long timeout = al_current_time() + msecs;
    bool timed_out = false;
-   AL_EVENT *next_event = NULL;
+   ALLEGRO_EVENT *next_event = NULL;
 
    _al_mutex_lock(&queue->mutex);
    {
@@ -376,15 +376,15 @@ static bool wait_on_queue_timed(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long
  *  the first event packet is left at the head of the queue.
  *
  *  TIMEOUT_MSECS determines approximately how many milliseconds to
- *  wait.  If it is AL_WAIT_FOREVER, the call will wait indefinitely.  If the
+ *  wait.  If it is ALLEGRO_WAIT_FOREVER, the call will wait indefinitely.  If the
  *  call times out, false is returned.  Otherwise true is returned.
  */
-bool al_wait_for_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
+bool al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event, long msecs)
 {
    ASSERT(queue);
-   ASSERT(msecs == AL_WAIT_FOREVER || msecs >= 0);
+   ASSERT(msecs == ALLEGRO_WAIT_FOREVER || msecs >= 0);
 
-   if (msecs == AL_WAIT_FOREVER) {
+   if (msecs == ALLEGRO_WAIT_FOREVER) {
       wait_on_queue_forever(queue, ret_event);
       return true;
    }
@@ -407,7 +407,7 @@ bool al_wait_for_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
  *  If no event queues can accept the event, the event should be
  *  returned to the event source's list of recyclable events.
  */
-void _al_event_queue_push_event(AL_EVENT_QUEUE *queue, AL_EVENT *event)
+void _al_event_queue_push_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *event)
 {
    ASSERT(queue);
    ASSERT(event);
@@ -420,7 +420,7 @@ void _al_event_queue_push_event(AL_EVENT_QUEUE *queue, AL_EVENT *event)
          ASSERT(event->any._refcount > 0);
 
          {
-            AL_EVENT **slot = _al_vector_alloc_back(&queue->events);
+            ALLEGRO_EVENT **slot = _al_vector_alloc_back(&queue->events);
             *slot = event;
          }
 
@@ -441,7 +441,7 @@ void _al_event_queue_push_event(AL_EVENT_QUEUE *queue, AL_EVENT *event)
 /* Internal function: _al_copy_event
  *  Copies the contents of the event SRC to DEST.
  */
-void _al_copy_event(AL_EVENT *dest, const AL_EVENT *src)
+void _al_copy_event(ALLEGRO_EVENT *dest, const ALLEGRO_EVENT *src)
 {
    ASSERT(dest);
    ASSERT(src);

@@ -170,7 +170,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    int y;
    unsigned int i, j;
    int fActive;
-   AL_EVENT_SOURCE *es = NULL;
+   ALLEGRO_EVENT_SOURCE *es = NULL;
    RECT pos;
    ALLEGRO_SYSTEM *system = al_system_driver();
    WIN_WINDOW *win;
@@ -245,9 +245,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          case WM_CLOSE:
             _al_event_source_lock(es);
             if (_al_event_source_needs_to_generate_event(es)) {
-               AL_EVENT *event = _al_event_source_get_unused_event(es);
+               ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
                if (event) {
-                  event->display.type = AL_EVENT_DISPLAY_CLOSE;
+                  event->display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
                   event->display.timestamp = al_current_time();
                   _al_event_source_emit_event(es, event);
                }
@@ -270,9 +270,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                if (d->w != w || d->h != h) {
                   _al_event_source_lock(es);
                   if (_al_event_source_needs_to_generate_event(es)) {
-                     AL_EVENT *event = _al_event_source_get_unused_event(es);
+                     ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
                      if (event) {
-                        event->display.type = AL_EVENT_DISPLAY_RESIZE;
+                        event->display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
                         event->display.timestamp = al_current_time();
                         event->display.x = x;
                         event->display.y = y;
@@ -284,9 +284,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
                   /* Generate an expose event. */
                   if (_al_event_source_needs_to_generate_event(es)) {
-                     AL_EVENT *event = _al_event_source_get_unused_event(es);
+                     ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
                      if (event) {
-                        event->display.type = AL_EVENT_DISPLAY_EXPOSE;
+                        event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
                         event->display.timestamp = al_current_time();
                         event->display.x = x;
                         event->display.y = y;

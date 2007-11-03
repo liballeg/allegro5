@@ -103,10 +103,10 @@ typedef struct GFX_DRIVER        /* creates and manages the screen bitmap */
    long vid_phys_base;           /* physical address of video memory */
    int windowed;                 /* true if driver runs windowed */
    /* new_api_branch additions */
-   AL_METHOD(struct AL_MOUSE_CURSOR *, create_mouse_cursor, (struct BITMAP *sprite, int xfocus, int yfocus));
-   AL_METHOD(void, destroy_mouse_cursor, (struct AL_MOUSE_CURSOR *));
-   AL_METHOD(bool, set_mouse_cursor, (AL_MOUSE_CURSOR *cursor));
-   AL_METHOD(bool, set_system_mouse_cursor, (AL_SYSTEM_MOUSE_CURSOR cursor_id));
+   AL_METHOD(struct ALLEGRO_MOUSE_CURSOR *, create_mouse_cursor, (struct BITMAP *sprite, int xfocus, int yfocus));
+   AL_METHOD(void, destroy_mouse_cursor, (struct ALLEGRO_MOUSE_CURSOR *));
+   AL_METHOD(bool, set_mouse_cursor, (ALLEGRO_MOUSE_CURSOR *cursor));
+   AL_METHOD(bool, set_system_mouse_cursor, (ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id));
    AL_METHOD(bool, show_mouse_cursor, (void));
    AL_METHOD(bool, hide_mouse_cursor, (void));
 } GFX_DRIVER;

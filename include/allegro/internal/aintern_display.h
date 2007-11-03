@@ -49,7 +49,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
 struct ALLEGRO_DISPLAY
 {
    /* Must be first, so the display can be used as event source. */
-   struct AL_EVENT_SOURCE es; 
+   struct ALLEGRO_EVENT_SOURCE es; 
    ALLEGRO_DISPLAY_INTERFACE *vt;
    int format;
    int refresh_rate;

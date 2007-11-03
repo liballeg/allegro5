@@ -14,7 +14,7 @@ struct ALLEGRO_SYSTEM_INTERFACE
    int id;
    ALLEGRO_SYSTEM *(*initialize)(int flags);
    ALLEGRO_DISPLAY_INTERFACE *(*get_display_driver)(void);
-   AL_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
+   ALLEGRO_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
    int (*get_num_display_modes)(void);
    ALLEGRO_DISPLAY_MODE *(*get_display_mode)(int index, ALLEGRO_DISPLAY_MODE *mode);
    void (*shutdown_system)(void);

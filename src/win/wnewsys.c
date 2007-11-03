@@ -65,7 +65,7 @@ ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 }
 
 /* FIXME: use the list */
-AL_KEYBOARD_DRIVER *win_get_keyboard_driver(void)
+ALLEGRO_KEYBOARD_DRIVER *win_get_keyboard_driver(void)
 {
    return _al_keyboard_driver_list[0].driver;
 }

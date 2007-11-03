@@ -42,8 +42,8 @@
 
 typedef struct AL_MOUSE_DIRECTX
 {
-   AL_MOUSE parent;
-   AL_MSESTATE state;
+   ALLEGRO_MOUSE parent;
+   ALLEGRO_MSESTATE state;
    int min_x, min_y;
    int max_x, max_y;
 } AL_MOUSE_DIRECTX;
@@ -60,13 +60,13 @@ static AL_MOUSE_DIRECTX the_mouse;
 /* forward declarations */
 static bool mouse_directx_init(void);
 static void mouse_directx_exit(void);
-static AL_MOUSE *mouse_directx_get_mouse(void);
+static ALLEGRO_MOUSE *mouse_directx_get_mouse(void);
 static unsigned int mouse_directx_get_mouse_num_buttons(void);
 static unsigned int mouse_directx_get_mouse_num_axes(void);
 static bool mouse_directx_set_mouse_xy(int x, int y);
 static bool mouse_directx_set_mouse_axis(int which, int z);
 static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2);
-static void mouse_directx_get_state(AL_MSESTATE *ret_state);
+static void mouse_directx_get_state(ALLEGRO_MSESTATE *ret_state);
 
 static void generate_mouse_event(unsigned int type,
                                  int x, int y, int z,
@@ -78,7 +78,7 @@ static void generate_mouse_event(unsigned int type,
 /* the driver vtable */
 #define MOUSEDRV_XWIN  AL_ID('X','W','I','N')
 
-static AL_MOUSE_DRIVER mousedrv_directx =
+static ALLEGRO_MOUSE_DRIVER mousedrv_directx =
 {
    MOUSE_DIRECTX,
    empty_string,
@@ -261,7 +261,7 @@ static void mouse_directx_motion_handler(int dx, int dy)
 	 the_mouse.state.y = new_y;
 
 	 generate_mouse_event(
-	    AL_EVENT_MOUSE_AXES,
+	    ALLEGRO_EVENT_MOUSE_AXES,
 	    the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
 	    dx, dy, 0,
 	    0);
@@ -287,7 +287,7 @@ static void mouse_directx_motion_handler_abs(int x, int y)
       the_mouse.state.y = y;
 
       generate_mouse_event(
-         AL_EVENT_MOUSE_AXES,
+         ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          dx, dy, 0,
          0);
@@ -309,7 +309,7 @@ static void mouse_directx_wheel_motion_handler(int dz)
       the_mouse.state.z += dz;
 
       generate_mouse_event(
-         AL_EVENT_MOUSE_AXES,
+         ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          0, 0, dz,
          0);
@@ -351,7 +351,7 @@ static void mouse_directx_button_handler(int unswapped_button, bool is_down)
       }
 
       generate_mouse_event(
-	 is_down ?  AL_EVENT_MOUSE_BUTTON_DOWN : AL_EVENT_MOUSE_BUTTON_UP,
+	 is_down ?  ALLEGRO_EVENT_MOUSE_BUTTON_DOWN : ALLEGRO_EVENT_MOUSE_BUTTON_UP,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          0, 0, 0,
          button0 + 1);
@@ -860,13 +860,13 @@ static void mouse_directx_exit(void)
 
 
 /* mouse_directx_get_mouse:
- *  Returns the address of a AL_MOUSE structure representing the mouse.
+ *  Returns the address of a ALLEGRO_MOUSE structure representing the mouse.
  */
-static AL_MOUSE *mouse_directx_get_mouse(void)
+static ALLEGRO_MOUSE *mouse_directx_get_mouse(void)
 {
    ASSERT(mouse_directx_installed);
 
-   return (AL_MOUSE *)&the_mouse;
+   return (ALLEGRO_MOUSE *)&the_mouse;
 }
 
 
@@ -920,7 +920,7 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
 	 the_mouse.state.y = y;
 
 	 generate_mouse_event(
-	    AL_EVENT_MOUSE_AXES,
+	    ALLEGRO_EVENT_MOUSE_AXES,
 	    the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
 	    dx, dy, 0,
 	    0);
@@ -961,7 +961,7 @@ static bool mouse_directx_set_mouse_axis(int which, int z)
          the_mouse.state.z = z;
 
          generate_mouse_event(
-            AL_EVENT_MOUSE_AXES,
+            ALLEGRO_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             0, 0, dz,
             0);
@@ -1002,7 +1002,7 @@ static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2)
          the_mouse.state.y = new_y;
 
          generate_mouse_event(
-            AL_EVENT_MOUSE_AXES,
+            ALLEGRO_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             dx, dy, 0,
             0);
@@ -1018,7 +1018,7 @@ static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2)
 /* mouse_directx_get_state:
  *  Copy the current mouse state into RET_STATE, with any necessary locking.
  */
-static void mouse_directx_get_state(AL_MSESTATE *ret_state)
+static void mouse_directx_get_state(ALLEGRO_MSESTATE *ret_state)
 {
    ASSERT(mouse_directx_installed);
 
@@ -1037,7 +1037,7 @@ static void generate_mouse_event(unsigned int type,
                                  int dx, int dy, int dz,
                                  unsigned int button)
 {
-   AL_EVENT *event;
+   ALLEGRO_EVENT *event;
 
    if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es))
       return;

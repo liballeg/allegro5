@@ -19,9 +19,9 @@ static void redraw(void)
 int main(void)
 {
     ALLEGRO_DISPLAY *display;
-    AL_EVENT_QUEUE *events;
-    AL_EVENT event;
-    AL_KEYBOARD *keyboard;
+    ALLEGRO_EVENT_QUEUE *events;
+    ALLEGRO_EVENT event;
+    ALLEGRO_KEYBOARD *keyboard;
 
     long last_resize;
     int rs = 100;
@@ -33,12 +33,12 @@ int main(void)
     /* Setup a display driver and register events from it. */
     al_set_new_display_flags(ALLEGRO_RESIZABLE);
     display = al_create_display(rs, rs);
-    al_register_event_source(events, (AL_EVENT_SOURCE *)display);
+    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display);
 
     /* Setup a keyboard driver and regsiter events from it. */
     al_install_keyboard();
     keyboard = al_get_keyboard();
-    al_register_event_source(events, (AL_EVENT_SOURCE *)keyboard);
+    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)keyboard);
 
     /* Display a pulsating window until a key or the closebutton is pressed. */
     redraw();
@@ -47,15 +47,15 @@ int main(void)
     {
         if (al_get_next_event(events, &event))
         {
-            if (event.type == AL_EVENT_DISPLAY_RESIZE) {
-                AL_DISPLAY_EVENT *de = &event.display;
+            if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+                ALLEGRO_DISPLAY_EVENT *de = &event.display;
                 al_acknowledge_resize(de->source);
                 redraw();
             }
-            if (event.type == AL_EVENT_DISPLAY_CLOSE) {
+            if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
                 break;
             }
-            if (event.type == AL_EVENT_KEY_DOWN) {
+            if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
                 break;
             }
         }

@@ -906,9 +906,9 @@ static void d3d_display_thread_proc(void *arg)
                if (!lost_event_generated) {
                   _al_event_source_lock(&d->display.es);
                   if (_al_event_source_needs_to_generate_event(&d->display.es)) {
-                     AL_EVENT *event = _al_event_source_get_unused_event(&d->display.es);
+                     ALLEGRO_EVENT *event = _al_event_source_get_unused_event(&d->display.es);
                      if (event) {
-                        event->display.type = AL_EVENT_DISPLAY_LOST;
+                        event->display.type = ALLEGRO_EVENT_DISPLAY_LOST;
                         event->display.timestamp = al_current_time();
                         _al_event_source_emit_event(&d->display.es, event);
                      }
@@ -922,9 +922,9 @@ static void d3d_display_thread_proc(void *arg)
                   _al_d3d_device_lost = false;
                   _al_event_source_lock(&d->display.es);
                   if (_al_event_source_needs_to_generate_event(&d->display.es)) {
-                     AL_EVENT *event = _al_event_source_get_unused_event(&d->display.es);
+                     ALLEGRO_EVENT *event = _al_event_source_get_unused_event(&d->display.es);
                      if (event) {
-                        event->display.type = AL_EVENT_DISPLAY_FOUND;
+                        event->display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
                         event->display.timestamp = al_current_time();
                         _al_event_source_emit_event(&d->display.es, event);
                      }

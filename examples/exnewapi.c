@@ -13,9 +13,9 @@
 int main(void)
 {
    ALLEGRO_DISPLAY *display[3];
-   AL_KEYBOARD *keyboard;
-   AL_EVENT event;
-   AL_EVENT_QUEUE *events;
+   ALLEGRO_KEYBOARD *keyboard;
+   ALLEGRO_EVENT event;
+   ALLEGRO_EVENT_QUEUE *events;
    int quit = 0;
    int ticks = 0, last_rendered = 0, start_ticks;
    int fps_accumulator = 0, fps_time = 0;
@@ -54,10 +54,10 @@ int main(void)
    //al_set_clipping_rectangle(100, 100, 440, 280);
 
    /* This is only needed since we want to receive resize events. */
-   al_register_event_source(events, (AL_EVENT_SOURCE *)display[0]);
-   al_register_event_source(events, (AL_EVENT_SOURCE *)display[1]);
+   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[0]);
+   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[1]);
 
-   al_register_event_source(events, (AL_EVENT_SOURCE *)display[2]);
+   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[2]);
 
    /* Apparently, need to think a bit more about memory/display bitmaps.. should
     * only need to load it once (as memory bitmap), then make available on all
@@ -89,7 +89,7 @@ int main(void)
    al_unlock_bitmap(picture);
 
    al_install_keyboard();
-   al_register_event_source(events, (AL_EVENT_SOURCE *)al_get_keyboard());
+   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
    start_ticks = al_current_time();
 
@@ -128,10 +128,10 @@ int main(void)
       /* read input */
       while (!al_event_queue_is_empty(events)) {
          al_get_next_event(events, &event);
-         if (event.type == AL_EVENT_KEY_DOWN)
+         if (event.type == ALLEGRO_EVENT_KEY_DOWN)
          {
-            AL_KEYBOARD_EVENT *key = &event.keyboard;
-            if (key->keycode == AL_KEY_ESCAPE) {
+            ALLEGRO_KEYBOARD_EVENT *key = &event.keyboard;
+            if (key->keycode == ALLEGRO_KEY_ESCAPE) {
                quit = 1;
 	    }
 	    /*
@@ -144,13 +144,13 @@ int main(void)
             }
 	    */
          }
-         if (event.type == AL_EVENT_DISPLAY_RESIZE) {
-            AL_DISPLAY_EVENT *display = &event.display;
+         if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+            ALLEGRO_DISPLAY_EVENT *display = &event.display;
             w = display->width;
             h = display->height;
             al_acknowledge_resize(display->source);
          }
-         if (event.type == AL_EVENT_DISPLAY_CLOSE)
+         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
          {
 	   int i;
 	    for (i = 0; i < 3; i++) {

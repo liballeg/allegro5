@@ -34,7 +34,7 @@
 /* list of active timer handlers */
 typedef struct TIMER_QUEUE
 {
-   AL_TIMER *timer;
+   ALLEGRO_TIMER *timer;
    AL_METHOD(void, proc, (void));      /* timer handler functions */
    AL_METHOD(void, param_proc, (void *param));
    void *param;                        /* param for param_proc if used */
@@ -60,8 +60,8 @@ volatile int _retrace_hpp_value = -1;     /* to set during next retrace */
 static _AL_THREAD timer_thread;           /* the timer thread */
 static _AL_MUTEX timer_mutex = _AL_MUTEX_UNINITED; /* global timer mutex */
 
-static AL_EVENT_QUEUE *event_queue;       /* event queue to collect timer events */
-static AL_TIMER *retrace_timer;           /* timer to simulate retrace counting */
+static ALLEGRO_EVENT_QUEUE *event_queue;       /* event queue to collect timer events */
+static ALLEGRO_TIMER *retrace_timer;           /* timer to simulate retrace counting */
 
 
 
@@ -139,19 +139,19 @@ int timer_is_using_retrace()
 
 /* timer_thread_func: [timer thread]
  *  Each "interrupt" callback registered by the user has an associated
- *  AL_TIMER object. All these objects are registered to a global event
+ *  ALLEGRO_TIMER object. All these objects are registered to a global event
  *  queue. This function runs in a background thread and reads timer events
  *  from the event queue, calling the appropriate callbacks.
  */
 static void timer_thread_func(_AL_THREAD *self, void *unused)
 {
    while (!_al_thread_should_stop(self)) {
-      AL_EVENT event;
+      ALLEGRO_EVENT event;
 
       if (!al_wait_for_event(event_queue, &event, 50))
          continue;
 
-      if ((AL_TIMER *)event.any.source == retrace_timer) {
+      if ((ALLEGRO_TIMER *)event.any.source == retrace_timer) {
          retrace_count++;
 
          /* retrace_proc is just a bad idea -- don't use it! */
@@ -180,7 +180,7 @@ static void timer_thread_func(_AL_THREAD *self, void *unused)
          _al_mutex_lock(&timer_mutex);
          {
             for (x=0; x<MAX_TIMERS; x++) {
-               if (_timer_queue[x].timer == (AL_TIMER *)event.any.source) {
+               if (_timer_queue[x].timer == (ALLEGRO_TIMER *)event.any.source) {
                   copy = _timer_queue[x];
                   found = true;
                   break;
@@ -292,7 +292,7 @@ static int install_timer_int(void *proc, void *param, long speed_msecs, int para
          else
             _timer_queue[x].proc = (void (*)(void))proc;
 
-         al_register_event_source(event_queue, (AL_EVENT_SOURCE *)_timer_queue[x].timer);
+         al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)_timer_queue[x].timer);
          al_start_timer(_timer_queue[x].timer);
       }
    }
@@ -433,7 +433,7 @@ int install_timer()
 
    event_queue = al_create_event_queue();
    retrace_timer = al_install_timer(TIMER_TO_MSEC(_vsync_speed));
-   al_register_event_source(event_queue, (AL_EVENT_SOURCE *)retrace_timer);
+   al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)retrace_timer);
 
    /* start timer thread */
    _al_thread_create(&timer_thread, timer_thread_func, NULL);
