@@ -253,6 +253,10 @@ Using Allegro
       alleg_s_crt.lib - statically linked optimised library 
                            with the static C runtime
 <endblock>
+   All above library configurations could be built with <tt>ALLEGRO_USE_C</tt> option which
+   would add a "_c" suffix to them. When linking your program to such a library, you must define
+   the preprocessor symbol <tt>ALLEGRO_NO_ASM</tt> before including any of the Allegro headers.
+
    When using a statically linked library, you must define the preprocessor
    symbol <tt>ALLEGRO_STATICLINK</tt> before including any of the Allegro headers and
    link your program against Allegro and the main Win32/DirectX libraries

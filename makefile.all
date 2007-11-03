@@ -15,7 +15,7 @@
 #                           to *NOT* be backwards compatible (GCC-based platforms, MSVC).
 #        TARGET_OPTS        allows you to customize general optimizations (GCC-based platforms).
 #        CROSSCOMPILE=1     cross-build under Linux (DJGPP, MinGW32).
-#        ALLEGRO_USE_C=1    use C drawing code instead of asm (GCC-based platforms).
+#        ALLEGRO_USE_C=1    use C drawing code instead of asm (GCC-based platforms, MSVC).
 #        UNIX_TOOLS=1       use Unix-like tools instead of DOS tools.
 #
 #     Targets: 
