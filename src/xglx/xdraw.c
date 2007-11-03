@@ -7,6 +7,23 @@ static void set_opengl_color(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
     glColor4b(r, g, b, a);
 }
 
+static void set_opengl_blending(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
+{
+   int blend_modes[4] = {
+      GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+   };
+   ALLEGRO_INDEPENDANT_COLOR *bc;
+   int src_mode, dst_mode;
+   float r, g, b, a;
+   al_unmap_rgba_f_ex(d->format, color, &r, &g, &b, &a);
+
+   al_get_blender(&src_mode, &dst_mode, NULL);
+   glEnable(GL_BLEND);
+   glBlendFunc(blend_modes[src_mode], blend_modes[dst_mode]);
+   bc = _al_get_blend_color();
+   glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
+}
+
 /* Dummy implementation of clear. */
 static void clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
@@ -41,8 +58,11 @@ static void draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty
 static void draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    float brx, float bry, ALLEGRO_COLOR *color, int flags)
 {
-   set_opengl_color(d, color);
-   glBegin(GL_QUADS);
+   set_opengl_blending(d, color);
+   if (flags & ALLEGRO_FILLED)
+      glBegin(GL_QUADS);
+   else
+      glBegin(GL_LINE_LOOP);
    glVertex2d(tlx, tly);
    glVertex2d(brx, tly);
    glVertex2d(brx, bry);
