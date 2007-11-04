@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import optparse, os, subprocess
+import optparse, subprocess
 
 def main():
     p = optparse.OptionParser()
