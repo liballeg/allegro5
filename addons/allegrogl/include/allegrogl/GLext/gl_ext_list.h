@@ -277,4 +277,5 @@ AGL_EXT(NV_gpu_program4,               0)
 AGL_EXT(NV_parameter_buffer_object,    0)
 AGL_EXT(NV_transform_feedback,         0)
 AGL_EXT(NV_vertex_program4,            0)
+AGL_EXT(GREMEDY_frame_terminator,      0)
 

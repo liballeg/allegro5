@@ -34,8 +34,8 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "../../../lib/msvc"
-# PROP Intermediate_Dir "../../../obj/msvc/release"
+# PROP Output_Dir "../../../lib/msvc/dll"
+# PROP Intermediate_Dir "../../../obj/msvc/dll_release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G6 /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "ALLEGRO_GL_DYNAMIC" /D "ALLEGRO_GL_SRC_BUILD" /YX /FD /c
@@ -49,7 +49,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 alleg.lib opengl32.lib glu32.lib user32.lib gdi32.lib dsound.lib dinput.lib ddraw.lib winmm.lib dxguid.lib ole32.lib kernel32.lib /nologo /version:0.42 /dll /machine:I386 /out:"../../../lib/msvc/agl.dll"
+# ADD LINK32 alleg.lib opengl32.lib glu32.lib user32.lib gdi32.lib dsound.lib dinput.lib ddraw.lib winmm.lib dxguid.lib ole32.lib kernel32.lib /nologo /version:0.43 /dll /machine:I386 /out:"../../../lib/msvc/agl.dll"
 # Begin Target
 
 # Name "allegrogl dll - Win32 Release DLL"

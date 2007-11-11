@@ -1863,3 +1863,7 @@ AGL_API(void, GetVertexAttribIuivEXT, (GLuint, GLenum, GLint *))
 #endif
 #endif
 
+#if defined AGL_GREMEDY_frame_terminator
+AGL_API(void, FrameTerminatorGREMEDY, (void))
+#endif
+

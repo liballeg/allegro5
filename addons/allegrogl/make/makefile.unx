@@ -119,7 +119,8 @@ include make/makefile.all
 
 distclean: veryclean  @MESACLEAN@
 	rm -f make/makefile.dep
-	rm -f $(EXAMPLE_DIR)/*.bmp
+	rm -f $(EXAMPLE_DIR)/dumbtest.bmp
+	rm -f $(EXAMPLE_DIR)/screen.bmp
 	rm -rf docs/top docs/txi
 	rm -f config.* stamp-h makefile
 	rm -f include/alleggl_config.h

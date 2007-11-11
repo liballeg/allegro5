@@ -1,4 +1,4 @@
-AllegroGL - 0.4.2
+AllegroGL - 0.4.3
 =================
 
 README file
@@ -184,10 +184,6 @@ Allegro library you want AllegroGL to be linked to. These configurations are:
    
 All configuration except "DLL Release" produce AllegroGL library that is
 statically linked to the executable.
-
-Note: If you are using C-only version of allegro (built with ALLEGRO_USE_C)
-then you have to pass ALLEGRO_NO_ASM macro to the preprocessor when building
-examples.
 
 
 

@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="allegrogl"
 	ProjectGUID="{4410DA55-BCB4-48DD-8091-BD4AF12232D3}"
+	RootNamespace="allegrogl"
 	>
 	<Platforms>
 		<Platform
@@ -15,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="../../../lib/msvc/"
+			IntermediateDirectory="../../../obj/msvc/release/"
 			ConfigurationType="4"
 			WholeProgramOptimization="1"
 			>
@@ -42,7 +43,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="../../../include"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				WarningLevel="3"
 				DebugInformationFormat="0"
@@ -59,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="../../../lib/msvc/agl.lib"
+				OutputFile="$(OutDir)/agl.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -79,8 +80,8 @@
 		</Configuration>
 		<Configuration
 			Name="Static Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="../../../lib/msvc/"
+			IntermediateDirectory="../../../obj/msvc/release_s/"
 			ConfigurationType="4"
 			WholeProgramOptimization="1"
 			>
@@ -123,7 +124,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="../../../lib/msvc/agl_s.lib"
+				OutputFile="$(OutDir)/agl_s.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -143,8 +144,8 @@
 		</Configuration>
 		<Configuration
 			Name="Static Release CRT|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="../../../lib/msvc/"
+			IntermediateDirectory="../../../obj/msvc/release_s_crt/"
 			ConfigurationType="4"
 			WholeProgramOptimization="1"
 			>
@@ -187,7 +188,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="../../../lib/msvc/agl_s_crt.lib"
+				OutputFile="$(OutDir)/agl_s_crt.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -207,8 +208,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="../../../lib/msvc/"
+			IntermediateDirectory="../../../obj/msvc/debug/"
 			ConfigurationType="4"
 			WholeProgramOptimization="0"
 			>
@@ -251,7 +252,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="../../../lib/msvc/agld.lib"
+				OutputFile="$(OutDir)/agld.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -271,8 +272,8 @@
 		</Configuration>
 		<Configuration
 			Name="DLL Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="../../../lib/msvc/dll/"
+			IntermediateDirectory="../../../obj/msvc/dll_release/"
 			ConfigurationType="2"
 			WholeProgramOptimization="1"
 			>
@@ -316,8 +317,8 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="alleg.lib opengl32.lib glu32.lib user32.lib gdi32.lib"
-				OutputFile="../../../lib/msvc/dll/agl.dll"
-				Version="0.4.2"
+				OutputFile="$(OutDir)agl.dll"
+				Version="0.4.3"
 				GenerateDebugInformation="false"
 				LinkTimeCodeGeneration="1"
 			/>
@@ -348,8 +349,8 @@
 		</Configuration>
 		<Configuration
 			Name="Static Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="../../../lib/msvc/"
+			IntermediateDirectory="../../../obj/msvc/debug_s/"
 			ConfigurationType="4"
 			WholeProgramOptimization="0"
 			>
@@ -392,7 +393,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="../../../lib/msvc/agld_s.lib"
+				OutputFile="$(OutDir)/agld_s.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"

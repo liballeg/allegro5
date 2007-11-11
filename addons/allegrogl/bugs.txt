@@ -15,8 +15,6 @@ AllegroGL Know Bug List
   solid. Should we remove the cropping code? Should we draw a rectangle
   before the text?
   
-* Using unsupported features crashes. We should fix that.
-
 * AGL cannot deal with extensions which name starts with a number
   (e.g WGL_3DL_stereo_control). It fails at compile-time trying to
   construct an invalid struct member variable name like
@@ -40,12 +38,6 @@ AllegroGL Know Bug List
   feature, at least one call to allegro_gl_set_allegro_mode() must be
   made. This is needed in order for __allegro_gl_pool_texture texture
   to be created, which is used for FBO drawing.
-
-* Since Allegro 4.2.2, it is possible to build ASM-free version of Allegro
-  for Windows (using the ALLEGRO_USE_C mode or MSVC project files).
-  Programs that use such Allegro library and AllegroGL need to define
-  ALLEGRO_NO_ASM preprocessor macro when compiling, otherwise a crash at
-  program start-up happens. The exact cause is unknow at the moment.
 
 
 Here's a list of known bugs, that are either unresolved, lack debug

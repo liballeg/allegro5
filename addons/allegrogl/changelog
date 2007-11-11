@@ -8,6 +8,7 @@ Changes from 0.4.2 to 0.4.3
  - [Allegro driver] Added support for POLYTYPE_[A|P]TEX and POLYTYPE_[A|P]TEX_TRANS
    in 3d polygon rendering.
  - [Allegro driver] Fixed plenty of clipping bugs.
+ - [Glext] Added GL_GREMEDY_frame_terminator extension.
 
 * Matthew Leverton
  - [Build] Added Digital Mars Compiler support.

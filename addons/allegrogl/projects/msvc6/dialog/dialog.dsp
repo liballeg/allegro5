@@ -138,7 +138,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 alleg.lib agl_s.lib opengl32.lib glu32.lib user32.lib gdi32.lib /nologo /subsystem:windows /machine:I386 /out:"../../../examp/dialog.exe" /libpath:"../../../lib/msvc"
-# ADD LINK32 alleg.lib agl.lib opengl32.lib glu32.lib user32.lib gdi32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /libpath:"../../../lib/msvc"
+# ADD LINK32 alleg.lib agl.lib opengl32.lib glu32.lib user32.lib gdi32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /libpath:"../../../lib/msvc/dll/"
 
 !ELSEIF  "$(CFG)" == "dialog - Win32 Static Release"
 

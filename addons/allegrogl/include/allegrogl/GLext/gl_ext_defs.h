@@ -3994,4 +3994,7 @@ typedef uint64_t GLuint64EXT;
 #endif
 #endif
 
+#ifndef GL_GREMEDY_frame_terminator
+#define AGL_GREMEDY_frame_terminator
+#endif
 

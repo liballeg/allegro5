@@ -332,4 +332,5 @@ GL_NV_gpu_program4
 GL_NV_parameter_buffer_object
 GL_NV_transform_feedback
 GL_NV_vertex_program4
+GL_GREMEDY_frame_terminator
 

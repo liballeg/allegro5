@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
@@ -15,8 +15,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="../../../examp/"
+			IntermediateDirectory="../../../obj/msvc/release/"
 			ConfigurationType="1"
 			WholeProgramOptimization="1"
 			>
@@ -58,7 +58,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="alleg.lib opengl32.lib glu32.lib user32.lib gdi32.lib agl.lib"
-				OutputFile="../../../examp/$(ProjectName).exe"
+				OutputFile="$(OutDir)$(ProjectName).exe"
 				AdditionalLibraryDirectories="../../../lib/msvc"
 				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
@@ -92,8 +92,8 @@
 		</Configuration>
 		<Configuration
 			Name="Static Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="../../../examp/"
+			IntermediateDirectory="../../../obj/msvc/release_s/"
 			ConfigurationType="1"
 			WholeProgramOptimization="1"
 			>
@@ -135,7 +135,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="alleg_s.lib opengl32.lib glu32.lib user32.lib gdi32.lib kernel32.lib comdlg32.lib ole32.lib dinput.lib ddraw.lib dxguid.lib dsound.lib winmm.lib agl_s.lib $(NOINHERIT)"
-				OutputFile="../../../examp/$(ProjectName).exe"
+				OutputFile="$(OutDir)$(ProjectName).exe"
 				AdditionalLibraryDirectories="../../../lib/msvc"
 				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
@@ -169,8 +169,8 @@
 		</Configuration>
 		<Configuration
 			Name="Static Release CRT|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="../../../examp/"
+			IntermediateDirectory="../../../obj/msvc/release_s_crt/"
 			ConfigurationType="1"
 			WholeProgramOptimization="1"
 			>
@@ -212,7 +212,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="alleg_s_crt.lib opengl32.lib glu32.lib user32.lib gdi32.lib kernel32.lib comdlg32.lib ole32.lib dinput.lib ddraw.lib dxguid.lib dsound.lib winmm.lib agl_s_crt.lib $(NOINHERIT)"
-				OutputFile="../../../examp/$(ProjectName).exe"
+				OutputFile="$(OutDir)$(ProjectName).exe"
 				AdditionalLibraryDirectories="../../../lib/msvc"
 				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
@@ -246,8 +246,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="../../../examp/"
+			IntermediateDirectory="../../../obj/msvc/debug/"
 			ConfigurationType="1"
 			WholeProgramOptimization="0"
 			>
@@ -289,7 +289,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="alld.lib opengl32.lib glu32.lib user32.lib gdi32.lib agld.lib"
-				OutputFile="../../../examp/$(ProjectName).exe"
+				OutputFile="$(OutDir)$(ProjectName).exe"
 				AdditionalLibraryDirectories="../../../lib/msvc"
 				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
@@ -323,8 +323,8 @@
 		</Configuration>
 		<Configuration
 			Name="DLL Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="../../../examp/"
+			IntermediateDirectory="../../../obj/msvc/dll_release/"
 			ConfigurationType="1"
 			WholeProgramOptimization="1"
 			>
@@ -366,7 +366,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="alleg.lib opengl32.lib glu32.lib user32.lib gdi32.lib agl.lib"
-				OutputFile="../../../examp/$(ProjectName).exe"
+				OutputFile="$(OutDir)$(ProjectName).exe"
 				AdditionalLibraryDirectories="../../../lib/msvc/dll"
 				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
@@ -400,8 +400,8 @@
 		</Configuration>
 		<Configuration
 			Name="Static Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="../../../examp/"
+			IntermediateDirectory="../../../obj/msvc/debug_s/"
 			ConfigurationType="1"
 			WholeProgramOptimization="0"
 			>
@@ -443,7 +443,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="alld_s.lib opengl32.lib glu32.lib user32.lib gdi32.lib kernel32.lib comdlg32.lib ole32.lib dinput.lib ddraw.lib dxguid.lib dsound.lib winmm.lib agld_s.lib $(NOINHERIT)"
-				OutputFile="../../../examp/$(ProjectName).exe"
+				OutputFile="$(OutDir)$(ProjectName).exe"
 				AdditionalLibraryDirectories="../../../lib/msvc"
 				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
