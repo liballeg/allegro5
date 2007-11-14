@@ -51,7 +51,10 @@ int main() {
 
 	/* Create a checkered bitmap */
 	{	int i, j;
-		int col[] = {makecol(0, 0, 0), makecol(255, 255, 255)};
+		int col[2];
+		
+		col[0] = makecol(0, 0, 0);
+		col[1] = makecol(255, 255, 255);
 
 #define TW 64
 #define TH 64

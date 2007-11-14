@@ -10,7 +10,7 @@ Changes from 0.4.2 to 0.4.3
  - [Allegro driver] Fixed plenty of clipping bugs.
  - [Glext] Added GL_GREMEDY_frame_terminator extension.
 
-* Matthew Leverton
+* Matthew Leverton & torhu
  - [Build] Added Digital Mars Compiler support.
 
 * Dennis Busch

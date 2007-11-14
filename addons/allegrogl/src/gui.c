@@ -483,13 +483,13 @@ int d_algl_viewport_proc(int msg, DIALOG *d, int c)
 
 	AGL_LOG(3, "d_algl_viewport_proc\n");
 
-	/* First we get back into a 3D mode */
-	allegro_gl_unset_allegro_mode();
-
 	if (msg == MSG_DRAW) {
 		/* Draws the background */
 		clear_to_color(viewport, d->bg);
 	}
+
+	/* First we get back into a 3D mode */
+	allegro_gl_unset_allegro_mode();
 
 	/* Save the Viewport and Scissor states */
 	glPushAttrib(GL_SCISSOR_BIT | GL_VIEWPORT_BIT);

@@ -14,6 +14,11 @@
 #define WIN32_LEAN_AND_MEAN_defined
 #endif /* WIN32_LEAN_AND_MEAN */
 
+#ifdef ALLEGRO_DMC
+typedef int32_t INT32;
+typedef __int64 INT64;
+#endif
+
 #include <winalleg.h>
 
 #ifdef WIN32_LEAN_AND_MEAN_defined

@@ -1757,7 +1757,11 @@ static void allegro_gl_video_polygon3d(BITMAP *bmp, int type, BITMAP *texture,
 static void allegro_gl_video_triangle3d(BITMAP *bmp, int type, BITMAP *texture,
 										V3D *v1, V3D *v2, V3D *v3)
 {
-	V3D *vtx[3] = {v1, v2, v3};
+	V3D *vtx[3];
+	vtx[0] = v1;
+	vtx[1] = v2;
+	vtx[2] = v3;
+	
 	allegro_gl_video_polygon3d(bmp, type, texture, 3, vtx);
 }
 
@@ -1766,7 +1770,11 @@ static void allegro_gl_video_triangle3d(BITMAP *bmp, int type, BITMAP *texture,
 static void allegro_gl_video_triangle3d_f(BITMAP *bmp, int type, BITMAP *texture,
 										  V3D_f *v1, V3D_f *v2, V3D_f *v3)
 {
-	V3D_f *vtx_f[3] = {v1, v2, v3};
+	V3D_f *vtx_f[3];
+	vtx_f[0] = v1;
+	vtx_f[1] = v2;
+	vtx_f[2] = v3;
+
 	allegro_gl_video_polygon3d_f(bmp, type, texture, 3, vtx_f);
 }
 
@@ -1775,7 +1783,12 @@ static void allegro_gl_video_triangle3d_f(BITMAP *bmp, int type, BITMAP *texture
 static void allegro_gl_video_quad3d(BITMAP *bmp, int type, BITMAP *texture,
 									V3D *v1, V3D *v2, V3D *v3, V3D *v4)
 {
-	V3D *vtx[4] = {v1, v2, v3, v4};
+	V3D *vtx[4];
+	vtx[0] = v1;
+	vtx[1] = v2;
+	vtx[2] = v3;
+	vtx[3] = v4;
+
 	allegro_gl_video_polygon3d(bmp, type, texture, 4, vtx);
 }
 
@@ -1784,7 +1797,12 @@ static void allegro_gl_video_quad3d(BITMAP *bmp, int type, BITMAP *texture,
 static void allegro_gl_video_quad3d_f(BITMAP *bmp, int type, BITMAP *texture,
 							   V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4)
 {
-	V3D_f *vtx_f[4] = {v1, v2, v3, v4};
+	V3D_f *vtx_f[4];
+	vtx_f[0] = v1;
+	vtx_f[1] = v2;
+	vtx_f[2] = v3;
+	vtx_f[3] = v4;
+
 	allegro_gl_video_polygon3d_f(bmp, type, texture, 4, vtx_f);
 }
 

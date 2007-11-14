@@ -314,7 +314,7 @@ static void allegro_gl_screen_line(struct BITMAP *bmp, int x1, int y1, int x2,
 	if (bmp->clip) {
 		glPushAttrib(GL_SCISSOR_BIT);
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(bmp->x_ofs + bmp->cl, bmp->h - bmp->y_ofs - bmp->cb,
+		glScissor(bmp->x_ofs + bmp->cl, bmp->h + bmp->y_ofs - bmp->cb,
 		                                  bmp->cr - bmp->cl, bmp->cb - bmp->ct);
 	}
 	if (is_sub_bitmap(bmp)) {
@@ -360,6 +360,7 @@ void allegro_gl_screen_rectfill(struct BITMAP *bmp, int x1, int y1,
                                                       int x2, int y2, int color)
 {
 	GLubyte r, g, b, a;
+	GLfloat old_col[4];
 	AGL_LOG(2, "glvtable.c:allegro_gl_screen_rectfill\n");
 	
 	if (x1 > x2) {
@@ -401,6 +402,7 @@ void allegro_gl_screen_rectfill(struct BITMAP *bmp, int x1, int y1,
 		y2 += bmp->y_ofs;
 	}
 	
+	glGetFloatv(GL_CURRENT_COLOR, old_col);
 	split_color(color, &r, &g, &b, &a, bitmap_color_depth(bmp));
 	glColor4ub(r, g, b, a);
 
@@ -415,6 +417,7 @@ void allegro_gl_screen_rectfill(struct BITMAP *bmp, int x1, int y1,
 		glVertex2f(x1, y2);
 	glEnd();
 
+	glColor4fv(old_col);
 
 	return;
 }
@@ -432,7 +435,7 @@ static void allegro_gl_screen_triangle(struct BITMAP *bmp, int x1, int y1,
 	if (bmp->clip) {
 		glPushAttrib(GL_SCISSOR_BIT);
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(bmp->x_ofs + bmp->cl, bmp->h - bmp->y_ofs - bmp->cb,
+		glScissor(bmp->x_ofs + bmp->cl, bmp->h + bmp->y_ofs - bmp->cb,
 		                                 bmp->cr - bmp->cl, bmp->cb - bmp->ct);
 	}
 	if (is_sub_bitmap(bmp)) {
@@ -1834,7 +1837,7 @@ void allegro_gl_screen_draw_glyph_ex(struct BITMAP *bmp,
 	if (bmp->clip) {
 		glPushAttrib(GL_SCISSOR_BIT);
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(bmp->x_ofs + bmp->cl, bmp->h - bmp->y_ofs - bmp->cb,
+		glScissor(bmp->x_ofs + bmp->cl, bmp->h + bmp->y_ofs - bmp->cb,
 		          bmp->cr - bmp->cl, bmp->cb - bmp->ct);
 
 		if (x < bmp->cl) {
@@ -2064,7 +2067,7 @@ static void allegro_gl_screen_polygon(struct BITMAP *bmp, int vertices,
 
 	if (bmp->clip) {
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(bmp->x_ofs + bmp->cl, bmp->h - bmp->y_ofs - bmp->cb,
+		glScissor(bmp->x_ofs + bmp->cl, bmp->h + bmp->y_ofs - bmp->cb,
 				  bmp->cr - bmp->cl, bmp->cb - bmp->ct);
 	}
 	else {
@@ -2099,7 +2102,7 @@ static void allegro_gl_screen_rect(struct BITMAP *bmp,
 
 	if (bmp->clip) {
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(bmp->x_ofs + bmp->cl, bmp->h - bmp->y_ofs - bmp->cb,
+		glScissor(bmp->x_ofs + bmp->cl, bmp->h + bmp->y_ofs - bmp->cb,
 				  bmp->cr - bmp->cl, bmp->cb - bmp->ct);
 	}
 	else {
@@ -2142,7 +2145,7 @@ void allegro_gl_screen_polygon3d_f(struct BITMAP *bmp, int type,
 	if (bmp->clip) {
 		glPushAttrib(GL_SCISSOR_BIT);
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(bmp->x_ofs + bmp->cl, bmp->h - bmp->y_ofs - bmp->cb,
+		glScissor(bmp->x_ofs + bmp->cl, bmp->h + bmp->y_ofs - bmp->cb,
 				  bmp->cr - bmp->cl, bmp->cb - bmp->ct);
 	}
 	if (is_sub_bitmap(bmp)) {
@@ -2244,7 +2247,12 @@ static void allegro_gl_screen_quad3d_f(struct BITMAP *bmp, int type,
 									   struct BITMAP *texture,
 									   V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4) {
 
-	V3D_f *vtx_f[4] = {v1, v2, v3, v4};
+	V3D_f *vtx_f[4];
+	vtx_f[0] = v1;
+	vtx_f[1] = v2;
+	vtx_f[2] = v3;
+	vtx_f[3] = v4;
+
 	allegro_gl_screen_polygon3d_f(bmp, type, texture, 4, vtx_f);
 }
 
@@ -2253,7 +2261,12 @@ static void allegro_gl_screen_quad3d_f(struct BITMAP *bmp, int type,
 static void allegro_gl_screen_quad3d(struct BITMAP *bmp, int type,
 			struct BITMAP *texture, V3D *v1, V3D *v2, V3D *v3, V3D *v4) {
 
-	V3D *vtx[4] = {v1, v2, v3, v4};
+	V3D *vtx[4];
+	vtx[0] = v1;
+	vtx[1] = v2;
+	vtx[2] = v3;
+	vtx[3] = v4;
+
 	allegro_gl_screen_polygon3d(bmp, type, texture, 4, vtx);
 }
 
@@ -2262,7 +2275,11 @@ static void allegro_gl_screen_quad3d(struct BITMAP *bmp, int type,
 static void allegro_gl_screen_triangle3d(struct BITMAP *bmp, int type,
 										 struct BITMAP *texture,
 										 V3D *v1, V3D *v2, V3D *v3) {
-	V3D *vtx[3] = {v1, v2, v3};
+	V3D *vtx[3];
+	vtx[0] = v1;
+	vtx[1] = v2;
+	vtx[2] = v3;
+
 	allegro_gl_screen_polygon3d(bmp, type, texture, 3, vtx);
 }
 
@@ -2271,7 +2288,11 @@ static void allegro_gl_screen_triangle3d(struct BITMAP *bmp, int type,
 static void allegro_gl_screen_triangle3d_f(struct BITMAP *bmp, int type,
 										   struct BITMAP *texture,
 										   V3D_f *v1, V3D_f *v2, V3D_f *v3) {
-	V3D_f *vtx_f[3] = {v1, v2, v3};
+	V3D_f *vtx_f[3];
+	vtx_f[0] = v1;
+	vtx_f[1] = v2;
+	vtx_f[2] = v3;
+
 	allegro_gl_screen_polygon3d_f(bmp, type, texture, 3, vtx_f);
 }
 
