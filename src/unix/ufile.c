@@ -497,7 +497,7 @@ uint64_t al_ffblk_get_size(struct al_ffblk *info)
 
 
 
-void _unix_guess_file_encoding(void)
+void _al_detect_filename_encoding(void)
 {
    char const *encoding = "unknown";
    char *locale = getenv("LC_ALL");
@@ -514,7 +514,7 @@ void _unix_guess_file_encoding(void)
           strstr(locale, "utf-8") ||
           strstr(locale, "UTF8")) {
          /* Note: UTF8 is default anyway. */
-         set_file_encoding(U_UTF8);
+         set_filename_encoding(U_UTF8);
          encoding = "UTF8";
       }
       /* TODO: detect other encodings, and support them in Allegro */

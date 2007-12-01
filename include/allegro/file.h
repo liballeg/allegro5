@@ -138,10 +138,10 @@ struct PACKFILE_VTABLE
 };
 
 
-#define uconvert_tofilename(s, buf)      uconvert(s, U_CURRENT, buf, get_file_encoding(), sizeof(buf))
+#define uconvert_tofilename(s, buf)      uconvert(s, U_CURRENT, buf, get_filename_encoding(), sizeof(buf))
 
-AL_FUNC(void, set_file_encoding, (int encoding));
-AL_FUNC(int, get_file_encoding, (void));
+AL_FUNC(void, set_filename_encoding, (int encoding));
+AL_FUNC(int, get_filename_encoding, (void));
 
 AL_FUNC(void, packfile_password, (AL_CONST char *password));
 AL_FUNC(PACKFILE *, pack_fopen, (AL_CONST char *filename, AL_CONST char *mode));

@@ -74,7 +74,7 @@ static PACKFILE_VTABLE normal_vtable;
 
 static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode);
 
-static int file_encoding = U_ASCII;
+static int filename_encoding = U_ASCII;
 
 
 #define FA_DAT_FLAGS  (FA_RDONLY | FA_ARCH)
@@ -672,22 +672,22 @@ void put_backslash(char *filename)
  ***************************************************/
 
 
-/* set_file_encoding:
+/* set_filename_encoding:
  *  Sets the encoding to use for filenames. By default, UTF8 is assumed.
  */
-void set_file_encoding(int encoding)
+void set_filename_encoding(int encoding)
 {
-    file_encoding = encoding;
+    filename_encoding = encoding;
 }
 
 
 
-/* get_file_encoding:
+/* get_filename_encoding:
  *  Returns the encoding currently assumed for filenames.
  */
-int get_file_encoding(void)
+int get_filename_encoding(void)
 {
-    return file_encoding ;
+    return filename_encoding ;
 }
 
 
