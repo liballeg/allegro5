@@ -2412,6 +2412,7 @@ static int _xwin_private_process_event(XEvent *event, XEvent *next_event)
 	 /* Mouse entered window.  */
 	 _al_comouse_on = TRUE;	/* XXX */
 #if 0 /* XXX */
+	 _xwin_mouse_enter_notify();
 	 mouse_savedx = event->xcrossing.x;
 	 mouse_savedy = event->xcrossing.y;
 	 mouse_was_warped = 0;
@@ -2420,17 +2421,18 @@ static int _xwin_private_process_event(XEvent *event, XEvent *next_event)
 	    dx = event->xcrossing.x - (_mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0));
 	    dy = event->xcrossing.y - (_mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
 	    if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt)
-	       (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
+	       (*_xwin_mouse_interrupt)(dx, dy, 0, 0, mouse_buttons);
 	 }
 	 else if (_xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
+	    (*_xwin_mouse_interrupt)(0, 0, 0, 0, mouse_buttons);
 #endif
 	 return 1;
       case LeaveNotify:
 	 _al_comouse_on = FALSE;
 #if 0 /* XXX */
 	 if (_xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
+	    (*_xwin_mouse_interrupt)(0, 0, 0, 0, mouse_buttons);
+	 _xwin_mouse_leave_notify();
 #endif
 	 return 1;
       case Expose:

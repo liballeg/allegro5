@@ -11,7 +11,11 @@
 # -------- define some variables that the primary makefile will use --------
 
 PLATFORM = MacOS X
+ifdef UB
+CC = misc/gcc-uni.sh
+else
 CC = gcc
+endif
 OBJ_DIR = obj/macosx/$(VERSION)
 EXE = 
 OBJ = .o
@@ -53,9 +57,6 @@ LIB_NAME = lib/macosx/lib$(VERSION)-$(shared_version).dylib
 LIB_MAIN_NAME = lib/macosx/lib$(VERSION)-main.a
 
 DYLINK_FLAGS = -compatibility_version $(compatibility_version) -current_version $(shared_version)
-ifdef UB
-DYLINK_FLAGS+=-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk
-endif
 
 INSTALL_NAME = -install_name lib$(VERSION)-$(shared_major_minor).dylib
 INSTALL_NAME_EMBED = -install_name "`echo "@executable_path/../Frameworks/$(FRAMEWORK_NAME).framework/Versions/$(shared_version)/$(FRAMEWORK_NAME)" | sed 's!//*!/!g'`"

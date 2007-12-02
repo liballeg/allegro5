@@ -80,6 +80,9 @@ Contributors
    routines, added a mouse driver based on the event interface (EVDEV) to the
    Linux port, fixed numerous bugs and did plenty of other things too.
 
+   Anthony 'Timorg' Cassidy.<br>
+   Made d_menu_proc fill up its assigned area with the gui_bg_color.
+
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
 
@@ -297,6 +300,13 @@ Contributors
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions and
    helped with the Swedish message translation.
 
+   Erno Schwetter.<br>
+   Fixed some bugs in the Linux console port and fixed a long-standing bug in
+   the polygon() routine.
+
+   Etienne Vouga.<br>
+   Fixed a bug with the reset_controllers MIDI command.
+
    Ettore Perazzoli (<email>ettore@comm2000.it</a>).<br>
    Optimised the linear -&gt mode-X blitting function.
 
@@ -510,6 +520,7 @@ Contributors
    Added more ASSERTs to the code, implemented the Cohen-Sutherland clipping 
    algorithm for the line() function, supplied an m4 macro for Allegro
    and added SCons support.
+   Also fixed a problem with allegro-config.
 
    Jonas Petersen (<email>joXonoX@berlin.snafu.de</a>).<br>
    Added the save_bmp() function and support for the OS/2 BMP format.
@@ -639,6 +650,9 @@ Contributors
    code we are still using today and added support for the more recent
    Trident chipsets (now available as part of the FreeBE/AF project).
 
+   Mark Keller.<br>
+   Reported two minor mistakes in the manual.
+
    Mark Wodrich (<email>mwodric@eleceng.uct.ac.za</a>).<br>
    The brain behind sub-bitmaps, flicker-free mouse pointers, and the
    ability to import GRX .FNT files into the grabber.
@@ -673,6 +687,9 @@ Contributors
    of left-hand mouse configuration under Windows, fixed a bug with
    pack_fgets(), made an online diff generator and did lots of other things too.
 
+   Matthew Smith.<br>
+   Fix a bug in C locking code in GDI.
+
    Maxime Carey (<email>werfu@users.sourceforge.net</a>).<br>
    Contributed the Canada (French) keyboard mapping file.
 
@@ -686,6 +703,9 @@ Contributors
 
    Michael Faerber.<br>
    Pointed out a mistake in the documentation for text_height().
+
+   Michael Jensen.<br>
+   Fixed a mistake in the documentation for is_compatible_font.
 
    Michael Rickmann (<email>mrickma@gwdg.de</a>).<br>
    Ported the Windows code to Mingw32.
@@ -853,6 +873,9 @@ Contributors
    Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
    Wrote the CPU type detection code.
 
+   Phil Krylov.<br>
+   Fixed a bug in load_bios_font().
+
    Phil Shenk (email unknown).<br>
    Improved the MSVC build instructions.
 
@@ -877,6 +900,9 @@ Contributors
 
    Richard Reeve (<email>r.e.reeve@stir.ac.uk</a>).<br>
    Fixed a silly mistake with gcc 3.0.x detection.
+
+   Rikard Peterson.<br>
+   Fixed a small problem with the Mac OS X joystick driver.
 
    Robert J. Ragno (<email>rjr@mit.edu</a>).<br>
    Wrote the Gravis GrIP driver, made some improvements to the Wingman, PSX
@@ -911,7 +937,7 @@ Contributors
    Contributed the MacOS 9 port of Allegro.
 
    Ryan Patterson.<br>
-   Some documentation fixes.
+   Made various documentation fixes and fixed a crash in free_config_entries.
 
    S.Sakamaki (<email>emt@geocities.co.jp</a>).<br>
    Added the VESA 3.0 refresh rate control code.
@@ -1078,10 +1104,18 @@ Contributors
    Made Allegro windows always popup centred in Windows and made fixes to the
    documentation.
 
+   torhu.<br>
+   Fixed an out-of-bounds error in akaitest.
+
+   Trent Gamblin.<br>
+   Implemented set_mouse_speed under X11, fixed the C version of stretch_blit
+   and made the fullscreen DirectX driver save and restore the palette on
+   switching away.
+
    V Karthik Kumar (<email>karthikkumar@gmail.com</a>).<br>
    Added a Tamil language greeting to exunicode, added switches to use
    the Intel compiler in Windows and added a password option to the Windows
-   screensaver example.
+   screensaver example. Also fixed a problem with allegro-config.
    
    Victor Williams Stafusa da Silva (<email>vwss1984@yahoo.com.br</a>).<br>
    Changed a few occurences of "256" to PAL_SIZE and made OS type detection

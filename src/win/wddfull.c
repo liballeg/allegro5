@@ -24,6 +24,7 @@ static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int colo
 static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int color_depth);
 static void finalize_fullscreen_init(void);
 static void switch_in_fullscreen(void);
+static void switch_out_fullscreen(void);
 
 
 GFX_DRIVER gfx_directx_accel =
@@ -148,13 +149,19 @@ static WIN_GFX_DRIVER win_gfx_fullscreen =
 {
    FALSE,                       // true if driver has backing store
    switch_in_fullscreen,
-   NULL,                        // AL_METHOD(void, switch_out, (void));
+   switch_out_fullscreen,
    NULL,                        // AL_METHOD(void, enter_sysmode, (void));
    NULL,                        // AL_METHOD(void, exit_sysmode, (void));
    NULL,                        // AL_METHOD(void, move, (int x, int y, int w, int h));
    NULL,                        // AL_METHOD(void, iconify, (void));
    NULL                         // AL_METHOD(void, paint, (RECT *));
 };
+
+
+/* When switching away from an 8-bit fullscreen program, the palette is lost.
+ * This stores the palette so it can be restored when switching back in.
+ */
+static PALETTE wddfull_saved_palette;
 
 
 
@@ -249,5 +256,18 @@ static void finalize_fullscreen_init(void)
 static void switch_in_fullscreen(void)
 {
    restore_all_ddraw_surfaces();
+
+   if (_color_depth == 8)
+     set_palette(wddfull_saved_palette);
 }
 
+
+
+/* switch_out_fullscreen:
+ *  Handles screen switched out.
+ */
+static void switch_out_fullscreen(void)
+{
+   if (_color_depth == 8)
+      get_palette(wddfull_saved_palette);
+}

@@ -151,6 +151,186 @@ Changes from 4.2.1 RC1 to 4.2.1 (November 2006)
 </ul>
 
 @heading
+Changes from 4.2.2 RC1 to 4.2.2 (July 2007)
+<ul><li>
+   Matthew Leverton added build instructions for DMC and updated the MSVC
+   project files and instructions.
+<li>
+   Matthew Leverton added a shell script wrapper around gcc to build universal
+   binaries (i386 + PPC) on Mac OS X and made the Allegro makefile use it.
+<li>
+   Peter Hull reenabled the Quit menu option on Mac OS X when
+   set_close_button_callback is used.
+<li>
+   Rikard Peterson fixed the Mac OS X joystick driver so that
+   HID_ELEMENT_STANDALONE_AXIS axes correctly got the flag JOYFLAG_UNSIGNED
+   and not JOYFLAG_DIGITAL.
+<li>
+   Matthew Leverton fixed a problem with the GDI driver blitting a rectangle
+   smaller than the bitmap's height that touches the bottom left corner of a
+   bitmap.
+<li>
+   Some minor changes.
+</ul>
+
+@heading
+Changes from 4.2.1 to 4.2.2 RC1 (July 2007)
+<ul><li>
+   Matthew Leverton added project files for MSVC 6/7/8 (see the build
+   directory and Allegro Wiki for instructions).
+<li>
+   Matthew Leverton added initial support for the Digital Mars C compiler
+   (for the Windows port).  It only works with the C-only port and
+   obj\dmc\plugins.h needs to be built by hand.
+<li>
+   Peter Wang cleaned up most of the autoconf namespace pollution.
+<li>
+   Matthew Smith made a fix for C locking code in GDI.
+<li>
+   Trent Gamblin made the fullscreen DirectX driver save and restore the
+   palette when switching away and back in 8-bit video modes.
+<li>
+   Elias Pschernig added missing documentation for pack_ungetc().
+<li>
+   Trent Gamblin fixed the C version of stretch_blit so it now draws
+   correctly. He also made it about 20% faster along the way.
+<li>
+   orz and Matthew Leverton made the ALLEGRO_USE_C=1 option to work under
+   MinGW and MSVC.
+<li>
+   Erno Schwetter fixed a long-standing bug in polygon() where the
+   bottom-most pixels would not be drawn.
+<li>
+   Anthony 'Timorg' Cassidy made d_menu_proc fill up its assigned area with
+   the gui_bg_color.
+<li>
+   Phil Krylov fixed a bug that prevented load_bios_font() from loading 8x16
+   fonts.
+<li>
+   Etienne Vouga fixed a bug with the reset_controllers MIDI command.
+<li>
+   Milan Mimica fixed a double SWITCH_IN event callback bug when
+   de-minimizing an Allegro program in Windows.
+<li>
+   Erno Schwetter fixed a bug where __al_linux_console_fd was used in
+   display_switch_lock() without the console being initialized first.
+<li>
+   Erno Schwetter fixed an unbalanced __al_linux_console_graphics() call.
+<li>
+   Ryan Patterson fixed a crash in free_config_entries.
+<li>
+   Elias Pschernig added support for horizontal wheel mice (so far, only the
+   X11 driver reports any horizontal wheel movement though). Also increased
+   the number of supported mouse buttons from 3 to 5 for the X11 driver.
+<li>
+   Jon Rafkind and Karthik Kumar fixed a problem where allegro-config would
+   respect neither --libdir nor --includedir.
+<li>
+   Peter Wang fixed some problems with the ALSA MIDI driver in the case of
+   failure.
+<li>
+   torhu fixed a bug in akaitest where an array was indexed with -1.
+<li>
+   Trent Gamblin implemented set_mouse_speed under X11.  Peter Wang made
+   setting stick only while the cursor is in the Allegro window.
+<li>
+   Evert Glebbeek added desktop_color_depth and get_desktop_resolution to the
+   Linux fbcon driver.
+<li>
+   Matthew Leverton fixed building of universal binaries on MacOS X. This
+   currently requires OS X 10.4 on both PPC and Intel.
+<li>
+   Milan Miminca made the fbcon driver initialization fail if an unsupported
+   color depth was set.
+<li>
+   Michal Molhanec and Milan Mimica simplified the MSVC build process
+   and updated the documentation.
+<li>
+   Andrei Ellman made the MSVC makefile compatible with cygwin port of
+   make-3.81 (and newer?). makefile.vc now uses cygpath tool to convert DOS
+   8.3 paths to unix-style paths.
+<li>
+   Daniel Schlyder added a functions is_trans_font, font_has_alpha.
+<li>
+   Daniel Schlyder made load_txt_font() additionally search for files
+   referenced in the font script in the same directory as the script itself.
+   It still searches in the current working directory first (for relative
+   paths).
+<li>
+   Daniel Schlyder documented that register_assert_handler() and
+   register_trace_handler() can be called before initialising Allegro.
+<li>
+   Daniel Schlyder prevented the Windows port from registering its default
+   trace handler on initialisation if the user had previously registered a
+   custom trace handler.
+<li>
+   Andrei Ellman modified the 6-to-8 bit value scaling tables to be more
+   evenly distributed, and changed the implementation of
+   create_blender_table() to create a more evenly distributed distribution of
+   the lower 2 bits.  It should be faster as well. 
+<li>
+   Other minor bug fixes and documentation updates.
+</ul>
+
+@heading
+Changes from 4.2.1 RC1 to 4.2.1 (November 2006)
+<ul><li>
+   Peter Wang made the Unix ports query the memory page size with sysconf()
+   when necessary, instead of using the PAGE_SIZE constant, which seems to be
+   Linux-specific.
+<li>
+   Matthew Leverton gave the STATICRUNTIME builds of MSVC new names by
+   appending _crt (c run time) to the libraries. He also fixed the problem of
+   incorrectly setting the EMBED_MANIFEST variable when using the
+   STATICRUNTIME.
+<li>
+   Andrei Ellman fixed an inverted test in pack_fopen_chunk on Windows.
+<li>
+   Peter Hull made 32-bit icon generation by fixbundle endian-independent
+   (colours were incorrect on Intel Macs).
+<li>
+   Peter Wang fixed a long standing bug where some compressed packfiles would not
+   be read back properly (premature EOF).  Reported by jman2050.
+<li>
+   Andrei Ellman spotted a free() of an internal buffer returned by tmpnam().
+<li>
+   Peter Hull fixed a problem with mouse-related deadlock on MacOS X as
+   reported by Mike Farrell.
+<li>
+   Peter Hull implemented simulation of video bitmaps on MacOS X, so that
+   page flipping will work.
+<li>
+   Peter Hull fixed an endian problem in the digital sound driver on MacOS X.
+<li>
+   Elias Pschernig and Chris Robinson fixed problems with UTF-8 filenames
+   under Unix, as reported by Grzegorz.  Non-ASCII non-UTF-8 filenames remain
+   broken.
+<li>
+   Chris Robinson fixed some problems with non-ASCII filenames under Windows.
+<li>
+   Elias Pschernig made the X11 driver call XInitThreads, to make Mesa-OpenGL
+   work together with Allegro.  It can be disabled at runtime through a config
+   variable.
+<li>
+   Andrei Ellman fixed a bug in datedit.c that could crash the grabber.
+<li>
+   Elias Pschernig added file_size_ex(), which returns a 64 bit integer
+   to handle large files.
+<li>
+   Ron Novy made improvements to the test program.
+<li>
+   Peter Hull fixed problems with set_mouse_sprite() on Intel Macs.
+<li>
+   Peter Hull added universal binary support to the MacOS X port.
+<li>
+   Peter Wang and Evert Glebbeek independently fixed a problem with dependency
+   generation for MacOS X on non-Mac systems.
+<li>
+   Many smaller fixes and updates by Peter Hull, Elias Pschernig, Peter Wang
+   and Milan Mimica.
+</ul>
+
+@heading
 Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
 <ul><li>
    Michal Molhanec made msvchelp.exe work on Cygwin, where there was a

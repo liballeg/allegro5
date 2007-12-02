@@ -3,10 +3,23 @@
 # Create `languages.dat' and `keyboard.dat' from `resource' directory.
 #
 
-test -z "$DAT" && DAT=dat
+case "$DAT" in
+    "")
+	# DAT not supplied.  Assume dat is installed on the PATH.
+	DAT=dat
+	;;
+    ./*|../*)
+	# DAT supplied and looks like relative path.
+	# Assume it is and make it absolute.
+	DAT="`pwd`/$DAT"
+	;;
+    *)
+	# DAT supplied.
+	;;
+esac
 
 # Make sure that dat actually is available.
-if ! ($DAT ; true) | fgrep -q 'Allegro'
+if ! ($DAT ; true) 2>/dev/null | fgrep -q 'Allegro'
 then
     echo "$0: dat tool not available, aborted"
     exit 1

@@ -131,7 +131,7 @@ fi
 dnl Enable magic main (default: no).
 AC_ARG_ENABLE(magicmain,
 [  --enable-magicmain[=x]  enable magic main [default=no]],
-test "X$enableval" == "Xyes" && AC_DEFINE(ALLEGRO_WITH_MAGIC_MAIN,1,[Define if you need to use a magic main.]))
+test "X$enableval" = "Xyes" && AC_DEFINE(ALLEGRO_WITH_MAGIC_MAIN,1,[Define if you need to use a magic main.]))
 
 #-----------------------------------------------------------------------------#
 
@@ -540,18 +540,16 @@ AC_SUBST(ALLEGRO_XWINDOWS_LIBDIR)
 # Linux console
 #
 
+#-----------------------------------------------------------------------------#
+#
+# Linux console
+#
+
 dnl Enable Linux console support
 AC_ARG_ENABLE(linux,
 [  --enable-linux[=x]      enable Linux console support [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_linux=yes,
 allegro_enable_linux=yes)
-
-_linux_console="Linux console support:"
-if test "X$allegro_enable_linux" != "Xyes"; then
-  _linux_console="$_linux_console disabled"
-else
-  _linux_console="$_linux_console enabled"
-fi
 
 dnl Enable Linux console VGA driver
 AC_ARG_ENABLE(vga,
@@ -580,6 +578,7 @@ allegro_enable_svgalib=yes)
 dnl Some miscellaneous defines.
 ALLEGRO_MAYBE_LINUX_FILES=ALLEGRO_EMPTY_LIST
 
+allegro_support_linux=no
 allegro_system=`uname -s | tr A-Z a-z`
 case "$allegro_system" in
 
@@ -678,11 +677,10 @@ else
   _disabled_modules="jackdigi $_disabled_modules"
 fi
 
-if test "X$allegro_support_xf86dga2" = "Xyes"; then
-  _enabled_modules="dga2 $_enabled_modules"
-else
-  _disabled_modules="dga2 $_disabled_modules"
-fi
+#-----------------------------------------------------------------------------#
+#
+# Modules
+#
 
 #-----------------------------------------------------------------------------#
 #
@@ -912,7 +910,7 @@ EOF
 dnl Warn if neither X11 nor Linux console support is going to be built,
 dnl or just if X11 support is not going to be built.
 if test "X$allegro_support_xwindows" != "Xyes"; then
-  if test "X$allegro_enable_linux" != "Xyes"; then
+  if test "X$allegro_support_linux" != "Xyes"; then
     cat >> makefile.info << EOF
  Warning: the library will not be built with either X11 or Linux console
           support.  This configuration is useless for most purposes.

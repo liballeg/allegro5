@@ -405,8 +405,6 @@ static int osx_sys_init(void)
       return -1;
    }
 
-   _unix_guess_file_encoding();
-
    /* Install emergency-exit signal handlers */
    old_sig_abrt = signal(SIGABRT, osx_signal_handler);
    old_sig_fpe  = signal(SIGFPE,  osx_signal_handler);

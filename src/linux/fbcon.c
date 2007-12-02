@@ -519,8 +519,6 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    else
       gfx_fbcon.scroll = NULL;
 
-   __al_linux_console_graphics();
-
    if (fb_approx)
       memset(fbaddr, 0, gfx_fbcon.vid_mem);
 

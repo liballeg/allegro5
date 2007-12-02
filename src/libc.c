@@ -102,7 +102,6 @@ int _alemu_memcmp(AL_CONST void *s1, AL_CONST void *s2, size_t num)
    size_t i;
    ASSERT(s1);
    ASSERT(s2);
-   ASSERT(num >= 0);
 
    for (i=0; i<num; i++)
       if (((unsigned char *)s1)[i] != ((unsigned char *)s2)[i])

@@ -268,6 +268,7 @@ void _al_xwin_mouse_button_press_handler(unsigned int x_button)
       return;
 
    /* Is this event actually generated for a mouse wheel movement? */
+   /* TODO secondary wheel support */
    dz = x_button_to_wheel(x_button);
    if (dz != 0) {
       wheel_motion_handler(dz);

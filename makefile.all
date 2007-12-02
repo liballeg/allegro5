@@ -15,7 +15,7 @@
 #                           to *NOT* be backwards compatible (GCC-based platforms, MSVC).
 #        TARGET_OPTS        allows you to customize general optimizations (GCC-based platforms).
 #        CROSSCOMPILE=1     cross-build under Linux (DJGPP, MinGW32).
-#        ALLEGRO_USE_C=1    use C drawing code instead of asm (GCC-based platforms).
+#        ALLEGRO_USE_C=1    use C drawing code instead of asm (GCC-based platforms, MSVC).
 #        UNIX_TOOLS=1       use Unix-like tools instead of DOS tools.
 #
 #     Targets: 
@@ -143,9 +143,10 @@ EXAMPLES = $(basename $(notdir $(ALLEGRO_EXAMPLE_FILES)))
 EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 
 ifdef HTML
+# XXX this is duplicated in makefile.in
 DOCBASEFILES = ahack changes faq mistakes help thanks allegro const abi api packfile \
                readme makedoc datafile grabber dat dat2c dat2s license
-DOCBUILDFILES = bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom
+DOCBUILDFILES = bcc32 beos darwin djgpp dmc linux macosx mingw32 msvc qnx unix watcom
 DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 
 DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,$(filter-out changes thanks readme, $(DOCBASEFILES))))

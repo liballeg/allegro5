@@ -94,7 +94,7 @@ static bool init_joystick(void)
          case HID_ELEMENT_AXIS:
          case HID_ELEMENT_AXIS_PRIMARY_X:
          case HID_ELEMENT_AXIS_PRIMARY_Y:
-         case HID_ELEMENT_STANDALONE_AXIS:
+	    /* Changes here may need to be duplicated in case below. */
             if (element->app>=MAX_JOYSTICKS || element->col>=MAX_JOYSTICK_STICKS || element->index>=MAX_JOYSTICK_AXIS) {
                element->cookie=0x0;
                break;
@@ -110,6 +110,24 @@ static bool init_joystick(void)
                joy[element->app].stick[element->col].axis[element->index].name = element->index==0 ? name_x : name_y;
 
             break;
+
+	 case HID_ELEMENT_STANDALONE_AXIS:
+	    /* Changes here may need to be duplicated in case directly above. */
+	    if (element->app>=MAX_JOYSTICKS || element->col>=MAX_JOYSTICK_STICKS || element->index>=MAX_JOYSTICK_AXIS) {
+	       element->cookie=0x0;
+	       break;
+	    }
+	    joy[element->app].stick[element->col].name = name_stick;
+	    joy[element->app].stick[element->col].num_axis++;
+	    if (joy[element->app].num_sticks<(element->col+1))
+	       joy[element->app].num_sticks=element->col+1;
+	    joy[element->app].stick[element->col].flags = JOYFLAG_ANALOGUE | JOYFLAG_UNSIGNED;
+	    if (element->name)
+	       joy[element->app].stick[element->col].axis[element->index].name = element->name;
+	    else
+	       joy[element->app].stick[element->col].axis[element->index].name = element->index==0 ? name_x : name_y;
+
+	    break;
 
          case HID_ELEMENT_HAT:
             if (element->app>=MAX_JOYSTICKS || element->col >= MAX_JOYSTICK_STICKS) {

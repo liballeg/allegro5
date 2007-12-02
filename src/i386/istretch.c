@@ -492,7 +492,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
 /* _al_stretch_blit:
  *  Bitmap scaling function.
  */
-void _al_stretch_blit(struct BITMAP *s, int s_x, int s_y, int s_w, int s_h, struct BITMAP *d, int d_x, int d_y, int d_w, int d_h, bool mask)
+void _al_stretch_blit(struct BITMAP *s, struct BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h, int mask)
 {
    do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, mask);
 }

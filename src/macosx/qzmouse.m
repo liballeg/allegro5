@@ -92,10 +92,25 @@ static AL_MOUSE* osx_get_mouse(void)
    return (AL_MOUSE*) &osx_mouse.parent;
 }
 
-/* osx_mouse_generate_event:
- * Convert an OS X mouse event to an Allegro event
- * and push it into a queue.
- * First check that the event is wanted.
+static char driver_desc[256];
+
+
+/* osx_change_cursor:
+ * Actually change the current cursor. This can be called fom any thread 
+ * but ensures that the change is only called from the main thread.
+ */
+static void osx_change_cursor(NSCursor* cursor)
+{
+   _unix_lock_mutex(osx_event_mutex);
+   osx_cursor = cursor;
+   _unix_unlock_mutex(osx_event_mutex);
+   [cursor performSelectorOnMainThread: @selector(set) withObject: nil waitUntilDone: NO];
+}
+
+
+
+/* osx_mouse_handler:
+ *  Mouse "interrupt" handler for mickey-mode driver.
  */
 void osx_mouse_generate_event(NSEvent* evt)
 {
@@ -348,7 +363,7 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
 {
    int ix, iy;
    int sw, sh;
-	
+   
    if (!sprite)
       return -1;
    sw = sprite->w;
@@ -360,56 +375,46 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
          return -1;
       sh = sw = 16;
    }
-	
-   // release any previous cursor
-   [osx_mouse.cursor release];
-	
+   
+   // Delete the old cursor (OK to send a message to nil)
+   [cursor release];
+
    NSBitmapImageRep* cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: NULL
-                                                            pixelsWide: sw
-                                                            pixelsHigh: sh
-                                                            bitsPerSample: 8
-                                                            samplesPerPixel: 4
-                                                            hasAlpha: YES
-                                                            isPlanar: NO
-                                                            colorSpaceName: NSDeviceRGBColorSpace
-                                                            bytesPerRow: 0
-                                                            bitsPerPixel: 0];
+                                       pixelsWide: sw
+                                       pixelsHigh: sh
+                                       bitsPerSample: 8
+                                       samplesPerPixel: 4
+                                       hasAlpha: YES
+                                       isPlanar: NO
+                                       colorSpaceName: NSDeviceRGBColorSpace
+                                       bytesPerRow: 0
+                                       bitsPerPixel: 0];
    int bpp = bitmap_color_depth(sprite);
    int mask = bitmap_mask_color(sprite);
-   for (iy = 0; iy< sh; ++iy)
-      {
-         unsigned char* ptr = [cursor_rep bitmapData] + (iy * [cursor_rep bytesPerRow]);
-         for (ix = 0; ix< sw; ++ix)
-            {
-               int color = getpixel(sprite, ix, iy);
-               if (color == -1) color = mask;
-               int alpha = (color == mask) ? 0 : ((bpp == 32) ? geta_depth(bpp, color) : 255);
-               // NSBitmapImageRep uses premultiplied alpha
-               ptr[0] = getb_depth(bpp, color) * alpha / 256;
-               ptr[1] = getg_depth(bpp, color) * alpha / 256;
-               ptr[2] = getr_depth(bpp, color) * alpha / 256;
-               ptr[3] = alpha;
-               ptr += 4;
-            }
+   for (iy = 0; iy< sh; ++iy) {
+      unsigned char* ptr = [cursor_rep bitmapData] + (iy * [cursor_rep bytesPerRow]);
+      for (ix = 0; ix< sw; ++ix) {
+         int color = is_inside_bitmap(sprite, ix, iy, 1) 
+            ? getpixel(sprite, ix, iy) : mask; 
+         // Disable the possibility of mouse sprites with alpha for now, because
+         // this causes the built-in cursors to be invisible in 32 bit mode.
+         // int alpha = (color == mask) ? 0 : ((bpp == 32) ? geta_depth(bpp, color) : 255);
+         int alpha = (color == mask) ? 0 : 255;
+         // BitmapImageReps use premultiplied alpha
+         ptr[0] = getb_depth(bpp, color) * alpha / 255;
+         ptr[1] = getg_depth(bpp, color) * alpha / 255;
+         ptr[2] = getr_depth(bpp, color) * alpha / 255;
+         ptr[3] = alpha;
+         ptr += 4;
       }
+   }
    NSImage* cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(sw, sh)];
    [cursor_image addRepresentation: cursor_rep];
    [cursor_rep release];
-   osx_mouse.cursor = [[NSCursor alloc] initWithImage: cursor_image
-                                        hotSpot: NSMakePoint(x, y)];
+   cursor = [[NSCursor alloc] initWithImage: cursor_image
+                            hotSpot: NSMakePoint(x, y)];
    [cursor_image release];
-   AllegroView* v = osx_view_from_display(NULL);
-   if (v)
-      {
-         [v performSelectorOnMainThread: @selector(setCursor)
-            withObject: osx_mouse.cursor
-            waitUntilDone: NO];
-      }
-   else
-      {
-         [osx_mouse.cursor set];
-      }
-	
+   osx_change_cursor(requested_cursor = cursor);
    return 0;
 }
 
@@ -422,19 +427,12 @@ int osx_mouse_show(BITMAP *bmp, int x, int y)
    /* Only draw on screen */
    if (!is_same_bitmap(bmp, screen))
       return -1;
-	
-   AllegroView* v = osx_view_from_display(NULL);
-   if (v)
-      {
-         [v performSelectorOnMainThread: @selector(setCursorVisible)
-            withObject: nil
-            waitUntilDone: NO];
-      }
-   else
-      {
-         [NSCursor unhide];
-      }
-	
+
+   if (!requested_cursor)
+      return -1;
+
+   osx_change_cursor(requested_cursor);
+
    return 0;
 }
 
@@ -445,17 +443,7 @@ int osx_mouse_show(BITMAP *bmp, int x, int y)
  */
 void osx_mouse_hide(void)
 {
-   AllegroView* v = osx_view_from_display(NULL);
-   if (v)
-      {
-         [v performSelectorOnMainThread: @selector(setCursorHidden)
-            withObject: nil
-            waitUntilDone: NO];
-      }
-   else
-      {
-         [NSCursor hide];
-      }
+   osx_change_cursor(osx_blank_cursor);
 }
 
 /* osx_enable_hardware_cursor:
@@ -485,17 +473,7 @@ static int osx_select_system_cursor(AL_CONST int cursor)
    default:
       return 0;
    }
-   AllegroView* v = osx_view_from_display(NULL);
-   if (v)
-      {
-         [v performSelectorOnMainThread: @selector(setCursor)
-            withObject: requested_cursor
-            waitUntilDone: NO];
-      }
-   else
-      {
-         [requested_cursor set];
-      }
+   osx_change_cursor(requested_cursor);
    return cursor;
 }
 

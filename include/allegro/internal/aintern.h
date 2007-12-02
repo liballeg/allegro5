@@ -129,6 +129,8 @@ AL_FUNC(int, _al_drive_exists, (int drive));
 AL_FUNC(int, _al_getdrive, (void));
 AL_FUNC(void, _al_getdcwd, (int drive, char *buf, int size));
 
+AL_FUNC(void, _al_detect_filename_encoding, (void));
+
 /* obsolete; only exists for binary compatibility with 4.2.0 */
 AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
 
@@ -218,19 +220,17 @@ AL_VAR(int, _key_standard_kb);
 
 #if (defined ALLEGRO_WINDOWS)
 
-AL_FUNC(int, _alwin_open, (const char*, int, int));
-AL_FUNC(int, _alwin_unlink, (const char*));
+   AL_FUNC(int, _al_win_open, (const char *filename, int mode, int perm));
+   AL_FUNC(int, _al_win_unlink, (const char *filename));
 
-   #define IS_OLD_WINDOWS (os_type==OSTYPE_WIN3  || os_type==OSTYPE_WIN95 || \
-                           os_type==OSTYPE_WIN98 || os_type==OSTYPE_WINME || \
-                           os_type==OSTYPE_UNKNOWN)
-   #define _al_open   _alwin_open
-   #define _al_unlink _alwin_unlink
+
+   #define _al_open(filename, mode, perm)   _al_win_open(filename, mode, perm)
+   #define _al_unlink(filename)             _al_win_unlink(filename)
 
 #else
 
-   #define _al_open   open
-   #define _al_unlink unlink
+   #define _al_open(filename, mode, perm)   open(filename, mode, perm)
+   #define _al_unlink(filename)             unlink(filename)
 
 #endif
 

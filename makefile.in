@@ -211,6 +211,9 @@ allegro_aintdos_h = $(srcdir)/include/allegro/platform/aintdos.h \
 obj_unix_asmdef_inc = $(OBJDIR)/asmdef.inc
 xalleg_h = $(srcdir)/include/xalleg.h
 
+# required to get asmdef.inc to be built automatically
+$(ALLEGRO_SRC_I386_FILES): $(obj_unix_asmdef_inc)
+
 ifdef CROSSCOMPILE
 
 $(OBJDIR)/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h
@@ -234,9 +237,10 @@ endif
 
 # -------- documentation --------
 
+# XXX this is duplicated in makefile.all
 DOCBASEFILES = ahack changes faq mistakes help thanks allegro const abi api packfile \
                readme makedoc datafile grabber dat dat2c dat2s license
-DOCBUILDFILES = bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom
+DOCBUILDFILES = bcc32 beos darwin djgpp dmc linux macosx mingw32 msvc qnx unix watcom
 DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 
 DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,$(filter-out changes thanks readme, $(DOCBASEFILES))))
@@ -341,6 +345,11 @@ info:
 # -------- dependencies and rules for building libraries and simple programs --------
 
 -include makefile.dep
+
+# required to fix parallel make builds, makes the lib targets a dependency of the exe targets
+# XXX this is a little bit of a hack. Ideally youd want only the debug exes to depend on the debug libs,
+# not all of them.
+$(ALLEGRO_EXE_TARGETS): $(ALLEGRO_LIB_TARGETS)
 
 ifdef CROSSCOMPILE
 

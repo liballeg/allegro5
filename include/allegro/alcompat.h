@@ -608,6 +608,7 @@ AL_VAR(int, mouse_y_focus);
 AL_VAR(volatile int, mouse_x);
 AL_VAR(volatile int, mouse_y);
 AL_VAR(volatile int, mouse_z);
+AL_VAR(volatile int, mouse_w);
 AL_VAR(volatile int, mouse_b);
 AL_VAR(volatile int, mouse_pos);
 
@@ -621,6 +622,7 @@ AL_VAR(volatile int, freeze_mouse_flag);
 #define MOUSE_FLAG_MIDDLE_DOWN      32
 #define MOUSE_FLAG_MIDDLE_UP        64
 #define MOUSE_FLAG_MOVE_Z           128
+#define MOUSE_FLAG_MOVE_W           256
 
 AL_FUNCPTR(void, mouse_callback, (int flags));
 

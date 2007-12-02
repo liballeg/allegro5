@@ -56,7 +56,7 @@ AL_FUNC(void, stretch_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x,
 AL_FUNC(void, _soft_draw_gouraud_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4));
 
 
-AL_FUNC(void, _al_stretch_blit, (struct BITMAP *source, int source_x, int source_y, int source_w, int source_h, struct BITMAP *dest, int dest_x, int dest_y, int dest_w, int dest_h, bool mask));
+AL_FUNC(void, _al_stretch_blit, (struct BITMAP *src, struct BITMAP *dst, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, int masked));
 
 
 /* Compatibility stuff */

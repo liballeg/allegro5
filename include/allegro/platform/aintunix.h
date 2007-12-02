@@ -67,9 +67,9 @@ extern "C" {
    AL_FUNC(void, _unix_register_digi_driver, (int id, DIGI_DRIVER *driver, int autodetect, int priority));
    AL_FUNC(void, _unix_register_midi_driver, (int id, MIDI_DRIVER *driver, int autodetect, int priority));
 
+   /* Get size of a memory page in bytes */
+   AL_FUNC(size_t, _unix_get_page_size, (void));
 
-   /* File system helpers */
-   AL_FUNC(void, _unix_guess_file_encoding, (void));
 
 
    /* Get size of a memory page in bytes */

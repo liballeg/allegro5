@@ -43,6 +43,11 @@ necessary software installed.
 7. Tag SVN repository:
     svn cp https://svn.sourceforge.net/svnroot/alleg/allegro/branches/4.2 https://svn.sourceforge.net/svnroot/alleg/allegro/tags/v4-2-1
 
+* NOTE: svn doesn't retain timestamps when you use svn up or svn co.  IMHO it's
+    best for files to keep the timestamp of the last change that was made in
+    SVN -- a little bit of history.  You might want to do the next few steps
+    from an `svn export'ed directory, which does preserve timestamps.
+
 8. Set the locale to en_US or en_UK:
 
    export LC_ALL=en_US

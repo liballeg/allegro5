@@ -42,6 +42,8 @@
       #include "allegro/platform/alwatcom.h"
    #elif defined ALLEGRO_MINGW32
       #include "allegro/platform/almngw32.h"
+   #elif defined ALLEGRO_DMC
+      #include "allegro/platform/aldmc.h"
    #elif defined ALLEGRO_BCC32
       #include "allegro/platform/albcc32.h"
    #elif defined ALLEGRO_MSVC

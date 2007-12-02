@@ -268,6 +268,10 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
             _win_switch_out();
          }
          else {
+	    /* Ignore the WM_ACTIVATE event if the window is minimized. */
+	    if (HIWORD(wparam))
+	       break;
+
             if (gfx_driver && !gfx_driver->windowed) {
                /* 1.2s delay to let Windows complete the switch in fullscreen mode */
                SetTimer(win_get_window(), SWITCH_TIMER, 1200, NULL);

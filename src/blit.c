@@ -748,7 +748,7 @@ void masked_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, 
 
 void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h)
 {
-   _al_stretch_blit(s, s_x, s_y, s_w, s_h,  d, d_x, d_y, d_w, d_h, false);
+   _al_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, false);
 
    if (d->needs_upload) {
       d->display->vt->upload_compat_screen(d, d_x, d_y, d_w, d_h);
@@ -757,7 +757,7 @@ void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int 
 
 void masked_stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h)
 {
-   _al_stretch_blit(s, s_x, s_y, s_w, s_h,  d, d_x, d_y, d_w, d_h, true);
+   _al_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, true);
 
    if (d->needs_upload) {
       d->display->vt->upload_compat_screen(d, d_x, d_y, d_w, d_h);
@@ -768,7 +768,7 @@ void stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h)
 {
    ASSERT(sprite);
 
-   _al_stretch_blit(sprite, 0, 0, sprite->w, sprite->h, bmp, x, y, w, h, true);
+   _al_stretch_blit(sprite, bmp, 0, 0, sprite->w, sprite->h, x, y, w, h, true);
 
    if (bmp->needs_upload) {
       bmp->display->vt->upload_compat_screen(bmp, x, y, w, h);

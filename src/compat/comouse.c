@@ -42,12 +42,14 @@ MOUSE_DRIVER *mouse_driver = NULL;     /* the active driver */
 volatile int mouse_x = 0;              /* user-visible position */
 volatile int mouse_y = 0;
 volatile int mouse_z = 0;
+volatile int mouse_w = 0;
 volatile int mouse_b = 0;
 volatile int mouse_pos = 0;
 
 static int _mouse_x = 0;               /* internal position */
 static int _mouse_y = 0;
 static int _mouse_z = 0;
+static int _mouse_w = 0;
 static int _mouse_b = 0;
 int _al_comouse_on = TRUE;
 
@@ -274,7 +276,7 @@ static void update_mouse(void)
 
 static void update_mouse_2(void)
 {
-   int x, y, z, b, flags = 0;
+   int x, y, z, w, b, flags = 0;
 
    if (freeze_mouse_flag) {
       x = mx;
@@ -286,6 +288,7 @@ static void update_mouse_2(void)
    }
 
    z = _mouse_z;
+   w = _mouse_w;
    b = _mouse_b;
 
    if (emulate_three) {
@@ -296,6 +299,7 @@ static void update_mouse_2(void)
    if ((mouse_x != x) ||
        (mouse_y != y) ||
        (mouse_z != z) ||
+       (mouse_w != w) ||
        (mouse_b != b)) {
 
       if (mouse_callback) {
@@ -304,6 +308,9 @@ static void update_mouse_2(void)
 
          if (mouse_z != z)
             flags |= MOUSE_FLAG_MOVE_Z;
+
+         if (mouse_w != w)
+            flags |= MOUSE_FLAG_MOVE_W;
 
          if ((b & 1) && !(mouse_b & 1))
             flags |= MOUSE_FLAG_LEFT_DOWN;
@@ -323,6 +330,7 @@ static void update_mouse_2(void)
          mouse_x = x;
          mouse_y = y;
          mouse_z = z;
+         mouse_w = w;
          mouse_b = b;
          mouse_pos = ((x & 0xFFFF) << 16) | (y & 0xFFFF);
 
@@ -332,6 +340,7 @@ static void update_mouse_2(void)
          mouse_x = x;
          mouse_y = y;
          mouse_z = z;
+         mouse_w = w;
          mouse_b = b;
          mouse_pos = ((x & 0xFFFF) << 16) | (y & 0xFFFF);
       }
@@ -1025,6 +1034,7 @@ void remove_mouse(void)
 
    mouse_x = mouse_y = _mouse_x = _mouse_y = 0;
    mouse_z = _mouse_z = 0;
+   mouse_w = _mouse_w = 0;
    mouse_b = _mouse_b = 0;
    mouse_pos = 0;
 
@@ -1088,6 +1098,7 @@ static void comouse_thread_func(_AL_THREAD *self, void *unused)
             _mouse_x = event.mouse.x;
             _mouse_y = event.mouse.y;
             _mouse_z = event.mouse.z;
+            _mouse_w = event.mouse.w;
             comouse_mickeyx += event.mouse.dx;
             comouse_mickeyy += event.mouse.dy;
             break;

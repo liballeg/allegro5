@@ -28,8 +28,48 @@ MSVC notes
    The screensaver example is built, but you must copy <tt>scrsave.scr</tt> to
    your <tt>windows/system</tt> directory (or <tt>winnt/system32</tt> directory
    under Windows NT/2k/XP) if you want to test it.
+   
+   You may also want to refer to one of the following, as they may include
+   more up to date information:
+   
+     <ul><li><link>http://wiki.allegro.cc/Build/MSVC_6</a>
+     <li><link>http://wiki.allegro.cc/Build/MSVC_7</a>
+     <li><link>http://wiki.allegro.cc/Build/MSVC_8</a>
+     </ul>
 
+@heading
+Project Files
 
+   Project files for MSVC 6, 7, and 8 are included in the /build/msvc directory.
+   If you choose to use them, you can ignore the other sections of this
+   document. (The "Using Allegro" section would still apply.)
+   
+   You do need to make sure you have recent versions of the DirectX and
+   Windows Platform headers, as described in the "Required software section."
+   
+   Before you can use the project files, you must first double-click on the
+   /build/msvc/pre-build-msvc.bat file. Then open the Allegro project file
+   and select Build / Batch Build from the menu. Select the versions you want to
+   build and then press the Build button.
+   
+   (Note that under MSVC 6 you may need to repeat the build process several times
+   due to compiler bugs.) 
+   
+   If everything builds successfully, you'll need to copy some files to finish
+   the installation:
+   
+   <ul><li>Copy the contents of C:\allegro\include to "Visual Studio\VC\include"
+   <li>Copy the .lib files from C:\allegro\lib\msvc to "Visual Studio\VC\lib"
+   <li>Copy the .dll files from C:\allegro\lib\msvc to C:\Windows\System32 
+   </ul>
+     
+   The most common location of Visual Studio is "C:\Program Files\Microsoft
+   Visual Studio."
+   
+   Then you can build the rest of the examples, demos, tests, and tools by 
+   opening up their respective project files and selectiong Batch Build from
+   the menu.
+      
 
 @heading
 Required software
@@ -204,13 +244,19 @@ Using Allegro
    <tt>allegro.h</tt>. You should include this in your programs, and link with one of
    the libraries:
 <textblock>
-      alleg.lib      - optimised DLL import library
-      alld.lib       - debugging DLL import library
-      allp.lib       - profiling DLL import library
-      alleg_s.lib    - statically linked optimised library
-      alld_s.lib     - statically linked debugging library
-      allp_s.lib     - statically linked profiling library
+      alleg.lib       - optimised DLL import library
+      alld.lib        - debugging DLL import library
+      allp.lib        - profiling DLL import library
+      alleg_s.lib     - statically linked optimised library
+      alld_s.lib      - statically linked debugging library
+      allp_s.lib      - statically linked profiling library
+      alleg_s_crt.lib - statically linked optimised library 
+                           with the static C runtime
 <endblock>
+   All above library configurations could be built with <tt>ALLEGRO_USE_C</tt> option which
+   would add a "_c" suffix to them. When linking your program to such a library, you must define
+   the preprocessor symbol <tt>ALLEGRO_NO_ASM</tt> before including any of the Allegro headers.
+
    When using a statically linked library, you must define the preprocessor
    symbol <tt>ALLEGRO_STATICLINK</tt> before including any of the Allegro headers and
    link your program against Allegro and the main Win32/DirectX libraries
@@ -227,3 +273,8 @@ Using Allegro
    If you use one of the DLL versions, you will obviously need to distribute 
    the appropriate DLL along with your program: these can be found in the 
    <tt>allegro/lib/msvc/</tt> directory.
+
+   The alleg_s_crt.lib is most useful with Visual C++ 8.0. The new C runtime that it
+   uses can be difficult to distribute. By using alleg_s_crt.lib along with the 
+   multi-threaded runtime (/MT) you can avoid the problem. For more information on
+   deploying with VC++ 8.0, see <link>http://wiki.allegro.cc/VisualCExpress2005#Deployment</a>.

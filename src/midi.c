@@ -627,6 +627,12 @@ static void reset_controllers(int channel)
    midi_channel[channel].new_volume = 128;
    midi_channel[channel].new_pitch_bend = 0x2000;
 
+   if (midi_driver->raw_midi) {
+      midi_driver->raw_midi(0xB0+channel);
+      midi_driver->raw_midi(121);
+      midi_driver->raw_midi(0);
+   }
+
    switch (channel % 3) {
       case 0:  midi_channel[channel].pan = ((channel/3) & 1) ? 60 : 68; break;
       case 1:  midi_channel[channel].pan = 104; break;

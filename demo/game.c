@@ -457,7 +457,6 @@ void play_game(void)
    prev_update_time = 0;
 
    /* main game loop */
-   set_volume(-1, 90);
    while (!esc) {
       int updated = 0;
 
@@ -471,7 +470,6 @@ void play_game(void)
          else {
             move_everyone();
             if (dead) {
-               set_volume(-1, 255);
                clear_keybuf();
             }
          }
@@ -501,7 +499,6 @@ void play_game(void)
          keypressed() || joy[0].button[0].b || joy[0].button[1].b)))
          esc = TRUE;
    }
-   set_volume(-1, 255);
 
    /* cleanup */
    remove_int(fps_proc);

@@ -57,7 +57,7 @@
 
 		A game programming library.
 
-	     By Shawn Hargreaves, May 20, 2007.
+	     By Shawn Hargreaves, Dec 02, 2007.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -1821,6 +1821,8 @@ which begin with a `[sectionname]' line. Each section has a unique
 namespace, to prevent variable name conflicts, but any variables that aren't 
 in a section are considered to belong to all the sections simultaneously.
 
+Note that variable and section names cannot contain spaces.
+
 By default the configuration data is read from a file called `allegro.cfg',
 which can be located either in the same directory as the program executable, 
 or the directory pointed to by the ALLEGRO environment variable. Under Unix, 
@@ -2171,6 +2173,13 @@ your game.
    char const **sections = NULL;
    char const **entries = NULL;
 
+   /* List all entries not in any section. */
+   n = list_config_entries(NULL, &entries);
+   for (i = 0; i < n; i++)
+      printf(" %s=\"%s\"\n", entries[i], get_config_string(
+             NULL, entries[i], "-"));
+
+   /* List all sections (and entries in them). */
    n = list_config_sections(&sections);
    /* loop through all section names */
    for (i = 0; i < n; i++)
@@ -2185,6 +2194,7 @@ your game.
              sections[i], entries[j], "-"));
       }
    }
+   /* It is enough to free the arrays once at the end. */
    free_config_entries(&sections);
    free_config_entries(&entries);<endblock>
 @retval
@@ -2818,6 +2828,7 @@ information for more details.
 @@extern volatile int @mouse_x;
 @@extern volatile int @mouse_y;
 @@extern volatile int @mouse_z;
+@@extern volatile int @mouse_w;
 @@extern volatile int @mouse_b;
 @@extern volatile int @mouse_pos;
 @xref install_mouse, poll_mouse, mouse_needs_poll
@@ -2828,12 +2839,12 @@ information for more details.
    mouse_needs_poll() returns TRUE, you must manually call poll_mouse() to 
    update them with the current input state. The `mouse_x' and `mouse_y' 
    positions are integers ranging from zero to the bottom right corner of 
-   the screen. The `mouse_z' variable holds the current wheel position, when 
-   using an input driver that supports wheel mice. The `mouse_b' variable is 
-   a bitfield indicating the state of each button: bit 0 is the left button, 
-   bit 1 the right, and bit 2 the middle button. Additional non standard
-   mouse buttons might be available as higher bits in this variable. Usage
-   example:
+   the screen. The `mouse_z' and `mouse_w' variables hold the current vertical
+   and horizontal wheel position, when using an input driver that supports
+   wheel mice. The `mouse_b' variable is a bitfield indicating the state of
+   each button: bit 0 is the left button,  bit 1 the right, and bit 2 the
+   middle button. Additional non standard mouse buttons might be available
+   as higher bits in this variable. Usage example:
 <codeblock>
       if (mouse_b & 1)
 	 printf("Left button is pressed\n");
@@ -2949,14 +2960,20 @@ information for more details.
 
 @@void @position_mouse(int x, int y);
 @xref install_mouse, position_mouse_z, set_mouse_range, set_mouse_speed
+@xref position_mouse_w
 @shortdesc Moves the mouse to the specified screen position.
    Moves the mouse to the specified screen position. It is safe to call even 
    when a mouse pointer is being displayed.
 
 @@void @position_mouse_z(int z);
-@xref install_mouse, position_mouse
+@xref install_mouse, position_mouse, position_mouse_w
 @shortdesc Sets the mouse wheel position global variable.
    Sets the mouse wheel position variable to the specified value.
+
+@@void @position_mouse_w(int w);
+@xref install_mouse, position_mouse
+@shortdesc Sets the horizontal mouse wheel position.
+   Sets the horizontal mouse wheel position to the specified value.
 
 @@void @set_mouse_range(int x1, int y1, int x2, int y2);
 @xref install_mouse, set_mouse_speed, position_mouse
@@ -3277,7 +3294,7 @@ chapter "Configuration routines" for more information about this.
       install_keyboard();
       /* We are not 100% sure we can read the keyboard yet! */
       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0)
-         abort_on_error("Couldn't set graphic mode!")
+         abort_on_error("Couldn't set graphic mode!");
 
       /* Now we are guaranteed to be able to read the keyboard. */
       readkey();<endblock>
@@ -5531,6 +5548,7 @@ before including Allegro headers).
 
 @@void @set_palette_range(const PALETTE p, int from, int to, int vsync);
 @xref set_palette, get_palette_range
+@eref exzbuf
 @shortdesc Sets a specific range of the palette.
    Sets the palette entries between from and to (inclusive: pass 0 and 255 
    to set the entire palette). If vsync is set it waits for the vertical 
@@ -6508,7 +6526,7 @@ clipping rectangle of the destination bitmap.
       if (key[KEY_RIGHT])
 	 draw_sprite(screen, hero_right, pos_x, pos_y);
       else if (key[KEY_LEFT])
-	 draw_h_sprite(screen, hero_right, pos_x, pos_y);
+	 draw_sprite_h_flip(screen, hero_right, pos_x, pos_y);
       else
 	 draw_sprite(screen, hero_idle, pos_x, pos_y);<endblock>
 
@@ -7496,7 +7514,7 @@ allegro/text.h for details.
 @\void @textprintf_right_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
 @@                         const char *fmt, ...);
 @xref textprintf_ex, textout_right_ex
-@eref exnewapi
+@eref exmouse
 @shortdesc Formatted right aligned output of a string.
    Like textprintf_ex(), but interprets the x coordinate as the right rather
    than the left edge of the string. This function shares the text length
@@ -9209,7 +9227,7 @@ Digital sample routines
 @shortdesc Loads a sample from a Creative Labs VOC file.
    Loads a sample from a Creative Labs VOC file. Example:
 <codeblock>
-      SAMPLE *sample = load_wav("alarm.wav");
+      SAMPLE *sample = load_voc("alarm.voc");
       if (!sample)
 	 abort_on_error("Couldn't alert user!");<endblock>
 @retval
@@ -10663,6 +10681,17 @@ any character, but only one).
    Returns the next character from the stream `f', or EOF if the end of the
    file has been reached.
 
+@@int @pack_ungetc(int c, PACKFILE *f);
+@xref pack_getc, pack_fgets
+@shortdesc Moves one single character back to the input buffer.
+   Puts a character back to the file's input buffer. Like with ungetc from
+   libc, only a single push back is guaranteed.
+
+   Note: pack_fgets internally uses pack_ungetc, so never use pack_ungetc
+   directly after using pack_fgets on a PACKFILE.
+@retval
+   Returns c on success, or EOF on error.
+
 @@int @pack_putc(int c, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk
 @shortdesc Puts a character in the stream.
@@ -10742,7 +10771,7 @@ any character, but only one).
    error occurs. Error codes are stored in errno.
 
 @@char *@pack_fgets(char *p, int max, PACKFILE *f);
-@xref pack_fopen, pack_fopen_chunk, pack_fread, pack_getc
+@xref pack_fopen, pack_fopen_chunk, pack_fread, pack_getc, pack_ungetc
 @shortdesc Reads a line from the stream.
    Reads a line from the stream `f', storing it at location pointed to by
    `p'. Stops when a linefeed is encountered, or `max' bytes have been read.
@@ -10751,7 +10780,12 @@ any character, but only one).
    (Mac) formats. However, the trailing carriage return is not included in the
    returned string, in order to provide easy code portability across
    platforms. If you need the carriage return, use pack_fread() and/or
-   pack_getc() instead. Example:
+   pack_getc() instead.
+
+   Note: This function internally may make calls to pack_ungetc, so you cannot
+   use pack_ungetc directly afterwards.
+
+   Example:
 <codeblock>
       char buf[256];
       ...
@@ -14439,6 +14473,10 @@ various attributes of the current platform:
    Defined if you are building for a relevant system. Often several of these 
    will apply, eg. DOS+Watcom, or Windows+GCC+MinGW.
 
+   Note that ALLEGRO_LINUX is a misnomer. It will only be defined if
+   <i>Linux console</i> support is enabled. It is not a reliable way to check
+   if the program is being built on a Linux system.
+
 <b>ALLEGRO_AMD64</b><br>
 <b>ALLEGRO_I386</b><br>
 <b>ALLEGRO_BIG_ENDIAN</b><br>
@@ -15190,7 +15228,7 @@ and avoid missing any important bit of information.
 @xref circle, clear_keybuf, clear_to_color, create_bitmap
 @xref desktop_palette, destroy_bitmap, font, get_mouse_mickeys
 @xref install_keyboard, install_mouse, install_timer, key, keypressed
-@xref makecol, mouse_b, mouse_x, mouse_y, mouse_z, palette_color
+@xref makecol, mouse_b, mouse_w, mouse_x, mouse_y, mouse_z, palette_color
 @xref poll_mouse, readkey, release_screen, screen, set_gfx_mode
 @xref set_mouse_sprite, set_mouse_sprite_focus, set_palette, show_mouse
 @xref textout_centre_ex, textout_ex, textprintf_centre_ex, textprintf_ex
@@ -15321,11 +15359,12 @@ and avoid missing any important bit of information.
 @@Example @exunicod
 @xref BITMAP, DATAFILE, END_OF_MAIN, FONT, SCREEN_H, SCREEN_W
 @xref allegro_error, allegro_init, allegro_message, blit, clear_to_color
-@xref create_bitmap, font, install_int_ex, install_keyboard
-@xref install_timer, keypressed, load_datafile, replace_filename, rest
-@xref screen, set_gfx_mode, set_uformat, set_window_title, text_height
-@xref text_length, textout_ex, uconvert_ascii, unload_datafile, ustrcat
-@xref ustrcpy, ustrsize, ustrsizez
+@xref create_bitmap, destroy_bitmap, font, install_int_ex
+@xref install_keyboard, install_timer, keypressed, load_datafile
+@xref replace_filename, rest, screen, set_gfx_mode, set_uformat
+@xref set_window_title, text_height, text_length, textout_ex
+@xref uconvert_ascii, unload_datafile, ustrcat, ustrcpy, ustrsize
+@xref ustrsizez
 @shortdesc Using Unicode string functions.
    This program demonstrates the use of the 16-bit Unicode text
    encoding format with Allegro. The example displays a message
@@ -15788,8 +15827,8 @@ and avoid missing any important bit of information.
 @xref gfx_mode_select_ex, install_int, install_keyboard, install_mouse
 @xref install_timer, keypressed, palette_color, persp_project_f
 @xref polygon_z_normal_f, quad3d_f, readkey, screen, set_color_depth
-@xref set_gfx_mode, set_palette, set_projection_viewport, set_zbuffer
-@xref textprintf_ex, vsync
+@xref set_gfx_mode, set_palette, set_palette_range
+@xref set_projection_viewport, set_zbuffer, textprintf_ex, vsync
 @shortdesc Z-buffered polygons demo.
    This program demonstrates how to use Z-buffered polygons and
    floating point 3D math routines. It also provides a simple

@@ -35,14 +35,19 @@ ifneq (,$(findstring /sh.exe,$(SHELL)))
    UNIX_TOOLS = 1
 endif
 
+ifdef ALLEGRO_USE_C
+   NO_ASM_SUFFIX = _c
+else
+   NO_ASM_SUFFIX =
+endif
 
 
 ifdef STATICLINK
 
 # -------- link as a static library --------
 
-OBJ_DIR = obj/mingw32/$(VERSION)_s
-IMPLIB_BASENAME = lib$(VERSION)_s.a
+OBJ_DIR = obj/mingw32/$(VERSION)_s$(NO_ASM_SUFFIX)
+IMPLIB_BASENAME = lib$(VERSION)_s$(NO_ASM_SUFFIX).a
 IMPLIB_NAME = lib/mingw32/$(IMPLIB_BASENAME)
 LIB_NAME = $(IMPLIB_NAME)
 
@@ -50,10 +55,10 @@ else
 
 # -------- link as a DLL --------
 
-OBJ_DIR = obj/mingw32/$(VERSION)
-DLL_BASENAME = $(VERSION)$(LIBRARY_VERSION).dll
+OBJ_DIR = obj/mingw32/$(VERSION)$(NO_ASM_SUFFIX)
+DLL_BASENAME = $(VERSION)$(LIBRARY_VERSION)$(NO_ASM_SUFFIX).dll
 DLL_NAME = lib/mingw32/$(DLL_BASENAME)
-IMPLIB_BASENAME = lib$(VERSION).a
+IMPLIB_BASENAME = lib$(VERSION)$(NO_ASM_SUFFIX).a
 IMPLIB_NAME = lib/mingw32/$(IMPLIB_BASENAME)
 LIB_NAME = $(DLL_NAME) $(IMPLIB_NAME)
 EXPDEF_NAME = lib/mingw32/allegro.def

@@ -31,6 +31,7 @@ if [%1] == [bcc32]   goto head
 if [%1] == [djgpp]   goto head
 if [%1] == [mingw]   goto head
 if [%1] == [mingw32] goto head
+if [%1] == [dmc]     goto head
 if [%1] == [msvc]    goto head
 if [%1] == [msvc6]   goto head
 if [%1] == [msvc7]   goto head
@@ -50,6 +51,7 @@ if [%1] == [bcc32]   goto bcc32
 if [%1] == [djgpp]   goto djgpp
 if [%1] == [mingw]   goto mingw
 if [%1] == [mingw32] goto mingw
+if [%1] == [dmc]     goto dmc
 if [%1] == [msvc]    goto msvc
 if [%1] == [msvc6]   goto msvc6
 if [%1] == [msvc7]   goto msvc7
@@ -76,6 +78,12 @@ goto tail
 echo Configuring Allegro for Windows/MinGW...
 echo MAKEFILE_INC = makefile.mgw >> makefile
 echo #define ALLEGRO_MINGW32 >> include\allegro\platform\alplatf.h
+goto tail
+
+:dmc
+echo Configuring Allegro for Windows/DMC...
+echo MAKEFILE_INC = makefile.dmc >> makefile
+echo #define ALLEGRO_DMC >> include\allegro\platform\alplatf.h
 goto tail
 
 :icl
@@ -141,7 +149,7 @@ echo.
 echo Usage: fix platform [--crlf] [--nomsvcpaths]
 echo.
 echo Where platform is one of:
-echo     bcc32, djgpp, mingw, msvc6, msvc7, msvc8, icl, or watcom.
+echo     bcc32, djgpp, mingw, dmc, msvc6, msvc7, msvc8, icl, or watcom.
 echo.
 echo The --crlf parameter is used to turn on LF to CR/LF conversion.
 echo The --nomsvcpaths parameter is used to turn off special MS Visual C++

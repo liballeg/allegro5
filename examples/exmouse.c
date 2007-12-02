@@ -19,6 +19,24 @@
 
 
 
+static void print_all_buttons(void)
+{
+   int i;
+   int fc = makecol(0, 0, 0);
+   int bc = makecol(255, 255, 255);
+   textprintf_right_ex(screen, font, 320, 50, fc, bc, "buttons");
+   for (i = 0; i < 8; i++) {
+      int x = 320;
+      int y = 60 + i * 10;
+      if (mouse_b & (1 << i))
+         textprintf_right_ex(screen, font, x, y, fc, bc, "%2d", 1 + i);
+      else
+         textprintf_right_ex(screen, font, x, y, fc, bc, "  ");
+   }
+}
+
+
+
 int main(void)
 {
    int mickeyx = 0;
@@ -109,7 +127,9 @@ int main(void)
 
       /* the wheel position is stored in the variable mouse_z */
       textprintf_ex(screen, font, 16, 184, makecol(0, 0, 0),
-		    makecol(255, 255, 255), "mouse_z = %-5d", mouse_z);
+		    makecol(255, 255, 255), "mouse_z = %-5d mouse_w = %-5d", mouse_z, mouse_w);
+
+      print_all_buttons();
 
       release_screen();
 

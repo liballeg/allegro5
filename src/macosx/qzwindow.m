@@ -30,6 +30,10 @@ static void osx_qz_window_exit(BITMAP *);
 static void osx_qz_window_vsync(void);
 static void osx_qz_window_set_palette(AL_CONST struct RGB *, int, int, int);
 static void osx_signal_vsync(void);
+static BITMAP* osx_create_video_bitmap(int w, int h);
+static int osx_show_video_bitmap(BITMAP*);
+static void osx_destroy_video_bitmap(BITMAP*);
+static BITMAP* create_video_page(unsigned char*);
 
 static pthread_mutex_t vsync_mutex;
 static pthread_cond_t vsync_cond;
@@ -42,13 +46,15 @@ static RgnHandle update_region = NULL;
 static RgnHandle temp_region = NULL;
 static AllegroView *qd_view = NULL;
 static int desktop_depth;
-static BITMAP *pseudo_screen = NULL;
-static char *pseudo_screen_addr = NULL;
+static BITMAP* pseudo_screen = NULL;
+static BITMAP* first_page = NULL;
+static unsigned char *pseudo_screen_addr = NULL;
 static int pseudo_screen_pitch;
 static int pseudo_screen_depth;
 static char *dirty_lines = NULL;
-static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
-
+static GFX_VTABLE _special_vtable; /* special vtable for active video page */
+static GFX_VTABLE _unspecial_vtable; /* special vtable for inactive video page */
+static BITMAP* current_video_page = NULL;
 
 struct _AL_MUTEX osx_window_mutex;
 
@@ -67,9 +73,9 @@ GFX_DRIVER gfx_quartz_window =
    NULL,                         /* AL_METHOD(int, request_scroll, (int x, int y)); */
    NULL,                         /* AL_METHOD(int, poll_scroll, (void)); */
    NULL,                         /* AL_METHOD(void, enable_triple_buffer, (void)); */
-   NULL,                         /* AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height)); */
-   NULL,                         /* AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap)); */
-   NULL,                         /* AL_METHOD(int, show_video_bitmap, (BITMAP *bitmap)); */
+   osx_create_video_bitmap,      /* AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height)); */
+   osx_destroy_video_bitmap,     /* AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap)); */
+   osx_show_video_bitmap,        /* AL_METHOD(int, show_video_bitmap, (BITMAP *bitmap)); */
    NULL,                         /* AL_METHOD(int, request_video_bitmap, (BITMAP *bitmap)); */
    NULL,                         /* AL_METHOD(BITMAP *, create_system_bitmap, (int width, int height)); */
    NULL,                         /* AL_METHOD(void, destroy_system_bitmap, (BITMAP *bitmap)); */
@@ -118,7 +124,7 @@ static void prepare_window_for_animation(int refresh_view)
       src_gfx_rect.width  = gfx_quartz_window.w;
       src_gfx_rect.height = gfx_quartz_window.h;
       src_gfx_rect.pitch  = pseudo_screen_pitch;
-      src_gfx_rect.data   = pseudo_screen->line[0];
+      src_gfx_rect.data   = pseudo_screen_addr;
       dest_gfx_rect.pitch = pitch * 4;
       dest_gfx_rect.data  = addr;
       colorconv_blitter(&src_gfx_rect, &dest_gfx_rect);
@@ -402,13 +408,13 @@ static void prepare_window_for_animation(int refresh_view)
 
 
 /* osx_qz_acquire_win:
- *  Bitmap locking for Quartz windowed mode.
- */
+*  Bitmap locking for Quartz windowed mode.
+*/
 static void osx_qz_acquire_win(BITMAP *bmp)
 {
 	/* to prevent the drawing threads and the rendering proc
 	from concurrently accessing the dirty lines array */
-	_al_mutex_lock(&osx_window_mutex);
+	_unix_lock_mutex(osx_window_mutex);
 	if (lock_nesting++ == 0) {
 		bmp->id |= BMP_ID_LOCKED;
 	}
@@ -424,7 +430,7 @@ static void osx_qz_release_win(BITMAP *bmp)
 		bmp->id &= ~BMP_ID_LOCKED;
 	}
 	
-	_al_mutex_unlock(&osx_window_mutex);
+	_unix_unlock_mutex(osx_window_mutex);
 }
 
 
@@ -520,7 +526,7 @@ void osx_update_dirty_lines(void)
                src_gfx_rect.width  = rect.right - rect.left;
                src_gfx_rect.height = rect.bottom - rect.top;
                src_gfx_rect.pitch  = pseudo_screen_pitch;
-               src_gfx_rect.data   = pseudo_screen->line[0] +
+               src_gfx_rect.data   = pseudo_screen_addr +
                   (rect.top * pseudo_screen_pitch) +
                   (rect.left * BYTES_PER_PIXEL(pseudo_screen_depth));
 
@@ -587,138 +593,131 @@ int osx_setup_colorconv_blitter()
 
 
 /* osx_qz_window_init:
- *  Initializes windowed gfx mode.
- */
+*  Initializes windowed gfx mode.
+*/
 static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int color_depth)
 {
-   CFDictionaryRef mode;
-   NSRect frame, rect = NSMakeRect(0, 0, w, h);
-   CGPoint point;
-   int refresh_rate;
-   char tmp1[128], tmp2[128];
-
-   pthread_cond_init(&vsync_cond, NULL);
-   pthread_mutex_init(&vsync_mutex, NULL);
-   _al_mutex_init(&osx_window_mutex);
-   lock_nesting = 0;
-
-   if (1
+	CFDictionaryRef mode;
+	NSRect frame, rect = NSMakeRect(0, 0, w, h);
+	CGPoint point;
+	int refresh_rate;
+	char tmp1[128], tmp2[128];
+	
+	pthread_cond_init(&vsync_cond, NULL);
+	pthread_mutex_init(&vsync_mutex, NULL);
+	osx_window_mutex=_unix_create_mutex();
+	lock_nesting = 0;
+	
+	if (1
 #ifdef ALLEGRO_COLOR8
-       && (color_depth != 8)
+		&& (color_depth != 8)
 #endif
 #ifdef ALLEGRO_COLOR16
-       && (color_depth != 15)
-       && (color_depth != 16)
+		&& (color_depth != 15)
+		&& (color_depth != 16)
 #endif
 #ifdef ALLEGRO_COLOR24
-       && (color_depth != 24)
+		&& (color_depth != 24)
 #endif
 #ifdef ALLEGRO_COLOR32
-       && (color_depth != 32)
+		&& (color_depth != 32)
 #endif
-     ) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
-      return NULL;
-   }
-
-   if ((w == 0) && (h == 0)) {
-      w = 320;
-      h = 200;
-   }
-
-   if (v_w < w) v_w = w;
-   if (v_h < h) v_h = h;
-
-   if ((v_w != w) || (v_h != h)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
-      return NULL;
-   }
-
-   osx_window = [[AllegroWindow alloc] initWithContentRect: rect
-      styleMask: NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask
-      backing: NSBackingStoreBuffered
-      defer: NO];
-
-   window_delegate = [[[AllegroWindowDelegate alloc] init] autorelease];
-   [osx_window setDelegate: window_delegate];
-   [osx_window setOneShot: YES];
-   [osx_window setAcceptsMouseMovedEvents: YES];
-   [osx_window setViewsNeedDisplay: NO];
-   [osx_window setReleasedWhenClosed: YES];
-   [osx_window useOptimizedDrawing: YES];
-   [osx_window center];
-
-   qd_view = [[AllegroView alloc] initWithFrame: rect];
-   if (!qd_view) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
-      return NULL;
-   }
-
-   /* the last flag serves as an end of loop delimiter */
-   dirty_lines = calloc(h + 1, sizeof(char));
-   dirty_lines[h] = 1;
-
-   setup_direct_shifts();
-
-   gfx_quartz_window.w = w;
-   gfx_quartz_window.h = h;
-   gfx_quartz_window.vid_mem = w * h * BYTES_PER_PIXEL(color_depth);
-
-   requested_color_depth = color_depth;
-   colorconv_blitter=NULL;   
-   mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
-   CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &desktop_depth);
-   CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
-   _set_current_refresh_rate(refresh_rate);
-
-   pseudo_screen_addr = calloc(1, w * h * BYTES_PER_PIXEL(color_depth));
-   if (!pseudo_screen_addr) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
-      return NULL;
-   }
-
-   pseudo_screen_pitch = w * BYTES_PER_PIXEL(color_depth);
-   pseudo_screen = _make_bitmap(w, h, (unsigned long)pseudo_screen_addr,
-         &gfx_quartz_window, color_depth, pseudo_screen_pitch);
-
-   if (!pseudo_screen) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
-      return NULL;
-   }
-
-   /* create a new special vtable for the pseudo screen */
-   memcpy(&_special_vtable, &_screen_vtable, sizeof(GFX_VTABLE));
-   pseudo_screen->vtable = &_special_vtable;
-   _special_vtable.acquire = osx_qz_acquire_win;
-   _special_vtable.release = osx_qz_release_win;
-   _special_vtable.unwrite_bank = osx_qz_unwrite_line_win;
-   pseudo_screen->read_bank = osx_qz_write_line_win;
-   pseudo_screen->write_bank = osx_qz_write_line_win;
-
-   uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("Cocoa window using QuickDraw view, %d bpp %s", tmp1),
-             color_depth, uconvert_ascii(color_depth == desktop_depth ? "in matching" : "in fast emulation", tmp2));
-   gfx_quartz_window.desc = driver_desc;
-
-   update_region = NewRgn();
-   temp_region = NewRgn();
-
-   osx_keyboard_focused(FALSE, 0);
-   clear_keybuf();
-   osx_gfx_mode = OSX_GFX_WINDOW;
-   osx_skip_mouse_move = TRUE;
-   osx_window_first_expose = TRUE;
-
-   [osx_window setContentView: qd_view];
-
-   osx_mouse_tracking_rect = [qd_view addTrackingRect: rect
-      owner: qd_view
-      userData: nil
-      assumeInside: YES];
-
-   set_window_title(osx_window_title);
-   [osx_window makeKeyAndOrderFront: nil];
-
-   return pseudo_screen;
+		) {
+		ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
+		return NULL;
+	}
+	
+	if ((w == 0) && (h == 0)) {
+		w = 320;
+		h = 200;
+	}
+	
+	if (v_w < w) v_w = w;
+	if (v_h < h) v_h = h;
+	
+	if ((v_w != w) || (v_h != h)) {
+		ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
+		return NULL;
+	}
+	
+	osx_window = [[AllegroWindow alloc] initWithContentRect: rect
+												  styleMask: NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask
+													backing: NSBackingStoreBuffered
+													  defer: NO];
+	
+	window_delegate = [[[AllegroWindowDelegate alloc] init] autorelease];
+	[osx_window setDelegate: window_delegate];
+	[osx_window setOneShot: YES];
+	[osx_window setAcceptsMouseMovedEvents: YES];
+	[osx_window setViewsNeedDisplay: NO];
+	[osx_window setReleasedWhenClosed: YES];
+	[osx_window useOptimizedDrawing: YES];
+	[osx_window center];
+	
+	qd_view = [[AllegroView alloc] initWithFrame: rect];
+	if (!qd_view) {
+		ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
+		return NULL;
+	}
+	[osx_window setContentView: qd_view];
+	
+	set_window_title(osx_window_title);
+	[osx_window makeKeyAndOrderFront: nil];
+	
+	/* the last flag serves as an end of loop delimiter */
+	dirty_lines = calloc(h + 1, sizeof(char));
+	/* Mark all the window as dirty */
+	memset(dirty_lines, 1, h + 1);
+	
+	setup_direct_shifts();
+	
+	gfx_quartz_window.w = w;
+	gfx_quartz_window.h = h;
+	gfx_quartz_window.vid_mem = w * h * BYTES_PER_PIXEL(color_depth);
+	
+	requested_color_depth = color_depth;
+	colorconv_blitter=NULL;   
+	mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
+	CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &desktop_depth);
+	CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
+	_set_current_refresh_rate(refresh_rate);
+	
+	pseudo_screen_pitch = w * BYTES_PER_PIXEL(color_depth);
+	pseudo_screen_addr = _AL_MALLOC(h * pseudo_screen_pitch);
+	pseudo_screen = _make_bitmap(w, h, (unsigned long) pseudo_screen_addr, &gfx_quartz_window, color_depth, pseudo_screen_pitch);
+	if (!pseudo_screen) {
+		return NULL;
+	}
+	current_video_page = pseudo_screen;
+	first_page = NULL;
+	/* create a new special vtable for the pseudo screen */
+	memcpy(&_special_vtable, &_screen_vtable, sizeof(GFX_VTABLE));
+	_special_vtable.acquire = osx_qz_acquire_win;
+	_special_vtable.release = osx_qz_release_win;
+	_special_vtable.unwrite_bank = osx_qz_unwrite_line_win;
+	memcpy(&_unspecial_vtable, _get_vtable(color_depth), sizeof(GFX_VTABLE));
+	pseudo_screen->read_bank = osx_qz_write_line_win;
+	pseudo_screen->write_bank = osx_qz_write_line_win;
+	pseudo_screen->vtable = &_special_vtable;
+	uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("Cocoa window using QuickDraw view, %d bpp %s", tmp1),
+			  color_depth, uconvert_ascii(color_depth == desktop_depth ? "in matching" : "in fast emulation", tmp2));
+	gfx_quartz_window.desc = driver_desc;
+	
+	update_region = NewRgn();
+	temp_region = NewRgn();
+	
+	osx_mouse_tracking_rect = [qd_view addTrackingRect: rect
+												 owner: NSApp
+											  userData: nil
+										  assumeInside: YES];
+	
+	osx_keyboard_focused(FALSE, 0);
+	clear_keybuf();
+	osx_gfx_mode = OSX_GFX_WINDOW;
+	osx_skip_mouse_move = TRUE;
+	osx_window_first_expose = TRUE;
+	
+	return pseudo_screen;
 }
 
 static BITMAP *osx_qz_window_init(int w, int h, int v_w, int v_h, int color_depth)
@@ -760,6 +759,7 @@ static void osx_qz_window_exit(BITMAP *bmp)
       pseudo_screen_addr = NULL;
    }
 
+ 
    if (dirty_lines) {
       free(dirty_lines);
       dirty_lines = NULL;
@@ -825,6 +825,157 @@ void osx_signal_vsync(void)
    pthread_mutex_unlock(&vsync_mutex);
 }
 
+// create_video_bitmap:
+// Create a video bitmap - actually a memory bitmap or
+// a pseudo-screen if the dimensions match the screen
+static BITMAP* osx_create_video_bitmap(int w, int h)
+{
+	if ((w ==  gfx_quartz_window.w) && (h ==  gfx_quartz_window.h))
+	{
+		if (first_page == NULL)
+		{
+			// First ever call, return a bitmap mapping the screen memory 
+			first_page = create_video_page(pseudo_screen_addr);
+			return first_page;
+		}
+		else 
+		{
+			// Must create another
+			return create_video_page(NULL);
+		}
+	}
+	else
+	{
+		return create_bitmap(w, h);
+	}
+}
+
+static BITMAP* create_video_page(unsigned char* addr)
+{
+	BITMAP* page;
+	int i;
+	int w = gfx_quartz_window.w, h = gfx_quartz_window.h;
+	
+	page = (BITMAP*) _AL_MALLOC(sizeof(BITMAP) + sizeof(char*) * h);
+	if (!page) {
+		ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
+		return NULL;
+	}
+	if (addr == NULL)
+	{
+		addr = _AL_MALLOC(gfx_quartz_window.vid_mem);
+		// Use page->dat to indicate that we own the memory
+		page->dat = addr;
+		page->vtable = &_unspecial_vtable;
+		page->write_bank = page->read_bank = _stub_bank_switch;
+		
+	}
+	else
+	{
+		page->dat = NULL;		
+		page->vtable = &_special_vtable;
+		page->write_bank = page->read_bank = osx_qz_write_line_win;
+	}
+	if (!addr) {
+		ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
+		return NULL;
+	}
+	page->w = page->cr = w;
+	page->h = page->cb = h;
+	page->clip = TRUE;
+	page->cl = page->ct = 0;
+	page->id = BMP_ID_VIDEO;
+	page->extra = NULL;
+	page->x_ofs = 0;
+	page->y_ofs = 0;
+	page->seg = _video_ds();
+	for (i = 0; i < h; ++i)
+	{
+		page->line[i] = addr;
+		addr += pseudo_screen_pitch;
+	}
+	
+	return page;
+}
+
+static int osx_show_video_bitmap(BITMAP* vb)
+{
+	if (vb->vtable == &_special_vtable)
+	{
+		// This bitmap already switched in, therefore no-op
+		return 0;
+	}
+	if (vb->vtable == &_unspecial_vtable)
+	{
+		_unix_lock_mutex(osx_window_mutex);
+		
+		// switch out the old one
+		if ((current_video_page == pseudo_screen) && (first_page != NULL))
+		{
+			// switching out screen, also do page 1
+			first_page->vtable = &_unspecial_vtable;
+			first_page->write_bank = first_page->read_bank =_stub_bank_switch;
+		}
+		else if ((current_video_page == first_page) && (first_page != NULL))
+		{
+			// If switching out page 1, also do screen
+			pseudo_screen->vtable = &_unspecial_vtable;
+			pseudo_screen->write_bank = pseudo_screen->read_bank = _stub_bank_switch;
+		}
+		if (current_video_page != NULL)
+		{
+			current_video_page->vtable = &_unspecial_vtable;
+			current_video_page->write_bank = current_video_page->read_bank = _stub_bank_switch;
+		}
+		// Switch in this one
+		if ((vb == pseudo_screen) && (first_page != NULL))
+		{
+			// If asking for show_video_bitmap(screen), also do page 1
+			first_page->vtable = &_special_vtable;
+			first_page->write_bank = first_page->read_bank = osx_qz_write_line_win;
+		}
+		else if (vb == first_page)
+		{
+			// If asking for show_video_bitmap( page 1), also do screen
+			pseudo_screen->vtable = &_special_vtable;
+			pseudo_screen->write_bank = pseudo_screen->read_bank = osx_qz_write_line_win;
+		}
+		pseudo_screen_addr = vb->line[0];
+		vb->vtable = &_special_vtable;
+		vb->write_bank = vb->read_bank = osx_qz_write_line_win;
+		current_video_page = vb;
+		// mark all lines dirty - they will be flushed to the screen.
+		memset(dirty_lines, 1, gfx_quartz_window.h);
+		_unix_unlock_mutex(osx_window_mutex);
+		
+		return 0;
+	}
+	// Otherwise it's not eligible to be switched in 
+	return -1;
+}
+
+static void osx_destroy_video_bitmap(BITMAP* bm)
+{
+	if (bm == pseudo_screen)
+	{
+		// Don't do this!
+		return;
+	}
+	if (bm == first_page)
+		first_page = NULL;
+	if (bm->vtable == &_special_vtable) 
+	{
+		osx_show_video_bitmap(pseudo_screen);
+		free(bm->dat);
+		free(bm);
+	}
+	else if (bm->vtable == &_unspecial_vtable)
+	{
+		free(bm->dat);
+		free(bm);
+	}
+	// Otherwise it wasn't a video page
+}
 /* Local variables:       */
 /* c-basic-offset: 3      */
 /* indent-tabs-mode: nil  */

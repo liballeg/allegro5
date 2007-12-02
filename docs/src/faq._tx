@@ -748,7 +748,7 @@ General problems
 @@   How can I convert the documentation into Windows Help format?
 
       You need to download the makertf conversion utility 
-      (<link>ftp://ftp.coast.net/Coast/win3/winhelp/mkrtf104.zip</a>), and the Windows 
+      (<link>http://www.giffer.com/public/win/pwflemgt/Files/MKRTF104.ZIP</a>), and the Windows 
       Help compiler (<link>ftp://ftp.microsoft.com/Softlib/MSLFILES/HC505.EXE</a>). 
       Make a temporary directory, copy the <code>allegro.txi</code> file from the 
       <code>allegro/docs</code> dir, and run the commands <tt>makertf --no-warn allegro.txi 

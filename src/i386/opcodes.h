@@ -24,7 +24,7 @@
  * defined.  So it's okay, for now, if code conditional to
  * ALLEGRO_USE_MMAP_GEN_CODE_BUF uses a Linux-specific feature.
  */
-#ifdef ALLEGRO_LINUX 
+#ifdef __linux__ 
    #define ALLEGRO_USE_MMAP_GEN_CODE_BUF
    #define __USE_GNU     /* for mremap */
    #include <stdlib.h>   /* for mkstemp */

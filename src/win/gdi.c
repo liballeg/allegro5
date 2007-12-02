@@ -594,13 +594,29 @@ void blit_to_hdc(BITMAP *bitmap, HDC dc, int src_x, int src_y, int dest_x, int d
  */
 void stretch_blit_to_hdc(BITMAP *bitmap, HDC dc, int src_x, int src_y, int src_w, int src_h, int dest_x, int dest_y, int dest_w, int dest_h)
 {
+   AL_CONST int bottom_up_src_y = bitmap->h - src_y - src_h;
    BYTE *pixels;
    BITMAPINFO *bi;
 
    bi = get_bitmap_info(bitmap, _current_palette);
    pixels = get_dib_from_bitmap(bitmap);
 
-   StretchDIBits(dc, dest_x, dest_y, dest_w, dest_h, src_x, bitmap->h - src_y - src_h, src_w, src_h, pixels, bi, DIB_RGB_COLORS, SRCCOPY);
+   /* Windows treats all source bitmaps as bottom-up when using StretchDIBits
+    * unless the source (x,y) is (0,0).  To work around this buggy behavior, we
+    * can use negative heights to reverse the direction of the blits.
+    *
+    * See <http://wiki.allegro.cc/StretchDIBits> for a detailed explanation.
+    */
+   if (bottom_up_src_y == 0 && src_x == 0 && src_h != bitmap->h) {
+      StretchDIBits(dc, dest_x, dest_h+dest_y-1, dest_w, -dest_h,
+	 src_x, bitmap->h-src_y+1, src_w, -src_h, pixels, bi,
+	 DIB_RGB_COLORS, SRCCOPY);
+   }
+   else {
+      StretchDIBits(dc, dest_x, dest_y, dest_w, dest_h,
+	 src_x, bottom_up_src_y, src_w, src_h, pixels, bi,
+	 DIB_RGB_COLORS, SRCCOPY);
+   }
 
    _AL_FREE(pixels);
    _AL_FREE(bi);

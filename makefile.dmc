@@ -1,0 +1,381 @@
+#
+#  Rules for building the Allegro library with DMC. This file is included
+#  by the primary makefile, and should not be used directly.
+#
+#  See makefile.all for a list of the available targets.
+
+
+
+# -------- define some variables that the primary makefile will use --------
+
+PLATFORM = DMC
+CC = dmc
+LIBRARIAN = lib
+RESOURCE_COMPILER = rcc
+EXE = .exe
+OBJ = .obj
+HTML = html
+
+PLATFORM_DIR = obj/dmc
+
+ifdef STATICLINK
+
+# -------- link as a static library --------
+
+OBJ_DIR = obj\dmc\$(VERSION)_s
+IMPLIB_BASENAME = $(VERSION)_s.lib
+IMPLIB_NAME = lib\dmc\$(IMPLIB_BASENAME)
+LIB_NAME = $(IMPLIB_NAME)
+
+else
+
+# -------- link as a DLL --------
+
+OBJ_DIR = obj\dmc\$(VERSION)
+IMPLIB_BASENAME = $(VERSION).lib
+DLL_BASENAME = $(VERSION)$(LIBRARY_VERSION).dll
+DLL_NAME = lib\dmc\$(DLL_BASENAME)
+IMPLIB_NAME = lib\dmc\$(IMPLIB_BASENAME)
+LIB_NAME = $(DLL_NAME) $(IMPLIB_NAME)
+EXPDEF_NAME = lib\dmc\allegro.def
+
+endif # STATICLINK
+
+
+
+# -------- check that environment path variable is set --------
+
+.PHONY: badwin baddmcdir badusec
+
+ifeq ($(OS),Windows_NT)
+   WINSYSDIR = $(SYSTEMROOT)
+   ifeq ($(WINSYSDIR),)
+      WINSYSDIR = $(SystemRoot)
+   endif
+   WINSUBDIR = system32
+else
+   WINSYSDIR = $(WINDIR)
+   ifeq ($(WINSYSDIR),)
+      WINSYSDIR = $(windir)
+   endif
+   WINSUBDIR = system
+endif
+
+ifneq ($(WINSYSDIR),)
+   WINDIR_U = $(subst \,/,$(WINSYSDIR)/$(WINSUBDIR))
+   WINDIR_D = $(subst /,\,$(WINSYSDIR)\$(WINSUBDIR))
+else
+
+badwin:
+	@echo Your SYSTEMROOT or WINDIR environment variable is not set!
+endif
+
+ifdef DMCDIR
+   DMCDIR_U = $(subst \,/,$(DMCDIR))
+   DMCDIR_D = $(subst /,\,$(DMCDIR))
+else
+baddmcdir:
+	@echo Your DMCDIR environment variable is not set!
+	@echo See the docs/build/dmc.txt file!
+endif
+
+#
+# Note: this warning doesn't get triggered when doing 'make lib', but it 
+#       doesn't really matter. The C version always gets built, regardless 
+#       of the setting.
+#
+ifndef ALLEGRO_USE_C
+badusec:
+	@echo You must use the C-only version of Allegro when building with DMC.
+	@echo Set ALLEGRO_USE_C=1 when running make.
+endif
+
+NULLSTRING :=
+SPACE := $(NULLSTRING) # special magic to get an isolated space character
+
+ifneq ($(findstring $(SPACE),$(DMCDIR)),)
+badspaces:
+	@echo There are spaces in your DMCDIR environment variable:
+	@echo please change it to the 8.3 short filename version,
+	@echo or move your compiler to a different directory.
+endif
+
+
+
+# -------- give a sensible default target for make without any args --------
+
+.PHONY: _default
+
+_default: default
+
+
+
+# -------- decide what compiler options to use --------
+
+ifdef WARNMODE
+   WFLAGS = -wc
+else
+   WFLAGS = -w2 -w7
+endif
+
+ifndef TARGET_OPTS
+   TARGET_OPTS = -o -5
+endif
+
+OFLAGS = $(TARGET_OPTS)
+
+CFLAGS = -v0 -DALLEGRO_LIB_BUILD -Jm -mn -WD
+
+
+
+ifdef DEBUGMODE
+
+# -------- debugging build --------
+
+CFLAGS += -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) $(PFLAGS) -g
+SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
+LFLAGS += -g
+
+else
+ifdef PROFILEMODE
+
+# -------- profiling build --------
+
+CFLAGS += $(WFLAGS) $(OFLAGS) $(PFLAGS) 
+SFLAGS = $(WFLAGS)
+LFLAGS += 
+
+else
+
+# -------- optimised build --------
+
+CFLAGS += $(WFLAGS) $(OFLAGS) $(PFLAGS)
+SFLAGS = $(WFLAGS)
+ifndef SYMBOLMODE
+   LFLAGS +=
+endif
+
+endif
+endif
+
+
+
+# -------- list platform specific objects and programs --------
+
+VPATH = src/win src/misc tests/win tools/win src/c
+
+# ------ build a C-only version ------
+CFLAGS += -DALLEGRO_NO_ASM
+SFLAGS += -DALLEGRO_NO_ASM
+
+OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
+# The dllver resource cannot be compiled into a OBJ file by DM's rcc program. 
+# It will be created and linked in later at make lib time. Also, the asmlock.s file does not
+# exist in the C build.
+OBJECT_LIST := $(subst dllver,,$(OBJECT_LIST))   
+OBJECT_LIST := $(subst asmlock,,$(OBJECT_LIST))
+
+LIBRARIES = kernel32.lib user32.lib gdi32.lib comdlg32.lib ole32.lib dinput.lib ddraw.lib winmm.lib dsound.lib dxguid.lib
+
+ifdef PROFILEMODE
+   LIBRARIES += -lgmon
+endif
+
+PROGRAMS = dibgrab dibhello dibsound dxwindow scrsave wfixicon
+
+dibgrab: tests/win/dibgrab.exe
+dibhello: tests/win/dibhello.exe
+dibsound: tests/win/dibsound.exe
+dxwindow: tests/win/dxwindow.exe
+scrsave: tests/win/scrsave.scr
+wfixicon: tools/win/wfixicon.exe
+
+
+
+# -------- rules for installing and removing the library files --------
+
+INSTALLDIR = $(DMCDIR_U)
+LIBDIR = lib
+INCDIR = include
+
+$(DMCDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME) $(DMCDIR_U)/lib
+	copy lib\dmc\$(IMPLIB_BASENAME) $(DMCDIR_D)\lib
+
+$(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
+	copy lib\dmc\$(DLL_BASENAME) $(WINDIR_D)
+
+HEADERS = $(DMCDIR_U)/include/winalleg.h                  \
+          $(DMCDIR_U)/include/allegro/platform/aintwin.h  \
+          $(DMCDIR_U)/include/allegro/platform/al386gcc.h \
+          $(DMCDIR_U)/include/allegro/platform/aldmc.h    \
+          $(DMCDIR_U)/include/allegro/platform/alplatf.h  \
+          $(DMCDIR_U)/include/allegro/platform/astdint.h  \
+          $(DMCDIR_U)/include/allegro/platform/alwin.h
+
+INSTALL_FILES = $(DMCDIR_U)/lib/$(IMPLIB_BASENAME)
+
+ifndef STATICLINK
+   INSTALL_FILES += $(WINDIR_U)/$(DLL_BASENAME)
+endif
+
+INSTALL_FILES += $(HEADERS)
+
+install: generic-install
+	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
+
+UNINSTALL_FILES = $(DMCDIR_U)/lib/liballeg.a             \
+                  $(DMCDIR_U)/lib/liballd.a              \
+                  $(DMCDIR_U)/lib/liballp.a              \
+                  $(DMCDIR_U)/lib/liballeg_s.a           \
+                  $(DMCDIR_U)/lib/liballd_s.a            \
+                  $(DMCDIR_U)/lib/liballp_s.a            \
+                  $(WINDIR_U)/alleg$(LIBRARY_VERSION).dll \
+                  $(WINDIR_U)/alld$(LIBRARY_VERSION).dll  \
+                  $(WINDIR_U)/allp$(LIBRARY_VERSION).dll  \
+                  $(HEADERS)
+
+uninstall: generic-uninstall
+	@echo All gone!
+
+
+
+# -------- helper function for compressing the executables --------
+
+.PHONY: compress
+
+compress:
+ifdef UPX_BIN
+	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/dmc/all*.dll
+else
+	@echo No executable compressor specified! You must set the environment variable
+	@echo UPX_BIN to point to upx.exe.
+endif
+
+
+
+# -------- test capabilities --------
+
+TEST_CPP = $(CC) -c src/misc/test.cpp -o$(PLATFORM_DIR)/test.obj
+
+include makefile.tst
+
+
+
+# -------- finally, we get to the fun part... --------
+
+DLLWRAP = dllwrap
+WINDRES = windres
+AR = ar
+
+ifdef STATICLINK
+
+# -------- link as a static library --------
+
+define MAKE_LIB
+   $(LIBRARIAN) -p128 -n -c $(LIB_NAME) $(OBJECTS) 
+endef
+
+COMPILE_FLAGS = -DALLEGRO_STATICLINK 
+
+else
+
+# -------- link as a DLL --------
+
+#   $(DLLWRAP) $(PFLAGS) --target i386-dmc --def $(EXPDEF_NAME) -o$(DLL_NAME) $(OBJECTS) $(LIBRARIES) --output-lib $(IMPLIB_NAME)
+
+LINKER_OBJECTS = $(subst $(SPACE),+,$(subst /,\,$(OBJECTS)))
+LINKER_LIBS    = $(subst -l,,$(subst $(SPACE),+,$(subst /,\,$(LIBRARIES))))
+LINKER_EXDEF   = $(subst /,\,$(EXPDEF_NAME))
+LINKER_DLL     = $(subst /,\,$(DLL_NAME))
+LINKER_IMPLIB  = $(subst /,\,$(IMPLIB_NAME))
+
+#   link /noi /implib:$(LINKER_IMPLIB) $(LINKER_OBJECTS),$(LINKER_DLL),,$(LINKER_LIBS),$(LINKER_EXDEF)
+
+define MAKE_LIB
+   $(RESOURCE_COMPILER) -32 src/win/dllver.rc -o$(OBJ_DIR)/dllver.res
+   $(CC) -v0 -L/EXETYPE:NT -L/SUBSYSTEM:CONSOLE -L/IMPLIB:$(LINKER_IMPLIB) -o$(LINKER_DLL) $(subst /,\,$(OBJECTS)) $(subst /,\,$(LIBRARIES)) $(LINKER_EXDEF) $(OBJ_DIR)\dllver.res
+endef
+
+endif # STATICLINK
+
+COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
+
+$(OBJ_DIR)/%.obj: %.c
+	$(CC) $(COMPILE_FLAGS) -I. -I./include -o$@ -c $<
+
+$(OBJ_DIR)/%.obj: %.cpp
+	$(CC) $(COMPILE_FLAGS) -I. -I./include -o$@ -c $<
+	
+$(OBJ_DIR)/%.res: %.rc
+	$(RESOURCE_COMPILER) -32 $< -o$@
+	
+obj/dmc/%.res: %.rc
+	$(RESOURCE_COMPILER) -32 $< -o$@
+	
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj obj/dmc/dibsound.res $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -otests\win\dibsound.exe $(OBJ_DIR)\dibsound.obj obj\dmc\dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
+
+tests/win/dxwindow.exe: $(OBJ_DIR)/dxwindow.obj obj/dmc/dxwindow.res $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -otests\win\dxwindow.exe $(OBJ_DIR)\dxwindow.obj obj\dmc\dxwindow.res $(IMPLIB_NAME) $(LIBRARIES)
+
+tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj obj/dmc/scrsave.res $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -otests\win\scrsave.scr $(OBJ_DIR)\scrsave.obj obj\dmc\scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
+
+tools/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$<) $(IMPLIB_NAME) $(LIBRARIES)
+
+obj/dmc/demo.res: demo/demo.dat tools/win/wfixicon.exe
+ifdef STATICLINK
+	tools/win/wfixicon.exe obj/dmc/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+else
+	copy tools\win\wfixicon.exe lib\dmc\wfixicon.exe
+	lib/dmc/wfixicon.exe obj/dmc/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+	del lib\dmc\wfixicon.exe
+endif
+
+demo/demo.exe: obj/dmc/demo.res $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$(OBJECTS_DEMO)) obj\dmc\demo.res $(IMPLIB_NAME) $(LIBRARIES) -L/SUBSYSTEM:WINDOWS
+
+# Use -DSETUP_USE_COMPILED_DATAFILES ???
+$(OBJ_DIR)/setup.obj: setup/setup.c
+	$(CC) $(COMPILE_FLAGS) -I. -I./include -o$(OBJ_DIR)/setup.obj -c setup/setup.c
+
+examples/%.exe setup/%.exe tests/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -L/SUBSYSTEM:WINDOWS -o$(subst /,\,$@) $(subst /,\,$<) $(subst /,\,$(IMPLIB_NAME)) $(LIBRARIES)
+
+LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
+
+define LINK_CONSOLE
+   $(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$<) $(IMPLIB_NAME) $(LIBRARIES)
+endef
+
+obj/dmc/asmdef.inc: obj/dmc/asmdef.exe
+	obj/dmc/asmdef.exe obj/dmc/asmdef.inc
+
+obj/dmc/asmdef.exe: src/i386/asmdef.c
+	$(CC) -O $(WFLAGS) $(PFLAGS) -I. -I./include -oobj/dmc/asmdef.exe src/i386/asmdef.c
+
+define LINK_WITHOUT_LIB
+   $(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$^) -L/SUBSYSTEM:WINDOWS
+endef
+
+PLUGIN_LIB = lib\dmc\$(VERY_SHORT_VERSION)dat.lib
+PLUGINS_H = obj\dmc\plugins.h
+PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB) $(PLUGIN_RUNNER) 
+PLUGIN_SCR = scm
+
+define GENERATE_PLUGINS_H
+   copy /B tools\plugins\*.inc obj\dmc\plugins.h
+endef
+
+define MAKE_PLUGIN_LIB
+   $(LIBRARIAN) -c $(PLUGIN_LIB) $(PLUGIN_OBJS)
+endef
+
+define LINK_WITH_PLUGINS
+   $(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$<) $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES)) -L/SUBSYSTEM:WINDOWS
+endef
+
+define LINK_CONSOLE_WITH_PLUGINS
+   $(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$<) $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES)) 
+endef
