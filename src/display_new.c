@@ -90,6 +90,8 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
  */
 ALLEGRO_BITMAP *al_get_backbuffer(void)
 {
+   ASSERT(_al_current_display);
+
    return _al_current_display->vt->get_backbuffer(_al_current_display);
 }
 
@@ -103,6 +105,8 @@ ALLEGRO_BITMAP *al_get_backbuffer(void)
  */
 ALLEGRO_BITMAP *al_get_frontbuffer(void)
 {
+   ASSERT(_al_current_display);
+
    return _al_current_display->vt->get_frontbuffer(_al_current_display);
 }
 
@@ -118,6 +122,8 @@ ALLEGRO_BITMAP *al_get_frontbuffer(void)
  */
 void al_flip_display(void)
 {
+   ASSERT(_al_current_display);
+
    _al_current_display->vt->flip_display(_al_current_display);
 }
 
@@ -134,6 +140,8 @@ void al_flip_display(void)
 bool al_update_display_region(int x, int y,
 	int width, int height)
 {
+   ASSERT(_al_current_display);
+
    return _al_current_display->vt->update_display_region(
       _al_current_display, x, y, width, height);
 }
@@ -151,6 +159,8 @@ bool al_update_display_region(int x, int y,
  */
 bool al_acknowledge_resize(ALLEGRO_DISPLAY *display)
 {
+   ASSERT(display);
+
    if (!(display->flags & ALLEGRO_FULLSCREEN)) {
       if (display->vt->acknowledge_resize)
          return display->vt->acknowledge_resize(display);
@@ -170,6 +180,8 @@ bool al_acknowledge_resize(ALLEGRO_DISPLAY *display)
  */
 bool al_resize_display(int width, int height)
 {
+   ASSERT(_al_current_display);
+
    if (_al_current_display->vt->resize_display) {
       return _al_current_display->vt->resize_display(_al_current_display,
          width, height);
@@ -186,6 +198,9 @@ bool al_resize_display(int width, int height)
 void al_clear(ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   ASSERT(target);
+   ASSERT(_al_current_display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_clear_memory(color);
@@ -205,6 +220,9 @@ void al_draw_line(float fx, float fy, float tx, float ty,
    ALLEGRO_COLOR* color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   ASSERT(target);
+   ASSERT(_al_current_display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_line_memory(fx, fy, tx, ty, color);
@@ -232,6 +250,9 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
+   ASSERT(target);
+   ASSERT(_al_current_display);
+
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
    }
@@ -258,6 +279,9 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
  */
 bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap)
 {
+   ASSERT(bitmap);
+   ASSERT(_al_current_display);
+
    return _al_current_display->vt->is_compatible_bitmap(
       _al_current_display, bitmap);
 }
@@ -281,6 +305,8 @@ int al_get_display_width(void)
  */
 int al_get_display_height(void)
 {
+   ASSERT(_al_current_display);
+
    return _al_current_display->h;
 }
 
@@ -292,6 +318,8 @@ int al_get_display_height(void)
  */
 int al_get_display_format(void)
 {
+   ASSERT(_al_current_display);
+
    return _al_current_display->format;
 }
 
@@ -303,6 +331,8 @@ int al_get_display_format(void)
  */
 int al_get_display_refresh_rate(void)
 {
+   ASSERT(_al_current_display);
+
    return _al_current_display->refresh_rate;
 }
 
@@ -314,6 +344,8 @@ int al_get_display_refresh_rate(void)
  */
 int al_get_display_flags(void)
 {
+   ASSERT(_al_current_display);
+
    return _al_current_display->flags;
 }
 
@@ -363,6 +395,8 @@ ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
  */
 bool al_wait_for_vsync(void)
 {
+   ASSERT(_al_current_display);
+
    if (_al_current_display->vt && _al_current_display->vt->wait_for_vsync)
       return _al_current_display->vt->wait_for_vsync(_al_current_display);
    else
@@ -380,6 +414,8 @@ bool al_wait_for_vsync(void)
 void al_set_clipping_rectangle(int x, int y, int width, int height)
 {
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+
+   ASSERT(bitmap);
 
    if (x < 0) {
       width += x;
@@ -411,6 +447,8 @@ void al_set_clipping_rectangle(int x, int y, int width, int height)
 void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
 {
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+
+   ASSERT(bitmap);
 
    if (x) *x = bitmap->cl;
    if (y) *y = bitmap->ct;
