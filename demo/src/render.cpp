@@ -1,0 +1,126 @@
+#include "a5teroids.hpp"
+
+static float waveAngle = 0.0f;
+static ALLEGRO_BITMAP *waveBitmap = 0;
+static float bgx = 0;
+static float bgy = 0;
+static int shakeUpdateCount = 0;
+static int shakeCount = 0;
+const int SHAKE_TIME = 100;
+const int SHAKE_TIMES = 10;
+
+static void renderWave(void)
+{
+   int w = al_get_bitmap_width(waveBitmap);
+   int h = al_get_bitmap_height(waveBitmap);
+
+   float a = -(waveAngle + M_PI/2);
+
+   int x = (int)(BB_W/2 + 64*cos(a));
+   int y = (int)(BB_H/2 + 64*sin(a));
+
+   al_draw_rotated_bitmap(waveBitmap, w/2, h,
+      x, y, waveAngle, 0);
+}
+
+static void stopWave(void)
+{
+   waveAngle = 0.0f;
+   al_destroy_bitmap(waveBitmap);
+   waveBitmap = 0;
+}
+
+void showWave(int num)
+{
+   if (waveBitmap)
+      stopWave();
+
+   ResourceManager& rm = ResourceManager::getInstance();
+
+   A5FONT_FONT *myfont = (A5FONT_FONT *)rm.getData(RES_LARGEFONT);
+   
+   char text[20];
+   sprintf(text, "WAVE %d", num);
+
+   int w = a5font_text_length(myfont, text);
+   int h = a5font_text_height(myfont);
+
+   waveBitmap = al_create_bitmap(w, h);
+   ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
+   al_set_target_bitmap(waveBitmap);
+   ALLEGRO_COLOR alpha;
+   al_map_rgba(&alpha, 0, 0, 0, 0);
+   al_clear(&alpha);
+   a5font_textprintf(myfont, 0, 0, text);
+   al_set_target_bitmap(old_target);
+
+   waveAngle = (M_PI*2);
+}
+
+void shake(void)
+{
+   shakeUpdateCount = SHAKE_TIME;
+   bgx = randf(0.0f, 8.0f);
+   bgy = randf(0.0f, 8.0f);
+   if (rand() % 2) bgx = -bgx;
+   if (rand() % 2) bgy = -bgy;
+}
+
+void render(int step)
+{
+   ResourceManager& rm = ResourceManager::getInstance();
+
+   ALLEGRO_BITMAP *bg = (ALLEGRO_BITMAP *)rm.getData(RES_BACKGROUND);
+
+   if (shakeUpdateCount > 0) {
+      shakeUpdateCount -= step;
+      if (shakeUpdateCount <= 0) {
+         shakeCount++;
+         if (shakeCount >= SHAKE_TIMES) {
+            shakeCount = 0;
+            shakeUpdateCount = 0;
+            bgx = bgy = 0;
+         }
+         else {
+            bgx = randf(0.0f, 8.0f);
+            bgy = randf(0.0f, 8.0f);
+            if (rand() % 2) bgx = -bgx;
+            if (rand() % 2) bgy = -bgy;
+            shakeUpdateCount = SHAKE_TIME;
+         }
+      }
+   }
+
+   al_draw_bitmap(bg, bgx, bgy, 0);
+
+   int rendered = 0;
+
+   std::list<Entity *>::iterator it;
+   for (it = entities.begin(); it != entities.end(); it++) {
+      Entity *e = *it;
+      e->render();
+      if (e->isHighlighted()) {
+         ALLEGRO_COLOR white;
+         al_map_rgb(&white, 150, 150, 150);
+         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, &white);
+         e->render();
+         al_map_rgb(&white, 255, 255, 255);
+         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &white);
+      }
+      rendered++;
+   }
+
+   Player *player = (Player *)rm.getData(RES_PLAYER);
+   player->render();
+
+   if (waveAngle > 0.0f) {
+      renderWave();
+      waveAngle -= 0.003f * step;
+      if (waveAngle <= 0.0f) {
+         stopWave();
+      }
+   }
+
+   al_flip_display();
+}
+

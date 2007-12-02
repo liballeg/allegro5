@@ -21,7 +21,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 #
 #-----------------------------------------------------------------------------#
 
-project(ALLEGRO C)
+#project(ALLEGRO C)
 
 # TODO soft-code the version number
 set(ALLEGRO_VERSION 4.9.2)
