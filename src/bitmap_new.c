@@ -648,7 +648,6 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    
    ALLEGRO_BITMAP *clone = al_create_bitmap(bitmap->w, bitmap->h);
-   int flags = al_get_new_bitmap_flags();
    ALLEGRO_LOCKED_REGION dst_region;
    ALLEGRO_LOCKED_REGION src_region;
 

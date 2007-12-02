@@ -50,8 +50,6 @@ static int failed_bitmap_w = BMP_MAX_SIZE;
 static int failed_bitmap_h = BMP_MAX_SIZE;
 
 
-static ALLEGRO_DISPLAY *new_display;
-
 
 /* destroy_video_bitmaps:
  *  Destroys all video bitmaps

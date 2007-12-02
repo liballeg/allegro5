@@ -37,9 +37,7 @@
    ALLEGRO_LOCKED_REGION lr; \
    int cdx, cdy;         /* current dest */ \
    int dxi, dyi;         /* dest increments */ \
-   ALLEGRO_COLOR mask_color; \
    int pixel; \
-   int mask_pixel; \
 \
    /* Adjust for flipping */ \
 \
@@ -1350,8 +1348,6 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_LOCKED_REGION dst_region; \
    int ssize; \
    int dsize; \
-   ALLEGRO_COLOR mask_color; \
-   int mask_pixel; \
  \
    /* \
     * Variables used in the loop \
@@ -2556,6 +2552,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
       int xc = xcstart;
       _sx = sx;
       for (x = 0; x < (dxend-dxbeg); x++) {
+         (void)pixel;
       /*
          pixel = get(src_region.data+src_region.pitch*sy+ssize*_sx);
 	 pixel = convert(pixel);
@@ -2656,10 +2653,6 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
  \
    ALLEGRO_LOCKED_REGION src_region; \
    ALLEGRO_LOCKED_REGION dst_region; \
-   int ssize; \
-   int dsize; \
-   ALLEGRO_COLOR mask_color; \
-   int mask_pixel; \
  \
    /* \
     * Variables used in the loop \
@@ -3030,7 +3023,6 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
       fixed my_l_spr_x = l_spr_x_rounded;                             \
       fixed my_l_spr_y = l_spr_y_rounded;                             \
       int startx = my_l_bmp_x_i; \
-      int starty = bmp_y_i; \
       int endx = my_r_bmp_x_i; \
       /*addr = dst_region.data+(bmp_y_i-clip_top_i)*dst_region.pitch;*/   \
       /* adjust for locking offset */                                 \
@@ -3043,6 +3035,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
          _al_unmap_rgba(src, &src_color, &r, &g, &b, &a); \
          _al_map_rgba(dst, &result, r, g, b, a); \
          al_put_pixel(x+my_l_bmp_x_i, bmp_y_i, &result); \
+         (void) c; \
          /*c = get(src_region.data+(my_l_spr_y>>16)*src_region.pitch+ssize*(my_l_spr_x>>16)); \
 	 c = convert(c);                                           \
 	 set(addr, c);*/                                             \

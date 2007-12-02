@@ -73,8 +73,6 @@ void _al_exit(void)
 /* Initialize the Allegro system. */
 bool _al_init(void)
 {
-   ALLEGRO_SYSTEM_INTERFACE *driver = NULL;
-
    if (active) {
       return true;
    }

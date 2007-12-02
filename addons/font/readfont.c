@@ -123,8 +123,6 @@ static void a5font_register_font_file_type_exit(void)
  */
 void _a5font_register_font_file_type_init(void)
 {
-   char buf[32];
-
    _add_exit_func(a5font_register_font_file_type_exit,
 		  "a5font_register_font_file_type_exit");
 }

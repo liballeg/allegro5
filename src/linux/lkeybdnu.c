@@ -49,6 +49,7 @@
 #include "allegro/internal/aintern_events.h"
 #include "allegro/internal/aintern_keyboard.h"
 #include "allegro/platform/aintlnx.h"
+#include ALLEGRO_INTERNAL_HEADER
 
 
 #define PREFIX_I                "al-ckey INFO: "

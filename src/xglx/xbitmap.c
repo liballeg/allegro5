@@ -115,12 +115,14 @@ static void draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float c
 }
 
 /* Helper to get smallest fitting power of two. */
+#if 0
 static int pot(int x)
 {
    int y = 1;
    while (y < x) y *= 2;
    return y;
 }
+#endif
 
 static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
 {
@@ -221,7 +223,6 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
         //FIXME: ugh. isn't there a better way?
         upside_down(bitmap, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
 
-        int y_offset = bitmap->h - (bitmap->lock_y + bitmap->lock_h);
         glRasterPos2i(0, bitmap->lock_y + bitmap->lock_h);
         glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
         glDrawPixels(bitmap->lock_w, bitmap->lock_h, GL_RGBA, GL_UNSIGNED_BYTE,

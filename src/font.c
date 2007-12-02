@@ -549,6 +549,7 @@ static void mono_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, B
 
     release_bitmap(bmp);
 
+    (void)orig_x;
 	/*
     if (bmp->needs_upload) {
        bmp->display->vt->upload_compat_screen(bmp, orig_x, y, text_length(f, text), text_height(f));
@@ -1016,6 +1017,7 @@ static void color_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, 
 
     release_bitmap(bmp);
    
+    (void)orig_x;
    /*
     if (bmp->needs_upload) {
        bmp->display->vt->upload_compat_screen(bmp, orig_x, y, text_length(f, text), text_height(f));

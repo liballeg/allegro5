@@ -545,7 +545,6 @@ static void color_render(AL_CONST A5FONT_FONT* f, AL_CONST char* text, int x, in
 {
     AL_CONST char* p = text;
     int ch = 0;
-    int orig_x = x;
 
     while( (ch = ugetxc(&p)) ) {
         x += f->vtable->render_char(f, ch, x, y);

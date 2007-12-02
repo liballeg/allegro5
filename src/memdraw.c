@@ -495,10 +495,8 @@ void _al_draw_hline_memory(int dx1, int dy, int dx2, ALLEGRO_COLOR *color)
 
 void _al_draw_vline_memory(int dx, int dy1, int dy2, ALLEGRO_COLOR *color)
 {
-   int y;
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
    ALLEGRO_LOCKED_REGION lr;
-   int size;
 
    ASSERT(dst);
 

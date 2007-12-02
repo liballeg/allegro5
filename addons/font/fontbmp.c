@@ -157,6 +157,7 @@ A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
    ASSERT(fname);
 
    /* Don't change the colourdepth of the bitmap if it is 8 bit */
+   (void) color_conv_mode;
    /*
    color_conv_mode = get_color_conversion();
    set_color_conversion(COLORCONV_MOST | COLORCONV_KEEP_TRANS);

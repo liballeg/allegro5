@@ -110,8 +110,8 @@ int _al_get_compat_bitmap_format(BITMAP *bmp);
 bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);
 
-void _al_push_new_bitmap_parameters();
-void _al_pop_new_bitmap_parameters();
+void _al_push_new_bitmap_parameters(void);
+void _al_pop_new_bitmap_parameters(void);
 
 /* Memory bitmap blitting */
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
@@ -140,9 +140,9 @@ typedef void (*ALLEGRO_MEMORY_BLENDER)(
    ALLEGRO_COLOR *result);
 
 /* Blending stuff (should this be somewhere else? */
-ALLEGRO_INDEPENDANT_COLOR *_al_get_blend_color();
+ALLEGRO_INDEPENDANT_COLOR *_al_get_blend_color(void);
 void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color);
-ALLEGRO_MEMORY_BLENDER _al_get_memory_blender();
+ALLEGRO_MEMORY_BLENDER _al_get_memory_blender(void);
 void _al_blender_zero_zero(int src_format, ALLEGRO_COLOR *src_color, int dst_format, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 void _al_blender_zero_one(int src_format, ALLEGRO_COLOR *src_color, int dst_format, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 void _al_blender_zero_alpha(int src_format, ALLEGRO_COLOR *src_color, int dst_format, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);

@@ -347,11 +347,6 @@ static ALLEGRO_BITMAP *get_backbuffer(ALLEGRO_DISPLAY *d)
    return glx->backbuffer;
 }
 
-static ALLEGRO_BITMAP *get_frontbuffer(ALLEGRO_DISPLAY *d)
-{
-   return NULL;
-}
-
 static void set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
