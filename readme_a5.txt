@@ -44,6 +44,11 @@ of the Allegro tree for all options). E.g.:
 
 cmake -G "MinGW Makefiles" -DSTATIC=off ..
 
+Now run make (or mingw32-make) and make install:
+
+mingw32-make
+mingw32-make install
+
 === Scons ===
 
 Scons uses more sophisticated dependency tracking than make, for example it
