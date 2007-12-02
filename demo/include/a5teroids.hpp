@@ -56,7 +56,7 @@
 #include "UFO.hpp"
 #include "Widget.hpp"
 #include "ButtonWidget.hpp"
-#include "GUI.hpp"
+#include "gui.hpp"
 #include "logic.hpp"
 
 const int BB_W = 640;

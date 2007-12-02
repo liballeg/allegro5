@@ -100,6 +100,9 @@ class AllegroContext:
         self.libDir = "lib/dummy"
         self.libraryEnv = env
 
+        self.debug = int(self.getLibraryEnv()['debug'])
+        self.static = int(self.getLibraryEnv()['static'])
+
         # Each platform should set its own install function
         # install :: library -> list of targets
         self.install = lambda lib: []
@@ -116,6 +119,12 @@ class AllegroContext:
 
     def setLibraryDir(self, d):
         self.libDir = d
+
+    def getDebug(self):
+            return self.debug
+
+    def getStatic(self):
+            return self.static
 
     def addLibrary(self, library):
         self.libraries.append(library)
@@ -183,7 +192,16 @@ class AllegroContext:
     def addFiles(self, d, fileList):
         self.librarySource.extend(appendDir(d, fileList))
 
-    def getAllegroTarget(self, debug, static):
+    # Build a library given an env
+    # Library is static if Allegro is configured with static=1
+    # or shared if static=0
+    def makeLibrary(self,env):
+            if self.static == 1:
+                return lambda *rest : apply(env.StaticLibrary, rest )
+            else:
+                return lambda *rest : apply(env.SharedLibrary, rest )
+
+    def getAllegroTarget(self):
         def build(function, lib, d):
             return function(self.getLibraryDir() + '/' + lib, appendDir(d, self.librarySource))
 
@@ -210,11 +228,11 @@ class AllegroContext:
         Alias('static', normalStatic)
         Alias('shared', normalShared)
 
-        if debug == 1 and static == 1:
+        if self.debug == 1 and self.static == 1:
             return debugStatic
-        elif debug == 1:
+        elif self.debug == 1:
             return debugShared
-        elif static == 1:
+        elif self.static == 1:
             return normalStatic
         else:
             return normalShared
@@ -277,25 +295,25 @@ def getLibraryName(debug):
         
 # debug = int(ARGUMENTS.get('debug', 0))
 # static = int(ARGUMENTS.get('static', 0))
-debug = int(context.getLibraryEnv()['debug'])
-static = int(context.getLibraryEnv()['static'])
+# debug = int(context.getLibraryEnv()['debug'])
+# static = int(context.getLibraryEnv()['static'])
 
-if debug:
+if context.getDebug():
     normalBuildDir = debugBuildDir
 else:
     normalBuildDir = optimizedBuildDir
 
 context.getLibraryEnv().Append(CPPPATH = [ normalBuildDir ])
 
-library = context.getAllegroTarget(debug, static)
-if static == 1 and debug == 1:
-	print "Building debugged static library"
-elif static == 1:
-	print "Building static library"
-elif debug == 1:
-	print "Building debug library"
+library = context.getAllegroTarget()
+if context.getStatic() == 1 and context.getDebug() == 1:
+	print "Building static debugged library"
+elif context.getStatic() == 1:
+	print "Building static non-debugged library"
+elif context.getDebug() == 1:
+	print "Building shared debugged library"
 else:
-	print "Building normal library"
+	print "Building shared non-debugged library"
 Alias('library', library)
 
 # m = Move(context.getLibraryEnv(), library)
@@ -363,7 +381,7 @@ datworms.inc
 extraEnv = context.getExampleEnv().Copy()
 # liballeg = getLibraryName(debug)
 # extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
-if not static:
+if not context.getStatic():
     extraEnv.Replace(LIBS = [context.getLibraries()])
 else:
     extraEnv.Append(LIBS = [context.getLibraries()])

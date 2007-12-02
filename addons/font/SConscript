@@ -13,7 +13,9 @@ def a5font(env, appendDir, buildDir, libDir):
         text.c
     """);
 
-    lib = env.SharedLibrary( libDir + '/a5_font', appendDir(buildDir + '/addons/font',source))
+    # lib = env.SharedLibrary( libDir + '/a5_font', appendDir(buildDir + '/addons/font',source))
+    # Build library however Allegro was configured, either static or shared
+    lib = context.makeLibrary( env )( libDir + '/a5_font', appendDir(buildDir + '/addons/font',source))
 
     exampleEnv = env.Copy()
     exampleEnv.Append( LIBS = lib )

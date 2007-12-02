@@ -81,19 +81,46 @@ def tests(env,appendDir,buildDir,libDir):
     return tests
 
 def demo(env,appendDir,buildDir,libDir):
+    demoEnv = env.Copy()
+    demoEnv.Append( CPPPATH = 'demo/include' )
+    demoEnv.Append( CPPPATH = 'addons/font' )
     sources = Split("""
-        animsel.c
-        aster.c
-        bullet.c
-        demo.c
-        demodisp.c
-        dirty.c
-        expl.c
-        game.c
-        star.c
-        title.c
+       Asteroid.cpp
+       BitmapResource.cpp
+       Bullet.cpp
+       ButtonWidget.cpp
+       Debug.cpp
+       DisplayResource.cpp
+       Enemy.cpp
+       Entity.cpp
+       Error.cpp
+       Explosion.cpp
+       GUI.cpp
+       GenericResource.cpp
+       Input.cpp
+       LargeAsteroid.cpp
+       LargeBullet.cpp
+       LargeSlowBullet.cpp
+       MediumAsteroid.cpp
+       Misc.cpp
+       Player.cpp
+       PowerUp.cpp
+       Resource.cpp
+       ResourceManager.cpp
+       SampleResource.cpp
+       SmallAsteroid.cpp
+       SmallBullet.cpp
+       UFO.cpp
+       a5teroids.cpp
+       collision.cpp
+       logic.cpp
+       render.cpp
+       sound.cpp
+       wave.cpp
     """);
-    demo = env.Program('demo/demo', appendDir(buildDir + '/demo', sources))
+    demoEnv.Append( LIBPATH = libDir )
+    demoEnv.Append( LIBS = ['a5_font'] )
+    demo = demoEnv.Program('demo/demo', appendDir(buildDir + '/demo/src', sources))
     Alias('demo', demo)
     return demo
 
