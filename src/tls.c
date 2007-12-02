@@ -203,7 +203,8 @@ void al_set_current_display(ALLEGRO_DISPLAY *display)
       return;
    tls->current_display = display;
 
-   al_set_target_bitmap(al_get_backbuffer());
+   if (display)
+      al_set_target_bitmap(al_get_backbuffer());
 }
 
 
@@ -645,7 +646,8 @@ void al_set_current_display(ALLEGRO_DISPLAY *display)
       display->vt->set_current_display(display);
    tls.current_display = display;
 
-   al_set_target_bitmap(al_get_backbuffer());
+   if (display)
+      al_set_target_bitmap(al_get_backbuffer());
 }
 
 
