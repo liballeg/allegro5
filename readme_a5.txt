@@ -31,7 +31,18 @@ Cmake works by first creating a makefile, which then can be used to compile.
 
 To use it:
 
-TODO: I have no idea about cmake..
+First create a directory for the build to take place in. E.g.:
+
+mkdir tmp
+cd tmp
+
+Note: For MinGW with gcc < 4, you cannot build a static library because
+TLS support was not introduced until version 4.
+
+Run cmake with whatever options you want (see CMakeLists.txt in the root
+of the Allegro tree for all options). E.g.:
+
+cmake -G "MinGW Makefiles" -DSTATIC=off ..
 
 === Scons ===
 
