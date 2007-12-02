@@ -47,7 +47,7 @@ static void clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 static void draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
    ALLEGRO_COLOR *color)
 {
-   set_opengl_color(d, color);
+   set_opengl_blending(d, color);
    glBegin(GL_LINES);
    glVertex2d(fx, fy);
    glVertex2d(tx, ty);
