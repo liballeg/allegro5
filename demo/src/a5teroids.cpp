@@ -1,9 +1,9 @@
 #include "a5teroids.hpp"
 
-int check_arg(int argc, char **argv, char *arg)
+int check_arg(int argc, char **argv, const std::string& arg)
 {
    for (int i = 1; i < argc; i++) {
-      if (!strcmp(argv[i], arg))
+      if (!strcmp(argv[i], arg.c_str()))
          return i;
    }
    return -1;

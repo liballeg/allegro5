@@ -196,15 +196,14 @@ int al_get_new_display_flags(void)
  */
 void al_set_current_display(ALLEGRO_DISPLAY *display)
 {
-   if (display)
-      display->vt->set_current_display(display);
-
    if ((tls = tls_get()) == NULL)
       return;
    tls->current_display = display;
 
-   if (display)
+   if (display) {
+      display->vt->set_current_display(display);
       al_set_target_bitmap(al_get_backbuffer());
+   }
 }
 
 
@@ -642,12 +641,12 @@ int al_get_new_display_flags(void)
  */
 void al_set_current_display(ALLEGRO_DISPLAY *display)
 {
-   if (display)
-      display->vt->set_current_display(display);
    tls.current_display = display;
 
-   if (display)
+   if (display) {
+      display->vt->set_current_display(display);
       al_set_target_bitmap(al_get_backbuffer());
+   }
 }
 
 

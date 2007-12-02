@@ -3,7 +3,7 @@
 
 #include "a5teroids.hpp"
 
-void debug_message(char* fmt, ...);
+void debug_message(const std::string&, ...);
 
 #endif
 
