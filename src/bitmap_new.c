@@ -103,9 +103,11 @@ static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 
 /* Function: al_create_bitmap
  *
- * Creates a new bitmap using the bitmap flags for the current thread.
- * Blitting between bitmaps of differing formats, or blitting between memory
- * bitmaps and display bitmaps may be slow.
+ * Creates a new bitmap using the bitmap format and flags for the current
+ * thread. Blitting between bitmaps of differing formats, or blitting between
+ * memory bitmaps and display bitmaps may be slow.
+ *
+ * See Also: <al_set_new_bitmap_format>, <al_set_new_bitmap_flags>
  */
 ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
@@ -236,7 +238,10 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
 
 /* Function: al_load_bitmap
  *
- * Load a bitmap from a file.
+ * Load a bitmap from a file using the bitmap format and flags of
+ * the current thread.
+ *
+ * See Also: <al_set_new_bitmap_format>, <al_set_new_bitmap_flags>
  */
 ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 {
@@ -257,8 +262,8 @@ ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 /* Function: al_draw_bitmap
  *
  * Draws an unscaled, unrotated bitmap at the given position
- * to the current target bitmap.
- * flags can be:
+ * to the current target bitmap (see al_set_target_bitmap).
+ * flags can be a combination of:
  *
  * > ALLEGRO_FLIP_HORIZONTAL
  * > ALLEGRO_FLIP_VERTICAL
@@ -285,6 +290,14 @@ void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
 /* Function: al_draw_bitmap_region
  *
  * Draws a region of the given bitmap to the target bitmap.
+ *
+ * sx - source x
+ * sy - source y
+ * sw - source width (width of region to blit)
+ * sh - source height (height of region to blit)
+ * dx - destination x
+ * dy - destination y
+ * flags - same as for al_draw_bitmap
  */
 void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 	float sw, float sh, float dx, float dy, int flags)
@@ -315,6 +328,14 @@ void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 /* Function: al_draw_scaled_bitmap
  *
  * Draws a scaled version of the given bitmap to the target bitmap.
+ *
+ * sx - source x
+ * sy - source y
+ * sw - source width
+ * sh - source height
+ * dx - destination width
+ * dy - destination height
+ * flags - same as for al_draw_bitmap
  */
 void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 	float sw, float sh, float dx, float dy, float dw, float dh, int flags)
@@ -365,6 +386,9 @@ void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
  *
  * Like al_draw_rotated_bitmap, but can also scale the bitmap.
  * center_x and center_y are in source bitmap coordinates.
+ *
+ * xscale - how much to scale on the x-axis (e.g. 2 for twice the size)
+ * yscale - how much to scale on the y-axis
  */
 void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 	float dx, float dy, float xscale, float yscale, float angle,
@@ -506,7 +530,9 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
 
 /* Function al_convert_mask_to_alpha
  *
- * Convert the given mask color to an alpha channel.
+ * Convert the given mask color to an alpha channel in the bitmap.
+ * Can be used to convert older 4.2-style bitmaps with magic pink
+ * to alpha-ready bitmaps.
  */
 void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color)
 {
@@ -541,6 +567,10 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color)
 
 
 
+/* Function al_get_bitmap_width
+ *
+ * Returns the width of a bitmap in pixels.
+ */
 int al_get_bitmap_width(ALLEGRO_BITMAP *bitmap)
 {
    return bitmap->w;
@@ -548,6 +578,10 @@ int al_get_bitmap_width(ALLEGRO_BITMAP *bitmap)
 
 
 
+/* Function al_get_bitmap_height
+ * 
+ * Returns the height of a bitmap in pixels.
+ */
 int al_get_bitmap_height(ALLEGRO_BITMAP *bitmap)
 {
    return bitmap->h;
@@ -555,6 +589,10 @@ int al_get_bitmap_height(ALLEGRO_BITMAP *bitmap)
 
 
 
+/* Function al_get_bitmap_format
+ *
+ * Returns the pixel format of a bitmap.
+ */
 int al_get_bitmap_format(ALLEGRO_BITMAP *bitmap)
 {
    return bitmap->format;
@@ -562,6 +600,10 @@ int al_get_bitmap_format(ALLEGRO_BITMAP *bitmap)
 
 
 
+/* Function al_get_bitmap_flags
+ *
+ * Return the flags user to create the bitmap.
+ */
 int al_get_bitmap_flags(ALLEGRO_BITMAP *bitmap)
 {
    return bitmap->flags;

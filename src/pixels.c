@@ -386,8 +386,8 @@ ALLEGRO_COLOR* _al_map_rgb(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color,
 /* Function: al_map_rgb
  *
  * Converts from hardware independant RGB values ranging from 0 to 255
- * into an ALLEGRO_COLOR in the format of the current target bitmap of
- * the active display. Alpha is assumed to be 255.
+ * into an ALLEGRO_COLOR in the format of the current target bitmap.
+ * Alpha is assumed to be 255.
  */
 ALLEGRO_COLOR *al_map_rgb(ALLEGRO_COLOR *color,
    unsigned char r, unsigned char g, unsigned char b)

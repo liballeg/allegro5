@@ -44,6 +44,9 @@ extern ALLEGRO_DISPLAY_INTERFACE *_al_glx_vt(void);
  * explicitly.
  * Creating a new display will automatically make it the active one, with the
  * backbuffer selected for drawing. 
+ *
+ * See Also: <al_set_new_display_format>, <al_set_new_display_refresh_rate>, 
+ * 	<al_set_new_display_flags>
  */
 ALLEGRO_DISPLAY *al_create_display(int w, int h)
 {
@@ -215,6 +218,12 @@ void al_clear(ALLEGRO_COLOR *color)
 /* Function: al_draw_line
  *
  * Draws a line to the current target.
+ *
+ * fx - from x
+ * fy - from y
+ * tx - to x
+ * ty - to y
+ * color - can be obtained with al_map_*
  */
 void al_draw_line(float fx, float fy, float tx, float ty,
    ALLEGRO_COLOR* color)
@@ -238,6 +247,12 @@ void al_draw_line(float fx, float fy, float tx, float ty,
 /* Function: al_draw_rectangle
  *
  * Draws a rectangle to the current target.
+ *
+ * tlx - top left x
+ * tly - top left y
+ * brx - bottom right x
+ * bry bottom right y
+ *
  * flags can be:
  *
  * > ALLEGRO_FILLED

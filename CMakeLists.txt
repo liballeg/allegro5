@@ -78,6 +78,10 @@ option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" on)
 
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 
+# For cross compilation
+
+option(MINGW_CROSS "Use MinGW Cross compiler" off)
+
 # Addons
 
 option(WANT_FONT "Enable bitmap font add-on" on)
@@ -493,6 +497,10 @@ if(SUPPORT_X11)
 
     set(CMAKE_REQUIRED_LIBRARIES)
 endif(SUPPORT_X11)
+
+if(MINGW_CROSS)
+    set(WIN32 1)
+endif(MINGW_CROSS)
 
 if(WIN32)
     if(WANT_D3D)

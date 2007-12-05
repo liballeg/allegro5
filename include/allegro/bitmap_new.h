@@ -28,7 +28,10 @@ typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
 
 /* Enum: ALLEGRO_PIXEL_FORMAT
  * 
- * Pixel formats.
+ * Pixel formats. Each pixel format specifies the exact size and bit
+ * layout of a pixel in memory. Components are specified from high bits
+ * to low, so for example a fully opaque red pixel in ARGB_8888 format
+ * is 0xFFFF0000.
  *
  * ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA - Let the driver choose a format without
  * alpha
@@ -169,6 +172,7 @@ enum ALLEGRO_BLEND_MODE {
  * >         int format; // the pixel format of the data
  * >         int pitch;  // the size in bytes of a single line
  * >                     // pitch may be greater than pixel_size*bitmap->w
+ * >                     // i.e. padded with extra bytes
  * > }
  */
 typedef struct ALLEGRO_LOCKED_REGION {
