@@ -220,6 +220,20 @@ AL_INLINE_DEPRECATED(void, yield_timeslice, (void),
 /* DOS-ish monitor retrace ideas that don't work elsewhere */
 AL_FUNCPTR(void, retrace_proc, (void));
 
+
+/* Those were never documented, but we need to keep them for DLL compatibility,
+ * and to be on the safe side also let's keep them work regardless.
+ */
+AL_INLINE_DEPRECATED(void, set_file_encoding, (int encoding),
+{
+   set_filename_encoding(encoding);
+})
+AL_INLINE_DEPRECATED(int, get_file_encoding, (void),
+{
+   return get_filename_encoding(encoding);
+})
+
+
 #ifdef ALLEGRO_LIB_BUILD
    AL_FUNC(int,  timer_can_simulate_retrace, (void));
    AL_FUNC(void, timer_simulate_retrace, (int enable));
