@@ -70,4 +70,11 @@ TODO: Options, how to run as non-root
 
 Currently, only a few examples work using the new API.
 
-TODO: list them
+- The demo has been replaced with an A5 demo (C++ right now)
+- exnewapi - A messy example showing off a lot of A5 features
+- exnew_bitmap - Simply draws a bitmap on screen
+- exnew_fs_resize - Demonstrates fullscreen display resizing
+- enxew_lockbitmap - Shows how to lock a bitmap to write directly to it
+- exnew_lockscreen - Like exnew_lockbitmap, but operates directly on the screen
+- exnew_resize - Demonstrates windows resized with code
+
