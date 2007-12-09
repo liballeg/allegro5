@@ -13,6 +13,9 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Mouse routines
+ */
+
 
 #ifndef _al_included_mouse_h
 #define _al_included_mouse_h
@@ -29,6 +32,13 @@ AL_BEGIN_EXTERN_C
 /* Abstract data type */
 typedef struct ALLEGRO_MOUSE ALLEGRO_MOUSE;
 
+/* Type: ALLEGRO_MSESTATE
+ *
+ * x - mouse x
+ * y - mouse y
+ * w, z - Mouse wheel position (2D 'ball')
+ * buttons - mouse buttons
+ */
 typedef struct ALLEGRO_MSESTATE
 {
    /* (x, y) Primary mouse position */
