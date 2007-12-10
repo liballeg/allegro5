@@ -406,8 +406,8 @@ def getModules():
 def allegroConfig(env,appendDir,buildDir,libDir):
     """Builds the allegro-config shell script out of misc/allegro-config.in"""
     dict = {}
-    dict[ '@prefix@' ] = ARGUMENTS.get( 'prefix', '/usr/local/' )
-    dict[ '@INCLUDE_PREFIX@' ] = ARGUMENTS.get( 'prefix', '/usr/local/' )
+    dict[ '@prefix@' ] = ARGUMENTS.get( 'install', '/usr/local/' )
+    dict[ '@INCLUDE_PREFIX@' ] = ARGUMENTS.get( 'install', '/usr/local/' )
     dict[ '@includedir@' ] = '${exec_prefix}/include'
     dict[ '@libdir@' ] = '${exec_prefix}/lib'
     dict[ '@bindir@' ] = '${exec_prefix}/bin'
@@ -418,7 +418,8 @@ def allegroConfig(env,appendDir,buildDir,libDir):
         ldflags = '-Wl,--export-dynamic'
     #print env[ 'LIBPATH' ]    
     dict[ '@LDFLAGS@' ] = ldflags
-    dict[ '@LIBS@' ] = ' '.join(['-l' + x for x in unixLibs])
+    libs = unixLibs
+    dict[ '@LIBS@' ] = ' '.join(['-l' + str(x) for x in libs])
     dict[ '@FRAMEWORKS@' ] = ''
     dict[ '^version=.*' ] = 'version=%s' % context.getVersion()
 

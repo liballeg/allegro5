@@ -121,10 +121,10 @@ class AllegroContext:
         self.libDir = d
 
     def getDebug(self):
-            return self.debug
+        return self.debug
 
     def getStatic(self):
-            return self.static
+        return self.static
 
     def addLibrary(self, library):
         self.libraries.append(library)
@@ -149,10 +149,10 @@ class AllegroContext:
 
     def getMajorVersion(self):
         return majorVersion
-    
+
     def getMinorVersion(self):
         return minorVersion
-    
+
     def getMicroVersion(self):
         return microVersion
 
@@ -196,10 +196,10 @@ class AllegroContext:
     # Library is static if Allegro is configured with static=1
     # or shared if static=0
     def makeLibrary(self,env):
-            if self.static == 1:
-                return lambda *rest : apply(env.StaticLibrary, rest )
-            else:
-                return lambda *rest : apply(env.SharedLibrary, rest )
+        if self.static == 1:
+            return lambda *rest : apply(env.StaticLibrary, rest )
+        else:
+            return lambda *rest : apply(env.SharedLibrary, rest )
 
     def getAllegroTarget(self):
         def build(function, lib, d):
@@ -350,7 +350,8 @@ def XMove(env, target, source):
 # Execute(Move(context.getLibraryDir(), library))
 # Execute(Action(os.rename(library, context.getLibraryDir() + '/' + library)))
 
-context.addLibrary(library)
+# context.addLibrary(library)
+context.addLibrary('-lalleg-4.9.2')
 
 docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
 Alias('docs', docs)
@@ -380,7 +381,7 @@ datworms.inc
 # that was used to build allegro but only link in liballeg
 extraEnv = context.getExampleEnv().Copy()
 # liballeg = getLibraryName(debug)
-# extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
+extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
 if not context.getStatic():
     extraEnv.Replace(LIBS = [context.getLibraries()])
 else:
