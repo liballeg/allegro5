@@ -10,6 +10,9 @@ int main(void)
 
 	al_init();
 
+	al_install_mouse();
+	al_install_keyboard();
+
 	display = al_create_display(640, 480);
 
 	al_hide_mouse_cursor();
@@ -17,9 +20,6 @@ int main(void)
 	cursor = al_load_bitmap("cursor.tga");
 
 	al_map_rgb(&black, 0, 0, 0);
-
-	al_install_mouse();
-	al_install_keyboard();
 
 	do {
 		al_get_mouse_state(&msestate);
