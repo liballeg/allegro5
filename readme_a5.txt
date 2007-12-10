@@ -44,7 +44,9 @@ of the Allegro tree for all options). E.g.:
 
 cmake -G "MinGW Makefiles" -DSTATIC=off ..
 
-Now run make (or mingw32-make) and make install:
+Now run make (or mingw32-make) and make install
+(Note: You should have MINGDIR pointing to your MinGW directory
+before you do mingw32-make install):
 
 mingw32-make
 mingw32-make install
