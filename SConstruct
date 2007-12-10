@@ -274,7 +274,7 @@ def getAllegroContext():
     elif onOSX():
         file = 'scons/osx.scons'
     else:
-        print "Warning: unknown system type %s" % getPlatform()
+        print "Warning: unknown system type %s. Defaulting to linux." % getPlatform()
         file = 'scons/linux.scons'
     SConscript(file, exports = ['context'])
     return context
@@ -293,11 +293,6 @@ def getLibraryName(debug):
     else:
         return 'alleg-' + context.getAllegroVersion()
         
-# debug = int(ARGUMENTS.get('debug', 0))
-# static = int(ARGUMENTS.get('static', 0))
-# debug = int(context.getLibraryEnv()['debug'])
-# static = int(context.getLibraryEnv()['static'])
-
 if context.getDebug():
     normalBuildDir = debugBuildDir
 else:
@@ -321,6 +316,7 @@ Alias('library', library)
 # In scons 0.96.92 the Move() action only accepts strings for filenames
 # as opposed to targets. This method should replace Move() in scons at
 # some point.
+# *Not used* - 12/9/2007
 def XMove(env, target, source):
     sources = env.arg2nodes(source, env.fs.File)
     targets = env.arg2nodes(target, env.fs.Dir)
@@ -351,7 +347,7 @@ def XMove(env, target, source):
 # Execute(Action(os.rename(library, context.getLibraryDir() + '/' + library)))
 
 # context.addLibrary(library)
-context.addLibrary('-lalleg-4.9.2')
+context.addLibrary('-l%s' % getLibraryName(context.getDebug()))
 
 docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
 Alias('docs', docs)
