@@ -230,7 +230,7 @@ AL_INLINE_DEPRECATED(void, set_file_encoding, (int encoding),
 })
 AL_INLINE_DEPRECATED(int, get_file_encoding, (void),
 {
-   return get_filename_encoding(encoding);
+   return get_filename_encoding();
 })
 
 
