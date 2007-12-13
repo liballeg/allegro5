@@ -24,7 +24,7 @@ int main(void)
 	al_map_rgb(&black, 0, 0, 0);
 
 	queue = al_create_event_queue();
-	al_register_event_source(queue, al_get_mouse());
+	al_register_event_source(queue, (void *)al_get_mouse());
 
 	do {
 		if (!al_event_queue_is_empty(queue)) {
@@ -50,7 +50,7 @@ int main(void)
 		al_flip_display();
 		al_rest(5);
 	}
-
+        while(1);
 done:
 	al_destroy_event_queue(queue);
 
