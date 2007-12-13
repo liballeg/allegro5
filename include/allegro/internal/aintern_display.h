@@ -44,6 +44,9 @@ struct ALLEGRO_DISPLAY_INTERFACE
       int x, int y, int width, int height);
 
    bool (*wait_for_vsync)(ALLEGRO_DISPLAY *display);
+
+   void (*show_cursor)(ALLEGRO_DISPLAY *display);
+   void (*hide_cursor)(ALLEGRO_DISPLAY *display);
 };
 
 struct ALLEGRO_DISPLAY

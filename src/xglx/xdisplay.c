@@ -390,6 +390,58 @@ static bool is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitma
    return true;
 }
 
+/* Show the system mouse cursor. */
+static void show_cursor(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   Display *xdisplay = system->xdisplay;
+   Window xwindow = glx->window;
+
+   if (!glx->cursor_hidden) return;
+
+   XUndefineCursor(xdisplay, xwindow);
+   glx->cursor_hidden = true;
+}
+
+/* Hide the system mouse cursor. */
+static void hide_cursor(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   Display *xdisplay = system->xdisplay;
+   Window xwindow = glx->window;
+
+   if (glx->cursor_hidden) return;
+
+   if (glx->invisible_cursor == None) {
+      unsigned long gcmask;
+      XGCValues gcvalues;
+
+      Pixmap pixmap = XCreatePixmap(xdisplay, xwindow, 1, 1, 1);
+      
+      GC temp_gc;
+      XColor color;
+
+      gcmask = GCFunction | GCForeground | GCBackground;
+      gcvalues.function = GXcopy;
+      gcvalues.foreground = 0;
+      gcvalues.background = 0;
+      temp_gc = XCreateGC(xdisplay, pixmap, gcmask, &gcvalues);
+      XDrawPoint(xdisplay, pixmap, temp_gc, 0, 0);
+      XFreeGC(xdisplay, temp_gc);
+      color.pixel = 0;
+      color.red = color.green = color.blue = 0;
+      color.flags = DoRed | DoGreen | DoBlue;
+      glx->invisible_cursor = XCreatePixmapCursor(xdisplay, pixmap,
+         pixmap, &color, &color, 0, 0);
+      XFreePixmap(xdisplay, pixmap);
+   }
+   XDefineCursor(xdisplay, xwindow, glx->invisible_cursor);
+   glx->cursor_hidden = true;
+}
+
+
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
 {
@@ -410,6 +462,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    vt->is_compatible_bitmap = is_compatible_bitmap;
    vt->resize_display = resize_display;
    vt->upload_compat_screen = _al_xglx_display_upload_compat_screen;
+   vt->show_cursor = show_cursor;
+   vt->hide_cursor = hide_cursor;
    _xglx_add_drawing_functions(vt);
 
    return vt;

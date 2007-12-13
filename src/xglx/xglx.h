@@ -84,6 +84,9 @@ struct ALLEGRO_DISPLAY_XGLX
    XVisualInfo *xvinfo; /* Used when selecting the X11 visual to use. */
    GLXFBConfig *fbc; /* Used when creating the OpenGL context. */
    float glx_version;
+
+   Cursor invisible_cursor;
+   bool cursor_hidden;
 };
 
 /* Functions private to the X11 driver. */

@@ -387,35 +387,28 @@ bool al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 
 
 /* Function: al_show_mouse_cursor
- *  Make the current mouse cursor visible.  By default the mouse
- *  cursor is hidden.  A graphics driver must be in effect.
- *  Returns true on success, false on failure.
+ *  Make a mouse cursor visible in the current display of the calling thread.
+ *  Returns true if a mouse cursor is shown as a result of the call (or one
+ *  already was visible), false otherwise.
  */
 bool al_show_mouse_cursor(void)
 {
-   ASSERT(gfx_driver);
-
-   if ((gfx_driver) && (gfx_driver->show_mouse_cursor))
-      return gfx_driver->show_mouse_cursor();
-
+   _al_current_display->vt->show_cursor(_al_current_display);
    return false;
 }
 
 
 
 /* Function: al_hide_mouse_cursor
- *  Hide the current mouse cursor.  This has no effect on what the
- *  current mouse cursor looks like; it just makes it disappear.
- *  A graphics driver must be in effect.
- *  Returns true on success, false on failure.
+ *  Hide the mouse cursor in the current display of the calling thread. This has
+ *  no effect on what the current mouse cursor looks like; it just makes it
+ *  disappear.
+ *  Returns true on success (or if the cursor already was hidden), false
+ *  otherwise.
  */
 bool al_hide_mouse_cursor(void)
 {
-   ASSERT(gfx_driver);
-
-   if ((gfx_driver) && (gfx_driver->hide_mouse_cursor))
-      return gfx_driver->hide_mouse_cursor();
-
+   _al_current_display->vt->hide_cursor(_al_current_display);
    return false;
 }
 
