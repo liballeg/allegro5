@@ -25,7 +25,6 @@
 #include "allegro/internal/aintern_color.h"
 
 
-
 /* Thread local storage for graphics API state */
 typedef struct thread_local_state {
    /* Display parameters */
@@ -53,9 +52,12 @@ typedef struct thread_local_state {
 } thread_local_state;
 
 
+static thread_local_state *tls;
 
-#if defined FOO && (__GNUC__ < 4 || __GNUC_MINOR__ < 2 \
+
+#if defined ALLEGRO_MINGW32 && (__GNUC__ < 4 || __GNUC_MINOR__ < 2 \
    || __GNUC_PATCHLEVEL__ < 1)
+
 
 /*
  * MinGW doesn't have builtin thread local storage, so we
@@ -65,9 +67,8 @@ typedef struct thread_local_state {
 
 #include "winalleg.h"
 
-static DWORD tls_index;
-static thread_local_state *tls;
 
+static DWORD tls_index;
 
 
 static thread_local_state *tls_get(void)
@@ -76,6 +77,96 @@ static thread_local_state *tls_get(void)
    return t;
 }
 
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+{ 
+   thread_local_state *data;
+ 
+   switch (fdwReason) { 
+      case DLL_PROCESS_ATTACH: 
+         if ((tls_index = TlsAlloc()) == TLS_OUT_OF_INDEXES)
+            return false;
+            // No break: Initialize the index for first thread.
+            // The attached process creates a new thread. 
+
+      case DLL_THREAD_ATTACH: 
+          // Initialize the TLS index for this thread.
+          data = _AL_MALLOC(sizeof(*data));
+          if (data != NULL) {
+             memset(data, 0, sizeof(*data));
+             data->blend_source = ALLEGRO_ALPHA;
+             data->blend_dest = ALLEGRO_INVERSE_ALPHA;
+             data->blend_color.r = data->blend_color.g = data->blend_color.b
+                = data->blend_color.a = 1.0f;
+             data->memory_blender = _al_blender_alpha_inverse_alpha;
+             TlsSetValue(tls_index, data); 
+          }
+             break; 
+ 
+        // The thread of the attached process terminates.
+      case DLL_THREAD_DETACH: 
+         // Release the allocated memory for this thread.
+         data = TlsGetValue(tls_index); 
+         if (data != NULL) 
+            _AL_FREE(data);
+ 
+         break; 
+ 
+      // DLL unload due to process termination or FreeLibrary. 
+      case DLL_PROCESS_DETACH: 
+         // Release the allocated memory for this thread.
+         data = TlsGetValue(tls_index); 
+         if (data != NULL) 
+            _AL_FREE(data);
+         // Release the TLS index.
+         TlsFree(tls_index); 
+         break; 
+ 
+      default: 
+         break; 
+   } 
+ 
+   return true; 
+}
+
+
+#else /* not defined ALLEGRO_MINGW32 */
+
+#if defined ALLEGRO_MSVC
+#define THREAD_LOCAL __declspec(thread)
+#elif defined ALLEGRO_MACOSX
+#define THREAD_LOCAL
+#else
+#define THREAD_LOCAL __thread
+#endif
+
+
+static THREAD_LOCAL thread_local_state _tls = {
+   0,
+   0,
+   0,
+   NULL,
+   NULL,
+   NULL,
+   0,
+   0,
+   0,
+   0,
+   ALLEGRO_ALPHA,
+   ALLEGRO_INVERSE_ALPHA,
+   { 1.0f, 1.0f, 1.0f, 1.0f },
+   {.raw = {0, 0, 0, 0}},
+   _al_blender_alpha_inverse_alpha
+};
+
+
+static thread_local_state *tls_get(void)
+{
+	return &_tls;
+}
+
+
+#endif
 
 
 /* Function: al_set_new_display_format
@@ -510,362 +601,3 @@ ALLEGRO_MEMORY_BLENDER _al_get_memory_blender()
    return tls->memory_blender;
 }
 
-
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{ 
-   thread_local_state *data;
- 
-   switch (fdwReason) { 
-      case DLL_PROCESS_ATTACH: 
-         if ((tls_index = TlsAlloc()) == TLS_OUT_OF_INDEXES)
-            return false;
-            // No break: Initialize the index for first thread.
-            // The attached process creates a new thread. 
-
-      case DLL_THREAD_ATTACH: 
-          // Initialize the TLS index for this thread.
-          data = _AL_MALLOC(sizeof(*data));
-          if (data != NULL) {
-             memset(data, 0, sizeof(*data));
-             data->blend_source = ALLEGRO_ALPHA;
-             data->blend_dest = ALLEGRO_INVERSE_ALPHA;
-             data->blend_color.r = data->blend_color.g = data->blend_color.b
-                = data->blend_color.a = 1.0f;
-             data->memory_blender = _al_blender_alpha_inverse_alpha;
-             TlsSetValue(tls_index, data); 
-          }
-             break; 
- 
-        // The thread of the attached process terminates.
-      case DLL_THREAD_DETACH: 
-         // Release the allocated memory for this thread.
-         data = TlsGetValue(tls_index); 
-         if (data != NULL) 
-            _AL_FREE(data);
- 
-         break; 
- 
-      // DLL unload due to process termination or FreeLibrary. 
-      case DLL_PROCESS_DETACH: 
-         // Release the allocated memory for this thread.
-         data = TlsGetValue(tls_index); 
-         if (data != NULL) 
-            _AL_FREE(data);
-         // Release the TLS index.
-         TlsFree(tls_index); 
-         break; 
- 
-      default: 
-         break; 
-   } 
- 
-   return true; 
-}
-
-#else /* not defined ALLEGRO_MINGW32 */
-
-#if defined ALLEGRO_MSVC
-#define THREAD_LOCAL __declspec(thread)
-/* FIXME! */
-#elif defined ALLEGRO_MACOSX
-#define THREAD_LOCAL
-#else
-#define THREAD_LOCAL __thread
-#endif
-
-
-
-static THREAD_LOCAL thread_local_state tls = {
-   0,
-   0,
-   0,
-   NULL,
-   NULL,
-   NULL,
-   0,
-   0,
-   0,
-   0,
-   ALLEGRO_ALPHA,
-   ALLEGRO_INVERSE_ALPHA,
-   { 1.0f, 1.0f, 1.0f, 1.0f },
-   {.raw = {0, 0, 0, 0}},
-   _al_blender_alpha_inverse_alpha
-};
-
-
-
-void al_set_new_display_format(int format)
-{
-   tls.new_display_format = format;
-}
-
-
-
-void al_set_new_display_refresh_rate(int refresh_rate)
-{
-   tls.new_display_refresh_rate = refresh_rate;
-}
-
-
-
-void al_set_new_display_flags(int flags)
-{
-   tls.new_display_flags = flags;
-}
-
-
-
-int al_get_new_display_format(void)
-{
-   return tls.new_display_format;
-}
-
-
-
-int al_get_new_display_refresh_rate(void)
-{
-   return tls.new_display_refresh_rate;
-}
-
-
-
-int al_get_new_display_flags(void)
-{
-   return tls.new_display_flags;
-}
-
-
-
-/* al_set_current_display:
- *
- * See documentation for previous definition of this function.
- */
-void al_set_current_display(ALLEGRO_DISPLAY *display)
-{
-   tls.current_display = display;
-
-   if (display) {
-      display->vt->set_current_display(display);
-      al_set_target_bitmap(al_get_backbuffer());
-   }
-}
-
-
-
-/* al_get_current_display:
- *
- * See documentation for previous definition of this function.
- */
-ALLEGRO_DISPLAY *al_get_current_display(void)
-{
-   return tls.current_display;
-}
-
-
-
-/* al_set_target_bitmap:
- *
- * See documentation for previous definition of this function.
- */
-void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
-{
-   tls.target_bitmap = bitmap;
-   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
-      _al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
-}
-
-
-
-/* al_get_target_bitmap:
- *
- * See documentation for previous definition of this function.
- */
-ALLEGRO_BITMAP *al_get_target_bitmap(void)
-{
-   return tls.target_bitmap;
-}
-
-
-
-void _al_push_target_bitmap(void)
-{
-   tls.target_bitmap_backup = tls.target_bitmap;
-}
-
-
-
-void _al_pop_target_bitmap(void)
-{
-   tls.target_bitmap = tls.target_bitmap_backup;
-   al_set_target_bitmap(tls.target_bitmap);
-}
-
-
-
-void al_set_new_bitmap_format(int format)
-{
-   tls.new_bitmap_format = format;
-}
-
-
-
-void al_set_new_bitmap_flags(int flags)
-{
-   tls.new_bitmap_flags = flags;
-}
-
-
-
-int al_get_new_bitmap_format(void)
-{
-   return tls.new_bitmap_format;
-}
-
-
-
-int al_get_new_bitmap_flags(void)
-{
-   return tls.new_bitmap_flags;
-}
-
-
-
-void _al_push_new_bitmap_parameters(void)
-{
-   tls.new_bitmap_format_backup = tls.new_bitmap_format;
-   tls.new_bitmap_flags_backup = tls.new_bitmap_flags;
-}
-
-
-
-void _al_pop_new_bitmap_parameters(void)
-{
-   tls.new_bitmap_format = tls.new_bitmap_format_backup;
-   tls.new_bitmap_flags = tls.new_bitmap_flags_backup;
-}
-
-
-
-void al_set_blender(int src, int dst, ALLEGRO_COLOR *color)
-{
-   tls.blend_source = src;
-   tls.blend_dest = dst;
-
-   al_unmap_rgba_f(color,
-      &tls.blend_color.r,
-      &tls.blend_color.g,
-      &tls.blend_color.b,
-      &tls.blend_color.a);
-
-   memcpy(&tls.orig_blend_color, color, sizeof(ALLEGRO_COLOR));
-
-   _al_set_memory_blender(src, dst, color);
-}
-
-
-
-void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
-{
-   if (src)
-     *src = tls.blend_source;
-
-   if (dst)
-      *dst = tls.blend_dest;
-
-   if (color)
-     memcpy(color, &tls.orig_blend_color, sizeof(ALLEGRO_COLOR));
-}
-
-
-
-ALLEGRO_INDEPENDANT_COLOR *_al_get_blend_color()
-{
-   return &tls.blend_color;
-}
-
-
-
-void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
-{
-   switch (src) {
-
-      case ALLEGRO_ZERO:
-         switch (dst) {
-            case ALLEGRO_ZERO:
-               tls.memory_blender = _al_blender_zero_zero;
-               break;
-            case ALLEGRO_ONE:
-               tls.memory_blender = _al_blender_zero_one;
-               break;
-            case ALLEGRO_ALPHA:
-               tls.memory_blender = _al_blender_zero_alpha;
-               break;
-            case ALLEGRO_INVERSE_ALPHA:
-               tls.memory_blender = _al_blender_zero_inverse_alpha;
-               break;
-         }
-         break;
-
-      case ALLEGRO_ONE:
-         switch (dst) {
-            case ALLEGRO_ZERO:
-               tls.memory_blender = _al_blender_one_zero;
-               break;
-            case ALLEGRO_ONE:
-               tls.memory_blender = _al_blender_one_one;
-               break;
-            case ALLEGRO_ALPHA:
-               tls.memory_blender = _al_blender_one_alpha;
-               break;
-            case ALLEGRO_INVERSE_ALPHA:
-               tls.memory_blender = _al_blender_one_inverse_alpha;
-               break;
-         }
-         break;
-
-      case ALLEGRO_ALPHA:
-         switch (dst) {
-            case ALLEGRO_ZERO:
-               tls.memory_blender = _al_blender_alpha_zero;
-               break;
-            case ALLEGRO_ONE:
-               tls.memory_blender = _al_blender_alpha_one;
-               break;
-            case ALLEGRO_ALPHA:
-               tls.memory_blender = _al_blender_alpha_alpha;
-               break;
-            case ALLEGRO_INVERSE_ALPHA:
-               tls.memory_blender = _al_blender_alpha_inverse_alpha;
-               break;
-         }
-         break;
-
-      case ALLEGRO_INVERSE_ALPHA:
-         switch (dst) {
-            case ALLEGRO_ZERO:
-               tls.memory_blender = _al_blender_inverse_alpha_zero;
-               break;
-            case ALLEGRO_ONE:
-               tls.memory_blender = _al_blender_inverse_alpha_one;
-               break;
-            case ALLEGRO_ALPHA:
-               tls.memory_blender = _al_blender_inverse_alpha_alpha;
-               break;
-            case ALLEGRO_INVERSE_ALPHA:
-               tls.memory_blender = _al_blender_inverse_alpha_inverse_alpha;
-               break;
-         }
-         break;
-   }
-}
-
-
-
-ALLEGRO_MEMORY_BLENDER _al_get_memory_blender()
-{
-   return tls.memory_blender;
-}
-
-#endif /* not defined ALLEGRO_MINGW32 */ 
