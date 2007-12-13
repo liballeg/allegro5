@@ -95,6 +95,11 @@ void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent);
 /* keyboard */
 void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack);
 
+/* mouse */
+void _al_xwin_mouse_button_press_handler(int button);
+void _al_xwin_mouse_button_release_handler(int button);
+void _al_xwin_mouse_motion_notify_handler(int x, int y);
+
 /* bitmap */
 ALLEGRO_BITMAP *_al_xglx_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h);
 

@@ -37,6 +37,16 @@ static void background_thread(_AL_THREAD *thread, void *arg)
          case KeyRelease:
             _al_xwin_keyboard_handler(&event.xkey, false);
             break;
+         case ButtonPress:
+            _al_xwin_mouse_button_press_handler(event.xbutton.button);
+            break;
+         case ButtonRelease:
+            _al_xwin_mouse_button_release_handler(event.xbutton.button);
+            break;
+         case MotionNotify:
+            _al_xwin_mouse_motion_notify_handler(
+               event.xmotion.x, event.xmotion.y);
+            break;
          case ConfigureNotify:
             _al_display_xglx_configure(&d->display,  &event);
             _al_cond_signal(&s->resized);
@@ -104,16 +114,21 @@ static void shutdown_system(void)
 // FIXME: This is just for now, the real way is of course a list of
 // available display drivers. Possibly such drivers can be attached at runtime
 // to the system driver, so addons could provide additional drivers.
-ALLEGRO_DISPLAY_INTERFACE *get_display_driver(void)
+static ALLEGRO_DISPLAY_INTERFACE *get_display_driver(void)
 {
     return _al_display_xglx_driver();
 }
 
-// FIXME: Use the list.
-ALLEGRO_KEYBOARD_DRIVER *get_keyboard_driver(void)
+static ALLEGRO_KEYBOARD_DRIVER *get_keyboard_driver(void)
 {
-   // FIXME: i would prefer a dynamic way to list drivers, not a static list
+   // FIXME: Select the best driver somehow
    return _al_xwin_keyboard_driver_list[0].driver;
+}
+
+static ALLEGRO_MOUSE_DRIVER *get_mouse_driver(void)
+{
+   // FIXME: Select the best driver somehow
+   return _al_xwin_mouse_driver_list[0].driver;
 }
 
 /* Internal function to get a reference to this driver. */
@@ -127,6 +142,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    vt->initialize = initialize;
    vt->get_display_driver = get_display_driver;
    vt->get_keyboard_driver = get_keyboard_driver;
+   vt->get_mouse_driver = get_mouse_driver;
    vt->get_num_display_modes = _al_xglx_get_num_display_modes;
    vt->get_display_mode = _al_xglx_get_display_mode;
    vt->shutdown_system = shutdown_system;
