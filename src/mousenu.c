@@ -393,8 +393,7 @@ bool al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
  */
 bool al_show_mouse_cursor(void)
 {
-   _al_current_display->vt->show_cursor(_al_current_display);
-   return false;
+   return _al_current_display->vt->show_cursor(_al_current_display);
 }
 
 
@@ -408,8 +407,7 @@ bool al_show_mouse_cursor(void)
  */
 bool al_hide_mouse_cursor(void)
 {
-   _al_current_display->vt->hide_cursor(_al_current_display);
-   return false;
+   return _al_current_display->vt->hide_cursor(_al_current_display);
 }
 
 

@@ -391,7 +391,7 @@ static bool is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitma
 }
 
 /* Show the system mouse cursor. */
-static void show_cursor(ALLEGRO_DISPLAY *display)
+static bool show_cursor(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
@@ -405,7 +405,7 @@ static void show_cursor(ALLEGRO_DISPLAY *display)
 }
 
 /* Hide the system mouse cursor. */
-static void hide_cursor(ALLEGRO_DISPLAY *display)
+static bool hide_cursor(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
@@ -440,7 +440,6 @@ static void hide_cursor(ALLEGRO_DISPLAY *display)
    XDefineCursor(xdisplay, xwindow, glx->invisible_cursor);
    glx->cursor_hidden = true;
 }
-
 
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
