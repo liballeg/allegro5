@@ -82,6 +82,7 @@ Contributors
 
    Anthony 'Timorg' Cassidy.<br>
    Made d_menu_proc fill up its assigned area with the gui_bg_color.
+   Fixed a typo.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
@@ -686,6 +687,9 @@ Contributors
    DOS/Windows makefiles use 'copy /B' instead of 'copy', added the detection
    of left-hand mouse configuration under Windows, fixed a bug with
    pack_fgets(), made an online diff generator and did lots of other things too.
+   Changed an instance of long long to LONG_LONG and an LL suffix into a
+   (LONG_LONG) cast, both for MSVC 6. Submitted a fix for MSVC 6 regarding
+   MSVC's lack of a __FUNCTION__ macro.
 
    Matthew Smith.<br>
    Fix a bug in C locking code in GDI.
@@ -938,6 +942,7 @@ Contributors
 
    Ryan Patterson.<br>
    Made various documentation fixes and fixed a crash in free_config_entries.
+   Clarified the documentation of stop_sample().
 
    S.Sakamaki (<email>emt@geocities.co.jp</a>).<br>
    Added the VESA 3.0 refresh rate control code.
