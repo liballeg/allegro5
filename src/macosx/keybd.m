@@ -28,6 +28,10 @@
 #error Something is wrong with the makefile
 #endif
 
+typedef struct ALLEGRO_KEYBOARD AL_KEYBOARD;
+typedef struct ALLEGRO_KEYBOARD_DRIVER AL_KEYBOARD_DRIVER;
+typedef union ALLEGRO_EVENT AL_EVENT;
+
 static bool osx_keyboard_init(void);
 static void osx_keyboard_exit(void);
 static AL_KEYBOARD* osx_get_keyboard(void);
@@ -43,7 +47,7 @@ static void _handle_key_press(int unicode, int scancode, int modifiers) {
       //      _AL_KBDSTATE_SET_KEY_DOWN(the_keyboard.state, mycode);
 
       /* Generate the press event if necessary. */
-      type = is_repeat ? AL_EVENT_KEY_REPEAT : AL_EVENT_KEY_DOWN;
+      type = is_repeat ? ALLEGRO_EVENT_KEY_REPEAT : ALLEGRO_EVENT_KEY_DOWN;
       if ((_al_event_source_needs_to_generate_event(&keyboard.es)) &&
           (event = _al_event_source_get_unused_event(&keyboard.es)))
          {
@@ -131,10 +135,10 @@ void osx_keyboard_handler(int pressed, NSEvent *event)
    
    if (pressed) {
       if (modifiers & NSAlternateKeyMask)
-         _handle_key_press(0, scancode, AL_KEYMOD_ALT);
+         _handle_key_press(0, scancode, ALLEGRO_KEYMOD_ALT);
       else {
          if ((modifiers & NSControlKeyMask) && (isalpha(character)))
-            _handle_key_press(tolower(character) - 'a' + 1, scancode, AL_KEYMOD_CTRL);
+            _handle_key_press(tolower(character) - 'a' + 1, scancode, ALLEGRO_KEYMOD_CTRL);
 	 else
             _handle_key_press(character, scancode, 0);
       }
@@ -212,7 +216,8 @@ static bool osx_keyboard_init(void)
 {
    memset(&keyboard, 0, sizeof keyboard);
 
-   _al_event_source_init(&keyboard.es, _AL_ALL_KEYBOARD_EVENTS);
+   // _al_event_source_init(&keyboard.es, _ALLEGRO_ALL_KEYBOARD_EVENTS);
+   _al_event_source_init(&keyboard.es );
    return true;
 }
 

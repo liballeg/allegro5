@@ -20,63 +20,13 @@ shared_obj.add_emitter( '.m', SCons.Defaults.SharedObjectEmitter )
 
 env[ 'SHCCFLAGS' ] = SCons.Util.CLVar( '$CCFLAGS' )
 
-context.addFiles('macosx/', Split("""
-cadigi.m
-camidi.m
-drivers.m
-hidjoy.m
-hidman.m
-keybd.m
-pcpu.m
-qtmidi.m
-quartz.m
-qzfull.m
-qzmouse.m
-qzwindow.m
-soundman.m
-system.m
-"""));
+osxfiles = context.cmake["ALLEGRO_SRC_MACOSX_FILES"]
+# linuxfiles.remove("src/linux/fbcon.c")
+context.add_files(osxfiles);
 
-context.addFiles("unix", Split("""
-ufile.c
-usystem.c
-uthreads.c
-utime.c
-utimernu.c
-uxthread.c
-"""));
-
-
-context.addFiles('c/', Split("""
-cblit16.c
-cblit24.c
-cblit32.c
-cblit8.c
-ccpu.c
-ccsprite.c
-cgfx15.c
-cgfx16.c
-cgfx24.c
-cgfx32.c
-cgfx8.c
-cmisc.c
-cscan15.c
-cscan16.c
-cscan24.c
-cscan32.c
-cscan8.c
-cspr15.c
-cspr16.c
-cspr24.c
-cspr32.c
-cspr8.c
-cstretch.c
-czscan15.c
-czscan16.c
-czscan24.c
-czscan32.c
-czscan8.c
-""" ));
+context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
+unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
+context.add_files(unixfiles)
 
 #mainEnv = Environment()
 #mainLibrary = mainEnv.StaticLibrary( 'alleg-main', 'src/macosx/main.m' )

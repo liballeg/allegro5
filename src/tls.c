@@ -567,6 +567,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 #if defined ALLEGRO_MSVC
 #define THREAD_LOCAL __declspec(thread)
+/* FIXME! */
+#elif defined ALLEGRO_MACOSX
+#define THREAD_LOCAL
 #else
 #define THREAD_LOCAL __thread
 #endif

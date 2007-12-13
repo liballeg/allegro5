@@ -87,7 +87,7 @@ AL_VAR(SYSTEM_DRIVER, system_macosx);
 
 /* Mouse driver */
 #define MOUSE_MACOSX            AL_ID('O','S','X','M')
-AL_VAR(struct AL_MOUSE_DRIVER, mouse_macosx);
+AL_VAR(struct ALLEGRO_MOUSE_DRIVER, mouse_macosx);
 
 /* Gfx drivers */
 #define GFX_QUARTZ_WINDOW       AL_ID('Q','Z','W','N')

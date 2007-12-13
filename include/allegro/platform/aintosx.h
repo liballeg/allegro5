@@ -102,7 +102,7 @@
 - (void) viewDidMoveToWindow;
 @end
 
-AllegroView* osx_view_from_display(AL_DISPLAY*);
+AllegroView* osx_view_from_display(ALLEGRO_DISPLAY*);
 
 typedef void RETSIGTYPE;
 

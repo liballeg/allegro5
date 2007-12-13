@@ -28,6 +28,8 @@
 #error Something is wrong with the makefile
 #endif
 
+typedef struct ALLEGRO_MOUSE AL_MOUSE;
+typedef struct ALLEGRO_MSESTATE AL_MSESTATE;
 
 static bool osx_mouse_init(void);
 static void osx_mouse_exit(void);
@@ -44,7 +46,7 @@ static void osx_get_state(AL_MSESTATE *ret_state);
 void osx_mouse_generate_event(NSEvent* evt);
 
 
-AL_MOUSE_DRIVER mouse_macosx = {
+ALLEGRO_MOUSE_DRIVER mouse_macosx = {
    MOUSE_MACOSX,
    empty_string,
    empty_string,
@@ -119,14 +121,14 @@ void osx_mouse_generate_event(NSEvent* evt)
    switch ([evt type])
       {
       case NSMouseMoved:
-         type = AL_EVENT_MOUSE_AXES;
+         type = ALLEGRO_EVENT_MOUSE_AXES;
          dx = [evt deltaX];
          dy = [evt deltaY];
          break;
       case NSLeftMouseDragged:
       case NSRightMouseDragged:
       case NSOtherMouseDragged:
-         type = AL_EVENT_MOUSE_AXES;
+         type = ALLEGRO_EVENT_MOUSE_AXES;
          b = [evt buttonNumber]+1;
          dx = [evt deltaX];
          dy = [evt deltaY];
@@ -134,18 +136,18 @@ void osx_mouse_generate_event(NSEvent* evt)
       case NSLeftMouseDown:
       case NSRightMouseDown:
       case NSOtherMouseDown:
-         type = AL_EVENT_MOUSE_BUTTON_DOWN;
+         type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN;
          b = [evt buttonNumber]+1;
          b_change = 1;
          break;
       case NSLeftMouseUp:
       case NSRightMouseUp:
       case NSOtherMouseUp:
-         type = AL_EVENT_MOUSE_BUTTON_UP;
+         type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;
          b = [evt buttonNumber]+1;
          break;
       case NSScrollWheel:
-         type = AL_EVENT_MOUSE_AXES;
+         type = ALLEGRO_EVENT_MOUSE_AXES;
          dx = 0;
          dy = 0;
          osx_mouse.w_axis += [evt deltaX];
@@ -154,13 +156,13 @@ void osx_mouse_generate_event(NSEvent* evt)
          dz = osx_mouse.z_axis - osx_mouse.state.z;
          break;
       case NSMouseEntered:
-         type = AL_EVENT_MOUSE_ENTER_DISPLAY;
+         type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
          b = [evt buttonNumber]+1;
          dx = [evt deltaX];
          dy = [evt deltaY];
          break;
       case NSMouseExited:
-         type = AL_EVENT_MOUSE_LEAVE_DISPLAY;
+         type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
          b = [evt buttonNumber]+1;
          dx = [evt deltaX];
          dy = [evt deltaY];
@@ -184,8 +186,8 @@ void osx_mouse_generate_event(NSEvent* evt)
    _al_event_source_lock(&osx_mouse.parent.es);
    if ((within || osx_mouse.captured) && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
       {
-         AL_EVENT* new_event = _al_event_source_get_unused_event(&osx_mouse.parent.es);
-         AL_MOUSE_EVENT* mouse_event = &new_event->mouse;
+         ALLEGRO_EVENT* new_event = _al_event_source_get_unused_event(&osx_mouse.parent.es);
+         ALLEGRO_MOUSE_EVENT* mouse_event = &new_event->mouse;
          mouse_event->type = type;
          // Note: we use 'allegro time' rather than the time stamp 
          // from the event 
@@ -264,7 +266,8 @@ static bool osx_mouse_init(void)
    /* FIXME */
    // mouse_macosx.desc = strcpy(malloc(strlen(str) + 1), str);
    osx_emulate_mouse_buttons = (buttons == 1) ? TRUE : FALSE;
-   _al_event_source_init(&osx_mouse.parent.es, _AL_ALL_MOUSE_EVENTS);
+   // _al_event_source_init(&osx_mouse.parent.es, _AL_ALL_MOUSE_EVENTS);
+   _al_event_source_init(&osx_mouse.parent.es);
    osx_mouse.button_count = buttons;
    osx_mouse.axis_count = axes;
    memset(&osx_mouse.state, 0, sizeof(AL_MSESTATE));
@@ -377,7 +380,8 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
    }
    
    // Delete the old cursor (OK to send a message to nil)
-   [cursor release];
+   /* FIXME! */
+   // [cursor release];
 
    NSBitmapImageRep* cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: NULL
                                        pixelsWide: sw
@@ -411,10 +415,13 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
    NSImage* cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(sw, sh)];
    [cursor_image addRepresentation: cursor_rep];
    [cursor_rep release];
+   /*
    cursor = [[NSCursor alloc] initWithImage: cursor_image
                             hotSpot: NSMakePoint(x, y)];
+			    */
    [cursor_image release];
-   osx_change_cursor(requested_cursor = cursor);
+   /* FIXME! */
+   // osx_change_cursor(requested_cursor = cursor);
    return 0;
 }
 
@@ -428,10 +435,13 @@ int osx_mouse_show(BITMAP *bmp, int x, int y)
    if (!is_same_bitmap(bmp, screen))
       return -1;
 
+  /* FIXME! */
+  /*
    if (!requested_cursor)
       return -1;
 
    osx_change_cursor(requested_cursor);
+   */
 
    return 0;
 }

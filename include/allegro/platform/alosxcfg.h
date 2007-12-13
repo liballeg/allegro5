@@ -38,6 +38,9 @@
 #define ALLEGRO_HAVE_SYS_TIME_H 1
 #define ALLEGRO_HAVE_SYS_STAT_H 1
 #define ALLEGRO_HAVE_MKSTEMP    1
+#define ALLEGRO_HAVE_STDBOOL_H  1
+
+#define ALLEGRO_INTERNAL_THREAD_HEADER "allegro/platform/aintuthr.h"
 
 /* Describe this platform */
 #define ALLEGRO_PLATFORM_STR  "MacOS X"

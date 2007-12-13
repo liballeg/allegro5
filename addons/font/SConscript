@@ -1,7 +1,10 @@
 Import( 'context' )
 
 def getOption(name, default = 0):
-    return context.getLibraryEnv()[name]
+    try:
+        return context.getLibraryEnv()[name]
+    except KeyError:
+        return default
 
 def a5font(env, appendDir, buildDir, libDir):
     examples = []
@@ -30,7 +33,7 @@ def a5font(env, appendDir, buildDir, libDir):
     Alias('addons/font', examples + lib)
 
     def install():
-        installDir = getOption('install')
+        installDir = getOption('install','/usr/local')
         targets = []
         def add(t):
             targets.append(t)

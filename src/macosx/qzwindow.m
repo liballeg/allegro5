@@ -605,7 +605,8 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
 	
 	pthread_cond_init(&vsync_cond, NULL);
 	pthread_mutex_init(&vsync_mutex, NULL);
-	osx_window_mutex=_unix_create_mutex();
+	/* FIXME! */
+	// osx_window_mutex = _unix_create_mutex();
 	lock_nesting = 0;
 	
 	if (1

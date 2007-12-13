@@ -24,6 +24,9 @@
 #error something is wrong with the makefile
 #endif                
 
+typedef struct AL_JOYSTICK AL_JOYSTICK;
+typedef struct AL_JOYSTATE AL_JOYSTATE;
+typedef struct ALLEGRO_JOYSTICK_DRIVER AL_JOYSTICK_DRIVER;
 
 static bool init_joystick(void);
 static void exit_joystick(void);

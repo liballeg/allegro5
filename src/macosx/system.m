@@ -657,7 +657,7 @@ static int osx_sys_get_desktop_resolution(int *width, int *height)
  * given an AL_DISPLAY, return the associated Cocoa View or nil
  * if fullscreen 
  */
-AllegroView* osx_view_from_display(AL_DISPLAY* disp)
+AllegroView* osx_view_from_display(ALLEGRO_DISPLAY* disp)
 {
  // At the moment, AL_DISPLAY has not been finalised
  return (AllegroView*) (osx_window ? [osx_window contentView] : nil);
