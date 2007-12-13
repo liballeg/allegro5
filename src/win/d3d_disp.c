@@ -1742,6 +1742,16 @@ static bool d3d_wait_for_vsync(ALLEGRO_DISPLAY *display)
    return true;
 }
 
+static bool d3d_show_cursor(ALLEGRO_DISPLAY *display)
+{
+	return _al_win_directx_show_mouse_cursor();
+}
+
+static bool d3d_hide_cursor(ALLEGRO_DISPLAY *display)
+{
+	return _al_win_directx_hide_mouse_cursor();
+}
+
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 {
@@ -1771,6 +1781,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->draw_memory_bitmap_region = NULL;
    vt->create_sub_bitmap = d3d_create_sub_bitmap;
    vt->wait_for_vsync = d3d_wait_for_vsync;
+   vt->show_cursor = d3d_show_cursor;
+   vt->hide_cursor = d3d_hide_cursor;
 
    return vt;
 }

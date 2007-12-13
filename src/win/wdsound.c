@@ -638,7 +638,7 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
 static int fill_dsound_buffer(LPDIRECTSOUNDBUFFER snd_buf, int offset, int len, int bits, int stereo, int reversed, char *data)
 {
    void *buf_a;
-   long int size, size_a;
+   unsigned long int size, size_a;
    HRESULT hr;
 
    /* transform from samples to bytes */
@@ -929,7 +929,7 @@ static void digi_directsound_loop_voice(int voice, int playmode)
 static void *digi_directsound_lock_voice(int voice, int start, int end)
 {
    LPDIRECTSOUNDBUFFER ds_locked_buffer;
-   long size_a;
+   unsigned long size_a;
    void *buf_a;
    HRESULT hr;
 

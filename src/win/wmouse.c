@@ -458,7 +458,7 @@ static void mouse_dinput_handle(void)
    hr = IDirectInputDevice_GetDeviceData(mouse_dinput_device,
                                          sizeof(DIDEVICEOBJECTDATA),
                                          message_buffer,
-                                         &waiting_messages,
+                                         (unsigned long int *)&waiting_messages,
                                          0);
 
    /* was device lost ? */

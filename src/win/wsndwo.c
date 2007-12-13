@@ -286,7 +286,7 @@ static int digi_waveout_init(int input, int voices)
    }
 
    lpWaveHdr = _AL_MALLOC(sizeof(WAVEHDR));
-   lpWaveHdr->lpData = digiwobufdata;
+   lpWaveHdr->lpData = (char *)digiwobufdata;
    lpWaveHdr->dwBufferLength = digiwobufsize;
    lpWaveHdr->dwFlags = WHDR_BEGINLOOP | WHDR_ENDLOOP;
    lpWaveHdr->dwLoops = 0x7fffffffL;
@@ -312,7 +312,7 @@ static int digi_waveout_init(int input, int voices)
    _mix_some_samples((unsigned long) digiwobufdata, 0, TRUE);
 
    /* get volume */
-   waveOutGetVolume(hWaveOut, &initial_volume);
+   waveOutGetVolume(hWaveOut, (unsigned long *)&initial_volume);
 
    /* start playing */
    install_int(digi_waveout_mixer_callback, 20);  /* 50 Hz */

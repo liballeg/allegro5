@@ -299,7 +299,7 @@ static void key_dinput_handle(void)
    hr = IDirectInputDevice_GetDeviceData(key_dinput_device,
                                          sizeof(DIDEVICEOBJECTDATA),
                                          scancode_buffer,
-                                         &waiting_scancodes,
+                                         (unsigned long int *)&waiting_scancodes,
                                          0);
 
    /* was device lost ? */
