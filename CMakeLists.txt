@@ -78,10 +78,6 @@ option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" on)
 
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 
-# For cross compilation
-
-option(MINGW_CROSS "Use MinGW Cross compiler" off)
-
 # Addons
 
 option(WANT_FONT "Enable bitmap font add-on" on)
