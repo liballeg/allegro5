@@ -98,8 +98,12 @@ To install, run (as root):
 
 scons install
 
-TODO: Options, how to run as non-root
+There are also some options you can use with the scons command:
+	- static (default: 1)
+	- debug
 
+TODO: how to compile and install as non-root
+	
 
 
 == Running the examples ==
