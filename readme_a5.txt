@@ -50,8 +50,8 @@ To use it:
 
 First create a directory for the build to take place in. E.g.:
 
-mkdir tmp
-cd tmp
+$ mkdir tmp
+$ cd tmp
 
 Note: For MinGW with gcc < 4, you cannot build a static library because
 TLS (thread local storage, using __thread) support was not introduced
@@ -69,19 +69,17 @@ with defaults in braces:
 
 Example:
 
-cmake -G "MinGW Makefiles" \
+$ cmake -G "MinGW Makefiles" \
 	-DSTATIC=off -DGRADE_STANDARD=off -DGRADE_DEBUG=on ..
 
 Now run make (or mingw32-make) and make install
 (Note: You should have MINGDIR pointing to your MinGW directory
 before you do mingw32-make install):
 
-mingw32-make
-mingw32-make install
+$ mingw32-make
+$ mingw32-make install
 
 Compiling with MSVC is untested.
-
-
 
 === Scons ===
 
@@ -90,23 +88,28 @@ does not use timestamps, and in general will always know what to rebuild even
 if files are added/removed/renamed, options are changed, or even external
 dependencies are changed.
 
+See the Allegro wiki for more info on the scons build system:
+http://wiki.allegro.cc/Scons
+
 To compile Allegro, simply type this inside the allegro directory:
 
-scons
+$ scons
 
 To install, run (as root):
 
-scons install
+$ scons install
 
 There are also some options you can use with the scons command:
 	- static (default: 1)
 	- debug
 
+$ scons static=1 debug=1
+$ scons static=0 debug=1
+etc..
+
 To install as a non-root user, you can do:
 
-scons install=/home/myuser/mydirectory
-	
-
+$ scons install install=/home/myuser/mydirectory
 
 == Running the examples ==
 
