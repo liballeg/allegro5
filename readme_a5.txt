@@ -1,6 +1,8 @@
 Thanks for trying this development release of Allegro. This is currently work
 in progress and only intended for developers. Here are some short notes:
 
+
+
 == Windows ==
 
 The only graphics driver implemented so far requires DirectX 9. Here are some
@@ -18,19 +20,27 @@ If you have problems, send and email to the alleg-developers list or
 directly to Trent Gamblin @ trent2@gamblin.ca, and we may be able to
 debug it further.
 
+
+
 == Linux ==
 
 The only graphics driver implemented so far requires a fairly recent GLX, it
 was only tested with GLX 1.4 so far.
 
+
+
 == OSX ==
 
 Sorry, nobody did yet write any drivers for OSX.
+
+
 
 == Compilation ==
 
 We provide two build systems, cmake and scons. cmake works on Windows
 and scons works on Linux.
+
+
 
 === Cmake ===
 
@@ -44,7 +54,8 @@ mkdir tmp
 cd tmp
 
 Note: For MinGW with gcc < 4, you cannot build a static library because
-TLS support was not introduced until version 4.
+TLS (thread local storage, using __thread) support was not introduced
+until version 4.
 
 Run cmake with whatever options you want. Some common options are,
 with defaults in braces:
@@ -53,7 +64,7 @@ with defaults in braces:
 	- GRADE_PROFILE -- Build profiling library (off)
 	- SHARED -- Build shared libraries (on)
 	- STATIC -- Build static libraries (on)
-	- WANT_FONT -- Build the font addon (on)
+	- WANT_FONT -- Build the font addon, needed by demo (on)
 	- WANT_D3D -- Build the D3D driver (on)
 
 Example:
@@ -69,6 +80,8 @@ mingw32-make
 mingw32-make install
 
 Compiling with MSVC is untested.
+
+
 
 === Scons ===
 
@@ -86,6 +99,8 @@ To install, run (as root):
 scons install
 
 TODO: Options, how to run as non-root
+
+
 
 == Running the examples ==
 
