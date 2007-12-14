@@ -81,6 +81,8 @@ $ mingw32-make install
 
 Compiling with MSVC is untested.
 
+
+
 === Scons ===
 
 Scons uses more sophisticated dependency tracking than make, for example it
@@ -111,6 +113,8 @@ To install as a non-root user, you can do:
 
 $ scons install install=/home/myuser/mydirectory
 
+
+
 == Running the examples ==
 
 Currently, only a few examples work using the new API.
@@ -126,4 +130,11 @@ but are not accelerated.
 - exnew_mouse - Uses mouse polling to show a cursor
 - exnew_mouse_events - Uses the new event system to show a mouse cursor
 - exnew_resize - Demonstrates windows resized with code
+
+
+
+== API documentation ==
+
+The documentation is all linked to from the wiki:
+http://wiki.allegro.cc/NewAPI
 
