@@ -102,7 +102,9 @@ There are also some options you can use with the scons command:
 	- static (default: 1)
 	- debug
 
-TODO: how to compile and install as non-root
+To install as a non-root user, you can do:
+
+scons install=/home/myuser/mydirectory
 	
 
 
