@@ -8,7 +8,7 @@
 @html_spaced_list_bullet
 
 @heading
-Changes from 4.2.1 RC1 to 4.2.1 (November 2006)
+Changes from 4.9.1 to 4.9.2 (November 2006)
 <ul><li>
    Jon Rafkind made various fixes to get the OSX build to compile
 <li>
