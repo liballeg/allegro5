@@ -371,7 +371,7 @@ static bool d3d_create_textures(int w, int h,
          if (IDirect3DDevice9_CreateTexture(_al_d3d_device, w, h, 1,
                0, _al_format_to_d3d(format), D3DPOOL_MANAGED,
                video_texture, NULL) != D3D_OK) {
-            TRACE("d3d_create_textures: Unable to create video texture.\n");
+            TRACE("d3d_create_textures: Unable to create video texture (no render-to-texture).\n");
             return false;
          }
       }
