@@ -37,8 +37,8 @@ Sorry, nobody did yet write any drivers for OSX.
 
 == Compilation ==
 
-We provide two build systems, cmake and scons. cmake works on Windows
-and scons works on Linux.
+We provide two build systems, cmake and scons.
+MSVC is untested and may or may not won't work.
 
 
 
@@ -53,7 +53,7 @@ First create a directory for the build to take place in. E.g.:
 $ mkdir tmp
 $ cd tmp
 
-Note: For MinGW with gcc < 4, you cannot build a static library because
+* Note: For MinGW with gcc < 4, you cannot build a static library because
 TLS (thread local storage, using __thread) support was not introduced
 until version 4.
 
@@ -64,13 +64,14 @@ with defaults in braces:
 	- GRADE_PROFILE -- Build profiling library (off)
 	- SHARED -- Build shared libraries (on)
 	- STATIC -- Build static libraries (on)
-	- WANT_FONT -- Build the font addon, needed by demo (on)
-	- WANT_D3D -- Build the D3D driver (on)
 
-Example:
+Examples:
 
 $ cmake -G "MinGW Makefiles" \
 	-DSTATIC=off -DGRADE_STANDARD=off -DGRADE_DEBUG=on ..
+
+$ cmake -G "Unix Makefiles" -D<whatever> ..
+	
 
 Now run make (or mingw32-make) and make install
 (Note: You should have MINGDIR pointing to your MinGW directory
@@ -78,8 +79,6 @@ before you do mingw32-make install):
 
 $ mingw32-make
 $ mingw32-make install
-
-Compiling with MSVC is untested.
 
 
 
