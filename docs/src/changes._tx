@@ -10,6 +10,20 @@
 @heading
 Changes from 4.9.1 to 4.9.2 (November 2006)
 <ul><li>
+   Trent Gamblin made the mouse cursor always hide when the user
+   calls al_hide_mouse_cursor in fullscreen (D3D).
+<li>
+   Trent Gamblin fixed some signedness warnings and implemented
+   show/hide_mouse in the display vtable for D3D.
+<li>
+   Elias Pschernig made show/hide cursor use the display driver instead of
+   the 4.2 gfx_driver.
+<li>
+   Elias Pschernig fixed missing keyboard events in exnew_mouse_events
+   example.
+<li>
+   Elias Pschernig wired the X11 mouse driver to the XGLX system driver.
+<li>
    Jon Rafkind made various fixes to get the OSX build to compile
 <li>
    Trent Gamblin added exnew_mouse_events.
