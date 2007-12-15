@@ -689,17 +689,17 @@ endmacro(add_allegro_build)
 
 if(GRADE_STANDARD)
     add_allegro_build(alleg
-        "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
+        "-O2 -funroll-loops -ffast-math -fomit-frame-pointer -fPIC")
 endif(GRADE_STANDARD)
 
 if(GRADE_DEBUG)
     add_allegro_build(alld
-        "-DDEBUGMODE -g")
+        "-DDEBUGMODE -g -fPIC")
 endif(GRADE_DEBUG)
 
 if(GRADE_PROFILE)
     add_allegro_build(allp
-        "-pg -O2 -funroll-loops -ffast-math")
+        "-pg -O2 -funroll-loops -ffast-math -fPIC")
 endif(GRADE_PROFILE)
 
 # XXX liballeg_unshareable should not be needed if WANT_ASM is disabled.
