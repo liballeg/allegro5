@@ -243,7 +243,8 @@ class AllegroContext:
 #    return map(lambda x: d + '/' + x, files)
 
 def defaultEnvironment():
-    env = Environment()
+    import os
+    env = Environment( ENV = os.environ )
     opts = Options('options.py', ARGUMENTS)
     opts.Add('static', 'Set Allegro to be built statically', 0)
     opts.Add('debug', 'Build the debug version of Allegro', 0)
