@@ -31,7 +31,7 @@
 #endif
 
 /* DMC requires a DllMain() function, or else the DLL hangs. */
-#ifndef ALLEGRO_STATICLINK
+#if !defined ALLEGRO_STATICLINK && defined ALLEGRO_DMC
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason, LPVOID lpReserved)
 {
    return TRUE;
