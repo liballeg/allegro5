@@ -50,8 +50,8 @@ To use it:
 
 First create a directory for the build to take place in. E.g.:
 
-$ mkdir tmp
-$ cd tmp
+$ mkdir Build
+$ cd Build
 
 * Note: For MinGW with gcc < 4, you cannot build a static library because
 TLS (thread local storage, using __thread) support was not introduced
@@ -71,7 +71,9 @@ $ cmake -G "MinGW Makefiles" \
 	-DSTATIC=off -DGRADE_STANDARD=off -DGRADE_DEBUG=on ..
 
 $ cmake -G "Unix Makefiles" -D<whatever> ..
-	
+
+Alternatively, you can use ccmake to bring up an interactive option
+selector. e.g. ccmake ..
 
 Now run make (or mingw32-make) and make install
 (Note: You should have MINGDIR pointing to your MinGW directory
