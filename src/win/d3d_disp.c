@@ -502,10 +502,12 @@ static void d3d_destroy_hidden_device()
 /*
  * Must be called before al_init
  */
+ /*
 void al_d3d_set_render_to_texture_enabled(bool rtt)
 {
    render_to_texture_supported = rtt;
 }
+*/
 
 bool _al_d3d_render_to_texture_supported()
 {

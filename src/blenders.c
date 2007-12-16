@@ -293,4 +293,15 @@ void _al_blender_inverse_alpha_inverse_alpha(int src_format, ALLEGRO_COLOR *src_
 }
 
 
+void _al_blend(int src_format, ALLEGRO_COLOR *src_color,
+   int dx, int dy, ALLEGRO_COLOR *result)
+{
+   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
+   ALLEGRO_MEMORY_BLENDER blender = _al_get_memory_blender();
+   ALLEGRO_COLOR dst_color;
+
+   al_get_pixel(dest, dx, dy, &dst_color);
+
+   blender(src_format, src_color, dest->format, &dst_color, result);
+}
 

@@ -257,6 +257,7 @@ AL_FUNC(ALLEGRO_BITMAP, *al_clone_bitmap, (ALLEGRO_BITMAP *bitmap));
 /* Blending */
 AL_FUNC(void, al_set_blender, (int source, int dest, ALLEGRO_COLOR *color));
 AL_FUNC(void, al_get_blender, (int *source, int *dest, ALLEGRO_COLOR *color));
+AL_FUNC(void, _al_blend, (int src_format, ALLEGRO_COLOR *src_color, int dx, int dy, ALLEGRO_COLOR *result));
 
 #ifdef __cplusplus
    }
