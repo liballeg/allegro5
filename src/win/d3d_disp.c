@@ -59,7 +59,7 @@ static _AL_MUTEX d3d_device_mutex;
 
 static bool d3d_can_wait_for_vsync;
 
-static bool render_to_texture_supported;
+static bool render_to_texture_supported = true;
 
 /*
  * These parameters cannot be gotten by the display thread because
@@ -499,6 +499,14 @@ static void d3d_destroy_hidden_device()
    d3d_hidden_window = 0;
 }
 
+/*
+ * Must be called before al_init
+ */
+void al_d3d_set_render_to_texture_enabled(bool rtt)
+{
+   render_to_texture_supported = rtt;
+}
+
 bool _al_d3d_render_to_texture_supported()
 {
    return render_to_texture_supported;
@@ -515,12 +523,16 @@ bool _al_d3d_init_display()
 
    IDirect3D9_GetAdapterDisplayMode(_al_d3d, D3DADAPTER_DEFAULT, &d3d_dm);
 
-   if (IDirect3D9_CheckDeviceFormat(_al_d3d, D3DADAPTER_DEFAULT,
-         D3DDEVTYPE_HAL, d3d_dm.Format, D3DUSAGE_RENDERTARGET,
-         D3DRTYPE_TEXTURE, d3d_dm.Format) != D3D_OK)
-      render_to_texture_supported = false;
-   else
-      render_to_texture_supported = true;
+   if (render_to_texture_supported) {
+      if (IDirect3D9_CheckDeviceFormat(_al_d3d, D3DADAPTER_DEFAULT,
+            D3DDEVTYPE_HAL, d3d_dm.Format, D3DUSAGE_RENDERTARGET,
+            D3DRTYPE_TEXTURE, d3d_dm.Format) != D3D_OK)
+         render_to_texture_supported = false;
+      else
+         render_to_texture_supported = true;
+   }
+
+   TRACE("Render-to-texture: %d\n", render_to_texture_supported);
 
    _al_mutex_init(&d3d_device_mutex);
 
@@ -756,7 +768,7 @@ static bool _al_d3d_reset_device()
    return 1;
 }
 
-static int d3d_choose_format(int fake)
+static int d3d_choose_display_format(int fake)
 {
    /* Pick an appropriate format if the user is vague */
    switch (fake) {
@@ -791,6 +803,88 @@ static int d3d_choose_format(int fake)
    return fake;
 }
 
+static BOOL IsTextureFormatOk(D3DFORMAT TextureFormat, D3DFORMAT AdapterFormat) 
+{
+   HRESULT hr = IDirect3D9_CheckDeviceFormat(_al_d3d, D3DADAPTER_DEFAULT,
+      D3DDEVTYPE_HAL,
+      AdapterFormat,
+      0,
+      D3DRTYPE_TEXTURE,
+      TextureFormat);
+    
+   return SUCCEEDED(hr);
+}
+
+static int real_choose_bitmap_format(int bits, bool alpha)
+{
+   int i;
+
+   for (i = 0; allegro_formats[i] >= 0; i++) {
+      int aformat = allegro_formats[i];
+      D3DFORMAT dformat;
+      D3DFORMAT adapter_format;
+      int adapter_format_allegro;
+      if (!_al_pixel_format_is_real(aformat))
+         continue;
+      if (bits && _al_get_pixel_format_bits(aformat) != bits)
+         continue;
+      dformat = d3d_formats[i];
+      adapter_format_allegro = al_get_new_display_format();
+      if (!_al_pixel_format_is_real(adapter_format_allegro))
+         adapter_format_allegro = d3d_choose_display_format(adapter_format_allegro);
+      adapter_format = _al_format_to_d3d(adapter_format_allegro);
+      if (IsTextureFormatOk(dformat, adapter_format))
+         return aformat;
+   }
+
+   return -1;
+}
+
+static int d3d_choose_bitmap_format(int fake)
+{
+
+   TRACE("Choosing (%d)\n", fake);
+
+   switch (fake) {
+      case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
+         fake = real_choose_bitmap_format(0, false);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
+         fake = real_choose_bitmap_format(0, true);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
+         fake = real_choose_bitmap_format(32, false);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
+         fake = real_choose_bitmap_format(32, true);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
+         fake = real_choose_bitmap_format(24, false);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
+         fake = real_choose_bitmap_format(24, true);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
+         fake = real_choose_bitmap_format(16, false);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
+         fake = real_choose_bitmap_format(16, true);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
+         fake = real_choose_bitmap_format(15, false);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
+         fake = real_choose_bitmap_format(15, true);
+         break;
+      default:
+         fake = -1;
+   }
+
+   TRACE("Chose: %d\n", fake);
+
+   return fake;
+}
+
 /*
  * The window and swap chain must be created in the same
  * thread that runs the message loop. It also must be
@@ -819,7 +913,7 @@ static void d3d_display_thread_proc(void *arg)
    }
 
    if (!_al_pixel_format_is_real(params->format)) {
-      int f = d3d_choose_format(params->format);
+      int f = d3d_choose_display_format(params->format);
       if (f < 0) {
          d->init_failed = true;
          return;
@@ -1592,7 +1686,7 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    flags = al_get_new_bitmap_flags();
 
    if (!_al_pixel_format_is_real(format)) {
-      format = d3d_choose_format(format);
+      format = d3d_choose_bitmap_format(format);
       if (format < 0) {
          return NULL;
       }

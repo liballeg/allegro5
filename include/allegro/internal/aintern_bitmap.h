@@ -109,6 +109,7 @@ int _al_get_pixel_value(int src_format, ALLEGRO_COLOR *src_color);
 int _al_get_compat_bitmap_format(BITMAP *bmp);
 bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);
+int _al_get_pixel_format_bits(int format);
 
 void _al_push_new_bitmap_parameters(void);
 void _al_pop_new_bitmap_parameters(void);

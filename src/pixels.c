@@ -76,10 +76,44 @@ static int pixel_sizes[] = {
    4
 };
 
+static int pixel_bits[] = {
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   32,
+   32,
+   16,
+   24,
+   16,
+   15,
+   8,
+   16,
+   16,
+   32,
+   32,
+   24,
+   16,
+   15,
+   32,
+   32
+};
+
 
 int al_get_pixel_size(int format)
 {
    return pixel_sizes[format];
+}
+
+int _al_get_pixel_format_bits(int format)
+{
+   return pixel_bits[format];
 }
 
 static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
