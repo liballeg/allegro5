@@ -48,7 +48,8 @@ Cmake works by first creating a makefile, which then can be used to compile.
 
 To use it:
 
-First create a directory for the build to take place in. E.g.:
+First create a directory for the build to take place in.
+(This is not strictly necessary but keeps things cleaner.) e.g.
 
 $ mkdir Build
 $ cd Build
@@ -131,6 +132,13 @@ but are not accelerated.
 - exnew_mouse - Uses mouse polling to show a cursor
 - exnew_mouse_events - Uses the new event system to show a mouse cursor
 - exnew_resize - Demonstrates windows resized with code
+
+Remember that some examples look for data files in the current directory, so if
+you used an external build directory you will need to change into the examples
+directory and specify the path to the example in the build directory, e.g.
+
+$ cd examples
+$ ../Build/examples/exnew_mouse_events
 
 
 
