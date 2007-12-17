@@ -20,6 +20,8 @@ If you have problems, send and email to the alleg-developers list or
 directly to Trent Gamblin @ trent2@gamblin.ca, and we may be able to
 debug it further.
 
+Do not run fix.bat! It is no longer needed and will lead to errors.
+
 
 
 == Linux ==

@@ -1,6 +1,0 @@
-# List of modules to be loaded by the Unix version of Allegro.
-
-liballeg-esddigi.so
-liballeg-alsadigi.so
-liballeg-alsamidi.so
-liballeg-fbcon.so
