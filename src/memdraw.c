@@ -388,6 +388,9 @@ void _al_draw_rectangle_memory_fast(int x1, int y1, int x2, int y2,
       y2 = tmp;
    }
 
+   w = x2 - x1 + 1;
+   h = y2 - y1 + 1;
+
    /* Do clipping */
    if (x1 < bitmap->cl) {
       w -= (bitmap->cl - x1);
@@ -403,9 +406,6 @@ void _al_draw_rectangle_memory_fast(int x1, int y1, int x2, int y2,
    if (y2 > bitmap->cb) {
       y2 = bitmap->cb;
    }
-
-   w = x2 - x1 + 1;
-   h = y2 - y1 + 1;
 
    if (w <= 0 || h <= 0)
       return;
@@ -713,6 +713,9 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
       y2 = tmp;
    }
 
+   w = x2 - x1 + 1;
+   h = y2 - y1 + 1;
+
    /* Do clipping */
    if (x1 < bitmap->cl) {
       w -= (bitmap->cl - x1);
@@ -728,9 +731,6 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
    if (y2 > bitmap->cb) {
       y2 = bitmap->cb;
    }
-
-   w = x2 - x1 + 1;
-   h = y2 - y1 + 1;
 
    if (w <= 0 || h <= 0)
       return;

@@ -144,6 +144,7 @@ typedef void (*ALLEGRO_MEMORY_BLENDER)(
 ALLEGRO_INDEPENDANT_COLOR *_al_get_blend_color(void);
 void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color);
 ALLEGRO_MEMORY_BLENDER _al_get_memory_blender(void);
+void _al_blend(int src_format, ALLEGRO_COLOR *src_color, int dx, int dy, ALLEGRO_COLOR *result);
 void _al_blender_zero_zero(int src_format, ALLEGRO_COLOR *src_color, int dst_format, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 void _al_blender_zero_one(int src_format, ALLEGRO_COLOR *src_color, int dst_format, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 void _al_blender_zero_alpha(int src_format, ALLEGRO_COLOR *src_color, int dst_format, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
