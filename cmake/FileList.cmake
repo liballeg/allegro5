@@ -46,6 +46,9 @@ set(ALLEGRO_SRC_FILES
     src/math.c
     src/math3d.c
     src/memblit.c
+    src/memblit1.c
+    src/memblit2.c
+    src/memblit3.c
     src/memdraw.c
     src/memory.c
     src/midi.c
