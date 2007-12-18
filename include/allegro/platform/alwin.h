@@ -21,6 +21,9 @@
 #endif
 
 
+/* D3D stuff */
+AL_FUNC(LPDIRECT3DDEVICE9, al_d3d_get_swap_chain, (void));
+
 /*******************************************/
 /********** magic main emulation ***********/
 /*******************************************/

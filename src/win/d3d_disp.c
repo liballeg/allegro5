@@ -1848,6 +1848,11 @@ static bool d3d_hide_cursor(ALLEGRO_DISPLAY *display)
 	return _al_win_directx_hide_mouse_cursor();
 }
 
+LPDIRECT3DDEVICE9 al_d3d_get_device(void)
+{
+	return _al_d3d_device;
+}
+
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 {
