@@ -70,10 +70,9 @@ with defaults in braces:
 
 Examples:
 
-$ cmake .. -G "MinGW Makefiles" \
-	-DSTATIC=off -DGRADE_STANDARD=off -DGRADE_DEBUG=on
+$ cmake .. -G "MinGW Makefiles" -DSTATIC=off
 
-$ cmake .. -G "Unix Makefiles" -D<whatever>
+$ cmake .. -G "Unix Makefiles"
 
 Alternatively, you can use ccmake to bring up an interactive option
 selector. e.g. ccmake ..
