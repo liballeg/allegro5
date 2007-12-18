@@ -22,10 +22,12 @@
 
 
 /* D3D stuff */
-#ifndef ALLEGRO_D3D
+#ifdef ALLEGRO_D3D
+
 #include <d3d9.h>
 
 AL_FUNC(LPDIRECT3DDEVICE9, al_d3d_get_device, (void));
+
 #endif
 
 
