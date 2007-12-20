@@ -405,25 +405,25 @@ def getModules():
 
 def allegroConfig(env,appendDir,buildDir,libDir):
     """Builds the allegro-config shell script out of misc/allegro-config.in"""
-    dict = {}
-    dict[ '@prefix@' ] = ARGUMENTS.get( 'install', '/usr/local/' )
-    dict[ '@INCLUDE_PREFIX@' ] = ARGUMENTS.get( 'install', '/usr/local/' )
-    dict[ '@includedir@' ] = '${exec_prefix}/include'
-    dict[ '@libdir@' ] = '${exec_prefix}/lib'
-    dict[ '@bindir@' ] = '${exec_prefix}/bin'
-    dict[ '@LINK_WITH_STATIC_LIBS@' ] = 'no'
-    dict[ '@LIB_TO_LINK@' ] = 'alleg'
+    dic = {}
+    dic[ '@prefix@' ] = ARGUMENTS.get( 'install', '/usr/local/' )
+    dic[ '@INCLUDE_PREFIX@' ] = ARGUMENTS.get( 'install', '/usr/local/' )
+    dic[ '@includedir@' ] = '${exec_prefix}/include'
+    dic[ '@libdir@' ] = '${exec_prefix}/lib'
+    dic[ '@bindir@' ] = '${exec_prefix}/bin'
+    dic[ '@LINK_WITH_STATIC_LIBS@' ] = 'no'
+    dic[ '@LIB_TO_LINK@' ] = 'alleg'
     ldflags = ''
     if supportModules():
         ldflags = '-Wl,--export-dynamic'
     #print env[ 'LIBPATH' ]    
-    dict[ '@LDFLAGS@' ] = ldflags
+    dic[ '@LDFLAGS@' ] = ldflags
     libs = unixLibs
-    dict[ '@LIBS@' ] = ' '.join(['-l' + str(x) for x in libs])
-    dict[ '@FRAMEWORKS@' ] = ''
-    dict[ '^version=.*' ] = 'version=%s' % context.getVersion()
+    dic[ '@LIBS@' ] = ' '.join(['-l' + str(x) for x in libs])
+    dic[ '@FRAMEWORKS@' ] = ''
+    dic[ '^version=.*' ] = 'version=%s' % context.getVersion()
 
-    def replaceVars(target,source,env):
+    def replaceVars(target, source, env):
         writer = open( target[0].path, 'w' )
         for line in file(source[0].path):
             import re
@@ -436,8 +436,11 @@ def allegroConfig(env,appendDir,buildDir,libDir):
         writer.close()
         return 0
 
-    configure = Builder( action = replaceVars, name = "ConfigureBuilder" )
+    # A new builder who calls the 'replaceVas' function to build the target.
+    configure = Builder( action = replaceVars )
+    # Add the builder to scons.
     env.Append(BUILDERS = { "ConfigMaker" : configure })
+    # Return an instance of the builder, passing destination and source file.
     return env.ConfigMaker( 'allegro-config', '#misc/allegro-config.in' )
 
 def writeModulesList(env,appendDir,buildDir,libDir):
