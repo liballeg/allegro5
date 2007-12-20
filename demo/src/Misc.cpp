@@ -199,7 +199,7 @@ bool init(void)
    */
 
    if (!loadResources()) {
-      debug_message("Error loading resources.");
+      debug_message("Error loading resources.\n");
       return false;
    }
 

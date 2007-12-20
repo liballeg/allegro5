@@ -16,16 +16,22 @@ int main(int argc, char **argv)
    if (check_arg(argc, argv, "-fullscreen") > 0)
       useFullScreenMode = true;
 
-   SAMPLE *game_music = load_sample(getResource("sfx/game_music.wav"));
-   SAMPLE *title_music = load_sample(getResource("sfx/title_music.wav"));
-   Wave& w = Wave::getInstance();
-
    bool won = false;
 
    if (!init()) {
-      debug_message("Error in initialization.");
+      debug_message("Error in initialization.\n");
       return 1;
    }
+
+   SAMPLE *game_music = load_sample(getResource("sfx/game_music.wav"));
+   SAMPLE *title_music = load_sample(getResource("sfx/title_music.wav"));
+
+   if (!game_music || !title_music) {
+   	printf("Error loading music.\n");
+	return 1;
+   }
+
+   Wave& w = Wave::getInstance();
 
    ResourceManager& rm = ResourceManager::getInstance();
    Player *player = (Player *)rm.getData(RES_PLAYER);
