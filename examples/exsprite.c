@@ -37,7 +37,7 @@
  */
 
 #include <math.h>
-#include <allegro.h>
+#include <allegro5.h>
 #include "running.h"
 
 

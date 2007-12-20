@@ -22,9 +22,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintwin.h"
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile

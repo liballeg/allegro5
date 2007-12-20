@@ -63,11 +63,11 @@
 
 #include <string.h>
 
-#include "allegro.h"
+#include "allegro5.h"
 
 #if (defined ALLEGRO_DOS) || (defined ALLEGRO_LINUX_VBEAF)
 
-#include "allegro/internal/aintern.h"
+#include "allegro5/internal/aintern.h"
 
 #ifdef ALLEGRO_INTERNAL_HEADER
    #include ALLEGRO_INTERNAL_HEADER

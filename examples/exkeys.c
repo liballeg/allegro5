@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <allegro.h>
+#include <allegro5.h>
 
 
 
@@ -201,7 +201,7 @@ int main(void)
       textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255), buf);
    } while (k != 27);
 
-   /* various scan codes are defined in allegro.h as KEY_* constants */
+   /* various scan codes are defined in allegro5.h as KEY_* constants */
    scroll(); scroll(); scroll();
    textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255), "Press F6");
    scroll();

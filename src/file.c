@@ -28,8 +28,8 @@
 #include <string.h>
 #include <limits.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 #ifndef ALLEGRO_MPW
    #include <sys/stat.h>
@@ -40,7 +40,7 @@
 #endif
 
 #ifdef ALLEGRO_WINDOWS
-   #include "winalleg.h" /* for GetTempPath */
+   #include "allegro5/winalleg.h" /* for GetTempPath */
 #endif
 
 

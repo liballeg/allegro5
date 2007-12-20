@@ -1,4 +1,4 @@
-#include "allegro.h"
+#include "allegro5.h"
 
 static void redraw(void)
 {

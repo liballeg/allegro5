@@ -18,7 +18,7 @@
 
 #include <string.h>
 
-#include "allegro.h"
+#include "allegro5.h"
 
 
 

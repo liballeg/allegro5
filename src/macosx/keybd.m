@@ -18,11 +18,11 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_events.h"
-#include "allegro/internal/aintern_keyboard.h"
-#include "allegro/platform/aintosx.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
 #error Something is wrong with the makefile

@@ -21,9 +21,9 @@
    #include <sys/stat.h>
 #endif
 
-#include "allegro.h"
+#include "allegro5.h"
 #include "winalleg.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/internal/aintern.h"
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile

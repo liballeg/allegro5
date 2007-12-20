@@ -20,11 +20,11 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_dtor.h"
-#include "allegro/internal/aintern_events.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_events.h"
+#include "allegro5/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #include <mmsystem.h>

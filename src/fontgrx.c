@@ -13,8 +13,8 @@
  *
  *      See readme.txt for copyright information.
  */
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 /* magic number for GRX format font files */
 #define FONTMAGIC    0x19590214L

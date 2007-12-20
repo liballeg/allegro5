@@ -20,7 +20,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <allegro.h>
+#include <allegro5.h>
 #include <math.h>
 #include <sys/types.h>
 #include <sys/stat.h>

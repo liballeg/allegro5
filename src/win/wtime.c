@@ -16,8 +16,8 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5.h"
+#include "allegro5/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #include <mmsystem.h>

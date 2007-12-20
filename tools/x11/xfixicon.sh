@@ -36,7 +36,7 @@ if !(convert -transparent "magenta" "$file" "/tmp/allegico_xpm.xpm"); then
    exit 1
 fi
 
-echo "#include <allegro.h>" > $outfile
+echo "#include <allegro5.h>" > $outfile
 cat /tmp/allegico_xpm.xpm | sed -e 's,static char,static const char,' >> $outfile
 echo "#if defined ALLEGRO_WITH_XWINDOWS && defined ALLEGRO_USE_CONSTRUCTOR" >> $outfile
 echo "extern void *allegro_icon;" >>  $outfile

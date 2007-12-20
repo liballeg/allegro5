@@ -23,13 +23,13 @@
 
 #define ALLEGRO_NO_COMPATIBILITY
 
-#include "allegro.h"
+#include "allegro5.h"
 
 #ifdef ALLEGRO_HAVE_LINUX_INPUT_H
 
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_mouse.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_mouse.h"
+#include "allegro5/platform/aintunix.h"
 #include "linalleg.h"
 
 #include <stdio.h>

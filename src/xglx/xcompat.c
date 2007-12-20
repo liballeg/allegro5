@@ -1,6 +1,6 @@
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_bitmap.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_bitmap.h"
 
 /* This is just a temporary gfx driver for the compatibility layer. It will
  * provide a screen BITMAP to old Allegro programs, which then is blitted to

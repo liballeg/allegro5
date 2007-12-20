@@ -1,7 +1,7 @@
 #ifndef _WIN_NEW_H
 #define _WIN_NEW_H
 
-#include "allegro/internal/aintern_system.h"
+#include "allegro5/internal/aintern_system.h"
 
 typedef struct ALLEGRO_SYSTEM_WIN ALLEGRO_SYSTEM_WIN;
 

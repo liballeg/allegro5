@@ -29,12 +29,12 @@ set(ALLEGRO_VERSION 4.9.2)
 include_directories(
     .
     include
-    include/allegro
+    include/allegro5
 
     # For out-of-source builds.
     ${CMAKE_BINARY_DIR}/include
-    ${CMAKE_BINARY_DIR}/include/allegro
-    ${CMAKE_BINARY_DIR}/include/allegro/platform
+    ${CMAKE_BINARY_DIR}/include/allegro5
+    ${CMAKE_BINARY_DIR}/include/allegro5/platform
     )
 include(FileList)
 
@@ -122,7 +122,7 @@ if(UNIX)
     set(ALLEGRO_UNIX 1)
 endif(UNIX)
 
-# Add corresponding lines to include/allegro/platform/alunixac.h.in
+# Add corresponding lines to include/allegro5/platform/alunixac.h.in
 
 include(TestBigEndian)
 test_big_endian(ALLEGRO_BIG_ENDIAN)
@@ -510,8 +510,8 @@ endif(WIN32)
 #
 
 configure_file(
-    include/allegro/platform/alplatf.h.cmake
-    include/allegro/platform/alplatf.h
+    include/allegro5/platform/alplatf.h.cmake
+    include/allegro5/platform/alplatf.h
     )
 
 if(MINGW)
@@ -523,7 +523,7 @@ if(MINGW)
 endif(MINGW)
 
 if(UNIX)
-    set(CONFIG_FILE include/allegro/platform/alunixac.h)
+    set(CONFIG_FILE include/allegro5/platform/alunixac.h)
     configure_file(${CONFIG_FILE}.cmake ${CONFIG_FILE})
 endif(UNIX)
 
@@ -729,24 +729,27 @@ endif(SHARED)
 # Install header files.
 #
 
+install(FILES ${ALLEGRO_TOPLEVEL_INCLUDE_FILES}
+	DESTINATION include
+        )
 install(FILES ${ALLEGRO_INCLUDE_FILES}
-        DESTINATION include
+        DESTINATION include/allegro5
         )
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_FILES}
-        DESTINATION include/allegro
+        DESTINATION include/allegro5
         )
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES}
-        DESTINATION include/allegro/inline
+        DESTINATION include/allegro5/inline
         )
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES}
-        DESTINATION include/allegro/internal
+        DESTINATION include/allegro5/internal
         )
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
-        DESTINATION include/allegro/platform
+        DESTINATION include/allegro5/platform
         )
 foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
     install(FILES ${CMAKE_BINARY_DIR}/${genfile}
-            DESTINATION include/allegro/platform
+            DESTINATION include/allegro5/platform
             )
 endforeach(genfile)
 

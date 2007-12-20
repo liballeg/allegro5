@@ -1,13 +1,13 @@
 #ifndef A5TEROIDS_HPP
 #define A5TEROIDS_HPP
 
-#include <allegro.h>
-#include <a5_font.h>
+#include "allegro5.h"
+#include "a5_font.h"
 
 #ifdef __linux__
 #define MAX_PATH 5000
 #else
-#include <winalleg.h>
+#include "allegro5/winalleg.h"
 #define _WIN32_IE 0x400
 #include <shlobj.h>
 #endif

@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <allegro.h>
+#include <allegro5.h>
 
 
 

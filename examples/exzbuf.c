@@ -12,7 +12,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5.h>
 
 
 

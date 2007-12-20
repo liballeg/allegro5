@@ -16,12 +16,12 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5.h"
 
 #if (defined ALLEGRO_WITH_JACKDIGI) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
 
 #ifndef SCAN_DEPEND
    #include <jack/jack.h>

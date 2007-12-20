@@ -13,7 +13,7 @@ macro(add_font_build nm extra_flags)
         target_link_libraries(${target} ${LINK_WITH})
 
         install(TARGETS ${target}
-                DESTINATION lib
+                DESTINATION lib/allegro/addons
                 LIBRARY PERMISSIONS
                     OWNER_READ OWNER_WRITE OWNER_EXECUTE
                     GROUP_READ             GROUP_EXECUTE
@@ -87,7 +87,7 @@ add_example(ex ex.c)
 #
 
 install(FILES ${FONT_INCLUDE_FILES}
-        DESTINATION include
+        DESTINATION include/allegro5/addons
         )
 
 #-----------------------------------------------------------------------------#

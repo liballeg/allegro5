@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <allegro.h>
+#include <allegro5.h>
 
 
 #ifndef M_PI

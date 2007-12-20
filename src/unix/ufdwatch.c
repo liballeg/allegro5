@@ -25,10 +25,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_thread.h"
-#include "allegro/internal/aintern_vector.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_thread.h"
+#include "allegro5/internal/aintern_vector.h"
 
 
 

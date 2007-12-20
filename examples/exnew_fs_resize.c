@@ -1,4 +1,4 @@
-#include "allegro.h"
+#include "allegro5.h"
 
 void redraw(ALLEGRO_BITMAP *picture)
 {

@@ -16,8 +16,8 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5.h"
+#include "allegro5/platform/aintunix.h"
 #include "xwin.h"
 
 #include <stdio.h>

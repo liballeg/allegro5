@@ -19,10 +19,10 @@
 
 
 #include <string.h> /* for memset */
-#include "allegro.h"
-#include "allegro/bitmap_new.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_bitmap.h"
+#include "allegro5.h"
+#include "allegro5/bitmap_new.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_bitmap.h"
 
 
 

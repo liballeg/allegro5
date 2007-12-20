@@ -21,9 +21,9 @@
 
 #define DIRECTDRAW_VERSION 0x0300
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #ifdef ALLEGRO_BCC32

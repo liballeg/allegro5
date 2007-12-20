@@ -23,9 +23,9 @@
 #include <sys/ioctl.h>
 #include <linux/vt.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
 #include "linalleg.h"
 
 #ifdef ALLEGRO_HAVE_MMAP

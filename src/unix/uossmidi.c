@@ -15,12 +15,12 @@
  *      See readme.txt for copyright information.
  */
 
-#include "allegro.h"
+#include "allegro5.h"
 
 #ifdef ALLEGRO_WITH_OSSMIDI
 
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
 
 #include <string.h>
 #include <sys/types.h>

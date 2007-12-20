@@ -19,7 +19,7 @@
 #include <sys/time.h>
 #include <sys/select.h>
 
-#include "allegro/altime.h"
+#include "allegro5/altime.h"
 
 
 

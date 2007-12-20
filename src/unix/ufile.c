@@ -21,8 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 #ifdef ALLEGRO_HAVE_SYS_STAT_H
 #include <sys/stat.h>

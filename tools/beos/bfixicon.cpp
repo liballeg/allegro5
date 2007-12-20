@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <allegro.h>
+#include <allegro5.h>
 
 /* Live happy with the Be general header file */
 #define color_map be_color_map

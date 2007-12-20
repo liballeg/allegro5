@@ -44,11 +44,11 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_events.h"
-#include "allegro/internal/aintern_keyboard.h"
-#include "allegro/platform/aintlnx.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/platform/aintlnx.h"
 #include ALLEGRO_INTERNAL_HEADER
 
 

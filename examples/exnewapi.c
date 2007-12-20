@@ -5,8 +5,7 @@
  * 100 pixels / second, limits the FPS to 100 Hz to save CPU, and prints the
  * current FPS in the top right corner.
  */
-#include "allegro.h"
-#include "allegro/internal/aintern_bitmap.h"
+#include "allegro5.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -205,7 +204,8 @@ int main(void)
                ALLEGRO_COLOR test;
                al_map_rgba_f(&test, 1.0f, 1.0f, 1.0f, 1.0f);
                al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, &test);
-               al_draw_scaled_bitmap(picture, 0, 0, picture->w, picture->h,
+               al_draw_scaled_bitmap(picture, 0, 0,
+                  al_get_bitmap_width(picture), al_get_bitmap_height(picture),
                   0, 0, 640, 480, 0);
                al_map_rgba_f(&test, 1.0f, 1.0f, 0.0f, 1.0f);
                al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, &test);

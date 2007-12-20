@@ -24,7 +24,7 @@
 
 #include <time.h>
 
-#include "allegro.h"
+#include "allegro5.h"
 #include "allegro/internal/aintern.h"
 
 

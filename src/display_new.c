@@ -22,12 +22,12 @@
 
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "allegro/internal/aintern_system.h"
-#include "allegro/internal/aintern_display.h"
-#include "allegro/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_bitmap.h"
 
 
 

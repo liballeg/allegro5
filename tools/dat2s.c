@@ -22,7 +22,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "allegro.h"
+#include "allegro5.h"
 #include "allegro/internal/aintern.h"
 #include "datedit.h"
 

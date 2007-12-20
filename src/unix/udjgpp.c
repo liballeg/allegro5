@@ -16,7 +16,7 @@
  */
 
 
-#include "allegro/internal/alconfig.h"
+#include "allegro5/internal/alconfig.h"
 
 static char *_allegro_program_arguments[] = { "./unknown", 0 };
 

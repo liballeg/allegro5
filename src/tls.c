@@ -19,10 +19,10 @@
 
 
 #include <string.h>
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_bitmap.h"
-#include "allegro/internal/aintern_color.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_color.h"
 
 
 /* Thread local storage for graphics API state */
@@ -65,7 +65,7 @@ static thread_local_state *tls;
  * build must be built as a DLL.
  */
 
-#include "winalleg.h"
+#include "allegro5/winalleg.h"
 
 
 static DWORD tls_index;

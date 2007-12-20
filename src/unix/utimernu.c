@@ -19,10 +19,10 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_dtor.h"
-#include "allegro/internal/aintern_events.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_events.h"
 
 
 

@@ -12,8 +12,8 @@
  *
  *      See readme.txt for copyright information.
  */
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 #ifndef SCAN_DEPEND
    #include <mach-o/arch.h>

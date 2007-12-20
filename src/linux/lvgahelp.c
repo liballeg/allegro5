@@ -19,13 +19,13 @@
 #define _GNU_SOURCE
 #endif
 
-#include "allegro.h"
+#include "allegro5.h"
 
 #ifdef ALLEGRO_LINUX_VGA
 
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
-#include "allegro/internal/aintvga.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
+#include "allegro5/internal/aintvga.h"
 #include "linalleg.h"
 
 #include <string.h>

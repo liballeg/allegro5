@@ -23,10 +23,10 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
-#include "allegro/platform/aintlnx.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
+#include "allegro5/platform/aintlnx.h"
 
 #ifdef ALLEGRO_LINUX_VGA
 #ifdef ALLEGRO_HAVE_SYS_IO_H

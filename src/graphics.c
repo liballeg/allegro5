@@ -18,10 +18,10 @@
 
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
 
-#include "allegro/internal/aintern_display.h"
+#include "allegro5/internal/aintern_display.h"
 
 extern void blit_end(void);   /* for LOCK_FUNCTION; defined in blit.c */
 

@@ -17,9 +17,9 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_joystick.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_joystick.h"
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile

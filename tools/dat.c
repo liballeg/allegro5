@@ -24,7 +24,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "allegro.h"
+#include "allegro5.h"
 #include "datedit.h"
 
 #if ((defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)) && (!defined SCAN_DEPEND)

@@ -14,11 +14,11 @@
  *
  */
 
-#include "allegro.h"
-#include "allegro/bitmap_new.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_bitmap.h"
-#include "allegro/convert.h"
+#include "allegro5.h"
+#include "allegro5/bitmap_new.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/convert.h"
 
 /* Copy with conversion */
 #define DO_CONVERT(convert, src, stype, ssize, spitch, get, \

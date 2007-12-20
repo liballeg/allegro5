@@ -30,8 +30,8 @@
 #include <string.h>
 #include <math.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 

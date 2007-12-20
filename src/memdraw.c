@@ -17,9 +17,9 @@
 
 /* Memory bitmap drawing functions */
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_bitmap.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_bitmap.h"
 
 #define DEFINE_PUT_PIXEL(name, size, get, set) \
 static void name(ALLEGRO_BITMAP *dst, void *dst_addr, int dx, int dy, int color) \

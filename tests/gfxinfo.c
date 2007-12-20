@@ -19,7 +19,7 @@
 #define ALLEGRO_USE_CONSOLE
 #include <string.h>
 #include <stdio.h>
-#include "allegro.h"
+#include "allegro5.h"
 #include "allegro/internal/aintern.h"
 
 

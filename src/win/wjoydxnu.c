@@ -56,11 +56,11 @@
 /* For waitable timers */
 #define _WIN32_WINNT 0x400
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintwin.h"
-#include "allegro/internal/aintern_events.h"
-#include "allegro/internal/aintern_joystick.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintwin.h"
+#include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_joystick.h"
 
 #ifndef SCAN_DEPEND
    #ifdef ALLEGRO_MINGW32

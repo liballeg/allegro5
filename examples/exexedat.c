@@ -22,7 +22,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5.h>
 
 
 /* the grabber produces this header, which contains defines for the names

@@ -16,12 +16,12 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5.h"
 
 #ifdef ALLEGRO_GFX_HAS_VGA
 
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintvga.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintvga.h"
 
 
 

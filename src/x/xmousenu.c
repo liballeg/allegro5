@@ -20,9 +20,9 @@
 
 #define ALLEGRO_NO_COMPATIBILITY
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_mouse.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_mouse.h"
 #include "xwin.h"
 
 

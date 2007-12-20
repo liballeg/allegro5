@@ -6,12 +6,12 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
-#include "allegro/internal/aintern_system.h"
-#include "allegro/internal/aintern_bitmap.h"
-#include "allegro/platform/aintxglx.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
+#include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/platform/aintxglx.h"
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 #include <X11/extensions/xf86vmode.h>

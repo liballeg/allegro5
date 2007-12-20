@@ -18,9 +18,9 @@
 #include <winalleg.h>
 #include <process.h>
 
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_vector.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_vector.h"
+#include "allegro5/platform/aintwin.h"
 
 #include "win_new.h"
 

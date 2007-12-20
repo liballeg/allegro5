@@ -148,7 +148,7 @@ easy things you can do:
       --- cut here, myprog.c ---
 
       #include <string.h>
-      #include <allegro.h>
+      #include <allegro5.h>
 
       #define SETUP_EMBEDDED
       #define SETUP_TITLE        "My program"

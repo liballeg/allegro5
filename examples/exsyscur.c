@@ -6,7 +6,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5.h>
 
 
 static int black, white;

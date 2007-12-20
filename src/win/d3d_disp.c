@@ -18,15 +18,15 @@
 #include <stdio.h>
 #include <process.h>
 
-#include "allegro.h"
-#include "allegro/system_new.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_system.h"
-#include "allegro/internal/aintern_display.h"
-#include "allegro/internal/aintern_bitmap.h"
-#include "allegro/internal/aintern_vector.h"
-#include "allegro/platform/aintwin.h"
-#include "allegro/internal/aintern_thread.h"
+#include "allegro5.h"
+#include "allegro5/system_new.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_vector.h"
+#include "allegro5/platform/aintwin.h"
+#include "allegro5/internal/aintern_thread.h"
 
 #include "wddraw.h"
 #include "d3d.h"

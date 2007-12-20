@@ -17,7 +17,7 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5.h"
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile

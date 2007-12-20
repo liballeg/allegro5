@@ -14,7 +14,7 @@
 
 
 #include <stdlib.h>
-#include <allegro.h>
+#include <allegro5.h>
 
 #define DATAFILE_NAME   "unifont.dat"
 

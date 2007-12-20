@@ -20,12 +20,12 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5.h"
 
 #ifdef ALLEGRO_WITH_OSSDIGI
 
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
 
 #include <stdlib.h>
 #include <stdio.h>

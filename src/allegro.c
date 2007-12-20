@@ -20,9 +20,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_dtor.h"
+#include "allegro5/allegro.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_dtor.h"
 
 
 

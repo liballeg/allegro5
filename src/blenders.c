@@ -15,9 +15,9 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern_bitmap.h"
-#include "allegro/internal/aintern_color.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_color.h"
 #include <string.h>
 
 #define GET_DEST() \

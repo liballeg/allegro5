@@ -17,8 +17,8 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 extern int *_colorconv_indexed_palette;    /* for conversion from 8-bit */

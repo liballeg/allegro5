@@ -14,11 +14,11 @@
  *
  */
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "allegro/internal/aintern_bitmap.h"
-#include "allegro/convert.h"
+#include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/convert.h"
 #include <math.h>
 
 

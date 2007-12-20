@@ -22,12 +22,12 @@
 #include <string.h>
 #include <limits.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
 #include "opcodes.h"
 
 #ifdef ALLEGRO_UNIX
-   #include "allegro/platform/aintunix.h"   /* for _unix_get_page_size */
+   #include "allegro5/platform/aintunix.h"   /* for _unix_get_page_size */
 #endif
 
 #ifdef ALLEGRO_WINDOWS

@@ -21,7 +21,7 @@
 
 
 #ifndef SCAN_DEPEND
-   #include "allegro/platform/alplatf.h"
+   #include "allegro5/platform/alplatf.h"
 #endif
 
 #if defined ALLEGRO_UNIX

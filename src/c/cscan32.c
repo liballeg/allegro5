@@ -16,13 +16,13 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5.h"
 
 #ifdef ALLEGRO_COLOR32
 
 #undef _bma_scan_gcol
 
-#include "allegro/internal/aintern.h"
+#include "allegro5/internal/aintern.h"
 #include "cdefs32.h"
 #include "cscan.h"
 

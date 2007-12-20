@@ -15,10 +15,10 @@
  *      See readme.txt for copyright information.
  */
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintern_joystick.h"
-#include "allegro/platform/aintosx.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_joystick.h"
+#include "allegro5/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
 #error something is wrong with the makefile

@@ -18,8 +18,8 @@
 
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 /* load_bios_font:
  *  Loads a PC BIOS font from the file named filename. The palette and param

@@ -1,6 +1,6 @@
-#include "allegro/internal/aintern_system.h"
-#include "allegro/internal/aintern_display.h"
-#include "allegro/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_bitmap.h"
 
 #include <windows.h>
 #include <d3d9.h>
