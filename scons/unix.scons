@@ -87,7 +87,7 @@ def readAutoHeader(filename, platform):
 # 2/19/2006 - Only configure if config=1 is given or the .h/.cfg file is missing
 noconfig = False
 if not getArgumentOption("config",0):
-    if os.path.exists("include/allegro/platform/alunixac.h") and \
+    if os.path.exists("include/allegro5/platform/alunixac.h") and \
         os.path.exists("build/settings.cfg"):
         print "Re-using old settings"
         noconfig = True
@@ -118,7 +118,7 @@ settings = ConfigParser.ConfigParser()
 ## The platform variable will hold all configuration things we care about
 ## so that alunixac.h can be written
 if noconfig:
-    readAutoHeader("include/allegro/platform/alunixac.h", platform)
+    readAutoHeader("include/allegro5/platform/alunixac.h", platform)
     settings.read("build/settings.cfg")
     env = context.getLibraryEnv()
     for setting in config_settings:
@@ -253,7 +253,7 @@ else:
     env = context.getLibraryEnv()
 
     # Write out alunixac.h with all the config settings
-    writeAutoHeader("include/allegro/platform/alunixac.h", platform)
+    writeAutoHeader("include/allegro5/platform/alunixac.h", platform)
 
     # write out settings.cfg with scons specific settings
     settings.add_section("unix")
@@ -264,6 +264,14 @@ else:
         if not type(val) == list: val = [val]
         settings.set("unix", setting, str(val))
     settings.write(file("build/settings.cfg", "w"))
+
+    def createPlatformHeader( name ):
+        f = open(name, "w")
+        f.write("#define ALLEGRO_UNIX\n")
+        f.close()
+        
+    createPlatformHeader( "include/allegro5/platform/alplatf.h" )
+
 
 # Maybe setting up the assembler should be in a gcc.scons or something?
 import SCons.Tool
@@ -279,7 +287,7 @@ SourceFileScanner.add_scanner('.s', SCons.Scanner.C.CScanner() )
 
 # "-O2"
 flags = ["-g", "-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
-includes = ["include", "include/allegro", "."]
+includes = ["include", "include/allegro5", "."]
 defines = ["ALLEGRO_LIB_BUILD", "ALLEGRO_SRC"]
 
 env.Append(CCFLAGS = flags)
@@ -405,31 +413,31 @@ def getModules():
 
 def allegroConfig(env,appendDir,buildDir,libDir):
     """Builds the allegro-config shell script out of misc/allegro-config.in"""
-    dic = {}
-    dic[ '@prefix@' ] = ARGUMENTS.get( 'install', '/usr/local/' )
-    dic[ '@INCLUDE_PREFIX@' ] = ARGUMENTS.get( 'install', '/usr/local/' )
-    dic[ '@includedir@' ] = '${exec_prefix}/include'
-    dic[ '@libdir@' ] = '${exec_prefix}/lib'
-    dic[ '@bindir@' ] = '${exec_prefix}/bin'
-    dic[ '@LINK_WITH_STATIC_LIBS@' ] = 'no'
-    dic[ '@LIB_TO_LINK@' ] = 'alleg'
+    replaces = {}
+    replaces[ '@prefix@' ] = ARGUMENTS.get( 'install', '/usr/local/' )
+    replaces[ '@INCLUDE_PREFIX@' ] = ARGUMENTS.get( 'install', '/usr/local/' )
+    replaces[ '@includedir@' ] = '${exec_prefix}/include'
+    replaces[ '@libdir@' ] = '${exec_prefix}/lib'
+    replaces[ '@bindir@' ] = '${exec_prefix}/bin'
+    replaces[ '@LINK_WITH_STATIC_LIBS@' ] = 'no'
+    replaces[ '@LIB_TO_LINK@' ] = 'alleg'
     ldflags = ''
     if supportModules():
         ldflags = '-Wl,--export-dynamic'
     #print env[ 'LIBPATH' ]    
-    dic[ '@LDFLAGS@' ] = ldflags
+    replaces[ '@LDFLAGS@' ] = ldflags
     libs = unixLibs
-    dic[ '@LIBS@' ] = ' '.join(['-l' + str(x) for x in libs])
-    dic[ '@FRAMEWORKS@' ] = ''
-    dic[ '^version=.*' ] = 'version=%s' % context.getVersion()
+    replaces[ '@LIBS@' ] = ' '.join(['-l' + str(x) for x in libs])
+    replaces[ '@FRAMEWORKS@' ] = ''
+    replaces[ '^version=.*' ] = 'version=%s' % context.getVersion()
 
     def replaceVars(target, source, env):
         writer = open( target[0].path, 'w' )
         for line in file(source[0].path):
             import re
-            for str in dict.keys():
+            for str in replaces.keys():
                 regex = re.compile( str )
-                line = regex.sub(dict[str], line)
+                line = regex.sub(replaces[str], line)
 
             writer.write( line )
 
@@ -469,7 +477,7 @@ def install(library):
         path = os.path.join(prefix, d)
         ret.append(env.Install(path, f))
     add('lib',library)
-    for root, dirs, files in os.walk('include/allegro'):
+    for root, dirs, files in os.walk('include/allegro5'):
         for i in [x for x in files if x.endswith(".h") or x.endswith(".inl")]:
             subdir = os.path.join("include", "allegro5", root[8:])
             add(subdir, '#' + os.path.join(root, i))
