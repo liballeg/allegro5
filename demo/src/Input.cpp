@@ -51,7 +51,7 @@ bool Input::esc(void)
 
 bool Input::b1(void)
 {
-   if (al_key_down(&kbdstate, ALLEGRO_KEY_Z))
+   if (al_key_down(&kbdstate, ALLEGRO_KEY_Z) || al_key_down(&kbdstate, ALLEGRO_KEY_Y))
       return true;
    else
       return joystate.button[0];
