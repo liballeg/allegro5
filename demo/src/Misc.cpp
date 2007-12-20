@@ -153,28 +153,47 @@ bool loadResources(void)
 {
    ResourceManager& rm = ResourceManager::getInstance();
 
-   if (!rm.add(new DisplayResource())) return false;
-   if (!rm.add(new Player(), false)) return false;
-   if (!rm.add(new Input())) return false;
+   if (!rm.add(new DisplayResource())) {
+   	printf("Failed to create display.\n");
+   	return false;
+   }
+   if (!rm.add(new Player(), false)) {
+   	printf("Failed to create player.\n");
+   	return false;
+   }
+   if (!rm.add(new Input())) {
+   	printf("Failed initializing input.\n");
+	return false;
+   }
 
    // Load fonts
    A5FONT_FONT *myfont = a5font_load_font(getResource("gfx/large_font.tga"), NULL);
-   if (!myfont) return false;
+   if (!myfont) {
+      debug_message("Failed to load %s\n", getResource("gfx/large_font.tga"));
+      return false;
+   }
    GenericResource *res = new GenericResource(myfont, my_destroy_font);
    if (!rm.add(res, false)) return false;
    myfont = a5font_load_font(getResource("gfx/small_font.tga"), NULL);
-   if (!myfont) return false;
+   if (!myfont) {
+      printf("Failed to load %s\n", getResource("gfx/small_font.tga"));
+      return false;
+   }
    res = new GenericResource(myfont, my_destroy_font);
    if (!rm.add(res, false)) return false;
 
    for (int i = 0; BMP_NAMES[i]; i++) {
-      if (!rm.add(new BitmapResource(getResource(BMP_NAMES[i]))))
+      if (!rm.add(new BitmapResource(getResource(BMP_NAMES[i])))) {
+         printf("Failed to load %s\n", getResource(BMP_NAMES[i]));
          return false;
+      }
    }
 
    for (int i = 0; SAMPLE_NAMES[i]; i++) {
-      if (!rm.add(new SampleResource(getResource(SAMPLE_NAMES[i]))))
+      if (!rm.add(new SampleResource(getResource(SAMPLE_NAMES[i])))) {
+         printf("Failed to load %s\n", getResource(SAMPLE_NAMES[i]));
          return false;
+      }
    }
 
    return true;

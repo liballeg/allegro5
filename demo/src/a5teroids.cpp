@@ -24,11 +24,14 @@ int main(int argc, char **argv)
    }
 
    SAMPLE *game_music = load_sample(getResource("sfx/game_music.wav"));
+   if (!game_music) {
+      printf("Failed to load %s\n", getResource("sfx/game_music.wav"));
+      return 1;
+   }
    SAMPLE *title_music = load_sample(getResource("sfx/title_music.wav"));
-
-   if (!game_music || !title_music) {
-   	printf("Error loading music.\n");
-	return 1;
+   if (!title_music) {
+      printf("Failed to load %s\n", getResource("sfx/title_music.wav"));
+      return 1;
    }
 
    Wave& w = Wave::getInstance();
