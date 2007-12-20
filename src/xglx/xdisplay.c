@@ -398,10 +398,11 @@ static bool show_cursor(ALLEGRO_DISPLAY *display)
    Display *xdisplay = system->xdisplay;
    Window xwindow = glx->window;
 
-   if (!glx->cursor_hidden) return;
+   if (!glx->cursor_hidden) return true;
 
    XUndefineCursor(xdisplay, xwindow);
    glx->cursor_hidden = true;
+   return true;
 }
 
 /* Hide the system mouse cursor. */
@@ -412,7 +413,7 @@ static bool hide_cursor(ALLEGRO_DISPLAY *display)
    Display *xdisplay = system->xdisplay;
    Window xwindow = glx->window;
 
-   if (glx->cursor_hidden) return;
+   if (glx->cursor_hidden) return true;
 
    if (glx->invisible_cursor == None) {
       unsigned long gcmask;
@@ -439,6 +440,7 @@ static bool hide_cursor(ALLEGRO_DISPLAY *display)
    }
    XDefineCursor(xdisplay, xwindow, glx->invisible_cursor);
    glx->cursor_hidden = true;
+   return true;
 }
 
 /* Obtain a reference to this driver. */
