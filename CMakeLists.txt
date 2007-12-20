@@ -501,6 +501,7 @@ endif(MINGW_CROSS)
 if(WIN32)
     if(WANT_D3D)
         set(ALLEGRO_D3D 1)
+        check_include_files(d3dx9.h HAVE_D3DX9)
     endif(WANT_D3D)
 endif(WIN32)
 

@@ -61,5 +61,17 @@ example(exupdate)
 example(exxfade)
 example(exzbuf)
 
+if(WANT_D3D)
+    if(HAVE_D3DX9)
+        macro(add_d3dx_example nm)
+            add_executable(${nm} ${ARGN})
+            target_link_libraries(${nm} ${LINK_WITH})
+            target_link_libraries(${nm} d3dx9)
+        endmacro(add_d3dx_example)
+
+        add_d3dx_example(exnew_d3d exnew_d3d.cpp)
+    endif(HAVE_D3DX9)
+endif(WANT_D3D)
+
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
