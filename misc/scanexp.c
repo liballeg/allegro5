@@ -22,19 +22,19 @@
 
 #if defined ALLEGRO_API
 
-   #include "allegro.h"
+   #include "allegro5.h"
 
 #elif defined ALLEGRO_WINAPI
 
    #define ALLEGRO_H
    #define ALLEGRO_WINDOWS
-   #include "winalleg.h"
-   #include "allegro/platform/alwin.h"
+   #include "allegro5/winalleg.h"
+   #include "allegro5/platform/alwin.h"
 
 #elif defined ALLEGRO_INTERNALS
 
    #define ALLEGRO_H
-   #include "allegro/internal/aintern.h"
+   #include "allegro5/internal/aintern.h"
 
 #endif
 

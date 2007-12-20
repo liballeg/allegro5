@@ -21,7 +21,7 @@ rm_temp_files() {
 
 
 # check that we are in the Allegro dir
-if [ ! -f include/allegro.h ]; then
+if [ ! -f include/allegro5/allegro.h ]; then
    echo "*** Error !!! ***"
    echo " you are not in the Allegro directory"
    exit 1
