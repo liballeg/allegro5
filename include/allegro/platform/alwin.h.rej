@@ -1,0 +1,10 @@
+***************
+*** 125,127 ****
+  
+  #define _AL_JOYSTICK_DRIVER_DIRECTX                                     \
+     { AL_JOY_TYPE_DIRECTX,  &_al_joydrv_directx,    TRUE  },
+--- 125,128 ----
+  
+  #define _AL_JOYSTICK_DRIVER_DIRECTX                                     \
+     { AL_JOY_TYPE_DIRECTX,  &_al_joydrv_directx,    TRUE  },
++ 
