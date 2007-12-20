@@ -461,18 +461,19 @@ def install(library):
     ## list of files to be installed
     ret = []
     ## add a file to be installed
-    def add(dir,file):
-        ret.append(env.Install(getOption('install') + '/' + dir, file))
+    def add(d, f):
+        prefix = getOption('install')
+        path = os.path.join(prefix, d)
+        ret.append(env.Install(path, f))
     add('lib',library)
     for root, dirs, files in os.walk('include/allegro'):
-        import re
-        for i in files:
-            if re.compile('.*((\.h)|(\.inl))\Z').match(i):
-                add(root,'#' + os.path.join(root,i))
+        for i in [x for x in files if x.endswith(".h") or x.endswith(".inl")]:
+            subdir = os.path.join("include", "allegro5", root[8:])
+            add(subdir, '#' + os.path.join(root, i))
     if haveXWindows():
-        add('include','#include/xalleg.h')
-    add('include','#include/allegro.h')
-    add('include','#include/linalleg.h')
+        add('include/allegro5', '#include/xalleg.h')
+    add('include/allegro5', '#include/allegro.h')
+    add('include/allegro5', '#include/linalleg.h')
     add('lib/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()), 'modules.lst')
     for i in getModules():
         add('lib/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()),i)
