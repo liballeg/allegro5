@@ -110,6 +110,15 @@ AL_FUNC(void, blit_from_hdc, (HDC dc, BITMAP *bitmap, int src_x, int src_y, int 
 AL_FUNC(void, stretch_blit_from_hdc, (HDC hdc, BITMAP *bitmap, int src_x, int src_y, int src_w, int src_h, int dest_x, int dest_y, int dest_w, int dest_h));
 
 
+/* D3D stuff */
+
+#include <d3d9.h>
+
+AL_FUNC(LPDIRECT3DDEVICE9, al_d3d_get_device, (void));
+AL_FUNC(HWND, al_d3d_get_hwnd, (void));
+
+
+
 #ifdef __cplusplus
    }
 #endif

@@ -1853,6 +1853,11 @@ LPDIRECT3DDEVICE9 al_d3d_get_device(void)
 	return _al_d3d_device;
 }
 
+HWND al_d3d_get_hwnd(void)
+{
+	return ((ALLEGRO_DISPLAY_D3D *)_al_current_display)->window;
+}
+
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 {
