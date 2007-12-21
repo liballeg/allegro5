@@ -265,13 +265,25 @@ else:
         settings.set("unix", setting, str(val))
     settings.write(file("build/settings.cfg", "w"))
 
-    def createPlatformHeader( name ):
-        f = open(name, "w")
-        f.write("#define ALLEGRO_UNIX\n")
-        f.close()
+    #def createPlatformHeader( name ):
+    #    f = open(name, "w")
+    #    f.write("#define ALLEGRO_UNIX\n")
+    #    f.close()
         
-    createPlatformHeader( "include/allegro5/platform/alplatf.h" )
+    # createPlatformHeader( "include/allegro5/platform/alplatf.h" )
 
+def makePlatformHeader(target, source, env):
+    writer = open( target[0].path, 'w' )
+    writer.write('#define ALLEGRO_UNIX\n')
+    writer.close()
+    return 0
+
+# Generate alplatf.h
+platformHeader = Builder( action = makePlatformHeader )
+# Add the builder to scons.
+env.Append(BUILDERS = { "PlatformHeader" : platformHeader })
+# Create alplatf.h based on alplatf.h.cmake
+env.PlatformHeader('#include/allegro5/platform/alplatf.h','#include/allegro5/platform/alplatf.h.cmake')
 
 # Maybe setting up the assembler should be in a gcc.scons or something?
 import SCons.Tool
