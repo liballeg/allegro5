@@ -24,8 +24,8 @@ int main(void)
    al_map_rgb(&black, 0, 0, 0);
 
    queue = al_create_event_queue();
-   al_register_event_source(queue, (void *)al_get_mouse());
-   al_register_event_source(queue, (void *)al_get_keyboard());
+   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
+   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
    do {
       if (!al_event_queue_is_empty(queue)) {
