@@ -253,7 +253,7 @@ int al_get_new_display_format(void)
 
 
 
-/* Function al_get_new_display_refresh_rate
+/* Function: al_get_new_display_refresh_rate
  *
  * Gets the current refresh rate used for newly created displays.
  */

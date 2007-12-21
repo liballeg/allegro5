@@ -528,7 +528,7 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
 
 
 
-/* Function al_convert_mask_to_alpha
+/* Function: al_convert_mask_to_alpha
  *
  * Convert the given mask color to an alpha channel in the bitmap.
  * Can be used to convert older 4.2-style bitmaps with magic pink
@@ -567,7 +567,7 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color)
 
 
 
-/* Function al_get_bitmap_width
+/* Function: al_get_bitmap_width
  *
  * Returns the width of a bitmap in pixels.
  */
@@ -578,7 +578,7 @@ int al_get_bitmap_width(ALLEGRO_BITMAP *bitmap)
 
 
 
-/* Function al_get_bitmap_height
+/* Function: al_get_bitmap_height
  * 
  * Returns the height of a bitmap in pixels.
  */
@@ -589,7 +589,7 @@ int al_get_bitmap_height(ALLEGRO_BITMAP *bitmap)
 
 
 
-/* Function al_get_bitmap_format
+/* Function: al_get_bitmap_format
  *
  * Returns the pixel format of a bitmap.
  */
@@ -600,7 +600,7 @@ int al_get_bitmap_format(ALLEGRO_BITMAP *bitmap)
 
 
 
-/* Function al_get_bitmap_flags
+/* Function: al_get_bitmap_flags
  *
  * Return the flags user to create the bitmap.
  */
@@ -608,6 +608,7 @@ int al_get_bitmap_flags(ALLEGRO_BITMAP *bitmap)
 {
    return bitmap->flags;
 }
+
 
 
 /* Function: al_create_sub_bitmap
