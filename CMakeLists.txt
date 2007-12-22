@@ -21,7 +21,16 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 #
 #-----------------------------------------------------------------------------#
 
-#project(ALLEGRO C)
+
+option(USE_CXX "Build C++ portions." on)
+
+
+if(USE_CXX)
+    project(ALLEGRO C CXX)
+else(USE_CXX)
+    project(ALLEGRO C)
+endif(USE_CXX)
+
 
 # TODO soft-code the version number
 set(ALLEGRO_VERSION 4.9.2)
@@ -868,7 +877,10 @@ macro(add_allegro_executable nm)
     target_link_libraries(${nm} ${LINK_WITH})
 endmacro(add_allegro_executable)
 
-add_subdirectory(demo)
+if(USE_CXX)
+    add_subdirectory(demo)
+endif(USE_CXX)
+
 add_subdirectory(examples)
 #add_subdirectory(tests)
 #add_subdirectory(tools)
