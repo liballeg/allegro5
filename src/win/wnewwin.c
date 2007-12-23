@@ -339,3 +339,127 @@ void _al_win_ungrab_input()
    wnd_schedule_proc(key_dinput_unacquire);
 }
 
+
+
+static HICON win_create_icon_from_old_bitmap(struct BITMAP *sprite)
+{
+   int mask_color;
+   int x, y;
+   HDC h_dc;
+   HDC h_and_dc;
+   HDC h_xor_dc;
+   ICONINFO iconinfo;
+   HBITMAP and_mask;
+   HBITMAP xor_mask;
+   HBITMAP hOldAndMaskBitmap;
+   HBITMAP hOldXorMaskBitmap;
+   HICON hicon;
+   HWND allegro_wnd = win_get_window();
+
+   /* Create bitmap */
+   h_dc = GetDC(allegro_wnd);
+   h_xor_dc = CreateCompatibleDC(h_dc);
+   h_and_dc = CreateCompatibleDC(h_dc);
+
+   int width = sprite->w;
+   int height = sprite->h;
+
+   /* Prepare AND (monochrome) and XOR (colour) mask */
+   and_mask = CreateBitmap(width, height, 1, 1, NULL);
+   xor_mask = CreateCompatibleBitmap(h_dc, width, height);
+   hOldAndMaskBitmap = SelectObject(h_and_dc, and_mask);
+   hOldXorMaskBitmap = SelectObject(h_xor_dc, xor_mask);
+
+   /* Create transparent cursor */
+   for (y = 0; y < height; y++) {
+      for (x = 0; x < width; x++) {
+	 SetPixel(h_and_dc, x, y, WINDOWS_RGB(255, 255, 255));
+	 SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
+      }
+   }
+   draw_to_hdc(h_xor_dc, sprite, 0, 0);
+   mask_color = bitmap_mask_color(sprite);
+
+   /* Make cursor background transparent */
+   for (y = 0; y < sprite->h; y++) {
+      for (x = 0; x < sprite->w; x++) {
+	 if (getpixel(sprite, x, y) != mask_color) {
+	    /* Don't touch XOR value */
+	    SetPixel(h_and_dc, x, y, 0);
+	 }
+	 else {
+	    /* No need to touch AND value */
+	    SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
+	 }
+      }
+   }
+
+   SelectObject(h_and_dc, hOldAndMaskBitmap);
+   SelectObject(h_xor_dc, hOldXorMaskBitmap);
+   DeleteDC(h_and_dc);
+   DeleteDC(h_xor_dc);
+   ReleaseDC(allegro_wnd, h_dc);
+
+   iconinfo.fIcon = TRUE;
+   iconinfo.hbmMask = and_mask;
+   iconinfo.hbmColor = xor_mask;
+
+   hicon = CreateIconIndirect(&iconinfo);
+
+   DeleteObject(and_mask);
+   DeleteObject(xor_mask);
+
+   return hicon;
+}
+
+
+
+void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
+{
+   /* Convert to BITMAP */
+   BITMAP *oldbmp = create_bitmap_ex(32,
+      al_get_bitmap_width(bmp), al_get_bitmap_height(bmp));
+   
+   BITMAP *scaled_bmp = create_bitmap_ex(32, 16, 16);
+
+   int x, y;
+   for (y = 0; y < oldbmp->h; y++) {
+      for (x = 0; x < oldbmp->w; x++) {
+         ALLEGRO_COLOR color;
+         al_get_pixel(bmp, x, y, &color);
+         unsigned char r, g, b, a;
+         al_unmap_rgba_ex(al_get_bitmap_format(bmp), &color, &r, &g, &b, &a);
+         int oldcolor;
+         if (a == 0) {
+            oldcolor = makecol32(255, 0, 255);
+	   }
+         else
+            oldcolor = makecol32(r, g, b);
+         putpixel(oldbmp, x, y, oldcolor);
+      }
+   }
+
+   stretch_blit(oldbmp, scaled_bmp, 0, 0, oldbmp->w, oldbmp->h,
+   	0, 0, scaled_bmp->w, scaled_bmp->h);
+
+   HICON scaled_icon = win_create_icon_from_old_bitmap(scaled_bmp);
+
+   HWND hwnd = win_get_window();
+
+   /* Set new icons and destroy old */
+   HICON old_small = (HICON)SendMessage(hwnd, WM_SETICON,
+      ICON_SMALL, (LPARAM)NULL);
+   HICON old_big = (HICON)SendMessage(hwnd, WM_SETICON,
+      ICON_BIG, (LPARAM)NULL);
+   
+   DestroyIcon(old_small);
+   DestroyIcon(old_big);
+
+   SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)scaled_icon);
+   SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)scaled_icon);
+
+
+   destroy_bitmap(oldbmp);
+   destroy_bitmap(scaled_bmp);
+}
+
