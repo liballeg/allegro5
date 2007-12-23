@@ -379,7 +379,8 @@ void al_set_new_bitmap_format(int format)
 
 /* Function: al_set_new_bitmap_flags
  *
- * Sets the flags to use for newly created bitmaps. Valid flags are:
+ * Sets the flags to use for newly created bitmaps.
+ * Valid flags are:
  *
  * ALLEGRO_MEMORY_BITMAP - The bitmap will use a format most closely resembling
  * the format used in the bitmap file and al_create_memory_bitmap will be used
