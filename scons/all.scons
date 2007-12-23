@@ -194,6 +194,7 @@ def examples(env,appendDir,buildDir,libDir):
 #    addExample('exnew_events', [ 'exnew_events.c' ])
     addExample('exnew_mouse', [ 'exnew_mouse.c' ])
     addExample('exnew_mouse_events', [ 'exnew_mouse_events.c' ])
+    addExample('exnew_icon', [ 'exnew_icon.c' ])
 
     Alias('examples', examples)
     return examples
