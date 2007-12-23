@@ -59,6 +59,8 @@ static _AL_MUTEX d3d_device_mutex;
 
 static bool d3d_can_wait_for_vsync;
 
+static bool render_to_texture_supported = true;
+
 /*
  * These parameters cannot be gotten by the display thread because
  * they're thread local. We get them in the calling thread first.
@@ -497,6 +499,21 @@ static void d3d_destroy_hidden_device()
    d3d_hidden_window = 0;
 }
 
+/*
+ * Must be called before al_init
+ */
+ /*
+void al_d3d_set_render_to_texture_enabled(bool rtt)
+{
+   render_to_texture_supported = rtt;
+}
+*/
+
+bool _al_d3d_render_to_texture_supported()
+{
+   return render_to_texture_supported;
+}
+
 bool _al_d3d_init_display()
 {
    if ((_al_d3d = Direct3DCreate9(D3D9b_SDK_VERSION)) == NULL) {
@@ -507,6 +524,17 @@ bool _al_d3d_init_display()
    D3DDISPLAYMODE d3d_dm;
 
    IDirect3D9_GetAdapterDisplayMode(_al_d3d, D3DADAPTER_DEFAULT, &d3d_dm);
+
+   if (render_to_texture_supported) {
+      if (IDirect3D9_CheckDeviceFormat(_al_d3d, D3DADAPTER_DEFAULT,
+            D3DDEVTYPE_HAL, d3d_dm.Format, D3DUSAGE_RENDERTARGET,
+            D3DRTYPE_TEXTURE, d3d_dm.Format) != D3D_OK)
+         render_to_texture_supported = false;
+      else
+         render_to_texture_supported = true;
+   }
+
+   TRACE("Render-to-texture: %d\n", render_to_texture_supported);
 
    _al_mutex_init(&d3d_device_mutex);
 
@@ -775,17 +803,6 @@ static int d3d_choose_display_format(int fake)
    }
 
    return fake;
-}
-
-bool _al_d3d_render_to_texture_supported(D3DFORMAT texture_format,
-   D3DFORMAT adapter_format)
-{
-   if (IDirect3D9_CheckDeviceFormat(_al_d3d, D3DADAPTER_DEFAULT,
-         D3DDEVTYPE_HAL, adapter_format, D3DUSAGE_RENDERTARGET,
-         D3DRTYPE_TEXTURE, texture_format) != D3D_OK)
-      return false;
-   else
-      return true;
 }
 
 static BOOL IsTextureFormatOk(D3DFORMAT TextureFormat, D3DFORMAT AdapterFormat) 
@@ -1149,7 +1166,9 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 /* FIXME: this will have to return a success/failure */
 static void d3d_set_current_display(ALLEGRO_DISPLAY *d)
 {
-   /* Don't need to do anything */
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)d;
+
+   _al_win_wnd = d3d_disp->window;
 }
 
 
@@ -1228,11 +1247,10 @@ static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, floa
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_INDEPENDANT_COLOR *bc = _al_get_blend_color();
    DWORD d3d_color;
-   ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)target;
    
    if (_al_d3d_is_device_lost()) return;
 
-   if (!d3d_bmp->rtt_supported) {
+   if (!_al_d3d_render_to_texture_supported()) {
       _al_draw_line_memory(fx, fy, tx, ty, color);
       return;
    }
@@ -1293,13 +1311,12 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
 
    if (_al_d3d_is_device_lost()) return;
    
-   target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_D3D *d3d_target = (ALLEGRO_BITMAP_D3D *)target;
-
-   if (!d3d_target->rtt_supported) {
+   if (!_al_d3d_render_to_texture_supported()) {
       _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
       return;
    }
+
+   target = al_get_target_bitmap();
 
    d3d_color = d3d_blend_colors(target, color, bc);
    
@@ -1689,16 +1706,6 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    bitmap->initialized = false;
    bitmap->is_backbuffer = false;
 
-   int display_format = _al_format_to_d3d(al_get_display_format());
-   int bmp_format = _al_format_to_d3d(format);
-
-   if (IDirect3D9_CheckDeviceFormat(_al_d3d, D3DADAPTER_DEFAULT,
-         D3DDEVTYPE_HAL, display_format, D3DUSAGE_RENDERTARGET,
-         D3DRTYPE_TEXTURE, bmp_format) != D3D_OK)
-      bitmap->rtt_supported = false;
-   else
-      bitmap->rtt_supported = true;
-
    return &bitmap->bitmap;
 }
 
@@ -1757,7 +1764,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    else {
       d3d_target_display_before_device_lost = display;
       d3d_target_bitmap_before_device_lost = target;
-      if (d3d_target->rtt_supported) {
+      if (_al_d3d_render_to_texture_supported()) {
          _al_d3d_lock_device();
          IDirect3DDevice9_EndScene(_al_d3d_device);
          if (IDirect3DTexture9_GetSurfaceLevel(d3d_target->video_texture, 0, &d3d_current_texture_render_target) != D3D_OK) {
@@ -1884,6 +1891,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->wait_for_vsync = d3d_wait_for_vsync;
    vt->show_cursor = d3d_show_cursor;
    vt->hide_cursor = d3d_hide_cursor;
+   vt->set_icon = _al_win_set_display_icon;
 
    return vt;
 }

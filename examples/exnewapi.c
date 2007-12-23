@@ -123,6 +123,12 @@ int main(void)
    long last_move = al_current_time();
    int frames = 0;
 
+   ALLEGRO_BITMAP *icon = al_load_bitmap("icon.tga");
+   al_set_current_display(display[0]);
+   al_set_display_icon(icon);
+   al_set_current_display(display[2]);
+   al_set_display_icon(icon);
+
    while (!quit) {
       /* read input */
       while (!al_event_queue_is_empty(events)) {

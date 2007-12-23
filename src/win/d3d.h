@@ -33,8 +33,6 @@ struct ALLEGRO_BITMAP_D3D
    bool is_backbuffer;
 
    D3DLOCKED_RECT locked_rect;
-
-   bool rtt_supported; // render-to-texture supported?
 };
 
 struct ALLEGRO_DISPLAY_D3D
@@ -98,6 +96,7 @@ void _al_d3d_unlock_device();
 int _al_format_to_d3d(int format);
 int _al_d3d_format_to_allegro(int d3d_fmt);
 void _al_d3d_set_blender(void);
+bool _al_d3d_render_to_texture_supported();
 
 void _al_d3d_release_default_pool_textures();
 void _al_d3d_prepare_bitmaps_for_reset();
@@ -111,9 +110,6 @@ void _al_d3d_release_bitmap_textures(void);
 bool _al_d3d_recreate_bitmap_textures(void);
 void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest);
-
-bool _al_d3d_render_to_texture_supported(D3DFORMAT texture_format,
-   D3DFORMAT adapter_format);
 
 /* Helper to get smallest fitting power of two. */
 static inline int pot(int x)
