@@ -470,3 +470,20 @@ void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
    if (w) *w = bitmap->cr - bitmap->cl + 1;
    if (h) *h = bitmap->cb - bitmap->ct + 1;
 }
+
+
+
+/* Function: al_set_display_icon
+ *
+ * Changes the icon associated with the current display (window).
+ *
+ * Note: If the underlying OS can not use an icon with the size of the provided
+ * bitmap, it will be scaled.
+ *
+ * TODO: Describe best practice for the size?
+ * TODO: Allow providing multiple icons in differet sizes?
+ */
+void al_set_display_icon(ALLEGRO_BITMAP *icon)
+{
+   _al_current_display->vt->set_icon(_al_current_display, icon);
+}

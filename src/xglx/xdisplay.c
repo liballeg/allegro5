@@ -36,6 +36,54 @@ static void set_size_hints(ALLEGRO_DISPLAY *d, int w, int h)
    }
 }
 
+/* Helper to set a window icon. */
+static void set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *display = (void *)d;
+   XWMHints wm_hints;
+   int x, y;
+
+   _al_mutex_lock(&system->lock);
+
+   int w = al_get_bitmap_width(bitmap);
+   int h = al_get_bitmap_height(bitmap);
+
+   XWindowAttributes attributes;
+   XGetWindowAttributes(system->xdisplay, display->window,
+      &attributes);
+
+   // FIXME: Do we need to check for other depths? Just 32 now..
+   XImage *image = XCreateImage(system->xdisplay, attributes.visual,
+      attributes.depth, ZPixmap, 0, NULL, w, h, 32, 0);
+   // FIXME: Must check for errors
+   // TODO: Is this really freed by XDestroyImage?
+   image->data = _AL_MALLOC_ATOMIC(image->bytes_per_line * h);
+
+   // FIXME: Do this properly.
+   memcpy(image->data, bitmap->memory, w * h * 4);
+
+   display->icon = XCreatePixmap(system->xdisplay, display->window,
+      bitmap->w, bitmap->h, attributes.depth);
+
+   GC gc = XCreateGC(system->xdisplay, display->icon, 0, NULL);
+   XPutImage(system->xdisplay, display->icon, gc, image, 0, 0, 0, 0, w, h);
+   XFreeGC(system->xdisplay, gc);
+   XDestroyImage(image);
+
+   wm_hints.flags = IconPixmapHint | IconMaskHint;
+   wm_hints.icon_pixmap = display->icon;
+   // FIXME: Does X11 support apha values? In any case, we need a separate
+   // mask here!
+   wm_hints.icon_mask = display->icon;
+   XSetWMHints(system->xdisplay, display->window, &wm_hints);
+   // FIXME: Do we have to destroy the icon pixmap, or is it owned by X11 now?
+
+   XFlush(system->xdisplay);
+
+   _al_mutex_unlock(&system->lock);
+}
+
 /* Create a new X11 dummy display, which maps directly to a GLX window. */
 static ALLEGRO_DISPLAY *create_display(int w, int h)
 {
@@ -465,6 +513,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    vt->upload_compat_screen = _al_xglx_display_upload_compat_screen;
    vt->show_cursor = show_cursor;
    vt->hide_cursor = hide_cursor;
+   vt->set_icon = set_icon;
    _xglx_add_drawing_functions(vt);
 
    return vt;

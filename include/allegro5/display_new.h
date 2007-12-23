@@ -82,6 +82,7 @@ ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index,
     ALLEGRO_DISPLAY_MODE *mode);
 
 bool al_wait_for_vsync(void);
+void al_set_display_icon(ALLEGRO_BITMAP *);
 
 /* Primitives */
 void al_clear(ALLEGRO_COLOR *color);

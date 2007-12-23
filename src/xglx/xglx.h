@@ -85,8 +85,12 @@ struct ALLEGRO_DISPLAY_XGLX
    GLXFBConfig *fbc; /* Used when creating the OpenGL context. */
    float glx_version;
 
+   /* Cursor for this window. */
    Cursor invisible_cursor;
    bool cursor_hidden;
+
+   /* Icon for this window. */
+   Pixmap icon;
 };
 
 /* Functions private to the X11 driver. */
