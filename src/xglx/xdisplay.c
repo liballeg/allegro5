@@ -376,7 +376,7 @@ ALLEGRO_BITMAP *_al_xglx_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       if (_al_format_has_alpha(format))
          format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
       else
-         format = ALLEGRO_PIXEL_FORMAT_BGR_888;
+         format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
    }
 
    ALLEGRO_BITMAP_XGLX *bitmap = _AL_MALLOC(sizeof *bitmap);
