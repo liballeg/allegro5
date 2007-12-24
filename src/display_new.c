@@ -487,3 +487,4 @@ void al_set_display_icon(ALLEGRO_BITMAP *icon)
 {
    _al_current_display->vt->set_icon(_al_current_display, icon);
 }
+

@@ -893,9 +893,9 @@ add_subdirectory(addons)
 # Demo
 #
 #-----------------------------------------------------------------------------#
-if(USE_CXX)
+if(USE_CXX AND WANT_FONT)
     add_subdirectory(demo)
-endif(USE_CXX)
+endif(USE_CXX AND WANT_FONT)
 
 #-----------------------------------------------------------------------------#
 #

@@ -47,6 +47,21 @@ if(GRADE_PROFILE)
 endif(GRADE_PROFILE)
 
 
+if(GRADE_STANDARD)
+    set(FONT_LIB_TO_LINK a5_font CACHE INTERNAL "internal")
+elseif(GRADE_DEBUG)
+    set(FONT_LIB_TO_LINK a5_fontd CACHE INTERNAL "internal")
+elseif(GRADE_PROFILE)
+    set(FONT_LIB_TO_LINK a5_fontp CACHE INTERNAL "internal")
+endif(GRADE_STANDARD)
+
+if(STATIC)
+    set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_static CACHE INTERNAL "internal")
+else(STATIC)
+    set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
+endif(STATIC)
+
+
 macro(add_example nm)
     add_executable(${nm} ${ARGN})
     set_target_properties(${nm} PROPERTIES
