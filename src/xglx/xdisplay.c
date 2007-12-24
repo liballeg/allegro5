@@ -371,9 +371,6 @@ ALLEGRO_BITMAP *_al_xglx_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    int format = al_get_new_bitmap_format();
    int flags = al_get_new_bitmap_flags();
 
-   //FIXME
-   format = d->format;
-
    ALLEGRO_BITMAP_XGLX *bitmap = _AL_MALLOC(sizeof *bitmap);
    memset(bitmap, 0, sizeof *bitmap);
    bitmap->bitmap.vt = _al_bitmap_xglx_driver();

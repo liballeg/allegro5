@@ -140,6 +140,40 @@ static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
     }
 }
 
+/* Conversion table from Allegro's pixel formats to corresponding OpenGL
+ * formats. The three entries are GL internal format, GL type, GL format.
+ */
+static int glformats[][3] = {
+   /* Skip pseudo formats */
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   /* Actual formats */
+   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* ARGB_8888 */
+   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBA_8888 */
+   {GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_BGRA}, /* ARGB_4444 */
+   {GL_RGB8, GL_UNSIGNED_BYTE, GL_BGR}, /* RGB_888 */
+   {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
+   {0, 0, 0}, /* RGB_555 */ //FIXME: how?
+   {GL_INTENSITY, GL_UNSIGNED_BYTE, GL_COLOR_INDEX}, /* PALETTE_8 */
+   {GL_RGB5_A1, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA}, /* RGBA_5551 */
+   {0, 0, 0}, /* ARGB_1555 */ //FIXME: how?
+   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* ABGR_8888 */
+   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* XBGR_8888 */
+   {GL_RGB8, GL_UNSIGNED_BYTE, GL_RGB}, /* BGR_888 */
+   {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_BGR}, /* BGR_565 */
+   {0, 0, 0}, /* BGR_555 */ //FIXME: how?
+   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBX_8888 */
+   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* XRGB_8888 */
+};
+
 // FIXME: need to do all the logic AllegroGL does, checking extensions,
 // proxy textures, formats, limits ...
 static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
@@ -151,8 +185,11 @@ static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
       glGenTextures(1, &xbitmap->texture);
    glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
 
-   glTexImage2D(GL_TEXTURE_2D, 0, 4, bitmap->w, bitmap->h, 0, GL_RGBA,
-      GL_UNSIGNED_BYTE, bitmap->memory);
+   glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
+      bitmap->w, bitmap->h, 0, glformats[bitmap->format][2],
+      glformats[bitmap->format][1], bitmap->memory);
+   if (glGetError())
+      TRACE("xbitmap: glTexImage2D for format %d failed.\n", bitmap->format);
 
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -190,6 +227,9 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
             glReadPixels(0, bitmap->h - y - h, w, h,
                 GL_RGBA, GL_UNSIGNED_BYTE,
                 bitmap->memory + pitch * y + pixelsize * x);
+            if (glGetError())
+               TRACE("xbitmap: glReadPixels for format %d failed.\n",
+                  bitmap->format);
             //FIXME: ugh. isn't there a better way?
             upside_down(bitmap, x, y, w, h);
         }
@@ -197,8 +237,12 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
             //FIXME: use glPixelStore or similar to only synchronize the required
             //region
             glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
-            glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-                bitmap->memory);
+            glGetTexImage(GL_TEXTURE_2D, 0, glformats[bitmap->format][2],
+               glformats[bitmap->format][1],
+               bitmap->memory);
+            if (glGetError())
+               TRACE("xbitmap: glGetTexImage for format %d failed.\n",
+                  bitmap->format);
         }
     }
 
@@ -213,28 +257,37 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
  */
 static void unlock_region(ALLEGRO_BITMAP *bitmap)
 {
-    ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
-    int pixelsize = al_get_pixel_size(bitmap->format);
-    int pitch = pixelsize * bitmap->w;
+   ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
+   int pixelsize = al_get_pixel_size(bitmap->format);
+   int pitch = pixelsize * bitmap->w;
 
-    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) return;
+   if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) return;
     
-    if (xbitmap->is_backbuffer) {
-        //FIXME: ugh. isn't there a better way?
-        upside_down(bitmap, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
+   if (xbitmap->is_backbuffer) {
+      //FIXME: ugh. isn't there a better way?
+      upside_down(bitmap, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
 
-        glRasterPos2i(0, bitmap->lock_y + bitmap->lock_h);
-        glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
-        glDrawPixels(bitmap->lock_w, bitmap->lock_h, GL_RGBA, GL_UNSIGNED_BYTE,
-            bitmap->memory + bitmap->lock_y * pitch + pixelsize * bitmap->lock_x);
-    }
-    else {
-        // FIXME: don't copy the whole bitmap
-        glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-            bitmap->w, bitmap->h, GL_RGBA, GL_UNSIGNED_BYTE,
-            bitmap->memory);
-    }
+      glRasterPos2i(0, bitmap->lock_y + bitmap->lock_h);
+      glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
+      glDrawPixels(bitmap->lock_w, bitmap->lock_h,
+         glformats[bitmap->format][2],
+         glformats[bitmap->format][1],
+         bitmap->memory + bitmap->lock_y * pitch + pixelsize * bitmap->lock_x);
+      if (glGetError())
+         TRACE("xbitmap: glDrawPixels for format %d failed.\n",
+            bitmap->format);
+   }
+   else {
+      // FIXME: don't copy the whole bitmap
+      glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+         bitmap->w, bitmap->h, glformats[bitmap->format][2],
+         glformats[bitmap->format][1],
+         bitmap->memory);
+      if (glGetError())
+         TRACE("xbitmap: glTexSubImage2D for format %d failed.\n",
+            bitmap->format);
+   }
 }
 
 static void xglx_destroy_bitmap(ALLEGRO_BITMAP *bitmap)

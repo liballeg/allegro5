@@ -90,7 +90,7 @@ struct ALLEGRO_DISPLAY_XGLX
    bool cursor_hidden;
 
    /* Icon for this window. */
-   Pixmap icon;
+   Pixmap icon, icon_mask;
 };
 
 /* Functions private to the X11 driver. */
