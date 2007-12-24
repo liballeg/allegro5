@@ -451,9 +451,11 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
       ICON_SMALL, (LPARAM)NULL);
    HICON old_big = (HICON)SendMessage(hwnd, WM_SETICON,
       ICON_BIG, (LPARAM)NULL);
-   
-   DestroyIcon(old_small);
-   DestroyIcon(old_big);
+
+   if (old_small)
+      DestroyIcon(old_small);
+   if (old_big)
+      DestroyIcon(old_big);
 
    SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)scaled_icon);
    SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)scaled_icon);
