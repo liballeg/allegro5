@@ -126,6 +126,12 @@ Installing Allegro
 
 
 @heading
+Building addons
+   The configure script will autodetect and select addons that can be compiled.
+
+
+
+@heading
 Shared files
 
    Installing Allegro will copy the library and header files plus other

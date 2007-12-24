@@ -1,28 +1,11 @@
 #!/bin/sh
 
-fixunix()
+proc_unix()
 {
 echo Configuring AllegroGL to build on Unix...
 
-find . -type f "(" \
-   -name "*.c" -o -name "*.cfg" -o -name "*.cpp" -o -name "*.dep" -o \
-   -name "*.h" -o -name "*.hin" -o -name "*.in" -o -name "*.inc" -o \
-   -name "*.m4" -o -name "*.mft" -o -name "*.s" -o -name "*.sh" -o \
-   -name "*.spec" -o -name "*.pl" -o -name "*.txt" -o -name "*._tx" -o \
-   -name "makefile.*" -o -name "readme.*" \
-   ")" \
-   -exec sh -c "misc/dtou.sh {}" \;
-
 mkdir -p obj/unix/debug obj/unix/release lib/unix
 
-echo Done.
-echo
-echo "Run './configure' to configure ('./configure --help' for help)."
-echo "Then run 'make' to build, and 'make install' to install."
-echo
-echo "(If this is a CVS version, you must run 'autoconf' to generate the"
-echo "configure script.)"
-echo
 }
 
 proc_fix()
@@ -58,28 +41,50 @@ echo ""
 echo "  --dtou converts from DOS/Win32 format to Unix"
 echo "  --utod converts from Unix format to DOS/Win32"
 echo "  --quick does no line ending conversion"
-echo "  If no parameter is specified --dtou is assumed"
+echo "  If no parameter is specified --quick is assumed"
 echo ""
-echo "  Example: fix unix --quick"
+echo "  Example: fix unix --dtou"
 echo ""
 }
 
-dtou()
+proc_filelist()
 {
-	find docs include misc src -type f -exec sh misc/dtou.sh {} \;
-	find examp \! -name \*.dat -type f -exec sh misc/dtou.sh {} \;
-	for f in *.txt changelog config* *.sh make/makefile.unx make/makefile.gen make/makefile.lst; do
-		echo $f
-		sh misc/dtou.sh $f
+	AL_FILELIST=`find . -type f -not -path "*.svn*" "(" \
+		-name "*.c" -o -name "*.cfg" -o -name "*.cpp" -o -name "*.dep" -o \
+		-name "*.h" -o -name "*.hin" -o -name "*.in" -o -name "*.inc" -o \
+		-name "*.m4" -o -name "*.mft" -o -name "*.s" -o -name "config*" -o \
+		-name "*.spec" -o -name "*.pl" -o -name "*.txt" -o -name "*._tx" -o \
+		-name "makefile.*" -o -name "readme.*" -o -name "changelog" \
+		")"`
+
+	# touch unix shell scripts?
+	if [ "$1" != "omit_sh" ]; then
+		AL_FILELIST="$AL_FILELIST `find . -type f -name '*.sh'`"
+	fi
+
+	# touch DOS batch files?
+	if [ "$1" != "omit_bat" ]; then
+		AL_FILELIST="$AL_FILELIST `find . -type f -name '*.bat'`"
+	fi
+}
+
+proc_dtou()
+{
+	echo "Converting files from DOS/Win32 to Unix ..."
+	proc_filelist "omit_bat"
+	for file in $AL_FILELIST; do
+		echo "$file"
+		sh misc/dtou.sh $file;
 	done
 }
 
-utod()
+proc_utod()
 {
-	find batch docs include src -type f -exec sh misc/utod.sh {} \;
-	find examp \! -name \*.dat -type f -exec sh misc/utod.sh {} \;
-	for f in *.txt changelog *.bat make/makefile.dj make/makefile.mgw make/makefile.win make/makefile.gen make/makefile.lst; do
-		sh misc/utod.sh $f;
+	echo "Converting files from Unix to DOS/Win32 ..."
+	proc_filelist "omit_sh"
+	for file in $AL_FILELIST; do
+		echo "$file"
+		sh misc/utod.sh $file;
 	done
 }
 
@@ -91,14 +96,14 @@ case "$1" in
 	msvc6	) proc_fix "MSVC6" "makefile.vc";;
 	msvc7	) proc_fix "MSVC7" "makefile.vc";;
 	msvc8	) proc_fix "MSVC8" "makefile.vc";;
-	unix	) fixunix;;
+	unix	) proc_unix;;
 	macosx  ) proc_fix "MacOS X" "makefile.osx";;
 	*	) display_help;;
 esac
 
 case "$2" in
-	--utod	) utod;;
-	--dtou	) dtou;;
+	--utod	) proc_utod;;
+	--dtou	) proc_dtou;;
 	*	) ;;
 esac
 

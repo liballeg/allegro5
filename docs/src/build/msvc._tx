@@ -236,6 +236,12 @@ Installing Allegro
    HTML format documentation.
 
 
+@heading
+Building addons
+
+   To build and install AllegroGL addon pass WITH_ALLEGRO_GL=1 "make" and "make install"
+   commands.
+
 
 @heading
 Using Allegro

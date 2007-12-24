@@ -119,6 +119,7 @@ echo MAKEFILE_INC = makefile.vc >> makefile
 echo #define ALLEGRO_MSVC >> include\allegro\platform\alplatf.h
 if "%MSVCDir%" == "" set MSVCDir=%VCINSTALLDIR%
 if "%MSVCDir%" == "" echo Your MSVCDir environment variable is not set!
+if "%MSVCDir%" == "" goto end
 
 REM msvc6 does not need this, msvc is fallback so we should do it anyway
 if [%1] == [msvc6]         goto skipconvert
@@ -164,14 +165,19 @@ echo include makefile.all >> makefile
 if [%2] == [--crlf] goto crlf
 if [%3] == [--crlf] goto crlf
 
-goto done
+goto addons
 
 :crlf
 echo Converting Allegro files to DOS CR/LF format...
 utod .../*.bat .../*.sh .../*.c *.cfg .../*.h .../*.inc .../*.rc
 utod .../*.rh .../*.inl .../*.s .../*.txt .../*._tx makefile.*
 
-:done
+:addons
+cd addons\allegrogl\
+call fix.bat %1
+cd ..
+cd ..
+
 echo Done!
 
 :end

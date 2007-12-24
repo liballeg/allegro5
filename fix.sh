@@ -57,17 +57,17 @@ proc_filelist()
       -name "*.rc" -o -name "*.rh" -o -name "*.spec" -o -name "*.pl" -o \
       -name "*.txt" -o -name "*._tx" -o -name "makefile*" -o \
       -name "*.inl" -o -name "configure" -o -name "CHANGES" -o \
-      -name "AUTHORS" -o -name "THANKS" \
-   ")"`
+      -name "AUTHORS" -o -name "THANKS" ")" -a ! -path "*addons*" \
+   `
 
    # touch unix shell scripts?
    if [ "$1" != "omit_sh" ]; then
-      AL_FILELIST="$AL_FILELIST `find . -type f -name '*.sh'`"
+      AL_FILELIST="$AL_FILELIST `find . -type f -name '*.sh' -a ! -path "*addons*"`"
    fi
 
    # touch DOS batch files?
    if [ "$1" != "omit_bat" ]; then
-      AL_FILELIST="$AL_FILELIST `find . -type f -name '*.bat'`"
+      AL_FILELIST="$AL_FILELIST `find . -type f -name '*.bat' -a ! -path "*addons*"`"
    fi
 }
 
@@ -165,6 +165,11 @@ if [ "$AL_NOCONV" != "1" ]; then
       "--mtou"  ) proc_mtou "$1";;
       "--quick" ) echo "No text file conversion performed ...";;
    esac
+fi
+
+# run fix.sh for addons
+if ! ( cd addons/allegrogl && ./fix.sh $1 $2); then
+   echo "Error occured while executing AllegroGL's fix.sh!"
 fi
 
 echo "Done!"

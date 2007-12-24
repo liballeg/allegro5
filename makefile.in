@@ -93,6 +93,8 @@ LINK_LIBALLEG = @LINK_LIBALLEG@
 ALLEGRO_LIB_TARGETS = @ALLEGRO_LIB_TARGETS@
 ALLEGRO_MODULE_TARGETS = @ALLEGRO_MODULE_TARGETS@
 
+WITH_ALLEGRO_GL = @WITH_ALLEGRO_GL@
+
 PLUGIN_LIB = @PLUGIN_LIB@
 obj_unix_plugins_h = $(OBJDIR)/plugins.h
 
@@ -119,6 +121,15 @@ $(srcdir)/stamp-h.in: $(srcdir)/$(CONFIGURE_IN) $(srcdir)/$(ACLOCAL_M4)
 @SET_MAKE@
 
 
+# -------- include addons' targets -------
+
+ifdef WITH_ALLEGRO_GL
+   include addons/allegrogl/make/makefile.add
+endif
+
+ifndef ADDONS_LIST
+   ADDONS_LIST = "none"
+endif
 
 # -------- list of sources for libraries and programs --------
 
@@ -350,19 +361,21 @@ $(ALLEGRO_EXE_TARGETS): $(ALLEGRO_LIB_TARGETS)
 
 ifdef CROSSCOMPILE
 
-full-build: lib modules programs
+full-build: lib modules addons programs
 
 else
 
-full-build: lib modules programs docs
+full-build: lib modules addons programs docs
 
 endif
 
 lib: $(ALLEGRO_LIB_TARGETS)
 
+addons: $(ADDON_LIB_TARGETS)
+
 modules: $(ALLEGRO_MODULE_TARGETS)
 
-programs: $(ALLEGRO_EXE_TARGETS)
+programs: $(ALLEGRO_EXE_TARGETS) $(ADDON_EXE_TARGETS)
 
 suid: $(ALLEGRO_EXE_TARGETS)
 	chown root.allegro $?
@@ -404,7 +417,7 @@ examples: $(EXAMPLE_FILES)
 
 # -------- rules for deleting the generated files --------
 
-clean:
+clean: $(ADDON_CLEAN_TARGETS)
 
    define RM_OBJ_CLEAN_FILES
       $(foreach file, $(OBJ_CLEAN_FILES), rm -f $(file)
@@ -428,7 +441,7 @@ distclean: clean
 
 	$(RM_DISTCLEAN_FILES)
 
-veryclean: distclean
+veryclean: distclean $(ADDON_DISTCLEAN_TARGETS)
 
    define RM_VERYCLEAN_FILES
       $(foreach file, $(VERYCLEAN_FILES), rm -f $(file)
@@ -442,11 +455,9 @@ maintainer-clean: veryclean
 	rm -f configure include/allegro/platform/alunixac.hin
 	rm -rf autom4te*
 
-
-
 # -------- rules for installing the files --------
 
-install: $(INSTALL_TARGETS)
+install: $(ADDON_INSTALL_TARGETS) $(INSTALL_TARGETS)
 
 mini-install: install-headers install-lib
 	@echo "Your end-user version of Allegro is now installed"
@@ -590,7 +601,7 @@ install-bzipped-man: docs
 
 # -------- rules for uninstalling the files --------
 
-uninstall: uninstall-lib uninstall-modules uninstall-headers uninstall-programs uninstall-info uninstall-man uninstall-misc
+uninstall: uninstall-lib uninstall-modules uninstall-headers uninstall-programs uninstall-info uninstall-man uninstall-misc $(ADDON_UNINSTALL_TARGETS)
 	@echo
 	@echo "All gone. Don't you feel sad now?"
 	@echo
@@ -670,7 +681,7 @@ uninstall-misc:
 
 # -------- generate automatic dependencies --------
 
-depend:
+depend: $(ADDON_DEPEND_TARGETS)
 	rm -f makefile.dep
 	@echo "# Automatically generated." >makefile.dep
 	@echo "Generating dependencies for libraries"
@@ -706,7 +717,7 @@ install-lib install-headers install-programs install-info \
 install-gzipped-info install-bzipped-info install-man install-gzipped-man \
 install-bzipped-man depend \
 uninstall uninstall-lib uninstall-modules uninstall-headers \
-uninstall-programs uninstall-info uninstall-man
+uninstall-programs uninstall-info uninstall-man addons
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

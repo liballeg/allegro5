@@ -74,9 +74,6 @@ set MAKE_PROJECT=
 set MAKEFILE=
 set MAKE_COMPILER=
 
-echo Done! Now run make to start the compilation.
-echo.
-
 goto end
 
 :help

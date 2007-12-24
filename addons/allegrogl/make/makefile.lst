@@ -19,7 +19,6 @@ default: all
 all: examples lib
 	@echo -
 	@echo Success!
-	@echo Now run 'make install' to install AllegroGL.
 
 
 #----------------------------------#
@@ -28,39 +27,50 @@ all: examples lib
 
 SRC_DIR = src
 LIB_DIR = lib/$(COMPILER)
+ALLEG_LIB_DIR = ../../lib/$(COMPILER)
 EXAMPLE_DIR = examp
-INCLUDE_DIR = include include/allegrogl include/allegrogl/GLext
+INCLUDE_DIR = include include/allegrogl include/allegrogl/GLext ../../include
+
+# Release mode is default
+OBJ_DIR_BASE = obj/$(COMPILER)/release
+LIB_NAME_BASE = agl
+LINK_LIB_BASE = alleg
+
+ifdef DEBUGMODE
+  OBJ_DIR_BASE = obj/$(COMPILER)/debug
+  LIB_NAME_BASE = agld
+  LINK_LIB_BASE = alld
+endif
+
+ifdef PROFILEMODE
+# Profiling build of AllegroGL is currnetly not supported
+# OBJ_DIR_BASE = obj/$(COMPILER)/profile
+#  LIB_NAME_BASE = aglp
+  LINK_LIB_BASE = allp
+endif
 
 ifdef STATICLINK
   STATICALLEGRO=1
-  ifdef STATICRUNTIME
-    SUFFIX = _s_crt
-  else
-    SUFFIX = _s
-  endif
+  STATIC_SUFFIX = _s
 else
-  ifdef STATICRUNTIME
-    SUFFIX = _crt
-  else
-    SUFFIX =
-  endif
+  STATIC_SUFFIX =
 endif
 
-ifdef STATICALLEGRO
-  ifdef STATICRUNTIME
-    ALLEG_SUFFIX = _s_crt
-  else
-    ALLEG_SUFFIX = _s
-  endif
+ifdef STATICRUNTIME
+  CRT_SUFFIX = _crt
+else
+  CRT_SUFFIX =
 endif
 
-ifdef DEBUGMODE
-  OBJ_DIR = $(addsuffix $(SUFFIX),obj/$(COMPILER)/debug)
-  LIB_NAME = $(addsuffix $(SUFFIX),agld)
-  LINK_LIB = $(addsuffix $(ALLEG_SUFFIX),alld)
+ifdef ALLEGRO_USE_C
+  NO_ASM_SUFFIX = _c
 else
-  OBJ_DIR = $(addsuffix $(SUFFIX),obj/$(COMPILER)/release)
-  LIB_NAME = $(addsuffix $(SUFFIX),agl)
-  LINK_LIB = $(addsuffix $(ALLEG_SUFFIX),alleg)
+  NO_ASM_SUFFIX =
 endif
+
+SUFFIX = $(addsuffix $(NO_ASM_SUFFIX), $(addsuffix $(CRT_SUFFIX), $(STATIC_SUFFIX)))
+
+OBJ_DIR = $(addsuffix $(SUFFIX), $(OBJ_DIR_BASE))
+LIB_NAME = $(addsuffix $(SUFFIX), $(LIB_NAME_BASE))
+LINK_LIB = $(addsuffix $(SUFFIX), $(LINK_LIB_BASE))
 

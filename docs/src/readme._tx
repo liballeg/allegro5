@@ -109,6 +109,15 @@ Supported platforms
 
 
 @heading
+Included Addons
+
+<textblock>
+   AllegroGL       - see docs in addons/allegrogl/docs/html.
+<endblock>
+
+
+
+@heading
 Features
 <ul><li>
    Cross-platform support for DOS, Windows, Unix, BeOS, QNX and MacOS X

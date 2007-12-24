@@ -1,5 +1,5 @@
 
-.PHONY: clean veryclean install uninstall
+.PHONY: clean veryclean distclean install uninstall
 
 clean:
 	@echo Cleaning up...
@@ -21,6 +21,8 @@ else
 	- del $(EXAMPLE_DIR_D)\*.pdb
 	- del $(EXAMPLE_DIR_D)\*.ilk
 endif
+
+distclean: veryclean
 
 veryclean: clean
 ifdef UNIX_TOOLS

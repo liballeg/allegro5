@@ -35,18 +35,27 @@ other resources such as the FAQ, reference manual, web page and
 mailing list.
 
 
+General build instructions
+--------------------------
+
+From version 0.4.3 onwards, AllegroGL is an addon library for Allegro and the
+usual way to build it is by following the allegro compilation procedure. It
+will configure, build and install AllegroGL using default options (a shared
+release library).
+
+However, you if you need a custom compiled library, e.g. with debug symbols or
+a statically linked one, you can build AllegroGL manually, passing custom build
+options.
+
+
 Requirements:
 -------------
 
- AllegroGL 0.4.0 or better    http://allegrogl.sf.net/
- Allegro   4.2.0 or better    http://alleg.sf.net/
+ General requirement: If you are building AllegroGL separatelly (outside Allegro
+ compilation procedure) it will depend on Allegro being successfully built two
+ directories above.
 
  Unix:
-	Allegro MUST have been compiled with the pthreads support enabled (you
-	must not use the '--disable-pthreads' option when running './configure'
-	at Allegro compilation) This is mandatory otherwise your program may
-	die a horrible death due to race conditions.
-	
 	You need an X server which provides the OpenGL/GLX functionality.
 	If you have successfully installed 3D drivers (NVidia, DRI drivers, ...)
 	then OpenGL/GLX libraries are already installed.
@@ -92,7 +101,6 @@ Mac OS X:
 
 Unix instructions
 -----------------
-
 
 For an optimised build, run `./configure' and `make' from the directory
 containing this file. This will build the library (in 'lib/unix/') and the

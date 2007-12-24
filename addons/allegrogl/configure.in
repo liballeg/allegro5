@@ -137,10 +137,6 @@ if test -n "$fail_glu"; then
 fi
 
 
-dnl Check Allegro is installed
-AM_PATH_ALLEGRO([4.2.0], ,AC_MSG_ERROR([AllegroGL requires Allegro >= 4.2.0 to be installed!]))
-
-
 CPPFLAGS="$allegro_CFLAGS $CPPFLAGS"
 
 
@@ -154,7 +150,6 @@ AC_SUBST(LIB_BUILDER)
 AC_SUBST(LIB_PATH_U)
 AC_SUBST(LIB_LINKS_U)
 AC_SUBST(SHARED)
-AC_SUBST(ALLEGRO_CONFIG)
 
 dnl Additional substitutions for the generic driver
 

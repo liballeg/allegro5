@@ -8,7 +8,9 @@
 
 \section contents Table Of Contents:
 <ul><li> \ref aboutlib </li>
+	<li> \ref license </li>
 	<li> \ref aboutdoc </li>
+	<li> \ref genbuild </li>
 	<li> \ref require </li>
 	<li> \ref install </li>
 	<ul><li> \ref unixinst </li>
@@ -35,6 +37,11 @@ AllegroGL also automatically exposes most, if not all, OpenGL extensions
 available to user programs. This means you no longer have to manually load
 them; extension management is already done for you.
 
+\section license License
+
+The code is (C) AllegroGL contributors, and double licensed under the GPL and
+zlib licenses. See gpl.txt or zlib.txt for details. (You can pick whichever one
+you prefer.)
 
 \section aboutdoc About this document
 
@@ -43,18 +50,25 @@ the API, reference manual, and pointers to other resources such
 as the FAQ, web page and the mailing list.
 
 
+\section genbuild General build instructions
+
+From version 0.4.3 onwards, AllegroGL is an addon library for Allegro and the
+usual way to build it is by following the allegro compilation procedure. It
+will configure, build and install AllegroGL using default options (a shared
+release library).
+
+However, you if you need a custom compiled library, e.g. with debug symbols or
+a statically linked one, you can build AllegroGL manually, passing custom build
+options.
+
+
 \section require Requirements
 
-
- AllegroGL 0.4.0 or better http://allegrogl.sf.net/ <br>
- Allegro   4.2.0 or better http://alleg.sf.net/
+ General requirement: If you are building AllegroGL separatelly (outside Allegro
+ compilation procedure) it will depend on Allegro being successfully built two
+ directories above.
 
  \b Unix:
-	Allegro MUST have been compiled with the pthreads support enabled (you
-	must not use the '--disable-pthreads' option when running './configure'
-	at Allegro compilation) This is mandatory otherwise your program may
-	die a horrible death due to race conditions.
-	
 	You need an X server which provides the OpenGL/GLX functionality.
 	If you have successfully installed 3D drivers (NVidia, DRI drivers, ...)
 	then OpenGL/GLX libraries are already installed.
@@ -129,7 +143,7 @@ GNU/Linux.
 Mingw 2.0 and higher already come with the OpenGL header files
 and libraries, so you can skip the next step.
 
-If you don't have the OpenGL header files (GL/gl.h) and libraries, you will
+If you don't have the OpenGL header files (GL\\gl.h) and libraries, you will
 first need to acquire thrm. These can be obtained from the Microsoft site,
 or from MSVC.
 
@@ -158,12 +172,12 @@ this file.  Use `make install' to install the library and header
 file. Some versions of Mingw come with `mingw32-make' instead of
 `make', so you may need to run that instead.
 
-For a debug build, do the same but write `DEBUGMODE=1' on each of the command
-lines; for example, 'make DEBUGMODE=1' and 'make install DEBUGMODE=1'.
+For a debug build, do the same but write `DEBUGMODE=1' on each
+of the command lines; for example, 'make DEBUGMODE=1' and
+'make install DEBUGMODE=1'.
 
-Add 'STATICALLEGRO=1' to the last two commands to build AllegroGL that can be
+Add 'STATICLINK=1' to the last two commands to build AllegroGL that can be
 linked to statically linked allegro.
-
 
 
 	\subsection msvcinst MSVC6/7/8 instructions
@@ -173,10 +187,27 @@ can use the old-fashion way decribed bellow (similar to building allegro, using
 a GNU makefile and a command line), or you can locate the project file for your
 MSVC version in "projects" directory and compile AllegroGL lib and examples with
 a few mouse clicks. You'll have to manually copy libs and headers to appropiate
-locations. Several sample build configurations are defined so you can
-choose one as a base configuration for your projects.
+locations.
+You can choose between several build configuration, depending against which
+Allegro library you want AllegroGL to be linked to. These configurations are:
+<pre> 
+   _____________________________________________________________
+  | Configuration name  |    AGL lib name    | Allegro lib name |
+  |-------------------------------------------------------------|
+  | Release             | agl.lib            | alleg.lib        |
+  | DLL Release         | agl.lib & agl.dll  | alleg.lib        |
+  | Static Release      | agl_s.lib          | alleg_s.lib      |
+  | Static Release CRT  | agl_s_crt.lib      | alleg_s_crt.lib  |
+  | Debug               | agld.lib           | alld.lib         |
+  | Static Debug        | agld_s.lib         | alld_s.lib       |
+   -------------------------------------------------------------
+</pre>
+   
+All configuration except "DLL Release" produce AllegroGL library that is
+statically linked to the executable.
 
-Instructions for compiling AllegroGL using command line follow.
+
+Instructione for compiling AllegroGL using command line follow.
 
 You must have a working copy of GNU Make (useful for
 building Allegro, anyway). This can be either DJGPP's or
@@ -228,12 +259,11 @@ Mingw's (recommended).
   To link against a static runtime libraries, rather than the default dynamic
   runtime libraries, add STATICRUNTIME=1,  to the last two command lines.
 
-  To link aginst a static version of allegro, add STATICALLEGRO=1, to the last
+  To link aginst a static version of allegro, add STATICLINK=1, to the last
   two command lines.
 
   If you are using Mingw for GNU make, then you may need to run `mingw32-make'
   instead of `make'.
-
 
 	\subsection dosinst Dos instructions
 

@@ -22,14 +22,19 @@ See readme.txt or the HTML docs for the proper list of requirements.
 Installation
 ~~~~~~~~~~~~
 
+From version 0.4.3 onwards, AllegroGL is an addon library for Allegro and the
+usual way to build it is by following the allegro compilation procedure. It
+will configure, build and install AllegroGL using default options (a shared
+release library).
+    
+However, you if you need a custom compiled library, e.g. with debug symbols or
+a statically linked one, you can build AllegroGL manually, passing custom build
+options.
+
 See readme.txt or the HTML docs for the full installation procedure. This
 is just to get you quickly started, so a lot of details are skipped.
 
-Unix: Check that Allegro has been compiled with pthreads support enabled.
-	If not then recompile it (you must not use the '--disable-pthreads'
-	option when running './configure' at Allegro compilation).
-	
-	Unzip the AllegroGL archive, and run './configure' and `make' from the
+Unix: Unzip the AllegroGL archive, and run './configure' and `make' from the
 	top directory.  That should build the library (in `lib') and example
 	programs (in `examp').  Then run 'make install' to install the header
 	files and the library.
@@ -43,7 +48,7 @@ Windows: Unzip the archive. First run 'fix msvc' or 'fix mingw32' depending on
 	the library.
 
 
-DOS:    Unzip the archive files MesaLib-4.0.zip wherever you want.
+DOS: Unzip the archive files MesaLib-4.0.zip wherever you want.
 	Unzip AllegroGL
 
 	Go to the root directory of AllegroGL type 'fixdjgpp' (without

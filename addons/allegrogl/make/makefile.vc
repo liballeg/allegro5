@@ -79,6 +79,8 @@ EXAMPLE_DIR_D = $(subst /,\,$(EXAMPLE_DIR))
 LIB_PATH_U = $(subst \,/,$(LIB_DIR))/$(LIB_NAME).lib
 LIB_PATH_D = $(subst /,\,$(LIB_DIR))\$(LIB_NAME).lib
 
+ALLEG_LIB_DIR_U = $(subst \,/,$(ALLEG_LIB_DIR))
+
 HEADERS_U = $(subst \,/,$(HEADERS))
 HEADERS_D = $(subst /,\,$(HEADERS))
 EXT_HEADERS_U = $(subst \,/,$(EXT_HEADERS))
@@ -92,7 +94,7 @@ SOURCE = $(C_SOURCE) $(WIN_SOURCE)
 OBJECTS = $(addprefix $(OBJ_DIR_U)/, $(addsuffix .obj, $(basename $(notdir $(SOURCE)))))
 EXAMPLES = $(addsuffix .exe, $(basename $(addprefix $(EXAMPLE_DIR)/, $(EXAMP_SOURCE))))
 
-COMPILER_LINK_LIB = $(addsuffix .lib, $(LINK_LIB)) opengl32.lib glu32.lib user32.lib gdi32.lib
+COMPILER_LINK_LIB = $(addsuffix .lib, $(LINK_LIB)) opengl32.lib glu32.lib user32.lib gdi32.lib -link -LIBPATH:\"$(ALLEG_LIB_DIR_U)\"
 
 ifdef STATICALLEGRO
 COMPILER_LINK_LIB += dsound.lib dinput.lib ddraw.lib winmm.lib dxguid.lib ole32.lib kernel32.lib

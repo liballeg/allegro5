@@ -284,6 +284,7 @@ INSTALL_FILES += $(HEADERS)
 
 install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
+	@echo Addons installed: $(ADDONS_LIST)
 
 UNINSTALL_FILES = $(MINGDIR_U)/lib/liballeg.a             \
                   $(MINGDIR_U)/lib/liballd.a              \

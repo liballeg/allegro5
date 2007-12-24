@@ -325,6 +325,7 @@ AC_SUBST(COMPILE_S_PROGRAM)
 AC_SUBST(PROG_LDFLAGS)
 AC_SUBST(LIB_TO_LINK)
 AC_SUBST(LINK_WITH_STATIC_LIBS)
+AC_SUBST(WITH_ALLEGRO_GL)
 
 dnl Which libraries to build (static, shared, normal, debugging, profiling)?
 ALLEGRO_LIB_TARGETS=
@@ -727,6 +728,70 @@ if test -n "$allegro_support_modules"; then
 fi
 AC_SUBST(ALLEGRO_MODULE_TARGETS)
 
+
+#-----------------------------------------------------------------------------#
+#
+# Addons
+#
+
+dnl With AllegroGL addon
+AC_ARG_ENABLE(allegrogl,
+[  --enable-allegrogl[=x]  build AllegroGL addon library [default=yes]],
+test "X$enableval" != "Xno" && allegro_with_allegrogl=yes,
+allegro_with_allegrogl=yes)
+
+dnl Build up configure options for AllegroGL
+agl_config_opt="$agl_config_opt
+  --build=$build
+  --host=$host
+  --target=$target
+  --prefix=$prefix
+  --exec-prefix=$exec_prefix
+  --bindir=$bindir
+  --sbindir=$sbindir
+  --libexecdir=$libexecdir
+  --sysconfdir=$sysconfdir
+  --sharedstatedir=$sharedstatedir
+  --localstatedir=$localstatedir
+  --libdir=$libdir
+  --includedir=$includedir
+  --oldincludedir=$oldincludedir
+  --datarootdir=$datarootdir
+  --datadir=$datadir
+  --infodir=$infodir
+  --localedir=$localedir
+  --mandir=$mandir
+  --docdir=$docdir
+  --htmldir=$htmldir
+  --dvidir=$dvidir
+  --pdfdir=$pdfdir
+  --psdir=$psdir"
+
+if test "$allegro_with_allegrogl" = "yes"; then
+  echo ""
+  echo "Running AllegroGL configure script..."
+  echo "./configure $agl_config_opt"
+  if ( cd addons/allegrogl && ./configure $agl_config_opt ); then
+    _addons="AllegroGL, $_addons"
+    WITH_ALLEGRO_GL=yes
+  else
+    echo ""
+    echo "... AllegroGL configure script failed (AllegroGL disabled) ..."
+    echo ""
+    WITH_ALLEGRO_GL=no
+  fi
+  echo ""
+  echo "... Continuing with Allegro configure script ..."
+  echo ""
+else
+  allegro_with_allegrogl=no
+fi
+  
+AC_MSG_CHECKING(for AllegroGL support)
+AC_MSG_RESULT($allegro_with_allegrogl)
+
+test -z "$_addons" && _addons="none"
+
 #-----------------------------------------------------------------------------#
 
 dnl Additional libraries.
@@ -886,6 +951,7 @@ cat > makefile.info << EOF
  Generated code: $_code_features
  Generated libraries:$_libraries
  Compiled programs: $_programs
+ With addons: $_addons
  $_warnmode
  $_x11
  $_linux_console
@@ -977,6 +1043,8 @@ AC_SUBST(FRAMEWORKS)
 dnl Prepare makefile and allegro-config.
 AC_OUTPUT(makefile:makefile.in allegro-config:misc/allegro-config.in,
   [test -z "$CONFIG_HEADERS" || echo timestamp > stamp-h])
+
+chmod a+x allegro-config
 
 dnl The makefile doesn't work with non-GNU make so test for its presence.
 if ${MAKE-make} -v -f /dev/null 2>/dev/null | grep -i "gnu" >/dev/null; then

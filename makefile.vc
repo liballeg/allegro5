@@ -338,6 +338,7 @@ INSTALL_FILES += $(HEADERS)
 
 install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
+	@echo Addons installed: $(ADDONS_LIST)
 
 UNINSTALL_FILES = $(MSVCDIR_U)/lib/alleg.lib              \
                   $(MSVCDIR_U)/lib/alld.lib               \

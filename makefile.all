@@ -18,6 +18,9 @@
 #        ALLEGRO_USE_C=1    use C drawing code instead of asm (GCC-based platforms).
 #        UNIX_TOOLS=1       use Unix-like tools instead of DOS tools.
 #
+#     Addons:
+#        WITH_ALLEGRO_GL=1  Enable building of AllegroGL addon.
+#
 #     Targets: 
 #        default:           build library version, docs, and programs.
 #        all:               build all versions and programs.
@@ -75,7 +78,6 @@ endif
 ifdef STATICLINK
 DESCRIPTION += statically linked
 endif
-
 
 
 # -------- list of what files we need to build --------
@@ -136,7 +138,7 @@ ifeq (,$(wildcard $(PLATFORM_DIR)/cpp-tested))
 endif
 endif
 
-PROGRAMS += $(CPP_PROGRAMS) demo examples makedoc
+PROGRAMS += $(CPP_PROGRAMS) demo examples makedoc $(ADDON_EXE_TARGETS)
 
 EXAMPLES = $(basename $(notdir $(ALLEGRO_EXAMPLE_FILES)))
 
@@ -169,12 +171,12 @@ endif
 # -------- top level boss targets like "default" and "all" --------
 
 .PHONY: default all msg lib install installall uninstall docs chm-docs \
-        clean distclean veryclean create-install-dirs depend \
+        clean distclean veryclean create-install-dirs depend addons\
         $(PROGRAMS) $(CPP_PROGRAMS)
 
 .PRECIOUS: $(OBJ_DIR)/%$(OBJ)
 
-default: msg lib $(PROGRAMS) docs
+default: msg lib addons programs docs
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been compiled.
 ifdef UNIX_TOOLS
 	@echo Run \"make install\" with the options you passed to \"make\"
@@ -206,7 +208,9 @@ installall:
 	@echo All $(PLATFORM) library versions have been installed.
 
 msg:
-	@echo Compiling Allegro for $(PLATFORM), $(DESCRIPTION). Please wait...
+	@echo Compiling Allegro for $(PLATFORM), $(DESCRIPTION).
+	@echo Enabled addons: $(ADDONS_LIST)
+	@echo Please wait...
 
 ifdef CROSSCOMPILE
 
@@ -232,9 +236,27 @@ $(LIB_NAME): $(OBJECTS) $(RUNNER)
 programs:
 	$(MAKE) $(PROGRAMS)
 
+
+# -------- Rules from addons ----------
+
+ifdef WITH_ALLEGRO_GL
+   include addons/allegrogl/make/makefile.add
+endif
+
+ifndef ADDONS_LIST
+   ADDONS_LIST = "none"
+endif
+
+
+addons:
+ifdef ADDON_LIB_TARGETS
+	$(MAKE)	$(ADDON_LIB_TARGETS)
+endif
+
+
 # -------- rules for deleting the generated files --------
 
-clean:
+clean: $(ADDON_CLEAN_TARGETS)
 ifdef UNIX_TOOLS
 	-rm $(RM_OPTS) $(OBJ_CLEAN_FILES)
 	-rm $(RM_OPTS) $(OTHER_CLEAN_FILES)
@@ -248,7 +270,7 @@ else
 	-$(RM_CLEAN)
 endif
 
-distclean: clean
+distclean: clean $(ADDON_VERYCLEAN_TARGETS)
 ifdef UNIX_TOOLS
 	-rm $(RM_OPTS) $(DISTCLEAN_FILES)
 else
@@ -259,7 +281,7 @@ else
 	-$(RM_DISTCLEAN)
 endif
 
-veryclean: distclean
+veryclean: distclean $(ADDON_DISTCLEAN_TARGETS)
 ifdef UNIX_TOOLS
 	-rm $(RM_OPTS) $(VERYCLEAN_FILES)
 else
@@ -357,7 +379,7 @@ INSTALL_FILES += $(INSTALLDIR_U)/$(INCDIR_U)/allegro.h                          
                  $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/,$(notdir $(wildcard include/allegro/internal/*.h))) \
                  $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/,$(notdir $(wildcard include/allegro/inline/*.inl)))
 
-generic-install: create-install-dirs $(INSTALL_FILES)
+generic-install: create-install-dirs $(ADDON_INSTALL_TARGETS) $(INSTALL_FILES)
 
 
 UNINSTALL_FILES := \
@@ -378,7 +400,7 @@ UNINSTALL_FILES := \
         $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/*.h \
     )
 
-generic-uninstall:
+generic-uninstall: $(ADDON_UNINSTALL_TARGETS)
 ifdef UNIX_TOOLS
 	-rm -fv $(UNINSTALL_FILES)
 	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform

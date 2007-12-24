@@ -1,0 +1,36 @@
+# makefile that is included into allegro's main makefile
+#
+
+ADDONS_LIST += AllegroGL
+ADDON_INSTALL_TARGETS += allegrogl_install
+ADDON_UNINSTALL_TARGETS += allegrogl_uninstall
+ADDON_CLEAN_TARGETS += allegrogl_clean
+ADDON_DISTCLEAN_TARGETS += allegrogl_distclean
+ADDON_VERYCLEAN_TARGETS += allegrogl_veryclean
+ADDON_LIB_TARGETS += allegrogl_lib
+ADDON_EXE_TARGETS += allegrogl_programs
+ADDON_DEPEND_TARGETS += allegrogl_depend
+
+allegrogl_lib:
+	$(MAKE) -C addons/allegrogl/ lib
+
+allegrogl_install:
+	$(MAKE) -C addons/allegrogl/ install
+
+allegrogl_clean:
+	$(MAKE) -C addons/allegrogl/ clean
+
+allegrogl_distclean:
+	$(MAKE) -C addons/allegrogl/ distclean
+
+allegrogl_veryclean:
+	$(MAKE) -C addons/allegrogl/ veryclean
+
+allegrogl_uninstall:
+	$(MAKE) -C addons/allegrogl/ uninstall
+
+allegrogl_programs:
+	 $(MAKE) -C addons/allegrogl/ examples
+
+allegrogl_depend:
+	 $(MAKE) -C addons/allegrogl/ depend
