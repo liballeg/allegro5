@@ -12,14 +12,14 @@ if [%1] == [msvc]    goto msvc
 if [%1] == [msvc6]   goto msvc6
 if [%1] == [msvc7]   goto msvc7
 if [%1] == [msvc8]   goto msvc8
-if [%1] == [unix]    goto unix
 
 if [%1] == [help]    goto help
 if [%1] == [--help]  goto help
 if [%1] == [-?]      goto help
 if [%1] == []        goto help
 
-goto help
+echo Platform not supported by AllegroGL.
+exit
 
 :djgpp
 set MAKE_COMPILER=DJGPP

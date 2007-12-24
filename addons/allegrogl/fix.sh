@@ -88,6 +88,13 @@ proc_utod()
 	done
 }
 
+
+if [ "$1" == "" ]; then
+	display_help
+	exit
+fi
+
+
 case "$1" in
 	djgpp	) proc_fix "DJGPP" "makefile.dj";;
 	mingw	) proc_fix "Mingw32" "makefile.mgw";;
@@ -98,7 +105,7 @@ case "$1" in
 	msvc8	) proc_fix "MSVC8" "makefile.vc";;
 	unix	) proc_unix;;
 	macosx  ) proc_fix "MacOS X" "makefile.osx";;
-	*	) display_help;;
+	*	) echo "Platform not supported by AllegroGL."
 esac
 
 case "$2" in
