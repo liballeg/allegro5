@@ -25,10 +25,10 @@ int main(void)
    picture = al_load_bitmap("mysha.pcx");
 
    redraw(picture);
-   al_rest(10000);
+   al_rest(2500);
    al_resize_display(800, 600);
    redraw(picture);
-   al_rest(10000);
+   al_rest(2500);
 
    return 0;
 }

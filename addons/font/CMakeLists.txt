@@ -47,37 +47,16 @@ if(GRADE_PROFILE)
 endif(GRADE_PROFILE)
 
 
-#-----------------------------------------------------------------------------#
-    # Select an Allegro library to link the programs with.  We choose
-    # standard, debug, profile in that order, and prefer statically linked
-    # over dynamically linked.  It would be worth making this configurable.
-    #
-if(GRADE_STANDARD)
-    set(FONT_LIB_TO_LINK a5_font)
-endif(GRADE_STANDARD)
-if(NOT FONT_LIB_TO_LINK AND GRADE_DEBUG)
-    set(FONT_LIB_TO_LINK a5_fontd)
-endif(NOT FONT_LIB_TO_LINK AND GRADE_DEBUG)
-if(NOT FONT_LIB_TO_LINK AND GRADE_PROFILE)
-    set(FONT_LIB_TO_LINK a5_fontp)
-endif(NOT FONT_LIB_TO_LINK AND GRADE_PROFILE)
-
-if(STATIC)
-    set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_static)
-    set(MAYBE_FONT_STATICLINK "-DALLEGRO_STATICLINK")
-else(STATIC)
-    set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_shared)
-endif(STATIC)
-
 macro(add_example nm)
     add_executable(${nm} ${ARGN})
     set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_FONT_STATICLINK}"
-        LINK_FLAGS "${MAYBE_FONT_STATICLINK}"
+        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
+        LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         )
     target_link_libraries(${nm} ${LINK_WITH})
     target_link_libraries(${nm} ${FONT_LINK_WITH})
 endmacro(add_example)
+
 
 add_example(ex ex.c)
 

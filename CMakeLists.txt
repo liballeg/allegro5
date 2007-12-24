@@ -848,24 +848,28 @@ endif(SUPPORT_MODULES)
 #   Programs
 #
 #-----------------------------------------------------------------------------#
-
-    # Select an Allegro library to link the programs with.  We choose
+    # Select libraries to link the programs with.  We choose
     # standard, debug, profile in that order, and prefer statically linked
     # over dynamically linked.  It would be worth making this configurable.
     #
 if(GRADE_STANDARD)
     set(LIB_TO_LINK alleg)
+    set(FONT_LIB_TO_LINK a5_font)
 elseif(GRADE_DEBUG)
     set(LIB_TO_LINK alld)
+    set(FONT_LIB_TO_LINK a5_fontd)
 elseif(GRADE_PROFILE)
     set(LIB_TO_LINK allp)
+    set(FONT_LIB_TO_LINK a5_fontp)
 endif(GRADE_STANDARD)
 
 if(STATIC)
     set(LINK_WITH ${LIB_TO_LINK}_static)
     set(MAYBE_ALLEGRO_STATICLINK "-DALLEGRO_STATICLINK")
+    set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_static)
 else(STATIC)
     set(LINK_WITH ${LIB_TO_LINK}_shared)
+    set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_shared)
 endif(STATIC)
 
 macro(add_allegro_executable nm)
@@ -877,10 +881,27 @@ macro(add_allegro_executable nm)
     target_link_libraries(${nm} ${LINK_WITH})
 endmacro(add_allegro_executable)
 
+#-----------------------------------------------------------------------------#
+#
+# Add-ons
+#
+#-----------------------------------------------------------------------------#
+add_subdirectory(addons)
+
+#-----------------------------------------------------------------------------#
+#
+# Demo
+#
+#-----------------------------------------------------------------------------#
 if(USE_CXX)
     add_subdirectory(demo)
 endif(USE_CXX)
 
+#-----------------------------------------------------------------------------#
+#
+# Examples
+#
+#-----------------------------------------------------------------------------#
 add_subdirectory(examples)
 #add_subdirectory(tests)
 #add_subdirectory(tools)
@@ -940,13 +961,6 @@ add_subdirectory(docs)
     #
 make_directory(obj/mingw32)
 make_directory(obj/unix)
-
-#-----------------------------------------------------------------------------#
-#
-# Add-ons
-#
-#-----------------------------------------------------------------------------#
-add_subdirectory(addons)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

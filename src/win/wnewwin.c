@@ -448,18 +448,14 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
 
    /* Set new icons and destroy old */
    HICON old_small = (HICON)SendMessage(hwnd, WM_SETICON,
-      ICON_SMALL, (LPARAM)NULL);
+      ICON_SMALL, (LPARAM)scaled_icon);
    HICON old_big = (HICON)SendMessage(hwnd, WM_SETICON,
-      ICON_BIG, (LPARAM)NULL);
+      ICON_BIG, (LPARAM)scaled_icon);
 
    if (old_small)
       DestroyIcon(old_small);
    if (old_big)
       DestroyIcon(old_big);
-
-   SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)scaled_icon);
-   SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)scaled_icon);
-
 
    destroy_bitmap(oldbmp);
    destroy_bitmap(scaled_bmp);
