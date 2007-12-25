@@ -90,9 +90,9 @@ proc_utod()
 }
 
 
-if [ "$1" == "" ]; then
+if [ -z "$1" ]; then
 	display_help
-	exit
+	exit 0
 fi
 
 
