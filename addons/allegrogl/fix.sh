@@ -4,6 +4,7 @@ proc_unix()
 {
 echo Configuring AllegroGL to build on Unix...
 
+rm makefile
 mkdir -p obj/unix/debug obj/unix/release lib/unix
 
 }
