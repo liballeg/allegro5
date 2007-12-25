@@ -36,8 +36,8 @@ int main(void)
          else {
             if (i < 50) blue = 255;
          }
-         /* The ARGB format means, the 32 bits per pixel are layed out like
-          *this, lowest bit right:
+         /* The ABGR format means, the 32 bits per pixel are layed out like
+          * this, lowest bit right:
           * A A A A A A A A B B B B B B B B G G G G G G G G R R R R R R R R
           */
          *(ptr++) = red;
