@@ -13,7 +13,7 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Mouse routines
+/* Title: Mouse types
  */
 
 

@@ -13,7 +13,7 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Keyboard routines
+/* Title: Keyboard types
  */
 
 #ifndef _al_included_keyboard_h

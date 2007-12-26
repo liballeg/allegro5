@@ -13,7 +13,7 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Joystick routines
+/* Title: Joystick types
  */
 
 #ifndef _al_included_joystick_h

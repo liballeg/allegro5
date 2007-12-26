@@ -1,4 +1,4 @@
-/* Title: Display routines
+/* Title: Display types
  */
 
 #ifndef ALLEGRO_DISPLAY_NEW_H

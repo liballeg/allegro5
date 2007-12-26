@@ -1,4 +1,4 @@
-/* Title: Bitmap routines
+/* Title: Bitmap types and constants
  */
 
 #ifndef ALLEGRO_BITMAP_NEW_H

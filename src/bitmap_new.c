@@ -15,7 +15,7 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Bitmaps routines
+/* Title: Bitmap routines
  */
 
 
