@@ -303,13 +303,13 @@ context.getLibraryEnv().Append(CPPPATH = [ normalBuildDir ])
 
 library = context.getAllegroTarget()
 if context.getStatic() == 1 and context.getDebug() == 1:
-	print "Building static debugged library"
+	print "Building static debug library"
 elif context.getStatic() == 1:
-	print "Building static non-debugged library"
+	print "Building static release library"
 elif context.getDebug() == 1:
-	print "Building shared debugged library"
+	print "Building shared debug library"
 else:
-	print "Building shared non-debugged library"
+	print "Building shared release library"
 Alias('library', library)
 
 # m = Move(context.getLibraryEnv(), library)
