@@ -66,8 +66,6 @@ LIB_PATH_D = $(subst /,\,$(LIB_DIR))\lib$(LIB_NAME).a
 
 DLL_PATH_U = $(subst \,/,$(LIB_DIR))/$(LIB_NAME).dll
 
-ALLEG_LIB_DIR_U = $(subst \,/,$(ALLEG_LIB_DIR))
-
 HEADERS_U = $(subst \,/,$(HEADERS))
 HEADERS_D = $(subst /,\,$(HEADERS))
 EXT_HEADERS_U = $(subst \,/,$(EXT_HEADERS))
@@ -81,7 +79,7 @@ SOURCE = $(C_SOURCE) $(WIN_SOURCE)
 OBJECTS = $(addprefix $(OBJ_DIR_U)/, $(addsuffix .o, $(basename $(notdir $(SOURCE)))))
 EXAMPLES = $(addsuffix .exe, $(basename $(addprefix $(EXAMPLE_DIR)/, $(EXAMP_SOURCE))))
 
-COMPILER_LINK_LIB = -L$(ALLEG_LIB_DIR_U) -l$(ALLEG_LIB_BASENAME) -luser32 -lgdi32 -lglu32 -lopengl32
+COMPILER_LINK_LIB = -L$(ALLEG_LIB_DIR) -l$(ALLEG_LIB_BASENAME) -luser32 -lgdi32 -lglu32 -lopengl32
 
 ifdef STATICALLEGRO
 COMPILER_LINK_LIB += -ldsound -ldinput -lddraw -lwinmm -ldxguid -lole32 -lkernel32

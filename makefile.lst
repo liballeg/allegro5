@@ -629,7 +629,7 @@ OTHER_CLEAN_FILES = \
 	obj/*/*.res obj/*/asmdef obj/*/*.inc \
 	lib/*/*.a lib/unix/*.so* lib/unix/sta* \
 	lib/*/*.lib lib/*/*.exp lib/*/*.dll \
-	lib/*/*.pdb lib/*/*.ilk lib/*/*.map *.pdb */*.pdb \
+	lib/*/*.pdb lib/*/*.ilk lib/*/*.map *.pdb */*.pdb */*/*.pdb \
 	*/*.ilk */*.map */*.sym gmon.out */gmon.out */*.prf \
 	allegro.log */allegro.log */*/allegro.log \
 	log */log */*/log core */core */*/core

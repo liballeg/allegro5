@@ -36,8 +36,6 @@ EXAMPLE_DIR_U = $(EXAMPLE_DIR)
 LIB_PATH_U = $(LIB_DIR)/lib$(LIB_NAME).a
 LIB_PATH = $(LIB_PATH_U)
 
-ALLEG_LIB_DIR_U = $(subst \,/,$(ALLEG_LIB_DIR))
-
 HEADERS_U = $(HEADERS)
 EXT_HEADERS_U = $(EXT_HEADERS)
 EXT_HEADERS_PATH_U = $(EXT_HEADERS_PATH)
@@ -48,7 +46,7 @@ SOURCE = $(C_SOURCE) $(MACOSX_SOURCE)
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(notdir $(SOURCE)))))
 EXAMPLES = $(basename $(addprefix $(EXAMPLE_DIR)/, $(EXAMP_SOURCE)))
 
-COMPILER_LINK_LIB = $(addprefix -L, $(ALLEG_LIB_DIR_U)) `../../allegro-config --libs` -framework Carbon -framework OpenGL
+COMPILER_LINK_LIB = -L$(ALLEG_LIB_DIR) `../../allegro-config --libs` -framework Carbon -framework OpenGL
 
 
 INSTALL_DIR = /usr/local

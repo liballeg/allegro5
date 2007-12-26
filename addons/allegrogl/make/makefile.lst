@@ -30,6 +30,7 @@ include ../../makefile.inf
 SRC_DIR = src
 LIB_DIR = lib/$(COMPILER)
 ALLEG_LIB_DIR = ../../lib/$(COMPILER)
+ALLEG_LIB_PATH = $(ALLEG_LIB_DIR)/$(ALLEG_LIB_BASENAME).lib
 EXAMPLE_DIR = examp
 INCLUDE_DIR = include include/allegrogl include/allegrogl/GLext ../../include
 

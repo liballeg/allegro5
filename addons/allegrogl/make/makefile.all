@@ -16,6 +16,7 @@ else
 	- del $(EXAMPLE_DIR_D)\*.o
 	- del $(OBJ_DIR_D)\*.obj
 	- del $(OBJ_DIR_D)\*.o
+	- del $(OBJ_DIR_D)\*.pdb
 	- del $(EXAMPLE_DIR_D)\allegro.log
 	- del $(EXAMPLE_DIR_D)\*exe.manifest
 	- del $(EXAMPLE_DIR_D)\*.pdb
@@ -105,9 +106,9 @@ ifdef UNIX_TOOLS
 	- rm -rf $(COMPILER_INCLUDE_DIR_U)/allegrogl
 else
    define RM_UNINSTALL
-      $(foreach file, $(notdir $(HEADERS_D)), - del $(COMPILER_INCLUDE_DIR_D)\$(file)
+      $(foreach file, $(HEADERS_D), - del $(subst include,$(COMPILER_INCLUDE_DIR_D),$(file))
       )
-      $(foreach file, $(notdir $(EXT_HEADERS_D)), - del $(COMPILER_INCLUDE_DIR_D)\$(file)
+      $(foreach file, $(EXT_HEADERS_D), - del $(subst include,$(COMPILER_INCLUDE_DIR_D),$(file))
       )
    endef
 	- $(RM_UNINSTALL)

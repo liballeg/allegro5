@@ -88,7 +88,7 @@ else
 	LDLIBS += `$(ALLEGRO_CONFIG) --libs` $(LIBS)
 endif
 
-LDLIBS += $(addprefix -L, $(ALLEG_LIB_DIR))
+LDLIBS += -L$(ALLEG_LIB_DIR)
 
 ifdef MESABUILD
 	ifdef MESADIR
