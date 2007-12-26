@@ -1,6 +1,35 @@
 #!/usr/bin/env python
 import optparse, subprocess
 
+def fix_version_in_menu_txt(real_version, menu_txt):
+    try:
+        f = open(menu_txt)
+    except OsError:
+        return None
+    version = None
+    output = ""
+    for line in f:
+        if line.startswith("SubTitle: Version"):
+            version = line[17:].strip()
+            if version == real_version: return None
+            output += "SubTitle: Version %s\n" % real_version
+        else:
+            output += line
+    f.close()
+    if version:
+        f = open(menu_txt, "w")
+        f.write(output)
+        f.close()
+    return version
+
+def get_real_version():
+    for line in open("../../include/allegro5/base.h"):
+        if line.startswith("#define ALLEGRO_VERSION_STR"):
+            quote1 = line.find('"') + 1
+            quote2 = line.find('"', quote1)
+            return line[quote1:quote2]
+    return None
+
 def main():
     p = optparse.OptionParser()
     p.add_option("-u", "--user", help = "Username to use.")
@@ -14,6 +43,13 @@ def main():
         p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE,
             stderr = subprocess.STDOUT)
         print ">", p.stdout.read()
+    
+    version = get_real_version()
+    if version:
+        old_version = fix_version_in_menu_txt(version, "public/Menu.txt")
+        fix_version_in_menu_txt(version, "private/Menu.txt")
+        if old_version:
+            print "Fixed version from", old_version, "to", version
 
     print "Crating archives.."
     run("tar cjf private.tar.bz2 -C private html")
