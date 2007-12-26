@@ -1355,7 +1355,7 @@ void _soft_ellipsefill(BITMAP *bmp, int x, int y, int rx, int ry, int color)
  *  Helper function for the do_arc() function, converting from (radius, angle)
  *  to (x, y).
  */
-static INLINE void get_point_on_arc(int r, fixed a, int *out_x, int *out_y)
+static INLINE void get_point_on_arc(int r, fixed a, int *out_x, int *out_y, int *out_q)
 {
    double s, c;
    double double_a = a * (AL_PI * 2 / (1 << 24));
@@ -1365,6 +1365,19 @@ static INLINE void get_point_on_arc(int r, fixed a, int *out_x, int *out_y)
    c = c * r;
    *out_x = (int)((c < 0) ? (c - 0.5) : (c + 0.5));
    *out_y = (int)((s < 0) ? (s - 0.5) : (s + 0.5));
+
+   if (c >= 0) {
+      if (s <= 0)
+         *out_q = 0;  /* quadrant 0 */
+      else
+         *out_q = 3;  /* quadrant 3 */
+   }
+   else {
+      if (s <= 0)
+         *out_q = 1;  /* quadrant 1 */
+      else
+         *out_q = 2;  /* quadrant 2 */
+   }
 }
 
 
@@ -1401,43 +1414,16 @@ void do_arc(BITMAP *bmp, int x, int y, fixed ang1, fixed ang2, int r, int d, voi
 
    /* Calculate the start point and the end point. */
    /* We have to flip y because bitmaps count y coordinates downwards. */
-   get_point_on_arc(r, ang1, &sx, &sy);
+   get_point_on_arc(r, ang1, &sx, &sy, &q);
    px = sx;
    py = sy;
-   get_point_on_arc(r, ang2, &ex, &ey);
+   get_point_on_arc(r, ang2, &ex, &ey, &qe);
 
    rr = r*r;
    xx = px*px;
    yy = py*py - rr;
 
-   /* Find start quadrant. */
-   if (px >= 0) {
-      if (py <= 0)
-	 q = 0;                           /* quadrant 0 */
-      else
-	 q = 3;                           /* quadrant 3 */
-   }
-   else {
-      if (py < 0)
-	 q = 1;                           /* quadrant 1 */
-      else
-	 q = 2;                           /* quadrant 2 */
-   }
    sq = q;
-
-   /* Find end quadrant. */
-   if (ex >= 0) {
-      if (ey <= 0)
-	 qe = 0;                          /* quadrant 0 */
-      else
-	 qe = 3;                          /* quadrant 3 */
-   }
-   else {
-      if (ey < 0)
-	 qe = 1;                          /* quadrant 1 */
-      else
-	 qe = 2;                          /* quadrant 2 */
-   }
 
    if (q > qe) {
       /* qe must come after q. */

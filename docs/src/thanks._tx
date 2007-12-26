@@ -135,6 +135,9 @@ Contributors
    functions and Z-buffer polygon functions and merged in Calin Andrian's
    P3D library.
 
+   8L45T3R (<email>o8l45t3ro@users.sf.net</a>).<br>
+   Fixed a bug in arc() where small arcs would be drawn as circles.
+
    Bobby Ferris (<email>baf@bafsoft.com</a>).<br>
    Added the SciTE API output format to makedoc and temporarily hosted
    Allegro's SVN repository while SourceForge's SVN was in beta.
