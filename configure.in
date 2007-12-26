@@ -767,18 +767,17 @@ agl_config_opt="$agl_config_opt
   --pdfdir=$pdfdir
   --psdir=$psdir"
 
-if test "$allegro_with_allegrogl" = "yes"; then
+if test -n "$allegro_with_allegrogl"; then
   echo ""
   echo "Running AllegroGL configure script..."
   echo "./configure $agl_config_opt"
   if ( cd addons/allegrogl && ./configure $agl_config_opt ); then
-    _addons="AllegroGL, $_addons"
-    WITH_ALLEGRO_GL=yes
+    _addons="AllegroGL $_addons"
+    WITH_ALLEGRO_GL=1
   else
     echo ""
     echo "... AllegroGL configure script failed (AllegroGL disabled) ..."
     echo ""
-    WITH_ALLEGRO_GL=no
   fi
   echo ""
   echo "... Continuing with Allegro configure script ..."
@@ -790,7 +789,9 @@ fi
 AC_MSG_CHECKING(for AllegroGL support)
 AC_MSG_RESULT($allegro_with_allegrogl)
 
+
 test -z "$_addons" && _addons="none"
+
 
 #-----------------------------------------------------------------------------#
 

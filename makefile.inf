@@ -1,0 +1,71 @@
+#
+# A makefile which reads the information from the environment to set some
+# descriptive variables about the library and forms the library name.
+# To be used by the addons and by allegro itself.
+#
+
+ifdef DEBUGMODE
+
+# -------- build a debugging library --------
+VERSION = alld
+SHORT_VERSION = ald
+VERY_SHORT_VERSION = ad
+DESCRIPTION = debugging
+
+else
+ifdef PROFILEMODE
+
+# -------- build a profiling library --------
+VERSION = allp
+SHORT_VERSION = alp
+VERY_SHORT_VERSION = ap
+DESCRIPTION = profiling
+
+else
+
+# -------- build a release library --------
+VERSION = alleg
+SHORT_VERSION = all
+VERY_SHORT_VERSION = al
+DESCRIPTION = optimised
+
+endif
+endif
+
+ifdef STATICLINK
+DESCRIPTION += statically linked
+endif
+
+ifdef ALLEGRO_USE_C
+DESCRIPTION += "(no ASM)"
+endif
+
+ifdef STATICRUNTIME
+DESCRIPTION += "(static CRT)"
+endif
+
+# -------- build up library name --------
+
+ifdef STATICLINK
+   STATIC_SUFFIX = _s
+else
+   STATIC_SUFFIX =
+endif
+
+ifdef STATICRUNTIME
+   CRT_SUFFIX = _crt
+else
+   CRT_SUFFIX =
+endif
+
+ifdef ALLEGRO_USE_C
+   NO_ASM_SUFFIX = _c
+else
+   NO_ASM_SUFFIX =
+endif
+
+LIB_SUFFIX = $(STATIC_SUFFIX)$(CRT_SUFFIX)$(NO_ASM_SUFFIX)
+LIB_BASENAME = $(VERSION)$(LIB_SUFFIX)
+
+# used by addons where allegro-config is not available
+ALLEG_LIB_BASENAME = $(LIB_BASENAME)

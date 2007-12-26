@@ -9,6 +9,7 @@
 #        PROFILEMODE=1      selects a profiling build.
 #        WARNMODE=1         selects strict compiler warnings.
 #        STATICLINK=1       use static linking (MinGW32, MSVC, BeOS).
+#        STATICRUNTIME=1    link to a static C runtime library (/MT) (MSVC)
 #        TARGET_ARCH_COMPAT optimize for the given processor while preserving backwards
 #                           compatibility with older processors (GCC-based platforms).
 #        TARGET_ARCH_EXCL   optimize for the given processor; this will cause the library
@@ -47,37 +48,8 @@ include makefile.ver
 
 # -------- check environment to see what type of library to build --------
 
-ifdef DEBUGMODE
+include makefile.inf
 
-# -------- build a debugging library --------
-VERSION = alld
-SHORT_VERSION = ald
-VERY_SHORT_VERSION = ad
-DESCRIPTION = debugging
-
-else
-ifdef PROFILEMODE
-
-# -------- build a profiling library --------
-VERSION = allp
-SHORT_VERSION = alp
-VERY_SHORT_VERSION = ap
-DESCRIPTION = profiling
-
-else
-
-# -------- build a release library --------
-VERSION = alleg
-SHORT_VERSION = all
-VERY_SHORT_VERSION = al
-DESCRIPTION = optimised
-
-endif
-endif
-
-ifdef STATICLINK
-DESCRIPTION += statically linked
-endif
 
 
 # -------- list of what files we need to build --------

@@ -175,8 +175,7 @@ utod .../*.rh .../*.inl .../*.s .../*.txt .../*._tx makefile.*
 :addons
 cd addons\allegrogl\
 call fix.bat %1
-cd ..
-cd ..
+cd ..\..\
 
 echo Done!
 
