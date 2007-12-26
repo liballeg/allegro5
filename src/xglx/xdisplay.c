@@ -4,6 +4,7 @@
  */
 
 #include "xglx.h"
+#include "allegro5/internal/aintern_bitmap.h"
 
 static ALLEGRO_DISPLAY_INTERFACE *vt;
 
@@ -118,7 +119,10 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
    //FIXME
    //d->display.flags |= ALLEGRO_WINDOWED;
 
+   _al_push_new_bitmap_parameters();
+   al_set_new_bitmap_format(d->display.format);
    d->backbuffer = _al_xglx_create_bitmap(&d->display, w, h);
+   _al_pop_new_bitmap_parameters();
    ALLEGRO_BITMAP_XGLX *backbuffer = (void *)d->backbuffer;
    backbuffer->is_backbuffer = 1;
    /* Create a memory cache for the whole screen. */
