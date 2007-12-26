@@ -47,20 +47,23 @@ echo.
 
 :msvc6
 set MAKE_COMPILER=MSVC6
-set MAKEFILE=makefile.vc
 echo COMPILER_MSVC6 = 1 >> makefile
-goto fix
+goto :msvccommon
 
 :msvc7
 set MAKE_COMPILER=MSVC7
-set MAKEFILE=makefile.vc
 echo COMPILER_MSVC7 = 1 >> makefile
-goto fix
+goto :msvccommon
 
 :msvc8
 set MAKE_COMPILER=MSVC8
-set MAKEFILE=makefile.vc
 echo COMPILER_MSVC8 = 1 >> makefile
+goto :msvccommon
+
+:msvccommon
+set MAKEFILE=makefile.vc
+echo include ../../makefile.helper >> makefile
+goto fix
 
 :fix
 
