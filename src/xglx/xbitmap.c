@@ -225,7 +225,8 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
         if (xbitmap->is_backbuffer) {
             glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
             glReadPixels(x, bitmap->h - y - h, w, h,
-                GL_RGBA, GL_UNSIGNED_BYTE,
+                glformats[bitmap->format][2],
+		glformats[bitmap->format][1],
                 bitmap->memory + pitch * y + pixelsize * x);
             if (glGetError())
                TRACE("xbitmap: glReadPixels for format %d failed.\n",
