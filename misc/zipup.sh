@@ -172,6 +172,11 @@ done
 rm _makedoc.exe
 
 
+# generate docs for AllegroGL addon
+echo "Generating AllegroGL docs..."
+(cd addons/allegrogl/docs; doxygen >/dev/null)
+
+
 # create language.dat and keyboard.dat files
 misc/mkdata.sh || exit 1
 
