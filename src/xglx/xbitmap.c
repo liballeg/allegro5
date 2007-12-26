@@ -224,7 +224,7 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
     if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
         if (xbitmap->is_backbuffer) {
             glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
-            glReadPixels(0, bitmap->h - y - h, w, h,
+            glReadPixels(x, bitmap->h - y - h, w, h,
                 GL_RGBA, GL_UNSIGNED_BYTE,
                 bitmap->memory + pitch * y + pixelsize * x);
             if (glGetError())
@@ -267,8 +267,8 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
       //FIXME: ugh. isn't there a better way?
       upside_down(bitmap, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
 
-      glRasterPos2i(0, bitmap->lock_y + bitmap->lock_h);
-      glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
+      glRasterPos2i(bitmap->lock_x, bitmap->lock_y + bitmap->lock_h);
+      glPixelStorei(GL_UNPACK_ROW_LENGTH, bitmap->w);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
          glformats[bitmap->format][2],
          glformats[bitmap->format][1],

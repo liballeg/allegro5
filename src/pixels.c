@@ -288,7 +288,7 @@ static ALLEGRO_COLOR *_map_rgba_abgr_8888(ALLEGRO_COLOR *p,
 static ALLEGRO_COLOR *_map_rgba_xbgr_8888(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
-   p->raw[0] = 0;
+   p->raw[0] = 255;
    p->raw[1] = b;
    p->raw[2] = g;
    p->raw[3] = r;
@@ -331,14 +331,14 @@ static ALLEGRO_COLOR *_map_rgba_rgbx_8888(ALLEGRO_COLOR *p,
    p->raw[0] = r;
    p->raw[1] = g;
    p->raw[2] = b;
-   p->raw[3] = 0;
+   p->raw[3] = 255;
    return p;
 }
 
 static ALLEGRO_COLOR *_map_rgba_xrgb_8888(ALLEGRO_COLOR *p,
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
-   p->raw[0] = 0;
+   p->raw[0] = 255;
    p->raw[1] = r;
    p->raw[2] = g;
    p->raw[3] = b;
@@ -543,7 +543,7 @@ static ALLEGRO_COLOR *_map_rgba_f_abgr_8888(ALLEGRO_COLOR *p,
 static ALLEGRO_COLOR *_map_rgba_f_xbgr_8888(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
-   p->raw[0] = (uint64_t)(0);
+   p->raw[0] = (uint64_t)(0xFF);
    p->raw[1] = (uint64_t)(b * 0xFF);
    p->raw[2] = (uint64_t)(g * 0xFF);
    p->raw[3] = (uint64_t)(r * 0xFF);
@@ -586,14 +586,14 @@ static ALLEGRO_COLOR *_map_rgba_f_rgbx_8888(ALLEGRO_COLOR *p,
    p->raw[0] = (uint64_t)(r * 0xFF);
    p->raw[1] = (uint64_t)(g * 0xFF);
    p->raw[2] = (uint64_t)(b * 0xFF);
-   p->raw[3] = (uint64_t)(0);
+   p->raw[3] = (uint64_t)(0xFF);
    return p;
 }
 
 static ALLEGRO_COLOR *_map_rgba_f_xrgb_8888(ALLEGRO_COLOR *p,
    float r, float g, float b, float a)
 {
-   p->raw[0] = 0;
+   p->raw[0] = 0xFF;
    p->raw[1] = (uint64_t)(r * 0xFF);
    p->raw[2] = (uint64_t)(g * 0xFF);
    p->raw[3] = (uint64_t)(b * 0xFF);
@@ -801,7 +801,7 @@ static ALLEGRO_COLOR *_map_rgba_i_abgr_8888(ALLEGRO_COLOR *p,
 static ALLEGRO_COLOR *_map_rgba_i_xbgr_8888(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
-   p->raw[0] = 0;
+   p->raw[0] = INT_MAX;
    p->raw[1] = b >> int_to_8_bit_shift;
    p->raw[2] = g >> int_to_8_bit_shift;
    p->raw[3] = r >> int_to_8_bit_shift;
@@ -844,14 +844,14 @@ static ALLEGRO_COLOR *_map_rgba_i_rgbx_8888(ALLEGRO_COLOR *p,
    p->raw[0] = r >> int_to_8_bit_shift;
    p->raw[1] = g >> int_to_8_bit_shift;
    p->raw[2] = b >> int_to_8_bit_shift;
-   p->raw[3] = 0;
+   p->raw[3] = INT_MAX;
    return p;
 }
 
 static ALLEGRO_COLOR *_map_rgba_i_xrgb_8888(ALLEGRO_COLOR *p,
    int r, int g, int b, int a)
 {
-   p->raw[0] = 0;
+   p->raw[0] = INT_MAX;
    p->raw[1] = r >> int_to_8_bit_shift;
    p->raw[2] = g >> int_to_8_bit_shift;
    p->raw[3] = b >> int_to_8_bit_shift;
