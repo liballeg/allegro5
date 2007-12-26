@@ -25,6 +25,8 @@ all: examples lib
 #-- Set up names and dependencies -#
 
 
+include ../../makefile.inf
+
 SRC_DIR = src
 LIB_DIR = lib/$(COMPILER)
 ALLEG_LIB_DIR = ../../lib/$(COMPILER)
@@ -34,43 +36,17 @@ INCLUDE_DIR = include include/allegrogl include/allegrogl/GLext ../../include
 # Release mode is default
 OBJ_DIR_BASE = obj/$(COMPILER)/release
 LIB_NAME_BASE = agl
-LINK_LIB_BASE = alleg
 
 ifdef DEBUGMODE
   OBJ_DIR_BASE = obj/$(COMPILER)/debug
   LIB_NAME_BASE = agld
-  LINK_LIB_BASE = alld
 endif
 
 ifdef PROFILEMODE
 # Profiling build of AllegroGL is currnetly not supported
 # OBJ_DIR_BASE = obj/$(COMPILER)/profile
 #  LIB_NAME_BASE = aglp
-  LINK_LIB_BASE = allp
 endif
 
-ifdef STATICLINK
-  STATICALLEGRO=1
-  STATIC_SUFFIX = _s
-else
-  STATIC_SUFFIX =
-endif
-
-ifdef STATICRUNTIME
-  CRT_SUFFIX = _crt
-else
-  CRT_SUFFIX =
-endif
-
-ifdef ALLEGRO_USE_C
-  NO_ASM_SUFFIX = _c
-else
-  NO_ASM_SUFFIX =
-endif
-
-SUFFIX = $(addsuffix $(NO_ASM_SUFFIX), $(addsuffix $(CRT_SUFFIX), $(STATIC_SUFFIX)))
-
-OBJ_DIR = $(addsuffix $(SUFFIX), $(OBJ_DIR_BASE))
-LIB_NAME = $(addsuffix $(SUFFIX), $(LIB_NAME_BASE))
-LINK_LIB = $(addsuffix $(SUFFIX), $(LINK_LIB_BASE))
-
+OBJ_DIR = $(OBJ_DIR_BASE)$(LIB_SUFFIX)
+LIB_NAME = $(LIB_NAME_BASE)$(LIB_SUFFIX)

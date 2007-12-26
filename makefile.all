@@ -219,11 +219,7 @@ ifndef ADDONS_LIST
    ADDONS_LIST = "none"
 endif
 
-
-addons:
-ifdef ADDON_LIB_TARGETS
-	$(MAKE)	$(ADDON_LIB_TARGETS)
-endif
+addons: $(ADDON_LIB_TARGETS)
 
 
 # -------- rules for deleting the generated files --------

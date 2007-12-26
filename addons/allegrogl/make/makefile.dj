@@ -53,7 +53,7 @@ SOURCE = $(C_SOURCE) $(DOS_SOURCE)
 OBJECTS = $(addprefix $(OBJ_DIR_U)/, $(addsuffix .o, $(basename $(notdir $(SOURCE)))))
 EXAMPLES = $(addsuffix .exe, $(basename $(addprefix $(EXAMPLE_DIR)/, $(EXAMP_SOURCE))))
 
-DJ_LINK_LIB = $(addprefix -l, $(LINK_LIB)) $(GLU_LIB) $(GL_LIB)
+DJ_LINK_LIB = -L$(ALLEG_LIB_DIR_U) -l$(ALLEG_LIB_BASENAME) $(GLU_LIB) $(GL_LIB)
 
 
 CFLAGS = -DALLEGROGL_GENERIC_DRIVER $(FLAGS)
