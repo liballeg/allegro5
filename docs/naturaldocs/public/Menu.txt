@@ -1,9 +1,8 @@
 Format: 1.35
 
 
-# You can add a title and sub-title to your menu like this:
-# Title: [project name]
-# SubTitle: [subtitle]
+Title: Allegro
+SubTitle: Version 4.9.2 (SVN)
 
 # You can add a footer to your documentation like this:
 # Footer: [text]
