@@ -126,12 +126,15 @@ def demo(env,appendDir,buildDir,libDir):
 
 def examples(env,appendDir,buildDir,libDir):
     examples = []
-    env.BuildDir(buildDir + 'examples', 'examples', duplicate = 0)
+    exEnv = env.Copy()
+    exEnv.Append( CPPPATH = 'addons/font' )
+    exEnv.BuildDir(buildDir + 'examples', 'examples', duplicate = 0)
+    exEnv.Append(LIBS = ['a5_font'])
     ## Add an example
     ## name - filename of example and also the alias of the target
     ## files - list of files associated with the example
     def addExample(name, files):
-        example = env.Program('examples/' + name, appendDir(buildDir + '/examples/', files))
+        example = exEnv.Program('examples/' + name, appendDir(buildDir + '/examples/', files))
         Alias(name, example)
         examples.append(example)
     
@@ -195,6 +198,7 @@ def examples(env,appendDir,buildDir,libDir):
     addExample('exnew_mouse', [ 'exnew_mouse.c' ])
     addExample('exnew_mouse_events', [ 'exnew_mouse_events.c' ])
     addExample('exnew_icon', [ 'exnew_icon.c' ])
+    addExample('exnew_membmp', ['exnew_membmp.c'])
 
     Alias('examples', examples)
     return examples
