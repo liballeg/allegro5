@@ -8,14 +8,12 @@
     _current_palette DATA
     _default_ds
     _digi_driver_list DATA
-    _get_allegro_version
     _getpixel
     _getpixel15
     _getpixel16
     _getpixel24
     _getpixel32
     _gfx_driver_list DATA
-    _install_allegro
     _joystick_driver_list DATA
     _keyboard_driver_list DATA
     _midi_driver_list DATA
