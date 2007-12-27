@@ -116,7 +116,7 @@ else
 	- del $(COMPILER_LIB_DIR_D)\$(notdir $(LIB_PATH_U))
 endif
 	@echo -
-	@echo AllegroGL is uninstalled.
+	@echo AllegroGL is now uninstalled.
 
 $(EXT_HEADERS_PATH_U)/gl_ext_alias.h: $(EXT_HEADERS_PATH_U)/gl_ext_api.h
 ifdef UNIX_TOOLS

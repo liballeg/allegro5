@@ -1,0 +1,66 @@
+## Aux -*- Makefile -*- for MinGW
+
+prefix := $(MINGDIR)
+libdir := $(MINGDIR)/lib
+includedir := $(MINGDIR)/include
+
+EXE := .exe
+EXAMPLECFLAGS := -Wl,--subsystem,windows -I../../includ
+EXAMPLELIBS := -lpng -lz -l$(ALLEG_LIB_BASENAME) -L../../lib/mingw32
+
+ifeq ($(TERM), cygwin)
+  UNIX_TOOLS=1
+else
+  ifeq ($(findstring /sh.exe, $(SHELL)), /sh.exe) 
+    UNIX_TOOLS=1
+  endif
+endif
+
+ifdef UNIX_TOOLS
+  RMFILE := rm -f
+  COPY := cp
+  RS := /   # right slash
+  WS := \\  # wrong slash
+else
+  RMFILE := del
+  COPY := copy /Y
+  RS := \\
+  WS := /
+endif
+
+#--------------------------------------------------
+# TODO: DLL generation, although I wouldn't really recommend it
+
+#--------------------------------------------------
+.PHONY: install
+
+install: $(LIB)
+	$(COPY) loadpng.h $(subst $(WS),$(RS),$(includedir))
+	$(COPY) $(LIB) $(subst $(WS),$(RS),$(libdir))
+	@echo -
+	@echo LoadPNG is now installed.
+
+
+#--------------------------------------------------
+.PHONY: uninstall
+
+uninstall:
+	- $(RMFILE) $(subst $(WS),$(RS),$(includedir)/)loadpng.h
+	- $(RMFILE) $(subst $(WS),$(RS),$(libdir)/)$(LIB)
+	@echo -
+	@echo LoadPNG is now uninstalled.
+
+#--------------------------------------------------
+.PHONY: clean veryclean
+
+clean:
+	- $(RMFILE) loadpng.o savepng.o regpng.o $(LIB) $(SHAREDLIB)
+
+veryclean: clean
+	- $(RMFILE) $(subst $(WS),$(RS),$(EXAMPLES)) $(subst $(WS),$(RS),examples\saved.png)
+
+#--------------------------------------------------
+# Hmm, my copy of mingw make seems to be particularly stupid tonight
+
+loadpng.o: loadpng.c
+	$(CC) $(CFLAGS) -o $@ -c $^

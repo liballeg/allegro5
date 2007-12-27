@@ -94,6 +94,7 @@ ALLEGRO_LIB_TARGETS = @ALLEGRO_LIB_TARGETS@
 ALLEGRO_MODULE_TARGETS = @ALLEGRO_MODULE_TARGETS@
 
 WITH_ALLEGRO_GL = @WITH_ALLEGRO_GL@
+WITH_LOADPNG = @WITH_LOADPNG@
 
 PLUGIN_LIB = @PLUGIN_LIB@
 obj_unix_plugins_h = $(OBJDIR)/plugins.h
@@ -125,6 +126,10 @@ $(srcdir)/stamp-h.in: $(srcdir)/$(CONFIGURE_IN) $(srcdir)/$(ACLOCAL_M4)
 
 ifdef WITH_ALLEGRO_GL
    include addons/allegrogl/make/makefile.add
+endif
+
+ifdef WITH_LOADPNG
+   include addons/loadpng/Makefile.add
 endif
 
 ifndef ADDONS_LIST

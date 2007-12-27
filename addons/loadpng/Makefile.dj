@@ -1,0 +1,37 @@
+## Aux -*- Makefile -*- for djgpp
+
+prefix := $(DJDIR)
+libdir := $(prefix)/lib
+includedir := $(prefix)/include
+
+EXE := .exe
+EXAMPLECFLAGS := -I../../include
+EXAMPLELIBS := -lpng -lz -l$(ALLEG_LIB_BASENAME) -L../../lib/djgpp
+
+
+#--------------------------------------------------
+.PHONY: install
+
+install: $(LIB)
+	copy /Y loadpng.h $(subst /,\,$(includedir))
+	copy /Y $(LIB) $(subst /,\,$(libdir))
+	@echo -
+	@echo LoadPNG is now installed.
+
+#--------------------------------------------------
+.PHONY: uninstall
+
+uninstall:
+	- del $(subst /,\,$(includedir)/)loadpng.h
+	- del $(subst /,\,$(libdir)/)$(LIB)
+	@echo -
+	@echo LoadPNG is now uninstalled.
+
+#--------------------------------------------------
+.PHONY: clean veryclean
+
+clean:
+	- del loadpng.o savepng.o regpng.o $(LIB) $(SHAREDLIB)
+
+veryclean: clean
+	- del $(subst /,\,$(EXAMPLES)) examples\saved.png

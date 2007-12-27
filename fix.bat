@@ -177,6 +177,10 @@ cd addons\allegrogl\
 call fix.bat %1
 cd ..\..\
 
+cd addons\loadpng\
+call fix.bat %1
+cd ..\..\
+
 echo Done!
 
 :end

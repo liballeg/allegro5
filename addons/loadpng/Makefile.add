@@ -1,0 +1,30 @@
+# makefile that is included into allegro's main makefile
+#
+
+ADDONS_LIST += LoadPNG
+ADDON_INSTALL_TARGETS += loadpng_install
+ADDON_UNINSTALL_TARGETS += loadpng_uninstall
+ADDON_CLEAN_TARGETS += loadpng_clean
+ADDON_DISTCLEAN_TARGETS += loadpng_veryclean
+ADDON_VERYCLEAN_TARGETS += loadpng_veryclean
+ADDON_LIB_TARGETS += loadpng_lib
+ADDON_EXE_TARGETS += loadpng_programs
+
+loadpng_lib:
+	$(MAKE) -C addons/loadpng/ lib
+
+loadpng_install:
+	$(MAKE) -C addons/loadpng/ install
+
+loadpng_clean:
+	$(MAKE) -C addons/loadpng/ clean
+
+loadpng_veryclean:
+	$(MAKE) -C addons/loadpng/ veryclean
+
+loadpng_uninstall:
+	$(MAKE) -C addons/loadpng/ uninstall
+
+loadpng_programs:
+	 $(MAKE) -C addons/loadpng/ examples
+

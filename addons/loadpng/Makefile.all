@@ -1,0 +1,46 @@
+## Toplevel Makefile
+
+CC := gcc
+CFLAGS := -W -Wall -O3 -I. -I../../include
+
+VERSION := 1.5
+# (note to self: remember to edit loadpng.h as well)
+
+LIB := libldpng.a
+
+all: lib examples
+
+include ../../makefile.inf
+include $(MAKEFILE_INC)
+
+#--------------------------------------------------
+.PHONY: lib msg
+
+lib: msg $(LIB)
+
+msg:
+	@echo -
+	@echo Compiling LoadPNG library...
+
+$(LIB): loadpng.o savepng.o regpng.o
+	ar rs $@ $^
+
+#--------------------------------------------------
+.PHONY: examples
+
+EXAMPLES := examples/example$(EXE) examples/exalpha$(EXE) \
+		examples/exdata$(EXE) examples/browse$(EXE)
+
+examples: $(EXAMPLES)
+
+examples/example$(EXE): examples/example.c $(LIB)
+	$(CC) $(CFLAGS) $(EXAMPLECFLAGS) -o $@ $^ $(LIB) $(EXAMPLELIBS)
+
+examples/exalpha$(EXE): examples/exalpha.c $(LIB)
+	$(CC) $(CFLAGS) $(EXAMPLECFLAGS) -o $@ $^ $(LIB) $(EXAMPLELIBS)
+
+examples/exdata$(EXE): examples/exdata.c $(LIB)
+	$(CC) $(CFLAGS) $(EXAMPLECFLAGS) -o $@ $^ $(LIB) $(EXAMPLELIBS)
+
+examples/browse$(EXE): examples/browse.c $(LIB)
+	$(CC) $(CFLAGS) $(EXAMPLECFLAGS) -o $@ $^ $(LIB) $(EXAMPLELIBS)
