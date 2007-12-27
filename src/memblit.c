@@ -47,6 +47,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    unsigned char r, g, b, a;
    int src_mode, dst_mode;
    ALLEGRO_INDEPENDANT_COLOR *ic;
+   bool unlock_dest = false;
 
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
@@ -89,9 +90,13 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region, ALLEGRO_LOCK_READONLY)) {
       return;
    }
-   if (!al_lock_bitmap_region(dest, dx, dy, sw, sh, &dst_region, 0)) {
-      al_unlock_bitmap(bitmap);
-      return;
+
+   if (!al_is_bitmap_locked(dest)) {
+      if (!al_lock_bitmap_region(dest, dx, dy, sw, sh, &dst_region, 0)) {
+         al_unlock_bitmap(bitmap);
+         return;
+      }
+      unlock_dest = true;
    }
 
    for (y = 0; y < sh; y++) {
@@ -103,7 +108,8 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    }
 
    al_unlock_bitmap(bitmap);
-   al_unlock_bitmap(dest);
+   if (unlock_dest)
+      al_unlock_bitmap(dest);
 }
 
 

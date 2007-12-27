@@ -561,6 +561,7 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_LOCKED_REGION src_region;
    ALLEGRO_LOCKED_REGION dst_region;
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
+   bool unlock_dest = false;
 
    ASSERT(_al_pixel_format_is_real(bitmap->format));
    ASSERT(_al_pixel_format_is_real(dest->format));
@@ -592,9 +593,25 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region, ALLEGRO_LOCK_READONLY)) {
       return;
    }
-   if (!al_lock_bitmap_region(dest, dx, dy, sw, sh, &dst_region, 0)) {
-      al_unlock_bitmap(bitmap);
-      return;
+
+   if (al_is_bitmap_locked(dest)) {
+      if (dx < dest->lock_x || dy < dest->lock_y ||
+         (dx+sw) > (dest->lock_x+dest->lock_w) ||
+	 (dy+sh) > (dest->lock_y+dest->lock_h)) {
+	      return;
+      }
+      dst_region.data = dest->locked_region.data +
+         ((dy-dest->lock_y)*dest->locked_region.pitch) +
+	 ((dx-dest->lock_x)*al_get_pixel_size(dest->format));
+      dst_region.format = dest->format;
+      dst_region.pitch = dest->locked_region.pitch;
+   }
+   else {
+      if (!al_lock_bitmap_region(dest, dx, dy, sw, sh, &dst_region, 0)) {
+         al_unlock_bitmap(bitmap);
+         return;
+      }
+      unlock_dest = true;
    }
 
    (*_draw_region_funcs[bitmap->format][dest->format])(
@@ -605,7 +622,8 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
       flags);
 
    al_unlock_bitmap(bitmap);
-   al_unlock_bitmap(dest);
+   if (unlock_dest)
+      al_unlock_bitmap(dest);
 }
 
 void _al_draw_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,

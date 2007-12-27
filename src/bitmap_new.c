@@ -716,4 +716,14 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
    return clone;
 }
 
+
+/* Function: al_bitmap_is_locked
+ *
+ * Returns whether or not a bitmap is already locked.
+ */
+bool al_is_bitmap_locked(ALLEGRO_BITMAP *bitmap)
+{
+   return bitmap->locked;
+}
+
 /* vim: set ts=8 sts=3 sw=3 et: */
