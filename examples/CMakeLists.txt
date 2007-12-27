@@ -62,6 +62,11 @@ example(exupdate)
 example(exxfade)
 example(exzbuf)
 
+if(WANT_FONT)
+    include_directories(../addons/font)
+    add_font_example(exnew_membmp exnew_membmp.c)
+endif(WANT_FONT)
+
 if(WANT_D3D)
     if (USE_CXX)
         if(HAVE_D3DX9)

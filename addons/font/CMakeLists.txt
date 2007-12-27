@@ -61,8 +61,7 @@ else(STATIC)
     set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
 endif(STATIC)
 
-
-macro(add_example nm)
+macro(add_font_example nm)
     add_executable(${nm} ${ARGN})
     set_target_properties(${nm} PROPERTIES
         COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
@@ -70,10 +69,9 @@ macro(add_example nm)
         )
     target_link_libraries(${nm} ${LINK_WITH})
     target_link_libraries(${nm} ${FONT_LINK_WITH})
-endmacro(add_example)
+endmacro(add_font_example)
 
-
-add_example(ex ex.c)
+add_font_example(ex ex.c)
 
 #-----------------------------------------------------------------------------#
 #
