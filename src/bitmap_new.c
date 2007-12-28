@@ -204,10 +204,10 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    // FIXME: should not use the 4.2 function here of course
    PALETTE pal;
    BITMAP *file_data = load_bitmap(filename, pal);
-   select_palette(pal);
    if (!file_data) {
       return NULL;
    }
+   select_palette(pal);
 
    if (flags & ALLEGRO_KEEP_BITMAP_FORMAT) {
       _al_push_new_bitmap_parameters();
@@ -246,7 +246,7 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
 ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 {
    ALLEGRO_BITMAP *bitmap;
-  
+
    bitmap = _al_load_memory_bitmap(filename);
 
    /* If it's a display bitmap */
