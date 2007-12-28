@@ -68,8 +68,8 @@ static void test(ALLEGRO_BITMAP *bitmap, char *message)
 
 		frames++;
 		long now = al_current_time();
-		long seconds = (now - start_time) / 1000;
-		fps = seconds > 0 ? frames / seconds : 0;
+		long mseconds = now - start_time;
+		fps = mseconds > 10 ? 1000 * frames / mseconds : 0;
 	}
 }
 
