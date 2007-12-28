@@ -297,10 +297,14 @@ static_obj.add_action( '.s', AssemblerAction )
 static_obj.add_emitter( '.s', SCons.Defaults.StaticObjectEmitter )
 SourceFileScanner.add_scanner('.s', SCons.Scanner.C.CScanner() )
 
-# "-O2"
-flags = ["-g", "-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
+flags = ["-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
 includes = ["include", "include/allegro5", "."]
 defines = ["ALLEGRO_LIB_BUILD", "ALLEGRO_SRC"]
+
+if context.getDebug():
+    flags += ["-g"]
+else:
+    flags += ["-O2"]
 
 env.Append(CCFLAGS = flags)
 env.Append(CPPDEFINES = defines)
