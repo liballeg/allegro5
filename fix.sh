@@ -172,7 +172,7 @@ if ! ( cd addons/allegrogl && ./fix.sh $1 $2); then
    echo "Error occured while executing AllegroGL's fix.sh!"
 fi
 if ! ( cd addons/loadpng && ./fix.sh $1 $2); then
-   echo "Error occured while executing LoadPNG's fix.sh!"
+   echo "Error occured while executing loadpng's fix.sh!"
 fi
 
 echo "Done!"

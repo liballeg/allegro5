@@ -21,7 +21,7 @@
 #
 #     Addons:
 #        WITH_ALLEGRO_GL=1  Enable building of AllegroGL addon.
-#        WITH_LOADPNG=1     Enable building of LoadPNG addon.
+#        WITH_LOADPNG=1     Enable building of loadpng addon.
 #
 #     Targets: 
 #        default:           build library version, docs, and programs.

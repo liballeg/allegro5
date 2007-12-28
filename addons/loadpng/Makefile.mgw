@@ -38,7 +38,7 @@ install: $(LIB)
 	$(COPY) loadpng.h $(subst $(WS),$(RS),$(includedir))
 	$(COPY) $(LIB) $(subst $(WS),$(RS),$(libdir))
 	@echo -
-	@echo LoadPNG is now installed.
+	@echo loadpng is now installed.
 
 
 #--------------------------------------------------
@@ -48,7 +48,7 @@ uninstall:
 	- $(RMFILE) $(subst $(WS),$(RS),$(includedir)/)loadpng.h
 	- $(RMFILE) $(subst $(WS),$(RS),$(libdir)/)$(LIB)
 	@echo -
-	@echo LoadPNG is now uninstalled.
+	@echo loadpng is now uninstalled.
 
 #--------------------------------------------------
 .PHONY: clean veryclean

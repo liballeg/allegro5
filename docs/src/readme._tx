@@ -113,7 +113,7 @@ Included Addons
 
 <textblock>
    AllegroGL       - see docs in addons/allegrogl/docs/html.
-   LoadPNG         - see docs in addons/loadpng/README
+   loadpng         - see docs in addons/loadpng/README
 <endblock>
 
 

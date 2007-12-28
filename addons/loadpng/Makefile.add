@@ -1,7 +1,7 @@
 # makefile that is included into allegro's main makefile
 #
 
-ADDONS_LIST += LoadPNG
+ADDONS_LIST += loadpng
 ADDON_INSTALL_TARGETS += loadpng_install
 ADDON_UNINSTALL_TARGETS += loadpng_uninstall
 ADDON_CLEAN_TARGETS += loadpng_clean

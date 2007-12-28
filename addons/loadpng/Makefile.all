@@ -20,7 +20,7 @@ lib: msg $(LIB)
 
 msg:
 	@echo -
-	@echo Compiling LoadPNG library...
+	@echo Compiling loadpng library...
 
 $(LIB): loadpng.o savepng.o regpng.o
 	ar rs $@ $^

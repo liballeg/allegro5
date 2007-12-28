@@ -16,7 +16,7 @@ install: $(LIB)
 	copy /Y loadpng.h $(subst /,\,$(includedir))
 	copy /Y $(LIB) $(subst /,\,$(libdir))
 	@echo -
-	@echo LoadPNG is now installed.
+	@echo loadpng is now installed.
 
 #--------------------------------------------------
 .PHONY: uninstall
@@ -25,7 +25,7 @@ uninstall:
 	- del $(subst /,\,$(includedir)/)loadpng.h
 	- del $(subst /,\,$(libdir)/)$(LIB)
 	@echo -
-	@echo LoadPNG is now uninstalled.
+	@echo loadpng is now uninstalled.
 
 #--------------------------------------------------
 .PHONY: clean veryclean

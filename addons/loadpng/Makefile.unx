@@ -28,7 +28,7 @@ install: $(LIB) install-headers
 	install -d -m 755 $(DESTDIR)$(libdir)
 	install -m 644 $(LIB) $(DESTDIR)$(libdir)
 	@echo -
-	@echo LoadPNG is now installed.
+	@echo loadpng is now installed.
 
 install-shared: $(SHAREDLIB) install-headers
 	install -d -m 755 $(DESTDIR)$(libdir)
@@ -45,7 +45,7 @@ uninstall:
 	- rm -f $(includedir)/loadpng.h
 	- rm -f $(libdir)/$(LIB)
 	@echo -
-	@echo LoadPNG is now uninstalled.
+	@echo loadpng is now uninstalled.
 
 #--------------------------------------------------
 .PHONY: clean veryclean
