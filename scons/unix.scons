@@ -467,21 +467,9 @@ def allegroConfig(env,appendDir,buildDir,libDir):
     # Return an instance of the builder, passing destination and source file.
     return env.ConfigMaker( 'allegro-config', '#misc/allegro-config.in' )
 
-def writeModulesList(env,appendDir,buildDir,libDir):
-    def write(target,source,env):
-        file = open(target[0].path, 'w') 
-        file.write('# List of modules to be loaded by the Unix version of Allegro.\n\n')
-        ## convert 'lib/unix/whatever.so' to just 'whatever.so'
-        def truncate(name):
-            import re
-            return re.sub('.*/', '', name)
-        for i in source:
-            file.write(truncate(str(i)) + '\n')
-        file.close
-    file = env.Command('modules.lst',getModules(),write)
-    return file
-
-context.addExtra(writeModulesList)
+# Is modules.lst supposed to be modified? I think not..
+# (otherwise this SVN revision can be undone)
+# context.addExtra(writeModulesList)
 
 def install(library):
     env = context.getLibraryEnv()
