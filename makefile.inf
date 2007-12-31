@@ -59,7 +59,7 @@ else
 endif
 
 ifdef ALLEGRO_USE_C
-   NO_ASM_SUFFIX = _c
+   NO_ASM_SUFFIX =
 else
    NO_ASM_SUFFIX =
 endif

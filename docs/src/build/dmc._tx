@@ -25,8 +25,7 @@ DMC notes
 
    Status: complete.
    
-   Caveats: The DMC port does not support assembly, so ALLEGRO_USE_C must be
-   set when compiling. The DMC runtime library does not support unicode paths.
+   Caveats: The DMC runtime library does not support unicode paths.
       
    DMC is the only Windows compiler that can build a static library that can
    be used with DAllegro.
@@ -76,10 +75,10 @@ Building Allegro
    cd\allegro   
    fix dmc   
    gmake obj\dmc\plugins.h
-   gmake all ALLEGRO_USE_C=1 STATICLINK=1
-   gmake installall ALLEGRO_USE_C=1 STATICLINK=1
-   gmake all ALLEGRO_USE_C=1
-   gmake installall ALLEGRO_USE_C=1
+   gmake all STATICLINK=1
+   gmake installall STATICLINK=1
+   gmake all
+   gmake installall
 <endblock>
    
 @hnode Advanced Build Options
@@ -92,8 +91,8 @@ Building Allegro
    from the command line. For example:
 
 <textblock>
-   gmake ALLEGRO_USE_C=1
-   gmake install ALLEGRO_USE_C=1
+   gmake
+   gmake install
 <endblock>
 
    builds and installs the optimized, dynamic Allegro library along with all of
@@ -101,26 +100,23 @@ Building Allegro
    install the debug and profiling versions:
 
 <textblock>
-   gmake ALLEGRO_USE_C=1 DEBUGMODE=1
-   gmake install ALLEGRO_USE_C=1 DEBUGMODE=1
-   gmake ALLEGRO_USE_C=1 PROFILEMODE=1
-   gmake install ALLEGRO_USE_C=1 PROFILEMODE=1
+   gmake DEBUGMODE=1
+   gmake install DEBUGMODE=1
+   gmake PROFILEMODE=1
+   gmake install PROFILEMODE=1
 <endblock>
 
    If you only want to build the library (without the extra stuff), specifically
    request to make the lib target:
 
 <textblock>
-   gmake lib ALLEGRO_USE_C=1
+   gmake lib
 <endblock>
 
    That would only build the optimized, dynamic Allegro library. Other targets
    besides lib exist; refer to Makefile.all and Makefile.dmc for more
    information. All of the options can be mixed and matched where it makes
    sense.
-
-   Note that DMC can only build the C version of Allegro (as opposed to using
-   some assembly), so the ALLEGRO_USE_C=1 option is mandatory. 
 
 
 

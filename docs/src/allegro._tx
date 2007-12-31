@@ -14954,11 +14954,6 @@ platforms you can set the following environment variables:
    CROSSCOMPILE=1 (DJGPP, MinGW only)<br>
    Allows you to build the library under Linux by using a cross-compiler.
 <li>
-   ALLEGRO_USE_C=1 (GCC-based platforms only)<br>
-   Allows you to build the library using C drawing code instead of the usual
-   asm routines. This is only really useful for testing, since the asm
-   version is faster.
-<li>
    UNIX_TOOLS=1<br>
    Instructs the build process to use Unix-like tools instead of DOS tools.
    Note that you usually don't need to set it because the build process will
