@@ -114,6 +114,7 @@ Included Addons
 <textblock>
    AllegroGL       - see docs in addons/allegrogl/docs/html.
    loadpng         - see docs in addons/loadpng/README
+   logg            - see the examples in addons/logg/examples
 <endblock>
 
 

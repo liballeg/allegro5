@@ -322,6 +322,7 @@ AC_SUBST(LIB_TO_LINK)
 AC_SUBST(LINK_WITH_STATIC_LIBS)
 AC_SUBST(WITH_ALLEGRO_GL)
 AC_SUBST(WITH_LOADPNG)
+AC_SUBST(WITH_LOGG)
 
 dnl Which libraries to build (static, shared, normal, debugging, profiling)?
 ALLEGRO_LIB_TARGETS=
@@ -789,7 +790,7 @@ AC_MSG_RESULT($allegro_with_allegrogl)
 
 dnl With loadpng addon
 AC_ARG_ENABLE(loadpng,
-[  --enable-loadpng[=x]  build loadpng addon library [default=yes]],
+[  --enable-loadpng[=x]    build loadpng addon library [default=yes]],
 test "X$enableval" != "Xno" && allegro_with_loadpng=yes,
 allegro_with_loadpng=yes)
 
@@ -812,6 +813,40 @@ fi
 
 AC_MSG_CHECKING(for loadpng support)
 AC_MSG_RESULT($allegro_with_loadpng)
+
+
+dnl With logg addon
+AC_ARG_ENABLE(logg,
+[  --enable-logg[=x]       build logg addon library [default=yes]],
+test "X$enableval" != "Xno" && allegro_with_logg=yes,
+allegro_with_logg=yes)
+
+if test -n "$allegro_with_logg"; then
+  AC_CHECK_LIB(ogg, ogg_sync_init,
+               libogg_here=yes)
+
+  AC_CHECK_LIB(vorbis, vorbis_bitrate_init,
+               libvorbis_here=yes)
+  
+  AC_CHECK_LIB(vorbisfile, ov_open,
+               libvorbisfile_here=yes)
+
+  AC_CHECK_HEADER(vorbis/vorbisfile.h, vorbisfile_h_here=y)
+
+  if test -n "$libogg_here" -a -n "$libvorbis_here" -a \
+          -n "$libvorbisfile_here" -a -n "$vorbisfile_h_here"; then
+    _addons="logg $_addons"
+    WITH_LOGG=1
+  else
+    allegro_with_logg=no
+  fi
+else
+  allegro_with_logg=no
+fi
+
+AC_MSG_CHECKING(for logg support)
+AC_MSG_RESULT($allegro_with_logg)
+
 
 
 test -z "$_addons" && _addons="none"

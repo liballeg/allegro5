@@ -95,6 +95,7 @@ ALLEGRO_MODULE_TARGETS = @ALLEGRO_MODULE_TARGETS@
 
 WITH_ALLEGRO_GL = @WITH_ALLEGRO_GL@
 WITH_LOADPNG = @WITH_LOADPNG@
+WITH_LOGG = @WITH_LOGG@
 
 PLUGIN_LIB = @PLUGIN_LIB@
 obj_unix_plugins_h = $(OBJDIR)/plugins.h
@@ -130,6 +131,10 @@ endif
 
 ifdef WITH_LOADPNG
    include addons/loadpng/Makefile.add
+endif
+
+ifdef WITH_LOGG
+   include addons/logg/Makefile.add
 endif
 
 ifndef ADDONS_LIST

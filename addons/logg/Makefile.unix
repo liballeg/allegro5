@@ -1,0 +1,41 @@
+PREFIX=`../../allegro-config --prefix`
+CC=gcc
+FLAGS=-O2 -g0 `../../allegro-config --cflags` -I../../include
+LFLAGS=-L. -L../../lib/unix -llogg -logg -lvorbis -lvorbisfile `../../allegro-config --libs` -lm
+
+all: lib play_ogg stream_ogg
+
+lib: logg.o
+	ar rc liblogg.a logg.o
+	ranlib liblogg.a
+
+logg.o: logg.c logg.h
+	$(CC) $(FLAGS) -c logg.c
+
+play_ogg: play_ogg.c liblogg.a
+	gcc $(FLAGS) play_ogg.c -o play_ogg $(LFLAGS)
+
+stream_ogg: stream_ogg.c liblogg.a
+	gcc $(FLAGS) stream_ogg.c -o stream_ogg $(LFLAGS)
+
+clean:
+	rm -f logg.o
+
+veryclean: clean
+	rm -f liblogg.a
+	rm -f play_ogg
+	rm -f stream_ogg
+
+install:
+	cp -f logg.h $(PREFIX)/include
+	cp -f liblogg.a $(PREFIX)/lib
+	@echo -
+	@echo logg is now installed.
+
+uninstall:
+	rm -f $(PREFIX)/include/logg.h
+	rm -f $(PREFIX)/lib/liblogg.a
+	@echo -
+	@echo logg is now uninstalled.
+
+examples: play_ogg stream_ogg

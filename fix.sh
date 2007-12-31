@@ -174,5 +174,8 @@ fi
 if ! ( cd addons/loadpng && ./fix.sh $1 $2); then
    echo "Error occured while executing loadpng's fix.sh!"
 fi
+if ! ( cd addons/logg && ./fix.sh $1 $2); then
+   echo "Error occured while executing logg's fix.sh!"
+fi
 
 echo "Done!"
