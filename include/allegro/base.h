@@ -56,6 +56,7 @@
 /*******************************************/
 
 
+/* Asm build disabled as of 4.3.10+. */
 #ifndef ALLEGRO_NO_ASM
    #define ALLEGRO_NO_ASM
 #endif
