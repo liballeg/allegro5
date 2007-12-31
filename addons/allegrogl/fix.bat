@@ -68,7 +68,6 @@ goto fix
 :fix
 
 echo Configuring %MAKE_PROJECT% for %MAKE_COMPILER%...
-echo.
 echo include make/%MAKEFILE% >> makefile
 
 :done

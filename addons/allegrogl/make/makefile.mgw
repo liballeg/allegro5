@@ -1,13 +1,12 @@
 
 COMPILER = mingw32
 
+ifdef ALLEGRO_USE_CYGWIN
+   UNIX_TOOLS = 1
+endif
+
 ifeq ($(findstring /sh.exe, $(SHELL)), /sh.exe)
-UNIX_TOOLS=1
-DATA_INSTALLER = cp -f
-PROG_INSTALLER = cp -f
-else
-DATA_INSTALLER = copy /y
-PROG_INSTALLER = copy /y
+   UNIX_TOOLS=1
 endif
 
 ifdef CROSSCOMPILE
@@ -17,6 +16,14 @@ ifdef CROSSCOMPILE
 else
    CC = gcc
    AR = ar
+endif
+
+ifdef UNIX_TOOLS
+   DATA_INSTALLER = cp -f
+   PROG_INSTALLER = cp -f
+else
+   DATA_INSTALLER = copy /y
+   PROG_INSTALLER = copy /y
 endif
 
 include make/makefile.gcc

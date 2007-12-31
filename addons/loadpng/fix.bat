@@ -1,9 +1,13 @@
 @echo off
 
+if [%1] == []        goto help
 if [%1] == [djgpp]   goto djgpp
 if [%1] == [mingw]   goto mingw
 if [%1] == [mingw32] goto mingw
-if [%1] == []        goto nosup
+
+:nosup
+echo Platform not supported by loadpng.
+goto end
 
 :help
 echo.
@@ -12,10 +16,6 @@ echo.
 echo Where platform is one of:
 echo     djgpp, mingw32
 echo.
-goto end
-
-:nosup
-echo Platform not supported by loadpng.
 goto end
 
 :djgpp

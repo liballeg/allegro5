@@ -5,7 +5,6 @@ libdir := $(prefix)/lib
 includedir := $(prefix)/include
 
 EXE := .exe
-EXAMPLECFLAGS := -I../../include
 EXAMPLELIBS := -lpng -lz -l$(ALLEG_LIB_BASENAME) -L../../lib/djgpp
 
 
