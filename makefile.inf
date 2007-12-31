@@ -37,11 +37,11 @@ DESCRIPTION += statically linked
 endif
 
 ifdef ALLEGRO_USE_C
-DESCRIPTION += "(no ASM)"
+DESCRIPTION += no ASM
 endif
 
 ifdef STATICRUNTIME
-DESCRIPTION += "(static CRT)"
+DESCRIPTION += static CRT
 endif
 
 # -------- build up library name --------
