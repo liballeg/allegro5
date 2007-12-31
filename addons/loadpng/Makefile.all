@@ -3,6 +3,10 @@
 CC := gcc
 CFLAGS := -W -Wall -O3 -I. -I../../include
 
+ifdef STATICLINK
+  CFLAGS += -DALLEGRO_STATICLINK
+endif
+
 VERSION := 1.5
 # (note to self: remember to edit loadpng.h as well)
 

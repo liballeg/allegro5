@@ -5,7 +5,7 @@ libdir := $(MINGDIR)/lib
 includedir := $(MINGDIR)/include
 
 EXE := .exe
-EXAMPLECFLAGS := -Wl,--subsystem,windows -I../../includ
+EXAMPLECFLAGS := -Wl,--subsystem,windows
 EXAMPLELIBS := -lpng -lz -l$(ALLEG_LIB_BASENAME) -L../../lib/mingw32
 
 ifeq ($(TERM), cygwin)
