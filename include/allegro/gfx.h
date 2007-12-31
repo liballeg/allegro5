@@ -37,6 +37,16 @@ struct RGB;
 #define GFX_AUTODETECT_WINDOWED        2
 #define GFX_SAFE                       AL_ID('S','A','F','E')
 
+/* drawing modes for draw_sprite_ex() */
+#define DRAW_SPRITE_NORMAL 0
+#define DRAW_SPRITE_LIT 1
+#define DRAW_SPRITE_TRANS 2
+
+/* flipping modes for draw_sprite_ex() */
+#define DRAW_SPRITE_NO_FLIP 0x0
+#define DRAW_SPRITE_H_FLIP  0x1
+#define DRAW_SPRITE_V_FLIP  0x2
+#define DRAW_SPRITE_VH_FLIP 0x3
 
 /* Blender mode defines, for the gfx_driver->set_blender_mode() function */
 #define blender_mode_none            0
@@ -214,6 +224,11 @@ typedef struct GFX_VTABLE        /* functions for drawing onto bitmaps */
    AL_METHOD(void, triangle3d_f, (struct BITMAP *bmp, int type, struct BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3));
    AL_METHOD(void, quad3d, (struct BITMAP *bmp, int type, struct BITMAP *texture, V3D *v1, V3D *v2, V3D *v3, V3D *v4));
    AL_METHOD(void, quad3d_f, (struct BITMAP *bmp, int type, struct BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4));
+
+   AL_METHOD(void, draw_sprite_ex, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int mode, int flip ));
+   AL_METHOD(void, draw_sprite_h_flip_ex, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int mode ));
+   AL_METHOD(void, draw_sprite_v_flip_ex, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int mode ));
+   AL_METHOD(void, draw_sprite_vh_flip_ex, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int mode ));
 } GFX_VTABLE;
 
 

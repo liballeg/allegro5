@@ -24,6 +24,7 @@
 #define PTR_PER_PIXEL          3
 #define OFFSET_PIXEL_PTR(p,x)  ((PIXEL_PTR) (p) + 3 * (x))
 #define INC_PIXEL_PTR(p)       ((p) += 3)
+#define INC_PIXEL_PTR_N(p,d)   ((p) += 3 * d)
 #define DEC_PIXEL_PTR(p)       ((p) -= 3)
 
 #define PUT_PIXEL(p,c)         bmp_write24((uintptr_t) (p), (c))
@@ -48,6 +49,7 @@
 #define DLS_BLENDER            BLENDER_FUNC
 #define MAKE_DLS_BLENDER(a)    _blender_func24
 #define DLS_BLEND(b,a,n)       ((*(b))(_blender_col_24, (n), (a)))
+#define DLSX_BLEND(b,n)        ((*(b))(_blender_col_24, (n), _blender_alpha))
 
 /* Blender for RGBA sprites.  */
 #define RGBA_BLENDER           BLENDER_FUNC
@@ -79,10 +81,14 @@
 #define FUNC_LINEAR_VLINE                   _linear_vline24
 
 #define FUNC_LINEAR_DRAW_SPRITE             _linear_draw_sprite24
+#define FUNC_LINEAR_DRAW_SPRITE_EX          _linear_draw_sprite_ex24
 #define FUNC_LINEAR_DRAW_256_SPRITE         _linear_draw_256_sprite24
 #define FUNC_LINEAR_DRAW_SPRITE_V_FLIP      _linear_draw_sprite_v_flip24
+#define FUNC_LINEAR_DRAW_SPRITE_V_FLIP_EX   _linear_draw_sprite_v_flip_ex24
 #define FUNC_LINEAR_DRAW_SPRITE_H_FLIP      _linear_draw_sprite_h_flip24
+#define FUNC_LINEAR_DRAW_SPRITE_H_FLIP_EX   _linear_draw_sprite_h_flip_ex24
 #define FUNC_LINEAR_DRAW_SPRITE_VH_FLIP     _linear_draw_sprite_vh_flip24
+#define FUNC_LINEAR_DRAW_SPRITE_VH_FLIP_EX  _linear_draw_sprite_vh_flip_ex24
 #define FUNC_LINEAR_DRAW_TRANS_SPRITE       _linear_draw_trans_sprite24
 #define FUNC_LINEAR_DRAW_TRANS_RGBA_SPRITE  _linear_draw_trans_rgba_sprite24
 #define FUNC_LINEAR_DRAW_LIT_SPRITE         _linear_draw_lit_sprite24

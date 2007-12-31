@@ -33,10 +33,14 @@ static void _xwin_vline(BITMAP *dst, int dx, int dy1, int dy2, int color);
 static void _xwin_hline(BITMAP *dst, int dx1, int dy, int dx2, int color);
 static void _xwin_rectfill(BITMAP *dst, int dx1, int dy1, int dx2, int dy2, int color);
 static void _xwin_draw_sprite(BITMAP *dst, BITMAP *src, int dx, int dy);
+static void _xwin_draw_sprite_ex(BITMAP *dst, BITMAP *src, int dx, int dy, int mode, int flip);
 static void _xwin_draw_256_sprite(BITMAP *dst, BITMAP *src, int dx, int dy);
 static void _xwin_draw_sprite_v_flip(BITMAP *dst, BITMAP *src, int dx, int dy);
+static void _xwin_draw_sprite_v_flip_ex(BITMAP *dst, BITMAP *src, int dx, int dy, int mode);
 static void _xwin_draw_sprite_h_flip(BITMAP *dst, BITMAP *src, int dx, int dy);
+static void _xwin_draw_sprite_h_flip_ex(BITMAP *dst, BITMAP *src, int dx, int dy, int mode);
 static void _xwin_draw_sprite_vh_flip(BITMAP *dst, BITMAP *src, int dx, int dy);
+static void _xwin_draw_sprite_vh_flip_ex(BITMAP *dst, BITMAP *src, int dx, int dy, int mode);
 static void _xwin_draw_trans_sprite(BITMAP *dst, BITMAP *src, int dx, int dy);
 static void _xwin_draw_trans_rgba_sprite(BITMAP *dst, BITMAP *src, int dx, int dy);
 static void _xwin_draw_lit_sprite(BITMAP *dst, BITMAP *src, int dx, int dy, int color);
@@ -233,10 +237,14 @@ void _xwin_replace_vtable(struct GFX_VTABLE *vtable)
    vtable->hfill = _xwin_hline;
    vtable->rectfill = _xwin_rectfill;
    vtable->draw_sprite = _xwin_draw_sprite;
+   vtable->draw_sprite_ex = _xwin_draw_sprite_ex;
    vtable->draw_256_sprite = _xwin_draw_256_sprite;
    vtable->draw_sprite_v_flip = _xwin_draw_sprite_v_flip;
+   vtable->draw_sprite_v_flip_ex = _xwin_draw_sprite_v_flip_ex;
    vtable->draw_sprite_h_flip = _xwin_draw_sprite_h_flip;
+   vtable->draw_sprite_h_flip_ex = _xwin_draw_sprite_h_flip_ex;
    vtable->draw_sprite_vh_flip = _xwin_draw_sprite_vh_flip;
+   vtable->draw_sprite_vh_flip_ex = _xwin_draw_sprite_vh_flip_ex;
    vtable->draw_trans_sprite = _xwin_draw_trans_sprite;
    vtable->draw_trans_rgba_sprite = _xwin_draw_trans_rgba_sprite;
    vtable->draw_lit_sprite = _xwin_draw_lit_sprite;
@@ -569,7 +577,25 @@ static void _xwin_draw_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
 }
 
+/* _xwin_draw_sprite_ex:
+ *  Wrapper for draw_sprite_ex.
+ */
+static void _xwin_draw_sprite_ex(BITMAP *dst, BITMAP *src, int dx, int dy, int mode, int flip)
+{
+   int dxbeg, dybeg, w, h;
 
+   if (_xwin_in_gfx_call) {
+      _xwin_vtable.draw_sprite_ex(dst, src, dx, dy, mode, flip);
+      return;
+   }
+
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
+
+   _xwin_in_gfx_call = 1;
+   _xwin_vtable.draw_sprite_ex(dst, src, dx, dy, mode, flip);
+   _xwin_in_gfx_call = 0;
+   _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+}
 
 /* _xwin_draw_256_sprite:
  *  Wrapper for draw_256_sprite.
@@ -613,6 +639,26 @@ static void _xwin_draw_sprite_v_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
 }
 
+/* _xwin_draw_sprite_v_flip:
+ *  Wrapper for draw_sprite_v_flip.
+ */
+static void _xwin_draw_sprite_v_flip_ex(BITMAP *dst, BITMAP *src, int dx, int dy, int mode)
+{
+   int dxbeg, dybeg, w, h;
+
+   if (_xwin_in_gfx_call) {
+      _xwin_vtable.draw_sprite_v_flip_ex(dst, src, dx, dy, mode);
+      return;
+   }
+
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
+
+   _xwin_in_gfx_call = 1;
+   _xwin_vtable.draw_sprite_v_flip_ex(dst, src, dx, dy, mode);
+   _xwin_in_gfx_call = 0;
+   _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+}
+
 
 
 /* _xwin_draw_sprite_h_flip:
@@ -635,7 +681,25 @@ static void _xwin_draw_sprite_h_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
 }
 
+/* _xwin_draw_sprite_h_flip_ex:
+ *  Wrapper for draw_sprite_h_flip_ex.
+ */
+static void _xwin_draw_sprite_h_flip_ex(BITMAP *dst, BITMAP *src, int dx, int dy, int mode)
+{
+   int dxbeg, dybeg, w, h;
 
+   if (_xwin_in_gfx_call) {
+      _xwin_vtable.draw_sprite_h_flip_ex(dst, src, dx, dy, mode);
+      return;
+   }
+
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
+
+   _xwin_in_gfx_call = 1;
+   _xwin_vtable.draw_sprite_h_flip_ex(dst, src, dx, dy, mode);
+   _xwin_in_gfx_call = 0;
+   _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+}
 
 /* _xwin_draw_sprite_vh_flip:
  *  Wrapper for draw_sprite_vh_flip.
@@ -657,7 +721,25 @@ static void _xwin_draw_sprite_vh_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
 }
 
+/* _xwin_draw_sprite_vh_flip_ex:
+ *  Wrapper for draw_sprite_vh_flip_ex.
+ */
+static void _xwin_draw_sprite_vh_flip_ex(BITMAP *dst, BITMAP *src, int dx, int dy, int mode)
+{
+   int dxbeg, dybeg, w, h;
 
+   if (_xwin_in_gfx_call) {
+      _xwin_vtable.draw_sprite_vh_flip_ex(dst, src, dx, dy, mode);
+      return;
+   }
+
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
+
+   _xwin_in_gfx_call = 1;
+   _xwin_vtable.draw_sprite_vh_flip_ex(dst, src, dx, dy, mode);
+   _xwin_in_gfx_call = 0;
+   _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+}
 
 /* _xwin_draw_trans_sprite:
  *  Wrapper for draw_trans_sprite.

@@ -6458,6 +6458,31 @@ clipping rectangle of the destination bitmap.
 			  hud_overlay-&gtw, hud_overlay-&gth,
 			  0, 0, SCREEN_W, SCREEN_H);<endblock>
 
+@\void @draw_sprite_ex(BITMAP *bmp, BITMAP *sprite, int x, int y,
+@@                    int mode, int flip);
+@xref draw_sprite, draw_sprite_v_flip, draw_sprite_h_flip, draw_trans_sprite,
+@xref draw_lit_sprite
+@eref extrans2
+@shortdesc Draws a optionally flipped/blended/tinted sprite on the bitmap.
+   Draws the sprite image onto the destination bitmap using the specified
+   mode argument, optionally flipping the sprite in the orientation specified
+   by flip argument.
+   The mode argument defines how is sprite going to be drawn on the
+   destination bitmap:
+<textblock>
+   DRAW_SPRITE_NORMAL     - draws a masked sprite, like draw_sprite()
+   DRAW_SPRITE_LIT        - draws a tinted sprite, like draw_lit_sprite()
+   DRAW_SPRITE_TRANS      - draws a blended sprite, like draw_trans_sprite()
+<endblock>
+
+   The flip argument defines the flipping orientation:
+<textblock>
+   DRAW_SPRITE_NO_FLIP = 0    - do not perform flipping
+   DRAW_SPRITE_H_FLIP         - flip horizontally
+   DRAW_SPRITE_V_FLIP         - flip vertically
+   DRAW_SPRITE_VH_FLIP        - flip both vertically and horizontally
+<endblock>
+
 @@void @draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 @xref draw_sprite_v_flip, draw_trans_sprite, draw_lit_sprite
 @xref draw_gouraud_sprite, stretch_sprite, rotate_sprite, draw_character_ex
@@ -15516,6 +15541,18 @@ and avoid missing any important bit of information.
    way depending on whether the screen is in 8bit mode or another
    color depth. This is because additive drawing mode uses a
    different set of routines for truecolor modes.
+
+@@Example @extrans2
+@xref END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_init, install_timer,
+@xref install_keyboard, replace_filename, load_bitmap, create_bitmap, key,
+@xref stretch_blit, destroy_bitmap, set_trans_blender, draw_sprite_ex,
+@xref textprintf_ex, blit, clear_bitmap, rest
+@shortdesc Drawing flipped, translucent and tinted sprites.
+   This program demonstrates how to draw trans and lit sprites and flip them
+   at the same time, using draw_sprite_ex() function.
+   It displays several images moving around using different drawing modes
+   while you can press space key to change the flipping orientation.
+
 
 @@Example @extruec
 @xref END_OF_MAIN, PALETTE, RGB, SCREEN_H, SCREEN_W, acquire_screen

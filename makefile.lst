@@ -564,6 +564,7 @@ ALLEGRO_EXAMPLE_FILES = \
 	examples/exswitch.c \
 	examples/extimer.c \
 	examples/extrans.c \
+	examples/extrans2.c \
 	examples/extruec.c \
 	examples/exunicod.c \
 	examples/exupdate.c \
@@ -615,6 +616,7 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/exswitch \
 	examples/extimer \
 	examples/extrans \
+	examples/extrans2 \
 	examples/extruec \
 	examples/exunicod \
 	examples/exupdate \

@@ -91,7 +91,11 @@ GFX_VTABLE __linear_vtable8 =
    _soft_triangle3d,
    _soft_triangle3d_f,
    _soft_quad3d,
-   _soft_quad3d_f
+   _soft_quad3d_f,
+   _linear_draw_sprite_ex8,
+   _linear_draw_sprite_h_flip_ex8,
+   _linear_draw_sprite_v_flip_ex8,
+   _linear_draw_sprite_vh_flip_ex8
 };
 
 
