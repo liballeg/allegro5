@@ -55,6 +55,11 @@
 /************ Some global stuff ************/
 /*******************************************/
 
+
+#ifndef ALLEGRO_NO_ASM
+   #define ALLEGRO_NO_ASM
+#endif
+
 #ifndef TRUE 
    #define TRUE         -1
    #define FALSE        0
