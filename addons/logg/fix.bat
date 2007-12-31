@@ -2,7 +2,11 @@
 
 if [%1] == [mingw]   goto mingw
 if [%1] == [mingw32] goto mingw
-if [%1] == []        goto nosup
+if [%1] == []        goto help
+
+:nosup
+echo Platform not supported by logg.
+goto end
 
 :help
 echo.
@@ -11,10 +15,6 @@ echo.
 echo Where platform is one of:
 echo     mingw32
 echo.
-goto end
-
-:nosup
-echo Platform not supported by logg.
 goto end
 
 :mingw
