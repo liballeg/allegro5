@@ -1,7 +1,7 @@
 PREFIX=`../../allegro-config --prefix`
 CC=gcc
-FLAGS=-O2 -g0 `../../allegro-config --cflags` -I../../include
-LFLAGS=-L. -L../../lib/unix -llogg -logg -lvorbis -lvorbisfile `../../allegro-config --libs` -lm
+FLAGS=-O2 -g0 `../../allegro-config --cflags --addon` -I../../include
+LFLAGS=-L. -L../../lib/unix -llogg -logg -lvorbis -lvorbisfile `../../allegro-config --libs --addon` -lm
 
 all: lib play_ogg stream_ogg
 

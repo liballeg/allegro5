@@ -6,7 +6,7 @@ includedir := $(prefix)/include
 DESTDIR :=
 
 EXAMPLECFLAGS := -Wno-deprecated-declarations -I../../include
-EXAMPLELIBS := -lpng -lz `../../allegro-config --libs` -L../../lib/unix
+EXAMPLELIBS := -lpng -lz `../../allegro-config --libs --addon` -L../../lib/unix
 
 
 #--------------------------------------------------

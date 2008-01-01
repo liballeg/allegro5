@@ -7,6 +7,9 @@
 #
 #     gcc myprog.c -o myprog `allegro-config --libs`
 #
+#  Undocumented feature for internal use:
+#  If --addon switch is passed, the output is more suitable for addon building.
+#
 #  This is heavily based on a similar script from GTK.
 
 version=4.3.10
@@ -134,6 +137,10 @@ while test $# -gt 0; do
 	 echo_env=yes
       ;;
 
+      --addon)
+	 addon_form=yes
+      ;;
+
       release)
 	 lib_type=alleg
       ;;
@@ -165,7 +172,7 @@ if test "$echo_exec_prefix" = "yes"; then
 fi
 
 if test "$echo_cflags" = "yes"; then
-   if test -n "$include_prefix"; then
+   if test -n "$include_prefix" -a -z "$addon_form"; then
       echo -I${include_path} $allegro_cflags
    else
       echo $allegro_cflags
@@ -173,7 +180,7 @@ if test "$echo_cflags" = "yes"; then
 fi
 
 if test "$echo_cppflags" = "yes"; then
-   if test -n "$include_prefix"; then
+   if test -n "$include_prefix" -a -z "$addon_form"; then
       echo -I${include_path} $allegro_cppflags
    else
       echo $allegro_cppflags
@@ -181,7 +188,7 @@ if test "$echo_cppflags" = "yes"; then
 fi
 
 if test "$echo_libs" = "yes"; then
-   libdirs=-L${lib_path}
+   test -z "$addon_form" && libdirs=-L${lib_path}
    if test "$static_libs" = "yes"; then
       echo $libdirs $allegro_ldflags -l${lib_type} $allegro_libs
    else
