@@ -1685,6 +1685,8 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    int format;
    int flags;
 
+   ASSERT(bitmap);
+
    format = al_get_new_bitmap_format();
    flags = al_get_new_bitmap_flags();
 

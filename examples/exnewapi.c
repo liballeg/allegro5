@@ -34,28 +34,22 @@ int main(void)
 
    al_init();
 
-   al_set_new_display_flags(ALLEGRO_DIRECT3D|ALLEGRO_FULLSCREEN);
-   al_set_new_display_refresh_rate(60);
-
    events = al_create_event_queue();
 
    al_set_new_display_flags(ALLEGRO_WINDOWED|ALLEGRO_RESIZABLE);
-   al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+   //al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
    /* Create three windows. */
    display[0] = al_create_display(w, h);
    display[1] = al_create_display(w, h);
-
-   al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-
    display[2] = al_create_display(w, h);
+
 
    //al_set_clipping_rectangle(100, 100, 440, 280);
 
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[0]);
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[1]);
-
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[2]);
 
    /* Apparently, need to think a bit more about memory/display bitmaps.. should
@@ -64,17 +58,26 @@ int main(void)
     */
    al_set_current_display(display[2]);
 
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_4444);
-   al_set_new_bitmap_flags(ALLEGRO_SYNC_MEMORY_COPY|ALLEGRO_USE_ALPHA);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+   al_set_new_bitmap_flags(ALLEGRO_SYNC_MEMORY_COPY);
 
    picture = al_load_bitmap("mysha.tga");
+   if (!picture) {
+   	printf("failed to load mysha.tga\n");
+	return 1;
+   }
 
-   //al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_4444);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGBA_8888);
    mask = al_load_bitmap("mask.pcx");
+   if (!mask) {
+      printf("failed to load mask.pcx\n");
+      return 1;
+   }
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP|ALLEGRO_USE_ALPHA);
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    mem_bmp = al_load_bitmap("mysha.tga");
+   if (!mem_bmp) {
+      printf("failed to load mysha.tga (mem)\n");
+   }
 
    ALLEGRO_COLOR color;
    ALLEGRO_LOCKED_REGION lr;
@@ -91,14 +94,6 @@ int main(void)
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
    start_ticks = al_current_time();
-
-/*
-   al_set_mask_color(al_map_rgb(picture, &colors[0], 255, 0, 255));
-   al_set_target_bitmap(mask);
-   al_draw_bitmap(picture, 0, 0, AL_MASK_SOURCE);
-   al_set_target_bitmap(mask);
-   al_convert_mask_to_alpha(picture, al_map_rgb(picture, &colors[0], 255, 0, 255));
-   */
 
    for (i = 0; i < 3; i++) {
    	al_set_current_display(display[i]);
@@ -123,12 +118,6 @@ int main(void)
    long last_move = al_current_time();
    int frames = 0;
 
-   ALLEGRO_BITMAP *icon = al_load_bitmap("icon.tga");
-   al_set_current_display(display[0]);
-   al_set_display_icon(icon);
-   al_set_current_display(display[2]);
-   al_set_display_icon(icon);
-
    while (!quit) {
       /* read input */
       while (!al_event_queue_is_empty(events)) {
@@ -139,15 +128,6 @@ int main(void)
             if (key->keycode == ALLEGRO_KEY_ESCAPE) {
                quit = 1;
 	    }
-	    /*
-            else {
-               clip = !clip;
-               for (i = 0; i < 3; i++) {
-                  al_set_current_display(display[i]);
-                  al_enable_bitmap_clip(al_get_backbuffer(), clip);
-               }
-            }
-	    */
          }
          if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
             ALLEGRO_DISPLAY_EVENT *display = &event.display;
@@ -178,18 +158,6 @@ int main(void)
          if (x == w - 40) dx = -1;
       }
 
-	#if 0
-      /* handle game ticks */
-      while (ticks * 1000 < (al_current_time() - start_ticks) * FPS) {
-          x += dx;
-          if (x == 0) dx = 1;
-          if (x == w - 40) dx = -1;
-          ticks++;
-      }
-      #endif
-
-      /* render */
-      //if (ticks > last_rendered) {
          frames++;
          for (i = 0; i < 3; i++) {
 	    if (!display[i])
@@ -202,11 +170,6 @@ int main(void)
 	    }
 
             if (i == 2) {
-               /*
-               al_draw_bitmap_region(mem_bmp, 50, 50, 220, 100, 80, 80, 0);
-               al_draw_bitmap(picture, 0, 0, 0);
-               al_draw_bitmap_region(picture, 20, 20, 150, 150, 0, 0, 0);
-               */
                ALLEGRO_COLOR test;
                al_map_rgba_f(&test, 1.0f, 1.0f, 1.0f, 1.0f);
                al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, &test);
@@ -222,27 +185,8 @@ int main(void)
             al_draw_rectangle(x, y, x + 140, y + 140, &colors[i], ALLEGRO_FILLED);
             al_flip_display();
          }
-         /*last_rendered = ticks;
-         {
-            int d = al_current_time() - fps_time;
-            fps_accumulator++;
-            if (d >= 1000) {
-               fps_time += d;
-               fps = 1000.0 * fps_accumulator / d;
-               fps_accumulator = 0;
-            }
-         }
-	 */
-      //}
-      /*
-      else {
-      	int r = start_ticks + 1000 * ticks / FPS - al_current_time();
-	al_rest(r < 0 ? 0 : r);
-      }
-      */
    }
 
-   printf("frames=%d start=%ld now=%ld\n", frames, start, al_current_time());
    printf("fps=%f\n", (float)(frames * 1000) / (float)(al_current_time()-start));
 
    al_destroy_bitmap(picture);

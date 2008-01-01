@@ -146,10 +146,10 @@ void _al_d3d_draw_textured_quad(ALLEGRO_BITMAP_D3D *bmp,
       texture_h = 0;
    }
 
-   tu_start = (sx+0.5) / (float)texture_w;
-   tv_start = (sy+0.5) / (float)texture_h;
-   tu_end = sw / (float)texture_w + tu_start;
-   tv_end = sh / (float)texture_h + tv_start;
+   tu_start = (sx+0.5f) / texture_w;
+   tv_start = (sy+0.5f) / texture_h;
+   tu_end = sw / texture_w + tu_start;
+   tv_end = sh / texture_h + tv_start;
 
    if (flags & ALLEGRO_FLIP_HORIZONTAL) {
       float temp = tu_start;
@@ -344,6 +344,7 @@ static bool d3d_create_textures(int w, int h,
 {
    if (_al_d3d_render_to_texture_supported()) {
       if (video_texture) {
+      	printf("format=%d %d\n", format, _al_format_to_d3d(format));
          if (IDirect3DDevice9_CreateTexture(_al_d3d_device, w, h, 1,
                D3DUSAGE_RENDERTARGET, _al_format_to_d3d(format), D3DPOOL_DEFAULT,
                video_texture, NULL) != D3D_OK) {
