@@ -161,16 +161,6 @@ AC_SUBST(BUILD_GLU)
 AC_SUBST(GLU_HEADERS)
 
 
-dnl if a makefile already exists then remove the older objects files
-dnl This is done because some files must be re-built if we switch between
-dnl the Mesa generic driver and the (hopefully) accelerated one
-if test -f makefile; then
-	echo '# Remove older build'
-	make veryclean
-	agl_make_depend="yes";
-fi
-
-
 dnl If dependencies are not built yet then do it !
 if (test ! -f make/makefile.dep); then
 	echo '# Execute "make depend".' > make/makefile.dep
