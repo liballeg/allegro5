@@ -1449,6 +1449,67 @@ static void allegro_gl_video_draw_trans_rgba_sprite(BITMAP *bmp,
 
 
 
+/* allegro_gl_video_draw_sprite_ex:
+ * draw_sprite_ex() overload for video -> video and memory -> video drawing
+ *
+ * When mode is DRAW_SPRITE_TRANS:
+ * FIXME: Broken if the bitmap was split into multiple textures.
+ * FIXME: Doesn't apply flipping to the memory copy
+ */
+static void allegro_gl_video_draw_sprite_ex(BITMAP *bmp, BITMAP *sprite,
+                                            int x, int y, int mode, int flip) {
+	int matrix_mode;
+	int lflip = 0;
+
+	/* convert allegro's flipping flags to AGL's flags */
+	switch (flip) {
+		case DRAW_SPRITE_NO_FLIP:
+			lflip = FALSE;
+		break;
+		case DRAW_SPRITE_V_FLIP:
+			lflip = AGL_V_FLIP;
+		break;
+		case DRAW_SPRITE_H_FLIP:
+			lflip = AGL_H_FLIP;
+		break;
+		case DRAW_SPRITE_VH_FLIP:
+			lflip = AGL_V_FLIP | AGL_H_FLIP;
+		break;
+	}
+
+	switch (mode) {
+		case DRAW_SPRITE_NORMAL:
+			do_masked_blit_video(sprite, bmp, 0, 0, x, y,
+                                 sprite->w, sprite->h, lflip, FALSE);
+		break;
+		case DRAW_SPRITE_TRANS:
+			if (lflip) {
+				glGetIntegerv(GL_MATRIX_MODE, &matrix_mode);
+				glMatrixMode(GL_MODELVIEW);
+				glPushMatrix();
+		
+				glTranslatef(x, y, 0.f);
+				glScalef((lflip&AGL_H_FLIP) ? -1 : 1, (lflip&AGL_V_FLIP)? -1 : 1, 1);
+				glTranslatef(-x, -y, 0);
+				glTranslatef((lflip&AGL_H_FLIP) ? -sprite->w : 0,
+							 (lflip&AGL_V_FLIP) ? -sprite->h : 0, 0);
+			}
+
+			allegro_gl_video_draw_trans_rgba_sprite(bmp, sprite, x, y);
+
+			if (lflip) {
+				glPopMatrix();
+				glMatrixMode(matrix_mode);
+			}
+		break;
+		case DRAW_SPRITE_LIT:
+			/* not implemented */
+		break;
+	}
+}
+
+
+
 static void allegro_gl_video_clear_to_color(BITMAP *bmp, int color) {
 	AGL_VIDEO_BITMAP *vid = bmp->extra;
 
@@ -1876,5 +1937,6 @@ static GFX_VTABLE allegro_gl_video_vtable = {
 	allegro_gl_video_triangle3d_f,
 	allegro_gl_video_quad3d,
 	allegro_gl_video_quad3d_f,
+	allegro_gl_video_draw_sprite_ex
 };
 

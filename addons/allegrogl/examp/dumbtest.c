@@ -205,12 +205,12 @@ int main()
 		putpixel(screen, 639, 479, makecol(0xff, 0xff, 0xff));
 		putpixel(screen, 0, 478, makecol(0xff, 0xff, 0xff));
 		putpixel(screen, 639, 478, makecol(0xff, 0xff, 0xff));
-		rectfill(screen, 16, 300, 256, 420, makecol(0xff, 0xff, 0xff));
+		rectfill(screen, 16, 350, 256, 440, makecol(0xff, 0xff, 0xff));
 
 		textout_ex(screen, font, "Partially cut off text", -3, 450,
 		        makecol(255,255,255), -1);	
-		textout_ex(screen, font, "Hello World!", 70, 330, BLACK, -1);
-		textprintf_ex(screen, font, 70, 350, makecol(0, 0, 0), -1,
+		textout_ex(screen, font, "Hello World!", 40, 380, BLACK, -1);
+		textprintf_ex(screen, font, 40, 400, makecol(0, 0, 0), -1,
 		           "FPS: %.2f", fps_rate);
 
 		/* Now here's the interesting part. This section of code tests
@@ -253,18 +253,23 @@ int main()
 		pivot_scaled_sprite(screen, vid_bitmap2, 50, 200, 0, 0, itofix(6), ftofix(1.1));
 		pivot_scaled_sprite(screen, mem_bitmap, 100, 200, 0, 0, itofix(6), ftofix(1.1));
 
+		draw_sprite_ex(screen, trans_vid_bitmap, 0, 250, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
+		draw_sprite_ex(screen, trans_vid_bitmap2, 50, 250, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
+		draw_sprite_ex(screen, trans_mem_bitmap, 100, 250, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
+
 		/* Write the captions for each image */
 		textout_ex(screen, font, "blit", 200, 25, CYAN, BLACK);
 		textout_ex(screen, font, "masked_blit", 200, 75, CYAN, BLACK);
 		textout_ex(screen, font, "draw_sprite", 200, 125, CYAN, BLACK);
 		textout_ex(screen, font, "draw_trans_sprite", 200, 175, CYAN, BLACK);
 		textout_ex(screen, font, "pivot_scaled_sprite", 200, 225, CYAN, BLACK);
-		textout_centre_ex(screen, font, "vid", 25, 275, CYAN, BLACK);
-		textout_centre_ex(screen, font, "NPOT", 25, 285, CYAN, BLACK);
-		textout_centre_ex(screen, font, "vid", 75, 275, CYAN, BLACK);
-		textout_centre_ex(screen, font, "POT", 75, 275, CYAN, BLACK);
-		textout_centre_ex(screen, font, "mem",125, 275, CYAN, BLACK);
-		textout_centre_ex(screen, font, "rle",175, 275, CYAN, BLACK);
+		textout_ex(screen, font, "draw_sprite_ex", 200, 275, CYAN, BLACK);
+		textout_centre_ex(screen, font, "vid", 25, 325, CYAN, BLACK);
+		textout_centre_ex(screen, font, "NPOT", 25, 335, CYAN, BLACK);
+		textout_centre_ex(screen, font, "vid", 75, 325, CYAN, BLACK);
+		textout_centre_ex(screen, font, "POT", 75, 325, CYAN, BLACK);
+		textout_centre_ex(screen, font, "mem",125, 325, CYAN, BLACK);
+		textout_centre_ex(screen, font, "rle",175, 325, CYAN, BLACK);
 
 		drawing_mode(DRAW_MODE_SOLID, 0, 0, 0);
 		rectfill(screen, 250, 400, 300, 450, CYAN);
