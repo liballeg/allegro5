@@ -109,7 +109,11 @@ COMPILER_INCLUDE_DIR_D = $(MINGDIR_D)\include
 .PHONY: badming
 
 ifdef MINGDIR
-  MINGDIR_U = $(subst \,/,$(MINGDIR))
+  ifdef ALLEGRO_USE_CYGWIN
+    MINGDIR_U = $(shell cygpath "$(MINGDIR)")
+  else
+    MINGDIR_U = $(subst \,/,$(MINGDIR))
+  endif
   MINGDIR_D = $(subst /,\,$(MINGDIR))
 else
 badming:

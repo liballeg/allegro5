@@ -2,7 +2,7 @@ include ../../makefile.inf
 
 CC=gcc
 PREFIX=$(MINGDIR)
-LIBS=-L. -L../../lib -llogg -lvorbisfile -lvorbis -logg -l$(ALLEG_LIB_BASENAME)
+LIBS=-L. -L../../lib/mingw32/ -llogg -lvorbisfile -lvorbis -logg -l$(ALLEG_LIB_BASENAME)
 
 CFLAGS=-O2 -g0 -I../../include
 ifdef STATICLINK
@@ -63,8 +63,8 @@ install:
 	@echo logg is now installed.
 
 uninstall:
-	- $(RMFILE) logg.h $(includedir)logg.h
-	- $(RMFILE) liblogg.a $(libdir)liblogg.a
+	- $(RMFILE) $(includedir)logg.h
+	- $(RMFILE) $(libdir)liblogg.a
 	@echo -
 	@echo logg is now uninstalled.
 

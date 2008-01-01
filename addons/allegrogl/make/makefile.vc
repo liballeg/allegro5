@@ -11,6 +11,7 @@ PROG_INSTALLER = copy /y
 endif
 
 ifeq ($(TERM), cygwin)
+ALLEGRO_USE_CYGWIN = 1
 UNIX_TOOLS = 1
 DATA_INSTALLER = cp -f
 PROG_INSTALLER = cp -f
@@ -108,66 +109,13 @@ COMPILER_INCLUDE_DIR_D = $(MSVCDIR_D)\include
 
 .PHONY: badwin badmsvc badspaces
 
-ifeq ($(OS),Windows_NT)
-WINSYSDIR = $(SYSTEMROOT)
-WINSUBDIR = system32
-
-ifeq ($(WINSYSDIR),)        # Fix for Win2k
-WINSYSDIR = $(SystemRoot)
-endif
-
+include ../../makefile.helper
+ifdef ALLEGRO_USE_CYGWIN
+  MSVCDIR_U = $(shell cygpath "$(MSVCDir)")
 else
-WINSYSDIR = $(windir)
-WINSUBDIR = system
+  MSVCDIR_U = $(subst \,/,$(MSVCDir))
 endif
-
-ifneq ($(WINSYSDIR),)
-WINDIR_U = $(subst \,/,$(WINSYSDIR)/$(WINSUBDIR))
-WINDIR_D = $(subst /,\,$(WINSYSDIR)/$(WINSUBDIR))
-else
-badwin:
-	@echo Your SYSTEMROOT or windir environment variable is not set!
-endif
-
-
-ifdef MSVCDir
-MSVCDIR_U = $(subst \,/,$(MSVCDir))
 MSVCDIR_D = $(subst /,\,$(MSVCDir))
-else
-ifdef MSDevDir
-MSVCDIR_U = $(subst \,/,$(MSDevDir))
-MSVCDIR_D = $(subst /,\,$(MSDevDir))
-else
-ifdef MSVCDIR
-MSVCDIR_U = $(subst \,/,$(MSVCDIR))
-MSVCDIR_D = $(subst /,\,$(MSVCDIR))
-else
-ifdef MSDEVDIR
-MSVCDIR_U = $(subst \,/,$(MSDEVDIR))
-MSVCDIR_D = $(subst /,\,$(MSDEVDIR))
-else
-ifdef VCINSTALLDIR
-MSVCDIR_U = $(subst \,/,$(VCINSTALLDIR))
-MSVCDIR_D = $(subst /,\,$(VCINSTALLDIR))
-else
-badmsvc:
-	@echo Your MSVCDIR or MSDEVDIR environment variable is not set!
-endif
-endif
-endif
-endif
-endif
-
-NULLSTRING :=
-SPACE := $(NULLSTRING) # special magic to get an isolated space character
-
-ifneq ($(findstring $(SPACE),$(MSVCDIR)$(MSDEVDIR)),)
-badspaces:
-	@echo There are spaces in your MSVCDIR or MSDEVDIR environment
-	@echo variables: please change these to the 8.3 short filename
-	@echo version, or move your compiler to a different directory.
-endif
-
 
 
 lib: $(LIB_PATH_U)
