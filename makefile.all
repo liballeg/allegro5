@@ -22,6 +22,7 @@
 #        WITH_ALLEGRO_GL=1  Enable building of AllegroGL addon.
 #        WITH_LOADPNG=1     Enable building of loadpng addon.
 #        WITH_LOGG=1        Enable building of logg addon.
+#        WITH_JPGALLEG=1    Enable building of jpgalleg addon.
 #
 #     Targets: 
 #        default:           build library version, docs, and programs.
@@ -225,6 +226,10 @@ ifdef WITH_LOGG
    include addons/logg/Makefile.add
 endif
 
+ifdef WITH_JPGALLEG
+   include addons/jpgalleg/makefile.add
+endif
+
 ifndef ADDONS_LIST
    ADDONS_LIST = "none"
 endif
@@ -248,7 +253,7 @@ else
 	-$(RM_CLEAN)
 endif
 
-distclean: clean $(ADDON_VERYCLEAN_TARGETS)
+distclean: clean $(ADDON_DISTCLEAN_TARGETS)
 ifdef UNIX_TOOLS
 	-rm $(RM_OPTS) $(DISTCLEAN_FILES)
 else
@@ -259,7 +264,7 @@ else
 	-$(RM_DISTCLEAN)
 endif
 
-veryclean: distclean $(ADDON_DISTCLEAN_TARGETS)
+veryclean: distclean $(ADDON_VERYCLEAN_TARGETS)
 ifdef UNIX_TOOLS
 	-rm $(RM_OPTS) $(VERYCLEAN_FILES)
 else

@@ -1,0 +1,194 @@
+#
+#	JPGalleg 2.6, by Angelo Mottola, 2000-2006
+#
+#	Global makefile
+#
+#	Targets:
+#		all:		Builds library and examples
+#		lib:		Builds library only
+#		examples:	Builds examples only
+#		plugin:		Installs the plugin and rebuilds Allegro Grabber
+#		install:	Installs the library on the system
+#		uninstall:	Removes the library from the system
+#		clean:		Removes library, object and executable files
+#		distclean:	Puts back library into a distribution state
+#
+
+
+include $(MAKEFILE_INC)
+
+TARGET = lib/$(PLATFORM_PATH)/$(LIB_NAME)
+
+
+HEADERS = include/jpgalleg.h include/internal.h include/mmx.h
+
+OBJECTS = obj/$(PLATFORM_PATH)/jpgalleg$(OBJ) obj/$(PLATFORM_PATH)/io$(OBJ) \
+	obj/$(PLATFORM_PATH)/encode$(OBJ) obj/$(PLATFORM_PATH)/decode$(OBJ) \
+	obj/$(PLATFORM_PATH)/init$(OBJ) obj/$(PLATFORM_PATH)/error$(OBJ)
+
+ifndef NO_ASSEMBLER
+OBJECTS += obj/$(PLATFORM_PATH)/color$(OBJ) obj/$(PLATFORM_PATH)/dct$(OBJ)
+endif
+
+EXAMPLES_OBJECTS = obj/$(PLATFORM_PATH)/ex1$(OBJ) obj/$(PLATFORM_PATH)/ex2$(OBJ) \
+	obj/$(PLATFORM_PATH)/ex3$(OBJ) obj/$(PLATFORM_PATH)/ex4$(OBJ) obj/$(PLATFORM_PATH)/ex5$(OBJ)
+
+EXAMPLES = $(subst obj/$(PLATFORM_PATH),examples,$(subst $(OBJ),$(EXE),$(EXAMPLES_OBJECTS)))
+
+PLUGIN_FILES = plugin/datjpeg.c plugin/datjpeg.inc plugin/jpgalleg.scm plugin/jpgalleg.scr \
+	plugin/jpgalleg.scu plugin/jpgalleg.scv
+
+CLEAN_FILES = $(OBJECTS) $(EXAMPLES_OBJECTS) \
+	obj/$(PLATFORM_PATH)/test$(OBJ) misc/test$(EXE) \
+	obj/$(PLATFORM_PATH)/mmxtest$(OBJ) include/mmx.h
+
+DISTCLEAN_FILES = $(TARGET) $(EXAMPLES)
+
+.PHONY: plugin clean distclean
+
+all: start_msg lib examples end_msg
+
+start_msg:
+	$(call ECHO,Compiling JPGalleg for $(PLATFORM), please wait...)
+
+end_msg:
+	$(call ECHO,Done.)
+	$(call ECHO,Now run \`make install\' to complete the install process.)
+
+lib: $(TARGET)
+
+examples: $(EXAMPLES)
+
+plugin: lib
+ifndef ALLEGRO
+	$(call ECHO,ALLEGRO environmental variable not set. You must set it to the full path to)
+	$(call ECHO,your local Allegro directory in order to install the Grabber plugin.)
+else
+   ifdef UNIX
+	$(CP) $(PLUGIN_FILES) $(ALLEGRO)/tools/plugins
+	-$(RM) $(ALLEGRO)/obj/$(PLATFORM_PATH)/plugins.h
+   else
+      define CP_FILES
+         $(foreach file, $(wildcard $(PLUGIN_FILES)), $(CP) $(subst /,\,$(file)) $(ALLEGRO)\tools\plugins
+         )
+      endef
+	$(CP_FILES)
+	-$(RM) $(ALLEGRO)\obj\$(PLATFORM_PATH)\plugins.h
+   endif
+	make depend -C $(ALLEGRO)
+	make grabber -C $(ALLEGRO)
+	$(call ECHO,Grabber plugin successfully installed.)
+endif
+
+define REMOVE_PLUGIN_UNIX
+	-(cd $(ALLEGRO)/tools/plugins; $(RM) $(notdir $(PLUGIN_FILES)))
+	-$(RM) $(ALLEGRO)/obj/$(PLATFORM_PATH)/plugins.h
+	$(call ECHO,Grabber plugin removed from system.)
+endef
+
+define RM_FILES
+	$(foreach file, $(wildcard $(PLUGIN_FILES)), $(RM) $(ALLEGRO)\tools\plugins\$(notdir $(file))
+	)
+endef
+
+define REMOVE_PLUGIN_DOS
+	-$(RM_FILES)
+	-$(RM) $(ALLEGRO)\obj\$(PLATFORM_PATH)\plugins.h
+	$(call ECHO,Grabber plugin removed from system.)
+endef
+
+
+clean:
+ifdef UNIX
+	$(RM) $(CLEAN_FILES)
+else
+	-$(RM) $(subst /,\,$(CLEAN_FILES))
+endif
+
+distclean: clean
+ifdef UNIX
+	$(RM) $(DISTCLEAN_FILES)
+	$(RM) examples/savedcat.jpg
+	$(RM) examples/*.exe.manifest
+else
+   define RM_CLEAN
+      $(foreach file, $(wildcard $(DISTCLEAN_FILES)), -$(RM) $(subst /,\,$(file))
+      )
+   endef
+	$(RM_CLEAN)
+	-$(RM) examples\savedcat.jpg
+	-$(RM) examples\*.exe.manifest
+endif
+ifdef RUNNER
+  ifdef UNIX
+	-$(RM) $(RUNNER)
+  else
+	-$(RM) $(subst /,\,$(RUNNER))
+  endif
+endif
+	$(call ECHO,Ready for distribuition)
+
+
+ifdef DEBUGMODE
+DEBUG=1
+endif
+
+ifdef DEBUG
+CFLAGS += -DDEBUG
+endif
+
+ifndef COMPILE
+COMPILE = $(CC) $(CFLAGS) $(1) -o $(2)
+endif
+
+ifndef LINK
+LINK = $(CC) $(LDFLAGS) $(1) -o $(2) lib/$(PLATFORM_PATH)/$(LIB_NAME) $(LIBS)
+endif
+
+ifndef CREATE_LIB
+CREATE_LIB = $(LIB) $(LFLAGS) $(1) $(2)
+endif
+
+
+$(TARGET): $(RUNNER) $(OBJECTS)
+	$(call CREATE_LIB,$(TARGET),$(OBJECTS))
+
+obj/$(PLATFORM_PATH)/%$(OBJ): src/%.c $(HEADERS)
+	$(call COMPILE,$<,$@)
+
+obj/$(PLATFORM_PATH)/%$(OBJ): src/i386/%.s include/mmx.h
+	$(CC) -x assembler-with-cpp -I./include -c $< -o $@
+
+obj/$(PLATFORM_PATH)/%$(OBJ): examples/%.c
+	$(call COMPILE,$<,$@)
+
+obj/$(PLATFORM_PATH)/%$(OBJ): misc/%.c
+	$(call COMPILE,$<,$@)
+
+ex1: examples/ex1$(EXE)
+ex2: examples/ex2$(EXE)
+ex3: examples/ex3$(EXE)
+ex4: examples/ex4$(EXE)
+ex5: examples/ex5$(EXE)
+
+examples/ex1$(EXE): obj/$(PLATFORM_PATH)/ex1$(OBJ) $(TARGET)
+	$(call LINK,$<,$@)
+
+examples/ex2$(EXE): obj/$(PLATFORM_PATH)/ex2$(OBJ) $(TARGET)
+	$(call LINK,$<,$@)
+
+examples/ex3$(EXE): obj/$(PLATFORM_PATH)/ex3$(OBJ) $(TARGET)
+	$(call LINK,$<,$@)
+
+examples/ex4$(EXE): obj/$(PLATFORM_PATH)/ex4$(OBJ) $(TARGET)
+	$(call LINK,$<,$@)
+
+examples/ex5$(EXE): obj/$(PLATFORM_PATH)/ex5$(OBJ) $(TARGET)
+	$(call LINK,$<,$@)
+
+
+test: misc/test$(EXE)
+
+misc/test$(EXE): obj/$(PLATFORM_PATH)/test$(OBJ) $(TARGET)
+	$(call LINK,$<,$@)
+

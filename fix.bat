@@ -121,11 +121,6 @@ if "%MSVCDir%" == "" set MSVCDir=%VCINSTALLDIR%
 if "%MSVCDir%" == "" echo Your MSVCDir environment variable is not set!
 if "%MSVCDir%" == "" goto end
 
-REM msvc6 does not need this, msvc is fallback so we should do it anyway
-if [%1] == [msvc6]         goto skipconvert
-if [%2] == [--nomsvcpaths] goto skipconvert
-if [%3] == [--nomsvcpaths] goto skipconvert
-
 echo Converting MSVCDir path...
 cl /nologo /w misc/msvchelp.c >NUL
 msvchelp MSVCDir
@@ -153,8 +148,6 @@ echo Where platform is one of:
 echo     bcc32, djgpp, mingw, dmc, msvc6, msvc7, msvc8, icl, or watcom.
 echo.
 echo The --crlf parameter is used to turn on LF to CR/LF conversion.
-echo The --nomsvcpaths parameter is used to turn off special MS Visual C++
-echo path handling.
 echo.
 goto end
 
@@ -182,6 +175,10 @@ call fix.bat %1
 cd ..\..\
 
 cd addons\logg\
+call fix.bat %1
+cd ..\..\
+
+cd addons\jpgalleg\
 call fix.bat %1
 cd ..\..\
 

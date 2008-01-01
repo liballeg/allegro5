@@ -1,0 +1,89 @@
+#
+#	JPGalleg 2.6, by Angelo Mottola, 2000-2006
+#
+#	Unix specific makefile rules
+#
+
+
+PLATFORM = Unix
+PLATFORM_PATH = unix
+EXE = 
+OBJ = .o
+
+UNIX = 1
+
+CC = gcc
+OFLAGS = -O2 -ffast-math -fomit-frame-pointer
+CFLAGS = -c -s -I./include -I../../include $(OFLAGS) `../../allegro-config --cflags --addon` -Wall -W
+
+LIB = ar
+LFLAGS = rs
+
+ECHO = @echo $(1)
+CP = cp
+MV = mv
+RM = rm -f
+
+ifdef STATICLINK
+  ifdef DEBUG
+    LIB_NAME = libjpgad_s.a
+  else
+    LIB_NAME = libjpgal_s.a
+  endif
+else
+  ifdef DEBUG
+    LIB_NAME = libjpgad.a
+  else
+    LIB_NAME = libjpgal.a
+  endif
+endif
+
+LIBS = -lm `../../allegro-config --libs --addon`
+LDFLAGS = -L../../lib/$(PLATFORM_PATH)
+INSTALL_BASE_PATH = `../../allegro-config --prefix`
+
+
+
+.PHONY: _all
+
+_all: all
+
+
+
+final/lib/$(LIB_NAME): lib/unix/$(LIB_NAME)
+	$(CP) lib/unix/$(LIB_NAME) $(INSTALL_BASE_PATH)/lib
+
+final/include/jpgalleg.h: include/jpgalleg.h
+	$(CP) include/jpgalleg.h $(INSTALL_BASE_PATH)/include
+
+FINAL_FILES = final/lib/$(LIB_NAME) final/include/jpgalleg.h
+
+install: $(FINAL_FILES)
+	$(call ECHO,-)
+	$(call ECHO,JPGalleg for $(PLATFORM) has been successfully installed.)
+
+uninstall:
+	$(RM) $(INSTALL_BASE_PATH)/lib/$(LIB_NAME)
+	$(RM) $(INSTALL_BASE_PATH)/include/jpgalleg.h
+ifdef ALLEGRO
+	$(call REMOVE_PLUGIN_UNIX)
+else
+	$(call ECHO,Cannot remove grabber plugin: ALLEGRO environmental variable not set)
+endif
+	$(call ECHO,-)
+	$(call ECHO,JPGalleg has been uninstalled.)
+
+
+mmxtest:
+	- @echo > mmx.h
+	- @echo .text > mmxtest.s
+	- @echo emms >> mmxtest.s
+	- @$(CC) -c mmxtest.s -o obj/unix/mmxtest.o
+	- @echo #define JPGALLEG_MMX > mmx.h
+
+include/mmx.h:
+	$(call ECHO,Testing for MMX assembler support...)
+	@-$(MAKE) mmxtest --quiet
+	$(MV) mmx.h include
+	$(RM) mmxtest.s
+

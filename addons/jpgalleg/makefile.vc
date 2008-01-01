@@ -1,0 +1,182 @@
+#
+#	JPGalleg 2.6, by Angelo Mottola, 2000-2006
+#
+#	MSVC specific makefile rules
+#       written by Lothar May
+#
+
+
+PLATFORM = MSVC
+PLATFORM_PATH = msvc
+EXE = .exe
+OBJ = .obj
+
+NO_ASSEMBLER = 1
+
+ifdef ALLEGRO_USE_CYGWIN
+  UNIX = 1
+endif
+
+ifdef UNIX
+
+  ECHO = @echo $(1)
+  CP = cp
+  MV = mv
+  RM = rm -f
+    
+else
+
+  ifeq "$(COMSPEC)" ""
+  ifdef ComSpec
+  COMSPEC = $(ComSpec)
+  endif
+  endif
+  SHELL = $(COMSPEC)
+  
+  ECHO = @$(COMSPEC) /C echo $(1)
+  CP = @$(COMSPEC) /C copy
+  MV = @$(COMSPEC) /C move
+  RM = @$(COMSPEC) /C del
+  
+endif
+
+RUNNER = obj/msvc/runner.exe
+
+OFLAGS = -Gd -Ox
+LTCG =
+
+MSVC_OPT = -G5
+ifdef PPROONLY
+MSVC_OPT = -G6
+endif
+
+ifdef COMPILER_MSVC7
+  MSVC_OPT = -GL
+  LTCG = -LTCG
+endif
+ifdef COMPILER_MSVC8
+  MSVC_OPT = -GL
+  LTCG = -LTCG
+  VC8_FLAGS = -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE
+endif
+
+RUNTIME_LIB = -MD
+ifdef STATICRUNTIME
+  RUNTIME_LIB = -MT
+endif
+
+OFLAGS += $(MSVC_OPT) $(RUNTIME_LIB)
+
+CFLAGS = -nologo -I./include -I../../include $(OFLAGS) -c -W2 $(VC8_FLAGS)
+
+include ../../makefile.inf
+
+LIBS = ../../lib/$(PLATFORM_PATH)/$(ALLEG_LIB_BASENAME).lib
+
+ifdef STATICLINK
+  LIBS += kernel32.lib user32.lib gdi32.lib comdlg32.lib ole32.lib dinput.lib ddraw.lib dxguid.lib winmm.lib dsound.lib
+  CFLAGS += -DALLEGRO_STATICLINK
+  ifdef DEBUG
+    LIB_NAME = libjpgad_s.lib
+  else
+    LIB_NAME = libjpgal_s.lib
+  endif
+else
+  ifdef DEBUG
+    LIB_NAME = libjpgad.lib
+  else
+    LIB_NAME = libjpgal.lib
+  endif
+endif
+
+ifdef UNIX
+  LIB_NAME_IN_DIR = lib/msvc/$(LIB_NAME)
+else
+  LIB_NAME_IN_DIR = lib\msvc\$(LIB_NAME)
+endif
+
+
+
+# -------- check that the MSVCDir environment variable is set --------
+
+include ../../makefile.helper
+
+MSVCDir_D = $(subst /,\,$(MSVCDir))
+ifdef ALLEGRO_USE_CYGWIN
+  MSVCDir_U = $(shell cygpath "$(MSVCDir)")
+else
+  MSVCDir_U = $(subst \,/,$(MSVCDir))
+endif
+
+
+CC = $(MSVCDir_U)/bin/cl
+COMPILE = $(RUNNER) $(CC) @ $(CFLAGS) $(1) -Fo$(2)
+LINK = $(RUNNER) $(MSVCDir_U)/bin/link @ -nologo -OPT:REF -OPT:ICF $(LTCG) -INCREMENTAL:NO -MACHINE:IX86 -subsystem:windows -OUT:$(2) $(1) $(LIB_NAME_IN_DIR) $(LIBS)
+CREATE_LIB = $(RUNNER) $(MSVCDir_U)/bin/lib @ -nologo -OUT:$(1) $(2)
+
+
+NULLSTRING :=
+SPACE := $(NULLSTRING) # special magic to get an isolated space character
+
+ifneq ($(findstring $(SPACE),$(MSVCDIR)),)
+badspaces:
+	$(call ECHO,There are spaces in your MSVCDIR environment variable:)
+	$(call ECHO,please change it to the 8.3 short filename version)
+	$(call ECHO,or move your compiler to a different directory.)
+endif
+
+
+.PHONY: _all
+
+_all: all
+
+
+$(RUNNER): misc/runner.c
+	gcc -O -Wall -Werror -o $(RUNNER) misc/runner.c
+
+$(MSVCDir_U)/lib/$(LIB_NAME): lib/msvc/$(LIB_NAME)
+ifdef UNIX
+	$(CP) lib/msvc/$(LIB_NAME) $(MSVCDir_U)/lib
+else
+	$(CP) lib\msvc\$(LIB_NAME) $(MSVCDir_D)\lib
+endif
+
+$(MSVCDir_U)/include/jpgalleg.h: include/jpgalleg.h
+ifdef UNIX
+	$(CP) include/jpgalleg.h $(MSVCDir_U)/include
+else
+	$(CP) include\jpgalleg.h $(MSVCDir_D)\include
+endif
+
+INSTALL_FILES = $(MSVCDir_U)/lib/$(LIB_NAME) $(MSVCDir_U)/include/jpgalleg.h
+
+install: $(INSTALL_FILES)
+	$(call ECHO,-)
+	$(call ECHO,JPGalleg is now installed.)
+
+uninstall:
+ifdef UNIX
+	$(RM) $(MSVCDir_U)/lib/$(LIB_NAME)
+	$(RM) $(MSVCDir_U)/include/jpgalleg.h
+else
+	- $(RM) $(MSVCDir_D)\lib\$(LIB_NAME)
+	- $(RM) $(MSVCDir_D)\include\jpgalleg.h
+endif
+ifdef ALLEGRO
+	$(call REMOVE_PLUGIN_DOS)
+else
+	$(call ECHO,Cannot remove grabber plugin: ALLEGRO environmental variable not set)
+endif
+	$(call ECHO,-)
+	$(call ECHO,JPGalleg is now uninstalled.)
+
+
+include/mmx.h:
+	$(call ECHO,Currently no MMX Assembler support available for MSVC...)
+ifdef UNIX
+	- @echo > include/mmx.h
+	- @echo #undef JPGALLEG_MMX > include\mmx.h
+else
+	- $(call ECHO,\> include/mmx.h)
+	$(call ECHO,\#undef JPGALLEG_MMX \> include\mmx.h)
+endif

@@ -177,5 +177,8 @@ fi
 if ! ( cd addons/logg && ./fix.sh $1 $2); then
    echo "Error occured while executing logg's fix.sh!"
 fi
+if ! ( cd addons/jpgalleg && ./fix.sh $1 $2); then
+   echo "Error occured while executing jpgalleg's fix.sh!"
+fi
 
 echo "Done!"

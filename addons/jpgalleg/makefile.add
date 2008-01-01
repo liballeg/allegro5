@@ -1,0 +1,28 @@
+# makefile that is included into allegro's main makefile
+#
+
+ADDONS_LIST += JPGalleg
+ADDON_INSTALL_TARGETS += jpgalleg_install
+ADDON_UNINSTALL_TARGETS += jpgalleg_uninstall
+ADDON_CLEAN_TARGETS += jpgalleg_clean
+ADDON_DISTCLEAN_TARGETS += jpgalleg_distclean
+ADDON_LIB_TARGETS += jpgalleg_lib
+ADDON_EXE_TARGETS += jpgalleg_programs
+
+jpgalleg_lib:
+	$(MAKE) -C addons/jpgalleg/ lib
+
+jpgalleg_install:
+	$(MAKE) -C addons/jpgalleg/ install
+
+jpgalleg_clean:
+	$(MAKE) -C addons/jpgalleg/ clean
+
+jpgalleg_distclean:
+	$(MAKE) -C addons/jpgalleg/ distclean
+
+jpgalleg_uninstall:
+	$(MAKE) -C addons/jpgalleg/ uninstall
+
+jpgalleg_programs:
+	 $(MAKE) -C addons/jpgalleg/ examples
