@@ -2,8 +2,13 @@
 
 #include "logg.h"
 
-const int LITTLEENDIAN = 0;
-const int BIGENDIAN = 1;
+/* XXX requires testing */
+#ifdef ALLEGRO_BIG_ENDIANNESS
+	const int ENDIANNESS = 1;
+#endif
+#ifdef ALLEGRO_LITTLE_ENDIANNESS
+	const int ENDIANNESS = 0;
+#endif
 
 static int logg_bufsize = 1024*64;
 
@@ -48,7 +53,7 @@ SAMPLE* logg_load(const char* filename)
 	samp->data = malloc(sizeof(unsigned short[samp->len*2]));
 
 	while ((numRead = ov_read(&ovf, buf, logg_bufsize,
-				LITTLEENDIAN, 2, 0, &bitstream)) != 0) {
+				ENDIANNESS, 2, 0, &bitstream)) != 0) {
 		memcpy((unsigned char*)samp->data+offset, buf, numRead);
 		offset += numRead;
 	}
@@ -58,7 +63,7 @@ SAMPLE* logg_load(const char* filename)
 	return samp;
 }
 
-int logg_get_buffer_size()
+int logg_get_buffer_size(void)
 {
 	return logg_bufsize;
 }
@@ -110,7 +115,7 @@ static int read_ogg_data(LOGG_Stream* s)
 	while (read < logg_bufsize) {
 		int thisRead = ov_read(&s->ovf, s->buf[page]+read,
 				logg_bufsize-read,
-				LITTLEENDIAN, 2, 0, &bitstream);
+				ENDIANNESS, 2, 0, &bitstream);
 		if (thisRead == 0) {
 			if (s->loop) {
 				ov_clear(&s->ovf);
