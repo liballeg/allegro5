@@ -5,9 +5,11 @@ LFLAGS=-L. -L../../lib/unix -llogg -logg -lvorbis -lvorbisfile `../../allegro-co
 
 all: lib play_ogg stream_ogg
 
-lib: logg.o
-	ar rc liblogg.a logg.o
-	ranlib liblogg.a
+lib: liblogg.a
+
+liblogg.a: logg.o
+	ar rc $@ $^
+	ranlib $@
 
 logg.o: logg.c logg.h
 	$(CC) $(FLAGS) -c logg.c
