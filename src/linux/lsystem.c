@@ -171,8 +171,6 @@ static int sys_linux_init (void)
 	_unix_read_os_type();
 	if (os_type != OSTYPE_LINUX) return -1; /* FWIW */
 
-   _unix_guess_file_encoding();
-
 	/* This is the only bit that needs root privileges.  First
 	 * we attempt to set our euid to 0, in case this is the
 	 * second time we've been called. */

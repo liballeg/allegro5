@@ -381,6 +381,9 @@ static int _install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(voi
 
    /* detect CPU type */
    check_cpu();
+   
+   /* detect filename encoding used by libc */
+   _al_detect_filename_encoding();
 
    /* set up screensaver policy */
    _screensaver_policy = get_config_int(uconvert_ascii("system", tmp1),

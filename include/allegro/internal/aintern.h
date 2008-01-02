@@ -117,6 +117,8 @@ AL_FUNC(int, _al_drive_exists, (int drive));
 AL_FUNC(int, _al_getdrive, (void));
 AL_FUNC(void, _al_getdcwd, (int drive, char *buf, int size));
 
+AL_FUNC(void, _al_detect_filename_encoding, (void));
+
 /* obsolete; only exists for binary compatibility with 4.2.0 */
 AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
 

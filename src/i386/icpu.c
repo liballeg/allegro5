@@ -124,6 +124,9 @@ void check_cpu()
 	 cpu_capabilities |= (reg[3] & 0x02000000 ? CPU_SSE | CPU_MMXPLUS : 0);
 	 cpu_capabilities |= (reg[3] & 0x04000000 ? CPU_SSE2 : 0);
          cpu_capabilities |= (reg[2] & 0x00000001 ? CPU_SSE3 : 0);
+         cpu_capabilities |= (reg[2] & 0x00000200 ? CPU_SSSE3 : 0);
+         cpu_capabilities |= (reg[2] & 0x00080000 ? CPU_SSE41 : 0);
+         cpu_capabilities |= (reg[2] & 0x00100000 ? CPU_SSE42 : 0);
 	 cpu_capabilities |= (reg[3] & 0x00008000 ? CPU_CMOV : 0);
          cpu_capabilities |= (reg[3] & 0x40000000 ? CPU_IA64 : 0);
       }

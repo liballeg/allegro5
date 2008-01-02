@@ -30,13 +30,6 @@
 #endif
 
 
-/* Set to true in if the compiler and version of Windows support wide-character
- * file name functions.
- * TODO: currently we only set this in the SYSTEM_DIRECTX case.
- */
-int _al_win_unicode_filenames = FALSE;
-
-
 
 /* _al_file_isok:
  *  Helper function to check if it is safe to access a file on a floppy
@@ -50,6 +43,23 @@ int _al_file_isok(AL_CONST char *filename)
 
 
 
+/* _al_detect_filename_encoding:
+ *  Platform specific function to detect the filename encoding. This is called
+ *  after setting a system driver, and even if this driver is SYSTEM_NONE.
+ */
+void _al_detect_filename_encoding(void)
+{
+#ifdef ALLEGRO_DMC
+   /* DMC's C library does not support _wfinddata_t */
+   set_filename_encoding(U_ASCII);
+#else
+   /* Windows NT 4.0, 2000, XP, etc support unicode filenames */
+   set_filename_encoding(GetVersion() & 0x80000000 ? U_ASCII : U_UNICODE);
+#endif
+}
+
+
+
 /* _al_file_size_ex:
  *  Measures the size of the specified file.
  */
@@ -58,7 +68,7 @@ uint64_t _al_file_size_ex(AL_CONST char *filename)
    struct _stat s;
    char tmp[1024];
 
-   if (!_al_win_unicode_filenames) {
+   if (get_filename_encoding() != U_UNICODE) {
       if (_stat(uconvert(filename, U_CURRENT, tmp, U_ASCII, sizeof(tmp)), &s) != 0) {
          *allegro_errno = errno;
          return 0;
@@ -85,7 +95,7 @@ time_t _al_file_time(AL_CONST char *filename)
    struct _stat s;
    char tmp[1024];
 
-   if (!_al_win_unicode_filenames) {
+   if (get_filename_encoding() != U_UNICODE) {
       if (_stat(uconvert(filename, U_CURRENT, tmp, U_ASCII, sizeof(tmp)), &s) != 0) {
          *allegro_errno = errno;
          return 0;
@@ -123,7 +133,7 @@ static void fill_ffblk(struct al_ffblk *info)
 {
    struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
 
-   if (!_al_win_unicode_filenames) {
+   if (get_filename_encoding() != U_UNICODE) {
       info->attrib = ff_data->data.a.attrib;
       info->time = ff_data->data.a.time_write;
       info->size = ff_data->data.a.size;
@@ -179,7 +189,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    /* start the search */
    errno = *allegro_errno = 0;
 
-   if (!_al_win_unicode_filenames) {
+   if (get_filename_encoding() != U_UNICODE) {
       ff_data->handle = _findfirst(uconvert(pattern, U_CURRENT, tmp,
                                             U_ASCII, sizeof(tmp)),
                                             &ff_data->data.a);
@@ -235,7 +245,7 @@ int al_findnext(struct al_ffblk *info)
 {
    struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
 
-   if (!_al_win_unicode_filenames) {
+   if (get_filename_encoding() != U_UNICODE) {
       do {
          if (_findnext(ff_data->handle, &ff_data->data.a) != 0) {
             *allegro_errno = errno;
@@ -301,7 +311,7 @@ void _al_getdcwd(int drive, char *buf, int size)
 {
    char tmp[1024];
 
-   if (!_al_win_unicode_filenames) {
+   if (get_filename_encoding() != U_UNICODE) {
       if (_getdcwd(drive+1, tmp, sizeof(tmp)))
          do_uconvert(tmp, U_ASCII, buf, U_CURRENT, size);
       else
@@ -327,7 +337,7 @@ uint64_t al_ffblk_get_size(struct al_ffblk *info)
    ASSERT(info);
    ff_data = (struct FF_DATA *) info->ff_data;
 
-   if (!_al_win_unicode_filenames) {
+   if (get_filename_encoding() != U_UNICODE) {
       return ff_data->data.a.size;
    }
    else {
@@ -343,7 +353,7 @@ uint64_t al_ffblk_get_size(struct al_ffblk *info)
  */
 int _al_win_open(const char *filename, int mode, int perm)
 {
-   if (!_al_win_unicode_filenames) {
+   if (get_filename_encoding() != U_UNICODE) {
       return open(filename, mode, perm);
    }
    else {
@@ -359,7 +369,7 @@ int _al_win_open(const char *filename, int mode, int perm)
  */
 int _al_win_unlink(const char *pathname)
 {
-   if (!_al_win_unicode_filenames) {
+   if (get_filename_encoding() != U_UNICODE) {
       return unlink(pathname);
    }
    else {

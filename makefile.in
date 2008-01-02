@@ -374,6 +374,11 @@ info:
 # required to fix parallel make builds, makes the lib targets a dependency of the exe targets
 $(ALLEGRO_EXE_TARGETS): $(ALLEGRO_LIB_TARGETS)
 
+# required to fix parallel make builds, makes the lib targets a dependency of the exe targets
+# XXX this is a little bit of a hack. Ideally youd want only the debug exes to depend on the debug libs,
+# not all of them.
+$(ALLEGRO_EXE_TARGETS): $(ALLEGRO_LIB_TARGETS)
+
 ifdef CROSSCOMPILE
 
 full-build: lib modules addons programs
