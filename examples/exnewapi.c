@@ -5,9 +5,10 @@
  * 100 pixels / second, limits the FPS to 100 Hz to save CPU, and prints the
  * current FPS in the top right corner.
  */
-#include "allegro5.h"
+
 #include <math.h>
 #include <stdio.h>
+#include "allegro5.h"
 
 int main(void)
 {
@@ -63,8 +64,8 @@ int main(void)
 
    picture = al_load_bitmap("mysha.tga");
    if (!picture) {
-   	printf("failed to load mysha.tga\n");
-	return 1;
+      printf("failed to load mysha.tga\n");
+      return 1;
    }
 
    mask = al_load_bitmap("mask.pcx");
@@ -77,6 +78,7 @@ int main(void)
    mem_bmp = al_load_bitmap("mysha.tga");
    if (!mem_bmp) {
       printf("failed to load mysha.tga (mem)\n");
+      return 1;
    }
 
    ALLEGRO_COLOR color;
@@ -84,9 +86,9 @@ int main(void)
    al_lock_bitmap(picture, &lr, 0);
    al_set_target_bitmap(picture);
    for (y = 0; y < 100; y++) {
-	for (x = 0; x < 160; x++) {
-		al_put_pixel(x+160, y+100, al_get_pixel(picture, x, y, &color)) ;
-	}
+      for (x = 0; x < 160; x++) {
+         al_put_pixel(x+160, y+100, al_get_pixel(picture, x, y, &color)) ;
+      }
    }
    al_unlock_bitmap(picture);
 
@@ -96,13 +98,13 @@ int main(void)
    start_ticks = al_current_time();
 
    for (i = 0; i < 3; i++) {
-   	al_set_current_display(display[i]);
-	if (i == 0)
-		al_map_rgba_f(&colors[0], 1, 0, 0, 0.5f);
-	else if (i == 1)
-		al_map_rgba_f(&colors[1], 0, 1, 0, 0.5f);
-	else
-		al_map_rgba_f(&colors[2], 0, 0, 1, 0.5f);
+      al_set_current_display(display[i]);
+      if (i == 0)
+         al_map_rgba_f(&colors[0], 1, 0, 0, 0.5f);
+      else if (i == 1)
+         al_map_rgba_f(&colors[1], 0, 1, 0, 0.5f);
+      else
+         al_map_rgba_f(&colors[2], 0, 0, 1, 0.5f);
    }
 
    ALLEGRO_COLOR c;
@@ -122,12 +124,11 @@ int main(void)
       /* read input */
       while (!al_event_queue_is_empty(events)) {
          al_get_next_event(events, &event);
-         if (event.type == ALLEGRO_EVENT_KEY_DOWN)
-         {
+         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
             ALLEGRO_KEYBOARD_EVENT *key = &event.keyboard;
             if (key->keycode == ALLEGRO_KEY_ESCAPE) {
                quit = 1;
-	    }
+            }
          }
          if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
             ALLEGRO_DISPLAY_EVENT *display = &event.display;
@@ -135,56 +136,61 @@ int main(void)
             h = display->height;
             al_acknowledge_resize(display->source);
          }
-         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-         {
-	   int i;
-	    for (i = 0; i < 3; i++) {
-	      if (display[i] == event.display.source)
-	      	display[i] = 0;
-	    }
-	    al_destroy_display(event.display.source);
-	    for (i = 0; i < 3; i++)
-	    	if (display[i])
-			goto not_done;
+         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+            int i;
+            for (i = 0; i < 3; i++) {
+               if (display[i] == event.display.source)
+                  display[i] = 0;
+            }
+            al_destroy_display(event.display.source);
+            for (i = 0; i < 3; i++) {
+               if (display[i])
+                  goto not_done;
+            }
             quit = 1;
-	    not_done:;
+         not_done:
+            ;
          }
       }
 
       while (last_move < al_current_time()) {
          last_move++;
-	 x += dx;
-         if (x == 0) dx = 1;
-         if (x == w - 40) dx = -1;
+         x += dx;
+         if (x == 0)
+            dx = 1;
+         if (x == w - 40)
+            dx = -1;
       }
 
-         frames++;
-         for (i = 0; i < 3; i++) {
-	    if (!display[i])
-	       continue;
-            al_set_current_display(display[i]);
-	    al_map_rgb_f(&white, 1, 1, 1);
-            al_clear(&white);
-	    if (i == 1) {
-	    	al_draw_line(50, 50, 150, 150, &colors[0]);
-	    }
+      frames++;
+      for (i = 0; i < 3; i++) {
+         if (!display[i])
+            continue;
 
-            if (i == 2) {
-               ALLEGRO_COLOR test;
-               al_map_rgba_f(&test, 1.0f, 1.0f, 1.0f, 1.0f);
-               al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, &test);
-               al_draw_scaled_bitmap(picture, 0, 0,
+         al_set_current_display(display[i]);
+         al_map_rgb_f(&white, 1, 1, 1);
+         al_clear(&white);
+         if (i == 1) {
+            al_draw_line(50, 50, 150, 150, &colors[0]);
+         }
+
+         if (i == 2) {
+            ALLEGRO_COLOR test;
+            al_map_rgba_f(&test, 1.0f, 1.0f, 1.0f, 1.0f);
+            al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, &test);
+            al_draw_scaled_bitmap(picture, 0, 0,
                   al_get_bitmap_width(picture), al_get_bitmap_height(picture),
                   0, 0, 640, 480, 0);
-               al_map_rgba_f(&test, 1.0f, 1.0f, 0.0f, 1.0f);
-               al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, &test);
-               al_draw_rotated_bitmap(picture, 160, 100, 320, 240, M_PI/4, 0);
-               al_map_rgba_f(&test, 1.0f, 1.0f, 1.0f, 1.0f);
-               al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &test);
-	    }
-            al_draw_rectangle(x, y, x + 140, y + 140, &colors[i], ALLEGRO_FILLED);
-            al_flip_display();
+            al_map_rgba_f(&test, 1.0f, 1.0f, 0.0f, 1.0f);
+            al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, &test);
+            al_draw_rotated_bitmap(picture, 160, 100, 320, 240, M_PI/4, 0);
+            al_map_rgba_f(&test, 1.0f, 1.0f, 1.0f, 1.0f);
+            al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &test);
          }
+
+         al_draw_rectangle(x, y, x + 140, y + 140, &colors[i], ALLEGRO_FILLED);
+         al_flip_display();
+      }
    }
 
    printf("fps=%f\n", (float)(frames * 1000) / (float)(al_current_time()-start));
@@ -196,3 +202,5 @@ int main(void)
    return 0;
 }
 END_OF_MAIN()
+
+/* vim: set sts=3 sw=3 et: */
