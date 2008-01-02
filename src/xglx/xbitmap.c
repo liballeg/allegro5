@@ -19,7 +19,7 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
    float l, t, r, b, w, h;
    ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
    GLboolean on;
-   ALLEGRO_INDEPENDANT_COLOR *bc;
+   ALLEGRO_COLOR *bc;
    int src_mode, dst_mode;
    int blend_modes[4] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA

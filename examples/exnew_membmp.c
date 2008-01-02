@@ -75,22 +75,24 @@ static void test(ALLEGRO_BITMAP *bitmap, char *message)
 
 int main(void)
 {
-	al_init();
+   al_init();
 
-	al_install_keyboard();
+   al_install_keyboard();
 
-	ALLEGRO_DISPLAY *display = al_create_display(640, 400);
+   ALLEGRO_DISPLAY *display = al_create_display(640, 400);
 
-	myfont = a5font_load_font("font.tga", 0);
+   myfont = a5font_load_font("font.tga", 0);
 
-	ALLEGRO_BITMAP *accelbmp = al_load_bitmap("mysha.pcx");
+   ALLEGRO_BITMAP *accelbmp = al_load_bitmap("mysha.pcx");
 
-	al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-	ALLEGRO_BITMAP *membmp = al_load_bitmap("mysha.pcx");
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   ALLEGRO_BITMAP *membmp = al_load_bitmap("mysha.pcx");
 
-	test(membmp, "Memory bitmap");
+   test(membmp, "Memory bitmap");
 
-	test(accelbmp, "Accelerated bitmap");
+   test(accelbmp, "Accelerated bitmap");
+
+   return 0;
 }
 END_OF_MAIN()
 
