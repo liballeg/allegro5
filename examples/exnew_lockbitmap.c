@@ -45,6 +45,7 @@ int main(void)
          *(ptr++) = blue;
          *(ptr++) = alpha;
       }
+      ptr += locked.pitch - (4 * 100);
    }
    al_unlock_bitmap(bitmap);
 
