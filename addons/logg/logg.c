@@ -3,10 +3,10 @@
 #include "logg.h"
 
 /* XXX requires testing */
-#ifdef ALLEGRO_BIG_ENDIANNESS
+#ifdef ALLEGRO_BIG_ENDIAN
 	const int ENDIANNESS = 1;
 #endif
-#ifdef ALLEGRO_LITTLE_ENDIANNESS
+#ifdef ALLEGRO_LITTLE_ENDIAN
 	const int ENDIANNESS = 0;
 #endif
 
