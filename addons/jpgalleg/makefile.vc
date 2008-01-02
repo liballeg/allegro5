@@ -69,7 +69,7 @@ OFLAGS += $(MSVC_OPT) $(RUNTIME_LIB)
 
 CFLAGS = -nologo -I./include -I../../include $(OFLAGS) -c -W2 $(VC8_FLAGS)
 
-include ../../makefile.inf
+include ../../makefile.name
 
 LIBS = ../../lib/$(PLATFORM_PATH)/$(ALLEG_LIB_BASENAME).lib
 

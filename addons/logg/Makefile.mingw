@@ -1,4 +1,4 @@
-include ../../makefile.inf
+include ../../makefile.name
 
 CC=gcc
 PREFIX=$(MINGDIR)

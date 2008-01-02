@@ -54,7 +54,7 @@ LDFLAGS = -s $(PFLAGS) -L../../lib/$(PLATFORM_PATH)
 LIB = ar
 LFLAGS = rs
 
-include ../../makefile.inf
+include ../../makefile.name
 
 LIBS = -l$(ALLEG_LIB_BASENAME)
 

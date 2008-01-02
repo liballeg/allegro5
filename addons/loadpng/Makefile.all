@@ -14,7 +14,7 @@ LIB := libldpng.a
 
 all: lib examples
 
-include ../../makefile.inf
+include ../../makefile.name
 include $(MAKEFILE_INC)
 
 #--------------------------------------------------

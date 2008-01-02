@@ -35,7 +35,7 @@ else
   LIB_NAME = libjpgal.a
 endif
 
-include ../../makefile.info
+include ../../makefile.name
 
 LIBS = -l$(ALLEG_LIB_BASENAME)
 LDFLAGS = -L../../lib/$(PLATFORM_PATH)

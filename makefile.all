@@ -51,7 +51,7 @@ include makefile.ver
 # -------- check environment to see what type of library to build --------
 
 ALLEGRO_USE_C = 1
-include makefile.inf
+include makefile.name
 
 
 
