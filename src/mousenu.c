@@ -311,7 +311,7 @@ ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int x_focus, i
          ALLEGRO_COLOR color;
          al_get_pixel(bmp, x, y, &color);
          unsigned char r, g, b, a;
-         al_unmap_rgba_ex(al_get_bitmap_format(bmp), &color, &r, &g, &b, &a);
+         al_unmap_rgba(&color, &r, &g, &b, &a);
          int oldcolor;
          if (a == 0)
             oldcolor = makecol32(255, 0, 255);

@@ -196,10 +196,10 @@ bool Player::load(void)
          ALLEGRO_COLOR color;
          al_get_pixel(bitmap, px, py, &color);
          unsigned char r, g, b, a;
-         al_unmap_rgba_ex(bitmap_format, &color, &r, &g, &b, &a);
+         al_unmap_rgba(&color, &r, &g, &b, &a);
          if (a != 0) {
             a = 160;
-            al_map_rgba_ex(trans_format, &color, r, g, b, a);
+            al_map_rgba(&color, r, g, b, a);
          }
          al_put_pixel(px, py, &color);
       }

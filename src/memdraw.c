@@ -538,7 +538,7 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color)
    int clip_x1, clip_y1, clip_x2, clip_y2;
    int xo, yo; /* offset to top left */
    int src_mode, dst_mode;
-   ALLEGRO_INDEPENDANT_COLOR *ic;
+   ALLEGRO_COLOR *ic;
 
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
@@ -681,7 +681,7 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
    int tmp;
    int pixel_value;
    int src_mode, dst_mode;
-   ALLEGRO_INDEPENDANT_COLOR *ic;
+   ALLEGRO_COLOR *ic;
 
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
@@ -749,7 +749,7 @@ void _al_clear_memory(ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
    int src_mode, dst_mode;
-   ALLEGRO_INDEPENDANT_COLOR *ic;
+   ALLEGRO_COLOR *ic;
 
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();

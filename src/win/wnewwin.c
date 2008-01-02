@@ -428,7 +428,7 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
          ALLEGRO_COLOR color;
          al_get_pixel(bmp, x, y, &color);
          unsigned char r, g, b, a;
-         al_unmap_rgba_ex(al_get_bitmap_format(bmp), &color, &r, &g, &b, &a);
+         al_unmap_rgba(&color, &r, &g, &b, &a);
          int oldcolor;
          if (a == 0) {
             oldcolor = makecol32(255, 0, 255);

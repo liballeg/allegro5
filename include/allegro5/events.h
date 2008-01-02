@@ -90,7 +90,7 @@ typedef unsigned int ALLEGRO_EVENT_TYPE;
  *
  *  ALLEGRO_EVENT_DISPLAY_LOST - Displays can be lost with some drivers (just Direct3D?). This means that rendering is impossible. The device will be restored as soon as it is possible. The program should be able to ignore this event and continue rendering however it will have no effect.
  *
- *  ALLEGRO_EVENT_DISPLAY_FOUND - Generated when a lost device is regained. Bitmaps created without the ALLEGRO_SYNC_MEMORY_COPY flag may lose their data when the device is lost, so they should be recreated when this event is received.
+ *  ALLEGRO_EVENT_DISPLAY_FOUND - Generated when a lost device is regained. Drawing will no longer be a no-op.
  */
 enum
 {

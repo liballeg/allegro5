@@ -60,7 +60,6 @@ int main(void)
    al_set_current_display(display[2]);
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-   al_set_new_bitmap_flags(ALLEGRO_SYNC_MEMORY_COPY);
 
    picture = al_load_bitmap("mysha.tga");
    if (!picture) {

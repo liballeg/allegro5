@@ -3,7 +3,7 @@
 static void set_opengl_color(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
     unsigned char r, g, b, a;
-    al_unmap_rgba_ex(d->format, color, &r, &g, &b, &a);
+    al_unmap_rgba(color, &r, &g, &b, &a);
     glColor4b(r, g, b, a);
 }
 
@@ -15,7 +15,7 @@ static void set_opengl_blending(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
    ALLEGRO_INDEPENDANT_COLOR *bc;
    int src_mode, dst_mode;
    float r, g, b, a;
-   al_unmap_rgba_f_ex(d->format, color, &r, &g, &b, &a);
+   al_unmap_rgba_f(color, &r, &g, &b, &a);
 
    al_get_blender(&src_mode, &dst_mode, NULL);
    glEnable(GL_BLEND);
@@ -28,7 +28,7 @@ static void set_opengl_blending(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 static void clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
    unsigned char r, g, b, a;
-   al_unmap_rgba_ex(d->format, color, &r, &g, &b, &a);
+   al_unmap_rgba(color, &r, &g, &b, &a);
 
    // FIXME: hack
    // FIXME: need format conversion if they don't match

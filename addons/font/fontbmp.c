@@ -37,7 +37,7 @@ static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int
    ALLEGRO_COLOR c, c2;
    ALLEGRO_LOCKED_REGION lr;
 
-   _al_map_rgb(bmp, &c, 255, 255, 0);
+   al_map_rgb(&c, 255, 255, 0);
 
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
 
@@ -101,7 +101,7 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
             goto done;
          }
          al_set_target_bitmap(bits[i]);
-         _al_map_rgb(bits[i], &col, 255, 255, 0);
+         al_map_rgb( &col, 255, 255, 0);
          al_clear(&col);
       }
       else {
@@ -177,7 +177,7 @@ A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
    ALLEGRO_COLOR col;
    al_get_pixel(import_bmp, 0, 0, &col);
    unsigned char r,g,b,a;
-   _al_unmap_rgba(import_bmp, &col, &r, &g, &b, &a);
+   al_unmap_rgba(&col, &r, &g, &b, &a);
 
    f = a5font_grab_font_from_bitmap(import_bmp);
 

@@ -46,7 +46,7 @@ typedef struct thread_local_state {
    /* Blending modes and color */
    int blend_source;
    int blend_dest;
-   ALLEGRO_INDEPENDANT_COLOR blend_color;
+   ALLEGRO_COLOR blend_color;
    ALLEGRO_COLOR orig_blend_color;
    ALLEGRO_MEMORY_BLENDER memory_blender;
 } thread_local_state;
@@ -155,7 +155,7 @@ static THREAD_LOCAL thread_local_state _tls = {
    ALLEGRO_ALPHA,
    ALLEGRO_INVERSE_ALPHA,
    { 1.0f, 1.0f, 1.0f, 1.0f },
-   {.raw = {0, 0, 0, 0}},
+   { 0, 0, 0, 0 },
    _al_blender_alpha_inverse_alpha
 };
 
@@ -387,16 +387,6 @@ void al_set_new_bitmap_format(int format)
  * to create it. If this flag is not specified, al_create_bitmap will be used
  * instead and the display driver will determine the format.
  *
- * ALLEGRO_SYNC_MEMORY_COPY - When modifying the bitmap, always keep the memory
- * copy synchronized. This may mean copying back from the texture after
- * render-to-texture operations which is slow, or it may mean doing each
- * operation twice, once with render-to-texture, and once with a software
- * renderer on the memory copy. Some drivers also may always have to do
- * software rendering first then upload the modified parts, so this flag would
- * have no effect.
- *
- * ALLEGRO_USE_ALPHA - Use alpha blending when drawing the bitmap
- *
  * ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files,
  * forces the resulting ALLEGRO_BITMAP to use the same format as the file. 
  */
@@ -507,7 +497,7 @@ void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
 
 
 
-ALLEGRO_INDEPENDANT_COLOR *_al_get_blend_color()
+ALLEGRO_COLOR *_al_get_blend_color()
 {
    if ((tls = tls_get()) == NULL)
       return NULL;

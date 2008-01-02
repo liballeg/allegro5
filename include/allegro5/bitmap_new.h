@@ -129,9 +129,7 @@ enum ALLEGRO_PIXEL_FORMAT {
  * Bitmap flags
  */
 #define ALLEGRO_MEMORY_BITMAP      0x0001
-#define ALLEGRO_SYNC_MEMORY_COPY   0x0002
-#define ALLEGRO_USE_ALPHA          0x0004
-#define ALLEGRO_KEEP_BITMAP_FORMAT 0x0008
+#define ALLEGRO_KEEP_BITMAP_FORMAT 0x0002
 
 
 /* Flags for the blitting functions */
@@ -216,14 +214,6 @@ AL_FUNC(ALLEGRO_COLOR, *al_map_rgb, (ALLEGRO_COLOR *color,	unsigned char r, unsi
 AL_FUNC(ALLEGRO_COLOR, *al_map_rgba, (ALLEGRO_COLOR *color, unsigned char r, unsigned char g, unsigned char b, unsigned char a));
 AL_FUNC(ALLEGRO_COLOR, *al_map_rgb_f, (ALLEGRO_COLOR *color, float r, float g, float b));
 AL_FUNC(ALLEGRO_COLOR, *al_map_rgba_f, (ALLEGRO_COLOR *color, float r, float g, float b, float a));
-AL_FUNC(ALLEGRO_COLOR, *al_map_rgb_i, (ALLEGRO_COLOR *color, int r, int g, int b));
-AL_FUNC(ALLEGRO_COLOR, *al_map_rgba_i, (ALLEGRO_COLOR *color, int r, int g, int b, int a));
-AL_FUNC(ALLEGRO_COLOR*, al_map_rgba_ex, (int format, ALLEGRO_COLOR *color, unsigned char r, unsigned char g, unsigned char b, unsigned char a));
-AL_FUNC(ALLEGRO_COLOR*, al_map_rgba_f_ex, (int format, ALLEGRO_COLOR *color, float r, float g, float b, float a));
-AL_FUNC(ALLEGRO_COLOR*, al_map_rgba_i_ex, (int format, ALLEGRO_COLOR *color, int r, int g, int b, int a));
-AL_FUNC(ALLEGRO_COLOR*, al_map_rgb_ex, (int format, ALLEGRO_COLOR *color, unsigned char r, unsigned char g, unsigned char b));
-AL_FUNC(ALLEGRO_COLOR*, al_map_rgb_f_ex, (int format, ALLEGRO_COLOR *color, float r, float g, float b));
-AL_FUNC(ALLEGRO_COLOR*, al_map_rgb_i_ex, (int format, ALLEGRO_COLOR *color, int r, int g, int b));
 
 
 /* Pixel unmapping */
@@ -231,14 +221,6 @@ AL_FUNC(void, al_unmap_rgb, (ALLEGRO_COLOR *color, unsigned char *r, unsigned ch
 AL_FUNC(void, al_unmap_rgba, (ALLEGRO_COLOR *color, unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a));
 AL_FUNC(void, al_unmap_rgb_f, (ALLEGRO_COLOR *color, float *r, float *g, float *b));
 AL_FUNC(void, al_unmap_rgba_f, (ALLEGRO_COLOR *color, float *r, float *g, float *b, float *a));
-AL_FUNC(void, al_unmap_rgb_i, (ALLEGRO_COLOR *color, int *r, int *g, int *b));
-AL_FUNC(void, al_unmap_rgba_i, (ALLEGRO_COLOR *color, int *r, int *g, int *b, int *a));
-AL_FUNC(void, al_unmap_rgba_ex, (int format, ALLEGRO_COLOR *color, unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a));
-AL_FUNC(void, al_unmap_rgba_f_ex, (int format, ALLEGRO_COLOR *color, float *r, float *g, float *b, float *a));
-AL_FUNC(void, al_unmap_rgba_i_ex, (int format, ALLEGRO_COLOR *color, int *r, int *g, int *b, int *a));
-AL_FUNC(void, al_unmap_rgb_ex, (int format, ALLEGRO_COLOR *color, unsigned char *r, unsigned char *g, unsigned char *b));
-AL_FUNC(void, al_unmap_rgb_f_ex, (int format, ALLEGRO_COLOR *color, float *r, float *g, float *b));
-AL_FUNC(void, al_unmap_rgb_i_ex, (int format, ALLEGRO_COLOR *color, int *r, int *g, int *b));
 
 
 /* Masking */

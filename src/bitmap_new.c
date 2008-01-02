@@ -443,9 +443,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    bitmap->lock_h = height;
    bitmap->lock_flags = flags;
 
-   if (bitmap->flags & ALLEGRO_MEMORY_BITMAP ||
-       bitmap->flags & ALLEGRO_SYNC_MEMORY_COPY)
-   {
+   if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
       locked_region->data = bitmap->memory
          + (bitmap->w * y + x) * al_get_pixel_size(bitmap->format);
       locked_region->format = bitmap->format;
@@ -510,16 +508,7 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
       bitmap = bitmap->parent;
    }
 
-   if (bitmap->flags & ALLEGRO_SYNC_MEMORY_COPY &&
-       !(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
-   {
-      bitmap->vt->upload_bitmap(bitmap,
-      bitmap->lock_x,
-      bitmap->lock_y,
-      bitmap->lock_w,
-      bitmap->lock_h);
-   }
-   else if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
       bitmap->vt->unlock_region(bitmap);
    }
 
@@ -549,7 +538,7 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color)
    _al_push_target_bitmap();
    al_set_target_bitmap(bitmap);
 
-   _al_map_rgba(bitmap, &alpha_pixel, 0, 0, 0, 0);
+   al_map_rgba(&alpha_pixel, 0, 0, 0, 0);
 
    for (y = 0; y < bitmap->h; y++) {
       for (x = 0; x < bitmap->w; x++) {

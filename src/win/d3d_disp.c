@@ -207,10 +207,10 @@ int _al_d3d_format_to_allegro(int d3d_fmt)
    return -1;
 }
 
-static int d3d_al_color_to_d3d(int format, ALLEGRO_COLOR *color)
+static int d3d_al_color_to_d3d(ALLEGRO_COLOR *color)
 {
    unsigned char r, g, b, a;
-   al_unmap_rgba_ex(format, color, &r, &g, &b, &a);
+   al_unmap_rgba(color, &r, &g, &b, &a);
    return D3DCOLOR_ARGB(a, r, g, b);
 }
 
@@ -1220,22 +1220,21 @@ void _al_d3d_set_blender(void)
 
 
 static DWORD d3d_blend_colors(
-   ALLEGRO_BITMAP *target,
    ALLEGRO_COLOR *color,
-   ALLEGRO_INDEPENDANT_COLOR *bc)
+   ALLEGRO_COLOR *bc)
 {
    ALLEGRO_COLOR result;
    float r, g, b, a;
 
-   _al_unmap_rgba_f(target, color, &r, &g, &b, &a);
+   al_unmap_rgba_f(color, &r, &g, &b, &a);
 
-   _al_map_rgba_f(target, &result,
+   al_map_rgba_f(&result,
       r*bc->r,
       g*bc->g,
       b*bc->b,
       a*bc->a);
 
-   return d3d_al_color_to_d3d(target->format, &result);
+   return d3d_al_color_to_d3d(&result);
 }
 
 /* Dummy implementation of line. */
@@ -1244,7 +1243,7 @@ static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, floa
 {
    static D3D_COLORED_VERTEX points[2] = { { 0.0f, 0.0f, 0.0f, 0 }, };
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_INDEPENDANT_COLOR *bc = _al_get_blend_color();
+   ALLEGRO_COLOR *bc = _al_get_blend_color();
    DWORD d3d_color;
    
    if (_al_d3d_is_device_lost()) return;
@@ -1254,7 +1253,7 @@ static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, floa
       return;
    }
 
-   d3d_color = d3d_blend_colors(target, color, bc);
+   d3d_color = d3d_blend_colors(color, bc);
 
    if (target->parent) {
       fx += target->xofs;
@@ -1283,10 +1282,6 @@ static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, floa
    }
    
    _al_d3d_unlock_device();
-   
-   if (target->flags & ALLEGRO_SYNC_MEMORY_COPY) {
-      _al_d3d_sync_bitmap(target);
-   }
 }
  
 /* Dummy implementation of a filled rectangle. */
@@ -1297,7 +1292,7 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    float w = brx - tlx;
    float h = bry - tly;
    ALLEGRO_BITMAP *target;
-   ALLEGRO_INDEPENDANT_COLOR *bc = _al_get_blend_color();
+   ALLEGRO_COLOR *bc = _al_get_blend_color();
    DWORD d3d_color;
 
    if (!(flags & ALLEGRO_FILLED)) {
@@ -1317,7 +1312,7 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
 
    target = al_get_target_bitmap();
 
-   d3d_color = d3d_blend_colors(target, color, bc);
+   d3d_color = d3d_blend_colors(color, bc);
    
    if (w < 1 || h < 1) {
       return;
@@ -1346,10 +1341,6 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
       d3d_color, 0, false);
 
    _al_d3d_unlock_device();
-   
-   if (target->flags & ALLEGRO_SYNC_MEMORY_COPY) {
-      _al_d3d_sync_bitmap(target);
-   }
 }
 
 static void d3d_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)

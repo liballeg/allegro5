@@ -66,7 +66,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_COLOR black;
    al_set_current_display(display);
    al_set_target_bitmap(al_get_backbuffer());
-   al_map_rgba_ex(display->format, &black, 0, 0, 0, 0);
+   al_map_rgba(&black, 0, 0, 0, 0);
    al_clear(&black);
    al_flip_display();
 
