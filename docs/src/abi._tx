@@ -38,8 +38,7 @@ Introduction
    Note: ABI compatibility will only be _actively_ maintained for:
 <ul>
 <li>Windows on x86
-<li>Linux on x86
-<li>Linux on x86-64
+<li>Linux on x86 / x86-64
 <li>MacOS X on PowerPC
 </ul>
 
@@ -56,15 +55,13 @@ Introduction
 Windows notes
 
    If you don't need a modified version of Allegro then just link your
-   program against an officially blessed non-WIP, non-SVN, non-dodgy
-   version. Don't disable any features (eg. colour depths, drivers) in
-   the DLL.
+   program against an official stable version. Don't disable any features
+   (eg. colour depths, drivers) in the DLL.
 
    If you require a modified version of Allegro, then please either
    statically link, or pick a non-standard name for the Allegro DLL.
    For example, don't distribute a modified version of Allegro under a
-   name such as all42.dll or alleg42.dll. Instead, call it something
-   like alcustom.dll. Even better, statically link.
+   name such as all42.dll or alleg42.dll.
 
    For the people who use vanilla Allegro, we will provide a set of
    "reference" DLLs. If your binary works with those then everything is
@@ -75,13 +72,13 @@ Windows notes
 
 
 @heading
-Linux on x86 notes
+Linux notes
 
    To make sure an Allegro binary compiled on your machine will work on
    another machine, do not disable any "features" with `configure'. Your
-   copy of Allegro must have assembly routines, threads, modules, all
-   colour depths and X11 support enabled, amongst other things. If in
-   doubt, leave it at the default setting.
+   copy of Allegro must have threads, modules, all colour depths and X11
+   support enabled, amongst other things. If in doubt, leave it at the
+   default setting.
 
    When you are ready to distribute your binary, run "ldd &ltmybinary&gt".
    It should say something like:
@@ -108,35 +105,25 @@ Linux on x86 notes
 
 
 @heading
-Linux on x86-64 notes
-
-   The situation is basically the same as for Linux on x86, however
-   your copy of Allegro must NOT have assembly routines enabled (it
-   wouldn't work anyhow).
-
-
-
-@heading
 MacOS X notes
 
    On OSX there are two 'styles' of linking - Unix style and Mac style.
    For the Unix style linking, you would use `allegro-config --libs`
    on the link line. For versioning, follow the advice given in the
-   'Linux on x86' section above, using the command otool -L instead
-   of ldd.
+   Linux section above, using the command `otool -L' instead of `ldd'.
 
    For example, otool -L &ltmybinary&gt should give
 
       liballeg-4.2.dylib (compatibility version 4.2.0, current version 4.2.0)
 
    For the Mac style, use `allegro-config --frameworks` on the link
-   line, or add Allegro.framework to your project if you are using 
+   line, or add `Allegro.framework' to your project if you are using 
    XCode. In this case, the versioning is done inside the framework
    itself.
 
    Apple recommends that an application should be entirely self-
    contained. To achieve this in Allegro, static-link the executable
-   and use fixbundle to bind all its resources together. In this
+   and use `fixbundle' to bind all its resources together. In this
    way, you will not need to worry about incompatible versions of
    the library. This is useful if you are distributing an application.
 
