@@ -16,6 +16,7 @@ exfixed.c  - Using fixed point maths.
 exflame.c  - How to write directly to video memory improving performance.
 exflip.c   - Comparison of double buffering and page flipping.
 exgui.c    - Using the GUI routines.
+exfont.c   - Loading and manipulating fonts.
 exhello.c  - Simple graphical "hello world" program.
 exjoy.c    - Detecting, calibrating and using joystick input.
 exkeys.c   - How to get input from the keyboard in different ways.
@@ -37,9 +38,11 @@ exspline.c - Constructing smooth movement paths from spline curves.
 exsprite.c - Datafiles access and sprite animation.
 exstars.c  - 3d starfield and lightsourced spaceship.
 exstream.c - Playing audio streams.
+exsyscur.c - Hardware accelerated mouse cursors.
 exswitch.c - Controlling the console switch mode for background running.
 extimer.c  - Using the timer (delays and interrupts).
 extrans.c  - Lighting and translucency effects.
+extrans2.c - Drawing flipped, translucent and tinted sprites.
 extruec.c  - Truecolor pixel format conversions.
 exunicod.c - Using Unicode string functions.
 exupdate.c - Supporting different screen update methods in a single program.

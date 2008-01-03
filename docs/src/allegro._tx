@@ -3225,7 +3225,7 @@ Allegro does not provide such devices.)
 @xref install_timer, rest_callback
 @xref vsync, d_yield_proc
 @eref exkeys, exmidi, exquat, exsample, exsprite, extimer, extrans
-@eref exunicod
+@eref extrans2, exunicod
 @shortdesc Waits a specified number of milliseconds or yields CPU.
    This function waits for the specified number of milliseconds.
 
@@ -5161,7 +5161,7 @@ will not be known, so the file may be converted wrongly.
 @xref register_bitmap_file_type, set_color_depth, set_color_conversion
 @xref generate_optimized_palette, generate_332_palette
 @eref exaccel, exalpha, exbitmap, exblend, exconfig, exlights, exshade
-@eref extrans, exxfade
+@eref extrans, extrans2, exxfade
 @shortdesc Loads any supported bitmap from a file.
    Loads a bitmap from a file. The palette data will be stored in the second
    parameter, which should be an array of 256 RGB structures. At present this
@@ -6396,7 +6396,7 @@ clipping rectangle of the destination bitmap.
 @\                  int source_x, source_y, source_width, source_height,
 @@                  int dest_x, dest_y, dest_width, dest_height);
 @xref blit, masked_stretch_blit, stretch_sprite
-@eref exalpha, exconfig, exscale, extrans
+@eref exalpha, exconfig, exscale, extrans, extrans2
 @shortdesc Scales a rectangular area from one bitmap to another.
    Like blit(), except it can scale images (so the source and destination 
    rectangles don't need to be the same size) and requires the source and 
@@ -8350,7 +8350,7 @@ between the 24 and 32-bit code since the bit packing is the same).
 @xref set_difference_blender, set_dissolve_blender, set_dodge_blender
 @xref set_hue_blender, set_invert_blender, set_luminance_blender
 @xref set_multiply_blender, set_saturation_blender, set_screen_blender
-@eref ex3d, exblend, exshade, extrans, exxfade
+@eref ex3d, exblend, exshade, extrans, extrans2, exxfade
 @shortdesc Enables a truecolor blender.
    Enables a linear interpolator blender mode for combining translucent 
    or lit truecolor pixels.
@@ -14927,212 +14927,6 @@ debugging helper functions:
 
 
 
-@headingnocontent
-Makefile targets
-
-There are a number of options that you can use to control exactly how 
-Allegro will be compiled. On Unix platforms, you do this by passing arguments 
-to the configure script (run "configure --help" for a list), but on other 
-platforms you can set the following environment variables:
-<ul><li>
-   DEBUGMODE=1<br>
-   Selects a debug build, rather than the normal optimised version.
-<li>
-   DEBUGMODE=2<br>
-   Selects a build intended to debug Allegro itself, rather than the
-   normal optimised version.
-<li>
-   PROFILEMODE=1<br>
-   Selects a profiling build, rather than the normal optimised version.
-<li>
-   WARNMODE=1<br>
-   Selects strict compiler warnings. If you are planning to work on Allegro 
-   yourself, rather than just using it in your programs, you should be sure 
-   to have this mode enabled.
-<li>
-   STATICLINK=1 (MinGW, MSVC, BeOS, MacOS X only)<br>
-   Link as a static library, rather than the default dynamic library.
-<li>
-   STATICRUNTIME=1 (MSVC only)<br>
-   Link against static runtime libraries, rather than the default dynamic
-   runtime libraries.
-<li>
-   TARGET_ARCH_COMPAT=[cpu] (GCC-based platforms only)<br>
-   This option will optimize for the given processor while maintaining
-   compatibility with older processors.
-   Example: set TARGET_ARCH_COMPAT=i586
-<li>
-   TARGET_ARCH_EXCL=[cpu] (GCC-based platforms only)<br>
-   This option will optimize for the given processor. Please note that
-   using it will cause the code to *NOT* run on older processors.
-   Example: set TARGET_ARCH_EXCL=i586
-<li>
-   TARGET_OPTS=[opts] (GCC-based platforms only)<br>
-   This option allows you to customize general compiler optimisations.
-<li>
-   TARGET_ARCH_EXCL=[opts] (MSVC only)<br>
-   This option allows you to optimize exclusively for a given architecture.
-   Pass B to optimize for a PentiumPro or 7 to optimize for Pentium 4. Note
-   that the options you can pass may be different between MSVC 6 and 7.
-   Example: set TARGET_ARCH_EXCL=7
-<li>
-   CROSSCOMPILE=1 (DJGPP, MinGW only)<br>
-   Allows you to build the library under Linux by using a cross-compiler.
-<li>
-   UNIX_TOOLS=1<br>
-   Instructs the build process to use Unix-like tools instead of DOS tools.
-   Note that you usually don't need to set it because the build process will
-   try to autodetect this configuration.
-<li>
-   COMPILER_MSVC7=1 (MSVC only)<br>
-   Enables special optimizations for MSVC 7 (the default is MSVC 6). You don't
-   normally need to set this flag since <i>fix.bat msvc7</i> should do the same
-   thing and is the preferred way of doing this.
-<li>
-   COMPILER_ICL=1 (MSVC only)<br>
-   Instructs the build process to use the Intel command line compiler icl rather
-   than Microsoft's command line compiler cl. You don't normally need to pass 
-   this flag since <i>fix.bat icl</i> should do the same thing and is the 
-   preferred way of doing this. Do not try COMPILER_MSVC7=1 and COMPILER_ICL=1
-   at the same time.
-</ul>
-If you only want to recompile a specific test program or utility, you can 
-specify it as an argument to make, eg. "make demo" or "make grabber". The 
-makefiles also provide some special pseudo-targets:
-<ul><li>
-   'info' (Unix only)<br>
-   Tells you which options this particular build of Allegro will use.
-   Especially useful to verify that the required libraries were detected
-   and you won't get a 'half-featured' Allegro.
-<li>
-   'default'<br>
-   The normal build process. Compiles the current library version (one of 
-   optimised, debugging, or profiling, selected by the above environment 
-   variables), builds the test and example programs, and converts the 
-   documentation files.
-<li>
-   'all' (non-Unix only)<br>
-   Compiles all three library versions (optimised, debugging, and 
-   profiling), builds the test and example programs, and converts the 
-   documentation files.
-<li>
-   'lib'<br>
-   Compiles the current library version (one of optimised, debugging, or 
-   profiling, selected by the above environment variables).
-<li>
-   'modules' (Unix only)<br>
-    This will compile all the modules currently configured. The 'lib' and
-    'modules' targets together are needed to build a working copy of the
-    library, without documentation or programs.
-<li>
-   'install'<br>
-   Copies the current library version (one of optimised, debugging, or 
-   profiling, selected by the above environment variables), into your 
-   compiler lib directory, recompiling it as required, and installs the 
-   Allegro headers.
-<li>
-   'install-lib' (Unix only)<br>
-   You can use this to install the library and the modules only, without
-   documentation or programs.  Use the 'install' target to install
-   everything.
-<li>
-   'installall' (non-Unix only)<br>
-   Copies all three library versions (optimised, debugging, and profiling), 
-   into your compiler lib directory, recompiling them as required, and 
-   installs the Allegro headers.
-<li>
-   'uninstall'<br>
-   Removes the Allegro library and headers from your compiler directories. 
-<li>
-   'docs'<br>
-   Converts the documentation files from the ._tx sources.
-<li>
-   'chm-docs' (Windows only)<br>
-   Creates a compiled HTML file from the previously generated html output.
-   This is not a default target, since you need Microsoft's HTML compiler
-   (<link>http://go.microsoft.com/fwlink/?LinkId=14188</a>),
-   and it has to be installed somewhere in your PATH. Also, this only works
-   if you use '@multiplefiles' (see the top of docs/src/allegro._tx).
-<li>
-   'docs-dvi' (Unix only)<br>
-   Creates the allegro.dvi device independent documentation file. This is
-   not a default target, since you need the texi2dvi tool to create it. The
-   generated file is especially prepared to be printed on paper.
-<li>
-   'docs-ps' or 'docs-gzipped-ps' or 'docs-bzipped-ps' (Unix only)<br>
-   Creates a PostScript file from the previously generated DVI file. This is
-   not a default target, since you need the texi2dvi and dvips tools to
-   create it. The second and third targets compress the generated Postscript
-   file. The generated file is especially prepared to be printed on paper.
-<li>
-   'docs-pdf' (Unix only)<br>
-   Creates a PDF file. This is not a default target, since you need the
-   texi2pdf tool to create it. The generated file is especially prepared to
-   be printed on paper, and it also has hyperlinks.
-<li>
-   'docs-devhelp' (Unix only)<br>
-   Creates normal HTML documentation with an additional xml index file which
-   can be used by tools like Devhelp (<link>http://www.devhelp.net/</a>) to
-   show context sensitive help within any editor using Devhelp, like for
-   example <link>http://anjuta.sourceforge.net/</a>. The Allegro 'book' will be
-   created in `docs/devhelp/allegro.devhelp', you have to install it
-   manually.
-<li>
-   'install-man' (Unix and Mac OS X only)<br>
-   Generates Unix man pages for each Allegro function or variable and
-   installs them.
-<li>
-   'install-gzipped-man' or 'install-bzipped-man' (Unix only)<br>
-   Like install-man, but also compresses the manual pages after installing
-   them (run only one of these).
-<li>
-   'uninstall-man' (Unix)<br>
-   Uninstalls any man pages previously installed with 'install-man',
-   'install-gzipped-man', or 'install-bzipped-man'.
-<li>
-   'install-info' or 'install-gzipped-info' or 'install-bzipped-info'
-   (Unix only)<br>
-   Converts the documentation to Info format and installs it. The second
-   and third targets compress the info file after installing it (run only
-   one of them).
-<li>
-   'uninstall-info' (Unix only)<br>
-   Uninstalls any man pages previously installed with 'install-info',
-   'install-gzipped-info', or 'install-bzipped-info'.
-<li>
-   'clean'<br>
-   Removes generated object and library files, either to recover disk space 
-   or to force a complete rebuild the next time you run make. This target is 
-   designed so that if you run a "make install" followed by "make clean", 
-   you will still have a functional version of Allegro.
-<li>
-   'distclean'<br>
-   Like "make clean", but more so. This removes all the executable files and 
-   the documentation, leaving you with only the same files that are included
-   when you unzip a new Allegro distribution.
-<li>
-   'veryclean'<br>
-   Use with extreme caution! This target deletes absolutely all generated 
-   files, including some that may be non-trivial to recreate. After you run 
-   "make veryclean", a simple rebuild will not work: at the very least you 
-   will have to run "make depend", and perhaps also fixdll.bat if you are 
-   using the Windows library. These targets make use of non-standard tools 
-   like SED, so unless you know what you are doing and have all this stuff 
-   installed, you should not use them.
-<li>
-   'compress' (DJGPP, MinGW and MSVC only)<br>
-   Uses the DJP or UPX executable compressors (whichever you have installed) 
-   to compress the example executables and utility programs, which can 
-   recover a significant amount of disk space.
-<li>
-   'depend'<br>
-   Regenerates the dependency files (obj/*/makefile.dep). You need to run 
-   this after "make veryclean", or whenever you add new headers to the 
-   Allegro sources.
-</ul>
-
-
-
 @heading
 Available Allegro examples
 
@@ -15239,6 +15033,7 @@ and avoid missing any important bit of information.
 @xref install_keyboard, key, load_font, makecol, merge_fonts, readkey
 @xref release_screen, screen, set_gfx_mode, set_palette
 @xref textout_centre_ex
+@shortdesc Loading and manipulating fonts.
    This is a very simple program showing how to load and manipulate fonts.
 
 @@Example @exmouse
@@ -15543,16 +15338,16 @@ and avoid missing any important bit of information.
    different set of routines for truecolor modes.
 
 @@Example @extrans2
-@xref END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_init, install_timer,
-@xref install_keyboard, replace_filename, load_bitmap, create_bitmap, key,
-@xref stretch_blit, destroy_bitmap, set_trans_blender, draw_sprite_ex,
-@xref textprintf_ex, blit, clear_bitmap, rest
+@xref BITMAP, END_OF_MAIN, allegro_error, allegro_init, allegro_message
+@xref blit, clear_bitmap, create_bitmap, destroy_bitmap, draw_sprite_ex
+@xref font, install_keyboard, install_timer, key, load_bitmap, makecol
+@xref replace_filename, rest, screen, set_color_depth, set_gfx_mode
+@xref set_trans_blender, stretch_blit, textprintf_ex
 @shortdesc Drawing flipped, translucent and tinted sprites.
    This program demonstrates how to draw trans and lit sprites and flip them
    at the same time, using draw_sprite_ex() function.
    It displays several images moving around using different drawing modes
    while you can press space key to change the flipping orientation.
-
 
 @@Example @extruec
 @xref END_OF_MAIN, PALETTE, RGB, SCREEN_H, SCREEN_W, acquire_screen
@@ -16020,6 +15815,7 @@ and avoid missing any important bit of information.
 @xref gfx_capabilities, install_keyboard, install_mouse, install_timer
 @xref makecol, readkey, screen, select_mouse_cursor, set_gfx_mode
 @xref show_mouse, text_height, textprintf_centre_ex
+@shortdesc Hardware accelerated mouse cursors.
    This program demonstrates the use of hardware accelerated mouse cursors.
 
 @@Example @exupdate
@@ -16115,6 +15911,8 @@ and avoid missing any important bit of information.
 @# end genexamp.py chunk
 
 
+@externalfile targets Makefile targetes
+@externalfile addons Addon libraries
 @externalfile changes Changes since previous versions
 @externalfile thanks Contributors: The Hall of Fame
 @externalfile faq Frequently asked questions (FAQ)

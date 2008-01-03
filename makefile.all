@@ -122,7 +122,7 @@ EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 ifdef HTML
 # XXX this is duplicated in makefile.in
 DOCBASEFILES = ahack changes faq mistakes help thanks allegro const abi api packfile \
-               readme makedoc datafile grabber dat dat2c dat2s license
+               readme makedoc datafile grabber dat dat2c dat2s license addons targets
 DOCBUILDFILES = bcc32 beos darwin djgpp dmc linux macosx mingw32 msvc qnx unix watcom
 DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 

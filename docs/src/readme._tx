@@ -19,6 +19,7 @@
 @html_text_substitution=docs/build/watcom.txt|<a href="build/watcom.html">docs/build/watcom.txt</a>
 @html_text_substitution=docs/txt/help.txt|<a href="help.html">docs/txt/help.txt</a>
 @html_text_substitution=docs/txt/ahack.txt|<a href="ahack.html">docs/txt/ahack.txt</a>
+@html_text_substitution=docs/txt/addons.txt|<a href="addons.html">docs/txt/addons.txt</a>
 @external-css=allegro.css
 @document_title=A general introduction to Allegro
 @<pre>
@@ -111,13 +112,14 @@ Supported platforms
 @heading
 Included Addons
 
-<textblock>
-   AllegroGL       - see docs in addons/allegrogl/docs/html.
-   loadpng         - see docs in addons/loadpng/README
-   logg            - see the examples in addons/logg/examples
-   jpgalleg        - see docs in addons/jpgalleg/readme.txt
-<endblock>
+<ul>
+  <li>AllegroGL
+  <li>loadpng
+  <li>logg
+  <li>jpgalleg
+</ul>
 
+See docs/txt/addons.txt.
 
 
 @heading
