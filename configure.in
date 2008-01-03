@@ -234,7 +234,7 @@ if test "$Xallegro_cv_have_map_failed" = "Xno"; then
 	    [Define to (void *)-1, if MAP_FAILED is not defined.])
 fi
 
-dnl Test for sched_yield (SunOS).
+dnl Test for sched_yield.
 ALLEGRO_ACTEST_SCHED_YIELD
 if test "X$allegro_cv_support_sched_yield" = "Xyes"; then
    AC_DEFINE(ALLEGRO_HAVE_SCHED_YIELD,1,[Define if sched_yield is provided by some library.])
@@ -850,7 +850,7 @@ AC_MSG_CHECKING(for logg support)
 AC_MSG_RESULT($allegro_with_logg)
 
 
-dnl With logg addon
+dnl With JPGalleg addon
 AC_ARG_ENABLE(jpgalleg,
 [  --enable-jpgalleg[=x]   build jpgalleg addon library [default=yes]],
 test "X$enableval" != "Xno" && allegro_with_jpgalleg=yes,
