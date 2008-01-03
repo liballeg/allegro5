@@ -37,38 +37,37 @@ typedef struct {
 void setup_sprite(SPRITE *s, int i)
 {
    switch (i % 4) {
-      case 0 : {
+      case 0:
          s->x = -100 + i * 50;
          s->y = 40 + (i % 3) * 100;
          s->direction = DIR_RIGHT;
          s->draw_type = DRAW_SPRITE_NORMAL;
          s->level = 0;
          break;
-      }
-      case 1 : {
+
+      case 1:
          s->x = 640 + 100 - i * 70;
          s->y = 50 + (i % 3) * 110;
          s->direction = DIR_LEFT;
          s->draw_type = DRAW_SPRITE_TRANS;
          s->level = 1;
          break;
-      }
-      case 2 : {
+
+      case 2:
          s->x = 90 + (i % 3) * 200;
          s->y = -100 + i * 70;
          s->direction = DIR_DOWN;
          s->draw_type = DRAW_SPRITE_LIT;
          s->level = 2;
          break;
-      }
-      case 3 : {
+
+      case 3:
          s->x = 50 + (i % 3) * 200;
          s->y = 480 + 100 - i * 70;
          s->direction = DIR_UP;
          s->draw_type = DRAW_SPRITE_TRANS;
          s->level = 3;
          break;
-      }
    }
 }
 
@@ -87,39 +86,38 @@ int sprite_compare(AL_CONST void * a, AL_CONST void * b)
 void move_sprite(SPRITE *s)
 {
    switch (s->direction) {
-      case DIR_UP : {
+      case DIR_UP:
          s->y--;
          if (s->y < -64) {
             s->y = 480;
          }
          break;
-      }
-      case DIR_DOWN : {
+
+      case DIR_DOWN:
          s->y++;
          if (s->y > 480) {
             s->y = -64;
          }
          break;
-      }
-      case DIR_RIGHT : {
+
+      case DIR_RIGHT:
          s->x++;
          if (s->x > 640) {
             s->x = -64;
          }
          break;
-      }
-      case DIR_LEFT : {
+
+      case DIR_LEFT:
          s->x--;
          if (s->x < -64) {
             s->x = 640;
          }
          break;
-      }
    }
 }
 
 
-int main(int argc, char ** argv)
+int main(int argc, char **argv)
 {
    SPRITE sprites[SPRITE_COUNT];
    BITMAP *buffer;
@@ -128,8 +126,9 @@ int main(int argc, char ** argv)
    char buf[1024];
    char *filename;
    int mode = 0;
-   int i;
    int hold_space = 0;
+   char *msg;
+   int i;
 
    /* standard init */
    if (allegro_init() != 0)
@@ -199,23 +198,20 @@ int main(int argc, char ** argv)
          }
       }
       if (!key[KEY_SPACE]) {
-          hold_space = 0;
+         hold_space = 0;
       }
 
       /* set the title according to the flipping mode used */
-      {
-         char * msg = 0;
-         if (mode == DRAW_SPRITE_VH_FLIP) {
-            msg = "horizontal and vertical flip";
-         } else if (mode == DRAW_SPRITE_H_FLIP) {
-            msg = "horizontal flip";
-         } else if (mode == DRAW_SPRITE_V_FLIP) {
-            msg = "vertical flip";
-         } else {
-            msg = "no flipping";
-         }
-         textprintf_ex(buffer, font, 1, 1, makecol(255, 255, 255), -1, msg);
+      if (mode == DRAW_SPRITE_VH_FLIP) {
+         msg = "horizontal and vertical flip";
+      } else if (mode == DRAW_SPRITE_H_FLIP) {
+         msg = "horizontal flip";
+      } else if (mode == DRAW_SPRITE_V_FLIP) {
+         msg = "vertical flip";
+      } else {
+         msg = "no flipping";
       }
+      textprintf_ex(buffer, font, 1, 1, makecol(255, 255, 255), -1, msg);
 
       /* finally blit the back buffer on the screen */
       blit(buffer, screen, 0, 0, 0, 0, buffer->w, buffer->h);
@@ -231,5 +227,6 @@ int main(int argc, char ** argv)
 
    return 0;
 }
+
 END_OF_MAIN()
 

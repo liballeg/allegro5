@@ -112,8 +112,9 @@ void FUNC_LINEAR_DRAW_SPRITE_EX(BITMAP * dst, BITMAP * src, int dx, int dy,
          for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR_N(d,x_dir), x--) {
             unsigned long c = GET_MEMORY_PIXEL(s);
             if (!IS_SPRITE_MASK(src, c)) {
-               switch(mode) {
-                  case DRAW_SPRITE_NORMAL: break;
+               switch (mode) {
+                  case DRAW_SPRITE_NORMAL:
+                     break;
 
                   case DRAW_SPRITE_LIT:
                      c = DLSX_BLEND(lit_blender, c);
@@ -138,8 +139,9 @@ void FUNC_LINEAR_DRAW_SPRITE_EX(BITMAP * dst, BITMAP * src, int dx, int dy,
          for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR_N(d,x_dir), x--) {
             unsigned long c = GET_MEMORY_PIXEL(s);
             if (!IS_SPRITE_MASK(src, c)) {
-               switch(mode) {
-                  case DRAW_SPRITE_NORMAL: break;
+               switch (mode) {
+                  case DRAW_SPRITE_NORMAL:
+                     break;
 
                   case DRAW_SPRITE_LIT:
                      c = DLSX_BLEND(lit_blender, c);
@@ -382,8 +384,9 @@ void FUNC_LINEAR_DRAW_SPRITE_V_FLIP_EX(BITMAP *dst, BITMAP *src,
          for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR(d), x--) {
             unsigned long c = GET_MEMORY_PIXEL(s);
             if (!IS_SPRITE_MASK(src, c)) {
-               switch(mode) {
-                  case DRAW_SPRITE_NORMAL: break;
+               switch (mode) {
+                  case DRAW_SPRITE_NORMAL:
+                     break;
 
                   case DRAW_SPRITE_LIT:
                      c = DLSX_BLEND(lit_blender, c);
@@ -408,8 +411,9 @@ void FUNC_LINEAR_DRAW_SPRITE_V_FLIP_EX(BITMAP *dst, BITMAP *src,
          for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR(d), x--) {
             unsigned long c = GET_MEMORY_PIXEL(s);
             if (!IS_SPRITE_MASK(src, c)) {
-               switch(mode) {
-                  case DRAW_SPRITE_NORMAL: break;
+               switch (mode) {
+                  case DRAW_SPRITE_NORMAL:
+                     break;
 
                   case DRAW_SPRITE_LIT:
                      c = DLSX_BLEND(lit_blender, c);
@@ -651,8 +655,9 @@ void FUNC_LINEAR_DRAW_SPRITE_H_FLIP_EX(BITMAP *dst, BITMAP *src,
          for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), DEC_PIXEL_PTR(d), x--) {
             unsigned long c = GET_MEMORY_PIXEL(s);
             if (!IS_SPRITE_MASK(src, c)) {
-               switch(mode) {
-                  case DRAW_SPRITE_NORMAL: break;
+               switch (mode) {
+                  case DRAW_SPRITE_NORMAL:
+                     break;
 
                   case DRAW_SPRITE_LIT:
                      c = DLSX_BLEND(lit_blender, c);
@@ -677,8 +682,9 @@ void FUNC_LINEAR_DRAW_SPRITE_H_FLIP_EX(BITMAP *dst, BITMAP *src,
          for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), DEC_PIXEL_PTR(d), x--) {
             unsigned long c = GET_MEMORY_PIXEL(s);
             if (!IS_SPRITE_MASK(src, c)) {
-               switch(mode) {
-                  case DRAW_SPRITE_NORMAL: break;
+               switch (mode) {
+                  case DRAW_SPRITE_NORMAL:
+                     break;
 
                   case DRAW_SPRITE_LIT:
                      c = DLSX_BLEND(lit_blender, c);
@@ -764,8 +770,9 @@ void FUNC_LINEAR_DRAW_SPRITE_VH_FLIP_EX(BITMAP *dst, BITMAP *src,
          for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), DEC_PIXEL_PTR(d), x--) {
             unsigned long c = GET_MEMORY_PIXEL(s);
             if (!IS_SPRITE_MASK(src, c)) {
-               switch(mode) {
-                  case DRAW_SPRITE_NORMAL: break;
+               switch (mode) {
+                  case DRAW_SPRITE_NORMAL:
+                     break;
 
                   case DRAW_SPRITE_LIT:
                      c = DLSX_BLEND(lit_blender, c);
@@ -790,8 +797,9 @@ void FUNC_LINEAR_DRAW_SPRITE_VH_FLIP_EX(BITMAP *dst, BITMAP *src,
          for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), DEC_PIXEL_PTR(d), x--) {
             unsigned long c = GET_MEMORY_PIXEL(s);
             if (!IS_SPRITE_MASK(src, c)) {
-               switch(mode) {
-                  case DRAW_SPRITE_NORMAL: break;
+               switch (mode) {
+                  case DRAW_SPRITE_NORMAL:
+                     break;
 
                   case DRAW_SPRITE_LIT:
                      c = DLSX_BLEND(lit_blender, c);
