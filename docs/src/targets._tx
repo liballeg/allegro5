@@ -78,7 +78,7 @@ platforms you can set the following environment variables:
    at the same time.
 </ul>
 
-Here is the list of options with enable building of the specific addon library:
+Here is the list of options which enable building of the specific addon library:
 <ul><li>
    WITH_ALLEGRO_GL=1 (MSVC, DJGPP, MinGW, DMC, MacOS X only)<br>
    Enables building of AllegroGL addon library.
