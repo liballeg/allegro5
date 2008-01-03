@@ -29,14 +29,14 @@ veryclean: clean
 	rm -f stream_ogg
 
 install:
-	cp -f logg.h $(PREFIX)/include
-	cp -f liblogg.a $(PREFIX)/lib
+	cp -f logg.h $(DESTDIR)$(PREFIX)/include
+	cp -f liblogg.a $(DESTDIR)$(PREFIX)/lib
 	@echo -
 	@echo logg is now installed.
 
 uninstall:
-	rm -f $(PREFIX)/include/logg.h
-	rm -f $(PREFIX)/lib/liblogg.a
+	rm -f $(DESTDIR)$(PREFIX)/include/logg.h
+	rm -f $(DESTDIR)$(PREFIX)/lib/liblogg.a
 	@echo -
 	@echo logg is now uninstalled.
 

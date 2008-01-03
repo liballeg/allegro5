@@ -42,8 +42,8 @@ install-headers:
 .PHONY: uninstall
 
 uninstall:
-	- rm -f $(includedir)/loadpng.h
-	- rm -f $(libdir)/$(LIB)
+	-rm -f $(DESTDIR)$(includedir)/loadpng.h
+	-rm -f $(DESTDIR)$(libdir)/$(LIB)
 	@echo -
 	@echo loadpng is now uninstalled.
 

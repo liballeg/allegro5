@@ -40,7 +40,7 @@ endif
 
 LIBS = -lm `../../allegro-config --libs --addon`
 LDFLAGS = -L../../lib/$(PLATFORM_PATH)
-INSTALL_BASE_PATH = `../../allegro-config --prefix`
+INSTALL_BASE_PATH = $(DESTDIR)/`../../allegro-config --prefix`
 
 
 
