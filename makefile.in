@@ -452,7 +452,7 @@ clean: $(ADDON_CLEAN_TARGETS)
 	$(RM_OBJ_CLEAN_FILES)
 	$(RM_OTHER_CLEAN_FILES)
 
-distclean: clean
+distclean: clean $(ADDON_DISTCLEAN_TARGETS)
 
    define RM_DISTCLEAN_FILES
       $(foreach file, $(DISTCLEAN_FILES) $(ALLEGRO_LIB_X_EXES), rm -f $(file)
@@ -461,7 +461,7 @@ distclean: clean
 
 	$(RM_DISTCLEAN_FILES)
 
-veryclean: distclean $(ADDON_DISTCLEAN_TARGETS)
+veryclean: distclean $(ADDON_VERYCLEAN_TARGETS)
 
    define RM_VERYCLEAN_FILES
       $(foreach file, $(VERYCLEAN_FILES), rm -f $(file)
@@ -477,12 +477,12 @@ maintainer-clean: veryclean
 
 # -------- rules for installing the files --------
 
-install: $(ADDON_INSTALL_TARGETS) $(INSTALL_TARGETS)
+install: $(INSTALL_TARGETS)
 
-mini-install: install-headers install-lib
+mini-install: $(ADDON_INSTALL_TARGETS) install-headers install-lib
 	@echo "Your end-user version of Allegro is now installed"
 
-full-install: install-headers install-programs install-lib
+full-install: $(ADDON_INSTALL_TARGETS) install-headers install-programs install-lib
 	@echo ""
 	@echo "Run make docs-dvi if you wish to generate dvi documentation (you need texi2dvi)."
 	@echo "Run make docs-pdf if you wish to generate PDF documentation (you need texi2pdf)."

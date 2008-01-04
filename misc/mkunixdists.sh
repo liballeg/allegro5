@@ -79,12 +79,38 @@ echo "Stripping to form end-user distribution"
 	(cd include && rm -f bealleg.h qnxalleg.h macalleg.h winalleg.h)
 	(cd misc && rm -f cmplog.pl dllsyms.lst findtext.sh fixpatch.sh fixver.sh)
 	(cd misc && rm -f allegro-config-qnx.sh zipup.sh zipwin.sh *.bat *.c)
+
+	# allegrogl addon
+	(cd addons/allegrogl && rm -rf docs examp projects)
+	(cd addons/allegrogl && rm -f fix.bat configure.in)
+	(cd addons/allegrogl/obj && rm -rf djgpp dmc macosx mingw32 msvc)
+	(cd addons/allegrogl/lib && rm -rf djgpp dmc macosx mingw32 msvc)
+	(cd addons/allegrogl/src && rm -f macosx.m win.c djgpp.c)
+	(cd addons/allegrogl/make && rm -f makefile.dmc makefile.mgw makefile.dj)
+	(cd addons/allegrogl/make && rm -f makefile.osx makefile.vc)
+
+	# jpgalleg addon
+	(cd addons/jpgalleg && rm -rf examples)
+	(cd addons/jpgalleg && rm -f makefile.be makefile.mgw makefile.dj)
+	(cd addons/jpgalleg && rm -f makefile.osx makefile.vc fix.bat readme.txt)
+	(cd addons/jpgalleg/misc && rm -f fixver.sh runner.c)
+	(cd addons/jpgalleg/lib && rm -rf beos djgpp macosx mingw32 msvc)
+	(cd addons/jpgalleg/obj && rm -rf beos djgpp macosx mingw32 msvc)
+
+	# logg addon
+	(cd addons/logg && rm -f Makefile.mingw play_ogg.c stream_ogg.c fix.bat)
+
+	# loadpng
+	(cd addons/loadpng && rm -f Makefile.mgw Makefile.dj fix.bat CHANGES.txt)
+	(cd addons/loadpng && rm -rf examples)
+
 	mkdir .saveme
 	cp readme.txt docs/build/unix.txt docs/build/linux.txt .saveme
 	rm -rf demo docs examples resource setup tests tools
 	rm -f AUTHORS CHANGES THANKS *.txt fix* indent* readme.* allegro.mft
 	rm -f makefile.all makefile.be makefile.qnx makefile.bcc makefile.dj
 	rm -f makefile.mgw makefile.mpw makefile.vc makefile.wat makefile.tst
+	rm -f makefile.osx makefile.dmc
 	rm -f xmake.sh
 	rm -f keyboard.dat language.dat
 	mv .saveme/* .
@@ -93,7 +119,7 @@ echo "Stripping to form end-user distribution"
 		cp makefile.in makefile.old &&
 		cat makefile.old |
 		sed -e "s/INSTALL_TARGETS = .*/INSTALL_TARGETS = mini-install/" |
-		sed -e "s/DEFAULT_TARGETS = .*/DEFAULT_TARGETS = lib modules/" |
+		sed -e "s/DEFAULT_TARGETS = .*/DEFAULT_TARGETS = lib modules addons/" |
 		cat > makefile.in &&
 		rm -f makefile.old
 	}

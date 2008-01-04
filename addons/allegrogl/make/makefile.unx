@@ -126,6 +126,7 @@ distclean: veryclean  @MESACLEAN@
 	rm -rf docs/top docs/txi
 	rm -f config.* stamp-h makefile
 	rm -f include/alleggl_config.h
+	rm -rf autom4te*
 
 depend:
 	@echo "Generating dependencies..."
