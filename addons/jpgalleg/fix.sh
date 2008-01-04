@@ -30,7 +30,7 @@ proc_fix()
 proc_filelist()
 {
    # common files.
-   FILELIST=`find . -type f "(" \
+   FILELIST=`find . -type f -not -path "*.svn*" "(" \
       -name "*.c" -o -name "*.h" -o -name "*.s" -o -name "*.txt" -o \
       -name "*.inc" -o -name "*.scm" -o -name "*.scr" -o -name "*.scu" -o \
       -name "makefile*" \
@@ -106,7 +106,6 @@ if [ "$NOCONV" != "1" ]; then
    case "$2" in
       "--utod"  ) proc_utod "$1";;
       "--dtou"  ) proc_dtou "$1";;
-      "--quick" ) echo "No text file conversion..."
    esac
 fi
 
