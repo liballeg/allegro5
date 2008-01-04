@@ -1358,7 +1358,7 @@ void _soft_ellipsefill(BITMAP *bmp, int x, int y, int rx, int ry, int color)
 static INLINE void get_point_on_arc(int r, fixed a, int *out_x, int *out_y, int *out_q)
 {
    double s, c;
-   double double_a = a * (AL_PI * 2 / (1 << 24));
+   double double_a = (a&0xffffff) * (AL_PI * 2 / (1 << 24));
    s = sin(double_a);
    c = cos(double_a);
    s = -s * r;
