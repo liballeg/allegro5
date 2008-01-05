@@ -80,11 +80,8 @@
 #define FUNC_LINEAR_DRAW_SPRITE_EX          _linear_draw_sprite_ex32
 #define FUNC_LINEAR_DRAW_256_SPRITE         _linear_draw_256_sprite32
 #define FUNC_LINEAR_DRAW_SPRITE_V_FLIP      _linear_draw_sprite_v_flip32
-#define FUNC_LINEAR_DRAW_SPRITE_V_FLIP_EX   _linear_draw_sprite_v_flip_ex32
 #define FUNC_LINEAR_DRAW_SPRITE_H_FLIP      _linear_draw_sprite_h_flip32
-#define FUNC_LINEAR_DRAW_SPRITE_H_FLIP_EX   _linear_draw_sprite_h_flip_ex32
 #define FUNC_LINEAR_DRAW_SPRITE_VH_FLIP     _linear_draw_sprite_vh_flip32
-#define FUNC_LINEAR_DRAW_SPRITE_VH_FLIP_EX  _linear_draw_sprite_vh_flip_ex32
 #define FUNC_LINEAR_DRAW_TRANS_SPRITE       _linear_draw_trans_sprite32
 #define FUNC_LINEAR_DRAW_TRANS_RGBA_SPRITE  _linear_draw_trans_rgba_sprite32
 #define FUNC_LINEAR_DRAW_LIT_SPRITE         _linear_draw_lit_sprite32

@@ -226,9 +226,6 @@ typedef struct GFX_VTABLE        /* functions for drawing onto bitmaps */
    AL_METHOD(void, quad3d_f, (struct BITMAP *bmp, int type, struct BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4));
 
    AL_METHOD(void, draw_sprite_ex, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int mode, int flip ));
-   AL_METHOD(void, draw_sprite_h_flip_ex, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int mode ));
-   AL_METHOD(void, draw_sprite_v_flip_ex, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int mode ));
-   AL_METHOD(void, draw_sprite_vh_flip_ex, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int mode ));
 } GFX_VTABLE;
 
 
