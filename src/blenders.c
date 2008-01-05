@@ -15,9 +15,8 @@
  */
 
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_color.h"
 #include <string.h>
 
 

@@ -19,7 +19,7 @@
 
 #define AL_INLINE(type, name, args, code)    type name args code
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 
 #ifdef ALLEGRO_INTERNAL_HEADER

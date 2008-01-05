@@ -3,7 +3,6 @@
 
 #include "allegro5/display_new.h"
 #include "allegro5/bitmap_new.h"
-#include "allegro5/internal/aintern_color.h"
 
 typedef struct ALLEGRO_BITMAP_INTERFACE ALLEGRO_BITMAP_INTERFACE;
 

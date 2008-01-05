@@ -441,10 +441,8 @@ set(ALLEGRO_MODULE_JACK_FILES
     src/unix/jack.c
     )
 
-set(ALLEGRO_TOPLEVEL_INCLUDE_FILES
-    include/allegro5.h
-    )
 set(ALLEGRO_INCLUDE_FILES
+    include/allegro5/allegro5.h
     include/allegro5/allegro.h
     include/allegro5/winalleg.h
     include/allegro5/xalleg.h

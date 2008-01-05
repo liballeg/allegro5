@@ -16,7 +16,7 @@
  */
 
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 
 #ifdef ALLEGRO_COLOR16
 

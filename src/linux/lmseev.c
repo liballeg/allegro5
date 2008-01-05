@@ -23,7 +23,7 @@
 
 #define ALLEGRO_NO_COMPATIBILITY
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 
 #ifdef ALLEGRO_HAVE_LINUX_INPUT_H
 

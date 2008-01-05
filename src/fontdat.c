@@ -18,7 +18,7 @@
 
 #include <string.h>
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 
 /* load_dat_font:
  *  Loads a font from the datafile named filename. param can optionally be set

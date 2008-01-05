@@ -25,7 +25,7 @@
 #define DIRECTX_SDK_VERSION 0x500
 
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/platform/aintwin.h"
 

@@ -16,7 +16,7 @@
  */
 
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 
 #if (defined ALLEGRO_WITH_JACKDIGI) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 

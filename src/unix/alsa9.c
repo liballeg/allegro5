@@ -18,7 +18,7 @@
  */
 
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 
 #if (ALLEGRO_ALSA_VERSION == 9) && (defined ALLEGRO_WITH_ALSADIGI) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 

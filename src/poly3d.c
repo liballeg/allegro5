@@ -25,7 +25,7 @@
 #include <limits.h>
 #include <float.h>
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 
 #if defined ALLEGRO_ASMCAPA_HEADER && !defined ALLEGRO_NO_ASM

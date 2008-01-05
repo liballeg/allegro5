@@ -703,7 +703,7 @@ if(GRADE_STANDARD)
 endif(GRADE_STANDARD)
 
 if(GRADE_DEBUG)
-    add_allegro_build(alld
+    add_allegro_build(allegd
         "-DDEBUGMODE -g")
 endif(GRADE_DEBUG)
 
@@ -739,9 +739,6 @@ endif(SHARED)
 # Install header files.
 #
 
-install(FILES ${ALLEGRO_TOPLEVEL_INCLUDE_FILES}
-	DESTINATION include
-        )
 install(FILES ${ALLEGRO_INCLUDE_FILES}
         DESTINATION include/allegro5
         )
@@ -856,7 +853,7 @@ if(GRADE_STANDARD)
     set(LIB_TO_LINK alleg)
     set(FONT_LIB_TO_LINK a5_font)
 elseif(GRADE_DEBUG)
-    set(LIB_TO_LINK alld)
+    set(LIB_TO_LINK allegd)
     set(FONT_LIB_TO_LINK a5_fontd)
 elseif(GRADE_PROFILE)
     set(LIB_TO_LINK allp)

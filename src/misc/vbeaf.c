@@ -63,7 +63,7 @@
 
 #include <string.h>
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 
 #if (defined ALLEGRO_DOS) || (defined ALLEGRO_LINUX_VBEAF)
 

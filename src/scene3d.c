@@ -21,7 +21,7 @@
 #include <float.h>
 #include <limits.h>
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 
 /* hash tables divide the screen height in (up to) HASH_NUM parts */

@@ -19,7 +19,7 @@
 #define _GNU_SOURCE
 #endif
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 
 #ifdef ALLEGRO_LINUX_VGA
 

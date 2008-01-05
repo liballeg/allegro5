@@ -1,7 +1,7 @@
 #ifndef A5TEROIDS_HPP
 #define A5TEROIDS_HPP
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 #include "a5_font.h"
 
 #ifdef __linux__
