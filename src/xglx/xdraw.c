@@ -12,7 +12,7 @@ static void set_opengl_blending(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
    int blend_modes[4] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
    };
-   ALLEGRO_INDEPENDANT_COLOR *bc;
+   ALLEGRO_COLOR *bc;
    int src_mode, dst_mode;
    float r, g, b, a;
    al_unmap_rgba_f(color, &r, &g, &b, &a);
