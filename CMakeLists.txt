@@ -21,16 +21,13 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 #
 #-----------------------------------------------------------------------------#
 
-
 option(USE_CXX "Build C++ portions." on)
-
 
 if(USE_CXX)
     project(ALLEGRO C CXX)
 else(USE_CXX)
     project(ALLEGRO C)
 endif(USE_CXX)
-
 
 # TODO soft-code the version number
 set(ALLEGRO_VERSION 4.9.2)
@@ -60,7 +57,7 @@ option(GRADE_PROFILE "Build the profiling library" off)
 option(SHARED "Build shared libraries" on)
 option(STATIC "Build static libraries" on)
 
-option(WANT_ASM "Use hand-written assembly code for i386 (not recommended)" off)
+option(WANT_ASM "Use hand-written assembly code for i386 (disabled)" off)
 option(WANT_MODULES "Use dynamically loaded modules (Unix)" on)
 option(WANT_MAGIC_MAIN "Enable magic main" off)
 
@@ -87,7 +84,9 @@ option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" on)
 
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 
-# Addons
+#
+# Addons.
+#
 
 option(WANT_FONT "Enable bitmap font add-on" on)
 
@@ -96,6 +95,7 @@ option(WANT_FONT "Enable bitmap font add-on" on)
 #
 
 option(STRICT_WARN "Halt at warnings" off)
+option(WANT_OLD_EXAMPLES "Build examples from < 4.9" off)
 
 #-----------------------------------------------------------------------------#
 
@@ -502,6 +502,10 @@ if(SUPPORT_X11)
 
     set(CMAKE_REQUIRED_LIBRARIES)
 endif(SUPPORT_X11)
+
+#
+# Windows
+#
 
 if(MINGW_CROSS)
     set(WIN32 1)
