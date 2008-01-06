@@ -566,27 +566,27 @@ endif(SUPPORT_ASM)
 
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
 
-add_executable(asmdef src/i386/asmdef.c)
-set_target_properties(asmdef PROPERTIES
-    OUTPUT_NAME ${ALLEGRO_LIB_PATH}/asmdef
-    )
-get_target_property(ASMDEF_EXE asmdef LOCATION)
+#add_executable(asmdef src/i386/asmdef.c)
+#set_target_properties(asmdef PROPERTIES
+#    OUTPUT_NAME ${ALLEGRO_LIB_PATH}/asmdef
+#    )
+#get_target_property(ASMDEF_EXE asmdef LOCATION)
+#
+#if(MINGW)
+#    set(ASMDEF_INC ${CMAKE_BINARY_DIR}/obj/mingw32/asmdef.inc)
+#endif(MINGW)
+#if(UNIX)
+#    set(ASMDEF_INC ${CMAKE_BINARY_DIR}/obj/unix/asmdef.inc)
+#endif(UNIX)
 
-if(MINGW)
-    set(ASMDEF_INC ${CMAKE_BINARY_DIR}/obj/mingw32/asmdef.inc)
-endif(MINGW)
-if(UNIX)
-    set(ASMDEF_INC ${CMAKE_BINARY_DIR}/obj/unix/asmdef.inc)
-endif(UNIX)
-
-add_custom_target(asmdef_inc
-    DEPENDS ${ASMDEF_INC}
-    )
-add_custom_command(
-    OUTPUT ${ASMDEF_INC}
-    DEPENDS asmdef
-    COMMAND ${ASMDEF_EXE} ${ASMDEF_INC}
-    )
+#add_custom_target(asmdef_inc
+#    DEPENDS ${ASMDEF_INC}
+#    )
+#add_custom_command(
+#    OUTPUT ${ASMDEF_INC}
+#    DEPENDS asmdef
+#    COMMAND ${ASMDEF_EXE} ${ASMDEF_INC}
+#    )
 
 if(UNIX)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_UNIX_FILES})
@@ -665,15 +665,16 @@ macro(add_allegro_build nm extra_flags)
 
     macro(really_add_allegro_build nam target libtype more_extra_flags)
         set(OUTPUT_LIBRARY ${nam})
-        add_library(${target} ${libtype} ${LIBRARY_SOURCES} ${ASM_OBJS})
+        #add_library(${target} ${libtype} ${LIBRARY_SOURCES} ${ASM_OBJS})
+        add_library(${target} ${libtype} ${LIBRARY_SOURCES})
         set_target_properties(${target}
             PROPERTIES
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
             OUTPUT_NAME ${nam}
             )
-        if(SUPPORT_ASM)
-            add_dependencies(${target} asmdef_inc)
-        endif(SUPPORT_ASM)
+        #if(SUPPORT_ASM)
+        #    add_dependencies(${target} asmdef_inc)
+        #endif(SUPPORT_ASM)
 
         target_link_libraries(${target} ${PLATFORM_LIBS})
 
@@ -715,24 +716,24 @@ endif(GRADE_PROFILE)
 # XXX liballeg_unshareable should not be needed if WANT_ASM is disabled.
 # But allegro-config still expects it for now.
 if(SHARED)
-    add_library(alleg_unsharable STATIC ${ASM_OBJS})
-    set_target_properties(alleg_unsharable
-        PROPERTIES
-        COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
-        OUTPUT_NAME alleg_unsharable
-        LINKER_LANGUAGE C
-        )
+    #add_library(alleg_unsharable STATIC ${ASM_OBJS})
+    #set_target_properties(alleg_unsharable
+    #    PROPERTIES
+    #    COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
+    #    OUTPUT_NAME alleg_unsharable
+    #    LINKER_LANGUAGE C
+    #    )
 
-    target_link_libraries(alleg_unsharable ${PLATFORM_LIBS})
+    #target_link_libraries(alleg_unsharable ${PLATFORM_LIBS})
 
-    install(
-        TARGETS alleg_unsharable
-        DESTINATION lib
-        LIBRARY PERMISSIONS
-            OWNER_READ OWNER_WRITE OWNER_EXECUTE
-            GROUP_READ             GROUP_EXECUTE
-            WORLD_READ             WORLD_EXECUTE
-        )
+    #install(
+    #    TARGETS alleg_unsharable
+    #    DESTINATION lib
+    #    LIBRARY PERMISSIONS
+    #        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+    #        GROUP_READ             GROUP_EXECUTE
+    #        WORLD_READ             WORLD_EXECUTE
+    #    )
 endif(SHARED)
 
 #

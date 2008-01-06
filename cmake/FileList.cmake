@@ -198,7 +198,7 @@ set(ALLEGRO_SRC_DOS_FILES
     )
 
 set(ALLEGRO_SRC_WIN_FILES
-    src/win/asmlock.s
+#    src/win/asmlock.s
     src/win/dllver.rc
     src/win/gdi.c
     src/win/wddaccel.c
