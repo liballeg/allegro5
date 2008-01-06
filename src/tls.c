@@ -132,44 +132,50 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 #else /* not defined ALLEGRO_MINGW32 */
 
 #if defined ALLEGRO_MSVC
+
 #define THREAD_LOCAL __declspec(thread)
 #define HAVE_NATIVE_TLS
+
 #elif defined ALLEGRO_MACOSX
+
 #define THREAD_LOCAL
 
 static pthread_key_t tls_key = 0;
 
 void osx_threads_init(void)
 {
-  pthread_key_create(&tls_key, NULL);
+   pthread_key_create(&tls_key, NULL);
 }
 
 static thread_local_state _tls;
 
 static thread_local_state* osx_thread_init(void)
 {
-       /* Allocate and copy the 'template' object */
-    thread_local_state* ptr = (thread_local_state*)_AL_MALLOC(sizeof(thread_local_state));
-    memcpy(ptr, &_tls, sizeof(thread_local_state));
-    pthread_setspecific(tls_key, ptr);
-       return ptr;
+   /* Allocate and copy the 'template' object */
+   thread_local_state* ptr = (thread_local_state*)_AL_MALLOC(sizeof(thread_local_state));
+   memcpy(ptr, &_tls, sizeof(thread_local_state));
+   pthread_setspecific(tls_key, ptr);
+   return ptr;
 }
 
 /* This function is short so it can hopefully be inlined. */
 static thread_local_state* tls_get(void)
 {
-       thread_local_state* ptr = (thread_local_state*)pthread_getspecific(tls_key);
-       if (ptr == NULL)
-    {
-               /* Must create object */
-               ptr = osx_thread_init();
-    }
-       return ptr;
+   thread_local_state* ptr = (thread_local_state*)pthread_getspecific(tls_key);
+   if (ptr == NULL)
+   {
+      /* Must create object */
+      ptr = osx_thread_init();
+   }
+   return ptr;
 }
-#else /* Not OSX */
+
+#else /* not MSVC, not OSX */
+
 #define THREAD_LOCAL __thread
 #define HAVE_NATIVE_TLS
-#endif
+
+#endif /* end not MSVC, not OSX */
 
 
 static THREAD_LOCAL thread_local_state _tls = {
@@ -194,12 +200,13 @@ static THREAD_LOCAL thread_local_state _tls = {
 #ifdef HAVE_NATIVE_TLS
 static thread_local_state *tls_get(void)
 {
-	return &_tls;
+   return &_tls;
 }
-#endif
+#endif /* end HAVE_NATIVE_TLS */
 
 
-#endif
+#endif /* end not defined ALLEGRO_MINGW32 */
+
 
 
 /* Function: al_set_new_display_format
