@@ -165,8 +165,8 @@ else:
     platform["ALLEGRO_HAVE_PROCFS_ARGCV"] = [config.CheckProcFSArgCV(), "Define to 1 if procfs reveals argc and argv"]
     platform["ALLEGRO_LINUX"] = [config.CheckLinux(), "Define if target platform is linux."]
     platform["ALLEGRO_LINUX_FBCON"] = [config.CheckFBCon(), "Define to enable Linux console fbcon driver."]
-    platform["ALLEGRO_LINUX_SVGALIB"] = [config.CheckLib("vga", "vga_init"), "Define to enable Linux console SVGAlib driver."]
-    platform["ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION"] = [config.CheckSVGALibVersion(), "Define if SVGAlib driver can check vga_version."]
+#    platform["ALLEGRO_LINUX_SVGALIB"] = [config.CheckLib("vga", "vga_init"), "Define to enable Linux console SVGAlib driver."]
+#    platform["ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION"] = [config.CheckSVGALibVersion(), "Define if SVGAlib driver can check vga_version."]
     platform["ALLEGRO_LINUX_VBEAF"] = [EnableVBEAF(), "Define to enable Linux console VBE/AF driver."]
     platform["ALLEGRO_LINUX_VGA"] = [EnableVGA(), "Define to enable Linux console VGA driver."]
     platform["ALLEGRO_LITTLE_ENDIAN"] = [config.CheckLittleEndian(), "Define if target machine is little endian."]
@@ -314,14 +314,15 @@ env.Append(CPPPATH = includes)
 context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
 unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 
+#FIXME: Didn't we say no more asm in A5?
 # Build asmdef. In the future asmdef.inc can probably be built directly by scons
 # instead of building the asmdef program.
-asmdefEnv = Environment()
-asmdef_inc = '#obj/unix/asmdef.inc'
-asmdefEnv.Append(CPPPATH = '#include')
-asmdefEnv.BuildDir('#build','#src')
-asmdef = asmdefEnv.Program('#build/asmdef', '#build/i386/asmdef.c')
-asmdefEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
+#asmdefEnv = Environment()
+#asmdef_inc = '#obj/unix/asmdef.inc'
+#asmdefEnv.Append(CPPPATH = '#include')
+#asmdefEnv.BuildDir('#build','#src')
+#asmdef = asmdefEnv.Program('#build/asmdef', '#build/i386/asmdef.c')
+#asmdefEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
 
 # TODO: How does the modules stuff work? Shouldn't they still be linked in?
 # unixfiles.remove("src/unix/alsa5.c")
@@ -373,19 +374,20 @@ if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
     context.addExtra(buildAlsa)
 
 
+# FIXME: Does A5 really support svgalib?
 # This might be broken. asmdefs.inc isnt generated until after svgalibs.s
 # is compiled, but svgalib.s depends on asmdefs.inc. Either this dependancy
 # needs to be fixed from scons or asmdefs.inc should be moved/generated elsewhere
-if platform["ALLEGRO_LINUX_SVGALIB"][0]:
-    def buildSVGA(menv,appendDir,buildDir,libDir):
-        vgaEnv = menv.Copy()
-        vgaEnv.Append(LIBS = "vga")
-        sources = ["svgalib.c"]
-        assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/src/linux/",['svgalibs.s']))
-        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/src/linux/", sources) + [assembler_object])
-        modules.append(lib)
-        return lib
-    context.addExtra(buildSVGA)
+#if platform["ALLEGRO_LINUX_SVGALIB"][0]:
+#    def buildSVGA(menv,appendDir,buildDir,libDir):
+#        vgaEnv = menv.Copy()
+#        vgaEnv.Append(LIBS = "vga")
+#        sources = ["svgalib.c"]
+#        assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/src/linux/",['svgalibs.s']))
+#        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/src/linux/", sources) + [assembler_object])
+#        modules.append(lib)
+#        return lib
+#    context.addExtra(buildSVGA)
 
 if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
@@ -466,10 +468,6 @@ def allegroConfig(env,appendDir,buildDir,libDir):
     env.Append(BUILDERS = { "ConfigMaker" : configure })
     # Return an instance of the builder, passing destination and source file.
     return env.ConfigMaker( 'allegro-config', '#misc/allegro-config.in' )
-
-# Is modules.lst supposed to be modified? I think not..
-# (otherwise this SVN revision can be undone)
-# context.addExtra(writeModulesList)
 
 def install(library):
     env = context.getLibraryEnv()

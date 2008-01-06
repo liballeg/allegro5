@@ -185,17 +185,17 @@ def CheckFBCon(context):
     context.Result(ret)
     return ret
 
-def CheckSVGALibVersion(context):
-    context.Message("Checking for SVGAlib version... ")
-    ret = context.TryLink("""
-        #include <vga.h>
-        int main(){
-            int x = vga_version; 
-            x++;
-        }
-        """, ".c");
-    context.Result(ret)
-    return ret
+#def CheckSVGALibVersion(context):
+#    context.Message("Checking for SVGAlib version... ")
+#    ret = context.TryLink("""
+#        #include <vga.h>
+#        int main(){
+#            int x = vga_version; 
+#            x++;
+#        }
+#        """, ".c");
+#    context.Result(ret)
+#    return ret
 
 def CheckConstructor(context):
     context.Message("Checking if constructors are supported... ")
