@@ -1253,6 +1253,8 @@ static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, floa
       return;
    }
 
+   d3d_set_bitmap_clip(target);
+
    d3d_color = d3d_blend_colors(color, bc);
 
    if (target->parent) {
@@ -1284,7 +1286,6 @@ static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, floa
    _al_d3d_unlock_device();
 }
  
-/* Dummy implementation of a filled rectangle. */
 static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    float brx, float bry, ALLEGRO_COLOR *color, int flags)
 {
@@ -1311,6 +1312,8 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    }
 
    target = al_get_target_bitmap();
+
+   d3d_set_bitmap_clip(target);
 
    d3d_color = d3d_blend_colors(color, bc);
    
@@ -1455,7 +1458,7 @@ static bool d3d_update_display_region(ALLEGRO_DISPLAY *d,
 /*
  * Sets a clipping rectangle
  */
-static void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
+void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
 {
    float plane[4];
    int left, right, top, bottom;

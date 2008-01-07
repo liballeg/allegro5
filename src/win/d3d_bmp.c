@@ -642,6 +642,8 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
 
    if (_al_d3d_is_device_lost()) return;
 
+   d3d_set_bitmap_clip(dest);
+
    bc = _al_get_blend_color();
    a = (unsigned char)(bc->a*255.0f);
    r = (unsigned char)(bc->r*255.0f);

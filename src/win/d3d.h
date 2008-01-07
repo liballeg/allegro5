@@ -97,6 +97,7 @@ int _al_format_to_d3d(int format);
 int _al_d3d_format_to_allegro(int d3d_fmt);
 void _al_d3d_set_blender(void);
 bool _al_d3d_render_to_texture_supported();
+void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 
 void _al_d3d_release_default_pool_textures();
 void _al_d3d_prepare_bitmaps_for_reset();
