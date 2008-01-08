@@ -165,8 +165,13 @@ class AllegroContext:
     def setInstallDir(self, d):
         self.installDir = d 
 
-    def addExtra(self, func):
-        self.extraTargets.append(func)
+    def addExtra(self, func, use_build_env = False):
+        class ExtraTarget:
+            pass
+        et = ExtraTarget()
+        et.func = func
+        et.use_build_env = use_build_env
+        self.extraTargets.append(et)
 
     def setLibraryEnv(self, env):
         self.libraryEnv = env
@@ -385,8 +390,13 @@ else:
     extraEnv.Append(LIBS = [context.getLibraries()])
 
 extraTargets = []
-for func in context.getExtraTargets():
-    extraTargets.append(func(extraEnv, appendDir, normalBuildDir, context.getLibraryDir()))
+for et in context.getExtraTargets():
+    if et.use_build_env:
+        extraTargets.append(et.func(context.getLibraryEnv(),
+            appendDir, normalBuildDir, context.getLibraryDir()))
+    else:
+        extraTargets.append(et.func(extraEnv, appendDir, normalBuildDir,
+            context.getLibraryDir()))
 
 extraTargets.append(plugins_h)
 Default(library, extraTargets, docs)

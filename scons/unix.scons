@@ -1,7 +1,7 @@
 # vi: syntax=python
 Import('context')
 
-import os, ConfigParser
+import os, ConfigParser, re
 import checks
 
 SConscript("all.scons", exports = ["context"])
@@ -429,22 +429,22 @@ if haveXWindows():
 def getModules():
     return modules
 
-def allegroConfig(env,appendDir,buildDir,libDir):
+def allegroConfig(env, appendDir, buildDir, libDir):
     """Builds the allegro-config shell script out of misc/allegro-config.in"""
+    prefix = ARGUMENTS.get('install', '/usr/local')
     replaces = {}
-    replaces[ '@prefix@' ] = ARGUMENTS.get( 'install', '/usr/local/' )
-    replaces[ '@INCLUDE_PREFIX@' ] = ARGUMENTS.get( 'install', '/usr/local/' )
-    replaces[ '@includedir@' ] = '${exec_prefix}/include'
-    replaces[ '@libdir@' ] = '${exec_prefix}/lib'
-    replaces[ '@bindir@' ] = '${exec_prefix}/bin'
+    replaces[ '@prefix@' ] = prefix
+    replaces[ '@INCLUDE_PREFIX@' ] = prefix
+    replaces[ '@includedir@' ] = os.path.join(prefix, "include")
+    replaces[ '@libdir@' ] = os.path.join(prefix, "lib")
+    replaces[ '@bindir@' ] = os.path.join(prefix, "bin")
     replaces[ '@LINK_WITH_STATIC_LIBS@' ] = 'no'
     replaces[ '@LIB_TO_LINK@' ] = 'alleg'
     ldflags = ''
     if supportModules():
         ldflags = '-Wl,--export-dynamic'
-    #print env[ 'LIBPATH' ]    
     replaces[ '@LDFLAGS@' ] = ldflags
-    libs = unixLibs
+    libs = env["LIBS"]
     replaces[ '@LIBS@' ] = ' '.join(['-l' + str(x) for x in libs])
     replaces[ '@FRAMEWORKS@' ] = ''
     replaces[ '^version=.*' ] = 'version=%s' % context.getVersion()
@@ -452,10 +452,9 @@ def allegroConfig(env,appendDir,buildDir,libDir):
     def replaceVars(target, source, env):
         writer = open( target[0].path, 'w' )
         for line in file(source[0].path):
-            import re
-            for str in replaces.keys():
-                regex = re.compile( str )
-                line = regex.sub(replaces[str], line)
+            for k in replaces.keys():
+                regex = re.compile(k)
+                line = regex.sub(replaces[k], line)
 
             writer.write( line )
 
@@ -491,7 +490,7 @@ def install(library):
 
 context.setInstaller(install)
     
-context.addExtra(allegroConfig)
+context.addExtra(allegroConfig, use_build_env = True)
 
 def pruneLibs(libs):
     import sets # needed for Python 2.3 compatibility
