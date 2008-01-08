@@ -430,7 +430,7 @@ def getModules():
     return modules
 
 def allegroConfig(env, appendDir, buildDir, libDir):
-    """Builds the allegro-config shell script out of misc/allegro-config.in"""
+    """Builds the allegro5-config shell script out of misc/allegro5-config.in"""
     prefix = ARGUMENTS.get('install', '/usr/local')
     replaces = {}
     replaces[ '@prefix@' ] = prefix
@@ -466,7 +466,7 @@ def allegroConfig(env, appendDir, buildDir, libDir):
     # Add the builder to scons.
     env.Append(BUILDERS = { "ConfigMaker" : configure })
     # Return an instance of the builder, passing destination and source file.
-    return env.ConfigMaker( 'allegro-config', '#misc/allegro-config.in' )
+    return env.ConfigMaker( 'allegro5-config', '#misc/allegro5-config.in' )
 
 def install(library):
     env = context.getLibraryEnv()
