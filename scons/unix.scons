@@ -459,6 +459,7 @@ def allegroConfig(env, appendDir, buildDir, libDir):
             writer.write( line )
 
         writer.close()
+        Execute(Chmod(target[0].path, 0755))
         return 0
 
     # A new builder who calls the 'replaceVas' function to build the target.
