@@ -943,8 +943,8 @@ if(UNIX)
         endif("${lib}" MATCHES "^-l|^/")
     endforeach(lib)
 
-    configure_file(misc/allegro-config.in allegro-config)
-    install(PROGRAMS ${CMAKE_BINARY_DIR}/allegro-config
+    configure_file(misc/allegro5-config.in allegro5-config)
+    install(PROGRAMS ${CMAKE_BINARY_DIR}/allegro5-config
             DESTINATION bin
             )
 endif(UNIX)
