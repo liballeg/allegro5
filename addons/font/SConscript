@@ -20,6 +20,8 @@ def a5font(env, appendDir, buildDir, libDir):
     # Build library however Allegro was configured, either static or shared
     lib = context.makeLibrary( env )( libDir + '/a5_font', appendDir(buildDir + '/addons/font',source))
 
+    examples.append(lib)
+
     exampleEnv = env.Copy()
     exampleEnv.Append( LIBS = lib )
 
@@ -45,4 +47,4 @@ def a5font(env, appendDir, buildDir, libDir):
     Alias('install-addons/font', install())
     return examples
 
-context.addExtra(a5font)
+context.addExtra(a5font,depends = True)

@@ -347,7 +347,7 @@ if platform["ALLEGRO_WITH_ESDDIGI"][0]:
         lib = esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(esdBuildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
-    context.addExtra(buildESD)
+    context.addExtra(buildESD, depends = True)
 
 if platform["ALLEGRO_WITH_ALSADIGI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
@@ -359,7 +359,7 @@ if platform["ALLEGRO_WITH_ALSADIGI"][0]:
         lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(alsaBuildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
-    context.addExtra(buildAlsa)
+    context.addExtra(buildAlsa, depends = True)
 
 if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
@@ -371,7 +371,7 @@ if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
         lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(alsaBuildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
-    context.addExtra(buildAlsa)
+    context.addExtra(buildAlsa, depends = True)
 
 
 # FIXME: Does A5 really support svgalib?
@@ -397,7 +397,7 @@ if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
         lib = artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",appendDir(buildDir + "/src/unix/", sources))
         modules.append(lib)
         return lib
-    context.addExtra(buildAlsa)
+    context.addExtra(buildAlsa, depends = True)
 
 if platform["ALLEGRO_LINUX_FBCON"][0]:
     def buildFBCon(menv,appendDir,buildDir,libDir):
@@ -405,7 +405,7 @@ if platform["ALLEGRO_LINUX_FBCON"][0]:
         lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/modules/src/linux/", sources))
         modules.append(lib)
         return lib
-    context.addExtra(buildFBCon)
+    context.addExtra(buildFBCon, depends = True)
 
 def haveXWindows():
     return platform["ALLEGRO_WITH_XWINDOWS"][0]
@@ -423,7 +423,7 @@ if haveXWindows():
         Alias("tools", tools)
         return tools
 
-    context.addExtra(tools)
+    context.addExtra(tools, depends = True)
 
 ## return a list of modules
 def getModules():

@@ -165,11 +165,15 @@ class AllegroContext:
     def setInstallDir(self, d):
         self.installDir = d 
 
-    def addExtra(self, func, use_build_env = False):
+    ## pass 'depends = True' if the result of 'func' should
+    ## depend on the Allegro library being built.
+    ## This is important to make parallel builds, -j 2, work.
+    def addExtra(self, func, depends = False, use_build_env = False):
         class ExtraTarget:
             pass
         et = ExtraTarget()
         et.func = func
+	et.depends = depends
         et.use_build_env = use_build_env
         self.extraTargets.append(et)
 
@@ -391,12 +395,13 @@ else:
 
 extraTargets = []
 for et in context.getExtraTargets():
+    useEnv = extraEnv
     if et.use_build_env:
-        extraTargets.append(et.func(context.getLibraryEnv(),
-            appendDir, normalBuildDir, context.getLibraryDir()))
-    else:
-        extraTargets.append(et.func(extraEnv, appendDir, normalBuildDir,
-            context.getLibraryDir()))
+        useEnv = context.getLibraryEnv()
+    make = et.func(useEnv,appendDir, normalBuildDir, context.getLibraryDir())
+    if et.depends:
+        useEnv.Depends(make,library)
+    extraTargets.append(make)
 
 extraTargets.append(plugins_h)
 Default(library, extraTargets, docs)
