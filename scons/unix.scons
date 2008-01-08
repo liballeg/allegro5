@@ -486,6 +486,7 @@ def install(library):
     add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()), 'modules.lst')
     for i in getModules():
         add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()),i)
+    add('bin', 'allegro5-config')
     return ret
 
 context.setInstaller(install)
