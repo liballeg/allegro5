@@ -111,7 +111,7 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
             goto done;
          }
          al_set_target_bitmap(bits[i]);
-         al_draw_bitmap_region(import_bmp, import_x + 1, import_y + 1, w, h, 0, 0, 0);
+         al_draw_bitmap_region(import_bmp, import_x + 1 - 0.5f, import_y + 1 - 0.5f, w, h, -0.5f, -0.5f, 0);
 	 import_x += w;
       }
    }

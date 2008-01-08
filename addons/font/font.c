@@ -525,7 +525,7 @@ static int color_render_char(AL_CONST A5FONT_FONT* f, int ch, int x, int y)
 
     g = _a5font_color_find_glyph(f, ch);
     if(g) {
-        al_draw_bitmap(g, x, y + (h-g->h)/2, 0);
+        al_draw_bitmap(g, x-0.5f, y + ((float)h-g->h)/2.0f-0.5f, 0);
 
 	w = g->w;
     }
@@ -709,7 +709,7 @@ static A5FONT_FONT_COLOR_DATA *color_copy_glyph_range(A5FONT_FONT_COLOR_DATA *cf
       g = cf->bitmaps[begin - cf->begin + c];
       gl[c] = al_create_bitmap(g->w, g->h);
       al_set_target_bitmap(gl[c]);
-      al_draw_bitmap(g, 0, 0, 0);
+      al_draw_bitmap(g, -0.5f, -0.5f, 0);
    }
 
    _al_pop_new_bitmap_parameters();

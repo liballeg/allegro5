@@ -163,8 +163,8 @@ void _al_d3d_draw_textured_quad(ALLEGRO_BITMAP_D3D *bmp,
       tv_start = tv_end;
       tv_end = temp;
       /* Weird hack -- not sure why this is needed */
-      tv_start -= 1.0f / texture_h;
-      tv_end -= 1.0f / texture_h;
+      //tv_start -= 1.0f / texture_h;
+      //tv_end -= 1.0f / texture_h;
    }
 
    D3D_TL_VERTEX vertices[4] = {
@@ -704,7 +704,7 @@ static void d3d_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flag
       return;
    }
 
-   d3d_blit_real(bitmap, 0.0f, 0.0f, bitmap->w, bitmap->h,
+   d3d_blit_real(bitmap, -0.5f, -0.5f, bitmap->w, bitmap->h,
       bitmap->w/2, bitmap->h/2,
       dx, dy, bitmap->w, bitmap->h,
       0.0f, flags, false);
