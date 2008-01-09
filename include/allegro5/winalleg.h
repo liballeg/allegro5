@@ -116,6 +116,8 @@ AL_FUNC(void, stretch_blit_from_hdc, (HDC hdc, BITMAP *bitmap, int src_x, int sr
 
 AL_FUNC(LPDIRECT3DDEVICE9, al_d3d_get_device, (void));
 AL_FUNC(HWND, al_d3d_get_hwnd, (void));
+AL_FUNC(LPDIRECT3DTEXTURE9, al_d3d_get_system_texture, (ALLEGRO_BITMAP *));
+AL_FUNC(LPDIRECT3DTEXTURE9, al_d3d_get_video_texture, (ALLEGRO_BITMAP *));
 
 
 

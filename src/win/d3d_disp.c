@@ -1377,7 +1377,6 @@ static void d3d_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
    d3d_draw_rectangle(d, rect.x1, rect.y1, rect.x2+1, rect.y2+1, color, ALLEGRO_FILLED);
 }
 
-/* Dummy implementation of flip. */
 static void d3d_flip_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_D3D* disp = (ALLEGRO_DISPLAY_D3D*)d;
@@ -1845,15 +1844,32 @@ static bool d3d_hide_cursor(ALLEGRO_DISPLAY *display)
 	return _al_win_directx_hide_mouse_cursor();
 }
 
+
+/* Exposed stuff */
+
 LPDIRECT3DDEVICE9 al_d3d_get_device(void)
 {
 	return _al_d3d_device;
 }
 
+
 HWND al_d3d_get_hwnd(void)
 {
 	return ((ALLEGRO_DISPLAY_D3D *)_al_current_display)->window;
 }
+
+
+LPDIRECT3DTEXTURE9 al_d3d_get_system_texture(ALLEGRO_BITMAP *bitmap)
+{
+	return ((ALLEGRO_BITMAP_D3D *)bitmap)->system_texture;
+}
+
+
+LPDIRECT3DTEXTURE9 al_d3d_get_video_texture(ALLEGRO_BITMAP *bitmap)
+{
+	return ((ALLEGRO_BITMAP_D3D *)bitmap)->video_texture;
+}
+
 
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
