@@ -142,9 +142,15 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 static pthread_key_t tls_key = 0;
 
+static void osx_thread_destroy(void* ptr)
+{
+   _AL_FREE(ptr);
+}
+
+
 void osx_threads_init(void)
 {
-   pthread_key_create(&tls_key, NULL);
+   pthread_key_create(&tls_key, osx_thread_destroy);
 }
 
 static thread_local_state _tls;
