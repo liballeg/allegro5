@@ -61,17 +61,19 @@ static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int
 
    /* look for right edge of character */
    *w = 0;
-   while (!memcmp(al_get_pixel(bmp, *x+*w+1, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) &&
-          memcmp(al_get_pixel(bmp, *x+*w+1, *y+1, &c2), &c, sizeof(ALLEGRO_COLOR)) &&
-          (*x+*w+1 <= bmp->w))
+   while ((*x+*w+1 < bmp->w) &&
+          !memcmp(al_get_pixel(bmp, *x+*w+1, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) &&
+          memcmp(al_get_pixel(bmp, *x+*w+1, *y+1, &c2), &c, sizeof(ALLEGRO_COLOR))) {
       (*w)++;
+   }
 
    /* look for bottom edge of character */
    *h = 0;
-   while (!memcmp(al_get_pixel(bmp, *x, *y+*h+1, &c2), &c, sizeof(ALLEGRO_COLOR)) &&
-          memcmp(al_get_pixel(bmp, *x+1, *y+*h+1, &c2), &c, sizeof(ALLEGRO_COLOR)) &&
-          (*y+*h+1 <= bmp->h))
+   while ((*y+*h+1 < bmp->h) &&
+          !memcmp(al_get_pixel(bmp, *x, *y+*h+1, &c2), &c, sizeof(ALLEGRO_COLOR)) &&
+          memcmp(al_get_pixel(bmp, *x+1, *y+*h+1, &c2), &c, sizeof(ALLEGRO_COLOR))) {
       (*h)++;
+   }
 
    al_unlock_bitmap(bmp);
 }
@@ -111,7 +113,7 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
             goto done;
          }
          al_set_target_bitmap(bits[i]);
-         al_draw_bitmap_region(import_bmp, import_x + 1 - 0.5f, import_y + 1 - 0.5f, w, h, -0.5f, -0.5f, 0);
+         al_draw_bitmap_region(import_bmp, import_x + 1 + PIXEL_OFFSET, import_y + 1 + PIXEL_OFFSET, w, h, PIXEL_OFFSET, PIXEL_OFFSET, 0);
 	 import_x += w;
       }
    }
