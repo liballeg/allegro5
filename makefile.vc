@@ -320,7 +320,7 @@ uninstall: generic-uninstall
 
 compress:
 ifdef UPX_BIN
-	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/msvc/all*.dll
+	$(UPX_BIN) demos/shooter/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/msvc/all*.dll
 else
 	@echo No executable compressor specified! You must set the environment variable
 	@echo UPX_BIN to point to upx.exe.
@@ -402,9 +402,9 @@ tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj obj/msvc/scrsave.res $(IMPLIB_NAME
 tools/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
-obj/msvc/demo.res: demo/demo.dat tools/win/wfixicon.exe
+obj/msvc/demo.res: demos/shooter/demo.dat tools/win/wfixicon.exe
 ifdef STATICLINK
-	tools/win/wfixicon.exe obj/msvc/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+	tools/win/wfixicon.exe obj/msvc/demo.ico -ro -d demos/shooter/demo.dat SHIP3 GAME_PAL
 else
    ifdef UNIX_TOOLS
 	cp tools/win/wfixicon.exe lib/msvc/wfixicon.exe
@@ -417,7 +417,7 @@ else
 		copy tools\win\wfixicon.exe.manifest lib\msvc\wfixicon.exe.manifest
       endif
    endif
-	lib/msvc/wfixicon.exe obj/msvc/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+	lib/msvc/wfixicon.exe obj/msvc/demo.ico -ro -d demos/shooter/demo.dat SHIP3 GAME_PAL
    ifdef UNIX_TOOLS
 	rm lib/msvc/wfixicon.exe
       ifdef COMPILER_MSVC8
@@ -431,8 +431,8 @@ else
    endif
 endif
 
-demo/demo.exe: obj/msvc/demo.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJECTS_DEMO) obj/msvc/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+demos/shooter/shooter.exe: obj/msvc/demo.res $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:demos/shooter/shooter.exe $(OBJECTS_DEMO) obj/msvc/demo.res $(IMPLIB_NAME) $(LIBRARIES)
 
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
@@ -490,7 +490,7 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MSVC
 
 depend:
-	$(GCC) $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c > _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demos/shooter/*.c > _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x c tests/*.cpp >> _depend.tmp

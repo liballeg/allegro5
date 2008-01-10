@@ -212,7 +212,7 @@ uninstall: generic-uninstall
 
 compress:
 ifdef UPX_BIN
-	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/mingw32/all*.dll
+	$(UPX_BIN) demos/shooter/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/mingw32/all*.dll
 else
 	@echo No executable compressor specified! You must set the environment variable
 	@echo UPX_BIN to point to upx.exe.
@@ -447,29 +447,29 @@ endif
 
 # -------- link demo --------
 
-demo/demo.exe: $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res
-	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJECTS_DEMO)),demo\demo.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
+demos/shooter/shooter.exe: $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res
+	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJECTS_DEMO)),demos\shooter\shooter.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
 
 
 # -------- demo program iconification --------
 
 .PHONY: fixdemo
 
-$(OBJ_DIR)/demo.res: demo/demo.dat tools/win/wfixicon.exe
-	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+$(OBJ_DIR)/demo.res: demos/shooter/demo.dat tools/win/wfixicon.exe
+	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demos/shooter/demo.dat SHIP3 GAME_PAL
 
 fixdemo: $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
 	@echo $(subst /,\\,$(OBJ_DIR)/demo.res) > res.rsp
-	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/demo.obj),demo\demo.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
+	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/demo.obj),demos\shooter\shooter.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
 ifdef UNIX_TOOLS
 	@rm res.rsp
    ifdef DELETE_TDS_FILES
-	@rm demo/demo.tds
+	@rm demos/shooter/demo.tds
    endif
 else
 	@del res.rsp
    ifdef DELETE_TDS_FILES
-	@del demo\demo.tds
+	@del demos\shooter\shooter.tds
    endif
 endif
 
@@ -480,7 +480,7 @@ endif
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BCC32
 
 depend:
-	$(GCC) $(DEPEND_PARAMS) demo/*.c docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) demos/shooter/*.c docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) tests/win/*.c tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x c tests/*.cpp >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp

@@ -146,7 +146,7 @@ make DESTDIR=%{buildroot} \
 install -D -m 644 allegro.cfg %{buildroot}%{_sysconfdir}/allegrorc
 install -d -m 755 %{buildroot}%{_datadir}/allegro
 install -D -m 644 keyboard.dat language.dat %{buildroot}%{_datadir}/allegro
-find demo examples setup -type f -perm +111 -print | xargs rm
+find shooter examples setup -type f -perm +111 -print | xargs rm
 
 %post
 /sbin/ldconfig
@@ -178,7 +178,7 @@ rm -rf %{buildroot}
 %doc docs/txt/const.txt docs/txt/faq.txt docs/txt/mistakes.txt
 %doc docs/txt/help.txt
 %doc todo.txt docs/html
-%doc demo examples setup
+%doc shooter examples setup
 %{_bindir}/allegro-config
 %{_libdir}/*.a
 %{_includedir}/*

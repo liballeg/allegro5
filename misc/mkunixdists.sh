@@ -106,7 +106,7 @@ echo "Stripping to form end-user distribution"
 
 	mkdir .saveme
 	cp readme.txt docs/build/unix.txt docs/build/linux.txt .saveme
-	rm -rf demo docs examples resource setup tests tools
+	rm -rf demos docs examples resource setup tests tools
 	rm -f AUTHORS CHANGES THANKS *.txt fix* indent* readme.* allegro.mft
 	rm -f makefile.all makefile.be makefile.qnx makefile.bcc makefile.dj
 	rm -f makefile.mgw makefile.mpw makefile.vc makefile.wat makefile.tst

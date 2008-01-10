@@ -778,7 +778,7 @@ General problems
 
       A number of graphics cards have buggy or incomplete VESA
       implementations, and often the <code>vsync()</code> function is not implemented. For
-      examples on flicker-free drawing, look at the code for the demo game,
+      examples on flicker-free drawing, look at the code for the demo game shooter,
       which uses a variety of methods to draw itself.
 
 

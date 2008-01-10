@@ -210,7 +210,7 @@ $(OBJ_DIR)/iscanmmx.obj: iscanmmx.s $(RUNNER)
 
 endif
 
-demo/demo.exe: $(OBJ_DIR)/demo.obj
+demos/shooter/shooter.exe: $(OBJ_DIR)/demo.obj
 	$(RUNNER) wlink \\ @ $(LFLAGS) 'name $@' $(patsubst %,'file %',$(OBJECTS_DEMO)) 'library $(LIB_NAME)'
 
 */%.exe: $(OBJ_DIR)/%.obj $(LIB_NAME) $(RUNNER)
@@ -259,7 +259,7 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_WATCOM
 
 depend:
-	$(GCC) $(DEPEND_PARAMS) src/*.c src/dos/*.c src/i386/*.c src/misc/*.c demo/*.c > _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) src/*.c src/dos/*.c src/i386/*.c src/misc/*.c demos/shooter/*.c > _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x c tests/*.cpp >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/dos/*.s src/misc/*.s >> _depend.tmp

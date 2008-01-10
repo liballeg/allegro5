@@ -248,7 +248,7 @@ $(OBJ_DIR)/%.o: %.cpp
 $(OBJ_DIR)/%.o: %.s
 	$(CC) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
-demo/demo: $(OBJECTS_DEMO) $(LIB_NAME)
+demos/shooter/demo: $(OBJECTS_DEMO) $(LIB_NAME)
 	$(CC) $(LFLAGS) -o $@ $(OBJECTS_DEMO) $(LIB_NAME) $(LIBRARIES)
 
 */%: $(OBJ_DIR)/%.o $(LIB_NAME)
@@ -290,8 +290,8 @@ tools/beos/%: $(OBJ_DIR)/%.o $(LIB_NAME)
 
 .PHONY: fixdemo
 
-fixdemo: demo/demo demo/demo.dat tools/beos/bfixicon
-	tools/beos/bfixicon demo/demo -d demo/demo.dat SHIP3 GAME_PAL
+fixdemo: demos/shooter/demo demo/demo.dat tools/beos/bfixicon
+	tools/beos/bfixicon demos/shooter/demo -d demos/shooter/demo.dat SHIP3 GAME_PAL
 
 
 
@@ -300,7 +300,7 @@ fixdemo: demo/demo demo/demo.dat tools/beos/bfixicon
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BEOS
 
 depend:
-	$(CC) $(DEPEND_PARAMS) src/*.c src/beos/*.c src/i386/*.c src/misc/*.c src/unix/*.c demo/*.c > _depend.tmp
+	$(CC) $(DEPEND_PARAMS) src/*.c src/beos/*.c src/i386/*.c src/misc/*.c src/unix/*.c demos/shooter/*.c > _depend.tmp
 	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) -x c src/beos/*.cpp tests/*.cpp tools/beos/*.cpp >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/misc/*.s >> _depend.tmp

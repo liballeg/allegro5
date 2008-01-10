@@ -387,7 +387,7 @@ $(OBJ_DIR)/%.o: %.cpp
 $(OBJ_DIR)/%.o: %.m
 	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
 
-demo/demo: $(OBJECTS_DEMO) $(LIB_NAME) $(LIB_MAIN_NAME)
+demos/shooter/demo: $(OBJECTS_DEMO) $(LIB_NAME) $(LIB_MAIN_NAME)
 	$(CC) $(LFLAGS) -o $@ $(OBJECTS_DEMO) $(LIB_NAME) $(LIB_MAIN_NAME) $(LIBRARIES)
 
 */%: $(OBJ_DIR)/%.o $(LIB_NAME) $(LIB_MAIN_NAME)
@@ -428,8 +428,8 @@ endif
 
 .PHONY: fixdemo
 
-fixdemo: demo/demo demo/demo.dat tools/macosx/fixbundle
-	tools/macosx/fixbundle demo/demo -d demo/demo.dat GAME_PAL SHIP3
+fixdemo: demos/shooter/demo demos/shooter/demo.dat tools/macosx/fixbundle
+	tools/macosx/fixbundle demos/shooter/demo -d demos/shooter/demo.dat GAME_PAL SHIP3
 
 
 
@@ -439,7 +439,7 @@ fixdemo: demo/demo demo/demo.dat tools/macosx/fixbundle
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MACOSX
 
 depend:
-	$(CC) $(DEPEND_PARAMS) src/*.c src/unix/*.c src/misc/*.c src/c/*.c demo/*.c > _depend.tmp
+	$(CC) $(DEPEND_PARAMS) src/*.c src/unix/*.c src/misc/*.c src/c/*.c demos/shooter/*.c > _depend.tmp
 	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) tools/*.c tools/plugins/*.c tools/macosx/*.c >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) -x c src/macosx/*.m tests/*.cpp >> _depend.tmp

@@ -96,7 +96,7 @@ endif
 
 # -------- list what objects and programs we need to build --------
 
-VPATH += src demo docs examples setup tests tools tools/plugins docs/src/makedoc
+VPATH += src demos/shooter docs examples setup tests tools tools/plugins docs/src/makedoc
 
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(OBJECT_LIST)))
 
@@ -113,7 +113,9 @@ ifeq (,$(wildcard $(PLATFORM_DIR)/cpp-tested))
 endif
 endif
 
-PROGRAMS += $(CPP_PROGRAMS) demo examples makedoc $(ADDON_EXE_TARGETS)
+DEMOS = shooter
+
+PROGRAMS += $(CPP_PROGRAMS) $(DEMOS) examples makedoc $(ADDON_EXE_TARGETS)
 
 EXAMPLES = $(basename $(notdir $(ALLEGRO_EXAMPLE_FILES)))
 
@@ -548,7 +550,7 @@ tools/pat2dat$(EXE): $(OBJ_DIR)/pat2dat$(OBJ) $(PLUGIN_DEPS)
 
 # -------- dependencies for the demo game --------
 
-demo/demo$(EXE): $(OBJECTS_DEMO)
+demos/shooter/shooter$(EXE): $(OBJECTS_DEMO)
 
 
 # -------- special rules for C++ programs --------
@@ -562,7 +564,7 @@ cpp-programs: $(CPP_PROGRAMS)
 
 # -------- shortcuts for building various programs --------
 
-demo: demo/demo$(EXE)
+shooter: demos/shooter/shooter$(EXE)
 makedoc: docs/makedoc$(EXE)
 keyconf: setup/keyconf$(EXE)
 setup: setup/setup$(EXE)

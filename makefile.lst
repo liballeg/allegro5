@@ -442,16 +442,16 @@ ALLEGRO_MAKEDOC_SOURCES = \
 	docs/src/makedoc/makesci.c
 
 ALLEGRO_DEMO_SOURCES = \
-	demo/animsel.c \
-	demo/bullet.c \
-	demo/dirty.c \
-	demo/expl.c \
-	demo/star.c \
-	demo/aster.c \
-	demo/demo.c \
-	demo/display.c \
-	demo/game.c \
-	demo/title.c
+	demos/shooter/animsel.c \
+	demos/shooter/bullet.c \
+	demos/shooter/dirty.c \
+	demos/shooter/expl.c \
+	demos/shooter/star.c \
+	demos/shooter/aster.c \
+	demos/shooter/demo.c \
+	demos/shooter/display.c \
+	demos/shooter/game.c \
+	demos/shooter/title.c
 
 ALLEGRO_LIB_EXE_SOURCES = \
 	setup/setup.c \
@@ -650,7 +650,7 @@ DISTCLEAN_FILES = \
 	docs/allegro.aux docs/allegro.cp docs/allegro.fn docs/allegro.fns \
 	docs/allegro.ky docs/allegro.log docs/allegro.pg docs/allegro.toc \
 	docs/allegro.tp docs/allegro.vr docs/scite/allegro.api \
-	demo/demo \
+	demos/shooter/shooter \
 	$(ALLEGRO_LIB_EXES) $(ALLEGRO_EXAMPLE_EXES) $(ALLEGRO_DATAFILE_EXES) \
 	*.exe */*.exe */*/*.exe msvcmake.bat tests/win/*.scr \
 	config.cache config.log config.status stamp-h stamp-h[0-9]* suid \
