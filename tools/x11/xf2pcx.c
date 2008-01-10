@@ -295,17 +295,17 @@ int main(int argc, char *argv[])
    for (i = 0; i < 256; i++)
       palette[i].r = palette[i].g = palette[i].b = 0;
 
-#define CLAMP(v) (((v / 4) > 63) ? 63 : (v / 4))
-   palette[0].r = CLAMP(bcolor / 1000000);
-   palette[0].g = CLAMP((bcolor % 1000000) / 1000);
-   palette[0].b = CLAMP(bcolor % 1000);
-   palette[1].r = CLAMP(ccolor / 1000000);
-   palette[1].g = CLAMP((ccolor % 1000000) / 1000);
-   palette[1].b = CLAMP(ccolor % 1000);
-   palette[255].r = CLAMP(gcolor / 1000000);
-   palette[255].g = CLAMP((gcolor % 1000000) / 1000);
-   palette[255].b = CLAMP(gcolor % 1000);
-#undef CLAMP
+#define CLAMP_COL(v) (((v / 4) > 63) ? 63 : (v / 4))
+   palette[0].r = CLAMP_COL(bcolor / 1000000);
+   palette[0].g = CLAMP_COL((bcolor % 1000000) / 1000);
+   palette[0].b = CLAMP_COL(bcolor % 1000);
+   palette[1].r = CLAMP_COL(ccolor / 1000000);
+   palette[1].g = CLAMP_COL((ccolor % 1000000) / 1000);
+   palette[1].b = CLAMP_COL(ccolor % 1000);
+   palette[255].r = CLAMP_COL(gcolor / 1000000);
+   palette[255].g = CLAMP_COL((gcolor % 1000000) / 1000);
+   palette[255].b = CLAMP_COL(gcolor % 1000);
+#undef CLAMP_COL
    save_pcx(filename, bitmap, palette);
 
    /* clean up */
