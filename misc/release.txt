@@ -54,55 +54,53 @@ necessary software installed.
 
 9. Fix version number: 'misc/fixver.sh 4 2 1'
 
-10. Make sure demo.dat is present in the 'demo' sub-directory.
+10. Make sure the working directory is called 'allegro'.
 
-11. Make sure the working directory is called 'allegro'.
+11. Make sure the installed version of GNU autoconf is the right one.
 
-12. Make sure the installed version of GNU autoconf is the right one.
-
-13. Make .zip distro. Have the previous archive in parent directory.
+12. Make .zip distro. Have the previous archive in parent directory.
     You will need to have the dat tool in your path.
 
     misc/zipup.sh all421.zip all420.zip
     
     The generated zip archive will be in the .dist subdirectory.
 
-14. Make Unix distros. From the top level directory:
+13. Make Unix distros. From the top level directory:
 
     cd .dist
     unzip all421.zip allegro/misc
     allegro/misc/mkunixdists.sh all421.zip
    
-15. Check that the RPM file can be installed and compiled without problems.
+14. Check that the RPM file can be installed and compiled without problems.
     Also check if the patch applies ok (all421_diff.zip). To verify that the
     RPM .spec file is updated, you can build the package on a RedHat system,
     which verifies if the .spec file includes all the files of the package.
     You can use SourceForge's compile farm to do this, they have Red Hat
     Linux 9 running Linux 2.4 kernel on x86 architecture.
 
-16. Use misc/zipwin.sh to make Windows binary distro. This script must
+15. Use misc/zipwin.sh to make Windows binary distro. This script must
     be run under djgpp Bash having MSVC installed.
     If you do not have these installed, create a new windows binary
     distro based on the old one, update all text files and scripts and
     update the dlls with some you make with MinGW using the newly
     created .zip distro. (all421.zip)
 
-17. Upload all packages to Sourceforge using the FRS (File Release
+16. Upload all packages to Sourceforge using the FRS (File Release
     System). Use CHANGES as the basis for the release notes.
 
-18. Announce the new release to the Allegro mailinglist:
+17. Announce the new release to the Allegro mailinglist:
     <alleg-main@lists.sourceforge.net>, make sure you add URLs to both the
     Allegro homepage and the Allegro sourceforge download page.
     Also include the release notes and anything else you wish to add.
 
-19. Convert local files back to Unix format, bump version number,
+18. Convert local files back to Unix format, bump version number,
     and commit changed files.
     
     ./fix.sh unix --dtou
     misc/fixver.sh 4 2 2 SVN
     svn commit -m "Bumped version to 4.2.2 (SVN)"
 
-20. Webmasters watch the mailing lists for annoucements and then update
+19. Webmasters watch the mailing lists for annoucements and then update
     the web pages accordingly. If you are interested in this process
     yourself, you are free to do it following the instructions at:
 
