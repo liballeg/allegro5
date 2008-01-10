@@ -1,0 +1,20 @@
+import os, sys, glob
+
+env = Environment(ENV = os.environ)
+
+env.Append(LIBS = ["agl", "GL", "GLU"])
+if sys.platform == "linux2":
+    env.ParseConfig("allegro-config --libs")
+elif sys.platform == "windows":
+    env.Append(LIBS = ["alleg"])
+
+env.BuildDir("build", "src")
+
+env.Append(CPPPATH = ["include"])
+
+env.Append(CCFLAGS = ["-DSKATER_USE_ALLEGRO_GL", "-DSKATER_USE_ALLEGRO_GL_FONT", "-O2", "-g0", "-W", "-Wall", "-Wno-unused-parameter"])
+
+files = glob.glob("src/*.c")
+files = [os.path.join("build", x[4:]) for x in files]
+
+env.Program('skater', files)

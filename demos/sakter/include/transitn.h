@@ -1,0 +1,24 @@
+#ifndef		__DEMO_TRANSITION_H__
+#define		__DEMO_TRANSITION_H__
+
+#include <allegro.h>
+#include "gmestate.h"		/* gamestate.h */
+
+
+typedef struct TRANSITION {
+   GAMESTATE *from;
+   GAMESTATE *to;
+   float duration;
+   float progress;
+   BITMAP *from_bmp;
+   BITMAP *to_bmp;
+} TRANSITION;
+
+
+TRANSITION *create_transition(GAMESTATE * from, GAMESTATE * to,
+			      float duration);
+void destroy_transition(TRANSITION * t);
+int update_transition(TRANSITION * t);
+void draw_transition(BITMAP * canvas, TRANSITION * t);
+
+#endif				/* __DEMO_TRANSITION_H__ */
