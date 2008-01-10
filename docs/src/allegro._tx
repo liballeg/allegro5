@@ -15091,7 +15091,7 @@ and avoid missing any important bit of information.
    shows how to use the global key array to read simultaneous
    key presses.
    The last method to detect key presses are keyboard callbacks.
-   This is demonstrated by by installing a keyboard callback,
+   This is demonstrated by installing a keyboard callback,
    which marks all pressed keys by drawing to a grid.
 
 @@Example @exjoy
