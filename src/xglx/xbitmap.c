@@ -268,13 +268,8 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
       //FIXME: ugh. isn't there a better way?
       upside_down(bitmap, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
 
-      //glRasterPos2i(bitmap->lock_x, bitmap->lock_y + bitmap->lock_h);
       glWindowPos2i(bitmap->lock_x, bitmap->h - bitmap->lock_y - bitmap->lock_h);
-      GLboolean i;
-      GLfloat v[4];
-      glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID, &i);
-      glGetFloatv(GL_CURRENT_RASTER_POSITION, v);
-      printf("%d: %f/%f/%f/%f\n", i, v[0], v[1], v[2], v[3]);
+
       glPixelStorei(GL_UNPACK_ROW_LENGTH, bitmap->w);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
          glformats[bitmap->format][2],
