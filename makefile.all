@@ -96,7 +96,7 @@ endif
 
 # -------- list what objects and programs we need to build --------
 
-VPATH += src demos/shooter demos/skater docs examples setup tests tools tools/plugins docs/src/makedoc
+VPATH += src demos/shooter demos/skater/source docs examples setup tests tools tools/plugins docs/src/makedoc
 
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(OBJECT_LIST)))
 
@@ -551,7 +551,7 @@ tools/pat2dat$(EXE): $(OBJ_DIR)/pat2dat$(OBJ) $(PLUGIN_DEPS)
 
 # -------- dependencies for demo games --------
 
-demos/shooter/shooter$(EXE): $(OBJECTS_SHOTER)
+demos/shooter/shooter$(EXE): $(OBJECTS_SHOOTER)
 demos/skater/skater$(EXE): $(OBJECTS_SKATER)
 
 # -------- special rules for C++ programs --------

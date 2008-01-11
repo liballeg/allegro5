@@ -495,7 +495,7 @@ DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MSVC
 depend:
 	$(GCC) $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demos/shooter/*.c > _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c >> _depend.tmp
-	$(GCC) $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c demos/skater/src/*.c >> _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c demos/skater/source/*.c >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x c tests/*.cpp >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x assembler-with-cpp src/c/*.s src/i386/*.s src/misc/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp

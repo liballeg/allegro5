@@ -454,41 +454,41 @@ ALLEGRO_SHOOTER_SOURCES = \
 	demos/shooter/title.c
 
 ALLEGRO_SKATER_SOURCES = \
-	demos/skater/src/anim.c \
-	demos/skater/src/backscrl.c \
-	demos/skater/src/credits.c \
-	demos/skater/src/dblbuf.c \
-	demos/skater/src/skater.c \
-	demos/skater/src/fps.c \
-	demos/skater/src/framewk.c \
-	demos/skater/src/sk_game.c \
-	demos/skater/src/gamepad.c \
-	demos/skater/src/global.c \
-	demos/skater/src/intro.c \
-	demos/skater/src/keyboard.c \
-	demos/skater/src/level.c \
-	demos/skater/src/lvlalloc.c \
-	demos/skater/src/lvlfile.c \
-	demos/skater/src/lvlstate.c \
-	demos/skater/src/menuabt.c \
-	demos/skater/src/menu.c \
-	demos/skater/src/menuctl.c \
-	demos/skater/src/menugfx.c \
-	demos/skater/src/menumain.c \
-	demos/skater/src/menumisc.c \
-	demos/skater/src/menuopts.c \
-	demos/skater/src/menusnd.c \
-	demos/skater/src/menusucc.c \
-	demos/skater/src/music.c \
-	demos/skater/src/oglflip.c \
-	demos/skater/src/pageflip.c \
-	demos/skater/src/physics.c \
-	demos/skater/src/quadtree.c \
-	demos/skater/src/scrshot.c \
-	demos/skater/src/token.c \
-	demos/skater/src/transitn.c \
-	demos/skater/src/tribuf.c \
-	demos/skater/src/virtctl.c
+	demos/skater/source/anim.c \
+	demos/skater/source/backscrl.c \
+	demos/skater/source/credits.c \
+	demos/skater/source/dblbuf.c \
+	demos/skater/source/skater.c \
+	demos/skater/source/fps.c \
+	demos/skater/source/framewk.c \
+	demos/skater/source/sk_game.c \
+	demos/skater/source/gamepad.c \
+	demos/skater/source/global.c \
+	demos/skater/source/intro.c \
+	demos/skater/source/keybrd.c \
+	demos/skater/source/level.c \
+	demos/skater/source/lvlalloc.c \
+	demos/skater/source/lvlfile.c \
+	demos/skater/source/lvlstate.c \
+	demos/skater/source/menuabt.c \
+	demos/skater/source/menu.c \
+	demos/skater/source/menuctl.c \
+	demos/skater/source/menugfx.c \
+	demos/skater/source/menumain.c \
+	demos/skater/source/menumisc.c \
+	demos/skater/source/menuopts.c \
+	demos/skater/source/menusnd.c \
+	demos/skater/source/menusucc.c \
+	demos/skater/source/music.c \
+	demos/skater/source/oglflip.c \
+	demos/skater/source/pageflip.c \
+	demos/skater/source/physics.c \
+	demos/skater/source/quadtree.c \
+	demos/skater/source/scrshot.c \
+	demos/skater/source/token.c \
+	demos/skater/source/transitn.c \
+	demos/skater/source/tribuf.c \
+	demos/skater/source/virtctl.c
 
 ALLEGRO_LIB_EXE_SOURCES = \
 	setup/setup.c \

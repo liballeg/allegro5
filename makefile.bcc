@@ -484,7 +484,7 @@ endif
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BCC32
 
 depend:
-	$(GCC) $(DEPEND_PARAMS) demos/shooter/*.c demos/skater/src/*.c docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) demos/shooter/*.c demos/skater/source/*.c docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) tests/win/*.c tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x c tests/*.cpp >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
