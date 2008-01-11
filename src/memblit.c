@@ -48,6 +48,9 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int src_mode, dst_mode;
    ALLEGRO_COLOR *ic;
    bool unlock_dest = false;
+   int xinc, yinc;
+   int xd, yd;
+   int sxd;
 
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
@@ -99,11 +102,29 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       unlock_dest = true;
    }
 
-   for (y = 0; y < sh; y++) {
-      for (x = 0; x < sw; x++) {
+   if (flags & ALLEGRO_FLIP_VERTICAL) {
+	   yd = sh-1;
+	   yinc = -1;
+   }
+   else {
+	   yd = 0;
+	   yinc = 1;
+   }
+   if (flags & ALLEGRO_FLIP_HORIZONTAL) {
+      xinc = -1;
+      sxd = sw-1;
+   }
+   else {
+      xinc = 1;
+      sxd = 0;
+   }
+
+   for (y = 0; y < sh; y++, yd += yinc) {
+      xd = sxd;
+      for (x = 0; x < sw; x++, xd += xinc) {
          al_get_pixel(bitmap, x+sx, y+sy, &src_color);
          _al_blend(&src_color, x+dx, y+dy, &result);
-         al_put_pixel(x+dx, y+dy, &result);
+         al_put_pixel(xd+dx, yd+dy, &result);
       }
    }
 
