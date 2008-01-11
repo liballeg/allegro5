@@ -42,37 +42,42 @@ static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
 
    /* look for top left corner of character */
-   while (memcmp(al_get_pixel(bmp, *x, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
-          memcmp(al_get_pixel(bmp, *x+1, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
-          memcmp(al_get_pixel(bmp, *x, *y+1, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
-          !memcmp(al_get_pixel(bmp, *x+1, *y+1, &c2), &c, sizeof(ALLEGRO_COLOR))) {
-      (*x)++;
-      if (*x >= bmp->w) {
-	 *x = 0;
-	 (*y)++;
-	 if (*y >= bmp->h) {
-	    *w = 0;
-	    *h = 0;
+   while (1) {
+      if (*x+1 >= bmp->w) {
+         *x = 0;
+         (*y)++;
+         if (*y+1 >= bmp->h) {
+            *w = 0;
+            *h = 0;
             al_unlock_bitmap(bmp);
-	    return;
-	 }
+            return;
+         }
       }
+      if (!(
+         memcmp(al_get_pixel(bmp, *x, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
+         memcmp(al_get_pixel(bmp, *x+1, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
+         memcmp(al_get_pixel(bmp, *x, *y+1, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
+         !memcmp(al_get_pixel(bmp, *x+1, *y+1, &c2), &c, sizeof(ALLEGRO_COLOR))
+      )) {
+         break;
+      }
+      (*x)++;
    }
 
    /* look for right edge of character */
    *w = 0;
-   while ((*x+*w+1 < bmp->w) &&
-          !memcmp(al_get_pixel(bmp, *x+*w+1, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) &&
-          memcmp(al_get_pixel(bmp, *x+*w+1, *y+1, &c2), &c, sizeof(ALLEGRO_COLOR))) {
-      (*w)++;
+   while ((*x+*w+1 < bmp->w) && 
+      (!memcmp(al_get_pixel(bmp, *x+*w+1, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) &&
+      memcmp(al_get_pixel(bmp, *x+*w+1, *y+1, &c2), &c, sizeof(ALLEGRO_COLOR)))) {
+         (*w)++;
    }
 
    /* look for bottom edge of character */
    *h = 0;
    while ((*y+*h+1 < bmp->h) &&
-          !memcmp(al_get_pixel(bmp, *x, *y+*h+1, &c2), &c, sizeof(ALLEGRO_COLOR)) &&
-          memcmp(al_get_pixel(bmp, *x+1, *y+*h+1, &c2), &c, sizeof(ALLEGRO_COLOR))) {
-      (*h)++;
+      (!memcmp(al_get_pixel(bmp, *x, *y+*h+1, &c2), &c, sizeof(ALLEGRO_COLOR)) &&
+      memcmp(al_get_pixel(bmp, *x+1, *y+*h+1, &c2), &c, sizeof(ALLEGRO_COLOR)))) {
+         (*h)++;
    }
 
    al_unlock_bitmap(bmp);
