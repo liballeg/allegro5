@@ -53,6 +53,7 @@ static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int
             return;
          }
       }
+      printf("*x=%d *y=%d\n", *x, *y);
       if (!(
          memcmp(al_get_pixel(bmp, *x, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
          memcmp(al_get_pixel(bmp, *x+1, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
@@ -93,6 +94,8 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
    int w = 1, h = 1, i;
    int ret = 0;
    ALLEGRO_COLOR col;
+         
+   al_map_rgb(&col, 255, 255, 0);
 
    _al_push_target_bitmap();
    _al_push_new_bitmap_parameters();
@@ -108,7 +111,6 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
             goto done;
          }
          al_set_target_bitmap(bits[i]);
-         al_map_rgb( &col, 255, 255, 0);
          al_clear(&col);
       }
       else {
