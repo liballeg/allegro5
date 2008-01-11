@@ -291,7 +291,7 @@ void _get_pixel_rgb_888(void *data, ALLEGRO_COLOR *color)
       (pixel & 0xFF0000) >> 16,
       (pixel & 0x00FF00) >>  8,
       (pixel & 0x0000FF) >>  0,
-      0.0f);
+      255);
 }
 
 void _get_pixel_rgb_565(void *data, ALLEGRO_COLOR *color)
@@ -301,7 +301,7 @@ void _get_pixel_rgb_565(void *data, ALLEGRO_COLOR *color)
       _rgb_scale_5[(pixel & 0xF800) >> 11],
       _rgb_scale_6[(pixel & 0x07E0) >> 5],
       _rgb_scale_5[(pixel & 0x001F)],
-      0.0f);
+      255);
 }
 
 void _get_pixel_rgb_555(void *data, ALLEGRO_COLOR *color)
@@ -311,7 +311,7 @@ void _get_pixel_rgb_555(void *data, ALLEGRO_COLOR *color)
       _rgb_scale_5[(pixel & 0x7C00) >> 10],
       _rgb_scale_5[(pixel & 0x03E0) >> 5],
       _rgb_scale_5[(pixel & 0x001F)],
-      0.0f);
+      255);
 }
 
 void _get_pixel_palette_8(void *data, ALLEGRO_COLOR *color)
@@ -321,7 +321,7 @@ void _get_pixel_palette_8(void *data, ALLEGRO_COLOR *color)
       getr8(pixel),
       getg8(pixel),
       getb8(pixel),
-      0.0f);
+      255);
 }
 
 void _get_pixel_rgba_5551(void *data, ALLEGRO_COLOR *color)
@@ -331,7 +331,7 @@ void _get_pixel_rgba_5551(void *data, ALLEGRO_COLOR *color)
       _rgb_scale_5[(pixel & 0xF800) >> 11],
       _rgb_scale_5[(pixel & 0x07C0) >> 6],
       _rgb_scale_5[(pixel & 0x003E) >> 1],
-      0.0f);
+      255);
 }
 
 void _get_pixel_argb_1555(void *data, ALLEGRO_COLOR *color)
@@ -341,7 +341,7 @@ void _get_pixel_argb_1555(void *data, ALLEGRO_COLOR *color)
       _rgb_scale_5[(pixel & 0x7C00) >> 10],
       _rgb_scale_5[(pixel & 0x03E0) >> 5],
       _rgb_scale_5[(pixel & 0x001F)],
-      0.0f);
+      255);
 }
 
 void _get_pixel_abgr_8888(void *data, ALLEGRO_COLOR *color)
@@ -361,7 +361,7 @@ void _get_pixel_xbgr_8888(void *data, ALLEGRO_COLOR *color)
       (pixel & 0x000000FF) >>  0,
       (pixel & 0x0000FF00) >>  8,
       (pixel & 0x00FF0000) >> 16,
-      0.0f);
+      255);
 }
 
 void _get_pixel_bgr_888(void *data, ALLEGRO_COLOR *color)
@@ -371,7 +371,7 @@ void _get_pixel_bgr_888(void *data, ALLEGRO_COLOR *color)
       (pixel & 0x000000FF) >>  0,
       (pixel & 0x0000FF00) >>  8,
       (pixel & 0x00FF0000) >> 16,
-      0.0f);
+      255);
 }
 
 void _get_pixel_bgr_565(void *data, ALLEGRO_COLOR *color)
@@ -381,7 +381,7 @@ void _get_pixel_bgr_565(void *data, ALLEGRO_COLOR *color)
       _rgb_scale_5[(pixel & 0x001F)],
       _rgb_scale_5[(pixel & 0x07E0) >> 5],
       _rgb_scale_5[(pixel & 0xF800) >> 11],
-      0.0f);
+      255);
 }
 
 void _get_pixel_bgr_555(void *data, ALLEGRO_COLOR *color)
@@ -391,7 +391,7 @@ void _get_pixel_bgr_555(void *data, ALLEGRO_COLOR *color)
       _rgb_scale_5[(pixel & 0x001F)],
       _rgb_scale_5[(pixel & 0x03E0) >> 5],
       _rgb_scale_5[(pixel & 0x7C00) >> 10],
-      0.0f);
+      255);
 }
 
 void _get_pixel_rgbx_8888(void *data, ALLEGRO_COLOR *color)
@@ -401,7 +401,7 @@ void _get_pixel_rgbx_8888(void *data, ALLEGRO_COLOR *color)
       (pixel & 0xFF000000) >> 24,
       (pixel & 0x00FF0000) >> 16,
       (pixel & 0x0000FF00) >>  8,
-      0.0f);
+      255);
 }
 
 void _get_pixel_xrgb_8888(void *data, ALLEGRO_COLOR *color)
@@ -411,7 +411,7 @@ void _get_pixel_xrgb_8888(void *data, ALLEGRO_COLOR *color)
       (pixel & 0x00FF0000) >> 16,
       (pixel & 0x0000FF00) >>  8,
       (pixel & 0x000000FF),
-      0.0f);
+      255);
 }
 
 /* get pixel lookup table */
@@ -595,7 +595,7 @@ int _get_pixel_value_abgr_8888(ALLEGRO_COLOR *p)
    pixel |= (int)(p->a * 0xff) << 24;
    pixel |= (int)(p->b * 0xff) << 16;
    pixel |= (int)(p->g * 0xff) << 8;
-   pixel |= (int)(p->b * 0xff);
+   pixel |= (int)(p->r * 0xff);
    return pixel;
 }
 
