@@ -484,13 +484,12 @@ void shadow_textprintf(BITMAP *canvas, FONT *font, int x, int y,
 int select_update_driver(int id)
 {
    int error;
+   DEMO_SCREEN_UPDATE_DRIVER new_driver = { 0, 0, 0, 0 };
 
    /* destroy the previous driver if any */
    if (update_driver.destroy) {
       update_driver.destroy();
    }
-
-   DEMO_SCREEN_UPDATE_DRIVER new_driver = { 0, 0, 0, 0 };
 
    /* select the create function */
    switch (id) {

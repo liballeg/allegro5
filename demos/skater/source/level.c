@@ -484,8 +484,9 @@ struct Level *LoadLevel(char *name, int radius)
             long type = pack_mgetl(file);
             /* skip properties of this object */
             if (type == DAT_PROPERTY) {
+               long size;
                pack_mgetl(file); /* type */
-               long size = pack_mgetl(file);
+               size = pack_mgetl(file);
                pack_fseek(file, size);
                continue;
             }

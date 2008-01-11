@@ -366,7 +366,7 @@ void GameDraw(BITMAP *buffer)
                  -1, "Items Remaining: %d", TotalObjectsLeft);
 }
 
-int GameUpdate()
+int GameUpdate(void)
 {
    struct QuadTreeNode *CollTree;
    struct Container *EPtr;
