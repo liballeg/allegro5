@@ -27,6 +27,12 @@ static void set_opengl_blending(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 /* Dummy implementation of clear. */
 static void clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP_XGLX *xglx_target = (ALLEGRO_BITMAP_XGLX *)target;
+   if (!xglx_target->is_backbuffer) {
+      _al_draw_rectangle_memory(0, 0, target->w, target->h, color, ALLEGRO_FILLED);
+   }
+
    unsigned char r, g, b, a;
    al_unmap_rgba(color, &r, &g, &b, &a);
 
@@ -47,6 +53,12 @@ static void clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 static void draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
    ALLEGRO_COLOR *color)
 {
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP_XGLX *xglx_target = (ALLEGRO_BITMAP_XGLX *)target;
+   if (!xglx_target->is_backbuffer) {
+      _al_draw_line_memory(fx, fy, tx, ty, color);
+   }
+
    set_opengl_blending(d, color);
    glBegin(GL_LINES);
    glVertex2d(fx, fy);
@@ -58,6 +70,12 @@ static void draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty
 static void draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    float brx, float bry, ALLEGRO_COLOR *color, int flags)
 {
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP_XGLX *xglx_target = (ALLEGRO_BITMAP_XGLX *)target;
+   if (!xglx_target->is_backbuffer) {
+      _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
+   }
+
    set_opengl_blending(d, color);
    if (flags & ALLEGRO_FILLED)
       glBegin(GL_QUADS);
