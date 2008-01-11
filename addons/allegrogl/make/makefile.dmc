@@ -30,9 +30,6 @@ endif
 
 ifdef STATICALLEGRO
 FLAGS += -DALLEGRO_STATICLINK
-ALLEGRO_LIB = alleg_s.lib
-else
-ALLEGRO_LIB = alleg.lib
 endif
 
 
