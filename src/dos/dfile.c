@@ -92,6 +92,17 @@ time_t _al_file_time(AL_CONST char *filename)
 }
 
 
+/* _al_detect_filename_encoding:
+ *
+ *  Platform specific function to detect the filename encoding. This is called
+ *  after setting a system driver, and even if this driver is SYSTEM_NONE.
+ */
+void _al_detect_filename_encoding(void)
+{
+   set_filename_encoding(U_ASCII); 
+}
+
+
 
 /* structure for use by the directory scanning routines */
 struct FF_DATA
