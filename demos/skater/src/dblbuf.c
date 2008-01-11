@@ -1,7 +1,7 @@
 #include <allegro.h>
-#include "dblbuf.h"             /* double_buffer.h */
-#include "defines.h"
-#include "global.h"
+#include "../include/dblbuf.h"             /* double_buffer.h */
+#include "../include/defines.h"
+#include "../include/global.h"
 
 /*****************************************************************************
  * Double buffering module                                                   *

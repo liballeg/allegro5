@@ -96,12 +96,13 @@ endif
 
 # -------- list what objects and programs we need to build --------
 
-VPATH += src demos/shooter docs examples setup tests tools tools/plugins docs/src/makedoc
+VPATH += src demos/shooter demos/skater docs examples setup tests tools tools/plugins docs/src/makedoc
 
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(OBJECT_LIST)))
 
 OBJECTS_DOC = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_MAKEDOC_SOURCES)))))
-OBJECTS_DEMO = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_DEMO_SOURCES)))))
+OBJECTS_SHOOTER = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_SHOOTER_SOURCES)))))
+OBJECTS_SKATER = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_SKATER_SOURCES)))))
 
 PROGRAMS += $(notdir $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES))
 
@@ -113,7 +114,7 @@ ifeq (,$(wildcard $(PLATFORM_DIR)/cpp-tested))
 endif
 endif
 
-DEMOS = shooter
+DEMOS = shooter skater
 
 PROGRAMS += $(CPP_PROGRAMS) $(DEMOS) examples makedoc $(ADDON_EXE_TARGETS)
 
@@ -548,10 +549,10 @@ tools/pat2dat$(EXE): $(OBJ_DIR)/pat2dat$(OBJ) $(PLUGIN_DEPS)
 
 
 
-# -------- dependencies for the demo game --------
+# -------- dependencies for demo games --------
 
-demos/shooter/shooter$(EXE): $(OBJECTS_DEMO)
-
+demos/shooter/shooter$(EXE): $(OBJECTS_SHOTER)
+demos/skater/skater$(EXE): $(OBJECTS_SKATER)
 
 # -------- special rules for C++ programs --------
 
@@ -565,6 +566,7 @@ cpp-programs: $(CPP_PROGRAMS)
 # -------- shortcuts for building various programs --------
 
 shooter: demos/shooter/shooter$(EXE)
+skater: demos/skater/skater$(EXE)
 makedoc: docs/makedoc$(EXE)
 keyconf: setup/keyconf$(EXE)
 setup: setup/setup$(EXE)

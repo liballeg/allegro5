@@ -246,7 +246,7 @@ uninstall: generic-uninstall
 
 compress:
 ifdef UPX_BIN
-	$(UPX_BIN) demos/shooter/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/dmc/all*.dll
+	$(UPX_BIN) demos/shooter/*.exe demos/shooter/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/dmc/all*.dll
 else
 	@echo No executable compressor specified! You must set the environment variable
 	@echo UPX_BIN to point to upx.exe.
@@ -325,17 +325,20 @@ tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj obj/dmc/scrsave.res $(IMPLIB_NAME)
 tools/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
 	$(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$<) $(IMPLIB_NAME) $(LIBRARIES)
 
-obj/dmc/demo.res: demos/shooter/demo.dat tools/win/wfixicon.exe
+obj/dmc/shooter.res: demos/shooter/demo.dat tools/win/wfixicon.exe
 ifdef STATICLINK
-	tools/win/wfixicon.exe obj/dmc/demo.ico -ro -d demos/shooter/demo.dat SHIP3 GAME_PAL
+	tools/win/wfixicon.exe obj/dmc/shooter.ico -ro -d demos/shooter/demo.dat SHIP3 GAME_PAL
 else
 	copy tools\win\wfixicon.exe lib\dmc\wfixicon.exe
-	lib/dmc/wfixicon.exe obj/dmc/demo.ico -ro -d demos/shooter/demo.dat SHIP3 GAME_PAL
+	lib/dmc/wfixicon.exe obj/dmc/shooter.ico -ro -d demos/shooter/demo.dat SHIP3 GAME_PAL
 	del lib\dmc\wfixicon.exe
 endif
 
-demos/shooter/shooter.exe: obj/dmc/demo.res $(IMPLIB_NAME)
-	$(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$(OBJECTS_DEMO)) obj\dmc\demo.res $(IMPLIB_NAME) $(LIBRARIES) -L/SUBSYSTEM:WINDOWS
+demos/shooter/shooter.exe: obj/dmc/shooter.res $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$(OBJECTS_SHOOTER)) obj\dmc\shooter.res $(IMPLIB_NAME) $(LIBRARIES) -L/SUBSYSTEM:WINDOWS
+
+demos/skater/skater.exe: $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$(OBJECTS_SKATER)) $(IMPLIB_NAME) $(LIBRARIES) -L/SUBSYSTEM:WINDOWS
 
 # Use -DSETUP_USE_COMPILED_DATAFILES ???
 $(OBJ_DIR)/setup.obj: setup/setup.c

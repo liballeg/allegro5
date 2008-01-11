@@ -1,12 +1,12 @@
 #include <allegro.h>
 #include <math.h>
-#include "defines.h"
-#include "game.h"
-#include "global.h"
-#include "menus.h"
-#include "music.h"
-#include "physics.h"
-#include "virtctl.h"
+#include "../include/defines.h"
+#include "../include/game.h"
+#include "../include/global.h"
+#include "../include/menus.h"
+#include "../include/music.h"
+#include "../include/physics.h"
+#include "../include/virtctl.h"
 
 /*
 
@@ -209,12 +209,12 @@ void DrawClouds(BITMAP *buffer)
    while (c--) {
       x = Clouds[c].x + CloudX;
 
-      x1 = fmul(x - (fsin(x) << 2), Scale);
-      x2 = fmul(x + itofix(cloud->w) + (fsin(x) << 2), Scale);
-      y1 = itofix(Clouds[c].y) - fmul(fcos(x) << 2, Scale);
+      x1 = fixmul(x - (fixsin(x) << 2), Scale);
+      x2 = fixmul(x + itofix(cloud->w) + (fixsin(x) << 2), Scale);
+      y1 = itofix(Clouds[c].y) - fixmul(fixcos(x) << 2, Scale);
       y2 =
-         itofix(Clouds[c].y) + fmul(itofix(cloud->h),
-                                    Scale) + fmul(fcos(x) << 2, Scale);
+         itofix(Clouds[c].y) + fixmul(itofix(cloud->h),
+                                    Scale) + fixmul(fixcos(x) << 2, Scale);
 
       if (x2 < 0) {
          Clouds[c].x =
@@ -244,7 +244,7 @@ void GameDraw(BITMAP *buffer)
       Points[1].x = Points[2].x = itofix(SCREEN_W);
 
       while (c > (SCREEN_H << 1) + 15) {
-         depth = fmul(TanTable[c], (int)((ScrollPos[1] - 240) * 4096.0f));
+         depth = fixmul(TanTable[c], (int)((ScrollPos[1] - 240) * 4096.0f));
          if (depth > itofix(-261) && depth < ftofix(-5.0f)) {
             y1 = lowy;
             index =
@@ -252,7 +252,7 @@ void GameDraw(BITMAP *buffer)
                 1.0f) * AL_PI * 2 * 8 / 128.0f;
 
             y2 =
-               itofix(c >> 2) - fdiv(ftofix(125.0f * sin(index + WaveY)),
+               itofix(c >> 2) - fixdiv(ftofix(125.0f * sin(index + WaveY)),
                                      depth);
 
             if (y2 < lowy) {
@@ -323,13 +323,13 @@ void GameDraw(BITMAP *buffer)
    ch = GetCurrentBitmap(PlayerAnim);
    if (KeyFlags & KEYFLAG_FLIP)
       rotate_scaled_sprite_v_flip(buffer, ch,
-                                  fixtoi(fmul
+                                  fixtoi(fixmul
                                          (ftofix
                                           (PlayerPos[0] -
                                            (ch->w >> 1) -
                                            ScrollPos[0]),
                                           Scale)) + (SCREEN_W >> 1),
-                                  fixtoi(fmul
+                                  fixtoi(fixmul
                                          (ftofix
                                           (PlayerPos[1] -
                                            (ch->h >> 1) -
@@ -339,12 +339,12 @@ void GameDraw(BITMAP *buffer)
                                          AL_PI) + itofix(128), Scale);
    else
       rotate_scaled_sprite(buffer, ch,
-                           fixtoi(fmul
+                           fixtoi(fixmul
                                   (ftofix
                                    (PlayerPos[0] - (ch->w >> 1) -
                                     ScrollPos[0]),
                                    Scale)) + (SCREEN_W >> 1),
-                           fixtoi(fmul
+                           fixtoi(fixmul
                                   (ftofix
                                    (PlayerPos[1] - (ch->h >> 1) -
                                     ScrollPos[1]),

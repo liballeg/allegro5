@@ -3,7 +3,7 @@
 */
 
 #include <allegro.h>
-#include "scrshot.h"
+#include "../include/scrshot.h"
 
 void next_screenshot(SCREENSHOT * ss)
 {

@@ -248,8 +248,11 @@ $(OBJ_DIR)/%.o: %.cpp
 $(OBJ_DIR)/%.o: %.s
 	$(CC) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
-demos/shooter/demo: $(OBJECTS_DEMO) $(LIB_NAME)
-	$(CC) $(LFLAGS) -o $@ $(OBJECTS_DEMO) $(LIB_NAME) $(LIBRARIES)
+demos/shooter/shooter: $(OBJECTS_SHOOTER) $(LIB_NAME)
+	$(CC) $(LFLAGS) -o $@ $(OBJECTS_SHOOTER) $(LIB_NAME) $(LIBRARIES)
+
+demos/skater/skater: $(OBJECTS_SKATER) $(LIB_NAME)
+	$(CC) $(LFLAGS) -o $@ $(OBJECTS_SKATER) $(LIB_NAME) $(LIBRARIES)
 
 */%: $(OBJ_DIR)/%.o $(LIB_NAME)
 	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
@@ -290,8 +293,8 @@ tools/beos/%: $(OBJ_DIR)/%.o $(LIB_NAME)
 
 .PHONY: fixdemo
 
-fixdemo: demos/shooter/demo demo/demo.dat tools/beos/bfixicon
-	tools/beos/bfixicon demos/shooter/demo -d demos/shooter/demo.dat SHIP3 GAME_PAL
+fixdemo: demos/shooter/shooter demo/demo.dat tools/beos/bfixicon
+	tools/beos/bfixicon demos/shooter/shooter -d demos/shooter/demo.dat SHIP3 GAME_PAL
 
 
 
@@ -302,6 +305,7 @@ DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BEOS
 depend:
 	$(CC) $(DEPEND_PARAMS) src/*.c src/beos/*.c src/i386/*.c src/misc/*.c src/unix/*.c demos/shooter/*.c > _depend.tmp
 	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) demos/skater/src/*.c >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) -x c src/beos/*.cpp tests/*.cpp tools/beos/*.cpp >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/misc/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp

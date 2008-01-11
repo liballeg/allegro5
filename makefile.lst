@@ -441,7 +441,7 @@ ALLEGRO_MAKEDOC_SOURCES = \
 	docs/src/makedoc/makedevh.c \
 	docs/src/makedoc/makesci.c
 
-ALLEGRO_DEMO_SOURCES = \
+ALLEGRO_SHOOTER_SOURCES = \
 	demos/shooter/animsel.c \
 	demos/shooter/bullet.c \
 	demos/shooter/dirty.c \
@@ -452,6 +452,43 @@ ALLEGRO_DEMO_SOURCES = \
 	demos/shooter/display.c \
 	demos/shooter/game.c \
 	demos/shooter/title.c
+
+ALLEGRO_SKATER_SOURCES = \
+	demos/skater/src/anim.c \
+	demos/skater/src/backscrl.c \
+	demos/skater/src/credits.c \
+	demos/skater/src/dblbuf.c \
+	demos/skater/src/skater.c \
+	demos/skater/src/fps.c \
+	demos/skater/src/framewk.c \
+	demos/skater/src/sk_game.c \
+	demos/skater/src/gamepad.c \
+	demos/skater/src/global.c \
+	demos/skater/src/intro.c \
+	demos/skater/src/keyboard.c \
+	demos/skater/src/level.c \
+	demos/skater/src/lvlalloc.c \
+	demos/skater/src/lvlfile.c \
+	demos/skater/src/lvlstate.c \
+	demos/skater/src/menuabt.c \
+	demos/skater/src/menu.c \
+	demos/skater/src/menuctl.c \
+	demos/skater/src/menugfx.c \
+	demos/skater/src/menumain.c \
+	demos/skater/src/menumisc.c \
+	demos/skater/src/menuopts.c \
+	demos/skater/src/menusnd.c \
+	demos/skater/src/menusucc.c \
+	demos/skater/src/music.c \
+	demos/skater/src/oglflip.c \
+	demos/skater/src/pageflip.c \
+	demos/skater/src/physics.c \
+	demos/skater/src/quadtree.c \
+	demos/skater/src/scrshot.c \
+	demos/skater/src/token.c \
+	demos/skater/src/transitn.c \
+	demos/skater/src/tribuf.c \
+	demos/skater/src/virtctl.c
 
 ALLEGRO_LIB_EXE_SOURCES = \
 	setup/setup.c \
@@ -650,7 +687,7 @@ DISTCLEAN_FILES = \
 	docs/allegro.aux docs/allegro.cp docs/allegro.fn docs/allegro.fns \
 	docs/allegro.ky docs/allegro.log docs/allegro.pg docs/allegro.toc \
 	docs/allegro.tp docs/allegro.vr docs/scite/allegro.api \
-	demos/shooter/shooter \
+	demos/shooter/shooter demos/skater/skater \
 	$(ALLEGRO_LIB_EXES) $(ALLEGRO_EXAMPLE_EXES) $(ALLEGRO_DATAFILE_EXES) \
 	*.exe */*.exe */*/*.exe msvcmake.bat tests/win/*.scr \
 	config.cache config.log config.status stamp-h stamp-h[0-9]* suid \

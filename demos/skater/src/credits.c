@@ -2,8 +2,8 @@
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
-#include "credits.h"
-#include "global.h"
+#include "../include/credits.h"
+#include "../include/global.h"
 
 /* for parsing readme.txt */
 typedef struct TEXT_LIST {

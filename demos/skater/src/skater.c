@@ -17,7 +17,7 @@
  */
 
 #include <allegro.h>
-#include "framewk.h"
+#include "../include/framewk.h"
 
 
 int main(void)

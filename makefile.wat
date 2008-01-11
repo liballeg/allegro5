@@ -210,8 +210,11 @@ $(OBJ_DIR)/iscanmmx.obj: iscanmmx.s $(RUNNER)
 
 endif
 
-demos/shooter/shooter.exe: $(OBJ_DIR)/demo.obj
-	$(RUNNER) wlink \\ @ $(LFLAGS) 'name $@' $(patsubst %,'file %',$(OBJECTS_DEMO)) 'library $(LIB_NAME)'
+demos/shooter/shooter.exe: $(OBJECTS_SHOOTER)
+	$(RUNNER) wlink \\ @ $(LFLAGS) 'name $@' $(patsubst %,'file %',$(OBJECTS_SHOOTER)) 'library $(LIB_NAME)'
+
+demos/skater/skater.exe: $(OBJECTS_SKATER)
+	$(RUNNER) wlink \\ @ $(LFLAGS) 'name $@' $(patsubst %,'file %',$(OBJECTS_SKATER)) 'library $(LIB_NAME)'
 
 */%.exe: $(OBJ_DIR)/%.obj $(LIB_NAME) $(RUNNER)
 	$(RUNNER) wlink \\ @ $(LFLAGS) 'name $@' 'file $<' 'library $(LIB_NAME)'
@@ -261,6 +264,7 @@ DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_WATCOM
 depend:
 	$(GCC) $(DEPEND_PARAMS) src/*.c src/dos/*.c src/i386/*.c src/misc/*.c demos/shooter/*.c > _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) demos/skater/src/*.c >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x c tests/*.cpp >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/dos/*.s src/misc/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp

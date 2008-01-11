@@ -1,7 +1,7 @@
 #include <allegro.h>
 #include <math.h>
-#include "demodata.h"
-#include "global.h"
+#include "../include/demodata.h"
+#include "../include/global.h"
 
 static int offx;
 static int offy;

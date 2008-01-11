@@ -1,6 +1,6 @@
 #include <allegro.h>
 #include <stdlib.h>
-#include "virtctl.h"
+#include "../include/virtctl.h"
 
 
 void destroy_vcontroller(VCONTROLLER * controller, const char *config_path)

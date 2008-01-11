@@ -297,7 +297,7 @@ uninstall: generic-uninstall
 
 compress:
 ifdef UPX_BIN
-	$(UPX_BIN) demos/shooter/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/mingw32/all*.dll
+	$(UPX_BIN) demos/shooter/*.exe demos/skater/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/mingw32/all*.dll
 else
 	@echo No executable compressor specified! You must set the environment variable
 	@echo UPX_BIN to point to upx.exe.
@@ -380,23 +380,26 @@ tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 ifdef CROSSCOMPILE
 
 demos/shooter/shooter.exe: $(IMPLIB_NAME)
-	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_DEMO) $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SHOOTER) $(IMPLIB_NAME) $(LIBRARIES)
+
+demos/skater/skater.exe: $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SKATER) $(IMPLIB_NAME) $(LIBRARIES)
 
 setup/setup.exe: $(OBJ_DIR)/setup.o $(IMPLIB_NAME)
 	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 else
 
-obj/mingw32/demo.res: demos/shooter/demo.dat tools/win/wfixicon.exe
+obj/mingw32/shooter.res: demos/shooter/demo.dat tools/win/wfixicon.exe
 ifdef STATICLINK
-	tools/win/wfixicon.exe obj/mingw32/demo.ico -ro -d demos/shooter/demo.dat SHIP3 GAME_PAL
+	tools/win/wfixicon.exe obj/mingw32/shooter.ico -ro -d demos/shooter/demo.dat SHIP3 GAME_PAL
 else
    ifdef UNIX_TOOLS
 	cp tools/win/wfixicon.exe lib/mingw32/wfixicon.exe
    else
 	copy tools\win\wfixicon.exe lib\mingw32\wfixicon.exe
    endif
-	lib/mingw32/wfixicon.exe obj/mingw32/demo.ico -ro -d demos/shooter/demo.dat SHIP3 GAME_PAL
+	lib/mingw32/wfixicon.exe obj/mingw32/shooter.ico -ro -d demos/shooter/demo.dat SHIP3 GAME_PAL
    ifdef UNIX_TOOLS
 	rm lib/mingw32/wfixicon.exe
    else
@@ -404,8 +407,11 @@ else
    endif
 endif
 
-demos/shooter/shooter.exe: obj/mingw32/demo.res $(IMPLIB_NAME)
-	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_DEMO) obj/mingw32/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+demos/shooter/shooter.exe: obj/mingw32/shooter.res $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SHOOTER) obj/mingw32/shooter.res $(IMPLIB_NAME) $(LIBRARIES)
+
+demos/skater/skater.exe: $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SKATER) $(IMPLIB_NAME) $(LIBRARIES)
 
 obj/mingw32/setupdat.s: setup/setup.dat tools/dat2s.exe
 ifdef STATICLINK
@@ -506,7 +512,7 @@ DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MINGW32
 depend:
 	$(CC) $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demos/shooter/*.c > _depend.tmp
 	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c >> _depend.tmp
-	$(CC) $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c demos/skater/src/*.c >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) -x c tests/*.cpp >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) -x assembler-with-cpp src/c/*.s src/i386/*.s src/misc/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp

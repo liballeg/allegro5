@@ -1,8 +1,8 @@
 #include <allegro.h>
-#include "menus.h"
-#include "global.h"
-#include "defines.h"
-#include "music.h"
+#include "../include/menus.h"
+#include "../include/global.h"
+#include "../include/defines.h"
+#include "../include/music.h"
 
 
 static int _id = DEMO_STATE_INTRO;

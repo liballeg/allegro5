@@ -1,6 +1,6 @@
 #include <allegro.h>
-#include "defines.h"
-#include "global.h"
+#include "../include/defines.h"
+#include "../include/global.h"
 
 static int currently_playing = -1;
 

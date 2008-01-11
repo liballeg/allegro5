@@ -3,8 +3,8 @@
 */
 
 #include <allegro.h>
-#include "fps.h"
-#include "global.h"
+#include "../include/fps.h"
+#include "../include/global.h"
 
 
 FPS *create_fps(int fps)

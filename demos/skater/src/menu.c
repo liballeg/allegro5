@@ -1,10 +1,10 @@
 #include <allegro.h>
-#include "backscrl.h"
-#include "credits.h"
-#include "global.h"
-#include "menu.h"
-#include "music.h"
-#include "virtctl.h"
+#include "../include/backscrl.h"
+#include "../include/credits.h"
+#include "../include/global.h"
+#include "../include/menu.h"
+#include "../include/music.h"
+#include "../include/virtctl.h"
 
 
 static int selected_item;

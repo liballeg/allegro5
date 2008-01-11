@@ -1,6 +1,6 @@
 #include <allegro.h>
 #include <string.h>
-#include "level.h"
+#include "../include/level.h"
 
 struct LevelState *BorrowState(struct Level *NewLev)
 {

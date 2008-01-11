@@ -1,16 +1,16 @@
 #include <allegro.h>
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
     #include <alleggl.h>
-    #include "oglflip.h"
+    #include "../include/oglflip.h"
 #endif
-#include "backscrl.h"
-#include "dblbuf.h"
-#include "demodata.h"
-#include "game.h"
-#include "global.h"
-#include "pageflip.h"
-#include "tribuf.h"
-#include "updtedvr.h"
+#include "../include/backscrl.h"
+#include "../include/dblbuf.h"
+#include "../include/demodata.h"
+#include "../include/game.h"
+#include "../include/global.h"
+#include "../include/pageflip.h"
+#include "../include/tribuf.h"
+#include "../include/updtedvr.h"
 
 /* Default values of some config varables */
 int fullscreen = 0;
@@ -154,7 +154,7 @@ int change_gfx_mode(void)
    }
 
    /* Select appropriate (fullscreen or windowed) gfx mode driver. */
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
    if (fullscreen == 1) {
       gfx_mode = GFX_OPENGL_FULLSCREEN;
    } else {
@@ -169,7 +169,7 @@ int change_gfx_mode(void)
 #endif
 
 
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
    /* AllegroGL has its own way to set GFX options. */
    allegro_gl_set(AGL_COLOR_DEPTH, bit_depth);
    allegro_gl_set(AGL_DOUBLEBUFFER, 1);
@@ -219,7 +219,7 @@ int change_gfx_mode(void)
       }
    }
 
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
    /* Needed for Allegro drawnig functions to behave. Also sets the Allegro
       coordinate system. */
    allegro_gl_set_allegro_mode();
@@ -231,7 +231,7 @@ int change_gfx_mode(void)
       show_os_cursor(MOUSE_CURSOR_NONE);
    }
 
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
    /* OpenGL doesn't let us choose the update mode. */
    select_update_driver(DEMO_OGL_FLIPPING);
 #else
@@ -282,7 +282,7 @@ int load_data(void)
       return DEMO_ERROR_DATA;
    }
 
-#ifdef SKATER_USE_ALLEGRO_GL_FONT
+#ifdef DEMO_USE_ALLEGRO_GL_FONT
    /* Convert Allegro FONT to AllegroGL FONT. */
 
    /* Note that we could use Allegro's FONT and text output routines in
@@ -329,7 +329,7 @@ void unload_data(void)
       demo_data = 0;
    }
 
-#ifdef SKATER_USE_ALLEGRO_GL_FONT
+#ifdef DEMO_USE_ALLEGRO_GL_FONT
    if (demo_font)
       allegro_gl_destroy_font(demo_font);
    if (demo_font_logo)
@@ -423,7 +423,7 @@ void demo_textprintf_ex(BITMAP *canvas, const FONT *font, int x, int y,
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
 
-#ifdef SKATER_USE_ALLEGRO_GL_FONT
+#ifdef DEMO_USE_ALLEGRO_GL_FONT
    if (bg != -1) {
       rectfill(canvas, x, y,
                x + text_length(font, buf), y + text_height(font), bg);
@@ -505,7 +505,7 @@ int select_update_driver(int id)
       case DEMO_TRIPLE_BUFFER:
          select_triple_buffer(&new_driver);
          break;
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
       case DEMO_OGL_FLIPPING:
          select_ogl_flipping(&new_driver);
          break;

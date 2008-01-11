@@ -53,5 +53,11 @@
 /* Size of the static array that holds the game states. */
 #define      DEMO_MAX_GAMESTATES    64
 
+/* Skater can use both AllegroGL and plain Allegro fonts. AllegroGL fonts
+   require somewhat more code but are much faster that Allegro fonst. */
+/* By defualt, use AllegroGL fonts if building in AllegroGL mode. */
+#ifdef DEMO_USE_ALLEGRO_GL
+   #define DEMO_USE_ALLEGRO_GL_FONT
+#endif
 
 #endif            /* __DEMO_DEFINES_H__ */

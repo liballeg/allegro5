@@ -155,7 +155,7 @@ ifneq (,$(CXX))
    ALLEGRO_LIB_EXES += $(ALLEGRO_LIB_CPP_EXES)
 endif
 
-DEMOS = shooter
+DEMOS = shooter skater
 
 ALLEGRO_EMPTY_LIST =
 
@@ -409,6 +409,7 @@ suid: $(ALLEGRO_EXE_TARGETS)
 # -------- shortcuts for building various programs --------
 
 shooter: demos/shooter/shooter$(EXE)
+skater: demos/skater/skater$(EXE)
 makedoc: docs/makedoc$(EXE)
 keyconf: setup/keyconf$(EXE)
 setup: setup/setup$(EXE)
@@ -726,9 +727,10 @@ depend: $(ADDON_DEPEND_TARGETS)
 	$(SHELL) -c 'cd $(srcdir) && misc/depdlib.sh tools/datedit.c' >>makefile.dep
 	@echo "Generating dependencies for datafile programs"
 	$(SHELL) -c 'cd $(srcdir) && misc/depdexe.sh $(ALLEGRO_DATAFILE_EXE_SOURCES)' >>makefile.dep
-	@echo "Generating dependencies for makedoc and demo"
+	@echo "Generating dependencies for makedoc and demos"
 	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh docs/makedoc $(ALLEGRO_MAKEDOC_SOURCES)' >>makefile.dep
-	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh demos/shooter/shooter $(ALLEGRO_DEMO_SOURCES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh demos/shooter/shooter $(ALLEGRO_SHOOTER_SOURCES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh demos/skater/skater $(ALLEGRO_SKATER_SOURCES)' >>makefile.dep
 	@echo "Dependency generation completed!"
 
 .PHONY: default full-build lib programs docs docs-dvi docs-ps docs-pdf \

@@ -1,9 +1,9 @@
 #include <allegro.h>
-#include "defines.h"
-#include "global.h"
-#include "menu.h"
-#include "menus.h"
-#include "music.h"
+#include "../include/defines.h"
+#include "../include/global.h"
+#include "../include/menu.h"
+#include "../include/menus.h"
+#include "../include/music.h"
 
 static int _id = DEMO_STATE_SUCCESS;
 

@@ -41,7 +41,7 @@
 	of this node.
 */
 
-#include "level.h"
+#include "../include/level.h"
 
 /*
 
@@ -427,7 +427,7 @@ void DrawEdge(BITMAP *target, struct Triangle *tri,
          PolyEdges[0].v = PolyEdges[1].v = 0;
          PolyEdges[2].v = PolyEdges[3].v = itofix(tri->Material->Edge->h);
 
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
          /* AllegroGL doesn't support POLYTYPE_ATEX_MASK so we use transparent
           * drawing here. */
          set_alpha_blender();

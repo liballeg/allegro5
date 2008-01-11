@@ -1,6 +1,6 @@
 #include <allegro.h>
-#include "defines.h"
-#include "tribuf.h"
+#include "../include/defines.h"
+#include "../include/tribuf.h"
 
 
 /*****************************************************************************

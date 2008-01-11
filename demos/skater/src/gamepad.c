@@ -1,6 +1,6 @@
 #include <allegro.h>
 #include <string.h>
-#include "gamepad.h"
+#include "../include/gamepad.h"
 
 
 static void read_config(VCONTROLLER * this, const char *config_path)

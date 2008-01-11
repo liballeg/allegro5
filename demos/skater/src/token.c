@@ -1,7 +1,7 @@
 #include <allegro.h>
 #include <stdlib.h>
 #include <string.h>
-#include "token.h"
+#include "../include/token.h"
 
 /* declarations of these variables - see token.h for comments on their meaning */
 int Error, Lines;

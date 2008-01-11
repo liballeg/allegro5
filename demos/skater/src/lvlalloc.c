@@ -1,5 +1,5 @@
 #include <allegro.h>
-#include "lvlalloc.h"
+#include "../include/lvlalloc.h"
 
 /*
 

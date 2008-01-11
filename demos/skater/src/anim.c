@@ -1,8 +1,8 @@
 #include <allegro.h>
 #include <math.h>
-#include "anim.h"
-#include "game.h"
-#include "level.h"
+#include "../include/anim.h"
+#include "../include/game.h"
+#include "../include/level.h"
 
 
 float LastSpeedStore = 0, LastSpeed;

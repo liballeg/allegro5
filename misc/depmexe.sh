@@ -29,7 +29,7 @@ if test -n "$first"; then
    
    if test -n "$depend"; then
       echo "$first: $depend"
-      if test "$first" = "demos/shooter/shooter"; then
+	  if test "$first" = "demos/shooter/shooter" -o "$first" = "demos/skater/skater"; then
          echo "	\$(LINK) -o $first $depend \$(LINK_LIBALLEG) \$(LIBS)"
       else
          echo "	\$(LINK) -o $first $depend"

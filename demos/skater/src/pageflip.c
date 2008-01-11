@@ -1,6 +1,6 @@
 #include <allegro.h>
-#include "defines.h"
-#include "pageflip.h"
+#include "../include/defines.h"
+#include "../include/pageflip.h"
 
 /*****************************************************************************
  * Page flipping module                                                      *

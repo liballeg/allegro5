@@ -1,9 +1,9 @@
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
 
 #include <allegro.h>
 #include <alleggl.h>
-#include "defines.h"
-#include "oglflip.h"
+#include "../include/defines.h"
+#include "../include/oglflip.h"
 
 /*****************************************************************************
  * OpenGL screen update module                                               *
@@ -40,4 +40,4 @@ void select_ogl_flipping(DEMO_SCREEN_UPDATE_DRIVER * driver)
    driver->get_canvas = get_canvas;
 }
 
-#endif //SKATER_USE_ALLEGRO_GL
+#endif //DEMO_USE_ALLEGRO_GL

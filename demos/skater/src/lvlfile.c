@@ -1,12 +1,12 @@
 #include <allegro.h>
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
 #include <alleggl.h>
 #endif
 #include <string.h>
 #include <math.h>
-#include "lvlalloc.h"
-#include "lvlfile.h"
-#include "token.h"
+#include "../include/lvlalloc.h"
+#include "../include/lvlfile.h"
+#include "../include/token.h"
 
 /*
 
@@ -22,7 +22,7 @@
 	Converts a bitmap using bright pink for transparency to a bitmap using alpha
 	channel.
 */
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
 void ConvertFromMaskedToTrans(BITMAP *From, BITMAP *To)
 {
    int x, y;
@@ -56,7 +56,7 @@ void ConvertFromMaskedToTrans(BITMAP *From, BITMAP *To)
 void LoadMaterials(struct Level *NewLev)
 {
    struct Material **NewMatPtr = &NewLev->AllMats;
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
    BITMAP *TmpEdge;
 #endif
 
@@ -81,7 +81,7 @@ void LoadMaterials(struct Level *NewLev)
 
                ExpectToken(TK_COMMA);
                ExpectToken(TK_STRING);
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
                if (!(TmpEdge = ObtainBitmap(Token.Text))) {
 #else
                if (!((*NewMatPtr)->Edge = ObtainBitmap(Token.Text))) {
@@ -93,7 +93,7 @@ void LoadMaterials(struct Level *NewLev)
                   return;
                }
 
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
             /* The "Edge" texture uses bright pink (also known as magic pink,
                makecol(255, 0, 255)) for transparency. Since AllegroGL doesn't
                support rendering of masked 3D polygons we have to convert the

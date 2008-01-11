@@ -1,6 +1,6 @@
 #include <allegro.h>
-#include "global.h"
-#include "transitn.h"
+#include "../include/global.h"
+#include "../include/transitn.h"
 
 
 TRANSITION *create_transition(GAMESTATE * from, GAMESTATE * to,
@@ -13,7 +13,7 @@ TRANSITION *create_transition(GAMESTATE * from, GAMESTATE * to,
    t->duration = duration;
    t->progress = 0.0f;
 
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
    t->from_bmp = create_video_bitmap(SCREEN_W, SCREEN_H);
 #else
    t->from_bmp = create_bitmap(SCREEN_W, SCREEN_H);
@@ -24,7 +24,7 @@ TRANSITION *create_transition(GAMESTATE * from, GAMESTATE * to,
       clear_to_color(t->from_bmp, makecol(0, 0, 0));
    }
 
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
    t->to_bmp = create_video_bitmap(SCREEN_W, SCREEN_H);
 #else
    t->to_bmp = create_bitmap(SCREEN_W, SCREEN_H);

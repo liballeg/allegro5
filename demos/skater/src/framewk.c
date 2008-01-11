@@ -1,19 +1,19 @@
 #include <allegro.h>
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
 #include <alleggl.h>
 #endif
-#include "credits.h"
-#include "fps.h"
-#include "framewk.h"
-#include "game.h"
-#include "gamepad.h"
-#include "global.h"
-#include "gmestate.h"
-#include "keyboard.h"
-#include "menus.h"
-#include "scrshot.h"
-#include "transitn.h"
-#include "updtedvr.h"
+#include "../include/credits.h"
+#include "../include/fps.h"
+#include "../include/framewk.h"
+#include "../include/game.h"
+#include "../include/gamepad.h"
+#include "../include/global.h"
+#include "../include/gmestate.h"
+#include "../include/keyboard.h"
+#include "../include/menus.h"
+#include "../include/scrshot.h"
+#include "../include/transitn.h"
+#include "../include/updtedvr.h"
 
 /*
    The callback function for the close icon on platforms that support it.
@@ -75,7 +75,7 @@ int init_framework(void)
       return DEMO_ERROR_ALLEGRO;
    }
 
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
    /* Attempt to initialize AllegroGL. */
    if (install_allegro_gl() != 0) {
       return DEMO_ERROR_ALLEGRO;

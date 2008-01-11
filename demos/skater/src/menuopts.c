@@ -1,7 +1,7 @@
 #include <allegro.h>
-#include "defines.h"
-#include "menu.h"
-#include "menus.h"
+#include "../include/defines.h"
+#include "../include/menu.h"
+#include "../include/menus.h"
 
 
 static int _id = DEMO_STATE_OPTIONS;

@@ -23,12 +23,12 @@
 #include <allegro.h>
 #include <math.h>
 #include <string.h>
-#include "defines.h"
-#include "game.h"
-#include "level.h"
-#include "lvlalloc.h"
-#include "lvlfile.h"
-#include "token.h"
+#include "../include/defines.h"
+#include "../include/game.h"
+#include "../include/level.h"
+#include "../include/lvlalloc.h"
+#include "../include/lvlfile.h"
+#include "../include/token.h"
 
 /*
 
@@ -69,7 +69,7 @@ void DrawLevelForeground(BITMAP *target, struct Level *lev)
 
 BITMAP *ObtainBitmap(const char *name)
 {
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
    BITMAP *ret, *bmp;
 #endif
    char LocName[DEMO_PATH_LENGTH], TString[DEMO_PATH_LENGTH];
@@ -78,7 +78,7 @@ BITMAP *ObtainBitmap(const char *name)
    get_executable_name(LocName, DEMO_PATH_LENGTH);
    replace_filename(LocName, LocName, TString, DEMO_PATH_LENGTH);
 
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
    /* If AllegroGL is used, it is desireable to use use video
       bitmaps instead of memory bitmaps because they tend to be much faster. */
    bmp = load_bmp(LocName, NULL);

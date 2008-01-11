@@ -1,8 +1,8 @@
 #include <allegro.h>
-#include "defines.h"
-#include "global.h"
-#include "menu.h"
-#include "menus.h"
+#include "../include/defines.h"
+#include "../include/global.h"
+#include "../include/menu.h"
+#include "../include/menus.h"
 
 
 static int _id = DEMO_STATE_GFX;
@@ -42,7 +42,7 @@ static DEMO_MENU menu[] = {
     (void **)choice_bpp, 0},
    {demo_choice_proc, "Screen Size", DEMO_MENU_SELECTABLE, 0,
     (void **)choice_res, 0},
-#ifdef SKATER_USE_ALLEGRO_GL
+#ifdef DEMO_USE_ALLEGRO_GL
    {demo_choice_proc, "Update Method", 0, 0,
     (void **)choice_update, 0},
 #else

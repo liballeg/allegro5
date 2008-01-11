@@ -1,5 +1,5 @@
 #include <allegro.h>
-#include "keyboard.h"
+#include "../include/keyboard.h"
 
 
 static void read_config(VCONTROLLER * this, const char *config_path)

@@ -1,7 +1,7 @@
 #include <allegro.h>
 #include <math.h>
-#include "game.h"
-#include "physics.h"
+#include "../include/game.h"
+#include "../include/physics.h"
 
 /*
 
