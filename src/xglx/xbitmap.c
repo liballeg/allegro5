@@ -193,8 +193,8 @@ static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
 
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
    xbitmap->left = 0;
    xbitmap->right = 1;
@@ -268,7 +268,13 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
       //FIXME: ugh. isn't there a better way?
       upside_down(bitmap, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
 
-      glRasterPos2i(bitmap->lock_x, bitmap->lock_y + bitmap->lock_h);
+      //glRasterPos2i(bitmap->lock_x, bitmap->lock_y + bitmap->lock_h);
+      glWindowPos2i(bitmap->lock_x, bitmap->h - bitmap->lock_y - bitmap->lock_h);
+      GLboolean i;
+      GLfloat v[4];
+      glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID, &i);
+      glGetFloatv(GL_CURRENT_RASTER_POSITION, v);
+      printf("%d: %f/%f/%f/%f\n", i, v[0], v[1], v[2], v[3]);
       glPixelStorei(GL_UNPACK_ROW_LENGTH, bitmap->w);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
          glformats[bitmap->format][2],
