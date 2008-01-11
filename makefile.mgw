@@ -464,7 +464,7 @@ else
 obj/mingw32/asmdef.inc: obj/mingw32/asmdef.exe
 	obj/mingw32/asmdef.exe obj/mingw32/asmdef.inc
 
-obj/mingw32/asmdef.exe: src/i386/asmdef.c
+obj/mingw32/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/mingw32/asmcapa.h
 	$(CC) -O $(WFLAGS) $(PFLAGS) -I. -I./include -o obj/mingw32/asmdef.exe src/i386/asmdef.c
 
 obj/mingw32/runner.exe: src/misc/runnergw.c
