@@ -94,7 +94,7 @@ Here is the list of options which enable building of the specific addon library:
 </ul>
 
 If you only want to recompile a specific test program or utility, you can 
-specify it as an argument to make, eg. "make demo" or "make grabber". The 
+specify it as an argument to make, eg. "make shooter" or "make grabber". The 
 makefiles also provide some special pseudo-targets:
 <ul><li>
    'info' (Unix only)<br>
