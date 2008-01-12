@@ -53,7 +53,6 @@ static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int
             return;
          }
       }
-      printf("*x=%d *y=%d\n", *x, *y);
       if (!(
          memcmp(al_get_pixel(bmp, *x, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
          memcmp(al_get_pixel(bmp, *x+1, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
