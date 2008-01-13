@@ -1,7 +1,4 @@
 #include <X11/Xlib.h>
-#include <GL/glx.h>
-#include <GL/gl.h>
-#include <GL/glext.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -16,6 +13,8 @@
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 #include <X11/extensions/xf86vmode.h>
 #endif
+
+#include "allegro5/opengl/gl_ext.h"
 
 typedef struct ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_XGLX;
 typedef struct ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_XGLX;

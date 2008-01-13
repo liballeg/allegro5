@@ -11,6 +11,14 @@ static ALLEGRO_DISPLAY_INTERFACE *vt;
 /* Helper to set up GL state as we want it. */
 static void setup_gl(ALLEGRO_DISPLAY *d)
 {
+   static bool get_extensions = true;
+   if (get_extensions) {
+      //FIXME: Direct call to AllegroGL function for now
+      //FIXME: Is this the right place to do this?
+      __allegro_gl_manage_extensions();
+      get_extensions = false;
+   }
+
    glViewport(0, 0, d->w, d->h);
 
    glMatrixMode(GL_PROJECTION);

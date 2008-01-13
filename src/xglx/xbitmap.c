@@ -268,7 +268,13 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
       //FIXME: ugh. isn't there a better way?
       upside_down(bitmap, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
 
-      glWindowPos2i(bitmap->lock_x, bitmap->h - bitmap->lock_y - bitmap->lock_h);
+      /* glWindowPos2i may not be available. */
+      if (allegro_gl_info.version >= 1.4) {
+         glWindowPos2i(bitmap->lock_x, bitmap->h - bitmap->lock_y - bitmap->lock_h);
+      }
+      else {
+         glRasterPos2i(bitmap->lock_x, bitmap->lock_y + bitmap->lock_h);
+      }
 
       glPixelStorei(GL_UNPACK_ROW_LENGTH, bitmap->w);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
