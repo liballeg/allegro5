@@ -30,7 +30,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/platform/aintunix.h"
-#include "linalleg.h"
+#include "allegro5/linalleg.h"
 
 #include <stdio.h>
 #include <string.h>

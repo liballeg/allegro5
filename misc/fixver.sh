@@ -45,9 +45,9 @@ echo "s/\#define ALLEGRO_VERSION_STR .*/\#define ALLEGRO_VERSION_STR      \"$ver
 echo "s/\#define ALLEGRO_DATE_STR .*/\#define ALLEGRO_DATE_STR         \"$year\"/" >> fixver.sed
 echo "s/\#define ALLEGRO_DATE .*/\#define ALLEGRO_DATE             $year$month$day    \/\* yyyymmdd \*\//" >> fixver.sed
 
-echo "Patching include/allegro/base.h..."
-cp include/allegro/base.h fixver.tmp
-sed -f fixver.sed fixver.tmp > include/allegro/base.h
+echo "Patching include/allegro5/base.h..."
+cp include/allegro5/base.h fixver.tmp
+sed -f fixver.sed fixver.tmp > include/allegro5/base.h
 
 # Note: DMC does not support { and } in resource files so we use
 # BEGIN and END instead.

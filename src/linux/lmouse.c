@@ -24,7 +24,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/platform/aintunix.h"
-#include "linalleg.h"
+#include "allegro5/linalleg.h"
 
 
 static int mouse_mx = 0;            /* internal position, in mickeys */

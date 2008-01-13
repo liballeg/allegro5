@@ -14,7 +14,7 @@
 #include <stdio.h>
 
 #define ALLEGRO_NO_COMPATIBILITY
-#include <allegro5.h>
+#include <allegro5/allegro5.h>
 
 
 /* globals */

@@ -205,12 +205,12 @@ $(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
 	copy lib\dmc\$(DLL_BASENAME) $(WINDIR_D)
 
 HEADERS = $(DMCDIR_U)/include/winalleg.h                  \
-          $(DMCDIR_U)/include/allegro/platform/aintwin.h  \
-          $(DMCDIR_U)/include/allegro/platform/al386gcc.h \
-          $(DMCDIR_U)/include/allegro/platform/aldmc.h    \
-          $(DMCDIR_U)/include/allegro/platform/alplatf.h  \
-          $(DMCDIR_U)/include/allegro/platform/astdint.h  \
-          $(DMCDIR_U)/include/allegro/platform/alwin.h
+          $(DMCDIR_U)/include/allegro5/platform/aintwin.h  \
+          $(DMCDIR_U)/include/allegro5/platform/al386gcc.h \
+          $(DMCDIR_U)/include/allegro5/platform/aldmc.h    \
+          $(DMCDIR_U)/include/allegro5/platform/alplatf.h  \
+          $(DMCDIR_U)/include/allegro5/platform/astdint.h  \
+          $(DMCDIR_U)/include/allegro5/platform/alwin.h
 
 INSTALL_FILES = $(DMCDIR_U)/lib/$(IMPLIB_BASENAME)
 

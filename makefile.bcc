@@ -175,13 +175,13 @@ endif # UNIX_TOOLS
 
 
 HEADERS = $(BCC32DIR_U)/include/winalleg.h                  \
-          $(BCC32DIR_U)/include/allegro/platform/aintwin.h  \
-          $(BCC32DIR_U)/include/allegro/platform/al386gcc.h \
-          $(BCC32DIR_U)/include/allegro/platform/albcc32.h  \
-          $(BCC32DIR_U)/include/allegro/platform/alplatf.h  \
-          $(BCC32DIR_U)/include/allegro/platform/astdbool.h \
-          $(BCC32DIR_U)/include/allegro/platform/astdint.h  \
-          $(BCC32DIR_U)/include/allegro/platform/alwin.h
+          $(BCC32DIR_U)/include/allegro5/platform/aintwin.h  \
+          $(BCC32DIR_U)/include/allegro5/platform/al386gcc.h \
+          $(BCC32DIR_U)/include/allegro5/platform/albcc32.h  \
+          $(BCC32DIR_U)/include/allegro5/platform/alplatf.h  \
+          $(BCC32DIR_U)/include/allegro5/platform/astdbool.h \
+          $(BCC32DIR_U)/include/allegro5/platform/astdint.h  \
+          $(BCC32DIR_U)/include/allegro5/platform/alwin.h
 
 INSTALL_FILES = $(BCC32DIR_U)/lib/$(IMPLIB_BASENAME)
 

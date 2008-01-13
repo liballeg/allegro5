@@ -19,13 +19,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 
 
 /* this program is not portable! */
 #if (defined ALLEGRO_DOS) || (defined ALLEGRO_LINUX_VBEAF)
 
-#include "allegro/internal/aintern.h"
+#include "allegro5/internal/aintern.h"
 
 #ifdef ALLEGRO_INTERNAL_HEADER
    #include ALLEGRO_INTERNAL_HEADER

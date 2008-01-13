@@ -36,7 +36,7 @@ fi
 
 
 # check that we are in the Allegro dir
-if [ ! -f include/allegro.h ]; then
+if [ ! -f include/allegro5/allegro5.h ]; then
    echo "Oops, you don't appear to be in the root of the Allegro directory" 1>&2
    exit 1
 fi

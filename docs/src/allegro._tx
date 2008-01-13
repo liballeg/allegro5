@@ -474,7 +474,7 @@ information about how to install Allegro and link your program with it.
 @xref check_cpu, cpu_vendor, cpu_family, cpu_capabilities, allegro_init
 @shortdesc Contains the Intel CPU submodel.
    Contains the CPU submodel, where applicable. Allegro defines at least the 
-   following CPU family types (see include/allegro/system.h for a more 
+   following CPU family types (see include/allegro5/system.h for a more 
    complete list):
 <textblock>
       CPU_FAMILY_I586:
@@ -13559,7 +13559,7 @@ same as the DOS platform. Read section chapter "Dos specifics" in the manual
 to learn more about this.
 
 A Windows program that uses the Allegro library is only required to include
-one or more header files from the include/allegro tree, or allegro.h; however,
+one or more header files from the include/allegro5 tree, or allegro5.h; however,
 if it also needs to directly call non portable Win32 API functions, it must
 include the Windows-specific header file winalleg.h after the Allegro headers,
 and before any Win32 API header file. By default winalleg.h includes the main
@@ -14751,7 +14751,7 @@ numbers of buttons, Flightstick Pro, and Wingman Extreme, because these are
 all quite minor variations on the basic code.
 <li>
 If you are _really_ serious about this size, thing, have a look at the top 
-of include/allegro/alconfig.h and you will see the lines:
+of include/allegro5/alconfig.h and you will see the lines:
 <codeblock>
    #define ALLEGRO_COLOR8
    #define ALLEGRO_COLOR16

@@ -330,13 +330,13 @@ endif
 
 
 HEADERS = $(MSVCDIR_U)/include/winalleg.h                 \
-          $(MSVCDIR_U)/include/allegro/platform/aintwin.h \
-          $(MSVCDIR_U)/include/allegro/platform/al386vc.h \
-          $(MSVCDIR_U)/include/allegro/platform/almsvc.h  \
-          $(MSVCDIR_U)/include/allegro/platform/alplatf.h \
-          $(MSVCDIR_U)/include/allegro/platform/astdbool.h \
-          $(MSVCDIR_U)/include/allegro/platform/astdint.h \
-          $(MSVCDIR_U)/include/allegro/platform/alwin.h
+          $(MSVCDIR_U)/include/allegro5/platform/aintwin.h \
+          $(MSVCDIR_U)/include/allegro5/platform/al386vc.h \
+          $(MSVCDIR_U)/include/allegro5/platform/almsvc.h  \
+          $(MSVCDIR_U)/include/allegro5/platform/alplatf.h \
+          $(MSVCDIR_U)/include/allegro5/platform/astdbool.h \
+          $(MSVCDIR_U)/include/allegro5/platform/astdint.h \
+          $(MSVCDIR_U)/include/allegro5/platform/alwin.h
 
 INSTALL_FILES = $(MSVCDIR_U)/lib/$(IMPLIB_BASENAME)
 
@@ -497,7 +497,7 @@ endef
 obj/msvc/asmdef.inc: obj/msvc/asmdef.exe
 	obj/msvc/asmdef.exe obj/msvc/asmdef.inc
 
-obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/msvc/asmcapa.h $(RUNNER)
+obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro5/*.h obj/msvc/asmcapa.h $(RUNNER)
 	$(RUNNER) $(MSVC_CL) @ -nologo $(WFLAGS) $(CFLAGS) -I. -I./include -Foobj/msvc/asmdef.obj -Feobj/msvc/asmdef.exe src/i386/asmdef.c
 
 obj/msvc/runner.exe: src/misc/runner.c

@@ -189,11 +189,11 @@ for including a version number in things like the DLL filename.
 Header Files
 
 allegro.h lives in the include/ directory. It is only a placeholder which
-includes other headers which live in the include/allegro/ tree. The reason
+includes other headers which live in the include/allegro5/ tree. The reason
 for this slightly odd approach is that allegro.h can include things like
 "allegro/keyboard.h", which will work both in-situ within the build
 directory, and if we copy allegro.h to the system include directory and the
-other headers into system_include/allegro/. This avoids cluttering the
+other headers into system_include/allegro5/. This avoids cluttering the
 system directories with lots of our headers, while still allowing programs
 to just #include &ltallegro.h&gt, and also makes it possible for people to
 access keyboard stuff with #include &ltallegro/keyboard.h&gt.
@@ -211,7 +211,7 @@ header hasn't already overridden these to something specific.
 
 Every module-specific header contains structure definitions and function
 prototypes. At the end of the file, it may include a header from the
-include/allegro/inline/ directory which defines related inline routines.
+include/allegro5/inline/ directory which defines related inline routines.
 If inline asm is supported, this can include in turn asm.inl which imports
 routines from one of the compiler-specific files al386gcc.h, al386vc.h and
 al386wat.h; otherwise C versions are used instead. The header alinline.h

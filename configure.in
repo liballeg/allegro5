@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 #
 # Note we no longer use `autoheader' to produce
-# include/allegro/platform/alunixac.hin.  
+# include/allegro5/platform/alunixac.hin.  
 # If you AC_DEFINE a new symbol in this file, you must add it there also.
 #
 # Feel free to use # to denote comments.  Traditionally we used `dnl' but it
@@ -522,14 +522,20 @@ fi
 
 ALLEGRO_ACTEST_SUPPORT_XWINDOWS
 if test "$allegro_support_xwindows" = yes; then
+  if test "$allegro_support_glx" = yes; then
+    ALLEGRO_MAYBE_XGLX_FILES=ALLEGRO_SRC_XGLX_FILES
+  fi
+
   ALLEGRO_MAYBE_XWINDOWS_FILES=ALLEGRO_SRC_X_FILES
   ALLEGRO_MAYBE_LIB_X_EXE_SOURCES=ALLEGRO_LIB_X_EXE_SOURCES
   ALLEGRO_MAYBE_LIB_X_EXES=ALLEGRO_LIB_X_EXES
 else
+  ALLEGRO_MAYBE_XGLX_FILES=ALLEGRO_EMPTY_LIST
   ALLEGRO_MAYBE_XWINDOWS_FILES=ALLEGRO_EMPTY_LIST
   ALLEGRO_MAYBE_LIB_X_EXE_SOURCES=ALLEGRO_EMPTY_LIST
   ALLEGRO_MAYBE_LIB_X_EXES=ALLEGRO_EMPTY_LIST
 fi
+AC_SUBST(ALLEGRO_MAYBE_XGLX_FILES)
 AC_SUBST(ALLEGRO_MAYBE_XWINDOWS_FILES)
 AC_SUBST(ALLEGRO_MAYBE_LIB_X_EXE_SOURCES)
 AC_SUBST(ALLEGRO_MAYBE_LIB_X_EXES)
@@ -983,7 +989,7 @@ elif test ! -f makefile.dep; then
 fi
 
 dnl Prepare alunixac.h.
-AC_CONFIG_HEADER(include/allegro/platform/alunixac.h:include/allegro/platform/alunixac.hin)
+AC_CONFIG_HEADER(include/allegro5/platform/alunixac.h:include/allegro5/platform/alunixac.hin)
 
 dnl Cosmetics for allegro-config
 FRAMEWORKS=

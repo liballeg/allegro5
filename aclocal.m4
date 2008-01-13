@@ -276,6 +276,10 @@ AC_ARG_ENABLE(xim,
 [  --enable-xim[=x]        enable the use of XIM keyboard input [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xim=yes,
 allegro_enable_xim=yes)
+AC_ARG_ENABLE(glx,
+[  --enable-glx[=x]        enable the use of GLX [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_glx=yes,
+allegro_enable_glx=yes)
 
 dnl Process "--with[out]-x", "--x-includes" and "--x-libraries" options.
 _x11="X11 support: disabled"
@@ -294,6 +298,17 @@ if test -z "$no_x"; then
   LIBS="-lX11 $LIBS"
   _x11="X11 support: enabled"
   _x11ext=""
+
+  dnl Test for glX support
+  if test -n "$allegro_enable_glx"; then
+    allegro_support_glx=yes
+    AC_CHECK_LIB(GL, glXCreateWindow,
+      [_x11ext="$_x11ext glX"
+      LIBS="-lGL $LIBS"
+      AC_DEFINE(ALLEGRO_GLX,1,[Define if glx support is available.])
+      ])
+  fi
+
 
   dnl Test for Xext library.
   AC_CHECK_LIB(Xext, XMissingExtension,

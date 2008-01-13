@@ -2,7 +2,7 @@
  * Example of using D3D calls
  * by Jacob Dawid
  */
-#include <allegro5.h>
+#include <allegro5/allegro5.h>
 #include <allegro5/winalleg.h>
 #include <d3d9.h>              
 #include <d3dx9.h>       

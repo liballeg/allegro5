@@ -22,7 +22,7 @@
 
 #if defined ALLEGRO_API
 
-   #include "allegro5.h"
+   #include "allegro5/allegro5.h"
 
 #elif defined ALLEGRO_WINAPI
 

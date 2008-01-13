@@ -28,6 +28,7 @@
 #undef ALLEGRO_HAVE_SYS_STAT_H
 #undef ALLEGRO_HAVE_SYS_TIME_H
 #undef ALLEGRO_HAVE_SYS_UTSNAME_H
+#undef ALLEGRO_HAVE_STDBOOL_H
 
 /* Define to 1 if the corresponding functions are available. */
 #undef ALLEGRO_HAVE_GETEXECNAME
@@ -121,6 +122,9 @@
 
 /* Define to enable Linux console VGA driver. */
 #undef ALLEGRO_LINUX_VGA
+
+/* Define to enable GLX driver. */
+#undef ALLEGRO_GLX
 
 /*---------------------------------------------------------------------------*/
 

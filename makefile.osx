@@ -231,12 +231,12 @@ $(INSTALLDIR)/bin/fixbundle: tools/macosx/fixbundle
 	@install $< $(INSTALLDIR)/bin/
 
 BUILD_HEADERS = $(INCDIR)/osxalleg.h                  \
-          $(INCDIR)/allegro/platform/aintosx.h  \
-          $(INCDIR)/allegro/platform/aintunix.h \
-          $(INCDIR)/allegro/platform/alosxcfg.h \
-          $(INCDIR)/allegro/platform/alplatf.h  \
-          $(INCDIR)/allegro/platform/astdint.h  \
-          $(INCDIR)/allegro/platform/alosx.h
+          $(INCDIR)/allegro5/platform/aintosx.h  \
+          $(INCDIR)/allegro5/platform/aintunix.h \
+          $(INCDIR)/allegro5/platform/alosxcfg.h \
+          $(INCDIR)/allegro5/platform/alplatf.h  \
+          $(INCDIR)/allegro5/platform/astdint.h  \
+          $(INCDIR)/allegro5/platform/alosx.h
 
 HEADERS = $(addprefix $(INSTALLDIR)/,$(BUILD_HEADERS))
 
@@ -310,7 +310,7 @@ ifdef EMBED
 else
 	@install $(LIB_NAME) $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME)
 endif
-	@install include/allegro.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
+	@install include/allegro5/allegro5.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@install include/osxalleg.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@install $(BUILD_HEADERS) $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@(cd $(FRAMEWORK)/Versions; ln -s $(shared_version) Current)

@@ -270,13 +270,13 @@ endif # UNIX_TOOLS
 
 
 HEADERS = $(MINGDIR_U)/include/winalleg.h                  \
-          $(MINGDIR_U)/include/allegro/platform/aintwin.h  \
-          $(MINGDIR_U)/include/allegro/platform/al386gcc.h \
-          $(MINGDIR_U)/include/allegro/platform/almngw32.h \
-          $(MINGDIR_U)/include/allegro/platform/alplatf.h  \
-          $(MINGDIR_U)/include/allegro/platform/astdbool.h \
-          $(MINGDIR_U)/include/allegro/platform/astdint.h  \
-          $(MINGDIR_U)/include/allegro/platform/alwin.h
+          $(MINGDIR_U)/include/allegro5/platform/aintwin.h  \
+          $(MINGDIR_U)/include/allegro5/platform/al386gcc.h \
+          $(MINGDIR_U)/include/allegro5/platform/almngw32.h \
+          $(MINGDIR_U)/include/allegro5/platform/alplatf.h  \
+          $(MINGDIR_U)/include/allegro5/platform/astdbool.h \
+          $(MINGDIR_U)/include/allegro5/platform/astdint.h  \
+          $(MINGDIR_U)/include/allegro5/platform/alwin.h
 
 INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME)
 
@@ -462,7 +462,7 @@ endef
 
 ifdef CROSSCOMPILE
 
-obj/mingw32/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h obj/mingw32/asmcapa.h
+obj/mingw32/asmdef.s: src/i386/asmdef.c include/*.h include/allegro5/*.h obj/mingw32/asmcapa.h
 	$(CC) $(WFLAGS) -I. -I./include -S -o obj/mingw32/asmdef.s src/i386/asmdef.c
 
 obj/mingw32/asmdef.inc: obj/mingw32/asmdef.s

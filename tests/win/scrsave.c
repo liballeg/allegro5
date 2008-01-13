@@ -32,7 +32,7 @@
 
 #include <time.h>
 
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 #include "winalleg.h"
 #include "scrsave.rh"
 

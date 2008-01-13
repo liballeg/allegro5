@@ -21,7 +21,7 @@
 
 #define ALLEGRO_NO_COMPATIBILITY
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/internal/aintern_bitmap.h"

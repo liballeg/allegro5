@@ -35,7 +35,7 @@
 #endif
 #endif
 
-#include "linalleg.h"
+#include "allegro5/linalleg.h"
 
 #ifndef ALLEGRO_LINUX
    #error Something is wrong with the makefile

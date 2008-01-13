@@ -1,7 +1,7 @@
 #ifndef _ALLEGRO_CONVERT_H
 #define _ALLEGRO_CONVERT_H
 
-#include "allegro5/allegro.h"
+#include "allegro5/allegro5.h"
 
 /* Conversionf for most pixels */
 #define ALLEGRO_SHIFT_CONVERT(p, \

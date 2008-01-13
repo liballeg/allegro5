@@ -30,7 +30,7 @@
 # define drawing_mode al_drawing_mode
 #endif
 
-#include "allegro5/allegro.h"
+#include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 
 #ifdef __cplusplus

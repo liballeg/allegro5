@@ -8,7 +8,7 @@
  */
 
 
-#include <allegro5.h>
+#include <allegro5/allegro.h>
 
 
 /* the grabber produces this header, which contains defines for the names

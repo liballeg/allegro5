@@ -9,7 +9,7 @@ env = context.getLibraryEnv()
 
 context.setLibraryDir("lib/macosx")
 
-file = open( "include/allegro/platform/alplatf.h", "w" )
+file = open( "include/allegro5/platform/alplatf.h", "w" )
 file.write( "#define ALLEGRO_MACOSX" )
 file.close()
 

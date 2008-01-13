@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 #include <time.h>
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 
 #define RODENTS  4
 

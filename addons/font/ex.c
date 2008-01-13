@@ -1,4 +1,4 @@
-#include "allegro5.h"
+#include "allegro5/allegro5.h"
 #include "a5_font.h"
 
 int main(void)

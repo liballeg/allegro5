@@ -18,7 +18,7 @@
 #ifndef ASTDINT_H
 #define ASTDINT_H
 
-/* Please only include this file from include/allegro/internal/alconfig.h
+/* Please only include this file from include/allegro5/internal/alconfig.h
  * and don't add more than inttypes.h/stdint.h emulation here.  Thanks.
  */
 

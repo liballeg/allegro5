@@ -18,7 +18,7 @@
 #ifndef __bma_xwin_h
 #define __bma_xwin_h
 
-#include "xalleg.h"
+#include "allegro5/xalleg.h"
 
 /* Defined in xmouse.c */
 AL_VAR(int, _xwin_mouse_extended_range);

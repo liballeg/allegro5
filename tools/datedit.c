@@ -21,8 +21,8 @@
 #include <string.h>
 #include <time.h>
 
-#include "allegro5.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 #include "datedit.h"
 
 

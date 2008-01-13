@@ -9,7 +9,7 @@
  */
 
 
-#include <allegro5.h>
+#include <allegro5/allegro.h>
 
 
 #define BUFFER_SIZE  1024
