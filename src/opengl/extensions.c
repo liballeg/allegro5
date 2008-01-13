@@ -42,8 +42,10 @@ typedef struct AGL_EXT {
 /* Current driver info */
 struct allegro_gl_info allegro_gl_info;
 
+// FIXME: obviously, this should be set by whatever code creates a valid
+// context
+int __allegro_gl_valid_context = true;
 //FIXME: what are those variables below for?
-int __allegro_gl_valid_context = 0;
 GLint __allegro_gl_texture_read_format[5];
 GLint __allegro_gl_texture_components[5];
 
