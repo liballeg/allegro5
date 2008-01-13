@@ -340,6 +340,9 @@ demos/shooter/shooter.exe: obj/dmc/shooter.res $(IMPLIB_NAME)
 demos/skater/skater.exe: $(IMPLIB_NAME)
 	$(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$(OBJECTS_SKATER)) $(IMPLIB_NAME) $(LIBRARIES) -L/SUBSYSTEM:WINDOWS
 
+demos/skater/skater_agl.exe: $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$(OBJECTS_SKATER_AGL)) $(ALLEGRO_GL_LFLAGS) $(IMPLIB_NAME) $(LIBRARIES) -L/SUBSYSTEM:WINDOWS
+
 # Use -DSETUP_USE_COMPILED_DATAFILES ???
 $(OBJ_DIR)/setup.obj: setup/setup.c
 	$(CC) $(COMPILE_FLAGS) -I. -I./include -o$(OBJ_DIR)/setup.obj -c setup/setup.c

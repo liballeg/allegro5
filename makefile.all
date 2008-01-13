@@ -101,8 +101,9 @@ VPATH += src demos/shooter demos/skater/source docs examples setup tests tools t
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(OBJECT_LIST)))
 
 OBJECTS_DOC = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_MAKEDOC_SOURCES)))))
-OBJECTS_SHOOTER = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_SHOOTER_SOURCES)))))
-OBJECTS_SKATER = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_SKATER_SOURCES)))))
+OBJECTS_SHOOTER = $(addprefix $(OBJ_DIR)/shooter, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_SHOOTER_SOURCES)))))
+OBJECTS_SKATER = $(addprefix $(OBJ_DIR)/skater, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_SKATER_SOURCES)))))
+OBJECTS_SKATER_AGL = $(addprefix $(OBJ_DIR)/skater_agl, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_SKATER_SOURCES)))))
 
 PROGRAMS += $(notdir $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES))
 
@@ -115,6 +116,10 @@ endif
 endif
 
 DEMOS = shooter skater
+
+ifdef WITH_ALLEGRO_GL
+   DEMOS += skater_agl
+endif
 
 PROGRAMS += $(CPP_PROGRAMS) $(DEMOS) examples makedoc $(ADDON_EXE_TARGETS)
 
@@ -219,6 +224,7 @@ programs:
 
 ifdef WITH_ALLEGRO_GL
    include addons/allegrogl/make/makefile.add
+   ALLEGRO_GL_LFLAGS = -Laddons/allegrogl/libs/ -lagl -lGL -lGLU
 endif
 
 ifdef WITH_LOADPNG
@@ -553,6 +559,7 @@ tools/pat2dat$(EXE): $(OBJ_DIR)/pat2dat$(OBJ) $(PLUGIN_DEPS)
 
 demos/shooter/shooter$(EXE): $(OBJECTS_SHOOTER)
 demos/skater/skater$(EXE): $(OBJECTS_SKATER)
+demos/skater/skater_agl$(EXE): $(OBJECTS_SKATER_AGL)
 
 # -------- special rules for C++ programs --------
 
@@ -567,6 +574,7 @@ cpp-programs: $(CPP_PROGRAMS)
 
 shooter: demos/shooter/shooter$(EXE)
 skater: demos/skater/skater$(EXE)
+skater_agl: demos/skater/skater_agl$(EXE)
 makedoc: docs/makedoc$(EXE)
 keyconf: setup/keyconf$(EXE)
 setup: setup/setup$(EXE)

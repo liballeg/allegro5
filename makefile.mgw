@@ -385,6 +385,9 @@ demos/shooter/shooter.exe: $(IMPLIB_NAME)
 demos/skater/skater.exe: $(IMPLIB_NAME)
 	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SKATER) $(IMPLIB_NAME) $(LIBRARIES)
 
+demos/skater/skater_agl.exe: $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SKATER_AGL) $(ALLEGRO_GL_LFLAGS) $(IMPLIB_NAME) $(LIBRARIES)
+
 setup/setup.exe: $(OBJ_DIR)/setup.o $(IMPLIB_NAME)
 	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
@@ -412,6 +415,9 @@ demos/shooter/shooter.exe: obj/mingw32/shooter.res $(IMPLIB_NAME)
 
 demos/skater/skater.exe: $(IMPLIB_NAME)
 	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SKATER) $(IMPLIB_NAME) $(LIBRARIES)
+
+demos/skater/skater_agl.exe: $(IMPLIB_NAME)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SKATER_AGL) $(ALLEGRO_GL_LFLAGS) $(IMPLIB_NAME) $(LIBRARIES)
 
 obj/mingw32/setupdat.s: setup/setup.dat tools/dat2s.exe
 ifdef STATICLINK

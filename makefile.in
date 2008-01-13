@@ -157,6 +157,10 @@ endif
 
 DEMOS = shooter skater
 
+ifdef WITH_ALLEGRO_GL
+   DEMOS += skater_agl
+endif
+
 ALLEGRO_EMPTY_LIST =
 
 ALLEGRO_LIBRARY_SOURCES = \
@@ -410,6 +414,7 @@ suid: $(ALLEGRO_EXE_TARGETS)
 
 shooter: demos/shooter/shooter$(EXE)
 skater: demos/skater/skater$(EXE)
+skater_agl: demos/skater/skater_agl$(EXE)
 makedoc: docs/makedoc$(EXE)
 keyconf: setup/keyconf$(EXE)
 setup: setup/setup$(EXE)
@@ -731,6 +736,7 @@ depend: $(ADDON_DEPEND_TARGETS)
 	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh docs/makedoc $(ALLEGRO_MAKEDOC_SOURCES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh demos/shooter/shooter $(ALLEGRO_SHOOTER_SOURCES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh demos/skater/skater $(ALLEGRO_SKATER_SOURCES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh demos/skater/skater_agl $(ALLEGRO_SKATER_SOURCES)' >>makefile.dep
 	@echo "Dependency generation completed!"
 
 .PHONY: default full-build lib programs docs docs-dvi docs-ps docs-pdf \

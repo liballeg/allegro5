@@ -437,6 +437,9 @@ demos/shooter/shooter.exe: obj/msvc/shooter.res $(IMPLIB_NAME) $(RUNNER)
 demos/skater/skater.exe: $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:demos/skater/skater.exe $(OBJECTS_SKATER) $(IMPLIB_NAME) $(LIBRARIES)
 
+demos/skater/skater_agl.exe: $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:demos/skater/skater_agl.exe $(OBJECTS_SKATER_AGL) $(ALLEGRO_GL_LFLAGS) $(IMPLIB_NAME) $(LIBRARIES)
+
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 

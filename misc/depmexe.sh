@@ -13,10 +13,26 @@ if test -n "$first"; then
 	    dir=`echo $file | sed 's,/[^/]*$,,'`
 	    name=`echo $file | sed 's,^.*/,,' | sed 's,\.[^.]*$,,'`
 	    ext=`echo $file | sed 's,^.*\.,,'`
-	    echo "\$(OBJDIR)/$name\$(OBJ): $file"
-	    echo "	\$(COMPILE_PROGRAM) -c $file -o \$(OBJDIR)/$name\$(OBJ)"
+            if test "$first" = "demos/skater/skater"; then
+               echo "\$(OBJDIR)/skater/$name\$(OBJ): $file"
+               echo "	\$(COMPILE_PROGRAM) -Iaddons/allegrogl/include \
+-DDEMO_WITH_ALLEGRO_GL -c $file -o \$(OBJDIR)/skater/$name\$(OBJ)"
+               depend="$depend \$(OBJDIR)/skater/$name\$(OBJ)"
+            elif test "$first" = "demos/skater/skater_agl"; then
+               echo "\$(OBJDIR)/skater_agl/$name\$(OBJ): $file"
+               echo "	\$(COMPILE_PROGRAM) -Iaddons/allegrogl/include \
+-DDEMO_WITH_ALLEGRO_GL -c $file -o \$(OBJDIR)/skater_agl/$name\$(OBJ)"
+               depend="$depend \$(OBJDIR)/skater_agl/$name\$(OBJ)"
+            elif test "$first" = "demos/shooter/shooter"; then
+               echo "\$(OBJDIR)/shooter/$name\$(OBJ): $file"
+               echo "	\$(COMPILE_PROGRAM) -c $file -o \$(OBJDIR)/shooter/$name\$(OBJ)"
+               depend="$depend \$(OBJDIR)/shooter/$name\$(OBJ)"
+            else
+               echo "\$(OBJDIR)/$name\$(OBJ): $file"
+	       echo "	\$(COMPILE_PROGRAM) -c $file -o \$(OBJDIR)/$name\$(OBJ)"
+               depend="$depend \$(OBJDIR)/$name\$(OBJ)"
+	    fi
 	    echo ""
-	    depend="$depend \$(OBJDIR)/$name\$(OBJ)"
 	 else
 	    missing="$missing $file"
 	 fi
@@ -29,8 +45,12 @@ if test -n "$first"; then
    
    if test -n "$depend"; then
       echo "$first: $depend"
-	  if test "$first" = "demos/shooter/shooter" -o "$first" = "demos/skater/skater"; then
+      if test "$first" = "demos/shooter/shooter"; then
          echo "	\$(LINK) -o $first $depend \$(LINK_LIBALLEG) \$(LIBS)"
+      elif test "$first" = "demos/skater/skater"; then
+         echo "	\$(LINK) -o $first $depend \$(LINK_LIBALLEG) \$(LIBS)"
+      elif test "$first" = "demos/skater/skater_agl"; then
+         echo "	\$(LINK) -o $first $depend -Laddons/allegrogl/lib/unix/ -lagl -lGL -lGLU \$(LINK_LIBALLEG) \$(LIBS)"
       else
          echo "	\$(LINK) -o $first $depend"
       fi

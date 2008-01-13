@@ -458,14 +458,14 @@ ALLEGRO_SKATER_SOURCES = \
 	demos/skater/source/backscrl.c \
 	demos/skater/source/credits.c \
 	demos/skater/source/dblbuf.c \
-	demos/skater/source/skater.c \
+	demos/skater/source/demo.c \
 	demos/skater/source/fps.c \
 	demos/skater/source/framewk.c \
-	demos/skater/source/sk_game.c \
+	demos/skater/source/game.c \
 	demos/skater/source/gamepad.c \
 	demos/skater/source/global.c \
 	demos/skater/source/intro.c \
-	demos/skater/source/keybrd.c \
+	demos/skater/source/keyborad.c \
 	demos/skater/source/level.c \
 	demos/skater/source/lvlalloc.c \
 	demos/skater/source/lvlfile.c \
@@ -687,7 +687,7 @@ DISTCLEAN_FILES = \
 	docs/allegro.aux docs/allegro.cp docs/allegro.fn docs/allegro.fns \
 	docs/allegro.ky docs/allegro.log docs/allegro.pg docs/allegro.toc \
 	docs/allegro.tp docs/allegro.vr docs/scite/allegro.api \
-	demos/shooter/shooter demos/skater/skater \
+	demos/shooter/shooter demos/skater/skater demos/skater/skater_agl \
 	$(ALLEGRO_LIB_EXES) $(ALLEGRO_EXAMPLE_EXES) $(ALLEGRO_DATAFILE_EXES) \
 	*.exe */*.exe */*/*.exe msvcmake.bat tests/win/*.scr \
 	config.cache config.log config.status stamp-h stamp-h[0-9]* suid \
