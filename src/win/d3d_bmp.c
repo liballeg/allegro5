@@ -706,7 +706,7 @@ static void d3d_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flag
 
    d3d_blit_real(bitmap, -0.5f, -0.5f, bitmap->w, bitmap->h,
       bitmap->w/2, bitmap->h/2,
-      dx, dy, bitmap->w, bitmap->h,
+      dx-0.5f, dy-0.5f, bitmap->w, bitmap->h,
       0.0f, flags, false);
 }
 
@@ -719,9 +719,9 @@ static void d3d_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    }
 
    d3d_blit_real(bitmap,
-      sx, sy, sw, sh,
+      sx-0.5f, sy-0.5f, sw, sh,
       0.0f, 0.0f,
-      dx, dy, sw, sh,
+      dx-0.5f, dy-0.5f, sw, sh,
       0.0f, flags, false);
 }
 

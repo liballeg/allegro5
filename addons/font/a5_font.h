@@ -7,13 +7,6 @@
 #endif
 
 
-#ifdef ALLEGRO_D3D
-#define PIXEL_OFFSET (-0.5f)
-#else
-#define PIXEL_OFFSET (0.0f)	   
-#endif
-
-
 struct A5FONT_FONT_VTABLE;
 
 typedef struct A5FONT_FONT
