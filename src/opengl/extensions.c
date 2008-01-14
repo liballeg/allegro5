@@ -1,9 +1,27 @@
 /* This code is (C) AllegroGL contributors, and double licensed under
  * the GPL and zlib licenses. See gpl.txt or zlib.txt for details.
  */
-/** \file glext.c
-  * \brief OpenGL extension management.
-  */
+/* Title: OpenGL extensions
+ *
+ * When available, Allegro will keep information about all extensions it knows
+ * about in a global structure _allegro_gl_extensions_.
+ *
+ * For example:
+ * > if (allegro_gl_extensions.GL_ARB_multitexture) { use it }
+ *
+ * The extension will be set to true if available and false otherwise. This
+ * means to use the definitions and function from an OpenGL extension, all
+ * you need to do is to check for it like above at runtime, once you
+ * acquired the OpenGL context from Allegro.
+ *
+ * Under Windows, this will also work with WGL extensions, and under Linux
+ * also with GLX extensions.
+ *
+ * In case you want to manually check for extensions and load function pointers
+ * yourself (say, in case the Allegro developers did not include it yet), you
+ * can use the <al_is_opengl_extension_supported> and
+ * <al_get_opengl_proc_address> functions instead.
+ */
 
 #include <allegro5/allegro5.h>
 
@@ -338,23 +356,25 @@ static HDC __hdc = NULL;
 #endif
 
 
-/* int allegro_gl_is_extension_supported(AL_CONST char *extension) */
-/** \ingroup extensions
- *  This function is an helper to determine whether an OpenGL extension is
+/* Function: al_is_opengl_extension_supported
+ *  This function is a helper to determine whether an OpenGL extension is
  *  available or not.
  *
- *  \b Example:
- *    <pre>
- *       int packedpixels =
- *                  allegro_gl_is_extension_supported("GL_EXT_packed_pixels");
- *    </pre>
- *  If \c packedpixels is TRUE then you can safely use the constants related
+ *  Example:
+ *
+ *  >int packedpixels =
+ *  >   al_is_opengl_extension_supported("GL_EXT_packed_pixels");
+ *
+ *  If _packedpixels_ is TRUE then you can safely use the constants related
  *  to the packed pixels extension.
  *
- *  \param extension The name of the extension that is needed
- *  \return TRUE if the extension is available FALSE otherwise.
+ * Parameters:
+ * extension - The name of the extension that is needed
+ *
+ * Returns:
+ * TRUE if the extension is available FALSE otherwise.
  */
-int allegro_gl_is_extension_supported(AL_CONST char *extension)
+int al_is_opengl_extension_supported(AL_CONST char *extension)
 {
    int ret;
 
@@ -396,33 +416,34 @@ int allegro_gl_is_extension_supported(AL_CONST char *extension)
 
 
 
-/* void * allegro_gl_get_proc_address(AL_CONST char *name) */
-/** \ingroup extensions
+/* Function: al_get_opengl_proc_address
  *  Helper to get the address of an OpenGL symbol
  *
- *  \b Example:
- *  How to get the function \c glMultiTexCoord3fARB that comes
+ *  Example:
+ *  How to get the function _glMultiTexCoord3fARB_ that comes
  *  with ARB's Multitexture extension :
- *    <pre>
- *  // define the type of the function
- *	AGL_DEFINE_PROC_TYPE(void, MULTI_TEX_FUNC,
- *	                                      (GLenum, GLfloat, GLfloat, GLfloat));
- *  // declare the function pointer
- *	MULTI_TEX_FUNC glMultiTexCoord3fARB;
- *  // get the address of the function
- * 	glMultiTexCoord3fARB = (MULTI_TEX_FUNC) allegro_gl_get_proc_address(
- * 	                                                   "glMultiTexCoord3fARB");
- *    </pre>
+ *   
+ *  >// define the type of the function
+ *  >   AGL_DEFINE_PROC_TYPE(void, MULTI_TEX_FUNC,
+ *  >      (GLenum, GLfloat, GLfloat, GLfloat));
+ *  >// declare the function pointer
+ *  >   MULTI_TEX_FUNC glMultiTexCoord3fARB;
+ *  >// get the address of the function
+ *  >   glMultiTexCoord3fARB = (MULTI_TEX_FUNC) al_get_opengl_proc_address(
+ *  >      "glMultiTexCoord3fARB");
  *
- *  If \c glMultiTexCoord3fARB is not \c NULL then it can be used as if it has 
+ *  If _glMultiTexCoord3fARB_ is not NULL then it can be used as if it has 
  *  been defined in the OpenGL core library. Note that the use of the
  *  AGL_DEFINE_PROC_TYPE macro is mandatory if you want your program to be
  *  portable.
  *
- *  \param name The name of the symbol you want to link to.
- *  \return A pointer to the symbol if available or NULL otherwise.
+ *  Parameters:
+ *  name - The name of the symbol you want to link to.
+ *
+ *  Returns:
+ *  A pointer to the symbol if available or NULL otherwise.
  */
-void *allegro_gl_get_proc_address(AL_CONST char *name)
+void *al_get_opengl_proc_address(AL_CONST char *name)
 {
    void *symbol = NULL;
 #ifdef ALLEGRO_MACOSX
@@ -616,7 +637,7 @@ void __allegro_gl_manage_extensions(void)
    /* Get extension info for the rest of the lib */
 #    define AGL_EXT(name, ver) {                               \
 		allegro_gl_extensions.ALLEGRO_GL_##name =                        \
-		      allegro_gl_is_extension_supported("GL_" #name)   \
+		      al_get_opengl_proc_address("GL_" #name)   \
 		  || (allegro_gl_info.version >= ver && ver > 0);      \
 	}
 #   include "allegro5/opengl/GLext/gl_ext_list.h"
@@ -625,7 +646,7 @@ void __allegro_gl_manage_extensions(void)
 #ifdef ALLEGRO_UNIX
 #    define AGL_EXT(name, ver) {                               \
 		allegro_gl_extensions.ALLEGRO_GLX_##name =                       \
-		      allegro_gl_is_extension_supported("GLX_" #name)  \
+		      al_is_opengl_extension_supported("GLX_" #name)  \
 		  || (allegro_gl_info.version >= ver && ver > 0);      \
 	}
 #   include "allegro5/opengl/GLext/glx_ext_list.h"
@@ -633,7 +654,7 @@ void __allegro_gl_manage_extensions(void)
 #elif defined ALLEGRO_WINDOWS
 #    define AGL_EXT(name, ver) {                               \
 		allegro_gl_extensions.ALLEGRO_WGL_##name =                       \
-		      allegro_gl_is_extension_supported("WGL_" #name)  \
+		      al_is_opengl_extension_supported("WGL_" #name)  \
 		  || (allegro_gl_info.version >= ver && ver > 0);      \
 	}
 #   include "allegro5/opengl/GLext/wgl_ext_list.h"
