@@ -346,6 +346,9 @@ endef
 endif # STATICLINK
 
 COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
+ifdef WITH_ALLEGRO_GL
+COMPILE_FLAGS += $(subst skater/,-Iaddons/allegrogl/include -DDEMO_USE_ALLEGRO_GL ,$(findstring skater/, $<))
+endif
 
 $(OBJ_DIR)/%.o: %.c
 	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
@@ -386,7 +389,7 @@ demos/skater/skater.exe: $(IMPLIB_NAME)
 	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SKATER) $(IMPLIB_NAME) $(LIBRARIES)
 
 demos/skater/skater_agl.exe: $(IMPLIB_NAME)
-	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SKATER_AGL) $(ALLEGRO_GL_LFLAGS) $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SKATER) -Laddons/allegrogl/lib/mingw32/ -lagl -lglu32 -lopengl32 $(IMPLIB_NAME) $(LIBRARIES)
 
 setup/setup.exe: $(OBJ_DIR)/setup.o $(IMPLIB_NAME)
 	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
@@ -417,7 +420,7 @@ demos/skater/skater.exe: $(IMPLIB_NAME)
 	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SKATER) $(IMPLIB_NAME) $(LIBRARIES)
 
 demos/skater/skater_agl.exe: $(IMPLIB_NAME)
-	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SKATER_AGL) $(ALLEGRO_GL_LFLAGS) $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $(OBJECTS_SKATER) -Laddons/allegrogl/lib/mingw32/ -lagl -lglu32 -lopengl32 $(IMPLIB_NAME) $(LIBRARIES)
 
 obj/mingw32/setupdat.s: setup/setup.dat tools/dat2s.exe
 ifdef STATICLINK

@@ -377,6 +377,9 @@ endif
 
 
 COMPILE_FLAGS = $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
+ifdef WITH_ALLEGRO_GL
+COMPILE_FLAGS += $(subst skater/,-Iaddons/allegrogl/include -DDEMO_USE_ALLEGRO_GL ,$(findstring skater/, $<))
+endif
 
 $(OBJ_DIR)/%.o: %.c
 	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
@@ -393,8 +396,8 @@ demos/shooter/shooter: $(OBJECTS_SHOOTER) $(LIB_NAME) $(LIB_MAIN_NAME)
 demos/skater/skater: $(OBJECTS_SKATER) $(LIB_NAME) $(LIB_MAIN_NAME)
 	$(CC) $(LFLAGS) -o $@ $(OBJECTS_SKATER) $(LIB_NAME) $(LIB_MAIN_NAME) $(LIBRARIES)
 
-demos/skater/skater_agl: $(OBJECTS_SKATER_AGL) $(LIB_NAME) $(LIB_MAIN_NAME)
-	$(CC) $(LFLAGS) -o $@ $(OBJECTS_SKATER_AGL) $(ALLEGRO_GL_LFLAGS) $(LIB_NAME) $(LIB_MAIN_NAME) $(LIBRARIES)
+demos/skater/skater_agl: $(OBJECTS_SKATER) $(LIB_NAME) $(LIB_MAIN_NAME)
+	$(CC) $(LFLAGS) -o $@ $(OBJECTS_SKATER) -Laddons/allegrogl/lib/macosx/ -lagl -lGL -lGLU $(LIB_NAME) $(LIB_MAIN_NAME) $(LIBRARIES)
 
 */%: $(OBJ_DIR)/%.o $(LIB_NAME) $(LIB_MAIN_NAME)
 	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIB_MAIN_NAME) $(LIBRARIES)

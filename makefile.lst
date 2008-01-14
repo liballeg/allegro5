@@ -458,10 +458,10 @@ ALLEGRO_SKATER_SOURCES = \
 	demos/skater/source/backscrl.c \
 	demos/skater/source/credits.c \
 	demos/skater/source/dblbuf.c \
-	demos/skater/source/demo.c \
+	demos/skater/source/skater.c \
 	demos/skater/source/fps.c \
 	demos/skater/source/framewk.c \
-	demos/skater/source/game.c \
+	demos/skater/source/game_sk.c \
 	demos/skater/source/gamepad.c \
 	demos/skater/source/global.c \
 	demos/skater/source/intro.c \

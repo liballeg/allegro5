@@ -371,6 +371,9 @@ endif
 endif
 
 COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
+ifdef WITH_ALLEGRO_GL
+COMPILE_FLAGS += $(subst skater/,-Iaddons/allegrogl/include -DDEMO_USE_ALLEGRO_GL ,$(findstring skater/, $<))
+endif
 
 $(OBJ_DIR)/%.obj: %.c $(RUNNER)
 	$(RUNNER) $(MSVC_CL) @ -nologo $(COMPILE_FLAGS) -I. -I./include -Fo$@ -c $<
@@ -438,7 +441,7 @@ demos/skater/skater.exe: $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:demos/skater/skater.exe $(OBJECTS_SKATER) $(IMPLIB_NAME) $(LIBRARIES)
 
 demos/skater/skater_agl.exe: $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:demos/skater/skater_agl.exe $(OBJECTS_SKATER_AGL) addons/allegrogl/msvc/lib/agl.lib opengl32.lib glu32.lib $(IMPLIB_NAME) $(LIBRARIES)
+	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:demos/skater/skater_agl.exe $(OBJECTS_SKATER) addons/allegrogl/lib/msvc/agl.lib opengl32.lib glu32.lib $(IMPLIB_NAME) $(LIBRARIES)
 
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
