@@ -637,7 +637,7 @@ void __allegro_gl_manage_extensions(void)
    /* Get extension info for the rest of the lib */
 #    define AGL_EXT(name, ver) {                               \
 		allegro_gl_extensions.ALLEGRO_GL_##name =                        \
-		      al_get_opengl_proc_address("GL_" #name)   \
+		      al_is_opengl_extension_supported("GL_" #name)   \
 		  || (allegro_gl_info.version >= ver && ver > 0);      \
 	}
 #   include "allegro5/opengl/GLext/gl_ext_list.h"
