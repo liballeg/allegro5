@@ -991,12 +991,12 @@ fi
 dnl Prepare alunixac.h.
 AC_CONFIG_HEADER(include/allegro5/platform/alunixac.h:include/allegro5/platform/alunixac.hin)
 
-dnl Cosmetics for allegro-config
+dnl Cosmetics for allegro5-config
 FRAMEWORKS=
 AC_SUBST(FRAMEWORKS)
 
-dnl Prepare makefile and allegro-config.
-AC_OUTPUT(makefile:makefile.in allegro-config:misc/allegro-config.in,
+dnl Prepare makefile and allegro5-config.
+AC_OUTPUT(makefile:makefile.in allegro5-config:misc/allegro5-config.in,
   [test -z "$CONFIG_HEADERS" || echo timestamp > stamp-h])
 
 dnl The makefile doesn't work with non-GNU make so test for its presence.
