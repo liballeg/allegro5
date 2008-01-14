@@ -73,7 +73,7 @@ AGL_EXT *agl_extension_table = NULL;
 #endif
 
 
-#ifdef ALLEGROGL_HAVE_DYNAMIC_LINK
+#ifdef ALLEGRO_HAVE_DYNAMIC_LINK
 #include <dlfcn.h>
 
 /* Handle for dynamic library libGL.so */
@@ -210,7 +210,7 @@ void __allegro_gl_load_extensions(AGL_EXT * ext)
       return;
    }
 #ifdef ALLEGRO_UNIX
-#ifdef ALLEGROGL_HAVE_DYNAMIC_LINK
+#ifdef ALLEGRO_HAVE_DYNAMIC_LINK
    if (!aglXGetProcAddress) {
       return;
    }
@@ -446,7 +446,7 @@ void *allegro_gl_get_proc_address(AL_CONST char *name)
     */
    symbol = wglGetProcAddress(name);
 #elif defined ALLEGRO_UNIX
-#if defined ALLEGROGL_HAVE_DYNAMIC_LINK
+#if defined ALLEGRO_HAVE_DYNAMIC_LINK
    if (aglXGetProcAddress)
 #endif
    {
@@ -456,7 +456,7 @@ void *allegro_gl_get_proc_address(AL_CONST char *name)
        */
       symbol = aglXGetProcAddress((const GLubyte *)name);
    }
-#elif defined ALLEGROGL_HAVE_DYNAMIC_LINK
+#elif defined ALLEGRO_HAVE_DYNAMIC_LINK
    else {
       /* Hack if glXGetProcAddress is not available :
        * we try to find the symbol into libGL.so
@@ -482,7 +482,7 @@ void *allegro_gl_get_proc_address(AL_CONST char *name)
 
    if (!symbol) {
 
-#if defined ALLEGROGL_HAVE_DYNAMIC_LINK
+#if defined ALLEGRO_HAVE_DYNAMIC_LINK
       if (!aglXGetProcAddress) {
          TRACE(PREFIX_W "get_proc_address: libdl::dlsym: %s\n", dlerror());
       }
@@ -563,7 +563,7 @@ void __allegro_gl_manage_extensions(void)
    //buf = gluGetString(GLU_VERSION);
    //TRACE(PREFIX_I "GLU Version : %s\n", buf);
 
-#ifdef ALLEGROGL_HAVE_DYNAMIC_LINK
+#ifdef ALLEGRO_HAVE_DYNAMIC_LINK
    /* Get glXGetProcAddress entry */
    __agl_handle = dlopen("libGL.so", RTLD_LAZY);
    if (__agl_handle) {
@@ -729,7 +729,7 @@ void __allegro_gl_unmanage_extensions()
 #ifdef ALLEGRO_MACOSX
    CFRelease(opengl_bundle_ref);
 #endif
-#ifdef ALLEGROGL_HAVE_DYNAMIC_LINK
+#ifdef ALLEGRO_HAVE_DYNAMIC_LINK
    if (__agl_handle) {
       dlclose(__agl_handle);
       __agl_handle = NULL;

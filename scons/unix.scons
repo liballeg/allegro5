@@ -229,6 +229,7 @@ else:
     platform["MAP_FAILED"] = [config.CheckMapFailed(), "Define to (void *)-1, if MAP_FAILED is not defined."]
     platform["ALLEGRO_WITH_OSSDIGI"] = [config.CheckOSSDigi(), "Define if OSS DIGI driver is supported."]
     platform["ALLEGRO_WITH_OSSMIDI"] = [config.CheckOSSMidi(), "Define if OSS MIDI driver is supported."]
+    platform["ALLEGRO_HAVE_DYNAMIC_LINK"] = [config.CheckDL(), "Define if libdl is available."]
 
     ## Not checked yet
     platform["ALLEGRO_MODULES_PATH"] = ['"/usr/local/lib/allegro"',

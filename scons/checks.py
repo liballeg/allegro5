@@ -419,4 +419,12 @@ def CheckMapFailed(context):
         ret = 0
     return ret
 
-
+def CheckDL(context):
+    result = (
+        context.sconf.CheckHeader("dlfcn.h") and
+        context.sconf.CheckLib("dl", "dlsym")
+        )
+    if result:
+        context.env.Append(LIBS = ["dl"])
+    context.Result(result)
+    return result
