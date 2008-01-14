@@ -150,6 +150,7 @@ def examples(env,appendDir,buildDir,libDir):
     addExample('exnew_mouse_events', [ 'exnew_mouse_events.c' ])
     addExample('exnew_icon', [ 'exnew_icon.c' ])
     addExample('exnew_membmp', ['exnew_membmp.c'])
+    addExample('exnew_opengl', ['exnew_opengl.c'])
 
     Alias('examples', examples)
     return examples
