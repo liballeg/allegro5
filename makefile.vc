@@ -496,9 +496,10 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MSVC
 
 depend:
-	$(GCC) $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demos/shooter/*.c > _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c > _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c >> _depend.tmp
-	$(GCC) $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c demos/skater/source/*.c >> _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) demos/shooter/*.c demos/skater/source/*.c >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x c tests/*.cpp >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x assembler-with-cpp src/c/*.s src/i386/*.s src/misc/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
@@ -509,6 +510,12 @@ ifdef UNIX_TOOLS
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alleg_s\/\1\.obj:/" _depend2.tmp > obj/msvc/alleg_s/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alld_s\/\1\.obj:/" _depend2.tmp > obj/msvc/alld_s/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/allp_s\/\1\.obj:/" _depend2.tmp > obj/msvc/allp_s/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alleg_crt\/\1\.obj:/" _depend2.tmp > obj/msvc/alleg_crt/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alld_crt\/\1\.obj:/" _depend2.tmp > obj/msvc/alld_crt/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/allp_crt\/\1\.obj:/" _depend2.tmp > obj/msvc/allp_crt/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alleg_s_crt\/\1\.obj:/" _depend2.tmp > obj/msvc/alleg_s_crt/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alld_s_crt\/\1\.obj:/" _depend2.tmp > obj/msvc/alld_s_crt/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/allp_s_crt\/\1\.obj:/" _depend2.tmp > obj/msvc/allp_s_crt/makefile.dep
 	rm _depend.tmp _depend2.tmp
 else
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alleg\/\1\.obj:/" _depend2.tmp > obj\msvc\alleg\makefile.dep
@@ -517,6 +524,12 @@ else
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alleg_s\/\1\.obj:/" _depend2.tmp > obj\msvc\alleg_s\makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alld_s\/\1\.obj:/" _depend2.tmp > obj\msvc\alld_s\makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/allp_s\/\1\.obj:/" _depend2.tmp > obj\msvc\allp_s\makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alleg_crt\/\1\.obj:/" _depend2.tmp > obj\msvc\alleg_crt\makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alld_crt\/\1\.obj:/" _depend2.tmp > obj\msvc\alld_crt\makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/allp_crt\/\1\.obj:/" _depend2.tmp > obj\msvc\allp_crt\makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alleg_s_crt\/\1\.obj:/" _depend2.tmp > obj\msvc\alleg_s_crt\makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alld_s_crt\/\1\.obj:/" _depend2.tmp > obj\msvc\alld_s_crt\makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/allp_s_crt\/\1\.obj:/" _depend2.tmp > obj\msvc\allp_s_crt\makefile.dep
 	del _depend.tmp
 	del _depend2.tmp
 endif
