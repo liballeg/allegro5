@@ -34,10 +34,11 @@ sub grab_deps {
 			#  directory as the source file,
 			#  but thats only a problem in the assembly as of now.
 			if($file =~ /\.s$/ || $file =~ /\.inc$/) {
-				my ($volume,$dirs,$file) = File::Spec->splitpath( $gpath );
+				my ($volume,$dirs,$ofile) = File::Spec->splitpath( $gpath );
 				my $rpath = File::Spec->catfile($dirs, $file);
 				$deps{$rpath} = 1;
 
+				#print "grab: from:$gpath> $rpath\n";
 				grab_deps($rpath);
 			}
 			elsif(!exists $deps{$file} && $file =~ /asmdef/) {
