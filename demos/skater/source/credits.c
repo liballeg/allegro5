@@ -118,7 +118,7 @@ void load_text(void)
    f = pack_fopen(buf2, F_READ);
 
    if (!f) {
-      replace_filename(buf2, buf, "../readme.txt", sizeof(buf2));
+      replace_filename(buf2, buf, "../../readme.txt", sizeof(buf2));
       f = pack_fopen(buf2, F_READ);
 
       if (!f) {
@@ -270,7 +270,7 @@ void load_credits(void)
 
    /* parse thanks._tx */
    get_executable_name(buf, sizeof(buf));
-   replace_filename(buf2, buf, "../docs/src/thanks._tx", sizeof(buf2));
+   replace_filename(buf2, buf, "../../docs/src/thanks._tx", sizeof(buf2));
 
    f = pack_fopen(buf2, F_READ);
    if (!f) {
