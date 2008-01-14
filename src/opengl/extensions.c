@@ -155,9 +155,8 @@ static CFBundleRef opengl_bundle_ref;
  *
  *  \return The OpenGL ICD/MCD version number.
  */
-float allegro_gl_opengl_version()
+float allegro_gl_opengl_version(void)
 {
-
    const char *str;
 
    if (!__allegro_gl_valid_context)
@@ -198,9 +197,8 @@ float allegro_gl_opengl_version()
 
 
 /* Create the extension table */
-AGL_EXT *__allegro_gl_create_extensions()
+AGL_EXT *__allegro_gl_create_extensions(void)
 {
-
    AGL_EXT *ret = malloc(sizeof(AGL_EXT));
 
    if (!ret) {
@@ -217,9 +215,8 @@ AGL_EXT *__allegro_gl_create_extensions()
 /* Load the extension addresses into the table.
  * Should only be done on context creation.
  */
-void __allegro_gl_load_extensions(AGL_EXT * ext)
+void __allegro_gl_load_extensions(AGL_EXT *ext)
 {
-
 #ifdef ALLEGRO_MACOSX
    CFStringRef function;
 #endif
@@ -277,9 +274,8 @@ void __allegro_gl_load_extensions(AGL_EXT * ext)
 /* Set the GL API pointers to the current table 
  * Should only be called on context switches.
  */
-void __allegro_gl_set_extensions(AGL_EXT * ext)
+void __allegro_gl_set_extensions(AGL_EXT *ext)
 {
-
    if (!ext) {
       return;
    }
@@ -301,9 +297,8 @@ void __allegro_gl_set_extensions(AGL_EXT * ext)
 
 
 /* Destroys the extension table */
-void __allegro_gl_destroy_extensions(AGL_EXT * ext)
+void __allegro_gl_destroy_extensions(AGL_EXT *ext)
 {
-
    if (ext) {
       if (ext == agl_extension_table) {
          agl_extension_table = NULL;
@@ -320,7 +315,7 @@ void __allegro_gl_destroy_extensions(AGL_EXT * ext)
  */
 int
 __allegro_gl_look_for_an_extension(AL_CONST char *name,
-                                   AL_CONST GLubyte * extensions)
+                                   AL_CONST GLubyte *extensions)
 {
    AL_CONST GLubyte *start;
    GLubyte *where, *terminator;
@@ -524,7 +519,7 @@ void *al_get_opengl_proc_address(AL_CONST char *name)
 /* Fills in the AllegroGL info struct for blacklisting video cards.
  */
 static void
-__fill_in_info_struct(const GLubyte * rendereru,
+__fill_in_info_struct(const GLubyte *rendereru,
                       struct allegro_gl_info *info)
 {
    const char *renderer = (const char *)rendereru;
@@ -744,7 +739,7 @@ void __allegro_gl_print_extensions(AL_CONST char *extension)
 
 
 
-void __allegro_gl_unmanage_extensions()
+void __allegro_gl_unmanage_extensions(void)
 {
    __allegro_gl_destroy_extensions(agl_extension_table);
 #ifdef ALLEGRO_MACOSX
