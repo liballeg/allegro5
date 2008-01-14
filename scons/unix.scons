@@ -491,6 +491,13 @@ def install(library):
     for i in getModules():
         add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()),i)
     add('bin', 'allegro5-config')
+    
+    # Try to run ldconfig after installing everything, so add it as a dependency
+    # depending on everything else.
+    ldconfig = env.Command(None, ret, "ldconfig")
+    env.Depends(ldconfig, ret)
+    ret.append(ldconfig)
+
     return ret
 
 context.setInstaller(install)
