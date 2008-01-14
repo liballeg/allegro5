@@ -1,7 +1,8 @@
 #! /bin/sh
 
 # Generate dependencies and rules for multifile binaries like the
-# makedoc program. Usage is 'script binary_target sourcefiles'
+# makedoc program and demo games.
+# Usage is 'script binary_target sourcefiles'
 
 first=$1
 depend=
@@ -15,8 +16,7 @@ if test -n "$first"; then
 	    ext=`echo $file | sed 's,^.*\.,,'`
             if test "$first" = "demos/skater/skater"; then
                echo "\$(OBJDIR)/skater/$name\$(OBJ): $file"
-               echo "	\$(COMPILE_PROGRAM) -Iaddons/allegrogl/include \
--DDEMO_WITH_ALLEGRO_GL -c $file -o \$(OBJDIR)/skater/$name\$(OBJ)"
+               echo "	\$(COMPILE_PROGRAM) -c $file -o \$(OBJDIR)/skater/$name\$(OBJ)"
                depend="$depend \$(OBJDIR)/skater/$name\$(OBJ)"
             elif test "$first" = "demos/skater/skater_agl"; then
                echo "\$(OBJDIR)/skater_agl/$name\$(OBJ): $file"
@@ -50,7 +50,7 @@ if test -n "$first"; then
       elif test "$first" = "demos/skater/skater"; then
          echo "	\$(LINK) -o $first $depend \$(LINK_LIBALLEG) \$(LIBS)"
       elif test "$first" = "demos/skater/skater_agl"; then
-         echo "	\$(LINK) -o $first $depend -Laddons/allegrogl/lib/unix/ -lagl -lGL -lGLU \$(LINK_LIBALLEG) \$(LIBS)"
+         echo "	\$(LINK) -o $first $depend \$(ALLEGRO_GL_LFLAGS) \$(LINK_LIBALLEG) \$(LIBS)"
       else
          echo "	\$(LINK) -o $first $depend"
       fi
