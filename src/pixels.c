@@ -601,7 +601,7 @@ int _get_pixel_value_abgr_8888(ALLEGRO_COLOR *p)
 
 int _get_pixel_value_xbgr_8888(ALLEGRO_COLOR *p)
 {
-   uint32_t pixel = 0;
+   uint32_t pixel = 0xff000000;
    pixel |= (int)(p->b * 0xff) << 16;
    pixel |= (int)(p->g * 0xff) << 8;
    pixel |= (int)(p->b * 0xff);
@@ -637,7 +637,7 @@ int _get_pixel_value_bgr_555(ALLEGRO_COLOR *p)
    
 int _get_pixel_value_rgbx_8888(ALLEGRO_COLOR *p)
 {
-   uint32_t pixel = 0;
+   uint32_t pixel = 0xff;
    pixel |= (int)(p->r * 0xff) << 24;
    pixel |= (int)(p->g * 0xff) << 16;
    pixel |= (int)(p->b * 0xff) << 8;
@@ -646,7 +646,7 @@ int _get_pixel_value_rgbx_8888(ALLEGRO_COLOR *p)
 
 int _get_pixel_value_xrgb_8888(ALLEGRO_COLOR *p)
 {
-   uint32_t pixel = 0;
+   uint32_t pixel = 0xff000000;
    pixel |= (int)(p->r * 0xff) << 16;
    pixel |= (int)(p->g * 0xff) << 8;
    pixel |= (int)(p->b * 0xff);
