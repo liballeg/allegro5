@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_opengl.h>
 
@@ -64,7 +65,7 @@ void draw_opengl(void)
       }
    }
 
-  /* Draw a yellow triangle on red background to the framebuffer objcet. */
+  /* Draw a yellow triangle on red background to the framebuffer object. */
    if (fbo && !no_fbo)
    {
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
