@@ -130,6 +130,7 @@ enum ALLEGRO_PIXEL_FORMAT {
  */
 #define ALLEGRO_MEMORY_BITMAP      0x0001
 #define ALLEGRO_KEEP_BITMAP_FORMAT 0x0002
+#define ALLEGRO_FORCE_LOCKING      0x0004
 
 
 /* Flags for the blitting functions */

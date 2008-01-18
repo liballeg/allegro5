@@ -434,7 +434,12 @@ void al_set_new_bitmap_format(int format)
  * instead and the display driver will determine the format.
  *
  * ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files,
- * forces the resulting ALLEGRO_BITMAP to use the same format as the file. 
+ * forces the resulting ALLEGRO_BITMAP to use the same format as the file.
+ *
+ * ALLEGRO_FORCE_LOCKING - When drawing to a bitmap with this flag set, always
+ * use pixel locking and draw to it using Allegro's software drawing primitives.
+ * This should never be used as it may cause severe performance penalties, but
+ * can be useful for debugging.
  */
 void al_set_new_bitmap_flags(int flags)
 {
