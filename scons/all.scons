@@ -151,6 +151,7 @@ def examples(env,appendDir,buildDir,libDir):
     addExample('exnew_icon', [ 'exnew_icon.c' ])
     addExample('exnew_membmp', ['exnew_membmp.c'])
     addExample('exnew_opengl', ['exnew_opengl.c'])
+    addExample('exnew_bitmap_target', ['exnew_bitmap_target.c'])
 
     Alias('examples', examples)
     return examples
