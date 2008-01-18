@@ -713,16 +713,11 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
       y2 = tmp;
    }
 
-   w = x2 - x1 + 1;
-   h = y2 - y1 + 1;
-
    /* Do clipping */
    if (x1 < bitmap->cl) {
-      w -= (bitmap->cl - x1);
       x1 = bitmap->cl;
    }
    if (y1 < bitmap->ct) {
-      h -= (bitmap->ct - y1);
       y1 = bitmap->ct;
    }
    if (x2 > bitmap->cr) {
@@ -731,6 +726,9 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
    if (y2 > bitmap->cb) {
       y2 = bitmap->cb;
    }
+
+   w = x2 - x1 + 1;
+   h = y2 - y1 + 1;
 
    if (w <= 0 || h <= 0)
       return;
