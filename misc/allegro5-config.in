@@ -1,13 +1,13 @@
 #!/bin/sh
 #
-#  Note: allegro-config is generated from allegro-config.in, by autoconf.
-#  It's also generated from allegro-config.in by CMake.  Do not use $ {brace}
+#  Note: allegro5-config is generated from allegro5-config.in, by autoconf.
+#  It's also generated from allegro5-config.in by CMake.  Do not use $ {brace}
 #  syntax in this file as CMake will expand them.
 #
 #  This script returns suitable commandline options for compiling programs
 #  using the Allegro library, for example:
 #
-#     gcc myprog.c -o myprog `allegro-config --libs`
+#     gcc myprog.c -o myprog `allegro5-config --libs`
 #
 #  This is heavily based on a similar script from GTK.
 
@@ -36,7 +36,7 @@ usage()
 {
    cat <<EOF
 
-Usage: allegro-config [OPTIONS] [LIBRARIES]
+Usage: allegro5-config [OPTIONS] [LIBRARIES]
 
 Options:
 	--prefix[=DIR]
