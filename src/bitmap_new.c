@@ -297,7 +297,7 @@ void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
  * sh - source height (height of region to blit)
  * dx - destination x
  * dy - destination y
- * flags - same as for al_draw_bitmap
+ * flags - same as for <al_draw_bitmap>
  */
 void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 	float sw, float sh, float dx, float dy, int flags)
@@ -333,9 +333,11 @@ void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
  * sy - source y
  * sw - source width
  * sh - source height
- * dx - destination width
- * dy - destination height
- * flags - same as for al_draw_bitmap
+ * dx - destination x
+ * dy - destination y
+ * dw - destination width
+ * dh - destination height
+ * flags - same as for <al_draw_bitmap>
  */
 void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 	float sw, float sh, float dx, float dy, float dw, float dh, int flags)
@@ -360,8 +362,16 @@ void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
  *
  * Draws a rotated version of the given bitmap to the target bitmap.
  * The bitmap is rotated by 'angle' radians counter clockwise.
- * The point center_x, center_y will be drawn at dx, dy with the bitmap rotated
- * around that point.
+ *
+ * The point at cx/cy inside the bitmap will be drawn at dx/dy and the
+ * bitmap is rotated around this point.
+ *
+ * cx - center x
+ * cy - center y
+ * dx - destination x
+ * dy - destination y
+ * angle - angle by which to rotate
+ * flags - same as for <al_draw_bitmap>
  */
 void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 	float dx, float dy, float angle, int flags)
@@ -385,10 +395,19 @@ void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 /* Function: al_draw_rotated_scaled_bitmap
  *
  * Like al_draw_rotated_bitmap, but can also scale the bitmap.
- * center_x and center_y are in source bitmap coordinates.
  *
+ * The point at cx/cy in the bitmap will be drawn at dx/dy and the bitmap is
+ * rotated and scaled around this point.
+ *
+ * cx - center x
+ * cy - center y
+ * dx - destination x
+ * dy - destination y
  * xscale - how much to scale on the x-axis (e.g. 2 for twice the size)
  * yscale - how much to scale on the y-axis
+ * angle - angle by which to rotate
+ * flags - same as for <al_draw_bitmap>
+ *
  */
 void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 	float dx, float dy, float xscale, float yscale, float angle,
