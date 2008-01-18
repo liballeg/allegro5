@@ -1,3 +1,10 @@
+Changes from 0.4.3 to 0.4.4
+-------------------------------
+* Milan Mimica
+ - [Allegro driver] Implemented draw_sprite_ex().
+ - [Build] Merged the build system to Allegro.
+
+
 Changes from 0.4.2 to 0.4.3
 -------------------------------
 

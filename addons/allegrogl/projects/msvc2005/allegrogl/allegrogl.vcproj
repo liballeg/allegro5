@@ -318,7 +318,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="alleg.lib opengl32.lib glu32.lib user32.lib gdi32.lib"
 				OutputFile="$(OutDir)agl.dll"
-				Version="0.4.3"
+				Version="0.4.4"
 				GenerateDebugInformation="false"
 				LinkTimeCodeGeneration="1"
 			/>

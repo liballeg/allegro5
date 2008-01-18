@@ -92,8 +92,8 @@ typedef __int64 INT64;
   * \{ */
 #define AGL_VERSION     0            ///< Major version number
 #define AGL_SUB_VERSION 4            ///< Minor version number
-#define AGL_WIP_VERSION 3            ///< Work-In-Progress version number
-#define AGL_VERSION_STR "0.4.3"      ///< Version description string
+#define AGL_WIP_VERSION 4            ///< Work-In-Progress version number
+#define AGL_VERSION_STR "0.4.4"      ///< Version description string
 /** \} */
 /** \} */
 

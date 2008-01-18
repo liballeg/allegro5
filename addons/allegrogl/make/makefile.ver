@@ -1,4 +1,4 @@
 # Shared library versions for Unix
-shared_version = 0.4.3
+shared_version = 0.4.4
 shared_major_minor = 0.4
 shared_major = 0

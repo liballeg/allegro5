@@ -1,4 +1,4 @@
-AllegroGL - 0.4.3
+AllegroGL - 0.4.4
 =================
 
 README file
@@ -38,7 +38,7 @@ mailing list.
 General build instructions
 --------------------------
 
-From version 0.4.3 onwards, AllegroGL is an addon library for Allegro and the
+From version 0.4.4 onwards, AllegroGL is an addon library for Allegro and the
 usual way to build it is by following the allegro compilation procedure. It
 will configure, build and install AllegroGL using default options (a shared
 release library).
