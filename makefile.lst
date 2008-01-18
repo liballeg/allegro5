@@ -458,20 +458,19 @@ ALLEGRO_SKATER_SOURCES = \
 	demos/skater/source/backscrl.c \
 	demos/skater/source/credits.c \
 	demos/skater/source/dblbuf.c \
-	demos/skater/source/skater.c \
 	demos/skater/source/fps.c \
 	demos/skater/source/framewk.c \
 	demos/skater/source/game_sk.c \
 	demos/skater/source/gamepad.c \
 	demos/skater/source/global.c \
 	demos/skater/source/intro.c \
-	demos/skater/source/keyborad.c \
+	demos/skater/source/kbd_sk.c \
 	demos/skater/source/level.c \
 	demos/skater/source/lvlalloc.c \
 	demos/skater/source/lvlfile.c \
 	demos/skater/source/lvlstate.c \
-	demos/skater/source/menuabt.c \
 	demos/skater/source/menu.c \
+	demos/skater/source/menuabt.c \
 	demos/skater/source/menuctl.c \
 	demos/skater/source/menugfx.c \
 	demos/skater/source/menumain.c \
@@ -485,6 +484,7 @@ ALLEGRO_SKATER_SOURCES = \
 	demos/skater/source/physics.c \
 	demos/skater/source/quadtree.c \
 	demos/skater/source/scrshot.c \
+	demos/skater/source/skater.c \
 	demos/skater/source/token.c \
 	demos/skater/source/transitn.c \
 	demos/skater/source/tribuf.c \
