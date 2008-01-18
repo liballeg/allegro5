@@ -27,23 +27,16 @@ static void set_opengl_blending(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 /* Dummy implementation of clear. */
 static void clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_XGLX *xglx_target = (ALLEGRO_BITMAP_XGLX *)target;
-   if (!xglx_target->is_backbuffer) {
-      _al_draw_rectangle_memory(0, 0, target->w, target->h, color, ALLEGRO_FILLED);
+   if (!xglx_target->is_backbuffer && glx->opengl_target != xglx_target) {
+      _al_clear_memory(color);
+      return;
    }
 
    unsigned char r, g, b, a;
    al_unmap_rgba(color, &r, &g, &b, &a);
-
-   // FIXME: hack
-   // FIXME: need format conversion if they don't match
-   // FIXME: won't work that way if it is scaled or rotated
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)al_get_current_display();
-   if (glx->temporary_hack) {
-      _al_clear_memory(color);
-      return;
-   }
 
    glClearColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
    glClear(GL_COLOR_BUFFER_BIT);
@@ -53,9 +46,10 @@ static void clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 static void draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
    ALLEGRO_COLOR *color)
 {
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_XGLX *xglx_target = (ALLEGRO_BITMAP_XGLX *)target;
-   if (!xglx_target->is_backbuffer) {
+   if (!xglx_target->is_backbuffer && glx->opengl_target != xglx_target) {
       _al_draw_line_memory(fx, fy, tx, ty, color);
    }
 
@@ -70,10 +64,12 @@ static void draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty
 static void draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    float brx, float bry, ALLEGRO_COLOR *color, int flags)
 {
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_XGLX *xglx_target = (ALLEGRO_BITMAP_XGLX *)target;
-   if (!xglx_target->is_backbuffer) {
+   if (!xglx_target->is_backbuffer && glx->opengl_target != xglx_target) {
       _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
+      return;
    }
 
    set_opengl_blending(d, color);

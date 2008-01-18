@@ -13,11 +13,13 @@ extern void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
 
 
 static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
-    float cx, float cy, float dx, float dy, float dw, float dh, float angle,
-    int flags)
+    float cx, float cy, float dx, float dy, float dw, float dh,
+    float xscale, float yscale, float angle, int flags)
 {
    float l, t, r, b, w, h;
    ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP_XGLX *xglx_target = (ALLEGRO_BITMAP_XGLX *)target;
    GLboolean on;
    ALLEGRO_COLOR *bc;
    int src_mode, dst_mode;
@@ -29,7 +31,7 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
    // FIXME: need format conversion if they don't match
    // FIXME: won't work that way if it is scaled or rotated
    ALLEGRO_DISPLAY_XGLX *glx = (void *)al_get_current_display();
-   if (glx->temporary_hack) {
+   if (glx->opengl_target != xglx_target) {
       _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;
    }
@@ -61,6 +63,7 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
    glPushMatrix();
    glTranslatef(dx, dy, 0);
    glRotatef(angle * 180 / AL_PI, 0, 0, -1);
+   glScalef(xscale, yscale, 1);
    glTranslatef(-dx - cx, -dy - cy, 0);
 
    glBegin(GL_QUADS);
@@ -84,26 +87,26 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
 static void draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y, int flags)
 {
    quad(bitmap, 0, 0, bitmap->w, bitmap->h,
-      0, 0, x, y, bitmap->w, bitmap->h, 0, flags);
+      0, 0, x, y, bitmap->w, bitmap->h, 1, 1, 0, flags);
 }
 
 static void draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
-   quad(bitmap, 0, 0, sw, sh, 0, 0, dx, dy, dw, dh, 0, flags);
+   quad(bitmap, 0, 0, sw, sh, 0, 0, dx, dy, dw, dh, 1, 1, 0, flags);
 }
 
 static void draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, int flags)
 {
-   quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, sw, sh, 0, flags);
+   quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, sw, sh, 1, 1, 0, flags);
 }
 
 static void draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    float dx, float dy, float angle, int flags)
 {
    quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy,
-      dx, dy, bitmap->w, bitmap->h, angle, flags);
+      dx, dy, bitmap->w, bitmap->h, 1, 1, angle, flags);
 }
 
 static void draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
@@ -111,7 +114,7 @@ static void draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float c
 	float flags)
 {
    quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy, dx, dy,
-      bitmap->w * xscale, bitmap->h * yscale, angle, flags);
+      bitmap->w, bitmap->h, xscale, yscale, angle, flags);
 }
 
 /* Helper to get smallest fitting power of two. */
@@ -201,11 +204,25 @@ static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
    xbitmap->top = 0;
    xbitmap->bottom = 1;
 
-   // FIXME: TODO
-   //if (xbitmap->fbo == 0) {
-   //   glGenFramebuffersEXT(1, &xbitmap->fbo);
-   //   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, xbitmap->fbo);
-   //}
+   /* We try to create a frame buffer object for each bitmap we upload to
+    * OpenGL.
+    * TODO: Probably it's better to just create it on demand, i.e. the first
+    * time drawing to it.
+    */
+   if (xbitmap->fbo == 0 && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
+      if (allegro_gl_extensions.ALLEGRO_GL_EXT_framebuffer_object) {
+         glGenFramebuffersEXT(1, &xbitmap->fbo);
+         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, xbitmap->fbo);
+         /* Attach it to the texture. */
+         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+            GL_TEXTURE_2D, xbitmap->texture, 0);
+         if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
+            GL_FRAMEBUFFER_COMPLETE_EXT) {
+            // FIXME: handle this somehow!
+         }
+         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+      }
+   }
 
    return 1;
 }
@@ -304,6 +321,10 @@ static void xglx_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    if (xbitmap->texture) {
       glDeleteTextures(1, &xbitmap->texture);
       xbitmap->texture = 0;
+   }
+   if (xbitmap->fbo) {
+      glDeleteFramebuffersEXT(1, &xbitmap->fbo);
+      xbitmap->fbo = 0;
    }
 }
 

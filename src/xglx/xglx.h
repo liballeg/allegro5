@@ -51,8 +51,6 @@ struct ALLEGRO_BITMAP_XGLX
    /* Driver specifics. */
    
    GLuint texture; /* 0 means, not uploaded yet. */
-
-   // TODO!
    GLuint fbo; /* 0 means, no fbo yet. */
 
    float left, top, right, bottom; /* Texture coordinates. */
@@ -70,10 +68,7 @@ struct ALLEGRO_DISPLAY_XGLX
 
    ALLEGRO_BITMAP *backbuffer;
 
-   // Once we have a better idea what to do when calling al_set_target_bitmap
-   // on an offscreen bitmap and the OpenGL driver fails to create an FBO,
-   // this has to go.
-   ALLEGRO_BITMAP_XGLX *temporary_hack;
+   ALLEGRO_BITMAP_XGLX *opengl_target;
 
    Window window;
    int xscreen; /* TODO: what is this? something with multi-monitor? */

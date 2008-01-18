@@ -385,10 +385,11 @@ ALLEGRO_BITMAP *_al_xglx_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    /* FIXME: do this right */
    if (! _al_pixel_format_is_real(format)) {
-      if (_al_format_has_alpha(format))
-         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-      else
-         format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
+      format = d->format;
+      //if (_al_format_has_alpha(format))
+      //   format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+      //else
+      //   format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
    }
 
    ALLEGRO_BITMAP_XGLX *bitmap = _AL_MALLOC(sizeof *bitmap);
@@ -421,32 +422,64 @@ static void set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
    int x_1, y_1, x_2, y_2;
 
-   //FIXME: change to offscreen targets and so on
    if (!xbitmap->is_backbuffer) {
-      glx->temporary_hack = xbitmap;
+      if (xbitmap->fbo) {
+         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, xbitmap->fbo);
+         glx->opengl_target = xbitmap;
+         glViewport(0, 0, bitmap->w, bitmap->h);
+
+         glMatrixMode(GL_PROJECTION);
+         glLoadIdentity();
+         /* Allegro's bitmaps start at the top left pixel. OpenGL's bitmaps
+          * at the bottom left. Therefore, Allegro's OpenGL drawing commands
+          * all appear upside-down to OpenGL. To counter this when drawing to
+          * a texture, we can actually use regular projection now, so we draw
+          * upside down into it, and it appears right again when the texture
+          * is drawn (upside-down) to the screen.
+          * TODO: Verify this a bit more.. is there really no better way?
+          */
+         glOrtho(0, bitmap->w, 0, bitmap->h, -1, 1);
+
+         glMatrixMode(GL_MODELVIEW);
+         glLoadIdentity();
+      }
    }
    else {
-      glx->temporary_hack = NULL;
-   }
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+      glx->opengl_target = xbitmap;
 
-   if (glx->temporary_hack == NULL &&
-      bitmap->cl == 0 && bitmap->cr == bitmap->w - 1 &&
-      bitmap->ct == 0 && bitmap->cb == bitmap->h - 1) {
-      glDisable(GL_SCISSOR_TEST);
-   }
-   else {
-      glEnable(GL_SCISSOR_TEST);
+      glViewport(0, 0, display->w, display->h);
 
-      x_1 = bitmap->cl;
-      y_1 = bitmap->ct;
-      /* In OpenGL, coordinates are the top-left corner of pixels, so we need to
-       * add one to the right and bottom edge.
+      glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+      /* We use upside down coordinates compared to OpenGL, so the bottommost
+       * coordinate is display->h not 0.
        */
-      x_2 = bitmap->cr + 1;
-      y_2 = bitmap->cb + 1;
+      glOrtho(0, display->w, display->h, 0, -1, 1);
 
-      /* OpenGL is upside down, so must adjust y_2 to the height. */
-      glScissor(x_1, bitmap->h - y_2, x_2 - x_1, y_2 - y_1);
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
+   }
+
+   if (glx->opengl_target == xbitmap) {
+      if (bitmap->cl == 0 && bitmap->cr == bitmap->w - 1 &&
+         bitmap->ct == 0 && bitmap->cb == bitmap->h - 1) {
+         glDisable(GL_SCISSOR_TEST);
+      }
+      else {
+         glEnable(GL_SCISSOR_TEST);
+
+         x_1 = bitmap->cl;
+         y_1 = bitmap->ct;
+         /* In OpenGL, coordinates are the top-left corner of pixels, so we need to
+          * add one to the right and bottom edge.
+          */
+         x_2 = bitmap->cr + 1;
+         y_2 = bitmap->cb + 1;
+
+         /* OpenGL is upside down, so must adjust y_2 to the height. */
+         glScissor(x_1, bitmap->h - y_2, x_2 - x_1, y_2 - y_1);
+      }
    }
 }
 
