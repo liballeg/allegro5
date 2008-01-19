@@ -44,11 +44,11 @@ static void print(int x, int y, bool vertical, char const *format, ...)
             char c[10] = "";
             int u = ugetat(message, i);
             usetat(c, 0, u);
-            a5font_textout(ex.myfont, c, x + 2, y + 2 + h * i);
+            a5font_textout(ex.myfont, c, x + 1 - j, y + 1 - j + h * i);
          }
       }
       else
-         a5font_textout(ex.myfont, message, x + 2, y + 2);
+         a5font_textout(ex.myfont, message, x + 1 - j, y + 1 - j);
    }
 }
 
@@ -209,7 +209,7 @@ static void run(void)
                if (button == 4) ex.image = 2;
                if (button == 5) ex.image = 3;
                if (button == 6) ex.image = 4;
-               if (button == 7) ex.image = 6;
+               if (button == 7) ex.image = 5;
 
                if (button == 10) ex.mode = 0;
 
@@ -230,6 +230,7 @@ static void run(void)
    }
 }
 
+/* Initialize the example. */
 static void init(void)
 {
    ex.BUTTONS_X = 40 + 110 * 4;
