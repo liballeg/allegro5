@@ -4,6 +4,8 @@
     __linear_vtable32 DATA
     __linear_vtable8 DATA
     _acos_tbl DATA
+    _allegro_hline
+    _allegro_vline
     _cos_tbl DATA
     _current_palette DATA
     _default_ds
@@ -14,6 +16,7 @@
     _getpixel24
     _getpixel32
     _gfx_driver_list DATA
+    _install_allegro_version_check
     _joystick_driver_list DATA
     _keyboard_driver_list DATA
     _midi_driver_list DATA
@@ -77,6 +80,7 @@
     add_clip_rect
     adjust_sample
     al_assert
+    al_ffblk_get_size
     al_findclose
     al_findfirst
     al_findnext
@@ -132,6 +136,7 @@
     create_bitmap_ex
     create_blender_table
     create_color_table
+    create_datafile_index
     create_light_table
     create_lzss_pack_data
     create_lzss_unpack_data
@@ -172,6 +177,7 @@
     desktop_palette DATA
     destroy_bitmap
     destroy_compiled_sprite
+    destroy_datafile_index
     destroy_font
     destroy_gfx_mode_list
     destroy_midi
@@ -205,6 +211,7 @@
     draw_lit_sprite
     draw_rle_sprite
     draw_sprite
+    draw_sprite_ex
     draw_sprite_h_flip
     draw_sprite_v_flip
     draw_sprite_vh_flip
@@ -230,6 +237,7 @@
     file_select
     file_select_ex
     file_size
+    file_size_ex
     file_time
     find_allegro_resource
     find_datafile_object
@@ -266,9 +274,11 @@
     floodfill
     flush_config_file
     font DATA
+    font_has_alpha
     for_each_file
     for_each_file_ex
     free_audio_stream_buffer
+    free_config_entries
     free_lzss_pack_data
     free_lzss_unpack_data
     freeze_mouse_flag DATA
@@ -298,11 +308,14 @@
     get_display_switch_mode
     get_executable_name
     get_extension
+    get_file_encoding
     get_filename
+    get_filename_encoding
     get_font_range_begin
     get_font_range_end
     get_font_ranges
     get_gfx_mode_list
+    get_hardware_volume
     get_midi_length
     get_mixer_bits
     get_mixer_buffer_length
@@ -332,6 +345,7 @@
     get_vector_rotation_matrix
     get_vector_rotation_matrix_f
     get_vector_rotation_quat
+    get_volume
     get_x_rotate_matrix
     get_x_rotate_matrix_f
     get_x_rotate_quat
@@ -394,7 +408,6 @@
     gui_text_list_proc DATA
     gui_textout
     gui_textout_ex
-    _allegro_hline
     hook_config_section
     hsv_to_rgb
     identity_matrix DATA
@@ -427,6 +440,7 @@
     is_screen_bitmap
     is_sub_bitmap
     is_system_bitmap
+    is_trans_font
     is_video_bitmap
     is_windowed_mode
     itofix
@@ -443,6 +457,8 @@
     keyboard_ucallback DATA
     keypressed
     line
+    list_config_entries
+    list_config_sections
     load_bios_font
     load_bitmap
     load_bitmap_font
@@ -452,6 +468,7 @@
     load_datafile
     load_datafile_callback
     load_datafile_object
+    load_datafile_object_indexed
     load_font
     load_grx_font
     load_grx_or_bios_font
@@ -476,6 +493,7 @@
     lzss_write
     make_absolute_filename
     make_relative_filename
+    make_trans_font
     makeacol
     makeacol32
     makeacol_depth
@@ -517,6 +535,7 @@
     mouse_needs_poll
     mouse_pos DATA
     mouse_sprite DATA
+    mouse_w DATA
     mouse_x DATA
     mouse_x_focus DATA
     mouse_y DATA
@@ -589,6 +608,7 @@
     popup_dialog
     position_dialog
     position_mouse
+    position_mouse_w
     position_mouse_z
     push_config_state
     put_backslash
@@ -693,6 +713,8 @@
     set_display_switch_mode
     set_dissolve_blender
     set_dodge_blender
+    set_file_encoding
+    set_filename_encoding
     set_gfx_mode
     set_hardware_volume
     set_hue_blender
@@ -823,7 +845,6 @@
     uwidth_max
     vector_length
     vector_length_f
-    _allegro_vline
     voice_check
     voice_get_frequency
     voice_get_pan
@@ -879,23 +900,28 @@
     win_set_wnd_create_proc
     _add_edge
     _add_exit_func
+    _al_detect_filename_encoding
     _al_drive_exists
     _al_file_isok
     _al_file_size
+    _al_file_size_ex
     _al_file_time
     _al_free
     _al_getdcwd
     _al_getdrive
     _al_linker_midi DATA
     _al_linker_mouse DATA
+    _al_lzss_incomplete_state
     _al_malloc
     _al_rand
     _al_realloc
     _al_sane_realloc
     _al_sane_strncpy
     _al_srand
+    _al_trace_handler DATA
     _allegro_count DATA
     _allegro_in_exit DATA
+    _bitmap_has_alpha
     _blender_add15
     _blender_add16
     _blender_add24
@@ -1015,6 +1041,7 @@
     _fixup_loaded_bitmap
     _font_vtable_color DATA
     _font_vtable_mono DATA
+    _font_vtable_trans DATA
     _get_colorconv_blitter
     _get_colorconv_map
     _get_scanline_filler
@@ -1086,6 +1113,10 @@
     _linear_draw_sprite24
     _linear_draw_sprite32
     _linear_draw_sprite8
+    _linear_draw_sprite_ex16
+    _linear_draw_sprite_ex24
+    _linear_draw_sprite_ex32
+    _linear_draw_sprite_ex8
     _linear_draw_sprite_h_flip16
     _linear_draw_sprite_h_flip24
     _linear_draw_sprite_h_flip32
@@ -1174,6 +1205,7 @@
     _mouse_pointer DATA
     _mouse_screen DATA
     _mouse_type DATA
+    _mouse_w DATA
     _mouse_x DATA
     _mouse_y DATA
     _mouse_z DATA
@@ -1375,28 +1407,4 @@
     _zbuffer DATA
     font_vtable_color DATA
     font_vtable_mono DATA
-    _al_file_size_ex
-    _bitmap_has_alpha
-    _font_vtable_trans DATA
-    _install_allegro_version_check
-    al_ffblk_get_size
-    create_datafile_index
-    destroy_datafile_index
-    file_size_ex
     font_vtable_trans DATA
-    free_config_entries
-    get_file_encoding
-    get_hardware_volume
-    get_volume
-    list_config_entries
-    list_config_sections
-    load_datafile_object_indexed
-    make_trans_font
-    set_file_encoding
-    _al_lzss_incomplete_state
-    _al_trace_handler DATA
-    _mouse_w DATA
-    font_has_alpha
-    is_trans_font
-    mouse_w DATA
-    position_mouse_w
