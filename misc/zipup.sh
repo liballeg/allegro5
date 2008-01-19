@@ -220,12 +220,12 @@ find . -type f "(" -path "*/.*" -prune -o -iname "*.rej" \
 # from now on, the scripts runs inside .dist
 cd .dist
 
-# make .zip file
-zip -9  -r $name.zip allegro
-
-# make .7z file if 7za is available
+# if 7za is available, use that to produce both .zip and .7z files
 if 7za > /dev/null ; then
+   7za a -mx9 $name.zip allegro
    7za a -mx9 -ms=on $name.7z allegro
+else
+   zip -9  -r $name.zip allegro
 fi
 
 
