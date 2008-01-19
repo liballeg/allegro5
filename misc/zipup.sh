@@ -172,6 +172,11 @@ done
 rm _makedoc.exe
 
 
+# generate configure script for AllegroGL addon
+echo "Generating AllegroGL configure script..."
+(cd addons/allegrogl/docs; autoconf)
+
+
 # generate docs for AllegroGL addon
 echo "Generating AllegroGL docs..."
 (cd addons/allegrogl/docs; doxygen >/dev/null)
@@ -294,5 +299,5 @@ fi
 
 echo "Done!"
 echo "Please note that your files are now in DOS format, so you might want"
-echo "to run \"fix.sh unix\" now."
+echo "to run \"fix.sh unix --dtou\" now."
 
