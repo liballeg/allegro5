@@ -8,6 +8,47 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.2.2 to 4.3.10 (January 2008)
+<ul><li>
+   Milan Mimica integrated the following addons into the Allegro build
+   system: AllegroGL, loadpng, JPGalleg, logg.  Not all addons currently
+   build on all platforms, but Unix and MinGW are supported by all.
+<li>
+   Milan Mimica disabled support for asm mode on all platforms.
+   This was previously the default for non-x86 architectures.
+<li>
+   Jon Rafkind and Milan Mimica implemented draw_sprite_ex() function and
+   added an extrans2 example.
+<li>
+   Milan Mimica integrated the "skater" demo game and renamed the classic
+   demo to "shooter".
+<li>
+   AJ added detection for SSE3, SSE4.1 and SSE4.2
+<li>
+   Matthew Leverton fixed a problem with filename encoding and the
+   SYSTEM_NONE driver on Windows.
+<li>
+   8L45T3R fixed a bug in arc() function, where small arcs would be drawn as
+   circles.
+<li>
+   David A. Capello fixed a problem on Windows where the NumLock, ScrollLock
+   and CapsLock flags are not registered in the key_shifts flag until at least
+   one key is pressed.
+<li>
+   Christer Sandberg fixed a memory leak where datedit_exit would not free
+   datafile properties. (bug #1808894)
+<li>
+   Robert Riebisch fixed warnings from gcc 4.x about unnecessary 'packed'
+   attributes being ignored on some data structures in the VESA and VBE/AF
+   drivers. (bug #1729552)
+<li>
+   Matthew Leverton renamed MID() to CLAMP() and introduced a new MID() that
+   returns the median of x,y,z for all cases.
+<li>
+   Various minor improvements.
+</ul>
+
+@heading
 Changes from 4.2.2 RC1 to 4.2.2 (July 2007)
 <ul><li>
    Matthew Leverton added build instructions for DMC and updated the MSVC

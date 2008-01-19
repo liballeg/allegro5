@@ -206,7 +206,7 @@ Contributors
    Made dat2c work better with ISO C90 compilers, made dat2c correctly detect
    the native line ending, fixed a problem with the include guard generated
    by dat2c, fixed a bug in the 24-bit graphics code of fixup_datafile(),
-   fixed a problem with Electric Fence.
+   fixed a memory leak with datedit_exit, fixed a problem with Electric Fence.
 
    Christian Schueler (<email>cschueler@gmx.de</a>).<br>
    Changed the optimisation settings for better performance.
@@ -918,6 +918,9 @@ Contributors
    convertor and made some of them more robust, fixed the docs for
    pivot_scaled_sprite_v_flip(), revamped the retrieval mechanism of CPU
    capabilities, separated the CSS file and did plenty of other things too.
+
+   Robert Riebisch.<br>
+   Fixed some warnings from gcc 4.x on VESA and VBE/AF drivers.
 
    Roberto Alfonso (<email>rpgrca@labint.frba.utn.edu.ar</a>).<br>
    Fixed a couple of memory problems in the dat2c utility, added an
