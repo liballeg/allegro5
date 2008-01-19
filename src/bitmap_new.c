@@ -499,10 +499,14 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
  * unlocked.
  *
  * Flags are:
- * > ALLEGRO_LOCK_READONLY - The locked region will not be written to.
- * >                         This can be faster if the bitmap is a video
- * >                         texture, as it can be discarded after the lock
- * >                         instead of uploaded back to the card. 
+ * ALLEGRO_LOCK_READONLY - The locked region will not be written to. This can
+ *    be faster if the bitmap is a video texture, as it can be discarded after
+ *    the lock instead of uploaded back to the card.
+ * ALLEGRO_LOCK_WRITEONLY - The locked region will not be read from. This can
+ *    be faster if the bitmap is a video texture, as no data need to be read
+ *    from the video card. You are required to fill in all pixels before
+ *    unlocking the bitmap again, so be careful when using this flag.
+ * 
  */
 ALLEGRO_LOCKED_REGION *al_lock_bitmap(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_LOCKED_REGION *locked_region,
