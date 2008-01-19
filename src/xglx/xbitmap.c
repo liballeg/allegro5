@@ -129,18 +129,18 @@ static int pot(int x)
 
 static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
 {
-    int pixelsize = al_get_pixel_size(bitmap->format);
-    int pitch = pixelsize * bitmap->w;
-    int bytes = w * pixelsize;
-    int i;
-    unsigned char temp[pitch];
-    unsigned char *ptr = bitmap->memory + pitch * y + pixelsize * x;
-    for (i = 0; i < h / 2; i++)
-    {
-        memcpy(temp, ptr + pitch * i, bytes);
-        memcpy(ptr + pitch * i, ptr + pitch * (h - 1 - i), bytes);
-        memcpy(ptr + pitch * (h - 1 - i), temp, bytes);
-    }
+   int pixelsize = al_get_pixel_size(bitmap->format);
+   int pitch = pixelsize * bitmap->w;
+   int bytes = w * pixelsize;
+   int i;
+   unsigned char temp[pitch];
+   unsigned char *ptr = bitmap->memory + pitch * y + pixelsize * x;
+   for (i = 0; i < h / 2; i++)
+   {
+      memcpy(temp, ptr + pitch * i, bytes);
+      memcpy(ptr + pitch * i, ptr + pitch * (h - 1 - i), bytes);
+      memcpy(ptr + pitch * (h - 1 - i), temp, bytes);
+   }
 }
 
 /* Conversion table from Allegro's pixel formats to corresponding OpenGL
@@ -234,41 +234,41 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
 	int x, int y, int w, int h, ALLEGRO_LOCKED_REGION *locked_region,
 	int flags)
 {
-    ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
-    int pixelsize = al_get_pixel_size(bitmap->format);
-    int pitch = pixelsize * bitmap->w;
+   ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
+   int pixelsize = al_get_pixel_size(bitmap->format);
+   int pitch = pixelsize * bitmap->w;
 
-    if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
-        if (xbitmap->is_backbuffer) {
-            glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
-            glReadPixels(x, bitmap->h - y - h, w, h,
-                glformats[bitmap->format][2],
-		glformats[bitmap->format][1],
-                bitmap->memory + pitch * y + pixelsize * x);
-            if (glGetError())
-               TRACE("xbitmap: glReadPixels for format %d failed.\n",
-                  bitmap->format);
-            //FIXME: ugh. isn't there a better way?
-            upside_down(bitmap, x, y, w, h);
-        }
-        else {
-            //FIXME: use glPixelStore or similar to only synchronize the required
-            //region
-            glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
-            glGetTexImage(GL_TEXTURE_2D, 0, glformats[bitmap->format][2],
-               glformats[bitmap->format][1],
-               bitmap->memory);
-            if (glGetError())
-               TRACE("xbitmap: glGetTexImage for format %d failed.\n",
-                  bitmap->format);
-        }
-    }
+   if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
+      if (xbitmap->is_backbuffer) {
+         glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
+         glReadPixels(x, bitmap->h - y - h, w, h,
+         glformats[bitmap->format][2],
+         glformats[bitmap->format][1],
+         bitmap->memory + pitch * y + pixelsize * x);
+         if (glGetError())
+            TRACE("xbitmap: glReadPixels for format %d failed.\n",
+               bitmap->format);
+         //FIXME: ugh. isn't there a better way?
+         upside_down(bitmap, x, y, w, h);
+      }
+      else {
+         //FIXME: use glPixelStore or similar to only synchronize the required
+         //region
+         glBindTexture(GL_TEXTURE_2D, xbitmap->texture);
+         glGetTexImage(GL_TEXTURE_2D, 0, glformats[bitmap->format][2],
+            glformats[bitmap->format][1],
+            bitmap->memory);
+         if (glGetError())
+            TRACE("xbitmap: glGetTexImage for format %d failed.\n",
+               bitmap->format);
+      }
+   }
 
-    locked_region->data = bitmap->memory + pitch * y + pixelsize * x;
-    locked_region->format = bitmap->format;
-    locked_region->pitch = pitch;
+   locked_region->data = bitmap->memory + pitch * y + pixelsize * x;
+   locked_region->format = bitmap->format;
+   locked_region->pitch = pitch;
 
-    return locked_region;
+   return locked_region;
 }
 
 /* Synchronizes the texture back to the (possibly modified) bitmap data.
