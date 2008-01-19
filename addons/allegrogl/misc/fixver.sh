@@ -93,6 +93,14 @@ END_OF_SED
 dopatch projects/msvc2005/allegrogl/allegrogl.vcproj
 
 
+# patch projects/msvc6/allegrogldll/allegrogldll.dsp
+cat > $sed_script << END_OF_SED
+s#\(version:\)[0-9][.][0-9]\+#\1$1.$2$3#
+END_OF_SED
+
+dopatch projects/msvc6/allegrogldll/allegrogldll.dsp
+
+
 # patch docs/Doxyfile
 cat > $sed_script << END_OF_SED
 s#^\(PROJECT_NUMBER.*=\).*#\1 $verstr#
