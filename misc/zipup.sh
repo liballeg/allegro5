@@ -177,6 +177,7 @@ echo "Generating AllegroGL configure script..."
 (cd addons/allegrogl
     autoheader
     autoconf
+    misc/mkalias.sh
 )
 
 
