@@ -42,8 +42,6 @@ if __name__ == "__main__":
     # run some stuff so the user will not have to
     print "Running build scripts.."
     os.chdir(dist_path)
-    # without aclocal, the allegro macro fails (anyone knows why?)
-    os.system("aclocal")
     os.system("autoheader")
     os.system("autoconf")
     os.system("misc/mkalias.sh")

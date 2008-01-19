@@ -175,7 +175,6 @@ rm _makedoc.exe
 # generate configure script for AllegroGL addon
 echo "Generating AllegroGL configure script..."
 (cd addons/allegrogl
-    aclocal
     autoheader
     autoconf
     misc/mkalias.sh
