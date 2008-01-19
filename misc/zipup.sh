@@ -229,7 +229,7 @@ find . -type f "(" -path "*/.*" -prune -o -iname "*.rej" \
 cd .dist
 
 # if 7za is available, use that to produce both .zip and .7z files
-if false 7za > /dev/null ; then
+if 7za > /dev/null ; then
    7za a -mx9 $name.zip allegro
    7za a -mx9 -ms=on $name.7z allegro
 else
