@@ -68,8 +68,7 @@ necessary software installed.
 13. Make Unix distros. From the top level directory:
 
     cd .dist
-    unzip all421.zip allegro/misc
-    allegro/misc/mkunixdists.sh all421.zip
+    ../misc/mkunixdists.sh all421.zip
    
 14. Check that the RPM file can be installed and compiled without problems.
     Also check if the patch applies ok (all421_diff.zip). To verify that the
