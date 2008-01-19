@@ -19,7 +19,7 @@ if [%1] == [-?]      goto help
 if [%1] == []        goto help
 
 echo Platform not supported by AllegroGL.
-exit
+goto end
 
 :djgpp
 set MAKE_COMPILER=DJGPP
