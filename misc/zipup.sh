@@ -174,7 +174,7 @@ rm _makedoc.exe
 
 # generate configure script for AllegroGL addon
 echo "Generating AllegroGL configure script..."
-(cd addons/allegrogl/docs; autoconf)
+(cd addons/allegrogl; autoconf)
 
 
 # generate docs for AllegroGL addon
