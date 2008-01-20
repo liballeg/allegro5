@@ -7,4 +7,4 @@ shared_version = 4.3.11
 shared_major_minor = 4.3
 
 # Compatibility version for Mac OS X
-compatibility_version = 4.2.0
+compatibility_version = 4.3.0
