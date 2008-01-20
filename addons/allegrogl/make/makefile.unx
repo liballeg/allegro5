@@ -20,7 +20,7 @@ EXT_HEADERS += $(EXT_HEADERS_PATH)/glx_ext_defs.h $(EXT_HEADERS_PATH)/glx_ext_ap
 LIBS = @LIBS@
 MESABUILD = @MESABUILD@
 CPPFLAGS = $(addprefix -I, $(INCLUDE_DIR)) @CPPFLAGS@
-LDFLAGS = @LDFLAGS@ -L$(LIB_DIR)
+LDFLAGS = @LDFLAGS@ -L$(LIB_DIR) -L$(ALLEG_LIB_DIR)
 DEFS = @DEFS@
 LIB_BUILDER = @LIB_BUILDER@
 ALLEGRO_CONFIG = ../../allegro-config
@@ -87,8 +87,6 @@ ifdef DEBUGALLEG
 else
 	LDLIBS += `$(ALLEGRO_CONFIG) --libs --addon` $(LIBS)
 endif
-
-LDLIBS += -L$(ALLEG_LIB_DIR)
 
 ifdef MESABUILD
 	ifdef MESADIR
