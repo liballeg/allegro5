@@ -9,7 +9,7 @@
  *    unlikely to change very much now.  The new display API is less stable.
  */
 #include <allegro5/allegro5.h>
-#include <allegro5/font.h>
+#include <allegro5/a5_font.h>
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -20,7 +20,7 @@ ALLEGRO_DISPLAY     *display;
 ALLEGRO_TIMER       *timer_a;
 ALLEGRO_TIMER       *timer_b;
 ALLEGRO_TIMER       *timer_c;
-FONT                *myfont;
+A5FONT_FONT         *myfont;
 float          joys_x;
 float          joys_y;
 ALLEGRO_COLOR black;
@@ -38,8 +38,8 @@ static void print(int x, int y, char const *format, ...)
    uvszprintf(message, sizeof message, format, list);
    va_end(list);
 
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &white);
-   al_draw_rectangle(x, y, strlen(message)*25, 25, &black, ALLEGRO_FILLED);
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
+   al_draw_rectangle(x, y, strlen(message)*25, 25, black, ALLEGRO_FILLED);
    a5font_textout(myfont, message, x, y);
 }
 
@@ -125,8 +125,8 @@ void draw_mouse_button(int but, bool down)
    x = 400 + offset[but-1];
    y = 130;
 
-   al_draw_rectangle(x,y,x+25,y+40,(down ? &white : &black), ALLEGRO_FILLED);
-   al_draw_rectangle(x,y,x+25,y+40, &white, ALLEGRO_FILLED);
+   al_draw_rectangle(x,y,x+25,y+40,(down ? white : black), ALLEGRO_FILLED);
+   al_draw_rectangle(x,y,x+25,y+40, white, ALLEGRO_FILLED);
 }
 
 
@@ -148,9 +148,10 @@ void draw_joystick_axes(void)
    x = 470 + joys_x * 50;
    y = 300 + joys_y * 50;
 
-   al_draw_rectangle(470-60, 300-60, 470+60, 300+60, &black, ALLEGRO_FILLED);
-   al_draw_rectangle(470-60, 300-60, 470+60, 300+60, &white, ALLEGRO_OUTLINED);
-   al_draw_rectangle(x-5,y-5,x+5,y+5,&white, ALLEGRO_FILLED); /* this makes up for lack of al_draw_circle */
+   al_draw_rectangle(470-60, 300-60, 470+60, 300+60, black, ALLEGRO_FILLED);
+   al_draw_rectangle(470-60, 300-60, 470+60, 300+60, white, ALLEGRO_OUTLINED);
+   /* this makes up for lack of al_draw_circle */
+   al_draw_rectangle(x-5,y-5,x+5,y+5, white, ALLEGRO_FILLED);
 }
 
 
@@ -165,8 +166,8 @@ void draw_joystick_button(int button, bool down)
 
    ALLEGRO_COLOR fill = (down?white:black);
    
-   al_draw_rectangle(x, y, x + 25, y + 25, &fill , ALLEGRO_FILLED);
-   al_draw_rectangle(x, y, x + 25, y + 25, &white, ALLEGRO_OUTLINED);
+   al_draw_rectangle(x, y, x + 25, y + 25, fill , ALLEGRO_FILLED);
+   al_draw_rectangle(x, y, x + 25, y + 25, white, ALLEGRO_OUTLINED);
 }
 
 
@@ -174,9 +175,8 @@ void draw_all(void)
 {
    ALLEGRO_MSESTATE mst;
    
-/*   al_clear(&black); */
    /* basically clear the screen minus the keyboard state printing */
-   al_draw_rectangle(0,26,WIDTH,HEIGHT,&black, ALLEGRO_FILLED);
+   al_draw_rectangle(0, 26, WIDTH, HEIGHT, black, ALLEGRO_FILLED);
    
 
    al_get_mouse_state(&mst);
@@ -385,8 +385,8 @@ int main(void)
    al_show_mouse_cursor();
 
    myfont = a5font_load_font("font.tga", 0);
-   al_map_rgb(&black, 0, 0, 0);
-   al_map_rgb(&white, 255,255,255);
+   black = al_map_rgb(0, 0, 0);
+   white = al_map_rgb(255, 255, 255);
 
    /* Install the joystick routines. */
    al_install_joystick();
