@@ -37,7 +37,7 @@ typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
  * alpha
  *
  * ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA - Let the driver choose a format with
- * alpha
+ * alpha. This is the default format at program start.
  *
  * ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA - Let the driver choose a 15 bit format
  * without alpha

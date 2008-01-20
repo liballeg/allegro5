@@ -93,6 +93,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
           data = _AL_MALLOC(sizeof(*data));
           if (data != NULL) {
              memset(data, 0, sizeof(*data));
+             data->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA;
              data->blend_source = ALLEGRO_ALPHA;
              data->blend_dest = ALLEGRO_INVERSE_ALPHA;
              data->blend_color.r = data->blend_color.g = data->blend_color.b
@@ -191,7 +192,7 @@ static THREAD_LOCAL thread_local_state _tls = {
    NULL,
    NULL,
    NULL,
-   0,
+   ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
    0,
    0,
    0,
