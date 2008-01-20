@@ -211,16 +211,12 @@ static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
     */
    if (xbitmap->fbo == 0 && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
       if (allegro_gl_extensions.ALLEGRO_GL_EXT_framebuffer_object) {
-         glGenFramebuffersEXT(1, &xbitmap->fbo);
-         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, xbitmap->fbo);
-         /* Attach it to the texture. */
-         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-            GL_TEXTURE_2D, xbitmap->texture, 0);
-         if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
-            GL_FRAMEBUFFER_COMPLETE_EXT) {
-            // FIXME: handle this somehow!
-         }
-         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+         ALLEGRO_DISPLAY_XGLX *glx = (void *)al_get_current_display();
+
+         if (glx->fbo == 0)
+            glGenFramebuffersEXT(1, &glx->fbo);
+         xbitmap->fbo = glx->fbo;
       }
    }
 
@@ -328,10 +324,12 @@ static void xglx_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       glDeleteTextures(1, &xbitmap->texture);
       xbitmap->texture = 0;
    }
-   if (xbitmap->fbo) {
+   // FIXME: If we are the last bitmap using it, must destroy it. Add a
+   // reference counter?
+   /*if (xbitmap->fbo) {
       glDeleteFramebuffersEXT(1, &xbitmap->fbo);
       xbitmap->fbo = 0;
-   }
+   }*/
 }
 
 /* Obtain a reference to this driver. */

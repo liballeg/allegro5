@@ -424,7 +424,17 @@ static void set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
    if (!xbitmap->is_backbuffer) {
       if (xbitmap->fbo) {
+         /* Bind to the FBO. */
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, xbitmap->fbo);
+
+         /* Attach the texture. */
+         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+            GL_TEXTURE_2D, xbitmap->texture, 0);
+         if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
+            GL_FRAMEBUFFER_COMPLETE_EXT) {
+            // FIXME: handle this somehow!
+         }
+
          glx->opengl_target = xbitmap;
          glViewport(0, 0, bitmap->w, bitmap->h);
 

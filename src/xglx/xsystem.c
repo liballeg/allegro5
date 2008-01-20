@@ -3,6 +3,10 @@
  * system driver.
  */
 
+#ifdef DEBUG_X11
+extern int _Xdebug;
+#endif
+
 #include "xglx.h"
 
 static ALLEGRO_SYSTEM_INTERFACE *vt;
@@ -70,6 +74,10 @@ static ALLEGRO_SYSTEM *initialize(int flags)
 {
    ALLEGRO_SYSTEM_XGLX *s = _AL_MALLOC(sizeof *s);
    memset(s, 0, sizeof *s);
+
+   #ifdef DEBUG_X11
+   _Xdebug = 1;
+   #endif
 
    _al_mutex_init(&s->lock);
    _al_cond_init(&s->mapped);

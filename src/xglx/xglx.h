@@ -9,6 +9,7 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/platform/aintxglx.h"
+#include "allegro5/internal/aintern_opengl.h"
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 #include <X11/extensions/xf86vmode.h>
@@ -65,6 +66,11 @@ struct ALLEGRO_DISPLAY_XGLX
    /* Driver specifics. */
 
    int opengl_initialized; /* Did we have a chance to set up OpenGL? */
+
+   /* Because some opengl drivers seem to have a very low limit on available
+    * FBOs, we use one FBO per display.
+    */
+   GLuint fbo;
 
    ALLEGRO_BITMAP *backbuffer;
 
