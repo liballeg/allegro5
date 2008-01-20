@@ -113,6 +113,7 @@ sed -f fixver.sed fixver.tmp > misc/pkgreadme._tx
 echo "s/LIBRARY_VERSION = .*/LIBRARY_VERSION = $1$2/" > fixver.sed
 echo "s/shared_version = .*/shared_version = $1.$2.$3/" >> fixver.sed
 echo "s/shared_major_minor = .*/shared_major_minor = $1.$2/" >> fixver.sed
+echo "s/compatibility_version = .*/compatibility_version = $1.$2.0/" >> fixver.sed
 
 echo "Patching makefile.ver..."
 cp makefile.ver fixver.tmp
