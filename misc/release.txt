@@ -41,7 +41,7 @@ necessary software installed.
    previous command and commit docs/src/allegro._tx.
    
 7. Tag SVN repository:
-    svn cp https://svn.sourceforge.net/svnroot/alleg/allegro/branches/4.2 https://svn.sourceforge.net/svnroot/alleg/allegro/tags/v4-2-1
+    svn cp https://alleg.svn.sourceforge.net/svnroot/alleg/allegro/branches/4.2 https://alleg.svn.sourceforge.net/svnroot/alleg/allegro/tags/v4-2-1
 
 * NOTE: svn doesn't retain timestamps when you use svn up or svn co.  IMHO it's
     best for files to keep the timestamp of the last change that was made in
