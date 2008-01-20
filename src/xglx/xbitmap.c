@@ -240,7 +240,8 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
 
    if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
       if (xbitmap->is_backbuffer) {
-        
+         GLint pack_row_length;
+         glGetIntegerv(GL_PACK_ROW_LENGTH, &pack_row_length);
          glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
          glReadPixels(x, bitmap->h - y - h, w, h,
          glformats[bitmap->format][2],
@@ -249,6 +250,7 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
          if (glGetError())
             TRACE("xbitmap: glReadPixels for format %d failed.\n",
                bitmap->format);
+         glPixelStorei(GL_PACK_ROW_LENGTH, pack_row_length);
          //FIXME: ugh. isn't there a better way?
          upside_down(bitmap, x, y, w, h);
       }
@@ -294,6 +296,8 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
          glRasterPos2i(bitmap->lock_x, bitmap->lock_y + bitmap->lock_h);
       }
 
+      GLint unpack_row_length;
+      glGetIntegerv(GL_UNPACK_ROW_LENGTH, &unpack_row_length);
       glPixelStorei(GL_UNPACK_ROW_LENGTH, bitmap->w);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
          glformats[bitmap->format][2],
@@ -302,7 +306,7 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
       if (glGetError())
          TRACE("xbitmap: glDrawPixels for format %d failed.\n",
             bitmap->format);
-      
+      glPixelStorei(GL_UNPACK_ROW_LENGTH, unpack_row_length);
    }
    else {
       // FIXME: don't copy the whole bitmap
