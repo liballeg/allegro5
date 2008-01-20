@@ -681,7 +681,6 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
    ALLEGRO_LOCKED_REGION lr;
    int w, h;
    int tmp;
-   int pixel_value;
    int src_mode, dst_mode;
    ALLEGRO_COLOR *ic;
 
@@ -734,8 +733,6 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
 
    if (w <= 0 || h <= 0)
       return;
-
-   pixel_value = _al_get_pixel_value(bitmap->format, color);
 
    al_lock_bitmap_region(bitmap, x1, y1, w, h, &lr, 0);
 
