@@ -141,7 +141,7 @@ static usecs_t timer_thread_handle_tick(usecs_t interval)
 
       while (timer->counter <= 0) {
          timer->counter += timer->speed_usecs;
-	 timer_handle_tick(timer);
+         timer_handle_tick(timer);
       }
 
       if ((timer->counter > 0) && (timer->counter < new_delay))

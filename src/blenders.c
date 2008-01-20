@@ -40,7 +40,7 @@ void _al_blender_zero_one(ALLEGRO_COLOR *scol,
 void _al_blender_zero_alpha(ALLEGRO_COLOR *scol,
    ALLEGRO_COLOR *dcol, ALLEGRO_COLOR *result)
 {
-   al_map_rgba_f(result,
+   *result = al_map_rgba_f(
       dcol->r*dcol->a,
       dcol->g*dcol->a,
       dcol->b*dcol->a,
@@ -52,7 +52,7 @@ void _al_blender_zero_alpha(ALLEGRO_COLOR *scol,
 void _al_blender_zero_inverse_alpha(ALLEGRO_COLOR *scol,
    ALLEGRO_COLOR *dcol, ALLEGRO_COLOR *result)
 {
-   al_map_rgba_f(result,
+   *result = al_map_rgba_f(
       dcol->r*(1.0f-scol->a),
       dcol->g*(1.0f-scol->a),
       dcol->b*(1.0f-scol->a),
@@ -66,7 +66,7 @@ void _al_blender_one_zero(ALLEGRO_COLOR *scol,
 {
    ALLEGRO_COLOR *bc = _al_get_blend_color();
 
-   al_map_rgba_f(result,
+   *result = al_map_rgba_f(
       scol->r*bc->r,
       scol->g*bc->g,
       scol->b*bc->b,
@@ -95,7 +95,7 @@ void _al_blender_one_alpha(ALLEGRO_COLOR *scol,
    b = MIN(1.0f, dcol->b*dcol->a + scol->b * bc->b);
    a = MIN(1.0f, dcol->a*dcol->a + scol->a * bc->a);
 
-   al_map_rgba_f(result, r, g, b, a);
+   *result = al_map_rgba_f(r, g, b, a);
 }
 
 
@@ -111,7 +111,7 @@ void _al_blender_one_inverse_alpha(ALLEGRO_COLOR *scol,
    b = MIN(1.0f, dcol->b*(1.0f-scol->a) + scol->b * bc->b);
    a = MIN(1.0f, dcol->a*(1.0f-scol->a) + scol->a * bc->a);
 
-   al_map_rgba_f(result, r, g, b, a);
+   *result = al_map_rgba_f(r, g, b, a);
 }
 
 
@@ -121,7 +121,7 @@ void _al_blender_alpha_zero(ALLEGRO_COLOR *scol,
 {
    ALLEGRO_COLOR *bc = _al_get_blend_color();
 
-   al_map_rgba_f(result,
+   *result = al_map_rgba_f(
       scol->r*scol->a*bc->r,
       scol->g*scol->a*bc->g,
       scol->b*scol->a*bc->b,
@@ -135,7 +135,7 @@ void _al_blender_alpha_one(ALLEGRO_COLOR *scol,
 {
    ALLEGRO_COLOR *bc = _al_get_blend_color();
 
-   al_map_rgba_f(result,
+   *result = al_map_rgba_f(
       MIN(1.0f, scol->r*scol->a*bc->r + dcol->r),
       MIN(1.0f, scol->g*scol->a*bc->g + dcol->g),
       MIN(1.0f, scol->b*scol->a*bc->b + dcol->b),
@@ -149,7 +149,7 @@ void _al_blender_alpha_alpha(ALLEGRO_COLOR *scol,
 {
    ALLEGRO_COLOR *bc = _al_get_blend_color();
 
-   al_map_rgba_f(result,
+   *result = al_map_rgba_f(
       MIN(1.0f, scol->r*scol->a*bc->r + dcol->r*dcol->a),
       MIN(1.0f, scol->g*scol->a*bc->g + dcol->g*dcol->a),
       MIN(1.0f, scol->b*scol->a*bc->b + dcol->b*dcol->a),
@@ -163,7 +163,7 @@ void _al_blender_alpha_inverse_alpha(ALLEGRO_COLOR *scol,
 {
    ALLEGRO_COLOR *bc = _al_get_blend_color();
 
-   al_map_rgba_f(result,
+   *result = al_map_rgba_f(
       MIN(1.0f, scol->r*scol->a*bc->r + dcol->r*(1.0f-scol->a)),
       MIN(1.0f, scol->g*scol->a*bc->g + dcol->g*(1.0f-scol->a)),
       MIN(1.0f, scol->b*scol->a*bc->b + dcol->b*(1.0f-scol->a)),
@@ -177,7 +177,7 @@ void _al_blender_inverse_alpha_zero(ALLEGRO_COLOR *scol,
 {
    ALLEGRO_COLOR *bc = _al_get_blend_color();
 
-   al_map_rgba_f(result,
+   *result = al_map_rgba_f(
       scol->r*(1.0f-scol->a)*bc->r,
       scol->g*(1.0f-scol->a)*bc->g,
       scol->b*(1.0f-scol->a)*bc->b,
@@ -191,7 +191,7 @@ void _al_blender_inverse_alpha_one(ALLEGRO_COLOR *scol,
 {
    ALLEGRO_COLOR *bc = _al_get_blend_color();
 
-   al_map_rgba_f(result,
+   *result = al_map_rgba_f(
       MIN(1.0f, scol->r*(1.0f-scol->a)*bc->r + dcol->r),
       MIN(1.0f, scol->g*(1.0f-scol->a)*bc->g + dcol->g),
       MIN(1.0f, scol->b*(1.0f-scol->a)*bc->b + dcol->b),
@@ -205,7 +205,7 @@ void _al_blender_inverse_alpha_alpha(ALLEGRO_COLOR *scol,
 {
    ALLEGRO_COLOR *bc = _al_get_blend_color();
 
-   al_map_rgba_f(result,
+   *result = al_map_rgba_f(
       MIN(1.0f, scol->r*(1.0f-scol->a)*bc->r + dcol->r*dcol->a),
       MIN(1.0f, scol->g*(1.0f-scol->a)*bc->g + dcol->g*dcol->a),
       MIN(1.0f, scol->b*(1.0f-scol->a)*bc->b + dcol->b*dcol->a),
@@ -219,7 +219,7 @@ void _al_blender_inverse_alpha_inverse_alpha(ALLEGRO_COLOR *scol,
 {
    ALLEGRO_COLOR *bc = _al_get_blend_color();
 
-   al_map_rgba_f(result,
+   *result = al_map_rgba_f(
       MIN(1.0f, scol->r*(1.0f-scol->a)*bc->r + dcol->r*(1.0f-scol->a)),
       MIN(1.0f, scol->g*(1.0f-scol->a)*bc->g + dcol->g*(1.0f-scol->a)),
       MIN(1.0f, scol->b*(1.0f-scol->a)*bc->b + dcol->b*(1.0f-scol->a)),
@@ -234,7 +234,7 @@ void _al_blend(ALLEGRO_COLOR *scol,
    ALLEGRO_MEMORY_BLENDER blender = _al_get_memory_blender();
    ALLEGRO_COLOR dcol;
 
-   al_get_pixel(dest, dx, dy, &dcol);
+   dcol = al_get_pixel(dest, dx, dy);
 
    blender(scol, &dcol, result);
 }

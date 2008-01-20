@@ -26,37 +26,31 @@ static void print(int x, int y, char const *format, ...)
    uvszprintf(message, sizeof message, format, list);
    va_end(list);
 
-   ALLEGRO_COLOR color;
-
-   al_map_rgb(&color, 0, 0, 0);
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &color);
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
    a5font_textout(myfont, message, x + 2, y + 2);
 
-   al_map_rgb(&color, 255, 255, 255);
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &color);
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+      al_map_rgb(255, 255, 255));
    a5font_textout(myfont, message, x, y);
 }
 
 /* Draw our example scene. */
 static void draw(void)
 {
-   ALLEGRO_COLOR solid_blue, transparent_yellow, red, white;
    double dt = 0;
    double t = al_current_time() / 1000.0;
    if (last_time > 0) {
       dt = t - last_time;
    }
    last_time = t;
-   al_map_rgba_f(&solid_blue, 0, 0, 1, 1);
-   al_map_rgba_f(&transparent_yellow, 1, 1, 0, 0.1);
-   al_map_rgba_f(&red, 1, 0, 0, 1);
-   al_map_rgba_f(&white, 1, 1, 1, 1);
 
    al_set_target_bitmap(target);
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &white);
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+      al_map_rgba_f(1, 1, 1, 1));
 
-   al_draw_rectangle(x, y, x + RW, y + RH, &red, ALLEGRO_FILLED);
-   al_draw_rectangle(0, 0, W, H, &transparent_yellow, ALLEGRO_FILLED);
+   al_draw_rectangle(x, y, x + RW, y + RH, al_map_rgba_f(1, 0, 0, 1),
+      ALLEGRO_FILLED);
+   al_draw_rectangle(0, 0, W, H, al_map_rgba_f(1, 1, 0, 0.1), ALLEGRO_FILLED);
 
    x += dx * dt;
    if (x < 0) {x = 0; dx = -dx;}
@@ -66,8 +60,8 @@ static void draw(void)
    if (y + RH > H) {y = H - RH; dy = -dy;}
 
    al_set_target_bitmap(al_get_backbuffer());
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, &white);
-   al_clear(&solid_blue);
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+   al_clear(al_map_rgba_f(0, 0, 1, 1));
    float xs = 1 + 0.2 * sin(t * AL_PI * 2);
    float ys = 1 + 0.2 * sin(t * AL_PI * 2);
    float a = t * AL_PI * 2 / 3;
@@ -79,11 +73,10 @@ void run(void)
 {
    ALLEGRO_EVENT event;
    ALLEGRO_COLOR yellow;
-   al_map_rgba_f(&yellow, 1, 1, 0, 1); 
-  
+
    target = al_create_bitmap(W, H);
    al_set_target_bitmap(target);
-   al_clear(&yellow);
+   al_clear(al_map_rgba_f(1, 1, 0, 1));
 
    al_set_target_bitmap(al_get_backbuffer());
 

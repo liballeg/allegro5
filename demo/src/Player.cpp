@@ -193,15 +193,14 @@ bool Player::load(void)
    int trans_format = al_get_bitmap_format(trans_bitmap);
    for (int py = 0; py < al_get_bitmap_height(bitmap); py++) {
       for (int px = 0; px < al_get_bitmap_height(bitmap); px++) {
-         ALLEGRO_COLOR color;
-         al_get_pixel(bitmap, px, py, &color);
+         ALLEGRO_COLOR color = al_get_pixel(bitmap, px, py);
          unsigned char r, g, b, a;
-         al_unmap_rgba(&color, &r, &g, &b, &a);
+         al_unmap_rgba(color, &r, &g, &b, &a);
          if (a != 0) {
             a = 160;
-            al_map_rgba(&color, r, g, b, a);
+            color = al_map_rgba(r, g, b, a);
          }
-         al_put_pixel(px, py, &color);
+         al_put_pixel(px, py, color);
       }
    }
    al_set_target_bitmap(old_target);
@@ -225,9 +224,7 @@ bool Player::load(void)
 
    highscoreBitmap = al_create_bitmap(300, 200);
    al_set_target_bitmap(highscoreBitmap);
-   ALLEGRO_COLOR color;
-   al_map_rgba(&color, 0, 0, 0, 0);
-   al_clear(&color);
+   al_clear(al_map_rgba(0, 0, 0, 0));
    al_set_target_bitmap(old_target);
 
    radius = al_get_bitmap_width(bitmap)/2;

@@ -449,7 +449,7 @@ static void _hline(int x1, int y, int x2, ALLEGRO_COLOR *color)
    for (x = x1; x <= x2; x++) {
       ALLEGRO_COLOR result;
       _al_blend(color, x, y, &result);
-      al_put_pixel(x, y, &result);
+      al_put_pixel(x, y, result);
    }
 }
 
@@ -460,7 +460,7 @@ static void _vline(int x, int y1, int y2, ALLEGRO_COLOR *color)
    int y;
 
    for (y = y1; y <= y2; y++) {
-      al_put_pixel(x, y, color);
+      al_put_pixel(x, y, *color);
    }
 }
 
@@ -564,7 +564,7 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color)
       set)                                                                   \
    {                                                                         \
       if (d##pri_c == 0) {                                                   \
-         set(x1+xo, y1+yo, color);                                           \
+         set(x1+xo, y1+yo, *color);                                           \
          al_unlock_bitmap(bitmap);                                           \
 	 return;                                                             \
       }                                                                      \
@@ -577,7 +577,7 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color)
       y = y1;                                                                \
 									     \
       while (pri_c pri_cond pri_c##2) {                                      \
-	 set(x+xo, y+yo, color);                                             \
+	 set(x+xo, y+yo, *color);                                             \
 									     \
 	 if (dd sec_cond 0) {                                                \
 	    sec_c = sec_c sec_sign 1;                                        \

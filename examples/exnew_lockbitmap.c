@@ -28,7 +28,7 @@ int main(void)
    uint8_t *ptr = locked.data;
    for (j = 0; j < 100; j++) {
       for (i = 0; i < 100; i++) {
-         uint8_t red = 0, green = 0, blue = 0, alpha = 255;
+         uint8_t red = 0, green = 0, blue = 0, alpha = 64;
          if (j < 50) {
             if (i < 50) red = 223;
             else green = 127;

@@ -25,12 +25,12 @@ static void print(A5FONT_FONT *myfont, char *message, int x, int y)
 {
 	ALLEGRO_COLOR color;
 
-	al_map_rgb(&color, 0, 0, 0);
-	al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &color);
+	al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+      al_map_rgb(0, 0, 0));
 	a5font_textout(myfont, message, x+2, y+2);
 
-	al_map_rgb(&color, 255, 255, 255);
-	al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &color);
+	al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+      al_map_rgb(255, 255, 255));
 	a5font_textout(myfont, message, x, y);
 }
 
@@ -39,7 +39,6 @@ static void test(ALLEGRO_BITMAP *bitmap, A5FONT_FONT *font, char *message)
 	long frames = 0;
 	long start_time = al_current_time();
 	int fps = 0;
-	ALLEGRO_COLOR color;
 
 	for (;;) {
 		if (key_down()) {
@@ -48,8 +47,8 @@ static void test(ALLEGRO_BITMAP *bitmap, A5FONT_FONT *font, char *message)
 			break;
 		}
 
-		al_map_rgb(&color, 255, 255, 255);
-		al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, &color);
+		al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO,
+            al_map_rgb(255, 255, 255));
 
 		al_draw_scaled_bitmap(bitmap, 0, 0,
 			al_get_bitmap_width(bitmap),

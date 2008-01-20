@@ -32,12 +32,11 @@ int do_gui(std::vector<Widget *>& widgets, unsigned int selected)
       al_draw_bitmap(bg, 0, 0, 0);
       al_draw_rotated_bitmap(logo, lw/2, lh/2, BB_W/2, BB_H/4, 0.0f, 0);
 
-      ALLEGRO_COLOR color;
-      al_map_rgb(&color, 255, 255, 0);
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &color);
+      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+         al_map_rgb(255, 255, 0));
       a5font_textout_centre(myfont, "z/y to start", BB_W/2, BB_H/2);
-      al_map_rgb(&color, 255, 255, 255);
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &color);
+      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+         al_map_rgb(255, 255, 255));
 
       for (unsigned int i = 0; i < widgets.size(); i++) {
          widgets[i]->render(i == selected);

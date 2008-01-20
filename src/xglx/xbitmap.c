@@ -240,6 +240,7 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
 
    if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
       if (xbitmap->is_backbuffer) {
+        
          glPixelStorei(GL_PACK_ROW_LENGTH, bitmap->w);
          glReadPixels(x, bitmap->h - y - h, w, h,
          glformats[bitmap->format][2],
@@ -301,6 +302,7 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
       if (glGetError())
          TRACE("xbitmap: glDrawPixels for format %d failed.\n",
             bitmap->format);
+      
    }
    else {
       // FIXME: don't copy the whole bitmap

@@ -308,10 +308,9 @@ ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int x_focus, i
    int x, y;
    for (y = 0; y < oldbmp->h; y++) {
       for (x = 0; x < oldbmp->w; x++) {
-         ALLEGRO_COLOR color;
-         al_get_pixel(bmp, x, y, &color);
+         ALLEGRO_COLOR color = al_get_pixel(bmp, x, y);
          unsigned char r, g, b, a;
-         al_unmap_rgba(&color, &r, &g, &b, &a);
+         al_unmap_rgba(color, &r, &g, &b, &a);
          int oldcolor;
          if (a == 0)
             oldcolor = makecol32(255, 0, 255);

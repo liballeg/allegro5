@@ -80,13 +80,12 @@ int main(void)
       return 1;
    }
 
-   ALLEGRO_COLOR color;
    ALLEGRO_LOCKED_REGION lr;
    al_lock_bitmap(picture, &lr, 0);
    al_set_target_bitmap(picture);
    for (y = 0; y < 100; y++) {
       for (x = 0; x < 160; x++) {
-         al_put_pixel(x+160, y+100, al_get_pixel(picture, x, y, &color)) ;
+         al_put_pixel(x+160, y+100, al_get_pixel(picture, x, y)) ;
       }
    }
    al_unlock_bitmap(picture);
@@ -99,21 +98,17 @@ int main(void)
    for (i = 0; i < 3; i++) {
       al_set_current_display(display[i]);
       if (i == 0)
-         al_map_rgba_f(&colors[0], 1, 0, 0, 0.5f);
+         colors[0] = al_map_rgba_f(1, 0, 0, 0.5f);
       else if (i == 1)
-         al_map_rgba_f(&colors[1], 0, 1, 0, 0.5f);
+         colors[1] = al_map_rgba_f(0, 1, 0, 0.5f);
       else
-         al_map_rgba_f(&colors[2], 0, 0, 1, 0.5f);
+         colors[2] = al_map_rgba_f(0, 0, 1, 0.5f);
    }
 
-   ALLEGRO_COLOR c;
    al_set_target_bitmap(picture);
-   al_map_rgba_f(&c, 1.0f, 1.0f, 0.0f, 1.0f);
-   al_draw_line(0, 0, 320, 200, &c);
-   al_map_rgba_f(&c, 1.0f, 1.0f, 0.0f, 0.5f);
-   //al_draw_rectangle(0, 0, 320, 200, &c, ALLEGRO_FILLED);
-   al_draw_line(0, 0, 100, 0, &c);
-   al_draw_line(0, 0, 0, 100, &c);
+   al_draw_line(0, 0, 320, 200, al_map_rgba_f(1, 1, 0, 1));
+   al_draw_line(0, 0, 100, 0, al_map_rgba_f(1, 1, 0, 0.5));
+   al_draw_line(0, 0, 0, 100, al_map_rgba_f(1, 1, 0, 0.5));
 	
    long start = al_current_time();
    long last_move = al_current_time();
@@ -167,27 +162,26 @@ int main(void)
             continue;
 
          al_set_current_display(display[i]);
-         al_map_rgb_f(&white, 1, 1, 1);
-         al_clear(&white);
+         al_clear(al_map_rgb_f(1, 1, 1));
          if (i == 1) {
-            al_draw_line(50, 50, 150, 150, &colors[0]);
+            al_draw_line(50, 50, 150, 150, colors[0]);
          }
 
          if (i == 2) {
             ALLEGRO_COLOR test;
-            al_map_rgba_f(&test, 1.0f, 1.0f, 1.0f, 1.0f);
-            al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, &test);
+            al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO,
+               al_map_rgba_f(1, 1, 1, 1));
             al_draw_scaled_bitmap(picture, 0, 0,
                   al_get_bitmap_width(picture), al_get_bitmap_height(picture),
                   0, 0, 640, 480, 0);
-            al_map_rgba_f(&test, 1.0f, 1.0f, 0.0f, 1.0f);
-            al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, &test);
+            al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE,
+               al_map_rgba_f(1, 1, 0, 1));
             al_draw_rotated_bitmap(picture, 160, 100, 320, 240, M_PI/4, 0);
-            al_map_rgba_f(&test, 1.0f, 1.0f, 1.0f, 1.0f);
-            al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &test);
+            al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+               al_map_rgba_f(1, 1, 1, 1));
          }
 
-         al_draw_rectangle(x, y, x + 140, y + 140, &colors[i], ALLEGRO_FILLED);
+         al_draw_rectangle(x, y, x + 140, y + 140, colors[i], ALLEGRO_FILLED);
          al_flip_display();
       }
    }

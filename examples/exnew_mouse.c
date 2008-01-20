@@ -6,7 +6,6 @@ int main(void)
    ALLEGRO_BITMAP *cursor;
    ALLEGRO_MSESTATE msestate;
    ALLEGRO_KBDSTATE kbdstate;
-   ALLEGRO_COLOR black;
 
    al_init();
 
@@ -19,12 +18,10 @@ int main(void)
 
    cursor = al_load_bitmap("cursor.tga");
 
-   al_map_rgb(&black, 0, 0, 0);
-
    do {
       al_get_mouse_state(&msestate);
       al_get_keyboard_state(&kbdstate);
-      al_clear(&black);
+      al_clear(al_map_rgb(0, 0, 0));
       al_draw_bitmap(cursor, msestate.x, msestate.y, 0);
       al_flip_display();
       al_rest(5);

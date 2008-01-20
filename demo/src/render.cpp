@@ -48,9 +48,7 @@ void showWave(int num)
    waveBitmap = al_create_bitmap(w, h);
    ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
    al_set_target_bitmap(waveBitmap);
-   ALLEGRO_COLOR alpha;
-   al_map_rgba(&alpha, 0, 0, 0, 0);
-   al_clear(&alpha);
+   al_clear(al_map_rgba(0, 0, 0, 0));
    a5font_textprintf(myfont, 0, 0, text);
    al_set_target_bitmap(old_target);
 
@@ -100,12 +98,10 @@ void render(int step)
       Entity *e = *it;
       e->render();
       if (e->isHighlighted()) {
-         ALLEGRO_COLOR white;
-         al_map_rgb(&white, 150, 150, 150);
-         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, &white);
+         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, al_map_rgb(150, 150, 150));
          e->render();
-         al_map_rgb(&white, 255, 255, 255);
-         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &white);
+         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+            al_map_rgb(255, 255, 255));
       }
       rendered++;
    }

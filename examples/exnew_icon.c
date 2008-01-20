@@ -16,11 +16,11 @@ int main(void)
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    icon2 = al_create_bitmap(16, 16);
    al_set_target_bitmap(icon2);
-   ALLEGRO_COLOR *color = malloc(sizeof *color);
    for (i = 0; i < 256; i++)
    {
-      al_map_rgb_f(color, (i % 16) / 15.0, (i / 16) / 15.0, 1);
-      al_put_pixel(i % 16, i / 16, color);
+      
+      al_put_pixel(i % 16, i / 16,
+         al_map_rgb_f((i % 16) / 15.0, (i / 16) / 15.0, 1));
    }
    al_set_target_bitmap(al_get_backbuffer());
 

@@ -31,13 +31,18 @@ static int import_y = 0;
 
 
 
+static bool color_compare(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
+{
+   return c1.r != c2.r || c1.g != c2.g || c1.b != c2.b || c1.a != c2.a;
+}
+
 /* splits bitmaps into sub-sprites, using regions bounded by col #255 */
 static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int *h)
 {
-   ALLEGRO_COLOR c, c2;
+   ALLEGRO_COLOR c;
    ALLEGRO_LOCKED_REGION lr;
 
-   al_map_rgb(&c, 255, 255, 0);
+   c = al_map_rgb(255, 255, 0);
 
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
 
@@ -54,10 +59,10 @@ static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int
          }
       }
       if (!(
-         memcmp(al_get_pixel(bmp, *x, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
-         memcmp(al_get_pixel(bmp, *x+1, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
-         memcmp(al_get_pixel(bmp, *x, *y+1, &c2), &c, sizeof(ALLEGRO_COLOR)) ||
-         !memcmp(al_get_pixel(bmp, *x+1, *y+1, &c2), &c, sizeof(ALLEGRO_COLOR))
+         color_compare(al_get_pixel(bmp, *x, *y), c) ||
+         color_compare(al_get_pixel(bmp, *x+1, *y), c) ||
+         color_compare(al_get_pixel(bmp, *x, *y+1), c) ||
+         !color_compare(al_get_pixel(bmp, *x+1, *y+1), c)
       )) {
          break;
       }
@@ -67,16 +72,16 @@ static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int
    /* look for right edge of character */
    *w = 0;
    while ((*x+*w+1 < bmp->w) && 
-      (!memcmp(al_get_pixel(bmp, *x+*w+1, *y, &c2), &c, sizeof(ALLEGRO_COLOR)) &&
-      memcmp(al_get_pixel(bmp, *x+*w+1, *y+1, &c2), &c, sizeof(ALLEGRO_COLOR)))) {
+      (!color_compare(al_get_pixel(bmp, *x+*w+1, *y), c) &&
+      color_compare(al_get_pixel(bmp, *x+*w+1, *y+1), c))) {
          (*w)++;
    }
 
    /* look for bottom edge of character */
    *h = 0;
    while ((*y+*h+1 < bmp->h) &&
-      (!memcmp(al_get_pixel(bmp, *x, *y+*h+1, &c2), &c, sizeof(ALLEGRO_COLOR)) &&
-      memcmp(al_get_pixel(bmp, *x+1, *y+*h+1, &c2), &c, sizeof(ALLEGRO_COLOR)))) {
+      (!color_compare(al_get_pixel(bmp, *x, *y+*h+1), c) &&
+      color_compare(al_get_pixel(bmp, *x+1, *y+*h+1), c))) {
          (*h)++;
    }
 
@@ -94,7 +99,7 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
    int ret = 0;
    ALLEGRO_COLOR col;
          
-   al_map_rgb(&col, 255, 255, 0);
+   col = al_map_rgb(255, 255, 0);
 
    _al_push_target_bitmap();
    _al_push_new_bitmap_parameters();
@@ -110,7 +115,7 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
             goto done;
          }
          al_set_target_bitmap(bits[i]);
-         al_clear(&col);
+         al_clear(col);
       }
       else {
 	 bits[i] = al_create_bitmap(w, h);
@@ -183,9 +188,9 @@ A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
      return NULL;
 
    ALLEGRO_COLOR col;
-   al_get_pixel(import_bmp, 0, 0, &col);
+   col = al_get_pixel(import_bmp, 0, 0);
    unsigned char r,g,b,a;
-   al_unmap_rgba(&col, &r, &g, &b, &a);
+   al_unmap_rgba(col, &r, &g, &b, &a);
 
    f = a5font_grab_font_from_bitmap(import_bmp);
 

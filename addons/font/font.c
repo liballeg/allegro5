@@ -700,8 +700,8 @@ static A5FONT_FONT_COLOR_DATA *color_copy_glyph_range(A5FONT_FONT_COLOR_DATA *cf
    //al_set_new_bitmap_flags(0);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
    al_get_blender(&src_mode, &dst_mode, &blend_color);
-   al_map_rgb(&white, 255, 255, 255);
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, &white);
+   white = al_map_rgb(255, 255, 255);
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
    _al_push_target_bitmap();
 
    gl = newcf->bitmaps = _AL_MALLOC(num * sizeof *gl);
@@ -713,7 +713,7 @@ static A5FONT_FONT_COLOR_DATA *color_copy_glyph_range(A5FONT_FONT_COLOR_DATA *cf
    }
 
    _al_pop_new_bitmap_parameters();
-   al_set_blender(src_mode, dst_mode, &blend_color);
+   al_set_blender(src_mode, dst_mode, blend_color);
    _al_pop_target_bitmap();
 
    return newcf;

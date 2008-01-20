@@ -63,11 +63,10 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    if (!display)
       return NULL;
 
-   ALLEGRO_COLOR black;
+   ALLEGRO_COLOR black = al_map_rgba(0, 0, 0, 0);
    al_set_current_display(display);
    al_set_target_bitmap(al_get_backbuffer());
-   al_map_rgba(&black, 0, 0, 0, 0);
-   al_clear(&black);
+   al_clear(black);
    al_flip_display();
 
    return display;
@@ -198,7 +197,7 @@ bool al_resize_display(int width, int height)
  *
  * Clear a complete display, but confined by the clipping rectangle.
  */
-void al_clear(ALLEGRO_COLOR *color)
+void al_clear(ALLEGRO_COLOR color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
@@ -206,10 +205,10 @@ void al_clear(ALLEGRO_COLOR *color)
    ASSERT(_al_current_display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_clear_memory(color);
+      _al_clear_memory(&color);
    }
    else {
-      _al_current_display->vt->clear(_al_current_display, color);
+      _al_current_display->vt->clear(_al_current_display, &color);
    }
 }
 
@@ -226,7 +225,7 @@ void al_clear(ALLEGRO_COLOR *color)
  * color - can be obtained with al_map_*
  */
 void al_draw_line(float fx, float fy, float tx, float ty,
-   ALLEGRO_COLOR* color)
+   ALLEGRO_COLOR color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
@@ -234,11 +233,11 @@ void al_draw_line(float fx, float fy, float tx, float ty,
    ASSERT(_al_current_display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_draw_line_memory(fx, fy, tx, ty, color);
+      _al_draw_line_memory(fx, fy, tx, ty, &color);
    }
    else {
       _al_current_display->vt->draw_line(_al_current_display,
-         fx, fy, tx, ty, color);
+         fx, fy, tx, ty, &color);
    }
 }
 
@@ -261,7 +260,7 @@ void al_draw_line(float fx, float fy, float tx, float ty,
  * Outlined is the default.
  */
 void al_draw_rectangle(float tlx, float tly, float brx, float bry,
-   ALLEGRO_COLOR *color, int flags)
+   ALLEGRO_COLOR color, int flags)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
@@ -269,11 +268,11 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
    ASSERT(_al_current_display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
+      _al_draw_rectangle_memory(tlx, tly, brx, bry, &color, flags);
    }
    else {
       _al_current_display->vt->draw_rectangle(_al_current_display,
-         tlx, tly, brx, bry, color, flags);
+         tlx, tly, brx, bry, &color, flags);
    }
 }
 

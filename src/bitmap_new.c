@@ -546,7 +546,7 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
  * Can be used to convert older 4.2-style bitmaps with magic pink
  * to alpha-ready bitmaps.
  */
-void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color)
+void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
 {
    ALLEGRO_LOCKED_REGION lr;
    int x, y;
@@ -561,13 +561,13 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *mask_color)
    _al_push_target_bitmap();
    al_set_target_bitmap(bitmap);
 
-   al_map_rgba(&alpha_pixel, 0, 0, 0, 0);
+   alpha_pixel = al_map_rgba(0, 0, 0, 0);
 
    for (y = 0; y < bitmap->h; y++) {
       for (x = 0; x < bitmap->w; x++) {
-         al_get_pixel(bitmap, x, y, &pixel);
-         if (memcmp(&pixel, mask_color, sizeof(ALLEGRO_COLOR)) == 0) {
-            al_put_pixel(x, y, &alpha_pixel);
+         pixel = al_get_pixel(bitmap, x, y);
+         if (memcmp(&pixel, &mask_color, sizeof(ALLEGRO_COLOR)) == 0) {
+            al_put_pixel(x, y, alpha_pixel);
          }
       }
    }

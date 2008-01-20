@@ -194,13 +194,14 @@ bool _al_pixel_format_is_real(int format)
  *
  * See also: <al_map_rgb> <al_map_rgba_f) <al_map_rgb_f>
  */
-ALLEGRO_COLOR *al_map_rgba(ALLEGRO_COLOR *color,
+ALLEGRO_COLOR al_map_rgba(
 	unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
-	color->r = (float)r / 255.0f;
-	color->g = (float)g / 255.0f;
-	color->b = (float)b / 255.0f;
-	color->a = (float)a / 255.0f;
+    ALLEGRO_COLOR color;
+	color.r = (float)r / 255.0f;
+	color.g = (float)g / 255.0f;
+	color.b = (float)b / 255.0f;
+	color.a = (float)a / 255.0f;
 	return color;
 }
 
@@ -212,11 +213,10 @@ ALLEGRO_COLOR *al_map_rgba(ALLEGRO_COLOR *color,
  *
  * See also: <al_map_rgba> <al_map_rgba_f) <al_map_rgb_f>
  */
-ALLEGRO_COLOR *al_map_rgb(ALLEGRO_COLOR *color,
+ALLEGRO_COLOR al_map_rgb(
 	unsigned char r, unsigned char g, unsigned char b)
 {
-	al_map_rgba(color, r, g, b, 255);
-	return color;
+    return al_map_rgba(r, g, b, 255);
 }
 
 
@@ -226,13 +226,14 @@ ALLEGRO_COLOR *al_map_rgb(ALLEGRO_COLOR *color,
  *
  * See also: <al_map_rgba> <al_map_rgb> <al_map_rgb_f>
  */
-ALLEGRO_COLOR *al_map_rgba_f(ALLEGRO_COLOR *color,
+ALLEGRO_COLOR al_map_rgba_f(
 	float r, float g, float b, float a)
 {
-	color->r = r;
-	color->g = g;
-	color->b = b;
-	color->a = a;
+    ALLEGRO_COLOR color;
+	color.r = r;
+	color.g = g;
+	color.b = b;
+	color.a = a;
 	return color;
 }
 
@@ -244,11 +245,10 @@ ALLEGRO_COLOR *al_map_rgba_f(ALLEGRO_COLOR *color,
  *
  * See also: <al_map_rgba> <al_map_rgb> <al_map_rgba_f>
  */
-ALLEGRO_COLOR *al_map_rgb_f(ALLEGRO_COLOR *color,
+ALLEGRO_COLOR al_map_rgb_f(
 	float r, float g, float b)
 {
-	al_map_rgba_f(color, r, g, b, 1.0f);
-	return color;
+	return al_map_rgba_f(r, g, b, 1.0f);
 }
 
 
@@ -257,7 +257,7 @@ ALLEGRO_COLOR *al_map_rgb_f(ALLEGRO_COLOR *color,
 void _get_pixel_argb_8888(void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = *(uint32_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       (pixel & 0x00FF0000) >> 16,
       (pixel & 0x0000FF00) >>  8,
       (pixel & 0x000000FF) >>  0,
@@ -267,7 +267,7 @@ void _get_pixel_argb_8888(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_rgba_8888(void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = *(uint32_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       (pixel & 0xFF000000) >> 24,
       (pixel & 0x00FF0000) >> 16,
       (pixel & 0x0000FF00) >>  8,
@@ -277,7 +277,7 @@ void _get_pixel_rgba_8888(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_argb_4444(void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       _rgb_scale_4[(pixel & 0x0F00) >> 8],
       _rgb_scale_4[(pixel & 0x00F0) >> 4],
       _rgb_scale_4[(pixel & 0x000F)],
@@ -287,7 +287,7 @@ void _get_pixel_argb_4444(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_rgb_888(void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = READ3BYTES(data);   
-   al_map_rgba(color,
+   *color = al_map_rgba(
       (pixel & 0xFF0000) >> 16,
       (pixel & 0x00FF00) >>  8,
       (pixel & 0x0000FF) >>  0,
@@ -297,7 +297,7 @@ void _get_pixel_rgb_888(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_rgb_565(void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       _rgb_scale_5[(pixel & 0xF800) >> 11],
       _rgb_scale_6[(pixel & 0x07E0) >> 5],
       _rgb_scale_5[(pixel & 0x001F)],
@@ -307,7 +307,7 @@ void _get_pixel_rgb_565(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_rgb_555(void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       _rgb_scale_5[(pixel & 0x7C00) >> 10],
       _rgb_scale_5[(pixel & 0x03E0) >> 5],
       _rgb_scale_5[(pixel & 0x001F)],
@@ -317,7 +317,7 @@ void _get_pixel_rgb_555(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_palette_8(void *data, ALLEGRO_COLOR *color)
 {
    int pixel = *(unsigned char *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       getr8(pixel),
       getg8(pixel),
       getb8(pixel),
@@ -327,7 +327,7 @@ void _get_pixel_palette_8(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_rgba_5551(void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       _rgb_scale_5[(pixel & 0xF800) >> 11],
       _rgb_scale_5[(pixel & 0x07C0) >> 6],
       _rgb_scale_5[(pixel & 0x003E) >> 1],
@@ -337,7 +337,7 @@ void _get_pixel_rgba_5551(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_argb_1555(void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       _rgb_scale_5[(pixel & 0x7C00) >> 10],
       _rgb_scale_5[(pixel & 0x03E0) >> 5],
       _rgb_scale_5[(pixel & 0x001F)],
@@ -347,7 +347,7 @@ void _get_pixel_argb_1555(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_abgr_8888(void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = *(uint32_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       (pixel & 0x000000FF) >>  0,
       (pixel & 0x0000FF00) >>  8,
       (pixel & 0x00FF0000) >> 16,
@@ -357,7 +357,7 @@ void _get_pixel_abgr_8888(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_xbgr_8888(void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = *(uint32_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       (pixel & 0x000000FF) >>  0,
       (pixel & 0x0000FF00) >>  8,
       (pixel & 0x00FF0000) >> 16,
@@ -367,7 +367,7 @@ void _get_pixel_xbgr_8888(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_bgr_888(void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = READ3BYTES(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       (pixel & 0x000000FF) >>  0,
       (pixel & 0x0000FF00) >>  8,
       (pixel & 0x00FF0000) >> 16,
@@ -377,7 +377,7 @@ void _get_pixel_bgr_888(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_bgr_565(void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       _rgb_scale_5[(pixel & 0x001F)],
       _rgb_scale_5[(pixel & 0x07E0) >> 5],
       _rgb_scale_5[(pixel & 0xF800) >> 11],
@@ -387,7 +387,7 @@ void _get_pixel_bgr_565(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_bgr_555(void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       _rgb_scale_5[(pixel & 0x001F)],
       _rgb_scale_5[(pixel & 0x03E0) >> 5],
       _rgb_scale_5[(pixel & 0x7C00) >> 10],
@@ -397,7 +397,7 @@ void _get_pixel_bgr_555(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_rgbx_8888(void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = *(uint32_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       (pixel & 0xFF000000) >> 24,
       (pixel & 0x00FF0000) >> 16,
       (pixel & 0x0000FF00) >>  8,
@@ -407,7 +407,7 @@ void _get_pixel_rgbx_8888(void *data, ALLEGRO_COLOR *color)
 void _get_pixel_xrgb_8888(void *data, ALLEGRO_COLOR *color)
 {
    uint32_t pixel = *(uint32_t *)(data);
-   al_map_rgba(color,
+   *color = al_map_rgba(
       (pixel & 0x00FF0000) >> 16,
       (pixel & 0x0000FF00) >>  8,
       (pixel & 0x000000FF),
@@ -460,42 +460,41 @@ ALLEGRO_COLOR *_al_get_pixel(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *
  *
  * Get a pixel's color value from the specified bitmap.
  */
-ALLEGRO_COLOR *al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y,
-   ALLEGRO_COLOR *color)
+ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
 {
    ALLEGRO_LOCKED_REGION lr;
-
+   ALLEGRO_COLOR color;
    if (bitmap->locked) {
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;
       if (x < 0 || y < 0 || x > bitmap->lock_w || y > bitmap->lock_h) {
          TRACE("al_get_pixel out of bounds\n");
-         memset(color, 0, sizeof(ALLEGRO_COLOR));
+         memset(&color, 0, sizeof(ALLEGRO_COLOR));
          return color;
       }
 
       _al_get_pixel(bitmap, bitmap->locked_region.data
             + y * bitmap->locked_region.pitch
             + x * al_get_pixel_size(bitmap->format),
-            color);
+            &color);
    }
    else {
       /* FIXME: must use clip not full bitmap */
       if (x < 0 || y < 0 || x >= bitmap->w || y >= bitmap->h) {
-         memset(color, 0, sizeof(ALLEGRO_COLOR));
+         memset(&color, 0, sizeof(ALLEGRO_COLOR));
          return color;
       }
 
       if (!al_lock_bitmap_region(bitmap, x, y, 1, 1, &lr,
             ALLEGRO_LOCK_READONLY))
       {
-         memset(color, 0, sizeof(ALLEGRO_COLOR));
+         memset(&color, 0, sizeof(ALLEGRO_COLOR));
          return color;
       }
       
       /* FIXME: check for valid pixel format */
 
-      _al_get_pixel(bitmap, lr.data, color);
+      _al_get_pixel(bitmap, lr.data, &color);
 
       al_unlock_bitmap(bitmap);
    }
@@ -821,13 +820,13 @@ void _al_put_pixel(void *data, int format, int color)
  *
  * Draw a single pixel on the target bitmap.
  */
-void al_put_pixel(int x, int y, ALLEGRO_COLOR *color)
+void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
 {
    ALLEGRO_LOCKED_REGION lr;
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
    int color_value;
 
-   color_value = _al_get_pixel_value(bitmap->format, color);
+   color_value = _al_get_pixel_value(bitmap->format, &color);
 
    if (bitmap->locked) {
       x -= bitmap->lock_x;
@@ -872,24 +871,24 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR *color)
  *
  * See also: <al_unmap_rgb>, <al_unmap_rgba_f>, <al_unmap_rgb_f>
  */
-void al_unmap_rgba(ALLEGRO_COLOR *color,
+void al_unmap_rgba(ALLEGRO_COLOR color,
 	unsigned char *r,  unsigned char *g, unsigned char *b, unsigned char *a)
 {
-	*r = color->r * 255.0f;
-	*g = color->g * 255.0f;
-	*b = color->b * 255.0f;
-	*a = color->a * 255.0f;
+	*r = color.r * 255.0f;
+	*g = color.g * 255.0f;
+	*b = color.b * 255.0f;
+	*a = color.a * 255.0f;
 }
 
 
-/* Function: al_unmap_rgba
+/* Function: al_unmap_rgb
  *
  * Retrieves components of an ALLEGRO_COLOR, ignoring alpha
  * Components will range from 0-255.
  *
  * See also: <al_unmap_rgba>, <al_unmap_rgba_f>, <al_unmap_rgb_f>
  */
-void al_unmap_rgb(ALLEGRO_COLOR *color,
+void al_unmap_rgb(ALLEGRO_COLOR color,
 	unsigned char *r,  unsigned char *g, unsigned char *b)
 {
 	unsigned char tmp;
@@ -898,31 +897,31 @@ void al_unmap_rgb(ALLEGRO_COLOR *color,
 }
 
 
-/* Function: al_unmap_rgba
+/* Function: al_unmap_rgba_f
  *
  * Retrieves components of an ALLEGRO_COLOR.
  * Components will range from 0.0f-1.0f.
  *
  * See also: <al_unmap_rgba>, <al_unmap_rgb>, <al_unmap_rgb_f>
  */
-void al_unmap_rgba_f(ALLEGRO_COLOR *color,
+void al_unmap_rgba_f(ALLEGRO_COLOR color,
 	float *r, float *g, float *b, float *a)
 {
-	*r = color->r;
-	*g = color->g;
-	*b = color->b;
-	*a = color->a;
+	*r = color.r;
+	*g = color.g;
+	*b = color.b;
+	*a = color.a;
 }
 
 
-/* Function: al_unmap_rgba
+/* Function: al_unmap_rgb_f
  *
  * Retrieves components of an ALLEGRO_COLOR, ignoring alpha.
  * Components will range from 0.0f-1.0f.
  *
  * See also: <al_unmap_rgba>, <al_unmap_rgb>, <al_unmap_rgba_f>
  */
-void al_unmap_rgb_f(ALLEGRO_COLOR *color,
+void al_unmap_rgb_f(ALLEGRO_COLOR color,
 	float *r, float *g, float *b)
 {
 	float tmp;

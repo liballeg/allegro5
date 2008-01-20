@@ -4,7 +4,6 @@ int main(void)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *cursor;
-   ALLEGRO_COLOR black;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
    int mx = 0;
@@ -20,8 +19,6 @@ int main(void)
    al_hide_mouse_cursor();
 
    cursor = al_load_bitmap("cursor.tga");
-
-   al_map_rgb(&black, 0, 0, 0);
 
    queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
@@ -46,7 +43,7 @@ int main(void)
             }
          }
       }
-      al_clear(&black);
+      al_clear(al_map_rgb(0, 0, 0));
       al_draw_bitmap(cursor, mx, my, 0);
       al_flip_display();
       al_rest(5);
