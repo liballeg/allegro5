@@ -1,31 +1,47 @@
 /*
  *    Example program for the Allegro library, by Peter Wang.
+ *    Updated with to conform to new API by Ryan Dickie
  *
  *    This is a very simple program showing how to use the new event
- *    interface introduced in Allegro 4.9.0.  The graphics are mainly done
- *    using the Allegro 4.2 interface, although a new display API is also
- *    used.
+ *    interface introduced in Allegro 4.9.0.
  *
  *    Everything is still subject to change, though the event interface is
  *    unlikely to change very much now.  The new display API is less stable.
  */
-
-
-#include <stdio.h>
-
-#define ALLEGRO_NO_COMPATIBILITY
 #include <allegro5/allegro5.h>
+#include <allegro5/font.h>
 
+#define WIDTH 640
+#define HEIGHT 480
 
 /* globals */
-AL_EVENT_QUEUE *event_queue;
-AL_TIMER       *timer_a;
-AL_TIMER       *timer_b;
-AL_TIMER       *timer_c;
-float          joy_x;
-float          joy_y;
+ALLEGRO_EVENT_QUEUE *event_queue;
+ALLEGRO_DISPLAY     *display;
+ALLEGRO_TIMER       *timer_a;
+ALLEGRO_TIMER       *timer_b;
+ALLEGRO_TIMER       *timer_c;
+FONT                *myfont;
+float          joys_x;
+float          joys_y;
+ALLEGRO_COLOR black;
+ALLEGRO_COLOR white;
 
 
+/* Print some text.
+   borrowed and modified from exnew_bitmap_target.c
+*/
+static void print(int x, int y, char const *format, ...)
+{
+   va_list list;
+   va_start(list, format);
+   char message[1024];
+   uvszprintf(message, sizeof message, format, list);
+   va_end(list);
+
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &white);
+   al_draw_rectangle(x, y, strlen(message)*25, 25, &black, ALLEGRO_FILLED);
+   a5font_textout(myfont, message, x, y);
+}
 
 /* Display an error message and quit. */
 void fatal_error(const char *msg)
@@ -45,55 +61,13 @@ void fatal_error(const char *msg)
  * keyboard, mouse, joystick and timer events on screen.
  * The interesting stuff doesn't really begin until main_loop(), below.
  */
-
-
-
-int black(void)
-{
-   return makecol(0, 0, 0);
-}
-
-
-
-int white(void)
-{
-   return makecol(255, 255, 255);
-}
-
-
-
-void log_text(const char *msg)
-{
-   BITMAP *buffer;
-   BITMAP *sub;
-   int th;
-   int y;
-
-   buffer = al_get_buffer(al_main_display);
-   sub = create_sub_bitmap(buffer, 50, 50, 300, 250);
-   if (!sub) {
-      fatal_error("create_sub_bitmap");
-   }
-
-   th = text_height(font);
-   y = sub->h - th;
-   blit(sub, sub, 0, th, 0, 0, sub->w, y);
-   rectfill(sub, 0, y, sub->w, sub->h, white());
-   textout_ex(sub, font, msg, 0, y, black(), white());
-
-   destroy_bitmap(sub);
-   al_flip_display(al_main_display);
-}
-
-
-
 void log_key_down(int keycode, int unichar, int modifiers)
 {
    char buf[512];
 
    uszprintf(buf, sizeof(buf),
       "Down: %3d '%c' [%08x]", keycode, unichar, modifiers);
-   log_text(buf);
+   print(5,0,buf);
 }
 
 
@@ -104,41 +78,40 @@ void log_key_repeat(int keycode, int unichar, int modifiers)
 
    uszprintf(buf, sizeof(buf),
       "Rept: %3d '%c' [%08x]", keycode, unichar, modifiers);
-   log_text(buf);
+   print(5,0,buf);
 }
 
 
 
-void log_key_up(int keycode, int modifiers)
+void log_key_up(int keycode, int unichar, int modifiers)
 {
    char buf[512];
 
    uszprintf(buf, sizeof(buf),
-      "Up:   %3d     [%08x]", keycode, modifiers);
-   log_text(buf);
+      "Up: %3d '%c' [%08x]", keycode, unichar, modifiers);
+   print(5,0,buf);
 }
 
 
 
-void draw_timer_tick(AL_TIMER *timer, long count)
+void draw_timer_tick(ALLEGRO_TIMER *timer, long count)
 {
-   BITMAP *buffer;
    int y;
 
    if (timer == timer_a) {
       y = 50;
    } else if (timer == timer_b) {
-      y = 60;
-   } else if (timer == timer_c) {
       y = 70;
+   } else if (timer == timer_c) {
+      y = 90;
    } else {
       fatal_error("draw_timer_tick");
       y = -1;
    }
 
-   buffer = al_get_buffer(al_main_display);
-   textprintf_ex(buffer, font, 400, y, black(), white(), "Timer: %ld", count);
-   al_flip_display(al_main_display);
+   char buf[512];
+   uszprintf(buf, sizeof(buf),"Timer: %ld", count);
+   print(400, y, buf);
 }
 
 
@@ -146,79 +119,65 @@ void draw_timer_tick(AL_TIMER *timer, long count)
 void draw_mouse_button(int but, bool down)
 {
    const int offset[3] = {0, 70, 35};
-   BITMAP *buffer;
    int x;
    int y;
-   int fill_colour;
-
-   buffer = al_get_buffer(al_main_display);
+   
    x = 400 + offset[but-1];
    y = 130;
-   fill_colour = down ? black() : white();
 
-   rectfill(buffer, x, y, x+25, y+40, fill_colour);
-   rect(buffer, x, y, x+25, y+40, black());
-   al_flip_display(al_main_display);
+   al_draw_rectangle(x,y,x+25,y+40,(down ? &white : &black), ALLEGRO_FILLED);
+   al_draw_rectangle(x,y,x+25,y+40, &white, ALLEGRO_FILLED);
 }
 
 
 
 void draw_mouse_pos(int x, int y, int z)
 {
-   BITMAP *buffer;
-
-   buffer = al_get_buffer(al_main_display);
-   textprintf_ex(buffer, font, 400, 180, black(), white(),
-      "(%d, %d, %d) ", x, y, z);
-   al_flip_display(al_main_display);
+   char buf[512];
+   uszprintf(buf, sizeof(buf),"(%d, %d, %d) ", x, y, z);
+   print(400, 180, buf);
 }
 
 
 
 void draw_joystick_axes(void)
 {
-   BITMAP *buffer;
    int x;
    int y;
 
-   x = 470 + joy_x * 50;
-   y = 300 + joy_y * 50;
+   x = 470 + joys_x * 50;
+   y = 300 + joys_y * 50;
 
-   buffer = al_get_buffer(al_main_display);
-   rectfill(buffer, 470-60, 300-60, 470+60, 300+60, white());
-   rect(buffer, 470-60, 300-60, 470+60, 300+60, black());
-   circle(buffer, x, y, 10, black());
-   al_flip_display(al_main_display);
+   al_draw_rectangle(470-60, 300-60, 470+60, 300+60, &black, ALLEGRO_FILLED);
+   al_draw_rectangle(470-60, 300-60, 470+60, 300+60, &white, ALLEGRO_OUTLINED);
+   al_draw_rectangle(x-5,y-5,x+5,y+5,&white, ALLEGRO_FILLED); /* this makes up for lack of al_draw_circle */
 }
 
 
 
 void draw_joystick_button(int button, bool down)
 {
-   BITMAP *buffer;
    int x;
    int y;
-   int fill_colour;
 
    x = 400 + (button % 5) * 30;
    y = 400 + (button / 5) * 30;
-   fill_colour = down ? black() : white();
 
-   buffer = al_get_buffer(al_main_display);
-   rectfill(buffer, x, y, x + 25, y + 25, fill_colour);
-   rect(buffer, x, y, x + 25, y + 25, black());
-   al_flip_display(al_main_display);
+   ALLEGRO_COLOR fill = (down?white:black);
+   
+   al_draw_rectangle(x, y, x + 25, y + 25, &fill , ALLEGRO_FILLED);
+   al_draw_rectangle(x, y, x + 25, y + 25, &white, ALLEGRO_OUTLINED);
 }
-
 
 
 void draw_all(void)
 {
-   BITMAP *buffer;
-   AL_MSESTATE mst;
-
-   buffer = al_get_buffer(al_main_display);
-   clear_to_color(buffer, white());
+   ALLEGRO_MSESTATE mst;
+   
+/*   al_clear(&black); */
+   /* basically clear the screen minus the keyboard state printing */
+   al_draw_rectangle(0,26,WIDTH,HEIGHT,&black, ALLEGRO_FILLED);
+   
 
    al_get_mouse_state(&mst);
    draw_mouse_pos(mst.x, mst.y, mst.z);
@@ -229,8 +188,9 @@ void draw_all(void)
    draw_timer_tick(timer_a, al_timer_get_count(timer_a));
    draw_timer_tick(timer_b, al_timer_get_count(timer_b));
    draw_timer_tick(timer_c, al_timer_get_count(timer_c));
-}
 
+   al_flip_display();
+}
 
 
 /* main_loop:
@@ -242,18 +202,18 @@ void draw_all(void)
  */
 void main_loop(void)
 {
-   AL_EVENT event;
+   ALLEGRO_EVENT event;
 
    while (true) {
-
+      draw_all();
       /* Take the next event out of the event queue, and store it in `event'.
        * The third parameter is a time-out specification, allowing the function
        * to return even if no event arrives within the time period specified.
        * Zero represents infinite timeout.
        */
-      al_wait_for_event(event_queue, &event, AL_WAIT_FOREVER);
+      al_wait_for_event(event_queue, &event, ALLEGRO_WAIT_FOREVER);
 
-      /* Check what type of event we got and act accordingly.  AL_EVENT is a
+      /* Check what type of event we got and act accordingly.  ALLEGRO_EVENT is a
        * union type and interpretation of its contents is dependent on the
        * event type, which is given by the 'type' field.
        *
@@ -263,7 +223,7 @@ void main_loop(void)
        */
       switch (event.type) {
 
-         /* AL_EVENT_KEY_DOWN - a keyboard key was pressed.
+         /* ALLEGRO_EVENT_KEY_DOWN - a keyboard key was pressed.
           * The three keyboard event fields we use here are:
           *
           * keycode -- an integer constant representing the key, e.g.
@@ -276,8 +236,8 @@ void main_loop(void)
           * modifiers -- a bitmask containing the state of Shift/Ctrl/Alt, etc.
           *             keys.
           */
-         case AL_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == AL_KEY_ESCAPE) {
+         case ALLEGRO_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                return;
             }
             log_key_down(event.keyboard.keycode,
@@ -285,48 +245,49 @@ void main_loop(void)
                   event.keyboard.modifiers);
             break;
 
-         /* AL_EVENT_KEY_REPEAT - a keyboard key was held down long enough to
+         /* ALLEGRO_EVENT_KEY_REPEAT - a keyboard key was held down long enough to
           * 'repeat'.  This is a useful event if you are working on something
           * that requires typed input.  The repeat rate should be determined
           * by the operating environment the program is running in.
           */
-         case AL_EVENT_KEY_REPEAT:
+         case ALLEGRO_EVENT_KEY_REPEAT:
             log_key_repeat(event.keyboard.keycode,
                   event.keyboard.unichar,
                   event.keyboard.modifiers);
             break;
 
-         /* AL_EVENT_KEY_UP - a keyboard key was released.
+         /* ALLEGRO_EVENT_KEY_UP - a keyboard key was released.
           * Note that the unichar field is unused for this event.
           */
-         case AL_EVENT_KEY_UP:
+         case ALLEGRO_EVENT_KEY_UP:
             log_key_up(event.keyboard.keycode,
+                  event.keyboard.unichar,
                   event.keyboard.modifiers);
             break;
 
-         /* AL_EVENT_MOUSE_AXES - at least one mouse axis changed value.
+         /* ALLEGRO_EVENT_MOUSE_AXES - at least one mouse axis changed value.
           * The 'z' axis is for the scroll wheel.  We also have a fourth 'w'
           * axis for mice with two scroll wheels.
           */
-         case AL_EVENT_MOUSE_AXES:
+         case ALLEGRO_EVENT_MOUSE_AXES:
             draw_mouse_pos(event.mouse.x, event.mouse.y, event.mouse.z);
             break;
 
-         /* AL_EVENT_MOUSE_BUTTON_UP - a mouse button was pressed. 
+         /* ALLEGRO_EVENT_MOUSE_BUTTON_UP - a mouse button was pressed. 
           * The axis fields are also valid for this event.
           */
-         case AL_EVENT_MOUSE_BUTTON_DOWN:
+         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
             draw_mouse_button(event.mouse.button, true);
             break;
 
-         /* AL_EVENT_MOUSE_BUTTON_UP - a mouse button was released.
+         /* ALLEGRO_EVENT_MOUSE_BUTTON_UP - a mouse button was released.
           * The axis fields are also valid for this event.
           */
-         case AL_EVENT_MOUSE_BUTTON_UP:
+         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
             draw_mouse_button(event.mouse.button, false);
             break;
 
-         /* AL_EVENT_TIMER - a timer 'ticked'.
+         /* ALLEGRO_EVENT_TIMER - a timer 'ticked'.
           * The `source' field in the event structure tells us which timer
           * went off, and the `count' field tells us the timer's counter
           * value at the time that the event was generated.  It's not
@@ -334,41 +295,41 @@ void main_loop(void)
           * counter value, that value might have changed by the time you got
           * around to processing this event.
           */
-         case AL_EVENT_TIMER:
+         case ALLEGRO_EVENT_TIMER:
             draw_timer_tick(event.timer.source, event.timer.count);
             break;
 
-         /* AL_EVENT_JOYSTICK_AXIS - a joystick axis value changed.
+         /* ALLEGRO_EVENT_JOYSTICK_AXIS - a joystick axis value changed.
           * For simplicity, in this example we only work with the first
           * 'stick' on the first joystick on the system.
           */
-         case AL_EVENT_JOYSTICK_AXIS:
+         case ALLEGRO_EVENT_JOYSTICK_AXIS:
             if (event.joystick.source == al_get_joystick(0) &&
                event.joystick.stick == 0)
             {
                switch (event.joystick.axis) {
                   case 0:
-                     joy_x = event.joystick.pos;
+                     joys_x = event.joystick.pos;
                      break;
                   case 1:
-                     joy_y = event.joystick.pos;
+                     joys_y = event.joystick.pos;
                      break;
                }
                draw_joystick_axes();
             }
             break;
 
-         /* AL_EVENT_JOYSTICK_BUTTON_DOWN - a joystick button was pressed.
+         /* ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN - a joystick button was pressed.
           */
-         case AL_EVENT_JOYSTICK_BUTTON_DOWN:
+         case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
             if (event.joystick.source == al_get_joystick(0)) {
                draw_joystick_button(event.joystick.button, true);
             }
             break;
 
-         /* AL_EVENT_JOYSTICK_BUTTON_UP - a joystick button was released.
+         /* ALLEGRO_EVENT_JOYSTICK_BUTTON_UP - a joystick button was released.
           */
-         case AL_EVENT_JOYSTICK_BUTTON_UP:
+         case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
             if (event.joystick.source == al_get_joystick(0)) {
                draw_joystick_button(event.joystick.button, false);
             }
@@ -387,17 +348,19 @@ void main_loop(void)
 
 int main(void)
 {
+
+
    int num;
    int i;
 
-   /* Initialise Allegro. We haven't changed the way this is done yet. */
-   allegro_init();
+   /* Initialise Allegro. */
+   al_init();
 
    /* Open a window. This function is part of the new display API and is
     * still in flux.
     */
-   if (!al_create_display(GFX_AUTODETECT_WINDOWED, AL_UPDATE_DOUBLE_BUFFER,
-         AL_DEPTH_32, 640, 480))
+   display = al_create_display(WIDTH, HEIGHT);
+   if (!display)
    {
       fatal_error("al_create_display");
    }
@@ -420,6 +383,10 @@ int main(void)
     * would be responsible for drawing the mouse cursor himself.
     */
    al_show_mouse_cursor();
+
+   myfont = a5font_load_font("font.tga", 0);
+   al_map_rgb(&black, 0, 0, 0);
+   al_map_rgb(&white, 255,255,255);
 
    /* Install the joystick routines. */
    al_install_joystick();
@@ -455,22 +422,20 @@ int main(void)
     * is only one of each on the system.  The timer objects were created
     * earlier with al_install_timer().
     *
-    * The type-casts to AL_EVENT_SOURCE* are unfortunately required.
+    * The type-casts to ALLEGRO_EVENT_SOURCE* are unfortunately required.
     */
-   al_register_event_source(event_queue, (AL_EVENT_SOURCE *)al_get_keyboard());
-   al_register_event_source(event_queue, (AL_EVENT_SOURCE *)al_get_mouse());
-   al_register_event_source(event_queue, (AL_EVENT_SOURCE *)timer_a);
-   al_register_event_source(event_queue, (AL_EVENT_SOURCE *)timer_b);
-   al_register_event_source(event_queue, (AL_EVENT_SOURCE *)timer_c);
+   al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
+   al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
+   al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)timer_a);
+   al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)timer_b);
+   al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)timer_c);
 
    /* Register all the joysticks on the system with the event queue as well. */
    num = al_num_joysticks();
    for (i = 0; i < num; i++) {
-      AL_EVENT_SOURCE *joysrc = (AL_EVENT_SOURCE *)al_get_joystick(i);
+      ALLEGRO_EVENT_SOURCE *joysrc = (ALLEGRO_EVENT_SOURCE *)al_get_joystick(i);
       al_register_event_source(event_queue, joysrc);
    }
-
-   draw_all();
 
    /* Timers are not automatically started when they are created.  Start them
     * now before we enter the main loop.
@@ -490,8 +455,6 @@ int main(void)
     */
 
    return 0;
-}
-
-END_OF_MAIN()
+} END_OF_MAIN()
 
 /* vi: set ts=8 sts=3 sw=3 et: */
