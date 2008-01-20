@@ -447,7 +447,9 @@ static void _hline(int x1, int y, int x2, ALLEGRO_COLOR *color)
    int x;
 
    for (x = x1; x <= x2; x++) {
-      al_put_pixel(x, y, color);
+      ALLEGRO_COLOR result;
+      _al_blend(color, x, y, &result);
+      al_put_pixel(x, y, &result);
    }
 }
 

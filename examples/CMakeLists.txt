@@ -68,6 +68,8 @@ example(exnew_resize)
 if(WANT_FONT)
     include_directories(../addons/font)
     add_font_example(exnew_membmp exnew_membmp.c)
+    add_font_example(exnew_bitmap_target exnew_bitmap_target.c)
+    add_font_example(exnew_blend exnew_blend.c)
 endif(WANT_FONT)
 
 if(WANT_D3D)
