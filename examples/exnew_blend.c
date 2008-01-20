@@ -17,6 +17,10 @@ struct Example
    int image; /* Which test image to use. */
    int mode; /* How to draw it. */
    int BUTTONS_X; /* Where to draw buttons. */
+
+   int FPS;
+   double last_second;
+   int frames_accum, fps, skipped_accum, skipped;
 } ex;
 
 /* Print some text with a shadow. */
@@ -96,13 +100,15 @@ static void draw(void)
       ALLEGRO_INVERSE_ALPHA};
    float x = 40, y = 40;
    int i, j;
-   print(x, 0, false, "D  E  S  T  I  N  A  T  I  O  N");
+   print(x, 0, false, "D  E  S  T  I  N  A  T  I  O  N  (%d fps, %d skipped)",
+      ex.fps, ex.skipped);
    print(0, y, true, "S O U R C E");
    for (i = 0; i < 4; i++) {
       print(x + i * 110, 20, false, blend_names[i]);
       print(20, y + i * 110, true, blend_vnames[i]);
    }
 
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
    if (ex.mode >= 1 && ex.mode <= 5) {
       al_set_target_bitmap(ex.offscreen);
       al_clear(test[ex.mode - 1]);
@@ -122,7 +128,6 @@ static void draw(void)
                x + i * 110 + 100, y + j * 110 + 100, test[ex.image - 1],
                ALLEGRO_FILLED);
          }
-        
       }
    }
 
@@ -168,8 +173,24 @@ static void draw(void)
 /* Called a fixed amount of times per second. */
 static void tick(void)
 {
-   draw();
-   al_flip_display();
+   /* Count frames during the last second. */
+   double t = al_current_time() / 1000.0;
+   if (t >= ex.last_second + 1) {
+      ex.last_second += 1;
+      ex.fps = ex.frames_accum;
+      ex.frames_accum = 0;
+      ex.skipped = ex.skipped_accum;
+      ex.skipped_accum = 0;
+   }
+   ex.frames_accum++;
+
+   /* If we are falling behind, skip drawing frames. */
+   if (ex.frames_accum >= (t - ex.last_second) * ex.FPS) {
+      draw();
+      al_flip_display();
+   }
+   else
+      ex.skipped_accum++;
 }
 
 /* Run our test. */
@@ -231,6 +252,7 @@ static void run(void)
 static void init(void)
 {
    ex.BUTTONS_X = 40 + 110 * 4;
+   ex.FPS = 60;
 
    ex.myfont = a5font_load_font("font.tga", 0);
    ex.example = create_example_bitmap();
@@ -248,15 +270,16 @@ int main(void)
    al_install_keyboard();
    al_install_mouse();
    display = al_create_display(640, 480);
-
    al_show_mouse_cursor();
+
+   init();
 
    // FIXME
    // This is currently stupid, Allegro can't even use an exact 60 Hz timer,
    // we will have to change this soon.
-   ALLEGRO_TIMER *timer = al_install_timer(1000 / 10);
-
-   init();
+   int blah = 1000 / ex.FPS;
+   ALLEGRO_TIMER *timer = al_install_timer(blah);
+   ex.FPS = 1000 / blah;
 
    ex.queue = al_create_event_queue();
    al_register_event_source(ex.queue, (void *)al_get_keyboard());
