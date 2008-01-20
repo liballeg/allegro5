@@ -20,8 +20,9 @@ Changes from 4.2.2 to 4.3.10 (January 2008)
    Jon Rafkind and Milan Mimica implemented draw_sprite_ex() function and
    added an extrans2 example.
 <li>
-   Milan Mimica integrated the "skater" demo game and renamed the classic
-   demo to "shooter".
+   Milan Mimica integrated the "skater" demo game and renamed the classic demo
+   to "shooter". The skater demo was written by Miran Amon, Nick Davies, Elias
+   Pschernig, Thomas Harte & Jakub Wasilewski.
 <li>
    AJ added detection for SSE3, SSE4.1 and SSE4.2
 <li>

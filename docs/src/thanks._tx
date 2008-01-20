@@ -448,7 +448,8 @@ Contributors
    Helped track down a problem with dependency generation in MacOS X.
    
    Jakub Wasilewski (<email>krajzega@meditech.pl</a>).<br>
-   Fixed a bug when loading greyscale TGA images.
+   Fixed a bug when loading greyscale TGA images and contributed to the skater
+   demo.
 
    James Arthur (<email>jaa@arfa.clara.net</a>).<br>
    Documented the Photoshop-style truecolor blender routines.
@@ -741,7 +742,8 @@ Contributors
    get_hardware_volume functions, and did plenty of other things too.
 
    Miran Amon (<email>miran.amon@gmail.com</a>).<br>
-   Fixed an undocumented arbitrary limit in get_config_argv()
+   Fixed an undocumented arbitrary limit in get_config_argv() and contributed
+   to the skater demo.
           
    Nathan Albury, aka Rubicant (<email>gt4558a@prism.gatech.edu</a>).<br>
    Improved the fire routine in examples/exflame.c (my original version
@@ -763,7 +765,8 @@ Contributors
    and fixed a bug with draw_sprite and sub-bitmaps.
 
    Nicholas Davies (<email>master_goodbytes@hotmail.com</a>).<br>
-   Made the fix class not trigger warnings with gcc -Weffc++.
+   Made the fix class not trigger warnings with gcc -Weffc++ and contributed
+   to the skater demo.
 
    Nick Kochakian (<email>nickk@worldnet.att.net</a>).<br>
    Wrote the DirectSound input driver.
@@ -1063,7 +1066,8 @@ Contributors
    Helped fix a bug in show_video_bitmap() on MacOS X, helped optimise
    fixmul(), helped find many bugs in the MacOS X port, like better support
    for user-supplied Nibs, implemented a hardware accelerated stretch_blit
-   under DirectX, and fixed a bug with draw_sprite and sub-bitmaps.
+   under DirectX, fixed a bug with draw_sprite and sub-bitmaps and contributed
+   to the skater demo.
 
    Thomas Klausner (<email>wiz@danbala.ifoer.tuwien.ac.at</a>).<br>
    Added NetBSD detection and fixed a problem with the allegro.m4 macro and
