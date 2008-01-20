@@ -64,9 +64,11 @@ void fatal_error(const char *msg)
 void log_key_down(int keycode, int unichar, int modifiers)
 {
    char buf[512];
+   char unistr[10] = "";
+   usetat(unistr, 0, unichar);
 
    uszprintf(buf, sizeof(buf),
-      "Down: %3d '%c' [%08x]", keycode, unichar, modifiers);
+      "Down: %3d >%s< [%08x]", keycode, unistr, modifiers);
    print(5,0,buf);
 }
 
@@ -75,9 +77,11 @@ void log_key_down(int keycode, int unichar, int modifiers)
 void log_key_repeat(int keycode, int unichar, int modifiers)
 {
    char buf[512];
+   char unistr[10] = "";
+   usetat(unistr, 0, unichar);
 
    uszprintf(buf, sizeof(buf),
-      "Rept: %3d '%c' [%08x]", keycode, unichar, modifiers);
+      "Rept: %3d >%s< [%08x]", keycode, unistr, modifiers);
    print(5,0,buf);
 }
 
@@ -86,9 +90,11 @@ void log_key_repeat(int keycode, int unichar, int modifiers)
 void log_key_up(int keycode, int unichar, int modifiers)
 {
    char buf[512];
+   char unistr[10] = "";
+   usetat(unistr, 0, unichar);
 
    uszprintf(buf, sizeof(buf),
-      "Up: %3d '%c' [%08x]", keycode, unichar, modifiers);
+      "Up: %3d >%s< [%08x]", keycode, unistr, modifiers);
    print(5,0,buf);
 }
 
@@ -125,16 +131,17 @@ void draw_mouse_button(int but, bool down)
    x = 400 + offset[but-1];
    y = 130;
 
-   al_draw_rectangle(x,y,x+25,y+40,(down ? white : black), ALLEGRO_FILLED);
-   al_draw_rectangle(x,y,x+25,y+40, white, ALLEGRO_FILLED);
+   al_draw_rectangle(x, y, x + 25, y + 40, (down ? white : black),
+      ALLEGRO_FILLED);
+   al_draw_rectangle(x, y, x + 25, y + 40, white, 0);
 }
 
 
 
-void draw_mouse_pos(int x, int y, int z)
+void draw_mouse_pos(int x, int y, int z, int w)
 {
    char buf[512];
-   uszprintf(buf, sizeof(buf),"(%d, %d, %d) ", x, y, z);
+   uszprintf(buf, sizeof(buf),"(%d, %d, %d, %d) ", x, y, z, w);
    print(400, 180, buf);
 }
 
@@ -180,7 +187,7 @@ void draw_all(void)
    
 
    al_get_mouse_state(&mst);
-   draw_mouse_pos(mst.x, mst.y, mst.z);
+   draw_mouse_pos(mst.x, mst.y, mst.z, mst.w);
    draw_mouse_button(1, al_mouse_button_down(&mst, 1));
    draw_mouse_button(2, al_mouse_button_down(&mst, 2));
    draw_mouse_button(3, al_mouse_button_down(&mst, 3));
@@ -270,7 +277,8 @@ void main_loop(void)
           * axis for mice with two scroll wheels.
           */
          case ALLEGRO_EVENT_MOUSE_AXES:
-            draw_mouse_pos(event.mouse.x, event.mouse.y, event.mouse.z);
+            draw_mouse_pos(event.mouse.x, event.mouse.y, event.mouse.z,
+               event.mouse.w);
             break;
 
          /* ALLEGRO_EVENT_MOUSE_BUTTON_UP - a mouse button was pressed. 
