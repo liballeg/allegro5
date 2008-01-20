@@ -24,7 +24,7 @@ static DEMO_MENU menu[] = {
    {demo_text_proc, NULL, 0, 0, 0, 0},
    {demo_text_proc, "by Shawn Hargreaves and many others", 0, 0, 0, 0},
    {demo_text_proc, " ", 0, 0, 0, 0},
-   {demo_text_proc, "Allegro 4.2 Demo Game", 0, 0, 0, 0},
+   {demo_text_proc, "Allegro Demo Game", 0, 0, 0, 0},
    {demo_text_proc, "By Miran Amon, Nick Davies, Elias, Thomas Harte & Jakub Wasilewski", 0, 0, 0, 0},
    {demo_text_proc, " ", 0, 0, 0, 0},
    {demo_button_proc, "Back", DEMO_MENU_SELECTABLE, DEMO_STATE_MAIN_MENU, 0, 0},

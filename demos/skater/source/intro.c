@@ -54,7 +54,11 @@ static void draw(BITMAP *canvas)
 {
    int c, x, y, offx, offy;
    static char logo_text1[] = "Allegro";
-   static char logo_text2[] = "4.2";
+   static char logo_text2[] = "";
+   /* XXX commented out because the font doesn't contain the characters for
+    * anything other than "Allegro 4.2"
+    */
+   /* static char logo_text2[] = "4.2"; */
 
    if (progress < 0.5f) {
       c = (int)(255 * progress / 0.5f);
