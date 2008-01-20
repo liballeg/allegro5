@@ -249,6 +249,8 @@ int main(void)
    al_install_mouse();
    display = al_create_display(640, 480);
 
+   al_show_mouse_cursor();
+
    // FIXME
    // This is currently stupid, Allegro can't even use an exact 60 Hz timer,
    // we will have to change this soon.
