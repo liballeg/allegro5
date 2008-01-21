@@ -14,8 +14,8 @@
  *
  */
 
-#include <allegro.h>
-#include <winalleg.h>
+#include <allegro5/allegro5.h>
+#include <allegro5/winalleg.h>
 #include <process.h>
 
 #include "allegro5/internal/aintern.h"
