@@ -45,11 +45,14 @@ FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
       if (start_str) 
          end_str = strtok(0, " \t");
 
-      if(!font_str || !start_str || !end_str) {
-         destroy_font(f);
+      if (!font_str || !start_str) {
+         if (f)
+            destroy_font(f);
          if (f2)
             destroy_font(f2);
+
          pack_fclose(pack);
+
          return NULL;
       }
 
@@ -64,9 +67,11 @@ FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
          end = -1;
 
       if(begin <= 0 || (end > 0 && end < begin)) {
-         _AL_FREE(f);
+         if (f)
+            destroy_font(f);
          if (f2)
             destroy_font(f2);
+
          pack_fclose(pack);
 
          return NULL;
@@ -86,39 +91,43 @@ FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
          else {
             f2 = NULL;
          }
-         if (f2) glyph_pos=get_font_range_begin(f2, -1);
+         if (f2)
+            glyph_pos=get_font_range_begin(f2, -1);
       }
-      if(!f2) {
+
+      if (!f2) {
          if (f)
             destroy_font(f);
          pack_fclose(pack);
          return NULL;
       }
+
       if (end == -1)
-        end = begin + get_font_range_end(f2,-1) - glyph_pos;
+         end = begin + get_font_range_end(f2,-1) - glyph_pos;
+
       /* transpose the font to the range given in the .txt file */
       f4=extract_font_range(f2,glyph_pos,glyph_pos + (end - begin));
-      if (f4) {
-        if (begin != glyph_pos) transpose_font(f4, begin - glyph_pos);
+
+      if (f4 && (begin != glyph_pos)) {
+         transpose_font(f4, begin - glyph_pos);
       }
       glyph_pos += (end - begin) + 1;
 
       /* FIXME: More efficient way than to repeatedely merge into a new font? */
-      if (f) {
-         if (f4) {
+      if (f && f4) {
          f3 = f;
-           f = merge_fonts(f4, f3);
-           destroy_font(f4);           
+         f = merge_fonts(f4, f3);
+         destroy_font(f4);
          destroy_font(f3);
-         }
       }
       else {
          f = f4;
       }
       f3=f4=NULL;
-    }
-    if (f2) destroy_font(f2);
+   }
+   if (f2)
+      destroy_font(f2);
 
-    pack_fclose(pack);
-    return f;
+   pack_fclose(pack);
+   return f;
 }
