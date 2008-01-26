@@ -70,7 +70,7 @@ bool Player::logic(int step)
       float bx = x + radius * cos(realAngle);
       float by = y + radius * sin(realAngle);
       Bullet *b = 0;
-      int resourceID;
+      int resourceID = RES_FIRESMALL;
       switch (weapon) {
          case WEAPON_SMALL:
             b = new SmallBullet(bx, by, angle, this);
