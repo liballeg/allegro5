@@ -16,8 +16,6 @@
 
    Notes on building the Darwin/X11 version of Allegro.
 
-   Written by Jeremiah Blanchard.
-
    See docs/build/unix.txt for general Unix information.
 
    See readme.txt for a more general overview.

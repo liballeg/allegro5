@@ -15,17 +15,6 @@
 
    Notes on building the MinGW/Cygwin version of Allegro.
 
-   Written by Henrik Stokseth.
-
-   Robert J Ohannessian added some updates to the installation instructions
-   and an example on how to use Dev-C++ with Allegro.
-
-   Elias Pschernig and Hein Zelle revamped the cross-compilation section.
-
-   Andrei Ellman updated the Cygwin section.
-
-   Michal Molhanec simplified the Dev-C++ instructions.
-
    See readme.txt for a more general overview.
 @</pre>
 
