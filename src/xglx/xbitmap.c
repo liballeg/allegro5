@@ -214,9 +214,14 @@ static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
 
          ALLEGRO_DISPLAY_XGLX *glx = (void *)al_get_current_display();
 
-         if (glx->fbo == 0)
-            glGenFramebuffersEXT(1, &glx->fbo);
-         xbitmap->fbo = glx->fbo;
+         /* Note: I had a buggy nvidia driver which would just malfunction
+          * after around 170 FBOs were allocated.. but not much we can do
+          * against driver bugs like that. We should have a way to disable
+          * use of individual OpenGL extensions though I guess.
+          */
+         if (xbitmap->fbo == 0) {
+              glGenFramebuffersEXT(1, &xbitmap->fbo);
+         }
       }
    }
 
@@ -324,12 +329,11 @@ static void xglx_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       glDeleteTextures(1, &xbitmap->texture);
       xbitmap->texture = 0;
    }
-   // FIXME: If we are the last bitmap using it, must destroy it. Add a
-   // reference counter?
-   /*if (xbitmap->fbo) {
+
+   if (xbitmap->fbo) {
       glDeleteFramebuffersEXT(1, &xbitmap->fbo);
       xbitmap->fbo = 0;
-   }*/
+   }
 }
 
 /* Obtain a reference to this driver. */

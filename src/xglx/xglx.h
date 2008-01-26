@@ -67,11 +67,6 @@ struct ALLEGRO_DISPLAY_XGLX
 
    int opengl_initialized; /* Did we have a chance to set up OpenGL? */
 
-   /* Because some opengl drivers seem to have a very low limit on available
-    * FBOs, we use one FBO per display.
-    */
-   GLuint fbo;
-
    ALLEGRO_BITMAP *backbuffer;
 
    ALLEGRO_BITMAP_XGLX *opengl_target;
