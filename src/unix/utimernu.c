@@ -27,8 +27,8 @@
 
 
 /* readability typedefs */
-typedef int64_t usecs_t;
-typedef int64_t nsecs_t;
+typedef long msecs_t;
+typedef long usecs_t;
 
 
 /* forward declarations */
@@ -161,9 +161,9 @@ static usecs_t timer_thread_handle_tick(usecs_t interval)
 /* al_install_timer: [primary thread]
  *  Create a new timer object.
  */
-ALLEGRO_TIMER* al_install_timer(nsecs_t speed_nsecs)
+ALLEGRO_TIMER* al_install_timer(msecs_t speed_msecs)
 {
-   ASSERT(speed_nsecs > 0);
+   ASSERT(speed_msecs > 0);
    {
       ALLEGRO_TIMER *timer = _AL_MALLOC(sizeof *timer);
 
@@ -173,7 +173,7 @@ ALLEGRO_TIMER* al_install_timer(nsecs_t speed_nsecs)
          _al_event_source_init(&timer->es);
          timer->started = false;
          timer->count = 0;
-         timer->speed_usecs = speed_nsecs / 1000;
+         timer->speed_usecs = speed_msecs * 1000;
          timer->counter = 0;
 
          _al_register_destructor(timer, (void (*)(void *)) al_uninstall_timer);
@@ -273,7 +273,7 @@ void al_stop_timer(ALLEGRO_TIMER *this)
 /* al_timer_is_started: [primary thread]
  *  Return if this timer is started.
  */
-bool al_is_timer_started(ALLEGRO_TIMER *this)
+bool al_timer_is_started(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
 
@@ -285,11 +285,11 @@ bool al_is_timer_started(ALLEGRO_TIMER *this)
 /* al_timer_get_speed: [primary thread]
  *  Return this timer's speed.
  */
-nsecs_t al_get_timer_speed(ALLEGRO_TIMER *this)
+msecs_t al_timer_get_speed(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
 
-   return this->speed_usecs * 1000;
+   return this->speed_usecs / 1000;
 }
 
 
@@ -297,19 +297,19 @@ nsecs_t al_get_timer_speed(ALLEGRO_TIMER *this)
 /* al_timer_set_speed: [primary thread]
  *  Change this timer's speed.
  */
-void al_set_timer_speed(ALLEGRO_TIMER *this, nsecs_t new_speed_nsecs)
+void al_timer_set_speed(ALLEGRO_TIMER *this, msecs_t new_speed_msecs)
 {
    ASSERT(this);
-   ASSERT(new_speed_nsecs > 0);
+   ASSERT(new_speed_msecs > 0);
 
    _al_mutex_lock(&timer_thread_mutex);
    {
       if (this->started) {
          this->counter -= this->speed_usecs;
-         this->counter += new_speed_nsecs / 1000;
+         this->counter += new_speed_msecs * 1000;
       }
 
-      this->speed_usecs = new_speed_nsecs / 1000;
+      this->speed_usecs = new_speed_msecs * 1000;
    }
    _al_mutex_unlock(&timer_thread_mutex);
 }
@@ -319,7 +319,7 @@ void al_set_timer_speed(ALLEGRO_TIMER *this, nsecs_t new_speed_nsecs)
 /* al_timer_get_count: [primary thread]
  *  Return this timer's count.
  */
-long al_get_timer_count(ALLEGRO_TIMER *this)
+long al_timer_get_count(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
 
@@ -331,7 +331,7 @@ long al_get_timer_count(ALLEGRO_TIMER *this)
 /* al_timer_set_count: [primary thread]
  *  Change this timer's count.
  */
-void al_set_timer_count(ALLEGRO_TIMER *this, long new_count)
+void al_timer_set_count(ALLEGRO_TIMER *this, long new_count)
 {
    ASSERT(this);
 
