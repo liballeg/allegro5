@@ -353,26 +353,47 @@ static int alsa_init(int input, int voices)
    alsa_bits = (_sound_bits == 8) ? 8 : 16;
    alsa_stereo = (_sound_stereo) ? 1 : 0;
    alsa_rate = (_sound_freq > 0) ? _sound_freq : 44100;
-   alsa_signed = 0;
 
-   format = ((alsa_bits == 16) ? SND_PCM_FORMAT_U16_NE : SND_PCM_FORMAT_U8);
+   snd_pcm_hw_params_malloc(&hwparams);
+   ALSA9_CHECK(snd_pcm_hw_params_any(pcm_handle, hwparams));
 
-   switch (format) {
+   if (alsa_bits == 8) {
+      if (snd_pcm_hw_params_test_format(pcm_handle, hwparams, SND_PCM_FORMAT_U8) == 0) {
+         format = SND_PCM_FORMAT_U8;
+         alsa_signed = 0;
+      }
+      else if (snd_pcm_hw_params_test_format(pcm_handle, hwparams, SND_PCM_FORMAT_S8) == 0) {
+         format = SND_PCM_FORMAT_S8;
+         alsa_signed = 1;
+      }
+      else {
+         ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported sample format"));
+         goto Error;
+      }
+   }
+   else if (alsa_bits == 16)
+   {
+      if (sizeof(short) != 2)
+      {
+         ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported sample format"));
+         goto Error;
+      }
 
-      case SND_PCM_FORMAT_U8:
-	 alsa_bits = 8;
-	 break;
-
-      case SND_PCM_FORMAT_U16_NE:
-	 if (sizeof(short) != 2) {
-	    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported sample format"));
-	    goto Error;
-	 }
-	 break;
-
-      default:
-	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported sample format"));
-	 goto Error;
+      if (snd_pcm_hw_params_test_format(pcm_handle, hwparams, SND_PCM_FORMAT_U16_NE) == 0)
+      {
+         format = SND_PCM_FORMAT_U16_NE;
+         alsa_signed = 0;
+      }
+      else if (snd_pcm_hw_params_test_format(pcm_handle, hwparams, SND_PCM_FORMAT_S16_NE) == 0)
+      {
+         format = SND_PCM_FORMAT_S16_NE;
+         alsa_signed = 1;
+      }
+      else
+      {
+         ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported sample format"));
+         goto Error;
+      }
    }
 
    alsa_sample_size = (alsa_bits / 8) * (alsa_stereo ? 2 : 1);
@@ -384,10 +405,6 @@ static int alsa_init(int input, int voices)
 	 fragsize <<= 1;
    }
 
-   snd_pcm_hw_params_malloc(&hwparams);
-   snd_pcm_sw_params_malloc(&swparams);
-
-   ALSA9_CHECK(snd_pcm_hw_params_any(pcm_handle, hwparams));
    ALSA9_CHECK(snd_pcm_hw_params_set_access(pcm_handle, hwparams, SND_PCM_ACCESS_RW_INTERLEAVED));
    ALSA9_CHECK(snd_pcm_hw_params_set_format(pcm_handle, hwparams, format));
    ALSA9_CHECK(snd_pcm_hw_params_set_channels(pcm_handle, hwparams, alsa_stereo + 1));
@@ -403,6 +420,7 @@ static int alsa_init(int input, int voices)
 
    TRACE (PREFIX_I "alsa_bufsize = %ld, alsa_fragments = %d\n", alsa_bufsize, alsa_fragments);
 
+   snd_pcm_sw_params_malloc(&swparams);
    ALSA9_CHECK(snd_pcm_sw_params_current(pcm_handle, swparams));
    ALSA9_CHECK(snd_pcm_sw_params_set_start_threshold(pcm_handle, swparams, alsa_bufsize));
    ALSA9_CHECK(snd_pcm_sw_params_set_avail_min(pcm_handle, swparams, fragsize));
