@@ -172,6 +172,9 @@ void draw_mouse_pos(int x, int y, int z, int w)
 
 void draw_joystick_axes(void)
 {
+   if (al_num_joysticks() < 1)
+      return;
+
    int x;
    int y;
 
@@ -203,6 +206,9 @@ void draw_joystick_button(int button, bool down)
 
 void draw_joystick_buttons(void)
 {
+   if (al_num_joysticks() < 1)
+      return;
+
    int i;
 
    for (i = 0; i < al_joystick_num_buttons(al_get_joystick(0)); i++) {
@@ -480,9 +486,11 @@ int main(void)
       al_register_event_source(event_queue, joysrc);
    }
 
-   int size = al_joystick_num_buttons(al_get_joystick(0)) * sizeof(bool);
-   joystick_buttons = malloc(size);
-   memset(joystick_buttons, 0, size);
+   if (num > 0) {
+      int size = al_joystick_num_buttons(al_get_joystick(0)) * sizeof(bool);
+      joystick_buttons = malloc(size);
+      memset(joystick_buttons, 0, size);
+   }
 
    /* Timers are not automatically started when they are created.  Start them
     * now before we enter the main loop.
