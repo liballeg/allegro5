@@ -371,26 +371,21 @@ static int alsa_init(int input, int voices)
          goto Error;
       }
    }
-   else if (alsa_bits == 16)
-   {
-      if (sizeof(short) != 2)
-      {
+   else if (alsa_bits == 16) {
+      if (sizeof(short) != 2) {
          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported sample format"));
          goto Error;
       }
 
-      if (snd_pcm_hw_params_test_format(pcm_handle, hwparams, SND_PCM_FORMAT_U16_NE) == 0)
-      {
+      if (snd_pcm_hw_params_test_format(pcm_handle, hwparams, SND_PCM_FORMAT_U16_NE) == 0) {
          format = SND_PCM_FORMAT_U16_NE;
          alsa_signed = 0;
       }
-      else if (snd_pcm_hw_params_test_format(pcm_handle, hwparams, SND_PCM_FORMAT_S16_NE) == 0)
-      {
+      else if (snd_pcm_hw_params_test_format(pcm_handle, hwparams, SND_PCM_FORMAT_S16_NE) == 0) {
          format = SND_PCM_FORMAT_S16_NE;
          alsa_signed = 1;
       }
-      else
-      {
+      else {
          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported sample format"));
          goto Error;
       }
