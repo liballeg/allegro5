@@ -13,6 +13,7 @@
 
 #define WIDTH 640
 #define HEIGHT 480
+#define MAX_MSG_LEN 512
 
 /* globals */
 ALLEGRO_EVENT_QUEUE *event_queue;
@@ -25,28 +26,50 @@ float          joys_x;
 float          joys_y;
 ALLEGRO_COLOR black;
 ALLEGRO_COLOR white;
+bool *joystick_buttons;
 
 
 /* Print some text.
-   borrowed and modified from exnew_bitmap_target.c
+ * prints to the left side of the screen
 */
-static void print(int x, int y, char const *format, ...)
+static void print_log(char const *message)
 {
-   va_list list;
-   va_start(list, format);
-   char message[1024];
-   uvszprintf(message, sizeof message, format, list);
-   va_end(list);
+   /*FIXME: use actual font height.. get rid of defines */
+   #define SIZE_LOG (HEIGHT/25)
+   /* make a scrolling log using a circular array */
+   static char msg_log[SIZE_LOG][MAX_MSG_LEN] ;
+   static int msg_top = 0;
+
+   ustrncpy(msg_log[msg_top], message,MAX_MSG_LEN);
+   msg_top = (msg_top + 1) % SIZE_LOG;
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
-   al_draw_rectangle(x, y, strlen(message)*25, 25, black, ALLEGRO_FILLED);
+
+   al_draw_rectangle(0,0,WIDTH/2-1, HEIGHT, black, ALLEGRO_FILLED);
+   int y = HEIGHT-25;
+   int i = 0;
+   for (i=0;i< SIZE_LOG; ++i)
+   {
+      a5font_textout(myfont, msg_log[i], 5, y);
+      y-=25;
+   }
+   #undef SIZE_LOG
+}
+
+/* Print some text.
+   The old one used sub_bitmaps
+   the new method uses a scrolling log
+*/
+static void print(int x, int y, char const *message)
+{
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
    a5font_textout(myfont, message, x, y);
 }
 
 /* Display an error message and quit. */
 void fatal_error(const char *msg)
 {
-   char buf[128];
+   char buf[MAX_MSG_LEN];
 
    set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
    uszprintf(buf, sizeof(buf), "fatal_error: %s\n", msg);
@@ -63,39 +86,39 @@ void fatal_error(const char *msg)
  */
 void log_key_down(int keycode, int unichar, int modifiers)
 {
-   char buf[512];
+   char buf[MAX_MSG_LEN];
    char unistr[10] = "";
    usetat(unistr, 0, unichar);
 
    uszprintf(buf, sizeof(buf),
       "Down: %3d >%s< [%08x]", keycode, unistr, modifiers);
-   print(5,0,buf);
+   print_log(buf);
 }
 
 
 
 void log_key_repeat(int keycode, int unichar, int modifiers)
 {
-   char buf[512];
+   char buf[MAX_MSG_LEN];
    char unistr[10] = "";
    usetat(unistr, 0, unichar);
 
    uszprintf(buf, sizeof(buf),
       "Rept: %3d >%s< [%08x]", keycode, unistr, modifiers);
-   print(5,0,buf);
+   print_log(buf);
 }
 
 
 
 void log_key_up(int keycode, int unichar, int modifiers)
 {
-   char buf[512];
+   char buf[MAX_MSG_LEN];
    char unistr[10] = "";
    usetat(unistr, 0, unichar);
 
    uszprintf(buf, sizeof(buf),
       "Up: %3d >%s< [%08x]", keycode, unistr, modifiers);
-   print(5,0,buf);
+   print_log(buf);
 }
 
 
@@ -115,7 +138,7 @@ void draw_timer_tick(ALLEGRO_TIMER *timer, long count)
       y = -1;
    }
 
-   char buf[512];
+   char buf[MAX_MSG_LEN];
    uszprintf(buf, sizeof(buf),"Timer: %ld", count);
    print(400, y, buf);
 }
@@ -140,7 +163,7 @@ void draw_mouse_button(int but, bool down)
 
 void draw_mouse_pos(int x, int y, int z, int w)
 {
-   char buf[512];
+   char buf[MAX_MSG_LEN];
    uszprintf(buf, sizeof(buf),"(%d, %d, %d, %d) ", x, y, z, w);
    print(400, 180, buf);
 }
@@ -178,12 +201,22 @@ void draw_joystick_button(int button, bool down)
 }
 
 
+void draw_joystick_buttons(void)
+{
+   int i;
+
+   for (i = 0; i < al_joystick_num_buttons(al_get_joystick(0)); i++) {
+      draw_joystick_button(i, joystick_buttons[i]);
+   }
+}
+
+
 void draw_all(void)
 {
    ALLEGRO_MSESTATE mst;
    
    /* basically clear the screen minus the keyboard state printing */
-   al_draw_rectangle(0, 26, WIDTH, HEIGHT, black, ALLEGRO_FILLED);
+   al_draw_rectangle(WIDTH/2, 0, WIDTH, HEIGHT, black, ALLEGRO_FILLED);
    
 
    al_get_mouse_state(&mst);
@@ -195,6 +228,9 @@ void draw_all(void)
    draw_timer_tick(timer_a, al_timer_get_count(timer_a));
    draw_timer_tick(timer_b, al_timer_get_count(timer_b));
    draw_timer_tick(timer_c, al_timer_get_count(timer_c));
+
+   draw_joystick_axes();
+   draw_joystick_buttons();
 
    al_flip_display();
 }
@@ -323,7 +359,6 @@ void main_loop(void)
                      joys_y = event.joystick.pos;
                      break;
                }
-               draw_joystick_axes();
             }
             break;
 
@@ -331,7 +366,7 @@ void main_loop(void)
           */
          case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
             if (event.joystick.source == al_get_joystick(0)) {
-               draw_joystick_button(event.joystick.button, true);
+               joystick_buttons[event.joystick.button] = true;
             }
             break;
 
@@ -339,7 +374,7 @@ void main_loop(void)
           */
          case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
             if (event.joystick.source == al_get_joystick(0)) {
-               draw_joystick_button(event.joystick.button, false);
+               joystick_buttons[event.joystick.button] = false;
             }
             break;
 
@@ -364,6 +399,11 @@ int main(void)
    /* Initialise Allegro. */
    al_init();
 
+   /* Install the mouse handler. */
+   if (!al_install_mouse()) {
+      fatal_error("al_install_mouse");
+   }
+
    /* Open a window. This function is part of the new display API and is
     * still in flux.
     */
@@ -378,11 +418,6 @@ int main(void)
     */
    if (!al_install_keyboard()) {
       fatal_error("al_install_keyboard");
-   }
-
-   /* Install the mouse handler. */
-   if (!al_install_mouse()) {
-      fatal_error("al_install_mouse");
    }
 
    /* Show the mouse cursor.  Currently this relies on the video card or
@@ -445,6 +480,10 @@ int main(void)
       al_register_event_source(event_queue, joysrc);
    }
 
+   int size = al_joystick_num_buttons(al_get_joystick(0)) * sizeof(bool);
+   joystick_buttons = malloc(size);
+   memset(joystick_buttons, 0, size);
+
    /* Timers are not automatically started when they are created.  Start them
     * now before we enter the main loop.
     */
@@ -461,6 +500,8 @@ int main(void)
     * are also automatically destroyed.  So we don't actually need any
     * explicit shutdown code here.
     */
+
+   free(joystick_buttons);
 
    return 0;
 } END_OF_MAIN()
