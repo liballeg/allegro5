@@ -1,6 +1,7 @@
 Import('context')
 
 import os
+import helpers
 
 SConscript('all.scons', exports = ['context']);
 
@@ -33,6 +34,8 @@ def getOption(name, default = 0):
 # This shouldn't be needed. scons 0.96.93 can handle explicit assembly files
 # but it uses 'as' instead of gcc, so something needs to be changed here
 AssemblerAction = Action( 'gcc -x assembler-with-cpp $CCFLAGS $_CPPINCFLAGS $SOURCES -c -o $TARGET' )
+
+helpers.generate_alplatf_h(env, "ALLEGRO_MINGW32")
 
 import SCons.Tool
 

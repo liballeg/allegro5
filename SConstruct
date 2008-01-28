@@ -66,29 +66,11 @@ microVersion = '2'
 ## Version of Allegro
 allegroVersion = '%s.%s.%s' % (majorVersion, minorVersion, microVersion)
 
-def getPlatform():
-    return sys.platform
-
-def matchPlatform(name):
-    return name in getPlatform()
-
-def onBsd():
-    return matchPlatform('openbsd')
-
-def onLinux():
-    return matchPlatform('linux')
-
-def onWindows():
-    return matchPlatform('win32')
-
-def onOSX():
-    return matchPlatform('darwin')
-    
-def appendDir(directory, files):
-    return [directory + "/" + x for x in files]
-
 # Do not change directories when reading other scons files via SConscript
 SConscriptChdir(0)
+
+def appendDir(directory, files):
+    return [directory + "/" + x for x in files]
 
 class AllegroContext:
     """This is simply a class to hold together all the various build info."""
@@ -102,6 +84,7 @@ class AllegroContext:
 
         self.debug = int(self.getLibraryEnv()['debug'])
         self.static = int(self.getLibraryEnv()['static'])
+        self.platform = self.getLibraryEnv()['platform']
 
         # Each platform should set its own install function
         # install :: library -> list of targets
@@ -116,6 +99,25 @@ class AllegroContext:
         # like liballeg-main.a
         self.libraries = []
         self.setEnvs()
+
+    def getPlatform(self):
+        if self.platform: return self.platform
+        return sys.platform
+
+    def matchPlatform(self, name):
+        return name in self.getPlatform()
+
+    def onBsd(self):
+        return self.matchPlatform('openbsd')
+
+    def onLinux(self):
+        return self.matchPlatform('linux')
+
+    def onWindows(self):
+        return self.matchPlatform('win32')
+
+    def onOSX(self):
+        return self.matchPlatform('darwin')
 
     def setLibraryDir(self, d):
         self.libDir = d
@@ -254,9 +256,14 @@ class AllegroContext:
 def defaultEnvironment():
     import os
     env = Environment( ENV = os.environ )
+    if ARGUMENTS.get("mingw"):
+        Tool("mingw")(env)
     opts = Options('options.py', ARGUMENTS)
     opts.Add('static', 'Set Allegro to be built statically', 0)
     opts.Add('debug', 'Build the debug version of Allegro', 0)
+    opts.Add('platform', 'Use a specific platform', "")
+    opts.Add('CC', 'Use a specific c compiler', env["CC"])
+    opts.Add('mingw', 'For using mingw', "")
     opts.Update(env)
     opts.Save('options.py', env)
     Help(opts.GenerateHelpText(env))
@@ -275,16 +282,17 @@ def getAllegroContext():
     context.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
 
     file = ""
-    if onBsd():
+    if context.onBsd():
         file = 'scons/bsd.scons'
-    elif onLinux():
+    elif context.onLinux():
         file = 'scons/linux.scons'
-    elif onWindows():
+    elif context.onWindows():
         file = 'scons/win32.scons'
-    elif onOSX():
+    elif context.onOSX():
         file = 'scons/osx.scons'
     else:
-        print "Warning: unknown system type %s. Defaulting to linux." % getPlatform()
+        print "Warning: unknown system type %s. Defaulting to linux." % (
+            context.getPlatform())
         file = 'scons/linux.scons'
     SConscript(file, exports = ['context'])
     return context
@@ -294,8 +302,8 @@ context = getAllegroContext()
 # Stop cluttering everything with .sconsign files, use a single db file instead
 context.setSConsignFile("build/signatures")
 
-debugBuildDir = 'build/debug/'
-optimizedBuildDir = 'build/release/'
+debugBuildDir = 'build/debug/' + context.getPlatform() + "/"
+optimizedBuildDir = 'build/release/' + context.getPlatform() + "/"
 
 def getLibraryName(debug):
     if debug:
