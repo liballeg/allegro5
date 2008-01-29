@@ -312,8 +312,6 @@ unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 # unixfiles.remove("src/unix/alsamidi.c")
 # unixfiles.remove("src/unix/uesd.c")
 
-unixfiles += ["src/opengl/extensions.c"]
-
 context.add_files(unixfiles)
 
 def supportModules():
