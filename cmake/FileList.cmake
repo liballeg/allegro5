@@ -306,8 +306,8 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/alsa9.c
     src/unix/alsamidi.c
     src/unix/arts.c
-    src/unix/sgial.c
     src/unix/jack.c
+    src/unix/sgial.c
     src/unix/udjgpp.c
     src/unix/udrvlist.c
     src/unix/udummy.c
@@ -329,23 +329,24 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/utimernu.c
     src/unix/uxthread.c
     src/misc/modexsms.c
+    src/opengl/extensions.c
     )
 
 set(ALLEGRO_SRC_X_FILES
+    src/x/xdga2.c
     src/x/xgfxdrv.c
     src/x/xkeyboard.c
     src/x/xmousenu.c
     src/x/xsystem.c
     src/x/xvtable.c
     src/x/xwin.c
-    src/x/xdga2.c
     src/xglx/xbitmap.c
     src/xglx/xcompat.c
     src/xglx/xdisplay.c
-    src/xglx/xsystem.c
     src/xglx/xdraw.c
     src/xglx/xfullscreen.c
     src/xglx/xglx_config.c
+    src/xglx/xsystem.c
     )
     
 set(ALLEGRO_SRC_QNX_FILES
