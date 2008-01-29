@@ -40,7 +40,7 @@ def a5font(env, appendDir, buildDir, libDir):
         def add(t):
             targets.append(t)
         add(env.Install(installDir + '/lib/', lib))
-	add(env.Install(installDir + '/include/allegro5/', 'addons/font/a5_font.h'))
+	add(env.Install(installDir + '/include/allegro5/', 'addons/font/allegro5/a5_font.h'))
         return targets
 
     Alias('install', install())
