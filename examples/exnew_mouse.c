@@ -17,6 +17,10 @@ int main(void)
    al_hide_mouse_cursor();
 
    cursor = al_load_bitmap("cursor.tga");
+   if (!cursor) {
+   	allegro_message("error loading cursor.tga");
+	return 1;
+   }
 
    do {
       al_get_mouse_state(&msestate);

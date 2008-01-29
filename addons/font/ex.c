@@ -1,5 +1,5 @@
 #include "allegro5/allegro5.h"
-#include "a5_font.h"
+#include "allegro5/a5_font.h"
 
 int main(void)
 {

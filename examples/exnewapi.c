@@ -63,20 +63,20 @@ int main(void)
 
    picture = al_load_bitmap("mysha.tga");
    if (!picture) {
-      printf("failed to load mysha.tga\n");
+      allegro_message("failed to load mysha.tga");
       return 1;
    }
 
    mask = al_load_bitmap("mask.pcx");
    if (!mask) {
-      printf("failed to load mask.pcx\n");
+      allegro_message("failed to load mask.pcx");
       return 1;
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    mem_bmp = al_load_bitmap("mysha.tga");
    if (!mem_bmp) {
-      printf("failed to load mysha.tga (mem)\n");
+      allegro_message("failed to load mysha.tga (mem)");
       return 1;
    }
 

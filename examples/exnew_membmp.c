@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "allegro5/allegro5.h"
-#include "a5_font.h"
+#include "allegro5/a5_font.h"
 
 
 static bool key_down(void)
@@ -81,7 +81,15 @@ int main(void)
    ALLEGRO_DISPLAY *display = al_create_display(640, 400);
 
    A5FONT_FONT *accelfont = a5font_load_font("font.tga", 0);
+   if (!accelfont) {
+   	allegro_message("font.tga not found");
+	return 1;
+   }
    ALLEGRO_BITMAP *accelbmp = al_load_bitmap("mysha.pcx");
+   if (!accelbmp) {
+   	allegro_message("mysha.pcx not found");
+	return 1;
+   }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 

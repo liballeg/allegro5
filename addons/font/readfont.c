@@ -21,7 +21,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 
-#include "a5_font.h"
+#include "allegro5/a5_font.h"
 
 
 typedef struct FONT_TYPE_INFO

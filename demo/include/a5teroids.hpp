@@ -2,7 +2,7 @@
 #define A5TEROIDS_HPP
 
 #include "allegro5/allegro5.h"
-#include "a5_font.h"
+#include "allegro5/a5_font.h"
 
 #ifdef __linux__
 #define MAX_PATH 5000

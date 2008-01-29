@@ -11,6 +11,10 @@ int main(void)
 
    /* First icon: Read from file. */
    icon1 = al_load_bitmap("icon.tga");
+   if (!icon1) {
+   	allegro_message("icon.tga not found");
+	return 1;
+   }
 
    /* Second icon: Create it. */
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);

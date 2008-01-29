@@ -434,6 +434,10 @@ int main(void)
    al_show_mouse_cursor();
 
    myfont = a5font_load_font("font.tga", 0);
+   if (!myfont) {
+      allegro_message("font.tga not found");
+      return 1;
+   }
    black = al_map_rgb(0, 0, 0);
    white = al_map_rgb(255, 255, 255);
 

@@ -23,6 +23,9 @@ int main(void)
    display = al_create_display(640, 480);
 
    picture = al_load_bitmap("mysha.pcx");
+   if (!picture) {
+   	allegro_message("mysha.pcx not found");
+   }
 
    redraw(picture);
    al_rest(2500);

@@ -19,6 +19,10 @@ int main(void)
    al_hide_mouse_cursor();
 
    cursor = al_load_bitmap("cursor.tga");
+   if (!cursor) {
+   	allegro_message("error loading cursor.tga");
+	return 1;
+   }
 
    queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());

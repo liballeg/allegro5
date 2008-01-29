@@ -136,6 +136,10 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
 
    myfont = a5font_load_font("font.tga", 0);
+   if (!myfont) {
+   	allegro_message("font.tga not found");
+	return 1;
+   }
 
    while (!quit) {
       if (al_get_new_bitmap_flags() & ALLEGRO_FORCE_LOCKING)

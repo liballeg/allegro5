@@ -255,6 +255,10 @@ static void init(void)
    ex.FPS = 60;
 
    ex.myfont = a5font_load_font("font.tga", 0);
+   if (!ex.myfont) {
+   	allegro_message("font.tga not found");
+	exit(1);
+   }
    ex.example = create_example_bitmap();
 
    ex.offscreen = al_create_bitmap(640, 480);
