@@ -23,7 +23,7 @@ int main(void)
     ALLEGRO_EVENT event;
     ALLEGRO_KEYBOARD *keyboard;
 
-    long last_resize;
+    double last_resize;
     int rs = 100;
 
     /* Initialize Allegro and create an event queue. */
@@ -59,7 +59,7 @@ int main(void)
                 break;
             }
         }
-        if (al_current_time() - last_resize > 100)
+        if (al_current_time() - last_resize > 0.1)
         {
             int s;
             last_resize = al_current_time();

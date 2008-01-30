@@ -16,12 +16,12 @@ int do_gui(std::vector<Widget *>& widgets, unsigned int selected)
       if (ud < 0 && selected) {
          selected--;
          my_play_sample(RES_FIRELARGE);
-         al_rest(200);
+         al_rest(0.200);
       }
       else if (ud > 0 && selected < (widgets.size()-1)) {
          selected++;
          my_play_sample(RES_FIRELARGE);
-         al_rest(200);
+         al_rest(0.200);
       }
       if (input->b1()) {
          if (!widgets[selected]->activate())
@@ -42,7 +42,7 @@ int do_gui(std::vector<Widget *>& widgets, unsigned int selected)
          widgets[i]->render(i == selected);
       }
       al_flip_display();
-      al_rest(10);
+      al_rest(0.010);
    }
 }
 

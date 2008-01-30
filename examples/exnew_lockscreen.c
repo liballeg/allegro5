@@ -15,7 +15,7 @@ int main(void)
         ((char *)locked.data)[i] = (i / locked.pitch) * 255 / 99;
     al_unlock_bitmap(bitmap);
     al_flip_display();
-    al_rest(5000);
+    al_rest(5.0);
     return 0;
 }
 END_OF_MAIN()

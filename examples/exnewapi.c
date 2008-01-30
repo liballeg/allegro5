@@ -17,7 +17,6 @@ int main(void)
    ALLEGRO_EVENT event;
    ALLEGRO_EVENT_QUEUE *events;
    int quit = 0;
-   int ticks = 0, last_rendered = 0, start_ticks;
    int fps_accumulator = 0, fps_time = 0;
    double fps = 0;
    int FPS = 500;
@@ -93,7 +92,6 @@ int main(void)
    al_install_keyboard();
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
-   start_ticks = al_current_time();
 
    for (i = 0; i < 3; i++) {
       al_set_current_display(display[i]);
@@ -110,8 +108,8 @@ int main(void)
    al_draw_line(0, 0, 100, 0, al_map_rgba_f(1, 1, 0, 0.5));
    al_draw_line(0, 0, 0, 100, al_map_rgba_f(1, 1, 0, 0.5));
 	
-   long start = al_current_time();
-   long last_move = al_current_time();
+   double start = al_current_time();
+   double last_move = al_current_time();
    int frames = 0;
 
    while (!quit) {
@@ -148,7 +146,7 @@ int main(void)
       }
 
       while (last_move < al_current_time()) {
-         last_move++;
+         last_move += 0.001;
          x += dx;
          if (x == 0)
             dx = 1;
@@ -186,7 +184,7 @@ int main(void)
       }
    }
 
-   printf("fps=%f\n", (float)(frames * 1000) / (float)(al_current_time()-start));
+   printf("fps=%f\n", (double)frames / (al_current_time()-start));
 
    al_destroy_bitmap(picture);
    al_destroy_bitmap(mask);

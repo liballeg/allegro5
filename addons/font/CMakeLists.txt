@@ -1,5 +1,5 @@
 set(FONT_SOURCES font.c fontbmp.c readfont.c text.c)
-set(FONT_INCLUDE_FILES a5_font.h)
+set(FONT_INCLUDE_FILES allegro5/a5_font.h)
 
 macro(add_font_build nm extra_flags)
     macro(really_add_font_build nm target libtype more_extra_flags)

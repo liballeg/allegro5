@@ -36,10 +36,10 @@ void _al_win_init_time(void)
 
 
 
-unsigned long al_current_time(void)
+double al_current_time(void)
 {
    /* XXX: Maybe use QueryPerformanceCounter? */
-   return timeGetTime() - _al_win_initial_time;
+   return (double) (timeGetTime() - _al_win_initial_time) / 1000.0;
 }
 
 
@@ -47,9 +47,9 @@ unsigned long al_current_time(void)
 /* al_rest:
  *  Rests the specified amount of milliseconds.
  */
-void al_rest(long msecs)
+void al_rest(double seconds)
 {
-   ASSERT(msecs >= 0);
+   ASSERT(seconds >= 0);
 
-   Sleep(msecs);
+   Sleep((DWORD)(seconds * 1000.0));
 }
