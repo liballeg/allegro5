@@ -237,9 +237,9 @@ set(ALLEGRO_SRC_WIN_FILES
     )
 
 set(ALLEGRO_SRC_D3D_FILES
-	src/win/d3d_bmp.c
-	src/win/d3d_disp.c
-	)
+    src/win/d3d_bmp.c
+    src/win/d3d_disp.c
+    )
 
 set(ALLEGRO_SRC_BEOS_FILES
     src/beos/baccel.cpp
@@ -534,6 +534,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/aintosx.h
     include/allegro5/platform/aintqnx.h
     include/allegro5/platform/aintunix.h
+    include/allegro5/platform/aintuthr.h
     include/allegro5/platform/aintwin.h
     include/allegro5/platform/aintwthr.h
     include/allegro5/platform/al386gcc.h
@@ -567,5 +568,4 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
 
 if(UNIX)
    LIST(APPEND ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED include/allegro5/platform/alunixac.h)
-   LIST(APPEND ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES include/allegro5/platform/aintuthr.h)
 endif(UNIX)
