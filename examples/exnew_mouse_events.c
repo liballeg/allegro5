@@ -20,15 +20,15 @@ int main(void)
 
    cursor = al_load_bitmap("cursor.tga");
    if (!cursor) {
-   	allegro_message("error loading cursor.tga");
-	return 1;
+      allegro_message("error loading cursor.tga");
+      return 1;
    }
 
    queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
-   do {
+   while (1) {
       if (!al_event_queue_is_empty(queue)) {
          while (al_get_next_event(queue, &event)) {
             switch (event.type) {
@@ -36,27 +36,32 @@ int main(void)
                   mx = event.mouse.x;
                   my = event.mouse.y;
                   break;
+
                case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
                   goto done;
-                  break;
+
                case ALLEGRO_EVENT_KEY_DOWN:
-                  if (event.keyboard.keycode ==
-                        ALLEGRO_KEY_ESCAPE)
+                  if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                      goto done;
+                  }
                   break;
             }
          }
       }
+
       al_clear(al_map_rgb(0, 0, 0));
       al_draw_bitmap(cursor, mx, my, 0);
       al_flip_display();
       al_rest(5);
    }
-        while(1);
+
 done:
+
    al_destroy_event_queue(queue);
 
    return 0;
 }
+
 END_OF_MAIN()
 
+/* vi: set sw=3 sts=3 et: */
