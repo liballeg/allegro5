@@ -38,7 +38,7 @@ static void print(int x, int y, char const *format, ...)
 static void draw(void)
 {
    double dt = 0;
-   double t = al_current_time();
+   double t = al_current_time() / 1000.0;
    if (last_time > 0) {
       dt = t - last_time;
    }
@@ -84,7 +84,7 @@ void run(void)
    dy = 63;
 
    int frames = 0;
-   double start = al_current_time();
+   double start = al_current_time() / 1000.0;
    do {
       /* Check for ESC key or close button event and quit in either case. */
       if (!al_event_queue_is_empty(queue)) {
@@ -105,7 +105,7 @@ void run(void)
          }
       }
       draw();
-      print(0, 0, "FPS: %.1f", frames / (al_current_time() - start));
+      print(0, 0, "FPS: %.1f", frames / (al_current_time() / 1000.0 - start));
       if (al_get_new_bitmap_flags() & ALLEGRO_FORCE_LOCKING) {
          print(0, a5font_text_height(myfont), "using forced bitmap locking");
       }

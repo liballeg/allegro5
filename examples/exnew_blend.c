@@ -174,7 +174,7 @@ static void draw(void)
 static void tick(void)
 {
    /* Count frames during the last second. */
-   double t = al_current_time();
+   double t = al_current_time() / 1000.0;
    if (t >= ex.last_second + 1) {
       ex.last_second += 1;
       ex.fps = ex.frames_accum;

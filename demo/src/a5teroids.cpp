@@ -42,7 +42,7 @@ int main(int argc, char **argv)
    for (;;) {
       player->load();
 
-      al_rest(0.500);
+      al_rest(500);
 
       play_sample(title_music, 255, 128, 1000, 1);
       int choice = do_menu();
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
       }
       stop_sample(title_music);
 
-      al_rest(0.250);
+      al_rest(250);
       lastUFO = -1;
       canUFO = true;
 
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
       play_sample(game_music, 255, 128, 1000, 1);
 
       int step = 0;
-      long start = (long) (al_current_time() * 1000);
+      long start = al_current_time();
 
       for (;;) {
          if (entities.size() <= 0) {
@@ -74,8 +74,8 @@ int main(int argc, char **argv)
          if (!logic(step))
             break;
          render(step);
-         al_rest(0.010);
-         long end = (long) (al_current_time() * 1000);
+         al_rest(10);
+         long end = al_current_time();
          step = end - start;
          start = end;
       }

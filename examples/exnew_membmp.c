@@ -37,8 +37,8 @@ static void print(A5FONT_FONT *myfont, char *message, int x, int y)
 static void test(ALLEGRO_BITMAP *bitmap, A5FONT_FONT *font, char *message)
 {
 	long frames = 0;
-	double start_time = al_current_time();
-	double fps = 0;
+	long start_time = al_current_time();
+	int fps = 0;
 
 	for (;;) {
 		if (key_down()) {
@@ -60,13 +60,15 @@ static void test(ALLEGRO_BITMAP *bitmap, A5FONT_FONT *font, char *message)
 
 		print(font, message, 0, 0);
 		char second_line[100];
-		sprintf(second_line, "%.1f FPS", fps);
+		sprintf(second_line, "%d FPS", fps);
 		print(font, second_line, 0, a5font_text_height(font)+5);
 
 		al_flip_display();
 
 		frames++;
-		fps = (double)frames / (al_current_time() - start_time);
+		long now = al_current_time();
+		long mseconds = now - start_time;
+		fps = mseconds > 10 ? 1000 * frames / mseconds : 0;
 	}
 }
 

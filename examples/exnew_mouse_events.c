@@ -50,7 +50,7 @@ int main(void)
       al_clear(al_map_rgb(0, 0, 0));
       al_draw_bitmap(cursor, mx, my, 0);
       al_flip_display();
-      al_rest(0.005);
+      al_rest(5);
    }
         while(1);
 done:

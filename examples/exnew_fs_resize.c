@@ -28,10 +28,10 @@ int main(void)
    }
 
    redraw(picture);
-   al_rest(2.5);
+   al_rest(2500);
    al_resize_display(800, 600);
    redraw(picture);
-   al_rest(2.5);
+   al_rest(2500);
 
    return 0;
 }

@@ -51,7 +51,7 @@ int main(void)
 
    al_draw_bitmap(bitmap, 0, 0, 0);
    al_flip_display();
-   al_rest(5.0);
+   al_rest(5000);
    return 0;
 }
 END_OF_MAIN()

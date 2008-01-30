@@ -12,7 +12,7 @@ bool no_fbo = 0;
 
 void draw_opengl(void)
 {
-   double ms = al_current_time();
+   double ms = al_current_time() / 1000.0;
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();

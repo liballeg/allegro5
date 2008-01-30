@@ -64,9 +64,8 @@ bool Player::logic(int step)
          shotRate = INT_MAX;
          break;
    }
-
-   if ( (lastShot+shotRate) < (al_current_time() * 1000) && input->b1()) {
-      lastShot = (int) (al_current_time() * 1000);
+   if (((unsigned long)(lastShot+shotRate) < al_current_time()) && input->b1()) {
+      lastShot = al_current_time();
       float realAngle = -angle;
       float bx = x + radius * cos(realAngle);
       float by = y + radius * sin(realAngle);
@@ -89,7 +88,7 @@ bool Player::logic(int step)
    }
 
    if (input->cheat()) {
-      al_rest(0.250);
+      al_rest(250);
       std::list<Entity *>::iterator it;
       for (it = entities.begin(); it != entities.end(); it++) {
          Entity *e = *it;

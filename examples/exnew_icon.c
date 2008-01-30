@@ -32,7 +32,7 @@ int main(void)
    {
       al_set_display_icon(i & 1 ? icon2 : icon1);
       al_flip_display();
-      al_rest(1.0);
+      al_rest(500);
    }
    return 0;
 }
