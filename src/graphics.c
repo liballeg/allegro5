@@ -644,10 +644,6 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
       gfx_virgin = FALSE;
    }
 
-   /* lock the application in the foreground */
-   if (system_driver->display_switch_lock)
-      system_driver->display_switch_lock(TRUE, TRUE);
-
    timer_simulate_retrace(FALSE);
    _screen_split_position = 0;
 
@@ -714,9 +710,6 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
 	 _AL_FREE(_gfx_bank);
 	 _gfx_bank = NULL;
       }
-
-      if (system_driver->display_switch_lock)
-	 system_driver->display_switch_lock(FALSE, FALSE);
 
       TRACE(PREFIX_I "Graphic mode closed.\n");
       return 0;
@@ -794,9 +787,6 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
       if (!ugetc(allegro_error))
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unable to find a suitable graphics driver"));
 
-      if (system_driver->display_switch_lock)
-	 system_driver->display_switch_lock(FALSE, FALSE);
-
       TRACE(PREFIX_E "Failed setting graphic driver %d.\n", card);
       return -1;
    }
@@ -852,9 +842,6 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
    LOCK_DATA(gfx_driver, sizeof(GFX_DRIVER));
 
    _register_switch_bitmap(screen, NULL);
-
-   if (system_driver->display_switch_lock)
-      system_driver->display_switch_lock(FALSE, FALSE);
 
    TRACE(PREFIX_I "set_gfx_card success for %dx%dx%d.\n",
 	 screen->w, screen->h, bitmap_color_depth(screen));

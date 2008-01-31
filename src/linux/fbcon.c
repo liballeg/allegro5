@@ -528,6 +528,9 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
       set_ramp_cmap(&fix_info, &my_mode);
 
    calculate_refresh_rate(&my_mode);
+  
+   /* Note: Locked in __al_linux_console_graphics(). */ 
+   __al_linux_display_switch_lock(FALSE, FALSE);
  
    TRACE(PREFIX_I "Got a bitmap %dx%dx%d\n", b->w, b->h, bitmap_color_depth(b));
    return b;
@@ -587,6 +590,10 @@ static int fb_open_device(void)
 static void fb_exit(BITMAP *b)
 {
    TRACE(PREFIX_I "Unsetting video mode.\n");
+  
+   /* Note: Unlocked in __al_linux_console_text(). */ 
+   __al_linux_display_switch_lock(TRUE, TRUE);
+
    ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
    fb_restore_cmap();
 

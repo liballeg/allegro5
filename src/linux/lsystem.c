@@ -45,8 +45,6 @@
 static int  sys_linux_init(void);
 static void sys_linux_exit(void);
 static void sys_linux_message (AL_CONST char *msg);
-static void sys_linux_save_console_state(void);
-static void sys_linux_restore_console_state(void);
 
 
 /* driver list getters */
@@ -76,8 +74,8 @@ SYSTEM_DRIVER system_linux =
    NULL, /* set_close_button_callback */
    sys_linux_message,
    NULL, /* assert */
-   sys_linux_save_console_state,
-   sys_linux_restore_console_state,
+   NULL,
+   NULL,
    NULL, /* create_bitmap */
    NULL, /* created_bitmap */
    NULL, /* create_sub_bitmap */
@@ -256,21 +254,6 @@ static void sys_linux_exit (void)
 	iopl (0);
 #endif
 }
-
-
-
-static void sys_linux_save_console_state(void)
-{
-   __al_linux_use_console();
-}
-
-
-
-static void sys_linux_restore_console_state(void)
-{
-   __al_linux_leave_console();
-}
-
 
 
 /* sys_linux_message:

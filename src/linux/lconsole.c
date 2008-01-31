@@ -314,8 +314,11 @@ int __al_linux_console_graphics (void)
    if (__al_linux_use_console()) return 1;
 
    if (graphics_mode) return 0;  /* shouldn't happen */
+
+   __al_linux_display_switch_lock(TRUE, TRUE);
    ioctl(__al_linux_console_fd, KDSETMODE, KD_GRAPHICS);
    __al_linux_wait_for_display();
+
    graphics_mode = 1;
 
    return 0;
@@ -342,6 +345,7 @@ int __al_linux_console_text (void)
 
    graphics_mode = 0;
    
+   __al_linux_display_switch_lock(FALSE, FALSE);
    __al_linux_leave_console();
 
    return 0;
