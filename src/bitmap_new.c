@@ -262,11 +262,11 @@ ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 /* Function: al_draw_bitmap
  *
  * Draws an unscaled, unrotated bitmap at the given position
- * to the current target bitmap (see al_set_target_bitmap).
+ * to the current target bitmap (see <al_set_target_bitmap>).
  * flags can be a combination of:
  *
- * > ALLEGRO_FLIP_HORIZONTAL
- * > ALLEGRO_FLIP_VERTICAL
+ * ALLEGRO_FLIP_HORIZONTAL - flip the bitmap about the y-axis
+ * ALLEGRO_FLIP_VERTICAL - flip the bitmap about the x-axis
  */
 void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
 {
@@ -394,7 +394,7 @@ void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 
 /* Function: al_draw_rotated_scaled_bitmap
  *
- * Like al_draw_rotated_bitmap, but can also scale the bitmap.
+ * Like <al_draw_rotated_bitmap>, but can also scale the bitmap.
  *
  * The point at cx/cy in the bitmap will be drawn at dx/dy and the bitmap is
  * rotated and scaled around this point.
@@ -432,7 +432,7 @@ void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 
 /* Function: al_lock_bitmap_region
  *
- * Like al_lock_bitmap, but only locks a specific area of the bitmap.
+ * Like <al_lock_bitmap>, but only locks a specific area of the bitmap.
  * If the bitmap is a display bitmap, only that area of the texture will
  * be updated when it is unlocked. Locking only the region you indend to
  * modify will be faster than locking the whole bitmap.
@@ -485,7 +485,6 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
    return locked_region;
 }
-
 
 
 

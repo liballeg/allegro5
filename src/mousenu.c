@@ -34,12 +34,14 @@ static ALLEGRO_MOUSE_DRIVER *new_mouse_driver = NULL;
 
 
 /* Function: al_is_mouse_installed
- *  Returns true if al_install_mouse() was called successfully.
+ *  Returns true if <al_install_mouse> was called successfully.
  */
 bool al_is_mouse_installed(void)
 {
    return new_mouse_driver;
 }
+
+
 
 /* Function: al_install_mouse
  *  Install a mouse driver. Returns true if successful. If a driver

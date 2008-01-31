@@ -45,6 +45,8 @@ extern ALLEGRO_DISPLAY_INTERFACE *_al_glx_vt(void);
  * Creating a new display will automatically make it the active one, with the
  * backbuffer selected for drawing. 
  *
+ * Returns NULL on error.
+ *
  * See Also: <al_set_new_display_format>, <al_set_new_display_refresh_rate>, 
  * 	<al_set_new_display_flags>
  */
@@ -139,8 +141,7 @@ void al_flip_display(void)
  * the given rectangle. This may not be supported by all drivers,
  * in which case it returns false.
  */
-bool al_update_display_region(int x, int y,
-	int width, int height)
+bool al_update_display_region(int x, int y, int width, int height)
 {
    ASSERT(_al_current_display);
 
@@ -174,9 +175,9 @@ bool al_acknowledge_resize(ALLEGRO_DISPLAY *display)
 
 /* Function: al_resize_display
  *
- * Resize the current display. Returns false on error,
- * true on success. This works on both fullscreen and windowed
- * displays, regardless of the ALLEGRO_RESIZABLE flag.
+ * Resize the current display. Returns true on success, or false on error.
+ * This works on both fullscreen and windowed displays, regardless of the
+ * ALLEGRO_RESIZABLE flag.
  *
  * Adjusts the clipping rectangle to the full size of the backbuffer.
  */
@@ -250,12 +251,12 @@ void al_draw_line(float fx, float fy, float tx, float ty,
  * tlx - top left x
  * tly - top left y
  * brx - bottom right x
- * bry bottom right y
+ * bry - bottom right y
  *
  * flags can be:
  *
- * > ALLEGRO_FILLED
- * > ALLEGRO_OUTLINED
+ * ALLEGRO_FILLED - fill the interior of the rectangle
+ * ALLEGRO_OUTLINED - draw only the rectangle borders
  * 
  * Outlined is the default.
  */
@@ -281,7 +282,7 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
 /* Function: al_is_compatible_bitmap
  *
  * D3D and OpenGL allow sharing a texture in a way so it can be used for
- * multiple windows. Each ALLEGRO_BITMAP created with al_create_bitmap
+ * multiple windows. Each ALLEGRO_BITMAP created with <al_create_bitmap>
  * however is usually tied to a single ALLEGRO_DISPLAY. This function can
  * be used to know if the bitmap is compatible with the current display,
  * even if it is another display than the one it was created with. It
@@ -369,8 +370,8 @@ int al_get_display_flags(void)
  *
  * Get the number of available fullscreen display modes
  * for the current set of display parameters. This will
- * use the values set with al_set_new_display_format,
- * al_set_new_display_refresh_rate, and al_set_new_display_flags
+ * use the values set with <al_set_new_display_format>,
+ * <al_set_new_display_refresh_rate>, and <al_set_new_display_flags>
  * to find the number of modes that match. Settings the new
  * display parameters to zero will give a list of all modes
  * for the default driver.
@@ -386,8 +387,8 @@ int al_get_num_display_modes(void)
 /* Function: al_get_display_mode
  *
  * Retrieves a display mode. Display parameters should not be
- * changed between a call of al_get_num_display_modes and
- * al_get_display_mode. index must be between 0 and the number
+ * changed between a call of <al_get_num_display_modes> and
+ * <al_get_display_mode>. index must be between 0 and the number
  * returned from al_get_num_display_modes-1. mode must be an
  * allocated ALLEGRO_DISPLAY_MODE structure. This function will
  * return NULL on failure, and the mode parameter that was passed

@@ -15,6 +15,12 @@
  */
 
 /* Title: Thread local storage
+ *
+ * Some of Allegro's "global" state is thread-specific.  For example, each
+ * thread in the program will have it's own target bitmap, and calling
+ * <al_set_target_bitmap> will only change the target bitmap of the calling
+ * thread.  This reduces the problems with global state in multithreaded
+ * programs.
  */
 
 
@@ -219,9 +225,6 @@ static thread_local_state *tls_get(void)
 /* Function: al_set_new_display_format
  *
  * Set the pixel format for al displays created after this call.
- *
- * Parameters:
- *    format - The format to use
  */
 void al_set_new_display_format(int format)
 {
@@ -236,7 +239,7 @@ void al_set_new_display_format(int format)
  *
  * Sets the refresh rate to use for newly created displays. If the refresh rate
  * is not available, al_create_display will fail. A list of modes with refresh
- * rates can be found with al_get_num_display_modes and al_get_display_mode,
+ * rates can be found with <al_get_num_display_modes> and <al_get_display_mode>,
  * documented above.
  *
  * See Also:
@@ -411,7 +414,7 @@ void _al_pop_target_bitmap(void)
 /* Function: al_set_new_bitmap_format
  *
  * Sets the pixel format for newly created bitmaps. format
- * is one of the same values as used for al_set_new_display_format.
+ * is one of the same values as used for <al_set_new_display_format>.
  * The default format is 0 and means the display driver will choose
  * the best format.
  */
@@ -502,10 +505,10 @@ void _al_pop_new_bitmap_parameters(void)
  * Sets the function to use for blending for the current thread.
  * Valid values for src and dst are:
  *
- * > ALLEGRO_ZERO
- * > ALLEGRO_ONE
- * > ALLEGRO_ALPHA
- * > ALLEGRO_INVERSE_ALPHA
+ * ALLEGRO_ZERO - XXX describe me
+ * ALLEGRO_ONE - XXX describe me
+ * ALLEGRO_ALPHA - XXX describe me
+ * ALLEGRO_INVERSE_ALPHA - XXX describe me
  */
 void al_set_blender(int src, int dst, ALLEGRO_COLOR color)
 {
