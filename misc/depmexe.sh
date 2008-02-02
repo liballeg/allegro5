@@ -21,7 +21,7 @@ if test -n "$first"; then
             elif test "$first" = "demos/skater/skater_agl"; then
                echo "\$(OBJDIR)/skater_agl/$name\$(OBJ): $file"
                echo "	\$(COMPILE_PROGRAM) -Iaddons/allegrogl/include \
--DDEMO_WITH_ALLEGRO_GL -c $file -o \$(OBJDIR)/skater_agl/$name\$(OBJ)"
+-DDEMO_USE_ALLEGRO_GL -c $file -o \$(OBJDIR)/skater_agl/$name\$(OBJ)"
                depend="$depend \$(OBJDIR)/skater_agl/$name\$(OBJ)"
             elif test "$first" = "demos/shooter/shooter"; then
                echo "\$(OBJDIR)/shooter/$name\$(OBJ): $file"
