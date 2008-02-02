@@ -217,6 +217,10 @@ int change_gfx_mode(void)
          /* Alternative worked, so remember it for next time. */
          bit_depth = alternative;
       }
+      else {
+         /* Give up is there is no alternative color depth. */
+         return DEMO_ERROR_ALLEGRO;
+      }
    }
 
 #ifdef DEMO_USE_ALLEGRO_GL
