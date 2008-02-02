@@ -17,10 +17,9 @@
 
 
 #include <sys/time.h>
-#include <sys/select.h>
+#include <math.h>
 
 #include "allegro5/altime.h"
-
 
 
 /* Marks the time Allegro was initialised, for al_current_time(). */
@@ -39,17 +38,16 @@ void _al_unix_init_time(void)
 
 
 /* al_current_time:
- *  Return the current time, in microseconds, since some arbitrary
+ *  Return the current time since some arbitrary
  *  point in time.
  */
-unsigned long al_current_time(void)
+double al_current_time(void)
 {
    struct timeval now;
-
    gettimeofday(&now, NULL);
-
-   return ((now.tv_sec  - initial_time.tv_sec)  * 1000 +
-           (now.tv_usec - initial_time.tv_usec) / 1000);
+   double time = (double) (now.tv_sec - initial_time.tv_sec)
+      + (double) (now.tv_usec - initial_time.tv_usec) * 1.0e-6;
+   return time;
 }
 
 
@@ -57,14 +55,11 @@ unsigned long al_current_time(void)
 /* al_rest:
  *  Make the caller rest for some time.
  */
-void al_rest(long msecs)
+void al_rest(double seconds)
 {
-#ifdef ALLEGRO_MACOSX
-   usleep(msecs * 1000);
-#else
-   struct timeval timeout;
-   timeout.tv_sec = 0;
-   timeout.tv_usec = msecs * 1000;
-   select(0, NULL, NULL, NULL, &timeout);
-#endif
+   struct timespec timeout;
+   double fsecs = floor(seconds);
+   timeout.tv_sec = (time_t) fsecs;
+   timeout.tv_nsec = (suseconds_t) ((seconds - fsecs) * 1e9);
+   nanosleep(&timeout, 0);
 }

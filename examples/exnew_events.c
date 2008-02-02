@@ -448,9 +448,9 @@ int main(void)
     * automatically increment a counter every n milliseconds.  They no longer
     * run user-defined callbacks.
     */
-   timer_a = al_install_timer(100);
-   timer_b = al_install_timer(1000);
-   timer_c = al_install_timer(5000);
+   timer_a = al_install_timer(0.100);
+   timer_b = al_install_timer(1.000);
+   timer_c = al_install_timer(5.000);
    if (!timer_a || !timer_b || !timer_c) {
       fatal_error("al_install_timer");
    }

@@ -26,15 +26,17 @@ AL_BEGIN_EXTERN_C
 
 
 /* Macros: conversion macros
- *  AL_SECS_TO_MSECS - seconds to milliseconds
- *  AL_BPS_TO_MSECS - beats per second to milliseconds
- *  AL_BPM_TO_MSECS - beats per minute to milliseconds
+ *  AL_USECS_TO_SECS - microseconds to seconds
+ *  AL_MSECS_TO_SECS - milliseconds to seconds
+ *  AL_BPS_TO_MSECS - beats per second to seconds
+ *  AL_BPM_TO_MSECS - beats per minute to seconds
  *
  *  These macros convert from various time units into milliseconds.
  */
-#define ALLEGRO_SECS_TO_MSECS(x)      ((long)(x) * 1000)
-#define ALLEGRO_BPS_TO_MSECS(x)       (1000 / (long)(x))
-#define ALLEGRO_BPM_TO_MSECS(x)       ((60 * 1000) / (long)(x))
+#define ALLEGRO_USECS_TO_SECS(x)      (x / 1000000)
+#define ALLEGRO_MSECS_TO_SECS(x)      (x / 1000)
+#define ALLEGRO_BPS_TO_SECS(x)        (1.0 / x)
+#define ALLEGRO_BPM_TO_SECS(x)        (60 / x)
 
 
 /* Type: ALLEGRO_TIMER
@@ -47,14 +49,14 @@ typedef struct ALLEGRO_TIMER ALLEGRO_TIMER;
 
 /* Function: al_install_timer
  *  Install a new timer.  If successful, a pointer to a new timer object is
- *  returned, otherwise NULL is returned.  SPEED_MSECS is in milliseconds per
+ *  returned, otherwise NULL is returned.  SPEED_SECS is in seconds per
  *  "tick", and must be positive.  The new timer is initially stopped.
  * 
  *  The system driver must be installed before this function can be called.
  * 
  *  Usage note: typical granularity is on the order of milliseconds.
  */
-AL_FUNC(ALLEGRO_TIMER*, al_install_timer, (long speed_msecs));
+AL_FUNC(ALLEGRO_TIMER*, al_install_timer, (double speed_secs));
 
 
 /* Function: al_uninstall_timer
@@ -92,7 +94,7 @@ AL_FUNC(bool, al_timer_is_started, (ALLEGRO_TIMER *timer));
 /* Function: al_timer_get_speed
  *  Return the timer's speed.
  */
-AL_FUNC(long, al_timer_get_speed, (ALLEGRO_TIMER *timer));
+AL_FUNC(double, al_timer_get_speed, (ALLEGRO_TIMER *timer));
 
 
 /* Function: al_timer_set_speed
@@ -100,11 +102,11 @@ AL_FUNC(long, al_timer_get_speed, (ALLEGRO_TIMER *timer));
  *  incremented when it is started.  This can be done when the timer is
  *  started or stopped.  If the timer is currently running, it is made to
  *  look as though the speed change occured precisely at the last tick.
- *  SPEED_MSECS is in milliseconds per "tick", and must be positive.
+ *  SPEED_SECS is in seconds per "tick", and must be positive.
  * 
  *  Usage note: typical granularity is on the order of milliseconds.
  */
-AL_FUNC(void, al_timer_set_speed, (ALLEGRO_TIMER *timer, long speed_msecs));
+AL_FUNC(void, al_timer_set_speed, (ALLEGRO_TIMER *timer, double speed_secs));
 
 
 /* Function: al_timer_get_count

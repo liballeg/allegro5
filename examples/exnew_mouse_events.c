@@ -52,7 +52,7 @@ int main(void)
       al_clear(al_map_rgb(0, 0, 0));
       al_draw_bitmap(cursor, mx, my, 0);
       al_flip_display();
-      al_rest(5);
+      al_rest(0.005);
    }
 
 done:

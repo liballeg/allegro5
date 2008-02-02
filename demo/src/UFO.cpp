@@ -21,8 +21,8 @@ bool UFO::logic(int step)
       return false;
    }
 
-   if (al_current_time() > (unsigned long)nextShot) {
-      nextShot = al_current_time() + SHOT_SPEED;
+   if ((al_current_time() * 1000) > nextShot) {
+      nextShot = (int)(al_current_time() * 1000) + SHOT_SPEED;
       ResourceManager& rm = ResourceManager::getInstance();
       Player *p = (Player *)rm.getData(RES_PLAYER);
       float px = p->getX();
@@ -71,7 +71,7 @@ UFO::UFO(float x, float y, float speed_x, float speed_y) :
    points = 500;
    ufo = true;
 
-   nextShot = al_current_time() + SHOT_SPEED;
+   nextShot = (int)(al_current_time() * 1000.0) + SHOT_SPEED;
 
    ResourceManager& rm = ResourceManager::getInstance();
    bitmaps[0] = (ALLEGRO_BITMAP *)rm.getData(RES_UFO0);

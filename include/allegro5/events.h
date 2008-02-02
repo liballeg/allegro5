@@ -142,7 +142,7 @@ enum
 #define _AL_EVENT_HEADER(srctype)                    \
    ALLEGRO_EVENT_TYPE type;                          \
    srctype *source;                                  \
-   unsigned long timestamp;                          \
+   double timestamp;                                 \
    signed int _refcount;            /* internal */   \
    union ALLEGRO_EVENT *_next;      /* internal */   \
    union ALLEGRO_EVENT *_next_free  /* internal */
@@ -210,7 +210,7 @@ typedef struct ALLEGRO_TIMER_EVENT
  *
  * >	ALLEGRO_EVENT_TYPE	    type;
  * >	ALLEGRO_EVENT_SOURCE *      any.source;
- * >	unsigned long	            any.timestamp;
+ * >	double		            any.timestamp;
  *
  * By examining the type field you can then access type-specific fields.  The
  * any.source field tells you which event source generated that particular

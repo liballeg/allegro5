@@ -25,14 +25,8 @@
 #include "allegro5/internal/aintern_events.h"
 
 
-
-/* readability typedefs */
-typedef long msecs_t;
-typedef long usecs_t;
-
-
 /* forward declarations */
-static usecs_t timer_thread_handle_tick(usecs_t interval);
+static double timer_thread_handle_tick(double interval);
 static void timer_handle_tick(ALLEGRO_TIMER *this);
 
 
@@ -40,9 +34,9 @@ struct ALLEGRO_TIMER
 {
    ALLEGRO_EVENT_SOURCE es;
    bool started;
-   usecs_t speed_usecs;
+   double speed_secs;
    long count;
-   long counter;		/* counts down to zero=blastoff */
+   double counter;		/* counts down to zero=blastoff */
 };
 
 
@@ -91,27 +85,18 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
    }
 #endif
 
-   struct timeval old_time;
-   struct timeval new_time;
-   struct timeval delay;
-   usecs_t interval = 0x8000;
-
-   gettimeofday(&old_time, NULL);
+   double old_time = al_current_time();
+   double new_time;
+   double interval = 0.032768;
 
    while (!_al_thread_should_stop(self)) {
-      /* Go to sleep for a short time.  `select' is more accurate than
-       * `usleep' (or even `nanosleep') on my Linux system.
-       */
-      delay.tv_sec = interval / 1000000L;
-      delay.tv_usec = interval % 1000000L;
-      select(0, NULL, NULL, NULL, &delay);
+      al_rest(interval);
 
       _al_mutex_lock(&timer_thread_mutex);
       {
          /* Calculate actual time elapsed.  */
-         gettimeofday(&new_time, NULL);
-         interval = ((new_time.tv_sec - old_time.tv_sec) * 1000000L
-                     + (new_time.tv_usec - old_time.tv_usec));
+         new_time = al_current_time();
+         interval = new_time - old_time;
          old_time = new_time;
 
          /* Handle a tick.  */
@@ -128,9 +113,9 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
  *  returns the duration that the timer thread should try to sleep
  *  next time.
  */
-static usecs_t timer_thread_handle_tick(usecs_t interval)
+static double timer_thread_handle_tick(double interval)
 {
-   usecs_t new_delay = 0x8000;
+   double new_delay = 0.032768;
    unsigned int i;
 
    for (i = 0; i < _al_vector_size(&active_timers); i++) {
@@ -140,7 +125,7 @@ static usecs_t timer_thread_handle_tick(usecs_t interval)
       timer->counter -= interval;
 
       while (timer->counter <= 0) {
-         timer->counter += timer->speed_usecs;
+         timer->counter += timer->speed_secs;
          timer_handle_tick(timer);
       }
 
@@ -161,9 +146,9 @@ static usecs_t timer_thread_handle_tick(usecs_t interval)
 /* al_install_timer: [primary thread]
  *  Create a new timer object.
  */
-ALLEGRO_TIMER* al_install_timer(msecs_t speed_msecs)
+ALLEGRO_TIMER* al_install_timer(double speed_secs)
 {
-   ASSERT(speed_msecs > 0);
+   ASSERT(speed_secs > 0);
    {
       ALLEGRO_TIMER *timer = _AL_MALLOC(sizeof *timer);
 
@@ -173,7 +158,7 @@ ALLEGRO_TIMER* al_install_timer(msecs_t speed_msecs)
          _al_event_source_init(&timer->es);
          timer->started = false;
          timer->count = 0;
-         timer->speed_usecs = speed_msecs * 1000;
+         timer->speed_secs = speed_secs;
          timer->counter = 0;
 
          _al_register_destructor(timer, (void (*)(void *)) al_uninstall_timer);
@@ -220,7 +205,7 @@ void al_start_timer(ALLEGRO_TIMER *this)
          ALLEGRO_TIMER **slot;
 
          this->started = true;
-         this->counter = this->speed_usecs;
+         this->counter = this->speed_secs;
 
          slot = _al_vector_alloc_back(&active_timers);
          *slot = this;
@@ -285,11 +270,11 @@ bool al_timer_is_started(ALLEGRO_TIMER *this)
 /* al_timer_get_speed: [primary thread]
  *  Return this timer's speed.
  */
-msecs_t al_timer_get_speed(ALLEGRO_TIMER *this)
+double al_timer_get_speed(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
 
-   return this->speed_usecs / 1000;
+   return this->speed_secs;
 }
 
 
@@ -297,19 +282,19 @@ msecs_t al_timer_get_speed(ALLEGRO_TIMER *this)
 /* al_timer_set_speed: [primary thread]
  *  Change this timer's speed.
  */
-void al_timer_set_speed(ALLEGRO_TIMER *this, msecs_t new_speed_msecs)
+void al_timer_set_speed(ALLEGRO_TIMER *this, double new_speed_secs)
 {
    ASSERT(this);
-   ASSERT(new_speed_msecs > 0);
+   ASSERT(new_speed_secs > 0);
 
    _al_mutex_lock(&timer_thread_mutex);
    {
       if (this->started) {
-         this->counter -= this->speed_usecs;
-         this->counter += new_speed_msecs * 1000;
+         this->counter -= this->speed_secs;
+         this->counter += new_speed_secs;
       }
 
-      this->speed_usecs = new_speed_msecs * 1000;
+      this->speed_secs = new_speed_secs;
    }
    _al_mutex_unlock(&timer_thread_mutex);
 }
