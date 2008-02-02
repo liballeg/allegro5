@@ -48,20 +48,21 @@ typedef struct ALLEGRO_TIMER ALLEGRO_TIMER;
 
 
 /* Function: al_install_timer
- *  Install a new timer.  If successful, a pointer to a new timer object is
- *  returned, otherwise NULL is returned.  SPEED_SECS is in seconds per
- *  "tick", and must be positive.  The new timer is initially stopped.
+ *  Install a new timer. If successful, a pointer to a new timer object is
+ *  returned, otherwise NULL is returned.  *speed_secs* is in seconds per
+ *  "tick", and must be positive. The new timer is initially stopped.
  * 
  *  The system driver must be installed before this function can be called.
  * 
- *  Usage note: typical granularity is on the order of milliseconds.
+ *  Usage note: typical granularity is on the order of microseconds, but with
+ *  some drivers might only be milliseconds.
  */
 AL_FUNC(ALLEGRO_TIMER*, al_install_timer, (double speed_secs));
 
 
 /* Function: al_uninstall_timer
- *  Uninstall the timer specified.  If the timer is started, it will
- *  automatically be stopped before uninstallation.  It will also
+ *  Uninstall the timer specified. If the timer is started, it will
+ *  automatically be stopped before uninstallation. It will also
  *  automatically unregister the timer with any event queues.
  *
  *  TIMER may not be NULL.
@@ -92,31 +93,30 @@ AL_FUNC(bool, al_timer_is_started, (ALLEGRO_TIMER *timer));
 
 
 /* Function: al_timer_get_speed
- *  Return the timer's speed.
+ *  Return the timer's speed, in seconds.
  */
 AL_FUNC(double, al_timer_get_speed, (ALLEGRO_TIMER *timer));
 
 
 /* Function: al_timer_set_speed
  *  Set the timer's speed, i.e. the rate at which its counter will be
- *  incremented when it is started.  This can be done when the timer is
- *  started or stopped.  If the timer is currently running, it is made to
+ *  incremented when it is started. This can be done when the timer is
+ *  started or stopped. If the timer is currently running, it is made to
  *  look as though the speed change occured precisely at the last tick.
- *  SPEED_SECS is in seconds per "tick", and must be positive.
- * 
- *  Usage note: typical granularity is on the order of milliseconds.
+ *
+ *  *speed_secs* has exactly the same meaning as with <al_install_timer>.
  */
 AL_FUNC(void, al_timer_set_speed, (ALLEGRO_TIMER *timer, double speed_secs));
 
 
 /* Function: al_timer_get_count
- *  Return the timer's counter value.  The timer can be started or stopped.
+ *  Return the timer's counter value. The timer can be started or stopped.
  */
 AL_FUNC(long, al_timer_get_count, (ALLEGRO_TIMER *timer));
 
 
 /* Function: al_timer_set_count
- *  Change a timer's counter value.  The timer can be started or stopped.
+ *  Change a timer's counter value. The timer can be started or stopped.
  *  COUNT value may be positive or negative, but will always be incremented
  *  by +1.
  */
