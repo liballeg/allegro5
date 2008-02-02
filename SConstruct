@@ -263,6 +263,7 @@ def defaultEnvironment():
     opts.Add('debug', 'Build the debug version of Allegro', 0)
     opts.Add('platform', 'Use a specific platform', "")
     opts.Add('CC', 'Use a specific c compiler', env["CC"])
+    opts.Add('CXX', 'Use a specific c++ compiler', env["CXX"])
     opts.Add('mingw', 'For using mingw', "")
     opts.Update(env)
     opts.Save('options.py', env)
