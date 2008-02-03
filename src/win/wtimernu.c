@@ -25,6 +25,7 @@
 #include "allegro5/internal/aintern_events.h"
 
 
+
 /* forward declarations */
 static double timer_thread_handle_tick(double interval);
 static void timer_handle_tick(ALLEGRO_TIMER *this);

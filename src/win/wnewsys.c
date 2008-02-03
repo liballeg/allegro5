@@ -30,7 +30,13 @@
 
 #include "win_new.h"
 
+#ifndef SCAN_DEPEND
+   #include <mmsystem.h>
+#endif
+
+
 static ALLEGRO_SYSTEM_INTERFACE *vt = 0;
+static bool using_higher_res_timer;
 
 ALLEGRO_SYSTEM_WIN *_al_win_system;
 
@@ -39,6 +45,11 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 {
    _al_win_system = _AL_MALLOC(sizeof *_al_win_system);
    memset(_al_win_system, 0, sizeof *_al_win_system);
+
+   // Request a 1ms resolution from our timer
+   if (timeBeginPeriod(1) != TIMERR_NOCANDO) {
+      using_higher_res_timer = true;
+   }
 
    _al_win_init_window();
 
@@ -53,6 +64,15 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
    
    return &_al_win_system->system;
 }
+
+
+static void win_shutdown(void)
+{
+   if (using_higher_res_timer) {
+      timeEndPeriod(1);
+   }
+}
+
 
 /* FIXME: autodetect a driver */
 ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
@@ -126,7 +146,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_keyboard_driver = win_get_keyboard_driver;
    vt->get_num_display_modes = win_get_num_display_modes;
    vt->get_display_mode = win_get_display_mode;
-   vt->shutdown_system = NULL; /* might need something here */
+   vt->shutdown_system = win_shutdown;
 
    TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
 
