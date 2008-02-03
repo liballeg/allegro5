@@ -8,41 +8,25 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      New timer API for Windows. 
+ *      New timer API for Unixen.
  *
- *      By Stefan Schimanski.
- *
- *      Enhanced low performance driver by Eric Botcazou.
- *
- *      Hacked into new timer API by Peter Wang.
+ *      By Peter Wang.
  *
  *      See readme.txt for copyright information.
  */
 
 
+#include <stdlib.h>
+#include <sys/time.h>
+
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
-#include "allegro5/platform/aintwin.h"
-
-#ifndef SCAN_DEPEND
-   #include <mmsystem.h>
-   #include <process.h>
-#endif
-
-#define PREFIX_I                "al-wtimer INFO: "
-#define PREFIX_W                "al-wtimer WARNING: "
-#define PREFIX_E                "al-wtimer ERROR: "
-
-
-/* readability typedefs */
-typedef long msecs_t;
-typedef long usecs_t;
 
 
 /* forward declarations */
-static usecs_t timer_thread_handle_tick(usecs_t interval);
+static double timer_thread_handle_tick(double interval);
 static void timer_handle_tick(ALLEGRO_TIMER *this);
 
 
@@ -50,9 +34,9 @@ struct ALLEGRO_TIMER
 {
    ALLEGRO_EVENT_SOURCE es;
    bool started;
-   usecs_t speed_usecs;
+   double speed_secs;
    long count;
-   long counter;		/* counts down to zero=blastoff */
+   double counter;		/* counts down to zero=blastoff */
 };
 
 
@@ -61,194 +45,65 @@ struct ALLEGRO_TIMER
  * The timer thread that runs in the background to drive the timers.
  */
 
-static _AL_THREAD timer_thread; /* dedicated thread */
-static HANDLE timer_stop_event; /* dedicated thread termination event */
+static _AL_THREAD timer_thread;
 static _AL_MUTEX timer_thread_mutex = _AL_MUTEX_UNINITED;
 static _AL_VECTOR active_timers = _AL_VECTOR_INITIALIZER(ALLEGRO_TIMER *);
 
 
-/* high performance driver */
-static LARGE_INTEGER counter_freq;
-
-/* unit conversion */
-#define COUNTER_TO_USEC(x) ((unsigned long)(x * 1000000 / counter_freq.QuadPart))
-#define USEC_TO_MSEC(x) ((unsigned long)(x) / 1000)
-#define MSEC_TO_USEC(x) (x * 1000)
-
-
-
-/* tim_win32_high_perf_thread: [timer thread]
- *  Thread loop function for the high performance driver.
+/* timer_thread_proc: [timer thread]
+ *  The timer thread procedure itself.
  */
-static void tim_win32_high_perf_thread(_AL_THREAD *self, void *unused)
+static void timer_thread_proc(_AL_THREAD *self, void *unused)
 {
-   DWORD result;
-   usecs_t delay = 0x8000;
-   LARGE_INTEGER curr_counter;
-   LARGE_INTEGER prev_tick;
-   LARGE_INTEGER diff_counter;
+#if 0
+   /* Block all signals.  */
+   /* This was needed for some reason in v4, but I can't remember why,
+    * and it might not be relevant now.  It has a tendency to create
+    * zombie processes if the program is aborted abnormally, so I'm
+    * taking it out for now.
+    */
+   {
+      sigset_t mask;
+      sigfillset(&mask);
+      pthread_sigmask(SIG_BLOCK, &mask, NULL);
+   }
+#endif
 
-   /* init thread */
-   _win_thread_init();
+#ifdef ALLEGRO_QNX
+   /* thread priority adjustment for QNX:
+    *  The timer thread is set to the highest relative priority.
+    *  (see the comment in src/qnx/qsystem.c about the scheduling policy)
+    */
+   {
+      struct sched_param sparam;
+      int spolicy;
 
-   /* get initial counter */
-   QueryPerformanceCounter(&prev_tick);
+      if (pthread_getschedparam(pthread_self(), &spolicy, &sparam) == EOK) {
+         sparam.sched_priority += 4;
+         pthread_setschedparam(pthread_self(), spolicy, &sparam);
+      }
+   }
+#endif
 
-   while (true) {
+   double old_time = al_current_time();
+   double new_time;
+   double interval = 0.032768;
+
+   while (!_al_thread_should_stop(self)) {
+      al_rest(interval);
 
       _al_mutex_lock(&timer_thread_mutex);
       {
-#if 0
-         if (!app_foreground) {
-            /* restart counter if the thread was blocked */
-            if (thread_switch_out())
-               QueryPerformanceCounter(&prev_tick);
-         }
-#endif
+         /* Calculate actual time elapsed.  */
+         new_time = al_current_time();
+         interval = new_time - old_time;
+         old_time = new_time;
 
-         /* get current counter */
-         QueryPerformanceCounter(&curr_counter);
-
-         /* get counter units till next tick */
-         diff_counter.QuadPart = curr_counter.QuadPart - prev_tick.QuadPart;
-
-         /* save current counter for next tick */
-         prev_tick.QuadPart = curr_counter.QuadPart;
-
-         /* call timer procs */
-         delay = timer_thread_handle_tick(COUNTER_TO_USEC(diff_counter.QuadPart));
+         /* Handle a tick.  */
+         interval = timer_thread_handle_tick(interval);
       }
       _al_mutex_unlock(&timer_thread_mutex);
-
-      /* wait calculated time */
-      result = MsgWaitForMultipleObjects(1, &timer_stop_event, FALSE, USEC_TO_MSEC(delay), QS_ALLINPUT);
-      if (result != WAIT_TIMEOUT) {
-         _win_thread_exit();
-         return;
-      }
    }
-
-   (void)unused;
-}
-
-
-
-/* tim_win32_low_perf_thread: [timer thread]
- *  Thread loop function for the low performance driver.
- */
-static void tim_win32_low_perf_thread(_AL_THREAD *self, void *unused)
-{
-   DWORD result;
-   usecs_t delay = 0x8000;
-   DWORD prev_time;  
-   DWORD curr_time;  /* in milliseconds */
-   DWORD diff_time;
-
-   /* init thread */
-   _win_thread_init();
-
-   /* get initial time */
-   prev_time = timeGetTime();
-
-   while (true) {
-      _al_mutex_lock(&timer_thread_mutex);
-      {
-#if 0
-         if (!app_foreground) {
-            /* restart time if the thread was blocked */
-            if (thread_switch_out())
-               prev_time = timeGetTime();
-         }
-#endif
-
-         /* get current time */
-         curr_time = timeGetTime();
-
-         /* get time till next tick */
-         diff_time = curr_time - prev_time;
-
-         /* save current time for next tick */
-         prev_time = curr_time;
-
-         /* call timer procs */
-         delay = timer_thread_handle_tick(MSEC_TO_USEC(diff_time));
-      }
-      _al_mutex_unlock(&timer_thread_mutex);
-
-      /* wait calculated time */
-      result = WaitForSingleObject(timer_stop_event, USEC_TO_MSEC(delay));
-      if (result != WAIT_TIMEOUT) {
-         _win_thread_exit();
-	 return;
-      }
-   }
-
-   (void)unused;
-}
-
-
-
-/* tim_win32_high_perf_init: [primary thread]
- *  Initializes the high performance driver.
- */
-static bool tim_win32_high_perf_init(void)
-{
-   if (!QueryPerformanceFrequency(&counter_freq)) {
-      _TRACE(PREFIX_W "High performance timer not supported\n");
-      return false;
-   }
-
-   /* create thread termination event */
-   timer_stop_event = CreateEvent(NULL, FALSE, FALSE, NULL);
-
-   _al_mutex_init(&timer_thread_mutex);
-
-   /* start timer thread */
-   _al_thread_create(&timer_thread, tim_win32_high_perf_thread, NULL);
-
-   /* increase priority of timer thread */
-   SetThreadPriority(timer_thread.thread, THREAD_PRIORITY_TIME_CRITICAL);
-
-   return true;
-}
-
-
-
-/* tim_win32_low_perf_init: [primary thread]
- *  Initializes the low performance driver.
- */
-static bool tim_win32_low_perf_init(void)
-{
-   /* create thread termination event */
-   timer_stop_event = CreateEvent(NULL, FALSE, FALSE, NULL);
-
-   _al_mutex_init(&timer_thread_mutex);
-
-   /* start timer thread */
-   _al_thread_create(&timer_thread, tim_win32_low_perf_thread, NULL);
-
-   /* increase priority of timer thread */
-   SetThreadPriority(timer_thread.thread, THREAD_PRIORITY_TIME_CRITICAL);
-
-   return true;
-}
-
-
-
-/* tim_win32_exit: [primary thread]
- *  Shuts down either timer driver.
- */
-static void tim_win32_exit(void)
-{
-   /* acknowledge that the thread should stop */
-   SetEvent(timer_stop_event);
-
-   /* wait until thread has ended */
-   _al_thread_join(&timer_thread);
-
-   /* thread has ended, now we can release all resources */
-   _al_mutex_destroy(&timer_thread_mutex);
-   CloseHandle(timer_stop_event);
 }
 
 
@@ -258,9 +113,9 @@ static void tim_win32_exit(void)
  *  returns the duration that the timer thread should try to sleep
  *  next time.
  */
-static usecs_t timer_thread_handle_tick(usecs_t interval)
+static double timer_thread_handle_tick(double interval)
 {
-   usecs_t new_delay = 0x8000;
+   double new_delay = 0.032768;
    unsigned int i;
 
    for (i = 0; i < _al_vector_size(&active_timers); i++) {
@@ -270,8 +125,8 @@ static usecs_t timer_thread_handle_tick(usecs_t interval)
       timer->counter -= interval;
 
       while (timer->counter <= 0) {
-         timer->counter += timer->speed_usecs;
-	 timer_handle_tick(timer);
+         timer->counter += timer->speed_secs;
+         timer_handle_tick(timer);
       }
 
       if ((timer->counter > 0) && (timer->counter < new_delay))
@@ -291,9 +146,9 @@ static usecs_t timer_thread_handle_tick(usecs_t interval)
 /* al_install_timer: [primary thread]
  *  Create a new timer object.
  */
-ALLEGRO_TIMER* al_install_timer(msecs_t speed_msecs)
+ALLEGRO_TIMER* al_install_timer(double speed_secs)
 {
-   ASSERT(speed_msecs > 0);
+   ASSERT(speed_secs > 0);
    {
       ALLEGRO_TIMER *timer = _AL_MALLOC(sizeof *timer);
 
@@ -303,7 +158,7 @@ ALLEGRO_TIMER* al_install_timer(msecs_t speed_msecs)
          _al_event_source_init(&timer->es);
          timer->started = false;
          timer->count = 0;
-         timer->speed_usecs = speed_msecs * 1000;
+         timer->speed_secs = speed_secs;
          timer->counter = 0;
 
          _al_register_destructor(timer, (void (*)(void *)) al_uninstall_timer);
@@ -350,7 +205,7 @@ void al_start_timer(ALLEGRO_TIMER *this)
          ALLEGRO_TIMER **slot;
 
          this->started = true;
-         this->counter = this->speed_usecs;
+         this->counter = this->speed_secs;
 
          slot = _al_vector_alloc_back(&active_timers);
          *slot = this;
@@ -360,8 +215,8 @@ void al_start_timer(ALLEGRO_TIMER *this)
       _al_mutex_unlock(&timer_thread_mutex);
 
       if (new_size == 1) {
-         if (!tim_win32_high_perf_init())
-            tim_win32_low_perf_init();
+         _al_mutex_init(&timer_thread_mutex);
+         _al_thread_create(&timer_thread, timer_thread_proc, NULL);
       }
    }
 }
@@ -391,7 +246,8 @@ void al_stop_timer(ALLEGRO_TIMER *this)
       _al_mutex_unlock(&timer_thread_mutex);
 
       if (new_size == 0) {
-         tim_win32_exit();
+         _al_thread_join(&timer_thread);
+         _al_mutex_destroy(&timer_thread_mutex);
          _al_vector_free(&active_timers);
       }
    }
@@ -414,11 +270,11 @@ bool al_timer_is_started(ALLEGRO_TIMER *this)
 /* al_timer_get_speed: [primary thread]
  *  Return this timer's speed.
  */
-msecs_t al_timer_get_speed(ALLEGRO_TIMER *this)
+double al_timer_get_speed(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
 
-   return this->speed_usecs / 1000;
+   return this->speed_secs;
 }
 
 
@@ -426,19 +282,19 @@ msecs_t al_timer_get_speed(ALLEGRO_TIMER *this)
 /* al_timer_set_speed: [primary thread]
  *  Change this timer's speed.
  */
-void al_timer_set_speed(ALLEGRO_TIMER *this, msecs_t new_speed_msecs)
+void al_timer_set_speed(ALLEGRO_TIMER *this, double new_speed_secs)
 {
    ASSERT(this);
-   ASSERT(new_speed_msecs > 0);
+   ASSERT(new_speed_secs > 0);
 
    _al_mutex_lock(&timer_thread_mutex);
    {
       if (this->started) {
-         this->counter -= this->speed_usecs;
-         this->counter += new_speed_msecs * 1000;
+         this->counter -= this->speed_secs;
+         this->counter += new_speed_secs;
       }
 
-      this->speed_usecs = new_speed_msecs * 1000;
+      this->speed_secs = new_speed_secs;
    }
    _al_mutex_unlock(&timer_thread_mutex);
 }
