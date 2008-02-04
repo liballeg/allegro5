@@ -152,6 +152,7 @@ def examples(env,appendDir,buildDir,libDir):
     addExample('exnew_opengl', ['exnew_opengl.c'])
     addExample('exnew_bitmap_target', ['exnew_bitmap_target.c'])
     addExample('exnew_blend', ['exnew_blend.c'])
+    addExample('exnew_timer', ['exnew_timer.c'])
 
     Alias('examples', examples)
     return examples
