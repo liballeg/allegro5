@@ -82,14 +82,15 @@ static TIMER_DRIVER timerdrv_emu =
  */
 void rest_callback(unsigned int time, void (*callback)(void))
 {
+   double dt = ALLEGRO_MSECS_TO_SECS((double) time);
    if (callback) {
-      unsigned long end = al_current_time() + time;
+      double end = al_current_time() + dt;
 
       while (al_current_time() < end)
          callback();
    }
    else {
-      al_rest(time);
+      al_rest(dt);
    }
 }
 
@@ -100,7 +101,7 @@ void rest_callback(unsigned int time, void (*callback)(void))
  */
 void rest(unsigned int time)
 {
-   al_rest(time);
+   al_rest(ALLEGRO_MSECS_TO_SECS((double) time));
 }
 
 

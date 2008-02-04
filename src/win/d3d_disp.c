@@ -598,7 +598,7 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *display)
 
    display->end_thread = true;
    while (!display->thread_ended)
-      al_rest(1);
+      al_rest(0.001);
    
    d3d_already_fullscreen = false;
 
@@ -694,7 +694,7 @@ static bool _al_d3d_reset_device()
          while ((hr = IDirect3DDevice9_Reset(_al_d3d_device, &d3d_pp)) != D3D_OK) {
             /* FIXME: Should we try forever? */
             TRACE("_al_d3d_reset_device: Reset failed. Trying again.\n");
-            al_rest(10);
+            al_rest(0.010);
          }
 
          IDirect3DDevice9_GetRenderTarget(_al_d3d_device, 0, &d3d_fullscreen_display->render_target);
@@ -729,7 +729,7 @@ static bool _al_d3d_reset_device()
             if (IDirect3DDevice9_Reset(_al_d3d_device, &d3d_pp) == D3D_OK) {
                break;
             }
-            al_rest(100);
+            al_rest(0.100);
          }
          if (i == 5) {
             _al_d3d_unlock_device();
@@ -1073,7 +1073,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display, bool is_r
    _beginthread(d3d_display_thread_proc, 0, &params);
 
    while (!params.display->initialized && !params.display->init_failed)
-      al_rest(1);
+      al_rest(0.001);
 
    if (params.display->init_failed) {
       _al_d3d_unlock_device();

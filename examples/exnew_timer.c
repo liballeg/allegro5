@@ -67,6 +67,7 @@ static void print(int x, int y, char const *format, ...)
 static void draw(void)
 {
    int h = a5font_text_height(ex.myfont);
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
    al_clear(al_map_rgb_f(1, 1, 1));
    print(0, 0, "%.9f target for %.0f Hz Timer", 1.0 / ex.FPS, ex.FPS);
    print(0, h, "%.9f now", ex.this_time - ex.prev_time);

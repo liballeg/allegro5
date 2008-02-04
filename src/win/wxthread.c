@@ -304,7 +304,7 @@ int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mtxExternal, unsigned long abs
    ASSERT(cond);
    ASSERT(mtxExternal);
    {
-      int reltime = abstime - al_current_time();
+      int reltime = abstime - ALLEGRO_SECS_TO_MSECS(al_current_time());
 
       if (reltime < 0)
          return -1;

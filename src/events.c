@@ -332,7 +332,7 @@ static void wait_on_queue_forever(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret
  */
 static bool wait_on_queue_timed(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event, long msecs)
 {
-   unsigned long timeout = al_current_time() + msecs;
+   unsigned long timeout = ALLEGRO_SECS_TO_MSECS(al_current_time()) + msecs;
    bool timed_out = false;
    ALLEGRO_EVENT *next_event = NULL;
 

@@ -82,7 +82,7 @@ typedef struct MENU_PLAYER
    
    int mouse_button_was_pressed;    /* set if mouse button pressed on last iteration */
    int back_from_child;             /* set if a child was activated on last iteration */    
-   int timestamp;                   /* timestamp for gui_timer events */
+   double timestamp;                /* timestamp for gui_timer events */
    int mouse_sel;                   /* item the mouse is currently over */
    int redraw;                      /* set if redrawing is required */
    int auto_open;                   /* set if menu auto-opening is activated */

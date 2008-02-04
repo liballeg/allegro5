@@ -26,17 +26,20 @@ AL_BEGIN_EXTERN_C
 
 
 /* Macros: conversion macros
- *  AL_USECS_TO_SECS - microseconds to seconds
- *  AL_MSECS_TO_SECS - milliseconds to seconds
- *  AL_BPS_TO_MSECS - beats per second to seconds
- *  AL_BPM_TO_MSECS - beats per minute to seconds
- *
+ *  ALLEGRO_USECS_TO_SECS - microseconds to seconds
+ *  ALLEGRO_MSECS_TO_SECS - milliseconds to seconds
+ *  ALLEGRO_BPS_TO_SECS - beats per second to seconds
+ *  ALLEGRO_BPM_TO_SECS - beats per minute to seconds
+ *  ALLEGRO_SECS_TO_MSECS - seconds to milliseconds
+ *  ALLEGRO_SECS_TO_USECS - seconds to microseconds
  *  These macros convert from various time units into milliseconds.
  */
 #define ALLEGRO_USECS_TO_SECS(x)      (x / 1000000)
 #define ALLEGRO_MSECS_TO_SECS(x)      (x / 1000)
 #define ALLEGRO_BPS_TO_SECS(x)        (1.0 / x)
 #define ALLEGRO_BPM_TO_SECS(x)        (60 / x)
+#define ALLEGRO_SECS_TO_MSECS(x)      (x * 1000)
+#define ALLEGRO_SECS_TO_USECS(x)      (x * 1000000)
 
 
 /* Type: ALLEGRO_TIMER
