@@ -1374,7 +1374,15 @@ static void d3d_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
       rect.y2 += target->yofs;
    }
 
+   int src, dst;
+   ALLEGRO_COLOR blend_color;
+
+   al_get_blender(&src, &dst, &blend_color);
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
+
    d3d_draw_rectangle(d, rect.x1, rect.y1, rect.x2+1, rect.y2+1, color, ALLEGRO_FILLED);
+
+   al_set_blender(src, dst, blend_color);
 }
 
 static void d3d_flip_display(ALLEGRO_DISPLAY *d)
