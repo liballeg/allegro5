@@ -278,12 +278,7 @@ int main(void)
 
    init();
 
-   // FIXME
-   // This is currently stupid, Allegro can't even use an exact 60 Hz timer,
-   // we will have to change this soon.
-   int blah = 1000 / ex.FPS;
-   ALLEGRO_TIMER *timer = al_install_timer(blah);
-   ex.FPS = 1000 / blah;
+   ALLEGRO_TIMER *timer = al_install_timer(1000.0 / ex.FPS);
 
    ex.queue = al_create_event_queue();
    al_register_event_source(ex.queue, (void *)al_get_keyboard());
