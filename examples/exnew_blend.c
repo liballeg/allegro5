@@ -278,7 +278,7 @@ int main(void)
 
    init();
 
-   ALLEGRO_TIMER *timer = al_install_timer(1000.0 / ex.FPS);
+   ALLEGRO_TIMER *timer = al_install_timer(1.0 / ex.FPS);
 
    ex.queue = al_create_event_queue();
    al_register_event_source(ex.queue, (void *)al_get_keyboard());
