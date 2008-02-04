@@ -264,6 +264,7 @@ def defaultEnvironment():
     opts.Add('platform', 'Use a specific platform', "")
     opts.Add('CC', 'Use a specific c compiler', env["CC"])
     opts.Add('CXX', 'Use a specific c++ compiler', env["CXX"])
+    opts.Add('CFLAGS', 'Override compiler flags', env["CFLAGS"])
     opts.Add('mingw', 'For using mingw', "")
     opts.Update(env)
     opts.Save('options.py', env)
