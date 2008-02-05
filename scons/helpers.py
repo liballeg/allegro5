@@ -35,5 +35,5 @@ def generate_alplatf_h(env, define):
     # Add the builder to scons.
     env.Append(BUILDERS = { "PlatformHeader" : platformHeader })
     # Create alplatf.h based on alplatf.h.cmake
-    env.PlatformHeader('#include/allegro5/platform/alplatf.h',
+    return env.PlatformHeader('#include/allegro5/platform/alplatf.h',
         '#include/allegro5/platform/alplatf.h.cmake')

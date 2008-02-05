@@ -78,9 +78,15 @@ class AllegroContext:
     def __init__(self, env):
         self.librarySource = []
         self.extraTargets = []
+
+	# Set in one of the scons/*.scons files
         self.installDir = "tmp"
         self.libDir = "lib/dummy"
+
         self.libraryEnv = env
+	
+	# Where md5 signatures are placed
+	self.sconsignFile = 'build/signatures'
 
         self.debug = int(self.getLibraryEnv()['debug'])
         self.static = int(self.getLibraryEnv()['static'])
@@ -93,7 +99,8 @@ class AllegroContext:
         # Platform specific scons scripts should set the example env via
         # setExampleEnv(). In most cases the library env can be used:
         # context.setExampleEnv(context.getLibraryEnv().Copy())
-        self.exampleEnv = False
+        self.exampleEnv = Environment()
+
         # libraries - list of libraries to link into Allegro test/example programs
         # Usually is just liballeg.so/dylib/dll but could also be something
         # like liballeg-main.a
@@ -148,6 +155,9 @@ class AllegroContext:
 
     def setEnvs(self):
         self.envs = [self.libraryEnv, self.exampleEnv]
+	# Force all envs to use the same dblite file
+        for i in self.envs:
+            i.SConsignFile(self.sconsignFile)
 
     def getMajorVersion(self):
         return majorVersion
@@ -186,9 +196,8 @@ class AllegroContext:
     def getLibraryEnv(self):
         return self.libraryEnv
 
-    def setSConsignFile(self, file):
-        for i in self.envs:
-            i.SConsignFile(file)
+    #def setSConsignFile(self, file):
+    #    self.sconsignFile = file
 
     def getExampleEnv(self):
         return self.exampleEnv
@@ -281,6 +290,7 @@ def defaultEnvironment():
 # d - directory where the library( dll, so ) should end up
 def getAllegroContext():
     context = AllegroContext(defaultEnvironment())
+
     context.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
 
     file = ""
@@ -300,9 +310,6 @@ def getAllegroContext():
     return context
 
 context = getAllegroContext()
-
-# Stop cluttering everything with .sconsign files, use a single db file instead
-context.setSConsignFile("build/signatures")
 
 debugBuildDir = 'build/debug/' + context.getPlatform() + "/"
 optimizedBuildDir = 'build/release/' + context.getPlatform() + "/"
