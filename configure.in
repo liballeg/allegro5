@@ -798,7 +798,7 @@ allegro_with_loadpng=yes)
 
 if test -n "$allegro_with_loadpng"; then
   AC_CHECK_LIB(png, png_access_version_number,
-               libpng_here=yes)
+               libpng_here=yes, , -lz -lm)
 
   AC_CHECK_LIB(z, zlibVersion,
                zlib_here=yes)
