@@ -211,7 +211,7 @@ void draw_joystick_buttons(void)
 
    int i;
 
-   for (i = 0; i < al_joystick_num_buttons(al_get_joystick(0)); i++) {
+   for (i = 0; i < al_get_num_joystick_buttons(al_get_joystick(0)); i++) {
       draw_joystick_button(i, joystick_buttons[i]);
    }
 }
@@ -231,9 +231,9 @@ void draw_all(void)
    draw_mouse_button(2, al_mouse_button_down(&mst, 2));
    draw_mouse_button(3, al_mouse_button_down(&mst, 3));
 
-   draw_timer_tick(timer_a, al_timer_get_count(timer_a));
-   draw_timer_tick(timer_b, al_timer_get_count(timer_b));
-   draw_timer_tick(timer_c, al_timer_get_count(timer_c));
+   draw_timer_tick(timer_a, al_get_timer_count(timer_a));
+   draw_timer_tick(timer_b, al_get_timer_count(timer_b));
+   draw_timer_tick(timer_c, al_get_timer_count(timer_c));
 
    draw_joystick_axes();
    draw_joystick_buttons();
@@ -491,7 +491,7 @@ int main(void)
    }
 
    if (num > 0) {
-      int size = al_joystick_num_buttons(al_get_joystick(0)) * sizeof(bool);
+      int size = al_get_num_joystick_buttons(al_get_joystick(0)) * sizeof(bool);
       joystick_buttons = malloc(size);
       memset(joystick_buttons, 0, size);
    }

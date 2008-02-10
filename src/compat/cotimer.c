@@ -282,7 +282,7 @@ static int install_timer_int(void *proc, void *param, long speed_msecs, int para
    _al_mutex_lock(&timer_mutex);
    {
       if ((proc == _timer_queue[x].proc) || (proc == _timer_queue[x].param_proc)) {
-         al_timer_set_speed(_timer_queue[x].timer, speed_msecs);
+         al_set_timer_speed(_timer_queue[x].timer, speed_msecs);
       }
       else {
          _timer_queue[x].timer = al_install_timer(speed_msecs);

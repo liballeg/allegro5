@@ -267,10 +267,10 @@ bool al_timer_is_started(ALLEGRO_TIMER *this)
 
 
 
-/* al_timer_get_speed: [primary thread]
+/* al_get_timer_speed: [primary thread]
  *  Return this timer's speed.
  */
-double al_timer_get_speed(ALLEGRO_TIMER *this)
+double al_get_timer_speed(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
 
@@ -279,10 +279,10 @@ double al_timer_get_speed(ALLEGRO_TIMER *this)
 
 
 
-/* al_timer_set_speed: [primary thread]
+/* al_set_timer_speed: [primary thread]
  *  Change this timer's speed.
  */
-void al_timer_set_speed(ALLEGRO_TIMER *this, double new_speed_secs)
+void al_set_timer_speed(ALLEGRO_TIMER *this, double new_speed_secs)
 {
    ASSERT(this);
    ASSERT(new_speed_secs > 0);
@@ -301,10 +301,10 @@ void al_timer_set_speed(ALLEGRO_TIMER *this, double new_speed_secs)
 
 
 
-/* al_timer_get_count: [primary thread]
+/* al_get_timer_count: [primary thread]
  *  Return this timer's count.
  */
-long al_timer_get_count(ALLEGRO_TIMER *this)
+long al_get_timer_count(ALLEGRO_TIMER *this)
 {
    ASSERT(this);
 
@@ -313,10 +313,10 @@ long al_timer_get_count(ALLEGRO_TIMER *this)
 
 
 
-/* al_timer_set_count: [primary thread]
+/* al_set_timer_count: [primary thread]
  *  Change this timer's count.
  */
-void al_timer_set_count(ALLEGRO_TIMER *this, long new_count)
+void al_set_timer_count(ALLEGRO_TIMER *this, long new_count)
 {
    ASSERT(this);
 

@@ -95,13 +95,13 @@ AL_FUNC(void, al_stop_timer, (ALLEGRO_TIMER *timer));
 AL_FUNC(bool, al_timer_is_started, (ALLEGRO_TIMER *timer));
 
 
-/* Function: al_timer_get_speed
+/* Function: al_get_timer_speed
  *  Return the timer's speed, in seconds.
  */
-AL_FUNC(double, al_timer_get_speed, (ALLEGRO_TIMER *timer));
+AL_FUNC(double, al_get_timer_speed, (ALLEGRO_TIMER *timer));
 
 
-/* Function: al_timer_set_speed
+/* Function: al_set_timer_speed
  *  Set the timer's speed, i.e. the rate at which its counter will be
  *  incremented when it is started. This can be done when the timer is
  *  started or stopped. If the timer is currently running, it is made to
@@ -109,21 +109,21 @@ AL_FUNC(double, al_timer_get_speed, (ALLEGRO_TIMER *timer));
  *
  *  *speed_secs* has exactly the same meaning as with <al_install_timer>.
  */
-AL_FUNC(void, al_timer_set_speed, (ALLEGRO_TIMER *timer, double speed_secs));
+AL_FUNC(void, al_set_timer_speed, (ALLEGRO_TIMER *timer, double speed_secs));
 
 
-/* Function: al_timer_get_count
+/* Function: al_get_timer_count
  *  Return the timer's counter value. The timer can be started or stopped.
  */
-AL_FUNC(long, al_timer_get_count, (ALLEGRO_TIMER *timer));
+AL_FUNC(long, al_get_timer_count, (ALLEGRO_TIMER *timer));
 
 
-/* Function: al_timer_set_count
+/* Function: al_set_timer_count
  *  Change a timer's counter value. The timer can be started or stopped.
  *  COUNT value may be positive or negative, but will always be incremented
  *  by +1.
  */
-AL_FUNC(void, al_timer_set_count, (ALLEGRO_TIMER *timer, long count));
+AL_FUNC(void, al_set_timer_count, (ALLEGRO_TIMER *timer, long count));
 
 
 

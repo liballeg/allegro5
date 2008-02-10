@@ -222,10 +222,10 @@ void al_release_joystick(ALLEGRO_JOYSTICK *joy)
 
 
 
-/* Function: al_joystick_name
+/* Function: al_get_joystick_name
  *  Return the name of the given joystick.
  */
-const char *al_joystick_name(ALLEGRO_JOYSTICK *joy)
+const char *al_get_joystick_name(ALLEGRO_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -234,10 +234,10 @@ const char *al_joystick_name(ALLEGRO_JOYSTICK *joy)
 
 
 
-/* Function: al_joystick_num_sticks
+/* Function: al_get_num_joystick_sticks
  *  Return the number of "sticks" on the given joystick.
  */
-int al_joystick_num_sticks(const ALLEGRO_JOYSTICK *joy)
+int al_get_num_joystick_sticks(const ALLEGRO_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -246,11 +246,11 @@ int al_joystick_num_sticks(const ALLEGRO_JOYSTICK *joy)
 
 
 
-/* Function: al_joystick_stick_flags
+/* Function: al_get_joystick_stick_flags
  *  Return the flags of the given "stick".  If the stick doesn't
  *  exist, NULL is returned.
  */
-int al_joystick_stick_flags(const ALLEGRO_JOYSTICK *joy, int stick)
+int al_get_joystick_stick_flags(const ALLEGRO_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
    ASSERT(stick >= 0);
@@ -263,11 +263,11 @@ int al_joystick_stick_flags(const ALLEGRO_JOYSTICK *joy, int stick)
 
 
 
-/* Function: al_joystick_stick_name
+/* Function: al_get_joystick_stick_name
  *  Return the name of the given "stick".  If the stick doesn't
  *  exist, NULL is returned.
  */
-const char *al_joystick_stick_name(const ALLEGRO_JOYSTICK *joy, int stick)
+const char *al_get_joystick_stick_name(const ALLEGRO_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
    ASSERT(stick >= 0);
@@ -280,11 +280,11 @@ const char *al_joystick_stick_name(const ALLEGRO_JOYSTICK *joy, int stick)
 
 
 
-/* Function: al_joystick_num_axes
+/* Function: al_get_num_joystick_axes
  *  Return the number of axes on the given "stick".  If the stick
  *  doesn't exist, 0 is returned.
  */
-int al_joystick_num_axes(const ALLEGRO_JOYSTICK *joy, int stick)
+int al_get_num_joystick_axes(const ALLEGRO_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
 
@@ -296,11 +296,11 @@ int al_joystick_num_axes(const ALLEGRO_JOYSTICK *joy, int stick)
 
 
 
-/* Function: al_joystick_axis_name
+/* Function: al_get_joystick_axis_name
  *  Return the name of the given axis.  If the axis doesn't exist,
  *  NULL is returned.
  */
-const char *al_joystick_axis_name(const ALLEGRO_JOYSTICK *joy, int stick, int axis)
+const char *al_get_joystick_axis_name(const ALLEGRO_JOYSTICK *joy, int stick, int axis)
 {
    ASSERT(joy);
    ASSERT(stick >= 0);
@@ -315,10 +315,10 @@ const char *al_joystick_axis_name(const ALLEGRO_JOYSTICK *joy, int stick, int ax
 
 
 
-/* Function: al_joystick_num_buttons
+/* Function: al_get_num_joystick_buttons
  *  Return the number of buttons on the joystick.
  */
-int al_joystick_num_buttons(const ALLEGRO_JOYSTICK *joy)
+int al_get_num_joystick_buttons(const ALLEGRO_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -327,11 +327,11 @@ int al_joystick_num_buttons(const ALLEGRO_JOYSTICK *joy)
 
 
 
-/* Function: al_joystick_button_name
+/* Function: al_get_joystick_button_name
  *  Return the name of the given button.  If the button doesn't exist,
  *  NULL is returned.
  */
-const char *al_joystick_button_name(const ALLEGRO_JOYSTICK *joy, int button)
+const char *al_get_joystick_button_name(const ALLEGRO_JOYSTICK *joy, int button)
 {
    ASSERT(joy);
    ASSERT(button >= 0);

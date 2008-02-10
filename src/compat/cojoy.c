@@ -100,14 +100,14 @@ static void fill_old_joystick_info(int n, ALLEGRO_JOYSTICK *new_joy)
    joy[n].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE;
 
    /* sticks */
-   joy[n].num_sticks = al_joystick_num_sticks(new_joy);
+   joy[n].num_sticks = al_get_num_joystick_sticks(new_joy);
    ASSERT(joy[n].num_sticks <= MAX_JOYSTICK_STICKS);
 
    for (s=0; s<joy[n].num_sticks; s++) {
-      joy[n].stick[s].num_axis = al_joystick_num_axes(new_joy, s);
+      joy[n].stick[s].num_axis = al_get_num_joystick_axes(new_joy, s);
       ASSERT(joy[n].stick[s].num_axis <= MAX_JOYSTICK_AXIS);
 
-      new_flags = al_joystick_stick_flags(new_joy, s);
+      new_flags = al_get_joystick_stick_flags(new_joy, s);
       joy[n].stick[s].flags =
          ((new_flags & ALLEGRO_JOYFLAG_DIGITAL)  ? JOYFLAG_DIGITAL  : 0) |
          ((new_flags & ALLEGRO_JOYFLAG_ANALOGUE) ? JOYFLAG_ANALOGUE : 0);
@@ -117,18 +117,18 @@ static void fill_old_joystick_info(int n, ALLEGRO_JOYSTICK *new_joy)
       else
          joy[n].stick[s].flags |= JOYFLAG_SIGNED;
 
-      joy[n].stick[s].name = al_joystick_stick_name(new_joy, s);
+      joy[n].stick[s].name = al_get_joystick_stick_name(new_joy, s);
    
       for (a=0; a<joy[n].stick[s].num_axis; a++)
-         joy[n].stick[s].axis[a].name = al_joystick_axis_name(new_joy, s, a);
+         joy[n].stick[s].axis[a].name = al_get_joystick_axis_name(new_joy, s, a);
    }
 
    /* buttons */
-   joy[n].num_buttons = al_joystick_num_buttons(new_joy);
+   joy[n].num_buttons = al_get_num_joystick_buttons(new_joy);
    ASSERT(joy[n].num_buttons <= MAX_JOYSTICK_BUTTONS);
 
    for (b=0; b<joy[n].num_buttons; b++)
-      joy[n].button[b].name = al_joystick_button_name(new_joy, b);
+      joy[n].button[b].name = al_get_joystick_button_name(new_joy, b);
 }
 
 
