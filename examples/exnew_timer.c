@@ -48,8 +48,9 @@ static void cleanup(void)
 static void print(int x, int y, char const *format, ...)
 {
    va_list list;
-   va_start(list, format);
    char message[1024];
+
+   va_start(list, format);
    uvszprintf(message, sizeof message, format, list);
    va_end(list);
 
@@ -57,6 +58,7 @@ static void print(int x, int y, char const *format, ...)
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgba_f(0, 0, 0, 0.25));
    a5font_textout(ex.myfont, message, x + 1, y + 1);
+
    /* Actual text. */
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgba_f(0, 0, 0, 0.75));
@@ -66,7 +68,9 @@ static void print(int x, int y, char const *format, ...)
 /* Draw our example scene. */
 static void draw(void)
 {
-   int h = a5font_text_height(ex.myfont);
+   int h, y, i;
+
+   h = a5font_text_height(ex.myfont);
    al_clear(al_map_rgb_f(1, 1, 1));
    print(0, 0, "%.9f target for %.0f Hz Timer", 1.0 / ex.FPS, ex.FPS);
    print(0, h, "%.9f now", ex.this_time - ex.prev_time);
@@ -76,19 +80,23 @@ static void draw(void)
    print(0, 4 * h, "%.9f max", ex.max_diff);
    print(300, 3.5 * h, "%.9f (max - min)", ex.second_spread);
 
-   int y = 240, i;
-   for (i = 0; i < 4; i++)
+   y = 240;
+   for (i = 0; i < 4; i++) {
       al_draw_rectangle(ex.x[i], y + i * 60, ex.x[i] + (1 << i),
          y + i * 60 + 60, al_map_rgb(1, 0, 0), ALLEGRO_FILLED);
+   }
 }
 
 /* Called a fixed amount of times per second. */
 static void tick(void)
 {
+   int i;
+
    ex.this_time = al_current_time();
 
-   if (ex.first_tick)
+   if (ex.first_tick) {
       ex.first_tick = false;
+   }
    else {
       if (ex.this_time - ex.second >= 1) {
          ex.second = ex.this_time;
@@ -107,8 +115,7 @@ static void tick(void)
 
    draw();
    al_flip_display();
-   
-   int i;
+
    for (i = 0; i < 4; i++) {
       ex.x[i] += 1 << i;
       ex.x[i] %= 640;
@@ -158,10 +165,11 @@ int main(void)
    ALLEGRO_TIMER *timer = al_install_timer(1.000 / ex.FPS);
 
    ex.queue = al_create_event_queue();
-   al_register_event_source(ex.queue, (void *)al_get_keyboard());
-   al_register_event_source(ex.queue, (void *)al_get_mouse());
-   al_register_event_source(ex.queue, (void *)display);
-   al_register_event_source(ex.queue, (void *)timer);
+   al_register_event_source(ex.queue,
+      (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
+   al_register_event_source(ex.queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
+   al_register_event_source(ex.queue, (ALLEGRO_EVENT_SOURCE *)display);
+   al_register_event_source(ex.queue, (ALLEGRO_EVENT_SOURCE *)timer);
 
    al_start_timer(timer);
    run();

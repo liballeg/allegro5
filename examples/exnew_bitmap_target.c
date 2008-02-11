@@ -2,14 +2,15 @@
  * ALLEGRO_FORCE_LOCKING flag and without. Mainly meant as a test how much
  * speedup direct drawing can give over the slow locking.
  */
+
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_font.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
 
-int W = 300, H = 300; /* Size of target bitmap. */
-int RW = 50, RH = 50; /* Size of rectangle we draw to it. */
+const int W = 300, H = 300; /* Size of target bitmap. */
+const int RW = 50, RH = 50; /* Size of rectangle we draw to it. */
 ALLEGRO_BITMAP *target; /* The target bitmap. */
 float x, y, dx, dy; /* Position and velocity of moving rectangle. */
 double last_time; /* For controling speed. */
@@ -21,8 +22,9 @@ ALLEGRO_EVENT_QUEUE *queue; /* Our events queue. */
 static void print(int x, int y, char const *format, ...)
 {
    va_list list;
-   va_start(list, format);
    char message[1024];
+
+   va_start(list, format);
    uvszprintf(message, sizeof message, format, list);
    va_end(list);
 
@@ -53,11 +55,23 @@ static void draw(void)
    al_draw_rectangle(0, 0, W, H, al_map_rgba_f(1, 1, 0, 0.1), ALLEGRO_FILLED);
 
    x += dx * dt;
-   if (x < 0) {x = 0; dx = -dx;}
-   if (x + RW > W) {x = W - RW; dx = -dx;}
+   if (x < 0) {
+      x = 0;
+      dx = -dx;
+   }
+   if (x + RW > W) {
+      x = W - RW;
+      dx = -dx;
+   }
    y += dy * dt;
-   if (y < 0) {y = 0; dy = -dy;}
-   if (y + RH > H) {y = H - RH; dy = -dy;}
+   if (y < 0) {
+      y = 0;
+      dy = -dy;
+   }
+   if (y + RH > H) {
+      y = H - RH;
+      dy = -dy;
+   }
 
    al_set_target_bitmap(al_get_backbuffer());
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
@@ -85,7 +99,7 @@ void run(void)
 
    int frames = 0;
    double start = al_current_time();
-   do {
+   while (true) {
       /* Check for ESC key or close button event and quit in either case. */
       if (!al_event_queue_is_empty(queue)) {
          while (al_get_next_event(queue, &event)) {
@@ -93,7 +107,7 @@ void run(void)
                case ALLEGRO_EVENT_DISPLAY_CLOSE:
                   quit = true;
                   goto done;
-                  break;
+
                case ALLEGRO_EVENT_KEY_DOWN:
                   if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                      quit = true;
@@ -117,8 +131,9 @@ void run(void)
       al_flip_display();
       frames++;
    }
-   while(1);
+
 done:
+
    al_destroy_bitmap(target);
 }
 
@@ -127,9 +142,13 @@ int main(void)
    ALLEGRO_DISPLAY *display;
 
    al_init();
-
    al_install_keyboard();
+
    display = al_create_display(640, 480);
+   if (!display) {
+      allegro_message("Error creating display");
+      return 1;
+   }
 
    queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
@@ -137,8 +156,8 @@ int main(void)
 
    myfont = a5font_load_font("font.tga", 0);
    if (!myfont) {
-   	allegro_message("font.tga not found");
-	return 1;
+      allegro_message("font.tga not found");
+      return 1;
    }
 
    while (!quit) {

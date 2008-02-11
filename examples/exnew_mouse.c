@@ -13,13 +13,17 @@ int main(void)
    al_install_keyboard();
 
    display = al_create_display(640, 480);
+   if (!display) {
+      allegro_message("Error creating display");
+      return 1;
+   }
 
    al_hide_mouse_cursor();
 
    cursor = al_load_bitmap("cursor.tga");
    if (!cursor) {
-   	allegro_message("error loading cursor.tga");
-	return 1;
+      allegro_message("Error loading cursor.tga");
+      return 1;
    }
 
    do {

@@ -27,20 +27,23 @@ struct Example
 static void print(int x, int y, bool vertical, char const *format, ...)
 {
    va_list list;
-   va_start(list, format);
    char message[1024];
+   ALLEGRO_COLOR color;
+   int h;
+   int j;
+
+   va_start(list, format);
    uvszprintf(message, sizeof message, format, list);
    va_end(list);
 
-   ALLEGRO_COLOR color;
-   int h = a5font_text_height(ex.myfont);
-   int j;
+   h = a5font_text_height(ex.myfont);
 
    for (j = 0; j < 2; j++) {
       if (j == 0)
          color = al_map_rgb(0, 0, 0);
       else
          color = al_map_rgb(255, 255, 255);
+
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, color);
       if (vertical) {
          int i;
@@ -51,18 +54,22 @@ static void print(int x, int y, bool vertical, char const *format, ...)
             a5font_textout(ex.myfont, c, x + 1 - j, y + 1 - j + h * i);
          }
       }
-      else
+      else {
          a5font_textout(ex.myfont, message, x + 1 - j, y + 1 - j);
+      }
    }
 }
 
 /* Create an example bitmap. */
 static ALLEGRO_BITMAP *create_example_bitmap(void)
 {
-   ALLEGRO_BITMAP *bitmap = al_create_bitmap(100, 100);
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   al_set_target_bitmap(bitmap);
+   ALLEGRO_BITMAP *bitmap;
+   ALLEGRO_BITMAP *target;
    int i, j;
+
+   bitmap = al_create_bitmap(100, 100);
+   target = al_get_target_bitmap();
+   al_set_target_bitmap(bitmap);
    for (j = 0; j < 100; j++) {
       for (i = 0; i < 100; i++) {
          int x = i - 50, y = j - 50;
@@ -142,7 +149,7 @@ static void draw(void)
       al_draw_bitmap_region(ex.memory, x, y, 430, 430, x, y, 0);
    }
 
-   #define IS(x) ex.image == x ? "*" : " "
+   #define IS(x)  ((ex.image == x) ? "*" : " ")
    print(ex.BUTTONS_X, 20 * 1, false, "What to draw");
    print(ex.BUTTONS_X, 20 * 2, false, "%s Picture", IS(0));
    print(ex.BUTTONS_X, 20 * 3, false, "%s Rec1 (1/1/1/1)", IS(1));
@@ -152,7 +159,7 @@ static void draw(void)
    print(ex.BUTTONS_X, 20 * 7, false, "%s Rec5 (0/0/0/0)", IS(5));
    #undef IS
 
-   #define IS(x) ex.mode == x ? "*" : " "
+   #define IS(x)  ((ex.mode == x) ? "*" : " ")
    print(ex.BUTTONS_X, 20 * 9, false, "Where to draw");
    print(ex.BUTTONS_X, 20 * 10, false, "%s screen", IS(0));
 
@@ -189,17 +196,20 @@ static void tick(void)
       draw();
       al_flip_display();
    }
-   else
+   else {
       ex.skipped_accum++;
+   }
 }
 
 /* Run our test. */
 static void run(void)
 {
-   float x, y;
    ALLEGRO_EVENT event;
+   float x, y;
+
    while (1) {
       al_wait_for_event(ex.queue, &event, ALLEGRO_WAIT_FOREVER);
+
       switch (event.type) {
          /* Was the X button on the window pressed? */
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -256,8 +266,8 @@ static void init(void)
 
    ex.myfont = a5font_load_font("font.tga", 0);
    if (!ex.myfont) {
-   	allegro_message("font.tga not found");
-	exit(1);
+      allegro_message("font.tga not found");
+      exit(1);
    }
    ex.example = create_example_bitmap();
 
@@ -269,22 +279,29 @@ static void init(void)
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
+   ALLEGRO_TIMER *timer;
 
    al_init();
    al_install_keyboard();
    al_install_mouse();
+
    display = al_create_display(640, 480);
+   if (!display) {
+      allegro_message("Error creating display");
+      return 1;
+   }
    al_show_mouse_cursor();
 
    init();
 
-   ALLEGRO_TIMER *timer = al_install_timer(1.0 / ex.FPS);
+   timer = al_install_timer(1.0 / ex.FPS);
 
    ex.queue = al_create_event_queue();
-   al_register_event_source(ex.queue, (void *)al_get_keyboard());
-   al_register_event_source(ex.queue, (void *)al_get_mouse());
-   al_register_event_source(ex.queue, (void *)display);
-   al_register_event_source(ex.queue, (void *)timer);
+   al_register_event_source(ex.queue,
+      (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
+   al_register_event_source(ex.queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
+   al_register_event_source(ex.queue, (ALLEGRO_EVENT_SOURCE *)display);
+   al_register_event_source(ex.queue, (ALLEGRO_EVENT_SOURCE *)timer);
 
    al_start_timer(timer);
    run();

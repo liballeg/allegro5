@@ -4,6 +4,7 @@ static void redraw(void)
 {
     ALLEGRO_COLOR black, white;
     int i, w, h;
+
     white = al_map_rgba_f(1, 1, 1, 1);
     black = al_map_rgba_f(0, 0, 0, 1);
 
@@ -43,10 +44,8 @@ int main(void)
     /* Display a pulsating window until a key or the closebutton is pressed. */
     redraw();
     last_resize = 0;
-    while (1)
-    {
-        if (al_get_next_event(events, &event))
-        {
+    while (true) {
+        if (al_get_next_event(events, &event)) {
             if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
                 ALLEGRO_DISPLAY_EVENT *de = &event.display;
                 al_acknowledge_resize(de->source);
@@ -59,17 +58,20 @@ int main(void)
                 break;
             }
         }
-        if (al_current_time() - last_resize > 0.1)
-        {
+        if (al_current_time() - last_resize > 0.1) {
             int s;
+
             last_resize = al_current_time();
             rs += 10;
-            if (rs == 300) rs = 100;
+            if (rs == 300)
+               rs = 100;
             s = rs;
-            if (s > 200) s = 400 - s;
+            if (s > 200)
+               s = 400 - s;
             al_resize_display(s, s);
         }
     }
+
     return 0;
 }
 END_OF_MAIN()

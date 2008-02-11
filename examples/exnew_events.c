@@ -22,20 +22,19 @@ ALLEGRO_TIMER       *timer_a;
 ALLEGRO_TIMER       *timer_b;
 ALLEGRO_TIMER       *timer_c;
 A5FONT_FONT         *myfont;
-float          joys_x;
-float          joys_y;
-ALLEGRO_COLOR black;
-ALLEGRO_COLOR white;
-bool *joystick_buttons;
+ALLEGRO_COLOR        black;
+ALLEGRO_COLOR        white;
+
 
 
 /* Print some text.
- * prints to the left side of the screen
-*/
+ * Prints to the left side of the screen.
+ */
 static void print_log(char const *message)
 {
-   /*FIXME: use actual font height.. get rid of defines */
-   #define SIZE_LOG (HEIGHT/25)
+   /* FIXME: use actual font height */
+#define SIZE_LOG  (HEIGHT/25)
+
    /* make a scrolling log using a circular array */
    static char msg_log[SIZE_LOG][MAX_MSG_LEN] ;
    static int msg_top = 0;
@@ -48,23 +47,27 @@ static void print_log(char const *message)
    al_draw_rectangle(0,0,WIDTH/2-1, HEIGHT, black, ALLEGRO_FILLED);
    int y = HEIGHT-25;
    int i = 0;
-   for (i=0;i< SIZE_LOG; ++i)
-   {
+   for (i=0; i < SIZE_LOG; i++) {
       a5font_textout(myfont, msg_log[i], 5, y);
-      y-=25;
+      y -= 25;
    }
-   #undef SIZE_LOG
+
+#undef SIZE_LOG
 }
 
+
+
 /* Print some text.
-   The old one used sub_bitmaps
-   the new method uses a scrolling log
-*/
+ * The old one used sub_bitmaps.
+ * The new method uses a scrolling log.
+ */
 static void print(int x, int y, char const *message)
 {
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
    a5font_textout(myfont, message, x, y);
 }
+
+
 
 /* Display an error message and quit. */
 void fatal_error(const char *msg)
@@ -88,8 +91,8 @@ void log_key_down(int keycode, int unichar, int modifiers)
 {
    char buf[MAX_MSG_LEN];
    char unistr[10] = "";
-   usetat(unistr, 0, unichar);
 
+   usetat(unistr, 0, unichar);
    uszprintf(buf, sizeof(buf),
       "Down: %3d >%s< [%08x]", keycode, unistr, modifiers);
    print_log(buf);
@@ -101,8 +104,8 @@ void log_key_repeat(int keycode, int unichar, int modifiers)
 {
    char buf[MAX_MSG_LEN];
    char unistr[10] = "";
-   usetat(unistr, 0, unichar);
 
+   usetat(unistr, 0, unichar);
    uszprintf(buf, sizeof(buf),
       "Rept: %3d >%s< [%08x]", keycode, unistr, modifiers);
    print_log(buf);
@@ -114,8 +117,8 @@ void log_key_up(int keycode, int unichar, int modifiers)
 {
    char buf[MAX_MSG_LEN];
    char unistr[10] = "";
-   usetat(unistr, 0, unichar);
 
+   usetat(unistr, 0, unichar);
    uszprintf(buf, sizeof(buf),
       "Up: %3d >%s< [%08x]", keycode, unistr, modifiers);
    print_log(buf);
@@ -125,6 +128,7 @@ void log_key_up(int keycode, int unichar, int modifiers)
 
 void draw_timer_tick(ALLEGRO_TIMER *timer, long count)
 {
+   char buf[MAX_MSG_LEN];
    int y;
 
    if (timer == timer_a) {
@@ -138,7 +142,6 @@ void draw_timer_tick(ALLEGRO_TIMER *timer, long count)
       y = -1;
    }
 
-   char buf[MAX_MSG_LEN];
    uszprintf(buf, sizeof(buf),"Timer: %ld", count);
    print(400, y, buf);
 }
@@ -164,20 +167,22 @@ void draw_mouse_button(int but, bool down)
 void draw_mouse_pos(int x, int y, int z, int w)
 {
    char buf[MAX_MSG_LEN];
+
    uszprintf(buf, sizeof(buf),"(%d, %d, %d, %d) ", x, y, z, w);
    print(400, 180, buf);
 }
 
 
 
-void draw_joystick_axes(void)
+void draw_joystick_axes(ALLEGRO_JOYSTATE *jst)
 {
-   if (al_num_joysticks() < 1)
-      return;
-
+   float joys_x;
+   float joys_y;
    int x;
    int y;
 
+   joys_x = jst->stick[0].axis[0];
+   joys_y = jst->stick[0].axis[1];
    x = 470 + joys_x * 50;
    y = 300 + joys_y * 50;
 
@@ -191,39 +196,40 @@ void draw_joystick_axes(void)
 
 void draw_joystick_button(int button, bool down)
 {
+   ALLEGRO_COLOR fill;
    int x;
    int y;
 
    x = 400 + (button % 5) * 30;
    y = 400 + (button / 5) * 30;
 
-   ALLEGRO_COLOR fill = (down?white:black);
-   
+   fill = (down ? white : black);
    al_draw_rectangle(x, y, x + 25, y + 25, fill , ALLEGRO_FILLED);
    al_draw_rectangle(x, y, x + 25, y + 25, white, ALLEGRO_OUTLINED);
 }
 
 
-void draw_joystick_buttons(void)
-{
-   if (al_num_joysticks() < 1)
-      return;
 
+void draw_joystick_buttons(int num_buttons, ALLEGRO_JOYSTATE *jst)
+{
    int i;
 
-   for (i = 0; i < al_get_num_joystick_buttons(al_get_joystick(0)); i++) {
-      draw_joystick_button(i, joystick_buttons[i]);
+   for (i = 0; i < num_buttons; i++) {
+      draw_joystick_button(i, jst->button[i] >= 16384);
    }
 }
+
 
 
 void draw_all(void)
 {
    ALLEGRO_MSESTATE mst;
-   
-   /* basically clear the screen minus the keyboard state printing */
+   ALLEGRO_JOYSTICK *joy;
+   ALLEGRO_JOYSTATE jst;
+   int num_buttons;
+
+   /* Clear the screen minus the keyboard state printing area. */
    al_draw_rectangle(WIDTH/2, 0, WIDTH, HEIGHT, black, ALLEGRO_FILLED);
-   
 
    al_get_mouse_state(&mst);
    draw_mouse_pos(mst.x, mst.y, mst.z, mst.w);
@@ -235,11 +241,17 @@ void draw_all(void)
    draw_timer_tick(timer_b, al_get_timer_count(timer_b));
    draw_timer_tick(timer_c, al_get_timer_count(timer_c));
 
-   draw_joystick_axes();
-   draw_joystick_buttons();
+   if (al_num_joysticks() > 0) {
+      joy = al_get_joystick(0);
+      num_buttons = al_get_num_joystick_buttons(joy);
+      al_get_joystick_state(joy, &jst);
+      draw_joystick_axes(&jst);
+      draw_joystick_buttons(num_buttons, &jst);
+   }
 
    al_flip_display();
 }
+
 
 
 /* main_loop:
@@ -255,6 +267,7 @@ void main_loop(void)
 
    while (true) {
       draw_all();
+
       /* Take the next event out of the event queue, and store it in `event'.
        * The third parameter is a time-out specification, allowing the function
        * to return even if no event arrives within the time period specified.
@@ -354,34 +367,16 @@ void main_loop(void)
           * 'stick' on the first joystick on the system.
           */
          case ALLEGRO_EVENT_JOYSTICK_AXIS:
-            if (event.joystick.source == al_get_joystick(0) &&
-               event.joystick.stick == 0)
-            {
-               switch (event.joystick.axis) {
-                  case 0:
-                     joys_x = event.joystick.pos;
-                     break;
-                  case 1:
-                     joys_y = event.joystick.pos;
-                     break;
-               }
-            }
             break;
 
          /* ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN - a joystick button was pressed.
           */
          case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
-            if (event.joystick.source == al_get_joystick(0)) {
-               joystick_buttons[event.joystick.button] = true;
-            }
             break;
 
          /* ALLEGRO_EVENT_JOYSTICK_BUTTON_UP - a joystick button was released.
           */
          case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
-            if (event.joystick.source == al_get_joystick(0)) {
-               joystick_buttons[event.joystick.button] = false;
-            }
             break;
 
          /* We received an event of some type we don't know about.
@@ -397,8 +392,6 @@ void main_loop(void)
 
 int main(void)
 {
-
-
    int num;
    int i;
 
@@ -414,8 +407,7 @@ int main(void)
     * still in flux.
     */
    display = al_create_display(WIDTH, HEIGHT);
-   if (!display)
-   {
+   if (!display) {
       fatal_error("al_create_display");
    }
 
@@ -490,12 +482,6 @@ int main(void)
       al_register_event_source(event_queue, joysrc);
    }
 
-   if (num > 0) {
-      int size = al_get_num_joystick_buttons(al_get_joystick(0)) * sizeof(bool);
-      joystick_buttons = malloc(size);
-      memset(joystick_buttons, 0, size);
-   }
-
    /* Timers are not automatically started when they are created.  Start them
     * now before we enter the main loop.
     */
@@ -513,9 +499,8 @@ int main(void)
     * explicit shutdown code here.
     */
 
-   free(joystick_buttons);
-
    return 0;
-} END_OF_MAIN()
+}
+END_OF_MAIN()
 
 /* vi: set ts=8 sts=3 sw=3 et: */

@@ -8,7 +8,7 @@
  */
 
 GLuint tex, fbo;
-bool no_fbo = 0;
+bool no_fbo = false;
 
 void draw_opengl(void)
 {
@@ -23,10 +23,9 @@ void draw_opengl(void)
    if (!tex) {
       unsigned char *pixels = malloc(256 * 256 * 4);
       int x, y;
-      for (y = 0; y < 256; y++)
-      {
-         for (x = 0; x < 256; x++)
-         {
+
+      for (y = 0; y < 256; y++) {
+         for (x = 0; x < 256; x++) {
             unsigned char r = x, g = y, b = 0, a = 255;
             pixels[y * 256 * 4 + x * 4 + 0] = r;
             pixels[y * 256 * 4 + x * 4 + 1] = g;
@@ -55,19 +54,18 @@ void draw_opengl(void)
             GL_TEXTURE_2D, tex, 0);
          if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
             GL_FRAMEBUFFER_COMPLETE_EXT) {
-            no_fbo = 1;
+            no_fbo = true;
          }
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       }
       else {
          /* We are screwed, the extension is not available. */
-         no_fbo = 1;
+         no_fbo = true;
       }
    }
 
   /* Draw a yellow triangle on red background to the framebuffer object. */
-   if (fbo && !no_fbo)
-   {
+   if (fbo && !no_fbo) {
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
 
       glPushAttrib(GL_VIEWPORT_BIT | GL_TRANSFORM_BIT);
@@ -132,17 +130,16 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
 
    start = al_current_time() / 1000.0;
-   do {
+   while (true) {
       /* Check for ESC key or close button event and quit in either case. */
       if (!al_event_queue_is_empty(queue)) {
          while (al_get_next_event(queue, &event)) {
             switch (event.type) {
                case ALLEGRO_EVENT_DISPLAY_CLOSE:
                   goto done;
-                  break;
+
                case ALLEGRO_EVENT_KEY_DOWN:
-                  if (event.keyboard.keycode ==
-                        ALLEGRO_KEY_ESCAPE)
+                  if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                      goto done;
                   break;
             }
@@ -152,8 +149,9 @@ int main(void)
       al_flip_display();
       frames++;
    }
-   while(1);
+
 done:
+
    printf("%.1f FPS\n", frames / (al_current_time() / 1000.0 - start));
    al_destroy_event_queue(queue);
 
