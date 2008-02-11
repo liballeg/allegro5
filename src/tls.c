@@ -204,7 +204,6 @@ static THREAD_LOCAL thread_local_state _tls = {
    ALLEGRO_ALPHA,
    ALLEGRO_INVERSE_ALPHA,
    { 1.0f, 1.0f, 1.0f, 1.0f },
-   { 0, 0, 0, 0 },
    _al_blender_alpha_inverse_alpha
 };
 
