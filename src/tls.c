@@ -52,7 +52,6 @@ typedef struct thread_local_state {
    int blend_source;
    int blend_dest;
    ALLEGRO_COLOR blend_color;
-   ALLEGRO_COLOR orig_blend_color;
    ALLEGRO_MEMORY_BLENDER memory_blender;
 } thread_local_state;
 
@@ -554,7 +553,6 @@ void al_set_blender(int src, int dst, ALLEGRO_COLOR color)
    tls->blend_dest = dst;
 
    memcpy(&tls->blend_color, &color, sizeof(ALLEGRO_COLOR));
-   memcpy(&tls->orig_blend_color, &color, sizeof(ALLEGRO_COLOR));
 
    _al_set_memory_blender(src, dst, &color);
 }
@@ -577,7 +575,7 @@ void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
       *dst = tls->blend_dest;
 
    if (color)
-      memcpy(color, &tls->orig_blend_color, sizeof(ALLEGRO_COLOR));
+      memcpy(color, &tls->blend_color, sizeof(ALLEGRO_COLOR));
 }
 
 
