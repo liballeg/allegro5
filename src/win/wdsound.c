@@ -1014,12 +1014,12 @@ static int digi_directsound_get_position(int voice)
 
    if (ds_voices[voice].looping && ds_voices[voice].ds_loop_buffer) {
       /* is buffer playing? */
-      hr = IDirectSoundBuffer_GetStatus(ds_voices[voice].ds_loop_buffer, &status);
+      hr = IDirectSoundBuffer_GetStatus(ds_voices[voice].ds_loop_buffer, (unsigned long *)&status);
       if (FAILED(hr) || !(status & DSBSTATUS_PLAYING))
          return -1;
 
       hr = IDirectSoundBuffer_GetCurrentPosition(ds_voices[voice].ds_loop_buffer,
-                                                 &play_cursor, &write_cursor);
+                                                 (unsigned long *)&play_cursor, (unsigned long *)&write_cursor);
       if (FAILED(hr)) {
          _TRACE(PREFIX_E "digi_directsound_get_position() failed (%s).\n", ds_err(hr));
          return -1;
@@ -1039,12 +1039,12 @@ static int digi_directsound_get_position(int voice)
    }
    else if (ds_voices[voice].ds_buffer) {
       /* is buffer playing? */
-      hr = IDirectSoundBuffer_GetStatus(ds_voices[voice].ds_buffer, &status);
+      hr = IDirectSoundBuffer_GetStatus(ds_voices[voice].ds_buffer, (unsigned long *)&status);
       if (FAILED(hr) || !(status & DSBSTATUS_PLAYING))
          return -1;
 
       hr = IDirectSoundBuffer_GetCurrentPosition(ds_voices[voice].ds_buffer,
-                                                 &play_cursor, &write_cursor);
+                                                 (unsigned long *)&play_cursor, (unsigned long *)&write_cursor);
       if (FAILED(hr)) {
          _TRACE(PREFIX_E "digi_directsound_get_position() failed (%s).\n", ds_err(hr));
          return -1;
