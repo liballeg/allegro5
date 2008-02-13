@@ -1540,12 +1540,17 @@ load_jpg_ex(AL_CONST char *filename, RGB *palette, void (*callback)(int progress
 	PACKFILE *f;
 	BITMAP *bmp;
 	PALETTE pal;
-	int size;
+	uint64_t size;
 	
 	if (!palette)
 		palette = pal;
 	
-	size = file_size(filename);
+	size = file_size_ex(filename);
+	if (!size) {
+		TRACE("File %s has zero size or does not exist", filename);
+		jpgalleg_error = JPG_ERROR_READING_FILE;
+		return NULL;
+	}
 	_jpeg_io.buffer = _jpeg_io.buffer_start = (unsigned char *)malloc(size);
 	_jpeg_io.buffer_end = _jpeg_io.buffer_start + size;
 	if (!_jpeg_io.buffer) {
