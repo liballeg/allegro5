@@ -1,4 +1,6 @@
 #include <string.h>
+#include "allegro.h"
+#include "allegro/internal/aintern.h"
 
 #include "logg.h"
 
@@ -21,25 +23,28 @@ SAMPLE* logg_load(const char* filename)
 	int numRead;
 	int offset = 0;
 	int bitstream;
-	char buf[logg_bufsize];
+	char *buf = malloc(logg_bufsize);
 
 	file = fopen(filename, "rb");
 	if (!file) {
-		snprintf(allegro_error, ALLEGRO_ERROR_SIZE, "Unable to open file: %s", filename);
+		uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, "Unable to open file: %s", filename);
+		free(buf);
 		return 0;
 	}
 
 	if (ov_open(file, &ovf, 0, 0) != 0) {
 		strncpy(allegro_error, "ov_open failed.", ALLEGRO_ERROR_SIZE);
 		fclose(file);
+		free(buf);
 		return 0;
 	}
 
 	vi = ov_info(&ovf, -1);
 
-	samp = (SAMPLE*)malloc(sizeof(SAMPLE));
+	samp = (SAMPLE*)_al_malloc(sizeof(SAMPLE));
 	if (!samp) {
 		ov_clear(&ovf);
+		free(buf);
 		return 0;
 	}
 
@@ -50,7 +55,7 @@ SAMPLE* logg_load(const char* filename)
 	samp->len = ov_pcm_total(&ovf, -1);
 	samp->loop_start = 0;
 	samp->loop_end = samp->len;
-	samp->data = malloc(sizeof(unsigned short[samp->len*2]));
+	samp->data = _al_malloc(sizeof(unsigned short) * samp->len * 2);
 
 	while ((numRead = ov_read(&ovf, buf, logg_bufsize,
 				ENDIANNESS, 2, 0, &bitstream)) != 0) {
@@ -59,6 +64,7 @@ SAMPLE* logg_load(const char* filename)
 	}
 
 	ov_clear(&ovf);
+	free(buf);
 
 	return samp;
 }
@@ -81,7 +87,7 @@ static int logg_open_file_for_streaming(LOGG_Stream* s)
 
 	file = fopen(s->filename, "rb");
 	if (!file) {
-		snprintf(allegro_error, ALLEGRO_ERROR_SIZE, "Unable to open file: %s", s->filename);
+		uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, "Unable to open file: %s", s->filename);
 		return 1;
 	}
 
@@ -135,10 +141,13 @@ static int read_ogg_data(LOGG_Stream* s)
 
 static int logg_play_stream(LOGG_Stream* s)
 {
+	int len;
+	int i;
+
 	s->current_page = 0;
 	s->playing_page = -1;
 
-	int len = logg_bufsize / (s->stereo ? 2 : 1)
+	len = logg_bufsize / (s->stereo ? 2 : 1)
 		/ (s->bits / (sizeof(char)*8));
 
 	s->audio_stream = play_audio_stream(len,
@@ -148,9 +157,6 @@ static int logg_play_stream(LOGG_Stream* s)
 	if (!s->audio_stream) {
 		return 1;
 	}
-
-	int i;
-	int j;
 
 	for (i = 0; i < OGG_PAGES_TO_BUFFER; i++) {
 		s->buf[i] = malloc(logg_bufsize);
@@ -227,8 +233,9 @@ int logg_update_stream(LOGG_Stream* s)
 
 void logg_stop_stream(LOGG_Stream* s)
 {
-	stop_audio_stream(s->audio_stream);
 	int i;
+
+	stop_audio_stream(s->audio_stream);
 	for (i = 0; i < OGG_PAGES_TO_BUFFER; i++) {
 		free(s->buf[i]);
 		s->buf[i] = 0;
@@ -242,11 +249,12 @@ int logg_restart_stream(LOGG_Stream* s)
 
 void logg_destroy_stream(LOGG_Stream* s)
 {
+	int i;
+
 	if (s->audio_stream) {
 		stop_audio_stream(s->audio_stream);
 	}
 	ov_clear(&s->ovf);
-	int i;
 	for (i = 0; i < OGG_PAGES_TO_BUFFER; i++) {
 		if (s->buf[i]) {
 			free(s->buf[i]);
