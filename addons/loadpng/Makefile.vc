@@ -169,6 +169,7 @@ uninstall:
 
 clean:
 	- $(RMFILE) loadpng.obj savepng.obj regpng.obj $(LIBNAME)
+	- $(RMFILE) example.obj exalpha.obj exdata.obj browse.obj
 
 veryclean: clean
 ifdef UNIX_TOOLS
