@@ -81,7 +81,7 @@ struct Tok {
 extern struct Tok Token;
 extern PACKFILE *input;		/* the file from which level input is read */
 
-extern void GetToken();
+extern void GetToken(void);
 extern void ExpectToken(enum TokenTypes Type);
 
 #endif

@@ -22,7 +22,7 @@ static void on_controller(DEMO_MENU * item);
 static DEMO_MENU menu[] = {
    {demo_text_proc, "SETUP CONTROLS", 0, 0, 0, 0},
    {demo_choice_proc, "Controller", DEMO_MENU_SELECTABLE, 0,
-    (void **)choice_controls, on_controller},
+    (void *)choice_controls, on_controller},
    {demo_key_proc, "Left", DEMO_MENU_SELECTABLE, DEMO_BUTTON_LEFT, 0,
     0},
    {demo_key_proc, "Right", DEMO_MENU_SELECTABLE, DEMO_BUTTON_RIGHT,

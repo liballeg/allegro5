@@ -3,8 +3,8 @@
 
 #include <allegro.h>
 
-void init_background();
-void update_background();
+void init_background(void);
+void update_background(void);
 void draw_background(BITMAP * canvas);
 
 #endif				/* __DEMO_BACK_SCROLLER__ */

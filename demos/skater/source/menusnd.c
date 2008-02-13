@@ -37,9 +37,9 @@ static void on_music(DEMO_MENU * item)
 static DEMO_MENU menu[] = {
    {demo_text_proc, "SOUND LEVELS", 0, 0, 0, 0},
    {demo_choice_proc, "Sound", DEMO_MENU_SELECTABLE, 0,
-    (void **)choice_volume, on_sound},
+    (void *)choice_volume, on_sound},
    {demo_choice_proc, "Music", DEMO_MENU_SELECTABLE, 0,
-    (void **)choice_volume, on_music},
+    (void *)choice_volume, on_music},
    {demo_button_proc, "Back", DEMO_MENU_SELECTABLE,
     DEMO_STATE_OPTIONS, 0,
     0},

@@ -3,10 +3,10 @@
 
 #include <allegro.h>
 
-void init_credits();
-void update_credits();
+void init_credits(void);
+void update_credits(void);
 void draw_credits(BITMAP * canvas);
-void destroy_credits();
+void destroy_credits(void);
 
 
 #endif				/* __DEMO_CREDITS_H__ */

@@ -37,20 +37,20 @@ static void on_vsync(DEMO_MENU * item)
 static DEMO_MENU menu[] = {
    {demo_text_proc, "GFX SETTINGS", 0, 0, 0, 0},
    {demo_choice_proc, "Fullscreen", DEMO_MENU_SELECTABLE, 0,
-    (void **)choice_yes_no, 0},
+    (void *)choice_yes_no, 0},
    {demo_choice_proc, "Bit Depth", DEMO_MENU_SELECTABLE, 0,
-    (void **)choice_bpp, 0},
+    (void *)choice_bpp, 0},
    {demo_choice_proc, "Screen Size", DEMO_MENU_SELECTABLE, 0,
-    (void **)choice_res, 0},
+    (void *)choice_res, 0},
 #ifdef DEMO_USE_ALLEGRO_GL
    {demo_choice_proc, "Update Method", 0, 0,
-    (void **)choice_update, 0},
+    (void *)choice_update, 0},
 #else
    {demo_choice_proc, "Update Method", DEMO_MENU_SELECTABLE, 0,
-    (void **)choice_update, 0},
+    (void *)choice_update, 0},
 #endif
    {demo_choice_proc, "Vsync", DEMO_MENU_SELECTABLE, 0,
-    (void **)choice_on_off, on_vsync},
+    (void *)choice_on_off, on_vsync},
    {demo_button_proc, "Apply", DEMO_MENU_SELECTABLE, DEMO_STATE_GFX,
     0,
     apply},

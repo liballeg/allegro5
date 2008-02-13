@@ -13,7 +13,7 @@ void create_about_menu(GAMESTATE * state);
 void create_success_menu(GAMESTATE * state);
 void create_intro(GAMESTATE * state);
 
-void enable_continue_game();
-void disable_continue_game();
+void enable_continue_game(void);
+void disable_continue_game(void);
 
 #endif				/* __DEMO_GAME_MENUS_H__ */
