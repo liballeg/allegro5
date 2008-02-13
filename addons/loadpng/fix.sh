@@ -99,6 +99,8 @@ case "$1" in
    "mingw"   ) proc_fix "Windows (MinGW)"   "Makefile.mgw";;
    "mingw32" ) proc_fix "Windows (MinGW)"   "Makefile.mgw";;
    "unix"    ) proc_fix "Unix"              "Makefile.unx";;
+   # used only by allegro's zipup.sh in packaging process
+   "msvc"    ) echo .;; # try not to do anything here 
    "help"    ) proc_help;;
    *         ) echo "Platform not supported by loadpng." ;;
 esac
