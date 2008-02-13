@@ -98,7 +98,7 @@ case "$1" in
    "mingw32" ) proc_fix "Windows (MinGW)"   "Makefile.migw";;
    "unix"    ) proc_fix "Unix"              "Makefile.unix";;
    # used only by allegro's zipup.sh in packaging process
-   "msvc"    ) echo .;; # try not to do anything here
+   "msvc"    ) proc_fix "Windows (MSVC)"    "Makefile.msvc";;
    "help"    ) proc_help;;
    *         ) echo "Platform not supported by logg." ;;
 esac
