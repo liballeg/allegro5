@@ -282,10 +282,10 @@ static int install_timer_int(void *proc, void *param, long speed_msecs, int para
    _al_mutex_lock(&timer_mutex);
    {
       if ((proc == _timer_queue[x].proc) || (proc == _timer_queue[x].param_proc)) {
-         al_set_timer_speed(_timer_queue[x].timer, speed_msecs);
+         al_set_timer_speed(_timer_queue[x].timer, ALLEGRO_MSECS_TO_SECS(speed_msecs));
       }
       else {
-         _timer_queue[x].timer = al_install_timer(speed_msecs);
+         _timer_queue[x].timer = al_install_timer(ALLEGRO_MSECS_TO_SECS(speed_msecs));
          if (param_used) {
             _timer_queue[x].param = param;
             _timer_queue[x].param_proc = (void (*)(void *))proc;
@@ -433,7 +433,7 @@ int install_timer()
    _al_mutex_init(&timer_mutex);
 
    event_queue = al_create_event_queue();
-   retrace_timer = al_install_timer(TIMER_TO_MSEC(_vsync_speed));
+   retrace_timer = al_install_timer(ALLEGRO_MSECS_TO_SECS((double)TIMER_TO_MSEC(_vsync_speed)));
    al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)retrace_timer);
 
    /* start timer thread */
