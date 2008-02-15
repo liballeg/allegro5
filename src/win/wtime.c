@@ -29,7 +29,8 @@ static DWORD _al_win_initial_time_low_res;
 
 #define LARGE_INTEGER_TO_INT64(li) (((int64_t)li.HighPart << 32) | \
 	(int64_t)li.LowPart)
-static LARGE_INTEGER _al_win_initial_time_high_res;
+
+static int64_t _al_win_initial_time_high_res;
 static int64_t high_res_timer_freq;
 
 static double (*real_current_time_func)(void);
@@ -48,6 +49,7 @@ static double high_res_current_time(void)
 	QueryPerformanceCounter(&count);
 
 	int64_t c = LARGE_INTEGER_TO_INT64(count);
+	c -= _al_win_initial_time_high_res;
 
 	return (double)c / high_res_timer_freq;
 }
@@ -72,8 +74,10 @@ void _al_win_init_time(void)
       _al_win_initial_time_low_res = timeGetTime();
    }
    else {
+      LARGE_INTEGER count;
       real_current_time_func = high_res_current_time;
-      QueryPerformanceCounter(&_al_win_initial_time_high_res);
+      QueryPerformanceCounter(&count);
+      _al_win_initial_time_high_res = LARGE_INTEGER_TO_INT64(count);
    }
 }
 
