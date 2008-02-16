@@ -161,6 +161,42 @@ GFX_DRIVER _al_d3d_dummy_gfx_driver = {
 };
 
 
+
+bool al_d3d_supports_non_pow2_textures(void)
+{
+   D3DCAPS9 caps;
+
+   /* This might have to change for multihead */
+   if (IDirect3D9_GetDeviceCaps(_al_d3d, D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
+   	return false;
+   }
+
+   if ((caps.TextureCaps & D3DPTEXTURECAPS_POW2) == 0) {
+      return true;
+   }
+
+   return false;
+}
+
+
+bool al_d3d_supports_non_square_textures(void)
+{
+   D3DCAPS9 caps;
+
+   /* This might have to change for multihead */
+   if (IDirect3D9_GetDeviceCaps(_al_d3d, D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
+   	return false;
+   }
+
+   if ((caps.TextureCaps & D3DPTEXTURECAPS_SQUAREONLY) == 0) {
+      return true;
+   }
+
+   return false;
+}
+
+
+
 void _al_d3d_lock_device()
 {
    _al_mutex_lock(&d3d_device_mutex);

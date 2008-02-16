@@ -154,17 +154,11 @@ void _al_d3d_draw_textured_quad(ALLEGRO_BITMAP_D3D *bmp,
       float temp = tu_start;
       tu_start = tu_end;
       tu_end = temp;
-      /* Weird hack -- not sure why this is needed */
-   //   tu_start -= 1.0f / texture_w;
-   //   tu_end -= 1.0f / texture_w;
    }
    if (flags & ALLEGRO_FLIP_VERTICAL) {
       float temp = tv_start;
       tv_start = tv_end;
       tv_end = temp;
-      /* Weird hack -- not sure why this is needed */
-      //tv_start -= 1.0f / texture_h;
-      //tv_end -= 1.0f / texture_h;
    }
 
    D3D_TL_VERTEX vertices[4] = {
@@ -250,10 +244,12 @@ static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
    rect.right = x + width;
    rect.bottom = y + height;
 
+   /*
    if (rect.right != pot(x + width))
       rect.right++;
    if (rect.bottom != pot(y + height))
       rect.bottom++;
+   */
 
    if (_al_d3d_render_to_texture_supported())
       texture = d3d_bmp->system_texture;
@@ -544,8 +540,24 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
    _al_d3d_lock_device();
 
    if (d3d_bmp->initialized != true) {
-      d3d_bmp->texture_w = pot(w);
-      d3d_bmp->texture_h = pot(h);
+      bool non_pow2 = al_d3d_supports_non_pow2_textures();
+      bool non_square = al_d3d_supports_non_square_textures();
+      if (non_pow2 && non_square) {
+         // Any shape and size
+         d3d_bmp->texture_w = w;
+	 d3d_bmp->texture_h = h;
+      }
+      else if (non_pow2) {
+         // Must be sqaure
+         int max = MAX(w,  h);
+	 d3d_bmp->texture_w = max;
+	 d3d_bmp->texture_h = max;
+      }
+      else {
+         // Must be POW2
+         d3d_bmp->texture_w = pot(w);
+         d3d_bmp->texture_h = pot(h);
+      }
       if (d3d_bmp->video_texture == 0)
          if (!d3d_create_textures(d3d_bmp->texture_w,
                d3d_bmp->texture_h,
