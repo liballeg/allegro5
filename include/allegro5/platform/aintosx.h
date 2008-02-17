@@ -70,10 +70,10 @@
 @end
 
 
-@interface AllegroWindow : NSWindow
-- (void)display;
-- (void)miniaturize: (id)sender;
-@end
+//@interface AllegroWindow : NSWindow
+//- (void)display;
+//- (void)miniaturize: (id)sender;
+//@end
 
 
 @interface AllegroWindowDelegate : NSObject
@@ -81,37 +81,10 @@
 - (void)windowDidDeminiaturize: (NSNotification *)aNotification;
 @end
 
-
-@interface AllegroView: NSQuickDrawView
-{
-   NSTrackingRectTag _tracking;
-   NSCursor* _cursor;
-   BOOL _show_cursor;
-}
-- (id)initWithFrame:(NSRect) rc;
-- (void)resetCursorRects;
-- (void)keyDown: (NSEvent*) event;
-- (void)keyUp: (NSEvent*) event;
-- (void)mouseEntered: (NSEvent*) event;
-- (void)mouseExited: (NSEvent*) event;
-- (void)flagsChanged: (NSEvent*) event;
-- (void)drawRect: (NSRect) aRect;
-- (void)setCursor:(NSCursor*) cur;
-- (void)setCursorVisible;
-- (void)setCursorHidden;
-- (void) viewDidMoveToWindow;
-@end
-
-AllegroView* osx_view_from_display(ALLEGRO_DISPLAY*);
-
+	
 typedef void RETSIGTYPE;
 
-
-typedef struct BMP_EXTRA_INFO
-{
-   GrafPtr port;
-} BMP_EXTRA_INFO;
-
+//NSView* osx_view_from_display(ALLEGRO_DISPLAY*);
 
 typedef struct HID_ELEMENT
 {
@@ -145,30 +118,30 @@ typedef struct
 } HID_DEVICE_COLLECTION;
 
 
-void osx_event_handler(void);
+//void osx_event_handler(void);
 int osx_bootstrap_ok(void);
 
 void setup_direct_shifts(void);
-void osx_init_fade_system(void);
-void osx_fade_screen(int fade_in, double seconds);
-void osx_qz_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-void osx_qz_created_sub_bitmap(BITMAP *bmp, BITMAP *parent);
-BITMAP *osx_qz_create_video_bitmap(int width, int height);
-BITMAP *osx_qz_create_system_bitmap(int width, int height);
-void osx_qz_destroy_video_bitmap(BITMAP *bmp);
-int osx_setup_colorconv_blitter(void);
-void osx_update_dirty_lines(void);
+//void osx_init_fade_system(void);
+//void osx_fade_screen(int fade_in, double seconds);
+//void osx_qz_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+//void osx_qz_created_sub_bitmap(BITMAP *bmp, BITMAP *parent);
+//BITMAP *osx_qz_create_video_bitmap(int width, int height);
+//BITMAP *osx_qz_create_system_bitmap(int width, int height);
+//void osx_qz_destroy_video_bitmap(BITMAP *bmp);
+//int osx_setup_colorconv_blitter(void);
+//void osx_update_dirty_lines(void);
 
-uintptr_t osx_qz_write_line(BITMAP *bmp, int lyne);
-void osx_qz_unwrite_line(BITMAP *bmp);
-void osx_qz_acquire(BITMAP *bmp);
-void osx_qz_release(BITMAP *bmp);
+//uintptr_t osx_qz_write_line(BITMAP *bmp, int lyne);
+//void osx_qz_unwrite_line(BITMAP *bmp);
+//void osx_qz_acquire(BITMAP *bmp);
+//void osx_qz_release(BITMAP *bmp);
 
-void osx_keyboard_handler(int pressed, NSEvent *event);
-void osx_keyboard_modifiers(unsigned int new_mods);
+void osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY*);
+void osx_keyboard_modifiers(unsigned int new_mods, ALLEGRO_DISPLAY*);
 void osx_keyboard_focused(int focused, int state);
 
-void osx_mouse_generate_event(NSEvent*);
+void osx_mouse_generate_event(NSEvent*, ALLEGRO_DISPLAY*);
 void osx_mouse_handler(NSEvent*);
 int osx_mouse_set_sprite(BITMAP *sprite, int x, int y);
 int osx_mouse_show(BITMAP *bmp, int x, int y);
@@ -181,12 +154,12 @@ void osx_hid_free(HID_DEVICE_COLLECTION *);
 
 AL_VAR(NSBundle *, osx_bundle);
 AL_VAR(struct _AL_MUTEX, osx_event_mutex);
-AL_VAR(struct _AL_MUTEX, osx_window_mutex);
+//AL_VAR(struct _AL_MUTEX, osx_window_mutex);
 AL_VAR(int, osx_gfx_mode);
 AL_VAR(int, osx_screen_used);
 AL_VAR(NSCursor *, osx_blank_cursor);
 AL_VAR(NSCursor *, osx_cursor);
-AL_VAR(AllegroWindow *, osx_window);
+//AL_VAR(AllegroWindow *, osx_window);
 AL_ARRAY(char, osx_window_title);
 AL_VAR(int, osx_window_first_expose);
 AL_VAR(CGDirectPaletteRef, osx_palette);
@@ -196,7 +169,8 @@ AL_VAR(int, osx_skip_mouse_move);
 AL_VAR(int, osx_emulate_mouse_buttons);
 AL_VAR(NSTrackingRectTag, osx_mouse_tracking_rect);
 extern AL_METHOD(void, osx_window_close_hook, (void));
-
+AL_FUNC(ALLEGRO_KEYBOARD_DRIVER*, osx_get_keyboard_driver, (void));
+AL_FUNC(ALLEGRO_DISPLAY_INTERFACE*, osx_get_display_driver, (void));
 
 #endif
 
