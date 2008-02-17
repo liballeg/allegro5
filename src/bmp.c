@@ -596,7 +596,7 @@ BITMAP *load_bmp_pf(PACKFILE *f, RGB *pal)
       /* compute number of colors recorded */
       ncol = (fileheader.bfOffBits - 54) / 4;
 
-      if (infoheader.biCompression != BI_BITFIELDS)
+      if (infoheader.biCompression != BIT_BITFIELDS)
 	 read_bmicolors(ncol, pal, f, 1);
    }
    else if (biSize == OS2INFOHEADERSIZE) {
@@ -606,7 +606,7 @@ BITMAP *load_bmp_pf(PACKFILE *f, RGB *pal)
       /* compute number of colors recorded */
       ncol = (fileheader.bfOffBits - 26) / 3;
 
-      if (infoheader.biCompression != BI_BITFIELDS)
+      if (infoheader.biCompression != BIT_BITFIELDS)
 	 read_bmicolors(ncol, pal, f, 0);
    }
    else {
@@ -622,7 +622,7 @@ BITMAP *load_bmp_pf(PACKFILE *f, RGB *pal)
    else
       bpp = 8;
 
-   if (infoheader.biCompression == BI_BITFIELDS) {
+   if (infoheader.biCompression == BIT_BITFIELDS) {
       unsigned long redMask = pack_igetl(f);
       unsigned long grnMask = pack_igetl(f);
       unsigned long bluMask = pack_igetl(f);

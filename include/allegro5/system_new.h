@@ -9,7 +9,7 @@ typedef struct ALLEGRO_SYSTEM ALLEGRO_SYSTEM;
 
 AL_FUNC(bool, _al_init, (void));
 
-AL_INLINE(static bool, al_init, (void),
+AL_INLINE(bool, al_init, (void),
 {
    if (!system_driver) {
       if (allegro_init())
