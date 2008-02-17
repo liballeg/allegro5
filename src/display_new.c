@@ -64,12 +64,13 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_DISPLAY *display = driver->create_display(w, h);
    if (!display)
       return NULL;
-
+   {
    ALLEGRO_COLOR black = al_map_rgba(0, 0, 0, 0);
    al_set_current_display(display);
    al_set_target_bitmap(al_get_backbuffer());
    al_clear(black);
    al_flip_display();
+   }
 
    return display;
 }

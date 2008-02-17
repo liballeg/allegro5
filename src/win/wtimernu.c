@@ -17,7 +17,9 @@
 
 
 #include <stdlib.h>
-#include <sys/time.h>
+#ifndef _MSC_VER /*XXX REVIEW this. */
+   #include <sys/time.h>
+#endif
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"

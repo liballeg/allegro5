@@ -191,8 +191,8 @@ AL_FUNC(int, al_get_bitmap_height, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(int, al_get_bitmap_format, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(int, al_get_bitmap_flags, (ALLEGRO_BITMAP *bitmap));
 
-AL_FUNC(ALLEGRO_BITMAP, *al_create_bitmap, (int w, int h));
-AL_FUNC(ALLEGRO_BITMAP, *al_load_bitmap, (char const *filename));
+AL_FUNC(ALLEGRO_BITMAP*, al_create_bitmap, (int w, int h));
+AL_FUNC(ALLEGRO_BITMAP*, al_load_bitmap, (char const *filename));
 AL_FUNC(void, al_destroy_bitmap, (ALLEGRO_BITMAP *bitmap));
 
 /* Blitting */
@@ -202,8 +202,8 @@ AL_FUNC(void, al_draw_scaled_bitmap, (ALLEGRO_BITMAP *bitmap, float sx, float sy
 AL_FUNC(void, al_draw_rotated_bitmap, (ALLEGRO_BITMAP *bitmap, float cx, float cy, float dx, float dy, float angle, int flags));
 AL_FUNC(void, al_draw_rotated_scaled_bitmap, (ALLEGRO_BITMAP *bitmap, float cx, float cy, float dx, float dy, float xscale, float yscale, float angle, int flags));
 
-AL_FUNC(ALLEGRO_LOCKED_REGION, *al_lock_bitmap, (ALLEGRO_BITMAP *bitmap, ALLEGRO_LOCKED_REGION *locked_region, int flags));
-AL_FUNC(ALLEGRO_LOCKED_REGION, *al_lock_bitmap_region, (ALLEGRO_BITMAP *bitmap, int x, int y, int width, int height, ALLEGRO_LOCKED_REGION *locked_region, int flags));
+AL_FUNC(ALLEGRO_LOCKED_REGION*, al_lock_bitmap, (ALLEGRO_BITMAP *bitmap, ALLEGRO_LOCKED_REGION *locked_region, int flags));
+AL_FUNC(ALLEGRO_LOCKED_REGION*, al_lock_bitmap_region, (ALLEGRO_BITMAP *bitmap, int x, int y, int width, int height, ALLEGRO_LOCKED_REGION *locked_region, int flags));
 AL_FUNC(void, al_unlock_bitmap, (ALLEGRO_BITMAP *bitmap));
 
 AL_FUNC(void, al_put_pixel, (int x, int y, ALLEGRO_COLOR color));

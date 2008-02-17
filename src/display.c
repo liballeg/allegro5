@@ -570,8 +570,9 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    AL_CONST char *dv;
    int drv_flags = 0;
    int c, driver, ret;
+   int depth;
    ASSERT(system_driver);
-   int depth = get_color_depth();
+   depth = get_color_depth();
 
    _gfx_mode_set_count++;
 

@@ -473,9 +473,9 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
          return color;
       }
 
-      _al_get_pixel(bitmap, bitmap->locked_region.data
+      _al_get_pixel(bitmap, (void*)(((char*)bitmap->locked_region.data)
             + y * bitmap->locked_region.pitch
-            + x * al_get_pixel_size(bitmap->format),
+            + x * al_get_pixel_size(bitmap->format)),
             &color);
    }
    else {
@@ -837,9 +837,9 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
       }
 
       _al_put_pixel(
-         bitmap->locked_region.data
+         (void*)(((intptr_t)bitmap->locked_region.data)
             + y * bitmap->locked_region.pitch
-            + x * al_get_pixel_size(bitmap->format),
+            + x * al_get_pixel_size(bitmap->format)),
          bitmap->format, color_value);
    }
    else {

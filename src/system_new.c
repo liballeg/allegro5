@@ -73,6 +73,8 @@ void _al_exit(void)
 /* Initialize the Allegro system. */
 bool _al_init(void)
 {
+   static char const *description;
+
    if (active) {
       return true;
    }
@@ -94,7 +96,7 @@ bool _al_init(void)
 
    _al_generate_integer_unmap_table();
 
-   static char const *description = "Old-API exit function for new API o_O";
+   description = "Old-API exit function for new API o_O";
    _add_exit_func(_al_exit, description);
 
    return true;

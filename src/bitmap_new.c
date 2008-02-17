@@ -192,6 +192,10 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
  */
 static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
 {
+   PALETTE pal;
+   BITMAP *file_data;
+   ALLEGRO_BITMAP *bitmap;
+
    // TODO:
    // The idea is, load_bitmap returns a memory representation of the bitmap,
    // maybe in fixed RGBA or whatever format is set as default (e.g. for HDR
@@ -200,10 +204,9 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    // for blitting to the current display.
    int flags = al_get_new_bitmap_flags();
 
-   set_color_conversion(COLORCONV_NONE);
    // FIXME: should not use the 4.2 function here of course
-   PALETTE pal;
-   BITMAP *file_data = load_bitmap(filename, pal);
+   set_color_conversion(COLORCONV_NONE);
+   file_data = load_bitmap(filename, pal);
    if (!file_data) {
       return NULL;
    }
@@ -214,7 +217,7 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
       al_set_new_bitmap_format(_al_get_compat_bitmap_format(file_data));
    }
 
-   ALLEGRO_BITMAP *bitmap = al_create_bitmap(file_data->w, file_data->h);
+   bitmap = al_create_bitmap(file_data->w, file_data->h);
 
    if (flags & ALLEGRO_KEEP_BITMAP_FORMAT) {
       _al_pop_new_bitmap_parameters();

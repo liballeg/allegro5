@@ -83,8 +83,8 @@ typedef AL_METHOD(void, _BMP_UNBANK_SWITCHER, (BITMAP *bmp));
 
 AL_INLINE(uintptr_t, bmp_write_line, (BITMAP *bmp, int lyne),
 {
-   _AL_UPDATE_DIRTY_REGION(bmp, 0, lyne, bmp->w, 1);
    _BMP_BANK_SWITCHER switcher = (_BMP_BANK_SWITCHER)bmp->write_bank;
+   _AL_UPDATE_DIRTY_REGION(bmp, 0, lyne, bmp->w, 1);
    return switcher(bmp, lyne);
 })
 

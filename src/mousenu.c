@@ -38,7 +38,7 @@ static ALLEGRO_MOUSE_DRIVER *new_mouse_driver = NULL;
  */
 bool al_is_mouse_installed(void)
 {
-   return new_mouse_driver;
+   return (new_mouse_driver ? true : false);
 }
 
 
@@ -301,19 +301,22 @@ ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor_old(BITMAP *bmp, int x_focus, int y
  */
 ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int x_focus, int y_focus)
 {
+   int x, y;
+   BITMAP *oldbmp;
+   ALLEGRO_MOUSE_CURSOR *result;
+
    ASSERT(gfx_driver);
    ASSERT(bmp);
 
    /* Convert to BITMAP */
-   BITMAP *oldbmp = create_bitmap_ex(32,
+   oldbmp = create_bitmap_ex(32,
       al_get_bitmap_width(bmp), al_get_bitmap_height(bmp));
-   int x, y;
    for (y = 0; y < oldbmp->h; y++) {
       for (x = 0; x < oldbmp->w; x++) {
          ALLEGRO_COLOR color = al_get_pixel(bmp, x, y);
          unsigned char r, g, b, a;
-         al_unmap_rgba(color, &r, &g, &b, &a);
          int oldcolor;
+         al_unmap_rgba(color, &r, &g, &b, &a);
          if (a == 0)
             oldcolor = makecol32(255, 0, 255);
          else
@@ -322,7 +325,7 @@ ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int x_focus, i
       }
    }
 
-   ALLEGRO_MOUSE_CURSOR *result = al_create_mouse_cursor_old(oldbmp, x_focus, y_focus);
+   result = al_create_mouse_cursor_old(oldbmp, x_focus, y_focus);
 
    destroy_bitmap(oldbmp);
 

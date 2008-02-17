@@ -345,6 +345,7 @@ static HICON win_create_icon_from_old_bitmap(struct BITMAP *sprite)
 {
    int mask_color;
    int x, y;
+   int width, height;
    HDC h_dc;
    HDC h_and_dc;
    HDC h_xor_dc;
@@ -361,8 +362,8 @@ static HICON win_create_icon_from_old_bitmap(struct BITMAP *sprite)
    h_xor_dc = CreateCompatibleDC(h_dc);
    h_and_dc = CreateCompatibleDC(h_dc);
 
-   int width = sprite->w;
-   int height = sprite->h;
+   width = sprite->w;
+   height = sprite->h;
 
    /* Prepare AND (monochrome) and XOR (colour) mask */
    and_mask = CreateBitmap(width, height, 1, 1, NULL);
@@ -416,6 +417,11 @@ static HICON win_create_icon_from_old_bitmap(struct BITMAP *sprite)
 
 void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
 {
+   HICON scaled_icon;
+   HWND hwnd;
+   HICON old_small;
+   HICON old_big;
+
    /* Convert to BITMAP */
    BITMAP *oldbmp = create_bitmap_ex(32,
       al_get_bitmap_width(bmp), al_get_bitmap_height(bmp));
@@ -427,11 +433,11 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
       for (x = 0; x < oldbmp->w; x++) {
          ALLEGRO_COLOR color = al_get_pixel(bmp, x, y);
          unsigned char r, g, b, a;
-         al_unmap_rgba(color, &r, &g, &b, &a);
          int oldcolor;
+         al_unmap_rgba(color, &r, &g, &b, &a);
          if (a == 0) {
             oldcolor = makecol32(255, 0, 255);
-	   }
+         }
          else
             oldcolor = makecol32(r, g, b);
          putpixel(oldbmp, x, y, oldcolor);
@@ -441,14 +447,14 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
    stretch_blit(oldbmp, scaled_bmp, 0, 0, oldbmp->w, oldbmp->h,
    	0, 0, scaled_bmp->w, scaled_bmp->h);
 
-   HICON scaled_icon = win_create_icon_from_old_bitmap(scaled_bmp);
+   scaled_icon = win_create_icon_from_old_bitmap(scaled_bmp);
 
-   HWND hwnd = win_get_window();
+   hwnd = win_get_window();
 
    /* Set new icons and destroy old */
-   HICON old_small = (HICON)SendMessage(hwnd, WM_SETICON,
+   old_small = (HICON)SendMessage(hwnd, WM_SETICON,
       ICON_SMALL, (LPARAM)scaled_icon);
-   HICON old_big = (HICON)SendMessage(hwnd, WM_SETICON,
+   old_big = (HICON)SendMessage(hwnd, WM_SETICON,
       ICON_BIG, (LPARAM)scaled_icon);
 
    if (old_small)

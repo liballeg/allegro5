@@ -24,10 +24,10 @@
 #include "allegro5/internal/aintern.h"
 
 
-#define BI_RGB          0
-#define BI_RLE8         1
-#define BI_RLE4         2
-#define BI_BITFIELDS    3
+#define BIT_RGB          0
+#define BIT_RLE8         1
+#define BIT_RLE4         2
+#define BIT_BITFIELDS    3
 
 #define OS2INFOHEADERSIZE  12
 #define WININFOHEADERSIZE  40
@@ -653,19 +653,19 @@ BITMAP *load_bmp_pf(PACKFILE *f, RGB *pal)
 
    switch (infoheader.biCompression) {
 
-      case BI_RGB:
+      case BIT_RGB:
 	 read_image(f, bmp, &infoheader);
 	 break;
 
-      case BI_RLE8:
+      case BIT_RLE8:
 	 read_RLE8_compressed_image(f, bmp, &infoheader);
 	 break;
 
-      case BI_RLE4:
+      case BIT_RLE4:
 	 read_RLE4_compressed_image(f, bmp, &infoheader);
 	 break;
 
-      case BI_BITFIELDS:
+      case BIT_BITFIELDS:
 	 read_bitfields_image(f, bmp, &infoheader);
 	 break;
 

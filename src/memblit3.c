@@ -464,13 +464,13 @@
       int my_l_bmp_x_i = l_bmp_x_rounded >> 16;                       \
       fixed my_l_spr_x = l_spr_x_rounded;                             \
       fixed my_l_spr_y = l_spr_y_rounded;                             \
-      addr = dst_region.data+(bmp_y_i-clip_top_i)*dst_region.pitch;   \
+      addr = (void*)(((char*)dst_region.data)+(bmp_y_i-clip_top_i)*dst_region.pitch);   \
       /* adjust for locking offset */                                 \
       addr -= (clip_left >> 16) * dsize;                              \
       end_addr = addr + my_r_bmp_x_i * dsize;                         \
       addr += my_l_bmp_x_i * dsize;                                   \
       for (; addr < end_addr; addr += dsize) {                        \
-         c = get(src_region.data+(my_l_spr_y>>16)*src_region.pitch+ssize*(my_l_spr_x>>16)); \
+         c = get((void*)(((char*)src_region.data)+(my_l_spr_y>>16)*src_region.pitch+ssize*(my_l_spr_x>>16))); \
 	 c = convert(c);                                           \
 	 set(addr, c);                                             \
 	 my_l_spr_x += spr_dx;                                        \
@@ -519,7 +519,7 @@
    fixed fix_dy = ftofix(fl_dy); \
    fixed fix_cx = ftofix(fl_cx); \
    fixed fix_cy = ftofix(fl_cy); \
-   fixed fix_angle = ftofix(fl_angle*256/(M_PI*2)); \
+   fixed fix_angle = ftofix(fl_angle*256/(AL_PI*2)); \
    fixed fix_xscale = ftofix(fl_xscale); \
    fixed fix_yscale = ftofix(fl_yscale); \
  \

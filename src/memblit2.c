@@ -141,9 +141,9 @@
       int xc = xcstart; \
       _sx = sx; \
       for (x = 0; x < (dxend-dxbeg); x++) { \
-         pixel = get(src_region.data+src_region.pitch*sy+ssize*_sx); \
+         pixel = get((void*)(((char*)src_region.data)+src_region.pitch*sy+ssize*_sx)); \
 	 pixel = convert(pixel); \
-	 set(dst_region.data+dst_region.pitch*y+dsize*x, pixel); \
+	 set((void*)(((char*)dst_region.data)+dst_region.pitch*y+dsize*x), pixel); \
          if (xc <= 0) { \
 	    _sx += sxdir; \
 	    xc += xcinc; \

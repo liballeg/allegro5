@@ -24,9 +24,9 @@
 #define DO_CONVERT(convert, src, stype, ssize, spitch, get, \
 			dst, dtype, dsize, dpitch, set, \
 			sx, sy, dx, dy, w, h) \
-	stype *sstart = (stype *)(src + sy*spitch + sx*ssize); \
+	stype *sstart = (stype *)(((char*)src) + sy*spitch + sx*ssize); \
 	stype *sptr; \
-	dtype *dstart = (dtype *)(dst + dy*dpitch + dx*dsize); \
+	dtype *dstart = (dtype *)(((char*)dst) + dy*dpitch + dx*dsize); \
 	dtype *dptr; \
 	stype *send; \
 	int yy; \

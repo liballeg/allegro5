@@ -120,6 +120,14 @@ include(UsePkgConfig)
 
 include(SrcTests)
 
+if(CMAKE_COMPILER_2005)
+    set(COMPILER_MSVC 1)
+endif(CMAKE_COMPILER_2005)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+    set(COMPILER_GCC 1)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
 if(MINGW)
     # For alplatf.h
     set(ALLEGRO_MINGW32 1)
@@ -130,6 +138,9 @@ endif(MINGW)
 if(UNIX)
     set(ALLEGRO_UNIX 1)
 endif(UNIX)
+if(COMPILER_MSVC)
+    set(ALLEGRO_MSVC 1)
+endif(COMPILER_MSVC)
 
 # Add corresponding lines to include/allegro5/platform/alunixac.h.in
 
@@ -513,9 +524,15 @@ endif(MINGW_CROSS)
 
 if(WIN32)
     if(WANT_D3D)
-        set(ALLEGRO_D3D 1)
         check_include_files(d3dx9.h HAVE_D3DX9)
+        if(HAVE_D3DX9)
+            set(SUPPORT_D3D 1)
+        endif(HAVE_D3DX9)
     endif(WANT_D3D)
+    
+    if(SUPPORT_D3D)
+        set(ALLEGRO_D3D 1)
+    endif(SUPPORT_D3D)
 endif(WIN32)
 
 #
@@ -618,18 +635,28 @@ if(WIN32)
     list(APPEND PLATFORM_LIBS
         kernel32 user32 gdi32 comdlg32 ole32 dinput ddraw dxguid winmm dsound
         )
-    if(WANT_D3D)
+    if(SUPPORT_D3D)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
         list(APPEND PLATFORM_LIBS d3d9)
-    endif(WANT_D3D)
+    endif(SUPPORT_D3D)
 endif(WIN32)
 
 #-----------------------------------------------------------------------------#
 
 if(STRICT_WARN)
-    set(WFLAGS "-W -Wall -Wstrict-prototypes -Wno-unused-parameter -Werror")
+    if(COMPILER_GCC)
+        set(WFLAGS "-W -Wall -Wstrict-prototypes -Wno-unused-parameter -Werror")
+    endif(COMPILER_GCC)
+    if(COMPILER_MSVC)
+        set(WFLAGS "/W4 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
+    endif(COMPILER_MSVC)
 else(STRICT_WARN)
-    set(WFLAGS "-W -Wall -Wno-unused")
+    if(COMPILER_GCC)
+        set(WFLAGS "-W -Wall -Wno-unused")
+    endif(COMPILER_GCC)
+    if(COMPILER_MSVC)
+        set(WFLAGS "/W2 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
+    endif(COMPILER_MSVC)
 endif(STRICT_WARN)
 
 macro(add_allegro_build nm extra_flags)
@@ -703,18 +730,33 @@ macro(add_allegro_build nm extra_flags)
 endmacro(add_allegro_build)
 
 if(GRADE_STANDARD)
-    add_allegro_build(alleg
-        "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
+    if(COMPILER_GCC)
+        add_allegro_build(alleg
+            "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
+    endif(COMPILER_GCC)
+    if(COMPILER_MSVC)
+       	add_allegro_build(alleg "")
+    endif(COMPILER_MSVC)
 endif(GRADE_STANDARD)
 
 if(GRADE_DEBUG)
-    add_allegro_build(allegd
-        "-DDEBUGMODE -g")
+    if(COMPILER_GCC)
+        add_allegro_build(allegd
+            "-DDEBUGMODE -g")
+    endif(COMPILER_GCC)
+    if(COMPILER_MSVC)
+       	add_allegro_build(allegd "")
+    endif(COMPILER_MSVC)
 endif(GRADE_DEBUG)
 
 if(GRADE_PROFILE)
-    add_allegro_build(allp
-        "-pg -O2 -funroll-loops -ffast-mathC")
+    if(COMPILER_GCC)
+        add_allegro_build(allp
+            "-pg -O2 -funroll-loops -ffast-mathC")
+    endif(COMPILER_GCC)
+    if(COMPILER_MSVC)
+       	add_allegro_build(allp "")
+    endif(COMPILER_MSVC)
 endif(GRADE_PROFILE)
 
 # XXX liballeg_unshareable should not be needed if WANT_ASM is disabled.
@@ -854,6 +896,11 @@ endif(SUPPORT_MODULES)
     # standard, debug, profile in that order, and prefer statically linked
     # over dynamically linked.  It would be worth making this configurable.
     #
+
+if(MSVC)
+    set(PROGRAM_LFLAGS "/SUBSYSTEM:WINDOWS")
+endif(MSVC)
+
 if(GRADE_STANDARD)
     set(LIB_TO_LINK alleg)
     set(FONT_LIB_TO_LINK a5_font)
@@ -878,7 +925,7 @@ macro(add_allegro_executable nm)
     add_executable(${nm} ${ARGN})
     set_target_properties(${nm} PROPERTIES
         COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
-        LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
+        LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${PROGRAM_LFLAGS}"
         )
     target_link_libraries(${nm} ${LINK_WITH})
 endmacro(add_allegro_executable)
@@ -895,9 +942,11 @@ add_subdirectory(addons)
 # Demo
 #
 #-----------------------------------------------------------------------------#
+if(NOT MSVC) # XXX disabled because it breaks MSVC's intellisense for some reason
 if(USE_CXX AND WANT_FONT)
     add_subdirectory(demo)
 endif(USE_CXX AND WANT_FONT)
+endif(NOT MSVC)
 
 #-----------------------------------------------------------------------------#
 #

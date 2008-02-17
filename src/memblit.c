@@ -805,7 +805,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    fixed fix_dy = ftofix(fl_dy); \
    fixed fix_cx = ftofix(fl_cx); \
    fixed fix_cy = ftofix(fl_cy); \
-   fixed fix_angle = ftofix(fl_angle*256/(M_PI*2)); \
+   fixed fix_angle = ftofix(fl_angle*256/(AL_PI*2)); \
    fixed fix_xscale = ftofix(fl_xscale); \
    fixed fix_yscale = ftofix(fl_yscale); \
  \

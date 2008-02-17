@@ -36,10 +36,13 @@ static _AL_MUTEX time_mutex = _AL_MUTEX_UNINITED;
 
 static double low_res_current_time(void)
 {
+    int64_t cur_time;
+    double ellapsed_time;
+
     _al_mutex_lock(&time_mutex);
    
-   int64_t cur_time = (int64_t) timeGetTime();
-   double ellapsed_time = (double) (cur_time - _al_win_prev_time) / 1000;
+   cur_time = (int64_t) timeGetTime();
+   ellapsed_time = (double) (cur_time - _al_win_prev_time) / 1000;
 
    if (cur_time < _al_win_prev_time) {
        ellapsed_time += 4294967.295;
@@ -56,13 +59,16 @@ static double low_res_current_time(void)
 
 static double high_res_current_time(void)
 {
+   LARGE_INTEGER count;
+   int64_t cur_time;
+   double ellapsed_time;
+
    _al_mutex_lock(&time_mutex);
 
-   LARGE_INTEGER count;
    QueryPerformanceCounter(&count);
 
-   int64_t cur_time = LARGE_INTEGER_TO_INT64(count);
-   double ellapsed_time = (double)(cur_time - _al_win_prev_time) / (double)high_res_timer_freq;
+   cur_time = LARGE_INTEGER_TO_INT64(count);
+   ellapsed_time = (double)(cur_time - _al_win_prev_time) / (double)high_res_timer_freq;
 
    _al_win_total_time += ellapsed_time;
    _al_win_prev_time = cur_time;

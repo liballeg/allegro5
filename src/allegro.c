@@ -301,6 +301,13 @@ static int _install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(voi
    char tmp1[64], tmp2[64];
    int i;
 
+   #ifndef ALLEGRO_USE_CONSTRUCTOR
+      /* call constructor functions manually */
+      extern void _initialize_datafile_types();
+      extern void _midi_constructor();
+      extern void _al_comouse_constructor();
+   #endif
+
    /* We need to have a TRACE before using anything else, since the first TRACE
     * call will install a global destructor function which must be installed
     * before any other destructor functions which possibly may use TRACE.
@@ -308,11 +315,6 @@ static int _install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(voi
    TRACE("al-main INFO: Allegro version is %s.\n", ALLEGRO_VERSION_STR);
 
    #ifndef ALLEGRO_USE_CONSTRUCTOR
-      /* call constructor functions manually */
-      extern void _initialize_datafile_types();
-      extern void _midi_constructor();
-      extern void _al_comouse_constructor();
-
       _initialize_datafile_types();
       _midi_constructor();
       _al_comouse_constructor();

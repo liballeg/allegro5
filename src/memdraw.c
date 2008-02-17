@@ -126,6 +126,7 @@ void _al_draw_vline_memory_fast(int dx, int dy1, int dy2, ALLEGRO_COLOR *color)
    ALLEGRO_LOCKED_REGION lr;
    int size;
    int color_value;
+   unsigned char *d;
 
    ASSERT(dst);
 
@@ -156,7 +157,7 @@ void _al_draw_vline_memory_fast(int dx, int dy1, int dy2, ALLEGRO_COLOR *color)
       } \
    }
 
-   unsigned char *d = lr.data;
+   d = lr.data;
 
    switch (size) {
       case 1:
@@ -210,7 +211,7 @@ void _al_draw_line_memory_fast(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *co
       set, size)                                                             \
    {                                                                         \
       if (d##pri_c == 0) {                                                   \
-         set(bitmap, lr.data+y1*lr.pitch+x1*size, x1+xo, y1+yo, d);          \
+         set(bitmap, (void*)(((intptr_t)lr.data)+y1*lr.pitch+x1*size), x1+xo, y1+yo, d);          \
          al_unlock_bitmap(bitmap);                                           \
 	 return;                                                             \
       }                                                                      \
@@ -223,7 +224,7 @@ void _al_draw_line_memory_fast(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *co
       y = y1;                                                                \
 									     \
       while (pri_c pri_cond pri_c##2) {                                      \
-	 set(bitmap, lr.data+y*lr.pitch+x*size, x+xo, y+yo, d);              \
+	 set(bitmap, (void*)(((intptr_t)lr.data+y)*lr.pitch+x*size), x+xo, y+yo, d);              \
 									     \
 	 if (dd sec_cond 0) {                                                \
 	    sec_c = sec_c sec_sign 1;                                        \
@@ -662,6 +663,8 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color)
    DO_LINE(+, x, <=, +, y, >=, al_put_pixel);
 
    al_unlock_bitmap(bitmap);
+
+#undef DO_LINE
 }
 
 #define DO_FILLED_RECTANGLE(func, dx, dy, w, h, color) \

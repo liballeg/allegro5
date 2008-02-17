@@ -58,9 +58,9 @@
    for (y = 0; y < sh; y++) { \
       cdx = 0; \
       for (x = 0; x < sw; x++) { \
-         pixel = get(src+y*spitch+x*ssize); \
+         pixel = get(((char*)src)+y*spitch+x*ssize); \
   	 pixel = convert(pixel); \
-         set(dst+cdy*dpitch+cdx*dsize, pixel); \
+         set(((char*)dst)+cdy*dpitch+cdx*dsize, pixel); \
 	 cdx += dxi; \
       } \
       cdy += dyi; \
@@ -600,9 +600,9 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
 	 (dy+sh) > (dest->lock_y+dest->lock_h)) {
 	      return;
       }
-      dst_region.data = dest->locked_region.data +
+      dst_region.data = (void*)(((char*)dest->locked_region.data) +
          ((dy-dest->lock_y)*dest->locked_region.pitch) +
-	 ((dx-dest->lock_x)*al_get_pixel_size(dest->format));
+	 ((dx-dest->lock_x)*al_get_pixel_size(dest->format)));
       dst_region.format = dest->format;
       dst_region.pitch = dest->locked_region.pitch;
    }
