@@ -19,6 +19,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/platform/aintosx.h"
+#include "allegro/internal/aintern_thread.h"
 
 #ifndef ALLEGRO_MACOSX
    #error something is wrong with the makefile
@@ -206,10 +207,12 @@ static void prepare_window_for_animation(int refresh_view)
  */
 -(id) initWithFrame: (NSRect) rc 
 {
-   self = [super initWithFrame: rc];
-   _tracking = 0;
-   _cursor = nil;
-   _show_cursor = NO;
+   if ((self = [super initWithFrame: rc])!=nil) {
+      _tracking = 0;
+      _cursor = nil;
+      _show_cursor = NO;
+   }
+   return self;
 }
 -(void) viewDidMoveToWindow
 {
@@ -263,17 +266,17 @@ static void prepare_window_for_animation(int refresh_view)
 -(void) keyDown:(NSEvent*) event
 {
    if (_keyboard_installed)
-      osx_keyboard_handler(TRUE, event);
+      osx_keyboard_handler(TRUE, event, NULL);
 }
 -(void) keyUp:(NSEvent*) event 
 {
    if (_keyboard_installed)
-      osx_keyboard_handler(FALSE, event);
+      osx_keyboard_handler(FALSE, event, NULL);
 }
 -(void) flagsChanged:(NSEvent*) event
 {
    if (_keyboard_installed)
-      osx_keyboard_modifiers([event modifierFlags]);
+      osx_keyboard_modifiers([event modifierFlags], NULL);
 }
 -(void) drawRect:(NSRect) aRect
 {
@@ -341,47 +344,47 @@ static void prepare_window_for_animation(int refresh_view)
 /* Mouse handling */
 -(void) mouseDown: (NSEvent*) evt
 {
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
 }
 -(void) mouseUp: (NSEvent*) evt
 {
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
 }
 -(void) mouseDragged: (NSEvent*) evt
 {
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
 }
 -(void) rightMouseDown: (NSEvent*) evt
 {
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
 }
 -(void) rightMouseUp: (NSEvent*) evt
 {
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
 }
 -(void) rightMouseDragged: (NSEvent*) evt
 {
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
 }
 -(void) otherMouseDown: (NSEvent*) evt
 {
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
 }
 -(void) otherMouseUp: (NSEvent*) evt
 {
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
 }
 -(void) otherMouseDragged: (NSEvent*) evt
 {
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
 }
 -(void) mouseMoved: (NSEvent*) evt
 {
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
 }
 -(void) scrollWheel: (NSEvent*) evt
 {
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
 }
 -(void) mouseEntered: (NSEvent*) evt
 {
@@ -394,11 +397,11 @@ static void prepare_window_for_animation(int refresh_view)
    {
       [NSCursor hide];
    }
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
 }
 -(void) mouseExited: (NSEvent*) evt
 {
-   osx_mouse_generate_event(evt);
+   osx_mouse_generate_event(evt, 0);
    [[NSCursor arrowCursor] set];
    [NSCursor unhide];
 }
@@ -449,6 +452,8 @@ static unsigned long osx_qz_write_line_win(BITMAP *bmp, int line)
       bmp->id |= BMP_ID_AUTOLOCK;
    }
    dirty_lines[line + bmp->y_ofs] = 1;
+   
+   [qd_view setNeedsDisplayInRect: NSMakeRect(0, line + bmp->y_ofs, bmp->w, line + bmp->y_ofs)];
 
    return (unsigned long)(bmp->line[line]);
 }
@@ -605,8 +610,7 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
 	
 	pthread_cond_init(&vsync_cond, NULL);
 	pthread_mutex_init(&vsync_mutex, NULL);
-	/* FIXME! */
-	// osx_window_mutex = _unix_create_mutex();
+	_al_mutex_init(&osx_window_mutex);
 	lock_nesting = 0;
 	
 	if (1
@@ -815,7 +819,7 @@ static void osx_qz_window_set_palette(AL_CONST struct RGB *p, int from, int to, 
 
    /* invalidate the whole screen */
    memset(dirty_lines, 1, gfx_quartz_window.h);
-
+   [qd_view setNeedsDisplay: YES];
    _al_mutex_unlock(&osx_window_mutex);
 }
 

@@ -251,12 +251,13 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
 
 static BITMAP *osx_qz_full_init(int w, int h, int v_w, int v_h, int color_depth)
 {
-   BITMAP *bmp;
-   _al_mutex_lock(&osx_event_mutex);
-   bmp = private_osx_qz_full_init(w, h, v_w, v_h, color_depth);
-   _al_mutex_unlock(&osx_event_mutex);
-   if (!bmp)
-      osx_qz_full_exit(bmp);
+   BITMAP *bmp = NULL;
+   /* Unfortunately fullscreen mode is broken in 4.3 */
+//   _al_mutex_lock(&osx_event_mutex);
+//   bmp = private_osx_qz_full_init(w, h, v_w, v_h, color_depth);
+//   _al_mutex_unlock(&osx_event_mutex);
+//   if (!bmp)
+//      osx_qz_full_exit(bmp);
    return bmp;
 }
 
