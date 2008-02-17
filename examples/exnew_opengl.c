@@ -129,7 +129,7 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
 
-   start = al_current_time() / 1000.0;
+   start = al_current_time();
    while (true) {
       /* Check for ESC key or close button event and quit in either case. */
       if (!al_event_queue_is_empty(queue)) {
@@ -152,7 +152,7 @@ int main(void)
 
 done:
 
-   printf("%.1f FPS\n", frames / (al_current_time() / 1000.0 - start));
+   printf("%.1f FPS\n", frames / (al_current_time() - start));
    al_destroy_event_queue(queue);
 
    return 0;
