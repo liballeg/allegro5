@@ -670,7 +670,7 @@ endif(GRADE_DEBUG)
 if(GRADE_PROFILE)
     if(COMPILER_GCC)
         add_allegro_build(allp
-            "-pg -O2 -funroll-loops -ffast-mathC")
+            "-pg -O2 -funroll-loops -ffast-math")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
        	add_allegro_build(allp "")
