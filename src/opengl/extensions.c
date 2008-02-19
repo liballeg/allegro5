@@ -23,7 +23,7 @@
  * <al_get_opengl_proc_address> functions instead.
  */
 
-#include <allegro5/allegro5.h>
+#include "allegro5/allegro5.h"
 
 #define AGL_LOG(level,str) TRACE(str)
 
@@ -347,7 +347,7 @@ __allegro_gl_look_for_an_extension(AL_CONST char *name,
 static AGL_GetExtensionsStringARB_t __wglGetExtensionsStringARB = NULL;
 static HDC __hdc = NULL;
 #elif defined ALLEGRO_UNIX
-#include <xalleg.h>
+#include "allegro5/xalleg.h"
 #endif
 
 
