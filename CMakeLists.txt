@@ -4,8 +4,6 @@
 # - sonames on Unix
 # - most Unix drivers require testing
 #
-# - crash on Windows if try to use ALLEGRO_NO_ASM due to clash of calling
-#   conventions (I think it was never supported)
 # - DLLs on Windows (some "auto-imports" when linking executables)
 # - MSVC support
 #
@@ -13,11 +11,9 @@
 # - installing documentation
 #
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-
 #-----------------------------------------------------------------------------#
 #
-#   Project
+#   Build system setup
 #
 #-----------------------------------------------------------------------------#
 
@@ -30,18 +26,23 @@ else(USE_CXX)
 endif(USE_CXX)
 
 # TODO soft-code the version number
-set(ALLEGRO_VERSION 4.9.2)
+set(ALLEGRO_VERSION 4.9.3)
 
+# Search in the `cmake' directory for additional CMake modules.
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+# Search for C header files in these directories.
 include_directories(
-    .
     include
-    include/allegro5
-
     # For out-of-source builds.
     ${CMAKE_BINARY_DIR}/include
-    ${CMAKE_BINARY_DIR}/include/allegro5
-    ${CMAKE_BINARY_DIR}/include/allegro5/platform
     )
+
+# Put libraries into `lib' by default.  This path must be absolute.
+set(ALLEGRO_LIB_PATH "lib" CACHE INTERNAL "internal")
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${ALLEGRO_LIB_PATH})
+
+# Lists of all the source files.
 include(FileList)
 
 #-----------------------------------------------------------------------------#
@@ -57,7 +58,6 @@ option(GRADE_PROFILE "Build the profiling library" off)
 option(SHARED "Build shared libraries" on)
 option(STATIC "Build static libraries" on)
 
-option(WANT_ASM "Use hand-written assembly code for i386 (disabled)" off)
 option(WANT_MODULES "Use dynamically loaded modules (Unix)" on)
 option(WANT_MAGIC_MAIN "Enable magic main" off)
 
@@ -96,13 +96,8 @@ option(WANT_FONT "Enable bitmap font add-on" on)
 
 option(STRICT_WARN "Halt at warnings" off)
 option(WANT_OLD_EXAMPLES "Build examples from < 4.9" off)
-
-#-----------------------------------------------------------------------------#
-
-    # Put libraries into `lib' by default.  This must be absolute.
-    #
-set(ALLEGRO_LIB_PATH "lib" CACHE INTERNAL "internal")
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${ALLEGRO_LIB_PATH})
+option(WANT_OLD_TESTS "Build tests from < 4.9" off)
+option(WANT_OLD_TOOLS "Build tools from < 4.9" off)
 
 #-----------------------------------------------------------------------------#
 #
@@ -118,8 +113,6 @@ include(CheckSymbolExists)
 include(CheckTypeSize)
 include(UsePkgConfig)
 
-include(SrcTests)
-
 if(CMAKE_COMPILER_2005)
     set(COMPILER_MSVC 1)
 endif(CMAKE_COMPILER_2005)
@@ -128,6 +121,10 @@ if(CMAKE_COMPILER_IS_GNUCC)
     set(COMPILER_GCC 1)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
+if(MINGW_CROSS)
+    set(WIN32 1)
+endif(MINGW_CROSS)
+
 if(MINGW)
     # For alplatf.h
     set(ALLEGRO_MINGW32 1)
@@ -135,14 +132,16 @@ if(MINGW)
     string(REPLACE "\\" "/" MINGDIR "$ENV{MINGDIR}")
     set(CMAKE_INSTALL_PREFIX ${MINGDIR})
 endif(MINGW)
+
 if(UNIX)
     set(ALLEGRO_UNIX 1)
 endif(UNIX)
+
 if(COMPILER_MSVC)
     set(ALLEGRO_MSVC 1)
 endif(COMPILER_MSVC)
 
-# Add corresponding lines to include/allegro5/platform/alunixac.h.in
+# Begin tests.
 
 include(TestBigEndian)
 test_big_endian(ALLEGRO_BIG_ENDIAN)
@@ -175,6 +174,7 @@ check_function_exists(stricmp ALLEGRO_HAVE_STRICMP)
 check_function_exists(strlwr ALLEGRO_HAVE_STRLWR)
 check_function_exists(strupr ALLEGRO_HAVE_STRUPR)
 check_function_exists(sysconf, ALLEGRO_HAVE_SYSCONF)
+
 check_type_size("_Bool" ALLEGRO_HAVE__BOOL)
 
 check_c_source_compiles("
@@ -203,21 +203,8 @@ check_ctors(ALLEGRO_USE_CONSTRUCTOR)
 
 #-----------------------------------------------------------------------------#
 
-if(WANT_ASM)
-    # TODO check if assembly is support on this platform
-    # Write up another macro?
-
-    set(SUPPORT_ASM 1)
-    
-    include(CheckAsm)
-    check_MMX(ALLEGRO_MMX)
-    check_SSE(ALLEGRO_SSE)
-else(WANT_ASM)
-    # Added it to alplatf.h.cmake, if this isn't wise just uncomment
-    # and remove the set and the entry in alplatf.h.cmake
-    #add_definitions(-DALLEGRO_NO_ASM)
-    set(ALLEGRO_NO_ASM 1)
-endif(WANT_ASM)
+# We no longer support hand-written assembly routines.
+set(ALLEGRO_NO_ASM 1)
 
 if(WANT_MODULES)
     # Should ask CMake whether it can build modules on this platform.
@@ -255,9 +242,7 @@ endif(WANT_MAGIC_MAIN)
 # generally that's just due to sloppiness.
 #
 
-
-    # Accumulate extra libraries needed due to drivers.
-    #
+# Accumulate extra libraries needed due to drivers.
 set(DRIVER_LIBS_STATIC)
 set(DRIVER_LIBS_SHARED)
 
@@ -274,6 +259,7 @@ if(UNIX)
 
     if(SUPPORT_MODULES)
         set(ALLEGRO_MODULES_PATH_TAIL lib/allegro)
+        # This is a #define variable.
         set(ALLEGRO_MODULES_PATH
             \"${CMAKE_INSTALL_PREFIX}/${ALLEGRO_MODULES_PATH_TAIL}\"
             )
@@ -518,10 +504,6 @@ endif(SUPPORT_X11)
 # Windows
 #
 
-if(MINGW_CROSS)
-    set(WIN32 1)
-endif(MINGW_CROSS)
-
 if(WIN32)
     if(WANT_D3D)
         check_include_files(d3dx9.h HAVE_D3DX9)
@@ -547,6 +529,7 @@ configure_file(
 
 if(MINGW)
     # asmcapa.h wouldn't be necessary if we only supported CMake.
+    # XXX we shouldn't need asmcapa.h any more
     configure_file(
         cmake/asmcapa.h.cmake
         obj/mingw32/asmcapa.h
@@ -554,8 +537,10 @@ if(MINGW)
 endif(MINGW)
 
 if(UNIX)
-    set(CONFIG_FILE include/allegro5/platform/alunixac.h)
-    configure_file(${CONFIG_FILE}.cmake ${CONFIG_FILE})
+    configure_file(
+        include/allegro5/platform/alunixac.h.cmake
+        include/allegro5/platform/alunixac.h
+        )
 endif(UNIX)
 
 #-----------------------------------------------------------------------------#
@@ -564,50 +549,16 @@ endif(UNIX)
 #
 #-----------------------------------------------------------------------------#
 
-    # List of source files need to compile Allegro in this configuration on
-    # this platform.
-    #
-set(LIBRARY_SOURCES ${ALLEGRO_SRC_FILES})
+# List of source files need to compile Allegro in this configuration on
+# this platform.
+set(LIBRARY_SOURCES
+    ${ALLEGRO_SRC_FILES}
+    ${ALLEGRO_SRC_C_FILES}
+    )
 
-    # Libraries that we always need to link against on this platform
-    # e.g. -lm on Unix.
-    #
+# Libraries that we always need to link against on this platform
+# e.g. -lm on Unix.
 set(PLATFORM_LIBS)
-
-    # Whether using hand-written assembly code or C-only.
-    #
-if(SUPPORT_ASM)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_I386_FILES})
-else(SUPPORT_ASM)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_C_FILES})
-endif(SUPPORT_ASM)
-
-    # Assembly code and Windows port both require generated asmdef.inc.
-    #
-
-INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
-
-#add_executable(asmdef src/i386/asmdef.c)
-#set_target_properties(asmdef PROPERTIES
-#    OUTPUT_NAME ${ALLEGRO_LIB_PATH}/asmdef
-#    )
-#get_target_property(ASMDEF_EXE asmdef LOCATION)
-#
-#if(MINGW)
-#    set(ASMDEF_INC ${CMAKE_BINARY_DIR}/obj/mingw32/asmdef.inc)
-#endif(MINGW)
-#if(UNIX)
-#    set(ASMDEF_INC ${CMAKE_BINARY_DIR}/obj/unix/asmdef.inc)
-#endif(UNIX)
-
-#add_custom_target(asmdef_inc
-#    DEPENDS ${ASMDEF_INC}
-#    )
-#add_custom_command(
-#    OUTPUT ${ASMDEF_INC}
-#    DEPENDS asmdef
-#    COMMAND ${ASMDEF_EXE} ${ASMDEF_INC}
-#    )
 
 if(UNIX)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_UNIX_FILES})
@@ -665,47 +616,14 @@ macro(add_allegro_build nm extra_flags)
         "-DALLEGRO_LIB_BUILD -DALLEGRO_SRC ${WFLAGS} ${extra_flags}"
         )
 
-    #
-    # Assembly files.
-    # I can't get it to work by adding the asm source file to the library, so
-    # we add the object file to the library instead.
-    #
-    set(ASM_OBJS)
-    set(ASM_SOURCES)
-    foreach(SOURCE ${LIBRARY_SOURCES})
-        if(${SOURCE} MATCHES "\\.s$")
-            get_filename_component(FILE_BASE ${SOURCE} NAME_WE)
-            set(OBJ ${LIBRARY_OUTPUT_PATH}/${FILE_BASE}.o)
-            set(_wflags ${WFLAGS})
-            separate_arguments(_wflags)
-            add_custom_command(
-                OUTPUT ${OBJ}
-                DEPENDS ${SOURCE} ${ASMDEF_INC}
-                COMMAND
-                    ${CMAKE_C_COMPILER} -x assembler-with-cpp
-                    -I${CMAKE_SOURCE_DIR}
-                    -I${CMAKE_BINARY_DIR}
-                    -I${CMAKE_BINARY_DIR}/include ${_wflags}
-                    -c ${CMAKE_SOURCE_DIR}/${SOURCE}
-                    -o ${OBJ}
-                )
-            list(APPEND ASM_OBJS ${OBJ})
-            list(APPEND ASM_SOURCES ${SOURCE})
-        endif(${SOURCE} MATCHES "\\.s$")
-    endforeach(SOURCE)
-
     macro(really_add_allegro_build nam target libtype more_extra_flags)
         set(OUTPUT_LIBRARY ${nam})
-        #add_library(${target} ${libtype} ${LIBRARY_SOURCES} ${ASM_OBJS})
         add_library(${target} ${libtype} ${LIBRARY_SOURCES})
         set_target_properties(${target}
             PROPERTIES
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
             OUTPUT_NAME ${nam}
             )
-        #if(SUPPORT_ASM)
-        #    add_dependencies(${target} asmdef_inc)
-        #endif(SUPPORT_ASM)
 
         target_link_libraries(${target} ${PLATFORM_LIBS})
 
@@ -759,35 +677,12 @@ if(GRADE_PROFILE)
     endif(COMPILER_MSVC)
 endif(GRADE_PROFILE)
 
-# XXX liballeg_unshareable should not be needed if WANT_ASM is disabled.
-# But allegro-config still expects it for now.
-if(SHARED)
-    #add_library(alleg_unsharable STATIC ${ASM_OBJS})
-    #set_target_properties(alleg_unsharable
-    #    PROPERTIES
-    #    COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
-    #    OUTPUT_NAME alleg_unsharable
-    #    LINKER_LANGUAGE C
-    #    )
-
-    #target_link_libraries(alleg_unsharable ${PLATFORM_LIBS})
-
-    #install(
-    #    TARGETS alleg_unsharable
-    #    DESTINATION lib
-    #    LIBRARY PERMISSIONS
-    #        OWNER_READ OWNER_WRITE OWNER_EXECUTE
-    #        GROUP_READ             GROUP_EXECUTE
-    #        WORLD_READ             WORLD_EXECUTE
-    #    )
-endif(SHARED)
-
 #
 # Install header files.
 #
 
 install(FILES ${ALLEGRO_INCLUDE_FILES}
-        DESTINATION include/allegro5
+        DESTINATION include
         )
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_FILES}
         DESTINATION include/allegro5
@@ -892,14 +787,14 @@ endif(SUPPORT_MODULES)
 #   Programs
 #
 #-----------------------------------------------------------------------------#
-    # Select libraries to link the programs with.  We choose
-    # standard, debug, profile in that order, and prefer statically linked
-    # over dynamically linked.  It would be worth making this configurable.
-    #
 
 if(MSVC)
     set(PROGRAM_LFLAGS "/SUBSYSTEM:WINDOWS")
 endif(MSVC)
+
+# Select libraries to link the programs with.  We choose
+# standard, debug, profile in that order, and prefer statically linked
+# over dynamically linked.  It would be worth making this configurable.
 
 if(GRADE_STANDARD)
     set(LIB_TO_LINK alleg)
@@ -935,6 +830,7 @@ endmacro(add_allegro_executable)
 # Add-ons
 #
 #-----------------------------------------------------------------------------#
+
 add_subdirectory(addons)
 
 #-----------------------------------------------------------------------------#
@@ -942,10 +838,11 @@ add_subdirectory(addons)
 # Demo
 #
 #-----------------------------------------------------------------------------#
+
 if(NOT MSVC) # XXX disabled because it breaks MSVC's intellisense for some reason
-if(USE_CXX AND WANT_FONT)
-    add_subdirectory(demo)
-endif(USE_CXX AND WANT_FONT)
+    if(USE_CXX AND WANT_FONT)
+        add_subdirectory(demo)
+    endif(USE_CXX AND WANT_FONT)
 endif(NOT MSVC)
 
 #-----------------------------------------------------------------------------#
@@ -953,9 +850,16 @@ endif(NOT MSVC)
 # Examples
 #
 #-----------------------------------------------------------------------------#
+
 add_subdirectory(examples)
-#add_subdirectory(tests)
-#add_subdirectory(tools)
+
+if(WANT_OLD_TESTS)
+    add_subdirectory(tests)
+endif(WANT_OLD_TESTS)
+
+if(WANT_OLD_TOOLS)
+    add_subdirectory(tools)
+endif(WANT_OLD_TOOLS)
 
 #-----------------------------------------------------------------------------#
 #
@@ -1008,10 +912,9 @@ add_subdirectory(docs)
 
 #-----------------------------------------------------------------------------#
 
-    # Recreate directory structure for out-of-source builds.
-    #
+# Recreate directory structure for out-of-source builds.
+# XXX is this only needed because of asmcapa.h?
 make_directory(obj/mingw32)
-make_directory(obj/unix)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

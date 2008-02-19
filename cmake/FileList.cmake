@@ -441,13 +441,14 @@ set(ALLEGRO_MODULE_JACK_FILES
     )
 
 set(ALLEGRO_INCLUDE_FILES
+    # No files directly in the `include' root any more.
+    )
+
+set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/allegro5.h
     include/allegro5/allegro.h
     include/allegro5/winalleg.h
     include/allegro5/xalleg.h
-    )
-
-set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/3d.h
     include/allegro5/3dmaths.h
     include/allegro5/alcompat.h
