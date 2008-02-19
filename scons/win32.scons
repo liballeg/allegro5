@@ -122,7 +122,6 @@ if False:
 	wsystem.c
 	wthread.c
 	wtime.c
-	wtimernu.c
 	wwnd.c
 	wxthread.c
 """));

@@ -73,6 +73,7 @@ set(ALLEGRO_SRC_FILES
     src/system_new.c
     src/text.c
     src/tga.c
+    src/timernu.c
     src/tls.c
     src/unicode.c
     src/vtable.c
@@ -229,7 +230,6 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/wsystem.c
     src/win/wthread.c
     src/win/wtime.c
-    src/win/wtimernu.c
     src/win/wwnd.c
     src/win/wxthread.c
     src/win/wnewsys.c
@@ -326,7 +326,6 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/usystem.c
     src/unix/uthreads.c
     src/unix/utime.c
-    src/unix/utimernu.c
     src/unix/uxthread.c
     src/misc/modexsms.c
     src/opengl/extensions.c
@@ -391,7 +390,6 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/unix/usystem.c
     src/unix/uthreads.c
     src/unix/utime.c
-    src/unix/utimernu.c
     src/unix/uxthread.c
     src/misc/colconv.c
     )

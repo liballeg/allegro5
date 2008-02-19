@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      New timer API for Unixen.
+ *      New timer API for Windows.
  *
  *      By Peter Wang.
  *
@@ -17,12 +17,15 @@
 
 
 #include <stdlib.h>
-#include <sys/time.h>
+#ifndef ALLEGRO_MSVC
+   #include <sys/time.h>
+#endif
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
+
 
 
 /* forward declarations */

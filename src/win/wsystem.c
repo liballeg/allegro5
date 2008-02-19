@@ -229,6 +229,8 @@ static void sys_directx_exit(void)
    /* shutdown thread */
    _win_thread_exit();
 
+   _al_win_shutdown_time();
+
    allegro_inst = NULL;
 }
 

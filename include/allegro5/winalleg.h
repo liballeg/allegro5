@@ -124,7 +124,6 @@ AL_FUNC(bool, al_d3d_supports_non_square_textures, (void));
 
 #endif //ALLEGRO_D3D
 
-
 #ifdef __cplusplus
    }
 #endif
