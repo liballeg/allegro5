@@ -22,8 +22,6 @@ static bool key_down(void)
 
 static void print(A5FONT_FONT *myfont, char *message, int x, int y)
 {
-   ALLEGRO_COLOR color;
-
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
    a5font_textout(myfont, message, x+2, y+2);
 

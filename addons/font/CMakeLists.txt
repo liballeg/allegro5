@@ -62,7 +62,7 @@ else(STATIC)
 endif(STATIC)
 
 macro(add_font_example nm)
-    add_executable(${nm} ${ARGN})
+    add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
     set_target_properties(${nm} PROPERTIES
         COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"

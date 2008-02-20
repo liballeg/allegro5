@@ -5,13 +5,15 @@ int main(void)
 {
     ALLEGRO_DISPLAY *display;
     ALLEGRO_BITMAP *bitmap;
+    A5FONT_FONT *f;
+
     al_init();
     display = al_create_display(320, 200);
     bitmap = al_load_bitmap("mysha.pcx");
     al_draw_bitmap(bitmap, 0, 0, 0);
 
     a5font_init();
-    A5FONT_FONT *f = a5font_load_font("bmpfont.tga", NULL);
+    f = a5font_load_font("bmpfont.tga", NULL);
 
     /* Draw red text */
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
@@ -24,7 +26,7 @@ int main(void)
     a5font_textout(f, "green", 10, 50);
 
     al_flip_display();
-    al_rest(3000);
+    al_rest(3);
     return 0;
 }
 END_OF_MAIN()

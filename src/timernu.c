@@ -17,15 +17,15 @@
 
 
 #include <stdlib.h>
-#ifndef ALLEGRO_MSVC
-   #include <sys/time.h>
-#endif
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
 
+#ifndef ALLEGRO_MSVC
+   #include <sys/time.h>
+#endif
 
 
 /* forward declarations */

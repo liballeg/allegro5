@@ -38,6 +38,8 @@ static void print_log(char const *message)
    /* make a scrolling log using a circular array */
    static char msg_log[SIZE_LOG][MAX_MSG_LEN] ;
    static int msg_top = 0;
+   int y = HEIGHT-25;
+   int i = 0;
 
    ustrncpy(msg_log[msg_top], message,MAX_MSG_LEN);
    msg_top = (msg_top + 1) % SIZE_LOG;
@@ -45,8 +47,6 @@ static void print_log(char const *message)
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
 
    al_draw_rectangle(0,0,WIDTH/2-1, HEIGHT, black, ALLEGRO_FILLED);
-   int y = HEIGHT-25;
-   int i = 0;
    for (i=0; i < SIZE_LOG; i++) {
       a5font_textout(myfont, msg_log[i], 5, y);
       y -= 25;

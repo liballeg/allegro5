@@ -3,7 +3,7 @@
 static void redraw(void)
 {
     ALLEGRO_COLOR black, white;
-    int i, w, h;
+    int w, h;
 
     white = al_map_rgba_f(1, 1, 1, 1);
     black = al_map_rgba_f(0, 0, 0, 1);

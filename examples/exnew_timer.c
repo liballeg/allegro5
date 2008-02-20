@@ -98,6 +98,7 @@ static void tick(void)
       ex.first_tick = false;
    }
    else {
+      double duration;
       if (ex.this_time - ex.second >= 1) {
          ex.second = ex.this_time;
          ex.accum_time = 0;
@@ -106,7 +107,7 @@ static void tick(void)
          ex.max_diff = 0;
          ex.min_diff = 1;
       }
-      double duration = ex.this_time - ex.prev_time;
+      duration = ex.this_time - ex.prev_time;
       if (duration < ex.min_diff) ex.min_diff = duration;
       if (duration > ex.max_diff) ex.max_diff = duration;
       ex.accum_time += duration;
@@ -127,7 +128,6 @@ static void tick(void)
 /* Run our test. */
 static void run(void)
 {
-   float x, y;
    ALLEGRO_EVENT event;
    while (1) {
       al_wait_for_event(ex.queue, &event, ALLEGRO_WAIT_FOREVER);
@@ -153,6 +153,7 @@ static void run(void)
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
+   ALLEGRO_TIMER *timer;
 
    al_init();
    al_install_keyboard();
@@ -162,7 +163,7 @@ int main(void)
 
    init();
 
-   ALLEGRO_TIMER *timer = al_install_timer(1.000 / ex.FPS);
+   timer = al_install_timer(1.000 / ex.FPS);
 
    ex.queue = al_create_event_queue();
    al_register_event_source(ex.queue,

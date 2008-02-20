@@ -39,6 +39,7 @@ static void print(int x, int y, char const *format, ...)
 /* Draw our example scene. */
 static void draw(void)
 {
+   float xs, ys, a;
    double dt = 0;
    double t = al_current_time();
    if (last_time > 0) {
@@ -76,9 +77,9 @@ static void draw(void)
    al_set_target_bitmap(al_get_backbuffer());
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
    al_clear(al_map_rgba_f(0, 0, 1, 1));
-   float xs = 1 + 0.2 * sin(t * AL_PI * 2);
-   float ys = 1 + 0.2 * sin(t * AL_PI * 2);
-   float a = t * AL_PI * 2 / 3;
+   xs = 1 + 0.2 * sin(t * AL_PI * 2);
+   ys = 1 + 0.2 * sin(t * AL_PI * 2);
+   a = t * AL_PI * 2 / 3;
    al_draw_rotated_scaled_bitmap(target, W / 2, H / 2, 320, 240, xs, ys, a, 0);
 }
 
@@ -86,7 +87,8 @@ static void draw(void)
 void run(void)
 {
    ALLEGRO_EVENT event;
-   ALLEGRO_COLOR yellow;
+   int frames = 0;
+   double start;
 
    target = al_create_bitmap(W, H);
    al_set_target_bitmap(target);
@@ -97,8 +99,7 @@ void run(void)
    dx = 81;
    dy = 63;
 
-   int frames = 0;
-   double start = al_current_time();
+   start = al_current_time();
    while (true) {
       /* Check for ESC key or close button event and quit in either case. */
       if (!al_event_queue_is_empty(queue)) {

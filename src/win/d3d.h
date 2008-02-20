@@ -113,9 +113,9 @@ void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest);
 
 /* Helper to get smallest fitting power of two. */
-static inline int pot(int x)
+AL_INLINE_STATIC(int, pot, (int x),
 {
    int y = 1;
    while (y < x) y *= 2;
    return y;
-}
+})

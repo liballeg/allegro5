@@ -26,7 +26,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/platform/alplatf.h"
 
-#include "winalleg.h"
+#include "allegro5/winalleg.h"
 
 #include "win_new.h"
 

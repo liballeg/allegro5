@@ -790,7 +790,7 @@ endif(SUPPORT_MODULES)
 #-----------------------------------------------------------------------------#
 
 if(MSVC)
-    set(PROGRAM_LFLAGS "/SUBSYSTEM:WINDOWS")
+    set(EXECUTABLE_TYPE "WIN32")
 endif(MSVC)
 
 # Select libraries to link the programs with.  We choose
@@ -818,10 +818,10 @@ else(STATIC)
 endif(STATIC)
 
 macro(add_allegro_executable nm)
-    add_executable(${nm} ${ARGN})
+    add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
     set_target_properties(${nm} PROPERTIES
         COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
-        LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${PROGRAM_LFLAGS}"
+        LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         )
     target_link_libraries(${nm} ${LINK_WITH})
 endmacro(add_allegro_executable)

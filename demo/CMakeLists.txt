@@ -33,9 +33,10 @@ set(DEMO_SRCS
     src/wave.cpp
     )
 
+SET_SOURCE_FILES_PROPERTIES(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
 include_directories(include ../addons/font)
 
-add_executable(demo ${DEMO_SRCS})
+add_executable(demo ${EXECUTABLE_TYPE} ${DEMO_SRCS})
 set_target_properties(demo PROPERTIES
     COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
     LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"

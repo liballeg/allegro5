@@ -167,6 +167,8 @@ A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
    int color_conv_mode;
    ALLEGRO_BITMAP *import_bmp;
    A5FONT_FONT *f;
+   ALLEGRO_COLOR col;
+   unsigned char r,g,b,a;
    ASSERT(fname);
 
    /* Don't change the colourdepth of the bitmap if it is 8 bit */
@@ -187,9 +189,7 @@ A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
    if(!import_bmp) 
      return NULL;
 
-   ALLEGRO_COLOR col;
    col = al_get_pixel(import_bmp, 0, 0);
-   unsigned char r,g,b,a;
    al_unmap_rgba(col, &r, &g, &b, &a);
 
    f = a5font_grab_font_from_bitmap(import_bmp);
@@ -207,6 +207,7 @@ A5FONT_FONT *a5font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
    int begin = ' ';
    int end = -1;
    A5FONT_FONT *f;
+   A5FONT_FONT_COLOR_DATA* cf;
    ASSERT(bmp)
 
    import_x = 0;
@@ -215,7 +216,7 @@ A5FONT_FONT *a5font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
    f = _AL_MALLOC(sizeof *f);
    if (end == -1) end = bitmap_font_count(bmp) + begin;
 
-   A5FONT_FONT_COLOR_DATA* cf = _AL_MALLOC(sizeof(A5FONT_FONT_COLOR_DATA));
+   cf = _AL_MALLOC(sizeof(A5FONT_FONT_COLOR_DATA));
    cf->bitmaps = _AL_MALLOC(sizeof(ALLEGRO_BITMAP*) * (end - begin));
 
    if( import_bitmap_font_color(bmp, cf->bitmaps, end - begin) ) {

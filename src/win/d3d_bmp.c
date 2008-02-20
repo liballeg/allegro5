@@ -133,6 +133,8 @@ void _al_d3d_draw_textured_quad(ALLEGRO_BITMAP_D3D *bmp,
 
    const float z = 0.0f;
 
+   D3D_TL_VERTEX vertices[4];
+
    right  = dx + dw;
    bottom = dy + dh;
 
@@ -161,13 +163,33 @@ void _al_d3d_draw_textured_quad(ALLEGRO_BITMAP_D3D *bmp,
       tv_end = temp;
    }
 
-   D3D_TL_VERTEX vertices[4] = {
-      /* x,    y,      z, color, tu,        tv     */
-      { dx,    dy,     z, color, tu_start,  tv_start },
-      { right, dy,     z, color, tu_end,    tv_start },
-      { right, bottom, z, color, tu_end,    tv_end   },
-      { dx,    bottom, z, color, tu_start,  tv_end   }
-   };
+   vertices[0].x = dx;
+   vertices[0].y = dy;
+   vertices[0].z = z;
+   vertices[0].color = color;
+   vertices[0].tu = tu_start;
+   vertices[0].tv = tv_start;
+
+   vertices[1].x = right;
+   vertices[1].y = dy;
+   vertices[1].z = z;
+   vertices[1].color = color;
+   vertices[1].tu = tu_end;
+   vertices[1].tv = tv_start;
+
+   vertices[2].x = right;
+   vertices[2].y = bottom;
+   vertices[2].z = z;
+   vertices[2].color = color;
+   vertices[2].tu = tu_end;
+   vertices[2].tv = tv_end;
+
+   vertices[3].x = dx;
+   vertices[3].y = bottom;
+   vertices[3].z = z;
+   vertices[3].color = color;
+   vertices[3].tu = tu_start;
+   vertices[3].tv = tv_end;
 
    if (pivot) {
       cx = dx + cx * (dw / sw);
@@ -424,8 +446,8 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
 
    for (y = 0; y < desc.Height; y++) {
       memcpy(
-         sys_locked_rect.pBits+(sys_locked_rect.Pitch*y),
-         surf_locked_rect.pBits+(surf_locked_rect.Pitch*y),
+         ((char*)sys_locked_rect.pBits)+(sys_locked_rect.Pitch*y),
+         ((char*)surf_locked_rect.pBits)+(surf_locked_rect.Pitch*y),
          desc.Width*4
       );
    }

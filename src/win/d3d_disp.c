@@ -552,12 +552,12 @@ bool _al_d3d_render_to_texture_supported()
 
 bool _al_d3d_init_display()
 {
+   D3DDISPLAYMODE d3d_dm;
+
    if ((_al_d3d = Direct3DCreate9(D3D9b_SDK_VERSION)) == NULL) {
       TRACE("Direct3DCreate9 failed.\n");
       return false;
    }
-
-   D3DDISPLAYMODE d3d_dm;
 
    IDirect3D9_GetAdapterDisplayMode(_al_d3d, D3DADAPTER_DEFAULT, &d3d_dm);
 
@@ -580,6 +580,8 @@ bool _al_d3d_init_display()
 static bool d3d_create_swap_chain(ALLEGRO_DISPLAY_D3D *d,
    int format, int refresh_rate, int flags)
 {
+   HRESULT hr;
+
    ZeroMemory(&d3d_pp, sizeof(d3d_pp));
    d3d_pp.BackBufferFormat = _al_format_to_d3d(format);
    d3d_pp.BackBufferWidth = d->display.w;
@@ -595,8 +597,6 @@ static bool d3d_create_swap_chain(ALLEGRO_DISPLAY_D3D *d,
       d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
    }
    d3d_pp.hDeviceWindow = d->window;
-
-   HRESULT hr;
 
    if ((hr = IDirect3DDevice9_CreateAdditionalSwapChain(_al_d3d_device, &d3d_pp, &d->swap_chain)) != D3D_OK) {
       TRACE("d3d_create_swap_chain: CreateAdditionalSwapChain failed.\n");
@@ -1386,6 +1386,8 @@ static void d3d_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY_D3D* disp = (ALLEGRO_DISPLAY_D3D*)d;
    D3DRECT rect;
+   int src, dst;
+   ALLEGRO_COLOR blend_color;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    rect.x1 = 0;
@@ -1409,9 +1411,6 @@ static void d3d_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
       rect.x2 += target->xofs;
       rect.y2 += target->yofs;
    }
-
-   int src, dst;
-   ALLEGRO_COLOR blend_color;
 
    al_get_blender(&src, &dst, &blend_color);
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
@@ -1457,11 +1456,11 @@ static bool d3d_update_display_region(ALLEGRO_DISPLAY *d,
    _al_d3d_lock_device();
 
    if (d->flags & ALLEGRO_SINGLEBUFFER) {
+      RECT rect;
       ALLEGRO_DISPLAY_D3D* disp = (ALLEGRO_DISPLAY_D3D*)d;
 
       IDirect3DDevice9_EndScene(_al_d3d_device);
 
-      RECT rect;
       rect.left = x;
       rect.right = x+width;
       rect.top = y;
@@ -1622,6 +1621,7 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
    if (_al_d3d_device) {
       WINDOWINFO wi;
+      ALLEGRO_DISPLAY *old;
       ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
 
       wi.cbSize = sizeof(WINDOWINFO);
@@ -1632,7 +1632,7 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
       disp->backbuffer_bmp.bitmap.w = d->w;
       disp->backbuffer_bmp.bitmap.h = d->h;
 
-      ALLEGRO_DISPLAY *old = _al_current_display;
+      old = _al_current_display;
       al_set_current_display(d);
       al_set_clipping_rectangle(0, 0, d->w-1, d->h-1);
       al_set_current_display(old);

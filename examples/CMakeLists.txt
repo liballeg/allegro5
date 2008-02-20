@@ -77,7 +77,7 @@ if(WANT_D3D)
     if (USE_CXX)
         if(HAVE_D3DX9)
             macro(add_d3dx_example nm)
-                add_executable(${nm} ${ARGN})
+                add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
                 set_target_properties(${nm} PROPERTIES
                     COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
                     LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
@@ -86,6 +86,7 @@ if(WANT_D3D)
                 target_link_libraries(${nm} d3dx9)
             endmacro(add_d3dx_example)
 
+            SET_SOURCE_FILES_PROPERTIES(exnew_d3d.cpp PROPERTIES LANGUAGE "CXX")
             add_d3dx_example(exnew_d3d exnew_d3d.cpp)
         endif(HAVE_D3DX9)
     endif(USE_CXX)

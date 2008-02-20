@@ -13,13 +13,15 @@
 int main(void)
 {
    ALLEGRO_DISPLAY *display[3];
-   ALLEGRO_KEYBOARD *keyboard;
    ALLEGRO_EVENT event;
    ALLEGRO_EVENT_QUEUE *events;
    int quit = 0;
    int fps_accumulator = 0, fps_time = 0;
    double fps = 0;
    int FPS = 500;
+   double start;
+   double last_move;
+   int frames = 0;
    int x = 0, y = 100;
    int dx = 1;
    int w = 640, h = 480;
@@ -27,8 +29,7 @@ int main(void)
    ALLEGRO_BITMAP *mask;
    ALLEGRO_BITMAP *mem_bmp;
    ALLEGRO_COLOR colors[3];
-   ALLEGRO_COLOR white;
-   ALLEGRO_COLOR mask_color;
+   ALLEGRO_LOCKED_REGION lr;
    int i;
    bool clip = false;
 
@@ -79,7 +80,6 @@ int main(void)
       return 1;
    }
 
-   ALLEGRO_LOCKED_REGION lr;
    al_lock_bitmap(picture, &lr, 0);
    al_set_target_bitmap(picture);
    for (y = 0; y < 100; y++) {
@@ -108,9 +108,8 @@ int main(void)
    al_draw_line(0, 0, 100, 0, al_map_rgba_f(1, 1, 0, 0.5));
    al_draw_line(0, 0, 0, 100, al_map_rgba_f(1, 1, 0, 0.5));
 	
-   double start = al_current_time();
-   double last_move = al_current_time();
-   int frames = 0;
+   start = al_current_time();
+   last_move = al_current_time();
 
    while (!quit) {
       /* read input */
@@ -166,7 +165,6 @@ int main(void)
          }
 
          if (i == 2) {
-            ALLEGRO_COLOR test;
             al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO,
                al_map_rgba_f(1, 1, 1, 1));
             al_draw_scaled_bitmap(picture, 0, 0,
@@ -174,7 +172,7 @@ int main(void)
                   0, 0, 640, 480, 0);
             al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE,
                al_map_rgba_f(1, 1, 0, 1));
-            al_draw_rotated_bitmap(picture, 160, 100, 320, 240, M_PI/4, 0);
+            al_draw_rotated_bitmap(picture, 160, 100, 320, 240, AL_PI/4, 0);
             al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
                al_map_rgba_f(1, 1, 1, 1));
          }

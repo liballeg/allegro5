@@ -5,7 +5,7 @@ mark_as_advanced(MAKEINFO)
 
 set(all_docs)
 
-add_executable(makedoc
+add_executable(makedoc ${EXECUTABLE_TYPE}
     src/makedoc/makedoc.c
     src/makedoc/makehtml.c
     src/makedoc/makemisc.c

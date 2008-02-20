@@ -70,8 +70,10 @@
 #endif
 
 #undef AL_INLINE
+#undef AL_INLINE_STATIC
 
-#define AL_INLINE(type, name, args, code)    __inline _AL_DLL type __cdecl name args code END_OF_INLINE(name)
+#define AL_INLINE(type, name, args, code)        __inline _AL_DLL type __cdecl name args code END_OF_INLINE(name)
+#define AL_INLINE_STATIC(type, name, args, code) AL_INLINE(type, name, args, code)
 
 #define INLINE       __inline
 

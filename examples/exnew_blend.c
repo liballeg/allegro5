@@ -90,6 +90,14 @@ static void draw(void)
    ALLEGRO_COLOR test[5];
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
+   char const *blend_names[] = {"ZERO", "ONE", "ALPHA", "INVERSE"};
+   char const *blend_vnames[] = {"ZERO", "ONE", "ALPHA", "INVER"};
+   int blend_modes[] = {ALLEGRO_ZERO, ALLEGRO_ONE, ALLEGRO_ALPHA,
+      ALLEGRO_INVERSE_ALPHA};
+   float x = 40, y = 40;
+   int i, j;
+
+
    al_clear(al_map_rgb_f(0.5, 0.5, 0.5));
 
    blendcolor = al_map_rgba_f(1, 1, 1, 1);
@@ -101,12 +109,6 @@ static void draw(void)
    test[3] = al_map_rgba_f(1, 0, 0, 0.75);
    test[4] = al_map_rgba_f(0, 0, 0, 0);
 
-   char const *blend_names[] = {"ZERO", "ONE", "ALPHA", "INVERSE"};
-   char const *blend_vnames[] = {"ZERO", "ONE", "ALPHA", "INVER"};
-   int blend_modes[] = {ALLEGRO_ZERO, ALLEGRO_ONE, ALLEGRO_ALPHA,
-      ALLEGRO_INVERSE_ALPHA};
-   float x = 40, y = 40;
-   int i, j;
    print(x, 0, false, "D  E  S  T  I  N  A  T  I  O  N  (%d fps, %d skipped)",
       ex.fps, ex.skipped);
    print(0, y, true, "S O U R C E");

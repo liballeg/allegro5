@@ -97,8 +97,8 @@ void _al_win_init_time(void)
       _al_win_prev_time = (int64_t) timeGetTime();
    }
    else {
-      high_res_timer_freq = LARGE_INTEGER_TO_INT64(tmp_freq);
       LARGE_INTEGER count;
+      high_res_timer_freq = LARGE_INTEGER_TO_INT64(tmp_freq);
       real_current_time_func = high_res_current_time;
       QueryPerformanceCounter(&count);
       _al_win_prev_time = LARGE_INTEGER_TO_INT64(count);
