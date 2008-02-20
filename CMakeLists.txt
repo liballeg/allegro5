@@ -41,6 +41,7 @@ include_directories(
 # Put libraries into `lib' by default.  This path must be absolute.
 set(ALLEGRO_LIB_PATH "lib" CACHE INTERNAL "internal")
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${ALLEGRO_LIB_PATH})
+mark_as_advanced(LIBRARY_OUTPUT_PATH)
 
 # Lists of all the source files.
 include(FileList)

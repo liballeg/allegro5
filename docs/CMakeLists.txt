@@ -1,4 +1,5 @@
 find_program(MAKEINFO NAMES makeinfo)
+mark_as_advanced(MAKEINFO)
 
 #-----------------------------------------------------------------------------#
 
