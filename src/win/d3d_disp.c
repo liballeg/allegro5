@@ -1831,12 +1831,12 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    _al_d3d_unlock_device();
 }
 
-static ALLEGRO_BITMAP *d3d_get_backbuffer()
+static ALLEGRO_BITMAP *d3d_get_backbuffer(ALLEGRO_DISPLAY *display)
 {
-   return (ALLEGRO_BITMAP *)&(((ALLEGRO_DISPLAY_D3D *)_al_current_display)->backbuffer_bmp);
+   return (ALLEGRO_BITMAP *)&(((ALLEGRO_DISPLAY_D3D *)display)->backbuffer_bmp);
 }
 
-static ALLEGRO_BITMAP *d3d_get_frontbuffer()
+static ALLEGRO_BITMAP *d3d_get_frontbuffer(ALLEGRO_DISPLAY *display)
 {
    return NULL;
 }
