@@ -916,7 +916,7 @@ static int select_pixel_format(PIXELFORMATDESCRIPTOR * pfd)
 		 * call wglGetExtensionsStringARB() for it to properly initialize.
 		 */
 		TRACE(PREFIX_I "select_pixel_format(): GetExtensionsStringARB()\n");
-		if (strstr(glGetString(GL_VENDOR), "NVIDIA")) {
+		if (strstr((AL_CONST char*)glGetString(GL_VENDOR), "NVIDIA")) {
 			AGL_GetExtensionsStringARB_t __wglGetExtensionsStringARB = NULL;
 			
 			__wglGetExtensionsStringARB = (AGL_GetExtensionsStringARB_t)

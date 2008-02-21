@@ -325,7 +325,7 @@ int allegro_gl_is_extension_supported(AL_CONST char *extension)
 		}
 		if (__wglGetExtensionsStringARB) {
 			ret = __allegro_gl_look_for_an_extension(extension,
-			                   __wglGetExtensionsStringARB(__allegro_gl_hdc));
+			           (AL_CONST GLubyte*)__wglGetExtensionsStringARB(__allegro_gl_hdc));
 		}
 	}
 #elif defined ALLEGRO_UNIX

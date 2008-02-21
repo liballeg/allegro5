@@ -68,7 +68,7 @@ AL_VAR(DDCAPS, ddcaps);
 
 AL_VAR(DDRAW_SURFACE *, gfx_directx_primary_surface);
 AL_VAR(BITMAP *, gfx_directx_forefront_bitmap);
-AL_VAR(char *, pseudo_surf_mem);
+AL_VAR(unsigned char *, pseudo_surf_mem);
 
 
 /* driver routines */

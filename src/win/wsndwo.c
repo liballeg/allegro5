@@ -125,9 +125,9 @@ static DIGI_DRIVER digi_waveout =
 /* sound driver globals */
 static HWAVEOUT hWaveOut = NULL;
 static LPWAVEHDR lpWaveHdr = NULL;
-static long int initial_volume;
+static unsigned long int initial_volume;
 static int digiwobufsize, digiwobufdivs, digiwobufpos;
-static unsigned char * digiwobufdata = NULL;
+static char * digiwobufdata = NULL;
 static int _freq, _bits, _stereo;
 static int waveout_paused = FALSE;
 

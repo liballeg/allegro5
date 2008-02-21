@@ -32,7 +32,7 @@ DDCAPS ddcaps;
 
 DDRAW_SURFACE *gfx_directx_primary_surface = NULL;
 BITMAP *gfx_directx_forefront_bitmap = NULL;
-char *pseudo_surf_mem;
+unsigned char *pseudo_surf_mem;
 
 /* DirectDraw internals */
 static PALETTEENTRY palette_entry[256];
@@ -165,7 +165,7 @@ int gfx_directx_setup_driver(GFX_DRIVER *drv, int w, int h, int color_depth)
    drv->h = h;
    drv->linear = 1;
    ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY;
-   IDirectDraw2_GetAvailableVidMem(directdraw, &ddsCaps, &drv->vid_mem, NULL);
+   IDirectDraw2_GetAvailableVidMem(directdraw, &ddsCaps, (unsigned long*)&drv->vid_mem, NULL);
    drv->vid_mem += w * h * BYTES_PER_PIXEL(color_depth);
 
    /* create our pseudo surface memory */
@@ -189,7 +189,7 @@ int gfx_directx_setup_driver(GFX_DRIVER *drv, int w, int h, int color_depth)
 int finalize_directx_init(void)
 {
    HRESULT hr;
-   long int freq;
+   unsigned long int freq;
 
    /* set current refresh rate */
    hr = IDirectDraw2_GetMonitorFrequency(directdraw, &freq);

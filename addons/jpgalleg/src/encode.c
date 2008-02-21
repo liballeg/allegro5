@@ -535,7 +535,7 @@ write_huffman_table(HUFFMAN_TABLE *table, unsigned const char *num_codes, unsign
 static int
 write_header(int sampling, int greyscale, int quality, int width, int height)
 {
-	char *comment = "Generated using " JPGALLEG_VERSION_STRING;
+	unsigned char *comment = "Generated using " JPGALLEG_VERSION_STRING;
 	/* JFIF 1.1, no units, 1:1 aspect ratio, no thumbnail */
 	unsigned char app0[] = { 'J', 'F', 'I', 'F', 0, 1, 1, 0, 0, 1, 0, 1, 0, 0 };
 	/* 8 bits data precision, Y uses quantization table 0, Cb and Cr table 1 */
@@ -553,7 +553,7 @@ write_header(int sampling, int greyscale, int quality, int width, int height)
 	
 	/* COM chunk ;) */
 	_jpeg_new_chunk(CHUNK_COM);
-	_jpeg_chunk_puts(comment, strlen(comment));
+	_jpeg_chunk_puts(comment, strlen((char*)comment));
 	_jpeg_write_chunk();
 	
 	/* DQT chunk */
