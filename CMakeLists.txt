@@ -245,12 +245,10 @@ endif(WANT_MAGIC_MAIN)
 #
 
 if(WANT_OPENGL)
-    # TODO: check for OpenGL presence
-    # include(FindOpenGL)
-    set(HAVE_OPENGL 1)
-    if(HAVE_OPENGL)
+    include(FindOpenGL)
+    if(OPENGL_FOUND)
         set(SUPPORT_OPENGL 1)
-    endif(HAVE_OPENGL)
+    endif(OPENGL_FOUND)
 
     if(SUPPORT_OPENGL)
        set(ALLEGRO_OGL 1)
@@ -393,10 +391,6 @@ if(UNIX)
             list(append DRIVER_LIBS_STATIC audio)
         endif(CAN_SGIAL)
     endif(WANT_SGIAL)
-
-    if(SUPPORT_OPENGL)
-        list(APPEND OPENGL_LIBS gl glu)
-    endif(SUPPORT_OPENGL)
 endif(UNIX)
 
 #
@@ -509,11 +503,6 @@ if(SUPPORT_X11)
         list(APPEND X11_LIBRARIES "Xpm")
     endif(HAVE_X11_XPM_H AND CAN_XPM)
 
-    # Will OpenGL be optional?
-    if(SUPPORT_OPENGL)
-        list(APPEND X11_LIBRARIES ${OPENGL_LIBRARIES})
-    endif(SUPPORT_OPENGL)
-
     set(CMAKE_REQUIRED_LIBRARIES)
 endif(SUPPORT_X11)
 
@@ -532,10 +521,6 @@ if(WIN32)
     if(SUPPORT_D3D)
         set(ALLEGRO_D3D 1)
     endif(SUPPORT_D3D)
-
-    if(SUPPORT_OPENGL)
-        list(APPEND OPENGL_LIBS opengl32 glu32)
-    endif(SUPPORT_OPENGL)
 endif(WIN32)
 
 #
@@ -577,21 +562,12 @@ set(LIBRARY_SOURCES
     ${ALLEGRO_SRC_C_FILES}
     )
 
-if(SUPPORT_OPENGL)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_OPENGL_FILES})
-endif(SUPPORT_OPENGL)
-
-
 # Libraries that we always need to link against on this platform
 # e.g. -lm on Unix.
 set(PLATFORM_LIBS)
 
 if(UNIX)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_UNIX_FILES})
-    if(SUPPORT_OPENGL)
-        list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_XGL_OPENGL_FILES})
-        list(APPEND PLATFORM_LIBS ${OPENGL_LIBS})
-    endif(SUPPORT_OPENGL)
     list(APPEND PLATFORM_LIBS m pthread)
     if(NOT SUPPORT_MODULES)
         list(APPEND PLATFORM_LIBS "${DRIVER_LIBS_STATIC}")
@@ -620,11 +596,15 @@ if(WIN32)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
         list(APPEND PLATFORM_LIBS d3d9)
     endif(SUPPORT_D3D)
-    if(SUPPORT_OPENGL)
-        list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WGL_FILES})
-        list(APPEND PLATFORM_LIBS ${OPENGL_LIBS})
-    endif(SUPPORT_OPENGL)
 endif(WIN32)
+
+if(SUPPORT_OPENGL)
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_OPENGL_FILES})
+    if(WIN32)
+        list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WGL_FILES})
+    endif(WIN32)
+    list(APPEND PLATFORM_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+endif(SUPPORT_OPENGL)
 
 #-----------------------------------------------------------------------------#
 
