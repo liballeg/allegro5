@@ -72,23 +72,15 @@ AL_BEGIN_EXTERN_C
 #endif /* #ifdef ALLEGRO_WINDOWS */
 
 #if defined ALLEGRO_WINDOWS
-	#define AGL_DEFINE_PROC_TYPE(type, name, args) \
+	#define ALLEGRO_DEFINE_PROC_TYPE(type, name, args) \
 		typedef type (APIENTRY * name) args;
 #else
-	#define AGL_DEFINE_PROC_TYPE(type, name, args) \
+	#define ALLEGRO_DEFINE_PROC_TYPE(type, name, args) \
 		typedef type (*name) args;
 #endif
 
 
-typedef struct ALLEGRO_DISPLAY_OGL ALLEGRO_DISPLAY_OGL;
-struct ALLEGRO_DISPLAY_OGL {
-   HDC context;
-   HGLRC glrc;
-   HWND wnd;
-};
-
-typedef struct OGL_PIXEL_FORMAT OGL_PIXEL_FORMAT;
-struct OGL_PIXEL_FORMAT {
+typedef struct OGL_PIXEL_FORMAT {
    int format;
    int doublebuffered;
    int depth_size;
@@ -101,8 +93,27 @@ struct OGL_PIXEL_FORMAT {
    int samples;
    int float_color;
    int float_depth;
-};
+} OGL_PIXEL_FORMAT;
 
+typedef struct OPENGL_INFO {
+  	float version;          /* OpenGL version */
+	int num_texture_units;  /* Number of texture units */
+	int max_texture_size;   /* Maximum texture size */
+	int is_voodoo3_and_under; /* Special cases for Voodoo 1-3 */
+	int is_voodoo;          /* Special cases for Voodoo cards */
+	int is_matrox_g200;     /* Special cases for Matrox G200 boards */
+	int is_ati_rage_pro;    /* Special cases for ATI Rage Pro boards */
+	int is_ati_radeon_7000; /* Special cases for ATI Radeon 7000 */
+	int is_ati_r200_chip;	/* Special cases for ATI card with chip R200 */
+	int is_mesa_driver;     /* Special cases for MESA */
+}OPENGL_INFO;
+
+
+/* Puiblic OpenGL-related API */
+float al_opengl_version(void);
+int al_is_opengl_extension_supported(AL_CONST char *extension);
+void *al_get_opengl_proc_address(AL_CONST char *name);
+ALLEGRO_OGL_EXT_LIST* al_get_opengl_extension_list();
 
 AL_END_EXTERN_C
 

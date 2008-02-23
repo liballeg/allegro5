@@ -44,7 +44,7 @@ void draw_opengl(void)
    /* Let's create a framebuffer object. */
    if (!fbo && !no_fbo) {
       /* Did Allegro discover the OpenGL extension for us? */
-      if (allegro_gl_extensions.ALLEGRO_GL_EXT_framebuffer_object) {
+      if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
          /* If yes, then it also filled in the function pointer. How nice. */
          glGenFramebuffersEXT(1, &fbo);
 

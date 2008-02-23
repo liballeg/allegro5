@@ -86,6 +86,10 @@ struct ALLEGRO_DISPLAY_XGLX
 
    /* Icon for this window. */
    Pixmap icon, icon_mask;
+
+   OPENGL_INFO ogl_info;
+   ALLEGRO_OGL_EXT_LIST *extension_list;
+   ALLEGRO_OGL_EXT_API *extension_api;
 };
 
 /* Functions private to the X11 driver. */

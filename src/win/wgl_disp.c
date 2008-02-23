@@ -32,6 +32,12 @@
 #define PREFIX_E                "wgl-win ERROR: "
 
 
+extern int  _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensions);
+extern void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext);
+extern void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *disp);
+extern void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *disp);
+
+
 static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
 
 
@@ -154,14 +160,14 @@ static HWND create_test_window()
 
 static bool is_wgl_extension_supported(AL_CONST char *extension, HDC dc)
 {
-   AGL_GetExtensionsStringARB_t __wglGetExtensionsStringARB;
+   ALLEGRO_GetExtensionsStringARB_t __wglGetExtensionsStringARB;
    int ret;
 
    if (!glGetString(GL_EXTENSIONS))
       return false;
 
-   __wglGetExtensionsStringARB = (AGL_GetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
-   ret = __allegro_gl_look_for_an_extension(extension, __wglGetExtensionsStringARB(dc));
+   __wglGetExtensionsStringARB = (ALLEGRO_GetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
+   ret = _al_ogl_look_for_an_extension(extension, __wglGetExtensionsStringARB(dc));
 
    return ret;
 }
@@ -215,16 +221,18 @@ static HGLRC init_temp_context(HWND wnd) {
 }
 
 
-static AGL_GetPixelFormatAttribivARB_t __wglGetPixelFormatAttribivARB = NULL;
-static AGL_GetPixelFormatAttribivEXT_t __wglGetPixelFormatAttribivEXT = NULL;
+static ALLEGRO_GetPixelFormatAttribivARB_t __wglGetPixelFormatAttribivARB = NULL;
+static ALLEGRO_GetPixelFormatAttribivEXT_t __wglGetPixelFormatAttribivEXT = NULL;
 
 static bool init_pixel_format_extensions()
 {
    /* Load the ARB_p_f symbol - Note, we shouldn't use the extension
     * mechanism here, because it hasn't been initialized yet!
     */
-   __wglGetPixelFormatAttribivARB = (AGL_GetPixelFormatAttribivARB_t)wglGetProcAddress("wglGetPixelFormatAttribivARB");
-   __wglGetPixelFormatAttribivEXT = (AGL_GetPixelFormatAttribivEXT_t)wglGetProcAddress("wglGetPixelFormatAttribivEXT");
+   __wglGetPixelFormatAttribivARB =
+      (ALLEGRO_GetPixelFormatAttribivARB_t)wglGetProcAddress("wglGetPixelFormatAttribivARB");
+   __wglGetPixelFormatAttribivEXT = 
+      (ALLEGRO_GetPixelFormatAttribivEXT_t)wglGetProcAddress("wglGetPixelFormatAttribivEXT");
 
    if (!__wglGetPixelFormatAttribivARB && !__wglGetPixelFormatAttribivEXT) {
       TRACE(PREFIX_E "init_pixel_format_extensions(): WGL_ARB/EXT_pf not supported!\n");
@@ -766,6 +774,8 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    TRACE(PREFIX_I "Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
    TRACE(PREFIX_I "Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
 
+   _al_ogl_manage_extensions((ALLEGRO_DISPLAY*)display);
+
    /* Add ourself to the list of displays. */
    _al_vector_alloc_back(&system->system.displays);
 
@@ -792,6 +802,8 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *display)
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)display;
 
+   _al_ogl_unmanage_extensions((ALLEGRO_DISPLAY*)wgl_disp);
+
    _al_vector_find_and_delete(&system->system.displays, &display);
    
    if (wgl_disp->glrc)
@@ -812,6 +824,7 @@ static void wgl_set_current_display(ALLEGRO_DISPLAY *d)
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
 
    wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc);
+   _al_ogl_set_extensions(wgl_disp->extension_api);
 }
 
 

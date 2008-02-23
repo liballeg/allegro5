@@ -1,18 +1,31 @@
-/* This code is (C) AllegroGL contributors, and double licensed under
- * the GPL and zlib licenses. See gpl.txt or zlib.txt for details.
+/*         ______   ___    ___ 
+ *        /\  _  \ /\_ \  /\_ \ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      OpenGL extensions management subsystem
+ *
+ *      By Elias Pschernig and Milan Mimica.
+ *      Based on AllegroGL extensions management.
  */
+
 /* Title: OpenGL extensions
  *
- * When available, Allegro will keep information about all extensions it knows
- * about in a global structure _allegro_gl_extensions_.
+ * Allegro will keep information about all extensions it knows about in a
+ * structure returned by <al_get_opengl_extension_list>.
  *
  * For example:
- * > if (allegro_gl_extensions.GL_ARB_multitexture) { use it }
+ * > if (al_get_opengl_extension_list()->ALLEGRO_GL_ARB_multitexture) { use it }
  *
- * The extension will be set to true if available and false otherwise. This
- * means to use the definitions and function from an OpenGL extension, all
- * you need to do is to check for it like above at runtime, once you
- * acquired the OpenGL context from Allegro.
+ * The extension will be set to true if available for the current DISPLAY* and
+ * false otherwise. This means to use the definitions and functions from an
+ * OpenGL extension, all you need to do is to check for it like above at
+ * runtime, once you acquired the OpenGL DISPLAY* from Allegro.
  *
  * Under Windows, this will also work with WGL extensions, and under Linux
  * also with GLX extensions.
@@ -24,20 +37,24 @@
  */
 
 
-/*
-
-  FIXME:
-  Need to revamp the whole extension mechanism. Entension table must be per-display.
-  Global vars (device contexts and co.) must be display vars.
-  Extensions cannot be in a struct because some names might start with a number.
-
-*/
-
 #include "allegro5/allegro5.h"
-
-#define AGL_LOG(level,str) TRACE(str)
-
+#include "allegro5/display_new.h"
 #include "allegro5/opengl/gl_ext.h"
+
+
+/* REVIEW: This includes looks nasty.
+ * The extension code is the same for all drivers as long as some
+ * members of struct ALLEGRO_DISPLAY_xGL are named the same. An
+ * alternative would be to have a generic struct ALLEGRO_DISPLAY_OGL
+ * characteristic to all OpenGL drivers which wuold then be inherited...
+ */
+#if defined ALLEGRO_WINDOWS
+   #include "../win/wgl.h"
+#elif defined ALLEGRO_UNIX
+   #include "../xglx/xglx.h"
+#elif defined ALLEGRO_MACOSX
+   /* FIXME: add header here */
+#endif
 
 #include <string.h>
 #ifdef ALLEGRO_MACOSX
@@ -47,112 +64,63 @@
 #endif
 
 
-/* GL extension Structure. Holds the extension pointers for a single context.
- * Example:
- * AGL_BlendEquation_t BlendEquation;
- */
-#define AGL_API(type, name, args) AGL_##name##_t name;
-typedef struct AGL_EXT {
-#	include "allegro5/opengl/GLext/gl_ext_api.h"
-#ifdef ALLEGRO_WINDOWS
-#	include "allegro5/opengl/GLext/wgl_ext_api.h"
-#elif defined ALLEGRO_UNIX
-#	include "allegro5/opengl/GLext/glx_ext_api.h"
-#endif
-} AGL_EXT;
-#undef AGL_API
-
-#define PREFIX_I                "agl-ext INFO: "
-#define PREFIX_W                "agl-ext WARNING: "
-#define PREFIX_E                "agl-ext ERROR: "
-
-
-/* Current driver info */
-struct allegro_gl_info allegro_gl_info;
-
-// FIXME: obviously, this should be set by whatever code creates a valid
-// context
-int __allegro_gl_valid_context = true;
-//FIXME: what are those variables below for?
-GLint __allegro_gl_texture_read_format[5];
-GLint __allegro_gl_texture_components[5];
-
-/** \ingroup extensions
- *  List of OpenGL extensions supported by AllegroGL. Each entry of this
- *  structure is an int which is either set to 1, if the corresponding
- *  extension is available on the host system, or 0 otherwise.
- *
- *  Extension names use only the base name. For example, GL_ARB_multitexture
- *  should be refered to by:
- *  <pre>
- *   allegro_gl_extensions_GL.ARB_multitexture
- *  </pre>
- *
- *  \sa allegro_gl_extensions_GLX allegro_gl_extensions_WGL
- */
-struct AGL_EXTENSION_LIST allegro_gl_extensions;
-
-/* Current context */
-AGL_EXT *agl_extension_table = NULL;
-
-
-#ifdef ALLEGROGL_GENERIC_DRIVER
-#include "GL/amesa.h"
-#endif
+#define PREFIX_I                "al-ext INFO: "
+#define PREFIX_W                "al-ext WARNING: "
+#define PREFIX_E                "al-ext ERROR: "
 
 
 #ifdef ALLEGRO_HAVE_DYNAMIC_LINK
-#include <dlfcn.h>
-
-/* Handle for dynamic library libGL.so */
-static void *__agl_handle = NULL;
-/* Pointer to glXGetProcAddressARB */
-typedef void *(*GLXGETPROCADDRESSARBPROC) (const GLubyte *);
-static GLXGETPROCADDRESSARBPROC aglXGetProcAddress;
-#else
-/* Tries static linking */
-#ifdef ALLEGROGL_GLXGETPROCADDRESSARB
-#define aglXGetProcAddress glXGetProcAddressARB
-#else
-#define aglXGetProcAddress glXGetProcAddress
-#endif
-#endif
+   #include <dlfcn.h>
+   /* Handle for dynamic library libGL.so */
+   static void *__libgl_handle = NULL;
+   /* Pointer to glXGetProcAddressARB */
+   typedef void *(*GLXGETPROCADDRESSARBPROC) (const GLubyte *);
+   static GLXGETPROCADDRESSARBPROC alXGetProcAddress;
+#else /* #ifdef ALLEGRO_HAVE_DYNAMIC_LINK */
+   /* Tries static linking */
+   /* FIXME: set ALLEGRO_GLXGETPROCADDRESSARB on configure time, if
+    * glXGetProcAddressARB must be used!
+    */
+   #ifdef ALLEGRO_GLXGETPROCADDRESSARB
+      #define alXGetProcAddress glXGetProcAddressARB
+   #else
+      #define alXGetProcAddress glXGetProcAddress
+   #endif
+#endif /* #ifdef ALLEGRO_HAVE_DYNAMIC_LINK */
 
 
 #ifdef ALLEGRO_MACOSX
-#undef TRUE
-#undef FALSE
-#include <Carbon/Carbon.h>
-#undef TRUE
-#undef FALSE
-#define TRUE  -1
-#define FALSE 0
-
-static CFBundleRef opengl_bundle_ref;
+   #undef TRUE
+   #undef FALSE
+   #include <Carbon/Carbon.h>
+   #undef TRUE
+   #undef FALSE
+   #define TRUE  -1
+   #define FALSE 0
+   static CFBundleRef opengl_bundle_ref;
 #endif
-
 
 
 /* Define the GL API pointers.
  * Example:
- * AGL_BlendEquation_t __aglBlendEquation = NULL;
+ * ALLEGRO_BlendEquation_t __aglBlendEquation = NULL;
  */
-#define AGL_API(type, name, args) AGL_##name##_t __agl##name = NULL;
+#define AGL_API(type, name, args) ALLEGRO_##name##_t __agl##name = NULL;
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
 #ifdef ALLEGRO_WINDOWS
-#define AGL_API(type, name, args) AGL_##name##_t __awgl##name = NULL;
+#define AGL_API(type, name, args) ALLEGRO_##name##_t __awgl##name = NULL;
 #	include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
 #elif defined ALLEGRO_UNIX
-#define AGL_API(type, name, args) AGL_##name##_t __aglX##name = NULL;
+#define AGL_API(type, name, args) ALLEGRO_##name##_t __aglX##name = NULL;
 #	include "allegro5/opengl/GLext/glx_ext_api.h"
 #undef AGL_API
 #endif
 
 
 
-/* float allegro_gl_opengl_version() */
+/* float al_opengl_version() */
 /** \ingroup core
  *
  *  Returns the OpenGL version number of the client
@@ -161,15 +129,20 @@ static CFBundleRef opengl_bundle_ref;
  *  and "1.2.2" as 1.22, etc.
  *
  *  A valid OpenGL context must exist for this function to work, which
- *  means you may \b not call it before set_gfx_mode(GFX_OPENGL)
+ *  means you may \b not call it before create_display().
  *
  *  \return The OpenGL ICD/MCD version number.
  */
-float allegro_gl_opengl_version(void)
+float al_opengl_version(void)
 {
    const char *str;
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
 
-   if (!__allegro_gl_valid_context)
+   disp = al_get_current_display();
+   if (!disp)
+      return 0.0f;
+
+   if (!(disp->flags & ALLEGRO_OPENGL))
       return 0.0f;
 
    str = (const char *)glGetString(GL_VERSION);
@@ -206,26 +179,41 @@ float allegro_gl_opengl_version(void)
 }
 
 
-/* Create the extension table */
-AGL_EXT *__allegro_gl_create_extensions(void)
+/* Create the extension list */
+static ALLEGRO_OGL_EXT_LIST *create_extension_list(void)
 {
-   AGL_EXT *ret = malloc(sizeof(AGL_EXT));
+   ALLEGRO_OGL_EXT_LIST *ret = malloc(sizeof(ALLEGRO_OGL_EXT_LIST));
 
    if (!ret) {
       return NULL;
    }
 
-   memset(ret, 0, sizeof(AGL_EXT));
+   memset(ret, 0, sizeof(ALLEGRO_OGL_EXT_LIST));
+
+   return ret;
+}
+
+
+/* Create the extension API table */
+static ALLEGRO_OGL_EXT_API *create_extension_api_table(void)
+{
+   ALLEGRO_OGL_EXT_API *ret = malloc(sizeof(ALLEGRO_OGL_EXT_API));
+
+   if (!ret) {
+      return NULL;
+   }
+
+   memset(ret, 0, sizeof(ALLEGRO_OGL_EXT_API));
 
    return ret;
 }
 
 
 
-/* Load the extension addresses into the table.
+/* Load the extension API addresses into the table.
  * Should only be done on context creation.
  */
-void __allegro_gl_load_extensions(AGL_EXT *ext)
+static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 {
 #ifdef ALLEGRO_MACOSX
    CFStringRef function;
@@ -236,47 +224,63 @@ void __allegro_gl_load_extensions(AGL_EXT *ext)
    }
 #ifdef ALLEGRO_UNIX
 #ifdef ALLEGRO_HAVE_DYNAMIC_LINK
-   if (!aglXGetProcAddress) {
+   if (!alXGetProcAddress) {
       return;
    }
 #endif
 #endif
 
-#	ifdef ALLEGRO_WINDOWS
-#	define AGL_API(type, name, args) \
-		ext->name = (AGL_##name##_t)wglGetProcAddress("gl" #name); \
-		if (ext->name) { AGL_LOG(2,"gl" #name " successfully loaded\n"); }
-#	include "allegro5/opengl/GLext/gl_ext_api.h"
-#	undef AGL_API
-#	define AGL_API(type, name, args) \
-		ext->name = (AGL_##name##_t)wglGetProcAddress("wgl" #name); \
-		if (ext->name) { AGL_LOG(2,"wgl" #name " successfully loaded\n"); }
-#	include "allegro5/opengl/GLext/wgl_ext_api.h"
-#	undef AGL_API
-#	elif defined ALLEGRO_UNIX
-#	define AGL_API(type, name, args) \
-		ext->name = (AGL_##name##_t)aglXGetProcAddress((const GLubyte*)"gl" #name); \
-		if (ext->name) { AGL_LOG(2,"gl" #name " successfully loaded\n"); }
-#	include "allegro5/opengl/GLext/gl_ext_api.h"
-#	undef AGL_API
-#	define AGL_API(type, name, args) \
-		ext->name = (AGL_##name##_t)aglXGetProcAddress((const GLubyte*)"glX" #name); \
-		if (ext->name) { AGL_LOG(2,"glX" #name " successfully loaded\n"); }
-#	include "allegro5/opengl/GLext/glx_ext_api.h"
-#	undef AGL_API
-#	elif defined ALLEGRO_MACOSX
-#	define AGL_API(type, name, args)                                          \
-		function = CFStringCreateWithCString(kCFAllocatorDefault, "gl" #name, \
-		                                             kCFStringEncodingASCII); \
-		if (function) {                                                       \
-			ext->name = (AGL_##name##_t)CFBundleGetFunctionPointerForName(    \
-			                                 opengl_bundle_ref, function);    \
-			CFRelease(function);                                              \
-		}                                                                     \
-		if (ext->name) { AGL_LOG(2,"gl" #name " successfully loaded\n"); }
-#	include "allegro5/opengl/GLext/gl_ext_api.h"
-#	undef AGL_API
-#	endif
+#ifdef ALLEGRO_WINDOWS
+
+   #define AGL_API(type, name, args)                                 \
+      ext->name = (ALLEGRO_##name##_t)wglGetProcAddress("gl" #name); \
+      if (ext->name) { TRACE("gl" #name " successfully loaded\n"); }
+
+      #include "allegro5/opengl/GLext/gl_ext_api.h"
+
+   #undef AGL_API
+
+   #define AGL_API(type, name, args)                                  \
+      ext->name = (ALLEGRO_##name##_t)wglGetProcAddress("wgl" #name); \
+      if (ext->name) { TRACE("wgl" #name " successfully loaded\n"); }
+
+      #include "allegro5/opengl/GLext/wgl_ext_api.h"
+
+   #undef AGL_API
+
+#elif defined ALLEGRO_UNIX
+
+   #define AGL_API(type, name, args)                                               \
+      ext->name = (ALLEGRO_##name##_t)alXGetProcAddress((const GLubyte*)"gl" #name);  \
+      if (ext->name) { TRACE("gl" #name " successfully loaded\n"); }
+
+      #include "allegro5/opengl/GLext/gl_ext_api.h"
+
+   #undef AGL_API
+
+   #define AGL_API(type, name, args)                                               \
+      ext->name = (ALLEGRO_##name##_t)alXGetProcAddress((const GLubyte*)"glX" #name); \
+      if (ext->name) { TRACE("glX" #name " successfully loaded\n"); }
+
+      #include "allegro5/opengl/GLext/glx_ext_api.h"
+
+   #undef AGL_API
+
+#elif defined ALLEGRO_MACOSX
+
+   #define AGL_API(type, name, args)                                                                 \
+      function = CFStringCreateWithCString(kCFAllocatorDefault, "gl" #name, kCFStringEncodingASCII);     \
+      if (function) {                                                                                    \
+         ext->name = (ALLEGRO_##name##_t)CFBundleGetFunctionPointerForName(opengl_bundle_ref, function); \
+         CFRelease(function);                                                                            \
+      }                                                                                                  \
+      if (ext->name) { TRACE("gl" #name " successfully loaded\n"); }
+
+      #include "allegro5/opengl/GLext/gl_ext_api.h"
+
+   #undef AGL_API
+
+#endif
 }
 
 
@@ -284,7 +288,7 @@ void __allegro_gl_load_extensions(AGL_EXT *ext)
 /* Set the GL API pointers to the current table 
  * Should only be called on context switches.
  */
-void __allegro_gl_set_extensions(AGL_EXT *ext)
+void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext)
 {
    if (!ext) {
       return;
@@ -293,10 +297,12 @@ void __allegro_gl_set_extensions(AGL_EXT *ext)
 #define AGL_API(type, name, args) __agl##name = ext->name;
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
+
 #ifdef ALLEGRO_WINDOWS
 #define AGL_API(type, name, args) __awgl##name = ext->name;
 #	include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
+
 #elif defined ALLEGRO_UNIX
 #define AGL_API(type, name, args) __aglX##name = ext->name;
 #	include "allegro5/opengl/GLext/glx_ext_api.h"
@@ -306,26 +312,29 @@ void __allegro_gl_set_extensions(AGL_EXT *ext)
 
 
 
-/* Destroys the extension table */
-void __allegro_gl_destroy_extensions(AGL_EXT *ext)
+/* Destroys the extension API table */
+static void destroy_extension_api_table(ALLEGRO_OGL_EXT_API *ext)
 {
    if (ext) {
-      if (ext == agl_extension_table) {
-         agl_extension_table = NULL;
-      }
       free(ext);
    }
 }
 
 
+/* Destroys the extension list */
+static void destroy_extension_list(ALLEGRO_OGL_EXT_LIST *list)
+{
+   if (list) {
+      free(list);
+   }
+}
 
-/* __allegro_gl_look_for_an_extension:
+
+/* _al_ogl_look_for_an_extension:
  * This function has been written by Mark J. Kilgard in one of his
  * tutorials about OpenGL extensions
  */
-int
-__allegro_gl_look_for_an_extension(AL_CONST char *name,
-                                   AL_CONST GLubyte *extensions)
+int _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensions)
 {
    AL_CONST GLubyte *start;
    GLubyte *where, *terminator;
@@ -352,23 +361,13 @@ __allegro_gl_look_for_an_extension(AL_CONST char *name,
 }
 
 
-
-#ifdef ALLEGRO_WINDOWS
-static AGL_GetExtensionsStringARB_t __wglGetExtensionsStringARB = NULL;
-static HDC __hdc = NULL;
-#elif defined ALLEGRO_UNIX
-#include "allegro5/xalleg.h"
-#endif
-
-
 /* Function: al_is_opengl_extension_supported
  *  This function is a helper to determine whether an OpenGL extension is
- *  available or not.
+ *  available on the current display or not.
  *
  *  Example:
  *
- *  >int packedpixels =
- *  >   al_is_opengl_extension_supported("GL_EXT_packed_pixels");
+ *  >int packedpixels = al_is_opengl_extension_supported("GL_EXT_packed_pixels");
  *
  *  If _packedpixels_ is TRUE then you can safely use the constants related
  *  to the packed pixels extension.
@@ -382,39 +381,45 @@ static HDC __hdc = NULL;
 int al_is_opengl_extension_supported(AL_CONST char *extension)
 {
    int ret;
+   ALLEGRO_DISPLAY *disp;
+   
+   disp = al_get_current_display();
+   if (!disp)
+      return FALSE;
 
-   if (!__allegro_gl_valid_context)
+   if (!(disp->flags & ALLEGRO_OPENGL))
       return FALSE;
 
    if (!glGetString(GL_EXTENSIONS))
       return FALSE;
 
-   ret = __allegro_gl_look_for_an_extension(extension,
-                                            glGetString(GL_EXTENSIONS));
+   ret = _al_ogl_look_for_an_extension(extension, glGetString(GL_EXTENSIONS));
 
 #ifdef ALLEGRO_WINDOWS
-#if 0  /* FIXME !!! */
    if (!ret && strncmp(extension, "WGL", 3) == 0) {
-      if (!__wglGetExtensionsStringARB || __hdc != __allegro_gl_hdc) {
-         __wglGetExtensionsStringARB = (AGL_GetExtensionsStringARB_t)
-             wglGetProcAddress("wglGetExtensionsStringARB");
-         __hdc = __allegro_gl_hdc;
-      }
+      ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
+      ALLEGRO_GetExtensionsStringARB_t __wglGetExtensionsStringARB;
+      
+      if (!wgl_disp->dc)
+         return FALSE;
+
+      __wglGetExtensionsStringARB =
+         (ALLEGRO_GetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
       if (__wglGetExtensionsStringARB) {
-         ret = __allegro_gl_look_for_an_extension(extension,
-                                                  __wglGetExtensionsStringARB
-                                                  (__allegro_gl_hdc));
+         ret = _al_ogl_look_for_an_extension(extension, __wglGetExtensionsStringARB(wgl_disp->dc));
       }
    }
-#endif /* #if 0 */
+
 #elif defined ALLEGRO_UNIX
    if (!ret && strncmp(extension, "GLX", 3) == 0) {
-      XLOCK();
-      ret = __allegro_gl_look_for_an_extension(extension, (const GLubyte *)
-                                               glXQueryExtensionsString
-                                               (_xwin.display,
-                                                _xwin.screen));
-      XUNLOCK();
+      ALLEGRO_SYSTEM_XGLX *sys = (void*)al_system_driver();
+      ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
+
+      if (!sys->xdisplay || !glx_disp->xscreen)
+         return FALSE;
+
+      ret = _al_ogl_look_for_an_extension(extension, (const GLubyte *)
+                                  glXQueryExtensionsString(sys->xdisplay, glx_disp->xscreen));
    }
 #endif
 
@@ -431,7 +436,7 @@ int al_is_opengl_extension_supported(AL_CONST char *extension)
  *  with ARB's Multitexture extension :
  *   
  *  >// define the type of the function
- *  >   AGL_DEFINE_PROC_TYPE(void, MULTI_TEX_FUNC,
+ *  >   ALLEGRO_DEFINE_PROC_TYPE(void, MULTI_TEX_FUNC,
  *  >      (GLenum, GLfloat, GLfloat, GLfloat));
  *  >// declare the function pointer
  *  >   MULTI_TEX_FUNC glMultiTexCoord3fARB;
@@ -441,7 +446,7 @@ int al_is_opengl_extension_supported(AL_CONST char *extension)
  *
  *  If _glMultiTexCoord3fARB_ is not NULL then it can be used as if it has 
  *  been defined in the OpenGL core library. Note that the use of the
- *  AGL_DEFINE_PROC_TYPE macro is mandatory if you want your program to be
+ *  ALLEGRO_DEFINE_PROC_TYPE macro is mandatory if you want your program to be
  *  portable.
  *
  *  Parameters:
@@ -456,41 +461,47 @@ void *al_get_opengl_proc_address(AL_CONST char *name)
 #ifdef ALLEGRO_MACOSX
    CFStringRef function;
 #endif
+   ALLEGRO_DISPLAY *disp;
+   
+   disp = al_get_current_display();
+   if (!disp)
+      return FALSE;
 
-   if (!__allegro_gl_valid_context)
-      return NULL;
+   if (!(disp->flags & ALLEGRO_OPENGL))
+      return FALSE;
 
-#ifdef ALLEGROGL_GENERIC_DRIVER
-   /* AMesa provides a function to get a proc address. It does
-    * not emulate dynamic linking of course...
-    */
-   symbol = AMesaGetProcAddress(name);
-
-#elif defined ALLEGRO_WINDOWS
+#if defined ALLEGRO_WINDOWS
    /* For once Windows is the easiest platform to use :)
     * It provides a standardized way to get a function address
     * But of course there is a drawback : the symbol is only valid
     * under the current context :P
     */
-   symbol = wglGetProcAddress(name);
+   {
+      ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
+      
+      if (!wgl_disp->dc)
+         return FALSE;
+
+      symbol = wglGetProcAddress(name);
+   }
 #elif defined ALLEGRO_UNIX
 #if defined ALLEGRO_HAVE_DYNAMIC_LINK
-   if (aglXGetProcAddress)
+   if (alXGetProcAddress)
 #endif
    {
       /* This is definitely the *good* way on Unix to get a GL proc
        * address. Unfortunately glXGetProcAddress is an extension
        * and may not be available on all platforms
        */
-      symbol = aglXGetProcAddress((const GLubyte *)name);
+      symbol = alXGetProcAddress((const GLubyte *)name);
    }
 #elif defined ALLEGRO_HAVE_DYNAMIC_LINK
    else {
       /* Hack if glXGetProcAddress is not available :
        * we try to find the symbol into libGL.so
        */
-      if (__agl_handle) {
-         symbol = dlsym(__agl_handle, name);
+      if (__al_handle) {
+         symbol = dlsym(__al_handle, name);
       }
    }
 #elif defined ALLEGRO_MACOSX
@@ -501,38 +512,29 @@ void *al_get_opengl_proc_address(AL_CONST char *name)
           CFBundleGetFunctionPointerForName(opengl_bundle_ref, function);
       CFRelease(function);
    }
-#else
-   /* DOS does not support dynamic linking. If the function is not
-    * available at build-time then it will not be available at run-time
-    * Therefore we do not need to look for it...
-    */
 #endif
 
    if (!symbol) {
 
 #if defined ALLEGRO_HAVE_DYNAMIC_LINK
-      if (!aglXGetProcAddress) {
+      if (!alXGetProcAddress) {
          TRACE(PREFIX_W "get_proc_address: libdl::dlsym: %s\n", dlerror());
       }
 #endif
 
-      TRACE(PREFIX_W "get_proc_address : Unable to load symbol %s\n",
-            name);
+      TRACE(PREFIX_W "get_proc_address : Unable to load symbol %s\n", name);
    }
    else {
-      TRACE(PREFIX_I "get_proc_address : Symbol %s successfully loaded\n",
-            name);
+      TRACE(PREFIX_I "get_proc_address : Symbol %s successfully loaded\n", name);
    }
    return symbol;
 }
 
 
 
-/* Fills in the AllegroGL info struct for blacklisting video cards.
+/* Fills in the OPENGL_INFO info struct for blacklisting video cards.
  */
-static void
-__fill_in_info_struct(const GLubyte *rendereru,
-                      struct allegro_gl_info *info)
+static void fill_in_info_struct(const GLubyte *rendereru, OPENGL_INFO *info)
 {
    const char *renderer = (const char *)rendereru;
 
@@ -560,31 +562,35 @@ __fill_in_info_struct(const GLubyte *rendereru,
    }
 
    /* Read OpenGL properties */
-   info->version = allegro_gl_opengl_version();
+   info->version = al_opengl_version();
 
    return;
 }
 
 
 
-/* __allegro_gl_manage_extensions:
- * This functions fills the __allegro_gl_extensions structure and displays
- * on the log file which extensions are available
+/* _al_ogl_manage_extensions:
+ * This functions fills the extensions API table and extension list
+ * structures and displays on the log file which extensions are available.
  */
-void __allegro_gl_manage_extensions(void)
+void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *disp)
 {
-   AL_CONST GLubyte *buf;
-   int i;
-
-#ifdef ALLEGRO_MACOSX
+   //AL_CONST GLubyte *buf;
+#if defined ALLEGRO_WINDOWS
+   ALLEGRO_DISPLAY_WGL  *gl_disp = (ALLEGRO_DISPLAY_WGL*)disp;
+#elif defined ALLEGRO_UNIX
+   ALLEGRO_DISPLAY_XGLX *gl_disp = (ALLEGRO_DISPLAY_XGLX*)disp;
+#elif defined ALLEGRO_MACOSX
+   /* FIXME: declare driver here */
    CFURLRef bundle_url;
 #endif
+   ALLEGRO_OGL_EXT_API *ext_api;
+   ALLEGRO_OGL_EXT_LIST *ext_list;
 
    /* Print out OpenGL extensions */
 #if LOGLEVEL >= 1
-   AGL_LOG(1, "OpenGL Extensions:\n");
-   __allegro_gl_print_extensions((AL_CONST char *)
-                                 glGetString(GL_EXTENSIONS));
+   TRACE("OpenGL Extensions:\n");
+   print_extensions((AL_CONST char *)glGetString(GL_EXTENSIONS));
 #endif
 
    /* Print out GLU version */
@@ -593,21 +599,20 @@ void __allegro_gl_manage_extensions(void)
 
 #ifdef ALLEGRO_HAVE_DYNAMIC_LINK
    /* Get glXGetProcAddress entry */
-   __agl_handle = dlopen("libGL.so", RTLD_LAZY);
-   if (__agl_handle) {
-      aglXGetProcAddress = (GLXGETPROCADDRESSARBPROC) dlsym(__agl_handle,
+   __libgl_handle = dlopen("libGL.so", RTLD_LAZY);
+   if (__libgl_handle) {
+      alXGetProcAddress = (GLXGETPROCADDRESSARBPROC) dlsym(__libgl_handle,
                                                             "glXGetProcAddressARB");
-      if (!aglXGetProcAddress) {
-         aglXGetProcAddress =
-             (GLXGETPROCADDRESSARBPROC) dlsym(__agl_handle,
-                                              "glXGetProcAddress");
+      if (!alXGetProcAddress) {
+         alXGetProcAddress = (GLXGETPROCADDRESSARBPROC) dlsym(__libgl_handle,
+                                                             "glXGetProcAddress");
       }
    }
    else {
       TRACE(PREFIX_W "Failed to dlopen libGL.so : %s\n", dlerror());
    }
    TRACE(PREFIX_I "glXGetProcAddress Extension: %s\n",
-         aglXGetProcAddress ? "Supported" : "Unsupported");
+         alXGetProcAddress ? "Supported" : "Unsupported");
 #elif defined ALLEGRO_UNIX
 #ifdef ALLEGROGL_GLXGETPROCADDRESSARB
    TRACE(PREFIX_I "glXGetProcAddressARB Extension: supported\n");
@@ -625,13 +630,43 @@ void __allegro_gl_manage_extensions(void)
    CFRelease(bundle_url);
 #endif
 
-   __fill_in_info_struct(glGetString(GL_RENDERER), &allegro_gl_info);
+   fill_in_info_struct(glGetString(GL_RENDERER), &(gl_disp->ogl_info));
 
-   /* Load extensions */
-   agl_extension_table = __allegro_gl_create_extensions();
-   __allegro_gl_load_extensions(agl_extension_table);
-   __allegro_gl_set_extensions(agl_extension_table);
+   /* Create & load extension API table */
+   ext_api = create_extension_api_table();
+   load_extensions(ext_api);
+   gl_disp->extension_api = ext_api;
 
+   /* Create the list of supported extensions. */
+   ext_list = create_extension_list();
+   gl_disp->extension_list = ext_list;
+
+   /* Fill the list. */
+#define AGL_EXT(name, ver) {                                                       \
+		ext_list->ALLEGRO_GL_##name =  al_is_opengl_extension_supported("GL_" #name) \
+		                      || (gl_disp->ogl_info.version >= ver && ver > 0);      \
+	}
+   #include "allegro5/opengl/GLext/gl_ext_list.h"
+#undef AGL_EXT
+
+#ifdef ALLEGRO_UNIX
+#define AGL_EXT(name, ver) {                                                        \
+		ext_list->ALLEGRO_GLX_##name = al_is_opengl_extension_supported("GLX_" #name) \
+		                      || (gl_disp->ogl_info.version >= ver && ver > 0);       \
+	}
+   #include "allegro5/opengl/GLext/glx_ext_list.h"
+#undef AGL_EXT
+#elif defined ALLEGRO_WINDOWS
+#define AGL_EXT(name, ver) {                                                        \
+		ext_list->ALLEGRO_WGL_##name = al_is_opengl_extension_supported("WGL_" #name) \
+		                      || (gl_disp->ogl_info.version >= ver && ver > 0);       \
+	}
+   #include "allegro5/opengl/GLext/wgl_ext_list.h"
+#undef AGL_EXT
+#endif
+
+    /* TODO: use these somewhere */
+#if 0
    for (i = 0; i < 5; i++) {
       __allegro_gl_texture_read_format[i] = -1;
       __allegro_gl_texture_components[i] = GL_RGB;
@@ -639,64 +674,39 @@ void __allegro_gl_manage_extensions(void)
    __allegro_gl_texture_read_format[3] = GL_UNSIGNED_BYTE;
    __allegro_gl_texture_read_format[4] = GL_UNSIGNED_BYTE;
    __allegro_gl_texture_components[4] = GL_RGBA;
-
-
-   /* Get extension info for the rest of the lib */
-#    define AGL_EXT(name, ver) {                               \
-		allegro_gl_extensions.ALLEGRO_GL_##name =                        \
-		      al_is_opengl_extension_supported("GL_" #name)   \
-		  || (allegro_gl_info.version >= ver && ver > 0);      \
-	}
-#   include "allegro5/opengl/GLext/gl_ext_list.h"
-#   undef AGL_EXT
-
-#ifdef ALLEGRO_UNIX
-#    define AGL_EXT(name, ver) {                               \
-		allegro_gl_extensions.ALLEGRO_GLX_##name =                       \
-		      al_is_opengl_extension_supported("GLX_" #name)  \
-		  || (allegro_gl_info.version >= ver && ver > 0);      \
-	}
-#   include "allegro5/opengl/GLext/glx_ext_list.h"
-#   undef AGL_EXT
-#elif defined ALLEGRO_WINDOWS
-#    define AGL_EXT(name, ver) {                               \
-		allegro_gl_extensions.ALLEGRO_WGL_##name =                       \
-		      al_is_opengl_extension_supported("WGL_" #name)  \
-		  || (allegro_gl_info.version >= ver && ver > 0);      \
-	}
-#   include "allegro5/opengl/GLext/wgl_ext_list.h"
-#   undef AGL_EXT
-#endif
+#endif /* #if 0 */
 
    /* Get number of texture units */
-   if (allegro_gl_extensions.ALLEGRO_GL_ARB_multitexture) {
+   if (ext_list->ALLEGRO_GL_ARB_multitexture) {
       glGetIntegerv(GL_MAX_TEXTURE_UNITS,
-                    (GLint *) & allegro_gl_info.num_texture_units);
+                    (GLint *) & gl_disp->ogl_info.num_texture_units);
    }
    else {
-      allegro_gl_info.num_texture_units = 1;
+      gl_disp->ogl_info.num_texture_units = 1;
    }
 
    /* Get max texture size */
    glGetIntegerv(GL_MAX_TEXTURE_SIZE,
-                 (GLint *) & allegro_gl_info.max_texture_size);
+                 (GLint *) & gl_disp->ogl_info.max_texture_size);
 
    /* Note: Voodoo (even V5) don't seem to correctly support
     * packed pixel formats. Disabling them for those cards.
     */
-   allegro_gl_extensions.ALLEGRO_GL_EXT_packed_pixels &=
-       !allegro_gl_info.is_voodoo;
+   ext_list->ALLEGRO_GL_EXT_packed_pixels &= !gl_disp->ogl_info.is_voodoo;
 
 
-   if (allegro_gl_extensions.ALLEGRO_GL_EXT_packed_pixels) {
+   if (ext_list->ALLEGRO_GL_EXT_packed_pixels) {
 
-      AGL_LOG(1, "Packed Pixels formats available\n");
+      TRACE("Packed Pixels formats available\n");
 
       /* XXX On NV cards, we want to use BGRA instead of RGBA for speed */
       /* Fills the __allegro_gl_texture_format array */
+      /* TODO: use these somewhere */
+#if 0
       __allegro_gl_texture_read_format[0] = GL_UNSIGNED_BYTE_3_3_2;
       __allegro_gl_texture_read_format[1] = GL_UNSIGNED_SHORT_5_5_5_1;
       __allegro_gl_texture_read_format[2] = GL_UNSIGNED_SHORT_5_6_5;
+#endif /* #if 0 */
    }
 
    /* NVidia and ATI cards expose OpenGL 2.0 but often don't accelerate
@@ -707,23 +717,41 @@ void __allegro_gl_manage_extensions(void)
    {
       const char *vendor = (const char *)glGetString(GL_VENDOR);
       if (strstr(vendor, "NVIDIA Corporation")) {
-         if (!allegro_gl_extensions.ALLEGRO_GL_NV_fragment_program2
-             || !allegro_gl_extensions.ALLEGRO_GL_NV_vertex_program3) {
-            allegro_gl_extensions.ALLEGRO_GL_ARB_texture_non_power_of_two =
-                0;
+         if (!ext_list->ALLEGRO_GL_NV_fragment_program2
+          || !ext_list->ALLEGRO_GL_NV_vertex_program3) {
+            ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two = 0;
          }
       }
       else if (strstr(vendor, "ATI Technologies")) {
          if (!strstr((const char *)glGetString(GL_EXTENSIONS),
                      "GL_ARB_texture_non_power_of_two")
-             && allegro_gl_info.version >= 2.0f) {
-            allegro_gl_extensions.ALLEGRO_GL_ARB_texture_non_power_of_two =
-                0;
+             && gl_disp->ogl_info.version >= 2.0f) {
+            ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two = 0;
          }
       }
    }
 }
 
+/* al_get_opengl_extension_list:
+ * Returns the list of OpenGL extensions supproted by Allegro, for
+ * the current context.
+ */
+ALLEGRO_OGL_EXT_LIST* al_get_opengl_extension_list()
+{
+   ALLEGRO_DISPLAY *disp;
+
+   disp = al_get_current_display();
+   if (!disp)
+      return NULL;
+
+#if defined ALLEGRO_WINDOWS
+   return ((ALLEGRO_DISPLAY_WGL*)disp)->extension_list;
+#elif defined ALLEGRO_UNIX
+   return ((ALLEGRO_DISPLAY_XGLX*)disp)->extension_list;
+#elif defined ALLEGRO_MACOSX
+   /* FIXME */
+#endif
+}
 
 
 /* __allegro_gl_print_extensions:
@@ -731,7 +759,7 @@ void __allegro_gl_manage_extensions(void)
  * each extension are separated by a space and which names do not contain any
  * space)
  */
-void __allegro_gl_print_extensions(AL_CONST char *extension)
+static void print_extensions(AL_CONST char *extension)
 {
    char buf[80];
    char *start;
@@ -751,16 +779,27 @@ void __allegro_gl_print_extensions(AL_CONST char *extension)
 
 
 
-void __allegro_gl_unmanage_extensions(void)
+void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *disp)
 {
-   __allegro_gl_destroy_extensions(agl_extension_table);
+#if defined ALLEGRO_WINDOWS
+   ALLEGRO_DISPLAY_WGL  *gl_disp = (ALLEGRO_DISPLAY_WGL*)disp;
+#elif defined ALLEGRO_UNIX
+   ALLEGRO_DISPLAY_XGLX *gl_disp = (ALLEGRO_DISPLAY_XGLX*)disp;
+#elif defined ALLEGRO_MACOSX
+   /* FIXME: declare driver here */
+   CFURLRef bundle_url;
+#endif
+
+   destroy_extension_api_table(gl_disp->extension_api);
+   destroy_extension_list(gl_disp->extension_list);
+
 #ifdef ALLEGRO_MACOSX
    CFRelease(opengl_bundle_ref);
 #endif
 #ifdef ALLEGRO_HAVE_DYNAMIC_LINK
-   if (__agl_handle) {
-      dlclose(__agl_handle);
-      __agl_handle = NULL;
+   if (__libgl_handle) {
+      dlclose(__libgl_handle);
+      __libgl_handle = NULL;
    }
 #endif
 }

@@ -296,6 +296,7 @@ env.Append(CPPPATH = includes)
 
 # This is where the source for the unix files comes from
 context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
+context.add_files(context.cmake["ALLEGRO_SRC_OPENGL_FILES"])
 unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 
 #FIXME: Didn't we say no more asm in A5?

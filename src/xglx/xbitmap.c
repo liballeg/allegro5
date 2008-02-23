@@ -210,7 +210,7 @@ static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
     * time drawing to it.
     */
    if (xbitmap->fbo == 0 && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
-      if (allegro_gl_extensions.ALLEGRO_GL_EXT_framebuffer_object) {
+      if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
 
          ALLEGRO_DISPLAY_XGLX *glx = (void *)al_get_current_display();
 
@@ -290,7 +290,7 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
       upside_down(bitmap, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
 
       /* glWindowPos2i may not be available. */
-      if (allegro_gl_info.version >= 1.4) {
+      if (al_opengl_version() >= 1.4) {
          glWindowPos2i(bitmap->lock_x, bitmap->h - bitmap->lock_y - bitmap->lock_h);
       }
       else {

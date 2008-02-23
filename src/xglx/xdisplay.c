@@ -6,6 +6,10 @@
 #include "xglx.h"
 #include "allegro5/internal/aintern_bitmap.h"
 
+extern void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext);
+extern void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *disp);
+extern void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *disp);
+
 static ALLEGRO_DISPLAY_INTERFACE *vt;
 
 /* Helper to set up GL state as we want it. */
@@ -13,12 +17,9 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 {
    static bool get_extensions = true;
    if (get_extensions) {
-      //FIXME: Direct call to AllegroGL function for now
-      //FIXME: Is this the right place to do this?
-      __allegro_gl_manage_extensions();
       get_extensions = false;
+      _al_ogl_manage_extensions(d);
    }
-
    glViewport(0, 0, d->w, d->h);
 
    glMatrixMode(GL_PROJECTION);
@@ -117,6 +118,9 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
 
    d->display.refresh_rate = al_get_new_display_refresh_rate();
    d->display.flags = al_get_new_display_flags();
+
+   // FIXME: default? Is this the right place to set this?
+   d->display.flags |= ALLEGRO_OPENGL;
 
    // TODO: What is this?
    d->xscreen = DefaultScreen(system->xdisplay);
@@ -217,6 +221,9 @@ static void destroy_display(ALLEGRO_DISPLAY *d)
    unsigned int i;
    ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+
+   _al_ogl_unmanage_extensions((ALLEGRO_DISPLAY*)glx);
+
    _al_mutex_lock(&s->lock);
    for (i = 0; i < s->system.displays._size; i++) {
       ALLEGRO_DISPLAY_XGLX **dptr = _al_vector_ref(&s->system.displays, i);
@@ -251,6 +258,8 @@ static void set_current_display(ALLEGRO_DISPLAY *d)
    if (!glx->opengl_initialized) {
       setup_gl(d);
    }
+   
+   _al_ogl_set_extensions(glx->extension_api);
 }
 
 /* Dummy implementation of flip. */
