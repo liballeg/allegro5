@@ -616,8 +616,6 @@ static bool d3d_create_swap_chain(ALLEGRO_DISPLAY_D3D *d,
 
 static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *display)
 {
-   unsigned int i;
-
    if (d3d_current_texture_render_target) {
       IDirect3DSurface9_Release(d3d_current_texture_render_target);
    }
@@ -696,7 +694,6 @@ static bool _al_d3d_reset_device()
 {
    if (_al_d3d_device) {
       if (d3d_already_fullscreen) {
-         unsigned int i;
          HRESULT hr;
       
          _al_d3d_lock_device();
@@ -740,7 +737,6 @@ static bool _al_d3d_reset_device()
       }
       else {
          unsigned int i;
-         HRESULT hr;
          LPDIRECT3DSURFACE9 render_target;
          D3DDISPLAYMODE d3d_dm;
          
@@ -1648,8 +1644,6 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
  */
 bool _al_d3d_is_device_lost()
 {
-   HRESULT hr;
-
    return (_al_d3d_device_lost);
 }
 
@@ -1658,9 +1652,6 @@ bool _al_d3d_is_device_lost()
  */
 static void d3d_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h)
 {
-   int cx;
-   int cy;
-   int pixel;
    LPDIRECT3DSURFACE9 render_target;
    RECT rect;
    D3DLOCKED_RECT locked_rect;

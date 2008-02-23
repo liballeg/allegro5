@@ -457,7 +457,6 @@
  \
    {                                                                  \
       int c;                                                          \
-      int x;                                                          \
       unsigned char *addr;                                            \
       unsigned char *end_addr;                                        \
       int my_r_bmp_x_i = r_bmp_x_rounded >> 16;                       \

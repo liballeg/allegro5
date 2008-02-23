@@ -1,27 +1,7 @@
 
-#ifndef INCLUDE_ALLEGRO_GL_GL_EXT_H_GUARD
-#define INCLUDE_ALLEGRO_GL_GL_EXT_H_GUARD
+#ifndef GL_EXT_ALLEGRO_H
+#define GL_EXT_ALLEGRO_H
 
-#ifdef ALLEGRO_MACOSX
-
-#include <OpenGL/OpenGL.h>
-#include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
-
-#ifndef GL_GLEXT_PROTOTYPES
-#define GL_GLEXT_PROTOTYPES
-#endif
-
-#else /* ALLEGRO_MACOSX */
-
-/* HACK: Prevent both Mesa and SGI's broken headers from screwing us */
-#define __glext_h_
-#define __glxext_h_
-#include <GL/gl.h>
-#undef  __glext_h_
-#undef  __glxext_h_
-
-#endif /* ALLEGRO_MACOSX */
 
 struct allegro_gl_info {
 	float version;          /* OpenGL version */
@@ -41,7 +21,6 @@ extern GLint __allegro_gl_texture_read_format[5];
 extern GLint __allegro_gl_texture_components[5];
 extern struct allegro_gl_info allegro_gl_info;
 
-#include "allegro5/opengl/gl_header_detect.h"
 
 /* GL extension definitions. */
 
@@ -99,7 +78,7 @@ extern struct allegro_gl_info allegro_gl_info;
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
 #ifdef ALLEGRO_WINDOWS
-#define AGL_API(type, name, args) extern _AGL_DLL AGL_##name##_t __awgl##name;
+#define AGL_API(type, name, args) extern _AL_DLL AGL_##name##_t __awgl##name;
 # 	include "allegro5/opengl/GLext/wgl_ext_alias.h"
 #	include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
@@ -135,7 +114,9 @@ typedef struct AGL_EXTENSION_LIST {
 
 AGL_EXTENSION_LIST allegro_gl_extensions;
 
-void __allegro_gl_print_extensions(AL_CONST char * extension);
+int __allegro_gl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensions);
+int al_is_opengl_extension_supported(AL_CONST char *extension);
 
-#endif /* INCLUDE_ALLEGRO_GL_GL_EXT_H_GUARD */
+
+#endif /* #ifndef GL_EXT_ALLEGRO_H */
 

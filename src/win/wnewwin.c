@@ -72,10 +72,6 @@ HWND _al_win_create_hidden_window()
 
 HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int flags)
 {
-   HANDLE hThread;
-   DWORD result;
-   MSG msg;
-   unsigned int i;
    HWND my_window;
    RECT working_area;
    RECT win_size;
@@ -169,7 +165,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    int x;
    int y;
    unsigned int i, j;
-   int fActive;
    ALLEGRO_EVENT_SOURCE *es = NULL;
    RECT pos;
    ALLEGRO_SYSTEM *system = al_system_driver();

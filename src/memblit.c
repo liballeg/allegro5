@@ -44,7 +44,6 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    int x, y;
    ALLEGRO_COLOR src_color, result;
-   unsigned char r, g, b, a;
    int src_mode, dst_mode;
    ALLEGRO_COLOR *ic;
    bool unlock_dest = false;
@@ -167,7 +166,6 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_LOCKED_REGION src_region;
    ALLEGRO_LOCKED_REGION dst_region;
    ALLEGRO_COLOR src_color, result;
-   unsigned char r, g, b, a;
    int src_mode, dst_mode;
    ALLEGRO_COLOR *ic;
 
@@ -401,7 +399,6 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    /* Right edge of scanline. */ \
    int right_edge_test; \
    ALLEGRO_COLOR src_color, result; \
-   unsigned char r, g, b, a; \
  \
    /* Get index of topmost point. */ \
    top_index = 0; \

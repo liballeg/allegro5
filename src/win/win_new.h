@@ -13,9 +13,6 @@ struct ALLEGRO_SYSTEM_WIN
 
 ALLEGRO_SYSTEM_WIN *_al_win_system;
 
-ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void);
-AL_FUNC(bool, _al_d3d_init_display, ());
-
 void _al_win_delete_thread_handle(DWORD handle);
 
 HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int flags);
@@ -35,6 +32,22 @@ AL_FUNC(int, _al_d3d_get_num_display_modes,
    (int format, int refresh_rate, int flags));
 AL_FUNC(ALLEGRO_DISPLAY_MODE *, _al_d3d_get_display_mode,
    (int index, int format, int refresh_rate, int flags, ALLEGRO_DISPLAY_MODE *mode));
-#endif
+
+ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void);
+AL_FUNC(bool, _al_d3d_init_display, ());
+
+#endif /*  defined ALLEGRO_D3D */
+
+#if defined ALLEGRO_OGL
+
+AL_FUNC(int, _al_wgl_get_num_display_modes,
+   (int format, int refresh_rate, int flags));
+AL_FUNC(ALLEGRO_DISPLAY_MODE *, _al_wgl_get_display_mode,
+   (int index, int format, int refresh_rate, int flags, ALLEGRO_DISPLAY_MODE *mode));
+
+ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void);
+AL_FUNC(bool, _al_wgl_init_display, ());
+
+#endif /*  defined ALLEGRO_OGL */
 
 #endif

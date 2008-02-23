@@ -23,6 +23,16 @@
  * <al_get_opengl_proc_address> functions instead.
  */
 
+
+/*
+
+  FIXME:
+  Need to revamp the whole extension mechanism. Entension table must be per-display.
+  Global vars (device contexts and co.) must be display vars.
+  Extensions cannot be in a struct because some names might start with a number.
+
+*/
+
 #include "allegro5/allegro5.h"
 
 #define AGL_LOG(level,str) TRACE(str)
@@ -383,6 +393,7 @@ int al_is_opengl_extension_supported(AL_CONST char *extension)
                                             glGetString(GL_EXTENSIONS));
 
 #ifdef ALLEGRO_WINDOWS
+#if 0  /* FIXME !!! */
    if (!ret && strncmp(extension, "WGL", 3) == 0) {
       if (!__wglGetExtensionsStringARB || __hdc != __allegro_gl_hdc) {
          __wglGetExtensionsStringARB = (AGL_GetExtensionsStringARB_t)
@@ -395,6 +406,7 @@ int al_is_opengl_extension_supported(AL_CONST char *extension)
                                                   (__allegro_gl_hdc));
       }
    }
+#endif /* #if 0 */
 #elif defined ALLEGRO_UNIX
    if (!ret && strncmp(extension, "GLX", 3) == 0) {
       XLOCK();

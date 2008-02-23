@@ -123,6 +123,7 @@ int main(void)
    al_init();
 
    al_install_keyboard();
+   al_set_new_display_flags(ALLEGRO_OPENGL);
    display = al_create_display(640, 480);
 
    queue = al_create_event_queue();

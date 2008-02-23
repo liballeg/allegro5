@@ -325,7 +325,6 @@ static void mouse_directx_wheel_motion_handler(int dz)
 static void mouse_directx_button_handler(int unswapped_button, bool is_down)
 {
    int button0;
-   int dz;
 
    ASSERT(mouse_directx_installed);
 
@@ -481,7 +480,6 @@ static void mouse_dinput_handle(void)
          /* windowed input mode */
          if (!wnd_sysmenu) {
             POINT p;
-	    int x, y;
 
 	    GetCursorPos(&p);
 

@@ -92,5 +92,19 @@ if(WANT_D3D)
     endif(USE_CXX)
 endif(WANT_D3D)
 
+if(SUPPORT_OPENGL)
+    macro(add_ogl_example nm)
+        add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
+        set_target_properties(${nm} PROPERTIES
+            COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
+            LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
+            )
+        target_link_libraries(${nm} ${LINK_WITH})
+        target_link_libraries(${nm} ${OPENGL_LIBS})
+    endmacro(add_ogl_example)
+
+    add_ogl_example(exnew_opengl exnew_opengl.c)
+endif(SUPPORT_OPENGL)
+
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

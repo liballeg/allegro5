@@ -30,7 +30,6 @@
 { \
    int x; \
    int y; \
-   ALLEGRO_LOCKED_REGION lr; \
    int cdx, cdy;         /* current dest */ \
    int dxi, dyi;         /* dest increments */ \
    int pixel; \

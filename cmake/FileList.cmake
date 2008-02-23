@@ -241,6 +241,14 @@ set(ALLEGRO_SRC_D3D_FILES
     src/win/d3d_disp.c
     )
 
+set(ALLEGRO_SRC_OPENGL_FILES
+    src/opengl/extensions.c
+    )
+
+set(ALLEGRO_SRC_WGL_FILES
+    src/win/wgl_disp.c
+    )
+
 set(ALLEGRO_SRC_BEOS_FILES
     src/beos/baccel.cpp
     src/beos/bdispsw.cpp
@@ -328,7 +336,6 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/utime.c
     src/unix/uxthread.c
     src/misc/modexsms.c
-    src/opengl/extensions.c
     )
 
 set(ALLEGRO_SRC_X_FILES
@@ -524,6 +531,23 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro5/internal/aintvga.h
     include/allegro5/internal/alconfig.h
     )
+
+set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES
+    include/allegro5/opengl/algl.h 
+    include/allegro5/opengl/gl_ext.h
+    include/allegro5/opengl/GLext/gl_ext_alias.h
+    include/allegro5/opengl/GLext/gl_ext_defs.h
+    include/allegro5/opengl/GLext/glx_ext_alias.h
+    include/allegro5/opengl/GLext/glx_ext_defs.h
+    include/allegro5/opengl/GLext/wgl_ext_alias.h
+    include/allegro5/opengl/GLext/wgl_ext_defs.h
+    include/allegro5/opengl/GLext/gl_ext_api.h
+    include/allegro5/opengl/GLext/gl_ext_list.h
+    include/allegro5/opengl/GLext/glx_ext_api.h
+    include/allegro5/opengl/GLext/glx_ext_list.h
+    include/allegro5/opengl/GLext/wgl_ext_api.h
+    include/allegro5/opengl/GLext/wgl_ext_list.h
+   )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/aintbeos.h
