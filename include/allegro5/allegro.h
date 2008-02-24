@@ -70,8 +70,8 @@
 #include "allegro5/3d.h"
 #include "allegro5/3dmaths.h"
 
-#ifdef ALLEGRO_OGL
-   #include "allegro5/opengl/algl.h"
+#ifdef ALLEGRO_CFG_OPENGL
+   #include "allegro5/a5_opengl.h"
 #endif
 
 #ifndef ALLEGRO_NO_COMPATIBILITY

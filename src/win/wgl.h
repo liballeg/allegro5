@@ -1,6 +1,6 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/opengl/algl.h"
+#include "allegro5/a5_opengl.h"
 
 #include <windows.h>
 
@@ -26,3 +26,4 @@ struct ALLEGRO_DISPLAY_WGL
 
    OPENGL_INFO ogl_info;
 };
+

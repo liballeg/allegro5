@@ -251,7 +251,7 @@ if(WANT_OPENGL)
     endif(OPENGL_FOUND)
 
     if(SUPPORT_OPENGL)
-       set(ALLEGRO_OGL 1)
+       set(ALLEGRO_CFG_OPENGL 1)
     endif(SUPPORT_OPENGL)
 endif(WANT_OPENGL)
 

@@ -38,7 +38,7 @@ AL_FUNC(bool, _al_d3d_init_display, ());
 
 #endif /*  defined ALLEGRO_D3D */
 
-#if defined ALLEGRO_OGL
+#if defined ALLEGRO_CFG_OPENGL
 
 AL_FUNC(int, _al_wgl_get_num_display_modes,
    (int format, int refresh_rate, int flags));
@@ -48,6 +48,6 @@ AL_FUNC(ALLEGRO_DISPLAY_MODE *, _al_wgl_get_display_mode,
 ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void);
 AL_FUNC(bool, _al_wgl_init_display, ());
 
-#endif /*  defined ALLEGRO_OGL */
+#endif /*  defined ALLEGRO_CFG_OPENGL */
 
 #endif

@@ -86,7 +86,7 @@ ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    }
 
    if (flags & ALLEGRO_OPENGL) {
-#if defined ALLEGRO_OGL
+#if defined ALLEGRO_CFG_OPENGL
       return _al_display_wgl_driver();
 #endif
    }

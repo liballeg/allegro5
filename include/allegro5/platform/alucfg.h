@@ -44,7 +44,7 @@
 
 /* Enable OpenGL if GLX is available. */
 #ifdef ALLEGRO_GLX
-#define ALLEGRO_OGL
+#define ALLEGRO_CFG_OPENGL
 #endif
 
 /* Enable multithreaded library */

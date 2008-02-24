@@ -736,7 +736,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *disp)
  * Returns the list of OpenGL extensions supproted by Allegro, for
  * the current context.
  */
-ALLEGRO_OGL_EXT_LIST* al_get_opengl_extension_list()
+ALLEGRO_OGL_EXT_LIST* al_get_opengl_extension_list(void)
 {
    ALLEGRO_DISPLAY *disp;
 
