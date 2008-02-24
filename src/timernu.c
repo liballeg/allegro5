@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      New timer API for Windows.
+ *      New timer API.
  *
  *      By Peter Wang.
  *
