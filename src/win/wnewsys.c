@@ -117,7 +117,7 @@ int win_get_num_display_modes(void)
    }
 
    if (flags & ALLEGRO_OPENGL) {
-#if defined ALLEGRO_OPENGL
+#if defined ALLEGRO_CFG_OPENGL
       return _al_wgl_get_num_display_modes(format, refresh_rate, flags);
 #endif
    }
@@ -141,7 +141,7 @@ ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode
    }
 
    if (flags & ALLEGRO_OPENGL) {
-#if defined ALLEGRO_OPENGL
+#if defined ALLEGRO_CFG_OPENGL
       return _al_wgl_get_display_mode(index, format, refresh_rate, flags, mode);
 #endif
    }
@@ -172,7 +172,7 @@ void _al_register_system_interfaces()
 {
    ALLEGRO_SYSTEM_INTERFACE **add;
 
-#if defined ALLEGRO_CFG_D3D || defined ALLEGRO_OGL
+#if defined ALLEGRO_CFG_D3D || defined ALLEGRO_CFG_OPENGL
    add = _al_vector_alloc_back(&_al_system_interfaces);
    *add = _al_system_win_driver();
 #endif
