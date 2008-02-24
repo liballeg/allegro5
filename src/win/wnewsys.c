@@ -57,7 +57,7 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 
    _al_win_system->system.vt = vt;
 
-#if defined ALLEGRO_D3D
+#if defined ALLEGRO_CFG_D3D
    if (_al_d3d_init_display() != true)
       return NULL;
 #endif
@@ -80,7 +80,7 @@ ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    int flags = al_get_new_display_flags();
 
    if (flags & ALLEGRO_DIRECT3D) {
-#if defined ALLEGRO_D3D
+#if defined ALLEGRO_CFG_D3D
       return _al_display_d3d_driver();
 #endif
    }
@@ -111,7 +111,7 @@ int win_get_num_display_modes(void)
       return -1;
 
    if (flags & ALLEGRO_DIRECT3D) {
-#if defined ALLEGRO_D3D
+#if defined ALLEGRO_CFG_D3D
       return _al_d3d_get_num_display_modes(format, refresh_rate, flags);
 #endif
    }
@@ -135,7 +135,7 @@ ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode
       return NULL;
 
    if (flags & ALLEGRO_DIRECT3D) {
-#if defined ALLEGRO_D3D
+#if defined ALLEGRO_CFG_D3D
       return _al_d3d_get_display_mode(index, format, refresh_rate, flags, mode);
 #endif
    }
@@ -172,7 +172,7 @@ void _al_register_system_interfaces()
 {
    ALLEGRO_SYSTEM_INTERFACE **add;
 
-#if defined ALLEGRO_D3D || defined ALLEGRO_OPENGL
+#if defined ALLEGRO_CFG_D3D || defined ALLEGRO_OGL
    add = _al_vector_alloc_back(&_al_system_interfaces);
    *add = _al_system_win_driver();
 #endif

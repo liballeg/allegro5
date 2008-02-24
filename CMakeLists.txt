@@ -512,14 +512,14 @@ endif(SUPPORT_X11)
 
 if(WIN32)
     if(WANT_D3D)
-        check_include_files(d3dx9.h HAVE_D3DX9)
-        if(HAVE_D3DX9)
+        check_include_files(d3d9.h HAVE_D3D9)
+        if(HAVE_D3D9)
             set(SUPPORT_D3D 1)
-        endif(HAVE_D3DX9)
+        endif(HAVE_D3D9)
     endif(WANT_D3D)
     
     if(SUPPORT_D3D)
-        set(ALLEGRO_D3D 1)
+        set(ALLEGRO_CFG_D3D 1)
     endif(SUPPORT_D3D)
 endif(WIN32)
 
