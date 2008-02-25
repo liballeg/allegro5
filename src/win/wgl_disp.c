@@ -22,6 +22,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/platform/aintwin.h"
 
 #include "wgl.h"
@@ -30,12 +31,6 @@
 #define PREFIX_I                "wgl-win INFO: "
 #define PREFIX_W                "wgl-win WARNING: "
 #define PREFIX_E                "wgl-win ERROR: "
-
-
-extern int  _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensions);
-extern void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext);
-extern void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *disp);
-extern void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *disp);
 
 
 static ALLEGRO_DISPLAY_INTERFACE *vt = 0;

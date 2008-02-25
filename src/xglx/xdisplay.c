@@ -5,10 +5,8 @@
 
 #include "xglx.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_opengl.h"
 
-extern void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext);
-extern void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *disp);
-extern void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *disp);
 
 static ALLEGRO_DISPLAY_INTERFACE *vt;
 

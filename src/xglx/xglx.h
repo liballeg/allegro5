@@ -15,8 +15,6 @@
 #include <X11/extensions/xf86vmode.h>
 #endif
 
-#include "allegro5/opengl/gl_ext.h"
-
 typedef struct ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_XGLX;
 typedef struct ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_XGLX;
 typedef struct ALLEGRO_BITMAP_XGLX ALLEGRO_BITMAP_XGLX;
@@ -87,9 +85,13 @@ struct ALLEGRO_DISPLAY_XGLX
    /* Icon for this window. */
    Pixmap icon, icon_mask;
 
-   OPENGL_INFO ogl_info;
+   /* Mandatory members */
+   /* A list of extensions supported by Allegro, for this context. */
    ALLEGRO_OGL_EXT_LIST *extension_list;
+   /* A list of extension API, loaded by Allegro, for this context. */
    ALLEGRO_OGL_EXT_API *extension_api;
+   /* Various info about OpenGL implementation. */
+   OPENGL_INFO ogl_info;
 };
 
 /* Functions private to the X11 driver. */
