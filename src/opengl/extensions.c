@@ -40,20 +40,14 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/display_new.h"
 #include "allegro5/opengl/gl_ext.h"
+#include "allegro5/internal/aintern_opengl.h"
 
 
-/* REVIEW: This includes looks nasty.
- * The extension code is the same for all drivers as long as some
- * members of struct ALLEGRO_DISPLAY_xGL are named the same. An
- * alternative would be to have a generic struct ALLEGRO_DISPLAY_OGL
- * characteristic to all OpenGL drivers which wuold then be inherited...
- */
+/* We need some driver specific details not worth of a vtable entry. */
 #if defined ALLEGRO_WINDOWS
    #include "../win/wgl.h"
 #elif defined ALLEGRO_UNIX
    #include "../xglx/xglx.h"
-#elif defined ALLEGRO_MACOSX
-   /* FIXME: add header here */
 #endif
 
 #include <string.h>
@@ -399,7 +393,7 @@ int al_is_opengl_extension_supported(AL_CONST char *extension)
    if (!ret && strncmp(extension, "WGL", 3) == 0) {
       ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
       ALLEGRO_GetExtensionsStringARB_t __wglGetExtensionsStringARB;
-      
+
       if (!wgl_disp->dc)
          return FALSE;
 
@@ -478,7 +472,7 @@ void *al_get_opengl_proc_address(AL_CONST char *name)
     */
    {
       ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
-      
+
       if (!wgl_disp->dc)
          return FALSE;
 
@@ -573,15 +567,10 @@ static void fill_in_info_struct(const GLubyte *rendereru, OPENGL_INFO *info)
  * This functions fills the extensions API table and extension list
  * structures and displays on the log file which extensions are available.
  */
-void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *disp)
+void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
 {
    //AL_CONST GLubyte *buf;
-#if defined ALLEGRO_WINDOWS
-   ALLEGRO_DISPLAY_WGL  *gl_disp = (ALLEGRO_DISPLAY_WGL*)disp;
-#elif defined ALLEGRO_UNIX
-   ALLEGRO_DISPLAY_XGLX *gl_disp = (ALLEGRO_DISPLAY_XGLX*)disp;
-#elif defined ALLEGRO_MACOSX
-   /* FIXME: declare driver here */
+#if defined ALLEGRO_MACOSX
    CFURLRef bundle_url;
 #endif
    ALLEGRO_OGL_EXT_API *ext_api;
@@ -744,13 +733,7 @@ ALLEGRO_OGL_EXT_LIST* al_get_opengl_extension_list(void)
    if (!disp)
       return NULL;
 
-#if defined ALLEGRO_WINDOWS
-   return ((ALLEGRO_DISPLAY_WGL*)disp)->extension_list;
-#elif defined ALLEGRO_UNIX
-   return ((ALLEGRO_DISPLAY_XGLX*)disp)->extension_list;
-#elif defined ALLEGRO_MACOSX
-   /* FIXME */
-#endif
+   return ((ALLEGRO_DISPLAY_OGL*)disp)->extension_list;
 }
 
 
@@ -779,17 +762,8 @@ static void print_extensions(AL_CONST char *extension)
 
 
 
-void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *disp)
+void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
 {
-#if defined ALLEGRO_WINDOWS
-   ALLEGRO_DISPLAY_WGL  *gl_disp = (ALLEGRO_DISPLAY_WGL*)disp;
-#elif defined ALLEGRO_UNIX
-   ALLEGRO_DISPLAY_XGLX *gl_disp = (ALLEGRO_DISPLAY_XGLX*)disp;
-#elif defined ALLEGRO_MACOSX
-   /* FIXME: declare driver here */
-   CFURLRef bundle_url;
-#endif
-
    destroy_extension_api_table(gl_disp->extension_api);
    destroy_extension_list(gl_disp->extension_list);
 

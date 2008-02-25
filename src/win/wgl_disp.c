@@ -724,41 +724,43 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d) {
 
 static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
-   ALLEGRO_DISPLAY_WGL *display = _AL_MALLOC(sizeof *display);
+   ALLEGRO_DISPLAY_WGL *wgl_display = _AL_MALLOC(sizeof *wgl_display);
+   ALLEGRO_DISPLAY_OGL *ogl_display = (void*)wgl_display;
+   ALLEGRO_DISPLAY *display = (void*)ogl_display;
 
    memset(display, 0, sizeof *display);
-   display->display.w = w;
-   display->display.h = h;
-   display->display.format = al_get_new_display_format();
-   display->display.refresh_rate = al_get_new_display_refresh_rate();
-   display->display.flags = al_get_new_display_flags();
-   display->display.vt = vt;
+   display->w = w;
+   display->h = h;
+   display->format = al_get_new_display_format();
+   display->refresh_rate = al_get_new_display_refresh_rate();
+   display->flags = al_get_new_display_flags();
+   display->vt = vt;
 
    /* request a fresh new window */
-   display->window = _al_win_create_window(&display->display, w, h, display->display.flags);
+   wgl_display->window = _al_win_create_window(display, w, h, display->flags);
    if (!display->window)
       return NULL;
 
    /* get the device context of our window */
-   display->dc = GetDC(display->window);
+   wgl_display->dc = GetDC(wgl_display->window);
 
-   if (display->display.flags & ALLEGRO_FULLSCREEN) {
-      if (!change_display_mode(&display->display))
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      if (!change_display_mode(display))
          goto Error;
    }
 
-   if (!select_pixel_format(display))
+   if (!select_pixel_format(wgl_display))
       goto Error;
 
    /* create an OpenGL context */
-   display->glrc = wglCreateContext(display->dc);
+   wgl_display->glrc = wglCreateContext(wgl_display->dc);
    if (!display->glrc) {
       log_win32_error("wgl_create_display", "Unable to create a render context!",
                       GetLastError());
       goto Error;
 	}
    /* make the context the current one */
-   if (!wglMakeCurrent(display->dc, display->glrc)) {
+   if (!wglMakeCurrent(wgl_display->dc, wgl_display->glrc)) {
       log_win32_error("wgl_create_display", "Unable to make the context current!",
                       GetLastError());
       goto Error;
@@ -769,22 +771,22 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    TRACE(PREFIX_I "Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
    TRACE(PREFIX_I "Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
 
-   _al_ogl_manage_extensions((ALLEGRO_DISPLAY*)display);
+   _al_ogl_manage_extensions(ogl_display);
 
    /* Add ourself to the list of displays. */
    _al_vector_alloc_back(&system->system.displays);
 
    /* Each display is an event source. */
-   _al_event_source_init(&display->display.es);
+   _al_event_source_init(&display->es);
 
-   return (ALLEGRO_DISPLAY *)display;
+   return display;
 
 Error:
-   if (display->glrc) {
-      wglDeleteContext(display->glrc);
+   if (wgl_display->glrc) {
+      wglDeleteContext(wgl_display->glrc);
    }
-   if (display->dc) {
-      ReleaseDC(display->window, display->dc);
+   if (wgl_display->dc) {
+      ReleaseDC(wgl_display->window, wgl_display->dc);
    }
    ChangeDisplaySettings(NULL, 0);
 
@@ -795,12 +797,13 @@ Error:
 static void wgl_destroy_display(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
-   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)display;
+   ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)display;
+   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)ogl_disp;
 
-   _al_ogl_unmanage_extensions((ALLEGRO_DISPLAY*)wgl_disp);
+   _al_ogl_unmanage_extensions(ogl_disp);
 
    _al_vector_find_and_delete(&system->system.displays, &display);
-   
+
    if (wgl_disp->glrc)
       wglDeleteContext(wgl_disp->glrc);
    if (wgl_disp->dc)
@@ -817,9 +820,10 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *display)
 static void wgl_set_current_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
+   ALLEGRO_DISPLAY_WGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)d;
 
    wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc);
-   _al_ogl_set_extensions(wgl_disp->extension_api);
+   _al_ogl_set_extensions(ogl_disp->extension_api);
 }
 
 

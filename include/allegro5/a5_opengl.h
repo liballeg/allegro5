@@ -80,22 +80,6 @@ AL_BEGIN_EXTERN_C
 #endif
 
 
-typedef struct OGL_PIXEL_FORMAT {
-   int format;
-   int doublebuffered;
-   int depth_size;
-   int rmethod;
-   int stencil_size;
-   int r_shift, g_shift, b_shift, a_shift;
-   int r_size, g_size, b_size, a_size;
-   int fullscreen;
-   int sample_buffers;
-   int samples;
-   int float_color;
-   int float_depth;
-} OGL_PIXEL_FORMAT;
-
-
 /* Puiblic OpenGL-related API */
 AL_FUNC(float,                 al_opengl_version,                (void));
 AL_FUNC(int,                   al_is_opengl_extension_supported, (AL_CONST char *extension));

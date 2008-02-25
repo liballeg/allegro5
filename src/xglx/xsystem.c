@@ -52,7 +52,7 @@ static void background_thread(_AL_THREAD *thread, void *arg)
                event.xmotion.x, event.xmotion.y);
             break;
          case ConfigureNotify:
-            _al_display_xglx_configure(&d->display,  &event);
+            _al_display_xglx_configure(&d->ogl_display.display,  &event);
             _al_cond_signal(&s->resized);
             break;
          case MapNotify:
@@ -60,7 +60,7 @@ static void background_thread(_AL_THREAD *thread, void *arg)
             break;
          case ClientMessage:
             if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
-               _al_display_xglx_closebutton(&d->display, &event);
+               _al_display_xglx_closebutton(&d->ogl_display.display, &event);
                break;
             }
       }

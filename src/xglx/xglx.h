@@ -59,7 +59,7 @@ struct ALLEGRO_BITMAP_XGLX
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
 struct ALLEGRO_DISPLAY_XGLX
 {
-   ALLEGRO_DISPLAY display; /* This must be the first member. */
+   ALLEGRO_DISPLAY_OGL ogl_display; /* This must be the first member. */
    
    /* Driver specifics. */
 
@@ -77,6 +77,7 @@ struct ALLEGRO_DISPLAY_XGLX
    XVisualInfo *xvinfo; /* Used when selecting the X11 visual to use. */
    GLXFBConfig *fbc; /* Used when creating the OpenGL context. */
    float glx_version;
+   bool got_extensions;
 
    /* Cursor for this window. */
    Cursor invisible_cursor;
@@ -84,14 +85,6 @@ struct ALLEGRO_DISPLAY_XGLX
 
    /* Icon for this window. */
    Pixmap icon, icon_mask;
-
-   /* Mandatory members */
-   /* A list of extensions supported by Allegro, for this context. */
-   ALLEGRO_OGL_EXT_LIST *extension_list;
-   /* A list of extension API, loaded by Allegro, for this context. */
-   ALLEGRO_OGL_EXT_API *extension_api;
-   /* Various info about OpenGL implementation. */
-   OPENGL_INFO ogl_info;
 };
 
 /* Functions private to the X11 driver. */

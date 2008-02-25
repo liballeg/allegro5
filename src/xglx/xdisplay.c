@@ -13,11 +13,6 @@ static ALLEGRO_DISPLAY_INTERFACE *vt;
 /* Helper to set up GL state as we want it. */
 static void setup_gl(ALLEGRO_DISPLAY *d)
 {
-   static bool get_extensions = true;
-   if (get_extensions) {
-      get_extensions = false;
-      _al_ogl_manage_extensions(d);
-   }
    glViewport(0, 0, d->w, d->h);
 
    glMatrixMode(GL_PROJECTION);
@@ -96,6 +91,7 @@ static void set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
 static ALLEGRO_DISPLAY *create_display(int w, int h)
 {
    ALLEGRO_DISPLAY_XGLX *d = _AL_MALLOC(sizeof *d);
+   ALLEGRO_DISPLAY *display = (void*)d;
    memset(d, 0, sizeof *d);
 
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
@@ -107,31 +103,31 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
    d->glx_version = major + minor * 0.1;
    TRACE("xdisplay: GLX %.1f.\n", d->glx_version);
 
-   d->display.w = w;
-   d->display.h = h;
-   d->display.vt = vt;
+   display->w = w;
+   display->h = h;
+   display->vt = vt;
    //FIXME
-   //d->display.format = al_get_new_display_format();
-   d->display.format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+   //display->format = al_get_new_display_format();
+   display->format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
 
-   d->display.refresh_rate = al_get_new_display_refresh_rate();
-   d->display.flags = al_get_new_display_flags();
+   display->refresh_rate = al_get_new_display_refresh_rate();
+   display->flags = al_get_new_display_flags();
 
    // FIXME: default? Is this the right place to set this?
-   d->display.flags |= ALLEGRO_OPENGL;
+   display->flags |= ALLEGRO_OPENGL;
 
    // TODO: What is this?
    d->xscreen = DefaultScreen(system->xdisplay);
 
-   if (d->display.flags & ALLEGRO_FULLSCREEN)
+   if (display->flags & ALLEGRO_FULLSCREEN)
       _al_xglx_fullscreen_set_mode(system, w, h, 0, 0);
 
    //FIXME
    //d->display.flags |= ALLEGRO_WINDOWED;
 
    _al_push_new_bitmap_parameters();
-   al_set_new_bitmap_format(d->display.format);
-   d->backbuffer = _al_xglx_create_bitmap(&d->display, w, h);
+   al_set_new_bitmap_format(display->format);
+   d->backbuffer = _al_xglx_create_bitmap(display, w, h);
    _al_pop_new_bitmap_parameters();
    ALLEGRO_BITMAP_XGLX *backbuffer = (void *)d->backbuffer;
    backbuffer->is_backbuffer = 1;
@@ -149,7 +145,7 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
    *add = d;
 
    /* Each display is an event source. */
-   _al_event_source_init(&d->display.es);
+   _al_event_source_init(&display->es);
 
    _xglx_config_select_visual(d);
 
@@ -184,7 +180,7 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
 
    TRACE("xdisplay: X11 window created.\n");
    
-   set_size_hints(&d->display, w, h);
+   set_size_hints(display, w, h);
 
    d->wm_delete_window_atom = XInternAtom (system->xdisplay,
       "WM_DELETE_WINDOW", False);
@@ -205,13 +201,13 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
 
    _xglx_config_create_context(d);
 
-   if (d->display.flags & ALLEGRO_FULLSCREEN) {
+   if (display->flags & ALLEGRO_FULLSCREEN) {
       _al_xglx_fullscreen_to_display(system, d);
    }
 
    _al_mutex_unlock(&system->lock);
 
-   return &d->display;
+   return display;
 }
 
 static void destroy_display(ALLEGRO_DISPLAY *d)
@@ -220,7 +216,7 @@ static void destroy_display(ALLEGRO_DISPLAY *d)
    ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
 
-   _al_ogl_unmanage_extensions((ALLEGRO_DISPLAY*)glx);
+   _al_ogl_unmanage_extensions((ALLEGRO_DISPLAY_OGL*)glx);
 
    _al_mutex_lock(&s->lock);
    for (i = 0; i < s->system.displays._size; i++) {
@@ -244,6 +240,7 @@ static void set_current_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   ALLEGRO_DISPLAY_OGL *ogl = (ALLEGRO_DISPLAY_OGL *)d;
    /* Make our GLX context current for reading and writing in the current
     * thread.
     */
@@ -256,8 +253,13 @@ static void set_current_display(ALLEGRO_DISPLAY *d)
    if (!glx->opengl_initialized) {
       setup_gl(d);
    }
-   
-   _al_ogl_set_extensions(glx->extension_api);
+
+   if (!glx->got_extensions) {
+      glx->got_extensions = true;
+      _al_ogl_manage_extensions(glx);
+   }
+
+   _al_ogl_set_extensions(ogl->extension_api);
 }
 
 /* Dummy implementation of flip. */
@@ -322,7 +324,7 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
-   ALLEGRO_EVENT_SOURCE *es = &glx->display.es;
+   ALLEGRO_EVENT_SOURCE *es = &glx->ogl_display.display.es;
    _al_event_source_lock(es);
 
    /* Generate a resize event if the size has changed. We cannot asynchronously
@@ -369,7 +371,7 @@ void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
-   ALLEGRO_EVENT_SOURCE *es = &glx->display.es;
+   ALLEGRO_EVENT_SOURCE *es = &glx->ogl_display.display.es;
    _al_event_source_lock(es);
 
    if (_al_event_source_needs_to_generate_event(es)) {
