@@ -23,19 +23,19 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
-#include "allegro/platform/aintlnx.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
+#include "allegro5/platform/aintlnx.h"
 
 #ifdef ALLEGRO_LINUX_VGA
-#ifdef HAVE_SYS_IO_H
+#ifdef ALLEGRO_HAVE_SYS_IO_H
 /* iopl() exists in here instead of unistd.h in glibc */
 #include <sys/io.h>
 #endif
 #endif
 
-#include "linalleg.h"
+#include "allegro5/linalleg.h"
 
 #ifndef ALLEGRO_LINUX
    #error Something is wrong with the makefile
@@ -45,6 +45,8 @@
 static int  sys_linux_init(void);
 static void sys_linux_exit(void);
 static void sys_linux_message (AL_CONST char *msg);
+static void sys_linux_save_console_state(void);
+static void sys_linux_restore_console_state(void);
 
 
 /* driver list getters */
@@ -53,7 +55,7 @@ static void sys_linux_message (AL_CONST char *msg);
 	make_getter (_unix, digi)
 	make_getter (_unix, midi)
 	make_getter (_al_linux, keyboard)
-	make_getter (_linux, mouse)
+	make_getter (_al_linux, mouse)
 	make_getter (_al_linux, joystick)
 #undef make_getter
 
@@ -68,14 +70,13 @@ SYSTEM_DRIVER system_linux =
    sys_linux_init,
    sys_linux_exit,
    _unix_get_executable_name,
-   _unix_get_path,
    _unix_find_resource,
    NULL, /* set_window_title */
    NULL, /* set_close_button_callback */
    sys_linux_message,
    NULL, /* assert */
-   NULL, /* save_console_state */
-   NULL, /* restore_console_state */
+   sys_linux_save_console_state,
+   sys_linux_restore_console_state,
    NULL, /* create_bitmap */
    NULL, /* created_bitmap */
    NULL, /* create_sub_bitmap */
@@ -86,8 +87,13 @@ SYSTEM_DRIVER system_linux =
    NULL, /* get_vtable */
    __al_linux_set_display_switch_mode,
    __al_linux_display_switch_lock,
+#if (defined ALLEGRO_LINUX_FBCON) && (!defined ALLEGRO_WITH_MODULES)
+   __al_linux_get_fb_color_depth,
+   __al_linux_get_fb_resolution,
+#else
    NULL, /* desktop_color_depth */
    NULL, /* get_desktop_resolution */
+#endif
    NULL, /* get_gfx_safe_mode */
    _unix_yield_timeslice,
    get_gfx_driver_list,
@@ -123,8 +129,12 @@ static RETSIGTYPE signal_handler (int num)
 static int __al_linux_bgman_init (void)
 {
 	_unix_bg_man = &_bg_man_pthreads;
-	if (_unix_bg_man->init() || _unix_bg_man->register_func (__al_linux_update_standard_drivers))
+	if (_unix_bg_man->init())
 		return -1;
+	/*
+	if (_unix_bg_man->register_func (__al_linux_update_standard_drivers))
+		return -1;
+	*/
 	return 0;
 }
 
@@ -148,8 +158,6 @@ static int sys_linux_init (void)
 	_unix_read_os_type();
 	if (os_type != OSTYPE_LINUX) return -1; /* FWIW */
 
-   _unix_guess_file_encoding();
-
 	/* This is the only bit that needs root privileges.  First
 	 * we attempt to set our euid to 0, in case this is the
 	 * second time we've been called. */
@@ -169,7 +177,7 @@ static int sys_linux_init (void)
 
 	/* Load dynamic modules */
 	_unix_load_modules(SYSTEM_LINUX);
-
+    
 	/* Initialise VGA helpers */
 #ifdef ALLEGRO_LINUX_VGA
 	if (__al_linux_have_ioperms)
@@ -237,6 +245,20 @@ static void sys_linux_exit (void)
 #ifdef ALLEGRO_LINUX_VGA
 	iopl (0);
 #endif
+}
+
+
+
+static void sys_linux_save_console_state(void)
+{
+   __al_linux_use_console();
+}
+
+
+
+static void sys_linux_restore_console_state(void)
+{
+   __al_linux_leave_console();
 }
 
 

@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.3.1 (SVN)" "Allegro" "Allegro manual"
+@manh="version 4.9.2 (SVN)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,12 +52,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.3.1 (SVN)
+				       \_/__/     Version 4.9.2 (SVN)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Jul 24, 2006.
+	     By Shawn Hargreaves, Dec 02, 2007.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -132,7 +132,7 @@ information about how to install Allegro and link your program with it.
 
 @@void @allegro_exit();
 @xref install_allegro, allegro_init, destroy_bitmap
-@eref ex3d, exscn3d, exswitch, exxfade, exzbuf
+@eref ex3d, exnew_events, exscn3d, exswitch, exxfade, exzbuf
 @shortdesc Closes down the Allegro system.
    Closes down the Allegro system. This includes returning the system to
    text mode and removing whatever mouse, keyboard, and timer routines have
@@ -209,8 +209,8 @@ information about how to install Allegro and link your program with it.
 @@#define @ALLEGRO_VERSION_STR
 @shortdesc Defined to a string with the full Allegro version number.
    Defined to a text string containing all version numbers and maybe some
-   additional text. This could be `4.1.16 (CVS)' for an Allegro version
-   obtained straight from the CVS repository.
+   additional text. This could be `4.2.1 (SVN)' for an Allegro version
+   obtained straight from the SVN repository.
    
 @@#define @ALLEGRO_DATE_STR
 @shortdesc Defined to a string with the year Allegro was released.
@@ -313,7 +313,7 @@ information about how to install Allegro and link your program with it.
 @eref Available Allegro examples
 @shortdesc Used mainly to show error messages to users.
    Outputs a message, using a printf() format string. Usually you want to
-   use this to report messages to the user in an OS independant way when some
+   use this to report messages to the user in an OS independent way when some
    Allegro subsystem cannot be initialised. But you must not use this function
    if you are in a graphic mode, only before calling set_gfx_mode(), or after
    a set_gfx_mode(GFX_TEXT). Also, this function depends on a system driver
@@ -474,7 +474,7 @@ information about how to install Allegro and link your program with it.
 @xref check_cpu, cpu_vendor, cpu_family, cpu_capabilities, allegro_init
 @shortdesc Contains the Intel CPU submodel.
    Contains the CPU submodel, where applicable. Allegro defines at least the 
-   following CPU family types (see include/allegro/system.h for a more 
+   following CPU family types (see include/allegro5/system.h for a more 
    complete list):
 <textblock>
       CPU_FAMILY_I586:
@@ -541,7 +541,7 @@ There are several structures and types defined by Allegro which are used
 in many functions (like the BITMAP structure). This section of the manual
 describes their useful content from a user point of view when they don't fit
 very well any of the existing manual sections, and redirects you to the
-appropiate section when it's already described there. Note that unless stated
+appropriate section when it's already described there. Note that unless stated
 otherwise, the contents shown here are just for read only purposes, there
 might be other internal flags, but you shouldn't depend on them being
 available in past/future versions of Allegro.
@@ -957,14 +957,14 @@ available in past/future versions of Allegro.
 
 @@typedef struct @LZSS_PACK_DATA
 @xref File and compression routines, create_lzss_pack_data
-@shortdesc Opaque structure for handling LZSS comression.
+@shortdesc Opaque structure for handling LZSS compression.
    Opaque structure for handling LZSS compression. Read chapter "File and
    compression routines for a description on how to obtain/use this
    structure.
 
 @@typedef struct @LZSS_UNPACK_DATA
 @xref File and compression routines, create_lzss_unpack_data
-@shortdesc Opaque structure for handling LZSS decomression.
+@shortdesc Opaque structure for handling LZSS decompression.
    Opaque structure for handling LZSS decompression. Read chapter "File and
    compression routines for a description on how to obtain/use this
    structure.
@@ -1102,7 +1102,7 @@ is best to set it with set_uformat() just before you call these.
    Allegro will use the `table' parameter when it needs to convert an ASCII
    string to an Unicode string. But when Allegro converts an Unicode string
    to ASCII, it will use both parameters. First, it will loop through the
-   `table' parameter looking for an index position pointing at the unicode
+   `table' parameter looking for an index position pointing at the Unicode
    value it is trying to convert (ie. the `table' parameter is also used for
    reverse matching). If that fails, the `extras' list is used. If that fails
    too, Allegro will put the character `^', giving up the conversion.
@@ -1160,15 +1160,15 @@ is best to set it with set_uformat() just before you call these.
 <endblock>
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
-   and your parameter size must reflect this. Otherwise, the debug version of
-   Allegro will abort at an assertion, and the release version of Allegro
+   and your parameter `size' must reflect this. Otherwise, the debug version
+   of Allegro will abort at an assertion, and the release version of Allegro
    will overrun the destination buffer.
    
 @\char *@uconvert(const char *s, int type,
 @@               char *buf, int newtype, int size);
 @xref set_uformat, need_uconvert, uconvert, uconvert_ascii, uconvert_toascii
 @xref do_uconvert
-@shortdesc Hih level string encoding conversion wrapper.
+@shortdesc High level string encoding conversion wrapper.
    Higher level function running on top of do_uconvert(). This function 
    converts the specified string `s' from `type' to `newtype', storing at most
    `size' bytes into the output `buf' (including the terminating null
@@ -1427,14 +1427,14 @@ is best to set it with set_uformat() just before you call these.
 @xref uconvert, ustrcpy, ustrzncpy
 @eref ex3buf, exgui
 @shortdesc Copies a string into another one, specifying size.
-   This function copies `src' (including the terminating NULL character into
+   This function copies `src' (including the terminating null character) into
    `dest', whose length in bytes is specified by `size' and which is
    guaranteed to be null-terminated even if `src' is bigger than `size'.
-   
+
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
-   and your parameter size must reflect this. Otherwise, the debug version of
-   Allegro will abort at an assertion, and the release version of Allegro
+   and your parameter `size' must reflect this. Otherwise, the debug version
+   of Allegro will abort at an assertion, and the release version of Allegro
    will overrun the destination buffer.
 @retval
    Returns the value of `dest'.
@@ -1459,8 +1459,8 @@ is best to set it with set_uformat() just before you call these.
 
    Note that, even for empty strings, your destination string must have at
    least enough bytes to store the terminating null character of the string,
-   and your parameter size must reflect this. Otherwise, the debug version of
-   Allegro will abort at an assertion, and the release version of Allegro
+   and your parameter `size' must reflect this. Otherwise, the debug version
+   of Allegro will abort at an assertion, and the release version of Allegro
    will overrun the destination buffer.
 @retval
    Returns the value of `dest'.
@@ -1497,7 +1497,9 @@ is best to set it with set_uformat() just before you call these.
 @eref exkeys
 @shortdesc Copies a string into another one, specifying size.
    This function is like ustrzcpy() except that no more than `n' characters
-   from `src' are copied into `dest'. If `src' is shorter than `n' characters,
+   from `src' are copied into `dest' whose length in bytes is specified by
+   `size' and which is guaranteed to be null-terminated even if `src' is
+   bigger than `size'. If `src' is shorter than `n' characters,
    null characters are appended to `dest' as padding until `n' characters have
    been written. In any case, `dest' is guaranteed to be null-terminated.
 
@@ -1607,18 +1609,18 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrrchr(const char *s, int c);
 @xref uconvert, ustrchr, ustrstr, ustrpbrk, ustrtok
-@shortdesc Finds the last occurence of a character in a string.
+@shortdesc Finds the last occurrence of a character in a string.
    Finds the last occurrence of the character `c' in the string `s'. Example:
 <codeblock>
       char *p = ustrrchr("one,two,three,four", ',');<endblock>
 @retval
-   Returns a pointer fo the last occurrence of `c' in `s', or NULL if no
+   Returns a pointer for the last occurrence of `c' in `s', or NULL if no
    match was found.
 
 @@char *@ustrstr(const char *s1, const char *s2);
 @xref uconvert, ustrchr, ustrrchr, ustrpbrk, ustrtok
-@shortdesc Finds the first occurence of a string in another one.
-   This function finds the first occurence of string `s2' in string `s1'.
+@shortdesc Finds the first occurrence of a string in another one.
+   This function finds the first occurrence of string `s2' in string `s1'.
    Example:
 <codeblock>
       char *p = ustrstr("hello world", "world");<endblock>
@@ -1644,7 +1646,7 @@ is best to set it with set_uformat() just before you call these.
    from `set'. To initiate the search, pass the string to be searched as `s'.
    For the remaining tokens, pass NULL instead. Warning: Since ustrtok alters
    the string it is parsing, you should always copy the string to a temporary
-   buffer before parsing it. Also, this function is not reentrant (ie. you
+   buffer before parsing it. Also, this function is not re-entrant (ie. you
    cannot parse two strings at the same time). Example:
 <codeblock>
       char *word;
@@ -1747,7 +1749,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uszprintf(char *buf, int size, const char *format, ...);
 @xref uconvert, usprintf, uvszprintf
-@eref exgui
+@eref exgui, exnew_events
 @shortdesc Writes formatted data into a buffer, specifying size.
    This function writes formatted data into the output buffer, whose length
    in bytes is specified by `size' and which is guaranteed to be NULL
@@ -1819,6 +1821,8 @@ which begin with a `[sectionname]' line. Each section has a unique
 namespace, to prevent variable name conflicts, but any variables that aren't 
 in a section are considered to belong to all the sections simultaneously.
 
+Note that variable and section names cannot contain spaces.
+
 By default the configuration data is read from a file called `allegro.cfg',
 which can be located either in the same directory as the program executable, 
 or the directory pointed to by the ALLEGRO environment variable. Under Unix, 
@@ -1838,7 +1842,7 @@ comes with a setup directory where you can find configuration programs. The
 standalone setup program is likely to be of interest to final users. It
 allows any user to create an `allegro.cfg' file without the need to touch a
 text editor and enter values by hand. It also provides a few basic tests like
-sound playing for soundcard testing. You are welcome to include the setup
+sound playing for sound card testing. You are welcome to include the setup
 program with your game, either as is or with modified graphics to fit better
 your game.
 
@@ -1847,13 +1851,10 @@ your game.
 @xref Standard config variables, set_config_string, get_config_string
 @eref exconfig
 @shortdesc Sets the configuration file.
-   Sets the configuration file to be used by all subsequent config 
-   functions. If you don't call this function, Allegro will use the default 
-   `allegro.cfg' file, looking first in the same directory as your program
-   and then in the directory pointed to by the ALLEGRO environment variable
-   and the usual platform-specific paths for configuration files. For example
-   it will look for `/etc/allegro.cfg' under Unix.
-
+   Sets the configuration file to be used by all subsequent config
+   functions. (Allegro will not search for this file in other locations
+   as it does with allegro.cfg at the time of initialization.)
+   
    All pointers returned by previous calls to get_config_string() and
    other related functions are invalidated when you call this function!
    You can call this function before install_allegro() to change the
@@ -2172,6 +2173,13 @@ your game.
    char const **sections = NULL;
    char const **entries = NULL;
 
+   /* List all entries not in any section. */
+   n = list_config_entries(NULL, &entries);
+   for (i = 0; i < n; i++)
+      printf(" %s=\"%s\"\n", entries[i], get_config_string(
+             NULL, entries[i], "-"));
+
+   /* List all sections (and entries in them). */
    n = list_config_sections(&sections);
    /* loop through all section names */
    for (i = 0; i < n; i++)
@@ -2186,6 +2194,7 @@ your game.
              sections[i], entries[j], "-"));
       }
    }
+   /* It is enough to free the arrays once at the end. */
    free_config_entries(&sections);
    free_config_entries(&entries);<endblock>
 @retval
@@ -2227,13 +2236,13 @@ Allegro uses these standard variables from the configuration file:
 <ul><li>
 system = x<br>
    Specifies which system driver to use. This is currently only useful on 
-   Linux, for choosing between the XWindows ("XWIN") or console ("LNXC") 
+   Linux, for choosing between the X-Windows ("XWIN") or console ("LNXC") 
    modes.
 <li>
 keyboard = x<br>
    Specifies which keyboard layout to use. The parameter is the name of a 
    keyboard mapping file produced by the keyconf utility, and can either be 
-   a fully qualified file path or a basename like `us' or `uk'. If the 
+   a fully qualified file path or a base name like `us' or `uk'. If the 
    latter, Allegro will look first for a separate config file with that name 
    (eg. `uk.cfg') and then for an object with that name in the `keyboard.dat'
    file (eg. `UK_CFG'). The config file or `keyboard.dat' file can be stored 
@@ -2244,7 +2253,7 @@ keyboard = x<br>
 language = x<br>
    Specifies which language file to use for error messages and other bits of 
    system text. The parameter is the name of a translation file, and can 
-   either be a fully qualified file path or a basename like `en' or `es'. If
+   either be a fully qualified file path or a base name like `en' or `es'. If
    the latter, Allegro will look first for a separate config file with a 
    name in the form `entext.cfg', and then for an object with that name in 
    the `language.dat' file (eg. `ENTEXT_CFG'). The config file or 
@@ -2357,7 +2366,7 @@ ev_absolute = x<br>
    If unspecified, the mode is relative.
    If the device supports several tools (such as a graphic tablet), the
    default input is the mouse. If the device has only one tool (e.g. a
-   normal mouse) the default input is this tool. All additionnal tools
+   normal mouse) the default input is this tool. All additional tools
    work in absolute mode.
 <li>
 ev_min_x = x<br>
@@ -2417,7 +2426,7 @@ quality = x<br>
    Controls the sound quality vs. performance tradeoff for the sample mixing 
    code. This can be set to any of the values:<textblock>
       0 - fast mixing of 8-bit data into 16-bit buffers
-      1 - true 16-bit mixing (requires a 16-bit stereo soundcard)
+      1 - true 16-bit mixing (requires a 16-bit stereo sound card)
       2 - interpolated 16-bit mixing<endblock>
 <li>
 flip_pan = x<br>
@@ -2442,13 +2451,13 @@ sound_stereo = x<br>
    Unix and BeOS: selects mono or stereo output (0 or 1).
 <li>
 sound_port = x<br>
-   DOS only: sets the soundcard port address (this is usually 220).
+   DOS only: sets the sound card port address (this is usually 220).
 <li>
 sound_dma = x<br>
-   DOS only: sets the soundcard DMA channel (this is usually 1).
+   DOS only: sets the sound card DMA channel (this is usually 1).
 <li>
 sound_irq = x<br>
-   DOS only: sets the soundcard IRQ number (this is usually 7).
+   DOS only: sets the sound card IRQ number (this is usually 7).
 <li>
 fm_port = x<br>
    DOS only: sets the port address of the OPL synth (this is usually 388).
@@ -2640,7 +2649,7 @@ Custom operating system cursor (hardware cursor)<br>
    Allegro will let the operating system draw the mouse cursor. Use
    set_mouse_sprite() and show_mouse() (or show_os_cursor) to define your
    own cursor and display it on the screen. Not all graphics drivers are
-   capable of this and some may only be able to display cursors upto a
+   capable of this and some may only be able to display cursors up to a
    certain size. Allegro will fall back on its own cursor drawing if it
    cannot let the OS handle this. On some platforms, the hardware cursor
    is incompatible with get_mouse_mickeys() and it is therefor disabled by
@@ -2677,7 +2686,7 @@ information for more details.
    of telling how many buttons there are, and any user can override the
    number of mouse buttons returned by this function with a custom
    configuration file and the variable num_buttons. Even if this value is
-   overriden by the user, the global mouse variables will still report
+   overridden by the user, the global mouse variables will still report
    whatever the hardware is sending.
 
 @@void @remove_mouse();
@@ -2808,7 +2817,7 @@ information for more details.
 
    The bmp argument can either point to a valid bitmap or it can be NULL.
    Passing a bitmap makes Allegro use that image in place of its own
-   default substition (should the operating system's native cursor
+   default substitution (should the operating system's native cursor
    be unavailable). The bitmap must remain available for the duration
    in which it could be used. Passing NULL lets Allegro revert to its
    default substitutions.
@@ -2819,6 +2828,7 @@ information for more details.
 @@extern volatile int @mouse_x;
 @@extern volatile int @mouse_y;
 @@extern volatile int @mouse_z;
+@@extern volatile int @mouse_w;
 @@extern volatile int @mouse_b;
 @@extern volatile int @mouse_pos;
 @xref install_mouse, poll_mouse, mouse_needs_poll
@@ -2829,12 +2839,12 @@ information for more details.
    mouse_needs_poll() returns TRUE, you must manually call poll_mouse() to 
    update them with the current input state. The `mouse_x' and `mouse_y' 
    positions are integers ranging from zero to the bottom right corner of 
-   the screen. The `mouse_z' variable holds the current wheel position, when 
-   using an input driver that supports wheel mice. The `mouse_b' variable is 
-   a bitfield indicating the state of each button: bit 0 is the left button, 
-   bit 1 the right, and bit 2 the middle button. Additional non standard
-   mouse buttons might be available as higher bits in this variable. Usage
-   example:
+   the screen. The `mouse_z' and `mouse_w' variables hold the current vertical
+   and horizontal wheel position, when using an input driver that supports
+   wheel mice. The `mouse_b' variable is a bitfield indicating the state of
+   each button: bit 0 is the left button,  bit 1 the right, and bit 2 the
+   middle button. Additional non standard mouse buttons might be available
+   as higher bits in this variable. Usage example:
 <codeblock>
       if (mouse_b & 1)
 	 printf("Left button is pressed\n");
@@ -2926,7 +2936,7 @@ information for more details.
    The most common use for this function is to just call it once at the
    beginning of the program to tell it to display the system cursor inside
    the Allegro window. The return value can be used to see if this
-   suceeded or not. On some systems (e.g. DirectX fullscreen) this is not
+   succeeded or not. On some systems (e.g. DirectX fullscreen) this is not
    supported and the function will always fail, and in other cases only
    some of the cursors will work, or in the case of MOUSE_CURSOR_ALLEGRO,
    only certain bitmap sizes may be supported.
@@ -2950,14 +2960,20 @@ information for more details.
 
 @@void @position_mouse(int x, int y);
 @xref install_mouse, position_mouse_z, set_mouse_range, set_mouse_speed
+@xref position_mouse_w
 @shortdesc Moves the mouse to the specified screen position.
    Moves the mouse to the specified screen position. It is safe to call even 
    when a mouse pointer is being displayed.
 
 @@void @position_mouse_z(int z);
-@xref install_mouse, position_mouse
+@xref install_mouse, position_mouse, position_mouse_w
 @shortdesc Sets the mouse wheel position global variable.
    Sets the mouse wheel position variable to the specified value.
+
+@@void @position_mouse_w(int w);
+@xref install_mouse, position_mouse
+@shortdesc Sets the horizontal mouse wheel position.
+   Sets the horizontal mouse wheel position to the specified value.
 
 @@void @set_mouse_range(int x1, int y1, int x2, int y2);
 @xref install_mouse, set_mouse_speed, position_mouse
@@ -3082,7 +3098,7 @@ Allegro does not provide such devices.)
 @shortdesc Adds or modifies a timer.
    Adds a function to the list of user timer handlers or, if it is already 
    installed, retroactively adjusts its speed (i.e makes as though the speed
-   change occured precisely at the last tick). The speed is given in hardware
+   change occurred precisely at the last tick). The speed is given in hardware
    clock ticks, of which there are 1193181 a second. You can convert from 
    other time formats to hardware clock ticks with the macros:
 <textblock>
@@ -3208,7 +3224,8 @@ Allegro does not provide such devices.)
 @@void @rest(unsigned int time);
 @xref install_timer, rest_callback
 @xref vsync, d_yield_proc
-@eref exkeys, exmidi, exquat, exsample, exsprite, extimer, exunicod
+@eref exkeys, exmidi, exquat, exsample, exsprite, extimer, extrans
+@eref exunicod
 @shortdesc Waits a specified number of milliseconds or yields CPU.
    This function waits for the specified number of milliseconds.
 
@@ -3250,7 +3267,7 @@ otherwise the default US keyboard mapping will be used. Allegro comes with a
 prepackaged `keyboard.dat' file which you can put along with your binary. If
 this file is present, Allegro will be able to extract the keyboard mapping
 information stored there. However, the end user still needs to select which
-keyboard mapping to use. This can be acomplished through the keyboard variable
+keyboard mapping to use. This can be accomplished through the keyboard variable
 of the system section in a standard `allegro.cfg' configuration file. Read
 chapter "Configuration routines" for more information about this.
 
@@ -3265,19 +3282,19 @@ chapter "Configuration routines" for more information about this.
    before using any of the keyboard input routines. Once you have set up the 
    Allegro handler, you can no longer use operating system calls or C 
    library functions to access the keyboard.
-   
+
    Note that on some platforms the keyboard won't work unless you have set a
    graphics mode, even if this function returns a success value before
    calling set_gfx_mode. This can happen in environments with graphic
    windowed modes, since Allegro usually reads the keyboard through the
-   graphical window (which appears after the set_gfx_call). Example:
+   graphical window (which appears after the set_gfx_mode call). Example:
 <codeblock>
       allegro_init();
       install_timer();
       install_keyboard();
       /* We are not 100% sure we can read the keyboard yet! */
       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0)
-         abort_on_error("Couldn't set graphic mode!")
+         abort_on_error("Couldn't set graphic mode!");
 
       /* Now we are guaranteed to be able to read the keyboard. */
       readkey();<endblock>
@@ -3700,7 +3717,7 @@ chapter "Configuration routines" for more information about this.
 
 @@extern int @three_finger_flag;
 @xref install_keyboard
-@shortdesc Flag to desactivate the emergency exit key combination.
+@shortdesc Flag to deactivate the emergency exit key combination.
    The DJGPP keyboard handler provides an 'emergency exit' sequence which
    you can use to kill off your program. If you are running under DOS this 
    is the three finger salute, ctrl+alt+del. Most multitasking OS's will 
@@ -3736,11 +3753,12 @@ incorrect data.
 @xref JOY_TYPE_*/DOS, JOY_TYPE_*/Windows, JOY_TYPE_*/Linux
 @eref exjoy
 @shortdesc Initialises the joystick.
-   Initialises the joystick, and calibrates the centre position value. The 
-   type parameter should usually be JOY_TYPE_AUTODETECT, or see the platform 
-   specific documentation for a list of the available drivers. You must call 
-   this routine before using any other joystick functions, and you should 
-   make sure that the joystick is in the middle position at the time. Example:
+   Installs Allegro's joystick handler, and calibrates the centre position
+   values. The type parameter should usually be JOY_TYPE_AUTODETECT, or see
+   the platform specific documentation for a list of the available drivers.
+   You must call this routine before using any other joystick functions, and
+   you should make sure that all joysticks are in the middle position at the
+   time. Example:
 <codeblock>
       textout_centre_ex(screen, font,
 			"Center the joystick and press a key",
@@ -3766,8 +3784,8 @@ incorrect data.
 @xref install_joystick, joy, num_joysticks
 @eref exjoy
 @shortdesc Polls the joystick.
-   The joystick is not interrupt driven, so you need to call this function 
-   every now and again to update the global position values. Example:
+   The joystick handler is not interrupt driven, so you need to call this
+   function every now and again to update the global position values. Example:
 <codeblock>
    do {
       /* Get joystick input */
@@ -3790,7 +3808,7 @@ incorrect data.
 @eref exjoy
 @shortdesc Global variable saying how many joysticks there are.
    Global variable containing the number of active joystick devices. The 
-   current drivers support a maximum of four controllers.
+   current drivers support a maximum of eight controllers.
 
 @@extern JOYSTICK_INFO @joy[n];
 @xref install_joystick, poll_joystick, num_joysticks, calibrate_joystick
@@ -3908,7 +3926,7 @@ incorrect data.
 @xref install_joystick, calibrate_joystick, joy, num_joysticks
 @eref exjoy
 @shortdesc Returns the next calibration text string.
-   As parameter pass the number of joystick you want to calibrate.
+   Pass the number of the joystick you want to calibrate as the parameter.
 @retval
    Returns a text description for the next type of calibration that will be
    done on the specified joystick, or NULL if no more calibration is 
@@ -4056,7 +4074,7 @@ them, a feature supported on all platforms and video cards (given that they
 have enough memory for the screen resolutions you asked for).
 
 The last thing you need to know about setting a graphic mode are drivers.
-Each platform has a number of graphic drivers wich support a different range
+Each platform has a number of graphic drivers which support a different range
 of hardware or behave in different ways. To avoid cluttering your own code
 with #ifdefs and dealing with drivers added after you release your program,
 Allegro provides several so called magic drivers. These magic drivers don't
@@ -4339,7 +4357,7 @@ GFX_SAFE:<br>
 @@int @is_windowed_mode(void);
 @xref set_gfx_mode
 @shortdesc Tells if you are running in windowed mode.
-   This function can be used to detect wether or not set_gfx_mode() selected
+   This function can be used to detect whether or not set_gfx_mode() selected
    a windowed mode. Example:
 <codeblock>
       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0)
@@ -4507,13 +4525,13 @@ GFX_SAFE:<br>
    <b>GFX_HW_VRAM_STRETCH_BLIT_MASKED:</b><br>
       Indicates that masked stretched blitting (including stretch_sprite) of 
       video bitmaps onto the screen is implemented using hardware acceleration.
-      NOTE: some display drivers may show artefacts when this function is used.
+      NOTE: some display drivers may show artifacts when this function is used.
       If the image does not look correct try updating your video drivers.
 
    <b>GFX_HW_SYS_STRETCH_BLIT_MASKED:</b><br>
       Indicates that masked stretched blitting (including stretch_sprite) of 
       system bitmaps onto the screen is implemented using hardware acceleration.
-      NOTE: some display drivers may show artefacts when this function is used.
+      NOTE: some display drivers may show artefact's when this function is used.
       If the image does not look correct try updating your video drivers.
 
    Note: even if the capabilities information says that patterned drawing is 
@@ -4824,7 +4842,7 @@ Allegro supports several different types of bitmaps:
    Creates a bitmap in a specific color depth (8, 15, 16, 24 or 32 bits per 
    pixel). Example:
 <codeblock>
-      /* Create screen sized bitmap in 32 bits per pixel. /*
+      /* Create screen sized bitmap in 32 bits per pixel. */
       BITMAP *bmp = create_bitmap_ex(32, SCREEN_W, SCREEN_H);
       if (!bmp)
 	 abort_on_error("Couldn't create bitmap!");
@@ -4840,7 +4858,7 @@ Allegro supports several different types of bitmaps:
 @@BITMAP *@create_sub_bitmap(BITMAP *parent, int x, y, width, height);
 @xref create_bitmap, create_bitmap_ex, destroy_bitmap, is_sub_bitmap
 @xref clear_bitmap, clear_to_color
-@eref expat, exscroll, exswitch
+@eref exnew_events, expat, exscroll, exswitch
 @shortdesc Creates a memory sub bitmap.
    Creates a sub-bitmap, ie. a bitmap sharing drawing memory with a 
    pre-existing bitmap, but possibly with a different size and clipping 
@@ -5071,7 +5089,7 @@ Allegro supports several different types of bitmaps:
 @eref ex12bit, excamera
 @shortdesc Sets the clipping rectangle of a bitmap.
    Each bitmap has an associated clipping rectangle, which is the area of 
-   the image that it is ok to draw onto. Nothing will be drawn to positions
+   the image that it is OK to draw onto. Nothing will be drawn to positions
    outside this space. This function sets the clipping rectangle for the
    specified bitmap. Pass the coordinates of the top-left and bottom-right
    corners of the clipping rectangle in this order; these are both inclusive,
@@ -5090,7 +5108,7 @@ Allegro supports several different types of bitmaps:
    likely to be altered (and so the coordinates returned by get_clip_rect()
    will be different). However, such modifications are guaranteed to preserve
    the external effect of the clipping rectangle, that is not to modify the
-   actual area of the image that it is ok to draw onto.
+   actual area of the image that it is OK to draw onto.
 
 @@void @get_clip_rect(BITMAP *bitmap, int *x1, int *y1, int *x2, int *y2);
 @xref set_clip_rect, add_clip_rect, set_clip_state, get_clip_state
@@ -5530,6 +5548,7 @@ before including Allegro headers).
 
 @@void @set_palette_range(const PALETTE p, int from, int to, int vsync);
 @xref set_palette, get_palette_range
+@eref exzbuf
 @shortdesc Sets a specific range of the palette.
    Sets the palette entries between from and to (inclusive: pass 0 and 255 
    to set the entire palette). If vsync is set it waits for the vertical 
@@ -6102,7 +6121,7 @@ and they, as well as lengths, are specified in pixel units.
 
 @@void @rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 @xref rectfill, drawing_mode, makecol
-@eref ex3d, excamera
+@eref ex3d, excamera, exnew_events
 @shortdesc Draws an outline rectangle.
    Draws an outline rectangle with the two points as its opposite corners.
 
@@ -6133,7 +6152,8 @@ and they, as well as lengths, are specified in pixel units.
 
 @@void @circle(BITMAP *bmp, int x, int y, int radius, int color);
 @xref ellipse, arc, circlefill, do_circle, drawing_mode, makecol
-@eref ex12bit, exblend, excustom, exjoy, exmem, exmouse, exquat, exsprite
+@eref ex12bit, exblend, excustom, exjoy, exmem, exmouse, exnew_events
+@eref exquat, exsprite
 @shortdesc Draws a circle.
    Draws a circle with the specified centre and radius.
 
@@ -6211,9 +6231,9 @@ and they, as well as lengths, are specified in pixel units.
 @@void @calc_spline(const int points[8], int npts, int *x, int *y);
 @xref spline
 @eref exspline
-@shortdesc Calculates a series of values along a bezier spline.
-   Calculates a series of npts values along a bezier spline, storing them in 
-   the output x and y arrays. The bezier curve is specified by the four x/y 
+@shortdesc Calculates a series of values along a Bezier spline.
+   Calculates a series of npts values along a Bezier spline, storing them in 
+   the output x and y arrays. The Bezier curve is specified by the four x/y 
    control points in the points array: points[0] and points[1] contain the 
    coordinates of the first control point, points[2] and points[3] are the 
    second point, etc. Control points 0 and 3 are the ends of the spline, and 
@@ -6229,8 +6249,8 @@ and they, as well as lengths, are specified in pixel units.
 @@void @spline(BITMAP *bmp, const int points[8], int color);
 @xref calc_spline, drawing_mode, makecol
 @eref exspline
-@shortdesc Draws a bezier spline using four control points.
-   Draws a bezier spline using the four control points specified in the 
+@shortdesc Draws a Bezier spline using four control points.
+   Draws a Bezier spline using the four control points specified in the 
    points array. Read the description of calc_spline() for information on
    how to build the points array.
 
@@ -6306,7 +6326,7 @@ A whole family of related words grew up around the BitBlt function, but "blt"
 is impossible to speak (try saying "bltter" or "bltting" :-) so people added
 the vowel to make it easier to pronounce.
 
-Thusly, the act of calling the BitBlt function came to be known as "doing a
+Therefore, the act of calling the BitBlt function came to be known as "doing a
 blit". The obvious next step was to rename the function itself to blit(),
 which generally took place at the same time as people decided to simplify the
 original, removing the different ROP modes on the grounds that they aren't
@@ -6506,7 +6526,7 @@ clipping rectangle of the destination bitmap.
       if (key[KEY_RIGHT])
 	 draw_sprite(screen, hero_right, pos_x, pos_y);
       else if (key[KEY_LEFT])
-	 draw_h_sprite(screen, hero_right, pos_x, pos_y);
+	 draw_sprite_h_flip(screen, hero_right, pos_x, pos_y);
       else
 	 draw_sprite(screen, hero_idle, pos_x, pos_y);<endblock>
 
@@ -6573,7 +6593,7 @@ clipping rectangle of the destination bitmap.
 	 set_trans_blender(40, 40, 255, 255);
 
       /* Lit the cape with a blueish light. */
-      draw_lit_sprite(buffer, colored_cape, x, y);<endblock>
+      draw_lit_sprite(buffer, colored_cape, x, y, 64);<endblock>
 
 @\void @draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                         int c1, int c2, int c3, int c4);
@@ -6823,7 +6843,7 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
 	 set_trans_blender(40, 40, 255, 255);
 
       /* Lit the cape with a blueish light. */
-      draw_lit_rle_sprite(buffer, rle_colored_cape, x, y);<endblock>
+      draw_lit_rle_sprite(buffer, rle_colored_cape, x, y, 64);<endblock>
 
 
 
@@ -6966,7 +6986,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
       textout_centre_ex(screen, myfont, "This is my own pretty font!",
 			SCREEN_W / 2, SCREEN_H / 2, white, black);
       ...
-      destroy_font(bmp);<endblock>
+      destroy_font(myfont);<endblock>
 @retval
    Returns a pointer to the font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
@@ -6982,7 +7002,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    with them, to prevent memory leaks in your program.
 
 @@void @make_trans_font(FONT *f);
-@xref set_alpha_blender, load_font, draw_trans_sprite
+@xref is_trans_font, set_alpha_blender, load_font, draw_trans_sprite
 @shortdesc Makes a font use transparency.
    This function converts a font to use transparency for drawing. That is, each
    glyph in the font will be drawn with draw_trans_sprite, so you can use the
@@ -6997,8 +7017,16 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    set_alpha_blender();
    textprintf_centre_ex(screen, f, 320, 240, -1, -1, "Anti-aliased Font!");<endblock>
 
+@@int @is_trans_font(FONT *f)
+@xref make_trans_font, is_color_font, is_mono_font
+@shortdesc Returns TRUE if a font uses transparency.
+   This function checks if the given font is a color font using
+   draw_trans_sprite to render glyphs.
+@retval
+   Returns TRUE if the font uses transparency, FALSE if it does not.
+
 @@int @is_color_font(FONT *f)
-@xref is_mono_font
+@xref is_trans_font, is_mono_font
 @shortdesc Returns TRUE if a font is a color font.
    This function checks if the given font is a color font, as opposed to a
    monochrome font.
@@ -7006,15 +7034,23 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    Returns TRUE if the font is a color font, FALSE if it is not.
 
 @@int @is_mono_font(FONT *f)
-@xref is_color_font
+@xref is_trans_font, is_color_font
 @shortdesc Returns TRUE if a font is a monochrome font.
    This function checks if the given font is a mono font, as opposed to a
    color font.
 @retval
    Returns TRUE if the font is a monochrome font, FALSE if it is not.
 
-@@FONT *@is_compatible_font(FONT *f1, FONT *f2)
-@xref merge_fonts, is_color_font, is_mono_font
+@@int @font_has_alpha(FONT *f)
+@xref is_trans_font
+@shortdesc Search all pixels of a font for alpha values.
+   This function goes through all pixels of all glyphs in the font and looks for
+   alpha values.
+@retval
+   Returns TRUE if any alpha pixels are found, else FALSE.
+
+@@int *@is_compatible_font(FONT *f1, FONT *f2)
+@xref merge_fonts, is_trans_font, is_color_font, is_mono_font
 @shortdesc Check if two fonts are of the same type.
    This function compares the two fonts, which you can use to find out if
    Allegro is capable of merging them.
@@ -7128,7 +7164,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    Returns 0 on success, -1 on failure.
 
 @@FONT *@merge_fonts(FONT *f1, FONT *f2)
-@xref extract_font_range, is_color_font, is_mono_font
+@xref extract_font_range, is_trans_font, is_color_font, is_mono_font
 @eref exfont
 @shortdesc Merges two fonts into one font.
    This function merges the character ranges from two fonts and returns a new
@@ -7145,7 +7181,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
       FONT *combined_font;
       FONT *tempfont;
       ...
-      /* Create a font that contains the capatials from  */
+      /* Create a font that contains the capitals from  */
       /* the fancy font but other characters from myfont */
       lower_range = extract_font_range(myfont, -1, 'A'-1);
       upper_range = extract_font_range(myfont, 'Z'+1, -1);
@@ -7158,7 +7194,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
       destroy_font(lower_range);
       destroy_font(upper_range);
       destroy_font(capitals);
-      destroy_font(combined_font);<endblock>
+      destroy_font(tempfont);<endblock>
 @retval
    Returns a pointer to the new font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
@@ -7259,7 +7295,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    The size of each character is determined by the layout of the image, which
    should be a rectangular grid containing all the ASCII characters from
    space (32) up to the tilde (126). The way the characters are separated
-   depends on the colordepth of the image file:
+   depends on the color depth of the image file:
 <ul><li>
    paletted (8 bit) image file
       Use color 0 for the transparent portions of the characters and fill the 
@@ -7280,10 +7316,10 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    should be in.
 
    Take care with high and true color fonts: Allegro will convert these to the
-   current colordepth when you load the font. If you try to use a font on
+   current color depth when you load the font. If you try to use a font on
    a bitmap with a different color depth Allegro will do color conversions on
    the fly, which will be rather slow. For optimal performance you should
-   set the colordepth to the colordepth you want to use before loading any
+   set the color depth to the color depth you want to use before loading any
    fonts.
 @retval
    Returns a pointer to the font or NULL on error. Remember that you are
@@ -7373,7 +7409,8 @@ allegro/text.h for details.
 
 @@int @text_height(const FONT *f)
 @xref text_length
-@eref ex12bit, exmidi, expackf, expat, exsprite, exsyscur, exunicod
+@eref ex12bit, exmidi, exnew_events, expackf, expat, exsprite, exsyscur
+@eref exunicod
 @shortdesc Returns the height of a font in pixels.
    Returns the height (in pixels) of the specified font. Example:
 <codeblock>
@@ -7477,7 +7514,7 @@ allegro/text.h for details.
 @\void @textprintf_right_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
 @@                         const char *fmt, ...);
 @xref textprintf_ex, textout_right_ex
-@eref exnewapi
+@eref exmouse
 @shortdesc Formatted right aligned output of a string.
    Like textprintf_ex(), but interprets the x coordinate as the right rather
    than the left edge of the string. This function shares the text length
@@ -7560,7 +7597,7 @@ set_blender_mode() is ignored.
 @shortdesc Polygon rendering mode type
    An affine texture mapped polygon. This stretches the texture across the
    polygon with a simple 2d linear interpolation, which is fast but not
-   mathematically correct. It can look ok if the polygon is fairly small or
+   mathematically correct. It can look OK if the polygon is fairly small or
    flat-on to the camera, but because it doesn't deal with perspective
    foreshortening, it can produce strange warping artifacts. To see what this
    means, run Allegro's test program and see what happens to the polygon3d()
@@ -7928,7 +7965,7 @@ with DRAW_MODE_TRANS.
 
 Z-buffered rendering works also within the scene renderer. It may be
 helpful when you have a few intersecting polygons, but most of the
-polygons may be safely rendered by the normal scanline sorting algo.
+polygons may be safely rendered by the normal scanline sorting algorithm.
 Same as before: just OR the POLYTYPE with POLYTYPE_ZBUF. Also, you
 have to clear the z-buffer at the start of the frame. Example:
 <codeblock>
@@ -7948,7 +7985,7 @@ have to clear the z-buffer at the start of the frame. Example:
 @shortdesc Allocates memory for a 3d scene.
    Allocates memory for a scene, `nedge' and `npoly' are your estimates of how
    many edges and how many polygons you will render (you cannot get over the
-   limit specified here). If you use same values in succesive calls, the
+   limit specified here). If you use same values in successive calls, the
    space will be reused (no new malloc()).
 
    The memory allocated is a little less than 150 * (nedge + npoly) bytes.
@@ -7988,7 +8025,7 @@ have to clear the z-buffer at the start of the frame. Example:
    Note that the texture is stored as a pointer only, and you should keep
    the actual bitmap around until render_scene(), where it is used.
 
-   Since the FLAT style is implemented with the low-level hline() funtion,
+   Since the FLAT style is implemented with the low-level hline() function,
    the FLAT style is subject to DRAW_MODEs. All these modes are valid. Along
    with the polygon, this mode will be stored for the rendering moment, and
    also all the other related variables (color_map pointer, pattern pointer,
@@ -8241,7 +8278,7 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
 @xref color_map, create_light_table, create_trans_table, create_color_table
 @xref draw_trans_sprite, draw_lit_sprite, draw_gouraud_sprite
 @xref set_trans_blender, set_blender_mode
-@shortdesc Emulates truecolor blender effects in palettised modes.
+@shortdesc Emulates truecolor blender effects in paletted modes.
    Fills the specified color mapping table with lookup data for doing a 
    paletted equivalent of whatever truecolor blender mode is currently 
    selected. After calling set_trans_blender(), set_blender_mode(), or any 
@@ -8510,8 +8547,8 @@ the conversion).
 @@void @hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b);
 @@void @rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v);
 @eref exlights, exrgbhsv
-@shortdesc Converts color values between the HSV and RGB colorspaces.
-   Convert color values between the HSV and RGB colorspaces. The RGB values 
+@shortdesc Converts color values between the HSV and RGB color spaces.
+   Convert color values between the HSV and RGB color spaces. The RGB values 
    range from 0 to 255, hue is from 0 to 360, and saturation and value are 
    from 0 to 1. Example:
 <codeblock>
@@ -8754,14 +8791,14 @@ these with the lower level functions described below.
 @shortdesc Plays a FLI or FLC animation from memory.
    Plays an Autodesk Animator FLI or FLC animation on the specified BITMAP,
    reading the data from a copy of the file which is held in memory. You can
-   obtain the `fli_data' pointer by mallocing a block of memory and reading
+   obtain the `fli_data' pointer by allocating a block of memory and reading
    an FLI file into it, or by importing an FLI into a grabber datafile. If
    `loop' is not zero, the player will cycle when it reaches the end of the
    file, otherwise it will play through the animation once and then return.
    Read the beginning of chapter "FLIC routines" for a description of the
    callback parameter.
 
-   Playing animations from memory is obviously faster than cueing them
+   Playing animations from memory is obviously faster than cuing them
    directly from disk, and is particularly useful with short, looped FLI's.
    Animations can easily get very large, though, so in most cases you will
    probably be better just using play_fli(). You can think of this function
@@ -8913,7 +8950,7 @@ exceed this limit, Allegro will cut off one of the samples being played and
 reproduce the new one. Depending on the type of sounds you are playing, how
 many of them you need at the same time and their nature (e.g: vital audio
 feedback to the user or useless "ping" when some shrapnel hits a rock in the
-scenary) you will want to specify more carefully how hardware voices are
+scenery) you will want to specify more carefully how hardware voices are
 reserved and which samples have priority over others.
 
 The hardware voice reservation phase has to be done before the call to
@@ -9114,8 +9151,8 @@ Mixer routines
 
 @@int @get_mixer_bits(void);
 @xref Standard config variables
-@shortdesc Returns the mixer bitdepth (8 or 16).
-   Returns the mixer bitdepth (8 or 16).
+@shortdesc Returns the mixer bit depth (8 or 16).
+   Returns the mixer bit depth (8 or 16).
 
 @@int @get_mixer_channels(void);
 @xref Standard config variables
@@ -9190,7 +9227,7 @@ Digital sample routines
 @shortdesc Loads a sample from a Creative Labs VOC file.
    Loads a sample from a Creative Labs VOC file. Example:
 <codeblock>
-      SAMPLE *sample = load_wav("alarm.wav");
+      SAMPLE *sample = load_voc("alarm.voc");
       if (!sample)
 	 abort_on_error("Couldn't alert user!");<endblock>
 @retval
@@ -9304,11 +9341,12 @@ Digital sample routines
    not playing it has no effect.
 
 @@void @stop_sample(const SAMPLE *spl);
-@xref play_sample
-@shortdesc Kills off a sample.
-   Kills off a sample, which is required if you have set a sample going in 
-   looped mode. If there are several copies of the sample playing, it will 
-   stop them all.
+@xref play_sample, destroy_sample
+@shortdesc Stops a sample from playing.
+   Stop a sample from playing, which is required if you have set a sample
+   going in looped mode. If there are several copies of the sample playing,
+   it will stop them all. You must still destroy the sample using
+   destroy_sample().
 
 @hnode Voice control
 @xref install_sound, allocate_voice, deallocate_voice, reallocate_voice
@@ -9327,8 +9365,8 @@ its definition.
 @@int @allocate_voice(const SAMPLE *spl);
 @xref Voice control, deallocate_voice, reallocate_voice, release_voice
 @xref load_sample
-@shortdesc Allocates a soundcard voice for a sample.
-   Allocates a soundcard voice and prepares it for playing the specified 
+@shortdesc Allocates a sound card voice for a sample.
+   Allocates a sound card voice and prepares it for playing the specified 
    sample, setting up sensible default parameters (maximum volume, centre 
    pan, no change of pitch, no looping). When you are finished with the 
    voice you must free it by calling deallocate_voice() or release_voice().
@@ -9339,8 +9377,8 @@ its definition.
 
 @@void @deallocate_voice(int voice);
 @xref allocate_voice, voice_stop
-@shortdesc Frees a soundcard voice.
-   Frees a soundcard voice, stopping it from playing and releasing whatever 
+@shortdesc Frees a sound card voice.
+   Frees a sound card voice, stopping it from playing and releasing whatever 
    resources it is using.
 
 @@void @reallocate_voice(int voice, const SAMPLE *spl);
@@ -9354,8 +9392,8 @@ its definition.
 
 @@void @release_voice(int voice);
 @xref allocate_voice, deallocate_voice
-@shortdesc Releases a soundcard voice.
-   Releases a soundcard voice, indicating that you are no longer interested 
+@shortdesc Releases a sound card voice.
+   Releases a sound card voice, indicating that you are no longer interested 
    in manipulating it. The sound will continue to play, and any resources 
    that it is using will automatically be freed when it finishes. This is 
    essentially the same as deallocate_voice(), but it waits for the sound to 
@@ -9379,7 +9417,7 @@ its definition.
 @shortdesc Sets the priority of a voice.
    Sets the priority of a voice (range 0-255). This is used to decide which 
    voices should be chopped off, if you attempt to play more than the 
-   soundcard driver can handle.
+   sound card driver can handle.
 
 @@SAMPLE *@voice_check(int voice);
 @xref allocate_voice, voice_start, voice_get_position
@@ -9523,22 +9561,22 @@ Music routines (MIDI)
 
 Allegro allows you to play MIDI files. MIDI files basically contain notes and
 the type of instrument that is meant to play them, so they are usually very
-small in size. However, it's up to the soundcard of the end user to play the
-notes, and soundcards have been historically known to have poor MIDI
+small in size. However, it's up to the sound card of the end user to play the
+notes, and sound cards have been historically known to have poor MIDI
 performance (at least those oriented to the consumer market). Few consumer
 cards feature decent MIDI playback. Still, as a game creator you can never be
 sure if the music of your game will be played as you meant it, because it
 totally depends on the hardware of the user.
 
 For this reason Allegro also provides a DIGMID driver. This is a software
-implementation of the so called Wavetable synthesis. Soundcards featuring this
+implementation of the so called Wavetable synthesis. Sound cards featuring this
 store digital samples of real instruments at different pitches, interpolating
 those that are not recorded, thus achieving a high sound quality. Implementing
 this in software makes you sure that the quality you hear on your computer is
 that which will be heard by end users using the same driver.
 
 The disadvantage of the DIGMID driver is that it uses more CPU than simple
-MIDI playback, and it steals some hardware voices from the soundcard, which
+MIDI playback, and it steals some hardware voices from the sound card, which
 might be more critical for the end user experience than the background music.
 At the Allegro homepage (<link>http://alleg.sourceforge.net/</a>) you can find more
 information about DIGMID and where to download digital samples for your MIDI
@@ -9659,7 +9697,7 @@ files.
 @@void @midi_out(unsigned char *data, int length);
 @xref install_sound, load_midi_patches, midi_recorder
 @shortdesc Streams a block of MIDI commands into the player.
-   Streams a block of MIDI commands into the player in realtime, allowing 
+   Streams a block of MIDI commands into the player in real-time, allowing 
    you to trigger notes, jingles, etc, over the top of whatever MIDI file is 
    currently playing.
 
@@ -9841,14 +9879,14 @@ for the internals of the AUDIOSTREAM structure.
 @heading
 Recording routines
 
-Allegro provides routines to capture sound from the soundcard, be it digital
+Allegro provides routines to capture sound from the sound card, be it digital
 samples or MIDI notes. Ideally this would allow you to create games where
 basic speech recognition could be implemented, or voice messages in
 multiplayer games over a network. However, many old sound cards are not full
 duplex. This means, that the sound device can only be playing or recording,
 but not both at the same time.
 
-Any Windows 2000 or better machine comes with a full duplex soundcard and
+Any Windows 2000 or better machine comes with a full duplex sound card and
 updated drivers. All MacOS X machines allow full duplex recording. Under Unix
 your mileage may vary: you can have the right hardware for the task, but the
 drivers might not support this feature. Under DOS you should forget about full
@@ -9945,7 +9983,7 @@ distributed along with Allegro, in the `tests' directory.
       1  = Recording is possible, but audio output
 	   will be suspended.
       2  = Recording is possible at the same time as
-	   playing other sounds (full duplex soundcard).
+	   playing other sounds (full duplex sound card).
       -n = Sampling rate not supported, but rate 'n'
 	   would work instead.<endblock>
 
@@ -10052,7 +10090,7 @@ When passed to the functions as the 'attrib' parameter, these flags
 represent an upper set in which the actual flag set of a matching file must 
 be included. That is, in order for a file to be matching, its attributes 
 may contain any of the specified flags but must not contain any of the 
-unspecified flags. In other words, you explictly <i>exclude</i> the flags that you
+unspecified flags. In other words, you explicitly <i>exclude</i> the flags that you
 do <i>not</i> specify. Thus if you pass 'FA_DIREC | FA_RDONLY', normal files 
 and directories will be included as well as read-only files and 
 directories, but not hidden files and directories. Similarly, if you pass 
@@ -10643,6 +10681,17 @@ any character, but only one).
    Returns the next character from the stream `f', or EOF if the end of the
    file has been reached.
 
+@@int @pack_ungetc(int c, PACKFILE *f);
+@xref pack_getc, pack_fgets
+@shortdesc Moves one single character back to the input buffer.
+   Puts a character back to the file's input buffer. Like with ungetc from
+   libc, only a single push back is guaranteed.
+
+   Note: pack_fgets internally uses pack_ungetc, so never use pack_ungetc
+   directly after using pack_fgets on a PACKFILE.
+@retval
+   Returns c on success, or EOF on error.
+
 @@int @pack_putc(int c, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk
 @shortdesc Puts a character in the stream.
@@ -10722,7 +10771,7 @@ any character, but only one).
    error occurs. Error codes are stored in errno.
 
 @@char *@pack_fgets(char *p, int max, PACKFILE *f);
-@xref pack_fopen, pack_fopen_chunk, pack_fread, pack_getc
+@xref pack_fopen, pack_fopen_chunk, pack_fread, pack_getc, pack_ungetc
 @shortdesc Reads a line from the stream.
    Reads a line from the stream `f', storing it at location pointed to by
    `p'. Stops when a linefeed is encountered, or `max' bytes have been read.
@@ -10731,7 +10780,12 @@ any character, but only one).
    (Mac) formats. However, the trailing carriage return is not included in the
    returned string, in order to provide easy code portability across
    platforms. If you need the carriage return, use pack_fread() and/or
-   pack_getc() instead. Example:
+   pack_getc() instead.
+
+   Note: This function internally may make calls to pack_ungetc, so you cannot
+   use pack_ungetc directly afterwards.
+
+   Example:
 <codeblock>
       char buf[256];
       ...
@@ -11639,7 +11693,7 @@ particularly accurate. At the moment the inverse tan uses an iterative
 search on the tan table, so it is a lot slower than the others. Note that on
 machines with very good floating point processors using these functions could
 be slower in real life code due to cache misses: it may be faster to wait
-a few extra cicles for a floating point sine result rather than wait for the
+a few extra cycles for a floating point sine result rather than wait for the
 CPU to fetch the precalculated table from main memory. Always profile your
 code.
 
@@ -12216,7 +12270,7 @@ matrix, you can encode a geometric transformations in one, concatenate
 several of them to merge multiple transformations, and apply them to a 
 vector, but they can only store pure rotations. The big advantage is that 
 you can accurately interpolate between two quaternions to get a part-way 
-rotation, avoiding the gimbal problems of the more conventional euler angle 
+rotation, avoiding the gimbal problems of the more conventional Euler angle 
 interpolation.
 
 Quaternions only have floating point versions, without any _f suffix. Other 
@@ -12697,8 +12751,8 @@ still drawn too large until version 4.1.0.
 @@int @d_yield_proc(int msg, DIALOG *d, int c);
 @xref rest
 @eref exgui
-@shortdesc Invisible dialog procedure that yields CPU timeslices.
-   An invisible helper object that yields timeslices for the scheduler (if
+@shortdesc Invisible dialog procedure that yields CPU time slices.
+   An invisible helper object that yields time slices for the scheduler (if
    the system supports it) when the GUI has nothing to do but waiting for
    user actions. You should put one instance of this object in each dialog 
    array because it may be needed on systems with an unusual scheduling 
@@ -13243,7 +13297,7 @@ messages and the strings of your program.
    JOY_TYPE_N64PAD_LPT3<br>
       N64 joypads connected to LPT1, LPT2, and LPT3 respectively. See 
       <link>http://www.st-hans.de/N64.htm</a> for information about the 
-      necessary hardware adaptor. It supports up to four controllers on a 
+      necessary hardware adapter. It supports up to four controllers on a 
       single parallel port. There is no need to calibrate the analog stick, 
       as this is done by the controller itself when powered up. This means 
       that the stick has to be centred when the controller is initialised. 
@@ -13252,7 +13306,7 @@ messages and the strings of your program.
       can't see this causing any major problems. This is because of the 
       shape of the rim that the analog stick rests against. Like the Gravis 
       Game Pad Pro, this driver briefly needs to disable hardware interrupts 
-      while polling. This causes a noticable performance hit on my machine 
+      while polling. This causes a noticeable performance hit on my machine 
       in both drivers, but there is no way around it. At a (very) rough 
       guess I'd say it slows down Mame 5% - 10%.
 <li>
@@ -13445,15 +13499,15 @@ messages and the strings of your program.
 @@Drivers @DIGI_*/DOS
 @xref detect_digi_driver, install_sound, install_sound_input
 @shortdesc Supported DOS digital sound drivers.
-   The DOS sound functions support the following digital soundcards:
+   The DOS sound functions support the following digital sound cards:
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
       DIGI_SB              - Sound Blaster (autodetect type)
-      DIGI_SB10            - SB 1.0 (8-bit mono single shot dma)
-      DIGI_SB15            - SB 1.5 (8-bit mono single shot dma)
+      DIGI_SB10            - SB 1.0 (8-bit mono single shot DMA)
+      DIGI_SB15            - SB 1.5 (8-bit mono single shot DMA)
       DIGI_SB20            - SB 2.0 (8-bit mono auto-initialised
-			     dma)
+			     DMA)
       DIGI_SBPRO           - SB Pro (8-bit stereo)
       DIGI_SB16            - SB16 (16-bit stereo)
       DIGI_AUDIODRIVE      - ESS AudioDrive
@@ -13463,7 +13517,7 @@ messages and the strings of your program.
 @@Drivers @MIDI_*/DOS
 @xref detect_midi_driver, install_sound, install_sound_input
 @shortdesc Supported DOS MIDI sound drivers.
-   The DOS sound functions support the following MIDI soundcards:
+   The DOS sound functions support the following MIDI sound cards:
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
@@ -13505,7 +13559,7 @@ same as the DOS platform. Read section chapter "Dos specifics" in the manual
 to learn more about this.
 
 A Windows program that uses the Allegro library is only required to include
-one or more header files from the include/allegro tree, or allegro.h; however,
+one or more header files from the include/allegro5 tree, or allegro5.h; however,
 if it also needs to directly call non portable Win32 API functions, it must
 include the Windows-specific header file winalleg.h after the Allegro headers,
 and before any Win32 API header file. By default winalleg.h includes the main
@@ -13680,7 +13734,7 @@ below for the consequences for windowed and overlay DirectX drivers.
 @@Drivers @DIGI_*/Windows
 @xref detect_digi_driver, install_sound, install_sound_input
 @shortdesc Supported Windows digital sound drivers.
-   The Windows sound functions support the following digital soundcards:
+   The Windows sound functions support the following digital sound cards:
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
@@ -13694,7 +13748,7 @@ below for the consequences for windowed and overlay DirectX drivers.
 @@Drivers @MIDI_*/Windows
 @xref detect_midi_driver, install_sound, install_sound_input
 @shortdesc Supported Windows MIDI sound drivers.
-   The Windows sound functions support the following MIDI soundcards:
+   The Windows sound functions support the following MIDI sound cards:
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
@@ -14040,7 +14094,7 @@ command. You could add another grep to filter only lines with text like
       and can operate remotely. It does not require root permissions.
       If the ARGB cursor extension is available, this driver is capable
       of displaying a hardware cursor. This needs to be enabled by calling
-      enable_hardware_cursor() becaue it cannot be used reliably alongside
+      enable_hardware_cursor() because it cannot be used reliably alongside
       get_mouse_mickeys().
 <li>
    GFX_XWINDOWS_FULLSCREEN<br>
@@ -14051,7 +14105,7 @@ command. You could add another grep to filter only lines with text like
       driver version.
       If the ARGB cursor extension is available, this driver is capable
       of displaying a hardware cursor. This needs to be enabled by calling
-      enable_hardware_cursor() becaue it cannot be used reliably alongside
+      enable_hardware_cursor() because it cannot be used reliably alongside
       get_mouse_mickeys().
 <li>
    GFX_XDGA2<br>
@@ -14066,7 +14120,7 @@ command. You could add another grep to filter only lines with text like
 @@Drivers @DIGI_*/Unix
 @xref detect_digi_driver, install_sound, install_sound_input
 @shortdesc Supported Unix digital sound drivers.
-   The Unix sound functions support the following digital soundcards:
+   The Unix sound functions support the following digital sound cards:
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
@@ -14079,7 +14133,7 @@ command. You could add another grep to filter only lines with text like
 @@Drivers @MIDI_*/Unix
 @xref detect_midi_driver, install_sound, install_sound_input
 @shortdesc Supported Unix MIDI sound drivers.
-   The Unix sound functions support the following MIDI soundcards:
+   The Unix sound functions support the following MIDI sound cards:
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
@@ -14164,7 +14218,7 @@ to learn more about this.
 @@Drivers @DIGI_*/BeOS
 @xref detect_digi_driver, install_sound, install_sound_input
 @shortdesc Supported BeOS digital sound drivers.
-   The BeOS sound functions support the following digital soundcards:
+   The BeOS sound functions support the following digital sound cards:
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
@@ -14173,7 +14227,7 @@ to learn more about this.
 @@Drivers @MIDI_*/BeOS
 @xref detect_midi_driver, install_sound, install_sound_input
 @shortdesc Supported BeOS MIDI sound drivers.
-   The BeOS sound functions support the following MIDI soundcards:
+   The BeOS sound functions support the following MIDI sound cards:
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
@@ -14238,7 +14292,7 @@ to learn more about this.
 @@Drivers @DIGI_*/QNX
 @xref detect_digi_driver, install_sound, install_sound_input
 @shortdesc Supported QNX digital sound drivers.
-   The QNX sound functions support the following digital soundcards:
+   The QNX sound functions support the following digital sound cards:
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
@@ -14247,7 +14301,7 @@ to learn more about this.
 @@Drivers @MIDI_*/QNX
 @xref detect_midi_driver, install_sound, install_sound_input
 @shortdesc Supported QNX MIDI sound drivers.
-   The QNX sound functions support the following MIDI soundcards:
+   The QNX sound functions support the following MIDI sound cards:
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
@@ -14277,7 +14331,7 @@ same as the DOS platform. Read section chapter "Dos specifics" in the manual
 to learn more about this.
 
 Allegro programs under MacOS X are Cocoa applications; in order to hide all
-the Cocoa interfacing to the enduser, you need to add the END_OF_MAIN()
+the Cocoa interfacing to the end-user, you need to add the END_OF_MAIN()
 macro right after your main() function. This is a necessary step: if you omit
 it, your program will not compile.
 
@@ -14344,7 +14398,7 @@ your main loop.
 @@Drivers @DIGI_*/MacOSX
 @xref detect_digi_driver, install_sound, install_sound_input
 @shortdesc Supported MacOSX digital sound drivers.
-   The MacOS X sound functions support the following digital soundcards:
+   The MacOS X sound functions support the following digital sound cards:
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
@@ -14355,7 +14409,7 @@ your main loop.
 @@Drivers @MIDI_*/MacOSX
 @xref detect_midi_driver, install_sound, install_sound_input
 @shortdesc Supported MacOSX MIDI sound drivers.
-   The MacOS X sound functions support the following MIDI soundcards:
+   The MacOS X sound functions support the following MIDI sound cards:
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
@@ -14418,6 +14472,10 @@ various attributes of the current platform:
 <b>ALLEGRO_GCC</b><br>
    Defined if you are building for a relevant system. Often several of these 
    will apply, eg. DOS+Watcom, or Windows+GCC+MinGW.
+
+   Note that ALLEGRO_LINUX is a misnomer. It will only be defined if
+   <i>Linux console</i> support is enabled. It is not a reliable way to check
+   if the program is being built on a Linux system.
 
 <b>ALLEGRO_AMD64</b><br>
 <b>ALLEGRO_I386</b><br>
@@ -14509,7 +14567,7 @@ following macros:
    The `curses' API also defines functions called vline() and hline().
    To avoid a linker conflict when both libraries are used, we have
    internally renamed our functions and added inline function aliases which
-   remap vline() and hline(). This should not be noticable to most users.
+   remap vline() and hline(). This should not be noticeable to most users.
 
    If you define ALLEGRO_NO_VHLINE_ALIAS prior to including Allegro headers,
    Allegro will not define the vline() and hline() aliases, e.g. so you can
@@ -14693,7 +14751,7 @@ numbers of buttons, Flightstick Pro, and Wingman Extreme, because these are
 all quite minor variations on the basic code.
 <li>
 If you are _really_ serious about this size, thing, have a look at the top 
-of include/allegro/alconfig.h and you will see the lines:
+of include/allegro5/alconfig.h and you will see the lines:
 <codeblock>
    #define ALLEGRO_COLOR8
    #define ALLEGRO_COLOR16
@@ -14782,7 +14840,8 @@ debugging helper functions:
    return non-zero if it has processed the error, or zero to continue with 
    the default actions. You could use this to ignore assert failures, or to 
    display the error messages on a graphics mode screen without aborting the 
-   program. Example:
+   program. You can call this function even when Allegro has not been
+   initialised. Example:
 <codeblock>
    int show_but_continue(const char *text)
    {
@@ -14801,7 +14860,8 @@ debugging helper functions:
    callback will be passed a formatted error message in ASCII, and should 
    return non-zero if it has processed the message, or zero to continue with 
    the default actions. You could use this to ignore trace output, or to 
-   display the messages on a second monochrome monitor, etc. Example:
+   display the messages on a second monochrome monitor, etc. You can call
+   this function even when Allegro has not been initialised. Example:
 <codeblock>
    int network_broadcaster(const char *text)
    {
@@ -14902,19 +14962,19 @@ platforms you can set the following environment variables:
 <li>
    UNIX_TOOLS=1<br>
    Instructs the build process to use Unix-like tools instead of DOS tools.
-   Note that you usually don't need to set it because the build proces will
+   Note that you usually don't need to set it because the build process will
    try to autodetect this configuration.
 <li>
    COMPILER_MSVC7=1 (MSVC only)<br>
    Enables special optimizations for MSVC 7 (the default is MSVC 6). You don't
    normally need to set this flag since <i>fix.bat msvc7</i> should do the same
-   thing and is the prefered way of doing this.
+   thing and is the preferred way of doing this.
 <li>
    COMPILER_ICL=1 (MSVC only)<br>
-   Instructs the build process to use the Intel commandline compiler icl rather
-   than Microsoft's commandline compiler cl. You don't normally need to pass 
+   Instructs the build process to use the Intel command line compiler icl rather
+   than Microsoft's command line compiler cl. You don't normally need to pass 
    this flag since <i>fix.bat icl</i> should do the same thing and is the 
-   prefered way of doing this. Do not try COMPILER_MSVC7=1 and COMPILER_ICL=1
+   preferred way of doing this. Do not try COMPILER_MSVC7=1 and COMPILER_ICL=1
    at the same time.
 </ul>
 If you only want to recompile a specific test program or utility, you can 
@@ -14981,7 +15041,7 @@ makefiles also provide some special pseudo-targets:
    generated file is especially prepared to be printed on paper.
 <li>
    'docs-ps' or 'docs-gzipped-ps' or 'docs-bzipped-ps' (Unix only)<br>
-   Creates a Postcript file from the previously generated DVI file. This is
+   Creates a PostScript file from the previously generated DVI file. This is
    not a default target, since you need the texi2dvi and dvips tools to
    create it. The second and third targets compress the generated Postscript
    file. The generated file is especially prepared to be printed on paper.
@@ -15070,8 +15130,8 @@ and avoid missing any important bit of information.
 @@Example @exhello
 @xref END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen, allegro_error
 @xref allegro_init, allegro_message, clear_to_color, desktop_palette
-@xref font, install_keyboard, makecol, readkey, release_screen, screen
-@xref set_gfx_mode, set_palette, textout_centre_ex
+@xref font, install_keyboard, key, makecol, readkey, release_screen
+@xref screen, set_gfx_mode, set_palette, textout_centre_ex
 @shortdesc Simple graphical "hello world" program.
    This is a very simple program showing how to get into graphics
    mode and draw text onto the screen.
@@ -15157,7 +15217,7 @@ and avoid missing any important bit of information.
 @xref END_OF_MAIN, FONT, SCREEN_H, SCREEN_W, acquire_screen
 @xref allegro_error, allegro_init, allegro_message, clear_to_color
 @xref desktop_palette, destroy_font, extract_font_range, font
-@xref install_keyboard, load_font, makecol, merge_fonts, readkey
+@xref install_keyboard, key, load_font, makecol, merge_fonts, readkey
 @xref release_screen, screen, set_gfx_mode, set_palette
 @xref textout_centre_ex
    This is a very simple program showing how to load and manipulate fonts.
@@ -15168,18 +15228,18 @@ and avoid missing any important bit of information.
 @xref circle, clear_keybuf, clear_to_color, create_bitmap
 @xref desktop_palette, destroy_bitmap, font, get_mouse_mickeys
 @xref install_keyboard, install_mouse, install_timer, key, keypressed
-@xref makecol, mouse_b, mouse_x, mouse_y, mouse_z, palette_color
+@xref makecol, mouse_b, mouse_w, mouse_x, mouse_y, mouse_z, palette_color
 @xref poll_mouse, readkey, release_screen, screen, set_gfx_mode
 @xref set_mouse_sprite, set_mouse_sprite_focus, set_palette, show_mouse
 @xref textout_centre_ex, textout_ex, textprintf_centre_ex, textprintf_ex
-@xref vsync
+@xref textprintf_right_ex, vsync
 @shortdesc Getting input from the mouse.
    This program demonstrates how to get mouse input. The
    first part of the test retrieves the raw mouse input data
    and displays it on the screen without using any mouse
    cursor. When you press a key the standard arrow-like mouse
    cursor appears.  You are not restricted to this shape,
-   and a second keypress modifies the cursor to be several
+   and a second key press modifies the cursor to be several
    concentric colored circles. They are not joined together,
    so you can still see bits of what's behind when you move the
    cursor over the printed text message.
@@ -15203,18 +15263,19 @@ and avoid missing any important bit of information.
 @xref END_OF_FUNCTION, END_OF_MAIN, LOCK_FUNCTION, SCREEN_H, SCREEN_W
 @xref acquire_screen, allegro_error, allegro_init, allegro_message, blit
 @xref clear_keybuf, clear_to_color, desktop_palette, font
-@xref install_keyboard, key, key_shifts, keyboard_lowlevel_callback
-@xref keypressed, makecol, readkey, rectfill, release_screen, rest
-@xref scancode_to_name, screen, set_gfx_mode, set_palette
-@xref textprintf_centre_ex, textprintf_ex, ureadkey, usprintf, ustrzncpy
+@xref install_keyboard, install_timer, key, key_shifts
+@xref keyboard_lowlevel_callback, keypressed, makecol, readkey, rectfill
+@xref release_screen, rest, scancode_to_name, screen, set_gfx_mode
+@xref set_palette, textprintf_centre_ex, textprintf_ex, ureadkey
+@xref usprintf, ustrzncpy
 @shortdesc How to get input from the keyboard in different ways.
    This program demonstrates how to access the keyboard. The
    first part shows the basic use of readkey(). The second part
-   shows how to extract the ASCII value. Next come the scancodes.
+   shows how to extract the ASCII value. Next come the scan codes.
    The fourth test detects modifier keys like alt or shift. The
    fifth test requires some focus to be passed. The final step
    shows how to use the global key array to read simultaneous
-   keypresses.
+   key presses.
    The last method to detect key presses are keyboard callbacks.
    This is demonstrated by by installing a keyboard callback,
    which marks all pressed keys by drawing to a grid.
@@ -15243,7 +15304,7 @@ and avoid missing any important bit of information.
 @xref textprintf_centre_ex
 @shortdesc Playing digital samples.
    This program demonstrates how to play samples. You have to
-   use this example from the commandline to specify as first
+   use this example from the command line to specify as first
    parameter a WAV or VOC sound file to play. If the file is
    loaded successfully, the sound will be played in an infinite
    loop. While it is being played, you can use the left and right
@@ -15298,11 +15359,12 @@ and avoid missing any important bit of information.
 @@Example @exunicod
 @xref BITMAP, DATAFILE, END_OF_MAIN, FONT, SCREEN_H, SCREEN_W
 @xref allegro_error, allegro_init, allegro_message, blit, clear_to_color
-@xref create_bitmap, font, install_int_ex, install_keyboard
-@xref install_timer, keypressed, load_datafile, replace_filename, rest
-@xref screen, set_gfx_mode, set_uformat, set_window_title, text_height
-@xref text_length, textout_ex, uconvert_ascii, unload_datafile, ustrcat
-@xref ustrcpy, ustrsize, ustrsizez
+@xref create_bitmap, destroy_bitmap, font, install_int_ex
+@xref install_keyboard, install_timer, keypressed, load_datafile
+@xref replace_filename, rest, screen, set_gfx_mode, set_uformat
+@xref set_window_title, text_height, text_length, textout_ex
+@xref uconvert_ascii, unload_datafile, ustrcat, ustrcpy, ustrsize
+@xref ustrsizez
 @shortdesc Using Unicode string functions.
    This program demonstrates the use of the 16-bit Unicode text
    encoding format with Allegro. The example displays a message
@@ -15321,7 +15383,7 @@ and avoid missing any important bit of information.
 @xref set_palette
 @shortdesc Loading and displaying PCX and BMP files.
    This program demonstrates how to load and display a bitmap
-   file.  You have to use this example from the commandline to
+   file.  You have to use this example from the command line to
    specify as first parameter a graphic file in one of Allegro's
    supported formats.  If the file is loaded successfully,
    it will be displayed until you press a key.
@@ -15332,8 +15394,8 @@ and avoid missing any important bit of information.
 @xref install_keyboard, keypressed, load_pcx, replace_filename, screen
 @xref set_gfx_mode, set_palette, stretch_blit, vsync
 @shortdesc Loading PCX files and bitmap stretching.
-   This example demonstrates how to use pcx files, palettes and stretch
-   blits. It loads a pcx file, sets its palette and does some random
+   This example demonstrates how to use PCX files, palettes and stretch
+   blits. It loads a PCX file, sets its palette and does some random
    stretch_blits. Don't worry - it's VERY slowed down using vsync().
 
 @@Example @exconfig
@@ -15345,10 +15407,10 @@ and avoid missing any important bit of information.
 @xref stretch_blit, textout_centre_ex, textprintf_centre_ex, ustrdup
 @xref ustricmp
 @shortdesc Using the configuration routines.
-   This is a very simple program showing how to use the allegro
-   config (ini file) routines. A first look at the example
+   This is a very simple program showing how to use the Allegro
+   configuration (ini file) routines. A first look at the example
    shows nothing more than a static graphic and the wait for
-   a keypress. However, the way this graphic is displayed is
+   a key press. However, the way this graphic is displayed is
    configured through a custom exconfig.ini file which is loaded
    manually. From this file the example obtains parameters like
    fullscreen/windowed mode, a specific graphic resolution to set
@@ -15418,7 +15480,7 @@ and avoid missing any important bit of information.
 @xref unload_datafile
 @shortdesc Appending datafiles onto your executable.
    This program demonstrates how to access the contents of an Allegro
-   datafile (created by the grabber utility) linked to the exe by the
+   datafile (created by the grabber utility) linked to the executable by the
    exedat tool. It is basically the exdata example with minor
    modifications.
    
@@ -15434,7 +15496,7 @@ and avoid missing any important bit of information.
    3) Finally run your program.
    
    Note that appending data to the end of binaries may not be portable
-   accross all platforms supported by Allegro.
+   across all platforms supported by Allegro.
 
 @@Example @extrans
 @xref BITMAP, COLOR_MAP, END_OF_MAIN, PALETTE, RGB, RGB_MAP, SCREEN_H
@@ -15444,14 +15506,14 @@ and avoid missing any important bit of information.
 @xref create_rgb_table, create_trans_table, destroy_bitmap
 @xref draw_trans_sprite, drawing_mode, install_keyboard, install_mouse
 @xref install_timer, keypressed, load_bitmap, mouse_x, mouse_y
-@xref poll_mouse, rectfill, replace_filename, rgb_map, screen
+@xref poll_mouse, rectfill, replace_filename, rest, rgb_map, screen
 @xref set_alpha_blender, set_gfx_mode, set_palette, set_trans_blender
 @xref set_write_alpha_blender, stretch_blit
 @shortdesc Lighting and translucency effects.
    This program demonstrates how to use the lighting and
    translucency functions. The first part of the example will
-   show a dark screen iluminated by a spotlight you can move
-   with your mouse. After a keypress the example shows the full
+   show a dark screen illuminated by a spotlight you can move
+   with your mouse. After a key press the example shows the full
    bitmap and the spotlight changes to be a reduced version of
    the background with 50% of translucency.
    
@@ -15504,7 +15566,7 @@ and avoid missing any important bit of information.
 @xref install_timer, key, makecol, makecol32, makecol8, object_message
 @xref rgb_map, rgb_to_hsv, screen, set_color, set_color_depth
 @xref set_gfx_mode, set_palette, textout_ex, vline, vsync
-@shortdesc RGB <-> HSV colorspace conversions.
+@shortdesc RGB <-> HSV color space conversions.
    This program shows how to convert colors between the different
    color-space representations. The central area of the screen
    will display the current color. On the top left corner of the
@@ -15529,13 +15591,13 @@ and avoid missing any important bit of information.
 @xref rgb_map, screen, set_gfx_mode, set_palette, set_trans_blender
 @xref show_mouse, textout_ex
 @shortdesc Gouraud shaded sprites.
-   This program demonstrates how to draw gouraud shaded (lit)
+   This program demonstrates how to draw Gouraud shaded (lit)
    sprites.  In an apparently black screen, a planet like sprite
    is drawn close to the middle of the screen. In a similar
    way to how the first test of extrans works, you move the
    cursor on the screen with the mouse. Attached to this mouse
    you can imagine a virtual spotlight illuminating the scene
-   around. Depending on where the mouse is, the goraud shaded
+   around. Depending on where the mouse is, the Gouraud shaded
    sprite will show the direction of the light.
 
 @@Example @exblend
@@ -15565,10 +15627,10 @@ and avoid missing any important bit of information.
 @shortdesc Truecolor image loading and fades.
    This program demonstrates how to load and display bitmap files
    in truecolor video modes, and how to crossfade between them.
-   You have to use this example from the commandline to specify
+   You have to use this example from the command line to specify
    as parameters a number of graphic files. Use at least two
    files to see the graphical effect. The example will crossfade
-   from one image to another with each keypress until you press
+   from one image to another with each key press until you press
    the ESC key.
 
 @@Example @exalpha
@@ -15695,7 +15757,7 @@ and avoid missing any important bit of information.
 @xref quat_interpolate, quat_to_matrix, readkey, release_bitmap, rest
 @xref screen, set_gfx_mode, set_palette, set_projection_viewport
 @xref textout_ex
-@shortdesc A comparison between euler angles and quaternions.
+@shortdesc A comparison between Euler angles and quaternions.
    Euler angles are convenient for storing and creating 3D orientations.
    However, this program demonstrates that they are not good when
    interpolating between two different orientations. The problem is
@@ -15731,7 +15793,7 @@ and avoid missing any important bit of information.
 @xref set_projection_viewport, textout_centre_ex, textprintf_centre_ex
 @xref triangle, vsync
 @shortdesc 3d starfield and lightsourced spaceship.
-   This program draws a 3D starfield (depth-cued) and a polygon
+   This program draws a 3D star field (depth-cued) and a polygon
    starship (controllable with the keyboard cursor keys), using
    the Allegro math functions.
 
@@ -15748,7 +15810,7 @@ and avoid missing any important bit of information.
 @xref scene_polygon3d_f, screen, set_color_depth, set_gfx_mode
 @xref set_palette, set_projection_viewport, textprintf_ex
 @shortdesc Using the 3d scene functions.
-   This program demonstrates how to use scanline sorting algo
+   This program demonstrates how to use scanline sorting algorithm
    in Allegro (create_scene, clear_scene, ... functions). It
    also provides an example of how to use the 3D clipping
    function. The example consists of a flyby through a lot of
@@ -15765,8 +15827,8 @@ and avoid missing any important bit of information.
 @xref gfx_mode_select_ex, install_int, install_keyboard, install_mouse
 @xref install_timer, keypressed, palette_color, persp_project_f
 @xref polygon_z_normal_f, quad3d_f, readkey, screen, set_color_depth
-@xref set_gfx_mode, set_palette, set_projection_viewport, set_zbuffer
-@xref textprintf_ex, vsync
+@xref set_gfx_mode, set_palette, set_palette_range
+@xref set_projection_viewport, set_zbuffer, textprintf_ex, vsync
 @shortdesc Z-buffered polygons demo.
    This program demonstrates how to use Z-buffered polygons and
    floating point 3D math routines. It also provides a simple
@@ -15774,7 +15836,7 @@ and avoid missing any important bit of information.
    selecting a screen resolution through the standard GUI dialog,
    the example shows two 3D cubes rotating and intersecting each
    other. Rather than having full polygons incorrectly overlap
-   other polgons due to per-polygon sorting, each pixel is drawn
+   other polygons due to per-polygon sorting, each pixel is drawn
    at the correct depth.
 
 @@Example @exscroll
@@ -15917,7 +15979,7 @@ and avoid missing any important bit of information.
    not all equidistant. Instead they tend to bunch up nearer to the
    ends of the spline, which means you will need to apply some fudges
    to get an object to move at a constant speed. On the other hand,
-   in situations where the curve has a noticable change of direction
+   in situations where the curve has a noticeable change of direction
    at each guide point, the effect can be quite nice because it makes
    the object slow down for the curve.
 
@@ -15947,7 +16009,7 @@ and avoid missing any important bit of information.
    page flipping, and triple buffering as options within a single
    program, and how to make things run at a constant rate no
    matter what the speed of your computer. You have to use this
-   example from the commandline to specify as first parameter a
+   example from the command line to specify as first parameter a
    number which represents the type of video update you want: 1
    for double buffering with memory bitmaps, 2 for page flipping,
    3 for triple buffering and 4 for double buffering with system
@@ -15990,7 +16052,7 @@ and avoid missing any important bit of information.
 @xref stop_audio_stream, textprintf_centre_ex, voice_start, voice_stop
 @shortdesc Playing audio streams.
    This program shows how to use the audio stream functions to
-   transfer large blocks of sample data to the soundcard. In
+   transfer large blocks of sample data to the sound card. In
    this case, the sample data is generated during runtime,
    and the resulting sound reminds of a car engine when you
    are accelerating.
@@ -16012,7 +16074,7 @@ and avoid missing any important bit of information.
    block of memory, using a custom packfile vtable.
    
    The second test reads in a bitmap with another custom packfile
-   vtable, which uses libc's filestream functions.
+   vtable, which uses libc's file stream functions.
    
    The third test demonstrates seeking with a custom vtable.
    
@@ -16028,6 +16090,19 @@ and avoid missing any important bit of information.
    Right now, it moves a red rectangle across the screen with a speed of
    100 pixels / second, limits the FPS to 100 Hz to save CPU, and prints the
    current FPS in the top right corner.
+
+@@Example @exnew_events
+@xref BITMAP, END_OF_MAIN, allegro_exit, allegro_init, allegro_message
+@xref blit, circle, clear_to_color, create_sub_bitmap, destroy_bitmap
+@xref font, key, makecol, rect, rectfill, screen, set_gfx_mode
+@xref text_height, textout_ex, textprintf_ex, uszprintf
+   This is a very simple program showing how to use the new event
+   interface introduced in Allegro 4.9.0.  The graphics are mainly done
+   using the Allegro 4.2 interface, although a new display API is also
+   used.
+   
+   Everything is still subject to change, though the event interface is
+   unlikely to change very much now.  The new display API is less stable.
 
 @# end genexamp.py chunk
 
@@ -16061,7 +16136,7 @@ dat2s.txt, dat2c.txt).
 @html
 @externalfile makedoc makedoc - Generate documentation in various formats
 @externalfile grabber grabber - Create datafiles
-@externalfile dat dat - Manipulate datafiles from the commandline
+@externalfile dat dat - Manipulate datafiles from the command line
 @externalfile dat2s dat2s - Compile datafiles into assembler code
 @externalfile dat2c dat2c - Compile datafiles into C code
 @endchapter
@@ -16089,17 +16164,17 @@ community that grew over the years when Shawn was in charge of everything has
 stepped forward to continue improving Allegro. Transformed into a meritocratic
 community, users keep sending bug reports to the mailing lists, developers
 around the world keep sending patches to fix them, and a few carefully chosen
-have write access to the CVS repository, from which releases are built every
+have write access to the SVN repository, from which releases are built every
 now and then.
 
 But, who decides when a build is stable enough? Who decides when somebody is
-granted write access to the CVS? Who chooses the lesser of two evils patching
+granted write access to the SVN? Who chooses the lesser of two evils patching
 some obscure bug? And more importantly, who decides what's Allegro's mascot?
 For all these reasons, the community decided to replace Shawn's position with
 the Allegro Dictator.
 
 In republican Rome, political power was with the Senate and the Consuls.
-However, if it was nescessary that decisions were made very quickly then the
+However, if it was necessary that decisions were made very quickly then the
 senate could appoint a Dictator. The Dictator was appointed for a specified
 duration or charged with a specific task, after which he was expected to
 surrender his authority back to the Senate. Nowadays, the Allegro Dictator is

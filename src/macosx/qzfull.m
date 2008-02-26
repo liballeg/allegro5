@@ -16,9 +16,9 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintosx.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
    #error something is wrong with the makefile
@@ -184,7 +184,7 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot switch main display mode"));
       return NULL;
    }
-   HideMenuBar();
+   //HideMenuBar();
    CGDisplayRestoreColorSyncSettings();
    
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
@@ -229,21 +229,21 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    osx_skip_mouse_move = TRUE;
    osx_screen_used = FALSE;
    
-   if (color_depth != 8) {
+ /*  if (color_depth != 8) {
       gfx_quartz_full.set_mouse_sprite = osx_mouse_set_sprite;
       gfx_quartz_full.show_mouse = osx_mouse_show;
       gfx_quartz_full.hide_mouse = osx_mouse_hide;
       gfx_quartz_full.move_mouse = osx_mouse_move;
    }
    else {
-      /* 8 bit modes have problems handling hardware cursor so we disable it */
-      gfx_quartz_full.set_mouse_sprite = NULL;
+      / * 8 bit modes have problems handling hardware cursor so we disable it * /
+   / *   gfx_quartz_full.set_mouse_sprite = NULL;
       gfx_quartz_full.show_mouse = NULL;
       gfx_quartz_full.hide_mouse = NULL;
       gfx_quartz_full.move_mouse = NULL;
       CGDisplayHideCursor(kCGDirectMainDisplay);
    }
-   
+   */
    old_visible_bmp = bmp;
    
    return bmp;
@@ -251,12 +251,13 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
 
 static BITMAP *osx_qz_full_init(int w, int h, int v_w, int v_h, int color_depth)
 {
-   BITMAP *bmp;
-   _al_mutex_lock(&osx_event_mutex);
-   bmp = private_osx_qz_full_init(w, h, v_w, v_h, color_depth);
-   _al_mutex_unlock(&osx_event_mutex);
-   if (!bmp)
-      osx_qz_full_exit(bmp);
+   BITMAP *bmp = NULL;
+   /* Unfortunately fullscreen mode is broken in 4.3 */
+//   _al_mutex_lock(&osx_event_mutex);
+//   bmp = private_osx_qz_full_init(w, h, v_w, v_h, color_depth);
+//   _al_mutex_unlock(&osx_event_mutex);
+//   if (!bmp)
+//      osx_qz_full_exit(bmp);
    return bmp;
 }
 
@@ -284,7 +285,7 @@ static void osx_qz_full_exit(BITMAP *bmp)
       osx_fade_screen(FALSE, 0.1);
       CGDisplaySwitchToMode(kCGDirectMainDisplay, old_mode);
       CGDisplayRelease(kCGDirectMainDisplay);
-      ShowMenuBar();
+      //ShowMenuBar();
       if (bitmap_color_depth(bmp) == 8)
          CGDisplayShowCursor(kCGDirectMainDisplay);
       osx_fade_screen(TRUE, 0.2);

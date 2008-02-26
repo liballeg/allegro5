@@ -18,8 +18,8 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 /*
@@ -546,4 +546,16 @@ int lzss_read(PACKFILE *file, LZSS_UNPACK_DATA *dat, int s, unsigned char *buf)
    dat->flags = flags;
 
    return size;
+}
+
+
+
+/* _al_lzss_incomplete_state:
+ *  Return non-zero if the previous lzss_read() call was in the middle of
+ *  unpacking a sequence of bytes into the supplied buffer, but had to suspend
+ *  because the buffer wasn't big enough.
+ */
+int _al_lzss_incomplete_state(AL_CONST LZSS_UNPACK_DATA *dat)
+{
+   return dat->state == 2;
 }

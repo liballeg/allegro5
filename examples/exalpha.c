@@ -11,7 +11,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
       for (x=0; x<sprite->w; x++) {
 	 c = getpixel(alpha, x, y);
 	 a = getr(c) + getg(c) + getb(c);
-	 a = MID(0, a/2-128, 255);
+	 a = CLAMP(0, a/2-128, 255);
 
 	 putpixel(sprite, x, y, a);
       }

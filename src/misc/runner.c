@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 	    f = fopen("_tmpfile.arg", "w");
 
 	    if (!f) {
-	       printf("Error writing _tmpfile.arg\n");
+	       printf("runner: Error writing _tmpfile.arg\n");
 	       return 1;
 	    }
 	 }
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
    p = strchr(buf, ' ');
    if (p) {
       if (strlen(p) >= 126) {
-	 fprintf(stderr, "Runner oops: command line is longer than 126 characters!\n");
+	 fprintf(stderr, "runner: oops: command line is longer than 126 characters!\n");
 	 remove("_tmpfile.arg");
 	 return 1; 
       }

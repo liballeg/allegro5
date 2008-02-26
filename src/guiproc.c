@@ -24,8 +24,8 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 #ifdef ALLEGRO_WINDOWS
@@ -744,7 +744,7 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	    if (x > gui_mouse_x()) 
 	       break;
 	 }
-	 d->d2 = MID(0, p, l);
+	 d->d2 = CLAMP(0, p, l);
 	 object_message(d, MSG_DRAW, 0);
 	 break;
 
@@ -961,7 +961,7 @@ void _handle_listbox_click(DIALOG *d)
 
    height = (d->h-4) / text_height(font);
 
-   i = MID(0, ((gui_mouse_y() - d->y - 2) / text_height(font)), 
+   i = CLAMP(0, ((gui_mouse_y() - d->y - 2) / text_height(font)), 
 	      ((d->h-4) / text_height(font) - 1));
    i += d->d2;
    if (i < d->d2)
@@ -999,7 +999,7 @@ void _handle_listbox_click(DIALOG *d)
       d->flags |= D_DIRTY;
 
       if (i != d->d2)
-	 rest_callback(MID(10, text_height(font)*16-d->h-1, 100), idle_cb);
+	 rest_callback(CLAMP(10, text_height(font)*16-d->h-1, 100), idle_cb);
    }
    else {
       if (!(d->flags & D_INTERNAL)) {
@@ -1942,7 +1942,7 @@ int d_slider_proc(int msg, DIALOG *d, int c)
       
       case MSG_WHEEL: 
 	 oldval = d->d2;
-	 d->d2 = MID(0, d->d2+c, d->d1);
+	 d->d2 = CLAMP(0, d->d2+c, d->d1);
 	 if (d->d2 != oldval) {
 	    /* call callback function here */
 	    if (d->dp2) {

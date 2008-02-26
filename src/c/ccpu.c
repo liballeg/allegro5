@@ -16,7 +16,7 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 /* MacOS X has its own check_cpu function, see src/macosx/pcpu.m */
 #ifndef ALLEGRO_MACOSX

@@ -15,7 +15,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
@@ -66,7 +66,7 @@ void return_grey_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
 
 void return_negative_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
 {
-   /* To get the negative color, substract the color values of red, green
+   /* To get the negative color, subtract the color values of red, green
     * and blue from the full (63) color value.
     */
    rgb->r = 63-pal[y].r;

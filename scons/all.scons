@@ -2,125 +2,7 @@ import os
 
 Import('context')
 
-context.addFiles('./', Split( """
-allegro.c
-blit.c
-bmp.c
-clip3d.c
-clip3df.c
-colblend.c
-color.c
-config.c
-datafile.c
-dataregi.c
-display.c
-digmid.c
-dispsw.c
-dither.c
-drvlist.c
-dtor.c
-events.c
-evtsrc.c
-file.c
-fli.c
-flood.c
-font.c
-fontbios.c
-fontbmp.c
-fontdat.c
-fontgrx.c
-fonttxt.c
-fsel.c
-gfx.c
-glyph.c
-graphics.c
-gsprite.c
-gui.c
-guiproc.c
-inline.c
-joynu.c
-keybdnu.c
-lbm.c
-libc.c
-lzss.c
-math.c
-math3d.c
-memory.c
-midi.c
-mixer.c
-modesel.c
-mouse.c
-pcx.c
-poly3d.c
-polygon.c
-quantize.c
-quat.c
-readbmp.c
-readfont.c
-readsmp.c
-rle.c
-rotate.c
-scene3d.c
-sound.c
-spline.c
-stream.c
-text.c
-tga.c
-unicode.c
-vtable.c
-vtable15.c
-vtable16.c
-vtable24.c
-vtable32.c
-vtable8.c
-""" ));
-
-context.addFiles('compat/', Split("""
-coblit.c
-cogfx.c
-cojoy.c
-cokeybd.c
-cotimer.c
-""" ));
-
-context.addFiles('misc/', Split("""
-vector.c
-colconv.c
-ccolconv.c
-""" ));
-
-if False:
-	context.addFiles('c/', Split("""
-	cblit16.c
-	cblit24.c
-	cblit32.c
-	cblit8.c
-	ccpu.c
-	ccsprite.c
-	cgfx15.c
-	cgfx16.c
-	cgfx24.c
-	cgfx32.c
-	cgfx8.c
-	cmisc.c
-	cscan15.c
-	cscan16.c
-	cscan24.c
-	cscan32.c
-	cscan8.c
-	cspr15.c
-	cspr16.c
-	cspr24.c
-	cspr32.c
-	cspr8.c
-	cstretch.c
-	czscan15.c
-	czscan16.c
-	czscan24.c
-	czscan32.c
-	czscan8.c
-	""" ));
-
+context.add_files(context.cmake["ALLEGRO_SRC_FILES"])
 
 def tools(env,appendDir,buildDir,libDir):
     tools = []
@@ -163,6 +45,7 @@ def tools(env,appendDir,buildDir,libDir):
         datEnv = env.Copy()
         # datEnv.Append(LIBPATH = '.')
         datEnv.Prepend(LIBS = 'aldat')
+	datEnv.Append(LIBPATH = libDir)
         def addDatTool(name,files): 
             tool = datEnv.Program('tools/' + name, appendDir(buildDir + '/tools/', files))
             Alias(name, tool)
@@ -197,71 +80,99 @@ def tests(env,appendDir,buildDir,libDir):
     Alias('tests', tests)
     return tests
 
+def demo(env,appendDir,buildDir,libDir):
+    demoEnv = env.Copy()
+    demoEnv.Append( CPPPATH = 'demo/include' )
+    demoEnv.Append( CPPPATH = 'addons/font' )
+    sources = Split("""
+       Asteroid.cpp
+       BitmapResource.cpp
+       Bullet.cpp
+       ButtonWidget.cpp
+       Debug.cpp
+       DisplayResource.cpp
+       Enemy.cpp
+       Entity.cpp
+       Error.cpp
+       Explosion.cpp
+       GUI.cpp
+       GenericResource.cpp
+       Input.cpp
+       LargeAsteroid.cpp
+       LargeBullet.cpp
+       LargeSlowBullet.cpp
+       MediumAsteroid.cpp
+       Misc.cpp
+       Player.cpp
+       PowerUp.cpp
+       Resource.cpp
+       ResourceManager.cpp
+       SampleResource.cpp
+       SmallAsteroid.cpp
+       SmallBullet.cpp
+       UFO.cpp
+       a5teroids.cpp
+       collision.cpp
+       logic.cpp
+       render.cpp
+       sound.cpp
+       wave.cpp
+    """);
+    demoEnv.Append( LIBPATH = libDir )
+    demoEnv.Append( LIBS = ['a5_font'] )
+    demo = demoEnv.Program('demo/demo', appendDir(buildDir + '/demo/src', sources))
+    Alias('demo', demo)
+    return demo
+
 def examples(env,appendDir,buildDir,libDir):
     examples = []
-    env.BuildDir(buildDir + 'examples', 'examples', duplicate = 0)
+    exEnv = env.Copy()
+    exEnv.Append( CPPPATH = 'addons/font' )
+    exEnv.BuildDir(buildDir + 'examples', 'examples', duplicate = 0)
+    exEnv.Append(LIBS = ['a5_font'])
     ## Add an example
     ## name - filename of example and also the alias of the target
     ## files - list of files associated with the example
     def addExample(name, files):
-        example = env.Program('examples/' + name, appendDir(buildDir + '/examples/', files))
+        example = exEnv.Program('examples/' + name, appendDir(buildDir + '/examples/', files))
         Alias(name, example)
         examples.append(example)
 
-    addExample('ex12bit', [ 'ex12bit.c' ])
-    addExample('ex3buf', [ 'ex3buf.c' ])
-    addExample('ex3d', [ 'ex3d.c' ])
-    addExample('exaccel', [ 'exaccel.c' ])
-    addExample('exalpha', [ 'exalpha.c' ])
-    addExample('exbitmap', [ 'exbitmap.c' ])
-    addExample('exblend', [ 'exblend.c' ])
-    addExample('excamera', [ 'excamera.c' ])
-    addExample('excolmap', [ 'excolmap.c' ])
-    addExample('exconfig', [ 'exconfig.c' ])
-    addExample('excustom', [ 'excustom.c' ])
-    addExample('exdata', [ 'exdata.c' ])
-    addExample('exdbuf', [ 'exdbuf.c' ])
-    addExample('exexedat', [ 'exexedat.c' ])
-    addExample('exfixed', [ 'exfixed.c' ])
-    addExample('exflame', [ 'exflame.c' ])
-    addExample('exflip', [ 'exflip.c' ])
-    addExample('exfont', [ 'exfont.c' ])
-    addExample('exgui', [ 'exgui.c' ])
-    addExample('exhello', [ 'exhello.c' ])
-    addExample('exjoy', [ 'exjoy.c' ])
-    addExample('exkeys', [ 'exkeys.c' ])
-    addExample('exlights', [ 'exlights.c' ])
-    addExample('exmem', [ 'exmem.c' ])
-    addExample('exmidi', [ 'exmidi.c' ])
-    addExample('exmouse', [ 'exmouse.c' ])
-    addExample('expackf', [ 'expackf.c' ])
-    addExample('expal', [ 'expal.c' ])
-    addExample('expat', [ 'expat.c' ])
-    addExample('exquat', [ 'exquat.c' ])
-    addExample('exrgbhsv', [ 'exrgbhsv.c' ])
-    addExample('exsample', [ 'exsample.c' ])
-    addExample('exscale', [ 'exscale.c' ])
-    addExample('exscn3d', [ 'exscn3d.c' ])
-    addExample('exscroll', [ 'exscroll.c' ])
-    addExample('exshade', [ 'exshade.c' ])
-    addExample('exspline', [ 'exspline.c' ])
-    addExample('exsprite', [ 'exsprite.c' ])
-    addExample('exstars', [ 'exstars.c' ])
-    addExample('exstream', [ 'exstream.c' ])
-    addExample('exswitch', [ 'exswitch.c' ])
-    addExample('exsyscur', [ 'exsyscur.c' ])
-    addExample('extimer', [ 'extimer.c' ])
-    addExample('extrans', [ 'extrans.c' ])
-    addExample('extruec', [ 'extruec.c' ])
-    addExample('exunicod', [ 'exunicod.c' ])
-    addExample('exupdate', [ 'exupdate.c' ])
-    addExample('exxfade', [ 'exxfade.c' ])
-    addExample('exzbuf', [ 'exzbuf.c' ])
     addExample('exnewapi', [ 'exnewapi.c' ])
+    addExample('exnew_bitmap', [ 'exnew_bitmap.c' ])
+    addExample('exnew_lockscreen', [ 'exnew_lockscreen.c' ])
+    addExample('exnew_lockbitmap', [ 'exnew_lockbitmap.c' ])
+    addExample('exnew_resize', [ 'exnew_resize.c' ])
+    addExample('exnew_fs_resize', [ 'exnew_fs_resize.c' ])
+    addExample('exnew_events', [ 'exnew_events.c' ])
+    addExample('exnew_mouse', [ 'exnew_mouse.c' ])
+    addExample('exnew_mouse_events', [ 'exnew_mouse_events.c' ])
+    addExample('exnew_icon', [ 'exnew_icon.c' ])
+    addExample('exnew_membmp', ['exnew_membmp.c'])
+    addExample('exnew_opengl', ['exnew_opengl.c'])
+    addExample('exnew_bitmap_target', ['exnew_bitmap_target.c'])
+    addExample('exnew_blend', ['exnew_blend.c'])
+    addExample('exnew_timer', ['exnew_timer.c'])
 
     Alias('examples', examples)
     return examples
 
+def addons(env, appendDir, buildDir, libDir):
+    examples = []
+    print buildDir, libDir
+    def addAddonExample(name, files):
+        example = env.Program("addons/" + name, appendDir(buildDir + '/addons/', files))
+        Alias(name, example)
+        examples.append(example)
+    addAddonExample("font/ex", ["font/font.c", "font/ex.c",
+        "font/fontbmp.c", "font/readfont.c", "font/text.c"])
+    return examples
+
+addon_dirs = ['#addons/font']
+SConscript( dirs = addon_dirs, exports = 'context' )
+
+context.addExtra(demo)
 context.addExtra(examples)
-context.addExtra(tools)
-context.addExtra(tests)
+# context.addExtra(addons)
+# context.addExtra(tools)
+# context.addExtra(tests)

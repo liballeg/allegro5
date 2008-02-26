@@ -2,7 +2,7 @@
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
  *    This program demonstrates how to play samples. You have to
- *    use this example from the commandline to specify as first
+ *    use this example from the command line to specify as first
  *    parameter a WAV or VOC sound file to play. If the file is
  *    loaded successfully, the sound will be played in an infinite
  *    loop. While it is being played, you can use the left and right
@@ -11,7 +11,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 

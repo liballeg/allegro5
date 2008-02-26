@@ -8,7 +8,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
@@ -167,7 +167,6 @@ int main(void)
 	 for (x=0; x<SCREEN_W; x++)
 	    bmp_write8(address+x, temp[x]);
       }
-
       bmp_unwrite_line(screen);
       release_screen();
    }

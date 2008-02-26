@@ -167,7 +167,7 @@ test "X$enableval" != "Xno" && allegro_enable_modules=yes,
 allegro_enable_modules=yes)
 
 if test -n "$allegro_enable_modules"; then
-  AC_CHECK_HEADERS(dlfcn.h,
+  AC_CHECK_HEADER(dlfcn.h,
     [AC_CACHE_CHECK(whether --export-dynamic linker flag is supported,
       allegro_cv_support_export_dynamic,
       [allegro_save_LDFLAGS="$LDFLAGS"
@@ -194,15 +194,21 @@ dnl Variables:
 dnl  allegro_sv_procfs=(yes|no)
 dnl
 AC_MSG_CHECKING(for System V sys/procfs)
-AC_DEFUN(ALLEGRO_SV_PROCFS,
-[AC_CHECK_HEADER(sys/procfs.h,
-AC_TRY_COMPILE([
-   #include <sys/procfs.h> 
-   #include <sys/ioctl.h>], 
-  [struct prpsinfo psinfo; 
-   ioctl(0, PIOCPSINFO, &psinfo);],
-  allegro_sv_procfs=yes, allegro_sv_procfs=no), allegro_sv_procfs=no)]
-)
+AC_DEFUN(ALLEGRO_ACTEST_SV_PROCFS, [
+  AC_CHECK_HEADER(sys/procfs.h, [
+    AC_TRY_COMPILE(
+      [ #include <sys/procfs.h> 
+        #include <sys/ioctl.h>
+      ],
+      [ struct prpsinfo psinfo; 
+        ioctl(0, PIOCPSINFO, &psinfo);
+      ],
+      [allegro_sv_procfs=yes],
+      [allegro_sv_procfs=no]
+    ),
+    [allegro_sv_procfs=no]
+  ])
+])
 AC_MSG_RESULT($allegro_sv_procfs)
 
 dnl
@@ -212,9 +218,14 @@ dnl Variables:
 dnl  allegro_procfs_argcv=(yes|no)
 dnl
 AC_MSG_CHECKING(if sys/procfs.h tells us argc/argv)
-AC_DEFUN(ALLEGRO_PROCFS_ARGCV,
-[AC_TRY_COMPILE([#include  <sys/procfs.h>], [struct prpsinfo psinfo; psinfo.pr_argc = 0;],
-allegro_procfs_argcv=yes, allegro_procfs_argcv=no)])
+AC_DEFUN(ALLEGRO_ACTEST_PROCFS_ARGCV, [
+  AC_TRY_COMPILE(
+    [#include  <sys/procfs.h>],
+    [struct prpsinfo psinfo; psinfo.pr_argc = 0;],
+    [allegro_procfs_argcv=yes],
+    [allegro_procfs_argcv=no]
+  )
+])
 AC_MSG_RESULT($allegro_procfs_argcv)
 
 dnl
@@ -224,9 +235,10 @@ dnl Variables:
 dnl  allegro_sys_getexecname=(yes|no)
 dnl
 AC_MSG_CHECKING(for getexecname)
-AC_DEFUN(ALLEGRO_SYS_GETEXECNAME,
+AC_DEFUN(ALLEGRO_ACTEST_SYS_GETEXECNAME,
    [AC_CHECK_LIB(c, getexecname,
-      [allegro_sys_getexecname=yes], [allegro_sys_getexecname=no])]
+      [allegro_sys_getexecname=yes],
+      [allegro_sys_getexecname=no])]
 )
 AC_MSG_RESULT($allegro_sys_getexecname)
 
@@ -264,6 +276,10 @@ AC_ARG_ENABLE(xim,
 [  --enable-xim[=x]        enable the use of XIM keyboard input [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xim=yes,
 allegro_enable_xim=yes)
+AC_ARG_ENABLE(glx,
+[  --enable-glx[=x]        enable the use of GLX [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_glx=yes,
+allegro_enable_glx=yes)
 
 dnl Process "--with[out]-x", "--x-includes" and "--x-libraries" options.
 _x11="X11 support: disabled"
@@ -282,6 +298,17 @@ if test -z "$no_x"; then
   LIBS="-lX11 $LIBS"
   _x11="X11 support: enabled"
   _x11ext=""
+
+  dnl Test for glX support
+  if test -n "$allegro_enable_glx"; then
+    allegro_support_glx=yes
+    AC_CHECK_LIB(GL, glXCreateWindow,
+      [_x11ext="$_x11ext glX"
+      LIBS="-lGL $LIBS"
+      AC_DEFINE(ALLEGRO_GLX,1,[Define if glx support is available.])
+      ])
+  fi
+
 
   dnl Test for Xext library.
   AC_CHECK_LIB(Xext, XMissingExtension,
@@ -342,7 +369,7 @@ if test -z "$no_x"; then
   if test -n "$allegro_enable_xim"; then
     AC_CHECK_LIB(X11, XOpenIM,
       [_x11ext="$_x11ext XIM"
-      AC_DEFINE(ALLEGRO_USE_XIM,1,[Define if XIM extension is supported.])])
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XIM,1,[Define if XIM extension is supported.])])
   fi
 
   if test -n "$_x11ext"; then
@@ -390,10 +417,15 @@ dnl
 dnl Variables:
 dnl  allegro_cv_support_fbcon=(yes|)
 dnl
-AC_DEFUN(ALLEGRO_ACTEST_FBCON,
-[AC_CHECK_HEADER(linux/fb.h,
-AC_TRY_COMPILE([#include <linux/fb.h>], [int x = FB_SYNC_ON_GREEN;],
-allegro_cv_support_fbcon=yes))])
+AC_DEFUN(ALLEGRO_ACTEST_FBCON, [
+  AC_CHECK_HEADER(linux/fb.h, [
+    AC_TRY_COMPILE(
+      [#include <linux/fb.h>],
+      [int x = FB_SYNC_ON_GREEN;],
+      [allegro_cv_support_fbcon=yes]
+    )
+  ])
+])
 
 dnl
 dnl Test for Linux SVGAlib support.
@@ -426,10 +458,22 @@ test "X$enableval" != "Xno" && allegro_enable_ossdigi=yes,
 allegro_enable_ossdigi=yes)
 
 if test -n "$allegro_enable_ossdigi"; then
-  AC_CHECK_HEADERS(soundcard.h, allegro_support_ossdigi=yes)
-  AC_CHECK_HEADERS(sys/soundcard.h, allegro_support_ossdigi=yes)
-  AC_CHECK_HEADERS(machine/soundcard.h, allegro_support_ossdigi=yes)
-  AC_CHECK_HEADERS(linux/soundcard.h, allegro_support_ossdigi=yes)
+  AC_CHECK_HEADER(soundcard.h, [
+    AC_DEFINE(ALLEGRO_HAVE_SOUNDCARD_H, 1)
+    allegro_support_ossdigi=yes
+  ])
+  AC_CHECK_HEADER(sys/soundcard.h, [
+    AC_DEFINE(ALLEGRO_HAVE_SYS_SOUNDCARD_H, 1)
+    allegro_support_ossdigi=yes
+  ])
+  AC_CHECK_HEADER(machine/soundcard.h, [
+    AC_DEFINE(ALLEGRO_HAVE_MACHINE_SOUNDCARD_H, 1)
+    allegro_support_ossdigi=yes
+  ])
+  AC_CHECK_HEADER(linux/soundcard.h, [
+    AC_DEFINE(ALLEGRO_HAVE_LINUX_SOUNDCARD_H, 1)
+    allegro_support_ossdigi=yes
+  ])
 
   dnl Link with libossaudio if necessary, used by some BSD systems.
   AC_CHECK_LIB(ossaudio, _oss_ioctl)
@@ -449,11 +493,16 @@ test "X$enableval" != "Xno" && allegro_enable_ossmidi=yes,
 allegro_enable_ossmidi=yes)
 
 if test -n "$allegro_enable_ossmidi"; then
-  AC_CHECK_HEADERS(soundcard.h)
-  AC_CHECK_HEADERS(sys/soundcard.h)
-  AC_CHECK_HEADERS(machine/soundcard.h)
-  AC_CHECK_HEADERS(linux/soundcard.h)
-  AC_CHECK_HEADERS(linux/awe_voice.h)
+  AC_CHECK_HEADER(soundcard.h,
+    AC_DEFINE(ALLEGRO_HAVE_SOUNDCARD_H, 1))
+  AC_CHECK_HEADER(sys/soundcard.h,
+    AC_DEFINE(ALLEGRO_HAVE_SYS_SOUNDCARD_H, 1))
+  AC_CHECK_HEADER(machine/soundcard.h,
+    AC_DEFINE(ALLEGRO_HAVE_MACHINE_SOUNDCARD_H, 1))
+  AC_CHECK_HEADER(linux/soundcard.h,
+    AC_DEFINE(ALLEGRO_HAVE_LINUX_SOUNDCARD_H, 1))
+  AC_CHECK_HEADER(linux/awe_voice.h,
+    AC_DEFINE(ALLEGRO_HAVE_LINUX_AWE_VOICE_H, 1))
 
   dnl Link with libossaudio if necessary, used by some BSD systems.
   AC_CHECK_LIB(ossaudio, _oss_ioctl)
@@ -463,13 +512,13 @@ if test -n "$allegro_enable_ossmidi"; then
   AC_MSG_CHECKING(for OSS sequencer support)
   AC_LINK_IFELSE(
     AC_LANG_PROGRAM([[
-      #if HAVE_SOUNDCARD_H
+      #if ALLEGRO_HAVE_SOUNDCARD_H
        #include <soundcard.h>
-      #elif HAVE_SYS_SOUNDCARD_H
+      #elif ALLEGRO_HAVE_SYS_SOUNDCARD_H
        #include <sys/soundcard.h>
-      #elif HAVE_MACHINE_SOUNDCARD_H
+      #elif ALLEGRO_HAVE_MACHINE_SOUNDCARD_H
        #include <machine/soundcard.h>
-      #elif HAVE_LINUX_SOUNDCARD_H
+      #elif ALLEGRO_HAVE_LINUX_SOUNDCARD_H
        #include <linux/soundcard.h>
       #endif]],
       [return SNDCTL_SEQ_NRSYNTHS;]
@@ -878,3 +927,5 @@ fi
 ])
 CFLAGS="$allegro_save_CFLAGS"
 AC_MSG_RESULT($allegro_cv_support_amd64_mtune)])
+
+dnl vim: set sts=2 sw=2 et:

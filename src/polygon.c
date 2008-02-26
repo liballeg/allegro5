@@ -18,8 +18,8 @@
 
 #include <limits.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 
@@ -38,16 +38,19 @@ static void fill_edge_structure(POLYGON_EDGE *edge, AL_CONST int *i1, AL_CONST i
    }
 
    edge->top = i1[1];
-   edge->bottom = i2[1] - 1;
-   edge->dx = ((i2[0] - i1[0]) << POLYGON_FIX_SHIFT) / (i2[1] - i1[1]);
-   edge->x = (i1[0] << POLYGON_FIX_SHIFT) + (1<<(POLYGON_FIX_SHIFT-1)) - 1;
+   edge->bottom = i2[1];
+   edge->x = (i1[0] << POLYGON_FIX_SHIFT) + (1 << (POLYGON_FIX_SHIFT-1));
+   if (i2[1] != i1[1]) {
+      edge->dx = ((i2[0] - i1[0]) << POLYGON_FIX_SHIFT) / (i2[1] - i1[1]);
+   }
+   else {
+      edge->dx = ((i2[0] - i1[0]) << POLYGON_FIX_SHIFT) << 1;
+   }     
+   edge->w = MAX(ABS(edge->dx)-1, 0);
    edge->prev = NULL;
    edge->next = NULL;
-
    if (edge->dx < 0)
-      edge->x += MIN(edge->dx+(1<<POLYGON_FIX_SHIFT), 0);
-
-   edge->w = MAX(ABS(edge->dx)-(1<<POLYGON_FIX_SHIFT), 0);
+      edge->x += edge->dx/2 ;
 }
 
 
@@ -61,8 +64,7 @@ POLYGON_EDGE *_add_edge(POLYGON_EDGE *list, POLYGON_EDGE *edge, int sort_by_x)
    POLYGON_EDGE *prev = NULL;
 
    if (sort_by_x) {
-      while ((pos) && ((pos->x + (pos->w + pos->dx) / 2) < 
-		       (edge->x + (edge->w + edge->dx) / 2))) {
+      while ((pos) && (pos->x < edge->x)) {
 	 prev = pos;
 	 pos = pos->next;
       }
@@ -132,21 +134,20 @@ void _soft_polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
    i2 = points + (vertices-1) * 2;
 
    for (c=0; c<vertices; c++) {
-      if (i1[1] != i2[1]) {
-	 fill_edge_structure(edge, i1, i2);
+      fill_edge_structure(edge, i1, i2);
 
-	 if (edge->bottom >= edge->top) {
+      if (edge->bottom >= edge->top) {
 
-	    if (edge->top < top)
-	       top = edge->top;
+	 if (edge->top < top)
+	    top = edge->top;
 
-	    if (edge->bottom > bottom)
-	       bottom = edge->bottom;
+	 if (edge->bottom > bottom)
+	    bottom = edge->bottom;
 
-	    inactive_edges = _add_edge(inactive_edges, edge, FALSE);
-	    edge++;
-	 }
+	 inactive_edges = _add_edge(inactive_edges, edge, FALSE);
+	 edge++;
       }
+
       i2 = i1;
       i1 += 2;
    }
@@ -158,6 +159,12 @@ void _soft_polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
 
    /* for each scanline in the polygon... */
    for (c=top; c<=bottom; c++) {
+      int hid = 0;
+      int b1 = 0;
+      int e1 = 0;
+      int up = 0;
+      int draw = 0;
+      int e;
 
       /* check for newly active edges */
       edge = inactive_edges;
@@ -170,10 +177,43 @@ void _soft_polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
 
       /* draw horizontal line segments */
       edge = active_edges;
-      while ((edge) && (edge->next)) {
-	 bmp->vtable->hfill(bmp, edge->x>>POLYGON_FIX_SHIFT, c, 
-	       (edge->next->x+edge->next->w)>>POLYGON_FIX_SHIFT, color);
-	 edge = edge->next->next;
+      while (edge) {
+	 e = edge->w;
+	 if (edge->bottom != c) {
+	    up = 1 - up;
+	 }
+	 else {
+	    e = edge->w >> 1;
+	 }
+
+	 if (edge->top == c) {
+	    e = edge->w >> 1;
+	 }
+
+	 if ((draw < 1) && (up >= 1)) {
+	    b1 = (edge->x + e) >> POLYGON_FIX_SHIFT;	 
+	 }
+	 else if (draw >= 1) {
+	    /* filling the polygon */
+	    e1 = edge->x >> POLYGON_FIX_SHIFT;	 
+	    hid = MAX(hid, b1 + 1);
+
+	    if (hid <= e1-1) {
+	       bmp->vtable->hfill(bmp, hid, c, e1-1, color);
+	    }
+
+	    b1 = (edge->x + e) >> POLYGON_FIX_SHIFT;	 
+	 }
+
+	 /* drawing the edge */
+	 hid = MAX(hid, edge->x >> POLYGON_FIX_SHIFT);
+	 if (hid <= ((edge->x + e) >> POLYGON_FIX_SHIFT)) {	 
+	    bmp->vtable->hfill(bmp, hid, c, (edge->x + e) >> POLYGON_FIX_SHIFT, color);
+	    hid = 1 + ((edge->x + e) >> POLYGON_FIX_SHIFT);
+	 }
+
+	 edge = edge->next;
+	 draw = up;
       }
 
       /* update edges, sorting and removing dead ones */
@@ -185,8 +225,13 @@ void _soft_polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
 	 }
 	 else {
 	    edge->x += edge->dx;
-	    while ((edge->prev) && 
-		   (edge->x+edge->w/2 < edge->prev->x+edge->prev->w/2)) {
+	    if ((edge->top == c) && (edge->dx > 0)) {
+	       edge->x -= edge->dx/2;
+	    }
+	    if ((edge->bottom == c+1) && (edge->dx < 0)) {
+	       edge->x -= edge->dx/2;
+	    }
+	    while ((edge->prev) && (edge->x < edge->prev->x)) {
 	       if (edge->next)
 		  edge->next->prev = edge->prev;
 	       edge->prev->next = edge->next;

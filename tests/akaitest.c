@@ -20,7 +20,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 
 
@@ -458,7 +458,7 @@ int piano_proc(int msg, DIALOG *d, int c)
 	    if (!blackkey[i%12]) {
 	       l = i*12;
 	       r = (i+1)*12;
-	       if (blackkey[(i-1)%12])
+	       if (i > 0 && blackkey[(i-1)%12])
 		  l -= 6;
 	       if (blackkey[(i+1)%12])
 		  r += 6;

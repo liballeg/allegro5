@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <allegro.h>
+#include <allegro5/allegro5.h>
 
 #ifndef SCAN_DEPEND
    #include <X11/Xlib.h>

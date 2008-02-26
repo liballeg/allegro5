@@ -16,12 +16,12 @@
  */
 
 
-#ifndef ASMDEFS_INC
-#define ASMDEFS_INC
+#ifndef ALLEGRO_ASMDEFS_INC
+#define ALLEGRO_ASMDEFS_INC
 
 
 #ifndef SCAN_DEPEND
-   #include "allegro/platform/alplatf.h"
+   #include "allegro5/platform/alplatf.h"
 #endif
 
 
@@ -98,5 +98,5 @@
 
 
 
-#endif   /* ifndef ASMDEFS_INC */
+#endif   /* ifndef ALLEGRO_ASMDEFS_INC */
 

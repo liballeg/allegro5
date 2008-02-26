@@ -15,31 +15,31 @@
  *      See readme.txt for copyright information.
  */
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 #ifdef ALLEGRO_WITH_OSSMIDI
 
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
 
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#if defined(HAVE_SOUNDCARD_H)
+#if defined(ALLEGRO_HAVE_SOUNDCARD_H)
    #include <soundcard.h>
-#elif defined(HAVE_SYS_SOUNDCARD_H)
+#elif defined(ALLEGRO_HAVE_SYS_SOUNDCARD_H)
    #include <sys/soundcard.h>
-#elif defined(HAVE_MACHINE_SOUNDCARD_H)
+#elif defined(ALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
    #include <machine/soundcard.h>
-#elif defined(HAVE_LINUX_SOUNDCARD_H)
+#elif defined(ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
    #include <linux/soundcard.h>
 #endif
 #include <sys/ioctl.h>
 
-#if defined(HAVE_LINUX_AWE_VOICE_H)
+#if defined(ALLEGRO_HAVE_LINUX_AWE_VOICE_H)
 #include <linux/awe_voice.h>
-#define HAVE_AWE32
+#define UOSSMIDI_HAVE_AWE32
 #endif
 
 
@@ -219,7 +219,7 @@ static int seq_find_synth(int fd)
 
       case SYNTH_TYPE_SAMPLE:
 	 switch (seq_synth_subtype) {
-#ifdef HAVE_AWE32
+#ifdef UOSSMIDI_HAVE_AWE32
 	    case SAMPLE_TYPE_AWE32:
 	       s = uconvert_ascii("AWE32", tmp1);
 	       break;
@@ -284,7 +284,7 @@ static void seq_setup_fm (void)
 
 
 
-#ifdef HAVE_AWE32
+#ifdef UOSSMIDI_HAVE_AWE32
 /* AWE32 synth setup */
 static void seq_setup_awe32 (void)
 {
@@ -378,7 +378,7 @@ static int oss_midi_init(int input, int voices)
       
    } else if (seq_synth_type == SYNTH_TYPE_SAMPLE) {
 
-#ifdef HAVE_AWE32
+#ifdef UOSSMIDI_HAVE_AWE32
       if (seq_synth_subtype == SAMPLE_TYPE_AWE32) {
 
 	 seq_setup_awe32();

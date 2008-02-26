@@ -2,14 +2,14 @@
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
  *    This program demonstrates how to load and display a bitmap
- *    file.  You have to use this example from the commandline to
+ *    file.  You have to use this example from the command line to
  *    specify as first parameter a graphic file in one of Allegro's
  *    supported formats.  If the file is loaded successfully,
  *    it will be displayed until you press a key.
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 

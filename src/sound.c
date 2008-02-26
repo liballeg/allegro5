@@ -20,8 +20,8 @@
 
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 
@@ -457,7 +457,7 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
       if (midi_reserve >= 0)
 	 midi_voices = midi_reserve;
       else
-	 midi_voices = MID(0, digi_driver->max_voices - digi_voices, midi_driver->def_voices);
+	 midi_voices = CLAMP(0, digi_driver->max_voices - digi_voices, midi_driver->def_voices);
 
       digi_voices += midi_voices;
    }
@@ -748,7 +748,7 @@ void set_volume(int digi_volume, int midi_volume)
       for (i=0; i<VIRTUAL_VOICES; i++)
 	 voice_vol[i] = voice_get_volume(i);
 
-      _digi_volume = MID(0, digi_volume, 255);
+      _digi_volume = CLAMP(0, digi_volume, 255);
 
       /* Set the new (relative) volume for each voice. */
       for (i=0; i<VIRTUAL_VOICES; i++) {
@@ -760,7 +760,7 @@ void set_volume(int digi_volume, int midi_volume)
    }
 
    if (midi_volume >= 0)
-      _midi_volume = MID(0, midi_volume, 255);
+      _midi_volume = CLAMP(0, midi_volume, 255);
 }
 
 
@@ -788,14 +788,14 @@ void get_volume(int *digi_volume, int *midi_volume)
 void set_hardware_volume(int digi_volume, int midi_volume)
 {
    if (digi_volume >= 0) {
-      digi_volume = MID(0, digi_volume, 255);
+      digi_volume = CLAMP(0, digi_volume, 255);
 
       if (digi_driver->set_mixer_volume)
 	 digi_driver->set_mixer_volume(digi_volume);
    }
 
    if (midi_volume >= 0) {
-      midi_volume = MID(0, midi_volume, 255);
+      midi_volume = CLAMP(0, midi_volume, 255);
 
       if (midi_driver->set_mixer_volume)
 	 midi_driver->set_mixer_volume(midi_volume);
@@ -1298,7 +1298,7 @@ static INLINE int allocate_physical_voice(int priority)
 	 score = 65536 - voice->priority * 256;
 
 	 /* bias with a least-recently-used counter */
-	 score += MID(0, retrace_count - voice->time, 32768);
+	 score += CLAMP(0, retrace_count - voice->time, 32768);
 
 	 /* bias according to whether the voice is looping or not */
 	 if (!(_phys_voice[c].playmode & PLAYMODE_LOOP))
@@ -1622,7 +1622,7 @@ int voice_get_volume(int voice)
 
    if ((vol >= 0) && (_digi_volume >= 0)) {
       if (_digi_volume > 0)
-	 vol = MID(0, (vol * 255) / _digi_volume, 255);
+	 vol = CLAMP(0, (vol * 255) / _digi_volume, 255);
       else
 	 vol = 0;
    }

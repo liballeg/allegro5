@@ -5,7 +5,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
    y = 2 * SCREEN_H / 3;
    tw = text_length(font, "0000:00 / 0000:00");
-   /* wait for a keypress */
+   /* wait for a key press */
    while (!done) {
        /* P key pauses/resumes, any other key exits. */
       while (keypressed()) {

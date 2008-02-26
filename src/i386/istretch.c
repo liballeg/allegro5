@@ -22,9 +22,13 @@
 #include <string.h>
 #include <limits.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 #include "opcodes.h"
+
+#ifdef ALLEGRO_UNIX
+   #include "allegro5/platform/aintunix.h"   /* for _unix_get_page_size */
+#endif
 
 #ifdef ALLEGRO_WINDOWS
    #include "winalleg.h"   /* For VirtualProtect */
@@ -32,11 +36,10 @@
 
 
 
-#ifdef HAVE_MPROTECT
+#ifdef ALLEGRO_HAVE_MPROTECT
    #include <sys/types.h>
    #include <sys/mman.h>
-   #include <sys/user.h>
-#endif     /* ifdef HAVE_MPROTECT */
+#endif     /* ifdef ALLEGRO_HAVE_MPROTECT */
 
 
 
@@ -222,7 +225,7 @@ typedef struct STRETCHER_INFO
    int lru;
    void *exec; /* xr_ mapping in the mmap case, normally both in one. */
    int size;
-#ifdef USE_MMAP_GEN_CODE_BUF
+#ifdef ALLEGRO_USE_MMAP_GEN_CODE_BUF
    void *rw;   /* _rw mapping for the mmap case. */
    int fd;     /* mapping backing fd for the mmap case. */
 #endif
@@ -248,7 +251,7 @@ static void free_stretchers(void)
 
    for (i=0; i<NUM_STRETCHERS; i++)
       if (stretcher_info[i].exec != NULL) {
-	 #ifdef USE_MMAP_GEN_CODE_BUF
+	 #ifdef ALLEGRO_USE_MMAP_GEN_CODE_BUF
 	    munmap(stretcher_info[i].exec, stretcher_info[i].size);
 	    munmap(stretcher_info[i].rw, stretcher_info[i].size);
 	    close(stretcher_info[i].fd);
@@ -282,7 +285,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
  #ifdef ALLEGRO_WINDOWS
    DWORD old_protect;
  #endif     /* ifdef ALLEGRO_WINDOWS */
- #ifndef USE_MMAP_GEN_CODE_BUF
+ #ifndef ALLEGRO_USE_MMAP_GEN_CODE_BUF
    void *prev_scratch_mem;
    int prev_scratch_mem_size;
  #endif
@@ -390,7 +393,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
       }
    }
 
- #ifdef USE_MMAP_GEN_CODE_BUF
+ #ifdef ALLEGRO_USE_MMAP_GEN_CODE_BUF
    _exec_map = stretcher_info[best].exec;
    _rw_map = stretcher_info[best].rw;
    _map_size = stretcher_info[best].size;
@@ -408,7 +411,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
       compiler_pos = make_stretcher(0, sx, sxd, dest_width, masked, dest->vtable->color_depth);
    }
 
- #ifdef GFX_HAS_VGA
+ #ifdef ALLEGRO_GFX_HAS_VGA
 
    else { 
       int plane, d;
@@ -441,7 +444,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
       dest_x >>= 2;
    }
 
- #endif     /* ifdef GFX_HAS_VGA */
+ #endif     /* ifdef ALLEGRO_GFX_HAS_VGA */
 
    COMPILER_RET();
 
@@ -450,9 +453,9 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
   */
  #ifdef ALLEGRO_WINDOWS
    VirtualProtect(_scratch_mem, _scratch_mem_size, PAGE_EXECUTE_READWRITE, &old_protect);
- #elif defined(HAVE_MPROTECT) && !defined(USE_MMAP_GEN_CODE_BUF)
+ #elif defined(ALLEGRO_HAVE_MPROTECT) && !defined(ALLEGRO_USE_MMAP_GEN_CODE_BUF)
    {
-      char *p = (char *)((uintptr_t)_scratch_mem & ~(PAGE_SIZE-1ul));
+      char *p = (char *)((uintptr_t)_scratch_mem & ~(_unix_get_page_size() - 1ul));
       if (mprotect(p, _scratch_mem_size + ((char *)_scratch_mem - p),
             PROT_EXEC|PROT_READ|PROT_WRITE))
          perror("allegro-error: mprotect failed during stretched blit!");
@@ -466,7 +469,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
    stretcher_info[best].depth = dest->vtable->color_depth;
    stretcher_info[best].flags = flags;
    stretcher_info[best].lru = stretcher_count;
- #ifdef USE_MMAP_GEN_CODE_BUF
+ #ifdef ALLEGRO_USE_MMAP_GEN_CODE_BUF
    stretcher_info[best].exec = _exec_map;
    stretcher_info[best].rw = _rw_map;
    stretcher_info[best].size = _map_size;
@@ -486,15 +489,10 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
 
 
 
-/* al_blit_scaled:
+/* _al_stretch_blit:
  *  Bitmap scaling function.
  */
-void al_blit_scaled(int method, struct BITMAP *s, int s_x, int s_y, int s_w, int s_h, struct BITMAP *d, int d_x, int d_y, int d_w, int d_h)
+void _al_stretch_blit(struct BITMAP *s, struct BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h, int mask)
 {
-   if (method == AL_MASK_SOURCE) {
-      do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, 1);
-   }
-   else {
-      do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, 0);
-   }
+   do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, mask);
 }

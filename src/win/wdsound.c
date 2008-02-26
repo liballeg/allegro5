@@ -25,9 +25,9 @@
 
 #define DIRECTSOUND_VERSION 0x0300
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #ifdef ALLEGRO_MINGW32
@@ -548,7 +548,7 @@ static int digi_directsound_set_mixer_volume(int volume)
    int ds_vol;
 
    if (prim_buf) {
-      ds_vol = alleg_to_dsound_volume[MID(0, volume, 255)];
+      ds_vol = alleg_to_dsound_volume[CLAMP(0, volume, 255)];
       IDirectSoundBuffer_SetVolume(prim_buf, ds_vol); 
    }
 
@@ -567,7 +567,7 @@ static int digi_directsound_get_mixer_volume(void)
       return -1;
 
    IDirectSoundBuffer_GetVolume(prim_buf, &vol);
-   vol = MID(0, pow(10, (vol/2000.0))*255.0 - DSBVOLUME_MAX, 255);
+   vol = CLAMP(0, pow(10, (vol/2000.0))*255.0 - DSBVOLUME_MAX, 255);
 
    return vol;
 }
@@ -622,10 +622,10 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
    }
 
    /* set volume */
-   IDirectSoundBuffer_SetVolume(snd_buf, alleg_to_dsound_volume[MID(0, vol, 255)]);
+   IDirectSoundBuffer_SetVolume(snd_buf, alleg_to_dsound_volume[CLAMP(0, vol, 255)]);
 
    /* set pan */
-   IDirectSoundBuffer_SetPan(snd_buf, alleg_to_dsound_pan[MID(0, pan, 255)]);
+   IDirectSoundBuffer_SetPan(snd_buf, alleg_to_dsound_pan[CLAMP(0, pan, 255)]);
 
    return snd_buf;
 }
@@ -638,7 +638,7 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
 static int fill_dsound_buffer(LPDIRECTSOUNDBUFFER snd_buf, int offset, int len, int bits, int stereo, int reversed, char *data)
 {
    void *buf_a;
-   long int size, size_a;
+   unsigned long int size, size_a;
    HRESULT hr;
 
    /* transform from samples to bytes */
@@ -929,7 +929,7 @@ static void digi_directsound_loop_voice(int voice, int playmode)
 static void *digi_directsound_lock_voice(int voice, int start, int end)
 {
    LPDIRECTSOUNDBUFFER ds_locked_buffer;
-   long size_a;
+   unsigned long size_a;
    void *buf_a;
    HRESULT hr;
 
@@ -1014,12 +1014,12 @@ static int digi_directsound_get_position(int voice)
 
    if (ds_voices[voice].looping && ds_voices[voice].ds_loop_buffer) {
       /* is buffer playing? */
-      hr = IDirectSoundBuffer_GetStatus(ds_voices[voice].ds_loop_buffer, &status);
+      hr = IDirectSoundBuffer_GetStatus(ds_voices[voice].ds_loop_buffer, (unsigned long *)&status);
       if (FAILED(hr) || !(status & DSBSTATUS_PLAYING))
          return -1;
 
       hr = IDirectSoundBuffer_GetCurrentPosition(ds_voices[voice].ds_loop_buffer,
-                                                 &play_cursor, &write_cursor);
+                                                 (unsigned long *)&play_cursor, (unsigned long *)&write_cursor);
       if (FAILED(hr)) {
          _TRACE(PREFIX_E "digi_directsound_get_position() failed (%s).\n", ds_err(hr));
          return -1;
@@ -1039,12 +1039,12 @@ static int digi_directsound_get_position(int voice)
    }
    else if (ds_voices[voice].ds_buffer) {
       /* is buffer playing? */
-      hr = IDirectSoundBuffer_GetStatus(ds_voices[voice].ds_buffer, &status);
+      hr = IDirectSoundBuffer_GetStatus(ds_voices[voice].ds_buffer, (unsigned long *)&status);
       if (FAILED(hr) || !(status & DSBSTATUS_PLAYING))
          return -1;
 
       hr = IDirectSoundBuffer_GetCurrentPosition(ds_voices[voice].ds_buffer,
-                                                 &play_cursor, &write_cursor);
+                                                 (unsigned long *)&play_cursor, (unsigned long *)&write_cursor);
       if (FAILED(hr)) {
          _TRACE(PREFIX_E "digi_directsound_get_position() failed (%s).\n", ds_err(hr));
          return -1;
@@ -1072,7 +1072,7 @@ static void digi_directsound_set_position(int voice, int position)
    int pos;
 
    if (ds_voices[voice].ds_loop_buffer) {
-      pos = MID(0, position - ds_voices[voice].loop_offset, ds_voices[voice].loop_len-1);
+      pos = CLAMP(0, position - ds_voices[voice].loop_offset, ds_voices[voice].loop_len-1);
 
       /* handle bidir data: todo? */
 
@@ -1122,7 +1122,7 @@ static void digi_directsound_set_volume(int voice, int volume)
    ds_voices[voice].vol = volume;
 
    if (ds_voices[voice].ds_buffer) {
-      ds_vol = alleg_to_dsound_volume[MID(0, volume, 255)];
+      ds_vol = alleg_to_dsound_volume[CLAMP(0, volume, 255)];
       IDirectSoundBuffer_SetVolume(ds_voices[voice].ds_buffer, ds_vol);
 
       if (ds_voices[voice].ds_loop_buffer)
@@ -1175,7 +1175,7 @@ static void digi_directsound_set_pan(int voice, int pan)
    ds_voices[voice].pan = pan;
 
    if (ds_voices[voice].ds_buffer) {
-      ds_pan = alleg_to_dsound_pan[MID(0, pan, 255)];
+      ds_pan = alleg_to_dsound_pan[CLAMP(0, pan, 255)];
       IDirectSoundBuffer_SetPan(ds_voices[voice].ds_buffer, ds_pan);
 
       if (ds_voices[voice].ds_loop_buffer)

@@ -16,7 +16,7 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 
 
@@ -363,8 +363,8 @@ int piano_proc(int msg, DIALOG *d, int c)
 	    set_patch(channel, patch);
 	 }
 
-	 set_pan(channel, MID(0, atoi(thedialog[PAN].dp), 127));
-	 note_on(channel, pitch, MID(0, atoi(thedialog[VOLUME].dp), 127));
+	 set_pan(channel, CLAMP(0, atoi(thedialog[PAN].dp), 127));
+	 note_on(channel, pitch, CLAMP(0, atoi(thedialog[VOLUME].dp), 127));
 
 	 playing_channel = channel;
 	 playing_pitch = pitch;

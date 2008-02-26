@@ -8,7 +8,622 @@
 @html_spaced_list_bullet
 
 @heading
-Changes from 4.2 series to 4.3.0 (July 2006)
+Changes from 4.9.1 to 4.9.2 (November 2006)
+<ul><li>
+   Trent Gamblin made the mouse cursor always hide when the user
+   calls al_hide_mouse_cursor in fullscreen (D3D).
+<li>
+   Trent Gamblin fixed some signedness warnings and implemented
+   show/hide_mouse in the display vtable for D3D.
+<li>
+   Elias Pschernig made show/hide cursor use the display driver instead of
+   the 4.2 gfx_driver.
+<li>
+   Elias Pschernig fixed missing keyboard events in exnew_mouse_events
+   example.
+<li>
+   Elias Pschernig wired the X11 mouse driver to the XGLX system driver.
+<li>
+   Jon Rafkind made various fixes to get the OSX build to compile
+<li>
+   Trent Gamblin added exnew_mouse_events.
+<li>
+   Trent Gamblin added exnew_mouse.
+<li>
+   Jon Rafkind made the scons build get the library name dynamically.
+<li>
+   Jon Rafkind made the scons build link Allegro using -l instead of
+   using the full path.
+<li>
+   Trent Gamblin added a note about MINGDIR in readme_a5.txt.
+<li>
+   Trent Gamblin removed -lalleg_unsharable from allegro-config.in,
+   since assembly is not used anymore.
+<li>
+   Jon Rafkind fixed up allegro-config.
+<li>
+   Trent Gamblin added some documentation on ALLEGRO_MSESTATE.
+<li>
+   Trent Gamblin listed the examples in readme_a5.txt.
+<li>
+   Trent Gamblin improved some inline documentation.
+<li>
+   Jon Rafkind removed /lib from install path in unix.scons.
+<li>
+   Jon Rafkind added the new demo to the scons build and allowed
+   addons to be built statically or shared.
+<li>
+   Trent Gamblin made the glx line drawing function use blending.
+<li>
+   Trent Gamblin added cmake instructions to readme_a5.txt.
+<li>
+   Elias Pschernig added readme_a5.txt.
+<li>
+   Trent Gamblin fixed warnings in the demo.
+<li>
+   Trent Gamblin fixed a crash-on-exit bug in tls.c.
+<li>
+   Trent Gamblin replaced the old demo with a temporary one.
+<li>
+   Peter Wang fixed gcc string warnings.
+<li>
+   Peter Wang added some assertions to display_new.c.
+<li>
+   Peter Wang merged changes from the 4.2 branch.
+<li>
+   Elias Pschernig removed an unnecessary import from the
+   naturaldocs upload script.
+<li>
+   Elias Pschernig added a script to automatically upload the
+   naturaldocs generated documentation to the website.
+<li>
+   Peter Wang fixed missed renamings from AL_ to ALLEGRO_ in the
+   Linux and X code.
+<li>
+   Elias Pschernig merged 4.9-newgfx back to 4.9.
+<li>
+   Peter Wang fixed a "ALLEGRO__JOYSTICK" typo.
+<li>
+   Trent Gamblin renamed AL_ to ALLEGRO_ in input, events, and timer
+   code.
+<li>
+   Elias Pschernig implemented outline flag and blending for
+   draw_rectangle in the GLX driver.
+<li>
+   Elias Pschernig added another mysha.pcx for the font example.
+<li>
+   Elias Pschernig re-added GLX checked to scons build which went
+   missing in the merge.
+<li>
+   Elias Pschernig added icon.xpm which went missing in the merge.
+<li>
+   Peter Want replaced _al_draw_bitmap_region_memory_fast with
+   _al_draw_bitmap_region_memory.
+<li>
+   Trent Gamblin made memblit.c compile a little faster in debug
+   mode.
+<li>
+   Peter Wang mergedd changes in r7948:10859 on 4.9 branch to
+   4.9-newgfx  branch.
+<li>
+   Peter Wang enabled WANT_D3D by default. Only set ALLEGRO_D3D
+   on Windows.
+<li>
+   Trent Gamblin made al_acknowledge_resize take the display as a
+   parameter.
+<li>
+   Trent Gamblin fixed some warnings and made the MinGW build compilable
+   statically with gcc 4.2.1.
+<li>
+   Peter Wang fixed a bug in ALLEGRO_CONVERT_BGR_565_TO_ARGB_4444.
+<li>
+   Peter Wang renamed al_memory_management_functions() to
+   al_set_memory_management_functions() and added some extra
+   documenation for it.
+<li>
+   Peter Wang removed NaturalDocs markup for Allegro 4.x display
+   functions.
+<li>
+   Peter Wang made OpenGL libraries link if building with X11 support.
+<li>
+   Peter Wang fixed a signedness warning.
+<li>
+   Peter Wang made al_destroy_bitmap return immediately when passed a
+   null pointer instead of segfaulting.
+<li>
+   Elias Pschernig made some cosmetic improvements to the code.
+<li>
+   Elias Pschernig removed a bad optimization.
+<li>
+   Elias Pschernig removed > GLX 1.1 specific code.
+<li>
+   Trent Gamblin fixed several of the floating point unmapping functions
+   that were doing integer division.
+<li>
+   Elias Pschernig implemented blending in the GLX driver.
+<li>
+   Elias Pschernig fixed GLX rotation to use radians and allow negative
+   angles.
+<li>
+   Elias Pschernig implemented rotated blitting in the GLX driver.
+<li>
+   Jon Rafkind made scons install addons/font.
+<li>
+   Jon Rafkind added a scons file for addons.
+<li>
+   Jon Rafkind used target_scanner to find makedoc instead of using
+   Depends.
+<li>
+   Jon Rafkind forced makedoc to be a dependancy of the docs.
+<li>
+   Trent Gamblin made 60hz the default refresh rate of the D3D driver.
+<li>
+   Trent Gamblin changed al_create_mouse_cursor to accept
+   ALLEGRO_BITMAP structures.
+<li>
+   Trent Gamblin renamed __al_unmap_rgba to al_unmap_rgba_ex in the
+   glx driver.
+<li>
+   Trent Gamblin made al_(map|unmap)_rgb(a)_*_ex public.
+<li>
+   Trent Gamblin made D3D windows show the resize cursor when resizing
+   windows.
+<li>
+   Jon Rafkind added allegro includes for asmdef.
+<li>
+   Jon Rafkind erased older build demo target.
+<li>
+   Jon Rafkind added the demo to the scons build.
+<li>
+   Jon Rafkind made it so assembly files can be built statically.
+<li>
+   Jon Rafkind made scons always build asmdef.
+<li>
+   Trent Gamblin made al_acknowledge_resize and al_resize_display
+   adjust clipping in the D3D driver. Mad eal_set_current_display
+<li>
+   Trent Gamblin used higher compatibility flags to Direct3DCreate9,
+   made D3D driver die more gracefully on unsupported configurations,
+   removed flags from draw_line, and did more error checking.
+<li>
+   Trent Gamblin turned al_init macros into an inline function.
+<li>
+   Trent Gamblin commented out a TRACE line that was causing the entire
+   log to be overwritten.
+<li>
+   Peter Wang fixed an incorrect call to _al_vector_find_and_delete.
+<li>
+   Peter Wang made various formatting fixes.
+<li>
+   Peter Wang converted CR/LF line endings to LF.
+<li>
+   Trent Gamblin added NaturalDocs for the graphics api.
+<li>
+   Trent Gamblin fixed an instance where a variable could have been
+   used uninitialized.
+<li>
+   Trent Gamblin fixed texture coordinates in the D3D driver.
+<li>
+   Trent Gamblin fixed formatting and an improper assertion.
+<li>
+   Trent Gamblin removed a redundant call to al_set_target_bitmap.
+<li>
+   Trent Gamblin fixed a bug in the DX joystick code that caused it to
+   assert when it shouldn't.
+<li>
+   Trent Gamblin made al_create_display call al_flip_display
+   so the window is cleared.
+<li>
+   Trent Gamblin made the D3D driver work where render-to-texture
+   is not supported.
+<li>
+   Trent Gamblin removed masking support completely.
+<li>
+   Elias Pschernig got the font example working with the GLX driver.
+<li>
+   Elias Pschernig renamed the font addon in the scons build.
+<li>
+   Jon Rafkind made scons build modules in a separate directory.
+<li>
+   Jon Rafkind bumped the version to match cmake.
+<li>
+   Jon Rafkind fixed esd to be like the other unix modules.
+<li>
+   Trent Gamblin changed color map and unmap functions to use the target
+   bitmap.
+<li>
+   Trent Gamblin added the font example to the cmake build process.
+<li>
+   Elias Pschernig added the font example to the scons build process.
+<li>
+   Elias Pschernig removed special handling of "src" dir, and made various
+   cosmetic changes.
+<li>
+   Trent Gamblin made cmake install to MINGDIR.
+<li>
+   Trent Gamblin added a better font and example for the bitmap
+   font addon.
+<li>
+   Trent Gamblin removed unix header from install on other platforms.
+<li>
+   Trent Gamblin added a bitmap font addon.
+<li>
+   Trent Gamblin fixed a locking bug in the D3D driver.
+<li>
+   Elias Pschernig removed masking from the GLX driver.
+<li>
+   Trent Gamblin implemented blending for memory bitmaps
+   (very slow unless the blend mode is ALLEGRO_ONE,ALLEGRO_ZERO with a
+   pure white blend color).
+<li>
+   Trent Gamblin implemented blending for the D3D driver.
+<li>
+   Trent Gamblin added
+   ALLEGRO_PIXEL_FORMAT_ANY_(15|16|24|32)_(WITH_ALPHA|NO_ALPHA)
+   formats, used ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA in locking
+   examples, and ixed some formatting.
+<li>
+   Trent Gamblin added al_clone_bitmap which makes an exact copy of the
+   color-data of a bitmap.
+<li>
+   Trent Gamblin added a ALLEGRO_KEEP_BITMAP_FORMAT flag that forces
+   Allegro to use the same format as the disk file when loading bitmaps.
+<li>
+   Elias Pschernig implemented video bitmap masking for the GLX driver (by
+   converting to alpha textures and drawing with alpha blending).
+<li>
+   Elias Pschernig fixed clipping in the GLX driver.
+<li>
+   Trent Gamblin removed ALLEGRO_MASK_SOURCE flag in favor of
+   ALLEGRO_USE_MASKING. Mask color is now a bitmap property. Removed
+   ALLEGRO_NO_ALPHA flag and changed the meaning of
+   ALLEGRO_USE_ALPHA to mean do alpha blending or not. Added
+   al_set/get_bitmap_mask_color and removed al_set/get_mask_color.
+   New masking example added (exnew_masking).
+<li>
+   Trent Gamblin added proper clipping to al_put_pixel.
+<li>
+   Trent Gamblin renamed graphics stuff from AL_ to ALLEGRO_ and removed
+   patterned drawing.
+<li>
+   Elias Pschernig implemented clipping for the X11 GLX driver (only for
+   screen so far).
+<li>
+   Trent Gamblin removed unused set_bitmap_clip entry from the bitmap vtable.
+<li>
+   Trent Gamblin made clipping always enabled and made the clipping functions
+   operate on the current target bitamp.
+<li>
+   Trent Gamblin removed src/compat/coblit.c.
+<li>
+   Trent Gamblin renamed scroll_display to scroll_screen in display.c
+<li>
+   Trent Gamblin Removed commented code from src/display.c. Removed
+   include/allegro/display.h and src/compat/cogfx.c
+<li>
+   Elias Pschernig renamed XDUMMY driver to XGLX.
+<li>
+   Elias Pschernig made some cosmetic changes.
+<li>
+   Elias Pschernig made exblend work over the compatibility screen.
+<li>
+   Elias Pschernig implemented upload_compat_screen method in the GLX
+   driver.
+<li>
+   Elias Pschernig optimized al_lock_bitmap/al_unlock_bitmap slightly.
+<li>
+   Elias Pschernig added a flags parameter to the drawing primitives methods.
+<li>
+   Trent Gamblin added flags to primitives in display vtable and renamed
+   draw_filled_rectangle vtable entry to draw_rectangle.
+<li>
+   Elias Pschernig implemented AL_SINGLEBUFFER flag and fixed  bug with
+   AL_FULLSCREEN in the GLX driver.
+<li>
+   Trent Gamblin added a mode parameter to al_set_drawing_pattern.
+<li>
+   Trent Gamblin added AL_OUTLINED flag that is the default for primitives.
+<li>
+   Trent Gamblin added al_set_drawing_pattern and al_get_drawing_pattern,
+   added a flags parameters to all the primitive drawing functions that
+   can be: AL_FILLED, AL_PATTERNED, and added hline and vline functions
+   for memory bitmaps.
+<li>
+   Trent Gamblin ifdefed d3d stuff in win/wnewsys.c.
+<li>
+   Trent Gamblin removed d3dx9 library from CMakeLists.txt.
+<li>
+   Trent Gamblin ifdefed Direct3D stuff in display.c.
+<li>
+   Jon Rafkind made scons read win32 files from cmake file list.
+<li>
+   Trent Gamblin added al_wait_for_vsync and made it work with the D3D driver.
+<li>
+   Elias Pschernig implemented immediate-resize for al_resize_display, and
+   implemented fullscreen resizing.
+<li>
+   Trent Gamblin added al_enable_bitmap_clip and al_is_bitmap_clip_enabled,
+   added al_create_sub_bitmap, and made it work with D3D and memory
+   bitmaps.
+<li>
+   Elias Pschernig improved fullscreen handling.
+<li>
+   Elias Pschernig added shutdown_system vtable entry to the system driver,
+   and automatically call it on program exit. This allows unsetting
+   fullscreen modes in the X11 driver.
+<li>
+   Trent Gamblin added al_set_bitmap_clip and al_get_bitmap_clip, and made
+   them work with D3D and memory bitmaps.
+<li>
+   Elias Pschernig added XF86Vidmode fullscreen modes.
+<li>
+   Elias Pschernig added xdummy files to cmake files list.
+<li>
+   Elias Pschernig made al_resize_display work on non-resizable windows.
+<li>
+   Elias Pschernig fixed opengl setup being issued in wrong thread.
+<li>
+   Elias Pschernig moved src/misc/colconv.c from windows sources to general
+   sources.
+<li>
+   Elias Pschernig uncommented accidentally commented out line.
+<li>
+   Elias Pschernig made scons read the list of source files from
+   cmake/FileList.cmake, so there's only one place to add new files.
+<li>
+   Trent Gamblin made _al_get_pixel_value faster.
+<li>
+   Trent Gamblin made al_unmap_rgba_i use a table instead of relying on
+   al_unmap_rgba_f.
+<li>
+   Peter Wang changed #includes to use file names from the root of the include
+   hierarchy, i.e. #include "allegro/internal/foo.h" instead of #include
+   "internal/foo.h" and likewise for allegro/platform/foo.h.
+<li>
+   Peter Wang removed some stray CR characters.
+<li>
+   Trent Gamblin added al_get_bitmap_width, al_get_bitmap_height,
+   al_get_bitmap_format, and al_get_bitmap_flags.
+<li>
+   Trent Gamblin made al_draw_rotated_(scaled_)bitmap only lock the region of
+   the destination is needs to for memory bitmaps.
+<li>
+   Trent Gamblin made al_draw_scaled_bitmap use the AL_FLIP_* flags.
+<li>
+   Trent Gamblin added an example of resizing a fullscreen display.
+<li>
+   Elias Pschernig updated xdummy driver and implemented al_resize_display
+   for it.
+<li>
+   Elias Pschernig added another testcase.
+<li>
+   Trent Gamblin added al_get_display_width and al_get_display_height, made
+   al_get_display_* work on the current display, and renamed
+   al_notify_resize to al_acknowledge_resize.
+<li>
+   Trent Gamblin uncommented everything in cogfx.c (removing the display
+   parameter).
+<li>
+   Trent Gamblin made exnew_lockscreen use pitch.
+<li>
+   Trent Gamblin fixed scaled conversion macros (4444, 555, 565), added
+   XRGB_8888 pixel format, made windowed mode default, moved
+   get_num_display_modes and get_display_mode into the system
+   vtable.
+<li>
+   Trent Gamblin made exnew_lockbitmap use pitch.
+<li>
+   Trent Gamblin fixed D3D unlocking bug, and used desktop format in windowed
+   mode if not specified.
+<li>
+   Elias Pschernig fixed a bug where events reported the wrong source display
+   under X11.
+<li>
+   Elias Pschernig added three simple test cases.
+<li>
+   Elias Pschernig fixed al_lock_bitmap and al_unlock_bitmap implementation
+   in the xdummy driver (for now it works in a slow way).
+<li>
+   Trent Gamblin made al_notify_resize return success/failure and added
+   al_resize_display to resize the display from code.
+<li>
+   Elias Pschernig started implementing lock_region and unlock_region for the
+   xdummy driver.
+<li>
+   Elias Pschernig split xdraw.c out of xdisplay.c, 
+   used _AL_THREAD instead of pthreads in the xdummy driver,
+   added a lock to the xdummy driver, in order to implement
+   al_destroy_display, used the correct format.
+<li>
+   Elias Pschernig fixed a comment typo.
+<li>
+   Elias Pschernig fixed a typo in AL_CONVERT_PALETTE_8_TO_ABGR_8888.
+<li>
+   Trent Gamblin improved D3D line drawing, added al_get_num_display_modes and
+   al_get_display_mode, and cleaned up & organized some code.
+<li>
+   Trent Gamblin removed _al_win_delete_from_vector.
+<li>
+   Trent Gamblin added draw_memory_bitmap_region vtable hook to AL_DISPLAY.
+<li>
+   Elias Pschernig implemented enough of the xdummy driver to run exnewap
+   (doesn't display correctly yet though).
+<li>
+   Elias Pschernig updated scons build files.
+<li>
+   Elias Pschernig Removed windows specific includes from exnewapi.c.
+<li>
+   Elias Pschernig added missing al_convert_mask_to_alpha prototype.
+<li>
+   Peter Wang fixed src/tls.c to compile under Linux (not tested).
+<li>
+   Trent Gamblin put TLS support back in for MSVC and UNIX.
+<li>
+   Trent Gamblin cleaned up some code, added headers to new source files, 
+   grouped thread  local variables into one structure (UNIX support is
+   broken for now), and made mask color thread local.
+<li>
+   Trent Gamblin added clear, filled rectangle, and line for memory bitmaps.
+<li>
+   Trent Gamblin made it so the system driver is no longer hard coded,
+   added switch_out method to display vtable, made the D3D window and system
+   driver code generic.
+<li>
+   Trent Gamblin merged 4.9-elias and 4.9-trentg into 4.9-newgfx.
+<li>
+   Elias Pschernig adjusted prototype of _al_init to implementation.
+<li>
+   Elias Pschernig fixed a bogus cast.
+<li>
+   Elias Pschernig fixed typo in al_get_new_diplay_format for non-mingw.
+<li>
+   Trent Gamblin made display and bitmap parameters local to the calling
+   thread.
+<li>
+   Trent Gamblin added al_draw_rotated_bitmap and
+   al_draw_rotated_scaled_bitmap for memory bitmaps using Allegro's
+   software rotation code as a base.
+<li>
+   Trent Gamblin ported a stretch blit fix from 4.2, made al_init
+   call allegro_init, made al_draw_bitmap(_region) much faster on
+   memory bitmaps, and added al_draw_scaled_bitmap for memory bitmaps.
+<li>
+   Trent Gamblin renamed AL_LOCKED_RECTANGLE to AL_LOCKED_REGION, and 
+   started on memory bitmaps (al_draw_bitmap and al_draw_bitmap region work).
+<li>
+   Trent Gamblin made seperate functions for getting/setting display/bitmap
+   parameters, made backbuffer-as-source bitmap work in D3D, and changed
+   parameter ordering of some functions.
+<li>
+   Trent Gamblin added al_is_compatible_bitmap removed dependancy on
+   Allegro's 3D math functions from the D3D driver.
+<li>
+   Trent Gamblin added al_convert_mask_to_alpha, made put/get_pixel
+   faster if the bitmap is locked ahead of time, and brought back
+   AL_MASK_SOURCE.
+<li>
+   Trent Gamblin committed various bugfixes, implemented the RGB
+   mapping/unmapping functions from Bob's API.
+<li>
+   Trent Gamblin removed the D3DX library dependancy.
+<li>
+   Trent Gamblin committed various bugfixes and got all of the examples
+   working with the D3D driver.
+<li>
+   Trent Gamblin fixed some of the compatibility conversions.
+<li>
+   Trent Gamblin changed the examples back to autodetecting the graphics
+   driver.
+<li>
+   Trent Gamblin made fullscreen mode work with the D3D driver, and
+   non-resizable windows.
+<li>
+   Trent Gamblin finished bitmap conversion functions, improved locking,
+   implemented get/put pixel, and made some speed improvements.
+<li>
+   Trent Gamblin added a bitmap conversion function.
+<li>
+   Trent Gamblin got the demo game running in D3D.
+<li>
+   Trent Gamblin removed an unnecessary bitmap copy.
+<li>
+   Trent Gamblin added a skeleton D3D driver.
+<li>
+   Peter Wang fixed the generation of allegro-config under Mac OS.
+<li>
+   Michael Jensen fixed a mistake in the documenation for
+   is_compatible_font.
+<li>
+   Peter Wang fixed wrong variable in example code for load_font();
+<li>
+   Trent Gamblin fixed some problems with the cmake build on Windows.
+<li>
+   Peter Wang removed the second parameter in a call to
+   _al_event_source_needs_to_generate_event() which was missed
+   earlier.
+<li>
+   Peter Wang exposed some internal documentation on destructors,
+   events and event sources to NaturalDocs.
+<li>
+   Peter Wnag changed al_wait_for_event() so that a timeout value of "0"
+   means to not wait at all. To wait an indefinite amount of time the
+   caller should pass the AL_WAIT_FOREVER constant.
+<li>
+   Peter Wang removed the declarations of al_event_source_set_mask
+   and al_event_source_mask which were missed in the previous change.
+<li>
+   Peter Wang removed event masking abilities, that is, for
+   the user to prevent an event source from generating particular
+   event types. This was implemented using bitfields which limited the
+   number of event types to 32. Although the limit could be raised
+   event masking was probably not very useful anyway. In all, the
+   functions removed are: al_event_source_mask, al_event_source_set_mask,
+   al_wait_for_specific_event. The al_wait_for_specific_event() API also
+   required event types to be bitfields.
+<li>
+   Peter Wang fixed some spelling mistakes in the examples.
+<li>
+   Peter Wang bumped the version to 4.9.2.
+<li>
+   Peter Wang moved allegro/branches/4.3 to allegro/branches/4.9.
+<li>
+   Ryan Patterson clarified the documentation of stop_sample().
+<li>
+   Peter Wang and Trent Gamblin fixed some issues with the CMake build.
+   The allegro-config script was not generated properly and
+   liballeg_unsharable wasn't being installed.
+<li>
+   Matthew Leverton changed an instance of long long to LONG_LONG
+   and an LL suffix into a (LONG_LONG) cast, both for MSVC 6.
+<li>
+   Matthew Leverton submitted a fix for MSVC 6 regarding MSVC's
+   lack of a __FUNCTION__ macro.
+<li>
+   orz, Matthew Leverton, and Peter Wang made the ALLEGRO_USE_C=1
+   option to work under MinGW and MSVC.
+<li>
+   Anthony Cassidy fixed a typo.
+<li>
+   Peter Wang removed the 'msvc' target from the fix.sh help message as it
+   should not be used by users any more. Added a comment that it is used by
+   zipup.sh.
+<li>
+   Anthony 'Timorg' Cassidy made d_menu_proc fill up its assigned
+   area with the gui_bg_color.
+</ul>
+
+@heading
+Changes from 4.9.0 to 4.9.1 (March 2007)
+<p>
+   [Note that 4.9.1 was called 4.3.1 when it was originally released.]
+<ul><li>
+   Added a new mouse and cursor API. The new functions are:
+   <ul><li>
+      al_install_mouse, al_uninstall_mouse, al_get_mouse,
+      al_get_mouse_num_buttons, al_get_mouse_num_axes, al_set_mouse_xy,
+      al_set_mouse_z, al_set_mouse_w, al_set_mouse_axis, al_set_mouse_range,
+      al_get_mouse_state, al_mouse_button_down, al_mouse_state_axis
+   <li>
+      al_create_mouse_cursor, al_destroy_mouse_cursor, al_set_mouse_cursor,
+      al_set_system_mouse_cursor, al_show_mouse_cursor, al_hide_mouse_cursor
+   </ul>
+<li>
+   Added documentation for some parts of the 4.9 API using the NaturalDocs
+   generation system. The documentation is nowhere near as good as a proper
+   manual, but it's still better than nothing.
+<li>
+   Added a commented example demonstating the new API (exnew_events.c).
+<li>
+   Added CMake and SCons build systems. These are mainly for use by Allegro
+   developers at present.
+<li>
+   Various bug fixes and minor changes.
+</ul>
+
+@heading
+Changes from 4.2 series to 4.9.0 (July 2006)
+<p>
+   [Note that 4.9.0 was called 4.3.0 when it was originally released.]
 <ul><li>
    Basically we're just wrapping up what we have in version control up to
    now.  See the commit logs if you want details.
@@ -60,6 +675,244 @@ Changes from 4.2 series to 4.3.0 (July 2006)
       al_timer_is_started al_timer_get_speed al_timer_set_speed
       al_timer_get_count al_timer_set_count
    </ul>
+</ul>
+
+@heading
+Changes from 4.2.1 RC1 to 4.2.1 (November 2006)
+<ul><li>
+   Peter Wang made the Unix ports query the memory page size with sysconf()
+   when necessary, instead of using the PAGE_SIZE constant, which seems to be
+   Linux-specific.
+<li>
+   Matthew Leverton gave the STATICRUNTIME builds of MSVC new names by
+   appending _crt (c run time) to the libraries. He also fixed the problem of
+   incorrectly setting the EMBED_MANIFEST variable when using the
+   STATICRUNTIME.
+<li>
+   Andrei Ellman fixed an inverted test in pack_fopen_chunk on Windows.
+<li>
+   Peter Hull made 32-bit icon generation by fixbundle endian-independent
+   (colours were incorrect on Intel Macs).
+<li>
+   Peter Wang fixed a long standing bug where some compressed packfiles would not
+   be read back properly (premature EOF).  Reported by jman2050.
+<li>
+   Andrei Ellman spotted a free() of an internal buffer returned by tmpnam().
+<li>
+   Peter Hull fixed a problem with mouse-related deadlock on MacOS X as
+   reported by Mike Farrell.
+<li>
+   Peter Hull implemented simulation of video bitmaps on MacOS X, so that
+   page flipping will work.
+<li>
+   Peter Hull fixed an endian problem in the digital sound driver on MacOS X.
+<li>
+   Elias Pschernig and Chris Robinson fixed problems with UTF-8 filenames
+   under Unix, as reported by Grzegorz.  Non-ASCII non-UTF-8 filenames remain
+   broken.
+<li>
+   Chris Robinson fixed some problems with non-ASCII filenames under Windows.
+<li>
+   Elias Pschernig made the X11 driver call XInitThreads, to make Mesa-OpenGL
+   work together with Allegro.  It can be disabled at runtime through a config
+   variable.
+<li>
+   Andrei Ellman fixed a bug in datedit.c that could crash the grabber.
+<li>
+   Elias Pschernig added file_size_ex(), which returns a 64 bit integer
+   to handle large files.
+<li>
+   Ron Novy made improvements to the test program.
+<li>
+   Peter Hull fixed problems with set_mouse_sprite() on Intel Macs.
+<li>
+   Peter Hull added universal binary support to the MacOS X port.
+<li>
+   Peter Wang and Evert Glebbeek independently fixed a problem with dependency
+   generation for MacOS X on non-Mac systems.
+<li>
+   Many smaller fixes and updates by Peter Hull, Elias Pschernig, Peter Wang
+   and Milan Mimica.
+</ul>
+
+@heading
+Changes from 4.2.2 RC1 to 4.2.2 (July 2007)
+<ul><li>
+   Matthew Leverton added build instructions for DMC and updated the MSVC
+   project files and instructions.
+<li>
+   Matthew Leverton added a shell script wrapper around gcc to build universal
+   binaries (i386 + PPC) on Mac OS X and made the Allegro makefile use it.
+<li>
+   Peter Hull reenabled the Quit menu option on Mac OS X when
+   set_close_button_callback is used.
+<li>
+   Rikard Peterson fixed the Mac OS X joystick driver so that
+   HID_ELEMENT_STANDALONE_AXIS axes correctly got the flag JOYFLAG_UNSIGNED
+   and not JOYFLAG_DIGITAL.
+<li>
+   Matthew Leverton fixed a problem with the GDI driver blitting a rectangle
+   smaller than the bitmap's height that touches the bottom left corner of a
+   bitmap.
+<li>
+   Some minor changes.
+</ul>
+
+@heading
+Changes from 4.2.1 to 4.2.2 RC1 (July 2007)
+<ul><li>
+   Matthew Leverton added project files for MSVC 6/7/8 (see the build
+   directory and Allegro Wiki for instructions).
+<li>
+   Matthew Leverton added initial support for the Digital Mars C compiler
+   (for the Windows port).  It only works with the C-only port and
+   obj\dmc\plugins.h needs to be built by hand.
+<li>
+   Peter Wang cleaned up most of the autoconf namespace pollution.
+<li>
+   Matthew Smith made a fix for C locking code in GDI.
+<li>
+   Trent Gamblin made the fullscreen DirectX driver save and restore the
+   palette when switching away and back in 8-bit video modes.
+<li>
+   Elias Pschernig added missing documentation for pack_ungetc().
+<li>
+   Trent Gamblin fixed the C version of stretch_blit so it now draws
+   correctly. He also made it about 20% faster along the way.
+<li>
+   orz and Matthew Leverton made the ALLEGRO_USE_C=1 option to work under
+   MinGW and MSVC.
+<li>
+   Erno Schwetter fixed a long-standing bug in polygon() where the
+   bottom-most pixels would not be drawn.
+<li>
+   Anthony 'Timorg' Cassidy made d_menu_proc fill up its assigned area with
+   the gui_bg_color.
+<li>
+   Phil Krylov fixed a bug that prevented load_bios_font() from loading 8x16
+   fonts.
+<li>
+   Etienne Vouga fixed a bug with the reset_controllers MIDI command.
+<li>
+   Milan Mimica fixed a double SWITCH_IN event callback bug when
+   de-minimizing an Allegro program in Windows.
+<li>
+   Erno Schwetter fixed a bug where __al_linux_console_fd was used in
+   display_switch_lock() without the console being initialized first.
+<li>
+   Erno Schwetter fixed an unbalanced __al_linux_console_graphics() call.
+<li>
+   Ryan Patterson fixed a crash in free_config_entries.
+<li>
+   Elias Pschernig added support for horizontal wheel mice (so far, only the
+   X11 driver reports any horizontal wheel movement though). Also increased
+   the number of supported mouse buttons from 3 to 5 for the X11 driver.
+<li>
+   Jon Rafkind and Karthik Kumar fixed a problem where allegro-config would
+   respect neither --libdir nor --includedir.
+<li>
+   Peter Wang fixed some problems with the ALSA MIDI driver in the case of
+   failure.
+<li>
+   torhu fixed a bug in akaitest where an array was indexed with -1.
+<li>
+   Trent Gamblin implemented set_mouse_speed under X11.  Peter Wang made
+   setting stick only while the cursor is in the Allegro window.
+<li>
+   Evert Glebbeek added desktop_color_depth and get_desktop_resolution to the
+   Linux fbcon driver.
+<li>
+   Matthew Leverton fixed building of universal binaries on MacOS X. This
+   currently requires OS X 10.4 on both PPC and Intel.
+<li>
+   Milan Miminca made the fbcon driver initialization fail if an unsupported
+   color depth was set.
+<li>
+   Michal Molhanec and Milan Mimica simplified the MSVC build process
+   and updated the documentation.
+<li>
+   Andrei Ellman made the MSVC makefile compatible with cygwin port of
+   make-3.81 (and newer?). makefile.vc now uses cygpath tool to convert DOS
+   8.3 paths to unix-style paths.
+<li>
+   Daniel Schlyder added a functions is_trans_font, font_has_alpha.
+<li>
+   Daniel Schlyder made load_txt_font() additionally search for files
+   referenced in the font script in the same directory as the script itself.
+   It still searches in the current working directory first (for relative
+   paths).
+<li>
+   Daniel Schlyder documented that register_assert_handler() and
+   register_trace_handler() can be called before initialising Allegro.
+<li>
+   Daniel Schlyder prevented the Windows port from registering its default
+   trace handler on initialisation if the user had previously registered a
+   custom trace handler.
+<li>
+   Andrei Ellman modified the 6-to-8 bit value scaling tables to be more
+   evenly distributed, and changed the implementation of
+   create_blender_table() to create a more evenly distributed distribution of
+   the lower 2 bits.  It should be faster as well. 
+<li>
+   Other minor bug fixes and documentation updates.
+</ul>
+
+@heading
+Changes from 4.2.1 RC1 to 4.2.1 (November 2006)
+<ul><li>
+   Peter Wang made the Unix ports query the memory page size with sysconf()
+   when necessary, instead of using the PAGE_SIZE constant, which seems to be
+   Linux-specific.
+<li>
+   Matthew Leverton gave the STATICRUNTIME builds of MSVC new names by
+   appending _crt (c run time) to the libraries. He also fixed the problem of
+   incorrectly setting the EMBED_MANIFEST variable when using the
+   STATICRUNTIME.
+<li>
+   Andrei Ellman fixed an inverted test in pack_fopen_chunk on Windows.
+<li>
+   Peter Hull made 32-bit icon generation by fixbundle endian-independent
+   (colours were incorrect on Intel Macs).
+<li>
+   Peter Wang fixed a long standing bug where some compressed packfiles would not
+   be read back properly (premature EOF).  Reported by jman2050.
+<li>
+   Andrei Ellman spotted a free() of an internal buffer returned by tmpnam().
+<li>
+   Peter Hull fixed a problem with mouse-related deadlock on MacOS X as
+   reported by Mike Farrell.
+<li>
+   Peter Hull implemented simulation of video bitmaps on MacOS X, so that
+   page flipping will work.
+<li>
+   Peter Hull fixed an endian problem in the digital sound driver on MacOS X.
+<li>
+   Elias Pschernig and Chris Robinson fixed problems with UTF-8 filenames
+   under Unix, as reported by Grzegorz.  Non-ASCII non-UTF-8 filenames remain
+   broken.
+<li>
+   Chris Robinson fixed some problems with non-ASCII filenames under Windows.
+<li>
+   Elias Pschernig made the X11 driver call XInitThreads, to make Mesa-OpenGL
+   work together with Allegro.  It can be disabled at runtime through a config
+   variable.
+<li>
+   Andrei Ellman fixed a bug in datedit.c that could crash the grabber.
+<li>
+   Elias Pschernig added file_size_ex(), which returns a 64 bit integer
+   to handle large files.
+<li>
+   Ron Novy made improvements to the test program.
+<li>
+   Peter Hull fixed problems with set_mouse_sprite() on Intel Macs.
+<li>
+   Peter Hull added universal binary support to the MacOS X port.
+<li>
+   Peter Wang and Evert Glebbeek independently fixed a problem with dependency
+   generation for MacOS X on non-Mac systems.
+<li>
+   Many smaller fixes and updates by Peter Hull, Elias Pschernig, Peter Wang
+   and Milan Mimica.
 </ul>
 
 @heading
@@ -143,7 +996,7 @@ Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
    Peter Wang fixed some problems with binary compatibility checking in the
    4.2 branch.
 <li>
-   Catatonic Porpoise added OpenBSD detection (in addaition to FreeBSD and
+   Catatonic Porpoise added OpenBSD detection (in addition to FreeBSD and
    NetBSD) and fixed an issue with executable rights not set on the memory
    for the i386 stretcher on UNIX systems.
 <li>
@@ -203,7 +1056,7 @@ Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
    Peter Wang made the svgalib driver save and restore the palette on VT
    switches.
 <li>
-   Peter Wand fixed a problem with the fbcon driver and VT switching.
+   Peter Wang fixed a problem with the fbcon driver and VT switching.
 <li>
    Milan Mimica delayed Linux console initialisation until it is required.
    This way the user can write command-line programs using timers  without
@@ -238,11 +1091,9 @@ Changes from 4.2.0 to 4.2.1 RC1 (May 2006)
 <li>
    Annie Testes made the linux evdev mouse driver use the correct device files.
 <li>
-tjaden
    Vincent Penecherc'h made the linux fbcon driver set a ramp colourmap for
    directcolor modes, otherwise colours in those modes were all wrong.
 <li>
-tjaden
    Vincent Penecherc'h fixed a problem with the linux fbcon driver, where it
    would keep using the old pitch after changing resolutions.
 <li>
@@ -526,7 +1377,7 @@ Changes from 4.2.0 beta 2 to 4.2.0 beta 3 (May 2005)
    added a datedit_select() callback to datedit.
 <li>
    Evert Glebbeek fixed some unsafe assumptions on the size of integer 
-   datatypes.
+   data types.
 <li>
    Arthur Huillet fixed a typo in the docs.
 <li>
@@ -799,7 +1650,7 @@ Changes from 4.1.16 to 4.1.17 (December 2004)
    Evert Glebbeek added support for the use of native window manager cursors.
 <li>
    Chris Robinson made install_allegro() check if the library version matches
-   the version of the headerfiles installed.
+   the version of the header files installed.
 <li>
    Peter Wang fixed some problems with rest() on UNIX systems.
 <li>
@@ -881,7 +1732,7 @@ Changes from 4.1.16 to 4.1.17 (December 2004)
 <li>
    Matthew Leverton added support for a fourth mouse button to the Windows port.
 <li>
-   Michal Molhanec added a faq section about the giftware license.
+   Michal Molhanec added a FAQ section about the giftware license.
 <li>
    Elias Pschernig added the license disclaimer to the docs.
 <li>
@@ -957,7 +1808,7 @@ Changes from 4.1.15 to 4.1.16 (October 2004)
    Bobby Ferris added SciTE .api file generation to makedoc.
 <li>
    Sam Hocevar made is possible to put functions defined in assembler 
-   sourcefiles in a shared library in UNIX.
+   source files in a shared library in UNIX.
 <li>
    Evert Glebbeek removed the weak declaration of allegro_icon and changed
    xfixicon.sh accordingly.
@@ -984,17 +1835,17 @@ Changes from 4.1.14 to 4.1.15 (July 2004)
    Elias Pschernig fixed some gcc warnings.
 <li>
    Vincent Penquerc'h added the ability to pass extra CFLAGS and LDFLAGS on the
-   make commandline.
+   make command line.
 <li>
    Elias Pschernig made ex3buf work outside of DOS.
 <li>
-   Chris Robinson made the alleg mixer default instead of the directx one in 
+   Chris Robinson made the alleg mixer default instead of the DirectX one in 
    windows.
 <li>
    Angelo Mottola fixed a bug where vsync() was blocking on a mutex if called 
    when the screen was already acquired in windowed mode.
 <li>
-   Evert Glebbeek made tripple buffering work in the demo if VRAM is a single 
+   Evert Glebbeek made triple buffering work in the demo if VRAM is a single 
    surface.
 <li>
    Jon Rafkind provided an m4 macro for Allegro.
@@ -1002,7 +1853,7 @@ Changes from 4.1.14 to 4.1.15 (July 2004)
    Eric Botcazou and Henrik Stokseth made some improvements to the build
    process.
 <li>
-   Grzegroz Adam Hankiewicz added various fixes to the documentation and
+   Grzegorz Adam Hankiewicz added various fixes to the documentation and
    to the documentation generation system.
 <li>
    V Karthik Kumar added a Tamil language greeting to exunicode.
@@ -1031,7 +1882,7 @@ Changes from 4.1.14 to 4.1.15 (July 2004)
    Henrik Stokseth improved buffer security in various parts of the
    library.
 <li>
-   Evert Gebbek made strncpy use sizeof() for fixed length strings.
+   Evert Glebbeek made strncpy use sizeof() for fixed length strings.
 <li>
    Eric Botcazou made KEY_PAUSE work properly in windows.
 <li>
@@ -1050,7 +1901,7 @@ Changes from 4.1.14 to 4.1.15 (July 2004)
    Chris Robinson increased the default volume, which was set very quiet
    previously.
 <li>
-   Grzegroz Adam Hankiewicz clarified the bahavior of install_mouse.
+   Grzegorz Adam Hankiewicz clarified the behavior of install_mouse.
 <li>
    Elias Pschernig improved the pause key behavior.
 <li>

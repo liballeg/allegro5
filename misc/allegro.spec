@@ -6,7 +6,7 @@ Summary(fr): Une librairie de programmation de jeux.
 Summary(it): Una libreria per la programmazione di videogiochi.
 Summary(de): Eine Bibliothek zur Programmierung von Spielen.
 Name: allegro
-Version: 4.3.1
+Version: 4.9.2
 Release: 1
 License: Gift Ware
 Packager: Allegro development team
@@ -14,7 +14,7 @@ Group: System/Libraries
 Source: ftp://sunsite.dk/allegro/%{name}-%{version}.tar.gz
 URL: http://alleg.sourceforge.net
 # If you don't have the icon, just comment it out.
-Icon: alex.xpm
+Icon: icon.xpm
 Buildroot: %{_tmppath}/%{name}-buildroot
 # Older rpms don't support this; just make sure you have it.
 #BuildRequires: texinfo

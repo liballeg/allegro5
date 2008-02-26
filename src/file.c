@@ -1,6 +1,6 @@
-/*         ______   ___    ___
- *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+/*         ______   ___    ___ 
+ *        /\  _  \ /\_ \  /\_ \ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -28,8 +28,8 @@
 #include <string.h>
 #include <limits.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 #ifndef ALLEGRO_MPW
    #include <sys/stat.h>
@@ -40,7 +40,7 @@
 #endif
 
 #ifdef ALLEGRO_WINDOWS
-   #include "winalleg.h" /* for GetTempPath */
+   #include "allegro5/winalleg.h" /* for GetTempPath */
 #endif
 
 
@@ -74,7 +74,7 @@ static PACKFILE_VTABLE normal_vtable;
 
 static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode);
 
-static int file_encoding = U_ASCII;
+static int filename_encoding = U_ASCII;
 
 
 #define FA_DAT_FLAGS  (FA_RDONLY | FA_ARCH)
@@ -98,13 +98,14 @@ static void destroy_resource_path_list(void);
  ****************** Path handling ******************
  ***************************************************/
 
+
 /* fix_filename_case:
  *  Converts filename to upper case.
  */
 char *fix_filename_case(char *filename)
 {
    ASSERT(filename);
-
+   
    if (!ALLEGRO_LFN)
       ustrupr(filename);
 
@@ -211,7 +212,7 @@ char *canonicalize_filename(char *dest, AL_CONST char *filename, int size)
 
 	       setpwent();
 
-	       while (((pwd = getpwent()) != NULL) &&
+	       while (((pwd = getpwent()) != NULL) && 
 		      (strcmp(pwd->pw_name, ascii_username) != 0))
 		  ;
 
@@ -478,7 +479,7 @@ int is_relative_filename(AL_CONST char *filename)
     * or start with a '/' (Unix) are considered absolute.
     */
 #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
-   if (ustrchr(filename, DEVICE_SEPARATOR))
+   if (ustrchr(filename, DEVICE_SEPARATOR)) 
       return FALSE;
 #endif
 
@@ -671,22 +672,22 @@ void put_backslash(char *filename)
  ***************************************************/
 
 
-/* set_file_encoding:
+/* set_filename_encoding:
  *  Sets the encoding to use for filenames. By default, UTF8 is assumed.
  */
-void set_file_encoding(int encoding)
+void set_filename_encoding(int encoding)
 {
-    file_encoding = encoding;
+    filename_encoding = encoding;
 }
 
 
 
-/* get_file_encoding:
+/* get_filename_encoding:
  *  Returns the encoding currently assumed for filenames.
  */
-int get_file_encoding(void)
+int get_filename_encoding(void)
 {
-    return file_encoding ;
+    return filename_encoding ;
 }
 
 
@@ -694,8 +695,8 @@ int get_file_encoding(void)
 /* file_exists:
  *  Checks whether a file matching the given name and attributes exists,
  *  returning non zero if it does. The file attribute may contain any of
- *  the FA_* constants from dir.h. If aret is not null, it will be set
- *  to the attributes of the matching file. If an error occurs the system
+ *  the FA_* constants from dir.h. If aret is not null, it will be set 
+ *  to the attributes of the matching file. If an error occurs the system 
  *  error code will be stored in errno.
  */
 int file_exists(AL_CONST char *filename, int attrib, int *aret)
@@ -823,7 +824,7 @@ int delete_file(AL_CONST char *filename)
       *allegro_errno = errno;
       return -1;
    }
-
+ 
    return 0;
 }
 
@@ -838,7 +839,7 @@ int delete_file(AL_CONST char *filename)
  *  can use this for whatever you like). If an error occurs an error code
  *  will be stored in errno, and callback() can cause for_each_file() to
  *  abort by setting errno itself. Returns the number of successful calls
- *  made to callback(). The file attribute may contain any of the FA_*
+ *  made to callback(). The file attribute may contain any of the FA_* 
  *  flags from dir.h.
  */
 int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST char *filename, int attrib, int param), int param)
@@ -966,7 +967,7 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 
    usetc(hash+usetc(hash, '#'), 0);
 
-   /* try path/name */
+   /* try path/name */ 
    if (ugetc(name)) {
       ustrzcpy(dest, size, path);
       ustrzcat(dest, size, name);
@@ -1017,7 +1018,7 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 	 return 0;
    }
 
-   /* try path/objectname */
+   /* try path/objectname */ 
    if (objectname) {
       ustrzcpy(dest, size, path);
       ustrzcat(dest, size, objectname);
@@ -1062,12 +1063,12 @@ int set_allegro_resource_path(int priority, AL_CONST char *path)
    RESOURCE_PATH *node = resource_path_list;
    RESOURCE_PATH *prior_node = NULL;
    RESOURCE_PATH *new_node = NULL;
-
+   
    while (node && node->priority > priority) {
       prior_node = node;
       node = node->next;
    }
-
+   
    if (path) {
       if (node && priority == node->priority)
 	 new_node = node;
@@ -1075,9 +1076,9 @@ int set_allegro_resource_path(int priority, AL_CONST char *path)
 	 new_node = _AL_MALLOC(sizeof(RESOURCE_PATH));
 	 if (!new_node)
 	    return 0;
-
+         
 	 new_node->priority = priority;
-
+         
 	 if (prior_node) {
 	    prior_node->next = new_node;
 	    new_node->next = node;
@@ -1086,12 +1087,12 @@ int set_allegro_resource_path(int priority, AL_CONST char *path)
 	    new_node->next = resource_path_list;
 	    resource_path_list = new_node;
 	 }
-
+         
 	 if (!resource_path_list->next)
 	    _add_exit_func(destroy_resource_path_list,
 			   "destroy_resource_path_list");
       }
-
+      
       ustrzcpy(new_node->path,
 	       sizeof(new_node->path) - ucwidth(OTHER_PATH_SEPARATOR),
 	       path);
@@ -1104,16 +1105,16 @@ int set_allegro_resource_path(int priority, AL_CONST char *path)
 	     prior_node->next = node->next;
 	  else
 	     resource_path_list = node->next;
-
+          
 	  _AL_FREE(node);
-
+          
 	  if (!resource_path_list)
 	     _remove_exit_func(destroy_resource_path_list);
        }
        else
 	  return 0;
    }
-
+   
    return 1;
 }
 
@@ -1122,10 +1123,10 @@ int set_allegro_resource_path(int priority, AL_CONST char *path)
 static void destroy_resource_path_list(void)
 {
    RESOURCE_PATH *node = resource_path_list;
-
+   
    if (node)
       _remove_exit_func(destroy_resource_path_list);
-
+   
    while (node) {
       resource_path_list = node->next;
       _AL_FREE(node);
@@ -1153,7 +1154,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
    char *s;
    int i, c;
    RESOURCE_PATH *rp_list_node = resource_path_list;
-
+   
    ASSERT(dest);
 
    /* if the resource is a path with no filename, look in that location */
@@ -1223,7 +1224,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
       put_backslash(path);
 
       if (find_resource(dest, path, rname, datafile, objectname, subdir, size) == 0)
-	 return 0;
+	 return 0; 
    }
 
    /* try any extra environment variable that the parameters say to use */
@@ -1235,7 +1236,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
 	 put_backslash(path);
 
 	 if (find_resource(dest, path, rname, datafile, objectname, subdir, size) == 0)
-	    return 0;
+	    return 0; 
       }
    }
 
@@ -1268,7 +1269,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
       }
    }
 
-   /* argh, all that work, and still no biscuit */
+   /* argh, all that work, and still no biscuit */ 
    return -1;
 }
 
@@ -1334,7 +1335,7 @@ static PACKFILE *pack_fopen_exe_file(void)
 
 
 /* pack_fopen_datafile_object:
- *  Recursive helper to handle opening member objects from datafiles,
+ *  Recursive helper to handle opening member objects from datafiles, 
  *  given a fake filename in the form 'object_name[/nestedobject]'.
  */
 static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, AL_CONST char *objname)
@@ -1405,7 +1406,7 @@ static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, AL_CONST char *objname)
    /* oh dear, the object isn't there... */
    pack_fclose(f);
    *allegro_errno = ENOENT;
-   return NULL;
+   return NULL; 
 }
 
 
@@ -1676,7 +1677,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	    pack_mputl(encrypt_id(F_NOPACK_MAGIC, TRUE), f);
       }
    }
-   else {
+   else { 
       if (f->normal.flags & PACKFILE_FLAG_PACK) {
 	 /* read a packed file */
          f->normal.unpack_data = create_lzss_unpack_data();
@@ -1702,37 +1703,37 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	 {
 	    /* duplicate the file descriptor */
 	    int fd2 = dup(fd);
-
+  
 	    if (fd2<0) {
 	       pack_fclose(f->normal.parent);
 	       free_packfile(f);
 	       *allegro_errno = errno;
 	       return NULL;
 	    }
-
+  
 	    /* close the parent file (logically, not physically) */
 	    pack_fclose(f->normal.parent);
-
+  
 	    /* backward compatibility mode */
 	    if (!clone_password(f)) {
 	       free_packfile(f);
 	       return NULL;
 	    }
-
+  
 	    f->normal.flags |= PACKFILE_FLAG_OLD_CRYPT;
-
+  
 	    /* re-open the parent file */
 	    lseek(fd2, 0, SEEK_SET);
-
+  
 	    if ((f->normal.parent = _pack_fdopen(fd2, F_READ)) == NULL) {
 	       free_packfile(f);
 	       return NULL;
 	    }
-
+  
 	    f->normal.parent->normal.flags |= PACKFILE_FLAG_OLD_CRYPT;
-
+  
 	    pack_mgetl(f->normal.parent);
-
+  
 	    if (header == encrypt_id(F_PACK_MAGIC, FALSE))
 	       header = encrypt_id(F_PACK_MAGIC, TRUE);
 	    else
@@ -1797,11 +1798,11 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
  *       data does not need to be decompressed.
  *
  *  Instead of these flags, one of the constants F_READ, F_WRITE,
- *  F_READ_PACKED, F_WRITE_PACKED or F_WRITE_NOPACK may be used as the second
+ *  F_READ_PACKED, F_WRITE_PACKED or F_WRITE_NOPACK may be used as the second 
  *  argument to fopen().
  *
  *  On success, fopen() returns a pointer to a file structure, and on error
- *  it returns NULL and stores an error code in errno. An attempt to read a
+ *  it returns NULL and stores an error code in errno. An attempt to read a 
  *  normal file in packed mode will cause errno to be set to EDOM.
  */
 PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
@@ -1911,12 +1912,12 @@ int pack_fclose(PACKFILE *f)
 
 
 
-/* pack_fopen_chunk:
+/* pack_fopen_chunk: 
  *  Opens a sub-chunk of the specified file, for reading or writing depending
  *  on the type of the file. The returned file pointer describes the sub
  *  chunk, and replaces the original file, which will no longer be valid.
  *  When writing to a chunk file, data is sent to the original file, but
- *  is prefixed with two length counts (32 bit, big-endian). For uncompressed
+ *  is prefixed with two length counts (32 bit, big-endian). For uncompressed 
  *  chunks these will both be set to the length of the data in the chunk.
  *  For compressed chunks, created by setting the pack flag, the first will
  *  contain the raw size of the chunk, and the second will be the negative
@@ -1944,25 +1945,25 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 
    if (f->normal.flags & PACKFILE_FLAG_WRITE) {
 
-      /* write a sub-chunk */
+      /* write a sub-chunk */ 
       int tmp_fd = -1;
       char *tmp_dir = NULL;
       char *tmp_name = NULL;
-      #ifndef HAVE_MKSTEMP
+      #ifndef ALLEGRO_HAVE_MKSTEMP
       char* tmpnam_string;
       #endif
 
       #ifdef ALLEGRO_WINDOWS
          int size;
          int new_size = 64;
-
+         
          /* Get the path of the temporary directory */
          do {
             size = new_size;
-            tmp_dir = realloc(tmp_dir, size);
+            tmp_dir = _AL_REALLOC(tmp_dir, size);
             new_size = GetTempPath(size, tmp_dir);
-         } while ( (size > new_size) && (new_size > 0) );
-
+         } while ( (size < new_size) && (new_size > 0) );
+         
          /* Check if we retrieved the path OK */
          if (new_size == 0)
             sprintf(tmp_dir, "%s", "");
@@ -1992,7 +1993,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       /* the file is open in read/write mode, even if the pack file
        * seems to be in write only mode
        */
-      #ifdef HAVE_MKSTEMP
+      #ifdef ALLEGRO_HAVE_MKSTEMP
 
          tmp_name = _AL_MALLOC_ATOMIC(strlen(tmp_dir) + 16);
          sprintf(tmp_name, "%s/XXXXXX", tmp_dir);
@@ -2006,7 +2007,6 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
          tmpnam_string = tmpnam(NULL);
          tmp_name = _AL_MALLOC_ATOMIC(strlen(tmp_dir) + strlen(tmpnam_string) + 2);
          sprintf(tmp_name, "%s/%s", tmp_dir, tmpnam_string);
-         _AL_FREE(tmpnam_string);
 
          if (tmp_name) {
 #ifndef ALLEGRO_MPW
@@ -2021,7 +2021,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       if (tmp_fd < 0) {
          _AL_FREE(tmp_dir);
          _AL_FREE(tmp_name);
-
+      
          return NULL;
       }
 
@@ -2038,9 +2038,9 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 
 	 chunk->normal.flags |= PACKFILE_FLAG_CHUNK;
       }
-
-      free(tmp_dir);
-      free(tmp_name);
+      
+      _AL_FREE(tmp_dir);
+      _AL_FREE(tmp_name);
    }
    else {
       /* read a sub-chunk */
@@ -2096,7 +2096,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 /* pack_fclose_chunk:
  *  Call after reading or writing a sub-chunk. This closes the chunk file,
  *  and returns a pointer to the original file structure (the one you
- *  passed to pack_fopen_chunk()), to allow you to read or write data
+ *  passed to pack_fopen_chunk()), to allow you to read or write data 
  *  after the chunk. If an error occurs, returns NULL and sets errno.
  */
 PACKFILE *pack_fclose_chunk(PACKFILE *f)
@@ -2196,7 +2196,7 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
 
 
 /* pack_fseek:
- *  Like the stdio fseek() function, but only supports forward seeks
+ *  Like the stdio fseek() function, but only supports forward seeks 
  *  relative to the current file position.
  */
 int pack_fseek(PACKFILE *f, int offset)
@@ -2239,7 +2239,7 @@ int pack_putc(int c, PACKFILE *f)
 
 
 /* pack_feof:
- *  pack_feof() returns nonzero as soon as you reach the end of the file. It
+ *  pack_feof() returns nonzero as soon as you reach the end of the file. It 
  *  does not wait for you to attempt to read beyond the end of the file,
  *  contrary to the ISO C feof() function.
  */
@@ -2432,8 +2432,8 @@ long pack_mputl(long l, PACKFILE *f)
 
 
 /* pack_fread:
- *  Reads n bytes from f and stores them at memory location p. Returns the
- *  number of items read, which will be less than n if EOF is reached or an
+ *  Reads n bytes from f and stores them at memory location p. Returns the 
+ *  number of items read, which will be less than n if EOF is reached or an 
  *  error occurs. Error codes are stored in errno.
  */
 long pack_fread(void *p, long n, PACKFILE *f)
@@ -2450,8 +2450,8 @@ long pack_fread(void *p, long n, PACKFILE *f)
 
 
 /* pack_fwrite:
- *  Writes n bytes to the file f from memory location p. Returns the number
- *  of items written, which will be less than n if an error occurs. Error
+ *  Writes n bytes to the file f from memory location p. Returns the number 
+ *  of items written, which will be less than n if an error occurs. Error 
  *  codes are stored in errno.
  */
 long pack_fwrite(AL_CONST void *p, long n, PACKFILE *f)
@@ -2487,7 +2487,7 @@ int pack_ungetc(int c, PACKFILE *f)
  *  Reads a line from a text file, storing it at location p. Stops when a
  *  linefeed is encountered, or max bytes have been read. Returns a pointer
  *  to where it stored the text, or NULL on error. The end of line is
- *  handled by detecting optional '\r' characters optionally followed
+ *  handled by detecting optional '\r' characters optionally followed 
  *  by '\n' characters. This supports CR-LF (DOS/Windows), LF (Unix), and
  *  CR (Mac) formats.
  */
@@ -2687,6 +2687,28 @@ static int normal_fclose(void *_f)
 
 
 
+/* normal_no_more_input:
+ *  Return non-zero if the number of bytes remaining in the file (todo) is
+ *  less than or equal to zero.
+ *
+ *  However, there is a special case.  If we are reading from a LZSS
+ *  compressed file, the latest call to lzss_read() may have suspended while
+ *  writing out a sequence of bytes due to the output buffer being too small.
+ *  In that case the `todo' count would be decremented (possibly to zero),
+ *  but the output isn't yet completely written out.
+ */
+static INLINE int normal_no_more_input(PACKFILE *f)
+{
+   /* see normal_refill_buffer() to see when lzss_read() is called */
+   if (f->normal.parent && (f->normal.flags & PACKFILE_FLAG_PACK) &&
+       _al_lzss_incomplete_state(f->normal.unpack_data))
+      return 0;
+
+   return (f->normal.todo <= 0);
+}
+
+
+
 static int normal_getc(void *_f)
 {
    PACKFILE *f = _f;
@@ -2696,7 +2718,7 @@ static int normal_getc(void *_f)
       return *(f->normal.buf_pos++);
 
    if (f->normal.buf_size == 0) {
-      if (f->normal.todo <= 0)
+      if (normal_no_more_input(f))
 	 f->normal.flags |= PACKFILE_FLAG_EOF;
       return *(f->normal.buf_pos++);
    }
@@ -2789,7 +2811,7 @@ static int normal_fseek(void *_f, int offset)
       f->normal.buf_size -= i;
       f->normal.buf_pos += i;
       offset -= i;
-      if ((f->normal.buf_size <= 0) && (f->normal.todo <= 0))
+      if ((f->normal.buf_size <= 0) && normal_no_more_input(f))
 	 f->normal.flags |= PACKFILE_FLAG_EOF;
    }
 
@@ -2814,7 +2836,7 @@ static int normal_fseek(void *_f, int offset)
 	    lseek(f->normal.hndl, i, SEEK_CUR);
 	 }
 	 f->normal.todo -= i;
-	 if (f->normal.todo <= 0)
+	 if (normal_no_more_input(f))
 	    f->normal.flags |= PACKFILE_FLAG_EOF;
       }
    }
@@ -2856,7 +2878,7 @@ static int normal_refill_buffer(PACKFILE *f)
    if (f->normal.flags & PACKFILE_FLAG_EOF)
       return EOF;
 
-   if (f->normal.todo <= 0) {
+   if (normal_no_more_input(f)) {
       f->normal.flags |= PACKFILE_FLAG_EOF;
       return EOF;
    }
@@ -2867,7 +2889,7 @@ static int normal_refill_buffer(PACKFILE *f)
       }
       else {
 	 f->normal.buf_size = pack_fread(f->normal.buf, MIN(F_BUF_SIZE, f->normal.todo), f->normal.parent);
-      }
+      } 
       if (f->normal.parent->normal.flags & PACKFILE_FLAG_EOF)
 	 f->normal.todo = 0;
       if (f->normal.parent->normal.flags & PACKFILE_FLAG_ERROR)
@@ -2907,7 +2929,7 @@ static int normal_refill_buffer(PACKFILE *f)
    f->normal.buf_pos = f->normal.buf;
    f->normal.buf_size--;
    if (f->normal.buf_size <= 0)
-      if (f->normal.todo <= 0)
+      if (normal_no_more_input(f))
 	 f->normal.flags |= PACKFILE_FLAG_EOF;
 
    if (f->normal.buf_size < 0)

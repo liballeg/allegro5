@@ -19,13 +19,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 
 /* this program is not portable! */
 #if (defined ALLEGRO_DOS) || (defined ALLEGRO_LINUX_VBEAF)
 
-#include "allegro/internal/aintern.h"
+#include "allegro5/internal/aintern.h"
 
 #ifdef ALLEGRO_INTERNAL_HEADER
    #include ALLEGRO_INTERNAL_HEADER
@@ -95,34 +95,34 @@ typedef struct AF_MODE_INFO
    unsigned short BytesPerScanLine        __PACKED__;
    unsigned short BitsPerPixel            __PACKED__;
    unsigned short MaxBuffers              __PACKED__;
-   unsigned char  RedMaskSize             __PACKED__;
-   unsigned char  RedFieldPosition        __PACKED__;
-   unsigned char  GreenMaskSize           __PACKED__;
-   unsigned char  GreenFieldPosition      __PACKED__;
-   unsigned char  BlueMaskSize            __PACKED__;
-   unsigned char  BlueFieldPosition       __PACKED__;
-   unsigned char  RsvdMaskSize            __PACKED__;
-   unsigned char  RsvdFieldPosition       __PACKED__;
+   unsigned char  RedMaskSize;
+   unsigned char  RedFieldPosition;
+   unsigned char  GreenMaskSize;
+   unsigned char  GreenFieldPosition;
+   unsigned char  BlueMaskSize;
+   unsigned char  BlueFieldPosition;
+   unsigned char  RsvdMaskSize;
+   unsigned char  RsvdFieldPosition;
    unsigned short MaxBytesPerScanLine     __PACKED__;
    unsigned short MaxScanLineWidth        __PACKED__;
    unsigned short LinBytesPerScanLine     __PACKED__;
-   unsigned char  BnkMaxBuffers           __PACKED__;
-   unsigned char  LinMaxBuffers           __PACKED__;
-   unsigned char  LinRedMaskSize          __PACKED__;
-   unsigned char  LinRedFieldPosition     __PACKED__;
-   unsigned char  LinGreenMaskSize        __PACKED__;
-   unsigned char  LinGreenFieldPosition   __PACKED__;
-   unsigned char  LinBlueMaskSize         __PACKED__;
-   unsigned char  LinBlueFieldPosition    __PACKED__;
-   unsigned char  LinRsvdMaskSize         __PACKED__;
-   unsigned char  LinRsvdFieldPosition    __PACKED__;
+   unsigned char  BnkMaxBuffers;
+   unsigned char  LinMaxBuffers;
+   unsigned char  LinRedMaskSize;
+   unsigned char  LinRedFieldPosition;
+   unsigned char  LinGreenMaskSize;
+   unsigned char  LinGreenFieldPosition;
+   unsigned char  LinBlueMaskSize;
+   unsigned char  LinBlueFieldPosition;
+   unsigned char  LinRsvdMaskSize;
+   unsigned char  LinRsvdFieldPosition;
    unsigned long  MaxPixelClock           __PACKED__;
    unsigned long  VideoCapabilities       __PACKED__;
    unsigned short VideoMinXScale          __PACKED__;
    unsigned short VideoMinYScale          __PACKED__;
    unsigned short VideoMaxXScale          __PACKED__;
    unsigned short VideoMaxYScale          __PACKED__;
-   unsigned char  reserved[76]            __PACKED__;
+   unsigned char  reserved[76];
 } AF_MODE_INFO;
 
 
@@ -133,11 +133,11 @@ typedef struct AF_MODE_INFO
 
 typedef struct AF_DRIVER
 {
-   char           Signature[12]           __PACKED__;
+   char           Signature[12];
    unsigned long  Version                 __PACKED__;
    unsigned long  DriverRev               __PACKED__;
-   char           OemVendorName[80]       __PACKED__;
-   char           OemCopyright[80]        __PACKED__;
+   char           OemVendorName[80];
+   char           OemCopyright[80];
    short          *AvailableModes         __PACKED__;
    unsigned long  TotalMemory             __PACKED__;
    unsigned long  Attributes              __PACKED__;
@@ -299,7 +299,7 @@ int load_vbeaf_driver(char *filename)
    long size;
    PACKFILE *f;
 
-   size = file_size(filename);
+   size = file_size_ex(filename);
    if (size <= 0)
       return -1;
 

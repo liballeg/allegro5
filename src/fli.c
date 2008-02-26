@@ -20,8 +20,8 @@
 #include <limits.h>
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 #define FLI_MAGIC1            0xAF11      /* file header magic number */

@@ -18,8 +18,8 @@
 
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 /* load_bios_font:
  *  Loads a PC BIOS font from the file named filename. The palette and param
@@ -43,9 +43,10 @@ FONT *load_bios_font(AL_CONST char *filename, RGB *pal, void *param)
     h = (pack->normal.todo == 2048) ? 8 : 16;
 
     for (i = 0; i < 256; i++) {
-        gl[i] = _AL_MALLOC(sizeof(FONT_GLYPH) + 8);
-        gl[i]->w = gl[i]->h = 8;
-        pack_fread(gl[i]->dat, 8, pack);
+        gl[i] = _AL_MALLOC(sizeof(FONT_GLYPH) + h);
+        gl[i]->w = 8;
+        gl[i]->h = h;
+        pack_fread(gl[i]->dat, h, pack);
     }
 
     f->vtable = font_vtable_mono;

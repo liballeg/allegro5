@@ -24,8 +24,8 @@
 
 #include <time.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 #define FLIST_SIZE      2048

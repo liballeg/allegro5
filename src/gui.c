@@ -26,8 +26,8 @@
 
 #include <limits.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 
@@ -1538,6 +1538,7 @@ static void draw_menu(MENU_PLAYER *m)
       gui_menu_draw_menu(m->x, m->y, m->w, m->h);
    else {
       BITMAP *gui_bmp = gui_get_screen();
+      rectfill(gui_bmp, m->x, m->y, m->x+m->w-2, m->y+m->h-2, gui_bg_color);
       rect(gui_bmp, m->x, m->y, m->x+m->w-2, m->y+m->h-2, gui_fg_color);
       vline(gui_bmp, m->x+m->w-1, m->y+1, m->y+m->h-1, gui_fg_color);
       hline(gui_bmp, m->x+1, m->y+m->h-1, m->x+m->w-1, gui_fg_color);
@@ -1787,8 +1788,8 @@ static MENU_PLAYER *init_single_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *di
    layout_menu(player, menu, bar, x, y, minw, minh);
 
    if (repos) {
-      player->x = MID(0, player->x, SCREEN_W-player->w-1);
-      player->y = MID(0, player->y, SCREEN_H-player->h-1);
+      player->x = CLAMP(0, player->x, SCREEN_W-player->w-1);
+      player->y = CLAMP(0, player->y, SCREEN_H-player->h-1);
    }
 
    if (scare)

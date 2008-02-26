@@ -33,16 +33,18 @@ write_code() {
 
 
 # See src/unix/udummy.c for the rationale
-sources=`echo $* | sed 's,[^	 ]*/,,g'`
+sources=`echo $* | sed 's,src/,,g'`
 sharable_sources=`echo $sources | sed 's,[^.	 ]*\.s,,g'`
-sharable_sources=`echo $sharable_sources | sed 's,[	 ]*udummy\.c,,g'`
+sharable_sources=`echo $sharable_sources | sed 's,[	 ]*unix/udummy\.c,,g'`
 unsharable_sources=`echo $sources | sed 's,[^.	 ]*\.[^s],,g'`
-unsharable_sources=`echo $unsharable_sources udummy.c`
+unsharable_sources=`echo $unsharable_sources unix/udummy.c`
 
 objects=`echo $sources | sed 's,\.[^.	 ]*,,g'`
 sharable_objects=`echo $sharable_sources | sed 's,\.[^.	 ]*,,g'`
 unsharable_objects=`echo $unsharable_sources | sed 's,\.[^.	 ]*,,g'`
 
+
+echo \# sources: $sources
 
 # Normal library.
 prev="LIBALLEG_OBJECTS ="
@@ -56,8 +58,10 @@ echo "$prev"
 prev="LIBALLEG_SHARED_OBJECTS ="
 for file in .. $sharable_objects; do
   if test "$file" != ..; then
-    echo "$prev \\"
-    prev="  \$(OBJDIR)/shared/alleg/$file\$(OBJ)"
+#    if test -n "$file"; then
+	    echo "$prev \\"
+	    prev="  \$(OBJDIR)/shared/alleg/$file\$(OBJ)"
+#    fi
   fi
 done
 echo "$prev"
@@ -87,8 +91,10 @@ echo "$prev"
 prev="LIBALLD_SHARED_OBJECTS ="
 for file in .. $sharable_objects; do
   if test "$file" != ..; then
-    echo "$prev \\"
-    prev="  \$(OBJDIR)/shared/alld/$file\$(OBJ)"
+#    if test -n "$file"; then
+      echo "$prev \\"
+      prev="  \$(OBJDIR)/shared/alld/$file\$(OBJ)"
+#    fi
   fi
 done
 echo "$prev"
@@ -118,8 +124,10 @@ echo "$prev"
 prev="LIBALLP_SHARED_OBJECTS ="
 for file in .. $sharable_objects; do
   if test "$file" != ..; then
-    echo "$prev \\"
-    prev="  \$(OBJDIR)/shared/allp/$file\$(OBJ)"
+#    if test -n "$file"; then
+      echo "$prev \\"
+      prev="  \$(OBJDIR)/shared/allp/$file\$(OBJ)"
+#    fi
   fi
 done
 echo "$prev"
@@ -141,94 +149,54 @@ missing=
 symbols=
 for file in .. $*; do
   if test -f "$file"; then
-    dir=`echo $file | sed 's,/[^/]*$,,'`
-    name=`echo $file | sed 's,^.*/,,;s,\.[^.]*$,,'`
+    dir=`echo $file | sed 's,/[^/]*$,,;s,src,,'`
+    name=`echo $file | sed 's,^.*/,/,;s,\.[^.]*$,,'`
     ext=`echo $file | sed 's,^.*\.,,'`
-    includes=
-    deps="$file"
-    while test -n "$deps"; do
-      newdeps=
-      for dep in $deps; do
-        includes1=`grep '^[ 	]*#[ 	]*include[ 	]*[a-zA-Z0-9_][a-zA-Z0-9_]*' $dep | \
-          sed 's,^[ 	]*#[ 	]*include[ 	]*\([a-zA-Z0-9_]*\),\1,'`
-        includes2=`grep '^[ 	]*#[ 	]*include[ 	]*".*"' $dep | \
-          sed 's,^[ 	]*#[ 	]*include[ 	]*"\(.*\)",\1,'`
-        if test -n "$includes1"; then
-          for include in $includes1; do
-	    includes="$includes \$($include)"
-	    case "$symbols" in
-	    *$include* )
-	      ;;
-	    * )
-	      symbols="$symbols $include"
-	      ;;
-	    esac
-          done
-        fi
-        if test -n "$includes2"; then
-          for include in $includes2; do
-	    if test -f "$dir/$include"; then
-              includes="$includes \$(srcdir)/$dir/$include"
-	      newdeps="$newdeps $dir/$include"
-	    else
-	      include=`echo $include | sed 's,[-./],_,g'`
-	      includes="$includes \$($include)"
-	      case "$symbols" in
-	      *$include* )
-	        ;;
-	      * )
-	        symbols="$symbols $include"
-	        ;;
-	      esac
-	    fi
-          done
-        fi
-      done
-      deps="$newdeps"
-    done
+    includes=`./misc/grabdeps.pl $file`
+    deps=
 
     # Normal library.
-    echo "\$(OBJDIR)/alleg/$name\$(OBJ): \$(srcdir)/$file$includes"
+    echo "\$(OBJDIR)/alleg$dir$name\$(OBJ): \$(srcdir)/$file$includes"
     if test "$ext" = "c"; then
-      echo "	\$(COMPILE_NORMAL) -c \$(srcdir)/$file -o \$(OBJDIR)/alleg/$name\$(OBJ)"
+      echo "	\$(COMPILE_NORMAL) -c \$(srcdir)/$file -o \$(OBJDIR)/alleg$dir$name\$(OBJ)"
     else
-      echo "	\$(COMPILE_S_NORMAL) -c \$(srcdir)/$file -o \$(OBJDIR)/alleg/$name\$(OBJ)"
+      echo "	\$(COMPILE_S_NORMAL) -c \$(srcdir)/$file -o \$(OBJDIR)/alleg$dir$name\$(OBJ)"
     fi
-    echo "\$(OBJDIR)/shared/alleg/$name\$(OBJ): \$(srcdir)/$file$includes"
+    echo "\$(OBJDIR)/shared/alleg$dir$name\$(OBJ): \$(srcdir)/$file$includes"
     if test "$ext" = "c"; then
-      echo "	\$(COMPILE_NORMAL) \$(ALLEGRO_SHAREDLIB_CFLAGS) -c \$(srcdir)/$file -o \$(OBJDIR)/shared/alleg/$name\$(OBJ)"
+      echo "	\$(COMPILE_NORMAL) \$(ALLEGRO_SHAREDLIB_CFLAGS) -c \$(srcdir)/$file -o \$(OBJDIR)/shared/alleg$dir$name\$(OBJ)"
     else
-      echo "	\$(COMPILE_S_NORMAL) -c \$(srcdir)/$file -o \$(OBJDIR)/shared/alleg/$name\$(OBJ)"
+      echo "	\$(COMPILE_S_NORMAL) -c \$(srcdir)/$file -o \$(OBJDIR)/shared/alleg$dir$name\$(OBJ)"
     fi
     echo ""
 
     # Debugging library.
-    echo "\$(OBJDIR)/alld/$name\$(OBJ): \$(srcdir)/$file$includes"
+    echo "\$(OBJDIR)/alld$dir$name\$(OBJ): \$(srcdir)/$file$includes"
     if test "$ext" = "c"; then
-      echo "	\$(COMPILE_DEBUG) -c \$(srcdir)/$file -o \$(OBJDIR)/alld/$name\$(OBJ)"
+      echo "	\$(COMPILE_DEBUG) -c \$(srcdir)/$file -o \$(OBJDIR)/alld$dir$name\$(OBJ)"
     else
-      echo "	\$(COMPILE_S_DEBUG) -c \$(srcdir)/$file -o \$(OBJDIR)/alld/$name\$(OBJ)"
+      echo "	\$(COMPILE_S_DEBUG) -c \$(srcdir)/$file -o \$(OBJDIR)/alld$dir$name\$(OBJ)"
     fi
-    echo "\$(OBJDIR)/shared/alld/$name\$(OBJ): \$(srcdir)/$file$includes"
+    echo "\$(OBJDIR)/shared/alld$dir$name\$(OBJ): \$(srcdir)/$file$includes"
     if test "$ext" = "c"; then
-      echo "	\$(COMPILE_DEBUG) \$(ALLEGRO_SHAREDLIB_CFLAGS) -c \$(srcdir)/$file -o \$(OBJDIR)/shared/alld/$name\$(OBJ)"
+      echo "	\$(COMPILE_DEBUG) \$(ALLEGRO_SHAREDLIB_CFLAGS) -c \$(srcdir)/$file -o \$(OBJDIR)/shared/alld$dir$name\$(OBJ)"
     else
-      echo "	\$(COMPILE_S_DEBUG) -c \$(srcdir)/$file -o \$(OBJDIR)/shared/alld/$name\$(OBJ)"
+      echo "	\$(COMPILE_S_DEBUG) -c \$(srcdir)/$file -o \$(OBJDIR)/shared/alld$dir$name\$(OBJ)"
     fi
     echo ""
 
     # Profiling library.
-    echo "\$(OBJDIR)/allp/$name\$(OBJ): \$(srcdir)/$file$includes"
+    echo "\$(OBJDIR)/allp$dir$name\$(OBJ): \$(srcdir)/$file$includes"
     if test "$ext" = "c"; then
-      echo "	\$(COMPILE_PROFILE) -c \$(srcdir)/$file -o \$(OBJDIR)/allp/$name\$(OBJ)"
+      echo "	\$(COMPILE_PROFILE) -c \$(srcdir)/$file -o \$(OBJDIR)/allp$dir$name\$(OBJ)"
     else
-      echo "	\$(COMPILE_S_PROFILE) -c \$(srcdir)/$file -o \$(OBJDIR)/allp/$name\$(OBJ)"
+      echo "	\$(COMPILE_S_PROFILE) -c \$(srcdir)/$file -o \$(OBJDIR)/allp$dir$name\$(OBJ)"
     fi
-    echo "\$(OBJDIR)/shared/allp/$name\$(OBJ): \$(srcdir)/$file$includes"
+    echo "\$(OBJDIR)/shared/allp$dir$name\$(OBJ): \$(srcdir)/$file$includes"
     if test "$ext" = "c"; then
-      echo "	\$(COMPILE_PROFILE) \$(ALLEGRO_SHAREDLIB_CFLAGS) -c \$(srcdir)/$file -o \$(OBJDIR)/shared/allp/$name\$(OBJ)"
+      echo "	\$(COMPILE_PROFILE) \$(ALLEGRO_SHAREDLIB_CFLAGS) -c \$(srcdir)/$file -o \$(OBJDIR)/shared/allp$dir$name\$(OBJ)"
     else
-      echo "	\$(COMPILE_S_PROFILE) -c \$(srcdir)/$file -o \$(OBJDIR)/shared/allp/$name\$(OBJ)"
+      echo "	\$(COMPILE_S_PROFILE) -c \$(srcdir)/$file -o \$(OBJDIR)/shared/allp$dir$name\$(OBJ)"
     fi
     echo ""
   elif test "$file" != ..; then

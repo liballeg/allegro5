@@ -16,11 +16,11 @@
  *      See readme.txt for copyright information.
  */
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 #ifdef ALLEGRO_COLOR16
 
-#include "allegro/internal/aintern.h"
+#include "allegro5/internal/aintern.h"
 #include "cdefs16.h"
 
 #define FUNC_POLY_ZBUF_FLAT			_poly_zbuf_flat16

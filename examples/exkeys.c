@@ -3,11 +3,11 @@
  *
  *    This program demonstrates how to access the keyboard. The
  *    first part shows the basic use of readkey(). The second part
- *    shows how to extract the ASCII value. Next come the scancodes.
+ *    shows how to extract the ASCII value. Next come the scan codes.
  *    The fourth test detects modifier keys like alt or shift. The
  *    fifth test requires some focus to be passed. The final step
  *    shows how to use the global key array to read simultaneous
- *    keypresses.
+ *    key presses.
  *    The last method to detect key presses are keyboard callbacks.
  *    This is demonstrated by by installing a keyboard callback,
  *    which marks all pressed keys by drawing to a grid.
@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
@@ -66,15 +66,14 @@ void keypress_handler(int scancode)
 {
    int i, x, y, color;
    char str[64];
+
    i = scancode & 0x7f;
    x = SCREEN_W - 100 * 3 + (i % 3) * 100;
    y = SCREEN_H / 2 + (i / 3 - 21) * 10;
-   color = scancode & 0x80 ? makecol (255, 255, 0) : makecol (128, 0, 0);
-   rectfill (screen, x, y, x + 95, y + 8, color);
-   ustrzncpy (str, sizeof str, scancode_to_name (i), 12);
-   if (str)
-      textprintf_ex (screen, font, x + 1, y + 1, makecol (0, 0, 0), -1,
-	 "%s", str);
+   color = scancode & 0x80 ? makecol(255, 255, 0) : makecol(128, 0, 0);
+   rectfill(screen, x, y, x + 95, y + 8, color);
+   ustrzncpy(str, sizeof(str), scancode_to_name(i), 12);
+   textprintf_ex(screen, font, x + 1, y + 1, makecol(0, 0, 0), -1, "%s", str);
 }
 END_OF_FUNCTION(keypress_handler)
 
@@ -112,8 +111,13 @@ int main(void)
    clear_to_color(screen, makecol(255, 255, 255));
 
    /* Draw the initial keys grid by simulating release of every key. */
+
+   acquire_screen();
+
    for (k = 0; k < KEY_MAX; k++)
       keypress_handler (k + 0x80);
+
+   release_screen();
 
    /* Install our keyboard callback. */
    LOCK_FUNCTION(keypress_handler);
@@ -152,7 +156,7 @@ int main(void)
 		    "ASCII code is %d", k&0xFF);
    } while ((k&0xFF) != 27);
 
-   /* the hardware scancode is in the high byte of the return value */
+   /* the hardware scan code is in the high byte of the return value */
    scroll(); scroll(); scroll();
    textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255),
 		 "Press some more keys (ESC to finish)");
@@ -164,7 +168,7 @@ int main(void)
       acquire_screen();
       scroll();
       textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255),
-		    "Scancode is %d (%s)", k>>8, key_names[k>>8]);
+		    "Scan code is %d (%s)", k>>8, key_names[k>>8]);
    } while ((k&0xFF) != 27);
 
    /* key qualifiers are stored in the key_shifts variable. Note that this
@@ -197,7 +201,7 @@ int main(void)
       textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255), buf);
    } while (k != 27);
 
-   /* various scancodes are defined in allegro.h as KEY_* constants */
+   /* various scan codes are defined in allegro5/allegro.h as KEY_* constants */
    scroll(); scroll(); scroll();
    textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255), "Press F6");
    scroll();
@@ -209,13 +213,13 @@ int main(void)
    while ((k>>8) != KEY_F6 && (k>>8) != KEY_ESC) {
       scroll();
       textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255),
-		    "Wrong key, stupid! I said press F6");
+		    "You pressed the wrong key. Press F6 instead.");
       release_screen();
       k = readkey();
       acquire_screen();
    }
 
-   /* for detecting multiple simultaneous keypresses, use the key[] array */
+   /* for detecting multiple simultaneous key presses, use the key[] array */
    scroll(); scroll(); scroll();
    textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255),
 		 "Press a combination of numbers");

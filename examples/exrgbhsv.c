@@ -19,7 +19,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 #define DIALOG_NUM_SLIDERS       6
@@ -269,7 +269,7 @@ int main(void)
          we can get with 8-bit color */
       set_palette(pal332);
 
-      /* In 8-bit color mode, if there's an RGB table, thie sliders
+      /* In 8-bit color mode, if there's an RGB table, the sliders
 	 will move a lot more smoothly and the updating will be
 	 a lot quicker. But if there's no RGB table, this has the
 	 advantage that the color conversion routines will take into

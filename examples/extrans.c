@@ -3,8 +3,8 @@
  *
  *    This program demonstrates how to use the lighting and
  *    translucency functions. The first part of the example will
- *    show a dark screen iluminated by a spotlight you can move
- *    with your mouse. After a keypress the example shows the full
+ *    show a dark screen illuminated by a spotlight you can move
+ *    with your mouse. After a key press the example shows the full
  *    bitmap and the spotlight changes to be a reduced version of
  *    the background with 50% of translucency.
  *
@@ -18,7 +18,7 @@
 
 #include <stdio.h>
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 

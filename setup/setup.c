@@ -21,8 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 #ifdef ALLEGRO_LINUX
    #include <sys/time.h>
@@ -33,7 +33,7 @@
 #endif
 
  /* FIXME: for _al_joystick_driver_list */
-#include "allegro/internal/aintern2.h"
+#include "allegro/internal/aintern_joystick.h"
 
 #include "setup.h"
 
@@ -772,7 +772,7 @@ static int scroller_proc(int msg, DIALOG *d, int c)
       p = scroller_msg;
       for (i=0; i<SCROLLER_LENGTH; i++) {
 	 x = i*8+scroller_pos;
-	 a = 16 + MID(0, 15-ABS(SCREEN_W/2-x)/(SCREEN_W/32), 15) * scroller_alpha/256;
+	 a = 16 + CLAMP(0, 15-ABS(SCREEN_W/2-x)/(SCREEN_W/32), 15) * scroller_alpha/256;
 	 textprintf_ex(screen, font, x, SCREEN_H-16, a, 0, uconvert_ascii("%c", tmp), ugetx(&p));
       }
 
@@ -920,7 +920,7 @@ static int update(void)
       else
 	 pos *= 128;
 
-      pos = MID(0, 4096-pos, 4096);
+      pos = CLAMP(0, 4096-pos, 4096);
       pppos = (4096 - pos * pos / 4096);
       pos = pppos / 16;
 

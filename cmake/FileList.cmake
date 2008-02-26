@@ -1,5 +1,7 @@
 set(ALLEGRO_SRC_FILES
     src/allegro.c
+    src/bitmap_new.c
+    src/blenders.c
     src/blit.c
     src/bmp.c
     src/clip3d.c
@@ -7,12 +9,14 @@ set(ALLEGRO_SRC_FILES
     src/colblend.c
     src/color.c
     src/config.c
+    src/convert.c
     src/datafile.c
     src/dataregi.c
     src/digmid.c
+    src/display.c
+    src/display_new.c
     src/dither.c
     src/dispsw.c
-    src/display.c
     src/dtor.c
     src/drvlist.c
     src/events.c
@@ -41,12 +45,18 @@ set(ALLEGRO_SRC_FILES
     src/lzss.c
     src/math.c
     src/math3d.c
+    src/memblit.c
+    src/memblit1.c
+    src/memblit2.c
+    src/memblit3.c
+    src/memdraw.c
     src/memory.c
     src/midi.c
     src/mixer.c
     src/modesel.c
-    src/mouse.c
+    src/mousenu.c
     src/pcx.c
+    src/pixels.c
     src/poly3d.c
     src/polygon.c
     src/quantize.c
@@ -60,8 +70,11 @@ set(ALLEGRO_SRC_FILES
     src/sound.c
     src/spline.c
     src/stream.c
+    src/system_new.c
     src/text.c
     src/tga.c
+    src/timernu.c
+    src/tls.c
     src/unicode.c
     src/vtable.c
     src/vtable15.c
@@ -69,11 +82,11 @@ set(ALLEGRO_SRC_FILES
     src/vtable24.c
     src/vtable32.c
     src/vtable8.c
-    src/compat/coblit.c
-    src/compat/cogfx.c
     src/compat/cojoy.c
     src/compat/cokeybd.c
+    src/compat/comouse.c
     src/compat/cotimer.c
+    src/misc/colconv.c
     src/misc/vector.c
     )
 
@@ -186,7 +199,7 @@ set(ALLEGRO_SRC_DOS_FILES
     )
 
 set(ALLEGRO_SRC_WIN_FILES
-    src/win/asmlock.s
+#    src/win/asmlock.s
     src/win/dllver.rc
     src/win/gdi.c
     src/win/wddaccel.c
@@ -217,10 +230,23 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/wsystem.c
     src/win/wthread.c
     src/win/wtime.c
-    src/win/wtimernu.c
     src/win/wwnd.c
     src/win/wxthread.c
-    src/misc/colconv.c
+    src/win/wnewsys.c
+    src/win/wnewwin.c
+    )
+
+set(ALLEGRO_SRC_D3D_FILES
+    src/win/d3d_bmp.c
+    src/win/d3d_disp.c
+    )
+
+set(ALLEGRO_SRC_OPENGL_FILES
+    src/opengl/extensions.c
+    )
+
+set(ALLEGRO_SRC_WGL_FILES
+    src/win/wgl_disp.c
     )
 
 set(ALLEGRO_SRC_BEOS_FILES
@@ -267,13 +293,8 @@ set(ALLEGRO_SRC_LINUX_FILES
     src/linux/ljoynu.c
     src/linux/lkeybdnu.c
     src/linux/lmemory.c
-    src/linux/lmouse.c
     src/linux/lmsedrv.c
-    src/linux/lmsegpmd.c
-    src/linux/lmsems.c
-    src/linux/lmseps2.c
     src/linux/lmseev.c
-    src/linux/lstddrv.c
     src/linux/lsystem.c
     src/linux/lvga.c
     src/linux/lvgahelp.c
@@ -293,8 +314,8 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/alsa9.c
     src/unix/alsamidi.c
     src/unix/arts.c
-    src/unix/sgial.c
     src/unix/jack.c
+    src/unix/sgial.c
     src/unix/udjgpp.c
     src/unix/udrvlist.c
     src/unix/udummy.c
@@ -313,22 +334,25 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/usystem.c
     src/unix/uthreads.c
     src/unix/utime.c
-    src/unix/utimernu.c
     src/unix/uxthread.c
     src/misc/modexsms.c
     )
 
 set(ALLEGRO_SRC_X_FILES
+    src/x/xdga2.c
     src/x/xgfxdrv.c
     src/x/xkeyboard.c
-    src/x/xmouse.c
+    src/x/xmousenu.c
     src/x/xsystem.c
     src/x/xvtable.c
     src/x/xwin.c
-    src/x/xdga2.c
-    src/x/xdga2s.s
-    src/x/xwins.s
-    src/misc/colconv.c
+    src/xglx/xbitmap.c
+    src/xglx/xcompat.c
+    src/xglx/xdisplay.c
+    src/xglx/xdraw.c
+    src/xglx/xfullscreen.c
+    src/xglx/xglx_config.c
+    src/xglx/xsystem.c
     )
     
 set(ALLEGRO_SRC_QNX_FILES
@@ -373,7 +397,6 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/unix/usystem.c
     src/unix/uthreads.c
     src/unix/utime.c
-    src/unix/utimernu.c
     src/unix/uxthread.c
     src/misc/colconv.c
     )
@@ -425,111 +448,147 @@ set(ALLEGRO_MODULE_JACK_FILES
     )
 
 set(ALLEGRO_INCLUDE_FILES
-    include/allegro.h
-    include/winalleg.h
-    include/xalleg.h
+    # No files directly in the `include' root any more.
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_FILES
-    include/allegro/3d.h
-    include/allegro/3dmaths.h
-    include/allegro/alcompat.h
-    include/allegro/alinline.h
-    include/allegro/altime.h
-    include/allegro/base.h
-    include/allegro/color.h
-    include/allegro/compiled.h
-    include/allegro/config.h
-    include/allegro/datafile.h
-    include/allegro/debug.h
-    include/allegro/digi.h
-    include/allegro/display.h
-    include/allegro/draw.h
-    include/allegro/events.h
-    include/allegro/file.h
-    include/allegro/fix.h
-    include/allegro/fixed.h
-    include/allegro/fli.h
-    include/allegro/fmaths.h
-    include/allegro/font.h
-    include/allegro/gfx.h
-    include/allegro/graphics.h
-    include/allegro/gui.h
-    include/allegro/joystick.h
-    include/allegro/keyboard.h
-    include/allegro/keycodes.h
-    include/allegro/lzss.h
-    include/allegro/matrix.h
-    include/allegro/memory.h
-    include/allegro/midi.h
-    include/allegro/mouse.h
-    include/allegro/palette.h
-    include/allegro/quat.h
-    include/allegro/rle.h
-    include/allegro/sound.h
-    include/allegro/stream.h
-    include/allegro/system.h
-    include/allegro/text.h
-    include/allegro/timer.h
-    include/allegro/unicode.h
+    include/allegro5/allegro5.h
+    include/allegro5/allegro.h
+    include/allegro5/winalleg.h
+    include/allegro5/xalleg.h
+    include/allegro5/3d.h
+    include/allegro5/3dmaths.h
+    include/allegro5/alcompat.h
+    include/allegro5/alinline.h
+    include/allegro5/altime.h
+    include/allegro5/base.h
+    include/allegro5/bitmap_new.h
+    include/allegro5/color.h
+    include/allegro5/color_new.h
+    include/allegro5/compiled.h
+    include/allegro5/config.h
+    include/allegro5/datafile.h
+    include/allegro5/debug.h
+    include/allegro5/digi.h
+    include/allegro5/display_new.h
+    include/allegro5/draw.h
+    include/allegro5/events.h
+    include/allegro5/file.h
+    include/allegro5/fix.h
+    include/allegro5/fixed.h
+    include/allegro5/fli.h
+    include/allegro5/fmaths.h
+    include/allegro5/font.h
+    include/allegro5/gfx.h
+    include/allegro5/graphics.h
+    include/allegro5/gui.h
+    include/allegro5/joystick.h
+    include/allegro5/keyboard.h
+    include/allegro5/keycodes.h
+    include/allegro5/lzss.h
+    include/allegro5/matrix.h
+    include/allegro5/memory.h
+    include/allegro5/midi.h
+    include/allegro5/mouse.h
+    include/allegro5/palette.h
+    include/allegro5/quat.h
+    include/allegro5/rle.h
+    include/allegro5/sound.h
+    include/allegro5/stream.h
+    include/allegro5/system.h
+    include/allegro5/system_new.h
+    include/allegro5/text.h
+    include/allegro5/timer.h
+    include/allegro5/unicode.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
-    include/allegro/inline/3dmaths.inl
-    include/allegro/inline/asm.inl
-    include/allegro/inline/color.inl
-    include/allegro/inline/draw.inl
-    include/allegro/inline/file.inl
-    include/allegro/inline/fix.inl
-    include/allegro/inline/fmaths.inl
-    include/allegro/inline/gfx.inl
-    include/allegro/inline/matrix.inl
-    include/allegro/inline/rle.inl
-    include/allegro/inline/system.inl
+    include/allegro5/inline/3dmaths.inl
+    include/allegro5/inline/asm.inl
+    include/allegro5/inline/color.inl
+    include/allegro5/inline/draw.inl
+    include/allegro5/inline/file.inl
+    include/allegro5/inline/fix.inl
+    include/allegro5/inline/fmaths.inl
+    include/allegro5/inline/gfx.inl
+    include/allegro5/inline/matrix.inl
+    include/allegro5/inline/rle.inl
+    include/allegro5/inline/system.inl
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
-    include/allegro/internal/aintern.h
-    include/allegro/internal/aintern2.h
-    include/allegro/internal/aintvga.h
-    include/allegro/internal/alconfig.h
+    include/allegro5/internal/aintern.h
+    include/allegro5/internal/aintern_bitmap.h
+    include/allegro5/internal/aintern_display.h
+    include/allegro5/internal/aintern_dtor.h
+    include/allegro5/internal/aintern_events.h
+    include/allegro5/internal/aintern_joystick.h
+    include/allegro5/internal/aintern_keyboard.h
+    include/allegro5/internal/aintern_mouse.h
+    include/allegro5/internal/aintern_system.h
+    include/allegro5/internal/aintern_thread.h
+    include/allegro5/internal/aintern_vector.h
+    include/allegro5/internal/aintvga.h
+    include/allegro5/internal/alconfig.h
     )
 
+set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES
+    include/allegro5/opengl/algl.h 
+    include/allegro5/opengl/gl_ext.h
+    include/allegro5/opengl/GLext/gl_ext_alias.h
+    include/allegro5/opengl/GLext/gl_ext_defs.h
+    include/allegro5/opengl/GLext/glx_ext_alias.h
+    include/allegro5/opengl/GLext/glx_ext_defs.h
+    include/allegro5/opengl/GLext/wgl_ext_alias.h
+    include/allegro5/opengl/GLext/wgl_ext_defs.h
+    include/allegro5/opengl/GLext/gl_ext_api.h
+    include/allegro5/opengl/GLext/gl_ext_list.h
+    include/allegro5/opengl/GLext/glx_ext_api.h
+    include/allegro5/opengl/GLext/glx_ext_list.h
+    include/allegro5/opengl/GLext/wgl_ext_api.h
+    include/allegro5/opengl/GLext/wgl_ext_list.h
+   )
+
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
-    include/allegro/platform/aintbeos.h
-    include/allegro/platform/aintdos.h
-    include/allegro/platform/aintlnx.h
-    include/allegro/platform/aintmac.h
-    include/allegro/platform/aintosx.h
-    include/allegro/platform/aintqnx.h
-    include/allegro/platform/aintunix.h
-    include/allegro/platform/aintwin.h
-    include/allegro/platform/al386gcc.h
-    include/allegro/platform/al386vc.h
-    include/allegro/platform/al386wat.h
-    include/allegro/platform/albcc32.h
-    include/allegro/platform/albecfg.h
-    include/allegro/platform/albeos.h
-    include/allegro/platform/aldjgpp.h
-    include/allegro/platform/aldos.h
-    include/allegro/platform/almac.h
-    include/allegro/platform/almaccfg.h
-    include/allegro/platform/almngw32.h
-    include/allegro/platform/almsvc.h
-    include/allegro/platform/alosx.h
-    include/allegro/platform/alosxcfg.h
-    include/allegro/platform/alqnx.h
-    include/allegro/platform/alqnxcfg.h
-    include/allegro/platform/alucfg.h
-    include/allegro/platform/alunix.h
-    include/allegro/platform/alwatcom.h
-    include/allegro/platform/alwin.h
-    include/allegro/platform/astdbool.h
-    include/allegro/platform/astdint.h
-    include/allegro/platform/macdef.h
+    include/allegro5/platform/aintbeos.h
+    include/allegro5/platform/aintdos.h
+    include/allegro5/platform/aintlnx.h
+    include/allegro5/platform/aintmac.h
+    include/allegro5/platform/aintosx.h
+    include/allegro5/platform/aintqnx.h
+    include/allegro5/platform/aintunix.h
+    include/allegro5/platform/aintuthr.h
+    include/allegro5/platform/aintwin.h
+    include/allegro5/platform/aintwthr.h
+    include/allegro5/platform/al386gcc.h
+    include/allegro5/platform/al386vc.h
+    include/allegro5/platform/al386wat.h
+    include/allegro5/platform/albcc32.h
+    include/allegro5/platform/albecfg.h
+    include/allegro5/platform/albeos.h
+    include/allegro5/platform/aldjgpp.h
+    include/allegro5/platform/aldos.h
+    include/allegro5/platform/almac.h
+    include/allegro5/platform/almaccfg.h
+    include/allegro5/platform/almngw32.h
+    include/allegro5/platform/almsvc.h
+    include/allegro5/platform/alosx.h
+    include/allegro5/platform/alosxcfg.h
+    include/allegro5/platform/alqnx.h
+    include/allegro5/platform/alqnxcfg.h
+    include/allegro5/platform/alucfg.h
+    include/allegro5/platform/alunix.h
+    include/allegro5/platform/alwatcom.h
+    include/allegro5/platform/alwin.h
+    include/allegro5/platform/astdbool.h
+    include/allegro5/platform/astdint.h
+    include/allegro5/platform/macdef.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
-    include/allegro/platform/alplatf.h
-    include/allegro/platform/alunixac.h
+    include/allegro5/platform/alplatf.h
     )
+
+if(UNIX)
+   LIST(APPEND ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED include/allegro5/platform/alunixac.h)
+endif(UNIX)

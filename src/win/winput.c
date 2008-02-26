@@ -16,9 +16,9 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #include <process.h>
@@ -68,7 +68,7 @@ static void input_thread_proc(LPVOID unused)
    while (TRUE) {
       result = WaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, INFINITE);
       if (result == WAIT_OBJECT_0 + 2)
-         break;  /* thread suicide */
+        break;  /* thread suicide */
       else if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events)
          (*_win_input_event_handler[result - WAIT_OBJECT_0])();
    }

@@ -1,3 +1,5 @@
+#error This file is no longer used.
+
 /*         ______   ___    ___ 
  *        /\  _  \ /\_ \  /\_ \ 
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
@@ -19,10 +21,10 @@
 #define _GNU_SOURCE
 #endif
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
-#include "linalleg.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
+#include "allegro5/linalleg.h"
 
 #include <unistd.h>
 

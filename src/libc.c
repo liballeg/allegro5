@@ -1,6 +1,6 @@
-/*         ______   ___    ___
- *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+/*         ______   ___    ___ 
+ *        /\  _  \ /\_ \  /\_ \ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -20,8 +20,8 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 #include <string.h>
 
 
@@ -102,7 +102,6 @@ int _alemu_memcmp(AL_CONST void *s1, AL_CONST void *s2, size_t num)
    size_t i;
    ASSERT(s1);
    ASSERT(s2);
-   ASSERT(num >= 0);
 
    for (i=0; i<num; i++)
       if (((unsigned char *)s1)[i] != ((unsigned char *)s2)[i])
@@ -135,7 +134,7 @@ void *_al_sane_realloc(void *ptr, size_t size)
    else if (!ptr) {
       tmp_ptr = _AL_MALLOC(size);
    }
-
+   
    return tmp_ptr;
 }
 
@@ -150,7 +149,7 @@ char *_al_sane_strncpy(char *dest, const char *src, size_t n)
       return dest;
    dest[0] = '\0';
    strncat(dest, src, n - 1);
-
+   
    return dest;
 }
 

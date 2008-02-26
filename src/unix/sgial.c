@@ -16,12 +16,12 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 #if (defined ALLEGRO_WITH_SGIALDIGI) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
 
 #include <pthread.h>
 #include <sys/time.h>
@@ -63,6 +63,7 @@ DIGI_DRIVER digi_sgial =
    _al_sgial_init,
    _al_sgial_exit,
    _al_sgial_mixer_volume,
+   NULL,
 
    NULL,
    NULL,

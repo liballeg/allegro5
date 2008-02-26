@@ -16,8 +16,8 @@
  */
 
 
-#ifndef BLIT_INC
-#define BLIT_INC
+#ifndef ALLEGRO_I386_BLIT_INC
+#define ALLEGRO_I386_BLIT_INC
 
 
 
@@ -65,5 +65,5 @@ blit_loop_##name:                                                          ; \
 
 
 
-#endif          /* ifndef BLIT_INC */
+#endif          /* ifndef ALLEGRO_I386_BLIT_INC */
 

@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 
 
@@ -1256,7 +1256,7 @@ void misc(void)
       textout_ex(screen, font, buf, xoff+16, yoff+15, palette_color[15], palette_color[0]);
    }
 
-   x = y = 0;
+   x = y = z = 0;
    tm = 0; _tm = 0;
    ct = 0;
 
@@ -1272,7 +1272,7 @@ void misc(void)
    sprintf(buf, "fixmul(): %ld per second", ct/TIME_SPEED);
    textout_ex(screen, font, buf, xoff+16, yoff+25, palette_color[15], palette_color[0]);
 
-   fx = fy = 0;
+   fx = fy = fz = 0;
    tm = 0; _tm = 0;
    ct = 0;
 
@@ -4539,7 +4539,9 @@ int main(void)
    #if defined ALLEGRO_I386 || defined ALLEGRO_AMD64
 
       #ifdef ALLEGRO_I386
-         sprintf(cpu_specs, "CPU family: %d86 (%s)", cpu_family, cpu_vendor?cpu_vendor:"unknown");
+         sprintf(cpu_specs, "CPU family: %d86 (%s)",
+                 cpu_family,
+                 (ustrlen(cpu_vendor) > 0) ? cpu_vendor : "unknown");
       #else
          sprintf(cpu_specs, "CPU family: AMD64 (%s)", cpu_vendor);
       #endif

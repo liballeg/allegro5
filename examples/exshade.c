@@ -1,20 +1,20 @@
 /*
  *    Example program for the Allegro library, by Patrick Hogan
  *
- *    This program demonstrates how to draw gouraud shaded (lit)
+ *    This program demonstrates how to draw Gouraud shaded (lit)
  *    sprites.  In an apparently black screen, a planet like sprite
  *    is drawn close to the middle of the screen. In a similar
  *    way to how the first test of extrans works, you move the
  *    cursor on the screen with the mouse. Attached to this mouse
  *    you can imagine a virtual spotlight illuminating the scene
- *    around. Depending on where the mouse is, the goraud shaded
+ *    around. Depending on where the mouse is, the Gouraud shaded
  *    sprite will show the direction of the light.
  */
 
 
 #include <math.h>
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 

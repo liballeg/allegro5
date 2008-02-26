@@ -19,9 +19,9 @@
  */
 
 
-#include "allegro.h" 
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5/allegro5.h" 
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintwin.h"
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile
@@ -32,16 +32,59 @@
 #define PREFIX_E                "al-wgdi ERROR: "
 
 
-/* function from asmlock.s */ 
-extern void gfx_gdi_write_bank(void);
-extern void gfx_gdi_unwrite_bank(void);
-
-/* exported only for asmlock.s */
 static void gfx_gdi_autolock(struct BITMAP* bmp);
 static void gfx_gdi_unlock(struct BITMAP* bmp);
-void (*ptr_gfx_gdi_autolock) (struct BITMAP* bmp) = gfx_gdi_autolock;
-void (*ptr_gfx_gdi_unlock) (struct BITMAP* bmp) = gfx_gdi_unlock;
+
+/* This is used only in asmlock.s and this file. */
 char *gdi_dirty_lines = NULL; /* used in WRITE_BANK() */
+
+
+
+/* If custom (asm) calling conversions are used, then the code in asmlock.s is
+ * used instead.
+ */
+#if defined(ALLEGRO_NO_ASM)
+
+
+
+uintptr_t gfx_gdi_write_bank(BITMAP *bmp, int line)
+{
+   gdi_dirty_lines[bmp->y_ofs + line] = 1;
+
+   if (!(bmp->id & BMP_ID_LOCKED))
+      gfx_gdi_autolock(bmp);
+
+   return (uintptr_t) bmp->line[line];
+}
+
+
+
+void gfx_gdi_unwrite_bank(BITMAP *bmp)
+{
+   if (!(bmp->id & BMP_ID_AUTOLOCK))
+      return;
+
+   gfx_gdi_unlock(bmp);
+   bmp->id &= ~ BMP_ID_AUTOLOCK;
+}
+
+
+
+#else /* !defined(ALLEGRO_NO_ASM) */
+
+
+
+/* asmlock.s requires these two variables */
+void (*ptr_gfx_gdi_autolock)(struct BITMAP* bmp) = gfx_gdi_autolock;
+void (*ptr_gfx_gdi_unlock)(struct BITMAP* bmp) = gfx_gdi_unlock;
+
+/* wddraw.h, despite its name, includes the exports from asmlock.s */
+#include "wddraw.h"
+
+
+
+#endif /* !defined(ALLEGRO_NO_ASM) */
+
 
 
 static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_depth);
@@ -70,10 +113,8 @@ GFX_DRIVER gfx_gdi =
    NULL,                        // AL_METHOD(int poll_scroll, (void));
    NULL,                        // AL_METHOD(void, enable_triple_buffer, (void));
    NULL, NULL, NULL, NULL, NULL, NULL,
-   gfx_gdi_set_mouse_sprite,
-   gfx_gdi_show_mouse,
-   gfx_gdi_hide_mouse,
-   gfx_gdi_move_mouse,
+   NULL, NULL, NULL, NULL,	// OBSOLETE: gfx_gdi_set_mouse_sprite, gfx_gdi_show_mouse,
+				//	     gfx_gdi_hide_mouse, gfx_gdi_move_mouse,
    NULL,                        // AL_METHOD(void, drawing_mode, (void));
    NULL,                        // AL_METHOD(void, save_video_state, (void*));
    NULL,                        // AL_METHOD(void, restore_video_state, (void*));
@@ -85,7 +126,13 @@ GFX_DRIVER gfx_gdi =
    0,                           // long bank_gran;
    0,                           // long vid_mem;
    0,                           // long vid_phys_base;
-   TRUE                         // int windowed;
+   TRUE,                        // int windowed;
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL
+	// XXX:	there used to be hardware cursor emulation (still in this file,
+	// in fact).  However I think we should hold off on reimplementing
+	// that.  The GDI driver looks like it will benefit greatly from the
+	// non-direct gfx structure (not doing rendering from a timer proc).
 };
 
 

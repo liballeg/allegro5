@@ -15,9 +15,12 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Memory management routines
+ */
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 
@@ -51,10 +54,16 @@ void *(*_al_debug_realloc)(int line, const char *file, const char *func,
 
 
 
-/* al_memory_management_functions:
+/* Function: al_set_memory_management_functions
  *  Customise the memory management functions used by the library.
+ *  A default function will be used in place of any function pointer which is
+ *  NULL.
+ *  The default debug variants simply call the non-debug variants.
+ *
+ *  malloc_atomic - malloc() replacement for objects not containing pointers
+ *  user_opaque - will be passed through to all the functions above
  */
-void al_memory_management_functions(
+void al_set_memory_management_functions(
    void *(*malloc)(void *opaque, size_t size),
    void *(*malloc_atomic)(void *opaque, size_t size),
    void (*free)(void *opaque, void *ptr),
@@ -67,7 +76,7 @@ void al_memory_management_functions(
       void *opaque, void *ptr),
    void *(*debug_realloc)(int line, const char *file, const char *func,
       void *opaque, void *ptr, size_t size),
-   void *use_opaque)
+   void *user_opaque)
 {
    _al_malloc        = malloc ? malloc : default_malloc;
    _al_malloc_atomic = malloc_atomic ? malloc_atomic : default_malloc;
@@ -78,7 +87,7 @@ void al_memory_management_functions(
                              debug_malloc_atomic : default_debug_malloc;
    _al_debug_free    = debug_free ? debug_free : default_debug_free;
    _al_debug_realloc = debug_realloc ? debug_realloc : default_debug_realloc;
-   _al_memory_opaque = use_opaque;
+   _al_memory_opaque = user_opaque;
 }
 
 

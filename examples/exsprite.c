@@ -37,7 +37,7 @@
  */
 
 #include <math.h>
-#include <allegro.h>
+#include <allegro5/allegro.h>
 #include "running.h"
 
 
@@ -70,9 +70,10 @@ void animate(void)
 {
    /* Wait for animation timer. */
    while (frame > ticks) {
-       /* Avoid a spinlock. */
+       /* Avoid busy wait. */
        rest(1);
    }
+
    /* Ideally, instead of using a timer, we would set the monitor refresh rate
     * to a multiple of the animation speed, and synchronize with the vertical
     * blank interrupt (vsync) - to get a completely smooth animation. But this
@@ -125,7 +126,7 @@ int main(int argc, char *argv[])
    LOCK_VARIABLE(ticks);
    install_int_ex(ticker, BPS_TO_TIMER(30));
 
-   if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
 	 allegro_message("Unable to set any graphic mode\n%s\n",

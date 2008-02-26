@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 
 
@@ -235,23 +235,23 @@ int waveform_proc(int msg, DIALOG *d, int c)
 	       val = atoi(thedialog[VOLUME].dp);
 	       i = atoi(thedialog[END_VOLUME].dp);
 	       j = atoi(thedialog[VOLUME_TIME].dp);
-	       voice_set_volume(d->d1, MID(0, val, 255));
+	       voice_set_volume(d->d1, CLAMP(0, val, 255));
 	       if (j > 0)
-		  voice_ramp_volume(d->d1, MID(0, j, 999999), MID(0, i, 255));
+		  voice_ramp_volume(d->d1, CLAMP(0, j, 999999), CLAMP(0, i, 255));
 
 	       val = atoi(thedialog[FREQ].dp);
 	       i = atoi(thedialog[END_FREQ].dp);
 	       j = atoi(thedialog[FREQ_TIME].dp);
-	       voice_set_frequency(d->d1, MID(1000, val, 99999));
+	       voice_set_frequency(d->d1, CLAMP(1000, val, 99999));
 	       if (j > 0)
-		  voice_sweep_frequency(d->d1, MID(0, j, 999999), MID(1000, i, 99999));
+		  voice_sweep_frequency(d->d1, CLAMP(0, j, 999999), CLAMP(1000, i, 99999));
 
 	       val = atoi(thedialog[PAN].dp);
 	       i = atoi(thedialog[END_PAN].dp);
 	       j = atoi(thedialog[PAN_TIME].dp);
-	       voice_set_pan(d->d1, MID(0, val, 255));
+	       voice_set_pan(d->d1, CLAMP(0, val, 255));
 	       if (j > 0)
-		  voice_sweep_pan(d->d1, MID(0, j, 999999), MID(0, i, 255));
+		  voice_sweep_pan(d->d1, CLAMP(0, j, 999999), CLAMP(0, i, 255));
 
 	       voice_start(d->d1); 
 	    }

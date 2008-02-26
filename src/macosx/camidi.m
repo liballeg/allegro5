@@ -15,9 +15,10 @@
  *      See readme.txt for copyright information.
  */
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintosx.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
 #error something is wrong with the makefile
@@ -129,10 +130,10 @@ static int ca_init(int input, int voices)
 
    AUGraphGetNodeInfo(graph, synth_node, NULL, NULL, NULL, &synth_unit);
 
-   quality = MID(0, get_config_int(sound, uconvert_ascii("ca_midi_quality", tmp), 127), 127);
+   quality = CLAMP(0, get_config_int(sound, uconvert_ascii("ca_midi_quality", tmp), 127), 127);
    AudioUnitSetProperty(synth_unit, kAudioUnitProperty_RenderQuality, kAudioUnitScope_Output, 0, &quality, sizeof(quality));
    
-   reverb = MID(0, get_config_int(sound, uconvert_ascii("ca_midi_reverb", tmp), 0), 5);
+   reverb = CLAMP(0, get_config_int(sound, uconvert_ascii("ca_midi_reverb", tmp), 0), 5);
    reverb_type = reverb_info[reverb].type;
    AudioUnitSetProperty(synth_unit, kAudioUnitProperty_ReverbRoomType, kAudioUnitScope_Output, 0, &reverb_type, sizeof(reverb_type));
 

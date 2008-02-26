@@ -185,7 +185,7 @@ Setting up Cygwin to build Allegro
 <blockquote>
    1. Make sure you have a working Cygwin installation. You can download the
       <tt>setup.exe</tt> program from '<link>http://sources.redhat.com/cygwin/</a>'.
-      You will need the followin packages: bash, binutils, cygwin, cygutils,
+      You will need the following packages: bash, binutils, cygwin, cygutils,
       fileutils, gcc, gdb, login, make, man, mingw-runtime, sed, sh-utils,
       texinfo, textutils and w32api.
 
@@ -279,7 +279,7 @@ Cross compilation
 <endblock>
    4. Run '<tt>./fix.sh mingw --dtou</tt>' (<tt>--dtou</tt> is only needed if your Allegro
       directory has text files in DOS format, otherwise you can use <tt>--quick</tt>).
-      If you are using a CVS version of Allegro, run '<tt>make depend</tt>' to
+      If you are using a SVN version of Allegro, run '<tt>make depend</tt>' to
       generate the build dependencies, then run '<tt>misc/fixdll.sh</tt>' to generate
       the <tt>allegro.def</tt> file. You are now finished with all the preparations.
 
@@ -368,7 +368,7 @@ Installing Allegro
    To activate any of these, type (for example) "<tt>make WARNMODE=1</tt>".
 
    If your copy of Allegro does not include the linker .def file (unlikely,
-   unless you have run "<tt>make veryclean</tt>" at some point, or are using the CVS
+   unless you have run "<tt>make veryclean</tt>" at some point, or are using the SVN
    version of Allegro), you can regenerate it by running "<tt>misc\fixdll.bat</tt>".
    You will need to have GNU sed and sort installed for this operation to
    work. The version of sed that is linked from the MinGW site does not
@@ -410,6 +410,10 @@ Using Allegro
    in that order (see the variable <tt>LIBRARIES</tt> in <tt>makefile.mgw</tt>). The names of
    the statically linked Allegro libraries are post-fixed with '<tt>_s</tt>' so that
    you will link with either <tt>liballeg_s.a</tt>, <tt>liballd_s.a</tt> or <tt>liballp_s.a</tt>.
+
+   When using a no-ASM library (built with <tt>ALLEGRO_USE_C</tt> option), you must define the
+   preprocessor symbol <tt>ALLEGRO_NO_ASM</tt> before including any of the Allegro headers. The
+   names of the no-ASM libraries are post-fixed with '<tt>_c</tt>'.
 
    Don't forget that you need to use the <code>END_OF_MAIN()</code> macro right after
    your <code>main()</code> function.

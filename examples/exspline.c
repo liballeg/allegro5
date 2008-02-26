@@ -32,7 +32,7 @@
  *    not all equidistant. Instead they tend to bunch up nearer to the
  *    ends of the spline, which means you will need to apply some fudges
  *    to get an object to move at a constant speed. On the other hand,
- *    in situations where the curve has a noticable change of direction 
+ *    in situations where the curve has a noticeable change of direction 
  *    at each guide point, the effect can be quite nice because it makes
  *    the object slow down for the curve.
  */
@@ -40,7 +40,7 @@
 
 #include <stdio.h>
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 

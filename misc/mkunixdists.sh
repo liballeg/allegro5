@@ -124,10 +124,10 @@ if [ -n "$rpmdir" ]; then
 	echo "Enter your root password if prompted"
 	su -c "(\
 		cp -f $basename.tar.gz $rpmdir/SOURCES ;\
-		cp -f $dir/$basename/misc/alex.xpm $rpmdir/SOURCES ;\
+		cp -f $dir/$basename/misc/icon.xpm $rpmdir/SOURCES ;\
 		rpm -bs $dir/$basename/misc/allegro.spec ;\
 		mv -f $rpmdir/SRPMS/allegro-*.rpm . ;\
-		rm -f $rpmdir/SOURCES/alex.xpm ;\
+		rm -f $rpmdir/SOURCES/icon.xpm ;\
 		rm -f $rpmdir/SOURCES/$basename.tar.gz ;\
 	)"
 fi

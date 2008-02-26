@@ -21,40 +21,27 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
-#ifdef HAVE_SYS_STAT_H
+#ifdef ALLEGRO_HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
 
-#ifdef HAVE_DIRENT_H
+#ifdef ALLEGRO_HAVE_DIRENT_H
    #include <sys/types.h>
    #include <dirent.h>
    #define NAMLEN(dirent) (strlen((dirent)->d_name))
 #else
-   #define dirent direct
-   #define NAMLEN(dirent) ((dirent)->d_namlen)
-   #ifdef HAVE_SYS_NDIR_H
-      #include <sys/ndir.h>
-   #endif
-   #ifdef HAVE_SYS_DIR_H
-      #include <sys/dir.h>
-   #endif
-   #ifdef HAVE_NDIR_H
-      #include <ndir.h>
-   #endif
+   /* Apparently all new systems have `dirent.h'. */
+   #error ALLEGRO_HAVE_DIRENT_H not defined
 #endif
 
-#ifdef TIME_WITH_SYS_TIME
-   #include <sys/time.h>
-   #include <time.h>
-#else
-   #ifdef HAVE_SYS_TIME_H
-      #include <sys/time.h>
-   #else
-      #include <time.h>
-   #endif
+#ifdef ALLEGRO_HAVE_SYS_TIME_H
+  #include <sys/time.h>
+#endif
+#ifdef ALLEGRO_HAVE_TIME_H
+  #include <time.h>
 #endif
 
 #define PREFIX_I "al-unix INFO: "
@@ -501,15 +488,16 @@ void _al_getdcwd(int drive, char *buf, int size)
  */
 uint64_t al_ffblk_get_size(struct al_ffblk *info)
 {
+   struct FF_DATA *ff_data;
    ASSERT(info);
-   struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
+   ff_data = (struct FF_DATA *) info->ff_data;
    ASSERT(ff_data);
    return ff_data->size;
 }
 
 
 
-void _unix_guess_file_encoding(void)
+void _al_detect_filename_encoding(void)
 {
    char const *encoding = "unknown";
    char *locale = getenv("LC_ALL");
@@ -526,7 +514,7 @@ void _unix_guess_file_encoding(void)
           strstr(locale, "utf-8") ||
           strstr(locale, "UTF8")) {
          /* Note: UTF8 is default anyway. */
-         set_file_encoding(U_UTF8);
+         set_filename_encoding(U_UTF8);
          encoding = "UTF8";
       }
       /* TODO: detect other encodings, and support them in Allegro */

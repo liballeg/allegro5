@@ -25,7 +25,7 @@
  * Driver operation:
  *
  * 1. When the driver is initialised all the joysticks on the system
- * are enumerated.  For each joystick, a AL_JOYSTICK_DIRECTX structure
+ * are enumerated.  For each joystick, a ALLEGRO_JOYSTICK_DIRECTX structure
  * is created and _mostly_ initialised.  An win32 Event is created
  * also created for each joystick, and DirectInput is told to set that
  * event whenever the joystick state changes.  For some devices this
@@ -34,17 +34,17 @@
  * joysticks are set up, a dedicated background thread is started.
  *
  * 2. When al_get_joystick() is called, the remaining initialisation
- * is done on one of one of the AL_JOYSTICK_DIRECTX structures, and
+ * is done on one of one of the ALLEGRO_JOYSTICK_DIRECTX structures, and
  * then the address of it is returned to the user.
  *
  * 3. The background thread waits upon the win32 Events/Waitable Timer
  * objects.  When one of them is triggered, the thread wakes up and
- * reads in buffered joystick events.  An internal AL_JOYSTATE
- * structure (part of AL_JOYSTICK_DIRECTX) is updated accordingly.
+ * reads in buffered joystick events.  An internal ALLEGRO_JOYSTATE
+ * structure (part of ALLEGRO_JOYSTICK_DIRECTX) is updated accordingly.
  * Also, any Allegro events are generated if necessary.
  *
  * 4. When the user calls al_get_joystick_state() the contents of the
- * internal AL_JOYSTATE structure are copied to a user AL_JOYSTATE
+ * internal ALLEGRO_JOYSTATE structure are copied to a user ALLEGRO_JOYSTATE
  * structure.
  */
 
@@ -56,10 +56,11 @@
 /* For waitable timers */
 #define _WIN32_WINNT 0x400
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintwin.h"
-#include "allegro/internal/aintern2.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintwin.h"
+#include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_joystick.h"
 
 #ifndef SCAN_DEPEND
    #ifdef ALLEGRO_MINGW32
@@ -114,13 +115,13 @@ typedef struct {
 } AXIS_MAPPING;
 
 
-typedef struct AL_JOYSTICK_DIRECTX {
-   AL_JOYSTICK parent;          /* must be first */
+typedef struct ALLEGRO_JOYSTICK_DIRECTX {
+   ALLEGRO_JOYSTICK parent;          /* must be first */
 
    CAPS_AND_NAMES caps_and_names;
 
    bool gotten;
-   AL_JOYSTATE joystate;
+   ALLEGRO_JOYSTATE joystate;
 
    LPDIRECTINPUTDEVICE2 device;
 
@@ -132,41 +133,41 @@ typedef struct AL_JOYSTICK_DIRECTX {
    AXIS_MAPPING rz_mapping;
    AXIS_MAPPING slider_mapping[MAX_SLIDERS];
    int pov_mapping_stick[MAX_POVS];
-} AL_JOYSTICK_DIRECTX;
+} ALLEGRO_JOYSTICK_DIRECTX;
 
 
 
 /* forward declarations */
-static bool joydx_init(void);
-static void joydx_exit(void);
+static bool joydx_init_joystick(void);
+static void joydx_exit_joystick(void);
 static int joydx_get_num_joysticks(void);
-static AL_JOYSTICK *joydx_get_joystick(int num);
-static void joydx_release_joystick(AL_JOYSTICK *joy);
-static void joydx_get_state(AL_JOYSTICK *joy, AL_JOYSTATE *ret_state);
+static ALLEGRO_JOYSTICK *joydx_get_joystick(int num);
+static void joydx_release_joystick(ALLEGRO_JOYSTICK *joy);
+static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTATE *ret_state);
 
 static void joydx_thread_proc(LPVOID unused);
-static void update_joystick(AL_JOYSTICK_DIRECTX *joy);
-static void handle_axis_event(AL_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis_mapping, DWORD value);
-static void handle_pov_event(AL_JOYSTICK_DIRECTX *joy, int stick, DWORD value);
-static void handle_button_event(AL_JOYSTICK_DIRECTX *joy, int button, bool down);
-static void generate_axis_event(AL_JOYSTICK_DIRECTX *joy, int stick, int axis, float pos);
-static void generate_button_event(AL_JOYSTICK_DIRECTX *joy, int button, unsigned int event_type);
+static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy);
+static void handle_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis_mapping, DWORD value);
+static void handle_pov_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, DWORD value);
+static void handle_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, bool down);
+static void generate_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, int axis, float pos);
+static void generate_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, ALLEGRO_EVENT_TYPE event_type);
 
 
 
 /* the driver vtable */
-AL_JOYSTICK_DRIVER _al_joydrv_directx =
+ALLEGRO_JOYSTICK_DRIVER _al_joydrv_directx =
 {
    AL_JOY_TYPE_DIRECTX,
    empty_string,
    empty_string,
    "DirectInput joystick",
-   joydx_init,
-   joydx_exit,
+   joydx_init_joystick,
+   joydx_exit_joystick,
    joydx_get_num_joysticks,
    joydx_get_joystick,
    joydx_release_joystick,
-   joydx_get_state
+   joydx_get_joystick_state
 };
 
 
@@ -174,9 +175,9 @@ AL_JOYSTICK_DRIVER _al_joydrv_directx =
 /* a handle to the DirectInput interface */
 static LPDIRECTINPUT joystick_dinput = NULL;
 
-/* these are initialised by joydx_init */
+/* these are initialised by joydx_init_joystick */
 static int joydx_num_joysticks = 0;
-static AL_JOYSTICK_DIRECTX joydx_joystick[MAX_JOYSTICKS];
+static ALLEGRO_JOYSTICK_DIRECTX joydx_joystick[MAX_JOYSTICKS];
 
 /* for the background thread */
 static HANDLE joydx_thread = NULL;
@@ -371,7 +372,7 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
  *  Helper to fill in the contents of the joystick structure using the
  *  information painstakingly stored into the caps_and_names substructure.
  */
-static void fill_joystick_info_using_caps_and_names(AL_JOYSTICK_DIRECTX *joy)
+static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *joy)
 {
    _AL_JOYSTICK_INFO *info = &joy->parent.info;
    CAPS_AND_NAMES *can = &joy->caps_and_names;
@@ -384,7 +385,7 @@ static void fill_joystick_info_using_caps_and_names(AL_JOYSTICK_DIRECTX *joy)
    /* the X, Y, Z axes make up the first stick */
    if (can->have_x || can->have_y || can->have_z) {
       if (can->have_x) {
-         info->stick[N_STICK].flags = AL_JOYFLAG_DIGITAL | AL_JOYFLAG_ANALOGUE;
+         info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
          info->stick[N_STICK].axis[N_AXIS].name = OR(can->name_x, default_name_x);
          joy->x_mapping.stick = N_STICK;
          joy->x_mapping.axis  = N_AXIS;
@@ -392,7 +393,7 @@ static void fill_joystick_info_using_caps_and_names(AL_JOYSTICK_DIRECTX *joy)
       }
 
       if (can->have_y) {
-         info->stick[N_STICK].flags = AL_JOYFLAG_DIGITAL | AL_JOYFLAG_ANALOGUE;
+         info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
          info->stick[N_STICK].axis[N_AXIS].name = OR(can->name_y, default_name_y);
          joy->y_mapping.stick = N_STICK;
          joy->y_mapping.axis  = N_AXIS;
@@ -400,7 +401,7 @@ static void fill_joystick_info_using_caps_and_names(AL_JOYSTICK_DIRECTX *joy)
       }
 
       if (can->have_z) {
-         info->stick[N_STICK].flags = AL_JOYFLAG_DIGITAL | AL_JOYFLAG_ANALOGUE;
+         info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
          info->stick[N_STICK].axis[N_AXIS].name = OR(can->name_z, default_name_z);
          joy->z_mapping.stick = N_STICK;
          joy->z_mapping.axis = N_AXIS;
@@ -414,7 +415,7 @@ static void fill_joystick_info_using_caps_and_names(AL_JOYSTICK_DIRECTX *joy)
    /* the Rx, Ry, Rz axes make up the next stick */
    if (can->have_rx || can->have_ry || can->have_rz) {
       if (can->have_rx) {
-         info->stick[N_STICK].flags = AL_JOYFLAG_DIGITAL | AL_JOYFLAG_ANALOGUE;
+         info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
          info->stick[N_STICK].axis[N_AXIS].name = OR(can->name_rx, default_name_rx);
          joy->rx_mapping.stick = N_STICK;
          joy->rx_mapping.axis  = N_AXIS;
@@ -422,7 +423,7 @@ static void fill_joystick_info_using_caps_and_names(AL_JOYSTICK_DIRECTX *joy)
       }
 
       if (can->have_ry) {
-         info->stick[N_STICK].flags = AL_JOYFLAG_DIGITAL | AL_JOYFLAG_ANALOGUE;
+         info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
          info->stick[N_STICK].axis[N_AXIS].name = OR(can->name_ry, default_name_ry);
          joy->ry_mapping.stick = N_STICK;
          joy->ry_mapping.axis  = N_AXIS;
@@ -430,7 +431,7 @@ static void fill_joystick_info_using_caps_and_names(AL_JOYSTICK_DIRECTX *joy)
       }
 
       if (can->have_rz) {
-         info->stick[N_STICK].flags = AL_JOYFLAG_DIGITAL | AL_JOYFLAG_ANALOGUE;
+         info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
          info->stick[N_STICK].axis[N_AXIS].name = OR(can->name_rz, default_name_rz);
          joy->rz_mapping.stick = N_STICK;
          joy->rz_mapping.axis  = N_AXIS;
@@ -443,7 +444,7 @@ static void fill_joystick_info_using_caps_and_names(AL_JOYSTICK_DIRECTX *joy)
 
    /* sliders are assigned to one stick each */
    for (i = 0; i < can->num_sliders; i++) {
-      info->stick[N_STICK].flags = AL_JOYFLAG_DIGITAL | AL_JOYFLAG_ANALOGUE;
+      info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
       info->stick[N_STICK].num_axes = 1;
       info->stick[N_STICK].axis[0].name = "";
       info->stick[N_STICK].name = OR(can->name_slider[i], default_name_slider);
@@ -454,7 +455,7 @@ static void fill_joystick_info_using_caps_and_names(AL_JOYSTICK_DIRECTX *joy)
 
    /* POV devices are assigned to one stick each */
    for (i = 0; i < can->num_povs; i++) {
-      info->stick[N_STICK].flags = AL_JOYFLAG_DIGITAL;
+      info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL;
       info->stick[N_STICK].num_axes = 2;
       info->stick[N_STICK].axis[0].name = "left/right";
       info->stick[N_STICK].axis[1].name = "up/down";
@@ -532,7 +533,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
       DEVICE_BUFFER_SIZE        // number of data items
    };
 
-   ASSERT(joydx_num_joysticks > 0 && joydx_num_joysticks < MAX_JOYSTICKS-1);
+   ASSERT(joydx_num_joysticks >= 0 && joydx_num_joysticks < MAX_JOYSTICKS-1);
    ASSERT(!JOYSTICK_WAKER(joydx_num_joysticks));
 
    memset(&joydx_joystick[joydx_num_joysticks], 0, sizeof(joydx_joystick[joydx_num_joysticks]));
@@ -648,7 +649,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
 
 
 
-/* joydx_init: [primary thread]
+/* joydx_init_joystick: [primary thread]
  *
  *  Initialises the DirectInput joystick devices.
  *
@@ -657,7 +658,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
  *  of the devices. joydx_get_joystick() is left with very little work
  *  to do.
  */
-static bool joydx_init(void)
+static bool joydx_init_joystick(void)
 {
    HRESULT hr;
 
@@ -710,7 +711,7 @@ static bool joydx_init(void)
 /* free_caps_and_names_strings: [primary thread]
  *  Free the dynamically allocated strings in a CAPS_AND_NAMES
  *  structure.  Incidentally, this is the only reason why the
- *  caps_and_names field is kept around in AL_JOYSTICK_DIRECTX.
+ *  caps_and_names field is kept around in ALLEGRO_JOYSTICK_DIRECTX.
  */
 static void free_caps_and_names_strings(CAPS_AND_NAMES *can)
 {
@@ -742,10 +743,10 @@ static void free_caps_and_names_strings(CAPS_AND_NAMES *can)
 
 
 
-/* joydx_exit: [primary thread]
+/* joydx_exit_joystick: [primary thread]
  *  Shuts down the DirectInput joystick devices.
  */
-static void joydx_exit(void)
+static void joydx_exit_joystick(void)
 {
    int i;
 
@@ -798,7 +799,7 @@ static int joydx_get_num_joysticks(void)
 
 /* joydx_get_joystick: [primary thread]
  *
- *  Returns the address of a AL_JOYSTICK structure for the device
+ *  Returns the address of a ALLEGRO_JOYSTICK structure for the device
  *  number NUM.  The top-level joystick functions will not call this
  *  function if joystick number NUM was already gotten.
  *
@@ -806,20 +807,20 @@ static int joydx_get_num_joysticks(void)
  *  right semantics, i.e. when you first 'get' a joystick it is not
  *  registered to any event queues.
  */
-static AL_JOYSTICK *joydx_get_joystick(int num)
+static ALLEGRO_JOYSTICK *joydx_get_joystick(int num)
 {
-   AL_JOYSTICK_DIRECTX *joy = &joydx_joystick[num];
+   ALLEGRO_JOYSTICK_DIRECTX *joy = &joydx_joystick[num];
 
    ASSERT(!joy->gotten);
 
    EnterCriticalSection(&joydx_thread_cs);
    {
-      _al_event_source_init(&joy->parent.es, _AL_ALL_JOYSTICK_EVENTS);
+      _al_event_source_init(&joy->parent.es);
       joy->gotten = true;
    }
    LeaveCriticalSection(&joydx_thread_cs);
 
-   return (AL_JOYSTICK *)joy;
+   return (ALLEGRO_JOYSTICK *)joy;
 }
 
 
@@ -827,9 +828,9 @@ static AL_JOYSTICK *joydx_get_joystick(int num)
 /* joydx_release_joystick: [primary thread]
  *  Releases a previously gotten joystick.
  */
-static void joydx_release_joystick(AL_JOYSTICK *joy_)
+static void joydx_release_joystick(ALLEGRO_JOYSTICK *joy_)
 {
-   AL_JOYSTICK_DIRECTX *joy = (AL_JOYSTICK_DIRECTX *)joy_;
+   ALLEGRO_JOYSTICK_DIRECTX *joy = (ALLEGRO_JOYSTICK_DIRECTX *)joy_;
 
    ASSERT(joy->gotten);
 
@@ -843,12 +844,12 @@ static void joydx_release_joystick(AL_JOYSTICK *joy_)
 
 
 
-/* joydx_get_state: [primary thread]
+/* joydx_get_joystick_state: [primary thread]
  *  Copy the internal joystick state to a user-provided structure.
  */
-static void joydx_get_state(AL_JOYSTICK *joy_, AL_JOYSTATE *ret_state)
+static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTATE *ret_state)
 {
-   AL_JOYSTICK_DIRECTX *joy = (AL_JOYSTICK_DIRECTX *)joy_;
+   ALLEGRO_JOYSTICK_DIRECTX *joy = (ALLEGRO_JOYSTICK_DIRECTX *)joy_;
 
    _al_event_source_lock(&joy->parent.es);
    {
@@ -899,10 +900,10 @@ static void joydx_thread_proc(LPVOID unused)
 
 /* update_joystick: [joystick thread]
  *  Reads in data for a single DirectInput joystick device, updates
- *  the internal AL_JOYSTATE structure, and generates any Allegro
+ *  the internal ALLEGRO_JOYSTATE structure, and generates any Allegro
  *  events required.
  */
-static void update_joystick(AL_JOYSTICK_DIRECTX *joy)
+static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
 {
    DIDEVICEOBJECTDATA buffer[DEVICE_BUFFER_SIZE];
    DWORD num_items = DEVICE_BUFFER_SIZE;
@@ -974,7 +975,7 @@ static void update_joystick(AL_JOYSTICK_DIRECTX *joy)
  *  Helper function to handle a state change in a non-POV axis.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void handle_axis_event(AL_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis_mapping, DWORD value)
+static void handle_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis_mapping, DWORD value)
 {
    const int stick = axis_mapping->stick;
    const int axis  = axis_mapping->axis;
@@ -997,7 +998,7 @@ static void handle_axis_event(AL_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis
  *  Helper function to handle a state change in a POV device.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void handle_pov_event(AL_JOYSTICK_DIRECTX *joy, int stick, DWORD _value)
+static void handle_pov_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, DWORD _value)
 {
    int value = _value;
    float old_p0, old_p1;
@@ -1041,18 +1042,18 @@ static void handle_pov_event(AL_JOYSTICK_DIRECTX *joy, int stick, DWORD _value)
  *  Helper function to handle a state change in a button.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void handle_button_event(AL_JOYSTICK_DIRECTX *joy, int button, bool down)
+static void handle_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, bool down)
 {
    if (button < 0 && button >= joy->parent.info.num_buttons)
       return;
 
    if (down) {
       joy->joystate.button[button] = 32767;
-      generate_button_event(joy, button, AL_EVENT_JOYSTICK_BUTTON_DOWN);
+      generate_button_event(joy, button, ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN);
    }
    else {
       joy->joystate.button[button] = 0;
-      generate_button_event(joy, button, AL_EVENT_JOYSTICK_BUTTON_UP);
+      generate_button_event(joy, button, ALLEGRO_EVENT_JOYSTICK_BUTTON_UP);
    }
 }
 
@@ -1062,18 +1063,18 @@ static void handle_button_event(AL_JOYSTICK_DIRECTX *joy, int button, bool down)
  *  Helper to generate an event after an axis is moved.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void generate_axis_event(AL_JOYSTICK_DIRECTX *joy, int stick, int axis, float pos)
+static void generate_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, int axis, float pos)
 {
-   AL_EVENT *event;
+   ALLEGRO_EVENT *event;
 
-   if (!_al_event_source_needs_to_generate_event(&joy->parent.es, AL_EVENT_JOYSTICK_AXIS))
+   if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&joy->parent.es);
    if (!event)
       return;
 
-   event->joystick.type = AL_EVENT_JOYSTICK_AXIS;
+   event->joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
    event->joystick.timestamp = al_current_time();
    event->joystick.stick = stick;
    event->joystick.axis = axis;
@@ -1089,11 +1090,11 @@ static void generate_axis_event(AL_JOYSTICK_DIRECTX *joy, int stick, int axis, f
  *  Helper to generate an event after a button is pressed or released.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void generate_button_event(AL_JOYSTICK_DIRECTX *joy, int button, unsigned int event_type)
+static void generate_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, ALLEGRO_EVENT_TYPE event_type)
 {
-   AL_EVENT *event;
+   ALLEGRO_EVENT *event;
 
-   if (!_al_event_source_needs_to_generate_event(&joy->parent.es, event_type))
+   if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&joy->parent.es);

@@ -16,9 +16,9 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include ALLEGRO_INTERNAL_HEADER
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_thread.h"
 
 #ifndef SCAN_DEPEND
    #include <process.h>
@@ -304,7 +304,7 @@ int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mtxExternal, unsigned long abs
    ASSERT(cond);
    ASSERT(mtxExternal);
    {
-      int reltime = abstime - al_current_time();
+      int reltime = abstime - ALLEGRO_SECS_TO_MSECS(al_current_time());
 
       if (reltime < 0)
          return -1;

@@ -16,8 +16,8 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/platform/aintunix.h"
 #include "xwin.h"
 
 
@@ -39,14 +39,7 @@ static GFX_DRIVER gfx_xwin =
    NULL, NULL, NULL,
    NULL, NULL, NULL, NULL,
    NULL, NULL,
-#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-   _xwin_set_mouse_sprite,
-   _xwin_show_mouse,
-   _xwin_hide_mouse,
-   _xwin_move_mouse,
-#else
-   NULL, NULL, NULL, NULL,
-#endif
+   NULL, NULL, NULL, NULL,	/* old hardware cursor methods */
    _xwin_drawing_mode,
    NULL, NULL,
    NULL,    // AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
@@ -56,7 +49,18 @@ static GFX_DRIVER gfx_xwin =
    0, 0,
    0x10000,
    0,
-   TRUE
+   TRUE,
+   /* new_api_branch additions */
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+   _al_xwin_create_mouse_cursor,
+   _al_xwin_destroy_mouse_cursor,
+   _al_xwin_set_mouse_cursor,
+   _al_xwin_set_system_mouse_cursor,
+   _al_xwin_show_mouse_cursor,
+   _al_xwin_hide_mouse_cursor
+#else
+   NULL, NULL, NULL, NULL, NULL, NULL
+#endif
 };
 
 
@@ -78,14 +82,7 @@ static GFX_DRIVER gfx_xwin_fullscreen =
    NULL, NULL, NULL,
    NULL, NULL, NULL, NULL,
    NULL, NULL,
-#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-   _xwin_set_mouse_sprite,
-   _xwin_show_mouse,
-   _xwin_hide_mouse,
-   _xwin_move_mouse,
-#else
-   NULL, NULL, NULL, NULL,
-#endif
+   NULL, NULL, NULL, NULL,	/* old hardware cursor methods */
    _xwin_drawing_mode,
    NULL, NULL,
    NULL,
@@ -95,7 +92,18 @@ static GFX_DRIVER gfx_xwin_fullscreen =
    0, 0,
    0x10000,
    0,
-   FALSE
+   FALSE,
+   /* new_api_branch additions */
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+   _al_xwin_create_mouse_cursor,
+   _al_xwin_destroy_mouse_cursor,
+   _al_xwin_set_mouse_cursor,
+   _al_xwin_set_system_mouse_cursor,
+   _al_xwin_show_mouse_cursor,
+   _al_xwin_hide_mouse_cursor
+#else
+   NULL, NULL, NULL, NULL, NULL, NULL
+#endif
 };
 
 

@@ -4,8 +4,6 @@
 # - sonames on Unix
 # - most Unix drivers require testing
 #
-# - crash on Windows if try to use ALLEGRO_NO_ASM due to clash of calling
-#   conventions (I think it was never supported)
 # - DLLs on Windows (some "auto-imports" when linking executables)
 # - MSVC support
 #
@@ -13,29 +11,39 @@
 # - installing documentation
 #
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-
 #-----------------------------------------------------------------------------#
 #
-#   Project
+#   Build system setup
 #
 #-----------------------------------------------------------------------------#
 
-project(ALLEGRO C)
+option(USE_CXX "Build C++ portions." on)
+
+if(USE_CXX)
+    project(ALLEGRO C CXX)
+else(USE_CXX)
+    project(ALLEGRO C)
+endif(USE_CXX)
 
 # TODO soft-code the version number
-set(ALLEGRO_VERSION 4.3.1)
+set(ALLEGRO_VERSION 4.9.3)
 
+# Search in the `cmake' directory for additional CMake modules.
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+# Search for C header files in these directories.
 include_directories(
-    .
     include
-    include/allegro
-
     # For out-of-source builds.
     ${CMAKE_BINARY_DIR}/include
-    ${CMAKE_BINARY_DIR}/include/allegro
-    ${CMAKE_BINARY_DIR}/include/allegro/platform
     )
+
+# Put libraries into `lib' by default.  This path must be absolute.
+set(ALLEGRO_LIB_PATH "lib" CACHE INTERNAL "internal")
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${ALLEGRO_LIB_PATH})
+mark_as_advanced(LIBRARY_OUTPUT_PATH)
+
+# Lists of all the source files.
 include(FileList)
 
 #-----------------------------------------------------------------------------#
@@ -51,7 +59,6 @@ option(GRADE_PROFILE "Build the profiling library" off)
 option(SHARED "Build shared libraries" on)
 option(STATIC "Build static libraries" on)
 
-option(WANT_ASM "Use hand-written assembly code for i386 (not recommended)" off)
 option(WANT_MODULES "Use dynamically loaded modules (Unix)" on)
 option(WANT_MAGIC_MAIN "Enable magic main" off)
 
@@ -76,18 +83,23 @@ option(WANT_OSSDIGI "Enable OSS digital audio driver (Unix)" on)
 option(WANT_OSSMIDI "Enable OSS MIDI driver (Unix)" on)
 option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" on)
 
+option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
+option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
+
+#
+# Addons.
+#
+
+option(WANT_FONT "Enable bitmap font add-on" on)
+
 #
 # For developers.
 #
 
 option(STRICT_WARN "Halt at warnings" off)
-
-#-----------------------------------------------------------------------------#
-
-    # Put libraries into `lib' by default.  This must be absolute.
-    #
-set(ALLEGRO_LIB_PATH "lib" CACHE INTERNAL "internal")
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${ALLEGRO_LIB_PATH})
+option(WANT_OLD_EXAMPLES "Build examples from < 4.9" off)
+option(WANT_OLD_TESTS "Build tests from < 4.9" off)
+option(WANT_OLD_TOOLS "Build tools from < 4.9" off)
 
 #-----------------------------------------------------------------------------#
 #
@@ -103,18 +115,35 @@ include(CheckSymbolExists)
 include(CheckTypeSize)
 include(UsePkgConfig)
 
-include(SrcTests)
+if(CMAKE_COMPILER_2005)
+    set(COMPILER_MSVC 1)
+endif(CMAKE_COMPILER_2005)
 
-# For alplatf.h
+if(CMAKE_COMPILER_IS_GNUCC)
+    set(COMPILER_GCC 1)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MINGW_CROSS)
+    set(WIN32 1)
+endif(MINGW_CROSS)
 
 if(MINGW)
+    # For alplatf.h
     set(ALLEGRO_MINGW32 1)
+    # Install to MINGDIR
+    string(REPLACE "\\" "/" MINGDIR "$ENV{MINGDIR}")
+    set(CMAKE_INSTALL_PREFIX ${MINGDIR})
 endif(MINGW)
+
 if(UNIX)
     set(ALLEGRO_UNIX 1)
 endif(UNIX)
 
-# Add corresponding lines to include/allegro/platform/alunixac.h.in
+if(COMPILER_MSVC)
+    set(ALLEGRO_MSVC 1)
+endif(COMPILER_MSVC)
+
+# Begin tests.
 
 include(TestBigEndian)
 test_big_endian(ALLEGRO_BIG_ENDIAN)
@@ -122,40 +151,33 @@ if(NOT ALLEGRO_BIG_ENDIAN)
     set(ALLEGRO_LITTLE_ENDIAN 1)
 endif(NOT ALLEGRO_BIG_ENDIAN)
 
-check_include_files(dirent.h HAVE_DIRENT_H)
-check_include_files(inttypes.h HAVE_INTTYPES_H)
-check_include_files(limits.h HAVE_LIMITS_H)
-check_include_files(linux/awe_voice.h HAVE_LINUX_AWE_VOICE_H)
-check_include_files(linux/input.h HAVE_LINUX_INPUT_H)
-check_include_files(linux/joystick.h HAVE_LINUX_JOYSTICK_H)
-check_include_files(linux/soundcard.h HAVE_LINUX_SOUNDCARD_H)
-check_include_files(machine/soundcard.h HAVE_MACHINE_SOUNDCARD_H)
-check_include_files(memory.h HAVE_MEMORY_H)
-check_include_files(ndir.h HAVE_NDIR_H)
-check_include_files(soundcard.h HAVE_SOUNDCARD_H)
-check_include_files(stdbool.h HAVE_STDBOOL_H)
-check_include_files(stdint.h HAVE_STDINT_H)
-check_include_files(sys/dir.h HAVE_SYS_DIR_H)
-check_include_files(sys/io.h HAVE_SYS_IO_H)
-check_include_files(sys/ndir.h HAVE_SYS_NDIR_H)
-check_include_files(sys/soundcard.h HAVE_SYS_SOUNDCARD_H)
-check_include_files(sys/stat.h HAVE_SYS_STAT_H)
-check_include_files(sys/time.h HAVE_SYS_TIME_H)
-check_include_files(sys/utsname.h HAVE_SYS_UTSNAME_H)
+check_include_files(dirent.h ALLEGRO_HAVE_DIRENT_H)
+check_include_files(inttypes.h ALLEGRO_HAVE_INTTYPES_H)
+check_include_files(linux/awe_voice.h ALLEGRO_HAVE_LINUX_AWE_VOICE_H)
+check_include_files(linux/input.h ALLEGRO_HAVE_LINUX_INPUT_H)
+check_include_files(linux/joystick.h ALLEGRO_HAVE_LINUX_JOYSTICK_H)
+check_include_files(linux/soundcard.h ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
+check_include_files(machine/soundcard.h ALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
+check_include_files(soundcard.h ALLEGRO_HAVE_SOUNDCARD_H)
+check_include_files(stdbool.h ALLEGRO_HAVE_STDBOOL_H)
+check_include_files(stdint.h ALLEGRO_HAVE_STDINT_H)
+check_include_files(sys/io.h ALLEGRO_HAVE_SYS_IO_H)
+check_include_files(sys/soundcard.h ALLEGRO_HAVE_SYS_SOUNDCARD_H)
+check_include_files(sys/stat.h ALLEGRO_HAVE_SYS_STAT_H)
+check_include_files(sys/time.h ALLEGRO_HAVE_SYS_TIME_H)
+check_include_files(sys/utsname.h ALLEGRO_HAVE_SYS_UTSNAME_H)
 
-check_function_exists(getexecname ALLEGRO_SYS_GETEXECNAME)
-set(ALLEGRO_HAVE_GETEXECNAME ${ALLEGRO_SYS_GETEXECNAME})
-    # ??? both are used in the source
-check_function_exists(memcmp HAVE_MEMCMP)
-check_function_exists(mkstemp HAVE_MKSTEMP)
-check_function_exists(mmap HAVE_MMAP)
-check_function_exists(mprotect HAVE_MPROTECT)
-check_function_exists(sched_yield ALLEGRO_USE_SCHED_YIELD)
-check_function_exists(stricmp HAVE_STRICMP)
-check_function_exists(strlwr HAVE_STRLWR)
-check_function_exists(strupr HAVE_STRUPR)
-check_function_exists(strupr HAVE_STRUPR)
-check_type_size("_Bool" HAVE__BOOL)
+check_function_exists(getexecname ALLEGRO_HAVE_GETEXECNAME)
+check_function_exists(mkstemp ALLEGRO_HAVE_MKSTEMP)
+check_function_exists(mmap ALLEGRO_HAVE_MMAP)
+check_function_exists(mprotect ALLEGRO_HAVE_MPROTECT)
+check_function_exists(sched_yield ALLEGRO_HAVE_SCHED_YIELD)
+check_function_exists(stricmp ALLEGRO_HAVE_STRICMP)
+check_function_exists(strlwr ALLEGRO_HAVE_STRLWR)
+check_function_exists(strupr ALLEGRO_HAVE_STRUPR)
+check_function_exists(sysconf, ALLEGRO_HAVE_SYSCONF)
+
+check_type_size("_Bool" ALLEGRO_HAVE__BOOL)
 
 check_c_source_compiles("
     #include <sys/procfs.h>
@@ -175,16 +197,7 @@ check_c_source_compiles("
         ioctl(0, PIOCPSINFO, &psinfo);
         return 0;
     }"
-    ALLEGRO_HAVE_SV_PROCFS
-    )
-
-check_c_source_compiles("
-    #include <time.h>
-    #include <sys/time.h>
-    int main(void) {
-        return 0;
-    }"
-    TIME_WITH_SYS_TIME
+    ALLEGRO_HAVE_SV_PROCFS_H
     )
 
 include(CheckCtors)
@@ -192,21 +205,8 @@ check_ctors(ALLEGRO_USE_CONSTRUCTOR)
 
 #-----------------------------------------------------------------------------#
 
-if(WANT_ASM)
-    # TODO check if assembly is support on this platform
-    # Write up another macro?
-
-    set(SUPPORT_ASM 1)
-    
-    include(CheckAsm)
-    check_MMX(ALLEGRO_MMX)
-    check_SSE(ALLEGRO_SSE)
-else(WANT_ASM)
-    # Added it to alplatf.h.cmake, if this isn't wise just uncomment
-    # and remove the set and the entry in alplatf.h.cmake
-    #add_definitions(-DALLEGRO_NO_ASM)
-    set(ALLEGRO_NO_ASM 1)
-endif(WANT_ASM)
+# We no longer support hand-written assembly routines.
+set(ALLEGRO_NO_ASM 1)
 
 if(WANT_MODULES)
     # Should ask CMake whether it can build modules on this platform.
@@ -224,12 +224,38 @@ endif(WANT_MAGIC_MAIN)
 #
 #-----------------------------------------------------------------------------#
 
-    # Accumulate extra libraries needed for the platform.
-    #
-set(PLATFORM_LIBS)
+#
+# These are the conventions for this CMakeFile.
+#
+# The WANT_* variables indicate whether the user wants to have an optional
+# feature enabled, i.e. whether they have selected something in the CMake UI.
+#
+# The CAN_* variables indicate whether a feature *can* be enabled on this
+# system/platform.  As these variable values are cached, CAN_ variables could
+# be set even though the user has turned a corresponding WANT_* variable
+# off---it might have been tested and set in a previous run.
+#
+# The SUPPORT_* variables are the conjunction of WANT_FEATURE and CAN_FEATURE,
+# i.e. the user wants it and the system can support it.
+#
+# Those variables are internal to the CMake build.  Allegro header files use
+# preprocessor constants with names like ALLEGRO_WITH_* and ALLEGRO_HAVE_*.
+# Sometimes we make use of those variables in this CMakeFile as well, but
+# generally that's just due to sloppiness.
+#
 
-    # Accumulate extra libraries needed due to drivers.
-    #
+if(WANT_OPENGL)
+    include(FindOpenGL)
+    if(OPENGL_FOUND)
+        set(SUPPORT_OPENGL 1)
+    endif(OPENGL_FOUND)
+
+    if(SUPPORT_OPENGL)
+       set(ALLEGRO_CFG_OPENGL 1)
+    endif(SUPPORT_OPENGL)
+endif(WANT_OPENGL)
+
+# Accumulate extra libraries needed due to drivers.
 set(DRIVER_LIBS_STATIC)
 set(DRIVER_LIBS_SHARED)
 
@@ -241,14 +267,12 @@ if(UNIX)
 
     include(FindThreads)
     if(CMAKE_USE_PTHREADS_INIT)
-        set(HAVE_LIBPTHREAD 1)
+        set(ALLEGRO_HAVE_LIBPTHREAD 1)
     endif(CMAKE_USE_PTHREADS_INIT)
-    if(HAVE_LIBPTHREAD)
-        list(APPEND PLATFORM_LIBS pthread)
-    endif(HAVE_LIBPTHREAD)
 
     if(SUPPORT_MODULES)
         set(ALLEGRO_MODULES_PATH_TAIL lib/allegro)
+        # This is a #define variable.
         set(ALLEGRO_MODULES_PATH
             \"${CMAKE_INSTALL_PREFIX}/${ALLEGRO_MODULES_PATH_TAIL}\"
             )
@@ -268,13 +292,14 @@ if(UNIX)
                 return 1;
             #endif
             }"
-            SUPPORT_ALSADIGI
+            CAN_ALSADIGI
         )
-        if(SUPPORT_ALSADIGI)
+        if(CAN_ALSADIGI)
+            set(SUPPORT_ALSADIGI 1)
             set(ALLEGRO_WITH_ALSADIGI 1)
             set(ALLEGRO_ALSA_VERSION 9)
             list(APPEND DRIVER_LIBS_STATIC asound)
-        endif(SUPPORT_ALSADIGI)
+        endif(CAN_ALSADIGI)
     endif(WANT_ALSADIGI)
 
     if(WANT_ALSAMIDI)
@@ -287,13 +312,14 @@ if(UNIX)
                 return 1;
             #endif
             }"
-            SUPPORT_ALSAMIDI
+            CAN_ALSAMIDI
         )
-        if(SUPPORT_ALSAMIDI)
+        if(CAN_ALSAMIDI)
+            set(SUPPORT_ALSAMIDI 1)
             set(ALLEGRO_WITH_ALSAMIDI 1)
             set(ALLEGRO_ALSA_VERSION 9)
             list(APPEND DRIVER_LIBS_STATIC asound)
-        endif(SUPPORT_ALSAMIDI)
+        endif(CAN_ALSAMIDI)
     endif(WANT_ALSAMIDI)
 
     if(WANT_ARTS)
@@ -334,8 +360,8 @@ if(UNIX)
         endif(JACK_INCLUDEDIR)
     endif(WANT_JACK)
 
-    if(HAVE_SOUNDCARD_H OR HAVE_SYS_SOUNDCARD_H OR 
-        HAVE_MACHINE_SOUNDCARD_H OR HAVE_LINUX_SOUNDCARD_H)
+    if(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR 
+        ALLEGRO_HAVE_MACHINE_SOUNDCARD_H OR ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
         
         if(WANT_OSSDIGI)
             set(SUPPORT_OSSDIGI 1)
@@ -347,23 +373,24 @@ if(UNIX)
             set(ALLEGRO_WITH_OSSMIDI 1)
         endif(WANT_OSSMIDI)
 
-        check_library_exists(ossaudio _oss_ioctl "" HAVE_LIBOSSAUDIO)
-        if(HAVE_LIBOSSAUDIO)
+        # XXX we assume that if libossaudio exists then we need to use it.
+        check_library_exists(ossaudio _oss_ioctl "" ALLEGRO_HAVE_LIBOSSAUDIO)
+        if(ALLEGRO_HAVE_LIBOSSAUDIO)
             list(APPEND DRIVER_LIBS_STATIC ossaudio)
             list(APPEND DRIVER_LIBS_SHARED ossaudio)
-        endif(HAVE_LIBOSSAUDIO)
+        endif(ALLEGRO_HAVE_LIBOSSAUDIO)
 
-    endif(HAVE_SOUNDCARD_H OR HAVE_SYS_SOUNDCARD_H OR
-        HAVE_MACHINE_SOUNDCARD_H OR HAVE_LINUX_SOUNDCARD_H)
+    endif(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR
+        ALLEGRO_HAVE_MACHINE_SOUNDCARD_H OR ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
 
     if(WANT_SGIAL)
-        check_library_exists(audio alOpenPort "" SUPPORT_SGIAL)
-        if(SUPPORT_SGIAL)
+        check_library_exists(audio alOpenPort "" CAN_SGIAL)
+        if(CAN_SGIAL)
+            set(SUPPORT_SGIAL 1)
             set(ALLEGRO_WITH_SGIALDIGI 1)
             list(append DRIVER_LIBS_STATIC audio)
-        endif(SUPPORT_SGIAL)
+        endif(CAN_SGIAL)
     endif(WANT_SGIAL)
-
 endif(UNIX)
 
 #
@@ -386,19 +413,21 @@ if(SUPPORT_LINUX_CONSOLE)
                 int x = FB_SYNC_ON_GREEN;
                 return 0;
             }"
-            SUPPORT_FBCON
+            CAN_FBCON
         )
-        if(SUPPORT_FBCON)
+        if(CAN_FBCON)
+            set(SUPPORT_FBCON 1)
             set(ALLEGRO_LINUX_FBCON 1)
-        endif(SUPPORT_FBCON)
+        endif(CAN_FBCON)
     endif(WANT_FBCON)
 
     if(WANT_SVGALIB)
-        check_library_exists(vga vga_init "" SUPPORT_SVGALIB)
-        if(SUPPORT_SVGALIB)
+        check_library_exists(vga vga_init "" CAN_SVGALIB)
+        if(CAN_SVGALIB)
+            set(SUPPORT_SVGALIB 1)
             set(ALLEGRO_LINUX_SVGALIB 1)
             list(APPEND DRIVER_LIBS_STATIC vga)
-        endif(SUPPORT_SVGALIB)
+        endif(CAN_SVGALIB)
 
         set(CMAKE_REQUIRED_LIBRARIES vga)
         check_c_source_compiles("
@@ -434,42 +463,65 @@ endif(WANT_X11)
 if(SUPPORT_X11)
     set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES})
 
-    check_library_exists(Xext XShmQueryExtension ""
-        ALLEGRO_XWINDOWS_WITH_SHM)
+    check_library_exists(Xext XShmQueryExtension "" CAN_XSHM)
+    if(CAN_XSHM)
+        set(ALLEGRO_XWINDOWS_WITH_SHM 1)
+    endif(CAN_XSHM)
 
-    check_library_exists(Xcursor XcursorImageCreate ""
-        ALLEGRO_XWINDOWS_WITH_XCURSOR)
-    if(ALLEGRO_XWINDOWS_WITH_XCURSOR)
+    check_library_exists(Xcursor XcursorImageCreate "" CAN_XCURSOR)
+    if(CAN_XCURSOR)
+        set(ALLEGRO_XWINDOWS_WITH_XCURSOR 1)
         list(APPEND X11_LIBRARIES "Xcursor")
-    endif(ALLEGRO_XWINDOWS_WITH_XCURSOR)
+    endif(CAN_XCURSOR)
 
-    check_library_exists(Xxf86vm XF86VidModeQueryExtension ""
-        ALLEGRO_XWINDOWS_WITH_XF86VIDMODE)
-    if(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE)
+    check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)
+    if(CAN_XF86VIDMODE)
+        set(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE 1)
         list(APPEND X11_LIBRARIES "Xxf86vm")
-    endif(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE)
+    endif(CAN_XF86VIDMODE)
 
     if(WANT_DGA2)
-        check_library_exists(Xxf86dga XDGAQueryExtension ""
-            ALLEGRO_XWINDOWS_WITH_XF86DGA2)
-        if(ALLEGRO_XWINDOWS_WITH_XF86DGA2)
-            list(APPEND DRIVER_LIBS_STATIC "Xxf86dga")
-        endif(ALLEGRO_XWINDOWS_WITH_XF86DGA2)
+        check_library_exists(Xxf86dga XDGAQueryExtension "" CAN_XF86DGA)
+        if(CAN_XF86DGA)
+            set(SUPPORT_DGA2 1)
+            set(ALLEGRO_XWINDOWS_WITH_XF86DGA2 1)
+            if(NOT SUPPORT_MODULES)
+                list(APPEND X11_LIBRARIES "Xxf86dga")
+            endif(NOT SUPPORT_MODULES)
+        endif(CAN_XF86DGA)
     endif(WANT_DGA2)
 
-    check_library_exists(X11 XOpenIM "" ALLEGRO_USE_XIM)
+    check_library_exists(X11 XOpenIM "" CAN_XIM)
+    if(CAN_XIM)
+        set(ALLEGRO_XWINDOWS_WITH_XIM 1)
+    endif(CAN_XIM)
 
     check_include_files(X11/xpm.h HAVE_X11_XPM_H)
-    if(HAVE_X11_XPM_H)
-        check_library_exists(Xpm XpmCreatePixmapFromData ""
-            ALLEGRO_XWINDOWS_WITH_XPM)
-        if(ALLEGRO_XWINDOWS_WITH_XPM)
-            list(APPEND X11_LIBRARIES "Xpm")
-        endif(ALLEGRO_XWINDOWS_WITH_XPM)
-    endif(HAVE_X11_XPM_H)
+    check_library_exists(Xpm XpmCreatePixmapFromData "" CAN_XPM)
+    if(HAVE_X11_XPM_H AND CAN_XPM)
+        set(ALLEGRO_XWINDOWS_WITH_XPM 1)
+        list(APPEND X11_LIBRARIES "Xpm")
+    endif(HAVE_X11_XPM_H AND CAN_XPM)
 
     set(CMAKE_REQUIRED_LIBRARIES)
 endif(SUPPORT_X11)
+
+#
+# Windows
+#
+
+if(WIN32)
+    if(WANT_D3D)
+        check_include_files(d3d9.h HAVE_D3D9)
+        if(HAVE_D3D9)
+            set(SUPPORT_D3D 1)
+        endif(HAVE_D3D9)
+    endif(WANT_D3D)
+    
+    if(SUPPORT_D3D)
+        set(ALLEGRO_CFG_D3D 1)
+    endif(SUPPORT_D3D)
+endif(WIN32)
 
 #
 # Produce configuration files.
@@ -477,12 +529,13 @@ endif(SUPPORT_X11)
 #
 
 configure_file(
-    include/allegro/platform/alplatf.h.cmake
-    include/allegro/platform/alplatf.h
+    include/allegro5/platform/alplatf.h.cmake
+    include/allegro5/platform/alplatf.h
     )
 
 if(MINGW)
     # asmcapa.h wouldn't be necessary if we only supported CMake.
+    # XXX we shouldn't need asmcapa.h any more
     configure_file(
         cmake/asmcapa.h.cmake
         obj/mingw32/asmcapa.h
@@ -490,9 +543,10 @@ if(MINGW)
 endif(MINGW)
 
 if(UNIX)
-    set(CONFIG_FILE include/allegro/platform/alunixac.h)
-    configure_file(${CONFIG_FILE}.cmake ${CONFIG_FILE})
-    add_definitions(-DHAVE_CONFIG_H)
+    configure_file(
+        include/allegro5/platform/alunixac.h.cmake
+        include/allegro5/platform/alunixac.h
+        )
 endif(UNIX)
 
 #-----------------------------------------------------------------------------#
@@ -501,54 +555,23 @@ endif(UNIX)
 #
 #-----------------------------------------------------------------------------#
 
-    # List of source files need to compile Allegro in this configuration on
-    # this platform.
-    #
-set(LIBRARY_SOURCES ${ALLEGRO_SRC_FILES})
+# List of source files need to compile Allegro in this configuration on
+# this platform.
+set(LIBRARY_SOURCES
+    ${ALLEGRO_SRC_FILES}
+    ${ALLEGRO_SRC_C_FILES}
+    )
 
-    # Libraries that we always need to link against on this platform
-    # e.g. -lm on Unix.
-    #
+# Libraries that we always need to link against on this platform
+# e.g. -lm on Unix.
 set(PLATFORM_LIBS)
-
-    # Whether using hand-written assembly code or C-only.
-    #
-if(SUPPORT_ASM)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_I386_FILES})
-else(SUPPORT_ASM)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_C_FILES})
-    if(WIN32)
-        list(APPEND LIBRARY_SOURCES src/c/cmiscs.s)
-    endif(WIN32)
-endif(SUPPORT_ASM)
-
-    # Assembly code and Windows port both require generated asmdef.inc.
-    #
-add_executable(asmdef src/i386/asmdef.c)
-set_target_properties(asmdef PROPERTIES
-    OUTPUT_NAME ${ALLEGRO_LIB_PATH}/asmdef
-    )
-get_target_property(ASMDEF_EXE asmdef LOCATION)
-
-if(MINGW)
-    set(ASMDEF_INC ${CMAKE_BINARY_DIR}/obj/mingw32/asmdef.inc)
-endif(MINGW)
-if(UNIX)
-    set(ASMDEF_INC ${CMAKE_BINARY_DIR}/obj/unix/asmdef.inc)
-endif(UNIX)
-
-add_custom_target(asmdef_inc
-    DEPENDS ${ASMDEF_INC}
-    )
-add_custom_command(
-    OUTPUT ${ASMDEF_INC}
-    DEPENDS asmdef
-    COMMAND ${ASMDEF_EXE} ${ASMDEF_INC}
-    )
 
 if(UNIX)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_UNIX_FILES})
     list(APPEND PLATFORM_LIBS m pthread)
+    if(NOT SUPPORT_MODULES)
+        list(APPEND PLATFORM_LIBS "${DRIVER_LIBS_STATIC}")
+    endif(NOT SUPPORT_MODULES)
 endif(UNIX)
 
 if(SUPPORT_LINUX_CONSOLE)
@@ -569,14 +592,36 @@ if(WIN32)
     list(APPEND PLATFORM_LIBS
         kernel32 user32 gdi32 comdlg32 ole32 dinput ddraw dxguid winmm dsound
         )
+    if(SUPPORT_D3D)
+        list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
+        list(APPEND PLATFORM_LIBS d3d9)
+    endif(SUPPORT_D3D)
 endif(WIN32)
+
+if(SUPPORT_OPENGL)
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_OPENGL_FILES})
+    if(WIN32)
+        list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WGL_FILES})
+    endif(WIN32)
+    list(APPEND PLATFORM_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+endif(SUPPORT_OPENGL)
 
 #-----------------------------------------------------------------------------#
 
 if(STRICT_WARN)
-    set(WFLAGS "-W -Wall -Wstrict-prototypes -Wno-unused-parameter -Werror")
+    if(COMPILER_GCC)
+        set(WFLAGS "-W -Wall -Wstrict-prototypes -Wno-unused-parameter -Werror")
+    endif(COMPILER_GCC)
+    if(COMPILER_MSVC)
+        set(WFLAGS "/W4 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
+    endif(COMPILER_MSVC)
 else(STRICT_WARN)
-    set(WFLAGS "-W -Wall -Wno-unused")
+    if(COMPILER_GCC)
+        set(WFLAGS "-W -Wall -Wno-unused")
+    endif(COMPILER_GCC)
+    if(COMPILER_MSVC)
+        set(WFLAGS "/W3 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
+    endif(COMPILER_MSVC)
 endif(STRICT_WARN)
 
 macro(add_allegro_build nm extra_flags)
@@ -585,43 +630,14 @@ macro(add_allegro_build nm extra_flags)
         "-DALLEGRO_LIB_BUILD -DALLEGRO_SRC ${WFLAGS} ${extra_flags}"
         )
 
-    #
-    # Assembly files.
-    # I can't get it to work by adding the asm source file to the library, so
-    # we add the object file to the library instead.
-    #
-    set(ASM_OBJS)
-    set(ASM_SOURCES)
-    foreach(SOURCE ${LIBRARY_SOURCES})
-        if(${SOURCE} MATCHES "\\.s$")
-            get_filename_component(FILE_BASE ${SOURCE} NAME_WE)
-            set(OBJ ${LIBRARY_OUTPUT_PATH}/${FILE_BASE}.o)
-            set(_wflags ${WFLAGS})
-            separate_arguments(_wflags)
-            add_custom_command(
-                OUTPUT ${OBJ}
-                DEPENDS ${SOURCE} ${ASMDEF_INC}
-                COMMAND
-                    ${CMAKE_C_COMPILER} -x assembler-with-cpp
-                    -I. -Iinclude ${_wflags}
-                    -c ${CMAKE_SOURCE_DIR}/${SOURCE}
-                    -o ${OBJ}
-                )
-            list(APPEND ASM_OBJS ${OBJ})
-            list(APPEND ASM_SOURCES ${SOURCE})
-        endif(${SOURCE} MATCHES "\\.s$")
-    endforeach(SOURCE)
-
-    macro(really_add_allegro_build nm target libtype more_extra_flags)
-        add_library(${target} ${libtype} ${LIBRARY_SOURCES} ${ASM_OBJS})
+    macro(really_add_allegro_build nam target libtype more_extra_flags)
+        set(OUTPUT_LIBRARY ${nam})
+        add_library(${target} ${libtype} ${LIBRARY_SOURCES})
         set_target_properties(${target}
             PROPERTIES
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
-            OUTPUT_NAME ${nm}
+            OUTPUT_NAME ${nam}
             )
-        if(SUPPORT_ASM)
-            add_dependencies(${target} asmdef_inc)
-        endif(SUPPORT_ASM)
 
         target_link_libraries(${target} ${PLATFORM_LIBS})
 
@@ -635,7 +651,7 @@ macro(add_allegro_build nm extra_flags)
     endmacro(really_add_allegro_build)
 
     if(SHARED)
-        really_add_allegro_build(${nm} ${nm}_shared SHARED "")
+        really_add_allegro_build(${nm}-${ALLEGRO_VERSION} ${nm}_shared SHARED "")
     endif(SHARED)
 
     if(STATIC)
@@ -646,18 +662,33 @@ macro(add_allegro_build nm extra_flags)
 endmacro(add_allegro_build)
 
 if(GRADE_STANDARD)
-    add_allegro_build(alleg
-        "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
+    if(COMPILER_GCC)
+        add_allegro_build(alleg
+            "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
+    endif(COMPILER_GCC)
+    if(COMPILER_MSVC)
+       	add_allegro_build(alleg "")
+    endif(COMPILER_MSVC)
 endif(GRADE_STANDARD)
 
 if(GRADE_DEBUG)
-    add_allegro_build(alld
-        "-DDEBUGMODE -g")
+    if(COMPILER_GCC)
+        add_allegro_build(allegd
+            "-DDEBUGMODE -g")
+    endif(COMPILER_GCC)
+    if(COMPILER_MSVC)
+       	add_allegro_build(allegd "")
+    endif(COMPILER_MSVC)
 endif(GRADE_DEBUG)
 
 if(GRADE_PROFILE)
-    add_allegro_build(allp
-        "-pg -O2 -funroll-loops -ffast-math")
+    if(COMPILER_GCC)
+        add_allegro_build(allp
+            "-pg -O2 -funroll-loops -ffast-math")
+    endif(COMPILER_GCC)
+    if(COMPILER_MSVC)
+       	add_allegro_build(allp "")
+    endif(COMPILER_MSVC)
 endif(GRADE_PROFILE)
 
 #
@@ -668,20 +699,23 @@ install(FILES ${ALLEGRO_INCLUDE_FILES}
         DESTINATION include
         )
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_FILES}
-        DESTINATION include/allegro
+        DESTINATION include/allegro5
         )
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES}
-        DESTINATION include/allegro/inline
+        DESTINATION include/allegro5/inline
         )
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES}
-        DESTINATION include/allegro/internal
+        DESTINATION include/allegro5/internal
         )
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
-        DESTINATION include/allegro/platform
+        DESTINATION include/allegro5/platform
+        )
+install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
+        DESTINATION include/allegro5/opengl
         )
 foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
     install(FILES ${CMAKE_BINARY_DIR}/${genfile}
-            DESTINATION include/allegro/platform
+            DESTINATION include/allegro5/platform
             )
 endforeach(genfile)
 
@@ -728,10 +762,10 @@ if(SUPPORT_MODULES)
         add_module(alleg-vga "${ALLEGRO_MODULE_VGA_FILES}")
     endif(SUPPORT_VGA)
 
-    if(ALLEGRO_XWINDOWS_WITH_XF86DGA2)
+    if(SUPPORT_DGA2)
         add_module(alleg-dga2 "${ALLEGRO_MODULE_DGA2_FILES}"
             -L${X11_LIBRARY_DIR} Xxf86dga)
-    endif(ALLEGRO_XWINDOWS_WITH_XF86DGA2)
+    endif(SUPPORT_DGA2)
 
     if(SUPPORT_ALSADIGI)
         add_module(alleg-alsadigi "${ALLEGRO_MODULE_ALSADIGI_FILES}"
@@ -771,29 +805,36 @@ endif(SUPPORT_MODULES)
 #
 #-----------------------------------------------------------------------------#
 
-    # Select an Allegro library to link the programs with.  We choose
-    # standard, debug, profile in that order, and prefer statically linked
-    # over dynamically linked.  It would be worth making this configurable.
-    #
+if(MSVC)
+    set(EXECUTABLE_TYPE "WIN32")
+endif(MSVC)
+
+# Select libraries to link the programs with.  We choose
+# standard, debug, profile in that order, and prefer statically linked
+# over dynamically linked.  It would be worth making this configurable.
+
 if(GRADE_STANDARD)
     set(LIB_TO_LINK alleg)
-endif(GRADE_STANDARD)
-if(NOT LIB_TO_LINK AND GRADE_DEBUG)
-    set(LIB_TO_LINK alld)
-endif(NOT LIB_TO_LINK AND GRADE_DEBUG)
-if(NOT LIB_TO_LINK AND GRADE_PROFILE)
+    set(FONT_LIB_TO_LINK a5_font)
+elseif(GRADE_DEBUG)
+    set(LIB_TO_LINK allegd)
+    set(FONT_LIB_TO_LINK a5_fontd)
+elseif(GRADE_PROFILE)
     set(LIB_TO_LINK allp)
-endif(NOT LIB_TO_LINK AND GRADE_PROFILE)
+    set(FONT_LIB_TO_LINK a5_fontp)
+endif(GRADE_STANDARD)
 
 if(STATIC)
     set(LINK_WITH ${LIB_TO_LINK}_static)
     set(MAYBE_ALLEGRO_STATICLINK "-DALLEGRO_STATICLINK")
+    set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_static)
 else(STATIC)
     set(LINK_WITH ${LIB_TO_LINK}_shared)
+    set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_shared)
 endif(STATIC)
 
 macro(add_allegro_executable nm)
-    add_executable(${nm} ${ARGN})
+    add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
     set_target_properties(${nm} PROPERTIES
         COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
@@ -801,10 +842,41 @@ macro(add_allegro_executable nm)
     target_link_libraries(${nm} ${LINK_WITH})
 endmacro(add_allegro_executable)
 
-add_subdirectory(demo)
+#-----------------------------------------------------------------------------#
+#
+# Add-ons
+#
+#-----------------------------------------------------------------------------#
+
+add_subdirectory(addons)
+
+#-----------------------------------------------------------------------------#
+#
+# Demo
+#
+#-----------------------------------------------------------------------------#
+
+if(NOT MSVC) # XXX disabled because it breaks MSVC's intellisense for some reason
+    if(USE_CXX AND WANT_FONT)
+        add_subdirectory(demo)
+    endif(USE_CXX AND WANT_FONT)
+endif(NOT MSVC)
+
+#-----------------------------------------------------------------------------#
+#
+# Examples
+#
+#-----------------------------------------------------------------------------#
+
 add_subdirectory(examples)
-add_subdirectory(tests)
-add_subdirectory(tools)
+
+if(WANT_OLD_TESTS)
+    add_subdirectory(tests)
+endif(WANT_OLD_TESTS)
+
+if(WANT_OLD_TOOLS)
+    add_subdirectory(tools)
+endif(WANT_OLD_TOOLS)
 
 #-----------------------------------------------------------------------------#
 #
@@ -816,6 +888,10 @@ if(UNIX)
 
     set(prefix "${CMAKE_INSTALL_PREFIX}")
     set(INCLUDE_PREFIX "${prefix}")
+    # XXX these should be configurable separately
+    set(bindir "${prefix}/bin")
+    set(includedir "${prefix}/include")
+    set(libdir "${prefix}/lib")
 
     if(SHARED)
         set(LINK_WITH_STATIC_LIBS no)
@@ -837,8 +913,8 @@ if(UNIX)
         endif("${lib}" MATCHES "^-l|^/")
     endforeach(lib)
 
-    configure_file(misc/allegro-config.in allegro-config)
-    install(PROGRAMS ${CMAKE_BINARY_DIR}/allegro-config
+    configure_file(misc/allegro5-config.in allegro5-config)
+    install(PROGRAMS ${CMAKE_BINARY_DIR}/allegro5-config
             DESTINATION bin
             )
 endif(UNIX)
@@ -853,10 +929,9 @@ add_subdirectory(docs)
 
 #-----------------------------------------------------------------------------#
 
-    # Recreate directory structure for out-of-source builds.
-    #
+# Recreate directory structure for out-of-source builds.
+# XXX is this only needed because of asmcapa.h?
 make_directory(obj/mingw32)
-make_directory(obj/unix)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

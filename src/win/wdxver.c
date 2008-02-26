@@ -25,9 +25,9 @@
 #define DIRECTX_SDK_VERSION 0x500
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintwin.h"
 
 /* needed by the SDK version 8 with MSVC 5 (SP3) */
 #define DIRECTINPUT_VERSION 0x300

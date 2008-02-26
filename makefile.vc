@@ -32,29 +32,34 @@ HTML = html
 
 PLATFORM_DIR = obj/msvc
 
-ifdef ALLEGRO_USE_CYGWIN
+ifeq ($(TERM), cygwin)
+   ALLEGRO_USE_CYGWIN=1
    UNIX_TOOLS = 1
-   GCCFLAGS = -mno-cygwin
 endif
 
 ifneq (,$(findstring /sh.exe,$(SHELL)))
    UNIX_TOOLS = 1
 endif
 
-
-
-ifdef COMPILER_MSVC8
-   EMBED_MANIFEST = 1
+# Choose the calling convention suffix:
+ifdef ALLEGRO_USE_C
+NO_ASM_SUFFIX = _c
+else
+NO_ASM_SUFFIX =
 endif
 
+# ======== USING A STATIC RUNTIME (/MT) ========
 
+ifdef STATICRUNTIME
+
+# ======== USING A STATIC RUNTIME (/MT) ========
 
 ifdef STATICLINK
 
 # -------- link as a static library --------
 
-OBJ_DIR = obj/msvc/$(VERSION)_s
-IMPLIB_BASENAME = $(VERSION)_s.lib
+OBJ_DIR = obj/msvc/$(VERSION)_s_crt$(NO_ASM_SUFFIX)
+IMPLIB_BASENAME = $(VERSION)_s_crt$(NO_ASM_SUFFIX).lib
 IMPLIB_NAME = lib/msvc/$(IMPLIB_BASENAME)
 LIB_NAME = $(IMPLIB_NAME)
 
@@ -62,20 +67,58 @@ else
 
 # -------- link as a DLL --------
 
-OBJ_DIR = obj/msvc/$(VERSION)
-DLL_BASENAME = $(VERSION)$(LIBRARY_VERSION).dll
+OBJ_DIR = obj/msvc/$(VERSION)_crt$(NO_ASM_SUFFIX)
+DLL_BASENAME = $(VERSION)$(LIBRARY_VERSION)_crt$(NO_ASM_SUFFIX).dll
 DLL_NAME = lib/msvc/$(DLL_BASENAME)
-IMPLIB_BASENAME = $(VERSION).lib
+IMPLIB_BASENAME = $(VERSION)_crt$(NO_ASM_SUFFIX).lib
 IMPLIB_NAME = lib/msvc/$(IMPLIB_BASENAME)
 LIB_NAME = $(DLL_NAME) $(IMPLIB_NAME)
 
 endif
 
+else
 
+# ======== USING DYNAMIC RUNTIME (/MD) ========
+
+ifdef COMPILER_MSVC8
+   EMBED_MANIFEST = 1
+endif
+
+ifdef STATICLINK
+
+# -------- link as a static library --------
+
+OBJ_DIR = obj/msvc/$(VERSION)_s$(NO_ASM_SUFFIX)
+IMPLIB_BASENAME = $(VERSION)_s$(NO_ASM_SUFFIX).lib
+IMPLIB_NAME = lib/msvc/$(IMPLIB_BASENAME)
+LIB_NAME = $(IMPLIB_NAME)
+
+else
+
+# -------- link as a DLL --------
+
+OBJ_DIR = obj/msvc/$(VERSION)$(NO_ASM_SUFFIX)
+DLL_BASENAME = $(VERSION)$(LIBRARY_VERSION)$(NO_ASM_SUFFIX).dll
+DLL_NAME = lib/msvc/$(DLL_BASENAME)
+IMPLIB_BASENAME = $(VERSION)$(NO_ASM_SUFFIX).lib
+IMPLIB_NAME = lib/msvc/$(IMPLIB_BASENAME)
+LIB_NAME = $(DLL_NAME) $(IMPLIB_NAME)
+
+endif
+
+endif
 
 # -------- check that environment path variables are set --------
 
 .PHONY: badwin badmsvc badspaces
+
+ifdef ALLEGRO_USE_CYGWIN
+
+WINDIR_S := $(shell cygpath -S)
+WINDIR_U = $(subst \,/,$(WINDIR_S))
+WINDIR_D = $(subst /,\,$(WINDIR_S))
+
+else
 
 ifeq ($(OS),Windows_NT)
    WINSYSDIR = $(SYSTEMROOT)
@@ -99,29 +142,27 @@ badwin:
 	@echo Your SYSTEMROOT or windir environment variable is not set!
 endif
 
-ifdef MSVCDIR
-   MSVCDIR_U = $(subst \,/,$(MSVCDIR))
-   MSVCDIR_D = $(subst /,\,$(MSVCDIR))
-else
-ifdef MSVCDir
-   MSVCDIR_U = $(subst \,/,$(MSVCDir))
-   MSVCDIR_D = $(subst /,\,$(MSVCDir))
-else
+endif # ALLEGRO_USE_CYGWIN
+
+
+ifndef MSVCDir
 badmsvc:
-	@echo Your MSVCDIR environment variable is not set!
+	@echo Your MSVCDir environment variable is not set!
 	@echo See the docs/build/msvc.txt file!
 endif
-endif
+
+ifdef ALLEGRO_USE_CYGWIN
+   MSVCDIR_S := $(shell cygpath "$(MSVCDir)")
+   MSVCDIR_U = $(subst \,/,$(MSVCDIR_S))
+   MSVCDIR_D = $(subst /,\,$(MSVCDIR_S))
+else
+   MSVCDIR_U = $(subst \,/,$(MSVCDir))
+   MSVCDIR_D = $(subst /,\,$(MSVCDir))
+endif  # ALLEGRO_USE_CYGWIN
+
 
 NULLSTRING :=
 SPACE := $(NULLSTRING) # special magic to get an isolated space character
-
-ifneq ($(findstring $(SPACE),$(MSVCDIR)),)
-badspaces:
-	@echo There are spaces in your MSVCDIR environment variable:
-	@echo please change it to the 8.3 short filename version,
-	@echo or move your compiler to a different directory.
-endif
 
 ifneq ($(findstring $(SPACE),$(MSVCDir)),)
 badspaces:
@@ -226,9 +267,27 @@ endif
 
 # -------- list platform specific objects and programs --------
 
-VPATH = src/win src/i386 src/misc src/compat tests/win tools/win
+VPATH = src/win src/misc src/compat tests/win tools/win
 
-OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
+ifdef ALLEGRO_USE_C
+
+# ------ build a C-only version ------
+
+VPATH += src/c
+MY_OBJECTS = $(C_OBJECTS)
+CFLAGS += -DALLEGRO_NO_ASM
+SFLAGS += -DALLEGRO_NO_ASM
+
+else
+
+# ------ build the normal asm version ------
+
+VPATH += src/i386
+MY_OBJECTS = $(I386_OBJECTS)
+
+endif # ALLEGRO_USE_C
+
+OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
 
 LIBRARIES = kernel32.lib user32.lib gdi32.lib comdlg32.lib ole32.lib \
 		dinput.lib ddraw.lib dxguid.lib winmm.lib dsound.lib
@@ -271,13 +330,13 @@ endif
 
 
 HEADERS = $(MSVCDIR_U)/include/winalleg.h                 \
-          $(MSVCDIR_U)/include/allegro/platform/aintwin.h \
-          $(MSVCDIR_U)/include/allegro/platform/al386vc.h \
-          $(MSVCDIR_U)/include/allegro/platform/almsvc.h  \
-          $(MSVCDIR_U)/include/allegro/platform/alplatf.h \
-          $(MSVCDIR_U)/include/allegro/platform/astdbool.h \
-          $(MSVCDIR_U)/include/allegro/platform/astdint.h \
-          $(MSVCDIR_U)/include/allegro/platform/alwin.h
+          $(MSVCDIR_U)/include/allegro5/platform/aintwin.h \
+          $(MSVCDIR_U)/include/allegro5/platform/al386vc.h \
+          $(MSVCDIR_U)/include/allegro5/platform/almsvc.h  \
+          $(MSVCDIR_U)/include/allegro5/platform/alplatf.h \
+          $(MSVCDIR_U)/include/allegro5/platform/astdbool.h \
+          $(MSVCDIR_U)/include/allegro5/platform/astdint.h \
+          $(MSVCDIR_U)/include/allegro5/platform/alwin.h
 
 INSTALL_FILES = $(MSVCDIR_U)/lib/$(IMPLIB_BASENAME)
 
@@ -345,9 +404,14 @@ else
 # -------- link as a DLL --------
 
 ifdef EMBED_MANIFEST
+ifdef ALLEGRO_USE_CYGWIN
+   EMBEDMAN_BAT = misc/embedman.bat
+else
+   EMBEDMAN_BAT = misc\embedman.bat
+endif
 define MAKE_LIB
    $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -dll -def:lib/msvc/allegro.def -out:$(DLL_NAME) -implib:$(IMPLIB_NAME) $(OBJECTS) $(LIBRARIES)
-   misc\embedman.bat $(DLL_NAME) 2
+   $(EMBEDMAN_BAT) "$(subst /,\,$(DLL_NAME))" 2
 endef
 else
 define MAKE_LIB
@@ -433,11 +497,11 @@ endef
 obj/msvc/asmdef.inc: obj/msvc/asmdef.exe
 	obj/msvc/asmdef.exe obj/msvc/asmdef.inc
 
-obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/msvc/asmcapa.h $(RUNNER)
+obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro5/*.h obj/msvc/asmcapa.h $(RUNNER)
 	$(RUNNER) $(MSVC_CL) @ -nologo $(WFLAGS) $(CFLAGS) -I. -I./include -Foobj/msvc/asmdef.obj -Feobj/msvc/asmdef.exe src/i386/asmdef.c
 
 obj/msvc/runner.exe: src/misc/runner.c
-	$(GCC) -O -Wall -Werror $(GCCFLAGS) -o obj/msvc/runner.exe src/misc/runner.c
+	$(GCC) -O -Wall -Werror -o obj/msvc/runner.exe src/misc/runner.c
 
 define LINK_WITHOUT_LIB
    $(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:console -out:$@ $^

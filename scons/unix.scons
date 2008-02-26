@@ -1,22 +1,48 @@
 # vi: syntax=python
 Import('context')
 
-import os, ConfigParser
-import checks
+import os, ConfigParser, re
+import checks, helpers
 
 SConscript("all.scons", exports = ["context"])
 
 context.setLibraryDir("lib/unix")
 
-def getOption(name, default):
+opts = Options('options-unix.py', ARGUMENTS)
+opts.Add('color8', 'Enable 8 bit color', 1)
+opts.Add('color16', 'Enable 16 bit color', 1)
+opts.Add('color24', 'Enable 24 bit color', 1)
+opts.Add('color32', 'Enable 32 bit color', 1)
+opts.AddOptions(PathOption('install', 'Installation directory', '/usr/local'))
+opts.Add('magic_main', 'Use magic main', 0)
+opts.Add('no_asm', 'Disable asm', 1)
+opts.Add('vbeaf', 'Enable VBEAF', 0)
+opts.Add('vga', 'Enable VGA', 0)
+opts.Update(context.getLibraryEnv())
+opts.Save('options-unix.py',context.getLibraryEnv())
+Help(opts.GenerateHelpText(context.getLibraryEnv()))
+Help("""
+config: (Re)configure Allegro. You will need to set this to 1 if you wish to enable/disable parts of allegro such as color8=0
+    default: 0
+    actual: 0
+""");
+
+def isStatic():
+    return int(context.getLibraryEnv()['static']) == 1
+
+def getOption(name, default = 0):
+    return context.getLibraryEnv()[name]
+
+def getArgumentOption(name, default):
     arg = ARGUMENTS.get(name,default)
     if arg == "yes" or arg == "1":
         return 1
     return 0
 
+config = getArgumentOption('config','0')
+
 def OnX86():
     uname = os.uname()
-    import re
     return re.match(r"i\d86", uname[4])
 
 def EnableVBEAF():
@@ -59,8 +85,8 @@ def readAutoHeader(filename, platform):
 # Should this be default?
 # 2/19/2006 - Only configure if config=1 is given or the .h/.cfg file is missing
 noconfig = False
-if not getOption("config",0):
-    if os.path.exists("include/allegro/platform/alunixac.h") and \
+if not getArgumentOption("config",0):
+    if os.path.exists("include/allegro5/platform/alunixac.h") and \
         os.path.exists("build/settings.cfg"):
         print "Re-using old settings"
         noconfig = True
@@ -91,40 +117,20 @@ settings = ConfigParser.ConfigParser()
 ## The platform variable will hold all configuration things we care about
 ## so that alunixac.h can be written
 if noconfig:
-    readAutoHeader("include/allegro/platform/alunixac.h", platform)
+    readAutoHeader("include/allegro5/platform/alunixac.h", platform)
     settings.read("build/settings.cfg")
     env = context.getLibraryEnv()
     for setting in config_settings:
-        eval("env.Append(%s = %s)" % (setting, settings.get("unix", setting)))
+        try:
+            eval("env.Append(%s = %s)" % (
+                setting, settings.get("unix", setting)))
+        except ConfigParser.NoOptionError:
+            pass
 else:
     tests = {}
-    tests["CheckAMD64"] = checks.CheckAMD64
-    tests["CheckIntel"] = checks.CheckIntel
-    tests["CheckSparc"] = checks.CheckSparc
-    tests["CheckProcFS"] = checks.CheckProcFS
-    tests["CheckProcFSArgCV"] = checks.CheckProcFSArgCV
-    tests["CheckASMUnderscores"] = checks.CheckASMUnderscores
-    tests["CheckMMX"] = checks.CheckMMX
-    tests["CheckSSE"] = checks.CheckSSE
-    tests["AlsaVersion"] = checks.AlsaVersion
-    tests["CheckBigEndian"] = checks.CheckBigEndian
-    tests["CheckLittleEndian"] = checks.CheckLittleEndian
-    tests["CheckDarwin"] = checks.CheckDarwin
-    tests["CheckLinux"] = checks.CheckLinux
-    tests["CheckFBCon"] = checks.CheckFBCon
-    tests["CheckSVGALibVersion"] = checks.CheckSVGALibVersion
-    tests["CheckConstructor"] = checks.CheckConstructor
-    tests["CheckALSADigi"] = checks.CheckALSADigi
-    tests["CheckALSAMidi"] = checks.CheckALSAMidi
-    tests["CheckARTSDigi"] = checks.CheckARTSDigi
-    tests["CheckXCursor"] = checks.CheckXCursor
-    tests["CheckMapFailed"] = checks.CheckMapFailed
-    tests["CheckESDDigi"] = checks.CheckESDDigi
-    tests["CheckJackDigi"] = checks.CheckJackDigi
-    tests["CheckForX"] = checks.CheckForX
-    tests["CheckOSSDigi"] = checks.CheckOSSDigi
-    tests["CheckOSSMidi"] = checks.CheckOSSMidi
-    tests["CheckMTune"] = checks.CheckMTune
+    # import all functions from checks.py as custom SCons checks
+    for check in [x for x in dir(checks) if callable(getattr(checks, x))]:
+        tests[check] = getattr(checks, check)
 
     config = context.getLibraryEnv().Configure(custom_tests = tests)
 
@@ -140,7 +146,7 @@ else:
         useArch = True
 
     if config.CheckMTune(machine):
-    	archFlag = '-mtune='
+        archFlag = '-mtune='
 
     if useArch:
         config.env.Append( CCFLAGS = [archFlag + machine] )
@@ -158,8 +164,8 @@ else:
     platform["ALLEGRO_HAVE_PROCFS_ARGCV"] = [config.CheckProcFSArgCV(), "Define to 1 if procfs reveals argc and argv"]
     platform["ALLEGRO_LINUX"] = [config.CheckLinux(), "Define if target platform is linux."]
     platform["ALLEGRO_LINUX_FBCON"] = [config.CheckFBCon(), "Define to enable Linux console fbcon driver."]
-    platform["ALLEGRO_LINUX_SVGALIB"] = [config.CheckLib("vga", "vga_init"), "Define to enable Linux console SVGAlib driver."]
-    platform["ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION"] = [config.CheckSVGALibVersion(), "Define if SVGAlib driver can check vga_version."]
+#    platform["ALLEGRO_LINUX_SVGALIB"] = [config.CheckLib("vga", "vga_init"), "Define to enable Linux console SVGAlib driver."]
+#    platform["ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION"] = [config.CheckSVGALibVersion(), "Define if SVGAlib driver can check vga_version."]
     platform["ALLEGRO_LINUX_VBEAF"] = [EnableVBEAF(), "Define to enable Linux console VBE/AF driver."]
     platform["ALLEGRO_LINUX_VGA"] = [EnableVGA(), "Define to enable Linux console VGA driver."]
     platform["ALLEGRO_LITTLE_ENDIAN"] = [config.CheckLittleEndian(), "Define if target machine is little endian."]
@@ -182,46 +188,47 @@ else:
     platform["ALLEGRO_XWINDOWS_WITH_XF86DGA2"] = [config.CheckLib("Xxf86dga", "XDGAQueryExtension"), "Define if DGA version 2.0 or newer is supported"]
     platform["ALLEGRO_XWINDOWS_WITH_XF86VIDMODE"] = [config.CheckLib("Xxf86vm", "XF86VidModeQueryExtension"), "Define if XF86VidMode extension is supported."]
     platform["ALLEGRO_XWINDOWS_WITH_XPM"] = [config.CheckLib("Xpm", "XpmCreatePixmapFromData"), "Define if xpm bitmap support is available."]
-    platform["HAVE_DIRENT_H"] = [config.CheckCHeader("dirent.h"), "Define to 1 if you have the <dirent.h> header file, and it defines \"DIR\". "]
-    platform["HAVE_DLFCN_H"] = [config.CheckCHeader("dlfcn.h"), "Define to 1 if you have the <dlfcn.h> header file."]
-    platform["HAVE_FCNTL_H"] = [config.CheckCHeader("fcntl.h"), "Define to 1 if you have the <fcntl.h> header file."]
-    platform["HAVE_INTTYPES_H"] = [config.CheckCHeader("inttypes.h"), "Define to 1 if you have the <inttypes.h> header file."]
-    platform["HAVE_LIBOSSAUDIO"] = [config.CheckLib("ossaudio", "_oss_ioctl"), "Define to 1 if you have the \"ossaudio\" library (-lossaudio)."]
-    platform["HAVE_LIBPTHREAD"] = [config.CheckLib("pthread", "pthread_create"), "Define if you have the pthread library."]
-    platform["HAVE_LIMITS_H"] = [config.CheckCHeader("limits.h"), "Define to 1 if you have the <limits.h> header file."]
-    platform["HAVE_LINUX_AWE_VOICE_H"] = [config.CheckCHeader("linux/awe_voice.h"), "Define to 1 if you have the <linux/awe_voice.h> header file."]
-    platform["HAVE_LINUX_INPUT_H"] = [config.CheckCHeader("linux/input.h"), "Define to 1 if you have the <linux/input.h> header file."]
-    platform["HAVE_LINUX_JOYSTICK_H"] = [config.CheckCHeader("linux/joystick.h"), "Define to 1 if you have the <linux/joystick.h> header file."]
-    platform["HAVE_LINUX_SOUNDCARD_H"] = [config.CheckCHeader("linux/soundcard.h"), "Define to 1 if you have the <linux/soundcard.h> header file."]
-    platform["HAVE_MACHINE_SOUNDCARD_H"] = [config.CheckCHeader("machine/soundcard.h"), "Define to 1 if you have the <machine/soundcard.h> header file."]
-    platform["HAVE_MEMCMP"] = [config.CheckLib("c", "memcmp"), "Define to 1 if you have the \"memcmp\" function."]
-    platform["HAVE_MEMORY_H"] = [config.CheckCHeader("memory.h"), "Define to 1 if you have the <memory.h> header file."]
-    platform["HAVE_MKSTEMP"] = [config.CheckLib("c", "mkstemp"), "Define to 1 if you have the \"mkstemp\" function."]
-    platform["HAVE_MMAP"] = [config.CheckLib("c", "mmap"), "Define to 1 if you have the \"mmap\" function."]
-    platform["HAVE_NDIR_H"] = [config.CheckCHeader("ndir.h"), "Define to 1 if you have the <ndir.h> header file, and it defines \"DIR\"."]
-    platform["HAVE_SOUNDCARD_H"] = [config.CheckCHeader("soundcard.h"), "Define to 1 if you have the <soundcard.h> header file."]
-    platform["HAVE_STDBOOL_H"] = [config.CheckCHeader("stdbool.h"), "Define to 1 if stdbool.h conforms to C99."]
-    platform["HAVE_STDINT_H"] = [config.CheckCHeader("stdint.h"), "Define to 1 if you have the <stdint.h> header file."]
-    platform["HAVE_STDLIB_H"] = [config.CheckCHeader("stdlib.h"), "Define to 1 if you have the <stdlib.h> header file."]
-    platform["HAVE_STRICMP"] = [config.CheckLib("c", "stricmp"), "Define to 1 if you have the \"stricmp\" function."]
-    platform["HAVE_STRINGS_H"] = [config.CheckCHeader("strings.h"), "Define to 1 if you have the <strings.h> header file."]
-    platform["HAVE_STRING_H"] = [config.CheckCHeader("string.h"), "Define to 1 if you have the <string.h> header file."]
-    platform["HAVE_STRLWR"] = [config.CheckLib("c", "strlwr"), "Define to 1 if you have the \"strlwr\" function."]
-    platform["HAVE_STRUPR"] = [config.CheckLib("c", "strup"), "Define to 1 if you have the \"strupr\" function."]
-    platform["HAVE_SYS_DIR_H"] = [config.CheckCHeader("sys/dir.h"), "Define to 1 if you have the <sys/dir.h> header file, and it defines \"DIR\"."]
-    platform["HAVE_SYS_IO_H"] = [config.CheckCHeader("sys/io.h"), "Define to 1 if you have the <sys/io.h> header file."]
-    platform["HAVE_SYS_NDIR_H"] = [config.CheckCHeader("sys/ndir.h"), "Define to 1 if you have the <sys/ndir.h> header file, and it defines \"DIR\"."]
-    platform["HAVE_SYS_SOUNDCARD_H"] = [config.CheckCHeader("sys/soundcard.h"), "Define to 1 if you have the <sys/soundcard.h> header file."]
-    platform["HAVE_SYS_STAT_H"] = [config.CheckCHeader("sys/stat.h"), "Define to 1 if you have the <sys/stat.h> header file."]
-    platform["HAVE_SYS_TIME_H"] = [config.CheckCHeader("sys/time.h"), "Define to 1 if you have the <sys/time.h> header file."]
-    platform["HAVE_SYS_TYPES_H"] = [config.CheckCHeader("sys/types.h"), "Define to 1 if you have the <sys/types.h> header file."]
-    platform["HAVE_SYS_UTSNAME_H"] = [config.CheckCHeader("sys/utsname.h"), "Define to 1 if you have the <sys/utsname.h> header file."]
-    platform["HAVE_UNISTD_H"] = [config.CheckCHeader("unistd.h"), "Define to 1 if you have the <unistd.h> header file."]
-    platform["HAVE_VPRINTF"] = [config.CheckLib("c", "vprintf"), "Define to 1 if you have the \"vprintf\" function."]
-    platform["HAVE__BOOL"] = [config.CheckCHeader("stdbool.h"), "Define to 1 if the system has the type \"_Bool\"."]
+    platform["ALLEGRO_GLX"] = [config.CheckForGLX(), "Define to 1 if GLX is available."]
+    platform["ALLEGRO_HAVE_DIRENT_H"] = [config.CheckCHeader("dirent.h"), "Define to 1 if you have the <dirent.h> header file, and it defines \"DIR\". "]
+    platform["ALLEGRO_HAVE_DLFCN_H"] = [config.CheckCHeader("dlfcn.h"), "Define to 1 if you have the <dlfcn.h> header file."]
+    platform["ALLEGRO_HAVE_FCNTL_H"] = [config.CheckCHeader("fcntl.h"), "Define to 1 if you have the <fcntl.h> header file."]
+    platform["ALLEGRO_HAVE_INTTYPES_H"] = [config.CheckCHeader("inttypes.h"), "Define to 1 if you have the <inttypes.h> header file."]
+    platform["ALLEGRO_HAVE_LIBOSSAUDIO"] = [config.CheckLib("ossaudio", "_oss_ioctl"), "Define to 1 if you have the \"ossaudio\" library (-lossaudio)."]
+    platform["ALLEGRO_HAVE_LIBPTHREAD"] = [config.CheckLib("pthread", "pthread_create"), "Define if you have the pthread library."]
+    platform["ALLEGRO_HAVE_LIMITS_H"] = [config.CheckCHeader("limits.h"), "Define to 1 if you have the <limits.h> header file."]
+    platform["ALLEGRO_HAVE_LINUX_AWE_VOICE_H"] = [config.CheckCHeader("linux/awe_voice.h"), "Define to 1 if you have the <linux/awe_voice.h> header file."]
+    platform["ALLEGRO_HAVE_LINUX_INPUT_H"] = [config.CheckCHeader("linux/input.h"), "Define to 1 if you have the <linux/input.h> header file."]
+    platform["ALLEGRO_HAVE_LINUX_JOYSTICK_H"] = [config.CheckCHeader("linux/joystick.h"), "Define to 1 if you have the <linux/joystick.h> header file."]
+    platform["ALLEGRO_HAVE_LINUX_SOUNDCARD_H"] = [config.CheckCHeader("linux/soundcard.h"), "Define to 1 if you have the <linux/soundcard.h> header file."]
+    platform["ALLEGRO_HAVE_MACHINE_SOUNDCARD_H"] = [config.CheckCHeader("machine/soundcard.h"), "Define to 1 if you have the <machine/soundcard.h> header file."]
+    platform["ALLEGRO_HAVE_MEMCMP"] = [config.CheckLib("c", "memcmp"), "Define to 1 if you have the \"memcmp\" function."]
+    platform["ALLEGRO_HAVE_MEMORY_H"] = [config.CheckCHeader("memory.h"), "Define to 1 if you have the <memory.h> header file."]
+    platform["ALLEGRO_HAVE_MKSTEMP"] = [config.CheckLib("c", "mkstemp"), "Define to 1 if you have the \"mkstemp\" function."]
+    platform["ALLEGRO_HAVE_MMAP"] = [config.CheckLib("c", "mmap"), "Define to 1 if you have the \"mmap\" function."]
+    platform["ALLEGRO_HAVE_NDIR_H"] = [config.CheckCHeader("ndir.h"), "Define to 1 if you have the <ndir.h> header file, and it defines \"DIR\"."]
+    platform["ALLEGRO_HAVE_SOUNDCARD_H"] = [config.CheckCHeader("soundcard.h"), "Define to 1 if you have the <soundcard.h> header file."]
+    platform["ALLEGRO_HAVE_STDBOOL_H"] = [config.CheckCHeader("stdbool.h"), "Define to 1 if stdbool.h conforms to C99."]
+    platform["ALLEGRO_HAVE_STDINT_H"] = [config.CheckCHeader("stdint.h"), "Define to 1 if you have the <stdint.h> header file."]
+    platform["ALLEGRO_HAVE_STDLIB_H"] = [config.CheckCHeader("stdlib.h"), "Define to 1 if you have the <stdlib.h> header file."]
+    platform["ALLEGRO_HAVE_STRICMP"] = [config.CheckLib("c", "stricmp"), "Define to 1 if you have the \"stricmp\" function."]
+    platform["ALLEGRO_HAVE_STRINGS_H"] = [config.CheckCHeader("strings.h"), "Define to 1 if you have the <strings.h> header file."]
+    platform["ALLEGRO_HAVE_STRING_H"] = [config.CheckCHeader("string.h"), "Define to 1 if you have the <string.h> header file."]
+    platform["ALLEGRO_HAVE_STRLWR"] = [config.CheckLib("c", "strlwr"), "Define to 1 if you have the \"strlwr\" function."]
+    platform["ALLEGRO_HAVE_STRUPR"] = [config.CheckLib("c", "strup"), "Define to 1 if you have the \"strupr\" function."]
+    platform["ALLEGRO_HAVE_SYS_DIR_H"] = [config.CheckCHeader("sys/dir.h"), "Define to 1 if you have the <sys/dir.h> header file, and it defines \"DIR\"."]
+    platform["ALLEGRO_HAVE_SYS_IO_H"] = [config.CheckCHeader("sys/io.h"), "Define to 1 if you have the <sys/io.h> header file."]
+    platform["ALLEGRO_HAVE_SYS_NDIR_H"] = [config.CheckCHeader("sys/ndir.h"), "Define to 1 if you have the <sys/ndir.h> header file, and it defines \"DIR\"."]
+    platform["ALLEGRO_HAVE_SYS_SOUNDCARD_H"] = [config.CheckCHeader("sys/soundcard.h"), "Define to 1 if you have the <sys/soundcard.h> header file."]
+    platform["ALLEGRO_HAVE_SYS_STAT_H"] = [config.CheckCHeader("sys/stat.h"), "Define to 1 if you have the <sys/stat.h> header file."]
+    platform["ALLEGRO_HAVE_SYS_TIME_H"] = [config.CheckCHeader("sys/time.h"), "Define to 1 if you have the <sys/time.h> header file."]
+    platform["ALLEGRO_HAVE_SYS_TYPES_H"] = [config.CheckCHeader("sys/types.h"), "Define to 1 if you have the <sys/types.h> header file."]
+    platform["ALLEGRO_HAVE_SYS_UTSNAME_H"] = [config.CheckCHeader("sys/utsname.h"), "Define to 1 if you have the <sys/utsname.h> header file."]
+    platform["ALLEGRO_HAVE_VPRINTF"] = [config.CheckLib("c", "vprintf"), "Define to 1 if you have the \"vprintf\" function."]
+    platform["ALLEGRO_HAVE__BOOL"] = [config.CheckCHeader("stdbool.h"), "Define to 1 if the system has the type \"_Bool\"."]
     platform["MAP_FAILED"] = [config.CheckMapFailed(), "Define to (void *)-1, if MAP_FAILED is not defined."]
     platform["ALLEGRO_WITH_OSSDIGI"] = [config.CheckOSSDigi(), "Define if OSS DIGI driver is supported."]
     platform["ALLEGRO_WITH_OSSMIDI"] = [config.CheckOSSMidi(), "Define if OSS MIDI driver is supported."]
+    platform["ALLEGRO_HAVE_DYNAMIC_LINK"] = [config.CheckDL(), "Define if libdl is available."]
 
     ## Not checked yet
     platform["ALLEGRO_MODULES_PATH"] = ['"/usr/local/lib/allegro"',
@@ -245,164 +252,152 @@ else:
     context.setLibraryEnv(config.Finish())
     env = context.getLibraryEnv()
 
-    ## Write
-    writeAutoHeader("include/allegro/platform/alunixac.h", platform)
+    # Write out alunixac.h with all the config settings
+    writeAutoHeader("include/allegro5/platform/alunixac.h", platform)
 
+    # write out settings.cfg with scons specific settings
     settings.add_section("unix")
     for setting in config_settings:
-        val = env[setting]
+        val = env.get(setting, None)
+        if not val: continue
         if hasattr(val, "data"): val = val.data # for CCFLAGS
         if not type(val) == list: val = [val]
         settings.set("unix", setting, str(val))
-
     settings.write(file("build/settings.cfg", "w"))
 
-## Maybe setting up the assembler should be in a gcc.scons or something?
+alplatf_h = helpers.generate_alplatf_h(env, "ALLEGRO_UNIX")
+
+# env.Depends(alplatf_h, env.Program('dummy','#src/unix/dummy.c'))
+
+# Maybe setting up the assembler should be in a gcc.scons or something?
 import SCons.Tool
 
 AssemblerAction = Action( 'gcc -x assembler-with-cpp $CCFLAGS $_CPPINCFLAGS $SOURCES -c -o $TARGET' )
 
-static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+static_obj, shared_obj = SCons.Tool.createObjBuilders(context.getLibraryEnv())
 shared_obj.add_action('.s', AssemblerAction )
 shared_obj.add_emitter('.s', SCons.Defaults.SharedObjectEmitter )
+static_obj.add_action( '.s', AssemblerAction )
+static_obj.add_emitter( '.s', SCons.Defaults.StaticObjectEmitter )
+SourceFileScanner.add_scanner('.s', SCons.Scanner.C.CScanner() )
 
-flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
-includes = ["include", "include/allegro", "."]
-defines = ["HAVE_CONFIG_H", "ALLEGRO_LIB_BUILD", "ALLEGRO_SRC"]
+flags = ["-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
+includes = ["include", "include/allegro5", "."]
+defines = ["ALLEGRO_LIB_BUILD", "ALLEGRO_SRC"]
+
+if context.getDebug():
+    flags += ["-g"]
+else:
+    flags += ["-O2"]
 
 env.Append(CCFLAGS = flags)
 env.Append(CPPDEFINES = defines)
 env.Append(CPPPATH = includes)
 
-context.addFiles('c/', Split("""
-cblit16.c
-cblit24.c
-cblit32.c
-cblit8.c
-ccpu.c
-ccsprite.c
-cgfx15.c
-cgfx16.c
-cgfx24.c
-cgfx32.c
-cgfx8.c
-cmisc.c
-cscan15.c
-cscan16.c
-cscan24.c
-cscan32.c
-cscan8.c
-cspr15.c
-cspr16.c
-cspr24.c
-cspr32.c
-cspr8.c
-cstretch.c
-czscan15.c
-czscan16.c
-czscan24.c
-czscan32.c
-czscan8.c
-""" ));
+# This is where the source for the unix files comes from
+context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
+context.add_files(context.cmake["ALLEGRO_SRC_OPENGL_FILES"])
+unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 
-context.addFiles("unix", Split("""
-jack.c
-sgial.c
-udjgpp.c
-udrvlist.c
-udummy.c
-ufdwatch.c
-ufile.c
-ugfxdrv.c
-ujoydrv.c
-ukeybd.c
-umain.c
-umodules.c
-umouse.c
-uoss.c
-uossmidi.c
-usnddrv.c
-usystem.c
-uthreads.c
-utime.c
-utimernu.c
-uxthread.c
-"""));
+#FIXME: Didn't we say no more asm in A5?
+# Build asmdef. In the future asmdef.inc can probably be built directly by scons
+# instead of building the asmdef program.
+#asmdefEnv = Environment()
+#asmdef_inc = '#obj/unix/asmdef.inc'
+#asmdefEnv.Append(CPPPATH = '#include')
+#asmdefEnv.BuildDir('#build','#src')
+#asmdef = asmdefEnv.Program('#build/asmdef', '#build/i386/asmdef.c')
+#asmdefEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
 
+# TODO: How does the modules stuff work? Shouldn't they still be linked in?
+# unixfiles.remove("src/unix/alsa5.c")
+# unixfiles.remove("src/unix/alsa9.c")
+# unixfiles.remove("src/unix/alsamidi.c")
+# unixfiles.remove("src/unix/uesd.c")
+
+context.add_files(unixfiles)
+
+def supportModules():
+    return True
+
+modules = []
+
+# These should probably also pass -DALLEGRO_MODULE or something
 if platform["ALLEGRO_WITH_ESDDIGI"][0]:
     def buildESD(menv,appendDir,buildDir,libDir):
         esdEnv = menv.Copy()
         esdEnv.ParseConfig('esd-config --libs')
+        esdBuildDir = buildDir + '/modules'
+        esdEnv.BuildDir(esdBuildDir, '.')
         sources = ["uesd.c"]
-        return esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(buildDir + "/unix/", sources))
-    context.addExtra(buildESD)
+        lib = esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(esdBuildDir + "/src/unix/", sources))
+        modules.append(lib)
+        return lib
+    context.addExtra(buildESD, depends = True)
 
 if platform["ALLEGRO_WITH_ALSADIGI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
+        alsaBuildDir = buildDir + '/modules'
+        alsaEnv.BuildDir(alsaBuildDir, '.')
         sources = ["alsa5.c", "alsa9.c"]
-        return alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(buildDir + "/unix/", sources))
-    context.addExtra(buildAlsa)
+        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(alsaBuildDir + "/src/unix/", sources))
+        modules.append(lib)
+        return lib
+    context.addExtra(buildAlsa, depends = True)
 
 if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
+        alsaBuildDir = buildDir + '/modules'
+        alsaEnv.BuildDir(alsaBuildDir, '.')
         sources = ["alsamidi.c"]
-        return alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(buildDir + "/unix/", sources))
-    context.addExtra(buildAlsa)
+        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(alsaBuildDir + "/src/unix/", sources))
+        modules.append(lib)
+        return lib
+    context.addExtra(buildAlsa, depends = True)
 
+
+# FIXME: Does A5 really support svgalib?
 # This might be broken. asmdefs.inc isnt generated until after svgalibs.s
 # is compiled, but svgalib.s depends on asmdefs.inc. Either this dependancy
 # needs to be fixed from scons or asmdefs.inc should be moved/generated elsewhere
-if platform["ALLEGRO_LINUX_SVGALIB"][0]:
-    def buildSVGA(menv,appendDir,buildDir,libDir):
-        vgaEnv = menv.Copy()
-        vgaEnv.Append(LIBS = "vga")
-
-	# asmdef environment doesnt need extra libraries
-	asmdefEnv = menv.Copy()
-	asmdefEnv.Replace(LIBS = [])
-	asmdef_inc = 'obj/unix/asmdef.inc'
-	asmdef = asmdefEnv.Program(buildDir + '/asmdef', buildDir + '/i386/asmdef.c')
-	# Produce asmdef.inc from asmdef
-	vgaEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
-        sources = ["svgalib.c"]
-
-	# svgalibs.s must explicitly depend on asmdef.inc. we can
-	# set that up by getting the resulting object file and set the
-	# dependancy with Depends(target,source)
-	assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/linux/",['svgalibs.s']))
-        vgaEnv.Depends(assembler_object,asmdef_inc)
-        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/linux/", ['svgalib.c']) + [assembler_object])
-
-        return lib
-    context.addExtra(buildSVGA)
+#if platform["ALLEGRO_LINUX_SVGALIB"][0]:
+#    def buildSVGA(menv,appendDir,buildDir,libDir):
+#        vgaEnv = menv.Copy()
+#        vgaEnv.Append(LIBS = "vga")
+#        sources = ["svgalib.c"]
+#        assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/src/linux/",['svgalibs.s']))
+#        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/src/linux/", sources) + [assembler_object])
+#        modules.append(lib)
+#        return lib
+#    context.addExtra(buildSVGA)
 
 if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         artsEnv = menv.Copy()
         artsEnv.ParseConfig("artsc-config --libs")
         sources = ["arts.c"]
-        return artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",appendDir(buildDir + "/unix/", sources))
-    context.addExtra(buildAlsa)
+        lib = artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",appendDir(buildDir + "/src/unix/", sources))
+        modules.append(lib)
+        return lib
+    context.addExtra(buildAlsa, depends = True)
 
 if platform["ALLEGRO_LINUX_FBCON"][0]:
     def buildFBCon(menv,appendDir,buildDir,libDir):
         sources = ["fbcon.c"]
-        return menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/linux/", sources))
-    context.addExtra(buildFBCon)
+        lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/modules/src/linux/", sources))
+        modules.append(lib)
+        return lib
+    context.addExtra(buildFBCon, depends = True)
 
-if platform["ALLEGRO_WITH_XWINDOWS"][0]:
-    context.addFiles("x/", Split("""
-    xgfxdrv.c
-    xkeyboard.c
-    xmouse.c
-    xsystem.c
-    xvtable.c
-    xwin.c
-    """));
+def haveXWindows():
+    return platform["ALLEGRO_WITH_XWINDOWS"][0]
+
+if haveXWindows():
+    context.add_files(context.cmake["ALLEGRO_SRC_X_FILES"])
 
     def tools(tenv,appendDir,buildDir,libDir):
         tools = []
@@ -410,42 +405,87 @@ if platform["ALLEGRO_WITH_XWINDOWS"][0]:
             tool = tenv.Program("tools/" + name, appendDir(buildDir + "/tools/", files))
             Alias(name, tool)
             tools.append(tool)
-        addTool("x11/xf2pcx", ["x11/xf2pcx.c"])
+        # addTool("x11/xf2pcx", ["x11/xf2pcx.c"])
         Alias("tools", tools)
         return tools
 
-    context.addExtra(tools)
+    context.addExtra(tools, depends = True)
 
-def allegroConfig(env,appendDir,buildDir,libDir):
-    """Builds the allegro-config shell script out of misc/allegro-config.in"""
-    dict = {}
-    dict[ '@prefix@' ] = ARGUMENTS.get( 'prefix', '/usr/local/' )
-    dict[ '@INCLUDE_PREFIX@' ] = ARGUMENTS.get( 'prefix', '/usr/local/' )
-    dict[ '@LINK_WITH_STATIC_LIBS@' ] = 'something'
-    dict[ '@LIB_TO_LINK@' ] = 'alleg'
-    dict[ '@LDFLAGS@' ] = 'something'
-    dict[ '@LIBS@' ] = ' '.join(['-l' + x for x in unixLibs])
-    dict[ '@FRAMEWORKS@' ] = 'something'
-    dict[ '^version=.*' ] = 'version=%s' % context.getVersion()
+## return a list of modules
+def getModules():
+    return modules
 
-    def replaceVars(target,source,env):
+def allegroConfig(env, appendDir, buildDir, libDir):
+    """Builds the allegro5-config shell script out of misc/allegro5-config.in"""
+    prefix = ARGUMENTS.get('install', '/usr/local')
+    replaces = {}
+    replaces[ '@prefix@' ] = prefix
+    replaces[ '@INCLUDE_PREFIX@' ] = prefix
+    replaces[ '@includedir@' ] = os.path.join(prefix, "include")
+    replaces[ '@libdir@' ] = os.path.join(prefix, "lib")
+    replaces[ '@bindir@' ] = os.path.join(prefix, "bin")
+    replaces[ '@LINK_WITH_STATIC_LIBS@' ] = 'no'
+    replaces[ '@LIB_TO_LINK@' ] = 'alleg'
+    ldflags = ''
+    if supportModules():
+        ldflags = '-Wl,--export-dynamic'
+    replaces[ '@LDFLAGS@' ] = ldflags
+    libs = env["LIBS"]
+    replaces[ '@LIBS@' ] = ' '.join(['-l' + str(x) for x in libs])
+    replaces[ '@FRAMEWORKS@' ] = ''
+    replaces[ '^version=.*' ] = 'version=%s' % context.getVersion()
+
+    def replaceVars(target, source, env):
         writer = open( target[0].path, 'w' )
         for line in file(source[0].path):
-            import re
-            for str in dict.keys():
-                regex = re.compile( str )
-                line = regex.sub(dict[str], line)
+            for k in replaces.keys():
+                regex = re.compile(k)
+                line = regex.sub(replaces[k], line)
 
             writer.write( line )
 
         writer.close()
+        Execute(Chmod(target[0].path, 0755))
         return 0
 
-    configure = Builder( action = replaceVars, name = "ConfigureBuilder" )
-    env.Append(BUILDERS = { "Configure" : configure })
-    return env.Configure( 'allegro-config', '#misc/allegro-config.in' )
+    # A new builder who calls the 'replaceVas' function to build the target.
+    configure = Builder( action = replaceVars )
+    # Add the builder to scons.
+    env.Append(BUILDERS = { "ConfigMaker" : configure })
+    # Return an instance of the builder, passing destination and source file.
+    return env.ConfigMaker( 'allegro5-config', '#misc/allegro5-config.in' )
+
+def install(library):
+    env = context.getLibraryEnv()
+    ## list of files to be installed
+    ret = []
+    ## add a file to be installed
+    def add(d, f):
+        prefix = getOption('install')
+        path = os.path.join(prefix, d)
+        ret.append(env.Install(path, f))
+    add('lib', library)
+    for root, dirs, files in os.walk('include'):
+        for i in [x for x in files if x.endswith(".h") or x.endswith(".inl")]:
+            subdir = root
+            add(subdir, '#' + os.path.join(root, i))
+
+    add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()), 'modules.lst')
+    for i in getModules():
+        add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()),i)
+    add('bin', 'allegro5-config')
     
-context.addExtra(allegroConfig)
+    # Try to run ldconfig after installing everything, so add it as a dependency
+    # depending on everything else.
+    ldconfig = env.Command(None, ret, "ldconfig")
+    env.Depends(ldconfig, ret)
+    ret.append(ldconfig)
+
+    return ret
+
+context.setInstaller(install)
+    
+context.addExtra(allegroConfig, use_build_env = True)
 
 def pruneLibs(libs):
     import sets # needed for Python 2.3 compatibility

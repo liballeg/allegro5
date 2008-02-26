@@ -16,23 +16,25 @@
  */
 
 
+#include <stdio.h>
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 #include "opcodes.h"
+
+#ifdef ALLEGRO_UNIX
+   #include "allegro5/platform/aintunix.h"   /* for _unix_get_page_size */
+#endif
 
 #ifdef ALLEGRO_WINDOWS
    #include "winalleg.h"   /* For VirtualProtect */
 #endif     /* ifdef ALLEGRO_WINDOWS */
 
-
-
-#ifdef HAVE_MPROTECT
+#ifdef ALLEGRO_HAVE_MPROTECT
    #include <sys/types.h>
    #include <sys/mman.h>
-   #include <sys/user.h>
-#endif     /* ifdef HAVE_MPROTECT */
+#endif     /* ifdef ALLEGRO_HAVE_MPROTECT */
 
 
 
@@ -57,7 +59,7 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
       unsigned long *p32;
    #endif
    
-   #ifdef USE_MMAP_GEN_CODE_BUF
+   #ifdef ALLEGRO_USE_MMAP_GEN_CODE_BUF
       /* make sure we get a new map */
       _map_size = 0;
    #endif
@@ -286,7 +288,7 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
 
    COMPILER_RET();
 
-#ifdef USE_MMAP_GEN_CODE_BUF
+#ifdef ALLEGRO_USE_MMAP_GEN_CODE_BUF
 
    /* Lie about the size, return the size mapped which >= size used /
     * compiler_pos, because we need the size mapped for munmap.
@@ -309,12 +311,13 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
 	    /* Play nice with Windows executable memory protection */
 	    VirtualProtect(p, compiler_pos, PAGE_EXECUTE_READWRITE, &old_protect);
 	 }
-	 #elif defined(HAVE_MPROTECT)
+	 #elif defined(ALLEGRO_HAVE_MPROTECT)
 	 {
-	    char *aligned_p = (char *)((unsigned long)p & ~(PAGE_SIZE-1ul));
+	    long page_size = _unix_get_page_size();
+	    char *aligned_p = (char *)((unsigned long)p & ~(page_size-1ul));
 	    if (mprotect(aligned_p, compiler_pos + ((char *)p - aligned_p),
 		  PROT_EXEC|PROT_READ|PROT_WRITE)) {
-	       perror("allegro-error: mprotect failed during stretched blit!");
+	       perror("allegro-error: mprotect failed during compile sprite!");
 	       _AL_FREE(p);
 	       return NULL;
 	    }
@@ -375,7 +378,7 @@ void destroy_compiled_sprite(COMPILED_SPRITE *sprite)
    if (sprite) {
       for (plane=0; plane<4; plane++) {
 	 if (sprite->proc[plane].draw) {
-	    #ifdef USE_MMAP_GEN_CODE_BUF
+	    #ifdef ALLEGRO_USE_MMAP_GEN_CODE_BUF
 	       munmap(sprite->proc[plane].draw, sprite->proc[plane].len);
 	    #else
 	       _AL_FREE(sprite->proc[plane].draw);

@@ -15,9 +15,9 @@
  *      See readme.txt for copyright information.
  */
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
 #include "xwin.h"
 
 #if (defined ALLEGRO_XWINDOWS_WITH_XF86DGA2) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
@@ -101,7 +101,9 @@ GFX_DRIVER gfx_xdga2 =
    0, 0,
    0,
    0,
-   FALSE
+   FALSE,
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -133,7 +135,9 @@ GFX_DRIVER gfx_xdga2_soft =
    0, 0,
    0,
    0,
-   FALSE
+   FALSE,
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL   
 };
 
 
@@ -198,7 +202,7 @@ static GFX_MODE_LIST *_xdga2_private_fetch_mode_list(void)
       _AL_FREE(mode_list->mode);
       _AL_FREE(mode_list);
    }
-   XFree (mode);
+   XFree(mode);
    return NULL;
 }
 
@@ -273,8 +277,10 @@ static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth)
  */
 static int _xdga_process_event(XDGAEvent *cur_event, XDGAEvent *next_event)
 {
+   /*
    static int mouse_buttons = 0;
    int dx, dy, dz = 0;
+   */
    XKeyEvent key;
 
    switch (cur_event->type - dga_event_base) {
@@ -292,36 +298,17 @@ static int _xdga_process_event(XDGAEvent *cur_event, XDGAEvent *next_event)
 	 return 1;
 
       case ButtonPress:
-	 if (cur_event->xbutton.button == Button1)
-	    mouse_buttons |= 1;
-	 else if (cur_event->xbutton.button == Button3)
-	    mouse_buttons |= 2;
-	 else if (cur_event->xbutton.button == Button2)
-	    mouse_buttons |= 4;
-	 else if (cur_event->xbutton.button == Button4)
-	    dz = 1;
-	 else if (cur_event->xbutton.button == Button5)
-	    dz = -1;
-	 if (_xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(0, 0, dz, mouse_buttons);
+	 _al_xwin_mouse_button_press_handler(cur_event->xbutton.button);
 	 return 1;
 
       case ButtonRelease:
-	 if (cur_event->xbutton.button == Button1)
-	    mouse_buttons &= ~1;
-	 else if (cur_event->xbutton.button == Button3)
-	    mouse_buttons &= ~2;
-	 else if (cur_event->xbutton.button == Button2)
-	    mouse_buttons &= ~4;
-	 if (_xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
+	 _al_xwin_mouse_button_release_handler(cur_event->xbutton.button);
 	 return 1;
 
       case MotionNotify:
-	 dx = cur_event->xmotion.dx;
-	 dy = cur_event->xmotion.dy;
-	 if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
+	 _al_xwin_mouse_motion_notify_handler_dga2(
+	     cur_event->xmotion.dx, cur_event->xmotion.dy,
+	     0, 0, gfx_xdga2.w, gfx_xdga2.h);
 	 return 1;
 
       default:
@@ -550,7 +537,7 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
    input_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask
               | ButtonReleaseMask | PointerMotionMask;
    XDGASelectInput(_xwin.display, _xwin.screen, input_mask);
-   _mouse_on = TRUE;
+   _al_comouse_on = TRUE;
 
    /* Creates screen bitmap */
    drv->linear = TRUE;

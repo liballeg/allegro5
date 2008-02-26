@@ -24,11 +24,11 @@
 #include <string.h>
 #include <time.h>
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 #include "datedit.h"
 
 #if ((defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)) && (!defined SCAN_DEPEND)
-   #define HAVE_CONIO_H
+   #define DAT_HAVE_CONIO_H
    #include <conio.h>
 #endif
 
@@ -215,7 +215,7 @@ int datedit_ask(AL_CONST char *fmt, ...)
    fflush(stdout);
 
    for (;;) {
-      #ifdef HAVE_CONIO_H
+      #ifdef DAT_HAVE_CONIO_H
 
 	 /* raw keyboard input for platforms that have conio functions */
 	 c = getch();
@@ -234,21 +234,21 @@ int datedit_ask(AL_CONST char *fmt, ...)
 
 	 case 'y':
 	 case 'Y':
-	    #ifdef HAVE_CONIO_H
+	    #ifdef DAT_HAVE_CONIO_H
 	       printf("%c\n", c);
 	    #endif
 	    return 'y';
 
 	 case 'n':
 	 case 'N':
-	    #ifdef HAVE_CONIO_H
+	    #ifdef DAT_HAVE_CONIO_H
 	       printf("%c\n", c);
 	    #endif
 	    return 'n';
 
 	 case 'a':
 	 case 'A':
-	    #ifdef HAVE_CONIO_H
+	    #ifdef DAT_HAVE_CONIO_H
 	       printf("%c\n", c);
 	    #endif
 	    all = TRUE;
@@ -256,13 +256,13 @@ int datedit_ask(AL_CONST char *fmt, ...)
 
 	 case 'q':
 	 case 'Q':
-	    #ifdef HAVE_CONIO_H
+	    #ifdef DAT_HAVE_CONIO_H
 	       printf("%c\n", c);
 	    #endif
 	    return 27;
 
 	 case 27:
-	    #ifdef HAVE_CONIO_H
+	    #ifdef DAT_HAVE_CONIO_H
 	       printf("\n");
 	    #endif
 	    return 27;

@@ -18,7 +18,7 @@
 #ifndef __bma_xwin_h
 #define __bma_xwin_h
 
-#include "xalleg.h"
+#include "allegro5/xalleg.h"
 
 /* Defined in xmouse.c */
 AL_VAR(int, _xwin_mouse_extended_range);
@@ -43,20 +43,21 @@ AL_FUNC(void, _xwin_set_palette_range, (AL_CONST PALETTE p, int from, int to, in
 AL_FUNC(void, _xwin_flush_buffers, (void));
 AL_FUNC(void, _xwin_vsync, (void));
 AL_FUNC(void, _xwin_handle_input, (void));
-AL_FUNC(void, _xwin_enable_hardware_cursor, (int mode));
+AL_FUNC(void, _al_xwin_enable_hardware_cursor, (bool mode));
 AL_FUNC(void, _xwin_redraw_window, (int x, int y, int w, int h));
 AL_FUNC(int, _xwin_scroll_screen, (int x, int y));
 AL_FUNC(void, _xwin_update_screen, (int x, int y, int w, int h));
 AL_FUNC(void, _xwin_set_window_title, (AL_CONST char *name));
 AL_FUNC(void, _xwin_change_keyboard_control, (int led, int on));
-AL_FUNC(int, _xwin_get_pointer_mapping, (unsigned char map[], int nmap));
 AL_FUNC(void, _xwin_init_keyboard_tables, (void));
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-AL_FUNC(int, _xwin_set_mouse_sprite, (struct BITMAP *sprite, int x, int y));
-AL_FUNC(int, _xwin_show_mouse, (struct BITMAP *bmp, int x, int y));
-AL_FUNC(void, _xwin_hide_mouse, (void));
-AL_FUNC(void, _xwin_move_mouse, (int x, int y));
+ALLEGRO_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus);
+void _al_xwin_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *);
+bool _al_xwin_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor);
+bool _al_xwin_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id);
+bool _al_xwin_show_mouse_cursor(void);
+bool _al_xwin_hide_mouse_cursor(void);
 #endif
 
 AL_FUNC(BITMAP*, _xdga_create_screen, (GFX_DRIVER *drv, int w, int h,
@@ -77,6 +78,14 @@ AL_FUNC(void, _xwin_unlock, (BITMAP *bmp));
 AL_FUNC(void, _al_xwin_keyboard_handler, (XKeyEvent *event, bool dga2_hack));
 AL_FUNC(void, _al_xwin_get_keyboard_mapping, (void));
 AL_FUNC(void, _al_xwin_keyboard_focus_handler, (XFocusChangeEvent *event));
+
+/* Defined in xmousenu.c */
+AL_FUNC(void, _al_xwin_mouse_button_press_handler, (unsigned int x_button));
+AL_FUNC(void, _al_xwin_mouse_button_release_handler, (unsigned int x_button));
+AL_FUNC(void, _al_xwin_mouse_motion_notify_handler, (int x, int y));
+AL_FUNC(void, _al_xwin_mouse_motion_notify_handler_dga2, (int dx, int dy,
+							  int min_x, int min_y,
+							  int max_x, int max_y));
 
 #endif /* !__bma_xwin_h */
 

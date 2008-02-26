@@ -16,7 +16,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
@@ -127,7 +127,7 @@ char *mode_desc[] =
 {
    "Wireframe",
    "Flat shaded",
-   "Single color gouraud shaded",
+   "Single color Gouraud shaded",
    "Gouraud shaded",
    "Texture mapped",
    "Perspective correct texture mapped",
@@ -227,7 +227,7 @@ void translate_shapes(void)
 /* draw a line (for wireframe display) */
 void wire(BITMAP *b, VTX *v1, VTX *v2)
 {
-   int col = MID(128, 255 - fixtoi(v1->z+v2->z) / 16, 255);
+   int col = CLAMP(128, 255 - fixtoi(v1->z+v2->z) / 16, 255);
    line(b, fixtoi(v1->x), fixtoi(v1->y), fixtoi(v2->x), fixtoi(v2->y),
 	palette_color[col]);
 }
@@ -260,7 +260,7 @@ void draw_quad(BITMAP *b, VTX *v1, VTX *v2, VTX *v3, VTX *v4, int mode)
    switch (mode) {
 
       case POLYTYPE_FLAT:
-	 col = MID(128, 255 - fixtoi(v1->z+v2->z) / 16, 255);
+	 col = CLAMP(128, 255 - fixtoi(v1->z+v2->z) / 16, 255);
 	 vtx1.c = vtx2.c = vtx3.c = vtx4.c = palette_color[col];
 	 break;
 
@@ -282,10 +282,10 @@ void draw_quad(BITMAP *b, VTX *v1, VTX *v2, VTX *v3, VTX *v4, int mode)
       case POLYTYPE_PTEX_LIT:
       case POLYTYPE_ATEX_MASK_LIT:
       case POLYTYPE_PTEX_MASK_LIT:
-	 vtx1.c = MID(0, 255 - fixtoi(v1->z) / 4, 255);
-	 vtx2.c = MID(0, 255 - fixtoi(v2->z) / 4, 255);
-	 vtx3.c = MID(0, 255 - fixtoi(v3->z) / 4, 255);
-	 vtx4.c = MID(0, 255 - fixtoi(v4->z) / 4, 255);
+	 vtx1.c = CLAMP(0, 255 - fixtoi(v1->z) / 4, 255);
+	 vtx2.c = CLAMP(0, 255 - fixtoi(v2->z) / 4, 255);
+	 vtx3.c = CLAMP(0, 255 - fixtoi(v3->z) / 4, 255);
+	 vtx4.c = CLAMP(0, 255 - fixtoi(v4->z) / 4, 255);
 	 break; 
    }
 

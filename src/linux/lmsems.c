@@ -1,3 +1,5 @@
+#error This driver has not been updated to the new mouse API.
+
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
@@ -22,10 +24,10 @@
 #include <sys/time.h>
 #include <termios.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
-#include "linalleg.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
+#include "allegro5/linalleg.h"
 
 
 static int intellimouse;

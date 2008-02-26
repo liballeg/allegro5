@@ -23,8 +23,8 @@
 
 
 #include <math.h>
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 
@@ -234,17 +234,21 @@ void set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
       _current_palette[c] = p[c];
 
       if (_color_depth != 8)
-	 palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
+         palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
    }
 
    _current_palette_changed = 0xFFFFFFFF & ~(1<<(_color_depth-1));
 
    if (gfx_driver) {
-      if ((screen->vtable->color_depth == 8) && (!_dispsw_status))
+      if ((screen->vtable->color_depth == 8) && (!_dispsw_status) && gfx_driver->set_palette)
 	 gfx_driver->set_palette(p, from, to, vsync);
    }
    else if ((system_driver) && (system_driver->set_palette_range))
       system_driver->set_palette_range(p, from, to, vsync);
+
+   if (screen->needs_upload) {
+      screen->display->vt->upload_compat_screen(screen, 0, 0, screen->w, screen->h);
+   }
 }
 
 
@@ -270,11 +274,11 @@ void select_palette(AL_CONST PALETTE p)
       _prev_current_palette[c] = _current_palette[c];
       _current_palette[c] = p[c];
    }
-
+   
    if (_color_depth != 8) {
       for (c=0; c<PAL_SIZE; c++) {
-	 prev_palette_color[c] = palette_color[c];
-	 palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
+         prev_palette_color[c] = palette_color[c];
+         palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
       }
    }
 
@@ -297,7 +301,7 @@ void unselect_palette(void)
 
    if (_color_depth != 8) {
       for (c=0; c<PAL_SIZE; c++)
-	 palette_color[c] = prev_palette_color[c];
+         palette_color[c] = prev_palette_color[c];
    }
 
    ASSERT(_got_prev_current_palette == TRUE);

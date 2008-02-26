@@ -28,11 +28,11 @@
 /* For waitable timers */
 #define _WIN32_WINNT 0x400
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include ALLEGRO_INTERNAL_HEADER
-#include "allegro/internal/aintern2.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #include <dinput.h>
@@ -59,8 +59,8 @@ static unsigned int key_modifiers;
 static int key_scancode_to_repeat;
 
 /* the one and only keyboard object and its internal state */
-static AL_KEYBOARD the_keyboard;
-static AL_KBDSTATE key_state;
+static ALLEGRO_KEYBOARD the_keyboard;
+static ALLEGRO_KBDSTATE key_state;
 
 
 
@@ -120,23 +120,23 @@ static void update_modifiers(BYTE *keystate)
    unsigned int modifiers = 0;
 
    if (keystate[VK_SHIFT] & 0x80)
-      modifiers |= AL_KEYMOD_SHIFT;
+      modifiers |= ALLEGRO_KEYMOD_SHIFT;
    if (keystate[VK_CONTROL] & 0x80)
-      modifiers |= AL_KEYMOD_CTRL;
+      modifiers |= ALLEGRO_KEYMOD_CTRL;
 
    if (keystate[VK_LMENU] & 0x80)
-      modifiers |= AL_KEYMOD_ALT;
+      modifiers |= ALLEGRO_KEYMOD_ALT;
    else if (keystate[VK_RMENU] & 0x80)
-      modifiers |= AL_KEYMOD_ALTGR;
+      modifiers |= ALLEGRO_KEYMOD_ALTGR;
    else if (keystate[VK_MENU] & 0x80)
-      modifiers |= AL_KEYMOD_ALT;
+      modifiers |= ALLEGRO_KEYMOD_ALT;
 
    if (keystate[VK_SCROLL] & 1)
-      modifiers |= AL_KEYMOD_SCROLLLOCK;
+      modifiers |= ALLEGRO_KEYMOD_SCROLLLOCK;
    if (keystate[VK_NUMLOCK] & 1)
-      modifiers |= AL_KEYMOD_NUMLOCK;
+      modifiers |= ALLEGRO_KEYMOD_NUMLOCK;
    if (keystate[VK_CAPITAL] & 1)
-      modifiers |= AL_KEYMOD_CAPSLOCK;
+      modifiers |= ALLEGRO_KEYMOD_CAPSLOCK;
 
    /* needed for special handling in key_dinput_handle_scancode */
    key_modifiers = modifiers;
@@ -145,67 +145,67 @@ static void update_modifiers(BYTE *keystate)
 
 
 
-/* lookup table for converting DIK_* scancodes into Allegro AL_KEY_* codes */
+/* lookup table for converting DIK_* scancodes into Allegro ALLEGRO_KEY_* codes */
 /* this table was from pckeys.c  */
 static const unsigned char hw_to_mycode[256] =
 {
-   /* 0x00 */  0,		  AL_KEY_ESCAPE,     AL_KEY_1,          AL_KEY_2, 
-   /* 0x04 */  AL_KEY_3,          AL_KEY_4,          AL_KEY_5,          AL_KEY_6,
-   /* 0x08 */  AL_KEY_7,          AL_KEY_8,          AL_KEY_9,          AL_KEY_0, 
-   /* 0x0C */  AL_KEY_MINUS,      AL_KEY_EQUALS,     AL_KEY_BACKSPACE,  AL_KEY_TAB,
-   /* 0x10 */  AL_KEY_Q,          AL_KEY_W,          AL_KEY_E,          AL_KEY_R, 
-   /* 0x14 */  AL_KEY_T,          AL_KEY_Y,          AL_KEY_U,          AL_KEY_I,
-   /* 0x18 */  AL_KEY_O,          AL_KEY_P,          AL_KEY_OPENBRACE,  AL_KEY_CLOSEBRACE, 
-   /* 0x1C */  AL_KEY_ENTER,      AL_KEY_LCTRL,	     AL_KEY_A,          AL_KEY_S,
-   /* 0x20 */  AL_KEY_D,          AL_KEY_F,          AL_KEY_G,          AL_KEY_H, 
-   /* 0x24 */  AL_KEY_J,          AL_KEY_K,          AL_KEY_L,          AL_KEY_SEMICOLON,
-   /* 0x28 */  AL_KEY_QUOTE,      AL_KEY_TILDE,      AL_KEY_LSHIFT,     AL_KEY_BACKSLASH, 
-   /* 0x2C */  AL_KEY_Z,          AL_KEY_X,          AL_KEY_C,          AL_KEY_V,
-   /* 0x30 */  AL_KEY_B,          AL_KEY_N,          AL_KEY_M,          AL_KEY_COMMA, 
-   /* 0x34 */  AL_KEY_FULLSTOP,   AL_KEY_SLASH,      AL_KEY_RSHIFT,     AL_KEY_PAD_ASTERISK,
-   /* 0x38 */  AL_KEY_ALT,        AL_KEY_SPACE,      AL_KEY_CAPSLOCK,   AL_KEY_F1, 
-   /* 0x3C */  AL_KEY_F2,         AL_KEY_F3,         AL_KEY_F4,         AL_KEY_F5,
-   /* 0x40 */  AL_KEY_F6,         AL_KEY_F7,         AL_KEY_F8,         AL_KEY_F9, 
-   /* 0x44 */  AL_KEY_F10,        AL_KEY_NUMLOCK,    AL_KEY_SCROLLLOCK, AL_KEY_PAD_7,
-   /* 0x48 */  AL_KEY_PAD_8,      AL_KEY_PAD_9,      AL_KEY_PAD_MINUS,  AL_KEY_PAD_4, 
-   /* 0x4C */  AL_KEY_PAD_5,      AL_KEY_PAD_6,      AL_KEY_PAD_PLUS,   AL_KEY_PAD_1,
-   /* 0x50 */  AL_KEY_PAD_2,      AL_KEY_PAD_3,      AL_KEY_PAD_0,      AL_KEY_PAD_DELETE, 
-   /* 0x54 */  AL_KEY_PRINTSCREEN,0,		     AL_KEY_BACKSLASH2, AL_KEY_F11,
-   /* 0x58 */  AL_KEY_F12,        0,		     0,		        AL_KEY_LWIN, 
-   /* 0x5C */  AL_KEY_RWIN,       AL_KEY_MENU,       0,                 0,
+   /* 0x00 */  0,		  ALLEGRO_KEY_ESCAPE,     ALLEGRO_KEY_1,          ALLEGRO_KEY_2, 
+   /* 0x04 */  ALLEGRO_KEY_3,          ALLEGRO_KEY_4,          ALLEGRO_KEY_5,          ALLEGRO_KEY_6,
+   /* 0x08 */  ALLEGRO_KEY_7,          ALLEGRO_KEY_8,          ALLEGRO_KEY_9,          ALLEGRO_KEY_0, 
+   /* 0x0C */  ALLEGRO_KEY_MINUS,      ALLEGRO_KEY_EQUALS,     ALLEGRO_KEY_BACKSPACE,  ALLEGRO_KEY_TAB,
+   /* 0x10 */  ALLEGRO_KEY_Q,          ALLEGRO_KEY_W,          ALLEGRO_KEY_E,          ALLEGRO_KEY_R, 
+   /* 0x14 */  ALLEGRO_KEY_T,          ALLEGRO_KEY_Y,          ALLEGRO_KEY_U,          ALLEGRO_KEY_I,
+   /* 0x18 */  ALLEGRO_KEY_O,          ALLEGRO_KEY_P,          ALLEGRO_KEY_OPENBRACE,  ALLEGRO_KEY_CLOSEBRACE, 
+   /* 0x1C */  ALLEGRO_KEY_ENTER,      ALLEGRO_KEY_LCTRL,	     ALLEGRO_KEY_A,          ALLEGRO_KEY_S,
+   /* 0x20 */  ALLEGRO_KEY_D,          ALLEGRO_KEY_F,          ALLEGRO_KEY_G,          ALLEGRO_KEY_H, 
+   /* 0x24 */  ALLEGRO_KEY_J,          ALLEGRO_KEY_K,          ALLEGRO_KEY_L,          ALLEGRO_KEY_SEMICOLON,
+   /* 0x28 */  ALLEGRO_KEY_QUOTE,      ALLEGRO_KEY_TILDE,      ALLEGRO_KEY_LSHIFT,     ALLEGRO_KEY_BACKSLASH, 
+   /* 0x2C */  ALLEGRO_KEY_Z,          ALLEGRO_KEY_X,          ALLEGRO_KEY_C,          ALLEGRO_KEY_V,
+   /* 0x30 */  ALLEGRO_KEY_B,          ALLEGRO_KEY_N,          ALLEGRO_KEY_M,          ALLEGRO_KEY_COMMA, 
+   /* 0x34 */  ALLEGRO_KEY_FULLSTOP,   ALLEGRO_KEY_SLASH,      ALLEGRO_KEY_RSHIFT,     ALLEGRO_KEY_PAD_ASTERISK,
+   /* 0x38 */  ALLEGRO_KEY_ALT,        ALLEGRO_KEY_SPACE,      ALLEGRO_KEY_CAPSLOCK,   ALLEGRO_KEY_F1, 
+   /* 0x3C */  ALLEGRO_KEY_F2,         ALLEGRO_KEY_F3,         ALLEGRO_KEY_F4,         ALLEGRO_KEY_F5,
+   /* 0x40 */  ALLEGRO_KEY_F6,         ALLEGRO_KEY_F7,         ALLEGRO_KEY_F8,         ALLEGRO_KEY_F9, 
+   /* 0x44 */  ALLEGRO_KEY_F10,        ALLEGRO_KEY_NUMLOCK,    ALLEGRO_KEY_SCROLLLOCK, ALLEGRO_KEY_PAD_7,
+   /* 0x48 */  ALLEGRO_KEY_PAD_8,      ALLEGRO_KEY_PAD_9,      ALLEGRO_KEY_PAD_MINUS,  ALLEGRO_KEY_PAD_4, 
+   /* 0x4C */  ALLEGRO_KEY_PAD_5,      ALLEGRO_KEY_PAD_6,      ALLEGRO_KEY_PAD_PLUS,   ALLEGRO_KEY_PAD_1,
+   /* 0x50 */  ALLEGRO_KEY_PAD_2,      ALLEGRO_KEY_PAD_3,      ALLEGRO_KEY_PAD_0,      ALLEGRO_KEY_PAD_DELETE, 
+   /* 0x54 */  ALLEGRO_KEY_PRINTSCREEN,0,		     ALLEGRO_KEY_BACKSLASH2, ALLEGRO_KEY_F11,
+   /* 0x58 */  ALLEGRO_KEY_F12,        0,		     0,		        ALLEGRO_KEY_LWIN, 
+   /* 0x5C */  ALLEGRO_KEY_RWIN,       ALLEGRO_KEY_MENU,       0,                 0,
    /* 0x60 */  0,                 0,                 0,                 0, 
    /* 0x64 */  0,                 0,                 0,                 0,
    /* 0x68 */  0,                 0,                 0,                 0, 
    /* 0x6C */  0,                 0,                 0,                 0,
-   /* 0x70 */  AL_KEY_KANA,       0,                 0,                 AL_KEY_ABNT_C1, 
+   /* 0x70 */  ALLEGRO_KEY_KANA,       0,                 0,                 ALLEGRO_KEY_ABNT_C1, 
    /* 0x74 */  0,                 0,                 0,                 0,
-   /* 0x78 */  0,                 AL_KEY_CONVERT,    0,                 AL_KEY_NOCONVERT, 
-   /* 0x7C */  0,                 AL_KEY_YEN,        0,                 0,
+   /* 0x78 */  0,                 ALLEGRO_KEY_CONVERT,    0,                 ALLEGRO_KEY_NOCONVERT, 
+   /* 0x7C */  0,                 ALLEGRO_KEY_YEN,        0,                 0,
 
    /* 0x80 */  0,                 0,                 0,                 0,
    /* 0x84 */  0,                 0,                 0,                 0,
    /* 0x88 */  0,                 0,                 0,                 0,
    /* 0x8C */  0,                 0,                 0,                 0,
-   /* 0x90 */  0,                 AL_KEY_AT,         AL_KEY_COLON2,     0,
-   /* 0x94 */  AL_KEY_KANJI,      0,                 0,                 0,
+   /* 0x90 */  0,                 ALLEGRO_KEY_AT,         ALLEGRO_KEY_COLON2,     0,
+   /* 0x94 */  ALLEGRO_KEY_KANJI,      0,                 0,                 0,
    /* 0x98 */  0,                 0,                 0,                 0,
-   /* 0x9C */  AL_KEY_PAD_ENTER,  AL_KEY_RCTRL,      0,                 0,
+   /* 0x9C */  ALLEGRO_KEY_PAD_ENTER,  ALLEGRO_KEY_RCTRL,      0,                 0,
    /* 0xA0 */  0,                 0,                 0,                 0,
    /* 0xA4 */  0,                 0,                 0,                 0,
    /* 0xA8 */  0,                 0,                 0,                 0,
    /* 0xAC */  0,                 0,                 0,                 0,
    /* 0xB0 */  0,                 0,                 0,                 0,
-   /* 0xB4 */  0,                 AL_KEY_PAD_SLASH,  0,                 AL_KEY_PRINTSCREEN,
-   /* 0xB8 */  AL_KEY_ALTGR,      0,                 0,                 0,
+   /* 0xB4 */  0,                 ALLEGRO_KEY_PAD_SLASH,  0,                 ALLEGRO_KEY_PRINTSCREEN,
+   /* 0xB8 */  ALLEGRO_KEY_ALTGR,      0,                 0,                 0,
    /* 0xBC */  0,                 0,                 0,                 0,
    /* 0xC0 */  0,                 0,                 0,                 0,
-   /* 0xC4 */  0,                 AL_KEY_PAUSE,      0,                 AL_KEY_HOME,
-   /* 0xC8 */  AL_KEY_UP,         AL_KEY_PGUP,       0,                 AL_KEY_LEFT,
-   /* 0xCC */  0,                 AL_KEY_RIGHT,      0,                 AL_KEY_END,
-   /* 0xD0 */  AL_KEY_DOWN,       AL_KEY_PGDN,       AL_KEY_INSERT,     AL_KEY_DELETE,
+   /* 0xC4 */  0,                 ALLEGRO_KEY_PAUSE,      0,                 ALLEGRO_KEY_HOME,
+   /* 0xC8 */  ALLEGRO_KEY_UP,         ALLEGRO_KEY_PGUP,       0,                 ALLEGRO_KEY_LEFT,
+   /* 0xCC */  0,                 ALLEGRO_KEY_RIGHT,      0,                 ALLEGRO_KEY_END,
+   /* 0xD0 */  ALLEGRO_KEY_DOWN,       ALLEGRO_KEY_PGDN,       ALLEGRO_KEY_INSERT,     ALLEGRO_KEY_DELETE,
    /* 0xD4 */  0,                 0,                 0,                 0,
-   /* 0xD8 */  0,                 0,                 0,                 AL_KEY_LWIN,
-   /* 0xDC */  AL_KEY_RWIN,       AL_KEY_MENU,       0,                 0,
+   /* 0xD8 */  0,                 0,                 0,                 ALLEGRO_KEY_LWIN,
+   /* 0xDC */  ALLEGRO_KEY_RWIN,       ALLEGRO_KEY_MENU,       0,                 0,
    /* 0xE0 */  0,                 0,                 0,                 0,
    /* 0xE4 */  0,                 0,                 0,                 0,
    /* 0xE8 */  0,                 0,                 0,                 0,
@@ -232,13 +232,13 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
    static int ignore_three_finger_flag = FALSE;
 
    /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc) */
-   if (((scancode == DIK_TAB) && (key_modifiers & (AL_KEYMOD_ALT | AL_KEYMOD_ALTGR)))
-       || ((scancode == DIK_SPACE) && (key_modifiers & (AL_KEYMOD_ALT | AL_KEYMOD_ALTGR)))
-       || ((scancode == DIK_ESCAPE) && (key_modifiers & (AL_KEYMOD_CTRL | AL_KEYMOD_ALT | AL_KEYMOD_ALTGR))))
+   if (((scancode == DIK_TAB) && (key_modifiers & (ALLEGRO_KEYMOD_ALT | ALLEGRO_KEYMOD_ALTGR)))
+       || ((scancode == DIK_SPACE) && (key_modifiers & (ALLEGRO_KEYMOD_ALT | ALLEGRO_KEYMOD_ALTGR)))
+       || ((scancode == DIK_ESCAPE) && (key_modifiers & (ALLEGRO_KEYMOD_CTRL | ALLEGRO_KEYMOD_ALT | ALLEGRO_KEYMOD_ALTGR))))
       return;
 
    /* alt+F4 triggers a WM_CLOSE under Windows */
-   if ((scancode == DIK_F4) && (key_modifiers & (AL_KEYMOD_ALT | AL_KEYMOD_ALTGR))) {
+   if ((scancode == DIK_F4) && (key_modifiers & (ALLEGRO_KEYMOD_ALT | ALLEGRO_KEYMOD_ALTGR))) {
       if (pressed)
          PostMessage(allegro_wnd, WM_CLOSE, 0, 0);
       return;
@@ -247,7 +247,7 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
    /* if not foreground, filter out press codes and handle only release codes */
    if (!wnd_sysmenu || !pressed) {
       /* three-finger salute for killing the program */
-      if (_al_three_finger_flag && (key_modifiers & AL_KEYMOD_CTRL) && (key_modifiers & AL_KEYMOD_ALT)) {
+      if (_al_three_finger_flag && (key_modifiers & ALLEGRO_KEYMOD_CTRL) && (key_modifiers & ALLEGRO_KEYMOD_ALT)) {
          if (scancode == 0x00) {
             /* when pressing CTRL-ALT-DEL, Windows launches CTRL-ALT-EVERYTHING */
             ignore_three_finger_flag = TRUE;
@@ -299,7 +299,7 @@ static void key_dinput_handle(void)
    hr = IDirectInputDevice_GetDeviceData(key_dinput_device,
                                          sizeof(DIDEVICEOBJECTDATA),
                                          scancode_buffer,
-                                         &waiting_scancodes,
+                                         (unsigned long int *)&waiting_scancodes,
                                          0);
 
    /* was device lost ? */
@@ -355,7 +355,7 @@ static void get_autorepeat_parameters(void)
 
    /* units are 100e-9 seconds; negative means relative time */
    /* 0 ==> 0.25 seconds, 3 ==> 1.0 second */
-   repeat_delay.QuadPart = -10000000LL * (delay+1)/4;
+   repeat_delay.QuadPart = (LONG_LONG) -10000000 * (delay+1)/4;
 
    /* units are milliseconds */
    /* 0 ==> 2.5 repetitions/sec, 31 ==> 31 repetitions/sec */
@@ -480,44 +480,57 @@ static int key_dinput_init(void)
 
    /* Get DirectInput interface */
    hr = DirectInputCreate(allegro_inst, DIRECTINPUT_VERSION, &key_dinput, NULL);
-   if (FAILED(hr))
+   if (FAILED(hr)) {
+      TRACE("DirectInputCreate failed.\n");
       goto Error;
+   }
 
    /* Create the keyboard device */
    hr = IDirectInput_CreateDevice(key_dinput, &GUID_SysKeyboard, &key_dinput_device, NULL);
-   if (FAILED(hr))
+   if (FAILED(hr)) {
+      TRACE("IDirectInput_CreateDevice failed.\n");
       goto Error;
+   }
 
    /* Set data format */
    hr = IDirectInputDevice_SetDataFormat(key_dinput_device, &c_dfDIKeyboard);
-   if (FAILED(hr))
+   if (FAILED(hr)) {
+      TRACE("IDirectInputDevice_SetDataFormat failed.\n");
       goto Error;
+   }
 
    /* Set buffer size */
    hr = IDirectInputDevice_SetProperty(key_dinput_device, DIPROP_BUFFERSIZE, &property_buf_size.diph);
-   if (FAILED(hr))
+   if (FAILED(hr)) {
+      TRACE("IDirectInputDevice_SetProperty failed.\n");
       goto Error;
+   }
 
-   /* Set cooperative level */
-   hr = IDirectInputDevice_SetCooperativeLevel(key_dinput_device, allegro_wnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-   if (FAILED(hr))
-      goto Error;
+   if (key_dinput_set_cooperative_level(allegro_wnd)) {
+   	TRACE("SetCooperativeLevel failed.\n");
+   }
 
    /* Enable event notification */
    key_input_event = CreateEvent(NULL, FALSE, FALSE, NULL);
    hr = IDirectInputDevice_SetEventNotification(key_dinput_device, key_input_event);
-   if (FAILED(hr))
+   if (FAILED(hr)) {
+      TRACE("IDirectInputDevice_SetEventNotification failed.\n");
       goto Error;
+   }
 
    /* Set up the timer for autorepeat emulation */
    key_autorepeat_timer = CreateWaitableTimer(NULL, FALSE, NULL);
-   if (!key_autorepeat_timer)
+   if (!key_autorepeat_timer) {
+      TRACE("CreateWaitableTimer failed.\n");
       goto Error;
+   }
 
    /* Register event handlers */
    if (_win_input_register_event(key_input_event, key_dinput_handle) != 0 ||
-       _win_input_register_event(key_autorepeat_timer, key_dinput_repeat) != 0)
+       _win_input_register_event(key_autorepeat_timer, key_dinput_repeat) != 0) {
+      TRACE("Registering dinput keyboard event handlers failed.\n");
       goto Error;
+   }
 
    /* Acquire the device */
    wnd_call_proc(key_dinput_acquire);
@@ -534,28 +547,28 @@ static int key_dinput_init(void)
 /*----------------------------------------------------------------------*/
 
 /* forward declarations */
-static bool wkeybd_init(void);
-static void wkeybd_exit(void);
-static AL_KEYBOARD *wkeybd_get_keyboard(void);
-static void wkeybd_get_state(AL_KBDSTATE *ret_state);
+static bool wkeybd_init_keyboard(void);
+static void wkeybd_exit_keyboard(void);
+static ALLEGRO_KEYBOARD *wkeybd_get_keyboard(void);
+static void wkeybd_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state);
 
 
 
 /* the driver vtable */
 #define KEYBOARD_DIRECTX        AL_ID('D','X',' ',' ')
 
-static AL_KEYBOARD_DRIVER keyboard_directx =
+static ALLEGRO_KEYBOARD_DRIVER keyboard_directx =
 {
    KEYBOARD_DIRECTX,
    0,
    0,
    "DirectInput keyboard",
-   wkeybd_init,
-   wkeybd_exit,
+   wkeybd_init_keyboard,
+   wkeybd_exit_keyboard,
    wkeybd_get_keyboard,
    NULL, /* bool set_leds(int leds) */
    NULL, /* const char *keycode_to_name(int keycode) */
-   wkeybd_get_state
+   wkeybd_get_keyboard_state
 };
 
 
@@ -569,10 +582,10 @@ _DRIVER_INFO _al_keyboard_driver_list[] =
 
 
 
-/* wkeybd_init: [primary thread]
+/* wkeybd_init_keyboard: [primary thread]
  *  Initialise the keyboard driver.
  */
-static bool wkeybd_init(void)
+static bool wkeybd_init_keyboard(void)
 {
    if (key_dinput_init() != 0)
       return false;
@@ -581,17 +594,17 @@ static bool wkeybd_init(void)
    memset(&key_state, 0, sizeof key_state);
 
    /* Initialise the keyboard object for use as an event source. */
-   _al_event_source_init(&the_keyboard.es, _AL_ALL_KEYBOARD_EVENTS);
+   _al_event_source_init(&the_keyboard.es);
 
    return true;
 }
 
 
 
-/* wkeybd_exit: [primary thread]
+/* wkeybd_exit_keyboard: [primary thread]
  *  Shut down the keyboard driver.
  */
-static void wkeybd_exit(void)
+static void wkeybd_exit_keyboard(void)
 {
    _al_event_source_free(&the_keyboard.es);
 
@@ -606,19 +619,19 @@ static void wkeybd_exit(void)
 
 
 /* wkeybd_get_keyboard:
- *  Returns the address of a AL_KEYBOARD structure representing the keyboard.
+ *  Returns the address of a ALLEGRO_KEYBOARD structure representing the keyboard.
  */
-static AL_KEYBOARD *wkeybd_get_keyboard(void)
+static ALLEGRO_KEYBOARD *wkeybd_get_keyboard(void)
 {
    return &the_keyboard;
 }
 
 
 
-/* wkeybd_get_state: [primary thread]
+/* wkeybd_get_keyboard_state: [primary thread]
  *  Copy the current keyboard state into RET_STATE, with any necessary locking.
  */
-static void wkeybd_get_state(AL_KBDSTATE *ret_state)
+static void wkeybd_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state)
 {
    _al_event_source_lock(&the_keyboard.es);
    {
@@ -638,8 +651,8 @@ static void handle_key_press(unsigned char scancode)
    int mycode;
    int unicode;
    bool is_repeat;
-   unsigned int event_type;
-   AL_EVENT *event;
+   ALLEGRO_EVENT_TYPE event_type;
+   ALLEGRO_EVENT *event;
    UINT vkey;
    BYTE keystate[256];
    WCHAR chars[16];
@@ -737,8 +750,8 @@ static void handle_key_press(unsigned char scancode)
    _AL_KBDSTATE_SET_KEY_DOWN(key_state, mycode);
 
    /* Generate key press/repeat events if necessary. */   
-   event_type = is_repeat ? AL_EVENT_KEY_REPEAT : AL_EVENT_KEY_DOWN;
-   if (!_al_event_source_needs_to_generate_event(&the_keyboard.es, event_type))
+   event_type = is_repeat ? ALLEGRO_EVENT_KEY_REPEAT : ALLEGRO_EVENT_KEY_DOWN;
+   if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
       return;
 
    event = _al_event_source_get_unused_event(&the_keyboard.es);
@@ -755,7 +768,7 @@ static void handle_key_press(unsigned char scancode)
    _al_event_source_emit_event(&the_keyboard.es, event);
 
    /* Set up auto-repeat emulation. */
-   if ((!is_repeat) && (mycode < AL_KEY_MODIFIERS)) {
+   if ((!is_repeat) && (mycode < ALLEGRO_KEY_MODIFIERS)) {
       key_scancode_to_repeat = scancode;
       SetWaitableTimer(key_autorepeat_timer, &repeat_delay, repeat_period,
                        NULL, NULL, /* completion routine and userdata */
@@ -772,7 +785,7 @@ static void handle_key_press(unsigned char scancode)
 static void handle_key_release(unsigned char scancode)
 {
    int mycode;
-   AL_EVENT *event;
+   ALLEGRO_EVENT *event;
 
    mycode = hw_to_mycode[scancode];
    if (mycode == 0)
@@ -797,14 +810,14 @@ static void handle_key_release(unsigned char scancode)
    }
 
    /* Generate key release events if necessary. */
-   if (!_al_event_source_needs_to_generate_event(&the_keyboard.es, AL_EVENT_KEY_UP))
+   if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
       return;
 
    event = _al_event_source_get_unused_event(&the_keyboard.es);
    if (!event)
       return;
 
-   event->keyboard.type = AL_EVENT_KEY_UP;
+   event->keyboard.type = ALLEGRO_EVENT_KEY_UP;
    event->keyboard.timestamp = al_current_time();
    event->keyboard.__display__dont_use_yet__ = NULL;
    event->keyboard.keycode = mycode;
@@ -814,7 +827,16 @@ static void handle_key_release(unsigned char scancode)
    _al_event_source_emit_event(&the_keyboard.es, event);
 }
 
-
+int key_dinput_set_cooperative_level(HWND wnd)
+{
+   /* Set cooperative level */
+   HRESULT hr = IDirectInputDevice_SetCooperativeLevel(key_dinput_device, wnd, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
+   if (FAILED(hr)) {
+      TRACE("IDirectInputDevice_SetCooperativeLevel failed.\n");
+      return 1;
+   }
+   return 0;
+}
 
 /*
  * Local Variables:

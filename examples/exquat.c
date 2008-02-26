@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
@@ -312,7 +312,7 @@ int main(void)
    /* the camera is backed away from the origin and turned to face it */
    get_camera_matrix_f(&camera, 5, 0, 0, -1, 0, 0, 0, 0, 1, 46, 1.33f);
 
-   /* this is a 'for'ever loop */
+   /* this is a for-ever loop */
    for (;;) {
       float t;
 
@@ -418,7 +418,7 @@ int main(void)
 	 blit(quat_buffer,  screen, 0, 0, 320, 120, 320, 240);
          release_bitmap(screen);
 
-	 rest (1);
+	 rest(1);
       }
 
       /* handle user input */

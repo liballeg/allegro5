@@ -16,15 +16,15 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 #if (ALLEGRO_ALSA_VERSION == 5) && (defined ALLEGRO_WITH_ALSADIGI) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
-#include "allegro/internal/aintern.h"
+#include "allegro5/internal/aintern.h"
 #ifdef ALLEGRO_QNX
-#include "allegro/platform/aintqnx.h"
+#include "allegro5/platform/aintqnx.h"
 #else
-#include "allegro/platform/aintunix.h"
+#include "allegro5/platform/aintunix.h"
 #endif
 
 #ifndef SCAN_DEPEND

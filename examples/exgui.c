@@ -10,22 +10,25 @@
 
 #include <stdio.h>
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 #include "example.h"
 
 
-/* maximum number of bytes a single (unicode) character can have */
-#define MAX_BYTES_PER_CHAR 6
+/* maximum number of bytes a single (Unicode) character can have */
+#define MAX_BYTES_PER_CHAR 4
+
 /* for the d_edit_proc object */
 #define LEN 32
 char the_string[(LEN + 1) * MAX_BYTES_PER_CHAR] = "Change Me!";
 
 /* for the d_text_box_proc object */
-char the_text[] = "I'm text inside a text box.\n\nI can have multiple \
-lines.\n\nIf I grow too big to fit into my box, I get a scrollbar to \
-the right, so you can scroll me in the vertical direction. I will never \
-let you scroll in the horizontal direction, but instead I will try to \
-word wrap the text.";
+char the_text[] =
+   "I'm text inside a text box.\n\n"
+   "I can have multiple lines.\n\n"
+   "If I grow too big to fit into my box, I get a scrollbar to "
+   "the right, so you can scroll me in the vertical direction. I will never "
+   "let you scroll in the horizontal direction, but instead I will try to "
+   "word wrap the text.";
 
 /* for the multiple selection list */
 char sel[10];
@@ -48,8 +51,9 @@ char *listbox_getter(int index, int *list_size)
       *list_size = 11;
       return NULL;
    }
-   else
+   else {
       return strings[index]; 
+   }
 }
 
 
@@ -68,9 +72,9 @@ int quit(void)
 /* A custom dialog procedure, derived from d_button_proc. It intercepts
  * the D_CLOSE return of d_button_proc, and calls the function in dp3.
  */
-int my_button_proc (int msg, DIALOG *d, int c)
+int my_button_proc(int msg, DIALOG *d, int c)
 {
-   int ret = d_button_proc (msg, d, c);
+   int ret = d_button_proc(msg, d, c);
    if (ret == D_CLOSE && d->dp3)
       return ((int (*)(void))d->dp3)();
    return ret;
@@ -94,8 +98,9 @@ int about(void)
 int menu_callback(void)
 {
    char str[256];
-   ustrzcpy (str, sizeof str, active_menu->text);
-   alert("Selected menu item:", "", ustrtok (str, "\t"), "Ok", NULL, 0, 0);
+
+   ustrzcpy(str, sizeof str, active_menu->text);
+   alert("Selected menu item:", "", ustrtok(str, "\t"), "Ok", NULL, 0, 0);
    return D_O_K;
 }
 
@@ -109,6 +114,7 @@ int check_callback(void)
       active_menu->text = "Checked";
    else
       active_menu->text = "Unchecked";
+
    alert("Menu item has been toggled!", NULL, NULL, "Ok", NULL, 0, 0);
    return D_O_K;
 }
@@ -118,7 +124,6 @@ int check_callback(void)
 /* the submenu */
 MENU submenu[] =
 {
-   
    { "Submenu",            NULL,   NULL, D_DISABLED,       NULL  },
    { "",                   NULL,   NULL, 0,                NULL  },
    { "Checked",  check_callback,   NULL, D_SELECTED,       NULL  },
@@ -130,7 +135,6 @@ MENU submenu[] =
 /* the first menu in the menubar */
 MENU menu1[] =
 {
-   
    { "Test &1 \t1", menu_callback,  NULL,      0,  NULL  },
    { "Test &2 \t2", menu_callback,  NULL,      0,  NULL  },
    { "&Quit \tq/Esc",        quit,  NULL,      0,  NULL  },
@@ -142,7 +146,6 @@ MENU menu1[] =
 /* the second menu in the menubar */
 MENU menu2[] =
 {
-   
    { "&Test",    menu_callback,     NULL,   0,  NULL  },
    { "&Submenu",          NULL,  submenu,   0,  NULL  },
    { NULL,                NULL,     NULL,   0,  NULL  }
@@ -153,7 +156,6 @@ MENU menu2[] =
 /* the help menu */
 MENU helpmenu[] =
 {
-   
    { "&About \tF1",     about,  NULL,      0,  NULL  },
    { NULL,               NULL,  NULL,      0,  NULL  }
 };
@@ -163,7 +165,6 @@ MENU helpmenu[] =
 /* the main menu-bar */
 MENU the_menu[] =
 {
-   
    { "&First",  NULL,   menu1,          0,      NULL  },
    { "&Second", NULL,   menu2,          0,      NULL  },
    { "&Help",   NULL,   helpmenu,       0,      NULL  },
@@ -172,9 +173,10 @@ MENU the_menu[] =
 
 
 
-int info1(void);
-int info2(void);
-int info3(void);
+extern int info1(void);
+extern int info2(void);
+extern int info3(void);
+
 #define LIST_OBJECT     26
 #define TEXTLIST_OBJECT 27
 #define SLIDER_OBJECT   29
@@ -253,41 +255,45 @@ int info1(void)
    char buf1[256];
    char buf2[256] = "";
    int i, s = 0, n;
+
    listbox_getter(-1, &n);
    /* query the list proc */
-   for (i = 0; i < n; i++)
+   for (i = 0; i < n; i++) {
       if (sel[i]) {
-         uszprintf (buf1, sizeof buf1, "%i ", i);
-         ustrzcat (buf2, sizeof buf2, buf1);
+         uszprintf(buf1, sizeof buf1, "%i ", i);
+         ustrzcat(buf2, sizeof buf2, buf1);
          s = 1;
       }
+   }
    if (s)
-      ustrzcat (buf2, sizeof buf2, "are in the multiple selection!");
+      ustrzcat(buf2, sizeof buf2, "are in the multiple selection!");
    else
-      ustrzcat (buf2, sizeof buf2, "There is no multiple selection!");
-   uszprintf (buf1, sizeof buf1, "Item number %i is selected!",
+      ustrzcat(buf2, sizeof buf2, "There is no multiple selection!");
+   uszprintf(buf1, sizeof buf1, "Item number %i is selected!",
       the_dialog[LIST_OBJECT].d1);
-   alert ("Info about the list:", buf1, buf2, "Ok", NULL, 0, 0);
+   alert("Info about the list:", buf1, buf2, "Ok", NULL, 0, 0);
    return D_O_K;
 }
 
 int info2(void)
 {
    char buf[256];
+
    /* query the textlist proc */
-   uszprintf (buf, sizeof buf, "Item number %i is selected!",
+   uszprintf(buf, sizeof buf, "Item number %i is selected!",
       the_dialog[TEXTLIST_OBJECT].d1);
-   alert ("Info about the text list:", NULL, buf, "Ok", NULL, 0, 0);
+   alert("Info about the text list:", NULL, buf, "Ok", NULL, 0, 0);
    return D_O_K;
 }
 
 int info3(void)
 {
    char buf[256];
+
    /* query the slider proc */
-   uszprintf (buf, sizeof buf, "Slider position is %i!",
+   uszprintf(buf, sizeof buf, "Slider position is %i!",
      the_dialog[SLIDER_OBJECT].d2);
-   alert ("Info about the slider:", NULL, buf, "Ok", NULL, 0, 0);
+   alert("Info about the slider:", NULL, buf, "Ok", NULL, 0, 0);
    return D_O_K;
 }
 
@@ -305,7 +311,7 @@ int main(int argc, char *argv[])
    install_mouse();
    install_timer();
 
-   if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, 640, 480, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
 	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
@@ -328,27 +334,30 @@ int main(int argc, char *argv[])
    gui_fg_color = makecol(0, 0, 0);
    gui_mg_color = makecol(128, 128, 128);
    gui_bg_color = makecol(200, 240, 200);
-   set_dialog_color (the_dialog, gui_fg_color, gui_bg_color);
+   set_dialog_color(the_dialog, gui_fg_color, gui_bg_color);
 
    /* white color for d_clear_proc and the d_?text_procs */
    the_dialog[0].bg = makecol(255, 255, 255);
-   for (i = 4; the_dialog[i].proc; i++)
+   for (i = 4; the_dialog[i].proc; i++) {
       if (the_dialog[i].proc == d_text_proc ||
           the_dialog[i].proc == d_ctext_proc ||
           the_dialog[i].proc == d_rtext_proc)
+      {
          the_dialog[i].bg = the_dialog[0].bg;
+      }
+   }
    
    /* fill in bitmap pointers */
    the_dialog[BITMAP_OBJECT].dp = datafile[SILLY_BITMAP].dat;
    the_dialog[ICON_OBJECT].dp = datafile[SILLY_BITMAP].dat;
    
    /* shift the dialog 2 pixels away from the border */
-   position_dialog (the_dialog, 2, 2);
+   position_dialog(the_dialog, 2, 2);
    
    /* do the dialog */
    do_dialog(the_dialog, -1);
 
-   unload_datafile (datafile);
+   unload_datafile(datafile);
    
    return 0;
 }

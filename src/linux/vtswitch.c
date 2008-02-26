@@ -23,16 +23,16 @@
 #include <sys/ioctl.h>
 #include <linux/vt.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
-#include "linalleg.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
+#include "allegro5/linalleg.h"
 
-#ifdef HAVE_MMAP
+#ifdef ALLEGRO_HAVE_MMAP
 #include <sys/mman.h>
 #endif
 
-#if !defined(_POSIX_MAPPED_FILES) || !defined(HAVE_MMAP)
+#if !defined(_POSIX_MAPPED_FILES) || !defined(ALLEGRO_HAVE_MMAP)
 #error "Sorry, mapped files are required for Allegro/Linux to work!"
 #endif
 
@@ -76,7 +76,7 @@ static void go_away(void)
 		_al_suspend_old_timer_emulation();
 
 	/* Disable input devices while we're away */
-	__al_linux_suspend_standard_drivers();
+	/* __al_linux_suspend_standard_drivers(); */
 
 	_save_switch_state(switch_mode);
 
@@ -113,7 +113,7 @@ static void come_back(void)
 	ioctl(__al_linux_console_fd, VT_RELDISP, VT_ACKACQ);
 	console_active = 1;
 
-	__al_linux_resume_standard_drivers();
+	/* __al_linux_resume_standard_drivers(); */
 
 	_unix_bg_man->enable_interrupts();
 

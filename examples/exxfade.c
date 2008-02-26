@@ -3,15 +3,15 @@
  *
  *    This program demonstrates how to load and display bitmap files
  *    in truecolor video modes, and how to crossfade between them.
- *    You have to use this example from the commandline to specify
+ *    You have to use this example from the command line to specify
  *    as parameters a number of graphic files. Use at least two
  *    files to see the graphical effect. The example will crossfade
- *    from one image to another with each keypress until you press
+ *    from one image to another with each key press until you press
  *    the ESC key.
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 

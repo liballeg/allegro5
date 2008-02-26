@@ -16,7 +16,7 @@
  */
 
 
-#include "allegro/internal/alconfig.h"
+#include "allegro5/internal/alconfig.h"
 
 #ifdef ALLEGRO_WITH_MAGIC_MAIN
 

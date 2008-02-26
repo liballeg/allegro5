@@ -165,7 +165,7 @@ int gfx_directx_setup_driver(GFX_DRIVER *drv, int w, int h, int color_depth)
    drv->h = h;
    drv->linear = 1;
    ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY;
-   IDirectDraw2_GetAvailableVidMem(directdraw, &ddsCaps, &drv->vid_mem, NULL);
+   IDirectDraw2_GetAvailableVidMem(directdraw, &ddsCaps, (unsigned long *)&drv->vid_mem, NULL);
    drv->vid_mem += w * h * BYTES_PER_PIXEL(color_depth);
 
    /* create our pseudo surface memory */
@@ -189,7 +189,7 @@ int gfx_directx_setup_driver(GFX_DRIVER *drv, int w, int h, int color_depth)
 int finalize_directx_init(void)
 {
    HRESULT hr;
-   long int freq;
+   unsigned long int freq;
 
    /* set current refresh rate */
    hr = IDirectDraw2_GetMonitorFrequency(directdraw, &freq);
@@ -367,146 +367,33 @@ void gfx_directx_exit(struct BITMAP *bmp)
 
 
 
-static HCURSOR hcursor = NULL;
-static HBITMAP and_mask = NULL;
-static HBITMAP xor_mask = NULL;
+/*****************************************************************************/
+/* Mouse cursors                                                             */
+/*****************************************************************************/
 
-/* gfx_directx_set_mouse_sprite:
- *  Create a Windows system cursor from the specified bitmap
- */
-int gfx_directx_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus)
+
+
+struct ALLEGRO_MOUSE_CURSOR
 {
-   int mask_color;
-   int x, y;
-   int sys_sm_cx, sys_sm_cy;
-   HDC h_dc;
-   HDC h_and_dc;
-   HDC h_xor_dc;
-   ICONINFO iconinfo;
-   HBITMAP hOldAndMaskBitmap;
-   HBITMAP hOldXorMaskBitmap;
-   HWND allegro_wnd = win_get_window();
+   HCURSOR hcursor;
+};
 
-   if (hcursor) {
-      if (_win_hcursor == hcursor)
-         _win_hcursor = NULL;
-      DestroyIcon(hcursor);
-      hcursor = NULL;
-   }
+static HCURSOR selected_cursor = NULL;
+#define CURSOR_SHOWN (_win_hcursor == NULL ? false : true)
 
-   if (and_mask) {
-      DeleteObject(and_mask);
-      and_mask = NULL;
-   }
-
-   if (xor_mask) {
-      DeleteObject(xor_mask);
-      xor_mask = NULL;
-   }
-
-   /* Get allowed cursor size - Windows can't make cursors of arbitrary size */
-   sys_sm_cx = GetSystemMetrics(SM_CXCURSOR);
-   sys_sm_cy = GetSystemMetrics(SM_CYCURSOR);
-
-   /* Test if we can make a cursor compatible with the one requested */
-   if (sprite && (sprite->w <= sys_sm_cx) && (sprite->h <= sys_sm_cy)) {
-      /* Create bitmap */
-      h_dc = GetDC(allegro_wnd);
-      h_xor_dc = CreateCompatibleDC(h_dc);
-      h_and_dc = CreateCompatibleDC(h_dc);
-
-      /* Prepare AND (monochrome) and XOR (colour) mask */
-      and_mask = CreateBitmap(sys_sm_cx, sys_sm_cy, 1, 1, NULL);
-      xor_mask = CreateCompatibleBitmap(h_dc, sys_sm_cx, sys_sm_cy);
-      hOldAndMaskBitmap = SelectObject(h_and_dc, and_mask);
-      hOldXorMaskBitmap = SelectObject(h_xor_dc, xor_mask);
-
-      /* Create transparent cursor */
-      for (y = 0; y < sys_sm_cy; y++) {
-         for (x = 0; x < sys_sm_cx; x++) {
-	    SetPixel(h_and_dc, x, y, WINDOWS_RGB(255, 255, 255));
-	    SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
-	 }
-      }
-      draw_to_hdc(h_xor_dc, sprite, 0, 0);
-      mask_color = bitmap_mask_color(sprite);
-
-      /* Make cursor background transparent */
-      for (y = 0; y < sprite->h; y++) {
-         for (x = 0; x < sprite->w; x++) {
-	    if (getpixel(sprite, x, y) != mask_color) {
-	       /* Don't touch XOR value */
-	       SetPixel(h_and_dc, x, y, 0);
-	    }
-	    else {
-	       /* No need to touch AND value */
-	       SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
-	    }
-	 }
-      }
-
-      SelectObject(h_and_dc, hOldAndMaskBitmap);
-      SelectObject(h_xor_dc, hOldXorMaskBitmap);
-      DeleteDC(h_and_dc);
-      DeleteDC(h_xor_dc);
-      ReleaseDC(allegro_wnd, h_dc);
-
-      iconinfo.fIcon = FALSE;
-      iconinfo.xHotspot = xfocus;
-      iconinfo.yHotspot = yfocus;
-      iconinfo.hbmMask = and_mask;
-      iconinfo.hbmColor = xor_mask;
-
-      hcursor = CreateIconIndirect(&iconinfo);
-      return 0;
-   }
-
-   return -1;
-}
-
-
-
-/* gfx_directx_show_mouse:
- *  Switch the Windows cursor to a hardware cursor
+/* `_win_hcursor' points to the cursor being shown or NULL if no cursor is
+ * shown.  `selected_cursor' always points to the currently selected cursor,
+ * whether it is hidden or shown.
  */
-int gfx_directx_show_mouse(struct BITMAP *bmp, int x, int y)
-{
-   if (hcursor) {
-      _win_hcursor = hcursor;
-   }
-   if (_win_hcursor) {
-      POINT p;
-
-      SetCursor(_win_hcursor);
-      /* Windows is too stupid to actually display the mouse pointer when we
-       * change it and waits until it is moved, so we have to generate a fake
-       * mouse move to actually show the cursor.
-       */
-      GetCursorPos(&p);
-      SetCursorPos(p.x, p.y);
-      return 0;
-   }
-
-   return -1;
-}
 
 
-/* gfx_directx_hide_mouse:
- *  Hide the hardware cursor
- */
-void gfx_directx_hide_mouse(void)
+
+static void MySetCursor(HCURSOR hcursor)
 {
    POINT p;
 
-   /* We need to destroy the custom cursor image too, otherwise Allegro will
-    * get confused when we try to display a system cursor.
-    */
-   if (hcursor) {
-      DestroyIcon(hcursor);
-      hcursor = NULL;
-   }
-   _win_hcursor = NULL;
-   SetCursor(NULL);
+   _win_hcursor = hcursor;
+   SetCursor(_win_hcursor);
 
    /* Windows is too stupid to actually display the mouse pointer when we
     * change it and waits until it is moved, so we have to generate a fake
@@ -518,10 +405,191 @@ void gfx_directx_hide_mouse(void)
 
 
 
-/* gfx_directx_move_mouse:
- *  Move the hardware cursor (not needed)
- */
-void gfx_directx_move_mouse(int x, int y)
+static HCURSOR _al_win_directx_create_mouse_hcursor(struct BITMAP *sprite, int xfocus, int yfocus)
 {
+   int mask_color;
+   int x, y;
+   int sys_sm_cx, sys_sm_cy;
+   HDC h_dc;
+   HDC h_and_dc;
+   HDC h_xor_dc;
+   ICONINFO iconinfo;
+   HBITMAP and_mask;
+   HBITMAP xor_mask;
+   HBITMAP hOldAndMaskBitmap;
+   HBITMAP hOldXorMaskBitmap;
+   HCURSOR hcursor;
+   HWND allegro_wnd = win_get_window();
+
+   /* Get allowed cursor size - Windows can't make cursors of arbitrary size */
+   sys_sm_cx = GetSystemMetrics(SM_CXCURSOR);
+   sys_sm_cy = GetSystemMetrics(SM_CYCURSOR);
+
+   if ((sprite->w > sys_sm_cx) || (sprite->h > sys_sm_cy)) {
+      return NULL;
+   }
+
+   /* Create bitmap */
+   h_dc = GetDC(allegro_wnd);
+   h_xor_dc = CreateCompatibleDC(h_dc);
+   h_and_dc = CreateCompatibleDC(h_dc);
+
+   /* Prepare AND (monochrome) and XOR (colour) mask */
+   and_mask = CreateBitmap(sys_sm_cx, sys_sm_cy, 1, 1, NULL);
+   xor_mask = CreateCompatibleBitmap(h_dc, sys_sm_cx, sys_sm_cy);
+   hOldAndMaskBitmap = SelectObject(h_and_dc, and_mask);
+   hOldXorMaskBitmap = SelectObject(h_xor_dc, xor_mask);
+
+   /* Create transparent cursor */
+   for (y = 0; y < sys_sm_cy; y++) {
+      for (x = 0; x < sys_sm_cx; x++) {
+	 SetPixel(h_and_dc, x, y, WINDOWS_RGB(255, 255, 255));
+	 SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
+      }
+   }
+   draw_to_hdc(h_xor_dc, sprite, 0, 0);
+   mask_color = bitmap_mask_color(sprite);
+
+   /* Make cursor background transparent */
+   for (y = 0; y < sprite->h; y++) {
+      for (x = 0; x < sprite->w; x++) {
+	 if (getpixel(sprite, x, y) != mask_color) {
+	    /* Don't touch XOR value */
+	    SetPixel(h_and_dc, x, y, 0);
+	 }
+	 else {
+	    /* No need to touch AND value */
+	    SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
+	 }
+      }
+   }
+
+   SelectObject(h_and_dc, hOldAndMaskBitmap);
+   SelectObject(h_xor_dc, hOldXorMaskBitmap);
+   DeleteDC(h_and_dc);
+   DeleteDC(h_xor_dc);
+   ReleaseDC(allegro_wnd, h_dc);
+
+   iconinfo.fIcon = FALSE;
+   iconinfo.xHotspot = xfocus;
+   iconinfo.yHotspot = yfocus;
+   iconinfo.hbmMask = and_mask;
+   iconinfo.hbmColor = xor_mask;
+
+   hcursor = CreateIconIndirect(&iconinfo);
+
+   DeleteObject(and_mask);
+   DeleteObject(xor_mask);
+
+   return hcursor;
 }
 
+
+
+ALLEGRO_MOUSE_CURSOR *_al_win_directx_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus)
+{
+   HCURSOR hcursor;
+   ALLEGRO_MOUSE_CURSOR *wrapper;
+
+   hcursor = _al_win_directx_create_mouse_hcursor(sprite, xfocus, yfocus);
+   if (!hcursor) {
+      return NULL;
+   }
+
+   wrapper = _AL_MALLOC(sizeof *wrapper);
+   if (!wrapper) {
+      DestroyIcon(hcursor);
+      return NULL;
+   }
+
+   wrapper->hcursor = hcursor;
+   return wrapper;
+}
+
+
+
+void _al_win_directx_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *wrapper)
+{
+   ASSERT(wrapper->hcursor);
+
+   if (wrapper->hcursor == selected_cursor) {
+      al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+      ASSERT(wrapper->hcursor != selected_cursor);
+   }
+
+   DestroyIcon(wrapper->hcursor);
+   _AL_FREE(wrapper);
+}
+
+
+
+bool _al_win_directx_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *wrapper)
+{
+   ASSERT(wrapper);
+   ASSERT(wrapper->hcursor);
+
+   selected_cursor = wrapper->hcursor;
+
+   if (CURSOR_SHOWN) {
+      MySetCursor(selected_cursor);
+   }
+   
+   return true;
+}
+
+
+
+bool _al_win_directx_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+{
+   HCURSOR wc;
+   HWND allegro_wnd = win_get_window();
+
+   wc = NULL;
+   switch (cursor_id) {
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
+         wc = LoadCursor(NULL, IDC_ARROW);
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY:
+         wc = LoadCursor(NULL, IDC_WAIT);
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION:
+         wc = LoadCursor(NULL, IDC_HELP);
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT:
+         wc = LoadCursor(NULL, IDC_IBEAM);
+         break;
+      default:
+	 return false;
+   }
+
+   ASSERT(wc);
+   selected_cursor = wc;
+
+   if (CURSOR_SHOWN) {
+      MySetCursor(selected_cursor);
+      PostMessage(allegro_wnd, WM_MOUSEMOVE, 0, 0);
+   }
+
+   return true;
+}
+
+
+
+bool _al_win_directx_show_mouse_cursor(void)
+{
+   if (!selected_cursor) {
+      al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+      ASSERT(selected_cursor);
+   }
+
+   MySetCursor(selected_cursor);
+   return true;
+}
+
+
+
+bool _al_win_directx_hide_mouse_cursor(void)
+{
+   MySetCursor(NULL);
+   return true;
+}

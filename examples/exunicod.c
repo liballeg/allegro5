@@ -14,7 +14,7 @@
 
 
 #include <stdlib.h>
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 #define DATAFILE_NAME   "unifont.dat"
 
@@ -86,10 +86,8 @@ char message_de[] = "\x00\x57\x00\x69\x00\x6c\x00\x6c\x00\x6b\x00\x6f\x00\x6d\x0
 
 char allegro_str[] = "\x00\x41\x00\x6c\x00\x6c\x00\x65\x00\x67\x00\x72\x00\x6f\x00\x00";
 
-#else
-   #ifndef SCAN_DEPEND
+#elif !defined SCAN_DEPEND
    #error endianess not defined
-   #endif
 #endif
 
 
@@ -267,6 +265,8 @@ int main(int argc, char *argv[])
          rest(10); /* We are too fast, give time to the OS. */
       }
    }
+
+   destroy_bitmap(buffer);
 
    unload_datafile(data);
 

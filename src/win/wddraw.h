@@ -21,9 +21,9 @@
 
 #define DIRECTDRAW_VERSION 0x0300
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #ifdef ALLEGRO_BCC32
@@ -85,10 +85,12 @@ AL_FUNC(int, gfx_directx_request_video_bitmap, (BITMAP *bmp));
 AL_FUNC(BITMAP *, gfx_directx_create_system_bitmap, (int width, int height));
 AL_FUNC(void, gfx_directx_destroy_system_bitmap, (BITMAP *bmp));
 AL_FUNC(GFX_MODE_LIST *, gfx_directx_fetch_mode_list, (void));
-AL_FUNC(int, gfx_directx_set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));
-AL_FUNC(int, gfx_directx_show_mouse, (struct BITMAP *bmp, int x, int y));
-AL_FUNC(void, gfx_directx_hide_mouse, (void));
-AL_FUNC(void, gfx_directx_move_mouse, (int x, int y));
+AL_FUNC(ALLEGRO_MOUSE_CURSOR *, _al_win_directx_create_mouse_cursor, (struct BITMAP *sprite, int xfocus, int yfocus));
+AL_FUNC(void, _al_win_directx_destroy_mouse_cursor, (ALLEGRO_MOUSE_CURSOR *wrapper));
+AL_FUNC(bool, _al_win_directx_set_mouse_cursor, (ALLEGRO_MOUSE_CURSOR *wrapper));
+AL_FUNC(bool, _al_win_directx_set_system_mouse_cursor, (ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id));
+AL_FUNC(bool, _al_win_directx_show_mouse_cursor, (void));
+AL_FUNC(bool, _al_win_directx_hide_mouse_cursor, (void));
 
 
 /* driver initialisation and shutdown (from wddraw.c) */
@@ -116,18 +118,23 @@ AL_FUNC(int, gfx_directx_update_color_format, (DDRAW_SURFACE *surf, int color_de
 AL_FUNC(int, set_video_mode, (int w, int h, int v_w, int v_h, int color_depth));
 
 
-/* bitmap locking (from wddlock.c and asmlock.s) */
+/* bitmap locking (from wddlock.c and wgdi.c and possibly asmlock.s) */
 AL_FUNC(void, gfx_directx_lock, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_autolock, (BITMAP* bmp));
 AL_FUNC(void, gfx_directx_unlock, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_unlock_win, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_release_lock, (BITMAP * bmp));
-AL_FUNC(void, gfx_directx_write_bank, (void));
-AL_FUNC(void, gfx_directx_unwrite_bank, (void));
-AL_FUNC(void, gfx_directx_write_bank_win, (void));
-AL_FUNC(void, gfx_directx_unwrite_bank_win, (void));
-AL_FUNCPTR(void, ptr_gfx_directx_autolock, (BITMAP* bmp));
-AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
+AL_FUNC(uintptr_t, gfx_directx_write_bank, (BITMAP *bmp, int line));
+AL_FUNC(void,      gfx_directx_unwrite_bank, (BITMAP *bmp));
+AL_FUNC(uintptr_t, gfx_directx_write_bank_win, (BITMAP *bmp, int line));
+AL_FUNC(void,      gfx_directx_unwrite_bank_win, (BITMAP *bmp));
+AL_FUNC(void,      gfx_gdi_autolock, (struct BITMAP* bmp));
+AL_FUNC(void,      gfx_gdi_unlock, (struct BITMAP* bmp));
+AL_FUNC(uintptr_t, gfx_gdi_write_bank, (BITMAP *bmp, int line));
+AL_FUNC(void,      gfx_gdi_unwrite_bank, (BITMAP *bmp));
+/* dirty window updating (from wddwin.c, used in wddlock.c or asmlock.s) */
+AL_VAR(char *,     _al_wd_dirty_lines);
+AL_FUNCPTR(void,   _al_wd_update_window, (RECT *rect));
 
 
 /* bitmap creation (from wddbmp.c) */

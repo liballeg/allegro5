@@ -2,7 +2,7 @@
  *    Example program for the Allegro library, by Grzegorz Adam Hankiewicz.
  *
  *    This program demonstrates how to access the contents of an Allegro
- *    datafile (created by the grabber utility) linked to the exe by the
+ *    datafile (created by the grabber utility) linked to the executable by the
  *    exedat tool. It is basically the exdata example with minor
  *    modifications.
  *
@@ -18,11 +18,11 @@
  *    3) Finally run your program.
  *
  *    Note that appending data to the end of binaries may not be portable
- *    accross all platforms supported by Allegro.
+ *    across all platforms supported by Allegro.
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 /* the grabber produces this header, which contains defines for the names

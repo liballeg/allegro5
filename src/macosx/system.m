@@ -1,6 +1,6 @@
-/*         ______   ___    ___
- *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+/*         ______   ___    ___ 
+ *        /\  _  \ /\_ \  /\_ \ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -16,16 +16,18 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintosx.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/internal/aintern_system.h"
+#include "allegro5/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
    #error something is wrong with the makefile
 #endif
 
 #ifndef SCAN_DEPEND
-#include <CoreFoundation/CoreFoundation.h>
+#import <CoreFoundation/CoreFoundation.h>
 #include <mach/mach_port.h>
 #include <servers/bootstrap.h>
 #endif
@@ -43,7 +45,8 @@ extern OSErr CPSSetFrontProcess(struct CPSProcessSerNum *psn);
 
 
 
-static int osx_sys_init(void);
+static ALLEGRO_SYSTEM* osx_sys_init(int flags);
+ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void);
 static void osx_sys_exit(void);
 static void osx_sys_message(AL_CONST char *);
 static void osx_sys_get_executable_name(char *, int);
@@ -60,30 +63,23 @@ static int osx_sys_get_desktop_resolution(int *width, int *height);
 int    __crt0_argc;
 char **__crt0_argv;
 NSBundle *osx_bundle = NULL;
-_AL_MUTEX osx_event_mutex;
+struct _AL_MUTEX osx_event_mutex;
 NSCursor *osx_cursor = NULL;
 NSCursor *osx_blank_cursor = NULL;
-AllegroWindow *osx_window = NULL;
+//AllegroWindow *osx_window = NULL;
 char osx_window_title[ALLEGRO_MESSAGE_SIZE];
 void (*osx_window_close_hook)(void) = NULL;
 int osx_gfx_mode = OSX_GFX_NONE;
 int osx_emulate_mouse_buttons = FALSE;
 int osx_window_first_expose = FALSE;
+static ALLEGRO_SYSTEM osx_system;
 
-
-static RETSIGTYPE (*old_sig_abrt)(int num);
-static RETSIGTYPE (*old_sig_fpe)(int num);
-static RETSIGTYPE (*old_sig_ill)(int num);
-static RETSIGTYPE (*old_sig_segv)(int num);
-static RETSIGTYPE (*old_sig_term)(int num);
-static RETSIGTYPE (*old_sig_int)(int num);
-static RETSIGTYPE (*old_sig_quit)(int num);
-
-static unsigned char *cursor_data = NULL;
-static NSBitmapImageRep *cursor_rep = NULL;
-static NSImage *cursor_image = NULL;
 static int skip_events_processing = FALSE;
 
+/* Stub, do nothing */
+static int osx_sys_init_compat(void) {
+	return 0;
+}
 
 SYSTEM_DRIVER system_macosx =
 {
@@ -91,10 +87,9 @@ SYSTEM_DRIVER system_macosx =
    empty_string,
    empty_string,
    "MacOS X",
-   osx_sys_init,
+   osx_sys_init_compat,
    osx_sys_exit,
    osx_sys_get_executable_name,
-   osx_sys_get_path, /* <Thomas> see defn. */
    osx_sys_find_resource,
    osx_sys_set_window_title,
    osx_sys_set_close_button_callback,
@@ -115,7 +110,7 @@ SYSTEM_DRIVER system_macosx =
    osx_sys_desktop_color_depth,
    osx_sys_get_desktop_resolution,
    osx_sys_get_gfx_safe_mode,
-   _unix_yield_timeslice,
+   NULL,
    NULL,  /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
    NULL,  /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
    NULL,  /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
@@ -125,6 +120,10 @@ SYSTEM_DRIVER system_macosx =
 };
 
 
+_DRIVER_INFO _system_driver_list[] = {
+{1, &system_macosx, TRUE },
+{0, NULL, FALSE},
+};
 
 /* osx_signal_handler:
  *  Used to trap various signals, to make sure things get shut down cleanly.
@@ -132,225 +131,23 @@ SYSTEM_DRIVER system_macosx =
 static RETSIGTYPE osx_signal_handler(int num)
 {
    _al_mutex_unlock(&osx_event_mutex);
-   _al_mutex_unlock(&osx_window_mutex);
-
+   //_al_mutex_unlock(&osx_window_mutex);
+   
    allegro_exit();
-
+   
    _al_mutex_destroy(&osx_event_mutex);
-   _al_mutex_destroy(&osx_window_mutex);
-
+   //_al_mutex_destroy(&osx_window_mutex);
+   
    fprintf(stderr, "Shutting down Allegro due to signal #%d\n", num);
    raise(num);
 }
-
-
-
-/* osx_event_handler:
- *  Event handling function; gets repeatedly called inside a dedicated thread.
- */
-void osx_event_handler()
-{
-   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-   NSEvent *event;
-   NSDate *distant_past = [NSDate distantPast];
-   NSPoint point;
-   NSRect frame;
-   CGMouseDelta fdx, fdy;
-   int dx = 0, dy = 0, dz = 0;
-   int mx=_mouse_x;
-   int my=_mouse_y;
-   static int buttons = 0;
-   int old_buttons = buttons;
-   int event_type;
-   BOOL gotmouseevent = NO;
-
-   while ((event = [NSApp nextEventMatchingMask: NSAnyEventMask
-         untilDate: distant_past
-         inMode: NSDefaultRunLoopMode
-         dequeue: YES]) != nil)
-     {
-      if ((skip_events_processing) || (osx_gfx_mode == OSX_GFX_NONE)) {
-         [NSApp sendEvent: event];
-	 continue;
-      }
-
-      point = [event locationInWindow];
-      if (osx_window)
-      {
-	 frame = [[osx_window contentView] frame];
-      }
-      else
-      {
-	 frame = [[NSScreen mainScreen] frame];
-      }
-      event_type = [event type];
-      switch (event_type) {
-
-//         case NSKeyDown:
-//	    if (_keyboard_installed)
-//	       osx_keyboard_handler(TRUE, event);
-//	    if ([event modifierFlags] & NSCommandKeyMask)
-//	       [NSApp sendEvent: event];
-//	    break;
-
-//         case NSKeyUp:
-//	    if (_keyboard_installed)
-//	       osx_keyboard_handler(FALSE, event);
-//	    if ([event modifierFlags] & NSCommandKeyMask)
-//	       [NSApp sendEvent: event];
-//	    break;
-
-//          case NSFlagsChanged:
-// 	    break;
-
-         case NSLeftMouseDown:
-         case NSOtherMouseDown:
-         case NSRightMouseDown:
-	    if (![NSApp isActive]) {
-	       /* App is regaining focus */
-	       if (_mouse_installed) {
-	          if ((osx_window) && (NSPointInRect(point, NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h)))) {
-                     mx = point.x;
-	             my = frame.size.height - point.y;
-		     buttons = 0;
-                     _mouse_on = TRUE;
-	          }
-	       }
-	       if (osx_window)
-                  [osx_window invalidateCursorRectsForView: [osx_window contentView]];
-	       if (_keyboard_installed)
-	          osx_keyboard_focused(TRUE, 0);
-	       _switch_in();
-	       gotmouseevent = YES;
-	       [NSApp sendEvent: event];
-	       break;
-	    }
-	    /* fallthrough */
-         case NSLeftMouseUp:
-         case NSOtherMouseUp:
-         case NSRightMouseUp:
-	    if (osx_emulate_mouse_buttons) {
-	       if (event_type == NSLeftMouseDown) {
-                  if ((!osx_window) || (NSPointInRect(point, NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h)))) {
-		     buttons = 0x1;
-		     if (key[KEY_ALT])
-		        buttons = 0x4;
-		     if (key[KEY_LCONTROL])
-		        buttons = 0x2;
-		  }
-	       }
-	       else if (event_type == NSLeftMouseUp)
-	          buttons &= ~0x7;
-	    }
-	    else {
-	       if ((!osx_window) || (NSPointInRect(point, NSMakeRect(0, 0, gfx_driver->w, gfx_driver->h)))) {
-	          /* Deliver mouse downs only if cursor is on the window */
-	          buttons |= ((event_type == NSLeftMouseDown) ? 0x1 : 0);
-	          buttons |= ((event_type == NSRightMouseDown) ? 0x2 : 0);
-	          buttons |= ((event_type == NSOtherMouseDown) ? 0x4 : 0);
-	       }
-	       buttons &= ~((event_type == NSLeftMouseUp) ? 0x1 : 0);
-	       buttons &= ~((event_type == NSRightMouseUp) ? 0x2 : 0);
-	       buttons &= ~((event_type == NSOtherMouseUp) ? 0x4 : 0);
-	    }
-	    gotmouseevent = YES;
-	    [NSApp sendEvent: event];
-	    break;
-
-         case NSLeftMouseDragged:
-         case NSRightMouseDragged:
-         case NSOtherMouseDragged:
-         case NSMouseMoved:
-	    dx += [event deltaX];
-	    dy += [event deltaY];
-
-	    mx=point.x;
-	    my=frame.size.height-point.y;
-
-	    [NSApp sendEvent: event];
-	    gotmouseevent = YES;
-	    break;
-
-         case NSScrollWheel:
-	    dz += [event deltaY];
-	    gotmouseevent = YES;
-            break;
-
-	 case NSMouseEntered:
-	    if (([event trackingNumber] == osx_mouse_tracking_rect) && ([NSApp isActive])) {
-	       if (_mouse_installed) {
-		  mx = point.x;
-	          my = frame.size.height - point.y;
-		  buttons = 0;
-                  _mouse_on = TRUE;
-		  gotmouseevent = YES;
-	       }
-	    }
-	    [NSApp sendEvent: event];
-	    break;
-
-	 case NSMouseExited:
-	    if ([event trackingNumber] == osx_mouse_tracking_rect) {
-	       if (_mouse_installed) {
-	          _mouse_on = FALSE;
-		  gotmouseevent = YES;
-	       }
-	    }
-            [NSApp sendEvent: event];
-	    break;
-
-	 case NSAppKitDefined:
-            switch ([event subtype]) {
-               case NSApplicationActivatedEventType:
-	          if (osx_window) {
-		     [osx_window invalidateCursorRectsForView: [osx_window contentView]];
-                     if (_keyboard_installed)
-	                osx_keyboard_focused(TRUE, 0);
-		  }
-		  _switch_in();
-                  break;
-
-               case NSApplicationDeactivatedEventType:
-		  if (osx_window && _keyboard_installed)
-		     osx_keyboard_focused(FALSE, 0);
-		  _switch_out();
-                  break;
-
-	       case NSWindowMovedEventType:
-                  /* This is needed to ensure the shadow gets drawn when the window is
-		   * created. It's weird, but when the window is created on another
-		   * thread, sometimes its shadow doesn't get drawn. The same applies
-		   * to the cursor rectangle, which doesn't seem to be set at window
-		   * creation (it works once you move the mouse though).
-		   */
-	          if ((osx_window) && (osx_window_first_expose)) {
-		     osx_window_first_expose = FALSE;
-                     [osx_window setHasShadow: NO];
-                     [osx_window setHasShadow: YES];
-		     [osx_window invalidateCursorRectsForView: [osx_window contentView]];
-		  }
-		  break;
-	    }
-            [NSApp sendEvent: event];
-            break;
-
-	 default:
-	    [NSApp sendEvent: event];
-	    break;
-      }
-   }
-   if (gotmouseevent == YES)
-      osx_mouse_handler(mx, my, dx, dy, dz, buttons);
-   [pool release];
-}
-
 
 
 /* osx_tell_dock:
  *  Tell the dock about us; the origins of this hack are unknown, but it's
  *  currently the only way to make a Cocoa app to work when started from a
  *  console.
- *  For the future, (10.3 and above) investigate TranformProcessType in the
+ *  For the future, (10.3 and above) investigate TranformProcessType in the 
  *  HIServices framework.
  */
 static void osx_tell_dock(void)
@@ -393,69 +190,55 @@ int osx_bootstrap_ok(void)
 /* osx_sys_init:
  *  Initalizes the MacOS X system driver.
  */
-static int osx_sys_init(void)
+static ALLEGRO_SYSTEM* osx_sys_init(int flags)
 {
-   long result;
-   AL_CONST char *exe_name;
-   char resource_dir[1024];
-
+   int v1 = 0, v2 = 0, v3 = 0; // version numbers read from ProductVersion
+   
    /* If we're in the 'dead bootstrap' environment, the Mac driver won't work. */
    if (!osx_bootstrap_ok()) {
-      return -1;
+      return NULL;
    }
-
-   _unix_guess_file_encoding();
-
-   /* Install emergency-exit signal handlers */
-   old_sig_abrt = signal(SIGABRT, osx_signal_handler);
-   old_sig_fpe  = signal(SIGFPE,  osx_signal_handler);
-   old_sig_ill  = signal(SIGILL,  osx_signal_handler);
-   old_sig_segv = signal(SIGSEGV, osx_signal_handler);
-   old_sig_term = signal(SIGTERM, osx_signal_handler);
-   old_sig_int  = signal(SIGINT,  osx_signal_handler);
-   old_sig_quit = signal(SIGQUIT, osx_signal_handler);
-
-
-
+	/* Initialise the vt and display list */
+	osx_system.vt = _al_system_osx_driver();
+	_al_vector_init(&osx_system.displays, 10);
+  
    if (osx_bundle == NULL) {
        /* If in a bundle, the dock will recognise us automatically */
        osx_tell_dock();
    }
-
+   
    /* Setup OS type & version */
    os_type = OSTYPE_MACOSX;
-   Gestalt(gestaltSystemVersion, &result);
-   os_version = (((result >> 12) & 0xf) * 10) + ((result >> 8) & 0xf);
-   os_revision = (result >> 4) & 0xf;
+   NSDictionary* sysinfo = [NSDictionary dictionaryWithContentsOfFile: @"/System/Library/CoreServices/SystemVersion.plist"];
+   NSArray* version = [((NSString*) [sysinfo objectForKey:@"ProductVersion"]) componentsSeparatedByString:@"."];
+   switch ( [version count] ){
+   	/* if there are more than 3 versions just use the first 3 */
+   	default :
+	/* micro */
+   	case 3 : v3 = [[version objectAtIndex: 2] intValue];
+	/* minor */
+	case 2 : v2 = [[version objectAtIndex: 1] intValue];
+	/* major */
+	case 1 : v1 = [[version objectAtIndex: 0] intValue];
+	/* nothing at all */
+	case 0 : break;
+   }
+   os_version = 10 * v1 + v2;
+   os_revision = v3;
+   [version release];
    os_multitasking = TRUE;
-
-   /* Setup a blank cursor */
-   cursor_data = calloc(1, 16 * 16 * 4);
-   cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: &cursor_data
-      pixelsWide: 16
-      pixelsHigh: 16
-      bitsPerSample: 8
-      samplesPerPixel: 4
-      hasAlpha: YES
-      isPlanar: NO
-      colorSpaceName: NSDeviceRGBColorSpace
-      bytesPerRow: 64
-      bitsPerPixel: 32];
-   cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(16, 16)];
-   [cursor_image addRepresentation: cursor_rep];
-   osx_blank_cursor = [[NSCursor alloc] initWithImage: cursor_image
-      hotSpot: NSMakePoint(0, 0)];
-   osx_cursor = osx_blank_cursor;
-
+   
+   
    osx_gfx_mode = OSX_GFX_NONE;
-
+   
    set_display_switch_mode(SWITCH_BACKGROUND);
    set_window_title([[[NSProcessInfo processInfo] processName] cString]);
-
+   
+   osx_threads_init();
    /* Mark the beginning of time. */
    _al_unix_init_time();
 
-   return 0;
+   return &osx_system;
 }
 
 
@@ -465,26 +248,7 @@ static int osx_sys_init(void)
  */
 static void osx_sys_exit(void)
 {
-   signal(SIGABRT, old_sig_abrt);
-   signal(SIGFPE,  old_sig_fpe);
-   signal(SIGILL,  old_sig_ill);
-   signal(SIGSEGV, old_sig_segv);
-   signal(SIGTERM, old_sig_term);
-   signal(SIGINT,  old_sig_int);
-   signal(SIGQUIT, old_sig_quit);
-
-   if (osx_blank_cursor)
-      [osx_blank_cursor release];
-   if (cursor_image)
-      [cursor_image release];
-   if (cursor_rep)
-      [cursor_rep release];
-   if (cursor_data)
-      free(cursor_data);
-   osx_cursor = NULL;
-   cursor_image = NULL;
-   cursor_rep = NULL;
-   cursor_data = NULL;
+   
 }
 
 
@@ -501,19 +265,7 @@ static void osx_sys_get_executable_name(char *output, int size)
       do_uconvert(__crt0_argv[0], U_ASCII, output, U_CURRENT, size);
 }
 
-/* osx_sys_get_path:
- *  Returns various system and user paths
- *
- */
 
-static int32_t osx_sys_get_path(uint32_t id, char *output, size_t size)
-{
-   /* Note: this should translate "osx" paths into standard looking unix paths.
-    * Not sure if OSX only uses unix style paths, or will pass filenames in some other format
-    */
-
-   return -1;
-}
 
 /* osx_sys_find_resource:
  *  Searches the resource in the bundle resource path if the app is in a
@@ -523,7 +275,7 @@ static int osx_sys_find_resource(char *dest, AL_CONST char *resource, int size)
 {
    const char *path;
    char buf[256], tmp[256];
-
+   
    if (osx_bundle) {
       path = [[osx_bundle resourcePath] cString];
       append_filename(buf, uconvert_ascii(path, tmp), resource, sizeof(buf));
@@ -532,7 +284,7 @@ static int osx_sys_find_resource(char *dest, AL_CONST char *resource, int size)
 	 return 0;
       }
    }
-   return _unix_find_resource(dest, resource, size);
+   return -1;
 }
 
 
@@ -544,19 +296,19 @@ static void osx_sys_message(AL_CONST char *msg)
 {
    char tmp[ALLEGRO_MESSAGE_SIZE];
    NSString *ns_title, *ns_msg;
-
+   
    fputs(uconvert_toascii(msg, tmp), stderr);
-
+   
    do_uconvert(msg, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE);
    ns_title = [NSString stringWithUTF8String: osx_window_title];
    ns_msg = [NSString stringWithUTF8String: tmp];
-
+   
    _al_mutex_lock(&osx_event_mutex);
    skip_events_processing = TRUE;
    _al_mutex_unlock(&osx_event_mutex);
-
+   
    NSRunAlertPanel(ns_title, ns_msg, nil, nil, nil);
-
+   
    _al_mutex_lock(&osx_event_mutex);
    skip_events_processing = FALSE;
    _al_mutex_unlock(&osx_event_mutex);
@@ -569,15 +321,15 @@ static void osx_sys_message(AL_CONST char *msg)
  */
 static void osx_sys_set_window_title(AL_CONST char *title)
 {
-   char tmp[ALLEGRO_MESSAGE_SIZE];
-
-   _al_sane_strncpy(osx_window_title, title, ALLEGRO_MESSAGE_SIZE);
-   do_uconvert(title, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE);
-
-   NSString *ns_title = [NSString stringWithUTF8String: tmp];
-
-   if (osx_window)
-      [osx_window setTitle: ns_title];
+//   char tmp[ALLEGRO_MESSAGE_SIZE];
+//   
+//   _al_sane_strncpy(osx_window_title, title, ALLEGRO_MESSAGE_SIZE);
+//   do_uconvert(title, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE);
+//
+//   NSString *ns_title = [NSString stringWithUTF8String: tmp];
+//   
+//   if (osx_window)
+//      [osx_window setTitle: ns_title];
 }
 
 
@@ -600,7 +352,7 @@ static int osx_sys_set_close_button_callback(void (*proc)(void))
 static int osx_sys_set_display_switch_mode(int mode)
 {
    if (mode != SWITCH_BACKGROUND)
-      return -1;
+      return -1;   
    return 0;
 }
 
@@ -611,7 +363,7 @@ static int osx_sys_set_display_switch_mode(int mode)
  */
 static void osx_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
 {
-   *driver = GFX_QUARTZ_WINDOW;
+   *driver = 0;
    mode->width = 320;
    mode->height = 200;
    mode->bpp = 8;
@@ -626,12 +378,12 @@ static int osx_sys_desktop_color_depth(void)
 {
    CFDictionaryRef mode = NULL;
    int color_depth;
-
+   
    mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    if (!mode)
       return -1;
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &color_depth);
-
+   
    return color_depth == 16 ? 15 : color_depth;
 }
 
@@ -642,12 +394,55 @@ static int osx_sys_desktop_color_depth(void)
 static int osx_sys_get_desktop_resolution(int *width, int *height)
 {
    CFDictionaryRef mode = NULL;
-
+   
    mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    if (!mode)
       return -1;
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayWidth), kCFNumberSInt32Type, width);
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayHeight), kCFNumberSInt32Type, height);
-
+   
    return 0;
 }
+
+/* osx_view_from_display:
+ * given an ALLEGRO_DISPLAY, return the associated Cocoa View or nil
+ * if fullscreen 
+ */
+NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp)
+{
+	return nil;
+}
+
+/* Internal function to get a reference to this driver. */
+ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
+{
+	static ALLEGRO_SYSTEM_INTERFACE vt = {
+		0,//int id;
+		osx_sys_init, //ALLEGRO_SYSTEM *(*initialize)(int flags);
+		osx_get_display_driver,//ALLEGRO_DISPLAY_INTERFACE *(*get_display_driver)(void);
+		osx_get_keyboard_driver,//ALLEGRO_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
+		NULL,//ALLEGRO_MOUSE_DRIVER *(*get_mouse_driver)(void);
+		NULL,//int (*get_num_display_modes)(void);
+		NULL,//ALLEGRO_DISPLAY_MODE *(*get_display_mode)(int index, ALLEGRO_DISPLAY_MODE *mode);
+		osx_sys_exit,//void (*shutdown_system)(void);
+	};
+		
+	return &vt;
+}
+
+/* This is a function each platform must define to register all available
+ * system drivers.
+ */
+void _al_register_system_interfaces()
+{
+   ALLEGRO_SYSTEM_INTERFACE **add;
+
+   add = _al_vector_alloc_back(&_al_system_interfaces);
+   *add = _al_system_osx_driver();
+}
+
+
+/* Local variables:       */
+/* c-basic-offset: 3      */
+/* indent-tabs-mode: nil  */
+/* End:                   */

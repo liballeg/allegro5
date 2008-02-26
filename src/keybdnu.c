@@ -15,18 +15,21 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Keyboard routines
+ */
+
 
 #define ALLEGRO_NO_COMPATIBILITY
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include ALLEGRO_INTERNAL_HEADER
-#include "allegro/internal/aintern2.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_keyboard.h"
 
 
 
 /* the active keyboard driver */
-static AL_KEYBOARD_DRIVER *new_keyboard_driver = NULL;
+static ALLEGRO_KEYBOARD_DRIVER *new_keyboard_driver = NULL;
 
 /* mode flags */
 /* TODO: use the config system for these */
@@ -41,7 +44,7 @@ bool _al_key_led_flag = true;
  * provide their own implementation though, especially if they use
  * positional mapping.
  */
-AL_CONST char *_al_keyboard_common_names[AL_KEY_MAX] =
+const char *_al_keyboard_common_names[ALLEGRO_KEY_MAX] =
 {
    "(none)",     "A",          "B",          "C",
    "D",          "E",          "F",          "G",
@@ -79,13 +82,14 @@ AL_CONST char *_al_keyboard_common_names[AL_KEY_MAX] =
 
 
 
-/* al_install_keyboard: [primary thread]
+/* Function: al_install_keyboard
  *  Install a keyboard driver. Returns true if successful. If a driver
  *  was already installed, nothing happens and true is returned.
  */
 bool al_install_keyboard(void)
 {
    _DRIVER_INFO *driver_list;
+   const char *name;
    int i;
 
    if (new_keyboard_driver)
@@ -98,8 +102,10 @@ bool al_install_keyboard(void)
 
    for (i=0; driver_list[i].driver; i++) {
       new_keyboard_driver = driver_list[i].driver;
-      new_keyboard_driver->name = new_keyboard_driver->desc = get_config_text(new_keyboard_driver->ascii_name);
-      if (new_keyboard_driver->init())
+      name = get_config_text(new_keyboard_driver->keydrv_ascii_name);
+      new_keyboard_driver->keydrv_name = name;
+      new_keyboard_driver->keydrv_desc = name;
+      if (new_keyboard_driver->init_keyboard())
 	 break;
    }
 
@@ -117,7 +123,7 @@ bool al_install_keyboard(void)
 
 
 
-/* al_uninstall_keyboard: [primary thread]
+/* Function: al_uninstall_keyboard
  *  Uninstalls the active keyboard driver, if any.  This will
  *  automatically unregister the keyboard event source with any event
  *  queues.
@@ -131,7 +137,7 @@ void al_uninstall_keyboard(void)
 
    //set_leds(-1);
 
-   new_keyboard_driver->exit();
+   new_keyboard_driver->exit_keyboard();
    new_keyboard_driver = NULL;
 
    _remove_exit_func(al_uninstall_keyboard);
@@ -139,15 +145,15 @@ void al_uninstall_keyboard(void)
 
 
 
-/* al_get_keyboard:
+/* Function: al_get_keyboard
  *  Return a pointer to an object representing the keyboard, that can
  *  be used as an event source.
  */
-AL_KEYBOARD *al_get_keyboard(void)
+ALLEGRO_KEYBOARD *al_get_keyboard(void)
 {
    ASSERT(new_keyboard_driver);
    {
-      AL_KEYBOARD *kbd = new_keyboard_driver->get_keyboard();
+      ALLEGRO_KEYBOARD *kbd = new_keyboard_driver->get_keyboard();
       ASSERT(kbd);
 
       return kbd;
@@ -156,7 +162,7 @@ AL_KEYBOARD *al_get_keyboard(void)
 
 
 
-/* al_set_keyboard_leds:
+/* Function: al_set_keyboard_leds
  *  Overrides the state of the keyboard LED indicators.
  *  Set to -1 to return to default behavior.
  *  False is returned if the current keyboard driver cannot set LED indicators.
@@ -165,23 +171,23 @@ bool al_set_keyboard_leds(int leds)
 {
    ASSERT(new_keyboard_driver);
 
-   if (new_keyboard_driver->set_leds)
-      return new_keyboard_driver->set_leds(leds);
+   if (new_keyboard_driver->set_keyboard_leds)
+      return new_keyboard_driver->set_keyboard_leds(leds);
 
    return false;
 }
 
 
 
-/* al_keycode_to_name:
+/* Function: al_keycode_to_name
  *  Converts the given keycode to a description of the key.
  */
-AL_CONST char *al_keycode_to_name(int keycode)
+const char *al_keycode_to_name(int keycode)
 {
-   AL_CONST char *name = NULL;
+   const char *name = NULL;
 
    ASSERT(new_keyboard_driver);
-   ASSERT((keycode >= 0) && (keycode < AL_KEY_MAX));
+   ASSERT((keycode >= 0) && (keycode < ALLEGRO_KEY_MAX));
 
    if (new_keyboard_driver->keycode_to_name)
       name = new_keyboard_driver->keycode_to_name(keycode);
@@ -196,25 +202,25 @@ AL_CONST char *al_keycode_to_name(int keycode)
 
 
 
-/* al_get_keyboard_state: [primary thread]
+/* Function: al_get_keyboard_state
  *  Save the state of the keyboard specified at the time the function
  *  is called into the structure pointed to by RET_STATE.
  */
-void al_get_keyboard_state(AL_KBDSTATE *ret_state)
+void al_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state)
 {
    ASSERT(new_keyboard_driver);
    ASSERT(ret_state);
 
-   new_keyboard_driver->get_state(ret_state);
+   new_keyboard_driver->get_keyboard_state(ret_state);
 }
 
 
 
-/* al_key_down:
+/* Function: al_key_down
  *  Return true if the key specified was held down in the state
  *  specified.
  */
-bool al_key_down(AL_KBDSTATE *state, int keycode)
+bool al_key_down(const ALLEGRO_KBDSTATE *state, int keycode)
 {
    return _AL_KBDSTATE_KEY_DOWN(*state, keycode);
 }

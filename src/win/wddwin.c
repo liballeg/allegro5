@@ -25,9 +25,8 @@
 #define PREFIX_E                "al-wddwin ERROR: "
 
 
-/* exported only for asmlock.s */
-char *wd_dirty_lines = NULL;  /* used in WRITE_BANK() */
-void (*update_window) (RECT *rect) = NULL;  /* window updater */
+char *_al_wd_dirty_lines = NULL;  /* used in WRITE_BANK() */
+void (*_al_wd_update_window) (RECT *rect) = NULL;  /* window updater */
 
 
 static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to, int vsync);
@@ -58,10 +57,13 @@ GFX_DRIVER gfx_directx_win =
    NULL,
    gfx_directx_create_system_bitmap,
    gfx_directx_destroy_system_bitmap,
-   gfx_directx_set_mouse_sprite,
-   gfx_directx_show_mouse,
-   gfx_directx_hide_mouse,
-   gfx_directx_move_mouse,
+   NULL, NULL, NULL, NULL,      // old hardware cursor methods
+				/*
+				 gfx_directx_set_mouse_sprite,
+				 gfx_directx_show_mouse,
+				 gfx_directx_hide_mouse,
+				 gfx_directx_move_mouse,
+				*/
    NULL,                        // AL_METHOD(void, drawing_mode, (void));
    NULL,                        // AL_METHOD(void, save_video_state, (void*));
    NULL,                        // AL_METHOD(void, restore_video_state, (void*));
@@ -73,7 +75,14 @@ GFX_DRIVER gfx_directx_win =
    0,                           // long bank_gran;
    0,                           // long vid_mem;
    0,                           // long vid_phys_base;
-   TRUE                         // int windowed;
+   TRUE,                        // int windowed;
+   /* new_api_branch additions */
+   _al_win_directx_create_mouse_cursor,
+   _al_win_directx_destroy_mouse_cursor,
+   _al_win_directx_set_mouse_cursor,
+   _al_win_directx_set_system_mouse_cursor,
+   _al_win_directx_show_mouse_cursor,
+   _al_win_directx_hide_mouse_cursor
 };
 
 
@@ -206,7 +215,7 @@ static void paint_win(RECT *rect)
    rect->right = MIN(rect->right, gfx_directx_win.w);
    rect->bottom = MIN(rect->bottom, gfx_directx_win.h);
 
-   update_window(rect);
+   _al_wd_update_window(rect);
 }
 
 
@@ -499,7 +508,7 @@ static int gfx_directx_show_video_bitmap_win(BITMAP *bmp)
    /* display the new contents */
    if (_wait_for_vsync)
       gfx_directx_sync();
-   update_window(NULL);
+   _al_wd_update_window(NULL);
 
    return 0;
 }
@@ -519,7 +528,7 @@ static void gfx_directx_set_palette_win_8(AL_CONST struct RGB *p, int from, int 
    for (n = from; n <= to; n++)
       cmap[n] = _win_desktop_rgb_map.data[p[n].r>>1][p[n].g>>1][p[n].b>>1];
 
-   update_window(NULL);
+   _al_wd_update_window(NULL);
 }
 
 
@@ -535,7 +544,7 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
    /* for the direct updating mode */
    _set_colorconv_palette(p, from, to);
 
-   update_window(NULL);
+   _al_wd_update_window(NULL);
 }
 
 
@@ -570,7 +579,7 @@ static int verify_color_depth (int color_depth)
 
    if ((gfx_directx_compare_color_depth(color_depth) == 0) && (color_depth != 8)) {
       /* the color depths match */ 
-      update_window = update_matching_window;
+      _al_wd_update_window = update_matching_window;
    }
    else {
       /* disallow cross-conversion between 15-bit and 16-bit colors */
@@ -583,7 +592,7 @@ static int verify_color_depth (int color_depth)
       if (!colorconv_blit)
          return -1;
 
-      update_window = update_colorconv_window;
+      _al_wd_update_window = update_colorconv_window;
 
       /* read direct updating configuration variable */
       ddu = get_config_string(uconvert_ascii("graphics", tmp1),
@@ -763,9 +772,9 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    gfx_directx_forefront_bitmap->write_bank = gfx_directx_write_bank_win;
 
    /* the last flag serves as end of loop delimiter */
-   wd_dirty_lines = _AL_MALLOC_ATOMIC((h+1) * sizeof(char));
-   ASSERT(wd_dirty_lines);
-   memset(wd_dirty_lines, 0, (h+1) * sizeof(char));
+   _al_wd_dirty_lines = _AL_MALLOC_ATOMIC((h+1) * sizeof(char));
+   ASSERT(_al_wd_dirty_lines);
+   memset(_al_wd_dirty_lines, 0, (h+1) * sizeof(char));
 
    /* connect to the system driver */
    win_gfx_driver = &win_gfx_driver_windowed;
@@ -807,9 +816,9 @@ static void gfx_directx_win_exit(struct BITMAP *bmp)
    win_gfx_driver = NULL;
 
    /* destroy dirty lines array */
-   if (wd_dirty_lines) {
-      _AL_FREE(wd_dirty_lines);
-      wd_dirty_lines = NULL;
+   if (_al_wd_dirty_lines) {
+      _AL_FREE(_al_wd_dirty_lines);
+      _al_wd_dirty_lines = NULL;
    }
 
    /* destroy the offscreen backbuffer */

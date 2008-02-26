@@ -35,7 +35,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
@@ -110,19 +110,19 @@ BITMAP *create_light_graphic(void)
 	 dx = x-128;
 	 dy = y-128;
 
-	 dist = fixtoi(fixsqrt(itofix(MID(-32768, dx*dx+dy*dy, 32767))));
+	 dist = fixtoi(fixsqrt(itofix(CLAMP(-32768, dx*dx+dy*dy, 32767))));
 
 	 dir = fixtoi(fixatan2(itofix(dy), itofix(dx)) + itofix(128));
 
-	 hsv_to_rgb(dir*360.0/256.0, MID(0, dist/128.0, 1), 1, &r, &g, &b);
+	 hsv_to_rgb(dir*360.0/256.0, CLAMP(0, dist/128.0, 1), 1, &r, &g, &b);
 
 	 r = r * (128-dist) / 1024;
 	 g = g * (128-dist) / 1024;
 	 b = b * (128-dist) / 1024;
 
-	 bmp->line[y][x*3] = MID(0, r, 7) << 5;
-	 bmp->line[y][x*3+1] = MID(0, g, 7) << 5;
-	 bmp->line[y][x*3+2] = MID(0, b, 7) << 5;
+	 bmp->line[y][x*3] = CLAMP(0, r, 7) << 5;
+	 bmp->line[y][x*3+1] = CLAMP(0, g, 7) << 5;
+	 bmp->line[y][x*3+2] = CLAMP(0, b, 7) << 5;
       }
    }
 
@@ -397,10 +397,8 @@ void blit_magic_format_to_screen(BITMAP *bmp)
 }
 
 
-#else
-   #ifndef SCAN_DEPEND
-   #error Unknown endianess!
-   #endif
+#elif !defined SCAN_DEPEND
+#error Unknown endianess!
 #endif
 
 

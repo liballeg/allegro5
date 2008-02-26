@@ -13,7 +13,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
    /* see comments in exflip.c */
 #ifdef ALLEGRO_VRAM_SINGLE_SURFACE
-   if (set_gfx_mode(GFX_AUTODETECT, 1024, 768, 0, 2 * 768 + 200) != 0) {
+   if (set_gfx_mode(GFX_AUTODETECT, 1024, 768, 0, 0) != 0) {
 #else
    if (set_gfx_mode(GFX_AUTODETECT, 1024, 768, 0, 0) != 0) {
 #endif

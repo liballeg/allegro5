@@ -20,9 +20,9 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
 #include "xwin.h"
 
 #include <string.h>
@@ -48,7 +48,7 @@
 #ifdef ALLEGRO_XWINDOWS_WITH_XPM
 #include <X11/xpm.h>
 #endif
-#include "alex.xpm"
+#include "icon.xpm"
 
 
 #define XWIN_DEFAULT_WINDOW_TITLE "Allegro application"
@@ -67,12 +67,11 @@ struct _xwin_type _xwin =
    None,        /* colormap */
    0,           /* ximage */
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-   None,        /* ARGB cursor image */
    XcursorFalse,/* Are ARGB cursors supported? */
 #endif
+   None,        /* invisible_cursor */
    None,        /* cursor */
-   XC_heart,    /* cursor_shape */
-   1,           /* hw_cursor_ok */
+   true,        /* hw_cursor_ok */
 
    0,           /* screen_to_buffer */
    0,           /* set_colors */
@@ -147,7 +146,7 @@ struct _xwin_type _xwin =
    None         /* wm_window */
 };
 
-void *allegro_icon = alex_xpm;
+void *allegro_icon = icon_xpm;
 
 int _xwin_last_line = -1;
 int _xwin_in_gfx_call = 0;
@@ -204,7 +203,6 @@ static int _xwin_private_scroll_screen(int x, int y);
 static void _xwin_private_update_screen(int x, int y, int w, int h);
 static void _xwin_private_set_window_title(AL_CONST char *name);
 static void _xwin_private_set_window_name(AL_CONST char *name, AL_CONST char *group);
-static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap);
 
 static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh);
 
@@ -263,11 +261,11 @@ static void _xvidmode_private_set_fullscreen(int w, int h, int *vidmode_width,
 static void _xvidmode_private_unset_fullscreen(void);
 #endif
 
-uintptr_t _xwin_write_line (BITMAP *bmp, int line);
-void _xwin_unwrite_line (BITMAP *bmp);
+uintptr_t _xwin_write_line(BITMAP *bmp, int line);
+void _xwin_unwrite_line(BITMAP *bmp);
 #ifndef ALLEGRO_NO_ASM
-uintptr_t _xwin_write_line_asm (BITMAP *bmp, int line);
-void _xwin_unwrite_line_asm (BITMAP *bmp);
+uintptr_t _xwin_write_line_asm(BITMAP *bmp, int line);
+void _xwin_unwrite_line_asm(BITMAP *bmp);
 #endif
 
 
@@ -315,7 +313,7 @@ void _xwin_close_display(void)
 
 
 /* _xwin_hide_x_mouse:
- * Create invisible X cursor
+ *  Create invisible X cursor.
  */
 static void _xwin_hide_x_mouse(void)
 {
@@ -323,19 +321,8 @@ static void _xwin_hide_x_mouse(void)
    XGCValues gcvalues;
    Pixmap pixmap;
 
-   XUndefineCursor(_xwin.display, _xwin.window);
-
-   if (_xwin.cursor != None) {
-      XFreeCursor(_xwin.display, _xwin.cursor);
-      _xwin.cursor = None;
-   }
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-   if (_xwin.xcursor_image != None) {
-      XcursorImageDestroy(_xwin.xcursor_image);
-      _xwin.xcursor_image = None;
-   }
-#endif
+   if (_xwin.invisible_cursor != None)
+      goto AlreadyGot;
 
    pixmap = XCreatePixmap(_xwin.display, _xwin.window, 1, 1, 1);
    if (pixmap != None) {
@@ -352,41 +339,49 @@ static void _xwin_hide_x_mouse(void)
       color.pixel = 0;
       color.red = color.green = color.blue = 0;
       color.flags = DoRed | DoGreen | DoBlue;
-      _xwin.cursor = XCreatePixmapCursor(_xwin.display, pixmap, pixmap, &color, &color, 0, 0);
-      XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
+      _xwin.invisible_cursor = XCreatePixmapCursor(_xwin.display, pixmap, pixmap, &color, &color, 0, 0);
       XFreePixmap(_xwin.display, pixmap);
    }
    else {
-      _xwin.cursor = XCreateFontCursor(_xwin.display, _xwin.cursor_shape);
-      XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
+      _xwin.invisible_cursor = XCreateFontCursor(_xwin.display, XC_heart); /* :P */
    }
+
+  AlreadyGot:
+
+   XDefineCursor(_xwin.display, _xwin.window, _xwin.invisible_cursor);
 }
 
+
+
 /* _xwin_wait_mapped:
- * wait for a window to become mapped. (shamelessly borrowed from SDL)
+ *  Wait for a window to become mapped. (shamelessly borrowed from SDL)
  */
 static void _xwin_wait_mapped(Window win)
 {
    XEvent event;
+
    do {
       XMaskEvent(_xwin.display, StructureNotifyMask, &event); 
    } while ((event.type != MapNotify) || (event.xmap.event != win));
 }
 
+
+
 /* _xwin_create_window:
- * We use 3 windows:
- * -fs_window (for fullscreen)
- * -wm_window (window managed)
- * -window    (the real window)
- * 2 of which will be created here: wm_window and window. The fullscreen
- * window gets (re)created when needed, because reusing it causes trouble see:
- * http://sourceforge.net/tracker/index.php?func=detail&aid=1441740&group_id=5665&atid=105665
- * The real window uses wm_window as parent initially and will be reparened to
- * the (freshly created) fullscreen window when requested and reparented
- * back again in screen_destroy.
- * 
- * Idea / concept of 3 windows borrowed from SDL. But somehow SDL manages
- * to reuse the fullscreen window too.
+ *  We use 3 windows:
+ *  - fs_window (for fullscreen)
+ *  - wm_window (window managed)
+ *  - window    (the real window)
+ *
+ *  Two of which will be created here: wm_window and window. The fullscreen
+ *  window gets (re)created when needed, because reusing it causes trouble see
+ *  http://sourceforge.net/tracker/index.php?func=detail&aid=1441740&group_id=5665&atid=105665
+ *  The real window uses wm_window as parent initially and will be reparented
+ *  to the (freshly created) fullscreen window when requested and reparented
+ *  back again in screen_destroy.
+ *  
+ *  Idea/concept of three windows borrowed from SDL. But somehow SDL manages
+ *  to reuse the fullscreen window too.
  */
 static int _xwin_private_create_window(void)
 {
@@ -398,7 +393,7 @@ static int _xwin_private_create_window(void)
    if (_xwin.display == 0)
       return -1;
 
-   _mouse_on = FALSE;
+   _al_comouse_on = FALSE;
 
    /* Create the managed window. */
    setattr.background_pixel = XBlackPixel(_xwin.display, _xwin.screen);
@@ -424,9 +419,12 @@ static int _xwin_private_create_window(void)
    if ((_xwin.visual->class == PseudoColor)
        || (_xwin.visual->class == GrayScale)
        || (_xwin.visual->class == DirectColor))
+   {
       _xwin.colormap = XCreateColormap(_xwin.display, _xwin.wm_window, _xwin.visual, AllocAll);
-   else
+   }
+   else {
       _xwin.colormap = XCreateColormap(_xwin.display, _xwin.wm_window, _xwin.visual, AllocNone);
+   }
    XSetWindowColormap(_xwin.display, _xwin.wm_window, _xwin.colormap);
    XInstallColormap(_xwin.display, _xwin.colormap);
    
@@ -443,8 +441,8 @@ static int _xwin_private_create_window(void)
    XMapWindow(_xwin.display, _xwin.window);
    
    /* Set WM_DELETE_WINDOW atom in WM_PROTOCOLS property (to get window_delete requests).  */
-   wm_delete_window = XInternAtom (_xwin.display, "WM_DELETE_WINDOW", False);
-   XSetWMProtocols (_xwin.display, _xwin.wm_window, &wm_delete_window, 1);
+   wm_delete_window = XInternAtom(_xwin.display, "WM_DELETE_WINDOW", False);
+   XSetWMProtocols(_xwin.display, _xwin.wm_window, &wm_delete_window, 1);
 
    /* Set default window parameters.  */
    (*_xwin_window_defaultor)();
@@ -465,7 +463,7 @@ static int _xwin_private_create_window(void)
    /* Detect if ARGB cursors are supported */
    _xwin.support_argb_cursor = XcursorSupportsARGB(_xwin.display);
 #endif
-   _xwin.hw_cursor_ok = 0;
+   _xwin.hw_cursor_ok = true;
    
    return 0;
 }
@@ -488,18 +486,26 @@ static void _xwin_private_destroy_window(void)
 {
    _xwin_private_destroy_screen();
 
+   if (_xwin.invisible_cursor != None) {
+      XUndefineCursor(_xwin.display, _xwin.window);
+      XFreeCursor(_xwin.display, _xwin.invisible_cursor);
+      _xwin.invisible_cursor = None;
+   }
+   
    if (_xwin.cursor != None) {
       XUndefineCursor(_xwin.display, _xwin.window);
       XFreeCursor(_xwin.display, _xwin.cursor);
       _xwin.cursor = None;
    }
 
+/*
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
    if (_xwin.xcursor_image != None) {
       XcursorImageDestroy(_xwin.xcursor_image);
       _xwin.xcursor_image = None;
    }
 #endif
+*/
 
    _xwin.visual = 0;
 
@@ -921,7 +927,7 @@ static void _xwin_private_destroy_screen(void)
       _xwin.fs_window = None;
    }
    else {
-      XUnmapWindow (_xwin.display, _xwin.wm_window);
+      XUnmapWindow(_xwin.display, _xwin.wm_window);
    }
 
    (*_xwin_window_defaultor)();
@@ -1603,28 +1609,33 @@ static int _xwin_private_fast_visual_depth(void)
 
 
 
-/* _xwin_enable_hardware_cursor:
- *  enable the hardware cursor; this disables the mouse mickey warping hack
+/* _al_xwin_enable_hardware_cursor:
+ *  Enable the hardware cursor; this disables the mouse mickey warping hack.
  */
-void _xwin_enable_hardware_cursor(int mode)
+void _al_xwin_enable_hardware_cursor(bool mode)
 {
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-   if (_xwin.support_argb_cursor)
+   if (_xwin.support_argb_cursor) {
       _xwin.hw_cursor_ok = mode;
+   }
    else
 #endif
-      _xwin.hw_cursor_ok = 0;
+   {
+      _xwin.hw_cursor_ok = false;
+   }
 
    /* Switch to non-warped mode */
    if (_xwin.hw_cursor_ok) {
       _xwin.mouse_warped = 0;
       /* Move X-cursor to Allegro cursor.  */
+#if 0
       XLOCK();
       XWarpPointer(_xwin.display, _xwin.window, _xwin.window,
 		   0, 0, _xwin.window_width, _xwin.window_height,
 		   _mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0),
 		   _mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
       XUNLOCK();
+#endif
    }
 }
 
@@ -1632,138 +1643,219 @@ void _xwin_enable_hardware_cursor(int mode)
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
 
-/* _xwin_set_mouse_sprite:
- *  Set custom X cursor (if supported).
+static ALLEGRO_MOUSE_CURSOR *_al_xwin_private_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus);
+static bool _al_xwin_private_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id);
+
+
+struct ALLEGRO_MOUSE_CURSOR {
+   Cursor cursor;
+};
+
+static bool cursor_shown = false; /* XXX */
+
+
+
+/* _xwin_create_mouse_cursor:
+ *
  */
-int _xwin_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus)
+ALLEGRO_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus)
 {
-#define GET_PIXEL_DATA(depth, getpix)                                \
-               case depth:                                           \
-                  c = 0;                                             \
-                  for (iy = 0; iy < sprite->h; iy++) {               \
-                     for(ix = 0; ix < sprite->w; ix++) {             \
-                        col = getpix(sprite, ix, iy);                \
-                        if (col == (MASK_COLOR_ ## depth)) {         \
-                           r = g = b = a = 0;                        \
-                        }                                            \
-                        else {                                       \
-                           r = getr ## depth(col);                   \
-                           g = getg ## depth(col);                   \
-                           b = getb ## depth(col);                   \
-                           a = 255;                                  \
-                        }                                            \
-                        _xwin.xcursor_image->pixels[c++] =           \
-                                    (a<<24)|(r<<16)|(g<<8)|(b);      \
-                     }                                               \
-                  }
+   ALLEGRO_MOUSE_CURSOR *wrapper;
 
-   if (!_xwin.support_argb_cursor) {
-      return -1;
+   XLOCK();
+   {
+      wrapper = _al_xwin_private_create_mouse_cursor(sprite, xfocus, yfocus);
+   }
+   XUNLOCK();
+
+   return wrapper;
+}
+
+static ALLEGRO_MOUSE_CURSOR *
+_al_xwin_private_create_mouse_cursor(struct BITMAP *sprite, int xfocus, int yfocus)
+{
+#define GET_PIXEL_DATA(DEPTH, GETPIX)					\
+         case DEPTH: {							\
+	    int c, ix, iy;						\
+            c = 0;							\
+            for (iy = 0; iy < sprite->h; iy++) {			\
+               for (ix = 0; ix < sprite->w; ix++) {			\
+	          int col, r, g, b, a;					\
+		  col = GETPIX(sprite, ix, iy);				\
+                  if (col == (MASK_COLOR_ ## DEPTH)) {			\
+                     r = g = b = a = 0;					\
+                  }							\
+                  else {						\
+                     r = getr ## DEPTH(col);				\
+                     g = getg ## DEPTH(col);				\
+                     b = getb ## DEPTH(col);				\
+                     a = 255;						\
+                  }							\
+                  image->pixels[c++] = (a<<24)|(r<<16)|(g<<8)|(b);	\
+               }							\
+            }								\
+         }
+
+   ALLEGRO_MOUSE_CURSOR *wrapper;
+   XcursorImage *image;
+
+   ASSERT(sprite);
+
+   if (!_xwin.support_argb_cursor)
+      return NULL;
+
+   wrapper = malloc(sizeof *wrapper);
+   if (!wrapper)
+      return NULL;
+   
+   image = XcursorImageCreate(sprite->w, sprite->h);
+   if (image == None) {
+      free(wrapper);
+      return NULL;
    }
 
-   if (_xwin.xcursor_image != None) {
-      XLOCK();
-      XcursorImageDestroy(_xwin.xcursor_image);
-      XUNLOCK();
-      _xwin.xcursor_image = None;
+   switch (bitmap_color_depth(sprite)) {
+      GET_PIXEL_DATA(8, _getpixel)
+	 break;
+
+      GET_PIXEL_DATA(15, _getpixel15)
+	 break;
+
+      GET_PIXEL_DATA(16, _getpixel16)
+	 break;
+
+      GET_PIXEL_DATA(24, _getpixel24)
+	 break;
+
+      GET_PIXEL_DATA(32, _getpixel32)
+	 break;
    }
 
-   if (sprite) {
-      int ix, iy;
-      int r = 0, g = 0, b = 0, a = 0, c, col;
+   image->xhot = xfocus;
+   image->yhot = yfocus;
 
-      _xwin.xcursor_image = XcursorImageCreate(sprite->w, sprite->h);
-      if (_xwin.xcursor_image == None) {
-         return -1;
-      }
+   wrapper->cursor = XcursorImageLoadCursor(_xwin.display, image);
 
-      switch (bitmap_color_depth(sprite)) {
-         GET_PIXEL_DATA(8, _getpixel)
-            break;
+   XcursorImageDestroy(image);
 
-         GET_PIXEL_DATA(15, _getpixel15)
-            break;
-
-         GET_PIXEL_DATA(16, _getpixel16)
-            break;
-
-         GET_PIXEL_DATA(24, _getpixel24)
-            break;
-
-         GET_PIXEL_DATA(32, _getpixel32)
-            break;
-      } /* End switch */
-
-      _xwin.xcursor_image->xhot = xfocus;
-      _xwin.xcursor_image->yhot = yfocus;
-
-      return 0;
-   }
-
-   return -1;
+   return wrapper;
 
 #undef GET_PIXEL_DATA
 }
 
 
 
-/* _xwin_show_mouse:
- *  Show the custom X cursor (if supported)
- */
-int _xwin_show_mouse(struct BITMAP *bmp, int x, int y)
+void _al_xwin_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *wrapper)
 {
-   /* Only draw on screen */
-   if (!is_same_bitmap(bmp, screen))
-      return -1;
-
-   if (!_xwin.support_argb_cursor) {
-      return -1;
-   }
-
-   if (_xwin.xcursor_image == None) {
-      return -1;
-   }
-
-   /* Hardware cursor is disabled (mickey mode) */
-   if (!_xwin.hw_cursor_ok) {
-      return -1;
-   }
+   ASSERT(wrapper);
 
    XLOCK();
-   if (_xwin.cursor != None) {
-      XUndefineCursor(_xwin.display, _xwin.window);
-      XFreeCursor(_xwin.display, _xwin.cursor);
+   {
+      if (wrapper) {
+	 if (_xwin.cursor == wrapper->cursor) {
+	    XUndefineCursor(_xwin.display, _xwin.window);
+	    _xwin.cursor = None;
+	 }
+
+	 XFreeCursor(_xwin.display, wrapper->cursor);
+	 free(wrapper);
+      }
    }
-
-   _xwin.cursor = XcursorImageLoadCursor(_xwin.display, _xwin.xcursor_image);
-   XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
-
    XUNLOCK();
-   return 0;
 }
 
 
-
-/* _xwin_hide_mouse:
- *  Hide the custom X cursor (if supported)
- */
-void _xwin_hide_mouse(void)
+bool _al_xwin_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *wrapper)
 {
-   if (_xwin.support_argb_cursor) {
-      XLOCK();
-      _xwin_hide_x_mouse();
-      XUNLOCK();
+   ASSERT(wrapper);
+
+   XLOCK();
+   {   
+      _xwin.cursor = wrapper->cursor;
+
+      if (cursor_shown) {
+	 XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
+      }
    }
-   return;
+   XUNLOCK();
+
+   return true;
 }
 
 
-
-/* _xwin_move_mouse:
- *  Get mouse move notification. Not that we need it...
- */
-void _xwin_move_mouse(int x, int y)
+bool _al_xwin_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
+   bool ret;
+
+   XLOCK();
+   {
+      ret = _al_xwin_private_set_system_mouse_cursor(cursor_id);
+   }
+   XUNLOCK();
+
+   return ret;
+}
+
+static bool _al_xwin_private_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+{
+   unsigned int cursor_shape;
+
+   switch (cursor_id) {
+
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
+         cursor_shape = XC_left_ptr;
+         break;
+
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY:
+         cursor_shape = XC_watch;
+         break;
+
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION:
+         cursor_shape = XC_question_arrow;
+         break;
+
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT:
+         cursor_shape = XC_xterm;
+         break;
+
+      default:
+         return false;
+   }
+
+   _xwin.cursor = XCreateFontCursor(_xwin.display, cursor_shape);
+   /* XXX: leak? */
+
+   if (cursor_shown) {
+      XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
+   }
+
+   return true;
+}
+
+
+bool _al_xwin_show_mouse_cursor(void)
+{
+   XLOCK();
+   {
+      XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
+      cursor_shown = true;
+   }
+   XUNLOCK();
+
+   return true;
+}
+
+
+bool _al_xwin_hide_mouse_cursor(void)
+{
+   XLOCK();
+   {
+      _xwin_hide_x_mouse();
+      cursor_shown = false;
+   }
+   XUNLOCK();
+
+   return true;
 }
 
 #endif   /* ALLEGRO_XWINDOWS_WITH_XCURSOR */
@@ -2187,9 +2279,6 @@ static void _xwin_private_set_window_defaults(void)
 {
    XClassHint hint;
    XWMHints wm_hints;
-#ifdef ALLEGRO_XWINDOWS_WITH_XPM
-   XpmAttributes attributes;
-#endif
 
    if (_xwin.wm_window == None)
       return;
@@ -2210,8 +2299,8 @@ static void _xwin_private_set_window_defaults(void)
 #ifdef ALLEGRO_XWINDOWS_WITH_XPM
    if (allegro_icon) {
       wm_hints.flags |= IconPixmapHint | IconMaskHint;
-      attributes.valuemask = XpmReturnAllocPixels | XpmReturnExtensions;
-      XpmCreatePixmapFromData(_xwin.display,_xwin.wm_window,allegro_icon,&wm_hints.icon_pixmap,&wm_hints.icon_mask, &attributes);
+      XpmCreatePixmapFromData(_xwin.display, _xwin.wm_window, allegro_icon,
+         &wm_hints.icon_pixmap, &wm_hints.icon_mask, NULL);
    }
 #endif
 
@@ -2272,12 +2361,14 @@ void _xwin_vsync(void)
  */
 static int _xwin_private_process_event(XEvent *event, XEvent *next_event)
 {
+   /*
    int dx, dy, dz = 0;
    static int mouse_buttons = 0;
    static int mouse_savedx = 0;
    static int mouse_savedy = 0;
    static int mouse_warp_now = 0;
    static int mouse_was_warped = 0;
+   */
 
    switch (event->type) {
       case KeyPress:
@@ -2308,63 +2399,20 @@ static int _xwin_private_process_event(XEvent *event, XEvent *next_event)
          _al_xwin_keyboard_focus_handler(&event->xfocus);
 	 return 1;
       case ButtonPress:
-	 /* Mouse button pressed.  */
-	 if (event->xbutton.button == Button1)
-	    mouse_buttons |= 1;
-	 else if (event->xbutton.button == Button3)
-	    mouse_buttons |= 2;
-	 else if (event->xbutton.button == Button2)
-	    mouse_buttons |= 4;
-	 else if (event->xbutton.button == Button4)
-	    dz = 1;
-	 else if (event->xbutton.button == Button5)
-	    dz = -1;
-	 if (_xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(0, 0, dz, mouse_buttons);
+	 _al_xwin_mouse_button_press_handler(event->xbutton.button);
 	 return 1;
       case ButtonRelease:
-	 /* Mouse button released.  */
-	 if (event->xbutton.button == Button1)
-	    mouse_buttons &= ~1;
-	 else if (event->xbutton.button == Button3)
-	    mouse_buttons &= ~2;
-	 else if (event->xbutton.button == Button2)
-	    mouse_buttons &= ~4;
-	 if (_xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
+	 _al_xwin_mouse_button_release_handler(event->xbutton.button);
 	 return 1;
       case MotionNotify:
-	 /* Mouse moved.  */
-	 dx = event->xmotion.x - mouse_savedx;
-	 dy = event->xmotion.y - mouse_savedy;
-	 /* Discard some events after warp.  */
-	 if (mouse_was_warped && ((dx != 0) || (dy != 0)) && (mouse_was_warped++ < 16))
-	    return 1;
-	 mouse_savedx = event->xmotion.x;
-	 mouse_savedy = event->xmotion.y;
-	 mouse_was_warped = 0;
-	 if (!_xwin.mouse_warped) {
-	    /* Move Allegro cursor to X-cursor.  */
-	    dx = event->xmotion.x - (_mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0));
-	    dy = event->xmotion.y - (_mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
-	 }
-	 if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt) {
-	    if (_xwin.mouse_warped && (mouse_warp_now++ & 4)) {
-	       /* Warp X-cursor to the center of the window.  */
-	       mouse_savedx = _xwin.window_width / 2;
-	       mouse_savedy = _xwin.window_height / 2;
-	       mouse_was_warped = 1;
-	       XWarpPointer(_xwin.display, _xwin.window, _xwin.window,
-			    0, 0, _xwin.window_width, _xwin.window_height,
-			    mouse_savedx, mouse_savedy);
-	    }
-	    /* Move Allegro cursor.  */
-	    (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
-	 }
+	 _al_xwin_mouse_motion_notify_handler(event->xmotion.x,
+					      event->xmotion.y);
 	 return 1;
       case EnterNotify:
 	 /* Mouse entered window.  */
-	 _mouse_on = TRUE;
+	 _al_comouse_on = TRUE;	/* XXX */
+#if 0 /* XXX */
+	 _xwin_mouse_enter_notify();
 	 mouse_savedx = event->xcrossing.x;
 	 mouse_savedy = event->xcrossing.y;
 	 mouse_was_warped = 0;
@@ -2373,15 +2421,19 @@ static int _xwin_private_process_event(XEvent *event, XEvent *next_event)
 	    dx = event->xcrossing.x - (_mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0));
 	    dy = event->xcrossing.y - (_mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
 	    if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt)
-	       (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
+	       (*_xwin_mouse_interrupt)(dx, dy, 0, 0, mouse_buttons);
 	 }
 	 else if (_xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
+	    (*_xwin_mouse_interrupt)(0, 0, 0, 0, mouse_buttons);
+#endif
 	 return 1;
       case LeaveNotify:
-	 _mouse_on = FALSE;
+	 _al_comouse_on = FALSE;
+#if 0 /* XXX */
 	 if (_xwin_mouse_interrupt)
-	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
+	    (*_xwin_mouse_interrupt)(0, 0, 0, 0, mouse_buttons);
+	 _xwin_mouse_leave_notify();
+#endif
 	 return 1;
       case Expose:
 	 /* Request to redraw part of the window.  */
@@ -2423,10 +2475,12 @@ void _xwin_private_handle_input(void)
    if (_xwin.mouse_warped && (_xwin.mouse_warped++ > MOUSE_WARP_DELAY)) {
       _xwin.mouse_warped = 0;
       /* Move X-cursor to Allegro cursor.  */
+#if 0
       XWarpPointer(_xwin.display, _xwin.window, _xwin.window,
 		   0, 0, _xwin.window_width, _xwin.window_height,
 		   _mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0),
 		   _mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
+#endif
    }
 
    /* Flush X-buffers.  */
@@ -2689,25 +2743,6 @@ void xwin_set_window_name(AL_CONST char *name, AL_CONST char *group)
    XLOCK();
    _xwin_private_set_window_name(tmp1, tmp2);
    XUNLOCK();
-}
-
-
-
-/* _xwin_get_pointer_mapping:
- *  Wrapper for XGetPointerMapping.
- */
-static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap)
-{
-   return ((_xwin.display == 0) ? -1 : XGetPointerMapping(_xwin.display, map, nmap));
-}
-
-int _xwin_get_pointer_mapping(unsigned char map[], int nmap)
-{
-   int num;
-   XLOCK();
-   num = _xwin_private_get_pointer_mapping(map, nmap);
-   XUNLOCK();
-   return num;
 }
 
 

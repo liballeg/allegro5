@@ -103,11 +103,10 @@ Installing Allegro
    Alternatively, you can add the path to your <tt>LD_LIBRARY_PATH</tt> environment
    variable.
 
-   If you are compiling a CVS version of Allegro, you need to generate the
+   If you are compiling a SVN version of Allegro, you need to generate the
    configure header and script prior to doing anything else. Make sure that
    GNU autoconf 2.53 or newer is installed on your system and type:
 <textblock>
-      autoheader   
       autoconf
 <endblock>
    It is possible to add compilation and link flags to the make command line.
@@ -332,15 +331,15 @@ Irix Notes
    If the Irix compiler spits strange lines such as the following when
    compiling your Allegro program:
 <textblock>
-      include/allegro/alcompat.h:59: conflicting types for `ceilf'
+      include/allegro5/alcompat.h:59: conflicting types for `ceilf'
       /usr/include/math.h:311: previous declaration of `ceilf'
-      include/allegro/alcompat.h:60: conflicting types for `floorf'
+      include/allegro5/alcompat.h:60: conflicting types for `floorf'
       /usr/include/math.h:333: previous declaration of `floorf'
-      include/allegro/alcompat.h:63: conflicting types for `tanf'
+      include/allegro5/alcompat.h:63: conflicting types for `tanf'
       /usr/include/math.h:176: previous declaration of `tanf'
-      include/allegro/alcompat.h:64: conflicting types for `acosf'
+      include/allegro5/alcompat.h:64: conflicting types for `acosf'
       /usr/include/math.h:106: previous declaration of `acosf'
-      include/allegro/alcompat.h:65: conflicting types for `asinf'
+      include/allegro5/alcompat.h:65: conflicting types for `asinf'
       /usr/include/math.h:116: previous declaration of `asinf'
 <endblock>
    then you should <tt>#define ALLEGRO_NO_FIX_ALIASES</tt> prior to

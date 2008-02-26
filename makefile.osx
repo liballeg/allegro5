@@ -11,7 +11,11 @@
 # -------- define some variables that the primary makefile will use --------
 
 PLATFORM = MacOS X
+ifdef UB
+CC = misc/gcc-uni.sh
+else
 CC = gcc
+endif
 OBJ_DIR = obj/macosx/$(VERSION)
 EXE = 
 OBJ = .o
@@ -52,7 +56,7 @@ else
 LIB_NAME = lib/macosx/lib$(VERSION)-$(shared_version).dylib
 LIB_MAIN_NAME = lib/macosx/lib$(VERSION)-main.a
 
-DYLINK_FLAGS = -prebind -seg1addr 0x30000000 -compatibility_version $(compatibility_version) -current_version $(shared_version)
+DYLINK_FLAGS = -compatibility_version $(compatibility_version) -current_version $(shared_version)
 
 INSTALL_NAME = -install_name lib$(VERSION)-$(shared_major_minor).dylib
 INSTALL_NAME_EMBED = -install_name "`echo "@executable_path/../Frameworks/$(FRAMEWORK_NAME).framework/Versions/$(shared_version)/$(FRAMEWORK_NAME)" | sed 's!//*!/!g'`"
@@ -97,7 +101,7 @@ endif
 
 OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 
-CFLAGS = -DALLEGRO_LIB_BUILD
+CFLAGS = -DALLEGRO_LIB_BUILD 
 
 
 
@@ -123,9 +127,9 @@ CFLAGS += $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 
 ifndef SYMBOLMODE
-LFLAGS = -s -prebind
+LFLAGS = -s
 else
-LFLAGS = -prebind
+LFLAGS =
 endif
 
 endif
@@ -136,10 +140,17 @@ ifndef STATICLINK
 CFLAGS += -dynamic
 endif
 
+# ------- Universal binary -------------
+ifdef UB
+CFLAGS+= -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk
+LFLAGS+= -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk
+endif
+
+
 
 # -------- list platform specific objects and programs --------
 
-VPATH = src/macosx src/unix src/misc src/c tools/macosx src/compat
+VPATH = src/macosx src/unix src/compat src/misc src/c tools/macosx src/compat
 CFLAGS += -DALLEGRO_NO_ASM
 
 ifdef STATICLINK
@@ -192,7 +203,6 @@ $(INSTALLDIR)/lib/lib$(VERSION)-$(shared_version).dylib: $(LIB_NAME)
 endif
 
 
-# XXX: Un-hardcode the @prefix@ substitution.
 $(INSTALLDIR)/bin/allegro-config: $(LIB_NAME)
 	install -d $(INSTALLDIR)/bin
 ifdef STATICLINK
@@ -200,11 +210,15 @@ ifdef STATICLINK
 else
 	@sed -e "s/@LINK_WITH_STATIC_LIBS@/no/" misc/allegro-config.in >temp
 endif
-	@sed -e "s/@prefix@/\/usr\/local/" temp > temp2
+	@sed -e "s#@prefix@#$(INSTALLDIR)#" temp > temp2
+	@sed -e "s#@INCLUDE_PREFIX@#$(INSTALLDIR)#" temp2 > temp
+	@sed -e "s#@includedir@#$(INSTALLDIR)/include#" temp > temp2
+	@sed -e "s#@libdir@#$(INSTALLDIR)/lib#" temp2 > temp
+	@sed -e "s#@bindir@#$(INSTALLDIR)/bin#" temp > temp2
 	@sed -e "s/@LIB_TO_LINK@/$(VERSION)/" temp2 > temp
 	@sed -e "s/@LDFLAGS@//" temp > temp2
 	@sed -e "s/@LIBS@/$(STATIC_LIBRARIES)/" temp2 > temp
-	@sed -e "s/@INCLUDE_PREFIX@/\/usr\/local/" temp >temp2
+	@cat temp > temp2
 	@sed -e "s/@FRAMEWORKS@/-framework Cocoa -framework $(FRAMEWORK_NAME) -l$(VERSION)-main/" temp2 > temp
 	@sed -e "s/accepts_frameworks=no/accepts_frameworks=yes/" temp > temp2
 	@sed -e "s/{lib_type} \$$allegro_libs/{lib_type}_s \$$allegro_libs/" temp2 > temp
@@ -213,14 +227,18 @@ endif
 	@chmod a+x $(INSTALLDIR)/bin/allegro-config
 	@echo allegro-config script created in $(INSTALLDIR)/bin
 
-HEADERS = $(INSTALLDIR)/$(INCDIR)/osxalleg.h                  \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintosx.h  \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintunix.h \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/alosxcfg.h \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/alplatf.h  \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/astdbool.h \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/astdint.h  \
-          $(INSTALLDIR)/$(INCDIR)/allegro/platform/alosx.h
+$(INSTALLDIR)/bin/fixbundle: tools/macosx/fixbundle
+	@install $< $(INSTALLDIR)/bin/
+
+BUILD_HEADERS = $(INCDIR)/osxalleg.h                  \
+          $(INCDIR)/allegro5/platform/aintosx.h  \
+          $(INCDIR)/allegro5/platform/aintunix.h \
+          $(INCDIR)/allegro5/platform/alosxcfg.h \
+          $(INCDIR)/allegro5/platform/alplatf.h  \
+          $(INCDIR)/allegro5/platform/astdint.h  \
+          $(INCDIR)/allegro5/platform/alosx.h
+
+HEADERS = $(addprefix $(INSTALLDIR)/,$(BUILD_HEADERS))
 
 ifdef STATICLINK
    INSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)_s.a 
@@ -229,7 +247,7 @@ else
    INSTALL_FILES += $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)-main.a
 endif
 
-INSTALL_FILES += $(HEADERS) $(INSTALLDIR)/bin/allegro-config
+INSTALL_FILES += $(HEADERS) $(INSTALLDIR)/bin/allegro-config $(INSTALLDIR)/bin/fixbundle
 
 install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
@@ -249,7 +267,8 @@ UNINSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/liballeg_s.a                     \
                   $(INSTALLDIR)/$(LIBDIR)/liballd-main.a                   \
                   $(INSTALLDIR)/$(LIBDIR)/liballp-main.a                   \
                   $(HEADERS)                                         \
-                  $(INSTALLDIR)/bin/allegro-config
+                  $(INSTALLDIR)/bin/allegro-config                   \
+                  $(INSTALLDIR)/bin/fixbundle
 
 uninstall: generic-uninstall
 	rm -f $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)-$(shared_major_minor).dylib
@@ -263,8 +282,7 @@ uninstall: generic-uninstall
 	  | xargs -n 1 rm -f
 	-sed -n -e "s,^@@\(struct\|typedef\).*@\([a-zA-Z0-9_]*\),$(MAN_DIR)/man3/\2.3,p" docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
-	-rm -f $(HELPBUNDLE)/*
-	-rmdir $(HELPBUNDLE)
+	@test -d $(HELPBUNDLE) && rm -fR $(HELPBUNDLE) || true
 
 	@echo All gone!	
 
@@ -275,9 +293,9 @@ install-applehelp:
 	install docs/html/*.html $(HELPBUNDLE)
 	sed -n -e '1,6p' docs/html/index.html > $(HELPBUNDLE)/index.html
 	echo "<META NAME=\"AppleTitle\" CONTENT=\"Allegro Help\">" >> $(HELPBUNDLE)/index.html 
-	echo "<META NAME=\"AppleIcon\" CONTENT=\"alex.png\">" >> $(HELPBUNDLE)/index.html 
+	echo "<META NAME=\"AppleIcon\" CONTENT=\"icon.png\">" >> $(HELPBUNDLE)/index.html 
 	sed -n -e '7,$$p' docs/html/index.html >> $(HELPBUNDLE)/index.html
-	install misc/alex.png $(HELPBUNDLE) 	
+	install misc/icon.png $(HELPBUNDLE) 	
 
 $(FRAMEWORK): $(LIB_NAME)
 ifdef STATICLINK
@@ -292,9 +310,9 @@ ifdef EMBED
 else
 	@install $(LIB_NAME) $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME)
 endif
-	@install include/allegro.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
+	@install include/allegro5/allegro5.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@install include/osxalleg.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
-	@install $(HEADERS) $(FRAMEWORK)/Versions/$(shared_version)/Headers
+	@install $(BUILD_HEADERS) $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@(cd $(FRAMEWORK)/Versions; ln -s $(shared_version) Current)
 	@(cd $(FRAMEWORK); ln -s Versions/Current/Headers $(FRAMEWORK)/Headers)
 	@(cd $(FRAMEWORK); ln -s Versions/Current/Resources $(FRAMEWORK)/Resources)
@@ -330,7 +348,7 @@ install-man: docs docs/man/install_allegro.3
 	@echo Installing man files to $(MAN_DIR)/man3
 	@install docs/man/*.3 $(MAN_DIR)/man3/
 	
-
+	
 
 # -------- test capabilities --------
 
@@ -346,7 +364,7 @@ ifdef STATICLINK
 
 # -------- link as a static library --------
 define MAKE_LIB
-ar rs $(LIB_NAME) $(OBJECTS)
+libtool -static -s -o $(LIB_NAME) $(OBJECTS)
 endef
 
 else
@@ -361,7 +379,7 @@ endif # STATICLINK
 
 $(LIB_MAIN_NAME): obj/macosx/$(VERSION)/main.o
 ifndef STATICLINK
-	ar rs $(LIB_MAIN_NAME) obj/macosx/$(VERSION)/main.o
+	libtool -static -s -o  $(LIB_MAIN_NAME) obj/macosx/$(VERSION)/main.o
 endif
 
 
@@ -395,7 +413,7 @@ define GENERATE_PLUGINS_H
 endef
 
 define MAKE_PLUGIN_LIB
-   ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
+   libtool -static -s -o $(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS

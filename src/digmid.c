@@ -21,8 +21,8 @@
 #include <limits.h>
 #include <math.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 /* external interface to the Digmid driver */
@@ -909,12 +909,12 @@ static void digmid_set_volume(int voice, int vol)
 	 int mu;
 
 	 if (start > target)
-	    mu = MID(0, (current-target) * 256 / (start-target), 256);
+	    mu = CLAMP(0, (current-target) * 256 / (start-target), 256);
 	 else
 	    mu = 0;
 
 	 v = mu+info->e->sustain_level*(256-mu)/256;
-	 v = MID(0, vol*v/255, 255);
+	 v = CLAMP(0, vol*v/255, 255);
 
 	 voice_set_volume(voice, v);
 	 voice_ramp_volume(voice, info->e->decay_time*mu/256, info->e->sustain_level*vol/255);

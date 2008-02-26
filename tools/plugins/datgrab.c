@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 #include "../datedit.h"
 
 
@@ -77,8 +77,8 @@ static void grabbit(DATAFILE *dat, int box)
       y = mouse_y;
 
       if ((x >= grabber_graphic->w) || (y >= grabber_graphic->h)) {
-	 x = MID(0, x, grabber_graphic->w-1);
-	 y = MID(0, y, grabber_graphic->h-1);
+	 x = CLAMP(0, x, grabber_graphic->w-1);
+	 y = CLAMP(0, y, grabber_graphic->h-1);
 	 position_mouse(x, y);
       }
 
@@ -188,8 +188,8 @@ static void grabbit(DATAFILE *dat, int box)
 	 h = mouse_y;
 
 	 if ((w < x) || (w > grabber_graphic->w) || ( h < y) || (h > grabber_graphic->h)) {
-	    w = MID(x, w, grabber_graphic->w);
-	    h = MID(y, h, grabber_graphic->h);
+	    w = CLAMP(x, w, grabber_graphic->w);
+	    h = CLAMP(y, h, grabber_graphic->h);
 	    position_mouse(w, h);
 	 }
 

@@ -21,8 +21,8 @@
 #include <string.h>
 #include <time.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 #include "datedit.h"
 
 
@@ -1351,7 +1351,7 @@ int datedit_save_header(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST ch
    FILE *f;
    int c;
 
-   #ifdef HAVE_MKSTEMP
+   #ifdef ALLEGRO_HAVE_MKSTEMP
 
       char tmp_buf[] = "XXXXXX";
       char tmp[512];

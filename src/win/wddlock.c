@@ -23,8 +23,110 @@
 #define PREFIX_E                "al-wddlock ERROR: "
 
 
+
+/* If custom (asm) calling conversions are used, then the code in asmlock.s is
+ * used instead.
+ */
+#if defined(ALLEGRO_NO_ASM)
+
+static void update_dirty_lines(BITMAP *bmp)
+{
+   RECT rect;
+   int i;
+
+   /* The width is always the full bitmap width, because we have no 
+    * mechanism for measuring the X range of the update.
+    */
+   rect.left = 0;
+   rect.right = bmp->w;
+   for (i = 0; i < bmp->h; i++) {
+      if (_al_wd_dirty_lines[i]) {
+         int j = i+1;
+         rect.top = i;
+         /* consecutive dirty lines are combined into ranges of Y values */
+         while (_al_wd_dirty_lines[j])
+            j++;
+         rect.bottom = j;
+         _al_wd_update_window(&rect);
+         i = j+1;
+      }
+   }
+}
+
+
+
+uintptr_t gfx_directx_write_bank(BITMAP *bmp, int line)
+{
+   if (!(bmp->id & BMP_ID_LOCKED)) 
+      gfx_directx_autolock(bmp);
+
+   return (uintptr_t) bmp->line[line];
+}
+
+
+
+void gfx_directx_unwrite_bank(BITMAP *bmp)
+{
+   if (!(bmp->id & BMP_ID_AUTOLOCK))
+      return;
+
+   gfx_directx_unlock(bmp);
+   bmp->id &= ~ BMP_ID_AUTOLOCK;
+}
+
+
+
+uintptr_t gfx_directx_write_bank_win(BITMAP *bmp, int line)
+{
+   _al_wd_dirty_lines[bmp->y_ofs+line] = 1;
+
+   if (!(bmp->id & BMP_ID_LOCKED))
+      gfx_directx_autolock(bmp);
+
+   return (uintptr_t) bmp->line[line];
+}
+
+
+
+void gfx_directx_unwrite_bank_win(BITMAP *bmp)
+{
+   if (!(bmp->id & BMP_ID_AUTOLOCK))
+      return;
+
+   gfx_directx_unlock(bmp);
+   bmp->id &= ~BMP_ID_AUTOLOCK;
+
+   /* Update dirty lines: this is safe because autolocking is guaranteed to
+    * be the only level of locking.  (Or at least, that's what it says in
+    * asmlock.s)
+    */
+   update_dirty_lines(gfx_directx_forefront_bitmap);
+}
+
+
+
+void gfx_directx_unlock_win(BITMAP *bmp)
+{
+   gfx_directx_unlock(bmp);
+
+   /* forefront_bitmap may still be locked in case of nested locking */
+   if (!(gfx_directx_forefront_bitmap->id & BMP_ID_LOCKED))
+      update_dirty_lines(gfx_directx_forefront_bitmap);
+}
+
+
+
+#else /* !defined(ALLEGRO_NO_ASM) */
+
+
+
+/* asmlock.s requires these two variables */
 void (*ptr_gfx_directx_autolock) (BITMAP* bmp) = gfx_directx_autolock;
 void (*ptr_gfx_directx_unlock) (BITMAP* bmp) = gfx_directx_unlock;
+
+
+
+#endif /* !defined(ALLEGRO_NO_ASM) */
 
 
 
@@ -116,7 +218,7 @@ void gfx_directx_lock(BITMAP *bmp)
 
 	    /* lock failed, use pseudo surface memory */
 	    surf->flags |= DDRAW_SURFACE_LOST;
-	    data = pseudo_surf_mem;
+	    data = (unsigned char *)pseudo_surf_mem;
 	    pitch = 0;
 	 } 
 	 else {

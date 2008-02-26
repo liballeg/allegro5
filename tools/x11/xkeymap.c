@@ -17,7 +17,7 @@
 
 #include <stdio.h>
 
-#include <allegro.h>
+#include <allegro5.h>
 #include <xalleg.h>
 #include <allegro/internal/aintern.h>
 
@@ -181,6 +181,8 @@ static void test_key_map(void)
 	 else
 	    rectfill(screen, x, y, x + 7, y + 7, white);
       }
+
+      rest(1);
    }
    while ((!key[KEY_ESC]) && (!mouse_b));
 

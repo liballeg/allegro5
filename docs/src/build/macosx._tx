@@ -58,7 +58,7 @@ Installing Allegro
       chmod +x fix.sh
       ./fix.sh macosx
 <endblock>
-   If you have checked out a development version from Allegro's CVS
+   If you have checked out a development version from Allegro's SVN
    repository, run the following command. Otherwise, skip this step:
 <textblock>
       make depend
@@ -85,8 +85,8 @@ Installing Allegro
 <textblock>
       sudo make install-framework
 <endblock>
-   The "Allegro" framework will be created into <tt>/Library/Frameworks</tt>. Note
-   that the framework is standalone: it contains its own copy of the
+   The "Allegro" framework will be created into <tt>/Library/Frameworks</tt>.
+   Note that the framework is standalone: it contains its own copy of the
    dynamic library, so it can be safely copied around.
    If you plan to embed the Allegro framework inside your application
    bundles, you must install a special embeddable version of it:
@@ -119,10 +119,22 @@ Installing Allegro
       make
       sudo make install
 <endblock>
-   The static library will be installed in <tt>/usr/local/lib</tt> as the shared one,
-   but you will not be able to install the framework nor the Project Builder
-   template, which require a dynamically linked Allegro version.
+   The static library will be installed in <tt>/usr/local/lib</tt> as the shared
+   one, but you will not be able to install the framework nor the Project
+   Builder template, which require a dynamically linked Allegro version.
 
+   If you have OS X 10.4 and you want to build a Universal Binary version of
+   the library (i.e. one that will run on both PowerPC and Intel Macs) you
+   can type
+<textblock>
+      ./fix.sh macosx-universal
+<endblock>
+   instead of the <tt>fix.sh</tt> line given above. Note that you'll still need
+   to specify the appropriate flags when you link your program, otherwise
+   gcc will 'thin' the binary so it only includes the native code.
+
+   For more information see 
+   http://developer.apple.com/documentation/MacOSX/Conceptual/universal_binary/
 
 
 @heading

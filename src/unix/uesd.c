@@ -18,12 +18,12 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 #if (defined ALLEGRO_WITH_ESDDIGI) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
 
 #include <sys/time.h>
 #include <sys/types.h>

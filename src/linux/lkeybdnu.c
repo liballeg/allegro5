@@ -44,10 +44,13 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/platform/aintlnx.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "allegro/internal/aintern2.h"
+
 
 #define PREFIX_I                "al-ckey INFO: "
 #define PREFIX_W                "al-ckey WARNING: "
@@ -55,21 +58,21 @@
 
 
 
-typedef struct AL_KEYBOARD_LINUX
+typedef struct ALLEGRO_KEYBOARD_LINUX
 {
-   AL_KEYBOARD parent;
+   ALLEGRO_KEYBOARD parent;
    int fd;
    struct termios startup_termio;
    struct termios work_termio;
    int startup_kbmode;
-   AL_KBDSTATE state;
+   ALLEGRO_KBDSTATE state;
    unsigned int modifiers;
-} AL_KEYBOARD_LINUX;
+} ALLEGRO_KEYBOARD_LINUX;
 
 
 
 /* the one and only keyboard object */
-static AL_KEYBOARD_LINUX the_keyboard;
+static ALLEGRO_KEYBOARD_LINUX the_keyboard;
 
 /* the pid to kill when three finger saluting */
 static pid_t main_pid;
@@ -77,11 +80,11 @@ static pid_t main_pid;
 
 
 /* forward declarations */
-static bool lkeybd_init(void);
-static void lkeybd_exit(void);
-static AL_KEYBOARD *lkeybd_get_keyboard(void);
-static bool lkeybd_set_leds(int leds);
-static void lkeybd_get_state(AL_KBDSTATE *ret_state);
+static bool lkeybd_init_keyboard(void);
+static void lkeybd_exit_keyboard(void);
+static ALLEGRO_KEYBOARD *lkeybd_get_keyboard(void);
+static bool lkeybd_set_keyboard_leds(int leds);
+static void lkeybd_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state);
 
 static void process_new_data(void *unused);
 static void process_character(unsigned char ch);
@@ -93,18 +96,18 @@ static void handle_key_release(int mycode);
 /* the driver vtable */
 #define KEYDRV_LINUX    AL_ID('L','N','X','C')
 
-static AL_KEYBOARD_DRIVER keydrv_linux =
+static ALLEGRO_KEYBOARD_DRIVER keydrv_linux =
 {
    KEYDRV_LINUX,
    empty_string,
    empty_string,
    "Linux console keyboard",
-   lkeybd_init,
-   lkeybd_exit,
+   lkeybd_init_keyboard,
+   lkeybd_exit_keyboard,
    lkeybd_get_keyboard,
-   lkeybd_set_leds,
+   lkeybd_set_keyboard_leds,
    NULL, /* const char *keycode_to_name(int keycode) */
-   lkeybd_get_state
+   lkeybd_get_keyboard_state
 };
 
 
@@ -123,49 +126,49 @@ _DRIVER_INFO _al_linux_keyboard_driver_list[] =
  */
 
 
-#define KB_MODIFIERS    (AL_KEYMOD_SHIFT | AL_KEYMOD_CTRL | AL_KEYMOD_ALT | \
-                         AL_KEYMOD_ALTGR | AL_KEYMOD_LWIN | AL_KEYMOD_RWIN | \
-                         AL_KEYMOD_MENU)
+#define KB_MODIFIERS    (ALLEGRO_KEYMOD_SHIFT | ALLEGRO_KEYMOD_CTRL | ALLEGRO_KEYMOD_ALT | \
+                         ALLEGRO_KEYMOD_ALTGR | ALLEGRO_KEYMOD_LWIN | ALLEGRO_KEYMOD_RWIN | \
+                         ALLEGRO_KEYMOD_MENU)
 
-#define KB_LED_FLAGS    (AL_KEYMOD_SCROLLLOCK | AL_KEYMOD_NUMLOCK | \
-                         AL_KEYMOD_CAPSLOCK)
+#define KB_LED_FLAGS    (ALLEGRO_KEYMOD_SCROLLLOCK | ALLEGRO_KEYMOD_NUMLOCK | \
+                         ALLEGRO_KEYMOD_CAPSLOCK)
 
 
 /* lookup table for converting kernel keycodes into Allegro format */
 static unsigned char kernel_to_mycode[128] =
 {
-   /* 0x00 */ 0,                AL_KEY_ESCAPE,   AL_KEY_1,           AL_KEY_2,
-   /* 0x04 */ AL_KEY_3,         AL_KEY_4,        AL_KEY_5,           AL_KEY_6,
-   /* 0x08 */ AL_KEY_7,         AL_KEY_8,        AL_KEY_9,           AL_KEY_0,
-   /* 0x0C */ AL_KEY_MINUS,     AL_KEY_EQUALS,   AL_KEY_BACKSPACE,   AL_KEY_TAB,
-   /* 0x10 */ AL_KEY_Q,         AL_KEY_W,        AL_KEY_E,           AL_KEY_R,
-   /* 0x14 */ AL_KEY_T,         AL_KEY_Y,        AL_KEY_U,           AL_KEY_I,
-   /* 0x18 */ AL_KEY_O,         AL_KEY_P,        AL_KEY_OPENBRACE,   AL_KEY_CLOSEBRACE,
-   /* 0x1C */ AL_KEY_ENTER,     AL_KEY_LCTRL,    AL_KEY_A,           AL_KEY_S,
-   /* 0x20 */ AL_KEY_D,         AL_KEY_F,        AL_KEY_G,           AL_KEY_H,
-   /* 0x24 */ AL_KEY_J,         AL_KEY_K,        AL_KEY_L,           AL_KEY_SEMICOLON,
-   /* 0x28 */ AL_KEY_QUOTE,     AL_KEY_TILDE,    AL_KEY_LSHIFT,      AL_KEY_BACKSLASH,
-   /* 0x2C */ AL_KEY_Z,         AL_KEY_X,        AL_KEY_C,           AL_KEY_V,
-   /* 0x30 */ AL_KEY_B,         AL_KEY_N,        AL_KEY_M,           AL_KEY_COMMA,
-   /* 0x34 */ AL_KEY_FULLSTOP,  AL_KEY_SLASH,    AL_KEY_RSHIFT,      AL_KEY_PAD_ASTERISK,
-   /* 0x38 */ AL_KEY_ALT,       AL_KEY_SPACE,    AL_KEY_CAPSLOCK,    AL_KEY_F1,
-   /* 0x3C */ AL_KEY_F2,        AL_KEY_F3,       AL_KEY_F4,          AL_KEY_F5,
-   /* 0x40 */ AL_KEY_F6,        AL_KEY_F7,       AL_KEY_F8,          AL_KEY_F9,
-   /* 0x44 */ AL_KEY_F10,       AL_KEY_NUMLOCK,  AL_KEY_SCROLLLOCK,  AL_KEY_PAD_7,
-   /* 0x48 */ AL_KEY_PAD_8,     AL_KEY_PAD_9,    AL_KEY_PAD_MINUS,   AL_KEY_PAD_4,
-   /* 0x4C */ AL_KEY_PAD_5,     AL_KEY_PAD_6,    AL_KEY_PAD_PLUS,    AL_KEY_PAD_1,
-   /* 0x50 */ AL_KEY_PAD_2,     AL_KEY_PAD_3,    AL_KEY_PAD_0,       AL_KEY_PAD_DELETE,
-   /* 0x54 */ AL_KEY_PRINTSCREEN, 0,             AL_KEY_BACKSLASH2,  AL_KEY_F11,
-   /* 0x58 */ AL_KEY_F12,       0,               0,                  0,
+   /* 0x00 */ 0,                ALLEGRO_KEY_ESCAPE,   ALLEGRO_KEY_1,           ALLEGRO_KEY_2,
+   /* 0x04 */ ALLEGRO_KEY_3,         ALLEGRO_KEY_4,        ALLEGRO_KEY_5,           ALLEGRO_KEY_6,
+   /* 0x08 */ ALLEGRO_KEY_7,         ALLEGRO_KEY_8,        ALLEGRO_KEY_9,           ALLEGRO_KEY_0,
+   /* 0x0C */ ALLEGRO_KEY_MINUS,     ALLEGRO_KEY_EQUALS,   ALLEGRO_KEY_BACKSPACE,   ALLEGRO_KEY_TAB,
+   /* 0x10 */ ALLEGRO_KEY_Q,         ALLEGRO_KEY_W,        ALLEGRO_KEY_E,           ALLEGRO_KEY_R,
+   /* 0x14 */ ALLEGRO_KEY_T,         ALLEGRO_KEY_Y,        ALLEGRO_KEY_U,           ALLEGRO_KEY_I,
+   /* 0x18 */ ALLEGRO_KEY_O,         ALLEGRO_KEY_P,        ALLEGRO_KEY_OPENBRACE,   ALLEGRO_KEY_CLOSEBRACE,
+   /* 0x1C */ ALLEGRO_KEY_ENTER,     ALLEGRO_KEY_LCTRL,    ALLEGRO_KEY_A,           ALLEGRO_KEY_S,
+   /* 0x20 */ ALLEGRO_KEY_D,         ALLEGRO_KEY_F,        ALLEGRO_KEY_G,           ALLEGRO_KEY_H,
+   /* 0x24 */ ALLEGRO_KEY_J,         ALLEGRO_KEY_K,        ALLEGRO_KEY_L,           ALLEGRO_KEY_SEMICOLON,
+   /* 0x28 */ ALLEGRO_KEY_QUOTE,     ALLEGRO_KEY_TILDE,    ALLEGRO_KEY_LSHIFT,      ALLEGRO_KEY_BACKSLASH,
+   /* 0x2C */ ALLEGRO_KEY_Z,         ALLEGRO_KEY_X,        ALLEGRO_KEY_C,           ALLEGRO_KEY_V,
+   /* 0x30 */ ALLEGRO_KEY_B,         ALLEGRO_KEY_N,        ALLEGRO_KEY_M,           ALLEGRO_KEY_COMMA,
+   /* 0x34 */ ALLEGRO_KEY_FULLSTOP,  ALLEGRO_KEY_SLASH,    ALLEGRO_KEY_RSHIFT,      ALLEGRO_KEY_PAD_ASTERISK,
+   /* 0x38 */ ALLEGRO_KEY_ALT,       ALLEGRO_KEY_SPACE,    ALLEGRO_KEY_CAPSLOCK,    ALLEGRO_KEY_F1,
+   /* 0x3C */ ALLEGRO_KEY_F2,        ALLEGRO_KEY_F3,       ALLEGRO_KEY_F4,          ALLEGRO_KEY_F5,
+   /* 0x40 */ ALLEGRO_KEY_F6,        ALLEGRO_KEY_F7,       ALLEGRO_KEY_F8,          ALLEGRO_KEY_F9,
+   /* 0x44 */ ALLEGRO_KEY_F10,       ALLEGRO_KEY_NUMLOCK,  ALLEGRO_KEY_SCROLLLOCK,  ALLEGRO_KEY_PAD_7,
+   /* 0x48 */ ALLEGRO_KEY_PAD_8,     ALLEGRO_KEY_PAD_9,    ALLEGRO_KEY_PAD_MINUS,   ALLEGRO_KEY_PAD_4,
+   /* 0x4C */ ALLEGRO_KEY_PAD_5,     ALLEGRO_KEY_PAD_6,    ALLEGRO_KEY_PAD_PLUS,    ALLEGRO_KEY_PAD_1,
+   /* 0x50 */ ALLEGRO_KEY_PAD_2,     ALLEGRO_KEY_PAD_3,    ALLEGRO_KEY_PAD_0,       ALLEGRO_KEY_PAD_DELETE,
+   /* 0x54 */ ALLEGRO_KEY_PRINTSCREEN, 0,             ALLEGRO_KEY_BACKSLASH2,  ALLEGRO_KEY_F11,
+   /* 0x58 */ ALLEGRO_KEY_F12,       0,               0,                  0,
    /* 0x5C */ 0,                0,               0,                  0,
-   /* 0x60 */ AL_KEY_PAD_ENTER, AL_KEY_RCTRL,    AL_KEY_PAD_SLASH,   AL_KEY_PRINTSCREEN,
-   /* 0x64 */ AL_KEY_ALTGR,     AL_KEY_PAUSE,    AL_KEY_HOME,        AL_KEY_UP,
-   /* 0x68 */ AL_KEY_PGUP,      AL_KEY_LEFT,     AL_KEY_RIGHT,       AL_KEY_END,
-   /* 0x6C */ AL_KEY_DOWN,      AL_KEY_PGDN,     AL_KEY_INSERT,      AL_KEY_DELETE,
+   /* 0x60 */ ALLEGRO_KEY_PAD_ENTER, ALLEGRO_KEY_RCTRL,    ALLEGRO_KEY_PAD_SLASH,   ALLEGRO_KEY_PRINTSCREEN,
+   /* 0x64 */ ALLEGRO_KEY_ALTGR,     ALLEGRO_KEY_PAUSE,    ALLEGRO_KEY_HOME,        ALLEGRO_KEY_UP,
+   /* 0x68 */ ALLEGRO_KEY_PGUP,      ALLEGRO_KEY_LEFT,     ALLEGRO_KEY_RIGHT,       ALLEGRO_KEY_END,
+   /* 0x6C */ ALLEGRO_KEY_DOWN,      ALLEGRO_KEY_PGDN,     ALLEGRO_KEY_INSERT,      ALLEGRO_KEY_DELETE,
    /* 0x70 */ 0,                0,               0,                  0,
-   /* 0x74 */ 0,                0,               0,                  AL_KEY_PAUSE,
+   /* 0x74 */ 0,                0,               0,                  ALLEGRO_KEY_PAUSE,
    /* 0x78 */ 0,                0,               0,                  0,
-   /* 0x7C */ 0,                AL_KEY_LWIN,     AL_KEY_RWIN,        AL_KEY_MENU
+   /* 0x7C */ 0,                ALLEGRO_KEY_LWIN,     ALLEGRO_KEY_RWIN,        ALLEGRO_KEY_MENU
 
    /* "Two keys are unusual in the sense that their keycode is not constant,
     *  but depends on modifiers. The PrintScrn key will yield keycode 84 when
@@ -191,13 +194,13 @@ static const char pad_asciis_no_numlock[NUM_PAD_KEYS] =
 };
 
 
-/* convert Allegro format keycodes into AL_KEYMOD_* */
-static const unsigned int modifier_table[AL_KEY_MAX - AL_KEY_MODIFIERS] =
+/* convert Allegro format keycodes into ALLEGRO_KEYMOD_* */
+static const unsigned int modifier_table[ALLEGRO_KEY_MAX - ALLEGRO_KEY_MODIFIERS] =
 {
-   AL_KEYMOD_SHIFT,      AL_KEYMOD_SHIFT,   AL_KEYMOD_CTRL,
-   AL_KEYMOD_CTRL,       AL_KEYMOD_ALT,     AL_KEYMOD_ALTGR,
-   AL_KEYMOD_LWIN,       AL_KEYMOD_RWIN,    AL_KEYMOD_MENU,
-   AL_KEYMOD_SCROLLLOCK, AL_KEYMOD_NUMLOCK, AL_KEYMOD_CAPSLOCK
+   ALLEGRO_KEYMOD_SHIFT,      ALLEGRO_KEYMOD_SHIFT,   ALLEGRO_KEYMOD_CTRL,
+   ALLEGRO_KEYMOD_CTRL,       ALLEGRO_KEYMOD_ALT,     ALLEGRO_KEYMOD_ALTGR,
+   ALLEGRO_KEYMOD_LWIN,       ALLEGRO_KEYMOD_RWIN,    ALLEGRO_KEYMOD_MENU,
+   ALLEGRO_KEYMOD_SCROLLLOCK, ALLEGRO_KEYMOD_NUMLOCK, ALLEGRO_KEYMOD_CAPSLOCK
 };
 
 
@@ -220,10 +223,10 @@ static int keycode_to_char(int keycode)
 
    /* build kernel keymap number */
    keymap = 0;
-   if (modifiers & AL_KEYMOD_SHIFT) keymap |= 1;
-   if (modifiers & AL_KEYMOD_ALTGR) keymap |= 2;
-   if (modifiers & AL_KEYMOD_CTRL)  keymap |= 4;
-   if (modifiers & AL_KEYMOD_ALT)   keymap |= 8;
+   if (modifiers & ALLEGRO_KEYMOD_SHIFT) keymap |= 1;
+   if (modifiers & ALLEGRO_KEYMOD_ALTGR) keymap |= 2;
+   if (modifiers & ALLEGRO_KEYMOD_CTRL)  keymap |= 4;
+   if (modifiers & ALLEGRO_KEYMOD_ALT)   keymap |= 8;
 
    /* map keycode to type and value */
    kbe.kb_table = keymap;
@@ -254,7 +257,7 @@ static int keycode_to_char(int keycode)
 
       case KT_LETTER:
          /* apply capslock translation. */
-         if (modifiers & AL_KEYMOD_CAPSLOCK)
+         if (modifiers & ALLEGRO_KEYMOD_CAPSLOCK)
             return ascii ^ 0x20;
          else
             return ascii;
@@ -266,7 +269,7 @@ static int keycode_to_char(int keycode)
       case KT_PAD:
       {
          int val = KVAL(kbe.kb_value);
-         if (modifiers & AL_KEYMOD_NUMLOCK) {
+         if (modifiers & ALLEGRO_KEYMOD_NUMLOCK) {
             if ((val >= 0) && (val < NUM_PAD_KEYS))
                ascii = pad_asciis[val];
          } else {
@@ -290,10 +293,10 @@ static int keycode_to_char(int keycode)
 
 
 
-/* lkeybd_init: [primary thread]
+/* lkeybd_init_keyboard: [primary thread]
  *  Initialise the keyboard driver.
  */
-static bool lkeybd_init(void)
+static bool lkeybd_init_keyboard(void)
 {
    bool can_restore_termio_and_kbmode = false;
 
@@ -347,7 +350,7 @@ static bool lkeybd_init(void)
       goto Error;
 
    /* Initialise the keyboard object for use as an event source. */
-   _al_event_source_init(&the_keyboard.parent.es, _AL_ALL_KEYBOARD_EVENTS);
+   _al_event_source_init(&the_keyboard.parent.es);
 
    /* Start watching for data on the fd. */
    _al_unix_start_watching_fd(the_keyboard.fd, process_new_data, NULL);
@@ -373,10 +376,10 @@ static bool lkeybd_init(void)
 
 
 
-/* lkeybd_exit: [primary thread]
+/* lkeybd_exit_keyboard: [primary thread]
  *  Shut down the keyboard driver.
  */
-static void lkeybd_exit(void)
+static void lkeybd_exit_keyboard(void)
 {
    _al_unix_stop_watching_fd(the_keyboard.fd);
 
@@ -400,35 +403,35 @@ static void lkeybd_exit(void)
 
 
 /* lkeybd_get_keyboard:
- *  Returns the address of a AL_KEYBOARD structure representing the keyboard.
+ *  Returns the address of a ALLEGRO_KEYBOARD structure representing the keyboard.
  */
-static AL_KEYBOARD *lkeybd_get_keyboard(void)
+static ALLEGRO_KEYBOARD *lkeybd_get_keyboard(void)
 {
-   return (AL_KEYBOARD *)&the_keyboard;
+   return (ALLEGRO_KEYBOARD *)&the_keyboard;
 }
 
 
 
-/* lkeybd_set_leds:
+/* lkeybd_set_keyboard_leds:
  *  Updates the LED state.
  */
-static bool lkeybd_set_leds(int leds)
+static bool lkeybd_set_keyboard_leds(int leds)
 {
    int val = 0;
 
-   if (leds & AL_KEYMOD_SCROLLLOCK) val |= LED_SCR;
-   if (leds & AL_KEYMOD_NUMLOCK)    val |= LED_NUM;
-   if (leds & AL_KEYMOD_CAPSLOCK)   val |= LED_CAP;
+   if (leds & ALLEGRO_KEYMOD_SCROLLLOCK) val |= LED_SCR;
+   if (leds & ALLEGRO_KEYMOD_NUMLOCK)    val |= LED_NUM;
+   if (leds & ALLEGRO_KEYMOD_CAPSLOCK)   val |= LED_CAP;
 
    return (ioctl(the_keyboard.fd, KDSETLED, val) == 0) ? true : false;
 }
 
 
 
-/* lkeybd_get_state: [primary thread]
+/* lkeybd_get_keyboard_state: [primary thread]
  *  Copy the current keyboard state into RET_STATE, with any necessary locking.
  */
-static void lkeybd_get_state(AL_KBDSTATE *ret_state)
+static void lkeybd_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state)
 {
    _al_event_source_lock(&the_keyboard.parent.es);
    {
@@ -481,8 +484,8 @@ static void process_character(unsigned char ch)
       return;
 
    /* process modifiers */
-   if (mycode >= AL_KEY_MODIFIERS) {
-      int flag = modifier_table[mycode - AL_KEY_MODIFIERS];
+   if (mycode >= ALLEGRO_KEY_MODIFIERS) {
+      int flag = modifier_table[mycode - ALLEGRO_KEY_MODIFIERS];
       if (press) {
          if (flag & KB_MODIFIERS)
             the_keyboard.modifiers |= flag;
@@ -491,7 +494,7 @@ static void process_character(unsigned char ch)
       }
       else {
          /* XXX: if the user presses LCTRL, then RCTRL, then releases
-          * LCTRL, the AL_KEYMOD_CTRL modifier should still be on.
+          * LCTRL, the ALLEGRO_KEYMOD_CTRL modifier should still be on.
           */
          if (flag & KB_MODIFIERS)
             the_keyboard.modifiers &= ~flag;
@@ -521,9 +524,9 @@ static void process_character(unsigned char ch)
    
    /* three-finger salute for killing the program */
    if ((_al_three_finger_flag)
-       && ((mycode == AL_KEY_DELETE) || (mycode == AL_KEY_END))
-       && (the_keyboard.modifiers & AL_KEYMOD_CTRL)
-       && (the_keyboard.modifiers & AL_KEYMOD_ALT))
+       && ((mycode == ALLEGRO_KEY_DELETE) || (mycode == ALLEGRO_KEY_END))
+       && (the_keyboard.modifiers & ALLEGRO_KEYMOD_CTRL)
+       && (the_keyboard.modifiers & ALLEGRO_KEYMOD_ALT))
    {
       TRACE(PREFIX_W "Three finger combo detected. SIGTERMing "
 	 "pid %d\n", main_pid);
@@ -538,18 +541,18 @@ static void process_character(unsigned char ch)
  */
 static void handle_key_press(int mycode, unsigned int ascii)
 {
-   unsigned int event_type;
-   AL_EVENT *event;
+   ALLEGRO_EVENT_TYPE event_type;
+   ALLEGRO_EVENT *event;
 
    event_type = (_AL_KBDSTATE_KEY_DOWN(the_keyboard.state, mycode)
-                 ? AL_EVENT_KEY_REPEAT
-                 : AL_EVENT_KEY_DOWN);
+                 ? ALLEGRO_EVENT_KEY_REPEAT
+                 : ALLEGRO_EVENT_KEY_DOWN);
    
    /* Maintain the key_down array. */
    _AL_KBDSTATE_SET_KEY_DOWN(the_keyboard.state, mycode);
 
    /* Generate key press/repeat events if necessary. */   
-   if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es, event_type))
+   if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&the_keyboard.parent.es);
@@ -573,7 +576,7 @@ static void handle_key_press(int mycode, unsigned int ascii)
  */
 static void handle_key_release(int mycode)
 {
-   AL_EVENT *event;
+   ALLEGRO_EVENT *event;
 
    /* This can happen, e.g. when we are switching back into a VT with
     * ALT+Fn, we only get the release event of the function key.
@@ -585,14 +588,14 @@ static void handle_key_release(int mycode)
    _AL_KBDSTATE_CLEAR_KEY_DOWN(the_keyboard.state, mycode);
 
    /* Generate key release events if necessary. */
-   if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es, AL_EVENT_KEY_UP))
+   if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&the_keyboard.parent.es);
    if (!event)
       return;
 
-   event->keyboard.type = AL_EVENT_KEY_UP;
+   event->keyboard.type = ALLEGRO_EVENT_KEY_UP;
    event->keyboard.timestamp = al_current_time();
    event->keyboard.__display__dont_use_yet__ = NULL;
    event->keyboard.keycode = mycode;

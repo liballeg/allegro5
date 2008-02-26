@@ -76,7 +76,7 @@ def CheckMMX(context):
         popl %ebp
         ret""", ".s")
     context.Result(ret)
-    return ret
+    return 0
 
 def CheckSSE(context):
     context.Message("Checking for SSE... ")
@@ -185,17 +185,17 @@ def CheckFBCon(context):
     context.Result(ret)
     return ret
 
-def CheckSVGALibVersion(context):
-    context.Message("Checking for SVGAlib version... ")
-    ret = context.TryLink("""
-        #include <vga.h>
-        int main(){
-            int x = vga_version; 
-            x++;
-        }
-        """, ".c");
-    context.Result(ret)
-    return ret
+#def CheckSVGALibVersion(context):
+#    context.Message("Checking for SVGAlib version... ")
+#    ret = context.TryLink("""
+#        #include <vga.h>
+#        int main(){
+#            int x = vga_version; 
+#            x++;
+#        }
+#        """, ".c");
+#    context.Result(ret)
+#    return ret
 
 def CheckConstructor(context):
     context.Message("Checking if constructors are supported... ")
@@ -320,16 +320,19 @@ def CheckESDDigi(context):
 
 def CheckJackDigi(context):
     context.Message("Checking for JACK... ")
-    tmpEnv = context.env.Copy()
-    context.env.ParseConfig('pkg-config --libs jack --cflags jack')
-    ret = context.TryLink("""
-        #include <jack/jack.h>
-        int main(){
-            jack_client_new(0);
-        }
-        """, ".c");
-    if not ret:
-        context.sconf.env = tmpEnv
+
+    ret = context.TryAction('pkg-config --libs jack')[0]
+    if ret:
+	tmpEnv = context.env.Copy()
+	context.env.ParseConfig('pkg-config --libs jack --cflags jack')
+	ret = context.TryLink("""
+	    #include <jack/jack.h>
+	    int main(){
+		jack_client_new(0);
+	    }
+	    """, ".c");
+	if not ret:
+	    context.sconf.env = tmpEnv
     context.Result(ret)
     return ret
 
@@ -362,6 +365,16 @@ def CheckForX(context):
     context.Message("Checking if X11 found...")
     context.Result(ret)
     return ret
+
+def CheckForGLX(context):
+
+    result = context.sconf.CheckHeader('GL/glx.h') and\
+        context.sconf.CheckHeader('GL/gl.h') and\
+        context.sconf.CheckLib('GL', 'glXCreateWindow')
+
+    context.Message("Checking if GLX found...")
+    context.Result(result)
+    return result
 
 def CheckOSSDigi(context):
     result = False
@@ -406,4 +419,12 @@ def CheckMapFailed(context):
         ret = 0
     return ret
 
-
+def CheckDL(context):
+    result = (
+        context.sconf.CheckHeader("dlfcn.h") and
+        context.sconf.CheckLib("dl", "dlsym")
+        )
+    if result:
+        context.env.Append(LIBS = ["dl"])
+    context.Result(result)
+    return result

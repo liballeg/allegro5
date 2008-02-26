@@ -16,11 +16,11 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 #ifdef ALLEGRO_COLOR16
 
-#include "allegro/internal/aintern.h"
+#include "allegro5/internal/aintern.h"
 #include "cdefs15.h"
 #include "cgfx.h"
 

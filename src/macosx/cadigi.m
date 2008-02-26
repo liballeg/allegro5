@@ -15,9 +15,10 @@
  *      See readme.txt for copyright information.
  */
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintosx.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
 #error something is wrong with the makefile
@@ -169,10 +170,10 @@ static int ca_init(int input, int voices)
    
    input_format_desc.mSampleRate = output_format_desc.mSampleRate;
    input_format_desc.mFormatID = kAudioFormatLinearPCM;
-#if TARGET_RT_BIG_ENDIAN
+#ifdef ALLEGRO_BIG_ENDIAN
    input_format_desc.mFormatFlags = kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
 #else
-   input_format_desc.mFormatFlags =  kAudioFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+   input_format_desc.mFormatFlags = kAudioFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
 #endif
    input_format_desc.mBytesPerPacket = 4;
    input_format_desc.mFramesPerPacket = 1;

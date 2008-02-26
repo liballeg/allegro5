@@ -5,7 +5,7 @@
  *    page flipping, and triple buffering as options within a single
  *    program, and how to make things run at a constant rate no
  *    matter what the speed of your computer. You have to use this
- *    example from the commandline to specify as first parameter a
+ *    example from the command line to specify as first parameter a
  *    number which represents the type of video update you want: 1
  *    for double buffering with memory bitmaps, 2 for page flipping,
  *    3 for triple buffering and 4 for double buffering with system
@@ -16,7 +16,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
@@ -48,7 +48,7 @@ END_OF_FUNCTION(timer_proc)
 
 
 
-/* timer callback for measuring the framerate */
+/* timer callback for measuring the frame rate */
 void fps_proc(void)
 {
    fps = frame_count;

@@ -1,17 +1,17 @@
 /*
  *    Example program for the Allegro library, by Dave Thomson.
  *
- *    This program draws a 3D starfield (depth-cued) and a polygon
+ *    This program draws a 3D star field (depth-cued) and a polygon
  *    starship (controllable with the keyboard cursor keys), using
  *    the Allegro math functions.
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
-/* starfield system */
+/* star field system */
 typedef struct VECTOR 
 {
    fixed x, y, z;
@@ -71,7 +71,7 @@ BITMAP *buffer;
 
 
 
-/* initialises the starfield system */
+/* initialises the star field system */
 void init_stars(void)
 {
    int i;
@@ -89,7 +89,7 @@ void init_stars(void)
 
 
 
-/* draws the starfield */
+/* draws the star field */
 void draw_stars(void)
 {
    int i, c;

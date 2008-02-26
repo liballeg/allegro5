@@ -35,9 +35,9 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include ALLEGRO_INTERNAL_HEADER
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_thread.h"
 
 
 
@@ -88,7 +88,7 @@ static volatile KEY_BUFFER key_buffer;
 static volatile KEY_BUFFER _key_buffer;
 
 static _AL_THREAD cokeybd_thread;
-static AL_EVENT_QUEUE *cokeybd_event_queue;
+static ALLEGRO_EVENT_QUEUE *cokeybd_event_queue;
 
 /* At the moment the key_buffers_lock is still not done properly, it's
  * just needed to use key_buffers_cond.  And the flawed KEY_BUFFER.lock
@@ -360,25 +360,25 @@ void install_keyboard_hooks(int (*keypressed)(void), int (*readkey)(void))
  * API.
  */
 
-static AL_CONST unsigned int modifier_table[AL_KEY_MAX - AL_KEY_MODIFIERS] =
+static AL_CONST unsigned int modifier_table[ALLEGRO_KEY_MAX - ALLEGRO_KEY_MODIFIERS] =
 {
-   AL_KEYMOD_SHIFT,      AL_KEYMOD_SHIFT,   AL_KEYMOD_CTRL,
-   AL_KEYMOD_CTRL,       AL_KEYMOD_ALT,     AL_KEYMOD_ALTGR,
-   AL_KEYMOD_LWIN,       AL_KEYMOD_RWIN,    AL_KEYMOD_MENU,
-   AL_KEYMOD_SCROLLLOCK, AL_KEYMOD_NUMLOCK, AL_KEYMOD_CAPSLOCK
+   ALLEGRO_KEYMOD_SHIFT,      ALLEGRO_KEYMOD_SHIFT,   ALLEGRO_KEYMOD_CTRL,
+   ALLEGRO_KEYMOD_CTRL,       ALLEGRO_KEYMOD_ALT,     ALLEGRO_KEYMOD_ALTGR,
+   ALLEGRO_KEYMOD_LWIN,       ALLEGRO_KEYMOD_RWIN,    ALLEGRO_KEYMOD_MENU,
+   ALLEGRO_KEYMOD_SCROLLLOCK, ALLEGRO_KEYMOD_NUMLOCK, ALLEGRO_KEYMOD_CAPSLOCK
 };
 
-#define KB_MODIFIERS    (AL_KEYMOD_SHIFT | AL_KEYMOD_CTRL | AL_KEYMOD_ALT | \
-                         AL_KEYMOD_ALTGR | AL_KEYMOD_LWIN | AL_KEYMOD_RWIN | \
-                         AL_KEYMOD_MENU)
+#define KB_MODIFIERS    (ALLEGRO_KEYMOD_SHIFT | ALLEGRO_KEYMOD_CTRL | ALLEGRO_KEYMOD_ALT | \
+                         ALLEGRO_KEYMOD_ALTGR | ALLEGRO_KEYMOD_LWIN | ALLEGRO_KEYMOD_RWIN | \
+                         ALLEGRO_KEYMOD_MENU)
 
-#define KB_LED_FLAGS    (AL_KEYMOD_SCROLLLOCK | AL_KEYMOD_NUMLOCK | \
-                         AL_KEYMOD_CAPSLOCK)
+#define KB_LED_FLAGS    (ALLEGRO_KEYMOD_SCROLLLOCK | ALLEGRO_KEYMOD_NUMLOCK | \
+                         ALLEGRO_KEYMOD_CAPSLOCK)
 
 static INLINE void change__key_shifts(int mycode, bool press)
 {
-   if (mycode >= AL_KEY_MODIFIERS) {
-      int flag = modifier_table[mycode - AL_KEY_MODIFIERS];
+   if (mycode >= ALLEGRO_KEY_MODIFIERS) {
+      int flag = modifier_table[mycode - ALLEGRO_KEY_MODIFIERS];
       if (press) {
          if (flag & KB_MODIFIERS)
             _key_shifts |= flag;
@@ -387,7 +387,7 @@ static INLINE void change__key_shifts(int mycode, bool press)
       }
       else {
          /* XXX: If the user presses lctrl, then rctrl, then releases
-          * lctrl, the AL_KEYMOD_CTRL modifier should still be on.
+          * lctrl, the ALLEGRO_KEYMOD_CTRL modifier should still be on.
           */
          if (flag & KB_MODIFIERS)
             _key_shifts &= ~flag;
@@ -473,7 +473,7 @@ static void handle_key_release(int scancode)
  */
 static void cokeybd_thread_func(_AL_THREAD *self, void *unused)
 {
-   AL_EVENT event;
+   ALLEGRO_EVENT event;
 
    while (!_al_thread_should_stop(self)) {
       /* wait for an event; wait up every so often to check if we
@@ -486,17 +486,17 @@ static void cokeybd_thread_func(_AL_THREAD *self, void *unused)
 
       switch (event.type) {
 
-         case AL_EVENT_KEY_REPEAT:
+         case ALLEGRO_EVENT_KEY_REPEAT:
             if (!allow_repeats)
                break;
             /* FALL THROUGH */
 
-         case AL_EVENT_KEY_DOWN: {
+         case ALLEGRO_EVENT_KEY_DOWN: {
             change__key_shifts(event.keyboard.keycode, true);
-            if (event.keyboard.keycode >= AL_KEY_MODIFIERS) {
+            if (event.keyboard.keycode >= ALLEGRO_KEY_MODIFIERS) {
                handle_key_press(-1, event.keyboard.keycode);
             }
-            else if (_key_shifts & AL_KEYMOD_ALT) {
+            else if (_key_shifts & ALLEGRO_KEYMOD_ALT) {
                /* Allegro wants Alt+key to return ASCII code zero */
                handle_key_press(0, event.keyboard.keycode);
             }
@@ -507,7 +507,7 @@ static void cokeybd_thread_func(_AL_THREAD *self, void *unused)
             break;
          }
 
-         case AL_EVENT_KEY_UP:
+         case ALLEGRO_EVENT_KEY_UP:
             change__key_shifts(event.keyboard.keycode, false);
             handle_key_release(event.keyboard.keycode);
             _al_cond_signal(&key_buffers_cond);
@@ -641,7 +641,7 @@ int install_keyboard()
    }
 
    al_register_event_source(cokeybd_event_queue,
-                            (AL_EVENT_SOURCE *)al_get_keyboard());
+                            (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
    _al_mutex_init(&key_buffers_lock);
    _al_cond_init(&key_buffers_cond);

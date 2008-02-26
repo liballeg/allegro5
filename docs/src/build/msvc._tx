@@ -28,8 +28,48 @@ MSVC notes
    The screensaver example is built, but you must copy <tt>scrsave.scr</tt> to
    your <tt>windows/system</tt> directory (or <tt>winnt/system32</tt> directory
    under Windows NT/2k/XP) if you want to test it.
+   
+   You may also want to refer to one of the following, as they may include
+   more up to date information:
+   
+     <ul><li><link>http://wiki.allegro.cc/Build/MSVC_6</a>
+     <li><link>http://wiki.allegro.cc/Build/MSVC_7</a>
+     <li><link>http://wiki.allegro.cc/Build/MSVC_8</a>
+     </ul>
 
+@heading
+Project Files
 
+   Project files for MSVC 6, 7, and 8 are included in the /build/msvc directory.
+   If you choose to use them, you can ignore the other sections of this
+   document. (The "Using Allegro" section would still apply.)
+   
+   You do need to make sure you have recent versions of the DirectX and
+   Windows Platform headers, as described in the "Required software section."
+   
+   Before you can use the project files, you must first double-click on the
+   /build/msvc/pre-build-msvc.bat file. Then open the Allegro project file
+   and select Build / Batch Build from the menu. Select the versions you want to
+   build and then press the Build button.
+   
+   (Note that under MSVC 6 you may need to repeat the build process several times
+   due to compiler bugs.) 
+   
+   If everything builds successfully, you'll need to copy some files to finish
+   the installation:
+   
+   <ul><li>Copy the contents of C:\allegro\include to "Visual Studio\VC\include"
+   <li>Copy the .lib files from C:\allegro\lib\msvc to "Visual Studio\VC\lib"
+   <li>Copy the .dll files from C:\allegro\lib\msvc to C:\Windows\System32 
+   </ul>
+     
+   The most common location of Visual Studio is "C:\Program Files\Microsoft
+   Visual Studio."
+   
+   Then you can build the rest of the examples, demos, tests, and tools by 
+   opening up their respective project files and selectiong Batch Build from
+   the menu.
+      
 
 @heading
 Required software
@@ -93,34 +133,62 @@ Installing Allegro
    This is a source-only distribution, so you will have to compile Allegro 
    before you can use it. To do this you should:
 
+@hnode Setting up the environment
+
    Set up your environment so that MSVC can be used from the commandline.
-   You probably have a <tt>vcvars32.bat</tt> file that will do this for you (usually
-   located in the <tt>VC98\BIN</tt> folder where you have MSVC installed, for example
-   <tt>C:\Program Files\Microsoft Visual Studio\</tt>). Under either Windows NT or
-   Windows 2000, you will have to run this file every time you open a DOS box
-   or configure the environment variables in Control Panel/System/Environment.
+   You probably have a <tt>vcvars32.bat</tt> file that will do this for you
+   (the exact location of this file depends on your MSVC version and folder
+   where you have MSVC installed, e.g. for MSVC 6 it is usually 
+   <tt>C:\Program Files\Microsoft Visual Studio\VC98\Bin</tt>, for MSVC 8 
+   <tt>C:\Program Files\Microsoft Visual Studio 8\VC\Bin</tt> etc.).
+   You will have to run this file every time you open a DOS box or configure 
+   the environment variables in Control Panel/System/Environment (autoexec.bat
+   for Win 9x/ME). 
+
+@hnode Configuring Allegro
+
+   To configure Allegro for your compiler please run in the command prompt:
+<textblock>
+       fix.bat msvc6  - for MSVC 6 and older
+       fix.bat msvc7  - for MSVC 7 (.NET) and 7.1 (.NET 2003)
+       fix.bat msvc8  - for MSVC 8 (.NET 2005)
+       fix.bat icl    - for Intel compiler
+<endblock>
+
+@hnode Long paths handling
+
+   Normally you can skip this section, unless you have some problem with
+   building Allegro.
 
    The make process needs all the path variables to be in DOS 8.3 format, and
    since MSVC is usually installed in something like
    "<tt>C:\Program Files\Microsoft\Microsoft Visual Studio .NET 2003</tt>",
-   this will cause a problem. Run "<tt>echo %MSVCDir%</tt>" (<tt>%VCINSTALLDIR%</tt>
-   under MSVC 8) from the command line to see if you have this problem. 
+   this may cause a problem. This should normally be handled by
+   <tt>fix.bat</tt>, so you probably don't need to worry about this. However you
+   can run "<tt>echo %MSVCDir%</tt>" (<tt>%VCINSTALLDIR%</tt> under MSVC 8)
+   from the command line to see if it contain spaces.
    If you are using MSVC 6 or lower the output should already be in DOS 8.3
    format so you should not have any troubles. With higher versions of MSVC
-   it will probably show the long path with spaces. There are two solutions
-   for this.
+   it will probably show the long path with spaces. Normally, <tt>fix.bat</tt>
+   will try to convert it to DOS 8.3 format automatically. You can disable this
+   conversion by passing the <tt>--nomsvcpaths</tt> parameter to <tt>fix.bat</tt>
+   (note that this conversion is automatically disabled when using "<tt>msvc6</tt>").
 
-   If you have chosen MinGW and have installed it with the w32api package
-   you can solve this problem simply by passing the <tt>--msvcpaths</tt>
-   parameter to <tt>fix.bat</tt> (see below).
-
-   Otherwise if you are using <tt>vcvars32.bat</tt>, you will have to
-   edit it so that it sets the 8.3 paths, not the long versions.
+   If you want to handle this yourself manually, you will have to edit
+   <tt>vcvars32.bat</tt> so that it sets the 8.3 paths, not the long versions.
    To get 8.3 path names, you can use the command prompt (<tt>cmd.exe</tt>).
    Type in "<tt>dir /x</tt>" to get a listing of the 8.3 file and directory
    names alongside of their full names. You can also use the DOS prompt
    (<tt>command.exe</tt>) and "<tt>dir</tt>", but this will only show
    you the 8.3 names.
+
+@hnode Building from SVN
+
+   If you are compiling from SVN, you need to run "<tt>make depend</tt>" and
+   "<tt>misc/fixdll.sh</tt>" before continuing as explained below, or the
+   library will fail to build because of missing <tt>.inc</tt> files.
+
+@hnode Building Allegro
 
    If you are using Cygwin as the GNU environment, start the Cygwin bash shell
    from the command prompt (if you used the command prompt to run <tt>vcvars32.bat</tt>
@@ -130,24 +198,13 @@ Installing Allegro
 
    Go to the directory where you have installed Allegro by using '<tt>cd</tt>'.
 
-   If you are using Cygwin, type "<tt>./fix.sh msvc --utod</tt>". Otherwise (i.e if
-   you are using DJGPP or MinGW), type "<tt>fix.bat msvc</tt>". If you are 
-   using MinGW and want the <tt>fix.bat</tt> to solve problems with long paths,
-   type "<tt>fix.bat msvc --msvcpaths</tt>".
-   
-   If you are using MSVC 7 you can specify "msvc7" instead of "msvc" to enable
-   better optimizations. Likewise, you can specify "icl" to use the Intel
-   commandline compiler. If you are using MSVC 8 you should specify "msvc8"
-   otherwise you will get a lot of deprecation warnings. For MSVC 6 and older
-   you can use also "msvc6".
-
-   If you are compiling from CVS, before continuing you must run both
-   "<tt>make depend</tt>" and "<tt>misc/fixdll.sh</tt>" as explained below, or the build will
-   fail asking for some <tt>.inc</tt> file.
-
    Type "<tt>make</tt>". Then go do something interesting while everything compiles.
    When it finishes compiling, type "<tt>make install</tt>" to set the library up
    ready for use.
+
+   If you are using MSVC 8 and want to embed manifest files to executables
+   (by default manifests are just embedded in the DLL), run "<tt>misc\embedman.bat all</tt>"
+   from the command prompt (Cygwin users run "<tt>misc/embedman.bat all</tt>").
 
    If you also want to install a debugging version of the library (highly 
    recommended), now type "<tt>make install DEBUGMODE=1</tt>". Case is important, so
@@ -161,11 +218,11 @@ Installing Allegro
 
    If your copy of Allegro doesn't include the <tt>makefile.dep</tt> dependency files
    (unlikely, unless you have run "<tt>make veryclean</tt>" at some point or are
-   building the CVS version), you can regenerate them by running
+   building the SVN version), you can regenerate them by running
    "<tt>make depend</tt>".
 
    If your copy of Allegro doesn't include the linker .def file (unlikely, 
-   unless you have run "<tt>make veryclean</tt>" at some point or are building the CVS
+   unless you have run "<tt>make veryclean</tt>" at some point or are building the SVN
    version), you can regenerate it by running "<tt>misc\fixdll.bat</tt>". Cygwin users
    can run "<tt>misc/fixdll.sh</tt>" instead.
 
@@ -187,13 +244,19 @@ Using Allegro
    <tt>allegro.h</tt>. You should include this in your programs, and link with one of
    the libraries:
 <textblock>
-      alleg.lib      - optimised DLL import library
-      alld.lib       - debugging DLL import library
-      allp.lib       - profiling DLL import library
-      alleg_s.lib    - statically linked optimised library
-      alld_s.lib     - statically linked debugging library
-      allp_s.lib     - statically linked profiling library
+      alleg.lib       - optimised DLL import library
+      alld.lib        - debugging DLL import library
+      allp.lib        - profiling DLL import library
+      alleg_s.lib     - statically linked optimised library
+      alld_s.lib      - statically linked debugging library
+      allp_s.lib      - statically linked profiling library
+      alleg_s_crt.lib - statically linked optimised library 
+                           with the static C runtime
 <endblock>
+   All above library configurations could be built with <tt>ALLEGRO_USE_C</tt> option which
+   would add a "_c" suffix to them. When linking your program to such a library, you must define
+   the preprocessor symbol <tt>ALLEGRO_NO_ASM</tt> before including any of the Allegro headers.
+
    When using a statically linked library, you must define the preprocessor
    symbol <tt>ALLEGRO_STATICLINK</tt> before including any of the Allegro headers and
    link your program against Allegro and the main Win32/DirectX libraries
@@ -211,3 +274,7 @@ Using Allegro
    the appropriate DLL along with your program: these can be found in the 
    <tt>allegro/lib/msvc/</tt> directory.
 
+   The alleg_s_crt.lib is most useful with Visual C++ 8.0. The new C runtime that it
+   uses can be difficult to distribute. By using alleg_s_crt.lib along with the 
+   multi-threaded runtime (/MT) you can avoid the problem. For more information on
+   deploying with VC++ 8.0, see <link>http://wiki.allegro.cc/VisualCExpress2005#Deployment</a>.

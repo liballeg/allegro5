@@ -30,8 +30,8 @@
 #include <string.h>
 #include <math.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 
@@ -862,13 +862,13 @@ void create_blender_table(COLOR_MAP *table, AL_CONST PALETTE pal, void (*callbac
 
    for (x=0; x<PAL_SIZE; x++) {
       for (y=0; y<PAL_SIZE; y++) {
-	 r1 = pal[x].r * 255 / 63;
-	 g1 = pal[x].g * 255 / 63;
-	 b1 = pal[x].b * 255 / 63;
+	 r1 = (pal[x].r << 2) | ((pal[x].r & 0x30) >> 4);
+	 g1 = (pal[x].g << 2) | ((pal[x].g & 0x30) >> 4);
+	 b1 = (pal[x].b << 2) | ((pal[x].b & 0x30) >> 4);
 
-	 r2 = pal[y].r * 255 / 63;
-	 g2 = pal[y].g * 255 / 63;
-	 b2 = pal[y].b * 255 / 63;
+	 r2 = (pal[y].r << 2) | ((pal[y].r & 0x30) >> 4);
+	 g2 = (pal[y].g << 2) | ((pal[y].g & 0x30) >> 4);
+	 b2 = (pal[y].b << 2) | ((pal[y].b & 0x30) >> 4);
 
 	 c = _blender_func24(makecol24(r1, g1, b1), makecol24(r2, g2, b2), _blender_alpha);
 

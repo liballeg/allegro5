@@ -18,8 +18,10 @@
 
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+
+#include "allegro5/internal/aintern_display.h"
 
 extern void blit_end(void);   /* for LOCK_FUNCTION; defined in blit.c */
 
@@ -92,13 +94,27 @@ int _rgb_b_shift_32 = DEFAULT_RGB_B_SHIFT_32;
 int _rgb_a_shift_32 = DEFAULT_RGB_A_SHIFT_32;
 
 
+/* lookup table for scaling 1 bit colors up to 8 bits */
+int _rgb_scale_1[2] = {
+	0, 255
+};
+
+
+/* lookup table for scaling 4 bit colors up to 8 bits */
+int _rgb_scale_4[16] =
+{
+     0,  17,  34,  51,  68,  85, 102, 119,
+   136, 153, 170, 187, 204, 221, 238, 255
+};
+
+
 /* lookup table for scaling 5 bit colors up to 8 bits */
 int _rgb_scale_5[32] =
 {
-   0,   8,   16,  24,  32,  41,  49,  57,
-   65,  74,  82,  90,  98,  106, 115, 123,
-   131, 139, 148, 156, 164, 172, 180, 189,
-   197, 205, 213, 222, 230, 238, 246, 255
+   0,   8,   16,  24,  33,  41,  49,  57,
+   66,  74,  82,  90,  99,  107, 115, 123,
+   132, 140, 148, 156, 165, 173, 181, 189,
+   198, 206, 214, 222, 231, 239, 247, 255
 };
 
 
@@ -107,12 +123,12 @@ int _rgb_scale_6[64] =
 {
    0,   4,   8,   12,  16,  20,  24,  28,
    32,  36,  40,  44,  48,  52,  56,  60,
-   64,  68,  72,  76,  80,  85,  89,  93,
+   65,  69,  73,  77,  81,  85,  89,  93,
    97,  101, 105, 109, 113, 117, 121, 125,
-   129, 133, 137, 141, 145, 149, 153, 157,
-   161, 165, 170, 174, 178, 182, 186, 190,
-   194, 198, 202, 206, 210, 214, 218, 222,
-   226, 230, 234, 238, 242, 246, 250, 255
+   130, 134, 138, 142, 146, 150, 154, 158,
+   162, 166, 170, 174, 178, 182, 186, 190,
+   195, 199, 203, 207, 211, 215, 219, 223,
+   227, 231, 235, 239, 243, 247, 251, 255
 };
 
 
@@ -366,7 +382,7 @@ int _color_load_depth(int depth, int hasalpha)
 
    int i;
 
-   ASSERT((_gfx_mode_set_count > 0) || (color_conv_set));
+   //ASSERT((_gfx_mode_set_count > 0) || (color_conv_set));
 
    if (depth == _color_depth)
       return depth;
@@ -403,8 +419,8 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    ASSERT(height > 0);
    ASSERT(system_driver);
 
-   if (system_driver->create_bitmap)
-      return system_driver->create_bitmap(color_depth, width, height);
+   //if (system_driver->create_bitmap)
+     // return system_driver->create_bitmap(color_depth, width, height);
 
    vtable = _get_vtable(color_depth);
    if (!vtable)
@@ -441,6 +457,9 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    bitmap->x_ofs = 0;
    bitmap->y_ofs = 0;
    bitmap->seg = _default_ds();
+   bitmap->needs_upload = false;
+   bitmap->acquired = false;
+   bitmap->dirty_x1 = bitmap->dirty_x2 = bitmap->dirty_y1 = bitmap->dirty_y2 = -1;
 
    if (height > 0) {
       bitmap->line[0] = bitmap->dat;
@@ -450,6 +469,13 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
 
    if (system_driver->created_bitmap)
       system_driver->created_bitmap(bitmap);
+
+/*
+   if (_al_current_display != NULL) {
+      bitmap->al_bitmap = _al_current_display->vt->create_bitmap(_al_current_display, width, height, 0);
+      bitmap->needs_upload = true;
+   }
+*/
 
    return bitmap;
 }
@@ -493,11 +519,15 @@ BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height)
    if (y+height > parent->h) 
       height = parent->h-y;
 
-   if (parent->vtable->create_sub_bitmap)
-      return parent->vtable->create_sub_bitmap(parent, x, y, width, height);
+   if (parent->vtable->create_sub_bitmap) {
+      bitmap = parent->vtable->create_sub_bitmap(parent, x, y, width, height);
+      goto done;
+   }
 
-   if (system_driver->create_sub_bitmap)
-      return system_driver->create_sub_bitmap(parent, x, y, width, height);
+   if (system_driver->create_sub_bitmap) {
+      bitmap = system_driver->create_sub_bitmap(parent, x, y, width, height);
+      goto done;
+   }
 
    /* get memory for structure and line pointers */
    /* (see create_bitmap for the reason we need at least two) */
@@ -520,6 +550,8 @@ BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height)
    bitmap->x_ofs = x + parent->x_ofs;
    bitmap->y_ofs = y + parent->y_ofs;
    bitmap->seg = parent->seg;
+   bitmap->acquired = false;
+   bitmap->dirty_x1 = bitmap->dirty_x2 = bitmap->dirty_y1 = bitmap->dirty_y2 = -1;
 
    /* All bitmaps are created with zero ID's. When a sub-bitmap is created,
     * a unique ID is needed to identify the relationship when blitting from
@@ -560,6 +592,18 @@ BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height)
 
    release_bitmap(parent);
 
+done:
+
+   if (parent == screen) {
+      //bitmap->al_bitmap = _al_current_display->vt->create_sub_bitmap(_al_current_display, parent->al_bitmap, x, y, width, height, 0);
+      bitmap->display = screen->display;
+      bitmap->needs_upload = true;
+   }
+   else {
+      //bitmap->al_bitmap = NULL;
+      bitmap->needs_upload = false;
+   }
+
    return bitmap;
 }
 
@@ -579,10 +623,10 @@ void set_clip_rect(BITMAP *bitmap, int x1, int y1, int x2, int y2)
    x2++;
    y2++;
 
-   bitmap->cl = MID(0, x1, bitmap->w-1);
-   bitmap->ct = MID(0, y1, bitmap->h-1);
-   bitmap->cr = MID(0, x2, bitmap->w);
-   bitmap->cb = MID(0, y2, bitmap->h);
+   bitmap->cl = CLAMP(0, x1, bitmap->w-1);
+   bitmap->ct = CLAMP(0, y1, bitmap->h-1);
+   bitmap->cr = CLAMP(0, x2, bitmap->w);
+   bitmap->cb = CLAMP(0, y2, bitmap->h);
 
    if (bitmap->vtable->set_clip)
       bitmap->vtable->set_clip(bitmap);

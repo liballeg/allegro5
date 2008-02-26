@@ -1,10 +1,10 @@
 /*
  *    Example program for the Allegro library, by Lennart Steinke.
  *
- *    This is a very simple program showing how to use the allegro
- *    config (ini file) routines. A first look at the example
+ *    This is a very simple program showing how to use the Allegro
+ *    configuration (ini file) routines. A first look at the example
  *    shows nothing more than a static graphic and the wait for
- *    a keypress. However, the way this graphic is displayed is
+ *    a key press. However, the way this graphic is displayed is
  *    configured through a custom exconfig.ini file which is loaded
  *    manually. From this file the example obtains parameters like
  *    fullscreen/windowed mode, a specific graphic resolution to set
@@ -12,7 +12,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 int main(void)

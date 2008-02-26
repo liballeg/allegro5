@@ -49,7 +49,7 @@ Installing Allegro
       ./fix.sh qnx
 <endblock>
    Now you may want to generate the dependencies; this step is optional if
-   you are using an official release, but it is required if you got a CVS
+   you are using an official release, but it is required if you got a SVN
    snapshot of the library.
 <textblock>
       make depend

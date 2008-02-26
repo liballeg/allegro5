@@ -20,8 +20,8 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 
@@ -1502,6 +1502,6 @@ int list_config_sections(AL_CONST char ***names)
  */
 void free_config_entries(AL_CONST char ***names)
 {
-    _AL_FREE((char ***) names);
+    _AL_FREE(*names);
     *names = NULL;
 }

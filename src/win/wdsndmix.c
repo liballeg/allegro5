@@ -23,9 +23,9 @@
 
 #define DIRECTSOUND_VERSION 0x0300
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #ifdef ALLEGRO_MINGW32
@@ -279,7 +279,7 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
    }
 
    /* set volume */
-   IDirectSoundBuffer_SetVolume(snd_buf, alleg_to_dsound_volume[MID(0, vol, 255)]);
+   IDirectSoundBuffer_SetVolume(snd_buf, alleg_to_dsound_volume[CLAMP(0, vol, 255)]);
 
    return snd_buf;
 }
@@ -701,7 +701,7 @@ static void digi_dsoundmix_exit(int input)
 static int digi_dsoundmix_set_mixer_volume(int volume)
 {
    if (prim_buf) {
-      alleg_buf_vol = alleg_to_dsound_volume[MID(0, volume, 255)];
+      alleg_buf_vol = alleg_to_dsound_volume[CLAMP(0, volume, 255)];
       IDirectSoundBuffer_SetVolume(alleg_buf, alleg_buf_vol);
    }
 
@@ -720,7 +720,7 @@ static int digi_dsoundmix_get_mixer_volume(void)
      return -1;
 
    IDirectSoundBuffer_GetVolume(alleg_buf, &vol);
-   vol = MID(0, pow(10, (vol/2000.0))*255.0 - DSBVOLUME_MAX, 255);
+   vol = CLAMP(0, pow(10, (vol/2000.0))*255.0 - DSBVOLUME_MAX, 255);
 
    return vol;
 }

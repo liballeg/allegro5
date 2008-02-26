@@ -23,12 +23,12 @@
 #include <sys/stat.h>
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
 
-#if defined(ALLEGRO_USE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
-   /* ALLEGRO_USE_SCHED_YIELD is set by configure */
+#if defined(ALLEGRO_HAVE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
+   /* ALLEGRO_HAVE_SCHED_YIELD is set by configure */
    /* Manpages say systems providing sched_yield() define
     * _POSIX_PRIORITY_SCHEDULING in unistd.h
     */
@@ -37,11 +37,11 @@
    #include <sys/time.h>
 #endif
 
-#ifdef HAVE_SYS_UTSNAME_H
+#ifdef ALLEGRO_HAVE_SYS_UTSNAME_H
    #include <sys/utsname.h>
 #endif
 
-#ifdef ALLEGRO_HAVE_SV_PROCFS
+#ifdef ALLEGRO_HAVE_SV_PROCFS_H
    #include <sys/procfs.h>
    #include <sys/ioctl.h>
    #include <fcntl.h>
@@ -56,6 +56,9 @@ _DRIVER_INFO _system_driver_list[] =
 #endif
 #ifdef ALLEGRO_LINUX
    {  SYSTEM_LINUX,     &system_linux,    TRUE  },
+#endif
+#ifdef ALLEGRO_QNX
+   {  SYSTEM_QNX,       &system_qnx,      TRUE  },
 #endif
 #ifdef ALLEGRO_MACOSX
    {  SYSTEM_MACOSX,    &system_macosx,   TRUE  },
@@ -154,12 +157,12 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
  */
 void _unix_read_os_type(void)
 {
-   #ifdef HAVE_SYS_UTSNAME_H
+   #ifdef ALLEGRO_HAVE_SYS_UTSNAME_H
 
       struct utsname utsn;
       char *tmpstr, *tmpstr2;
       size_t pos;
-
+      
       uname(&utsn);
 
       /* fetch OS version and revision */
@@ -215,7 +218,7 @@ void _unix_read_os_type(void)
       os_type = OSTYPE_UNIX;
 
    #endif
-
+   
    os_multitasking = TRUE;
 }
 
@@ -228,7 +231,7 @@ void _unix_read_os_type(void)
  */
 void _unix_yield_timeslice(void)
 {
-   #if defined(ALLEGRO_USE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
+   #if defined(ALLEGRO_HAVE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
 
       sched_yield();
 
@@ -264,13 +267,13 @@ static int _find_executable_file(const char *filename, char *output, int size)
          struct stat finfo;
          char pathname[1024];
          int len;
-
+            
 	 /* Prepend current directory */
 	 getcwd(pathname, sizeof(pathname));
 	 len = strlen(pathname);
 	 pathname[len] = '/';
 	 _al_sane_strncpy (pathname+len+1, filename, strlen(filename));
-
+            
 	 if ((stat(pathname, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
 	    do_uconvert (pathname, U_ASCII, output, U_CURRENT, size);
 	    return 1;
@@ -307,7 +310,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
       /* Path search failed */
       _AL_FREE (buffer);
    }
-
+   
    return 0;
 }
 
@@ -316,12 +319,9 @@ static int _find_executable_file(const char *filename, char *output, int size)
  */
 void _unix_get_executable_name(char *output, int size)
 {
-   #ifdef ALLEGRO_HAVE_SV_PROCFS
+   #ifdef ALLEGRO_HAVE_SV_PROCFS_H
       struct prpsinfo psinfo;
       int fd;
-   #endif
-   #if defined ALLEGRO_HAVE_SV_PROCFS || defined ALLEGRO_SYS_GETEXECNAME
-      char *s;
    #endif
    char linkname[1024];
    char filename[1024];
@@ -329,9 +329,10 @@ void _unix_get_executable_name(char *output, int size)
    FILE *pipe;
    pid_t pid;
    int len;
-
+   
    #ifdef ALLEGRO_HAVE_GETEXECNAME
-      s = getexecname();
+   {
+      const char *s = getexecname();
       if (s) {
          if (s[0] == '/') {   /* Absolute path */
             do_uconvert (s, U_ASCII, output, U_CURRENT, size);
@@ -342,33 +343,33 @@ void _unix_get_executable_name(char *output, int size)
                return;
          }
       }
-      s = NULL;
+   }
    #endif
 
    /* We need the PID in order to query procfs */
    pid = getpid();
 
-   /* Try a Linux-like procfs */
+   /* Try a Linux-like procfs */   
    /* get symolic link to executable from proc fs */
-   sprintf (linkname, "/proc/%d/exe", pid);
+   sprintf (linkname, "/proc/%d/exe", (int)pid);
    if (stat (linkname, &finfo) == 0) {
       len = readlink (linkname, filename, sizeof(filename)-1);
       if (len>-1) {
 	 filename[len] = '\0';
-
+         
 	 do_uconvert (filename, U_ASCII, output, U_CURRENT, size);
 	 return;
       }
    }
-
+   
    /* Use System V procfs calls if available */
-   #ifdef ALLEGRO_HAVE_SV_PROCFS
-      sprintf (linkname, "/proc/%d/exe", pid);
+   #ifdef ALLEGRO_HAVE_SV_PROCFS_H
+      sprintf (linkname, "/proc/%d/exe", (int)pid);
       fd = open(linkname, O_RDONLY);
       if (!fd == -1) {
          ioctl(fd, PIOCPSINFO, &psinfo);
          close(fd);
-
+   
          /* Use argv[0] directly if we can */
       #ifdef ALLEGRO_HAVE_PROCFS_ARGCV
 	 if (psinfo.pr_argv && psinfo.pr_argc) {
@@ -383,9 +384,9 @@ void _unix_get_executable_name(char *output, int size)
 	     * This is better than using the pr_fname field because we need
 	     * the additional path information that may be present in argv[0]
 	     */
-
+	 
 	    /* Skip other args */
-	    s = strchr(psinfo.pr_psargs, ' ');
+	    char *s = strchr(psinfo.pr_psargs, ' ');
 	    if (s) s[0] = '\0';
 	    if (_find_executable_file(psinfo.pr_psargs, output, size))
 	       return;
@@ -396,25 +397,25 @@ void _unix_get_executable_name(char *output, int size)
             return;
       }
    #endif
-
+   
    /* Last resort: try using the output of the ps command to at least find */
    /* the name of the file if not the full path */
-   uszprintf (linkname, sizeof(linkname), "ps -p %d", pid);
+   uszprintf (linkname, sizeof(linkname), "ps -p %d", (int)pid);
    do_uconvert (linkname, U_CURRENT, filename, U_ASCII, size);
    pipe = popen(filename, "r");
    if (pipe) {
       /* The first line of output is a header */
       fgets(linkname, sizeof(linkname), pipe);
-
+      
       /* The information we want is in the last column; find it */
       len = strlen(linkname);
       while (linkname[len] != ' ' && linkname[len] != '\t')
          len--;
-
+      
       /* The second line contains the info we want */
       fgets(linkname, sizeof(linkname), pipe);
       pclose(pipe);
-
+      
       /* Treat special cases: filename between [] and - for login shell */
       if (linkname[len] == '-')
          len++;
@@ -422,21 +423,21 @@ void _unix_get_executable_name(char *output, int size)
       if (linkname[len] == '[' && linkname[strlen(linkname)] == ']') {
          len++;
          linkname[strlen(linkname)] = '\0';
-      }
-
+      }         
+      
       /* Now, the filename should be in the last column */
       _al_sane_strncpy (filename, linkname+len+1, strlen(linkname)-len+1);
-
+            
       if (_find_executable_file(filename, output, size))
          return;
 
-      /* Just return the output from ps... */
+      /* Just return the output from ps... */         
       do_uconvert (filename, U_ASCII, output, U_CURRENT, size);
       return;
    }
 
 #ifdef ALLEGRO_WITH_MAGIC_MAIN
-   /* Try the captured argv[0] */
+   /* Try the captured argv[0] */   
    if (_find_executable_file(__crt0_argv[0], output, size))
       return;
 #endif
@@ -445,165 +446,20 @@ void _unix_get_executable_name(char *output, int size)
    do_uconvert ("", U_ASCII, output, U_CURRENT, size);
 }
 
-
-static int32_t _unix_find_home(char *dir, uint32_t len)
-{
-   char *home_env = getenv("HOME");
-
-   if(!home_env || home_env[0] == '\0') {
-      /* since HOME isn't set, we have to ask libc for the info */
-
-      /* get user id */
-      uid_t uid = getuid();
-
-      /* grab user information */
-      struct passwd *pass = getpwuid(uid);
-      if(!pass) {
-         *allegro_errno = errno;
-         return -1;
-      }
-
-      if(pass->pw_dir) {
-         /* hey, we got our home directory */
-         do_uconvert (pass->pw_dir, U_ASCII, dir, U_CURRENT, strlen(pass->pw_dir)+1);
-         return 0;
-      }
-      else {
-         char tmp[PATH_MAX];
-         char *name = getenv("USER");
-
-         if(!name) {
-            name = pass->pw_name;
-            if(!name) {
-               return -1;
-            }
-         }
-
-         /* assume we live in /home/<username> */
-
-         /* TODO: might want to make a "configure" option for this (/home) */
-         /* should we check to see if the dir exists? */
-
-         _al_sane_strncpy(tmp, "/home/", strlen("/home/")+1);
-         strncat(tmp, name, len);
-         do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
-         return 0;
-      }
-   }
-   else {
-      do_uconvert (home_env, U_ASCII, dir, U_CURRENT, strlen(home_env)+1);
-      return 0;
-   }
-
-   /* should not reach here */
-   return -1;
-}
-
-int32_t _unix_get_path(uint32_t id, char *dir, size_t size)
-{
-   switch(id) {
-      case AL_TEMP_PATH: {
-         /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
-         char *envs[] = { "TMP", "TMPDIR", "TEMP", "TEMPDIR", NULL};
-         uint32_t i = 0;
-         for(; envs[i] != NULL; ++i) {
-            char *tmp = getenv(envs[i]);
-            if(tmp) {
-               /* this may truncate paths, not likely in unix */
-               do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
-               retutn 0;
-            }
-         }
-
-         /* next try: /tmp /var/tmp /usr/tmp */
-         char *paths[] = { "/tmp", "/var/tmp", "/usr/tmp", NULL };
-         uint32_t i = 0;
-         for(; paths[i] != NULL; ++i) {
-            AL_STAT st;
-            if(al_fs_fstat(paths[i], st) == 0 && al_fs_get_stat_mode(st) & AL_STAT_ISDIR) {
-               do_uconvert (paths[i], U_ASCII, dir, U_CURRENT, strlen(paths[i])+1);
-               return 0;
-            }
-         }
-
-         /* Give up? */
-         return -1;
-      } break;
-
-      case AL_PROGRAM_PATH: {
-         char *ptr = NULL;
-         if(_unix_get_executable_name(dir, len) != 0) {
-            return -1;
-         }
-
-         ptr = ustrrchr(dir, '/');
-         if(!ptr) {
-            *allegro_errno = errno = EINVAL;
-            return -1;
-         }
-
-         *ptr = '\0';
-
-      } break;
-
-      case AL_SYSTEM_DATA_PATH: {
-         /* make this a compile time define, or a allegro cfg option? or both */
-         _al_sane_strncpy(dir, "/usr/share", strlen("/usr/share")+1);
-      } break;
-
-      case AL_USER_DATA_PATH: {
-         int32_t ret = 0;
-         uint32_t path_len = 0, ptr_len = 0, prog_len = 0;
-         char path[PATH_MAX] = "", tmp[PATH_MAX] = "", *ptr = NULL;
-         char prog[PATH_MAX] = "";
-
-         if(_al_find_home(path, PATH_MAX) != 0) {
-            return -1;
-         }
-
-         strncat(path, "/.", 2);
-
-         path_len = strlen(path);
-
-         /* get exe name */
-         /*
-            This really aught to get the "Program" name from somewhere, say a config var?
-            making a ~/.test_program dir for a exe named "test_program" might not be what people have in mind.
-         */
-
-         strncat(prog, system_driver->argv[0], PATH_MAX);
-         ptr = strrchr(prog, '/');
-         if(!ptr) {
-            *allegro_errno = errno = EINVAL;
-            return -1;
-         }
-
-         *ptr = '\0';
-         ptr++;
-         ptr_len = strlen(ptr);
-         //
-         strncat(path, ptr, ptr_len+1);
-         //*(ptr-1) = '/';
-         do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
-
-         return 0;
-      } break;
-
-      case AL_USER_HOME_PATH: {
-         char tmp[PATH_MAX] = "";
-         if(_al_find_home(tmp, MAX_PATH) != 0) {
-            return -1;
-         }
-
-         do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
-      } break;
-
-      default:
-         return -1;
-   }
-
-   return 0;
-}
-
 #endif
 
+
+
+/* _unix_get_page_size:
+ *  Get size of a memory page in bytes.  If we can't do it, we make a guess.
+ */
+size_t _unix_get_page_size(void)
+{
+#if defined(ALLEGRO_HAVE_SYSCONF) && defined(_SC_PAGESIZE)
+   long page_size = sysconf(_SC_PAGESIZE); 
+#else
+   long page_size = -1;
+#endif
+
+   return (page_size == -1) ? 4096 : page_size;
+}

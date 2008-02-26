@@ -41,7 +41,7 @@ Contributors
    Wrote the Ensoniq Soundscape driver and fixed division bugs in the fix
    class.
 
-   Andrei Ellman (<email>ae-a-alleg@wacko.wackonet.net</a>).<br>
+   Andrei Ellman (<email>ae-a-alleg2@wacko.wackonet.net</a>).<br>
    Contributed the polygon_z_normal() function, suggested some additions to
    the docs, updated the Cygwin section in docs/build/mingw32.txt, got
    Allegro for MSVC to build with Cygwin, improved the performance of the
@@ -79,6 +79,10 @@ Contributors
    strings, lifted several hardcoded length limitations in the configuration
    routines, added a mouse driver based on the event interface (EVDEV) to the
    Linux port, fixed numerous bugs and did plenty of other things too.
+
+   Anthony 'Timorg' Cassidy.<br>
+   Made d_menu_proc fill up its assigned area with the gui_bg_color.
+   Fixed a typo.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
@@ -133,7 +137,8 @@ Contributors
    P3D library.
 
    Bobby Ferris (<email>baf@bafsoft.com</a>).<br>
-   Added the SciTE API output format to makedoc.
+   Added the SciTE API output format to makedoc and temporarily hosted
+   Allegro's SVN repository while SourceForge's SVN was in beta.
 
    Burton Radons (<email>loth@gec.net</a>).<br>
    Optimised the truecolor pixel blending function, converted the blenders
@@ -295,6 +300,13 @@ Contributors
    Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions and
    helped with the Swedish message translation.
+
+   Erno Schwetter.<br>
+   Fixed some bugs in the Linux console port and fixed a long-standing bug in
+   the polygon() routine.
+
+   Etienne Vouga.<br>
+   Fixed a bug with the reset_controllers MIDI command.
 
    Ettore Perazzoli (<email>ettore@comm2000.it</a>).<br>
    Optimised the linear -&gt mode-X blitting function.
@@ -509,6 +521,7 @@ Contributors
    Added more ASSERTs to the code, implemented the Cohen-Sutherland clipping 
    algorithm for the line() function, supplied an m4 macro for Allegro
    and added SCons support.
+   Also fixed a problem with allegro-config.
 
    Jonas Petersen (<email>joXonoX@berlin.snafu.de</a>).<br>
    Added the save_bmp() function and support for the OS/2 BMP format.
@@ -584,7 +597,7 @@ Contributors
    IRIX doesn't like at all, added IRIX detection and improved the
    performances of the SGI audio driver
 
-   Lorenzo Petrone (<email>_lano_@libero.it</a>).<br>
+   Lorenzo Petrone (<email>looris@gmail.com</a>).<br>
    Contributed the gfxinfo utility, added two FAQ entries, added a
    xwin_set_window_name() function to the X11 port, added support for
    switch callbacks under X11 and refactored the display switching code.
@@ -638,6 +651,9 @@ Contributors
    code we are still using today and added support for the more recent
    Trident chipsets (now available as part of the FreeBE/AF project).
 
+   Mark Keller.<br>
+   Reported two minor mistakes in the manual.
+
    Mark Wodrich (<email>mwodric@eleceng.uct.ac.za</a>).<br>
    The brain behind sub-bitmaps, flicker-free mouse pointers, and the
    ability to import GRX .FNT files into the grabber.
@@ -671,6 +687,12 @@ Contributors
    DOS/Windows makefiles use 'copy /B' instead of 'copy', added the detection
    of left-hand mouse configuration under Windows, fixed a bug with
    pack_fgets(), made an online diff generator and did lots of other things too.
+   Changed an instance of long long to LONG_LONG and an LL suffix into a
+   (LONG_LONG) cast, both for MSVC 6. Submitted a fix for MSVC 6 regarding
+   MSVC's lack of a __FUNCTION__ macro.
+
+   Matthew Smith.<br>
+   Fix a bug in C locking code in GDI.
 
    Maxime Carey (<email>werfu@users.sourceforge.net</a>).<br>
    Contributed the Canada (French) keyboard mapping file.
@@ -685,6 +707,9 @@ Contributors
 
    Michael Faerber.<br>
    Pointed out a mistake in the documentation for text_height().
+
+   Michael Jensen.<br>
+   Fixed a mistake in the documentation for is_compatible_font.
 
    Michael Rickmann (<email>mrickma@gwdg.de</a>).<br>
    Ported the Windows code to Mingw32.
@@ -852,6 +877,9 @@ Contributors
    Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
    Wrote the CPU type detection code.
 
+   Phil Krylov.<br>
+   Fixed a bug in load_bios_font().
+
    Phil Shenk (email unknown).<br>
    Improved the MSVC build instructions.
 
@@ -876,6 +904,9 @@ Contributors
 
    Richard Reeve (<email>r.e.reeve@stir.ac.uk</a>).<br>
    Fixed a silly mistake with gcc 3.0.x detection.
+
+   Rikard Peterson.<br>
+   Fixed a small problem with the Mac OS X joystick driver.
 
    Robert J. Ragno (<email>rjr@mit.edu</a>).<br>
    Wrote the Gravis GrIP driver, made some improvements to the Wingman, PSX
@@ -910,7 +941,8 @@ Contributors
    Contributed the MacOS 9 port of Allegro.
 
    Ryan Patterson.<br>
-   Some documentation fixes.
+   Made various documentation fixes and fixed a crash in free_config_entries.
+   Clarified the documentation of stop_sample().
 
    S.Sakamaki (<email>emt@geocities.co.jp</a>).<br>
    Added the VESA 3.0 refresh rate control code.
@@ -1077,10 +1109,18 @@ Contributors
    Made Allegro windows always popup centred in Windows and made fixes to the
    documentation.
 
+   torhu.<br>
+   Fixed an out-of-bounds error in akaitest.
+
+   Trent Gamblin.<br>
+   Implemented set_mouse_speed under X11, fixed the C version of stretch_blit
+   and made the fullscreen DirectX driver save and restore the palette on
+   switching away.
+
    V Karthik Kumar (<email>karthikkumar@gmail.com</a>).<br>
    Added a Tamil language greeting to exunicode, added switches to use
    the Intel compiler in Windows and added a password option to the Windows
-   screensaver example.
+   screensaver example. Also fixed a problem with allegro-config.
    
    Victor Williams Stafusa da Silva (<email>vwss1984@yahoo.com.br</a>).<br>
    Changed a few occurences of "256" to PAL_SIZE and made OS type detection
@@ -1186,7 +1226,7 @@ Thanks!
 
    Sourceforge.net (<link>http://sourceforge.net/</a>).<br>
    The Allegro community has been using their services (web, mailing lists,
-   cvs, etc) since 3.9.x WIP versions.
+   CVS, Subversion, etc) since 3.9.x WIP versions.
 
    Tom Grandgent (<email>tgrand@canvaslink.com</a>).<br>
    Organised and hosted the original Allegro mailing lists for many years.

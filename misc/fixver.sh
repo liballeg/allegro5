@@ -6,7 +6,7 @@
 #
 #  Note: if you pass "datestamp" as the only argument, then the version
 #  digits will remain unchanged and the comment will be set to the date.
-#  This is in particular useful for making CVS snapshots.
+#  This is in particular useful for making SVN snapshots.
 
 
 if [ $# -lt 3 -o $# -gt 4 ]; then
@@ -45,10 +45,12 @@ echo "s/\#define ALLEGRO_VERSION_STR .*/\#define ALLEGRO_VERSION_STR      \"$ver
 echo "s/\#define ALLEGRO_DATE_STR .*/\#define ALLEGRO_DATE_STR         \"$year\"/" >> fixver.sed
 echo "s/\#define ALLEGRO_DATE .*/\#define ALLEGRO_DATE             $year$month$day    \/\* yyyymmdd \*\//" >> fixver.sed
 
-echo "Patching include/allegro/base.h..."
-cp include/allegro/base.h fixver.tmp
-sed -f fixver.sed fixver.tmp > include/allegro/base.h
+echo "Patching include/allegro5/base.h..."
+cp include/allegro5/base.h fixver.tmp
+sed -f fixver.sed fixver.tmp > include/allegro5/base.h
 
+# Note: DMC does not support { and } in resource files so we use
+# BEGIN and END instead.
 echo "Patching src/win/dllver.rc..."
 cat > src/win/dllver.rc << END_OF_DLLVER
 // Windows resource file for the version info sheet
@@ -62,11 +64,11 @@ FILEVERSION $1, $2, $3, 0
 PRODUCTVERSION $1, $2, $3, 0
 FILEOS VOS__WINDOWS32
 FILETYPE VFT_DLL
-{
+BEGIN
    BLOCK "StringFileInfo"
-   {
+   BEGIN
       BLOCK "040904E4"
-      {
+      BEGIN
          VALUE "Comments", "Please see AUTHORS for a list of contributors\000"
          VALUE "CompanyName", "Allegro Developers\000\000"
          VALUE "FileDescription", "Allegro\000"
@@ -76,14 +78,14 @@ FILETYPE VFT_DLL
          VALUE "OriginalFilename", "ALLEG$1$2.DLL\000"
          VALUE "ProductName", "Allegro\000"
          VALUE "ProductVersion", "$verstr\000"
-      }
-   }
+      END
+   END
 
    BLOCK "VarFileInfo"
-   {
+   BEGIN
       VALUE "Translation", 0x0809, 1252
-   }
-}
+   END
+END
 
 END_OF_DLLVER
 

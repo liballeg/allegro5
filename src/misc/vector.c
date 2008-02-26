@@ -24,12 +24,16 @@
  *      This module is NOT thread-safe.
  */
 
+/* Internal Title: Vectors
+ */
+
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_vector.h"
 
 
 /* return the given item's starting address in the vector */
@@ -37,7 +41,7 @@
 
 
 
-/* _al_vector_init:
+/* Internal function: _al_vector_init
  *
  *  Initialise a vector.  ITEMSIZE is the number of bytes to allocate for
  *  each item in the vector.
@@ -67,7 +71,7 @@ void _al_vector_init(_AL_VECTOR *vec, size_t itemsize)
 
 
 
-/* _al_vector_ref:
+/* Internal function: _al_vector_ref
  *
  *  Return a pointer to the SLOT in the vector given by INDEX.  The returned
  *  address should only be used while the vector is not modified; after that
@@ -86,7 +90,7 @@ void *_al_vector_ref(const _AL_VECTOR *vec, unsigned int idx)
 
 
 
-/* _al_vector_ref_front:
+/* Internal function: _al_vector_ref_front
  *  Convenience function.
  */
 void* _al_vector_ref_front(const _AL_VECTOR *vec)
@@ -96,7 +100,7 @@ void* _al_vector_ref_front(const _AL_VECTOR *vec)
 
 
 
-/* _al_vector_ref_back:
+/* Internal function: _al_vector_ref_back
  *  Convenience function.
  */
 void* _al_vector_ref_back(const _AL_VECTOR *vec)
@@ -108,7 +112,7 @@ void* _al_vector_ref_back(const _AL_VECTOR *vec)
 
 
 
-/* _al_vector_alloc_back:
+/* Internal function: _al_vector_alloc_back
  *
  *  Allocate a block of memory at the back of the vector of the vector's item
  *  size (see _AL_VECTOR_INITIALIZER and _al_vector_init).  Returns a pointer
@@ -157,7 +161,7 @@ void* _al_vector_alloc_back(_AL_VECTOR *vec)
 
 
 
-/* _al_vector_find:
+/* Internal function: _al_vector_find
  *
  *  Find the slot in the vector where the contents of the slot
  *  match whatever PTR_ITEM points to, bit-for-bit.  If no such
@@ -190,7 +194,7 @@ int _al_vector_find(const _AL_VECTOR *vec, const void *ptr_item)
 
 
 
-/* _al_vector_contains:
+/* Internal function: _al_vector_contains
  *  A simple wrapper over _al_vector_find.
  */
 bool _al_vector_contains(const _AL_VECTOR *vec, const void *ptr_item)
@@ -200,7 +204,7 @@ bool _al_vector_contains(const _AL_VECTOR *vec, const void *ptr_item)
 
 
 
-/* _al_vector_delete_at:
+/* Internal function: _al_vector_delete_at
  *
  *  Delete the slot given by index.  Deleting from the start or middle of the
  *  vector requires moving the rest of the vector towards the front, so it is
@@ -228,10 +232,10 @@ void _al_vector_delete_at(_AL_VECTOR *vec, unsigned int idx)
 
 
 
-/* _al_vector_find_and_delete:
+/* Internal function: _al_vector_find_and_delete
  *
  *  Similar to _al_vector_delete_at(_al_vector_find(vec, ptr_item)) but is
- *  lenient if the item is not found.  Returns true is the item was found and
+ *  lenient if the item is not found.  Returns true if the item was found and
  *  deleted.
  */
 bool _al_vector_find_and_delete(_AL_VECTOR *vec, const void *ptr_item)
@@ -247,7 +251,7 @@ bool _al_vector_find_and_delete(_AL_VECTOR *vec, const void *ptr_item)
 
 
 
-/* _al_vector_free:
+/* Internal function: _al_vector_free
  * 
  *  Free the space used by the vector.  You really must do this at some
  *  stage.  It is not enough to delete all the items in the vector (which you

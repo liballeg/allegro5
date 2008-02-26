@@ -23,8 +23,8 @@
  */
 
 #include <string.h>
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 
@@ -539,6 +539,7 @@ static void mono_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, B
 {
     int ch = 0;
     AL_CONST char* p = text;
+    int orig_x = x;
 
     acquire_bitmap(bmp);
 
@@ -547,6 +548,13 @@ static void mono_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, B
     }
 
     release_bitmap(bmp);
+
+    (void)orig_x;
+	/*
+    if (bmp->needs_upload) {
+       bmp->display->vt->upload_compat_screen(bmp, orig_x, y, text_length(f, text), text_height(f));
+    }
+    */
 }
 
 
@@ -994,6 +1002,7 @@ static void color_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, 
 {
     AL_CONST char* p = text;
     int ch = 0;
+    int orig_x = x;
 
     acquire_bitmap(bmp);
 
@@ -1007,6 +1016,13 @@ static void color_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, 
     }
 
     release_bitmap(bmp);
+   
+    (void)orig_x;
+   /*
+    if (bmp->needs_upload) {
+       bmp->display->vt->upload_compat_screen(bmp, orig_x, y, text_length(f, text), text_height(f));
+    }
+    */
 }
 
 
@@ -1445,6 +1461,33 @@ FONT_VTABLE* font_vtable_trans = &_font_vtable_trans;
 
 
 
+/* font_has_alpha:
+ *  Returns TRUE if a color font has an alpha channel.
+ */
+int font_has_alpha(FONT *fnt)
+{
+   FONT_COLOR_DATA *data;
+   int ch;
+
+   ASSERT(fnt);
+
+   if (!is_color_font(fnt))
+      return FALSE;
+
+   data = (FONT_COLOR_DATA *)(fnt->data);
+
+   while (data) {
+      for (ch = data->begin; ch != data->end; ++ch)
+         if (_bitmap_has_alpha(data->bitmaps[ch - data->begin]))
+            return TRUE;
+      data = data->next;
+   }
+
+   return FALSE;
+}
+
+
+
 /* make_trans_font:
  *  Modifes a font so glyphs are drawn with draw_trans_sprite.
  */
@@ -1454,6 +1497,19 @@ void make_trans_font(FONT *f)
    ASSERT(f->vtable == font_vtable_color);
 
    f->vtable = font_vtable_trans;
+}
+
+
+
+/* is_trans_font:
+ *  Returns non-zero if the font passed is a bitmapped colour font using
+ *  draw_trans_sprite to render glyphs.
+ */
+int is_trans_font(FONT *f)
+{
+   ASSERT(f);
+
+   return (f->vtable == font_vtable_trans);
 }
 
 

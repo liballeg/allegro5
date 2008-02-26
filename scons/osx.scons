@@ -9,7 +9,7 @@ env = context.getLibraryEnv()
 
 context.setLibraryDir("lib/macosx")
 
-file = open( "include/allegro/platform/alplatf.h", "w" )
+file = open( "include/allegro5/platform/alplatf.h", "w" )
 file.write( "#define ALLEGRO_MACOSX" )
 file.close()
 
@@ -20,80 +20,34 @@ shared_obj.add_emitter( '.m', SCons.Defaults.SharedObjectEmitter )
 
 env[ 'SHCCFLAGS' ] = SCons.Util.CLVar( '$CCFLAGS' )
 
-context.addFiles('macosx/', Split("""
-cadigi.m
-camidi.m
-drivers.m
-hidjoy.m
-hidman.m
-keybd.m
-pcpu.m
-qtmidi.m
-quartz.m
-qzfull.m
-qzmouse.m
-qzwindow.m
-soundman.m
-system.m
-"""));
+osxfiles = context.cmake["ALLEGRO_SRC_MACOSX_FILES"]
+# linuxfiles.remove("src/linux/fbcon.c")
+context.add_files(osxfiles);
 
-context.addFiles("unix", Split("""
-ufile.c
-usystem.c
-uthreads.c
-utime.c
-utimernu.c
-uxthread.c
-"""));
-
-
-context.addFiles('c/', Split("""
-cblit16.c
-cblit24.c
-cblit32.c
-cblit8.c
-ccpu.c
-ccsprite.c
-cgfx15.c
-cgfx16.c
-cgfx24.c
-cgfx32.c
-cgfx8.c
-cmisc.c
-cscan15.c
-cscan16.c
-cscan24.c
-cscan32.c
-cscan8.c
-cspr15.c
-cspr16.c
-cspr24.c
-cspr32.c
-cspr8.c
-cstretch.c
-czscan15.c
-czscan16.c
-czscan24.c
-czscan32.c
-czscan8.c
-""" ));
+context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
+unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
+context.add_files(unixfiles)
 
 #mainEnv = Environment()
 #mainLibrary = mainEnv.StaticLibrary( 'alleg-main', 'src/macosx/main.m' )
 #mainEnv.Install(context.getLibraryDir(),mainLibrary)
 
-context.addLibrary("alleg-main")
+# context.addLibrary(context.getLibraryDir() + "/alleg-main")
 
-# gcc -DALLEGRO_SRC -DALLEGRO_LIB_BUILD -Wall -Wno-unused -Wno-long-double  -O2 -funroll-loops -ffast-math -fomit-frame-pointer -fno-common -pipe -dynamic -DALLEGRO_NO_ASM -I. -I./include -o obj/macosx/alleg/main.o -c src/macosx/main.m
-# ar rs lib/macosx/liballeg-main.a obj/macosx/alleg/main.o
+# context.addLibrary(context.getLibraryDir() + "/liballeg-main.a")
 
 def buildMain(env,appendDir,buildDir,libDir):
     fenv = env.Copy()
     fenv.Replace(LIBS = [])
-    # fenv.Append(CCFLAGS = ['-DALLEGRO_SRC'])
     fenv.Append(CPPDEFINES = 'ALLEGRO_SRC')
-    lib = fenv.StaticLibrary('alleg-main',appendDir(buildDir + '/macosx/', ['main.m']))
-    fenv.Install(libDir, lib)
+    # lib = fenv.StaticLibrary('alleg-main',appendDir(buildDir + '/macosx/', ['main.m']))
+    libTool = Builder(action = 'libtool -static -s -o $TARGETS $SOURCES',
+                      prefix = 'lib',
+		      suffix = '.a',
+		      src_builder = 'StaticObject',
+		      src_suffix = '.o');
+    fenv.Append(BUILDERS = {'LibTool' : libTool})
+    lib = fenv.LibTool(libDir + '/alleg-main',appendDir(buildDir + '/macosx/', ['main.m']))
     return lib
 
 #env = context.getLibraryEnv()
@@ -106,28 +60,50 @@ exampleEnv = Environment()
 flags = [ "-Wall", "-Wno-unused", "-Wno-long-double", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer", "-fno-common", "-pipe", "-dynamic" ]
 defines = [ "ALLEGRO_NO_ASM", "ALLEGRO_LIB_BUILD" ]
 includes = [ "include", "include/allegro" ]
-linkflags = ["-prebind", "-framework", "Cocoa"]
-libpath = [ "lib/macosx" ]
-libs = [ 'alleg-main' ]
+# linkflags = ["-prebind", "-framework", "Cocoa"]
+linkflags = ["-framework", "Cocoa"]
+# libpath = [ "lib/macosx" ]
+# libs = [ 'alleg-main' ]
+libs = [ 'lib/macosx/liballeg-main.a' ]
 
-# gcc -s -prebind -o examples/exupdate obj/macosx/alleg/exupdate.o lib/macosx/liballeg-4.3.0.dylib lib/macosx/liballeg-main.a -framework Cocoa
+# gcc -s -prebind -o examples/exupdate obj/macosx/alleg/exupdate.o lib/macosx/liballeg-4.9.0.dylib lib/macosx/liballeg-main.a -framework Cocoa
 
 exampleEnv.Append(CCFLAGS = flags)
 exampleEnv.Append(CPPDEFINES = defines)
 exampleEnv.Append(CPPPATH = includes)
 # exampleEnv.Append(LIBPATH = libpath)
 exampleEnv.Append(LINKFLAGS = linkflags)
-exampleEnv.Append(LIBS = libs)
+# exampleEnv.Append(LIBS = libs)
+context.addLibrary(File('#%s/liballeg-main.a' % context.getLibraryDir()))
 
 context.setExampleEnv( exampleEnv )
 
 # gcc -DALLEGRO_LIB_BUILD -Wall -Wno-unused -Wno-long-double  -O2 -funroll-loops -ffast-math -fomit-frame-pointer -fno-common -pipe -dynamic -DALLEGRO_NO_ASM -I. -I./include -o obj/macosx/alleg/exupdate.o -c examples/exupdate.c
 
-flags = ["-g", "-Wall", "-Wno-unused", "-O2", "-funroll-loops", "-fno-common", "-ffast-math", "-fomit-frame-pointer", "-Wno-long-double", "-pipe", "-dynamic" ]
-includes = ["include", "include/allegro", "."]
-defines = ["-DHAVE_CONFIG_H", "-DALLEGRO_NO_ASM", "-DALLEGRO_LIB_BUILD", "-DALLEGRO_SHARED", "-DALLEGRO_SRC" ]
-linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", str(context.getAllegroVersion()), "-current_version", str(context.getAllegroVersion()), "-install_name", "liballeg-" + str(context.getAllegroVersion()) + ".dylib" ]
+flags = Split("""
+-O2
+-Wall
+-Wno-long-double
+-Wno-unused
+-dynamic
+-ffast-math
+-fno-common
+-fomit-frame-pointer
+-funroll-loops
+-g
+-pipe
+""");
 
+includes = ["include", "include/allegro", "."]
+
+defines = Split("""
+ALLEGRO_NO_ASM
+ALLEGRO_LIB_BUILD
+ALLEGRO_SHARED
+ALLEGRO_SRC
+""");
+
+linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", str(context.getAllegroVersion()), "-current_version", str(context.getAllegroVersion()), "-install_name", "liballeg-" + str(context.getAllegroVersion()) + ".dylib" ]
 
 def addFramework( name ):
 	linkflags.append( "-framework" )
@@ -143,7 +119,7 @@ addFramework( "AudioToolbox" )
 addFramework( "QuickTime" )	
 
 env.Append(CCFLAGS = flags)
-env.Append(CCFLAGS = defines)
+env.Append(CPPDEFINES = defines)
 env.Append(CPPPATH = includes)
 env.Append(LINKFLAGS = linkflags)
 

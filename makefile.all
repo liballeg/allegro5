@@ -15,7 +15,7 @@
 #                           to *NOT* be backwards compatible (GCC-based platforms, MSVC).
 #        TARGET_OPTS        allows you to customize general optimizations (GCC-based platforms).
 #        CROSSCOMPILE=1     cross-build under Linux (DJGPP, MinGW32).
-#        ALLEGRO_USE_C=1    use C drawing code instead of asm (GCC-based platforms).
+#        ALLEGRO_USE_C=1    use C drawing code instead of asm (GCC-based platforms, MSVC).
 #        UNIX_TOOLS=1       use Unix-like tools instead of DOS tools.
 #
 #     Targets: 
@@ -143,9 +143,10 @@ EXAMPLES = $(basename $(notdir $(ALLEGRO_EXAMPLE_FILES)))
 EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 
 ifdef HTML
+# XXX this is duplicated in makefile.in
 DOCBASEFILES = ahack changes faq mistakes help thanks allegro const abi api packfile \
                readme makedoc datafile grabber dat dat2c dat2s license
-DOCBUILDFILES = bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom
+DOCBUILDFILES = bcc32 beos darwin djgpp dmc linux macosx mingw32 msvc qnx unix watcom
 DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 
 DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,$(filter-out changes thanks readme, $(DOCBASEFILES))))
@@ -276,10 +277,10 @@ endif
 INSTALL_DIRS := \
     $(INSTALLDIR)/$(LIBDIR) \
     $(INSTALLDIR)/$(INCDIR) \
-    $(INSTALLDIR)/$(INCDIR)/allegro \
-    $(INSTALLDIR)/$(INCDIR)/allegro/platform \
-    $(INSTALLDIR)/$(INCDIR)/allegro/internal \
-    $(INSTALLDIR)/$(INCDIR)/allegro/inline
+    $(INSTALLDIR)/$(INCDIR)/allegro5 \
+    $(INSTALLDIR)/$(INCDIR)/allegro5/platform \
+    $(INSTALLDIR)/$(INCDIR)/allegro5/internal \
+    $(INSTALLDIR)/$(INCDIR)/allegro5/inline
 
 ifdef BINDIR
     INSTALL_DIRS += $(INSTALLDIR)/$(BINDIR)
@@ -316,16 +317,16 @@ INCDIR_D = $(subst /,\,$(INCDIR))
 
 ifdef UNIX_TOOLS
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%.h: include/allegro/platform/%.h
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro5/platform/%.h: include/allegro5/platform/%.h
 	cp $< $@
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/%.h: include/allegro/internal/%.h
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro5/internal/%.h: include/allegro5/internal/%.h
 	cp $< $@
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/%.inl: include/allegro/inline/%.inl
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro5/inline/%.inl: include/allegro5/inline/%.inl
 	cp $< $@
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/%.h: include/allegro/%.h
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro5/%.h: include/allegro5/%.h
 	cp $< $@
 
 $(INSTALLDIR_U)/$(INCDIR_U)/%.h: include/%.h
@@ -333,16 +334,16 @@ $(INSTALLDIR_U)/$(INCDIR_U)/%.h: include/%.h
 
 else
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%.h: include/allegro/platform/%.h
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro5/platform/%.h: include/allegro5/platform/%.h
 	copy $(subst /,\,$< $@)
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/%.h: include/allegro/internal/%.h
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro5/internal/%.h: include/allegro5/internal/%.h
 	copy $(subst /,\,$< $@)
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/%.inl: include/allegro/inline/%.inl
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro5/inline/%.inl: include/allegro5/inline/%.inl
 	copy $(subst /,\,$< $@)
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/%.h: include/allegro/%.h
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro5/%.h: include/allegro5/%.h
 	copy $(subst /,\,$< $@)
 
 $(INSTALLDIR_U)/$(INCDIR_U)/%.h: include/%.h
@@ -352,9 +353,9 @@ endif
 
 
 INSTALL_FILES += $(INSTALLDIR_U)/$(INCDIR_U)/allegro.h                                                                         \
-                 $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro/,$(notdir $(wildcard include/allegro/*.h)))                   \
-                 $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/,$(notdir $(wildcard include/allegro/internal/*.h))) \
-                 $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/,$(notdir $(wildcard include/allegro/inline/*.inl)))
+                 $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro5/,$(notdir $(wildcard include/allegro5/*.h)))                   \
+                 $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro5/internal/,$(notdir $(wildcard include/allegro5/internal/*.h))) \
+                 $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro5/inline/,$(notdir $(wildcard include/allegro5/inline/*.inl)))
 
 generic-install: create-install-dirs $(INSTALL_FILES)
 
@@ -362,28 +363,28 @@ generic-install: create-install-dirs $(INSTALL_FILES)
 UNINSTALL_FILES := \
     $(wildcard \
         $(filter-out \
-            $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%, \
+            $(INSTALLDIR_U)/$(INCDIR_U)/allegro5/platform/%, \
             $(UNINSTALL_FILES) \
         ) \
     ) \
     $(filter \
-        $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%, \
+        $(INSTALLDIR_U)/$(INCDIR_U)/allegro5/platform/%, \
         $(UNINSTALL_FILES) \
     ) \
-    $(INSTALLDIR_U)/$(INCDIR_U)/allegro.h \
+    $(INSTALLDIR_U)/$(INCDIR_U)/allegro5/allegro5.h \
     $(wildcard \
-        $(INSTALLDIR_U)/$(INCDIR_U)/allegro/*.h \
-        $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/*.inl \
-        $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/*.h \
+        $(INSTALLDIR_U)/$(INCDIR_U)/allegro5/*.h \
+        $(INSTALLDIR_U)/$(INCDIR_U)/allegro5/inline/*.inl \
+        $(INSTALLDIR_U)/$(INCDIR_U)/allegro5/internal/*.h \
     )
 
 generic-uninstall:
 ifdef UNIX_TOOLS
 	-rm -fv $(UNINSTALL_FILES)
-	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform
-	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline
-	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal
-	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro
+	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro5/platform
+	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro5/inline
+	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro5/internal
+	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro5
 else
    define RM_FILES
       $(foreach file, $(UNINSTALL_FILES), del $(subst /,\,$(file))

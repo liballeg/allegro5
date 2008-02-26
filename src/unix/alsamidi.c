@@ -15,16 +15,16 @@
  *      See readme.txt for copyright information.
  */
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 #if (defined ALLEGRO_WITH_ALSAMIDI) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
-#include "allegro/internal/aintern.h"
+#include "allegro5/internal/aintern.h"
 
 #ifdef ALLEGRO_QNX
-#include "allegro/platform/aintqnx.h"
+#include "allegro5/platform/aintqnx.h"
 #else
-#include "allegro/platform/aintunix.h"
+#include "allegro5/platform/aintunix.h"
 #endif
 
 #ifndef SCAN_DEPEND
@@ -43,6 +43,9 @@
 #endif
 
 
+#define ALSA_RAWMIDI_MAX_ERRORS  3
+
+
 static int alsa_rawmidi_detect(int input);
 static int alsa_rawmidi_init(int input, int voices);
 static void alsa_rawmidi_exit(int input);
@@ -51,6 +54,7 @@ static void alsa_rawmidi_output(int data);
 static char alsa_rawmidi_desc[256];
 
 static snd_rawmidi_t *rawmidi_handle = NULL;
+static int alsa_rawmidi_errors = 0;
 
 
 MIDI_DRIVER midi_alsa =
@@ -193,6 +197,7 @@ static int alsa_rawmidi_init(int input, int voices)
       _al_sane_strncpy(alsa_rawmidi_desc, info.name, sizeof(alsa_rawmidi_desc));
 #endif
       midi_alsa.desc = alsa_rawmidi_desc;
+      alsa_rawmidi_errors = 0;
    }
 
    return ret;
@@ -225,12 +230,21 @@ static void alsa_rawmidi_exit(int input)
 static void alsa_rawmidi_output(int data)
 {
    int err;
-   char temp[256];
+
+   /* If there are too many errors, just give up.  Otherwise the calling thread
+    * can end up consuming CPU time for no reason.  It probably means the user
+    * hasn't configured ALSA properly.
+    */
+   if (alsa_rawmidi_errors > ALSA_RAWMIDI_MAX_ERRORS) {
+      return;
+   }
 
    err = snd_rawmidi_write(rawmidi_handle, &data, sizeof(char));
    if (err) {
-      snprintf(temp, sizeof(temp), "Could not write to rawmidi port: %s", snd_strerror(err));
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text(temp));
+      alsa_rawmidi_errors++;
+      if (alsa_rawmidi_errors == ALSA_RAWMIDI_MAX_ERRORS) {
+	  TRACE("al-alsamidi: too many errors, giving up\n");
+      }
    }
 }
 

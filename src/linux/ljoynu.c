@@ -28,12 +28,13 @@
 #define ALLEGRO_NO_KEY_DEFINES
 #define ALLEGRO_NO_COMPATIBILITY
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_joystick.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "allegro/internal/aintern2.h"
 
-#ifdef HAVE_LINUX_JOYSTICK_H
+#ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
 
 #include <linux/joystick.h>
 
@@ -45,47 +46,50 @@
 
 /* map a Linux joystick axis number to an Allegro (stick,axis) pair */
 typedef struct {
-   int stick, axis;
+   int stick;
+   int axis;
 } AXIS_MAPPING;
 
 
-typedef struct AL_JOYSTICK_LINUX
+typedef struct ALLEGRO_JOYSTICK_LINUX
 {
-   AL_JOYSTICK parent;
+   ALLEGRO_JOYSTICK parent;
    int fd;
    AXIS_MAPPING axis_mapping[TOTAL_JOYSTICK_AXES];
-   AL_JOYSTATE joystate;
-} AL_JOYSTICK_LINUX;
+   ALLEGRO_JOYSTATE joystate;
+} ALLEGRO_JOYSTICK_LINUX;
 
 
 
 /* forward declarations */
-static bool ljoy_init(void);
-static void ljoy_exit(void);
+static bool ljoy_init_joystick(void);
+static void ljoy_exit_joystick(void);
 static int ljoy_num_joysticks(void);
-static AL_JOYSTICK *ljoy_get_joystick(int num);
-static void ljoy_release_joystick(AL_JOYSTICK *joy_);
-static void ljoy_get_state(AL_JOYSTICK *joy_, AL_JOYSTATE *ret_state);
+static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num);
+static void ljoy_release_joystick(ALLEGRO_JOYSTICK *joy_);
+static void ljoy_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTATE *ret_state);
 
 static void ljoy_process_new_data(void *data);
-static void ljoy_generate_axis_event(AL_JOYSTICK_LINUX *joy, int stick, int axis, float pos);
-static void ljoy_generate_button_event(AL_JOYSTICK_LINUX *joy, int button, unsigned int event_type);
+static void ljoy_generate_axis_event(ALLEGRO_JOYSTICK_LINUX *joy, int stick, int axis, float pos);
+static void ljoy_generate_button_event(ALLEGRO_JOYSTICK_LINUX *joy, int button, ALLEGRO_EVENT_TYPE event_type);
 
 
 
 /* the driver vtable */
-AL_JOYSTICK_DRIVER _al_joydrv_linux_analogue =
+#define JOYDRV_LINUX    AL_ID('L','N','X','A')
+
+static ALLEGRO_JOYSTICK_DRIVER joydrv_linux =
 {
-   AL_JOY_TYPE_LINUX_ANALOGUE,
+   JOYDRV_LINUX,
    empty_string,
    empty_string,
-   "Linux analogue joystick(s)",
-   ljoy_init,
-   ljoy_exit,
+   "Linux joystick(s)",
+   ljoy_init_joystick,
+   ljoy_exit_joystick,
    ljoy_num_joysticks,
    ljoy_get_joystick,
    ljoy_release_joystick,
-   ljoy_get_state
+   ljoy_get_joystick_state
 };
 
 
@@ -129,7 +133,7 @@ static bool check_js_api_version(int fd)
  */
 static int try_open_joy_device(int num)
 {
-   AL_CONST char *device_name = NULL;
+   const char *device_name = NULL;
    char tmp[128], tmp1[128], tmp2[128];
    int fd;
 
@@ -190,10 +194,10 @@ static int count_num_joysticks(void)
 
 
 
-/* ljoy_init: [primary thread]
+/* ljoy_init_joystick: [primary thread]
  *  Initialise the joystick driver.
  */
-static bool ljoy_init(void)
+static bool ljoy_init_joystick(void)
 {
    /* cache the number of joysticks on the system */
    num_joysticks = count_num_joysticks();
@@ -203,10 +207,10 @@ static bool ljoy_init(void)
 
 
 
-/* ljoy_exit: [primary thread]
+/* ljoy_exit_joystick: [primary thread]
  *  Shut down the joystick driver.
  */
-static void ljoy_exit(void)
+static void ljoy_exit_joystick(void)
 {
    num_joysticks = 0; /* not really necessary */
 }
@@ -226,14 +230,14 @@ static int ljoy_num_joysticks(void)
 
 /* ljoy_get_joystick: [primary thread]
  *
- *  Returns the address of a AL_JOYSTICK structure for the device
+ *  Returns the address of a ALLEGRO_JOYSTICK structure for the device
  *  number NUM.  The top-level joystick functions will not call this
  *  function if joystick number NUM was already gotten.  If the
  *  device cannot be opened, NULL is returned.
  */
-static AL_JOYSTICK *ljoy_get_joystick(int num)
+static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
 {
-   AL_JOYSTICK_LINUX *joy;
+   ALLEGRO_JOYSTICK_LINUX *joy;
    int fd;
 
    /* Try to open the device. */
@@ -250,7 +254,7 @@ static AL_JOYSTICK *ljoy_get_joystick(int num)
    memset(joy, 0, sizeof *joy);
 
    /* Initialise the event source part of it. */
-   _al_event_source_init(&joy->parent.es, _AL_ALL_JOYSTICK_EVENTS);
+   _al_event_source_init(&joy->parent.es);
 
    /* Fill in the joystick information fields. */
    {
@@ -288,7 +292,7 @@ static AL_JOYSTICK *ljoy_get_joystick(int num)
       {
          if ((a == throttle) || (a == num_axes-1)) {
             /* One axis throttle. */
-            joy->parent.info.stick[s].flags = AL_JOYFLAG_ANALOGUE;
+            joy->parent.info.stick[s].flags = ALLEGRO_JOYFLAG_ANALOGUE;
             joy->parent.info.stick[s].num_axes = 1;
             joy->parent.info.stick[s].axis[0].name = get_config_text("Throttle");
             joy->parent.info.stick[s].name = ustrdup(joy->parent.info.stick[s].axis[0].name);
@@ -298,7 +302,7 @@ static AL_JOYSTICK *ljoy_get_joystick(int num)
          }
          else {
             /* Two axis stick. */
-            joy->parent.info.stick[s].flags = AL_JOYFLAG_ANALOGUE;
+            joy->parent.info.stick[s].flags = ALLEGRO_JOYFLAG_ANALOGUE;
             joy->parent.info.stick[s].num_axes = 2;
             joy->parent.info.stick[s].axis[0].name = get_config_text("X");
             joy->parent.info.stick[s].axis[1].name = get_config_text("Y");
@@ -332,7 +336,7 @@ static AL_JOYSTICK *ljoy_get_joystick(int num)
    /* Register the joystick with the fdwatch subsystem.  */
    _al_unix_start_watching_fd(joy->fd, ljoy_process_new_data, joy);
 
-   return (AL_JOYSTICK *) joy;
+   return (ALLEGRO_JOYSTICK *) joy;
 }
 
 
@@ -341,9 +345,9 @@ static AL_JOYSTICK *ljoy_get_joystick(int num)
  *
  *  Close the device for a joystick then free the joystick structure.
  */
-static void ljoy_release_joystick(AL_JOYSTICK *joy_)
+static void ljoy_release_joystick(ALLEGRO_JOYSTICK *joy_)
 {
-   AL_JOYSTICK_LINUX *joy = (AL_JOYSTICK_LINUX *) joy_;
+   ALLEGRO_JOYSTICK_LINUX *joy = (ALLEGRO_JOYSTICK_LINUX *) joy_;
    int i;
    
    _al_unix_stop_watching_fd(joy->fd);
@@ -359,13 +363,13 @@ static void ljoy_release_joystick(AL_JOYSTICK *joy_)
 
 
 
-/* ljoy_get_state: [primary thread]
+/* ljoy_get_joystick_state: [primary thread]
  *
  *  Copy the internal joystick state to a user-provided structure.
  */
-static void ljoy_get_state(AL_JOYSTICK *joy_, AL_JOYSTATE *ret_state)
+static void ljoy_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTATE *ret_state)
 {
-   AL_JOYSTICK_LINUX *joy = (AL_JOYSTICK_LINUX *) joy_;
+   ALLEGRO_JOYSTICK_LINUX *joy = (ALLEGRO_JOYSTICK_LINUX *) joy_;
 
    _al_event_source_lock(&joy->parent.es);
    {
@@ -382,7 +386,7 @@ static void ljoy_get_state(AL_JOYSTICK *joy_, AL_JOYSTATE *ret_state)
  */
 static void ljoy_process_new_data(void *data)
 {
-   AL_JOYSTICK_LINUX *joy = data;
+   ALLEGRO_JOYSTICK_LINUX *joy = data;
 
    _al_event_source_lock(&joy->parent.es);
    {
@@ -408,8 +412,8 @@ static void ljoy_process_new_data(void *data)
 
                   ljoy_generate_button_event(joy, number,
                                              (value
-                                              ? AL_EVENT_JOYSTICK_BUTTON_DOWN
-                                              : AL_EVENT_JOYSTICK_BUTTON_UP));
+                                              ? ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN
+                                              : ALLEGRO_EVENT_JOYSTICK_BUTTON_UP));
                }
             }
             else if (type & JS_EVENT_AXIS) {
@@ -436,18 +440,18 @@ static void ljoy_process_new_data(void *data)
  *  Helper to generate an event after an axis is moved.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void ljoy_generate_axis_event(AL_JOYSTICK_LINUX *joy, int stick, int axis, float pos)
+static void ljoy_generate_axis_event(ALLEGRO_JOYSTICK_LINUX *joy, int stick, int axis, float pos)
 {
-   AL_EVENT *event;
+   ALLEGRO_EVENT *event;
 
-   if (!_al_event_source_needs_to_generate_event(&joy->parent.es, AL_EVENT_JOYSTICK_AXIS))
+   if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&joy->parent.es);
    if (!event)
       return;
 
-   event->joystick.type = AL_EVENT_JOYSTICK_AXIS;
+   event->joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
    event->joystick.timestamp = al_current_time();
    event->joystick.stick = stick;
    event->joystick.axis = axis;
@@ -464,11 +468,11 @@ static void ljoy_generate_axis_event(AL_JOYSTICK_LINUX *joy, int stick, int axis
  *  Helper to generate an event after a button is pressed or released.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void ljoy_generate_button_event(AL_JOYSTICK_LINUX *joy, int button, unsigned int event_type)
+static void ljoy_generate_button_event(ALLEGRO_JOYSTICK_LINUX *joy, int button, ALLEGRO_EVENT_TYPE event_type)
 {
-   AL_EVENT *event;
+   ALLEGRO_EVENT *event;
 
-   if (!_al_event_source_needs_to_generate_event(&joy->parent.es, event_type))
+   if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
       return;
 
    event = _al_event_source_get_unused_event(&joy->parent.es);
@@ -485,15 +489,15 @@ static void ljoy_generate_button_event(AL_JOYSTICK_LINUX *joy, int button, unsig
    _al_event_source_emit_event(&joy->parent.es, event);
 }
 
-#endif /* HAVE_LINUX_JOYSTICK_H */
+#endif /* ALLEGRO_HAVE_LINUX_JOYSTICK_H */
 
 
 
 /* list the available drivers */
 _DRIVER_INFO _al_linux_joystick_driver_list[] =
 {
-#ifdef HAVE_LINUX_JOYSTICK_H
-   { AL_JOY_TYPE_LINUX_ANALOGUE,  &_al_joydrv_linux_analogue,  TRUE  },
+#ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
+   { JOYDRV_LINUX,                &joydrv_linux,               TRUE  },
 #endif
    { 0,                           NULL,                        FALSE }
 };

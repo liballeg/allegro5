@@ -15,8 +15,8 @@
  */
 #include <stdio.h>
 #include <string.h>
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 
@@ -27,6 +27,7 @@
 FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
 {
    char buf[1024], *font_str, *start_str = 0, *end_str = 0;
+   char font_filename[1024];
    FONT *f, *f2, *f3, *f4;
    PACKFILE *pack;
    int begin, end, glyph_pos=32;
@@ -75,7 +76,16 @@ FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
       if (font_str[0]) {
          if (f2)
             destroy_font(f2);
-         f2 = load_font(font_str, pal, param);
+         if (exists(font_str)) {
+            f2 = load_font(font_str, pal, param);
+         } else if (is_relative_filename(font_str)) {
+            replace_filename(font_filename, filename, font_str,
+                             sizeof(font_filename));
+            f2 = load_font(font_filename, pal, param);
+         }
+         else {
+            f2 = NULL;
+         }
          if (f2) glyph_pos=get_font_range_begin(f2, -1);
       }
       if(!f2) {

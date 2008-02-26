@@ -20,10 +20,10 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
-#include "linalleg.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
+#include "allegro5/linalleg.h"
 
 
 #if (defined ALLEGRO_LINUX_SVGALIB) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
@@ -76,7 +76,9 @@ GFX_DRIVER gfx_svgalib =
    NULL,			 /* svga_fetch_mode_list disabled */
    0, 0,
    TRUE,
-   0, 0, 0, 0, FALSE
+   0, 0, 0, 0, FALSE,
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 

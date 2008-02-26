@@ -22,12 +22,12 @@
 
 #include <string.h>
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
-#ifdef GFX_HAS_VGA
+#ifdef ALLEGRO_GFX_HAS_VGA
 
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintvga.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintvga.h"
 
 #ifdef ALLEGRO_INTERNAL_HEADER
    #include ALLEGRO_INTERNAL_HEADER
@@ -152,7 +152,9 @@ GFX_DRIVER gfx_modex =
    0, 0,
    0x40000,
    0,
-   FALSE
+   FALSE,
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -216,7 +218,9 @@ GFX_DRIVER gfx_xtended =
    0, 0,
    0x40000,
    0,
-   FALSE
+   FALSE,
+   /* new_api_branch additions */
+   NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -1697,4 +1701,4 @@ void _module_init_modex(int system_driver)
 #endif	    /* (defined ALLEGRO_LINUX_VGA) && (defined ALLEGRO_MODULE) */
 
 
-#endif	    /* GFX_HAS_VGA */
+#endif	    /* ALLEGRO_GFX_HAS_VGA */

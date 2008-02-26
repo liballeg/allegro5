@@ -11,7 +11,7 @@
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
@@ -112,9 +112,9 @@ void draw(BITMAP *b)
    } 
 
    if (triplebuffer_not_available)
-      ustrzcpy (message, sizeof message, "Simulated triple buffering");
+      ustrzcpy(message, sizeof message, "Simulated triple buffering");
    else
-      ustrzcpy (message, sizeof message, "Real triple buffering");
+      ustrzcpy(message, sizeof message, "Real triple buffering");
 
    textout_ex(b, font, message, 0, 0, 255, -1);
 

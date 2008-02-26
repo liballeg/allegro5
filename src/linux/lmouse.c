@@ -1,3 +1,5 @@
+#error This file is no longer used.
+
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
@@ -19,10 +21,10 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
-#include "linalleg.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
+#include "allegro5/linalleg.h"
 
 
 static int mouse_mx = 0;            /* internal position, in mickeys */
@@ -76,8 +78,8 @@ void __al_linux_mouse_set_range(int x1, int y1, int x2, int y2)
 
    DISABLE();
 
-   _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-   _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
+   _mouse_x = CLAMP(mouse_minx, _mouse_x, mouse_maxx);
+   _mouse_y = CLAMP(mouse_miny, _mouse_y, mouse_maxy);
 
    mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
    mouse_my = COORD_TO_MICKEY_Y(_mouse_y);
@@ -143,8 +145,8 @@ void __al_linux_mouse_handler (int x, int y, int z, int b)
    if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx) ||
        (_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {
 
-      _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-      _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
+      _mouse_x = CLAMP(mouse_minx, _mouse_x, mouse_maxx);
+      _mouse_y = CLAMP(mouse_miny, _mouse_y, mouse_maxy);
 
       mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
       mouse_my = COORD_TO_MICKEY_Y(_mouse_y);

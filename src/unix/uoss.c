@@ -20,12 +20,12 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 #ifdef ALLEGRO_WITH_OSSDIGI
 
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintunix.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -35,13 +35,13 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
-#if defined(HAVE_SOUNDCARD_H)
+#if defined(ALLEGRO_HAVE_SOUNDCARD_H)
    #include <soundcard.h>
-#elif defined(HAVE_SYS_SOUNDCARD_H)
+#elif defined(ALLEGRO_HAVE_SYS_SOUNDCARD_H)
    #include <sys/soundcard.h>
-#elif defined(HAVE_MACHINE_SOUNDCARD_H)
+#elif defined(ALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
    #include <machine/soundcard.h>
-#elif defined(HAVE_LINUX_SOUNDCARD_H)
+#elif defined(ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
    #include <linux/soundcard.h>
 #endif
 #include <sys/ioctl.h>
@@ -258,8 +258,8 @@ static int open_oss_device(int input)
    for (fragbits = 0; (fragbits < 16) && (fragsize > 1); fragbits++)
       fragsize /= 2;
 
-   fragbits = MID(4, fragbits, 16);
-   _oss_numfrags = MID(2, _oss_numfrags, 0x7FFF);
+   fragbits = CLAMP(4, fragbits, 16);
+   _oss_numfrags = CLAMP(2, _oss_numfrags, 0x7FFF);
 
    fragsize = (_oss_numfrags << 16) | fragbits;
 

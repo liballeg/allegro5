@@ -7,12 +7,12 @@
  *    selecting a screen resolution through the standard GUI dialog,
  *    the example shows two 3D cubes rotating and intersecting each
  *    other. Rather than having full polygons incorrectly overlap
- *    other polgons due to per-polygon sorting, each pixel is drawn
+ *    other polygons due to per-polygon sorting, each pixel is drawn
  *    at the correct depth.
  */
 
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 
 
@@ -198,7 +198,7 @@ int main(void)
       return 1;
    }
 
-   set_palette(pal);
+   set_palette_range(pal, 0, 127, FALSE);
 
    /* double buffer the animation and create the Z-buffer */
    buffer = create_bitmap(SCREEN_W, SCREEN_H);

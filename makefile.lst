@@ -2,29 +2,37 @@
 
 ALLEGRO_SRC_FILES = \
 	src/allegro.c \
+	src/bitmap_new.c \
+	src/blenders.c \
 	src/blit.c \
 	src/bmp.c \
 	src/clip3d.c \
 	src/clip3df.c \
 	src/colblend.c \
 	src/color.c \
+	src/compat/cojoy.c \
+	src/compat/cokeybd.c \
+	src/compat/comouse.c \
+	src/compat/cotimer.c \
 	src/config.c \
+	src/convert.c \
 	src/datafile.c \
 	src/dataregi.c \
 	src/digmid.c \
-	src/dither.c \
-	src/dispsw.c \
 	src/display.c \
-	src/dtor.c \
+	src/display_new.c \
+	src/dispsw.c \
+	src/dither.c \
 	src/drvlist.c \
+	src/dtor.c \
 	src/events.c \
 	src/evtsrc.c \
 	src/file.c \
 	src/fli.c \
 	src/flood.c \
-	src/font.c \
 	src/fontbios.c \
 	src/fontbmp.c \
+	src/font.c \
 	src/fontdat.c \
 	src/fontgrx.c \
 	src/fonttxt.c \
@@ -41,14 +49,21 @@ ALLEGRO_SRC_FILES = \
 	src/lbm.c \
 	src/libc.c \
 	src/lzss.c \
-	src/math.c \
 	src/math3d.c \
+	src/math.c \
+	src/memblit1.c \
+	src/memblit2.c \
+	src/memblit3.c \
+	src/memblit.c \
+	src/memdraw.c \
 	src/memory.c \
 	src/midi.c \
+	src/misc/vector.c \
 	src/mixer.c \
 	src/modesel.c \
-	src/mouse.c \
+	src/mousenu.c \
 	src/pcx.c \
+	src/pixels.c \
 	src/poly3d.c \
 	src/polygon.c \
 	src/quantize.c \
@@ -62,22 +77,18 @@ ALLEGRO_SRC_FILES = \
 	src/sound.c \
 	src/spline.c \
 	src/stream.c \
+	src/system_new.c \
 	src/text.c \
 	src/tga.c \
+	src/tls.c \
 	src/unicode.c \
-	src/vtable.c \
 	src/vtable15.c \
 	src/vtable16.c \
 	src/vtable24.c \
 	src/vtable32.c \
 	src/vtable8.c \
-	src/compat/coblit.c \
-	src/compat/cogfx.c \
-	src/compat/cojoy.c \
-	src/compat/cokeybd.c \
-	src/compat/cotimer.c \
-	src/misc/vector.c \
-	src/fshook.c
+	src/vtable.c
+
 
 ALLEGRO_SRC_C_FILES = \
 	src/c/cblit16.c \
@@ -296,13 +307,8 @@ ALLEGRO_SRC_LINUX_FILES = \
 	src/linux/ljoynu.c \
 	src/linux/lkeybdnu.c \
 	src/linux/lmemory.c \
-	src/linux/lmouse.c \
 	src/linux/lmsedrv.c \
-	src/linux/lmsegpmd.c \
-	src/linux/lmsems.c \
-	src/linux/lmseps2.c \
 	src/linux/lmseev.c \
-	src/linux/lstddrv.c \
 	src/linux/lsystem.c \
 	src/linux/lvga.c \
 	src/linux/lvgahelp.c \
@@ -348,7 +354,7 @@ ALLEGRO_SRC_UNIX_FILES = \
 ALLEGRO_SRC_X_FILES = \
 	src/x/xgfxdrv.c \
 	src/x/xkeyboard.c \
-	src/x/xmouse.c \
+	src/x/xmousenu.c \
 	src/x/xsystem.c \
 	src/x/xvtable.c \
 	src/x/xwin.c \
@@ -357,6 +363,15 @@ ALLEGRO_SRC_X_FILES = \
 	src/x/xwins.s \
 	src/misc/colconv.c
 
+ALLEGRO_SRC_XGLX_FILES = \
+	src/xglx/xbitmap.c \
+	src/xglx/xcompat.c \
+	src/xglx/xdisplay.c \
+	src/xglx/xdraw.c \
+	src/xglx/xfullscreen.c \
+	src/xglx/xglx_config.c \
+	src/xglx/xsystem.c
+	
 ALLEGRO_SRC_QNX_FILES = \
 	src/qnx/qdrivers.c \
 	src/qnx/qkeydrv.c \
@@ -418,7 +433,7 @@ ALLEGRO_MODULE_FBCON_FILES = \
 ALLEGRO_MODULE_DGA2_FILES = \
 	src/x/xdga2.c \
 	src/x/xdga2s.s
-
+	
 ALLEGRO_MODULE_ALSADIGI_FILES = \
 	src/unix/alsa5.c \
 	src/unix/alsa9.c
@@ -551,13 +566,21 @@ ALLEGRO_EXAMPLE_FILES = \
 	examples/exmem.c \
 	examples/exmidi.c \
 	examples/exmouse.c \
+	examples/exnewapi.c \
+	examples/exnew_bitmap.c \
+	examples/exnew_fs_resize.c \
+	examples/exnew_icon.c \
+	examples/exnew_lockbitmap.c \
+	examples/exnew_lockscreen.c \
+	examples/exnew_mouse.c \
+	examples/exnew_mouse_events.c \
+	examples/exnew_resize.c \
 	examples/expackf.c \
 	examples/expal.c \
 	examples/expat.c \
 	examples/exquat.c \
 	examples/exrgbhsv.c \
 	examples/exsample.c \
-	examples/exsyscur.c \
 	examples/exscale.c \
 	examples/exscn3d.c \
 	examples/exscroll.c \
@@ -567,6 +590,7 @@ ALLEGRO_EXAMPLE_FILES = \
 	examples/exstars.c \
 	examples/exstream.c \
 	examples/exswitch.c \
+	examples/exsyscur.c \
 	examples/extimer.c \
 	examples/extrans.c \
 	examples/extruec.c \
@@ -574,6 +598,7 @@ ALLEGRO_EXAMPLE_FILES = \
 	examples/exupdate.c \
 	examples/exxfade.c \
 	examples/exzbuf.c
+
 
 ALLEGRO_EXAMPLE_EXES = \
 	examples/ex12bit \
@@ -602,13 +627,21 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/exmem \
 	examples/exmidi \
 	examples/exmouse \
+	examples/exnewapi \
+	examples/exnew_bitmap \
+	examples/exnew_fs_resize \
+	examples/exnew_icon \
+	examples/exnew_lockbitmap \
+	examples/exnew_lockscreen \
+	examples/exnew_mouse \
+	examples/exnew_mouse_events \
+	examples/exnew_resize \
 	examples/expackf \
 	examples/expal \
 	examples/expat \
 	examples/exquat \
 	examples/exrgbhsv \
 	examples/exsample \
-	examples/exsyscur \
 	examples/exscale \
 	examples/exscn3d \
 	examples/exscroll \
@@ -618,6 +651,7 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/exstars \
 	examples/exstream \
 	examples/exswitch \
+	examples/exsyscur \
 	examples/extimer \
 	examples/extrans \
 	examples/extruec \
@@ -625,6 +659,7 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/exupdate \
 	examples/exxfade \
 	examples/exzbuf
+
 
 OBJ_CLEAN_FILES = \
 	obj/*/*.o obj/*/*/*.o obj/*/*/*/*.o obj/*/*.obj obj/*/*/*.obj
@@ -657,7 +692,7 @@ DISTCLEAN_FILES = \
 	$(ALLEGRO_LIB_EXES) $(ALLEGRO_EXAMPLE_EXES) $(ALLEGRO_DATAFILE_EXES) \
 	*.exe */*.exe */*/*.exe msvcmake.bat tests/win/*.scr \
 	config.cache config.log config.status stamp-h stamp-h[0-9]* suid \
-	makefile.dep makefile.info include/allegro/platform/alunixac.h allegro-config
+	makefile.dep makefile.info include/allegro5/platform/alunixac.h allegro-config
 
 VERYCLEAN_FILES = \
 	authors AUTHORS changes CHANGES thanks THANKS readme.txt \

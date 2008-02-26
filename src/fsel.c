@@ -34,12 +34,12 @@
 
 #include <string.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
-   #define HAVE_DIR_LIST
+   #define FSEL_HAVE_DIR_LIST
 #endif
 
 
@@ -48,7 +48,7 @@ static int fs_flist_proc(int, DIALOG *, int);
 static char *fs_flist_getter(int, int *);
 
 
-#ifdef HAVE_DIR_LIST
+#ifdef FSEL_HAVE_DIR_LIST
 
 static int fs_dlist_proc(int, DIALOG *, int);
 static char *fs_dlist_getter(int, int *);
@@ -97,7 +97,7 @@ static char updir[1024];
 
 static DIALOG file_selector[] =
 {
-   #ifdef HAVE_DIR_LIST
+   #ifdef FSEL_HAVE_DIR_LIST
 
       /* (dialog proc)        (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)              (dp2) (dp3) */
       { _gui_shadow_box_proc, 0,    0,    305,  161,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
@@ -136,7 +136,7 @@ static DIALOG file_selector[] =
 
 
 
-#ifdef HAVE_DIR_LIST       /* not all platforms need a directory list */
+#ifdef FSEL_HAVE_DIR_LIST       /* not all platforms need a directory list */
 
 #define FS_DISKS        6
 #define FS_YIELD        7
@@ -259,7 +259,7 @@ static int fs_dlist_proc(int msg, DIALOG *d, int c)
 
 #define FS_YIELD        6
 
-#endif      /* HAVE_DIR_LIST */
+#endif      /* FSEL_HAVE_DIR_LIST */
 
 
 
@@ -465,7 +465,7 @@ static int fs_flist_putter(AL_CONST char *str, int attrib, void *check_attrib)
          flist->capacity *= 2;
 	 flist->name = _al_sane_realloc(flist->name, sizeof(char *) * flist->capacity);
 	 if (flist->name == NULL) {
-	    *allegro_error = ENOMEM;
+	    *allegro_errno = ENOMEM;
 	    /* Stop the enumeration by returning non-zero */
 	    return -1;
 	 }
@@ -729,7 +729,7 @@ static void stretch_dialog(DIALOG *d, int width, int height)
    int font_w, font_h, hpad, vpad;
    char tmp[16];
     
-   #ifdef HAVE_DIR_LIST
+   #ifdef FSEL_HAVE_DIR_LIST
 
       /* horizontal settings */
       font_w = text_length(font, uconvert_ascii("A", tmp));
@@ -855,7 +855,7 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    if (width == OLD_FILESEL_WIDTH)
       width = 305;
 
-   #ifdef HAVE_DIR_LIST
+   #ifdef FSEL_HAVE_DIR_LIST
 
       if (height == OLD_FILESEL_HEIGHT)
          height = 161;
@@ -886,7 +886,7 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
 
    if (!ugetc(path)) {
 
-   #ifdef HAVE_DIR_LIST
+   #ifdef FSEL_HAVE_DIR_LIST
 
       int drive = _al_getdrive();
 

@@ -16,12 +16,12 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
 
 
 /* list the available drivers */
-_DRIVER_INFO _mouse_driver_list[] =
+_DRIVER_INFO _al_mouse_driver_list[] =
 {
    {  0,  NULL,  0  }
 };

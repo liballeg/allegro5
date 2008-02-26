@@ -46,8 +46,8 @@
 
 /* Allegro includes */
 #define ALLEGRO_USE_CONSOLE
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 
 
@@ -1006,7 +1006,7 @@ static void write_header_start(struct dat2c *dat2c)
 	  " */$n$"
 	  "$n$"
 	  "#ifndef ALLEGRO_H$n$"
-	  "#error You must include allegro.h$n$"
+	  "#error You must include allegro5/allegro5.h$n$"
 	  "#endif$n$"
 	  "$n$"
 	  "#ifndef $string$$n$"
@@ -1055,8 +1055,8 @@ static void write_source_start(struct dat2c *dat2c)
 	  " *  Do not hand edit.$n$"
 	  " */$n$"
 	  "$n$"
-	  "#include <allegro.h>$n$"
-	  "#include <allegro/internal/aintern.h>$n$"
+	  "#include <allegro5/allegro5.h>$n$"
+	  "#include <allegro5/internal/aintern.h>$n$"
 	  "$n$$n$$n$", dat2c->fname_c, dat2c->fname_dat);
 }
 

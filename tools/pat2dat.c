@@ -25,8 +25,8 @@
 #include <time.h>
 #include <math.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 #include "datedit.h"
 
 
@@ -1494,7 +1494,7 @@ static void grab_soundfont_sample(char *name)
    /* normalise the layer volumes so they sum to unity */
    if (total_vol > 0) {
       for (n=0; n<waiting_list_count; n++)
-	 waiting_list[n].volume = MID(0.2, waiting_list[n].volume/total_vol, 1.0);
+	 waiting_list[n].volume = CLAMP(0.2, waiting_list[n].volume/total_vol, 1.0);
    }
 
    /* for each sample... */
@@ -1537,19 +1537,19 @@ static void grab_soundfont_sample(char *name)
       /* convert SoundFont values into some more useful formats */
       length = sf_end - sf_start;
 
-      sf_loop_start = MID(0, sf_loop_start-sf_start, sf_end);
-      sf_loop_end = MID(0, sf_loop_end-sf_start, sf_end);
+      sf_loop_start = CLAMP(0, sf_loop_start-sf_start, sf_end);
+      sf_loop_end = CLAMP(0, sf_loop_end-sf_start, sf_end);
 
-      sf_pan = MID(0, sf_pan*16/1000+7, 15);
-      sf_keyscale = MID(0, sf_keyscale*1024/100, 2048);
+      sf_pan = CLAMP(0, sf_pan*16/1000+7, 15);
+      sf_keyscale = CLAMP(0, sf_keyscale*1024/100, 2048);
 
-      sf_tune += sf_mod_env_to_pitch * MID(0, 1000-sf_sustain_mod_env, 1000) / 1000;
+      sf_tune += sf_mod_env_to_pitch * CLAMP(0, 1000-sf_sustain_mod_env, 1000) / 1000;
 
       min_freq = key2freq(sf_keymin, 0);
       max_freq = key2freq(sf_keymax+1, 0) - 1;
       root_freq = key2freq(sf_key, -sf_tune);
 
-      sustain = MID(0, (1000-sf_sustain_level)*255/1000, 255);
+      sustain = CLAMP(0, (1000-sf_sustain_level)*255/1000, 255);
 
       decay = timecent2msec(sf_delay_vol_env) +
 	      timecent2msec(sf_attack_vol_env) +
@@ -1896,7 +1896,7 @@ static void add_soundfont_patches(void)
    char tm[80];
    int i;
 
-   #ifdef HAVE_MKSTEMP
+   #ifdef ALLEGRO_HAVE_MKSTEMP
 
       int tmp_fd;
 

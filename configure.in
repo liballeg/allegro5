@@ -1,10 +1,20 @@
-dnl Process this file with autoconf to produce a configure script.
+#-----------------------------------------------------------------------------#
+# Process this file with autoconf to produce a configure script.
+#
+# Note we no longer use `autoheader' to produce
+# include/allegro5/platform/alunixac.hin.  
+# If you AC_DEFINE a new symbol in this file, you must add it there also.
+#
+# Feel free to use # to denote comments.  Traditionally we used `dnl' but it
+# looks too cluttered.
+#-----------------------------------------------------------------------------#
 
-AC_INIT(include/allegro.h)
+AC_INIT
 AC_CONFIG_AUX_DIR(misc)
-AC_CONFIG_HEADER(include/allegro/platform/alunixac.h:include/allegro/platform/alunixac.hin)
 AC_PREREQ(2.53)
 AC_ARG_PROGRAM
+
+#-----------------------------------------------------------------------------#
 
 dnl Build CFLAGS from scratch
 CFLAGS=
@@ -16,32 +26,30 @@ test "X$enableval" != "Xno" && allegro_enable_asm=yes,
 allegro_enable_asm=yes)
 
 dnl Enable 8-bpp color depth (default).
-AH_TEMPLATE([ALLEGRO_COLOR8], [Define if you want support for 8 bpp modes.])
 AC_ARG_ENABLE(color8,
 [  --enable-color8[=x]     enable support for 8-bpp modes [default=yes]],
 test "X$enableval" != "Xno" && AC_DEFINE(ALLEGRO_COLOR8),
 AC_DEFINE(ALLEGRO_COLOR8))
 
 dnl Enable 16-bpp color depth (default).
-AH_TEMPLATE([ALLEGRO_COLOR16], [Define if you want support for 16 bpp modes.])
 AC_ARG_ENABLE(color16,
 [  --enable-color16[=x]    enable support for 16-bpp modes [default=yes]],
 test "X$enableval" != "Xno" && AC_DEFINE(ALLEGRO_COLOR16),
 AC_DEFINE(ALLEGRO_COLOR16))
 
 dnl Enable 24-bpp color depth (default).
-AH_TEMPLATE([ALLEGRO_COLOR24], [Define if you want support for 24 bpp modes.])
 AC_ARG_ENABLE(color24,
 [  --enable-color24[=x]    enable support for 24-bpp modes [default=yes]],
 test "X$enableval" != "Xno" && AC_DEFINE(ALLEGRO_COLOR24),
 AC_DEFINE(ALLEGRO_COLOR24))
 
 dnl Enable 32-bpp color depth (default).
-AH_TEMPLATE([ALLEGRO_COLOR32], [Define if you want support for 32 bpp modes.])
 AC_ARG_ENABLE(color32,
 [  --enable-color32[=x]    enable support for 32-bpp modes [default=yes]],
 test "X$enableval" != "Xno" && AC_DEFINE(ALLEGRO_COLOR32),
 AC_DEFINE(ALLEGRO_COLOR32))
+
+#-----------------------------------------------------------------------------#
 
 dnl Enable static library.
 AC_ARG_ENABLE(static,
@@ -118,10 +126,14 @@ else
    _warnmode="Ignoring compiler warnings."
 fi
 
+#-----------------------------------------------------------------------------#
+
 dnl Enable magic main (default: no).
 AC_ARG_ENABLE(magicmain,
 [  --enable-magicmain[=x]  enable magic main [default=no]],
-test "X$enableval" == "Xyes" && AC_DEFINE(ALLEGRO_WITH_MAGIC_MAIN,1,[Define if you need to use a magic main.]))
+test "X$enableval" = "Xyes" && AC_DEFINE(ALLEGRO_WITH_MAGIC_MAIN,1,[Define if you need to use a magic main.]))
+
+#-----------------------------------------------------------------------------#
 
 dnl Check that $prefix is set (needed for ALLEGRO_ACTEST_GCC_INCLUDE_PREFIX)
 test "$prefix" = NONE && prefix=/usr/local
@@ -145,6 +157,8 @@ AC_PATH_PROG(MAKEINFO, makeinfo, [echo ought to run makeinfo], $PATH:/sbin:/usr/
 
 dnl INSTALL_INFO is needed for installing the info pages
 AC_PATH_PROG(INSTALL_INFO, install-info, [echo ought to run install-info], $PATH:/sbin:/usr/sbin)
+
+#-----------------------------------------------------------------------------#
 
 dnl Test for processor type.
 ALLEGRO_ACTEST_PROCESSOR_TYPE
@@ -210,14 +224,13 @@ if test "$allegro_cv_asm_prefix" != ""; then
 fi
 
 dnl Test target machine endianess.
-AC_C_BIGENDIAN
-if test "$ac_cv_c_bigendian" = yes; then
+AC_C_BIGENDIAN([
   AC_DEFINE(ALLEGRO_BIG_ENDIAN,1,[Define if target machine is big endian.])
   _code_features="big endian, $_code_features"
-else
+],[
   AC_DEFINE(ALLEGRO_LITTLE_ENDIAN,1,[Define if target machine is little endian.])
   _code_features="little endian, $_code_features"
-fi
+])
 
 dnl Test for MAP_FAILED presence.
 ALLEGRO_ACTEST_MAP_FAILED
@@ -229,7 +242,7 @@ fi
 dnl Test for sched_yield (SunOS).
 ALLEGRO_ACTEST_SCHED_YIELD
 if test "X$allegro_cv_support_sched_yield" = "Xyes"; then
-   AC_DEFINE(ALLEGRO_USE_SCHED_YIELD,1,[Define if sched_yield is provided by some library.])
+   AC_DEFINE(ALLEGRO_HAVE_SCHED_YIELD,1,[Define if sched_yield is provided by some library.])
 fi
 
 dnl Test for constructor attribute support.
@@ -351,6 +364,8 @@ if test "X$allegro_shared_libraries" = "Xyes"; then
 fi
 AC_SUBST(ALLEGRO_LIB_TARGETS)
 
+#-----------------------------------------------------------------------------#
+
 dnl Test for debugging with Fortify.
 ALLEGRO_ACTEST_DEBUG_WITH_FORTIFY
 if test -n "$allegro_debug_with_fortify"; then
@@ -363,6 +378,36 @@ if test -n "$allegro_debug_with_dmalloc"; then
   LIBS="$LIBS -ldmalloc"
 fi
 
+#-----------------------------------------------------------------------------#
+
+dnl Enable pthreads
+dnl Note this test must come before the test for JACK.
+AC_ARG_ENABLE(pthreads,
+[  --enable-pthreads[=x]   enable use of pthreads [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_pthreads=yes,
+allegro_enable_pthreads=yes)
+
+_do_pthread="no"
+dnl Test for pthreads.
+if test "X$allegro_enable_pthreads" = "Xyes"; then
+  ALLEGRO_ACTEST_PTHREADS
+  if test "X$allegro_cv_support_pthreads" = "Xyes"; then
+    AC_DEFINE(ALLEGRO_HAVE_LIBPTHREAD,1, [Define if you have the pthread library.])
+    _do_pthread="yes"
+  fi
+fi
+
+if test "$_do_pthread" = yes; then
+  _code_features="multithreaded, $_code_features"
+else
+  _code_features="signals instead of threads, $_code_features"
+fi
+
+#-----------------------------------------------------------------------------#
+#
+# Sound drivers
+#
+
 dnl Test for OSS drivers.
 ALLEGRO_ACTEST_OSSDIGI
 if test -n "$allegro_support_ossdigi"; then
@@ -370,6 +415,14 @@ if test -n "$allegro_support_ossdigi"; then
   _enabled_modules="ossdigi $_enabled_modules"
 else
   _disabled_modules="ossdigi $_disabled_modules"
+fi
+
+ALLEGRO_ACTEST_OSSMIDI
+if test -n "$allegro_support_ossmidi"; then
+  AC_DEFINE(ALLEGRO_WITH_OSSMIDI,1,[Define if OSS MIDI driver is supported.])
+  _enabled_modules="ossmidi $_enabled_modules"
+else
+  _disabled_modules="ossmidi $_disabled_modules"
 fi
 
 dnl Test for ALSA drivers.
@@ -426,22 +479,29 @@ else
   _disabled_modules="sgialdigi $_disabled_modules"
 fi
 
-dnl Test for OSS MIDI drivers.
-ALLEGRO_ACTEST_OSSMIDI
-if test -n "$allegro_support_ossmidi"; then
-  AC_DEFINE(ALLEGRO_WITH_OSSMIDI,1,[Define if OSS MIDI driver is supported.])
-  _enabled_modules="ossmidi $_enabled_modules"
+dnl Test for JACK driver
+ALLEGRO_ACTEST_JACK
+if test "X$allegro_cv_support_jackdigi" = "Xyes"; then
+  if test "X$_do_pthread" = "Xyes"; then
+    AC_DEFINE(ALLEGRO_WITH_JACKDIGI,1,[Define if JACK DIGI driver is supported.])
+    _enabled_modules="jackdigi $_enabled_modules"
+  else
+    echo Warning: Jack will be disabled, since pthreads support is missing/disabled.
+    _disabled_modules="jackdigi $_disabled_modules"
+  fi
 else
-  _disabled_modules="ossmidi $_disabled_modules"
+  _disabled_modules="jackdigi $_disabled_modules"
 fi
 
+#-----------------------------------------------------------------------------#
+
 dnl Test for System V procfs
-ALLEGRO_SV_PROCFS
+ALLEGRO_ACTEST_SV_PROCFS
 if test "$allegro_sv_procfs" = yes; then
-   AC_DEFINE(ALLEGRO_HAVE_SV_PROCFS,1,
+   AC_DEFINE(ALLEGRO_HAVE_SV_PROCFS_H,1,
       [Define to 1 if you have a System V sys/procfs.h])
       
-   ALLEGRO_PROCFS_ARGCV
+   ALLEGRO_ACTEST_PROCFS_ARGCV
    if test "$allegro_procfs_argcv" = yes; then
       AC_DEFINE(ALLEGRO_HAVE_PROCFS_ARGCV,1,
          [Define to 1 if procfs reveals argc and argv])
@@ -449,41 +509,53 @@ if test "$allegro_sv_procfs" = yes; then
 fi
 
 dnl Test for Solaris like getexecname().
-ALLEGRO_SYS_GETEXECNAME
+ALLEGRO_ACTEST_SYS_GETEXECNAME
 if test "$allegro_sys_getexecname" = yes; then
    AC_DEFINE(ALLEGRO_HAVE_GETEXECNAME,1,
       [Define to 1 if you have getexecname])
 fi
 
+#-----------------------------------------------------------------------------#
+#
+# X-Windows
+#
 
-dnl Test for X-Windows support.
 ALLEGRO_ACTEST_SUPPORT_XWINDOWS
 if test "$allegro_support_xwindows" = yes; then
+  if test "$allegro_support_glx" = yes; then
+    ALLEGRO_MAYBE_XGLX_FILES=ALLEGRO_SRC_XGLX_FILES
+  fi
+
   ALLEGRO_MAYBE_XWINDOWS_FILES=ALLEGRO_SRC_X_FILES
   ALLEGRO_MAYBE_LIB_X_EXE_SOURCES=ALLEGRO_LIB_X_EXE_SOURCES
   ALLEGRO_MAYBE_LIB_X_EXES=ALLEGRO_LIB_X_EXES
 else
+  ALLEGRO_MAYBE_XGLX_FILES=ALLEGRO_EMPTY_LIST
   ALLEGRO_MAYBE_XWINDOWS_FILES=ALLEGRO_EMPTY_LIST
   ALLEGRO_MAYBE_LIB_X_EXE_SOURCES=ALLEGRO_EMPTY_LIST
   ALLEGRO_MAYBE_LIB_X_EXES=ALLEGRO_EMPTY_LIST
 fi
+AC_SUBST(ALLEGRO_MAYBE_XGLX_FILES)
 AC_SUBST(ALLEGRO_MAYBE_XWINDOWS_FILES)
 AC_SUBST(ALLEGRO_MAYBE_LIB_X_EXE_SOURCES)
 AC_SUBST(ALLEGRO_MAYBE_LIB_X_EXES)
 AC_SUBST(ALLEGRO_XWINDOWS_LIBDIR)
+
+#-----------------------------------------------------------------------------#
+#
+# Linux console
+#
+
+#-----------------------------------------------------------------------------#
+#
+# Linux console
+#
 
 dnl Enable Linux console support
 AC_ARG_ENABLE(linux,
 [  --enable-linux[=x]      enable Linux console support [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_linux=yes,
 allegro_enable_linux=yes)
-
-_linux_console="Linux console support:"
-if test "X$allegro_enable_linux" != "Xyes"; then
-  _linux_console="$_linux_console disabled"
-else
-  _linux_console="$_linux_console enabled"
-fi
 
 dnl Enable Linux console VGA driver
 AC_ARG_ENABLE(vga,
@@ -512,6 +584,7 @@ allegro_enable_svgalib=yes)
 dnl Some miscellaneous defines.
 ALLEGRO_MAYBE_LINUX_FILES=ALLEGRO_EMPTY_LIST
 
+allegro_support_linux=no
 allegro_system=`uname -s | tr A-Z a-z`
 case "$allegro_system" in
 
@@ -520,7 +593,14 @@ case "$allegro_system" in
     AC_DEFINE(ALLEGRO_LINUX,1,[Define if target platform is linux.])
     ALLEGRO_MAYBE_LINUX_FILES=ALLEGRO_SRC_LINUX_FILES
 
-    AC_CHECK_HEADERS(sys/io.h linux/joystick.h linux/input.h)
+    AC_CHECK_HEADER(sys/io.h,
+      AC_DEFINE(ALLEGRO_HAVE_SYS_IO_H, 1))
+
+    AC_CHECK_HEADER(linux/joystick.h,
+      AC_DEFINE(ALLEGRO_HAVE_LINUX_JOYSTICK_H, 1))
+
+    AC_CHECK_HEADER(linux/input.h,
+      AC_DEFINE(ALLEGRO_HAVE_LINUX_INPUT_H, 1))
 
     if test "X$allegro_cv_processor_type" = "Xi386" -a "X$allegro_enable_vga" = "Xyes"; then
       allegro_support_vga=yes
@@ -587,7 +667,7 @@ AC_SUBST(ALLEGRO_MAYBE_LINUX_FILES)
 dnl Test for pthreads.
 ALLEGRO_ACTEST_PTHREADS
 if test "X$allegro_cv_support_pthreads" = "Xyes"; then
-  AC_DEFINE(HAVE_LIBPTHREAD,1, [Define if you have the pthread library.])
+  AC_DEFINE(ALLEGRO_HAVE_LIBPTHREAD,1, [Define if you have the pthread library.])
 else
   dnl XXX: sorry, I don't know how to make this fail properly --pw
   echo "ERROR: You don't have pthreads, which is required by Allegro."
@@ -603,13 +683,16 @@ else
   _disabled_modules="jackdigi $_disabled_modules"
 fi
 
-if test "X$allegro_support_xf86dga2" = "Xyes"; then
-  _enabled_modules="dga2 $_enabled_modules"
-else
-  _disabled_modules="dga2 $_disabled_modules"
-fi
+#-----------------------------------------------------------------------------#
+#
+# Modules
+#
 
-dnl Modules.
+#-----------------------------------------------------------------------------#
+#
+# Modules
+#
+
 if test -n "$allegro_support_modules"; then
 
   dnl VGA/ModeX.
@@ -664,6 +747,8 @@ if test -n "$allegro_support_modules"; then
 fi
 AC_SUBST(ALLEGRO_MODULE_TARGETS)
 
+#-----------------------------------------------------------------------------#
+
 dnl Additional libraries.
 LIBS="-lm $LIBS"
 
@@ -684,20 +769,46 @@ esac
 AC_SUBST(LIBS)
 AC_SUBST(AR)
 
-dnl Headers, features, functions and macros.
-AC_HEADER_STDC
-AC_HEADER_DIRENT
-AC_HEADER_TIME
-AC_HEADER_STDBOOL
-AC_CHECK_HEADERS(fcntl.h limits.h sys/time.h unistd.h sys/utsname.h)
+#-----------------------------------------------------------------------------#
 
+# Headers, features, functions and macros.
+AC_CHECK_HEADER(dirent.h, AC_DEFINE(ALLEGRO_HAVE_DIRENT_H, 1))
+AC_CHECK_HEADER(inttypes.h, AC_DEFINE(ALLEGRO_HAVE_INTTYPES_H, 1))
+AC_CHECK_HEADER(stdbool.h, AC_DEFINE(ALLEGRO_HAVE_STDBOOL_H, 1))
+AC_CHECK_HEADER(stdint.h, AC_DEFINE(ALLEGRO_HAVE_STDINT_H, 1))
+AC_CHECK_HEADER(sys/stat.h, AC_DEFINE(ALLEGRO_HAVE_SYS_STAT_H, 1))
+AC_CHECK_HEADER(sys/time.h, AC_DEFINE(ALLEGRO_HAVE_SYS_TIME_H, 1))
+AC_CHECK_HEADER(sys/time.h, AC_DEFINE(ALLEGRO_HAVE_SYS_TIME_H, 1))
+AC_CHECK_HEADER(sys/utsname.h, AC_DEFINE(ALLEGRO_HAVE_SYS_UTSNAME_H, 1))
+
+# If the C compiler does not fully support the `const' keyword,
+# define `const' to be empty.
 AC_C_CONST
+
+# If the C compiler supports the keyword `inline', do nothing.
+# Otherwise define `inline' to `__inline__' or `__inline' if it
+# accepts one of those, otherwise define `inline' to be empty.
 AC_C_INLINE
+
+# Define `size_t' to a suitable type, if standard headers do not define it.
+# Note this defines a bunch of other macros named HAVE_* so we don't use it.
 AC_TYPE_SIZE_T
-AC_STRUCT_TM
+
+# If `signal.h' declares `signal' as returning a pointer to a
+# function returning `void', define `RETSIGTYPE' to be `void';
+# otherwise, define it to be `int'.
 AC_TYPE_SIGNAL
 
-AC_CHECK_FUNCS(mmap mprotect memcmp mkstemp stricmp strlwr strupr vprintf stat64)
+AC_CHECK_FUNC(mmap, AC_DEFINE(ALLEGRO_HAVE_MMAP, 1))
+AC_CHECK_FUNC(mprotect, AC_DEFINE(ALLEGRO_HAVE_MPROTECT, 1))
+AC_CHECK_FUNC(memcmp, AC_DEFINE(ALLEGRO_HAVE_MEMCMP, 1))
+AC_CHECK_FUNC(mkstemp, AC_DEFINE(ALLEGRO_HAVE_MKSTEMP, 1))
+AC_CHECK_FUNC(stricmp, AC_DEFINE(ALLEGRO_HAVE_STRICMP, 1))
+AC_CHECK_FUNC(strlwr, AC_DEFINE(ALLEGRO_HAVE_STRLWR, 1))
+AC_CHECK_FUNC(strupr, AC_DEFINE(ALLEGRO_HAVE_STRUPR, 1))
+AC_CHECK_FUNC(sysconf, AC_DEFINE(ALLEGRO_HAVE_SYSCONF, 1))
+
+#-----------------------------------------------------------------------------#
 
 dnl Tweak header files for library build
 CFLAGS="$CFLAGS -DALLEGRO_LIB_BUILD"
@@ -764,6 +875,8 @@ AC_SUBST(ALLEGRO_PROFILE_CFLAGS)
 AC_SUBST(ALLEGRO_SFLAGS)
 AC_SUBST(ALLEGRO_SHAREDLIB_CFLAGS)
 
+#-----------------------------------------------------------------------------#
+
 dnl How to compile C++ files.
 if test "X$allegro_cv_support_cplusplus" = "Xyes"; then
   CXX="$CC"
@@ -782,6 +895,11 @@ AC_SUBST(CXXFLAGS)
 AC_SUBST(ALLEGRO_DEBUG_CXXFLAGS)
 AC_SUBST(ALLEGRO_PROFILE_CXXFLAGS)
 
+#-----------------------------------------------------------------------------#
+#
+# Informational
+#
+
 cat > makefile.info << EOF
  $_modules
  Enabled modules: $_enabled_modules
@@ -798,7 +916,7 @@ EOF
 dnl Warn if neither X11 nor Linux console support is going to be built,
 dnl or just if X11 support is not going to be built.
 if test "X$allegro_support_xwindows" != "Xyes"; then
-  if test "X$allegro_enable_linux" != "Xyes"; then
+  if test "X$allegro_support_linux" != "Xyes"; then
     cat >> makefile.info << EOF
  Warning: the library will not be built with either X11 or Linux console
           support.  This configuration is useless for most purposes.
@@ -852,6 +970,11 @@ EOF
   fi 
 fi
 
+#-----------------------------------------------------------------------------#
+#
+# Output
+#
+
 dnl Prepare initial dependencies file (if missing).
 if test -f "$srcdir/makefile.dep"; then
   if test `cd "$srcdir" ; pwd` != `cd . ; pwd`; then
@@ -865,12 +988,15 @@ elif test ! -f makefile.dep; then
   allegro_make_depend="yes"
 fi
 
-dnl Cosmetics for allegro-config
+dnl Prepare alunixac.h.
+AC_CONFIG_HEADER(include/allegro5/platform/alunixac.h:include/allegro5/platform/alunixac.hin)
+
+dnl Cosmetics for allegro5-config
 FRAMEWORKS=
 AC_SUBST(FRAMEWORKS)
 
-dnl Prepare makefile and allegro-config.
-AC_OUTPUT(makefile:makefile.in allegro-config:misc/allegro-config.in,
+dnl Prepare makefile and allegro5-config.
+AC_OUTPUT(makefile:makefile.in allegro5-config:misc/allegro5-config.in,
   [test -z "$CONFIG_HEADERS" || echo timestamp > stamp-h])
 
 dnl The makefile doesn't work with non-GNU make so test for its presence.
@@ -899,3 +1025,6 @@ if test "X$gnu_make" != "Xyes"; then
   AC_MSG_WARN([You need to use GNU make to build Allegro.])
   AC_MSG_WARN([This might be called gmake on your system.])
 fi
+
+#-----------------------------------------------------------------------------#
+# vim: set sts=2 sw=2 et:

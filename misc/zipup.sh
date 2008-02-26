@@ -12,13 +12,19 @@
 #
 #  Note: if you write datestamp in the archive_name field, then the
 #  resulting archive will be datestamped. This is in particular useful
-#  for making CVS snapshots.
+#  for making SVN snapshots.
 
 
 if [ $# -lt 1 -o $# -gt 2 ]; then
    echo "Usage: zipup archive_name [previous_archive]" 1>&2
    exit 1
 fi
+
+if [ -n "$2" ] && [ ! -r ../"$2" ]; then
+   echo "Previous archive $2 not in parent directory, aborting"
+   exit 1
+fi
+
 
 
 # strip off the path and extension from our arguments
@@ -39,7 +45,7 @@ for file in makefile.*; do
    rm _tmpfile
 done
 
-# fix some wrong permissions in the CVS repository
+# fix some wrong permissions in the SVN repository
 chmod +x misc/asmdef.sh misc/fixdll.sh
 
 
@@ -73,19 +79,19 @@ utod()
 
 
 # generate dependencies for DJGPP
-echo "Generating DJGPP dependencies..."
-
-./fix.sh djgpp --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
+#echo "Generating DJGPP dependencies..."
+#
+#./fix.sh djgpp --quick
+#
+#make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for Watcom
-echo "Generating Watcom dependencies..."
-
-./fix.sh watcom --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
+#echo "Generating Watcom dependencies..."
+#
+#./fix.sh watcom --quick
+#
+#make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for MSVC
@@ -113,19 +119,19 @@ make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for BeOS
-echo "Generating BeOS dependencies..."
-
-./fix.sh beos --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
+#echo "Generating BeOS dependencies..."
+#
+#./fix.sh beos --quick
+#
+#make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for QNX
-echo "Generating QNX dependencies..."
-
-./fix.sh qnx --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
+#echo "Generating QNX dependencies..."
+#
+#./fix.sh qnx --quick
+#
+#make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for MacOS X
@@ -138,10 +144,6 @@ make depend UNIX_TOOLS=1 CC=gcc
 
 # generate the DLL export definition files for Windows compilers
 misc/fixdll.sh
-
-# running autoheader
-echo "Running autoheader to generate configure header..."
-autoheader
 
 # running autoconf
 echo "Running autoconf to generate configure script..."
@@ -171,7 +173,7 @@ rm _makedoc.exe
 
 
 # create language.dat and keyboard.dat files
-misc/mkdata.sh
+misc/mkdata.sh || exit 1
 
 
 # convert files to djgpp format for distribution
@@ -204,10 +206,11 @@ scan_for_empties "."
 echo "Creating $name.zip..."
 if [ -f .dist/$name.zip ]; then rm .dist/$name.zip; fi
 rm -rf ./autom4te*
-ZIP_FILES=`find . -type f "(" -path "*/.*" -prune -o -iname "*.rej" \
-    -prune -o -iname "*.orig" -prune -o -print ")"`
 mkdir -p .dist/allegro
-cp -a --parents $ZIP_FILES .dist/allegro
+# Note: we use -print0 and xargs -0 to handle file names with spaces.
+find . -type f "(" -path "*/.*" -prune -o -iname "*.rej" \
+    -prune -o -iname "*.orig" -prune -o -print0 ")" | \
+    xargs -0 cp -a --parents -t .dist/allegro
 
 # from now on, the scripts runs inside .dist
 cd .dist
@@ -232,7 +235,7 @@ if [ $# -eq 2 ]; then
 
    echo "Inflating previous version ($2)..."
    mkdir previous
-   unzip -q "$2" -d previous
+   unzip -q ../../"$2" -d previous || exit 1
 
    echo "Generating diffs..."
    diff -U 3 -N --recursive previous/ current/ > $name.diff

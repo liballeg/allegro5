@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <allegro.h>
+#include <allegro5.h>
 
 
 #define ICON_MAX  16

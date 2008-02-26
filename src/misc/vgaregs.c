@@ -16,12 +16,12 @@
  */
 
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
 
-#ifdef GFX_HAS_VGA
+#ifdef ALLEGRO_GFX_HAS_VGA
 
-#include "allegro/internal/aintern.h"
-#include "allegro/internal/aintvga.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintvga.h"
 
 
 
@@ -91,4 +91,4 @@ void _vga_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 }
 
 
-#endif /* GFX_HAS_VGA */
+#endif /* ALLEGRO_GFX_HAS_VGA */

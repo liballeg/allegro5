@@ -16,15 +16,17 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintwin.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #include <string.h>
    #include <process.h>
    #include <time.h>
 #endif
+
+#include "win_new.h"
 
 #ifndef ALLEGRO_WINDOWS
    #error something is wrong with the makefile
@@ -36,7 +38,8 @@
 
 
 /* general */
-static HWND allegro_wnd = NULL;
+HWND _al_win_wnd = NULL;
+HWND _al_win_compat_wnd = NULL;
 char wnd_title[WND_TITLE_SIZE];  /* ASCII string */
 int wnd_x = 0;
 int wnd_y = 0;
@@ -67,8 +70,8 @@ static int old_style = 0;
 
 /* custom window msgs */
 #define SWITCH_TIMER  1
-static UINT msg_call_proc = 0;
-static UINT msg_suicide = 0;
+UINT _al_win_msg_call_proc = 0;
+UINT _al_win_msg_suicide = 0;
 
 /* window modules management */
 struct WINDOW_MODULES {
@@ -144,12 +147,14 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
    }
 #endif
 
+#if 0 /* XXX */
    if (_mouse_installed) {
       if (wm)
          wm->mouse = TRUE;
 
       remove_mouse();
    }
+#endif
 
 #if 0 /* XXX */
    if (_joystick_installed) {
@@ -191,21 +196,19 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
  */
 int wnd_call_proc(int (*proc) (void))
 {
-   return SendMessage(allegro_wnd, msg_call_proc, (DWORD) proc, 0);
+   return SendMessage(win_get_window(), _al_win_msg_call_proc, (DWORD) proc, 0);
 }
 
 
 
 /* wnd_schedule_proc:
- *  Instructs the window thread to call the specified procedure but
+ *  instructs the window thread to call the specified procedure but
  *  doesn't wait until the procedure has returned.
  */
 void wnd_schedule_proc(int (*proc) (void))
 {
-   PostMessage(allegro_wnd, msg_call_proc, (DWORD) proc, 0);
+   PostMessage(win_get_window(), _al_win_msg_call_proc, (DWORD) proc, 0);
 }
-
-
 
 /* directx_wnd_proc:
  *  Window procedure for the Allegro window class.
@@ -214,10 +217,10 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 {
    PAINTSTRUCT ps;
 
-   if (message == msg_call_proc)
+   if (message == _al_win_msg_call_proc)
       return ((int (*)(void))wparam) ();
 
-   if (message == msg_suicide) {
+   if (message == _al_win_msg_suicide) {
       DestroyWindow(wnd);
       return 0;
    }
@@ -238,7 +241,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_CREATE:
          if (!user_wnd_proc)
-            allegro_wnd = wnd;
+            _al_win_wnd = wnd;
          break;
 
       case WM_DESTROY:
@@ -250,11 +253,11 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
             PostQuitMessage(0);
          }
 
-         allegro_wnd = NULL;
+         _al_win_wnd = NULL;
          break;
 
       case WM_SETCURSOR:
-         if (!user_wnd_proc || _mouse_installed) {
+         if (!user_wnd_proc /*|| _mouse_installed*/ ) {
             mouse_set_syscursor();
             return 1;  /* not TRUE */
          }
@@ -265,9 +268,13 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
             _win_switch_out();
          }
          else {
+	    /* Ignore the WM_ACTIVATE event if the window is minimized. */
+	    if (HIWORD(wparam))
+	       break;
+
             if (gfx_driver && !gfx_driver->windowed) {
                /* 1.2s delay to let Windows complete the switch in fullscreen mode */
-               SetTimer(allegro_wnd, SWITCH_TIMER, 1200, NULL);
+               SetTimer(win_get_window(), SWITCH_TIMER, 1200, NULL);
             }
             else {
                /* no delay in windowed mode */
@@ -278,7 +285,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_TIMER:
          if (wparam == SWITCH_TIMER) {
-            KillTimer(allegro_wnd, SWITCH_TIMER);
+            KillTimer(win_get_window(), SWITCH_TIMER);
             _win_switch_in();
             return 0;
          }
@@ -295,8 +302,8 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          break;
 
       case WM_MOVE:
-         if (GetActiveWindow() == allegro_wnd) {
-            if (!IsIconic(allegro_wnd)) {
+         if (GetActiveWindow() == win_get_window()) {
+            if (!IsIconic(win_get_window())) {
                wnd_x = (short) LOWORD(lparam);
                wnd_y = (short) HIWORD(lparam);
 
@@ -455,11 +462,13 @@ static void wnd_thread_proc(HANDLE setup_event)
 
    /* setup window */
    if (wnd_create_proc)
-      allegro_wnd = wnd_create_proc(directx_wnd_proc);
+      _al_win_wnd = wnd_create_proc(directx_wnd_proc);
    else
-      allegro_wnd = create_directx_window();
+      _al_win_wnd = create_directx_window();
 
-   if (!allegro_wnd)
+   _al_win_compat_wnd = _al_win_wnd;
+
+   if (!_al_win_wnd)
       goto End;
 
    /* now the thread it running successfully, let's acknowledge */
@@ -506,8 +515,8 @@ int init_directx_window(void)
    long result;
 
    /* setup globals */
-   msg_call_proc = RegisterWindowMessage("Allegro call proc");
-   msg_suicide = RegisterWindowMessage("Allegro window suicide");
+   _al_win_msg_call_proc = RegisterWindowMessage("Allegro call proc");
+   _al_win_msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
    if (user_wnd) {
       /* initializes input module and requests dedicated thread */
@@ -518,12 +527,12 @@ int init_directx_window(void)
       if (!user_wnd_proc)
          return -1;
 
-      allegro_wnd = user_wnd;
+      _al_win_wnd = user_wnd;
 
       /* retrieve the window dimensions */
-      GetWindowRect(allegro_wnd, &win_rect.r);
-      ClientToScreen(allegro_wnd, &win_rect.p);
-      ClientToScreen(allegro_wnd, &win_rect.p + 1);
+      GetWindowRect(_al_win_wnd, &win_rect.r);
+      ClientToScreen(_al_win_wnd, &win_rect.p);
+      ClientToScreen(_al_win_wnd, &win_rect.p + 1);
       wnd_x = win_rect.r.left;
       wnd_y = win_rect.r.top;
       wnd_width = win_rect.r.right - win_rect.r.left;
@@ -555,7 +564,7 @@ int init_directx_window(void)
    InitializeCriticalSection(&gfx_crit_sect);
 
    /* save window style */
-   old_style = GetWindowLong(allegro_wnd, GWL_STYLE);
+   old_style = GetWindowLong(_al_win_wnd, GWL_STYLE);
 
    return 0;
 }
@@ -573,13 +582,14 @@ void exit_directx_window(void)
       SetWindowLong(user_wnd, GWL_WNDPROC, (long)user_wnd_proc);
       user_wnd_proc = NULL;
       user_wnd = NULL;
-      allegro_wnd = NULL;
+      _al_win_wnd = NULL;
    }
    else {
       /* Destroy the window: we cannot directly use DestroyWindow() because
        * we are not running in the same thread as that of the window.
        */
-      PostMessage(allegro_wnd, msg_suicide, 0, 0);
+
+      PostMessage(_al_win_compat_wnd, _al_win_msg_suicide, 0, 0);
 
       /* wait until the window thread ends */
       WaitForSingleObject(wnd_thread, INFINITE);
@@ -600,8 +610,8 @@ void exit_directx_window(void)
  */
 void restore_window_style(void)
 {
-   SetWindowLong(allegro_wnd, GWL_STYLE, old_style);
-   SetWindowPos(allegro_wnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+   SetWindowLong(win_get_window(), GWL_STYLE, old_style);
+   SetWindowPos(win_get_window(), 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 }
 
 
@@ -635,7 +645,7 @@ int adjust_window(int w, int h)
                = (func)GetProcAddress(user32_handle, "GetTitleBarInfo");
             if (get_title_bar_info) {
                tb_info.cbSize = sizeof(TITLEBARINFO);
-               if (get_title_bar_info(allegro_wnd, &tb_info))
+               if (get_title_bar_info(_al_win_wnd, &tb_info))
                   tb_height
                      = tb_info.rcTitleBar.bottom - tb_info.rcTitleBar.top;
             }
@@ -670,14 +680,14 @@ int adjust_window(int w, int h)
       last_h = h;
 
       /* retrieve the size of the decorated window */
-      AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
+      AdjustWindowRect(&win_size, GetWindowLong(_al_win_wnd, GWL_STYLE), FALSE);
    
       /* display the window */
-      MoveWindow(allegro_wnd, win_size.left, win_size.top,
+      MoveWindow(_al_win_wnd, win_size.left, win_size.top,
                  win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
 
       /* check that the actual window size is the one requested */
-      GetClientRect(allegro_wnd, &win_size);
+      GetClientRect(_al_win_wnd, &win_size);
       if (((win_size.right - win_size.left) != w) || ((win_size.bottom - win_size.top) != h))
          return -1;
 
@@ -748,7 +758,7 @@ void win_set_window(HWND wnd)
  */
 HWND win_get_window(void)
 {
-   return allegro_wnd;
+      return _al_win_wnd;
 }
 
 
@@ -760,8 +770,6 @@ void win_set_wnd_create_proc(HWND (*proc)(WNDPROC))
 {
    wnd_create_proc = proc;
 }
-
-
 
 /* win_grab_input:
  *  Grabs the input devices.

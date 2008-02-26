@@ -24,11 +24,11 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
 #ifdef ALLEGRO_DOS
-   #include "allegro/platform/aintdos.h"
+   #include "allegro5/platform/aintdos.h"
 #endif
 
 #ifdef ALLEGRO_ASMCAPA_HEADER

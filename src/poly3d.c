@@ -25,17 +25,12 @@
 #include <limits.h>
 #include <float.h>
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 
-#ifdef ALLEGRO_ASMCAPA_HEADER
+#if defined ALLEGRO_ASMCAPA_HEADER && !defined ALLEGRO_NO_ASM
    #include ALLEGRO_ASMCAPA_HEADER
 #endif
-
-#ifdef ALLEGRO_NO_ASM
-   #undef ALLEGRO_MMX
-#endif
-
 
 #ifdef ALLEGRO_MMX
 
@@ -861,7 +856,7 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
 	 return NULL;
    }
 
-   type = MID(0, type & ~POLYTYPE_ZBUF, POLYTYPE_MAX-1);
+   type = CLAMP(0, type & ~POLYTYPE_ZBUF, POLYTYPE_MAX-1);
    *flags = interpinfo[type];
 
    if (texture) {

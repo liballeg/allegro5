@@ -16,8 +16,8 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/platform/aintunix.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/platform/aintunix.h"
 #include "xwin.h"
 
 #include <stdio.h>
@@ -28,9 +28,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-
-
-void (*_xwin_mouse_interrupt)(int x, int y, int z, int buttons) = 0;
 
 
 static int _xwin_sysdrv_init(void);
@@ -62,7 +59,6 @@ SYSTEM_DRIVER system_xwin =
    _xwin_sysdrv_init,
    _xwin_sysdrv_exit,
    _unix_get_executable_name,
-   NULL, /* get_dir */
    _unix_find_resource,
    _xwin_sysdrv_set_window_title,
    _xwin_sysdrv_set_close_button_callback,
@@ -138,7 +134,7 @@ static RETSIGTYPE _xwin_signal_handler(int num)
 /* _xwin_bg_handler:
  *  Really used for synchronous stuff.
  */
-static void _xwin_bg_handler (int threaded)
+static void _xwin_bg_handler(int threaded)
 {
    _xwin_handle_input();
 }
@@ -152,8 +148,6 @@ static int _xwin_sysdrv_init(void)
    char tmp[256];
 
    _unix_read_os_type();
-
-   _unix_guess_file_encoding();
 
    /* install emergency-exit signal handlers */
    old_sig_abrt = signal(SIGABRT, _xwin_signal_handler);
@@ -187,14 +181,15 @@ static int _xwin_sysdrv_init(void)
    set_window_title(get_filename(tmp));
 
    if (get_config_int("system", "XInitThreads", 1))
-       XInitThreads();
+      XInitThreads();
 
-   /* Open the display, create a window, and background-process
+   /* Open the display, create a window, and background-process 
     * events for it all. */
    if (_xwin_open_display(0) || _xwin_create_window()
-       || _unix_bg_man->register_func (_xwin_bg_handler)) {
-	 _xwin_sysdrv_exit();
-	 return -1;
+       || _unix_bg_man->register_func(_xwin_bg_handler))
+   {
+      _xwin_sysdrv_exit();
+      return -1;
    }
 
    set_display_switch_mode(SWITCH_BACKGROUND);
@@ -260,7 +255,7 @@ static void _xwin_sysdrv_set_window_title(AL_CONST char *name)
 static int _xwin_sysdrv_set_close_button_callback(void (*proc)(void))
 {
    _xwin.close_button_callback = proc;
-
+   
    return 0;
 }
 
@@ -363,7 +358,7 @@ static _DRIVER_INFO *_xwin_sysdrv_keyboard_drivers(void)
  */
 static _DRIVER_INFO *_xwin_sysdrv_mouse_drivers(void)
 {
-   return _xwin_mouse_driver_list;
+   return _al_xwin_mouse_driver_list;
 }
 
 
