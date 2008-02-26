@@ -14,28 +14,6 @@
  *      Based on AllegroGL extensions management.
  */
 
-/* Title: OpenGL extensions
- *
- * Allegro will keep information about all extensions it knows about in a
- * structure returned by <al_get_opengl_extension_list>.
- *
- * For example:
- * > if (al_get_opengl_extension_list()->ALLEGRO_GL_ARB_multitexture) { use it }
- *
- * The extension will be set to true if available for the current DISPLAY* and
- * false otherwise. This means to use the definitions and functions from an
- * OpenGL extension, all you need to do is to check for it like above at
- * runtime, once you acquired the OpenGL DISPLAY* from Allegro.
- *
- * Under Windows, this will also work with WGL extensions, and under Linux
- * also with GLX extensions.
- *
- * In case you want to manually check for extensions and load function pointers
- * yourself (say, in case the Allegro developers did not include it yet), you
- * can use the <al_is_opengl_extension_supported> and
- * <al_get_opengl_proc_address> functions instead.
- */
-
 
 #include "allegro5/allegro5.h"
 #include "allegro5/display_new.h"
@@ -114,20 +92,8 @@
 
 
 
-/* float al_opengl_version() */
-/** \ingroup core
- *
- *  Returns the OpenGL version number of the client
- *  (the computer the program is running on).
- *  "1.0" is returned as 1.0, "1.2.1" is returned as 1.21,
- *  and "1.2.2" as 1.22, etc.
- *
- *  A valid OpenGL context must exist for this function to work, which
- *  means you may \b not call it before create_display().
- *
- *  \return The OpenGL ICD/MCD version number.
- */
-float al_opengl_version(void)
+/* Reads version info out of glGetString(GL_VERSION) */
+static float _al_ogl_version(void)
 {
    const char *str;
    ALLEGRO_DISPLAY *disp = al_get_current_display();
@@ -170,6 +136,29 @@ float al_opengl_version(void)
    }
 
    return atof(str);
+}
+
+
+/* Function: al_opengl_version
+ *
+ *  Returns the OpenGL version number of the client
+ *  (the computer the program is running on), for the current DISPLAY.
+ *  "1.0" is returned as 1.0, "1.2.1" is returned as 1.21,
+ *  and "1.2.2" as 1.22, etc.
+ *
+ *  A valid OpenGL context must exist for this function to work, which
+ *  means you may \b not call it before al_create_display().
+ *
+ */
+float al_opengl_version(void)
+{
+   ALLEGRO_DISPLAY_OGL *ogl_disp;
+
+   ogl_disp = (ALLEGRO_DISPLAY_OGL*)al_get_current_display();
+   if (!ogl_disp)
+      return 0.0f;
+
+   return ogl_disp->ogl_info.version;
 }
 
 
@@ -556,7 +545,7 @@ static void fill_in_info_struct(const GLubyte *rendereru, OPENGL_INFO *info)
    }
 
    /* Read OpenGL properties */
-   info->version = al_opengl_version();
+   info->version = _al_ogl_version();
 
    return;
 }
@@ -721,9 +710,28 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
    }
 }
 
-/* al_get_opengl_extension_list:
+/* Function: al_get_opengl_extension_list
  * Returns the list of OpenGL extensions supproted by Allegro, for
  * the current context.
+ *
+ * Allegro will keep information about all extensions it knows about in a
+ * structure returned by <al_get_opengl_extension_list>.
+ *
+ * For example:
+ * > if (al_get_opengl_extension_list()->ALLEGRO_GL_ARB_multitexture) { use it }
+ *
+ * The extension will be set to true if available for the current DISPLAY* and
+ * false otherwise. This means to use the definitions and functions from an
+ * OpenGL extension, all you need to do is to check for it like above at
+ * runtime, once you acquired the OpenGL DISPLAY* from Allegro.
+ *
+ * Under Windows, this will also work with WGL extensions, and under Linux
+ * also with GLX extensions.
+ *
+ * In case you want to manually check for extensions and load function pointers
+ * yourself (say, in case the Allegro developers did not include it yet), you
+ * can use the <al_is_opengl_extension_supported> and
+ * <al_get_opengl_proc_address> functions instead.
  */
 ALLEGRO_OGL_EXT_LIST* al_get_opengl_extension_list(void)
 {
