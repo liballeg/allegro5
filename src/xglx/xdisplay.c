@@ -92,6 +92,7 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
 {
    ALLEGRO_DISPLAY_XGLX *d = _AL_MALLOC(sizeof *d);
    ALLEGRO_DISPLAY *display = (void*)d;
+   ALLEGRO_DISPLAY_OGL *ogl_disp = (void *)d;
    memset(d, 0, sizeof *d);
 
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
@@ -127,17 +128,17 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
 
    _al_push_new_bitmap_parameters();
    al_set_new_bitmap_format(display->format);
-   d->backbuffer = _al_xglx_create_bitmap(display, w, h);
+   ogl_disp->backbuffer = _al_ogl_create_bitmap(display, w, h);
    _al_pop_new_bitmap_parameters();
-   ALLEGRO_BITMAP_XGLX *backbuffer = (void *)d->backbuffer;
+   ALLEGRO_BITMAP_OGL *backbuffer = (void *)ogl_disp->backbuffer;
    backbuffer->is_backbuffer = 1;
    /* Create a memory cache for the whole screen. */
    //TODO: Maybe we should do this lazily and defer to lock_bitmap_region
    //FIXME: need to resize this on resizing
-   if (!d->backbuffer->memory) {
-      int n = w * h * al_get_pixel_size(d->backbuffer->format);
-      d->backbuffer->memory = _AL_MALLOC(n);
-      memset(d->backbuffer->memory, 0, n);
+   if (!ogl_disp->backbuffer->memory) {
+      int n = w * h * al_get_pixel_size(ogl_disp->backbuffer->format);
+      ogl_disp->backbuffer->memory = _AL_MALLOC(n);
+      memset(ogl_disp->backbuffer->memory, 0, n);
    }
 
    /* Add ourself to the list of displays. */
@@ -179,7 +180,7 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
       CWBorderPixel | CWColormap | CWEventMask, &swa);
 
    TRACE("xdisplay: X11 window created.\n");
-   
+
    set_size_hints(display, w, h);
 
    d->wm_delete_window_atom = XInternAtom (system->xdisplay,
@@ -256,7 +257,7 @@ static void set_current_display(ALLEGRO_DISPLAY *d)
 
    if (!glx->got_extensions) {
       glx->got_extensions = true;
-      _al_ogl_manage_extensions(glx);
+      _al_ogl_manage_extensions(ogl);
    }
 
    _al_ogl_set_extensions(ogl->extension_api);
@@ -385,123 +386,6 @@ void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
    _al_event_source_unlock(es);
 }
 
-/* Dummy implementation. */
-// FIXME: think about moving this to xbitmap.c instead..
-ALLEGRO_BITMAP *_al_xglx_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
-{
-   int format = al_get_new_bitmap_format();
-   int flags = al_get_new_bitmap_flags();
-
-   /* FIXME: do this right */
-   if (! _al_pixel_format_is_real(format)) {
-      format = d->format;
-      //if (_al_format_has_alpha(format))
-      //   format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-      //else
-      //   format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
-   }
-
-   ALLEGRO_BITMAP_XGLX *bitmap = _AL_MALLOC(sizeof *bitmap);
-   memset(bitmap, 0, sizeof *bitmap);
-   bitmap->bitmap.vt = _al_bitmap_xglx_driver();
-   bitmap->bitmap.w = w;
-   bitmap->bitmap.h = h;
-   bitmap->bitmap.format = format;
-   bitmap->bitmap.flags = flags;
-   bitmap->bitmap.cl = 0;
-   bitmap->bitmap.ct = 0;
-   bitmap->bitmap.cr = w - 1;
-   bitmap->bitmap.cb = h - 1;
-
-   return &bitmap->bitmap;
-}
-
-static ALLEGRO_BITMAP *get_backbuffer(ALLEGRO_DISPLAY *d)
-{
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-   return glx->backbuffer;
-}
-
-static void set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
-{
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
-   /* If it is a memory bitmap, this display vtable entry would not even get
-    * called, so the cast below is always safe.
-    */
-   ALLEGRO_BITMAP_XGLX *xbitmap = (void *)bitmap;
-   int x_1, y_1, x_2, y_2;
-
-   if (!xbitmap->is_backbuffer) {
-      if (xbitmap->fbo) {
-         /* Bind to the FBO. */
-         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, xbitmap->fbo);
-
-         /* Attach the texture. */
-         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-            GL_TEXTURE_2D, xbitmap->texture, 0);
-         if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
-            GL_FRAMEBUFFER_COMPLETE_EXT) {
-            // FIXME: handle this somehow!
-         }
-
-         glx->opengl_target = xbitmap;
-         glViewport(0, 0, bitmap->w, bitmap->h);
-
-         glMatrixMode(GL_PROJECTION);
-         glLoadIdentity();
-         /* Allegro's bitmaps start at the top left pixel. OpenGL's bitmaps
-          * at the bottom left. Therefore, Allegro's OpenGL drawing commands
-          * all appear upside-down to OpenGL. To counter this when drawing to
-          * a texture, we can actually use regular projection now, so we draw
-          * upside down into it, and it appears right again when the texture
-          * is drawn (upside-down) to the screen.
-          * TODO: Verify this a bit more.. is there really no better way?
-          */
-         glOrtho(0, bitmap->w, 0, bitmap->h, -1, 1);
-
-         glMatrixMode(GL_MODELVIEW);
-         glLoadIdentity();
-      }
-   }
-   else {
-      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-      glx->opengl_target = xbitmap;
-
-      glViewport(0, 0, display->w, display->h);
-
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
-      /* We use upside down coordinates compared to OpenGL, so the bottommost
-       * coordinate is display->h not 0.
-       */
-      glOrtho(0, display->w, display->h, 0, -1, 1);
-
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-   }
-
-   if (glx->opengl_target == xbitmap) {
-      if (bitmap->cl == 0 && bitmap->cr == bitmap->w - 1 &&
-         bitmap->ct == 0 && bitmap->cb == bitmap->h - 1) {
-         glDisable(GL_SCISSOR_TEST);
-      }
-      else {
-         glEnable(GL_SCISSOR_TEST);
-
-         x_1 = bitmap->cl;
-         y_1 = bitmap->ct;
-         /* In OpenGL, coordinates are the top-left corner of pixels, so we need to
-          * add one to the right and bottom edge.
-          */
-         x_2 = bitmap->cr + 1;
-         y_2 = bitmap->cb + 1;
-
-         /* OpenGL is upside down, so must adjust y_2 to the height. */
-         glScissor(x_1, bitmap->h - y_2, x_2 - x_1, y_2 - y_1);
-      }
-   }
-}
-
 static bool is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    return true;
@@ -537,7 +421,7 @@ static bool hide_cursor(ALLEGRO_DISPLAY *display)
       XGCValues gcvalues;
 
       Pixmap pixmap = XCreatePixmap(xdisplay, xwindow, 1, 1, 1);
-      
+
       GC temp_gc;
       XColor color;
 
@@ -573,17 +457,17 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    vt->set_current_display = set_current_display;
    vt->flip_display = flip_display;
    vt->acknowledge_resize = acknowledge_resize;
-   vt->create_bitmap = _al_xglx_create_bitmap;
-   vt->get_backbuffer = get_backbuffer;
-   vt->get_frontbuffer = get_backbuffer;
-   vt->set_target_bitmap = set_target_bitmap;
+   vt->create_bitmap = _al_ogl_create_bitmap;
+   vt->get_backbuffer = _al_ogl_get_backbuffer;
+   vt->get_frontbuffer = _al_ogl_get_backbuffer;
+   vt->set_target_bitmap = _al_ogl_set_target_bitmap;
    vt->is_compatible_bitmap = is_compatible_bitmap;
    vt->resize_display = resize_display;
    vt->upload_compat_screen = _al_xglx_display_upload_compat_screen;
    vt->show_cursor = show_cursor;
    vt->hide_cursor = hide_cursor;
    vt->set_icon = set_icon;
-   _xglx_add_drawing_functions(vt);
+   _al_ogl_add_drawing_functions(vt);
 
    return vt;
 }

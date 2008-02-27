@@ -17,7 +17,6 @@
 
 typedef struct ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_XGLX;
 typedef struct ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_XGLX;
-typedef struct ALLEGRO_BITMAP_XGLX ALLEGRO_BITMAP_XGLX;
 
 /* This is our version of ALLEGRO_SYSTEM with driver specific extra data. */
 struct ALLEGRO_SYSTEM_XGLX
@@ -43,19 +42,6 @@ struct ALLEGRO_SYSTEM_XGLX
    bool pointer_grabbed; /* Is an XGrabPointer in effect? */
 };
 
-struct ALLEGRO_BITMAP_XGLX
-{
-   ALLEGRO_BITMAP bitmap; /* This must be the first member. */
-   
-   /* Driver specifics. */
-   
-   GLuint texture; /* 0 means, not uploaded yet. */
-   GLuint fbo; /* 0 means, no fbo yet. */
-
-   float left, top, right, bottom; /* Texture coordinates. */
-   bool is_backbuffer; /* This is not a real bitmap, but the backbuffer. */
-};
-
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
 struct ALLEGRO_DISPLAY_XGLX
 {
@@ -64,10 +50,6 @@ struct ALLEGRO_DISPLAY_XGLX
    /* Driver specifics. */
 
    int opengl_initialized; /* Did we have a chance to set up OpenGL? */
-
-   ALLEGRO_BITMAP *backbuffer;
-
-   ALLEGRO_BITMAP_XGLX *opengl_target;
 
    Window window;
    int xscreen; /* TODO: what is this? something with multi-monitor? */
@@ -100,12 +82,6 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack);
 void _al_xwin_mouse_button_press_handler(int button);
 void _al_xwin_mouse_button_release_handler(int button);
 void _al_xwin_mouse_motion_notify_handler(int x, int y);
-
-/* bitmap */
-ALLEGRO_BITMAP *_al_xglx_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h);
-
-/* draw */
-void _xglx_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
 
 /* fullscreen */
 int _al_xglx_get_num_display_modes(void);

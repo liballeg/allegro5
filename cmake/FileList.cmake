@@ -243,6 +243,9 @@ set(ALLEGRO_SRC_D3D_FILES
 
 set(ALLEGRO_SRC_OPENGL_FILES
     src/opengl/extensions.c
+    src/opengl/ogl_bitmap.c
+    src/opengl/ogl_draw.c
+    src/opengl/ogl_display.c
     )
 
 set(ALLEGRO_SRC_WGL_FILES
@@ -346,10 +349,8 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xsystem.c
     src/x/xvtable.c
     src/x/xwin.c
-    src/xglx/xbitmap.c
     src/xglx/xcompat.c
     src/xglx/xdisplay.c
-    src/xglx/xdraw.c
     src/xglx/xfullscreen.c
     src/xglx/xglx_config.c
     src/xglx/xsystem.c

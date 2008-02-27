@@ -1,6 +1,23 @@
 #ifndef ALLEGRO_INTERNAL_OPENGL_NEW_H
 #define ALLEGRO_INTERNAL_OPENGL_NEW_H
 
+#include "allegro5/internal/aintern_bitmap.h"
+
+
+typedef struct ALLEGRO_BITMAP_OGL
+{
+   ALLEGRO_BITMAP bitmap; /* This must be the first member. */
+
+   /* Driver specifics. */
+
+   GLuint texture; /* 0 means, not uploaded yet. */
+   GLuint fbo; /* 0 means, no fbo yet. */
+
+   float left, top, right, bottom; /* Texture coordinates. */
+   bool is_backbuffer; /* This is not a real bitmap, but the backbuffer. */
+} ALLEGRO_BITMAP_OGL;
+
+
 typedef struct OPENGL_INFO {
    float version;          /* OpenGL version */
    int num_texture_units;  /* Number of texture units */
@@ -42,13 +59,26 @@ typedef struct ALLEGRO_DISPLAY_OGL
    /* Various info about OpenGL implementation. */
    OPENGL_INFO ogl_info;
 
+   ALLEGRO_BITMAP_OGL *opengl_target;
+   ALLEGRO_BITMAP *backbuffer;
+
 } ALLEGRO_DISPLAY_OGL;
 
 
+/* extensions */
 int  _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensions);
 void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext);
 void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *disp);
 void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY_OGL *disp);
 
+/* draw */
+void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
+
+/* bitmap */
+ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h);
+
+/* common driver */
+void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d);
 
 #endif
