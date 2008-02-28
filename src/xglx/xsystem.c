@@ -4,7 +4,7 @@
  */
 
 #ifdef DEBUG_X11
-extern int _Xdebug;
+extern int _Xdebug; /* part of Xlib */
 #endif
 
 #include "xglx.h"
