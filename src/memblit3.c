@@ -1082,6 +1082,4 @@ void _al_draw_rotated_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
       cx, cy, dx, dy, 1.0f, 1.0f, angle, flags);
 }
 
-#endif
-
-
+#endif /* !DEBUGMODE */

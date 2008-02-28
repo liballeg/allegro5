@@ -20,20 +20,6 @@
 #include <math.h>
 
 
-void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
-   int sx, int sy, int sw, int sh,
-   int dx, int dy, int flags);
-void _al_draw_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
-  int dx, int dy, int flags);
-void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
-   int sx, int sy, int sw, int sh,
-   int dx, int dy, int dw, int dh, int flags);
-void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
-	int cx, int cy, int dx, int dy, float xscale, float yscale,
-	float angle, int flags);
-void _al_draw_rotated_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
-	int cx, int cy, int dx, int dy, float angle, int flags);
-
 
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,

@@ -682,4 +682,4 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
 	flags);
 }
 
-#endif
+#endif /* !DEBUGMODE */

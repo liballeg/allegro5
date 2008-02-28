@@ -21,10 +21,6 @@
 
 static ALLEGRO_BITMAP_INTERFACE *vt;
 
-extern void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
-   int sx, int sy, int sw, int sh,
-   int dx, int dy, int flags);
-
 
 
 static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
