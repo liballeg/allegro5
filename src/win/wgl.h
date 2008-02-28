@@ -16,5 +16,8 @@ typedef struct ALLEGRO_DISPLAY_WGL
    HWND window;
    HDC dc;
    HGLRC glrc;
+
+   bool thread_ended;
+   bool end_thread;
 } ALLEGRO_DISPLAY_WGL;
 

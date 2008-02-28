@@ -103,7 +103,7 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_OGL *ogl = (void *)d;
-   return ogl->backbuffer;
+   return (ALLEGRO_BITMAP*)ogl->backbuffer;
 }
 
 
@@ -122,7 +122,7 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp) {
    /* Create a memory cache for the whole screen. */
    //TODO: Maybe we should do this lazily and defer to lock_bitmap_region
    //FIXME: need to resize this on resizing
-   if (backbuffer->memory) {
+   if (!backbuffer->memory) {
       int n = disp->w * disp->h * al_get_pixel_size(backbuffer->format);
       backbuffer->memory = _AL_MALLOC(n);
       memset(backbuffer->memory, 0, n);

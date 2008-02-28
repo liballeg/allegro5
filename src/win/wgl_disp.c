@@ -15,6 +15,8 @@
  *
  */
 
+#include <process.h>
+
 #include "allegro5/allegro5.h"
 #include "allegro5/system_new.h"
 #include "allegro5/internal/aintern.h"
@@ -35,6 +37,20 @@
 
 static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
 static bool init_done = false;
+
+/* Forward declarations: */
+static void display_thread_proc(void *arg);
+
+
+/*
+ * These parameters cannot be gotten by the display thread because
+ * they're thread local. We get them in the calling thread first.
+ */
+typedef struct new_display_parameters {
+   ALLEGRO_DISPLAY_WGL *display;
+   bool init_failed;
+   bool initialized;
+} new_display_parameters;
 
 
 /* Logs a Win32 error/warning message in the log file.
@@ -92,67 +108,6 @@ static void log_win32_note(const char *func, const char *error_msg, DWORD err) {
 }
 
 
-/* Define the AllegroGL Test window class */
-#define ALLEGRO_TEST_WINDOW_CLASS "AllegroTestWindow"
-
-/* Registers the test window
- * Returns true on success, false on failure.
- */
-static bool register_test_window()
-{
-   static bool already_called = false;
-   WNDCLASS wc;
-
-   if (already_called)
-      return true;
-
-   memset(&wc, 0, sizeof(wc));
-   wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-   wc.lpfnWndProc = DefWindowProc;
-   wc.hInstance = GetModuleHandle(NULL);
-   wc.hIcon = LoadIcon(GetModuleHandle(NULL), IDI_APPLICATION);
-   wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-   wc.lpszClassName = ALLEGRO_TEST_WINDOW_CLASS;
-
-   if (!RegisterClass(&wc)) {
-      DWORD err = GetLastError();
-
-      if (err != ERROR_CLASS_ALREADY_EXISTS) {
-         log_win32_error("register_test_window", "Unable to register the window class!", err);
-         return false;
-      }
-   }
-
-   already_called = true;
-
-   return true;
-}
-
-
-/* Creates the test window.
- * The window class must have already been registered.
- * Returns the window handle, or NULL on failure.
- */
-static HWND create_test_window()
-{
-   HWND wnd = CreateWindow(ALLEGRO_TEST_WINDOW_CLASS,
-                           "Allegro Test Window",
-                           WS_POPUP | WS_CLIPCHILDREN,
-                           0, 0, 1, 1,
-                           NULL, NULL,
-                           GetModuleHandle(NULL),
-                           NULL);
-
-	if (!wnd) {
-      log_win32_error("create_test_window",
-                      "Unable to create a test window!", GetLastError());
-      return NULL;
-   }		
-
-   return wnd;
-}
-
-
 static bool is_wgl_extension_supported(AL_CONST char *extension, HDC dc)
 {
    ALLEGRO_GetExtensionsStringARB_t __wglGetExtensionsStringARB;
@@ -161,8 +116,10 @@ static bool is_wgl_extension_supported(AL_CONST char *extension, HDC dc)
    if (!glGetString(GL_EXTENSIONS))
       return false;
 
-   __wglGetExtensionsStringARB = (ALLEGRO_GetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
-   ret = _al_ogl_look_for_an_extension(extension, (const GLubyte*)__wglGetExtensionsStringARB(dc));
+   __wglGetExtensionsStringARB = (ALLEGRO_GetExtensionsStringARB_t)
+                                  wglGetProcAddress("wglGetExtensionsStringARB");
+   ret = _al_ogl_look_for_an_extension(extension,
+         (const GLubyte*)__wglGetExtensionsStringARB(dc));
 
    return ret;
 }
@@ -583,13 +540,10 @@ static OGL_PIXEL_FORMAT** get_available_pixel_formats_ext(int *count) {
    int maxindex;
    int i;
 
-   if (!register_test_window())
-      return NULL;
-
    /* We need to create a dummy window with a pixel format to get the
     * list of valid PFDs
     */
-   testwnd = create_test_window();
+   testwnd = _al_win_create_hidden_window();
    if (!testwnd)
 	   return false;
 
@@ -644,11 +598,8 @@ static bool try_to_set_pixel_format(int i) {
    HDC testdc;
    PIXELFORMATDESCRIPTOR pfd;
 
-  	if (!register_test_window())
-      return false;
-
    /* Recreate our test windows */
-   testwnd = create_test_window();
+   testwnd = _al_win_create_hidden_window();
    if (!testwnd)
       return false;
    testdc = GetDC(testwnd);
@@ -693,6 +644,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d) {
    HDC testdc   = NULL;
    HGLRC testrc = NULL;
    OGL_PIXEL_FORMAT **pf_list = NULL;
+   enum ALLEGRO_PIXEL_FORMAT format = ((ALLEGRO_DISPLAY *) d)->format;
    int maxindex = 0;
    int i;
 
@@ -706,7 +658,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d) {
    for (i = 0; i < maxindex; i++) {
       OGL_PIXEL_FORMAT *pf = pf_list[i];
       /* TODO: implement a choice system (scoring?) */
-      if (pf && pf->doublebuffered == true && pf->format == ALLEGRO_PIXEL_FORMAT_RGB_888) {
+      if (pf && pf->doublebuffered == true && pf->format == format) {
          if (try_to_set_pixel_format(i)) {
             PIXELFORMATDESCRIPTOR pdf;
             TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n.", i);
@@ -727,46 +679,50 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d) {
 }
 
 
+static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
+   ALLEGRO_DISPLAY *disp = (void*)wgl_disp;
+   static new_display_parameters ndp;
+
+   ndp.display = wgl_disp;
+   ndp.init_failed = false;
+   ndp.initialized = false;
+   _beginthread(display_thread_proc, 0, &ndp);
+
+   while (!ndp.initialized && !ndp.init_failed)
+      al_rest(0.001);
+
+   if (ndp.init_failed) {
+      TRACE(PREFIX_E "Faild to create display.\n");
+      return false;
+   }
+
+   return true;
+}
+
+
 static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
+   ALLEGRO_DISPLAY_WGL **add;
    ALLEGRO_DISPLAY_WGL *wgl_display = _AL_MALLOC(sizeof *wgl_display);
    ALLEGRO_DISPLAY_OGL *ogl_display = (void*)wgl_display;
-   ALLEGRO_DISPLAY *display = (void*)ogl_display;
-   ALLEGRO_DISPLAY_WGL **add;
+   ALLEGRO_DISPLAY     *display     = (void*)ogl_display;
 
-   memset(display, 0, sizeof *display);
+   memset(display, 0, sizeof *wgl_display);
    display->w = w;
    display->h = h;
-   display->format = al_get_new_display_format();
+   //FIXME
+   display->format = ALLEGRO_PIXEL_FORMAT_RGB_888;//al_get_new_display_format();
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
    display->vt = vt;
 
-   /* request a fresh new window */
-   wgl_display->window = _al_win_create_window(display, w, h, display->flags);
-   if (!wgl_display->window)
+   if (!create_display_internals(wgl_display)) {
       return NULL;
-
-   /* get the device context of our window */
-   wgl_display->dc = GetDC(wgl_display->window);
-
-   if (display->flags & ALLEGRO_FULLSCREEN) {
-      if (!change_display_mode(display))
-         goto Error;
    }
 
-   if (!select_pixel_format(wgl_display))
-      goto Error;
+   win_grab_input();
 
-   /* create an OpenGL context */
-   wgl_display->glrc = wglCreateContext(wgl_display->dc);
-   if (!wgl_display->glrc) {
-      log_win32_error("wgl_create_display", "Unable to create a render context!",
-                      GetLastError());
-      goto Error;
-	}
-
-   ogl_display->backbuffer = (ALLEGRO_BITMAP*)_al_ogl_create_backbuffer(display);
+   ogl_display->backbuffer = _al_ogl_create_backbuffer(display);
 
    /* Init will finish in set_current_display() */
    init_done = false;
@@ -779,17 +735,6 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    _al_event_source_init(&display->es);
 
    return display;
-
-Error:
-   if (wgl_display->glrc) {
-      wglDeleteContext(wgl_display->glrc);
-   }
-   if (wgl_display->dc) {
-      ReleaseDC(wgl_display->window, wgl_display->dc);
-   }
-   ChangeDisplaySettings(NULL, 0);
-
-   return NULL;
 }
 
 
@@ -800,23 +745,19 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *display)
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)ogl_disp;
 
    /* REVIEW: can al_destroy_bitmap() handle backbuffers? */
-   al_destroy_bitmap(ogl_disp->backbuffer);
+   if (ogl_disp->backbuffer)
+      al_destroy_bitmap((ALLEGRO_BITMAP*)ogl_disp->backbuffer);
    ogl_disp->backbuffer = NULL;
 
    _al_ogl_unmanage_extensions(ogl_disp);
 
+   wgl_disp->end_thread = true;
+   while (!wgl_disp->thread_ended)
+      al_rest(0.001);
+
    _al_vector_find_and_delete(&system->system.displays, &display);
 
-   if (wgl_disp->glrc)
-      wglDeleteContext(wgl_disp->glrc);
-   if (wgl_disp->dc)
-      ReleaseDC(wgl_disp->window, wgl_disp->dc);
-   if (wgl_disp->window)
-      DestroyWindow(wgl_disp->window);
-
-   ChangeDisplaySettings(NULL, 0);
-
-   _AL_FREE(display);
+   _AL_FREE(wgl_disp);
 }
 
 
@@ -846,6 +787,195 @@ static void wgl_set_current_display(ALLEGRO_DISPLAY *d)
    _al_ogl_set_extensions(ogl_disp->extension_api);
 }
 
+
+static void set_window_style(ALLEGRO_DISPLAY_WGL *wgl_disp)
+{
+   ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY*)wgl_disp;
+   RECT rect;
+   DWORD style;
+   DWORD exstyle;
+   bool fullscreen = disp->flags & ALLEGRO_FULLSCREEN;
+   /* TODO: make this configurable */
+   int x = 100;
+   int y = 100;
+
+ 	if (fullscreen) {
+		style = WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+		exstyle = WS_EX_APPWINDOW | WS_EX_TOPMOST;
+	}
+	else {
+		style = WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX | WS_CLIPCHILDREN
+		      | WS_CLIPSIBLINGS;
+		exstyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+	}
+
+
+ 	SetWindowLong(wgl_disp->window, GWL_STYLE, style);
+	SetWindowLong(wgl_disp->window, GWL_EXSTYLE, exstyle);
+
+  	if (!fullscreen) {
+		rect.left = x;
+		rect.right = x + disp->w;
+		rect.top = y;
+		rect.bottom = y + disp->h;
+	}
+	else {
+		rect.left = 0;
+		rect.right = disp->w;
+		rect.top  = 0;
+		rect.bottom = disp->h;
+	}
+
+ 	if (!fullscreen) {
+		AdjustWindowRectEx(&rect, style, FALSE, exstyle);
+	}
+
+   SetWindowPos(wgl_disp->window, 0, rect.left, rect.top,
+		rect.right - rect.left, rect.bottom - rect.top,
+		SWP_NOZORDER | SWP_FRAMECHANGED);
+}
+
+
+/*
+ * The window must be created in the same thread that
+ * runs the message loop.
+ */
+static void display_thread_proc(void *arg)
+{
+   new_display_parameters *ndp = arg;
+   ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY*)ndp->display;
+   ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
+   DWORD result;
+   MSG msg;
+
+   wgl_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
+   
+   if (!wgl_disp->window) {
+      ndp->init_failed = true;
+      return;
+   }
+
+   set_window_style(wgl_disp);
+
+   /* get the device context of our window */
+   wgl_disp->dc = GetDC(wgl_disp->window);
+
+   if (disp->flags & ALLEGRO_FULLSCREEN) {
+      if (!change_display_mode(disp)) {
+         wgl_disp->thread_ended = true;
+         wgl_destroy_display(disp);
+         ndp->init_failed = true;
+         return;
+      }
+   }
+
+   if (!select_pixel_format(wgl_disp)) {
+      wgl_disp->thread_ended = true;
+      wgl_destroy_display(disp);
+      ndp->init_failed = true;
+      return;
+   }
+
+   /* create an OpenGL context */
+   wgl_disp->glrc = wglCreateContext(wgl_disp->dc);
+   if (!wgl_disp->glrc) {
+      log_win32_error("wgl_disp_display_thread_proc", "Unable to create a render context!",
+                      GetLastError());
+      wgl_disp->thread_ended = true;
+      wgl_destroy_display(disp);
+      ndp->init_failed = true;
+      return;
+	}
+
+   /* <rohannessian> Win98/2k/XP's window forground rules don't let us
+	 * make our window the topmost window on launch. This causes issues on 
+	 * full-screen apps, as DInput loses input focus on them.
+	 * We use this trick to force the window to be topmost, when switching
+	 * to full-screen only. Note that this only works for Win98 and greater.
+	 * Win95 will ignore our SystemParametersInfo() calls.
+	 * 
+	 * See http://support.microsoft.com:80/support/kb/articles/Q97/9/25.asp
+	 * for details.
+	 */
+   {
+      HWND wnd = wgl_disp->window;
+		DWORD lock_time;
+
+#define SPI_GETFOREGROUNDLOCKTIMEOUT 0x2000
+#define SPI_SETFOREGROUNDLOCKTIMEOUT 0x2001
+		if (disp->flags & ALLEGRO_FULLSCREEN) {
+			SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT,
+			                     0, (LPVOID)&lock_time, 0);
+			SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
+			                     0, (LPVOID)0,
+			                     SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+		}
+
+		ShowWindow(wnd, SW_SHOWNORMAL);
+		SetForegroundWindow(wnd);
+		/* In some rare cases, it doesn't seem to work without the loop. And we
+		 * absolutely need this to succeed, else we trap the user in a
+		 * fullscreen window without input.
+		 */
+		while (GetForegroundWindow() != wnd) {
+			al_rest(0.001);
+			SetForegroundWindow(wnd);
+		}
+		UpdateWindow(wnd);
+
+		if (disp->flags & ALLEGRO_FULLSCREEN) {
+			SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
+			                     0, (LPVOID)lock_time,
+			                     SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+		}
+#undef SPI_GETFOREGROUNDLOCKTIMEOUT
+#undef SPI_SETFOREGROUNDLOCKTIMEOUT
+	}
+
+
+   wgl_disp->thread_ended = false;
+   ndp->initialized = true;
+
+   for (;;) {
+      if (wgl_disp->end_thread) {
+         break;
+      }
+      /* FIXME: How long should we wait? */
+      result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, 5/*INFINITE*/, QS_ALLINPUT);
+      if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events) {
+         /* one of the registered events is in signaled state */
+         (*_win_input_event_handler[result - WAIT_OBJECT_0])();
+      }
+      else if (result == (DWORD) WAIT_OBJECT_0 + _win_input_events) {
+         /* messages are waiting in the queue */
+         while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+            if (GetMessage(&msg, NULL, 0, 0)) {
+               DispatchMessage(&msg);
+            }
+            else {
+               goto End;
+            }
+         }
+      }
+   }
+
+End:
+   if (wgl_disp->glrc) {
+      wglDeleteContext(wgl_disp->glrc);
+   }
+   if (wgl_disp->dc) {
+      ReleaseDC(wgl_disp->window, wgl_disp->dc);
+   }
+
+   if (disp->flags & ALLEGRO_FULLSCREEN) {
+      ChangeDisplaySettings(NULL, 0);
+   }
+
+   _al_win_delete_thread_handle(GetCurrentThreadId());
+
+   TRACE("wgl display thread exits\n");
+   wgl_disp->thread_ended = true;
+}
 
 
 static void wgl_flip_display(ALLEGRO_DISPLAY *d)

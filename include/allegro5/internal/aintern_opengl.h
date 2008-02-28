@@ -61,8 +61,7 @@ typedef struct ALLEGRO_DISPLAY_OGL
 
    ALLEGRO_BITMAP_OGL *opengl_target;
 
-   /* REVIEW: can this be anything else than ALLEGRO_BITMAP_OGL ? */
-   ALLEGRO_BITMAP *backbuffer;
+   ALLEGRO_BITMAP_OGL *backbuffer;
 
 } ALLEGRO_DISPLAY_OGL;
 

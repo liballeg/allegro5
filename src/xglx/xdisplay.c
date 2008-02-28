@@ -126,7 +126,7 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
    //FIXME
    //d->display.flags |= ALLEGRO_WINDOWED;
 
-   ogl_disp->backbuffer = (ALLEGRO_BITMAP*)_al_ogl_create_backbuffer(display);
+   ogl_disp->backbuffer = _al_ogl_create_backbuffer(display);
 
    /* Add ourself to the list of displays. */
    ALLEGRO_DISPLAY_XGLX **add = _al_vector_alloc_back(&system->system.displays);
