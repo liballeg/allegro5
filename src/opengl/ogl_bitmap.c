@@ -142,13 +142,14 @@ static int pot(int x)
 }
 #endif
 
+/* TODO: use AllegrGL's version which doesn't involve memcpy. */
 static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
 {
    int pixelsize = al_get_pixel_size(bitmap->format);
    int pitch = pixelsize * bitmap->w;
    int bytes = w * pixelsize;
    int i;
-   unsigned char temp[pitch];
+   unsigned char *temp = malloc(pitch);
    unsigned char *ptr = bitmap->memory + pitch * y + pixelsize * x;
    for (i = 0; i < h / 2; i++)
    {
@@ -156,6 +157,7 @@ static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
       memcpy(ptr + pitch * i, ptr + pitch * (h - 1 - i), bytes);
       memcpy(ptr + pitch * (h - 1 - i), temp, bytes);
    }
+   free(temp);
 }
 
 /* Conversion table from Allegro's pixel formats to corresponding OpenGL
@@ -299,6 +301,7 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) return;
     
    if (ogl_bitmap->is_backbuffer) {
+      GLint unpack_row_length;
       //FIXME: ugh. isn't there a better way?
       upside_down(bitmap, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
 
@@ -310,7 +313,6 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
          glRasterPos2i(bitmap->lock_x, bitmap->lock_y + bitmap->lock_h);
       }
 
-      GLint unpack_row_length;
       glGetIntegerv(GL_UNPACK_ROW_LENGTH, &unpack_row_length);
       glPixelStorei(GL_UNPACK_ROW_LENGTH, bitmap->w);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,

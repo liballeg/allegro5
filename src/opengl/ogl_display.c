@@ -10,11 +10,12 @@
  *
  *      OpenGL routines common to all OpenGL drivers.
  *
- *      By Elias Pschernig.
+ *      By Elias Pschernig and Milan Mimica.
  *
  */
 
 #include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_opengl.h"
 
 
@@ -103,4 +104,29 @@ ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_OGL *ogl = (void *)d;
    return ogl->backbuffer;
+}
+
+
+ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp) {
+   ALLEGRO_BITMAP_OGL *ogl_backbuffer;
+   ALLEGRO_BITMAP *backbuffer;
+
+   _al_push_new_bitmap_parameters();
+   al_set_new_bitmap_format(disp->format);
+   backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);
+   _al_pop_new_bitmap_parameters();
+
+   ogl_backbuffer = (ALLEGRO_BITMAP_OGL*)backbuffer;
+   ogl_backbuffer->is_backbuffer = 1;
+   
+   /* Create a memory cache for the whole screen. */
+   //TODO: Maybe we should do this lazily and defer to lock_bitmap_region
+   //FIXME: need to resize this on resizing
+   if (backbuffer->memory) {
+      int n = disp->w * disp->h * al_get_pixel_size(backbuffer->format);
+      backbuffer->memory = _AL_MALLOC(n);
+      memset(backbuffer->memory, 0, n);
+   }
+
+   return ogl_backbuffer;
 }

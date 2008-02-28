@@ -126,20 +126,7 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
    //FIXME
    //d->display.flags |= ALLEGRO_WINDOWED;
 
-   _al_push_new_bitmap_parameters();
-   al_set_new_bitmap_format(display->format);
-   ogl_disp->backbuffer = _al_ogl_create_bitmap(display, w, h);
-   _al_pop_new_bitmap_parameters();
-   ALLEGRO_BITMAP_OGL *backbuffer = (void *)ogl_disp->backbuffer;
-   backbuffer->is_backbuffer = 1;
-   /* Create a memory cache for the whole screen. */
-   //TODO: Maybe we should do this lazily and defer to lock_bitmap_region
-   //FIXME: need to resize this on resizing
-   if (!ogl_disp->backbuffer->memory) {
-      int n = w * h * al_get_pixel_size(ogl_disp->backbuffer->format);
-      ogl_disp->backbuffer->memory = _AL_MALLOC(n);
-      memset(ogl_disp->backbuffer->memory, 0, n);
-   }
+   ogl_disp->backbuffer = (ALLEGRO_BITMAP*)_al_ogl_create_backbuffer(display);
 
    /* Add ourself to the list of displays. */
    ALLEGRO_DISPLAY_XGLX **add = _al_vector_alloc_back(&system->system.displays);

@@ -34,7 +34,7 @@
 
 
 static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
-
+static init_done = false;
 
 
 /* Logs a Win32 error/warning message in the log file.
@@ -738,7 +738,7 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
 
    /* request a fresh new window */
    wgl_display->window = _al_win_create_window(display, w, h, display->flags);
-   if (!display->window)
+   if (!wgl_display->window)
       return NULL;
 
    /* get the device context of our window */
@@ -754,24 +754,16 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
 
    /* create an OpenGL context */
    wgl_display->glrc = wglCreateContext(wgl_display->dc);
-   if (!display->glrc) {
+   if (!wgl_display->glrc) {
       log_win32_error("wgl_create_display", "Unable to create a render context!",
                       GetLastError());
       goto Error;
 	}
-   /* make the context the current one */
-   if (!wglMakeCurrent(wgl_display->dc, wgl_display->glrc)) {
-      log_win32_error("wgl_create_display", "Unable to make the context current!",
-                      GetLastError());
-      goto Error;
-   }
 
-   /* Print out OpenGL version info */
-   TRACE(PREFIX_I "OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
-   TRACE(PREFIX_I "Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
-   TRACE(PREFIX_I "Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
+   ogl_display->backbuffer = (ALLEGRO_BITMAP*)_al_ogl_create_backbuffer(display);
 
-   _al_ogl_manage_extensions(ogl_display);
+   /* Init will finish in set_current_display() */
+   init_done = false;
 
    /* Add ourself to the list of displays. */
    _al_vector_alloc_back(&system->system.displays);
@@ -800,6 +792,10 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *display)
    ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)display;
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)ogl_disp;
 
+   /* REVIEW: can al_destroy_bitmap() handle backbuffers? */
+   al_destroy_bitmap(ogl_disp->backbuffer);
+   ogl_disp->backbuffer = NULL;
+
    _al_ogl_unmanage_extensions(ogl_disp);
 
    _al_vector_find_and_delete(&system->system.displays, &display);
@@ -820,32 +816,29 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *display)
 static void wgl_set_current_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
-   ALLEGRO_DISPLAY_WGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)d;
+   ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)d;
 
-   wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc);
+   /* make the context the current one */
+   if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
+      log_win32_error("wgl_set_current_display", "Unable to make the context current!",
+                       GetLastError());
+      return;
+   }
+
+   if (!init_done) {
+      /* Print out OpenGL version info */
+      TRACE(PREFIX_I "OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
+      TRACE(PREFIX_I "Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
+      TRACE(PREFIX_I "Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
+
+      _al_ogl_manage_extensions(ogl_disp);
+
+      init_done = true;
+   }
+
    _al_ogl_set_extensions(ogl_disp->extension_api);
 }
 
-
-/* TODO */
-static void wgl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
-{
-   //ALLEGRO_DISPLAY_WGL* disp = (ALLEGRO_DISPLAY_WGL*)d;
-}
-
-
-/* TODO */
-static void wgl_draw_line(ALLEGRO_DISPLAY *d, float x1, float y1, float x2, float y2,
-                          ALLEGRO_COLOR *color)
-{
-}
-
-
-/* TODO */
-static void wgl_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
-                               float brx, float bry, ALLEGRO_COLOR *color, int flags)
-{
-}
 
 
 static void wgl_flip_display(ALLEGRO_DISPLAY *d)
@@ -859,90 +852,45 @@ static void wgl_flip_display(ALLEGRO_DISPLAY *d)
 static bool wgl_update_display_region(ALLEGRO_DISPLAY *d,
                                       int x, int y, int width, int height)
 {
-   return false;
+   return true;
 }
 
 
 static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
    /* hm... */
-   return false;
+   return true;
 }
 
 
 static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 {
    /* hm#2 .... */
-   return false;
-}
-
-
-ALLEGRO_BITMAP *_al_wgl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
-{
-   return NULL;
-}
-
-
-static void wgl_upload_compat_screen(struct BITMAP *bitmap, int x, int y,
-                                     int width, int height)
-{
-}
-   
-
-static void wgl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
-{
-}
- 
-static ALLEGRO_BITMAP* wgl_get_backbuffer(ALLEGRO_DISPLAY *d)
-{
-   return NULL;
-}
-
-
-static ALLEGRO_BITMAP* wgl_get_frontbuffer(ALLEGRO_DISPLAY *d)
-{
-   return NULL;
+   return true;
 }
 
 
 static bool wgl_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   return false;
-}
-
-
-static void wgl_switch_out(ALLEGRO_DISPLAY *display)
-{
-}
-
-
-static void wgl_switch_in(ALLEGRO_DISPLAY *display)
-{
-}
-
-
-static ALLEGRO_BITMAP* wgl_create_sub_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *parent,
-                                             int x, int y, int width, int height)
-{
-   return NULL;
+   return true;
 }
 
 
 static bool wgl_wait_for_vsync(ALLEGRO_DISPLAY *display)
 {
-   return false;
+   return true;
 }
 
 
 static bool wgl_show_cursor(ALLEGRO_DISPLAY *display)
 {
-   return false;
+   return true;
 }
 
 
 static bool wgl_hide_cursor(ALLEGRO_DISPLAY *display)
 {
-   return false;
+   return true;
 }
 
 
@@ -956,28 +904,23 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
 
    vt->create_display = wgl_create_display;
    vt->destroy_display = wgl_destroy_display;
+   vt->resize_display = wgl_resize_display;
    vt->set_current_display = wgl_set_current_display;
-   vt->clear = wgl_clear;
-   vt->draw_line = wgl_draw_line;
-   vt->draw_rectangle = wgl_draw_rectangle;
    vt->flip_display = wgl_flip_display;
    vt->update_display_region = wgl_update_display_region;
    vt->acknowledge_resize = wgl_acknowledge_resize;
-   vt->resize_display = wgl_resize_display;
-   vt->create_bitmap = _al_wgl_create_bitmap;
-   vt->upload_compat_screen = wgl_upload_compat_screen;
-   vt->set_target_bitmap = wgl_set_target_bitmap;
-   vt->get_backbuffer = wgl_get_backbuffer;
-   vt->get_frontbuffer = wgl_get_frontbuffer;
+   vt->create_bitmap = _al_ogl_create_bitmap;
+   vt->get_backbuffer = _al_ogl_get_backbuffer;
+   vt->get_frontbuffer = _al_ogl_get_backbuffer;
+   vt->set_target_bitmap = _al_ogl_set_target_bitmap;
    vt->is_compatible_bitmap = wgl_is_compatible_bitmap;
-   vt->switch_out = wgl_switch_out;
-   vt->switch_in = wgl_switch_in;
-   vt->draw_memory_bitmap_region = NULL;
-   vt->create_sub_bitmap = wgl_create_sub_bitmap;
-   vt->wait_for_vsync = wgl_wait_for_vsync;
+   vt->switch_out = NULL;
+   vt->switch_in = NULL;
+   vt->upload_compat_screen = NULL;
    vt->show_cursor = wgl_show_cursor;
    vt->hide_cursor = wgl_hide_cursor;
    vt->set_icon = _al_win_set_display_icon;
+   _al_ogl_add_drawing_functions(vt);
 
    return vt;
 }

@@ -60,6 +60,8 @@ typedef struct ALLEGRO_DISPLAY_OGL
    OPENGL_INFO ogl_info;
 
    ALLEGRO_BITMAP_OGL *opengl_target;
+
+   /* REVIEW: can this be anything else than ALLEGRO_BITMAP_OGL ? */
    ALLEGRO_BITMAP *backbuffer;
 
 } ALLEGRO_DISPLAY_OGL;
@@ -80,5 +82,6 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h);
 /* common driver */
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d);
+ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp);
 
 #endif
