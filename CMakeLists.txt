@@ -677,7 +677,7 @@ if(GRADE_DEBUG)
             "-DDEBUGMODE -g")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
-       	add_allegro_build(allegd "")
+       	add_allegro_build(allegd "-DDEBUGMODE")
     endif(COMPILER_MSVC)
 endif(GRADE_DEBUG)
 

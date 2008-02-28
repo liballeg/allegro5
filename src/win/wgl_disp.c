@@ -608,12 +608,14 @@ static OGL_PIXEL_FORMAT** get_available_pixel_formats_ext(int *count) {
    if (maxindex < 1)
       goto bail;
    *count = maxindex;
+   TRACE(PREFIX_I "get_available_pixel_formats_ext(): Got %i visuals.\n", maxindex);
 
    pf_list = malloc(maxindex * sizeof(*pf_list));
    if (!pf_list)
       goto bail;
 
    for (i = 0; i < maxindex; i++) {
+      TRACE(PREFIX_I "Reading visual no. %i...\n", i);
       pf_list[i] = read_pixel_format_ext(i, testdc);
    }
 
@@ -707,7 +709,8 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d) {
       if (pf && pf->doublebuffered == true && pf->format == ALLEGRO_PIXEL_FORMAT_RGB_888) {
          if (try_to_set_pixel_format(i)) {
             PIXELFORMATDESCRIPTOR pdf;
-            /* TODO: read info out of pdf. */
+            TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n.", i);
+            /* TODO: read info out of pdf. Print it too.*/
             SetPixelFormat(d->dc, i, &pdf);
             break;
          }
