@@ -732,6 +732,7 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    ALLEGRO_DISPLAY_WGL *wgl_display = _AL_MALLOC(sizeof *wgl_display);
    ALLEGRO_DISPLAY_OGL *ogl_display = (void*)wgl_display;
    ALLEGRO_DISPLAY *display = (void*)ogl_display;
+   ALLEGRO_DISPLAY_WGL **add;
 
    memset(display, 0, sizeof *display);
    display->w = w;
@@ -771,7 +772,8 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    init_done = false;
 
    /* Add ourself to the list of displays. */
-   _al_vector_alloc_back(&system->system.displays);
+   add = _al_vector_alloc_back(&system->system.displays);
+   *add = wgl_display;
 
    /* Each display is an event source. */
    _al_event_source_init(&display->es);
