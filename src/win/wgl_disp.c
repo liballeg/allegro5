@@ -34,7 +34,7 @@
 
 
 static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
-static init_done = false;
+static bool init_done = false;
 
 
 /* Logs a Win32 error/warning message in the log file.
@@ -162,7 +162,7 @@ static bool is_wgl_extension_supported(AL_CONST char *extension, HDC dc)
       return false;
 
    __wglGetExtensionsStringARB = (ALLEGRO_GetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
-   ret = _al_ogl_look_for_an_extension(extension, __wglGetExtensionsStringARB(dc));
+   ret = _al_ogl_look_for_an_extension(extension, (const GLubyte*)__wglGetExtensionsStringARB(dc));
 
    return ret;
 }
@@ -515,6 +515,8 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
    int i, modeswitch, result;
    int fallback_dm_valid = 0;
 
+   memset(&fallback_dm, 0, sizeof(fallback_dm));
+   memset(&dm, 0, sizeof(dm));
    dm.dmSize = sizeof(DEVMODE);
 	
    i = 0;
@@ -689,7 +691,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d) {
    HDC testdc   = NULL;
    HGLRC testrc = NULL;
    OGL_PIXEL_FORMAT **pf_list = NULL;
-   int maxindex;
+   int maxindex = 0;
    int i;
 
    /* There are two ways to describe pixel formats: the old way, using DescribePixelFormat,

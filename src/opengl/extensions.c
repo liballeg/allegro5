@@ -391,7 +391,7 @@ int al_is_opengl_extension_supported(AL_CONST char *extension)
       __wglGetExtensionsStringARB =
          (ALLEGRO_GetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
       if (__wglGetExtensionsStringARB) {
-         ret = _al_ogl_look_for_an_extension(extension, __wglGetExtensionsStringARB(wgl_disp->dc));
+         ret = _al_ogl_look_for_an_extension(extension, (const GLubyte *)__wglGetExtensionsStringARB(wgl_disp->dc));
       }
    }
 
