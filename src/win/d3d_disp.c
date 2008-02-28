@@ -941,56 +941,53 @@ static void d3d_display_thread_proc(void *arg)
     * combine fullscreen and windowed swap chains.
     */
    if (!params->is_resize && (d3d_already_fullscreen ||
-      ((d3d_created_displays._size > 0) && params->flags & ALLEGRO_FULLSCREEN))) {
-      params->display->init_failed = true;
+      ((d3d_created_displays._size > 0) && d->display.flags & ALLEGRO_FULLSCREEN))) {
+      d->init_failed = true;
       return;
    }
 
-   if (!_al_pixel_format_is_real(params->format)) {
-      int f = d3d_choose_display_format(params->format);
+   int new_format = d->display.format;
+
+   if (!_al_pixel_format_is_real(d->display.format)) {
+      int f = d3d_choose_display_format(d->display.format);
       if (f < 0) {
          d->init_failed = true;
          return;
       }
-      params->format = f;
-
+      new_format = f;
    }
 
-   if (!d3d_parameters_are_valid(params->format, params->refresh_rate, params->flags)) {
+   if (!d3d_parameters_are_valid(d->display.format, d->display.refresh_rate, d->display.flags)) {
       TRACE("d3d_display_thread_proc: Invalid parameters.\n");
-      params->display->init_failed = true;
+      d->init_failed = true;
       return;
    }
 
-   d->display.w = params->width;
-   d->display.h = params->height;
    d->display.vt = vt;
 
-   d->window = _al_win_create_window((ALLEGRO_DISPLAY *)d, params->width,
-      params->height, params->flags);
+   d->window = _al_win_create_window((ALLEGRO_DISPLAY *)d, d->display.w,
+      d->display.h, d->display.flags);
    
    if (!d->window) {
-      params->display->init_failed = true;
+      d->init_failed = true;
       return;
    }
 
-   d->display.format = params->format;
-   d->display.refresh_rate = params->refresh_rate;
-   d->display.flags = params->flags;
+   d->display.format = new_format;
 
-   if (!(params->flags & ALLEGRO_FULLSCREEN)) {
-      if (!d3d_create_swap_chain(d, params->format, params->refresh_rate, params->flags)) {
+   if (!(d->display.flags & ALLEGRO_FULLSCREEN)) {
+      if (!d3d_create_swap_chain(d, d->display.format, d->display.refresh_rate, d->display.flags)) {
          d->thread_ended = true;
          d3d_destroy_display((ALLEGRO_DISPLAY *)d);
-         params->display->init_failed = true;
+         d->init_failed = true;
          return;
       }
    }
    else {
-      if (!d3d_create_fullscreen_device(d, params->format, params->refresh_rate, params->flags)) {
+      if (!d3d_create_fullscreen_device(d, d->display.format, d->display.refresh_rate, d->display.flags)) {
          d->thread_ended = true;
          d3d_destroy_display((ALLEGRO_DISPLAY *)d);
-         params->display->init_failed = true;
+         d->init_failed = true;
          return;
       }
    }
@@ -1000,7 +997,7 @@ static void d3d_display_thread_proc(void *arg)
 
    d->thread_ended = false;
 
-   params->display->initialized = true;
+   d->initialized = true;
 
    for (;;) {
       if (d->end_thread) {
@@ -1087,15 +1084,10 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display, bool is_r
 
    _al_d3d_lock_device();
 
-   params.width = display->display.w;
-   params.height = display->display.h;
    params.display = display;
-   params.format = display->display.format;
-   params.refresh_rate = display->display.refresh_rate;
-   params.flags = display->display.flags;
    params.is_resize = is_resize;
 
-   if (d3d_created_displays._size == 0 && !(params.flags & ALLEGRO_FULLSCREEN)) {
+   if (d3d_created_displays._size == 0 && !(display->display.flags & ALLEGRO_FULLSCREEN)) {
       if (!d3d_create_hidden_device()) {
          _al_d3d_unlock_device();
          return false;
@@ -1114,7 +1106,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display, bool is_r
 
    win_grab_input();
 
-   if (params.flags & ALLEGRO_FULLSCREEN) {
+   if (display->display.flags & ALLEGRO_FULLSCREEN) {
       d3d_already_fullscreen = true;
       d3d_fullscreen_display = params.display;
    }
