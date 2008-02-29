@@ -136,13 +136,11 @@ void al_uninstall_joystick(void)
 /* Function: al_num_joysticks
  *
  *  Return the number of joysticks on the system (depending on the OS
- *  this may not be accurate).  The joystick driver must already be
+ *  this may not be accurate).  Returns 0 if there is no joystick driver
  *  installed.
  */
 int al_num_joysticks(void)
 {
-   ASSERT(new_joystick_driver);
-
    if (new_joystick_driver)
       return new_joystick_driver->num_joysticks();
 
