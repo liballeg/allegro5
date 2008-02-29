@@ -8,7 +8,9 @@
 #include "allegro5/internal/aintern_opengl.h"
 
 
-static ALLEGRO_DISPLAY_INTERFACE *vt;
+static ALLEGRO_DISPLAY_INTERFACE *xdpy_vt;
+
+
 
 /* Helper to set up GL state as we want it. */
 static void setup_gl(ALLEGRO_DISPLAY *d)
@@ -22,6 +24,8 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
 }
+
+
 
 static void set_size_hints(ALLEGRO_DISPLAY *d, int w, int h)
 {
@@ -39,8 +43,10 @@ static void set_size_hints(ALLEGRO_DISPLAY *d, int w, int h)
    }
 }
 
+
+
 /* Helper to set a window icon. */
-static void set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
+static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *display = (void *)d;
@@ -87,8 +93,10 @@ static void set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
    _al_mutex_unlock(&system->lock);
 }
 
+
+
 /* Create a new X11 dummy display, which maps directly to a GLX window. */
-static ALLEGRO_DISPLAY *create_display(int w, int h)
+static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
    ALLEGRO_DISPLAY_XGLX *d = _AL_MALLOC(sizeof *d);
    ALLEGRO_DISPLAY *display = (void*)d;
@@ -106,7 +114,7 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
 
    display->w = w;
    display->h = h;
-   display->vt = vt;
+   display->vt = xdpy_vt;
    //FIXME
    //display->format = al_get_new_display_format();
    display->format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
@@ -135,7 +143,7 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
    /* Each display is an event source. */
    _al_event_source_init(&display->es);
 
-   _xglx_config_select_visual(d);
+   _al_xglx_config_select_visual(d);
 
    TRACE("xdisplay: Selected visual %lx.\n", d->xvinfo->visualid);
 
@@ -187,7 +195,7 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
     */
    _al_cond_wait(&system->mapped, &system->lock);
 
-   _xglx_config_create_context(d);
+   _al_xglx_config_create_context(d);
 
    if (display->flags & ALLEGRO_FULLSCREEN) {
       _al_xglx_fullscreen_to_display(system, d);
@@ -198,7 +206,9 @@ static ALLEGRO_DISPLAY *create_display(int w, int h)
    return display;
 }
 
-static void destroy_display(ALLEGRO_DISPLAY *d)
+
+
+static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 {
    unsigned int i;
    ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
@@ -207,7 +217,7 @@ static void destroy_display(ALLEGRO_DISPLAY *d)
    _al_ogl_unmanage_extensions((ALLEGRO_DISPLAY_OGL*)glx);
 
    _al_mutex_lock(&s->lock);
-   for (i = 0; i < s->system.displays._size; i++) {
+   for (i = 0; i < _al_vector_size(&s->system.displays); i++) {
       ALLEGRO_DISPLAY_XGLX **dptr = _al_vector_ref(&s->system.displays, i);
       if (glx == *dptr) {
          _al_vector_delete_at(&s->system.displays, i);
@@ -224,19 +234,24 @@ static void destroy_display(ALLEGRO_DISPLAY *d)
    _al_mutex_unlock(&s->lock);
 }
 
-static void set_current_display(ALLEGRO_DISPLAY *d)
+
+
+static void xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    ALLEGRO_DISPLAY_OGL *ogl = (ALLEGRO_DISPLAY_OGL *)d;
+
    /* Make our GLX context current for reading and writing in the current
     * thread.
     */
-   if (glx->fbc)
+   if (glx->fbc) {
       glXMakeContextCurrent(system->xdisplay, glx->glxwindow, glx->glxwindow,
          glx->context);
-   else
+   }
+   else {
       glXMakeCurrent(system->xdisplay, glx->glxwindow, glx->context);
+   }
 
    if (!glx->opengl_initialized) {
       setup_gl(d);
@@ -250,8 +265,10 @@ static void set_current_display(ALLEGRO_DISPLAY *d)
    _al_ogl_set_extensions(ogl->extension_api);
 }
 
+
+
 /* Dummy implementation of flip. */
-static void flip_display(ALLEGRO_DISPLAY *d)
+static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
@@ -259,7 +276,9 @@ static void flip_display(ALLEGRO_DISPLAY *d)
    glXSwapBuffers(system->xdisplay, glx->glxwindow);
 }
 
-static bool acknowledge_resize(ALLEGRO_DISPLAY *d)
+
+
+static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
@@ -276,7 +295,9 @@ static bool acknowledge_resize(ALLEGRO_DISPLAY *d)
    return true;
 }
 
-static bool resize_display(ALLEGRO_DISPLAY *d, int w, int h)
+
+
+static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
@@ -290,11 +311,11 @@ static bool resize_display(ALLEGRO_DISPLAY *d, int w, int h)
    /* Wait until we are actually resized. There might be a better way.. */
    _al_cond_wait(&system->resized, &system->lock);
 
-   /* The user can expect the display to already be resized when resize_display
-    * returns.
+   /* The user can expect the display to already be resized when
+    * xdpy_resize_display returns.
     * TODO: Right now, we still generate a resize event - maybe we should not.
     */
-   acknowledge_resize(d);
+   xdpy_acknowledge_resize(d);
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
       _al_xglx_fullscreen_set_mode(system, w, h, 0, 0);
@@ -304,6 +325,8 @@ static bool resize_display(ALLEGRO_DISPLAY *d, int w, int h)
    _al_mutex_unlock(&system->lock);
    return true;
 }
+
+
 
 /* Handle an X11 configure event. [X11 thread]
  * Only called from the event handler with the system locked.
@@ -352,6 +375,8 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
    _al_event_source_unlock(es);
 }
 
+
+
 /* Handle an X11 close button event. [X11 thread]
  * Only called from the event handler with the system locked.
  */
@@ -373,35 +398,44 @@ void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
    _al_event_source_unlock(es);
 }
 
-static bool is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
+
+
+static bool xdpy_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *bitmap)
 {
    return true;
 }
 
+
+
 /* Show the system mouse cursor. */
-static bool show_cursor(ALLEGRO_DISPLAY *display)
+static bool xdpy_show_cursor(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    Display *xdisplay = system->xdisplay;
    Window xwindow = glx->window;
 
-   if (!glx->cursor_hidden) return true;
+   if (!glx->cursor_hidden)
+      return true;
 
    XUndefineCursor(xdisplay, xwindow);
    glx->cursor_hidden = true;
    return true;
 }
 
+
+
 /* Hide the system mouse cursor. */
-static bool hide_cursor(ALLEGRO_DISPLAY *display)
+static bool xdpy_hide_cursor(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    Display *xdisplay = system->xdisplay;
    Window xwindow = glx->window;
 
-   if (glx->cursor_hidden) return true;
+   if (glx->cursor_hidden)
+      return true;
 
    if (glx->invisible_cursor == None) {
       unsigned long gcmask;
@@ -426,35 +460,39 @@ static bool hide_cursor(ALLEGRO_DISPLAY *display)
          pixmap, &color, &color, 0, 0);
       XFreePixmap(xdisplay, pixmap);
    }
+
    XDefineCursor(xdisplay, xwindow, glx->invisible_cursor);
    glx->cursor_hidden = true;
    return true;
 }
 
+
+
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
 {
-   if (vt) return vt;
+   if (xdpy_vt)
+      return xdpy_vt;
 
-   vt = _AL_MALLOC(sizeof *vt);
-   memset(vt, 0, sizeof *vt);
+   xdpy_vt = _AL_MALLOC(sizeof *xdpy_vt);
+   memset(xdpy_vt, 0, sizeof *xdpy_vt);
 
-   vt->create_display = create_display;
-   vt->destroy_display = destroy_display;
-   vt->set_current_display = set_current_display;
-   vt->flip_display = flip_display;
-   vt->acknowledge_resize = acknowledge_resize;
-   vt->create_bitmap = _al_ogl_create_bitmap;
-   vt->get_backbuffer = _al_ogl_get_backbuffer;
-   vt->get_frontbuffer = _al_ogl_get_backbuffer;
-   vt->set_target_bitmap = _al_ogl_set_target_bitmap;
-   vt->is_compatible_bitmap = is_compatible_bitmap;
-   vt->resize_display = resize_display;
-   vt->upload_compat_screen = _al_xglx_display_upload_compat_screen;
-   vt->show_cursor = show_cursor;
-   vt->hide_cursor = hide_cursor;
-   vt->set_icon = set_icon;
-   _al_ogl_add_drawing_functions(vt);
+   xdpy_vt->create_display = xdpy_create_display;
+   xdpy_vt->destroy_display = xdpy_destroy_display;
+   xdpy_vt->set_current_display = xdpy_set_current_display;
+   xdpy_vt->flip_display = xdpy_flip_display;
+   xdpy_vt->acknowledge_resize = xdpy_acknowledge_resize;
+   xdpy_vt->create_bitmap = _al_ogl_create_bitmap;
+   xdpy_vt->get_backbuffer = _al_ogl_get_backbuffer;
+   xdpy_vt->get_frontbuffer = _al_ogl_get_backbuffer;
+   xdpy_vt->set_target_bitmap = _al_ogl_set_target_bitmap;
+   xdpy_vt->is_compatible_bitmap = xdpy_is_compatible_bitmap;
+   xdpy_vt->resize_display = xdpy_resize_display;
+   xdpy_vt->upload_compat_screen = _al_xglx_display_upload_compat_screen;
+   xdpy_vt->show_cursor = xdpy_show_cursor;
+   xdpy_vt->hide_cursor = xdpy_hide_cursor;
+   xdpy_vt->set_icon = xdpy_set_icon;
+   _al_ogl_add_drawing_functions(xdpy_vt);
 
-   return vt;
+   return xdpy_vt;
 }

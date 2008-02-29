@@ -99,5 +99,5 @@ void _al_xglx_display_upload_compat_screen(BITMAP *bitmap,
    int x, int y, int w, int h);
 
 /* glx_config */
-void _xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx);
-void _xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx);
+void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx);
+void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx);

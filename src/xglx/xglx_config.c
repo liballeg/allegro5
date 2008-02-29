@@ -47,7 +47,7 @@ static void choose_visual_old(ALLEGRO_DISPLAY_XGLX *glx)
     glx->xvinfo = glXChooseVisual(system->xdisplay, glx->xscreen, attributes);
 }
 
-void _xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
+void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 {
     if (glx->glx_version < 1.3)
         choose_visual_old(glx);
@@ -55,7 +55,7 @@ void _xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
         choose_visual_fbconfig(glx);
 }
 
-void _xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
+void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
 {
     ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
     if (glx->fbc) {

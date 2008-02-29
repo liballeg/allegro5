@@ -8,12 +8,13 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      New system driver
+ *      New system driver.
  *
  *      By Elias Pschernig.
- *      Modified by Trent Gamblin.
  *
+ *      Modified by Trent Gamblin.
  */
+
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
@@ -21,10 +22,14 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_vector.h"
 
-static ALLEGRO_SYSTEM *active;
+
+
+static ALLEGRO_SYSTEM *active_sysdrv;
 
 _AL_VECTOR _al_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
 static _AL_VECTOR _user_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
+
+
 
 bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
 {
@@ -35,10 +40,14 @@ bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
    return true;
 }
 
+
+
 void al_unregister_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
 {
    _al_vector_find_and_delete(&_user_system_interfaces, &sys_interface);
 }
+
+
 
 static ALLEGRO_SYSTEM *find_system(_AL_VECTOR *vector)
 {
@@ -48,34 +57,38 @@ static ALLEGRO_SYSTEM *find_system(_AL_VECTOR *vector)
    unsigned int i;
 
    for (i = 0; i < vector->_size; i++) {
-   	sptr = _al_vector_ref(vector, i);
-	sys_interface = *sptr;
-	if ((system = sys_interface->initialize(0)) != NULL)
-	   return system;
+      sptr = _al_vector_ref(vector, i);
+      sys_interface = *sptr;
+      if ((system = sys_interface->initialize(0)) != NULL)
+         return system;
    }
 
    return NULL;
 }
 
+
+
 void _al_exit(void)
 {
    if (screen && _al_current_display != NULL) {
-   	al_destroy_display(_al_current_display);
-	al_set_current_display(NULL);
+      al_destroy_display(_al_current_display);
+      al_set_current_display(NULL);
    }
-   if (active) {
-      if (active->vt && active->vt->shutdown_system)
-         active->vt->shutdown_system();
-      active = NULL;
+   if (active_sysdrv) {
+      if (active_sysdrv->vt && active_sysdrv->vt->shutdown_system)
+         active_sysdrv->vt->shutdown_system();
+      active_sysdrv = NULL;
    }
 }
 
-/* Initialize the Allegro system. */
+
+
+/* _al_init:
+ *  Initialize the Allegro system.
+ */
 bool _al_init(void)
 {
-   static char const *description;
-
-   if (active) {
+   if (active_sysdrv) {
       return true;
    }
 
@@ -83,28 +96,30 @@ bool _al_init(void)
    _al_register_system_interfaces();
 
    /* Check for a user-defined system driver first */
-   active = find_system(&_user_system_interfaces);
+   active_sysdrv = find_system(&_user_system_interfaces);
 
    /* If a user-defined driver is not found, look for a builtin one */
-   if (active == NULL) {
-      active = find_system(&_al_system_interfaces);
+   if (active_sysdrv == NULL) {
+      active_sysdrv = find_system(&_al_system_interfaces);
    }
 
-   if (active == NULL) {
+   if (active_sysdrv == NULL) {
       return false;
    }
 
    _al_generate_integer_unmap_table();
 
-   description = "Old-API exit function for new API o_O";
-   _add_exit_func(_al_exit, description);
+   _add_exit_func(_al_exit, "Old-API exit function for new API"); 
 
    return true;
 }
 
-/* Returns the currently active system driver. */
+
+
+/* al_system_driver:
+ *  Returns the currently active_sysdrv system driver.
+ */
 ALLEGRO_SYSTEM *al_system_driver(void)
 {
-    return active;
+   return active_sysdrv;
 }
-
