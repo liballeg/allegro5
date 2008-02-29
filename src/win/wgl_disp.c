@@ -159,7 +159,7 @@ static HGLRC init_temp_context(HWND wnd) {
    if (!glrc) {
       log_win32_error("init_pixel_format_extensions", "Unable to create a render context!",
                       GetLastError());
-	   return NULL;
+      return NULL;
    }
 
    if (!wglMakeCurrent(dc, glrc)) {
@@ -202,7 +202,7 @@ static int get_pixel_formats_count_ext(HDC dc) {
    attrib[0] = WGL_NUMBER_PIXEL_FORMATS_ARB;
    if ((__wglGetPixelFormatAttribivARB(dc, 0, 0, 1, attrib, value) == GL_FALSE)
     && (__wglGetPixelFormatAttribivEXT(dc, 0, 0, 1, attrib, value) == GL_FALSE)) {
-	   log_win32_error("get_pixel_formats_count", "WGL_ARB/EXT_pixel_format use failed!",
+        log_win32_error("get_pixel_formats_count", "WGL_ARB/EXT_pixel_format use failed!",
                      GetLastError());
    }
 
@@ -213,7 +213,7 @@ static int get_pixel_formats_count_ext(HDC dc) {
 static bool decode_pixel_format_attrib(OGL_PIXEL_FORMAT *pf, int num_attribs,
                                       const int *attrib, const int *value) {
    int i;
-	
+
    TRACE(PREFIX_I "Decoding: \n");
 
    pf->samples = 0;
@@ -385,9 +385,9 @@ static bool decode_pixel_format_attrib(OGL_PIXEL_FORMAT *pf, int num_attribs,
 static OGL_PIXEL_FORMAT* read_pixel_format_ext(int fmt, HDC dc) {
    OGL_PIXEL_FORMAT *pf = NULL;
 
-  	/* Note: Even though we use te ARB suffix, all those enums are compatible
-	 * with EXT_pixel_format.
-	 */
+   /* Note: Even though we use te ARB suffix, all those enums are compatible
+    * with EXT_pixel_format.
+    */
    int attrib[] = {
       WGL_SUPPORT_OPENGL_ARB,
       WGL_DRAW_TO_WINDOW_ARB,
@@ -459,7 +459,7 @@ static OGL_PIXEL_FORMAT* read_pixel_format_ext(int fmt, HDC dc) {
       free(pf);
       pf = NULL;
    }
-	
+
    free(value);
 
    return pf;
@@ -475,7 +475,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
    memset(&fallback_dm, 0, sizeof(fallback_dm));
    memset(&dm, 0, sizeof(dm));
    dm.dmSize = sizeof(DEVMODE);
-	
+
    i = 0;
    do {
       modeswitch = EnumDisplaySettings(NULL, i, &dm);
@@ -498,7 +498,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
          else if (dm.dmDisplayFrequency >= 60) {
             if (dm.dmDisplayFrequency < fallback_dm.dmDisplayFrequency) {
                 fallback_dm = dm;
-	        }
+            }
          }
       }
       i++;
@@ -545,7 +545,7 @@ static OGL_PIXEL_FORMAT** get_available_pixel_formats_ext(int *count) {
     */
    testwnd = _al_win_create_hidden_window();
    if (!testwnd)
-	   return false;
+      return false;
 
    old_rc = wglGetCurrentContext();
    old_dc = wglGetCurrentDC();
@@ -615,7 +615,7 @@ static bool try_to_set_pixel_format(int i) {
             wglDeleteContext(rc);
             ReleaseDC(testwnd, testdc);
             DestroyWindow(testwnd);
-            
+
             return true;
          }
          else {
@@ -629,7 +629,7 @@ static bool try_to_set_pixel_format(int i) {
    else {
       log_win32_note("try_to_set_pixel_format", "Unable to set pixel format!", GetLastError());
    }
-		
+
    ReleaseDC(testwnd, testdc);
    DestroyWindow(testwnd);
    testdc = NULL;
@@ -799,40 +799,40 @@ static void set_window_style(ALLEGRO_DISPLAY_WGL *wgl_disp)
    int x = 100;
    int y = 100;
 
- 	if (fullscreen) {
-		style = WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-		exstyle = WS_EX_APPWINDOW | WS_EX_TOPMOST;
-	}
-	else {
-		style = WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX | WS_CLIPCHILDREN
-		      | WS_CLIPSIBLINGS;
-		exstyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-	}
+   if (fullscreen) {
+      style = WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+      exstyle = WS_EX_APPWINDOW | WS_EX_TOPMOST;
+   }
+   else {
+      style = WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX | WS_CLIPCHILDREN
+            | WS_CLIPSIBLINGS;
+      exstyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+   }
 
 
- 	SetWindowLong(wgl_disp->window, GWL_STYLE, style);
-	SetWindowLong(wgl_disp->window, GWL_EXSTYLE, exstyle);
+   SetWindowLong(wgl_disp->window, GWL_STYLE, style);
+   SetWindowLong(wgl_disp->window, GWL_EXSTYLE, exstyle);
 
-  	if (!fullscreen) {
-		rect.left = x;
-		rect.right = x + disp->w;
-		rect.top = y;
-		rect.bottom = y + disp->h;
-	}
-	else {
-		rect.left = 0;
-		rect.right = disp->w;
-		rect.top  = 0;
-		rect.bottom = disp->h;
-	}
+   if (!fullscreen) {
+      rect.left = x;
+      rect.right = x + disp->w;
+      rect.top = y;
+      rect.bottom = y + disp->h;
+   }
+   else {
+      rect.left = 0;
+      rect.right = disp->w;
+      rect.top  = 0;
+      rect.bottom = disp->h;
+   }
 
- 	if (!fullscreen) {
-		AdjustWindowRectEx(&rect, style, FALSE, exstyle);
-	}
+   if (!fullscreen) {
+      AdjustWindowRectEx(&rect, style, FALSE, exstyle);
+   }
 
    SetWindowPos(wgl_disp->window, 0, rect.left, rect.top,
-		rect.right - rect.left, rect.bottom - rect.top,
-		SWP_NOZORDER | SWP_FRAMECHANGED);
+         rect.right - rect.left, rect.bottom - rect.top,
+         SWP_NOZORDER | SWP_FRAMECHANGED);
 }
 
 
@@ -849,7 +849,7 @@ static void display_thread_proc(void *arg)
    MSG msg;
 
    wgl_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
-   
+
    if (!wgl_disp->window) {
       ndp->init_failed = true;
       return;
@@ -885,52 +885,52 @@ static void display_thread_proc(void *arg)
       wgl_destroy_display(disp);
       ndp->init_failed = true;
       return;
-	}
+   }
 
    /* <rohannessian> Win98/2k/XP's window forground rules don't let us
-	 * make our window the topmost window on launch. This causes issues on 
-	 * full-screen apps, as DInput loses input focus on them.
-	 * We use this trick to force the window to be topmost, when switching
-	 * to full-screen only. Note that this only works for Win98 and greater.
-	 * Win95 will ignore our SystemParametersInfo() calls.
-	 * 
-	 * See http://support.microsoft.com:80/support/kb/articles/Q97/9/25.asp
-	 * for details.
-	 */
+   * make our window the topmost window on launch. This causes issues on
+   * full-screen apps, as DInput loses input focus on them.
+   * We use this trick to force the window to be topmost, when switching
+   * to full-screen only. Note that this only works for Win98 and greater.
+   * Win95 will ignore our SystemParametersInfo() calls.
+   *
+   * See http://support.microsoft.com:80/support/kb/articles/Q97/9/25.asp
+   * for details.
+   */
    {
       HWND wnd = wgl_disp->window;
-		DWORD lock_time;
+      DWORD lock_time;
 
 #define SPI_GETFOREGROUNDLOCKTIMEOUT 0x2000
 #define SPI_SETFOREGROUNDLOCKTIMEOUT 0x2001
-		if (disp->flags & ALLEGRO_FULLSCREEN) {
-			SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT,
-			                     0, (LPVOID)&lock_time, 0);
-			SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
-			                     0, (LPVOID)0,
-			                     SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
-		}
+      if (disp->flags & ALLEGRO_FULLSCREEN) {
+            SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT,
+                                 0, (LPVOID)&lock_time, 0);
+            SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
+                                 0, (LPVOID)0,
+                                 SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+      }
 
-		ShowWindow(wnd, SW_SHOWNORMAL);
-		SetForegroundWindow(wnd);
-		/* In some rare cases, it doesn't seem to work without the loop. And we
-		 * absolutely need this to succeed, else we trap the user in a
-		 * fullscreen window without input.
-		 */
-		while (GetForegroundWindow() != wnd) {
-			al_rest(0.001);
-			SetForegroundWindow(wnd);
-		}
-		UpdateWindow(wnd);
+      ShowWindow(wnd, SW_SHOWNORMAL);
+      SetForegroundWindow(wnd);
+      /* In some rare cases, it doesn't seem to work without the loop. And we
+       * absolutely need this to succeed, else we trap the user in a
+       * fullscreen window without input.
+       */
+      while (GetForegroundWindow() != wnd) {
+         al_rest(0.001);
+         SetForegroundWindow(wnd);
+      }
+      UpdateWindow(wnd);
 
-		if (disp->flags & ALLEGRO_FULLSCREEN) {
-			SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
-			                     0, (LPVOID)lock_time,
-			                     SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
-		}
+      if (disp->flags & ALLEGRO_FULLSCREEN) {
+         SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
+                              0, (LPVOID)lock_time,
+                              SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+      }
 #undef SPI_GETFOREGROUNDLOCKTIMEOUT
 #undef SPI_SETFOREGROUNDLOCKTIMEOUT
-	}
+   }
 
 
    wgl_disp->thread_ended = false;
