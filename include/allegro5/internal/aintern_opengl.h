@@ -35,6 +35,7 @@ typedef struct OPENGL_INFO {
 typedef struct OGL_PIXEL_FORMAT {
    int format;
    int doublebuffered;
+   int swap_method;
    int depth_size;
    int rmethod;
    int stencil_size;

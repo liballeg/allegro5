@@ -112,3 +112,6 @@
 #define wglEndFrameTrackingI3D __awglEndFrameTrackingI3D
 #define wglQueryFrameTrackingI3D __awglQueryFrameTrackingI3D
 
+/*GL_WIN_swap_hint*/
+#define wglAddSwapHintRectWIN __awglAddSwapHintRectWIN
+

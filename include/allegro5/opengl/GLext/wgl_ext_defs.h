@@ -286,3 +286,6 @@ DECLARE_HANDLE(HPBUFFEREXT);
 #define WGL_TYPE_RGBA_UNSIGNED_FLOAT_EXT 0x20A8
 #endif
 
+#ifndef WGL_WIN_swap_hint
+#define WGL_WIN_swap_hint
+#endif

@@ -28,7 +28,8 @@
 #include "allegro5/platform/aintwin.h"
 
 #include "wgl.h"
-
+/* for mouse cursor routines */
+#include "wddraw.h"
 
 #define PREFIX_I                "wgl-win INFO: "
 #define PREFIX_W                "wgl-win WARNING: "
@@ -52,6 +53,50 @@ typedef struct new_display_parameters {
    bool initialized;
 } new_display_parameters;
 
+
+/* Dummy graphics driver for compatibility */
+GFX_DRIVER _al_ogl_dummy_gfx_driver = {
+   0,
+   "OGL Compatibility GFX driver",
+   "OGL Compatibility GFX driver",
+   "OGL Compatibility GFX driver",
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   0, 0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   _al_win_directx_create_mouse_cursor,
+   _al_win_directx_destroy_mouse_cursor,
+   _al_win_directx_set_mouse_cursor,
+   _al_win_directx_set_system_mouse_cursor,
+   _al_win_directx_show_mouse_cursor,
+   _al_win_directx_hide_mouse_cursor
+};
 
 /* Logs a Win32 error/warning message in the log file.
  */
@@ -270,6 +315,9 @@ static bool decode_pixel_format_attrib(OGL_PIXEL_FORMAT *pf, int num_attribs,
       else if (attrib[i] == WGL_DOUBLE_BUFFER_ARB) {
          pf->doublebuffered = value[i];
       }
+      else if (attrib[i] == WGL_SWAP_METHOD_ARB) {
+         pf->swap_method = value[i];
+      }
 
       /* XXX: enable if needed, unused currently */
 #if 0
@@ -395,6 +443,7 @@ static OGL_PIXEL_FORMAT* read_pixel_format_ext(int fmt, HDC dc) {
       WGL_ACCELERATION_ARB,
       WGL_DOUBLE_BUFFER_ARB,
       WGL_DEPTH_BITS_ARB,
+      WGL_SWAP_METHOD_ARB,
       WGL_COLOR_BITS_ARB,
       WGL_RED_BITS_ARB,
       WGL_GREEN_BITS_ARB,
@@ -661,7 +710,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d) {
       if (pf && pf->doublebuffered == true && pf->format == format) {
          if (try_to_set_pixel_format(i)) {
             PIXELFORMATDESCRIPTOR pdf;
-            TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n.", i);
+            TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", i);
             /* TODO: read info out of pdf. Print it too.*/
             SetPixelFormat(d->dc, i, &pdf);
             break;
@@ -720,8 +769,6 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
       return NULL;
    }
 
-   win_grab_input();
-
    ogl_display->backbuffer = _al_ogl_create_backbuffer(display);
 
    /* Init will finish in set_current_display() */
@@ -733,6 +780,19 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
 
    /* Each display is an event source. */
    _al_event_source_init(&display->es);
+
+   /* Set up a dummy gfx_driver */
+   gfx_driver = &_al_ogl_dummy_gfx_driver;
+   gfx_driver->w = w;
+   gfx_driver->h = h;
+   gfx_driver->windowed = (display->flags & ALLEGRO_FULLSCREEN) ? 0 : 1;
+
+   win_grab_input();
+
+   if (al_is_mouse_installed()) {
+      al_set_mouse_xy(w/2, h/2);
+      al_set_mouse_range(0, 0, w, h);
+   }
 
    return display;
 }
@@ -765,26 +825,31 @@ static void wgl_set_current_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
    ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)d;
+   HGLRC current_glrc;
 
-   /* make the context the current one */
-   if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
-      log_win32_error("wgl_set_current_display", "Unable to make the context current!",
-                       GetLastError());
-      return;
+   current_glrc = wglGetCurrentContext();
+
+   if (!init_done || (current_glrc && current_glrc != wgl_disp->glrc)) {
+      /* make the context the current one */
+      if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
+         log_win32_error("wgl_set_current_display", "Unable to make the context current!",
+                          GetLastError());
+         return;
+      }
+
+      if (!init_done) {
+         /* Print out OpenGL version info */
+         TRACE(PREFIX_I "OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
+         TRACE(PREFIX_I "Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
+         TRACE(PREFIX_I "Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
+
+         _al_ogl_manage_extensions(ogl_disp);
+
+         init_done = true;
+      }
+
+      _al_ogl_set_extensions(ogl_disp->extension_api);
    }
-
-   if (!init_done) {
-      /* Print out OpenGL version info */
-      TRACE(PREFIX_I "OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
-      TRACE(PREFIX_I "Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
-      TRACE(PREFIX_I "Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
-
-      _al_ogl_manage_extensions(ogl_disp);
-
-      init_done = true;
-   }
-
-   _al_ogl_set_extensions(ogl_disp->extension_api);
 }
 
 
@@ -989,6 +1054,13 @@ static void wgl_flip_display(ALLEGRO_DISPLAY *d)
 static bool wgl_update_display_region(ALLEGRO_DISPLAY *d,
                                       int x, int y, int width, int height)
 {
+   ALLEGRO_DISPLAY_WGL* disp = (ALLEGRO_DISPLAY_WGL*)d;
+
+   if (!al_get_opengl_extension_list()->ALLEGRO_WGL_WIN_swap_hint) {
+      wglAddSwapHintRectWIN(x, y, width, height);
+   }
+   glFlush();
+   SwapBuffers(disp->dc);
    return true;
 }
 
@@ -1015,19 +1087,31 @@ static bool wgl_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *b
 
 static bool wgl_wait_for_vsync(ALLEGRO_DISPLAY *display)
 {
-   return true;
+   return false;
 }
 
 
 static bool wgl_show_cursor(ALLEGRO_DISPLAY *display)
 {
-   return true;
+   return _al_win_directx_show_mouse_cursor();
 }
 
 
 static bool wgl_hide_cursor(ALLEGRO_DISPLAY *display)
 {
-   return true;
+   return _al_win_directx_hide_mouse_cursor();
+}
+
+
+static void wgl_switch_in(ALLEGRO_DISPLAY *display)
+{
+   if (al_is_mouse_installed())
+      al_set_mouse_range(0, 0, display->w, display->h);
+}
+
+
+static void wgl_switch_out(ALLEGRO_DISPLAY *display)
+{
 }
 
 
@@ -1051,8 +1135,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt->get_frontbuffer = _al_ogl_get_backbuffer;
    vt->set_target_bitmap = _al_ogl_set_target_bitmap;
    vt->is_compatible_bitmap = wgl_is_compatible_bitmap;
-   vt->switch_out = NULL;
-   vt->switch_in = NULL;
+   vt->switch_out = wgl_switch_in;
+   vt->switch_in = wgl_switch_out;
    vt->upload_compat_screen = NULL;
    vt->show_cursor = wgl_show_cursor;
    vt->hide_cursor = wgl_hide_cursor;

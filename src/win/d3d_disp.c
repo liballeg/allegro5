@@ -929,6 +929,7 @@ static void d3d_display_thread_proc(void *arg)
    bool lost_event_generated = false;
    new_display_parameters *params = arg;
    D3DCAPS9 caps;
+   int new_format;
 
    d = params->display;
 
@@ -942,7 +943,7 @@ static void d3d_display_thread_proc(void *arg)
       return;
    }
 
-   int new_format = d->display.format;
+   new_format = d->display.format;
 
    if (!_al_pixel_format_is_real(d->display.format)) {
       int f = d3d_choose_display_format(d->display.format);

@@ -111,3 +111,5 @@ AGL_API(BOOL, BeginFrameTrackingI3D, (void))
 AGL_API(BOOL, EndFrameTrackingI3D, (void))
 AGL_API(BOOL, QueryFrameTrackingI3D, (DWORD *, DWORD *, float *))
 
+/* glAddSwapHintRectWIN */ /* warning: will be named wglAddSwapHintRectWIN */
+AGL_API(void, AddSwapHintRectWIN, (int, int, int, int))
