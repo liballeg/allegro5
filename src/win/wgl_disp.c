@@ -760,7 +760,8 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    display->w = w;
    display->h = h;
    //FIXME
-   display->format = ALLEGRO_PIXEL_FORMAT_RGB_888;//al_get_new_display_format();
+   al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+   display->format = al_get_new_display_format();
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
    display->vt = vt;
