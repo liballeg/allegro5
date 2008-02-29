@@ -19,11 +19,46 @@
 #include "allegro5/internal/aintern_opengl.h"
 
 
-static ALLEGRO_BITMAP_INTERFACE *vt;
+/* Conversion table from Allegro's pixel formats to corresponding OpenGL
+ * formats. The three entries are GL internal format, GL type, GL format.
+ */
+static const int glformats[][3] = {
+   /* Skip pseudo formats */
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   /* Actual formats */
+   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* ARGB_8888 */
+   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBA_8888 */
+   {GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_BGRA}, /* ARGB_4444 */
+   {GL_RGB8, GL_UNSIGNED_BYTE, GL_BGR}, /* RGB_888 */
+   {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
+   {0, 0, 0}, /* RGB_555 */ //FIXME: how?
+   {GL_INTENSITY, GL_UNSIGNED_BYTE, GL_COLOR_INDEX}, /* PALETTE_8 */
+   {GL_RGB5_A1, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA}, /* RGBA_5551 */
+   {0, 0, 0}, /* ARGB_1555 */ //FIXME: how?
+   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* ABGR_8888 */
+   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* XBGR_8888 */
+   {GL_RGB8, GL_UNSIGNED_BYTE, GL_RGB}, /* BGR_888 */
+   {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_BGR}, /* BGR_565 */
+   {0, 0, 0}, /* BGR_555 */ //FIXME: how?
+   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBX_8888 */
+   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* XRGB_8888 */
+};
+
+
+static ALLEGRO_BITMAP_INTERFACE *glbmp_vt;
 
 
 
-static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
+static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
     float cx, float cy, float dx, float dy, float dw, float dh,
     float xscale, float yscale, float angle, int flags)
 {
@@ -94,39 +129,52 @@ static void quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
       glDisable(GL_TEXTURE_2D);
 }
 
+
+
 /* Draw the bitmap at the specified position. */
-static void draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y, int flags)
+static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y,
+   int flags)
 {
-   quad(bitmap, 0, 0, bitmap->w, bitmap->h,
+   draw_quad(bitmap, 0, 0, bitmap->w, bitmap->h,
       0, 0, x, y, bitmap->w, bitmap->h, 1, 1, 0, flags);
 }
 
-static void draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
+
+
+static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
-   quad(bitmap, 0, 0, sw, sh, 0, 0, dx, dy, dw, dh, 1, 1, 0, flags);
+   draw_quad(bitmap, 0, 0, sw, sh, 0, 0, dx, dy, dw, dh, 1, 1, 0, flags);
 }
 
-static void draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
+
+
+static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, int flags)
 {
-   quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, sw, sh, 1, 1, 0, flags);
+   draw_quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, sw, sh, 1, 1, 0, flags);
 }
 
-static void draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
+
+
+static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    float dx, float dy, float angle, int flags)
 {
-   quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy,
+   draw_quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy,
       dx, dy, bitmap->w, bitmap->h, 1, 1, angle, flags);
 }
 
-static void draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
-   float dx, float dy, float xscale, float yscale, float angle,
-	float flags)
+
+
+static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
+   float cx, float cy, float dx, float dy, float xscale, float yscale,
+   float angle, float flags)
 {
-   quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy, dx, dy,
+   draw_quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy, dx, dy,
       bitmap->w, bitmap->h, xscale, yscale, angle, flags);
 }
+
+
 
 /* Helper to get smallest fitting power of two. */
 #if 0
@@ -138,6 +186,8 @@ static int pot(int x)
 }
 #endif
 
+
+
 /* TODO: use AllegrGL's version which doesn't involve memcpy. */
 static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
 {
@@ -147,8 +197,7 @@ static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
    int i;
    unsigned char *temp = malloc(pitch);
    unsigned char *ptr = bitmap->memory + pitch * y + pixelsize * x;
-   for (i = 0; i < h / 2; i++)
-   {
+   for (i = 0; i < h / 2; i++) {
       memcpy(temp, ptr + pitch * i, bytes);
       memcpy(ptr + pitch * i, ptr + pitch * (h - 1 - i), bytes);
       memcpy(ptr + pitch * (h - 1 - i), temp, bytes);
@@ -156,56 +205,27 @@ static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
    free(temp);
 }
 
-/* Conversion table from Allegro's pixel formats to corresponding OpenGL
- * formats. The three entries are GL internal format, GL type, GL format.
- */
-static int glformats[][3] = {
-   /* Skip pseudo formats */
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   /* Actual formats */
-   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* ARGB_8888 */
-   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBA_8888 */
-   {GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_BGRA}, /* ARGB_4444 */
-   {GL_RGB8, GL_UNSIGNED_BYTE, GL_BGR}, /* RGB_888 */
-   {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
-   {0, 0, 0}, /* RGB_555 */ //FIXME: how?
-   {GL_INTENSITY, GL_UNSIGNED_BYTE, GL_COLOR_INDEX}, /* PALETTE_8 */
-   {GL_RGB5_A1, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA}, /* RGBA_5551 */
-   {0, 0, 0}, /* ARGB_1555 */ //FIXME: how?
-   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* ABGR_8888 */
-   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* XBGR_8888 */
-   {GL_RGB8, GL_UNSIGNED_BYTE, GL_RGB}, /* BGR_888 */
-   {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_BGR}, /* BGR_565 */
-   {0, 0, 0}, /* BGR_555 */ //FIXME: how?
-   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBX_8888 */
-   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* XRGB_8888 */
-};
+
 
 // FIXME: need to do all the logic AllegroGL does, checking extensions,
 // proxy textures, formats, limits ...
-static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
+static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
+   int w, int h)
 {
    // FIXME: Some OpenGL drivers need power of two textures.
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
 
-   if (ogl_bitmap->texture == 0)
+   if (ogl_bitmap->texture == 0) {
       glGenTextures(1, &ogl_bitmap->texture);
+   }
    glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
 
    glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
       bitmap->w, bitmap->h, 0, glformats[bitmap->format][2],
       glformats[bitmap->format][1], bitmap->memory);
-   if (glGetError())
+   if (glGetError()) {
       TRACE("ogl_bitmap: glTexImage2D for format %d failed.\n", bitmap->format);
+   }
 
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -231,20 +251,21 @@ static bool upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
           * use of individual OpenGL extensions though I guess.
           */
          if (ogl_bitmap->fbo == 0) {
-              glGenFramebuffersEXT(1, &ogl_bitmap->fbo);
+            glGenFramebuffersEXT(1, &ogl_bitmap->fbo);
          }
       }
    }
 
-   return 1;
+   return true;
 }
+
+
 
 /* OpenGL cannot "lock" pixels, so instead we update our memory copy and
  * return a pointer into that.
  */
-static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
-	int x, int y, int w, int h, ALLEGRO_LOCKED_REGION *locked_region,
-	int flags)
+static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
+   int x, int y, int w, int h, ALLEGRO_LOCKED_REGION *locked_region, int flags)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    int pixelsize = al_get_pixel_size(bitmap->format);
@@ -259,9 +280,10 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
          glformats[bitmap->format][2],
          glformats[bitmap->format][1],
          bitmap->memory + pitch * y + pixelsize * x);
-         if (glGetError())
+         if (glGetError()) {
             TRACE("ogl_bitmap: glReadPixels for format %d failed.\n",
                bitmap->format);
+         }
          glPixelStorei(GL_PACK_ROW_LENGTH, pack_row_length);
          //FIXME: ugh. isn't there a better way?
          upside_down(bitmap, x, y, w, h);
@@ -271,11 +293,11 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
          //region
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
          glGetTexImage(GL_TEXTURE_2D, 0, glformats[bitmap->format][2],
-            glformats[bitmap->format][1],
-            bitmap->memory);
-         if (glGetError())
+            glformats[bitmap->format][1], bitmap->memory);
+         if (glGetError()) {
             TRACE("ogl_bitmap: glGetTexImage for format %d failed.\n",
                bitmap->format);
+         }
       }
    }
 
@@ -286,16 +308,19 @@ static ALLEGRO_LOCKED_REGION *lock_region(ALLEGRO_BITMAP *bitmap,
    return locked_region;
 }
 
+
+
 /* Synchronizes the texture back to the (possibly modified) bitmap data.
  */
-static void unlock_region(ALLEGRO_BITMAP *bitmap)
+static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    int pixelsize = al_get_pixel_size(bitmap->format);
    int pitch = pixelsize * bitmap->w;
 
-   if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) return;
-    
+   if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY)
+      return;
+
    if (ogl_bitmap->is_backbuffer) {
       GLint unpack_row_length;
       //FIXME: ugh. isn't there a better way?
@@ -315,9 +340,10 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
          glformats[bitmap->format][2],
          glformats[bitmap->format][1],
          bitmap->memory + bitmap->lock_y * pitch + pixelsize * bitmap->lock_x);
-      if (glGetError())
+      if (glGetError()) {
          TRACE("ogl_bitmap: glDrawPixels for format %d failed.\n",
             bitmap->format);
+      }
       glPixelStorei(GL_UNPACK_ROW_LENGTH, unpack_row_length);
    }
    else {
@@ -327,16 +353,19 @@ static void unlock_region(ALLEGRO_BITMAP *bitmap)
          bitmap->w, bitmap->h, glformats[bitmap->format][2],
          glformats[bitmap->format][1],
          bitmap->memory);
-      if (glGetError())
+      if (glGetError()) {
          TRACE("ogl_bitmap: glTexSubImage2D for format %d failed.\n",
             bitmap->format);
+      }
    }
 }
+
 
 
 static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+
    if (ogl_bitmap->texture) {
       glDeleteTextures(1, &ogl_bitmap->texture);
       ogl_bitmap->texture = 0;
@@ -348,29 +377,32 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    }
 }
 
+
+
 /* Obtain a reference to this driver. */
 static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
 {
-   if (vt) return vt;
+   if (glbmp_vt)
+      return glbmp_vt;
 
-   vt = _AL_MALLOC(sizeof *vt);
-   memset(vt, 0, sizeof *vt);
+   glbmp_vt = _AL_MALLOC(sizeof *glbmp_vt);
+   memset(glbmp_vt, 0, sizeof *glbmp_vt);
 
-   vt->draw_bitmap = draw_bitmap;
-   vt->upload_bitmap = upload_bitmap;
-   vt->destroy_bitmap = ogl_destroy_bitmap;
-   vt->draw_scaled_bitmap = draw_scaled_bitmap;
-   vt->draw_bitmap_region = draw_bitmap_region;
-   vt->draw_rotated_scaled_bitmap = draw_rotated_scaled_bitmap;
-   vt->draw_rotated_bitmap = draw_rotated_bitmap;
-   vt->lock_region = lock_region;
-   vt->unlock_region = unlock_region;
+   glbmp_vt->draw_bitmap = ogl_draw_bitmap;
+   glbmp_vt->upload_bitmap = ogl_upload_bitmap;
+   glbmp_vt->destroy_bitmap = ogl_destroy_bitmap;
+   glbmp_vt->draw_scaled_bitmap = ogl_draw_scaled_bitmap;
+   glbmp_vt->draw_bitmap_region = ogl_draw_bitmap_region;
+   glbmp_vt->draw_rotated_scaled_bitmap = ogl_draw_rotated_scaled_bitmap;
+   glbmp_vt->draw_rotated_bitmap = ogl_draw_rotated_bitmap;
+   glbmp_vt->lock_region = ogl_lock_region;
+   glbmp_vt->unlock_region = ogl_unlock_region;
 
-   return vt;
+   return glbmp_vt;
 }
 
 
-/* Dummy implementation. */
+
 ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 {
    ALLEGRO_BITMAP_OGL *bitmap;
@@ -400,3 +432,5 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    return &bitmap->bitmap;
 }
+
+/* vim: set sts=3 sw=3 et: */
