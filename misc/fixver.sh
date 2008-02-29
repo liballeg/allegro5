@@ -134,6 +134,11 @@ echo "Patching misc/allegro.spec..."
 cp misc/allegro.spec fixver.tmp
 sed -e "s/^Version: .*/Version: $1.$2.$3/" fixver.tmp > misc/allegro.spec
 
+# patch CMakeLists.txt
+echo "Patching CMakeLists.txt..."
+cp CMakeLists.txt fixver.tmp
+sed -e "s/set(ALLEGRO_VERSION [^)]*)/set(ALLEGRO_VERSION $1.$2.$3)/" fixver.tmp > CMakeLists.txt
+
 # clean up after ourselves
 rm fixver.sed fixver.tmp
 

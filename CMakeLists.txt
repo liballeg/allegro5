@@ -25,7 +25,6 @@ else(USE_CXX)
     project(ALLEGRO C)
 endif(USE_CXX)
 
-# TODO soft-code the version number
 set(ALLEGRO_VERSION 4.9.3)
 
 # Search in the `cmake' directory for additional CMake modules.

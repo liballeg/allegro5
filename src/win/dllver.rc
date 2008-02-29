@@ -5,8 +5,8 @@
 
 
 1 VERSIONINFO 
-FILEVERSION 4, 9, 2, 0
-PRODUCTVERSION 4, 9, 2, 0
+FILEVERSION 4, 9, 3, 0
+PRODUCTVERSION 4, 9, 3, 0
 FILEOS VOS__WINDOWS32
 FILETYPE VFT_DLL
 BEGIN
@@ -17,12 +17,12 @@ BEGIN
          VALUE "Comments", "Please see AUTHORS for a list of contributors\000"
          VALUE "CompanyName", "Allegro Developers\000\000"
          VALUE "FileDescription", "Allegro\000"
-         VALUE "FileVersion", "4.9.2 (SVN)\000"
+         VALUE "FileVersion", "4.9.3 (SVN)\000"
          VALUE "InternalName", "ALLEG49\000"
-         VALUE "LegalCopyright", "Copyright © 1994-2007 Allegro Developers\000\000"
+         VALUE "LegalCopyright", "Copyright © 1994-2008 Allegro Developers\000\000"
          VALUE "OriginalFilename", "ALLEG49.DLL\000"
          VALUE "ProductName", "Allegro\000"
-         VALUE "ProductVersion", "4.9.2 (SVN)\000"
+         VALUE "ProductVersion", "4.9.3 (SVN)\000"
       END
    END
 
