@@ -58,6 +58,9 @@
 		883B75320D686FB9009F1EDA /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D6A5FE840307C02AAC07 /* AppKit.framework */; };
 		883B75330D686FB9009F1EDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D69BFE84028FC02AAC07 /* Foundation.framework */; };
 		883B75340D686FC1009F1EDA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
+		885412020D776DB9006A3DAB /* ogl_bitmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 885411FF0D776DB9006A3DAB /* ogl_bitmap.c */; };
+		885412030D776DB9006A3DAB /* ogl_display.c in Sources */ = {isa = PBXBuildFile; fileRef = 885412000D776DB9006A3DAB /* ogl_display.c */; };
+		885412040D776DB9006A3DAB /* ogl_draw.c in Sources */ = {isa = PBXBuildFile; fileRef = 885412010D776DB9006A3DAB /* ogl_draw.c */; };
 		887A20FE0CEA487D0026AE51 /* libAllegro-4.9.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D2AAC07E0554694100DB518D /* libAllegro-4.9.a */; };
 		887A214E0CEA4CC80026AE51 /* exnew_bitmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 887A21020CEA489E0026AE51 /* exnew_bitmap.c */; };
 		88814B030D2D8B30007B4895 /* aintosx.h in Headers */ = {isa = PBXBuildFile; fileRef = 88814AFD0D2D8B30007B4895 /* aintosx.h */; };
@@ -354,6 +357,16 @@
 		88E5B3480D6249D800BDF453 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25C940D565E8100F0FD8E /* OpenGL.framework */; };
 		88E5B3490D6249D800BDF453 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25CC70D565EC000F0FD8E /* IOKit.framework */; };
 		88E5B34A0D6249D800BDF453 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25CDC0D56673F00F0FD8E /* CoreAudio.framework */; };
+		88E603180D79921000ED1BA3 /* exnewapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 883B72ED0D686DAD009F1EDA /* exnewapi.c */; };
+		88E605190D79923C00ED1BA3 /* libAllegro-4.9.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D2AAC07E0554694100DB518D /* libAllegro-4.9.a */; };
+		88E6051A0D79923C00ED1BA3 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25CDC0D56673F00F0FD8E /* CoreAudio.framework */; };
+		88E6051B0D79923C00ED1BA3 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25CC70D565EC000F0FD8E /* IOKit.framework */; };
+		88E6051C0D79923C00ED1BA3 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25C940D565E8100F0FD8E /* OpenGL.framework */; };
+		88E6051D0D79923C00ED1BA3 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88FC445D0CEB983B00EFA1D3 /* AudioUnit.framework */; };
+		88E6051E0D79923C00ED1BA3 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88FC444B0CEB981F00EFA1D3 /* AudioToolbox.framework */; };
+		88E6051F0D79923C00ED1BA3 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D6A5FE840307C02AAC07 /* AppKit.framework */; };
+		88E605200D79923C00ED1BA3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D69BFE84028FC02AAC07 /* Foundation.framework */; };
+		88E605210D79923C00ED1BA3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		88FC445C0CEB982000EFA1D3 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88FC444B0CEB981F00EFA1D3 /* AudioToolbox.framework */; };
 		88FC446F0CEB983C00EFA1D3 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88FC445D0CEB983B00EFA1D3 /* AudioUnit.framework */; };
 		88FC44700CEB983D00EFA1D3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
@@ -497,6 +510,13 @@
 			remoteGlobalIDString = 88E5B11E0D62487500BDF453;
 			remoteInfo = ExNewMouseEvents;
 		};
+		88E603160D7991FC00ED1BA3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = AllegroNew;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -518,6 +538,9 @@
 		883B72F10D686DC7009F1EDA /* ExNewBitmapTarget */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ExNewBitmapTarget; sourceTree = BUILT_PRODUCTS_DIR; };
 		883B72FB0D686E0E009F1EDA /* ExNewBlend */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ExNewBlend; sourceTree = BUILT_PRODUCTS_DIR; };
 		883B73160D686EA3009F1EDA /* ExNewFsResize */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ExNewFsResize; sourceTree = BUILT_PRODUCTS_DIR; };
+		885411FF0D776DB9006A3DAB /* ogl_bitmap.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = ogl_bitmap.c; path = src/opengl/ogl_bitmap.c; sourceTree = "<group>"; };
+		885412000D776DB9006A3DAB /* ogl_display.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = ogl_display.c; path = src/opengl/ogl_display.c; sourceTree = "<group>"; };
+		885412010D776DB9006A3DAB /* ogl_draw.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = ogl_draw.c; path = src/opengl/ogl_draw.c; sourceTree = "<group>"; };
 		887A20FC0CEA486F0026AE51 /* ExNewBitmap */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ExNewBitmap; sourceTree = BUILT_PRODUCTS_DIR; };
 		887A21020CEA489E0026AE51 /* exnew_bitmap.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = exnew_bitmap.c; path = examples/exnew_bitmap.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88814ABA0D2D8ABD007B4895 /* allegro5.h */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.h; name = allegro5.h; path = include/allegro5/allegro5.h; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
@@ -769,6 +792,7 @@
 		88E5B11A0D6247E500BDF453 /* exnew_mouse_events.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = exnew_mouse_events.c; path = examples/exnew_mouse_events.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88E5B11F0D62487500BDF453 /* ExNewMouseEvents */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ExNewMouseEvents; sourceTree = BUILT_PRODUCTS_DIR; };
 		88E5B1250D6248B700BDF453 /* ExNewGfx */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ExNewGfx; sourceTree = BUILT_PRODUCTS_DIR; };
+		88E603140D7991F500ED1BA3 /* ExNewApi */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ExNewApi; sourceTree = BUILT_PRODUCTS_DIR; };
 		88FC444B0CEB981F00EFA1D3 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = /System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<absolute>"; };
 		88FC445D0CEB983B00EFA1D3 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = /System/Library/Frameworks/AudioUnit.framework; sourceTree = "<absolute>"; };
 		D2AAC07E0554694100DB518D /* libAllegro-4.9.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libAllegro-4.9.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -935,6 +959,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		88E603120D7991F500ED1BA3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88E605190D79923C00ED1BA3 /* libAllegro-4.9.a in Frameworks */,
+				88E6051A0D79923C00ED1BA3 /* CoreAudio.framework in Frameworks */,
+				88E6051B0D79923C00ED1BA3 /* IOKit.framework in Frameworks */,
+				88E6051C0D79923C00ED1BA3 /* OpenGL.framework in Frameworks */,
+				88E6051D0D79923C00ED1BA3 /* AudioUnit.framework in Frameworks */,
+				88E6051E0D79923C00ED1BA3 /* AudioToolbox.framework in Frameworks */,
+				88E6051F0D79923C00ED1BA3 /* AppKit.framework in Frameworks */,
+				88E605200D79923C00ED1BA3 /* Foundation.framework in Frameworks */,
+				88E605210D79923C00ED1BA3 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D2AAC07C0554694100DB518D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -962,6 +1002,7 @@
 				88CD95F50D68E48B005DDBD6 /* ExNewResize */,
 				88983E4E0D6A3F3900338D77 /* ExNewIcon */,
 				88D531F30D748A8B003B779E /* ExNewMemBmp */,
+				88E603140D7991F500ED1BA3 /* ExNewApi */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1021,6 +1062,9 @@
 		32C88DFF0371C24200C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				885411FF0D776DB9006A3DAB /* ogl_bitmap.c */,
+				885412000D776DB9006A3DAB /* ogl_display.c */,
+				885412010D776DB9006A3DAB /* ogl_draw.c */,
 				8896BA540D6B05AE0006AB52 /* timernu.c */,
 				8894EFA20D60E9D500E4968F /* extensions.c */,
 				88A25CD10D565FCF00F0FD8E /* memblit3.c */,
@@ -1610,6 +1654,23 @@
 			productReference = 88E5B11F0D62487500BDF453 /* ExNewMouseEvents */;
 			productType = "com.apple.product-type.tool";
 		};
+		88E603130D7991F500ED1BA3 /* ExNewApi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 88E605310D79924700ED1BA3 /* Build configuration list for PBXNativeTarget "ExNewApi" */;
+			buildPhases = (
+				88E603110D7991F500ED1BA3 /* Sources */,
+				88E603120D7991F500ED1BA3 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				88E603170D7991FC00ED1BA3 /* PBXTargetDependency */,
+			);
+			name = ExNewApi;
+			productName = ExNewApi;
+			productReference = 88E603140D7991F500ED1BA3 /* ExNewApi */;
+			productType = "com.apple.product-type.tool";
+		};
 		D2AAC07D0554694100DB518D /* AllegroNew */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "AllegroNew" */;
@@ -1650,6 +1711,7 @@
 				88CD95F40D68E48B005DDBD6 /* ExNewResize */,
 				88983E4D0D6A3F3900338D77 /* ExNewIcon */,
 				88D531F20D748A8B003B779E /* ExNewMemBmp */,
+				88E603130D7991F500ED1BA3 /* ExNewApi */,
 			);
 		};
 /* End PBXProject section */
@@ -1743,6 +1805,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				88E5B1310D62491C00BDF453 /* exnew_mouse_events.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88E603110D7991F500ED1BA3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88E603180D79921000ED1BA3 /* exnewapi.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1882,6 +1952,9 @@
 				88A25CD20D565FCF00F0FD8E /* memblit3.c in Sources */,
 				8894EFA30D60E9D500E4968F /* extensions.c in Sources */,
 				8896BA550D6B05AE0006AB52 /* timernu.c in Sources */,
+				885412020D776DB9006A3DAB /* ogl_bitmap.c in Sources */,
+				885412030D776DB9006A3DAB /* ogl_display.c in Sources */,
+				885412040D776DB9006A3DAB /* ogl_draw.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1983,6 +2056,11 @@
 			target = 88E5B11E0D62487500BDF453 /* ExNewMouseEvents */;
 			targetProxy = 88E5B1230D62489C00BDF453 /* PBXContainerItemProxy */;
 		};
+		88E603170D7991FC00ED1BA3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2AAC07D0554694100DB518D /* AllegroNew */;
+			targetProxy = 88E603160D7991FC00ED1BA3 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -1999,6 +2077,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					ALLEGRO_SRC,
+					ALLEGRO_LIB_BUILD,
 				);
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = "Allegro-4.9";
@@ -2021,6 +2100,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					ALLEGRO_SRC,
+					ALLEGRO_LIB_BUILD,
 				);
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = "Allegro-4.9";
@@ -2410,6 +2490,36 @@
 			};
 			name = Release;
 		};
+		88E605320D79924700ED1BA3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = ExNewApi;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		88E605330D79924700ED1BA3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = ExNewApi;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2526,6 +2636,15 @@
 			buildConfigurations = (
 				88E5B1270D6248B700BDF453 /* Debug */,
 				88E5B1280D6248B700BDF453 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		88E605310D79924700ED1BA3 /* Build configuration list for PBXNativeTarget "ExNewApi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88E605320D79924700ED1BA3 /* Debug */,
+				88E605330D79924700ED1BA3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

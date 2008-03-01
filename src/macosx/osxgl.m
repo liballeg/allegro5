@@ -21,6 +21,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/platform/aintosx.h"
 #include "osxgl.h"
 #ifndef ALLEGRO_MACOSX
@@ -217,6 +218,7 @@ void set_current_display_win(ALLEGRO_DISPLAY* d) {
 	if (dpy->ctx != nil) {
 		[dpy->ctx makeCurrentContext];
 	}
+   _al_ogl_set_extensions(dpy->parent.extension_api);
 }
 /* Helper to set up GL state as we want it. */
 
@@ -287,6 +289,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 		ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
 		return NULL;
 	}
+   memset(dpy, 0, sizeof(*dpy));
 	/* Set up the ALLEGRO_DISPLAY part */
 	dpy->parent.display.vt = osx_get_display_driver();
 	dpy->parent.display.format = ALLEGRO_PIXEL_FORMAT_RGBA_8888; // To do: use the actual format and flags
@@ -328,12 +331,12 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 	[win performSelectorOnMainThread: @selector(makeKeyAndOrderFront:) withObject: nil waitUntilDone: YES]; 
 	[win makeMainWindow];
 	[view release];
-	dpy->backbuffer = create_backbuffer_bitmap(dpy);
-   dpy->target = dpy->backbuffer;
-   dpy->use_gl = true;
+   dpy->parent.opengl_target = _al_ogl_create_backbuffer(&dpy->parent.display);
+	dpy->parent.backbuffer = dpy->parent.opengl_target;
 	/* Set up GL as we want */
 	setup_gl(&dpy->parent.display);
 	/* Setup the 'AllegroGL' stuff */
+   al_set_current_display(&dpy->parent.display);
    _al_ogl_manage_extensions(&dpy->parent);
 	ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_system_driver()->displays);
 	return *add = &dpy->parent.display;
@@ -341,52 +344,17 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 static void destroy_display(ALLEGRO_DISPLAY* d) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    _al_ogl_unmanage_extensions(&dpy->parent);
-	al_destroy_bitmap(dpy->backbuffer);
+	al_destroy_bitmap(&dpy->parent.backbuffer->bitmap);
 	[dpy->ctx release];
 	[dpy->win release];
 	_al_event_source_free(&dpy->parent.display.es);
 }
 
-static ALLEGRO_BITMAP* get_backbuffer_win(ALLEGRO_DISPLAY* disp) {
-	return ((ALLEGRO_DISPLAY_OSX_WIN*) disp)->backbuffer;
-}
-static void set_target_bitmap(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP* bmp) {
-	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) disp;
-   // To do: this will be more sophisticated when bitmaps use FBOs or whatever.
-   dpy->use_gl = (dpy->backbuffer == bmp);
-   dpy->target = bmp;
-}
-static void osx_clear(ALLEGRO_DISPLAY *disp, ALLEGRO_COLOR *color) {
-	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) disp;
-   if (dpy->use_gl) {
-   glClearColor((GLfloat) color->r, (GLfloat) color->g, (GLfloat) color->b, (GLfloat) color->a);
-	glClear(GL_COLOR_BUFFER_BIT);
-   }
-   else {
-   // Memory?
-   }
-}
 static void flip_display_win(ALLEGRO_DISPLAY *disp) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) disp;
-   if (dpy->use_gl) {
+   if (dpy->parent.opengl_target->is_backbuffer) {
    glFlush();
    }
-}
-static void set_opengl_blending(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
-{
-	int blend_modes[4] = {
-		GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-	};
-	ALLEGRO_COLOR *bc;
-	int src_mode, dst_mode;
-	float r, g, b, a;
-	al_unmap_rgba_f(*color, &r, &g, &b, &a);
-	
-	al_get_blender(&src_mode, &dst_mode, NULL);
-	glEnable(GL_BLEND);
-	glBlendFunc(blend_modes[src_mode], blend_modes[dst_mode]);
-	bc = _al_get_blend_color();
-	glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
 }
 
 static bool show_cursor(ALLEGRO_DISPLAY *d) {
@@ -409,73 +377,33 @@ static bool resize_display(ALLEGRO_DISPLAY *d, int w, int h) {
 	[[view window] setContentSize: newsize];
 	return true;
 }
-static ALLEGRO_BITMAP *osx_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
-{
-	int format = al_get_new_bitmap_format();
-	int flags = al_get_new_bitmap_flags();
-	
-	/* FIXME: do this right */
-	if (! _al_pixel_format_is_real(format)) {
-		format = d->format;
-	}
-	
-	ALLEGRO_BITMAP *bitmap = _AL_MALLOC(sizeof *bitmap);
-	memset(bitmap, 0, sizeof *bitmap);
-	bitmap->vt = osx_bitmap_driver();
-	bitmap->w = w;
-	bitmap->h = h;
-	bitmap->format = format;
-	bitmap->flags = flags|ALLEGRO_MEMORY_BITMAP;
-	bitmap->cl = 0;
-	bitmap->ct = 0;
-	bitmap->cr = w - 1;
-	bitmap->cb = h - 1;
-	
-	return bitmap;
-}
 static bool is_compatible_bitmap(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP* bmp) {
 ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) disp;
-	return (dpy->backbuffer == bmp) || (bmp->flags & ALLEGRO_MEMORY_BITMAP);
+	return (&dpy->parent.backbuffer->bitmap == bmp) || (bmp->flags & ALLEGRO_MEMORY_BITMAP);
 }
 void osx_window_exit()
 {
 	return;
 }
 
-/* Draw a line. */
-static void draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
-					  ALLEGRO_COLOR *color)
-{
-	set_opengl_blending(d, color);
-	glBegin(GL_LINES);
-	glVertex2d(fx, fy);
-	glVertex2d(tx, ty);
-	glEnd();
-}
-/* Dummy implementation of a filled rectangle. */
-static void draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
-   float brx, float bry, ALLEGRO_COLOR *color, int flags)
-{
-   set_opengl_blending(d, color);
-   if (flags & ALLEGRO_FILLED)
-      glBegin(GL_QUADS);
-   else
-      glBegin(GL_LINE_LOOP);
-   glVertex2d(tlx, tly);
-   glVertex2d(brx, tly);
-   glVertex2d(brx, bry);
-   glVertex2d(tlx, bry);
-   glEnd();
-}
 static void draw_memory_bitmap_region(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp,
 			        float sx, float sy, float sw, float sh, float dx, float dy, int flags) {
    int fmt, size;
-   decode_allegro_format(bmp->format,&fmt,&size,NULL);
-   int isx = (int) sx;
-   int isy = (int) sy;
-   glPixelStorei(GL_UNPACK_ROW_LENGTH, bmp->w);
-   glRasterPos2f(dx, dy);
-	glDrawPixels(sw, sh, fmt, size, bmp->memory + (isx + isy * bmp->w) * al_get_pixel_size(bmp->format));
+   ALLEGRO_LOCKED_REGION region;
+   int l = MAX((int) sx, bmp->cl);
+   int r = MIN((int) (sx+sw) - 1, bmp->cr);
+   int t = MAX((int) sy, bmp->ct);
+   int b = MIN((int) (sy+sh) - 1, bmp->cb);
+   if (l>=r || t>=b) {
+      /* Clipped out */
+      return;
+   }
+   al_lock_bitmap_region(bmp, l, t, r-l+1, b-t+1, &region, ALLEGRO_LOCK_READONLY);
+   decode_allegro_format(region.format,&fmt,&size,NULL);
+   glPixelStorei(GL_UNPACK_ROW_LENGTH, region.pitch / al_get_pixel_size(region.format));
+   glRasterPos2f(dx - sx + l, dy - sy + t);
+	glDrawPixels(bmp->lock_w, bmp->lock_h, fmt, size, region.data);
+   al_unlock_bitmap(bmp);
 }
 
 ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void)
@@ -485,10 +413,10 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void)
 		create_display_win, //   ALLEGRO_DISPLAY *(*create_display)(int w, int h);
 		destroy_display, //   void (*destroy_display)(ALLEGRO_DISPLAY *display);
 		set_current_display_win, //   void (*set_current_display)(ALLEGRO_DISPLAY *d);
-		osx_clear, //   void (*clear)(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color);
-		draw_line, //   void (*draw_line)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
+		NULL, //   void (*clear)(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color);
+		NULL, //   void (*draw_line)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
 				   //      ALLEGRO_COLOR *color);
-		draw_rectangle, //   void (*draw_rectangle)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx,
+		NULL, //   void (*draw_rectangle)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx,
 			  //    float ty, ALLEGRO_COLOR *color, int flags);
 		flip_display_win, //   void (*flip_display)(ALLEGRO_DISPLAY *d);
 		NULL, //   bool (*update_display_region)(ALLEGRO_DISPLAY *d, int x, int y,
@@ -496,12 +424,12 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void)
 		NULL, //   bool (*acknowledge_resize)(ALLEGRO_DISPLAY *d);
 		resize_display, //   bool (*resize_display)(ALLEGRO_DISPLAY *d, int width, int height);
 						//
-		NULL, //   ALLEGRO_BITMAP *(*create_bitmap)(ALLEGRO_DISPLAY *d,
+		_al_ogl_create_bitmap, //   ALLEGRO_BITMAP *(*create_bitmap)(ALLEGRO_DISPLAY *d,
 						   //   	int w, int h);
 						   //   
 		NULL, //   void (*upload_compat_screen)(struct BITMAP *bitmap, int x, int y, int width, int height);
-		set_target_bitmap, //   void (*set_target_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
-		get_backbuffer_win, //   ALLEGRO_BITMAP *(*get_backbuffer)(ALLEGRO_DISPLAY *display);
+		_al_ogl_set_target_bitmap, //   void (*set_target_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+		_al_ogl_get_backbuffer, //   ALLEGRO_BITMAP *(*get_backbuffer)(ALLEGRO_DISPLAY *display);
 		NULL, //   ALLEGRO_BITMAP *(*get_frontbuffer)(ALLEGRO_DISPLAY *display);
 			  //
 		is_compatible_bitmap, //   bool (*is_compatible_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
@@ -519,106 +447,10 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void)
 		hide_cursor,//	bool (*hide_cursor)(ALLEGRO_DISPLAY *display);
 		NULL,//	void (*set_icon)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 	};
-	return &display_interface;
-}
-static ALLEGRO_LOCKED_REGION * lock_backbuffer(ALLEGRO_BITMAP *bitmap,
-                                           int x, int y, int w, int h, ALLEGRO_LOCKED_REGION *locked_region,
-                                           int flags) {
-   // To do
-   return locked_region;
-   
-}
-static void unlock_backbuffer(ALLEGRO_BITMAP* bitmap) {
-   //To do
-}   
-
-ALLEGRO_BITMAP* create_backbuffer_bitmap(ALLEGRO_DISPLAY_OSX_WIN* dpy)
-{
-	static ALLEGRO_BITMAP_INTERFACE vt = {
-		0,//int id;
-		NULL,//   void (*draw_bitmap)(struct ALLEGRO_BITMAP *bitmap, float x, float y, int flags);
-		NULL,//   void (*draw_bitmap_region)(ALLEGRO_BITMAP *bitmap, float sx, float sy,
-			 //      float sw, float sh, float dx, float dy, int flags);
-		NULL,//   void (*draw_scaled_bitmap)(ALLEGRO_BITMAP *bitmap, float sx, float sy,
-			 //      float sw, float sh, float dx, float dy, float dw, float dh, int flags);
-		NULL,//   void (*draw_rotated_bitmap)(ALLEGRO_BITMAP *bitmap, float cx, float cy,
-			 //      float angle, float dx, float dy, int flags);
-		NULL,//   void (*draw_rotated_scaled_bitmap)(ALLEGRO_BITMAP *bitmap, float cx, float cy,
-			 //      float angle, float dx, float dy, float xscale, float yscale,
-			 //      float flags);
-		NULL,//   bool (*upload_bitmap)(ALLEGRO_BITMAP *bitmap, int x, int y, int width, int height);
-		NULL,//   void (*destroy_bitmap)(ALLEGRO_BITMAP *bitmap);
-		lock_backbuffer,//   ALLEGRO_LOCKED_REGION * (*lock_region)(ALLEGRO_BITMAP *bitmap,
-			 //   	int x, int y, int w, int h,
-			 //   	ALLEGRO_LOCKED_REGION *locked_region,
-			 //	int flags);
-		unlock_backbuffer,//   void (*unlock_region)(ALLEGRO_BITMAP *bitmap);
-	};
-   ALLEGRO_BITMAP* bmp = _AL_MALLOC(sizeof(ALLEGRO_BITMAP));
-	memset(bmp,0,sizeof(*bmp));
-   bmp->vt = &vt;
-   bmp->w = dpy->parent.display.w;
-   bmp->h = dpy->parent.display.h;
-   bmp->format = dpy->parent.display.format;
-   bmp->display = &dpy->parent.display;
-   bmp->cl = 0;
-	bmp->ct = 0;
-	bmp->cr = bmp->w - 1;
-	bmp->cb = bmp->h - 1;
-	return bmp;
-}
-
-static bool upload_bitmap(ALLEGRO_BITMAP* bmp, int x, int y, int w, int h) {
-	return true;
-}
-static void draw_bitmap(ALLEGRO_BITMAP* bmp, float x, float y, int flags) {
-   int fmt, size;
-   glRasterPos2f(x, y);
-   glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-   decode_allegro_format(bmp->format,&fmt,&size,NULL);
-	glDrawPixels(bmp->w, bmp->h, fmt, size, bmp->memory);
-}
-static void osx_destroy_bitmap(ALLEGRO_BITMAP* bitmap) {
-   // Nothing extra required
-}
-
-static ALLEGRO_LOCKED_REGION * lock_region(ALLEGRO_BITMAP *bitmap,
-                                           int x, int y, int w, int h, ALLEGRO_LOCKED_REGION *locked_region,
-                                           int flags) {
-   // This only does what a memory bitmap would do.
-   if (locked_region != NULL) {
-      locked_region->data = bitmap->memory
-         + (bitmap->w * y + x) * al_get_pixel_size(bitmap->format);
-      locked_region->format = bitmap->format;
-      locked_region->pitch = bitmap->w*al_get_pixel_size(bitmap->format);
+   static BOOL needs_init = YES;
+   if (needs_init == YES) {
+      _al_ogl_add_drawing_functions(&display_interface);
+      needs_init = NO;
    }
-   return locked_region;
-   
-}
-static void unlock_region(ALLEGRO_BITMAP* bitmap) {
-   // Nothing extra required
-}
-   
-ALLEGRO_BITMAP_INTERFACE *osx_bitmap_driver(void) {
-	static ALLEGRO_BITMAP_INTERFACE vt = {
-		0,//int id;
-		draw_bitmap,//   void (*draw_bitmap)(struct ALLEGRO_BITMAP *bitmap, float x, float y, int flags);
-		NULL,//   void (*draw_bitmap_region)(ALLEGRO_BITMAP *bitmap, float sx, float sy,
-			 //      float sw, float sh, float dx, float dy, int flags);
-		NULL,//   void (*draw_scaled_bitmap)(ALLEGRO_BITMAP *bitmap, float sx, float sy,
-			 //      float sw, float sh, float dx, float dy, float dw, float dh, int flags);
-		NULL,//   void (*draw_rotated_bitmap)(ALLEGRO_BITMAP *bitmap, float cx, float cy,
-			 //      float angle, float dx, float dy, int flags);
-		NULL,//   void (*draw_rotated_scaled_bitmap)(ALLEGRO_BITMAP *bitmap, float cx, float cy,
-			 //      float angle, float dx, float dy, float xscale, float yscale,
-			 //      float flags);
-		upload_bitmap,//   bool (*upload_bitmap)(ALLEGRO_BITMAP *bitmap, int x, int y, int width, int height);
-		osx_destroy_bitmap,//   void (*destroy_bitmap)(ALLEGRO_BITMAP *bitmap);
-		lock_region,//   ALLEGRO_LOCKED_REGION * (*lock_region)(ALLEGRO_BITMAP *bitmap,
-			 //   	int x, int y, int w, int h,
-			 //   	ALLEGRO_LOCKED_REGION *locked_region,
-			 //	int flags);
-		unlock_region,//   void (*unlock_region)(ALLEGRO_BITMAP *bitmap);
-	};
-	return &vt;
-}
+	return &display_interface;
+}   
