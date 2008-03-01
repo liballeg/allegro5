@@ -73,7 +73,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    memset(bitmap, 0, sizeof *bitmap);
 
    bitmap->format = format;
-   bitmap->flags = al_get_new_bitmap_flags();
+   bitmap->flags = al_get_new_bitmap_flags() | ALLEGRO_MEMORY_BITMAP;
    bitmap->w = w;
    bitmap->h = h;
    bitmap->display = NULL;
@@ -113,7 +113,8 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap;
    
-   if (al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) {
+   if ((al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) ||
+         (_al_current_display->vt->create_bitmap == NULL)) {
       return _al_create_memory_bitmap(w, h);
    }
 
@@ -253,7 +254,7 @@ ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
    bitmap = _al_load_memory_bitmap(filename);
 
    /* If it's a display bitmap */
-   if (!(al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) && bitmap) {
+   if ((bitmap!=NULL) && ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) == 0)) {
       bitmap->vt->upload_bitmap(bitmap, 0, 0, bitmap->w, bitmap->h);
    }
 
@@ -274,18 +275,28 @@ ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-
-   /* If one is a memory bitmap, do memory blit */
-   if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
-         (dest->flags & ALLEGRO_MEMORY_BITMAP)) {
-      if (_al_current_display->vt->draw_memory_bitmap_region)
-         _al_current_display->vt->draw_memory_bitmap_region(_al_current_display,
-	    bitmap, 0, 0, bitmap->w, bitmap->h, dx, dy, flags);
-      else
-         _al_draw_bitmap_memory(bitmap, dx, dy, flags);
+   ALLEGRO_DISPLAY* display = _al_current_display;
+   
+   /* If destination is memory, do a memory bitmap */
+   if (dest->flags & ALLEGRO_MEMORY_BITMAP) {
+      _al_draw_bitmap_memory(bitmap, dx, dy, flags);
    }
-   else if (al_is_compatible_bitmap(bitmap))
-      bitmap->vt->draw_bitmap(bitmap, dx, dy, flags);
+   else {
+      /* if source is memory or incompatible */
+      if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) || (!al_is_compatible_bitmap(bitmap))) {
+         if (display && display->vt->draw_memory_bitmap_region) {
+            display->vt->draw_memory_bitmap_region(display,
+                                                   bitmap, 0, 0, bitmap->w, bitmap->h, dx, dy, flags);
+         }
+         else {
+            _al_draw_bitmap_memory(bitmap, dx, dy, flags);
+         }
+      }
+      else {
+         /* Compatible display bitmap, use full acceleration */
+         bitmap->vt->draw_bitmap(bitmap, dx, dy, flags);
+      }
+   }
 }
 
 
@@ -306,23 +317,28 @@ void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 	float sw, float sh, float dx, float dy, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-
-   /* If one is a memory bitmap, do memory blit */
-   if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
-       (dest->flags & ALLEGRO_MEMORY_BITMAP))
+   ALLEGRO_DISPLAY* display = al_get_current_display();
+   
+   /* If destination is memory, do a memory bitmap */
+   if (dest->flags & ALLEGRO_MEMORY_BITMAP) {
+      _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
+   }
+   else 
    {
-      if (_al_current_display &&
-          _al_current_display->vt->draw_memory_bitmap_region)
-      {
-         _al_current_display->vt->draw_memory_bitmap_region(_al_current_display,
-	    bitmap, sx, sy, sw, sh, dx, dy, flags);
+      /* if source is memory or incompatible */
+      if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) || (!al_is_compatible_bitmap(bitmap))) {
+         if (display && display->vt->draw_memory_bitmap_region) {
+            display->vt->draw_memory_bitmap_region(display,
+                                                   bitmap, sx, sy, sw, sh, dx, dy, flags);
+         }
+         else {
+            _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
+         }
       }
       else {
-         _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
+         /* Compatible display bitmap, use full acceleration */
+         bitmap->vt->draw_bitmap_region(bitmap, sx, sy, sw, sh, dx, dy, flags);
       }
-   }
-   else if (al_is_compatible_bitmap(bitmap)) {
-      bitmap->vt->draw_bitmap_region(bitmap, sx, sy, sw, sh, dx, dy, flags);
    }
 }
 
