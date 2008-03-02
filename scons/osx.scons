@@ -1,5 +1,6 @@
 import os
 import SCons
+import helpers
 
 Import('context')
 
@@ -9,9 +10,10 @@ env = context.getLibraryEnv()
 
 context.setLibraryDir("lib/macosx")
 
-file = open( "include/allegro5/platform/alplatf.h", "w" )
-file.write( "#define ALLEGRO_MACOSX" )
-file.close()
+alplatf_h = helpers.generate_alplatf_h(env, 'ALLEGRO_MACOSX')
+# file = open( "include/allegro5/platform/alplatf.h", "w" )
+# file.write( "#define ALLEGRO_MACOSX" )
+# file.close()
 
 ## These lines tell SCons to treat .m files like .cpp files
 static_obj, shared_obj = SCons.Tool.createObjBuilders( env )
