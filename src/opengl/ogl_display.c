@@ -61,7 +61,8 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       }
    }
    else {
-      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+      if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object)
+         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       ogl_disp->opengl_target = ogl_bitmap;
 
       glViewport(0, 0, display->w, display->h);
