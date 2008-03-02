@@ -23,7 +23,7 @@
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/platform/aintosx.h"
-#include "osxgl.h"
+#include "./osxgl.h"
 #ifndef ALLEGRO_MACOSX
 #error something is wrong with the makefile
 #endif
@@ -227,6 +227,11 @@ void set_current_display_win(ALLEGRO_DISPLAY* d) {
 	if (dpy->ctx != nil) {
 		[dpy->ctx makeCurrentContext];
 	}
+   if (dpy->needs_init) {
+   	/* Setup the 'AllegroGL' stuff */
+      _al_ogl_manage_extensions(&dpy->parent);
+      dpy->needs_init = false;
+   }
    _al_ogl_set_extensions(dpy->parent.extension_api);
 }
 /* Helper to set up GL state as we want it. */
@@ -299,6 +304,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 		return NULL;
 	}
    memset(dpy, 0, sizeof(*dpy));
+   dpy->needs_init = true;
 	/* Set up the ALLEGRO_DISPLAY part */
 	dpy->parent.display.vt = osx_get_display_driver();
 	dpy->parent.display.format = ALLEGRO_PIXEL_FORMAT_RGBA_8888; // To do: use the actual format and flags
@@ -344,9 +350,6 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 	dpy->parent.backbuffer = dpy->parent.opengl_target;
 	/* Set up GL as we want */
 	setup_gl(&dpy->parent.display);
-	/* Setup the 'AllegroGL' stuff */
-   al_set_current_display(&dpy->parent.display);
-   _al_ogl_manage_extensions(&dpy->parent);
 	ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_system_driver()->displays);
 	return *add = &dpy->parent.display;
 }
@@ -407,7 +410,7 @@ static void draw_memory_bitmap_region(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *
       /* Clipped out */
       return;
    }
-   al_lock_bitmap_region(bmp, l, t, r-l+1, b-t+1, &region, ALLEGRO_LOCK_READONLY);
+   al_lock_bitmap_region(bmp, l, t, r - l + 1, b - t + 1, &region, ALLEGRO_LOCK_READONLY);
    decode_allegro_format(region.format,&fmt,&size,NULL);
    glPixelStorei(GL_UNPACK_ROW_LENGTH, region.pitch / al_get_pixel_size(region.format));
    glRasterPos2f(dx - sx + l, dy - sy + t);

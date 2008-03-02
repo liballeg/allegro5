@@ -17,8 +17,6 @@ typedef struct ALLEGRO_DISPLAY_OSX_WIN {
 	int gl_fmt, gl_datasize;
 	NSOpenGLContext* ctx;
 	NSWindow* win;
-	ALLEGRO_BITMAP* backbuffer;
-	ALLEGRO_BITMAP* target;
-	bool use_gl; // True if we can just use OpenGL commands to draw (depends on the target bitmap)
+   bool needs_init;
 } ALLEGRO_DISPLAY_OSX_WIN;
 
