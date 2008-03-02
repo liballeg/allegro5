@@ -17,21 +17,16 @@
 #include "allegro5/internal/aintern_opengl.h"
 
 
-static void set_opengl_color(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
-{
-    unsigned char r, g, b, a;
-    al_unmap_rgba(*color, &r, &g, &b, &a);
-    glColor4b(r, g, b, a);
-}
 
 static void set_opengl_blending(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
-   int blend_modes[4] = {
+   const int blend_modes[4] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
    };
    ALLEGRO_COLOR *bc;
    int src_mode, dst_mode;
    float r, g, b, a;
+
    al_unmap_rgba_f(*color, &r, &g, &b, &a);
 
    al_get_blender(&src_mode, &dst_mode, NULL);
@@ -41,13 +36,16 @@ static void set_opengl_blending(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
    glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
 }
 
+
+
 /* Dummy implementation of clear. */
-static void clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
+static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
-   unsigned char r, g, b, a;
    ALLEGRO_DISPLAY_OGL *ogl_disp = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
+   unsigned char r, g, b, a;
+
    if (!ogl_target->is_backbuffer && ogl_disp->opengl_target != ogl_target) {
       _al_clear_memory(color);
       return;
@@ -59,15 +57,19 @@ static void clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
    glClear(GL_COLOR_BUFFER_BIT);
 }
 
+
+
 /* Dummy implementation of line. */
-static void draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
-   ALLEGRO_COLOR *color)
+static void ogl_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy,
+   float tx, float ty, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY_OGL *ogl_disp = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
+
    if (!ogl_target->is_backbuffer && ogl_disp->opengl_target != ogl_target) {
       _al_draw_line_memory(fx, fy, tx, ty, color);
+      return;
    }
 
    set_opengl_blending(d, color);
@@ -77,13 +79,16 @@ static void draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty
    glEnd();
 }
 
+
+
 /* Dummy implementation of a filled rectangle. */
-static void draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
+static void ogl_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    float brx, float bry, ALLEGRO_COLOR *color, int flags)
 {
    ALLEGRO_DISPLAY_OGL *ogl_disp = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
+
    if (!ogl_target->is_backbuffer && ogl_disp->opengl_target != ogl_target) {
       _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
       return;
@@ -101,10 +106,12 @@ static void draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    glEnd();
 }
 
+
+
 /* Add drawing commands to the vtable. */
 void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
 {
-   vt->clear = clear;
-   vt->draw_line = draw_line;
-   vt->draw_rectangle = draw_rectangle;
+   vt->clear = ogl_clear;
+   vt->draw_line = ogl_draw_line;
+   vt->draw_rectangle = ogl_draw_rectangle;
 }
