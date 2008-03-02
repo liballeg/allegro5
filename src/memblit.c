@@ -42,7 +42,8 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
 
 #ifndef DEBUGMODE
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f) {
+      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f)
+   {
       _al_draw_bitmap_region_memory_fast(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;
    }
@@ -53,29 +54,31 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
 
    /* Do clipping */
    if (dx < dest->cl) {
-    int inc = dest->cl - dx;
-    sx += inc;
-    dx = dest->cl;
-    sw -= inc;
+      int inc = dest->cl - dx;
+      sx += inc;
+      dx = dest->cl;
+      sw -= inc;
    }
    if (dx+sw-1 > dest->cr) {
-    int inc = (dx+sw-1) - dest->cr;
-    sw -= inc;
+      int inc = (dx+sw-1) - dest->cr;
+      sw -= inc;
    }
 
    if (dy < dest->ct) {
-    int inc = dest->ct - dy;
-    sy += inc;
-    dy = dest->ct;
-    sh -= inc;
+      int inc = dest->ct - dy;
+      sy += inc;
+      dy = dest->ct;
+      sh -= inc;
    }
    if (dy+sh-1 > dest->cb) {
-    int inc = (dy+sh-1) - dest->cb;
-    sh -= inc;
+      int inc = (dy+sh-1) - dest->cb;
+      sh -= inc;
    }
 
    /* Lock the bitmaps */
-   if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region, ALLEGRO_LOCK_READONLY)) {
+   if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region,
+      ALLEGRO_LOCK_READONLY))
+   {
       return;
    }
 
