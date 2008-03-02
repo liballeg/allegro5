@@ -8,12 +8,16 @@
  *    Everything is still subject to change, though the event interface is
  *    unlikely to change very much now.  The new display API is less stable.
  */
+
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_font.h>
 
-#define WIDTH 640
-#define HEIGHT 480
-#define MAX_MSG_LEN 512
+
+#define WIDTH        640
+#define HEIGHT       480
+#define MAX_MSG_LEN  80
+#define SIZE_LOG     40
+
 
 /* globals */
 ALLEGRO_EVENT_QUEUE *event_queue;
@@ -25,45 +29,68 @@ A5FONT_FONT         *myfont;
 ALLEGRO_COLOR        black;
 ALLEGRO_COLOR        white;
 
+/* circular array of log messages */
+static char msg_log[SIZE_LOG][MAX_MSG_LEN];
+static int msg_head = 0;
+static int msg_tail = 0;
 
 
-/* Print some text.
- * Prints to the left side of the screen.
- */
-static void print_log(char const *message)
+
+/* Add a message to the log. */
+static void log_message(char const *message)
 {
-   /* FIXME: use actual font height */
-#define SIZE_LOG  (HEIGHT/25)
-
-   /* make a scrolling log using a circular array */
-   static char msg_log[SIZE_LOG][MAX_MSG_LEN] ;
-   static int msg_top = 0;
-   int y = HEIGHT-25;
-   int i = 0;
-
-   ustrncpy(msg_log[msg_top], message,MAX_MSG_LEN);
-   msg_top = (msg_top + 1) % SIZE_LOG;
-
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
-
-   al_draw_rectangle(0,0,WIDTH/2-1, HEIGHT, black, ALLEGRO_FILLED);
-   for (i=0; i < SIZE_LOG; i++) {
-      a5font_textout(myfont, msg_log[i], 5, y);
-      y -= 25;
+   ustrzcpy(msg_log[msg_head], MAX_MSG_LEN, message);
+   msg_head = (msg_head + 1) % SIZE_LOG;
+   if (msg_head == msg_tail) {
+      msg_tail = (msg_tail + 1) % SIZE_LOG;
    }
-
-#undef SIZE_LOG
 }
 
 
 
-/* Print some text.
- * The old one used sub_bitmaps.
- * The new method uses a scrolling log.
- */
+/* Draw the message log to the screen. */
+static int num_messages(void)
+{
+   if (msg_head < msg_tail) {
+      return (SIZE_LOG - msg_tail) + msg_head;
+   }
+   else {
+      return msg_head - msg_tail;
+   }
+}
+
+static void draw_message_log(void)
+{
+   const int th = a5font_text_height(myfont);
+   int y;
+   int i;
+
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
+
+   /* Scroll down the log if necessary. */
+   while (num_messages() >= (HEIGHT/th)) {
+      msg_tail = (msg_tail + 1) % SIZE_LOG;
+   }
+
+   y = 0;
+   i = msg_tail;
+   while (1) {
+      a5font_textout(myfont, msg_log[i], 5, y);
+      y += th;
+
+      i = (i + 1) % SIZE_LOG;
+      if (i == msg_head) {
+         break;
+      }
+   }
+}
+
+
+
+/* Print some text. */
 static void print(int x, int y, char const *message)
 {
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
    a5font_textout(myfont, message, x, y);
 }
 
@@ -94,8 +121,8 @@ void log_key_down(int keycode, int unichar, int modifiers)
 
    usetat(unistr, 0, unichar);
    uszprintf(buf, sizeof(buf),
-      "Down: %3d >%s< [%08x]", keycode, unistr, modifiers);
-   print_log(buf);
+      "Down: %3d <%s> [%08x]", keycode, unistr, modifiers);
+   log_message(buf);
 }
 
 
@@ -107,8 +134,8 @@ void log_key_repeat(int keycode, int unichar, int modifiers)
 
    usetat(unistr, 0, unichar);
    uszprintf(buf, sizeof(buf),
-      "Rept: %3d >%s< [%08x]", keycode, unistr, modifiers);
-   print_log(buf);
+      "Rept: %3d <%s> [%08x]", keycode, unistr, modifiers);
+   log_message(buf);
 }
 
 
@@ -120,8 +147,8 @@ void log_key_up(int keycode, int unichar, int modifiers)
 
    usetat(unistr, 0, unichar);
    uszprintf(buf, sizeof(buf),
-      "Up: %3d >%s< [%08x]", keycode, unistr, modifiers);
-   print_log(buf);
+      "Up: %3d <%s> [%08x]", keycode, unistr, modifiers);
+   log_message(buf);
 }
 
 
@@ -142,7 +169,7 @@ void draw_timer_tick(ALLEGRO_TIMER *timer, long count)
       y = -1;
    }
 
-   uszprintf(buf, sizeof(buf),"Timer: %ld", count);
+   uszprintf(buf, sizeof(buf), "Timer: %ld", count);
    print(400, y, buf);
 }
 
@@ -157,9 +184,10 @@ void draw_mouse_button(int but, bool down)
    x = 400 + offset[but-1];
    y = 130;
 
-   al_draw_rectangle(x, y, x + 25, y + 40, (down ? white : black),
-      ALLEGRO_FILLED);
-   al_draw_rectangle(x, y, x + 25, y + 40, white, 0);
+   al_draw_rectangle(x, y, x + 25, y + 40, black, ALLEGRO_OUTLINED);
+   if (down) {
+      al_draw_rectangle(x + 2, y + 2, x + 24, y + 39, black, ALLEGRO_FILLED);
+   }
 }
 
 
@@ -168,7 +196,7 @@ void draw_mouse_pos(int x, int y, int z, int w)
 {
    char buf[MAX_MSG_LEN];
 
-   uszprintf(buf, sizeof(buf),"(%d, %d, %d, %d) ", x, y, z, w);
+   uszprintf(buf, sizeof(buf), "(%d, %d, %d, %d) ", x, y, z, w);
    print(400, 180, buf);
 }
 
@@ -186,26 +214,24 @@ void draw_joystick_axes(ALLEGRO_JOYSTATE *jst)
    x = 470 + joys_x * 50;
    y = 300 + joys_y * 50;
 
-   al_draw_rectangle(470-60, 300-60, 470+60, 300+60, black, ALLEGRO_FILLED);
-   al_draw_rectangle(470-60, 300-60, 470+60, 300+60, white, ALLEGRO_OUTLINED);
-   /* this makes up for lack of al_draw_circle */
-   al_draw_rectangle(x-5,y-5,x+5,y+5, white, ALLEGRO_FILLED);
+   al_draw_rectangle(470-60, 300-60, 470+60, 300+60, black, ALLEGRO_OUTLINED);
+   al_draw_rectangle(x-5, y-5, x+5, y+5, black, ALLEGRO_FILLED);
 }
 
 
 
 void draw_joystick_button(int button, bool down)
 {
-   ALLEGRO_COLOR fill;
    int x;
    int y;
 
    x = 400 + (button % 5) * 30;
    y = 400 + (button / 5) * 30;
 
-   fill = (down ? white : black);
-   al_draw_rectangle(x, y, x + 25, y + 25, fill , ALLEGRO_FILLED);
-   al_draw_rectangle(x, y, x + 25, y + 25, white, ALLEGRO_OUTLINED);
+   al_draw_rectangle(x, y, x + 25, y + 25, black, ALLEGRO_OUTLINED);
+   if (down) {
+      al_draw_rectangle(x + 2, y + 2, x + 24, y + 24, black, ALLEGRO_FILLED);
+   }
 }
 
 
@@ -228,8 +254,8 @@ void draw_all(void)
    ALLEGRO_JOYSTATE jst;
    int num_buttons;
 
-   /* Clear the screen minus the keyboard state printing area. */
-   al_draw_rectangle(WIDTH/2, 0, WIDTH, HEIGHT, black, ALLEGRO_FILLED);
+   /* Clear the screen. */
+   al_clear(white);
 
    al_get_mouse_state(&mst);
    draw_mouse_pos(mst.x, mst.y, mst.z, mst.w);
@@ -248,6 +274,8 @@ void draw_all(void)
       draw_joystick_axes(&jst);
       draw_joystick_buttons(num_buttons, &jst);
    }
+
+   draw_message_log();
 
    al_flip_display();
 }
@@ -275,9 +303,9 @@ void main_loop(void)
        */
       al_wait_for_event(event_queue, &event, ALLEGRO_WAIT_FOREVER);
 
-      /* Check what type of event we got and act accordingly.  ALLEGRO_EVENT is a
-       * union type and interpretation of its contents is dependent on the
-       * event type, which is given by the 'type' field.
+      /* Check what type of event we got and act accordingly.  ALLEGRO_EVENT
+       * is a union type and interpretation of its contents is dependent on
+       * the event type, which is given by the 'type' field.
        *
        * Each event also comes from an event source and has a timestamp.
        * These are accessible through the 'any.source' and 'any.timestamp'
@@ -379,6 +407,11 @@ void main_loop(void)
          case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
             break;
 
+         /* ALLEGRO_EVENT_DISPLAY_CLOSE - the window close button was pressed.
+          */
+         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            return;
+
          /* We received an event of some type we don't know about.
           * Just ignore it.
           */
@@ -474,6 +507,7 @@ int main(void)
    al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)timer_a);
    al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)timer_b);
    al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)timer_c);
+   al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)display);
 
    /* Register all the joysticks on the system with the event queue as well. */
    num = al_num_joysticks();
