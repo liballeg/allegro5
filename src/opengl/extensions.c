@@ -66,7 +66,7 @@
 #ifdef ALLEGRO_MACOSX
    #undef TRUE
    #undef FALSE
-   #include <Carbon/Carbon.h>
+   #include <CoreFoundation/CoreFoundation.h>
    #undef TRUE
    #undef FALSE
    #define TRUE  -1
@@ -203,10 +203,6 @@ static ALLEGRO_OGL_EXT_API *create_extension_api_table(void)
  */
 static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 {
-#ifdef ALLEGRO_MACOSX
-   CFStringRef function;
-#endif
-
    if (!ext) {
       return;
    }
@@ -256,12 +252,8 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
 #elif defined ALLEGRO_MACOSX
 
-   #define AGL_API(type, name, args)                                                                 \
-      function = CFStringCreateWithCString(kCFAllocatorDefault, "gl" #name, kCFStringEncodingASCII);     \
-      if (function) {                                                                                    \
-         ext->name = (ALLEGRO_##name##_t)CFBundleGetFunctionPointerForName(opengl_bundle_ref, function); \
-         CFRelease(function);                                                                            \
-      }                                                                                                  \
+#define AGL_API(type, name, args)                                                                 \
+      ext->name = (ALLEGRO_##name##_t)CFBundleGetFunctionPointerForName(opengl_bundle_ref, CFSTR("gl" # name)); \
       if (ext->name) { TRACE("gl" #name " successfully loaded\n"); }
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
