@@ -404,14 +404,6 @@ static int osx_sys_get_desktop_resolution(int *width, int *height)
    return 0;
 }
 
-/* osx_view_from_display:
- * given an ALLEGRO_DISPLAY, return the associated Cocoa View or nil
- * if fullscreen 
- */
-NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp)
-{
-	return nil;
-}
 
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)

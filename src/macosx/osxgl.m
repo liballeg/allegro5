@@ -210,6 +210,15 @@ ALLEGRO_BITMAP_INTERFACE *osx_bitmap_driver(void);
 }
 @end
 
+/* osx_view_from_display:
+ * given an ALLEGRO_DISPLAY, return the associated Cocoa View or nil
+ * if fullscreen 
+ */
+NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp)
+{
+	return [((ALLEGRO_DISPLAY_OSX_WIN*) disp)->win contentView];
+}
+
 /* set_current_display_win:
 * Set the current windowed display to be current.
 */
