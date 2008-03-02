@@ -141,6 +141,7 @@ static float _al_ogl_version(void)
 }
 
 
+
 /* Function: al_opengl_version
  *
  *  Returns the OpenGL version number of the client
@@ -164,6 +165,7 @@ float al_opengl_version(void)
 }
 
 
+
 /* Create the extension list */
 static ALLEGRO_OGL_EXT_LIST *create_extension_list(void)
 {
@@ -177,6 +179,7 @@ static ALLEGRO_OGL_EXT_LIST *create_extension_list(void)
 
    return ret;
 }
+
 
 
 /* Create the extension API table */
@@ -306,6 +309,7 @@ static void destroy_extension_api_table(ALLEGRO_OGL_EXT_API *ext)
 }
 
 
+
 /* Destroys the extension list */
 static void destroy_extension_list(ALLEGRO_OGL_EXT_LIST *list)
 {
@@ -313,6 +317,7 @@ static void destroy_extension_list(ALLEGRO_OGL_EXT_LIST *list)
       free(list);
    }
 }
+
 
 
 /* _al_ogl_look_for_an_extension:
@@ -344,6 +349,7 @@ int _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensi
    }
    return FALSE;
 }
+
 
 
 /* Function: al_is_opengl_extension_supported
@@ -517,11 +523,13 @@ void *al_get_opengl_proc_address(AL_CONST char *name)
 
 
 
-/* Fills in the OPENGL_INFO info struct for blacklisting video cards.
+/* fill_in_info_struct:
+ *  Fills in the OPENGL_INFO info struct for blacklisting video cards.
  */
 static void fill_in_info_struct(const GLubyte *rendereru, OPENGL_INFO *info)
 {
    const char *renderer = (const char *)rendereru;
+   ASSERT(renderer);
 
    /* Some cards are "special"... */
    if (strstr(renderer, "3Dfx/Voodoo")) {
@@ -712,9 +720,11 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
    }
 }
 
+
+
 /* Function: al_get_opengl_extension_list
- * Returns the list of OpenGL extensions supproted by Allegro, for
- * the current context.
+ * Returns the list of OpenGL extensions supported by Allegro, for
+ * the current context. If there is no current display, returns NULL.
  *
  * Allegro will keep information about all extensions it knows about in a
  * structure returned by <al_get_opengl_extension_list>.
@@ -722,20 +732,20 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
  * For example:
  * > if (al_get_opengl_extension_list()->ALLEGRO_GL_ARB_multitexture) { use it }
  *
- * The extension will be set to true if available for the current DISPLAY* and
+ * The extension will be set to true if available for the current display and
  * false otherwise. This means to use the definitions and functions from an
- * OpenGL extension, all you need to do is to check for it like above at
- * runtime, once you acquired the OpenGL DISPLAY* from Allegro.
+ * OpenGL extension, all you need to do is to check for it as above at
+ * run time, after acquiring the OpenGL display from Allegro.
  *
- * Under Windows, this will also work with WGL extensions, and under Linux
- * also with GLX extensions.
+ * Under Windows, this will also work with WGL extensions, and under Unix
+ * with GLX extensions.
  *
  * In case you want to manually check for extensions and load function pointers
  * yourself (say, in case the Allegro developers did not include it yet), you
  * can use the <al_is_opengl_extension_supported> and
  * <al_get_opengl_proc_address> functions instead.
  */
-ALLEGRO_OGL_EXT_LIST* al_get_opengl_extension_list(void)
+ALLEGRO_OGL_EXT_LIST *al_get_opengl_extension_list(void)
 {
    ALLEGRO_DISPLAY *disp;
 
@@ -747,7 +757,8 @@ ALLEGRO_OGL_EXT_LIST* al_get_opengl_extension_list(void)
 }
 
 
-/* __allegro_gl_print_extensions:
+
+/* print_extensions:
  * Given a string containing extensions (i.e. a NULL terminated string where
  * each extension are separated by a space and which names do not contain any
  * space)
