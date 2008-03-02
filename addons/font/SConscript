@@ -23,8 +23,8 @@ def a5font(env, appendDir, buildDir, libDir):
     examples.append(lib)
 
     exampleEnv = env.Copy()
-    exampleEnv.Append( LIBS = lib )
-
+    exampleEnv.Append(LIBS = ["a5_font"])
+    
     def addExample(name, files):
         example = exampleEnv.Program(name, appendDir(buildDir + '/addons/font/', files))
         Alias(name, example)
@@ -45,6 +45,7 @@ def a5font(env, appendDir, buildDir, libDir):
 
     Alias('install', install())
     Alias('install-addons/font', install())
+
     return examples
 
 context.addExtra(a5font,depends = True)
