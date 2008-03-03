@@ -128,8 +128,8 @@ static double timer_thread_handle_tick(double interval)
       timer->counter -= interval;
 
       while (timer->counter <= 0) {
-         timer->counter += timer->speed_secs;
          timer_handle_tick(timer);
+         timer->counter += timer->speed_secs;
       }
 
       if ((timer->counter > 0) && (timer->counter < new_delay))
@@ -352,6 +352,7 @@ static void timer_handle_tick(ALLEGRO_TIMER *this)
             event->timer.type = ALLEGRO_EVENT_TIMER;
             event->timer.timestamp = al_current_time();
             event->timer.count = this->count;
+            event->timer.error = -this->counter;
             _al_event_source_emit_event(&this->es, event);
          }
       }

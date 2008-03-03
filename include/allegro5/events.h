@@ -198,6 +198,7 @@ typedef struct ALLEGRO_TIMER_EVENT
 {
    _AL_EVENT_HEADER(struct ALLEGRO_TIMER);
    long count;
+   double error;
 } ALLEGRO_TIMER_EVENT;
 
 
