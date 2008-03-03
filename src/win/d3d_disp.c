@@ -1719,6 +1719,7 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    bitmap->bitmap.memory = NULL;
    bitmap->bitmap.format = format;
    bitmap->bitmap.flags = flags;
+   bitmap->bitmap.pitch = w * al_get_pixel_size(format);
 
    bitmap->video_texture = 0;
    bitmap->system_texture = 0;
