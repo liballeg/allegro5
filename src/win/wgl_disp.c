@@ -37,10 +37,10 @@
 
 
 static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
-static bool init_done = false;
 
 /* Forward declarations: */
 static void display_thread_proc(void *arg);
+static void wgl_destroy_display(ALLEGRO_DISPLAY *display);
 
 
 /*
@@ -770,10 +770,23 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
       return NULL;
    }
 
-   ogl_display->backbuffer = _al_ogl_create_backbuffer(display);
+   /* make the context the current one */
+   if (!wglMakeCurrent(wgl_display->dc, wgl_display->glrc)) {
+      log_win32_error("wgl_set_current_display", "Unable to make the context current!",
+                       GetLastError());
+      wgl_destroy_display(display);
+      return NULL;
+   }
 
-   /* Init will finish in set_current_display() */
-   init_done = false;
+   /* Print out OpenGL version info */
+   TRACE(PREFIX_I "OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
+   TRACE(PREFIX_I "Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
+   TRACE(PREFIX_I "Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
+
+   _al_ogl_manage_extensions(ogl_display);
+   _al_ogl_set_extensions(ogl_display->extension_api);
+
+   ogl_display->backbuffer = _al_ogl_create_backbuffer(display);
 
    /* Add ourself to the list of displays. */
    add = _al_vector_alloc_back(&system->system.displays);
@@ -830,23 +843,12 @@ static void wgl_set_current_display(ALLEGRO_DISPLAY *d)
 
    current_glrc = wglGetCurrentContext();
 
-   if (!init_done || (current_glrc && current_glrc != wgl_disp->glrc)) {
+   if (current_glrc && current_glrc != wgl_disp->glrc) {
       /* make the context the current one */
       if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
          log_win32_error("wgl_set_current_display", "Unable to make the context current!",
                           GetLastError());
          return;
-      }
-
-      if (!init_done) {
-         /* Print out OpenGL version info */
-         TRACE(PREFIX_I "OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
-         TRACE(PREFIX_I "Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
-         TRACE(PREFIX_I "Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
-
-         _al_ogl_manage_extensions(ogl_disp);
-
-         init_done = true;
       }
 
       _al_ogl_set_extensions(ogl_disp->extension_api);

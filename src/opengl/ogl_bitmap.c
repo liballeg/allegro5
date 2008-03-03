@@ -419,6 +419,8 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    const int flags = al_get_new_bitmap_flags();
    int true_w;
    int true_h;
+   int pitch;
+   size_t bytes;
 
    if (ogl_dpy->extension_list->ALLEGRO_GL_ARB_texture_non_power_of_two) {
       true_w = w;
@@ -438,7 +440,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       //   format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
    }
 
-   const int pitch = true_w * al_get_pixel_size(format);
+   pitch = true_w * al_get_pixel_size(format);
 
    bitmap = _AL_MALLOC(sizeof *bitmap);
    ASSERT(bitmap);
@@ -457,7 +459,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    bitmap->true_w = true_w;
    bitmap->true_h = true_h;
 
-   const size_t bytes = pitch * true_h;
+   bytes = pitch * true_h;
    bitmap->bitmap.memory = _AL_MALLOC_ATOMIC(bytes);
    memset(bitmap->bitmap.memory, 0, bytes);
 
