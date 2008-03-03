@@ -72,10 +72,13 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 
    memset(bitmap, 0, sizeof *bitmap);
 
+   const int pitch = w * al_get_pixel_size(format);
+
    bitmap->format = format;
    bitmap->flags = al_get_new_bitmap_flags() | ALLEGRO_MEMORY_BITMAP;
    bitmap->w = w;
    bitmap->h = h;
+   bitmap->pitch = pitch;
    bitmap->display = NULL;
    bitmap->locked = false;
    bitmap->cl = bitmap->ct = 0;
@@ -86,8 +89,8 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    // FIXME: Of course, we do need to handle all the possible different formats,
    // this will easily fill up its own file of 1000 lines, but for now,
    // RGBA with 8-bit per component is hardcoded.
-   bitmap->memory = _AL_MALLOC(w * h * al_get_pixel_size(format));
-   memset(bitmap->memory, 0, w * h * al_get_pixel_size(format));
+   bitmap->memory = _AL_MALLOC(pitch * h);
+   memset(bitmap->memory, 0, pitch * h);
    return bitmap;
 }
 
@@ -122,19 +125,31 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 
    bitmap = _al_current_display->vt->create_bitmap(_al_current_display, w, h);
 
+   /* XXX the ogl_display driver sets some of these variables. It's not clear
+    * who should be responsible for setting what.
+    * The pitch must be set by the driver.
+    */
    bitmap->display = _al_current_display;
    bitmap->w = w;
    bitmap->h = h;
    bitmap->locked = false;
-   bitmap->cl = bitmap->ct = 0;
+   bitmap->cl = 0;
+   bitmap->ct = 0;
    bitmap->cr = w-1;
    bitmap->cb = h-1;
    bitmap->parent = NULL;
-   bitmap->xofs = bitmap->yofs = 0;
+   bitmap->xofs = 0;
+   bitmap->yofs = 0;
 
+   ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->format));
+
+   /* If the true height is greater than bitmap->h then the display driver
+    * should allocate the memory itself.
+    */
    if (!bitmap->memory) {
-      bitmap->memory = _AL_MALLOC(w * h * al_get_pixel_size(bitmap->format));
-      memset(bitmap->memory, 0, w * h * al_get_pixel_size(bitmap->format));
+      size_t bytes = bitmap->pitch * h;
+      bitmap->memory = _AL_MALLOC_ATOMIC(bytes);
+      memset(bitmap->memory, 0, bytes);
    }
 
    if (!bitmap->vt->upload_bitmap(bitmap, 0, 0, w, h)) {
@@ -162,7 +177,8 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       _al_destroy_memory_bitmap(bitmap);
       return;
    }
-   else if (bitmap->parent) {
+
+   if (bitmap->parent) {
       /* It's a sub-bitmap */
       _AL_FREE(bitmap);
       return;
@@ -227,12 +243,8 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    if (!bitmap)
       return NULL;
 
-   _al_convert_compat_bitmap(
-      file_data,
-      bitmap->memory, bitmap->format,
-      al_get_pixel_size(bitmap->format) * bitmap->w,
-      0, 0, 0, 0,
-      file_data->w, file_data->h);
+   _al_convert_compat_bitmap(file_data, bitmap->memory, bitmap->format,
+      bitmap->pitch, 0, 0, 0, 0, file_data->w, file_data->h);
 
    destroy_bitmap(file_data);
    return bitmap;
@@ -283,10 +295,12 @@ void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
    }
    else {
       /* if source is memory or incompatible */
-      if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) || (!al_is_compatible_bitmap(bitmap))) {
+      if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
+          (!al_is_compatible_bitmap(bitmap)))
+      {
          if (display && display->vt->draw_memory_bitmap_region) {
-            display->vt->draw_memory_bitmap_region(display,
-                                                   bitmap, 0, 0, bitmap->w, bitmap->h, dx, dy, flags);
+            display->vt->draw_memory_bitmap_region(display, bitmap,
+               0, 0, bitmap->w, bitmap->h, dx, dy, flags);
          }
          else {
             _al_draw_bitmap_memory(bitmap, dx, dy, flags);
@@ -323,16 +337,18 @@ void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    if (dest->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
    }
-   else 
-   {
+   else {
       /* if source is memory or incompatible */
-      if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) || (!al_is_compatible_bitmap(bitmap))) {
+      if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
+          (!al_is_compatible_bitmap(bitmap)))
+      {
          if (display && display->vt->draw_memory_bitmap_region) {
-            display->vt->draw_memory_bitmap_region(display,
-                                                   bitmap, sx, sy, sw, sh, dx, dy, flags);
+            display->vt->draw_memory_bitmap_region(display, bitmap,
+               sx, sy, sw, sh, dx, dy, flags);
          }
          else {
-            _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
+            _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy,
+               flags);
          }
       }
       else {
@@ -483,20 +499,18 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
       locked_region->data = bitmap->memory
-         + (bitmap->w * y + x) * al_get_pixel_size(bitmap->format);
+         + bitmap->pitch * y + x * al_get_pixel_size(bitmap->format);
       locked_region->format = bitmap->format;
-      locked_region->pitch = bitmap->w*al_get_pixel_size(bitmap->format);
+      //locked_region->pitch = bitmap->w*al_get_pixel_size(bitmap->format);
+      locked_region->pitch = bitmap->pitch;
    }
    else {
-      locked_region = bitmap->vt->lock_region(bitmap,
-         x, y, width, height,
-         locked_region,
-         flags);
+      locked_region = bitmap->vt->lock_region(bitmap, x, y, width, height,
+         locked_region, flags);
    }
 
    if (locked_region) {
-      memcpy(&bitmap->locked_region, locked_region,
-         sizeof(ALLEGRO_LOCKED_REGION));
+      bitmap->locked_region = *locked_region;
    }
    else {
       bitmap->locked = false;
@@ -512,7 +526,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
  * Lock an entire bitmap for reading or writing. If the bitmap is a
  * display bitmap it will be updated from system memory after the bitmap
  * is unlocked (unless locked read only). locked_region must point to an
- * already allocated ALLEGRO_LOCKED_REGION structure. Returns false if the
+ * already allocated ALLEGRO_LOCKED_REGION structure. Returns NULL if the
  * bitmap cannot be locked, e.g. the bitmap was locked previously and not
  * unlocked.
  *

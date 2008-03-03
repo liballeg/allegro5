@@ -15,6 +15,11 @@ struct ALLEGRO_BITMAP
    int format;
    int flags;
    int w, h;
+   /*
+    * The number of bytes between a pixel at (x,y) and (x,y+1).
+    * This is larger than w * pixel_size if there is padding between lines.
+    */
+   int pitch;
    /* 
     * clip left, right, top, bottom
     * Clip anything outside of this

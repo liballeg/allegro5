@@ -98,14 +98,6 @@
 static float _al_ogl_version(void)
 {
    const char *str;
-   ALLEGRO_DISPLAY *disp = al_get_current_display();
-
-   disp = al_get_current_display();
-   if (!disp)
-      return 0.0f;
-
-   if (!(disp->flags & ALLEGRO_OPENGL))
-      return 0.0f;
 
    str = (const char *)glGetString(GL_VERSION);
 
@@ -344,6 +336,49 @@ int _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensi
 
 
 
+static int _ogl_is_extension_supported(AL_CONST char *extension,
+                                       ALLEGRO_DISPLAY_OGL *disp)
+{
+   int ret;
+   
+   if (!glGetString(GL_EXTENSIONS))
+      return FALSE;
+
+   ret = _al_ogl_look_for_an_extension(extension, glGetString(GL_EXTENSIONS));
+
+#ifdef ALLEGRO_WINDOWS
+   if (!ret && strncmp(extension, "WGL", 3) == 0) {
+      ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
+      ALLEGRO_GetExtensionsStringARB_t __wglGetExtensionsStringARB;
+
+      if (!wgl_disp->dc)
+         return FALSE;
+
+      __wglGetExtensionsStringARB =
+         (ALLEGRO_GetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
+      if (__wglGetExtensionsStringARB) {
+         ret = _al_ogl_look_for_an_extension(extension, (const GLubyte *)
+                                     __wglGetExtensionsStringARB(wgl_disp->dc));
+      }
+   }
+
+#elif defined ALLEGRO_UNIX
+   if (!ret && strncmp(extension, "GLX", 3) == 0) {
+      ALLEGRO_SYSTEM_XGLX *sys = (void*)al_system_driver();
+      ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
+
+      if (!sys->xdisplay || !glx_disp->xscreen)
+         return FALSE;
+
+      ret = _al_ogl_look_for_an_extension(extension, (const GLubyte *)
+                    glXQueryExtensionsString(sys->xdisplay, glx_disp->xscreen));
+   }
+#endif
+
+   return ret;
+}
+
+
 /* Function: al_is_opengl_extension_supported
  *  This function is a helper to determine whether an OpenGL extension is
  *  available on the current display or not.
@@ -363,7 +398,6 @@ int _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensi
  */
 int al_is_opengl_extension_supported(AL_CONST char *extension)
 {
-   int ret;
    ALLEGRO_DISPLAY *disp;
    
    disp = al_get_current_display();
@@ -373,40 +407,7 @@ int al_is_opengl_extension_supported(AL_CONST char *extension)
    if (!(disp->flags & ALLEGRO_OPENGL))
       return FALSE;
 
-   if (!glGetString(GL_EXTENSIONS))
-      return FALSE;
-
-   ret = _al_ogl_look_for_an_extension(extension, glGetString(GL_EXTENSIONS));
-
-#ifdef ALLEGRO_WINDOWS
-   if (!ret && strncmp(extension, "WGL", 3) == 0) {
-      ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
-      ALLEGRO_GetExtensionsStringARB_t __wglGetExtensionsStringARB;
-
-      if (!wgl_disp->dc)
-         return FALSE;
-
-      __wglGetExtensionsStringARB =
-         (ALLEGRO_GetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
-      if (__wglGetExtensionsStringARB) {
-         ret = _al_ogl_look_for_an_extension(extension, (const GLubyte *)__wglGetExtensionsStringARB(wgl_disp->dc));
-      }
-   }
-
-#elif defined ALLEGRO_UNIX
-   if (!ret && strncmp(extension, "GLX", 3) == 0) {
-      ALLEGRO_SYSTEM_XGLX *sys = (void*)al_system_driver();
-      ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
-
-      if (!sys->xdisplay || !glx_disp->xscreen)
-         return FALSE;
-
-      ret = _al_ogl_look_for_an_extension(extension, (const GLubyte *)
-                                  glXQueryExtensionsString(sys->xdisplay, glx_disp->xscreen));
-   }
-#endif
-
-   return ret;
+   return _ogl_is_extension_supported(extension, (ALLEGRO_DISPLAY_OGL*)disp);
 }
 
 
@@ -622,24 +623,24 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
    gl_disp->extension_list = ext_list;
 
    /* Fill the list. */
-#define AGL_EXT(name, ver) {                                                       \
-		ext_list->ALLEGRO_GL_##name =  al_is_opengl_extension_supported("GL_" #name) \
-		                      || (gl_disp->ogl_info.version >= ver && ver > 0);      \
+#define AGL_EXT(name, ver) {                                                             \
+		ext_list->ALLEGRO_GL_##name =  _ogl_is_extension_supported("GL_" #name, gl_disp) \
+		                      || (gl_disp->ogl_info.version >= ver && ver > 0);          \
 	}
    #include "allegro5/opengl/GLext/gl_ext_list.h"
 #undef AGL_EXT
 
 #ifdef ALLEGRO_UNIX
-#define AGL_EXT(name, ver) {                                                        \
-		ext_list->ALLEGRO_GLX_##name = al_is_opengl_extension_supported("GLX_" #name) \
-		                      || (gl_disp->ogl_info.version >= ver && ver > 0);       \
+#define AGL_EXT(name, ver) {                                                              \
+		ext_list->ALLEGRO_GLX_##name = _ogl_is_extension_supported("GLX_" #name, gl_disp) \
+		                      || (gl_disp->ogl_info.version >= ver && ver > 0);           \
 	}
    #include "allegro5/opengl/GLext/glx_ext_list.h"
 #undef AGL_EXT
 #elif defined ALLEGRO_WINDOWS
-#define AGL_EXT(name, ver) {                                                        \
-		ext_list->ALLEGRO_WGL_##name = al_is_opengl_extension_supported("WGL_" #name) \
-		                      || (gl_disp->ogl_info.version >= ver && ver > 0);       \
+#define AGL_EXT(name, ver) {                                                              \
+		ext_list->ALLEGRO_WGL_##name = _ogl_is_extension_supported("WGL_" #name, gl_disp) \
+		                      || (gl_disp->ogl_info.version >= ver && ver > 0);           \
 	}
    #include "allegro5/opengl/GLext/wgl_ext_list.h"
 #undef AGL_EXT
@@ -716,7 +717,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
 
 /* Function: al_get_opengl_extension_list
  * Returns the list of OpenGL extensions supported by Allegro, for
- * the current context. If there is no current display, returns NULL.
+ * the current display.
  *
  * Allegro will keep information about all extensions it knows about in a
  * structure returned by <al_get_opengl_extension_list>.
@@ -742,9 +743,7 @@ ALLEGRO_OGL_EXT_LIST *al_get_opengl_extension_list(void)
    ALLEGRO_DISPLAY *disp;
 
    disp = al_get_current_display();
-   if (!disp)
-      return NULL;
-
+   ASSERT(disp);
    return ((ALLEGRO_DISPLAY_OGL*)disp)->extension_list;
 }
 

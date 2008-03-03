@@ -49,8 +49,6 @@ struct ALLEGRO_DISPLAY_XGLX
    
    /* Driver specifics. */
 
-   int opengl_initialized; /* Did we have a chance to set up OpenGL? */
-
    Window window;
    int xscreen; /* TODO: what is this? something with multi-monitor? */
    GLXWindow glxwindow;
@@ -59,7 +57,6 @@ struct ALLEGRO_DISPLAY_XGLX
    XVisualInfo *xvinfo; /* Used when selecting the X11 visual to use. */
    GLXFBConfig *fbc; /* Used when creating the OpenGL context. */
    float glx_version;
-   bool got_extensions;
 
    /* Cursor for this window. */
    Cursor invisible_cursor;

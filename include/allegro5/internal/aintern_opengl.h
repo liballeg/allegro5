@@ -10,6 +10,9 @@ typedef struct ALLEGRO_BITMAP_OGL
 
    /* Driver specifics. */
 
+   int true_w;
+   int true_h;
+
    GLuint texture; /* 0 means, not uploaded yet. */
    GLuint fbo; /* 0 means, no fbo yet. */
 

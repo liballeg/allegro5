@@ -175,9 +175,9 @@ enum ALLEGRO_BLEND_MODE {
  * > }
  */
 typedef struct ALLEGRO_LOCKED_REGION {
-	void *data;
-	int format;
-	int pitch;
+   void *data;
+   int format;
+   int pitch;
 } ALLEGRO_LOCKED_REGION;
 
 

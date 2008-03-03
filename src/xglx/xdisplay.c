@@ -70,7 +70,25 @@ static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
    image->data = _AL_MALLOC_ATOMIC(image->bytes_per_line * h);
 
    // FIXME: Do this properly.
-   memcpy(image->data, bitmap->memory, w * h * 4);
+   ALLEGRO_LOCKED_REGION lr;
+   if (al_lock_bitmap(bitmap, &lr, ALLEGRO_LOCK_READONLY)) {
+      const char *src;
+      char *dst;
+      int i;
+
+      src = lr.data;
+      dst = image->data;
+      for (i = 0; i < h; i++) {
+         memcpy(dst, src, w * 4);
+         src += lr.pitch;
+         dst += w * 4;
+      }
+
+      al_unlock_bitmap(bitmap);
+   }
+   else {
+       /* XXX what should we do here? */
+   }
 
    display->icon = XCreatePixmap(system->xdisplay, display->window,
       bitmap->w, bitmap->h, attributes.depth);
@@ -133,8 +151,6 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    //FIXME
    //d->display.flags |= ALLEGRO_WINDOWED;
-
-   ogl_disp->backbuffer = _al_ogl_create_backbuffer(display);
 
    /* Add ourself to the list of displays. */
    ALLEGRO_DISPLAY_XGLX **add = _al_vector_alloc_back(&system->system.displays);
@@ -201,6 +217,24 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       _al_xglx_fullscreen_to_display(system, d);
    }
 
+   /* Make our GLX context current for reading and writing in the current
+    * thread.
+    */
+   if (d->fbc) {
+      glXMakeContextCurrent(system->xdisplay, d->glxwindow, d->glxwindow,
+         d->context);
+   }
+   else {
+      glXMakeCurrent(system->xdisplay, d->glxwindow, d->context);
+   }
+
+   _al_ogl_manage_extensions(ogl_disp);
+   _al_ogl_set_extensions(ogl_disp->extension_api);
+
+   setup_gl(display);
+
+   ogl_disp->backbuffer = _al_ogl_create_backbuffer(display);
+
    _al_mutex_unlock(&system->lock);
 
    return display;
@@ -251,15 +285,6 @@ static void xdpy_set_current_display(ALLEGRO_DISPLAY *d)
    }
    else {
       glXMakeCurrent(system->xdisplay, glx->glxwindow, glx->context);
-   }
-
-   if (!glx->opengl_initialized) {
-      setup_gl(d);
-   }
-
-   if (!glx->got_extensions) {
-      glx->got_extensions = true;
-      _al_ogl_manage_extensions(ogl);
    }
 
    _al_ogl_set_extensions(ogl->extension_api);

@@ -31,6 +31,7 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    if (!ogl_bitmap->is_backbuffer) {
       if (ogl_bitmap->fbo) {
          /* Bind to the FBO. */
+         ASSERT(ogl_disp->extension_list->ALLEGRO_GL_EXT_framebuffer_object);
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ogl_bitmap->fbo);
 
          /* Attach the texture. */
@@ -61,8 +62,9 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       }
    }
    else {
-      if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object)
+      if (ogl_disp->extension_list->ALLEGRO_GL_EXT_framebuffer_object) {
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+      }
       ogl_disp->opengl_target = ogl_bitmap;
 
       glViewport(0, 0, display->w, display->h);
@@ -80,7 +82,8 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
    if (ogl_disp->opengl_target == ogl_bitmap) {
       if (bitmap->cl == 0 && bitmap->cr == bitmap->w - 1 &&
-         bitmap->ct == 0 && bitmap->cb == bitmap->h - 1) {
+         bitmap->ct == 0 && bitmap->cb == bitmap->h - 1)
+      {
          glDisable(GL_SCISSOR_TEST);
       }
       else {
@@ -103,12 +106,13 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_OGL *ogl = (void *)d;
-   return (ALLEGRO_BITMAP*)ogl->backbuffer;
+   ALLEGRO_DISPLAY_OGL *dpy = (void *)d;
+   return (ALLEGRO_BITMAP *)dpy->backbuffer;
 }
 
 
-ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp) {
+ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
+{
    ALLEGRO_BITMAP_OGL *ogl_backbuffer;
    ALLEGRO_BITMAP *backbuffer;
 
@@ -119,15 +123,8 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp) {
 
    ogl_backbuffer = (ALLEGRO_BITMAP_OGL*)backbuffer;
    ogl_backbuffer->is_backbuffer = 1;
-   
-   /* Create a memory cache for the whole screen. */
-   //TODO: Maybe we should do this lazily and defer to lock_bitmap_region
-   //FIXME: need to resize this on resizing
-   if (!backbuffer->memory) {
-      int n = disp->w * disp->h * al_get_pixel_size(backbuffer->format);
-      backbuffer->memory = _AL_MALLOC(n);
-      memset(backbuffer->memory, 0, n);
-   }
 
    return ogl_backbuffer;
 }
+
+/* vi: set sts=3 sw=3 et: */
