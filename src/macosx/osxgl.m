@@ -227,11 +227,6 @@ void set_current_display_win(ALLEGRO_DISPLAY* d) {
 	if (dpy->ctx != nil) {
 		[dpy->ctx makeCurrentContext];
 	}
-   if (dpy->needs_init) {
-   	/* Setup the 'AllegroGL' stuff */
-      _al_ogl_manage_extensions(&dpy->parent);
-      dpy->needs_init = false;
-   }
    _al_ogl_set_extensions(dpy->parent.extension_api);
 }
 /* Helper to set up GL state as we want it. */
@@ -309,7 +304,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 	dpy->parent.display.vt = osx_get_display_driver();
 	dpy->parent.display.format = ALLEGRO_PIXEL_FORMAT_RGBA_8888; // To do: use the actual format and flags
 	dpy->parent.display.refresh_rate = al_get_new_display_refresh_rate();
-	dpy->parent.display.flags = al_get_new_display_flags();
+	dpy->parent.display.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_WINDOWED;
 	dpy->parent.display.w = w;
 	dpy->parent.display.h = h;
 	_al_event_source_init(&dpy->parent.display.es);
@@ -346,8 +341,9 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 	[win performSelectorOnMainThread: @selector(makeKeyAndOrderFront:) withObject: nil waitUntilDone: YES]; 
 	[win makeMainWindow];
 	[view release];
-   dpy->parent.opengl_target = _al_ogl_create_backbuffer(&dpy->parent.display);
-	dpy->parent.backbuffer = dpy->parent.opengl_target;
+   _al_ogl_manage_extensions(&dpy->parent);
+   _al_ogl_set_extensions(dpy->parent.extension_api);
+	dpy->parent.backbuffer = _al_ogl_create_backbuffer(&dpy->parent.display);
 	/* Set up GL as we want */
 	setup_gl(&dpy->parent.display);
 	ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_system_driver()->displays);
@@ -356,10 +352,10 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 static void destroy_display(ALLEGRO_DISPLAY* d) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    _al_ogl_unmanage_extensions(&dpy->parent);
-	al_destroy_bitmap(&dpy->parent.backbuffer->bitmap);
 	[dpy->ctx release];
 	[dpy->win release];
-	_al_event_source_free(&dpy->parent.display.es);
+	_al_event_source_free(&d->es);
+   _al_vector_find_and_delete(&al_system_driver()->displays, d);
 }
 
 static void flip_display_win(ALLEGRO_DISPLAY *disp) {
@@ -391,7 +387,7 @@ static bool resize_display(ALLEGRO_DISPLAY *d, int w, int h) {
 }
 static bool is_compatible_bitmap(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP* bmp) {
 ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) disp;
-	return (&dpy->parent.backbuffer->bitmap == bmp) || (bmp->flags & ALLEGRO_MEMORY_BITMAP);
+	return true;
 }
 void osx_window_exit()
 {
@@ -448,7 +444,7 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void)
 		NULL, //   void (*switch_out)(ALLEGRO_DISPLAY *display);
 		NULL, //   void (*switch_in)(ALLEGRO_DISPLAY *display);
 			  //
-		draw_memory_bitmap_region, //   void (*draw_memory_bitmap_region)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap,
+      draw_memory_bitmap_region, //   void (*draw_memory_bitmap_region)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap,
 			  //      float sx, float sy, float sw, float sh, float dx, float dy, int flags);
 			  //
 		NULL, //   ALLEGRO_BITMAP *(*create_sub_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *parent,
