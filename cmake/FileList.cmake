@@ -387,19 +387,17 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/hidman.m
     src/macosx/keybd.m
     src/macosx/pcpu.m
-    src/macosx/qtmidi.m
-    src/macosx/quartz.m
-    src/macosx/qzfull.m
     src/macosx/qzmouse.m
-    src/macosx/qzwindow.m
-    src/macosx/soundman.m
     src/macosx/system.m
+    src/macosx/osxgl.m
     src/unix/ufile.c
-    src/unix/usystem.c
     src/unix/uthreads.c
     src/unix/utime.c
     src/unix/uxthread.c
-    src/misc/colconv.c
+    src/opengl/extensions.c
+    src/opengl/ogl_bitmap.c
+    src/opengl/ogl_draw.c
+    src/opengl/ogl_display.c
     )
 
 set(ALLEGRO_MODULE_VGA_FILES
