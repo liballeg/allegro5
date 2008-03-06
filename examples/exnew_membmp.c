@@ -4,17 +4,14 @@
 #include "allegro5/a5_font.h"
 
 
-static bool key_down(void)
+static bool space_key_down(void)
 {
    ALLEGRO_KBDSTATE kbdstate;
-   int i;
 
    al_get_keyboard_state(&kbdstate);
 
-   for (i = 0; i < ALLEGRO_KEY_MAX; i++) {
-      if (al_key_down(&kbdstate, i)) {
-         return true;
-      }
+   if (al_key_down(&kbdstate, ALLEGRO_KEY_SPACE)) {
+      return true;
    }
 
    return false;
@@ -40,8 +37,8 @@ static void test(ALLEGRO_BITMAP *bitmap, A5FONT_FONT *font, char *message)
    start_time = al_current_time();
 
    for (;;) {
-      if (key_down()) {
-         while (key_down())
+      if (space_key_down()) {
+         while (space_key_down())
             ;
          break;
       }
@@ -101,9 +98,9 @@ int main(void)
    memfont = a5font_load_font("font.tga", 0);
    membmp = al_load_bitmap("mysha.pcx");
 
-   test(membmp, memfont, "Memory bitmap");
+   test(membmp, memfont, "Memory bitmap (press SPACE key)");
 
-   test(accelbmp, accelfont, "Accelerated bitmap");
+   test(accelbmp, accelfont, "Accelerated bitmap (press SPACE key)");
 
    return 0;
 }
