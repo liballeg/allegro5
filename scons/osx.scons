@@ -10,7 +10,7 @@ env = context.getLibraryEnv()
 
 context.setLibraryDir("lib/macosx")
 
-alplatf_h = helpers.generate_alplatf_h(env, 'ALLEGRO_MACOSX')
+alplatf_h = helpers.generate_alplatf_h(env, ['ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'])
 # file = open( "include/allegro5/platform/alplatf.h", "w" )
 # file.write( "#define ALLEGRO_MACOSX" )
 # file.close()
@@ -27,8 +27,8 @@ osxfiles = context.cmake["ALLEGRO_SRC_MACOSX_FILES"]
 context.add_files(osxfiles);
 
 context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
-unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
-context.add_files(unixfiles)
+# unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
+# context.add_files(unixfiles)
 
 #mainEnv = Environment()
 #mainLibrary = mainEnv.StaticLibrary( 'alleg-main', 'src/macosx/main.m' )
@@ -119,6 +119,7 @@ addFramework( "CoreAudio" )
 addFramework( "AudioUnit" )
 addFramework( "AudioToolbox" )
 addFramework( "QuickTime" )	
+addFramework( "OpenGL" )	
 
 env.Append(CCFLAGS = flags)
 env.Append(CPPDEFINES = defines)

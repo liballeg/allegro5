@@ -19,14 +19,15 @@ def read_cmake_list(name):
             if w: current.append(w)
     return lists
 
-def generate_alplatf_h(env, define):
+def generate_alplatf_h(env, defines):
     """
     Add a builder to the given environment to build alplatf.h with the given
     define.
     """
     def func(target, source, env):
         writer = open( target[0].path, 'w' )
-        writer.write('#define %s\n' % define)
+	for define in defines:
+	    writer.write('#define %s\n' % define)
         writer.close()
         return 0
 

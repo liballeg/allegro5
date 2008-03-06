@@ -265,7 +265,7 @@ else:
         settings.set("unix", setting, str(val))
     settings.write(file("build/settings.cfg", "w"))
 
-alplatf_h = helpers.generate_alplatf_h(env, "ALLEGRO_UNIX")
+alplatf_h = helpers.generate_alplatf_h(env, ["ALLEGRO_UNIX"])
 
 # env.Depends(alplatf_h, env.Program('dummy','#src/unix/dummy.c'))
 
