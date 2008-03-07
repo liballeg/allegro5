@@ -298,6 +298,16 @@
 		88A25CD00D565FC000F0FD8E /* memblit2.c in Sources */ = {isa = PBXBuildFile; fileRef = 88A25CCF0D565FC000F0FD8E /* memblit2.c */; };
 		88A25CD20D565FCF00F0FD8E /* memblit3.c in Sources */ = {isa = PBXBuildFile; fileRef = 88A25CD10D565FCF00F0FD8E /* memblit3.c */; };
 		88A25CDF0D56673F00F0FD8E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25CDC0D56673F00F0FD8E /* CoreAudio.framework */; };
+		88C7BDB10D81EEF2007BFC9A /* libAllegro-4.9.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D2AAC07E0554694100DB518D /* libAllegro-4.9.a */; };
+		88C7BDB20D81EEF2007BFC9A /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25CDC0D56673F00F0FD8E /* CoreAudio.framework */; };
+		88C7BDB30D81EEF2007BFC9A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25CC70D565EC000F0FD8E /* IOKit.framework */; };
+		88C7BDB40D81EEF2007BFC9A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25C940D565E8100F0FD8E /* OpenGL.framework */; };
+		88C7BDB50D81EEF2007BFC9A /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88FC445D0CEB983B00EFA1D3 /* AudioUnit.framework */; };
+		88C7BDB60D81EEF2007BFC9A /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88FC444B0CEB981F00EFA1D3 /* AudioToolbox.framework */; };
+		88C7BDB70D81EEF2007BFC9A /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D6A5FE840307C02AAC07 /* AppKit.framework */; };
+		88C7BDB80D81EEF2007BFC9A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D69BFE84028FC02AAC07 /* Foundation.framework */; };
+		88C7BDB90D81EEF2007BFC9A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
+		88C7BDBA0D81EF0C007BFC9A /* exnew_multiwin.c in Sources */ = {isa = PBXBuildFile; fileRef = 88C7BBB80D81EEA8007BFC9A /* exnew_multiwin.c */; };
 		88CD95F90D68E4A2005DDBD6 /* exnew_resize.c in Sources */ = {isa = PBXBuildFile; fileRef = 883B72EB0D686DAD009F1EDA /* exnew_resize.c */; };
 		88CD97EB0D68E4BA005DDBD6 /* libAllegro-4.9.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D2AAC07E0554694100DB518D /* libAllegro-4.9.a */; };
 		88CD97EC0D68E4BA005DDBD6 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25CDC0D56673F00F0FD8E /* CoreAudio.framework */; };
@@ -445,6 +455,13 @@
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = AllegroNew;
+		};
+		88C7BBBE0D81EECD007BFC9A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D /* AllegroNew */;
 			remoteInfo = AllegroNew;
 		};
 		88CD95F70D68E491005DDBD6 /* PBXContainerItemProxy */ = {
@@ -777,6 +794,8 @@
 		88A25CCF0D565FC000F0FD8E /* memblit2.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = memblit2.c; path = src/memblit2.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88A25CD10D565FCF00F0FD8E /* memblit3.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = memblit3.c; path = src/memblit3.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88A25CDC0D56673F00F0FD8E /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
+		88C7BBB80D81EEA8007BFC9A /* exnew_multiwin.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = exnew_multiwin.c; path = examples/exnew_multiwin.c; sourceTree = "<group>"; };
+		88C7BBBC0D81EEBE007BFC9A /* ExMultiWin */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = ExMultiWin; path = build/Debug/ExMultiWin; sourceTree = "<group>"; };
 		88CD95F50D68E48B005DDBD6 /* ExNewResize */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ExNewResize; sourceTree = BUILT_PRODUCTS_DIR; };
 		88CD985B0D68EFBF005DDBD6 /* font.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = font.c; path = addons/font/font.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88CD985E0D68EFDC005DDBD6 /* readfont.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = readfont.c; path = addons/font/readfont.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
@@ -895,6 +914,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		88C7BBBA0D81EEBE007BFC9A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88C7BDB10D81EEF2007BFC9A /* libAllegro-4.9.a in Frameworks */,
+				88C7BDB20D81EEF2007BFC9A /* CoreAudio.framework in Frameworks */,
+				88C7BDB30D81EEF2007BFC9A /* IOKit.framework in Frameworks */,
+				88C7BDB40D81EEF2007BFC9A /* OpenGL.framework in Frameworks */,
+				88C7BDB50D81EEF2007BFC9A /* AudioUnit.framework in Frameworks */,
+				88C7BDB60D81EEF2007BFC9A /* AudioToolbox.framework in Frameworks */,
+				88C7BDB70D81EEF2007BFC9A /* AppKit.framework in Frameworks */,
+				88C7BDB80D81EEF2007BFC9A /* Foundation.framework in Frameworks */,
+				88C7BDB90D81EEF2007BFC9A /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		88CD95F30D68E48B005DDBD6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1003,6 +1038,7 @@
 				88983E4E0D6A3F3900338D77 /* ExNewIcon */,
 				88D531F30D748A8B003B779E /* ExNewMemBmp */,
 				88E603140D7991F500ED1BA3 /* ExNewApi */,
+				88C7BBBC0D81EEBE007BFC9A /* ExMultiWin */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1367,6 +1403,7 @@
 		88E5B11B0D6247EF00BDF453 /* Examples */ = {
 			isa = PBXGroup;
 			children = (
+				88C7BBB80D81EEA8007BFC9A /* exnew_multiwin.c */,
 				883B72E30D686DAD009F1EDA /* exnew_bitmap_target.c */,
 				883B72E40D686DAD009F1EDA /* exnew_blend.c */,
 				883B72E50D686DAD009F1EDA /* exnew_fs_resize.c */,
@@ -1586,6 +1623,23 @@
 			productReference = 88983E4E0D6A3F3900338D77 /* ExNewIcon */;
 			productType = "com.apple.product-type.tool";
 		};
+		88C7BBBB0D81EEBE007BFC9A /* ExNewMultiWin */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 88C7BDC50D81EF26007BFC9A /* Build configuration list for PBXNativeTarget "ExNewMultiWin" */;
+			buildPhases = (
+				88C7BBB90D81EEBE007BFC9A /* Sources */,
+				88C7BBBA0D81EEBE007BFC9A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				88C7BBBF0D81EECD007BFC9A /* PBXTargetDependency */,
+			);
+			name = ExNewMultiWin;
+			productName = ExMultiWin;
+			productReference = 88C7BBBC0D81EEBE007BFC9A /* ExMultiWin */;
+			productType = "com.apple.product-type.tool";
+		};
 		88CD95F40D68E48B005DDBD6 /* ExNewResize */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 88CD98010D68E4D2005DDBD6 /* Build configuration list for PBXNativeTarget "ExNewResize" */;
@@ -1675,6 +1729,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "AllegroNew" */;
 			buildPhases = (
+				88C7BBA10D81B6D7007BFC9A /* ShellScript */,
 				D2AAC07A0554694100DB518D /* Headers */,
 				D2AAC07B0554694100DB518D /* Sources */,
 				D2AAC07C0554694100DB518D /* Frameworks */,
@@ -1712,9 +1767,26 @@
 				88983E4D0D6A3F3900338D77 /* ExNewIcon */,
 				88D531F20D748A8B003B779E /* ExNewMemBmp */,
 				88E603130D7991F500ED1BA3 /* ExNewApi */,
+				88C7BBBB0D81EEBE007BFC9A /* ExNewMultiWin */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		88C7BBA10D81B6D7007BFC9A /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "export PLAT=$SOURCE_ROOT/include/allegro5/platform/alplatf.h\nif [ ! -f $PLAT ]; then\ncat - > $PLAT <<EOF\n/* File generated by XCode Project */\n#define ALLEGRO_MACOSX\n#define ALLEGRO_CFG_OPENGL\nEOF\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		883B72EE0D686DC7009F1EDA /* Sources */ = {
@@ -1769,6 +1841,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				88983E590D6A3F6B00338D77 /* exnew_icon.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88C7BBB90D81EEBE007BFC9A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88C7BDBA0D81EF0C007BFC9A /* exnew_multiwin.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2010,6 +2090,11 @@
 			isa = PBXTargetDependency;
 			target = D2AAC07D0554694100DB518D /* AllegroNew */;
 			targetProxy = 88A589810D5E516100AFC1A3 /* PBXContainerItemProxy */;
+		};
+		88C7BBBF0D81EECD007BFC9A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2AAC07D0554694100DB518D /* AllegroNew */;
+			targetProxy = 88C7BBBE0D81EECD007BFC9A /* PBXContainerItemProxy */;
 		};
 		88CD95F80D68E491005DDBD6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2354,6 +2439,36 @@
 			};
 			name = Release;
 		};
+		88C7BDC60D81EF26007BFC9A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = ExMultiWin;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		88C7BDC70D81EF26007BFC9A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = ExMultiWin;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		88CD98020D68E4D2005DDBD6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2600,6 +2715,15 @@
 			buildConfigurations = (
 				8898405B0D6A3FB400338D77 /* Debug */,
 				8898405C0D6A3FB400338D77 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		88C7BDC50D81EF26007BFC9A /* Build configuration list for PBXNativeTarget "ExNewMultiWin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88C7BDC60D81EF26007BFC9A /* Debug */,
+				88C7BDC70D81EF26007BFC9A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
