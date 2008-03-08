@@ -527,12 +527,12 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro5/internal/aintern_system.h
     include/allegro5/internal/aintern_thread.h
     include/allegro5/internal/aintern_vector.h
+    include/allegro5/internal/aintern_opengl.h
     include/allegro5/internal/aintvga.h
     include/allegro5/internal/alconfig.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES
-    include/allegro5/opengl/algl.h 
     include/allegro5/opengl/gl_ext.h
     include/allegro5/opengl/GLext/gl_ext_alias.h
     include/allegro5/opengl/GLext/gl_ext_defs.h
