@@ -152,6 +152,18 @@ static void log_win32_note(const char *func, const char *error_msg, DWORD err) {
    log_win32_msg(PREFIX_I, func, error_msg, err);
 }
 
+/* Helper to set up GL state as we want it. */
+static void setup_gl(ALLEGRO_DISPLAY *d)
+{
+   glViewport(0, 0, d->w, d->h);
+
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   glOrtho(0, d->w, d->h, 0, -1, 1);
+
+   glMatrixMode(GL_MODELVIEW);
+   glLoadIdentity();
+}
 
 static bool is_wgl_extension_supported(AL_CONST char *extension, HDC dc)
 {
@@ -712,7 +724,10 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d) {
             PIXELFORMATDESCRIPTOR pdf;
             TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", i);
             /* TODO: read info out of pdf. Print it too.*/
-            SetPixelFormat(d->dc, i, &pdf);
+            if (!SetPixelFormat(d->dc, i, &pdf)) {
+               log_win32_error("select_pixel_format", "Unable to set pixel format!",
+                      GetLastError());
+            }
             break;
          }
       }
@@ -729,8 +744,9 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d) {
 
 
 static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
-   ALLEGRO_DISPLAY *disp = (void*)wgl_disp;
-   static new_display_parameters ndp;
+   ALLEGRO_DISPLAY     *disp     = (void*)wgl_disp;
+   ALLEGRO_DISPLAY_OGL *ogl_disp = (void*)wgl_disp;
+   new_display_parameters ndp;
 
    ndp.display = wgl_disp;
    ndp.init_failed = false;
@@ -744,6 +760,22 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
       TRACE(PREFIX_E "Faild to create display.\n");
       return false;
    }
+
+   /* make the context the current one */
+   if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
+      log_win32_error("create_display_internals",
+                      "Unable to make the context current!",
+                       GetLastError());
+      wgl_destroy_display(disp);
+      return false;
+   }
+
+   _al_ogl_manage_extensions(ogl_disp);
+   _al_ogl_set_extensions(ogl_disp->extension_api);
+
+   ogl_disp->backbuffer = _al_ogl_create_backbuffer(disp);
+
+   setup_gl(disp);
 
    return true;
 }
@@ -770,23 +802,10 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
       return NULL;
    }
 
-   /* make the context the current one */
-   if (!wglMakeCurrent(wgl_display->dc, wgl_display->glrc)) {
-      log_win32_error("wgl_set_current_display", "Unable to make the context current!",
-                       GetLastError());
-      wgl_destroy_display(display);
-      return NULL;
-   }
-
    /* Print out OpenGL version info */
    TRACE(PREFIX_I "OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
    TRACE(PREFIX_I "Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
    TRACE(PREFIX_I "Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
-
-   _al_ogl_manage_extensions(ogl_display);
-   _al_ogl_set_extensions(ogl_display->extension_api);
-
-   ogl_display->backbuffer = _al_ogl_create_backbuffer(display);
 
    /* Add ourself to the list of displays. */
    add = _al_vector_alloc_back(&system->system.displays);
@@ -812,11 +831,8 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
 }
 
 
-static void wgl_destroy_display(ALLEGRO_DISPLAY *display)
-{
-   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)display;
-   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)ogl_disp;
+static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
+   ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)wgl_disp;
 
    /* REVIEW: can al_destroy_bitmap() handle backbuffers? */
    if (ogl_disp->backbuffer)
@@ -828,8 +844,16 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *display)
    wgl_disp->end_thread = true;
    while (!wgl_disp->thread_ended)
       al_rest(0.001);
+}
 
-   _al_vector_find_and_delete(&system->system.displays, &display);
+
+static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
+{
+   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
+   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)disp;
+
+   destroy_display_internals(wgl_disp);
+   _al_vector_find_and_delete(&system->system.displays, &disp);
 
    _AL_FREE(wgl_disp);
 }
@@ -856,54 +880,6 @@ static void wgl_set_current_display(ALLEGRO_DISPLAY *d)
 }
 
 
-static void set_window_style(ALLEGRO_DISPLAY_WGL *wgl_disp)
-{
-   ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY*)wgl_disp;
-   RECT rect;
-   DWORD style;
-   DWORD exstyle;
-   bool fullscreen = disp->flags & ALLEGRO_FULLSCREEN;
-   /* TODO: make this configurable */
-   int x = 100;
-   int y = 100;
-
-   if (fullscreen) {
-      style = WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-      exstyle = WS_EX_APPWINDOW | WS_EX_TOPMOST;
-   }
-   else {
-      style = WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX | WS_CLIPCHILDREN
-            | WS_CLIPSIBLINGS;
-      exstyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-   }
-
-
-   SetWindowLong(wgl_disp->window, GWL_STYLE, style);
-   SetWindowLong(wgl_disp->window, GWL_EXSTYLE, exstyle);
-
-   if (!fullscreen) {
-      rect.left = x;
-      rect.right = x + disp->w;
-      rect.top = y;
-      rect.bottom = y + disp->h;
-   }
-   else {
-      rect.left = 0;
-      rect.right = disp->w;
-      rect.top  = 0;
-      rect.bottom = disp->h;
-   }
-
-   if (!fullscreen) {
-      AdjustWindowRectEx(&rect, style, FALSE, exstyle);
-   }
-
-   SetWindowPos(wgl_disp->window, 0, rect.left, rect.top,
-         rect.right - rect.left, rect.bottom - rect.top,
-         SWP_NOZORDER | SWP_FRAMECHANGED);
-}
-
-
 /*
  * The window must be created in the same thread that
  * runs the message loop.
@@ -923,7 +899,17 @@ static void display_thread_proc(void *arg)
       return;
    }
 
-   set_window_style(wgl_disp);
+   /* FIXME: can't _al_win_create_window() do this? */
+   if (disp->flags & ALLEGRO_FULLSCREEN) {
+      RECT rect;
+      rect.left = 0;
+      rect.right = disp->w;
+      rect.top  = 0;
+      rect.bottom = disp->h;
+      SetWindowPos(wgl_disp->window, 0, rect.left, rect.top,
+             rect.right - rect.left, rect.bottom - rect.top,
+             SWP_NOZORDER | SWP_FRAMECHANGED);
+   }
 
    /* get the device context of our window */
    wgl_disp->dc = GetDC(wgl_disp->window);
@@ -968,30 +954,31 @@ static void display_thread_proc(void *arg)
    {
       HWND wnd = wgl_disp->window;
       DWORD lock_time;
+      bool fs = disp->flags & ALLEGRO_FULLSCREEN;
 
 #define SPI_GETFOREGROUNDLOCKTIMEOUT 0x2000
 #define SPI_SETFOREGROUNDLOCKTIMEOUT 0x2001
-      if (disp->flags & ALLEGRO_FULLSCREEN) {
-            SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT,
-                                 0, (LPVOID)&lock_time, 0);
-            SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
-                                 0, (LPVOID)0,
-                                 SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+      if (fs) {
+         SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT,
+                              0, (LPVOID)&lock_time, 0);
+         SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
+                              0, (LPVOID)0,
+                              SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
       }
 
       ShowWindow(wnd, SW_SHOWNORMAL);
       SetForegroundWindow(wnd);
-      /* In some rare cases, it doesn't seem to work without the loop. And we
-       * absolutely need this to succeed, else we trap the user in a
-       * fullscreen window without input.
-       */
-      while (GetForegroundWindow() != wnd) {
-         al_rest(0.001);
-         SetForegroundWindow(wnd);
-      }
-      UpdateWindow(wnd);
+      if (fs) {
+         /* In some rare cases, it doesn't seem to work without the loop. And we
+          * absolutely need this to succeed, else we trap the user in a
+          * fullscreen window without input.
+          */
+         while (GetForegroundWindow() != wnd) {
+            al_rest(0.001);
+            SetForegroundWindow(wnd);
+         }
+         UpdateWindow(wnd);
 
-      if (disp->flags & ALLEGRO_FULLSCREEN) {
          SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
                               0, (LPVOID)lock_time,
                               SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
@@ -1002,6 +989,7 @@ static void display_thread_proc(void *arg)
 
 
    wgl_disp->thread_ended = false;
+   wgl_disp->end_thread = false;
    ndp->initialized = true;
 
    for (;;) {
@@ -1030,13 +1018,20 @@ static void display_thread_proc(void *arg)
 End:
    if (wgl_disp->glrc) {
       wglDeleteContext(wgl_disp->glrc);
+      wgl_disp->glrc = NULL;
    }
    if (wgl_disp->dc) {
       ReleaseDC(wgl_disp->window, wgl_disp->dc);
+      wgl_disp->dc = NULL;
    }
 
    if (disp->flags & ALLEGRO_FULLSCREEN) {
       ChangeDisplaySettings(NULL, 0);
+   }
+
+   if (wgl_disp->window) {
+      DestroyWindow(wgl_disp->window);
+      wgl_disp->window = NULL;
    }
 
    _al_win_delete_thread_handle(GetCurrentThreadId());
@@ -1057,27 +1052,105 @@ static void wgl_flip_display(ALLEGRO_DISPLAY *d)
 static bool wgl_update_display_region(ALLEGRO_DISPLAY *d,
                                       int x, int y, int width, int height)
 {
-   ALLEGRO_DISPLAY_WGL* disp = (ALLEGRO_DISPLAY_WGL*)d;
-
    if (!al_get_opengl_extension_list()->ALLEGRO_WGL_WIN_swap_hint) {
+      /* FIXME: This is just a driver hint and there is no guarantee that the
+       * contens of the front buffer outside the given rectangle will be preserved,
+       * thus we should really return false here and do nothing. */
+      ALLEGRO_DISPLAY_WGL* disp = (ALLEGRO_DISPLAY_WGL*)d;
       wglAddSwapHintRectWIN(x, y, width, height);
+      glFlush();
+      SwapBuffers(disp->dc);
+      return true;
    }
-   glFlush();
-   SwapBuffers(disp->dc);
+   return false;
+}
+
+
+static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
+{
+   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
+   ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)d;
+
+   if (d->flags & ALLEGRO_FULLSCREEN) {
+      destroy_display_internals(wgl_disp);
+      /* FIXME: no need to switch to desktop display mode in between.
+       */
+      d->w = width;
+      d->h = height;
+      create_display_internals(wgl_disp);
+      /* FIXME: the context has been destroyed, need to recreate the bitmaps
+       */
+      /* FIXME: should not change the target bitmap, but the old backbuffer
+       * has been destroyed and if it was the target bitmap, the target will
+       * be invalid */
+      al_set_target_bitmap(al_get_backbuffer());
+   }
+   else {
+      RECT win_size;
+      WINDOWINFO wi;
+
+      win_size.left = 0;
+      win_size.top = 0;
+      win_size.right = width;
+      win_size.bottom = height;
+
+      wi.cbSize = sizeof(WINDOWINFO);
+      GetWindowInfo(wgl_disp->window, &wi);
+
+      AdjustWindowRectEx(&win_size, wi.dwStyle, FALSE, wi.dwExStyle);
+
+      if (!SetWindowPos(wgl_disp->window, HWND_TOP,
+         0, 0,
+         win_size.right - win_size.left,
+         win_size.bottom - win_size.top,
+         SWP_NOMOVE|SWP_NOZORDER))
+            return false;
+
+      d->w = width;
+      d->h = height;
+
+      /* FIXME: This is not optimal. Backbuffer should have its own create/destroy
+       * functions in the first place.
+       */
+      al_destroy_bitmap((ALLEGRO_BITMAP*)ogl_disp->backbuffer);
+      ogl_disp->backbuffer = _al_ogl_create_backbuffer(d);
+
+      setup_gl(d);
+   }
+
+   gfx_driver->w = width;
+   gfx_driver->h = height;
+
    return true;
 }
 
 
 static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
-   /* hm... */
-   return true;
-}
+   /* REVIEW: is it OK just to call wgl_resize_display()?
+    */
+   WINDOWINFO wi;
+   ALLEGRO_DISPLAY *old;
+   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
+   int w, h;
 
+   wi.cbSize = sizeof(WINDOWINFO);
+   GetWindowInfo(wgl_disp->window, &wi);
+   w = wi.rcClient.right - wi.rcClient.left;
+   h = wi.rcClient.bottom - wi.rcClient.top;
 
-static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
-{
-   /* hm#2 .... */
+   if (d->flags & ALLEGRO_FULLSCREEN) {
+      //TODO
+   }
+   else {
+      return wgl_resize_display(d, w, h);
+   }
+
+   old = _al_current_display;
+   al_set_current_display(d);
+   al_set_clipping_rectangle(0, 0, w-1, h-1);
+   al_set_current_display(old);
+
    return true;
 }
 

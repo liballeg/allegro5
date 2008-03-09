@@ -3,13 +3,15 @@
 void redraw(ALLEGRO_BITMAP *picture)
 {
    ALLEGRO_COLOR color;
+   int w = al_get_display_width();
+   int h = al_get_display_height();
 
    color = al_map_rgb(rand() % 255, rand() % 255, rand() % 255);
    al_clear(color);
 
    color = al_map_rgb(255, 0, 0);
-   al_draw_line(0, 0, 640, 480, color);
-   al_draw_line(0, 480, 640, 0, color);
+   al_draw_line(0, 0, w, h, color);
+   al_draw_line(0, h, w, 0, color);
 
    al_draw_bitmap(picture, 0, 0, 0);
    al_flip_display();

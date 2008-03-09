@@ -778,6 +778,8 @@ void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
 {
    destroy_extension_api_table(gl_disp->extension_api);
    destroy_extension_list(gl_disp->extension_list);
+   gl_disp->extension_api = NULL;
+   gl_disp->extension_list = NULL;
 
 #ifdef ALLEGRO_MACOSX
    CFRelease(opengl_bundle_ref);
