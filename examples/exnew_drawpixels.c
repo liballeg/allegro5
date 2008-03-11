@@ -6,10 +6,10 @@ const int NUM_STARS = 300;
 const int TARGET_FPS = 60;
 
 
-struct Point
+typedef struct Point
 {
    float x, y;
-};
+} Point;
 
 
 int main(void)
@@ -26,6 +26,7 @@ int main(void)
    long start, now, elapsed, frame_count;
    int total_frames = 0;
    double program_start;
+   int layer, star;
 
 
    al_init();
@@ -35,8 +36,8 @@ int main(void)
    display = al_create_display(640, 480);
 
          
-   for (int layer = 0; layer < 3; layer++) {
-      for (int star = 0; star < NUM_STARS/3; star++) {
+   for (layer = 0; layer < 3; layer++) {
+      for (star = 0; star < NUM_STARS/3; star++) {
          Point *p = &stars[layer][star];
          p->x = rand() % al_get_display_width();
          p->y = rand() % al_get_display_height();
@@ -58,8 +59,8 @@ int main(void)
       else {
          frame_count -= (1000/TARGET_FPS);
          al_clear(al_map_rgb(0, 0, 0));
-         for (int layer = 0; layer < 3; layer++) {
-            for (int star = 0; star < NUM_STARS/3; star++) {
+         for (layer = 0; layer < 3; layer++) {
+            for (star = 0; star < NUM_STARS/3; star++) {
                Point *p = &stars[layer][star];
                if (layer == 0) {
                   // draw_pixel obeys blending
@@ -80,8 +81,8 @@ int main(void)
       elapsed = now - start;
       start = now;
 
-      for (int layer = 0; layer < 3; layer++) {
-         for (int star = 0; star < NUM_STARS/3; star++) {
+      for (layer = 0; layer < 3; layer++) {
+         for (star = 0; star < NUM_STARS/3; star++) {
             Point *p = &stars[layer][star];
             p->y -= speeds[layer] * elapsed;
             if (p->y < 0) {
@@ -90,6 +91,8 @@ int main(void)
             }
          }
       }
+
+      al_rest(0.001);
 
       al_get_keyboard_state(&key_state);
       if (al_key_down(&key_state, ALLEGRO_KEY_ESCAPE))
