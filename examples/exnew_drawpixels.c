@@ -2,8 +2,8 @@
 #include <stdio.h>
 
 
-const int NUM_STARS = 300;
-const int TARGET_FPS = 60;
+#define NUM_STARS 300
+#define TARGET_FPS 60
 
 
 typedef struct Point
@@ -18,14 +18,11 @@ int main(void)
    ALLEGRO_KBDSTATE key_state;
    Point stars[3][NUM_STARS/3];
    float speeds[3] = { 0.0001f, 0.05f, 0.15f };
-   ALLEGRO_COLOR colors[3] = {
-      al_map_rgba(200, 0, 255, 128),
-      al_map_rgba(100, 0, 255, 255),
-      al_map_rgba(0, 0, 200, 255)
-   };
+   ALLEGRO_COLOR colors[3];
    long start, now, elapsed, frame_count;
    int total_frames = 0;
    double program_start;
+   double length;
    int layer, star;
 
 
@@ -35,6 +32,9 @@ int main(void)
 
    display = al_create_display(640, 480);
 
+   colors[0] = al_map_rgba(200, 0, 255, 128);
+   colors[1] = al_map_rgba(100, 0, 255, 255);
+   colors[2] = al_map_rgba(0, 0, 200, 255);
          
    for (layer = 0; layer < 3; layer++) {
       for (star = 0; star < NUM_STARS/3; star++) {
@@ -99,13 +99,15 @@ int main(void)
          break;
    }
 
-   double length = al_current_time() - program_start;
+   length = al_current_time() - program_start;
 
    if (length != 0) {
       printf("%d FPS\n", (int)(total_frames / length));
    }
 
    al_destroy_display(display);
+
+   return 0;
 }
 END_OF_MAIN()
 
