@@ -941,53 +941,6 @@ static void display_thread_proc(void *arg)
       return;
    }
 
-   /* <rohannessian> Win98/2k/XP's window forground rules don't let us
-   * make our window the topmost window on launch. This causes issues on
-   * full-screen apps, as DInput loses input focus on them.
-   * We use this trick to force the window to be topmost, when switching
-   * to full-screen only. Note that this only works for Win98 and greater.
-   * Win95 will ignore our SystemParametersInfo() calls.
-   *
-   * See http://support.microsoft.com:80/support/kb/articles/Q97/9/25.asp
-   * for details.
-   */
-   {
-      HWND wnd = wgl_disp->window;
-      DWORD lock_time;
-      bool fs = disp->flags & ALLEGRO_FULLSCREEN;
-
-#define SPI_GETFOREGROUNDLOCKTIMEOUT 0x2000
-#define SPI_SETFOREGROUNDLOCKTIMEOUT 0x2001
-      if (fs) {
-         SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT,
-                              0, (LPVOID)&lock_time, 0);
-         SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
-                              0, (LPVOID)0,
-                              SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
-      }
-
-      ShowWindow(wnd, SW_SHOWNORMAL);
-      SetForegroundWindow(wnd);
-      if (fs) {
-         /* In some rare cases, it doesn't seem to work without the loop. And we
-          * absolutely need this to succeed, else we trap the user in a
-          * fullscreen window without input.
-          */
-         while (GetForegroundWindow() != wnd) {
-            al_rest(0.001);
-            SetForegroundWindow(wnd);
-         }
-         UpdateWindow(wnd);
-
-         SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
-                              0, (LPVOID)lock_time,
-                              SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
-      }
-#undef SPI_GETFOREGROUNDLOCKTIMEOUT
-#undef SPI_SETFOREGROUNDLOCKTIMEOUT
-   }
-
-
    wgl_disp->thread_ended = false;
    wgl_disp->end_thread = false;
    ndp->initialized = true;
@@ -1143,7 +1096,8 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
       //TODO
    }
    else {
-      return wgl_resize_display(d, w, h);
+      if (!wgl_resize_display(d, w, h))
+         return false;
    }
 
    old = _al_current_display;
