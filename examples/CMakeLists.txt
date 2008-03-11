@@ -56,6 +56,7 @@ endif(WANT_OLD_EXAMPLES)
 
 example(exnewapi)
 example(exnew_bitmap)
+example(exnew_drawpixels)
 example(exnew_fs_resize)
 example(exnew_icon)
 example(exnew_lockbitmap)

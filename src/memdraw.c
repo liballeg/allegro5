@@ -443,7 +443,7 @@ void _al_draw_rectangle_memory_fast(int x1, int y1, int x2, int y2,
 }
 
 
-void _al_clear_memory_fast(ALLEGRO_COLOR *color)
+void _al_clear_memory(ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
 
@@ -673,7 +673,7 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color)
    y2 -= y1;
    x1 = y1 = 0;
 
-   DO_LINE(+, x, <=, +, y, >=, al_put_pixel);
+   DO_LINE(+, x, <=, +, y, >=, al_draw_pixel);
 
    al_unlock_bitmap(bitmap);
 
@@ -758,22 +758,11 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
    al_unlock_bitmap(bitmap);
 }
 
-
-void _al_clear_memory(ALLEGRO_COLOR *color)
+void _al_draw_pixel_memory(int x, int y, ALLEGRO_COLOR *color)
 {
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
-   int src_mode, dst_mode;
-   ALLEGRO_COLOR *ic;
-
-   al_get_blender(&src_mode, &dst_mode, NULL);
-   ic = _al_get_blend_color();
-   if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-         ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f)
-   {
-      _al_clear_memory_fast(color);
-      return;
-   }
-
-   _al_draw_rectangle_memory(0, 0, bitmap->w-1, bitmap->h-1, color,
-      ALLEGRO_FILLED);
+      ALLEGRO_COLOR result;
+      _al_blend(color, x, y, &result);
+      al_put_pixel(x, y, result);
 }
+
+

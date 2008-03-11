@@ -19,6 +19,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
       ALLEGRO_COLOR *color);
    void (*draw_rectangle)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx,
     float ty, ALLEGRO_COLOR *color, int flags);
+   void (*draw_pixel)(ALLEGRO_DISPLAY *d, float x, float y, ALLEGRO_COLOR *color);
    void (*flip_display)(ALLEGRO_DISPLAY *d);
    bool (*update_display_region)(ALLEGRO_DISPLAY *d, int x, int y,
    	int width, int height);
@@ -69,5 +70,6 @@ struct ALLEGRO_DISPLAY
 void _al_clear_memory(ALLEGRO_COLOR *color);
 void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, int flags);
 void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color);
+void _al_draw_pixel_memory(int x, int y, ALLEGRO_COLOR *color);
 
 #endif

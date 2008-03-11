@@ -279,6 +279,34 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
 }
 
 
+/* Function: al_draw_pixel
+ *
+ * Draws a single pixel at x, y. This function, unlike
+ * al_put_pixel, does blending.
+ *
+ * x - destination x
+ * y - destination y
+ * color - color of the pixel
+ */
+void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
+{
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   ASSERT(target);
+   ASSERT(_al_current_display);
+
+   if (target->flags & ALLEGRO_MEMORY_BITMAP
+         || !_al_current_display->vt->draw_pixel) {
+      _al_draw_pixel_memory(x, y, &color);
+   }
+   else {
+      _al_current_display->vt->draw_pixel(_al_current_display,
+         x, y, &color);
+   }
+}
+
+
+
 
 /* Function: al_is_compatible_bitmap
  *

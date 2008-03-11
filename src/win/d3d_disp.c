@@ -1406,6 +1406,15 @@ static void d3d_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
    al_set_blender(src, dst, blend_color);
 }
 
+
+
+void d3d_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y, ALLEGRO_COLOR *color)
+{
+   d3d_draw_rectangle(d, x, y, x+1, y+1, color, ALLEGRO_FILLED);
+}
+
+
+
 static void d3d_flip_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_D3D* disp = (ALLEGRO_DISPLAY_D3D*)d;
@@ -1929,6 +1938,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->show_cursor = d3d_show_cursor;
    vt->hide_cursor = d3d_hide_cursor;
    vt->set_icon = _al_win_set_display_icon;
+   vt->draw_pixel = d3d_draw_pixel;
 
    return vt;
 }
