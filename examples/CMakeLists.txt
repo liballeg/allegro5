@@ -63,6 +63,7 @@ example(exnew_lockbitmap)
 example(exnew_lockscreen)
 example(exnew_mouse)
 example(exnew_mouse_events)
+example(exnew_multiwin)
 example(exnew_resize)
 
 if(WANT_FONT)
