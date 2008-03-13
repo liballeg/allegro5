@@ -710,14 +710,14 @@ install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
         DESTINATION include/allegro5/platform
         )
 
-if(WANT_OPENGL)
+if(SUPPORT_OPENGL)
         install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
                 DESTINATION include/allegro5/opengl
         )
         install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES}
                 DESTINATION include/allegro5/opengl/GLext
         )
-endif(WANT_OPENGL)
+endif(SUPPORT_OPENGL)
 
 foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
     install(FILES ${CMAKE_BINARY_DIR}/${genfile}
