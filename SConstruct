@@ -61,7 +61,7 @@ except OSError: pass
 
 majorVersion = '4'
 minorVersion = '9'
-microVersion = '2'
+microVersion = '3'
 
 ## Version of Allegro
 allegroVersion = '%s.%s.%s' % (majorVersion, minorVersion, microVersion)
@@ -228,12 +228,12 @@ class AllegroContext:
         def buildStatic(env, debug, d):
             env.BuildDir(d, '.', duplicate = 0)
             # return build(env.StaticLibrary, self.libDir + '/static/' + getLibraryName(debug), d)
-            return build(env.StaticLibrary, getLibraryName(debug), d)
+            return build(env.StaticLibrary, getLibraryName(debug,True), d)
 
         def buildShared(env, debug, d):
             env.BuildDir(d, '.', duplicate = 0)
             # return build(env.SharedLibrary, self.libDir + '/shared/' + getLibraryName(debug), d)
-            return build(env.SharedLibrary, getLibraryName(debug), d)
+            return build(env.SharedLibrary, getLibraryName(debug,False), d)
 
         debugEnv = self.libraryEnv.Copy()
         debugEnv.Append(CCFLAGS = '-DDEBUGMODE=1')
@@ -314,11 +314,17 @@ context = getAllegroContext()
 debugBuildDir = 'build/debug/' + context.getPlatform() + "/"
 optimizedBuildDir = 'build/release/' + context.getPlatform() + "/"
 
-def getLibraryName(debug):
+def getLibraryName(debug,static):
     if debug:
-        return 'allegd-' + context.getAllegroVersion()
+        if static:
+            return 'allegd_s-' + context.getAllegroVersion()
+        else:
+            return 'allegd-' + context.getAllegroVersion()
     else:
-        return 'alleg-' + context.getAllegroVersion()
+	if static:
+            return 'alleg_s-' + context.getAllegroVersion()
+        else:
+            return 'alleg-' + context.getAllegroVersion()
         
 if context.getDebug():
     normalBuildDir = debugBuildDir
@@ -374,7 +380,7 @@ def XMove(env, target, source):
 # Execute(Action(os.rename(library, context.getLibraryDir() + '/' + library)))
 
 # context.addLibrary(library)
-context.addLibrary('-l%s' % getLibraryName(context.getDebug()))
+context.addLibrary('-l%s' % getLibraryName(context.getDebug(),context.getStatic()))
 
 docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
 Alias('docs', docs)
