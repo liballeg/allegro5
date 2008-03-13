@@ -489,6 +489,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/memory.h
     include/allegro5/midi.h
     include/allegro5/mouse.h
+    include/allegro5/a5_opengl.h
     include/allegro5/palette.h
     include/allegro5/quat.h
     include/allegro5/rle.h
@@ -534,6 +535,9 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
 
 set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES
     include/allegro5/opengl/gl_ext.h
+    )
+
+set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES
     include/allegro5/opengl/GLext/gl_ext_alias.h
     include/allegro5/opengl/GLext/gl_ext_defs.h
     include/allegro5/opengl/GLext/glx_ext_alias.h

@@ -26,7 +26,7 @@ macro(add_font_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_font_build(${nm} ${nm}_static STATIC "")
+        really_add_font_build(${nm}_s ${nm}_static STATIC "")
     endif(STATIC)
 
 endmacro(add_font_build)

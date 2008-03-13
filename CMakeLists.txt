@@ -654,7 +654,7 @@ macro(add_allegro_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_allegro_build(${nm} ${nm}_static STATIC
+        really_add_allegro_build(${nm}_s-${ALLEGRO_VERSION} ${nm}_static STATIC
             "-DALLEGRO_STATICLINK")
     endif(STATIC)
 
@@ -682,11 +682,11 @@ endif(GRADE_DEBUG)
 
 if(GRADE_PROFILE)
     if(COMPILER_GCC)
-        add_allegro_build(allp
+        add_allegro_build(allegp
             "-pg -O2 -funroll-loops -ffast-math")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
-       	add_allegro_build(allp "")
+       	add_allegro_build(allegp "")
     endif(COMPILER_MSVC)
 endif(GRADE_PROFILE)
 
@@ -709,9 +709,16 @@ install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES}
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
         DESTINATION include/allegro5/platform
         )
-install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
-        DESTINATION include/allegro5/opengl
+
+if(WANT_OPENGL)
+        install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
+                DESTINATION include/allegro5/opengl
         )
+        install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES}
+                DESTINATION include/allegro5/opengl/GLext
+        )
+endif(WANT_OPENGL)
+
 foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
     install(FILES ${CMAKE_BINARY_DIR}/${genfile}
             DESTINATION include/allegro5/platform
