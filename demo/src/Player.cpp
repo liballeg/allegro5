@@ -1,5 +1,10 @@
 #include "a5teroids.hpp"
 
+const float Player::MAX_SPEED;
+const float Player::MIN_SPEED;
+const float Player::ACCEL;
+const float Player::DECCEL;
+
 bool Player::logic(int step)
 {
    if (!isDestructable && invincibleCount > 0) {
