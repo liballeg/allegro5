@@ -836,7 +836,7 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
 
    /* REVIEW: can al_destroy_bitmap() handle backbuffers? */
    if (ogl_disp->backbuffer)
-      al_destroy_bitmap((ALLEGRO_BITMAP*)ogl_disp->backbuffer);
+      _al_ogl_destroy_backbuffer(ogl_disp->backbuffer);
    ogl_disp->backbuffer = NULL;
 
    _al_ogl_unmanage_extensions(ogl_disp);
@@ -1062,11 +1062,7 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       d->w = width;
       d->h = height;
 
-      /* FIXME: This is not optimal. Backbuffer should have its own create/destroy
-       * functions in the first place.
-       */
-      al_destroy_bitmap((ALLEGRO_BITMAP*)ogl_disp->backbuffer);
-      ogl_disp->backbuffer = _al_ogl_create_backbuffer(d);
+      _al_ogl_resize_backbuffer(ogl_disp->backbuffer, width, height);
 
       setup_gl(d);
    }
@@ -1080,11 +1076,9 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 
 static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
-   /* REVIEW: is it OK just to call wgl_resize_display()?
-    */
    WINDOWINFO wi;
-   ALLEGRO_DISPLAY *old;
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
+   ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)d;
    int w, h;
 
    wi.cbSize = sizeof(WINDOWINFO);
@@ -1092,18 +1086,15 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
    w = wi.rcClient.right - wi.rcClient.left;
    h = wi.rcClient.bottom - wi.rcClient.top;
 
-   if (d->flags & ALLEGRO_FULLSCREEN) {
-      //TODO
-   }
-   else {
-      if (!wgl_resize_display(d, w, h))
-         return false;
-   }
+   d->w = w;
+   d->h = h;
 
-   old = _al_current_display;
-   al_set_current_display(d);
-   al_set_clipping_rectangle(0, 0, w-1, h-1);
-   al_set_current_display(old);
+   _al_ogl_resize_backbuffer(ogl_disp->backbuffer, w, h);
+
+   setup_gl(d);
+
+   gfx_driver->w = w;
+   gfx_driver->h = h;
 
    return true;
 }

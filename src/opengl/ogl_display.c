@@ -111,6 +111,36 @@ ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d)
 }
 
 
+bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP_OGL *b, int w, int h)
+{
+   int pitch;
+   int bytes;
+         
+   pitch = w * al_get_pixel_size(b->bitmap.format);
+
+   b->bitmap.w = w;
+   b->bitmap.h = h;
+   b->bitmap.pitch = pitch;
+   b->bitmap.cl = 0;
+   b->bitmap.ct = 0;
+   b->bitmap.cr = w - 1;
+   b->bitmap.cb = h - 1;
+
+   /* There is no texture associated with the backbuffer so no need to care
+    * about texture size limitations. */
+   b->true_w = w;
+   b->true_h = h;
+
+   /* FIXME: lazily manage memory */
+   bytes = pitch * h;
+   _AL_FREE(b->bitmap.memory);
+   b->bitmap.memory = _AL_MALLOC_ATOMIC(bytes);
+   memset(b->bitmap.memory, 0, bytes);
+
+   return true;
+}
+
+
 ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_BITMAP_OGL *ogl_backbuffer;
@@ -126,5 +156,12 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 
    return ogl_backbuffer;
 }
+
+
+void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP_OGL *b)
+{
+   al_destroy_bitmap((ALLEGRO_BITMAP *)b);
+}
+
 
 /* vi: set sts=3 sw=3 et: */
