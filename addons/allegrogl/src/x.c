@@ -564,8 +564,10 @@ static void allegro_gl_x_exit(BITMAP *bmp)
 #if GET_ALLEGRO_VERSION() >= MAKE_VER(4, 2, 1)
 	/* Hack: Allegro 4.2.1 uses a persistent window, we need to restore it. */
 	if (backup_allegro_window != None) {
-		XUninstallColormap(_xwin.display, _xwin.colormap);
-		XFreeColormap(_xwin.display, _xwin.colormap);
+		if (_xwin.colormap != None) {
+			XUninstallColormap(_xwin.display, _xwin.colormap);
+			XFreeColormap(_xwin.display, _xwin.colormap);
+		}
 		_xwin.colormap = backup_allegro_colormap;
 
 		XDestroyWindow(_xwin.display, _xwin.window);

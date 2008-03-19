@@ -46,7 +46,7 @@ SOURCE = $(C_SOURCE) $(MACOSX_SOURCE)
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(notdir $(SOURCE)))))
 EXAMPLES = $(basename $(addprefix $(EXAMPLE_DIR)/, $(EXAMP_SOURCE)))
 
-COMPILER_LINK_LIB = -L$(ALLEG_LIB_DIR) `../../allegro-config --libs` -framework Carbon -framework OpenGL
+COMPILER_LINK_LIB = -L$(ALLEG_LIB_DIR) `../../allegro-config --libs --addon` -framework Carbon -framework OpenGL
 
 
 INSTALL_DIR = /usr/local
