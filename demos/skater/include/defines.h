@@ -54,7 +54,7 @@
 #define      DEMO_MAX_GAMESTATES    64
 
 /* Skater can use both AllegroGL and plain Allegro fonts. AllegroGL fonts
-   require somewhat more code but are much faster that Allegro fonst. */
+   require somewhat more code but are much faster that Allegro fonts. */
 /* By defualt, use AllegroGL fonts if building in AllegroGL mode. */
 #ifdef DEMO_USE_ALLEGRO_GL
    #define DEMO_USE_ALLEGRO_GL_FONT

@@ -128,7 +128,7 @@ $(srcdir)/stamp-h.in: $(srcdir)/$(CONFIGURE_IN) $(srcdir)/$(ACLOCAL_M4)
 
 ifdef WITH_ALLEGRO_GL
    include addons/allegrogl/make/makefile.add
-   ALLEGRO_GL_LFLAGS = -Laddons/allegrogl/libs/ -lagl -lGL -lGLU
+   ALLEGRO_GL_LFLAGS = -Laddons/allegrogl/$(LIBDIR) -lagl -lGL -lGLU
 endif
 
 ifdef WITH_LOADPNG
