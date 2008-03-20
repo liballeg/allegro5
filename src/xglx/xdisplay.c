@@ -307,10 +307,18 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-
+   XWindowAttributes xwa;
    unsigned int w, h;
+
+   /* glXQueryDrawable is GLX 1.3+. */
+   /*
    glXQueryDrawable(system->xdisplay, glx->glxwindow, GLX_WIDTH, &w);
    glXQueryDrawable(system->xdisplay, glx->glxwindow, GLX_HEIGHT, &h);
+   */
+
+   XGetWindowAttributes(system->xdisplay, glx->window, &xwa);
+   w = xwa.width;
+   h = xwa.height;
 
    d->w = w;
    d->h = h;
