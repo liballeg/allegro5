@@ -252,6 +252,20 @@ static bool init_pixel_format_extensions()
 }
 
 
+static int get_pixel_formats_count_old(HDC dc) {
+   PIXELFORMATDESCRIPTOR pfd;
+   int ret;
+
+   ret = DescribePixelFormat(dc, 1, sizeof(pfd), &pfd);
+   if (!ret) {
+      log_win32_error("get_pixel_formats_count_old",
+                      "DescribePixelFormat failed!", GetLastError());
+   }
+
+   return ret;
+}
+
+
 static int get_pixel_formats_count_ext(HDC dc) {
    int attrib[1];
    int value[1];
@@ -264,6 +278,132 @@ static int get_pixel_formats_count_ext(HDC dc) {
    }
 
    return value[0];
+}
+
+
+static void deduce_color_format(OGL_PIXEL_FORMAT *pf)
+{
+   /* FIXME: complete this with all formats */
+   /* FIXME: how to detect XRGB formats? */
+   /* XXX REVEIW: someone check this!!! */
+   if (pf->r_size == 8 && pf->g_size == 8 && pf->b_size == 8) {
+      if (pf->a_size == 8) {
+         if (pf->a_shift == 0 && pf->b_shift == 8 && pf->g_shift == 16 && pf->r_shift == 24) {
+            pf->format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
+         }
+         else if (pf->a_shift == 24 && pf->r_shift == 0 && pf->g_shift == 8 && pf->b_shift == 16) {
+            pf->format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+         }
+         else if (pf->a_shift == 24 && pf->r_shift == 16 && pf->g_shift == 8 && pf->b_shift == 0) {
+            pf->format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+         }
+      }
+      else if (pf->a_size == 0) {
+         if (pf->b_shift == 0 && pf->g_shift == 8 && pf->r_shift == 16) {
+            pf->format = ALLEGRO_PIXEL_FORMAT_RGB_888;
+         }
+         else if (pf->r_shift == 0 && pf->g_shift == 8 && pf->b_shift == 16) {
+            pf->format = ALLEGRO_PIXEL_FORMAT_BGR_888;
+         }
+      }
+   }
+   else if (pf->r_size == 5 && pf->g_size == 6 && pf->b_size == 5) {
+      if (pf->r_shift == 0 && pf->g_shift == 5 && pf->b_shift == 11) {
+         pf->format = ALLEGRO_PIXEL_FORMAT_BGR_565;
+      }
+      else if (pf->b_shift == 0 && pf->g_shift == 5 && pf->r_shift == 11) {
+         pf->format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+      }
+   }
+
+
+   /*pf->colour_depth = 0;
+   if (pf->pixel_size.rgba.r == 5 && pf->pixel_size.rgba.b == 5) {
+      if (pf->pixel_size.rgba.g == 5)
+         pf->colour_depth = 15;
+      if (pf->pixel_size.rgba.g == 6)
+         pf->colour_depth = 16;
+   }
+   if (pf->pixel_size.rgba.r == 8 && pf->pixel_size.rgba.g == 8 && pf->pixel_size.rgba.b == 8) {
+      if (pf->pixel_size.rgba.a == 8)
+         pf->colour_depth = 32;
+      else
+         pf->colour_depth = 24;
+   }*/
+
+   /* FIXME: this is suppsed to tell if the pixel format is compatible with allegro's
+    * color format, but this code was originally for 4.2.
+    */
+   /*
+   pf->allegro_format =
+         (pf->colour_depth != 0)
+      && (pf->g_shift == pf->pixel_size.rgba.b)
+      && (pf->r_shift * pf->b_shift == 0)
+      && (pf->r_shift + pf->b_shift == pf->pixel_size.rgba.b + pf->pixel_size.rgba.g);
+   */
+}
+
+
+static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd, OGL_PIXEL_FORMAT *pf)
+{
+   TRACE(PREFIX_I "Decoding: \n");
+
+	/* Not interested if it doesn't support OpenGL and RGBA */
+   if (!(pfd->dwFlags & PFD_SUPPORT_OPENGL)) {
+      TRACE(PREFIX_I "OpenGL Unsupported\n");
+      return false;
+   }
+   if (pfd->iPixelType != PFD_TYPE_RGBA) {
+      TRACE(PREFIX_I "Not RGBA mode\n");
+      return false;
+   }
+
+   /* hardware acceleration */
+   if (((pfd->dwFlags & PFD_GENERIC_ACCELERATED) && (pfd->dwFlags & PFD_GENERIC_FORMAT))
+   || (!(pfd->dwFlags & PFD_GENERIC_ACCELERATED) && !(pfd->dwFlags & PFD_GENERIC_FORMAT)))
+      pf->rmethod = 1;
+   else
+      pf->rmethod = 0;
+
+   /* Depths of colour buffers */
+   pf->r_size = pfd->cRedBits;
+   pf->g_size = pfd->cGreenBits;
+   pf->b_size = pfd->cBlueBits;
+   pf->a_size = pfd->cAlphaBits;
+
+   /* Miscellaneous settings */
+   pf->doublebuffered = pfd->dwFlags & PFD_DOUBLEBUFFER;
+   pf->depth_size = pfd->cDepthBits;
+   pf->stencil_size = pfd->cStencilBits;
+
+   /* These are the component shifts. */
+   pf->r_shift = pfd->cRedShift;
+   pf->g_shift = pfd->cGreenShift;
+   pf->b_shift = pfd->cBlueShift;
+   pf->a_shift = pfd->cAlphaShift;
+
+   /* Multisampling isn't supported under Windows if we don't also use
+    * WGL_ARB_pixel_format or WGL_EXT_pixel_format.
+    */
+   pf->sample_buffers = 0;
+   pf->samples = 0;
+
+   /* Swap method can't be detected without WGL_ARB_pixel_format or
+    * WGL_EXT_pixel_format
+    */
+   pf->swap_method = 0;
+
+   /* Float depth/color isn't supported under Windows if we don't also use
+    * AGL_ARB_pixel_format or WGL_EXT_pixel_format.
+    */
+   pf->float_color = 0;
+   pf->float_depth = 0;
+
+   /* FIXME: there is other, potetialy usefull, info in pfd. */
+
+   deduce_color_format(pf);
+
+	return true;
 }
 
 
@@ -379,66 +519,31 @@ static bool decode_pixel_format_attrib(OGL_PIXEL_FORMAT *pf, int num_attribs,
 
    /* Setting some things based on what we've read out of the PFD. */
 
-   /* FIXME: complete this with all formats */
-   /* FIXME: how to detect XRGB formats? */
-   /* XXX REVEIW: someone check this!!! */
-   if (pf->r_size == 8 && pf->g_size == 8 && pf->b_size == 8) {
-      if (pf->a_size == 8) {
-         if (pf->a_shift == 0 && pf->b_shift == 8 && pf->g_shift == 16 && pf->r_shift == 24) {
-            pf->format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
-         }
-         else if (pf->a_shift == 24 && pf->r_shift == 0 && pf->g_shift == 8 && pf->b_shift == 16) {
-            pf->format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-         }
-         else if (pf->a_shift == 24 && pf->r_shift == 16 && pf->g_shift == 8 && pf->b_shift == 0) {
-            pf->format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
-         }
-      }
-      else if (pf->a_size == 0) {
-         if (pf->b_shift == 0 && pf->g_shift == 8 && pf->r_shift == 16) {
-            pf->format = ALLEGRO_PIXEL_FORMAT_RGB_888;
-         }
-         else if (pf->r_shift == 0 && pf->g_shift == 8 && pf->b_shift == 16) {
-            pf->format = ALLEGRO_PIXEL_FORMAT_BGR_888;
-         }
-      }
-   }
-   else if (pf->r_size == 5 && pf->g_size == 6 && pf->b_size == 5) {
-      if (pf->r_shift == 0 && pf->g_shift == 5 && pf->b_shift == 11) {
-         pf->format = ALLEGRO_PIXEL_FORMAT_BGR_565;
-      }
-      else if (pf->b_shift == 0 && pf->g_shift == 5 && pf->r_shift == 11) {
-         pf->format = ALLEGRO_PIXEL_FORMAT_RGB_565;
-      }
-   }
-
-
-   /*pf->colour_depth = 0;
-   if (pf->pixel_size.rgba.r == 5 && pf->pixel_size.rgba.b == 5) {
-      if (pf->pixel_size.rgba.g == 5)
-         pf->colour_depth = 15;
-      if (pf->pixel_size.rgba.g == 6)
-         pf->colour_depth = 16;
-   }
-   if (pf->pixel_size.rgba.r == 8 && pf->pixel_size.rgba.g == 8 && pf->pixel_size.rgba.b == 8) {
-      if (pf->pixel_size.rgba.a == 8)
-         pf->colour_depth = 32;
-      else
-         pf->colour_depth = 24;
-   }*/
-
-   /* FIXME: this is suppsed to tell if the pixel format is compatible with allegro's
-    * color format, but this code was originally for 4.2.
-    */
-   /*
-   pf->allegro_format =
-         (pf->colour_depth != 0)
-      && (pf->g_shift == pf->pixel_size.rgba.b)
-      && (pf->r_shift * pf->b_shift == 0)
-      && (pf->r_shift + pf->b_shift == pf->pixel_size.rgba.b + pf->pixel_size.rgba.g);
-   */
+   deduce_color_format(pf);
 
    return true;
+}
+
+
+static OGL_PIXEL_FORMAT* read_pixel_format_old(int fmt, HDC dc) {
+   OGL_PIXEL_FORMAT *pf = NULL;
+   PIXELFORMATDESCRIPTOR pfd;
+   int result;
+
+   result = DescribePixelFormat(dc, fmt, sizeof(pfd), &pfd);
+   if (!result) {
+      log_win32_warning("read_pixel_format_old",
+                        "DescribePixelFormat() failed!", GetLastError());
+      return NULL;
+   }
+
+   pf = malloc(sizeof *pf);
+   if (!decode_pixel_format_old(&pfd, pf)) {
+      free(pf);
+      return NULL;
+   }
+
+   return pf;
 }
 
 
@@ -629,9 +734,9 @@ static OGL_PIXEL_FORMAT** get_available_pixel_formats_ext(int *count) {
    if (!pf_list)
       goto bail;
 
-   for (i = 0; i < maxindex; i++) {
+   for (i = 1; i <= maxindex; i++) {
       TRACE(PREFIX_I "Reading visual no. %i...\n", i);
-      pf_list[i] = read_pixel_format_ext(i, testdc);
+      pf_list[i-1] = read_pixel_format_ext(i, testdc);
    }
 
 bail:
@@ -648,6 +753,30 @@ bail:
    if (testwnd) {
       ReleaseDC(testwnd, testdc);
       DestroyWindow(testwnd);
+   }
+
+   return pf_list;
+}
+
+
+static OGL_PIXEL_FORMAT** get_available_pixel_formats_old(int *count, HDC dc) {
+   OGL_PIXEL_FORMAT **pf_list = NULL;
+   int maxindex;
+   int i;
+
+   maxindex = get_pixel_formats_count_old(dc);
+   if (maxindex < 1)
+      return NULL;
+   *count = maxindex;
+   TRACE(PREFIX_I "get_available_pixel_formats_old(): Got %i visuals.\n", maxindex);
+
+   pf_list = malloc(maxindex * sizeof(*pf_list));
+   if (!pf_list)
+      return NULL;
+
+   for (i = 1; i <= maxindex; i++) {
+      TRACE(PREFIX_I "Reading visual no. %i...\n", i);
+      pf_list[i-1] = read_pixel_format_old(i, dc);
    }
 
    return pf_list;
@@ -700,24 +829,18 @@ static bool try_to_set_pixel_format(int i) {
 }
 
 
-static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d) {
-   HWND testwnd = NULL;
-   HDC testdc   = NULL;
-   HGLRC testrc = NULL;
+static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
    OGL_PIXEL_FORMAT **pf_list = NULL;
    enum ALLEGRO_PIXEL_FORMAT format = ((ALLEGRO_DISPLAY *) d)->format;
    int maxindex = 0;
    int i;
 
-   /* There are two ways to describe pixel formats: the old way, using DescribePixelFormat,
-    * and the new way, using wglGetPixelFormatAttribiv extension. The driver
-    * currently uses only the later, which is more advanced but may fail on older/broken
-    * GFX drivers. FIXME: Should fallback to the old way in case something goes wrong. */
-
    pf_list = get_available_pixel_formats_ext(&maxindex);
+   if (!pf_list)
+      pf_list = get_available_pixel_formats_old(&maxindex, dc);
 
-   for (i = 0; i < maxindex; i++) {
-      OGL_PIXEL_FORMAT *pf = pf_list[i];
+   for (i = 1; i <= maxindex; i++) {
+      OGL_PIXEL_FORMAT *pf = pf_list[i-1];
       /* TODO: implement a choice system (scoring?) */
       if (pf && pf->doublebuffered == true && pf->format == format) {
          if (try_to_set_pixel_format(i)) {
@@ -923,7 +1046,7 @@ static void display_thread_proc(void *arg)
       }
    }
 
-   if (!select_pixel_format(wgl_disp)) {
+   if (!select_pixel_format(wgl_disp, wgl_disp->dc)) {
       wgl_disp->thread_ended = true;
       wgl_destroy_display(disp);
       ndp->init_failed = true;
@@ -1174,7 +1297,8 @@ int _al_wgl_get_num_display_modes(int format, int refresh_rate, int flags)
 
 
 ALLEGRO_DISPLAY_MODE *_al_wgl_get_display_mode(int index, int format,
-   int refresh_rate, int flags, ALLEGRO_DISPLAY_MODE *mode)
+                                               int refresh_rate, int flags,
+                                               ALLEGRO_DISPLAY_MODE *mode)
 {
    return NULL;
 }
