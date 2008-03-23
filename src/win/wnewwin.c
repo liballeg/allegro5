@@ -254,7 +254,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             _al_event_source_unlock(es);
             return 0;
          case WM_SIZE:
-            if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED || wParam == SIZE_MINIMIZED) {
+            if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED) {// || wParam == SIZE_MINIMIZED) {
                /* Generate a resize event if the size has changed. We cannot asynchronously
                 * change the display size here yet, since the user will only know about a
                 * changed size after receiving the resize event. Here we merely add the

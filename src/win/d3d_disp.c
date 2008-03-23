@@ -446,6 +446,8 @@ static bool d3d_create_hidden_device()
 
    TRACE("Direct3D device created.\n");
 
+   IDirect3DDevice9_BeginScene(_al_d3d_device);
+
    return 1;
 }
 
@@ -514,6 +516,8 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
    d3d_reset_state();
 
    TRACE("Fullscreen Direct3D device created.\n");
+   
+   IDirect3DDevice9_BeginScene(_al_d3d_device);
 
    return 1;
 }
@@ -576,6 +580,8 @@ bool _al_d3d_init_display()
 static bool d3d_create_swap_chain(ALLEGRO_DISPLAY_D3D *d,
    int format, int refresh_rate, int flags)
 {
+   TRACE("in d3d_create_swap_chain\n");
+
    HRESULT hr;
 
    ZeroMemory(&d3d_pp, sizeof(d3d_pp));
@@ -595,6 +601,24 @@ static bool d3d_create_swap_chain(ALLEGRO_DISPLAY_D3D *d,
    d3d_pp.hDeviceWindow = d->window;
 
    if ((hr = IDirect3DDevice9_CreateAdditionalSwapChain(_al_d3d_device, &d3d_pp, &d->swap_chain)) != D3D_OK) {
+      if (hr == D3DERR_NOTAVAILABLE) {
+      	TRACE("CreateAdditionalSwapChain failed: 1\n");
+      }
+      else if (hr == D3DERR_DEVICELOST) {
+      	TRACE("CreateAdditionalSwapChain failed: 2\n");
+      }
+      else if (hr == D3DERR_INVALIDCALL) {
+      	TRACE("CreateAdditionalSwapChain failed: 3\n");
+      }
+      else if (hr == D3DERR_OUTOFVIDEOMEMORY) {
+      	TRACE("CreateAdditionalSwapChain failed: 4\n");
+      }
+      else if (hr == E_OUTOFMEMORY) {
+      	TRACE("CreateAdditionalSwapChain failed: 5\n");
+      }
+      else {
+      	TRACE("Unknown error %u\n", hr);
+      }
       TRACE("d3d_create_swap_chain: CreateAdditionalSwapChain failed.\n");
       return 0;
    }
@@ -760,6 +784,7 @@ static bool _al_d3d_reset_device()
             al_rest(0.100);
          }
          if (i == 5) {
+   	    TRACE("Reset failed\n");
             _al_d3d_unlock_device();
             return 0;
          }
@@ -1759,6 +1784,8 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    ALLEGRO_BITMAP_D3D *d3d_target;
 
    if (_al_d3d_is_device_lost()) return;
+
+   IDirect3DDevice9_EndScene(_al_d3d_device);
    
    if (bitmap->parent) {
       target = bitmap->parent;
@@ -1781,6 +1808,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
       if (IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, d3d_display->render_target) != D3D_OK) {
          TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
          IDirect3DSurface9_Release(d3d_current_texture_render_target);
+         IDirect3DDevice9_BeginScene(_al_d3d_device);
          return;
       }
       _al_d3d_set_ortho_projection(display->w, display->h);
@@ -1798,11 +1826,13 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
          IDirect3DDevice9_EndScene(_al_d3d_device);
          if (IDirect3DTexture9_GetSurfaceLevel(d3d_target->video_texture, 0, &d3d_current_texture_render_target) != D3D_OK) {
             TRACE("d3d_set_target_bitmap: Unable to get texture surface level.\n");
+      	    IDirect3DDevice9_BeginScene(_al_d3d_device);
             return;
          }
          if (IDirect3DDevice9_SetRenderTarget(_al_d3d_device, 0, d3d_current_texture_render_target) != D3D_OK) {
             TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
             IDirect3DSurface9_Release(d3d_current_texture_render_target);
+      	    IDirect3DDevice9_BeginScene(_al_d3d_device);
             return;
          }
          _al_d3d_unlock_device();
