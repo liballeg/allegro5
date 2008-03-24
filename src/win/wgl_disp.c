@@ -1128,7 +1128,7 @@ static void wgl_flip_display(ALLEGRO_DISPLAY *d)
 static bool wgl_update_display_region(ALLEGRO_DISPLAY *d,
                                       int x, int y, int width, int height)
 {
-   if (!al_get_opengl_extension_list()->ALLEGRO_WGL_WIN_swap_hint) {
+   if (al_get_opengl_extension_list()->ALLEGRO_WGL_WIN_swap_hint) {
       /* FIXME: This is just a driver hint and there is no guarantee that the
        * contens of the front buffer outside the given rectangle will be preserved,
        * thus we should really return false here and do nothing. */
