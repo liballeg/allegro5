@@ -826,7 +826,7 @@ elseif(GRADE_DEBUG)
     set(LIB_TO_LINK allegd)
     set(FONT_LIB_TO_LINK a5_fontd)
 elseif(GRADE_PROFILE)
-    set(LIB_TO_LINK allp)
+    set(LIB_TO_LINK allegp)
     set(FONT_LIB_TO_LINK a5_fontp)
 endif(GRADE_STANDARD)
 
