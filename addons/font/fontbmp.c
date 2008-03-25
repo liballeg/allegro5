@@ -181,7 +181,7 @@ A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
    */
 
    _al_push_new_bitmap_parameters();
-   //al_set_new_bitmap_flags(0);
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
    import_bmp = al_load_bitmap(fname);
    _al_pop_new_bitmap_parameters();
