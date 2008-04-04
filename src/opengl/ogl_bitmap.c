@@ -90,6 +90,23 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
    glEnable(GL_BLEND);
    glBlendFunc(blend_modes[src_mode], blend_modes[dst_mode]);
 
+   /* For sub bitmaps. */
+   if (bitmap->parent) {
+      sx += bitmap->xofs;
+      sy += bitmap->yofs;
+      bitmap = bitmap->parent;
+      ogl_bitmap = (ALLEGRO_BITMAP_OGL*)bitmap;
+   }
+
+   if (target->parent) {
+      dx += target->xofs;
+      dy += target->yofs;
+      cx += target->xofs;
+      cy += target->yofs;
+      target = target->parent;
+      ogl_target = (ALLEGRO_BITMAP_OGL*)target;
+   }
+
    glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
    l = ogl_bitmap->left;
    t = ogl_bitmap->top;

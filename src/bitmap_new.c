@@ -174,14 +174,14 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       return;
    }
 
-   if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_destroy_memory_bitmap(bitmap);
-      return;
-   }
-
    if (bitmap->parent) {
       /* It's a sub-bitmap */
       _AL_FREE(bitmap);
+      return;
+   }
+
+   if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
+      _al_destroy_memory_bitmap(bitmap);
       return;
    }
 
@@ -691,6 +691,8 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    else {
       bitmap = _AL_MALLOC(sizeof *bitmap);
       memset(bitmap, 0, sizeof *bitmap);
+
+      bitmap->vt = parent->vt;
    }
 
    bitmap->format = parent->format;
