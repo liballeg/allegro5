@@ -90,6 +90,8 @@ option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
 #
 
 option(WANT_FONT "Enable bitmap font add-on" on)
+option(WANT_AUDIO "Enable audio engine" on)
+option(WANT_ACODEC "Enable audio codecs (requires audio engine)" on)
 
 #
 # For developers.
