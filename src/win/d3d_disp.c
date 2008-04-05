@@ -580,9 +580,9 @@ bool _al_d3d_init_display()
 static bool d3d_create_swap_chain(ALLEGRO_DISPLAY_D3D *d,
    int format, int refresh_rate, int flags)
 {
-   TRACE("in d3d_create_swap_chain\n");
-
    HRESULT hr;
+
+   TRACE("in d3d_create_swap_chain\n");
 
    ZeroMemory(&d3d_pp, sizeof(d3d_pp));
    d3d_pp.BackBufferFormat = _al_format_to_d3d(format);
