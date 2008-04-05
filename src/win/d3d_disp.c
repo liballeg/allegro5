@@ -617,7 +617,7 @@ static bool d3d_create_swap_chain(ALLEGRO_DISPLAY_D3D *d,
       	TRACE("CreateAdditionalSwapChain failed: 5\n");
       }
       else {
-      	TRACE("Unknown error %u\n", hr);
+      	TRACE("Unknown error %u\n", (unsigned)hr);
       }
       TRACE("d3d_create_swap_chain: CreateAdditionalSwapChain failed.\n");
       return 0;
