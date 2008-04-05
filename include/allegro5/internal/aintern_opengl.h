@@ -81,6 +81,8 @@ void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
 
 /* bitmap */
 ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h);
+ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *parent,
+                                          int x, int y, int w, int h);
 
 /* common driver */
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);

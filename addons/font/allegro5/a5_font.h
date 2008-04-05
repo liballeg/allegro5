@@ -38,7 +38,8 @@ typedef struct A5FONT_FONT_VTABLE
 typedef struct A5FONT_FONT_COLOR_DATA
 {
    int begin, end;                   /* first char and one-past-the-end char */
-   ALLEGRO_BITMAP **bitmaps;         /* our glyphs */
+   ALLEGRO_BITMAP *glyphs;           /* our glyphs */
+   ALLEGRO_BITMAP **bitmaps;         /* sub bitmaps pointing to our glyphs */
    struct A5FONT_FONT_COLOR_DATA *next;  /* linked list structure */
 } A5FONT_FONT_COLOR_DATA;
 

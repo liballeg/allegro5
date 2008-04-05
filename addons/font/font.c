@@ -570,6 +570,7 @@ static void color_destroy(A5FONT_FONT* f)
         int i = 0;
 
         for(i = cf->begin; i < cf->end; i++) al_destroy_bitmap(cf->bitmaps[i - cf->begin]);
+        al_destroy_bitmap(cf->glyphs);
 
         _AL_FREE(cf->bitmaps);
         _AL_FREE(cf);

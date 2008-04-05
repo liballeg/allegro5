@@ -67,6 +67,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    GLboolean on;
+   GLint current_texture;
    ALLEGRO_COLOR *bc;
    int src_mode, dst_mode;
    int blend_modes[4] = {
@@ -90,24 +91,11 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
    glEnable(GL_BLEND);
    glBlendFunc(blend_modes[src_mode], blend_modes[dst_mode]);
 
-   /* For sub bitmaps. */
-   if (bitmap->parent) {
-      sx += bitmap->xofs;
-      sy += bitmap->yofs;
-      bitmap = bitmap->parent;
-      ogl_bitmap = (ALLEGRO_BITMAP_OGL*)bitmap;
+   glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, &current_texture);
+   if (current_texture != ogl_bitmap->texture) {
+      glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
    }
 
-   if (target->parent) {
-      dx += target->xofs;
-      dy += target->yofs;
-      cx += target->xofs;
-      cy += target->yofs;
-      target = target->parent;
-      ogl_target = (ALLEGRO_BITMAP_OGL*)target;
-   }
-
-   glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
    l = ogl_bitmap->left;
    t = ogl_bitmap->top;
    r = ogl_bitmap->right;
@@ -481,6 +469,35 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    memset(bitmap->bitmap.memory, 0, bytes);
 
    return &bitmap->bitmap;
+}
+
+
+
+ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
+                                          ALLEGRO_BITMAP *parent,
+                                          int x, int y, int w, int h)
+{
+   ALLEGRO_BITMAP_OGL* ogl_bmp;
+   ALLEGRO_BITMAP_OGL* ogl_parent = (void*)parent;
+
+   ogl_bmp = _AL_MALLOC(sizeof *ogl_bmp);
+   memset(ogl_bmp, 0, sizeof *ogl_bmp);
+
+   ogl_bmp->true_w = ogl_parent->true_w;
+   ogl_bmp->true_h = ogl_parent->true_h;
+   ogl_bmp->texture = ogl_parent->texture;
+   ogl_bmp->fbo = ogl_parent->fbo;
+
+   ogl_bmp->left = x / (float)ogl_parent->true_w;
+   ogl_bmp->right = (x + w) / (float)ogl_parent->true_w;
+   ogl_bmp->top = y / (float)ogl_parent->true_h;
+   ogl_bmp->bottom = (y + h) / (float)ogl_parent->true_h;
+
+   ogl_bmp->is_backbuffer = ogl_parent->is_backbuffer;
+
+   ogl_bmp->bitmap.vt = parent->vt;
+
+   return (void*)ogl_bmp;
 }
 
 /* vim: set sts=3 sw=3 et: */

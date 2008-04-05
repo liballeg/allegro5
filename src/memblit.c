@@ -75,6 +75,19 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       sh -= inc;
    }
 
+   /* Handle sub bitmaps */
+   if (dest->parent) {
+      dx += dest->xofs;
+      dy += dest->yofs;
+      dest = dest->parent;
+   }
+
+   if (bitmap->parent) {
+      sx += bitmap->xofs;
+      sy += bitmap->yofs;
+      bitmap = bitmap->parent;
+   }
+
    /* Lock the bitmaps */
    if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region,
       ALLEGRO_LOCK_READONLY))
@@ -224,6 +237,19 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    dy = dybeg;
    dw = dxend - dxbeg;
    dh = dyend - dybeg;
+
+   /* Handle sub bitmaps */
+   if (dest->parent) {
+      dx += dest->xofs;
+      dy += dest->yofs;
+      dest = dest->parent;
+   }
+
+   if (bitmap->parent) {
+      sx += bitmap->xofs;
+      sy += bitmap->yofs;
+      bitmap = bitmap->parent;
+   }
 
    if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region, ALLEGRO_LOCK_READONLY))
       return;

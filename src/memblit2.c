@@ -106,6 +106,19 @@ do {                                                                         \
    dw = dxend - dxbeg;                                                       \
    dh = dyend - dybeg;                                                       \
                                                                              \
+   /* Handle sub bitmaps */                                                  \
+   if (dest->parent) {                                                       \
+      dx += dest->xofs;                                                      \
+      dy += dest->yofs;                                                      \
+      dest = dest->parent;                                                   \
+   }                                                                         \
+                                                                             \
+   if (bitmap->parent) {                                                     \
+      sx += bitmap->xofs;                                                    \
+      sy += bitmap->yofs;                                                    \
+      bitmap = bitmap->parent;                                               \
+   }                                                                         \
+                                                                             \
    if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region,           \
       ALLEGRO_LOCK_READONLY))                                                \
       return;                                                                \
