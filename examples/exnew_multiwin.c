@@ -14,6 +14,7 @@ int main(void)
    int i;
 
    al_init();
+   al_install_keyboard();
 
    events = al_create_event_queue();
 
@@ -26,6 +27,7 @@ int main(void)
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[0]);
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[1]);
+   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
    pictures[0] = al_load_bitmap("mysha.pcx");
    if (!pictures[0]) {
