@@ -49,7 +49,7 @@ typedef struct BITMAPFILEHEADER
 typedef struct BITMAPINFOHEADER
 {
    unsigned long  biWidth;
-   unsigned long  biHeight;
+   signed long    biHeight;
    unsigned short biBitCount;
    unsigned long  biCompression;
 } BITMAPINFOHEADER;
@@ -58,7 +58,7 @@ typedef struct BITMAPINFOHEADER
 typedef struct WINBMPINFOHEADER  /* size: 40 */
 {
    unsigned long  biWidth;
-   unsigned long  biHeight;
+   signed long    biHeight;
    unsigned short biPlanes;
    unsigned short biBitCount;
    unsigned long  biCompression;
@@ -152,17 +152,25 @@ static int read_os2_bminfoheader(PACKFILE *f, BITMAPINFOHEADER *infoheader)
 /* read_bmicolors:
  *  Loads the color palette for 1,4,8 bit formats.
  */
-static void read_bmicolors(int ncols, RGB *pal, PACKFILE *f,int win_flag)
+static void read_bmicolors(int bytes, RGB *pal, PACKFILE *f, int win_flag)
 {
-   int i;
+   int i, j;
 
-   for (i=0; i<ncols; i++) {
-      pal[i].b = pack_getc(f) / 4;
-      pal[i].g = pack_getc(f) / 4;
-      pal[i].r = pack_getc(f) / 4;
-      if (win_flag)
+   for (i=j=0; (i+3 <= bytes && j < PAL_SIZE); j++) {
+      pal[j].b = pack_getc(f) / 4;
+      pal[j].g = pack_getc(f) / 4;
+      pal[j].r = pack_getc(f) / 4;
+
+      i += 3;
+
+      if (win_flag && i < bytes) {
 	 pack_getc(f);
+	 i++;
+      }
    }
+
+   for (; i<bytes; i++)
+      pack_getc(f);
 }
 
 
@@ -249,29 +257,61 @@ static void read_8bit_line(int length, PACKFILE *f, BITMAP *bmp, int line)
 
 
 
+/* read_16bit_line:
+ *  Support function for reading the 16 bit bitmap file format, doing
+ *  our best to convert it down to a 256 color palette.
+ */
+static void read_16bit_line(int length, PACKFILE *f, BITMAP *bmp, int line)
+{
+   int i, w;
+   RGB c;
+
+   for (i=0; i<length; i++) {
+      w = pack_igetw(f);
+
+      /* the format is like a 15-bpp bitmap, not 16bpp */
+      c.r = (w >> 10) & 0x1f;
+      c.g = (w >> 5) & 0x1f;
+      c.b = w & 0x1f;
+
+      bmp_write16(bmp->line[line]+i*2,
+	 makecol16(_rgb_scale_5[c.r],
+	    _rgb_scale_5[c.g],
+	    _rgb_scale_5[c.b]));
+   }
+
+   /* padding */
+   i = (i * 2) % 4;
+   if (i != 0) {
+      while (i++ < 4)
+	 pack_getc(f);
+   }
+}
+
+
+
 /* read_24bit_line:
  *  Support function for reading the 24 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
 static void read_24bit_line(int length, PACKFILE *f, BITMAP *bmp, int line)
 {
-   int i, nbytes;
+   int i;
    RGB c;
-
-   nbytes=0;
 
    for (i=0; i<length; i++) {
       c.b = pack_getc(f);
       c.g = pack_getc(f);
       c.r = pack_getc(f);
       WRITE3BYTES(bmp->line[line]+i*3, makecol24(c.r, c.g, c.b));
-      nbytes += 3;
    }
 
-   nbytes = nbytes % 4;
-   if (nbytes != 0)
-      for (i=nbytes; i<4; i++)
-	 pack_getc(f);
+   /* padding */
+   i = (i * 3) % 4;
+   if (i != 0) {
+      while (i++ < 4)
+         pack_getc(f);
+   }
 }
 
 
@@ -302,16 +342,21 @@ static void read_32bit_line(int length, PACKFILE *f, BITMAP *bmp, int line)
  */
 static void read_bitfields_image(PACKFILE *f, BITMAP *bmp, AL_CONST BITMAPINFOHEADER *infoheader)
 {
-   int k, i;
+   int k, i, line, height, dir;
    int bpp;
    int bytes_per_pixel;
    int red, grn, blu;
    unsigned long buffer;
 
+   height = infoheader->biHeight;
+   line   = height < 0 ? 0 : height-1;
+   dir    = height < 0 ? 1 : -1;
+   height = ABS(height);
+   
    bpp = bitmap_color_depth(bmp);
    bytes_per_pixel = BYTES_PER_PIXEL(bpp);
 
-   for (i=0; i<(int)infoheader->biHeight; i++) {
+   for (i=0; i<height; i++, line+=dir) {
       for (k=0; k<(int)infoheader->biWidth; k++) {
 
 	 pack_fread(&buffer, bytes_per_pixel, f);
@@ -341,7 +386,14 @@ static void read_bitfields_image(PACKFILE *f, BITMAP *bmp, AL_CONST BITMAPINFOHE
 		     (blu << _rgb_b_shift_32);
 	 }
 
-	 memcpy(&bmp->line[(infoheader->biHeight - i) - 1][k * bytes_per_pixel], &buffer, bytes_per_pixel);
+	 memcpy(&bmp->line[line][k * bytes_per_pixel], &buffer, bytes_per_pixel);
+      }
+
+      /* padding */
+      k = (k * bytes_per_pixel) % 4;
+      if (k > 0) {
+	 while (k++ < 4)
+	    pack_getc(f);
       }
    }
 }
@@ -352,31 +404,38 @@ static void read_bitfields_image(PACKFILE *f, BITMAP *bmp, AL_CONST BITMAPINFOHE
  */
 static void read_image(PACKFILE *f, BITMAP *bmp, AL_CONST BITMAPINFOHEADER *infoheader)
 {
-   int i, line;
+   int i, line, height, dir;
 
-   for (i=0; i<(int)infoheader->biHeight; i++) {
-      line = i;
+   height = infoheader->biHeight;
+   line   = height < 0 ? 0: height-1;
+   dir    = height < 0 ? 1: -1;
+   height = ABS(height);
 
+   for (i=0; i<height; i++, line+=dir) {
       switch (infoheader->biBitCount) {
 
 	 case 1:
-	    read_1bit_line(infoheader->biWidth, f, bmp, infoheader->biHeight-i-1);
+	    read_1bit_line(infoheader->biWidth, f, bmp, line);
 	    break;
 
 	 case 4:
-	    read_4bit_line(infoheader->biWidth, f, bmp, infoheader->biHeight-i-1);
+	    read_4bit_line(infoheader->biWidth, f, bmp, line);
 	    break;
 
 	 case 8:
-	    read_8bit_line(infoheader->biWidth, f, bmp, infoheader->biHeight-i-1);
+	    read_8bit_line(infoheader->biWidth, f, bmp, line);
+	    break;
+
+	 case 16:
+	    read_16bit_line(infoheader->biWidth, f, bmp, line);
 	    break;
 
 	 case 24:
-	    read_24bit_line(infoheader->biWidth, f, bmp, infoheader->biHeight-i-1);
+	    read_24bit_line(infoheader->biWidth, f, bmp, line);
 	    break;
 
 	 case 32:
-	    read_32bit_line(infoheader->biWidth, f, bmp, infoheader->biHeight-i-1);
+	    read_32bit_line(infoheader->biWidth, f, bmp, line);
 	    break;
       }
    }
@@ -572,7 +631,6 @@ BITMAP *load_bmp_pf(PACKFILE *f, RGB *pal)
    BITMAP *bmp;
    PALETTE tmppal;
    int want_palette = TRUE;
-   int ncol;
    unsigned long biSize;
    int bpp, dest_depth;
    ASSERT(f);
@@ -593,21 +651,15 @@ BITMAP *load_bmp_pf(PACKFILE *f, RGB *pal)
       if (read_win_bminfoheader(f, &infoheader) != 0) {
 	 return NULL;
       }
-      /* compute number of colors recorded */
-      ncol = (fileheader.bfOffBits - 54) / 4;
-
       if (infoheader.biCompression != BI_BITFIELDS)
-	 read_bmicolors(ncol, pal, f, 1);
+	 read_bmicolors(fileheader.bfOffBits - 54, pal, f, 1);
    }
    else if (biSize == OS2INFOHEADERSIZE) {
       if (read_os2_bminfoheader(f, &infoheader) != 0) {
 	 return NULL;
       }
-      /* compute number of colors recorded */
-      ncol = (fileheader.bfOffBits - 26) / 3;
-
       if (infoheader.biCompression != BI_BITFIELDS)
-	 read_bmicolors(ncol, pal, f, 0);
+	 read_bmicolors(fileheader.bfOffBits - 26, pal, f, 0);
    }
    else {
       return NULL;
@@ -644,7 +696,7 @@ BITMAP *load_bmp_pf(PACKFILE *f, RGB *pal)
 
    dest_depth = _color_load_depth(bpp, FALSE);
 
-   bmp = create_bitmap_ex(bpp, infoheader.biWidth, infoheader.biHeight);
+   bmp = create_bitmap_ex(bpp, infoheader.biWidth, ABS(infoheader.biHeight));
    if (!bmp) {
       return NULL;
    }
