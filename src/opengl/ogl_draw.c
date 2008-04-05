@@ -72,6 +72,14 @@ static void ogl_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy,
       return;
    }
 
+   /* For sub bitmaps. */
+   if (target->parent) {
+      fx += target->xofs;
+      fy += target->yofs;
+      tx += target->xofs;
+      ty += target->yofs;
+   }
+
    set_opengl_blending(d, color);
    glBegin(GL_LINES);
    glVertex2d(fx, fy);
@@ -92,6 +100,14 @@ static void ogl_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    if (!ogl_target->is_backbuffer && ogl_disp->opengl_target != ogl_target) {
       _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
       return;
+   }
+
+   /* For sub bitmaps. */
+   if (target->parent) {
+      tlx += target->xofs;
+      tly += target->yofs;
+      brx += target->xofs;
+      bry += target->yofs;
    }
 
    set_opengl_blending(d, color);
