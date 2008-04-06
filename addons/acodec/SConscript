@@ -28,8 +28,7 @@ def CheckOGG(context):
                 return 0;
             }
             """, ".c");
-        if not ret:
-            context.sconf.env = tmpEnv
+        context.sconf.env = tmpEnv
     context.Result(ret)
     return ret
 
@@ -47,8 +46,7 @@ def CheckFlac(context):
                 return 0;
             }
             """, ".c");
-        if not ret:
-            context.sconf.env = tmpEnv
+        context.sconf.env = tmpEnv
     context.Result(ret)
     return ret
 
@@ -67,8 +65,7 @@ def CheckSndfile(context):
                 return 0;
             }
             """, ".c");
-        if not ret:
-            context.sconf.env = tmpEnv
+        context.sconf.env = tmpEnv
     context.Result(ret)
     return ret
 
@@ -127,6 +124,6 @@ addons.do_build(
     install_headers = ['allegro5/acodec.h'],
     includes = ['#addons/audio'],
     examples = [('ex_acodec',['ex_acodec.c'])],
-    example_libs = ['audio'],
+    example_libs = [context.libraryName('audio')],
     configs = configs,
 )
