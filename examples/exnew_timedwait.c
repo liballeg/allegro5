@@ -56,5 +56,6 @@ Quit:
 
    return 0;
 }
+END_OF_MAIN()
 
 /* vi: set sts=3 sw=3 et: */
