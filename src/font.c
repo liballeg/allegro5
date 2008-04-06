@@ -717,7 +717,7 @@ static FONT *mono_extract_font_range(FONT *f, int begin, int end)
    FONT_MONO_DATA *mf, *mfin;
    int first, last;
 
-   if (!font)
+   if (!f)
       return NULL;
 
    /* Special case: copy entire font */
@@ -1229,7 +1229,7 @@ static FONT *color_extract_font_range(FONT *f, int begin, int end)
    FONT_COLOR_DATA *cf, *cfin;
    int first, last;
 
-   if (!font)
+   if (!f)
       return NULL;
 
    /* Special case: copy entire font */
