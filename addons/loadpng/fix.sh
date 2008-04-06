@@ -8,7 +8,7 @@ proc_help()
    echo
    echo "Usage: $0 <platform> [--quick|--dtou|--utod]"
    echo
-   echo "Where platform is one of: djgpp, mingw32, unix"
+   echo "Where platform is one of: djgpp, mingw32, unix, macosx"
    echo "The --quick parameter turns off text file conversion, --dtou converts from"
    echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format."
    echo "If no parameter is specified --quick is assumed."
@@ -107,6 +107,7 @@ case "$1" in
    "mingw"   ) proc_fix "Windows (MinGW)"   "Makefile.mgw";;
    "mingw32" ) proc_fix "Windows (MinGW)"   "Makefile.mgw";;
    "unix"    ) proc_fix "Unix"              "Makefile.unx";;
+   "macosx"  ) proc_fix "Mac OS X"          "Makefile.osx";;
    # used only by allegro's zipup.sh in packaging process
    "msvc"    ) proc_fix_msvc "Windows (MSVC)";;
    "help"    ) proc_help;;
