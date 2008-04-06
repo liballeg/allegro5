@@ -11,7 +11,7 @@
 #
 #  This is heavily based on a similar script from GTK.
 
-version=4.9.2
+version=4.9.3
 
 prefix=@prefix@
 exec_prefix=$prefix
