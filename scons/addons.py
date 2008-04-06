@@ -5,14 +5,18 @@ def getOption(context, name, default = 0):
     except KeyError:
         return default
 
-def do_build(context,source,dir,name,examples = [],install_headers = [],includes = []):
+def do_build(context,source,dir,name,examples = [],install_headers = [],includes = [],example_libs = [],configs = []):
     def build(env, appendDir, buildDir, libDir ):
         libEnv = env.Copy()
         libEnv.Append(CPPPATH = includes)
+        for i in configs:
+            libEnv.ParseConfig(i)
         lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name), appendDir(buildDir + ('/addons/%s' % dir),source))
 
         exampleEnv = env.Copy()
+        exampleEnv.Append(CPPPATH = includes)
         exampleEnv.Append(LIBS = [context.libraryName(name)])
+        exampleEnv.Append(LIBS = example_libs)
     
         build_examples = []
         def addExample(ex_name, files):

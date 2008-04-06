@@ -10,5 +10,6 @@ addons.do_build(
     """),
     dir = 'audio',
     name = 'audio',
-    install_headers = ['allegro5/audio.h','allegro5/internal/aintern_audio.h']
+    install_headers = ['allegro5/audio.h','allegro5/internal/aintern_audio.h'],
+    configs = ['openal-config --libs']
 )
