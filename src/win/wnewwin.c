@@ -174,6 +174,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       return ((int (*)(void))wParam) ();
    }
 
+   if (!system) {
+      return DefWindowProc(hWnd,message,wParam,lParam); 
+   }
+
    for (i = 0; i < system->displays._size; i++) {
       ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, i);
       d = *dptr;
