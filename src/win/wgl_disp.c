@@ -1292,7 +1292,22 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
 
 int _al_wgl_get_num_display_modes(int format, int refresh_rate, int flags)
 {
-   return 0;
+   /* FIXME: Ignoring format.
+    * To get a list of pixel formats we have to create a window with a valid DC, which
+    * would even require to change the video mode in fullscreen cases and we really
+    * don't want to do that.
+    */
+   DEVMODE dm;   
+   int count = 0;
+
+   memset(&dm, 0, sizeof(dm));
+   dm.dmSize = sizeof(dm);
+
+   while (EnumDisplaySettings(NULL, count, &dm) != FALSE) {
+      count++;
+   }
+
+   return count;
 }
 
 
@@ -1300,7 +1315,22 @@ ALLEGRO_DISPLAY_MODE *_al_wgl_get_display_mode(int index, int format,
                                                int refresh_rate, int flags,
                                                ALLEGRO_DISPLAY_MODE *mode)
 {
-   return NULL;
+   /*
+    * FIXME: see the comment in _al_wgl_get_num_display_modes
+    */
+   DEVMODE dm;   
+
+   memset(&dm, 0, sizeof(dm));
+   dm.dmSize = sizeof(dm);
+
+   if (!EnumDisplaySettings(NULL, index, &dm))
+      return NULL;
+
+   mode->width = dm.dmPelsWidth;
+   mode->height = dm.dmPanningHeight;
+   mode->refresh_rate = dm.dmDisplayFrequency;
+
+   return mode;
 }
 
 

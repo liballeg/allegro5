@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
    int bmp_h;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
-   double theta;
+   double theta = 0;
    int mode;
 
    if (!al_init())

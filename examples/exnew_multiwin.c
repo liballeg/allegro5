@@ -6,7 +6,6 @@ const int H = 400;
 int main(void)
 {
    ALLEGRO_DISPLAY *display[2];
-   ALLEGRO_KEYBOARD *keyboard;
    ALLEGRO_EVENT event;
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_BITMAP *pictures[2];

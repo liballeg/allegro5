@@ -64,7 +64,7 @@ endif(STATIC)
 macro(add_font_example nm)
     add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
     set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
+        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS}"
         LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         )
     target_link_libraries(${nm} ${LINK_WITH})
