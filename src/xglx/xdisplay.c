@@ -453,7 +453,7 @@ static bool xdpy_show_cursor(ALLEGRO_DISPLAY *display)
       return true;
 
    XUndefineCursor(xdisplay, xwindow);
-   glx->cursor_hidden = true;
+   glx->cursor_hidden = false;
    return true;
 }
 
