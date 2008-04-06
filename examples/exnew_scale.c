@@ -32,13 +32,13 @@ int main(int argc, char *argv[])
 
    al_install_keyboard();
 
-   dpy = al_create_display(640, 480);
+   dpy = al_create_display(display_w, display_h);
    if (!dpy) {
       allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
       return 1;
    }
 
-   buf = al_create_bitmap(640, 480);
+   buf = al_create_bitmap(display_w, display_h);
    if (!buf) {
       allegro_message("Unable to create buffer\n");
       return 1;
