@@ -12,7 +12,7 @@ def do_build(context,source,dir,name,examples = [],install_headers = [],includes
         lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name), appendDir(buildDir + ('/addons/%s' % dir),source))
 
         exampleEnv = env.Copy()
-        exampleEnv.Append(LIBS = [name])
+        exampleEnv.Append(LIBS = [context.libraryName(name)])
     
         build_examples = []
         def addExample(ex_name, files):

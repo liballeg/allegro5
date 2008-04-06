@@ -119,7 +119,7 @@ def demo(env,appendDir,buildDir,libDir):
        wave.cpp
     """);
     demoEnv.Append( LIBPATH = libDir )
-    demoEnv.Append( LIBS = ['a5_font'] )
+    demoEnv.Append( LIBS = [context.libraryName('a5_font')] )
     demo = demoEnv.Program('demo/demo', appendDir(buildDir + '/demo/src', sources))
     Alias('demo', demo)
     return demo
@@ -129,7 +129,7 @@ def examples(env,appendDir,buildDir,libDir):
     exEnv = env.Copy()
     exEnv.Append( CPPPATH = 'addons/font' )
     exEnv.BuildDir(buildDir + 'examples', 'examples', duplicate = 0)
-    exEnv.Append(LIBS = ['a5_font'])
+    exEnv.Append(LIBS = [context.libraryName('a5_font')])
     ## Add an example
     ## name - filename of example and also the alias of the target
     ## files - list of files associated with the example

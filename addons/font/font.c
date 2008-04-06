@@ -734,7 +734,7 @@ static A5FONT_FONT *color_extract_font_range(A5FONT_FONT *f, int begin, int end)
    A5FONT_FONT_COLOR_DATA *cf, *cfin;
    int first, last;
 
-   if (!font)
+   if (!f)
       return NULL;
 
    /* Special case: copy entire font */

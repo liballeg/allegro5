@@ -212,6 +212,12 @@ class AllegroContext:
     def addFiles(self, d, fileList):
         self.librarySource.extend(appendDir(d, fileList))
 
+    def libraryName(self,name):
+        if self.static == 1:
+            return name + '_s'
+        else:
+            return name
+
     # Build a library given an env
     # Library is static if Allegro is configured with static=1
     # or shared if static=0
