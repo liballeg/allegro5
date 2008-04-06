@@ -2190,7 +2190,7 @@ ALLEGRO_AUDIO_DRIVER *al_audio_init_driver(ALLEGRO_AUDIO_ENUM mode)
             return al_audio_init_driver(ALLEGRO_AUDIO_DRIVER_ALSA);
          #elif defined(ALLEGRO_WINDOWS)
             return al_audio_init_driver(ALLEGRO_AUDIO_DRIVER_DSOUND);
-         #elif define(ALLEGRO_MACOS)
+         #elif define(ALLEGRO_MACOSX)
             return NULL:
          #endif
 
