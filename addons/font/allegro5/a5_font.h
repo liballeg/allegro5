@@ -21,9 +21,9 @@ typedef struct A5FONT_FONT_VTABLE
 {
    AL_METHOD(int, font_height, (AL_CONST A5FONT_FONT *f));
    AL_METHOD(int, char_length, (AL_CONST A5FONT_FONT *f, int ch));
-   AL_METHOD(int, text_length, (AL_CONST A5FONT_FONT *f, AL_CONST char *text));
+   AL_METHOD(int, text_length, (AL_CONST A5FONT_FONT *f, AL_CONST char *text, int count));
    AL_METHOD(int, render_char, (AL_CONST A5FONT_FONT *f, int ch, int x, int y));
-   AL_METHOD(void, render, (AL_CONST A5FONT_FONT *f, AL_CONST char *text, int x, int y));
+   AL_METHOD(void, render, (AL_CONST A5FONT_FONT *f, AL_CONST char *text, int x, int y, int count));
    AL_METHOD(void, destroy, (A5FONT_FONT *f));
 
    AL_METHOD(int, get_font_ranges, (A5FONT_FONT *f));
@@ -75,6 +75,7 @@ AL_PRINTFUNC(void, a5font_textprintf_centre, (AL_CONST struct A5FONT_FONT *f, in
 AL_PRINTFUNC(void, a5font_textprintf_right, (AL_CONST struct A5FONT_FONT *f, int x, int y, AL_CONST char *format, ...), 4, 5);
 AL_PRINTFUNC(void, a5font_textprintf_justify, (AL_CONST struct A5FONT_FONT *f, int x1, int x2, int y, int diff, AL_CONST char *format, ...), 6, 7);
 AL_FUNC(int, a5font_text_length, (AL_CONST struct A5FONT_FONT *f, AL_CONST char *str));
+AL_FUNC(int, a5font_text_length_count, (AL_CONST struct A5FONT_FONT *f, AL_CONST char *str, int count));
 AL_FUNC(int, a5font_text_height, (AL_CONST struct A5FONT_FONT *f));
 AL_FUNC(void, a5font_destroy_font, (struct A5FONT_FONT *f));
 
@@ -84,6 +85,14 @@ AL_FUNC(ALLEGRO_BITMAP *, _a5font_color_find_glyph, (AL_CONST A5FONT_FONT *f, in
 
 AL_FUNC(void, _a5font_register_font_file_type_init, (void));
 AL_FUNC(void, a5font_init, (void));
+
+/* New count based routines */
+AL_FUNC(void, a5font_textout_count, (AL_CONST struct A5FONT_FONT *f, AL_CONST char *str, int x, int y, int count));
+AL_FUNC(void, a5font_textout_centre_count, (AL_CONST struct A5FONT_FONT *f, AL_CONST char *str, int x, int y, int count));
+AL_FUNC(void, a5font_textout_right_count, (AL_CONST struct A5FONT_FONT *f, AL_CONST char *str, int x, int y, int count));
+AL_PRINTFUNC(void, a5font_textprintf_count, (AL_CONST struct A5FONT_FONT *f, int x, int y, int count, AL_CONST char *format, ...), 5, 6);
+AL_PRINTFUNC(void, a5font_textprintf_centre_count, (AL_CONST struct A5FONT_FONT *f, int x, int y, int count, AL_CONST char *format, ...), 5, 6);
+AL_PRINTFUNC(void, a5font_textprintf_right_count, (AL_CONST struct A5FONT_FONT *f, int x, int y, int count, AL_CONST char *format, ...), 5, 6);
 
 
 #ifdef __cplusplus

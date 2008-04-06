@@ -461,14 +461,15 @@ static int font_height(AL_CONST A5FONT_FONT *f)
  *  (mono and color vtable entry)
  *  Returns the length, in pixels, of a string as rendered in a font.
  */
-static int length(AL_CONST A5FONT_FONT* f, AL_CONST char* text)
+static int length(AL_CONST A5FONT_FONT* f, AL_CONST char* text, int count)
 {
-    int ch = 0, w = 0;
+    int ch = 0, w = 0, i;
     AL_CONST char* p = text;
     ASSERT(text);
     ASSERT(f);
 
-    while( (ch = ugetxc(&p)) ) {
+    for (i = 0; i < count; i++) {
+        ch = ugetxc(&p);
         w += f->vtable->char_length(f, ch);
     }
 
@@ -541,12 +542,13 @@ static int color_render_char(AL_CONST A5FONT_FONT* f, int ch, int x, int y)
  *  the specified colors. If fg == -1, render as color, else render as
  *  mono; if bg == -1, render as transparent, else render as opaque.
  */
-static void color_render(AL_CONST A5FONT_FONT* f, AL_CONST char* text, int x, int y)
+static void color_render(AL_CONST A5FONT_FONT* f, AL_CONST char* text, int x, int y, int count)
 {
     AL_CONST char* p = text;
-    int ch = 0;
+    int i = 0, ch;
 
-    while( (ch = ugetxc(&p)) ) {
+    for (; i < count; i++) {
+        ch = ugetxc(&p);
         x += f->vtable->render_char(f, ch, x, y);
     }
 }
