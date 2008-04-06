@@ -6,6 +6,7 @@
  */
 #include "allegro5/acodec.h"
 #include <FLAC/stream_decoder.h>
+#include <stdio.h>
 
 typedef struct FLACFILE {
    char* buffer;

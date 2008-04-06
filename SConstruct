@@ -217,9 +217,9 @@ class AllegroContext:
     # or shared if static=0
     def makeLibrary(self,env):
         if self.static == 1:
-            return lambda *rest : apply(env.StaticLibrary, rest )
+            return lambda name, *rest : apply(env.StaticLibrary, [name + '_s'] + list(rest) )
         else:
-            return lambda *rest : apply(env.SharedLibrary, rest )
+            return lambda name, *rest : apply(env.SharedLibrary, [name] + list(rest) )
 
     def getAllegroTarget(self):
         def build(function, lib, d):

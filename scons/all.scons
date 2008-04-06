@@ -168,7 +168,7 @@ def addons(env, appendDir, buildDir, libDir):
         "font/fontbmp.c", "font/readfont.c", "font/text.c"])
     return examples
 
-addon_dirs = ['#addons/font']
+addon_dirs = ['#addons/font','#addons/acodec','#addons/audio']
 SConscript( dirs = addon_dirs, exports = 'context' )
 
 context.addExtra(demo)

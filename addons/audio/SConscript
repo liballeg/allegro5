@@ -6,19 +6,18 @@ def getOption(name, default = 0):
     except KeyError:
         return default
 
-def a5font(env, appendDir, buildDir, libDir):
+def audio(env, appendDir, buildDir, libDir):
     examples = []
 
     source = Split("""
-        font.c
-        fontbmp.c
-        readfont.c
-        text.c
+      alsa.c
+      audio.c
+      openal.c
     """);
 
     # lib = env.SharedLibrary( libDir + '/a5_font', appendDir(buildDir + '/addons/font',source))
     # Build library however Allegro was configured, either static or shared
-    lib = context.makeLibrary( env )( libDir + '/a5_font', appendDir(buildDir + '/addons/font',source))
+    lib = context.makeLibrary( env )( libDir + '/audio', appendDir(buildDir + '/addons/audio',source))
 
     print lib
 
@@ -28,13 +27,14 @@ def a5font(env, appendDir, buildDir, libDir):
     exampleEnv.Append(LIBS = ["a5_font"])
     
     def addExample(name, files):
-        example = exampleEnv.Program(name, appendDir(buildDir + '/addons/font/', files))
+        example = exampleEnv.Program(name, appendDir(buildDir + '/addons/audio/', files))
         Alias(name, example)
         examples.append(example)
 
-    addExample("addons/font/ex", ["ex.c"])
+    # Just an example
+    # addExample("addons/font/ex", ["ex.c"])
 
-    Alias('addons/font', examples + lib)
+    Alias('addons/audio', examples + lib)
     Alias('addons', examples + lib)
 
     def install():
@@ -42,13 +42,15 @@ def a5font(env, appendDir, buildDir, libDir):
         targets = []
         def add(t):
             targets.append(t)
+	include = installDir + '/include/allegro5'
         add(env.Install(installDir + '/lib/', lib))
-	add(env.Install(installDir + '/include/allegro5/', 'addons/font/allegro5/a5_font.h'))
+	add(env.Install(include, 'addons/audio/allegro5/audio.h'))
+	add(env.Install(include + '/internal', 'addons/audio/allegro5/internal/aintern_audio.h'))
         return targets
 
     Alias('install', install())
-    Alias('install-addons/font', install())
+    Alias('install-addons/audio', install())
 
     return examples
 
-context.addExtra(a5font,depends = True)
+context.addExtra(audio,depends = True)
