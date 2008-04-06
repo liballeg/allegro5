@@ -1,54 +1,16 @@
 Import( 'context' )
+import addons
 
-def getOption(name, default = 0):
-    try:
-        return context.getLibraryEnv()[name]
-    except KeyError:
-        return default
-
-def acodec(env, appendDir, buildDir, libDir):
-    examples = []
-
+addons.do_build(
+    context = context,
     source = Split("""
        acodec.c
        ex.c
        flac.c
        ogg.c
        wav.c
-    """);
-
-    # lib = env.SharedLibrary( libDir + '/a5_font', appendDir(buildDir + '/addons/font',source))
-    # Build library however Allegro was configured, either static or shared
-    lib = context.makeLibrary( env )( libDir + '/acodec', appendDir(buildDir + '/addons/acodec',source))
-
-    examples.append(lib)
-
-    exampleEnv = env.Copy()
-    exampleEnv.Append(LIBS = ["acodec"])
-    
-    def addExample(name, files):
-        example = exampleEnv.Program(name, appendDir(buildDir + '/addons/acodec/', files))
-        Alias(name, example)
-        examples.append(example)
-
-    # Just an example
-    # addExample("addons/font/ex", ["ex.c"])
-
-    Alias('addons/acodec', examples + lib)
-    Alias('addons', examples + lib)
-
-    def install():
-        installDir = getOption('install','/usr/local')
-        targets = []
-        def add(t):
-            targets.append(t)
-        add(env.Install(installDir + '/lib/', lib))
-	add(env.Install(installDir + '/include/allegro5/', 'addons/acodec/allegro5/acodec.h'))
-        return targets
-
-    Alias('install', install())
-    Alias('install-addons/acodec', install())
-
-    return examples
-
-context.addExtra(acodec,depends = True)
+    """),
+    dir = 'acodec',
+    name = 'acodec',
+    install_headers = ['allegro5/acodec.h']
+)

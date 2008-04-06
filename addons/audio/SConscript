@@ -1,56 +1,14 @@
 Import( 'context' )
+import addons
 
-def getOption(name, default = 0):
-    try:
-        return context.getLibraryEnv()[name]
-    except KeyError:
-        return default
-
-def audio(env, appendDir, buildDir, libDir):
-    examples = []
-
+addons.do_build(
+    context = context,
     source = Split("""
-      alsa.c
-      audio.c
-      openal.c
-    """);
-
-    # lib = env.SharedLibrary( libDir + '/a5_font', appendDir(buildDir + '/addons/font',source))
-    # Build library however Allegro was configured, either static or shared
-    lib = context.makeLibrary( env )( libDir + '/audio', appendDir(buildDir + '/addons/audio',source))
-
-    print lib
-
-    examples.append(lib)
-
-    exampleEnv = env.Copy()
-    exampleEnv.Append(LIBS = ["a5_font"])
-    
-    def addExample(name, files):
-        example = exampleEnv.Program(name, appendDir(buildDir + '/addons/audio/', files))
-        Alias(name, example)
-        examples.append(example)
-
-    # Just an example
-    # addExample("addons/font/ex", ["ex.c"])
-
-    Alias('addons/audio', examples + lib)
-    Alias('addons', examples + lib)
-
-    def install():
-        installDir = getOption('install','/usr/local')
-        targets = []
-        def add(t):
-            targets.append(t)
-	include = installDir + '/include/allegro5'
-        add(env.Install(installDir + '/lib/', lib))
-	add(env.Install(include, 'addons/audio/allegro5/audio.h'))
-	add(env.Install(include + '/internal', 'addons/audio/allegro5/internal/aintern_audio.h'))
-        return targets
-
-    Alias('install', install())
-    Alias('install-addons/audio', install())
-
-    return examples
-
-context.addExtra(audio,depends = True)
+        alsa.c
+        audio.c
+        openal.c
+    """),
+    dir = 'audio',
+    name = 'audio',
+    install_headers = ['allegro5/audio.h','allegro5/internal/aintern_audio.h']
+)
