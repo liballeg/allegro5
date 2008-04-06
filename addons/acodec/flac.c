@@ -4,7 +4,7 @@
  * author: Ryan Dickie, (c) 2008
  * 
  */
-#include "allegro5/acodec.h"
+#include "allegro5/internal/aintern_acodec.h"
 #include <FLAC/stream_decoder.h>
 #include <stdio.h>
 

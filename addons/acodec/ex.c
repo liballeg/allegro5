@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include "../audio/allegro5/audio.h"
 #include "allegro5/acodec.h"
 
 #define FREQUENCY 48000

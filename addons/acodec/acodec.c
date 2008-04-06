@@ -3,7 +3,7 @@
  * author: Ryan Dickie (c) 2008
  * todo: unicode file paths ;)
  */
-#include "allegro5/acodec.h"
+#include "allegro5/internal/aintern_acodec.h"
 
 struct ALLEGRO_SAMPLE* allegro_load_sample(const char* filename)
 {
@@ -19,10 +19,21 @@ struct ALLEGRO_SAMPLE* allegro_load_sample(const char* filename)
    //i've only ever done this in higher level
    //languages
    ext++; //get past the '.' character
-   if (strcmp("ogg",ext) == 0)
-      return al_load_sample_oggvorbis(filename);
-   else if (strcmp("flac",ext) == 0)
-      return al_load_sample_flac(filename);
-   else //out last hope.. 
-      return al_load_sample_sndfile(filename); 
+   #if defined(WANT_OGG)
+      if (strcmp("ogg",ext) == 0)
+         return al_load_sample_oggvorbis(filename);
+   #endif
+   
+   #if defined(WANT_FLAC)
+      if (strcmp("flac",ext) == 0)
+         return al_load_sample_flac(filename);
+   #endif
+
+   #if defined(WANT_SNDFILE)
+      if (strcmp("wav",ext) == 0 || strcmp("aiff",ext) == 0)
+         return al_load_sample_sndfile(filename);
+   #endif
+ 
+   //no codec found!
+   return NULL;
 }

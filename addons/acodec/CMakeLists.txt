@@ -1,4 +1,25 @@
-set(ACODEC_SOURCES acodec.c flac.c ex.c ogg.c wav.c)
+option(WANT_FLAC    "Enable FLAC support (acodec)" on)
+option(WANT_OGG     "Enable ogg-vorbis support (acodec)" on)
+option(WANT_SNDFILE "Enable wav/aiff support (acodec)" on)
+
+set(ACODEC_SOURCES acodec.c ex.c)
+set(DFLAGS "")
+
+if(WANT_FLAC)
+    set(ACODEC_SOURCES ${ACODEC_SOURCES} flac.c)
+    set(DFLAGS "${DFLAGS} -DWANT_FLAC")
+endif(WANT_FLAC)
+
+if(WANT_OGG)
+    set(ACODEC_SOURCES ${ACODEC_SOURCES} ogg.c)
+    set(DFLAGS "${DFLAGS} -DWANT_OGG")
+endif(WANT_OGG)
+
+if(WANT_SNDFILE)
+    set(ACODEC_SOURCES ${ACODEC_SOURCES} wav.c)
+    set(DFLAGS "${DFLAGS} -DWANT_SNDFILE")
+endif(WANT_SNDFILE)
+
 set(ACODEC_INCLUDE_FILES allegro5/acodec.h)
 
 macro(add_acodec_build nm extra_flags)
@@ -6,7 +27,7 @@ macro(add_acodec_build nm extra_flags)
         add_library(${target} ${libtype} ${ACODEC_SOURCES})
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
+            COMPILE_FLAGS "${more_extra_flags} ${DFLAGS} ${LIBRARY_CFLAGS}"
             OUTPUT_NAME ${nm}
             )
 
@@ -30,6 +51,7 @@ macro(add_acodec_build nm extra_flags)
     endif(STATIC)
 
 endmacro(add_acodec_build)
+
 
 if(GRADE_STANDARD)
     add_acodec_build(a5_acodec
@@ -56,10 +78,22 @@ elseif(GRADE_PROFILE)
 endif(GRADE_STANDARD)
 
 if(STATIC)
-    set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_static sndfile FLAC vorbisfile CACHE INTERNAL "internal")
+    set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_static CACHE INTERNAL "internal")
 else(STATIC)
-    set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared sndfile FLAC vorbisfile CACHE INTERNAL "internal")
+    set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
 endif(STATIC)
+
+if(WANT_FLAC)
+    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} FLAC)
+endif(WANT_FLAC)
+
+if(WANT_OGG)
+    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} vorbisfile)
+endif(WANT_OGG)
+
+if(WANT_SNDFILE)
+    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} sndfile)
+endif(WANT_SNDFILE)
 
 macro(add_acodec_example nm)
     add_executable(${nm} ${ARGN})

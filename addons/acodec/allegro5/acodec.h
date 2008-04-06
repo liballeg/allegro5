@@ -8,11 +8,7 @@
 #ifndef ACODEC_H
 #define ACODEC_H
 
-#include "../../audio/allegro5/audio.h"
-
-ALLEGRO_SAMPLE* al_load_sample_flac(const char *filename);
-ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename);
-ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *filename);
+#include "allegro5/audio.h"
 ALLEGRO_SAMPLE* al_load_sample(const char* filename);
 
 #endif
