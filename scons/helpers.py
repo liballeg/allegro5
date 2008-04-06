@@ -24,17 +24,69 @@ def generate_alplatf_h(env, defines):
     Add a builder to the given environment to build alplatf.h with the given
     define.
     """
-    def func(target, source, env):
+    def convert_cmake_h(target, source, env):
         writer = open( target[0].path, 'w' )
-	for define in defines:
-	    writer.write('#define %s\n' % define)
+    for define in defines:
+        writer.write('#define %s\n' % define)
         writer.close()
         return 0
 
     # Generate alplatf.h
-    platformHeader = SCons.Builder.Builder(action = func)
+    platformHeader = SCons.Builder.Builder(action = convert_cmake_h)
     # Add the builder to scons.
     env.Append(BUILDERS = { "PlatformHeader" : platformHeader })
     # Create alplatf.h based on alplatf.h.cmake
     return env.PlatformHeader('#include/allegro5/platform/alplatf.h',
         '#include/allegro5/platform/alplatf.h.cmake')
+
+class SimpleHash:
+    def __init__( self ):
+        self.hash = dict()
+
+    def __getitem__( self, key ):
+        try:
+            return self.hash[ key ]
+        except KeyError:
+            return False
+
+    def __setitem__( self, key, value ):
+        self.hash[ key ] = value
+
+    def keys( self ):
+        return self.hash.keys()
+
+def define(*rest):
+    n = SimpleHash()
+    for i in rest:
+        n[i] = True
+    return n
+
+def parse_cmake_h(env, defines, src, dest):
+    def parse_line(line):
+        import re
+        update = re.compile('\$\{([^}]*)\}')
+        line = update.sub(lambda m: str(defines[m.group(1)]), line)
+        m = re.compile('^#cmakedefine (.*)').match(line)
+        if m:
+            name = m.group(1)
+            if defines[ name ]:
+                return "#define %s\n" % name
+            else:
+                return "/* #undef %s */\n" % name
+        else:
+            return line
+
+    def func(target, source, env):
+        reader = open(source[0].path, 'r')
+        writer = open(target[0].path, 'w')
+        # all = reader.read()
+        for i in reader.readlines():
+            writer.write(parse_line(i))
+        reader.close()
+        writer.close()
+        return 0
+    env2 = env.Copy()
+    make = SCons.Builder.Builder(action = func)
+    env2.Append(BUILDERS = { "PlatformHeader" : make })
+    return env2.PlatformHeader(dest,src)
+

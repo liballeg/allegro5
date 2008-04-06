@@ -27,6 +27,8 @@ config: (Re)configure Allegro. You will need to set this to 1 if you wish to ena
     actual: 0
 """);
 
+print context.getLibraryEnv()['install']
+
 def isStatic():
     return int(context.getLibraryEnv()['static']) == 1
 
@@ -91,27 +93,11 @@ if not getArgumentOption("config",0):
         print "Re-using old settings"
         noconfig = True
 
-class SimpleHash:
-    def __init__( self ):
-        self.hash = dict()
-
-    def __getitem__( self, key ):
-        try:
-            return self.hash[ key ]
-        except KeyError:
-            return [False]
-
-    def __setitem__( self, key, value ):
-        self.hash[ key ] = value
-
-    def keys( self ):
-        return self.hash.keys()
-
 unixLibs = [ 'm', 'pthread' ]
 
 # the settings we cache in settings.cfg
 config_settings = ["CCFLAGS", "CPPPATH", "CPPFLAGS", "LIBS", "LIBPATH", "LINKFLAGS"]
-platform = SimpleHash()
+platform = helpers.SimpleHash()
 settings = ConfigParser.ConfigParser()
 
 ## The platform variable will hold all configuration things we care about
@@ -152,108 +138,108 @@ else:
         config.env.Append( CCFLAGS = [archFlag + machine] )
 
     config.CheckLib("m", "sin")
-    platform["ALLEGRO_ALSA_VERSION"] = [config.AlsaVersion(), "Define to the installed ALSA version"]
-    platform["ALLEGRO_ASM_PREFIX"] = [config.CheckASMUnderscores(), "Define if compiler prepends underscore to symbols."]
-    platform["ALLEGRO_BIG_ENDIAN"] = [config.CheckBigEndian(), "Define if target machine is big endian."]
-    platform["ALLEGRO_COLOR16"] = [getOption("color16", "yes"), "Define if you want support for 16 bpp modes."]
-    platform["ALLEGRO_COLOR24"] = [getOption("color24", "yes"), "Define if you want support for 24 bpp modes."]
-    platform["ALLEGRO_COLOR32"] = [getOption("color32", "yes"), "Define if you want support for 32 bpp modes."]
-    platform["ALLEGRO_COLOR8"] = [getOption("color8", "yes"), "Define if you want support for 8 bpp modes."]
-    platform["ALLEGRO_DARWIN"] = [config.CheckDarwin(), "Define if target platform is Darwin."]
-    platform["ALLEGRO_HAVE_GETEXECNAME"] = [config.CheckFunc("getexecname"), "Define to 1 if you have getexecname"]
-    platform["ALLEGRO_HAVE_PROCFS_ARGCV"] = [config.CheckProcFSArgCV(), "Define to 1 if procfs reveals argc and argv"]
-    platform["ALLEGRO_LINUX"] = [config.CheckLinux(), "Define if target platform is linux."]
-    platform["ALLEGRO_LINUX_FBCON"] = [config.CheckFBCon(), "Define to enable Linux console fbcon driver."]
-#    platform["ALLEGRO_LINUX_SVGALIB"] = [config.CheckLib("vga", "vga_init"), "Define to enable Linux console SVGAlib driver."]
-#    platform["ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION"] = [config.CheckSVGALibVersion(), "Define if SVGAlib driver can check vga_version."]
-    platform["ALLEGRO_LINUX_VBEAF"] = [EnableVBEAF(), "Define to enable Linux console VBE/AF driver."]
-    platform["ALLEGRO_LINUX_VGA"] = [EnableVGA(), "Define to enable Linux console VGA driver."]
-    platform["ALLEGRO_LITTLE_ENDIAN"] = [config.CheckLittleEndian(), "Define if target machine is little endian."]
-    platform["ALLEGRO_MMX"] = [config.CheckMMX(), "Define if assembler supports MMX."]
-    platform["ALLEGRO_NO_ASM"] = [getOption("no_asm", "yes"), "Define for Unix platforms, to use C convention for bank switching."]
-    platform["ALLEGRO_SSE"] = [config.CheckSSE(), "Define if assembler supports SSE."]
-    platform["ALLEGRO_USE_CONSTRUCTOR"] = [config.CheckConstructor(), "Define if constructor attribute is supported."]
-    platform["ALLEGRO_USE_SCHED_YIELD"] = [config.CheckLib(["c", "posix4", "rt"], "sched_yield"), "Define if sched_yield is provided by some library."]
-    platform["ALLEGRO_USE_XIM"] = [config.CheckLib("X11", "XOpenIM"), "Define if XIM extension is supported."]
-    platform["ALLEGRO_WITH_ALSADIGI"] = [config.CheckALSADigi(), "Define if ALSA DIGI driver is supported."]
-    platform["ALLEGRO_WITH_ALSAMIDI"] = [config.CheckALSAMidi(), "Define if ALSA MIDI driver is supported."]
-    platform["ALLEGRO_WITH_ARTSDIGI"] = [config.CheckARTSDigi(), "Define if aRts DIGI driver is supported."]
-    platform["ALLEGRO_WITH_ESDDIGI"] = [config.CheckESDDigi(), "Define if ESD DIGI driver is supported."]
-    platform["ALLEGRO_WITH_JACKDIGI"] = [config.CheckJackDigi(), "Define if JACK DIGI driver is supported."]
-    platform["ALLEGRO_WITH_MAGIC_MAIN"] = [getOption("magic_main", "no"), "Define if you need to use a magic main."]
+    platform["ALLEGRO_ALSA_VERSION"] = config.AlsaVersion() # , "Define to the installed ALSA version"]
+    platform["ALLEGRO_ASM_PREFIX"] = config.CheckASMUnderscores() # , "Define if compiler prepends underscore to symbols."]
+    platform["ALLEGRO_BIG_ENDIAN"] = config.CheckBigEndian() # , "Define if target machine is big endian."]
+    platform["ALLEGRO_COLOR16"] = getOption("color16", "yes") #, "Define if you want support for 16 bpp modes."]
+    platform["ALLEGRO_COLOR24"] = getOption("color24", "yes") #, "Define if you want support for 24 bpp modes."]
+    platform["ALLEGRO_COLOR32"] = getOption("color32", "yes") #, "Define if you want support for 32 bpp modes."]
+    platform["ALLEGRO_COLOR8"] = getOption("color8", "yes") #, "Define if you want support for 8 bpp modes."]
+    platform["ALLEGRO_DARWIN"] = config.CheckDarwin() #, "Define if target platform is Darwin."]
+    platform["ALLEGRO_HAVE_GETEXECNAME"] = config.CheckFunc("getexecname") # , "Define to 1 if you have getexecname"]
+    platform["ALLEGRO_HAVE_PROCFS_ARGCV"] = config.CheckProcFSArgCV() # , "Define to 1 if procfs reveals argc and argv"]
+    platform["ALLEGRO_LINUX"] = config.CheckLinux() # , "Define if target platform is linux."]
+    platform["ALLEGRO_LINUX_FBCON"] = config.CheckFBCon() # , "Define to enable Linux console fbcon driver."]
+#    platform["ALLEGRO_LINUX_SVGALIB"] = config.CheckLib("vga" # , "vga_init"), "Define to enable Linux console SVGAlib driver."]
+#    platform["ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION"] = config.CheckSVGALibVersion() # , "Define if SVGAlib driver can check vga_version."]
+    platform["ALLEGRO_LINUX_VBEAF"] = EnableVBEAF() # , "Define to enable Linux console VBE/AF driver."]
+    platform["ALLEGRO_LINUX_VGA"] = EnableVGA() # , "Define to enable Linux console VGA driver."]
+    platform["ALLEGRO_LITTLE_ENDIAN"] = config.CheckLittleEndian() # , "Define if target machine is little endian."]
+    platform["ALLEGRO_MMX"] = config.CheckMMX() # , "Define if assembler supports MMX."]
+    platform["ALLEGRO_NO_ASM"] = getOption("no_asm", "yes") #, "Define for Unix platforms, to use C convention for bank switching."]
+    platform["ALLEGRO_SSE"] = config.CheckSSE() # , "Define if assembler supports SSE."]
+    platform["ALLEGRO_USE_CONSTRUCTOR"] = config.CheckConstructor() # , "Define if constructor attribute is supported."]
+    platform["ALLEGRO_USE_SCHED_YIELD"] = config.CheckLib(["c", "posix4", "rt"], "sched_yield") #, "Define if sched_yield is provided by some library."]
+    platform["ALLEGRO_USE_XIM"] = config.CheckLib("X11", "XOpenIM") #, "Define if XIM extension is supported."]
+    platform["ALLEGRO_WITH_ALSADIGI"] = config.CheckALSADigi() # , "Define if ALSA DIGI driver is supported."]
+    platform["ALLEGRO_WITH_ALSAMIDI"] = config.CheckALSAMidi() # , "Define if ALSA MIDI driver is supported."]
+    platform["ALLEGRO_WITH_ARTSDIGI"] = config.CheckARTSDigi() # , "Define if aRts DIGI driver is supported."]
+    platform["ALLEGRO_WITH_ESDDIGI"] = config.CheckESDDigi() # , "Define if ESD DIGI driver is supported."]
+    platform["ALLEGRO_WITH_JACKDIGI"] = config.CheckJackDigi() # , "Define if JACK DIGI driver is supported."]
+    platform["ALLEGRO_WITH_MAGIC_MAIN"] = getOption("magic_main", "no") # , "Define if you need to use a magic main."]
 
-    platform["ALLEGRO_WITH_XWINDOWS"] = [config.CheckForX(), "Define if you need support for X-Windows."]
-    platform["ALLEGRO_XWINDOWS_WITH_SHM"] = [config.CheckLib("Xext", "XShmQueryExtension"), "Define if MIT-SHM extension is supported."]
-    platform["ALLEGRO_XWINDOWS_WITH_XCURSOR"] = [config.CheckXCursor(), "Define if XCursor ARGB extension is available."]
-    platform["ALLEGRO_XWINDOWS_WITH_XF86DGA2"] = [config.CheckLib("Xxf86dga", "XDGAQueryExtension"), "Define if DGA version 2.0 or newer is supported"]
-    platform["ALLEGRO_XWINDOWS_WITH_XF86VIDMODE"] = [config.CheckLib("Xxf86vm", "XF86VidModeQueryExtension"), "Define if XF86VidMode extension is supported."]
-    platform["ALLEGRO_XWINDOWS_WITH_XPM"] = [config.CheckLib("Xpm", "XpmCreatePixmapFromData"), "Define if xpm bitmap support is available."]
-    platform["ALLEGRO_GLX"] = [config.CheckForGLX(), "Define to 1 if GLX is available."]
-    platform["ALLEGRO_HAVE_DIRENT_H"] = [config.CheckCHeader("dirent.h"), "Define to 1 if you have the <dirent.h> header file, and it defines \"DIR\". "]
-    platform["ALLEGRO_HAVE_DLFCN_H"] = [config.CheckCHeader("dlfcn.h"), "Define to 1 if you have the <dlfcn.h> header file."]
-    platform["ALLEGRO_HAVE_FCNTL_H"] = [config.CheckCHeader("fcntl.h"), "Define to 1 if you have the <fcntl.h> header file."]
-    platform["ALLEGRO_HAVE_INTTYPES_H"] = [config.CheckCHeader("inttypes.h"), "Define to 1 if you have the <inttypes.h> header file."]
-    platform["ALLEGRO_HAVE_LIBOSSAUDIO"] = [config.CheckLib("ossaudio", "_oss_ioctl"), "Define to 1 if you have the \"ossaudio\" library (-lossaudio)."]
-    platform["ALLEGRO_HAVE_LIBPTHREAD"] = [config.CheckLib("pthread", "pthread_create"), "Define if you have the pthread library."]
-    platform["ALLEGRO_HAVE_LIMITS_H"] = [config.CheckCHeader("limits.h"), "Define to 1 if you have the <limits.h> header file."]
-    platform["ALLEGRO_HAVE_LINUX_AWE_VOICE_H"] = [config.CheckCHeader("linux/awe_voice.h"), "Define to 1 if you have the <linux/awe_voice.h> header file."]
-    platform["ALLEGRO_HAVE_LINUX_INPUT_H"] = [config.CheckCHeader("linux/input.h"), "Define to 1 if you have the <linux/input.h> header file."]
-    platform["ALLEGRO_HAVE_LINUX_JOYSTICK_H"] = [config.CheckCHeader("linux/joystick.h"), "Define to 1 if you have the <linux/joystick.h> header file."]
-    platform["ALLEGRO_HAVE_LINUX_SOUNDCARD_H"] = [config.CheckCHeader("linux/soundcard.h"), "Define to 1 if you have the <linux/soundcard.h> header file."]
-    platform["ALLEGRO_HAVE_MACHINE_SOUNDCARD_H"] = [config.CheckCHeader("machine/soundcard.h"), "Define to 1 if you have the <machine/soundcard.h> header file."]
-    platform["ALLEGRO_HAVE_MEMCMP"] = [config.CheckLib("c", "memcmp"), "Define to 1 if you have the \"memcmp\" function."]
-    platform["ALLEGRO_HAVE_MEMORY_H"] = [config.CheckCHeader("memory.h"), "Define to 1 if you have the <memory.h> header file."]
-    platform["ALLEGRO_HAVE_MKSTEMP"] = [config.CheckLib("c", "mkstemp"), "Define to 1 if you have the \"mkstemp\" function."]
-    platform["ALLEGRO_HAVE_MMAP"] = [config.CheckLib("c", "mmap"), "Define to 1 if you have the \"mmap\" function."]
-    platform["ALLEGRO_HAVE_NDIR_H"] = [config.CheckCHeader("ndir.h"), "Define to 1 if you have the <ndir.h> header file, and it defines \"DIR\"."]
-    platform["ALLEGRO_HAVE_SOUNDCARD_H"] = [config.CheckCHeader("soundcard.h"), "Define to 1 if you have the <soundcard.h> header file."]
-    platform["ALLEGRO_HAVE_STDBOOL_H"] = [config.CheckCHeader("stdbool.h"), "Define to 1 if stdbool.h conforms to C99."]
-    platform["ALLEGRO_HAVE_STDINT_H"] = [config.CheckCHeader("stdint.h"), "Define to 1 if you have the <stdint.h> header file."]
-    platform["ALLEGRO_HAVE_STDLIB_H"] = [config.CheckCHeader("stdlib.h"), "Define to 1 if you have the <stdlib.h> header file."]
-    platform["ALLEGRO_HAVE_STRICMP"] = [config.CheckLib("c", "stricmp"), "Define to 1 if you have the \"stricmp\" function."]
-    platform["ALLEGRO_HAVE_STRINGS_H"] = [config.CheckCHeader("strings.h"), "Define to 1 if you have the <strings.h> header file."]
-    platform["ALLEGRO_HAVE_STRING_H"] = [config.CheckCHeader("string.h"), "Define to 1 if you have the <string.h> header file."]
-    platform["ALLEGRO_HAVE_STRLWR"] = [config.CheckLib("c", "strlwr"), "Define to 1 if you have the \"strlwr\" function."]
-    platform["ALLEGRO_HAVE_STRUPR"] = [config.CheckLib("c", "strup"), "Define to 1 if you have the \"strupr\" function."]
-    platform["ALLEGRO_HAVE_SYS_DIR_H"] = [config.CheckCHeader("sys/dir.h"), "Define to 1 if you have the <sys/dir.h> header file, and it defines \"DIR\"."]
-    platform["ALLEGRO_HAVE_SYS_IO_H"] = [config.CheckCHeader("sys/io.h"), "Define to 1 if you have the <sys/io.h> header file."]
-    platform["ALLEGRO_HAVE_SYS_NDIR_H"] = [config.CheckCHeader("sys/ndir.h"), "Define to 1 if you have the <sys/ndir.h> header file, and it defines \"DIR\"."]
-    platform["ALLEGRO_HAVE_SYS_SOUNDCARD_H"] = [config.CheckCHeader("sys/soundcard.h"), "Define to 1 if you have the <sys/soundcard.h> header file."]
-    platform["ALLEGRO_HAVE_SYS_STAT_H"] = [config.CheckCHeader("sys/stat.h"), "Define to 1 if you have the <sys/stat.h> header file."]
-    platform["ALLEGRO_HAVE_SYS_TIME_H"] = [config.CheckCHeader("sys/time.h"), "Define to 1 if you have the <sys/time.h> header file."]
-    platform["ALLEGRO_HAVE_SYS_TYPES_H"] = [config.CheckCHeader("sys/types.h"), "Define to 1 if you have the <sys/types.h> header file."]
-    platform["ALLEGRO_HAVE_SYS_UTSNAME_H"] = [config.CheckCHeader("sys/utsname.h"), "Define to 1 if you have the <sys/utsname.h> header file."]
-    platform["ALLEGRO_HAVE_VPRINTF"] = [config.CheckLib("c", "vprintf"), "Define to 1 if you have the \"vprintf\" function."]
-    platform["ALLEGRO_HAVE__BOOL"] = [config.CheckCHeader("stdbool.h"), "Define to 1 if the system has the type \"_Bool\"."]
-    platform["MAP_FAILED"] = [config.CheckMapFailed(), "Define to (void *)-1, if MAP_FAILED is not defined."]
-    platform["ALLEGRO_WITH_OSSDIGI"] = [config.CheckOSSDigi(), "Define if OSS DIGI driver is supported."]
-    platform["ALLEGRO_WITH_OSSMIDI"] = [config.CheckOSSMidi(), "Define if OSS MIDI driver is supported."]
-    platform["ALLEGRO_HAVE_DYNAMIC_LINK"] = [config.CheckDL(), "Define if libdl is available."]
+    platform["ALLEGRO_WITH_XWINDOWS"] = config.CheckForX() # , "Define if you need support for X-Windows."]
+    platform["ALLEGRO_XWINDOWS_WITH_SHM"] = config.CheckLib("Xext", "XShmQueryExtension") # , "Define if MIT-SHM extension is supported."]
+    platform["ALLEGRO_XWINDOWS_WITH_XCURSOR"] = config.CheckXCursor() # , "Define if XCursor ARGB extension is available."]
+    platform["ALLEGRO_XWINDOWS_WITH_XF86DGA2"] = config.CheckLib("Xxf86dga", "XDGAQueryExtension") # , "Define if DGA version 2.0 or newer is supported"]
+    platform["ALLEGRO_XWINDOWS_WITH_XF86VIDMODE"] = config.CheckLib("Xxf86vm", "XF86VidModeQueryExtension") # , "Define if XF86VidMode extension is supported."]
+    platform["ALLEGRO_XWINDOWS_WITH_XPM"] = config.CheckLib("Xpm", "XpmCreatePixmapFromData") # , "Define if xpm bitmap support is available."]
+    platform["ALLEGRO_GLX"] = config.CheckForGLX() # , "Define to 1 if GLX is available."]
+    platform["ALLEGRO_HAVE_DIRENT_H"] = config.CheckCHeader("dirent.h") # , "Define to 1 if you have the <dirent.h> header file, and it defines \"DIR\". "]
+    platform["ALLEGRO_HAVE_DLFCN_H"] = config.CheckCHeader("dlfcn.h") # , "Define to 1 if you have the <dlfcn.h> header file."]
+    platform["ALLEGRO_HAVE_FCNTL_H"] = config.CheckCHeader("fcntl.h") # , "Define to 1 if you have the <fcntl.h> header file."]
+    platform["ALLEGRO_HAVE_INTTYPES_H"] = config.CheckCHeader("inttypes.h") # , "Define to 1 if you have the <inttypes.h> header file."]
+    platform["ALLEGRO_HAVE_LIBOSSAUDIO"] = config.CheckLib("ossaudio", "_oss_ioctl") # , "Define to 1 if you have the \"ossaudio\" library (-lossaudio)."]
+    platform["ALLEGRO_HAVE_LIBPTHREAD"] = config.CheckLib("pthread", "pthread_create") # , "Define if you have the pthread library."]
+    platform["ALLEGRO_HAVE_LIMITS_H"] = config.CheckCHeader("limits.h") # , "Define to 1 if you have the <limits.h> header file."]
+    platform["ALLEGRO_HAVE_LINUX_AWE_VOICE_H"] = config.CheckCHeader("linux/awe_voice.h") # , "Define to 1 if you have the <linux/awe_voice.h> header file."]
+    platform["ALLEGRO_HAVE_LINUX_INPUT_H"] = config.CheckCHeader("linux/input.h") # , "Define to 1 if you have the <linux/input.h> header file."]
+    platform["ALLEGRO_HAVE_LINUX_JOYSTICK_H"] = config.CheckCHeader("linux/joystick.h") # , "Define to 1 if you have the <linux/joystick.h> header file."]
+    platform["ALLEGRO_HAVE_LINUX_SOUNDCARD_H"] = config.CheckCHeader("linux/soundcard.h") # , "Define to 1 if you have the <linux/soundcard.h> header file."]
+    platform["ALLEGRO_HAVE_MACHINE_SOUNDCARD_H"] = config.CheckCHeader("machine/soundcard.h") # , "Define to 1 if you have the <machine/soundcard.h> header file."]
+    platform["ALLEGRO_HAVE_MEMCMP"] = config.CheckLib("c", "memcmp") # , "Define to 1 if you have the \"memcmp\" function."]
+    platform["ALLEGRO_HAVE_MEMORY_H"] = config.CheckCHeader("memory.h") # , "Define to 1 if you have the <memory.h> header file."]
+    platform["ALLEGRO_HAVE_MKSTEMP"] = config.CheckLib("c", "mkstemp") # , "Define to 1 if you have the \"mkstemp\" function."]
+    platform["ALLEGRO_HAVE_MMAP"] = config.CheckLib("c", "mmap") # , "Define to 1 if you have the \"mmap\" function."]
+    platform["ALLEGRO_HAVE_NDIR_H"] = config.CheckCHeader("ndir.h") # , "Define to 1 if you have the <ndir.h> header file, and it defines \"DIR\"."]
+    platform["ALLEGRO_HAVE_SOUNDCARD_H"] = config.CheckCHeader("soundcard.h") # , "Define to 1 if you have the <soundcard.h> header file."]
+    platform["ALLEGRO_HAVE_STDBOOL_H"] = config.CheckCHeader("stdbool.h") # , "Define to 1 if stdbool.h conforms to C99."]
+    platform["ALLEGRO_HAVE_STDINT_H"] = config.CheckCHeader("stdint.h") # , "Define to 1 if you have the <stdint.h> header file."]
+    platform["ALLEGRO_HAVE_STDLIB_H"] = config.CheckCHeader("stdlib.h") # , "Define to 1 if you have the <stdlib.h> header file."]
+    platform["ALLEGRO_HAVE_STRICMP"] = config.CheckLib("c", "stricmp") # , "Define to 1 if you have the \"stricmp\" function."]
+    platform["ALLEGRO_HAVE_STRINGS_H"] = config.CheckCHeader("strings.h") # , "Define to 1 if you have the <strings.h> header file."]
+    platform["ALLEGRO_HAVE_STRING_H"] = config.CheckCHeader("string.h") # , "Define to 1 if you have the <string.h> header file."]
+    platform["ALLEGRO_HAVE_STRLWR"] = config.CheckLib("c", "strlwr") # , "Define to 1 if you have the \"strlwr\" function."]
+    platform["ALLEGRO_HAVE_STRUPR"] = config.CheckLib("c", "strup") # , "Define to 1 if you have the \"strupr\" function."]
+    platform["ALLEGRO_HAVE_SYS_DIR_H"] = config.CheckCHeader("sys/dir.h") # , "Define to 1 if you have the <sys/dir.h> header file, and it defines \"DIR\"."]
+    platform["ALLEGRO_HAVE_SYS_IO_H"] = config.CheckCHeader("sys/io.h") # , "Define to 1 if you have the <sys/io.h> header file."]
+    platform["ALLEGRO_HAVE_SYS_NDIR_H"] = config.CheckCHeader("sys/ndir.h") # , "Define to 1 if you have the <sys/ndir.h> header file, and it defines \"DIR\"."]
+    platform["ALLEGRO_HAVE_SYS_SOUNDCARD_H"] = config.CheckCHeader("sys/soundcard.h") # , "Define to 1 if you have the <sys/soundcard.h> header file."]
+    platform["ALLEGRO_HAVE_SYS_STAT_H"] = config.CheckCHeader("sys/stat.h") # , "Define to 1 if you have the <sys/stat.h> header file."]
+    platform["ALLEGRO_HAVE_SYS_TIME_H"] = config.CheckCHeader("sys/time.h") # , "Define to 1 if you have the <sys/time.h> header file."]
+    platform["ALLEGRO_HAVE_SYS_TYPES_H"] = config.CheckCHeader("sys/types.h") # , "Define to 1 if you have the <sys/types.h> header file."]
+    platform["ALLEGRO_HAVE_SYS_UTSNAME_H"] = config.CheckCHeader("sys/utsname.h") # , "Define to 1 if you have the <sys/utsname.h> header file."]
+    platform["ALLEGRO_HAVE_VPRINTF"] = config.CheckLib("c", "vprintf") # , "Define to 1 if you have the \"vprintf\" function."]
+    platform["ALLEGRO_HAVE__BOOL"] = config.CheckCHeader("stdbool.h") # , "Define to 1 if the system has the type \"_Bool\"."]
+    platform["MAP_FAILED"] = config.CheckMapFailed() # , "Define to (void *)-1, if MAP_FAILED is not defined."]
+    platform["ALLEGRO_WITH_OSSDIGI"] = config.CheckOSSDigi() # , "Define if OSS DIGI driver is supported."]
+    platform["ALLEGRO_WITH_OSSMIDI"] = config.CheckOSSMidi() # , "Define if OSS MIDI driver is supported."]
+    platform["ALLEGRO_HAVE_DYNAMIC_LINK"] = config.CheckDL() # , "Define if libdl is available."]
 
     ## Not checked yet
-    platform["ALLEGRO_MODULES_PATH"] = ['"/usr/local/lib/allegro"',
-        "Set to the directory in which to find Allegro modules at runtime."]
-    platform["PACKAGE_BUGREPORT"] = ["", "Define to the address where bug reports for this package should be sent."]
-    platform["ALLEGRO_WITH_MODULES"] = ["1", "Define if dynamically loaded modules are supported."]
-    platform["PACKAGE_NAME"] = ["", "Define to the full name of this package."]
-    platform["PACKAGE_STRING"] = ["", "Define to the full name and version of this package."]
-    platform["PACKAGE_TARNAME"] = ["", "Define to the one symbol short name of this package."]
-    platform["PACKAGE_VERSION"] = ["", "Define to the version of this package."]
-    platform["RETSIGTYPE"] = ["void", "Define as the return type of signal handlers (\"int\" or \"void\")."]
-    platform["STDC_HEADERS"] = ["1", "Define to 1 if you have the ANSI C header files."]
-    platform["TIME_WITH_SYS_TIME"] = ["1", "Define to 1 if you can safely include both <sys/time.h> and <time.h>."]
-    platform["TM_IN_SYS_TIME"] = [False, "Define to 1 if your <sys/time.h> declares \"struct tm\"."]
-    platform["ALLEGRO_WITH_SGIALDIGI"] = [False, "Define if SGI AL DIGI driver is supported."]
-    platform["WORDS_BIGENDIAN"] = [False, "Define to 1 if your processor stores words with the most significant\n byte first (like Motorola and SPARC, unlike Intel and VAX)."]
-    platform["const"] = [False, "Define to empty if \"const\" does not conform to ANSI C."]
+    platform["ALLEGRO_MODULES_PATH"] = '"/usr/local/lib/allegro"' # , "Set to the directory in which to find Allegro modules at runtime."]
+    platform["PACKAGE_BUGREPORT"] = "" # , "Define to the address where bug reports for this package should be sent."]
+    platform["ALLEGRO_WITH_MODULES"] = "1" # , "Define if dynamically loaded modules are supported."]
+    platform["PACKAGE_NAME"] = "" # , "Define to the full name of this package."]
+    platform["PACKAGE_STRING"] = "" # , "Define to the full name and version of this package."]
+    platform["PACKAGE_TARNAME"] = "" # , "Define to the one symbol short name of this package."]
+    platform["PACKAGE_VERSION"] = "" # , "Define to the version of this package."]
+    platform["RETSIGTYPE"] = "void" # , "Define as the return type of signal handlers (\"int\" or \"void\")."]
+    platform["STDC_HEADERS"] = "1" # , "Define to 1 if you have the ANSI C header files."]
+    platform["TIME_WITH_SYS_TIME"] = "1" # , "Define to 1 if you can safely include both <sys/time.h> and <time.h>."]
+    platform["TM_IN_SYS_TIME"] = False # , "Define to 1 if your <sys/time.h> declares \"struct tm\"."]
+    platform["ALLEGRO_WITH_SGIALDIGI"] = False # , "Define if SGI AL DIGI driver is supported."]
+    platform["WORDS_BIGENDIAN"] = False # , "Define to 1 if your processor stores words with the most significant\n byte first (like Motorola and SPARC, unlike Intel and VAX)."]
+    platform["const"] = False # , "Define to empty if \"const\" does not conform to ANSI C."]
 
-    platform["ALLEGRO_HAVE_SV_PROCFS"] = [False, "Define to 1 if you have a System V sys/procfs.h"]
+    platform["ALLEGRO_HAVE_SV_PROCFS"] = False # , "Define to 1 if you have a System V sys/procfs.h"]
 
     context.setLibraryEnv(config.Finish())
     env = context.getLibraryEnv()
 
     # Write out alunixac.h with all the config settings
-    writeAutoHeader("include/allegro5/platform/alunixac.h", platform)
+    # writeAutoHeader("include/allegro5/platform/alunixac.h", platform)
+    helpers.parse_cmake_h(env,platform,'#include/allegro5/platform/alunixac.h.cmake','#include/allegro5/platform/alunixac.h')
 
     # write out settings.cfg with scons specific settings
     settings.add_section("unix")
@@ -265,8 +251,13 @@ else:
         settings.set("unix", setting, str(val))
     settings.write(file("build/settings.cfg", "w"))
 
-alplatf_h = helpers.generate_alplatf_h(env, ["ALLEGRO_UNIX"])
-
+# alplatf_h = helpers.generate_alplatf_h(env, ["ALLEGRO_UNIX"])
+platf_settings = helpers.define("ALLEGRO_UNIX","ALLEGRO_CFG_OPENGL")
+# platf_settings = helpers.SimpleHash()
+# platf_settings[ "ALLEGRO_UNIX" ] = True
+# platf_settings[ "ALLEGRO_NO_ASM" ] = True
+alplatf_h = helpers.parse_cmake_h(env, platf_settings, '#include/allegro5/platform/alplatf.h.cmake', '#include/allegro5/platform/alplatf.h')
+        
 # env.Depends(alplatf_h, env.Program('dummy','#src/unix/dummy.c'))
 
 # Maybe setting up the assembler should be in a gcc.scons or something?
@@ -323,7 +314,7 @@ def supportModules():
 modules = []
 
 # These should probably also pass -DALLEGRO_MODULE or something
-if platform["ALLEGRO_WITH_ESDDIGI"][0]:
+if platform["ALLEGRO_WITH_ESDDIGI"]:
     def buildESD(menv,appendDir,buildDir,libDir):
         esdEnv = menv.Copy()
         esdEnv.ParseConfig('esd-config --libs')
@@ -335,7 +326,7 @@ if platform["ALLEGRO_WITH_ESDDIGI"][0]:
         return lib
     context.addExtra(buildESD, depends = True)
 
-if platform["ALLEGRO_WITH_ALSADIGI"][0]:
+if platform["ALLEGRO_WITH_ALSADIGI"]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
@@ -347,7 +338,7 @@ if platform["ALLEGRO_WITH_ALSADIGI"][0]:
         return lib
     context.addExtra(buildAlsa, depends = True)
 
-if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
+if platform["ALLEGRO_WITH_ALSAMIDI"]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         alsaEnv = menv.Copy()
         alsaEnv.Append(LIBS = "asound")
@@ -375,7 +366,7 @@ if platform["ALLEGRO_WITH_ALSAMIDI"][0]:
 #        return lib
 #    context.addExtra(buildSVGA)
 
-if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
+if platform["ALLEGRO_WITH_ARTSDIGI"]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         artsEnv = menv.Copy()
         artsEnv.ParseConfig("artsc-config --libs")
@@ -385,7 +376,7 @@ if platform["ALLEGRO_WITH_ARTSDIGI"][0]:
         return lib
     context.addExtra(buildAlsa, depends = True)
 
-if platform["ALLEGRO_LINUX_FBCON"][0]:
+if platform["ALLEGRO_LINUX_FBCON"]:
     def buildFBCon(menv,appendDir,buildDir,libDir):
         sources = ["fbcon.c"]
         lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/modules/src/linux/", sources))
@@ -394,7 +385,7 @@ if platform["ALLEGRO_LINUX_FBCON"][0]:
     context.addExtra(buildFBCon, depends = True)
 
 def haveXWindows():
-    return platform["ALLEGRO_WITH_XWINDOWS"][0]
+    return platform["ALLEGRO_WITH_XWINDOWS"]
 
 if haveXWindows():
     context.add_files(context.cmake["ALLEGRO_SRC_X_FILES"])

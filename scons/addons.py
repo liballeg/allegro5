@@ -5,9 +5,11 @@ def getOption(context, name, default = 0):
     except KeyError:
         return default
 
-def do_build(context,source,dir,name,examples = [],install_headers = []):
+def do_build(context,source,dir,name,examples = [],install_headers = [],includes = []):
     def build(env, appendDir, buildDir, libDir ):
-        lib = context.makeLibrary( env )( libDir + ('/%s' % name), appendDir(buildDir + ('/addons/%s' % dir),source))
+        libEnv = env.Copy()
+        libEnv.Append(CPPPATH = includes)
+        lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name), appendDir(buildDir + ('/addons/%s' % dir),source))
 
         exampleEnv = env.Copy()
         exampleEnv.Append(LIBS = [name])
