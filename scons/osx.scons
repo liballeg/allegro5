@@ -10,7 +10,9 @@ env = context.getLibraryEnv()
 
 context.setLibraryDir("lib/macosx")
 
-alplatf_h = helpers.generate_alplatf_h(env, ['ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'])
+helpers.parse_cmake_h(context.getLibraryEnv(),helpers.define('ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'),'#include/allegro5/platform/alplatf.h.cmake','#include/allegro5/platform/alplatf.h')
+
+# alplatf_h = helpers.generate_alplatf_h(env, ['ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'])
 # file = open( "include/allegro5/platform/alplatf.h", "w" )
 # file.write( "#define ALLEGRO_MACOSX" )
 # file.close()
