@@ -80,9 +80,9 @@ int main(int argc, char *argv[])
       }
       else {
          al_set_target_bitmap(al_get_backbuffer());
+         al_clear(al_map_rgba_f(1, 0, 0, 0));
       }
 
-      al_clear(al_map_rgba_f(1, 0, 0, 0));
       al_draw_scaled_bitmap(bmp,
          0, 0, bmp_w, bmp_h,
          display_w/2, display_h/2,
@@ -91,6 +91,7 @@ int main(int argc, char *argv[])
 
       if (mode == 0) {
          al_set_target_bitmap(al_get_backbuffer());
+         al_clear(al_map_rgba_f(1, 0, 0, 0));
          al_draw_bitmap(buf, 0, 0, 0);
       }
 
