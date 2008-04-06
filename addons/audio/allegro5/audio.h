@@ -87,7 +87,15 @@ typedef enum ALLEGRO_AUDIO_ENUM {
    ALLEGRO_AUDIO_DEVICE = 0x20F,
 
    /* Used to define driver-specific option values, not to collide with standard values. */
-   ALLEGRO_AUDIO_USER_START = 0x10000
+   ALLEGRO_AUDIO_USER_START = 0x10000,
+
+
+   /* various driver modes */
+   ALLEGRO_AUDIO_DRIVER_AUTODETECT = 0x20000,
+   ALLEGRO_AUDIO_DRIVER_OPENAL     = 0x20001,
+   ALLEGRO_AUDIO_DRIVER_ALSA       = 0x20002,
+   ALLEGRO_AUDIO_DRIVER_DSOUND     = 0x20003
+
 } ALLEGRO_AUDIO_ENUM;
 
 /* struct ALLEGRO_SAMPLE:
@@ -230,8 +238,7 @@ AL_FUNC(int, al_voice_set_long, (ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM settin
 AL_FUNC(int, al_voice_set_enum, (ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val));
 AL_FUNC(int, al_voice_set_bool, (ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, bool val));
 /* Misc. audio functions */
-AL_FUNC(ALLEGRO_AUDIO_DRIVER*, al_get_audio_driver, (const char *name));
-AL_FUNC(ALLEGRO_AUDIO_DRIVER*, al_audio_init_driver, (ALLEGRO_AUDIO_DRIVER *driver));
+AL_FUNC(ALLEGRO_AUDIO_DRIVER*, al_audio_init_driver, (ALLEGRO_AUDIO_ENUM mode));
 AL_FUNC(void, al_audio_deinit_driver, (ALLEGRO_AUDIO_DRIVER *driver));
 AL_FUNC(int, al_audio_get_bool, (ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, bool *val));
 AL_FUNC(int, al_audio_get_enum, (ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val));

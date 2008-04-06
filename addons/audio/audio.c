@@ -21,7 +21,6 @@ typedef enum {
 	ALLEGRO_NO_ERROR       = 0,
 	ALLEGRO_INVALID_PARAM  = 1,
 	ALLEGRO_INVALID_OBJECT = 2,
-
 	ALLEGRO_GENERIC_ERROR  = 255
 } AL_ERROR_ENUM;
 
@@ -2177,31 +2176,55 @@ int al_voice_set_bool(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, bool val
 }
 
 
-ALLEGRO_AUDIO_DRIVER *al_get_audio_driver(const char *name)
+ALLEGRO_AUDIO_DRIVER *al_audio_init_driver(ALLEGRO_AUDIO_ENUM mode)
 {
-   if(strcasecmp(name, _alsa_driver.specifier) == 0)
-      return &_alsa_driver;
-   if(strcasecmp(name, _openal_driver.specifier) == 0)
-      return &_openal_driver;
-   return NULL;
-}
-
-ALLEGRO_AUDIO_DRIVER *al_audio_init_driver(ALLEGRO_AUDIO_DRIVER *driver)
-{
-   /* If driver == NULL, autodetect */
-   if(driver != NULL)
+   ALLEGRO_AUDIO_DRIVER* drv;
+   switch (mode)
    {
-      if(driver->open() == 0)
-         return driver;
-      return NULL;
+      case ALLEGRO_AUDIO_DRIVER_AUTODETECT:
+         drv = al_audio_init_driver(ALLEGRO_AUDIO_DRIVER_OPENAL);
+         if (drv != NULL)
+            return drv;
+
+         #ifdef ALLEGRO_LINUX
+            return al_audio_init_driver(ALLEGRO_AUDIO_DRIVER_ALSA);
+         #elif ALLEGRO_WINDOWS
+            return al_audio_init_driver(ALLEGRO_AUDIO_DRIVER_DSOUND);
+         #elif ALLEGRO_MACOS
+            return NULL:
+         #endif
+
+      case ALLEGRO_AUDIO_DRIVER_OPENAL:
+         if (_openal_driver.open() == 0)
+            return &_openal_driver;
+         else
+            return NULL;
+
+      case ALLEGRO_AUDIO_DRIVER_ALSA:
+         #ifdef ALLEGRO_LINUX
+            if(_alsa_driver.open() == 0)
+               return &_alsa_driver;
+            else
+               return NULL;
+         #else
+            _al_set_error(ALLEGRO_INVALID_PARAM, "Alsa not available on this platform");
+            return NULL;
+         #endif
+
+      case ALLEGRO_AUDIO_DRIVER_DSOUND:
+         #ifdef ALLEGRO_WINDOWS
+            _al_set_error(ALLEGRO_INVALID_PARAM, "DirectSound driver not yet implemented");
+            return NULL;
+         #else
+            _al_set_error(ALLEGRO_INVALID_PARAM, "DirectSound not available on this platform");
+            return NULL;
+         #endif
+
+      default:
+         _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid audio driver");
+         return NULL;
    }
 
-   if(_alsa_driver.open() == 0)
-      return &_alsa_driver;
-   if(_openal_driver.open() == 0)
-      return &_openal_driver;
-
-   return NULL;
 }
 
 void al_audio_deinit_driver(ALLEGRO_AUDIO_DRIVER *driver)

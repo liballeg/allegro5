@@ -29,7 +29,7 @@ int main(int argc, char **argv)
    bool stream_it = false;
 
    if(argc < 2) {
-      fprintf(stderr, "Usage: %s [-stream] <sample.wav>...\n", argv[0]);
+      fprintf(stderr, "Usage: %s [-stream] <sample.wav/ogg/flac/aiff>...\n", argv[0]);
       return 1;
    }
 
@@ -42,18 +42,19 @@ int main(int argc, char **argv)
 
    allegro_init();
 
-   driver = al_get_audio_driver("alsa");
-//   driver = al_get_audio_driver("openal");
-   if(driver) {
-      al_audio_set_enum(driver, ALLEGRO_AUDIO_DEPTH, ALLEGRO_AUDIO_16_BIT_INT);
-      al_audio_set_enum(driver, ALLEGRO_AUDIO_CHANNELS, ALLEGRO_AUDIO_2_CH);
-      al_audio_set_long(driver, ALLEGRO_AUDIO_FREQUENCY, FREQUENCY);
+   //sets audio drivers to prefered defaults
+   driver = al_audio_init_driver(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
+
+   if (!driver)
+   {
+       fprintf(stderr, "Could not init sound!\n");
+       return 1;
    }
-   driver = al_audio_init_driver(driver);
-   if (!driver) {
-      fprintf(stderr, "Could not init sound!\n");
-      return 1;
-   }
+
+   al_audio_set_enum(driver, ALLEGRO_AUDIO_DEPTH, ALLEGRO_AUDIO_16_BIT_INT);
+   al_audio_set_enum(driver, ALLEGRO_AUDIO_CHANNELS, ALLEGRO_AUDIO_2_CH);
+   al_audio_set_long(driver, ALLEGRO_AUDIO_FREQUENCY, FREQUENCY);
+
 
    if(al_audio_get_enum(driver, ALLEGRO_AUDIO_DEPTH, &depth))
       depth = ALLEGRO_AUDIO_16_BIT_INT;

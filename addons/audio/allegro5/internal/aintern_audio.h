@@ -2,8 +2,8 @@
  * Updated for 4.9 api inclusion by Ryan Dickie
  * Originally done by KC/Milan
  */
-#ifndef AINTERN_SOUND_H
-#define AINTERN_SOUND_H
+#ifndef AINTERN_AUDIO_H
+#define AINTERN_AUDIO_H
 
 //aintern.h included because aintern_thread.h is not complete!!
 #include "allegro5/allegro5.h"

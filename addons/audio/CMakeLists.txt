@@ -1,4 +1,14 @@
-set(AUDIO_SOURCES audio.c openal.c alsa.c)
+IF(WIN32)
+    set(AUDIO_SOURCES audio.c openal.c)
+ELSE(WIN32)
+    if(APPLE)
+        set(AUDIO_SOURCES audio.c openal.c)
+    ELSE(APPLE)
+        #LINUX needs ALSA
+        set(AUDIO_SOURCES audio.c openal.c alsa.c)
+    ENDIF(APPLE)
+ENDIF(WIN32)
+
 set(AUDIO_INCLUDE_FILES allegro5/audio.h)
 
 macro(add_audio_build nm extra_flags)

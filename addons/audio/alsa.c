@@ -43,7 +43,6 @@ do {                                                                  \
 //#define GET_CHANNEL_COUNT(v) ((v>>4)+(v&0xF))
 #define ALLEGRO_ALSA_MIXER_DEVICE ALLEGRO_AUDIO_USER_START + 1
 
-extern struct ALLEGRO_AUDIO_DRIVER _openal_driver;
 static ALLEGRO_AUDIO_ENUM alsa_channel_conf_pref = ALLEGRO_AUDIO_2_CH;
 static ALLEGRO_AUDIO_ENUM alsa_depth_conf_pref = ALLEGRO_AUDIO_16_BIT_INT;
 static unsigned int alsa_freq_pref = 44100;
