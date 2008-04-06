@@ -129,7 +129,7 @@ int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mutex, unsigned long abstime)
     * WaitFor*, but relative timeouts are bad for _al_cond_timedwait().
     */
    
-   msecs = abstime - al_current_time();
+   msecs = abstime - ALLEGRO_SECS_TO_MSECS(al_current_time());
    if (msecs < 0)
       return -1;
 
