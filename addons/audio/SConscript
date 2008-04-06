@@ -1,6 +1,11 @@
 Import( 'context' )
 import addons
 
+configs = []
+
+configs.extend(['openal-config --libs'])
+configs.extend(['pkg-config --libs alsa'])
+
 addons.do_build(
     context = context,
     source = Split("""
@@ -11,5 +16,5 @@ addons.do_build(
     dir = 'audio',
     name = 'audio',
     install_headers = ['allegro5/audio.h','allegro5/internal/aintern_audio.h'],
-    configs = ['openal-config --libs']
+    configs = configs
 )
