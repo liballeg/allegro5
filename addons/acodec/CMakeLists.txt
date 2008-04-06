@@ -1,22 +1,44 @@
-option(WANT_FLAC    "Enable FLAC support (acodec)" on)
-option(WANT_OGG     "Enable ogg-vorbis support (acodec)" on)
-option(WANT_SNDFILE "Enable wav/aiff support (acodec)" on)
+FIND_PATH(FLAC_INCLUDE_DIR FLAC/stream_decoder.h)
+FIND_PATH(OGG_INCLUDE_DIR vorbis/vorbisfile.h)
+FIND_PATH(SNDFILE_INCLUDE_DIR sndfile.h)
+
+FIND_LIBRARY(FLAC_LIBRARY NAMES FLAC)
+FIND_LIBRARY(OGG_LIBRARY NAMES vorbisfile)
+FIND_LIBRARY(SNDFILE_LIBRARY NAMES sndfile)
+
+IF(FLAC_INCLUDE_DIR AND FLAC_LIBRARY)
+    set(FLAC_FOUND TRUE)
+    option(WANT_FLAC "Enable FLAC support (acodec)" on)
+ENDIF(FLAC_INCLUDE_DIR AND FLAC_LIBRARY)
+
+IF(OGG_INCLUDE_DIR AND OGG_LIBRARY)
+    set(OGG_FOUND TRUE)
+    option(WANT_OGG "Enable ogg-vorbis support (acodec)" on)
+ENDIF(OGG_INCLUDE_DIR AND OGG_LIBRARY)
+
+IF(SNDFILE_INCLUDE_DIR AND SNDFILE_LIBRARY)
+    set(SNDFILE_FOUND TRUE)
+    option(WANT_SNDFILE "Enable wav/aiff support (acodec)" on)
+ENDIF(SNDFILE_INCLUDE_DIR AND SNDFILE_LIBRARY)
 
 set(ACODEC_SOURCES acodec.c ex_acodec.c)
 set(ACODEC_INCLUDE_FILES allegro5/acodec.h)
 
 if(WANT_FLAC)
     set(ACODEC_SOURCES ${ACODEC_SOURCES} flac.c)
+    INCLUDE_DIRECTORIES( ${FLAC_INCLUDE_DIR} )
     set(ALLEGRO_CFG_ACODEC_FLAC 1)
 endif(WANT_FLAC)
 
 if(WANT_OGG)
     set(ACODEC_SOURCES ${ACODEC_SOURCES} ogg.c)
+    INCLUDE_DIRECTORIES( ${OGG_INCLUDE_DIR} )
     set(ALLEGRO_CFG_ACODEC_OGG 1)
 endif(WANT_OGG)
 
 if(WANT_SNDFILE)
     set(ACODEC_SOURCES ${ACODEC_SOURCES} wav.c)
+    INCLUDE_DIRECTORIES( ${SNDFILE_INCLUDE_DIR} )
     set(ALLEGRO_CFG_ACODEC_SNDFILE 1)
 endif(WANT_SNDFILE)
 
