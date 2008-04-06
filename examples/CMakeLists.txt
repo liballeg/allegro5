@@ -66,6 +66,7 @@ example(exnew_mouse_events)
 example(exnew_multiwin)
 example(exnew_resize)
 example(exnew_scale)
+example(exnew_timedwait)
 
 if(WANT_FONT)
     include_directories(../addons/font)
