@@ -61,6 +61,18 @@ def define(*rest):
         n[i] = True
     return n
 
+def readAutoHeader(filename):
+    """Read current config settings from the #define commands."""
+    obj = SimpleHash()
+    for line in file(filename):
+        if line.startswith("#define "):
+            line = line.split(None, 2)[1:]
+            # In case the line is in the form #define X, set it to True.
+            if len(line) == 1: line += [True]
+            name, use = line
+            obj[name] = [use, name]
+    return obj
+
 def parse_cmake_h(env, defines, src, dest):
     def parse_line(line):
         import re

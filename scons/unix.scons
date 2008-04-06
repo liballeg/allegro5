@@ -27,7 +27,7 @@ config: (Re)configure Allegro. You will need to set this to 1 if you wish to ena
     actual: 0
 """);
 
-print context.getLibraryEnv()['install']
+# print context.getLibraryEnv()['install']
 
 def isStatic():
     return int(context.getLibraryEnv()['static']) == 1
@@ -73,16 +73,6 @@ def writeAutoHeader(filename, platform):
         file.write("\n")
     file.close()
 
-def readAutoHeader(filename, platform):
-    """Read current config settings from the #define commands."""
-    for line in file(filename):
-        if line.startswith("#define "):
-            line = line.split(None, 2)[1:]
-            # In case the line is in the form #define X, set it to True.
-            if len(line) == 1: line += [True]
-            name, use = line
-            platform[name] = [use, name]
-
 # With the noconfig option, simply re-use the last config if one is available.
 # Should this be default?
 # 2/19/2006 - Only configure if config=1 is given or the .h/.cfg file is missing
@@ -103,7 +93,7 @@ settings = ConfigParser.ConfigParser()
 ## The platform variable will hold all configuration things we care about
 ## so that alunixac.h can be written
 if noconfig:
-    readAutoHeader("include/allegro5/platform/alunixac.h", platform)
+    platform = helpers.readAutoHeader("include/allegro5/platform/alunixac.h")
     settings.read("build/settings.cfg")
     env = context.getLibraryEnv()
     for setting in config_settings:
