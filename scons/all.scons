@@ -164,7 +164,7 @@ def addons(env, appendDir, buildDir, libDir):
         example = env.Program("addons/" + name, appendDir(buildDir + '/addons/', files))
         Alias(name, example)
         examples.append(example)
-    addAddonExample("font/ex", ["font/font.c", "font/ex.c",
+    addAddonExample("font/ex", ["font/font.c", "font/ex_font.c",
         "font/fontbmp.c", "font/readfont.c", "font/text.c"])
     return examples
 

@@ -5,7 +5,7 @@ addons.do_build(
     context = context,
     source = Split("""
        acodec.c
-       ex.c
+       ex_acodec.c
        flac.c
        ogg.c
        wav.c

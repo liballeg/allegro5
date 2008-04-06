@@ -71,7 +71,7 @@ macro(add_font_example nm)
     target_link_libraries(${nm} ${FONT_LINK_WITH})
 endmacro(add_font_example)
 
-add_font_example(ex ex.c)
+add_font_example(ex_font ex_font.c)
 
 #-----------------------------------------------------------------------------#
 #

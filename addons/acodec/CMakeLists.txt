@@ -2,7 +2,7 @@ option(WANT_FLAC    "Enable FLAC support (acodec)" on)
 option(WANT_OGG     "Enable ogg-vorbis support (acodec)" on)
 option(WANT_SNDFILE "Enable wav/aiff support (acodec)" on)
 
-set(ACODEC_SOURCES acodec.c ex.c)
+set(ACODEC_SOURCES acodec.c ex_acodec.c)
 set(ACODEC_INCLUDE_FILES allegro5/acodec.h)
 
 if(WANT_FLAC)
@@ -99,7 +99,7 @@ if(WANT_SNDFILE)
 endif(WANT_SNDFILE)
 
 macro(add_acodec_example nm)
-    add_executable(${nm} ${ARGN})
+    add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
     set_target_properties(${nm} PROPERTIES
         COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
@@ -108,7 +108,7 @@ macro(add_acodec_example nm)
     target_link_libraries(${nm} ${ACODEC_LINK_WITH})
 endmacro(add_acodec_example)
 
-add_acodec_example(ex ex.c)
+add_acodec_example(ex_acodec ex_acodec.c)
 
 #-----------------------------------------------------------------------------#
 #

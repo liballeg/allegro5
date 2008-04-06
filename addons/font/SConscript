@@ -33,7 +33,7 @@ def a5font(env, appendDir, buildDir, libDir):
         Alias(name, example)
         examples.append(example)
 
-    addExample("addons/font/ex", ["ex.c"])
+    addExample("addons/font/ex", ["ex_font.c"])
 
     Alias('addons/font', examples + lib)
     Alias('addons', examples + lib)
@@ -64,6 +64,6 @@ addons.do_build(
      """),
     dir = 'font',
     name = 'a5_font',
-    examples = [("ex", ["ex.c"])],
+    examples = [("ex", ["ex_font.c"])],
     install_headers = ['allegro5/a5_font.h']
 )
