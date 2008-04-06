@@ -3,31 +3,34 @@ option(WANT_OGG     "Enable ogg-vorbis support (acodec)" on)
 option(WANT_SNDFILE "Enable wav/aiff support (acodec)" on)
 
 set(ACODEC_SOURCES acodec.c ex.c)
-set(DFLAGS "")
+set(ACODEC_INCLUDE_FILES allegro5/acodec.h)
 
 if(WANT_FLAC)
     set(ACODEC_SOURCES ${ACODEC_SOURCES} flac.c)
-    set(DFLAGS "${DFLAGS} -DWANT_FLAC")
+    set(ALLEGRO_CFG_ACODEC_FLAC 1)
 endif(WANT_FLAC)
 
 if(WANT_OGG)
     set(ACODEC_SOURCES ${ACODEC_SOURCES} ogg.c)
-    set(DFLAGS "${DFLAGS} -DWANT_OGG")
+    set(ALLEGRO_CFG_ACODEC_OGG 1)
 endif(WANT_OGG)
 
 if(WANT_SNDFILE)
     set(ACODEC_SOURCES ${ACODEC_SOURCES} wav.c)
-    set(DFLAGS "${DFLAGS} -DWANT_SNDFILE")
+    set(ALLEGRO_CFG_ACODEC_SNDFILE 1)
 endif(WANT_SNDFILE)
 
-set(ACODEC_INCLUDE_FILES allegro5/acodec.h)
+configure_file(
+    allegro5/internal/aintern_acodec.h.cmake
+    addons/acodec/allegro5/internal/aintern_acodec.h
+    )
 
 macro(add_acodec_build nm extra_flags)
     macro(really_add_acodec_build nm target libtype more_extra_flags)
         add_library(${target} ${libtype} ${ACODEC_SOURCES})
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${DFLAGS} ${LIBRARY_CFLAGS}"
+            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
             OUTPUT_NAME ${nm}
             )
 

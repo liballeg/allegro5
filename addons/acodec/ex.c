@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include "allegro5/allegro5.h"
 #include "../audio/allegro5/audio.h"
 #include "allegro5/acodec.h"
 
@@ -122,7 +123,8 @@ int main(int argc, char **argv)
       fprintf(stderr, "Playing '%s'...", filename);
 
       al_sample_play(sample);
-      sleep(5);
+      //todo: better way of waiting..
+      al_rest(5.0);
       fprintf(stderr, "\n");
 
       al_sample_set_bool(sample, ALLEGRO_AUDIO_ATTACHED, 0);
