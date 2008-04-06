@@ -2186,11 +2186,11 @@ ALLEGRO_AUDIO_DRIVER *al_audio_init_driver(ALLEGRO_AUDIO_ENUM mode)
          if (drv != NULL)
             return drv;
 
-         #ifdef ALLEGRO_LINUX
+         #if defined(ALLEGRO_LINUX)
             return al_audio_init_driver(ALLEGRO_AUDIO_DRIVER_ALSA);
-         #elif ALLEGRO_WINDOWS
+         #elif defined(ALLEGRO_WINDOWS)
             return al_audio_init_driver(ALLEGRO_AUDIO_DRIVER_DSOUND);
-         #elif ALLEGRO_MACOS
+         #elif define(ALLEGRO_MACOS)
             return NULL:
          #endif
 
@@ -2201,7 +2201,7 @@ ALLEGRO_AUDIO_DRIVER *al_audio_init_driver(ALLEGRO_AUDIO_ENUM mode)
             return NULL;
 
       case ALLEGRO_AUDIO_DRIVER_ALSA:
-         #ifdef ALLEGRO_LINUX
+         #if defined(ALLEGRO_LINUX)
             if(_alsa_driver.open() == 0)
                return &_alsa_driver;
             else
@@ -2212,7 +2212,7 @@ ALLEGRO_AUDIO_DRIVER *al_audio_init_driver(ALLEGRO_AUDIO_ENUM mode)
          #endif
 
       case ALLEGRO_AUDIO_DRIVER_DSOUND:
-         #ifdef ALLEGRO_WINDOWS
+         #if defined(ALLEGRO_WINDOWS)
             _al_set_error(ALLEGRO_INVALID_PARAM, "DirectSound driver not yet implemented");
             return NULL;
          #else

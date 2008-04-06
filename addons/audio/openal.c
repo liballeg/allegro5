@@ -165,9 +165,10 @@ static void _openal_update(_AL_THREAD* self, void* arg)
       ALint status = 0;
 
       alGetSourcei(ex_data->source, AL_BUFFERS_PROCESSED, &status);
-       if(status <= 0)
+      if(status <= 0)
       {
-         usleep(1000);
+         //what is this for ?
+         al_rest(0.001);
          continue;
       }
 

@@ -20,7 +20,17 @@ macro(add_audio_build nm extra_flags)
             OUTPUT_NAME ${nm}
             )
 
-        target_link_libraries(${target} ${LINK_WITH} openal esd)
+        IF(WIN32)
+            target_link_libraries(${target} ${LINK_WITH} openal)
+        ELSE(WIN32)
+            if(APPLE)
+                target_link_libraries(${target} ${LINK_WITH} openal)
+            ELSE(APPLE)
+                #LINUX needs ALSA
+                target_link_libraries(${target} ${LINK_WITH} openal asound)
+            ENDIF(APPLE)
+        ENDIF(WIN32)
+        
 
         install(TARGETS ${target}
                 DESTINATION lib
