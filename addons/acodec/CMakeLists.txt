@@ -16,6 +16,7 @@ ENDIF(FLAC_INCLUDE_DIR AND FLAC_LIBRARY)
 IF(OGG_INCLUDE_DIR AND OGG_LIBRARY)
     set(OGG_FOUND TRUE)
     option(WANT_OGG "Enable ogg-vorbis support (acodec)" on)
+    set(ACODEC_EXTRA_LIBS ${ACODEC_EXTRA_LIBS} vorbisfile vorbis ogg)
 ENDIF(OGG_INCLUDE_DIR AND OGG_LIBRARY)
 
 IF(SNDFILE_INCLUDE_DIR AND SNDFILE_LIBRARY)
@@ -60,6 +61,7 @@ macro(add_acodec_build nm extra_flags)
 
         target_link_libraries(${target} ${LINK_WITH})
         target_link_libraries(${target} ${AUDIO_LINK_WITH})
+        target_link_libraries(${target} ${ACODEC_EXTRA_LIBS})
 
         install(TARGETS ${target}
                 DESTINATION lib
