@@ -46,7 +46,7 @@ endif(WANT_SNDFILE)
 
 configure_file(
     allegro5/internal/aintern_acodec.h.cmake
-    addons/acodec/allegro5/internal/aintern_acodec.h
+    include/allegro5/internal/aintern_acodec.h
     )
 
 macro(add_acodec_build nm extra_flags)

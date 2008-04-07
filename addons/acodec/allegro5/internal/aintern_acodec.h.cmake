@@ -8,7 +8,7 @@
 #ifndef AINTERN_ACODEC_H
 #define AINTERN_ACODEC_H
 
-#include "../../../audio/allegro5/audio.h"
+#include "allegro5/audio.h"
 
 #cmakedefine ALLEGRO_CFG_ACODEC_FLAC
 #cmakedefine ALLEGRO_CFG_ACODEC_SNDFILE
