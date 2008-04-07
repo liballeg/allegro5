@@ -67,7 +67,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    GLboolean on;
-   GLint current_texture;
+   GLuint current_texture;
    ALLEGRO_COLOR *bc;
    int src_mode, dst_mode;
    int blend_modes[4] = {
@@ -91,7 +91,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
    glEnable(GL_BLEND);
    glBlendFunc(blend_modes[src_mode], blend_modes[dst_mode]);
 
-   glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, &current_texture);
+   glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, (GLint*)&current_texture);
    if (current_texture != ogl_bitmap->texture) {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
    }
