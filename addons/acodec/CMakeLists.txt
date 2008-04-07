@@ -59,6 +59,7 @@ macro(add_acodec_build nm extra_flags)
             )
 
         target_link_libraries(${target} ${LINK_WITH})
+        target_link_libraries(${target} ${AUDIO_LINK_WITH})
 
         install(TARGETS ${target}
                 DESTINATION lib
