@@ -12,10 +12,10 @@
 #include "allegro5/acodec.h"
 
 
-#define FREQUENCY 48000
+#define FREQUENCY 44000
 
 
-void display_driver_info(ALLEGRO_AUDIO_DRIVER *driver);
+void display_driver_info();
 void display_voice_info(ALLEGRO_VOICE *voice);
 void display_mixer_info(ALLEGRO_MIXER *mixer);
 void stream_file(const char *filename);
@@ -26,9 +26,6 @@ ALLEGRO_SAMPLE* allegro_load_sample(const char *filename);
 
 ALLEGRO_AUDIO_ENUM chan, depth;
 unsigned long freq;
-ALLEGRO_AUDIO_DRIVER *driver;
-
-
 
 int main(int argc, char **argv)
 {
@@ -49,47 +46,43 @@ int main(int argc, char **argv)
 
    allegro_init();
 
-   //sets audio drivers to prefered defaults
-   driver = al_audio_init_driver(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
+   /* sets audio drivers to prefered defaults */
 
-   if (!driver)
+   al_audio_set_enum(ALLEGRO_AUDIO_DEPTH, ALLEGRO_AUDIO_16_BIT_INT);
+   al_audio_set_enum(ALLEGRO_AUDIO_CHANNELS, ALLEGRO_AUDIO_2_CH);
+   al_audio_set_long(ALLEGRO_AUDIO_FREQUENCY, FREQUENCY);  
+
+   if (al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT))
    {
        fprintf(stderr, "Could not init sound!\n");
        return 1;
    }
 
-   al_audio_set_enum(driver, ALLEGRO_AUDIO_DEPTH, ALLEGRO_AUDIO_16_BIT_INT);
-   al_audio_set_enum(driver, ALLEGRO_AUDIO_CHANNELS, ALLEGRO_AUDIO_2_CH);
-   al_audio_set_long(driver, ALLEGRO_AUDIO_FREQUENCY, FREQUENCY);
+   /* Find out what i actually got after initting */
+   al_audio_get_enum(ALLEGRO_AUDIO_DEPTH, &depth);
+   al_audio_get_enum(ALLEGRO_AUDIO_CHANNELS, &chan);
+   al_audio_get_long(ALLEGRO_AUDIO_FREQUENCY, &freq);
 
-
-   if(al_audio_get_enum(driver, ALLEGRO_AUDIO_DEPTH, &depth))
-      depth = ALLEGRO_AUDIO_16_BIT_INT;
-   if(al_audio_get_enum(driver, ALLEGRO_AUDIO_CHANNELS, &chan))
-      chan = ALLEGRO_AUDIO_1_CH;
-   if(al_audio_get_long(driver, ALLEGRO_AUDIO_FREQUENCY, &freq))
-      freq = FREQUENCY;
-
-   display_driver_info(driver);
+   display_driver_info();
 
    for (x = 1; x < argc; ++x) {
-      ALLEGRO_SAMPLE *sample = NULL;
-      ALLEGRO_VOICE *voice = NULL;
-      ALLEGRO_MIXER *mixer = NULL;
-      ALLEGRO_AUDIO_ENUM chan_conf;
-      unsigned long voice_freq;
+      ALLEGRO_SAMPLE       *sample = NULL;
+      ALLEGRO_VOICE        *voice = NULL;
+      ALLEGRO_MIXER        *mixer = NULL;
+      ALLEGRO_AUDIO_ENUM   chan_conf = 0;
+      unsigned long        voice_freq = 0;
+      const char*          filename = argv[x];
+      float                sample_time = 0;
 
-      const char *filename = argv[x];
-
-      sample = allegro_load_sample(filename);
+      sample = al_load_sample(filename);
       if (!sample) {
          fprintf(stderr, "Could not create ALLEGRO_SAMPLE from '%s'!\n", filename);
          continue;
       }
 
-   //   al_sample_set_enum(sample, ALLEGRO_AUDIO_LOOPMODE, ALLEGRO_AUDIO_BI_DIR);
-
-      voice = al_voice_create(driver, freq, depth, chan, 0);
+      /*TODO: find out why voice params don't actually match up with driver params */
+      //voice = al_voice_create(freq, depth, chan, 0);
+      voice = al_voice_create(FREQUENCY, ALLEGRO_AUDIO_16_BIT_INT, ALLEGRO_AUDIO_2_CH, 0);
       if(!voice) {
          fprintf(stderr, "Error allocating voice!\n");
          goto getout;
@@ -98,6 +91,7 @@ int main(int argc, char **argv)
       al_voice_get_long(voice, ALLEGRO_AUDIO_FREQUENCY, &voice_freq);
       al_voice_get_enum(voice, ALLEGRO_AUDIO_CHANNELS, &chan_conf);
 
+      /* TODO: why is this 32-bit_float, why won't it work with others??? */
       mixer = al_mixer_create(voice_freq, ALLEGRO_AUDIO_32_BIT_FLOAT, chan_conf);
       if(!mixer) {
          fprintf(stderr, "Error allocating mixer!\n");
@@ -125,11 +119,13 @@ int main(int argc, char **argv)
          goto getout;
       }
 */
-      fprintf(stderr, "Playing '%s'...", filename);
+      fprintf(stderr, "Playing '%s'", filename);
 
+      /* TODO: create sample info printer */
       al_sample_play(sample);
-      //todo: better way of waiting..
-      al_rest(5.0);
+      al_sample_get_float(sample, ALLEGRO_AUDIO_TIME, &sample_time);
+      fprintf(stderr, " (%.3f seconds) ", sample_time);
+      al_rest(sample_time);
       fprintf(stderr, "\n");
 
       al_sample_set_bool(sample, ALLEGRO_AUDIO_ATTACHED, 0);
@@ -141,33 +137,34 @@ getout:
       al_sample_destroy(sample);
    }
 
-   al_audio_deinit_driver(driver);
+   al_audio_deinit();
 
    return 0;
 }
 END_OF_MAIN()
 
 
-void display_driver_info(ALLEGRO_AUDIO_DRIVER *driver)
+void display_driver_info()
 {
    const void *devname;
    unsigned long freq;
    ALLEGRO_AUDIO_ENUM val;
 
-   if(al_audio_get_ptr(driver, ALLEGRO_AUDIO_DEVICE, &devname) == 0)
+   if(al_audio_get_ptr(ALLEGRO_AUDIO_DEVICE, &devname) == 0)
       fprintf(stderr, "Output driver: %s\n", (const char*)devname);
    else
       fprintf(stderr, "Could not get driver name!\n");
 
-   if(al_audio_get_long(driver, ALLEGRO_AUDIO_FREQUENCY, &freq) == 0)
+   if(al_audio_get_long(ALLEGRO_AUDIO_FREQUENCY, &freq) == 0)
       fprintf(stderr, "Output frequency: %lu\n", freq);
    else
       fprintf(stderr, "Could not get output frequency!\n");
 
-   if(al_audio_get_enum(driver, ALLEGRO_AUDIO_CHANNELS, &val) == 0)
+   if(al_audio_get_enum(ALLEGRO_AUDIO_CHANNELS, &val) == 0)
       fprintf(stderr, "Output on %d.%d channels.\n", val>>4, val&0xF);
    else
       fprintf(stderr, "Could not get channel config!\n");
+
    fprintf(stderr, "\n");
 }
 

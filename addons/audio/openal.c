@@ -25,9 +25,13 @@
 static ALCdevice *audio_dev;
 static ALCcontext *audio_context;
 
-static int preferred_channels;
-static unsigned long preferred_freq;
-static char preferred_devices[1024];
+/* FIXME: a lot of these don't mean anything for the global openal device 
+ * I keep them and return then for audio.c's sake.  
+ */
+static int preferred_channels = 0;
+static unsigned long preferred_freq = 0;
+static char preferred_devices[1024] = "";
+static int preferred_depth = 0;
 
 static size_t preferred_frag_size = 1024;
 static ALuint preferred_buf_count = 4;
@@ -43,7 +47,7 @@ static int _openal_open()
 
    fprintf(stderr, "Starting OpenAL...\n");
 
-//FIXME: on my system str == NULL
+   /* FIXME: often this returns nothing on many systems */
    str = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
    if(str && alcGetError(NULL) == ALC_NO_ERROR)
    {
@@ -55,25 +59,12 @@ static int _openal_open()
       }
    }
    else
-      fprintf(stderr, "Could not get a list of audio devices\n");
-
-   if(preferred_channels || preferred_freq || preferred_devices[0])
    {
-      int i;
-      i = snprintf(dev_spec, sizeof(dev_spec), "'(");
-      if(preferred_channels)
-         i += snprintf(dev_spec+i, sizeof(dev_spec)-i, "(speaker-num %i) ", preferred_channels);
-      if(preferred_freq)
-         i += snprintf(dev_spec+i, sizeof(dev_spec)-i, "(sampling-rate %lu) ", preferred_freq);
-      if(preferred_devices[0])
-         i += snprintf(dev_spec+i, sizeof(dev_spec)-i, "(devices '(%s)) ", preferred_devices);
-      if(i > 2) --i;
-      snprintf(dev_spec+i, sizeof(dev_spec)-i, ")");
-
-      audio_dev = alcOpenDevice(dev_spec);
+      fprintf(stderr, "Could not get a list of audio devices\n");
    }
-   else
-      audio_dev = alcOpenDevice(NULL);
+
+   /* pick default device. always a good choice */
+   audio_dev = alcOpenDevice(NULL);
 
    if(!audio_dev)
    {
@@ -148,6 +139,7 @@ static void _openal_update(_AL_THREAD* self, void* arg)
 
    alSourceQueueBuffers(ex_data->source, ex_data->num_buffers,
                      ex_data->buffers);
+
    alSourcePlay(ex_data->source);
 
 
@@ -515,6 +507,11 @@ static int _openal_set_enum(ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val)
             return 1;
          preferred_channels = val>>4;
          return 0;
+
+      case ALLEGRO_AUDIO_DEPTH:
+         preferred_depth = val;
+         return 0;
+
       default:
          break;
    }
@@ -570,10 +567,8 @@ static int _openal_set_ptr(ALLEGRO_AUDIO_ENUM setting, const void *val)
          return 0;
 
       default:
-         break;
+         return 1;
    }
-
-   return 1;
 }
 
 
@@ -586,9 +581,22 @@ static int _openal_get_bool(ALLEGRO_AUDIO_ENUM setting, bool *val)
 
 static int _openal_get_enum(ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val)
 {
-   return 1;
-   (void)setting;
-   (void)val;
+   if (!val)
+      return 1;
+
+   switch (setting)
+   {
+      case ALLEGRO_AUDIO_CHANNELS:
+         *val = preferred_channels<<4;
+         return 0;
+
+      case ALLEGRO_AUDIO_DEPTH:
+         *val = preferred_depth;
+         return 0;
+
+      default:
+         return 1;
+   }
 }
 
 /* The get_long method would  be useful to retrieve the following options:
@@ -599,40 +607,28 @@ static int _openal_get_enum(ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val)
  */
 static int _openal_get_long(ALLEGRO_AUDIO_ENUM setting, unsigned long *val)
 {
+   if (!val)
+      return 1;
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_FREQUENCY:
-      {
-         ALCenum err;
-         ALCint freq = 0;
-         if(!audio_dev)
-            return 1;
-
-         alcGetIntegerv(audio_dev, ALC_FREQUENCY, 1, &freq);
-         if((err=alcGetError(audio_dev)) != ALC_NO_ERROR)
-            return 1;
-         *val = freq;
+         /* openal does freq per voice */
+         *val = preferred_freq;
          return 0;
-      }
 
       case ALLEGRO_AUDIO_LENGTH:
-      {
-         ALCint size = 0;
-         if(!audio_dev)
-            return 1;
-
-         alcGetIntegerv(audio_dev, ALC_REFRESH, 1, &size);
-         if(alcGetError(audio_dev) != ALC_NO_ERROR)
-            return 1;
-         *val = size;
+         *val = preferred_frag_size;
          return 0;
-      }
+
+      case ALLEGRO_AUDIO_FRAGMENTS:
+         *val = preferred_buf_count;
+         return 0;
 
       default:
-         break;
+         return 1;
    }
 
-   return 1;
 }
 
 /* The get_ptr method should handle the following:

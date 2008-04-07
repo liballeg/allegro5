@@ -7,10 +7,10 @@
 
 #include "allegro5/acodec.h"
 #include "allegro5/internal/aintern_acodec.h"
+#include "allegro5/audio.h"
 
 
-
-struct ALLEGRO_SAMPLE* allegro_load_sample(const char* filename)
+ALLEGRO_SAMPLE* al_load_sample(const char* filename)
 {
    if (filename == NULL)
       return NULL;

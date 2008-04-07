@@ -42,6 +42,7 @@ struct ALLEGRO_AUDIO_DRIVER {
    int (*set_voice_position)(ALLEGRO_VOICE*, unsigned long);
 };
 
+typedef struct ALLEGRO_AUDIO_DRIVER ALLEGRO_AUDIO_DRIVER;
 
 int _al_cache_sample(ALLEGRO_SAMPLE *sample);
 void _al_decache_sample(int i);

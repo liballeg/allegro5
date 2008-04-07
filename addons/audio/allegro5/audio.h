@@ -86,6 +86,9 @@ typedef enum ALLEGRO_AUDIO_ENUM {
 
    ALLEGRO_AUDIO_DEVICE = 0x20F,
 
+   /* length of audio sample*/
+   ALLEGRO_AUDIO_TIME   = 0x210, 
+
    /* Used to define driver-specific option values, not to collide with standard values. */
    ALLEGRO_AUDIO_USER_START = 0x10000,
 
@@ -172,11 +175,6 @@ typedef struct ALLEGRO_MIXER ALLEGRO_MIXER;
 */
 typedef struct ALLEGRO_VOICE ALLEGRO_VOICE;
 
-/* struct ALLEGRO_AUDIO_DRIVER:
-
-*/
-typedef struct ALLEGRO_AUDIO_DRIVER ALLEGRO_AUDIO_DRIVER;
-
 /* Sample functions (more detailed explanations below) */
 AL_FUNC(ALLEGRO_SAMPLE*, al_sample_create, (void *buf, unsigned long samples, unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf));
 AL_FUNC(void, al_sample_destroy, (ALLEGRO_SAMPLE *spl));
@@ -225,7 +223,7 @@ AL_FUNC(int, al_mixer_set_enum, (ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM settin
 AL_FUNC(int, al_mixer_set_bool, (ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, bool val));
 AL_FUNC(void, mixer_read, (void*, void**, unsigned long, ALLEGRO_AUDIO_ENUM, size_t));
 /* Voice functions */
-AL_FUNC(ALLEGRO_VOICE*, al_voice_create, (ALLEGRO_AUDIO_DRIVER *driver, unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf, ALLEGRO_AUDIO_ENUM settings));
+AL_FUNC(ALLEGRO_VOICE*, al_voice_create, (unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf, ALLEGRO_AUDIO_ENUM settings));
 AL_FUNC(void, al_voice_destroy, (ALLEGRO_VOICE *voice));
 AL_FUNC(int, al_voice_attach_sample, (ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *stream));
 AL_FUNC(int, al_voice_attach_stream, (ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream));
@@ -238,16 +236,16 @@ AL_FUNC(int, al_voice_set_long, (ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM settin
 AL_FUNC(int, al_voice_set_enum, (ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val));
 AL_FUNC(int, al_voice_set_bool, (ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, bool val));
 /* Misc. audio functions */
-AL_FUNC(ALLEGRO_AUDIO_DRIVER*, al_audio_init_driver, (ALLEGRO_AUDIO_ENUM mode));
-AL_FUNC(void, al_audio_deinit_driver, (ALLEGRO_AUDIO_DRIVER *driver));
-AL_FUNC(int, al_audio_get_bool, (ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, bool *val));
-AL_FUNC(int, al_audio_get_enum, (ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val));
-AL_FUNC(int, al_audio_get_long, (ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, unsigned long *val));
-AL_FUNC(int, al_audio_get_ptr, (ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, const void **val));
-AL_FUNC(int, al_audio_set_bool, (ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, bool val));
-AL_FUNC(int, al_audio_set_enum, (ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val));
-AL_FUNC(int, al_audio_set_long, (ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, unsigned long val));
-AL_FUNC(int, al_audio_set_ptr, (ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, const void *val));
+AL_FUNC(int,  al_audio_init, (ALLEGRO_AUDIO_ENUM mode));
+AL_FUNC(void, al_audio_deinit, (void));
+AL_FUNC(int,  al_audio_get_bool, (ALLEGRO_AUDIO_ENUM setting, bool *val));
+AL_FUNC(int,  al_audio_get_enum, (ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val));
+AL_FUNC(int,  al_audio_get_long, (ALLEGRO_AUDIO_ENUM setting, unsigned long *val));
+AL_FUNC(int,  al_audio_get_ptr,  (ALLEGRO_AUDIO_ENUM setting, const void **val));
+AL_FUNC(int,  al_audio_set_bool, (ALLEGRO_AUDIO_ENUM setting, bool val));
+AL_FUNC(int,  al_audio_set_enum, (ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val));
+AL_FUNC(int,  al_audio_set_long, (ALLEGRO_AUDIO_ENUM setting, unsigned long val));
+AL_FUNC(int,  al_audio_set_ptr,  (ALLEGRO_AUDIO_ENUM setting, const void *val));
 
 #endif
 

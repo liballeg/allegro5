@@ -29,8 +29,11 @@ void _al_set_error(int error, char* string)
    allegro_message(string);
 }
 
-extern struct ALLEGRO_AUDIO_DRIVER _alsa_driver;
+ALLEGRO_AUDIO_DRIVER* driver = NULL;
 extern struct ALLEGRO_AUDIO_DRIVER _openal_driver;
+#if defined(ALLEGRO_LINUX)
+   extern struct ALLEGRO_AUDIO_DRIVER _alsa_driver;
+#endif
 
 /* This function provides a (temporary!) matrix that can be used to convert one
    channel configuration into another. */
@@ -811,7 +814,9 @@ int al_sample_get_float(const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, f
       case ALLEGRO_AUDIO_SPEED:
          *val = spl->speed;
          return 0;
-
+      case ALLEGRO_AUDIO_TIME:
+         *val = (float)(spl->len>>MIXER_FRAC_SHIFT) / (float)spl->frequency;
+         return 0;
       default:
          _al_set_error(ALLEGRO_INVALID_PARAM, "Attempted to get invalid sample float setting");
          break;
@@ -1808,12 +1813,15 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples)
  *   the driver must fail if the requested setup could not be allocated from
  *   the system.
  */
-ALLEGRO_VOICE *al_voice_create(ALLEGRO_AUDIO_DRIVER *driver, unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf, ALLEGRO_AUDIO_ENUM settings)
+ALLEGRO_VOICE *al_voice_create(unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf, ALLEGRO_AUDIO_ENUM settings)
 {
    ALLEGRO_VOICE *voice = NULL;
 
    if(!freq)
+   {
+      _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid Voice Frequency");
       return NULL;
+   }
 
    voice = calloc(1, sizeof(*voice));
    if(!voice)
@@ -2175,37 +2183,50 @@ int al_voice_set_bool(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, bool val
    return 1;
 }
 
-
-ALLEGRO_AUDIO_DRIVER *al_audio_init_driver(ALLEGRO_AUDIO_ENUM mode)
+/* returns 0 on success */
+int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
 {
-   ALLEGRO_AUDIO_DRIVER* drv;
+   int retVal = 0;
+
+   /* check to see if a driver is already installed and running */
+   if (driver)
+   {
+      _al_set_error(ALLEGRO_GENERIC_ERROR, "A Driver already running"); 
+      return 1;
+   }
+
    switch (mode)
    {
       case ALLEGRO_AUDIO_DRIVER_AUTODETECT:
-         drv = al_audio_init_driver(ALLEGRO_AUDIO_DRIVER_OPENAL);
-         if (drv != NULL)
-            return drv;
+         /* check openal first then fallback on others */
+         retVal = al_audio_init(ALLEGRO_AUDIO_DRIVER_OPENAL);
+         if (retVal == 0)
+            return retVal;
 
          #if defined(ALLEGRO_LINUX)
-            return al_audio_init_driver(ALLEGRO_AUDIO_DRIVER_ALSA);
+            return al_audio_init(ALLEGRO_AUDIO_DRIVER_ALSA);
          #elif defined(ALLEGRO_WINDOWS)
-            return al_audio_init_driver(ALLEGRO_AUDIO_DRIVER_DSOUND);
+            return al_audio_init(ALLEGRO_AUDIO_DRIVER_DSOUND);
          #elif defined(ALLEGRO_MACOSX)
-            return NULL:
+            driver = NULL;
+            return 1:
          #endif
 
       case ALLEGRO_AUDIO_DRIVER_OPENAL:
-         if (_openal_driver.open() == 0)
-            return &_openal_driver;
-         else
-            return NULL;
-
+         if (_openal_driver.open() == 0 )
+         {
+            driver = &_openal_driver;
+            return 0;
+         }
+         return 1;
       case ALLEGRO_AUDIO_DRIVER_ALSA:
          #if defined(ALLEGRO_LINUX)
             if(_alsa_driver.open() == 0)
-               return &_alsa_driver;
-            else
-               return NULL;
+            {
+               driver = &_alsa_driver;
+               return 0;
+            }
+            return 1;
          #else
             _al_set_error(ALLEGRO_INVALID_PARAM, "Alsa not available on this platform");
             return NULL;
@@ -2214,86 +2235,107 @@ ALLEGRO_AUDIO_DRIVER *al_audio_init_driver(ALLEGRO_AUDIO_ENUM mode)
       case ALLEGRO_AUDIO_DRIVER_DSOUND:
          #if defined(ALLEGRO_WINDOWS)
             _al_set_error(ALLEGRO_INVALID_PARAM, "DirectSound driver not yet implemented");
-            return NULL;
+            return 1;
          #else
             _al_set_error(ALLEGRO_INVALID_PARAM, "DirectSound not available on this platform");
-            return NULL;
+            return 1;
          #endif
 
       default:
          _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid audio driver");
-         return NULL;
+         return 1;
    }
 
 }
 
-void al_audio_deinit_driver(ALLEGRO_AUDIO_DRIVER *driver)
+void al_audio_deinit()
 {
    if(driver)
       driver->close();
+   driver = NULL;
 }
 
 
-/* TODO: Finish the API */
+/* TODO: finish the api and clean this process up */
 
-int al_audio_set_bool(ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, bool val)
+
+/* only allowed to modify before driver is run */
+int al_audio_set_bool(ALLEGRO_AUDIO_ENUM setting, bool val)
 {
-   // If driver == NULL, loop through all available drivers
-   if(driver == NULL)
-   {
-      al_audio_set_bool(&_openal_driver, setting, val);
-      return 0;
-   }
-   return driver->set_bool(setting, val);
+   /* cannot change driver properties while in use */
+   if (driver)
+       return 1;
+
+   /* set for every driver (driver may be picked based on these) */
+   _openal_driver.set_bool(setting,val);
+   #ifdef ALLEGRO_LINUX
+   _alsa_driver.set_bool(setting,val);
+   #endif
+   return 0;
 }
 
-int al_audio_set_enum(ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val)
+/* only allowed to modify before driver is run */
+int al_audio_set_enum(ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val)
 {
-   if(driver == NULL)
-   {
-      al_audio_set_enum(&_openal_driver, setting, val);
-      return 0;
-   }
-   return driver->set_enum(setting, val);
+   /* cannot change driver properties while in use */
+   if (driver)
+       return 1;
+
+   /* set for every driver (driver may be picked based on these) */
+   _openal_driver.set_enum(setting, val);
+   #ifdef ALLEGRO_LINUX
+   _alsa_driver.set_enum(setting, val);
+   #endif
+   return 0;
 }
 
-int al_audio_set_long(ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, unsigned long val)
+/* only allowed to modify before driver is run */
+int al_audio_set_long(ALLEGRO_AUDIO_ENUM setting, unsigned long val)
 {
-   if(driver == NULL)
-   {
-      al_audio_set_long(&_openal_driver, setting, val);
-      return 0;
-   }
-   return driver->set_long(setting, val);
+   /* cannot change driver properties while in use */
+   if (driver)
+       return 1;
+
+   /* set for every driver (driver may be picked based on these) */
+   _openal_driver.set_long(setting, val);
+   #ifdef ALLEGRO_LINUX
+   _alsa_driver.set_long(setting, val);
+   #endif
+   return 0;
 }
 
-int al_audio_set_ptr(ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, const void *val)
+/* only allowed to modify before driver is run */
+int al_audio_set_ptr(ALLEGRO_AUDIO_ENUM setting, const void *val)
 {
-   if(driver == NULL)
-   {
-      al_audio_set_ptr(&_openal_driver, setting, val);
-      return 0;
-   }
-   return driver->set_ptr(setting, val);
+   /* cannot change driver properties while in use */
+   if (driver)
+       return 1;
+
+   /* set for every driver (driver may be picked based on these) */
+   _openal_driver.set_ptr(setting, val);
+   #ifdef ALLEGRO_LINUX
+   _alsa_driver.set_ptr(setting, val);
+   #endif
+   return 0;
 }
 
 
-int al_audio_get_bool(ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, bool *val)
+int al_audio_get_bool(ALLEGRO_AUDIO_ENUM setting, bool *val)
 {
    return driver->get_bool(setting, val);
 }
 
-int al_audio_get_enum(ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val)
+int al_audio_get_enum(ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val)
 {
    return driver->get_enum(setting, val);
 }
 
-int al_audio_get_long(ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, unsigned long *val)
+int al_audio_get_long(ALLEGRO_AUDIO_ENUM setting, unsigned long *val)
 {
    return driver->get_long(setting, val);
 }
 
-int al_audio_get_ptr(ALLEGRO_AUDIO_DRIVER *driver, ALLEGRO_AUDIO_ENUM setting, const void **val)
+int al_audio_get_ptr(ALLEGRO_AUDIO_ENUM setting, const void **val)
 {
    return driver->get_ptr(setting, val);
 }
