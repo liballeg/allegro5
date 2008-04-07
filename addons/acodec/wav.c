@@ -1,10 +1,18 @@
-/**
+/*
  * Allegro5 WAV/PCM/AIFF reader
- * -lsndfile
  * author: Ryan Dickie (c) 2008
  */
+
+
+#include "allegro5/acodec.h"
 #include "allegro5/internal/aintern_acodec.h"
+
+
+#ifdef ALLEGRO_CFG_ACODEC_SNDFILE
+
 #include <sndfile.h>
+
+
 
 // returns NULL on error
 ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
@@ -38,3 +46,7 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
 
    return sample;
 }
+
+
+
+#endif /* ALLEGRO_CFG_ACODEC_SNDFILE */

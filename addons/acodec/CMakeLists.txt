@@ -1,53 +1,79 @@
-FIND_PATH(FLAC_INCLUDE_DIR FLAC/stream_decoder.h)
-FIND_PATH(OGG_INCLUDE_DIR vorbis/vorbisfile.h)
-FIND_PATH(SNDFILE_INCLUDE_DIR sndfile.h)
+include_directories(../audio)
 
-FIND_LIBRARY(FLAC_LIBRARY NAMES FLAC)
-FIND_LIBRARY(OGG_LIBRARY NAMES vorbisfile)
-FIND_LIBRARY(SNDFILE_LIBRARY NAMES sndfile)
+option(WANT_FLAC "Enable FLAC support (acodec)" on)
+# XXX rename _OGG to _VORBIS everywhere
+option(WANT_OGG "Enable Ogg Vorbis support (acodec)" on)
+option(WANT_SNDFILE "Enable WAV/AIFF support (acodec)" on)
 
-INCLUDE_DIRECTORIES( "../audio" )
-
-IF(FLAC_INCLUDE_DIR AND FLAC_LIBRARY)
-    set(FLAC_FOUND TRUE)
-    option(WANT_FLAC "Enable FLAC support (acodec)" on)
-ENDIF(FLAC_INCLUDE_DIR AND FLAC_LIBRARY)
-
-IF(OGG_INCLUDE_DIR AND OGG_LIBRARY)
-    set(OGG_FOUND TRUE)
-    option(WANT_OGG "Enable ogg-vorbis support (acodec)" on)
-    set(ACODEC_EXTRA_LIBS ${ACODEC_EXTRA_LIBS} vorbisfile vorbis ogg)
-ENDIF(OGG_INCLUDE_DIR AND OGG_LIBRARY)
-
-IF(SNDFILE_INCLUDE_DIR AND SNDFILE_LIBRARY)
-    set(SNDFILE_FOUND TRUE)
-    option(WANT_SNDFILE "Enable wav/aiff support (acodec)" on)
-ENDIF(SNDFILE_INCLUDE_DIR AND SNDFILE_LIBRARY)
-
-set(ACODEC_SOURCES acodec.c ex_acodec.c)
-set(ACODEC_INCLUDE_FILES allegro5/acodec.h)
+set(ACODEC_EXTRA_LIBS)
 
 if(WANT_FLAC)
-    set(ACODEC_SOURCES ${ACODEC_SOURCES} flac.c)
-    INCLUDE_DIRECTORIES( ${FLAC_INCLUDE_DIR} )
-    set(ALLEGRO_CFG_ACODEC_FLAC 1)
+    # XXX flac.c doesn't compile with flac 1.1.2
+    # missing FLAC__StreamDecoderInitStatus
+    find_path(FLAC_INCLUDE_DIR FLAC/stream_decoder.h)
+    find_library(FLAC_LIBRARY NAMES FLAC)
+    mark_as_advanced(FLAC_INCLUDE_DIR FLAC_LIBRARY)
+
+    if(FLAC_INCLUDE_DIR AND FLAC_LIBRARY)
+        set(CAN_FLAC 1)
+    endif(FLAC_INCLUDE_DIR AND FLAC_LIBRARY)
+
+    if(CAN_FLAC)
+        set(SUPPORT_FLAC 1)
+        set(ALLEGRO_CFG_ACODEC_FLAC 1)
+        include_directories(${FLAC_INCLUDE_DIR})
+        list(APPEND ${ACODEC_EXTRA_LIBS} vorbisfile vorbis ogg)
+    endif(CAN_FLAC)
 endif(WANT_FLAC)
 
 if(WANT_OGG)
-    set(ACODEC_SOURCES ${ACODEC_SOURCES} ogg.c)
-    INCLUDE_DIRECTORIES( ${OGG_INCLUDE_DIR} )
-    set(ALLEGRO_CFG_ACODEC_OGG 1)
+    # XXX ogg.c doesn't compiler with libvorbis 1.1.2
+    # missing OV_CALLBACKS_NOCLOSE
+    find_path(OGG_INCLUDE_DIR vorbis/vorbisfile.h)
+    find_library(OGG_LIBRARY NAMES vorbisfile)
+    mark_as_advanced(OGG_INCLUDE_DIR OGG_LIBRARY)
+
+    if(OGG_INCLUDE_DIR AND OGG_LIBRARY)
+        set(CAN_OGG 1)
+    endif(OGG_INCLUDE_DIR AND OGG_LIBRARY)
+
+    if(CAN_OGG)
+        set(SUPPORT_OGG 1)
+        set(ALLEGRO_CFG_ACODEC_OGG 1)
+        include_directories(${OGG_INCLUDE_DIR})
+    endif(CAN_OGG)
 endif(WANT_OGG)
 
 if(WANT_SNDFILE)
-    set(ACODEC_SOURCES ${ACODEC_SOURCES} wav.c)
-    INCLUDE_DIRECTORIES( ${SNDFILE_INCLUDE_DIR} )
-    set(ALLEGRO_CFG_ACODEC_SNDFILE 1)
+    find_path(SNDFILE_INCLUDE_DIR sndfile.h)
+    find_library(SNDFILE_LIBRARY NAMES sndfile)
+    mark_as_advanced(SNDFILE_INCLUDE_DIR SNDFILE_LIBRARY)
+
+    if(SNDFILE_INCLUDE_DIR AND SNDFILE_LIBRARY)
+        set(CAN_SNDFILE 1)
+    endif(SNDFILE_INCLUDE_DIR AND SNDFILE_LIBRARY)
+
+    if(CAN_SNDFILE)
+        set(SUPPORT_SNDFILE 1)
+        set(ALLEGRO_CFG_ACODEC_SNDFILE 1)
+        include_directories(${SNDFILE_INCLUDE_DIR})
+    endif(CAN_SNDFILE)
 endif(WANT_SNDFILE)
 
 configure_file(
     allegro5/internal/aintern_acodec.h.cmake
     include/allegro5/internal/aintern_acodec.h
+    )
+
+set(ACODEC_SOURCES
+    acodec.c
+    flac.c
+    ogg.c
+    wav.c
+    )
+
+set(ACODEC_INCLUDE_FILES
+    allegro5/acodec.h
     )
 
 macro(add_acodec_build nm extra_flags)
@@ -82,7 +108,6 @@ macro(add_acodec_build nm extra_flags)
 
 endmacro(add_acodec_build)
 
-
 if(GRADE_STANDARD)
     add_acodec_build(a5_acodec
         "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
@@ -98,7 +123,6 @@ if(GRADE_PROFILE)
         "-pg -O2 -funroll-loops -ffast-math")
 endif(GRADE_PROFILE)
 
-
 if(GRADE_STANDARD)
     set(ACODEC_LIB_TO_LINK a5_acodec a5_audio CACHE INTERNAL "internal")
 elseif(GRADE_DEBUG)
@@ -113,17 +137,17 @@ else(STATIC)
     set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
 endif(STATIC)
 
-if(WANT_FLAC)
+if(SUPPORT_FLAC)
     set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} FLAC)
-endif(WANT_FLAC)
+endif(SUPPORT_FLAC)
 
-if(WANT_OGG)
+if(SUPPORT_OGG)
     set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} vorbisfile)
-endif(WANT_OGG)
+endif(SUPPORT_OGG)
 
-if(WANT_SNDFILE)
+if(SUPPORT_SNDFILE)
     set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} sndfile)
-endif(WANT_SNDFILE)
+endif(SUPPORT_SNDFILE)
 
 macro(add_acodec_example nm)
     add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
@@ -148,4 +172,3 @@ install(FILES ${ACODEC_INCLUDE_FILES}
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
-

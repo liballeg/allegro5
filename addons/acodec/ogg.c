@@ -1,12 +1,18 @@
-/**
- * Allegro5 ogg vorbis reader
- * -lvorbisfile
+/*
+ * Allegro5 Ogg Vorbis reader.
  * author: Ryan Dickie (c) 2008
  */
+
+
+#include "allegro5/acodec.h"
 #include "allegro5/internal/aintern_acodec.h"
+
+#ifdef ALLEGRO_CFG_ACODEC_OGG
+
 #include <vorbis/vorbisfile.h>
 
-// returns NULL on error
+
+
 ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *fileName)
 {
    const int endian = 0; // 0 for Little-Endian, 1 for Big-Endian
@@ -65,3 +71,7 @@ ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *fileName)
 
    return sample;
 }
+
+
+
+#endif /* ALLEGRO_CFG_ACODEC_OGG */

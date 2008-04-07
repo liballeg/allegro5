@@ -90,7 +90,8 @@ option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
 #
 
 option(WANT_FONT "Enable bitmap font add-on" on)
-option(WANT_AUDIO "Enable audio engine" on)
+# WANT_AUDIO is off until it checks for OpenAL on the system.
+option(WANT_AUDIO "Enable audio engine" off)
 option(WANT_ACODEC "Enable audio codecs (requires audio)" on)
 
 #

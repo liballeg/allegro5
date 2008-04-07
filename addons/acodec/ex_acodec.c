@@ -5,12 +5,15 @@
  * for the new audio codecs (Ryan Dickie)
  */
 
+
 #include <stdio.h>
 #include "allegro5/allegro5.h"
-#include "../audio/allegro5/audio.h"
+#include "allegro5/audio.h"
 #include "allegro5/acodec.h"
 
+
 #define FREQUENCY 48000
+
 
 void display_driver_info(ALLEGRO_AUDIO_DRIVER *driver);
 void display_voice_info(ALLEGRO_VOICE *voice);
@@ -20,9 +23,11 @@ void stream_file(const char *filename);
 /* Function that allegro usually provides. */
 ALLEGRO_SAMPLE* allegro_load_sample(const char *filename);
 
+
 ALLEGRO_AUDIO_ENUM chan, depth;
 unsigned long freq;
 ALLEGRO_AUDIO_DRIVER *driver;
+
 
 
 int main(int argc, char **argv)
@@ -143,7 +148,8 @@ getout:
 END_OF_MAIN()
 
 
-void display_driver_info(ALLEGRO_AUDIO_DRIVER *driver) {
+void display_driver_info(ALLEGRO_AUDIO_DRIVER *driver)
+{
    const void *devname;
    unsigned long freq;
    ALLEGRO_AUDIO_ENUM val;

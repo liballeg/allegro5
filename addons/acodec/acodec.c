@@ -1,10 +1,14 @@
-/**
- * allegro audio codec loader
+/*
+ * Allegro audio codec loader.
  * author: Ryan Dickie (c) 2008
  * todo: unicode file paths ;)
  */
-#include "allegro5/internal/aintern_acodec.h"
+
+
 #include "allegro5/acodec.h"
+#include "allegro5/internal/aintern_acodec.h"
+
+
 
 struct ALLEGRO_SAMPLE* allegro_load_sample(const char* filename)
 {

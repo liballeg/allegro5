@@ -1,12 +1,18 @@
-/**
+/*
  * Allegro FLAC reader
- * -lFLAC
  * author: Ryan Dickie, (c) 2008
- * 
  */
+
+
+#include "allegro5/acodec.h"
 #include "allegro5/internal/aintern_acodec.h"
+
+#ifdef ALLEGRO_CFG_ACODEC_FLAC
+
 #include <FLAC/stream_decoder.h>
 #include <stdio.h>
+
+
 
 typedef struct FLACFILE {
    char* buffer;
@@ -129,3 +135,7 @@ ALLEGRO_SAMPLE* al_load_sample_flac(const char *filename)
 
    return sample;
 }
+
+
+
+#endif /* ALLEGRO_CFG_ACODEC_FLAC */

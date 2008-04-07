@@ -1,13 +1,13 @@
-IF(WIN32)
+# XXX put in proper tests for libraries
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Linux needs ALSA.
+    set(AUDIO_SOURCES audio.c openal.c alsa.c)
+    set(AUDIO_LIBRARIES openal asound)
+else(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(AUDIO_SOURCES audio.c openal.c)
-ELSE(WIN32)
-    if(APPLE)
-        set(AUDIO_SOURCES audio.c openal.c)
-    ELSE(APPLE)
-        #LINUX needs ALSA
-        set(AUDIO_SOURCES audio.c openal.c alsa.c)
-    ENDIF(APPLE)
-ENDIF(WIN32)
+    set(AUDIO_LIBRARIES openal)
+endif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
 set(AUDIO_INCLUDE_FILES allegro5/audio.h)
 
@@ -19,18 +19,7 @@ macro(add_audio_build nm extra_flags)
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
             OUTPUT_NAME ${nm}
             )
-
-        IF(WIN32)
-            target_link_libraries(${target} ${LINK_WITH} openal)
-        ELSE(WIN32)
-            if(APPLE)
-                target_link_libraries(${target} ${LINK_WITH} openal)
-            ELSE(APPLE)
-                #LINUX needs ALSA
-                target_link_libraries(${target} ${LINK_WITH} openal asound)
-            ENDIF(APPLE)
-        ENDIF(WIN32)
-        
+        target_link_libraries(${target} ${LINK_WITH} ${AUDIO_LIBRARIES})
 
         install(TARGETS ${target}
                 DESTINATION lib
@@ -66,7 +55,6 @@ if(GRADE_PROFILE)
         "-pg -O2 -funroll-loops -ffast-math")
 endif(GRADE_PROFILE)
 
-#note: esd is to satisfy linux 
 if(GRADE_STANDARD)
     set(AUDIO_LIB_TO_LINK a5_audio CACHE INTERNAL "internal")
 elseif(GRADE_DEBUG)
