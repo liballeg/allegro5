@@ -1,0 +1,3 @@
+#cmakedefine ALLEGRO_CFG_ACODEC_FLAC
+#cmakedefine ALLEGRO_CFG_ACODEC_SNDFILE
+#cmakedefine ALLEGRO_CFG_ACODEC_OGG

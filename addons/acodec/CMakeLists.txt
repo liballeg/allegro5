@@ -61,8 +61,8 @@ if(WANT_SNDFILE)
 endif(WANT_SNDFILE)
 
 configure_file(
-    allegro5/internal/aintern_acodec.h.cmake
-    include/allegro5/internal/aintern_acodec.h
+    allegro5/internal/aintern_acodec_cfg.h.cmake
+    include/allegro5/internal/aintern_acodec_cfg.h
     )
 
 set(ACODEC_SOURCES

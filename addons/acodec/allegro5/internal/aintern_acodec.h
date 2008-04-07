@@ -9,10 +9,7 @@
 #define AINTERN_ACODEC_H
 
 #include "allegro5/audio.h"
-
-#cmakedefine ALLEGRO_CFG_ACODEC_FLAC
-#cmakedefine ALLEGRO_CFG_ACODEC_SNDFILE
-#cmakedefine ALLEGRO_CFG_ACODEC_OGG
+#include "allegro5/internal/aintern_acodec_cfg.h"
 
 #if defined(ALLEGRO_CFG_ACODEC_FLAC)
    ALLEGRO_SAMPLE* al_load_sample_flac(const char *filename);
