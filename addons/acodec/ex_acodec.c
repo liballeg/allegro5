@@ -44,13 +44,10 @@ int main(int argc, char **argv)
       stream_it = true;
    }
 
-   allegro_init();
-
-   /* sets audio drivers to prefered defaults */
-
-   al_audio_set_enum(ALLEGRO_AUDIO_DEPTH, ALLEGRO_AUDIO_16_BIT_INT);
-   al_audio_set_enum(ALLEGRO_AUDIO_CHANNELS, ALLEGRO_AUDIO_2_CH);
-   al_audio_set_long(ALLEGRO_AUDIO_FREQUENCY, FREQUENCY);  
+   if (allegro_init())
+   {
+       fprintf(stderr, "Could not init allegro\n");
+   }
 
    if (al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT))
    {
@@ -58,82 +55,68 @@ int main(int argc, char **argv)
        return 1;
    }
 
-   /* Find out what i actually got after initting */
-   al_audio_get_enum(ALLEGRO_AUDIO_DEPTH, &depth);
-   al_audio_get_enum(ALLEGRO_AUDIO_CHANNELS, &chan);
-   al_audio_get_long(ALLEGRO_AUDIO_FREQUENCY, &freq);
-
-   display_driver_info();
-
-   for (x = 1; x < argc; ++x) {
+   for (x = 1; x < argc; ++x)
+   {
       ALLEGRO_SAMPLE       *sample = NULL;
       ALLEGRO_VOICE        *voice = NULL;
-      ALLEGRO_MIXER        *mixer = NULL;
       ALLEGRO_AUDIO_ENUM   chan_conf = 0;
+      ALLEGRO_AUDIO_ENUM   depth_conf = 0;
+
+      unsigned long        freq = 0;
       unsigned long        voice_freq = 0;
       const char*          filename = argv[x];
       float                sample_time = 0;
 
+      /* 
+       * loads the entire sound file from disk into sample
+       * using al_load_stream for large files or streaming 
+       * data
+       */
       sample = al_load_sample(filename);
       if (!sample) {
-         fprintf(stderr, "Could not create ALLEGRO_SAMPLE from '%s'!\n", filename);
+         fprintf(stderr, "Could not load ALLEGRO_SAMPLE from '%s'!\n", filename);
          continue;
       }
-
-      /*TODO: find out why voice params don't actually match up with driver params */
-      //voice = al_voice_create(freq, depth, chan, 0);
-      voice = al_voice_create(FREQUENCY, ALLEGRO_AUDIO_16_BIT_INT, ALLEGRO_AUDIO_2_CH, 0);
-      if(!voice) {
-         fprintf(stderr, "Error allocating voice!\n");
-         goto getout;
-      }
-      display_voice_info(voice);
-      al_voice_get_long(voice, ALLEGRO_AUDIO_FREQUENCY, &voice_freq);
-      al_voice_get_enum(voice, ALLEGRO_AUDIO_CHANNELS, &chan_conf);
-
-      /* TODO: why is this 32-bit_float, why won't it work with others??? */
-      mixer = al_mixer_create(voice_freq, ALLEGRO_AUDIO_32_BIT_FLOAT, chan_conf);
-      if(!mixer) {
-         fprintf(stderr, "Error allocating mixer!\n");
-         goto getout;
-      }
-
-      if(al_voice_attach_mixer(voice, mixer) != 0)
+   
+      al_sample_get_long(sample, ALLEGRO_AUDIO_FREQUENCY, &freq);
+      al_sample_get_enum(sample, ALLEGRO_AUDIO_CHANNELS, &chan_conf);
+      al_sample_get_enum(sample, ALLEGRO_AUDIO_DEPTH, &depth_conf);
+   
+      /* am not using the mixer so settings are required to match */
+      voice = al_voice_create(freq, depth_conf, chan_conf, ALLEGRO_AUDIO_REQUIRE);
+      if(!voice)
       {
-         fprintf(stderr, "Error attaching mixer to voice!\n");
-         goto getout;
+         al_sample_destroy(sample);
+         fprintf(stderr, "Error creating voice!\n");
+         continue;
       }
-
-      if(al_mixer_attach_sample(mixer, sample) != 0)
+   
+      if(al_voice_attach_sample(voice, sample))
       {
-         fprintf(stderr, "Error attaching sample to mixer!\n");
-         goto getout;
-      }
-
-      printf("mixer info:\n");
-      display_mixer_info(mixer);
-/*
-      if(al_voice_attach_sample(voice, sample) != 0)
-      {
+         al_sample_destroy(sample);
+         al_voice_destroy(voice);
          fprintf(stderr, "Error attaching sample to voice!\n");
-         goto getout;
+         continue;
       }
-*/
-      fprintf(stderr, "Playing '%s'", filename);
-
-      /* TODO: create sample info printer */
+   
       al_sample_play(sample);
+
+      /* play sample and wait for it to finish
+       * al_sample_play returns immediately
+       * once data is sent to sound driver
+       */
+      fprintf(stderr, "Playing '%s'", filename);
       al_sample_get_float(sample, ALLEGRO_AUDIO_TIME, &sample_time);
       fprintf(stderr, " (%.3f seconds) ", sample_time);
       al_rest(sample_time);
+      
       fprintf(stderr, "\n");
 
+      /* do this to deattach sample from voice */
+      /* FIXME: mismatch in the API, attach/detach are diff */
       al_sample_set_bool(sample, ALLEGRO_AUDIO_ATTACHED, 0);
-      al_mixer_set_bool(mixer, ALLEGRO_AUDIO_ATTACHED, 0);
 
-getout:
-      al_mixer_destroy(mixer);
-      al_voice_destroy(voice);
+      /* free the memory allocated when creating the sample */
       al_sample_destroy(sample);
    }
 
@@ -142,63 +125,3 @@ getout:
    return 0;
 }
 END_OF_MAIN()
-
-
-void display_driver_info()
-{
-   const void *devname;
-   unsigned long freq;
-   ALLEGRO_AUDIO_ENUM val;
-
-   if(al_audio_get_ptr(ALLEGRO_AUDIO_DEVICE, &devname) == 0)
-      fprintf(stderr, "Output driver: %s\n", (const char*)devname);
-   else
-      fprintf(stderr, "Could not get driver name!\n");
-
-   if(al_audio_get_long(ALLEGRO_AUDIO_FREQUENCY, &freq) == 0)
-      fprintf(stderr, "Output frequency: %lu\n", freq);
-   else
-      fprintf(stderr, "Could not get output frequency!\n");
-
-   if(al_audio_get_enum(ALLEGRO_AUDIO_CHANNELS, &val) == 0)
-      fprintf(stderr, "Output on %d.%d channels.\n", val>>4, val&0xF);
-   else
-      fprintf(stderr, "Could not get channel config!\n");
-
-   fprintf(stderr, "\n");
-}
-
-
-void display_voice_info(ALLEGRO_VOICE *voice)
-{
-   unsigned long voice_freq;
-   ALLEGRO_AUDIO_ENUM chan_conf;
-   ALLEGRO_AUDIO_ENUM depth;
-
-   al_voice_get_long(voice, ALLEGRO_AUDIO_FREQUENCY, &voice_freq);
-   al_voice_get_enum(voice, ALLEGRO_AUDIO_CHANNELS, &chan_conf);
-   al_voice_get_enum(voice, ALLEGRO_AUDIO_DEPTH, &depth);
-
-   fprintf(stderr, "Got voice: %s, %lu hz, %d channels\n",
-         ((depth == ALLEGRO_AUDIO_8_BIT_INT) ? "8-bit signed" :
-          ((depth == ALLEGRO_AUDIO_8_BIT_UINT) ? "8-bit unsigned" :
-           ((depth == ALLEGRO_AUDIO_16_BIT_INT) ? "16-bit signed" :
-            ((depth == ALLEGRO_AUDIO_16_BIT_UINT) ? "16-bit unsigned" :
-            ((depth == ALLEGRO_AUDIO_24_BIT_INT) ? "24-bit signed" :
-             ((depth == ALLEGRO_AUDIO_24_BIT_UINT) ? "24-bit unsigned" :
-              "32-bit float")))))),
-         voice_freq, (chan_conf>>4)+(chan_conf&0xF));
-}
-
-
-void display_mixer_info(ALLEGRO_MIXER *mixer)
-{
-   ALLEGRO_AUDIO_ENUM val;
-
-   if(al_mixer_get_enum(mixer, ALLEGRO_AUDIO_QUALITY, &val) != 0)
-      fprintf(stderr, "al_mixer_get_enum failed!\n");
-   else
-      fprintf(stderr, "%s resampling\n",
-            ((val==ALLEGRO_AUDIO_POINT) ? "Point" :
-            ((val==ALLEGRO_AUDIO_LINEAR) ? "Linear" : "Unknown")));
-}

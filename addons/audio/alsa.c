@@ -27,9 +27,7 @@
 #include <alsa/asoundlib.h>
 
 /* To be put into ALSA_CHECK macro. */
-/*      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, "ALSA: %s : %s",
-               #a, get_config_text(snd_strerror(err)));*/
-
+/* TODO: replace this with something cleaner */
 #define ALSA_CHECK(a) \
 do {                                                                  \
    int err = (a);                                                     \
@@ -43,25 +41,11 @@ do {                                                                  \
 //#define GET_CHANNEL_COUNT(v) ((v>>4)+(v&0xF))
 #define ALLEGRO_ALSA_MIXER_DEVICE ALLEGRO_AUDIO_USER_START + 1
 
-static ALLEGRO_AUDIO_ENUM alsa_channel_conf_pref = ALLEGRO_AUDIO_2_CH;
-static ALLEGRO_AUDIO_ENUM alsa_depth_conf_pref = ALLEGRO_AUDIO_16_BIT_INT;
-static unsigned int alsa_freq_pref = 44100;
-static unsigned int alsa_frag_count_pref = 5;
-static snd_pcm_uframes_t alsa_frag_size_pref = 256;
-static char alsa_device_pref[128] = "default";
-//static char alsa_mixer_device_pref[128] = "default";
-
-static ALLEGRO_AUDIO_ENUM alsa_channel_conf;
-static ALLEGRO_AUDIO_ENUM alsa_depth_conf;
-static unsigned int alsa_freq;
-static unsigned int alsa_frag_count;
-static snd_pcm_uframes_t alsa_frag_size;
-static char alsa_device[128];
-//static char alsa_mixer_device[128];
-
-
+static unsigned int alsa_frag_count= 5;
+static snd_pcm_uframes_t alsa_frag_size = 256;
 static snd_output_t *snd_output = NULL;
-
+const char alsa_device[128] = "default";
+ 
 
 typedef struct ALSA_VOICE {
    int cache;
@@ -88,25 +72,16 @@ typedef struct ALSA_VOICE {
 } ALSA_VOICE;
 
 
-
-/* The open method starts up the driver and should lock the device, using the
-   previously set paramters, or defaults. It shouldn't need to start sending
-   audio data to the device yet, however. */
+/* initialized output */
 static int alsa_open()
 {
    ALSA_CHECK(snd_output_stdio_attach(&snd_output, stdout, 0));
-
-   alsa_channel_conf = alsa_channel_conf_pref;
-   alsa_depth_conf = alsa_depth_conf_pref;
-   alsa_freq = alsa_freq_pref;
-   alsa_frag_count = alsa_frag_count_pref;
-   alsa_frag_size = alsa_frag_size_pref;
-   strcpy(alsa_device, alsa_device_pref);
-
    return 0;
-
-Error:
-   return -1;
+   
+   /* ALSA check is a macro that 'goto' error*/
+   Error:
+      fprintf(stderr, "Error initializing alsa");
+      return 1;
 }
 
 
@@ -117,8 +92,6 @@ static void alsa_close()
 {
    snd_config_update_free_global();
 }
-
-
 
 /* Underrun and suspend recovery */
 static int xrun_recovery(snd_pcm_t *handle, int err)
@@ -339,7 +312,7 @@ static int alsa_start_voice(ALLEGRO_VOICE *voice)
 
 Error:
    _al_mutex_unlock(&ex_data->mutex);
-   return -1;
+   return 1;
 }
 
 
@@ -384,7 +357,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
 
    ALSA_VOICE *ex_data = calloc(1, sizeof(ALSA_VOICE));
    if (!ex_data)
-      return -1;
+      return 1;
 
    ex_data->cache = -1;
 
@@ -493,7 +466,7 @@ Error:
       snd_pcm_close(ex_data->pcm_handle);
    free(ex_data);
    voice->extra = NULL;
-   return -1;
+   return 1;
 }
 
 
@@ -546,211 +519,12 @@ static int alsa_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
 }
 
 
-
-/* A good portion of the get/set methods will use driver-specific option
-   values, though it is strongly encouraged to support a standard set of
-   options. The set methods may be called without the driver being initialized,
-   and generally shouldn't take effect until the next time the driver is
-   initialized. The get methods are allowed to fail (cleanly) if the driver
-   isn't currently in use and should return the values being used (not
-   necesarilly what was previously set) */
-
-static int alsa_set_bool(ALLEGRO_AUDIO_ENUM setting, bool val)
-{
-   return 1;
-   (void)setting;
-   (void)val;
-}
-
-
-
-static int alsa_set_enum(ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val)
-{
-   switch(setting) {
-
-      case ALLEGRO_AUDIO_DEPTH:
-         alsa_depth_conf_pref = val;
-      return 0;
-
-      case ALLEGRO_AUDIO_CHANNELS:
-         alsa_channel_conf_pref = val;
-      return 0;
-
-      default:
-         break;
-   }
-
-   return 1;
-}
-
-
-
-/* With the set_long method, the following options would be useful:
- * * ALLEGRO_AUDIO_FREQUENCY - the over-all output frequency (in hz)
- * * ALLEGRO_AUDIO_FRAGMENTS - total fragment count (# of buffers for the output
- *                        device)
- * * ALLEGRO_AUDIO_LENGTH    - the size of each fragment (in bytes)
- * The values set are merely hints and don't need to be followed precisely.
- */
-static int alsa_set_long(ALLEGRO_AUDIO_ENUM setting, unsigned long val)
-{
-   switch(setting) {
-
-      case ALLEGRO_AUDIO_FREQUENCY:
-         if (val)
-            alsa_freq_pref = val;
-      return 0;
-
-      case ALLEGRO_AUDIO_FRAGMENTS:
-         if(val)
-            alsa_frag_count_pref = val;
-      return 0;
-
-      case ALLEGRO_AUDIO_LENGTH:
-         if(val)
-            alsa_frag_size_pref = val;
-      return 0;
-
-      default:
-         break;
-   }
-
-   return 1;
-}
-
-
-
-/* The set_ptr method should be able to take the following:
- * * ALLEGRO_AUDIO_DEVICE - The device the driver should use, represented as a
- *                     string. The pointer should not be assumed to remain
- *                     valid after the call is completed.
- */
-static int alsa_set_ptr(ALLEGRO_AUDIO_ENUM setting, const void *val)
-{
-   switch(setting) {
-
-      case ALLEGRO_AUDIO_DEVICE:
-         if(val)
-            strncpy(alsa_device_pref, val, sizeof(alsa_device_pref));
-         else
-            alsa_device_pref[0] = '\0';
-      return 0;
-
-/*      case ALLEGRO_ALSA_MIXER_DEVICE:
-         if (val)
-            strncpy(alsa_mixer_device_pref, val, sizeof(alsa_mixer_device_pref));
-         else
-            alsa_mixer_device_pref[0] = '\0';
-      return 0;*/
-
-      default:
-         break;
-   }
-
-   return 1;
-}
-
-
-
-static int alsa_get_bool(ALLEGRO_AUDIO_ENUM setting, bool *val)
-{
-   return 1;
-   (void)setting;
-   (void)val;
-}
-
-
-
-static int alsa_get_enum(ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val)
-{
-   switch(setting)
-   {
-      case ALLEGRO_AUDIO_DEPTH:
-         *val = alsa_depth_conf;
-      return 0;
-
-      case ALLEGRO_AUDIO_CHANNELS:
-         *val = alsa_channel_conf;
-      return 0;
-
-      default:
-         break;
-   }
-
-   return 1;
-}
-
-
-
-/* The get_long method would  be useful to retrieve the following options:
- * * ALLEGRO_AUDIO_FREQUENCY - The actual output frequency in use by the current
- *                        device
- * * ALLEGRO_AUDIO_LENGTH    - The length in bytes of each transfer buffer/fragment
- * * ALLEGRO_AUDIO_FRAGMENTS - The number of fragments
- */
-static int alsa_get_long(ALLEGRO_AUDIO_ENUM setting, unsigned long *val)
-{
-   switch(setting) {
-
-      case ALLEGRO_AUDIO_FREQUENCY:
-         *val = alsa_freq;
-      return 0;
-
-      case ALLEGRO_AUDIO_LENGTH:
-         *val = alsa_frag_size;
-      return 0;
-
-      case ALLEGRO_AUDIO_FRAGMENTS:
-         *val = alsa_frag_count;
-      return 0;
-
-      default:
-         break;
-   }
-
-   return 1;
-}
-
-
-
-/* The get_ptr method should handle the following:
- * * ALLEGRO_AUDIO_DEVICE - The name of the current device, given as a string. The
- *                     returned string will not be modified.
- */
-static int alsa_get_ptr(ALLEGRO_AUDIO_ENUM setting, const void **val)
-{
-   switch(setting) {
-      case ALLEGRO_AUDIO_DEVICE:
-         *val = alsa_device;
-      return 0;
-
-/*      case ALLEGRO_ALSA_MIXER_DEVICE:
-         *val = alsa_mixer_device;*/
-      return 0;
-
-      default:
-         break;
-   }
-
-   return 1;
-}
-
 ALLEGRO_AUDIO_DRIVER _alsa_driver =
 {
    "ALSA",
 
    alsa_open,
    alsa_close,
-
-   alsa_get_bool,
-   alsa_get_enum,
-   alsa_get_long,
-   alsa_get_ptr,
-
-   alsa_set_bool,
-   alsa_set_enum,
-   alsa_set_long,
-   alsa_set_ptr,
 
    alsa_allocate_voice,
    alsa_deallocate_voice,

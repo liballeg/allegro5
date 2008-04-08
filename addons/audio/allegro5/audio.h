@@ -58,7 +58,10 @@ typedef enum ALLEGRO_AUDIO_ENUM {
 
    /* Bit-field flags for voice settings. This says whether the voice settings
       were required */
+   /* TODO: make sure audio_request is used everywhere appropriate otherwise
+    * junk these two fields */
    ALLEGRO_AUDIO_REQUIRE = 0x121,
+   ALLEGRO_AUDIO_REQUEST = 0x122,
 
    /* Flags to pass to the various al_*_get_* and al_*_set_* functions. Not
       all types will apply to all functions. */
@@ -175,6 +178,10 @@ typedef struct ALLEGRO_MIXER ALLEGRO_MIXER;
 */
 typedef struct ALLEGRO_VOICE ALLEGRO_VOICE;
 
+/* TODO: note how these go against allegro5 conventions. eg: it is al_sample_destroy instead of al_destroy_sample
+ * i would change them quickly but wouldn't it be weird if it were al_get_long_sample ??? */
+
+
 /* Sample functions (more detailed explanations below) */
 AL_FUNC(ALLEGRO_SAMPLE*, al_sample_create, (void *buf, unsigned long samples, unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf));
 AL_FUNC(void, al_sample_destroy, (ALLEGRO_SAMPLE *spl));
@@ -238,14 +245,5 @@ AL_FUNC(int, al_voice_set_bool, (ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM settin
 /* Misc. audio functions */
 AL_FUNC(int,  al_audio_init, (ALLEGRO_AUDIO_ENUM mode));
 AL_FUNC(void, al_audio_deinit, (void));
-AL_FUNC(int,  al_audio_get_bool, (ALLEGRO_AUDIO_ENUM setting, bool *val));
-AL_FUNC(int,  al_audio_get_enum, (ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val));
-AL_FUNC(int,  al_audio_get_long, (ALLEGRO_AUDIO_ENUM setting, unsigned long *val));
-AL_FUNC(int,  al_audio_get_ptr,  (ALLEGRO_AUDIO_ENUM setting, const void **val));
-AL_FUNC(int,  al_audio_set_bool, (ALLEGRO_AUDIO_ENUM setting, bool val));
-AL_FUNC(int,  al_audio_set_enum, (ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val));
-AL_FUNC(int,  al_audio_set_long, (ALLEGRO_AUDIO_ENUM setting, unsigned long val));
-AL_FUNC(int,  al_audio_set_ptr,  (ALLEGRO_AUDIO_ENUM setting, const void *val));
-
 #endif
 

@@ -17,16 +17,6 @@ struct ALLEGRO_AUDIO_DRIVER {
    int  (*open)();
    void (*close)();
 
-   int (*get_bool)(ALLEGRO_AUDIO_ENUM, bool*);
-   int (*get_enum)(ALLEGRO_AUDIO_ENUM, ALLEGRO_AUDIO_ENUM*);
-   int (*get_long)(ALLEGRO_AUDIO_ENUM, unsigned long*);
-   int (*get_ptr)(ALLEGRO_AUDIO_ENUM, const void**);
-
-   int (*set_bool)(ALLEGRO_AUDIO_ENUM, bool);
-   int (*set_enum)(ALLEGRO_AUDIO_ENUM, ALLEGRO_AUDIO_ENUM);
-   int (*set_long)(ALLEGRO_AUDIO_ENUM, unsigned long);
-   int (*set_ptr)(ALLEGRO_AUDIO_ENUM, const void*);
-
    int  (*allocate_voice)(ALLEGRO_VOICE*);
    void (*deallocate_voice)(ALLEGRO_VOICE*);
 

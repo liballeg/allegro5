@@ -772,11 +772,11 @@ void al_sample_play(ALLEGRO_SAMPLE *spl)
 {
    al_sample_set_bool(spl, ALLEGRO_AUDIO_PLAYING, 1);
 }
+
 void al_sample_stop(ALLEGRO_SAMPLE *spl)
 {
    al_sample_set_bool(spl, ALLEGRO_AUDIO_PLAYING, 0);
 }
-
 
 int al_sample_get_long(const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, unsigned long *val)
 {
@@ -1908,17 +1908,13 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
 
    if(voice->driver->load_voice(voice, spl->buffer.ptr) != 0 ||
       (spl->playing && voice->driver->start_voice(voice) != 0))
-   
-   fprintf(stderr,"Unable to load sample into voice\n");{
-      
-       fprintf(stderr,"Unable to load sample into voice\n");voice->stream = NULL;
+   {      
+      voice->stream = NULL;
       spl->read = NULL;
       stream_set_mutex(spl, NULL);
       spl->parent.voice = NULL;
-
       _al_mutex_unlock(&voice->mutex);
       fprintf(stderr,"Unable to load sample into voice\n");
-      _al_set_error(ALLEGRO_GENERIC_ERROR, "Unable to load sample into voice");
       return 1;
    }
 
@@ -2183,7 +2179,11 @@ int al_voice_set_bool(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, bool val
    return 1;
 }
 
-/* returns 0 on success */
+/* TODO: possibly take extra parameters
+ * (freq, channel, etc) and test if you 
+ * can create a voice with them.. if not
+ * try another driver.
+ */
 int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
 {
    int retVal = 0;
@@ -2215,6 +2215,7 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
       case ALLEGRO_AUDIO_DRIVER_OPENAL:
          if (_openal_driver.open() == 0 )
          {
+            fprintf(stderr, "Using OpenAL driver\n"); 
             driver = &_openal_driver;
             return 0;
          }
@@ -2223,6 +2224,7 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
          #if defined(ALLEGRO_LINUX)
             if(_alsa_driver.open() == 0)
             {
+               fprintf(stderr, "Using ALSA driver\n"); 
                driver = &_alsa_driver;
                return 0;
             }
@@ -2254,89 +2256,3 @@ void al_audio_deinit()
       driver->close();
    driver = NULL;
 }
-
-
-/* TODO: finish the api and clean this process up */
-
-
-/* only allowed to modify before driver is run */
-int al_audio_set_bool(ALLEGRO_AUDIO_ENUM setting, bool val)
-{
-   /* cannot change driver properties while in use */
-   if (driver)
-       return 1;
-
-   /* set for every driver (driver may be picked based on these) */
-   _openal_driver.set_bool(setting,val);
-   #ifdef ALLEGRO_LINUX
-   _alsa_driver.set_bool(setting,val);
-   #endif
-   return 0;
-}
-
-/* only allowed to modify before driver is run */
-int al_audio_set_enum(ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val)
-{
-   /* cannot change driver properties while in use */
-   if (driver)
-       return 1;
-
-   /* set for every driver (driver may be picked based on these) */
-   _openal_driver.set_enum(setting, val);
-   #ifdef ALLEGRO_LINUX
-   _alsa_driver.set_enum(setting, val);
-   #endif
-   return 0;
-}
-
-/* only allowed to modify before driver is run */
-int al_audio_set_long(ALLEGRO_AUDIO_ENUM setting, unsigned long val)
-{
-   /* cannot change driver properties while in use */
-   if (driver)
-       return 1;
-
-   /* set for every driver (driver may be picked based on these) */
-   _openal_driver.set_long(setting, val);
-   #ifdef ALLEGRO_LINUX
-   _alsa_driver.set_long(setting, val);
-   #endif
-   return 0;
-}
-
-/* only allowed to modify before driver is run */
-int al_audio_set_ptr(ALLEGRO_AUDIO_ENUM setting, const void *val)
-{
-   /* cannot change driver properties while in use */
-   if (driver)
-       return 1;
-
-   /* set for every driver (driver may be picked based on these) */
-   _openal_driver.set_ptr(setting, val);
-   #ifdef ALLEGRO_LINUX
-   _alsa_driver.set_ptr(setting, val);
-   #endif
-   return 0;
-}
-
-
-int al_audio_get_bool(ALLEGRO_AUDIO_ENUM setting, bool *val)
-{
-   return driver->get_bool(setting, val);
-}
-
-int al_audio_get_enum(ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val)
-{
-   return driver->get_enum(setting, val);
-}
-
-int al_audio_get_long(ALLEGRO_AUDIO_ENUM setting, unsigned long *val)
-{
-   return driver->get_long(setting, val);
-}
-
-int al_audio_get_ptr(ALLEGRO_AUDIO_ENUM setting, const void **val)
-{
-   return driver->get_ptr(setting, val);
-}
-
