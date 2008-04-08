@@ -2231,7 +2231,7 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
             return 1;
          #else
             _al_set_error(ALLEGRO_INVALID_PARAM, "Alsa not available on this platform");
-            return NULL;
+            return 1;
          #endif
 
       case ALLEGRO_AUDIO_DRIVER_DSOUND:
