@@ -7,7 +7,7 @@
 #include "allegro5/acodec.h"
 #include "allegro5/internal/aintern_acodec.h"
 
-#ifdef ALLEGRO_CFG_ACODEC_OGG
+#ifdef ALLEGRO_CFG_ACODEC_VORBIS
 
 #include <vorbis/vorbisfile.h>
 
@@ -74,4 +74,4 @@ ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *fileName)
 
 
 
-#endif /* ALLEGRO_CFG_ACODEC_OGG */
+#endif /* ALLEGRO_CFG_ACODEC_VORBIS */

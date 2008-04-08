@@ -1,8 +1,7 @@
 include_directories(../audio)
 
 option(WANT_FLAC "Enable FLAC support (acodec)" on)
-# XXX rename _OGG to _VORBIS everywhere
-option(WANT_OGG "Enable Ogg Vorbis support (acodec)" on)
+option(WANT_VORBIS "Enable Ogg Vorbis support (acodec)" on)
 option(WANT_SNDFILE "Enable WAV/AIFF support (acodec)" on)
 
 set(ACODEC_EXTRA_LIBS)
@@ -26,24 +25,24 @@ if(WANT_FLAC)
     endif(CAN_FLAC)
 endif(WANT_FLAC)
 
-if(WANT_OGG)
+if(WANT_VORBIS)
     # XXX ogg.c doesn't compiler with libvorbis 1.1.2
     # missing OV_CALLBACKS_NOCLOSE
-    find_path(OGG_INCLUDE_DIR vorbis/vorbisfile.h)
-    find_library(OGG_LIBRARY NAMES vorbisfile)
-    mark_as_advanced(OGG_INCLUDE_DIR OGG_LIBRARY)
+    find_path(VORBIS_INCLUDE_DIR vorbis/vorbisfile.h)
+    find_library(VORBIS_LIBRARY NAMES vorbisfile)
+    mark_as_advanced(VORBIS_INCLUDE_DIR VORBIS_LIBRARY)
 
-    if(OGG_INCLUDE_DIR AND OGG_LIBRARY)
-        set(CAN_OGG 1)
-    endif(OGG_INCLUDE_DIR AND OGG_LIBRARY)
+    if(VORBIS_INCLUDE_DIR AND VORBIS_LIBRARY)
+        set(CAN_VORBIS 1)
+    endif(VORBIS_INCLUDE_DIR AND VORBIS_LIBRARY)
 
-    if(CAN_OGG)
-        set(SUPPORT_OGG 1)
-        set(ALLEGRO_CFG_ACODEC_OGG 1)
-        include_directories(${OGG_INCLUDE_DIR})
+    if(CAN_VORBIS)
+        set(SUPPORT_VORBIS 1)
+        set(ALLEGRO_CFG_ACODEC_VORBIS 1)
+        include_directories(${VORBIS_INCLUDE_DIR})
         list(APPEND ACODEC_EXTRA_LIBS vorbisfile vorbis ogg)
-    endif(CAN_OGG)
-endif(WANT_OGG)
+    endif(CAN_VORBIS)
+endif(WANT_VORBIS)
 
 if(WANT_SNDFILE)
     find_path(SNDFILE_INCLUDE_DIR sndfile.h)
@@ -143,9 +142,9 @@ if(SUPPORT_FLAC)
     set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} FLAC)
 endif(SUPPORT_FLAC)
 
-if(SUPPORT_OGG)
+if(SUPPORT_VORBIS)
     set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} vorbisfile)
-endif(SUPPORT_OGG)
+endif(SUPPORT_VORBIS)
 
 if(SUPPORT_SNDFILE)
     set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} sndfile)

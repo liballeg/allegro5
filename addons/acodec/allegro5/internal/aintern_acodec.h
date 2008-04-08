@@ -19,7 +19,7 @@
    ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename);
 #endif
 
-#if defined(ALLEGRO_CFG_ACODEC_OGG)
+#if defined(ALLEGRO_CFG_ACODEC_VORBIS)
    ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *filename);
 #endif
 

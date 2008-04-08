@@ -24,7 +24,7 @@ ALLEGRO_SAMPLE* al_load_sample(const char* filename)
    //i've only ever done this in higher level
    //languages
    ext++; //get past the '.' character
-   #if defined(ALLEGRO_CFG_ACODEC_OGG)
+   #if defined(ALLEGRO_CFG_ACODEC_VORBIS)
       if (strcmp("ogg",ext) == 0)
          return al_load_sample_oggvorbis(filename);
    #endif
