@@ -5,6 +5,7 @@ option(WANT_VORBIS "Enable Ogg Vorbis support (acodec)" on)
 option(WANT_SNDFILE "Enable WAV/AIFF support (acodec)" on)
 
 set(ACODEC_EXTRA_LIBS)
+set(ACODEC_SOURCES acodec.c)
 
 if(WANT_FLAC)
     # XXX flac.c doesn't compile with flac 1.1.2
@@ -22,6 +23,7 @@ if(WANT_FLAC)
         set(ALLEGRO_CFG_ACODEC_FLAC 1)
         include_directories(${FLAC_INCLUDE_DIR})
         list(APPEND ACODEC_EXTRA_LIBS FLAC)
+        list(APPEND ACODEC_SOURCES flac.c)
     endif(CAN_FLAC)
 endif(WANT_FLAC)
 
@@ -41,6 +43,7 @@ if(WANT_VORBIS)
         set(ALLEGRO_CFG_ACODEC_VORBIS 1)
         include_directories(${VORBIS_INCLUDE_DIR})
         list(APPEND ACODEC_EXTRA_LIBS vorbisfile vorbis ogg)
+        list(APPEND ACODEC_SOURCES ogg.c)
     endif(CAN_VORBIS)
 endif(WANT_VORBIS)
 
@@ -58,19 +61,13 @@ if(WANT_SNDFILE)
         set(ALLEGRO_CFG_ACODEC_SNDFILE 1)
         include_directories(${SNDFILE_INCLUDE_DIR})
         list(APPEND ACODEC_EXTRA_LIBS sndfile)
+        list(APPEND ACODEC_SOURCES wav.c)
     endif(CAN_SNDFILE)
 endif(WANT_SNDFILE)
 
 configure_file(
     allegro5/internal/aintern_acodec_cfg.h.cmake
     include/allegro5/internal/aintern_acodec_cfg.h
-    )
-
-set(ACODEC_SOURCES
-    acodec.c
-    flac.c
-    ogg.c
-    wav.c
     )
 
 set(ACODEC_INCLUDE_FILES
