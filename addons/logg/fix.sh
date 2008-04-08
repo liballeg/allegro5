@@ -53,37 +53,14 @@ proc_utod()
 {
    echo "Converting files from Unix to DOS/Win32 ..."
    proc_filelist "omit_sh"
-   for file in $AL_FILELIST; do
-      if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
-         unix2dos "$file"
-      else
-         echo "$file"
-         perl -p -e "s/([^\r]|^)\n/\1\r\n/" "$file" > _tmpfile
-         touch -r "$file" _tmpfile
-         mv _tmpfile "$file"
-      fi
-   done
+   sh ../../misc/utod.sh $AL_FILELIST
 }
 
 proc_dtou()
 {
    echo "Converting files from DOS/Win32 to Unix ..."
    proc_filelist "omit_bat"
-   for file in $AL_FILELIST; do
-      if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
-         dos2unix "$file"
-      else
-         echo "$file"
-         mv "$file" _tmpfile
-         tr -d '\015' < _tmpfile > "$file"
-         touch -r _tmpfile "$file"
-         rm _tmpfile
-      fi
-   done
-   chmod +x *.sh
-   if [ -f configure ]; then
-      chmod +x configure
-   fi
+   sh ../../misc/dtou.sh $AL_FILELIST
 }
 
 # prepare loadpng for the given platform.
@@ -113,3 +90,6 @@ if [ "$AL_NOCONV" != "1" ]; then
    esac
 fi
 
+# set execute permissions just in case.
+
+chmod +x *.sh

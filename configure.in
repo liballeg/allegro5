@@ -770,7 +770,8 @@ if test -n "$allegro_with_allegrogl"; then
   echo ""
   echo "Running AllegroGL configure script..."
   echo "./configure $agl_config_opt"
-  if ( cd addons/allegrogl && ./configure $agl_config_opt ); then
+  # Call /bin/sh explicitly in case the execute permission is lost.
+  if ( cd addons/allegrogl && /bin/sh configure $agl_config_opt ); then
     _addons="AllegroGL $_addons"
     WITH_ALLEGRO_GL=1
   else

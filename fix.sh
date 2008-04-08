@@ -7,17 +7,14 @@
 proc_help()
 {
    echo
-   echo "Usage: $0 <platform> [--quick|--dtou|--utod|--utom|--mtou]"
+   echo "Usage: $0 <platform> [--quick|--dtou|--utod]"
    echo
    echo "Where platform is one of: bcc32, beos, djgpp, mingw, qnx, unix"
    echo "mac, macosx, macosx-universal and watcom."
    echo "The --quick parameter turns off text file conversion, --dtou converts from"
-   echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format,"
-   echo "--utom converts from Unix to Macintosh format and --mtou converts from"
-   echo "Macintosh to Unix format. If no parameter is specified --quick is assumed."
+   echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format."
+   echo "If no parameter is specified --quick is assumed."
    echo
-
-   AL_NOCONV="1"
 }
 
 proc_fix()
@@ -49,25 +46,27 @@ proc_fix_osx_ub()
 
 proc_filelist()
 {
-   # common files.
+   # common files. This must not include any shell scripts or batch files.
    AL_FILELIST=`find . -type f "(" ! -path "*/.*" ")" -a "(" \
       -name "*.c" -o -name "*.cfg" -o -name "*.cpp" -o -name "*.def" -o \
       -name "*.h" -o -name "*.hin" -o -name "*.in" -o -name "*.inc" -o \
       -name "*.m" -o -name "*.m4" -o -name "*.mft" -o -name "*.s" -o \
       -name "*.rc" -o -name "*.rh" -o -name "*.spec" -o -name "*.pl" -o \
       -name "*.txt" -o -name "*._tx" -o -name "makefile*" -o \
-      -name "*.inl" -o -name "configure" -o -name "CHANGES" -o \
+      -name "*.inl" -o -name "CHANGES" -o \
       -name "AUTHORS" -o -name "THANKS" ")" -a ! -path "*addons*" \
    `
 
    # touch unix shell scripts?
    if [ "$1" != "omit_sh" ]; then
-      AL_FILELIST="$AL_FILELIST `find . -type f -name '*.sh' -a ! -path "*addons*"`"
+      AL_FILELIST="$AL_FILELIST `find . -type f -name '*.sh' -o \
+         -name 'configure' -a ! -path "*addons*"`"
    fi
 
    # touch DOS batch files?
    if [ "$1" != "omit_bat" ]; then
-      AL_FILELIST="$AL_FILELIST `find . -type f -name '*.bat' -a ! -path "*addons*"`"
+      AL_FILELIST="$AL_FILELIST `find . -type f -name '*.bat' -a \
+         ! -path "*addons*"`"
    fi
 }
 
@@ -75,63 +74,14 @@ proc_utod()
 {
    echo "Converting files from Unix to DOS/Win32 ..."
    proc_filelist "omit_sh"
-   for file in $AL_FILELIST; do
-      if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
-         unix2dos "$file"
-      else
-         echo "$file"
-         perl -p -e "s/([^\r]|^)\n/\1\r\n/" "$file" > _tmpfile
-         touch -r "$file" _tmpfile
-         mv _tmpfile "$file"
-      fi
-   done
+   /bin/sh misc/utod.sh $AL_FILELIST
 }
 
 proc_dtou()
 {
    echo "Converting files from DOS/Win32 to Unix ..."
    proc_filelist "omit_bat"
-   for file in $AL_FILELIST; do
-      if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
-         dos2unix "$file"
-      else
-         echo "$file"
-         mv "$file" _tmpfile
-         tr -d '\015' < _tmpfile > "$file"
-         touch -r _tmpfile "$file"
-         rm _tmpfile
-      fi
-   done
-   chmod +x *.sh misc/*.sh tools/x11/*.sh misc/*.pl
-   if [ -f configure ]; then
-      chmod +x configure
-   fi
-}
-
-proc_utom()
-{
-   echo "Converting files from Unix to Macintosh ..."
-   proc_filelist "omit_sh"
-   for file in $AL_FILELIST; do
-      echo "$file"
-      mv "$file" _tmpfile
-      tr '\012' '\015' < _tmpfile > "$file"
-      touch -r _tmpfile "$file"
-      rm _tmpfile
-   done
-}
-
-proc_mtou()
-{
-   echo "Converting files from Macintosh to Unix ..."
-   proc_filelist
-   for file in $AL_FILELIST; do
-      echo "$file"
-      mv "$file" _tmpfile
-      tr '\015' '\012' < _tmpfile > "$file"
-      touch -r _tmpfile "$file"
-      rm _tmpfile
-   done
+   /bin/sh misc/dtou.sh $AL_FILELIST
 }
 
 # prepare allegro for the given platform.
@@ -151,33 +101,44 @@ case "$1" in
    "macosx"  ) proc_fix "MacOS X"           "makefile.osx" "ALLEGRO_MACOSX";;
    "macosx-universal" ) proc_fix_osx_ub ;;
    "watcom"  ) proc_fix "DOS (Watcom)"      "makefile.wat" "ALLEGRO_WATCOM";;
-   "help"    ) proc_help;;
-   *         ) proc_help;;
+   "help"    ) proc_help; exit 0;;
+   *         ) proc_help; exit 0;;
 esac
 
 # convert all text-file line endings.
 
-if [ "$AL_NOCONV" != "1" ]; then
-   case "$2" in
-      "--utod"  ) proc_utod "$1";;
-      "--dtou"  ) proc_dtou "$1";;
-      "--utom"  ) proc_utom "$1";;
-      "--mtou"  ) proc_mtou "$1";;
-      "--quick" ) echo "No text file conversion performed ...";;
-   esac
+trap 'exit $?' 1 2 3 13 15
+
+case "$2" in
+  "--utod"  ) proc_utod "$1";;
+  "--dtou"  ) proc_dtou "$1";;
+  "--quick" ) echo "No text file conversion performed ...";;
+esac
+
+# set execute permissions just in case.
+
+chmod +x *.sh misc/*.sh tools/x11/*.sh misc/*.pl
+if [ -f configure ]; then
+   chmod +x configure
 fi
 
-# run fix.sh for addons
-if ! ( cd addons/allegrogl && ./fix.sh $1 $2); then
+# run fix.sh for addons.  We call /bin/sh explicitly in case the fix.sh
+# files have lost the execute bit.
+
+if ! ( cd addons/allegrogl && /bin/sh fix.sh $1 $2 )
+then
    echo "Error occured while executing AllegroGL's fix.sh!"
 fi
-if ! ( cd addons/loadpng && ./fix.sh $1 $2); then
+if ! ( cd addons/loadpng && /bin/sh fix.sh $1 $2 )
+then
    echo "Error occured while executing loadpng's fix.sh!"
 fi
-if ! ( cd addons/logg && ./fix.sh $1 $2); then
+if ! ( cd addons/logg && /bin/sh fix.sh $1 $2 )
+then
    echo "Error occured while executing logg's fix.sh!"
 fi
-if ! ( cd addons/jpgalleg && ./fix.sh $1 $2); then
+if ! ( cd addons/jpgalleg && /bin/sh fix.sh $1 $2 )
+then
    echo "Error occured while executing jpgalleg's fix.sh!"
 fi
 

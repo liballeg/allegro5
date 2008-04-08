@@ -7,7 +7,7 @@
 proc_help()
 {
    echo
-   echo "Usage: ./fix.sh <platform> [--quick|--dtou|--utod|--utom|--mtou]"
+   echo "Usage: ./fix.sh <platform> [--quick|--dtou|--utod]"
    echo
    echo "Where platform is one of: djgpp, mingw32, msvc, beos, unix, macosx"
    echo "The --quick parameter turns off text file conversion, --dtou converts from"
@@ -51,34 +51,14 @@ proc_utod()
 {
    echo "Converting files from Unix to DOS/Win32..."
    proc_filelist "omit_sh"
-   for file in $FILELIST; do
-      if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
-         unix2dos $file
-      else   
-         echo "$file"
-         perl -p -e "s/([^\r]|^)\n/\1\r\n/" $file > _tmpfile
-         touch -r $file _tmpfile
-         mv _tmpfile $file
-      fi      
-   done
+   /bin/sh ../../misc/utod.sh $FILELIST
 }
 
 proc_dtou()
 {
    echo "Converting files from DOS/Win32 to Unix..."
    proc_filelist "omit_bat"
-   for file in $FILELIST; do
-      if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
-         dos2unix $file
-      else   
-         echo "$file"
-         mv $file _tmpfile
-         tr -d '\015' < _tmpfile > $file
-         touch -r _tmpfile $file
-         rm _tmpfile
-      fi	      
-   done
-   chmod +x *.sh
+   /bin/sh ../../misc/dtou.sh $FILELIST
 }
 
 # prepare JPGalleg for the given platform.
@@ -96,8 +76,8 @@ case "$1" in
    "beos"    ) proc_fix "BeOS" "makefile.be";;
    "unix"    ) proc_fix "Unix" "makefile.uni";;
    "macosx"  ) proc_fix "MacOS X" "makefile.osx";;
-   "help"    ) proc_help;;
-   *         ) echo "Platform not supported by JPGalleg."
+   "help"    ) proc_help; exit 0;;
+   *         ) echo "Platform not supported by JPGalleg."; exit 0;;
 esac
 
 # convert all text-file line endings.
@@ -109,3 +89,6 @@ if [ "$NOCONV" != "1" ]; then
    esac
 fi
 
+# set execute permissions just in case.
+
+chmod +x *.sh misc/*.sh

@@ -13,8 +13,6 @@ proc_help()
    echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format."
    echo "If no parameter is specified --quick is assumed."
    echo
-
-   AL_NOCONV="1"
 }
 
 proc_fix()
@@ -62,37 +60,14 @@ proc_utod()
 {
    echo "Converting files from Unix to DOS/Win32 ..."
    proc_filelist "omit_sh"
-   for file in $AL_FILELIST; do
-      if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
-         unix2dos "$file"
-      else
-         echo "$file"
-         perl -p -e "s/([^\r]|^)\n/\1\r\n/" "$file" > _tmpfile
-         touch -r "$file" _tmpfile
-         mv _tmpfile "$file"
-      fi
-   done
+   /bin/sh ../../misc/utod.sh $AL_FILELIST
 }
 
 proc_dtou()
 {
    echo "Converting files from DOS/Win32 to Unix ..."
    proc_filelist "omit_bat"
-   for file in $AL_FILELIST; do
-      if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
-         dos2unix "$file"
-      else
-         echo "$file"
-         mv "$file" _tmpfile
-         tr -d '\015' < _tmpfile > "$file"
-         touch -r _tmpfile "$file"
-         rm _tmpfile
-      fi
-   done
-   chmod +x *.sh
-   if [ -f configure ]; then
-      chmod +x configure
-   fi
+   /bin/sh ../../misc/dtou.sh $AL_FILELIST
 }
 
 # prepare loadpng for the given platform.
@@ -110,16 +85,17 @@ case "$1" in
    "macosx"  ) proc_fix "Mac OS X"          "Makefile.osx";;
    # used only by allegro's zipup.sh in packaging process
    "msvc"    ) proc_fix_msvc "Windows (MSVC)";;
-   "help"    ) proc_help;;
-   *         ) echo "Platform not supported by loadpng." ;;
+   "help"    ) proc_help; exit 0;;
+   *         ) echo "Platform not supported by loadpng."; exit 0;;
 esac
 
 # convert all text-file line endings.
 
-if [ "$AL_NOCONV" != "1" ]; then
-   case "$2" in
-      "--utod"  ) proc_utod "$1";;
-      "--dtou"  ) proc_dtou "$1";;
-   esac
-fi
+case "$2" in
+   "--utod"  ) proc_utod "$1";;
+   "--dtou"  ) proc_dtou "$1";;
+esac
 
+# set execute permissions just in case.
+
+chmod +x *.sh

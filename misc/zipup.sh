@@ -45,8 +45,8 @@ for file in makefile.*; do
    rm _tmpfile
 done
 
-# fix some wrong permissions in the SVN repository
-chmod +x misc/asmdef.sh misc/fixdll.sh
+# make sure all shell scripts are executable
+find . -name '*.sh' -exec chmod +x {} ';'
 
 
 # delete all generated files
