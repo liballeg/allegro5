@@ -1018,10 +1018,18 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, bool val
    switch(setting)
    {
       case ALLEGRO_AUDIO_PLAYING:
-         if(spl->parent.ptr && spl->parent_is_voice)
+         if (!spl->parent.ptr)
          {
+            fprintf(stderr, "Sample has no parent\n");
+            return 1;
+         }
+
+         if(spl->parent_is_voice)
+         {
+            /* parent is voice */
             ALLEGRO_VOICE *voice = spl->parent.voice;
 
+            /* FIXME: there is no else. what does this do? */
             if(al_voice_set_bool(voice, ALLEGRO_AUDIO_PLAYING, val) == 0)
             {
                unsigned long pos = spl->pos >> MIXER_FRAC_SHIFT;
@@ -1036,6 +1044,7 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, bool val
          }
          else
          {
+            /* parent is mixer */
             _al_mutex_lock(spl->mutex);
             spl->playing = val;
             if(!val)
@@ -2158,21 +2167,31 @@ int al_voice_set_bool(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, bool val
       case ALLEGRO_AUDIO_PLAYING:
          if(voice->stream && !voice->streaming)
          {
-            bool playing = true;
-            al_voice_get_bool(voice, ALLEGRO_AUDIO_PLAYING, &playing);
-            if(playing == val)
-               return 0;
+            bool playing = false;
+            if (al_voice_get_bool(voice, ALLEGRO_AUDIO_PLAYING, &playing))
+            {
+               fprintf(stderr, "Unable to get voice playing status\n");
+               return 1;
+            }
 
+            if(playing == val)
+            {
+               if (playing)
+                  fprintf(stderr, "Voice is already playing\n");
+               else
+                  fprintf(stderr, "Voice is already stopped\n");
+               return 1;
+            }
+            
             if(val)
                return voice->driver->start_voice(voice);
             else
-            {
-               voice->driver->stop_voice(voice);
-               return 0;
-            }
+               return voice->driver->stop_voice(voice);
+         } else
+         {
+            fprintf(stderr, "Voice has no sample or mixer attached\n");
+            return 1;
          }
-         return 1;
-
       default:
          break;
    }

@@ -319,7 +319,7 @@ Error:
 
 /* The stop_voice method should stop playback. For non-streaming voices, it
    should leave the data loaded, and reset the voice position to 0. */
-static void alsa_stop_voice(ALLEGRO_VOICE *voice)
+static int alsa_stop_voice(ALLEGRO_VOICE *voice)
 {
    ALSA_VOICE *ex_data = voice->extra;
 
@@ -333,7 +333,9 @@ static void alsa_stop_voice(ALLEGRO_VOICE *voice)
    _al_mutex_unlock(&ex_data->mutex);
 
    while (!ex_data->stopped)
-      usleep(1000);
+      al_rest(0.001);
+
+   return 0;
 }
 
 

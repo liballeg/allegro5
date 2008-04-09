@@ -213,7 +213,6 @@ static void _openal_update(_AL_THREAD* self, void* arg)
 
    alSourcePlay(ex_data->source);
 
-
    samples_per_update = ex_data->buffer_size /
                         ((ex_data->format==AL_FORMAT_QUAD16_LOKI) ? 8 :
                          (ex_data->format==AL_FORMAT_QUAD8_LOKI ||
@@ -265,11 +264,9 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
 {
    ALLEGRO_AL_DATA *ex_data = voice->extra;
 
-/*
    if(voice->stream->loop != ALLEGRO_AUDIO_PLAY_ONCE && 
            voice->stream->loop != ALLEGRO_AUDIO_ONE_DIR)
       return 1;
-*/
 
    ex_data->buffer_size = voice->buffer_size;
    if(!ex_data->buffer_size)
@@ -308,19 +305,21 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
       return 1;
    }
 
+   /* copies data into a buffer */
    alBufferData(ex_data->buffers[0], ex_data->format,
                 data, ex_data->buffer_size, voice->frequency);
+
+   /* sets the buffer */
    alSourcei(ex_data->source, AL_BUFFER, ex_data->buffers[0]);
 
-   alSource3f(ex_data->source, AL_POSITION,  0.0, 0.0, 0.0);
-   alSource3f(ex_data->source, AL_VELOCITY,  0.0, 0.0, 0.0);
-   alSource3f(ex_data->source, AL_DIRECTION, 0.0, 0.0, 0.0);
-   alSourcef(ex_data->source, AL_ROLLOFF_FACTOR, 0.0);
-   alSourcei(ex_data->source, AL_SOURCE_RELATIVE, AL_TRUE);
+   /* Loop / no loop? */
    alSourcei(ex_data->source, AL_LOOPING, (voice->stream->loop !=
                                            ALLEGRO_AUDIO_PLAY_ONCE));
+
+   /* make sure the volume is on */
    alSourcef(ex_data->source, AL_GAIN, 1.0f);
-   if(alGetError() != AL_NO_ERROR)
+
+   if((openal_err = alGetError()) != AL_NO_ERROR)
    {
       alDeleteSources(1, &ex_data->source);
       alDeleteBuffers(ex_data->num_buffers, ex_data->buffers);
@@ -357,11 +356,18 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
 {
    ALLEGRO_AL_DATA *ex_data = voice->extra;
 
+   /* playing a sample instead of a stream */
    if(!voice->streaming)
    {
       alSourcePlay(ex_data->source);
-      if(alGetError() != AL_NO_ERROR)
+      if((openal_err = alGetError()) != AL_NO_ERROR)
+      {
+         fprintf(stderr, "Could not start voice\n");
+         fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
+         fprintf(stderr, "\n");
          return 1;
+      }
+      fprintf(stderr, "Starting voice\n");
       return 0;
    }
 
@@ -399,11 +405,6 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
          return 1;
       }
 
-      alSource3f(ex_data->source, AL_POSITION,  0.0, 0.0, 0.0);
-      alSource3f(ex_data->source, AL_VELOCITY,  0.0, 0.0, 0.0);
-      alSource3f(ex_data->source, AL_DIRECTION, 0.0, 0.0, 0.0);
-      alSourcef(ex_data->source, AL_ROLLOFF_FACTOR, 0.0);
-      alSourcei(ex_data->source, AL_SOURCE_RELATIVE, AL_TRUE);
       alSourcef(ex_data->source, AL_GAIN, 1.0f);
       if(alGetError() != AL_NO_ERROR)
       {
@@ -423,18 +424,28 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
 
 /* The stop_voice method should stop playback. For non-streaming voices, it
    should leave the data loaded, and reset the voice position to 0. */
-static void _openal_stop_voice(ALLEGRO_VOICE* voice)
+static int _openal_stop_voice(ALLEGRO_VOICE* voice)
 {
    ALLEGRO_AL_DATA *ex_data = voice->extra;
 
    if(!ex_data->buffers)
-      return;
+   {
+      fprintf(stderr, "Trying to stop empty voice buffer\n"); 
+      return 1;
+   }
 
+   /* if playing a sample */
    if(!voice->streaming)
    {
       alSourceStop(ex_data->source);
-      alGetError();
-      return;
+      if((openal_err = alGetError()) != AL_NO_ERROR)
+      {
+         fprintf(stderr, "Could not stop voice\n");
+         fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
+         fprintf(stderr, "\n");
+         return 1;
+      } 
+      return 0;
    }
 
    if(ex_data->stop_voice == 0)
@@ -448,6 +459,7 @@ static void _openal_stop_voice(ALLEGRO_VOICE* voice)
    ex_data->buffers = NULL;
    alDeleteSources(1, &ex_data->source);
    alGetError();
+   return 0;
 }
 
 /* The voice_is_playing method should only be called on non-streaming sources,

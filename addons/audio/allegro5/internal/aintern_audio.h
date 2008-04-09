@@ -24,7 +24,7 @@ struct ALLEGRO_AUDIO_DRIVER {
    void (*unload_voice)(ALLEGRO_VOICE*);
 
    int  (*start_voice)(ALLEGRO_VOICE*);
-   void (*stop_voice)(ALLEGRO_VOICE*);
+   int  (*stop_voice)(ALLEGRO_VOICE*);
 
    bool (*voice_is_playing)(const ALLEGRO_VOICE*);
 
