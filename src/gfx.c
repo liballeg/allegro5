@@ -1092,103 +1092,81 @@ void _soft_circlefill(BITMAP *bmp, int x, int y, int radius, int color)
  *  copy of the bmp parameter, then the x, y point, then a copy of the d 
  *  parameter (so putpixel() can be used as the callback).
  */
-void do_ellipse(BITMAP *bmp, int x, int y, int rx, int ry, int d, void (*proc)(BITMAP *, int, int, int))
+void do_ellipse(BITMAP *bmp, const int ix, const int iy,
+   const int rx0, const int ry0, const int d,
+   void (*const proc)(BITMAP *, int, int, int))
 {
-   int ix, iy;
-   int h, i, j, k;
-   int oh, oi, oj, ok;
+   int rx, ry;
+   int x, y;
+   float x_change;
+   float y_change;
+   float ellipse_error;
+   float two_a_sq;
+   float two_b_sq;
+   float stopping_x;
+   float stopping_y;
 
-   if (rx < 1) 
-      rx = 1; 
+   rx = MAX(rx0, 1);
+   ry = MAX(ry0, 1);
 
-   if (ry < 1) 
-      ry = 1;
+   two_a_sq = 2 * rx * rx;
+   two_b_sq = 2 * ry * ry;
 
-   h = i = j = k = 0xFFFF;
+   x = rx;
+   y = 0;
 
-   if (rx > ry) {
-      ix = 0; 
-      iy = rx * 64;
+   x_change = ry * ry * (1 - 2 * rx);
+   y_change = rx * rx;
+   ellipse_error = 0.0;
 
-      do {
-	 oh = h;
-	 oi = i;
-	 oj = j;
-	 ok = k;
+   /* The following two variables decide when to stop.  It's easier than
+    * solving for this explicitly.
+    */
+   stopping_x = two_b_sq * rx;
+   stopping_y = 0.0;
 
-	 h = (ix + 32) >> 6; 
-	 i = (iy + 32) >> 6;
-	 j = (h * ry) / rx; 
-	 k = (i * ry) / rx;
+   /* First set of points, y' > -1. */
+   while (stopping_x >= stopping_y) {
+      proc(bmp, ix + x, iy + y, d);
+      proc(bmp, ix - x, iy + y, d);
+      if (y != 0) {
+         proc(bmp, ix + x, iy - y, d);
+         proc(bmp, ix - x, iy - y, d);
+      }
 
-	 if (((h != oh) || (k != ok)) && (h < oi)) {
-	    proc(bmp, x+h, y+k, d); 
-	    if (h) 
-	       proc(bmp, x-h, y+k, d);
-	    if (k) {
-	       proc(bmp, x+h, y-k, d); 
-	       if (h)
-		  proc(bmp, x-h, y-k, d);
-	    }
-	 }
+      y++;
+      stopping_y += two_a_sq;
+      ellipse_error += y_change;
+      y_change += two_a_sq;
 
-	 if (((i != oi) || (j != oj)) && (h < i)) {
-	    proc(bmp, x+i, y+j, d); 
-	    if (i)
-	       proc(bmp, x-i, y+j, d);
-	    if (j) {
-	       proc(bmp, x+i, y-j, d); 
-	       if (i)
-		  proc(bmp, x-i, y-j, d);
-	    }
-	 }
+      if ((2.0f * ellipse_error + x_change) > 0.0) {
+         x--;
+         stopping_x -= two_b_sq;
+         ellipse_error += x_change;
+         x_change += two_b_sq;
+      }
+   }
 
-	 ix = ix + iy / rx; 
-	 iy = iy - ix / rx;
+   /* First point set is done; start the second set of points.  We just flip
+    * the order of iteration, and continue from where we left off.
+    */
+   while (x >= 0) {
+      proc(bmp, ix + x, iy + y, d);
+      proc(bmp, ix + x, iy - y, d);
+      if (x != 0) {
+         proc(bmp, ix - x, iy - y, d);
+         proc(bmp, ix - x, iy + y, d);
+      }
 
-      } while (i > h);
-   } 
-   else {
-      ix = 0; 
-      iy = ry * 64;
+      x--;
+      ellipse_error += x_change;
+      x_change += two_b_sq;
 
-      do {
-	 oh = h;
-	 oi = i;
-	 oj = j;
-	 ok = k;
-
-	 h = (ix + 32) >> 6; 
-	 i = (iy + 32) >> 6;
-	 j = (h * rx) / ry; 
-	 k = (i * rx) / ry;
-
-	 if (((j != oj) || (i != oi)) && (h < i)) {
-	    proc(bmp, x+j, y+i, d); 
-	    if (j)
-	       proc(bmp, x-j, y+i, d);
-	    if (i) {
-	       proc(bmp, x+j, y-i, d); 
-	       if (j)
-		  proc(bmp, x-j, y-i, d);
-	    }
-	 }
-
-	 if (((k != ok) || (h != oh)) && (h < oi)) {
-	    proc(bmp, x+k, y+h, d); 
-	    if (k)
-	       proc(bmp, x-k, y+h, d);
-	    if (h) {
-	       proc(bmp, x+k, y-h, d); 
-	       if (k)
-		  proc(bmp, x-k, y-h, d);
-	    }
-	 }
-
-	 ix = ix + iy / ry; 
-	 iy = iy - ix / ry;
-
-      } while(i > h);
+      if ((2.0f * ellipse_error + y_change) < 0.0) {
+         y++;
+         ellipse_error += y_change;
+         y_change += two_a_sq;
+      }
    }
 }
 
