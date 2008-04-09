@@ -105,7 +105,20 @@ static int _openal_open()
    openal_err = alGetError();
 
    /* pick default device. always a good choice */
-   openal_dev = alcOpenDevice(NULL);
+   #if defined(ALLEGRO_WINDOWS)
+      openal_dev = alcOpenDevice("DirectSound3D");
+      if (!openal_dev)
+      {
+         openal_dev = alcOpenDevice("DirectSound");
+         if (!openal_dev)
+         {
+            openal_dev = alcOpenDevice(NULL);
+         }
+      }
+   #else
+      openal_dev = alcOpenDevice(NULL);
+   #endif
+
    if(!openal_dev || (alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR)
    {
       fprintf(stderr, "Could not open audio device\n");
