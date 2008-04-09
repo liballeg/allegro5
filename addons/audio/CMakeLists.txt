@@ -6,7 +6,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(AUDIO_LIBRARIES openal asound)
 else(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(AUDIO_SOURCES audio.c openal.c)
-    set(AUDIO_LIBRARIES openal)
+    set(AUDIO_LIBRARIES openal32)
 endif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
 set(AUDIO_INCLUDE_FILES allegro5/audio.h)

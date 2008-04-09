@@ -8,19 +8,11 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <AL/alext.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_audio.h"
-
-#ifndef ALLEGRO_FORMAT_QUAD8_LOKI
-#define ALLEGRO_FORMAT_QUAD8_LOKI 0x10004
-#endif
-#ifndef ALLEGRO_FORMAT_QUAD16_LOKI
-#define ALLEGRO_FORMAT_QUAD16_LOKI 0x10005
-#endif
 
 /* OpenAL vars */
 ALCdevice*  openal_dev;
@@ -212,8 +204,7 @@ static void _openal_update(_AL_THREAD* self, void* arg)
 
 
    silence = calloc(1, ex_data->buffer_size);
-   if(ex_data->format == AL_FORMAT_QUAD8_LOKI ||
-      ex_data->format == AL_FORMAT_STEREO8 ||
+   if(ex_data->format == AL_FORMAT_STEREO8 ||
       ex_data->format == AL_FORMAT_MONO8)
       memset(silence, 0x80, ex_data->buffer_size);
 
@@ -227,9 +218,7 @@ static void _openal_update(_AL_THREAD* self, void* arg)
    alSourcePlay(ex_data->source);
 
    samples_per_update = ex_data->buffer_size /
-                        ((ex_data->format==AL_FORMAT_QUAD16_LOKI) ? 8 :
-                         (ex_data->format==AL_FORMAT_QUAD8_LOKI ||
-                          ex_data->format==AL_FORMAT_STEREO16) ? 4 :
+                        ((ex_data->format==AL_FORMAT_STEREO16) ? 4 :
                           ((ex_data->format==AL_FORMAT_STEREO8 ||
                             ex_data->format==AL_FORMAT_MONO16) ? 2 : 1));
 
@@ -389,9 +378,7 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
       ex_data->buffer_size = voice->buffer_size;
       if(!ex_data->buffer_size)
          ex_data->buffer_size = preferred_frag_size *
-                          ((ex_data->format==AL_FORMAT_QUAD16_LOKI) ? 8 :
-                           (ex_data->format==AL_FORMAT_QUAD8_LOKI ||
-                            ex_data->format==AL_FORMAT_STEREO16) ? 4 :
+                          ((ex_data->format==AL_FORMAT_STEREO16) ? 4 :
                             ((ex_data->format==AL_FORMAT_STEREO8 ||
                               ex_data->format==AL_FORMAT_MONO16) ? 2 : 1));
       ex_data->num_buffers = voice->num_buffers;
@@ -518,8 +505,7 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
 
    if(voice->chan_conf != ALLEGRO_AUDIO_1_CH && voice->chan_conf != ALLEGRO_AUDIO_2_CH)
    {
-      if(voice->chan_conf != ALLEGRO_AUDIO_4_CH ||
-         !alIsExtensionPresent("AL_LOKI_quadriphonic"))
+      if(voice->chan_conf != ALLEGRO_AUDIO_4_CH)
       {
          if((voice->settings&ALLEGRO_AUDIO_REQUIRE))
             return 1;
@@ -544,13 +530,6 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
          ex_data->format = AL_FORMAT_STEREO8;
       else
          ex_data->format = AL_FORMAT_STEREO16;
-   }
-   else
-   {
-      if(voice->depth == ALLEGRO_AUDIO_8_BIT_UINT)
-         ex_data->format = AL_FORMAT_QUAD8_LOKI;
-      else
-         ex_data->format = AL_FORMAT_QUAD16_LOKI;
    }
 
    ex_data->stop_voice = 1;
