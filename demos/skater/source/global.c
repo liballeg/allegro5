@@ -155,11 +155,7 @@ int change_gfx_mode(void)
 
    /* Select appropriate (fullscreen or windowed) gfx mode driver. */
 #ifdef DEMO_USE_ALLEGRO_GL
-   if (fullscreen == 1) {
-      gfx_mode = GFX_OPENGL_FULLSCREEN;
-   } else {
-      gfx_mode = GFX_OPENGL_WINDOWED;
-   }
+   gfx_mode = GFX_OPENGL;
 #else
    if (fullscreen == 1) {
       gfx_mode = GFX_AUTODETECT_FULLSCREEN;
@@ -174,7 +170,9 @@ int change_gfx_mode(void)
    allegro_gl_set(AGL_COLOR_DEPTH, bit_depth);
    allegro_gl_set(AGL_DOUBLEBUFFER, 1);
    allegro_gl_set(AGL_RENDERMETHOD, 1);
-   allegro_gl_set(AGL_SUGGEST, AGL_COLOR_DEPTH | AGL_DOUBLEBUFFER | AGL_RENDERMETHOD);
+   allegro_gl_set(AGL_WINDOWED, !fullscreen);
+   allegro_gl_set(AGL_SUGGEST, AGL_COLOR_DEPTH | AGL_DOUBLEBUFFER | AGL_RENDERMETHOD
+                | AGL_WINDOWED);
 #else
    set_color_depth(bit_depth);
 #endif

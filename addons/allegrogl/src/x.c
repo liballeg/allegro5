@@ -59,7 +59,6 @@ static Colormap backup_allegro_colormap = None;
 #endif
 
 
-#ifdef ALLEGROGL_HAVE_XF86VIDMODE
 static BITMAP *allegro_gl_x_fullscreen_init(int w, int h, int vw, int vh,
                                             int color_depth);
 
@@ -86,7 +85,11 @@ GFX_DRIVER gfx_allegro_gl_fullscreen =
    allegro_gl_drawing_mode,
    NULL, NULL,
    allegro_gl_set_blender_mode,
+#ifdef ALLEGROGL_HAVE_XF86VIDMODE
    allegro_gl_x_fetch_mode_list,
+#else
+   NULL,
+#endif
    0, 0,
    0,
    0, 0,
@@ -94,7 +97,6 @@ GFX_DRIVER gfx_allegro_gl_fullscreen =
    0,
    FALSE                        /* Windowed mode */
 };
-#endif /* HAVE_XF86VIDMODE */
 
 
 
@@ -259,6 +261,7 @@ static BITMAP *allegro_gl_x_create_screen(int w, int h, int vw, int vh,
 {
 	int _keyboard_was_installed = FALSE;
 	int _mouse_was_installed = FALSE;
+	int create_window_ret;
 
 	/* test if Allegro have pthread support enabled */
 	if (!_unix_bg_man->multi_threaded) {
@@ -312,13 +315,14 @@ static BITMAP *allegro_gl_x_create_screen(int w, int h, int vw, int vh,
 	_xwin_window_redrawer = allegro_gl_redraw_window;
 	_glxwin.fullscreen = FALSE;
 	_glxwin.use_glx_window = FALSE;
-	
-	if (allegro_gl_x_create_window(fullscreen)) {
-		if (fullscreen) {
+
+	create_window_ret = allegro_gl_x_create_window(fullscreen);
+	if (create_window_ret) {
+		if (fullscreen && create_window_ret == -2) {
 			ustrzcpy (allegro_error, ALLEGRO_ERROR_SIZE,
 			          get_config_text ("Unable to switch in GLX fullscreen"));
 		}
-		else {
+		else if (create_window_ret == -2) {
 			ustrzcpy (allegro_error, ALLEGRO_ERROR_SIZE,
 			          get_config_text ("Unable to create GLX window"));
 		}
@@ -337,12 +341,10 @@ static BITMAP *allegro_gl_x_create_screen(int w, int h, int vw, int vh,
 	__allegro_gl_set_allegro_image_format(FALSE);
 
 	if (fullscreen) {
-#ifdef ALLEGROGL_HAVE_XF86VIDMODE
 		allegro_gl_screen =
 		       allegro_gl_x_windowed_create_screen (&gfx_allegro_gl_fullscreen,
 		               allegro_gl_display_info.w, allegro_gl_display_info.h,
 		               _color_depth);
-#endif
 	}
 	else {
 		allegro_gl_screen =
@@ -440,7 +442,6 @@ static BITMAP *allegro_gl_x_windowed_init(int w, int h, int vw, int vh,
 
 
 
-#ifdef ALLEGROGL_HAVE_XF86VIDMODE
 /* allegro_gl_x_fullscreen_init:
  *  Creates screen bitmap for fullscreen driver.
  */
@@ -452,6 +453,7 @@ static BITMAP *allegro_gl_x_fullscreen_init(int w, int h, int vw, int vh,
 
 
 
+#ifdef ALLEGROGL_HAVE_XF86VIDMODE
 /* free_modelines:
  *  Free mode lines.
  */
@@ -547,7 +549,8 @@ static void allegro_gl_x_exit(BITMAP *bmp)
 	/* Unmap the window in order not to see the cursor when quitting.
 	   The window *must not* be destroyed and _xwin.visual must be left
 	   to its current value otherwise the program will crash when exiting */
-	XUnmapWindow(_xwin.display, _xwin.window);
+	if (_xwin.window != None)
+		XUnmapWindow(_xwin.display, _xwin.window);
 
 	if (_glxwin.use_glx_window) {
 		glXDestroyWindow(_xwin.display, _glxwin.window);
@@ -570,7 +573,8 @@ static void allegro_gl_x_exit(BITMAP *bmp)
 		}
 		_xwin.colormap = backup_allegro_colormap;
 
-		XDestroyWindow(_xwin.display, _xwin.window);
+		if (_xwin.window != None)
+			XDestroyWindow(_xwin.display, _xwin.window);
 		_xwin.window = backup_allegro_window;
 		backup_allegro_window = None;
 		XMapWindow(_xwin.display, _xwin.window);
@@ -892,43 +896,17 @@ static int allegro_gl_x_create_window (int fullscreen)
 	unsigned long valuemask = CWBackPixel | CWBorderPixel | CWColormap
 	                        | CWEventMask;
 	XSizeHints *hints;
-#ifdef ALLEGROGL_HAVE_XF86VIDMODE
-	int bestmode=0;
-#endif
 	GLXFBConfig fbconfig;
 	int use_fbconfig;
 
 	if (_xwin.display == 0) {
-		return -1;
+		return -2;
 	}
 
 	old_x_error_handler = XSetErrorHandler(allegro_gl_x_error_handler);
 
 	/* Fill in missing color depth info */
 	__allegro_gl_fill_in_info();
-
-#ifdef ALLEGROGL_HAVE_XF86VIDMODE
-	if (fullscreen) {
-		int i;
-		_xwin.num_modes = 0;
-		_xwin.modesinfo = NULL;
-		_glxwin.fullscreen = TRUE;
-
-		if (get_xf86_modes(&_xwin.modesinfo, &_xwin.num_modes)) {
-			TRACE(PREFIX_E "x_create_window: Can't get XF86VidMode info.\n");
-			XSetErrorHandler(old_x_error_handler);
-			return -1;
-		}
-
-		/* look for mode with requested resolution */
-		for (i = 0; i < _xwin.num_modes; i++)
-		{
-			if ((_xwin.modesinfo[i]->hdisplay == allegro_gl_display_info.w)
-			 && (_xwin.modesinfo[i]->vdisplay == allegro_gl_display_info.h))
-				bestmode = i;
-		}
-	}
-#endif
 
 	use_fbconfig = (_glxwin.major > 1 || (_glxwin.major == 1 && _glxwin.minor >= 3));
 
@@ -967,14 +945,14 @@ old_choose_visual:
 		if (!visinfo) {
 			TRACE(PREFIX_E "x_create_window: Can not get visual.\n");
 			XSetErrorHandler(old_x_error_handler);
-			return -1;
+			return -2;
 		}
 
 		/* Query back visual components */
 		if (decode_visual (visinfo, &allegro_gl_display_info)) {
 			TRACE(PREFIX_E "x_create_window: Can not decode visual.\n");
 			XSetErrorHandler(old_x_error_handler);
-			return -1;
+			return -2;
 		}
 	}
 
@@ -989,6 +967,23 @@ old_choose_visual:
 		default:
 			AGL_LOG (1, "x.c: visual class: invalid(!)\n");
 	}
+
+
+	/* Begin window creation. */
+
+#if GET_ALLEGRO_VERSION() >= MAKE_VER(4, 2, 1)
+	/* Hack: For Allegro 4.2.1, we need to keep the existing window. */
+	if (backup_allegro_window == None) {
+		backup_allegro_window = _xwin.window;
+		backup_allegro_colormap = _xwin.colormap;
+		_xwin.colormap = None;
+		XUnmapWindow(_xwin.display, _xwin.window);
+	}
+	else
+#endif
+		XDestroyWindow (_xwin.display, _xwin.window);
+
+	_xwin.window = None;
 
 	root = RootWindow (_xwin.display, _xwin.screen);
 
@@ -1006,6 +1001,28 @@ old_choose_visual:
 
 #ifdef ALLEGROGL_HAVE_XF86VIDMODE
 	if (fullscreen) {
+		int i;
+		int bestmode = 0;
+		_xwin.num_modes = 0;
+		_xwin.modesinfo = NULL;
+		_glxwin.fullscreen = TRUE;
+
+		if (get_xf86_modes(&_xwin.modesinfo, &_xwin.num_modes)) {
+			ustrzcpy (allegro_gl_error, AGL_ERROR_SIZE,
+			          get_config_text("x_create_window: Can't get"
+			                          "XF86VidMode info.\n"));
+			XSetErrorHandler(old_x_error_handler);
+			return -2;
+		}
+
+		/* look for mode with requested resolution */
+		for (i = 0; i < _xwin.num_modes; i++)
+		{
+			if ((_xwin.modesinfo[i]->hdisplay == allegro_gl_display_info.w)
+			 && (_xwin.modesinfo[i]->vdisplay == allegro_gl_display_info.h))
+				bestmode = i;
+		}
+
 		setattr.override_redirect = True;
 		if (!XF86VidModeSwitchToMode(_xwin.display, _xwin.screen,
 		                             _xwin.modesinfo[bestmode])) {
@@ -1030,19 +1047,6 @@ old_choose_visual:
 		valuemask |= CWOverrideRedirect;
 		_xwin.override_redirected = 1;
 	}
-#endif
-
-#if GET_ALLEGRO_VERSION() >= MAKE_VER(4, 2, 1)
-	/* Hack: For Allegro 4.2.1, we need to keep the existing window. */
-	if (backup_allegro_window == None) {
-		backup_allegro_window = _xwin.window;
-		backup_allegro_colormap = _xwin.colormap;
-		_xwin.colormap = None;
-		XUnmapWindow(_xwin.display, _xwin.window);
-	}
-	else
-#endif
-		XDestroyWindow (_xwin.display, _xwin.window);
 
 	_xwin.window = XCreateWindow (
 		_xwin.display, root,
@@ -1053,6 +1057,56 @@ old_choose_visual:
 		visinfo->visual,
 		valuemask, &setattr
 	);
+
+#else //ALLEGROGL_HAVE_XF86VIDMODE
+	if (fullscreen) {
+		/* Without Xf86VidMode extension we support only fullscreen modes which
+		 * match current resolution. */
+		int fs_width  = DisplayWidth(_xwin.display, _xwin.screen);
+		int fs_height = DisplayHeight(_xwin.display, _xwin.screen);
+
+		if (fs_width  != allegro_gl_display_info.w
+		 || fs_height != allegro_gl_display_info.h) {
+			TRACE(PREFIX_E "Only desktop resolution fullscreen available.");
+			ustrzcpy (allegro_gl_error, AGL_ERROR_SIZE,
+				get_config_text("Compiled without Xf86VidMode extension support.\n"
+								"Only desktop resolution fullscreen available."));
+			XSetErrorHandler(old_x_error_handler);
+			return -1;
+		}
+
+		_glxwin.fullscreen = TRUE;
+		valuemask |= CWOverrideRedirect;
+		_xwin.override_redirected = 1;
+
+		/* Create the fullscreen window.  */
+		setattr.override_redirect = True;
+		_xwin.window = XCreateWindow(_xwin.display, root,
+									allegro_gl_display_info.x, allegro_gl_display_info.y,
+									fs_width, fs_height, 0,
+									visinfo->depth,
+									InputOutput,
+									visinfo->visual,
+									valuemask, &setattr);
+
+		/* Map the fullscreen window.  */
+		XMapRaised(_xwin.display, _xwin.window);
+
+		/* Make sure we got to the top of the window stack.  */
+		XRaiseWindow(_xwin.display, _xwin.fs_window);
+	}
+	else {
+		_xwin.window = XCreateWindow (
+			_xwin.display, root,
+			allegro_gl_display_info.x, allegro_gl_display_info.y,
+			allegro_gl_display_info.w, allegro_gl_display_info.h, 0,
+			visinfo->depth,
+			InputOutput,
+			visinfo->visual,
+			valuemask, &setattr
+		);
+	}
+#endif //ALLEGROGL_HAVE_XF86VIDMODE
 
 	/* Set size and position hints for Window Manager :
 	 * prevents the window to be resized
@@ -1218,7 +1272,6 @@ old_choose_visual:
 	XMapWindow(_xwin.display, _xwin.window);
 
 
-#ifdef ALLEGROGL_HAVE_XF86VIDMODE
 	if (fullscreen) {
 		AL_CONST char *fc = NULL;
 		char tmp1[64], tmp2[128];
@@ -1267,7 +1320,6 @@ old_choose_visual:
 		}
 		_xwin.mouse_grabbed = 1;
 	}
-#endif
 
 
 	/* Destroy current cursor (if any) */

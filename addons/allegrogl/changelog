@@ -1,3 +1,10 @@
+Changes from 0.4.4 to 0.4.x
+-------------------------------
+* Milan Mimica
+ - [X Driver] Fixed minor problems in deinitialisation code.
+ - [X Driver] Added support for some fullscreen modes without XVidMode extension.
+
+
 Changes from 0.4.3 to 0.4.4
 -------------------------------
 * Milan Mimica

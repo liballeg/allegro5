@@ -448,14 +448,10 @@ AGL_FUNC(void, allegro_gl_load_settings, (void));
   #define GFX_OPENGL_WINDOWED               AL_ID('O','G','L','W')
   #define GFX_OPENGL_FULLSCREEN             AL_ID('O','G','L','F')
 
-#elif defined ALLEGROGL_HAVE_XF86VIDMODE
-  /* X fullscreen support only works with the XF86 VidMode extension */
+#elif defined ALLEGRO_WITH_XWINDOWS
+  /* X always supports fullscreen */
   #define GFX_OPENGL_WINDOWED               AL_ID('O','G','L','W')
   #define GFX_OPENGL_FULLSCREEN             AL_ID('O','G','L','F')
-
-#elif defined ALLEGRO_WITH_XWINDOWS
-  /* Plain X only supports windowed modes */
-  #define GFX_OPENGL_WINDOWED               AL_ID('O','G','L','W')
   
 #elif defined ALLEGRO_MACOSX
   /* MacOS X always supports fullscreen */
