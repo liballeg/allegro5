@@ -42,3 +42,45 @@ ALLEGRO_SAMPLE* al_load_sample(const char* filename)
    //no codec found!
    return NULL;
 }
+
+ALLEGRO_AUDIO_ENUM _al_count_to_channel_conf(int num_channels)
+{
+   switch (num_channels)
+   {
+      case 1:
+         return ALLEGRO_AUDIO_1_CH;
+      case 2:
+         return ALLEGRO_AUDIO_2_CH;
+      case 3:
+         return ALLEGRO_AUDIO_3_CH;
+      case 4:
+         return ALLEGRO_AUDIO_4_CH;
+      case 6:
+         return ALLEGRO_AUDIO_5_1_CH;
+      case 7:
+         return ALLEGRO_AUDIO_6_1_CH;
+      case 8:
+         return ALLEGRO_AUDIO_7_1_CH;
+      default:
+         return 0;
+   }
+}
+
+/* note: assumes 8-bit is unsigned, and 32-bit float all others are signed 
+ * make your own version if the codec is different */
+ALLEGRO_AUDIO_ENUM _al_word_size_to_depth_conf(int word_size)
+{
+   switch (word_size)
+   {
+      case 1:
+         return ALLEGRO_AUDIO_8_BIT_UINT;
+      case 2:
+         return ALLEGRO_AUDIO_16_BIT_INT;
+      case 3:
+         return ALLEGRO_AUDIO_24_BIT_INT;
+      case 4:
+         return ALLEGRO_AUDIO_32_BIT_FLOAT;
+      default:
+         return 0;
+   }
+}

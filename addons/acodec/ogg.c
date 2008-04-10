@@ -11,19 +11,22 @@
 
 #include <vorbis/vorbisfile.h>
 
-
-
-ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *fileName)
+/* note: decoding library returns floats..
+ * so i always return 16-bit (most commonly supported)
+ * TODO: figure out a way for 32-bit float or 24-bit
+ * support in the al framework while keeping API simple to use
+ */
+ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *filename)
 {
-   const int endian = 0; // 0 for Little-Endian, 1 for Big-Endian
-   const int word_size = 2; //1 = 8bit, 2 = 16-bit. nothing else
-   const int signedness = 1; // 0  for unsigned, 1 for signed
-   const int packet_size = 4096; //suggestion for size to read at a time
+   const int endian = 0; /* 0 for Little-Endian, 1 for Big-Endian */
+   int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
+   int signedness = 1; /* 0  for unsigned, 1 for signed */
+   const int packet_size = 4096; /* suggestion for size to read at a time */
    OggVorbis_File vf;
    vorbis_info* vi;
    FILE* file;
 
-   file = fopen(fileName, "rb");
+   file = fopen(filename, "rb");
    if (file == NULL)
       return NULL;
 
@@ -42,14 +45,15 @@ ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *fileName)
    long total_size = total_samples * channels * word_size;
    int bitStream = -1;
 
-#ifndef NDEBUG   
-   printf("channels %d\n",channels);
-   printf("rate %ld\n",rate);
-   printf("total_samples %ld\n",total_samples);
-   printf("total_size %ld\n",total_size);
-#endif
-
-   char* buffer = (char*) malloc(total_size); //al_sample_destroy should clean it!
+   fprintf(stderr, "loaded sample %s with properties:\n",filename);
+   fprintf(stderr, "    channels %d\n",channels);
+   fprintf(stderr, "    word_size %d\n", word_size);
+   fprintf(stderr, "    rate %ld\n",rate);
+   fprintf(stderr, "    total_samples %ld\n",total_samples);
+   fprintf(stderr, "    total_size %ld\n",total_size);
+ 
+   /* al_sample_destroy will clean it! */
+   char* buffer = (char*) malloc(total_size);
    long pos = 0;
    while (true)
    {
@@ -61,12 +65,13 @@ ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *fileName)
    ov_clear(&vf);
    fclose(file);
 
+
    ALLEGRO_SAMPLE* sample = al_sample_create(
-         buffer,
-         total_samples,
-         rate,
-         ALLEGRO_AUDIO_16_BIT_INT,
-         (channels==1)?ALLEGRO_AUDIO_1_CH:ALLEGRO_AUDIO_2_CH
+            buffer,
+            total_samples,
+            rate,
+            _al_word_size_to_depth_conf(word_size),
+            _al_count_to_channel_conf(channels)
          );
 
    return sample;

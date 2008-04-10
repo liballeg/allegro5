@@ -11,7 +11,12 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "../audio.h"
 
-struct ALLEGRO_AUDIO_DRIVER {
+/* This can probably be set to 16, or higher, if long is 64-bit */
+#define MIXER_FRAC_SHIFT  8
+#define MIXER_FRAC_ONE    (1<<MIXER_FRAC_SHIFT)
+#define MIXER_FRAC_MASK   (MIXER_FRAC_ONE-1)
+
+typedef struct ALLEGRO_AUDIO_DRIVER {
    const char *specifier;
 
    int  (*open)();
@@ -30,13 +35,7 @@ struct ALLEGRO_AUDIO_DRIVER {
 
    unsigned long (*get_voice_position)(const ALLEGRO_VOICE*);
    int (*set_voice_position)(ALLEGRO_VOICE*, unsigned long);
-};
-
-typedef struct ALLEGRO_AUDIO_DRIVER ALLEGRO_AUDIO_DRIVER;
-
-int _al_cache_sample(ALLEGRO_SAMPLE *sample);
-void _al_decache_sample(int i);
-void _al_read_sample_cache(int i, unsigned int pos, bool reverse, void **buf, unsigned int *len);
+}ALLEGRO_AUDIO_DRIVER;
 
 const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples);
 
@@ -45,7 +44,6 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples);
 struct ALLEGRO_VOICE {
    ALLEGRO_AUDIO_ENUM depth;
    ALLEGRO_AUDIO_ENUM chan_conf;
-   ALLEGRO_AUDIO_ENUM settings;
 
    unsigned long frequency;
 

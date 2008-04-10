@@ -9,10 +9,13 @@
 #include "allegro5/audio.h"
 #include "allegro5/acodec.h"
 
+#define FREQUENCY 44000
+
 int main(int argc, char **argv)
 {
    int i;
    bool stream_it = false;
+   ALLEGRO_MIXER* mixer;
 
    if(argc < 2) {
       fprintf(stderr, "Usage: %s [--stream] {audio_files}\n", argv[0]);
@@ -60,33 +63,45 @@ int main(int argc, char **argv)
          fprintf(stderr, "Could not load ALLEGRO_SAMPLE from '%s'!\n", filename);
          continue;
       }
-   
-      /* fetches audio sample properties */
-      al_sample_get_long(sample, ALLEGRO_AUDIO_FREQUENCY, &freq);
-      al_sample_get_enum(sample, ALLEGRO_AUDIO_CHANNELS, &chan_conf);
-      al_sample_get_enum(sample, ALLEGRO_AUDIO_DEPTH, &depth_conf);
-   
-      /* am not using the mixer so settings are required to match */
-      voice = al_voice_create(freq, depth_conf, chan_conf);
-      if(!voice)
-      {
-         al_sample_destroy(sample);
+
+      voice = al_voice_create(FREQUENCY, ALLEGRO_AUDIO_16_BIT_INT, ALLEGRO_AUDIO_2_CH);
+      if(!voice) {
          fprintf(stderr, "Error creating voice!\n");
+         al_sample_destroy(sample);
          continue;
       }
-   
-      if(al_voice_attach_sample(voice, sample))
+
+      mixer = al_mixer_create(FREQUENCY, ALLEGRO_AUDIO_32_BIT_FLOAT, ALLEGRO_AUDIO_2_CH);
+      if(!mixer) {
+         fprintf(stderr, "Error creating mixer!\n");
+         al_audio_deinit();
+         return 1;
+      }
+
+      if(al_voice_attach_mixer(voice, mixer))
       {
+         fprintf(stderr, "Error attaching mixer to voice!\n");
          al_sample_destroy(sample);
+         al_mixer_destroy(mixer);
          al_voice_destroy(voice);
-         fprintf(stderr, "Error attaching sample to voice!\n");
+         continue;
+      }
+
+      if(al_mixer_attach_sample(mixer, sample))
+      {
+         fprintf(stderr, "Error attaching sample to mixer!\n");
+         al_sample_destroy(sample);
+         al_mixer_destroy(mixer);
+         al_voice_destroy(voice);
          continue;
       }
    
       al_sample_play(sample);
 
       /* play sample and wait for it to finish
-       * note: al_sample_play returns immediately */
+       * al_sample_play returns immediately
+       * once data is sent to sound driver
+       */
       fprintf(stderr, "Playing '%s'", filename);
       al_sample_get_float(sample, ALLEGRO_AUDIO_TIME, &sample_time);
       fprintf(stderr, " (%.3f seconds) ", sample_time);

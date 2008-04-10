@@ -26,6 +26,8 @@
 
 #include <alsa/asoundlib.h>
 
+/* FIXME: alsa segfaults for unhandled formats (channel and depth etc) */
+
 /* To be put into ALSA_CHECK macro. */
 /* TODO: replace this with something cleaner */
 #define ALSA_CHECK(a) \
@@ -37,8 +39,6 @@ do {                                                                  \
    }                                                                  \
 } while(0)
 
-
-//#define GET_CHANNEL_COUNT(v) ((v>>4)+(v&0xF))
 #define ALLEGRO_ALSA_MIXER_DEVICE ALLEGRO_AUDIO_USER_START + 1
 
 static unsigned int alsa_frag_count= 5;
@@ -46,6 +46,79 @@ static snd_pcm_uframes_t alsa_frag_size = 256;
 static snd_output_t *snd_output = NULL;
 const char alsa_device[128] = "default";
  
+typedef struct SAMPLE_CACHE {
+   char *buffer;
+   size_t buf_len;
+   size_t frame_size;
+
+   bool in_use;
+} SAMPLE_CACHE;
+
+/* TODO: make dynamic */
+#define MAX_SCACHE_SIZE 32
+static SAMPLE_CACHE scache[MAX_SCACHE_SIZE];
+
+int _al_cache_sample(ALLEGRO_SAMPLE *sample)
+{
+   size_t i = 0;
+
+   do {
+      if (!scache[i].in_use)
+         break;
+
+      if (++i == MAX_SCACHE_SIZE)
+         return -1;
+   } while (1);
+
+   scache[i].frame_size = al_channel_count(sample->chan_conf) * al_depth_size(sample->depth);
+   if (!scache[i].frame_size)
+      return -1;
+
+   scache[i].buf_len = (sample->len>>MIXER_FRAC_SHIFT) * scache[i].frame_size;
+   scache[i].buffer = malloc(scache[i].buf_len * 2);
+   if (!scache[i].buffer)
+      return -1;
+
+   /* Put a normal copy in the first half */
+   memcpy(scache[i].buffer, sample->buffer.ptr, scache[i].buf_len); 
+
+   /* Put a reversed copy in the second half */
+   char *buf = scache[i].buffer + scache[i].buf_len;
+   const unsigned int w = scache[i].frame_size;
+   unsigned int x;
+
+   for (x = 0; x < scache[i].buf_len / w; ++x)
+      memcpy(&buf[x*w], &scache[i].buffer[scache[i].buf_len - (x+1)*w], w);
+
+   scache[i].in_use = true;
+   return i;
+}
+
+
+void _al_decache_sample(int i)
+{
+   free(scache[i].buffer);
+   scache[i].buffer = NULL;
+   scache[i].in_use = false;
+}
+
+
+void _al_read_sample_cache(int i, unsigned int pos, bool reverse, void **buf, unsigned int *len)
+{
+   if (pos >= scache[i].buf_len) {
+      *len = 0;
+      return;
+   }
+
+   if (pos + (*len) > scache[i].buf_len)
+      *len = scache[i].buf_len - pos;
+
+   *buf = scache[i].buffer + pos;
+   if (reverse)
+      (*buf) += scache[i].buf_len;
+}
+
+
 
 typedef struct ALSA_VOICE {
    int cache;
@@ -105,8 +178,8 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
    }
    else if (err == -ESTRPIPE) {
       while ((err = snd_pcm_resume(handle)) == -EAGAIN) {
-         //TODO: replace with al_rest
-         usleep(10000); /* wait until the suspend flag is released */
+         /* wait until the suspend flag is released */
+         al_rest(0.010);
       }
       if (err < 0) {
          err = snd_pcm_prepare(handle);
@@ -397,8 +470,6 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
       format = SND_PCM_FORMAT_U24;
    else if (voice->depth == ALLEGRO_AUDIO_32_BIT_FLOAT)
       format = SND_PCM_FORMAT_FLOAT;
-   else if (!(voice->settings&ALLEGRO_AUDIO_REQUIRE))
-      format = SND_PCM_FORMAT_S16;
    else
       goto Error;
 
@@ -407,8 +478,6 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
        voice->chan_conf != ALLEGRO_AUDIO_4_CH &&
        voice->chan_conf != ALLEGRO_AUDIO_5_1_CH &&
        voice->chan_conf != ALLEGRO_AUDIO_7_1_CH) {
-
-      if ((voice->settings&ALLEGRO_AUDIO_REQUIRE))
          goto Error;
       voice->chan_conf = ALLEGRO_AUDIO_2_CH;
    }
@@ -440,7 +509,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ALSA_CHECK(snd_pcm_hw_params_get_period_size(hwparams, &alsa_frag_size, NULL));
    ALSA_CHECK(snd_pcm_hw_params_get_periods(hwparams, &alsa_frag_count, NULL));
 
-   if ((voice->settings&ALLEGRO_AUDIO_REQUIRE) && voice->frequency != freq)
+   if (voice->frequency != freq)
       goto Error;
 
 
@@ -458,7 +527,6 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
 
    voice->extra = ex_data;
 
-//   snd_pcm_dump_setup(ex_data->pcm_handle, snd_output);
    _al_thread_create(&ex_data->poll_thread, alsa_update, (void*) voice);
 
    return 0;

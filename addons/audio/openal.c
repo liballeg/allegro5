@@ -231,7 +231,7 @@ static void _openal_update(_AL_THREAD* self, void* arg)
       alGetSourcei(ex_data->source, AL_BUFFERS_PROCESSED, &status);
       if(status <= 0)
       {
-         //what is this for ?
+         /* FIXME what is this for ? */
          al_rest(0.001);
          continue;
       }
@@ -482,56 +482,133 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
 {
    ALLEGRO_AL_DATA *ex_data;
 
-   /* OpenAL needs signed 16-bit data or unsigned 8-bit data */
-   if(voice->depth == ALLEGRO_AUDIO_16_BIT_UINT)
+   /* openal doesn't support very much! */
+   switch (voice->depth)
    {
-      if((voice->settings & ALLEGRO_AUDIO_REQUIRE))
+      case ALLEGRO_AUDIO_8_BIT_UINT:
+         /* format supported */
+         break;
+      case ALLEGRO_AUDIO_8_BIT_INT:
+         fprintf(stderr, "OpenAL requires 8-bit data to be unsigned\n");
          return 1;
-      voice->depth &= ~ALLEGRO_AUDIO_UNSIGNED;
-   }
-   else if(voice->depth == ALLEGRO_AUDIO_8_BIT_INT)
-   {
-      if((voice->settings&ALLEGRO_AUDIO_REQUIRE))
+      case ALLEGRO_AUDIO_16_BIT_UINT:
+         fprintf(stderr, "OpenAL requires 16-bit data to be signed\n");
          return 1;
-      voice->depth |= ALLEGRO_AUDIO_UNSIGNED;
-   }
-   else if(voice->depth != ALLEGRO_AUDIO_16_BIT_INT &&
-           voice->depth != ALLEGRO_AUDIO_8_BIT_UINT)
-   {
-      if((voice->settings&ALLEGRO_AUDIO_REQUIRE))
+      case ALLEGRO_AUDIO_16_BIT_INT:
+         /* format supported */
+         break;
+      case ALLEGRO_AUDIO_24_BIT_UINT:  
+         fprintf(stderr, "OpenAL does not support 24-bit data\n");
          return 1;
-      voice->depth = ALLEGRO_AUDIO_16_BIT_INT;
-   }
-
-   if(voice->chan_conf != ALLEGRO_AUDIO_1_CH && voice->chan_conf != ALLEGRO_AUDIO_2_CH)
-   {
-      if(voice->chan_conf != ALLEGRO_AUDIO_4_CH)
-      {
-         if((voice->settings&ALLEGRO_AUDIO_REQUIRE))
-            return 1;
-         voice->chan_conf = ALLEGRO_AUDIO_2_CH;
-      }
+      case ALLEGRO_AUDIO_24_BIT_INT:  
+         fprintf(stderr, "OpenAL does not support 24-bit data\n");
+         return 1;
+      case ALLEGRO_AUDIO_32_BIT_FLOAT:
+         fprintf(stderr, "OpenAL does not support 32-bit floating data\n");
+         return 1;
+      default:
+         fprintf(stderr, "Cannot allocate unknown voice depth\n");
+         return 1;
    }
 
    ex_data = calloc(1, sizeof(*ex_data));
    if(!ex_data)
+   {
+      fprintf(stderr, "Could not allocate voice data memory\n"); 
       return 1;
-
-   if(voice->chan_conf == ALLEGRO_AUDIO_1_CH)
-   {
-      if(voice->depth == ALLEGRO_AUDIO_8_BIT_UINT)
-         ex_data->format = AL_FORMAT_MONO8;
-      else
-         ex_data->format = AL_FORMAT_MONO16;
-   }
-   else if(voice->chan_conf == ALLEGRO_AUDIO_2_CH)
-   {
-      if(voice->depth == ALLEGRO_AUDIO_8_BIT_UINT)
-         ex_data->format = AL_FORMAT_STEREO8;
-      else
-         ex_data->format = AL_FORMAT_STEREO16;
    }
 
+   switch (voice->chan_conf)
+   {
+      case ALLEGRO_AUDIO_1_CH:
+         /* format supported */
+         if(voice->depth == ALLEGRO_AUDIO_8_BIT_UINT)
+            ex_data->format = AL_FORMAT_MONO8;
+         else
+            ex_data->format = AL_FORMAT_MONO16;
+         break;
+      case ALLEGRO_AUDIO_2_CH:
+         /* format supported */
+         if(voice->depth == ALLEGRO_AUDIO_8_BIT_UINT)
+            ex_data->format = AL_FORMAT_STEREO8;
+         else
+            ex_data->format = AL_FORMAT_STEREO16;
+         break;
+      case ALLEGRO_AUDIO_3_CH:
+         fprintf(stderr, "OpenAL does not support voice with 3 channel configuration\n");
+         free(ex_data);
+         return 1;
+      case ALLEGRO_AUDIO_4_CH:
+         ex_data->format = alGetEnumValue("AL_FORMAT_QUAD16");
+         if (ex_data->format)
+         {
+            fprintf(stderr, "OpenAL cannot allocate voice with 4.0 channel configuration\n");
+            free(ex_data);
+            return 1;
+         }
+         if (voice->depth == ALLEGRO_AUDIO_16_BIT_INT)
+         {
+            fprintf(stderr, "OpenAL requires 16-bit signed data for 4 channel configuration\n");
+            free(ex_data);
+            return 1;
+         }
+         /* else it is supported */
+         break;
+      case ALLEGRO_AUDIO_5_1_CH:
+         ex_data->format = alGetEnumValue("AL_FORMAT_51CHN_16");
+         if (!ex_data->format)
+         {
+            fprintf(stderr, "Cannot allocate voice with 5.1 channel configuration\n");
+            free(ex_data);
+            return 1;
+         }
+         if (voice->depth == ALLEGRO_AUDIO_16_BIT_UINT)
+         {
+            fprintf(stderr, "5.1 channel requires 16-bit signed data\n");
+            free(ex_data);
+            return 1;
+         }
+         /* else it is supported */
+         break;
+      case ALLEGRO_AUDIO_6_1_CH:
+         ex_data->format = alGetEnumValue("AL_FORMAT_61CHN_16");
+         if (!ex_data->format)
+         {
+            fprintf(stderr, "Cannot allocate voice with 6.1 channel configuration\n");
+            free(ex_data);
+            return 1;
+         }
+         if (voice->depth == ALLEGRO_AUDIO_16_BIT_UINT)
+         {
+            fprintf(stderr, "6.1 channel requires 16-bit signed data\n");
+            free(ex_data);
+            return 1;
+         }
+         /* else it is supported */
+         break;
+      case ALLEGRO_AUDIO_7_1_CH:
+         ex_data->format = alGetEnumValue("AL_FORMAT_71CHN_16");
+         if (!ex_data->format)
+         {
+            fprintf(stderr, "Cannot allocate voice with 7.1 channel configuration\n");
+            free(ex_data);
+            return 1;
+         }
+         if (voice->depth == ALLEGRO_AUDIO_16_BIT_UINT)
+         {
+            fprintf(stderr, "7.1 channel requires 16-bit signed data\n");
+            free(ex_data);
+            return 1;
+         }
+         /* else it is supported */
+         break;
+      default:
+         fprintf(stderr, "Cannot allocate voice with unknown channel configuration\n");
+         free(ex_data);
+         return 1;
+   }
+
+   /* stop_voice to true */
    ex_data->stop_voice = 1;
    voice->extra = ex_data;
 

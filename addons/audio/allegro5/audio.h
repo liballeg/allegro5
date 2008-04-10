@@ -32,18 +32,11 @@ typedef enum ALLEGRO_AUDIO_ENUM {
       the differences will become more important. (v>>4)+(v&0xF) should yield
       the total channel count */
    ALLEGRO_AUDIO_1_CH   = 0x10,
-   ALLEGRO_AUDIO_1_1_CH = 0x11,
    ALLEGRO_AUDIO_2_CH   = 0x20,
-   ALLEGRO_AUDIO_2_1_CH = 0x21,
    ALLEGRO_AUDIO_3_CH   = 0x30,
-   ALLEGRO_AUDIO_3_1_CH = 0x31,
    ALLEGRO_AUDIO_4_CH   = 0x40,
-   ALLEGRO_AUDIO_4_1_CH = 0x41,
-   ALLEGRO_AUDIO_5_CH   = 0x50,
    ALLEGRO_AUDIO_5_1_CH = 0x51,
-   ALLEGRO_AUDIO_6_CH   = 0x60,
    ALLEGRO_AUDIO_6_1_CH = 0x61,
-   ALLEGRO_AUDIO_7_CH   = 0x70,
    ALLEGRO_AUDIO_7_1_CH = 0x71,
 #define ALLEGRO_MAX_CHANNELS 8
 
@@ -55,13 +48,6 @@ typedef enum ALLEGRO_AUDIO_ENUM {
    /* Mixer quality */
    ALLEGRO_AUDIO_POINT  = 0x110,
    ALLEGRO_AUDIO_LINEAR = 0x111,
-
-   /* Bit-field flags for voice settings. This says whether the voice settings
-      were required */
-   /* TODO: make sure audio_request is used everywhere appropriate otherwise
-    * junk these two fields */
-   ALLEGRO_AUDIO_REQUIRE = 0x121,
-   ALLEGRO_AUDIO_REQUEST = 0x122,
 
    /* Flags to pass to the various al_*_get_* and al_*_set_* functions. Not
       all types will apply to all functions. */
@@ -230,7 +216,7 @@ AL_FUNC(int, al_mixer_set_enum, (ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM settin
 AL_FUNC(int, al_mixer_set_bool, (ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, bool val));
 AL_FUNC(void, mixer_read, (void*, void**, unsigned long, ALLEGRO_AUDIO_ENUM, size_t));
 /* Voice functions */
-AL_FUNC(ALLEGRO_VOICE*, al_voice_create, (unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf, ALLEGRO_AUDIO_ENUM settings));
+AL_FUNC(ALLEGRO_VOICE*, al_voice_create, (unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf));
 AL_FUNC(void, al_voice_destroy, (ALLEGRO_VOICE *voice));
 AL_FUNC(int, al_voice_attach_sample, (ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *stream));
 AL_FUNC(int, al_voice_attach_stream, (ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream));

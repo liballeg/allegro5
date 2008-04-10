@@ -23,4 +23,7 @@
    ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *filename);
 #endif
 
+ALLEGRO_AUDIO_ENUM _al_count_to_channel_conf(int num_channels);
+ALLEGRO_AUDIO_ENUM _al_word_size_to_depth_conf(int word_size);
+
 #endif
