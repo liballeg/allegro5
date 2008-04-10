@@ -74,15 +74,6 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
    };
 
-   // FIXME: hack
-   // FIXME: need format conversion if they don't match
-   // FIXME: won't work that way if it is scaled or rotated
-   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
-   if (disp->opengl_target != ogl_target) {
-      _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
-      return;
-   }
-
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on)
       glEnable(GL_TEXTURE_2D);
@@ -140,6 +131,16 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
 static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y,
    int flags)
 {
+   // FIXME: hack
+   // FIXME: need format conversion if they don't match
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
+   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
+   if (disp->opengl_target != ogl_target) {
+      _al_draw_bitmap_memory(bitmap, x, y, flags);
+      return;
+   }
+
    draw_quad(bitmap, 0, 0, bitmap->w, bitmap->h,
       0, 0, x, y, bitmap->w, bitmap->h, 1, 1, 0, flags);
 }
@@ -149,6 +150,17 @@ static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y,
 static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
+   // FIXME: hack
+   // FIXME: need format conversion if they don't match
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
+   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
+   if (disp->opengl_target != ogl_target) {
+      _al_draw_scaled_bitmap_memory(bitmap, sx, sy, sw, sh, dx, dy, dw, dh,
+                                    flags);
+      return;
+   }
+
    draw_quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, dw, dh, 1, 1, 0, flags);
 }
 
@@ -157,6 +169,16 @@ static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, int flags)
 {
+   // FIXME: hack
+   // FIXME: need format conversion if they don't match
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
+   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
+   if (disp->opengl_target != ogl_target) {
+      _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
+      return;
+   }
+
    draw_quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, sw, sh, 1, 1, 0, flags);
 }
 
@@ -165,6 +187,16 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    float dx, float dy, float angle, int flags)
 {
+   // FIXME: hack
+   // FIXME: need format conversion if they don't match
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
+   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
+   if (disp->opengl_target != ogl_target) {
+      _al_draw_rotated_bitmap_memory(bitmap, cx, cy, dx, dy, angle, flags);
+      return;
+   }
+
    draw_quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy,
       dx, dy, bitmap->w, bitmap->h, 1, 1, angle, flags);
 }
@@ -175,6 +207,17 @@ static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    float cx, float cy, float dx, float dy, float xscale, float yscale,
    float angle, float flags)
 {
+   // FIXME: hack
+   // FIXME: need format conversion if they don't match
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
+   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
+   if (disp->opengl_target != ogl_target) {
+      _al_draw_rotated_scaled_bitmap_memory(bitmap, cx, cy, dx, dy,
+                                            xscale, yscale, angle, flags);
+      return;
+   }
+
    draw_quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy, dx, dy,
       bitmap->w, bitmap->h, xscale, yscale, angle, flags);
 }
@@ -191,7 +234,6 @@ static int pot(int x)
 
 
 
-/* TODO: use AllegrGL's version which doesn't involve memcpy. */
 static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
 {
    const int pixel_size = al_get_pixel_size(bitmap->format);
