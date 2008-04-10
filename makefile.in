@@ -157,9 +157,13 @@ ifneq (,$(CXX))
 endif
 
 DEMOS = shooter skater
+DEMO_EXES = \
+	demos/shooter/shooter$(EXE) \
+	demos/skater/skater$(EXE)
 
 ifdef WITH_ALLEGRO_GL
    DEMOS += skater_agl
+   DEMO_EXES += demos/skater/skater_agl$(EXE)
 endif
 
 ALLEGRO_EMPTY_LIST =
@@ -378,13 +382,12 @@ info:
 
 -include makefile.dep
 
-# required to fix parallel make builds, makes the lib targets a dependency of the exe targets
+# Required for parallel make builds.
+# XXX this is a little bit of a hack.  Ideally you'd want only the debug exes
+# to depend on the debug libs, not all of them.
 $(ALLEGRO_EXE_TARGETS): $(ALLEGRO_LIB_TARGETS)
-
-# required to fix parallel make builds, makes the lib targets a dependency of the exe targets
-# XXX this is a little bit of a hack. Ideally youd want only the debug exes to depend on the debug libs,
-# not all of them.
-$(ALLEGRO_EXE_TARGETS): $(ALLEGRO_LIB_TARGETS)
+$(DEMO_EXES): $(ALLEGRO_LIB_TARGETS)
+$(ADDON_EXE_TARGETS): $(ALLEGRO_LIB_TARGETS)
 
 ifdef CROSSCOMPILE
 
