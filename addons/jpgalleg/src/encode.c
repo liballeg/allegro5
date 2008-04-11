@@ -553,7 +553,7 @@ write_header(int sampling, int greyscale, int quality, int width, int height)
 	
 	/* COM chunk ;) */
 	_jpeg_new_chunk(CHUNK_COM);
-	_jpeg_chunk_puts(comment, strlen((char*)comment));
+	_jpeg_chunk_puts(comment, (int) strlen((char*)comment));
 	_jpeg_write_chunk();
 	
 	/* DQT chunk */
