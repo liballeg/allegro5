@@ -967,6 +967,12 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    wgl_disp->end_thread = true;
    while (!wgl_disp->thread_ended)
       al_rest(0.001);
+
+   _al_win_ungrab_input();
+
+   PostMessage(wgl_disp->window, _al_win_msg_suicide, 0, 0);
+
+   _al_event_source_free(&ogl_disp->display.es);
 }
 
 
@@ -977,6 +983,7 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 
    destroy_display_internals(wgl_disp);
    _al_vector_find_and_delete(&system->system.displays, &disp);
+   gfx_driver = 0;
 
    _AL_FREE(wgl_disp);
 }
