@@ -56,7 +56,7 @@ struct ALLEGRO_DISPLAY_XGLX
    Atom wm_delete_window_atom;
    XVisualInfo *xvinfo; /* Used when selecting the X11 visual to use. */
    GLXFBConfig *fbc; /* Used when creating the OpenGL context. */
-   float glx_version;
+   int glx_version; /* 130 means 1 major and 3 minor, aka 1.3 */
 
    /* Cursor for this window. */
    Cursor invisible_cursor;

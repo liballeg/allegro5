@@ -127,8 +127,8 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    int major, minor;
    glXQueryVersion(system->xdisplay, &major, &minor);
-   d->glx_version = major + minor * 0.1;
-   TRACE("xdisplay: GLX %.1f.\n", d->glx_version);
+   d->glx_version = major * 100 + minor * 10;
+   TRACE("xdisplay: GLX %.1f.\n", d->glx_version / 100.f);
 
    display->w = w;
    display->h = h;

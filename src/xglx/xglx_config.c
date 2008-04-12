@@ -49,7 +49,7 @@ static void choose_visual_old(ALLEGRO_DISPLAY_XGLX *glx)
 
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 {
-    if (glx->glx_version < 1.3)
+    if (glx->glx_version < 130)
         choose_visual_old(glx);
     else
         choose_visual_fbconfig(glx);
@@ -58,10 +58,20 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
 {
     ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+    GLXContext existing_ctx = NULL;
+
+    /* Find an existing context with which to share display lists. */
+    if (_al_vector_size(&system->system.displays) > 1) {
+        ALLEGRO_DISPLAY_XGLX **existing_dpy;
+        existing_dpy = _al_vector_ref_front(&system->system.displays);
+        if (*existing_dpy != glx)
+            existing_ctx = (*existing_dpy)->context;
+    }
+
     if (glx->fbc) {
         /* Create a GLX context from FBC. */
         glx->context = glXCreateNewContext(system->xdisplay, glx->fbc[0],
-            GLX_RGBA_TYPE, NULL, True);
+            GLX_RGBA_TYPE, existing_ctx, True);
         /* Create a GLX subwindow inside our window. */
         glx->glxwindow = glXCreateWindow(system->xdisplay, glx->fbc[0],
             glx->window, 0);
@@ -69,7 +79,7 @@ void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
     else {
         /* Create a GLX context from visual info. */
         glx->context = glXCreateContext(system->xdisplay, glx->xvinfo,
-            NULL, True);
+            existing_ctx, True);
         glx->glxwindow = glx->window;
     }
 
