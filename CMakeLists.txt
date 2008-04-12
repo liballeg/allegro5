@@ -117,9 +117,9 @@ include(CheckSymbolExists)
 include(CheckTypeSize)
 include(UsePkgConfig)
 
-if(CMAKE_COMPILER_2005)
+if(MSVC_IDE)
     set(COMPILER_MSVC 1)
-endif(CMAKE_COMPILER_2005)
+endif(MSVC_IDE)
 
 if(CMAKE_COMPILER_IS_GNUCC)
     set(COMPILER_GCC 1)
