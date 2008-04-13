@@ -1304,6 +1304,11 @@ static void d3d_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, floa
 
    d3d_color = d3d_blend_colors(color, bc);
 
+   fx -= 0.5f;
+   fy -= 0.5f;
+   tx -= 0.5f;
+   ty -= 0.5f;
+
    if (target->parent) {
       fx += target->xofs;
       tx += target->xofs;
@@ -1350,6 +1355,11 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
       d3d_draw_line(d, brx, tly, brx, bry, color);
       return;
    }
+
+   tlx -= 0.5f;
+   tly -= 0.5f;
+   brx -= 0.5f;
+   bry -= 0.5f;
 
    if (_al_d3d_is_device_lost()) return;
    
