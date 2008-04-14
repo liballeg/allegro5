@@ -8,8 +8,12 @@ in progress and only intended for developers. Here are some short notes.
 Windows
 =======
 
-The only graphics driver implemented so far requires DirectX 9. Here are some
-files you may need:
+Allegro5 implements two graphics drivers for Windows: one using DirectX 9 and
+onther one using OpenGL. You can force using OpenGL by calling
+al_set_new_display_flags(ALLEGRO_OPENGL) prior to creating a display, while
+DirectX is the default driver (ALLEGRO_DIRECT3D new display flag is implied).
+
+Here are some files you may need regarding DirectX:
 
 <http://trent.gamblin.ca/dx/>
 
@@ -22,8 +26,6 @@ on compatibility. It works for many people, and doesn't work for others.
 If you have problems, send and email to the alleg-developers list or
 directly to Trent Gamblin @ trent2@gamblin.ca, and we may be able to
 debug it further.
-
-Do *not* run `fix.bat`! It is no longer needed and will lead to errors.
 
 
 
@@ -46,11 +48,10 @@ Compilation
 ===========
 
 We provide two build systems, *cmake* and *scons*.
-MSVC is untested and may or may not won't work.
 
 
 
-Cmake
+Cmake & MinGW
 -----
 
 Cmake works by first creating a makefile, which then can be used to compile.
@@ -91,6 +92,35 @@ before you do `mingw32-make install`):
 
 	$ mingw32-make
 	$ mingw32-make install
+
+
+
+Cmake & MSVC
+------------
+
+First open up a console and make sure that cmake.exe is in your %PATH%. You
+ensure than by typing "SET PATH=C:\cmake\bin\;%PATH%" or similar. Typing
+"cmake" should display the help message.
+
+Cmake works by first creating a project solution, which can then be opened
+with MSVC IDE and built.
+
+You can use the same options from the Cmake & MinGW section above.
+
+Examples:
+
+	$ cmake -G "Visual Studio 8 2005" -DGRADE_DEBUG=on -DGRADE_STANDARD=off
+
+	$ cmake -G "Visual Studio 9 2008"
+
+
+Now that the project solution has been generated, open it with the MSVC IDE
+and start the building process.
+
+Note:
+The demo is currently excluded from the build due to some problems with the IDE.
+Only Visual Studio 8 2005 has been tested but other versions may work as well.
+Please give it a try and report problems.
 
 
 
