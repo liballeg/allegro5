@@ -665,6 +665,9 @@ FONT *allegro_gl_convert_allegro_font(FONT *f, int type, float scale) {
  *   allegro_gl_convert_allegro_font(f, #AGL_FONT_TYPE_TEXTURED, 1.0/text_height(f));
  *  </pre>
  *
+ *  Note that it is allowed for the scaling factor to be negative, in case your
+ *  fonts appear upside down.
+ *
  *  If you are planning to use your fonts on an orthographic projection where
  *  one unit maps to one pixel, then you should pass 1.0 as scale.
  *
