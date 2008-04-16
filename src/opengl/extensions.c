@@ -26,8 +26,6 @@
    #include "../win/wgl.h"
 #elif defined ALLEGRO_UNIX
    #include "../xglx/xglx.h"
-#elif defined ALLEGRO_MACOSX
-   #include "../macosx/osxgl.h"
 #endif
 
 #include <string.h>
