@@ -7,16 +7,14 @@
 
 #include "allegro5/opengl/gl_ext.h"
 
-/* Forward declarations so we don't have to pull in all the Cocoa stuff */
-typedef struct NSOpenGLContext NSOpenGLContext;
-typedef struct NSWindow NSWindow;
-
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
 typedef struct ALLEGRO_DISPLAY_OSX_WIN {
 	ALLEGRO_DISPLAY_OGL parent;
 	int gl_fmt, gl_datasize;
 	NSOpenGLContext* ctx;
 	NSWindow* win;
-   bool needs_init;
+   NSCursor* cursor;
+   BOOL show_cursor;
+   NSTrackingRectTag tracking;
 } ALLEGRO_DISPLAY_OSX_WIN;
 

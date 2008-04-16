@@ -53,6 +53,20 @@ static BOOL in_bundle(void)
 		return NO;
 }
 
+
+@interface AllegroAppDelegate : NSObject
+- (BOOL)application: (NSApplication *)theApplication openFile: (NSString *)filename;
+- (void)applicationDidFinishLaunching: (NSNotification *)aNotification;
+- (void)applicationDidChangeScreenParameters: (NSNotification *)aNotification;
++ (void)app_main: (id)arg;
+- (NSApplicationTerminateReply) applicationShouldTerminate: (id)sender;
+@end
+
+@interface AllegroWindowDelegate : NSObject
+- (BOOL)windowShouldClose: (id)sender;
+- (void)windowDidDeminiaturize: (NSNotification *)aNotification;
+@end
+
 @implementation AllegroAppDelegate
 
 - (BOOL)application: (NSApplication *)theApplication openFile: (NSString *)filename
@@ -171,39 +185,12 @@ static void call_user_main(void)
 
 /* applicationShouldTerminate:
 *  Called upon Command-Q or "Quit" menu item selection.
-*  If the window close callback is set, calls it, otherwise does
-*  not exit.
+*  Post a message but do not quit directly
 */
 - (NSApplicationTerminateReply) applicationShouldTerminate: (id)sender
 {
-	if (osx_window_close_hook)
-		osx_window_close_hook();
+	_al_osx_post_quit();
 	return NSTerminateCancel;
-}
-
-
-
-/* quitAction:
-*  This is connected to the Quit menu.  The menu sends this message to the
-*  delegate, rather than sending terminate: directly to NSApp, so that we get a
-*  chance to validate the menu item first.
-*/
-- (void) quitAction: (id) sender {
-	[NSApp terminate: self];
-}
-
-
-
-/* validateMenuItem:
-*  If the user has not set a window close hook, return NO from this function so
-*  that the Quit menu item is greyed out.
-*/
-- (BOOL) validateMenuItem: (NSMenuItem*) item {
-	if ([item action] == @selector(quitAction:)) {
-		return (osx_window_close_hook == NULL) ? NO : YES;
-	}
-	/* Default, all other items are valid (there are none at the moment */
-	return YES;
 }
 
 /* end of AllegroAppDelegate implementation */
@@ -265,10 +252,9 @@ int main(int argc, char *argv[])
 		NSString *quit = [@"Quit " stringByAppendingString: title];
 		menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
 		     initWithTitle: quit
-					action: @selector(quitAction:)
+					action: @selector(terminate:)
 		     keyEquivalent: @"q"];
 		[menu_item setKeyEquivalentModifierMask: NSCommandKeyMask];
-		[menu_item setTarget: app_delegate];
 		[menu addItem: menu_item];
 	}
 	
@@ -276,7 +262,7 @@ int main(int argc, char *argv[])
 	
 	[NSApp run];
 	/* Can never get here */
-	
+	[pool release];
 	return 0;
 }
 

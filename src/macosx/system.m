@@ -74,7 +74,6 @@ int osx_emulate_mouse_buttons = FALSE;
 int osx_window_first_expose = FALSE;
 static ALLEGRO_SYSTEM osx_system;
 
-static int skip_events_processing = FALSE;
 
 /* Stub, do nothing */
 static int osx_sys_init_compat(void) {
@@ -303,15 +302,7 @@ static void osx_sys_message(AL_CONST char *msg)
    ns_title = [NSString stringWithUTF8String: osx_window_title];
    ns_msg = [NSString stringWithUTF8String: tmp];
    
-   _al_mutex_lock(&osx_event_mutex);
-   skip_events_processing = TRUE;
-   _al_mutex_unlock(&osx_event_mutex);
-   
    NSRunAlertPanel(ns_title, ns_msg, nil, nil, nil);
-   
-   _al_mutex_lock(&osx_event_mutex);
-   skip_events_processing = FALSE;
-   _al_mutex_unlock(&osx_event_mutex);
 }
 
 
@@ -433,6 +424,71 @@ void _al_register_system_interfaces()
    *add = _al_system_osx_driver();
 }
 
+/* Temporarily put this here until it appears in the header */
+enum {
+        AL_PROGRAM_PATH = 0,
+        AL_TEMP_PATH,
+        AL_SYSTEM_DATA_PATH,
+        AL_USER_DATA_PATH,
+        AL_USER_HOME_PATH,
+        AL_LAST_PATH // must be last
+};
+
+/* Implentation of this function, not 'officially' in allegro yet */
+int32_t _al_osx_get_path(int32_t id, char* path, size_t length) 
+{
+   NSString* ans = nil;
+   NSArray* paths = nil;
+   BOOL ok = NO;
+   switch(id) {
+      case AL_PROGRAM_PATH:
+         ans = [[NSBundle mainBundle] bundlePath];
+         break;
+      case AL_TEMP_PATH:
+         ans = NSTemporaryDirectory();
+         break;
+      case AL_SYSTEM_DATA_PATH:
+         ans = [[NSBundle mainBundle] resourcePath];
+         break;
+      case AL_USER_DATA_PATH:
+         paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
+            NSUserDomainMask,
+            YES);
+         if ([paths count] > 0) ans = [paths objectAtIndex: 0];
+         break;
+      case AL_USER_HOME_PATH:
+         ans = NSHomeDirectory();
+      default:
+      break;
+   }
+   if ((ans != nil) && (path != NULL)) {
+      /* 10.4 and above only */
+         ok = [ans getCString:path maxLength:length encoding: NSUTF8StringEncoding];
+      }
+   return ok == YES ? 0 : -1;
+}
+
+/* _al_osx_post_quit
+ * called when the user clicks the quit menu or cmd-Q.
+ * Currently just sends a window close event to all windows.
+ * This is a bit unsatisfactory
+ */
+void _al_osx_post_quit(void) 
+{
+   int i;
+   _AL_VECTOR* dpys = &al_system_driver()->displays;
+   // Iterate through all existing displays 
+   for (i = 0; i < _al_vector_size(dpys); ++i) {
+      ALLEGRO_DISPLAY* dpy = *(ALLEGRO_DISPLAY**) _al_vector_ref(dpys, i);
+      ALLEGRO_EVENT_SOURCE* src = &(dpy->es);
+      _al_event_source_lock(src);
+      ALLEGRO_EVENT* evt = _al_event_source_get_unused_event(src);
+      evt->type = ALLEGRO_EVENT_DISPLAY_CLOSE;
+      // Send event
+      _al_event_source_emit_event(src, evt);
+      _al_event_source_unlock(src);
+   }
+}
 
 /* Local variables:       */
 /* c-basic-offset: 3      */

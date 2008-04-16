@@ -90,16 +90,6 @@ static ALLEGRO_MOUSE* osx_get_mouse(void)
 
 static char driver_desc[256];
 
-
-/* osx_change_cursor:
-* Actually change the current cursor. This can be called fom any thread 
-* but ensures that the change is only called from the main thread.
-*/
-static void osx_change_cursor(NSCursor* cursor)
-{
-	return (ALLEGRO_MOUSE*) &osx_mouse.parent;
-}
-
 /* osx_mouse_generate_event:
 * Convert an OS X mouse event to an Allegro event
 * and push it into a queue.
@@ -262,6 +252,7 @@ static bool osx_mouse_init(void)
 	osx_mouse.axis_count = axes;
 	memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MSESTATE));
 	_al_mutex_unlock(&osx_event_mutex);
+   _al_osx_mouse_was_installed(YES);
 	return TRUE;
 }
 
@@ -293,6 +284,7 @@ static void osx_mouse_exit(void)
 										  waitUntilDone: NO];
 	[osx_mouse.cursor release];
 	osx_mouse.cursor = nil;
+   _al_osx_mouse_was_installed(NO);
 	/* FIXME */
 	// free((char*) mouse_macosx.desc);
 	_al_event_source_free(&osx_mouse.parent.es);

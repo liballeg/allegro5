@@ -60,31 +60,8 @@
 
 
 
-@interface AllegroAppDelegate : NSObject
-- (BOOL)application: (NSApplication *)theApplication openFile: (NSString *)filename;
-- (void)applicationDidFinishLaunching: (NSNotification *)aNotification;
-- (void)applicationDidChangeScreenParameters: (NSNotification *)aNotification;
-+ (void)app_main: (id)arg;
-- (NSApplicationTerminateReply) applicationShouldTerminate: (id)sender;
-- (void) quitAction: (id) sender;
-@end
-
-
-//@interface AllegroWindow : NSWindow
-//- (void)display;
-//- (void)miniaturize: (id)sender;
-//@end
-
-
-@interface AllegroWindowDelegate : NSObject
-- (BOOL)windowShouldClose: (id)sender;
-- (void)windowDidDeminiaturize: (NSNotification *)aNotification;
-@end
-
 	
 typedef void RETSIGTYPE;
-
-//NSView* osx_view_from_display(ALLEGRO_DISPLAY*);
 
 typedef struct HID_ELEMENT
 {
@@ -118,24 +95,9 @@ typedef struct
 } HID_DEVICE_COLLECTION;
 
 
-//void osx_event_handler(void);
 int osx_bootstrap_ok(void);
 
 void setup_direct_shifts(void);
-//void osx_init_fade_system(void);
-//void osx_fade_screen(int fade_in, double seconds);
-//void osx_qz_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-//void osx_qz_created_sub_bitmap(BITMAP *bmp, BITMAP *parent);
-//BITMAP *osx_qz_create_video_bitmap(int width, int height);
-//BITMAP *osx_qz_create_system_bitmap(int width, int height);
-//void osx_qz_destroy_video_bitmap(BITMAP *bmp);
-//int osx_setup_colorconv_blitter(void);
-//void osx_update_dirty_lines(void);
-
-//uintptr_t osx_qz_write_line(BITMAP *bmp, int lyne);
-//void osx_qz_unwrite_line(BITMAP *bmp);
-//void osx_qz_acquire(BITMAP *bmp);
-//void osx_qz_release(BITMAP *bmp);
 
 void osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY*);
 void osx_keyboard_modifiers(unsigned int new_mods, ALLEGRO_DISPLAY*);
@@ -151,6 +113,12 @@ void osx_mouse_move(int x, int y);
 HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION*);
 void osx_hid_free(HID_DEVICE_COLLECTION *);
 
+// Notify the display that the mouse driver was installed/uninstalled.
+void _al_osx_mouse_was_installed(BOOL);
+// Notify the display that the keyboard driver was installed/uninstalled.
+void _al_osx_keyboard_was_installed(BOOL);
+// Notify that the quit menu was clicked
+void _al_osx_post_quit(void);
 
 AL_VAR(NSBundle *, osx_bundle);
 AL_VAR(struct _AL_MUTEX, osx_event_mutex);
@@ -171,7 +139,6 @@ AL_VAR(NSTrackingRectTag, osx_mouse_tracking_rect);
 extern AL_METHOD(void, osx_window_close_hook, (void));
 AL_FUNC(ALLEGRO_KEYBOARD_DRIVER*, osx_get_keyboard_driver, (void));
 AL_FUNC(ALLEGRO_DISPLAY_INTERFACE*, osx_get_display_driver, (void));
-
 #endif
 
 #endif

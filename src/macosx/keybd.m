@@ -247,7 +247,7 @@ void osx_keyboard_focused(int focused, int state)
 static bool osx_keyboard_init(void)
 {
 	memset(&keyboard, 0, sizeof keyboard);
-	_keyboard_installed = TRUE;
+   _al_osx_keyboard_was_installed(YES);
 	_al_event_source_init(&keyboard.es);
 	return true;
 }
@@ -259,8 +259,8 @@ static bool osx_keyboard_init(void)
 */
 static void osx_keyboard_exit(void)
 {
-	_keyboard_installed = FALSE;
 	_al_event_source_free(&keyboard.es);
+   _al_osx_keyboard_was_installed(NO);
 	osx_keyboard_focused(FALSE, 0);
 }
 
