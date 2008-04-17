@@ -127,3 +127,6 @@ addons.do_build(
     example_libs = [context.libraryName('audio')],
     configs = configs,
 )
+
+x = True
+Return('x')
