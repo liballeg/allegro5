@@ -99,7 +99,7 @@ else:
         settings["ALLEGRO_CFG_ACODEC_SNDFILE"] = getOption('sndfile', False) and config.CheckSndfile()
         config.Finish()
 
-helpers.parse_cmake_h(context.getLibraryEnv(),settings,'#addons/acodec/allegro5/internal/aintern_acodec.h.cmake','#addons/acodec/allegro5/internal/aintern_acodec.h')
+helpers.parse_cmake_h(context.getLibraryEnv(),settings,'#addons/acodec/allegro5/internal/aintern_acodec_cfg.h.cmake','#addons/acodec/allegro5/internal/aintern_acodec_cfg.h')
 
 source = ['acodec.c']
 configs = []
@@ -122,7 +122,7 @@ addons.do_build(
     dir = 'acodec',
     name = 'acodec',
     install_headers = ['allegro5/acodec.h'],
-    includes = ['#addons/audio'],
+    includes = ['#addons/audio','#addons/acodec'],
     examples = [('ex_acodec',['ex_acodec.c'])],
     example_libs = [context.libraryName('audio')],
     configs = configs,

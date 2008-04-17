@@ -10,7 +10,12 @@ def do_build(context,source,dir,name,examples = [],install_headers = [],includes
         libEnv = env.Copy()
         libEnv.Append(CPPPATH = includes)
         for i in configs:
-            libEnv.ParseConfig(i)
+            try:
+                libEnv.ParseConfig(i)
+            except OSError:
+		print "Could not run '%s'. Please add a configure check so this error does not appear" % i
+                # Could not exec the configuration, bail out!
+                return []
         lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name), appendDir(buildDir + ('/addons/%s' % dir),source))
 
         exampleEnv = env.Copy()
