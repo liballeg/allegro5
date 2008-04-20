@@ -31,9 +31,12 @@
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/OpenGL.h>
 
+/* Module Variables */
 static BOOL _osx_mouse_installed = NO, _osx_keyboard_installed = NO;
 static NSPoint last_window_pos;
+static unsigned int next_display_group = 1;
 
+/* Module functions */
 ALLEGRO_BITMAP* create_backbuffer_bitmap(ALLEGRO_DISPLAY_OSX_WIN*);
 ALLEGRO_BITMAP_INTERFACE *osx_bitmap_driver(void);
 NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp);
@@ -383,14 +386,22 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
 	ALOpenGLView* view = [[ALOpenGLView alloc] initWithFrame: rc pixelFormat: fmt];
    // Iterate through all existing displays and try and find one that's compatible
    _AL_VECTOR* dpys = &al_system_driver()->displays;
+   BOOL in_new_group = YES;
    for (i = 0; i < _al_vector_size(dpys); ++i) {
-      ALLEGRO_DISPLAY_OSX_WIN* dpy = *(ALLEGRO_DISPLAY_OSX_WIN**) _al_vector_ref(dpys, i);
-      NSOpenGLContext* compat = [[NSOpenGLContext alloc] initWithFormat:fmt shareContext: dpy->ctx];
+      ALLEGRO_DISPLAY_OSX_WIN* other = *(ALLEGRO_DISPLAY_OSX_WIN**) _al_vector_ref(dpys, i);
+      NSOpenGLContext* compat = [[NSOpenGLContext alloc] initWithFormat:fmt shareContext: other->ctx];
       if (compat != nil) {
+      // OK, we can share with this one
+         in_new_group = NO;
+         dpy->display_group = other->display_group;
          [view setOpenGLContext:compat];
          [compat release];
          break;
       }
+   }
+   if (in_new_group) {
+      // Set to a new group
+      dpy->display_group = next_display_group++;
    }
 	[fmt release];
 	/* Hook up the view to its display */
@@ -413,9 +424,41 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
    return YES;
 }
 +(BOOL) destroyDisplay: (NSValue*) display_object {
+   int i;
    ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
+   _al_vector_find_and_delete(&al_system_driver()->displays, &dpy);
    [dpy->win close];
    dpy->win = nil;
+   ALLEGRO_DISPLAY_OSX_WIN* other = NULL;
+   // Check for other displays in this display group
+   _AL_VECTOR* dpys = &al_system_driver()->displays;
+   for (i = 0; i < _al_vector_size(dpys); ++i) {
+      ALLEGRO_DISPLAY_OSX_WIN* d = *(ALLEGRO_DISPLAY_OSX_WIN**) _al_vector_ref(dpys, i);
+      if (d->display_group == dpy->display_group) {
+         other = d;
+         break;
+      }
+   }
+   if (other != NULL) {
+      // Found another compatible display. Transfer our bitmaps to it.
+      _AL_VECTOR* bmps = &dpy->parent.display.bitmaps;
+      for (i = 0; i<_al_vector_size(bmps); ++i) {
+         *(ALLEGRO_BITMAP**) _al_vector_alloc_back(&other->parent.display.bitmaps) = *(ALLEGRO_BITMAP**)_al_vector_ref(bmps, i);
+      }
+   }
+   else {
+      // This is the last in its group. Convert all its bitmaps to mem bmps
+      _AL_VECTOR* bmps = &dpy->parent.display.bitmaps;
+      ALLEGRO_BITMAP** tmp = (ALLEGRO_BITMAP**) _AL_MALLOC(_al_vector_size(bmps) * sizeof(ALLEGRO_BITMAP*));
+      for (i=0; i< _al_vector_size(bmps); ++i) {
+         tmp[i] = *(ALLEGRO_BITMAP**) _al_vector_ref(bmps, i);
+      }
+      for (i=0; i< _al_vector_size(bmps); ++i) {
+         _al_convert_to_memory_bitmap(tmp[i]);
+      }
+      _AL_FREE(tmp);
+   }
+   _al_vector_free(&dpy->parent.display.bitmaps);
    return YES;
 }
 /* End of ALDisplayHelper implementation */
@@ -467,7 +510,6 @@ static void destroy_display(ALLEGRO_DISPLAY* d) {
       withObject: [NSValue valueWithPointer:dpy] 
       waitUntilDone: YES];
 	_al_event_source_free(&d->es);
-   _al_vector_find_and_delete(&al_system_driver()->displays, d);
 }
 
 static void flip_display_win(ALLEGRO_DISPLAY *disp) {
@@ -479,14 +521,14 @@ static void flip_display_win(ALLEGRO_DISPLAY *disp) {
 
 static bool show_cursor(ALLEGRO_DISPLAY *d) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
-	ALOpenGLView* view = (ALOpenGLView*) [dpy->win contentView];
+	//ALOpenGLView* view = (ALOpenGLView*) [dpy->win contentView];
    dpy->show_cursor = YES;
    [NSCursor unhide];
    return true;
 }
 static bool hide_cursor(ALLEGRO_DISPLAY *d) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
-	ALOpenGLView* view = (ALOpenGLView*) [dpy->win contentView];
+	//ALOpenGLView* view = (ALOpenGLView*) [dpy->win contentView];
    dpy->show_cursor = NO;
    [NSCursor hide];
    return true;
@@ -500,7 +542,8 @@ static bool resize_display(ALLEGRO_DISPLAY *d, int w, int h) {
 	return true;
 }
 static bool is_compatible_bitmap(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP* bmp) {
-   return bmp->display == disp;
+   return (bmp->display == disp)
+      || (((ALLEGRO_DISPLAY_OSX_WIN*) bmp->display)->display_group == ((ALLEGRO_DISPLAY_OSX_WIN*) disp)->display_group);
 }
 
 /* draw_memory_bitmap_region:
@@ -567,7 +610,7 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void)
       NULL /*draw_memory_bitmap_region*/, //   void (*draw_memory_bitmap_region)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap,
 			  //      float sx, float sy, float sw, float sh, float dx, float dy, int flags);
 			  //
-		NULL, //   ALLEGRO_BITMAP *(*create_sub_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *parent,
+		_al_ogl_create_sub_bitmap, //   ALLEGRO_BITMAP *(*create_sub_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *parent,
 			  //      int x, int y, int width, int height);
 			  //
 		NULL,//   bool (*wait_for_vsync)(ALLEGRO_DISPLAY *display);
