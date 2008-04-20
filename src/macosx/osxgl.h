@@ -16,5 +16,6 @@ typedef struct ALLEGRO_DISPLAY_OSX_WIN {
    NSCursor* cursor;
    BOOL show_cursor;
    NSTrackingRectTag tracking;
+   unsigned int display_group;
 } ALLEGRO_DISPLAY_OSX_WIN;
 
