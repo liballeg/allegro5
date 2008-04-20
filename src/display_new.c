@@ -62,8 +62,12 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_SYSTEM *system = al_system_driver();
    ALLEGRO_DISPLAY_INTERFACE *driver = system->vt->get_display_driver();
    ALLEGRO_DISPLAY *display = driver->create_display(w, h);
+
    if (!display)
       return NULL;
+
+   _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
+
    {
    ALLEGRO_COLOR black = al_map_rgba(0, 0, 0, 0);
    al_set_current_display(display);
@@ -84,6 +88,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
    display->vt->destroy_display(display);
+   _al_vector_free(&display->bitmaps);
 }
 
 

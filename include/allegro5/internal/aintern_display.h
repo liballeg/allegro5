@@ -61,6 +61,8 @@ struct ALLEGRO_DISPLAY
    int refresh_rate;
    int flags;
    int w, h;
+
+   _AL_VECTOR bitmaps; /* A list of bitmaps created for this display. */
 };
 
 #define _al_current_display al_get_current_display()

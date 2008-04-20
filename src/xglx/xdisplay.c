@@ -244,20 +244,56 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
 static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 {
-   unsigned int i;
    ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+
+   /* If we're the last display, convert all bitmpas to display independent
+    * (memory) bitmaps. */
+   if (s->system.displays._size == 1) {
+      size_t i;
+      _AL_VECTOR bitmaps;
+
+      /* We need a local copy of the bitmap vector because
+      * _al_convert_to_memory_bitmap() destroys the bitmap removing the item
+      * from the vector while we loop trough it. */
+      _al_vector_init(&bitmaps, sizeof(ALLEGRO_BITMAP*));
+      for (i = 0; i < d->bitmaps._size; i++) {
+         ALLEGRO_BITMAP **bmp = _al_vector_alloc_back(&bitmaps);
+         ALLEGRO_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
+         *bmp = *ref;
+      }
+
+      for (i = 0; i < bitmaps._size; i++) {
+         ALLEGRO_BITMAP **bmp = _al_vector_ref(&bitmaps, i);
+         _al_convert_to_memory_bitmap(*bmp);
+      }
+
+      _al_vector_free(&bitmaps);
+   }
+   else {
+      /* Pass all bitmaps to any other living display. (We assume all displays
+       * are compatible.) */
+      size_t i;
+      ALLEGRO_DISPLAY **living;
+      ASSERT(s->system.displays._size > 1);
+
+      for (i = 0; i < s->system.displays._size; i++) {
+         living = _al_vector_ref(&s->system.displays, i);
+         if (*living != d)
+            break;
+      }
+
+      for (i = 0; i < d->bitmaps._size; i++) {
+         ALLEGRO_BITMAP **add = _al_vector_alloc_back(&(*living)->bitmaps);
+         ALLEGRO_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
+         *add = *ref;
+      }
+   }
 
    _al_ogl_unmanage_extensions((ALLEGRO_DISPLAY_OGL*)glx);
 
    _al_mutex_lock(&s->lock);
-   for (i = 0; i < _al_vector_size(&s->system.displays); i++) {
-      ALLEGRO_DISPLAY_XGLX **dptr = _al_vector_ref(&s->system.displays, i);
-      if (glx == *dptr) {
-         _al_vector_delete_at(&s->system.displays, i);
-         break;
-      }
-   }
+   _al_vector_find_and_delete(&s->system.displays, &d);
    XDestroyWindow(s->xdisplay, glx->window);
 
    if (d->flags & ALLEGRO_FULLSCREEN)
@@ -436,6 +472,7 @@ void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
 static bool xdpy_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bitmap)
 {
+   /* All GLX bitmaps are compatible. */
    return true;
 }
 
@@ -498,7 +535,6 @@ static bool xdpy_hide_cursor(ALLEGRO_DISPLAY *display)
    glx->cursor_hidden = true;
    return true;
 }
-
 
 
 /* Obtain a reference to this driver. */

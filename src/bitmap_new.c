@@ -28,8 +28,7 @@
 
 
 
-/* Creates a memory bitmap. A memory bitmap can only be drawn to other memory
- * bitmaps, not to a display.
+/* Creates a memory bitmap.
  */
 static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 {
@@ -111,12 +110,16 @@ static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
  * thread. Blitting between bitmaps of differing formats, or blitting between
  * memory bitmaps and display bitmaps may be slow.
  *
+ * Unless you set the ALLEGRO_MEMORY_BITMAP flag, the bitmap is created for the
+ * current display. Blitting to another display may be slow.
+ *
  * See Also: <al_set_new_bitmap_format>, <al_set_new_bitmap_flags>
  */
 ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap;
-   
+   ALLEGRO_BITMAP **back;
+
    if ((al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) ||
          (_al_current_display->vt->create_bitmap == NULL)) {
       return _al_create_memory_bitmap(w, h);
@@ -158,6 +161,11 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
       return NULL;
    }
 
+   /* We keep a list of bitmaps depending on the current display so that we can
+    * convert them to memory bimaps when the display is destroyed. */
+   back = _al_vector_alloc_back(&_al_current_display->bitmaps);
+   *back = bitmap;
+
    return bitmap;
 }
 
@@ -176,6 +184,8 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 
    if (bitmap->parent) {
       /* It's a sub-bitmap */
+      if (bitmap->display)
+         _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
       _AL_FREE(bitmap);
       return;
    }
@@ -192,6 +202,8 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 
    if (bitmap->vt)
       bitmap->vt->destroy_bitmap(bitmap);
+
+   _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
 
    if (bitmap->memory)
       _AL_FREE(bitmap->memory);
@@ -726,6 +738,12 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap->yofs = y;
    bitmap->memory = NULL;
 
+   if (bitmap->display) {
+      ALLEGRO_BITMAP **back;
+      back = _al_vector_alloc_back(&bitmap->display->bitmaps);
+      *back = bitmap;
+   }
+
    return bitmap;
 }
 
@@ -774,6 +792,78 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 bool al_is_bitmap_locked(ALLEGRO_BITMAP *bitmap)
 {
    return bitmap->locked;
+}
+
+
+/* Converts a display bitmap to a memory bitmap preserving its contents.
+ * Driver specific resources occupied by the display bitmap are freed.
+ * A converted sub bitmap is invalid until its parent is converted.
+ */
+void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_BITMAP *tmp;
+
+   /* Do nothing if it is a memory bitmap already. */
+   if (bitmap->flags & ALLEGRO_MEMORY_BITMAP)
+      return;
+
+   if (bitmap->parent) {
+      _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
+
+      //_AL_REALLOC(bitmap, sizeof(ALLEGRO_BITMAP));
+      bitmap->display = NULL;
+      bitmap->flags &= ALLEGRO_MEMORY_BITMAP;
+      return;
+   }
+
+   /* Allocate a temporary bitmap which will hold the data
+    * during the conversion process. */
+   _al_push_new_bitmap_parameters();
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_format(bitmap->format);
+   tmp = al_create_bitmap(bitmap->w, bitmap->h);
+   _al_pop_new_bitmap_parameters();
+
+   _al_push_target_bitmap();
+
+   /* Preserve bitmap contents. */
+   al_set_target_bitmap(tmp);
+   al_draw_bitmap(bitmap, 0, 0, 0);
+   tmp->cb = bitmap->cb;
+   tmp->cr = bitmap->cr;
+   tmp->cl = bitmap->cl;
+   tmp->ct = bitmap->ct;
+
+   _al_pop_target_bitmap();
+
+   /* Destroy the display bitmap to free driver-specific resources. */
+   if (bitmap->vt)
+      bitmap->vt->destroy_bitmap(bitmap);
+
+   _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
+
+   /* Can't be sure that the pointer will stay the same. Not a real memory
+    * leak anyway, destroying the bitmap will free the whole block.
+    */
+   //_AL_REALLOC(bitmap, sizeof(ALLEGRO_BITMAP));
+
+   /* Put the contents back to the bitmap. */
+   bitmap->format = tmp->format;
+   bitmap->flags = tmp->flags;
+   bitmap->pitch = tmp->pitch;
+   bitmap->display = NULL;
+   bitmap->locked = false;
+   bitmap->w = tmp->w;
+   bitmap->h = tmp->h;
+   bitmap->cl = tmp->cl;
+   bitmap->ct = tmp->ct;
+   bitmap->cr = tmp->cr;
+   bitmap->cb = tmp->cb;
+   bitmap->parent = NULL;
+   bitmap->xofs = bitmap->yofs = 0;
+   bitmap->memory = tmp->memory;
+
+   _AL_FREE(tmp);
 }
 
 /* vim: set ts=8 sts=3 sw=3 et: */

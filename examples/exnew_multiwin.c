@@ -85,6 +85,8 @@ int main(void)
 
          al_flip_display();
       }
+
+      al_rest(0.01);
    }
 
    al_destroy_bitmap(pictures[0]);
