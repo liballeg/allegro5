@@ -1,4 +1,5 @@
 #include "a5teroids.hpp"
+#include <stdio.h>
 
 bool kb_installed = false;
 bool joy_installed = false;
@@ -28,7 +29,34 @@ static char* userResourcePath()
 
    return path;
 }
-#else
+#endif
+#ifdef ALLEGRO_MACOSX
+#ifndef MAX_PATH 
+#define MAX_PATH PATH_MAX
+#endif
+static char* userResourcePath()
+{
+   static char path[MAX_PATH];
+
+   char* env = getenv("HOME");
+
+   if (env) {
+      strcpy(path, env);
+      if (path[strlen(path)-1] != '/') {
+         strncat(path, "/.a5teroids/", (sizeof(path)/sizeof(*path))-1);
+      }
+      else {
+         strncat(path, ".a5teroids/", (sizeof(path)/sizeof(*path))-1);
+      }
+   }
+   else {
+      strcpy(path, "save/");
+   }
+
+   return path;
+}
+#endif
+#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_MINGW)
 static char* userResourcePath()
 {
    static char path[MAX_PATH];
