@@ -87,15 +87,11 @@ AL_VAR(SYSTEM_DRIVER, system_macosx);
 
 /* Mouse driver */
 #define MOUSE_MACOSX            AL_ID('O','S','X','M')
-AL_VAR(struct ALLEGRO_MOUSE_DRIVER, mouse_macosx);
 
 /* Gfx drivers */
 //#define GFX_QUARTZ_WINDOW       AL_ID('Q','Z','W','N')
 #define GFX_QUARTZ_FULLSCREEN   AL_ID('Q','Z','F','L')
 #define GFX_OPENGL_WINDOW       AL_ID('G','L','W','N')
-//AL_VAR(GFX_DRIVER, gfx_quartz_window);
-//AL_VAR(GFX_DRIVER, gfx_quartz_full);
-//AL_VAR(GFX_DRIVER, gfx_opengl_window);
 
 /* Digital sound drivers */
 #define DIGI_CORE_AUDIO         AL_ID('D','C','A',' ')

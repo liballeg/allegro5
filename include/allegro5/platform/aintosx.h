@@ -119,15 +119,15 @@ void _al_osx_mouse_was_installed(BOOL);
 void _al_osx_keyboard_was_installed(BOOL);
 // Notify that the quit menu was clicked
 void _al_osx_post_quit(void);
+// Get the underlying view
+NSView* osx_view_from_display(ALLEGRO_DISPLAY*);
 
 AL_VAR(NSBundle *, osx_bundle);
 AL_VAR(struct _AL_MUTEX, osx_event_mutex);
-//AL_VAR(struct _AL_MUTEX, osx_window_mutex);
 AL_VAR(int, osx_gfx_mode);
 AL_VAR(int, osx_screen_used);
 AL_VAR(NSCursor *, osx_blank_cursor);
 AL_VAR(NSCursor *, osx_cursor);
-//AL_VAR(AllegroWindow *, osx_window);
 AL_ARRAY(char, osx_window_title);
 AL_VAR(int, osx_window_first_expose);
 AL_VAR(CGDirectPaletteRef, osx_palette);
@@ -135,7 +135,6 @@ AL_VAR(int, osx_palette_dirty);
 AL_VAR(int, osx_mouse_warped);
 AL_VAR(int, osx_skip_mouse_move);
 AL_VAR(int, osx_emulate_mouse_buttons);
-AL_VAR(NSTrackingRectTag, osx_mouse_tracking_rect);
 extern AL_METHOD(void, osx_window_close_hook, (void));
 AL_FUNC(ALLEGRO_KEYBOARD_DRIVER*, osx_get_keyboard_driver, (void));
 AL_FUNC(ALLEGRO_DISPLAY_INTERFACE*, osx_get_display_driver, (void));

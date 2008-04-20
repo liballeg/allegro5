@@ -29,11 +29,11 @@
 
 
 
-_DRIVER_INFO _mouse_driver_list[] =
-{
-   { MOUSE_MACOSX,            &mouse_macosx,            TRUE  },
-   { 0,                       NULL,                     0     }
-};
+//_DRIVER_INFO _mouse_driver_list[] =
+//{
+//   { MOUSE_MACOSX,            &mouse_macosx,            TRUE  },
+//   { 0,                       NULL,                     0     }
+//};
 
 
 BEGIN_GFX_DRIVER_LIST

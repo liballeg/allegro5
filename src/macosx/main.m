@@ -24,8 +24,6 @@
 #ifndef ALLEGRO_MACOSX
 #error something is wrong with the makefile
 #endif
-
-#include "allegro5/internal/alconfig.h"
 #undef main
 
 

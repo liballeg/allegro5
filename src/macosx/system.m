@@ -199,7 +199,7 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    }
 	/* Initialise the vt and display list */
 	osx_system.vt = _al_system_osx_driver();
-	_al_vector_init(&osx_system.displays, 10);
+	_al_vector_init(&osx_system.displays, sizeof(ALLEGRO_DISPLAY*));
   
    if (osx_bundle == NULL) {
        /* If in a bundle, the dock will recognise us automatically */
