@@ -157,7 +157,6 @@
 		88922FFE0CD7DC4A00017822 /* cblit24.c in Sources */ = {isa = PBXBuildFile; fileRef = 88922F5C0CD7DC4900017822 /* cblit24.c */; };
 		88922FFF0CD7DC4A00017822 /* cblit32.c in Sources */ = {isa = PBXBuildFile; fileRef = 88922F5D0CD7DC4900017822 /* cblit32.c */; };
 		889230000CD7DC4A00017822 /* cblit8.c in Sources */ = {isa = PBXBuildFile; fileRef = 88922F5E0CD7DC4900017822 /* cblit8.c */; };
-		889230010CD7DC4A00017822 /* ccpu.c in Sources */ = {isa = PBXBuildFile; fileRef = 88922F5F0CD7DC4900017822 /* ccpu.c */; };
 		889230020CD7DC4A00017822 /* ccsprite.c in Sources */ = {isa = PBXBuildFile; fileRef = 88922F600CD7DC4900017822 /* ccsprite.c */; };
 		889230030CD7DC4A00017822 /* cdefs15.h in Headers */ = {isa = PBXBuildFile; fileRef = 88922F610CD7DC4900017822 /* cdefs15.h */; };
 		889230040CD7DC4A00017822 /* cdefs16.h in Headers */ = {isa = PBXBuildFile; fileRef = 88922F620CD7DC4900017822 /* cdefs16.h */; };
@@ -280,6 +279,7 @@
 		889230940CD7DC4A00017822 /* vtable24.c in Sources */ = {isa = PBXBuildFile; fileRef = 88922FF50CD7DC4A00017822 /* vtable24.c */; };
 		889230950CD7DC4A00017822 /* vtable32.c in Sources */ = {isa = PBXBuildFile; fileRef = 88922FF60CD7DC4A00017822 /* vtable32.c */; };
 		8894EFA30D60E9D500E4968F /* extensions.c in Sources */ = {isa = PBXBuildFile; fileRef = 8894EFA20D60E9D500E4968F /* extensions.c */; };
+		88956BE50DBBDE8500074693 /* text.c in Sources */ = {isa = PBXBuildFile; fileRef = 889840610D6A416E00338D77 /* text.c */; };
 		8896BA550D6B05AE0006AB52 /* timernu.c in Sources */ = {isa = PBXBuildFile; fileRef = 8896BA540D6B05AE0006AB52 /* timernu.c */; };
 		88983E590D6A3F6B00338D77 /* exnew_icon.c in Sources */ = {isa = PBXBuildFile; fileRef = 883B72E60D686DAD009F1EDA /* exnew_icon.c */; };
 		8898404C0D6A3F7F00338D77 /* libAllegro-4.9.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D2AAC07E0554694100DB518D /* libAllegro-4.9.a */; };
@@ -702,7 +702,6 @@
 		88922F5C0CD7DC4900017822 /* cblit24.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; path = cblit24.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88922F5D0CD7DC4900017822 /* cblit32.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; path = cblit32.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88922F5E0CD7DC4900017822 /* cblit8.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; path = cblit8.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
-		88922F5F0CD7DC4900017822 /* ccpu.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; path = ccpu.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88922F600CD7DC4900017822 /* ccsprite.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; path = ccsprite.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88922F610CD7DC4900017822 /* cdefs15.h */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.h; path = cdefs15.h; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88922F620CD7DC4900017822 /* cdefs16.h */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.h; path = cdefs16.h; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
@@ -1359,7 +1358,6 @@
 				88922F5C0CD7DC4900017822 /* cblit24.c */,
 				88922F5D0CD7DC4900017822 /* cblit32.c */,
 				88922F5E0CD7DC4900017822 /* cblit8.c */,
-				88922F5F0CD7DC4900017822 /* ccpu.c */,
 				88922F600CD7DC4900017822 /* ccsprite.c */,
 				88922F610CD7DC4900017822 /* cdefs15.h */,
 				88922F620CD7DC4900017822 /* cdefs16.h */,
@@ -2032,6 +2030,7 @@
 				880DF2120D6A3BE1004D12A5 /* readfont.c in Sources */,
 				880DF2130D6A3BE1004D12A5 /* fontbmp.c in Sources */,
 				880DF2140D6A3BE1004D12A5 /* font.c in Sources */,
+				88956BE50DBBDE8500074693 /* text.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2191,7 +2190,6 @@
 				88922FFE0CD7DC4A00017822 /* cblit24.c in Sources */,
 				88922FFF0CD7DC4A00017822 /* cblit32.c in Sources */,
 				889230000CD7DC4A00017822 /* cblit8.c in Sources */,
-				889230010CD7DC4A00017822 /* ccpu.c in Sources */,
 				889230020CD7DC4A00017822 /* ccsprite.c in Sources */,
 				889230090CD7DC4A00017822 /* cgfx15.c in Sources */,
 				8892300A0CD7DC4A00017822 /* cgfx16.c in Sources */,
