@@ -634,6 +634,42 @@ static bool d3d_create_swap_chain(ALLEGRO_DISPLAY_D3D *d,
    return 1;
 }
 
+static void d3d_release_bitmaps(ALLEGRO_DISPLAY *display)
+{
+   size_t i;
+   ALLEGRO_DISPLAY **living;
+   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
+
+   /* Try to find any other d3d display. */
+   for (i = 0; i < system->system.displays._size; i++) {
+      living = _al_vector_ref(&system->system.displays, i);
+      if (*living != display
+         && _al_vector_contains(&d3d_created_displays, living))
+         break;
+      *living = NULL;
+   }
+
+   if (*living) {
+      for (i = 0; i < display->bitmaps._size; i++) {
+         ALLEGRO_BITMAP **add = _al_vector_alloc_back(&(*living)->bitmaps);
+         ALLEGRO_BITMAP **ref = _al_vector_ref(&display->bitmaps, i);
+         *add = *ref;
+         (*add)->display = *living;
+      }
+   }
+   else {
+      /* No other d3d displays were found. Convert all bitmpas to display
+       * independent (memory) bitmaps. */
+      if (system->system.displays._size == 1) {
+         while (display->bitmaps._size > 0) {
+            ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&display->bitmaps);
+            ALLEGRO_BITMAP *b = *bptr;
+            _al_convert_to_memory_bitmap(b);
+         }
+      }
+   }
+}
+
 static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *display)
 {
    if (d3d_current_texture_render_target) {
@@ -667,6 +703,8 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
 
+   d3d_release_bitmaps(display);
+
    d3d_destroy_display_internals((ALLEGRO_DISPLAY_D3D *)display);
 
    _al_vector_find_and_delete(&system->system.displays, &display);
@@ -683,6 +721,7 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
       gfx_driver = 0;
    }
 
+   _al_vector_free(&display->bitmaps);
    _AL_FREE(display);
 }
 

@@ -983,8 +983,8 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 
    /* We need to convert all our bitmaps to display independent (memory)
     * bitmaps because WGL driver doesn't support sharing of resources. */
-   while (wgl_disp->bitmaps._size > 0) {
-      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&wgl_disp->bitmaps);
+   while (disp->bitmaps._size > 0) {
+      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&disp->bitmaps);
       ALLEGRO_BITMAP *bmp = *bptr;
       _al_convert_to_memory_bitmap(bmp);
    }
@@ -993,6 +993,7 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
    _al_vector_find_and_delete(&system->system.displays, &disp);
    gfx_driver = 0;
 
+   _al_vector_free(&disp->bitmaps);
    _AL_FREE(wgl_disp);
 }
 

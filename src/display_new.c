@@ -88,7 +88,6 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
    display->vt->destroy_display(display);
-   _al_vector_free(&display->bitmaps);
 }
 
 

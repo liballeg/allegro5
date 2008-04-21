@@ -203,7 +203,8 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    if (bitmap->vt)
       bitmap->vt->destroy_bitmap(bitmap);
 
-   _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
+   if (bitmap->display)
+      _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
 
    if (bitmap->memory)
       _AL_FREE(bitmap->memory);

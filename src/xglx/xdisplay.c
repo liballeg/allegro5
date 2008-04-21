@@ -288,6 +288,8 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 
    // FIXME: deallocate ourselves?
 
+   _al_vector_free(&d->bitmaps);
+
    _al_mutex_unlock(&s->lock);
 }
 
