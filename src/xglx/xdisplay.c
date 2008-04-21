@@ -250,25 +250,11 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    /* If we're the last display, convert all bitmpas to display independent
     * (memory) bitmaps. */
    if (s->system.displays._size == 1) {
-      size_t i;
-      _AL_VECTOR bitmaps;
-
-      /* We need a local copy of the bitmap vector because
-      * _al_convert_to_memory_bitmap() destroys the bitmap removing the item
-      * from the vector while we loop trough it. */
-      _al_vector_init(&bitmaps, sizeof(ALLEGRO_BITMAP*));
-      for (i = 0; i < d->bitmaps._size; i++) {
-         ALLEGRO_BITMAP **bmp = _al_vector_alloc_back(&bitmaps);
-         ALLEGRO_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
-         *bmp = *ref;
+      while (d->bitmaps._size > 0) {
+         ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
+         ALLEGRO_BITMAP *b = *bptr;
+         _al_convert_to_memory_bitmap(b);
       }
-
-      for (i = 0; i < bitmaps._size; i++) {
-         ALLEGRO_BITMAP **bmp = _al_vector_ref(&bitmaps, i);
-         _al_convert_to_memory_bitmap(*bmp);
-      }
-
-      _al_vector_free(&bitmaps);
    }
    else {
       /* Pass all bitmaps to any other living display. (We assume all displays
@@ -287,6 +273,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
          ALLEGRO_BITMAP **add = _al_vector_alloc_back(&(*living)->bitmaps);
          ALLEGRO_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
          *add = *ref;
+         (*add)->display = *living;
       }
    }
 

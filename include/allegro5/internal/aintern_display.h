@@ -74,4 +74,6 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *co
 void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color);
 void _al_draw_pixel_memory(int x, int y, ALLEGRO_COLOR *color);
 
+void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);
+
 #endif

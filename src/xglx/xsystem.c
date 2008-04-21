@@ -113,6 +113,7 @@ static void xglx_shutdown_system(void)
    while (_al_vector_size(&s->displays) > 0) {
       ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
       ALLEGRO_DISPLAY *d = *dptr;
+      _al_destroy_display_bitmaps(d);
       al_destroy_display(d);
    }
 }

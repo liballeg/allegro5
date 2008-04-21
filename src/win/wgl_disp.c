@@ -980,26 +980,14 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)disp;
-   size_t i;
-   _AL_VECTOR bitmaps;
-
-   /* We need a local copy of the bitmap vector because
-    * _al_convert_to_memory_bitmap() destroys the bitmap from the driver side
-    * removing the item from the vector while we loop trough it. */
-   _al_vector_init(&bitmaps, sizeof(ALLEGRO_BITMAP*));
-   for (i = 0; i < wgl_disp->bitmaps._size; i++) {
-      ALLEGRO_BITMAP **bmp = _al_vector_alloc_back(&bitmaps);
-      *bmp = *((ALLEGRO_BITMAP **)_al_vector_ref(&wgl_disp->bitmaps, i));
-   }
 
    /* We need to convert all our bitmaps to display independent (memory)
     * bitmaps because WGL driver doesn't support sharing of resources. */
-   for (i = 0; i < bitmaps._size; i++) {
-      ALLEGRO_BITMAP **bmp = _al_vector_ref(&bitmaps, i);
-      _al_convert_to_memory_bitmap(*bmp);
+   while (wgl_disp->bitmaps._size > 0) {
+      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&wgl_disp->bitmaps);
+      ALLEGRO_BITMAP *bmp = *bptr;
+      _al_convert_to_memory_bitmap(bmp);
    }
-
-   _al_vector_free(&bitmaps);
 
    destroy_display_internals(wgl_disp);
    _al_vector_find_and_delete(&system->system.displays, &disp);
