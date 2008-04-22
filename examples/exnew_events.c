@@ -296,12 +296,8 @@ void main_loop(void)
    while (true) {
       draw_all();
 
-      /* Take the next event out of the event queue, and store it in `event'.
-       * The third parameter is a time-out specification, allowing the function
-       * to return even if no event arrives within the time period specified.
-       * Zero represents infinite timeout.
-       */
-      al_wait_for_event(event_queue, &event, ALLEGRO_WAIT_FOREVER);
+      /* Take the next event out of the event queue, and store it in `event'. */
+      al_wait_for_event(event_queue, &event);
 
       /* Check what type of event we got and act accordingly.  ALLEGRO_EVENT
        * is a union type and interpretation of its contents is dependent on

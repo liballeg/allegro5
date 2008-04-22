@@ -263,8 +263,6 @@ typedef struct ALLEGRO_EVENT_SOURCE ALLEGRO_EVENT_SOURCE;
 
 typedef struct ALLEGRO_EVENT_QUEUE ALLEGRO_EVENT_QUEUE;
 
-#define ALLEGRO_WAIT_FOREVER (-1)
-
 AL_FUNC(ALLEGRO_EVENT_QUEUE*, al_create_event_queue, (void));
 AL_FUNC(void, al_destroy_event_queue, (ALLEGRO_EVENT_QUEUE*));
 AL_FUNC(void, al_register_event_source, (ALLEGRO_EVENT_QUEUE*, ALLEGRO_EVENT_SOURCE*));
@@ -274,9 +272,11 @@ AL_FUNC(bool, al_get_next_event, (ALLEGRO_EVENT_QUEUE*, ALLEGRO_EVENT *ret_event
 AL_FUNC(bool, al_peek_next_event, (ALLEGRO_EVENT_QUEUE*, ALLEGRO_EVENT *ret_event));
 AL_FUNC(void, al_drop_next_event, (ALLEGRO_EVENT_QUEUE*));
 AL_FUNC(void, al_flush_event_queue, (ALLEGRO_EVENT_QUEUE*));
-AL_FUNC(bool, al_wait_for_event, (ALLEGRO_EVENT_QUEUE*,
-                                  ALLEGRO_EVENT *ret_event,
-                                  long msecs));
+AL_FUNC(void, al_wait_for_event, (ALLEGRO_EVENT_QUEUE*,
+                                  ALLEGRO_EVENT *ret_event));
+AL_FUNC(bool, al_wait_for_event_timed, (ALLEGRO_EVENT_QUEUE*,
+                                        ALLEGRO_EVENT *ret_event,
+                                        float msecs));
 
 
 

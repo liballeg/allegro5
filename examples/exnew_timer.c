@@ -138,7 +138,7 @@ static void run(void)
 {
    ALLEGRO_EVENT event;
    while (1) {
-      al_wait_for_event(ex.queue, &event, ALLEGRO_WAIT_FOREVER);
+      al_wait_for_event(ex.queue, &event);
       switch (event.type) {
          /* Was the X button on the window pressed? */
          case ALLEGRO_EVENT_DISPLAY_CLOSE:

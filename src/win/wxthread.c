@@ -21,6 +21,7 @@
 #include "allegro5/internal/aintern_thread.h"
 
 #ifndef SCAN_DEPEND
+   #include <mmsystem.h>
    #include <process.h>
 #endif
 
@@ -288,29 +289,39 @@ static int cond_wait(_AL_COND *cond, _AL_MUTEX *mtxExternal, DWORD timeout)
 
 void _al_cond_wait(_AL_COND *cond, _AL_MUTEX *mtxExternal)
 {
+   int result;
+
    ASSERT(cond);
    ASSERT(mtxExternal);
-   {
-      int result = cond_wait(cond, mtxExternal, INFINITE);
 
-      ASSERT(result != -1);
-      (void)result;
-   }
+   result = cond_wait(cond, mtxExternal, INFINITE);
+   ASSERT(result != -1);
+   (void)result;
 }
 
 
-int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mtxExternal, unsigned long abstime)
+void _al_cond_timeout_init(_AL_COND_TIMEOUT *timeout, unsigned int rel_msecs)
 {
+   timeout->abstime = timeGetTime() + rel_msecs;
+}
+
+
+int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mtxExternal,
+   const _AL_COND_TIMEOUT *timeout)
+{
+   DWORD now;
+   DWORD rel_msecs;
+
    ASSERT(cond);
    ASSERT(mtxExternal);
-   {
-      int reltime = abstime - ALLEGRO_SECS_TO_MSECS(al_current_time());
 
-      if (reltime < 0)
-         return -1;
-
-      return cond_wait(cond, mtxExternal, reltime);
+   now = timeGetTime();
+   rel_msecs = timeout->abstime - now;
+   if (rel_msecs == INFINITE) {
+      rel_msecs--;
    }
+
+   return cond_wait(cond, mtxExternal, rel_msecs);
 }
 
 

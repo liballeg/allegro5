@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
    while (true) {
-      if (al_wait_for_event(queue, &event, 100)) {
+      if (al_wait_for_event_timed(queue, &event, 0.1)) {
          if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                goto Quit;
