@@ -352,11 +352,10 @@ static bool osx_set_mouse_axis(int axis, int value)
 }
 
 /* list the available drivers */
-//_DRIVER_INFO _al_mouse_driver_list[] =
-//{
-//	{  MOUSE_MACOSX, &mouse_macosx, TRUE  },
-//	{  0,  NULL,  0  }
-//};
+_DRIVER_INFO _al_mouse_driver_list[] =
+{
+   {  0,  NULL,  0  }
+};
 
 /*
  * osx_mouse_move:
