@@ -29,32 +29,36 @@ debug it further.
 
 
 
-Linux
-=====
+Linux / X Windows
+=================
 
-The only graphics driver implemented so far requires a fairly recent GLX, it
-was only tested with GLX 1.4 so far.
+The only graphics driver implemented for Linux so far uses OpenGL on the X
+Window System.  It has been tested with GLX 1.2 and above.  This driver isn't
+Linux-specific so may work with other Unix-like systems but hasn't been
+tested as such.
 
 
 
-OSX
-===
+Mac OS X
+========
 
-Sorry, nobody did yet write any drivers for OSX.
+We have an OpenGL graphics driver on Mac OS X as well.
+
+XXX fill this in
 
 
 
 Compilation
 ===========
 
-We provide two build systems, *cmake* and *scons*.
+We provide two build systems, *CMake* and *scons*.
 
 
 
-Cmake & MinGW
------
+CMake & Unix or MinGW
+---------------------
 
-Cmake works by first creating a makefile, which then can be used to compile.
+CMake works by first creating a makefile, which then can be used to compile.
 
 To use it:
 
@@ -87,25 +91,25 @@ Alternatively, you can use `ccmake` to bring up an interactive option
 selector. e.g. `ccmake ..`
 
 Now run `make` (or `mingw32-make`) and, optionally, `make install`.
-(You should have `MINGDIR` pointing to your MinGW directory
+(For MinGW users, you should have `MINGDIR` pointing to your MinGW directory
 before you do `mingw32-make install`):
 
-	$ mingw32-make
-	$ mingw32-make install
+	$ make
+	$ make install
 
 
 
-Cmake & MSVC
+CMake & MSVC
 ------------
 
 First open up a console and make sure that cmake.exe is in your %PATH%. You
 ensure than by typing "SET PATH=C:\cmake\bin\;%PATH%" or similar. Typing
 "cmake" should display the help message.
 
-Cmake works by first creating a project solution, which can then be opened
+CMake works by first creating a project solution, which can then be opened
 with MSVC IDE and built.
 
-You can use the same options from the Cmake & MinGW section above.
+You can use the same options from the CMake section above.
 
 Examples:
 
@@ -113,11 +117,10 @@ Examples:
 
 	$ cmake -G "Visual Studio 9 2008"
 
-
 Now that the project solution has been generated, open it with the MSVC IDE
 and start the building process.
 
-Note:
+*Note:*
 The demo is currently excluded from the build due to some problems with the IDE.
 Only Visual Studio 8 2005 has been tested but other versions may work as well.
 Please give it a try and report problems.
@@ -164,19 +167,30 @@ To install as a non-root user, you can do:
 Running the examples
 ====================
 
-Currently, only a few examples work using the new API.
-Some of the older 4.2.x examples work with the new drivers,
-but are not accelerated.
+Currently, only examples specifically written to use the new API will run.
+The compatibility layer is currently broken so older examples from 4.2.x and
+earlier won't work.
 
-- The demo has been replaced with an A5 demo (C++ right now)
-- exnewapi - A messy example showing off a lot of A5 features
-- exnew_bitmap - Simply draws a bitmap on screen
-- exnew_fs_resize - Demonstrates fullscreen display resizing
-- enxew_lockbitmap - Shows how to lock a bitmap to write directly to it
-- exnew_lockscreen - Like exnew_lockbitmap, but operates directly on the screen
-- exnew_mouse - Uses mouse polling to show a cursor
-- exnew_mouse_events - Uses the new event system to show a mouse cursor
-- exnew_resize - Demonstrates windows resized with code
+- there's a different demo in the `demo` directory (a5teroids)
+- exnewapi - a messy example showing off a lot of A5 features
+- exnew_bitmap - simply draws a bitmap on screen
+- exnew_bitmap_target - 
+- exnew_fs_resize - demonstrates fullscreen display resizing
+- exnew_lockbitmap - shows how to lock a bitmap to write directly to it
+- exnew_lockscreen - like exnew_lockbitmap, but operates directly on the screen
+- exnew_mouse - uses mouse polling to show a cursor
+- exnew_mouse_events - uses the new event system to show a mouse cursor
+- exnew_resize - demonstrates windows resized with code
+- exnew_blend - an example demonstrating different blending modes
+- exnew_drawpixels - draws individual pixels 
+- exnew_events - demonstrates the event system
+- exnew_icon - sets window icons
+- exnew_membmp - test memory bitmaps
+- exnew_multiwin - demonstrates multiple window support
+- exnew_opengl - 
+- exnew_scale - test bitmap scaling
+- exnew_timedwait - test timed wait for events
+- exnew_timer - test timer events
 
 Remember that some examples look for data files in the current directory, so if
 you used an external build directory you will need to change into the examples
@@ -192,4 +206,7 @@ API documentation
 
 The documentation is all linked to from the wiki:
 <http://wiki.allegro.cc/NewAPI>
+
+If you have NaturalDocs installed you can build the documentation by
+running `make` in the `docs/naturaldocs` directory.
 
