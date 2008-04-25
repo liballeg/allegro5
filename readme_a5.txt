@@ -104,7 +104,10 @@ CMake & MSVC
 
 First open up a console and make sure that cmake.exe is in your %PATH%. You
 ensure than by typing "SET PATH=C:\cmake\bin\;%PATH%" or similar. Typing
-"cmake" should display the help message.
+"cmake" should display the help message. It is also a good idea to have MSVC
+compiler cl.exe in your path, to make it easier for CMake to find it, especially
+if you have mutiple MSVC versions installed. You can do that by running
+vcvars32.bat script found in the directory where MSVC is installed.
 
 CMake works by first creating a project solution, which can then be opened
 with MSVC IDE and built.
