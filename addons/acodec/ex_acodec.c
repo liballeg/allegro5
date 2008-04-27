@@ -98,6 +98,9 @@ int main(int argc, char **argv)
       /* FIXME: mismatch in the API, attach/detach are diff */
       al_sample_set_bool(sample, ALLEGRO_AUDIO_ATTACHED, FALSE);
 
+      /* free the memory allocated when creating the voice */
+      al_voice_destroy(voice);
+
       /* free the memory allocated when creating the sample */
       al_sample_destroy(sample);
    }
