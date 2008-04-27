@@ -943,6 +943,14 @@ Contributors
    Ronaldo Hideki Yamada (<email>r.yamada@uol.com.br</a>).<br>
    Contributed the MacOS 9 port of Allegro.
 
+   Ryan Dickie.<br>
+   Improved exnew_events with a scrolling key logger, changed the type of
+   timestamps throughout the API from int expressed in milliseconds to double
+   expressed in seconds, made timer resolution high in Windows, made timers roll
+   over properly in Windows, added an 'error' field to the timer event,
+   checked-in audio addon and audio codecs, make individual audio codecs
+   optionally compiled and did plenty of other things too.
+
    Ryan Patterson.<br>
    Made various documentation fixes and fixed a crash in free_config_entries.
    Clarified the documentation of stop_sample().

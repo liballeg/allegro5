@@ -10,7 +10,7 @@
 #ifdef ALLEGRO_MACOSX
 
 #endif
-#if defined(ALLEGRO_MINGW) || defined(ALLEGRO_MSVC)
+#if defined(ALLEGRO_MINGW32) || defined(ALLEGRO_MSVC)
 #include "allegro5/winalleg.h"
 #define _WIN32_IE 0x400
 #include <shlobj.h>

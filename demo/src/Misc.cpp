@@ -56,7 +56,7 @@ static char* userResourcePath()
    return path;
 }
 #endif
-#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_MINGW)
+#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_MINGW32)
 static char* userResourcePath()
 {
    static char path[MAX_PATH];

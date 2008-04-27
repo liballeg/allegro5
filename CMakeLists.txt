@@ -25,7 +25,7 @@ else(USE_CXX)
     project(ALLEGRO C)
 endif(USE_CXX)
 
-set(ALLEGRO_VERSION 4.9.3)
+set(ALLEGRO_VERSION 4.9.4)
 
 # Search in the `cmake' directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
