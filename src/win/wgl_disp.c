@@ -842,7 +842,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
    for (i = 1; i <= maxindex; i++) {
       OGL_PIXEL_FORMAT *pf = pf_list[i-1];
       /* TODO: implement a choice system (scoring?) */
-      if (pf && pf->doublebuffered == true && pf->format == format) {
+      if (pf && pf->doublebuffered && pf->format == format) {
          if (try_to_set_pixel_format(i)) {
             PIXELFORMATDESCRIPTOR pdf;
             TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", i);
