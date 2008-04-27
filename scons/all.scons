@@ -153,6 +153,10 @@ def examples(env,appendDir,buildDir,libDir):
     addExample('exnew_bitmap_target', ['exnew_bitmap_target.c'])
     addExample('exnew_blend', ['exnew_blend.c'])
     addExample('exnew_timer', ['exnew_timer.c'])
+    addExample('exnew_timedwait', ['exnew_timedwait.c'])
+    addExample('exnew_scale', ['exnew_scale.c'])
+    addExample('exnew_drawpixels', ['exnew_drawpixels.c'])
+    addExample('exnew_multiwin', ['exnew_multiwin.c'])
 
     Alias('examples', examples)
     return examples
