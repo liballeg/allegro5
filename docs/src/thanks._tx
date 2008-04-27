@@ -441,7 +441,10 @@ Contributors
    Ivan Baldo (<email>lubaldo@adinet.com.uy</a>).<br>
    Wrote the 15/16 bit dithering code and optimised the sprite rotation
    routines.
-   
+
+   Jacod Dawid.<br>
+   Contributed a nicer graphic for a5teroids.
+
    Jaime Moreno (<email>daviangel@hotmail.com</a>).<br>
    Helped track down a problem with dependency generation in MacOS X.
    
@@ -540,7 +543,7 @@ Contributors
 
    Joshua Heyer (<email>joshua_heyer@yahoo.com</a>).<br>
    Wrote the original version of the OSS sound driver.
-   
+
    J. P. Morris (email unknown).<br>
    Fixed a bug rest_callback under unix.
 

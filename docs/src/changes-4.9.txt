@@ -1,11 +1,131 @@
 % Allegro changelog for 4.9.x series
 
-See `changes._tx` for changes in earlier versions of Allegro.
+See `changes._tx` for changes in earlier versions of Allegro.  These lists
+serve as summaries; the full histories are in the Subversion repository.
 
 
 
-Changes from 4.9.1 to 4.9.2 (November 2006)
+Changes from 4.9.2 to 4.9.3 (April 2008)
+========================================
+
+Graphics:
+
+-  Milan Mimica did lots of work on the OpenGL drivers, such as adding an
+   OpenGL driver for Windows and making the OpenGL code shared between
+   platforms.
+
+-  Peter Hull added an OpenGL graphics driver for Mac OS X.
+
+-  Milan Mimica made the OpenGL driver share contexts between displays.
+
+-  Peter Wang and Milan Mimica added made the OpenGL driver work with cards
+   that don't support non-power-of-two (NPOT) textures.
+
+-  Trent Gamblin added support for NPOT textures in the Direct3D driver.
+
+-  Trent Gamblin fixed blending in memory drawing functions. 
+
+-  Trent Gamblin added al_draw_pixel() which obeys blending.
+
+-  Trent Gamblin made al_clear() not affected by blending in D3D.
+
+-  Milan Mimica added the following functions to the public API:
+   al_opengl_version(), al_is_opengl_extension_supported(),
+   al_get_opengl_proc_address(), al_get_opengl_extension_list().
+
+-  Milan Mimica added sub-bitmaps support for memory bitmaps and in the
+   OpenGL display driver.
+
+-  Milan Mimica made displays keep a list of bitmaps. When destroying a
+   display its bitmaps will be managed properly, e.g. converted to memory
+   bitmaps if necessary. All display bitmaps will be automatically destroyed
+   on exit.
+
+-  Peter Wang made X window resizing work without GLX 1.3.
+
+-  Trent Gamblin fixed a bug in the Direct3D driver when windows were
+   minimized (thanks to David McCallum).
+
+-  Trent Gamblin fixed the coordinates of Direct3D primitives to match OpenGL
+   style.
+
+-  Peter Hull fixed some logic in bitmap drawing and al_load_bitmap().
+
+Fonts:
+
+-  Milan Mimica made font drawing faster, by making glyphs sub-bitmaps of a
+   larger glyph sheet.
+
+-  Milan Mimica and Peter Wang made font loading faster.
+
+-  Trent Gamblin added versions of text output functions which take as an
+   explicit argument the length of the strings.
+
+Audio:
+
+-  A new audio API implementation, originally by Chris Robinson, was added
+   (currently as an addon only).  It has received additional work in the past
+   from Milan Mimica and recently much work from Ryan Dickie.
+
+-  Ryan Dickie also added an acodec addon, which has loaders for FLAC, Wave
+   and Ogg Vorbis files, using other libraries.
+
+Timers:
+
+-  Ryan Dickie changed the type of timestamps throughout the API from int
+   expressed in milliseconds to double expressed in seconds and improved
+   timer resolution on Windows.
+
+-  Ryan Dickie added an 'error' field to the timer event, and added error
+   and overhead statistics to exnew_timer.
+
+-  Trent Gamblin made the Windows timer use QueryPerformanceCounter.
+
+-  Peter Wang split al_wait_for_event() into two functions, a version that
+   takes a timeout and a version that doesn't.
+
+-  Trent Gamblin merged the Windows and Unix timer source files.
+
+Input:
+
+-  Peter Wang renamed some joystick and timer functions to adhere to the
+   `al_<verb>_<noun>` convention.
+
+-  Peter Wang made al_num_joysticks() more lenient if there is no joystick
+   driver installed.
+
+Other:
+
+-  David Capello added support for various different BMPs.
+
+-  Elias Pschernig fixed compilation of the X port in case the XVidMode
+   extension is unavailable (thanks to Thomas Fjellstrom).
+
+-  Elias Pschernig added a exnew_timer example.
+
+-  Trent Gamblin added exnew_multiwin and exnew_drawpixels.
+
+-  Peter Wang added exnew_timedwait and exnew_scale.
+
+-  Jon Rafkind and Elias Pschernig updated the SCons build.
+
+-  Jon Rafkind added a `_s` suffix to static libraries in the SCons build.
+
+-  Elias Pschernig did some work on cross-compilation with SCons and MinGW.
+
+-  Milan Mimica made the CMake build work with MSVC project solutions
+   and made the library build with MSVC 8.
+
+-  Jacod Dawid added a nicer spaceship graphic for a5teroids demo.
+
+-  Many more bug fixes and documentation updates.
+
+
+
+Changes from 4.9.1 to 4.9.2 (November 2007)
 ===========================================
+
+*This list is still to be summarised.*
 
 -  Trent Gamblin made the mouse cursor always hide when the user
    calls al_hide_mouse_cursor in fullscreen (D3D).
@@ -94,7 +214,7 @@ Changes from 4.9.1 to 4.9.2 (November 2006)
 
 -  Elias Pschernig added icon.xpm which went missing in the merge.
 
--  Peter Want replaced _al_draw_bitmap_region_memory_fast with
+-  Peter Wang replaced _al_draw_bitmap_region_memory_fast with
    _al_draw_bitmap_region_memory.
 
 -  Trent Gamblin made memblit.c compile a little faster in debug
@@ -597,13 +717,13 @@ Changes from 4.9.0 to 4.9.1 (March 2007)
 
 -  Added a new mouse and cursor API. The new functions are:
 
-   al_install_mouse, al_uninstall_mouse, al_get_mouse,
-   al_get_mouse_num_buttons, al_get_mouse_num_axes, al_set_mouse_xy,
-   al_set_mouse_z, al_set_mouse_w, al_set_mouse_axis, al_set_mouse_range,
-   al_get_mouse_state, al_mouse_button_down, al_mouse_state_axis
+      al_install_mouse, al_uninstall_mouse, al_get_mouse,
+      al_get_mouse_num_buttons, al_get_mouse_num_axes, al_set_mouse_xy,
+      al_set_mouse_z, al_set_mouse_w, al_set_mouse_axis, al_set_mouse_range,
+      al_get_mouse_state, al_mouse_button_down, al_mouse_state_axis
 
-   al_create_mouse_cursor, al_destroy_mouse_cursor, al_set_mouse_cursor,
-   al_set_system_mouse_cursor, al_show_mouse_cursor, al_hide_mouse_cursor
+      al_create_mouse_cursor, al_destroy_mouse_cursor, al_set_mouse_cursor,
+      al_set_system_mouse_cursor, al_show_mouse_cursor, al_hide_mouse_cursor
 
 -  Added documentation for some parts of the 4.9 API using the NaturalDocs
    generation system. The documentation is nowhere near as good as a proper
