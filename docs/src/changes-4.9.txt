@@ -18,8 +18,8 @@ Graphics:
 
 -  Milan Mimica made the OpenGL driver share contexts between displays.
 
--  Peter Wang and Milan Mimica added made the OpenGL driver work with cards
-   that don't support non-power-of-two (NPOT) textures.
+-  Peter Wang and Milan Mimica made the OpenGL driver work with cards that
+   don't support non-power-of-two (NPOT) textures.
 
 -  Trent Gamblin added support for NPOT textures in the Direct3D driver.
 
