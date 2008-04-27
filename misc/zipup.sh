@@ -277,6 +277,10 @@ echo "allegro/allegro.mft" >> allegro/allegro.mft
 utod allegro/allegro.mft
 zip -9 $name.zip allegro/allegro.mft
 
+if [ -r $name.7z ]; then
+   7za a $name.7z allegro/allegro.mft
+fi
+
 
 # if we are building diffs as well, do those
 if [ $# -eq 2 ]; then
