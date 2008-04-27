@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.9.3 (SVN)" "Allegro" "Allegro manual"
+@manh="version 4.9.4 (SVN)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,12 +52,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.9.3 (SVN)
+				       \_/__/     Version 4.9.4 (SVN)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Feb 29, 2008.
+	     By Shawn Hargreaves, Apr 27, 2008.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
