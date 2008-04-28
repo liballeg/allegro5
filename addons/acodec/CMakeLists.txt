@@ -158,7 +158,7 @@ macro(add_acodec_example nm)
 endmacro(add_acodec_example)
 
 add_acodec_example(ex_acodec ex_acodec.c)
-add_acodec_example(ex_acodec_mixer ex_acodec_mixer.c)
+#add_acodec_example(ex_acodec_mixer ex_acodec_mixer.c)
 
 #-----------------------------------------------------------------------------#
 #

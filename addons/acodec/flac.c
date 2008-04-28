@@ -155,7 +155,8 @@ ALLEGRO_SAMPLE* al_load_sample_flac(const char *filename)
 
    sample = al_sample_create(ff.buffer, ff.total_samples, ff.sample_rate,
                      _al_word_size_to_depth_conf(ff.word_size),
-                     _al_count_to_channel_conf(ff.channels));
+                     _al_count_to_channel_conf(ff.channels),
+                     TRUE);
 
    return sample;
 }

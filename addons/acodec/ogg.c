@@ -71,7 +71,8 @@ ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *filename)
             total_samples,
             rate,
             _al_word_size_to_depth_conf(word_size),
-            _al_count_to_channel_conf(channels)
+            _al_count_to_channel_conf(channels),
+            TRUE
          );
 
    return sample;

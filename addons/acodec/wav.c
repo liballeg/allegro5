@@ -19,11 +19,7 @@ ALLEGRO_AUDIO_ENUM _get_depth_enum( int format , int* word_size)
       case SF_FORMAT_PCM_U8:
          *word_size = 1;
          return ALLEGRO_AUDIO_8_BIT_UINT; 
-   
-      case SF_FORMAT_PCM_S8:
-         *word_size = 1;
-         return ALLEGRO_AUDIO_8_BIT_INT;
-         
+
       case SF_FORMAT_PCM_16:
          *word_size = 2;
          return ALLEGRO_AUDIO_16_BIT_INT;
@@ -80,7 +76,7 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
 
    ALLEGRO_SAMPLE* sample = al_sample_create(buffer, total_samples, rate,
          depth,
-         _al_count_to_channel_conf(channels));
+         _al_count_to_channel_conf(channels), TRUE);
 
    return sample;
 }
