@@ -10,6 +10,10 @@ if(WANT_AUDIO)
     endif(WANT_ACODEC)
 endif(WANT_AUDIO)
 
+if(WANT_ICODEC)
+    add_subdirectory(icodec)
+endif(WANT_ICODEC)
+
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
 

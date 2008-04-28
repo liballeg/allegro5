@@ -93,6 +93,8 @@ option(WANT_FONT "Enable bitmap font add-on" on)
 # WANT_AUDIO is off until it checks for OpenAL on the system.
 option(WANT_AUDIO "Enable audio engine" off)
 option(WANT_ACODEC "Enable audio codecs (requires audio)" on)
+# WANT_ICODEC is off until it checks for Magick++
+option(WANT_ICODEC "Enable image loading/saving for most filetypes (requires libMagick)" off)
 
 #
 # For developers.
