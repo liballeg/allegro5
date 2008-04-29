@@ -91,7 +91,7 @@ void __ogg_stream_close(ALLEGRO_STREAM* stream)
    fclose(file);
 }
 
-bool _ogg_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long samples)
+bool _ogg_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long buf_size)
 {
    const int endian = 0; /* 0 for Little-Endian, 1 for Big-Endian */
    const int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
@@ -99,9 +99,9 @@ bool _ogg_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long sample
    int channels = vi->channels;
 
    unsigned long pos = 0;
-   while (pos < samples)
+   while (pos < buf_size)
    {
-      unsigned long read = ov_read(&vf, data + pos, samples, endian, word_size, signedness, &bitStream);
+      unsigned long read = ov_read(&vf, data + pos, buf_size - pos, endian, word_size, signedness, &bitStream);
       pos += read;
       /* now to silence from here to the end. */
    }

@@ -26,7 +26,7 @@ ALCenum     alc_err;
 char        alc_err_str[64];
 
 /* TODO: pick better defaults */
-const size_t preferred_frag_size = 4096*100; /* in bytes */
+const size_t preferred_frag_size = 4096*2; /* in bytes */
 const ALuint preferred_buf_count = 4;
 
 char* openal_get_err_str(ALenum err, int len_str, char* str)
@@ -244,10 +244,10 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice)
       /* copies data into a buffer */
       alBufferData(ex_data->buffers[0], ex_data->format,
                 voice->sample->buffer, ex_data->buffer_size, voice->sample->frequency);
+      /* sets the buffer */
+      alSourcei(ex_data->source, AL_BUFFER, ex_data->buffers[0]);
    }
 
-   /* sets the buffer */
-   alSourcei(ex_data->source, AL_BUFFER, ex_data->buffers[0]);
 
    /* make sure the volume is on */
    alSourcef(ex_data->source, AL_GAIN, 1.0f);
@@ -288,9 +288,13 @@ static void _openal_update(_AL_THREAD* self, void* arg)
    else
       memset(data, 0, ex_data->buffer_size);
 
+   samples_per_update = ex_data->buffer_size / bytes_per_sample;
+   fprintf(stderr, "Samples per update %d, number of buffers %d, buffer_size %d\n",
+            (int) samples_per_update, (int)ex_data->num_buffers,(int) ex_data->buffer_size);
+
    for(i=0; i<ex_data->num_buffers; ++i)
    {
-      alBufferData(ex_data->buffers[i], ex_data->format, data, 1*bytes_per_sample, voice->stream->frequency);
+      alBufferData(ex_data->buffers[i], ex_data->format, data, ex_data->buffer_size , voice->stream->frequency);
       if((openal_err = alGetError()) != AL_NO_ERROR)
       {
          fprintf(stderr, "Could not buffer data\n");
@@ -308,6 +312,7 @@ static void _openal_update(_AL_THREAD* self, void* arg)
       fprintf(stderr, "\n");
       return;
    }
+
    alSourcePlay(ex_data->source);
    if((openal_err = alGetError()) != AL_NO_ERROR)
    {
@@ -317,80 +322,29 @@ static void _openal_update(_AL_THREAD* self, void* arg)
       return;
    }
 
-
-   samples_per_update = ex_data->buffer_size / bytes_per_sample;
-   fprintf(stderr, "Samples per update %d, number of buffers %d, buffer_size %d\n", (int) samples_per_update, (int)ex_data->num_buffers,(int) ex_data->buffer_size);
-
    while (ex_data->stream_on)
    {
       ALint status = 0;
       alGetSourcei(ex_data->source, AL_BUFFERS_PROCESSED, &status);
-      if((openal_err = alGetError()) != AL_NO_ERROR)
-      {
-         fprintf(stderr, "Could not get buffer processed count\n");
-         fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
-         fprintf(stderr, "\n");
-         return;
-      }
-
-      if (status <= 0)
-      {
-         /* if no buffers processed.. yield the CPU */
-         /* TODO: do something better here */
-         al_rest(0.0001);
-         continue;
-      }
-      
       while(--status >= 0)
       {
+         char dat[preferred_frag_size];
          ALuint buffer;
-         voice->stream->stream_update(voice->stream, data, samples_per_update);
-         
          alSourceUnqueueBuffers(ex_data->source, 1, &buffer);
-         if((openal_err = alGetError()) != AL_NO_ERROR)
-         {
-            fprintf(stderr, "Could not Unqueue buffers\n");
-            fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
-            fprintf(stderr, "\n");
-            return;
-         }
-         alBufferData(buffer, ex_data->format, data, ex_data->buffer_size, voice->stream->frequency);
-         if((openal_err = alGetError()) != AL_NO_ERROR)
-         {
-            fprintf(stderr, "Could not Buffer data\n");
-            fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
-            fprintf(stderr, "\n");
-            return;
-         }
+         voice->stream->stream_update(voice->stream, dat, ex_data->buffer_size);
+         alBufferData(buffer, ex_data->format, dat, ex_data->buffer_size, voice->stream->frequency);
          alSourceQueueBuffers(ex_data->source, 1, &buffer);
-         if((openal_err = alGetError()) != AL_NO_ERROR)
-         {
-            fprintf(stderr, "Could not queue buffers\n");
-            fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
-            fprintf(stderr, "\n");
-            return;
-         }
-      }
 
-      alGetSourcei(ex_data->source, AL_SOURCE_STATE, &status);
-      if((openal_err = alGetError()) != AL_NO_ERROR)
-      {
-         fprintf(stderr, "Could not get source state\n");
-         fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
-         fprintf(stderr, "\n");
-         return;
-      }
-      if (status == AL_STOPPED)
-      {
-         alSourcePlay(ex_data->source);
          if((openal_err = alGetError()) != AL_NO_ERROR)
          {
-            fprintf(stderr, "Could not play source\n");
+            fprintf(stderr, "Error updating stream buffers\n");
             fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
             fprintf(stderr, "\n");
             return;
          }
       }
+      /* yield to CPU, TODO: pick better number */
+      al_rest(0.001);
    }
 
    free(data);
@@ -449,7 +403,14 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
       _openal_load_voice(voice);
       ex_data->stream_on = TRUE;
       _al_thread_create(&ex_data->thread, _openal_update, (void*) voice);
-      alGetError();
+
+      if((openal_err = alGetError()) != AL_NO_ERROR)
+      {
+         fprintf(stderr, "Could not start voice\n");
+         fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
+         fprintf(stderr, "\n");
+         return 1;
+      }
       return 0;
    }
    return 1;
