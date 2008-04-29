@@ -240,6 +240,19 @@ DIGI_DRIVER *_get_dsalmix_driver(char *name, LPGUID guid, int num)
 
 
 
+/* _free_win_dsalmix_name_list
+ * Helper function for freeing dynamically generated driver names.
+ */
+void _free_win_dsalmix_name_list(void)
+{
+   int i = 0;
+   for (i = 0; i < MAX_DRIVERS; i++) {
+      if (driver_names[i]) _AL_FREE(driver_names[i]);
+   }
+}
+
+
+
 /* create_dsound_buffer:
  *  Worker function for creating a DirectSound buffer.
  */

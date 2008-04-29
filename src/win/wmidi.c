@@ -158,8 +158,10 @@ void _free_win_midi_driver_list(void)
 
    if (driver_list) {
       while (driver_list[i].driver) {
-         if (driver_list[i].id != MIDI_DIGMID)
+         if (driver_list[i].id != MIDI_DIGMID) {
+            _AL_FREE((char*)((MIDI_DRIVER*)driver_list[i].driver)->ascii_name);
             _AL_FREE(driver_list[i].driver);
+	 }
          i++;
       }
 

@@ -277,6 +277,12 @@ void _free_win_digi_driver_list(void)
       _destroy_driver_list(driver_list);
       driver_list = NULL;
    }
+
+   for (i = 0; i < num_drivers; i++) {
+      _AL_FREE(driver_names[i]);
+   }
+
+   _free_win_dsalmix_name_list();
 }
 
 
