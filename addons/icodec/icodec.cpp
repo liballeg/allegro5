@@ -63,7 +63,7 @@ extern "C" {
          sfmt = _pixel_format_string(lr.format);
          if (!sfmt) {
             fprintf(stderr, "Unsupported pixel format. Currently 24bpp and 32bpp only\n");
-            return NULL;
+            return 0;
          }
          fprintf(stderr, "Pixel format %s\n",sfmt);
          Magick::Image out(width,height, sfmt, Magick::CharPixel, lr.data);
