@@ -939,7 +939,11 @@ if(UNIX)
         endif("${lib}" MATCHES "^-l|^/")
     endforeach(lib)
 
-    configure_file(misc/allegro5-config.in allegro5-config)
+    # @ONLY prevents substitution of ${VAR} forms.
+    configure_file(
+        misc/allegro5-config.in allegro5-config
+        @ONLY
+        )
     install(PROGRAMS ${CMAKE_BINARY_DIR}/allegro5-config
             DESTINATION bin
             )

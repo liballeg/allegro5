@@ -1,8 +1,7 @@
 #!/bin/sh
 #
 #  Note: allegro5-config is generated from allegro5-config.in, by autoconf.
-#  It's also generated from allegro5-config.in by CMake.  Do not use $ {brace}
-#  syntax in this file as CMake will expand them.
+#  It's also generated from allegro5-config.in by CMake.
 #
 #  This script returns suitable commandline options for compiling programs
 #  using the Allegro library, for example:
@@ -185,7 +184,7 @@ fi
 if test "$echo_libs" = "yes"; then
    libdirs=-L$lib_path
    if test "$static_libs" = "yes"; then
-      echo $libdirs $allegro_ldflags -l$lib_type $allegro_libs
+      echo $libdirs $allegro_ldflags -l${lib_type}_s $allegro_libs
    else
       echo $libdirs $allegro_ldflags -l$lib_type-$version
    fi
