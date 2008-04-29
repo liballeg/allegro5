@@ -743,7 +743,7 @@ if(SUPPORT_MODULES)
         set_target_properties(${target}
             PROPERTIES
             PREFIX ""
-            COMPILE_FLAGS "-DALLEGRO_MODULE"
+            COMPILE_FLAGS "-DALLEGRO_MODULE ${WFLAGS}"
             )
         target_link_libraries(${target} ${ARGN})
 
@@ -827,12 +827,27 @@ endif(MSVC)
 if(GRADE_STANDARD)
     set(LIB_TO_LINK alleg)
     set(FONT_LIB_TO_LINK a5_font)
+    if(COMPILER_MSVC)
+        set(EXE_CFLAGS "")
+    elseif(COMPILER_GCC)
+        set(EXE_CFLAGS "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
+    endif(COMPILER_MSVC)
 elseif(GRADE_DEBUG)
     set(LIB_TO_LINK allegd)
     set(FONT_LIB_TO_LINK a5_fontd)
+    if(COMPILER_MSVC)
+        set(EXE_CFLAGS "-DDEBUGMODE")
+    elseif(COMPILER_GCC)
+        set(EXE_CFLAGS "-DDEBUGMODE -g")
+    endif(COMPILER_MSVC)
 elseif(GRADE_PROFILE)
     set(LIB_TO_LINK allegp)
     set(FONT_LIB_TO_LINK a5_fontp)
+    if(COMPILER_MSVC)
+        set(EXE_CFLAGS "")
+    elseif(COMPILER_GCC)
+        set(EXE_CFLAGS "-pg -O2 -funroll-loops -ffast-math")
+    endif(COMPILER_MSVC)
 endif(GRADE_STANDARD)
 
 if(STATIC)
@@ -847,7 +862,7 @@ endif(STATIC)
 macro(add_allegro_executable nm)
     add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
     set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS}"
+        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
         LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         )
     target_link_libraries(${nm} ${LINK_WITH})

@@ -83,7 +83,7 @@ set(ICODEC_LINK_WITH ${ICODEC_LINK_WITH} Magick++)
 macro(add_icodec_example nm)
     add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
     set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS}"
+        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
         LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         )
     target_link_libraries(${nm} ${LINK_WITH})
