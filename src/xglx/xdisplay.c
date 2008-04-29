@@ -246,6 +246,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+   ALLEGRO_DISPLAY_OGL *ogl = (void *)d;
 
    /* If we're the last display, convert all bitmpas to display independent
     * (memory) bitmaps. */
@@ -286,9 +287,15 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    if (d->flags & ALLEGRO_FULLSCREEN)
       _al_xglx_restore_video_mode(s);
 
-   // FIXME: deallocate ourselves?
+   if (ogl->backbuffer) {
+      _al_ogl_destroy_backbuffer(ogl->backbuffer);
+      ogl->backbuffer = NULL;
+   }
 
    _al_vector_free(&d->bitmaps);
+   _al_event_source_free(&ogl->display.es);
+
+   _AL_FREE(d);
 
    _al_mutex_unlock(&s->lock);
 }
