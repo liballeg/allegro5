@@ -81,15 +81,29 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
    return sample;
 }
 
-/* TODO implement */
-bool _sndfile_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long samples)
+bool _sndfile_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long buf_size)
 {
-//   fprintf(stderr,"sndfile stream update\n");
+   int bytes_per_sample, samples, num_read, bytes_read;
+
+   SNDFILE* sndfile = (SNDFILE*) stream->ex_data;  
+   bytes_per_sample = al_audio_channel_count(stream->chan_conf)*al_audio_depth_size(stream->depth);
+   samples = buf_size / bytes_per_sample;
+   
+   num_read = sf_readf_short(sndfile, data, samples);
+   if (num_read == samples)
+      return true;
+   
+   /* out of data */
+   bytes_read = num_read*bytes_per_sample;
+   memset(data + bytes_read, 0, buf_size - bytes_read);
    return false;
 }
 
 void _sndfile_stream_close(ALLEGRO_STREAM* stream)
 {
+   SNDFILE* sndfile = (SNDFILE*) stream->ex_data;
+   sf_close(sndfile);
+   stream->ex_data = NULL;
    return;
 }
 
@@ -125,14 +139,12 @@ ALLEGRO_STREAM* al_load_stream_sndfile(const char *filename)
       return NULL;
    }
 
-   sf_readf_short(sndfile, buffer, total_samples);
-   sf_close(sndfile);
-
    ALLEGRO_STREAM* stream = al_stream_create(rate,
          depth,
          _al_count_to_channel_conf(channels),
          _sndfile_stream_update, _sndfile_stream_close);
 
+   stream->ex_data = sndfile;
    return stream;
 }
 

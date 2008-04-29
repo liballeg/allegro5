@@ -162,7 +162,7 @@ ALLEGRO_SAMPLE* al_load_sample_flac(const char *filename)
 }
 
 /* TODO implement */
-bool _flac_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long samples)
+bool _flac_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long buf_size)
 {
 //   fprintf(stderr, "flac stream update\n");
    return false;

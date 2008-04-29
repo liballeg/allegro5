@@ -43,7 +43,7 @@ int main(int argc, char **argv)
        * data */
       stream = al_load_stream(filename);
       if (!stream) {
-         fprintf(stderr, "Could not load ALLEGRO_SAMPLE from '%s'!\n", filename);
+         fprintf(stderr, "Could not load ALLEGRO_STREAM from '%s'!\n", filename);
          continue;
       }
       fprintf(stderr, "loaded stream\n");
