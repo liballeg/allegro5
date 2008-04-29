@@ -59,9 +59,12 @@ int main(int argc, char **argv)
       /*play sample in looping mode*/
       al_voice_start(voice);
 
-//      sample_time = al_sample_get_time(sample);
       fprintf(stderr, "Playing %s .. Waiting for stream to finish ", filename);
-      al_rest(30.0);
+      while (!al_stream_is_dry(stream))
+      {
+         /* yield the CPU to conserve power + allow smooth playback */
+         al_rest(0.100);
+      }
       fprintf(stderr, "\n");
 
       /* free the memory allocated when creating the sample + voice */

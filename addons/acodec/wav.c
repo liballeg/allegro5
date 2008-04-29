@@ -88,6 +88,11 @@ bool _sndfile_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long sa
    return false;
 }
 
+void _sndfile_stream_close(ALLEGRO_STREAM* stream)
+{
+   return;
+}
+
 ALLEGRO_STREAM* al_load_stream_sndfile(const char *filename)
 {
    ALLEGRO_AUDIO_ENUM depth; 
@@ -125,7 +130,8 @@ ALLEGRO_STREAM* al_load_stream_sndfile(const char *filename)
 
    ALLEGRO_STREAM* stream = al_stream_create(rate,
          depth,
-         _al_count_to_channel_conf(channels), _sndfile_stream_update);
+         _al_count_to_channel_conf(channels),
+         _sndfile_stream_update, _sndfile_stream_close);
 
    return stream;
 }

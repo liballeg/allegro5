@@ -26,7 +26,7 @@ ALCenum     alc_err;
 char        alc_err_str[64];
 
 /* TODO: pick better defaults */
-const size_t preferred_frag_size = 4096*2; /* in bytes */
+const size_t preferred_frag_size = 4096*4; /* in bytes */
 const ALuint preferred_buf_count = 4;
 
 char* openal_get_err_str(ALenum err, int len_str, char* str)
@@ -288,10 +288,6 @@ static void _openal_update(_AL_THREAD* self, void* arg)
    else
       memset(data, 0, ex_data->buffer_size);
 
-   samples_per_update = ex_data->buffer_size / bytes_per_sample;
-   fprintf(stderr, "Samples per update %d, number of buffers %d, buffer_size %d\n",
-            (int) samples_per_update, (int)ex_data->num_buffers,(int) ex_data->buffer_size);
-
    for(i=0; i<ex_data->num_buffers; ++i)
    {
       alBufferData(ex_data->buffers[i], ex_data->format, data, ex_data->buffer_size , voice->stream->frequency);
@@ -331,7 +327,7 @@ static void _openal_update(_AL_THREAD* self, void* arg)
          char dat[preferred_frag_size];
          ALuint buffer;
          alSourceUnqueueBuffers(ex_data->source, 1, &buffer);
-         voice->stream->stream_update(voice->stream, dat, ex_data->buffer_size);
+         voice->stream->dried_up = !voice->stream->stream_update(voice->stream, dat, ex_data->buffer_size);
          alBufferData(buffer, ex_data->format, dat, ex_data->buffer_size, voice->stream->frequency);
          alSourceQueueBuffers(ex_data->source, 1, &buffer);
 

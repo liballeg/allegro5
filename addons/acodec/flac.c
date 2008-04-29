@@ -89,7 +89,7 @@ FLAC__StreamDecoderWriteStatus write_callback(const FLAC__StreamDecoder *decoder
              for (channel_index = 0; channel_index < out->channels; channel_index++)
              {
                 /* little endian */
-                /* FIXME: does this work? I only have 16-bit sound card mixer garbages for other 24-bit codecs too*/
+                /* FIXME: does this work? I only have 16-bit sound card. allegro_mixer garbaged the downsampling too */
                 buf8[out_index++] = (FLAC__uint8) ((buffer[channel_index][sample_index]&0xFF));
                 buf8[out_index++] = (FLAC__uint8) ((buffer[channel_index][sample_index]&0xFF00)>>8);
                 buf8[out_index++] = (FLAC__uint8) ((buffer[channel_index][sample_index]&0xFF0000)>>16);
@@ -168,6 +168,10 @@ bool _flac_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long sampl
    return false;
 }
 
+void _flac_stream_close(ALLEGRO_STREAM* stream)
+{
+   return;
+}
 
 ALLEGRO_STREAM* al_load_stream_flac(const char *filename)
 {
@@ -211,7 +215,7 @@ ALLEGRO_STREAM* al_load_stream_flac(const char *filename)
    stream = al_stream_create(ff.sample_rate,
                      _al_word_size_to_depth_conf(ff.word_size),
                      _al_count_to_channel_conf(ff.channels),
-                     _flac_stream_update);
+                     _flac_stream_update, _flac_stream_close);
 
    return stream;
 }

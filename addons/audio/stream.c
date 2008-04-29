@@ -16,7 +16,9 @@
  *   Creates an audio stream, using the supplied values. The stream will be set
  *   to play by default.
  */
-ALLEGRO_STREAM* al_stream_create(unsigned long frequency, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf, bool (*stream_update)(ALLEGRO_STREAM* stream, void* data, unsigned long samples))
+ALLEGRO_STREAM* al_stream_create(unsigned long frequency, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf,
+                bool (*stream_update)(ALLEGRO_STREAM* stream, void* data, unsigned long samples),
+                void (*stream_close)(ALLEGRO_STREAM* stream))
 {
    ALLEGRO_STREAM *stream;
    size_t i;
@@ -38,16 +40,22 @@ ALLEGRO_STREAM* al_stream_create(unsigned long frequency, ALLEGRO_AUDIO_ENUM dep
    stream->depth = depth;
    stream->chan_conf = chan_conf;
    stream->stream_update = stream_update;
+   stream->stream_close = stream_close;
+   stream->dried_up = FALSE;
 
    return stream;
 }
 
-/* TODO: make sure i shut it down if needed */
-void al_stream_destroy(ALLEGRO_STREAM *stream)
+void al_stream_destroy(ALLEGRO_STREAM* stream)
 {
    ASSERT(stream);
-   /* TODO: free buffers */
+   stream->stream_close(stream);
    free(stream);
 }
 
 /* TODO: make stream getters */
+bool al_stream_is_dry(ALLEGRO_STREAM* stream)
+{
+   ASSERT(stream);
+   return stream->dried_up;
+}

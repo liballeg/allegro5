@@ -60,7 +60,10 @@ struct ALLEGRO_STREAM {
    unsigned long frequency;
    ALLEGRO_AUDIO_ENUM depth;
    ALLEGRO_AUDIO_ENUM chan_conf;
+   bool dried_up; /* TRUE if there is nothing left to get */
    bool (*stream_update)(ALLEGRO_STREAM*, void*, unsigned long);
+   void (*stream_close)(ALLEGRO_STREAM*); /* called when the stream is destroyed */
+   void* ex_data; /* extra data meant for the stream readers to use */
 };
 
 #endif

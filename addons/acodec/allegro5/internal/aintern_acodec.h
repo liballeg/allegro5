@@ -8,6 +8,7 @@
 #ifndef AINTERN_ACODEC_H
 #define AINTERN_ACODEC_H
 
+#include "allegro5/internal/aintern_audio.h"
 #include "allegro5/audio.h"
 #include "allegro5/internal/aintern_acodec_cfg.h"
 
