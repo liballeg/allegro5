@@ -35,19 +35,21 @@ typedef struct ALLEGRO_AUDIO_DRIVER {
 /* A voice structure that you'd attach a mixer or sample to. Ideally there
    would be one ALLEGRO_VOICE per system/hardware voice */
 struct ALLEGRO_VOICE {
-   /* the stream or sample */
+   /* the sample */
    ALLEGRO_SAMPLE* sample;
+   /* the stream */
+   ALLEGRO_STREAM* stream;
    /* true for streams or mixers */
-   bool streaming;
+   volatile bool streaming;
    /* Extra data for use by the driver */
    void *extra;
 };
 
 /* The sample struct */
 struct ALLEGRO_SAMPLE {
+   unsigned long frequency;
    ALLEGRO_AUDIO_ENUM depth;
    ALLEGRO_AUDIO_ENUM chan_conf;
-   unsigned long frequency;
    unsigned long length;
    void* buffer;
    bool free_buffer;
@@ -55,14 +57,10 @@ struct ALLEGRO_SAMPLE {
 
 /* stream inherits from sample */
 struct ALLEGRO_STREAM {
-   ALLEGRO_SAMPLE sample;
-
-   size_t buf_count;
-
-   void *main_buffer;
-
-   void **pending_bufs;
-   void **used_bufs;
+   unsigned long frequency;
+   ALLEGRO_AUDIO_ENUM depth;
+   ALLEGRO_AUDIO_ENUM chan_conf;
+   bool (*stream_update)(ALLEGRO_STREAM*, void*, unsigned long);
 };
 
 #endif

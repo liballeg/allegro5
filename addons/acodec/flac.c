@@ -161,6 +161,59 @@ ALLEGRO_SAMPLE* al_load_sample_flac(const char *filename)
    return sample;
 }
 
+/* TODO implement */
+bool _flac_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long samples)
+{
+//   fprintf(stderr, "flac stream update\n");
+   return false;
+}
 
+
+ALLEGRO_STREAM* al_load_stream_flac(const char *filename)
+{
+   ALLEGRO_STREAM *stream;
+   FLAC__StreamDecoder *decoder = 0;
+   FLAC__StreamDecoderInitStatus init_status;
+   FLACFILE ff;
+
+   decoder = FLAC__stream_decoder_new();
+   if(decoder == NULL)
+   {
+      fprintf(stderr, "ERROR: allocating decoder\n");
+      return NULL;
+   }
+
+   init_status = FLAC__stream_decoder_init_file(decoder, filename, write_callback, metadata_callback, error_callback, &ff);
+   if(init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
+   {
+      fprintf(stderr, "ERROR: initializing decoder: %s\n", FLAC__StreamDecoderInitStatusString[init_status]);
+      FLAC__stream_decoder_delete(decoder);
+      return NULL;
+   }
+ 
+   FLAC__stream_decoder_process_until_end_of_stream(decoder);
+
+   fprintf(stderr, "loaded sample %s with properties:\n",filename);
+   fprintf(stderr, "    channels %d\n",ff.channels);
+   fprintf(stderr, "    word_size %d\n", ff.word_size);
+   fprintf(stderr, "    rate %d\n",ff.sample_rate);
+   fprintf(stderr, "    total_samples %ld\n",ff.total_samples);
+   fprintf(stderr, "    total_size %ld\n",ff.total_size);
+
+   FLAC__stream_decoder_delete(decoder);
+ 
+   if (ff.word_size == 0)
+   {
+      fprintf(stderr, "ERROR: I do not support sub 8-bit sizes\n");
+      return NULL;     
+   }
+
+   stream = al_stream_create(ff.sample_rate,
+                     _al_word_size_to_depth_conf(ff.word_size),
+                     _al_count_to_channel_conf(ff.channels),
+                     _flac_stream_update);
+
+   return stream;
+}
 
 #endif /* ALLEGRO_CFG_ACODEC_FLAC */

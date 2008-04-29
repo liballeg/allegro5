@@ -46,6 +46,43 @@ ALLEGRO_SAMPLE* al_load_sample(const char* filename)
    return NULL;
 }
 
+ALLEGRO_STREAM* al_load_stream(const char* filename)
+{
+   if (filename == NULL)
+      return NULL;
+
+   //now to decide which file extension
+   char * ext = strrchr ( filename, '.' );
+   if (ext == NULL)
+      return NULL;
+
+   //pardon me if this is ugly/unsafe
+   //i've only ever done this in higher level
+   //languages
+   ext++; //get past the '.' character
+   #if defined(ALLEGRO_CFG_ACODEC_VORBIS)
+      if (stricmp("ogg",ext) == 0) {
+         return al_load_stream_oggvorbis(filename);
+      }
+   #endif
+   
+   #if defined(ALLEGRO_CFG_ACODEC_FLAC)
+      if (stricmp("flac",ext) == 0) {
+         return al_load_stream_flac(filename);
+      }
+   #endif
+
+   #if defined(ALLEGRO_CFG_ACODEC_SNDFILE)
+      if (stricmp("wav",ext) == 0 || strcmp("aiff",ext) == 0) {
+         return al_load_stream_sndfile(filename);
+      }
+   #endif
+ 
+   //no codec found!
+   return NULL;
+}
+
+
 /* FIXME: use the allegro provided helpers */
 ALLEGRO_AUDIO_ENUM _al_count_to_channel_conf(int num_channels)
 {

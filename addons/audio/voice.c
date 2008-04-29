@@ -15,7 +15,7 @@
 
 extern ALLEGRO_AUDIO_DRIVER* driver;
 
-/* al_voice_create: */
+/* al_voice_create: give it a sample*/
 ALLEGRO_VOICE* al_voice_create(ALLEGRO_SAMPLE* sample)
 {
    ALLEGRO_VOICE *voice = NULL;
@@ -35,6 +35,7 @@ ALLEGRO_VOICE* al_voice_create(ALLEGRO_SAMPLE* sample)
       return NULL;
    }
    voice->sample = sample;
+   voice->stream = NULL;
    voice->streaming = FALSE;
 
    if(driver->allocate_voice(voice) != 0)
@@ -45,6 +46,40 @@ ALLEGRO_VOICE* al_voice_create(ALLEGRO_SAMPLE* sample)
    }
 
    return voice;
+}
+
+/* al_voice_create: give it a stream */
+ALLEGRO_VOICE* al_voice_create_stream(ALLEGRO_STREAM* stream)
+{
+   ALLEGRO_VOICE *voice = NULL;
+
+   ASSERT(stream);
+
+   if(!driver)
+   {
+      TRACE("Error. Cannot create voice when no audio driver is initiated");
+      return NULL;
+   }
+
+   voice = malloc(sizeof(*voice));
+   if(!voice)
+   {
+      TRACE("Error allocation voice structure memory");
+      return NULL;
+   }
+
+   voice->sample = NULL;
+   voice->stream = stream;
+   voice->streaming = TRUE;
+
+   if(driver->allocate_voice(voice) != 0)
+   {
+      free(voice);
+      TRACE("Error creating hardware voice");
+      return NULL;
+   }
+
+   return voice;  
 }
 
 void al_voice_destroy(ALLEGRO_VOICE *voice)

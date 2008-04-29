@@ -13,6 +13,7 @@
 */
 typedef struct ALLEGRO_VOICE ALLEGRO_VOICE;
 AL_FUNC(ALLEGRO_VOICE*, al_voice_create, (ALLEGRO_SAMPLE* sample));
+AL_FUNC(ALLEGRO_VOICE*, al_voice_create_stream, (ALLEGRO_STREAM* stream));
 AL_FUNC(void, al_voice_destroy, (ALLEGRO_VOICE *voice));
 AL_FUNC(unsigned long, al_voice_get_position, (const ALLEGRO_VOICE* voice));
 AL_FUNC(bool, al_voice_is_playing, (const ALLEGRO_VOICE* voice));

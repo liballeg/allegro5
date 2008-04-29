@@ -81,6 +81,54 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
    return sample;
 }
 
+/* TODO implement */
+bool _sndfile_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long samples)
+{
+//   fprintf(stderr,"sndfile stream update\n");
+   return false;
+}
+
+ALLEGRO_STREAM* al_load_stream_sndfile(const char *filename)
+{
+   ALLEGRO_AUDIO_ENUM depth; 
+   SF_INFO sfinfo;
+   sfinfo.format = 0;
+   SNDFILE* sndfile = sf_open(filename, SFM_READ, &sfinfo); 
+
+   if (sndfile == NULL)
+      return NULL;
+
+   /* supports 16-bit, 32-bit (and float) */
+   int word_size = 0;
+   depth = _get_depth_enum(sfinfo.format,&word_size);  
+   int channels = sfinfo.channels;
+   long rate = sfinfo.samplerate;
+   long total_samples = sfinfo.frames;
+   long total_size = total_samples * channels * word_size; 
+
+   fprintf(stderr, "loaded sample %s with properties:\n",filename);
+   fprintf(stderr, "    channels %d\n",channels);
+   fprintf(stderr, "    word_size %d\n", word_size);
+   fprintf(stderr, "    rate %ld\n",rate);
+   fprintf(stderr, "    total_samples %ld\n",total_samples);
+   fprintf(stderr, "    total_size %ld\n",total_size);
+   
+   short* buffer = (short*) malloc(total_size);
+   if (buffer == NULL)
+   {
+      sf_close(sndfile);
+      return NULL;
+   }
+
+   sf_readf_short(sndfile, buffer, total_samples);
+   sf_close(sndfile);
+
+   ALLEGRO_STREAM* stream = al_stream_create(rate,
+         depth,
+         _al_count_to_channel_conf(channels), _sndfile_stream_update);
+
+   return stream;
+}
 
 
 #endif /* ALLEGRO_CFG_ACODEC_SNDFILE */

@@ -10,8 +10,8 @@
 #include "allegro5/allegro5.h"
 #include "audio_common.h"
 
+#include "stream.h"
 #include "sample.h"
 #include "voice.h"
-#include "stream.h"
 
 #endif
