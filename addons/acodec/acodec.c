@@ -37,7 +37,7 @@ ALLEGRO_SAMPLE* al_load_sample(const char* filename)
    #endif
 
    #if defined(ALLEGRO_CFG_ACODEC_SNDFILE)
-      if (stricmp("wav",ext) == 0 || strcmp("aiff",ext) == 0) {
+      if (stricmp("wav",ext) == 0 || stricmp("aiff",ext) == 0 || stricmp("flac",ext) == 0) {
          return al_load_sample_sndfile(filename);
       }
    #endif
@@ -68,12 +68,13 @@ ALLEGRO_STREAM* al_load_stream(const char* filename)
    
    #if defined(ALLEGRO_CFG_ACODEC_FLAC)
       if (stricmp("flac",ext) == 0) {
-         return al_load_stream_flac(filename);
+      /* Disabled until flac streaming is implemented */
+      /*   return al_load_stream_flac(filename); */
       }
    #endif
 
    #if defined(ALLEGRO_CFG_ACODEC_SNDFILE)
-      if (stricmp("wav",ext) == 0 || strcmp("aiff",ext) == 0) {
+      if (stricmp("wav",ext) == 0 || stricmp("aiff",ext) == 0 || stricmp("flac",ext) == 0) {
          return al_load_stream_sndfile(filename);
       }
    #endif

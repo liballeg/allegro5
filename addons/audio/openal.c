@@ -25,8 +25,8 @@ char        openal_err_str[64];
 ALCenum     alc_err;
 char        alc_err_str[64];
 
-/* TODO: pick better defaults */
-const size_t preferred_frag_size = 4096*4; /* in bytes */
+/*these constants are only used for streaming. frag_size is also in samples */
+const size_t preferred_frag_size = 2048;
 const ALuint preferred_buf_count = 4;
 
 char* openal_get_err_str(ALenum err, int len_str, char* str)
@@ -324,11 +324,10 @@ static void _openal_update(_AL_THREAD* self, void* arg)
       alGetSourcei(ex_data->source, AL_BUFFERS_PROCESSED, &status);
       while(--status >= 0)
       {
-         char dat[preferred_frag_size];
          ALuint buffer;
          alSourceUnqueueBuffers(ex_data->source, 1, &buffer);
-         voice->stream->dried_up = !voice->stream->stream_update(voice->stream, dat, ex_data->buffer_size);
-         alBufferData(buffer, ex_data->format, dat, ex_data->buffer_size, voice->stream->frequency);
+         voice->stream->dried_up = !voice->stream->stream_update(voice->stream, data, ex_data->buffer_size);
+         alBufferData(buffer, ex_data->format, data, ex_data->buffer_size, voice->stream->frequency);
          alSourceQueueBuffers(ex_data->source, 1, &buffer);
 
          if((openal_err = alGetError()) != AL_NO_ERROR)
@@ -506,7 +505,9 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
 
 
    if (voice->streaming) {
-      ex_data->buffer_size = preferred_frag_size;
+      ex_data->buffer_size = preferred_frag_size * 
+                             al_audio_depth_size(voice->stream->depth) *
+                             al_audio_channel_count(voice->stream->chan_conf);
       ex_data->num_buffers = preferred_buf_count;
       chan_conf = voice->stream->chan_conf;
    } else {

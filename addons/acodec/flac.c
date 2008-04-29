@@ -89,7 +89,7 @@ FLAC__StreamDecoderWriteStatus write_callback(const FLAC__StreamDecoder *decoder
              for (channel_index = 0; channel_index < out->channels; channel_index++)
              {
                 /* little endian */
-                /* FIXME: does this work? I only have 16-bit sound card. allegro_mixer garbaged the downsampling too */
+                /* FIXME: does this work? I only have 16-bit sound card mixer garbages for other 24-bit codecs too*/
                 buf8[out_index++] = (FLAC__uint8) ((buffer[channel_index][sample_index]&0xFF));
                 buf8[out_index++] = (FLAC__uint8) ((buffer[channel_index][sample_index]&0xFF00)>>8);
                 buf8[out_index++] = (FLAC__uint8) ((buffer[channel_index][sample_index]&0xFF0000)>>16);
@@ -164,60 +164,19 @@ ALLEGRO_SAMPLE* al_load_sample_flac(const char *filename)
 /* TODO implement */
 bool _flac_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long buf_size)
 {
-//   fprintf(stderr, "flac stream update\n");
    return false;
 }
 
-void _flac_stream_close(ALLEGRO_STREAM* stream)
-{
-   return;
-}
-
+/* TODO implement */
 ALLEGRO_STREAM* al_load_stream_flac(const char *filename)
 {
-   ALLEGRO_STREAM *stream;
-   FLAC__StreamDecoder *decoder = 0;
-   FLAC__StreamDecoderInitStatus init_status;
-   FLACFILE ff;
-
-   decoder = FLAC__stream_decoder_new();
-   if(decoder == NULL)
-   {
-      fprintf(stderr, "ERROR: allocating decoder\n");
-      return NULL;
-   }
-
-   init_status = FLAC__stream_decoder_init_file(decoder, filename, write_callback, metadata_callback, error_callback, &ff);
-   if(init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
-   {
-      fprintf(stderr, "ERROR: initializing decoder: %s\n", FLAC__StreamDecoderInitStatusString[init_status]);
-      FLAC__stream_decoder_delete(decoder);
-      return NULL;
-   }
- 
-   FLAC__stream_decoder_process_until_end_of_stream(decoder);
-
-   fprintf(stderr, "loaded sample %s with properties:\n",filename);
-   fprintf(stderr, "    channels %d\n",ff.channels);
-   fprintf(stderr, "    word_size %d\n", ff.word_size);
-   fprintf(stderr, "    rate %d\n",ff.sample_rate);
-   fprintf(stderr, "    total_samples %ld\n",ff.total_samples);
-   fprintf(stderr, "    total_size %ld\n",ff.total_size);
-
-   FLAC__stream_decoder_delete(decoder);
- 
-   if (ff.word_size == 0)
-   {
-      fprintf(stderr, "ERROR: I do not support sub 8-bit sizes\n");
-      return NULL;     
-   }
-
+   return NULL;
+/*
    stream = al_stream_create(ff.sample_rate,
                      _al_word_size_to_depth_conf(ff.word_size),
                      _al_count_to_channel_conf(ff.channels),
-                     _flac_stream_update, _flac_stream_close);
-
-   return stream;
+                     _flac_stream_update);
+*/
 }
 
 #endif /* ALLEGRO_CFG_ACODEC_FLAC */
