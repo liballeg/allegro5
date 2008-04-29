@@ -1092,9 +1092,8 @@ void _soft_circlefill(BITMAP *bmp, int x, int y, int radius, int color)
  *  copy of the bmp parameter, then the x, y point, then a copy of the d 
  *  parameter (so putpixel() can be used as the callback).
  */
-void do_ellipse(BITMAP *bmp, const int ix, const int iy,
-   const int rx0, const int ry0, const int d,
-   void (*const proc)(BITMAP *, int, int, int))
+void do_ellipse(BITMAP *bmp, int ix, int iy, int rx0, int ry0, int d,
+   void (*proc)(BITMAP *, int, int, int))
 {
    int rx, ry;
    int x, y;
