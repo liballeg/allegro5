@@ -2,7 +2,7 @@ include_directories(../audio)
 
 option(WANT_FLAC "Enable FLAC support (acodec)" on)
 option(WANT_VORBIS "Enable Ogg Vorbis support (acodec)" on)
-option(WANT_SNDFILE "Enable WAV/AIFF support (acodec)" on)
+option(WANT_SNDFILE "Enable WAV/AIFF/FLAC support (acodec)" on)
 
 set(ACODEC_EXTRA_LIBS)
 set(ACODEC_SOURCES acodec.c)
