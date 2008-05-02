@@ -111,7 +111,7 @@ macro(pandoc source output)
     list(APPEND all_docs ${abs_output})
     add_custom_command(
         OUTPUT  ${abs_output}
-        COMMAND ${PANDOC} ${abs_source} -o ${abs_output}
+        COMMAND ${PANDOC} ${abs_source} --standalone -o ${abs_output}
         DEPENDS ${abs_source}
         )
 endmacro(pandoc source output)
