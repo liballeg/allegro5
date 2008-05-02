@@ -43,19 +43,28 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
 {
    ALLEGRO_AUDIO_ENUM depth; 
    SF_INFO sfinfo;
+   SNDFILE* sndfile;
+   int word_size;
+   int channels;
+   long rate;
+   long total_samples;
+   long total_size;
+   short* buffer;
+   ALLEGRO_SAMPLE* sample;
+
    sfinfo.format = 0;
-   SNDFILE* sndfile = sf_open(filename, SFM_READ, &sfinfo); 
+   sndfile = sf_open(filename, SFM_READ, &sfinfo); 
 
    if (sndfile == NULL)
       return NULL;
 
    /* supports 16-bit, 32-bit (and float) */
-   int word_size = 0;
+   word_size = 0;
    depth = _get_depth_enum(sfinfo.format,&word_size);  
-   int channels = sfinfo.channels;
-   long rate = sfinfo.samplerate;
-   long total_samples = sfinfo.frames;
-   long total_size = total_samples * channels * word_size; 
+   channels = sfinfo.channels;
+   rate = sfinfo.samplerate;
+   total_samples = sfinfo.frames;
+   total_size = total_samples * channels * word_size; 
 
    fprintf(stderr, "loaded sample %s with properties:\n",filename);
    fprintf(stderr, "    channels %d\n",channels);
@@ -64,7 +73,7 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
    fprintf(stderr, "    total_samples %ld\n",total_samples);
    fprintf(stderr, "    total_size %ld\n",total_size);
    
-   short* buffer = (short*) malloc(total_size);
+   buffer = (short*) malloc(total_size);
    if (buffer == NULL)
    {
       sf_close(sndfile);
@@ -74,7 +83,7 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
    sf_readf_short(sndfile, buffer, total_samples);
    sf_close(sndfile);
 
-   ALLEGRO_SAMPLE* sample = al_sample_create(buffer, total_samples, rate,
+   sample = al_sample_create(buffer, total_samples, rate,
          depth,
          _al_count_to_channel_conf(channels), TRUE);
 
@@ -95,7 +104,7 @@ bool _sndfile_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long bu
    
    /* out of data */
    bytes_read = num_read*bytes_per_sample;
-   memset(data + bytes_read, 0, buf_size - bytes_read);
+   memset((char*)data + bytes_read, 0, buf_size - bytes_read);
    return false;
 }
 
@@ -111,19 +120,28 @@ ALLEGRO_STREAM* al_load_stream_sndfile(const char *filename)
 {
    ALLEGRO_AUDIO_ENUM depth; 
    SF_INFO sfinfo;
+   SNDFILE* sndfile;
+   int word_size;
+   int channels;
+   long rate;
+   long total_samples;
+   long total_size;
+   short* buffer;
+   ALLEGRO_STREAM* stream;
+   
    sfinfo.format = 0;
-   SNDFILE* sndfile = sf_open(filename, SFM_READ, &sfinfo); 
+   sndfile = sf_open(filename, SFM_READ, &sfinfo); 
 
    if (sndfile == NULL)
       return NULL;
 
    /* supports 16-bit, 32-bit (and float) */
-   int word_size = 0;
+   word_size = 0;
    depth = _get_depth_enum(sfinfo.format,&word_size);  
-   int channels = sfinfo.channels;
-   long rate = sfinfo.samplerate;
-   long total_samples = sfinfo.frames;
-   long total_size = total_samples * channels * word_size; 
+   channels = sfinfo.channels;
+   rate = sfinfo.samplerate;
+   total_samples = sfinfo.frames;
+   total_size = total_samples * channels * word_size; 
 
    fprintf(stderr, "loaded sample %s with properties:\n",filename);
    fprintf(stderr, "    channels %d\n",channels);
@@ -132,14 +150,14 @@ ALLEGRO_STREAM* al_load_stream_sndfile(const char *filename)
    fprintf(stderr, "    total_samples %ld\n",total_samples);
    fprintf(stderr, "    total_size %ld\n",total_size);
    
-   short* buffer = (short*) malloc(total_size);
+   buffer = (short*) malloc(total_size);
    if (buffer == NULL)
    {
       sf_close(sndfile);
       return NULL;
    }
 
-   ALLEGRO_STREAM* stream = al_stream_create(rate,
+   stream = al_stream_create(rate,
          depth,
          _al_count_to_channel_conf(channels),
          _sndfile_stream_update, _sndfile_stream_close);

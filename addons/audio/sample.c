@@ -22,9 +22,9 @@
  */
 ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples, unsigned long frequency, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf, bool free_buffer)
 {
-   ASSERT(buf);
-
    ALLEGRO_SAMPLE *sample;
+
+   ASSERT(buf);
 
    sample = malloc(sizeof(*sample));
    if(!sample)

@@ -17,6 +17,10 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_audio.h"
 
+#ifdef ALLEGRO_MSVC
+   #define snprintf _snprintf
+#endif
+
 /* OpenAL vars */
 ALCdevice*  openal_dev;
 ALCcontext* openal_context;
@@ -276,7 +280,7 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice)
  */
 static void _openal_update(_AL_THREAD* self, void* arg)
 {
-   unsigned long i, samples_per_update;
+   unsigned long i;
    void* data;
    ALLEGRO_VOICE* voice = (ALLEGRO_VOICE*) arg;
    ALLEGRO_AL_DATA* ex_data = (ALLEGRO_AL_DATA*) voice->extra;
@@ -415,8 +419,9 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
    should leave the data loaded, and reset the voice position to 0. */
 static int _openal_stop_voice(ALLEGRO_VOICE* voice)
 {
+   ALLEGRO_AL_DATA *ex_data;
    ASSERT(voice);
-   ALLEGRO_AL_DATA *ex_data = voice->extra;
+   ex_data = voice->extra;
 
    if(!ex_data->buffers)
    {
@@ -452,9 +457,11 @@ static int _openal_stop_voice(ALLEGRO_VOICE* voice)
    and should return true if the voice is playing */
 static bool _openal_voice_is_playing(const ALLEGRO_VOICE *voice)
 {
-   ASSERT(voice);
-   ALLEGRO_AL_DATA *ex_data = voice->extra;
+   ALLEGRO_AL_DATA *ex_data;
    ALint status;
+
+   ASSERT(voice);
+   ex_data = voice->extra;
 
    if(!ex_data)
       return false;
@@ -467,10 +474,11 @@ static bool _openal_voice_is_playing(const ALLEGRO_VOICE *voice)
    any data common to streaming and non-streaming sources. */
 static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
 {
-   ASSERT(voice);
    ALLEGRO_AL_DATA *ex_data;
    ALLEGRO_AUDIO_ENUM depth;
    ALLEGRO_AUDIO_ENUM chan_conf;
+
+   ASSERT(voice);
 
    if (voice->streaming)
       depth = voice->stream->depth;
@@ -600,8 +608,9 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
    unloaded by the time this is called */
 static void _openal_deallocate_voice(ALLEGRO_VOICE *voice)
 {
+   ALLEGRO_AL_DATA *ex_data;
    ASSERT(voice);
-   ALLEGRO_AL_DATA *ex_data = voice->extra;
+   ex_data = voice->extra;
    _al_mutex_destroy(&ex_data->mutex);
    free(voice->extra);
    voice->extra = NULL;
@@ -612,9 +621,11 @@ static void _openal_deallocate_voice(ALLEGRO_VOICE *voice)
    be called on a streaming voice. */
 static unsigned long _openal_get_voice_position(const ALLEGRO_VOICE *voice)
 {
-   ASSERT(voice);
-   ALLEGRO_AL_DATA *ex_data = voice->extra;
+   ALLEGRO_AL_DATA *ex_data;
    ALint pos;
+
+   ASSERT(voice);
+   ex_data = voice->extra;
 
    alGetSourcei(ex_data->source, AL_SAMPLE_OFFSET, &pos);
    if(alGetError() != AL_NO_ERROR)
@@ -637,17 +648,19 @@ static int _openal_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
 
 static int _openal_set_loop(ALLEGRO_VOICE* voice, bool loop)
 {
+   ALLEGRO_AL_DATA *ex_data;
    ASSERT(voice);
-   ALLEGRO_AL_DATA *ex_data = voice->extra;
+   ex_data = voice->extra;
    alSourcei(ex_data->source, AL_LOOPING, loop);
    return 0;
 }
 
 static bool _openal_get_loop(ALLEGRO_VOICE* voice)
 {
-   ASSERT(voice);
-   ALLEGRO_AL_DATA *ex_data = voice->extra;
+   ALLEGRO_AL_DATA *ex_data;
    ALint value = 0;
+   ASSERT(voice);
+   ex_data = voice->extra;
    alGetSourcei(ex_data->source, AL_LOOPING, &value);
    if (value != 0)
       return TRUE;

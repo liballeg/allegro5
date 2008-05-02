@@ -12,11 +12,13 @@
 
 ALLEGRO_SAMPLE* al_load_sample(const char* filename)
 {
+   char *ext;
+
    if (filename == NULL)
       return NULL;
 
    //now to decide which file extension
-   char * ext = strrchr ( filename, '.' );
+   ext = strrchr ( filename, '.' );
    if (ext == NULL)
       return NULL;
 
@@ -48,11 +50,13 @@ ALLEGRO_SAMPLE* al_load_sample(const char* filename)
 
 ALLEGRO_STREAM* al_load_stream(const char* filename)
 {
+   char *ext;
+
    if (filename == NULL)
       return NULL;
 
    //now to decide which file extension
-   char * ext = strrchr ( filename, '.' );
+   ext = strrchr ( filename, '.' );
    if (ext == NULL)
       return NULL;
 
