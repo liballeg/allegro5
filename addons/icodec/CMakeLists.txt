@@ -26,7 +26,7 @@ macro(add_icodec_build nm extra_flags)
             OUTPUT_NAME ${nm}
             )
 
-        target_link_libraries(${target} ${LINK_WITH})
+        target_link_libraries(${target} ${ADDONS_LINK_WITH})
         target_link_libraries(${target} ${ICODEC_EXTRA_LIBS})
 
         install(TARGETS ${target}
@@ -43,7 +43,7 @@ macro(add_icodec_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_icodec_build(${nm} ${nm}_static STATIC "")
+        really_add_icodec_build(${nm} ${nm}_static STATIC "-DALLEGRO_STATIC")
     endif(STATIC)
 
 endmacro(add_icodec_build)

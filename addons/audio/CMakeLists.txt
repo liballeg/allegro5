@@ -19,7 +19,7 @@ macro(add_audio_build nm extra_flags)
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
             OUTPUT_NAME ${nm}
             )
-        target_link_libraries(${target} ${LINK_WITH} ${AUDIO_LIBRARIES})
+        target_link_libraries(${target} ${ADDONS_LINK_WITH} ${AUDIO_LIBRARIES})
 
         install(TARGETS ${target}
                 DESTINATION lib
@@ -35,7 +35,7 @@ macro(add_audio_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_audio_build(${nm} ${nm}_static STATIC "")
+        really_add_audio_build(${nm} ${nm}_static STATIC "-DALLEGRO_STATIC")
     endif(STATIC)
 
 endmacro(add_audio_build)

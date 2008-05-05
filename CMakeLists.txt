@@ -859,6 +859,10 @@ else(STATIC)
     set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_shared)
 endif(STATIC)
 
+# shared addons are always linked to a shared allegro lib
+# (static addons are not linked to anything)
+set(ADDONS_LINK_WITH ${LIB_TO_LINK}_shared)
+
 macro(add_allegro_executable nm)
     add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
     set_target_properties(${nm} PROPERTIES
