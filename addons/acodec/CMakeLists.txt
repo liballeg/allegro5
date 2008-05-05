@@ -75,15 +75,14 @@ set(ACODEC_INCLUDE_FILES
     )
 
 macro(add_acodec_build nm extra_flags)
-    macro(really_add_acodec_build nm target libtype more_extra_flags)
+    macro(really_add_acodec_build nm2 target libtype more_extra_flags)
         add_library(${target} ${libtype} ${ACODEC_SOURCES})
         set_target_properties(${target}
             PROPERTIES
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
-            OUTPUT_NAME ${nm}
+            OUTPUT_NAME ${nm2}
             )
 
-        target_link_libraries(${target} ${ADDONS_LINK_WITH})
         target_link_libraries(${target} ${AUDIO_LINK_WITH})
         target_link_libraries(${target} ${ACODEC_EXTRA_LIBS})
 
@@ -98,10 +97,11 @@ macro(add_acodec_build nm extra_flags)
 
     if(SHARED)
         really_add_acodec_build(${nm} ${nm}_shared SHARED "")
+        target_link_libraries(${nm}_shared ${ADDONS_LINK_WITH})
     endif(SHARED)
 
     if(STATIC)
-        really_add_acodec_build(${nm} ${nm}_static STATIC "-DALLEGRO_STATIC")
+        really_add_acodec_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATIC")
     endif(STATIC)
 
 endmacro(add_acodec_build)

@@ -2,15 +2,13 @@ set(FONT_SOURCES font.c fontbmp.c readfont.c text.c)
 set(FONT_INCLUDE_FILES allegro5/a5_font.h)
 
 macro(add_font_build nm extra_flags)
-    macro(really_add_font_build nm target libtype more_extra_flags)
+    macro(really_add_font_build nm2 target libtype more_extra_flags)
         add_library(${target} ${libtype} ${FONT_SOURCES})
         set_target_properties(${target}
             PROPERTIES
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
-            OUTPUT_NAME ${nm}
+            OUTPUT_NAME ${nm2}
             )
-
-        target_link_libraries(${target} ${ADDONS_LINK_WITH})
 
         install(TARGETS ${target}
                 DESTINATION lib
@@ -23,6 +21,7 @@ macro(add_font_build nm extra_flags)
 
     if(SHARED)
         really_add_font_build(${nm} ${nm}_shared SHARED "")
+        target_link_libraries(${nm}_shared ${ADDONS_LINK_WITH})
     endif(SHARED)
 
     if(STATIC)

@@ -4,9 +4,16 @@
  * image magick supports these formats:
  *     http://www.imagemagick.org/script/formats.php
  */
-#include <Magick++.h>
-#include <exception>
+
 #include "allegro5/allegro5.h"
+
+#ifdef ALLEGRO_MSVC
+   /* Needed by Magic++ */
+   #define _VISUALC_
+#endif
+#include <Magick++.h>
+
+#include <exception>
 
 extern "C" {
    #include "allegro5/icodec.h"

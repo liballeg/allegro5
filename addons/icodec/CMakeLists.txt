@@ -1,32 +1,29 @@
 set(ICODEC_INCLUDE_FILES allegro5/icodec.h)
 
-if(WANT_ICODEC)
-    find_path(MAGICK_INCLUDE_DIR Magick++.h)
-    find_library(MAGICK_LIBRARY NAMES Magick++)
-    mark_as_advanced(MAGICK_INCLUDE_DIR MAGICK_LIBRARY)
+find_path(MAGICK_INCLUDE_DIR Magick++.h)
+find_library(MAGICK_LIBRARY NAMES Magick++)
+mark_as_advanced(MAGICK_INCLUDE_DIR MAGICK_LIBRARY)
 
-    if(MAGICK_INCLUDE_DIR AND MAGICK_LIBRARY)
-        set(CAN_MAGICK 1)
-    endif(MAGICK_INCLUDE_DIR AND MAGICK_LIBRARY)
+if(MAGICK_INCLUDE_DIR AND MAGICK_LIBRARY)
+    set(CAN_MAGICK 1)
+endif(MAGICK_INCLUDE_DIR AND MAGICK_LIBRARY)
 
-    if(CAN_MAGICK)
-        set(SUPPORT_MAGICK 1)
-        include_directories(${ICODEC_INCLUDE_DIR})
-        list(APPEND ICODEC_EXTRA_LIBS Magick++)
-        list(APPEND ICODEC_SOURCES icodec.cpp)
-    endif(CAN_MAGICK)
-endif(WANT_ICODEC)
+if(CAN_MAGICK)
+    set(SUPPORT_MAGICK 1)
+    include_directories(${ICODEC_INCLUDE_DIR})
+    list(APPEND ICODEC_EXTRA_LIBS Magick++)
+    list(APPEND ICODEC_SOURCES icodec.cpp)
+endif(CAN_MAGICK)
 
 macro(add_icodec_build nm extra_flags)
-    macro(really_add_icodec_build nm target libtype more_extra_flags)
+    macro(really_add_icodec_build nm2 target libtype more_extra_flags)
         add_library(${target} ${libtype} ${ICODEC_SOURCES})
         set_target_properties(${target}
             PROPERTIES
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
-            OUTPUT_NAME ${nm}
+            OUTPUT_NAME ${nm2}
             )
 
-        target_link_libraries(${target} ${ADDONS_LINK_WITH})
         target_link_libraries(${target} ${ICODEC_EXTRA_LIBS})
 
         install(TARGETS ${target}
@@ -40,28 +37,31 @@ macro(add_icodec_build nm extra_flags)
 
     if(SHARED)
         really_add_icodec_build(${nm} ${nm}_shared SHARED "")
+        target_link_libraries(${nm}_shared ${ADDONS_LINK_WITH})
     endif(SHARED)
 
     if(STATIC)
-        really_add_icodec_build(${nm} ${nm}_static STATIC "-DALLEGRO_STATIC")
+        really_add_icodec_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATIC")
     endif(STATIC)
 
 endmacro(add_icodec_build)
 
-if(GRADE_STANDARD)
-    add_icodec_build(a5_icodec
-        "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
-endif(GRADE_STANDARD)
+if(SUPPORT_MAGICK)
+    if(GRADE_STANDARD)
+        add_icodec_build(a5_icodec
+            "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
+    endif(GRADE_STANDARD)
 
-if(GRADE_DEBUG)
-    add_icodec_build(a5_icodecd
-        "-DDEBUGMODE -g")
-endif(GRADE_DEBUG)
+    if(GRADE_DEBUG)
+        add_icodec_build(a5_icodecd
+            "-DDEBUGMODE -g")
+    endif(GRADE_DEBUG)
 
-if(GRADE_PROFILE)
-    add_icodec_build(a5_icodecp
-        "-pg -O2 -funroll-loops -ffast-math")
-endif(GRADE_PROFILE)
+    if(GRADE_PROFILE)
+        add_icodec_build(a5_icodecp
+            "-pg -O2 -funroll-loops -ffast-math")
+    endif(GRADE_PROFILE)
+endif(SUPPORT_MAGICK)
 
 if(GRADE_STANDARD)
     set(ICODEC_LIB_TO_LINK a5_icodec CACHE INTERNAL "internal")
@@ -99,9 +99,11 @@ endif(SUPPORT_MAGICK)
 # Install header files.
 #
 
-install(FILES ${ICODEC_INCLUDE_FILES}
-        DESTINATION include/allegro5
-        )
+if(SUPPORT_MAGICK)
+    install(FILES ${ICODEC_INCLUDE_FILES}
+           DESTINATION include/allegro5
+           )
+endif(SUPPORT_MAGICK)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

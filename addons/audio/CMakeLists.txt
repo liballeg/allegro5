@@ -12,14 +12,15 @@ endif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 set(AUDIO_INCLUDE_FILES allegro5/audio.h allegro5/voice.h allegro5/sample.h allegro5/stream.h)
 
 macro(add_audio_build nm extra_flags)
-    macro(really_add_audio_build nm target libtype more_extra_flags)
+    macro(really_add_audio_build nm2 target libtype more_extra_flags)
         add_library(${target} ${libtype} ${AUDIO_SOURCES})
         set_target_properties(${target}
             PROPERTIES
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
-            OUTPUT_NAME ${nm}
+            OUTPUT_NAME ${nm2}
             )
-        target_link_libraries(${target} ${ADDONS_LINK_WITH} ${AUDIO_LIBRARIES})
+
+        target_link_libraries(${target} ${AUDIO_LIBRARIES})
 
         install(TARGETS ${target}
                 DESTINATION lib
@@ -32,10 +33,11 @@ macro(add_audio_build nm extra_flags)
 
     if(SHARED)
         really_add_audio_build(${nm} ${nm}_shared SHARED "")
+        target_link_libraries(${nm}_shared ${ADDONS_LINK_WITH})
     endif(SHARED)
 
     if(STATIC)
-        really_add_audio_build(${nm} ${nm}_static STATIC "-DALLEGRO_STATIC")
+        really_add_audio_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATIC")
     endif(STATIC)
 
 endmacro(add_audio_build)

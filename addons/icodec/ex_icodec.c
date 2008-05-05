@@ -32,6 +32,7 @@ int main(int argc, char **argv)
    al_show_mouse_cursor();
    for (i = 1; i < argc; ++i)
    {
+      unsigned int width, height;
       const char* filename = argv[i]; 
       ALLEGRO_BITMAP* bmp = al_load_image(filename);
       if (!bmp) {
@@ -39,8 +40,8 @@ int main(int argc, char **argv)
          continue;
       }
       fprintf(stderr, "Drawing scaled bitmap %s\n",filename);
-      unsigned int width = al_get_bitmap_width(bmp);
-      unsigned int height = al_get_bitmap_height(bmp);
+      width = al_get_bitmap_width(bmp);
+      height = al_get_bitmap_height(bmp);
       al_draw_scaled_bitmap(bmp, 0,0, width, height, 0,0,WIDTH,HEIGHT,0);
       al_flip_display();
       al_rest(3.0);
