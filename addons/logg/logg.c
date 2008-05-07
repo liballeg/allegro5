@@ -32,8 +32,8 @@ SAMPLE* logg_load(const char* filename)
 		return 0;
 	}
 
-	if (ov_open(file, &ovf, 0, 0) != 0) {
-		strncpy(allegro_error, "ov_open failed.", ALLEGRO_ERROR_SIZE);
+	if (ov_open_callbacks(file, &ovf, 0, 0, OV_CALLBACKS_DEFAULT) != 0) {
+		strncpy(allegro_error, "ov_open_callbacks failed.", ALLEGRO_ERROR_SIZE);
 		fclose(file);
 		free(buf);
 		return 0;
@@ -91,8 +91,8 @@ static int logg_open_file_for_streaming(LOGG_Stream* s)
 		return 1;
 	}
 
-	if (ov_open(file, &s->ovf, 0, 0) != 0) {
-		strncpy(allegro_error, "ov_open failed.", ALLEGRO_ERROR_SIZE);
+	if (ov_open_callbacks(file, &s->ovf, 0, 0, OV_CALLBACKS_DEFAULT) != 0) {
+		strncpy(allegro_error, "ov_open_callbacks failed.", ALLEGRO_ERROR_SIZE);
 		fclose(file);
 		return 1;
 	}
