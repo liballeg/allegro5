@@ -3,7 +3,7 @@
 
 
 #define NUM_STARS 300
-#define TARGET_FPS 60
+#define TARGET_FPS 9999
 
 
 typedef struct Point
@@ -60,21 +60,19 @@ int main(void)
       else {
          frame_count -= (1000/TARGET_FPS);
          al_clear(al_map_rgb(0, 0, 0));
-         al_lock_bitmap(al_get_backbuffer(), &lr, 0);
-         for (layer = 0; layer < 3; layer++) {
+         for (star = 0; star < NUM_STARS/3; star++) {
+            Point *p = &stars[0][star];
+            al_draw_pixel(p->x, p->y, colors[0]);
+         }
+	 al_lock_bitmap(al_get_backbuffer(), &lr, ALLEGRO_LOCK_WRITEONLY);
+         for (layer = 1; layer < 3; layer++) {
             for (star = 0; star < NUM_STARS/3; star++) {
                Point *p = &stars[layer][star];
-               if (layer == 0) {
-                  // draw_pixel obeys blending
-                  al_draw_pixel(p->x, p->y, colors[layer]);
-               }
-               else {
-                  // put_pixel ignores blending
-                  al_put_pixel(p->x, p->y, colors[layer]);
-               }
+               // put_pixel ignores blending
+               al_put_pixel(p->x, p->y, colors[layer]);
             }
          }
-         al_unlock_bitmap(al_get_backbuffer());
+	 al_unlock_bitmap(al_get_backbuffer());
          al_flip_display();
          total_frames++;
       }
