@@ -60,7 +60,7 @@ int main(void)
       else {
          frame_count -= (1000/TARGET_FPS);
          al_clear(al_map_rgb(0, 0, 0));
-	 al_lock_bitmap(al_get_backbuffer(), &lr, ALLEGRO_LOCK_WRITEONLY);
+         al_lock_bitmap(al_get_backbuffer(), &lr, 0);
          for (layer = 0; layer < 3; layer++) {
             for (star = 0; star < NUM_STARS/3; star++) {
                Point *p = &stars[layer][star];
@@ -74,7 +74,7 @@ int main(void)
                }
             }
          }
-	 al_unlock_bitmap(al_get_backbuffer());
+         al_unlock_bitmap(al_get_backbuffer());
          al_flip_display();
          total_frames++;
       }
