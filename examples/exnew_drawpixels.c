@@ -24,6 +24,7 @@ int main(void)
    double program_start;
    double length;
    int layer, star;
+   ALLEGRO_LOCKED_REGION lr;
 
 
    al_init();
@@ -59,6 +60,7 @@ int main(void)
       else {
          frame_count -= (1000/TARGET_FPS);
          al_clear(al_map_rgb(0, 0, 0));
+	 al_lock_bitmap(al_get_backbuffer(), &lr, ALLEGRO_LOCK_WRITEONLY);
          for (layer = 0; layer < 3; layer++) {
             for (star = 0; star < NUM_STARS/3; star++) {
                Point *p = &stars[layer][star];
@@ -72,10 +74,10 @@ int main(void)
                }
             }
          }
+	 al_unlock_bitmap(al_get_backbuffer());
          al_flip_display();
          total_frames++;
       }
-
 
       now = al_current_time() * 1000;
       elapsed = now - start;
