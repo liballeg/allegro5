@@ -836,8 +836,13 @@ if test -n "$allegro_with_logg"; then
 
   AC_CHECK_HEADER(vorbis/vorbisfile.h, vorbisfile_h_here=y)
 
+  # logg requires a version of vobrisfile which defines this symbol (ver>1.2)
+  AC_CHECK_DECL(OV_CALLBACKS_DEFAULT, vorbisfile_is_ok=y,,
+                [#include <vorbis/vorbisfile.h>])
+
   if test -n "$libogg_here" -a -n "$libvorbis_here" -a \
-          -n "$libvorbisfile_here" -a -n "$vorbisfile_h_here"; then
+          -n "$libvorbisfile_here" -a -n "$vorbisfile_h_here" -a \
+          -n "$vorbisfile_is_ok"; then
     _addons="logg $_addons"
     WITH_LOGG=1
   else
