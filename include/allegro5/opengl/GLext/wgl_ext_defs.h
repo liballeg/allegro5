@@ -276,6 +276,14 @@ DECLARE_HANDLE(HPBUFFEREXT);
 #define WGL_TEXTURE_FLOAT_RGBA_NV      0x20B8
 #endif
 
+#ifndef WGL_3DL_stereo_control
+#define WGL_3DL_stereo_control
+#define WGL_STEREO_EMITTER_ENABLE_3DL  0x2055
+#define WGL_STEREO_EMITTER_DISABLE_3DL 0x2056
+#define WGL_STEREO_POLARITY_NORMAL_3DL 0x2057
+#define WGL_STEREO_POLARITY_INVERT_3DL 0x2058
+#endif
+
 #ifndef WGL_EXT_framebuffer_sRGB
 #define WGL_EXT_framebuffer_sRGB
 #define WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT 0x20A9
@@ -288,4 +296,8 @@ DECLARE_HANDLE(HPBUFFEREXT);
 
 #ifndef WGL_WIN_swap_hint
 #define WGL_WIN_swap_hint
+#endif
+
+#ifndef WGL_NV_swap_group
+#define WGL_NV_swap_group
 #endif

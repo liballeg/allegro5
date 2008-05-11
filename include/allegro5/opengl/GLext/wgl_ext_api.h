@@ -113,3 +113,11 @@ AGL_API(BOOL, QueryFrameTrackingI3D, (DWORD *, DWORD *, float *))
 
 /* glAddSwapHintRectWIN */ /* warning: will be named wglAddSwapHintRectWIN */
 AGL_API(void, AddSwapHintRectWIN, (int, int, int, int))
+
+/* WGL_NV_swap_group */
+AGL_API(BOOL, wglJoinSwapGroupNV, (HDC hDC, GLuint group))
+AGL_API(BOOL, wglBindSwapBarrierNV, (GLuint group, GLuint barrier))
+AGL_API(BOOL, wglQuerySwapGroupNV, (HDC hDC, GLuint *group, GLuint *barrier))
+AGL_API(BOOL, wglQueryMaxSwapGroupsNV, (HDC hDC, GLuint *maxGroups, GLuint *maxBarriers))
+AGL_API(BOOL, wglQueryFrameCountNV, (HDC hDC, GLuint *count))
+AGL_API(BOOL, wglResetFrameCountNV, (HDC hDC))
