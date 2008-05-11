@@ -333,4 +333,9 @@ GL_NV_parameter_buffer_object
 GL_NV_transform_feedback
 GL_NV_vertex_program4
 GL_GREMEDY_frame_terminator
+WGL_NV_swap_group
+WIN_swap_hint
+GLX_EXT_texture_from_pixmap
+GLX_NV_video_out
+GLX_NV_swap_group
 

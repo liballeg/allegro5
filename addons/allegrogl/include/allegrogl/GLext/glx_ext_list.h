@@ -29,4 +29,7 @@ AGL_EXT(SGIX_hyperpipe,               0)
 AGL_EXT(MESA_agp_offset,              0)
 AGL_EXT(EXT_framebuffer_sRGB,         0)
 AGL_EXT(EXT_packed_float,             0)
+AGL_EXT(EXT_texture_from_pixmap,      0)
+AGL_EXT(NV_video_out,                 0)
+AGL_EXT(NV_swap_group,                0)
 

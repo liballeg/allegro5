@@ -167,3 +167,26 @@ AGL_API(int, QueryHyperpipeAttribSGIX, (Display *dpy, int timeSlice, int attrib,
 AGL_API(unsigned int, GetAGPOffsetMESA, (const void *pointer))
 #endif
 
+
+#ifdef AGLX_EXT_texture_from_pixmap
+AGL_API(void, glXBindTexImageEXT, (Display *dpy, GLXDrawable drawable, int buffer, const int *attrib_list))
+AGL_API(void, glXReleaseTextImageEXT, (Display *dpy, GLXDrawable drawable, int buffer))
+#endif
+
+#ifdef AGLX_NV_video_out
+AGL_API(int, glXGetVideoDeviceNV, (Display *dpy, int screen, int numVideoDevices, GLXVideoDeviceNV *pVideoDevice))
+AGL_API(int, glXReleaseVideoDeviceNV, (Display *dpy, int screen, GLXVideoDeviceNV VideoDevice))
+AGL_API(int, glXBindVideoImageNV, (Display *dpy, GLXVideoDeviceNV VideoDevice, GLXPbuffer pbuf, int iVideoBuffer))
+AGL_API(int, glXReleaseVideoImageNV, (Display *dpy, GLXPbuffer pbuf))
+AGL_API(int, glXSendPbufferToVideoNV, (Display *dpy, GLXPbuffer pbuf, int iBufferType, unsigned long *pulCounterPbuffer, GLboolean bBlock))
+AGL_API(int, glXGetVideoInfoNV, (Display *dpy, int screen, GLXVideoDeviceNV VideoDevice, unsigned long *pulCounterOutputVideo, unsigned long *pulCounterOutputPbuffer))
+#endif
+
+#ifdef AGLX_NV_swap_group
+AGL_API(Bool, glXJoinSwapGroupNV, (Display *dpy, GLXDrawable drawable, GLuint group))
+AGL_API(Bool, glXBindSwapBarrierNV, (Display *dpy, GLuint group, GLuint barrier))
+AGL_API(Bool, glXQuerySwapGroupNV, (Display *dpy, GLXDrawable drawable, GLuint *group, GLuint *barrier))
+AGL_API(Bool, glXQueryMaxSwapGroupsNV, (Display *dpy, int screen, GLuint *maxGroups, GLuint *maxBarriers))
+AGL_API(Bool, glXQueryFrameCountNV, (Display *dpy, int screen, GLuint *count))
+AGL_API(Bool, glXResetFrameCountNV, (Display *dpy, int screen))
+#endif
