@@ -44,45 +44,42 @@ typedef struct ALLEGRO_DISPLAY_MODE
    int refresh_rate;
 } ALLEGRO_DISPLAY_MODE;
 
-void al_set_new_display_format(int format);
-void al_set_new_display_refresh_rate(int refresh_rate);
-void al_set_new_display_flags(int flags);
-int al_get_new_display_format(void);
-int al_get_new_display_refresh_rate(void);
-int al_get_new_display_flags(void);
+AL_FUNC(void, al_set_new_display_format, (int format));
+AL_FUNC(void, al_set_new_display_refresh_rate, (int refresh_rate));
+AL_FUNC(void, al_set_new_display_flags, (int flags));
+AL_FUNC(int,  al_get_new_display_format, (void));
+AL_FUNC(int,  al_get_new_display_refresh_rate, (void));
+AL_FUNC(int,  al_get_new_display_flags, (void));
 
-int al_get_display_width(void);
-int al_get_display_height(void);
-int al_get_display_format(void);
-int al_get_display_refresh_rate(void);
-int al_get_display_flags(void);
+AL_FUNC(int, al_get_display_width,  (void));
+AL_FUNC(int, al_get_display_height, (void));
+AL_FUNC(int, al_get_display_format, (void));
+AL_FUNC(int, al_get_display_refresh_rate, (void));
+AL_FUNC(int, al_get_display_flags,  (void));
 
-ALLEGRO_DISPLAY *al_create_display(int w, int h);
-void al_destroy_display(ALLEGRO_DISPLAY *display);
-void al_set_current_display(ALLEGRO_DISPLAY *display);
-ALLEGRO_DISPLAY *al_get_current_display(void);
-void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap);
-ALLEGRO_BITMAP *al_get_backbuffer(void);
-ALLEGRO_BITMAP *al_get_frontbuffer(void);
-ALLEGRO_BITMAP *al_get_target_bitmap(void);
+AL_FUNC(ALLEGRO_DISPLAY*, al_create_display, (int w, int h));
+AL_FUNC(void,             al_destroy_display, (ALLEGRO_DISPLAY *display));
+AL_FUNC(void,             al_set_current_display, (ALLEGRO_DISPLAY *display));
+AL_FUNC(ALLEGRO_DISPLAY*, al_get_current_display, (void));
+AL_FUNC(void,            al_set_target_bitmap, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(ALLEGRO_BITMAP*, al_get_backbuffer,    (void));
+AL_FUNC(ALLEGRO_BITMAP*, al_get_frontbuffer,   (void));
+AL_FUNC(ALLEGRO_BITMAP*, al_get_target_bitmap, (void));
 
-bool al_acknowledge_resize(ALLEGRO_DISPLAY *display);
-bool al_resize_display(int width, int height);
-void al_flip_display(void);
-bool al_update_display_region(int x, int y,
-	int width, int height);
-ALLEGRO_DISPLAY *al_get_current_display(void);
-bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap);
+AL_FUNC(bool, al_acknowledge_resize, (ALLEGRO_DISPLAY *display));
+AL_FUNC(bool, al_resize_display,     (int width, int height));
+AL_FUNC(void, al_flip_display,       (void));
+AL_FUNC(bool, al_update_display_region, (int x, int y, int width, int height));
+AL_FUNC(bool, al_is_compatible_bitmap, (ALLEGRO_BITMAP *bitmap));
 
-void _al_push_target_bitmap(void);
-void _al_pop_target_bitmap(void);
+AL_FUNC(void, _al_push_target_bitmap, (void));
+AL_FUNC(void, _al_pop_target_bitmap, (void));
 
-int al_get_num_display_modes(void);
-ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index,
-    ALLEGRO_DISPLAY_MODE *mode);
+AL_FUNC(int, al_get_num_display_modes, (void));
+AL_FUNC(ALLEGRO_DISPLAY_MODE*, al_get_display_mode, (int index,
+        ALLEGRO_DISPLAY_MODE *mode));
 
-bool al_wait_for_vsync(void);
-void al_set_display_icon(ALLEGRO_BITMAP *);
+AL_FUNC(bool, al_wait_for_vsync, (void));
 
 /* Primitives */
 AL_FUNC(void, al_clear, (ALLEGRO_COLOR color));
@@ -91,7 +88,7 @@ AL_FUNC(void, al_draw_rectangle, (float tlx, float tly, float brx, float bry,
    ALLEGRO_COLOR color, int flags));
 AL_FUNC(void, al_draw_pixel, (float x, float y, ALLEGRO_COLOR color));
 
-void al_set_display_icon(ALLEGRO_BITMAP *icon);
+AL_FUNC(void, al_set_display_icon, (ALLEGRO_BITMAP *icon));
 
 #ifdef __cplusplus
    }

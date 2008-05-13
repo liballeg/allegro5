@@ -28,6 +28,7 @@
 
    #define ALLEGRO_H
    #define ALLEGRO_WINDOWS
+   #include "allegro5/platform/alplatf.h"
    #include "allegro5/winalleg.h"
    #include "allegro5/platform/alwin.h"
 

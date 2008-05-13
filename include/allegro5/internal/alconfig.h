@@ -31,11 +31,11 @@
 
 
 /* include platform-specific stuff */
-#ifndef SCAN_EXPORT
-   #ifndef SCAN_DEPEND
-      #include "allegro5/platform/alplatf.h"
-   #endif
+#ifndef SCAN_DEPEND
+   #include "allegro5/platform/alplatf.h"
+#endif
 
+#ifndef SCAN_EXPORT
    #if defined ALLEGRO_DJGPP
       #include "allegro5/platform/aldjgpp.h"
    #elif defined ALLEGRO_WATCOM
