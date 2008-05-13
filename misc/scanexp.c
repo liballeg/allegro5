@@ -18,6 +18,7 @@
 #define ALLEGRO_COLOR24
 #define ALLEGRO_COLOR32
 #define ALLEGRO_NO_COLORCOPY
+#define ALLEGRO_WINDOWS
 
 
 #if defined ALLEGRO_API
@@ -27,7 +28,6 @@
 #elif defined ALLEGRO_WINAPI
 
    #define ALLEGRO_H
-   #define ALLEGRO_WINDOWS
    #include "allegro5/platform/alplatf.h"
    #include "allegro5/winalleg.h"
    #include "allegro5/platform/alwin.h"
