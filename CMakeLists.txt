@@ -566,6 +566,16 @@ set(LIBRARY_SOURCES
     ${ALLEGRO_SRC_C_FILES}
     )
 
+if(MSVC)
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_FILES})
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES})
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES})
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES})
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES})
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES})
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
+endif(MSVC)
+
 # Libraries that we always need to link against on this platform
 # e.g. -lm on Unix.
 set(PLATFORM_LIBS)
@@ -590,9 +600,9 @@ endif(SUPPORT_X11)
 if(WIN32)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WIN_FILES})
     # TODO this still needs to be produced with misc/fixdll.sh
-    if(MINGW)
+    if(MINGW OR MSVC)
         list(APPEND LIBRARY_SOURCES lib/mingw32/allegro.def)
-    endif(MINGW)
+    endif(MINGW OR MSVC)
     list(APPEND PLATFORM_LIBS
         kernel32 user32 gdi32 comdlg32 ole32 dinput ddraw dxguid winmm dsound
         )
