@@ -24,6 +24,8 @@
    #define A5_ICODEC_FUNC(type, name, args)      _A5_ICODEC_DLL type __cdecl name args
 #elif defined ALLEGRO_MINGW32
    #define A5_ICODEC_FUNC(type, name, args)      extern type name args
+#else
+   #define A5_ICODEC_FUNC      AL_FUNC
 #endif
 
 

@@ -30,6 +30,13 @@
    #define A5_AUDIO_METHOD(type, name, args)          type (*name) args
    #define A5_AUDIO_FUNCPTR(type, name, args)         extern _A5_AUDIO_DLL type (*name) args
    #define A5_AUDIO_PRINTFUNC(type, name, args, a, b) A5_AUDIO_FUNC(type, name, args) __attribute__ ((format (printf, a, b)))
+#else
+   #define A5_AUDIO_VAR       AL_VAR
+   #define A5_AUDIO_ARRAY     AL_ARRAY
+   #define A5_AUDIO_FUNC      AL_FUNC
+   #define A5_AUDIO_METHOD    AL_METHOD
+   #define A5_AUDIO_FUNCPTR   AL_FUNCPTR
+   #define A5_AUDIO_PRINTFUNC AL_PRINTFUNC
 #endif
 
 

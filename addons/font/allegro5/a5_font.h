@@ -27,6 +27,13 @@
    #define A5_FONT_METHOD(type, name, args)          type (*name) args
    #define A5_FONT_FUNCPTR(type, name, args)         extern _A5_FONT_DLL type (*name) args
    #define A5_FONT_PRINTFUNC(type, name, args, a, b) A5_FONT_FUNC(type, name, args) __attribute__ ((format (printf, a, b)))
+#else
+   #define A5_FONT_VAR       AL_VAR
+   #define A5_FONT_ARRAY     AL_ARRAY
+   #define A5_FONT_FUNC      AL_FUNC
+   #define A5_FONT_METHOD    AL_METHOD
+   #define A5_FONT_FUNCPTR   AL_FUNCPTR
+   #define A5_FONT_PRINTFUNC AL_PRINTFUNC
 #endif
 
 

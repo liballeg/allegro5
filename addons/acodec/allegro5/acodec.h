@@ -26,6 +26,8 @@
    #define A5_ACODEC_FUNC(type, name, args)      _A5_ACODEC_DLL type __cdecl name args
 #elif defined ALLEGRO_MINGW32
    #define A5_ACODEC_FUNC(type, name, args)      extern type name args
+#else
+   #define A5_ACODEC_FUNC      AL_FUNC
 #endif
 
 #include "allegro5/audio.h"
