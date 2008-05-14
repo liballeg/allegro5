@@ -83,7 +83,6 @@ macro(add_acodec_build nm extra_flags)
             OUTPUT_NAME ${nm2}
             )
 
-        target_link_libraries(${target} ${AUDIO_LINK_WITH})
         target_link_libraries(${target} ${ACODEC_EXTRA_LIBS})
 
         install(TARGETS ${target}
@@ -98,6 +97,7 @@ macro(add_acodec_build nm extra_flags)
     if(SHARED)
         really_add_acodec_build(${nm} ${nm}_shared SHARED "")
         target_link_libraries(${nm}_shared ${ADDONS_LINK_WITH})
+        target_link_libraries(${nm}_shared ${AUDIO_LIB_TO_LINK}_shared)
     endif(SHARED)
 
     if(STATIC)
@@ -122,17 +122,19 @@ if(GRADE_PROFILE)
 endif(GRADE_PROFILE)
 
 if(GRADE_STANDARD)
-    set(ACODEC_LIB_TO_LINK a5_acodec a5_audio CACHE INTERNAL "internal")
+    set(ACODEC_LIB_TO_LINK a5_acodec CACHE INTERNAL "internal")
 elseif(GRADE_DEBUG)
-    set(ACODEC_LIB_TO_LINK a5_acodecd a5_audiod CACHE INTERNAL "internal")
+    set(ACODEC_LIB_TO_LINK a5_acodecd CACHE INTERNAL "internal")
 elseif(GRADE_PROFILE)
-    set(ACODEC_LIB_TO_LINK a5_acodecp a5_audiop CACHE INTERNAL "internal")
+    set(ACODEC_LIB_TO_LINK a5_acodecp CACHE INTERNAL "internal")
 endif(GRADE_STANDARD)
 
 if(STATIC)
     set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_static CACHE INTERNAL "internal")
+    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} ${AUDIO_LIB_TO_LINK}_static CACHE INTERNAL "internal")
 else(STATIC)
     set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
+    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} ${AUDIO_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
 endif(STATIC)
 
 if(SUPPORT_FLAC)
