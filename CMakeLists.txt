@@ -644,7 +644,7 @@ endif(STRICT_WARN)
 macro(add_allegro_build nm extra_flags)
 
     set(LIBRARY_CFLAGS
-        "-DALLEGRO_LIB_BUILD -DALLEGRO_SRC ${WFLAGS} ${extra_flags}"
+        "-DALLEGRO_LIB_BUILD ${WFLAGS} ${extra_flags}"
         )
 
     macro(really_add_allegro_build nam target libtype more_extra_flags)
@@ -652,7 +652,7 @@ macro(add_allegro_build nm extra_flags)
         add_library(${target} ${libtype} ${LIBRARY_SOURCES})
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
+            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DALLEGRO_SRC"
             OUTPUT_NAME ${nam}
             )
 

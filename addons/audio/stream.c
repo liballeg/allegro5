@@ -21,7 +21,6 @@ ALLEGRO_STREAM* al_stream_create(unsigned long frequency, ALLEGRO_AUDIO_ENUM dep
                 void (*stream_close)(ALLEGRO_STREAM* stream))
 {
    ALLEGRO_STREAM *stream;
-   size_t i;
 
    if (!frequency)
    {

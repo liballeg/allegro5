@@ -505,6 +505,8 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
    }
 
    ex_data = malloc(sizeof(*ex_data));
+   memset(ex_data, 0, sizeof(*ex_data));
+
    if(!ex_data)
    {
       fprintf(stderr, "Could not allocate voice data memory\n"); 

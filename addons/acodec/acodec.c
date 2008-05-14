@@ -4,7 +4,6 @@
  * todo: unicode file paths ;)
  */
 
-
 #include "allegro5/acodec.h"
 #include "allegro5/internal/aintern_acodec.h"
 #include "allegro5/audio.h"

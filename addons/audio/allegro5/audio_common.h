@@ -4,6 +4,35 @@
 #ifndef A5_AUDIO_COMMON_H
 #define A5_AUDIO_COMMON_H
 
+#if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC)
+   #ifndef ALLEGRO_STATICLINK
+      #ifdef A5_AUDIO_SRC
+         #define _A5_AUDIO_DLL __declspec(dllexport)
+      #else
+         #define _A5_AUDIO_DLL __declspec(dllimport)
+      #endif
+   #else
+      #define _A5_AUDIO_DLL
+   #endif
+#endif
+
+#if defined ALLEGRO_MSVC
+   #define A5_AUDIO_VAR(type, name)             extern _A5_AUDIO_DLL type name
+   #define A5_AUDIO_ARRAY(type, name)           extern _A5_AUDIO_DLL type name[]
+   #define A5_AUDIO_FUNC(type, name, args)      _A5_AUDIO_DLL type __cdecl name args
+   #define A5_AUDIO_METHOD(type, name, args)    type (__cdecl *name) args
+   #define A5_AUDIO_FUNCPTR(type, name, args)   extern _A5_AUDIO_DLL type (__cdecl *name) args
+   #define A5_AUDIO_PRINTFUNC(type, name, args, a, b)  A5_AUDIO_FUNC(type, name, args)
+#elif defined ALLEGRO_MINGW32
+   #define A5_AUDIO_VAR(type, name)                   extern _A5_AUDIO_DLL type name
+   #define A5_AUDIO_ARRAY(type, name)                 extern _A5_AUDIO_DLL type name[]
+   #define A5_AUDIO_FUNC(type, name, args)            extern type name args
+   #define A5_AUDIO_METHOD(type, name, args)          type (*name) args
+   #define A5_AUDIO_FUNCPTR(type, name, args)         extern _A5_AUDIO_DLL type (*name) args
+   #define A5_AUDIO_PRINTFUNC(type, name, args, a, b) A5_AUDIO_FUNC(type, name, args) __attribute__ ((format (printf, a, b)))
+#endif
+
+
 /* TODO: make typedefs for each parameter, eg: enum, etc. and move those into the respective
  * header files */
 typedef enum ALLEGRO_AUDIO_ENUM {
@@ -44,10 +73,10 @@ typedef enum ALLEGRO_AUDIO_ENUM {
 
 
 /* Misc. audio functions */
-AL_FUNC(int,  al_audio_init, (ALLEGRO_AUDIO_ENUM mode));
-AL_FUNC(void, al_audio_deinit, (void));
+A5_AUDIO_FUNC(int,  al_audio_init, (ALLEGRO_AUDIO_ENUM mode));
+A5_AUDIO_FUNC(void, al_audio_deinit, (void));
 
-AL_FUNC(int,  al_audio_channel_count, (ALLEGRO_AUDIO_ENUM conf));
-AL_FUNC(int,  al_audio_depth_size, (ALLEGRO_AUDIO_ENUM conf));
+A5_AUDIO_FUNC(int,  al_audio_channel_count, (ALLEGRO_AUDIO_ENUM conf));
+A5_AUDIO_FUNC(int,  al_audio_depth_size, (ALLEGRO_AUDIO_ENUM conf));
 
 #endif

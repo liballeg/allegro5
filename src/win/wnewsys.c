@@ -68,6 +68,18 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 
 static void win_shutdown(void)
 {
+   /* Disabled because seems to cause deadlocks. */
+#if 0
+   /* Close all open displays. */
+   ALLEGRO_SYSTEM *s = al_system_driver();
+   while (_al_vector_size(&s->displays) > 0) {
+      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
+      ALLEGRO_DISPLAY *d = *dptr;
+      _al_destroy_display_bitmaps(d);
+      al_destroy_display(d);
+   }
+#endif
+
    if (using_higher_res_timer) {
       timeEndPeriod(1);
    }
@@ -92,7 +104,13 @@ ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    }
 
    /* FIXME: should default be set in the flags? */
+#if defined ALLEGRO_CFG_D3D
    return _al_display_d3d_driver();
+#elif defined ALLEGRO_CFG_OPENGL
+   return _al_display_wgl_driver();
+#else
+   #error Neither ALLEGRO_CFG_D3D or ALLEGRO_CFG_OPENGL are defined!
+#endif
 }
 
 /* FIXME: use the list */

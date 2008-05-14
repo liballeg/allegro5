@@ -10,8 +10,8 @@ set(ACODEC_SOURCES acodec.c)
 if(WANT_FLAC)
     # XXX flac.c doesn't compile with flac 1.1.2
     # missing FLAC__StreamDecoderInitStatus
-    find_path(FLAC_INCLUDE_DIR FLAC/stream_decoder.h)
-    find_library(FLAC_LIBRARY NAMES FLAC)
+    find_path(FLAC_INCLUDE_DIR FLAC/stream_decoder.h PATHS ENV INCLUDE)
+    find_library(FLAC_LIBRARY NAMES FLAC PATHS ENV LIB)
     mark_as_advanced(FLAC_INCLUDE_DIR FLAC_LIBRARY)
 
     if(FLAC_INCLUDE_DIR AND FLAC_LIBRARY)
@@ -30,8 +30,8 @@ endif(WANT_FLAC)
 if(WANT_VORBIS)
     # XXX ogg.c doesn't compiler with libvorbis 1.1.2
     # missing OV_CALLBACKS_NOCLOSE
-    find_path(VORBIS_INCLUDE_DIR vorbis/vorbisfile.h)
-    find_library(VORBIS_LIBRARY NAMES vorbisfile)
+    find_path(VORBIS_INCLUDE_DIR vorbis/vorbisfile.h PATHS ENV INCLUDE)
+    find_library(VORBIS_LIBRARY NAMES vorbisfile PATHS ENV LIB)
     mark_as_advanced(VORBIS_INCLUDE_DIR VORBIS_LIBRARY)
 
     if(VORBIS_INCLUDE_DIR AND VORBIS_LIBRARY)
@@ -48,8 +48,8 @@ if(WANT_VORBIS)
 endif(WANT_VORBIS)
 
 if(WANT_SNDFILE)
-    find_path(SNDFILE_INCLUDE_DIR sndfile.h)
-    find_library(SNDFILE_LIBRARY NAMES sndfile)
+    find_path(SNDFILE_INCLUDE_DIR sndfile.h PATHS ENV INCLUDE)
+    find_library(SNDFILE_LIBRARY NAMES sndfile PATHS ENV LIB)
     mark_as_advanced(SNDFILE_INCLUDE_DIR SNDFILE_LIBRARY)
 
     if(SNDFILE_INCLUDE_DIR AND SNDFILE_LIBRARY)
@@ -79,7 +79,7 @@ macro(add_acodec_build nm extra_flags)
         add_library(${target} ${libtype} ${ACODEC_SOURCES})
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
+            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DA5_ACODEC_SRC"
             OUTPUT_NAME ${nm2}
             )
 

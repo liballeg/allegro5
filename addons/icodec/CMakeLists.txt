@@ -1,7 +1,7 @@
 set(ICODEC_INCLUDE_FILES allegro5/icodec.h)
 
-find_path(MAGICK_INCLUDE_DIR Magick++.h)
-find_library(MAGICK_LIBRARY NAMES Magick++)
+find_path(MAGICK_INCLUDE_DIR Magick++.h PATHS ENV INCLUDE)
+find_library(MAGICK_LIBRARY NAMES Magick++ PATHS ENV LIB)
 mark_as_advanced(MAGICK_INCLUDE_DIR MAGICK_LIBRARY)
 
 if(MAGICK_INCLUDE_DIR AND MAGICK_LIBRARY)
@@ -20,7 +20,7 @@ macro(add_icodec_build nm extra_flags)
         add_library(${target} ${libtype} ${ICODEC_SOURCES})
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
+            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DA5_ICODEC_SRC"
             OUTPUT_NAME ${nm2}
             )
 

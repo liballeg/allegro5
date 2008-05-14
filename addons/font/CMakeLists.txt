@@ -6,7 +6,7 @@ macro(add_font_build nm extra_flags)
         add_library(${target} ${libtype} ${FONT_SOURCES})
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
+            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DA5_FONT_SRC"
             OUTPUT_NAME ${nm2}
             )
 

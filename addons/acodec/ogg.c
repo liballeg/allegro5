@@ -26,6 +26,14 @@ ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *filename)
    OggVorbis_File vf;
    vorbis_info* vi;
    FILE* file;
+   char* buffer;
+   long pos;
+   ALLEGRO_SAMPLE* sample;
+   int channels;
+   long rate;
+   long total_samples;
+   int bitStream;
+   long total_size;
 
    file = fopen(filename, "rb");
    if (file == NULL)
@@ -40,11 +48,12 @@ ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *filename)
    }
 
    vi = ov_info(&vf, -1);
-   int channels = vi->channels;
-   long rate = vi->rate;
-   long total_samples = ov_pcm_total(&vf,-1);
-   long total_size = total_samples * channels * word_size;
-   int bitStream = -1;
+
+   channels = vi->channels;
+   rate = vi->rate;
+   total_samples = ov_pcm_total(&vf,-1);
+   bitStream = -1;
+   total_size = total_samples * channels * word_size;
 
    fprintf(stderr, "loaded sample %s with properties:\n",filename);
    fprintf(stderr, "    channels %d\n",channels);
@@ -54,8 +63,8 @@ ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *filename)
    fprintf(stderr, "    total_size %ld\n",total_size);
  
    /* al_sample_destroy will clean it! */
-   char* buffer = (char*) malloc(total_size);
-   long pos = 0;
+   buffer = (char*) malloc(total_size);
+   pos = 0;
    while (true)
    {
       long read = ov_read(&vf, buffer + pos, packet_size, endian, word_size, signedness, &bitStream);
@@ -66,8 +75,7 @@ ALLEGRO_SAMPLE* al_load_sample_oggvorbis(const char *filename)
    ov_clear(&vf);
    fclose(file);
 
-
-   ALLEGRO_SAMPLE* sample = al_sample_create(
+   sample = al_sample_create(
             buffer,
             total_samples,
             rate,
@@ -110,13 +118,15 @@ bool _ogg_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long buf_si
    unsigned long pos = 0;
    while (pos < buf_size)
    {
-      unsigned long read = ov_read(ex_data->vf, data + pos, buf_size - pos, endian, word_size, signedness, &ex_data->bitStream);
+      unsigned long read = ov_read(ex_data->vf, (char*)data + pos,
+                                   buf_size - pos, endian, word_size,
+                                   signedness, &ex_data->bitStream);
       pos += read;
 
       /* if nothing read then now to silence from here to the end. */
       if (read == 0)
       {
-         memset(data + pos, 0, buf_size - pos);
+         memset((char*)data + pos, 0, buf_size - pos);
          return false;
       }
    }
@@ -130,6 +140,12 @@ ALLEGRO_STREAM* al_load_stream_oggvorbis(const char *filename)
    FILE* file = NULL;
    OggVorbis_File* vf;
    vorbis_info* vi;
+   int channels;
+   long rate;
+   long total_samples;
+   long total_size;
+   AL_OV_DATA* ex_data;
+   ALLEGRO_STREAM* stream;
 
    file = fopen(filename, "rb");
    if (file == NULL)
@@ -144,13 +160,13 @@ ALLEGRO_STREAM* al_load_stream_oggvorbis(const char *filename)
    }
 
    vi = ov_info(vf, -1);
-   int channels = vi->channels;
-   long rate = vi->rate;
-   long total_samples = ov_pcm_total(vf,-1);
-   long total_size = total_samples * channels * word_size;
+   channels = vi->channels;
+   rate = vi->rate;
+   total_samples = ov_pcm_total(vf,-1);
+   total_size = total_samples * channels * word_size;
 
 
-   AL_OV_DATA* ex_data = (AL_OV_DATA*) malloc(sizeof(AL_OV_DATA));
+   ex_data = (AL_OV_DATA*) malloc(sizeof(AL_OV_DATA));
    ex_data->vf = vf;
    ex_data->vi = vi;
    ex_data->file = file;
@@ -163,7 +179,7 @@ ALLEGRO_STREAM* al_load_stream_oggvorbis(const char *filename)
    fprintf(stderr, "    total_samples %ld\n",total_samples);
    fprintf(stderr, "    total_size %ld\n",total_size);
  
-   ALLEGRO_STREAM* stream = al_stream_create(
+   stream = al_stream_create(
             rate,
             _al_word_size_to_depth_conf(word_size),
             _al_count_to_channel_conf(channels),

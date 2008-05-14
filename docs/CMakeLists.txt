@@ -11,7 +11,7 @@ mark_as_advanced(LINKS)
 
 set(all_docs)
 
-add_executable(makedoc ${EXECUTABLE_TYPE}
+add_executable(makedoc
     src/makedoc/makedoc.c
     src/makedoc/makehtml.c
     src/makedoc/makemisc.c
@@ -24,6 +24,10 @@ add_executable(makedoc ${EXECUTABLE_TYPE}
     src/makedoc/makesci.c
     )
 get_target_property(MAKEDOC_EXE makedoc LOCATION)
+set_target_properties(makedoc
+    PROPERTIES
+    COMPILE_FLAGS "${WFLAGS}"
+)
 
 macro(makedoc source mode output)
     set(abs_source ${CMAKE_CURRENT_SOURCE_DIR}/${source})

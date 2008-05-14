@@ -116,9 +116,6 @@ bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);
 int _al_get_pixel_format_bits(int format);
 
-void _al_push_new_bitmap_parameters(void);
-void _al_pop_new_bitmap_parameters(void);
-
 /* Memory bitmap blitting */
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
