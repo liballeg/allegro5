@@ -41,7 +41,7 @@ macro(add_icodec_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_icodec_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATIC")
+        really_add_icodec_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATICLINK")
     endif(STATIC)
 
 endmacro(add_icodec_build)

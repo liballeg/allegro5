@@ -37,7 +37,7 @@ macro(add_audio_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_audio_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATIC")
+        really_add_audio_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATICLINK")
     endif(STATIC)
 
 endmacro(add_audio_build)

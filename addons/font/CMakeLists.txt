@@ -25,7 +25,7 @@ macro(add_font_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_font_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATIC")
+        really_add_font_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATICLINK")
     endif(STATIC)
 
 endmacro(add_font_build)
