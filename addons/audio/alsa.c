@@ -216,11 +216,10 @@ static int alsa_update_nonstream(ALLEGRO_VOICE *voice, void **buf)
 
       if (buf_len < alsa_voice->frag_len)
       {
-         alsa_voice->pos -= alsa_voice->frag_len;
+         alsa_voice->pos = 0;
          if (!alsa_voice->loop_mode)
          {
             alsa_voice->stop = true;
-            alsa_voice->pos = 0;
          }
       }
    } while (!alsa_voice->stop && !buf_len);

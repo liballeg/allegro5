@@ -82,6 +82,8 @@ option(WANT_OSSDIGI "Enable OSS digital audio driver (Unix)" on)
 option(WANT_OSSMIDI "Enable OSS MIDI driver (Unix)" on)
 option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" on)
 
+option(WANT_A5_ALSA "Enable A5 ALSA digital audio driver (Unix)" on)
+
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
 
@@ -286,7 +288,7 @@ if(UNIX)
     # Sound drivers
     #
 
-    if(WANT_ALSADIGI)
+    if(WANT_ALSADIGI OR WANT_A5_ALSA)
         check_c_source_compiles("
             #include <sys/asoundlib.h>
             int main(void) { 
@@ -298,13 +300,16 @@ if(UNIX)
             }"
             CAN_ALSADIGI
         )
-        if(CAN_ALSADIGI)
+        if(CAN_ALSADIGI AND WANT_ALSADIGI)
             set(SUPPORT_ALSADIGI 1)
             set(ALLEGRO_WITH_ALSADIGI 1)
             set(ALLEGRO_ALSA_VERSION 9)
             list(APPEND DRIVER_LIBS_STATIC asound)
-        endif(CAN_ALSADIGI)
-    endif(WANT_ALSADIGI)
+        endif(CAN_ALSADIGI AND WANT_ALSADIGI)
+        if (CAN_ALSADIGI AND WANT_A5_ALSA)
+            set(SUPPORT_A5_ALSA 1)
+        endif(CAN_ALSADIGI AND WANT_A5_ALSA)
+    endif(WANT_ALSADIGI OR WANT_A5_ALSA)
 
     if(WANT_ALSAMIDI)
         check_c_source_compiles("
@@ -691,7 +696,7 @@ endif(GRADE_STANDARD)
 if(GRADE_DEBUG)
     if(COMPILER_GCC)
         add_allegro_build(allegd
-            "-DDEBUGMODE -g")
+            "-DDEBUGMODE -g2 -O0")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
        	add_allegro_build(allegd "-DDEBUGMODE")
@@ -851,7 +856,7 @@ elseif(GRADE_DEBUG)
     if(COMPILER_MSVC)
         set(EXE_CFLAGS "-DDEBUGMODE")
     elseif(COMPILER_GCC)
-        set(EXE_CFLAGS "-DDEBUGMODE -g")
+        set(EXE_CFLAGS "-DDEBUGMODE -g2 -O0")
     endif(COMPILER_MSVC)
 elseif(GRADE_PROFILE)
     set(LIB_TO_LINK allegp)

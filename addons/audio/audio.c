@@ -89,7 +89,12 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
          return 1;
       case ALLEGRO_AUDIO_DRIVER_ALSA:
          #if defined(ALLEGRO_LINUX)
-            TRACE("Alsa driver not implemented");
+            if (_alsa_driver.open() == 0)
+            {
+               fprintf(stderr, "Using ALSA driver\n");
+               driver = &_alsa_driver;
+               return 0;
+            }
             return 1;
          #else
             TRACE("Alsa not available on this platform");

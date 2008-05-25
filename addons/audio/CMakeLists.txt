@@ -1,8 +1,10 @@
 # XXX put in proper tests for libraries
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    # Linux needs ALSA -- for the moment ALSA is unmaintained so it is removed
     set(AUDIO_SOURCES audio.c voice.c stream.c sample.c openal.c)
+    if(SUPPORT_A5_ALSA)
+        set(AUDIO_SOURCES ${AUDIO_SOURCES} alsa.c)
+    endif(SUPPORT_A5_ALSA)
     set(AUDIO_LIBRARIES openal asound)
 else(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(AUDIO_SOURCES audio.c voice.c stream.c sample.c openal.c)
