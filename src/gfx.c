@@ -1104,9 +1104,10 @@ void do_ellipse(BITMAP *bmp, int ix, int iy, int rx0, int ry0, int d,
    float two_b_sq;
    float stopping_x;
    float stopping_y;
+   int midway_x;
 
-   rx = MAX(rx0, 1);
-   ry = MAX(ry0, 1);
+   rx = MAX(rx0, 0);
+   ry = MAX(ry0, 0);
 
    two_a_sq = 2 * rx * rx;
    two_b_sq = 2 * ry * ry;
@@ -1124,54 +1125,78 @@ void do_ellipse(BITMAP *bmp, int ix, int iy, int rx0, int ry0, int d,
    stopping_x = two_b_sq * rx;
    stopping_y = 0.0;
 
-   /* First set of points, y' > -1. */
-   while (stopping_x >= stopping_y) {
+   /* First set of points. */
+   while (y <= ry) {
       proc(bmp, ix + x, iy + y, d);
-      proc(bmp, ix - x, iy + y, d);
+      if (x != 0) {
+         proc(bmp, ix - x, iy + y, d);
+      }
       if (y != 0) {
          proc(bmp, ix + x, iy - y, d);
-         proc(bmp, ix - x, iy - y, d);
+         if (x != 0) {
+            proc(bmp, ix - x, iy - y, d);
+         }
       }
 
       y++;
       stopping_y += two_a_sq;
       ellipse_error += y_change;
       y_change += two_a_sq;
+      midway_x = x;
+
+      if (stopping_x < stopping_y && x > 1) {
+         break;
+      }
 
       if ((2.0f * ellipse_error + x_change) > 0.0) {
-         x--;
-         stopping_x -= two_b_sq;
-         ellipse_error += x_change;
-         x_change += two_b_sq;
+         if (x) {
+            x--;
+            stopping_x -= two_b_sq;
+            ellipse_error += x_change;
+            x_change += two_b_sq;
+         }
       }
    }
 
-   /* First point set is done; start the second set of points.  We just flip
-    * the order of iteration, and continue from where we left off.
+   /* To do the other half of the ellipse we reset to the top of it, and
+    * iterate in the opposite direction.
     */
-   while (x >= 0) {
+   x = 0;
+   y = ry;
+
+   x_change = ry * ry;
+   y_change = rx * rx * (1 - 2 * ry);
+   ellipse_error = 0.0;
+
+   while (x < midway_x) {
       proc(bmp, ix + x, iy + y, d);
-      proc(bmp, ix + x, iy - y, d);
       if (x != 0) {
-         proc(bmp, ix - x, iy - y, d);
          proc(bmp, ix - x, iy + y, d);
       }
+      if (y != 0) {
+         proc(bmp, ix + x, iy - y, d);
+         if (x != 0) {
+            proc(bmp, ix - x, iy - y, d);
+         }
+      }
 
-      x--;
+      x++;
       ellipse_error += x_change;
       x_change += two_b_sq;
 
-      if ((2.0f * ellipse_error + y_change) < 0.0) {
-         y++;
-         ellipse_error += y_change;
-         y_change += two_a_sq;
+      if ((2.0f * ellipse_error + y_change) > 0.0) {
+         if (y) {
+            y--;
+            ellipse_error += y_change;
+            y_change += two_a_sq;
+         }
       }
    }
 }
 
 
 
-/* ellipse:
+/* _soft_ellipse:
  *  Draws an ellipse.
  */
 void _soft_ellipse(BITMAP *bmp, int x, int y, int rx, int ry, int color)
@@ -1207,118 +1232,136 @@ void _soft_ellipse(BITMAP *bmp, int x, int y, int rx, int ry, int color)
 
 
 
-/* ellipsefill:
+/* _soft_ellipsefill:
  *  Draws a filled ellipse.
  */
-void _soft_ellipsefill(BITMAP *bmp, int x, int y, int rx, int ry, int color)
+void _soft_ellipsefill(BITMAP *bmp, int ix, int iy, int rx0, int ry0, int color)
 {
-   int ix, iy;
-   int a, b, c, d;
-   int da, db, dc, dd;
-   int na, nb, nc, nd;
+   int rx, ry;
+   int x, y;
+   float x_change;
+   float y_change;
+   float ellipse_error;
+   float two_a_sq;
+   float two_b_sq;
+   float stopping_x;
+   float stopping_y;
+   int midway_x;
    int clip, sx, sy, dx, dy;
+   int last_drawn_y;
+   int old_y;
    ASSERT(bmp);
 
+   rx = MAX(rx0, 0);
+   ry = MAX(ry0, 0);
+
    if (bmp->clip) {
-      sx = x-rx-1;
-      sy = y-ry-1;
-      dx = x+rx+1;
-      dy = y+ry+1;
+      sx = ix - rx - 1;
+      sy = iy - ry - 1;
+      dx = ix + rx + 1;
+      dy = iy + ry + 1;
 
       if ((sx >= bmp->cr) || (sy >= bmp->cb) || (dx < bmp->cl) || (dy < bmp->ct))
-	 return;
+         return;
 
       if ((sx >= bmp->cl) && (sy >= bmp->ct) && (dx < bmp->cr) && (dy < bmp->cb))
-	 bmp->clip = FALSE;
+         bmp->clip = FALSE;
 
       clip = TRUE;
    }
    else
       clip = FALSE;
 
-   if (rx < 1)
-      rx = 1;
-
-   if (ry < 1) 
-      ry = 1;
-
    acquire_bitmap(bmp);
 
-   if (rx > ry) {
-      dc = -1;
-      dd = 0xFFFF;
-      ix = 0; 
-      iy = rx * 64;
-      na = 0; 
-      nb = (iy + 32) >> 6;
-      nc = 0; 
-      nd = (nb * ry) / rx;
+   two_a_sq = 2 * rx * rx;
+   two_b_sq = 2 * ry * ry;
 
-      do {
-	 a = na; 
-	 b = nb; 
-	 c = nc; 
-	 d = nd;
+   x = rx;
+   y = 0;
 
-	 ix = ix + (iy / rx);
-	 iy = iy - (ix / rx);
-	 na = (ix + 32) >> 6; 
-	 nb = (iy + 32) >> 6;
-	 nc = (na * ry) / rx; 
-	 nd = (nb * ry) / rx;
+   x_change = ry * ry * (1 - 2 * rx);
+   y_change = rx * rx;
+   ellipse_error = 0.0;
 
-	 if ((c > dc) && (c < dd)) {
-	    bmp->vtable->hfill(bmp, x-b, y+c, x+b, color);
-	    if (c)
-	       bmp->vtable->hfill(bmp, x-b, y-c, x+b, color);
-	    dc = c;
-	 }
+   /* The following two variables decide when to stop.  It's easier than
+    * solving for this explicitly.
+    */
+   stopping_x = two_b_sq * rx;
+   stopping_y = 0.0;
 
-	 if ((d < dd) && (d > dc)) { 
-	    bmp->vtable->hfill(bmp, x-a, y+d, x+a, color);
-	    bmp->vtable->hfill(bmp, x-a, y-d, x+a, color);
-	    dd = d;
-	 }
+   /* First set of points */
+   while (y <= ry) {
+      bmp->vtable->hfill(bmp, ix - x, iy + y, ix + x, color);
+      if (y) {
+         bmp->vtable->hfill(bmp, ix - x, iy - y, ix + x, color);
+      }
 
-      } while(b > a);
-   } 
-   else {
-      da = -1;
-      db = 0xFFFF;
-      ix = 0; 
-      iy = ry * 64; 
-      na = 0; 
-      nb = (iy + 32) >> 6;
-      nc = 0; 
-      nd = (nb * rx) / ry;
+      y++;
+      stopping_y += two_a_sq;
+      ellipse_error += y_change;
+      y_change += two_a_sq;
+      midway_x = x;
 
-      do {
-	 a = na; 
-	 b = nb; 
-	 c = nc; 
-	 d = nd; 
+      if (stopping_x < stopping_y && x > 1) {
+         break;
+      }
 
-	 ix = ix + (iy / ry); 
-	 iy = iy - (ix / ry);
-	 na = (ix + 32) >> 6; 
-	 nb = (iy + 32) >> 6;
-	 nc = (na * rx) / ry; 
-	 nd = (nb * rx) / ry;
+      if ((2.0f * ellipse_error + x_change) > 0.0) {
+         if (x) {
+            x--;
+            stopping_x -= two_b_sq;
+            ellipse_error += x_change;
+            x_change += two_b_sq;
+         }
+      }
+   }
 
-	 if ((a > da) && (a < db)) {
-	    bmp->vtable->hfill(bmp, x-d, y+a, x+d, color); 
-	    if (a)
-	       bmp->vtable->hfill(bmp, x-d, y-a, x+d, color);
-	    da = a;
-	 }
+   last_drawn_y = y - 1;
 
-	 if ((b < db) && (b > da)) { 
-	    bmp->vtable->hfill(bmp, x-c, y+b, x+c, color);
-	    bmp->vtable->hfill(bmp, x-c, y-b, x+c, color);
-	    db = b;
-	 }
+   /* To do the other half of the ellipse we reset to the top of it, and
+    * iterate in the opposite direction until we reach the place we stopped at
+    * last time.
+    */
+   x = 0;
+   y = ry;
 
-      } while(b > a);
+   x_change = ry * ry;
+   y_change = rx * rx * (1 - 2 * ry);
+   ellipse_error = 0.0;
+
+   old_y = y;
+
+   while (x < midway_x) {
+      if (old_y != y) {
+         bmp->vtable->hfill(bmp, ix - x + 1, iy + old_y, ix + x - 1, color);
+         if (old_y) {
+            bmp->vtable->hfill(bmp, ix - x + 1, iy - old_y, ix + x - 1, color);
+         }
+      }
+
+      x++;
+      ellipse_error += x_change;
+      x_change += two_b_sq;
+      old_y = y;
+
+      if ((2.0f * ellipse_error + y_change) > 0.0) {
+         if (y) {
+            y--;
+            ellipse_error += y_change;
+            y_change += two_a_sq;
+         }
+      }
+   }
+
+   /* On occasion, a gap appears between the middle and upper halves.
+    * This 'afterthought' fills it in.
+    */
+   if (old_y != last_drawn_y) {
+      bmp->vtable->hfill(bmp, ix - x + 1, iy + old_y, ix + x - 1, color);
+      if (old_y) {
+         bmp->vtable->hfill(bmp, ix - x + 1, iy - old_y, ix + x - 1, color);
+      }
    }
 
    release_bitmap(bmp);
