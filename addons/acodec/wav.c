@@ -49,7 +49,7 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
    long rate;
    long total_samples;
    long total_size;
-   short* buffer;
+   void* buffer;
    ALLEGRO_SAMPLE* sample;
 
    sfinfo.format = 0;
@@ -72,15 +72,24 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
    fprintf(stderr, "    rate %ld\n",rate);
    fprintf(stderr, "    total_samples %ld\n",total_samples);
    fprintf(stderr, "    total_size %ld\n",total_size);
-   
-   buffer = (short*) malloc(total_size);
+
+   buffer = malloc(total_size);
    if (buffer == NULL)
    {
       sf_close(sndfile);
       return NULL;
    }
 
-   sf_readf_short(sndfile, buffer, total_samples);
+   if (depth == ALLEGRO_AUDIO_16_BIT_INT) {
+      sf_readf_short(sndfile, buffer, total_samples);
+   }
+   else if (depth == ALLEGRO_AUDIO_32_BIT_FLOAT) {
+      sf_readf_float(sndfile, buffer, total_samples);
+   }
+   else {
+      sf_read_raw(sndfile, buffer, total_samples);
+   }
+
    sf_close(sndfile);
 
    sample = al_sample_create(buffer, total_samples, rate,
