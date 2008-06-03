@@ -124,6 +124,8 @@ addons.do_build(
     install_headers = ['allegro5/acodec.h'],
     includes = ['#addons/audio','#addons/acodec'],
     examples = [('ex_acodec',['ex_acodec.c'])],
+    examples = [('ex_acodec_multi',['ex_acodec_multi.c'])],
+    examples = [('ex_acodec_stream',['ex_acodec_stream.c'])],
     example_libs = [context.libraryName('audio')],
     configs = configs,
 )

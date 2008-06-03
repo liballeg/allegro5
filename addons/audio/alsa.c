@@ -426,7 +426,6 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    if (!ex_data->frame_size)
       goto Error;
 
-   ex_data->frag_len = alsa_frag_size;
    ex_data->stop = true;
    ex_data->stopped = true;
    ex_data->quit_poll_thread = false;
@@ -487,6 +486,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    if (voice->sample->frequency != freq)
       goto Error;
 
+   ex_data->frag_len = alsa_frag_size;
 
    snd_pcm_sw_params_t *swparams;
    snd_pcm_sw_params_alloca(&swparams);
@@ -496,8 +496,6 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ALSA_CHECK(snd_pcm_sw_params_set_avail_min(ex_data->pcm_handle, swparams, ex_data->frag_len));
    ALSA_CHECK(snd_pcm_sw_params_set_xfer_align(ex_data->pcm_handle, swparams, 1));
    ALSA_CHECK(snd_pcm_sw_params(ex_data->pcm_handle, swparams));
-
-
 
    voice->extra = ex_data;
 
