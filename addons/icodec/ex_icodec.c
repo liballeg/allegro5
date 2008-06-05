@@ -15,8 +15,6 @@ int main(int argc, char **argv)
 {
    int i;
    ALLEGRO_DISPLAY *display;
-   argc=2;
-   argv[1]="sunsetL.jpg";
 
    if(argc < 2) {
       fprintf(stderr, "Usage: %s {image_files}\n", argv[0]);
