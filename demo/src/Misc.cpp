@@ -61,7 +61,7 @@ static char* userResourcePath()
 {
    static char path[MAX_PATH];
 
-   bool success = SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
+   int success = SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
 
    if (success) {
       if (path[strlen(path)-1] != '/') {
@@ -87,14 +87,14 @@ const char* getUserResource(const char* fmt, ...) throw (Error)
    static char name[MAX_PATH];
 
    // Create the user resource directory
-   char userDir[1000];
+   char userDir[991];
    sprintf(userDir, "%s", userResourcePath());
 #ifndef __linux__
    userDir[strlen(userDir)-1] = 0;
 #endif
    if (!file_exists(userDir, FA_DIREC, 0)) {
       char command[1000];
-      snprintf(command, (sizeof(command)/sizeof(*command))-1, "mkdir \"%s\"", userDir);
+      sprintf(command, "mkdir \"%s\"", userDir);
       system(command);
       if (!file_exists(userDir, FA_DIREC, 0)) {
          throw Error("The user resource directory could not be created.\n");

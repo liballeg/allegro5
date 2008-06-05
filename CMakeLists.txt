@@ -4,9 +4,6 @@
 # - sonames on Unix
 # - most Unix drivers require testing
 #
-# - DLLs on Windows (some "auto-imports" when linking executables)
-# - MSVC support
-#
 # - some documentation targets still missing
 # - installing documentation
 #
@@ -571,7 +568,7 @@ set(LIBRARY_SOURCES
     ${ALLEGRO_SRC_C_FILES}
     )
 
-if(MSVC)
+if(COMPILER_MSVC)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_FILES})
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES})
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES})
@@ -579,7 +576,7 @@ if(MSVC)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES})
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES})
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
-endif(MSVC)
+endif(COMPILER_MSVC)
 
 # Libraries that we always need to link against on this platform
 # e.g. -lm on Unix.
@@ -608,9 +605,9 @@ if(WIN32)
     if(MINGW)
         list(APPEND LIBRARY_SOURCES lib/mingw32/allegro.def)
     endif(MINGW)
-    if(MSVC)
+    if(COMPILER_MSVC)
         list(APPEND LIBRARY_SOURCES lib/msvc/allegro.def)
-    endif(MSVC)
+    endif(COMPILER_MSVC)
     list(APPEND PLATFORM_LIBS
         kernel32 user32 gdi32 comdlg32 ole32 dinput ddraw dxguid winmm dsound
         )
@@ -834,9 +831,9 @@ endif(SUPPORT_MODULES)
 #
 #-----------------------------------------------------------------------------#
 
-if(MSVC)
+if(COMPILER_MSVC)
     set(EXECUTABLE_TYPE "WIN32")
-endif(MSVC)
+endif(COMPILER_MSVC)
 
 # Select libraries to link the programs with.  We choose
 # standard, debug, profile in that order, and prefer statically linked
@@ -904,11 +901,11 @@ add_subdirectory(addons)
 #
 #-----------------------------------------------------------------------------#
 
-if(NOT MSVC) # XXX disabled because it breaks MSVC's intellisense for some reason
+if(NOT MSVC80) # XXX disabled because it breaks MSVC's intellisense for some reason
     if(USE_CXX AND WANT_FONT)
         add_subdirectory(demo)
     endif(USE_CXX AND WANT_FONT)
-endif(NOT MSVC)
+endif(NOT MSVC80)
 
 #-----------------------------------------------------------------------------#
 #

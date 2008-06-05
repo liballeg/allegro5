@@ -3,10 +3,10 @@
 
 class Player : public Entity, public Resource {
 public:
-   static const float MAX_SPEED = 10.0f;
-   static const float MIN_SPEED = -10.0f;
-   static const float ACCEL = 0.006f;
-   static const float DECCEL = 0.001f;
+   static const float MAX_SPEED;
+   static const float MIN_SPEED;
+   static const float ACCEL;
+   static const float DECCEL;
 
    bool logic(int step);
    void render(void);

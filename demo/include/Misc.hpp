@@ -3,6 +3,15 @@
 
 #include "a5teroids.hpp"
 
+#ifndef M_PI
+#define M_PI 3.1415926535897932385
+#endif
+
+#ifdef ALLEGRO_MSVC
+/* MSVC (up to ver. 9 at least) ignores exception specifications */
+#pragma warning( disable : 4290 )
+#endif
+
 const char* getUserResource(const char* fmt, ...) throw (Error);
 const char* getResource(const char* fmt, ...);
 bool loadResources(void);

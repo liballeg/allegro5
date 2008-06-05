@@ -12,7 +12,9 @@
 #endif
 #if defined(ALLEGRO_MINGW32) || defined(ALLEGRO_MSVC)
 #include "allegro5/winalleg.h"
+#ifndef _WIN32_IE
 #define _WIN32_IE 0x400
+#endif
 #include <shlobj.h>
 #endif
 

@@ -59,7 +59,7 @@ FLAC__StreamDecoderWriteStatus write_callback(const FLAC__StreamDecoder *decoder
    /* Flac returns FLAC__int32 and i need to convert it to my own format */
    FLAC__uint8* buf8 = (FLAC__uint8*) (out->buffer + out->pos);
    FLAC__int16* buf16 = (FLAC__int16*) buf8;
-   float*       buf32 = (float*) buf32;
+   float*       buf32 = (float*) buf8;
 
    /* this process flattens the array */
    /* TODO: test this array flattening process on 5.1 and higher flac files */

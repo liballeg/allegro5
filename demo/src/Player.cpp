@@ -1,9 +1,9 @@
 #include "a5teroids.hpp"
 
-const float Player::MAX_SPEED;
-const float Player::MIN_SPEED;
-const float Player::ACCEL;
-const float Player::DECCEL;
+const float Player::MAX_SPEED = 10.0f;
+const float Player::MIN_SPEED = -10.0f;
+const float Player::ACCEL = 0.006f;
+const float Player::DECCEL = 0.001f;
 
 bool Player::logic(int step)
 {

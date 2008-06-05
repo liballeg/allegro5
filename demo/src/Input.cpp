@@ -1,5 +1,10 @@
 #include "a5teroids.hpp"
 
+#ifdef ALLEGRO_MSVC
+/* "forcing value to bool 'true' or 'false' (performance warning)" */
+#pragma warning( disable : 4800 )
+#endif
+
 ALLEGRO_JOYSTICK *joystick = 0;
 
 Input::Input()
