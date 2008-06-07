@@ -58,7 +58,6 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
    if (sndfile == NULL)
       return NULL;
 
-   /* supports 16-bit, 32-bit (and float) */
    word_size = 0;
    depth = _get_depth_enum(sfinfo.format,&word_size);  
    channels = sfinfo.channels;
@@ -103,17 +102,26 @@ bool _sndfile_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long bu
 {
    int bytes_per_sample, samples, num_read, bytes_read;
 
-   SNDFILE* sndfile = (SNDFILE*) stream->ex_data;  
-   bytes_per_sample = al_audio_channel_count(stream->chan_conf)*al_audio_depth_size(stream->depth);
+   SNDFILE* sndfile = (SNDFILE*) stream->ex_data;
+   bytes_per_sample = al_audio_channel_count(stream->chan_conf) * al_audio_depth_size(stream->depth);
    samples = buf_size / bytes_per_sample;
-   
-   num_read = sf_readf_short(sndfile, data, samples);
+
+   if (stream->depth == ALLEGRO_AUDIO_16_BIT_INT) {
+      num_read = sf_readf_short(sndfile, data, samples);
+   }
+   else if (stream->depth == ALLEGRO_AUDIO_32_BIT_FLOAT) {
+      num_read = sf_readf_float(sndfile, data, samples);
+   }
+   else {
+      num_read = sf_read_raw(sndfile, data, samples);
+   }
+
    if (num_read == samples)
       return true;
-   
+
    /* out of data */
    bytes_read = num_read*bytes_per_sample;
-   memset((char*)data + bytes_read, 0, buf_size - bytes_read);
+   fill_with_silence((char*)data + bytes_read, buf_size - bytes_read, stream->depth);
    return false;
 }
 

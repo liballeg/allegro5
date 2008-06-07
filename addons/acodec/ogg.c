@@ -126,7 +126,7 @@ bool _ogg_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long buf_si
       /* if nothing read then now to silence from here to the end. */
       if (read == 0)
       {
-         memset((char*)data + pos, 0, buf_size - pos);
+         fill_with_silence((char*)data + pos, buf_size - pos, stream->depth);
          return false;
       }
    }

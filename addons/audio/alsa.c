@@ -32,7 +32,7 @@
 do {                                                                  \
    int err = (a);                                                     \
    if (err < 0) {                                                     \
-      fprintf(stderr, "%s: %s\n", snd_strerror(err), #a);             \
+      TRACE("%s: %s\n", snd_strerror(err), #a);                       \
       goto Error;                                                     \
    }                                                                  \
 } while(0)
@@ -120,11 +120,9 @@ typedef struct ALSA_VOICE {
    unsigned int pos;
    unsigned int frame_size;
 
-   unsigned int frag_len;
-   unsigned int buffer_size;
-   unsigned int num_buffers;
-
-   unsigned int silence;
+    unsigned int frag_len;
+//   unsigned int buffer_size;
+//   unsigned int num_buffers;
 
    volatile bool stop;
    volatile bool stopped;
@@ -142,10 +140,10 @@ static int alsa_open()
 {
    ALSA_CHECK(snd_output_stdio_attach(&snd_output, stdout, 0));
    return 0;
-   
+
    /* ALSA check is a macro that 'goto' error*/
    Error:
-      fprintf(stderr, "Error initializing alsa");
+      TRACE("Error initializing alsa\n");
       return 1;
 }
 
@@ -164,7 +162,7 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
    if (err == -EPIPE) { /* under-run */
       err = snd_pcm_prepare(handle);
       if (err < 0) {
-         fprintf(stderr, "Can't recover from underrun, prepare failed: %s\n", snd_strerror(err));
+         TRACE("Can't recover from underrun, prepare failed: %s\n", snd_strerror(err));
       }
       return 0;
    }
@@ -176,7 +174,7 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
       if (err < 0) {
          err = snd_pcm_prepare(handle);
          if (err < 0) {
-            fprintf(stderr, "Can't recover from suspend, prepare failed: %s\n", snd_strerror(err));
+            TRACE("Can't recover from suspend, prepare failed: %s\n", snd_strerror(err));
          }
       }
       return 0;
@@ -185,25 +183,17 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
 }
 
 
-
-/* Custom routine which runs in another thread and fills the harware PCM buffer with data
-   from the stream. */
 static int alsa_update_stream(ALLEGRO_VOICE *voice, void **buf)
 {
    ALSA_VOICE *alsa_voice = (ALSA_VOICE*)voice->extra;
    int buf_len = alsa_voice->frag_len;
 
-   /* FIXME: get streaming working */
-   *buf = NULL; //(unsigned char*)_al_voice_update(voice, buf_len / alsa_voice->frame_size);
-   if (!*buf)
-      return 0;
+   voice->stream->dried_up = !voice->stream->stream_update(voice->stream, buf, buf_len);
 
    return buf_len;
 }
 
 
-/* Custom routine which runs in another thread and fills the hardware PCM buffer
-   from the voice buffer. */
 static int alsa_update_nonstream(ALLEGRO_VOICE *voice, void **buf)
 {
    ALSA_VOICE *alsa_voice = (ALSA_VOICE*)voice->extra;
@@ -228,6 +218,8 @@ static int alsa_update_nonstream(ALLEGRO_VOICE *voice, void **buf)
 }
 
 
+/* Custom routine which runs in another thread and fills the hardware PCM buffer.
+   Common to stream and non-stream sources. */
 static void alsa_update(_AL_THREAD* self, void *arg)
 {
    ALLEGRO_VOICE *voice = (ALLEGRO_VOICE*)arg;
@@ -239,58 +231,41 @@ static void alsa_update(_AL_THREAD* self, void *arg)
    if (!tmp_buf)
       return;
 
-   alsa_voice->stopped = true;
-
    while (!alsa_voice->quit_poll_thread) {
 
       if (alsa_voice->stop) {
-
          if (!alsa_voice->stopped) {
             snd_pcm_drain(alsa_voice->pcm_handle);
             alsa_voice->stopped = true;
          }
 
-         usleep(10000);
+         al_rest(0.01);
          continue;
       }
 
+      /* The voice has just be de-stopped, since we got here. */
       if (alsa_voice->stopped) {
          alsa_voice->stopped = false;
          snd_pcm_start(alsa_voice->pcm_handle);
       }
 
-
-      if (!voice->streaming)
+      /* Read some sample data into the buffer. */
+      if (!voice->streaming) {
          res = alsa_update_nonstream(voice, &buf);
-      else
-         res = alsa_update_stream(voice, &buf);
 
-      /* We need to pass a copy of buffer fragment and paramaters to alsa
-         because snd_pcm_writei() is blocking and we have to unlock the mutex
-         before it in order to have it unlocked for a while. */
-      if (!res) {
-         res = alsa_voice->frag_len;
-         if (alsa_voice->silence > 0xFFFFu) {
-            int i = res / sizeof(uint32_t);
-            while(i-- > 0)
-               ((uint32_t*)tmp_buf)[i] = alsa_voice->silence; 
-         }
-         else if (alsa_voice->silence > 0xFFu) {
-            int i = res / sizeof(uint16_t);
-            while(i-- > 0)
-               ((uint16_t*)tmp_buf)[i] = alsa_voice->silence;
-         }
+         if (!res)
+            fill_with_silence(tmp_buf, alsa_frag_size, voice->sample->depth);
          else
-            memset(tmp_buf, alsa_voice->silence, res);
+            memcpy(tmp_buf, buf, res);
       }
-      else
-         memcpy(tmp_buf, buf, res);
-
+      else {
+         res = alsa_update_stream(voice, tmp_buf);
+      }
 
       res = snd_pcm_writei(alsa_voice->pcm_handle, tmp_buf, res / alsa_voice->frame_size);
       if (res < 0) {
          if (xrun_recovery(alsa_voice->pcm_handle, res) < 0) {
-            fprintf(stderr, "Write error: %s\n", snd_strerror(res));
+            TRACE("Write error: %s\n", snd_strerror(res));
             continue;
          }
       }
@@ -310,7 +285,6 @@ static int alsa_load_voice(ALLEGRO_VOICE *voice)
 {
    ALSA_VOICE *ex_data = voice->extra;
 
-
    ex_data->cache = _al_cache_sample(voice->sample);
 
    ex_data->pos = 0;
@@ -328,7 +302,6 @@ static void alsa_unload_voice(ALLEGRO_VOICE *voice)
 {
    ALSA_VOICE *ex_data = voice->extra;
 
-
    _al_decache_sample(ex_data->cache);
    ex_data->cache = -1;
 
@@ -342,35 +315,14 @@ static void alsa_unload_voice(ALLEGRO_VOICE *voice)
    position */
 static int alsa_start_voice(ALLEGRO_VOICE *voice)
 {
-   alsa_load_voice(voice);
-  
-   ALSA_VOICE *ex_data = voice->extra;
-
-   /* FIXME: move to a better place */
-   ex_data->buffer_size = al_audio_buffer_size(voice->sample);
-   /* FIXME: correct this for streaming */
-   ex_data->num_buffers = 1;
-
-   if (voice->streaming && (ex_data->buffer_size || ex_data->num_buffers)) {
-      snd_pcm_hw_params_t *hwparams;
-      snd_pcm_hw_params_alloca(&hwparams);
-
-      snd_pcm_hw_params_current(ex_data->pcm_handle, hwparams);
-
-      if (ex_data->buffer_size)
-         ALSA_CHECK(snd_pcm_hw_params_set_period_size(ex_data->pcm_handle, hwparams, ex_data->buffer_size, 1));
-      if (ex_data->num_buffers)
-         ALSA_CHECK(snd_pcm_hw_params_set_periods(ex_data->pcm_handle, hwparams, ex_data->num_buffers, 1));
-
-      snd_pcm_hw_params(ex_data->pcm_handle, hwparams);
+   if (!voice->stream) {
+      alsa_load_voice(voice);
    }
 
+   ALSA_VOICE *ex_data = voice->extra;
    ex_data->stop = false;
 
    return 0;
-
-Error:
-   return 1;
 }
 
 
@@ -383,12 +335,10 @@ static int alsa_stop_voice(ALLEGRO_VOICE *voice)
    alsa_unload_voice(voice);
    ALSA_VOICE *ex_data = voice->extra;
 
-
    ex_data->stop = true;
    if(!voice->streaming) {
       ex_data->pos = 0;
    }
-
 
    while (!ex_data->stopped)
       al_rest(0.001);
@@ -413,39 +363,70 @@ static bool alsa_voice_is_playing(const ALLEGRO_VOICE *voice)
 static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
 {
    snd_pcm_format_t format;
-   int channels;
+   ALLEGRO_AUDIO_ENUM chan_conf;
+   ALLEGRO_AUDIO_ENUM depth;
+   int chan_count;
+   unsigned int freq;
 
    ALSA_VOICE *ex_data = calloc(1, sizeof(ALSA_VOICE));
    if (!ex_data)
       return 1;
 
-   ex_data->cache = -1;
+   memset(ex_data, 0, sizeof(*ex_data));
 
-   ex_data->frame_size = al_audio_channel_count(voice->sample->chan_conf) *
-                         al_audio_depth_size(voice->sample->depth);
+   if (voice->streaming) {
+      depth = voice->stream->depth;
+      chan_conf = voice->stream->chan_conf;
+      freq = voice->stream->frequency;
+   }
+   else {
+      depth = voice->sample->depth;
+      chan_conf = voice->sample->chan_conf;
+      freq = voice->sample->frequency;
+   }
+
+   chan_count = al_audio_channel_count(chan_conf);
+
+   ex_data->frame_size = chan_count * al_audio_depth_size(depth);
    if (!ex_data->frame_size)
       goto Error;
 
    ex_data->stop = true;
    ex_data->stopped = true;
    ex_data->quit_poll_thread = false;
+   ex_data->cache = -1;
 
-   switch(voice->sample->depth)
+   /* FIXME: move to a better place */
+//   ex_data->buffer_size = al_audio_buffer_size(voice->sample);
+   /* FIXME: correct this for streaming */
+//   ex_data->num_buffers = 1;
+
+/*   if (voice->streaming && (ex_data->buffer_size || ex_data->num_buffers)) {
+      snd_pcm_hw_params_t *hwparams;
+      snd_pcm_hw_params_alloca(&hwparams);
+
+      snd_pcm_hw_params_current(ex_data->pcm_handle, hwparams);
+
+      if (ex_data->buffer_size)
+         ALSA_CHECK(snd_pcm_hw_params_set_period_size(ex_data->pcm_handle, hwparams, ex_data->buffer_size, 1));
+      if (ex_data->num_buffers)
+         ALSA_CHECK(snd_pcm_hw_params_set_periods(ex_data->pcm_handle, hwparams, ex_data->num_buffers, 1));
+
+      snd_pcm_hw_params(ex_data->pcm_handle, hwparams);
+   }*/
+
+   switch(depth)
    {
       case ALLEGRO_AUDIO_8_BIT_UINT:
-         ex_data->silence = 0x80;
          format = SND_PCM_FORMAT_U8;
          break;
       case ALLEGRO_AUDIO_16_BIT_INT:
-         ex_data->silence = 0x8000;
          format = SND_PCM_FORMAT_S16;
          break;
       case ALLEGRO_AUDIO_24_BIT_INT:
-         ex_data->silence = 0x800000;
          format = SND_PCM_FORMAT_S24;
          break;
       case ALLEGRO_AUDIO_32_BIT_FLOAT:
-         ex_data->silence = 0;
          format = SND_PCM_FORMAT_FLOAT;
          break;
       default:
@@ -453,17 +434,10 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
          goto Error;
    }
 
-   if (voice->sample->chan_conf == ALLEGRO_AUDIO_3_CH)
+   if (chan_conf == ALLEGRO_AUDIO_3_CH)
       goto Error;
 
-   channels = al_audio_channel_count(voice->sample->chan_conf);
-
-   unsigned int freq = voice->sample->frequency;
-
-
    ALSA_CHECK(snd_pcm_open(&ex_data->pcm_handle, alsa_device, SND_PCM_STREAM_PLAYBACK, 0));
-
-
 
    snd_pcm_hw_params_t *hwparams;
    snd_pcm_hw_params_alloca(&hwparams);
@@ -471,7 +445,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ALSA_CHECK(snd_pcm_hw_params_any(ex_data->pcm_handle, hwparams));
    ALSA_CHECK(snd_pcm_hw_params_set_access(ex_data->pcm_handle, hwparams, SND_PCM_ACCESS_RW_INTERLEAVED));
    ALSA_CHECK(snd_pcm_hw_params_set_format(ex_data->pcm_handle, hwparams, format));
-   ALSA_CHECK(snd_pcm_hw_params_set_channels(ex_data->pcm_handle, hwparams, channels));
+   ALSA_CHECK(snd_pcm_hw_params_set_channels(ex_data->pcm_handle, hwparams, chan_count));
 
    ALSA_CHECK(snd_pcm_hw_params_set_rate_near(ex_data->pcm_handle, hwparams, &freq, NULL));
    ALSA_CHECK(snd_pcm_hw_params_set_period_size_near(ex_data->pcm_handle, hwparams, &alsa_frag_size, NULL));
@@ -483,8 +457,14 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ALSA_CHECK(snd_pcm_hw_params_get_period_size(hwparams, &alsa_frag_size, NULL));
    ALSA_CHECK(snd_pcm_hw_params_get_periods(hwparams, &alsa_frag_count, NULL));
 
-   if (voice->sample->frequency != freq)
-      goto Error;
+   if (voice->stream) {
+      if (voice->stream->frequency != freq)
+         goto Error;
+   }
+   else {
+      if (voice->sample->frequency != freq)
+         goto Error;
+   }
 
    ex_data->frag_len = alsa_frag_size;
 
@@ -524,7 +504,6 @@ static void alsa_deallocate_voice(ALLEGRO_VOICE *voice)
    _al_thread_join(&alsa_voice->poll_thread);
 
    snd_pcm_close(alsa_voice->pcm_handle);
-
 
    free(voice->extra);
    voice->extra = NULL;

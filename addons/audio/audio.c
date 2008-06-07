@@ -51,6 +51,31 @@ int al_audio_size_bytes(int samples, ALLEGRO_AUDIO_ENUM channels, ALLEGRO_AUDIO_
    return samples * al_audio_channel_count(channels) * al_audio_depth_size(depth);
 }
 
+void fill_with_silence(void *buf, int bytes, ALLEGRO_AUDIO_ENUM depth) {
+   int silence;
+
+   switch(depth)
+   {
+      case ALLEGRO_AUDIO_8_BIT_UINT:
+         silence = 0x80;
+         break;
+      case ALLEGRO_AUDIO_16_BIT_INT:
+         silence = 0x8000;
+         break;
+      case ALLEGRO_AUDIO_24_BIT_INT:
+         silence = 0x800000;
+         break;
+      case ALLEGRO_AUDIO_32_BIT_FLOAT:
+         silence = 0;
+         break;
+      default:
+         TRACE("Unsupported ALSA sound format");
+         return;
+   }
+
+   memset(buf, silence, bytes);
+}
+
 int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
 {
    int retVal = 0;
