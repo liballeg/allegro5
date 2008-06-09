@@ -97,7 +97,7 @@ def parse_cmake_h(env, defines, src, dest):
         reader.close()
         writer.close()
         return 0
-    env2 = env.Copy()
+    env2 = env.Clone()
     make = SCons.Builder.Builder(action = func)
     env2.Append(BUILDERS = { "PlatformHeader" : make })
     return env2.PlatformHeader(dest,src)

@@ -241,7 +241,7 @@ class AllegroContext:
             # return build(env.SharedLibrary, self.libDir + '/shared/' + getLibraryName(debug), d)
             return build(env.SharedLibrary, getLibraryName(debug,False), d)
 
-        debugEnv = self.libraryEnv.Copy()
+        debugEnv = self.libraryEnv.Clone()
         debugEnv.Append(CCFLAGS = '-DDEBUGMODE=1')
 
         debugStatic = buildStatic(debugEnv, 1, debugBuildDir)
@@ -414,7 +414,7 @@ datworms.inc
 
 # Build all other miscellaneous targets using the same environment
 # that was used to build allegro but only link in liballeg
-extraEnv = context.getExampleEnv().Copy()
+extraEnv = context.getExampleEnv().Clone()
 # liballeg = getLibraryName(debug)
 extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
 if not context.getStatic():

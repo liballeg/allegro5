@@ -7,7 +7,7 @@ def getOption(context, name, default = 0):
 
 def do_build(context,source,dir,name,examples = [],install_headers = [],includes = [],example_libs = [],configs = []):
     def build(env, appendDir, buildDir, libDir ):
-        libEnv = env.Copy()
+        libEnv = env.Clone()
         libEnv.Append(CPPPATH = includes)
         for i in configs:
             try:
@@ -18,7 +18,7 @@ def do_build(context,source,dir,name,examples = [],install_headers = [],includes
                 return []
         lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name), appendDir(buildDir + ('/addons/%s' % dir),source))
 
-        exampleEnv = env.Copy()
+        exampleEnv = env.Clone()
         exampleEnv.Append(CPPPATH = includes)
         exampleEnv.Append(LIBS = [context.libraryName(name)])
         exampleEnv.Append(LIBS = example_libs)

@@ -306,7 +306,7 @@ modules = []
 # These should probably also pass -DALLEGRO_MODULE or something
 if platform["ALLEGRO_WITH_ESDDIGI"]:
     def buildESD(menv,appendDir,buildDir,libDir):
-        esdEnv = menv.Copy()
+        esdEnv = menv.Clone()
         esdEnv.ParseConfig('esd-config --libs')
         esdBuildDir = buildDir + '/modules'
         esdEnv.BuildDir(esdBuildDir, '.')
@@ -318,7 +318,7 @@ if platform["ALLEGRO_WITH_ESDDIGI"]:
 
 if platform["ALLEGRO_WITH_ALSADIGI"]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
-        alsaEnv = menv.Copy()
+        alsaEnv = menv.Clone()
         alsaEnv.Append(LIBS = "asound")
         alsaBuildDir = buildDir + '/modules'
         alsaEnv.BuildDir(alsaBuildDir, '.')
@@ -330,7 +330,7 @@ if platform["ALLEGRO_WITH_ALSADIGI"]:
 
 if platform["ALLEGRO_WITH_ALSAMIDI"]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
-        alsaEnv = menv.Copy()
+        alsaEnv = menv.Clone()
         alsaEnv.Append(LIBS = "asound")
         alsaBuildDir = buildDir + '/modules'
         alsaEnv.BuildDir(alsaBuildDir, '.')
@@ -347,7 +347,7 @@ if platform["ALLEGRO_WITH_ALSAMIDI"]:
 # needs to be fixed from scons or asmdefs.inc should be moved/generated elsewhere
 #if platform["ALLEGRO_LINUX_SVGALIB"][0]:
 #    def buildSVGA(menv,appendDir,buildDir,libDir):
-#        vgaEnv = menv.Copy()
+#        vgaEnv = menv.Clone()
 #        vgaEnv.Append(LIBS = "vga")
 #        sources = ["svgalib.c"]
 #        assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/src/linux/",['svgalibs.s']))
@@ -358,7 +358,7 @@ if platform["ALLEGRO_WITH_ALSAMIDI"]:
 
 if platform["ALLEGRO_WITH_ARTSDIGI"]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
-        artsEnv = menv.Copy()
+        artsEnv = menv.Clone()
         artsEnv.ParseConfig("artsc-config --libs")
         sources = ["arts.c"]
         lib = artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",appendDir(buildDir + "/src/unix/", sources))
@@ -477,4 +477,4 @@ env.Replace(LIBS = pruneLibs(env["LIBS"]))
 cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})
     
-context.setExampleEnv(env.Copy())
+context.setExampleEnv(env.Clone())

@@ -8,7 +8,7 @@ def CheckOpenAL(context):
 
     ret = context.TryAction('openal-config --cflags --libs')[0]
     if ret:
-        tmpEnv = context.env.Copy()
+        tmpEnv = context.env.Clone()
         context.env.ParseConfig('openal-config --cflags --libs')
         ret = context.TryLink("""
             #include <AL/al.h>
@@ -26,7 +26,7 @@ def CheckAlsa(context):
 
     ret = context.TryAction('pkg-config --libs --cflags alsa')[0]
     if ret:
-        tmpEnv = context.env.Copy()
+        tmpEnv = context.env.Clone()
         context.env.ParseConfig('pkg-config --libs --cflags alsa')
         ret = context.TryLink("""
             #include <alsa/asoundlib.h>
@@ -61,9 +61,12 @@ if can_build:
             alsa.c
             audio.c
             openal.c
+            voice.c
+            sample.c
+            stream.c
         """),
         dir = 'audio',
-        name = 'audio',
+        name = 'a5_audio',
         install_headers = ['allegro5/audio.h','allegro5/internal/aintern_audio.h'],
         configs = configs
      )

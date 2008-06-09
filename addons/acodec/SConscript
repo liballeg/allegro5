@@ -120,13 +120,13 @@ addons.do_build(
     context = context,
     source = source,
     dir = 'acodec',
-    name = 'acodec',
+    name = 'a5_acodec',
     install_headers = ['allegro5/acodec.h'],
     includes = ['#addons/audio','#addons/acodec'],
-    examples = [('ex_acodec',['ex_acodec.c'])],
-    examples = [('ex_acodec_multi',['ex_acodec_multi.c'])],
-    examples = [('ex_acodec_stream',['ex_acodec_stream.c'])],
-    example_libs = [context.libraryName('audio')],
+    examples = [('ex_acodec',['ex_acodec.c']),
+     ('ex_acodec_multi',['ex_acodec_multi.c']),
+     ('ex_acodec_stream',['ex_acodec_stream.c'])],
+    example_libs = [context.libraryName('a5_audio')],
     configs = configs,
 )
 
