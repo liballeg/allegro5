@@ -24,14 +24,14 @@ ALLEGRO_VOICE* al_voice_create(ALLEGRO_SAMPLE* sample)
 
    if(!driver)
    {
-      TRACE("Error. Cannot create voice when no audio driver is initiated");
+      TRACE("Error. Cannot create voice when no audio driver is initiated\n");
       return NULL;
    }
 
    voice = malloc(sizeof(*voice));
    if(!voice)
    {
-      TRACE("Error allocation voice structure memory");
+      TRACE("Error allocation voice structure memory\n");
       return NULL;
    }
    voice->sample = sample;
@@ -41,7 +41,7 @@ ALLEGRO_VOICE* al_voice_create(ALLEGRO_SAMPLE* sample)
    if(driver->allocate_voice(voice) != 0)
    {
       free(voice);
-      TRACE("Error creating hardware voice");
+      TRACE("Error creating hardware voice\n");
       return NULL;
    }
 
@@ -57,14 +57,14 @@ ALLEGRO_VOICE* al_voice_create_stream(ALLEGRO_STREAM* stream)
 
    if(!driver)
    {
-      TRACE("Error. Cannot create voice when no audio driver is initiated");
+      TRACE("Error. Cannot create voice when no audio driver is initiated\n");
       return NULL;
    }
 
    voice = malloc(sizeof(*voice));
    if(!voice)
    {
-      TRACE("Error allocation voice structure memory");
+      TRACE("Error allocation voice structure memory\n");
       return NULL;
    }
 
@@ -75,7 +75,7 @@ ALLEGRO_VOICE* al_voice_create_stream(ALLEGRO_STREAM* stream)
    if(driver->allocate_voice(voice) != 0)
    {
       free(voice);
-      TRACE("Error creating hardware voice");
+      TRACE("Error creating hardware voice\n");
       return NULL;
    }
 

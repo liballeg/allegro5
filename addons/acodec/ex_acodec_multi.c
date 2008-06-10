@@ -49,6 +49,7 @@ int main(int argc, char **argv)
       /* loads the entire sound file from disk into sample data */
       sample[i] = al_load_sample(filename);
       if (!sample[i]) {
+         voice[i] = NULL;
          fprintf(stderr, "Could not load ALLEGRO_SAMPLE from '%s'!\n", filename);
          continue;
       }
@@ -68,9 +69,11 @@ int main(int argc, char **argv)
       const char* filename = argv[i];
       float sample_time;
 
+      if (!voice[i])
+         continue;
+
       /* play each sample once */
-      if (voice[i])
-         al_voice_start(voice[i]);
+      al_voice_start(voice[i]);
 
       sample_time = al_sample_get_time(sample[i]);
       fprintf(stderr, "Playing '%s' (%.3f seconds)\n", filename, sample_time);
@@ -88,7 +91,9 @@ int main(int argc, char **argv)
          al_voice_stop(voice[i]);
          al_voice_destroy(voice[i]);
       }
-      al_sample_destroy(sample[i]);
+
+      if (sample[i])
+         al_sample_destroy(sample[i]);
    }
    free(sample);
    free(voice);
