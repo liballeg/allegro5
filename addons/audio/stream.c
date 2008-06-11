@@ -24,14 +24,14 @@ ALLEGRO_STREAM* al_stream_create(unsigned long frequency, ALLEGRO_AUDIO_ENUM dep
 
    if (!frequency)
    {
-      TRACE("Attempted to create stream with no frequency");
+      TRACE("Attempted to create stream with no frequency\n");
       return NULL;
    }
 
    stream = malloc(sizeof(*stream));
    if(!stream)
    {
-      TRACE("Out of memory allocating stream object");
+      TRACE("Out of memory allocating stream object\n");
       return NULL;
    }
 

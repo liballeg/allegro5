@@ -29,7 +29,7 @@ ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples, unsigned long
    sample = malloc(sizeof(*sample));
    if(!sample)
    {
-      TRACE("Out of memory allocating sample object");
+      TRACE("Out of memory allocating sample object\n");
       return NULL;
    }
 

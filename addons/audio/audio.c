@@ -32,7 +32,7 @@ int al_audio_depth_size(ALLEGRO_AUDIO_ENUM depth)
    if(depth == ALLEGRO_AUDIO_32_BIT_FLOAT)
       return 4;
 
-   TRACE("oops. unsupported depth size");
+   TRACE("oops. unsupported depth size\n");
    ASSERT(FALSE);
    return 0;
 
@@ -69,7 +69,7 @@ void fill_with_silence(void *buf, int bytes, ALLEGRO_AUDIO_ENUM depth) {
          silence = 0;
          break;
       default:
-         TRACE("Unsupported ALSA sound format");
+         TRACE("Unsupported sound format\n");
          return;
    }
 
@@ -83,7 +83,7 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
    /* check to see if a driver is already installed and running */
    if (driver)
    {
-      TRACE("An audio driver is already running"); 
+      TRACE("An audio driver is already running\n"); 
       return 1;
    }
 
@@ -122,21 +122,21 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
             }
             return 1;
          #else
-            TRACE("Alsa not available on this platform");
+            TRACE("Alsa not available on this platform\n");
             return 1;
          #endif
 
       case ALLEGRO_AUDIO_DRIVER_DSOUND:
          #if defined(ALLEGRO_WINDOWS)
-            TRACE("DirectSound driver not yet implemented");
+            TRACE("DirectSound driver not yet implemented\n");
             return 1;
          #else
-            TRACE("DirectSound not available on this platform");
+            TRACE("DirectSound not available on this platform\n");
             return 1;
          #endif
 
       default:
-         TRACE("Invalid audio driver");
+         TRACE("Invalid audio driver\n");
          return 1;
    }
 
