@@ -190,11 +190,31 @@ static int alsa_voice_is_played(ALSA_VOICE *alsa_voice)
 static int alsa_voice_needs_poll(ALSA_VOICE *alsa_voice)
 {
    unsigned short revents;
+   int err;
+
    poll(alsa_voice->ufds, alsa_voice->ufds_count, 0);
    snd_pcm_poll_descriptors_revents(alsa_voice->pcm_handle, alsa_voice->ufds,
                                     alsa_voice->ufds_count, &revents);
-   if (revents & POLLERR)
-      return -POLLERR;
+
+   if (revents & POLLERR) {
+      if (snd_pcm_state(alsa_voice->pcm_handle) == SND_PCM_STATE_XRUN ||
+          snd_pcm_state(alsa_voice->pcm_handle) == SND_PCM_STATE_SUSPENDED) {
+
+         if (snd_pcm_state(alsa_voice->pcm_handle) == SND_PCM_STATE_XRUN)
+            err = -EPIPE;
+         else
+            err = -ESTRPIPE;
+
+         if (xrun_recovery(alsa_voice->pcm_handle, err) < 0) {
+            TRACE(TRACE_PREFIX "Write error: %s\n", snd_strerror(err));
+            return -POLLERR;
+         }
+      } else {
+         TRACE(TRACE_PREFIX "Wait for poll failed\n");
+         return -POLLERR;
+      }
+   }
+
    if (revents & POLLOUT)
       return 1;
 
@@ -346,7 +366,7 @@ static int alsa_start_voice(ALLEGRO_VOICE *voice)
 
 
 /*
-   FIXME: either the comments of the code is wrong!
+   FIXME: either the comments or the code is wrong!
    The stop_voice method should stop playback. For non-streaming voices, it
    should leave the data loaded, and reset the voice position to 0. */
 static int alsa_stop_voice(ALLEGRO_VOICE *voice)
