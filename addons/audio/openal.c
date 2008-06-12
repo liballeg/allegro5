@@ -22,18 +22,18 @@
 #endif
 
 /* OpenAL vars */
-ALCdevice*  openal_dev;
-ALCcontext* openal_context;
-ALenum      openal_err;
-char        openal_err_str[64];
-ALCenum     alc_err;
-char        alc_err_str[64];
+static ALCdevice*  openal_dev;
+static ALCcontext* openal_context;
+static ALenum      openal_err;
+static char        openal_err_str[64];
+static ALCenum     alc_err;
+static char        alc_err_str[64];
 
 /*these constants are only used for streaming. frag_size is also in samples */
-const size_t preferred_frag_size = 2048;
-const ALuint preferred_buf_count = 4;
+static const size_t preferred_frag_size = 2048;
+static const ALuint preferred_buf_count = 4;
 
-char* openal_get_err_str(ALenum err, int len_str, char* str)
+static char* openal_get_err_str(ALenum err, int len_str, char* str)
 {
    switch (err)
    {
@@ -63,7 +63,7 @@ char* openal_get_err_str(ALenum err, int len_str, char* str)
    return str;
 }
 
-char* alc_get_err_str(ALCenum err, int len_str, char* str)
+static char* alc_get_err_str(ALCenum err, int len_str, char* str)
 {
    switch (err)
    {
@@ -96,7 +96,7 @@ char* alc_get_err_str(ALCenum err, int len_str, char* str)
 /* The open method starts up the driver and should lock the device, using the
    previously set paramters, or defaults. It shouldn't need to start sending
    audio data to the device yet, however. */
-static int _openal_open()
+static int _openal_open(void)
 { 
    fprintf(stderr, "Starting OpenAL...\n");
 
@@ -166,7 +166,7 @@ static int _openal_open()
 
 /* The close method should close the device, freeing any resources, and allow
    other processes to use the device */
-static void _openal_close()
+static void _openal_close(void)
 {
    /* clear error states */
    alGetError();
@@ -670,7 +670,7 @@ static bool _openal_get_loop(ALLEGRO_VOICE* voice)
       return FALSE;
 }
 
-ALLEGRO_AUDIO_DRIVER _openal_driver = {
+ALLEGRO_AUDIO_DRIVER _al_openal_driver = {
    _openal_open,
    _openal_close,
 

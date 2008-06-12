@@ -9,11 +9,7 @@
 
 #include "allegro5/internal/aintern_audio.h"
 
-ALLEGRO_AUDIO_DRIVER* driver = NULL;
-extern struct ALLEGRO_AUDIO_DRIVER _openal_driver;
-#if defined(ALLEGRO_LINUX)
-   extern struct ALLEGRO_AUDIO_DRIVER _alsa_driver;
-#endif
+ALLEGRO_AUDIO_DRIVER* _al_audio_driver = NULL;
 
 int al_audio_channel_count(ALLEGRO_AUDIO_ENUM conf)
 {
@@ -81,7 +77,7 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
    int retVal = 0;
 
    /* check to see if a driver is already installed and running */
-   if (driver)
+   if (_al_audio_driver)
    {
       TRACE("An audio driver is already running\n"); 
       return 1;
@@ -100,24 +96,24 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
          #elif defined(ALLEGRO_WINDOWS)
             return al_audio_init(ALLEGRO_AUDIO_DRIVER_DSOUND);
          #elif defined(ALLEGRO_MACOSX)
-            driver = NULL;
+            _al_audio_driver = NULL;
             return 1:
          #endif
 
       case ALLEGRO_AUDIO_DRIVER_OPENAL:
-         if (_openal_driver.open() == 0 )
+         if (_al_openal_driver.open() == 0 )
          {
             fprintf(stderr, "Using OpenAL driver\n"); 
-            driver = &_openal_driver;
+            _al_audio_driver = &_al_openal_driver;
             return 0;
          }
          return 1;
       case ALLEGRO_AUDIO_DRIVER_ALSA:
          #if defined(ALLEGRO_LINUX)
-            if (_alsa_driver.open() == 0)
+            if (_al_alsa_driver.open() == 0)
             {
                fprintf(stderr, "Using ALSA driver\n");
-               driver = &_alsa_driver;
+               _al_audio_driver = &_al_alsa_driver;
                return 0;
             }
             return 1;
@@ -142,9 +138,9 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
 
 }
 
-void al_audio_deinit()
+void al_audio_deinit(void)
 {
-   if(driver)
-      driver->close();
-   driver = NULL;
+   if (_al_audio_driver)
+      _al_audio_driver->close();
+   _al_audio_driver = NULL;
 }

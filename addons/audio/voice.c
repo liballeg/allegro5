@@ -13,8 +13,6 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/audio.h"
 
-extern ALLEGRO_AUDIO_DRIVER* driver;
-
 /* al_voice_create: give it a sample*/
 ALLEGRO_VOICE* al_voice_create(ALLEGRO_SAMPLE* sample)
 {
@@ -22,7 +20,7 @@ ALLEGRO_VOICE* al_voice_create(ALLEGRO_SAMPLE* sample)
 
    ASSERT(sample);
 
-   if(!driver)
+   if(!_al_audio_driver)
    {
       TRACE("Error. Cannot create voice when no audio driver is initiated\n");
       return NULL;
@@ -38,7 +36,7 @@ ALLEGRO_VOICE* al_voice_create(ALLEGRO_SAMPLE* sample)
    voice->stream = NULL;
    voice->streaming = FALSE;
 
-   if(driver->allocate_voice(voice) != 0)
+   if(_al_audio_driver->allocate_voice(voice) != 0)
    {
       free(voice);
       TRACE("Error creating hardware voice\n");
@@ -55,7 +53,7 @@ ALLEGRO_VOICE* al_voice_create_stream(ALLEGRO_STREAM* stream)
 
    ASSERT(stream);
 
-   if(!driver)
+   if(!_al_audio_driver)
    {
       TRACE("Error. Cannot create voice when no audio driver is initiated\n");
       return NULL;
@@ -72,7 +70,7 @@ ALLEGRO_VOICE* al_voice_create_stream(ALLEGRO_STREAM* stream)
    voice->stream = stream;
    voice->streaming = TRUE;
 
-   if(driver->allocate_voice(voice) != 0)
+   if(_al_audio_driver->allocate_voice(voice) != 0)
    {
       free(voice);
       TRACE("Error creating hardware voice\n");
@@ -85,55 +83,55 @@ ALLEGRO_VOICE* al_voice_create_stream(ALLEGRO_STREAM* stream)
 void al_voice_destroy(ALLEGRO_VOICE *voice)
 {
    ASSERT(voice);
-   driver->deallocate_voice(voice);
+   _al_audio_driver->deallocate_voice(voice);
    free(voice);
 }
 
 unsigned long al_voice_get_position(const ALLEGRO_VOICE* voice)
 {
    ASSERT(voice);
-   return driver->get_voice_position(voice);
+   return _al_audio_driver->get_voice_position(voice);
 }
 
 bool al_voice_is_playing(const ALLEGRO_VOICE* voice)
 {
    ASSERT(voice);
-   return driver->voice_is_playing(voice);
+   return _al_audio_driver->voice_is_playing(voice);
 }
 
 int al_voice_set_position(ALLEGRO_VOICE* voice, unsigned long position)
 {
    ASSERT(voice);
-   return driver->set_voice_position(voice, position);
+   return _al_audio_driver->set_voice_position(voice, position);
 }
 
 int al_voice_set_loop_mode(ALLEGRO_VOICE* voice, ALLEGRO_AUDIO_ENUM loop_mode)
 {
    ASSERT(voice);
-   return driver->set_loop_mode(voice, loop_mode);
+   return _al_audio_driver->set_loop_mode(voice, loop_mode);
 }
 
 int al_voice_get_loop_mode(ALLEGRO_VOICE* voice, ALLEGRO_AUDIO_ENUM loop_mode)
 {
    ASSERT(voice);
-   return driver->get_loop_mode(voice);
+   return _al_audio_driver->get_loop_mode(voice);
 }
 
 int al_voice_pause(ALLEGRO_VOICE* voice)
 {
    ASSERT(voice);
-   return driver->stop_voice(voice);
+   return _al_audio_driver->stop_voice(voice);
 }
 
 /* pauses and sets position to 0 */
 int al_voice_stop(ALLEGRO_VOICE* voice)
 {
    ASSERT(voice);
-   return (driver->stop_voice(voice) | driver->set_voice_position(voice,0));
+   return (_al_audio_driver->stop_voice(voice) | _al_audio_driver->set_voice_position(voice,0));
 }
 
 int al_voice_start(ALLEGRO_VOICE* voice)
 {
    ASSERT(voice);
-   return driver->start_voice(voice);
+   return _al_audio_driver->start_voice(voice);
 }

@@ -11,8 +11,6 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "../audio.h"
 
-const void* _al_voice_update(ALLEGRO_VOICE* voice, unsigned long samples);
-
 typedef struct ALLEGRO_AUDIO_DRIVER {
    int  (*open)();
    void (*close)();
@@ -65,5 +63,19 @@ struct ALLEGRO_STREAM {
    void (*stream_close)(ALLEGRO_STREAM*); /* called when the stream is destroyed */
    void* ex_data; /* extra data meant for the stream readers to use */
 };
+
+
+
+extern ALLEGRO_AUDIO_DRIVER* _al_audio_driver;
+extern struct ALLEGRO_AUDIO_DRIVER _al_openal_driver;
+#if defined(ALLEGRO_LINUX)
+   extern struct ALLEGRO_AUDIO_DRIVER _al_alsa_driver;
+#endif
+
+
+
+extern const void* _al_voice_update(ALLEGRO_VOICE* voice, unsigned long samples);
+
+
 
 #endif

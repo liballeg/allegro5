@@ -73,7 +73,7 @@ typedef struct ALSA_VOICE {
 
 
 /* initialized output */
-static int alsa_open()
+static int alsa_open(void)
 {
    ALSA_CHECK(snd_output_stdio_attach(&alsa_snd_output, stdout, 0));
 
@@ -95,7 +95,7 @@ static int alsa_open()
 
 /* The close method should close the device, freeing any resources, and allow
    other processes to use the device */
-static void alsa_close()
+static void alsa_close(void)
 {
    alsa_quit_poll_thread = true;
    _al_thread_join(&alsa_poll_thread);
@@ -572,7 +572,7 @@ static bool alsa_get_loop(ALLEGRO_VOICE* voice)
    return ex_data->loop_mode;
 }
 
-ALLEGRO_AUDIO_DRIVER _alsa_driver =
+ALLEGRO_AUDIO_DRIVER _al_alsa_driver =
 {
    alsa_open,
    alsa_close,
