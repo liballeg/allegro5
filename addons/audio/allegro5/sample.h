@@ -19,5 +19,4 @@ A5_AUDIO_FUNC(void, al_sample_set_buffer, (ALLEGRO_SAMPLE* sample, void* buf));
 /* FIXME: rename or make internal */
 A5_AUDIO_FUNC(int,  al_audio_buffer_size, (const ALLEGRO_SAMPLE* sample));
 A5_AUDIO_FUNC(int,  al_audio_size_bytes, (int samples, ALLEGRO_AUDIO_ENUM channels, ALLEGRO_AUDIO_ENUM depth));
-A5_AUDIO_FUNC(void, fill_with_silence, (void *buf, int bytes, ALLEGRO_AUDIO_ENUM depth));
 #endif

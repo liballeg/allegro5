@@ -100,7 +100,7 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
 
 bool _sndfile_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long buf_size)
 {
-   int bytes_per_sample, samples, num_read, bytes_read;
+   int bytes_per_sample, samples, num_read, bytes_read, silence;
 
    SNDFILE* sndfile = (SNDFILE*) stream->ex_data;
    bytes_per_sample = al_audio_channel_count(stream->chan_conf) * al_audio_depth_size(stream->depth);
@@ -121,7 +121,8 @@ bool _sndfile_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long bu
 
    /* out of data */
    bytes_read = num_read*bytes_per_sample;
-   fill_with_silence((char*)data + bytes_read, buf_size - bytes_read, stream->depth);
+   silence = _al_audio_get_silence(stream->depth);
+   memset((char*)data + bytes_read, silence, buf_size - bytes_read);
    return false;
 }
 

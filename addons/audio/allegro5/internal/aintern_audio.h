@@ -75,7 +75,7 @@ extern struct ALLEGRO_AUDIO_DRIVER _al_openal_driver;
 
 
 extern const void* _al_voice_update(ALLEGRO_VOICE* voice, unsigned long samples);
-
+extern int _al_audio_get_silence(ALLEGRO_AUDIO_ENUM depth);
 
 
 #endif

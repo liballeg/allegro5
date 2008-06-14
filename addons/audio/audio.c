@@ -47,7 +47,7 @@ int al_audio_size_bytes(int samples, ALLEGRO_AUDIO_ENUM channels, ALLEGRO_AUDIO_
    return samples * al_audio_channel_count(channels) * al_audio_depth_size(depth);
 }
 
-void fill_with_silence(void *buf, int bytes, ALLEGRO_AUDIO_ENUM depth) {
+int _al_audio_get_silence(ALLEGRO_AUDIO_ENUM depth) {
    int silence;
 
    switch(depth)
@@ -66,10 +66,10 @@ void fill_with_silence(void *buf, int bytes, ALLEGRO_AUDIO_ENUM depth) {
          break;
       default:
          TRACE("Unsupported sound format\n");
-         return;
+         return 0;
    }
 
-   memset(buf, silence, bytes);
+   return silence;
 }
 
 int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
