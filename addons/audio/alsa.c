@@ -388,10 +388,14 @@ static int alsa_stop_voice(ALLEGRO_VOICE *voice)
 
    ex_data->stop = true;
 
+   /* Before we exit or free the sample data make sure the voice is not about
+    * to be played. */
+   _al_mutex_lock(&alsa_voices_list_mutex);
    if (!voice->streaming) {
       ex_data->pos = 0;
       alsa_unload_voice(voice);
    }
+   _al_mutex_unlock(&alsa_voices_list_mutex);
 
    return 0;
 }
