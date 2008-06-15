@@ -384,10 +384,9 @@ static int alsa_stop_voice(ALLEGRO_VOICE *voice)
 {
    ALSA_VOICE *ex_data = voice->extra;
 
-   ex_data->stop = true;
+   snd_pcm_drop(ex_data->pcm_handle);
 
-   while (!ex_data->stopped)
-      al_rest(0.001);
+   ex_data->stop = true;
 
    if (!voice->streaming) {
       ex_data->pos = 0;
