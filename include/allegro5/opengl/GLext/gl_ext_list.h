@@ -162,9 +162,9 @@ AGL_EXT(EXT_texture_compression_s3tc,  0)
 AGL_EXT(IBM_cull_vertex,               0)
 AGL_EXT(IBM_multimode_draw_arrays,     0)
 AGL_EXT(IBM_vertex_array_lists,        0)
-/* AGL_EXT(3DFX_texture_compression_FXT1, 0) */
-/* AGL_EXT(3DFX_multisample,              0) */
-/* AGL_EXT(3DFX_tbuffer,                  0) */
+AGL_EXT(3DFX_texture_compression_FXT1, 0)
+AGL_EXT(3DFX_multisample,              0) 
+AGL_EXT(3DFX_tbuffer,                  0)
 AGL_EXT(SGIX_vertex_preclip,           0)
 AGL_EXT(SGIX_resample,                 0)
 AGL_EXT(SGIS_texture_color_mask,       0)

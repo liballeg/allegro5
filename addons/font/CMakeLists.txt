@@ -2,15 +2,13 @@ set(FONT_SOURCES font.c fontbmp.c readfont.c text.c)
 set(FONT_INCLUDE_FILES allegro5/a5_font.h)
 
 macro(add_font_build nm extra_flags)
-    macro(really_add_font_build nm target libtype more_extra_flags)
+    macro(really_add_font_build nm2 target libtype more_extra_flags)
         add_library(${target} ${libtype} ${FONT_SOURCES})
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
-            OUTPUT_NAME ${nm}
+            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DA5_FONT_SRC"
+            OUTPUT_NAME ${nm2}
             )
-
-        target_link_libraries(${target} ${LINK_WITH})
 
         install(TARGETS ${target}
                 DESTINATION lib
@@ -23,10 +21,11 @@ macro(add_font_build nm extra_flags)
 
     if(SHARED)
         really_add_font_build(${nm} ${nm}_shared SHARED "")
+        target_link_libraries(${nm}_shared ${ADDONS_LINK_WITH})
     endif(SHARED)
 
     if(STATIC)
-        really_add_font_build(${nm} ${nm}_static STATIC "")
+        really_add_font_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATICLINK")
     endif(STATIC)
 
 endmacro(add_font_build)
@@ -64,14 +63,14 @@ endif(STATIC)
 macro(add_font_example nm)
     add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
     set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
+        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
         LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         )
     target_link_libraries(${nm} ${LINK_WITH})
     target_link_libraries(${nm} ${FONT_LINK_WITH})
 endmacro(add_font_example)
 
-add_font_example(ex ex.c)
+add_font_example(ex_font ex_font.c)
 
 #-----------------------------------------------------------------------------#
 #

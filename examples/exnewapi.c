@@ -149,7 +149,7 @@ int main(void)
          x += dx;
          if (x == 0)
             dx = 1;
-         if (x == w - 40)
+         if (x == w - 140)
             dx = -1;
       }
 

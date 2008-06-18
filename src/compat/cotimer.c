@@ -149,7 +149,7 @@ static void timer_thread_func(_AL_THREAD *self, void *unused)
    while (!_al_thread_should_stop(self)) {
       ALLEGRO_EVENT event;
 
-      if (!al_wait_for_event(event_queue, &event, 50))
+      if (!al_wait_for_event_timed(event_queue, &event, 0.050))
          continue;
 
       if ((ALLEGRO_TIMER *)event.any.source == retrace_timer) {

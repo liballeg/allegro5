@@ -62,8 +62,12 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_SYSTEM *system = al_system_driver();
    ALLEGRO_DISPLAY_INTERFACE *driver = system->vt->get_display_driver();
    ALLEGRO_DISPLAY *display = driver->create_display(w, h);
+
    if (!display)
       return NULL;
+
+   _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
+
    {
    ALLEGRO_COLOR black = al_map_rgba(0, 0, 0, 0);
    al_set_current_display(display);
@@ -279,6 +283,34 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
 }
 
 
+/* Function: al_draw_pixel
+ *
+ * Draws a single pixel at x, y. This function, unlike
+ * al_put_pixel, does blending.
+ *
+ * x - destination x
+ * y - destination y
+ * color - color of the pixel
+ */
+void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
+{
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   ASSERT(target);
+   ASSERT(_al_current_display);
+
+   if (target->flags & ALLEGRO_MEMORY_BITMAP
+         || !_al_current_display->vt->draw_pixel) {
+      _al_draw_pixel_memory(x, y, &color);
+   }
+   else {
+      _al_current_display->vt->draw_pixel(_al_current_display,
+         x, y, &color);
+   }
+}
+
+
+
 
 /* Function: al_is_compatible_bitmap
  *
@@ -489,3 +521,14 @@ void al_set_display_icon(ALLEGRO_BITMAP *icon)
    _al_current_display->vt->set_icon(_al_current_display, icon);
 }
 
+
+
+/* Destroys all bitmaps created for this display.
+ */
+void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d) {
+   while (_al_vector_size(&d->bitmaps) > 0) {
+      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
+      ALLEGRO_BITMAP *b = *bptr;
+      al_destroy_bitmap(b);
+   }
+}

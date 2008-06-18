@@ -1,4 +1,5 @@
 Import( 'context' )
+import addons
 
 def getOption(name, default = 0):
     try:
@@ -20,19 +21,22 @@ def a5font(env, appendDir, buildDir, libDir):
     # Build library however Allegro was configured, either static or shared
     lib = context.makeLibrary( env )( libDir + '/a5_font', appendDir(buildDir + '/addons/font',source))
 
+    print lib
+
     examples.append(lib)
 
     exampleEnv = env.Copy()
-    exampleEnv.Append( LIBS = lib )
-
+    exampleEnv.Append(LIBS = ["a5_font"])
+    
     def addExample(name, files):
         example = exampleEnv.Program(name, appendDir(buildDir + '/addons/font/', files))
         Alias(name, example)
         examples.append(example)
 
-    addExample("addons/font/ex", ["ex.c"])
+    addExample("addons/font/ex", ["ex_font.c"])
 
     Alias('addons/font', examples + lib)
+    Alias('addons', examples + lib)
 
     def install():
         installDir = getOption('install','/usr/local')
@@ -45,6 +49,24 @@ def a5font(env, appendDir, buildDir, libDir):
 
     Alias('install', install())
     Alias('install-addons/font', install())
+
     return examples
 
-context.addExtra(a5font,depends = True)
+# context.addExtra(a5font,depends = True)
+
+addons.do_build(
+    context = context,
+    source = Split("""
+        font.c
+        fontbmp.c
+        readfont.c
+        text.c
+     """),
+    dir = 'font',
+    name = 'a5_font',
+    examples = [("ex", ["ex_font.c"])],
+    install_headers = ['allegro5/a5_font.h']
+)
+
+x = True
+Return('x')

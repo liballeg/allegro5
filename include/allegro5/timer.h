@@ -34,12 +34,12 @@ AL_BEGIN_EXTERN_C
  *  ALLEGRO_SECS_TO_USECS - seconds to microseconds
  *  These macros convert from various time units into milliseconds.
  */
-#define ALLEGRO_USECS_TO_SECS(x)      (x / 1000000)
-#define ALLEGRO_MSECS_TO_SECS(x)      (x / 1000)
+#define ALLEGRO_USECS_TO_SECS(x)      (x / 1000000.0)
+#define ALLEGRO_MSECS_TO_SECS(x)      (x / 1000.0)
 #define ALLEGRO_BPS_TO_SECS(x)        (1.0 / x)
-#define ALLEGRO_BPM_TO_SECS(x)        (60 / x)
-#define ALLEGRO_SECS_TO_MSECS(x)      (x * 1000)
-#define ALLEGRO_SECS_TO_USECS(x)      (x * 1000000)
+#define ALLEGRO_BPM_TO_SECS(x)        (60.0 / x)
+#define ALLEGRO_SECS_TO_MSECS(x)      (x * 1000.0)
+#define ALLEGRO_SECS_TO_USECS(x)      (x * 1000000.0)
 
 
 /* Type: ALLEGRO_TIMER

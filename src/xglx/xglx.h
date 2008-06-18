@@ -17,7 +17,6 @@
 
 typedef struct ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_XGLX;
 typedef struct ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_XGLX;
-typedef struct ALLEGRO_BITMAP_XGLX ALLEGRO_BITMAP_XGLX;
 
 /* This is our version of ALLEGRO_SYSTEM with driver specific extra data. */
 struct ALLEGRO_SYSTEM_XGLX
@@ -43,31 +42,12 @@ struct ALLEGRO_SYSTEM_XGLX
    bool pointer_grabbed; /* Is an XGrabPointer in effect? */
 };
 
-struct ALLEGRO_BITMAP_XGLX
-{
-   ALLEGRO_BITMAP bitmap; /* This must be the first member. */
-   
-   /* Driver specifics. */
-   
-   GLuint texture; /* 0 means, not uploaded yet. */
-   GLuint fbo; /* 0 means, no fbo yet. */
-
-   float left, top, right, bottom; /* Texture coordinates. */
-   bool is_backbuffer; /* This is not a real bitmap, but the backbuffer. */
-};
-
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
 struct ALLEGRO_DISPLAY_XGLX
 {
    ALLEGRO_DISPLAY_OGL ogl_display; /* This must be the first member. */
    
    /* Driver specifics. */
-
-   int opengl_initialized; /* Did we have a chance to set up OpenGL? */
-
-   ALLEGRO_BITMAP *backbuffer;
-
-   ALLEGRO_BITMAP_XGLX *opengl_target;
 
    Window window;
    int xscreen; /* TODO: what is this? something with multi-monitor? */
@@ -76,8 +56,7 @@ struct ALLEGRO_DISPLAY_XGLX
    Atom wm_delete_window_atom;
    XVisualInfo *xvinfo; /* Used when selecting the X11 visual to use. */
    GLXFBConfig *fbc; /* Used when creating the OpenGL context. */
-   float glx_version;
-   bool got_extensions;
+   int glx_version; /* 130 means 1 major and 3 minor, aka 1.3 */
 
    /* Cursor for this window. */
    Cursor invisible_cursor;
@@ -101,12 +80,6 @@ void _al_xwin_mouse_button_press_handler(int button);
 void _al_xwin_mouse_button_release_handler(int button);
 void _al_xwin_mouse_motion_notify_handler(int x, int y);
 
-/* bitmap */
-ALLEGRO_BITMAP *_al_xglx_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h);
-
-/* draw */
-void _xglx_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
-
 /* fullscreen */
 int _al_xglx_get_num_display_modes(void);
 ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(
@@ -123,5 +96,5 @@ void _al_xglx_display_upload_compat_screen(BITMAP *bitmap,
    int x, int y, int w, int h);
 
 /* glx_config */
-void _xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx);
-void _xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx);
+void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx);
+void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx);

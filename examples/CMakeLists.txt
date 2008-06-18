@@ -56,13 +56,17 @@ endif(WANT_OLD_EXAMPLES)
 
 example(exnewapi)
 example(exnew_bitmap)
+example(exnew_drawpixels)
 example(exnew_fs_resize)
 example(exnew_icon)
 example(exnew_lockbitmap)
 example(exnew_lockscreen)
 example(exnew_mouse)
 example(exnew_mouse_events)
+example(exnew_multiwin)
 example(exnew_resize)
+example(exnew_scale)
+example(exnew_timedwait)
 
 if(WANT_FONT)
     include_directories(../addons/font)
@@ -73,34 +77,31 @@ if(WANT_FONT)
     add_font_example(exnew_timer exnew_timer.c)
 endif(WANT_FONT)
 
-if(WANT_D3D)
-    if (USE_CXX)
-        if(HAVE_D3DX9)
-            macro(add_d3dx_example nm)
-                add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
-                set_target_properties(${nm} PROPERTIES
-                    COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
-                    LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
-                    )
-                target_link_libraries(${nm} ${LINK_WITH})
-                target_link_libraries(${nm} d3dx9)
-            endmacro(add_d3dx_example)
+if(SUPPORT_D3D)
+    macro(add_d3dx_example nm)
+        add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
+        set_target_properties(${nm} PROPERTIES
+            COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
+            LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
+            )
+        target_link_libraries(${nm} ${LINK_WITH})
+        target_link_libraries(${nm} d3dx9)
+    endmacro(add_d3dx_example)
 
-            SET_SOURCE_FILES_PROPERTIES(exnew_d3d.cpp PROPERTIES LANGUAGE "CXX")
-            add_d3dx_example(exnew_d3d exnew_d3d.cpp)
-        endif(HAVE_D3DX9)
+    if (USE_CXX)
+        set_source_files_properties(exnew_d3d.cpp PROPERTIES LANGUAGE "CXX")
+        add_d3dx_example(exnew_d3d exnew_d3d.cpp)
     endif(USE_CXX)
-endif(WANT_D3D)
+endif(SUPPORT_D3D)
 
 if(SUPPORT_OPENGL)
     macro(add_ogl_example nm)
         add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
         set_target_properties(${nm} PROPERTIES
-            COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
+            COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
             LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
             )
         target_link_libraries(${nm} ${LINK_WITH})
-        target_link_libraries(${nm} ${OPENGL_LIBS})
     endmacro(add_ogl_example)
 
     add_ogl_example(exnew_opengl exnew_opengl.c)

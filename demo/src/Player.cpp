@@ -1,5 +1,10 @@
 #include "a5teroids.hpp"
 
+const float Player::MAX_SPEED = 10.0f;
+const float Player::MIN_SPEED = -10.0f;
+const float Player::ACCEL = 0.006f;
+const float Player::DECCEL = 0.001f;
+
 bool Player::logic(int step)
 {
    if (!isDestructable && invincibleCount > 0) {
@@ -128,10 +133,18 @@ void Player::render(void)
    }
    if (draw_trail) {
       int tw = al_get_bitmap_width(trail_bitmap);
-      float tx = x - radius * cos(-angle);
-      float ty = y - radius * sin(-angle);
-      al_draw_rotated_bitmap(trail_bitmap, tw/2, 0,
-         tx, ty, angle-(M_PI/2.0f), 0);
+      int th = al_get_bitmap_height(trail_bitmap);
+      float ca = (M_PI*2)-angle;
+      float a = ca - ((210.0f / 180.0f) * M_PI);
+      float tx = x + 42.0f * cos(a);
+      float ty = y + 42.0f * sin(a);
+      al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
+         tx, ty, (M_PI*2)-a, 0);
+      a = ca - ((150.0f / 180.0f) * M_PI);
+      tx = x + 42.0f * cos(a);
+      ty = y + 42.0f * sin(a);
+      al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
+         tx, ty, (M_PI*2)-a, 0);
    }
 
    al_draw_bitmap(icon, 2, 2, 0);

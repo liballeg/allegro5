@@ -1,7 +1,7 @@
 #! /bin/sh
 #
 #  Shell script to adjust the version numbers and dates in allegro.h,
-#  dllver.rc, readme._tx, allegro._tx, makefile.ver, allegro-config.in,
+#  dllver.rc, readme._tx, allegro._tx, makefile.ver, allegro5-config.in,
 #  allegro-config.qnx, modules.lst and allegro.spec .
 #
 #  Note: if you pass "datestamp" as the only argument, then the version
@@ -11,7 +11,7 @@
 
 if [ $# -lt 3 -o $# -gt 4 ]; then
    if [ $# -eq 1 -a $1 == "datestamp" ]; then
-      ver=`grep "version=[0-9]" misc/allegro-config.in`
+      ver=`grep "version=[0-9]" misc/allegro5-config.in`
       major_num=`echo $ver | sed -e "s/version=\([0-9]\).*/\1/"`
       sub_num=`echo $ver | sed -e "s/version=[0-9]\.\([0-9]\).*/\1/"`
       wip_num=`echo $ver | sed -e "s/version=[0-9]\.[0-9]\.\([0-9]\+\).*/\1/"`
@@ -118,12 +118,12 @@ echo "Patching makefile.ver..."
 cp makefile.ver fixver.tmp
 sed -f fixver.sed fixver.tmp > makefile.ver
 
-# patch allegro-config.in, allegro-config.qnx
+# patch allegro5-config.in, allegro-config.qnx
 echo "s/version=[0-9].*/version=$1.$2.$3/" >> fixver.sed
 
-echo "Patching misc/allegro-config.in..."
-cp misc/allegro-config.in fixver.tmp
-sed -f fixver.sed fixver.tmp > misc/allegro-config.in
+echo "Patching misc/allegro5-config.in..."
+cp misc/allegro5-config.in fixver.tmp
+sed -f fixver.sed fixver.tmp > misc/allegro5-config.in
 
 echo "Patching misc/allegro-config-qnx.sh..."
 cp misc/allegro-config-qnx.sh fixver.tmp
@@ -133,6 +133,11 @@ sed -f fixver.sed fixver.tmp > misc/allegro-config-qnx.sh
 echo "Patching misc/allegro.spec..."
 cp misc/allegro.spec fixver.tmp
 sed -e "s/^Version: .*/Version: $1.$2.$3/" fixver.tmp > misc/allegro.spec
+
+# patch CMakeLists.txt
+echo "Patching CMakeLists.txt..."
+cp CMakeLists.txt fixver.tmp
+sed -e "s/set(ALLEGRO_VERSION [^)]*)/set(ALLEGRO_VERSION $1.$2.$3)/" fixver.tmp > CMakeLists.txt
 
 # clean up after ourselves
 rm fixver.sed fixver.tmp

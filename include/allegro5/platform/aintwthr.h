@@ -37,6 +37,11 @@ struct _AL_COND
    CRITICAL_SECTION mtxUnblockLock;
 };
 
+struct _AL_COND_TIMEOUT
+{
+   DWORD abstime;
+};
+
 
 AL_INLINE(bool, _al_thread_should_stop, (struct _AL_THREAD *t),
 {

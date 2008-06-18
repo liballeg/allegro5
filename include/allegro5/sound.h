@@ -21,7 +21,7 @@
 
 #include "allegro5/base.h"
 #include "allegro5/digi.h"
-#include "allegro5/stream.h"
+#include "allegro5/a4_stream.h"
 #include "allegro5/midi.h"
 
 #ifdef __cplusplus

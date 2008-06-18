@@ -370,9 +370,10 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
    if ((tls = tls_get()) == NULL)
       return;
    tls->target_bitmap = bitmap;
-
-   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
-      _al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
+   if (bitmap != NULL) {
+      if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
+         _al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
+   }
 }
 
 

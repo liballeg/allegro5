@@ -2,16 +2,18 @@
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 
-static int check(ALLEGRO_SYSTEM_XGLX *s)
+static int check_xf86_vidmode_ext(ALLEGRO_SYSTEM_XGLX *s)
 {
    int x, y;
+
    return XF86VidModeQueryExtension(s->xdisplay, &x, &y)
       && XF86VidModeQueryVersion(s->xdisplay, &x, &y);
 }
 
-int get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s)
+static int get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s)
 {
-   if (!check(s)) return 0;
+   if (!check_xf86_vidmode_ext(s))
+      return 0;
 
    if (!XF86VidModeGetAllModeLines(s->xdisplay, 0, &s->modes_count, &s->modes))
       return 0;
@@ -27,7 +29,8 @@ int _al_xglx_get_num_display_modes(void)
 ALLEGRO_DISPLAY_MODE *get_display_mode(ALLEGRO_SYSTEM_XGLX *s,
    int i, ALLEGRO_DISPLAY_MODE *mode)
 {
-   if (!s->modes) return NULL;
+   if (!s->modes)
+      return NULL;
 
    mode->width = s->modes[i]->hdisplay;
    mode->height = s->modes[i]->vdisplay;
@@ -46,10 +49,14 @@ ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(
 bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
    int w, int h, int format, int refresh_rate)
 {
+   ALLEGRO_DISPLAY_MODE mode;
+   ALLEGRO_DISPLAY_MODE mode2;
    int i;
-   ALLEGRO_DISPLAY_MODE mode, mode2;
-   int n = get_num_display_modes(s);
-   if (!n) return false;
+   int n;
+
+   n = get_num_display_modes(s);
+   if (!n)
+      return false;
 
    /* Find all modes with correct parameters. */
    int possible_modes[n];
@@ -58,11 +65,13 @@ bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
       get_display_mode(s, i, &mode);
       if (mode.width == w && mode.height == h &&
          (format == 0 || mode.format == format) &&
-         (refresh_rate == 0 || mode.refresh_rate == refresh_rate)) {
+         (refresh_rate == 0 || mode.refresh_rate == refresh_rate))
+      {
          possible_modes[possible_count++] = i;
       }
    }
-   if (!possible_count) return false;
+   if (!possible_count)
+      return false;
 
    /* Choose mode with highest refresh rate. */
    int best_mode = possible_modes[0];
@@ -81,7 +90,8 @@ bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
    return true;
 }
 
-void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d)
+void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
+   ALLEGRO_DISPLAY_XGLX *d)
 {
    int x, y;
    Window child;
@@ -112,13 +122,16 @@ void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s)
       s->pointer_grabbed = false;
    }
 }
-#else
+
+#else /* !ALLEGRO_XWINDOWS_WITH_XF86VIDMODE */
+
 int _al_xglx_get_num_display_modes(void)
 {
    return 0;
 }
 
-ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
+ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(int index,
+   ALLEGRO_DISPLAY_MODE *mode)
 {
    return NULL;
 }
@@ -129,12 +142,8 @@ bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
    return false;
 }
 
-bool _al_xglx_set_mode(int w, int h, int format, int refresh_rate)
-{
-   return false;
-}
-
-void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d)
+void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
+   ALLEGRO_DISPLAY_XGLX *d)
 {
 }
 
@@ -145,4 +154,5 @@ void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 {
 }
-#endif
+
+#endif /* !ALLEGRO_XWINDOWS_WITH_XF86VIDMODE */

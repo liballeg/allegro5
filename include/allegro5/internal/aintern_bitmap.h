@@ -15,6 +15,11 @@ struct ALLEGRO_BITMAP
    int format;
    int flags;
    int w, h;
+   /*
+    * The number of bytes between a pixel at (x,y) and (x,y+1).
+    * This is larger than w * pixel_size if there is padding between lines.
+    */
+   int pitch;
    /* 
     * clip left, right, top, bottom
     * Clip anything outside of this
@@ -104,14 +109,12 @@ void _al_convert_compat_bitmap(
 void _al_convert_to_compat_bitmap(
 	ALLEGRO_BITMAP *src,
         BITMAP *dst);
+void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
 int _al_get_pixel_value(int src_format, ALLEGRO_COLOR *src_color);
 int _al_get_compat_bitmap_format(BITMAP *bmp);
 bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);
 int _al_get_pixel_format_bits(int format);
-
-void _al_push_new_bitmap_parameters(void);
-void _al_pop_new_bitmap_parameters(void);
 
 /* Memory bitmap blitting */
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
@@ -129,6 +132,22 @@ void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *bitmap,
 void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int center_x, int center_y, int dx, int dy,
    float xscale, float yscale, float angle, int flags);
+
+#ifndef DEBUGMODE
+void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
+   int sx, int sy, int sw, int sh,
+   int dx, int dy, int flags);
+void _al_draw_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
+  int dx, int dy, int flags);
+void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
+   int sx, int sy, int sw, int sh,
+   int dx, int dy, int dw, int dh, int flags);
+void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
+   int cx, int cy, int dx, int dy, float xscale, float yscale,
+   float angle, int flags);
+void _al_draw_rotated_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
+   int cx, int cy, int dx, int dy, float angle, int flags);
+#endif /* !DEBUGMODE */
 
 
 /* For blending memory bitmaps */

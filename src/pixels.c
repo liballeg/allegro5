@@ -182,6 +182,9 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
 
 bool _al_pixel_format_is_real(int format)
 {
+   ASSERT(format >= 0);
+   ASSERT(format < ALLEGRO_NUM_PIXEL_FORMATS);
+
    return format_is_real[format];
 }
 
@@ -464,6 +467,7 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
 {
    ALLEGRO_LOCKED_REGION lr;
    ALLEGRO_COLOR color;
+
    if (bitmap->locked) {
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;

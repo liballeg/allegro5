@@ -81,7 +81,7 @@ static double high_res_current_time(void)
 
 double al_current_time(void)
 {
-	return (*real_current_time_func)();
+   return (*real_current_time_func)();
 }
 
 

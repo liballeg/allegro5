@@ -26,7 +26,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
-
 #include "allegro5/a5_font.h"
 
 
@@ -461,14 +460,15 @@ static int font_height(AL_CONST A5FONT_FONT *f)
  *  (mono and color vtable entry)
  *  Returns the length, in pixels, of a string as rendered in a font.
  */
-static int length(AL_CONST A5FONT_FONT* f, AL_CONST char* text)
+static int length(AL_CONST A5FONT_FONT* f, AL_CONST char* text, int count)
 {
-    int ch = 0, w = 0;
+    int ch = 0, w = 0, i;
     AL_CONST char* p = text;
     ASSERT(text);
     ASSERT(f);
 
-    while( (ch = ugetxc(&p)) ) {
+    for (i = 0; i < count; i++) {
+        ch = ugetxc(&p);
         w += f->vtable->char_length(f, ch);
     }
 
@@ -541,12 +541,13 @@ static int color_render_char(AL_CONST A5FONT_FONT* f, int ch, int x, int y)
  *  the specified colors. If fg == -1, render as color, else render as
  *  mono; if bg == -1, render as transparent, else render as opaque.
  */
-static void color_render(AL_CONST A5FONT_FONT* f, AL_CONST char* text, int x, int y)
+static void color_render(AL_CONST A5FONT_FONT* f, AL_CONST char* text, int x, int y, int count)
 {
     AL_CONST char* p = text;
-    int ch = 0;
+    int i = 0, ch;
 
-    while( (ch = ugetxc(&p)) ) {
+    for (; i < count; i++) {
+        ch = ugetxc(&p);
         x += f->vtable->render_char(f, ch, x, y);
     }
 }
@@ -570,6 +571,7 @@ static void color_destroy(A5FONT_FONT* f)
         int i = 0;
 
         for(i = cf->begin; i < cf->end; i++) al_destroy_bitmap(cf->bitmaps[i - cf->begin]);
+        al_destroy_bitmap(cf->glyphs);
 
         _AL_FREE(cf->bitmaps);
         _AL_FREE(cf);
@@ -731,7 +733,7 @@ static A5FONT_FONT *color_extract_font_range(A5FONT_FONT *f, int begin, int end)
    A5FONT_FONT_COLOR_DATA *cf, *cfin;
    int first, last;
 
-   if (!font)
+   if (!f)
       return NULL;
 
    /* Special case: copy entire font */

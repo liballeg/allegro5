@@ -243,6 +243,9 @@ set(ALLEGRO_SRC_D3D_FILES
 
 set(ALLEGRO_SRC_OPENGL_FILES
     src/opengl/extensions.c
+    src/opengl/ogl_bitmap.c
+    src/opengl/ogl_draw.c
+    src/opengl/ogl_display.c
     )
 
 set(ALLEGRO_SRC_WGL_FILES
@@ -346,10 +349,8 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xsystem.c
     src/x/xvtable.c
     src/x/xwin.c
-    src/xglx/xbitmap.c
     src/xglx/xcompat.c
     src/xglx/xdisplay.c
-    src/xglx/xdraw.c
     src/xglx/xfullscreen.c
     src/xglx/xglx_config.c
     src/xglx/xsystem.c
@@ -386,19 +387,17 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/hidman.m
     src/macosx/keybd.m
     src/macosx/pcpu.m
-    src/macosx/qtmidi.m
-    src/macosx/quartz.m
-    src/macosx/qzfull.m
     src/macosx/qzmouse.m
-    src/macosx/qzwindow.m
-    src/macosx/soundman.m
     src/macosx/system.m
+    src/macosx/osxgl.m
     src/unix/ufile.c
-    src/unix/usystem.c
     src/unix/uthreads.c
     src/unix/utime.c
     src/unix/uxthread.c
-    src/misc/colconv.c
+    src/opengl/extensions.c
+    src/opengl/ogl_bitmap.c
+    src/opengl/ogl_draw.c
+    src/opengl/ogl_display.c
     )
 
 set(ALLEGRO_MODULE_VGA_FILES
@@ -490,11 +489,12 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/memory.h
     include/allegro5/midi.h
     include/allegro5/mouse.h
+    include/allegro5/a5_opengl.h
     include/allegro5/palette.h
     include/allegro5/quat.h
     include/allegro5/rle.h
     include/allegro5/sound.h
-    include/allegro5/stream.h
+    include/allegro5/a4_stream.h
     include/allegro5/system.h
     include/allegro5/system_new.h
     include/allegro5/text.h
@@ -528,13 +528,16 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro5/internal/aintern_system.h
     include/allegro5/internal/aintern_thread.h
     include/allegro5/internal/aintern_vector.h
+    include/allegro5/internal/aintern_opengl.h
     include/allegro5/internal/aintvga.h
     include/allegro5/internal/alconfig.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES
-    include/allegro5/opengl/algl.h 
     include/allegro5/opengl/gl_ext.h
+    )
+
+set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES
     include/allegro5/opengl/GLext/gl_ext_alias.h
     include/allegro5/opengl/GLext/gl_ext_defs.h
     include/allegro5/opengl/GLext/glx_ext_alias.h

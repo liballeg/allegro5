@@ -13,6 +13,9 @@
 #  Note: if you write datestamp in the archive_name field, then the
 #  resulting archive will be datestamped. This is in particular useful
 #  for making SVN snapshots.
+#
+#  This script does not try to clean up your workspace so when making
+#  a release, do so from a freshly checked out workspace.
 
 
 if [ $# -lt 1 -o $# -gt 2 ]; then
@@ -38,27 +41,24 @@ if test $name = datestamp; then
 fi
 
 # make sure all the makefiles are in Unix text format
-for file in makefile.*; do
-   mv $file _tmpfile
-   tr -d \\\r < _tmpfile > $file
-   touch -r _tmpfile $file
-   rm _tmpfile
-done
-
-# fix some wrong permissions in the SVN repository
-chmod +x misc/asmdef.sh misc/fixdll.sh
+# for file in makefile.*; do
+#    mv $file _tmpfile
+#    tr -d \\\r < _tmpfile > $file
+#    touch -r _tmpfile $file
+#    rm _tmpfile
+# done
 
 
 # delete all generated files
-echo "Cleaning the Allegro tree..."
-
-sed -n -e "/CLEAN_FILES/,/^$/p; /^ALLEGRO_.*_EXES/,/^$/p" makefile.lst | \
-   sed -e "/CLEAN_FILES/d; /ALLEGRO_.*_EXES/d; s/\\\\//g" | \
-   xargs -n 1 echo | \
-   sed -e "s/\(.*\)/-c \"rm -f \1\"/" | \
-   xargs -l sh
-
-find . -name '*~' -exec rm -f {} \;
+# echo "Cleaning the Allegro tree..."
+# 
+# sed -n -e "/CLEAN_FILES/,/^$/p; /^ALLEGRO_.*_EXES/,/^$/p" makefile.lst | \
+#    sed -e "/CLEAN_FILES/d; /ALLEGRO_.*_EXES/d; s/\\\\//g" | \
+#    xargs -n 1 echo | \
+#    sed -e "s/\(.*\)/-c \"rm -f \1\"/" | \
+#    xargs -l sh
+# 
+# find . -name '*~' -exec rm -f {} \;
 
 
 # emulation of the djgpp utod utility program (Unix to DOS text format)
@@ -79,78 +79,79 @@ utod()
 
 
 # generate dependencies for DJGPP
-#echo "Generating DJGPP dependencies..."
-#
-#./fix.sh djgpp --quick
-#
-#make depend UNIX_TOOLS=1 CC=gcc
+# echo "Generating DJGPP dependencies..."
+# 
+# ./fix.sh djgpp --quick
+# 
+# make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for Watcom
-#echo "Generating Watcom dependencies..."
-#
-#./fix.sh watcom --quick
-#
-#make depend UNIX_TOOLS=1 CC=gcc
+# echo "Generating Watcom dependencies..."
+# 
+# ./fix.sh watcom --quick
+# 
+# make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for MSVC
-echo "Generating MSVC dependencies..."
-
-./fix.sh msvc --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
+# echo "Generating MSVC dependencies..."
+# 
+# ./fix.sh msvc --quick
+# 
+# make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for MinGW
-echo "Generating MinGW dependencies..."
-
-./fix.sh mingw --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
+# echo "Generating MinGW dependencies..."
+# 
+# ./fix.sh mingw --quick
+# 
+# make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for Borland C++
-echo "Generating BCC32 dependencies..."
-
-./fix.sh bcc32 --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
+# echo "Generating BCC32 dependencies..."
+# 
+# ./fix.sh bcc32 --quick
+# 
+# make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for BeOS
-#echo "Generating BeOS dependencies..."
-#
-#./fix.sh beos --quick
-#
-#make depend UNIX_TOOLS=1 CC=gcc
+# echo "Generating BeOS dependencies..."
+# 
+# ./fix.sh beos --quick
+# 
+# make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for QNX
-#echo "Generating QNX dependencies..."
-#
-#./fix.sh qnx --quick
-#
-#make depend UNIX_TOOLS=1 CC=gcc
+# echo "Generating QNX dependencies..."
+# 
+# ./fix.sh qnx --quick
+# 
+# make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for MacOS X
-echo "Generating MacOS X dependencies..."
-
-./fix.sh macosx --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
+# echo "Generating MacOS X dependencies..."
+# 
+# ./fix.sh macosx --quick
+# 
+# make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate the DLL export definition files for Windows compilers
 misc/fixdll.sh
 
 # running autoconf
-echo "Running autoconf to generate configure script..."
-autoconf || exit 1
+# echo "Running autoconf to generate configure script..."
+# autoconf || exit 1
 
 # touch stamp-h.in so the user doesn't need autoheader to compile
-touch stamp-h.in
+# touch stamp-h.in
+
 
 # convert documentation from the ._tx source files
 echo "Converting documentation..."
@@ -172,12 +173,47 @@ done
 rm _makedoc.exe
 
 
+# convert documentation from pandoc-format source files
+if which cmake >/dev/null && which pandoc >/dev/null
+then
+   echo "Generating documentation from Pandoc source files..."
+   builddir=,,zipup_builddir.$$
+   trap 'rm -rf $builddir' 0 1 2 3 13 15
+   mkdir $builddir
+   ( cd $builddir
+       cmake ..
+       make docs
+       mv docs/txt/changes-4.9.txt ../CHANGES-4.9.txt
+   ) || exit 1
+   rm -rf $builddir
+else
+   echo "WARNING: CMake or Pandoc not found, skipping step" 1>&2
+fi
+
+
+# generate NaturalDocs documentation
+if which NaturalDocs >/dev/null
+then
+   echo "Generating NaturalDocs..."
+   ( cd docs/naturaldocs
+      make clean
+      make public
+   ) || exit 1
+else
+   echo "WARNING: NaturalDocs not found, skipping step" 1>&2
+fi
+
+
 # create language.dat and keyboard.dat files
 misc/mkdata.sh || exit 1
 
 
 # convert files to djgpp format for distribution
-./fix.sh djgpp --utod
+# ./fix.sh djgpp --utod
+
+
+# convert line endings to CR/LF
+./misc/convert_line_endings.sh --utod || exit 1
 
 
 # recursive helper to fill any empty directories with a tmpfile.txt
@@ -215,7 +251,23 @@ find . -type f "(" -path "*/.*" -prune -o -iname "*.rej" \
 # from now on, the scripts runs inside .dist
 cd .dist
 
-zip -9  -r $name.zip allegro
+
+# if 7za is available, use that to produce both .zip and .7z files
+if 7za > /dev/null ; then
+   if [ -n "$FAST_ZIPUP" ]; then
+      7za a -mx0 $name.zip allegro
+      7za a -mx0 $name.7z allegro
+   else
+      7za a -mx9 $name.zip allegro
+      7za a -mx9 -ms=on $name.7z allegro
+   fi
+else
+   if [ -n "$FAST_ZIPUP" ]; then
+      zip -0 -r $name.zip allegro
+   else
+      zip -9 -r $name.zip allegro
+   fi
+fi
 
 
 # generate the manifest file
@@ -224,6 +276,10 @@ unzip -Z1 $name.zip | sort > allegro/allegro.mft
 echo "allegro/allegro.mft" >> allegro/allegro.mft
 utod allegro/allegro.mft
 zip -9 $name.zip allegro/allegro.mft
+
+if [ -r $name.7z ]; then
+   7za a $name.7z allegro/allegro.mft
+fi
 
 
 # if we are building diffs as well, do those
@@ -281,7 +337,6 @@ if [ $# -eq 2 ]; then
 fi
 
 
-echo "Done!"
-echo "Please note that your files are now in DOS format, so you might want"
-echo "to run \"fix.sh unix\" now."
-
+# convert line endings to back to LF
+cd ..
+./misc/convert_line_endings.sh --dtou || exit 1

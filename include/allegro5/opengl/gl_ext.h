@@ -3,6 +3,18 @@
 #define GL_EXT_ALLEGRO_H
 
 
+/*
+ * MSVC declares the following extensions and MinGW doesn't. In order to
+ * export the same symbols on both platforms we removed the extensions from
+ * MSVC.
+ */
+#ifdef ALLEGRO_MSVC
+   #undef GL_EXT_vertex_array
+   #undef GL_EXT_paletted_texture
+   #undef GL_WIN_swap_hint
+   #undef GL_WIN_draw_range_elements
+#endif
+
 /* GL extension definitions. */
 
 /* For example:
@@ -54,12 +66,12 @@
  *
  */
 
-#define AGL_API(type, name, args) extern ALLEGRO_##name##_t __agl##name;
+#define AGL_API(type, name, args) AL_VAR(ALLEGRO_##name##_t, __agl##name);
 # 	include "allegro5/opengl/GLext/gl_ext_alias.h"
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
 #ifdef ALLEGRO_WINDOWS
-#define AGL_API(type, name, args) extern _AL_DLL ALLEGRO_##name##_t __awgl##name;
+#define AGL_API(type, name, args) AL_VAR(ALLEGRO_##name##_t, __awgl##name);
 # 	include "allegro5/opengl/GLext/wgl_ext_alias.h"
 #	include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API

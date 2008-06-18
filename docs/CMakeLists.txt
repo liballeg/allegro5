@@ -1,11 +1,17 @@
 find_program(MAKEINFO NAMES makeinfo)
 mark_as_advanced(MAKEINFO)
 
+find_program(PANDOC NAMES pandoc)
+mark_as_advanced(PANDOC)
+
+find_program(LINKS NAMES links elinks)
+mark_as_advanced(LINKS)
+
 #-----------------------------------------------------------------------------#
 
 set(all_docs)
 
-add_executable(makedoc ${EXECUTABLE_TYPE}
+add_executable(makedoc
     src/makedoc/makedoc.c
     src/makedoc/makehtml.c
     src/makedoc/makemisc.c
@@ -18,6 +24,10 @@ add_executable(makedoc ${EXECUTABLE_TYPE}
     src/makedoc/makesci.c
     )
 get_target_property(MAKEDOC_EXE makedoc LOCATION)
+set_target_properties(makedoc
+    PROPERTIES
+    COMPILE_FLAGS "${WFLAGS}"
+)
 
 macro(makedoc source mode output)
     set(abs_source ${CMAKE_CURRENT_SOURCE_DIR}/${source})
@@ -97,6 +107,42 @@ add_build_document(msvc)
 add_build_document(qnx)
 add_build_document(unix)
 add_build_document(watcom)
+
+macro(pandoc source output)
+    set(abs_source ${CMAKE_CURRENT_SOURCE_DIR}/${source})
+    set(abs_output ${CMAKE_CURRENT_BINARY_DIR}/${output})
+
+    list(APPEND all_docs ${abs_output})
+    add_custom_command(
+        OUTPUT  ${abs_output}
+        COMMAND ${PANDOC} ${abs_source} --standalone -o ${abs_output}
+        DEPENDS ${abs_source}
+        )
+endmacro(pandoc source output)
+
+macro(links source output)
+    # The source file is a generated HTML file.
+    set(abs_source ${CMAKE_CURRENT_BINARY_DIR}/${source})
+    set(abs_output ${CMAKE_CURRENT_BINARY_DIR}/${output})
+
+    list(APPEND all_docs ${abs_output})
+    add_custom_command(
+        OUTPUT  ${abs_output}
+        COMMAND ${LINKS} -dump ${abs_source} > ${abs_output}
+        DEPENDS ${abs_source}
+        )
+endmacro(links source output)
+
+macro(add_pandoc_document n)
+    if(PANDOC)
+        pandoc(src/${n}.txt html/${n}.html)
+        if(LINKS)
+            links(html/${n}.html txt/${n}.txt)
+        endif(LINKS)
+    endif(PANDOC)
+endmacro(add_pandoc_document)
+
+add_pandoc_document(changes-4.9)
 
 add_custom_target(docs
     ALL

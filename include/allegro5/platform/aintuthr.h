@@ -34,6 +34,11 @@ struct _AL_COND
    pthread_cond_t cond;
 };
 
+struct _AL_COND_TIMEOUT
+{
+   struct timespec abstime;
+};
+
 
 AL_INLINE(bool, _al_thread_should_stop, (struct _AL_THREAD *t),
 {

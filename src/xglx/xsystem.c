@@ -4,14 +4,14 @@
  */
 
 #ifdef DEBUG_X11
-extern int _Xdebug;
+extern int _Xdebug; /* part of Xlib */
 #endif
 
 #include "xglx.h"
 
-static ALLEGRO_SYSTEM_INTERFACE *vt;
+static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
 
-static void background_thread(_AL_THREAD *thread, void *arg)
+static void xglx_background_thread(_AL_THREAD *thread, void *arg)
 {
    ALLEGRO_SYSTEM_XGLX *s = arg;
    XEvent event;
@@ -25,8 +25,7 @@ static void background_thread(_AL_THREAD *thread, void *arg)
 
       // FIXME: With many windows, it's bad to loop through them all,
       // maybe can come up with a better system here.
-      // TODO: am I supposed to access ._size?
-      for (i = 0; i < s->system.displays._size; i++) {
+      for (i = 0; i < _al_vector_size(&s->system.displays); i++) {
          ALLEGRO_DISPLAY_XGLX **dptr = _al_vector_ref(&s->system.displays, i);
          d = *dptr;
          if (d->window == event.xany.window) {
@@ -70,7 +69,7 @@ static void background_thread(_AL_THREAD *thread, void *arg)
 }
 
 /* Create a new system object for the dummy X11 driver. */
-static ALLEGRO_SYSTEM *initialize(int flags)
+static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 {
    ALLEGRO_SYSTEM_XGLX *s = _AL_MALLOC(sizeof *s);
    memset(s, 0, sizeof *s);
@@ -87,17 +86,17 @@ static ALLEGRO_SYSTEM *initialize(int flags)
 
    XInitThreads();
 
-   s->system.vt = vt;
+   s->system.vt = xglx_vt;
 
    /* Get an X11 display handle. */
    s->xdisplay = XOpenDisplay(0);
 
-   TRACE("xsystem: XGLX driver connected to X11 (%s %d).\n",
+   TRACE("xsystem: XGLX driver connected to X11 (%sys %d).\n",
       ServerVendor(s->xdisplay), VendorRelease(s->xdisplay));
    TRACE("xsystem: X11 protocol version %d.%d.\n",
       ProtocolVersion(s->xdisplay), ProtocolRevision(s->xdisplay));
 
-   _al_thread_create(&s->thread, background_thread, s);
+   _al_thread_create(&s->thread, xglx_background_thread, s);
 
    TRACE("xsystem: events thread spawned.\n");
 
@@ -106,15 +105,15 @@ static ALLEGRO_SYSTEM *initialize(int flags)
    return &s->system;
 }
 
-static void shutdown_system(void)
+static void xglx_shutdown_system(void)
 {
    TRACE("shutting down.\n");
    /* Close all open displays. */
    ALLEGRO_SYSTEM *s = al_system_driver();
-   while (s->displays._size)
-   {
+   while (_al_vector_size(&s->displays) > 0) {
       ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
       ALLEGRO_DISPLAY *d = *dptr;
+      _al_destroy_display_bitmaps(d);
       al_destroy_display(d);
    }
 }
@@ -122,18 +121,18 @@ static void shutdown_system(void)
 // FIXME: This is just for now, the real way is of course a list of
 // available display drivers. Possibly such drivers can be attached at runtime
 // to the system driver, so addons could provide additional drivers.
-static ALLEGRO_DISPLAY_INTERFACE *get_display_driver(void)
+static ALLEGRO_DISPLAY_INTERFACE *xglx_get_display_driver(void)
 {
-    return _al_display_xglx_driver();
+   return _al_display_xglx_driver();
 }
 
-static ALLEGRO_KEYBOARD_DRIVER *get_keyboard_driver(void)
+static ALLEGRO_KEYBOARD_DRIVER *xglx_get_keyboard_driver(void)
 {
    // FIXME: Select the best driver somehow
    return _al_xwin_keyboard_driver_list[0].driver;
 }
 
-static ALLEGRO_MOUSE_DRIVER *get_mouse_driver(void)
+static ALLEGRO_MOUSE_DRIVER *xglx_get_mouse_driver(void)
 {
    // FIXME: Select the best driver somehow
    return _al_xwin_mouse_driver_list[0].driver;
@@ -142,27 +141,27 @@ static ALLEGRO_MOUSE_DRIVER *get_mouse_driver(void)
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
 {
-   if (vt) return vt;
+   if (xglx_vt) return xglx_vt;
 
-   vt = _AL_MALLOC(sizeof *vt);
-   memset(vt, 0, sizeof *vt);
+   xglx_vt = _AL_MALLOC(sizeof *xglx_vt);
+   memset(xglx_vt, 0, sizeof *xglx_vt);
 
-   vt->initialize = initialize;
-   vt->get_display_driver = get_display_driver;
-   vt->get_keyboard_driver = get_keyboard_driver;
-   vt->get_mouse_driver = get_mouse_driver;
-   vt->get_num_display_modes = _al_xglx_get_num_display_modes;
-   vt->get_display_mode = _al_xglx_get_display_mode;
-   vt->shutdown_system = shutdown_system;
+   xglx_vt->initialize = xglx_initialize;
+   xglx_vt->get_display_driver = xglx_get_display_driver;
+   xglx_vt->get_keyboard_driver = xglx_get_keyboard_driver;
+   xglx_vt->get_mouse_driver = xglx_get_mouse_driver;
+   xglx_vt->get_num_display_modes = _al_xglx_get_num_display_modes;
+   xglx_vt->get_display_mode = _al_xglx_get_display_mode;
+   xglx_vt->shutdown_system = xglx_shutdown_system;
    vt->get_path = _unix_get_path;
 
-   return vt;
+   return xglx_vt;
 }
 
 /* This is a function each platform must define to register all available
  * system drivers.
  */
-void _al_register_system_interfaces()
+void _al_register_system_interfaces(void)
 {
    ALLEGRO_SYSTEM_INTERFACE **add;
 

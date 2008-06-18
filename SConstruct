@@ -61,7 +61,7 @@ except OSError: pass
 
 majorVersion = '4'
 minorVersion = '9'
-microVersion = '2'
+microVersion = '3'
 
 ## Version of Allegro
 allegroVersion = '%s.%s.%s' % (majorVersion, minorVersion, microVersion)
@@ -212,14 +212,20 @@ class AllegroContext:
     def addFiles(self, d, fileList):
         self.librarySource.extend(appendDir(d, fileList))
 
+    def libraryName(self,name):
+        if self.static == 1:
+            return name + '_s'
+        else:
+            return name
+
     # Build a library given an env
     # Library is static if Allegro is configured with static=1
     # or shared if static=0
     def makeLibrary(self,env):
         if self.static == 1:
-            return lambda *rest : apply(env.StaticLibrary, rest )
+            return lambda name, *rest : apply(env.StaticLibrary, [name + '_s'] + list(rest) )
         else:
-            return lambda *rest : apply(env.SharedLibrary, rest )
+            return lambda name, *rest : apply(env.SharedLibrary, [name] + list(rest) )
 
     def getAllegroTarget(self):
         def build(function, lib, d):
@@ -228,14 +234,14 @@ class AllegroContext:
         def buildStatic(env, debug, d):
             env.BuildDir(d, '.', duplicate = 0)
             # return build(env.StaticLibrary, self.libDir + '/static/' + getLibraryName(debug), d)
-            return build(env.StaticLibrary, getLibraryName(debug), d)
+            return build(env.StaticLibrary, getLibraryName(debug,True), d)
 
         def buildShared(env, debug, d):
             env.BuildDir(d, '.', duplicate = 0)
             # return build(env.SharedLibrary, self.libDir + '/shared/' + getLibraryName(debug), d)
-            return build(env.SharedLibrary, getLibraryName(debug), d)
+            return build(env.SharedLibrary, getLibraryName(debug,False), d)
 
-        debugEnv = self.libraryEnv.Copy()
+        debugEnv = self.libraryEnv.Clone()
         debugEnv.Append(CCFLAGS = '-DDEBUGMODE=1')
 
         debugStatic = buildStatic(debugEnv, 1, debugBuildDir)
@@ -314,11 +320,17 @@ context = getAllegroContext()
 debugBuildDir = 'build/debug/' + context.getPlatform() + "/"
 optimizedBuildDir = 'build/release/' + context.getPlatform() + "/"
 
-def getLibraryName(debug):
+def getLibraryName(debug,static):
     if debug:
-        return 'allegd-' + context.getAllegroVersion()
+        if static:
+            return 'allegd_s-' + context.getAllegroVersion()
+        else:
+            return 'allegd-' + context.getAllegroVersion()
     else:
-        return 'alleg-' + context.getAllegroVersion()
+	if static:
+            return 'alleg_s-' + context.getAllegroVersion()
+        else:
+            return 'alleg-' + context.getAllegroVersion()
         
 if context.getDebug():
     normalBuildDir = debugBuildDir
@@ -374,7 +386,7 @@ def XMove(env, target, source):
 # Execute(Action(os.rename(library, context.getLibraryDir() + '/' + library)))
 
 # context.addLibrary(library)
-context.addLibrary('-l%s' % getLibraryName(context.getDebug()))
+context.addLibrary('-l%s' % getLibraryName(context.getDebug(),context.getStatic()))
 
 docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
 Alias('docs', docs)
@@ -402,7 +414,7 @@ datworms.inc
 
 # Build all other miscellaneous targets using the same environment
 # that was used to build allegro but only link in liballeg
-extraEnv = context.getExampleEnv().Copy()
+extraEnv = context.getExampleEnv().Clone()
 # liballeg = getLibraryName(debug)
 extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
 if not context.getStatic():

@@ -9,7 +9,7 @@
 #
 #  Derived from the Unix version of the same script.
 
-version=4.9.2
+version=4.9.4
 
 prefix=
 exec_prefix=$prefix
@@ -102,11 +102,11 @@ while test $# -gt 0; do
       debug)
          allegro_cflags=-DDEBUGMODE $allegro_cflags
          allegro_cppflags=-DDEBUGMODE $allegro_cppflags
-         lib_type=alld
+         lib_type=allegd
       ;;
 
       profile)
-         lib_type=allp
+         lib_type=allegp
       ;;
 
       *)

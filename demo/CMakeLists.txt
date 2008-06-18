@@ -38,7 +38,7 @@ include_directories(include ../addons/font)
 
 add_executable(demo ${EXECUTABLE_TYPE} ${DEMO_SRCS})
 set_target_properties(demo PROPERTIES
-    COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
+    COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
     LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
     )
 target_link_libraries(demo ${LINK_WITH})

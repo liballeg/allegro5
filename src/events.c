@@ -298,13 +298,19 @@ void al_flush_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 
 
 
-/* wait_on_queue_forever: [primary thread]
- *  Helper for al_wait_for_event.  The caller must lock the queue
- *  before calling.
+/* [primary thread]
+ *
+ * Function: al_wait_for_event
+ *  Wait until the event queue specified is non-empty.  If RET_EVENT
+ *  is not NULL, the first event packet in the queue will be copied
+ *  into RET_EVENT and removed from the queue.  If RET_EVENT is NULL
+ *  the first event packet is left at the head of the queue.
  */
-static void wait_on_queue_forever(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
+void al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 {
    ALLEGRO_EVENT *next_event = NULL;
+
+   ASSERT(queue);
 
    _al_mutex_lock(&queue->mutex);
    {
@@ -326,15 +332,32 @@ static void wait_on_queue_forever(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret
 
 
 
-/* wait_on_queue_timed: [primary thread]
- *  Helper for al_wait_for_event.  The caller must lock the queue
- *  before calling.
+/* [primary thread]
+ *
+ * Function: al_wait_for_event_timed
+ *  Wait until the event queue specified is non-empty.  If RET_EVENT
+ *  is not NULL, the first event packet in the queue will be copied
+ *  into RET_EVENT and removed from the queue.  If RET_EVENT is NULL
+ *  the first event packet is left at the head of the queue.
+ *
+ *  TIMEOUT_MSECS determines approximately how many seconds to
+ *  wait.  If the call times out, false is returned.  Otherwise true is
+ *  returned.
  */
-static bool wait_on_queue_timed(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event, long msecs)
+bool al_wait_for_event_timed(ALLEGRO_EVENT_QUEUE *queue,
+   ALLEGRO_EVENT *ret_event, float secs)
 {
-   unsigned long timeout = ALLEGRO_SECS_TO_MSECS(al_current_time()) + msecs;
+   _AL_COND_TIMEOUT timeout;
    bool timed_out = false;
    ALLEGRO_EVENT *next_event = NULL;
+
+   ASSERT(queue);
+   ASSERT(secs >= 0);
+
+   if (secs < 0.0)
+      _al_cond_timeout_init(&timeout, 0);
+   else
+      _al_cond_timeout_init(&timeout, (unsigned int) 1000.0 * secs);
 
    _al_mutex_lock(&queue->mutex);
    {
@@ -344,8 +367,9 @@ static bool wait_on_queue_timed(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_e
        * variable, which will be signaled when an event is placed into
        * the queue.
        */
-      while (_al_vector_is_empty(&queue->events) && (result != -1))
-         result = _al_cond_timedwait(&queue->cond, &queue->mutex, timeout);
+      while (_al_vector_is_empty(&queue->events) && (result != -1)) {
+         result = _al_cond_timedwait(&queue->cond, &queue->mutex, &timeout);
+      }
 
       if (result == -1)
          timed_out = true;
@@ -365,32 +389,6 @@ static bool wait_on_queue_timed(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_e
    }
 
    return true;
-}
-
-
-
-/* Function: al_wait_for_event
- *  Wait until the event queue specified is non-empty.  If RET_EVENT
- *  is not NULL, the first event packet in the queue will be copied
- *  into RET_EVENT and removed from the queue.  If RET_EVENT is NULL
- *  the first event packet is left at the head of the queue.
- *
- *  TIMEOUT_MSECS determines approximately how many milliseconds to
- *  wait.  If it is ALLEGRO_WAIT_FOREVER, the call will wait indefinitely.  If the
- *  call times out, false is returned.  Otherwise true is returned.
- */
-bool al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event, long msecs)
-{
-   ASSERT(queue);
-   ASSERT(msecs == ALLEGRO_WAIT_FOREVER || msecs >= 0);
-
-   if (msecs == ALLEGRO_WAIT_FOREVER) {
-      wait_on_queue_forever(queue, ret_event);
-      return true;
-   }
-   else {
-      return wait_on_queue_timed(queue, ret_event, msecs);
-   }
 }
 
 

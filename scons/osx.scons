@@ -1,5 +1,6 @@
 import os
 import SCons
+import helpers
 
 Import('context')
 
@@ -9,9 +10,12 @@ env = context.getLibraryEnv()
 
 context.setLibraryDir("lib/macosx")
 
-file = open( "include/allegro5/platform/alplatf.h", "w" )
-file.write( "#define ALLEGRO_MACOSX" )
-file.close()
+helpers.parse_cmake_h(context.getLibraryEnv(),helpers.define('ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'),'#include/allegro5/platform/alplatf.h.cmake','#include/allegro5/platform/alplatf.h')
+
+# alplatf_h = helpers.generate_alplatf_h(env, ['ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'])
+# file = open( "include/allegro5/platform/alplatf.h", "w" )
+# file.write( "#define ALLEGRO_MACOSX" )
+# file.close()
 
 ## These lines tell SCons to treat .m files like .cpp files
 static_obj, shared_obj = SCons.Tool.createObjBuilders( env )
@@ -25,8 +29,8 @@ osxfiles = context.cmake["ALLEGRO_SRC_MACOSX_FILES"]
 context.add_files(osxfiles);
 
 context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
-unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
-context.add_files(unixfiles)
+# unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
+# context.add_files(unixfiles)
 
 #mainEnv = Environment()
 #mainLibrary = mainEnv.StaticLibrary( 'alleg-main', 'src/macosx/main.m' )
@@ -39,6 +43,7 @@ context.add_files(unixfiles)
 def buildMain(env,appendDir,buildDir,libDir):
     fenv = env.Copy()
     fenv.Replace(LIBS = [])
+    fenv.BuildDir(buildDir + 'macosx', 'src/macosx', duplicate = 0)
     fenv.Append(CPPDEFINES = 'ALLEGRO_SRC')
     # lib = fenv.StaticLibrary('alleg-main',appendDir(buildDir + '/macosx/', ['main.m']))
     libTool = Builder(action = 'libtool -static -s -o $TARGETS $SOURCES',
@@ -55,28 +60,42 @@ def buildMain(env,appendDir,buildDir,libDir):
 
 context.addExtra(buildMain)
 
-exampleEnv = Environment()
+def makeExampleEnv():
+    exampleEnv = Environment()
 
-flags = [ "-Wall", "-Wno-unused", "-Wno-long-double", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer", "-fno-common", "-pipe", "-dynamic" ]
-defines = [ "ALLEGRO_NO_ASM", "ALLEGRO_LIB_BUILD" ]
-includes = [ "include", "include/allegro" ]
-# linkflags = ["-prebind", "-framework", "Cocoa"]
-linkflags = ["-framework", "Cocoa"]
-# libpath = [ "lib/macosx" ]
-# libs = [ 'alleg-main' ]
-libs = [ 'lib/macosx/liballeg-main.a' ]
+    flags = [ "-Wall", "-Wno-unused", "-Wno-long-double", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer", "-fno-common", "-pipe", "-dynamic" ]
+    defines = [ "ALLEGRO_NO_ASM", "ALLEGRO_LIB_BUILD" ]
+    includes = [ "include", "include/allegro" ]
+    # linkflags = ["-prebind", "-framework", "Cocoa"]
+    linkflags = []
+    # libpath = [ "lib/macosx" ]
+    # libs = [ 'alleg-main' ]
+    libs = [ 'lib/macosx/liballeg-main.a' ]
 
-# gcc -s -prebind -o examples/exupdate obj/macosx/alleg/exupdate.o lib/macosx/liballeg-4.9.0.dylib lib/macosx/liballeg-main.a -framework Cocoa
+    def addFramework( name ):
+	linkflags.append( "-framework" )
+	linkflags.append( name )
 
-exampleEnv.Append(CCFLAGS = flags)
-exampleEnv.Append(CPPDEFINES = defines)
-exampleEnv.Append(CPPPATH = includes)
-# exampleEnv.Append(LIBPATH = libpath)
-exampleEnv.Append(LINKFLAGS = linkflags)
-# exampleEnv.Append(LIBS = libs)
+
+    addFramework("Cocoa")
+    addFramework("Opengl")
+    addFramework("CoreAudio")
+    addFramework("AudioUnit")
+    addFramework("AudioToolbox")
+
+    # gcc -s -prebind -o examples/exupdate obj/macosx/alleg/exupdate.o lib/macosx/liballeg-4.9.0.dylib lib/macosx/liballeg-main.a -framework Cocoa
+    
+    exampleEnv.Append(CCFLAGS = flags)
+    exampleEnv.Append(CPPDEFINES = defines)
+    exampleEnv.Append(CPPPATH = includes)
+    # exampleEnv.Append(LIBPATH = libpath)
+    exampleEnv.Append(LINKFLAGS = linkflags)
+    # exampleEnv.Append(LIBS = libs)
+    return exampleEnv
+
 context.addLibrary(File('#%s/liballeg-main.a' % context.getLibraryDir()))
 
-context.setExampleEnv( exampleEnv )
+context.setExampleEnv( makeExampleEnv() )
 
 # gcc -DALLEGRO_LIB_BUILD -Wall -Wno-unused -Wno-long-double  -O2 -funroll-loops -ffast-math -fomit-frame-pointer -fno-common -pipe -dynamic -DALLEGRO_NO_ASM -I. -I./include -o obj/macosx/alleg/exupdate.o -c examples/exupdate.c
 
@@ -104,6 +123,7 @@ ALLEGRO_SRC
 """);
 
 linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", str(context.getAllegroVersion()), "-current_version", str(context.getAllegroVersion()), "-install_name", "liballeg-" + str(context.getAllegroVersion()) + ".dylib" ]
+# linkflags = [ "-seg1addr", "0x30000000", "-compatibility_version", str(context.getAllegroVersion()), "-current_version", str(context.getAllegroVersion()), "-install_name", "liballeg-" + str(context.getAllegroVersion()) + ".dylib" ]
 
 def addFramework( name ):
 	linkflags.append( "-framework" )
@@ -117,6 +137,7 @@ addFramework( "CoreAudio" )
 addFramework( "AudioUnit" )
 addFramework( "AudioToolbox" )
 addFramework( "QuickTime" )	
+addFramework( "OpenGL" )	
 
 env.Append(CCFLAGS = flags)
 env.Append(CPPDEFINES = defines)

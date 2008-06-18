@@ -1,4 +1,5 @@
 #include "a5teroids.hpp"
+#include <stdio.h>
 
 bool kb_installed = false;
 bool joy_installed = false;
@@ -28,12 +29,39 @@ static char* userResourcePath()
 
    return path;
 }
-#else
+#endif
+#ifdef ALLEGRO_MACOSX
+#ifndef MAX_PATH 
+#define MAX_PATH PATH_MAX
+#endif
 static char* userResourcePath()
 {
    static char path[MAX_PATH];
 
-   bool success = SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
+   char* env = getenv("HOME");
+
+   if (env) {
+      strcpy(path, env);
+      if (path[strlen(path)-1] != '/') {
+         strncat(path, "/.a5teroids/", (sizeof(path)/sizeof(*path))-1);
+      }
+      else {
+         strncat(path, ".a5teroids/", (sizeof(path)/sizeof(*path))-1);
+      }
+   }
+   else {
+      strcpy(path, "save/");
+   }
+
+   return path;
+}
+#endif
+#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_MINGW32)
+static char* userResourcePath()
+{
+   static char path[MAX_PATH];
+
+   int success = SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
 
    if (success) {
       if (path[strlen(path)-1] != '/') {
@@ -59,14 +87,14 @@ const char* getUserResource(const char* fmt, ...) throw (Error)
    static char name[MAX_PATH];
 
    // Create the user resource directory
-   char userDir[1000];
+   char userDir[991];
    sprintf(userDir, "%s", userResourcePath());
 #ifndef __linux__
    userDir[strlen(userDir)-1] = 0;
 #endif
    if (!file_exists(userDir, FA_DIREC, 0)) {
       char command[1000];
-      snprintf(command, (sizeof(command)/sizeof(*command))-1, "mkdir \"%s\"", userDir);
+      sprintf(command, "mkdir \"%s\"", userDir);
       system(command);
       if (!file_exists(userDir, FA_DIREC, 0)) {
          throw Error("The user resource directory could not be created.\n");

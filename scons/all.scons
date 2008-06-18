@@ -36,13 +36,13 @@ def tools(env,appendDir,buildDir,libDir):
             plugins/datsamp.c
             plugins/datworms.c
         """);
-	aldatEnv = env.Copy()
+	aldatEnv = env.Clone()
 	aldatEnv.Append(CPPPATH = buildDir)
         libaldat = aldatEnv.StaticLibrary(libDir + '/aldat', appendDir(buildDir + '/tools/', aldatFiles))
         aldatEnv.Depends(buildDir + '/tools/datedit.o', 'tools/plugins/plugins.h')
         Alias('aldat', libaldat)
         tools.append(libaldat)
-        datEnv = env.Copy()
+        datEnv = env.Clone()
         # datEnv.Append(LIBPATH = '.')
         datEnv.Prepend(LIBS = 'aldat')
 	datEnv.Append(LIBPATH = libDir)
@@ -81,7 +81,7 @@ def tests(env,appendDir,buildDir,libDir):
     return tests
 
 def demo(env,appendDir,buildDir,libDir):
-    demoEnv = env.Copy()
+    demoEnv = env.Clone()
     demoEnv.Append( CPPPATH = 'demo/include' )
     demoEnv.Append( CPPPATH = 'addons/font' )
     sources = Split("""
@@ -119,17 +119,17 @@ def demo(env,appendDir,buildDir,libDir):
        wave.cpp
     """);
     demoEnv.Append( LIBPATH = libDir )
-    demoEnv.Append( LIBS = ['a5_font'] )
+    demoEnv.Append( LIBS = [context.libraryName('a5_font')] )
     demo = demoEnv.Program('demo/demo', appendDir(buildDir + '/demo/src', sources))
     Alias('demo', demo)
     return demo
 
 def examples(env,appendDir,buildDir,libDir):
     examples = []
-    exEnv = env.Copy()
+    exEnv = env.Clone()
     exEnv.Append( CPPPATH = 'addons/font' )
     exEnv.BuildDir(buildDir + 'examples', 'examples', duplicate = 0)
-    exEnv.Append(LIBS = ['a5_font'])
+    exEnv.Append(LIBS = [context.libraryName('a5_font')])
     ## Add an example
     ## name - filename of example and also the alias of the target
     ## files - list of files associated with the example
@@ -153,6 +153,10 @@ def examples(env,appendDir,buildDir,libDir):
     addExample('exnew_bitmap_target', ['exnew_bitmap_target.c'])
     addExample('exnew_blend', ['exnew_blend.c'])
     addExample('exnew_timer', ['exnew_timer.c'])
+    addExample('exnew_timedwait', ['exnew_timedwait.c'])
+    addExample('exnew_scale', ['exnew_scale.c'])
+    addExample('exnew_drawpixels', ['exnew_drawpixels.c'])
+    addExample('exnew_multiwin', ['exnew_multiwin.c'])
 
     Alias('examples', examples)
     return examples
@@ -164,12 +168,19 @@ def addons(env, appendDir, buildDir, libDir):
         example = env.Program("addons/" + name, appendDir(buildDir + '/addons/', files))
         Alias(name, example)
         examples.append(example)
-    addAddonExample("font/ex", ["font/font.c", "font/ex.c",
+    addAddonExample("font/ex", ["font/font.c", "font/ex_font.c",
         "font/fontbmp.c", "font/readfont.c", "font/text.c"])
     return examples
 
-addon_dirs = ['#addons/font']
-SConscript( dirs = addon_dirs, exports = 'context' )
+def buildAddon(name):
+    return SConscript( dirs = ['#addons/%s' % name],exports='context')
+
+buildAddon('font')
+if buildAddon('audio'):
+    buildAddon('acodec')
+
+# addon_dirs = ['#addons/font','#addons/acodec','#addons/audio']
+# SConscript( dirs = addon_dirs, exports = 'context' )
 
 context.addExtra(demo)
 context.addExtra(examples)

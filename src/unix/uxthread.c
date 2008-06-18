@@ -116,30 +116,25 @@ void _al_mutex_destroy(_AL_MUTEX *mutex)
 /* condition variables */
 /* most of the condition variable implementation is actually inline */
 
-int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mutex, unsigned long abstime)
+void _al_cond_timeout_init(_AL_COND_TIMEOUT *timeout, unsigned int rel_msecs)
 {
-   long msecs;
    struct timeval now;
-   struct timespec timeout;
-   int retcode = 0;
-
-   /* FIXME: It is rather stupid that abstime is referenced to
-    * al_current_time() base.  A different interface is needed, which
-    * takes into account that win32 uses relative timeouts for
-    * WaitFor*, but relative timeouts are bad for _al_cond_timedwait().
-    */
-   
-   msecs = abstime - al_current_time();
-   if (msecs < 0)
-      return -1;
 
    gettimeofday(&now, NULL);
-   timeout.tv_sec = now.tv_sec + (msecs / 1000);
-   timeout.tv_nsec = (now.tv_usec + (msecs % 1000) * 1000) * 1000;
-   timeout.tv_sec += timeout.tv_nsec / 1000000000L;
-   timeout.tv_nsec = timeout.tv_nsec % 1000000000L;
+   timeout->abstime.tv_sec = now.tv_sec + (rel_msecs / 1000);
+   timeout->abstime.tv_nsec = (now.tv_usec + (rel_msecs % 1000) * 1000) * 1000;
+   timeout->abstime.tv_sec += timeout->abstime.tv_nsec / 1000000000L;
+   timeout->abstime.tv_nsec = timeout->abstime.tv_nsec % 1000000000L;
+}
 
-   retcode = pthread_cond_timedwait(&cond->cond, &mutex->mutex, &timeout);
+
+int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mutex,
+   const _AL_COND_TIMEOUT *timeout)
+{
+   int retcode;
+
+   retcode = pthread_cond_timedwait(&cond->cond, &mutex->mutex,
+      &timeout->abstime);
 
    return (retcode == ETIMEDOUT) ? -1 : 0;
 }

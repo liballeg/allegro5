@@ -1,0 +1,134 @@
+Import( 'context' )
+import addons
+import helpers
+import os
+
+def getOption(name, default = 0):
+    return context.getLibraryEnv()[name]
+
+def getArgumentOption(name, default):
+    arg = ARGUMENTS.get(name,default)
+    if arg == "yes" or arg == "1":
+        return 1
+    return 0
+
+def CheckOGG(context):
+    context.Message("Checking for Ogg... ")
+
+    ret = context.TryAction('pkg-config vorbisfile --libs')[0]
+    if ret:
+        tmpEnv = context.env.Copy()
+        context.env.ParseConfig('pkg-config vorbisfile --libs --cflags')
+        ret = context.TryLink("""
+            #include <vorbis/vorbisfile.h>
+            int main(){
+                OggVorbis_File f;
+                vorbis_info * v = 0;
+                ov_info(&f,-1);
+                return 0;
+            }
+            """, ".c");
+        context.sconf.env = tmpEnv
+    context.Result(ret)
+    return ret
+
+def CheckFlac(context):
+    context.Message("Checking for Flac... ")
+
+    ret = context.TryAction('pkg-config flac --libs')[0]
+    if ret:
+        tmpEnv = context.env.Copy()
+        context.env.ParseConfig('pkg-config flac --libs --cflags')
+        ret = context.TryLink("""
+            #include <FLAC/stream_decoder.h>
+            int main(){
+                FLAC__StreamDecoderInitStatus status;
+                return 0;
+            }
+            """, ".c");
+        context.sconf.env = tmpEnv
+    context.Result(ret)
+    return ret
+
+def CheckSndfile(context):
+    context.Message("Checking for Sndfile... ")
+
+    ret = context.TryAction('pkg-config sndfile --libs')[0]
+    if ret:
+        tmpEnv = context.env.Copy()
+        context.env.ParseConfig('pkg-config sndfile --libs --cflags')
+        ret = context.TryLink("""
+            #include <sndfile.h>
+            int main(){
+                SNDFILE * file;
+                file = sf_open("fake", SFM_READ, 0);
+                return 0;
+            }
+            """, ".c");
+        context.sconf.env = tmpEnv
+    context.Result(ret)
+    return ret
+
+opts = Options('options-addons-acodec.py', ARGUMENTS)
+opts.Add('flac', 'Enable FLAC', 1)
+opts.Add('sndfile', 'Enable sndfile', 1)
+opts.Add('ogg', 'Enable ogg', 1)
+opts.Update(context.getLibraryEnv())
+opts.Save('options-addons-acodec.py',context.getLibraryEnv())
+Help(opts.GenerateHelpText(context.getLibraryEnv()))
+
+noconfig = False
+if not getArgumentOption("config",0):
+    if os.path.exists("addons/acodec/allegro5/internal/aintern_acodec.h"):
+        print "Re-using old acodec settings"
+        noconfig = True
+
+settins = []
+if noconfig:
+    settings = helpers.readAutoHeader('addons/acodec/allegro5/internal/aintern_acodec.h')
+else:
+        tests = { "CheckOgg": CheckOGG,
+                  "CheckFlac": CheckFlac,
+                  "CheckSndfile": CheckSndfile,
+                }
+        config = context.getLibraryEnv().Configure(custom_tests = tests)
+
+        settings = helpers.SimpleHash()
+        settings["ALLEGRO_CFG_ACODEC_OGG"] = getOption('ogg', False) and config.CheckOgg()
+        settings["ALLEGRO_CFG_ACODEC_FLAC"] = getOption('flac', False) and config.CheckFlac()
+        settings["ALLEGRO_CFG_ACODEC_SNDFILE"] = getOption('sndfile', False) and config.CheckSndfile()
+        config.Finish()
+
+helpers.parse_cmake_h(context.getLibraryEnv(),settings,'#addons/acodec/allegro5/internal/aintern_acodec_cfg.h.cmake','#addons/acodec/allegro5/internal/aintern_acodec_cfg.h')
+
+source = ['acodec.c']
+configs = []
+
+if settings['ALLEGRO_CFG_ACODEC_OGG']:
+    source.extend(['ogg.c'])
+    configs.extend(['pkg-config vorbisfile --libs'])
+
+if settings['ALLEGRO_CFG_ACODEC_FLAC']:
+    source.extend(['flac.c'])
+    configs.extend(['pkg-config flac --libs'])
+
+if settings['ALLEGRO_CFG_ACODEC_SNDFILE']:
+    source.extend(['wav.c'])
+    configs.extend(['pkg-config sndfile --libs'])
+
+addons.do_build(
+    context = context,
+    source = source,
+    dir = 'acodec',
+    name = 'a5_acodec',
+    install_headers = ['allegro5/acodec.h'],
+    includes = ['#addons/audio','#addons/acodec'],
+    examples = [('ex_acodec',['ex_acodec.c']),
+     ('ex_acodec_multi',['ex_acodec_multi.c']),
+     ('ex_acodec_stream',['ex_acodec_stream.c'])],
+    example_libs = [context.libraryName('a5_audio')],
+    configs = configs,
+)
+
+x = True
+Return('x')

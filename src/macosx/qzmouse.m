@@ -23,7 +23,6 @@
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintosx.h"
-// #import "allegro/internal/aintern2.h"
 
 #ifndef ALLEGRO_MACOSX
 #error Something is wrong with the makefile
@@ -45,29 +44,6 @@ static bool osx_set_mouse_axis(int axis, int value);
 static ALLEGRO_MOUSE* osx_get_mouse(void);
 static void osx_get_state(ALLEGRO_MSESTATE *ret_state);
 
-
-ALLEGRO_MOUSE_DRIVER mouse_macosx = {
-	MOUSE_MACOSX,
-	empty_string,
-	empty_string,
-	"MacOS X mouse",
-	osx_mouse_init,
-	osx_mouse_exit,
-	osx_get_mouse, // ALLEGRO_METHOD(ALLEGRO_MOUSE*, get_mouse, (void));
-	osx_get_mouse_num_buttons, // ALLEGRO_METHOD(unsigned int, get_mouse_num_buttons, (void));
-	osx_get_mouse_num_axes, // ALLEGRO_METHOD(unsigned int, get_mouse_num_axes, (void));
-	osx_mouse_position, // ALLEGRO_METHOD(bool, set_mouse_xy, (int x, int y));
-	osx_set_mouse_axis, // ALLEGRO_METHOD(bool, set_mouse_axis, (int axis, int value));
-	osx_mouse_set_range, // ALLEGRO_METHOD(bool, set_mouse_range, (int x1, int y1, int x2, int y2));
-	osx_get_state, // ALLEGRO_METHOD(void, get_state, (ALLEGRO_MSESTATE *ret_state));
-};
-
-
-/* global variable */
-int osx_mouse_warped = FALSE;
-int osx_skip_mouse_move = FALSE;
-NSTrackingRectTag osx_mouse_tracking_rect = -1;
-
 /* Mouse info - includes extra info for OS X */
 static struct {
 	ALLEGRO_MOUSE parent;
@@ -84,18 +60,6 @@ static struct {
 * Return the Allegro mouse structure
 */
 static ALLEGRO_MOUSE* osx_get_mouse(void)
-{
-	return (ALLEGRO_MOUSE*) &osx_mouse.parent;
-}
-
-static char driver_desc[256];
-
-
-/* osx_change_cursor:
-* Actually change the current cursor. This can be called fom any thread 
-* but ensures that the change is only called from the main thread.
-*/
-static void osx_change_cursor(NSCursor* cursor)
 {
 	return (ALLEGRO_MOUSE*) &osx_mouse.parent;
 }
@@ -253,8 +217,8 @@ static bool osx_mouse_init(void)
 	}
 	if (buttons <= 0) return FALSE;
 	_al_mutex_lock(&osx_event_mutex);
-	const char* str = [desc UTF8String];
 	/* FIXME */
+	//const char* str = [desc UTF8String];
 	// mouse_macosx.desc = strcpy(malloc(strlen(str) + 1), str);
 	osx_emulate_mouse_buttons = (buttons == 1) ? TRUE : FALSE;
 	_al_event_source_init(&osx_mouse.parent.es);
@@ -262,6 +226,7 @@ static bool osx_mouse_init(void)
 	osx_mouse.axis_count = axes;
 	memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MSESTATE));
 	_al_mutex_unlock(&osx_event_mutex);
+   _al_osx_mouse_was_installed(YES);
 	return TRUE;
 }
 
@@ -281,67 +246,6 @@ static unsigned int osx_get_mouse_num_axes(void)
 	return osx_mouse.axis_count;
 }
 
-/* osx_mouse_exit:
-*  Shuts down the driver.
-*/
-static void osx_mouse_exit(void)
-{
-	osx_cursor = osx_blank_cursor;
-	// Go back to the system cursor
-	[[NSCursor arrowCursor] performSelectorOnMainThread: @selector(set)
-											 withObject: nil
-										  waitUntilDone: NO];
-	[osx_mouse.cursor release];
-	osx_mouse.cursor = nil;
-	/* FIXME */
-	// free((char*) mouse_macosx.desc);
-	_al_event_source_free(&osx_mouse.parent.es);
-	osx_mouse.button_count = 0;
-}
-
-
-
-/* osx_mouse_position:
-*  Sets the position of the mouse.
-*/
-static bool osx_mouse_position(int x, int y)
-{
-	CGPoint point;
-	NSRect frame;
-	int screen_height;
-	
-	/* at the moment, disable this feature, as it doesn't work well on windowed mode */
-	return FALSE;
-	
-	_al_mutex_lock(&osx_event_mutex);
-	
-	point.x = x;
-	point.y = y;
-	
-	
-	CGDisplayMoveCursorToPoint(kCGDirectMainDisplay, point);
-	
-	osx_mouse_warped = TRUE;
-	
-	_al_mutex_unlock(&osx_event_mutex);
-	return TRUE;
-}
-
-
-
-/* osx_mouse_set_range:
-*  Sets the range of the mouse.
-*/
-static bool osx_mouse_set_range(int x1, int y1, int x2, int y2)
-{
-	// May be deleted soon
-	osx_mouse.minx = x1;
-	osx_mouse.miny = y1;
-	osx_mouse.maxx = x2;
-	osx_mouse.maxy = y2;
-	
-	return TRUE;
-}
 
 /* osx_mouse_set_sprite:
 *  Sets the hardware cursor sprite.
@@ -417,92 +321,6 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
 	return 0;
 }
 
-
-/* osx_mouse_show:
-*  Show the hardware cursor.
-*/
-int osx_mouse_show(BITMAP *bmp, int x, int y)
-{
-	/* Only draw on screen */
-	if (!is_same_bitmap(bmp, screen))
-		return -1;
-	
-	NSView* v = osx_view_from_display(NULL);
-	if (v)
-	{
-		[v performSelectorOnMainThread: @selector(setCursorVisible)
-							withObject: nil
-						 waitUntilDone: NO];
-	}
-	else
-	{
-		[NSCursor unhide];
-	}
-	
-	return 0;
-}
-
-
-
-/* osx_mouse_hide:
-*  Hide the hardware cursor.
-*/
-void osx_mouse_hide(void)
-{
-	NSView* v = osx_view_from_display(NULL);
-	if (v)
-	{
-		[v performSelectorOnMainThread: @selector(setCursorHidden)
-							withObject: nil
-						 waitUntilDone: NO];
-	}
-	else
-	{
-		[NSCursor hide];
-	}
-}
-
-/* osx_enable_hardware_cursor:
-*  Enable hardware cursor - on OSX it's always enabled.
-*/
-void osx_enable_hardware_cursor(AL_CONST int mode) 
-{
-	(void)mode;
-}
-
-
-
-/* osx_select_system_cursor:
-*  Select a system cursor - on this platform, only the I-beam and the Arrow
-*  are available as system cursors.
-*/
-static int osx_select_system_cursor(AL_CONST int cursor)
-{
-	NSCursor* requested_cursor;
-	switch (cursor) {
-		case MOUSE_CURSOR_ARROW:
-			requested_cursor = [NSCursor arrowCursor];
-			break;
-		case MOUSE_CURSOR_EDIT:
-			requested_cursor = [NSCursor IBeamCursor];
-			break;
-		default:
-			return 0;
-	}
-	NSView* v = osx_view_from_display(NULL);
-	if (v)
-	{
-		[v performSelectorOnMainThread: @selector(setCursor)
-							withObject: requested_cursor
-						 waitUntilDone: NO];
-	}
-	else
-	{
-		[requested_cursor set];
-	}
-	return cursor;
-}
-
 static void osx_get_state(ALLEGRO_MSESTATE *ret_state)
 {
 	_al_event_source_lock(&osx_mouse.parent.es);
@@ -536,8 +354,7 @@ static bool osx_set_mouse_axis(int axis, int value)
 /* list the available drivers */
 _DRIVER_INFO _al_mouse_driver_list[] =
 {
-	{  MOUSE_MACOSX, &mouse_macosx, TRUE  },
-	{  0,  NULL,  0  }
+   {  0,  NULL,  0  }
 };
 
 /*

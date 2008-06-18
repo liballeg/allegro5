@@ -479,7 +479,7 @@ static void cokeybd_thread_func(_AL_THREAD *self, void *unused)
       /* wait for an event; wait up every so often to check if we
        * should quit
        */
-      if (!al_wait_for_event(cokeybd_event_queue, &event, 250))
+      if (!al_wait_for_event_timed(cokeybd_event_queue, &event, 0.250))
          continue;
 
       _al_mutex_lock(&key_buffers_lock);

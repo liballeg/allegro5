@@ -29,32 +29,20 @@
 
 
 
-_DRIVER_INFO _mouse_driver_list[] =
-{
-   { MOUSE_MACOSX,            &mouse_macosx,            TRUE  },
-   { 0,                       NULL,                     0     }
-};
 
 
 BEGIN_GFX_DRIVER_LIST
-//{   GFX_OPENGL_WINDOW,        &gfx_opengl_window,       TRUE  },
-// Deprecated in 10.4 and above
-//{   GFX_QUARTZ_FULLSCREEN,    &gfx_quartz_full,         TRUE  },
-//{   GFX_QUARTZ_WINDOW,        &gfx_quartz_window,       TRUE  },
+
 END_GFX_DRIVER_LIST
 
 
 BEGIN_DIGI_DRIVER_LIST
 {   DIGI_CORE_AUDIO,          &digi_core_audio,         TRUE  },
-/* Obsolete in 10.2 and above */
-//{   DIGI_SOUND_MANAGER,       &digi_sound_manager,      TRUE  },
 END_DIGI_DRIVER_LIST
 
 
 BEGIN_MIDI_DRIVER_LIST
 {   MIDI_CORE_AUDIO,          &midi_core_audio,         TRUE  },
-/* Obsolete in 10.2 and above */
-//{   MIDI_QUICKTIME,           &midi_quicktime,          TRUE  },
 END_MIDI_DRIVER_LIST
 
 

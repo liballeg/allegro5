@@ -22,3 +22,8 @@ private: private/html
 
 private/html:
 	mkdir private/html
+
+.PHONY: clean
+clean:
+	rm -rf public/html public/Data
+	rm -rf private/html private/Data

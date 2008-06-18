@@ -4,9 +4,6 @@
 # - sonames on Unix
 # - most Unix drivers require testing
 #
-# - DLLs on Windows (some "auto-imports" when linking executables)
-# - MSVC support
-#
 # - some documentation targets still missing
 # - installing documentation
 #
@@ -25,8 +22,7 @@ else(USE_CXX)
     project(ALLEGRO C)
 endif(USE_CXX)
 
-# TODO soft-code the version number
-set(ALLEGRO_VERSION 4.9.3)
+set(ALLEGRO_VERSION 4.9.4)
 
 # Search in the `cmake' directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -83,6 +79,8 @@ option(WANT_OSSDIGI "Enable OSS digital audio driver (Unix)" on)
 option(WANT_OSSMIDI "Enable OSS MIDI driver (Unix)" on)
 option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" on)
 
+option(WANT_A5_ALSA "Enable A5 ALSA digital audio driver (Unix)" on)
+
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
 
@@ -91,6 +89,11 @@ option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
 #
 
 option(WANT_FONT "Enable bitmap font add-on" on)
+# WANT_AUDIO is off until it checks for OpenAL on the system.
+option(WANT_AUDIO "Enable audio engine" off)
+option(WANT_ACODEC "Enable audio codecs (requires audio)" on)
+# WANT_ICODEC is off until it checks for Magick++
+option(WANT_ICODEC "Enable image loading/saving for most filetypes (requires libMagick)" off)
 
 #
 # For developers.
@@ -115,9 +118,9 @@ include(CheckSymbolExists)
 include(CheckTypeSize)
 include(UsePkgConfig)
 
-if(CMAKE_COMPILER_2005)
+if(MSVC_IDE)
     set(COMPILER_MSVC 1)
-endif(CMAKE_COMPILER_2005)
+endif(MSVC_IDE)
 
 if(CMAKE_COMPILER_IS_GNUCC)
     set(COMPILER_GCC 1)
@@ -282,7 +285,7 @@ if(UNIX)
     # Sound drivers
     #
 
-    if(WANT_ALSADIGI)
+    if(WANT_ALSADIGI OR WANT_A5_ALSA)
         check_c_source_compiles("
             #include <sys/asoundlib.h>
             int main(void) { 
@@ -294,13 +297,16 @@ if(UNIX)
             }"
             CAN_ALSADIGI
         )
-        if(CAN_ALSADIGI)
+        if(CAN_ALSADIGI AND WANT_ALSADIGI)
             set(SUPPORT_ALSADIGI 1)
             set(ALLEGRO_WITH_ALSADIGI 1)
             set(ALLEGRO_ALSA_VERSION 9)
             list(APPEND DRIVER_LIBS_STATIC asound)
-        endif(CAN_ALSADIGI)
-    endif(WANT_ALSADIGI)
+        endif(CAN_ALSADIGI AND WANT_ALSADIGI)
+        if (CAN_ALSADIGI AND WANT_A5_ALSA)
+            set(SUPPORT_A5_ALSA 1)
+        endif(CAN_ALSADIGI AND WANT_A5_ALSA)
+    endif(WANT_ALSADIGI OR WANT_A5_ALSA)
 
     if(WANT_ALSAMIDI)
         check_c_source_compiles("
@@ -562,6 +568,16 @@ set(LIBRARY_SOURCES
     ${ALLEGRO_SRC_C_FILES}
     )
 
+if(COMPILER_MSVC)
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_FILES})
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES})
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES})
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES})
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES})
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES})
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
+endif(COMPILER_MSVC)
+
 # Libraries that we always need to link against on this platform
 # e.g. -lm on Unix.
 set(PLATFORM_LIBS)
@@ -589,6 +605,9 @@ if(WIN32)
     if(MINGW)
         list(APPEND LIBRARY_SOURCES lib/mingw32/allegro.def)
     endif(MINGW)
+    if(COMPILER_MSVC)
+        list(APPEND LIBRARY_SOURCES lib/msvc/allegro.def)
+    endif(COMPILER_MSVC)
     list(APPEND PLATFORM_LIBS
         kernel32 user32 gdi32 comdlg32 ole32 dinput ddraw dxguid winmm dsound
         )
@@ -627,7 +646,7 @@ endif(STRICT_WARN)
 macro(add_allegro_build nm extra_flags)
 
     set(LIBRARY_CFLAGS
-        "-DALLEGRO_LIB_BUILD -DALLEGRO_SRC ${WFLAGS} ${extra_flags}"
+        "-DALLEGRO_LIB_BUILD ${WFLAGS} ${extra_flags}"
         )
 
     macro(really_add_allegro_build nam target libtype more_extra_flags)
@@ -635,7 +654,7 @@ macro(add_allegro_build nm extra_flags)
         add_library(${target} ${libtype} ${LIBRARY_SOURCES})
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
+            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DALLEGRO_SRC"
             OUTPUT_NAME ${nam}
             )
 
@@ -655,7 +674,7 @@ macro(add_allegro_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_allegro_build(${nm} ${nm}_static STATIC
+        really_add_allegro_build(${nm}_s-${ALLEGRO_VERSION} ${nm}_static STATIC
             "-DALLEGRO_STATICLINK")
     endif(STATIC)
 
@@ -674,20 +693,20 @@ endif(GRADE_STANDARD)
 if(GRADE_DEBUG)
     if(COMPILER_GCC)
         add_allegro_build(allegd
-            "-DDEBUGMODE -g")
+            "-DDEBUGMODE -g2 -O0")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
-       	add_allegro_build(allegd "")
+       	add_allegro_build(allegd "-DDEBUGMODE")
     endif(COMPILER_MSVC)
 endif(GRADE_DEBUG)
 
 if(GRADE_PROFILE)
     if(COMPILER_GCC)
-        add_allegro_build(allp
+        add_allegro_build(allegp
             "-pg -O2 -funroll-loops -ffast-math")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
-       	add_allegro_build(allp "")
+       	add_allegro_build(allegp "")
     endif(COMPILER_MSVC)
 endif(GRADE_PROFILE)
 
@@ -710,9 +729,16 @@ install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES}
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
         DESTINATION include/allegro5/platform
         )
-install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
-        DESTINATION include/allegro5/opengl
+
+if(SUPPORT_OPENGL)
+        install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
+                DESTINATION include/allegro5/opengl
         )
+        install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES}
+                DESTINATION include/allegro5/opengl/GLext
+        )
+endif(SUPPORT_OPENGL)
+
 foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
     install(FILES ${CMAKE_BINARY_DIR}/${genfile}
             DESTINATION include/allegro5/platform
@@ -732,7 +758,7 @@ if(SUPPORT_MODULES)
         set_target_properties(${target}
             PROPERTIES
             PREFIX ""
-            COMPILE_FLAGS "-DALLEGRO_MODULE"
+            COMPILE_FLAGS "-DALLEGRO_MODULE ${WFLAGS}"
             )
         target_link_libraries(${target} ${ARGN})
 
@@ -805,9 +831,9 @@ endif(SUPPORT_MODULES)
 #
 #-----------------------------------------------------------------------------#
 
-if(MSVC)
+if(COMPILER_MSVC)
     set(EXECUTABLE_TYPE "WIN32")
-endif(MSVC)
+endif(COMPILER_MSVC)
 
 # Select libraries to link the programs with.  We choose
 # standard, debug, profile in that order, and prefer statically linked
@@ -816,12 +842,27 @@ endif(MSVC)
 if(GRADE_STANDARD)
     set(LIB_TO_LINK alleg)
     set(FONT_LIB_TO_LINK a5_font)
+    if(COMPILER_MSVC)
+        set(EXE_CFLAGS "")
+    elseif(COMPILER_GCC)
+        set(EXE_CFLAGS "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
+    endif(COMPILER_MSVC)
 elseif(GRADE_DEBUG)
     set(LIB_TO_LINK allegd)
     set(FONT_LIB_TO_LINK a5_fontd)
+    if(COMPILER_MSVC)
+        set(EXE_CFLAGS "-DDEBUGMODE")
+    elseif(COMPILER_GCC)
+        set(EXE_CFLAGS "-DDEBUGMODE -g2 -O0")
+    endif(COMPILER_MSVC)
 elseif(GRADE_PROFILE)
-    set(LIB_TO_LINK allp)
+    set(LIB_TO_LINK allegp)
     set(FONT_LIB_TO_LINK a5_fontp)
+    if(COMPILER_MSVC)
+        set(EXE_CFLAGS "")
+    elseif(COMPILER_GCC)
+        set(EXE_CFLAGS "-pg -O2 -funroll-loops -ffast-math")
+    endif(COMPILER_MSVC)
 endif(GRADE_STANDARD)
 
 if(STATIC)
@@ -833,10 +874,14 @@ else(STATIC)
     set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_shared)
 endif(STATIC)
 
+# shared addons are always linked to a shared allegro lib
+# (static addons are not linked to anything)
+set(ADDONS_LINK_WITH ${LIB_TO_LINK}_shared)
+
 macro(add_allegro_executable nm)
     add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
     set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
+        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
         LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         )
     target_link_libraries(${nm} ${LINK_WITH})
@@ -856,11 +901,11 @@ add_subdirectory(addons)
 #
 #-----------------------------------------------------------------------------#
 
-if(NOT MSVC) # XXX disabled because it breaks MSVC's intellisense for some reason
+if(NOT MSVC80) # XXX disabled because it breaks MSVC's intellisense for some reason
     if(USE_CXX AND WANT_FONT)
         add_subdirectory(demo)
     endif(USE_CXX AND WANT_FONT)
-endif(NOT MSVC)
+endif(NOT MSVC80)
 
 #-----------------------------------------------------------------------------#
 #
@@ -913,7 +958,11 @@ if(UNIX)
         endif("${lib}" MATCHES "^-l|^/")
     endforeach(lib)
 
-    configure_file(misc/allegro5-config.in allegro5-config)
+    # @ONLY prevents substitution of ${VAR} forms.
+    configure_file(
+        misc/allegro5-config.in allegro5-config
+        @ONLY
+        )
     install(PROGRAMS ${CMAKE_BINARY_DIR}/allegro5-config
             DESTINATION bin
             )

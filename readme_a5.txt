@@ -1,18 +1,25 @@
+% Allegro 4.9.x readme
+
 Thanks for trying this development release of Allegro. This is currently work
-in progress and only intended for developers. Here are some short notes:
+in progress and only intended for developers. Here are some short notes.
 
 
 
-== Windows ==
+Windows
+=======
 
-The only graphics driver implemented so far requires DirectX 9. Here are some
-files you may need:
+Allegro5 implements two graphics drivers for Windows: one using DirectX 9 and
+onther one using OpenGL. You can force using OpenGL by calling
+al_set_new_display_flags(ALLEGRO_OPENGL) prior to creating a display, while
+DirectX is the default driver (ALLEGRO_DIRECT3D new display flag is implied).
 
-http://trent.gamblin.ca/dx/
+Here are some files you may need regarding DirectX:
+
+<http://trent.gamblin.ca/dx/>
 
 Some of those are originally from:
 
-http://www.g-productions.net/list.php?c=files_devpak
+<http://www.g-productions.net/list.php?c=files_devpak>
 
 This is an experimental driver and more work still needs to be done
 on compatibility. It works for many people, and doesn't work for others.
@@ -20,73 +27,111 @@ If you have problems, send and email to the alleg-developers list or
 directly to Trent Gamblin @ trent2@gamblin.ca, and we may be able to
 debug it further.
 
-Do not run fix.bat! It is no longer needed and will lead to errors.
+
+
+Linux / X Windows
+=================
+
+The only graphics driver implemented for Linux so far uses OpenGL on the X
+Window System.  It has been tested with GLX 1.2 and above.  This driver isn't
+Linux-specific so may work with other Unix-like systems but hasn't been
+tested as such.
 
 
 
-== Linux ==
+Mac OS X
+========
 
-The only graphics driver implemented so far requires a fairly recent GLX, it
-was only tested with GLX 1.4 so far.
+We have an OpenGL graphics driver on Mac OS X as well.
 
-
-
-== OSX ==
-
-Sorry, nobody did yet write any drivers for OSX.
+XXX fill this in
 
 
 
-== Compilation ==
+Compilation
+===========
 
-We provide two build systems, cmake and scons.
-MSVC is untested and may or may not won't work.
+We provide two build systems, *CMake* and *scons*.
 
 
 
-=== Cmake ===
+CMake & Unix or MinGW
+---------------------
 
-Cmake works by first creating a makefile, which then can be used to compile.
+CMake works by first creating a makefile, which then can be used to compile.
 
 To use it:
 
 First create a directory for the build to take place in.
-(This is not strictly necessary but keeps things cleaner.) e.g.
+(This is not strictly necessary but keeps things cleaner.)
 
-$ mkdir Build
-$ cd Build
+	$ mkdir Build
+	$ cd Build
 
-* Note: For MinGW with gcc < 4, you cannot build a static library because
+*Note:* For MinGW with gcc < 4, you cannot build a static library because
 TLS (thread local storage, using __thread) support was not introduced
 until version 4.
 
-Run cmake with whatever options you want. Some common options are,
-with defaults in braces:
-	- GRADE_STANDARD -- Build release library (on)
-	- GRADE_DEBUG -- Build debug library (off)
-	- GRADE_PROFILE -- Build profiling library (off)
-	- SHARED -- Build shared libraries (on)
-	- STATIC -- Build static libraries (on)
+Run `cmake` with whatever options you want. Some common options are,
+with defaults in brackets:
+
+- GRADE_STANDARD -- Build release library (on)
+- GRADE_DEBUG -- Build debug library (off)
+- GRADE_PROFILE -- Build profiling library (off)
+- SHARED -- Build shared libraries (on)
+- STATIC -- Build static libraries (on)
 
 Examples:
 
-$ cmake .. -G "MinGW Makefiles" -DSTATIC=off
+	$ cmake .. -G "MinGW Makefiles" -DSTATIC=off
 
-$ cmake .. -G "Unix Makefiles"
+	$ cmake .. -G "Unix Makefiles"
 
-Alternatively, you can use ccmake to bring up an interactive option
-selector. e.g. ccmake ..
+Alternatively, you can use `ccmake` to bring up an interactive option
+selector. e.g. `ccmake ..`
 
-Now run make (or mingw32-make) and make install
-(Note: You should have MINGDIR pointing to your MinGW directory
-before you do mingw32-make install):
+Now run `make` (or `mingw32-make`) and, optionally, `make install`.
+(For MinGW users, you should have `MINGDIR` pointing to your MinGW directory
+before you do `mingw32-make install`):
 
-$ mingw32-make
-$ mingw32-make install
+	$ make
+	$ make install
 
 
 
-=== Scons ===
+CMake & MSVC
+------------
+
+First open up a console and make sure that cmake.exe is in your %PATH%. You
+ensure than by typing "SET PATH=C:\cmake\bin\;%PATH%" or similar. Typing
+"cmake" should display the help message. It is also a good idea to have MSVC
+compiler cl.exe in your path, to make it easier for CMake to find it, especially
+if you have mutiple MSVC versions installed. You can do that by running
+vcvars32.bat script found in the directory where MSVC is installed.
+
+CMake works by first creating a project solution, which can then be opened
+with MSVC IDE and built.
+
+You can use the same options from the CMake section above.
+
+Examples:
+
+	$ cmake -G "Visual Studio 8 2005" -DGRADE_DEBUG=on -DGRADE_STANDARD=off
+
+	$ cmake -G "Visual Studio 9 2008"
+
+Now that the project solution has been generated, open it with the MSVC IDE
+and start the building process.
+
+*Note:*
+The demo is currently excluded from the build due to some problems with the IDE.
+Only Visual Studio 8 2005 has been tested but other versions may work as well.
+Please give it a try and report problems.
+
+
+
+Scons
+-----
 
 Scons uses more sophisticated dependency tracking than make, for example it
 does not use timestamps, and in general will always know what to rebuild even
@@ -94,57 +139,77 @@ if files are added/removed/renamed, options are changed, or even external
 dependencies are changed.
 
 See the Allegro wiki for more info on the scons build system:
-http://wiki.allegro.cc/Scons
+<http://wiki.allegro.cc/Scons>
 
 To compile Allegro, simply type this inside the allegro directory:
 
-$ scons
+    $ scons
 
 To install, run (as root):
 
-$ scons install
+    $ scons install
 
 There are also some options you can use with the scons command:
-	- static (default: 1)
-	- debug
 
-$ scons static=1 debug=1
-$ scons static=0 debug=1
+- static (default: 1)
+- debug
+
+Example:
+
+	$ scons static=1 debug=1
+	$ scons static=0 debug=1
+
 etc..
 
 To install as a non-root user, you can do:
 
-$ scons install install=/home/myuser/mydirectory
+	$ scons install install=/home/myuser/mydirectory
 
 
 
-== Running the examples ==
+Running the examples
+====================
 
-Currently, only a few examples work using the new API.
-Some of the older 4.2.x examples work with the new drivers,
-but are not accelerated.
+Currently, only examples specifically written to use the new API will run.
+The compatibility layer is currently broken so older examples from 4.2.x and
+earlier won't work.
 
-- The demo has been replaced with an A5 demo (C++ right now)
-- exnewapi - A messy example showing off a lot of A5 features
-- exnew_bitmap - Simply draws a bitmap on screen
-- exnew_fs_resize - Demonstrates fullscreen display resizing
-- enxew_lockbitmap - Shows how to lock a bitmap to write directly to it
-- exnew_lockscreen - Like exnew_lockbitmap, but operates directly on the screen
-- exnew_mouse - Uses mouse polling to show a cursor
-- exnew_mouse_events - Uses the new event system to show a mouse cursor
-- exnew_resize - Demonstrates windows resized with code
+- there's a different demo in the `demo` directory (a5teroids)
+- exnewapi - a messy example showing off a lot of A5 features
+- exnew_bitmap - simply draws a bitmap on screen
+- exnew_bitmap_target - 
+- exnew_fs_resize - demonstrates fullscreen display resizing
+- exnew_lockbitmap - shows how to lock a bitmap to write directly to it
+- exnew_lockscreen - like exnew_lockbitmap, but operates directly on the screen
+- exnew_mouse - uses mouse polling to show a cursor
+- exnew_mouse_events - uses the new event system to show a mouse cursor
+- exnew_resize - demonstrates windows resized with code
+- exnew_blend - an example demonstrating different blending modes
+- exnew_drawpixels - draws individual pixels 
+- exnew_events - demonstrates the event system
+- exnew_icon - sets window icons
+- exnew_membmp - test memory bitmaps
+- exnew_multiwin - demonstrates multiple window support
+- exnew_opengl - 
+- exnew_scale - test bitmap scaling
+- exnew_timedwait - test timed wait for events
+- exnew_timer - test timer events
 
 Remember that some examples look for data files in the current directory, so if
 you used an external build directory you will need to change into the examples
 directory and specify the path to the example in the build directory, e.g.
 
-$ cd examples
-$ ../Build/examples/exnew_mouse_events
+	$ cd examples
+	$ ../Build/examples/exnew_mouse_events
 
 
 
-== API documentation ==
+API documentation
+=================
 
 The documentation is all linked to from the wiki:
-http://wiki.allegro.cc/NewAPI
+<http://wiki.allegro.cc/NewAPI>
+
+If you have NaturalDocs installed you can build the documentation by
+running `make` in the `docs/naturaldocs` directory.
 

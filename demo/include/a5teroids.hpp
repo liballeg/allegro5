@@ -4,11 +4,17 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
 
-#ifdef __linux__
+#ifdef ALLEGRO_UNIX
 #define MAX_PATH 5000
-#else
+#endif
+#ifdef ALLEGRO_MACOSX
+
+#endif
+#if defined(ALLEGRO_MINGW32) || defined(ALLEGRO_MSVC)
 #include "allegro5/winalleg.h"
+#ifndef _WIN32_IE
 #define _WIN32_IE 0x400
+#endif
 #include <shlobj.h>
 #endif
 

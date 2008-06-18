@@ -175,9 +175,9 @@ enum ALLEGRO_BLEND_MODE {
  * > }
  */
 typedef struct ALLEGRO_LOCKED_REGION {
-	void *data;
-	int format;
-	int pitch;
+   void *data;
+   int format;
+   int pitch;
 } ALLEGRO_LOCKED_REGION;
 
 
@@ -185,6 +185,10 @@ AL_FUNC(void, al_set_new_bitmap_format, (int format));
 AL_FUNC(void, al_set_new_bitmap_flags, (int flags));
 AL_FUNC(int, al_get_new_bitmap_format, (void));
 AL_FUNC(int, al_get_new_bitmap_flags, (void));
+
+/* FIXME: supposedly internals used by addons */
+AL_FUNC(void, _al_push_new_bitmap_parameters, (void));
+AL_FUNC(void, _al_pop_new_bitmap_parameters, (void));
 
 AL_FUNC(int, al_get_bitmap_width, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(int, al_get_bitmap_height, (ALLEGRO_BITMAP *bitmap));

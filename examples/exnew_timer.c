@@ -22,6 +22,8 @@ struct Example
    double min_diff, max_diff, second_spread;
    double second;
    double timer_events;
+   double timer_error;
+   double timestamp;
 } ex;
 
 /* Initialize the example. */
@@ -30,9 +32,9 @@ static void init(void)
    ex.FPS = 50;
    ex.first_tick = true;
 
-   ex.myfont = a5font_load_font("font.tga", 0);
+   ex.myfont = a5font_load_font("fixed_font.tga", 0);
    if (!ex.myfont) {
-      allegro_message("font.tga not found");
+      allegro_message("fixed_font.tga not found");
       exit(1);
    }
 }
@@ -54,14 +56,9 @@ static void print(int x, int y, char const *format, ...)
    uvszprintf(message, sizeof message, format, list);
    va_end(list);
 
-   /* Shadow. */
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-      al_map_rgba_f(0, 0, 0, 0.25));
-   a5font_textout(ex.myfont, message, x + 1, y + 1);
-
    /* Actual text. */
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-      al_map_rgba_f(0, 0, 0, 0.75));
+      al_map_rgb_f(0, 0, 0));
    a5font_textout(ex.myfont, message, x, y);
 }
 
@@ -69,9 +66,15 @@ static void print(int x, int y, char const *format, ...)
 static void draw(void)
 {
    int h, y, i;
+   double cur_time, event_overhead, total_error;
+   
+   cur_time = al_current_time();
+   event_overhead = cur_time - ex.timestamp;
+   total_error = event_overhead + ex.timer_error;
 
    h = a5font_text_height(ex.myfont);
    al_clear(al_map_rgb_f(1, 1, 1));
+
    print(0, 0, "%.9f target for %.0f Hz Timer", 1.0 / ex.FPS, ex.FPS);
    print(0, h, "%.9f now", ex.this_time - ex.prev_time);
    print(0, 2 * h, "%.9f accum over one second",
@@ -79,6 +82,9 @@ static void draw(void)
    print(0, 3 * h, "%.9f min", ex.min_diff);
    print(0, 4 * h, "%.9f max", ex.max_diff);
    print(300, 3.5 * h, "%.9f (max - min)", ex.second_spread);
+   print(300, 4.5 * h, "%.9f (timer error)", ex.timer_error);
+   print(300, 5.5 * h ,"%.9f (event overhead)", event_overhead);
+   print(300, 6.5 * h, "%.9f (total error)" , total_error);
 
    y = 240;
    for (i = 0; i < 4; i++) {
@@ -88,7 +94,7 @@ static void draw(void)
 }
 
 /* Called a fixed amount of times per second. */
-static void tick(void)
+static void tick(ALLEGRO_TIMER_EVENT* timer_event)
 {
    int i;
 
@@ -112,6 +118,8 @@ static void tick(void)
       if (duration > ex.max_diff) ex.max_diff = duration;
       ex.accum_time += duration;
       ex.timer_events++;
+      ex.timer_error = timer_event->error;
+      ex.timestamp = timer_event->timestamp;
    }
 
    draw();
@@ -130,7 +138,7 @@ static void run(void)
 {
    ALLEGRO_EVENT event;
    while (1) {
-      al_wait_for_event(ex.queue, &event, ALLEGRO_WAIT_FOREVER);
+      al_wait_for_event(ex.queue, &event);
       switch (event.type) {
          /* Was the X button on the window pressed? */
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -144,7 +152,7 @@ static void run(void)
 
          /* Is it time for the next timer tick? */
          case ALLEGRO_EVENT_TIMER:
-            tick();
+            tick(&event.timer);
             break;
       }
    }
