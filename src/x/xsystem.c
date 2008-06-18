@@ -59,6 +59,7 @@ SYSTEM_DRIVER system_xwin =
    _xwin_sysdrv_init,
    _xwin_sysdrv_exit,
    _unix_get_executable_name,
+   _unix_get_path,
    _unix_find_resource,
    _xwin_sysdrv_set_window_title,
    _xwin_sysdrv_set_close_button_callback,

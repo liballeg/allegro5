@@ -154,7 +154,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    vt->get_num_display_modes = _al_xglx_get_num_display_modes;
    vt->get_display_mode = _al_xglx_get_display_mode;
    vt->shutdown_system = shutdown_system;
-   
+   vt->get_path = _unix_get_path;
+
    return vt;
 }
 

@@ -16,7 +16,7 @@
 #ifndef AINTERN_FHOOK_H
 #define AINTERN_FHOOK_H
 
-#include "base.h"
+#include "allegro5/base.h"
 
 AL_BEGIN_EXTERN_C
 

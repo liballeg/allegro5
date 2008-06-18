@@ -547,7 +547,19 @@ int set_close_button_callback(void (*proc)(void))
    return -1;
 }
 
+/* al_get_path:
+ *  Gets a system path, ie: temp, home, etc
+ *  Returns -1 on failure.
+ */
+int32_t al_get_path(uint32_t id, char *path, size_t size)
+{
+   ASSERT(system_driver);
 
+   if (system_driver->get_path)
+      return system_driver->get_path(id, path, size);
+
+   return -1;
+}
 
 /* debug_exit:
  *  Closes the debugging output files.

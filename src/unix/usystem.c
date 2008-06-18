@@ -21,11 +21,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-
+#include <sys/types.h>
+#include <pwd.h>
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/platform/aintunix.h"
+#include "allegro5/fshook.h"
 
 #if defined(ALLEGRO_HAVE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
    /* ALLEGRO_HAVE_SCHED_YIELD is set by configure */
@@ -449,6 +451,162 @@ void _unix_get_executable_name(char *output, int size)
 #endif
 
 
+static int32_t _unix_find_home(char *dir, uint32_t len)
+{
+   char *home_env = getenv("HOME");
+
+   if(!home_env || home_env[0] == '\0') {
+      /* since HOME isn't set, we have to ask libc for the info */
+
+      /* get user id */
+      uid_t uid = getuid();
+
+      /* grab user information */
+      struct passwd *pass = getpwuid(uid);
+      if(!pass) {
+         *allegro_errno = errno;
+         return -1;
+      }
+
+      if(pass->pw_dir) {
+         /* hey, we got our home directory */
+         do_uconvert (pass->pw_dir, U_ASCII, dir, U_CURRENT, strlen(pass->pw_dir)+1);
+         return 0;
+      }
+      else {
+         char tmp[PATH_MAX];
+         char *name = getenv("USER");
+
+         if(!name) {
+            name = pass->pw_name;
+            if(!name) {
+               return -1;
+            }
+         }
+
+         /* assume we live in /home/<username> */
+
+         /* TODO: might want to make a "configure" option for this (/home) */
+         /* should we check to see if the dir exists? */
+
+         _al_sane_strncpy(tmp, "/home/", strlen("/home/")+1);
+         strncat(tmp, name, len);
+         do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
+         return 0;
+      }
+   }
+   else {
+      do_uconvert (home_env, U_ASCII, dir, U_CURRENT, strlen(home_env)+1);
+      return 0;
+   }
+
+   /* should not reach here */
+   return -1;
+}
+
+int32_t _unix_get_path(uint32_t id, char *dir, size_t size)
+{
+   switch(id) {
+      case AL_TEMP_PATH: {
+         /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
+         char *envs[] = { "TMP", "TMPDIR", "TEMP", "TEMPDIR", NULL};
+         uint32_t i = 0;
+         for(; envs[i] != NULL; ++i) {
+            char *tmp = getenv(envs[i]);
+            if(tmp) {
+               /* this may truncate paths, not likely in unix */
+               do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
+               return 0;
+            }
+         }
+
+         /* next try: /tmp /var/tmp /usr/tmp */
+         char *paths[] = { "/tmp", "/var/tmp", "/usr/tmp", NULL };
+         for(i=0; paths[i] != NULL; ++i) {
+            if(al_fs_stat_mode(paths[i]) & AL_FM_ISDIR) {
+               do_uconvert (paths[i], U_ASCII, dir, U_CURRENT, strlen(paths[i])+1);
+               return 0;
+            }
+         }
+
+         /* Give up? */
+         return -1;
+      } break;
+
+      case AL_PROGRAM_PATH: {
+         char *ptr = NULL;
+
+         _unix_get_executable_name(dir, size);
+
+         ptr = ustrrchr(dir, '/');
+         if(!ptr) {
+            *allegro_errno = errno = EINVAL;
+            return -1;
+         }
+
+         *ptr = '\0';
+
+      } break;
+
+      case AL_SYSTEM_DATA_PATH: {
+         /* FIXME: make this a compile time define, or a allegro cfg option? or both */
+         _al_sane_strncpy(dir, "/usr/share", strlen("/usr/share")+1);
+      } break;
+
+      case AL_USER_DATA_PATH: {
+         int32_t ret = 0;
+         uint32_t path_len = 0, ptr_len = 0, prog_len = 0;
+         char path[PATH_MAX] = "", *ptr = NULL;
+         char prog[PATH_MAX] = "";
+
+         if(_unix_find_home(path, PATH_MAX) != 0) {
+            return -1;
+         }
+
+         strncat(path, "/.", 2);
+
+         path_len = strlen(path);
+
+         /* get exe name */
+         /* FIXME:
+            This really aught to get the "Program" name from somewhere, say a config var? Or a function al_set_program_name()?
+            making a ~/.test_program dir for a exe named "test_program" might not be what people have in mind.
+         */
+
+         _unix_get_executable_name(prog, PATH_MAX);
+
+         ptr = strrchr(prog, '/');
+         if(!ptr) {
+            *allegro_errno = errno = EINVAL;
+            return -1;
+         }
+
+         *ptr = '\0';
+         ptr++;
+         ptr_len = strlen(ptr);
+         //
+         strncat(path, ptr, ptr_len+1);
+         //*(ptr-1) = '/';
+         do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+
+         return 0;
+      } break;
+
+      case AL_USER_HOME_PATH: {
+         char tmp[PATH_MAX] = "";
+         if(_unix_find_home(tmp, PATH_MAX) != 0) {
+            return -1;
+         }
+
+         do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
+      } break;
+
+      default:
+         return -1;
+   }
+
+   return 0;
+}
 
 /* _unix_get_page_size:
  *  Get size of a memory page in bytes.  If we can't do it, we make a guess.

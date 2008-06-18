@@ -27,8 +27,11 @@ AL_BEGIN_EXTERN_C
 #ifndef ALLEGRO_FS_ENTRY_DEFINED
 
 #ifdef ALLEGRO_LIB_BUILD
+//#include "allegro5/internal/fshook.h"
+
+struct AL_FS_HOOK_ENTRY_VTABLE;
 typedef struct AL_FS_ENTRY {
-   AL_FS_HOOK_ENTRY_VTABLE *vtable;
+   struct AL_FS_HOOK_ENTRY_VTABLE *vtable;
 } AL_FS_ENTRY;
 #else
 typedef void AL_FS_ENTRY;
@@ -37,10 +40,11 @@ typedef void AL_FS_ENTRY;
 #endif /* ALLEGRO_FS_ENTRY_DEFINED */
 
 typedef enum AL_FS_FILTER {
-   AL_FS_FILTER_DIRS           = 0x001,
-   AL_FS_FILTER_FILES          = 0x002,
-   AL_FS_FILTER_NOSYMLINKS     = 0x004,
-   AL_FS_FILTER_TYPEMASK       = 0x007,
+   AL_FS_FILTER_DRIVES         = 0x001,
+   AL_FS_FILTER_DIRS           = 0x002,
+   AL_FS_FILTER_FILES          = 0x004,
+   AL_FS_FILTER_NOSYMLINKS     = 0x008,
+   AL_FS_FILTER_TYPEMASK       = 0x00F,
 
    AL_FS_FILTER_ALLENTRIES     = AL_FS_FILTER_DIRS | AL_FS_FILTER_FILES | AL_FS_FILTER_DRIVES,
 
@@ -51,7 +55,7 @@ typedef enum AL_FS_FILTER {
 
    AL_FS_FILTER_HIDDEN         = 0x100,
    AL_FS_FILTER_SYSTEM         = 0x200,
-   AL_FS_FILTER_ACCESSMASK     = 0x300
+   AL_FS_FILTER_ACCESSMASK     = 0x300,
 
    AL_FS_FILTER_ALLDIRS        = 0x400,
    AL_FS_FILTER_CASESENSITIVE  = 0x800,

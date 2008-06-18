@@ -65,6 +65,7 @@ SYSTEM_DRIVER system_directx =
    sys_directx_init,
    sys_directx_exit,
    sys_directx_get_executable_name,
+   sys_directx_get_path,
    NULL,                        /* AL_METHOD(int, find_resource, (char *dest, char *resource, int size)); */
    sys_directx_set_window_title,
    sys_directx_set_close_button_callback,
@@ -251,6 +252,90 @@ static void sys_directx_get_executable_name(char *output, int size)
    _AL_FREE(temp);
 }
 
+/* sys_directx_get_path:
+ *  Returns full path to various system and user diretories
+ */
+
+static int32_t sys_directx_get_path(uint32_t id, char *dir, size_t size)
+{
+   char path[MAX_PATH], tmp[256];
+   uint32_t csidl = 0, path_len = MIN(*len, MAX_PATH);
+   HRESULT ret = 0;
+   HANDLE process = GetCurrentProcess();
+
+   switch(id) {
+      case AL_TEMP_PATH: {
+         /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
+         char *envs[] = { "TMP", "TMPDIR", "TEMP", "TEMPDIR", NULL};
+         uint32_t i = 0;
+         for(; envs[i] != NULL; ++i) {
+            char *tmp = getenv(envs[i]);
+            if(tmp) {
+               /* this may truncate paths, not likely in unix */
+               _al_sane_strncpy(dir, tmp, size);
+               retutn 0;
+            }
+         }
+
+         /* next try: */
+         char *paths[] = { "C:/windows/temp", "C:/temp", NULL };
+         uint32_t i = 0;
+         for(; paths[i] != NULL; ++i) {
+            AL_STAT *st = NULL;
+            if(al_fs_fstat(paths[i], st) == 0 && al_fs_get_stat_mode(st) & AL_FS_STAT_ISDIR) {
+               _al_sane_strncpy(dir, paths[i], size);
+               return 0;
+            }
+         }
+
+         /* Give up? */
+         return -1;
+
+      } break;
+
+      case AL_PROGRAM_PATH: { /* where the program is in */
+         HMODULE module = GetModuleHandle(NULL); /* Get handle for this process */
+         DWORD mret = GetModuleFileNameEx(process, handle, path, MAX_PATH);
+         char *ptr = strrchr(path, '\\');
+         if(!ptr) { /* shouldn't happen */
+            return -1;
+         }
+
+         /* chop off everything including and after the last slash */
+         /* should this not chop the slash? */
+         *ptr = '\0';
+
+         do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+         return 0;
+      } break;
+
+      case AL_SYSTEM_DATA_PATH: /* CSIDL_COMMON_APPDATA */
+         csidl = CSIDL_COMMON_APPDATA;
+         break;
+
+      case AL_USER_DATA_PATH: /* CSIDL_APPDATA */
+         csidl = CSIDL_APPDATA;
+         break;
+
+      case AL_USER_HOME_PATH: /* CSIDL_PROFILE */
+         csidl = CSIDL_PROFILE;
+         break;
+
+      default:
+         return -1;
+   }
+
+   ret = SHGetFolderPath(NULL, csidl, NULL, SHGFP_TYPE_CURRENT, path);
+   if(ret != S_OK) {
+      return -1;
+   }
+
+   do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+
+   *len = path_len;
+
+   return 0;
+}
 
 
 /* sys_directx_set_window_title:

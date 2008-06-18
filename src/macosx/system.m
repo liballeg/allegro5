@@ -90,6 +90,7 @@ SYSTEM_DRIVER system_macosx =
    osx_sys_init_compat,
    osx_sys_exit,
    osx_sys_get_executable_name,
+   NULL, // FIXME: add osx_sys_get_path
    osx_sys_find_resource,
    osx_sys_set_window_title,
    osx_sys_set_close_button_callback,

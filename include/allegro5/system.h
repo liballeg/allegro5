@@ -94,6 +94,16 @@ AL_PRINTFUNC(void, allegro_message, (AL_CONST char *msg, ...), 1, 2);
 AL_FUNC(void, get_executable_name, (char *output, int size));
 AL_FUNC(int, set_close_button_callback, (AL_METHOD(void, proc, (void))));
 
+enum {
+   AL_PROGRAM_PATH = 0,
+   AL_TEMP_PATH,
+   AL_SYSTEM_DATA_PATH,
+   AL_USER_DATA_PATH,
+   AL_USER_HOME_PATH,
+   AL_LAST_PATH // must be last
+};
+
+AL_FUNC(int32_t, al_get_path, (uint32_t id, char *path, size_t size));
 
 AL_FUNC(void, check_cpu, (void));
 
@@ -202,6 +212,7 @@ typedef struct SYSTEM_DRIVER
    AL_METHOD(int, init, (void));
    AL_METHOD(void, exit, (void));
    AL_METHOD(void, get_executable_name, (char *output, int size));
+   AL_METHOD(int32_t, get_path, (uint32_t id, char *output, size_t size));
    AL_METHOD(int, find_resource, (char *dest, AL_CONST char *resource, int size));
    AL_METHOD(void, set_window_title, (AL_CONST char *name));
    AL_METHOD(int, set_close_button_callback, (AL_METHOD(void, proc, (void))));

@@ -70,6 +70,7 @@ SYSTEM_DRIVER system_linux =
    sys_linux_init,
    sys_linux_exit,
    _unix_get_executable_name,
+   _unix_get_path,
    _unix_find_resource,
    NULL, /* set_window_title */
    NULL, /* set_close_button_callback */
