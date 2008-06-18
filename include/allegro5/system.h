@@ -103,6 +103,7 @@ enum {
    AL_LAST_PATH // must be last
 };
 
+/* FIXME: Might need to change this to return the needed "path" size if the passed in buffer is too small */
 AL_FUNC(int32_t, al_get_path, (uint32_t id, char *path, size_t size));
 
 AL_FUNC(void, check_cpu, (void));

@@ -20,3 +20,7 @@ TODO
 * char ** al_fs_find(char *path, AL_FS_FILTER filter, AL_FS_SORT sort);
 * void al_fs_free_list(char **);
 * AL_FS_SORT::IgnoreCase is default aka: AL_FS_SORT::CaseSensitive needs to be passed, and IgnoreCase aught not to exist ;)
+
+// 18-06-2008
+* need to ensure the various uconvert stuff is correct
+* MacOSX get_path implementation needed

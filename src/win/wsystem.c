@@ -266,30 +266,14 @@ static int32_t sys_directx_get_path(uint32_t id, char *dir, size_t size)
    switch(id) {
       case AL_TEMP_PATH: {
          /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
-         char *envs[] = { "TMP", "TMPDIR", "TEMP", "TEMPDIR", NULL};
-         uint32_t i = 0;
-         for(; envs[i] != NULL; ++i) {
-            char *tmp = getenv(envs[i]);
-            if(tmp) {
-               /* this may truncate paths, not likely in unix */
-               _al_sane_strncpy(dir, tmp, size);
-               retutn 0;
-            }
+         DWORD ret = GetTempPath(MAX_PATH, path);
+         if(ret > MAX_PATH) {
+            /* should this ever happen, windows is more broken than I ever thought */
+            return -1;
          }
 
-         /* next try: */
-         char *paths[] = { "C:/windows/temp", "C:/temp", NULL };
-         uint32_t i = 0;
-         for(; paths[i] != NULL; ++i) {
-            AL_STAT *st = NULL;
-            if(al_fs_fstat(paths[i], st) == 0 && al_fs_get_stat_mode(st) & AL_FS_STAT_ISDIR) {
-               _al_sane_strncpy(dir, paths[i], size);
-               return 0;
-            }
-         }
-
-         /* Give up? */
-         return -1;
+         do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+         return 0;
 
       } break;
 
