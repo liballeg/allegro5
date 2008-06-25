@@ -31,7 +31,7 @@ AL_BEGIN_EXTERN_C
 
 struct AL_FS_HOOK_ENTRY_VTABLE;
 typedef struct AL_FS_ENTRY {
-   struct AL_FS_HOOK_ENTRY_VTABLE *vtable;
+   struct AL_FS_HOOK_ENTRY_VTABLE vtable;
 } AL_FS_ENTRY;
 #else
 typedef void AL_FS_ENTRY;
@@ -256,6 +256,9 @@ int32_t al_fs_path_sep(size_t len, char *sep);
 
 int32_t al_fs_path_to_sys(const char *orig, size_t len, char *path);
 int32_t al_fs_path_to_uni(const char *orig, size_t len, char *path);
+
+int32_t al_fs_catdir(char *dest, char **items, int32_t icnt);
+char **al_fs_splitdir(char *src);
 
 /* Find stuff */
 

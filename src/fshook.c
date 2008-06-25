@@ -16,9 +16,9 @@
  */
 
 #include "allegro.h"
-#include "allegro/debug.h"
-#include "allegro/fshook.h"
-#include "allegro/internal/fshook.h"
+#include "allegro5/debug.h"
+#include "allegro5/fshook.h"
+#include "allegro5/internal/fshook.h"
 #include ALLEGRO_INTERNAL_HEADER
 
 static struct AL_FS_HOOK_SYS_VTABLE  _al_sys_fshooks;
@@ -179,9 +179,11 @@ int al_fs_set_hook(uint32_t phid, void *fshook)
          break;
 
       case AL_FS_HOOK_UNLINK:
+         _al_sys_fshooks.unlink = fshook;
          break;
 
       case AL_FS_HOOK_EXISTS:
+         _al_sys_fshooks.exists = fshook;
          break;
 
       default:
@@ -369,29 +371,17 @@ AL_FS_ENTRY *al_fs_create_handle(AL_CONST char *path)
    if(!handle)
       return NULL;
 
-   handle->vtable = AL_MALLOC(sizeof(struct AL_FS_HOOK_ENTRY_VTABLE));
-   if(!handle->vtable) {
-      _al_fs_hook_destroy_handle(handle);
-      return NULL;
-   }
-
-   *(handle->vtable) = _al_entry_fshooks;
+   handle->vtable = _al_entry_fshooks;
 
    return handle;
 }
 
 void al_fs_destroy_handle(AL_FS_ENTRY *handle)
 {
-   struct _al_entry_fshooks *vtable = NULL;
-
    ASSERT(handle != NULL);
-   ASSERT(handle->vtable != NULL);
-
-   vtable = handle->vtable;
 
    _al_fs_hook_destroy_handle(handle);
 
-   AL_FREE(vtable);
 }
 
 int32_t al_fs_open_handle(AL_FS_ENTRY *handle, AL_CONST char *mode)
@@ -503,13 +493,7 @@ AL_FS_ENTRY *al_fs_opendir(const char *path)
    if(!dir)
       return NULL;
 
-   dir->vtable = AL_MALLOC(sizeof(struct AL_FS_HOOK_ENTRY_VTABLE));
-   if(!dir->vtable) {
-      _al_fs_hook_closedir(dir);
-      return NULL;
-   }
-
-   *(dir->vtable) = _al_entry_fshooks;
+   dir->vtable = _al_entry_fshooks;
 
    return dir;
 }
@@ -520,13 +504,8 @@ int32_t al_fs_closedir(AL_FS_ENTRY *dir)
    int32_t ret = 0;
 
    ASSERT(dir != NULL);
-   ASSERT(dir->vtable != NULL);
-
-   vtable = dir->vtable;
 
    ret = _al_fs_hook_closedir(dir);
-
-   AL_FREE(vtable);
 
    return ret;
 }
@@ -722,13 +701,13 @@ int32_t al_fs_exists( const char *path )
 int32_t al_fs_isdir(AL_CONST char *path)
 {
    ASSERT(path != NULL);
-   return al_fs_stat_mode() & AL_FM_ISDIR;
+   return _al_fs_stat_mode(path) & AL_FM_ISDIR;
 }
 
 int32_t al_fs_isfile(AL_CONST char *path)
 {
    ASSERT(path != NULL);
-   return al_fs_stat_mode() & AL_FM_ISFILE;
+   return _al_fs_stat_mode(path) & AL_FM_ISFILE;
 }
 
 /* for you freaks running vim/emacs. */
