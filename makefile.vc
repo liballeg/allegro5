@@ -441,7 +441,7 @@ demos/skater/skater.exe: $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:demos/skater/skater.exe $(OBJECTS_SKATER) $(IMPLIB_NAME) $(LIBRARIES)
 
 demos/skater/skater_agl.exe: $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:demos/skater/skater_agl.exe $(OBJECTS_SKATER) addons/allegrogl/lib/msvc/agl.lib opengl32.lib glu32.lib $(IMPLIB_NAME) $(LIBRARIES)
+	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:demos/skater/skater_agl.exe $(OBJECTS_SKATER) addons/allegrogl/lib/msvc/$(AGL_LIB_TO_LINK).lib opengl32.lib glu32.lib $(IMPLIB_NAME) $(LIBRARIES)
 
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) $(MSVC_LINK) @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)

@@ -344,7 +344,7 @@ demos/skater/skater.exe: $(IMPLIB_NAME)
 	$(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$(OBJECTS_SKATER)) $(IMPLIB_NAME) $(LIBRARIES) -L/SUBSYSTEM:WINDOWS
 
 demos/skater/skater_agl.exe: $(IMPLIB_NAME)
-	$(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$(OBJECTS_SKATER)) addons\allegrogl\lib\dmc\agl.libglu32.lib opengl32.lib $(IMPLIB_NAME) $(LIBRARIES) -L/SUBSYSTEM:WINDOWS
+	$(CC) $(LFLAGS) $(PFLAGS) -o$(subst /,\,$@) $(subst /,\,$(OBJECTS_SKATER)) addons\allegrogl\lib\dmc\$(AGL_LIB_TO_LINK).lib glu32.lib opengl32.lib $(IMPLIB_NAME) $(LIBRARIES) -L/SUBSYSTEM:WINDOWS
 
 # Use -DSETUP_USE_COMPILED_DATAFILES ???
 $(OBJ_DIR)/setup.obj: setup/setup.c

@@ -24,6 +24,7 @@ if [%1] == [msvc]    goto head
 if [%1] == [msvc6]   goto head
 if [%1] == [msvc7]   goto head
 if [%1] == [msvc8]   goto head
+if [%1] == [msvc9]   goto head
 goto nosup
 
 :head
@@ -37,6 +38,7 @@ if [%1] == [msvc]    goto msvc6
 if [%1] == [msvc6]   goto msvc6
 if [%1] == [msvc7]   goto msvc7
 if [%1] == [msvc8]   goto msvc8
+if [%1] == [msvc9]   goto msvc9
 
 echo fix.bat internal error: not reached
 goto help
@@ -68,11 +70,18 @@ echo COMPILER_MSVC8 = 1 >> makefile
 echo MAKEFILE_INC = makefile.vc >> makefile
 goto tail
 
+:msvc9
+echo Configuring JPGalleg for Windows/MSVC9...
+rem MSVC9 uses MSVC8 settings
+echo COMPILER_MSVC8 = 1 >> makefile
+echo MAKEFILE_INC = makefile.vc >> makefile
+goto tail
+
 :help
 echo.
 echo Usage: fix platform [--quick,--utod]
 echo.
-echo Where platform is one of: djgpp, mingw32, msvc6, msvc7, msvc8.
+echo Where platform is one of: djgpp, mingw32, msvc6, msvc7, msvc8, msvc9.
 echo The --quick parameter is used to turn off LF to CR/LF conversion.
 echo The --utod parameter converts from Unix to DOS/Win32 format.
 echo.

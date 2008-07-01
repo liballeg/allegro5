@@ -42,17 +42,19 @@ RUNTIME_LIB = -MT
 endif
 
 ifdef DEBUGMODE
-FLAGS = -DDEBUGMODE $(RUNTIME_LIB)d -Fd$(OBJ_DIR) -W3 -ZI -nologo -Gm -Od -FD -GR
-ifdef LOGLEVEL
-FLAGS += -DLOGLEVEL=$(LOGLEVEL)
-endif
-ifdef COMPILER_MSVC8
-FLAGS += -RTC1 -EHsc
+  FLAGS = -DDEBUGMODE $(RUNTIME_LIB)d -Fd$(OBJ_DIR) -W3 -ZI -nologo -Gm -Od -FD -GR
+
+  ifdef LOGLEVEL
+    FLAGS += -DLOGLEVEL=$(LOGLEVEL)
+  endif
+
+  ifdef COMPILER_MSVC8
+    FLAGS += -RTC1 -EHsc
+  else
+    FLAGS += -GZ -GX -YX
+  endif
 else
-FLAGS += -GZ -GX -YX
-endif
-else
-FLAGS = $(RUNTIME_LIB) -Fd$(OBJ_DIR) -W3 -Ox -Gs -GF -GA $(MSVC_OPT) -nologo
+  FLAGS = $(RUNTIME_LIB) -Fd$(OBJ_DIR) -W3 -Ox -Gs -GF -GA $(MSVC_OPT) -nologo
 endif
 
 ifdef STATICALLEGRO

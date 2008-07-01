@@ -12,6 +12,7 @@ if [%1] == [msvc]    goto msvc
 if [%1] == [msvc6]   goto msvc6
 if [%1] == [msvc7]   goto msvc7
 if [%1] == [msvc8]   goto msvc8
+if [%1] == [msvc9]   goto msvc9
 
 if [%1] == [help]    goto help
 if [%1] == [--help]  goto help
@@ -40,9 +41,11 @@ goto fix
 echo.
 echo Notice: Because no version was specified, MSVC 6 has been chosen. 
 echo.
-echo If you are using a newer version, you should use 'msvc7' or 'msvc8' instead.
+echo If you are using a newer version, you should use 'msvc7', 'msvc8'
+echo or 'msvc9' instead.
 echo msvc7 should be used for MSVC .NET or MSVC .NET 2003
 echo msvc8 should be used for MSVC .NET 2005
+echo msvc9 should be used for MSVC .NET 2008
 echo.
 
 :msvc6
@@ -57,6 +60,12 @@ goto :msvccommon
 
 :msvc8
 set MAKE_COMPILER=MSVC8
+echo COMPILER_MSVC8 = 1 >> makefile
+goto :msvccommon
+
+:msvc9
+set MAKE_COMPILER=MSVC9
+rem MSVC9 uses MSVC8 settings
 echo COMPILER_MSVC8 = 1 >> makefile
 goto :msvccommon
 
@@ -83,7 +92,7 @@ goto end
 echo Compilation target adjustment.
 echo   Usage: fix [platform]
 echo.
-echo   [platform] is one of: djgpp, dmc, mingw32, msvc6, msvc7, msvc8
+echo   [platform] is one of: djgpp, dmc, mingw32, msvc6, msvc7, msvc8, msvc9
 echo   Example: fix mingw32
 echo.
 echo   For the Unix build, please use ./fix.sh

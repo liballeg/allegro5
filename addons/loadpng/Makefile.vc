@@ -43,27 +43,39 @@ ifdef STATICRUNTIME
 RUNTIME_LIB = -MT
 endif
 
-FLAGS += $(RUNTIME_LIB) -W3 -Ox -Gs -GF -GA $(MSVC_OPT) -nologo
+ifdef DEBUGMODE
+FLAGS += -DDEBUGMODE $(RUNTIME_LIB)d -W3 -ZI -nologo -Gm -Od -FD -GR
+  ifdef COMPILER_MSVC8 
+    FLAGS += -RTC1 -EHsc
+  else
+    FLAGS += -GZ -GX -YX
+  endif
+else
+  FLAGS += $(RUNTIME_LIB) -W3 -Ox -Gs -GF -GA $(MSVC_OPT) -nologo
+endif
 
 ifdef STATICALLEGRO
 FLAGS += -DALLEGRO_STATICLINK
 endif
 
 LINK_FLAGS = /nologo
-ifdef COMPILER_MSVC7
-LINK_FLAGS += -LTCG
-endif
-ifdef COMPILER_MSVC8
-LINK_FLAGS += -LTCG
+ifndef DEBUGMODE
+  ifdef COMPILER_MSVC7
+    LINK_FLAGS += -LTCG
+  endif
+  ifdef COMPILER_MSVC8
+    LINK_FLAGS += -LTCG
+  endif
 endif
 
 ifdef STATICLINK
   FLAGS += -DALLEGRO_STATICLINK
+  STATICALLEGRO=1
 endif
 
 EXAMPLELIBS = zlib.lib libpng.lib $(LIBNAME) ../../lib/msvc/$(ALLEG_LIB_BASENAME).lib
 ifdef STATICALLEGRO
-EXAMPLELIBS += dsound.lib dinput.lib ddraw.lib winmm.lib dxguid.lib ole32.lib kernel32.lib
+EXAMPLELIBS += dsound.lib dinput.lib ddraw.lib winmm.lib dxguid.lib ole32.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib
 endif
 
 EXE := .exe

@@ -225,6 +225,12 @@ programs:
 
 ifdef WITH_ALLEGRO_GL
    include addons/allegrogl/make/makefile.add
+   
+   AGL_LIB_TO_LINK_BASE=agl
+   ifdef DEBUGMODE
+      AGL_LIB_TO_LINK_BASE=agld
+   endif
+   AGL_LIB_TO_LINK=$(AGL_LIB_TO_LINK_BASE)$(LIB_SUFFIX)
 endif
 
 ifdef WITH_LOADPNG

@@ -36,6 +36,7 @@ if [%1] == [msvc]    goto head
 if [%1] == [msvc6]   goto head
 if [%1] == [msvc7]   goto head
 if [%1] == [msvc8]   goto head
+if [%1] == [msvc9]   goto head
 if [%1] == [icl]     goto head
 if [%1] == [watcom]  goto head
 goto help
@@ -56,6 +57,7 @@ if [%1] == [msvc]    goto msvc
 if [%1] == [msvc6]   goto msvc6
 if [%1] == [msvc7]   goto msvc7
 if [%1] == [msvc8]   goto msvc8
+if [%1] == [msvc9]   goto msvc9
 if [%1] == [icl]     goto icl
 if [%1] == [watcom]  goto watcom
 
@@ -91,6 +93,12 @@ echo Configuring Allegro for Windows/ICL...
 echo COMPILER_ICL = 1 >> makefile
 goto msvccommon
 
+:msvc9
+echo Configuring Allegro for Windows/MSVC9...
+rem Using MSVC8 because it works the same.
+echo COMPILER_MSVC8 = 1 >> makefile
+goto msvccommon
+
 :msvc8
 echo Configuring Allegro for Windows/MSVC8...
 echo COMPILER_MSVC8 = 1 >> makefile
@@ -105,9 +113,11 @@ goto msvccommon
 echo.
 echo Notice: Because no version was specified, MSVC 6 has been chosen. 
 echo.
-echo If you are using a newer version, you should use 'msvc7' or 'msvc8' instead.
+echo If you are using a newer version, you should use 'msvc7', 'msvc8' or
+echo 'msvc9' instead.
 echo msvc7 should be used for MSVC .NET or MSVC .NET 2003
 echo msvc8 should be used for MSVC .NET 2005
+echo msvc9 should be used for MSVC .NET 2008
 echo.
 
 :msvc6
@@ -145,7 +155,7 @@ echo.
 echo Usage: fix platform [--crlf] [--nomsvcpaths]
 echo.
 echo Where platform is one of:
-echo     bcc32, djgpp, mingw, dmc, msvc6, msvc7, msvc8, icl, or watcom.
+echo     bcc32, djgpp, mingw, dmc, msvc6, msvc7, msvc8, msvc9, icl, or watcom.
 echo.
 echo The --crlf parameter is used to turn on LF to CR/LF conversion.
 echo.
