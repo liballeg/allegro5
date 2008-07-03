@@ -36,6 +36,7 @@ struct RGB;
 #define GFX_AUTODETECT_FULLSCREEN      1
 #define GFX_AUTODETECT_WINDOWED        2
 #define GFX_SAFE                       AL_ID('S','A','F','E')
+#define GFX_NONE                       AL_ID('N','O','N','E')
 
 /* drawing modes for draw_sprite_ex() */
 #define DRAW_SPRITE_NORMAL 0

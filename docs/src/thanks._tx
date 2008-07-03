@@ -224,7 +224,7 @@ Contributors
    fixed a bunch of warnings in MinGW and did plenty of other things too.
 
    Daniel Verkamp (<email>i_am_drv@users.sourceforge.net</a>).<br>
-   Added a MIDI input driver to the Windows port anda dded support for .rmi
+   Added a MIDI input driver to the Windows port and added support for .rmi
    MIDI files to the MIDI loader.
 
    Dark Nation (email unknown).<br>
@@ -274,6 +274,9 @@ Contributors
 
    Dustin Dettmer (<email>dustin@mize.org</a>).<br>
    Spotted a typo in save_bitmap.
+
+   Edgar Reynaldo.<br>
+   Helped fixing several problems with gfx_mode_select_filter().
 
    Eduard Bloch (<email>edi@gmx.de</a>).<br>
    Fixed a freeze caused by the ESD detection code, fixed a bad behaviour

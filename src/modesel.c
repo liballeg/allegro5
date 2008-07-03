@@ -55,7 +55,7 @@ typedef struct MODE_LIST {
 typedef struct DRIVER_LIST {
    int       id;
    char      name[DRVNAME_SIZE];
-   void      *fetch_mode_list_ptr;
+   int       mode_list_owned;
    MODE_LIST *mode_list;
    int       mode_count;
 } DRIVER_LIST;
@@ -374,7 +374,7 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry, FILTER_FUNCTION filt
       if (!filter) {
 	 driver_list_entry->mode_count = sizeof(default_mode_list) / sizeof(MODE_LIST) - 1;
 	 driver_list_entry->mode_list = default_mode_list;
-	 driver_list_entry->fetch_mode_list_ptr = NULL;  /* static */
+	 driver_list_entry->mode_list_owned = FALSE;
 	 return 0;
       }
 
@@ -403,7 +403,7 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry, FILTER_FUNCTION filt
       }
 
       driver_list_entry->mode_list = temp_mode_list;
-      driver_list_entry->fetch_mode_list_ptr = (void *)1L;  /* private dynamic */
+      driver_list_entry->mode_list_owned = TRUE;
       return 0;
    }
 
@@ -429,6 +429,7 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry, FILTER_FUNCTION filt
    }
 
    driver_list_entry->mode_list = temp_mode_list;
+   driver_list_entry->mode_list_owned = TRUE;
    destroy_gfx_mode_list(gfx_mode_list);
    return 0;
 }
@@ -443,7 +444,7 @@ static int create_driver_list(FILTER_FUNCTION filter)
 {
    _DRIVER_INFO *driver_info;
    GFX_DRIVER *gfx_driver;
-   int i, j, used_prefetched;
+   int i, j;
    int list_pos;
 
    if (system_driver->gfx_drivers)
@@ -480,25 +481,8 @@ static int create_driver_list(FILTER_FUNCTION filter)
       driver_list[list_pos].id = driver_info[i].id;
       gfx_driver = driver_info[i].driver;
       do_uconvert(gfx_driver->ascii_name, U_ASCII, driver_list[list_pos].name, U_CURRENT, DRVNAME_SIZE);
-      driver_list[list_pos].fetch_mode_list_ptr = gfx_driver->fetch_mode_list;
 
-      used_prefetched = FALSE;
-
-      /* use already fetched mode-list if possible */
-      for (j=0; j < list_pos; j++) {
-         if (driver_list[list_pos].fetch_mode_list_ptr == driver_list[j].fetch_mode_list_ptr) {
-            driver_list[list_pos].mode_list = driver_list[j].mode_list;
-            driver_list[list_pos].mode_count = driver_list[j].mode_count;
-            /* the following line prevents a mode-list from beeing free'd more than once */
-            driver_list[list_pos].fetch_mode_list_ptr = NULL;
-            used_prefetched = TRUE;
-            break;
-         }
-      }
-      /* didn't find an already fetched mode-list */
-      if (!used_prefetched) {
-         create_mode_list(&driver_list[list_pos], filter);
-      }
+      create_mode_list(&driver_list[list_pos], filter);
 
       if (driver_list[list_pos].mode_count > 0) {
 	 list_pos++;
@@ -524,11 +508,13 @@ static void destroy_driver_list(void)
    int driver;
 
    for (driver=0; driver < driver_count; driver++) {
-      if (driver_list[driver].fetch_mode_list_ptr)
+      if (driver_list[driver].mode_list_owned)
          _AL_FREE(driver_list[driver].mode_list);
    }
 
    _AL_FREE(driver_list);
+   driver_list = NULL;
+   driver_count = 0;
 }
 
 
@@ -649,7 +635,17 @@ int gfx_mode_select_filter(int *card, int *w, int *h, int *color_depth, FILTER_F
    what_dialog[GFX_OK].dp = (void*)get_config_text("OK");
    what_dialog[GFX_CANCEL].dp = (void*)get_config_text("Cancel");
 
-   create_driver_list(filter);
+   ret = create_driver_list(filter);
+
+   if (ret == -1) {
+      *card = GFX_NONE;
+      return FALSE;
+   }
+
+   if (!driver_count) {
+      *card = GFX_NONE;
+      return TRUE;
+   }
 
    /* We try to use the values passed through the argument pointers
     * as initial settings for the dialog boxes, but only if we have

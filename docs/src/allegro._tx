@@ -13146,6 +13146,8 @@ ensure there is room for the check.
    user to select a screen mode and graphics card. Stores the selection in 
    the three variables, and returns zero if it was closed with the Cancel 
    button or non-zero if it was OK'd.
+   If an error occurred, `card' will be set to GFX_NONE and zero will be
+   returned.
 
    The initial values of card, w, h are not used.
 
@@ -13176,6 +13178,9 @@ ensure there is room for the check.
    This version of the function reads the initial values from the 
    parameters when it activates so you can specify the default values.
    In fact, you should be sure not to pass in uninitialised values.
+
+   If all the modes were filtered out and the resulting list was empty, `card'
+   will be set to GFX_NONE and non-zero will be returned.
 
 @@extern int (*@gui_shadow_box_proc)(int msg, struct DIALOG *d, int c);
 @@extern int (*@gui_ctext_proc)(int msg, struct DIALOG *d, int c);
