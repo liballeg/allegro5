@@ -85,8 +85,6 @@ static BOOL in_bundle(void)
 	NSFileManager* fm;
 	BOOL isDir;
 	
-	/* create mutex */
-	_al_mutex_init(&osx_event_mutex);
 	
 	if (in_bundle() == YES)   
 	{
@@ -94,7 +92,7 @@ static BOOL in_bundle(void)
 		* or to the 'magic' resource directory if it exists.
 		* (see the readme.osx file for more info)
 		*/
-		osx_bundle = [NSBundle mainBundle];
+		NSBundle* osx_bundle = [NSBundle mainBundle];
 		exename = [[osx_bundle executablePath] lastPathComponent];
 		resdir = [[osx_bundle resourcePath] stringByAppendingPathComponent: exename];
 		fm = [NSFileManager defaultManager];

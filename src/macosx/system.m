@@ -404,7 +404,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 		osx_sys_init, //ALLEGRO_SYSTEM *(*initialize)(int flags);
 		osx_get_display_driver,//ALLEGRO_DISPLAY_INTERFACE *(*get_display_driver)(void);
 		osx_get_keyboard_driver,//ALLEGRO_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
-		NULL,//ALLEGRO_MOUSE_DRIVER *(*get_mouse_driver)(void);
+		osx_get_mouse_driver,//ALLEGRO_MOUSE_DRIVER *(*get_mouse_driver)(void);
 		NULL,//int (*get_num_display_modes)(void);
 		NULL,//ALLEGRO_DISPLAY_MODE *(*get_display_mode)(int index, ALLEGRO_DISPLAY_MODE *mode);
 		osx_sys_exit,//void (*shutdown_system)(void);
