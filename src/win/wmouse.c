@@ -339,53 +339,53 @@ static void mouse_dinput_handle(void)
       for (i = 0; i < waiting_messages; i++) {
          mouse_dinput_handle_event(message_buffer[i].dwOfs,
                                    message_buffer[i].dwData);
-      }
 
-      if (gfx_driver && gfx_driver->windowed) {
-         /* windowed input mode */
-         if (!wnd_sysmenu) {
-            POINT p;
+         if (gfx_driver && gfx_driver->windowed) {
+            /* windowed input mode */
+            if (!wnd_sysmenu) {
+               POINT p;
 
-            READ_CURSOR_POS(p);
+               READ_CURSOR_POS(p);
 
-            mymickey_x += p.x - mymickey_ox;
-            mymickey_y += p.y - mymickey_oy;
+               mymickey_x += p.x - mymickey_ox;
+               mymickey_y += p.y - mymickey_oy;
 
-            mymickey_ox = p.x;
-            mymickey_oy = p.y;
+               mymickey_ox = p.x;
+               mymickey_oy = p.y;
+
+               _handle_mouse_input();
+            }
+         }
+         else {
+            /* fullscreen input mode */
+            mymickey_x += dinput_x - mymickey_ox;
+            mymickey_y += dinput_y - mymickey_oy;
+
+            mymickey_ox = dinput_x;
+            mymickey_oy = dinput_y;
+
+            _mouse_x = MICKEY_TO_COORD_X(mouse_mx + dinput_x);
+            _mouse_y = MICKEY_TO_COORD_Y(mouse_my + dinput_y);
+
+            if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx) ||
+                (_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {
+
+               _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
+               _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
+
+               mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
+               mouse_my = COORD_TO_MICKEY_Y(_mouse_y);
+
+               CLEAR_MICKEYS();
+            }
+
+            if (!_mouse_on) {
+               _mouse_on = TRUE;
+               wnd_schedule_proc(mouse_set_syscursor);
+            }
 
             _handle_mouse_input();
          }
-      }
-      else {
-         /* fullscreen input mode */
-         mymickey_x += dinput_x - mymickey_ox;
-         mymickey_y += dinput_y - mymickey_oy;
-
-         mymickey_ox = dinput_x;
-         mymickey_oy = dinput_y;
-
-         _mouse_x = MICKEY_TO_COORD_X(mouse_mx + dinput_x);
-         _mouse_y = MICKEY_TO_COORD_Y(mouse_my + dinput_y);
-
-         if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx) ||
-             (_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {
-
-            _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-            _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
-
-            mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
-            mouse_my = COORD_TO_MICKEY_Y(_mouse_y);
-
-            CLEAR_MICKEYS();
-         }
-
-         if (!_mouse_on) {
-            _mouse_on = TRUE;
-            wnd_schedule_proc(mouse_set_syscursor);
-         }
-
-         _handle_mouse_input();
       }
    }
 }
