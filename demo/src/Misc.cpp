@@ -56,14 +56,15 @@ static char* userResourcePath()
    return path;
 }
 #endif
-#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_MINGW32)
+#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_MINGW32) || defined(ALLEGRO_BCC32)
 static char* userResourcePath()
 {
    static char path[MAX_PATH];
 
-   int success = SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
-
-   if (success) {
+   //int success = SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
+   const char *e = getenv("APPDATA");
+   if (e) {
+      strcpy(path, e);
       if (path[strlen(path)-1] != '/') {
          strncat(path, "/a5teroids/", (sizeof(path)/sizeof(*path))-1);	
       }
@@ -71,9 +72,8 @@ static char* userResourcePath()
          strncat(path, "a5teroids/", (sizeof(path)/sizeof(*path))-1);
       }
    }
-   else {
+   else
       strcpy(path, "save/");
-   }
 
    return path;
 }

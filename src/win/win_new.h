@@ -11,13 +11,13 @@ struct ALLEGRO_SYSTEM_WIN
 	ALLEGRO_SYSTEM system; /* This must be the first member, we "derive" from it. */
 };
 
-ALLEGRO_SYSTEM_WIN *_al_win_system;
+AL_VAR(ALLEGRO_SYSTEM_WIN *, _al_win_system);
 
 void _al_win_delete_thread_handle(DWORD handle);
 
 HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int flags);
 int _al_win_init_window();
-void _al_win_ungrab_input();
+void _al_win_ungrab_input(void);
 HWND _al_win_create_hidden_window();
 
 AL_VAR(HWND, _al_win_wnd);

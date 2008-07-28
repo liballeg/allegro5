@@ -137,7 +137,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 #else /* not defined ALLEGRO_MINGW32 */
 
-#if defined ALLEGRO_MSVC
+#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_BCC32)
 
 #define THREAD_LOCAL __declspec(thread)
 #define HAVE_NATIVE_TLS
@@ -182,12 +182,12 @@ static thread_local_state* tls_get(void)
    return ptr;
 }
 
-#else /* not MSVC, not OSX */
+#else /* not MSVC/BCC32, not OSX */
 
 #define THREAD_LOCAL __thread
 #define HAVE_NATIVE_TLS
 
-#endif /* end not MSVC, not OSX */
+#endif /* end not MSVC/BCC32, not OSX */
 
 
 static THREAD_LOCAL thread_local_state _tls = {

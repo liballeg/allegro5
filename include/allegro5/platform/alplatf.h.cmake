@@ -5,5 +5,6 @@
 #cmakedefine ALLEGRO_CFG_D3D
 #cmakedefine ALLEGRO_CFG_OPENGL
 #cmakedefine ALLEGRO_MACOSX
+#cmakedefine ALLEGRO_BCC32
 
 #cmakedefine ALLEGRO_NO_ASM

@@ -26,7 +26,7 @@ int main(void)
    
    ALLEGRO_KBDSTATE state;
    
-   IDirect3DDevice9 *lpD3DD = al_d3d_get_device();
+   IDirect3DDevice9 *lpD3DD = al_d3d_get_device(display);
    
    lpD3DD->SetRenderState(D3DRS_AMBIENT, 0x11111111);   
    lpD3DD->SetRenderState(D3DRS_LIGHTING,false);         
@@ -84,4 +84,3 @@ int main(void)
    return 0;
 }
 END_OF_MAIN()
-

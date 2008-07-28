@@ -24,7 +24,9 @@
 #include "allegro5/internal/aintern_events.h"
 
 #ifndef ALLEGRO_MSVC
+#ifndef ALLEGRO_BCC32
    #include <sys/time.h>
+#endif
 #endif
 
 

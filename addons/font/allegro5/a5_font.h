@@ -1,7 +1,7 @@
 #ifndef A5FONT_H
 #define A5FONT_H
 
-#if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC)
+#if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
    #ifndef ALLEGRO_STATICLINK
       #ifdef A5_FONT_SRC
          #define _A5_FONT_DLL __declspec(dllexport)
@@ -27,6 +27,13 @@
    #define A5_FONT_METHOD(type, name, args)          type (*name) args
    #define A5_FONT_FUNCPTR(type, name, args)         extern _A5_FONT_DLL type (*name) args
    #define A5_FONT_PRINTFUNC(type, name, args, a, b) A5_FONT_FUNC(type, name, args) __attribute__ ((format (printf, a, b)))
+#elif defined ALLEGRO_BCC32
+   #define A5_FONT_VAR(type, name)             extern _A5_FONT_DLL type name
+   #define A5_FONT_ARRAY(type, name)           extern _A5_FONT_DLL type name[]
+   #define A5_FONT_FUNC(type, name, args)      extern _A5_FONT_DLL type name args
+   #define A5_FONT_METHOD(type, name, args)    type (*name) args
+   #define A5_FONT_FUNCPTR(type, name, args)   extern _A5_FONT_DLL type (*name) args
+   #define A5_FONT_PRINTFUNC(type, name, args, a, b)    A5_FONT_FUNC(type, name, args)
 #else
    #define A5_FONT_VAR       AL_VAR
    #define A5_FONT_ARRAY     AL_ARRAY

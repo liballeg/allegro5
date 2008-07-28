@@ -111,6 +111,8 @@ bool _al_init(void)
 
    _add_exit_func(_al_exit, "Old-API exit function for new API"); 
 
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
+
    return true;
 }
 

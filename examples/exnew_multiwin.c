@@ -51,8 +51,8 @@ int main(void)
             }
          }
          if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
-            ALLEGRO_DISPLAY_EVENT *display = &event.display;
-            al_acknowledge_resize(display->source);
+            ALLEGRO_DISPLAY_EVENT *de = &event.display;
+            al_acknowledge_resize(de->source);
          }
          if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
             int i;

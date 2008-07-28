@@ -16,9 +16,11 @@
  */
 
 
+/*
 #ifdef ALLEGRO_SRC
    #error Currently BCC32 cannot build the library
 #endif
+*/
 
 #ifndef SCAN_DEPEND
    #include <io.h>
@@ -50,29 +52,44 @@
 
 
 /* describe how function prototypes look to BCC32 */
-#if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)
+#if (defined ALLEGRO_STATICLINK)
    #define _AL_DLL
+#elif (defined ALLEGRO_SRC)
+   #define _AL_DLL   __declspec(dllexport)
 #else
    #define _AL_DLL   __declspec(dllimport)
 #endif
 
 #define AL_VAR(type, name)             extern _AL_DLL type name
 #define AL_ARRAY(type, name)           extern _AL_DLL type name[]
-#define AL_FUNC(type, name, args)      _AL_DLL type __cdecl name args
-#define AL_METHOD(type, name, args)    type (__cdecl *name) args
-#define AL_FUNCPTR(type, name, args)   extern _AL_DLL type (__cdecl *name) args
+#define AL_FUNC(type, name, args)      extern _AL_DLL type name args
+#define AL_METHOD(type, name, args)    type (*name) args
+#define AL_FUNCPTR(type, name, args)   extern _AL_DLL type (*name) args
 
 
 #define END_OF_INLINE(name)
-#define AL_INLINE(type, name, args, code)    extern __inline type __cdecl name args code END_OF_INLINE(name)
+//#define AL_INLINE(type, name, args, code)    extern __inline type name args code END_OF_INLINE(name)
 
 #define INLINE       __inline
+
+#undef AL_INLINE
+#undef AL_INLINE_STATIC
+
+#define AL_INLINE(type, name, args, code)        extern __inline type __cdecl name args code END_OF_INLINE(name)
+#define AL_INLINE_STATIC(type, name, args, code) static __inline type name args code END_OF_INLINE(name)
 
 #define LONG_LONG    __int64
 #define int64_t      signed __int64
 #define uint64_t     unsigned __int64
 
 #define AL_CONST     const
+
+#define __func__  "FIXME"
+
+#define _wfindfirst __wfindfirst
+#define _wfindnext __wfindnext
+
+#define WinMain _main
 
 /* windows specific defines */
 #ifdef NONAMELESSUNION

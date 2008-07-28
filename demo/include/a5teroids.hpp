@@ -21,13 +21,13 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <cstdio>
-#include <cstdarg>
-#include <cstring>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 #include <vector>
 #include <list>
-#include <cmath>
-#include <ctime>
+#include <math.h>
+#include <time.h>
 
 #include "Error.hpp"
 #include "Debug.hpp"

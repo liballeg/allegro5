@@ -14,6 +14,11 @@
 #
 #-----------------------------------------------------------------------------#
 
+cmake_minimum_required(VERSION 2.4)
+if(COMMAND cmake_policy)
+  cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
+
 option(USE_CXX "Build C++ portions." on)
 
 if(USE_CXX)
@@ -145,6 +150,10 @@ endif(UNIX)
 if(COMPILER_MSVC)
     set(ALLEGRO_MSVC 1)
 endif(COMPILER_MSVC)
+
+if(BORLAND)
+    set(ALLEGRO_BCC32 1)
+endif(BORLAND)
 
 # Begin tests.
 
@@ -688,6 +697,9 @@ if(GRADE_STANDARD)
     if(COMPILER_MSVC)
        	add_allegro_build(alleg "")
     endif(COMPILER_MSVC)
+    if(BORLAND)
+        add_allegro_build(alleg "")
+    endif(BORLAND)
 endif(GRADE_STANDARD)
 
 if(GRADE_DEBUG)
@@ -698,6 +710,9 @@ if(GRADE_DEBUG)
     if(COMPILER_MSVC)
        	add_allegro_build(allegd "-DDEBUGMODE")
     endif(COMPILER_MSVC)
+    if(BORLAND)
+        add_allegro_build(allegd "-DDEBUGMODE=1 -v")
+    endif(BORLAND)
 endif(GRADE_DEBUG)
 
 if(GRADE_PROFILE)

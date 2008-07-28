@@ -20,6 +20,7 @@ int main(void)
        allegro_message("mysha.pcx not found");
        return 1;
     }
+
     al_draw_bitmap(bitmap, 0, 0, 0);
     al_flip_display();
     al_rest(5.0);
