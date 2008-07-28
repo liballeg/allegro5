@@ -698,7 +698,7 @@ if(GRADE_STANDARD)
        	add_allegro_build(alleg "")
     endif(COMPILER_MSVC)
     if(BORLAND)
-        add_allegro_build(alleg "")
+        add_allegro_build(alleg "-O2")
     endif(BORLAND)
 endif(GRADE_STANDARD)
 

@@ -23,7 +23,6 @@
 #include "allegro5/internal/aintern_vector.h"
 
 
-
 static ALLEGRO_SYSTEM *active_sysdrv;
 
 _AL_VECTOR _al_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
@@ -92,6 +91,11 @@ bool _al_init(void)
       return true;
    }
 
+#ifdef ALLEGRO_BCC32
+   /* This supresses exceptions on floating point divide by zero */
+   _control87(MCW_EM, MCW_EM);
+#endif
+
    /* Register builtin system drivers */
    _al_register_system_interfaces();
 
@@ -112,6 +116,7 @@ bool _al_init(void)
    _add_exit_func(_al_exit, "Old-API exit function for new API"); 
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
+
 
    return true;
 }
