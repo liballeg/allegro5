@@ -61,10 +61,9 @@ static char* userResourcePath()
 {
    static char path[MAX_PATH];
 
-   //int success = SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
-   const char *e = getenv("APPDATA");
-   if (e) {
-      strcpy(path, e);
+   int success = SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
+
+   if (success) {
       if (path[strlen(path)-1] != '/') {
          strncat(path, "/a5teroids/", (sizeof(path)/sizeof(*path))-1);	
       }
