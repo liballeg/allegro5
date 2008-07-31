@@ -24,12 +24,94 @@
 
 #ifndef DEBUGMODE
 
-
 /* draw_scaled_memory workhorse */
-#define DO_DRAW_SCALED_FAST(bitmap,                                          \
+#define DO_DRAW_SCALED_FAST(src,                                             \
    sx, sy, sw, sh, ssize,                                                    \
    dx, dy, dw, dh, dsize,                                                    \
    flags, get, set, convert)                                                 \
+do {                                                                         \
+   ALLEGRO_BITMAP *dest = al_get_target_bitmap();                            \
+   ALLEGRO_LOCKED_REGION src_region;                                         \
+   ALLEGRO_LOCKED_REGION dst_region;                                         \
+                                                                             \
+   float sxinc;                                                              \
+   float syinc;                                                              \
+   float _sx;                                                                \
+   float _sy;                                                                \
+   float dxinc;                                                              \
+   float dyinc;                                                              \
+   float _dx;                                                                \
+   float _dy;                                                                \
+   int x, y;                                                                 \
+   int xend;                                                                 \
+   int yend;                                                                 \
+   ALLEGRO_COLOR src_color, result;                                          \
+   int pixel;                                                                \
+                                                                             \
+   if ((sw <= 0) || (sh <= 0))                                               \
+      return;                                                                \
+                                                                             \
+   /* Do clipping */                                                         \
+   dy = ((dy > dest->ct) ? dy : dest->ct);                                   \
+   dh = (((dy + dh) < dest->cb) ? (dy + dh) : dest->cb) - dy;                \
+                                                                             \
+   dx = ((dx > dest->cl) ? dx : dest->cl);                                   \
+   dw = (((dx + dw) < dest->cr) ? (dx + dw) : dest->cr) - dx;                \
+                                                                             \
+   if (dw == 0 || dh == 0)                                                   \
+   	return;                                                              \
+                                                                             \
+   if (!al_lock_bitmap(src, &src_region, ALLEGRO_LOCK_READONLY))             \
+      return;                                                                \
+                                                                             \
+   if (!al_lock_bitmap(dest, &dst_region, 0)) {                              \
+      al_unlock_bitmap(src);                                                 \
+      return;                                                                \
+   }                                                                         \
+                                                                             \
+   sxinc = fabs((float)sw / dw);                                             \
+   syinc = fabs((float)sh / dh);                                             \
+   dxinc = dw < 0 ? -1 : 1;                                                  \
+   dyinc = dh < 0 ? -1 : 1;                                                  \
+   _dy = dy;                                                                  \
+   xend = abs(dw);                                                           \
+   yend = abs(dh);                                                           \
+                                                                             \
+   if (flags & ALLEGRO_FLIP_HORIZONTAL) {                                    \
+   	sxinc = -sxinc;                                                      \
+	sx = sx + sw - 1;                                                         \
+   }                                                                         \
+                                                                             \
+   if (flags & ALLEGRO_FLIP_VERTICAL) {                                      \
+   	syinc = -syinc;                                                      \
+	_sy = sy + sh - 1;                                                        \
+   }                                                                         \
+   else                                                                      \
+   	_sy = sy;                                                             \
+                                                                             \
+   for (y = 0; y < yend; y++) {                                              \
+   	_sx = sx;                                                             \
+	_dx = dx;                                                             \
+   	for (x = 0; x < xend; x++) {                                         \
+		pixel = get((void *)(((char *)src_region.data) +             \
+		   src_region.pitch * (int)_sy + ssize * (int)_sx));                   \
+		pixel = convert(pixel);                                      \
+		set((void *)(((char *)dst_region.data) +                     \
+            		dst_region.pitch * (int)_dy + dsize * (int)_dx), pixel);       \
+		_sx += sxinc;                                                \
+		_dx += dxinc;                                                \
+	}                                                                    \
+	_sy += syinc;                                                        \
+	_dy += dyinc;                                                        \
+   }                                                                         \
+                                                                             \
+   al_unlock_bitmap(src);                                                    \
+   al_unlock_bitmap(dest);                                                   \
+} while (0);
+
+
+
+#if 0
 do {                                                                         \
    int x; /* current dst x */                                                \
    int y; /* current dst y */                                                \
@@ -181,6 +263,7 @@ do {                                                                         \
    al_unlock_bitmap(bitmap);                                                 \
    al_unlock_bitmap(dest);                                                   \
 } while (0)
+#endif
 
 /* draw_region_memory functions */
 #define REAL_DEFINE_DRAW_SCALED(get,                                         \
@@ -201,12 +284,12 @@ do {                                                                         \
    func15, macro15,                                                          \
    func16, macro16)                                                          \
                                                                              \
-static void func1(ALLEGRO_BITMAP *bitmap,                                    \
+static void func1(ALLEGRO_BITMAP *src,                                    \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -214,12 +297,12 @@ static void func1(ALLEGRO_BITMAP *bitmap,                                    \
       macro1);                                                               \
 }                                                                            \
                                                                              \
-static void func2(ALLEGRO_BITMAP *bitmap,                                    \
+static void func2(ALLEGRO_BITMAP *src,                                    \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -227,12 +310,12 @@ static void func2(ALLEGRO_BITMAP *bitmap,                                    \
       macro2);                                                               \
 }                                                                            \
                                                                              \
-static void func3(ALLEGRO_BITMAP *bitmap,                                    \
+static void func3(ALLEGRO_BITMAP *src,                                    \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -240,12 +323,12 @@ static void func3(ALLEGRO_BITMAP *bitmap,                                    \
       macro3);                                                               \
 }                                                                            \
                                                                              \
-static void func4(ALLEGRO_BITMAP *bitmap,                                    \
+static void func4(ALLEGRO_BITMAP *src,                                    \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -253,12 +336,12 @@ static void func4(ALLEGRO_BITMAP *bitmap,                                    \
       macro4);                                                               \
 }                                                                            \
                                                                              \
-static void func5(ALLEGRO_BITMAP *bitmap,                                    \
+static void func5(ALLEGRO_BITMAP *src,                                    \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -266,12 +349,12 @@ static void func5(ALLEGRO_BITMAP *bitmap,                                    \
       macro5);                                                               \
 }                                                                            \
                                                                              \
-static void func6(ALLEGRO_BITMAP *bitmap,                                    \
+static void func6(ALLEGRO_BITMAP *src,                                    \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -279,12 +362,12 @@ static void func6(ALLEGRO_BITMAP *bitmap,                                    \
       macro6);                                                               \
 }                                                                            \
                                                                              \
-static void func7(ALLEGRO_BITMAP *bitmap,                                    \
+static void func7(ALLEGRO_BITMAP *src,                                    \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -292,12 +375,12 @@ static void func7(ALLEGRO_BITMAP *bitmap,                                    \
       macro7);                                                               \
 }                                                                            \
                                                                              \
-static void func8(ALLEGRO_BITMAP *bitmap,                                    \
+static void func8(ALLEGRO_BITMAP *src,                                    \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -305,12 +388,12 @@ static void func8(ALLEGRO_BITMAP *bitmap,                                    \
       macro8);                                                               \
 }                                                                            \
                                                                              \
-static void func9(ALLEGRO_BITMAP *bitmap,                                    \
+static void func9(ALLEGRO_BITMAP *src,                                    \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -318,12 +401,12 @@ static void func9(ALLEGRO_BITMAP *bitmap,                                    \
       macro9);                                                               \
 }                                                                            \
                                                                              \
-static void func10 (ALLEGRO_BITMAP *bitmap,                                  \
+static void func10 (ALLEGRO_BITMAP *src,                                  \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -331,12 +414,12 @@ static void func10 (ALLEGRO_BITMAP *bitmap,                                  \
       macro10);                                                              \
 }                                                                            \
                                                                              \
-static void func11 (ALLEGRO_BITMAP *bitmap,                                  \
+static void func11 (ALLEGRO_BITMAP *src,                                  \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -344,12 +427,12 @@ static void func11 (ALLEGRO_BITMAP *bitmap,                                  \
       macro11);                                                              \
 }                                                                            \
                                                                              \
-static void func12 (ALLEGRO_BITMAP *bitmap,                                  \
+static void func12 (ALLEGRO_BITMAP *src,                                  \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -357,12 +440,12 @@ static void func12 (ALLEGRO_BITMAP *bitmap,                                  \
       macro12);                                                              \
 }                                                                            \
                                                                              \
-static void func13 (ALLEGRO_BITMAP *bitmap,                                  \
+static void func13 (ALLEGRO_BITMAP *src,                                  \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -370,12 +453,12 @@ static void func13 (ALLEGRO_BITMAP *bitmap,                                  \
       macro13);                                                              \
 }                                                                            \
                                                                              \
-static void func14(ALLEGRO_BITMAP *bitmap,                                   \
+static void func14(ALLEGRO_BITMAP *src,                                   \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -383,12 +466,12 @@ static void func14(ALLEGRO_BITMAP *bitmap,                                   \
       macro14);                                                              \
 }                                                                            \
                                                                              \
-static void func15(ALLEGRO_BITMAP *bitmap,                                   \
+static void func15(ALLEGRO_BITMAP *src,                                   \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
@@ -396,12 +479,12 @@ static void func15(ALLEGRO_BITMAP *bitmap,                                   \
       macro15);                                                              \
 }                                                                            \
                                                                              \
-static void func16(ALLEGRO_BITMAP *bitmap,                                   \
+static void func16(ALLEGRO_BITMAP *src,                                   \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
 {                                                                            \
-   DO_DRAW_SCALED_FAST(bitmap,                                               \
+   DO_DRAW_SCALED_FAST(src,                                               \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
