@@ -710,8 +710,6 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
 
 void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 {
-   unsigned int i;
-
    if (!d3d_bitmaps_prepared_for_reset) {
       _al_d3d_prepare_bitmaps_for_reset(disp);
       d3d_bitmaps_prepared_for_reset = true;
