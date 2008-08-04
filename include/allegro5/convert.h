@@ -161,7 +161,7 @@
 	(((p & 0x00FFFFFF) << 8) | 0xFF)
 
 #define ALLEGRO_CONVERT_ARGB_8888_TO_XRGB_8888(p) \
-	(p)
+	(p | 0xFF000000)
 
 /* RGBA_8888 */
 
@@ -1578,7 +1578,7 @@
 /* XRGB_8888 */
 
 #define ALLEGRO_CONVERT_XRGB_8888_TO_ARGB_8888(p) \
-	(p & 0xFF000000)
+	(p | 0xFF000000)
 
 #define ALLEGRO_CONVERT_XRGB_8888_TO_RGBA_8888(p) \
 	((p << 8) | 0xFF)
