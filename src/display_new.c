@@ -532,3 +532,30 @@ void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d) {
       al_destroy_bitmap(b);
    }
 }
+
+
+// FIXME: document
+int al_get_num_video_adapters(void)
+{
+	ALLEGRO_SYSTEM *system = al_system_driver();
+
+	if (system && system->vt && system->vt->get_num_video_adapters) {
+		return system->vt->get_num_video_adapters();
+	}
+
+	return 0;
+}
+
+// FIXME: document
+void al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+{
+	ALLEGRO_SYSTEM *system = al_system_driver();
+
+	if (system && system->vt && system->vt->get_monitor_info) {
+		system->vt->get_monitor_info(adapter, info);
+	}
+	else {
+		info->x1 = info->y1 = info->x2 = info->y2 = -1;
+	}
+}
+

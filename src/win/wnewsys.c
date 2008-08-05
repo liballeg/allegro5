@@ -167,6 +167,46 @@ ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode
    return NULL;
 }
 
+int win_get_num_video_adapters(void)
+{
+   int flags = al_get_new_display_flags();
+
+   if (flags & ALLEGRO_DIRECT3D) {
+#if defined ALLEGRO_CFG_D3D
+      return _al_d3d_get_num_video_adapters();
+#endif
+   }
+
+/* FIXME:
+   if (flags & ALLEGRO_OPENGL) {
+#if defined ALLEGRO_CFG_OPENGL
+      return _al_wgl_get_num_video_adapters();
+#endif
+   }
+*/
+
+   return 0;
+}
+
+void win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+{
+   int flags = al_get_new_display_flags();
+
+   if (flags & ALLEGRO_DIRECT3D) {
+#if defined ALLEGRO_CFG_D3D
+      _al_d3d_get_monitor_info(adapter, info);
+#endif
+   }
+
+/* FIXME:
+   if (flags & ALLEGRO_OPENGL) {
+#if defined ALLEGRO_CFG_OPENGL
+      _al_wgl_get_monitor_info(adapter, info);
+#endif
+   }
+*/
+}
+
 ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
@@ -180,6 +220,13 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_num_display_modes = win_get_num_display_modes;
    vt->get_display_mode = win_get_display_mode;
    vt->shutdown_system = win_shutdown;
+   vt->get_num_video_adapters = win_get_num_video_adapters;
+   vt->get_monitor_info = win_get_monitor_info;
+
+   /* The D3D driver is the default */
+   int flags = al_get_new_display_flags();
+   flags |= ALLEGRO_DIRECT3D;
+   al_set_new_display_flags(flags);
 
    TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
 

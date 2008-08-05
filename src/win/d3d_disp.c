@@ -356,7 +356,7 @@ static bool d3d_display_mode_matches(D3DDISPLAYMODE *dm, int w, int h, int forma
    if ((dm->Width == (unsigned int)w) &&
        (dm->Height == (unsigned int)h) &&
        ((!refresh_rate) || (dm->RefreshRate == (unsigned int)refresh_rate)) &&
-       (dm->Format == _al_format_to_d3d(format))) {
+       ((int)dm->Format == (int)_al_format_to_d3d(format))) {
           return true;
    }
    return false;
@@ -2049,4 +2049,31 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
 
    return mode;
 }
+
+
+int _al_d3d_get_num_video_adapters(void)
+{
+	return IDirect3D9_GetAdapterCount(_al_d3d);
+}
+
+void _al_d3d_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+{
+	HMONITOR mon = IDirect3D9_GetAdapterMonitor(_al_d3d, adapter);
+	MONITORINFO mi;
+
+	if (!mon) {
+		info->x1 = info->y1 = info->x2 = info->y2 = -1;
+	}
+	else {
+		mi.cbSize = sizeof(mi);
+		GetMonitorInfo(mon, &mi);
+		info->x1 = mi.rcMonitor.left;
+		info->y1 = mi.rcMonitor.top;
+		info->x2 = mi.rcMonitor.right;
+		info->y2 = mi.rcMonitor.bottom;
+	}
+	
+
+}
+
 

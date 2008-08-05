@@ -20,6 +20,8 @@ struct ALLEGRO_SYSTEM_INTERFACE
    int (*get_num_display_modes)(void);
    ALLEGRO_DISPLAY_MODE *(*get_display_mode)(int index, ALLEGRO_DISPLAY_MODE *mode);
    void (*shutdown_system)(void);
+   int (*get_num_video_adapters)(void);
+   void (*get_monitor_info)(int adapter, ALLEGRO_MONITOR_INFO *info);
 };
 
 struct ALLEGRO_SYSTEM

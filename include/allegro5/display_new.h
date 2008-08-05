@@ -44,6 +44,16 @@ typedef struct ALLEGRO_DISPLAY_MODE
    int refresh_rate;
 } ALLEGRO_DISPLAY_MODE;
 
+
+// FIXME: document
+typedef struct ALLEGRO_MONITOR_INFO
+{
+   int x1;
+   int y1;
+   int x2;
+   int y2;
+} ALLEGRO_MONITOR_INFO;
+
 AL_FUNC(void, al_set_new_display_format, (int format));
 AL_FUNC(void, al_set_new_display_refresh_rate, (int refresh_rate));
 AL_FUNC(void, al_set_new_display_flags, (int flags));
@@ -89,6 +99,9 @@ AL_FUNC(void, al_draw_rectangle, (float tlx, float tly, float brx, float bry,
 AL_FUNC(void, al_draw_pixel, (float x, float y, ALLEGRO_COLOR color));
 
 AL_FUNC(void, al_set_display_icon, (ALLEGRO_BITMAP *icon));
+
+AL_FUNC(int, al_get_num_video_adapters, (void));
+AL_FUNC(void, al_get_monitor_info, (int adapter, ALLEGRO_MONITOR_INFO *info));
 
 #ifdef __cplusplus
    }

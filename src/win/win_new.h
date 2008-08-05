@@ -33,8 +33,10 @@ AL_FUNC(int, _al_d3d_get_num_display_modes,
 AL_FUNC(ALLEGRO_DISPLAY_MODE *, _al_d3d_get_display_mode,
    (int index, int format, int refresh_rate, int flags, ALLEGRO_DISPLAY_MODE *mode));
 
-ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void);
+AL_FUNC(ALLEGRO_DISPLAY_INTERFACE *, _al_display_d3d_driver, (void));
 AL_FUNC(bool, _al_d3d_init_display, ());
+AL_FUNC(int, _al_d3d_get_num_video_adapters, (void));
+AL_FUNC(void, _al_d3d_get_monitor_info, (int adapter, ALLEGRO_MONITOR_INFO *info));
 
 #endif /*  defined ALLEGRO_CFG_D3D */
 
