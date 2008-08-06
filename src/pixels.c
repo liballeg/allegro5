@@ -50,14 +50,14 @@ void _al_generate_integer_unmap_table(void)
 static int pixel_sizes[] = {
    0,
    0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
+   2,
+   2,
+   2,
+   2,
+   3,
+   3,
+   4,
+   4,
    4,
    4,
    2,
@@ -79,14 +79,14 @@ static int pixel_sizes[] = {
 static int pixel_bits[] = {
    0,
    0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
+   15,
+   15,
+   16,
+   16,
+   24,
+   24,
+   32,
+   32,
    32,
    32,
    16,
@@ -186,6 +186,32 @@ bool _al_pixel_format_is_real(int format)
    ASSERT(format < ALLEGRO_NUM_PIXEL_FORMATS);
 
    return format_is_real[format];
+}
+
+/* Returns true if real format1 fits into format2. */
+bool _al_pixel_format_fits(int format1, int format2)
+{
+   ASSERT(format1 >= 0);
+   ASSERT(format1 < ALLEGRO_NUM_PIXEL_FORMATS);
+   ASSERT(format_is_real[format1]);
+   ASSERT(format2 >= 0);
+   ASSERT(format2 < ALLEGRO_NUM_PIXEL_FORMATS);
+
+   if (format1 == format2)
+      return true;
+
+   if (format_alpha_table[format1] && format2 == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA)
+      return true;
+
+   if (!format_alpha_table[format1] && format2 == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
+      return true;
+
+   if (pixel_sizes[format1] == pixel_sizes[format2]
+   && format_alpha_table[format1] == format_alpha_table[format2]
+   && !format_is_real[format2])
+      return true;
+
+   return false;
 }
 
 

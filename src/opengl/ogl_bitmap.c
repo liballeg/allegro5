@@ -480,11 +480,11 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    /* FIXME: do this right */
    if (! _al_pixel_format_is_real(format)) {
-      format = d->format;
-      //if (_al_format_has_alpha(format))
-      //   format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-      //else
-      //   format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
+      //format = d->format;
+      if (_al_format_has_alpha(format))
+         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+      else
+         format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
    }
 
    pitch = true_w * al_get_pixel_size(format);

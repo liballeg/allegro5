@@ -284,10 +284,9 @@ static int get_pixel_formats_count_ext(HDC dc) {
 static void deduce_color_format(OGL_PIXEL_FORMAT *pf)
 {
    /* FIXME: complete this with all formats */
-   /* FIXME: how to detect XRGB formats? */
    /* XXX REVEIW: someone check this!!! */
    if (pf->r_size == 8 && pf->g_size == 8 && pf->b_size == 8) {
-      if (pf->a_size == 8) {
+      if (pf->a_size == 8 && pf->color_size == 32) {
          if (pf->a_shift == 0 && pf->b_shift == 8 && pf->g_shift == 16 && pf->r_shift == 24) {
             pf->format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
          }
@@ -298,12 +297,20 @@ static void deduce_color_format(OGL_PIXEL_FORMAT *pf)
             pf->format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
          }
       }
-      else if (pf->a_size == 0) {
+      else if (pf->a_size == 0 && pf->color_size == 24) {
          if (pf->b_shift == 0 && pf->g_shift == 8 && pf->r_shift == 16) {
             pf->format = ALLEGRO_PIXEL_FORMAT_RGB_888;
          }
          else if (pf->r_shift == 0 && pf->g_shift == 8 && pf->b_shift == 16) {
             pf->format = ALLEGRO_PIXEL_FORMAT_BGR_888;
+         }
+      }
+      else if (pf->a_size == 0 && pf->color_size == 32) {
+         if (pf->b_shift == 0 && pf->g_shift == 8 && pf->r_shift == 16) {
+            pf->format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
+         }
+         else if (pf->r_shift == 0 && pf->g_shift == 8 && pf->b_shift == 16) {
+            pf->format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
          }
       }
    }
@@ -375,6 +382,7 @@ static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd, OGL_PIXEL_FORMAT 
    pf->doublebuffered = pfd->dwFlags & PFD_DOUBLEBUFFER;
    pf->depth_size = pfd->cDepthBits;
    pf->stencil_size = pfd->cStencilBits;
+   pf->color_size = pfd->cColorBits;
 
    /* These are the component shifts. */
    pf->r_shift = pfd->cRedShift;
@@ -499,6 +507,9 @@ static bool decode_pixel_format_attrib(OGL_PIXEL_FORMAT *pf, int num_attribs,
 
       else if (attrib[i] == WGL_DEPTH_BITS_ARB) {
          pf->depth_size = value[i];
+      }
+      else if (attrib[i] == WGL_COLOR_BITS_ARB) {
+         pf->color_size = value[i];
       }
       /* Multisampling bits */
       else if (attrib[i] == WGL_SAMPLE_BUFFERS_ARB) {
@@ -637,10 +648,13 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
    DEVMODE fallback_dm;
    int i, modeswitch, result;
    int fallback_dm_valid = 0;
+   int bpp;
 
    memset(&fallback_dm, 0, sizeof(fallback_dm));
    memset(&dm, 0, sizeof(dm));
    dm.dmSize = sizeof(DEVMODE);
+
+   bpp = _al_get_pixel_format_bits(d->format);
 
    i = 0;
    do {
@@ -650,7 +664,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
 
       if ((dm.dmPelsWidth  == (unsigned) d->w)
        && (dm.dmPelsHeight == (unsigned) d->h)
-       && (dm.dmBitsPerPel == 32) /* FIXME */
+       && (dm.dmBitsPerPel == bpp)
        && (dm.dmDisplayFrequency != (unsigned) d->refresh_rate)) {
          /* Keep it as fallback if refresh rate request could not
           * be satisfied. Try to get as close to 60Hz as possible though,
@@ -671,7 +685,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
    }
    while ((dm.dmPelsWidth  != (unsigned) d->w)
        || (dm.dmPelsHeight != (unsigned) d->h)
-       || (dm.dmBitsPerPel != 32) /* FIXME */
+       || (dm.dmBitsPerPel != bpp)
        || (dm.dmDisplayFrequency != (unsigned) d->refresh_rate));
 
    if (!modeswitch && !fallback_dm_valid) {
@@ -842,7 +856,13 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
    for (i = 1; i <= maxindex; i++) {
       OGL_PIXEL_FORMAT *pf = pf_list[i-1];
       /* TODO: implement a choice system (scoring?) */
-      if (pf && pf->doublebuffered && pf->format == format) {
+      if (pf
+         && pf->doublebuffered
+         && pf->rmethod
+         && _al_pixel_format_fits(pf->format, format)
+         && pf->float_color == 0
+         && pf->float_depth == 0
+         && pf->sample_buffers == 0) {
          if (try_to_set_pixel_format(i)) {
             PIXELFORMATDESCRIPTOR pdf;
             TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", i);
@@ -914,8 +934,7 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    memset(display, 0, sizeof *wgl_display);
    display->w = w;
    display->h = h;
-   //FIXME
-   display->format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;//al_get_new_display_format();
+   display->format = al_get_new_display_format();
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
    display->vt = vt;

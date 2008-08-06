@@ -115,6 +115,7 @@ int _al_get_compat_bitmap_format(BITMAP *bmp);
 bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);
 int _al_get_pixel_format_bits(int format);
+bool _al_pixel_format_fits(int format1, int format2);
 
 /* Memory bitmap blitting */
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,

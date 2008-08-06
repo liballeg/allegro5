@@ -44,6 +44,7 @@ typedef struct OGL_PIXEL_FORMAT {
    int stencil_size;
    int r_shift, g_shift, b_shift, a_shift;
    int r_size, g_size, b_size, a_size;
+   int color_size;
    int fullscreen;
    int sample_buffers;
    int samples;

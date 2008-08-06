@@ -53,9 +53,8 @@ bool logic(int step)
          return false;
    }
 
-   std::list<Entity *>::iterator it;
-
-   for (it = entities.begin(); it != entities.end(); it++) {
+   std::list<Entity *>::iterator it = entities.begin();
+   while (it != entities.end()) {
       Entity *e = *it;
       if (!e->logic(step)) {
          if (e->isUFO()) {
@@ -65,6 +64,8 @@ bool logic(int step)
          delete e;
          it = entities.erase(it);
       }
+      else
+         it++;
    }
 
    for (it = new_entities.begin(); it != new_entities.end(); it++) {

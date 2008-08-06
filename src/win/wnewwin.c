@@ -168,7 +168,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    ALLEGRO_EVENT_SOURCE *es = NULL;
    RECT pos;
    ALLEGRO_SYSTEM *system = al_system_driver();
-   WIN_WINDOW *win;
+   WIN_WINDOW *win = NULL;
 
    if (message == _al_win_msg_call_proc) {
       return ((int (*)(void))wParam) ();
@@ -193,7 +193,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    found:
 
    if (message == _al_win_msg_suicide) {
-      _AL_FREE(win);
+      if (win)
+         _AL_FREE(win);
       _al_vector_find_and_delete(&win_window_list, &win);
       //SendMessage(_al_win_compat_wnd, _al_win_msg_suicide, 0, 0);
       DestroyWindow(hWnd);
