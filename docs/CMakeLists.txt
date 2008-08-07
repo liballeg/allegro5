@@ -108,18 +108,24 @@ add_build_document(qnx)
 add_build_document(unix)
 add_build_document(watcom)
 
-macro(pandoc source output)
+#-----------------------------------------------------------------------------#
+
+macro(pandoc source output) # extraargs...
     set(abs_source ${CMAKE_CURRENT_SOURCE_DIR}/${source})
     set(abs_output ${CMAKE_CURRENT_BINARY_DIR}/${output})
 
     list(APPEND all_docs ${abs_output})
     add_custom_command(
         OUTPUT  ${abs_output}
-        COMMAND ${PANDOC} ${abs_source} --standalone -o ${abs_output}
+        COMMAND ${PANDOC} ${abs_source} --toc --standalone ${ARGN}
+                -o ${abs_output}
         DEPENDS ${abs_source}
         )
 endmacro(pandoc source output)
 
+# We can actually produce nicer plain text output by generating Texinfo
+# then calling makeinfo --plaintext.  But the current release (pandoc-0.46)
+# doesn't yet include a Texinfo backend so for now we use links -dump.
 macro(links source output)
     # The source file is a generated HTML file.
     set(abs_source ${CMAKE_CURRENT_BINARY_DIR}/${source})
@@ -133,16 +139,25 @@ macro(links source output)
         )
 endmacro(links source output)
 
-macro(add_pandoc_document n)
-    if(PANDOC)
-        pandoc(src/${n}.txt html/${n}.html)
-        if(LINKS)
-            links(html/${n}.html txt/${n}.txt)
-        endif(LINKS)
-    endif(PANDOC)
-endmacro(add_pandoc_document)
+if(PANDOC)
+    pandoc(
+        src/changes-4.9.txt
+        html/changes-4.9.html
+        -c pandoc.css
+    )
+    if(LINKS)
+        links(
+            html/changes-4.9.html
+            txt/changes-4.9.txt
+        )
+    endif(LINKS)
 
-add_pandoc_document(changes-4.9)
+    pandoc(
+        src/refman/threads.txt
+        html/refman/threads.html
+        -c pandoc.css
+    )
+endif(PANDOC)
 
 add_custom_target(docs
     ALL
@@ -151,8 +166,7 @@ add_custom_target(docs
 
 #-----------------------------------------------------------------------------#
 
-    # Recreate directory structure for out-of-source builds.
-    #
+# Recreate directory structure for out-of-source builds.
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/build)
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/html/build)
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/info)
@@ -160,6 +174,16 @@ make_directory(${CMAKE_CURRENT_BINARY_DIR}/man)
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/rtf)
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/texi)
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/txt)
+
+make_directory(${CMAKE_CURRENT_BINARY_DIR}/html/refman)
+
+# Copy CSS files.
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/pandoc.css
+    ${CMAKE_CURRENT_BINARY_DIR}/html/pandoc.css COPYONLY)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/pandoc.css
+    ${CMAKE_CURRENT_BINARY_DIR}/html/refman/pandoc.css COPYONLY)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
