@@ -480,11 +480,26 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    /* FIXME: do this right */
    if (! _al_pixel_format_is_real(format)) {
-      //format = d->format;
-      if (_al_format_has_alpha(format))
-         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-      else
+      if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
          format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA)
+         return NULL;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_BGR_565;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_BGR_888;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA)
+         return NULL;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_RGBA_5551;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA)
+         return NULL;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
    }
 
    pitch = true_w * al_get_pixel_size(format);
