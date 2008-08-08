@@ -53,6 +53,9 @@ typedef struct thread_local_state {
    int blend_dest;
    ALLEGRO_COLOR blend_color;
    ALLEGRO_MEMORY_BLENDER memory_blender;
+   int src_blender_backup;
+   int dst_blender_backup;
+   ALLEGRO_COLOR blend_color_backup;
 } thread_local_state;
 
 
@@ -204,7 +207,10 @@ static THREAD_LOCAL thread_local_state _tls = {
    ALLEGRO_ALPHA,
    ALLEGRO_INVERSE_ALPHA,
    { 1.0f, 1.0f, 1.0f, 1.0f },
-   _al_blender_alpha_inverse_alpha
+   _al_blender_alpha_inverse_alpha,
+   0,
+   0,
+   { 1.0f, 1.0f, 1.0f, 1.0f }
 };
 
 
@@ -414,6 +420,35 @@ void _al_pop_target_bitmap(void)
       return;
    tls->target_bitmap = tls->target_bitmap_backup;
    al_set_target_bitmap(tls->target_bitmap);
+}
+
+
+
+void _al_push_blender(void)
+{
+   int src, dst;
+   ALLEGRO_COLOR color;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+
+   al_get_blender(
+      &tls->src_blender_backup,
+      &tls->dst_blender_backup,
+      &tls->blend_color_backup);
+}
+
+
+
+void _al_pop_blender(void)
+{
+   if ((tls = tls_get()) == NULL)
+      return;
+
+   al_set_blender(
+      tls->src_blender_backup,
+      tls->dst_blender_backup,
+      tls->blend_color_backup);
 }
 
 

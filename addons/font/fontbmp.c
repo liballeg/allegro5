@@ -227,7 +227,13 @@ A5FONT_FONT *a5font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
       return 0;
 
    al_set_target_bitmap(cf->glyphs);
+
+   _al_push_blender();
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
+
    al_draw_bitmap(bmp, 0, 0, 0);
+
+   _al_pop_blender();
 
    _al_pop_target_bitmap();
    _al_pop_new_bitmap_parameters();

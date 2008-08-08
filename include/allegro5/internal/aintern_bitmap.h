@@ -183,6 +183,9 @@ void _al_blender_inverse_alpha_one(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_
 void _al_blender_inverse_alpha_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 void _al_blender_inverse_alpha_inverse_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 
+void _al_push_blender(void);
+void _al_pop_blender(void);
+
 #ifdef __cplusplus
 }
 #endif
