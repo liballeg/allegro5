@@ -302,7 +302,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 
 
 
-static void xdpy_set_current_display(ALLEGRO_DISPLAY *d)
+static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
@@ -312,14 +312,18 @@ static void xdpy_set_current_display(ALLEGRO_DISPLAY *d)
     * thread.
     */
    if (glx->fbc) {
-      glXMakeContextCurrent(system->xdisplay, glx->glxwindow, glx->glxwindow,
-         glx->context);
+      if (!glXMakeContextCurrent(system->xdisplay, glx->glxwindow,
+                                glx->glxwindow, glx->context))
+         return false;
    }
    else {
-      glXMakeCurrent(system->xdisplay, glx->glxwindow, glx->context);
+      if (!glXMakeCurrent(system->xdisplay, glx->glxwindow, glx->context))
+         return false;
    }
 
    _al_ogl_set_extensions(ogl->extension_api);
+
+   return true;
 }
 
 
