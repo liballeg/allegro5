@@ -91,17 +91,17 @@ ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
    int flags = al_get_new_display_flags();
 
-   if (flags & ALLEGRO_DIRECT3D) {
-#if defined ALLEGRO_CFG_D3D
-      return _al_display_d3d_driver();
-#endif
-   }
-
    if (flags & ALLEGRO_OPENGL) {
 #if defined ALLEGRO_CFG_OPENGL
       return _al_display_wgl_driver();
 #endif
    }
+   else {
+#if defined ALLEGRO_CFG_D3D
+      return _al_display_d3d_driver();
+#endif
+   }
+
 
    /* FIXME: should default be set in the flags? */
 #if defined ALLEGRO_CFG_D3D
@@ -128,17 +128,17 @@ int win_get_num_display_modes(void)
    if (!(flags & ALLEGRO_FULLSCREEN))
       return -1;
 
-   if (flags & ALLEGRO_DIRECT3D) {
-#if defined ALLEGRO_CFG_D3D
-      return _al_d3d_get_num_display_modes(format, refresh_rate, flags);
-#endif
-   }
-
    if (flags & ALLEGRO_OPENGL) {
 #if defined ALLEGRO_CFG_OPENGL
       return _al_wgl_get_num_display_modes(format, refresh_rate, flags);
 #endif
    }
+   else {
+#if defined ALLEGRO_CFG_D3D
+      return _al_d3d_get_num_display_modes(format, refresh_rate, flags);
+#endif
+   }
+
 
    return 0;
 }
@@ -152,17 +152,17 @@ ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode
    if (!(flags & ALLEGRO_FULLSCREEN))
       return NULL;
 
-   if (flags & ALLEGRO_DIRECT3D) {
-#if defined ALLEGRO_CFG_D3D
-      return _al_d3d_get_display_mode(index, format, refresh_rate, flags, mode);
-#endif
-   }
-
    if (flags & ALLEGRO_OPENGL) {
 #if defined ALLEGRO_CFG_OPENGL
       return _al_wgl_get_display_mode(index, format, refresh_rate, flags, mode);
 #endif
    }
+   else {
+#if defined ALLEGRO_CFG_D3D
+      return _al_d3d_get_display_mode(index, format, refresh_rate, flags, mode);
+#endif
+   }
+
 
    return NULL;
 }
@@ -171,11 +171,9 @@ int win_get_num_video_adapters(void)
 {
    int flags = al_get_new_display_flags();
 
-   if (flags & ALLEGRO_DIRECT3D) {
 #if defined ALLEGRO_CFG_D3D
       return _al_d3d_get_num_video_adapters();
 #endif
-   }
 
 /* FIXME:
    if (flags & ALLEGRO_OPENGL) {
@@ -192,11 +190,9 @@ void win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    int flags = al_get_new_display_flags();
 
-   if (flags & ALLEGRO_DIRECT3D) {
 #if defined ALLEGRO_CFG_D3D
       _al_d3d_get_monitor_info(adapter, info);
 #endif
-   }
 
 /* FIXME:
    if (flags & ALLEGRO_OPENGL) {
@@ -222,11 +218,6 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->shutdown_system = win_shutdown;
    vt->get_num_video_adapters = win_get_num_video_adapters;
    vt->get_monitor_info = win_get_monitor_info;
-
-   /* The D3D driver is the default */
-   int flags = al_get_new_display_flags();
-   flags |= ALLEGRO_DIRECT3D;
-   al_set_new_display_flags(flags);
 
    TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
 

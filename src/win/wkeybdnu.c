@@ -23,7 +23,7 @@
 
 #define ALLEGRO_NO_COMPATIBILITY
 
-#define DIRECTINPUT_VERSION 0x0300
+#define DIRECTINPUT_VERSION 0x0800
 
 /* For waitable timers */
 #define _WIN32_WINNT 0x400
@@ -49,8 +49,8 @@
 
 
 
-static LPDIRECTINPUT key_dinput;
-static LPDIRECTINPUTDEVICE key_dinput_device;
+static LPDIRECTINPUT8 key_dinput;
+static LPDIRECTINPUTDEVICE8 key_dinput_device;
 static HANDLE key_input_event;
 static HANDLE key_autorepeat_timer;
 static LARGE_INTEGER repeat_delay;
@@ -296,7 +296,7 @@ static void key_dinput_handle(void)
    waiting_scancodes = DINPUT_BUFFERSIZE;
 
    /* fill the buffer */
-   hr = IDirectInputDevice_GetDeviceData(key_dinput_device,
+   hr = IDirectInputDevice8_GetDeviceData(key_dinput_device,
                                          sizeof(DIDEVICEOBJECTDATA),
                                          scancode_buffer,
                                          (unsigned long int *)&waiting_scancodes,
@@ -376,7 +376,7 @@ int key_dinput_acquire(void)
    if (key_dinput_device) {
       get_autorepeat_parameters();
  
-      hr = IDirectInputDevice_Acquire(key_dinput_device);
+      hr = IDirectInputDevice8_Acquire(key_dinput_device);
 
       if (FAILED(hr)) {
          _TRACE(PREFIX_E "acquire keyboard failed: %s\n", dinput_err_str(hr));
@@ -402,7 +402,7 @@ int key_dinput_unacquire(void)
    int key;
 
    if (key_dinput_device) {
-      IDirectInputDevice_Unacquire(key_dinput_device);
+      IDirectInputDevice8_Unacquire(key_dinput_device);
 
       /* release all keys */
       for (key=0; key<256; key++)
@@ -431,13 +431,13 @@ static int key_dinput_exit(void)
       wnd_call_proc(key_dinput_unacquire);
 
       /* now it can be released */
-      IDirectInputDevice_Release(key_dinput_device);
+      IDirectInputDevice8_Release(key_dinput_device);
       key_dinput_device = NULL;
    }
 
    /* release DirectInput interface */
    if (key_dinput) {
-      IDirectInput_Release(key_dinput);
+      IDirectInput8_Release(key_dinput);
       key_dinput = NULL;
    }
 
@@ -479,30 +479,30 @@ static int key_dinput_init(void)
    };
 
    /* Get DirectInput interface */
-   hr = DirectInputCreate(allegro_inst, DIRECTINPUT_VERSION, &key_dinput, NULL);
+   hr = DirectInput8Create(allegro_inst, DIRECTINPUT_VERSION, &IID_IDirectInput8A, &key_dinput, NULL);
    if (FAILED(hr)) {
       TRACE("DirectInputCreate failed.\n");
       goto Error;
    }
 
    /* Create the keyboard device */
-   hr = IDirectInput_CreateDevice(key_dinput, &GUID_SysKeyboard, &key_dinput_device, NULL);
+   hr = IDirectInput8_CreateDevice(key_dinput, &GUID_SysKeyboard, &key_dinput_device, NULL);
    if (FAILED(hr)) {
-      TRACE("IDirectInput_CreateDevice failed.\n");
+      TRACE("IDirectInput8_CreateDevice failed.\n");
       goto Error;
    }
 
    /* Set data format */
-   hr = IDirectInputDevice_SetDataFormat(key_dinput_device, &c_dfDIKeyboard);
+   hr = IDirectInputDevice8_SetDataFormat(key_dinput_device, &c_dfDIKeyboard);
    if (FAILED(hr)) {
-      TRACE("IDirectInputDevice_SetDataFormat failed.\n");
+      TRACE("IDirectInputDevice8_SetDataFormat failed.\n");
       goto Error;
    }
 
    /* Set buffer size */
-   hr = IDirectInputDevice_SetProperty(key_dinput_device, DIPROP_BUFFERSIZE, &property_buf_size.diph);
+   hr = IDirectInputDevice8_SetProperty(key_dinput_device, DIPROP_BUFFERSIZE, &property_buf_size.diph);
    if (FAILED(hr)) {
-      TRACE("IDirectInputDevice_SetProperty failed.\n");
+      TRACE("IDirectInputDevice8_SetProperty failed.\n");
       goto Error;
    }
 
@@ -512,9 +512,9 @@ static int key_dinput_init(void)
 
    /* Enable event notification */
    key_input_event = CreateEvent(NULL, FALSE, FALSE, NULL);
-   hr = IDirectInputDevice_SetEventNotification(key_dinput_device, key_input_event);
+   hr = IDirectInputDevice8_SetEventNotification(key_dinput_device, key_input_event);
    if (FAILED(hr)) {
-      TRACE("IDirectInputDevice_SetEventNotification failed.\n");
+      TRACE("IDirectInputDevice8_SetEventNotification failed.\n");
       goto Error;
    }
 
@@ -830,9 +830,9 @@ static void handle_key_release(unsigned char scancode)
 int key_dinput_set_cooperative_level(HWND wnd)
 {
    /* Set cooperative level */
-   HRESULT hr = IDirectInputDevice_SetCooperativeLevel(key_dinput_device, wnd, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
+   HRESULT hr = IDirectInputDevice8_SetCooperativeLevel(key_dinput_device, wnd, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
    if (FAILED(hr)) {
-      TRACE("IDirectInputDevice_SetCooperativeLevel failed.\n");
+      TRACE("IDirectInputDevice8_SetCooperativeLevel failed.\n");
       return 1;
    }
    return 0;

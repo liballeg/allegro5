@@ -25,9 +25,6 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
 
-#ifdef DEBUGMODE
-#define D3D_DEBUG_INFO
-#endif
 
 #include "d3d.h"
 
@@ -293,41 +290,41 @@ static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
       texture = d3d_bmp->video_texture;
 
    if (IDirect3DTexture9_LockRect(texture, 0, &locked_rect, &rect, 0) == D3D_OK) {
-   _al_convert_bitmap_data(bitmap->memory, bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
-      locked_rect.pBits, bitmap->format, locked_rect.Pitch,
-      x, y, 0, 0, width, height);
-   /* Copy an extra row and column so the texture ends nicely */
-   if (rect.bottom > bitmap->h) {
-      _al_convert_bitmap_data(
-         bitmap->memory,
-         bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
-         locked_rect.pBits,
-         bitmap->format, locked_rect.Pitch,
-         0, bitmap->h-1,
-         0, height,
-         width, 1);
-   }
-   if (rect.right > bitmap->w) {
-      _al_convert_bitmap_data(
-         bitmap->memory,
-         bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
-         locked_rect.pBits,
-         bitmap->format, locked_rect.Pitch,
-         bitmap->w-1, 0,
-         width, 0,
-         1, height);
-   }
-   if (rect.bottom > bitmap->h && rect.right > bitmap->w) {
-      _al_convert_bitmap_data(
-         bitmap->memory,
-         bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
-         locked_rect.pBits,
-         bitmap->format, locked_rect.Pitch,
-         bitmap->w-1, bitmap->h-1,
-         width, height,
-         1, 1);
-   }
-   IDirect3DTexture9_UnlockRect(texture, 0);
+	   _al_convert_bitmap_data(bitmap->memory, bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
+		  locked_rect.pBits, bitmap->format, locked_rect.Pitch,
+		  x, y, 0, 0, width, height);
+	   /* Copy an extra row and column so the texture ends nicely */
+	   if (rect.bottom > bitmap->h) {
+		  _al_convert_bitmap_data(
+			 bitmap->memory,
+			 bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
+			 locked_rect.pBits,
+			 bitmap->format, locked_rect.Pitch,
+			 0, bitmap->h-1,
+			 0, height,
+			 width, 1);
+	   }
+	   if (rect.right > bitmap->w) {
+		  _al_convert_bitmap_data(
+			 bitmap->memory,
+			 bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
+			 locked_rect.pBits,
+			 bitmap->format, locked_rect.Pitch,
+			 bitmap->w-1, 0,
+			 width, 0,
+			 1, height);
+	   }
+	   if (rect.bottom > bitmap->h && rect.right > bitmap->w) {
+		  _al_convert_bitmap_data(
+			 bitmap->memory,
+			 bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
+			 locked_rect.pBits,
+			 bitmap->format, locked_rect.Pitch,
+			 bitmap->w-1, bitmap->h-1,
+			 width, height,
+			 1, 1);
+	   }
+	   IDirect3DTexture9_UnlockRect(texture, 0);
    }
    else {
       TRACE("d3d_sync_bitmap_texture: Couldn't lock texture to upload.\n");

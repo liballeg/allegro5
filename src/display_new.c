@@ -34,7 +34,7 @@
 // FIXME: The system driver must be used to get drivers!
 extern ALLEGRO_DISPLAY_INTERFACE *_al_glx_vt(void);
 
-
+static int current_video_adapter = 0;
 
 /* Function: al_create_display
  *
@@ -69,7 +69,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
    {
-   ALLEGRO_COLOR black = al_map_rgba(0, 0, 0, 0);
+   ALLEGRO_COLOR black = al_map_rgb(0, 0, 0);
    al_set_current_display(display);
    al_set_target_bitmap(al_get_backbuffer());
    al_clear(black);
@@ -557,5 +557,16 @@ void al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 	else {
 		info->x1 = info->y1 = info->x2 = info->y2 = -1;
 	}
+}
+
+
+int al_get_current_video_adapter(void)
+{
+   return current_video_adapter;
+}
+
+void al_set_current_video_adapter(int adapter)
+{
+   current_video_adapter = adapter;
 }
 

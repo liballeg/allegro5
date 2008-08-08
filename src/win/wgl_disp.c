@@ -1016,7 +1016,7 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 }
 
 
-static void wgl_set_current_display(ALLEGRO_DISPLAY *d)
+static bool wgl_set_current_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
    ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)d;
@@ -1029,11 +1029,13 @@ static void wgl_set_current_display(ALLEGRO_DISPLAY *d)
       if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
          log_win32_error("wgl_set_current_display", "Unable to make the context current!",
                           GetLastError());
-         return;
+         return false;
       }
 
       _al_ogl_set_extensions(ogl_disp->extension_api);
    }
+
+   return true;
 }
 
 

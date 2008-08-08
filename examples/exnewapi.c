@@ -80,15 +80,6 @@ int main(void)
       return 1;
    }
 
-   al_lock_bitmap(picture, &lr, 0);
-   al_set_target_bitmap(picture);
-   for (y = 0; y < 100; y++) {
-      for (x = 0; x < 160; x++) {
-         al_put_pixel(x+160, y+100, al_get_pixel(picture, x, y)) ;
-      }
-   }
-   al_unlock_bitmap(picture);
-
    al_install_keyboard();
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 

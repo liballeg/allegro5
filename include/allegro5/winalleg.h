@@ -115,12 +115,20 @@ AL_FUNC(void, stretch_blit_from_hdc, (HDC hdc, BITMAP *bitmap, int src_x, int sr
 #if defined ALLEGRO_CFG_D3D
 #include <d3d9.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 AL_FUNC(LPDIRECT3DDEVICE9, al_d3d_get_device, (ALLEGRO_DISPLAY *));
 AL_FUNC(HWND, al_d3d_get_hwnd, (ALLEGRO_DISPLAY *));
 AL_FUNC(LPDIRECT3DTEXTURE9, al_d3d_get_system_texture, (ALLEGRO_BITMAP *));
 AL_FUNC(LPDIRECT3DTEXTURE9, al_d3d_get_video_texture, (ALLEGRO_BITMAP *));
 AL_FUNC(bool, al_d3d_supports_non_pow2_textures, (void));
 AL_FUNC(bool, al_d3d_supports_non_square_textures, (void));
+
+#ifdef __cplusplus
+}
+#endif
 
 #ifdef ALLEGRO_BCC32
 #define sqrtf (float)sqrt

@@ -3,6 +3,7 @@
 #cmakedefine ALLEGRO_UNIX
 #cmakedefine ALLEGRO_MSVC
 #cmakedefine ALLEGRO_CFG_D3D
+#cmakedefine D3D_DEBUG_INFO
 #cmakedefine ALLEGRO_CFG_OPENGL
 #cmakedefine ALLEGRO_MACOSX
 #cmakedefine ALLEGRO_BCC32

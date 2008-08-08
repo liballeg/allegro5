@@ -6,6 +6,10 @@
 #include "allegro5/bitmap_new.h"
 #include "allegro5/internal/aintern_events.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct ALLEGRO_DISPLAY_INTERFACE ALLEGRO_DISPLAY_INTERFACE;
 
 struct ALLEGRO_DISPLAY_INTERFACE
@@ -13,7 +17,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    int id;
    ALLEGRO_DISPLAY *(*create_display)(int w, int h);
    void (*destroy_display)(ALLEGRO_DISPLAY *display);
-   void (*set_current_display)(ALLEGRO_DISPLAY *d);
+   bool (*set_current_display)(ALLEGRO_DISPLAY *d);
    void (*clear)(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color);
    void (*draw_line)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
       ALLEGRO_COLOR *color);
@@ -75,5 +79,9 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color);
 void _al_draw_pixel_memory(int x, int y, ALLEGRO_COLOR *color);
 
 void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

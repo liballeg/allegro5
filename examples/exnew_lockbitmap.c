@@ -22,7 +22,7 @@ int main(void)
     * we want direct access to the pixel memory though, so we better use
     * a format we know how to modify.
     */
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ABGR_8888);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
 
    /* Create the bitmap. */
    bitmap = al_create_bitmap(100, 100);
@@ -37,7 +37,7 @@ int main(void)
          uint8_t red = 0;
          uint8_t green = 0;
          uint8_t blue = 0;
-         uint8_t alpha = 64;
+         uint8_t alpha = 255;
 
          if (j < 50) {
             if (i < 50)
@@ -50,13 +50,13 @@ int main(void)
                blue = 255;
          }
 
-         /* The ABGR format means, the 32 bits per pixel are layed out like
+         /* The ARGB format means, the 32 bits per pixel are layed out like
           * this, lowest bit right:
-          * A A A A A A A A B B B B B B B B G G G G G G G G R R R R R R R R
+          * A A A A A A A A R R R R R R R R G G G G G G G G B B B B B B B B
           */
-         *(ptr++) = red;
-         *(ptr++) = green;
          *(ptr++) = blue;
+         *(ptr++) = green;
+         *(ptr++) = red;
          *(ptr++) = alpha;
       }
 

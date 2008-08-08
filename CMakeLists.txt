@@ -535,6 +535,9 @@ if(WIN32)
     
     if(SUPPORT_D3D)
         set(ALLEGRO_CFG_D3D 1)
+        if(GRADE_DEBUG)
+            set(D3D_DEBUG_INFO 1)
+        endif(GRADE_DEBUG)
     endif(SUPPORT_D3D)
 endif(WIN32)
 
@@ -618,7 +621,7 @@ if(WIN32)
         list(APPEND LIBRARY_SOURCES lib/msvc/allegro.def)
     endif(COMPILER_MSVC)
     list(APPEND PLATFORM_LIBS
-        kernel32 user32 gdi32 comdlg32 ole32 dinput ddraw dxguid winmm dsound
+        kernel32 user32 gdi32 comdlg32 ole32 dinput8 ddraw dxguid winmm dsound
         )
     if(SUPPORT_D3D)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})

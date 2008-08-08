@@ -16,7 +16,7 @@
  */
 
 
-#define DIRECTINPUT_VERSION 0x0300
+#define DIRECTINPUT_VERSION 0x0800
 
 #define ALLEGRO_NO_COMPATIBILITY
 
@@ -454,7 +454,7 @@ static void mouse_dinput_handle(void)
    waiting_messages = DINPUT_BUFFERSIZE;
 
    /* fill the buffer */
-   hr = IDirectInputDevice_GetDeviceData(mouse_dinput_device,
+   hr = IDirectInputDevice8_GetDeviceData(mouse_dinput_device,
                                          sizeof(DIDEVICEOBJECTDATA),
                                          message_buffer,
                                          (unsigned long int *)&waiting_messages,
@@ -552,7 +552,7 @@ int mouse_dinput_acquire(void)
    if (mouse_dinput_device) {
       //_mouse_b = 0;
 
-      hr = IDirectInputDevice_Acquire(mouse_dinput_device);
+      hr = IDirectInputDevice8_Acquire(mouse_dinput_device);
 
       if (FAILED(hr)) {
 	 _TRACE(PREFIX_E "acquire mouse failed: %s\n", dinput_err_str(hr));
@@ -578,7 +578,7 @@ int mouse_dinput_acquire(void)
 int mouse_dinput_unacquire(void)
 {
    if (mouse_dinput_device) {
-      IDirectInputDevice_Unacquire(mouse_dinput_device);
+      IDirectInputDevice8_Unacquire(mouse_dinput_device);
 
       //_mouse_b = 0;
       _mouse_on = FALSE;
@@ -615,7 +615,7 @@ int mouse_dinput_grab(void)
       }
 
       /* set cooperative level */
-      hr = IDirectInputDevice_SetCooperativeLevel(mouse_dinput_device, allegro_wnd, level);
+      hr = IDirectInputDevice8_SetCooperativeLevel(mouse_dinput_device, allegro_wnd, level);
       if (FAILED(hr)) {
          _TRACE(PREFIX_E "set cooperative level failed: %s\n", dinput_err_str(hr));
          return -1;
@@ -698,13 +698,13 @@ static int mouse_dinput_exit(void)
       wnd_call_proc(mouse_dinput_unacquire);
 
       /* now it can be released */
-      IDirectInputDevice_Release(mouse_dinput_device);
+      IDirectInputDevice8_Release(mouse_dinput_device);
       mouse_dinput_device = NULL;
    }
 
    /* release DirectInput interface */
    if (mouse_dinput) {
-      IDirectInput_Release(mouse_dinput);
+      IDirectInput8_Release(mouse_dinput);
       mouse_dinput = NULL;
    }
 
@@ -758,12 +758,12 @@ static int mouse_dinput_init(void)
    };
 
    /* Get DirectInput interface */
-   hr = DirectInputCreate(allegro_inst, DIRECTINPUT_VERSION, &mouse_dinput, NULL);
+   hr = DirectInput8Create(allegro_inst, DIRECTINPUT_VERSION, &IID_IDirectInput8A, &mouse_dinput, NULL);
    if (FAILED(hr))
       goto Error;
 
    /* Create the mouse device */
-   hr = IDirectInput_CreateDevice(mouse_dinput, &GUID_SysMouse, &mouse_dinput_device, NULL);
+   hr = IDirectInput8_CreateDevice(mouse_dinput, &GUID_SysMouse, &mouse_dinput_device, NULL);
    if (FAILED(hr))
       goto Error;
 
@@ -771,7 +771,7 @@ static int mouse_dinput_init(void)
    dinput_buttons = 0;
    dinput_wheel = FALSE;
 
-   hr = IDirectInputDevice_EnumObjects(mouse_dinput_device, mouse_enum_callback, NULL, DIDFT_PSHBUTTON | DIDFT_AXIS);
+   hr = IDirectInputDevice8_EnumObjects(mouse_dinput_device, mouse_enum_callback, NULL, DIDFT_PSHBUTTON | DIDFT_AXIS);
    if (FAILED(hr))
       goto Error;
 
@@ -779,18 +779,18 @@ static int mouse_dinput_init(void)
    mouse_swap_button = GetSystemMetrics(SM_SWAPBUTTON);   
 
    /* Set data format */
-   hr = IDirectInputDevice_SetDataFormat(mouse_dinput_device, &c_dfDIMouse);
+   hr = IDirectInputDevice8_SetDataFormat(mouse_dinput_device, &c_dfDIMouse);
    if (FAILED(hr))
       goto Error;
 
    /* Set buffer size */
-   hr = IDirectInputDevice_SetProperty(mouse_dinput_device, DIPROP_BUFFERSIZE, &property_buf_size.diph);
+   hr = IDirectInputDevice8_SetProperty(mouse_dinput_device, DIPROP_BUFFERSIZE, &property_buf_size.diph);
    if (FAILED(hr))
       goto Error;
 
    /* Enable event notification */
    mouse_input_event = CreateEvent(NULL, FALSE, FALSE, NULL);
-   hr = IDirectInputDevice_SetEventNotification(mouse_dinput_device, mouse_input_event);
+   hr = IDirectInputDevice8_SetEventNotification(mouse_dinput_device, mouse_input_event);
    if (FAILED(hr))
       goto Error;
 

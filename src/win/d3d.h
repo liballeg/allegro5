@@ -8,16 +8,18 @@
 #include "win_new.h"
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Flexible vertex formats */
 #define D3DFVF_COLORED_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE)
 #define D3DFVF_TL_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
 
 typedef struct ALLEGRO_SYSTEM_D3D ALLEGRO_SYSTEM_D3D;
-typedef struct ALLEGRO_BITMAP_D3D ALLEGRO_BITMAP_D3D;
-typedef struct ALLEGRO_DISPLAY_D3D ALLEGRO_DISPLAY_D3D;
 
-struct ALLEGRO_BITMAP_D3D
+typedef struct ALLEGRO_BITMAP_D3D
 {
    ALLEGRO_BITMAP bitmap; /* This must be the first member. */
 
@@ -31,13 +33,14 @@ struct ALLEGRO_BITMAP_D3D
 
    bool initialized;
    bool is_backbuffer;
+   bool is_target;
 
    D3DLOCKED_RECT locked_rect;
 
-   ALLEGRO_DISPLAY_D3D *display;
-};
+   struct ALLEGRO_DISPLAY_D3D *display;
+} ALLEGRO_BITMAP_D3D;
 
-struct ALLEGRO_DISPLAY_D3D
+typedef struct ALLEGRO_DISPLAY_D3D
 {
    ALLEGRO_DISPLAY display; /* This must be the first member. */
 
@@ -71,7 +74,10 @@ struct ALLEGRO_DISPLAY_D3D
 
    bool ignore_ack; // al_resize_display doesn't need acknowledge_resize
    		    // (but you should do it anyway, for portability)
-};
+
+   bool bitmaps_prepared_for_reset;
+   UINT adapter;
+} ALLEGRO_DISPLAY_D3D;
 
 
 /* Colored vertex */
@@ -129,3 +135,7 @@ AL_INLINE_STATIC(int, pot, (int x),
    while (y < x) y *= 2;
    return y;
 })
+
+#ifdef __cplusplus
+}
+#endif

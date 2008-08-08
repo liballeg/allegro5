@@ -3,6 +3,10 @@
 
 #include "allegro5/internal/aintern_system.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct ALLEGRO_SYSTEM_WIN ALLEGRO_SYSTEM_WIN;
 
 /* This is our version of ALLEGRO_SYSTEM with driver specific extra data. */
@@ -28,6 +32,7 @@ AL_VAR(UINT, _al_win_msg_suicide);
 void _al_win_set_display_icon(ALLEGRO_DISPLAY *display ,ALLEGRO_BITMAP *bitmap);
 
 #if defined ALLEGRO_CFG_D3D
+
 AL_FUNC(int, _al_d3d_get_num_display_modes,
    (int format, int refresh_rate, int flags));
 AL_FUNC(ALLEGRO_DISPLAY_MODE *, _al_d3d_get_display_mode,
@@ -51,5 +56,10 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void);
 AL_FUNC(bool, _al_wgl_init_display, ());
 
 #endif /*  defined ALLEGRO_CFG_OPENGL */
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif

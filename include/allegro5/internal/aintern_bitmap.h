@@ -4,6 +4,10 @@
 #include "allegro5/display_new.h"
 #include "allegro5/bitmap_new.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct ALLEGRO_BITMAP_INTERFACE ALLEGRO_BITMAP_INTERFACE;
 
 struct BITMAP;
@@ -93,7 +97,7 @@ struct ALLEGRO_BITMAP_INTERFACE
 void _al_blit_memory_bitmap(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest,
    int source_x, int source_y, int dest_x, int dest_y, int w, int h);
 //ALLEGRO_BITMAP_INTERFACE *_al_bitmap_xdummy_driver(void);
-ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3ddummy_driver(void);
+//ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3ddummy_driver(void);
 
 /* Bitmap conversion */
 void _al_convert_bitmap_data(
@@ -179,5 +183,8 @@ void _al_blender_inverse_alpha_one(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_
 void _al_blender_inverse_alpha_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 void _al_blender_inverse_alpha_inverse_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -69,7 +69,7 @@ AL_FUNC(int, al_get_display_flags,  (void));
 
 AL_FUNC(ALLEGRO_DISPLAY*, al_create_display, (int w, int h));
 AL_FUNC(void,             al_destroy_display, (ALLEGRO_DISPLAY *display));
-AL_FUNC(void,             al_set_current_display, (ALLEGRO_DISPLAY *display));
+AL_FUNC(bool,             al_set_current_display, (ALLEGRO_DISPLAY *display));
 AL_FUNC(ALLEGRO_DISPLAY*, al_get_current_display, (void));
 AL_FUNC(void,            al_set_target_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(ALLEGRO_BITMAP*, al_get_backbuffer,    (void));
@@ -102,6 +102,8 @@ AL_FUNC(void, al_set_display_icon, (ALLEGRO_BITMAP *icon));
 
 AL_FUNC(int, al_get_num_video_adapters, (void));
 AL_FUNC(void, al_get_monitor_info, (int adapter, ALLEGRO_MONITOR_INFO *info));
+AL_FUNC(int, al_get_current_video_adapter, (void));
+AL_FUNC(void, al_set_current_video_adapter, (int adapter));
 
 #ifdef __cplusplus
    }

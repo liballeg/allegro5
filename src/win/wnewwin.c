@@ -222,15 +222,16 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          break;
          case WM_ACTIVATEAPP:
             if (wParam) {
-               al_set_current_display((ALLEGRO_DISPLAY *)d);
-               _al_win_wnd = win->window;
-               win_grab_input();
-               win_get_window_pos(win->window, &pos);
-               wnd_x = pos.left;
-               wnd_y = pos.top;
-               if (d->vt->switch_in)
-                  d->vt->switch_in(d);
-               return 0;
+				if (al_set_current_display((ALLEGRO_DISPLAY *)d)) {
+				   _al_win_wnd = win->window;
+				   win_grab_input();
+				   win_get_window_pos(win->window, &pos);
+				   wnd_x = pos.left;
+				   wnd_y = pos.top;
+				   if (d->vt->switch_in)
+					  d->vt->switch_in(d);
+				   return 0;
+				}
             }
             else {
                if (_al_vector_find(&thread_handles, &lParam) < 0) {
