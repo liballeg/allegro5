@@ -87,6 +87,7 @@ option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" on)
 option(WANT_A5_ALSA "Enable A5 ALSA digital audio driver (Unix)" on)
 
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
+option(WANT_D3DEX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
 
 #

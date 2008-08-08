@@ -34,7 +34,6 @@
 
 static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
 
-//static LPDIRECT3D9EX _al_d3d = 0;
 static LPDIRECT3D9 _al_d3d = 0;
 
 static D3DPRESENT_PARAMETERS d3d_pp;
@@ -45,18 +44,8 @@ static _AL_VECTOR d3d_created_displays = _AL_VECTOR_INITIALIZER(ALLEGRO_DISPLAY_
 static float d3d_ortho_w;
 static float d3d_ortho_h;
 
-//static bool d3d_already_fullscreen = false;
-//static LPDIRECT3DSURFACE9 d3d_current_texture_render_target = NULL;
-
-//static bool _al_d3d_device_lost = false;
-//static ALLEGRO_DISPLAY *d3d_target_display_before_device_lost = NULL;
-//static ALLEGRO_BITMAP *d3d_target_bitmap_before_device_lost = NULL;
-
-//static ALLEGRO_DISPLAY_D3D *d3d_fullscreen_display;
 static HWND fullscreen_focus_window;
 static bool ffw_set = false;
-
-//static _AL_MUTEX d3d_device_mutex;
 
 static bool d3d_can_wait_for_vsync;
 
@@ -72,8 +61,6 @@ typedef struct new_display_parameters {
    bool is_resize;
    bool init_failed;
 } new_display_parameters;
-
-//static bool d3d_bitmaps_prepared_for_reset = false;
 
 static int allegro_formats[] = {
    ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
@@ -194,24 +181,9 @@ bool al_d3d_supports_non_square_textures(void)
 }
 
 
-
-/*
-void _al_d3d_lock_device()
-{
-   _al_mutex_lock(&d3d_device_mutex);
-}
-
-void _al_d3d_unlock_device()
-{
-   _al_mutex_unlock(&d3d_device_mutex);
-}
-*/
-
-
 int _al_format_to_d3d(int format)
 {
    int i;
-   //D3DDISPLAYMODE d3d_dm;
 
    for (i = 0; allegro_formats[i] >= 0; i++) {
       if (!_al_pixel_format_is_real(allegro_formats[i]))
@@ -221,13 +193,6 @@ int _al_format_to_d3d(int format)
       }
    }
 
-   /* If not found or ALLEGRO_PIXEL_FORMAT_ANY_*, return desktop format */
-   
-   /*
-   al_d3d->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3d_dm);
-
-   return d3d_dm.Format;
-   */
    return D3DFMT_R5G6B5;
 }
 
@@ -391,79 +356,11 @@ static int d3d_get_default_refresh_rate(UINT adapter)
    return d3d_dm.RefreshRate;
 }
 
-#if 0
-/* FIXME: release swap chain too? */
-static bool d3d_create_hidden_device()
-{
-   D3DDISPLAYMODE d3d_dm;
-   LPDIRECT3DSURFACE9 render_target;
-   int ret;
-
-   d3d_hidden_window = _al_win_create_hidden_window();
-   if (d3d_hidden_window == 0) {
-      TRACE("Failed to create hidden window.\n");
-      return 0;
-   }
-
-   al_d3d->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3d_dm);
-
-   ZeroMemory(&d3d_pp, sizeof(d3d_pp));
-   d3d_pp.BackBufferFormat = d3d_dm.Format;
-   d3d_pp.BackBufferWidth = 100;
-   d3d_pp.BackBufferHeight = 100;
-   d3d_pp.BackBufferCount = 1;
-   d3d_pp.Windowed = 1;
-   d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-   d3d_pp.hDeviceWindow = d3d_hidden_window;
-
-   /* FIXME: try hardware vertex processing first? */
-   if ((ret = al_d3d->CreateDevice(D3DADAPTER_DEFAULT,
-         D3DDEVTYPE_HAL, d3d_hidden_window,
-         D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
-         &d3d_pp, &_al_d3d_device)) != D3D_OK) {
-      if ((ret = al_d3d->CreateDevice(D3DADAPTER_DEFAULT,
-            D3DDEVTYPE_HAL, d3d_hidden_window,
-            D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
-            &d3d_pp, &_al_d3d_device)) != D3D_OK) {
-         switch (ret) {
-            case D3DERR_INVALIDCALL:
-               TRACE("D3DERR_INVALIDCALL in create_device.\n");
-               break;
-            case D3DERR_NOTAVAILABLE:
-               TRACE("D3DERR_NOTAVAILABLE in create_device.\n");
-               break;
-            case D3DERR_OUTOFVIDEOMEMORY:
-               TRACE("D3DERR_OUTOFVIDEOMEMORY in create_device.\n");
-               break;
-            default:
-               TRACE("Direct3D Device creation failed.\n");
-               break;
-         }
-         return 0;
-      }
-   }
-
-   /* We won't be using this surface, so release it immediately */
-
-   _al_d3d_device->GetRenderTarget(0, &render_target);
-   IDirect3DSurface9_Release(render_target);
-
-   TRACE("Direct3D device created.\n");
-
-   IDirect3DDevice9_BeginScene(_al_d3d_device);
-
-   return 1;
-}
-#endif
-
-//static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *disp);
-//void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp);
 
 static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
    int format, int refresh_rate, int flags)
 {
    int ret;
-   D3DDISPLAYMODEEX mode;
 
    if (!d3d_check_mode(d->display.w, d->display.h, format, refresh_rate, d->adapter)) {
       TRACE("d3d_create_fullscreen_device: Mode not supported.\n");
@@ -500,8 +397,9 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
 	//reset_all = true;
    }
 
+#ifdef WITH_D3D9EX
    if (is_vista) {
-   	//IDirect3D9Ex *d3d = (IDirect3D9Ex *)_al_d3d;
+   	D3DDISPLAYMODEEX mode;
 	mode.Size = sizeof(D3DDISPLAYMODEEX);
 	mode.Width = d->display.w;
 	mode.Height = d->display.h;
@@ -517,16 +415,6 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
 		    D3DDEVTYPE_HAL, fullscreen_focus_window,
 		    D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
 		    &d3d_pp, &mode, (IDirect3DDevice9Ex **)(&d->device))) != D3D_OK) {
-	/*
-	if ((ret = IDirect3D9Ex_CreateDeviceEx((IDirect3D9Ex *)_al_d3d, d->adapter,
-		 D3DDEVTYPE_HAL, fullscreen_focus_window,
-		 D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
-		 &d3d_pp, &mode, (IDirect3DDevice9Ex **)(&d->device))) != D3D_OK) {
-	      if ((ret = IDirect3D9Ex_CreateDeviceEx(((IDirect3D9Ex *)_al_d3d), d->adapter,
-		    D3DDEVTYPE_HAL, fullscreen_focus_window,
-		    D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
-		    &d3d_pp, &mode, (IDirect3DDevice9Ex **)(&d->device))) != D3D_OK) {
-			*/
 		 switch (ret) {
 		    case D3DERR_INVALIDCALL:
 		       TRACE("D3DERR_INVALIDCALL in create_device.\n");
@@ -549,6 +437,7 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
 	   }
    }
    else {
+#endif
 	if ((ret = al_d3d->CreateDevice(d->adapter,
 		 D3DDEVTYPE_HAL, fullscreen_focus_window,
 		 D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
@@ -577,7 +466,9 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
 		 return 0;
 	      }
 	   }
+#ifdef WITH_D3D9EX
    }
+#endif
 
    d->device->GetRenderTarget(0, &d->render_target);
 
@@ -596,24 +487,6 @@ static void d3d_destroy_device(ALLEGRO_DISPLAY_D3D *disp)
    disp->device = NULL;
 }
 
-/*
-static void d3d_destroy_hidden_device()
-{
-   d3d_destroy_device();
-   DestroyWindow(d3d_hidden_window);
-   d3d_hidden_window = 0;
-}
-*/
-
-/*
- * Must be called before al_init
- */
- /*
-void al_d3d_set_render_to_texture_enabled(bool rtt)
-{
-   render_to_texture_supported = rtt;
-}
-*/
 
 bool _al_d3d_render_to_texture_supported(void)
 {
@@ -630,6 +503,7 @@ bool _al_d3d_init_display()
    is_vista = info.dwMajorVersion >= 6;
    TRACE("is_vista=%d\n", is_vista);
 
+#ifdef WITH_D3D9EX
    if (is_vista) {
    	if ((Direct3DCreate9Ex(D3D_SDK_VERSION, (LPDIRECT3D9EX *)&_al_d3d) != D3D_OK) || !_al_d3d) {
 		TRACE("Direct3DCreate9Ex failed\n");
@@ -637,13 +511,14 @@ bool _al_d3d_init_display()
 	}
    }
    else {
+#endif   
 	   if ((_al_d3d = Direct3DCreate9(D3D9b_SDK_VERSION)) == NULL) {
 	      TRACE("Direct3DCreate9 failed.\n");
 	      return false;
 	   }
+#ifdef WITH_D3D9EX	   
    }
-
-   TRACE("CreateDeviceEx=%p\n", ((IDirect3D9Ex *)(_al_d3d))->lpVtbl->CreateDeviceEx);
+#endif   
 
    al_d3d->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3d_dm);
 
@@ -656,12 +531,9 @@ bool _al_d3d_init_display()
 
    TRACE("Render-to-texture: %d\n", render_to_texture_supported);
 
-//   _al_mutex_init(&d3d_device_mutex);
-
    return true;
 }
 
-//static bool d3d_create_swap_chain(ALLEGRO_DISPLAY_D3D *d,
 static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
    int format, int refresh_rate, int flags)
 {
@@ -745,19 +617,10 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *display)
    if (display->render_target)
       IDirect3DSurface9_Release(display->render_target);
 
-/*
-   if (!(display->display.flags & ALLEGRO_FULLSCREEN)) {
-      if (d3d_created_displays._size <= 1) {
-      }
-   }
-*/
-
    display->end_thread = true;
    while (!display->thread_ended)
       al_rest(0.001);
    
-   //d3d_already_fullscreen = false;
-
    _al_win_ungrab_input();
 
    PostMessage(display->window, _al_win_msg_suicide, 0, 0);
@@ -805,7 +668,6 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 
 static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *disp)
 {
-     // if (d3d_already_fullscreen) {
         if (disp->display.flags & ALLEGRO_FULLSCREEN) {
          HRESULT hr;
 		 int i;
@@ -837,6 +699,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *disp)
          }
 
 	 for (i = 0; i < 5; i++) {
+#ifdef WITH_D3D9EX	 
 	 	if (is_vista) {
 			D3DDISPLAYMODEEX mode;
 			mode.Size = sizeof(D3DDISPLAYMODEEX);
@@ -849,8 +712,11 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *disp)
 				&mode);
 		}
 		else {
+#endif		
 	         	hr = disp->device->Reset(&d3d_pp);
+#ifdef WITH_D3D9EX			
 		}
+#endif		
 		if (hr != D3D_OK) {
 			al_rest(0.01);
 			continue;
@@ -1037,18 +903,6 @@ static void d3d_display_thread_proc(void *arg)
 
    d = params->display;
 
-   /*
-    * Direct3D will only allow 1 fullscreen swap chain, and you can't
-    * combine fullscreen and windowed swap chains.
-    */
-   /*
-   if (!params->is_resize && (d3d_already_fullscreen ||
-      ((d3d_created_displays._size > 0) && d->display.flags & ALLEGRO_FULLSCREEN))) {
-      params->init_failed = true;
-      return;
-   }
-   */
-
    new_format = d->display.format;
 
    if (!_al_pixel_format_is_real(d->display.format)) {
@@ -1201,13 +1055,6 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display, bool is_r
    }
 
    win_grab_input();
-
-   /*
-   if (display->display.flags & ALLEGRO_FULLSCREEN) {
-      d3d_already_fullscreen = true;
-      d3d_fullscreen_display = params.display;
-   }
-   */
 
    display->backbuffer_bmp.is_backbuffer = true;
    display->backbuffer_bmp.bitmap.display = (ALLEGRO_DISPLAY *)display;
