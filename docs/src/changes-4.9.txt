@@ -662,7 +662,7 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
 -  Peter Wang exposed some internal documentation on destructors,
    events and event sources to NaturalDocs.
 
--  Peter Wnag changed al_wait_for_event() so that a timeout value of "0"
+-  Peter Wang changed al_wait_for_event() so that a timeout value of "0"
    means to not wait at all. To wait an indefinite amount of time the
    caller should pass the AL_WAIT_FOREVER constant.
 
