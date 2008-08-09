@@ -41,6 +41,11 @@ void go(void)
 	al_flip_display();
 
 	al_rest(10);
+
+	al_destroy_display(d1);
+	al_destroy_display(d2);
+	al_destroy_bitmap(b1);
+	al_destroy_bitmap(b2);
 }
 
 int main(void)

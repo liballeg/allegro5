@@ -45,7 +45,6 @@ do {                                                                         \
    int x, y;                                                                 \
    int xend;                                                                 \
    int yend;                                                                 \
-   ALLEGRO_COLOR src_color, result;                                          \
    int pixel;                                                                \
                                                                              \
    if ((sw <= 0) || (sh <= 0))                                               \

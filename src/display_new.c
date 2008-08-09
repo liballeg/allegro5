@@ -551,11 +551,13 @@ void al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
 	ALLEGRO_SYSTEM *system = al_system_driver();
 
+	ASSERT(adapter < al_get_num_video_adapters());
+
 	if (system && system->vt && system->vt->get_monitor_info) {
 		system->vt->get_monitor_info(adapter, info);
 	}
 	else {
-		info->x1 = info->y1 = info->x2 = info->y2 = -1;
+		info->x1 = info->y1 = info->x2 = info->y2 = INT_MAX;
 	}
 }
 

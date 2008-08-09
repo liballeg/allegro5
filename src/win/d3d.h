@@ -38,6 +38,8 @@ typedef struct ALLEGRO_BITMAP_D3D
    D3DLOCKED_RECT locked_rect;
 
    struct ALLEGRO_DISPLAY_D3D *display;
+
+   IDirect3DSurface9 *render_target;
 } ALLEGRO_BITMAP_D3D;
 
 typedef struct ALLEGRO_DISPLAY_D3D
@@ -77,6 +79,11 @@ typedef struct ALLEGRO_DISPLAY_D3D
 
    bool bitmaps_prepared_for_reset;
    UINT adapter;
+   bool faux_fullscreen;
+
+   TCHAR device_name[32];
+   _AL_MUTEX mutex;
+
 } ALLEGRO_DISPLAY_D3D;
 
 

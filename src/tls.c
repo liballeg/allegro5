@@ -426,9 +426,6 @@ void _al_pop_target_bitmap(void)
 
 void _al_push_blender(void)
 {
-   int src, dst;
-   ALLEGRO_COLOR color;
-
    if ((tls = tls_get()) == NULL)
       return;
 

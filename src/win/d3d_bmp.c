@@ -231,7 +231,8 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
    IDirect3DDevice9_SetFVF(disp->device, D3DFVF_TL_VERTEX);
    
    if (IDirect3DDevice9_DrawPrimitiveUP(disp->device, D3DPT_TRIANGLEFAN, 2,
-         vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
+
+	   vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
       TRACE("_al_d3d_draw_textured_quad: DrawPrimitive failed.\n");
       return;
    }

@@ -20,6 +20,7 @@
 
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/platform/aintwin.h"
 
 #include "win_new.h"
@@ -63,7 +64,7 @@ HWND _al_win_create_hidden_window()
 {
    HWND window = CreateWindowEx(0, 
       "ALEX", wnd_title, WS_POPUP,
-      -100, -100, 0, 0,
+      -5000, -5000, 0, 0,
       NULL,NULL,window_class.hInstance,0);
    ShowWindow(_al_win_compat_wnd, SW_HIDE);
    return window;
@@ -149,6 +150,76 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    return my_window;
 }
 
+
+HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *display, 
+	int x1, int y1, int width, int height, int refresh_rate, int flags)
+{
+   HWND my_window;
+   RECT pos;
+   DWORD style;
+   DWORD ex_style;
+   WIN_WINDOW *win_window;
+   WIN_WINDOW **add;
+   DEVMODE mode;
+   LONG temp;
+
+   /* Save the thread handle for later use */
+   *((DWORD *)_al_vector_alloc_back(&thread_handles)) = GetCurrentThreadId();
+
+   style = WS_VISIBLE;
+   ex_style = WS_EX_TOPMOST;
+
+   my_window = CreateWindowEx(ex_style,
+      "ALEX", wnd_title, style,
+      x1, y1, width, height,
+      NULL,NULL,window_class.hInstance,0);
+   ShowWindow(_al_win_compat_wnd, SW_HIDE);
+
+   temp = GetWindowLong(my_window, GWL_STYLE);
+   temp &= ~WS_CAPTION;
+   SetWindowLong(my_window, GWL_STYLE, temp);
+   SetWindowPos(my_window, 0, 0,0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
+   /* Go fullscreen */
+   memset(&mode, 0, sizeof(DEVMODE));
+   mode.dmSize = sizeof(DEVMODE);
+   mode.dmDriverExtra = 0;
+   mode.dmBitsPerPel = _al_get_pixel_format_bits(display->format);
+   mode.dmPelsWidth = display->w;
+   mode.dmPelsHeight = display->h;
+   mode.dmDisplayFlags = 0;
+   mode.dmDisplayFrequency = refresh_rate;
+   mode.dmPosition.x = x1;
+   mode.dmPosition.y = y1;
+   mode.dmFields = DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT|DM_DISPLAYFLAGS|
+   	DM_DISPLAYFREQUENCY|DM_POSITION;
+
+   {
+   ALLEGRO_MONITOR_INFO info;
+   al_get_monitor_info(0, &info);
+   TRACE("before 0 = %d %d %d %d\n", info.x1, info.y1, info.x2, info.y2);
+   ChangeDisplaySettingsEx(devname, &mode, NULL, 0, NULL/*CDS_FULLSCREEN*/);
+   al_get_monitor_info(0, &info);
+   TRACE("after 0 = %d %d %d %d\n", info.x1, info.y1, info.x2, info.y2);
+   }
+
+   win_window = _AL_MALLOC(sizeof(WIN_WINDOW));
+   win_window->display = display;
+   win_window->window = my_window;
+   add = _al_vector_alloc_back(&win_window_list);
+   *add = win_window;
+
+   win_get_window_pos(my_window, &pos);
+   wnd_x = pos.left;
+   wnd_y = pos.top;
+
+   wnd_x = 0;
+   wnd_y = 0;
+
+   _al_win_wnd = my_window;
+   return my_window;
+}
+
 /* This must be called by Windows drivers after their window is deleted */
 void _al_win_delete_thread_handle(DWORD handle)
 {
@@ -222,7 +293,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          break;
          case WM_ACTIVATEAPP:
             if (wParam) {
-				if (al_set_current_display((ALLEGRO_DISPLAY *)d)) {
+				//if (al_set_current_display((ALLEGRO_DISPLAY *)d)) {
 				   _al_win_wnd = win->window;
 				   win_grab_input();
 				   win_get_window_pos(win->window, &pos);
@@ -231,7 +302,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 				   if (d->vt->switch_in)
 					  d->vt->switch_in(d);
 				   return 0;
-				}
+				//}
             }
             else {
                if (_al_vector_find(&thread_handles, &lParam) < 0) {
