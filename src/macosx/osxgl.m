@@ -287,12 +287,13 @@ NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp)
 /* set_current_display_win:
 * Set the current windowed display to be current.
 */
-void set_current_display_win(ALLEGRO_DISPLAY* d) {
+bool set_current_display_win(ALLEGRO_DISPLAY* d) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
 	if (dpy->ctx != nil) {
 		[dpy->ctx makeCurrentContext];
 	}
    _al_ogl_set_extensions(dpy->parent.extension_api);
+   return true;
 }
 
 /* Helper to set up GL state as we want it. */
@@ -582,7 +583,7 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void)
 		0, //   int id;
 		create_display_win, //   ALLEGRO_DISPLAY *(*create_display)(int w, int h);
 		destroy_display, //   void (*destroy_display)(ALLEGRO_DISPLAY *display);
-		set_current_display_win, //   void (*set_current_display)(ALLEGRO_DISPLAY *d);
+		set_current_display_win, //   bool (*set_current_display)(ALLEGRO_DISPLAY *d);
 		NULL, //   void (*clear)(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color);
 		NULL, //   void (*draw_line)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
 				   //      ALLEGRO_COLOR *color);
