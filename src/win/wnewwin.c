@@ -105,7 +105,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    }
    else {
       style = WS_POPUP|WS_VISIBLE;
-      ex_style = 0;
+      ex_style = WS_EX_APPWINDOW;
    }
 
    my_window = CreateWindowEx(ex_style,
