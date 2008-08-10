@@ -35,44 +35,44 @@ SubTitle: Version 4.9.2 (SVN)
 
 Group: Graphics  {
 
-   File: Colors  (/home/elias/prog/allegro/4.9/include/allegro5/color_new.h)
-   File: Bitmap types and constants  (/home/elias/prog/allegro/4.9/include/allegro5/bitmap_new.h)
-   File: Display types  (/home/elias/prog/allegro/4.9/include/allegro5/display_new.h)
-   File: Pixel manipulation  (/home/elias/prog/allegro/4.9/src/pixels.c)
-   File: Bitmap routines  (/home/elias/prog/allegro/4.9/src/bitmap_new.c)
-   File: Display routines  (/home/elias/prog/allegro/4.9/src/display_new.c)
-   File: OpenGL extensions  (/home/elias/prog/allegro/4.9/src/opengl/extensions.c)
+   File: Colors  (/home/tjaden/ahack/ws_4.9/include/allegro5/color_new.h)
+   File: Bitmap types and constants  (/home/tjaden/ahack/ws_4.9/include/allegro5/bitmap_new.h)
+   File: Display types  (/home/tjaden/ahack/ws_4.9/include/allegro5/display_new.h)
+   File: Pixel manipulation  (/home/tjaden/ahack/ws_4.9/src/pixels.c)
+   File: Bitmap routines  (/home/tjaden/ahack/ws_4.9/src/bitmap_new.c)
+   File: Display routines  (/home/tjaden/ahack/ws_4.9/src/display_new.c)
+   File: OpenGL extensions  (/home/tjaden/ahack/ws_4.9/src/opengl/extensions.c)
    }  # Group: Graphics
 
 Group: Input  {
 
-   File: Keyboard constants  (/home/elias/prog/allegro/4.9/include/allegro5/keycodes.h)
-   File: Keyboard types  (/home/elias/prog/allegro/4.9/include/allegro5/keyboard.h)
-   File: Keyboard routines  (/home/elias/prog/allegro/4.9/src/keybdnu.c)
-   File: Mouse types  (/home/elias/prog/allegro/4.9/include/allegro5/mouse.h)
-   File: Mouse routines  (/home/elias/prog/allegro/4.9/src/mousenu.c)
-   File: Joystick types  (/home/elias/prog/allegro/4.9/include/allegro5/joystick.h)
-   File: Joystick routines  (/home/elias/prog/allegro/4.9/src/joynu.c)
+   File: Keyboard constants  (/home/tjaden/ahack/ws_4.9/include/allegro5/keycodes.h)
+   File: Keyboard types  (/home/tjaden/ahack/ws_4.9/include/allegro5/keyboard.h)
+   File: Keyboard routines  (/home/tjaden/ahack/ws_4.9/src/keybdnu.c)
+   File: Mouse types  (/home/tjaden/ahack/ws_4.9/include/allegro5/mouse.h)
+   File: Mouse routines  (/home/tjaden/ahack/ws_4.9/src/mousenu.c)
+   File: Joystick types  (/home/tjaden/ahack/ws_4.9/include/allegro5/joystick.h)
+   File: Joystick routines  (/home/tjaden/ahack/ws_4.9/src/joynu.c)
    }  # Group: Input
 
 Group: Time  {
 
-   File: Timer routines  (/home/elias/prog/allegro/4.9/include/allegro5/timer.h)
-   File: Timing routines  (/home/elias/prog/allegro/4.9/include/allegro5/altime.h)
+   File: Timer routines  (/home/tjaden/ahack/ws_4.9/include/allegro5/timer.h)
+   File: Timing routines  (/home/tjaden/ahack/ws_4.9/include/allegro5/altime.h)
    }  # Group: Time
 
 Group: Events  {
 
-   File: Events  (/home/elias/prog/allegro/4.9/include/allegro5/events.h)
-   File: Event queues  (/home/elias/prog/allegro/4.9/src/events.c)
-   File: Event sources  (/home/elias/prog/allegro/4.9/src/evtsrc.c)
+   File: Events  (/home/tjaden/ahack/ws_4.9/include/allegro5/events.h)
+   File: Event queues  (/home/tjaden/ahack/ws_4.9/src/events.c)
+   File: Event sources  (/home/tjaden/ahack/ws_4.9/src/evtsrc.c)
    }  # Group: Events
 
 Group: Miscellaneous  {
 
-   File: Destructors  (/home/elias/prog/allegro/4.9/src/dtor.c)
-   File: Memory management routines  (/home/elias/prog/allegro/4.9/src/memory.c)
-   File: Thread local storage  (/home/elias/prog/allegro/4.9/src/tls.c)
+   File: Destructors  (/home/tjaden/ahack/ws_4.9/src/dtor.c)
+   File: Memory management routines  (/home/tjaden/ahack/ws_4.9/src/memory.c)
+   File: Thread local storage  (/home/tjaden/ahack/ws_4.9/src/tls.c)
    }  # Group: Miscellaneous
 
 Group: Index  {
@@ -82,10 +82,11 @@ Group: Index  {
    Function Index: Functions
    Macro Index: Macros
    Type Index: Types
+   Class Index: Classes
    }  # Group: Index
 
 
 
 ##### Do not change or remove these lines. #####
-Data: 1(D3333RuEG3Go8p63IHu`3pooG`Hu3-Mk36H9)
-Data: 1(h3333RuEG3Go8p63IHu`3pooG`Hu3-Mk38\9oNfG)
+Data: 1(D3333RuEG3tlpfG\3pRp9A376V-Mk36H9)
+Data: 1(h3333RuEG3tlpfG\3pRp9A376V-Mk38\9oNfG)

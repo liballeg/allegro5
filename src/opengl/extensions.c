@@ -14,6 +14,9 @@
  *      Based on AllegroGL extensions management.
  */
 
+/* Title: OpenGL extensions
+ */
+
 
 #include "allegro5/allegro5.h"
 #include "allegro5/display_new.h"
