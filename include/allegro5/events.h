@@ -276,7 +276,10 @@ AL_FUNC(void, al_wait_for_event, (ALLEGRO_EVENT_QUEUE*,
                                   ALLEGRO_EVENT *ret_event));
 AL_FUNC(bool, al_wait_for_event_timed, (ALLEGRO_EVENT_QUEUE*,
                                         ALLEGRO_EVENT *ret_event,
-                                        float msecs));
+                                        float secs));
+AL_FUNC(bool, al_wait_for_event_until, (ALLEGRO_EVENT_QUEUE *queue,
+                                        ALLEGRO_EVENT *ret_event,
+                                        ALLEGRO_TIMEOUT *timeout));
 
 
 
@@ -290,3 +293,4 @@ AL_END_EXTERN_C
  * indent-tabs-mode: nil
  * End:
  */
+/* vim: set sts=3 sw=3 et */

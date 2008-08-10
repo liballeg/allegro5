@@ -9,12 +9,17 @@
 
 
 
+static void test_relative_timeout(ALLEGRO_DISPLAY *dpy,
+   ALLEGRO_EVENT_QUEUE *queue);
+static void test_absolute_timeout(ALLEGRO_DISPLAY *dpy,
+   ALLEGRO_EVENT_QUEUE *queue);
+
+
+
 int main(int argc, char *argv[])
 {
    ALLEGRO_DISPLAY *dpy;
    ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
-   float shade = 0.1;
 
    if (!al_init())
       return 1;
@@ -30,11 +35,26 @@ int main(int argc, char *argv[])
    queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
+   test_relative_timeout(dpy, queue);
+   test_absolute_timeout(dpy, queue);
+
+   return 0;
+}
+END_OF_MAIN()
+
+
+
+static void test_relative_timeout(ALLEGRO_DISPLAY *dpy,
+   ALLEGRO_EVENT_QUEUE *queue)
+{
+   ALLEGRO_EVENT event;
+   float shade = 0.1;
+
    while (true) {
       if (al_wait_for_event_timed(queue, &event, 0.1)) {
          if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
-               goto Quit;
+               return;
             }
             else {
                shade = 0.1;
@@ -51,11 +71,41 @@ int main(int argc, char *argv[])
       al_clear(al_map_rgba_f(0.5 * shade, 0.25 * shade, shade, 0));
       al_flip_display();
    }
-
-Quit:
-
-   return 0;
 }
-END_OF_MAIN()
+
+
+
+static void test_absolute_timeout(ALLEGRO_DISPLAY *dpy,
+   ALLEGRO_EVENT_QUEUE *queue)
+{
+   ALLEGRO_TIMEOUT timeout;
+   ALLEGRO_EVENT event;
+   float shade = 0.1;
+   bool ret;
+
+   while (true) {
+      al_init_timeout(&timeout, 0.1);
+      while ((ret = al_wait_for_event_until(queue, &event, &timeout))) {
+         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+               return;
+            } else {
+               shade = 0.1;
+            }
+         }
+      }
+
+      if (!ret) {
+         /* timed out */
+         shade += 0.1;
+         if (shade > 1.0)
+            shade = 1.0;
+      }
+
+      al_clear(al_map_rgba_f(shade, 0.5 * shade, 0.25 * shade, 0));
+      al_flip_display();
+   }
+}
+
 
 /* vi: set sts=3 sw=3 et: */

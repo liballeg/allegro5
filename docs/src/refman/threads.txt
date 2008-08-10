@@ -33,12 +33,12 @@ semantics and avoid edge cases.
 
 
 
-[ALLEGRO_COND_TIMEOUT]: #ALLEGRO_COND_TIMEOUT
-## ALLEGRO_COND_TIMEOUT
+[ALLEGRO_TIMEOUT]: #ALLEGRO_TIMEOUT
+## ALLEGRO_TIMEOUT
 
-    typedef struct ALLEGRO_COND_TIMEOUT ALLEGRO_COND_TIMEOUT;
+    typedef struct ALLEGRO_TIMEOUT ALLEGRO_TIMEOUT;
 
-Don't know yet.
+**This is shared with the events API.**
 
 
 
@@ -255,11 +255,27 @@ Remember not to unlock the mutex prematurely.
 
 
 
+[al_init_timeout]: #al_init_timeout
+## al_init_timeout
+
+    void al_init_cond_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);
+
+Set a timeout of the specified number of seconds after the time that the call
+is made.
+
+ALLEGRO_TIMEOUT structures can be statically allocated, e.g.
+
+    ALLEGRO_TIMEOUT timeout;
+
+    al_init_timeout(&timeout, 5.0);
+
+
+
 [al_wait_cond_timed]: #al_wait_cond_timed
 ## al_wait_cond_timed
 
     int al_wait_cond_timed(ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex,
-                          const ALLEGRO_COND_TIMEOUT timeout);
+                          const ALLEGRO_TIMEOUT *timeout);
 
 Like `al_wait_cond` but the call can time out.
 

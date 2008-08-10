@@ -9,6 +9,17 @@
 AL_BEGIN_EXTERN_C
 
 
+/* Struct: ALLEGRO_TIMEOUT
+ *  Represent a timeout value.  The size of the structure is known so can be
+ *  statically allocated.  The contents are private.
+ */
+typedef struct ALLEGRO_TIMEOUT ALLEGRO_TIMEOUT;
+struct ALLEGRO_TIMEOUT {
+   uint64_t __pad1__;
+   uint64_t __pad2__;
+};
+
+
 
 /* Function: al_current_time
  *  Return the number of seconds since the Allegro library was
@@ -29,6 +40,13 @@ AL_FUNC(double, al_current_time, (void));
  *  on easier ways to time your program without using up all CPU.
  */
 AL_FUNC(void, al_rest, (double seconds));
+
+
+
+/* Function: al_init_timeout
+ *  Set timeout value of some number of seconds after the function call.
+ */
+AL_FUNC(void, al_init_timeout, (ALLEGRO_TIMEOUT *timeout, double seconds));
 
 
 

@@ -300,15 +300,10 @@ void _al_cond_wait(_AL_COND *cond, _AL_MUTEX *mtxExternal)
 }
 
 
-void _al_cond_timeout_init(_AL_COND_TIMEOUT *timeout, unsigned int rel_msecs)
-{
-   timeout->abstime = timeGetTime() + rel_msecs;
-}
-
-
 int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mtxExternal,
-   const _AL_COND_TIMEOUT *timeout)
+   const ALLEGRO_TIMEOUT *timeout)
 {
+   ALLEGRO_TIMEOUT_WIN *win_timeout = (ALLEGRO_TIMEOUT_WIN *) timeout;
    DWORD now;
    DWORD rel_msecs;
 
@@ -316,7 +311,7 @@ int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mtxExternal,
    ASSERT(mtxExternal);
 
    now = timeGetTime();
-   rel_msecs = timeout->abstime - now;
+   rel_msecs = win_timeout->abstime - now;
    if (rel_msecs == INFINITE) {
       rel_msecs--;
    }

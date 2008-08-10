@@ -37,7 +37,8 @@ struct _AL_COND
    CRITICAL_SECTION mtxUnblockLock;
 };
 
-struct _AL_COND_TIMEOUT
+typedef struct ALLEGRO_TIMEOUT_WIN ALLEGRO_TIMEOUT_WIN;
+struct ALLEGRO_TIMEOUT_WIN
 {
    DWORD abstime;
 };
