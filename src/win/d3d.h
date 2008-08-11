@@ -33,7 +33,6 @@ typedef struct ALLEGRO_BITMAP_D3D
 
    bool initialized;
    bool is_backbuffer;
-   bool is_target;
 
    D3DLOCKED_RECT locked_rect;
 
@@ -72,17 +71,14 @@ typedef struct ALLEGRO_DISPLAY_D3D
    int mouse_range_y2;
 
    bool device_lost;
-   ALLEGRO_BITMAP *target_bitmap_before_device_lost;
 
    bool ignore_ack; // al_resize_display doesn't need acknowledge_resize
    		    // (but you should do it anyway, for portability)
 
-   bool bitmaps_prepared_for_reset;
    UINT adapter;
    bool faux_fullscreen;
 
    TCHAR device_name[32];
-   _AL_MUTEX mutex;
 
 } ALLEGRO_DISPLAY_D3D;
 

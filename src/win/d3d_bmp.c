@@ -362,11 +362,23 @@ void _al_d3d_release_default_pool_textures(ALLEGRO_DISPLAY_D3D *disp)
    if (!_al_d3d_render_to_texture_supported())
       return;
 
+/*
    for (i = 0; i < created_bitmaps._size; i++) {
       ALLEGRO_BITMAP_D3D **bptr = _al_vector_ref(&created_bitmaps, i);
       ALLEGRO_BITMAP_D3D *bmp = *bptr;
       if (bmp->display == disp)
 	      IDirect3DTexture9_Release(bmp->video_texture);
+   }
+   */
+
+   for (i = 0; i < disp->display.bitmaps._size; i++) {
+   	ALLEGRO_BITMAP **bptr = _al_vector_ref(&disp->display.bitmaps, i);
+	ALLEGRO_BITMAP *albmp = *bptr;
+	ALLEGRO_BITMAP_D3D *d3d_bmp;
+	if (albmp->flags & ALLEGRO_MEMORY_BITMAP)
+		continue;
+	d3d_bmp = (ALLEGRO_BITMAP_D3D *)albmp;
+	IDirect3DTexture9_Release(d3d_bmp->video_texture);
    }
 }
 
