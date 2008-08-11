@@ -523,7 +523,6 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    bytes = pitch * true_h;
    bitmap->bitmap.memory = _AL_MALLOC_ATOMIC(bytes);
-   memset(bitmap->bitmap.memory, 0, bytes);
 
    return &bitmap->bitmap;
 }

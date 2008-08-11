@@ -90,7 +90,6 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    // this will easily fill up its own file of 1000 lines, but for now,
    // RGBA with 8-bit per component is hardcoded.
    bitmap->memory = _AL_MALLOC(pitch * h);
-   memset(bitmap->memory, 0, pitch * h);
    return bitmap;
 }
 

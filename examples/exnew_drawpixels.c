@@ -64,7 +64,7 @@ int main(void)
             Point *p = &stars[0][star];
             al_draw_pixel(p->x, p->y, colors[0]);
          }
-	 al_lock_bitmap(al_get_backbuffer(), &lr, ALLEGRO_LOCK_WRITEONLY);
+         al_lock_bitmap(al_get_backbuffer(), &lr, 0);
          for (layer = 1; layer < 3; layer++) {
             for (star = 0; star < NUM_STARS/3; star++) {
                Point *p = &stars[layer][star];
@@ -72,7 +72,7 @@ int main(void)
                al_put_pixel(p->x, p->y, colors[layer]);
             }
          }
-	 al_unlock_bitmap(al_get_backbuffer());
+         al_unlock_bitmap(al_get_backbuffer());
          al_flip_display();
          total_frames++;
       }
