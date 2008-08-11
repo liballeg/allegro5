@@ -3,6 +3,7 @@
  *
  *  By Michael Rickmann.
  */
+#define SCAN_DEPEND
 
 
 #define AL_VAR(type, name)                   allexpvar name##_sym
@@ -28,7 +29,7 @@
 #elif defined ALLEGRO_WINAPI
 
    #define ALLEGRO_H
-   #include "allegro5/platform/alplatf.h"
+   //#include "allegro5/platform/alplatf.h"
    #include "allegro5/winalleg.h"
    #include "allegro5/platform/alwin.h"
 
