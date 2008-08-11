@@ -728,7 +728,6 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *disp)
 {
    ALLEGRO_BITMAP *curr = al_get_target_bitmap();
-   ALLEGRO_BITMAP_D3D *curr_d3d;
    bool reset_target = false;
 
     _al_d3d_prepare_for_reset(disp);
@@ -1752,11 +1751,11 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 
       AdjustWindowRectEx(&win_size, wi.dwStyle, FALSE, wi.dwExStyle);
 
-      ret = SetWindowPos(disp->window, HWND_TOP,
+      ret = (SetWindowPos(disp->window, HWND_TOP,
          0, 0,
          win_size.right-win_size.left,
          win_size.bottom-win_size.top,
-         SWP_NOMOVE|SWP_NOZORDER);
+         SWP_NOMOVE|SWP_NOZORDER)) != 0;
 
       /*
        * The clipping rectangle and bitmap size must be

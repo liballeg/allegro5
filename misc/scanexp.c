@@ -20,6 +20,9 @@
 #define ALLEGRO_COLOR32
 #define ALLEGRO_NO_COLORCOPY
 #define ALLEGRO_WINDOWS
+/* Make OpenGL mandatory. A library without OpenGL lacks many
+ * exports specific to OpenGL, which makes it ABI incompatible. */
+#define ALLEGRO_CFG_OPENGL
 
 
 #if defined ALLEGRO_API
@@ -29,7 +32,6 @@
 #elif defined ALLEGRO_WINAPI
 
    #define ALLEGRO_H
-   //#include "allegro5/platform/alplatf.h"
    #include "allegro5/winalleg.h"
    #include "allegro5/platform/alwin.h"
 
