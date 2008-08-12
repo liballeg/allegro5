@@ -4,19 +4,6 @@
 #include "allegro5/a5_font.h"
 
 
-static bool space_key_down(void)
-{
-   ALLEGRO_KBDSTATE kbdstate;
-
-   al_get_keyboard_state(&kbdstate);
-
-   if (al_key_down(&kbdstate, ALLEGRO_KEY_SPACE)) {
-      return true;
-   }
-
-   return false;
-}
-
 static void print(A5FONT_FONT *myfont, char *message, int x, int y)
 {
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
@@ -29,18 +16,25 @@ static void print(A5FONT_FONT *myfont, char *message, int x, int y)
 
 static void test(ALLEGRO_BITMAP *bitmap, A5FONT_FONT *font, char *message)
 {
+   ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_EVENT event;
    double start_time;
    long frames = 0;
    double fps = 0;
    char second_line[100];
 
+   queue = al_create_event_queue();
+   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) al_get_keyboard());
+
    start_time = al_current_time();
 
    for (;;) {
-      if (space_key_down()) {
-         while (space_key_down())
-            ;
-         break;
+      if (al_get_next_event(queue, &event)) {
+         if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == ALLEGRO_KEY_SPACE)
+         {
+            break;
+         }
       }
 
       al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO,
@@ -63,6 +57,8 @@ static void test(ALLEGRO_BITMAP *bitmap, A5FONT_FONT *font, char *message)
       frames++;
       fps = (double)frames / (al_current_time() - start_time);
    }
+
+   al_destroy_event_queue(queue);
 }
 
 int main(void)
