@@ -133,30 +133,33 @@ def examples(env,appendDir,buildDir,libDir):
     ## Add an example
     ## name - filename of example and also the alias of the target
     ## files - list of files associated with the example
-    def addExample(name, files):
+    def example(name, files = None):
+        if files is None:
+            files = [name + ".c"]
         example = exEnv.Program('examples/' + name, appendDir(buildDir + '/examples/', files))
         Alias(name, example)
         examples.append(example)
 
-    addExample('exnewapi', [ 'exnewapi.c' ])
-    addExample('exnew_bitmap', [ 'exnew_bitmap.c' ])
-    addExample('exnew_lockscreen', [ 'exnew_lockscreen.c' ])
-    addExample('exnew_lockbitmap', [ 'exnew_lockbitmap.c' ])
-    addExample('exnew_resize', [ 'exnew_resize.c' ])
-    addExample('exnew_fs_resize', [ 'exnew_fs_resize.c' ])
-    addExample('exnew_events', [ 'exnew_events.c' ])
-    addExample('exnew_mouse', [ 'exnew_mouse.c' ])
-    addExample('exnew_mouse_events', [ 'exnew_mouse_events.c' ])
-    addExample('exnew_icon', [ 'exnew_icon.c' ])
-    addExample('exnew_membmp', ['exnew_membmp.c'])
-    addExample('exnew_opengl', ['exnew_opengl.c'])
-    addExample('exnew_bitmap_target', ['exnew_bitmap_target.c'])
-    addExample('exnew_blend', ['exnew_blend.c'])
-    addExample('exnew_timer', ['exnew_timer.c'])
-    addExample('exnew_timedwait', ['exnew_timedwait.c'])
-    addExample('exnew_scale', ['exnew_scale.c'])
-    addExample('exnew_drawpixels', ['exnew_drawpixels.c'])
-    addExample('exnew_multiwin', ['exnew_multiwin.c'])
+    example("exnew_bitmap")
+    example("exnew_bitmap_target")
+    example("exnew_blend")
+    example("exnew_drawpixels")
+    example("exnew_dualies")
+    example("exnew_events")
+    example("exnew_fs_resize")
+    example("exnew_icon")
+    example("exnew_lockbitmap")
+    example("exnew_lockscreen")
+    example("exnew_membmp")
+    example("exnew_monitorinfo")
+    example("exnew_mouse")
+    example("exnew_mouse_events")
+    example("exnew_multiwin")
+    example("exnew_opengl")
+    example("exnew_resize")
+    example("exnew_scale")
+    example("exnew_timedwait")
+    example("exnew_timer")
 
     Alias('examples', examples)
     return examples
