@@ -561,3 +561,42 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
    destroy_bitmap(scaled_bmp);
 }
 
+void _al_win_set_window_position(HWND window, int x, int y)
+{
+   SetWindowPos(
+      window,
+      HWND_TOP,
+      x,
+      y,
+      0,
+      0,
+      SWP_NOSIZE | SWP_NOZORDER);
+
+   wnd_x = x;
+   wnd_y = y;
+}
+
+void _al_win_get_window_position(HWND window, int *x, int *y)
+{
+   RECT r;
+
+   _al_win_get_window_pos(window, &r);
+
+   if (x) {
+      *x = r.left;
+   }
+   if (y) {
+      *y = r.top;
+   }
+}
+
+void _al_win_remove_window_frame(HWND window, int w, int h)
+{
+   LONG temp;
+
+   temp = GetWindowLong(window, GWL_STYLE);
+   temp &= ~WS_CAPTION;
+   SetWindowLong(window, GWL_STYLE, temp);
+   SetWindowPos(window, 0, 0, 0, w, h, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+}
+

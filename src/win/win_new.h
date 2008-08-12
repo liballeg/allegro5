@@ -34,6 +34,18 @@ AL_VAR(UINT, _al_win_msg_suicide);
 void _al_win_set_display_icon(ALLEGRO_DISPLAY *display ,ALLEGRO_BITMAP *bitmap);
 void _al_win_get_window_pos(HWND window, RECT *pos);
 
+
+
+
+
+void _al_win_set_window_position(HWND window, int x, int y);
+void _al_win_get_window_position(HWND window, int *x, int *y);
+void _al_win_remove_window_frame(HWND window, int w, int h);
+
+
+
+
+
 #if defined ALLEGRO_CFG_D3D
 
 AL_FUNC(int, _al_d3d_get_num_display_modes,

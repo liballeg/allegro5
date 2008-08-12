@@ -791,7 +791,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *disp)
 				TRACE("D3DERR_DEVICELOST in reset.\n");
 				break;
 				default:
-				TRACE("Direct3D Device reset failed (unknown reason %d).\n", hr);
+				TRACE("Direct3D Device reset failed (unknown reason).\n");
 				break;
 				}
 				return 0;
@@ -1033,7 +1033,6 @@ static void d3d_display_thread_proc(void *arg)
 				&dm)) {
 			continue;
 		}
-		TRACE("dm.dmPosition.x=%d dm.dmPosition.y=%d\n", dm.dmPosition.x, dm.dmPosition.y);
 		if (mi.x1 == dm.dmPosition.x && mi.y1 == dm.dmPosition.y) {
 			break;
 		}
@@ -2108,46 +2107,19 @@ LPDIRECT3DTEXTURE9 al_d3d_get_video_texture(ALLEGRO_BITMAP *bitmap)
 
 void d3d_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
-	ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
-
-	SetWindowPos(
-	   d3d_disp->window,
-	   HWND_TOP,
-	   x,
-	   y,
-	   0,
-	   0,
-	   SWP_NOSIZE | SWP_NOZORDER);
-
-
-   wnd_x = x;
-   wnd_y = y;
+   _al_win_set_window_position(((ALLEGRO_DISPLAY_D3D *)display)->window, x, y);
 }
 
 void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 {
-	ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
-	RECT r;
-
-	_al_win_get_window_pos(d3d_disp->window, &r);
-
-	if (x) {
-	   *x = r.left;
-	}
-	if (y) {
-	   *y = r.top;
-	}
+   _al_win_get_window_position(((ALLEGRO_DISPLAY_D3D *)display)->window, x, y);
 }
 
 void d3d_remove_frame(ALLEGRO_DISPLAY *display)
 {
-   LONG temp;
-   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
-
-   temp = GetWindowLong(d3d_disp->window, GWL_STYLE);
-   temp &= ~WS_CAPTION;
-   SetWindowLong(d3d_disp->window, GWL_STYLE, temp);
-   SetWindowPos(d3d_disp->window, 0, 0, 0, display->w, display->h, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+   _al_win_remove_window_frame(
+      ((ALLEGRO_DISPLAY_D3D *)display)->window,
+      display->w, display->h);
 }
 
 
