@@ -36,10 +36,11 @@ typedef struct WIN_WINDOW {
 } WIN_WINDOW;
 static _AL_VECTOR win_window_list = _AL_VECTOR_INITIALIZER(WIN_WINDOW *);
 
+
 /*
  * Find the top left position of the client area of a window.
  */
-static void win_get_window_pos(HWND window, RECT *pos)
+void _al_win_get_window_pos(HWND window, RECT *pos)
 {
    RECT with_decorations;
    RECT adjusted;
@@ -82,6 +83,8 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    WIN_WINDOW *win_window;
    WIN_WINDOW **add;
    WINDOWINFO wi;
+   int pos_x, pos_y;
+   bool center = true;
 
    /* Save the thread handle for later use */
    *((DWORD *)_al_vector_alloc_back(&thread_handles)) = GetCurrentThreadId();
@@ -108,9 +111,17 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       ex_style = WS_EX_APPWINDOW;
    }
 
+   al_get_new_window_position(&pos_x, &pos_y);
+   if (pos_x == INT_MAX) {
+   	pos_x = pos_y = 0;
+   }
+   else {
+   	center = false;
+   }
+
    my_window = CreateWindowEx(ex_style,
       "ALEX", wnd_title, style,
-      0, 0, width, height,
+      pos_x, pos_y, width, height,
       NULL,NULL,window_class.hInstance,0);
    ShowWindow(_al_win_compat_wnd, SW_HIDE);
 
@@ -120,15 +131,17 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    add = _al_vector_alloc_back(&win_window_list);
    *add = win_window;
 
-   GetWindowInfo(my_window, &wi);
-   AdjustWindowRectEx(&win_size, wi.dwStyle, FALSE, wi.dwExStyle);
+   if (center) {
+      GetWindowInfo(my_window, &wi);
+      AdjustWindowRectEx(&win_size, wi.dwStyle, FALSE, wi.dwExStyle);
 
-   MoveWindow(my_window, win_size.left, win_size.top,
-      win_size.right - win_size.left,
-      win_size.bottom - win_size.top,
-      TRUE);
+      MoveWindow(my_window, win_size.left, win_size.top,
+         win_size.right - win_size.left,
+         win_size.bottom - win_size.top,
+         TRUE);
+   }	      
 
-   win_get_window_pos(my_window, &pos);
+   _al_win_get_window_pos(my_window, &pos);
    wnd_x = pos.left;
    wnd_y = pos.top;
 
@@ -209,13 +222,6 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    add = _al_vector_alloc_back(&win_window_list);
    *add = win_window;
 
-   win_get_window_pos(my_window, &pos);
-   wnd_x = pos.left;
-   wnd_y = pos.top;
-
-   wnd_x = 0;
-   wnd_y = 0;
-
    _al_win_wnd = my_window;
    return my_window;
 }
@@ -293,16 +299,23 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          break;
          case WM_ACTIVATEAPP:
             if (wParam) {
-				//if (al_set_current_display((ALLEGRO_DISPLAY *)d)) {
-				   _al_win_wnd = win->window;
-				   win_grab_input();
-				   win_get_window_pos(win->window, &pos);
-				   wnd_x = pos.left;
-				   wnd_y = pos.top;
-				   if (d->vt->switch_in)
-					  d->vt->switch_in(d);
-				   return 0;
-				//}
+               //if (al_set_current_display((ALLEGRO_DISPLAY *)d)) {
+               _al_win_wnd = win->window;
+               win_grab_input();
+               if (d->vt->switch_in)
+               d->vt->switch_in(d);
+               _al_event_source_lock(es);
+                  if (_al_event_source_needs_to_generate_event(es)) {
+                     ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+                     if (event) {
+                        event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+                        event->display.timestamp = al_current_time();
+                        _al_event_source_emit_event(es, event);
+                     }
+                  }
+               _al_event_source_unlock(es);
+               return 0;
+               //}
             }
             else {
                if (_al_vector_find(&thread_handles, &lParam) < 0) {
@@ -314,6 +327,16 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                      d->vt->switch_out(d);
                   }
                   _al_win_ungrab_input();
+                  _al_event_source_lock(es);
+                     if (_al_event_source_needs_to_generate_event(es)) {
+                        ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+                        if (event) {
+                           event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+                           event->display.timestamp = al_current_time();
+                           _al_event_source_emit_event(es, event);
+                        }
+                     }
+                  _al_event_source_unlock(es);
                   return 0;
                }
             }

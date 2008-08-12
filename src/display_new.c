@@ -35,6 +35,8 @@
 extern ALLEGRO_DISPLAY_INTERFACE *_al_glx_vt(void);
 
 static int current_video_adapter = 0;
+static int new_window_x = INT_MAX;
+static int new_window_y = INT_MAX;
 
 /* Function: al_create_display
  *
@@ -570,5 +572,56 @@ int al_get_current_video_adapter(void)
 void al_set_current_video_adapter(int adapter)
 {
    current_video_adapter = adapter;
+}
+
+/* INT_MAX, INT_MAX for center of primary display */
+void al_set_new_window_position(int x, int y)
+{
+	new_window_x = x;
+	new_window_y = y;
+}
+
+void al_get_new_window_position(int *x, int *y)
+{
+	if (x)
+		*x = new_window_x;
+	if (y)
+		*y = new_window_y;
+}
+
+void al_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+{
+	if (display->flags & ALLEGRO_FULLSCREEN) {
+		return;
+	}
+
+	if (display && display->vt && display->vt->set_window_position) {
+		display->vt->set_window_position(display, x, y);
+	}
+}
+
+void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+{
+	if (display->flags & ALLEGRO_FULLSCREEN) {
+		return;
+	}
+
+	if (display && display->vt && display->vt->get_window_position) {
+		display->vt->get_window_position(display, x, y);
+	}
+	else {
+		*x = *y = -1;
+	}
+}
+
+void al_remove_window_frame(ALLEGRO_DISPLAY *display)
+{
+	if (display->flags & ALLEGRO_FULLSCREEN) {
+		return;
+	}
+
+	if (display && display->vt && display->vt->remove_frame) {
+		display->vt->remove_frame(display);
+	}
 }
 

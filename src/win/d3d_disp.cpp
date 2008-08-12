@@ -1210,6 +1210,7 @@ End:
 static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display)
 {
    new_display_parameters params;// = (new_display_parameters *)_AL_MALLOC(sizeof(new_display_parameters));
+   int w, h;
 
    TRACE("display=%p\n", display);
 
@@ -1249,6 +1250,25 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display)
    IDirect3DDevice9_SetRenderState(display->device, D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
    IDirect3DDevice9_SetRenderState(display->device, D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
  
+   w = display->display.w;
+   h = display->display.h;
+
+   /* Set up a dummy gfx_driver */
+   gfx_driver = &_al_d3d_dummy_gfx_driver;
+   gfx_driver->w = w;
+   gfx_driver->h = h;
+   gfx_driver->windowed = (display->display.flags & ALLEGRO_FULLSCREEN) ? 0 : 1;
+
+   /* Setup the mouse */
+   display->mouse_range_x1 = 0;
+   display->mouse_range_y1 = 0;
+   display->mouse_range_x2 = w;
+   display->mouse_range_y2 = h;
+   if (al_is_mouse_installed()) {
+      al_set_mouse_xy(w/2, h/2);
+      al_set_mouse_range(0, 0, w, h);
+   }
+
    return true;
 }
 
@@ -1310,22 +1330,6 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    /* Keep track of the displays created */
    add = (ALLEGRO_DISPLAY_D3D **)_al_vector_alloc_back(&d3d_created_displays);
    *add = display;
-
-   /* Set up a dummy gfx_driver */
-   gfx_driver = &_al_d3d_dummy_gfx_driver;
-   gfx_driver->w = w;
-   gfx_driver->h = h;
-   gfx_driver->windowed = (display->display.flags & ALLEGRO_FULLSCREEN) ? 0 : 1;
-
-   /* Setup the mouse */
-   display->mouse_range_x1 = 0;
-   display->mouse_range_y1 = 0;
-   display->mouse_range_x2 = w;
-   display->mouse_range_y2 = h;
-   if (al_is_mouse_installed()) {
-      al_set_mouse_xy(w/2, h/2);
-      al_set_mouse_range(0, 0, w, h);
-   }
 
    return (ALLEGRO_DISPLAY *)display;
 }
@@ -1768,6 +1772,32 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       al_set_clipping_rectangle(0, 0, width-1, height-1);
       d3d_set_bitmap_clip(&disp->backbuffer_bmp.bitmap);
       _al_pop_target_bitmap();
+#if 0
+
+      TRACE("resizing windowed display!\n");
+      d3d_destroy_display_internals(disp);
+      d->w = width;
+      d->h = height;
+      disp->end_thread = false;
+      disp->initialized = false;
+      disp->init_failed = false;
+      disp->thread_ended = false;
+	  /* What's this? */
+	  if (d3d_created_displays._size <= 1) {
+		  ffw_set = false;
+	  }
+      if (!d3d_create_display_internals(disp)) {
+         _AL_FREE(disp);
+         return false;
+      }
+      al_set_current_display(d);
+      al_set_target_bitmap(al_get_backbuffer());
+      _al_d3d_recreate_bitmap_textures(disp);
+
+      disp->backbuffer_bmp.bitmap.w = width;
+      disp->backbuffer_bmp.bitmap.h = height;
+#endif
+      ret = true;
    }
 
    disp->ignore_ack = true;
@@ -2076,6 +2106,50 @@ LPDIRECT3DTEXTURE9 al_d3d_get_video_texture(ALLEGRO_BITMAP *bitmap)
 	return ((ALLEGRO_BITMAP_D3D *)bitmap)->video_texture;
 }
 
+void d3d_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+{
+	ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
+
+	SetWindowPos(
+	   d3d_disp->window,
+	   HWND_TOP,
+	   x,
+	   y,
+	   0,
+	   0,
+	   SWP_NOSIZE | SWP_NOZORDER);
+
+
+   wnd_x = x;
+   wnd_y = y;
+}
+
+void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+{
+	ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
+	RECT r;
+
+	_al_win_get_window_pos(d3d_disp->window, &r);
+
+	if (x) {
+	   *x = r.left;
+	}
+	if (y) {
+	   *y = r.top;
+	}
+}
+
+void d3d_remove_frame(ALLEGRO_DISPLAY *display)
+{
+   LONG temp;
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
+
+   temp = GetWindowLong(d3d_disp->window, GWL_STYLE);
+   temp &= ~WS_CAPTION;
+   SetWindowLong(d3d_disp->window, GWL_STYLE, temp);
+   SetWindowPos(d3d_disp->window, 0, 0, 0, display->w, display->h, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+}
+
 
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
@@ -2110,6 +2184,9 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->hide_cursor = d3d_hide_cursor;
    vt->set_icon = _al_win_set_display_icon;
    vt->draw_pixel = d3d_draw_pixel;
+   vt->set_window_position = d3d_set_window_position;
+   vt->get_window_position = d3d_get_window_position;
+   vt->remove_frame = d3d_remove_frame;
 
    return vt;
 }
