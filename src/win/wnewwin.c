@@ -168,7 +168,6 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
 	int x1, int y1, int width, int height, int refresh_rate, int flags)
 {
    HWND my_window;
-   RECT pos;
    DWORD style;
    DWORD ex_style;
    WIN_WINDOW *win_window;
@@ -243,7 +242,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    int y;
    unsigned int i, j;
    ALLEGRO_EVENT_SOURCE *es = NULL;
-   RECT pos;
    ALLEGRO_SYSTEM *system = al_system_driver();
    WIN_WINDOW *win = NULL;
 

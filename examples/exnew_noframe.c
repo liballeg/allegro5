@@ -23,7 +23,6 @@ int main(void)
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_EVENT event;
-   int i;
    bool down = false;
    int down_x, down_y;
    ALLEGRO_TIMER *timer;

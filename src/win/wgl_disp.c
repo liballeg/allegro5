@@ -625,7 +625,11 @@ static OGL_PIXEL_FORMAT* read_pixel_format_ext(int fmt, HDC dc) {
       ret = __wglGetPixelFormatAttribivEXT(dc, fmt, 0, num_attribs, attrib, value);
    }
    else {
-      log_win32_error("describe_pixel_format_new", "wglGetPixelFormatAttrib failed!",
+      ret = 0;
+   }
+   
+   if (!ret) {
+      log_win32_error("read_pixel_format_ext", "wglGetPixelFormatAttrib failed!",
                       GetLastError());
       free(value);
       return NULL;
@@ -1299,6 +1303,25 @@ static void wgl_switch_out(ALLEGRO_DISPLAY *display)
 }
 
 
+void wgl_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+{
+   _al_win_set_window_position(((ALLEGRO_DISPLAY_WGL *)display)->window, x, y);
+}
+
+
+void wgl_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+{
+   _al_win_get_window_position(((ALLEGRO_DISPLAY_WGL *)display)->window, x, y);
+}
+
+
+void wgl_remove_frame(ALLEGRO_DISPLAY *display)
+{
+   _al_win_remove_window_frame(
+      ((ALLEGRO_DISPLAY_WGL *)display)->window,
+      display->w, display->h);
+}
+
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
 {
@@ -1326,6 +1349,9 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt->show_cursor = wgl_show_cursor;
    vt->hide_cursor = wgl_hide_cursor;
    vt->set_icon = _al_win_set_display_icon;
+   vt->set_window_position = wgl_set_window_position;
+   vt->get_window_position = wgl_get_window_position;
+   vt->remove_frame = wgl_remove_frame;
    _al_ogl_add_drawing_functions(vt);
 
    return vt;
