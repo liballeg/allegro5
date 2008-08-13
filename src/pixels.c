@@ -497,7 +497,7 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
    if (bitmap->locked) {
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;
-      if (x < 0 || y < 0 || x > bitmap->lock_w || y > bitmap->lock_h) {
+      if (x < 0 || y < 0 || x >= bitmap->lock_w || y >= bitmap->lock_h) {
          TRACE("al_get_pixel out of bounds\n");
          memset(&color, 0, sizeof(ALLEGRO_COLOR));
          return color;
@@ -861,8 +861,7 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
    if (bitmap->locked) {
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;
-      if (x < bitmap->cl || y < bitmap->ct ||
-            x > bitmap->cr || y > bitmap->cb) {
+      if (x < 0 || y < 0 || x >= bitmap->lock_w || y >= bitmap->lock_h) { 
          return;
       }
 
