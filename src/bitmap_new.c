@@ -812,7 +812,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 
       //_AL_REALLOC(bitmap, sizeof(ALLEGRO_BITMAP));
       bitmap->display = NULL;
-      bitmap->flags &= ALLEGRO_MEMORY_BITMAP;
+      bitmap->flags |= ALLEGRO_MEMORY_BITMAP;
       return;
    }
 
