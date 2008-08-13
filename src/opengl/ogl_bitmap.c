@@ -74,13 +74,14 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
    };
 
-   glGetBooleanv(GL_TEXTURE_2D, &on);
-   if (!on)
-      glEnable(GL_TEXTURE_2D);
-
    al_get_blender(&src_mode, &dst_mode, NULL);
    glEnable(GL_BLEND);
    glBlendFunc(blend_modes[src_mode], blend_modes[dst_mode]);
+
+   glGetBooleanv(GL_TEXTURE_2D, &on);
+   if (!on) {
+      glEnable(GL_TEXTURE_2D);
+   }
 
    glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, (GLint*)&current_texture);
    if (current_texture != ogl_bitmap->texture) {
@@ -121,8 +122,9 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
 
    glPopMatrix();
 
-   if (!on)
+   if (!on) {
       glDisable(GL_TEXTURE_2D);
+   }
 }
 
 
