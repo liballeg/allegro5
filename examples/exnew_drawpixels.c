@@ -72,6 +72,12 @@ int main(void)
                al_put_pixel(p->x, p->y, colors[layer]);
             }
          }
+
+	 /* Check that dots appear at the window extremes. */
+	 al_put_pixel(0, 0, al_map_rgb_f(1, 1, 0));
+	 al_put_pixel(al_get_display_width()-1, al_get_display_height()-1,
+	     al_map_rgb_f(0, 1, 1));
+
          al_unlock_bitmap(al_get_backbuffer());
          al_flip_display();
          total_frames++;
