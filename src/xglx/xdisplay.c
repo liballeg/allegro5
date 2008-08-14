@@ -37,7 +37,7 @@ static void set_size_hints(ALLEGRO_DISPLAY *d, int w, int h)
       hints->flags = PMinSize | PMaxSize | PBaseSize;
       hints->min_width  = hints->max_width  = hints->base_width  = w;
       hints->min_height = hints->max_height = hints->base_height = h;
-      XSetWMNormalHints(system->xdisplay, glx->window, hints);
+      XSetWMNormalHints(system->x11display, glx->window, hints);
 
       XFree(hints);
    }
@@ -59,11 +59,11 @@ static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
    int h = al_get_bitmap_height(bitmap);
 
    XWindowAttributes attributes;
-   XGetWindowAttributes(system->xdisplay, display->window,
+   XGetWindowAttributes(system->x11display, display->window,
       &attributes);
 
    // FIXME: Do we need to check for other depths? Just 32 now..
-   XImage *image = XCreateImage(system->xdisplay, attributes.visual,
+   XImage *image = XCreateImage(system->x11display, attributes.visual,
       attributes.depth, ZPixmap, 0, NULL, w, h, 32, 0);
    // FIXME: Must check for errors
    // TODO: Is this really freed by XDestroyImage?
@@ -90,12 +90,12 @@ static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
        /* XXX what should we do here? */
    }
 
-   display->icon = XCreatePixmap(system->xdisplay, display->window,
+   display->icon = XCreatePixmap(system->x11display, display->window,
       bitmap->w, bitmap->h, attributes.depth);
 
-   GC gc = XCreateGC(system->xdisplay, display->icon, 0, NULL);
-   XPutImage(system->xdisplay, display->icon, gc, image, 0, 0, 0, 0, w, h);
-   XFreeGC(system->xdisplay, gc);
+   GC gc = XCreateGC(system->x11display, display->icon, 0, NULL);
+   XPutImage(system->x11display, display->icon, gc, image, 0, 0, 0, 0, w, h);
+   XFreeGC(system->x11display, gc);
    XDestroyImage(image);
 
    wm_hints.flags = IconPixmapHint | IconMaskHint;
@@ -103,10 +103,10 @@ static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
    // FIXME: Does X11 support apha values? In any case, we need a separate
    // mask here!
    wm_hints.icon_mask = display->icon;
-   XSetWMHints(system->xdisplay, display->window, &wm_hints);
+   XSetWMHints(system->x11display, display->window, &wm_hints);
    // FIXME: Do we have to destroy the icon pixmap, or is it owned by X11 now?
 
-   XFlush(system->xdisplay);
+   XFlush(system->x11display);
 
    _al_mutex_unlock(&system->lock);
 }
@@ -126,7 +126,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    _al_mutex_lock(&system->lock);
 
    int major, minor;
-   glXQueryVersion(system->xdisplay, &major, &minor);
+   glXQueryVersion(system->x11display, &major, &minor);
    d->glx_version = major * 100 + minor * 10;
    TRACE("xdisplay: GLX %.1f.\n", d->glx_version / 100.f);
 
@@ -144,7 +144,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    display->flags |= ALLEGRO_OPENGL;
 
    // TODO: What is this?
-   d->xscreen = DefaultScreen(system->xdisplay);
+   d->xscreen = DefaultScreen(system->x11display);
 
    if (display->flags & ALLEGRO_FULLSCREEN)
       _al_xglx_fullscreen_set_mode(system, w, h, 0, 0);
@@ -164,8 +164,8 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    TRACE("xdisplay: Selected visual %lx.\n", d->xvinfo->visualid);
 
    /* Create a colormap. */
-   Colormap cmap = XCreateColormap(system->xdisplay,
-      RootWindow(system->xdisplay, d->xvinfo->screen),
+   Colormap cmap = XCreateColormap(system->x11display,
+      RootWindow(system->x11display, d->xvinfo->screen),
       d->xvinfo->visual, AllocNone);
 
    /* Create an X11 window */
@@ -185,8 +185,8 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       ButtonReleaseMask |
       PointerMotionMask;
 
-   d->window = XCreateWindow(system->xdisplay, RootWindow(
-      system->xdisplay, d->xvinfo->screen), 0, 0, w, h, 0, d->xvinfo->depth,
+   d->window = XCreateWindow(system->x11display, RootWindow(
+      system->x11display, d->xvinfo->screen), 0, 0, w, h, 0, d->xvinfo->depth,
       InputOutput, d->xvinfo->visual,
       CWBorderPixel | CWColormap | CWEventMask, &swa);
 
@@ -194,15 +194,15 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    set_size_hints(display, w, h);
 
-   d->wm_delete_window_atom = XInternAtom (system->xdisplay,
+   d->wm_delete_window_atom = XInternAtom (system->x11display,
       "WM_DELETE_WINDOW", False);
-   XSetWMProtocols(system->xdisplay, d->window, &d->wm_delete_window_atom, 1);
+   XSetWMProtocols(system->x11display, d->window, &d->wm_delete_window_atom, 1);
 
-   XMapWindow(system->xdisplay, d->window);
+   XMapWindow(system->x11display, d->window);
    TRACE("xdisplay: X11 window mapped.\n");
 
    /* Send the pending request to the X server. */
-   XSync(system->xdisplay, False);
+   XSync(system->x11display, False);
    /* To avoid race conditions where some X11 functions fail before the window
     * is mapped, we wait here until it is mapped. Note that the thread is
     * locked, so the event could not possibly have been processed yet in the
@@ -221,11 +221,11 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
     * thread.
     */
    if (d->fbc) {
-      glXMakeContextCurrent(system->xdisplay, d->glxwindow, d->glxwindow,
+      glXMakeContextCurrent(system->gfxdisplay, d->glxwindow, d->glxwindow,
          d->context);
    }
    else {
-      glXMakeCurrent(system->xdisplay, d->glxwindow, d->context);
+      glXMakeCurrent(system->gfxdisplay, d->glxwindow, d->context);
    }
 
    _al_ogl_manage_extensions(ogl_disp);
@@ -282,7 +282,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 
    _al_mutex_lock(&s->lock);
    _al_vector_find_and_delete(&s->system.displays, &d);
-   XDestroyWindow(s->xdisplay, glx->window);
+   XDestroyWindow(s->x11display, glx->window);
 
    if (d->flags & ALLEGRO_FULLSCREEN)
       _al_xglx_restore_video_mode(s);
@@ -312,12 +312,12 @@ static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
     * thread.
     */
    if (glx->fbc) {
-      if (!glXMakeContextCurrent(system->xdisplay, glx->glxwindow,
+      if (!glXMakeContextCurrent(system->gfxdisplay, glx->glxwindow,
                                 glx->glxwindow, glx->context))
          return false;
    }
    else {
-      if (!glXMakeCurrent(system->xdisplay, glx->glxwindow, glx->context))
+      if (!glXMakeCurrent(system->gfxdisplay, glx->glxwindow, glx->context))
          return false;
    }
 
@@ -334,7 +334,7 @@ static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    glFlush();
-   glXSwapBuffers(system->xdisplay, glx->glxwindow);
+   glXSwapBuffers(system->gfxdisplay, glx->glxwindow);
 }
 
 
@@ -350,11 +350,11 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 
    /* glXQueryDrawable is GLX 1.3+. */
    /*
-   glXQueryDrawable(system->xdisplay, glx->glxwindow, GLX_WIDTH, &w);
-   glXQueryDrawable(system->xdisplay, glx->glxwindow, GLX_HEIGHT, &h);
+   glXQueryDrawable(system->x11display, glx->glxwindow, GLX_WIDTH, &w);
+   glXQueryDrawable(system->x11display, glx->glxwindow, GLX_HEIGHT, &h);
    */
 
-   XGetWindowAttributes(system->xdisplay, glx->window, &xwa);
+   XGetWindowAttributes(system->x11display, glx->window, &xwa);
    w = xwa.width;
    h = xwa.height;
 
@@ -378,8 +378,8 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
    _al_mutex_lock(&system->lock);
 
    set_size_hints(d, w, h);
-   XResizeWindow(system->xdisplay, glx->window, w, h);
-   XSync(system->xdisplay, False);
+   XResizeWindow(system->x11display, glx->window, w, h);
+   XSync(system->x11display, False);
 
    /* Wait until we are actually resized. There might be a better way.. */
    _al_cond_wait(&system->resized, &system->lock);
@@ -487,7 +487,7 @@ static bool xdpy_show_cursor(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
-   Display *xdisplay = system->xdisplay;
+   Display *xdisplay = system->x11display;
    Window xwindow = glx->window;
 
    if (!glx->cursor_hidden)
@@ -505,7 +505,7 @@ static bool xdpy_hide_cursor(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
-   Display *xdisplay = system->xdisplay;
+   Display *xdisplay = system->x11display;
    Window xwindow = glx->window;
 
    if (glx->cursor_hidden)
@@ -540,18 +540,6 @@ static bool xdpy_hide_cursor(ALLEGRO_DISPLAY *display)
    return true;
 }
 
-/* See comment in xsystem.c. We have to lock some OpenGL calls for things to
- * work with our XNextEvent-from-other-thread events.
- */
-static void _xglx_set_target_bitmap(ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *bitmap)
-{
-   ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
-   _al_mutex_lock(&s->lock);
-   _al_ogl_set_target_bitmap(display, bitmap);
-   _al_mutex_unlock(&s->lock);
-}
-
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
 {
@@ -570,7 +558,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;
    xdpy_vt->get_backbuffer = _al_ogl_get_backbuffer;
    xdpy_vt->get_frontbuffer = _al_ogl_get_backbuffer;
-   xdpy_vt->set_target_bitmap = _xglx_set_target_bitmap;
+   xdpy_vt->set_target_bitmap = _al_ogl_set_target_bitmap;
    xdpy_vt->is_compatible_bitmap = xdpy_is_compatible_bitmap;
    xdpy_vt->resize_display = xdpy_resize_display;
    xdpy_vt->upload_compat_screen = _al_xglx_display_upload_compat_screen;

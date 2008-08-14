@@ -93,8 +93,8 @@ static void xglx_background_thread(_AL_THREAD *self, void *arg)
        */
 
       _al_mutex_lock(&s->lock);
-      while (XEventsQueued(s->xdisplay, QueuedAfterFlush)) {
-         XNextEvent(s->xdisplay, &event);
+      while (XEventsQueued(s->x11display, QueuedAfterFlush)) {
+         XNextEvent(s->x11display, &event);
          process_x11_event(s, event);
       }
       _al_mutex_unlock(&s->lock);
@@ -104,7 +104,7 @@ static void xglx_background_thread(_AL_THREAD *self, void *arg)
        * the X11 connection - and just for safety also wake up 10 times
        * a second regardless.
        */
-      int x11_fd = ConnectionNumber(s->xdisplay);
+      int x11_fd = ConnectionNumber(s->x11display);
       fd_set fdset;
       FD_ZERO(&fdset);
       FD_SET(x11_fd, &fdset);
@@ -136,12 +136,15 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    s->system.vt = xglx_vt;
 
    /* Get an X11 display handle. */
-   s->xdisplay = XOpenDisplay(0);
+   s->x11display = XOpenDisplay(0);
+   
+   /* Never ask. */
+   s->gfxdisplay = XOpenDisplay(0);
 
    TRACE("xsystem: XGLX driver connected to X11 (%sys %d).\n",
-      ServerVendor(s->xdisplay), VendorRelease(s->xdisplay));
+      ServerVendor(s->x11display), VendorRelease(s->x11display));
    TRACE("xsystem: X11 protocol version %d.%d.\n",
-      ProtocolVersion(s->xdisplay), ProtocolRevision(s->xdisplay));
+      ProtocolVersion(s->x11display), ProtocolRevision(s->x11display));
 
    _al_xglx_store_video_mode(s);
    

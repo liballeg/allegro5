@@ -19,9 +19,9 @@ static void choose_visual_fbconfig(ALLEGRO_DISPLAY_XGLX *glx)
         GLX_ALPHA_SIZE, alpha_bits, 
         None};
     int nelements;
-    glx->fbc = glXChooseFBConfig(system->xdisplay,
+    glx->fbc = glXChooseFBConfig(system->gfxdisplay,
         glx->xscreen, attributes, &nelements);
-    glx->xvinfo = glXGetVisualFromFBConfig(system->xdisplay, glx->fbc[0]);
+    glx->xvinfo = glXGetVisualFromFBConfig(system->gfxdisplay, glx->fbc[0]);
 }
 
 /* Use the old manual selection to find the visual to use. */
@@ -44,7 +44,7 @@ static void choose_visual_old(ALLEGRO_DISPLAY_XGLX *glx)
         double_buffer ? GLX_DOUBLEBUFFER : None,
         None,
         };
-    glx->xvinfo = glXChooseVisual(system->xdisplay, glx->xscreen, attributes);
+    glx->xvinfo = glXChooseVisual(system->gfxdisplay, glx->xscreen, attributes);
 }
 
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
@@ -70,15 +70,15 @@ void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
 
     if (glx->fbc) {
         /* Create a GLX context from FBC. */
-        glx->context = glXCreateNewContext(system->xdisplay, glx->fbc[0],
+        glx->context = glXCreateNewContext(system->gfxdisplay, glx->fbc[0],
             GLX_RGBA_TYPE, existing_ctx, True);
         /* Create a GLX subwindow inside our window. */
-        glx->glxwindow = glXCreateWindow(system->xdisplay, glx->fbc[0],
+        glx->glxwindow = glXCreateWindow(system->gfxdisplay, glx->fbc[0],
             glx->window, 0);
     }
     else {
         /* Create a GLX context from visual info. */
-        glx->context = glXCreateContext(system->xdisplay, glx->xvinfo,
+        glx->context = glXCreateContext(system->gfxdisplay, glx->xvinfo,
             existing_ctx, True);
         glx->glxwindow = glx->window;
     }

@@ -6,8 +6,8 @@ static int check_xf86_vidmode_ext(ALLEGRO_SYSTEM_XGLX *s)
 {
    int x, y;
 
-   return XF86VidModeQueryExtension(s->xdisplay, &x, &y)
-      && XF86VidModeQueryVersion(s->xdisplay, &x, &y);
+   return XF86VidModeQueryExtension(s->gfxdisplay, &x, &y)
+      && XF86VidModeQueryVersion(s->gfxdisplay, &x, &y);
 }
 
 static int get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s)
@@ -15,7 +15,7 @@ static int get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s)
    if (!check_xf86_vidmode_ext(s))
       return 0;
 
-   if (!XF86VidModeGetAllModeLines(s->xdisplay, 0, &s->modes_count, &s->modes))
+   if (!XF86VidModeGetAllModeLines(s->gfxdisplay, 0, &s->modes_count, &s->modes))
       return 0;
 
    return s->modes_count;
@@ -84,7 +84,7 @@ bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
       }
    }
 
-   if (!XF86VidModeSwitchToMode(s->xdisplay, 0, s->modes[best_mode]))
+   if (!XF86VidModeSwitchToMode(s->gfxdisplay, 0, s->modes[best_mode]))
       return false;
 
    return true;
@@ -97,15 +97,15 @@ void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
    Window child;
 
    /* First, make sure the mouse stays inside the window. */
-   XGrabPointer(s->xdisplay, d->window, False,
+   XGrabPointer(s->gfxdisplay, d->window, False,
       PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
       GrabModeAsync, GrabModeAsync, d->window, None, CurrentTime);
    //FIXME: handle possible errors here
    s->pointer_grabbed = true;
 
-   XTranslateCoordinates(s->xdisplay, d->window,
-      RootWindow(s->xdisplay, d->xscreen), 0, 0, &x, &y, &child);
-   XF86VidModeSetViewPort(s->xdisplay, 0, x, y);
+   XTranslateCoordinates(s->gfxdisplay, d->window,
+      RootWindow(s->gfxdisplay, d->xscreen), 0, 0, &x, &y, &child);
+   XF86VidModeSetViewPort(s->gfxdisplay, 0, x, y);
 }
 
 void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
@@ -116,9 +116,9 @@ void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 
 void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 {
-   XF86VidModeSwitchToMode(s->xdisplay, 0, s->original_mode);
+   XF86VidModeSwitchToMode(s->gfxdisplay, 0, s->original_mode);
    if (s->pointer_grabbed) {
-      XUngrabPointer(s->xdisplay, CurrentTime);
+      XUngrabPointer(s->gfxdisplay, CurrentTime);
       s->pointer_grabbed = false;
    }
 }

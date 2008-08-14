@@ -25,7 +25,18 @@ struct ALLEGRO_SYSTEM_XGLX
 
    /* Driver specifics. */
 
-   Display *xdisplay; /* The X11 display. */
+   /* X11 is not thread-safe. But we use a separate thread to handle X11 events.
+    * Plus, users may call OpenGL commands in the main thread, and we have no
+    * way to enforce locking for them.
+    * The only solution seems to be two X11 display connections. One to do our
+    * input handling, and one for OpenGL graphics.
+    */
+   Display *x11display; /* The X11 display. You *MUST* only access this from one
+    * thread at a time, use the mutex lock below to ensure it.
+    */
+   Display *gfxdisplay; /* Annother X11 display we use for graphics. You *MUST*
+    * only use this in the main thread.
+    */
 
    #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    /* For VidMode extension. */

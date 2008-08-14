@@ -156,9 +156,9 @@ static unsigned int xmouse_get_mouse_num_buttons(void)
 
    ASSERT(xmouse_installed);
 
-   //XLOCK();
-   num_buttons = XGetPointerMapping(system->xdisplay, map, sizeof(map));
-   //XUNLOCK();
+   _al_mutex_lock(&system->lock);
+   num_buttons = XGetPointerMapping(system->x11display, map, sizeof(map));
+   _al_mutex_unlock(&system->lock);
 
    num_buttons = CLAMP(2, num_buttons, 3);
    return num_buttons;

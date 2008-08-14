@@ -368,11 +368,11 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
       ALLEGRO_SYSTEM_XGLX *sys = (void*)al_system_driver();
       ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
 
-      if (!sys->xdisplay || !glx_disp->xscreen)
+      if (!sys->gfxdisplay || !glx_disp->xscreen)
          return FALSE;
 
       ret = _al_ogl_look_for_an_extension(extension, (const GLubyte *)
-                    glXQueryExtensionsString(sys->xdisplay, glx_disp->xscreen));
+         glXQueryExtensionsString(sys->gfxdisplay, glx_disp->xscreen));
    }
 #endif
 

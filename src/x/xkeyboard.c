@@ -533,13 +533,13 @@ static void _al_xwin_get_keyboard_mapping(void)
    memset(used, 0, sizeof used);
    memset(keycode_to_scancode, 0, sizeof keycode_to_scancode);
 
-   XDisplayKeycodes(system->xdisplay, &min_keycode, &max_keycode);
+   XDisplayKeycodes(system->x11display, &min_keycode, &max_keycode);
    count = 1 + max_keycode - min_keycode;
 
    if (keysyms) {
       XFree(keysyms);
    }
-   keysyms = XGetKeyboardMapping(system->xdisplay, min_keycode,
+   keysyms = XGetKeyboardMapping(system->x11display, min_keycode,
       count, &sym_per_key);
 
    TRACE (PREFIX_I "%i keys, %i symbols per key.\n", count, sym_per_key);
@@ -602,13 +602,13 @@ static void _al_xwin_get_keyboard_mapping(void)
 
    if (xmodmap)
       XFreeModifiermap(xmodmap);
-   xmodmap = XGetModifierMapping(system->xdisplay);
+   xmodmap = XGetModifierMapping(system->x11display);
    for (i = 0; i < 8; i++) {
       int j;
 
       TRACE (PREFIX_I "Modifier %d:", i + 1);
       for (j = 0; j < xmodmap->max_keypermod; j++) {
-         KeySym sym = XKeycodeToKeysym(system->xdisplay,
+         KeySym sym = XKeycodeToKeysym(system->x11display,
             xmodmap->modifiermap[i * xmodmap->max_keypermod + j], 0);
          char *sym_str = XKeysymToString(sym);
          TRACE(" %s", sym_str ? sym_str : "NULL");
@@ -654,21 +654,21 @@ static void x_set_leds(int leds)
 
    ASSERT(xkeyboard_installed);
 
-   //XLOCK();
+   _al_mutex_lock(&system->lock);
 
    values.led = 1;
    values.led_mode = leds & ALLEGRO_KEYMOD_NUMLOCK ? LedModeOn : LedModeOff;
-   XChangeKeyboardControl(system->xdisplay, KBLed | KBLedMode, &values);
+   XChangeKeyboardControl(system->x11display, KBLed | KBLedMode, &values);
 
    values.led = 2;
    values.led_mode = leds & ALLEGRO_KEYMOD_CAPSLOCK ? LedModeOn : LedModeOff;
-   XChangeKeyboardControl(system->xdisplay, KBLed | KBLedMode, &values);
+   XChangeKeyboardControl(system->x11display, KBLed | KBLedMode, &values);
 
    values.led = 3;
    values.led_mode = leds & ALLEGRO_KEYMOD_SCROLLLOCK ? LedModeOn : LedModeOff;
-   XChangeKeyboardControl(system->xdisplay, KBLed | KBLedMode, &values);
+   XChangeKeyboardControl(system->x11display, KBLed | KBLedMode, &values);
 
-   //XUNLOCK();
+   _al_mutex_unlock(&system->lock);
 }
 
 
@@ -706,7 +706,7 @@ static int x_keyboard_init(void)
       TRACE(PREFIX_W "XSetLocaleModifiers failed.\n");
    }
 */
-   xim = XOpenIM (s->xdisplay, NULL, NULL, NULL);
+   xim = XOpenIM (s->x11display, NULL, NULL, NULL);
    if (xim == NULL) {
       TRACE(PREFIX_W "XOpenIM failed.\n");
    }
