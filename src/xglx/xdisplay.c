@@ -345,6 +345,8 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    XWindowAttributes xwa;
    unsigned int w, h;
+   
+   _al_mutex_lock(&system->lock);
 
    /* glXQueryDrawable is GLX 1.3+. */
    /*
@@ -360,6 +362,8 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
    d->h = h;
 
    setup_gl(d);
+   
+   _al_mutex_unlock(&system->lock);
 
    return true;
 }

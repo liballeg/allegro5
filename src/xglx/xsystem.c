@@ -63,12 +63,12 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
    }
 }
 
-static void xglx_background_thread(_AL_THREAD *thread, void *arg)
+static void xglx_background_thread(_AL_THREAD *self, void *arg)
 {
    ALLEGRO_SYSTEM_XGLX *s = arg;
    XEvent event;
 
-   while (1) {
+   while (!_al_thread_should_stop(self)) {
       /* Note:
        * Most older X11 implementations are not thread-safe no matter what, so
        * we simply cannot sit inside a blocking XNextEvent from another thread
@@ -93,26 +93,23 @@ static void xglx_background_thread(_AL_THREAD *thread, void *arg)
        */
 
       _al_mutex_lock(&s->lock);
-      if (!XEventsQueued(s->xdisplay, QueuedAfterFlush)) {
-         _al_mutex_unlock(&s->lock);
-
-         /* If no X11 events are there, unlock so other threads can run. We use
-          * a select call to wake up when as soon as anything is available on
-          * the X11 connection - and just for safety also wake up 10 times
-          * a second regardless.
-          */
-         int x11_fd = ConnectionNumber(s->xdisplay);
-		   fd_set fdset;
-		   FD_ZERO(&fdset);
-		   FD_SET(x11_fd, &fdset);
-		   struct timeval small_time = {20, 100000}; /* 10 times a second */
-		   select(x11_fd + 1, &fdset, NULL, NULL, &small_time);
-         continue;
+      while (XEventsQueued(s->xdisplay, QueuedAfterFlush)) {
+         XNextEvent(s->xdisplay, &event);
+         process_x11_event(s, event);
       }
-
-      XNextEvent(s->xdisplay, &event);
-      process_x11_event(s, event);
       _al_mutex_unlock(&s->lock);
+
+      /* If no X11 events are there, unlock so other threads can run. We use
+       * a select call to wake up when as soon as anything is available on
+       * the X11 connection - and just for safety also wake up 10 times
+       * a second regardless.
+       */
+      int x11_fd = ConnectionNumber(s->xdisplay);
+      fd_set fdset;
+      FD_ZERO(&fdset);
+      FD_SET(x11_fd, &fdset);
+      struct timeval small_time = {20, 100000}; /* 10 times a second */
+      select(x11_fd + 1, &fdset, NULL, NULL, &small_time);
    }
 }
 
@@ -128,7 +125,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 
    _al_unix_init_time();
 
-   _al_mutex_init(&s->lock);
+   _al_mutex_init_recursive(&s->lock);
    _al_cond_init(&s->mapped);
    _al_cond_init(&s->resized);
 
@@ -160,6 +157,8 @@ static void xglx_shutdown_system(void)
    TRACE("shutting down.\n");
    /* Close all open displays. */
    ALLEGRO_SYSTEM *s = al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *sx = (void *)s;
+   _al_thread_join(&sx->thread);
    while (_al_vector_size(&s->displays) > 0) {
       ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
       ALLEGRO_DISPLAY *d = *dptr;
