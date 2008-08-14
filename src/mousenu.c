@@ -25,6 +25,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_system.h"
 
 
 
@@ -55,6 +56,17 @@ bool al_install_mouse(void)
 
    if (new_mouse_driver)
       return true;
+   
+   //FIXME: seems A4/A5 driver list stuff doesn't quite agree right now
+   if (al_system_driver()->vt->get_mouse_driver) {
+       new_mouse_driver = al_system_driver()->vt->get_mouse_driver();
+       if (!new_mouse_driver->init_mouse()) {
+          new_mouse_driver = NULL;
+          return false;
+       }
+       _add_exit_func(al_uninstall_keyboard, "al_uninstall_mouse");
+       return true;
+   }
 
    if (system_driver->mouse_drivers)
       driver_list = system_driver->mouse_drivers();

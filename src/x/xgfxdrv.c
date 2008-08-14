@@ -20,6 +20,7 @@
 #include "allegro5/platform/aintunix.h"
 #include "xwin.h"
 
+#if 0
 
 static BITMAP *_xwin_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
 static void _xwin_gfxdrv_exit(BITMAP *bmp);
@@ -149,3 +150,5 @@ static BITMAP *_xwin_fullscreen_gfxdrv_init(int w, int h, int vw, int vh, int co
 {
    return _xwin_create_screen(&gfx_xwin_fullscreen, w, h, vw, vh, color_depth, TRUE);
 }
+
+#endif

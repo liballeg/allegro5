@@ -175,6 +175,7 @@ typedef struct ALLEGRO_KEYBOARD_EVENT
 {
    _AL_EVENT_HEADER(struct ALLEGRO_KEYBOARD);
    struct ALLEGRO_DISPLAY *__display__dont_use_yet__;
+   struct ALLEGRO_DISPLAY *display; /* the window the key was pressed in */
    int keycode;                 /* the physical key pressed */
    unsigned int unichar;        /* unicode character */
    unsigned int modifiers;      /* bitfield */
@@ -189,9 +190,11 @@ typedef struct ALLEGRO_MOUSE_EVENT
    /* (x, y) Primary mouse position */
    /* (z) Mouse wheel position (1D 'wheel'), or,  */
    /* (w, z) Mouse wheel position (2D 'ball') */
+   /* (display) Window the event originate from */
    int x,  y,  z, w;
    int dx, dy, dz, dw;
    unsigned int button;
+   struct ALLEGRO_DISPLAY *display;
 } ALLEGRO_MOUSE_EVENT;
 
 

@@ -166,6 +166,7 @@ static Atom wm_delete_window;
 #define PREFIX_W                "al-xwin WARNING: "
 #define PREFIX_E                "al-xwin ERROR: "
 
+#if 0
 
 /* Forward declarations for private functions.  */
 static int _xwin_private_open_display(char *name);
@@ -2355,6 +2356,7 @@ void _xwin_vsync(void)
 }
 
 
+
 /* _xwin_process_event: [bgman thread]
  *  Process (usually) one event. To handle key repeats sometimes two
  *  events are processed. Returns the number of events processed.
@@ -3048,3 +3050,5 @@ int (*_xwin_window_creator)(void) = &_xwin_private_create_window;
 void (*_xwin_window_defaultor)(void) = &_xwin_private_set_window_defaults;
 void (*_xwin_window_redrawer)(int, int, int, int) = &_xwin_private_redraw_window;
 void (*_xwin_input_handler)(void) = 0;
+
+#endif

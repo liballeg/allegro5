@@ -11,59 +11,107 @@ extern int _Xdebug; /* part of Xlib */
 
 static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
 
+static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
+{
+   unsigned int i;
+   ALLEGRO_DISPLAY_XGLX *d = NULL;
+
+   /* With many windows, it's bad to loop through them all, but typically
+    * we have one or at most two or so.
+    */
+   for (i = 0; i < _al_vector_size(&s->system.displays); i++) {
+      ALLEGRO_DISPLAY_XGLX **dptr = _al_vector_ref(&s->system.displays, i);
+      d = *dptr;
+      if (d->window == event.xany.window) {
+         break;
+      }
+   }
+
+   switch (event.type) {
+      case KeyPress:
+         _al_xwin_keyboard_handler(&event.xkey, false,
+            &d->ogl_display.display);
+         break;
+      case KeyRelease:
+         _al_xwin_keyboard_handler(&event.xkey, false,
+            &d->ogl_display.display);
+         break;
+      case ButtonPress:
+         _al_xwin_mouse_button_press_handler(event.xbutton.button,
+            &d->ogl_display.display);
+         break;
+      case ButtonRelease:
+         _al_xwin_mouse_button_release_handler(event.xbutton.button,
+            &d->ogl_display.display);
+         break;
+      case MotionNotify:
+         _al_xwin_mouse_motion_notify_handler(
+            event.xmotion.x, event.xmotion.y, &d->ogl_display.display);
+         break;
+      case ConfigureNotify:
+         _al_display_xglx_configure(&d->ogl_display.display,  &event);
+         _al_cond_signal(&s->resized);
+         break;
+      case MapNotify:
+         _al_cond_signal(&s->mapped);
+         break;
+      case ClientMessage:
+         if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
+            _al_display_xglx_closebutton(&d->ogl_display.display, &event);
+            break;
+         }
+   }
+}
+
 static void xglx_background_thread(_AL_THREAD *thread, void *arg)
 {
    ALLEGRO_SYSTEM_XGLX *s = arg;
    XEvent event;
-   unsigned int i;
 
    while (1) {
-      ALLEGRO_DISPLAY_XGLX *d = NULL;
-      XNextEvent(s->xdisplay, &event);
+      /* Note:
+       * Most older X11 implementations are not thread-safe no matter what, so
+       * we simply cannot sit inside a blocking XNextEvent from another thread
+       * if another thread also uses X11 functions.
+       * 
+       * The usual use of XNextEvent is to only call it from the main thread. We
+       * could of course do this for A5, just needs some slight adjustments to
+       * the events system (polling for an Allegro event would call a function
+       * of the system driver).
+       * 
+       * As an alternative, we can use locking. This however can never fully
+       * work, as for example OpenGL implementations also will access X11, in a
+       * way we cannot know and cannot control (and we can't require users to
+       * only call graphics functions inside a lock).
+       * 
+       * However, most X11 implementations are somewhat thread safe, and do
+       * use locking quite a bit themselves, so locking mostly does work.
+       * 
+       * (Yet another alternative might be to use a separate X11 display
+       * connection for graphics output.)
+       *
+       */
 
       _al_mutex_lock(&s->lock);
+      if (!XEventsQueued(s->xdisplay, QueuedAfterFlush)) {
+         _al_mutex_unlock(&s->lock);
 
-      // FIXME: With many windows, it's bad to loop through them all,
-      // maybe can come up with a better system here.
-      for (i = 0; i < _al_vector_size(&s->system.displays); i++) {
-         ALLEGRO_DISPLAY_XGLX **dptr = _al_vector_ref(&s->system.displays, i);
-         d = *dptr;
-         if (d->window == event.xany.window) {
-            break;
-         }
+         /* If no X11 events are there, unlock so other threads can run. We use
+          * a select call to wake up when as soon as anything is available on
+          * the X11 connection - and just for safety also wake up 10 times
+          * a second regardless.
+          */
+         int x11_fd = ConnectionNumber(s->xdisplay);
+		   fd_set fdset;
+		   FD_ZERO(&fdset);
+		   FD_SET(x11_fd, &fdset);
+		   struct timeval small_time = {20, 100000}; /* 10 times a second */
+		   select(x11_fd + 1, &fdset, NULL, NULL, &small_time);
+         continue;
       }
 
-      switch (event.type) {
-         case KeyPress:
-            _al_xwin_keyboard_handler(&event.xkey, false);
-            break;
-         case KeyRelease:
-            _al_xwin_keyboard_handler(&event.xkey, false);
-            break;
-         case ButtonPress:
-            _al_xwin_mouse_button_press_handler(event.xbutton.button);
-            break;
-         case ButtonRelease:
-            _al_xwin_mouse_button_release_handler(event.xbutton.button);
-            break;
-         case MotionNotify:
-            _al_xwin_mouse_motion_notify_handler(
-               event.xmotion.x, event.xmotion.y);
-            break;
-         case ConfigureNotify:
-            _al_display_xglx_configure(&d->ogl_display.display,  &event);
-            _al_cond_signal(&s->resized);
-            break;
-         case MapNotify:
-            _al_cond_signal(&s->mapped);
-            break;
-         case ClientMessage:
-            if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
-               _al_display_xglx_closebutton(&d->ogl_display.display, &event);
-               break;
-            }
-      }
-
+      XNextEvent(s->xdisplay, &event);
+      process_x11_event(s, event);
       _al_mutex_unlock(&s->lock);
    }
 }
@@ -77,6 +125,8 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    #ifdef DEBUG_X11
    _Xdebug = 1;
    #endif
+
+   _al_unix_init_time();
 
    _al_mutex_init(&s->lock);
    _al_cond_init(&s->mapped);
@@ -96,11 +146,11 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    TRACE("xsystem: X11 protocol version %d.%d.\n",
       ProtocolVersion(s->xdisplay), ProtocolRevision(s->xdisplay));
 
+   _al_xglx_store_video_mode(s);
+   
    _al_thread_create(&s->thread, xglx_background_thread, s);
 
    TRACE("xsystem: events thread spawned.\n");
-
-   _al_xglx_store_video_mode(s);
 
    return &s->system;
 }
@@ -170,3 +220,50 @@ void _al_register_system_interfaces(void)
    *add = _al_system_xglx_driver();
 #endif
 }
+
+// FIXME: Remove this, it's the *A4* system driver, only here as long as we still
+// need an A4 system driver running behinds our backs.
+static int _dummy_init(void) {return 0;}
+static void _dummy_exit(void) {}
+/* the main system driver for running under X-Windows */
+SYSTEM_DRIVER system_xwin =
+{
+   SYSTEM_XWINDOWS,
+   empty_string,
+   empty_string,
+   "X-Windows",
+   _dummy_init,
+   _dummy_exit,
+   _unix_get_executable_name,
+   _unix_find_resource,
+   NULL,
+   NULL,
+   NULL,
+   NULL, /* assert */
+   NULL, /* save_console_state */
+   NULL, /* restore_console_state */
+   NULL, /* create_bitmap */
+   NULL, /* created_bitmap */
+   NULL, /* create_sub_bitmap */
+   NULL, /* created_sub_bitmap */
+   NULL, /* destroy_bitmap */
+   NULL, /* read_hardware_palette */
+   NULL, /* set_palette_range */
+   NULL, /* get_vtable */
+   NULL,
+   NULL, /* display_switch_lock */
+   NULL,
+   NULL,
+   NULL,
+   _unix_yield_timeslice,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+#ifdef ALLEGRO_LINUX
+   NULL
+#else
+   NULL /* joystick_driver_list */
+#endif
+};

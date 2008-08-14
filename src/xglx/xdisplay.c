@@ -536,6 +536,17 @@ static bool xdpy_hide_cursor(ALLEGRO_DISPLAY *display)
    return true;
 }
 
+/* See comment in xsystem.c. We have to lock some OpenGL calls for things to
+ * work with our XNextEvent-from-other-thread events.
+ */
+static void _xglx_set_target_bitmap(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
+   _al_mutex_lock(&s->lock);
+   _al_ogl_set_target_bitmap(display, bitmap);
+   _al_mutex_unlock(&s->lock);
+}
 
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
@@ -555,7 +566,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;
    xdpy_vt->get_backbuffer = _al_ogl_get_backbuffer;
    xdpy_vt->get_frontbuffer = _al_ogl_get_backbuffer;
-   xdpy_vt->set_target_bitmap = _al_ogl_set_target_bitmap;
+   xdpy_vt->set_target_bitmap = _xglx_set_target_bitmap;
    xdpy_vt->is_compatible_bitmap = xdpy_is_compatible_bitmap;
    xdpy_vt->resize_display = xdpy_resize_display;
    xdpy_vt->upload_compat_screen = _al_xglx_display_upload_compat_screen;

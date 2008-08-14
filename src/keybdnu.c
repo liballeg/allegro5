@@ -25,6 +25,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/internal/aintern_system.h"
 
 
 
@@ -94,6 +95,17 @@ bool al_install_keyboard(void)
 
    if (new_keyboard_driver)
       return true;
+
+   //FIXME: seems A4/A5 driver list stuff doesn't quite agree right now
+   if (al_system_driver()->vt->get_keyboard_driver) {
+       new_keyboard_driver = al_system_driver()->vt->get_keyboard_driver();
+       if (!new_keyboard_driver->init_keyboard()) {
+          new_keyboard_driver = NULL;
+          return false;
+       }
+       _add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
+       return true;
+   }
 
    if (system_driver->keyboard_drivers)
       driver_list = system_driver->keyboard_drivers();

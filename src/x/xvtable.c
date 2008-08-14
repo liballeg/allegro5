@@ -20,6 +20,8 @@
 #include "allegro5/platform/aintunix.h"
 #include "xwin.h"
 
+#if 0
+
 static GFX_VTABLE _xwin_vtable;
 
 
@@ -849,3 +851,5 @@ static void _xwin_draw_lit_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int
    _xwin_in_gfx_call = 0;
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
 }
+
+#endif

@@ -73,12 +73,13 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *event);
 void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent);
 
 /* keyboard */
-void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack);
+void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack,
+   ALLEGRO_DISPLAY *display);
 
 /* mouse */
-void _al_xwin_mouse_button_press_handler(int button);
-void _al_xwin_mouse_button_release_handler(int button);
-void _al_xwin_mouse_motion_notify_handler(int x, int y);
+void _al_xwin_mouse_button_press_handler(int button, ALLEGRO_DISPLAY *display);
+void _al_xwin_mouse_button_release_handler(int button, ALLEGRO_DISPLAY *d);
+void _al_xwin_mouse_motion_notify_handler(int x, int y, ALLEGRO_DISPLAY *d);
 
 /* fullscreen */
 int _al_xglx_get_num_display_modes(void);

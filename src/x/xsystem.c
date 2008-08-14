@@ -28,7 +28,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-
+#if 0
 
 static int _xwin_sysdrv_init(void);
 static void _xwin_sysdrv_exit(void);
@@ -437,3 +437,4 @@ static void _xwin_sysdrv_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
    mode->bpp = 8;
 }
 
+#endif

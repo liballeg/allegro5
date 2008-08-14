@@ -75,17 +75,22 @@ AL_FUNC(void, _xwin_lock, (BITMAP *bmp));
 AL_FUNC(void, _xwin_unlock, (BITMAP *bmp));
 
 /* Defined in xkeyboard.c. */
-AL_FUNC(void, _al_xwin_keyboard_handler, (XKeyEvent *event, bool dga2_hack));
+AL_FUNC(void, _al_xwin_keyboard_handler, (XKeyEvent *event, bool dga2_hack,
+    ALLEGRO_DISPLAY *display));
 AL_FUNC(void, _al_xwin_get_keyboard_mapping, (void));
 AL_FUNC(void, _al_xwin_keyboard_focus_handler, (XFocusChangeEvent *event));
 
 /* Defined in xmousenu.c */
-AL_FUNC(void, _al_xwin_mouse_button_press_handler, (unsigned int x_button));
-AL_FUNC(void, _al_xwin_mouse_button_release_handler, (unsigned int x_button));
-AL_FUNC(void, _al_xwin_mouse_motion_notify_handler, (int x, int y));
+AL_FUNC(void, _al_xwin_mouse_button_press_handler, (unsigned int x_button,
+   ALLEGRO_DISPLAY *display));
+AL_FUNC(void, _al_xwin_mouse_button_release_handler, (unsigned int x_button,
+   ALLEGRO_DISPLAY *display));
+AL_FUNC(void, _al_xwin_mouse_motion_notify_handler, (int x, int y,
+   ALLEGRO_DISPLAY *display));
 AL_FUNC(void, _al_xwin_mouse_motion_notify_handler_dga2, (int dx, int dy,
 							  int min_x, int min_y,
-							  int max_x, int max_y));
+							  int max_x, int max_y,
+							  ALLEGRO_DISPLAY *display));
 
 #endif /* !__bma_xwin_h */
 

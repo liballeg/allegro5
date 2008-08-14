@@ -23,7 +23,8 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_mouse.h"
-#include "xwin.h"
+//#include "xwin.h"
+#include "../xglx/xglx.h"
 
 
 
@@ -55,13 +56,14 @@ static bool xmouse_set_mouse_axis(int which, int z);
 static bool xmouse_set_mouse_range(int x1, int y1, int x2, int y2);
 static void xmouse_get_state(ALLEGRO_MSESTATE *ret_state);
 
-static void wheel_motion_handler(int dz);
+static void wheel_motion_handler(int dz, ALLEGRO_DISPLAY *display);
 static int x_button_to_wheel(unsigned int x_button);
 static unsigned int x_button_to_al_button(unsigned int x_button);
 static void generate_mouse_event(unsigned int type,
                                  int x, int y, int z,
                                  int dx, int dy, int dz,
-                                 unsigned int button);
+                                 unsigned int button,
+                                 ALLEGRO_DISPLAY *display);
 
 
 
@@ -101,7 +103,8 @@ _DRIVER_INFO _al_xwin_mouse_driver_list[] =
  */
 static bool xmouse_init(void)
 {
-   _al_xwin_enable_hardware_cursor(true);
+   //FIXME
+   //_al_xwin_enable_hardware_cursor(true);
 
    memset(&the_mouse, 0, sizeof the_mouse);
 
@@ -149,12 +152,13 @@ static unsigned int xmouse_get_mouse_num_buttons(void)
 {
    int num_buttons;
    unsigned char map[8];
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
 
    ASSERT(xmouse_installed);
 
-   XLOCK();
-   num_buttons = XGetPointerMapping(_xwin.display, map, sizeof(map));
-   XUNLOCK();
+   //XLOCK();
+   num_buttons = XGetPointerMapping(system->xdisplay, map, sizeof(map));
+   //XUNLOCK();
 
    num_buttons = CLAMP(2, num_buttons, 3);
    return num_buttons;
@@ -181,7 +185,8 @@ static unsigned int xmouse_get_mouse_num_axes(void)
 static bool xmouse_set_mouse_xy(int x, int y)
 {
    ASSERT(xmouse_installed);
-
+   //FIXME
+#if 0
    if ((x < 0) || (y < 0) || (x >= _xwin.window_width) || (y >= _xwin.window_height))
       return false;
 
@@ -191,7 +196,7 @@ static bool xmouse_set_mouse_xy(int x, int y)
                    _xwin.window_width, _xwin.window_height, x, y);
    }
    _al_event_source_unlock(&the_mouse.parent.es);
-
+#endif
    return true;
 }
 
@@ -219,7 +224,7 @@ static bool xmouse_set_mouse_axis(int which, int z)
             ALLEGRO_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             0, 0, dz,
-            0);
+            0, NULL);
       }
    }
    _al_event_source_unlock(&the_mouse.parent.es);
@@ -259,7 +264,8 @@ static void xmouse_get_state(ALLEGRO_MSESTATE *ret_state)
  *  Called by _xwin_process_event() for ButtonPress events received from the X
  *  server.
  */
-void _al_xwin_mouse_button_press_handler(unsigned int x_button)
+void _al_xwin_mouse_button_press_handler(int x_button,
+   ALLEGRO_DISPLAY *display)
 {
    int dz;
    unsigned int al_button;
@@ -271,7 +277,7 @@ void _al_xwin_mouse_button_press_handler(unsigned int x_button)
    /* TODO secondary wheel support */
    dz = x_button_to_wheel(x_button);
    if (dz != 0) {
-      wheel_motion_handler(dz);
+      wheel_motion_handler(dz, display);
       return;
    }
 
@@ -288,7 +294,7 @@ void _al_xwin_mouse_button_press_handler(unsigned int x_button)
          ALLEGRO_EVENT_MOUSE_BUTTON_DOWN,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          0, 0, 0,
-         al_button);
+         al_button, display);
    }
    _al_event_source_unlock(&the_mouse.parent.es);
 }
@@ -299,7 +305,7 @@ void _al_xwin_mouse_button_press_handler(unsigned int x_button)
  *  Called by _al_xwin_mouse_button_press_handler() if the ButtonPress event
  *  received from the X server is actually for a mouse wheel movement.
  */
-static void wheel_motion_handler(int dz)
+static void wheel_motion_handler(int dz, ALLEGRO_DISPLAY *display)
 {
    _al_event_source_lock(&the_mouse.parent.es);
    {
@@ -309,7 +315,7 @@ static void wheel_motion_handler(int dz)
          ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          0, 0, dz,
-         0);
+         0, display);
    }
    _al_event_source_unlock(&the_mouse.parent.es);
 }
@@ -320,7 +326,8 @@ static void wheel_motion_handler(int dz)
  *  Called by _xwin_process_event() for ButtonRelease events received from the
  *  X server.
  */
-void _al_xwin_mouse_button_release_handler(unsigned int x_button)
+void _al_xwin_mouse_button_release_handler(int x_button,
+   ALLEGRO_DISPLAY *display)
 {
    int al_button;
 
@@ -339,7 +346,7 @@ void _al_xwin_mouse_button_release_handler(unsigned int x_button)
          ALLEGRO_EVENT_MOUSE_BUTTON_UP,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          0, 0, 0,
-         al_button);
+         al_button, display);
    }
    _al_event_source_unlock(&the_mouse.parent.es);
 }
@@ -350,7 +357,8 @@ void _al_xwin_mouse_button_release_handler(unsigned int x_button)
  *  Called by _xwin_process_event() for MotionNotify events received from the X
  *  server.
  */
-void _al_xwin_mouse_motion_notify_handler(int x, int y)
+void _al_xwin_mouse_motion_notify_handler(int x, int y,
+   ALLEGRO_DISPLAY *display)
 {
    if (!xmouse_installed)
       return;
@@ -366,7 +374,7 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y)
          ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          dx, dy, 0,
-         0);
+         0, display);
    }
    _al_event_source_unlock(&the_mouse.parent.es);
 }
@@ -380,7 +388,8 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y)
  */
 void _al_xwin_mouse_motion_notify_handler_dga2(int dx, int dy,
                                                int min_x, int min_y,
-                                               int max_x, int max_y)
+                                               int max_x, int max_y,
+                                               ALLEGRO_DISPLAY *display)
 {
    if (!xmouse_installed)
       return;
@@ -397,7 +406,7 @@ void _al_xwin_mouse_motion_notify_handler_dga2(int dx, int dy,
          ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          dx, dy, 0,
-         0);
+         0, display);
    }
    _al_event_source_unlock(&the_mouse.parent.es);
 }
@@ -449,7 +458,8 @@ static unsigned int x_button_to_al_button(unsigned int x_button)
 static void generate_mouse_event(unsigned int type,
                                  int x, int y, int z,
                                  int dx, int dy, int dz,
-                                 unsigned int button)
+                                 unsigned int button,
+                                 ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_EVENT *event;
 
@@ -462,7 +472,7 @@ static void generate_mouse_event(unsigned int type,
 
    event->mouse.type = type;
    event->mouse.timestamp = al_current_time();
-   event->mouse.__display__dont_use_yet__ = NULL; /* TODO */
+   event->mouse.display = display;
    event->mouse.x = x;
    event->mouse.y = y;
    event->mouse.z = z;
