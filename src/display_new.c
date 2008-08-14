@@ -31,9 +31,6 @@
 
 
 
-// FIXME: The system driver must be used to get drivers!
-extern ALLEGRO_DISPLAY_INTERFACE *_al_glx_vt(void);
-
 static int current_video_adapter = 0;
 static int new_window_x = INT_MAX;
 static int new_window_y = INT_MAX;
