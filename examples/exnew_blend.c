@@ -63,23 +63,41 @@ static void print(int x, int y, bool vertical, char const *format, ...)
 /* Create an example bitmap. */
 static ALLEGRO_BITMAP *create_example_bitmap(void)
 {
+   ALLEGRO_BITMAP *raw;
    ALLEGRO_BITMAP *bitmap;
-   ALLEGRO_BITMAP *target;
    int i, j;
 
-   bitmap = al_create_bitmap(100, 100);
-   target = al_get_target_bitmap();
-   al_set_target_bitmap(bitmap);
+   /* Create out example bitmap as a memory bitmap with a fixed format. */
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ABGR_8888);
+   raw = al_create_bitmap(100, 100);
+   ALLEGRO_LOCKED_REGION locked;
+   al_lock_bitmap(raw, &locked, ALLEGRO_LOCK_WRITEONLY);
+   unsigned char *data = locked.data;
+ 
    for (j = 0; j < 100; j++) {
       for (i = 0; i < 100; i++) {
          int x = i - 50, y = j - 50;
          int r = sqrt(x * x + y * y);
          float rc = 1 - r / 50.0;
          if (rc < 0) rc = 0;
-         al_put_pixel(i, j, al_map_rgba_f(i / 100.0, j / 100.0, rc, rc));
+         data[i * 4 + 0] = i * 255 / 100;
+         data[i * 4 + 1] = j * 255 / 100;
+         data[i * 4 + 2] = rc * 255;
+         data[i * 4 + 3] = rc * 255;
       }
+      data += locked.pitch;
    }
-   al_set_target_bitmap(target);
+   al_unlock_bitmap(raw);
+   
+   /* Now clone it into a fast display bitmap. */
+   al_set_new_bitmap_flags(0);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+   bitmap = al_clone_bitmap(raw);
+   
+   /* And don't forget to destroy the memory copy. */
+   al_destroy_bitmap(raw);
+
    return bitmap;
 }
 
@@ -96,7 +114,6 @@ static void draw(void)
       ALLEGRO_INVERSE_ALPHA};
    float x = 40, y = 40;
    int i, j;
-
 
    al_clear(al_map_rgb_f(0.5, 0.5, 0.5));
 
