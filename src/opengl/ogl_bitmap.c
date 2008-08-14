@@ -384,11 +384,11 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          glWindowPos2i(bitmap->lock_x, bitmap->h - bitmap->lock_y - bitmap->lock_h);
       }
       else {
-         /* The offsets are to keep the coordinates within bounds, which was at
+         /* The offset is to keep the coordinate within bounds, which was at
           * least needed on my machine. --pw
           */
-         glRasterPos2f(bitmap->lock_x + 0.5,
-            bitmap->lock_y + bitmap->lock_h - 0.5);
+         glRasterPos2f(bitmap->lock_x,
+            bitmap->lock_y + bitmap->lock_h - 1e-4f);
       }
 
       /* XXX would it be more efficient to avoid copying padding,
