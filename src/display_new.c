@@ -533,7 +533,13 @@ void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d) {
 }
 
 
-// FIXME: document
+/* Function: al_get_num_video_adapters
+ *
+ * Get the number of video "adapters" attached to the computer. Each
+ * video card attached to the computer counts as one or more adapters.
+ * An adapter is thus really a video port that can have a monitor connected
+ * to it.
+ */
 int al_get_num_video_adapters(void)
 {
 	ALLEGRO_SYSTEM *system = al_system_driver();
@@ -545,7 +551,13 @@ int al_get_num_video_adapters(void)
 	return 0;
 }
 
-// FIXME: document
+/* Function: al_get_monitor_info
+ *
+ * Get information about a monitor's position on the desktop.
+ * adapter is a number from 0 to al_get_num_video_adapters()-1.
+ *
+ * See Also: <ALLEGRO_MONITOR_INFO>
+ */
 void al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
 	ALLEGRO_SYSTEM *system = al_system_driver();
@@ -561,23 +573,51 @@ void al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 }
 
 
+/* Function: al_get_current_video_adapter
+ *
+ * Gets the video adapter index where new displays
+ * will be created.
+ */
 int al_get_current_video_adapter(void)
 {
    return current_video_adapter;
 }
 
+/* Function: al_set_current_video_adapter
+ *
+ * Sets the adapter to use for newly created displays.
+ * The adapter has a monitor attached to it. Information
+ * about the monitor can be gotten using al_get_num_video_adapters
+ * and al_get_monitor_info.
+ *
+ * See Also: <al_get_num_video_adapters>, <al_get_monitor_info>
+ */
 void al_set_current_video_adapter(int adapter)
 {
    current_video_adapter = adapter;
 }
 
-/* INT_MAX, INT_MAX for center of primary display */
+/* Function: al_set_new_window_position
+ *
+ * Sets where the top left pixel of the client area of newly
+ * created windows (non-fullscreen) will be on screen.
+ * Negative values allowed on some multihead systems.
+ *
+ * See Also: <al_set_new_window_position>
+ */
 void al_set_new_window_position(int x, int y)
 {
 	new_window_x = x;
 	new_window_y = y;
 }
 
+/* Function: al_get_new_window_position
+ *
+ * Gets the position where newly created non-fullscreen
+ * displays will be placed.
+ *
+ * See Also: <al_set_new_window_position>
+ */
 void al_get_new_window_position(int *x, int *y)
 {
 	if (x)
@@ -586,6 +626,12 @@ void al_get_new_window_position(int *x, int *y)
 		*y = new_window_y;
 }
 
+/* Function: al_set_window_position
+ *
+ * Sets the position on screen of a non-fullscreen display.
+ *
+ * See Also: <al_get_window_position>
+ */
 void al_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
 	if (display->flags & ALLEGRO_FULLSCREEN) {
@@ -597,6 +643,12 @@ void al_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 	}
 }
 
+/* Function: al_get_window_position
+ *
+ * Gets the position of a non-fullscreen display.
+ *
+ * See Also: <al_set_window_position>
+ */
 void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 {
 	if (display->flags & ALLEGRO_FULLSCREEN) {
