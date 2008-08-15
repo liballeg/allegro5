@@ -395,7 +395,37 @@ static int osx_sys_get_desktop_resolution(int *width, int *height)
    return 0;
 }
 
-
+/* osx_get_num_video_adapters:
+ * Return the number of video adapters i.e displays
+ */
+static int osx_get_num_video_adapters(void) 
+{
+   CGDisplayCount count;
+   CGError err = CGGetActiveDisplayList(0, NULL, &count);
+   if (err == kCGErrorSuccess) {
+      return (int) count;
+   }
+   else {
+      return 0;
+   }
+}
+/* osx_get_monitor_info:
+ * Return the details of one monitor
+ */
+static void osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info) 
+{
+   CGDisplayCount count;
+   // Assume no more than 16 monitors connected
+   CGDirectDisplayID displays[16];
+   CGError err = CGGetActiveDisplayList(16, displays, &count);
+   if (err == kCGErrorSuccess && adapter >= 0 && adapter < (int) count) {
+      CGRect rc = CGDisplayBounds(displays[adapter]);
+      info->x1 = (int) rc.origin.x;
+      info->x2 = (int) (rc.origin.x + rc.size.width);
+      info->y1 = (int) rc.origin.y;
+      info->y2 = (int) (rc.origin.y + rc.size.height);
+   }
+}
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 {
@@ -408,6 +438,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 		NULL,//int (*get_num_display_modes)(void);
 		NULL,//ALLEGRO_DISPLAY_MODE *(*get_display_mode)(int index, ALLEGRO_DISPLAY_MODE *mode);
 		osx_sys_exit,//void (*shutdown_system)(void);
+      osx_get_num_video_adapters,//int (*get_num_video_adapters)(void);
+      osx_get_monitor_info//void (*get_monitor_info)(int adapter, ALLEGRO_MONITOR_INFO *info);
 	};
 		
 	return &vt;
