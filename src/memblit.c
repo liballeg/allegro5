@@ -185,10 +185,10 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
 
    /* Do clipping */
    dy = ((dy > dest->ct) ? dy : dest->ct);
-   dh = (((dy + dh) < dest->cb) ? (dy + dh) : dest->cb) - dy;
+   dh = (((dy + dh) < dest->cb + 1) ? (dy + dh) : dest->cb + 1) - dy;
 
    dx = ((dx > dest->cl) ? dx : dest->cl);
-   dw = (((dx + dw) < dest->cr) ? (dx + dw) : dest->cr) - dx;
+   dw = (((dx + dw) < dest->cr + 1) ? (dx + dw) : dest->cr + 1) - dx;
 
    if (dw == 0 || dh == 0)
    	return;
