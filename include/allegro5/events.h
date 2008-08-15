@@ -70,27 +70,34 @@ typedef unsigned int ALLEGRO_EVENT_TYPE;
  *  ALLEGRO_EVENT_MOUSE_BUTTON_UP - a mouse button was released.
  *    Fields: mouse.x, mouse.y, mouse.z, mouse.button.
  *
- *  ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY - the mouse cursor entered a window opened
- *    by the program.  Fields: mouse.x, mouse.y, mouse.z.
+ *  ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY - the mouse cursor entered a window
+ *    opened by the program.
+ *    Fields: mouse.x, mouse.y, mouse.z.
  *
- *  ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY - the mouse cursor leave the boundaries of a
- *    window opened by the program.
+ *  ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY - the mouse cursor leave the boundaries
+ *    of a window opened by the program.
  *    Fields: mouse.x, mouse.y, mouse.z.
  *
  *  ALLEGRO_EVENT_TIMER - a timer counter incremented.
  *    Fields: timer.count.
  *
- *  ALLEGRO_EVENT_DISPLAY_EXPOSE - The display (or a portion thereof) has become visible.
+ *  ALLEGRO_EVENT_DISPLAY_EXPOSE - The display (or a portion thereof) has
+ *    become visible.
  *    Fields: display.x, display.y, display.width, display.height
  *
  *  ALLEGRO_EVENT_DISPLAY_RESIZE - The window has been resized.
  *    Fields: display.x, display.y, display.width, display.height
  *
- *  ALLEGRO_EVENT_DISPLAY_CLOSE - The close button of the window has been pressed.
+ *  ALLEGRO_EVENT_DISPLAY_CLOSE - The close button of the window has been
+ *    pressed.
  *
- *  ALLEGRO_EVENT_DISPLAY_LOST - Displays can be lost with some drivers (just Direct3D?). This means that rendering is impossible. The device will be restored as soon as it is possible. The program should be able to ignore this event and continue rendering however it will have no effect.
+ *  ALLEGRO_EVENT_DISPLAY_LOST - Displays can be lost with some drivers (just
+ *    Direct3D?). This means that rendering is impossible. The device will be
+ *    restored as soon as it is possible. The program should be able to ignore
+ *    this event and continue rendering however it will have no effect.
  *
- *  ALLEGRO_EVENT_DISPLAY_FOUND - Generated when a lost device is regained. Drawing will no longer be a no-op.
+ *  ALLEGRO_EVENT_DISPLAY_FOUND - Generated when a lost device is regained.
+ *    Drawing will no longer be a no-op.
  */
 enum
 {
@@ -255,8 +262,8 @@ union ALLEGRO_EVENT
  *
  * An event source is any object which can generate events.  Event sources are
  * usually referred to by distinct types, e.g. ALLEGRO_KEYBOARD*, but can be
- * casted to ALLEGRO_EVENT_SOURCE* when used in contexts that accept generic event
- * sources.
+ * casted to ALLEGRO_EVENT_SOURCE* when used in contexts that accept generic
+ * event sources.
  */
 typedef struct ALLEGRO_EVENT_SOURCE ALLEGRO_EVENT_SOURCE;
 
