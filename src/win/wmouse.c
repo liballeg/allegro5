@@ -24,6 +24,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/platform/aintwin.h"
+#include "win_new.h"
 
 #ifndef SCAN_DEPEND
    #include <process.h>
@@ -1046,7 +1047,7 @@ static void generate_mouse_event(unsigned int type,
 
    event->mouse.type = type;
    event->mouse.timestamp = al_current_time();
-   event->mouse.display = NULL; /* TODO */
+   event->mouse.display = _al_win_get_event_display();
    event->mouse.x = x;
    event->mouse.y = y;
    event->mouse.z = z;

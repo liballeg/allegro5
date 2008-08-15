@@ -760,7 +760,7 @@ static void handle_key_press(unsigned char scancode)
 
    event->keyboard.type = event_type;
    event->keyboard.timestamp = al_current_time();
-   event->keyboard.display = NULL;
+   event->keyboard.display = _al_win_get_event_display();
    event->keyboard.keycode = mycode;
    event->keyboard.unichar = unicode;
    event->keyboard.modifiers = key_modifiers;

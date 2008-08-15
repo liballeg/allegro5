@@ -56,14 +56,12 @@ int main(void)
    for (;;) {
       if (al_wait_for_event_timed(events, &event, 1)) {
          if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-            for (i = 0; i < 2; i++) {
-               int a = rand() % adapter_count;
-               int w = info[a].x2 - info[a].x1;
-               int h = info[a].y2 - info[a].y1;
-               x = 20 + info[a].x1 + (rand() % (w-20)) - W;
-               y = 20 + info[a].y1 + (rand() % (h-20)) - H;
-               al_set_window_position(displays[i], x , y);
-            }
+            int a = rand() % adapter_count;
+            int w = info[a].x2 - info[a].x1;
+            int h = info[a].y2 - info[a].y1;
+            x = 20 + info[a].x1 + (rand() % (w-20)) - W;
+            y = 20 + info[a].y1 + (rand() % (h-20)) - H;
+            al_set_window_position(event.mouse.display, x, y);
          }
          else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
             break;

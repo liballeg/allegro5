@@ -44,6 +44,8 @@ void _al_win_remove_window_frame(HWND window, int w, int h);
 
 
 
+ALLEGRO_DISPLAY *_al_win_get_event_display(void);
+
 
 
 #if defined ALLEGRO_CFG_D3D

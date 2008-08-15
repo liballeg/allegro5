@@ -35,6 +35,7 @@ typedef struct WIN_WINDOW {
    HWND window;
 } WIN_WINDOW;
 static _AL_VECTOR win_window_list = _AL_VECTOR_INITIALIZER(WIN_WINDOW *);
+static ALLEGRO_DISPLAY *event_display = NULL;
 
 
 /*
@@ -279,14 +280,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
    if (i != system->displays._size) {
       switch (message) { 
-         case WM_MOVE:
-            if (GetActiveWindow() == win_get_window()) {
-               if (!IsIconic(win_get_window())) {
-                  wnd_x = (short) LOWORD(lParam);
-                  wnd_y = (short) HIWORD(lParam);
-               }
-            }
-            break;
+         case WM_MOUSEACTIVATE:
+            return MA_ACTIVATEANDEAT;
          case WM_SETCURSOR:
 	    if (_win_hcursor == NULL)
 	       SetCursor(NULL);
@@ -301,7 +296,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                _al_win_wnd = win->window;
                win_grab_input();
                if (d->vt->switch_in)
-               d->vt->switch_in(d);
+               	  d->vt->switch_in(d);
+	       //event_display = d;
                _al_event_source_lock(es);
                   if (_al_event_source_needs_to_generate_event(es)) {
                      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
@@ -324,7 +320,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                   if (d->flags & ALLEGRO_FULLSCREEN) {
                      d->vt->switch_out(d);
                   }
-                  _al_win_ungrab_input();
+                  //_al_win_ungrab_input();
                   _al_event_source_lock(es);
                      if (_al_event_source_needs_to_generate_event(es)) {
                         ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
@@ -596,5 +592,33 @@ void _al_win_remove_window_frame(HWND window, int w, int h)
    temp &= ~WS_CAPTION;
    SetWindowLong(window, GWL_STYLE, temp);
    SetWindowPos(window, 0, 0, 0, w, h, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+}
+
+
+ALLEGRO_DISPLAY *_al_win_get_event_display(void)
+{
+   ALLEGRO_DISPLAY *d;
+   unsigned int i, j;
+   WIN_WINDOW *win = NULL;
+   HWND foreground_window = GetForegroundWindow();
+   ALLEGRO_SYSTEM *system = al_system_driver();
+
+   for (i = 0; i < system->displays._size; i++) {
+      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, i);
+      d = *dptr;
+      for (j = 0; j < win_window_list._size; j++) {
+         WIN_WINDOW **wptr = _al_vector_ref(&win_window_list, j);
+         win = *wptr;
+         if (win->display == d && win->window == foreground_window) {
+            goto found;
+         }
+      }
+   }
+
+   return al_get_current_display();
+
+   found:
+
+   return d;
 }
 
