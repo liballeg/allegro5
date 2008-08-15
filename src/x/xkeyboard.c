@@ -37,9 +37,6 @@
 //#include "xwin.h"
 #include "../xglx/xglx.h"
 
-/* XXX this file is currently uncompilable with this defined */
-#undef ALLEGRO_XWINDOWS_WITH_XIM
-
 /*----------------------------------------------------------------------*/
 static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
     ALLEGRO_DISPLAY *display);
@@ -432,7 +429,8 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack,
       unicode = *(unsigned short *)buffer2;
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
-      r = XFilterEvent((XEvent *)event, display->window);
+      ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
+      r = XFilterEvent((XEvent *)event, glx->window);
 #endif
       if (keycode || unicode) {
          /* If we have a keycode, we want it to go to Allegro immediately, so the
@@ -739,10 +737,10 @@ static int x_keyboard_init(void)
 
    if (xim && xim_style) {
       xic = XCreateIC(xim,
-                       XNInputStyle, xim_style,
-                       XNClientWindow, s->xwindow,
-                       XNFocusWindow, s->xwindow,
-                       NULL);
+         XNInputStyle, xim_style,
+         //XNClientWindow, window,
+         //XNFocusWindow, window,
+         NULL);
 
       if (xic == NULL) {
          TRACE (PREFIX_W "XCreateIC failed.\n");

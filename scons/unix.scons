@@ -150,7 +150,6 @@ else:
     platform["ALLEGRO_SSE"] = config.CheckSSE()
     platform["ALLEGRO_USE_CONSTRUCTOR"] = config.CheckConstructor()
     platform["ALLEGRO_USE_SCHED_YIELD"] = config.CheckLib(["c", "posix4", "rt"], "sched_yield")
-    platform["ALLEGRO_USE_XIM"] = config.CheckLib("X11", "XOpenIM")
     platform["ALLEGRO_WITH_ALSADIGI"] = config.CheckALSADigi()
     platform["ALLEGRO_WITH_ALSAMIDI"] = config.CheckALSAMidi()
     platform["ALLEGRO_WITH_ARTSDIGI"] = config.CheckARTSDigi()
@@ -164,6 +163,7 @@ else:
     platform["ALLEGRO_XWINDOWS_WITH_XF86DGA2"] = config.CheckLib("Xxf86dga", "XDGAQueryExtension")
     platform["ALLEGRO_XWINDOWS_WITH_XF86VIDMODE"] = config.CheckLib("Xxf86vm", "XF86VidModeQueryExtension")
     platform["ALLEGRO_XWINDOWS_WITH_XPM"] = config.CheckLib("Xpm", "XpmCreatePixmapFromData")
+    platform["ALLEGRO_XWINDOWS_WITH_XIM"] = config.CheckLib("X11", "XOpenIM")
     platform["ALLEGRO_GLX"] = config.CheckForGLX()
     platform["ALLEGRO_HAVE_DIRENT_H"] = config.CheckCHeader("dirent.h")
     platform["ALLEGRO_HAVE_DLFCN_H"] = config.CheckCHeader("dlfcn.h")
@@ -361,7 +361,8 @@ if platform["ALLEGRO_WITH_ARTSDIGI"]:
         artsEnv = menv.Clone()
         artsEnv.ParseConfig("artsc-config --libs")
         sources = ["arts.c"]
-        lib = artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",appendDir(buildDir + "/src/unix/", sources))
+        lib = artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",
+            appendDir(buildDir + "modules/src/unix/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildAlsa, depends = True)
