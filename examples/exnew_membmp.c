@@ -40,6 +40,11 @@ static void test(ALLEGRO_BITMAP *bitmap, A5FONT_FONT *font, char *message)
       al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO,
          al_map_rgb(255, 255, 255));
 
+      /* Clear the backbuffer with red so we can tell if the bitmap does not
+       * cover the entire backbuffer.
+       */
+      al_clear(al_map_rgb(255, 0, 0));
+
       al_draw_scaled_bitmap(bitmap, 0, 0,
          al_get_bitmap_width(bitmap),
          al_get_bitmap_height(bitmap),
