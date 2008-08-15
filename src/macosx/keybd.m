@@ -51,7 +51,7 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, i
 		{
             event->keyboard.type = type;
             event->keyboard.timestamp = al_current_time();
-            event->keyboard.__display__dont_use_yet__ = NULL; /* TODO */
+            event->keyboard.display = NULL; /* TODO */
             event->keyboard.keycode   = scancode;
             event->keyboard.unichar   = unicode;
             event->keyboard.modifiers = modifiers;
@@ -73,7 +73,7 @@ static void _handle_key_release(ALLEGRO_DISPLAY* dpy, int scancode) {
 		{
             event->keyboard.type = ALLEGRO_EVENT_KEY_UP;
             event->keyboard.timestamp = al_current_time();
-            event->keyboard.__display__dont_use_yet__ = NULL; /* TODO */
+            event->keyboard.display = NULL; /* TODO */
             event->keyboard.keycode   = scancode;
             event->keyboard.unichar   = 0;
             event->keyboard.modifiers = 0;
