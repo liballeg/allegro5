@@ -822,7 +822,7 @@ static void generate_mouse_event(unsigned int type,
 
    event->mouse.type = type;
    event->mouse.timestamp = al_current_time();
-   event->mouse.__display__dont_use_yet__ = NULL; /* TODO */
+   event->mouse.display = NULL;
    event->mouse.x = x;
    event->mouse.y = y;
    event->mouse.z = z;

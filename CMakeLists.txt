@@ -73,7 +73,6 @@ option(WANT_SVGALIB "Enable SVGAlib graphics driver (Linux)" on)
 option(WANT_VGA "Enable VGA graphics driver (Linux)" on)
 
 option(WANT_X11 "X11 support" on)
-option(WANT_DGA2 "Enable DGA2 graphics driver (X11)" on)
 
 option(WANT_ALSADIGI "Enable ALSA digital audio driver (Unix)" on)
 option(WANT_ALSAMIDI "Enable ALSA MIDI driver (Unix)" on)
@@ -496,17 +495,6 @@ if(SUPPORT_X11)
         list(APPEND X11_LIBRARIES "Xxf86vm")
     endif(CAN_XF86VIDMODE)
 
-    if(WANT_DGA2)
-        check_library_exists(Xxf86dga XDGAQueryExtension "" CAN_XF86DGA)
-        if(CAN_XF86DGA)
-            set(SUPPORT_DGA2 1)
-            set(ALLEGRO_XWINDOWS_WITH_XF86DGA2 1)
-            if(NOT SUPPORT_MODULES)
-                list(APPEND X11_LIBRARIES "Xxf86dga")
-            endif(NOT SUPPORT_MODULES)
-        endif(CAN_XF86DGA)
-    endif(WANT_DGA2)
-
     check_library_exists(X11 XOpenIM "" CAN_XIM)
     if(CAN_XIM)
         set(ALLEGRO_XWINDOWS_WITH_XIM 1)
@@ -806,11 +794,6 @@ if(SUPPORT_MODULES)
     if(SUPPORT_VGA)
         add_module(alleg-vga "${ALLEGRO_MODULE_VGA_FILES}")
     endif(SUPPORT_VGA)
-
-    if(SUPPORT_DGA2)
-        add_module(alleg-dga2 "${ALLEGRO_MODULE_DGA2_FILES}"
-            -L${X11_LIBRARY_DIR} Xxf86dga)
-    endif(SUPPORT_DGA2)
 
     if(SUPPORT_ALSADIGI)
         add_module(alleg-alsadigi "${ALLEGRO_MODULE_ALSADIGI_FILES}"

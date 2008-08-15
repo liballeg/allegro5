@@ -37,6 +37,9 @@
 //#include "xwin.h"
 #include "../xglx/xglx.h"
 
+/* XXX this file is currently uncompilable with this defined */
+#undef ALLEGRO_XWINDOWS_WITH_XIM
+
 /*----------------------------------------------------------------------*/
 static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
     ALLEGRO_DISPLAY *display);

@@ -342,12 +342,8 @@ set(ALLEGRO_SRC_UNIX_FILES
     )
 
 set(ALLEGRO_SRC_X_FILES
-    src/x/xdga2.c
-    src/x/xgfxdrv.c
     src/x/xkeyboard.c
     src/x/xmousenu.c
-    src/x/xsystem.c
-    src/x/xvtable.c
     src/x/xwin.c
     src/xglx/xcompat.c
     src/xglx/xdisplay.c
@@ -416,11 +412,6 @@ set(ALLEGRO_MODULE_FBCON_FILES
     src/linux/fbcon.c
     )
 
-set(ALLEGRO_MODULE_DGA2_FILES
-    src/x/xdga2.c
-    src/x/xdga2s.s
-    )
-    
 set(ALLEGRO_MODULE_ALSADIGI_FILES
     src/unix/alsa5.c
     src/unix/alsa9.c

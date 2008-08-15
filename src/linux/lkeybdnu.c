@@ -561,7 +561,7 @@ static void handle_key_press(int mycode, unsigned int ascii)
 
    event->keyboard.type = event_type;
    event->keyboard.timestamp = al_current_time();
-   event->keyboard.__display__dont_use_yet__ = NULL;
+   event->keyboard.display = NULL;
    event->keyboard.keycode = mycode;
    event->keyboard.unichar = ascii;
    event->keyboard.modifiers = the_keyboard.modifiers;
@@ -597,7 +597,7 @@ static void handle_key_release(int mycode)
 
    event->keyboard.type = ALLEGRO_EVENT_KEY_UP;
    event->keyboard.timestamp = al_current_time();
-   event->keyboard.__display__dont_use_yet__ = NULL;
+   event->keyboard.display = NULL;
    event->keyboard.keycode = mycode;
    event->keyboard.unichar = 0;
    event->keyboard.modifiers = 0;
