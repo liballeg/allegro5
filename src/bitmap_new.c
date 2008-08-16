@@ -496,6 +496,11 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 	ALLEGRO_LOCKED_REGION *locked_region,
 	int flags)
 {
+   ASSERT(x >= 0);
+   ASSERT(y >= 0);
+   ASSERT(width >= 0);
+   ASSERT(height >= 0);
+
    /* For sub-bitmaps */
    if (bitmap->parent) {
       x += bitmap->xofs;
