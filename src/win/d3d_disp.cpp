@@ -2124,11 +2124,12 @@ void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
    }
 }
 
-void d3d_remove_frame(ALLEGRO_DISPLAY *display)
+void d3d_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 {
-   _al_win_remove_window_frame(
+   _al_win_toggle_window_frame(
+      display,
       ((ALLEGRO_DISPLAY_D3D *)display)->window,
-      display->w, display->h);
+      display->w, display->h, onoff);
 }
 
 
@@ -2167,7 +2168,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->draw_pixel = d3d_draw_pixel;
    vt->set_window_position = d3d_set_window_position;
    vt->get_window_position = d3d_get_window_position;
-   vt->remove_frame = d3d_remove_frame;
+   vt->toggle_frame = d3d_toggle_frame;
 
    return vt;
 }

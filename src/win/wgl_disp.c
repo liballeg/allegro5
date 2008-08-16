@@ -1315,11 +1315,12 @@ void wgl_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 }
 
 
-void wgl_remove_frame(ALLEGRO_DISPLAY *display)
+void wgl_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 {
-   _al_win_remove_window_frame(
+   _al_win_toggle_window_frame(
+      display,
       ((ALLEGRO_DISPLAY_WGL *)display)->window,
-      display->w, display->h);
+      display->w, display->h, onoff);
 }
 
 /* Obtain a reference to this driver. */
@@ -1351,7 +1352,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt->set_icon = _al_win_set_display_icon;
    vt->set_window_position = wgl_set_window_position;
    vt->get_window_position = wgl_get_window_position;
-   vt->remove_frame = wgl_remove_frame;
+   vt->toggle_frame = wgl_toggle_frame;
    _al_ogl_add_drawing_functions(vt);
 
    return vt;

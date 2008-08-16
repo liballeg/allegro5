@@ -40,7 +40,7 @@ void _al_win_get_window_pos(HWND window, RECT *pos);
 
 void _al_win_set_window_position(HWND window, int x, int y);
 void _al_win_get_window_position(HWND window, int *x, int *y);
-void _al_win_remove_window_frame(HWND window, int w, int h);
+void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND window, int w, int h, bool onoff);
 
 
 

@@ -86,6 +86,8 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    WINDOWINFO wi;
    int pos_x, pos_y;
    bool center = true;
+   LONG temp;
+
 
    /* Save the thread handle for later use */
    *((DWORD *)_al_vector_alloc_back(&thread_handles)) = GetCurrentThreadId();
@@ -99,16 +101,16 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
 
    if (!(flags & ALLEGRO_FULLSCREEN)) {
       if  (flags & ALLEGRO_RESIZABLE) {
-         style = WS_OVERLAPPEDWINDOW|WS_VISIBLE;
+         style = WS_OVERLAPPEDWINDOW;
          ex_style = WS_EX_APPWINDOW|WS_EX_OVERLAPPEDWINDOW;
       }
       else {
-         style = WS_VISIBLE|WS_SYSMENU;
+         style = WS_SYSMENU;
          ex_style = WS_EX_APPWINDOW;
       }
    }
    else {
-      style = WS_POPUP|WS_VISIBLE;
+      style = WS_POPUP;
       ex_style = WS_EX_APPWINDOW;
    }
 
@@ -124,6 +126,15 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       "ALEX", wnd_title, style,
       pos_x, pos_y, width, height,
       NULL,NULL,window_class.hInstance,0);
+
+   if (flags & ALLEGRO_NOFRAME) {
+      SetWindowLong(my_window, GWL_STYLE, WS_VISIBLE);
+      SetWindowLong(my_window, GWL_EXSTYLE, WS_EX_APPWINDOW);
+      SetWindowPos(my_window, 0, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+   }
+
+   ShowWindow(my_window, SW_SHOW);
+
    ShowWindow(_al_win_compat_wnd, SW_HIDE);
 
    win_window = _AL_MALLOC(sizeof(WIN_WINDOW));
@@ -584,16 +595,6 @@ void _al_win_get_window_position(HWND window, int *x, int *y)
    }
 }
 
-void _al_win_remove_window_frame(HWND window, int w, int h)
-{
-   LONG temp;
-
-   temp = GetWindowLong(window, GWL_STYLE);
-   temp &= ~WS_CAPTION;
-   SetWindowLong(window, GWL_STYLE, temp);
-   SetWindowPos(window, 0, 0, 0, w, h, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
-}
-
 
 ALLEGRO_DISPLAY *_al_win_get_event_display(void)
 {
@@ -620,5 +621,46 @@ ALLEGRO_DISPLAY *_al_win_get_event_display(void)
    found:
 
    return d;
+}
+
+void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND hWnd,
+   int w, int h, bool onoff)
+{
+   if (onoff) {
+      display->flags &= ~ALLEGRO_NOFRAME;
+   }
+   else {
+      display->flags |= ALLEGRO_NOFRAME;
+   }
+
+   if (display->flags & ALLEGRO_NOFRAME) {
+      SetWindowLong(hWnd, GWL_STYLE, WS_VISIBLE);
+      SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_APPWINDOW);
+      SetWindowPos(hWnd, 0, 0, 0, w, h, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+   }
+   else {
+      RECT r;
+      DWORD style;
+      DWORD exStyle;
+
+      if (display->flags & ALLEGRO_RESIZABLE) {
+         style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+         exStyle |= WS_EX_OVERLAPPEDWINDOW | WS_EX_APPWINDOW;
+      }
+      else {
+         style = WS_CAPTION | WS_SYSMENU | WS_VISIBLE;
+         exStyle = WS_EX_APPWINDOW;
+      }
+
+      GetWindowRect(hWnd, &r);
+      AdjustWindowRectEx(&r, style, FALSE, exStyle);
+
+      w = r.right - r.left;
+      h = r.bottom - r.top;
+
+      SetWindowLong(hWnd, GWL_STYLE, style);
+      SetWindowLong(hWnd, GWL_EXSTYLE, exStyle);
+      SetWindowPos(hWnd, 0, 0, 0, w, h, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+   }
 }
 
