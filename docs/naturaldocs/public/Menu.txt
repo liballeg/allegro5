@@ -1,4 +1,4 @@
-Format: Development Release 12-07-2007 (1.35 base)
+Format: 1.4
 
 
 Title: Allegro
@@ -87,10 +87,6 @@ Group: Miscellaneous  {
    File: Thread local storage  (src/tls.c)
    }  # Group: Miscellaneous
 
-File: misc/checklst.pl  (misc/checklst.pl)
-File: misc/grabdeps.pl  (misc/grabdeps.pl)
-File: SearchPanel  (docs/naturaldocs/private/html/javascript/main.js)
-
 Group: Index  {
 
    Index: Everything
@@ -99,7 +95,5 @@ Group: Index  {
    Macro Index: Macros
    Type Index: Types
    Class Index: Classes
-   File Index: Files
-   Variable Index: Variables
    }  # Group: Index
 
