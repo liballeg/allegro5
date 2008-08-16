@@ -473,7 +473,9 @@ static void _vline(int x, int y1, int y2, ALLEGRO_COLOR *color)
    int y;
 
    for (y = y1; y <= y2; y++) {
-      al_put_pixel(x, y, *color);
+      ALLEGRO_COLOR result;
+      _al_blend(color, x, y, &result);
+      al_put_pixel(x, y, result);
    }
 }
 
