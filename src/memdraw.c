@@ -407,9 +407,11 @@ void _al_draw_rectangle_memory_fast(int x1, int y1, int x2, int y2,
       y1 = bitmap->ct;
    }
    if (x2 > bitmap->cr) {
+      w -= (x2 - bitmap->cr);
       x2 = bitmap->cr;
    }
    if (y2 > bitmap->cb) {
+      h -= (y2 - bitmap->cb);
       y2 = bitmap->cb;
    }
 
