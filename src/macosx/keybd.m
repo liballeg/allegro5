@@ -28,10 +28,6 @@
 #error Something is wrong with the makefile
 #endif
 
-typedef struct ALLEGRO_KEYBOARD AL_KEYBOARD;
-typedef struct ALLEGRO_KEYBOARD_DRIVER AL_KEYBOARD_DRIVER;
-typedef union ALLEGRO_EVENT AL_EVENT;
-
 static bool osx_keyboard_init(void);
 static void osx_keyboard_exit(void);
 static ALLEGRO_KEYBOARD* osx_get_keyboard(void);
@@ -51,7 +47,7 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, i
 		{
             event->keyboard.type = type;
             event->keyboard.timestamp = al_current_time();
-            event->keyboard.display = NULL; /* TODO */
+            event->keyboard.display   = dpy;
             event->keyboard.keycode   = scancode;
             event->keyboard.unichar   = unicode;
             event->keyboard.modifiers = modifiers;
@@ -73,7 +69,7 @@ static void _handle_key_release(ALLEGRO_DISPLAY* dpy, int scancode) {
 		{
             event->keyboard.type = ALLEGRO_EVENT_KEY_UP;
             event->keyboard.timestamp = al_current_time();
-            event->keyboard.display = NULL; /* TODO */
+            event->keyboard.display   = dpy;
             event->keyboard.keycode   = scancode;
             event->keyboard.unichar   = 0;
             event->keyboard.modifiers = 0;
