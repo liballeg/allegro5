@@ -156,12 +156,13 @@ def examples(env,appendDir,buildDir,libDir):
     example("exnew_mouse")
     example("exnew_mouse_events")
     example("exnew_multiwin")
-    #example("exnew_noframe")
+    example("exnew_noframe")
     example("exnew_opengl")
     example("exnew_resize")
     example("exnew_scale")
     example("exnew_timedwait")
     example("exnew_timer")
+    example("exnew_windows")
 
     Alias('examples', examples)
     return examples
