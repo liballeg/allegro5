@@ -1,6 +1,10 @@
 #ifndef LOGG_H
 #define LOGG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <allegro.h>
 #include <vorbis/vorbisfile.h>
 
@@ -31,6 +35,10 @@ extern int logg_update_stream(LOGG_Stream* s);
 extern void logg_destroy_stream(LOGG_Stream* s);
 extern void logg_stop_stream(LOGG_Stream* s);
 extern int logg_restart_stream(LOGG_Stream* s);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
