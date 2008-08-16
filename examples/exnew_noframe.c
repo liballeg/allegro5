@@ -13,17 +13,17 @@ int main(void)
    int down_x, down_y;
    ALLEGRO_TIMER *timer;
    ALLEGRO_MONITOR_INFO info;
+   bool onoff = false;
 
    al_init();
    al_install_mouse();
    al_install_keyboard();
 
+   al_set_new_display_flags(ALLEGRO_NOFRAME);
    display = al_create_display(300, 200);
    
    bitmap = al_load_bitmap("fakeamp.bmp");
 
-   al_remove_window_frame(display);
-   
    al_show_mouse_cursor();
 
    timer = al_install_timer(1.0f/30.0f);
@@ -45,6 +45,10 @@ int main(void)
             down = true;
             down_x = event.mouse.x;
             down_y = event.mouse.y;
+         }
+         if (event.mouse.button == 2) {
+            onoff = !onoff;
+            al_toggle_window_frame(display, onoff);
          }
       }
       else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {

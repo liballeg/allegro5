@@ -57,7 +57,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
 
    void (*set_window_position)(ALLEGRO_DISPLAY *display, int x, int y);
    void (*get_window_position)(ALLEGRO_DISPLAY *display, int *x, int *y);
-   void (*remove_frame)(ALLEGRO_DISPLAY *display);
+   void (*toggle_frame)(ALLEGRO_DISPLAY *display, bool onoff);
 };
 
 struct ALLEGRO_DISPLAY

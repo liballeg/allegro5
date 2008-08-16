@@ -113,6 +113,27 @@ static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
 
 
 
+static void xdpy_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   Display *x11 = system->x11display;
+   _al_mutex_lock(&system->lock);
+   
+   Atom property = XInternAtom(x11, "_NET_WM_WINDOW_TYPE", False);
+   Atom value_off = XInternAtom(x11, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
+   Atom value_on = XInternAtom(x11, "_NET_WM_WINDOW_TYPE_NORMAL", False);
+   void *value = &value_off;
+   if (onoff) value = &value_on;
+
+   XChangeProperty(x11, glx->window, property, XA_ATOM, 32,
+      PropModeReplace, value, 1);
+   
+   _al_mutex_unlock(&system->lock);
+}
+
+
+
 /* Create a new X11 dummy display, which maps directly to a GLX window. */
 static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
@@ -185,15 +206,13 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       ButtonPressMask |
       ButtonReleaseMask |
       PointerMotionMask;
-      
-   if (display->flags & ALLEGRO_NOFRAME) {
-      mask |= CWOverrideRedirect;
-      swa.override_redirect = 1;
-   }
 
    d->window = XCreateWindow(system->x11display, RootWindow(
       system->x11display, d->xvinfo->screen), 0, 0, w, h, 0, d->xvinfo->depth,
       InputOutput, d->xvinfo->visual, mask, &swa);
+   
+   if (display->flags & ALLEGRO_NOFRAME)
+      xdpy_toggle_frame(display, false);
 
    TRACE("xdisplay: X11 window created.\n");
 
@@ -573,22 +592,6 @@ static void xdpy_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
    _al_mutex_unlock(&system->lock);
 }
 
-static void xdpy_remove_frame(ALLEGRO_DISPLAY *display)
-{
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   Display *x11 = system->x11display;
-   _al_mutex_lock(&system->lock);
-   
-   Atom property = XInternAtom(x11, "_NET_WM_WINDOW_TYPE", False);
-   Atom value = XInternAtom(x11, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
-
-   XChangeProperty(x11, glx->window, property, XA_ATOM, 32,
-      PropModeReplace, (void *)&value, 1);
-   
-   _al_mutex_unlock(&system->lock);
-}
-
 
 
 /* Obtain a reference to this driver. */
@@ -618,7 +621,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt->set_icon = xdpy_set_icon;
    xdpy_vt->set_window_position = xdpy_set_window_position;
    xdpy_vt->get_window_position = xdpy_get_window_position;
-   xdpy_vt->remove_frame = xdpy_remove_frame;
+   xdpy_vt->toggle_frame = xdpy_toggle_frame;
    _al_ogl_add_drawing_functions(xdpy_vt);
 
    return xdpy_vt;
