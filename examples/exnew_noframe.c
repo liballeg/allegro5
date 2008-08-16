@@ -1,21 +1,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
 
-#ifndef ALLEGRO_WINDOWS
-#error FIXME: this example only works on Windows! We either need to add \
-a function to the mouse driver to get an absolute mouse position, or \
-add a function to get the X11 Display so we can use it in this example
-#endif
-
-
-void get_mouse_xy(int *x, int *y)
-{
-   POINT p;
-   GetCursorPos(&p);
-   if (x) *x = p.x;
-   if (y) *y = p.y;
-}
-
+#include <stdio.h>
 
 int main(void)
 {
@@ -55,38 +41,39 @@ int main(void)
    for (;;) {
       al_wait_for_event(events, &event);
       if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-         if (event.mouse.button == 1 && event.mouse.x >= 0 &&
-               event.mouse.y >= 0 &&
-               event.mouse.x < al_get_display_width() &&
-               event.mouse.y < al_get_display_height()) {
+         if (event.mouse.button == 1 && event.mouse.x) {
             down = true;
-            get_mouse_xy(&down_x, &down_y);
+            down_x = event.mouse.x;
+            down_y = event.mouse.y;
          }
       }
       else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
          if (event.mouse.button == 1) {
+            int cx, cy;
+            int dx, dy;
+            int wx, wy;
+            al_get_window_position(display, &wx, &wy);
+            cx = event.mouse.x;
+            cy = event.mouse.y;
+            dx = cx - down_x;
+            dy = cy - down_y;
+            wx += dx;
+            wy += dy;
+            al_set_window_position(display, wx, wy);
+            down_x = cx;
+            down_y = cy;
+         
             down = false;
          }
       }
       else if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
-         if (down) {
-            int cx, cy;
-            int dx, dy;
-            int wx, wy;
-            get_mouse_xy(&cx, &cy);
-            dx = cx - down_x;
-            dy = cy - down_y;
-            down_x = cx;
-            down_y = cy;
-            al_get_window_position(display, &wx, &wy);
-            wx += dx;
-            wy += dy;
-            //if (wx >= info.x1 && wy >= info.y1 &&
-              //    wx+al_get_display_width() < info.x2 &&
-                //  wy+al_get_display_height() < info.y2) {
-               al_set_window_position(display, wx, wy);
-           // }
-         }
+         /* TODO:
+          * 
+          * Once we can query either absolute mouse coordinates (relative to
+          * desktop, not window) or relative mouse movement, we could easily
+          * move the window along in realtime, which is much better.
+          * 
+          */
       }
       else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
          break;
