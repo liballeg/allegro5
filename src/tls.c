@@ -283,6 +283,11 @@ void al_set_new_display_refresh_rate(int refresh_rate)
  * ALLEGRO_SINGLEBUFFER - use only one buffer (front and back buffer are the
  * same) 
  * 
+ * ALLEGRO_NOFRAME - Try to create a window without a frame (i.e. no border or
+ * titlebar). This usualy does nothing for fullscreen modes, and even in
+ * windowed moded it depends on the underlying platform whether it is supported
+ * or not.
+ * 
  * 0 can be used for default values. 
  */
 void al_set_new_display_flags(int flags)

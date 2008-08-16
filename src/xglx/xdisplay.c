@@ -170,6 +170,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    /* Create an X11 window */
    XSetWindowAttributes swa;
+   int mask = CWBorderPixel | CWColormap | CWEventMask;
    swa.colormap = cmap;
    swa.border_pixel = 0;
    swa.event_mask =
@@ -184,11 +185,15 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       ButtonPressMask |
       ButtonReleaseMask |
       PointerMotionMask;
+      
+   if (display->flags & ALLEGRO_NOFRAME) {
+      mask |= CWOverrideRedirect;
+      swa.override_redirect = 1;
+   }
 
    d->window = XCreateWindow(system->x11display, RootWindow(
       system->x11display, d->xvinfo->screen), 0, 0, w, h, 0, d->xvinfo->depth,
-      InputOutput, d->xvinfo->visual,
-      CWBorderPixel | CWColormap | CWEventMask, &swa);
+      InputOutput, d->xvinfo->visual, mask, &swa);
 
    TRACE("xdisplay: X11 window created.\n");
 
@@ -540,6 +545,52 @@ static bool xdpy_hide_cursor(ALLEGRO_DISPLAY *display)
    return true;
 }
 
+
+
+static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   _al_mutex_lock(&system->lock);
+   Window child;
+   XTranslateCoordinates(system->x11display, RootWindow(system->x11display, 0),
+      glx->window,
+      x, y, &x, &y, &child);
+   XMoveWindow(system->x11display, glx->window, x, y);
+   _al_mutex_unlock(&system->lock);
+}
+
+static void xdpy_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   XWindowAttributes xwa;
+   _al_mutex_lock(&system->lock);
+   XGetWindowAttributes(system->x11display, glx->window, &xwa);
+   Window child;
+   XTranslateCoordinates(system->x11display, glx->window, xwa.root, 
+      xwa.x, xwa.y, x, y, &child);
+   _al_mutex_unlock(&system->lock);
+}
+
+static void xdpy_remove_frame(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   Display *x11 = system->x11display;
+   _al_mutex_lock(&system->lock);
+   
+   Atom property = XInternAtom(x11, "_NET_WM_WINDOW_TYPE", False);
+   Atom value = XInternAtom(x11, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
+
+   XChangeProperty(x11, glx->window, property, XA_ATOM, 32,
+      PropModeReplace, (void *)&value, 1);
+   
+   _al_mutex_unlock(&system->lock);
+}
+
+
+
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
 {
@@ -565,6 +616,9 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt->show_cursor = xdpy_show_cursor;
    xdpy_vt->hide_cursor = xdpy_hide_cursor;
    xdpy_vt->set_icon = xdpy_set_icon;
+   xdpy_vt->set_window_position = xdpy_set_window_position;
+   xdpy_vt->get_window_position = xdpy_get_window_position;
+   xdpy_vt->remove_frame = xdpy_remove_frame;
    _al_ogl_add_drawing_functions(xdpy_vt);
 
    return xdpy_vt;

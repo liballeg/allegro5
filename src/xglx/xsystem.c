@@ -26,7 +26,6 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          break;
       }
    }
-
    switch (event.type) {
       case KeyPress:
          _al_xwin_keyboard_handler(&event.xkey, false,
@@ -190,6 +189,29 @@ static ALLEGRO_MOUSE_DRIVER *xglx_get_mouse_driver(void)
    return _al_xwin_mouse_driver_list[0].driver;
 }
 
+// FIXME: Implement.
+static int xglx_get_num_video_adapters(void)
+{
+   return 1;
+}
+
+// FIXME: Implement. Right now it just reads the root window size and ignores
+// the adapeter number.
+static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   XWindowAttributes xwa;
+   _al_mutex_lock(&system->lock);
+   XGetWindowAttributes(system->x11display, RootWindow(system->x11display, 0),
+      &xwa);
+   _al_mutex_unlock(&system->lock);
+   
+   info->x1 = 0;
+   info->y1 = 0;
+   info->x2 = xwa.width;
+   info->y2 = xwa.height;
+}
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
 {
@@ -205,6 +227,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->get_num_display_modes = _al_xglx_get_num_display_modes;
    xglx_vt->get_display_mode = _al_xglx_get_display_mode;
    xglx_vt->shutdown_system = xglx_shutdown_system;
+   xglx_vt->get_num_video_adapters = xglx_get_num_video_adapters;
+   xglx_vt->get_monitor_info = xglx_get_monitor_info;
    
    return xglx_vt;
 }
