@@ -153,11 +153,13 @@ static int mymickey_oy = 0;
 {                                             \
    if (gfx_driver && gfx_driver->windowed) {  \
       POINT p;                                \
+      int wx, wy;                             \
                                               \
       GetCursorPos(&p);                       \
                                               \
-      p.x -= wnd_x;                           \
-      p.y -= wnd_y;                           \
+      al_get_window_position(al_get_current_display(), &wx, &wy); \
+      p.x -= wx;                              \
+      p.y -= wy;                              \
                                               \
       mymickey_ox = p.x;                      \
       mymickey_oy = p.y;                      \
@@ -172,10 +174,12 @@ static int mymickey_oy = 0;
 
 #define READ_CURSOR_POS(p, out_x, out_y)            \
 {                                                   \
+   int wx, wy;                                      \
    GetCursorPos(&p);                                \
+   al_get_window_position(al_get_current_display(), &wx, &wy); \
                                                     \
-   p.x -= wnd_x;                                    \
-   p.y -= wnd_y;                                    \
+   p.x -= wx;                                       \
+   p.y -= wy;                                       \
                                                     \
    if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||  \
        (p.y < mouse_miny) || (p.y > mouse_maxy)) {  \
@@ -481,11 +485,14 @@ static void mouse_dinput_handle(void)
          /* windowed input mode */
          if (!wnd_sysmenu) {
             POINT p;
+            int wx, wy;
 
 	    GetCursorPos(&p);
 
-	    p.x -= wnd_x;
-	    p.y -= wnd_y;
+            al_get_window_position(al_get_current_display(), &wx, &wy);
+
+	    p.x -= wx;
+	    p.y -= wy;
 
 	    if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||
 		(p.y < mouse_miny) || (p.y > mouse_maxy)) {
@@ -907,6 +914,7 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
    {
       int new_x, new_y;
       int dx, dy;
+      int wx, wy;
 
       new_x = CLAMP(mouse_minx, x, mouse_maxx);
       new_y = CLAMP(mouse_miny, y, mouse_maxy);
@@ -925,8 +933,10 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
 	    0);
       }
 
+      al_get_window_position(al_get_current_display(), &wx, &wy);
+
       if (gfx_driver && gfx_driver->windowed) {
-	 SetCursorPos(new_x+wnd_x, new_y+wnd_y);
+	 SetCursorPos(new_x+wx, new_y+wy);
       }
    }
    _al_event_source_unlock(&the_mouse.parent.es);

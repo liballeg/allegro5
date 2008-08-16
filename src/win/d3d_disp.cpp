@@ -2112,7 +2112,16 @@ void d3d_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 
 void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 {
-   _al_win_get_window_position(((ALLEGRO_DISPLAY_D3D *)display)->window, x, y);
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      ALLEGRO_MONITOR_INFO info;
+      ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
+      al_get_monitor_info(d3d_disp->adapter, &info);
+      *x = info.x1;
+      *y = info.y1;
+   }
+   else {
+      _al_win_get_window_position(((ALLEGRO_DISPLAY_D3D *)display)->window, x, y);
+   }
 }
 
 void d3d_remove_frame(ALLEGRO_DISPLAY *display)

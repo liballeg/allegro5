@@ -651,16 +651,12 @@ void al_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
  */
 void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 {
-	if (display->flags & ALLEGRO_FULLSCREEN) {
-		return;
-	}
-
-	if (display && display->vt && display->vt->get_window_position) {
-		display->vt->get_window_position(display, x, y);
-	}
-	else {
-		*x = *y = -1;
-	}
+   if (display && display->vt && display->vt->get_window_position) {
+      display->vt->get_window_position(display, x, y);
+   }
+   else {
+      *x = *y = -1;
+   }
 }
 
 void al_remove_window_frame(ALLEGRO_DISPLAY *display)
