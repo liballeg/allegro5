@@ -143,6 +143,8 @@ int main(void)
       return 1;
    }
 
+   al_show_mouse_cursor();
+
    black = al_map_rgb_f(0.0, 0.0, 0.0);
    white = al_map_rgb_f(1.0, 1.0, 1.0);
    background = al_map_rgb_f(0.5, 0.5, 0.6);
