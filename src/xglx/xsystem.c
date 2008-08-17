@@ -107,7 +107,7 @@ static void xglx_background_thread(_AL_THREAD *self, void *arg)
       fd_set fdset;
       FD_ZERO(&fdset);
       FD_SET(x11_fd, &fdset);
-      struct timeval small_time = {20, 100000}; /* 10 times a second */
+      struct timeval small_time = {0, 100000}; /* 10 times a second */
       select(x11_fd + 1, &fdset, NULL, NULL, &small_time);
    }
 }
