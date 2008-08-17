@@ -13,7 +13,7 @@ int main(void)
    int down_x, down_y;
    ALLEGRO_TIMER *timer;
    ALLEGRO_MONITOR_INFO info;
-   bool onoff = false;
+   bool frame = false;
 
    al_init();
    al_install_mouse();
@@ -47,37 +47,21 @@ int main(void)
             down_y = event.mouse.y;
          }
          if (event.mouse.button == 2) {
-            onoff = !onoff;
-            al_toggle_window_frame(display, onoff);
+            frame = !frame;
+            al_toggle_window_frame(display, frame);
          }
       }
       else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
          if (event.mouse.button == 1) {
-            int cx, cy;
-            int dx, dy;
-            int wx, wy;
-            al_get_window_position(display, &wx, &wy);
-            cx = event.mouse.x;
-            cy = event.mouse.y;
-            dx = cx - down_x;
-            dy = cy - down_y;
-            wx += dx;
-            wy += dy;
-            al_set_window_position(display, wx, wy);
-            down_x = cx;
-            down_y = cy;
-         
             down = false;
          }
       }
       else if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
-         /* TODO:
-          * 
-          * Once we can query either absolute mouse coordinates (relative to
-          * desktop, not window) or relative mouse movement, we could easily
-          * move the window along in realtime, which is much better.
-          * 
-          */
+         if (down) {
+            int cx, cy;
+            al_get_cursor_position(&cx, &cy);
+            al_set_window_position(display, cx - down_x, cy - down_y);
+         }
       }
       else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
          break;

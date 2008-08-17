@@ -76,6 +76,9 @@ struct ALLEGRO_DISPLAY_XGLX
 
    /* Icon for this window. */
    Pixmap icon, icon_mask;
+   
+   /* Desktop position. */
+   int x, y;
 };
 
 /* Functions private to the X11 driver. */

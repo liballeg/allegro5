@@ -201,15 +201,29 @@ static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    XWindowAttributes xwa;
+   Window root = RootWindow(system->x11display, 0);
    _al_mutex_lock(&system->lock);
-   XGetWindowAttributes(system->x11display, RootWindow(system->x11display, 0),
-      &xwa);
+   XGetWindowAttributes(system->x11display, root, &xwa);
    _al_mutex_unlock(&system->lock);
    
    info->x1 = 0;
    info->y1 = 0;
    info->x2 = xwa.width;
    info->y2 = xwa.height;
+}
+
+static void xglx_get_cursor_position(int *x, int *y)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   Window root = RootWindow(system->x11display, 0);
+   Window child;
+   int wx, wy;
+   unsigned int mask;
+
+   _al_mutex_lock(&system->lock);
+   XQueryPointer(system->x11display, root, &root, &child, x, y, &wx, &wy,
+      &mask);
+   _al_mutex_unlock(&system->lock);
 }
 
 /* Internal function to get a reference to this driver. */
@@ -229,6 +243,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->shutdown_system = xglx_shutdown_system;
    xglx_vt->get_num_video_adapters = xglx_get_num_video_adapters;
    xglx_vt->get_monitor_info = xglx_get_monitor_info;
+   xglx_vt->get_cursor_position = xglx_get_cursor_position;
    
    return xglx_vt;
 }

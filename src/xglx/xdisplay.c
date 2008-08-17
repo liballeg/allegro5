@@ -113,22 +113,61 @@ static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
 
 
 
+static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   _al_mutex_lock(&system->lock);
+   Window child;
+   Window root = RootWindow(system->x11display, glx->xscreen);
+
+   /* Is there a better way to do this? */
+   int cx, cy;
+   /* This is just so we find the decoration window. */
+   XTranslateCoordinates(system->x11display, glx->window, root,
+      0, 0, &cx, &cy, &child);
+   /* Now we translate from decoration window coordinates, so the border will
+    * be accounted for.
+    */
+   XTranslateCoordinates(system->x11display, child, glx->window,
+      x, y, &cx, &cy, &child);
+
+   XMoveWindow(system->x11display, glx->window, cx, cy);
+   XFlush(system->x11display);
+   _al_mutex_unlock(&system->lock);
+}
+
+
+
 static void xdpy_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    Display *x11 = system->x11display;
-   _al_mutex_lock(&system->lock);
-   
-   Atom property = XInternAtom(x11, "_NET_WM_WINDOW_TYPE", False);
-   Atom value_off = XInternAtom(x11, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
-   Atom value_on = XInternAtom(x11, "_NET_WM_WINDOW_TYPE_NORMAL", False);
-   void *value = &value_off;
-   if (onoff) value = &value_on;
+   Atom hints;
 
-   XChangeProperty(x11, glx->window, property, XA_ATOM, 32,
-      PropModeReplace, value, 1);
-   
+   _al_mutex_lock(&system->lock);
+
+#if 1
+   /* This code is taken from the GDK sources. So it works perfectly in Gnome,
+    * no idea if it will work anywhere else. X11 documentation itself only
+    * describes a way how to make the window completely unmanaged, but that
+    * would also require special care in the event handler.
+    */
+   hints = XInternAtom(x11, "_MOTIF_WM_HINTS", True);
+   if (hints) { 
+      struct {
+         unsigned long flags;
+         unsigned long functions;
+         unsigned long decorations;
+         long input_mode;
+         unsigned long status;
+      } motif = {2, 0, onoff, 0, 0};
+      XChangeProperty(x11, glx->window, hints, hints, 32, PropModeReplace,
+         (void *)&motif, sizeof motif / 4);
+   }
+#endif
+
    _al_mutex_unlock(&system->lock);
 }
 
@@ -469,6 +508,15 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
          _al_event_source_emit_event(es, event);
       }
    }
+
+   /* This ignores the event when changing the border (which has bogus
+    * coordinates).
+    */
+   if (xevent->xconfigure.send_event) {
+      glx->x = xevent->xconfigure.x;
+      glx->y = xevent->xconfigure.y;
+   }
+
    _al_event_source_unlock(es);
 }
 
@@ -566,30 +614,15 @@ static bool xdpy_hide_cursor(ALLEGRO_DISPLAY *display)
 
 
 
-static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
-{
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   _al_mutex_lock(&system->lock);
-   Window child;
-   XTranslateCoordinates(system->x11display, RootWindow(system->x11display, 0),
-      glx->window,
-      x, y, &x, &y, &child);
-   XMoveWindow(system->x11display, glx->window, x, y);
-   _al_mutex_unlock(&system->lock);
-}
-
 static void xdpy_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   XWindowAttributes xwa;
-   _al_mutex_lock(&system->lock);
-   XGetWindowAttributes(system->x11display, glx->window, &xwa);
-   Window child;
-   XTranslateCoordinates(system->x11display, glx->window, xwa.root, 
-      xwa.x, xwa.y, x, y, &child);
-   _al_mutex_unlock(&system->lock);
+   /* We could also query the X11 server, but it just would take longer, and
+    * would not be synchronized to our events. The latter can be an advantage
+    * or disadvantage.
+    */
+   *x = glx->x;
+   *y = glx->y;
 }
 
 
