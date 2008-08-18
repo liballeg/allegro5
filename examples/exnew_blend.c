@@ -20,7 +20,8 @@ struct Example
 
    int FPS;
    double last_second;
-   int frames_accum, fps, skipped_accum, skipped;
+   int frames_accum;
+   double fps;
 } ex;
 
 /* Print some text with a shadow. */
@@ -126,8 +127,7 @@ static void draw(void)
    test[3] = al_map_rgba_f(1, 0, 0, 0.75);
    test[4] = al_map_rgba_f(0, 0, 0, 0);
 
-   print(x, 0, false, "D  E  S  T  I  N  A  T  I  O  N  (%d fps, %d skipped)",
-      ex.fps, ex.skipped);
+   print(x, 0, false, "D  E  S  T  I  N  A  T  I  O  N  (%0.2f fps)", ex.fps);
    print(0, y, true, "S O U R C E");
    for (i = 0; i < 4; i++) {
       print(x + i * 110, 20, false, blend_names[i]);
@@ -199,25 +199,17 @@ static void draw(void)
 /* Called a fixed amount of times per second. */
 static void tick(void)
 {
-   /* Count frames during the last second. */
+   /* Count frames during the last second or so. */
    double t = al_current_time();
    if (t >= ex.last_second + 1) {
-      ex.last_second += 1;
-      ex.fps = ex.frames_accum;
+      ex.fps = ex.frames_accum / (t - ex.last_second);
       ex.frames_accum = 0;
-      ex.skipped = ex.skipped_accum;
-      ex.skipped_accum = 0;
+      ex.last_second = t;
    }
-   ex.frames_accum++;
 
-   /* If we are falling behind, skip drawing frames. */
-   if (ex.frames_accum >= (t - ex.last_second) * ex.FPS) {
-      draw();
-      al_flip_display();
-   }
-   else {
-      ex.skipped_accum++;
-   }
+   draw();
+   al_flip_display();
+   ex.frames_accum++;
 }
 
 /* Run our test. */
@@ -225,8 +217,15 @@ static void run(void)
 {
    ALLEGRO_EVENT event;
    float x, y;
+   bool need_draw = true;
 
    while (1) {
+      /* Perform frame skipping so we don't fall behind the timer events. */
+      if (need_draw && al_event_queue_is_empty(ex.queue)) {
+         tick();
+         need_draw = false;
+      }
+
       al_wait_for_event(ex.queue, &event);
 
       switch (event.type) {
@@ -242,7 +241,7 @@ static void run(void)
 
          /* Is it time for the next timer tick? */
          case ALLEGRO_EVENT_TIMER:
-            tick();
+            need_draw = true;
             break;
 
          /* Mouse click? */
