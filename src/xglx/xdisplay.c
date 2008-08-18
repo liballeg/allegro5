@@ -118,21 +118,20 @@ static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    _al_mutex_lock(&system->lock);
-   Window child;
-   Window root = RootWindow(system->x11display, glx->xscreen);
+   Window root, parent, child, *children;
+   unsigned int n;
 
-   /* Is there a better way to do this? */
-   int cx, cy;
-   /* This is just so we find the decoration window. */
-   XTranslateCoordinates(system->x11display, glx->window, root,
-      0, 0, &cx, &cy, &child);
-   /* Now we translate from decoration window coordinates, so the border will
-    * be accounted for.
+   /* To account for the window border, we have to find the parent window which
+    * draws the border. If the parent is the root though, then we should not
+    * translate.
     */
-   XTranslateCoordinates(system->x11display, child, glx->window,
-      x, y, &cx, &cy, &child);
+   XQueryTree(system->x11display, glx->window, &root, &parent, &children, &n);
+   if (parent != root) {
+      XTranslateCoordinates(system->x11display, parent, glx->window,
+         x, y, &x, &y, &child);
+   }
 
-   XMoveWindow(system->x11display, glx->window, cx, cy);
+   XMoveWindow(system->x11display, glx->window, x, y);
    XFlush(system->x11display);
    _al_mutex_unlock(&system->lock);
 }
