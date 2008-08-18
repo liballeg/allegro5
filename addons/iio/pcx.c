@@ -2,9 +2,7 @@
 #include <allegro5/internal/aintern.h>
 
 
-typedef struct PalEntry {
-   int r, g, b;
-} PalEntry;
+#include "iio.h"
 
 
 static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
