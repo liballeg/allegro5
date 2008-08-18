@@ -9,7 +9,6 @@
  */
 
 #include <math.h>
-#include <complex.h>
 #include <allegro5/allegro5.h>
 
 
@@ -41,27 +40,30 @@ ThreadInfo thread_info[NUM_THREADS];
 unsigned char sin_lut[256];
 
 
-double cabs2(const complex c)
+double cabs2(double re, double im)
 {
-   double re = creal(c);
-   double im = cimag(c);
    return re*re + im*im;
 }
 
 
-int mandel(const complex c)
+int mandel(double cre, double cim)
 {
    const int MAX_ITER = 512;
    const float Z_MAX2 = 4.0;
-   complex z = c;
+   double zre = cre, zim = cim;
    int iter;
 
    for (iter = 0; iter < MAX_ITER; iter++) {
-      complex z1 = z*z + c;
-      if (cabs2(z1) > Z_MAX2) {
+      double z1re, z1im;
+      z1re = zre * zre - zim * zim;
+      z1im = 2 * zre * zim;
+      z1re += cre;
+      z1im += cim;
+      if (cabs2(z1re, z1im) > Z_MAX2) {
          return iter + 1;  /* outside set */
       }
-      z = z1;
+      zre = z1re;
+      zim = z1im;
    }
 
    return 0;               /* inside set */
@@ -114,7 +116,7 @@ void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
    rgb = lr.data;
 
    for (x = 0; x < w; x++) {
-      int i = mandel(re + I * im);
+      int i = mandel(re, im);
       int v = sin_lut[i/8];
 
       rgb[0] = palette[v][0];
