@@ -255,6 +255,7 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)timer);
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_888);
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    for (i = 0; i < NUM_THREADS; i++) {
       thread_info[i].bitmap = al_create_bitmap(W, H);
       if (!thread_info[i].bitmap) {
