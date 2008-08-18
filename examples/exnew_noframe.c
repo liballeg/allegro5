@@ -60,7 +60,8 @@ int main(void)
             al_set_window_position(display, cx - down_x, cy - down_y);
          }
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+      else if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
+	    event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
          break;
       }
       else if (event.type == ALLEGRO_EVENT_TIMER) {
