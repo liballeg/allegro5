@@ -650,6 +650,7 @@ static OGL_PIXEL_FORMAT* read_pixel_format_ext(int fmt, HDC dc) {
 static bool change_display_mode(ALLEGRO_DISPLAY *d) {
    DEVMODE dm;
    DEVMODE fallback_dm;
+   DISPLAY_DEVICE dd;
    int i, modeswitch, result;
    int fallback_dm_valid = 0;
    int bpp;
@@ -658,11 +659,18 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
    memset(&dm, 0, sizeof(dm));
    dm.dmSize = sizeof(DEVMODE);
 
+   memset(&dd, 0, sizeof(dd));
+   dd.cb = sizeof(dd);
+   if (EnumDisplayDevices(NULL, al_get_current_video_adapter(), &dd, 0) == FALSE)
+      return false;
+
    bpp = _al_get_pixel_format_bits(d->format);
+   if (!bpp)
+      bpp = 32;
 
    i = 0;
    do {
-      modeswitch = EnumDisplaySettings(NULL, i, &dm);
+      modeswitch = EnumDisplaySettings(dd.DeviceName, i, &dm);
       if (!modeswitch)
          break;
 
@@ -693,7 +701,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
        || (dm.dmDisplayFrequency != (unsigned) d->refresh_rate));
 
    if (!modeswitch && !fallback_dm_valid) {
-      TRACE(PREFIX_E "change_display_mode: Mode not found.");
+      TRACE(PREFIX_E "change_display_mode: Mode not found.\n");
       return false;
    }
 
@@ -701,7 +709,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
       dm = fallback_dm;
 
    dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
-   result = ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
+   result = ChangeDisplaySettingsEx(dd.DeviceName, &dm, NULL, CDS_FULLSCREEN, 0);
 
    if (result != DISP_CHANGE_SUCCESSFUL) {
       log_win32_error("change_display_mode", "Unable to set mode!",
@@ -709,7 +717,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
       return false;
    }
 
-   TRACE(PREFIX_I "change_display_mode: Mode seccessfuly set.");
+   TRACE(PREFIX_I "change_display_mode: Mode seccessfuly set.\n");
    return true;
 }
 
@@ -850,6 +858,7 @@ static bool try_to_set_pixel_format(int i) {
 static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
    OGL_PIXEL_FORMAT **pf_list = NULL;
    enum ALLEGRO_PIXEL_FORMAT format = ((ALLEGRO_DISPLAY *) d)->format;
+   bool want_sb = ((ALLEGRO_DISPLAY *) d)->flags & ALLEGRO_SINGLEBUFFER;
    int maxindex = 0;
    int i;
 
@@ -861,7 +870,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
       OGL_PIXEL_FORMAT *pf = pf_list[i-1];
       /* TODO: implement a choice system (scoring?) */
       if (pf
-         && pf->doublebuffered
+         && pf->doublebuffered == !want_sb
          && pf->rmethod
          && _al_pixel_format_fits(pf->format, format)
          && pf->float_color == 0
@@ -1055,6 +1064,15 @@ static void display_thread_proc(void *arg)
    DWORD result;
    MSG msg;
 
+   if (disp->flags & ALLEGRO_FULLSCREEN) {
+      if (!change_display_mode(disp)) {
+         wgl_disp->thread_ended = true;
+         wgl_destroy_display(disp);
+         ndp->init_failed = true;
+         return;
+      }
+   }
+
    wgl_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
 
    if (!wgl_disp->window) {
@@ -1076,15 +1094,6 @@ static void display_thread_proc(void *arg)
 
    /* get the device context of our window */
    wgl_disp->dc = GetDC(wgl_disp->window);
-
-   if (disp->flags & ALLEGRO_FULLSCREEN) {
-      if (!change_display_mode(disp)) {
-         wgl_disp->thread_ended = true;
-         wgl_destroy_display(disp);
-         ndp->init_failed = true;
-         return;
-      }
-   }
 
    if (!select_pixel_format(wgl_disp, wgl_disp->dc)) {
       wgl_disp->thread_ended = true;
@@ -1303,19 +1312,19 @@ static void wgl_switch_out(ALLEGRO_DISPLAY *display)
 }
 
 
-void wgl_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+static void wgl_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
    _al_win_set_window_position(((ALLEGRO_DISPLAY_WGL *)display)->window, x, y);
 }
 
 
-void wgl_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+static void wgl_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 {
    _al_win_get_window_position(((ALLEGRO_DISPLAY_WGL *)display)->window, x, y);
 }
 
 
-void wgl_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
+static void wgl_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 {
    _al_win_toggle_window_frame(
       display,
@@ -1402,4 +1411,58 @@ ALLEGRO_DISPLAY_MODE *_al_wgl_get_display_mode(int index, int format,
 }
 
 
+int _al_wgl_get_num_video_adapters(void)
+{
+   DISPLAY_DEVICE dd;
+   int count = 0;
+
+   memset(&dd, 0, sizeof(dd));
+   dd.cb = sizeof(dd);
+
+   while (EnumDisplayDevices(NULL, count, &dd, 0) != FALSE) {
+      count++;
+   }
+
+   return count;
+}
+
+typedef struct MONITOR_TARGET {
+   TCHAR DeviceName[32];
+   ALLEGRO_MONITOR_INFO *info;
+} MONITOR_TARGET;
+
+static BOOL MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor,
+                            LPARAM dwData)
+{
+   MONITOR_TARGET *target = (MONITOR_TARGET*)dwData;
+   MONITORINFOEX miex;
+
+   miex.cbSize = sizeof(miex);
+   GetMonitorInfo(hMonitor, (MONITORINFO*)&miex);
+
+   if (strcmp(miex.szDevice, target->DeviceName) == 0) {
+      target->info->x1 = miex.rcMonitor.left;
+      target->info->y1 = miex.rcMonitor.top;
+      target->info->x2 = miex.rcMonitor.right;
+      target->info->y2 = miex.rcMonitor.bottom;
+      return FALSE;
+   }
+   else
+      return TRUE;
+}
+
+
+void _al_wgl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+{
+   DISPLAY_DEVICE dd;
+   MONITOR_TARGET target;
+
+   memset(&dd, 0, sizeof(dd));
+   dd.cb = sizeof(dd);
+   EnumDisplayDevices(NULL, adapter, &dd, 0);
+   memcpy(target.DeviceName, dd.DeviceName, 32);
+   target.info = info;
+
+   EnumDisplayMonitors(NULL, NULL, (MONITORENUMPROC)MonitorEnumProc, (LPARAM)&target);
+}
 

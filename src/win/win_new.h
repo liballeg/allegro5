@@ -71,6 +71,8 @@ AL_FUNC(ALLEGRO_DISPLAY_MODE *, _al_wgl_get_display_mode,
 
 ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void);
 AL_FUNC(bool, _al_wgl_init_display, ());
+AL_FUNC(int, _al_wgl_get_num_video_adapters, (void));
+AL_FUNC(void, _al_wgl_get_monitor_info, (int adapter, ALLEGRO_MONITOR_INFO *info));
 
 #endif /*  defined ALLEGRO_CFG_OPENGL */
 

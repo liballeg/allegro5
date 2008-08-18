@@ -12,7 +12,6 @@ int main(void)
    bool down = false;
    int down_x, down_y;
    ALLEGRO_TIMER *timer;
-   ALLEGRO_MONITOR_INFO info;
    bool frame = false;
 
    al_init();
@@ -33,8 +32,6 @@ int main(void)
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display);
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)timer);
-
-   al_get_monitor_info(0, &info);
 
    al_start_timer(timer);
 

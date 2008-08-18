@@ -86,7 +86,6 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    WINDOWINFO wi;
    int pos_x, pos_y;
    bool center = true;
-   LONG temp;
 
 
    /* Save the thread handle for later use */

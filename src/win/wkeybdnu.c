@@ -33,6 +33,7 @@
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintwin.h"
+#include "win_new.h"
 
 #ifndef SCAN_DEPEND
    #include <dinput.h>

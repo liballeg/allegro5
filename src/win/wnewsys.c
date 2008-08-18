@@ -171,17 +171,15 @@ int win_get_num_video_adapters(void)
 {
    int flags = al_get_new_display_flags();
 
-#if defined ALLEGRO_CFG_D3D
-      return _al_d3d_get_num_video_adapters();
+#if defined ALLEGRO_CFG_OPENGL
+   if (flags & ALLEGRO_OPENGL) {
+      return _al_wgl_get_num_video_adapters();
+   }
 #endif
 
-/* FIXME:
-   if (flags & ALLEGRO_OPENGL) {
-#if defined ALLEGRO_CFG_OPENGL
-      return _al_wgl_get_num_video_adapters();
+#if defined ALLEGRO_CFG_D3D
+   return _al_d3d_get_num_video_adapters();
 #endif
-   }
-*/
 
    return 0;
 }
@@ -190,17 +188,15 @@ void win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    int flags = al_get_new_display_flags();
 
-#if defined ALLEGRO_CFG_D3D
-      _al_d3d_get_monitor_info(adapter, info);
+#if defined ALLEGRO_CFG_OPENGL
+   if (flags & ALLEGRO_OPENGL) {
+      _al_wgl_get_monitor_info(adapter, info);
+   }
 #endif
 
-/* FIXME:
-   if (flags & ALLEGRO_OPENGL) {
-#if defined ALLEGRO_CFG_OPENGL
-      _al_wgl_get_monitor_info(adapter, info);
+#if defined ALLEGRO_CFG_D3D
+   _al_d3d_get_monitor_info(adapter, info);
 #endif
-   }
-*/
 }
 
 void win_get_cursor_position(int *x, int *y)
