@@ -160,6 +160,8 @@ def examples(env,appendDir,buildDir,libDir):
     example("exnew_opengl")
     example("exnew_resize")
     example("exnew_scale")
+    example("exnew_threads")
+    example("exnew_threads2")
     example("exnew_timedwait")
     example("exnew_timer")
     example("exnew_windows")
