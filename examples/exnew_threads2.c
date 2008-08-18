@@ -254,6 +254,13 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)timer);
 
+   /* Note:
+    * Right now, A5 video displays can only be accessed from the thread which
+    * created them (at lesat for OpenGL). To lift this restriction, we could
+    * keep track of the current OpenGL context for each thread and make all
+    * functions accessing the display check for it.. not sure it's worth the
+    * additional complexity though.
+    */
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_888);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    for (i = 0; i < NUM_THREADS; i++) {
