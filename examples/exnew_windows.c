@@ -59,8 +59,9 @@ int main(void)
             int a = rand() % adapter_count;
             int w = info[a].x2 - info[a].x1;
             int h = info[a].y2 - info[a].y1;
-            x = 20 + info[a].x1 + (rand() % (w-20)) - W;
-            y = 20 + info[a].y1 + (rand() % (h-20)) - H;
+	    int margin = 20;
+            x = margin + info[a].x1 + (rand() % (w - W - margin));
+            y = margin + info[a].y1 + (rand() % (h - H - margin));
             al_set_window_position(event.mouse.display, x, y);
          }
          else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
