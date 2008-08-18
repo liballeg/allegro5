@@ -41,6 +41,8 @@
 #include "allegro5/keyboard.h"
 #include "allegro5/joystick.h"
 
+#include "allegro5/threads.h"
+
 #include "allegro5/palette.h"
 #include "allegro5/gfx.h"
 #include "allegro5/display_new.h"

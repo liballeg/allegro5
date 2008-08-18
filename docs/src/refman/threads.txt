@@ -46,7 +46,7 @@ semantics and avoid edge cases.
 ## al_create_thread
 
     ALLEGRO_THREAD *al_create_thread(
-                        void (*proc)(ALLEGRO_THREAD *thread, void *arg),
+                        void *(*proc)(ALLEGRO_THREAD *thread, void *arg),
                         void *arg);
 
 Spawn a new thread which begins executing `proc`.  The new thread is passed
@@ -59,8 +59,6 @@ Returns true if the thread was created, false if there was an error.
 *See also:*
 [al_start_thread],
 [al_join_thread].
-
-**`proc` should return an exit status.**
 
 
 
@@ -82,14 +80,16 @@ Starting a thread which has already been started does nothing.
 [al_join_thread]: #al_join_thread
 ## al_join_thread
 
-    void al_join_thread(ALLEGRO_THREAD *thread);
+    void al_join_thread(ALLEGRO_THREAD *thread, void **ret_value);
 
 Wait for the thread to finish executing.
 
-*See also:*
-[al_thread_should_stop].
+If `ret_value` is non-`NULL`, the value returned by the thread function
+will be stored at the location pointed to by `ret_value`.
 
-**Should return exit status of the proc.**
+*See also:*
+[al_thread_should_stop],
+[al_destroy_thread].
 
 **When implementing this, make sure it can join threads which have been created
 but not yet started.**
@@ -110,6 +110,21 @@ Return true if another thread has called `al_join_thread` on this thread.
 
 *Note:*
 We don't support forceful killing of threads.
+
+
+
+[al_destroy_thread]: #al_destroy_thread
+## al_destroy_thread
+
+    void al_destroy_thread(ALLEGRO_THREAD *thread);
+
+Free the resources used by a thread.  Implicitly performs `al_join_thread`
+on the thread if it hasn't been done already.
+
+Does nothing if `thread` is NULL.
+
+*See also:*
+[al_join_thread].
 
 
 
@@ -171,7 +186,7 @@ mutex will be incremented and the call will return immediately.
 [al_unlock_mutex]: #al_unlock_mutex
 ## al_unlock_mutex
 
-    void _al_unlock_mutex(_AL_MUTEX *mutex);
+    void al_unlock_mutex(ALLEGRO_MUTEX *mutex);
 
 Release the lock on `mutex` if the calling thread holds the lock on it.
 
@@ -258,7 +273,7 @@ Remember not to unlock the mutex prematurely.
 [al_init_timeout]: #al_init_timeout
 ## al_init_timeout
 
-    void al_init_cond_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);
+    void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);
 
 Set a timeout of the specified number of seconds after the time that the call
 is made.

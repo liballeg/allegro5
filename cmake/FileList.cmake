@@ -73,6 +73,7 @@ set(ALLEGRO_SRC_FILES
     src/system_new.c
     src/text.c
     src/tga.c
+    src/threads.c
     src/timernu.c
     src/tls.c
     src/unicode.c

@@ -1,3 +1,10 @@
+# Check for complex number support in the compiler.
+set(CMAKE_REQUIRED_LIBRARIES ${PLATFORM_LIBS})
+check_function_exists(cabs SUPPORT_COMPLEX)
+set(CMAKE_REQUIRED_LIBRARIES)
+
+#-----------------------------------------------------------------------------#
+
 macro(example nm)
     add_allegro_executable(${nm} ${nm}.c)
 endmacro(example nm)
@@ -68,8 +75,13 @@ example(exnew_mouse_events)
 example(exnew_multiwin)
 example(exnew_resize)
 example(exnew_scale)
+example(exnew_threads)
 example(exnew_timedwait)
 example(exnew_noframe)
+
+if(SUPPORT_COMPLEX)
+    example(exnew_threads2)
+endif(SUPPORT_COMPLEX)
 
 if(WANT_FONT)
     include_directories(../addons/font)
