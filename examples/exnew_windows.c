@@ -54,6 +54,18 @@ int main(void)
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)displays[1]);
 
    for (;;) {
+      for (i = 0; i < 2; i++) {
+        al_set_current_display(displays[i]);
+        if (i == 0)
+           al_clear(al_map_rgb(255, 0, 255));
+        else
+           al_clear(al_map_rgb(155, 255, 0));
+        al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
+        a5font_textout_centre(myfont, "Click me..", 50, 50);
+        al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
+        al_flip_display();
+      }
+
       if (al_wait_for_event_timed(events, &event, 1)) {
          if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
             int a = rand() % adapter_count;
@@ -67,18 +79,6 @@ int main(void)
          else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
             break;
          }
-      }
-
-      for (i = 0; i < 2; i++) {
-        al_set_current_display(displays[i]);
-        if (i == 0)
-           al_clear(al_map_rgb(255, 0, 255));
-        else
-           al_clear(al_map_rgb(155, 255, 0));
-        al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
-        a5font_textout_centre(myfont, "Click me..", 50, 50);
-        al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
-        al_flip_display();
       }
    }
 
