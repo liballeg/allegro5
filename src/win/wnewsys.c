@@ -203,6 +203,15 @@ void win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 */
 }
 
+void win_get_cursor_position(int *x, int *y)
+{
+   POINT p;
+   GetCursorPos(&p);
+   if (x) *x = p.x;
+   if (y) *y = p.y;
+}
+
+
 ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
@@ -218,6 +227,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->shutdown_system = win_shutdown;
    vt->get_num_video_adapters = win_get_num_video_adapters;
    vt->get_monitor_info = win_get_monitor_info;
+   vt->get_cursor_position = win_get_cursor_position;
 
    TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
 

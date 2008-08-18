@@ -25,6 +25,7 @@
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_system.h"
 
 
 
@@ -118,21 +119,24 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_BITMAP **back;
+   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_DISPLAY *current_display = al_get_current_display();
 
    if ((al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) ||
-         (_al_current_display->vt->create_bitmap == NULL)) {
+         (!current_display || !current_display->vt || current_display->vt->create_bitmap == NULL) ||
+         (system->displays._size < 1)) {
       return _al_create_memory_bitmap(w, h);
    }
 
    /* Else it's a display bitmap */
 
-   bitmap = _al_current_display->vt->create_bitmap(_al_current_display, w, h);
+   bitmap = current_display->vt->create_bitmap(current_display, w, h);
 
    /* XXX the ogl_display driver sets some of these variables. It's not clear
     * who should be responsible for setting what.
     * The pitch must be set by the driver.
     */
-   bitmap->display = _al_current_display;
+   bitmap->display = current_display;
    bitmap->w = w;
    bitmap->h = h;
    bitmap->locked = false;
