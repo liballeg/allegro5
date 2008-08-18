@@ -131,10 +131,6 @@ if(CMAKE_COMPILER_IS_GNUCC)
     set(COMPILER_GCC 1)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
-if(MINGW_CROSS)
-    set(WIN32 1)
-endif(MINGW_CROSS)
-
 if(MINGW)
     # For alplatf.h
     set(ALLEGRO_MINGW32 1)
