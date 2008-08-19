@@ -11,8 +11,8 @@
  *      New Windows system driver
  *
  *      Based on the X11 OpenGL driver by Elias Pschernig.
- *      Heavily modified by Trent Gamblin.
  *
+ *      Heavily modified by Trent Gamblin.
  */
 
 #include <stdlib.h>
@@ -87,7 +87,7 @@ static void win_shutdown(void)
 
 
 /* FIXME: autodetect a driver */
-ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
+static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
    int flags = al_get_new_display_flags();
 
@@ -114,12 +114,12 @@ ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 }
 
 /* FIXME: use the list */
-ALLEGRO_KEYBOARD_DRIVER *win_get_keyboard_driver(void)
+static ALLEGRO_KEYBOARD_DRIVER *win_get_keyboard_driver(void)
 {
    return _al_keyboard_driver_list[0].driver;
 }
 
-int win_get_num_display_modes(void)
+static int win_get_num_display_modes(void)
 {
    int format = al_get_new_display_format();
    int refresh_rate = al_get_new_display_refresh_rate();
@@ -139,11 +139,11 @@ int win_get_num_display_modes(void)
 #endif
    }
 
-
    return 0;
 }
 
-ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
+static ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index,
+   ALLEGRO_DISPLAY_MODE *mode)
 {
    int format = al_get_new_display_format();
    int refresh_rate = al_get_new_display_refresh_rate();
@@ -167,7 +167,7 @@ ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode
    return NULL;
 }
 
-int win_get_num_video_adapters(void)
+static int win_get_num_video_adapters(void)
 {
    int flags = al_get_new_display_flags();
 
@@ -184,7 +184,7 @@ int win_get_num_video_adapters(void)
    return 0;
 }
 
-void win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+static void win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    int flags = al_get_new_display_flags();
 
