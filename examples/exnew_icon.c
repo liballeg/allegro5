@@ -1,4 +1,5 @@
 #include <allegro5/allegro5.h>
+#include "allegro5/a5_iio.h"
 
 int main(void)
 {
@@ -9,6 +10,8 @@ int main(void)
 
    al_init();
    al_install_mouse();
+   iio_init();
+
    display = al_create_display(320, 200);
    if (!display) {
       allegro_message("Error creating display");

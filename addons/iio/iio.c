@@ -19,15 +19,24 @@ typedef struct Loader {
 
 
 static _AL_VECTOR loaders = _AL_VECTOR_INITIALIZER(Loader *);
+static bool inited = false;
 
 
 bool iio_init(void)
 {
-   int success = 0;
+   int success;
+
+   if (inited)
+      return true;
+
+   success = 0;
 
    success |= iio_add_loader("pcx", iio_load_pcx);
    success |= iio_add_loader("bmp", iio_load_bmp);
    success |= iio_add_loader("tga", iio_load_tga);
+
+   if (success)
+      inited = true;
 
    return success;
 }

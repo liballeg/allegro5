@@ -1,4 +1,5 @@
 #include "allegro5/allegro5.h"
+#include "allegro5/a5_iio.h"
 #include <stdio.h>
 
 void go(void)
@@ -14,7 +15,7 @@ void go(void)
       printf("Error creating first display\n");
       return;
    }
-   b1 = al_load_bitmap("mysha.pcx");
+   b1 = iio_load("mysha.pcx");
    if (!b1) {
       printf("Error loading mysha.pcx\n");
       return;
@@ -26,7 +27,7 @@ void go(void)
       printf("Error creating second display\n");
       return;
    }
-   b2 = al_load_bitmap("allegro.pcx");
+   b2 = iio_load("allegro.pcx");
    if (!b2) {
       printf("Error loading allegro.pcx\n");
       return;
@@ -51,6 +52,7 @@ void go(void)
 int main(void)
 {
    al_init();
+   iio_init();
 
    if (al_get_num_video_adapters() < 2) {
       allegro_message(

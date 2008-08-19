@@ -1,4 +1,5 @@
 #include "allegro5/allegro5.h"
+#include "allegro5/a5_iio.h"
 
 void redraw(ALLEGRO_BITMAP *picture)
 {
@@ -23,6 +24,7 @@ int main(void)
    ALLEGRO_BITMAP *picture;
 
    al_init();
+   iio_init();
 
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
    display = al_create_display(640, 480);

@@ -111,7 +111,7 @@ int al_get_pixel_size(int format)
    return pixel_sizes[format];
 }
 
-int _al_get_pixel_format_bits(int format)
+int al_get_pixel_format_bits(int format)
 {
    return pixel_bits[format];
 }

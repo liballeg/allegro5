@@ -1,4 +1,5 @@
 #include <allegro5/allegro5.h>
+#include "allegro5/a5_iio.h"
 
 int main(void)
 {
@@ -8,9 +9,9 @@ int main(void)
    ALLEGRO_KBDSTATE kbdstate;
 
    al_init();
-
    al_install_mouse();
    al_install_keyboard();
+   iio_init();
 
    display = al_create_display(640, 480);
    if (!display) {

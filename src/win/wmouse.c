@@ -607,7 +607,7 @@ int mouse_dinput_grab(void)
 {
    HRESULT hr;
    DWORD level;
-   HWND allegro_wnd = win_get_window();
+   HWND allegro_wnd = _al_win_active_window;
 
    if (mouse_dinput_device) {
       /* necessary in order to set the cooperative level */
@@ -651,7 +651,7 @@ int mouse_dinput_grab(void)
  */
 int mouse_set_syscursor(void)
 {
-   HWND allegro_wnd = win_get_window();
+   HWND allegro_wnd = _al_win_active_window;
    if ((mouse_dinput_device && _mouse_on) || (gfx_driver && !gfx_driver->windowed)) {
       SetCursor(_win_hcursor);
       /* Make sure the cursor is removed by the system. */
@@ -766,7 +766,7 @@ static int mouse_dinput_init(void)
    };
 
    /* Get DirectInput interface */
-   hr = DirectInput8Create(allegro_inst, DIRECTINPUT_VERSION, &IID_IDirectInput8A, (LPVOID *)&mouse_dinput, NULL);
+   hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, (LPVOID *)&mouse_dinput, NULL);
    if (FAILED(hr))
       goto Error;
 

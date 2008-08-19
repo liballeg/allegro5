@@ -61,6 +61,7 @@
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_joystick.h"
+#include "win_new.h"
 
 #ifndef SCAN_DEPEND
    #ifdef ALLEGRO_MINGW32
@@ -488,7 +489,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    LPDIRECTINPUTDEVICE2 dinput_device = NULL;
    HRESULT hr;
    LPVOID temp;
-   HWND allegro_wnd = win_get_window();
+   HWND allegro_wnd = _al_win_active_window;
 
    DIPROPRANGE property_range =
    {
@@ -673,11 +674,13 @@ static bool joydx_init_joystick(void)
    ASSERT(!STOP_EVENT);
 
    /* the DirectInput joystick interface is not part of DirectX 3 */
+   /*
    if (_dx_ver < 0x0500)
       return false;
+      */
 
    /* get the DirectInput interface */
-   hr = DirectInput8Create(allegro_inst, DIRECTINPUT_VERSION, &IID_IDirectInput8A, &joystick_dinput, NULL);
+   hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, (LPVOID *)&joystick_dinput, NULL);
    if (FAILED(hr)) {
       joystick_dinput = NULL;
       return false;

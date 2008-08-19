@@ -1,4 +1,5 @@
 #include "allegro5/allegro5.h"
+#include "allegro5/a5_iio.h"
 
 int main(void)
 {
@@ -9,6 +10,7 @@ int main(void)
    int i, j;
 
    al_init();
+   iio_init();
 
    /* Create a 100 x 100 window. */
    display = al_create_display(100, 100);

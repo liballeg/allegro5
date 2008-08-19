@@ -432,6 +432,8 @@ int main(void)
       fatal_error("al_install_mouse");
    }
 
+   a5font_init();
+
    /* Open a window. This function is part of the new display API and is
     * still in flux.
     */

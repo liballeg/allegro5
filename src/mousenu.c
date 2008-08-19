@@ -68,6 +68,10 @@ bool al_install_mouse(void)
        return true;
    }
 
+
+   return false;
+#if 0
+
    if (system_driver && system_driver->mouse_drivers)
       driver_list = system_driver->mouse_drivers();
    else
@@ -90,11 +94,14 @@ bool al_install_mouse(void)
       new_mouse_driver = NULL;
       return false;
    }
-
    _add_exit_func(al_uninstall_mouse, "al_uninstall_mouse");
 
+
    return true;
+#endif
+
 }
+
 
 
 

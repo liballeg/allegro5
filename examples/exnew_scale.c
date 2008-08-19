@@ -8,6 +8,7 @@
 
 
 #include <allegro5/allegro5.h>
+#include "allegro5/a5_iio.h"
 #include <math.h>
 
 
@@ -29,8 +30,8 @@ int main(int argc, char *argv[])
 
    if (!al_init())
       return 1;
-
    al_install_keyboard();
+   iio_init();
 
    dpy = al_create_display(display_w, display_h);
    if (!dpy) {

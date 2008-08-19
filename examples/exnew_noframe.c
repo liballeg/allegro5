@@ -1,5 +1,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
+#include "allegro5/a5_iio.h"
 
 #include <stdio.h>
 
@@ -17,6 +18,7 @@ int main(void)
    al_init();
    al_install_mouse();
    al_install_keyboard();
+   iio_init();
 
    al_set_new_display_flags(ALLEGRO_NOFRAME);
    display = al_create_display(300, 200);

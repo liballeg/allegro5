@@ -2,6 +2,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
+#include "allegro5/a5_iio.h"
 
 
 static void print(A5FONT_FONT *myfont, char *message, int x, int y)
@@ -76,6 +77,7 @@ int main(void)
 
    al_init();
    al_install_keyboard();
+   a5font_init();
 
    display = al_create_display(640, 400);
    if (!display) {

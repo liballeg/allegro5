@@ -37,7 +37,7 @@ typedef struct WIN_WINDOW {
 static _AL_VECTOR win_window_list = _AL_VECTOR_INITIALIZER(WIN_WINDOW *);
 static ALLEGRO_DISPLAY *event_display = NULL;
 
-HWND _al_win_active_window;
+HWND _al_win_active_window = NULL;
 
 
 /*
@@ -197,7 +197,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    memset(&mode, 0, sizeof(DEVMODE));
    mode.dmSize = sizeof(DEVMODE);
    mode.dmDriverExtra = 0;
-   mode.dmBitsPerPel = _al_get_pixel_format_bits(display->format);
+   mode.dmBitsPerPel = al_get_pixel_format_bits(display->format);
    mode.dmPelsWidth = display->w;
    mode.dmPelsHeight = display->h;
    mode.dmDisplayFlags = 0;

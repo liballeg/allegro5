@@ -532,9 +532,6 @@ ALLEGRO_BITMAP *iio_load_tga(AL_CONST char *filename)
 
    pack_fclose(f);
 
-   // FIXME:
-   iio_save_tga("test.tga", bmp);
-
    return bmp;
 }
 

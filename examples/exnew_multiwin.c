@@ -1,4 +1,5 @@
 #include "allegro5/allegro5.h"
+#include "allegro5/a5_iio.h"
 
 const int W = 640;
 const int H = 400;
@@ -14,6 +15,7 @@ int main(void)
 
    al_init();
    al_install_keyboard();
+   iio_init();
 
    events = al_create_event_queue();
 

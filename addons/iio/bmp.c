@@ -319,14 +319,13 @@ static void read_24bit_line(int length, PACKFILE *f, ALLEGRO_BITMAP *bmp, int li
 static void read_32bit_line(int length, PACKFILE *f, ALLEGRO_BITMAP *bmp, int line)
 {
    int i;
-   char a;
    PalEntry c;
 
    for (i=0; i<length; i++) {
       c.b = pack_getc(f);
       c.g = pack_getc(f);
       c.r = pack_getc(f);
-      a = pack_getc(f);
+      c.a = pack_getc(f);
       al_put_pixel(i, line, al_map_rgba(c.r, c.g, c.b, a));
    }
 }
@@ -607,9 +606,9 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(PACKFILE *f)
    ALLEGRO_BITMAP *bmp;
    PalEntry pal[256];
    unsigned long biSize;
-   int bpp;
    unsigned char *buf;
    ALLEGRO_LOCKED_REGION lr;
+   int bpp;
    ASSERT(f);
 
    if (read_bmfileheader(f, &fileheader) != 0) {
@@ -746,7 +745,7 @@ static int iio_save_bmp_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
-   depth = _al_get_pixel_format_bits(bmp->format);
+   depth = al_get_pixel_format_bits(bmp->format);
    bpp = 24;
    filler = 3 - ((w*(bpp/8)-1) & 3);
 

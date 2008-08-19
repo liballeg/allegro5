@@ -46,6 +46,9 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
    _al_win_system = _AL_MALLOC(sizeof *_al_win_system);
    memset(_al_win_system, 0, sizeof *_al_win_system);
 
+   /* setup general critical section */
+   InitializeCriticalSection(&allegro_critical_section);
+
    // Request a 1ms resolution from our timer
    if (timeBeginPeriod(1) != TIMERR_NOCANDO) {
       using_higher_res_timer = true;
@@ -212,6 +215,12 @@ static bool win_get_cursor_position(int *ret_x, int *ret_y)
 }
 
 
+static ALLEGRO_MOUSE_DRIVER *win_get_mouse_driver(void)
+{
+   return _al_mouse_driver_list[0].driver;
+}
+
+
 ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
@@ -228,6 +237,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_num_video_adapters = win_get_num_video_adapters;
    vt->get_monitor_info = win_get_monitor_info;
    vt->get_cursor_position = win_get_cursor_position;
+   vt->get_mouse_driver = win_get_mouse_driver;
 
    TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
 

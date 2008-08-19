@@ -664,7 +664,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
    if (EnumDisplayDevices(NULL, al_get_current_video_adapter(), &dd, 0) == FALSE)
       return false;
 
-   bpp = _al_get_pixel_format_bits(d->format);
+   bpp = al_get_pixel_format_bits(d->format);
    if (!bpp)
       bpp = 32;
 

@@ -53,7 +53,7 @@ bool al_install_joystick(void)
 
    ASSERT(_al_vector_is_empty(&opened_joysticks));
 
-   if (system_driver->joystick_drivers)
+   if (system_driver && system_driver->joystick_drivers)
       driver_list = system_driver->joystick_drivers();
    else
       driver_list = _al_joystick_driver_list;
@@ -84,7 +84,8 @@ bool al_install_joystick(void)
    for (c=0; driver_list[c].driver; c++) {
       if (driver_list[c].autodetect) {
          joydrv = driver_list[c].driver;
-         name = get_config_text(joydrv->joydrv_ascii_name);
+         //name = get_config_text(joydrv->joydrv_ascii_name);
+         name = joydrv->joydrv_ascii_name;
          joydrv->joydrv_name = name;
          joydrv->joydrv_desc = name;
          if (joydrv->init_joystick()) {
