@@ -22,6 +22,10 @@ int main(void)
    display = al_create_display(300, 200);
    
    bitmap = al_load_bitmap("fakeamp.bmp");
+   if (!bitmap) {
+      allegro_message("Error loading fakeamp.bmp\n");
+      return 1;
+   }
 
    al_show_mouse_cursor();
 
