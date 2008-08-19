@@ -16,7 +16,7 @@ int main(void)
    }
 
    /* First icon: Read from file. */
-   icon1 = al_load_bitmap("icon.tga");
+   icon1 = iio_load("icon.tga");
    if (!icon1) {
       allegro_message("icon.tga not found");
       return 1;

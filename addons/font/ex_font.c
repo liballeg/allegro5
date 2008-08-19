@@ -1,5 +1,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
+#include "allegro5/a5_iio.h"
 
 int main(void)
 {
@@ -8,11 +9,13 @@ int main(void)
     A5FONT_FONT *f;
 
     al_init();
+    iio_init();
+    a5font_init();
+
     display = al_create_display(320, 200);
-    bitmap = al_load_bitmap("mysha.pcx");
+    bitmap = iio_load("mysha.pcx");
     al_draw_bitmap(bitmap, 0, 0, 0);
 
-    a5font_init();
     f = a5font_load_font("bmpfont.tga", NULL);
 
     /* Draw red text */

@@ -3,6 +3,8 @@
  *
  *  By Michael Rickmann.
  */
+
+/* don't include non-standard header files */
 #define SCAN_DEPEND
 
 
@@ -23,6 +25,8 @@
 /* Make OpenGL mandatory. A library without OpenGL lacks many
  * exports specific to OpenGL, which makes it ABI incompatible. */
 #define ALLEGRO_CFG_OPENGL
+/* Make D3D mandatory. */
+#define ALLEGRO_CFG_D3D
 
 
 #if defined ALLEGRO_API

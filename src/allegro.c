@@ -520,7 +520,7 @@ void get_executable_name(char *output, int size)
    ASSERT(system_driver);
    ASSERT(output);
 
-   if (system_driver->get_executable_name) {
+   if (system_driver && system_driver->get_executable_name) {
       system_driver->get_executable_name(output, size);
    }
    else {

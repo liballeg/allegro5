@@ -719,8 +719,10 @@ int file_exists(AL_CONST char *filename, int attrib, int *aret)
 
    if (al_findfirst(filename, &info, attrib) != 0) {
       /* no entry is not an error for file_exists() */
+      /*
       if (*allegro_errno == ENOENT)
          *allegro_errno = 0;
+         */
 
       return FALSE;
    }
@@ -821,7 +823,7 @@ int delete_file(AL_CONST char *filename)
       return -1;
 
    if (_al_unlink(uconvert_tofilename(filename, tmp)) != 0) {
-      *allegro_errno = errno;
+      //*allegro_errno = errno;
       return -1;
    }
  
@@ -854,20 +856,22 @@ int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST cha
 
    if (al_findfirst(name, &info, attrib) != 0) {
       /* no entry is not an error for for_each_file() */
+      /*
       if (*allegro_errno == ENOENT)
          *allegro_errno = 0;
+         */
 
       return 0;
    }
 
-   *allegro_errno = 0;
+   //*allegro_errno = 0;
 
    do {
       replace_filename(buf, name, info.name, sizeof(buf));
       (*callback)(buf, info.attrib, param);
 
-      if (*allegro_errno) /* evil, evil, evil! */
-	 break;
+      //if (*allegro_errno) /* evil, evil, evil! */
+	// break;
 
       c++;
    } while (al_findnext(&info) == 0);
@@ -875,8 +879,10 @@ int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST cha
    al_findclose(&info);
 
    /* no entry is not an error for for_each_file() */
+   /*
    if (*allegro_errno == ENOENT)
       *allegro_errno = 0;
+      */
 
    return c;
 }
@@ -908,8 +914,10 @@ int for_each_file_ex(AL_CONST char *name, int in_attrib, int out_attrib, int (*c
 
    if (al_findfirst(name, &info, ~out_attrib) != 0) {
       /* no entry is not an error for for_each_file_ex() */
+      /*
       if (*allegro_errno == ENOENT)
 	 *allegro_errno = 0;
+         */
 
       return 0;
    }
@@ -929,8 +937,8 @@ int for_each_file_ex(AL_CONST char *name, int in_attrib, int out_attrib, int (*c
    al_findclose(&info);
 
    /* no entry is not an error for for_each_file_ex() */
-   if (*allegro_errno == ENOENT)
-      *allegro_errno = 0;
+   //if (*allegro_errno == ENOENT)
+     // *allegro_errno = 0;
 
    return c;
 }
@@ -1294,7 +1302,7 @@ static PACKFILE *pack_fopen_exe_file(void)
    get_executable_name(exe_name, sizeof(exe_name));
 
    if (!ugetc(get_filename(exe_name))) {
-      *allegro_errno = ENOENT;
+      //*allegro_errno = ENOENT;
       return NULL;
    }
 
@@ -1309,7 +1317,7 @@ static PACKFILE *pack_fopen_exe_file(void)
 
    if (pack_mgetl(f) != F_EXE_MAGIC) {
       pack_fclose(f);
-      *allegro_errno = ENOTDIR;
+      //*allegro_errno = ENOTDIR;
       return NULL;
    }
 
@@ -1405,7 +1413,7 @@ static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, AL_CONST char *objname)
 
    /* oh dear, the object isn't there... */
    pack_fclose(f);
-   *allegro_errno = ENOENT;
+   //*allegro_errno = ENOENT;
    return NULL; 
 }
 
@@ -1425,7 +1433,7 @@ static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char 
    /* special files are read-only */
    while ((c = *(mode++)) != 0) {
       if ((c == 'w') || (c == 'W')) {
-	 *allegro_errno = EROFS;
+	 //*allegro_errno = EROFS;
 	 return NULL;
       }
    }
@@ -1455,7 +1463,7 @@ static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char 
 
       if (pack_mgetl(f) != DAT_MAGIC) {
 	 pack_fclose(f);
-	 *allegro_errno = ENOTDIR;
+	 //*allegro_errno = ENOTDIR;
 	 return NULL;
       }
 
@@ -1526,7 +1534,7 @@ static int clone_password(PACKFILE *f)
 
    if (the_password[0]) {
       if ((f->normal.passdata = _AL_MALLOC_ATOMIC(strlen(the_password)+1)) == NULL) {
-	 *allegro_errno = ENOMEM;
+	 //*allegro_errno = ENOMEM;
 	 return FALSE;
       }
       _al_sane_strncpy(f->normal.passdata, the_password, strlen(the_password)+1);
@@ -1555,7 +1563,7 @@ static PACKFILE *create_packfile(int is_normal_packfile)
       f = _AL_MALLOC(sizeof(PACKFILE) - sizeof(struct _al_normal_packfile_details));
 
    if (f == NULL) {
-      *allegro_errno = ENOMEM;
+      //*allegro_errno = ENOMEM;
       return NULL;
    }
 
@@ -1707,7 +1715,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	    if (fd2<0) {
 	       pack_fclose(f->normal.parent);
 	       free_packfile(f);
-	       *allegro_errno = errno;
+	       //*allegro_errno = errno;
 	       return NULL;
 	    }
   

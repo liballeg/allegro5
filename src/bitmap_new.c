@@ -216,6 +216,7 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 }
 
 
+#if 0
 
 /* TODO
  * This will load a bitmap from a file into a memory bitmap, keeping it in the
@@ -239,7 +240,7 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    int flags = al_get_new_bitmap_flags();
 
    // FIXME: should not use the 4.2 function here of course
-   set_color_conversion(COLORCONV_NONE);
+   //set_color_conversion(COLORCONV_NONE);
    file_data = load_bitmap(filename, pal);
    if (!file_data) {
       return NULL;
@@ -289,7 +290,7 @@ ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 
    return bitmap;
 }
-
+#endif
 
 
 /* Function: al_draw_bitmap

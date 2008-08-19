@@ -21,7 +21,7 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_NOFRAME);
    display = al_create_display(300, 200);
    
-   bitmap = al_load_bitmap("fakeamp.bmp");
+   bitmap = iio_load("fakeamp.bmp");
    if (!bitmap) {
       allegro_message("Error loading fakeamp.bmp\n");
       return 1;

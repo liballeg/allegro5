@@ -431,7 +431,7 @@ static void read_image(PACKFILE *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPINFOHEADER 
 	    break;
       }
       if (infoheader->biBitCount <= 8) {
-         for (j = 0; j < infoheader->biWidth; j++) {
+         for (j = 0; j < (int)infoheader->biWidth; j++) {
             ALLEGRO_COLOR color =
                al_map_rgb(
                   pal[buf[j]].r,
@@ -706,7 +706,7 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(PACKFILE *f)
    if (infoheader.biCompression == BIT_RLE8 || infoheader.biCompression == BIT_RLE4) {
       int x, y;
       for (y = 0; y < infoheader.biHeight; y++) {
-         for (x = 0; x < infoheader.biWidth; x++) {
+         for (x = 0; x < (int)infoheader.biWidth; x++) {
             ALLEGRO_COLOR color =
                al_map_rgb(
                   pal[buf[y*infoheader.biWidth+x]].r,
@@ -763,7 +763,7 @@ static int iio_save_bmp_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
       bfSize = 54 + biSizeImage;       /* header + image data */
    }
 
-   *allegro_errno = 0;
+   //*allegro_errno = 0;
 
    /* file_header */
    pack_iputw(0x4D42, f);              /* bfType ("BM") */
@@ -809,9 +809,9 @@ static int iio_save_bmp_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
 
    al_unlock_bitmap(bmp);
 
-   if (*allegro_errno)
-      return -1;
-   else
+   //if (*allegro_errno)
+    //  return -1;
+   //else
       return 0;
 }
 
@@ -862,32 +862,4 @@ int iio_save_bmp(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
 
    return ret;
 }
-
-int main(void)
-{
-/*
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *bitmap;
-
-   al_init();
-
-   display = al_create_display(320, 200);
-
-   bitmap = iio_load_bmp("fakeamp.bmp");
-
-   al_draw_bitmap(bitmap, 0, 0, 0);
-
-   al_flip_display();
-
-   al_rest(2);
-*/
-
-   ALLEGRO_BITMAP *bitmap;
-
-   al_init();
-
-   bitmap = iio_load_bmp("fakeamp.bmp");
-   iio_save_bmp("out.bmp", bitmap);
-}
-END_OF_MAIN();
 

@@ -68,7 +68,7 @@ bool al_install_mouse(void)
        return true;
    }
 
-   if (system_driver->mouse_drivers)
+   if (system_driver && system_driver->mouse_drivers)
       driver_list = system_driver->mouse_drivers();
    else
       driver_list = _al_mouse_driver_list;
@@ -77,7 +77,8 @@ bool al_install_mouse(void)
 
    for (i=0; driver_list[i].driver; i++) {
       new_mouse_driver = driver_list[i].driver;
-      name = get_config_text(new_mouse_driver->msedrv_ascii_name);
+      //name = get_config_text(new_mouse_driver->msedrv_ascii_name);
+	  name = new_mouse_driver->msedrv_ascii_name;
       new_mouse_driver->msedrv_name = name;
       new_mouse_driver->msedrv_desc = name;
       if (new_mouse_driver->init_mouse()) {

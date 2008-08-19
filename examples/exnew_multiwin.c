@@ -28,13 +28,13 @@ int main(void)
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[1]);
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
-   pictures[0] = al_load_bitmap("mysha.pcx");
+   pictures[0] = iio_load("mysha.pcx");
    if (!pictures[0]) {
       allegro_message("failed to load mysha.pcx");
       return 1;
    }
 
-   pictures[1] = al_load_bitmap("allegro.pcx");
+   pictures[1] = iio_load("allegro.pcx");
    if (!pictures[1]) {
       allegro_message("failed to load allegro.pcx");
       return 1;

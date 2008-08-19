@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   bmp = al_load_bitmap("mysha.pcx");
+   bmp = iio_load("mysha.pcx");
    if (!bmp) {
       allegro_message("Unable to load image\n%s\n", allegro_error);
       return 1;

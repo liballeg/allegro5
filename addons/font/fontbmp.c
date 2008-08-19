@@ -22,6 +22,8 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 
+#include "allegro5/a5_iio.h"
+
 #include "allegro5/a5_font.h"
 
 
@@ -181,7 +183,7 @@ A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
    _al_push_new_bitmap_parameters();
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-   import_bmp = al_load_bitmap(fname);
+   import_bmp = iio_load(fname);
    _al_pop_new_bitmap_parameters();
 
    if(!import_bmp) 

@@ -196,7 +196,7 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
  */
 int wnd_call_proc(int (*proc) (void))
 {
-   return SendMessage(win_get_window(), _al_win_msg_call_proc, (DWORD) proc, 0);
+   return SendMessage(GetForegroundWindow(), _al_win_msg_call_proc, (DWORD) proc, 0);
 }
 
 

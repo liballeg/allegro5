@@ -40,6 +40,7 @@
    #include <process.h>
 #endif
 
+
 #define PREFIX_I                "al-wkey INFO: "
 #define PREFIX_W                "al-wkey WARNING: "
 #define PREFIX_E                "al-wkey ERROR: "
@@ -225,7 +226,7 @@ static const unsigned char hw_to_mycode[256] =
  */
 static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 {
-   HWND allegro_wnd = win_get_window();
+   HWND allegro_wnd = _al_win_active_window;
    /* Windows seems to send lots of ctrl-alt-XXX key combos in response to the
     * ctrl-alt-del combo. We want to ignore them all, especially ctrl-alt-end,
     * which would cause Allegro to terminate.
@@ -464,7 +465,7 @@ static int key_dinput_exit(void)
 static int key_dinput_init(void)
 {
    HRESULT hr;
-   HWND allegro_wnd = win_get_window();
+   HWND allegro_wnd = _al_win_active_window;
    DIPROPDWORD property_buf_size =
    {
       /* the header */
@@ -480,7 +481,7 @@ static int key_dinput_init(void)
    };
 
    /* Get DirectInput interface */
-   hr = DirectInput8Create(allegro_inst, DIRECTINPUT_VERSION, &IID_IDirectInput8A, &key_dinput, NULL);
+   hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, (LPVOID *)&key_dinput, NULL);
    if (FAILED(hr)) {
       TRACE("DirectInputCreate failed.\n");
       goto Error;
@@ -663,6 +664,7 @@ static void handle_key_press(unsigned char scancode)
    GetKeyboardState(keystate);
    update_modifiers(keystate);
 
+
    /* TODO: shouldn't we base the mapping on vkey? */
    mycode = hw_to_mycode[scancode];
    if (mycode == 0)
@@ -758,6 +760,7 @@ static void handle_key_press(unsigned char scancode)
    event = _al_event_source_get_unused_event(&the_keyboard.es);
    if (!event)
       return;
+
 
    event->keyboard.type = event_type;
    event->keyboard.timestamp = al_current_time();

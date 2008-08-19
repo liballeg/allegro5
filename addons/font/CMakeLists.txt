@@ -4,6 +4,7 @@ set(FONT_INCLUDE_FILES allegro5/a5_font.h)
 macro(add_font_build nm extra_flags)
     macro(really_add_font_build nm2 target libtype more_extra_flags)
         add_library(${target} ${libtype} ${FONT_SOURCES})
+
         set_target_properties(${target}
             PROPERTIES
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DA5_FONT_SRC"
@@ -22,6 +23,7 @@ macro(add_font_build nm extra_flags)
     if(SHARED)
         really_add_font_build(${nm} ${nm}_shared SHARED "")
         target_link_libraries(${nm}_shared ${ADDONS_LINK_WITH})
+        target_link_libraries(${nm}_shared ${IIO_LINK_WITH})
     endif(SHARED)
 
     if(STATIC)
@@ -55,8 +57,10 @@ elseif(GRADE_PROFILE)
 endif(GRADE_STANDARD)
 
 if(STATIC)
+    set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_static PARENT_SCOPE)
     set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_static CACHE INTERNAL "internal")
 else(STATIC)
+    set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_shared PARENT_SCOPE)
     set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
 endif(STATIC)
 
@@ -68,6 +72,7 @@ macro(add_font_example nm)
         )
     target_link_libraries(${nm} ${LINK_WITH})
     target_link_libraries(${nm} ${FONT_LINK_WITH})
+    target_link_libraries(${nm} ${IIO_LINK_WITH})
 endmacro(add_font_example)
 
 add_font_example(ex_font ex_font.c)

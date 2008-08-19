@@ -31,7 +31,7 @@ int main(void)
       return 1;
    }
 
-   picture = al_load_bitmap("mysha.pcx");
+   picture = iio_load("mysha.pcx");
    if (!picture) {
       allegro_message("mysha.pcx not found");
       return 1;

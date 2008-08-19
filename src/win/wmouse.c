@@ -766,7 +766,7 @@ static int mouse_dinput_init(void)
    };
 
    /* Get DirectInput interface */
-   hr = DirectInput8Create(allegro_inst, DIRECTINPUT_VERSION, &IID_IDirectInput8A, &mouse_dinput, NULL);
+   hr = DirectInput8Create(allegro_inst, DIRECTINPUT_VERSION, &IID_IDirectInput8A, (LPVOID *)&mouse_dinput, NULL);
    if (FAILED(hr))
       goto Error;
 
@@ -826,9 +826,9 @@ static bool mouse_directx_init(void)
    char tmp1[64], tmp2[128];
 
    /* get user acceleration factor */
-   mouse_accel_fact = get_config_int(uconvert_ascii("mouse", tmp1),
+   mouse_accel_fact = 1; /*get_config_int(uconvert_ascii("mouse", tmp1),
                                      uconvert_ascii("mouse_accel_factor", tmp2),
-                                     MAF_DEFAULT);
+                                     MAF_DEFAULT);*/
 
    if (mouse_dinput_init() != 0) {
       /* something has gone wrong */

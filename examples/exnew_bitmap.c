@@ -1,4 +1,5 @@
 #include "allegro5/allegro5.h"
+#include "allegro5/a5_iio.h"
 
 int main(void)
 {
@@ -8,16 +9,18 @@ int main(void)
     al_init();
     al_install_mouse();
 
+    iio_init();
+
     display = al_create_display(320, 200);
     if (!display) {
-       allegro_message("Error creating display");
+       TRACE("Error creating display");
        return 1;
     }
 
     al_show_mouse_cursor();
-    bitmap = al_load_bitmap("mysha.pcx");
+    bitmap = iio_load("mysha.pcx");
     if (!bitmap) {
-       allegro_message("mysha.pcx not found");
+       TRACE("mysha.pcx not found");
        return 1;
     }
 

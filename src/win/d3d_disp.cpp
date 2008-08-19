@@ -988,7 +988,6 @@ static void d3d_display_thread_proc(void *arg)
       return;
    }
 
-   d->display.vt = vt;
    d->display.format = new_format;
 
    if (d->faux_fullscreen) {
@@ -1014,8 +1013,6 @@ static void d3d_display_thread_proc(void *arg)
 	    }
 	}
 
-
-	al_get_monitor_info(1, &mi);
 	TRACE("Here d->adapter=%d\n", d->adapter);
 	al_get_monitor_info(d->adapter, &mi);
 	TRACE("mi.x1=%d mi.y1=%d mi.x2=%d mi.y2=%d\n", mi.x1, mi.y1, mi.x2, mi.y2);
@@ -1229,7 +1226,8 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display)
 
    //_AL_FREE(params);
 
-   win_grab_input();
+   // Activate the window (grabs input)
+   PostMessage(display->window, WM_ACTIVATEAPP, 1, 0);
 
    display->backbuffer_bmp.is_backbuffer = true;
    display->backbuffer_bmp.bitmap.display = (ALLEGRO_DISPLAY *)display;
@@ -1282,6 +1280,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
  
    //_al_mutex_init(&display->mutex);
 
+   display->display.vt = vt;
    display->adapter = al_get_current_video_adapter();
    display->display.w = w;
    display->display.h = h;
@@ -1329,6 +1328,8 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    /* Keep track of the displays created */
    add = (ALLEGRO_DISPLAY_D3D **)_al_vector_alloc_back(&d3d_created_displays);
    *add = display;
+
+   _al_win_active_window = display->window;
 
    return (ALLEGRO_DISPLAY *)display;
 }

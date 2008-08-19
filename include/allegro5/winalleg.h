@@ -113,8 +113,11 @@ AL_FUNC(void, stretch_blit_from_hdc, (HDC hdc, BITMAP *bitmap, int src_x, int sr
 /* D3D stuff */
 
 
-#if defined(SCAN_DEPEND) || defined(ALLEGRO_CFG_D3D)
+#if defined(ALLEGRO_CFG_D3D)
+
+#ifndef SCAN_DEPEND
 #include <d3d9.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

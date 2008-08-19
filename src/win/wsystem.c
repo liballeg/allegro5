@@ -56,6 +56,7 @@ static int sys_directx_trace_handler(AL_CONST char *msg);
 
 
 /* the main system driver for running under DirectX */
+#if 0
 SYSTEM_DRIVER system_directx =
 {
    SYSTEM_DIRECTX,
@@ -93,6 +94,45 @@ SYSTEM_DRIVER system_directx =
    NULL,                        /* AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void)); */
    NULL                         /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
 };
+#endif
+
+SYSTEM_DRIVER system_directx =
+{
+   SYSTEM_DIRECTX,
+   empty_string,                /* char *name; */
+   empty_string,                /* char *desc; */
+   "DirectX",
+   NULL,//sys_directx_init,
+   NULL,//sys_directx_exit,
+   NULL,//sys_directx_get_executable_name,
+   NULL,                        /* AL_METHOD(int, find_resource, (char *dest, char *resource, int size)); */
+   NULL,//_sys_directx_set_window_title,
+   NULL,//_sys_directx_set_close_button_callback,
+   NULL,//_sys_directx_message,
+   NULL,//_sys_directx_assert,
+   NULL,//_sys_directx_save_console_state,
+   NULL,//_sys_directx_restore_console_state,
+   NULL,                        /* AL_METHOD(struct BITMAP *, create_bitmap, (int color_depth, int width, int height)); */
+   NULL,                        /* AL_METHOD(void, created_bitmap, (struct BITMAP *bmp)); */
+   NULL,                        /* AL_METHOD(struct BITMAP *, create_sub_bitmap, (struct BITMAP *parent, int x, int y, int width, int height)); */
+   NULL,                        /* AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp)); */
+   NULL,                        /* AL_METHOD(int, destroy_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                        /* AL_METHOD(void, read_hardware_palette, (void)); */
+   NULL,                        /* AL_METHOD(void, set_palette_range, (PALETTE p, int from, int to, int vsync)); */
+   NULL,                        /* AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth)); */
+   NULL,//_sys_directx_set_display_switch_mode,
+   NULL,                        /* AL_METHOD(void, display_switch_lock, (int lock)); */
+   NULL,//_sys_directx_desktop_color_depth,
+   NULL,//_sys_directx_get_desktop_resolution,
+   NULL,//_sys_directx_get_gfx_safe_mode,
+   NULL,//_sys_directx_yield_timeslice,
+   NULL,                        /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
+   NULL,//_get_win_digi_driver_list,   /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
+   NULL,//_get_win_midi_driver_list,   /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
+   NULL,                        /* AL_METHOD(_DRIVER_INFO *, keyboard_drivers, (void)); */
+   NULL,                        /* AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void)); */
+   NULL                         /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
+};
 
 static char sys_directx_desc[64] = EMPTY_STRING;
 
@@ -125,6 +165,8 @@ static int sys_directx_init(void)
    unsigned long win_ver;
    HANDLE current_thread;
    HANDLE current_process;
+
+   return 0;
 
    /* init thread */
    _win_thread_init();

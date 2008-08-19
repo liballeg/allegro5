@@ -198,7 +198,7 @@ AL_FUNC(int, al_get_bitmap_format, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(int, al_get_bitmap_flags, (ALLEGRO_BITMAP *bitmap));
 
 AL_FUNC(ALLEGRO_BITMAP*, al_create_bitmap, (int w, int h));
-AL_FUNC(ALLEGRO_BITMAP*, al_load_bitmap, (char const *filename));
+//AL_FUNC(ALLEGRO_BITMAP*, al_load_bitmap, (char const *filename));
 AL_FUNC(void, al_destroy_bitmap, (ALLEGRO_BITMAP *bitmap));
 
 /* Blitting */

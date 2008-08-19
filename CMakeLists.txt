@@ -97,6 +97,7 @@ option(WANT_AUDIO "Enable audio engine" off)
 option(WANT_ACODEC "Enable audio codecs (requires audio)" on)
 # WANT_ICODEC is off until it checks for Magick++
 option(WANT_ICODEC "Enable image loading/saving for most filetypes (requires libMagick)" off)
+option(WANT_IIO "Enable IIO image load/save addon" on)
 
 #
 # For developers.
@@ -835,13 +836,20 @@ endif(STATIC)
 # (static addons are not linked to anything)
 set(ADDONS_LINK_WITH ${LIB_TO_LINK}_shared)
 
-macro(add_allegro_executable nm)
+macro(add_allegro_executable nm libs)
     add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
     set_target_properties(${nm} PROPERTIES
         COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
         LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         )
     target_link_libraries(${nm} ${LINK_WITH})
+
+    string(COMPARE NOTEQUAL ${libs} NOTHING NEED_EXTRA_LIBS)
+
+    if(NEED_EXTRA_LIBS)
+        link_directories(${CMAKE_BINARY_DIR}/lib)
+        target_link_libraries(${nm} ${libs})
+    endif(NEED_EXTRA_LIBS)
 endmacro(add_allegro_executable)
 
 #-----------------------------------------------------------------------------#
@@ -860,7 +868,8 @@ add_subdirectory(addons)
 
 if(NOT MSVC80) # XXX disabled because it breaks MSVC's intellisense for some reason
     if(USE_CXX AND WANT_FONT)
-        add_subdirectory(demo)
+        # temporarily disabled
+        #add_subdirectory(demo)
     endif(USE_CXX AND WANT_FONT)
 endif(NOT MSVC80)
 

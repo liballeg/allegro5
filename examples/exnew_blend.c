@@ -67,14 +67,15 @@ static ALLEGRO_BITMAP *create_example_bitmap(void)
    ALLEGRO_BITMAP *raw;
    ALLEGRO_BITMAP *bitmap;
    int i, j;
+   ALLEGRO_LOCKED_REGION locked;
+   unsigned char *data;
 
    /* Create out example bitmap as a memory bitmap with a fixed format. */
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ABGR_8888);
    raw = al_create_bitmap(100, 100);
-   ALLEGRO_LOCKED_REGION locked;
    al_lock_bitmap(raw, &locked, ALLEGRO_LOCK_WRITEONLY);
-   unsigned char *data = locked.data;
+   data = locked.data;
  
    for (j = 0; j < 100; j++) {
       for (i = 0; i < 100; i++) {

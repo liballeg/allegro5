@@ -492,6 +492,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/text.h
     include/allegro5/timer.h
     include/allegro5/unicode.h
+    include/allegro5/a5_iio.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES

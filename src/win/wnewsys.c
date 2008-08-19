@@ -50,6 +50,9 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
    if (timeBeginPeriod(1) != TIMERR_NOCANDO) {
       using_higher_res_timer = true;
    }
+   _al_win_init_time();
+
+   _win_input_init(TRUE);
 
    _al_win_init_window();
 

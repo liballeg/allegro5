@@ -88,7 +88,7 @@ int main(void)
       allegro_message("font.tga not found");
       return 1;
    }
-   accelbmp = al_load_bitmap("mysha.pcx");
+   accelbmp = iio_load("mysha.pcx");
    if (!accelbmp) {
       allegro_message("mysha.pcx not found");
       return 1;
@@ -97,7 +97,7 @@ int main(void)
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
    memfont = a5font_load_font("font.tga", 0);
-   membmp = al_load_bitmap("mysha.pcx");
+   membmp = iio_load("mysha.pcx");
 
    test(membmp, memfont, "Memory bitmap (press SPACE key)");
 

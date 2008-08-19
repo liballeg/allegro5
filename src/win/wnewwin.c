@@ -37,6 +37,8 @@ typedef struct WIN_WINDOW {
 static _AL_VECTOR win_window_list = _AL_VECTOR_INITIALIZER(WIN_WINDOW *);
 static ALLEGRO_DISPLAY *event_display = NULL;
 
+HWND _al_win_active_window;
+
 
 /*
  * Find the top left position of the client area of a window.
@@ -65,10 +67,9 @@ void _al_win_get_window_pos(HWND window, RECT *pos)
 HWND _al_win_create_hidden_window()
 {
    HWND window = CreateWindowEx(0, 
-      "ALEX", wnd_title, WS_POPUP,
+      "ALEX", "hidden", WS_POPUP,
       -5000, -5000, 0, 0,
       NULL,NULL,window_class.hInstance,0);
-   ShowWindow(_al_win_compat_wnd, SW_HIDE);
    return window;
 }
 
@@ -122,7 +123,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    }
 
    my_window = CreateWindowEx(ex_style,
-      "ALEX", wnd_title, style,
+      "ALEX", "Allegro", style,
       pos_x, pos_y, width, height,
       NULL,NULL,window_class.hInstance,0);
 
@@ -133,8 +134,6 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    }
 
    ShowWindow(my_window, SW_SHOW);
-
-   ShowWindow(_al_win_compat_wnd, SW_HIDE);
 
    win_window = _AL_MALLOC(sizeof(WIN_WINDOW));
    win_window->display = display;
@@ -153,8 +152,6 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    }	      
 
    _al_win_get_window_pos(my_window, &pos);
-   wnd_x = pos.left;
-   wnd_y = pos.top;
 
    if (!(flags & ALLEGRO_RESIZABLE)) {
       /* Make the window non-resizable */
@@ -165,12 +162,6 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       DrawMenuBar(my_window);
    }
 
-   if (flags & ALLEGRO_FULLSCREEN) {
-      wnd_x = 0;
-      wnd_y = 0;
-   }
-
-   _al_win_wnd = my_window;
    return my_window;
 }
 
@@ -193,10 +184,9 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    ex_style = WS_EX_TOPMOST;
 
    my_window = CreateWindowEx(ex_style,
-      "ALEX", wnd_title, style,
+      "ALEX", "Allegro", style,
       x1, y1, width, height,
       NULL,NULL,window_class.hInstance,0);
-   ShowWindow(_al_win_compat_wnd, SW_HIDE);
 
    temp = GetWindowLong(my_window, GWL_STYLE);
    temp &= ~WS_CAPTION;
@@ -232,7 +222,6 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    add = _al_vector_alloc_back(&win_window_list);
    *add = win_window;
 
-   _al_win_wnd = my_window;
    return my_window;
 }
 
@@ -303,7 +292,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          case WM_ACTIVATEAPP:
             if (wParam) {
                //if (al_set_current_display((ALLEGRO_DISPLAY *)d)) {
-               _al_win_wnd = win->window;
+               _al_win_active_window = win->window;
                win_grab_input();
                if (d->vt->switch_in)
                	  d->vt->switch_in(d);
@@ -435,7 +424,7 @@ int _al_win_init_window()
 
 void _al_win_ungrab_input()
 {
-   wnd_schedule_proc(key_dinput_unacquire);
+   PostMessage(_al_win_active_window, _al_win_msg_call_proc, (DWORD)key_dinput_unacquire, 0);
 }
 
 
@@ -454,7 +443,7 @@ static HICON win_create_icon_from_old_bitmap(struct BITMAP *sprite)
    HBITMAP hOldAndMaskBitmap;
    HBITMAP hOldXorMaskBitmap;
    HICON hicon;
-   HWND allegro_wnd = win_get_window();
+   HWND allegro_wnd = _al_win_active_window;
 
    /* Create bitmap */
    h_dc = GetDC(allegro_wnd);
@@ -548,7 +537,7 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
 
    scaled_icon = win_create_icon_from_old_bitmap(scaled_bmp);
 
-   hwnd = win_get_window();
+   hwnd = _al_win_active_window;
 
    /* Set new icons and destroy old */
    old_small = (HICON)SendMessage(hwnd, WM_SETICON,
@@ -575,9 +564,6 @@ void _al_win_set_window_position(HWND window, int x, int y)
       0,
       0,
       SWP_NOSIZE | SWP_NOZORDER);
-
-   wnd_x = x;
-   wnd_y = y;
 }
 
 void _al_win_get_window_position(HWND window, int *x, int *y)
@@ -600,7 +586,7 @@ ALLEGRO_DISPLAY *_al_win_get_event_display(void)
    ALLEGRO_DISPLAY *d;
    unsigned int i, j;
    WIN_WINDOW *win = NULL;
-   HWND foreground_window = GetForegroundWindow();
+   HWND foreground_window = _al_win_active_window;
    ALLEGRO_SYSTEM *system = al_system_driver();
 
    for (i = 0; i < system->displays._size; i++) {

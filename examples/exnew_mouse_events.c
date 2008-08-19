@@ -22,7 +22,7 @@ int main(void)
 
    al_hide_mouse_cursor();
 
-   cursor = al_load_bitmap("cursor.tga");
+   cursor = iio_load("cursor.tga");
    if (!cursor) {
       allegro_message("Error loading cursor.tga");
       return 1;
