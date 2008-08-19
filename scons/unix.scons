@@ -152,8 +152,6 @@ else:
     platform["ALLEGRO_USE_SCHED_YIELD"] = config.CheckLib(["c", "posix4", "rt"], "sched_yield")
     platform["ALLEGRO_WITH_ALSADIGI"] = config.CheckALSADigi()
     platform["ALLEGRO_WITH_ALSAMIDI"] = config.CheckALSAMidi()
-    platform["ALLEGRO_WITH_ARTSDIGI"] = config.CheckARTSDigi()
-    platform["ALLEGRO_WITH_ESDDIGI"] = config.CheckESDDigi()
     platform["ALLEGRO_WITH_JACKDIGI"] = config.CheckJackDigi()
     platform["ALLEGRO_WITH_MAGIC_MAIN"] = getOption("magic_main", "no")
 
@@ -294,7 +292,6 @@ unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 # unixfiles.remove("src/unix/alsa5.c")
 # unixfiles.remove("src/unix/alsa9.c")
 # unixfiles.remove("src/unix/alsamidi.c")
-# unixfiles.remove("src/unix/uesd.c")
 
 context.add_files(unixfiles)
 
@@ -304,18 +301,6 @@ def supportModules():
 modules = []
 
 # These should probably also pass -DALLEGRO_MODULE or something
-if platform["ALLEGRO_WITH_ESDDIGI"]:
-    def buildESD(menv,appendDir,buildDir,libDir):
-        esdEnv = menv.Clone()
-        esdEnv.ParseConfig('esd-config --libs')
-        esdBuildDir = buildDir + '/modules'
-        esdEnv.BuildDir(esdBuildDir, '.')
-        sources = ["uesd.c"]
-        lib = esdEnv.SharedLibrary(libDir + "/alleg-esddigi",appendDir(esdBuildDir + "/src/unix/", sources))
-        modules.append(lib)
-        return lib
-    context.addExtra(buildESD, depends = True)
-
 if platform["ALLEGRO_WITH_ALSADIGI"]:
     def buildAlsa(menv,appendDir,buildDir,libDir):
         alsaEnv = menv.Clone()
@@ -355,17 +340,6 @@ if platform["ALLEGRO_WITH_ALSAMIDI"]:
 #        modules.append(lib)
 #        return lib
 #    context.addExtra(buildSVGA)
-
-if platform["ALLEGRO_WITH_ARTSDIGI"]:
-    def buildAlsa(menv,appendDir,buildDir,libDir):
-        artsEnv = menv.Clone()
-        artsEnv.ParseConfig("artsc-config --libs")
-        sources = ["arts.c"]
-        lib = artsEnv.SharedLibrary(libDir + "/alleg-artsdigi",
-            appendDir(buildDir + "modules/src/unix/", sources))
-        modules.append(lib)
-        return lib
-    context.addExtra(buildAlsa, depends = True)
 
 if platform["ALLEGRO_LINUX_FBCON"]:
     def buildFBCon(menv,appendDir,buildDir,libDir):
