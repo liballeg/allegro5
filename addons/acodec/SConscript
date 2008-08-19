@@ -79,13 +79,13 @@ Help(opts.GenerateHelpText(context.getLibraryEnv()))
 
 noconfig = False
 if not getArgumentOption("config",0):
-    if os.path.exists("addons/acodec/allegro5/internal/aintern_acodec.h"):
+    if os.path.exists("addons/acodec/allegro5/internal/aintern_acodec_cfg.h"):
         print "Re-using old acodec settings"
         noconfig = True
 
 settins = []
 if noconfig:
-    settings = helpers.readAutoHeader('addons/acodec/allegro5/internal/aintern_acodec.h')
+    settings = helpers.readAutoHeader('addons/acodec/allegro5/internal/aintern_acodec_cfg.h')
 else:
         tests = { "CheckOgg": CheckOGG,
                   "CheckFlac": CheckFlac,
@@ -94,17 +94,16 @@ else:
         config = context.getLibraryEnv().Configure(custom_tests = tests)
 
         settings = helpers.SimpleHash()
-        settings["ALLEGRO_CFG_ACODEC_OGG"] = getOption('ogg', False) and config.CheckOgg()
+        settings["ALLEGRO_CFG_ACODEC_VORBIS"] = getOption('ogg', False) and config.CheckOgg()
         settings["ALLEGRO_CFG_ACODEC_FLAC"] = getOption('flac', False) and config.CheckFlac()
         settings["ALLEGRO_CFG_ACODEC_SNDFILE"] = getOption('sndfile', False) and config.CheckSndfile()
         config.Finish()
 
 helpers.parse_cmake_h(context.getLibraryEnv(),settings,'#addons/acodec/allegro5/internal/aintern_acodec_cfg.h.cmake','#addons/acodec/allegro5/internal/aintern_acodec_cfg.h')
-
 source = ['acodec.c']
 configs = []
 
-if settings['ALLEGRO_CFG_ACODEC_OGG']:
+if settings['ALLEGRO_CFG_ACODEC_VORBIS']:
     source.extend(['ogg.c'])
     configs.extend(['pkg-config vorbisfile --libs'])
 
