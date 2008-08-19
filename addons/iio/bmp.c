@@ -326,7 +326,7 @@ static void read_32bit_line(int length, PACKFILE *f, ALLEGRO_BITMAP *bmp, int li
       c.g = pack_getc(f);
       c.r = pack_getc(f);
       c.a = pack_getc(f);
-      al_put_pixel(i, line, al_map_rgba(c.r, c.g, c.b, a));
+      al_put_pixel(i, line, al_map_rgba(c.r, c.g, c.b, c.a));
    }
 }
 

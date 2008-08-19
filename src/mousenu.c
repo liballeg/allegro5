@@ -50,10 +50,6 @@ bool al_is_mouse_installed(void)
  */
 bool al_install_mouse(void)
 {
-   _DRIVER_INFO *driver_list;
-   const char *name;
-   int i;
-
    if (new_mouse_driver)
       return true;
    
