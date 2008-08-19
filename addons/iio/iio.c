@@ -9,7 +9,7 @@
 #include "iio.h"
 
 
-const int MAX_EXTENSION = 100;
+#define MAX_EXTENSION 100
 
 
 typedef struct Loader {

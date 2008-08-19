@@ -13,7 +13,6 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
    int bpp, bytes_per_line;
    int x, xx = 0, y;
    char ch;
-   int dest_depth;
    ALLEGRO_LOCKED_REGION lr;
    unsigned char *buf;
    PalEntry pal[256];
@@ -142,11 +141,7 @@ static int iio_save_pcx_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
 {
    int c;
    int x, y;
-   int i, j;
-   int runcount;
-   int depth;
-   char runchar;
-   char ch;
+   int i;
    int w, h;
    unsigned char *buf;
    ALLEGRO_LOCKED_REGION lr;

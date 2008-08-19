@@ -823,8 +823,6 @@ static int mouse_dinput_init(void)
  */
 static bool mouse_directx_init(void)
 {
-   char tmp1[64], tmp2[128];
-
    /* get user acceleration factor */
    mouse_accel_fact = 1; /*get_config_int(uconvert_ascii("mouse", tmp1),
                                      uconvert_ascii("mouse_accel_factor", tmp2),

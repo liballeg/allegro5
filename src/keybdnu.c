@@ -89,10 +89,6 @@ const char *_al_keyboard_common_names[ALLEGRO_KEY_MAX] =
  */
 bool al_install_keyboard(void)
 {
-   _DRIVER_INFO *driver_list;
-   const char *name;
-   int i;
-
    if (new_keyboard_driver)
       return true;
 
@@ -104,7 +100,7 @@ bool al_install_keyboard(void)
           return false;
        }
        _add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
-       printf("new_keyboard_driver=%p\n", new_keyboard_driver);
+       TRACE("new_keyboard_driver=%p\n", new_keyboard_driver);
        return true;
    }
 

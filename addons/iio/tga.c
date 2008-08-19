@@ -260,9 +260,8 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
    unsigned char bpp, descriptor_bits;
    short unsigned int first_color, palette_colors;
    short unsigned int left, top, image_width, image_height;
-   unsigned int c, i, yc;
+   unsigned int c, i;
    int y;
-   int dest_depth;
    int compressed;
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_LOCKED_REGION lr;
@@ -465,9 +464,7 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
  */
 static int iio_save_tga_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
 {
-   unsigned char image_palette[256][3];
-   int x, y, c, r, g, b;
-   int depth;
+   int x, y;
    int w, h;
    ALLEGRO_LOCKED_REGION lr;
    ASSERT(f);

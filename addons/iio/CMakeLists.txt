@@ -1,5 +1,5 @@
 set(IIO_SOURCES bmp.c iio.c pcx.c tga.c)
-set(IIO_INCLUDE_FILES allegro5/a5_font.h)
+set(IIO_INCLUDE_FILES allegro5/a5_iio.h)
 
 macro(add_iio_build nm extra_flags)
     macro(really_add_iio_build nm2 target libtype more_extra_flags)

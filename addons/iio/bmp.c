@@ -240,7 +240,6 @@ static void read_8bit_line(int length, PACKFILE *f, unsigned char *buf, int line
    unsigned char b[4];
    unsigned long n;
    int i, j, k;
-   int pix;
 
    for (i=0; i<length; i++) {
       j = i % 4;
@@ -328,7 +327,7 @@ static void read_32bit_line(int length, PACKFILE *f, ALLEGRO_BITMAP *bmp, int li
       c.g = pack_getc(f);
       c.r = pack_getc(f);
       a = pack_getc(f);
-      al_put_pixel(i, line, al_map_rgba(c.r, c.g, c.b, c.a));
+      al_put_pixel(i, line, al_map_rgba(c.r, c.g, c.b, a));
    }
 }
 
@@ -341,7 +340,6 @@ static void read_bitfields_image(PACKFILE *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPI
 {
    int k, i, line, height, dir;
    int bytes_per_pixel;
-   int red, grn, blu;
    unsigned long buffer;
    int pix;
    ALLEGRO_COLOR color;
@@ -609,7 +607,7 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(PACKFILE *f)
    ALLEGRO_BITMAP *bmp;
    PalEntry pal[256];
    unsigned long biSize;
-   int bpp, dest_depth;
+   int bpp;
    unsigned char *buf;
    ALLEGRO_LOCKED_REGION lr;
    ASSERT(f);
@@ -739,7 +737,7 @@ static int iio_save_bmp_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
    int depth;
    int bpp;
    int filler;
-   int c, i, j;
+   int i, j;
    int w, h;
    ALLEGRO_LOCKED_REGION lr;
    ASSERT(f);
