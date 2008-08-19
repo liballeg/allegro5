@@ -76,8 +76,6 @@ option(WANT_X11 "X11 support" on)
 
 option(WANT_ALSADIGI "Enable ALSA digital audio driver (Unix)" on)
 option(WANT_ALSAMIDI "Enable ALSA MIDI driver (Unix)" on)
-option(WANT_ARTS "Enable aRts audio driver (Unix)" on)
-option(WANT_ESD "Enable ESD audio driver (Unix)" on)
 option(WANT_JACK "Enable JACK audio driver (Unix)" on)
 option(WANT_OSSDIGI "Enable OSS digital audio driver (Unix)" on)
 option(WANT_OSSMIDI "Enable OSS MIDI driver (Unix)" on)
@@ -121,7 +119,7 @@ include(CheckIncludeFiles)
 include(CheckLibraryExists)
 include(CheckSymbolExists)
 include(CheckTypeSize)
-include(UsePkgConfig)
+include(FindPkgConfig)
 
 if(MSVC_IDE)
     set(COMPILER_MSVC 1)
@@ -333,42 +331,13 @@ if(UNIX)
         endif(CAN_ALSAMIDI)
     endif(WANT_ALSAMIDI)
 
-    if(WANT_ARTS)
-        # XXX artsc doesn't use pkg-config
-        pkgconfig(artsc
-            ARTS_INCLUDEDIR ARTS_LIBDIR
-            ARTS_LINKFLAGS ARTS_CFLAGS
-            )
-        if(ARTS_INCLUDEDIR)
-            set(SUPPORT_ARTS 1)
-            set(ALLEGRO_WITH_ARTSDIGI 1)
-            list(APPEND DRIVER_LIBS_STATIC ${ARTS_LINKFLAGS})
-        endif(ARTS_INCLUDEDIR)
-    endif(WANT_ARTS)
-
-    if(WANT_ESD)
-        # XXX esd doesn't use pkg-config
-        pkgconfig(esd
-            ESD_INCLUDEDIR ESD_LIBDIR
-            ESD_LINKFLAGS ESD_CFLAGS
-            )
-        if(ESD_INCLUDEDIR)
-            set(SUPPORT_ESD 1)
-            set(ALLEGRO_WITH_ESDDIGI 1)
-            list(APPEND DRIVER_LIBS_STATIC ${ESD_LINKFLAGS})
-        endif(ESD_INCLUDEDIR)
-    endif(WANT_ESD)
-
     if(WANT_JACK)
-        pkgconfig(jack
-            JACK_INCLUDEDIR JACK_LIBDIR
-            JACK_LINKFLAGS JACK_CFLAGS
-            )
-        if(JACK_INCLUDEDIR)
+        pkg_check_modules(JACK jack)
+        if(JACK_FOUND)
             set(SUPPORT_JACK 1)
             set(ALLEGRO_WITH_JACKDIGI 1)
-            list(APPEND DRIVER_LIBS_STATIC ${JACK_LINKFLAGS})
-        endif(JACK_INCLUDEDIR)
+            list(APPEND DRIVER_LIBS_STATIC ${JACK_LDFLAGS})
+        endif(JACK_FOUND)
     endif(WANT_JACK)
 
     if(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR 
@@ -801,19 +770,9 @@ if(SUPPORT_MODULES)
             asound)
     endif(SUPPORT_ALSAMIDI)
 
-    if(SUPPORT_ARTS)
-        add_module(alleg-arts "${ALLEGRO_MODULE_ARTS_FILES}"
-            ${ARTS_LINKFLAGS})
-    endif(SUPPORT_ARTS)
-
-    if(SUPPORT_ESD)
-        add_module(alleg-esd "${ALLEGRO_MODULE_ESD_FILES}"
-            ${ESD_LINKFLAGS})
-    endif(SUPPORT_ESD)
-
     if(SUPPORT_JACK)
         add_module(alleg-jackdigi ${ALLEGRO_MODULE_JACK_FILES}
-            ${JACK_LINKFLAGS})
+            ${JACK_LDFLAGS})
     endif(SUPPORT_JACK)
 
     if(SUPPORT_SGIAL)
