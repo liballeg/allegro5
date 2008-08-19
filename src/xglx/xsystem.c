@@ -212,7 +212,7 @@ static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    info->y2 = xwa.height;
 }
 
-static void xglx_get_cursor_position(int *x, int *y)
+static bool xglx_get_cursor_position(int *ret_x, int *ret_y)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    Window root = RootWindow(system->x11display, 0);
@@ -221,9 +221,10 @@ static void xglx_get_cursor_position(int *x, int *y)
    unsigned int mask;
 
    _al_mutex_lock(&system->lock);
-   XQueryPointer(system->x11display, root, &root, &child, x, y, &wx, &wy,
-      &mask);
+   XQueryPointer(system->x11display, root, &root, &child, ret_x, ret_y,
+      &wx, &wy, &mask);
    _al_mutex_unlock(&system->lock);
+   return true;
 }
 
 /* Internal function to get a reference to this driver. */

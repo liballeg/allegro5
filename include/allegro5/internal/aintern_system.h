@@ -22,7 +22,7 @@ struct ALLEGRO_SYSTEM_INTERFACE
    void (*shutdown_system)(void);
    int (*get_num_video_adapters)(void);
    void (*get_monitor_info)(int adapter, ALLEGRO_MONITOR_INFO *info);
-   void (*get_cursor_position)(int *x, int *y);
+   bool (*get_cursor_position)(int *ret_x, int *ret_y);
 };
 
 struct ALLEGRO_SYSTEM

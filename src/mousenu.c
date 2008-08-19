@@ -433,12 +433,22 @@ bool al_hide_mouse_cursor(void)
  * global location of the mouse cursor, relative to the desktop. You should
  * not normally use this function, as the information is not useful except
  * for special scenarios as moving a window.
+ * Returns true on success, false on failure.
  */
-void al_get_cursor_position(int *x, int *y)
+bool al_get_cursor_position(int *ret_x, int *ret_y)
 {
    ALLEGRO_SYSTEM *alsys = al_system_driver();
-   if (alsys->vt->get_cursor_position)
-      alsys->vt->get_cursor_position(x, y);
+   ASSERT(ret_x);
+   ASSERT(ret_y);
+
+   if (alsys->vt->get_cursor_position) {
+      return alsys->vt->get_cursor_position(ret_x, ret_y);
+   }
+   else {
+      *ret_x = 0;
+      *ret_y = 0;
+      return false;
+   }
 }
 
 

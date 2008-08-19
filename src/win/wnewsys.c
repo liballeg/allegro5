@@ -199,12 +199,13 @@ void win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 #endif
 }
 
-void win_get_cursor_position(int *x, int *y)
+static bool win_get_cursor_position(int *ret_x, int *ret_y)
 {
    POINT p;
    GetCursorPos(&p);
-   if (x) *x = p.x;
-   if (y) *y = p.y;
+   *ret_x = p.x;
+   *ret_y = p.y;
+   return true;
 }
 
 
