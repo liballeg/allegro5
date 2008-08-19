@@ -761,12 +761,9 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 /* Function: al_clone_bitmap
  *
  * Clone a bitmap "exactly", formats can be different.
- *
- * XXX is this supposed to be public? --pw
  */
 ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   
    ALLEGRO_BITMAP *clone = al_create_bitmap(bitmap->w, bitmap->h);
    ALLEGRO_LOCKED_REGION dst_region;
    ALLEGRO_LOCKED_REGION src_region;

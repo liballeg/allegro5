@@ -259,7 +259,6 @@ static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
 static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
    int w, int h)
 {
-   // FIXME: Some OpenGL drivers need power of two textures.
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
 
    if (ogl_bitmap->texture == 0) {
