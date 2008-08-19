@@ -186,6 +186,7 @@ def buildAddon(name):
 buildAddon('font')
 if buildAddon('audio'):
     buildAddon('acodec')
+buildAddon("iio")
 
 # addon_dirs = ['#addons/font','#addons/acodec','#addons/audio']
 # SConscript( dirs = addon_dirs, exports = 'context' )
