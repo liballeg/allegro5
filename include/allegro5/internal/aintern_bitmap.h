@@ -84,6 +84,8 @@ struct ALLEGRO_BITMAP_INTERFACE
     * read the contents of an associated texture.
     */
 
+   void (*update_clipping_rectangle)(ALLEGRO_BITMAP *bitmap);
+
    void (*destroy_bitmap)(ALLEGRO_BITMAP *bitmap);
 
    ALLEGRO_LOCKED_REGION * (*lock_region)(ALLEGRO_BITMAP *bitmap,

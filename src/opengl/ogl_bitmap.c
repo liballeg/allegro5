@@ -313,6 +313,19 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
 
 
 
+static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ALLEGRO_DISPLAY_OGL *ogl_disp = (void *)display;
+   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+
+   if (ogl_disp->opengl_target == ogl_bitmap) {
+      _al_ogl_setup_bitmap_clipping(bitmap);
+   }
+}
+
+
+
 /* OpenGL cannot "lock" pixels, so instead we update our memory copy and
  * return a pointer into that.
  */
@@ -449,12 +462,13 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
    memset(glbmp_vt, 0, sizeof *glbmp_vt);
 
    glbmp_vt->draw_bitmap = ogl_draw_bitmap;
-   glbmp_vt->upload_bitmap = ogl_upload_bitmap;
-   glbmp_vt->destroy_bitmap = ogl_destroy_bitmap;
-   glbmp_vt->draw_scaled_bitmap = ogl_draw_scaled_bitmap;
    glbmp_vt->draw_bitmap_region = ogl_draw_bitmap_region;
-   glbmp_vt->draw_rotated_scaled_bitmap = ogl_draw_rotated_scaled_bitmap;
+   glbmp_vt->draw_scaled_bitmap = ogl_draw_scaled_bitmap;
    glbmp_vt->draw_rotated_bitmap = ogl_draw_rotated_bitmap;
+   glbmp_vt->draw_rotated_scaled_bitmap = ogl_draw_rotated_scaled_bitmap;
+   glbmp_vt->upload_bitmap = ogl_upload_bitmap;
+   glbmp_vt->update_clipping_rectangle = ogl_update_clipping_rectangle;
+   glbmp_vt->destroy_bitmap = ogl_destroy_bitmap;
    glbmp_vt->lock_region = ogl_lock_region;
    glbmp_vt->unlock_region = ogl_unlock_region;
 

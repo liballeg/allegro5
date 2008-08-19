@@ -922,6 +922,7 @@ ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
    vt->draw_rotated_bitmap = d3d_draw_rotated_bitmap;
    vt->draw_rotated_scaled_bitmap = d3d_draw_rotated_scaled_bitmap;
    vt->upload_bitmap = d3d_upload_bitmap;
+   vt->update_clipping_rectangle = NULL;
    vt->destroy_bitmap = d3d_destroy_bitmap;
    vt->lock_region = d3d_lock_region;
    vt->unlock_region = d3d_unlock_region;

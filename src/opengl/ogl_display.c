@@ -80,33 +80,38 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    }
 
    if (ogl_disp->opengl_target == ogl_bitmap) {
-      int x_1, y_1, x_2, y_2;
+      _al_ogl_setup_bitmap_clipping(bitmap);
+   }
+}
 
-      x_1 = bitmap->cl;
-      y_1 = bitmap->ct;
-      /* In OpenGL, coordinates are the top-left corner of pixels, so we need
-       * to add one to the right and bottom edge.
-       */
-      x_2 = bitmap->cr + 1;
-      y_2 = bitmap->cb + 1;
 
-      /* Drawing onto the sub bitmap is handled by clipping the parent. */
-      if (bitmap->parent) {
-         x_1 += bitmap->xofs;
-         y_1 += bitmap->yofs;
-         x_2 += bitmap->xofs;
-         y_2 += bitmap->yofs;
-      }
+void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
+{
+   int x_1, y_1, x_2, y_2;
 
-      if (x_1 == 0 &&  y_1 == 0 && x_2 == bitmap->w && y_2 == bitmap->h)
-      {
-         glDisable(GL_SCISSOR_TEST);
-      }
-      else {
-         glEnable(GL_SCISSOR_TEST);
-         /* OpenGL is upside down, so must adjust y_2 to the height. */
-         glScissor(x_1, bitmap->h - y_2, x_2 - x_1, y_2 - y_1);
-      }
+   x_1 = bitmap->cl;
+   y_1 = bitmap->ct;
+   /* In OpenGL, coordinates are the top-left corner of pixels, so we need
+    * to add one to the right and bottom edge.
+    */
+   x_2 = bitmap->cr + 1;
+   y_2 = bitmap->cb + 1;
+
+   /* Drawing onto the sub bitmap is handled by clipping the parent. */
+   if (bitmap->parent) {
+      x_1 += bitmap->xofs;
+      y_1 += bitmap->yofs;
+      x_2 += bitmap->xofs;
+      y_2 += bitmap->yofs;
+   }
+
+   if (x_1 == 0 &&  y_1 == 0 && x_2 == bitmap->w && y_2 == bitmap->h) {
+      glDisable(GL_SCISSOR_TEST);
+   }
+   else {
+      glEnable(GL_SCISSOR_TEST);
+      /* OpenGL is upside down, so must adjust y_2 to the height. */
+      glScissor(x_1, bitmap->h - y_2, x_2 - x_1, y_2 - y_1);
    }
 }
 

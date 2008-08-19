@@ -458,6 +458,7 @@ bool al_wait_for_vsync(void)
  * pixels get clipped to. The default is to clip pixels
  * to the entire bitmap.
  */
+/* XXX this seems like it belongs in bitmap_new.c */
 void al_set_clipping_rectangle(int x, int y, int width, int height)
 {
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
@@ -483,6 +484,10 @@ void al_set_clipping_rectangle(int x, int y, int width, int height)
    bitmap->ct = y;
    bitmap->cr = x + width;
    bitmap->cb = y + height;
+
+   if (bitmap->vt->update_clipping_rectangle) {
+      bitmap->vt->update_clipping_rectangle(bitmap);
+   }
 }
 
 
@@ -491,6 +496,7 @@ void al_set_clipping_rectangle(int x, int y, int width, int height)
  *
  * Gets the clipping rectangle of the target bitmap.
  */
+/* XXX this seems like it belongs in bitmap_new.c */
 void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
 {
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
