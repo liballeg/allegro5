@@ -1,11 +1,3 @@
-# Check for complex number support in the compiler.
-set(CMAKE_REQUIRED_LIBRARIES ${PLATFORM_LIBS})
-check_function_exists(cabs SUPPORT_COMPLEX)
-set(CMAKE_REQUIRED_LIBRARIES)
-
-#-----------------------------------------------------------------------------#
-
-
 macro(example nm libs)
     add_allegro_executable(${nm} ${libs} ${nm}.c)
 endmacro(example nm libs)
@@ -47,12 +39,9 @@ example(exnew_lockscreen NOTHING)
 example(exnew_monitorinfo NOTHING)
 example(exnew_resize NOTHING)
 example(exnew_threads NOTHING)
+example(exnew_threads2 NOTHING)
 example(exnew_timedwait NOTHING)
 
-
-if(SUPPORT_COMPLEX)
-    example(exnew_threads2 NOTHING)
-endif(SUPPORT_COMPLEX)
 
 if(SUPPORT_D3D)
     example_cxx(exnew_d3d d3dx9)
