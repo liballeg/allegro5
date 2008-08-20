@@ -417,7 +417,7 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
 
    ASSERT(width >= 0);
    ASSERT(height > 0);
-   ASSERT(system_driver);
+   //ASSERT(system_driver);
 
    //if (system_driver->create_bitmap)
      // return system_driver->create_bitmap(color_depth, width, height);
@@ -467,7 +467,7 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
          bitmap->line[i] = bitmap->line[i-1] + width * BYTES_PER_PIXEL(color_depth);
    }
 
-   if (system_driver->created_bitmap)
+   if (system_driver && system_driver->created_bitmap)
       system_driver->created_bitmap(bitmap);
 
 /*

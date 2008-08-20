@@ -86,7 +86,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    WIN_WINDOW **add;
    WINDOWINFO wi;
    int pos_x, pos_y;
-   bool center = true;
+   bool center = false;
 
 
    /* Save the thread handle for later use */
@@ -117,9 +117,9 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    al_get_new_window_position(&pos_x, &pos_y);
    if (pos_x == INT_MAX) {
    	pos_x = pos_y = 0;
-   }
-   else {
-   	center = false;
+      if (!(flags & ALLEGRO_FULLSCREEN)) {
+         center = true;
+      }
    }
 
    my_window = CreateWindowEx(ex_style,
@@ -153,7 +153,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
 
    _al_win_get_window_pos(my_window, &pos);
 
-   if (!(flags & ALLEGRO_RESIZABLE)) {
+   if (!(flags & ALLEGRO_RESIZABLE) && !(flags & ALLEGRO_FULLSCREEN)) {
       /* Make the window non-resizable */
       HMENU menu;
       menu = GetSystemMenu(my_window, FALSE);

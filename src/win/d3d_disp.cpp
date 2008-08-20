@@ -510,23 +510,25 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
 
    TRACE("Fullscreen Direct3D device created.\n");
    
-   IDirect3DDevice9_BeginScene(d->device);
+   d->device->BeginScene();
 
    TRACE("Reset all=%d\n", reset_all);
    if (reset_all) {
-	   int i;
-	   for (i = 0; i < (int)d3d_created_displays._size; i++) {
-		   ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&d3d_created_displays, i);
-		   ALLEGRO_DISPLAY_D3D *disp = *dptr;
-		   if (disp != d) {
-			  TRACE("Resetting\n");
-			  disp->do_reset = true;
-			  while (!disp->reset_done) {
-				  al_rest(0.001);
-			  }
-			  disp->reset_done = false;
-		   }
-	   }
+      int i;
+      for (i = 0; i < (int)d3d_created_displays._size; i++) {
+         ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&d3d_created_displays, i);
+         ALLEGRO_DISPLAY_D3D *disp = *dptr;
+         if (disp != d) {
+            if (disp != d) {
+	            TRACE("Resetting\n");
+	            disp->do_reset = true;
+	            while (!disp->reset_done) {
+		            al_rest(0.001);
+	            }
+	            disp->reset_done = false;
+            }
+         }
+      }
    }
 
    return 1;
@@ -534,7 +536,10 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
 
 static void d3d_destroy_device(ALLEGRO_DISPLAY_D3D *disp)
 {
-   disp->device->Release();
+   while (disp->device->Release() != 0) {
+      TRACE("d3d_destroy_device: ref count not 0\n");
+   }
+   //disp->device->Release();
    disp->device = NULL;
 }
 
@@ -646,7 +651,7 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
       return 0;
    }
 
-   if (IDirect3DDevice9_BeginScene(d->device) != D3D_OK) {
+   if (d->device->BeginScene() != D3D_OK) {
       TRACE("BeginScene failed in create_device\n");
    }
    else {
@@ -670,9 +675,45 @@ static void d3d_release_bitmaps(ALLEGRO_DISPLAY *display)
    }
 }
 
+
+static void d3d_release_current_target(bool release_backbuffer)
+{
+   ALLEGRO_BITMAP *curr;
+   ALLEGRO_BITMAP_D3D *curr_d3d;
+
+   curr = al_get_target_bitmap();
+   if (curr && !(curr->flags & ALLEGRO_MEMORY_BITMAP)) {
+   	curr_d3d = (ALLEGRO_BITMAP_D3D *)curr;
+      if (curr_d3d->render_target) {
+         if (curr_d3d->is_backbuffer && release_backbuffer) {
+            ALLEGRO_DISPLAY_D3D *dd = (ALLEGRO_DISPLAY_D3D *)curr->display;
+            if (dd->render_target->Release() != 0) {
+               TRACE("d3d_release_current_target: (bb) ref count not 0\n");
+            }
+         }
+         else {
+            if (curr_d3d->render_target->Release() != 0) {
+               TRACE("d3d_release_current_target: (bmp) ref count not 0\n");
+            }
+	         curr_d3d->render_target = NULL;
+         }
+      }
+	}
+}
+
+
 static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *display)
 {
+   display->device->EndScene();
+   
    d3d_release_bitmaps((ALLEGRO_DISPLAY *)display);
+   //_al_d3d_release_default_pool_textures();
+
+   d3d_release_current_target(false);
+
+   if (display->render_target->Release() != 0) {
+      TRACE("d3d_destroy_display_internals: (bb) ref count not 0\n");
+   }
 
    display->end_thread = true;
    while (!display->thread_ended)
@@ -697,7 +738,6 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
    if (d3d_created_displays._size > 0) {
       ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&d3d_created_displays, 0);
       ALLEGRO_DISPLAY_D3D *d = *dptr;
-      _al_win_wnd = d->window;
       win_grab_input();
    }
    else {
@@ -718,7 +758,9 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 {
    _al_d3d_prepare_bitmaps_for_reset(disp);
    _al_d3d_release_default_pool_textures(disp);
-   IDirect3DSurface9_Release(disp->render_target);
+   if (disp->render_target->Release() != 0) {
+      TRACE("_al_d3d_prepare_for_reset: (bb) ref count not 0\n");
+   }
 }
 
 static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *disp)
@@ -1127,7 +1169,7 @@ static void d3d_display_thread_proc(void *arg)
                goto End;
             }
          }
-            hr = IDirect3DDevice9_TestCooperativeLevel(d->device);
+            hr = d->device->TestCooperativeLevel();
 
             if (hr == D3D_OK) {
                d->device_lost = false;
@@ -1176,25 +1218,10 @@ End:
 
    //_al_mutex_lock(&d->mutex);
 
-   TRACE("Releasing device\n");
+   //TRACE("Releasing device\n");
 //	if (d->display.flags & ALLEGRO_FULLSCREEN) {
-      IDirect3DDevice9_EndScene(d->device);
       //_al_d3d_release_bitmap_textures(d);
 
-   {
-   ALLEGRO_BITMAP *curr;
-   ALLEGRO_BITMAP_D3D *curr_d3d;
-   curr = al_get_target_bitmap();
-   if (curr && !(curr->flags & ALLEGRO_MEMORY_BITMAP)) {
-   	curr_d3d = (ALLEGRO_BITMAP_D3D *)curr;
-	if (curr_d3d->render_target && !curr_d3d->is_backbuffer) {
-	   IDirect3DSurface9_Release(curr_d3d->render_target);
-	   curr_d3d->render_target = NULL;
-	}
-   }
-   }
-
-   IDirect3DSurface9_Release(d->render_target);
 	  /*
       if (IDirect3DDevice9_Release(d->device) != D3D_OK) {
      	      TRACE("Releasing fullscreen D3D device failed.\n");
@@ -1296,6 +1323,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    //_al_mutex_init(&display->mutex);
 
    display->adapter = al_get_current_video_adapter();
+   display->ignore_ack = false;
    display->display.w = w;
    display->display.h = h;
    display->display.format = al_get_new_display_format();
@@ -1597,11 +1625,11 @@ static void d3d_flip_display(ALLEGRO_DISPLAY *d)
    
    if (disp->device_lost) return;
 
-   IDirect3DDevice9_EndScene(disp->device);
+   disp->device->EndScene();
 
    hr = disp->device->Present(NULL, NULL, disp->window, NULL);
 
-   IDirect3DDevice9_BeginScene(disp->device);
+   disp->device->BeginScene();
    
    if (hr == D3DERR_DEVICELOST) {
       disp->device_lost = true;
@@ -1637,11 +1665,11 @@ static bool d3d_update_display_region(ALLEGRO_DISPLAY *d,
       memcpy(&rgndata->rdh.rcBound, &rect, sizeof(RECT));
       memcpy(rgndata->Buffer, &rect, sizeof(RECT));
 
-      IDirect3DDevice9_EndScene(disp->device);
+      disp->device->EndScene();
 
       hr = disp->device->Present(&rect, &rect, disp->window, rgndata);
 
-      IDirect3DDevice9_BeginScene(disp->device);
+      disp->device->BeginScene();
 
       free(rgndata);
 
@@ -1730,6 +1758,8 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
    bool ret;
 
+   disp->ignore_ack = true;
+
    if (d->flags & ALLEGRO_FULLSCREEN) {
       d3d_destroy_display_internals(disp);
       d->w = width;
@@ -1814,7 +1844,6 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       ret = true;
    }
 
-   disp->ignore_ack = true;
 
    return ret;
 }
@@ -1972,8 +2001,6 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    ALLEGRO_BITMAP *target;
    ALLEGRO_BITMAP_D3D *d3d_target;
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
-   ALLEGRO_BITMAP *curr;
-   ALLEGRO_BITMAP_D3D *curr_d3d;
 
    if (d3d_display->device_lost) return;
 
@@ -1989,14 +2016,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
 
    /* Release the previous target bitmap if it was not the backbuffer */
 
-   curr = al_get_target_bitmap();
-   if (curr && !(curr->flags & ALLEGRO_MEMORY_BITMAP)) {
-   	curr_d3d = (ALLEGRO_BITMAP_D3D *)curr;
-	if (curr_d3d->render_target && !curr_d3d->is_backbuffer) {
-	   IDirect3DSurface9_Release(curr_d3d->render_target);
-	   curr_d3d->render_target = NULL;
-	}
-   }
+   d3d_release_current_target(true);
 
    /* Set the render target */
    if (d3d_target->is_backbuffer) {
@@ -2013,14 +2033,14 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    else {
 	   d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
       if (_al_d3d_render_to_texture_supported()) {
-         if (IDirect3DTexture9_GetSurfaceLevel(d3d_target->video_texture, 0, &d3d_target->render_target) != D3D_OK) {
+         if (d3d_target->video_texture->GetSurfaceLevel(0, &d3d_target->render_target) != D3D_OK) {
             TRACE("d3d_set_target_bitmap: Unable to get texture surface level.\n");
 			//_al_mutex_unlock(&d3d_display->mutex);
             return;
          }
          if (d3d_display->device->SetRenderTarget(0, d3d_target->render_target) != D3D_OK) {
             TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
-			IDirect3DSurface9_Release(d3d_target->render_target);
+			   d3d_target->render_target->Release();
 			//_al_mutex_unlock(&d3d_display->mutex);
             return;
          }
@@ -2285,7 +2305,7 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
 
 int _al_d3d_get_num_video_adapters(void)
 {
-	return IDirect3D9_GetAdapterCount(_al_d3d);
+	return _al_d3d->GetAdapterCount();
 }
 
 void _al_d3d_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)

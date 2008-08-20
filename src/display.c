@@ -389,9 +389,9 @@ GFX_VTABLE *_get_vtable(int color_depth)
    GFX_VTABLE *vt;
    int i;
 
-   ASSERT(system_driver);
+   //ASSERT(system_driver);
 
-   if (system_driver->get_vtable) {
+   if (system_driver && system_driver->get_vtable) {
       vt = system_driver->get_vtable(color_depth);
 
       if (vt) {

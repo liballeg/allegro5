@@ -238,7 +238,7 @@ set(ALLEGRO_SRC_WIN_FILES
     )
 
 set(ALLEGRO_SRC_D3D_FILES
-    src/win/d3d_bmp.c
+    src/win/d3d_bmp.cpp
     src/win/d3d_disp.cpp
     )
 

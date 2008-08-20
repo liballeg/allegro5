@@ -23,6 +23,7 @@ int main(void)
 
    al_init();
    al_install_mouse();
+   a5font_init();
 
    adapter_count = al_get_num_video_adapters();
 

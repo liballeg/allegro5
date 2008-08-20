@@ -9,8 +9,6 @@ int main(void)
 
    al_init();
 
-   al_set_new_display_flags(ALLEGRO_OPENGL);
-
    num_adapters = al_get_num_video_adapters();
 
    printf("%d adapters found...\n", num_adapters);

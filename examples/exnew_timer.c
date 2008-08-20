@@ -166,6 +166,8 @@ int main(void)
    al_init();
    al_install_keyboard();
    al_install_mouse();
+   a5font_init();
+
    display = al_create_display(640, 480);
    al_show_mouse_cursor();
 
