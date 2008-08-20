@@ -23,6 +23,10 @@
 
 AL_BEGIN_EXTERN_C
 
+#ifdef ALLEGRO_WINDOWS
+#include <windows.h>
+#endif
+
 #ifdef ALLEGRO_MACOSX
 
 #include <OpenGL/OpenGL.h>
@@ -47,7 +51,7 @@ AL_BEGIN_EXTERN_C
 #include "allegro5/opengl/gl_ext.h"
 
 #ifdef ALLEGRO_WINDOWS
-	
+
 /* Missing #defines from Mingw */
 #ifndef PFD_SWAP_LAYER_BUFFERS
 #define PFD_SWAP_LAYER_BUFFERS  0x00000800

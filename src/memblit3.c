@@ -22,8 +22,6 @@
 #include <math.h>
 
 
-#ifndef DEBUGMODE
-
 /*
 * Get scanline starts, ends and deltas, and clipping coordinates.
 */
@@ -70,7 +68,7 @@
  *  at least partly covered by the sprite. This is useful for doing
  *  anti-aliased blending.
  */
-#define DO_PARALLELOGRAM_MAP_FAST(sub_pixel_accuracy, get, set, convert, flags)\
+#define DO_PARALLELOGRAM_MAP_FAST(sub_pixel_accuracy, get, set, flags)       \
 do {                                                                         \
    /* Index in xs[] and ys[] to topmost point. */                            \
    int top_index;                                                            \
@@ -472,7 +470,6 @@ do {                                                                         \
       for (; addr < end_addr; addr += dsize) {                               \
          c = get((void *)(((char *)src_region.data) +                        \
                (my_l_spr_y>>16) * src_region.pitch + ssize * (my_l_spr_x>>16)));\
-         c = convert(c);                                                     \
          set(addr, c);                                                       \
          my_l_spr_x += spr_dx;                                               \
          my_l_spr_y += spr_dy;                                               \
@@ -512,7 +509,7 @@ do {                                                                         \
        fl_dx, fl_dy,                                                         \
        fl_xscale, fl_yscale,                                                 \
        fl_angle,                                                             \
-       get, set, convert,                                                    \
+       get, set,                                                             \
        flags)                                                                \
 do {                                                                         \
    fixed xs[4], ys[4];                                                       \
@@ -528,391 +525,52 @@ do {                                                                         \
       fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,     \
       flags & ALLEGRO_FLIP_HORIZONTAL, flags & ALLEGRO_FLIP_VERTICAL, xs, ys);\
                                                                              \
-   DO_PARALLELOGRAM_MAP_FAST(false, get, set, convert, flags);               \
+   DO_PARALLELOGRAM_MAP_FAST(false, get, set, flags);                        \
 } while (0)
 
-/* draw_region_memory functions */
-#define REAL_DEFINE_DRAW_ROTATED_SCALED(get,                                 \
-   func1, macro1,                                                            \
-   func2, macro2,                                                            \
-   func3, macro3,                                                            \
-   func4, macro4,                                                            \
-   func5, macro5,                                                            \
-   func6, macro6,                                                            \
-   func7, macro7,                                                            \
-   func8, macro8,                                                            \
-   func9, macro9,                                                            \
-   func10, macro10,                                                          \
-   func11, macro11,                                                          \
-   func12, macro12,                                                          \
-   func13, macro13,                                                          \
-   func14, macro14,                                                          \
-   func15, macro15,                                                          \
-   func16, macro16)                                                          \
-                                                                             \
-static void func1 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                 \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write32,                                                           \
-      macro1,                                                                \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func2 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                 \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write32,                                                           \
-      macro2,                                                                \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func3 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                 \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write16,                                                           \
-      macro3,                                                                \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func4 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                 \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      WRITE3BYTES,                                                           \
-      macro4,                                                                \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func5 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                 \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write16,                                                           \
-      macro5,                                                                \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func6 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                 \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write16,                                                           \
-      macro6,                                                                \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func7 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                 \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write8,                                                            \
-      macro7,                                                                \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func8 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                 \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write16,                                                           \
-      macro8,                                                                \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func9 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                 \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write16,                                                           \
-      macro9,                                                                \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func10 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write32,                                                           \
-      macro10,                                                               \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func11 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write32,                                                           \
-      macro11,                                                               \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func12 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      WRITE3BYTES,                                                           \
-      macro12,                                                               \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func13 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write16,                                                           \
-      macro13,                                                               \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func14 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write16,                                                           \
-      macro14,                                                               \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func15 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write32,                                                           \
-      macro15,                                                               \
-      flags);                                                                \
-}                                                                            \
-                                                                             \
-static void func16 (ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,                \
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,      \
-   float angle, int flags)                                                   \
-{                                                                            \
-   DO_DRAW_ROTATED_SCALED_FAST(src, dst,                                     \
-      cx, cy,                                                                \
-      dx, dy,                                                                \
-      xscale, yscale,                                                        \
-      angle,                                                                 \
-      get,                                                                   \
-      bmp_write32,                                                           \
-      macro16,                                                               \
-      flags);                                                                \
+
+
+static void _go_4byte(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,
+   float cx, float cy, float dx, float dy, float xscale, float yscale,
+   float angle, int flags)
+{
+   DO_DRAW_ROTATED_SCALED_FAST(src, dst,
+      cx, cy,
+      dx, dy,
+      xscale, yscale,
+      angle,
+      bmp_read32,
+      bmp_write32,
+      flags);
 }
 
-#define DEFINE_DRAW_ROTATED_SCALED(get, fprefix, mprefix)                    \
-   REAL_DEFINE_DRAW_ROTATED_SCALED(get,                                      \
-      fprefix ## _to_argb_8888, mprefix ## _TO_ARGB_8888,                    \
-      fprefix ## _to_rgba_8888, mprefix ## _TO_RGBA_8888,                    \
-      fprefix ## _to_argb_4444, mprefix ## _TO_ARGB_4444,                    \
-      fprefix ## _to_rgb_888, mprefix ## _TO_RGB_888,                        \
-      fprefix ## _to_rgb_565, mprefix ## _TO_RGB_565,                        \
-      fprefix ## _to_rgb_555, mprefix ## _TO_RGB_555,                        \
-      fprefix ## _to_palette_8, mprefix ## _TO_PALETTE_8,                    \
-      fprefix ## _to_rgba_5551, mprefix ## _TO_RGBA_5551,                    \
-      fprefix ## _to_argb_1555, mprefix ## _TO_ARGB_1555,                    \
-      fprefix ## _to_abgr_8888, mprefix ## _TO_ABGR_8888,                    \
-      fprefix ## _to_xbgr_8888, mprefix ## _TO_XBGR_8888,                    \
-      fprefix ## _to_bgr_888, mprefix ## _TO_BGR_888,                        \
-      fprefix ## _to_bgr_565, mprefix ## _TO_BGR_565,                        \
-      fprefix ## _to_bgr_555, mprefix ## _TO_BGR_555,                        \
-      fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888,                    \
-      fprefix ## _to_xrgb_8888, mprefix ## _TO_XRGB_8888)
+static void _go_3byte(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,
+   float cx, float cy, float dx, float dy, float xscale, float yscale,
+   float angle, int flags)
+{
+   DO_DRAW_ROTATED_SCALED_FAST(src, dst,
+      cx, cy,
+      dx, dy,
+      xscale, yscale,
+      angle,
+      READ3BYTES,
+      WRITE3BYTES,
+      flags);
+}
 
-DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_argb_8888, ALLEGRO_CONVERT_ARGB_8888)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_rgba_8888, ALLEGRO_CONVERT_RGBA_8888)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_argb_4444, ALLEGRO_CONVERT_ARGB_4444)
-DEFINE_DRAW_ROTATED_SCALED(READ3BYTES, _draw_rotated_scaled_memory_rgb_888, ALLEGRO_CONVERT_RGB_888)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_rgb_565, ALLEGRO_CONVERT_RGB_565)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_rgb_555, ALLEGRO_CONVERT_RGB_555)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read8, _draw_rotated_scaled_memory_palette_8, ALLEGRO_CONVERT_PALETTE_8)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_rgba_5551, ALLEGRO_CONVERT_RGBA_5551)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_argb_1555, ALLEGRO_CONVERT_ARGB_1555)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_abgr_8888, ALLEGRO_CONVERT_ABGR_8888)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_xbgr_8888, ALLEGRO_CONVERT_XBGR_8888)
-DEFINE_DRAW_ROTATED_SCALED(READ3BYTES, _draw_rotated_scaled_memory_bgr_888, ALLEGRO_CONVERT_BGR_888)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_bgr_565, ALLEGRO_CONVERT_BGR_565)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read16, _draw_rotated_scaled_memory_bgr_555, ALLEGRO_CONVERT_BGR_555)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_rgbx_8888, ALLEGRO_CONVERT_RGBX_8888)
-DEFINE_DRAW_ROTATED_SCALED(bmp_read32, _draw_rotated_scaled_memory_xrgb_8888, ALLEGRO_CONVERT_XRGB_8888)
-
-#define DECLARE_FAKE_DRAW_ROTATED_SCALE_FUNCS                                \
-   {                                                                         \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL                                                                   \
-   }
-
-#define DECLARE_DRAW_ROTATED_SCALED_FUNCS(prefix)                            \
-   {                                                                         \
-      /* Fake formats */                                                     \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      /* End fake formats */                                                 \
-      prefix ## _to_argb_8888,                                               \
-      prefix ## _to_rgba_8888,                                               \
-      prefix ## _to_argb_4444,                                               \
-      prefix ## _to_rgb_888,                                                 \
-      prefix ## _to_rgb_565,                                                 \
-      prefix ## _to_rgb_555,                                                 \
-      prefix ## _to_palette_8,                                               \
-      prefix ## _to_rgba_5551,                                               \
-      prefix ## _to_argb_1555,                                               \
-      prefix ## _to_abgr_8888,                                               \
-      prefix ## _to_xbgr_8888,                                               \
-      prefix ## _to_bgr_888,                                                 \
-      prefix ## _to_bgr_565,                                                 \
-      prefix ## _to_bgr_555,                                                 \
-      prefix ## _to_rgbx_8888,                                               \
-      prefix ## _to_xrgb_8888                                                \
-   }
-
-typedef void (*_draw_rotated_scaled_func)(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,
-   float cx, float cy, float dx, float dy,  float xscale, float yscale,
-   float angle, int flags);
-
-static _draw_rotated_scaled_func _draw_rotated_scaled_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] = {
-      /* Fake formats */
-      DECLARE_FAKE_DRAW_ROTATED_SCALE_FUNCS,
-      DECLARE_FAKE_DRAW_ROTATED_SCALE_FUNCS,
-      DECLARE_FAKE_DRAW_ROTATED_SCALE_FUNCS,
-      DECLARE_FAKE_DRAW_ROTATED_SCALE_FUNCS,
-      DECLARE_FAKE_DRAW_ROTATED_SCALE_FUNCS,
-      DECLARE_FAKE_DRAW_ROTATED_SCALE_FUNCS,
-      DECLARE_FAKE_DRAW_ROTATED_SCALE_FUNCS,
-      DECLARE_FAKE_DRAW_ROTATED_SCALE_FUNCS,
-      DECLARE_FAKE_DRAW_ROTATED_SCALE_FUNCS,
-      DECLARE_FAKE_DRAW_ROTATED_SCALE_FUNCS,
-      /* End fake formats */
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_argb_8888),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgba_8888),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_argb_4444),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgb_888),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgb_565),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgb_555),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_palette_8),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgba_5551),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_argb_1555),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_abgr_8888),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_xbgr_8888),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_bgr_888),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_bgr_565),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_bgr_555),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_rgbx_8888),
-      DECLARE_DRAW_ROTATED_SCALED_FUNCS(_draw_rotated_scaled_memory_xrgb_8888)
-   };
-
+static void _go_2byte(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst,
+   float cx, float cy, float dx, float dy, float xscale, float yscale,
+   float angle, int flags)
+{
+   DO_DRAW_ROTATED_SCALED_FAST(src, dst,
+      cx, cy,
+      dx, dy,
+      xscale, yscale,
+      angle,
+      bmp_read16,
+      bmp_write16,
+      flags);
+}
 
 void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
    int cx, int cy, int dx, int dy, float xscale, float yscale,
@@ -923,8 +581,17 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
    ASSERT(_al_pixel_format_is_real(bitmap->format));
    ASSERT(_al_pixel_format_is_real(dest->format));
 
-   (*_draw_rotated_scaled_funcs[bitmap->format][dest->format])(
-      bitmap, dest, cx, cy, dx, dy, xscale, yscale, -angle, flags);
+   switch (al_get_pixel_size(bitmap->format)) {
+      case 2:
+         _go_2byte(bitmap, dest, cx, cy, dx, dy, xscale, yscale, -angle, flags);
+         break;
+      case 3:
+         _go_3byte(bitmap, dest, cx, cy, dx, dy, xscale, yscale, -angle, flags);
+         break;
+      case 4:
+         _go_4byte(bitmap, dest, cx, cy, dx, dy, xscale, yscale, -angle, flags);
+         break;
+   }
 }
 
 void _al_draw_rotated_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
@@ -934,4 +601,3 @@ void _al_draw_rotated_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
       cx, cy, dx, dy, 1.0f, 1.0f, angle, flags);
 }
 
-#endif /* !DEBUGMODE */

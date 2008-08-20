@@ -50,6 +50,8 @@
 #include "allegro5/file.h"
 #include "allegro5/lzss.h"
 
+#include "fmaths.h"
+
 #ifdef ALLEGRO_CFG_OPENGL
    //temporary.... where's DECLARE_HANDLE?
    #include "allegro5/a5_opengl.h"

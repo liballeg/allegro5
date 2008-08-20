@@ -280,10 +280,9 @@ do {                                                                         \
    func12, macro12,                                                          \
    func13, macro13,                                                          \
    func14, macro14,                                                          \
-   func15, macro15,                                                          \
-   func16, macro16)                                                          \
+   func15, macro15)                                                          \
                                                                              \
-static void func1(ALLEGRO_BITMAP *src,                                    \
+static void func1(ALLEGRO_BITMAP *src,                                       \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
@@ -370,7 +369,7 @@ static void func7(ALLEGRO_BITMAP *src,                                    \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
-      bmp_write8,                                                            \
+      bmp_write16,                                                           \
       macro7);                                                               \
 }                                                                            \
                                                                              \
@@ -387,7 +386,7 @@ static void func8(ALLEGRO_BITMAP *src,                                    \
       macro8);                                                               \
 }                                                                            \
                                                                              \
-static void func9(ALLEGRO_BITMAP *src,                                    \
+static void func9 (ALLEGRO_BITMAP *src,                                  \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
@@ -396,8 +395,8 @@ static void func9(ALLEGRO_BITMAP *src,                                    \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
-      bmp_write16,                                                           \
-      macro9);                                                               \
+      bmp_write32,                                                           \
+      macro9);                                                              \
 }                                                                            \
                                                                              \
 static void func10 (ALLEGRO_BITMAP *src,                                  \
@@ -422,7 +421,7 @@ static void func11 (ALLEGRO_BITMAP *src,                                  \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
-      bmp_write32,                                                           \
+      WRITE3BYTES,                                                           \
       macro11);                                                              \
 }                                                                            \
                                                                              \
@@ -435,11 +434,11 @@ static void func12 (ALLEGRO_BITMAP *src,                                  \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
-      WRITE3BYTES,                                                           \
+      bmp_write16,                                                           \
       macro12);                                                              \
 }                                                                            \
                                                                              \
-static void func13 (ALLEGRO_BITMAP *src,                                  \
+static void func13(ALLEGRO_BITMAP *src,                                   \
    int sx, int sy, int sw, int sh, int ssize,                                \
    int dx, int dy, int dw, int dh, int dsize,                                \
    int flags)                                                                \
@@ -461,7 +460,7 @@ static void func14(ALLEGRO_BITMAP *src,                                   \
       sx, sy, sw, sh, ssize,                                                 \
       dx, dy, dw, dh, dsize,                                                 \
       flags, get,                                                            \
-      bmp_write16,                                                           \
+      bmp_write32,                                                           \
       macro14);                                                              \
 }                                                                            \
                                                                              \
@@ -476,19 +475,6 @@ static void func15(ALLEGRO_BITMAP *src,                                   \
       flags, get,                                                            \
       bmp_write32,                                                           \
       macro15);                                                              \
-}                                                                            \
-                                                                             \
-static void func16(ALLEGRO_BITMAP *src,                                   \
-   int sx, int sy, int sw, int sh, int ssize,                                \
-   int dx, int dy, int dw, int dh, int dsize,                                \
-   int flags)                                                                \
-{                                                                            \
-   DO_DRAW_SCALED_FAST(src,                                               \
-      sx, sy, sw, sh, ssize,                                                 \
-      dx, dy, dw, dh, dsize,                                                 \
-      flags, get,                                                            \
-      bmp_write32,                                                           \
-      macro16);                                                              \
 }
 
 #define DEFINE_DRAW_SCALED(get, fprefix, mprefix)                            \
@@ -499,7 +485,6 @@ static void func16(ALLEGRO_BITMAP *src,                                   \
       fprefix ## _to_rgb_888, mprefix ## _TO_RGB_888,                        \
       fprefix ## _to_rgb_565, mprefix ## _TO_RGB_565,                        \
       fprefix ## _to_rgb_555, mprefix ## _TO_RGB_555,                        \
-      fprefix ## _to_palette_8, mprefix ## _TO_PALETTE_8,                    \
       fprefix ## _to_rgba_5551, mprefix ## _TO_RGBA_5551,                    \
       fprefix ## _to_argb_1555, mprefix ## _TO_ARGB_1555,                    \
       fprefix ## _to_abgr_8888, mprefix ## _TO_ABGR_8888,                    \
@@ -516,7 +501,6 @@ DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_argb_4444, ALLEGRO_CONVERT_AR
 DEFINE_DRAW_SCALED(READ3BYTES, _draw_scaled_memory_rgb_888, ALLEGRO_CONVERT_RGB_888)
 DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_rgb_565, ALLEGRO_CONVERT_RGB_565)
 DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_rgb_555, ALLEGRO_CONVERT_RGB_555)
-DEFINE_DRAW_SCALED(bmp_read8, _draw_scaled_memory_palette_8, ALLEGRO_CONVERT_PALETTE_8)
 DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_rgba_5551, ALLEGRO_CONVERT_RGBA_5551)
 DEFINE_DRAW_SCALED(bmp_read16, _draw_scaled_memory_argb_1555, ALLEGRO_CONVERT_ARGB_1555)
 DEFINE_DRAW_SCALED(bmp_read32, _draw_scaled_memory_abgr_8888, ALLEGRO_CONVERT_ABGR_8888)
@@ -572,7 +556,6 @@ typedef void (*_draw_scaled_func)(ALLEGRO_BITMAP *,
       prefix ## _to_rgb_888,                                                 \
       prefix ## _to_rgb_565,                                                 \
       prefix ## _to_rgb_555,                                                 \
-      prefix ## _to_palette_8,                                               \
       prefix ## _to_rgba_5551,                                               \
       prefix ## _to_argb_1555,                                               \
       prefix ## _to_abgr_8888,                                               \
@@ -603,7 +586,6 @@ static _draw_scaled_func _draw_scaled_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_N
       DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgb_888),
       DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgb_565),
       DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgb_555),
-      DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_palette_8),
       DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_rgba_5551),
       DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_argb_1555),
       DECLARE_DRAW_SCALED_FUNCS(_draw_scaled_memory_abgr_8888),

@@ -16,14 +16,16 @@ set(ALLEGRO_SRC_FILES
     src/keybdnu.c
     src/libc.c
     src/lzss.c
+    src/math.c
     src/memblit.c
     src/memblit1.c
     src/memblit2.c
-#    src/memblit3.c
+    src/memblit3.c
     src/memdraw.c
     src/memory.c
     src/mousenu.c
     src/pixels.c
+    src/rotate.c
     src/system_new.c
     src/threads.c
     src/timernu.c
@@ -314,8 +316,8 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/display_new.h
     include/allegro5/events.h
     include/allegro5/file.h
-    include/allegro5/fix.h
     include/allegro5/fixed.h
+    include/allegro5/fmaths.h
     include/allegro5/graphics.h
     include/allegro5/joystick.h
     include/allegro5/keyboard.h
@@ -342,7 +344,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
     include/allegro5/inline/color.inl
     include/allegro5/inline/draw.inl
     include/allegro5/inline/file.inl
-    include/allegro5/inline/fix.inl
+    include/allegro5/inline/fmaths.inl
     include/allegro5/inline/gfx.inl
     include/allegro5/inline/matrix.inl
     include/allegro5/inline/rle.inl

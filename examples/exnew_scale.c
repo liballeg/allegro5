@@ -45,6 +45,10 @@ int main(int argc, char *argv[])
       return 1;
    }
 
+   // FIXME:
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
+
    bmp = iio_load("mysha.pcx");
    if (!bmp) {
       TRACE("Unable to load image\n");
@@ -83,17 +87,19 @@ int main(int argc, char *argv[])
          al_set_target_bitmap(al_get_backbuffer());
       }
 
-      al_clear(al_map_rgba_f(1, 0, 0, 0));
+      al_clear(al_map_rgba_f(1, 0, 0, 1));
+      /*
       al_draw_scaled_bitmap(bmp,
          0, 0, bmp_w, bmp_h,
          display_w/2, display_h/2,
          cos(theta) * display_w/2, sin(theta) * display_h/2,
          0);
+         */
 
       if (mode == 0) {
          al_set_target_bitmap(al_get_backbuffer());
-         al_clear(al_map_rgba_f(0, 0, 1, 0));
-         al_draw_bitmap(buf, 0, 0, 0);
+         al_clear(al_map_rgba_f(0, 0, 1, 1));
+         //al_draw_bitmap(buf, 0, 0, 0);
       }
 
       al_flip_display();

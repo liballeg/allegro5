@@ -236,7 +236,6 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
 }
 
 
-#if 0
 /*
 * Get scanline starts, ends and deltas, and clipping coordinates.
 */
@@ -748,15 +747,10 @@ do {                                                                         \
 } while (0)
 
 
-// FIXME: these need to be redone
-
-#endif
-
 void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    int cx, int cy, int dx, int dy, float xscale, float yscale,
    float angle, int flags)
 {
-/*
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
    int src_mode, dst_mode;
    ALLEGRO_COLOR *ic;
@@ -764,32 +758,26 @@ void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
 
-#if 0
-#ifndef DEBUGMODE
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f) {
+      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f &&
+      (src->format == dst->format)) {
       _al_draw_rotated_scaled_bitmap_memory_fast(src,
          cx, cy, dx, dy, xscale, yscale, angle, flags);
       return;
    }
-#endif
-#endif
 
    ASSERT(_al_pixel_format_is_real(src->format));
    ASSERT(_al_pixel_format_is_real(dst->format));
 
    DO_DRAW_ROTATED_SCALED(src, dst,
       cx, cy, dx, dy, xscale, yscale, -angle, flags);
-      */
 }
 
 
 void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
    int cx, int cy, int dx, int dy, float angle, int flags)
 {
-/*
    _al_draw_rotated_scaled_bitmap_memory(src,
       cx, cy, dx, dy, 1.0f, 1.0f, angle, flags);
-      */
 }
 
