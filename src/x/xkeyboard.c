@@ -623,6 +623,8 @@ static void _al_xwin_get_keyboard_mapping(void)
     * For normal use, a user never should have to touch [xkeymap] anymore
     * though, and proper written programs will not hardcode such mappings.
     */
+   /* XXX commented out as it depends on A4 config routines */
+#if 0
    {
       char *section, *option_format;
       char option[128], tmp1[128], tmp2[128];
@@ -641,6 +643,7 @@ static void _al_xwin_get_keyboard_mapping(void)
          }
       }
    }
+#endif
 }
 
 
