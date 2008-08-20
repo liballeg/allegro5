@@ -209,6 +209,7 @@ ALLEGRO_MUTEX *al_create_mutex(void)
 {
    ALLEGRO_MUTEX *mutex = _AL_MALLOC(sizeof(*mutex));
    if (mutex) {
+      _AL_MARK_MUTEX_UNINITED(mutex->mutex);
       _al_mutex_init(&mutex->mutex);
    }
    return mutex;
