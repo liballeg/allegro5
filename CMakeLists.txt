@@ -255,11 +255,8 @@ if(WANT_OPENGL)
     include(FindOpenGL)
     if(OPENGL_FOUND)
         set(SUPPORT_OPENGL 1)
+        set(ALLEGRO_CFG_OPENGL 1)
     endif(OPENGL_FOUND)
-
-    if(SUPPORT_OPENGL)
-       set(ALLEGRO_CFG_OPENGL 1)
-    endif(SUPPORT_OPENGL)
 endif(WANT_OPENGL)
 
 # Accumulate extra libraries needed due to drivers.
@@ -843,12 +840,10 @@ macro(add_allegro_executable nm libs)
         )
     target_link_libraries(${nm} ${LINK_WITH})
 
-    string(COMPARE NOTEQUAL ${libs} NOTHING NEED_EXTRA_LIBS)
-
-    if(NEED_EXTRA_LIBS)
+    if(NOT ${libs} STREQUAL "NOTHING")
         link_directories(${CMAKE_BINARY_DIR}/lib)
         target_link_libraries(${nm} ${libs})
-    endif(NEED_EXTRA_LIBS)
+    endif(NOT ${libs} STREQUAL "NOTHING")
 endmacro(add_allegro_executable)
 
 #-----------------------------------------------------------------------------#
