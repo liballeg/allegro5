@@ -9,7 +9,7 @@
 AL_BEGIN_EXTERN_C
 
 
-/* Struct: ALLEGRO_TIMEOUT
+/* Type: ALLEGRO_TIMEOUT
  *  Represent a timeout value.  The size of the structure is known so can be
  *  statically allocated.  The contents are private.
  */

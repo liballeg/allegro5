@@ -45,7 +45,7 @@ typedef struct ALLEGRO_KEYBOARD ALLEGRO_KEYBOARD;
  *		to NULL.
  *
  *  You cannot read the state of keys directly.  Use the function
- *  al_key_down().
+ *  <al_key_down>.
  */
 typedef struct ALLEGRO_KBDSTATE
 {
