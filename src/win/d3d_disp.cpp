@@ -1642,25 +1642,25 @@ void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_DISPLAY_D3D *disp = ((ALLEGRO_BITMAP_D3D *)bitmap)->display;
    float plane[4];
-   int left, right, top, bottom;
+   float left, right, top, bottom;
 
    if (!disp)
       return;
 
    if (bitmap->parent) {
-	  left = bitmap->xofs + bitmap->cl;
+	  left = bitmap->xofs + bitmap->cl - 0.5f;
 	  right = bitmap->xofs + bitmap->cr;
-	  top = bitmap->yofs + bitmap->ct;
+	  top = bitmap->yofs + bitmap->ct - 0.5f;
 	  bottom = bitmap->yofs + bitmap->cb;
    }
    else {
-	  left = bitmap->cl;
+	  left = bitmap->cl - 0.5f;
 	  right = bitmap->cr;
-	  top = bitmap->ct;
+	  top = bitmap->ct - 0.5f;
 	  bottom = bitmap->cb;
-	  if (left == 0 && top == 0 &&
-			right == (bitmap->w-1) &&
-			bottom == (bitmap->h-1)) {
+	  if (left <= 0 && top <= 0 &&
+			right >= bitmap->w &&
+			bottom >= bitmap->h) {
 		 disp->device->SetRenderState(D3DRS_CLIPPLANEENABLE, 0);
 		 return;
 	  }
@@ -1669,9 +1669,7 @@ void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
    if (left == 0) left = 1;
    if (top == 0) top = 1;
    if (right == 0) right = 1;
-   if (bottom == 0) {
-       bottom = 1;
-   }
+   if (bottom == 0) bottom = 1;
 
    plane[0] = 1.0f / left;
    plane[1] = 0.0f;
