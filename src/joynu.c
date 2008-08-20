@@ -53,9 +53,11 @@ bool al_install_joystick(void)
 
    ASSERT(_al_vector_is_empty(&opened_joysticks));
 
+/*
    if (system_driver && system_driver->joystick_drivers)
       driver_list = system_driver->joystick_drivers();
    else
+   */
       driver_list = _al_joystick_driver_list;
 
 #if 0

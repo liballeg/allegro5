@@ -37,6 +37,7 @@ include_directories(
     include
     # For out-of-source builds.
     ${CMAKE_BINARY_DIR}/include
+    addons/iio
     )
 
 # Put libraries into `lib' by default.  This path must be absolute.

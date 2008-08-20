@@ -1003,6 +1003,6 @@ int a5font_transpose_font(A5FONT_FONT *f, int drange)
 void a5font_init(void)
 {
    iio_init(); /* we depend on the iio addon */
-   _register_font_file_type_init();
+   //_register_font_file_type_init();
 }
 

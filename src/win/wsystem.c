@@ -148,7 +148,6 @@ _DRIVER_INFO _system_driver_list[] =
 /* general vars */
 HINSTANCE allegro_inst = NULL;
 HANDLE allegro_thread = NULL;
-CRITICAL_SECTION allegro_critical_section;
 int _dx_ver;
 
 /* internals */
@@ -507,85 +506,6 @@ static int sys_directx_trace_handler(AL_CONST char *msg)
 {
    OutputDebugString(msg);  /* thread safe */
    return 0;
-}
-
-
-
-/* _WinMain:
- *  Entry point for Windows GUI programs, hooked by a macro in alwin.h,
- *  which makes it look as if the application can still have a normal
- *  main() function.
- */
-int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
-{
-   int (*mainfunc) (int argc, char *argv[]) = (int (*)(int, char *[]))_main;
-   char *argbuf;
-   char *cmdline;
-   char **argv;
-   int argc;
-   int argc_max;
-   int i, q;
-
-   /* can't use parameter because it doesn't include the executable name */
-   cmdline = GetCommandLine();
-   i = strlen(cmdline) + 1;
-   argbuf = _AL_MALLOC(i);
-   memcpy(argbuf, cmdline, i);
-
-   argc = 0;
-   argc_max = 64;
-   argv = _AL_MALLOC(sizeof(char *) * argc_max);
-   if (!argv) {
-      _AL_FREE(argbuf);
-      return 1;
-   }
-
-   i = 0;
-
-   /* parse commandline into argc/argv format */
-   while (argbuf[i]) {
-      while ((argbuf[i]) && (uisspace(argbuf[i])))
-	 i++;
-
-      if (argbuf[i]) {
-	 if ((argbuf[i] == '\'') || (argbuf[i] == '"')) {
-	    q = argbuf[i++];
-	    if (!argbuf[i])
-	       break;
-	 }
-	 else
-	    q = 0;
-
-	 argv[argc++] = &argbuf[i];
-
-         if (argc >= argc_max) {
-            argc_max += 64;
-            argv = _AL_REALLOC(argv, sizeof(char *) * argc_max);
-            if (!argv) {
-               _AL_FREE(argbuf);
-               return 1;
-            }
-         }
-
-	 while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!uisspace(argbuf[i]))))
-	    i++;
-
-	 if (argbuf[i]) {
-	    argbuf[i] = 0;
-	    i++;
-	 }
-      }
-   }
-
-   argv[argc] = NULL;
-
-   /* call the application entry point */
-   i = mainfunc(argc, argv);
-
-   _AL_FREE(argv);
-   _AL_FREE(argbuf);
-
-   return i;
 }
 
 

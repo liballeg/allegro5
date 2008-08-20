@@ -139,7 +139,7 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_SINGLEBUFFER);
    display = al_create_display(W, H);
    if (!display) {
-      allegro_message("Error creating display");
+      TRACE("Error creating display\n");
       return 1;
    }
 
@@ -153,7 +153,7 @@ int main(void)
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    memory_bitmap = al_create_bitmap(W, H);
    if (!memory_bitmap) {
-      allegro_message("Error creating memory bitmap");
+      TRACE("Error creating memory bitmap\n");
       return 1;
    }
    al_set_target_bitmap(memory_bitmap);

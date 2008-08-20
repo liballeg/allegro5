@@ -101,9 +101,9 @@ void fatal_error(const char *msg)
 {
    char buf[MAX_MSG_LEN];
 
-   set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+   //set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
    uszprintf(buf, sizeof(buf), "fatal_error: %s\n", msg);
-   allegro_message(buf);
+   //allegro_message(buf);
    exit(EXIT_FAILURE);
 }
 
@@ -458,7 +458,7 @@ int main(void)
 
    myfont = a5font_load_font("font.tga", 0);
    if (!myfont) {
-      allegro_message("font.tga not found");
+      TRACE("font.tga not found\n");
       return 1;
    }
    black = al_map_rgb(0, 0, 0);

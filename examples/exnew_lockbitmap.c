@@ -15,7 +15,7 @@ int main(void)
    /* Create a 100 x 100 window. */
    display = al_create_display(100, 100);
    if (!display) {
-      allegro_message("Error creating display");
+      TRACE("Error creating display\n");
       return 1;
    }
 

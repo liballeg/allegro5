@@ -103,11 +103,6 @@
 		0x0000F800, 6, \
 		0x000000F8, 3)
 
-#define ALLEGRO_CONVERT_ARGB_8888_TO_PALETTE_8(p) \
-	makecol8(((p & 0x00FF0000) >> 16) & 0xFF, \
-		 ((p & 0x0000FF00) >> 8) & 0xFF, \
-		  (p & 0x000000FF))
-
 #define ALLEGRO_CONVERT_ARGB_8888_TO_RGBA_5551(p) \
 	ALLEGRO_RS_CONVERT(p, \
 		0x80000000, 31, \
@@ -194,11 +189,6 @@
 		0xF8000000, 17, \
 		0x00F80000, 14, \
 		0x0000F800, 11)
-
-#define ALLEGRO_CONVERT_RGBA_8888_TO_PALETTE_8(p) \
-	makecol8((p & 0xFF000000) >> 24, \
-		 (p & 0x00FF0000) >> 16, \
-		 (p & 0x0000FF00) >> 8)
 
 #define ALLEGRO_CONVERT_RGBA_8888_TO_RGBA_5551(p) \
 	ALLEGRO_RS_CONVERT(p, \
@@ -294,11 +284,6 @@
 		0x00F0, 2, \
 		0x000F, 1)
 
-#define ALLEGRO_CONVERT_ARGB_4444_TO_PALETTE_8(p) \
-	makecol8((p & 0x0F00) >> 4, \
-		 (p & 0x00F0), \
-		 (p & 0x000F) << 4)
-
 #define ALLEGRO_CONVERT_ARGB_4444_TO_RGBA_5551(p) \
 	ALLEGRO_SHIFT_CONVERT(p, \
 		0x8000, 0, 15, \
@@ -393,11 +378,6 @@
 		0xF80000, 9, \
 		0x00F800, 6, \
 		0x0000F8, 3)
-
-#define ALLEGRO_CONVERT_RGB_888_TO_PALETTE_8(p) \
-	makecol8((p & 0xFF0000) >> 16, \
-		 (p & 0x00FF00) >> 8, \
-		 (p & 0x0000FF))
 
 #define ALLEGRO_CONVERT_RGB_888_TO_RGBA_5551(p) \
 	(1 | \
@@ -495,11 +475,6 @@
 		0xF800, 1, \
 		0x07E0, 1, \
 		0x001F, 0)
-
-#define ALLEGRO_CONVERT_RGB_565_TO_PALETTE_8(p) \
-	makecol8(_rgb_scale_5[(p & 0xF800) >> 8], \
-		 _rgb_scale_6[(p & 0x07E0) >> 3], \
-		 _rgb_scale_5[(p & 0x001F) << 3])
 
 #define ALLEGRO_CONVERT_RGB_565_TO_RGBA_5551(p) \
 	(1 | \
@@ -604,11 +579,6 @@
 		0x03E0, 1, \
 		0x001F, 0)
 
-#define ALLEGRO_CONVERT_RGB_555_TO_PALETTE_8(p) \
-	makecol8(_rgb_scale_5[(p & 0x7C00) >> 7], \
-		 _rgb_scale_5[(p & 0x03E0) >> 2], \
-		 _rgb_scale_5[(p & 0x001F) << 3])
-
 #define ALLEGRO_CONVERT_RGB_555_TO_RGBA_5551(p) \
 	((p << 1) | 1)
 
@@ -665,89 +635,6 @@
 		0x03E0, 8, 5, \
 		0x001F, 0, 0) | 0xFF000000)
 
-/* PALETTE_8 */
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_PALETTE_8(p) (p)
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_ARGB_8888(p) \
-	((getr8(p) << 16) | \
-	 (getg8(p) << 8) | \
-	 getb8(p) | 0xFF000000)
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_RGBA_8888(p) \
-	((getr8(p) << 24) | \
-	 (getg8(p) << 16) | \
-	 (getb8(p) << 8) | 0xFF)
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_ARGB_4444(p) \
-	(0xF000 | \
-		(((getr8(p) & 0xF0) << 4) | \
-		  (getg8(p) & 0xF0) | \
-		  (getb8(p) & 0xF0) >> 4))
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_RGB_888(p) \
-	((getr8(p) << 16) | \
-	 (getg8(p) << 8) | \
-	 getb8(p))
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_RGB_565(p) \
-	(((getr8(p) & 0xF8) << 8) | \
-	 ((getg8(p) & 0xFC) << 3) | \
-	 ((getb8(p) & 0xF8) >> 3))
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_RGB_555(p) \
-	(((getr8(p) & 0xF8) << 7) | \
-	 ((getg8(p) & 0xF8) << 2) | \
-	 ((getb8(p) & 0xF8) >> 3))
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_RGBA_5551(p) \
-	(1 | \
-	((getr8(p) & 0xF8) << 8) | \
-	((getg8(p) & 0xF8) << 3) | \
-	((getb8(p) & 0xF8) >> 2))
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_ARGB_1555(p) \
-	(0x8000 | \
-	((getr8(p) & 0xF8) << 7) | \
-	((getg8(p) & 0xF8) << 2) | \
-	((getb8(p) & 0xF8) >> 3))
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_ABGR_8888(p) \
-	(0xFF000000 | \
-	(getr8(p) << 0) | \
-	(getg8(p) << 8) | \
-	(getb8(p) << 16))
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_XBGR_8888(p) \
-	((getr8(p) | \
-	(getg8(p) << 8) | \
-	(getb8(p) << 16)) | 0xFF000000)
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_BGR_888(p) \
-	(getr(p) | \
-		(getg(p) << 8) | \
-		(getb(p) << 16))
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_BGR_565(p) \
-	(((getr(p) & 0xF8) >> 3) | \
-		((getg(p) & 0xFC) << 3) | \
-		((getb(p) & 0xF8) << 8))
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_BGR_555(p) \
-	(((getr(p) & 0xF8) >> 3) | \
-		((getg(p) & 0xF8) << 2) | \
-		((getb(p) & 0xF8) << 7))
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_RGBX_8888(p) \
-	(((getr8(p) << 24) | \
-	 (getg8(p) << 16) | \
-	 (getb8(p) << 8)) | 0xFF)
-
-#define ALLEGRO_CONVERT_PALETTE_8_TO_XRGB_8888(p) \
-	(((getr8(p) << 16) | \
-	 (getg8(p) << 8) | \
-	 (getb8(p))) | 0xFF000000)
-
 /* RGBA_5551 */
 
 #define ALLEGRO_CONVERT_RGBA_5551_TO_RGBA_5551(p) (p)
@@ -789,11 +676,6 @@
 
 #define ALLEGRO_CONVERT_RGBA_5551_TO_RGB_555(p) \
 	(p >> 1)
-
-#define ALLEGRO_CONVERT_RGBA_5551_TO_PALETTE_8(p) \
-	makecol8(_rgb_scale_5[(p & 0xF800) >> 8], \
-		 _rgb_scale_5[(p & 0x07C0) >> 3], \
-		 _rgb_scale_5[(p & 0x003E) << 2])
 
 #define ALLEGRO_CONVERT_RGBA_5551_TO_ARGB_1555(p) \
 	(((p & 1) << 15) | (p >> 1))
@@ -888,11 +770,6 @@
 
 #define ALLEGRO_CONVERT_ARGB_1555_TO_RGB_555(p) \
 	(p & 0x7FFF)
-
-#define ALLEGRO_CONVERT_ARGB_1555_TO_PALETTE_8(p) \
-	makecol8(_rgb_scale_5[(p & 0x7C00) >> 7], \
-		 _rgb_scale_5[(p & 0x03E0) >> 2], \
-		 _rgb_scale_5[(p & 0x001F) << 3])
 
 #define ALLEGRO_CONVERT_ARGB_1555_TO_RGBA_5551(p) \
 	((p << 1) | (p >> 15))
@@ -992,11 +869,6 @@
 		0x0000F800, 0, 6, \
 		0x00F80000, 0, 19)
 
-#define ALLEGRO_CONVERT_ABGR_8888_TO_PALETTE_8(p) \
-	makecol8((p & 0x000000FF), \
-		 (p & 0x0000FF00) >> 8, \
-		 (p & 0x00FF0000) >> 16)
-
 #define ALLEGRO_CONVERT_ABGR_8888_TO_RGBA_5551(p) \
 	ALLEGRO_SHIFT_CONVERT(p, \
 		0x80000000, 0, 31, \
@@ -1094,11 +966,6 @@
 		0x000000F8, 7, 0, \
 		0x0000F800, 0, 6, \
 		0x00F80000, 0, 19)
-
-#define ALLEGRO_CONVERT_XBGR_8888_TO_PALETTE_8(p) \
-	makecol8((p & 0x0000FF), \
-		 (p & 0x00FF00) >> 8, \
-		 (p & 0xFF0000) >> 16)
 
 #define ALLEGRO_CONVERT_XBGR_8888_TO_RGBA_5551(p) \
 	(1 | \
@@ -1199,11 +1066,6 @@
 		0x00F800, 0, 6, \
 		0xF80000, 0, 18)
 
-#define ALLEGRO_CONVERT_BGR_888_TO_PALETTE_8(p) \
-	makecol8(p & 0xFF, \
-		(p >> 8) & 0xFF, \
-		(p >> 16) & 0xFF)
-
 #define ALLEGRO_CONVERT_BGR_888_TO_RGBA_5551(p) \
 	(1 | \
 		ALLEGRO_SHIFT_CONVERT(p, \
@@ -1301,11 +1163,6 @@
 		0x001F, 10, 0, \
 		0x07C0, 0, 1, \
 		0xF800, 0, 11)
-
-#define ALLEGRO_CONVERT_BGR_565_TO_PALETTE_8(p) \
-	makecol8(_rgb_scale_5[(p & 0x001F) << 3], \
-		 _rgb_scale_6[(p & 0x07E0) >> 3], \
-		 _rgb_scale_5[(p & 0xF800) >> 8])
 
 #define ALLEGRO_CONVERT_BGR_565_TO_RGBA_5551(p) \
 	(1 | \
@@ -1411,11 +1268,6 @@
 		0x03E0, 0, 0, \
 		0x7C00, 0, 10)
 
-#define ALLEGRO_CONVERT_BGR_555_TO_PALETTE_8(p) \
-	makecol8(_rgb_scale_5[(p & 0x001F) << 3], \
-		 _rgb_scale_6[(p & 0x03E0) >> 2], \
-		 _rgb_scale_5[(p & 0x7C00) >> 7])
-
 #define ALLEGRO_CONVERT_BGR_555_TO_RGBA_5551(p) \
 	(1 | \
 		ALLEGRO_SHIFT_CONVERT(p, \
@@ -1512,11 +1364,6 @@
 		0x00F80000, 14, \
 		0x0000F800, 11)
 
-#define ALLEGRO_CONVERT_RGBX_8888_TO_PALETTE_8(p) \
-	makecol8((p & 0xFF000000) >> 24, \
-		 (p & 0x00FF0000) >> 16, \
-		 (p & 0x0000FF00) >> 8)
-
 #define ALLEGRO_CONVERT_RGBX_8888_TO_RGBA_5551(p) \
 	(1 | \
 		ALLEGRO_RS_CONVERT(p, \
@@ -1607,11 +1454,6 @@
 		0x00F80000, 9, \
 		0x0000F800, 6, \
 		0x000000F8, 3)
-
-#define ALLEGRO_CONVERT_XRGB_8888_TO_PALETTE_8(p) \
-	makecol8((p & 0x00FF0000) >> 16, \
-		 (p & 0x0000FF00) >> 8, \
-		 (p & 0x000000FF))
 
 #define ALLEGRO_CONVERT_XRGB_8888_TO_RGBA_5551(p) \
 	(1 | \

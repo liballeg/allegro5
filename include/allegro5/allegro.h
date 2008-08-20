@@ -25,7 +25,7 @@
 
 #include "allegro5/base.h"
 
-#include "allegro5/system.h"
+//#include "allegro5/system.h"
 #include "allegro5/system_new.h"
 #include "allegro5/memory.h"
 #include "allegro5/debug.h"
@@ -43,49 +43,17 @@
 
 #include "allegro5/threads.h"
 
-#include "allegro5/palette.h"
-#include "allegro5/gfx.h"
 #include "allegro5/display_new.h"
 #include "allegro5/bitmap_new.h"
 #include "allegro5/color.h"
-#include "allegro5/draw.h"
-#include "allegro5/rle.h"
-#include "allegro5/compiled.h"
-#include "allegro5/text.h"
-#include "allegro5/font.h"
-
-#include "allegro5/fli.h"
-#include "allegro5/config.h"
-#include "allegro5/gui.h"
-
-#include "allegro5/sound.h"
 
 #include "allegro5/file.h"
 #include "allegro5/lzss.h"
-#include "allegro5/datafile.h"
-
-#include "allegro5/fixed.h"
-#include "allegro5/fmaths.h"
-#include "allegro5/matrix.h"
-#include "allegro5/quat.h"
-
-#include "allegro5/3d.h"
-#include "allegro5/3dmaths.h"
 
 #ifdef ALLEGRO_CFG_OPENGL
-   #include "allegro5/a5_opengl.h"
+   //temporary.... where's DECLARE_HANDLE?
+   //#include "allegro5/a5_opengl.h"
 #endif
-
-#ifndef ALLEGRO_NO_COMPATIBILITY
-   #include "allegro5/alcompat.h"
-#endif
-
-#ifndef ALLEGRO_NO_FIX_CLASS
-   #ifdef __cplusplus
-      #include "allegro5/fix.h"
-   #endif
-#endif
-
 
 #ifdef ALLEGRO_EXTRA_HEADER
    #include ALLEGRO_EXTRA_HEADER

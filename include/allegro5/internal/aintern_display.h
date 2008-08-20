@@ -33,7 +33,6 @@ struct ALLEGRO_DISPLAY_INTERFACE
    ALLEGRO_BITMAP *(*create_bitmap)(ALLEGRO_DISPLAY *d,
    	int w, int h);
    
-   void (*upload_compat_screen)(struct BITMAP *bitmap, int x, int y, int width, int height);
    void (*set_target_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
    ALLEGRO_BITMAP *(*get_backbuffer)(ALLEGRO_DISPLAY *d);
    ALLEGRO_BITMAP *(*get_frontbuffer)(ALLEGRO_DISPLAY *d);
@@ -52,6 +51,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
 
    bool (*show_cursor)(ALLEGRO_DISPLAY *display);
    bool (*hide_cursor)(ALLEGRO_DISPLAY *display);
+   bool (*set_system_cursor)(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id);
 
    void (*set_icon)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 
@@ -83,6 +83,9 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color);
 void _al_draw_pixel_memory(int x, int y, ALLEGRO_COLOR *color);
 
 void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);
+
+int _al_display_type(void);
+
 
 #ifdef __cplusplus
 }

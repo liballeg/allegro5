@@ -427,8 +427,8 @@ void _al_win_ungrab_input()
    PostMessage(_al_win_active_window, _al_win_msg_call_proc, (DWORD)key_dinput_unacquire, 0);
 }
 
-
-
+// FIXME
+#if 0
 static HICON win_create_icon_from_old_bitmap(struct BITMAP *sprite)
 {
    int mask_color;
@@ -501,10 +501,12 @@ static HICON win_create_icon_from_old_bitmap(struct BITMAP *sprite)
    return hicon;
 }
 
-
+#endif
 
 void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
 {
+// FIXME
+#if 0
    HICON scaled_icon;
    HWND hwnd;
    HICON old_small;
@@ -552,6 +554,7 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
 
    destroy_bitmap(oldbmp);
    destroy_bitmap(scaled_bmp);
+#endif
 }
 
 void _al_win_set_window_position(HWND window, int x, int y)

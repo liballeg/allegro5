@@ -55,8 +55,7 @@ int main(void)
    iio_init();
 
    if (al_get_num_video_adapters() < 2) {
-      allegro_message(
-         "You need 2 or more adapters/monitors for this example.\n");
+      TRACE("You need 2 or more adapters/monitors for this example.\n");
       return 1;
    }
 

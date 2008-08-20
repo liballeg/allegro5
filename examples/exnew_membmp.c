@@ -81,18 +81,18 @@ int main(void)
 
    display = al_create_display(640, 400);
    if (!display) {
-      allegro_message("Error creating display");
+      TRACE("Error creating display\n");
       return 1;
    }
 
    accelfont = a5font_load_font("font.tga", 0);
    if (!accelfont) {
-      allegro_message("font.tga not found");
+      TRACE("font.tga not found\n");
       return 1;
    }
    accelbmp = iio_load("mysha.pcx");
    if (!accelbmp) {
-      allegro_message("mysha.pcx not found");
+      TRACE("mysha.pcx not found\n");
       return 1;
    }
 

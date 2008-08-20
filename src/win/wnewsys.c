@@ -38,7 +38,90 @@
 static ALLEGRO_SYSTEM_INTERFACE *vt = 0;
 static bool using_higher_res_timer;
 
+CRITICAL_SECTION allegro_critical_section;
+
 ALLEGRO_SYSTEM_WIN *_al_win_system;
+
+
+/* _WinMain:
+ *  Entry point for Windows GUI programs, hooked by a macro in alwin.h,
+ *  which makes it look as if the application can still have a normal
+ *  main() function.
+ */
+int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
+{
+   int (*mainfunc) (int argc, char *argv[]) = (int (*)(int, char *[]))_main;
+   char *argbuf;
+   char *cmdline;
+   char **argv;
+   int argc;
+   int argc_max;
+   int i, q;
+
+   /* can't use parameter because it doesn't include the executable name */
+   cmdline = GetCommandLine();
+   i = strlen(cmdline) + 1;
+   argbuf = _AL_MALLOC(i);
+   memcpy(argbuf, cmdline, i);
+
+   argc = 0;
+   argc_max = 64;
+   argv = _AL_MALLOC(sizeof(char *) * argc_max);
+   if (!argv) {
+      _AL_FREE(argbuf);
+      return 1;
+   }
+
+   i = 0;
+
+   /* parse commandline into argc/argv format */
+   while (argbuf[i]) {
+      while ((argbuf[i]) && (uisspace(argbuf[i])))
+	 i++;
+
+      if (argbuf[i]) {
+	 if ((argbuf[i] == '\'') || (argbuf[i] == '"')) {
+	    q = argbuf[i++];
+	    if (!argbuf[i])
+	       break;
+	 }
+	 else
+	    q = 0;
+
+	 argv[argc++] = &argbuf[i];
+
+         if (argc >= argc_max) {
+            argc_max += 64;
+            argv = _AL_REALLOC(argv, sizeof(char *) * argc_max);
+            if (!argv) {
+               _AL_FREE(argbuf);
+               return 1;
+            }
+         }
+
+	 while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!uisspace(argbuf[i]))))
+	    i++;
+
+	 if (argbuf[i]) {
+	    argbuf[i] = 0;
+	    i++;
+	 }
+      }
+   }
+
+   argv[argc] = NULL;
+
+   /* call the application entry point */
+   i = mainfunc(argc, argv);
+
+   _AL_FREE(argv);
+   _AL_FREE(argbuf);
+
+   return i;
+}
+
+
+
 
 /* Create a new system object for the dummy D3D driver. */
 static ALLEGRO_SYSTEM *win_initialize(int flags)

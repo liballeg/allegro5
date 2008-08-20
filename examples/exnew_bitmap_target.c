@@ -148,7 +148,7 @@ int main(void)
 
    display = al_create_display(640, 480);
    if (!display) {
-      allegro_message("Error creating display");
+      TRACE("Error creating display\n");
       return 1;
    }
 
@@ -158,7 +158,7 @@ int main(void)
 
    myfont = a5font_load_font("font.tga", 0);
    if (!myfont) {
-      allegro_message("font.tga not found");
+      TRACE("font.tga not found\n");
       return 1;
    }
 

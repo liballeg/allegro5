@@ -72,8 +72,6 @@ int _packfile_type = 0;
 
 static PACKFILE_VTABLE normal_vtable;
 
-static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode);
-
 static int filename_encoding = U_ASCII;
 
 
@@ -704,16 +702,6 @@ int file_exists(AL_CONST char *filename, int attrib, int *aret)
    struct al_ffblk info;
    ASSERT(filename);
 
-   if (ustrchr(filename, '#')) {
-      PACKFILE *f = pack_fopen_special_file(filename, F_READ);
-      if (f) {
-	 pack_fclose(f);
-	 if (aret)
-	    *aret = FA_DAT_FLAGS;
-	 return ((attrib & FA_DAT_FLAGS) == FA_DAT_FLAGS) ? TRUE : FALSE;
-      }
-   }
-
    if (!_al_file_isok(filename))
       return FALSE;
 
@@ -756,17 +744,6 @@ int exists(AL_CONST char *filename)
 uint64_t file_size_ex(AL_CONST char *filename)
 {
    ASSERT(filename);
-   if (ustrchr(filename, '#')) {
-      PACKFILE *f = pack_fopen_special_file(filename, F_READ);
-      if (f) {
-	 long ret;
-	 ASSERT(f->is_normal_packfile);
-	 ret = f->normal.todo;
-	 pack_fclose(f);
-	 return ret;
-      }
-   }
-
    if (!_al_file_isok(filename))
       return 0;
 
@@ -1143,7 +1120,7 @@ static void destroy_resource_path_list(void)
 }
 
 
-
+#if 0
 /* find_allegro_resource:
  *  Searches for a support file, eg. allegro.cfg or language.dat. Passed
  *  a resource string describing what you are looking for, along with
@@ -1280,7 +1257,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
    /* argh, all that work, and still no biscuit */ 
    return -1;
 }
-
+#endif
 
 
 /***************************************************
@@ -1288,6 +1265,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
  ***************************************************/
 
 
+#if 0
 /* pack_fopen_exe_file:
  *  Helper to handle opening files that have been appended to the end of
  *  the program executable.
@@ -1339,138 +1317,7 @@ static PACKFILE *pack_fopen_exe_file(void)
 
    return f;
 }
-
-
-
-/* pack_fopen_datafile_object:
- *  Recursive helper to handle opening member objects from datafiles, 
- *  given a fake filename in the form 'object_name[/nestedobject]'.
- */
-static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, AL_CONST char *objname)
-{
-   char buf[512];   /* text is read into buf as UTF-8 */
-   char tmp[512*4]; /* this should be enough even when expanding to UCS-4 */
-   char name[512];
-   int use_next = FALSE;
-   int recurse = FALSE;
-   int type, size, pos, c;
-
-   /* split up the object name */
-   pos = 0;
-
-   while ((c = ugetxc(&objname)) != 0) {
-      if ((c == '#') || (c == '/') || (c == OTHER_PATH_SEPARATOR)) {
-	 recurse = TRUE;
-	 break;
-      }
-      pos += usetc(name+pos, c);
-   }
-
-   usetc(name+pos, 0);
-
-   pack_mgetl(f);
-
-   /* search for the requested object */
-   while (!pack_feof(f)) {
-      type = pack_mgetl(f);
-
-      if (type == DAT_PROPERTY) {
-	 type = pack_mgetl(f);
-	 size = pack_mgetl(f);
-	 if (type == DAT_NAME) {
-	    /* examine name property */
-	    pack_fread(buf, size, f);
-	    buf[size] = 0;
-	    if (ustricmp(uconvert(buf, U_UTF8, tmp, U_CURRENT, sizeof tmp), name) == 0)
-	       use_next = TRUE;
-	 }
-	 else {
-	    /* skip property */
-	    pack_fseek(f, size);
-	 }
-      }
-      else {
-	 if (use_next) {
-	    /* found it! */
-	    if (recurse) {
-	       if (type == DAT_FILE)
-		  return pack_fopen_datafile_object(pack_fopen_chunk(f, FALSE), objname);
-	       else
-		  break;
-	    }
-	    else {
-	       _packfile_type = type;
-	       return pack_fopen_chunk(f, FALSE);
-	    }
-	 }
-	 else {
-	    /* skip unwanted object */
-	    size = pack_mgetl(f);
-	    pack_fseek(f, size+4);
-	 }
-      }
-   }
-
-   /* oh dear, the object isn't there... */
-   pack_fclose(f);
-   //*allegro_errno = ENOENT;
-   return NULL; 
-}
-
-
-
-/* pack_fopen_special_file:
- *  Helper to handle opening psuedo-files, ie. datafile objects and data
- *  that has been appended to the end of the executable.
- */
-static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode)
-{
-   char fname[1024], objname[512], tmp[16];
-   PACKFILE *f;
-   char *p;
-   int c;
-
-   /* special files are read-only */
-   while ((c = *(mode++)) != 0) {
-      if ((c == 'w') || (c == 'W')) {
-	 //*allegro_errno = EROFS;
-	 return NULL;
-      }
-   }
-
-   if (ustrcmp(filename, uconvert_ascii("#", tmp)) == 0) {
-      /* read appended executable data */
-      return pack_fopen_exe_file();
-   }
-   else {
-      if (ugetc(filename) == '#') {
-	 /* read object from an appended datafile */
-	 ustrzcpy(fname,  sizeof(fname), uconvert_ascii("#", tmp));
-	 ustrzcpy(objname, sizeof(objname), filename+uwidth(filename));
-      }
-      else {
-	 /* read object from a regular datafile */
-	 ustrzcpy(fname,  sizeof(fname), filename);
-	 p = ustrrchr(fname, '#');
-	 usetat(p, 0, 0);
-	 ustrzcpy(objname, sizeof(objname), p+uwidth(p));
-      }
-
-      /* open the file */
-      f = pack_fopen(fname, F_READ_PACKED);
-      if (!f)
-	 return NULL;
-
-      if (pack_mgetl(f) != DAT_MAGIC) {
-	 pack_fclose(f);
-	 //*allegro_errno = ENOTDIR;
-	 return NULL;
-      }
-
-      /* find the required object */
-      return pack_fopen_datafile_object(f, objname);
-   }
-}
+#endif
 
 
 
@@ -1821,11 +1668,6 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 
    _packfile_type = 0;
 
-   if (ustrchr(filename, '#')) {
-      PACKFILE *special = pack_fopen_special_file(filename, mode);
-      if (special)
-	 return special;
-   }
 
    if (!_al_file_isok(filename))
       return NULL;

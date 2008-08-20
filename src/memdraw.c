@@ -21,6 +21,13 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 
+void _al_draw_pixel_memory(int x, int y, ALLEGRO_COLOR *color)
+{
+   ALLEGRO_COLOR result;
+   _al_blend(color, x, y, &result);
+   al_put_pixel(x, y, result);
+}
+
 #define DEFINE_PUT_PIXEL(name, size, get, set)                               \
 static void name(ALLEGRO_BITMAP *dst, void *dst_addr, int dx, int dy,        \
    int color)                                                                \
@@ -785,13 +792,6 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
    DO_FILLED_RECTANGLE(_hline, x1, y1, w, h, color);
 
    al_unlock_bitmap(bitmap);
-}
-
-void _al_draw_pixel_memory(int x, int y, ALLEGRO_COLOR *color)
-{
-   ALLEGRO_COLOR result;
-   _al_blend(color, x, y, &result);
-   al_put_pixel(x, y, result);
 }
 
 /* vim: set sts=3 sw=3 et: */

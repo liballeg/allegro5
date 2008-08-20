@@ -25,7 +25,7 @@ int main(void)
    
    bitmap = iio_load("fakeamp.bmp");
    if (!bitmap) {
-      allegro_message("Error loading fakeamp.bmp\n");
+      TRACE("Error loading fakeamp.bmp\n\n");
       return 1;
    }
 

@@ -20,6 +20,7 @@
    #error bad include
 #endif
 
+#include <windows.h>
 
 /*******************************************/
 /********** magic main emulation ***********/
@@ -64,7 +65,6 @@ AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nS
 /*******************************************/
 #define SYSTEM_DIRECTX           AL_ID('D','X',' ',' ')
 
-AL_VAR(SYSTEM_DRIVER, system_directx);
 
 
 
@@ -89,32 +89,6 @@ AL_VAR(SYSTEM_DRIVER, system_directx);
 #define GFX_DIRECT3D_WINDOWED    AL_ID('D','3','D','W')
 #define GFX_DIRECT3D_FULLSCREEN  AL_ID('D','3','D','F')
 #define GFX_DIRECT3D             GFX_DIRECT3D_FULLSCREEN
-
-AL_VAR(GFX_DRIVER, gfx_directx_accel);
-AL_VAR(GFX_DRIVER, gfx_directx_safe);
-AL_VAR(GFX_DRIVER, gfx_directx_soft);
-AL_VAR(GFX_DRIVER, gfx_directx_win);
-AL_VAR(GFX_DRIVER, gfx_directx_ovl);
-AL_VAR(GFX_DRIVER, gfx_gdi);
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-AL_VAR(GFX_DRIVER, _al_d3d_dummy_gfx_driver);
-
-#ifdef __cplusplus
-}
-#endif
-
-#define GFX_DRIVER_DIRECTX                                              \
-   {  GFX_DIRECTX_ACCEL,   &gfx_directx_accel,     TRUE  },             \
-   {  GFX_DIRECTX_SOFT,    &gfx_directx_soft,      TRUE  },             \
-   {  GFX_DIRECTX_SAFE,    &gfx_directx_safe,      TRUE  },             \
-   {  GFX_DIRECTX_WIN,     &gfx_directx_win,       TRUE  },             \
-   {  GFX_DIRECTX_OVL,     &gfx_directx_ovl,       TRUE  },             \
-   {  GFX_GDI,             &gfx_gdi,               FALSE },
-
 
 
 /********************************************/

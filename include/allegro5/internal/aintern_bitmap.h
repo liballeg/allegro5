@@ -10,8 +10,6 @@ extern "C" {
 
 typedef struct ALLEGRO_BITMAP_INTERFACE ALLEGRO_BITMAP_INTERFACE;
 
-struct BITMAP;
-
 struct ALLEGRO_BITMAP
 {
    ALLEGRO_BITMAP_INTERFACE *vt;
@@ -107,17 +105,8 @@ void _al_convert_bitmap_data(
 	void *dst, int dst_format, int dst_pitch,
 	int sx, int sy, int dx, int dy,
 	int width, int height);
-void _al_convert_compat_bitmap(
-	BITMAP *src,
-	void *dst, int dst_format, int dst_pitch,
-	int sx, int sy, int dx, int dy,
-	int width, int height);
-void _al_convert_to_compat_bitmap(
-	ALLEGRO_BITMAP *src,
-        BITMAP *dst);
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
 int _al_get_pixel_value(int src_format, ALLEGRO_COLOR *src_color);
-int _al_get_compat_bitmap_format(BITMAP *bmp);
 bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);
 bool _al_pixel_format_fits(int format1, int format2);

@@ -15,7 +15,7 @@ int main(void)
 
    display = al_create_display(640, 480);
    if (!display) {
-      allegro_message("Error creating display");
+      TRACE("Error creating display\n");
       return 1;
    }
 
@@ -23,7 +23,7 @@ int main(void)
 
    cursor = iio_load("cursor.tga");
    if (!cursor) {
-      allegro_message("Error loading cursor.tga");
+      TRACE("Error loading cursor.tga\n");
       return 1;
    }
 

@@ -34,7 +34,7 @@ static void init(void)
 
    ex.myfont = a5font_load_font("fixed_font.tga", 0);
    if (!ex.myfont) {
-      allegro_message("fixed_font.tga not found");
+      TRACE("fixed_font.tga not found\n");
       exit(1);
    }
 }

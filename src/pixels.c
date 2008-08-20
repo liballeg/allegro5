@@ -133,7 +133,6 @@ static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    false,
    false,
    false,
-   false,
    true,
    true,
    true,
@@ -162,7 +161,6 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
    false,
    false,
    false,
-   true,
    true,
    true,
    true,
@@ -343,16 +341,6 @@ void _get_pixel_rgb_555(void *data, ALLEGRO_COLOR *color)
       255);
 }
 
-void _get_pixel_palette_8(void *data, ALLEGRO_COLOR *color)
-{
-   int pixel = *(unsigned char *)(data);
-   *color = al_map_rgba(
-      getr8(pixel),
-      getg8(pixel),
-      getb8(pixel),
-      255);
-}
-
 void _get_pixel_rgba_5551(void *data, ALLEGRO_COLOR *color)
 {
    uint16_t pixel = *(uint16_t *)(data);
@@ -466,7 +454,6 @@ p_get_pixel_func get_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    _get_pixel_rgb_888,
    _get_pixel_rgb_565,
    _get_pixel_rgb_555,
-   _get_pixel_palette_8,
    _get_pixel_rgba_5551,
    _get_pixel_argb_1555,
    _get_pixel_abgr_8888,
@@ -593,11 +580,6 @@ int _get_pixel_value_rgb_555(ALLEGRO_COLOR *p)
    return pixel;
 }
 
-int _get_pixel_value_palette_8(ALLEGRO_COLOR *p)
-{
-   return (int)p->r;
-}
-
 int _get_pixel_value_rgba_5551(ALLEGRO_COLOR *p)
 {
    uint16_t pixel = 0;
@@ -703,7 +685,6 @@ static _get_pixel_value_func _get_pixel_value_funcs[ALLEGRO_NUM_PIXEL_FORMATS] =
    _get_pixel_value_rgb_888,
    _get_pixel_value_rgb_565,
    _get_pixel_value_rgb_555,
-   _get_pixel_value_palette_8,
    _get_pixel_value_rgba_5551,
    _get_pixel_value_argb_1555,
    _get_pixel_value_abgr_8888,
@@ -752,11 +733,6 @@ void _put_pixel_rgb_565(void *data, int pixel)
 void _put_pixel_rgb_555(void *data, int pixel)
 {
    *(uint16_t *)(data) = pixel;
-}
-
-void _put_pixel_palette_8(void *data, int pixel)
-{
-   *(unsigned char *)(data) = pixel;
 }
 
 void _put_pixel_rgba_5551(void *data, int pixel)
@@ -827,7 +803,6 @@ p_put_pixel_func put_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    _put_pixel_rgb_888,
    _put_pixel_rgb_565,
    _put_pixel_rgb_555,
-   _put_pixel_palette_8,
    _put_pixel_rgba_5551,
    _put_pixel_argb_1555,
    _put_pixel_abgr_8888,

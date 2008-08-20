@@ -14,14 +14,14 @@ int main(void)
 
    display = al_create_display(320, 200);
    if (!display) {
-      allegro_message("Error creating display");
+      TRACE("Error creating display\n");
       return 1;
    }
 
    /* First icon: Read from file. */
    icon1 = iio_load("icon.tga");
    if (!icon1) {
-      allegro_message("icon.tga not found");
+      TRACE("icon.tga not found\n");
       return 1;
    }
 

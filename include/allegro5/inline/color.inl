@@ -64,24 +64,6 @@ AL_INLINE(int, makeacol32, (int r, int g, int b, int a),
 })
 
 
-AL_INLINE(int, getr8, (int c),
-{
-   return _rgb_scale_6[(int)_current_palette[c].r];
-})
-
-
-AL_INLINE(int, getg8, (int c),
-{
-   return _rgb_scale_6[(int)_current_palette[c].g];
-})
-
-
-AL_INLINE(int, getb8, (int c),
-{
-   return _rgb_scale_6[(int)_current_palette[c].b];
-})
-
-
 AL_INLINE(int, getr15, (int c),
 {
    return _rgb_scale_5[(c >> _rgb_r_shift_15) & 0x1F];
@@ -158,16 +140,6 @@ AL_INLINE(int, geta32, (int c),
 {
    return ((c >> _rgb_a_shift_32) & 0xFF);
 })
-
-
-#ifndef ALLEGRO_DOS
-
-AL_INLINE(void, _set_color, (int idx, AL_CONST RGB *p),
-{
-   set_color(idx, p);
-})
-
-#endif
 
 
 #ifdef __cplusplus

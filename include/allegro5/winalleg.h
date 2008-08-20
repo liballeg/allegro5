@@ -91,25 +91,6 @@ AL_FUNC(void, win_set_window, (HWND wnd));
 AL_FUNC(void, win_set_wnd_create_proc, (AL_METHOD(HWND, proc, (WNDPROC))));
 
 
-/* GDI to DirectDraw routines */
-AL_FUNC(HDC, win_get_dc, (BITMAP *bmp));
-AL_FUNC(void, win_release_dc, (BITMAP *bmp, HDC dc));
-
-
-/* GDI routines */
-AL_FUNC(void, set_gdi_color_format, (void));
-AL_FUNC(void, set_palette_to_hdc, (HDC dc, PALETTE pal));
-AL_FUNC(HPALETTE, convert_palette_to_hpalette, (PALETTE pal));
-AL_FUNC(void, convert_hpalette_to_palette, (HPALETTE hpal, PALETTE pal));
-AL_FUNC(HBITMAP, convert_bitmap_to_hbitmap, (BITMAP *bitmap));
-AL_FUNC(BITMAP *, convert_hbitmap_to_bitmap, (HBITMAP bitmap));
-AL_FUNC(void, draw_to_hdc, (HDC dc, BITMAP *bitmap, int x, int y));
-AL_FUNC(void, blit_to_hdc, (BITMAP *bitmap, HDC dc, int src_x, int src_y, int dest_x, int dest_y, int w, int h));
-AL_FUNC(void, stretch_blit_to_hdc, (BITMAP *bitmap, HDC dc, int src_x, int src_y, int src_w, int src_h, int dest_x, int dest_y, int dest_w, int dest_h));
-AL_FUNC(void, blit_from_hdc, (HDC dc, BITMAP *bitmap, int src_x, int src_y, int dest_x, int dest_y, int w, int h));
-AL_FUNC(void, stretch_blit_from_hdc, (HDC hdc, BITMAP *bitmap, int src_x, int src_y, int src_w, int src_h, int dest_x, int dest_y, int dest_w, int dest_h));
-
-
 /* D3D stuff */
 
 

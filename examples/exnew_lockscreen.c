@@ -11,7 +11,7 @@ int main(void)
     al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA);
     display = al_create_display(100, 100);
     if (!display) {
-       allegro_message("Error creating display");
+       TRACE("Error creating display\n");
        return 1;
     }
 

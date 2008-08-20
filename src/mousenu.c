@@ -298,6 +298,7 @@ bool al_mouse_button_down(ALLEGRO_MOUSE_STATE *state, int button)
  *****************************************************************************/
 
 
+/*
 ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor_old(BITMAP *bmp, int x_focus, int y_focus)
 {
    ASSERT(gfx_driver);
@@ -308,6 +309,7 @@ ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor_old(BITMAP *bmp, int x_focus, int y
 
    return NULL;
 }
+*/
 
 
 /* Function: al_create_mouse_cursor
@@ -315,6 +317,10 @@ ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor_old(BITMAP *bmp, int x_focus, int y
  *  graphics driver in effect.
  *  Returns a pointer to the cursor on success, or NULL on failure.
  */
+
+// FIXME:
+#if 0
+
 ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int x_focus, int y_focus)
 {
    int x, y;
@@ -348,7 +354,7 @@ ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int x_focus, i
    return result;
 }
 
-
+#endif
 
 /* Function: al_destroy_mouse_cursor
  *  Free the memory used by the given cursor.  The graphics driver that
@@ -356,6 +362,8 @@ ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int x_focus, i
  */
 void al_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 {
+   // FIXME
+   /*
    ASSERT(gfx_driver);
 
    if (!cursor)
@@ -363,6 +371,8 @@ void al_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 
    if ((gfx_driver) && (gfx_driver->destroy_mouse_cursor))
       gfx_driver->destroy_mouse_cursor(cursor);
+
+      */
 }
 
 
@@ -376,12 +386,16 @@ void al_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
  */
 bool al_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 {
+   // FIXME
+   /*
    ASSERT(gfx_driver);
    ASSERT(cursor);
 
    if ((gfx_driver) && (gfx_driver->set_mouse_cursor))
       return gfx_driver->set_mouse_cursor(cursor);
 
+   return false;
+   */
    return false;
 }
 
@@ -396,11 +410,21 @@ bool al_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
  */
 bool al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
+   ALLEGRO_DISPLAY *curr;
+
+   curr = al_get_current_display();
+
+   if (curr && curr->vt && curr->vt->set_system_cursor)
+      curr->vt->set_system_cursor(cursor_id);
+   // FIXME:
+   /*
    ASSERT(gfx_driver);
 
    if ((gfx_driver) && (gfx_driver->set_system_mouse_cursor))
       return gfx_driver->set_system_mouse_cursor(cursor_id);
 
+   return false;
+   */
    return false;
 }
 
@@ -413,7 +437,8 @@ bool al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
  */
 bool al_show_mouse_cursor(void)
 {
-   return _al_current_display->vt->show_cursor(_al_current_display);
+   ALLEGRO_DISPLAY *curr = al_get_current_display();
+   return curr->vt->show_cursor(curr);
 }
 
 

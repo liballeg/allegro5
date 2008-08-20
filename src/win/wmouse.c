@@ -24,6 +24,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/platform/aintwin.h"
+#include "allegro5/internal/aintern_display.h"
 #include "win_new.h"
 
 #ifndef SCAN_DEPEND
@@ -151,7 +152,7 @@ static int mymickey_oy = 0;
 
 #define CLEAR_MICKEYS()                       \
 {                                             \
-   if (gfx_driver && gfx_driver->windowed) {  \
+   if (_al_display_type() == 1) {             \
       POINT p;                                \
       int wx, wy;                             \
                                               \
@@ -378,7 +379,7 @@ static void mouse_dinput_handle_event(int ofs, int data)
    switch (ofs) {
 
       case DIMOFS_X:
-         if (!gfx_driver || !gfx_driver->windowed) {
+         if (_al_display_type() < 0 || _al_display_type() == 0) {
             if (last_was_x)
                last_data_y = 0;
             last_data_x = data;
@@ -396,7 +397,7 @@ static void mouse_dinput_handle_event(int ofs, int data)
          break;
 
       case DIMOFS_Y:
-         if (!gfx_driver || !gfx_driver->windowed) {
+         if (_al_display_type() < 0 || _al_display_type() == 0) {
             if (!last_was_x)
                last_data_x = 0;
             last_data_y = data;
@@ -481,7 +482,7 @@ static void mouse_dinput_handle(void)
                                    message_buffer[i].dwData);
       }
 
-      if (gfx_driver && gfx_driver->windowed) {
+      if (_al_display_type() == 1) {
          /* windowed input mode */
          if (!wnd_sysmenu) {
             POINT p;
@@ -613,7 +614,7 @@ int mouse_dinput_grab(void)
       /* necessary in order to set the cooperative level */
       mouse_dinput_unacquire();
 
-      if (gfx_driver && !gfx_driver->windowed) {
+      if (_al_display_type() == 0) {
          level = DISCL_FOREGROUND | DISCL_EXCLUSIVE;
          _TRACE(PREFIX_I "foreground exclusive cooperative level requested for mouse\n");
       }
@@ -652,7 +653,7 @@ int mouse_dinput_grab(void)
 int mouse_set_syscursor(void)
 {
    HWND allegro_wnd = _al_win_active_window;
-   if ((mouse_dinput_device && _mouse_on) || (gfx_driver && !gfx_driver->windowed)) {
+   if ((mouse_dinput_device && _mouse_on) || (_al_display_type() == 0)) {
       SetCursor(_win_hcursor);
       /* Make sure the cursor is removed by the system. */
       PostMessage(allegro_wnd, WM_MOUSEMOVE, 0, 0);
@@ -933,7 +934,7 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
 
       al_get_window_position(al_get_current_display(), &wx, &wy);
 
-      if (gfx_driver && gfx_driver->windowed) {
+      if (_al_display_type() == 1) {
 	 SetCursorPos(new_x+wx, new_y+wy);
       }
    }

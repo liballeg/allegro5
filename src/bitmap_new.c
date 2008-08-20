@@ -156,7 +156,7 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
    if (!bitmap->memory) {
       size_t bytes = bitmap->pitch * h;
       bitmap->memory = _AL_MALLOC_ATOMIC(bytes);
-      memset(bitmap->memory, 0, bytes);
+      //memset(bitmap->memory, 0, bytes);
    }
 
    if (!bitmap->vt->upload_bitmap(bitmap, 0, 0, w, h)) {
@@ -775,7 +775,7 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
    if (!al_lock_bitmap(bitmap, &src_region, ALLEGRO_LOCK_READONLY))
       return NULL;
 
-   if (!al_lock_bitmap(clone, &dst_region, 0)) {
+   if (!al_lock_bitmap(clone, &dst_region, ALLEGRO_LOCK_WRITEONLY)) {
       al_unlock_bitmap(bitmap);
       return NULL;
    }

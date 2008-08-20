@@ -32,13 +32,13 @@ int main(void)
 
    pictures[0] = iio_load("mysha.pcx");
    if (!pictures[0]) {
-      allegro_message("failed to load mysha.pcx");
+      TRACE("failed to load mysha.pcx\n");
       return 1;
    }
 
    pictures[1] = iio_load("allegro.pcx");
    if (!pictures[1]) {
-      allegro_message("failed to load allegro.pcx");
+      TRACE("failed to load allegro.pcx\n");
       return 1;
    }
 

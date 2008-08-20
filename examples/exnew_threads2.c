@@ -256,17 +256,17 @@ int main(void)
    display = al_create_display(W * IMAGES_PER_ROW,
       H * NUM_THREADS / IMAGES_PER_ROW);
    if (!display) {
-      allegro_message("Error creating display");
+      TRACE("Error creating display\n");
       return 1;
    }
    timer = al_install_timer(1.0/3);
    if (!timer) {
-      allegro_message("Error creating timer");
+      TRACE("Error creating timer\n");
       return 1;
    }
    queue = al_create_event_queue();
    if (!queue) {
-      allegro_message("Error creating event queue");
+      TRACE("Error creating event queue\n");
       return 1;
    }
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);

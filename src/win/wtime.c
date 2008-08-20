@@ -17,6 +17,7 @@
 
 
 #include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern_thread.h"
 #include "allegro5/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND

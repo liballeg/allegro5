@@ -61,7 +61,7 @@ AL_INLINE(int, _default_ds, (void),
    return 0;
 })
 
-//#ifdef ALLEGRO_BCC32
+#ifdef ALLEGRO_BCC32
 
    /* BCC32 is a somewhat unusual platform because it mixes a MSVC/MinGW generated DLL
     * (for which ALLEGRO_NO_ASM is not defined) with Borland C++ compiled programs for
@@ -71,13 +71,11 @@ AL_INLINE(int, _default_ds, (void),
     * the same calling convention on both sides.
     */
 
-/*
 AL_FUNC(uintptr_t, bmp_write_line, (BITMAP *bmp, int lyne));
 AL_FUNC(uintptr_t, bmp_read_line, (BITMAP *bmp, int lyne));
 AL_FUNC(void, bmp_unwrite_line, (BITMAP *bmp));
 
 #else
-*/
 
 typedef AL_METHOD(uintptr_t, _BMP_BANK_SWITCHER, (BITMAP *bmp, int lyne));
 typedef AL_METHOD(void, _BMP_UNBANK_SWITCHER, (BITMAP *bmp));
@@ -112,7 +110,7 @@ AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
    }
 })
 
-//#endif      /* defined ALLEGRO_BCC32 */
+#endif      /* defined ALLEGRO_BCC32 */
 
 #endif      /* C vs. inline asm */
 

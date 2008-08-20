@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
    dpy = al_create_display(640, 480);
    if (!dpy) {
-      allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+      TRACE("Unable to set any graphic mode\n");
       return 1;
    }
 

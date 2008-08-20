@@ -114,51 +114,6 @@ static int d3d_formats[] = {
    -1
 };
 
-/* Dummy graphics driver for compatibility */
-GFX_DRIVER _al_d3d_dummy_gfx_driver = {
-   0,
-   "D3D Compatibility GFX driver",
-   "D3D Compatibility GFX driver",
-   "D3D Compatibility GFX driver",
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   0, 0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   _al_win_directx_create_mouse_cursor,
-   _al_win_directx_destroy_mouse_cursor,
-   _al_win_directx_set_mouse_cursor,
-   _al_win_directx_set_system_mouse_cursor,
-   _al_win_directx_show_mouse_cursor,
-   _al_win_directx_hide_mouse_cursor
-};
-
-
 
 bool al_d3d_supports_non_pow2_textures(void)
 {
@@ -741,7 +696,6 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
       win_grab_input();
    }
    else {
-      gfx_driver = 0;
       ffw_set = false;
       already_fullscreen = false;
    }
@@ -1291,12 +1245,6 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display)
  
    w = display->display.w;
    h = display->display.h;
-
-   /* Set up a dummy gfx_driver */
-   gfx_driver = &_al_d3d_dummy_gfx_driver;
-   gfx_driver->w = w;
-   gfx_driver->h = h;
-   gfx_driver->windowed = (display->display.flags & ALLEGRO_FULLSCREEN) ? 0 : 1;
 
    /* Setup the mouse */
    display->mouse_range_x1 = 0;
@@ -1881,67 +1829,6 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
       return disp->reset_success;
 }
 
-/*
- * Upload a rectangle of a compatibility bitmap.
- */
-static void d3d_upload_compat_screen(BITMAP *bitmap, int x, int y, int w, int h)
-{
-#if 0
-   LPDIRECT3DSURFACE9 render_target;
-   RECT rect;
-   D3DLOCKED_RECT locked_rect;
-
-   if (_al_d3d_is_device_lost()) return;
-   _al_d3d_lock_device();
-
-   x += bitmap->x_ofs;
-   y += bitmap->y_ofs;
-   
-   if (x < 0) {
-      w -= -x;
-      x = 0;
-   }
-   if (y < 0) {
-      h -= -y;
-      y = 0;
-   }
-
-   if (w <= 0 || h <= 0) {
-      _al_d3d_unlock_device();
-      return;
-   }
-
-   if (_al_d3d_device->GetRenderTarget(0, &render_target) != D3D_OK) {
-      TRACE("d3d_upload_compat_bitmap: GetRenderTarget failed.\n");
-      _al_d3d_unlock_device();
-      return;
-   }
-
-   rect.left = x;
-   rect.top = y;
-   rect.right = x + w;
-   rect.bottom = y + h;
-
-   if (IDirect3DSurface9_LockRect(render_target, &locked_rect, &rect, 0) != D3D_OK) {
-      IDirect3DSurface9_Release(render_target);
-      _al_d3d_unlock_device();
-      return;
-   }
-
-   _al_convert_compat_bitmap(
-      screen,
-      locked_rect.pBits, _al_current_display->format, locked_rect.Pitch,
-      x, y, 0, 0, w, h);
-
-   IDirect3DSurface9_UnlockRect(render_target);
-   IDirect3DSurface9_Release(render_target);
-
-   _al_d3d_unlock_device();
-
-   al_update_display_region(x, y, w, h);
-#endif
-}
-
 ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    int w, int h)
 {
@@ -2167,6 +2054,10 @@ void d3d_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
       display->w, display->h, onoff);
 }
 
+bool d3d_set_system_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+{
+   return _al_win_directx_set_system_mouse_cursor(cursor_id);
+}
 
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
@@ -2187,7 +2078,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->acknowledge_resize = d3d_acknowledge_resize;
    vt->resize_display = d3d_resize_display;
    vt->create_bitmap = _al_d3d_create_bitmap;
-   vt->upload_compat_screen = d3d_upload_compat_screen;
    vt->set_target_bitmap = d3d_set_target_bitmap;
    vt->get_backbuffer = d3d_get_backbuffer;
    vt->get_frontbuffer = d3d_get_frontbuffer;
@@ -2204,6 +2094,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->set_window_position = d3d_set_window_position;
    vt->get_window_position = d3d_get_window_position;
    vt->toggle_frame = d3d_toggle_frame;
+   vt->set_system_cursor = d3d_set_system_cursor;
 
    return vt;
 }

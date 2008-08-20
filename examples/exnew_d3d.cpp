@@ -85,7 +85,7 @@ int main(void)
       al_get_keyboard_state(&state);
 
       start = al_current_time();
-   } while (!al_key_down(&state, KEY_ESC));
+   } while (!al_key_down(&state, ALLEGRO_KEY_ESCAPE));
 
    return 0;
 }

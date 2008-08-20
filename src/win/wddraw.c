@@ -22,7 +22,11 @@
 #define PREFIX_W                "al-wddraw WARNING: "
 #define PREFIX_E                "al-wddraw ERROR: "
 
+static HCURSOR selected_cursor = NULL;
 
+#define CURSOR_SHOWN (_win_hcursor == NULL ? false : true)
+
+#if 0
 /* DirectDraw globals */
 LPDIRECTDRAW2 directdraw = NULL;
 LPDIRECTDRAWCLIPPER ddclipper = NULL;
@@ -378,15 +382,13 @@ struct ALLEGRO_MOUSE_CURSOR
    HCURSOR hcursor;
 };
 
-static HCURSOR selected_cursor = NULL;
-#define CURSOR_SHOWN (_win_hcursor == NULL ? false : true)
 
 /* `_win_hcursor' points to the cursor being shown or NULL if no cursor is
  * shown.  `selected_cursor' always points to the currently selected cursor,
  * whether it is hidden or shown.
  */
 
-
+#endif
 
 static void MySetCursor(HCURSOR hcursor)
 {
@@ -404,6 +406,7 @@ static void MySetCursor(HCURSOR hcursor)
 }
 
 
+#if 0
 
 static HCURSOR _al_win_directx_create_mouse_hcursor(struct BITMAP *sprite, int xfocus, int yfocus)
 {
@@ -538,6 +541,8 @@ bool _al_win_directx_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *wrapper)
 }
 
 
+#endif
+
 
 bool _al_win_directx_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
@@ -573,14 +578,12 @@ bool _al_win_directx_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_
    return true;
 }
 
-
-
 bool _al_win_directx_show_mouse_cursor(void)
 {
-   if (!selected_cursor) {
+   //if (!selected_cursor) {
       al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
       ASSERT(selected_cursor);
-   }
+  // }
 
    MySetCursor(selected_cursor);
    return true;

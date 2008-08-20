@@ -35,19 +35,19 @@ int main(int argc, char *argv[])
 
    dpy = al_create_display(display_w, display_h);
    if (!dpy) {
-      allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+      TRACE("Unable to set any graphic mode\n");
       return 1;
    }
 
    buf = al_create_bitmap(display_w, display_h);
    if (!buf) {
-      allegro_message("Unable to create buffer\n");
+      TRACE("Unable to create buffer\n\n");
       return 1;
    }
 
    bmp = iio_load("mysha.pcx");
    if (!bmp) {
-      allegro_message("Unable to load image\n%s\n", allegro_error);
+      TRACE("Unable to load image\n");
       return 1;
    }
    bmp_w = al_get_bitmap_width(bmp);

@@ -29,13 +29,13 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
    display = al_create_display(640, 480);
    if (!display) {
-      allegro_message("Error creating display");
+      TRACE("Error creating display\n");
       return 1;
    }
 
    picture = iio_load("mysha.pcx");
    if (!picture) {
-      allegro_message("mysha.pcx not found");
+      TRACE("mysha.pcx not found\n");
       return 1;
    }
 

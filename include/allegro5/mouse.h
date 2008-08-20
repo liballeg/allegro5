@@ -95,8 +95,8 @@ struct ALLEGRO_BITMAP;
  * for later (it would need significant cooperation from the display
  * API).
  */
-AL_FUNC(ALLEGRO_MOUSE_CURSOR *, al_create_mouse_cursor_old, (struct BITMAP *sprite, int xfocus, int yfocus));
-AL_FUNC(ALLEGRO_MOUSE_CURSOR *, al_create_mouse_cursor, (struct ALLEGRO_BITMAP *sprite, int xfocus, int yfocus));
+//AL_FUNC(ALLEGRO_MOUSE_CURSOR *, al_create_mouse_cursor_old, (struct BITMAP *sprite, int xfocus, int yfocus));
+//AL_FUNC(ALLEGRO_MOUSE_CURSOR *, al_create_mouse_cursor, (struct ALLEGRO_BITMAP *sprite, int xfocus, int yfocus));
 AL_FUNC(void, al_destroy_mouse_cursor, (ALLEGRO_MOUSE_CURSOR *));
 AL_FUNC(bool, al_set_mouse_cursor, (ALLEGRO_MOUSE_CURSOR *cursor));
 AL_FUNC(bool, al_set_system_mouse_cursor, (ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id));
