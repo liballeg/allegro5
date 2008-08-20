@@ -55,8 +55,10 @@ To turn an option on use the form option=1. Possible options are:
 
 Help(allegroHelp())
 
+BUILD_DIR = "scons_build"
+
 # Generate build directory (since we put the signatures db there)
-try: os.mkdir("build")
+try: os.mkdir(BUILD_DIR)
 except OSError: pass
 
 majorVersion = '4'
@@ -75,18 +77,20 @@ def appendDir(directory, files):
 class AllegroContext:
     """This is simply a class to hold together all the various build info."""
 
-    def __init__(self, env):
+    def __init__(self):
         self.librarySource = []
         self.extraTargets = []
+        self.build_dir = BUILD_DIR
 
-	# Set in one of the scons/*.scons files
+        # Set in one of the scons/*.scons files
         self.installDir = "tmp"
         self.libDir = "lib/dummy"
+        self.optionsfile = BUILD_DIR + "/options.py"
 
-        self.libraryEnv = env
+        self.libraryEnv = self.defaultEnvironment()
 	
-	# Where md5 signatures are placed
-	self.sconsignFile = 'build/signatures'
+        # Where md5 signatures are placed
+        self.sconsignFile = BUILD_DIR + "/signatures"
 
         self.debug = int(self.getLibraryEnv()['debug'])
         self.static = int(self.getLibraryEnv()['static'])
@@ -263,28 +267,23 @@ class AllegroContext:
         else:
             return normalShared
 
-# Returns a function that takes a directory and a list of files
-# and returns a new list of files with a build directory prepended to it
-#def sourceFiles(d, files):
-#    return map(lambda x: d + '/' + x, files)
-
-def defaultEnvironment():
-    import os
-    env = Environment( ENV = os.environ )
-    if ARGUMENTS.get("mingw"):
-        Tool("mingw")(env)
-    opts = Options('options.py', ARGUMENTS)
-    opts.Add('static', 'Set Allegro to be built statically', 0)
-    opts.Add('debug', 'Build the debug version of Allegro', 0)
-    opts.Add('platform', 'Use a specific platform', "")
-    opts.Add('CC', 'Use a specific c compiler', env["CC"])
-    opts.Add('CXX', 'Use a specific c++ compiler', env["CXX"])
-    opts.Add('CFLAGS', 'Override compiler flags', env.get("CFLAGS", ""))
-    opts.Add('mingw', 'For using mingw', "")
-    opts.Update(env)
-    opts.Save('options.py', env)
-    Help(opts.GenerateHelpText(env))
-    return env
+    def defaultEnvironment(self):
+        import os
+        env = Environment(ENV = os.environ)
+        if ARGUMENTS.get("mingw"):
+            Tool("mingw")(env)
+        opts = Options(self.optionsfile, ARGUMENTS)
+        opts.Add('static', 'Set Allegro to be built statically', 0)
+        opts.Add('debug', 'Build the debug version of Allegro', 0)
+        opts.Add('platform', 'Use a specific platform', "")
+        opts.Add('CC', 'Use a specific c compiler', env["CC"])
+        opts.Add('CXX', 'Use a specific c++ compiler', env["CXX"])
+        opts.Add('CFLAGS', 'Override compiler flags', env.get("CFLAGS", ""))
+        opts.Add('mingw', 'For using mingw', "")
+        opts.Update(env)
+        opts.Save(self.optionsfile, env)
+        Help(opts.GenerateHelpText(env))
+        return env
 
 # Subsequent scons files can call addExtra to add arbitrary targets
 # that will be evaluated in this file
@@ -295,7 +294,7 @@ def defaultEnvironment():
 # files - list of files that compose the Allegro library
 # d - directory where the library( dll, so ) should end up
 def getAllegroContext():
-    context = AllegroContext(defaultEnvironment())
+    context = AllegroContext()
 
     context.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
 
@@ -317,8 +316,8 @@ def getAllegroContext():
 
 context = getAllegroContext()
 
-debugBuildDir = 'build/debug/' + context.getPlatform() + "/"
-optimizedBuildDir = 'build/release/' + context.getPlatform() + "/"
+debugBuildDir = BUILD_DIR + '/debug/' + context.getPlatform() + "/"
+optimizedBuildDir = BUILD_DIR + '/release/' + context.getPlatform() + "/"
 
 def getLibraryName(debug,static):
     if debug:
