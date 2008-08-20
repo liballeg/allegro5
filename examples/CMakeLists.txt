@@ -7,7 +7,7 @@ macro(example_cxx nm libs)
 endmacro(example_cxx nm libs)
 
 
-if(WANT_FONT)
+if(SUPPORT_FONT)
     include_directories(../addons/font)
     set(LIBS ${FONT_LINK_WITH} ${IIO_LINK_WITH})
     example(exnew_events ${LIBS})
@@ -16,10 +16,10 @@ if(WANT_FONT)
     example(exnew_blend ${LIBS})
     example(exnew_timer ${LIBS})
     example(exnew_windows ${LIBS})
-endif(WANT_FONT)
+endif(SUPPORT_FONT)
 
 
-if(WANT_IIO)
+if(SUPPORT_IIO)
     example(exnew_bitmap ${IIO_LINK_WITH})
     example(exnew_dualies ${IIO_LINK_WITH})
     example(exnew_fs_resize ${IIO_LINK_WITH})
@@ -30,7 +30,7 @@ if(WANT_IIO)
     example(exnew_multiwin ${IIO_LINK_WITH})
     example(exnew_scale ${IIO_LINK_WITH})
     example(exnew_noframe ${IIO_LINK_WITH})
-endif(WANT_IIO)
+endif(SUPPORT_IIO)
 
 
 example(exnew_drawpixels NOTHING)

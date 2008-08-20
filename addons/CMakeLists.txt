@@ -1,9 +1,11 @@
 if(WANT_IIO)
     add_subdirectory(iio)
     set(IIO_LINK_WITH ${IIO_LINK_WITH} PARENT_SCOPE)
+    set(SUPPORT_IIO 1 PARENT_SCOPE)
     if(WANT_FONT)
         add_subdirectory(font)
         set(FONT_LINK_WITH ${FONT_LINK_WITH} PARENT_SCOPE)
+        set(SUPPORT_FONT 1 PARENT_SCOPE)
     endif(WANT_FONT)
 endif(WANT_IIO)
 

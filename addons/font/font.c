@@ -27,6 +27,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/a5_font.h"
+#include "allegro5/a5_iio.h"
 
 
 #if 0
