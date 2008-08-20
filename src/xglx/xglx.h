@@ -107,10 +107,6 @@ void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s);
 void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
    ALLEGRO_DISPLAY_XGLX *d);
 
-/* compat */
-void _al_xglx_display_upload_compat_screen(BITMAP *bitmap,
-   int x, int y, int w, int h);
-
 /* glx_config */
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx);
 void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx);

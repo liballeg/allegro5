@@ -158,39 +158,32 @@ set(ALLEGRO_SRC_BEOS_FILES
     )
 
 set(ALLEGRO_SRC_LINUX_FILES
-    src/linux/fbcon.c
-    src/linux/lconsole.c
-    src/linux/lgfxdrv.c
-    src/linux/ljoynu.c
-    src/linux/lkeybdnu.c
-    src/linux/lmemory.c
-    src/linux/lmsedrv.c
-    src/linux/lmseev.c
-    src/linux/lsystem.c
-    src/linux/lvga.c
-    src/linux/lvgahelp.c
-    src/linux/svgalib.c
-    src/linux/svgalibs.s
-    src/linux/vtswitch.c
-    src/misc/vbeaf.c
-    src/misc/vbeafs.s
-    src/misc/vgaregs.c
-    src/misc/vga.c
-    src/misc/modex.c
-    src/misc/modexgfx.s
+#    src/linux/fbcon.c
+#    src/linux/lconsole.c
+#    src/linux/lgfxdrv.c
+#    src/linux/ljoynu.c
+#    src/linux/lkeybdnu.c
+#    src/linux/lmemory.c
+#    src/linux/lmsedrv.c
+#    src/linux/lmseev.c
+#    src/linux/lsystem.c
+#    src/linux/lvga.c
+#    src/linux/lvgahelp.c
+#    src/linux/svgalib.c
+#    src/linux/svgalibs.s
+#    src/linux/vtswitch.c
+#    src/misc/vbeaf.c
+#    src/misc/vbeafs.s
+#    src/misc/vgaregs.c
+#    src/misc/vga.c
+#    src/misc/modex.c
+#    src/misc/modexgfx.s
     )
 
 set(ALLEGRO_SRC_UNIX_FILES
-    src/unix/alsa5.c
-    src/unix/alsa9.c
-    src/unix/alsamidi.c
-    src/unix/arts.c
-    src/unix/jack.c
-    src/unix/sgial.c
     src/unix/udjgpp.c
     src/unix/udrvlist.c
     src/unix/udummy.c
-    src/unix/uesd.c
     src/unix/ufdwatch.c
     src/unix/ufile.c
     src/unix/ugfxdrv.c
@@ -199,9 +192,6 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/umain.c
     src/unix/umodules.c
     src/unix/umouse.c
-    src/unix/uoss.c
-    src/unix/uossmidi.c
-    src/unix/usnddrv.c
     src/unix/usystem.c
     src/unix/uthreads.c
     src/unix/utime.c
@@ -212,8 +202,6 @@ set(ALLEGRO_SRC_UNIX_FILES
 set(ALLEGRO_SRC_X_FILES
     src/x/xkeyboard.c
     src/x/xmousenu.c
-    src/x/xwin.c
-    src/xglx/xcompat.c
     src/xglx/xdisplay.c
     src/xglx/xfullscreen.c
     src/xglx/xglx_config.c

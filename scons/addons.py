@@ -5,7 +5,8 @@ def getOption(context, name, default = 0):
     except KeyError:
         return default
 
-def do_build(context,source,dir,name,examples = [],install_headers = [],includes = [],example_libs = [],configs = []):
+def do_build(context, source, dir, name, examples = [],
+    install_headers = [], includes = [], example_libs = [], configs = []):
     def build(env, appendDir, buildDir, libDir ):
         libEnv = env.Clone()
         libEnv.Append(CPPPATH = includes)

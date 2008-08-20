@@ -66,8 +66,8 @@ addons.do_build(
     name = 'a5_font',
     examples = [("ex", ["ex_font.c"])],
     install_headers = ['allegro5/a5_font.h'],
-    example_libs = [context.libraryName('a5_iio')]
-)
+    example_libs = [context.libraryName('a5_iio')],
+    includes = ["addons/iio"])
 
 x = True
 Return('x')

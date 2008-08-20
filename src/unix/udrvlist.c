@@ -15,6 +15,8 @@
  *      See readme.txt for copyright information.
  */
 
+// FIXME: will need to wire this back in
+#if 0
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
@@ -108,3 +110,4 @@ void _unix_register_midi_driver(int id, MIDI_DRIVER *driver, int autodetect, int
       _driver_list_append_driver(&_unix_midi_driver_list, id, driver, autodetect);
 }
 
+#endif

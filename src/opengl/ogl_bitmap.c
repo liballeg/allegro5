@@ -41,7 +41,6 @@ static const int glformats[][3] = {
    {GL_RGB8, GL_UNSIGNED_BYTE, GL_BGR}, /* RGB_888 */
    {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
    {0, 0, 0}, /* RGB_555 */ //FIXME: how?
-   {GL_INTENSITY, GL_UNSIGNED_BYTE, GL_COLOR_INDEX}, /* PALETTE_8 */
    {GL_RGB5_A1, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA}, /* RGBA_5551 */
    {0, 0, 0}, /* ARGB_1555 */ //FIXME: how?
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* ABGR_8888 */

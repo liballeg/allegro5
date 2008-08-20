@@ -5,8 +5,8 @@ addons.do_build(
     context = context,
     source = ["bmp.c", "iio.c", "pcx.c", "tga.c"],
     dir = 'iio',
-    name = 'a5_iio'
-#    install_headers = ['allegro5/iio.h']
+    name = 'a5_iio',
+    install_headers = ['allegro5/iio.h']
 )
 
 x = True

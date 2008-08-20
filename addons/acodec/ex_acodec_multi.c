@@ -21,7 +21,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   if (allegro_init())
+   if (al_init())
    {
        fprintf(stderr, "Could not init allegro\n");
        return 1;

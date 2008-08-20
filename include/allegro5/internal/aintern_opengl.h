@@ -2,7 +2,7 @@
 #define ALLEGRO_INTERNAL_OPENGL_NEW_H
 
 #include "allegro5/internal/aintern_bitmap.h"
-
+#include "allegro5/internal/aintern_display.h"
 
 typedef struct ALLEGRO_BITMAP_OGL
 {

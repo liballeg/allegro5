@@ -63,9 +63,6 @@ extern "C" {
    AL_VAR(_DRIVER_INFO *, _unix_midi_driver_list);
    AL_FUNC(void, _unix_driver_lists_init, (void));
    AL_FUNC(void, _unix_driver_lists_shutdown, (void));
-   AL_FUNC(void, _unix_register_gfx_driver, (int id, GFX_DRIVER *driver, int autodetect, int priority));
-   AL_FUNC(void, _unix_register_digi_driver, (int id, DIGI_DRIVER *driver, int autodetect, int priority));
-   AL_FUNC(void, _unix_register_midi_driver, (int id, MIDI_DRIVER *driver, int autodetect, int priority));
 
    /* Get size of a memory page in bytes */
    AL_FUNC(size_t, _unix_get_page_size, (void));
@@ -74,35 +71,11 @@ extern "C" {
 
    /* Get size of a memory page in bytes */
    AL_FUNC(size_t, _unix_get_page_size, (void));
-
 
 #ifdef ALLEGRO_WITH_XWINDOWS
    AL_ARRAY(_DRIVER_INFO, _xwin_gfx_driver_list);
    AL_ARRAY(_DRIVER_INFO, _al_xwin_keyboard_driver_list);
    AL_ARRAY(_DRIVER_INFO, _al_xwin_mouse_driver_list);
-
-   AL_FUNC(void, _xwin_handle_input, (void));
-   AL_FUNC(void, _xwin_private_handle_input, (void));
-
-   #define XLOCK()                              \
-      do {                                      \
-         _al_mutex_lock(&_xwin.mutex);		\
-         _xwin.lock_count++;                    \
-      } while (0)
-
-   #define XUNLOCK()                            \
-      do {                                      \
-         _al_mutex_unlock(&_xwin.mutex);	\
-         _xwin.lock_count--;                    \
-      } while (0)
-
-#endif
-
-
-#ifdef ALLEGRO_WITH_OSSDIGI
-   /* So the setup program can read what we detected */
-   AL_VAR(int, _oss_fragsize);
-   AL_VAR(int, _oss_numfrags);
 #endif
 
 

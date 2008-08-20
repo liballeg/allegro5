@@ -647,7 +647,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt->set_target_bitmap = _al_ogl_set_target_bitmap;
    xdpy_vt->is_compatible_bitmap = xdpy_is_compatible_bitmap;
    xdpy_vt->resize_display = xdpy_resize_display;
-   xdpy_vt->upload_compat_screen = _al_xglx_display_upload_compat_screen;
    xdpy_vt->show_cursor = xdpy_show_cursor;
    xdpy_vt->hide_cursor = xdpy_hide_cursor;
    xdpy_vt->set_icon = xdpy_set_icon;
