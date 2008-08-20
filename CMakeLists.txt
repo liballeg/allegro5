@@ -68,19 +68,21 @@ option(WANT_MAGIC_MAIN "Enable magic main" off)
 # Platforms and drivers.
 #
 
-option(WANT_LINUX_CONSOLE "Linux console support" on)
-option(WANT_FBCON "Enable framebuffer graphics driver (Linux)" on)
-option(WANT_SVGALIB "Enable SVGAlib graphics driver (Linux)" on)
-option(WANT_VGA "Enable VGA graphics driver (Linux)" on)
+# All A4 driver are disabled by default
+
+option(WANT_LINUX_CONSOLE "Linux console support" off)
+option(WANT_FBCON "Enable framebuffer graphics driver (Linux)" off)
+option(WANT_SVGALIB "Enable SVGAlib graphics driver (Linux)" off)
+option(WANT_VGA "Enable VGA graphics driver (Linux)" off)
 
 option(WANT_X11 "X11 support" on)
 
-option(WANT_ALSADIGI "Enable ALSA digital audio driver (Unix)" on)
-option(WANT_ALSAMIDI "Enable ALSA MIDI driver (Unix)" on)
-option(WANT_JACK "Enable JACK audio driver (Unix)" on)
-option(WANT_OSSDIGI "Enable OSS digital audio driver (Unix)" on)
-option(WANT_OSSMIDI "Enable OSS MIDI driver (Unix)" on)
-option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" on)
+option(WANT_ALSADIGI "Enable ALSA digital audio driver (Unix)" off)
+option(WANT_ALSAMIDI "Enable ALSA MIDI driver (Unix)" off)
+option(WANT_JACK "Enable JACK audio driver (Unix)" off)
+option(WANT_OSSDIGI "Enable OSS digital audio driver (Unix)" off)
+option(WANT_OSSMIDI "Enable OSS MIDI driver (Unix)" off)
+option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" off)
 
 option(WANT_A5_ALSA "Enable A5 ALSA digital audio driver (Unix)" on)
 

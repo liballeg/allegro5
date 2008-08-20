@@ -111,3 +111,4 @@ void _unix_register_midi_driver(int id, MIDI_DRIVER *driver, int autodetect, int
 }
 
 #endif
+
