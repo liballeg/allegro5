@@ -71,8 +71,6 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 
    bitmap = _AL_MALLOC(sizeof *bitmap);
 
-   memset(bitmap, 0, sizeof *bitmap);
-
    pitch = w * al_get_pixel_size(format);
 
    bitmap->format = format;
