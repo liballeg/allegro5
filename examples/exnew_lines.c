@@ -44,12 +44,12 @@ void red_dot(int x, int y)
 
 void draw_clip_rect(void)
 {
-   al_draw_rectangle(100, 100, W-100.5, H-100.5, black, 0);
+   al_draw_rectangle(100.5, 100.5, W - 100.5, H - 100.5, black, 0);
 }
 
 void my_set_clip_rect(void)
 {
-   al_set_clipping_rectangle(100, 100, W-200, H-200);
+   al_set_clipping_rectangle(100, 100, W - 200, H - 200);
 }
 
 void reset_clip_rect(void)

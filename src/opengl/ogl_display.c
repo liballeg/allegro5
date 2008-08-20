@@ -91,11 +91,8 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
 
    x_1 = bitmap->cl;
    y_1 = bitmap->ct;
-   /* In OpenGL, coordinates are the top-left corner of pixels, so we need
-    * to add one to the right and bottom edge.
-    */
-   x_2 = bitmap->cr + 1;
-   y_2 = bitmap->cb + 1;
+   x_2 = bitmap->cr;
+   y_2 = bitmap->cb;
 
    /* Drawing onto the sub bitmap is handled by clipping the parent. */
    if (bitmap->parent) {
