@@ -1,4 +1,5 @@
 import SCons
+import re
 
 def read_cmake_list(name):
     """
@@ -75,9 +76,10 @@ def readAutoHeader(filename):
 
 def parse_cmake_h(env, defines, src, dest):
     def parse_line(line):
-        import re
-        update = re.compile('\$\{([^}]*)\}')
-        line = update.sub(lambda m: str(defines[m.group(1)]), line)
+        # Replace cmake variables of the form ${variable}.
+        def substitute_variable(match):
+            return str(defines[match.group(1)])
+        line = re.sub(r"\$\{(.*?)\}", substitute_variable, line)
         m = re.compile('^#cmakedefine (.*)').match(line)
         if m:
             name = m.group(1)

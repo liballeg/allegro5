@@ -119,7 +119,8 @@ def demo(env,appendDir,buildDir,libDir):
        wave.cpp
     """);
     demoEnv.Append( LIBPATH = libDir )
-    demoEnv.Append( LIBS = [context.libraryName('a5_font')] )
+    demoEnv.Append( LIBS = [context.libraryName('a5_font')])
+    demoEnv.Append(LIBS = [context.libraryName('a5_iio')])
     demo = demoEnv.Program('demo/demo', appendDir(buildDir + '/demo/src', sources))
     Alias('demo', demo)
     return demo
@@ -130,6 +131,7 @@ def examples(env,appendDir,buildDir,libDir):
     exEnv.Append( CPPPATH = 'addons/font' )
     exEnv.BuildDir(buildDir + 'examples', 'examples', duplicate = 0)
     exEnv.Append(LIBS = [context.libraryName('a5_font')])
+    exEnv.Append(LIBS = [context.libraryName('a5_iio')])
     ## Add an example
     ## name - filename of example and also the alias of the target
     ## files - list of files associated with the example
@@ -183,15 +185,15 @@ def addons(env, appendDir, buildDir, libDir):
 def buildAddon(name):
     return SConscript( dirs = ['#addons/%s' % name],exports='context')
 
+buildAddon("iio")
 buildAddon('font')
 if buildAddon('audio'):
     buildAddon('acodec')
-buildAddon("iio")
 
 # addon_dirs = ['#addons/font','#addons/acodec','#addons/audio']
 # SConscript( dirs = addon_dirs, exports = 'context' )
 
-context.addExtra(demo)
+#context.addExtra(demo)
 context.addExtra(examples)
 # context.addExtra(addons)
 # context.addExtra(tools)

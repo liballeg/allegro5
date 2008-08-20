@@ -388,8 +388,9 @@ def XMove(env, target, source):
 # context.addLibrary(library)
 context.addLibrary('-l%s' % getLibraryName(context.getDebug(),context.getStatic()))
 
-docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
-Alias('docs', docs)
+# we don't use makedoc any longer
+#docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
+#Alias('docs', docs)
 
 SConscript("scons/naturaldocs.scons")
 
@@ -433,7 +434,7 @@ for et in context.getExtraTargets():
     extraTargets.append(make)
 
 extraTargets.append(plugins_h)
-Default(library, extraTargets, docs)
+Default(library, extraTargets)
 
 # Depends(library, extraTargets)
 
