@@ -32,7 +32,7 @@ static bool osx_keyboard_init(void);
 static void osx_keyboard_exit(void);
 static ALLEGRO_KEYBOARD* osx_get_keyboard(void);
 static ALLEGRO_KEYBOARD keyboard;
-static ALLEGRO_KBDSTATE kbdstate;
+static ALLEGRO_KEYBOARD_STATE kbdstate;
 
 static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, int modifiers) {
 	ALLEGRO_EVENT* event;
@@ -55,7 +55,7 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, i
 		}
 	}
    /* Maintain the kbdstate array. */
-   _AL_KBDSTATE_SET_KEY_DOWN(kbdstate, scancode);
+   _AL_KEYBOARD_STATE_SET_KEY_DOWN(kbdstate, scancode);
 	_al_event_source_unlock(&keyboard.es);	
 }
 static void _handle_key_release(ALLEGRO_DISPLAY* dpy, int scancode) {
@@ -77,7 +77,7 @@ static void _handle_key_release(ALLEGRO_DISPLAY* dpy, int scancode) {
 		}
 	}
    /* Maintain the kbdstate array. */
-   _AL_KBDSTATE_CLEAR_KEY_DOWN(kbdstate, scancode);
+   _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(kbdstate, scancode);
 	_al_event_source_unlock(&keyboard.es);
 }
 /* Mac keycode to Allegro scancode conversion table */
@@ -119,11 +119,11 @@ static const int mac_to_scancode[128] = {
 /* get_state:
  * Copy a snapshot of the keyboard state into the user's structure
  */
-static void get_state(ALLEGRO_KBDSTATE *ret_state)
+static void get_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 {
    _al_event_source_lock(&keyboard.es);
    {
-      memcpy(ret_state, &kbdstate, sizeof(ALLEGRO_KBDSTATE));
+      memcpy(ret_state, &kbdstate, sizeof(ALLEGRO_KEYBOARD_STATE));
    }
    _al_event_source_unlock(&keyboard.es);
 }
@@ -141,7 +141,7 @@ ALLEGRO_KEYBOARD_DRIVER keyboard_macosx =
 	osx_get_keyboard, // ALLEGRO_METHOD(ALLEGRO_KEYBOARD*, get_keyboard, (void));
 	NULL, // ALLEGRO_METHOD(bool, set_leds, (int leds));
 	NULL, // ALLEGRO_METHOD(AL_CONST char *, keycode_to_name, (int keycode));
-	get_state, // ALLEGRO_METHOD(void, get_state, (ALLEGRO_KBDSTATE *ret_state));
+	get_state, // ALLEGRO_METHOD(void, get_state, (ALLEGRO_KEYBOARD_STATE *ret_state));
 };
 _DRIVER_INFO _al_keyboard_driver_list[] =
 {

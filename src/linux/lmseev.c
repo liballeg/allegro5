@@ -46,7 +46,7 @@ typedef struct AL_MOUSE_EVDEV
 {
    ALLEGRO_MOUSE parent;
    int fd;
-   ALLEGRO_MSESTATE state;
+   ALLEGRO_MOUSE_STATE state;
 } AL_MOUSE_EVDEV;
 
 
@@ -752,7 +752,7 @@ static bool mouse_set_mouse_range(int x1, int y1, int x2, int y2)
 /* mouse_get_state:
  *  Copy the current mouse state into RET_STATE, with any necessary locking.
  */
-static void mouse_get_state(ALLEGRO_MSESTATE *ret_state)
+static void mouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
    _al_event_source_lock(&the_mouse.parent.es);
    {

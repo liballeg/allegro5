@@ -29,7 +29,7 @@
 #endif
 
 typedef struct ALLEGRO_MOUSE AL_MOUSE;
-typedef struct ALLEGRO_MSESTATE AL_MSESTATE;
+typedef struct ALLEGRO_MOUSE_STATE AL_MOUSE_STATE;
 
 static bool osx_init_mouse(void);
 static void osx_mouse_exit(void);
@@ -42,7 +42,7 @@ static unsigned int osx_get_mouse_num_buttons(void);
 static unsigned int osx_get_mouse_num_axes(void);
 static bool osx_set_mouse_axis(int axis, int value);
 static ALLEGRO_MOUSE* osx_get_mouse(void);
-static void osx_get_state(ALLEGRO_MSESTATE *ret_state);
+static void osx_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 
 /* Mouse info - includes extra info for OS X */
 static struct {
@@ -50,7 +50,7 @@ static struct {
 	unsigned int button_count;
 	unsigned int axis_count;
 	int minx, miny, maxx, maxy;
-	ALLEGRO_MSESTATE state;
+	ALLEGRO_MOUSE_STATE state;
 	float z_axis, w_axis;
 	BOOL captured;
 	NSCursor* cursor;
@@ -220,7 +220,7 @@ static bool osx_init_mouse(void)
 	_al_event_source_init(&osx_mouse.parent.es);
 	osx_mouse.button_count = buttons;
 	osx_mouse.axis_count = axes;
-	memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MSESTATE));
+	memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MOUSE_STATE));
    _al_osx_mouse_was_installed(YES);
 	return TRUE;
 }
@@ -324,10 +324,10 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
 	return 0;
 }
 
-static void osx_get_mouse_state(ALLEGRO_MSESTATE *ret_state)
+static void osx_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
 	_al_event_source_lock(&osx_mouse.parent.es);
-	memcpy(ret_state, &osx_mouse.state, sizeof(ALLEGRO_MSESTATE));
+	memcpy(ret_state, &osx_mouse.state, sizeof(ALLEGRO_MOUSE_STATE));
 	_al_event_source_unlock(&osx_mouse.parent.es);
 }
 
@@ -368,7 +368,7 @@ static ALLEGRO_MOUSE_DRIVER osx_mouse_driver =
    NULL, //AL_METHOD(bool, set_mouse_xy, (int x, int y));
    osx_set_mouse_axis, //AL_METHOD(bool, set_mouse_axis, (int which, int value));
    NULL, //AL_METHOD(bool, set_mouse_range, (int x1, int y1, int x2, int y2));
-   osx_get_mouse_state, //AL_METHOD(void, get_mouse_state, (ALLEGRO_MSESTATE *ret_state));
+   osx_get_mouse_state, //AL_METHOD(void, get_mouse_state, (ALLEGRO_MOUSE_STATE *ret_state));
 };
 ALLEGRO_MOUSE_DRIVER* osx_get_mouse_driver(void)
 {

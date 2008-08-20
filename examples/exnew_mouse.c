@@ -5,8 +5,8 @@ int main(void)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *cursor;
-   ALLEGRO_MSESTATE msestate;
-   ALLEGRO_KBDSTATE kbdstate;
+   ALLEGRO_MOUSE_STATE msestate;
+   ALLEGRO_KEYBOARD_STATE kbdstate;
 
    al_init();
    al_install_mouse();

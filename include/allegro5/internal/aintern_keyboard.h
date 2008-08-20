@@ -15,7 +15,7 @@ typedef struct ALLEGRO_KEYBOARD_DRIVER
    AL_METHOD(ALLEGRO_KEYBOARD*, get_keyboard, (void));
    AL_METHOD(bool, set_keyboard_leds, (int leds));
    AL_METHOD(const char *, keycode_to_name, (int keycode));
-   AL_METHOD(void, get_keyboard_state, (ALLEGRO_KBDSTATE *ret_state));
+   AL_METHOD(void, get_keyboard_state, (ALLEGRO_KEYBOARD_STATE *ret_state));
 } ALLEGRO_KEYBOARD_DRIVER;
 
 
@@ -30,19 +30,19 @@ struct ALLEGRO_KEYBOARD
 };
 
 
-/* Helpers for AL_KBDSTATE structures.  */
+/* Helpers for AL_KEYBOARD_STATE structures.  */
 
-#define _AL_KBDSTATE_KEY_DOWN(STATE, KEYCODE)                                  \
-   (((STATE).__key_down__internal__[(KEYCODE) / 32] & (1 << ((KEYCODE) % 32))) \
+#define _AL_KEYBOARD_STATE_KEY_DOWN(STATE, KEYCODE)                     \
+   (((STATE).__key_down__internal__[(KEYCODE) / 32] & (1 << ((KEYCODE) % 32)))\
     ? true : false)
 
-#define _AL_KBDSTATE_SET_KEY_DOWN(STATE, KEYCODE)                       \
+#define _AL_KEYBOARD_STATE_SET_KEY_DOWN(STATE, KEYCODE)                 \
    do {                                                                 \
       int kc = (KEYCODE);                                               \
       (STATE).__key_down__internal__[kc / 32] |= (1 << (kc % 32));      \
    } while (0)
 
-#define _AL_KBDSTATE_CLEAR_KEY_DOWN(STATE, KEYCODE)                     \
+#define _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(STATE, KEYCODE)               \
    do {                                                                 \
       int kc = (KEYCODE);                                               \
       (STATE).__key_down__internal__[kc / 32] &= ~(1 << (kc % 32));     \

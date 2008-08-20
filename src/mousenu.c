@@ -244,7 +244,7 @@ bool al_set_mouse_range(int x1, int y1, int x2, int y2)
  *  Save the state of the mouse specified at the time the function
  *  is called into the structure pointed to by RET_STATE.
  */
-void al_get_mouse_state(ALLEGRO_MSESTATE *ret_state)
+void al_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
    ASSERT(new_mouse_driver);
    ASSERT(ret_state);
@@ -257,7 +257,7 @@ void al_get_mouse_state(ALLEGRO_MSESTATE *ret_state)
 /* Function: al_get_state_axis
  *  Extract the mouse axis value from the saved state.
  */
-int al_mouse_state_axis(ALLEGRO_MSESTATE *ret_state, int axis)
+int al_mouse_state_axis(ALLEGRO_MOUSE_STATE *ret_state, int axis)
 {
    ASSERT(ret_state);
    ASSERT(axis >= 0);
@@ -283,7 +283,7 @@ int al_mouse_state_axis(ALLEGRO_MSESTATE *ret_state, int axis)
  *  Return true if the mouse button specified was held down in the state
  *  specified.
  */
-bool al_mouse_button_down(ALLEGRO_MSESTATE *state, int button)
+bool al_mouse_button_down(ALLEGRO_MOUSE_STATE *state, int button)
 {
    ASSERT(state);
    ASSERT(button > 0);

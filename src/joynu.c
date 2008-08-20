@@ -346,7 +346,7 @@ const char *al_get_joystick_button_name(const ALLEGRO_JOYSTICK *joy, int button)
 /* Function: al_get_joystick_state
  *  Get the current joystick state.
  */
-void al_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTATE *ret_state)
+void al_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state)
 {
    ASSERT(new_joystick_driver);
    ASSERT(joy);

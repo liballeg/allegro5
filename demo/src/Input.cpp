@@ -9,8 +9,8 @@ ALLEGRO_JOYSTICK *joystick = 0;
 
 Input::Input()
 {
-   memset(&kbdstate, 0, sizeof(ALLEGRO_KBDSTATE));
-   memset(&joystate, 0, sizeof(ALLEGRO_JOYSTATE));
+   memset(&kbdstate, 0, sizeof(ALLEGRO_KEYBOARD_STATE));
+   memset(&joystate, 0, sizeof(ALLEGRO_JOYSTICK_STATE));
 }
 
 Input::~Input()

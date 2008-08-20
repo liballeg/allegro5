@@ -15,7 +15,7 @@ typedef struct Point
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
-   ALLEGRO_KBDSTATE key_state;
+   ALLEGRO_KEYBOARD_STATE key_state;
    Point stars[3][NUM_STARS/3];
    float speeds[3] = { 0.0001f, 0.05f, 0.15f };
    ALLEGRO_COLOR colors[3];

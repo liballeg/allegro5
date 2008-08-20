@@ -129,7 +129,7 @@ void splat(const int x, const int y, bool blend)
 int main(void)
 {
    ALLEGRO_EVENT event;
-   ALLEGRO_KBDSTATE kst;
+   ALLEGRO_KEYBOARD_STATE kst;
    bool blend;
 
    al_init();

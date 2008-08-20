@@ -56,7 +56,7 @@ typedef struct ALLEGRO_JOYSTICK_LINUX
    ALLEGRO_JOYSTICK parent;
    int fd;
    AXIS_MAPPING axis_mapping[TOTAL_JOYSTICK_AXES];
-   ALLEGRO_JOYSTATE joystate;
+   ALLEGRO_JOYSTICK_STATE joystate;
 } ALLEGRO_JOYSTICK_LINUX;
 
 
@@ -67,7 +67,7 @@ static void ljoy_exit_joystick(void);
 static int ljoy_num_joysticks(void);
 static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num);
 static void ljoy_release_joystick(ALLEGRO_JOYSTICK *joy_);
-static void ljoy_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTATE *ret_state);
+static void ljoy_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTICK_STATE *ret_state);
 
 static void ljoy_process_new_data(void *data);
 static void ljoy_generate_axis_event(ALLEGRO_JOYSTICK_LINUX *joy, int stick, int axis, float pos);
@@ -367,7 +367,7 @@ static void ljoy_release_joystick(ALLEGRO_JOYSTICK *joy_)
  *
  *  Copy the internal joystick state to a user-provided structure.
  */
-static void ljoy_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTATE *ret_state)
+static void ljoy_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTICK_STATE *ret_state)
 {
    ALLEGRO_JOYSTICK_LINUX *joy = (ALLEGRO_JOYSTICK_LINUX *) joy_;
 

@@ -26,7 +26,7 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_DIRECT3D);
    display = al_create_display(640, 480);
 
-   ALLEGRO_KBDSTATE state;
+   ALLEGRO_KEYBOARD_STATE state;
 
    IDirect3DDevice9 *d3dd = al_d3d_get_device(display);
 

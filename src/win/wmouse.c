@@ -44,7 +44,7 @@
 typedef struct AL_MOUSE_DIRECTX
 {
    ALLEGRO_MOUSE parent;
-   ALLEGRO_MSESTATE state;
+   ALLEGRO_MOUSE_STATE state;
    int min_x, min_y;
    int max_x, max_y;
 } AL_MOUSE_DIRECTX;
@@ -67,7 +67,7 @@ static unsigned int mouse_directx_get_mouse_num_axes(void);
 static bool mouse_directx_set_mouse_xy(int x, int y);
 static bool mouse_directx_set_mouse_axis(int which, int z);
 static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2);
-static void mouse_directx_get_state(ALLEGRO_MSESTATE *ret_state);
+static void mouse_directx_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 
 static void generate_mouse_event(unsigned int type,
                                  int x, int y, int z,
@@ -1025,7 +1025,7 @@ static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2)
 /* mouse_directx_get_state:
  *  Copy the current mouse state into RET_STATE, with any necessary locking.
  */
-static void mouse_directx_get_state(ALLEGRO_MSESTATE *ret_state)
+static void mouse_directx_get_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
    ASSERT(mouse_directx_installed);
 

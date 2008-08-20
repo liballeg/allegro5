@@ -62,7 +62,7 @@ static int key_scancode_to_repeat;
 
 /* the one and only keyboard object and its internal state */
 static ALLEGRO_KEYBOARD the_keyboard;
-static ALLEGRO_KBDSTATE key_state;
+static ALLEGRO_KEYBOARD_STATE key_state;
 
 
 
@@ -552,7 +552,7 @@ static int key_dinput_init(void)
 static bool wkeybd_init_keyboard(void);
 static void wkeybd_exit_keyboard(void);
 static ALLEGRO_KEYBOARD *wkeybd_get_keyboard(void);
-static void wkeybd_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state);
+static void wkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state);
 
 
 
@@ -633,7 +633,7 @@ static ALLEGRO_KEYBOARD *wkeybd_get_keyboard(void)
 /* wkeybd_get_keyboard_state: [primary thread]
  *  Copy the current keyboard state into RET_STATE, with any necessary locking.
  */
-static void wkeybd_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state)
+static void wkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 {
    _al_event_source_lock(&the_keyboard.es);
    {
@@ -747,10 +747,10 @@ static void handle_key_press(unsigned char scancode)
       unicode = 0;
    }
 
-   is_repeat = _AL_KBDSTATE_KEY_DOWN(key_state, mycode);
+   is_repeat = _AL_KEYBOARD_STATE_KEY_DOWN(key_state, mycode);
 
    /* Maintain the key_down array. */
-   _AL_KBDSTATE_SET_KEY_DOWN(key_state, mycode);
+   _AL_KEYBOARD_STATE_SET_KEY_DOWN(key_state, mycode);
 
    /* Generate key press/repeat events if necessary. */   
    event_type = is_repeat ? ALLEGRO_EVENT_KEY_REPEAT : ALLEGRO_EVENT_KEY_DOWN;
@@ -801,11 +801,11 @@ static void handle_key_release(unsigned char scancode)
       update_modifiers(keystate);
    }
 
-   if (!_AL_KBDSTATE_KEY_DOWN(key_state, mycode))
+   if (!_AL_KEYBOARD_STATE_KEY_DOWN(key_state, mycode))
       return;
 
    /* Maintain the key_down array. */
-   _AL_KBDSTATE_CLEAR_KEY_DOWN(key_state, mycode);
+   _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(key_state, mycode);
 
    /* Stop autorepeating if the key to autorepeat was just released. */
    if (scancode == key_scancode_to_repeat) {

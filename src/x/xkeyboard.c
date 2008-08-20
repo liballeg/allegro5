@@ -815,7 +815,7 @@ static void x_keyboard_exit(void)
 typedef struct ALLEGRO_KEYBOARD_XWIN
 {
    ALLEGRO_KEYBOARD parent;
-   ALLEGRO_KBDSTATE state;
+   ALLEGRO_KEYBOARD_STATE state;
 } ALLEGRO_KEYBOARD_XWIN;
 
 
@@ -831,7 +831,7 @@ static void xkeybd_exit_keyboard(void);
 static ALLEGRO_KEYBOARD *xkeybd_get_keyboard(void);
 static bool xkeybd_set_keyboard_leds(int leds);
 static AL_CONST char *xkeybd_keycode_to_name(int keycode);
-static void xkeybd_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state);
+static void xkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state);
 
 
 
@@ -931,7 +931,7 @@ static AL_CONST char *xkeybd_keycode_to_name(int keycode)
 /* xkeybd_get_keyboard_state:
  *  Copy the current keyboard state into RET_STATE, with any necessary locking.
  */
-static void xkeybd_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state)
+static void xkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 {
    _al_event_source_lock(&the_keyboard.parent.es);
    {
@@ -961,7 +961,7 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
    _al_event_source_lock(&the_keyboard.parent.es);
    {
       /* Update the key_down array.  */
-      _AL_KBDSTATE_SET_KEY_DOWN(the_keyboard.state, mycode);
+      _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_keyboard.state, mycode);
 
       /* Generate the press event if necessary. */
       type = is_repeat ? ALLEGRO_EVENT_KEY_REPEAT : ALLEGRO_EVENT_KEY_DOWN;
@@ -1007,7 +1007,7 @@ static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display)
    _al_event_source_lock(&the_keyboard.parent.es);
    {
       /* Update the key_down array.  */
-      _AL_KBDSTATE_CLEAR_KEY_DOWN(the_keyboard.state, mycode);
+      _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_keyboard.state, mycode);
 
       /* Generate the release event if necessary. */
       if ((_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) &&

@@ -31,7 +31,7 @@
 typedef struct ALLEGRO_MOUSE_XWIN
 {
    ALLEGRO_MOUSE parent;
-   ALLEGRO_MSESTATE state;
+   ALLEGRO_MOUSE_STATE state;
    int min_x, min_y;
    int max_x, max_y;
 } ALLEGRO_MOUSE_XWIN;
@@ -54,7 +54,7 @@ static unsigned int xmouse_get_mouse_num_axes(void);
 static bool xmouse_set_mouse_xy(int x, int y);
 static bool xmouse_set_mouse_axis(int which, int z);
 static bool xmouse_set_mouse_range(int x1, int y1, int x2, int y2);
-static void xmouse_get_state(ALLEGRO_MSESTATE *ret_state);
+static void xmouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 
 static void wheel_motion_handler(int dz, ALLEGRO_DISPLAY *display);
 static int x_button_to_wheel(unsigned int x_button);
@@ -247,7 +247,7 @@ static bool xmouse_set_mouse_range(int x1, int y1, int x2, int y2)
 /* xmouse_get_state:
  *  Copy the current mouse state into RET_STATE, with any necessary locking.
  */
-static void xmouse_get_state(ALLEGRO_MSESTATE *ret_state)
+static void xmouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
    ASSERT(xmouse_installed);
 

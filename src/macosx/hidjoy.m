@@ -23,7 +23,7 @@
 #endif                
 
 typedef struct AL_JOYSTICK AL_JOYSTICK;
-typedef struct AL_JOYSTATE AL_JOYSTATE;
+typedef struct AL_JOYSTICK_STATE AL_JOYSTICK_STATE;
 typedef struct ALLEGRO_JOYSTICK_DRIVER AL_JOYSTICK_DRIVER;
 
 static bool init_joystick(void);
@@ -32,7 +32,7 @@ static int poll(void);
 static int count_joysticks(void);
 static ALLEGRO_JOYSTICK* get_joystick(int);
 static void release_joystick(ALLEGRO_JOYSTICK*);
-static void get_state(ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTATE*);
+static void get_state(ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTICK_STATE*);
 
 /* Driver table */
 ALLEGRO_JOYSTICK_DRIVER joystick_hid = {
@@ -45,7 +45,7 @@ ALLEGRO_JOYSTICK_DRIVER joystick_hid = {
 	count_joysticks,	// AL_METHOD(int, num_joysticks, (void));
 	get_joystick,        // AL_METHOD(ALLEGRO_JOYSTICK*, get_joystick, (int joyn));
 	release_joystick, 	// AL_METHOD(void, release_joystick, (ALLEGRO_JOYSTICK*));
-	get_state, 		// AL_METHOD(void, get_state, (ALLEGRO_JOYSTICK*, AL_JOYSTATE *ret_state));
+	get_state, 		// AL_METHOD(void, get_state, (ALLEGRO_JOYSTICK*, AL_JOYSTICK_STATE *ret_state));
 };
 
 
@@ -327,7 +327,7 @@ void release_joystick(ALLEGRO_JOYSTICK* joy)
 /* get_state:
 * Get the current status of a joystick
 */
-void get_state(ALLEGRO_JOYSTICK* joy, ALLEGRO_JOYSTATE* state)
+void get_state(ALLEGRO_JOYSTICK* joy, ALLEGRO_JOYSTICK_STATE* state)
 {
 }
 

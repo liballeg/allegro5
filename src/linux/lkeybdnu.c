@@ -65,7 +65,7 @@ typedef struct ALLEGRO_KEYBOARD_LINUX
    struct termios startup_termio;
    struct termios work_termio;
    int startup_kbmode;
-   ALLEGRO_KBDSTATE state;
+   ALLEGRO_KEYBOARD_STATE state;
    unsigned int modifiers;
 } ALLEGRO_KEYBOARD_LINUX;
 
@@ -84,7 +84,7 @@ static bool lkeybd_init_keyboard(void);
 static void lkeybd_exit_keyboard(void);
 static ALLEGRO_KEYBOARD *lkeybd_get_keyboard(void);
 static bool lkeybd_set_keyboard_leds(int leds);
-static void lkeybd_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state);
+static void lkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state);
 
 static void process_new_data(void *unused);
 static void process_character(unsigned char ch);
@@ -431,7 +431,7 @@ static bool lkeybd_set_keyboard_leds(int leds)
 /* lkeybd_get_keyboard_state: [primary thread]
  *  Copy the current keyboard state into RET_STATE, with any necessary locking.
  */
-static void lkeybd_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state)
+static void lkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 {
    _al_event_source_lock(&the_keyboard.parent.es);
    {
@@ -544,12 +544,12 @@ static void handle_key_press(int mycode, unsigned int ascii)
    ALLEGRO_EVENT_TYPE event_type;
    ALLEGRO_EVENT *event;
 
-   event_type = (_AL_KBDSTATE_KEY_DOWN(the_keyboard.state, mycode)
+   event_type = (_AL_KEYBOARD_STATE_KEY_DOWN(the_keyboard.state, mycode)
                  ? ALLEGRO_EVENT_KEY_REPEAT
                  : ALLEGRO_EVENT_KEY_DOWN);
    
    /* Maintain the key_down array. */
-   _AL_KBDSTATE_SET_KEY_DOWN(the_keyboard.state, mycode);
+   _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_keyboard.state, mycode);
 
    /* Generate key press/repeat events if necessary. */   
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es))
@@ -581,11 +581,11 @@ static void handle_key_release(int mycode)
    /* This can happen, e.g. when we are switching back into a VT with
     * ALT+Fn, we only get the release event of the function key.
     */
-   if (!_AL_KBDSTATE_KEY_DOWN(the_keyboard.state, mycode))
+   if (!_AL_KEYBOARD_STATE_KEY_DOWN(the_keyboard.state, mycode))
       return;
 
    /* Maintain the key_down array. */
-   _AL_KBDSTATE_CLEAR_KEY_DOWN(the_keyboard.state, mycode);
+   _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_keyboard.state, mycode);
 
    /* Generate key release events if necessary. */
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es))

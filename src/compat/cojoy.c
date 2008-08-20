@@ -229,10 +229,10 @@ void remove_joystick(void)
 
 
 /* convert_joystick_state:
- *  Stores the information in a ALLEGRO_JOYSTATE structure into an
+ *  Stores the information in a ALLEGRO_JOYSTICK_STATE structure into an
  *  older-style JOYSTICK_INFO structure.
  */
-static void convert_joystick_state(JOYSTICK_INFO *old_info, ALLEGRO_JOYSTATE *state)
+static void convert_joystick_state(JOYSTICK_INFO *old_info, ALLEGRO_JOYSTICK_STATE *state)
 {
    int axis, i, j;
 
@@ -273,7 +273,7 @@ static void convert_joystick_state(JOYSTICK_INFO *old_info, ALLEGRO_JOYSTATE *st
  */
 int poll_joystick()
 {
-   ALLEGRO_JOYSTATE state;
+   ALLEGRO_JOYSTICK_STATE state;
    int c;
 
    if (!_joystick_installed)

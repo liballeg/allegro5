@@ -35,7 +35,7 @@ typedef struct ALLEGRO_KEYBOARD ALLEGRO_KEYBOARD;
 
 
 
-/* Type: ALLEGRO_KBDSTATE
+/* Type: ALLEGRO_KEYBOARD_STATE
  *  This is a structure that is used to hold a "snapshot" of a keyboard's
  *  state at a particular instant.  It contains the following publically
  *  readable fields:
@@ -47,7 +47,7 @@ typedef struct ALLEGRO_KEYBOARD ALLEGRO_KEYBOARD;
  *  You cannot read the state of keys directly.  Use the function
  *  <al_key_down>.
  */
-typedef struct ALLEGRO_KBDSTATE
+typedef struct ALLEGRO_KEYBOARD_STATE
 {
    struct ALLEGRO_DISPLAY *display;  /* public */
    unsigned int __key_down__internal__[4]; /* internal */
@@ -55,7 +55,7 @@ typedef struct ALLEGRO_KBDSTATE
 #if AL_KEY_MAX >= (32 * 4)
 # error __key_down__internal__ array not big enough for AL_KEY_MAX
 #endif
-} ALLEGRO_KBDSTATE;
+} ALLEGRO_KEYBOARD_STATE;
 
 
 
@@ -67,8 +67,8 @@ AL_FUNC(bool,         al_set_keyboard_leds,  (int leds));
 
 AL_FUNC(AL_CONST char *, al_keycode_to_name, (int keycode));
 
-AL_FUNC(void,         al_get_keyboard_state, (ALLEGRO_KBDSTATE *ret_state));
-AL_FUNC(bool,         al_key_down,           (const ALLEGRO_KBDSTATE *, int keycode));
+AL_FUNC(void,         al_get_keyboard_state, (ALLEGRO_KEYBOARD_STATE *ret_state));
+AL_FUNC(bool,         al_key_down,           (const ALLEGRO_KEYBOARD_STATE *, int keycode));
 
 /* TODO: use the config system */
 AL_VAR(bool, _al_three_finger_flag);

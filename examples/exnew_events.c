@@ -202,7 +202,7 @@ void draw_mouse_pos(int x, int y, int z, int w)
 
 
 
-void draw_joystick_axes(ALLEGRO_JOYSTATE *jst)
+void draw_joystick_axes(ALLEGRO_JOYSTICK_STATE *jst)
 {
    float joys_x;
    float joys_y;
@@ -236,7 +236,7 @@ void draw_joystick_button(int button, bool down)
 
 
 
-void draw_joystick_buttons(int num_buttons, ALLEGRO_JOYSTATE *jst)
+void draw_joystick_buttons(int num_buttons, ALLEGRO_JOYSTICK_STATE *jst)
 {
    int i;
 
@@ -249,9 +249,9 @@ void draw_joystick_buttons(int num_buttons, ALLEGRO_JOYSTATE *jst)
 
 void draw_all(void)
 {
-   ALLEGRO_MSESTATE mst;
+   ALLEGRO_MOUSE_STATE mst;
    ALLEGRO_JOYSTICK *joy;
-   ALLEGRO_JOYSTATE jst;
+   ALLEGRO_JOYSTICK_STATE jst;
    int num_buttons;
 
    /* Clear the screen. */

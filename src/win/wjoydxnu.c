@@ -39,12 +39,12 @@
  *
  * 3. The background thread waits upon the win32 Events/Waitable Timer
  * objects.  When one of them is triggered, the thread wakes up and
- * reads in buffered joystick events.  An internal ALLEGRO_JOYSTATE
+ * reads in buffered joystick events.  An internal ALLEGRO_JOYSTICK_STATE
  * structure (part of ALLEGRO_JOYSTICK_DIRECTX) is updated accordingly.
  * Also, any Allegro events are generated if necessary.
  *
  * 4. When the user calls al_get_joystick_state() the contents of the
- * internal ALLEGRO_JOYSTATE structure are copied to a user ALLEGRO_JOYSTATE
+ * internal ALLEGRO_JOYSTICK_STATE structure are copied to a user ALLEGRO_JOYSTICK_STATE
  * structure.
  */
 
@@ -86,7 +86,7 @@
 /* arbitrary limit to make life easier; this was the limit in Allegro 4.1.x */
 #define MAX_JOYSTICKS        8
 
-/* these limits are from DIJOYSTATE in dinput.h */
+/* these limits are from DIJOYSTICK_STATE in dinput.h */
 #define MAX_SLIDERS          2
 #define MAX_POVS             4
 #define MAX_BUTTONS          32
@@ -122,7 +122,7 @@ typedef struct ALLEGRO_JOYSTICK_DIRECTX {
    CAPS_AND_NAMES caps_and_names;
 
    bool gotten;
-   ALLEGRO_JOYSTATE joystate;
+   ALLEGRO_JOYSTICK_STATE joystate;
 
    LPDIRECTINPUTDEVICE2 device;
 
@@ -144,7 +144,7 @@ static void joydx_exit_joystick(void);
 static int joydx_get_num_joysticks(void);
 static ALLEGRO_JOYSTICK *joydx_get_joystick(int num);
 static void joydx_release_joystick(ALLEGRO_JOYSTICK *joy);
-static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTATE *ret_state);
+static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state);
 
 static void joydx_thread_proc(LPVOID unused);
 static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy);
@@ -850,7 +850,7 @@ static void joydx_release_joystick(ALLEGRO_JOYSTICK *joy_)
 /* joydx_get_joystick_state: [primary thread]
  *  Copy the internal joystick state to a user-provided structure.
  */
-static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTATE *ret_state)
+static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTICK_STATE *ret_state)
 {
    ALLEGRO_JOYSTICK_DIRECTX *joy = (ALLEGRO_JOYSTICK_DIRECTX *)joy_;
 
@@ -903,7 +903,7 @@ static void joydx_thread_proc(LPVOID unused)
 
 /* update_joystick: [joystick thread]
  *  Reads in data for a single DirectInput joystick device, updates
- *  the internal ALLEGRO_JOYSTATE structure, and generates any Allegro
+ *  the internal ALLEGRO_JOYSTICK_STATE structure, and generates any Allegro
  *  events required.
  */
 static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)

@@ -17,7 +17,7 @@ typedef struct ALLEGRO_JOYSTICK_DRIVER
    AL_METHOD(int, num_joysticks, (void));
    AL_METHOD(ALLEGRO_JOYSTICK*, get_joystick, (int joyn));
    AL_METHOD(void, release_joystick, (ALLEGRO_JOYSTICK*));
-   AL_METHOD(void, get_joystick_state, (ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTATE *ret_state));
+   AL_METHOD(void, get_joystick_state, (ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTICK_STATE *ret_state));
 } ALLEGRO_JOYSTICK_DRIVER;
 
 

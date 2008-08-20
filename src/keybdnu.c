@@ -219,7 +219,7 @@ const char *al_keycode_to_name(int keycode)
  *  Save the state of the keyboard specified at the time the function
  *  is called into the structure pointed to by RET_STATE.
  */
-void al_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state)
+void al_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 {
    ASSERT(new_keyboard_driver);
    ASSERT(ret_state);
@@ -233,9 +233,9 @@ void al_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state)
  *  Return true if the key specified was held down in the state
  *  specified.
  */
-bool al_key_down(const ALLEGRO_KBDSTATE *state, int keycode)
+bool al_key_down(const ALLEGRO_KEYBOARD_STATE *state, int keycode)
 {
-   return _AL_KBDSTATE_KEY_DOWN(*state, keycode);
+   return _AL_KEYBOARD_STATE_KEY_DOWN(*state, keycode);
 }
 
 
