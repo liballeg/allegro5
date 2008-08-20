@@ -26,6 +26,7 @@ typedef struct ThreadInfo {
    ALLEGRO_MUTEX *mutex;
    ALLEGRO_COND *cond;
    bool is_paused;
+   double target_x, target_y;
 } ThreadInfo;
 
 typedef struct Viewport {
@@ -33,6 +34,7 @@ typedef struct Viewport {
    double centre_y;
    double x_extent;
    double y_extent;
+   double zoom;
 } Viewport;
 
 ThreadInfo thread_info[NUM_THREADS];
@@ -46,9 +48,8 @@ double cabs2(double re, double im)
 }
 
 
-int mandel(double cre, double cim)
+int mandel(double cre, double cim, int MAX_ITER)
 {
-   const int MAX_ITER = 512;
    const float Z_MAX2 = 4.0;
    double zre = cre, zim = cim;
    int iter;
@@ -96,6 +97,7 @@ void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
    double re;
    int w, h;
    int x;
+   int n = 512 / pow(2, viewport->zoom);
 
    w = al_get_bitmap_width(bitmap);
    h = al_get_bitmap_height(bitmap);
@@ -106,18 +108,18 @@ void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
       return;
    }
 
-   xlower = viewport->centre_x - viewport->x_extent / 2.0;
-   ylower = viewport->centre_y - viewport->y_extent / 2.0;
-   xscale = viewport->x_extent / w;
-   yscale = viewport->y_extent / h;
+   xlower = viewport->centre_x - viewport->x_extent / 2.0 * viewport->zoom;
+   ylower = viewport->centre_y - viewport->y_extent / 2.0 * viewport->zoom;
+   xscale = viewport->x_extent / w * viewport->zoom;
+   yscale = viewport->y_extent / h * viewport->zoom;
 
    re = xlower;
    im = ylower + y * yscale;
    rgb = lr.data;
 
    for (x = 0; x < w; x++) {
-      int i = mandel(re, im);
-      int v = sin_lut[i/8];
+      int i = mandel(re, im, n);
+      int v = sin_lut[(int)(i * 64 / n)];
 
       rgb[0] = palette[v][0];
       rgb[1] = palette[v][1];
@@ -143,10 +145,13 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    w = al_get_bitmap_width(info->bitmap);
    h = al_get_bitmap_height(info->bitmap);
 
-   viewport.centre_x = -0.5;
-   viewport.centre_y = 0.0;
+   viewport.centre_x = info->target_x;
+   viewport.centre_y = info->target_y;
    viewport.x_extent = 3.0;
    viewport.y_extent = 3.0;
+   viewport.zoom = 1.0;
+   info->target_x = 0;
+   info->target_y = 0;
 
    while (!al_thread_should_stop(thr)) {
       if (y == 0) {
@@ -157,7 +162,7 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
 
       /* When we wait for a condition we won't wake up if someone calls
        * al_join_thread() on us, so we won't know to quit.  In a proper
-       * program you would signal the condition variable in that cause.  Here,
+       * program you would signal the condition variable in that case.  Here,
        * we just make sure to wait up every so often so we can make the check.
        */
       al_init_timeout(&timeout, 0.5);
@@ -173,7 +178,13 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
          al_rest(0);
          y++;
          if (y >= h) {
+            double z = viewport.zoom;
             y = 0;
+            viewport.centre_x += z * viewport.x_extent * info->target_x;
+            viewport.centre_y += z * viewport.y_extent * info->target_y;
+            info->target_x = 0;
+            info->target_y = 0;
+            viewport.zoom *= 0.99;
          }
       }
 
@@ -204,6 +215,13 @@ void show_images(void)
       }
    }
    al_flip_display();
+}
+
+
+static void set_target(int n, double x, double y)
+{
+   thread_info[n].target_x = x;
+   thread_info[n].target_y = y;
 }
 
 
@@ -284,6 +302,15 @@ int main(void)
          goto Error;
       }
    }
+   set_target(0, -0.56062033041600878303, -0.56064322926933807256);
+   set_target(1, -0.57798076669230014080, -0.63449861991138123418);
+   set_target(2,  0.36676836392830602929, -0.59081385302214906030);
+   set_target(3, -1.48319283039401317303, -0.00000000200514696273);
+   set_target(4, -0.74052910500707636032,  0.18340899525730713915);
+   set_target(5,  0.25437906525768350097, -0.00046678223345789554);
+   set_target(6, -0.56062033041600878303,  0.56064322926933807256);
+   set_target(7, -0.57798076669230014080,  0.63449861991138123418);
+   set_target(8,  0.36676836392830602929,  0.59081385302214906030);
 
    for (i = 0; i < NUM_THREADS; i++) {
       al_start_thread(thread[i]);
@@ -305,6 +332,13 @@ int main(void)
       else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
          int n = (event.mouse.y / H) * IMAGES_PER_ROW + (event.mouse.x / W);
          if (n < NUM_THREADS) {
+            double x = event.mouse.x - (event.mouse.x / W) * W;
+            double y = event.mouse.y - (event.mouse.y / H) * H;
+            /* Center to the mouse click position. */
+            if (thread_info[n].is_paused) {
+               thread_info[n].target_x = x / W - 0.5;
+               thread_info[n].target_y = y / H - 0.5;
+            }
             toggle_pausedness(n);
          }
       }
