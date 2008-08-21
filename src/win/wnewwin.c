@@ -633,7 +633,7 @@ void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND hWnd,
 
       if (display->flags & ALLEGRO_RESIZABLE) {
          style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
-         exStyle |= WS_EX_OVERLAPPEDWINDOW | WS_EX_APPWINDOW;
+         exStyle = WS_EX_OVERLAPPEDWINDOW | WS_EX_APPWINDOW;
       }
       else {
          style = WS_CAPTION | WS_SYSMENU | WS_VISIBLE;

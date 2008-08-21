@@ -32,12 +32,12 @@
 AL_INLINE(fixed, ftofix, (double x),
 {
    if (x > 32767.0) {
-      *allegro_errno = ERANGE;
+      //*allegro_errno = ERANGE;
       return 0x7FFFFFFF;
    }
 
    if (x < -32767.0) {
-      *allegro_errno = ERANGE;
+      //*allegro_errno = ERANGE;
       return -0x7FFFFFFF;
    }
 
@@ -61,7 +61,7 @@ AL_INLINE(fixed, fixadd, (fixed x, fixed y),
 
    if (result >= 0) {
       if ((x < 0) && (y < 0)) {
-         *allegro_errno = ERANGE;
+         //*allegro_errno = ERANGE;
          return -0x7FFFFFFF;
       }
       else
@@ -69,7 +69,7 @@ AL_INLINE(fixed, fixadd, (fixed x, fixed y),
    }
    else {
       if ((x > 0) && (y > 0)) {
-         *allegro_errno = ERANGE;
+         //*allegro_errno = ERANGE;
          return 0x7FFFFFFF;
       }
       else
@@ -84,7 +84,7 @@ AL_INLINE(fixed, fixsub, (fixed x, fixed y),
 
    if (result >= 0) {
       if ((x < 0) && (y > 0)) {
-         *allegro_errno = ERANGE;
+         //*allegro_errno = ERANGE;
          return -0x7FFFFFFF;
       }
       else
@@ -92,7 +92,7 @@ AL_INLINE(fixed, fixsub, (fixed x, fixed y),
    }
    else {
       if ((x > 0) && (y < 0)) {
-         *allegro_errno = ERANGE;
+         //*allegro_errno = ERANGE;
          return 0x7FFFFFFF;
       }
       else
@@ -129,11 +129,11 @@ AL_INLINE(fixed, fixsub, (fixed x, fixed y),
       LONG_LONG lres = (lx*ly);
 
       if (lres > 0x7FFFFFFF0000LL) {
-	 *allegro_errno = ERANGE;
+	 //*allegro_errno = ERANGE;
 	 return 0x7FFFFFFF;
       }
       else if (lres < -0x7FFFFFFF0000LL) {
-	 *allegro_errno = ERANGE;
+	 //*allegro_errno = ERANGE;
 	 return 0x80000000;
       }
       else {
@@ -147,7 +147,7 @@ AL_INLINE(fixed, fixsub, (fixed x, fixed y),
 AL_INLINE(fixed, fixdiv, (fixed x, fixed y),
 {
    if (y == 0) {
-      *allegro_errno = ERANGE;
+      //*allegro_errno = ERANGE;
       return (x < 0) ? -0x7FFFFFFF : 0x7FFFFFFF;
    }
    else
@@ -168,7 +168,7 @@ AL_INLINE(int, fixfloor, (fixed x),
 AL_INLINE(int, fixceil, (fixed x),
 {
    if (x > 0x7FFF0000) {
-      *allegro_errno = ERANGE;
+      //*allegro_errno = ERANGE;
       return 0x7FFF;
    }
 
@@ -211,7 +211,7 @@ AL_INLINE(fixed, fixtan, (fixed x),
 AL_INLINE(fixed, fixacos, (fixed x),
 {
    if ((x < -65536) || (x > 65536)) {
-      *allegro_errno = EDOM;
+      //*allegro_errno = EDOM;
       return 0;
    }
 
@@ -222,7 +222,7 @@ AL_INLINE(fixed, fixacos, (fixed x),
 AL_INLINE(fixed, fixasin, (fixed x),
 {
    if ((x < -65536) || (x > 65536)) {
-      *allegro_errno = EDOM;
+      //*allegro_errno = EDOM;
       return 0;
    }
 

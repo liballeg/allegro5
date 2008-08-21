@@ -606,7 +606,7 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(PACKFILE *f)
    ALLEGRO_BITMAP *bmp;
    PalEntry pal[256];
    unsigned long biSize;
-   unsigned char *buf;
+   unsigned char *buf = NULL;
    ALLEGRO_LOCKED_REGION lr;
    int bpp;
    ASSERT(f);
