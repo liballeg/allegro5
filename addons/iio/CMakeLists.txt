@@ -64,8 +64,6 @@ endif(STATIC)
 
 if(SHARED)
     set(IIO_ADDONS_LINK_WITH ${IIO_LIB_TO_LINK}_shared PARENT_SCOPE)
-else(SHARED)
-    set(IIO_ADDONS_LINK_WITH ${IIO_LIB_TO_LINK}_static PARENT_SCOPE)
 endif(SHARED)
 
 #-----------------------------------------------------------------------------#
