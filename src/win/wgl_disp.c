@@ -1352,54 +1352,41 @@ int _al_wgl_get_num_video_adapters(void)
 {
    DISPLAY_DEVICE dd;
    int count = 0;
+   int c = 0;
 
    memset(&dd, 0, sizeof(dd));
    dd.cb = sizeof(dd);
 
    while (EnumDisplayDevices(NULL, count, &dd, 0) != FALSE) {
+      if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)
+         c++;
       count++;
    }
 
-   return count;
-}
-
-typedef struct MONITOR_TARGET {
-   TCHAR DeviceName[32];
-   ALLEGRO_MONITOR_INFO *info;
-} MONITOR_TARGET;
-
-static BOOL MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor,
-                            LPARAM dwData)
-{
-   MONITOR_TARGET *target = (MONITOR_TARGET*)dwData;
-   MONITORINFOEX miex;
-
-   miex.cbSize = sizeof(miex);
-   GetMonitorInfo(hMonitor, (MONITORINFO*)&miex);
-
-   if (strcmp(miex.szDevice, target->DeviceName) == 0) {
-      target->info->x1 = miex.rcMonitor.left;
-      target->info->y1 = miex.rcMonitor.top;
-      target->info->x2 = miex.rcMonitor.right;
-      target->info->y2 = miex.rcMonitor.bottom;
-      return FALSE;
-   }
-   else
-      return TRUE;
+   return c;
 }
 
 
 void _al_wgl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    DISPLAY_DEVICE dd;
-   MONITOR_TARGET target;
+   DEVMODE dm;
 
    memset(&dd, 0, sizeof(dd));
    dd.cb = sizeof(dd);
    EnumDisplayDevices(NULL, adapter, &dd, 0);
-   memcpy(target.DeviceName, dd.DeviceName, 32);
-   target.info = info;
 
-   EnumDisplayMonitors(NULL, NULL, (MONITORENUMPROC)MonitorEnumProc, (LPARAM)&target);
+   memset(&dm, 0, sizeof(dm));
+   dm.dmSize = sizeof(dm);
+   EnumDisplaySettings(dd.DeviceName, ENUM_CURRENT_SETTINGS, &dm);
+
+   ASSERT(dm.dmFields & DM_PELSHEIGHT);
+   ASSERT(dm.dmFields & DM_PELSWIDTH);
+   ASSERT(dm.dmFields & DM_POSITION);
+
+   info->x1 = dm.dmPosition.x;
+   info->y1 = dm.dmPosition.y;
+   info->x2 = info->x1 + dm.dmPelsWidth;
+   info->y2 = info->y1 + dm.dmPelsHeight;
 }
 
