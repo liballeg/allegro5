@@ -149,21 +149,11 @@ if(SUPPORT_SNDFILE)
     set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} sndfile)
 endif(SUPPORT_SNDFILE)
 
-macro(add_acodec_example nm)
-    add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
-    set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
-        LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
-        )
-    target_link_libraries(${nm} ${LINK_WITH})
-    target_link_libraries(${nm} ${ACODEC_LINK_WITH})
-endmacro(add_acodec_example)
+example(ex_acodec ${ACODEC_LINK_WITH})
+example(ex_acodec_multi ${ACODEC_LINK_WITH})
+example(ex_acodec_stream ${ACODEC_LINK_WITH})
 
-add_acodec_example(ex_acodec ex_acodec.c)
-add_acodec_example(ex_acodec_multi ex_acodec_multi.c)
-add_acodec_example(ex_acodec_stream ex_acodec_stream.c)
-
-#add_acodec_example(ex_acodec_mixer ex_acodec_mixer.c)
+#example(ex_acodec_mixer ${ACODEC_LINK_WITH})
 
 #-----------------------------------------------------------------------------#
 #

@@ -5,7 +5,7 @@ int main(void)
 {
    ALLEGRO_MONITOR_INFO info;
    int num_adapters;
-   int i, j;
+   int i;
 
    al_init();
 

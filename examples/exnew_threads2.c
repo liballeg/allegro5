@@ -139,7 +139,7 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    Viewport viewport;
    unsigned char palette[256][3];
    ALLEGRO_TIMEOUT timeout;
-   int x, y, w, h;
+   int y, w, h;
 
    y = 0;
    w = al_get_bitmap_width(info->bitmap);

@@ -58,6 +58,8 @@ int main(void)
          frame_count += elapsed;
       }
       else {
+         int X, Y;
+
          frame_count -= (1000/TARGET_FPS);
          al_clear(al_map_rgb(0, 0, 0));
          for (star = 0; star < NUM_STARS/3; star++) {
@@ -75,8 +77,8 @@ int main(void)
          }
 
          /* Check that dots appear at the window extremes. */
-         int X = al_get_display_width() - 1;
-         int Y = al_get_display_height() - 1;
+         X = al_get_display_width() - 1;
+         Y = al_get_display_height() - 1;
          al_put_pixel(0, 0, al_map_rgb_f(1, 1, 1));
          al_put_pixel(X, 0, al_map_rgb_f(1, 1, 1));
          al_put_pixel(0, Y, al_map_rgb_f(1, 1, 1));
