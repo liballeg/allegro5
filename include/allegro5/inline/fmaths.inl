@@ -19,10 +19,6 @@
 #ifndef ALLEGRO_FMATHS_INL
 #define ALLEGRO_FMATHS_INL
 
-#define ALLEGRO_IMPORT_MATH_ASM
-#include "allegro5/inline/asm.inl"
-#undef ALLEGRO_IMPORT_MATH_ASM
-
 #ifdef __cplusplus
    extern "C" {
 #endif

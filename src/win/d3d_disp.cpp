@@ -1257,7 +1257,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display)
    }
 
    display->mouse_selected_hcursor = 0;
-   display->mouse_cursor_shown = true; /* XXX or is it false? */
+   display->mouse_cursor_shown = false;
 
    return true;
 }
@@ -2073,6 +2073,7 @@ static bool d3d_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 
    _al_win_set_mouse_hcursor(d3d_display->mouse_selected_hcursor);
    d3d_display->mouse_cursor_shown = true;
+
    return true;
 }
 
@@ -2082,6 +2083,7 @@ static bool d3d_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 
    _al_win_set_mouse_hcursor(NULL);
    d3d_display->mouse_cursor_shown = false;
+
    return true;
 }
 

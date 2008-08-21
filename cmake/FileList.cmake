@@ -4,9 +4,7 @@ set(ALLEGRO_SRC_FILES
     src/blenders.c
     src/convert.c
     src/display_new.c
-    src/dither.c
     src/dtor.c
-    src/drvlist.c
     src/events.c
     src/evtsrc.c
     src/file.c
@@ -332,7 +330,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/quat.h
     include/allegro5/rle.h
     include/allegro5/sound.h
-    include/allegro5/a4_stream.h
     include/allegro5/system.h
     include/allegro5/system_new.h
     include/allegro5/timer.h

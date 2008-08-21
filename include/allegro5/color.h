@@ -20,7 +20,6 @@
 #define ALLEGRO_COLOR_H
 
 #include "allegro5/base.h"
-#include "allegro5/palette.h"
 
 #ifdef __cplusplus
    extern "C" {

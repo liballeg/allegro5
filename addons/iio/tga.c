@@ -24,6 +24,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "iio.h"
 
 
 
@@ -70,7 +71,7 @@ static void rle_tga_read8(unsigned char *b, int w, PACKFILE *f)
  */
 static INLINE int single_tga_read32(PACKFILE *f)
 {
-   RGB value;
+   PalEntry value;
    int alpha;
 
    value.b = pack_getc(f);
@@ -128,7 +129,7 @@ static void rle_tga_read32(unsigned int *b, int w, PACKFILE *f)
  */
 static INLINE int single_tga_read24(PACKFILE *f)
 {
-   RGB value;
+   PalEntry value;
 
    value.b = pack_getc(f);
    value.g = pack_getc(f);

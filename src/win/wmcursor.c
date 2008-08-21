@@ -154,7 +154,7 @@ void _al_win_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR_WIN *win_cursor)
 void _al_win_set_mouse_hcursor(HCURSOR hcursor)
 {
    POINT p;
-
+   
    SetCursor(hcursor);
 
    /* Windows is too stupid to actually display the mouse pointer when we
