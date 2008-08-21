@@ -54,51 +54,6 @@ typedef struct new_display_parameters {
 } new_display_parameters;
 
 
-/* Dummy graphics driver for compatibility */
-GFX_DRIVER _al_ogl_dummy_gfx_driver = {
-   0,
-   "OGL Compatibility GFX driver",
-   "OGL Compatibility GFX driver",
-   "OGL Compatibility GFX driver",
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   0, 0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   /* new_api_branch additions */
-   NULL, /* create_mouse_cursor */
-   NULL, /* destroy_mouse_cursor*/
-   NULL, /* set_mouse_cursor */
-   NULL, /* set_system_mouse_cursor */
-   NULL, /* show_mouse_cursor */
-   NULL  /* hide_mouse_cursor */
-};
-
 /* Logs a Win32 error/warning message in the log file.
  */
 static void log_win32_msg(const char *prefix, const char *func,
@@ -969,12 +924,6 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    /* Each display is an event source. */
    _al_event_source_init(&display->es);
 
-   /* Set up a dummy gfx_driver */
-   gfx_driver = &_al_ogl_dummy_gfx_driver;
-   gfx_driver->w = w;
-   gfx_driver->h = h;
-   gfx_driver->windowed = (display->flags & ALLEGRO_FULLSCREEN) ? 0 : 1;
-
    win_grab_input();
 
    if (al_is_mouse_installed()) {
@@ -1023,7 +972,6 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 
    destroy_display_internals(wgl_disp);
    _al_vector_find_and_delete(&system->system.displays, &disp);
-   gfx_driver = 0;
 
    _al_vector_free(&disp->bitmaps);
    _AL_FREE(wgl_disp);
@@ -1240,9 +1188,6 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       setup_gl(d);
    }
 
-   gfx_driver->w = width;
-   gfx_driver->h = height;
-
    return true;
 }
 
@@ -1265,9 +1210,6 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
    _al_ogl_resize_backbuffer(ogl_disp->backbuffer, w, h);
 
    setup_gl(d);
-
-   gfx_driver->w = w;
-   gfx_driver->h = h;
 
    return true;
 }
@@ -1344,7 +1286,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt->is_compatible_bitmap = wgl_is_compatible_bitmap;
    vt->switch_out = wgl_switch_in;
    vt->switch_in = wgl_switch_out;
-   vt->upload_compat_screen = NULL;
 
    /* XXX sorry, these need to be filled in */
    vt->create_mouse_cursor = NULL;

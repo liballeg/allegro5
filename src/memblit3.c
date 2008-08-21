@@ -109,12 +109,6 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    fixed fix_xscale = ftofix(xscale);
    fixed fix_yscale = ftofix(yscale);
 
-
-   _rotate_scale_flip_coordinates(src->w << 16, src->h << 16,
-      fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,
-      flags & ALLEGRO_FLIP_HORIZONTAL, flags & ALLEGRO_FLIP_VERTICAL, xs, ys);
-
-
    /*
     * Variables used in the loop
     */
@@ -139,6 +133,10 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    int bmp_y_i;
    /* Right edge of scanline. */
    int right_edge_test;
+
+   _rotate_scale_flip_coordinates(src->w << 16, src->h << 16,
+      fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,
+      flags & ALLEGRO_FLIP_HORIZONTAL, flags & ALLEGRO_FLIP_VERTICAL, xs, ys);
 
    /* Get index of topmost point. */
    top_index = 0;
