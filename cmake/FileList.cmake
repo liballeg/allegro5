@@ -308,44 +308,29 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/base.h
     include/allegro5/bitmap_new.h
     include/allegro5/color_new.h
-    include/allegro5/compiled.h
-    include/allegro5/datafile.h
     include/allegro5/debug.h
-    include/allegro5/digi.h
     include/allegro5/display_new.h
     include/allegro5/events.h
     include/allegro5/file.h
     include/allegro5/fixed.h
     include/allegro5/fmaths.h
-    include/allegro5/graphics.h
     include/allegro5/joystick.h
     include/allegro5/keyboard.h
     include/allegro5/keycodes.h
     include/allegro5/lzss.h
-    include/allegro5/matrix.h
     include/allegro5/memory.h
     include/allegro5/mouse.h
     include/allegro5/a5_opengl.h
-    include/allegro5/palette.h
-    include/allegro5/quat.h
-    include/allegro5/rle.h
-    include/allegro5/sound.h
     include/allegro5/system.h
     include/allegro5/system_new.h
     include/allegro5/timer.h
     include/allegro5/unicode.h
-    include/allegro5/a5_iio.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
-    include/allegro5/inline/asm.inl
     include/allegro5/inline/color.inl
-    include/allegro5/inline/draw.inl
     include/allegro5/inline/file.inl
     include/allegro5/inline/fmaths.inl
-    include/allegro5/inline/gfx.inl
-    include/allegro5/inline/matrix.inl
-    include/allegro5/inline/rle.inl
     include/allegro5/inline/system.inl
     )
 
