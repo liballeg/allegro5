@@ -103,7 +103,7 @@ void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
    h = al_get_bitmap_height(bitmap);
 
    if (!al_lock_bitmap_region(bitmap, 0, y, w, 1, &lr,
-         0)) {
+         ALLEGRO_LOCK_WRITEONLY)) {
       TRACE("draw_mandel_line: al_lock_bitmap_region failed\n");
       return;
    }
@@ -175,7 +175,6 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
 
       if (!info->is_paused) {
          draw_mandel_line(info->bitmap, &viewport, palette, y);
-         al_rest(0);
          y++;
          if (y >= h) {
             double z = viewport.zoom;
@@ -189,6 +188,7 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
       }
 
       al_unlock_mutex(info->mutex);
+      al_rest(0);
    }
 
    return NULL;
