@@ -33,9 +33,9 @@ int main(void)
 
    display = al_create_display(640, 480);
 
-   colors[0] = al_map_rgba(200, 0, 255, 128);
-   colors[1] = al_map_rgba(100, 0, 255, 255);
-   colors[2] = al_map_rgba(0, 0, 200, 255);
+   colors[0] = al_map_rgba(255, 100, 255, 128);
+   colors[1] = al_map_rgba(255, 100, 100, 255);
+   colors[2] = al_map_rgba(100, 100, 255, 255);
          
    for (layer = 0; layer < 3; layer++) {
       for (star = 0; star < NUM_STARS/3; star++) {
@@ -65,6 +65,7 @@ int main(void)
             al_draw_pixel(p->x, p->y, colors[0]);
          }
          al_lock_bitmap(al_get_backbuffer(), &lr, 0);
+
          for (layer = 1; layer < 3; layer++) {
             for (star = 0; star < NUM_STARS/3; star++) {
                Point *p = &stars[layer][star];
@@ -73,10 +74,13 @@ int main(void)
             }
          }
 
-	 /* Check that dots appear at the window extremes. */
-	 al_put_pixel(0, 0, al_map_rgb_f(1, 1, 0));
-	 al_put_pixel(al_get_display_width()-1, al_get_display_height()-1,
-	     al_map_rgb_f(0, 1, 1));
+         /* Check that dots appear at the window extremes. */
+         int X = al_get_display_width() - 1;
+         int Y = al_get_display_height() - 1;
+         al_put_pixel(0, 0, al_map_rgb_f(1, 1, 1));
+         al_put_pixel(X, 0, al_map_rgb_f(1, 1, 1));
+         al_put_pixel(0, Y, al_map_rgb_f(1, 1, 1));
+         al_put_pixel(X, Y, al_map_rgb_f(1, 1, 1));
 
          al_unlock_bitmap(al_get_backbuffer());
          al_flip_display();

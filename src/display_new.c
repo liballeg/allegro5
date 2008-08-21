@@ -56,8 +56,6 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    // variables like "display/driver" and according to flags (e.g. OpenGL
    // requested or not).
 
-   // Right now, the X11 driver is hardcoded.
-
    ALLEGRO_SYSTEM *system = al_system_driver();
    ALLEGRO_DISPLAY_INTERFACE *driver = system->vt->get_display_driver();
    ALLEGRO_DISPLAY *display = driver->create_display(w, h);

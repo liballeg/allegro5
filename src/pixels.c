@@ -839,14 +839,14 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
       }
 
       _al_put_pixel(
-         (void*)(((intptr_t)bitmap->locked_region.data)
+         (char *)bitmap->locked_region.data
             + y * bitmap->locked_region.pitch
-            + x * al_get_pixel_size(bitmap->format)),
+            + x * al_get_pixel_size(bitmap->format),
          bitmap->format, color_value);
    }
    else {
       if (x < bitmap->cl || y < bitmap->ct ||
-          x > bitmap->cr || y > bitmap->cb)
+          x >= bitmap->cr || y >= bitmap->cb)
       {
          return;
       }

@@ -533,8 +533,8 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    bitmap->bitmap.flags = flags;
    bitmap->bitmap.cl = 0;
    bitmap->bitmap.ct = 0;
-   bitmap->bitmap.cr = w - 1;
-   bitmap->bitmap.cb = h - 1;
+   bitmap->bitmap.cr = w;
+   bitmap->bitmap.cb = h;
 
    bitmap->true_w = true_w;
    bitmap->true_h = true_h;
