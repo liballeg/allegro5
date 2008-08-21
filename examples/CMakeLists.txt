@@ -1,12 +1,3 @@
-macro(example nm libs)
-    add_allegro_executable(${nm} ${libs} ${nm}.c)
-endmacro(example nm libs)
-
-macro(example_cxx nm libs)
-    add_allegro_executable(${nm} ${libs} ${nm}.cpp)
-endmacro(example_cxx nm libs)
-
-
 if(SUPPORT_FONT)
     include_directories(../addons/font)
     set(LIBS ${FONT_LINK_WITH} ${IIO_LINK_WITH})

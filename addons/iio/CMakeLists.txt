@@ -9,7 +9,7 @@ macro(add_iio_build nm extra_flags)
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS}"
             OUTPUT_NAME ${nm2}
             )
-
+        
         install(TARGETS ${target}
                 DESTINATION lib
                 LIBRARY PERMISSIONS
@@ -61,16 +61,6 @@ else(STATIC)
     set(IIO_LINK_WITH ${IIO_LIB_TO_LINK}_shared)
     set(IIO_LINK_WITH ${IIO_LIB_TO_LINK}_shared PARENT_SCOPE)
 endif(STATIC)
-
-macro(add_iio_example nm)
-    add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
-    set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
-        LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
-        )
-    target_link_libraries(${nm} ${LINK_WITH})
-    target_link_libraries(${nm} ${IIO_LINK_WITH})
-endmacro(add_iio_example)
 
 #-----------------------------------------------------------------------------#
 #

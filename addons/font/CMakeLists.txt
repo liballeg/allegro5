@@ -22,8 +22,8 @@ macro(add_font_build nm extra_flags)
 
     if(SHARED)
         really_add_font_build(${nm} ${nm}_shared SHARED "")
-        target_link_libraries(${nm}_shared ${ADDONS_LINK_WITH})
         target_link_libraries(${nm}_shared ${IIO_LINK_WITH})
+        target_link_libraries(${nm}_shared ${ADDONS_LINK_WITH})
     endif(SHARED)
 
     if(STATIC)
@@ -64,18 +64,9 @@ else(STATIC)
     set(FONT_LINK_WITH ${FONT_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
 endif(STATIC)
 
-macro(add_font_example nm)
-    add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
-    set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
-        LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
-        )
-    target_link_libraries(${nm} ${LINK_WITH})
-    target_link_libraries(${nm} ${FONT_LINK_WITH})
-    target_link_libraries(${nm} ${IIO_LINK_WITH})
-endmacro(add_font_example)
 
-add_font_example(ex_font ex_font.c)
+example(ex_font ${FONT_LINK_WITH} ${IIO_LINK_WITH})
+
 
 #-----------------------------------------------------------------------------#
 #

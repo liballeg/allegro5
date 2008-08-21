@@ -836,18 +836,53 @@ endif(STATIC)
 # (static addons are not linked to anything)
 set(ADDONS_LINK_WITH ${LIB_TO_LINK}_shared)
 
-macro(add_allegro_executable nm libs)
-    add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
+macro(add_allegro_executable nm)
+    # Grab libs from ${ARGN}, source file is presupposed to be last
+    # This will have to change if example ever get more than 1 source file each
+    # (or they'll have to create another macro)
+    set(lib "")
+    set(libs "")
+    set(ARGS "")
+
+    list(APPEND ARGS ${ARGN})
+
+    list(GET ARGS -1 SRCFILE)
+
+    foreach(count RANGE 2 ${ARGC})
+        if(NOT ${count} EQUAL ${ARGC})
+            list(GET ARGS 0 lib)
+            list(REMOVE_AT ARGS 0)
+            list(APPEND libs ${lib})
+        endif(NOT ${count} EQUAL ${ARGC})
+    endforeach(count RANGE 2 ${ARGC})
+
+    add_executable(${nm} ${EXECUTABLE_TYPE} ${SRCFILE})
     set_target_properties(${nm} PROPERTIES
         COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
         )
-    target_link_libraries(${nm} ${LINK_WITH})
 
-    if(NOT ${libs} STREQUAL "NOTHING")
-        link_directories(${CMAKE_BINARY_DIR}/lib)
+    if(NOT "${libs}" MATCHES ".*NOTHING.*")
         target_link_libraries(${nm} ${libs})
-    endif(NOT ${libs} STREQUAL "NOTHING")
+    endif(NOT "${libs}" MATCHES ".*NOTHING.*")
+    
+    target_link_libraries(${nm} ${LINK_WITH})
+    
+    if(STATIC)
+        target_link_libraries(${nm} ${PLATFORM_LIBS})
+    endif(STATIC)
+
 endmacro(add_allegro_executable)
+
+
+macro(example nm)
+    add_allegro_executable(${nm} ${ARGN} ${nm}.c)
+endmacro(example nm libs)
+
+macro(example_cxx nm)
+    add_allegro_executable(${nm} ${ARGN} ${nm}.cpp)
+endmacro(example_cxx nm libs)
+
+
 
 #-----------------------------------------------------------------------------#
 #
