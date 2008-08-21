@@ -22,7 +22,7 @@ macro(add_font_build nm extra_flags)
 
     if(SHARED)
         really_add_font_build(${nm} ${nm}_shared SHARED "")
-        target_link_libraries(${nm}_shared ${IIO_LINK_WITH})
+        target_link_libraries(${nm}_shared ${IIO_ADDONS_LINK_WITH})
         target_link_libraries(${nm}_shared ${ADDONS_LINK_WITH})
     endif(SHARED)
 
