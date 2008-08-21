@@ -13,8 +13,6 @@
 
 /* Possible bit combinations for the flags parameter of al_create_display. */
 
-#define _al_current_display al_get_current_display()
-
 #define ALLEGRO_WINDOWED     1
 #define ALLEGRO_FULLSCREEN   2
 #define ALLEGRO_OPENGL       4

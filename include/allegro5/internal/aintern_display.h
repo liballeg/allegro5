@@ -73,8 +73,6 @@ struct ALLEGRO_DISPLAY
    _AL_VECTOR bitmaps; /* A list of bitmaps created for this display. */
 };
 
-#define _al_current_display al_get_current_display()
-
 //ALLEGRO_DISPLAY_INTERFACE *_al_display_d3ddummy_driver(void);
 
 void _al_clear_memory(ALLEGRO_COLOR *color);

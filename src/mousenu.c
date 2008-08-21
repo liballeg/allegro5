@@ -452,7 +452,10 @@ bool al_show_mouse_cursor(void)
  */
 bool al_hide_mouse_cursor(void)
 {
-   return _al_current_display->vt->hide_cursor(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
+
+   return display->vt->hide_cursor(display);
 }
 
 

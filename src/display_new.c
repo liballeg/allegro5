@@ -84,7 +84,9 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
  */
 void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
-   display->vt->destroy_display(display);
+   if (display) {
+      display->vt->destroy_display(display);
+   }
 }
 
 
@@ -96,9 +98,10 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
  */
 ALLEGRO_BITMAP *al_get_backbuffer(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->vt->get_backbuffer(_al_current_display);
+   return display->vt->get_backbuffer(display);
 }
 
 
@@ -111,9 +114,10 @@ ALLEGRO_BITMAP *al_get_backbuffer(void)
  */
 ALLEGRO_BITMAP *al_get_frontbuffer(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->vt->get_frontbuffer(_al_current_display);
+   return display->vt->get_frontbuffer(display);
 }
 
 
@@ -128,9 +132,10 @@ ALLEGRO_BITMAP *al_get_frontbuffer(void)
  */
 void al_flip_display(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   _al_current_display->vt->flip_display(_al_current_display);
+   display->vt->flip_display(display);
 }
 
 
@@ -145,10 +150,10 @@ void al_flip_display(void)
  */
 bool al_update_display_region(int x, int y, int width, int height)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->vt->update_display_region(
-      _al_current_display, x, y, width, height);
+   return display->vt->update_display_region(display, x, y, width, height);
 }
 
 
@@ -167,8 +172,9 @@ bool al_acknowledge_resize(ALLEGRO_DISPLAY *display)
    ASSERT(display);
 
    if (!(display->flags & ALLEGRO_FULLSCREEN)) {
-      if (display->vt->acknowledge_resize)
+      if (display->vt->acknowledge_resize) {
          return display->vt->acknowledge_resize(display);
+      }
    }
    return false;
 }
@@ -185,11 +191,11 @@ bool al_acknowledge_resize(ALLEGRO_DISPLAY *display)
  */
 bool al_resize_display(int width, int height)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   if (_al_current_display->vt->resize_display) {
-      return _al_current_display->vt->resize_display(_al_current_display,
-         width, height);
+   if (display->vt->resize_display) {
+      return display->vt->resize_display(display, width, height);
    }
    return false;
 }
@@ -202,16 +208,17 @@ bool al_resize_display(int width, int height)
  */
 void al_clear(ALLEGRO_COLOR color)
 {
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    ASSERT(target);
-   ASSERT(_al_current_display);
+   ASSERT(display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_clear_memory(&color);
    }
    else {
-      _al_current_display->vt->clear(_al_current_display, &color);
+      display->vt->clear(display, &color);
    }
 }
 
@@ -230,17 +237,17 @@ void al_clear(ALLEGRO_COLOR color)
 void al_draw_line(float fx, float fy, float tx, float ty,
    ALLEGRO_COLOR color)
 {
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    ASSERT(target);
-   ASSERT(_al_current_display);
+   ASSERT(display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_line_memory(fx, fy, tx, ty, &color);
    }
    else {
-      _al_current_display->vt->draw_line(_al_current_display,
-         fx, fy, tx, ty, &color);
+      display->vt->draw_line(display, fx, fy, tx, ty, &color);
    }
 }
 
@@ -265,17 +272,17 @@ void al_draw_line(float fx, float fy, float tx, float ty,
 void al_draw_rectangle(float tlx, float tly, float brx, float bry,
    ALLEGRO_COLOR color, int flags)
 {
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    ASSERT(target);
-   ASSERT(_al_current_display);
+   ASSERT(display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_rectangle_memory(tlx, tly, brx, bry, &color, flags);
    }
    else {
-      _al_current_display->vt->draw_rectangle(_al_current_display,
-         tlx, tly, brx, bry, &color, flags);
+      display->vt->draw_rectangle(display, tlx, tly, brx, bry, &color, flags);
    }
 }
 
@@ -291,18 +298,17 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
  */
 void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
 {
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    ASSERT(target);
-   ASSERT(_al_current_display);
+   ASSERT(display);
 
-   if (target->flags & ALLEGRO_MEMORY_BITMAP
-         || !_al_current_display->vt->draw_pixel) {
+   if (target->flags & ALLEGRO_MEMORY_BITMAP || !display->vt->draw_pixel) {
       _al_draw_pixel_memory(x, y, &color);
    }
    else {
-      _al_current_display->vt->draw_pixel(_al_current_display,
-         x, y, &color);
+      display->vt->draw_pixel(display, x, y, &color);
    }
 }
 
@@ -324,11 +330,11 @@ void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
  */
 bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap)
 {
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(bitmap);
-   ASSERT(_al_current_display);
+   ASSERT(display);
 
-   return _al_current_display->vt->is_compatible_bitmap(
-      _al_current_display, bitmap);
+   return display->vt->is_compatible_bitmap(display, bitmap);
 }
 
 
@@ -339,7 +345,10 @@ bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap)
  */
 int al_get_display_width(void)
 {
-   return _al_current_display->w;
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
+
+   return display->w;
 }
 
 
@@ -350,9 +359,10 @@ int al_get_display_width(void)
  */
 int al_get_display_height(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->h;
+   return display->h;
 }
 
 
@@ -363,9 +373,10 @@ int al_get_display_height(void)
  */
 int al_get_display_format(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->format;
+   return display->format;
 }
 
 
@@ -376,9 +387,10 @@ int al_get_display_format(void)
  */
 int al_get_display_refresh_rate(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->refresh_rate;
+   return display->refresh_rate;
 }
 
 
@@ -389,9 +401,10 @@ int al_get_display_refresh_rate(void)
  */
 int al_get_display_flags(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->flags;
+   return display->flags;
 }
 
 
@@ -440,10 +453,11 @@ ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
  */
 bool al_wait_for_vsync(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   if (_al_current_display->vt && _al_current_display->vt->wait_for_vsync)
-      return _al_current_display->vt->wait_for_vsync(_al_current_display);
+   if (display->vt->wait_for_vsync)
+      return display->vt->wait_for_vsync(display);
    else
       return false;
 }
@@ -521,14 +535,18 @@ void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
  */
 void al_set_display_icon(ALLEGRO_BITMAP *icon)
 {
-   _al_current_display->vt->set_icon(_al_current_display, icon);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
+
+   display->vt->set_icon(display, icon);
 }
 
 
 
 /* Destroys all bitmaps created for this display.
  */
-void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d) {
+void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d)
+{
    while (_al_vector_size(&d->bitmaps) > 0) {
       ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
       ALLEGRO_BITMAP *b = *bptr;
@@ -546,13 +564,13 @@ void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d) {
  */
 int al_get_num_video_adapters(void)
 {
-	ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_system_driver();
 
-	if (system && system->vt && system->vt->get_num_video_adapters) {
-		return system->vt->get_num_video_adapters();
-	}
+   if (system && system->vt && system->vt->get_num_video_adapters) {
+      return system->vt->get_num_video_adapters();
+   }
 
-	return 0;
+   return 0;
 }
 
 /* Function: al_get_monitor_info
@@ -564,16 +582,16 @@ int al_get_num_video_adapters(void)
  */
 void al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
-	ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_system_driver();
 
-	ASSERT(adapter < al_get_num_video_adapters());
+   ASSERT(adapter < al_get_num_video_adapters());
 
-	if (system && system->vt && system->vt->get_monitor_info) {
-		system->vt->get_monitor_info(adapter, info);
-	}
-	else {
-		info->x1 = info->y1 = info->x2 = info->y2 = INT_MAX;
-	}
+   if (system && system->vt && system->vt->get_monitor_info) {
+      system->vt->get_monitor_info(adapter, info);
+   }
+   else {
+      info->x1 = info->y1 = info->x2 = info->y2 = INT_MAX;
+   }
 }
 
 
@@ -611,8 +629,8 @@ void al_set_current_video_adapter(int adapter)
  */
 void al_set_new_window_position(int x, int y)
 {
-	new_window_x = x;
-	new_window_y = y;
+   new_window_x = x;
+   new_window_y = y;
 }
 
 /* Function: al_get_new_window_position
@@ -624,10 +642,10 @@ void al_set_new_window_position(int x, int y)
  */
 void al_get_new_window_position(int *x, int *y)
 {
-	if (x)
-		*x = new_window_x;
-	if (y)
-		*y = new_window_y;
+   if (x)
+      *x = new_window_x;
+   if (y)
+      *y = new_window_y;
 }
 
 /* Function: al_set_window_position
@@ -638,13 +656,15 @@ void al_get_new_window_position(int *x, int *y)
  */
 void al_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
-	if (display->flags & ALLEGRO_FULLSCREEN) {
-		return;
-	}
+   ASSERT(display);
 
-	if (display && display->vt && display->vt->set_window_position) {
-		display->vt->set_window_position(display, x, y);
-	}
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      return;
+   }
+
+   if (display && display->vt && display->vt->set_window_position) {
+      display->vt->set_window_position(display, x, y);
+   }
 }
 
 /* Function: al_get_window_position
@@ -655,6 +675,10 @@ void al_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
  */
 void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 {
+   ASSERT(display);
+   ASSERT(x);
+   ASSERT(y);
+
    if (display && display->vt && display->vt->get_window_position) {
       display->vt->get_window_position(display, x, y);
    }
@@ -665,13 +689,15 @@ void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 
 void al_toggle_window_frame(ALLEGRO_DISPLAY *display, bool onoff)
 {
-	if (display->flags & ALLEGRO_FULLSCREEN) {
-		return;
-	}
+   ASSERT(display);
 
-	if (display && display->vt && display->vt->toggle_frame) {
-		display->vt->toggle_frame(display, onoff);
-	}
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      return;
+   }
+
+   if (display && display->vt && display->vt->toggle_frame) {
+      display->vt->toggle_frame(display, onoff);
+   }
 }
 
 /*

@@ -164,7 +164,7 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 
    /* We keep a list of bitmaps depending on the current display so that we can
     * convert them to memory bimaps when the display is destroyed. */
-   back = _al_vector_alloc_back(&_al_current_display->bitmaps);
+   back = _al_vector_alloc_back(&current_display->bitmaps);
    *back = bitmap;
 
    return bitmap;
@@ -303,7 +303,7 @@ ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_DISPLAY* display = _al_current_display;
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    
    /* If destination is memory, do a memory bitmap */
    if (dest->flags & ALLEGRO_MEMORY_BITMAP) {
