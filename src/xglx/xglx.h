@@ -18,6 +18,7 @@
 
 typedef struct ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_XGLX;
 typedef struct ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_XGLX;
+typedef struct ALLEGRO_MOUSE_CURSOR_XGLX ALLEGRO_MOUSE_CURSOR_XGLX;
 
 /* This is our version of ALLEGRO_SYSTEM with driver specific extra data. */
 struct ALLEGRO_SYSTEM_XGLX
@@ -72,6 +73,7 @@ struct ALLEGRO_DISPLAY_XGLX
 
    /* Cursor for this window. */
    Cursor invisible_cursor;
+   Cursor current_cursor;
    bool cursor_hidden;
 
    /* Icon for this window. */
@@ -79,6 +81,11 @@ struct ALLEGRO_DISPLAY_XGLX
    
    /* Desktop position. */
    int x, y;
+};
+
+struct ALLEGRO_MOUSE_CURSOR_XGLX
+{
+   Cursor cursor;
 };
 
 /* Functions private to the X11 driver. */

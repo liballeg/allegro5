@@ -77,12 +77,12 @@ GFX_DRIVER gfx_directx_win =
    0,                           // long vid_phys_base;
    TRUE,                        // int windowed;
    /* new_api_branch additions */
-   _al_win_directx_create_mouse_cursor,
-   _al_win_directx_destroy_mouse_cursor,
-   _al_win_directx_set_mouse_cursor,
-   _al_win_directx_set_system_mouse_cursor,
-   _al_win_directx_show_mouse_cursor,
-   _al_win_directx_hide_mouse_cursor
+   NULL,                        // create_mouse_cursor
+   NULL,                        // destroy_mouse_cursor
+   NULL,                        // set_mouse_cursor
+   NULL,                        // set_system_mouse_cursor
+   NULL,                        // show_mouse_cursor
+   NULL                         // hide_mouse_cursor
 };
 
 

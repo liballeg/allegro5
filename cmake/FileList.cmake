@@ -97,13 +97,14 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/wjoydrv.c
     src/win/wjoydxnu.c
     src/win/wkeybdnu.c
+    src/win/wmcursor.c
     src/win/wmouse.c
-    src/win/wthread.c
-    src/win/wtime.c
-    src/win/wxthread.c
     src/win/wnewsys.c
     src/win/wnewwin.c
+    src/win/wthread.c
+    src/win/wtime.c
     src/win/wwnd.c
+    src/win/wxthread.c
     )
 
 set(ALLEGRO_SRC_D3D_FILES

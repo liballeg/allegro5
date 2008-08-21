@@ -70,6 +70,9 @@ typedef struct ALLEGRO_DISPLAY_D3D
    int mouse_range_x2;
    int mouse_range_y2;
 
+   HCURSOR mouse_selected_hcursor;
+   bool mouse_cursor_shown;
+
    bool device_lost;
 
    bool ignore_ack; // al_resize_display doesn't need acknowledge_resize

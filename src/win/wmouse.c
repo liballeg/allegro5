@@ -107,6 +107,7 @@ _DRIVER_INFO _al_mouse_driver_list[] =
 
 
 
+/* XXX this should be per-display */
 HCURSOR _win_hcursor = NULL;	/* Hardware cursor to display */
 
 

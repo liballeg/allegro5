@@ -90,12 +90,13 @@ GFX_DRIVER _al_ogl_dummy_gfx_driver = {
    0,
    0,
    0,
-   _al_win_directx_create_mouse_cursor,
-   _al_win_directx_destroy_mouse_cursor,
-   _al_win_directx_set_mouse_cursor,
-   _al_win_directx_set_system_mouse_cursor,
-   _al_win_directx_show_mouse_cursor,
-   _al_win_directx_hide_mouse_cursor
+   /* new_api_branch additions */
+   NULL, /* create_mouse_cursor */
+   NULL, /* destroy_mouse_cursor*/
+   NULL, /* set_mouse_cursor */
+   NULL, /* set_system_mouse_cursor */
+   NULL, /* show_mouse_cursor */
+   NULL  /* hide_mouse_cursor */
 };
 
 /* Logs a Win32 error/warning message in the log file.
@@ -676,7 +677,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
 
       if ((dm.dmPelsWidth  == (unsigned) d->w)
        && (dm.dmPelsHeight == (unsigned) d->h)
-       && (dm.dmBitsPerPel == bpp)
+       && (dm.dmBitsPerPel == (unsigned) bpp)
        && (dm.dmDisplayFrequency != (unsigned) d->refresh_rate)) {
          /* Keep it as fallback if refresh rate request could not
           * be satisfied. Try to get as close to 60Hz as possible though,
@@ -697,7 +698,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
    }
    while ((dm.dmPelsWidth  != (unsigned) d->w)
        || (dm.dmPelsHeight != (unsigned) d->h)
-       || (dm.dmBitsPerPel != bpp)
+       || (dm.dmBitsPerPel != (unsigned) bpp)
        || (dm.dmDisplayFrequency != (unsigned) d->refresh_rate));
 
    if (!modeswitch && !fallback_dm_valid) {
@@ -1288,18 +1289,6 @@ static bool wgl_wait_for_vsync(ALLEGRO_DISPLAY *display)
 }
 
 
-static bool wgl_show_cursor(ALLEGRO_DISPLAY *display)
-{
-   return _al_win_directx_show_mouse_cursor();
-}
-
-
-static bool wgl_hide_cursor(ALLEGRO_DISPLAY *display)
-{
-   return _al_win_directx_hide_mouse_cursor();
-}
-
-
 static void wgl_switch_in(ALLEGRO_DISPLAY *display)
 {
    if (al_is_mouse_installed())
@@ -1356,8 +1345,15 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt->switch_out = wgl_switch_in;
    vt->switch_in = wgl_switch_out;
    vt->upload_compat_screen = NULL;
-   vt->show_cursor = wgl_show_cursor;
-   vt->hide_cursor = wgl_hide_cursor;
+
+   /* XXX sorry, these need to be filled in */
+   vt->create_mouse_cursor = NULL;
+   vt->destroy_mouse_cursor = NULL;
+   vt->set_mouse_cursor = NULL;
+   vt->set_system_mouse_cursor = NULL;
+   vt->show_mouse_cursor = NULL;
+   vt->hide_mouse_cursor = NULL;
+
    vt->set_icon = _al_win_set_display_icon;
    vt->set_window_position = wgl_set_window_position;
    vt->get_window_position = wgl_get_window_position;

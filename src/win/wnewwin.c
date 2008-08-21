@@ -282,6 +282,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          case WM_MOUSEACTIVATE:
             return MA_ACTIVATEANDEAT;
          case WM_SETCURSOR:
+	    // XXX ?
 	    if (_win_hcursor == NULL)
 	       SetCursor(NULL);
             break;

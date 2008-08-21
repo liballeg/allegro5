@@ -1256,6 +1256,9 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display)
       al_set_mouse_range(0, 0, w, h);
    }
 
+   display->mouse_selected_hcursor = 0;
+   display->mouse_cursor_shown = true; /* XXX or is it false? */
+
    return true;
 }
 
@@ -1988,15 +1991,100 @@ static bool d3d_wait_for_vsync(ALLEGRO_DISPLAY *display)
    return true;
 }
 
-static bool d3d_show_cursor(ALLEGRO_DISPLAY *display)
+
+
+static bool d3d_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
+   ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id);
+
+ALLEGRO_MOUSE_CURSOR *d3d_create_mouse_cursor(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *sprite, int xfocus, int yfocus)
 {
-	return _al_win_directx_show_mouse_cursor();
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *) display;
+   HWND wnd = d3d_display->window;
+   ALLEGRO_MOUSE_CURSOR_WIN *win_cursor;
+
+   win_cursor = _al_win_create_mouse_cursor(wnd, sprite, xfocus, yfocus);
+   return (ALLEGRO_MOUSE_CURSOR *) win_cursor;
 }
 
-static bool d3d_hide_cursor(ALLEGRO_DISPLAY *display)
+static void d3d_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
+   ALLEGRO_MOUSE_CURSOR *cursor)
 {
-	return _al_win_directx_hide_mouse_cursor();
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *) display;
+   ALLEGRO_MOUSE_CURSOR_WIN *win_cursor = (ALLEGRO_MOUSE_CURSOR_WIN *) cursor;
+
+   ASSERT(win_cursor);
+
+   if (win_cursor->hcursor == d3d_display->mouse_selected_hcursor) {
+      d3d_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+   }
+
+   _al_win_destroy_mouse_cursor(win_cursor);
 }
+
+static bool d3d_set_mouse_cursor(ALLEGRO_DISPLAY *display,
+   ALLEGRO_MOUSE_CURSOR *cursor)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *) display;
+   ALLEGRO_MOUSE_CURSOR_WIN *win_cursor = (ALLEGRO_MOUSE_CURSOR_WIN *) cursor;
+
+   ASSERT(win_cursor);
+   ASSERT(win_cursor->hcursor);
+
+   d3d_display->mouse_selected_hcursor = win_cursor->hcursor;
+
+   if (d3d_display->mouse_cursor_shown) {
+      _al_win_set_mouse_hcursor(win_cursor->hcursor);
+   }
+
+   return true;
+}
+
+static bool d3d_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
+   ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *) display;
+   HCURSOR wc;
+
+   wc = _al_win_system_cursor_to_hcursor(cursor_id);
+   if (!wc) {
+      return false;
+   }
+
+   d3d_display->mouse_selected_hcursor = wc;
+   if (d3d_display->mouse_cursor_shown) {
+      /*
+      MySetCursor(wc);
+      PostMessage(wgl_display->window, WM_MOUSEMOVE, 0, 0);
+      */
+      _al_win_set_mouse_hcursor(wc);
+   }
+   return true;
+}
+
+static bool d3d_show_mouse_cursor(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *) display;
+
+   /* XXX do we need this? */
+   if (!d3d_display->mouse_selected_hcursor) {
+      d3d_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+   }
+
+   _al_win_set_mouse_hcursor(d3d_display->mouse_selected_hcursor);
+   d3d_display->mouse_cursor_shown = true;
+   return true;
+}
+
+static bool d3d_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *) display;
+
+   _al_win_set_mouse_hcursor(NULL);
+   d3d_display->mouse_cursor_shown = false;
+   return true;
+}
+
 
 
 /* Exposed stuff */
@@ -2054,7 +2142,15 @@ void d3d_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 
 bool d3d_set_system_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
-   return _al_win_directx_set_system_mouse_cursor(cursor_id);
+   HCURSOR hcursor;
+
+   hcursor = _al_win_system_cursor_to_hcursor(cursor_id);
+   if (hcursor) {
+      _al_win_set_mouse_hcursor(hcursor);
+      return true;
+   }
+
+   return false;
 }
 
 /* Obtain a reference to this driver. */
@@ -2071,6 +2167,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->clear = d3d_clear;
    vt->draw_line = d3d_draw_line;
    vt->draw_rectangle = d3d_draw_rectangle;
+   vt->draw_pixel = d3d_draw_pixel;
    vt->flip_display = d3d_flip_display;
    vt->update_display_region = d3d_update_display_region;
    vt->acknowledge_resize = d3d_acknowledge_resize;
@@ -2085,14 +2182,18 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->draw_memory_bitmap_region = NULL;
    vt->create_sub_bitmap = d3d_create_sub_bitmap;
    vt->wait_for_vsync = d3d_wait_for_vsync;
-   vt->show_cursor = d3d_show_cursor;
-   vt->hide_cursor = d3d_hide_cursor;
+
+   vt->create_mouse_cursor = d3d_create_mouse_cursor;
+   vt->destroy_mouse_cursor = d3d_destroy_mouse_cursor;
+   vt->set_mouse_cursor = d3d_set_mouse_cursor;
+   vt->set_system_mouse_cursor = d3d_set_system_mouse_cursor;
+   vt->show_mouse_cursor = d3d_show_mouse_cursor;
+   vt->hide_mouse_cursor = d3d_hide_mouse_cursor;
+
    vt->set_icon = _al_win_set_display_icon;
-   vt->draw_pixel = d3d_draw_pixel;
    vt->set_window_position = d3d_set_window_position;
    vt->get_window_position = d3d_get_window_position;
    vt->toggle_frame = d3d_toggle_frame;
-   vt->set_system_cursor = d3d_set_system_cursor;
 
    return vt;
 }

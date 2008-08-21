@@ -298,134 +298,107 @@ bool al_mouse_button_down(ALLEGRO_MOUSE_STATE *state, int button)
  *****************************************************************************/
 
 
-/*
-ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor_old(BITMAP *bmp, int x_focus, int y_focus)
-{
-   ASSERT(gfx_driver);
-   ASSERT(bmp);
-
-   if ((gfx_driver) && (gfx_driver->create_mouse_cursor))
-      return gfx_driver->create_mouse_cursor(bmp, x_focus, y_focus);
-
-   return NULL;
-}
-*/
-
-
 /* Function: al_create_mouse_cursor
- *  Create a mouse cursor from the bitmap provided.  There must be a
- *  graphics driver in effect.
+ *  Create a mouse cursor from the bitmap provided.  There must be a current
+ *  display in effect.
  *  Returns a pointer to the cursor on success, or NULL on failure.
  */
-
-// FIXME:
-#if 0
-
-ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int x_focus, int y_focus)
+ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
+   int x_focus, int y_focus)
 {
-   int x, y;
-   BITMAP *oldbmp;
-   ALLEGRO_MOUSE_CURSOR *result;
-
-   ASSERT(gfx_driver);
+   ALLEGRO_DISPLAY *dpy = al_get_current_display();
+   ASSERT(dpy);
    ASSERT(bmp);
 
-   /* Convert to BITMAP */
-   oldbmp = create_bitmap_ex(32,
-      al_get_bitmap_width(bmp), al_get_bitmap_height(bmp));
-   for (y = 0; y < oldbmp->h; y++) {
-      for (x = 0; x < oldbmp->w; x++) {
-         ALLEGRO_COLOR color = al_get_pixel(bmp, x, y);
-         unsigned char r, g, b, a;
-         int oldcolor;
-         al_unmap_rgba(color, &r, &g, &b, &a);
-         if (a == 0)
-            oldcolor = makecol32(255, 0, 255);
-         else
-            oldcolor = makecol32(r, g, b);
-         putpixel(oldbmp, x, y, oldcolor);
-      }
+   if (!dpy) {
+      return NULL;
    }
 
-   result = al_create_mouse_cursor_old(oldbmp, x_focus, y_focus);
-
-   destroy_bitmap(oldbmp);
-
-   return result;
+   ASSERT(dpy->vt->create_mouse_cursor);
+   return dpy->vt->create_mouse_cursor(dpy, bmp, x_focus, y_focus);
 }
 
-#endif
 
 /* Function: al_destroy_mouse_cursor
- *  Free the memory used by the given cursor.  The graphics driver that
- *  was in effect when the cursor was created must still be in effect.
+ *  Free the memory used by the given cursor.
+ *
+ *  The display that was in effect when the cursor was created must
+ *  still be in effect.
+ *  XXX that's terrible and should be changed
+ *
+ *  Has no effect if `cursor' is NULL.
  */
 void al_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 {
-   // FIXME
-   /*
-   ASSERT(gfx_driver);
+   ALLEGRO_DISPLAY *dpy = al_get_current_display();
+   ASSERT(dpy);
 
-   if (!cursor)
+   if (!cursor) {
       return;
+   }
 
-   if ((gfx_driver) && (gfx_driver->destroy_mouse_cursor))
-      gfx_driver->destroy_mouse_cursor(cursor);
-
-      */
+   ASSERT(dpy->vt->destroy_mouse_cursor);
+   dpy->vt->destroy_mouse_cursor(dpy, cursor);
 }
 
 
 
 /* Function: al_set_mouse_cursor
- *  Set the given mouse cursor to be the current mouse cursor.  The
- *  graphics driver that was in effect when the cursor was created
- *  must still be in effect.  If the cursor is currently 'shown' (as
- *  opposed to 'hidden') the change is immediately visible.
- *  Returns true on success, false on failure.
+ *  Set the given mouse cursor to be the current mouse cursor for the current
+ *  display.
+ *
+ *  The display that was in effect when the cursor was created must still be
+ *  in effect.
+ *  XXX that's terrible and should be changed
+ *
+ *  If the cursor is currently 'shown' (as opposed to 'hidden') the change is
+ *  immediately visible.  Returns true on success, false on failure.
  */
 bool al_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 {
-   // FIXME
-   /*
-   ASSERT(gfx_driver);
-   ASSERT(cursor);
+   ALLEGRO_DISPLAY *dpy = al_get_current_display();
 
-   if ((gfx_driver) && (gfx_driver->set_mouse_cursor))
-      return gfx_driver->set_mouse_cursor(cursor);
+   if (!cursor) {
+      return false;
+   }
 
-   return false;
-   */
+   if (dpy) {
+      ASSERT(dpy->vt->set_mouse_cursor);
+      return dpy->vt->set_mouse_cursor(dpy, cursor);
+   }
+
    return false;
 }
 
 
 
 /* Function: al_set_system_mouse_cursor
- *  Set the given system mouse cursor to be the current mouse cursor.
- *  The graphics driver that was in effect when the cursor was created
- *  must still be in effect.  If the cursor is currently 'shown' (as
- *  opposed to 'hidden') the change is immediately visible.
- *  Returns true on success, false on failure.
+ *  Set the given system mouse cursor to be the current mouse cursor
+ *  for the current display.  If the cursor is currently 'shown' (as opposed
+ *  to 'hidden') the change is immediately visible.  Returns true on success,
+ *  false on failure.
  */
 bool al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
-   ALLEGRO_DISPLAY *curr;
+   ALLEGRO_DISPLAY *dpy = al_get_current_display();
 
-   curr = al_get_current_display();
+   /* XXX should you be able to set ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE? */
+   ASSERT(cursor_id > ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE);
+   ASSERT(cursor_id < ALLEGRO_NUM_SYSTEM_MOUSE_CURSORS);
+   ASSERT(dpy);
 
-   if (curr && curr->vt && curr->vt->set_system_cursor)
-      curr->vt->set_system_cursor(cursor_id);
-   // FIXME:
-   /*
-   ASSERT(gfx_driver);
+   if (cursor_id <= ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE) {
+      return false;
+   }
+   if (cursor_id > ALLEGRO_NUM_SYSTEM_MOUSE_CURSORS) {
+      return false;
+   }
+   if (!dpy) {
+      return false;
+   }
 
-   if ((gfx_driver) && (gfx_driver->set_system_mouse_cursor))
-      return gfx_driver->set_system_mouse_cursor(cursor_id);
-
-   return false;
-   */
-   return false;
+   ASSERT(dpy->vt->set_system_mouse_cursor);
+   return dpy->vt->set_system_mouse_cursor(dpy, cursor_id);
 }
 
 
@@ -437,25 +410,34 @@ bool al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
  */
 bool al_show_mouse_cursor(void)
 {
-   ALLEGRO_DISPLAY *curr = al_get_current_display();
-   return curr->vt->show_cursor(curr);
+   ALLEGRO_DISPLAY *dpy = al_get_current_display();
+
+   if (dpy) {
+      ASSERT(dpy->vt->show_mouse_cursor);
+      return dpy->vt->show_mouse_cursor(dpy);
+   }
+
+   return false;
 }
 
 
 
 /* Function: al_hide_mouse_cursor
- *  Hide the mouse cursor in the current display of the calling thread. This has
- *  no effect on what the current mouse cursor looks like; it just makes it
- *  disappear.
- *  Returns true on success (or if the cursor already was hidden), false
- *  otherwise.
+ *  Hide the mouse cursor in the current display of the calling thread. This
+ *  has no effect on what the current mouse cursor looks like; it just makes
+ *  it disappear.  Returns true on success (or if the cursor already was
+ *  hidden), false otherwise.
  */
 bool al_hide_mouse_cursor(void)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
-   ASSERT(display);
+   ALLEGRO_DISPLAY *dpy = al_get_current_display();
 
-   return display->vt->hide_cursor(display);
+   if (dpy) {
+      ASSERT(dpy->vt->hide_mouse_cursor);
+      return dpy->vt->hide_mouse_cursor(dpy);
+   }
+
+   return false;
 }
 
 
@@ -491,3 +473,4 @@ bool al_get_cursor_position(int *ret_x, int *ret_y)
  * indent-tabs-mode: nil
  * End:
  */
+/* vim: set sts=3 sw=3 et */
