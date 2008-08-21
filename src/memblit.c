@@ -171,14 +171,13 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    al_get_blender(&src_mode, &dst_mode, NULL);
    bc = _al_get_blend_color();
 
-#ifndef DEBUGMODE
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-      bc->r == 1.0f && bc->g == 1.0f && bc->b == 1.0f && bc->a == 1.0f) {
+      bc->r == 1.0f && bc->g == 1.0f && bc->b == 1.0f && bc->a == 1.0f &&
+      (src->format == dest->format)) {
       _al_draw_scaled_bitmap_memory_fast(src,
             sx, sy, sw, sh, dx, dy, dw, dh, flags);
       return;
    }
-#endif
 
    if ((sw <= 0) || (sh <= 0))
       return;
@@ -194,7 +193,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    	return;
 
    al_lock_bitmap(src, &src_region, ALLEGRO_LOCK_READONLY);
-   al_lock_bitmap(dest, &dst_region, 0);
+   al_lock_bitmap(dest, &dst_region, ALLEGRO_LOCK_WRITEONLY);
 
    sxinc = fabs((float)sw / dw);
    syinc = fabs((float)sh / dh);
