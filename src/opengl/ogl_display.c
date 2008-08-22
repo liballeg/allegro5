@@ -132,8 +132,8 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP_OGL *b, int w, int h)
    b->bitmap.pitch = pitch;
    b->bitmap.cl = 0;
    b->bitmap.ct = 0;
-   b->bitmap.cr = w - 1;
-   b->bitmap.cb = h - 1;
+   b->bitmap.cr = w;
+   b->bitmap.cb = h;
 
    /* There is no texture associated with the backbuffer so no need to care
     * about texture size limitations. */

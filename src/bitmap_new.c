@@ -81,8 +81,8 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->display = NULL;
    bitmap->locked = false;
    bitmap->cl = bitmap->ct = 0;
-   bitmap->cr = w-1;
-   bitmap->cb = h-1;
+   bitmap->cr = w;
+   bitmap->cb = h;
    bitmap->parent = NULL;
    bitmap->xofs = bitmap->yofs = 0;
    // FIXME: Of course, we do need to handle all the possible different formats,
@@ -140,8 +140,8 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
    bitmap->locked = false;
    bitmap->cl = 0;
    bitmap->ct = 0;
-   bitmap->cr = w-1;
-   bitmap->cb = h-1;
+   bitmap->cr = w;
+   bitmap->cb = h;
    bitmap->parent = NULL;
    bitmap->xofs = 0;
    bitmap->yofs = 0;
@@ -739,8 +739,8 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap->display = parent->display;
    bitmap->locked = false;
    bitmap->cl = bitmap->ct = 0;
-   bitmap->cr = w-1;
-   bitmap->cb = h-1;
+   bitmap->cr = w;
+   bitmap->cb = h;
    bitmap->parent = parent;
    bitmap->xofs = x;
    bitmap->yofs = y;
