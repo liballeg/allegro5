@@ -1,10 +1,18 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_iio.h"
 
-int main(void)
+int main(int argc, const char *argv[])
 {
+    const char *filename;
     ALLEGRO_DISPLAY *display;
     ALLEGRO_BITMAP *bitmap;
+
+    if (argc > 1) {
+       filename = argv[1];
+    }
+    else {
+       filename = "mysha.pcx";
+    }
 
     al_init();
     al_install_mouse();
@@ -18,7 +26,7 @@ int main(void)
     }
 
     al_show_mouse_cursor();
-    bitmap = iio_load("mysha.pcx");
+    bitmap = iio_load(filename);
     if (!bitmap) {
        TRACE("mysha.pcx not found");
        return 1;
