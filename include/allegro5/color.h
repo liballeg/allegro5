@@ -52,26 +52,6 @@ AL_ARRAY(int, _rgb_scale_6);
 #define MASK_COLOR_32      0xFF00FF
 */
 
-AL_FUNC(int, makecol, (int r, int g, int b));
-AL_FUNC(int, makecol8, (int r, int g, int b));
-AL_FUNC(int, makecol_depth, (int color_depth, int r, int g, int b));
-
-AL_FUNC(int, makeacol, (int r, int g, int b, int a));
-AL_FUNC(int, makeacol_depth, (int color_depth, int r, int g, int b, int a));
-
-AL_FUNC(int, makecol15_dither, (int r, int g, int b, int x, int y));
-AL_FUNC(int, makecol16_dither, (int r, int g, int b, int x, int y));
-
-AL_FUNC(int, getr, (int c));
-AL_FUNC(int, getg, (int c));
-AL_FUNC(int, getb, (int c));
-AL_FUNC(int, geta, (int c));
-
-AL_FUNC(int, getr_depth, (int color_depth, int c));
-AL_FUNC(int, getg_depth, (int color_depth, int c));
-AL_FUNC(int, getb_depth, (int color_depth, int c));
-AL_FUNC(int, geta_depth, (int color_depth, int c));
-
 #ifdef __cplusplus
    }
 #endif

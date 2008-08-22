@@ -79,17 +79,6 @@ AL_VAR(int, wnd_sysmenu);
 AL_FUNCPTR(void, user_close_proc, (void));
 
 
-/* gfx synchronization */
-AL_VAR(CRITICAL_SECTION, gfx_crit_sect);
-AL_VAR(int, gfx_crit_sect_nesting);
-
-#define _enter_gfx_critical()  EnterCriticalSection(&gfx_crit_sect); \
-                               gfx_crit_sect_nesting++
-#define _exit_gfx_critical()   LeaveCriticalSection(&gfx_crit_sect); \
-                               gfx_crit_sect_nesting--
-#define GFX_CRITICAL_RELEASED  (!gfx_crit_sect_nesting)
-
-
 /* switch routines */
 AL_VAR(int, _win_app_foreground);
 

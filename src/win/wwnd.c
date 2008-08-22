@@ -53,9 +53,6 @@ static int last_wnd_y = -1;
 static int window_is_initialized = FALSE;
 
 /* graphics */
-WIN_GFX_DRIVER *win_gfx_driver;
-CRITICAL_SECTION gfx_crit_sect;
-int gfx_crit_sect_nesting = 0;
 
 /* close button user hook */
 void (*user_close_proc)(void) = NULL;
@@ -211,7 +208,7 @@ int wnd_call_proc(int (*proc) (void))
  */
 void wnd_schedule_proc(int (*proc) (void))
 {
-   PostMessage(win_get_window(), _al_win_msg_call_proc, (DWORD) proc, 0);
+   PostMessage(_al_win_active_window, _al_win_msg_call_proc, (DWORD) proc, 0);
 }
 
 #if 0
@@ -279,7 +276,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
             if (_al_display_type() == 0) {
                /* 1.2s delay to let Windows complete the switch in fullscreen mode */
-               SetTimer(win_get_window(), SWITCH_TIMER, 1200, NULL);
+               SetTimer(_al_win_active_window, SWITCH_TIMER, 1200, NULL);
             }
             else {
                /* no delay in windowed mode */
@@ -290,7 +287,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_TIMER:
          if (wparam == SWITCH_TIMER) {
-            KillTimer(win_get_window(), SWITCH_TIMER);
+            KillTimer(_al_win_active_window, SWITCH_TIMER);
             _win_switch_in();
             return 0;
          }
@@ -307,8 +304,8 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          break;
 
       case WM_MOVE:
-         if (GetActiveWindow() == win_get_window()) {
-            if (!IsIconic(win_get_window())) {
+         if (GetActiveWindow() == _al_win_active_window) {
+            if (!IsIconic(_al_win_active_window)) {
                wnd_x = (short) LOWORD(lparam);
                wnd_y = (short) HIWORD(lparam);
 
@@ -603,7 +600,7 @@ void exit_directx_window(void)
       wnd_thread = NULL;
    }
 
-   DeleteCriticalSection(&gfx_crit_sect);
+   //DeleteCriticalSection(&gfx_crit_sect);
 
    _win_input_exit();
    
@@ -617,8 +614,8 @@ void exit_directx_window(void)
  */
 void restore_window_style(void)
 {
-   SetWindowLong(win_get_window(), GWL_STYLE, old_style);
-   SetWindowPos(win_get_window(), 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+   SetWindowLong(_al_win_active_window, GWL_STYLE, old_style);
+   SetWindowPos(_al_win_active_window, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 }
 
 

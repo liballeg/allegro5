@@ -21,6 +21,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/platform/aintwin.h"
+#include "win_new.h"
 
 #ifndef SCAN_DEPEND
    #include <objbase.h>
@@ -48,7 +49,7 @@ static int first_call = 1;
 void _win_thread_init(void)
 {
    HMODULE ole32 = NULL;
-   HWND allegro_wnd = win_get_window();
+   HWND allegro_wnd = _al_win_active_window;
 
    if (first_call) {
       first_call = 0;

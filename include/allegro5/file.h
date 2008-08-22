@@ -44,7 +44,6 @@ AL_FUNC(time_t, file_time, (AL_CONST char *filename));
 AL_FUNC(int, delete_file, (AL_CONST char *filename));
 AL_FUNC(int, for_each_file_ex, (AL_CONST char *name, int in_attrib, int out_attrib, AL_METHOD(int, callback, (AL_CONST char *filename, int attrib, void *param)), void *param));
 AL_FUNC(int, set_allegro_resource_path, (int priority, AL_CONST char *path));
-AL_FUNC(int, find_allegro_resource, (char *dest, AL_CONST char *resource, AL_CONST char *ext, AL_CONST char *datafile, AL_CONST char *objectname, AL_CONST char *envvar, AL_CONST char *subdir, int size));
 
 struct al_ffblk        /* file info block for the al_find*() routines */
 {

@@ -3,7 +3,6 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_vector.h"
 
 
 #include "iio.h"
@@ -18,8 +17,9 @@ typedef struct Loader {
 } Loader;
 
 
-static _AL_VECTOR loaders = _AL_VECTOR_INITIALIZER(Loader *);
+static Loader **loaders = NULL;
 static bool inited = false;
+static int num_loaders = 0;
 
 
 bool iio_init(void)
@@ -57,16 +57,23 @@ bool iio_add_loader(AL_CONST char *extension, IIO_LOADER_FUNCTION function)
    l->extension = strdup(extension);
    l->function = function;
 
-   add = _al_vector_alloc_back(&loaders);
+   num_loaders++;
 
-   if (add) {
-      *add = l;
-      return true;
+   if (loaders == NULL) {
+      loaders = _AL_MALLOC(sizeof(Loader*));
    }
    else {
+      loaders = _AL_REALLOC(loaders, num_loaders*sizeof(Loader*));
+   }
+
+   if (!loaders) {
       _AL_FREE(l);
       return false;
    }
+
+   loaders[num_loaders-1] = l;
+
+   return true;
 }
 
 
@@ -122,9 +129,8 @@ ALLEGRO_BITMAP *iio_load(AL_CONST char *filename)
 
    _AL_FREE(p);
 
-   for (i = 0; i < loaders._size; i++) {
-      Loader **lptr = _al_vector_ref(&loaders, i);
-      Loader *l = *lptr;
+   for (i = 0; i < num_loaders; i++) {
+      Loader *l = loaders[i];
       if (!iio_stricmp(extension, l->extension)) {
          return l->function(filename);
       }

@@ -68,27 +68,7 @@
 #endif
 
 
-/* external graphics driver support */
-typedef struct WIN_GFX_DRIVER {
-   int has_backing_store;
-   AL_METHOD(void, switch_in, (void));
-   AL_METHOD(void, switch_out, (void));
-   AL_METHOD(void, enter_sysmode, (void));
-   AL_METHOD(void, exit_sysmode, (void));
-   AL_METHOD(void, move, (int x, int y, int w, int h));
-   AL_METHOD(void, iconify, (void));
-   AL_METHOD(void, paint, (RECT *rect));
-} WIN_GFX_DRIVER;
-
-AL_VAR(WIN_GFX_DRIVER *, win_gfx_driver);
-
 AL_FUNC(void, win_grab_input, (void));
-
-
-/* external window support */
-AL_FUNC(HWND, win_get_window, (void));
-AL_FUNC(void, win_set_window, (HWND wnd));
-AL_FUNC(void, win_set_wnd_create_proc, (AL_METHOD(HWND, proc, (WNDPROC))));
 
 
 /* D3D stuff */
