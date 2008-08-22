@@ -2,9 +2,6 @@
 #define IIO_H
 
 
-#include "allegro5/a5_iio.h"
-
-
 typedef struct PalEntry {
    int r, g, b, a;
 } PalEntry;

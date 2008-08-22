@@ -398,7 +398,7 @@ static void read_image(PACKFILE *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPINFOHEADER 
    dir    = height < 0 ? 1: -1;
    height = ABS(height);
 
-   buf = _AL_MALLOC(infoheader->biWidth);
+   buf = malloc(infoheader->biWidth);
 
    for (i=0; i<height; i++, line+=dir) {
       switch (infoheader->biBitCount) {
@@ -439,7 +439,7 @@ static void read_image(PACKFILE *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPINFOHEADER 
       }
    }
 
-   _AL_FREE(buf);
+   free(buf);
 }
 
 
@@ -674,7 +674,7 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(PACKFILE *f)
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_WRITEONLY);
 
    if (infoheader.biCompression == BIT_RLE8 || infoheader.biCompression == BIT_RLE4) {
-      buf = _AL_MALLOC(infoheader.biWidth*infoheader.biHeight);
+      buf = malloc(infoheader.biWidth*infoheader.biHeight);
    }
 
    switch (infoheader.biCompression) {

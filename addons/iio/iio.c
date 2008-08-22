@@ -3,6 +3,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/a5_iio.h"
 
 
 #include "iio.h"
@@ -49,7 +50,7 @@ bool iio_add_loader(AL_CONST char *extension, IIO_LOADER_FUNCTION function)
    ASSERT(extension);
    ASSERT(function);
 
-   l = (Loader *)_AL_MALLOC(sizeof(*l));
+   l = (Loader *)malloc(sizeof(Loader));
    if (!l)
       return false;
 
@@ -58,15 +59,16 @@ bool iio_add_loader(AL_CONST char *extension, IIO_LOADER_FUNCTION function)
 
    num_loaders++;
 
-   if (loaders == NULL) {
-      loaders = _AL_MALLOC(sizeof(Loader*));
+   if (num_loaders == 1) {
+      loaders = malloc(sizeof(Loader*));
    }
    else {
-      loaders = _AL_REALLOC(loaders, num_loaders*sizeof(Loader*));
+      loaders = realloc(loaders, num_loaders*sizeof(Loader*));
    }
 
    if (!loaders) {
-      _AL_FREE(l);
+      free(l);
+      loaders = NULL;
       return false;
    }
 
@@ -126,7 +128,7 @@ ALLEGRO_BITMAP *iio_load(AL_CONST char *filename)
    
    strncpy(extension, p, MAX_EXTENSION);
 
-   _AL_FREE(p);
+   free(p);
 
    for (i = 0; i < num_loaders; i++) {
       Loader *l = loaders[i];

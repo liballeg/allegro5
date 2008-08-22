@@ -57,10 +57,10 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
    //*allegro_errno = 0;
 
    if (bpp == 8) {
-      buf = (unsigned char *)_AL_MALLOC(bytes_per_line*height);
+      buf = (unsigned char *)malloc(bytes_per_line*height);
    }
    else {
-      buf = (unsigned char *)_AL_MALLOC(bytes_per_line*3);
+      buf = (unsigned char *)malloc(bytes_per_line*3);
    }
 
    _al_push_target_bitmap();
@@ -126,7 +126,7 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
    _al_pop_target_bitmap();
    al_unlock_bitmap(b);
    
-   _AL_FREE(buf);
+   free(buf);
 
    //if (*allegro_errno) {
      // al_destroy_bitmap(b);
@@ -177,7 +177,7 @@ static int iio_save_pcx_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
    for (c=0; c<54; c++)                   /* filler */
       pack_putc(0, f);
 
-   buf = _AL_MALLOC(w*3);
+   buf = malloc(w*3);
 
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
 
@@ -210,7 +210,7 @@ static int iio_save_pcx_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
       }
    }
 
-   _AL_FREE(buf);
+   free(buf);
 
    al_unlock_bitmap(bmp);
 
