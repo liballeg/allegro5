@@ -2115,12 +2115,12 @@ LPDIRECT3DTEXTURE9 al_d3d_get_video_texture(ALLEGRO_BITMAP *bitmap)
 	return ((ALLEGRO_BITMAP_D3D *)bitmap)->video_texture;
 }
 
-void d3d_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+static void d3d_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
    _al_win_set_window_position(((ALLEGRO_DISPLAY_D3D *)display)->window, x, y);
 }
 
-void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+static void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 {
    if (display->flags & ALLEGRO_FULLSCREEN) {
       ALLEGRO_MONITOR_INFO info;
@@ -2134,25 +2134,12 @@ void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
    }
 }
 
-void d3d_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
+static void d3d_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 {
    _al_win_toggle_window_frame(
       display,
       ((ALLEGRO_DISPLAY_D3D *)display)->window,
       display->w, display->h, onoff);
-}
-
-bool d3d_set_system_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
-{
-   HCURSOR hcursor;
-
-   hcursor = _al_win_system_cursor_to_hcursor(cursor_id);
-   if (hcursor) {
-      _al_win_set_mouse_hcursor(hcursor);
-      return true;
-   }
-
-   return false;
 }
 
 /* Obtain a reference to this driver. */

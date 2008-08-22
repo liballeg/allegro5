@@ -19,7 +19,7 @@ typedef struct Loader {
 
 static Loader **loaders = NULL;
 static bool inited = false;
-static int num_loaders = 0;
+static unsigned int num_loaders = 0;
 
 
 bool iio_init(void)
@@ -44,7 +44,6 @@ bool iio_init(void)
 
 bool iio_add_loader(AL_CONST char *extension, IIO_LOADER_FUNCTION function)
 {
-   Loader **add;
    Loader *l;
 
    ASSERT(extension);

@@ -17,6 +17,14 @@ typedef struct ALLEGRO_DISPLAY_WGL
    HDC dc;
    HGLRC glrc;
 
+   int mouse_range_x1;
+   int mouse_range_y1;
+   int mouse_range_x2;
+   int mouse_range_y2;
+
+   HCURSOR mouse_selected_hcursor;
+   bool mouse_cursor_shown;
+
    bool thread_ended;
    bool end_thread;
 } ALLEGRO_DISPLAY_WGL;
