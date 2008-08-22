@@ -189,9 +189,11 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
    ALLEGRO_DISPLAY_XGLX *d = _AL_MALLOC(sizeof *d);
    ALLEGRO_DISPLAY *display = (void*)d;
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (void *)d;
+   ALLEGRO_OGL_EXTRAS *ogl = _AL_MALLOC(sizeof *ogl);
    memset(d, 0, sizeof *d);
-
+   memset(ogl, 0, sizeof *ogl);
+   display->ogl_extras = ogl;
+   
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
 
    _al_mutex_lock(&system->lock);
@@ -302,12 +304,12 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       glXMakeCurrent(system->gfxdisplay, d->glxwindow, d->context);
    }
 
-   _al_ogl_manage_extensions(ogl_disp);
-   _al_ogl_set_extensions(ogl_disp->extension_api);
+   _al_ogl_manage_extensions(display);
+   _al_ogl_set_extensions(ogl->extension_api);
 
    setup_gl(display);
 
-   ogl_disp->backbuffer = _al_ogl_create_backbuffer(display);
+   ogl->backbuffer = _al_ogl_create_backbuffer(display);
 
    d->invisible_cursor = None;
    d->current_cursor = XC_left_ptr;
@@ -327,7 +329,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
-   ALLEGRO_DISPLAY_OGL *ogl = (void *)d;
+   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
    /* If we're the last display, convert all bitmpas to display independent
     * (memory) bitmaps. */
@@ -359,7 +361,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       }
    }
 
-   _al_ogl_unmanage_extensions((ALLEGRO_DISPLAY_OGL*)glx);
+   _al_ogl_unmanage_extensions(d);
 
    _al_mutex_lock(&s->lock);
    _al_vector_find_and_delete(&s->system.displays, &d);
@@ -374,8 +376,9 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    }
 
    _al_vector_free(&d->bitmaps);
-   _al_event_source_free(&ogl->display.es);
+   _al_event_source_free(&d->es);
 
+   _AL_FREE(d->ogl_extras);
    _AL_FREE(d);
 
    _al_mutex_unlock(&s->lock);
@@ -387,7 +390,7 @@ static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-   ALLEGRO_DISPLAY_OGL *ogl = (ALLEGRO_DISPLAY_OGL *)d;
+   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
    /* Make our GLX context current for reading and writing in the current
     * thread.
@@ -489,7 +492,7 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
-   ALLEGRO_EVENT_SOURCE *es = &glx->ogl_display.display.es;
+   ALLEGRO_EVENT_SOURCE *es = &glx->display.es;
    _al_event_source_lock(es);
 
    /* Generate a resize event if the size has changed. We cannot asynchronously
@@ -547,7 +550,7 @@ void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
-   ALLEGRO_EVENT_SOURCE *es = &glx->ogl_display.display.es;
+   ALLEGRO_EVENT_SOURCE *es = &d->es;
    _al_event_source_lock(es);
 
    if (_al_event_source_needs_to_generate_event(es)) {

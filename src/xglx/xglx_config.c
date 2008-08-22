@@ -9,7 +9,7 @@ static void choose_visual_fbconfig(ALLEGRO_DISPLAY_XGLX *glx)
     int green_bits = 0;
     int blue_bits = 0;
     int alpha_bits = 0;
-    if (glx->ogl_display.display.flags & ALLEGRO_SINGLEBUFFER)
+    if (glx->display.flags & ALLEGRO_SINGLEBUFFER)
         double_buffer = False;
     int attributes[]  = {
         GLX_DOUBLEBUFFER, double_buffer,
@@ -33,7 +33,7 @@ static void choose_visual_old(ALLEGRO_DISPLAY_XGLX *glx)
     int green_bits = 0;
     int blue_bits = 0;
     int alpha_bits = 0;
-    if (glx->ogl_display.display.flags & ALLEGRO_SINGLEBUFFER)
+    if (glx->display.flags & ALLEGRO_SINGLEBUFFER)
         double_buffer = False;
     int attributes[] = {
         GLX_RGBA,
