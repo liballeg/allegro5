@@ -159,6 +159,7 @@ def examples(env,appendDir,buildDir,libDir):
     example("exnew_membmp")
     example("exnew_monitorinfo")
     example("exnew_mouse")
+    example("exnew_mouse_cursor")
     example("exnew_mouse_events")
     example("exnew_multiwin")
     example("exnew_noframe")
