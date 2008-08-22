@@ -67,7 +67,7 @@ int main(void)
    al_set_target_bitmap(shrunk_bmp);
    al_draw_scaled_bitmap(bmp,
       0, 0, al_get_bitmap_width(bmp), al_get_bitmap_height(bmp),
-      0, 0, 128, 128,
+      0, 0, 32, 32,
       0);
 
    cursor = al_create_mouse_cursor(shrunk_bmp, 0, 0);
