@@ -9,6 +9,10 @@
 #ifndef A5_VOICE_H
 #define A5_VOICE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* struct ALLEGRO_VOICE:
 */
 typedef struct ALLEGRO_VOICE ALLEGRO_VOICE;
@@ -23,4 +27,9 @@ A5_AUDIO_FUNC(int, al_voice_get_loop_mode, (ALLEGRO_VOICE* voice, ALLEGRO_AUDIO_
 A5_AUDIO_FUNC(int, al_voice_pause, (ALLEGRO_VOICE* voice));
 A5_AUDIO_FUNC(int, al_voice_stop, (ALLEGRO_VOICE* voice));
 A5_AUDIO_FUNC(int, al_voice_start, (ALLEGRO_VOICE* voice));
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

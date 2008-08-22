@@ -10,6 +10,10 @@
 
 #include "allegro5/allegro5.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC)
    #ifndef ALLEGRO_STATICLINK
       #ifdef A5_ACODEC_SRC
@@ -33,5 +37,9 @@
 #include "allegro5/audio.h"
 A5_ACODEC_FUNC(ALLEGRO_SAMPLE*, al_load_sample,(const char* filename));
 A5_ACODEC_FUNC(ALLEGRO_STREAM*, al_load_stream,(const char* filename));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

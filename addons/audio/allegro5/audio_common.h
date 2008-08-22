@@ -4,6 +4,10 @@
 #ifndef A5_AUDIO_COMMON_H
 #define A5_AUDIO_COMMON_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC)
    #ifndef ALLEGRO_STATICLINK
       #ifdef A5_AUDIO_SRC
@@ -85,5 +89,9 @@ A5_AUDIO_FUNC(void, al_audio_deinit, (void));
 
 A5_AUDIO_FUNC(int,  al_audio_channel_count, (ALLEGRO_AUDIO_ENUM conf));
 A5_AUDIO_FUNC(int,  al_audio_depth_size, (ALLEGRO_AUDIO_ENUM conf));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

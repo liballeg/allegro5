@@ -23,12 +23,12 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   SAMPLE *game_music = load_sample(getResource("sfx/game_music.wav"));
+   ALLEGRO_SAMPLE *game_music = al_load_sample(getResource("sfx/game_music.wav"));
    if (!game_music) {
       printf("Failed to load %s\n", getResource("sfx/game_music.wav"));
       return 1;
    }
-   SAMPLE *title_music = load_sample(getResource("sfx/title_music.wav"));
+   ALLEGRO_SAMPLE *title_music = al_load_sample(getResource("sfx/title_music.wav"));
    if (!title_music) {
       printf("Failed to load %s\n", getResource("sfx/title_music.wav"));
       return 1;
@@ -39,26 +39,32 @@ int main(int argc, char **argv)
    ResourceManager& rm = ResourceManager::getInstance();
    Player *player = (Player *)rm.getData(RES_PLAYER);
 
+   ALLEGRO_VOICE *title_voice = al_voice_create(title_music);
+   ALLEGRO_VOICE *game_voice = al_voice_create(game_music);
+   al_voice_set_loop_mode(title_voice, ALLEGRO_AUDIO_ONE_DIR);
+   al_voice_set_loop_mode(game_voice, ALLEGRO_AUDIO_ONE_DIR);
    for (;;) {
       player->load();
 
       al_rest(0.500);
 
-      play_sample(title_music, 255, 128, 1000, 1);
+      
+      al_voice_start(title_voice);
+      
       int choice = do_menu();
       if (choice != 0) {
          if (joystick)
             al_release_joystick(joystick);
          break;
       }
-      stop_sample(title_music);
+      al_voice_stop(title_voice);
 
       al_rest(0.250);
       lastUFO = -1;
       canUFO = true;
 
       w.init();
-      play_sample(game_music, 255, 128, 1000, 1);
+      al_voice_start(game_voice);
 
       int step = 0;
       long start = (long) (al_current_time() * 1000);
@@ -87,7 +93,7 @@ int main(int argc, char **argv)
       }
       entities.clear();
 
-      stop_sample(game_music);
+      al_voice_stop(game_voice);
 
       if (won) {
          // FIXME: show end screen

@@ -99,7 +99,6 @@ typedef struct MODE_REGISTERS
    unsigned long flags;
    union {
       unsigned char vga[768];
-      PALETTE allegro;
    } palette;
 } MODE_REGISTERS;
 

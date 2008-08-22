@@ -231,9 +231,9 @@ bool init(void)
    srand(time(NULL));
 
    al_init();
+   iio_init();
+   al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
 
-   install_sound(DIGI_AUTODETECT, MIDI_NONE, 0);
-   
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
    // Read configuration file

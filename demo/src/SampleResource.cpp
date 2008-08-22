@@ -4,13 +4,13 @@ void SampleResource::destroy(void)
 {
    if (!sample)
       return;
-   destroy_sample(sample);
+   al_sample_destroy(sample);
    sample = 0;
 }
 
 bool SampleResource::load(void)
 {
-   sample = load_sample(filename.c_str());
+   sample = al_load_sample(filename.c_str());
    if (!sample)
       debug_message("Error loading sample %s\n", filename.c_str());
    return sample != 0;
