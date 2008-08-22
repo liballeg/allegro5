@@ -58,8 +58,8 @@ struct ALLEGRO_SYSTEM_XGLX
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
 struct ALLEGRO_DISPLAY_XGLX
 {
-   ALLEGRO_DISPLAY_OGL ogl_display; /* This must be the first member. */
-   
+   ALLEGRO_DISPLAY display; /* This must be the first member. */
+
    /* Driver specifics. */
 
    Window window;

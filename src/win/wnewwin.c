@@ -235,6 +235,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
     WPARAM wParam, LPARAM lParam)
 {
    ALLEGRO_DISPLAY *d = NULL;
+   ALLEGRO_DISPLAY_WIN *win_display;
    WINDOWINFO wi;
    int w;
    int h;
@@ -267,6 +268,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    }
    found:
 
+   win_display = (ALLEGRO_DISPLAY_WIN *)d;
+
    if (message == _al_win_msg_suicide) {
       if (win)
          _AL_FREE(win);
@@ -282,12 +285,13 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          case WM_MOUSEACTIVATE:
             return MA_ACTIVATEANDEAT;
          case WM_SETCURSOR:
+            SetCursor(win_display->mouse_selected_hcursor);
+            return 1;
 	    // XXX ?
             /*
 	    if (_win_hcursor == NULL)
 	       SetCursor(NULL);
                */
-            break;
          //case WM_SETCURSOR:
          //   mouse_set_syscursor();
          //   return 1;

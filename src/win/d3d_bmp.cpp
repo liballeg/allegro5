@@ -360,6 +360,7 @@ static void d3d_do_upload(ALLEGRO_BITMAP_D3D *d3d_bmp, int x, int y, int width,
 void _al_d3d_release_default_pool_textures(ALLEGRO_DISPLAY_D3D *disp)
 {
    unsigned int i;
+   ALLEGRO_DISPLAY *al_display = (ALLEGRO_DISPLAY *)disp;
 
    if (!_al_d3d_render_to_texture_supported())
       return;
@@ -373,8 +374,8 @@ void _al_d3d_release_default_pool_textures(ALLEGRO_DISPLAY_D3D *disp)
    }
    */
 
-   for (i = 0; i < disp->display.bitmaps._size; i++) {
-   	ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&disp->display.bitmaps, i);
+   for (i = 0; i < al_display->bitmaps._size; i++) {
+   	ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&al_display->bitmaps, i);
 	ALLEGRO_BITMAP *albmp = *bptr;
 	ALLEGRO_BITMAP_D3D *d3d_bmp;
 	if (albmp->flags & ALLEGRO_MEMORY_BITMAP)

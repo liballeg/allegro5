@@ -43,10 +43,9 @@ typedef struct ALLEGRO_BITMAP_D3D
 
 typedef struct ALLEGRO_DISPLAY_D3D
 {
-   ALLEGRO_DISPLAY display; /* This must be the first member. */
+   ALLEGRO_DISPLAY_WIN win_display; /* This must be the first member. */
 
    /* Driver specifics */
-   HWND window;
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DSURFACE9 render_target;
 
@@ -64,14 +63,6 @@ typedef struct ALLEGRO_DISPLAY_D3D
    bool reset_success;
 
    ALLEGRO_BITMAP_D3D backbuffer_bmp;
-
-   int mouse_range_x1;
-   int mouse_range_y1;
-   int mouse_range_x2;
-   int mouse_range_y2;
-
-   HCURSOR mouse_selected_hcursor;
-   bool mouse_cursor_shown;
 
    bool device_lost;
 

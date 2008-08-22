@@ -159,7 +159,7 @@ static int mymickey_oy = 0;
                                               \
       GetCursorPos(&p);                       \
                                               \
-      al_get_window_position(al_get_current_display(), &wx, &wy); \
+      _al_win_get_window_position(_al_win_active_window, &wx, &wy); \
       p.x -= wx;                              \
       p.y -= wy;                              \
                                               \
@@ -178,7 +178,7 @@ static int mymickey_oy = 0;
 {                                                   \
    int wx, wy;                                      \
    GetCursorPos(&p);                                \
-   al_get_window_position(al_get_current_display(), &wx, &wy); \
+   _al_win_get_window_position(_al_win_active_window, &wx, &wy); \
                                                     \
    p.x -= wx;                                       \
    p.y -= wy;                                       \
@@ -491,7 +491,7 @@ static void mouse_dinput_handle(void)
 
 	    GetCursorPos(&p);
 
-            al_get_window_position(al_get_current_display(), &wx, &wy);
+            _al_win_get_window_position(_al_win_active_window, &wx, &wy);
 
 	    p.x -= wx;
 	    p.y -= wy;
@@ -933,7 +933,7 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
 	    0);
       }
 
-      al_get_window_position(al_get_current_display(), &wx, &wy);
+      _al_win_get_window_position(_al_win_active_window, &wx, &wy);
 
       if (_al_display_type() == 1) {
 	 SetCursorPos(new_x+wx, new_y+wy);

@@ -67,6 +67,10 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*toggle_frame)(ALLEGRO_DISPLAY *display, bool onoff);
 };
 
+
+struct ALLEGRO_OGL_EXTRAS;
+
+
 struct ALLEGRO_DISPLAY
 {
    /* Must be first, so the display can be used as event source. */
@@ -77,8 +81,29 @@ struct ALLEGRO_DISPLAY
    int flags;
    int w, h;
 
+   struct ALLEGRO_OGL_EXTRAS *ogl_extras;
+
    _AL_VECTOR bitmaps; /* A list of bitmaps created for this display. */
 };
+
+
+#ifdef ALLEGRO_WINDOWS
+typedef struct ALLEGRO_DISPLAY_WIN ALLEGRO_DISPLAY_WIN;
+
+struct ALLEGRO_DISPLAY_WIN
+{
+   ALLEGRO_DISPLAY display;
+
+   HWND window;
+   int mouse_range_x1;
+   int mouse_range_y1;
+   int mouse_range_x2;
+   int mouse_range_y2;
+   HCURSOR mouse_selected_hcursor;
+   bool mouse_cursor_shown;
+};
+#endif
+
 
 //ALLEGRO_DISPLAY_INTERFACE *_al_display_d3ddummy_driver(void);
 

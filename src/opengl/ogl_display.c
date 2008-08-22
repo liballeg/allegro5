@@ -21,7 +21,7 @@
 
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (void *)display;
+   ALLEGRO_DISPLAY *ogl_disp = (void *)display;
    /* If it is a memory bitmap, this display vtable entry would not even get
     * called, so the cast below is always safe.
     */
@@ -30,7 +30,7 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    if (!ogl_bitmap->is_backbuffer) {
       if (ogl_bitmap->fbo) {
          /* Bind to the FBO. */
-         ASSERT(ogl_disp->extension_list->ALLEGRO_GL_EXT_framebuffer_object);
+         ASSERT(ogl_disp->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object);
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ogl_bitmap->fbo);
 
          /* Attach the texture. */
@@ -41,7 +41,7 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
             // FIXME: handle this somehow!
          }
 
-         ogl_disp->opengl_target = ogl_bitmap;
+         ogl_disp->ogl_extras->opengl_target = ogl_bitmap;
          glViewport(0, 0, bitmap->w, bitmap->h);
 
          glMatrixMode(GL_PROJECTION);
@@ -61,10 +61,10 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       }
    }
    else {
-      if (ogl_disp->extension_list->ALLEGRO_GL_EXT_framebuffer_object) {
+      if (ogl_disp->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object) {
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       }
-      ogl_disp->opengl_target = ogl_bitmap;
+      ogl_disp->ogl_extras->opengl_target = ogl_bitmap;
 
       glViewport(0, 0, display->w, display->h);
 
@@ -79,7 +79,7 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       glLoadIdentity();
    }
 
-   if (ogl_disp->opengl_target == ogl_bitmap) {
+   if (ogl_disp->ogl_extras->opengl_target == ogl_bitmap) {
       _al_ogl_setup_bitmap_clipping(bitmap);
    }
 }
@@ -115,8 +115,8 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
 
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_OGL *dpy = (void *)d;
-   return (ALLEGRO_BITMAP *)dpy->backbuffer;
+   ALLEGRO_DISPLAY *dpy = (void *)d;
+   return (ALLEGRO_BITMAP *)dpy->ogl_extras->backbuffer;
 }
 
 

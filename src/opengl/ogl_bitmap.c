@@ -136,8 +136,8 @@ static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
-   if (disp->opengl_target != ogl_target) {
+   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   if (disp->ogl_extras->opengl_target != ogl_target) {
       _al_draw_bitmap_memory(bitmap, x, y, flags);
       return;
    }
@@ -155,8 +155,8 @@ static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
-   if (disp->opengl_target != ogl_target) {
+   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   if (disp->ogl_extras->opengl_target != ogl_target) {
       _al_draw_scaled_bitmap_memory(bitmap, sx, sy, sw, sh, dx, dy, dw, dh,
                                     flags);
       return;
@@ -174,8 +174,8 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
-   if (disp->opengl_target != ogl_target) {
+   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   if (disp->ogl_extras->opengl_target != ogl_target) {
       _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;
    }
@@ -192,8 +192,8 @@ static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
-   if (disp->opengl_target != ogl_target) {
+   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   if (disp->ogl_extras->opengl_target != ogl_target) {
       _al_draw_rotated_bitmap_memory(bitmap, cx, cy, dx, dy, angle, flags);
       return;
    }
@@ -212,8 +212,8 @@ static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
-   if (disp->opengl_target != ogl_target) {
+   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   if (disp->ogl_extras->opengl_target != ogl_target) {
       _al_draw_rotated_scaled_bitmap_memory(bitmap, cx, cy, dx, dy,
                                             xscale, yscale, angle, flags);
       return;
@@ -315,10 +315,10 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
 static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (void *)display;
+   ALLEGRO_DISPLAY *ogl_disp = (void *)display;
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
 
-   if (ogl_disp->opengl_target == ogl_bitmap) {
+   if (ogl_disp->ogl_extras->opengl_target == ogl_bitmap) {
       _al_ogl_setup_bitmap_clipping(bitmap);
    }
 }
@@ -478,7 +478,7 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
 
 ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 {
-   const ALLEGRO_DISPLAY_OGL *ogl_dpy = (void *)d;
+   const ALLEGRO_DISPLAY *ogl_dpy = (void *)d;
    ALLEGRO_BITMAP_OGL *bitmap;
    int format = al_get_new_bitmap_format();
    const int flags = al_get_new_bitmap_flags();
@@ -487,7 +487,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    int pitch;
    size_t bytes;
 
-   if (ogl_dpy->extension_list->ALLEGRO_GL_ARB_texture_non_power_of_two) {
+   if (ogl_dpy->ogl_extras->extension_list->ALLEGRO_GL_ARB_texture_non_power_of_two) {
       true_w = w;
       true_h = h;
    }

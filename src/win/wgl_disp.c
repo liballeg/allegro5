@@ -857,7 +857,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
 
 static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    ALLEGRO_DISPLAY     *disp     = (void*)wgl_disp;
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (void*)wgl_disp;
+   ALLEGRO_DISPLAY *ogl_disp = (void*)wgl_disp;
    new_display_parameters ndp;
 
    ndp.display = wgl_disp;
@@ -883,9 +883,9 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    }
 
    _al_ogl_manage_extensions(ogl_disp);
-   _al_ogl_set_extensions(ogl_disp->extension_api);
+   _al_ogl_set_extensions(ogl_disp->ogl_extras->extension_api);
 
-   ogl_disp->backbuffer = _al_ogl_create_backbuffer(disp);
+   ogl_disp->ogl_extras->backbuffer = _al_ogl_create_backbuffer(disp);
 
    setup_gl(disp);
 
@@ -897,7 +897,7 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
    ALLEGRO_DISPLAY_WGL **add;
    ALLEGRO_DISPLAY_WGL *wgl_display = _AL_MALLOC(sizeof *wgl_display);
-   ALLEGRO_DISPLAY_OGL *ogl_display = (void*)wgl_display;
+   ALLEGRO_DISPLAY *ogl_display = (void*)wgl_display;
    ALLEGRO_DISPLAY     *display     = (void*)ogl_display;
 
    memset(display, 0, sizeof *wgl_display);
@@ -907,6 +907,9 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
    display->vt = vt;
+
+   display->ogl_extras = _AL_MALLOC(sizeof(ALLEGRO_OGL_EXTRAS));
+   memset(display->ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
 
    if (!create_display_internals(wgl_display)) {
       return NULL;
@@ -926,17 +929,17 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
 
    win_grab_input();
 
-   wgl_display->mouse_range_x1 = 0;
-   wgl_display->mouse_range_y1 = 0;
-   wgl_display->mouse_range_x2 = w;
-   wgl_display->mouse_range_y2 = h;
+   wgl_display->win_display.mouse_range_x1 = 0;
+   wgl_display->win_display.mouse_range_y1 = 0;
+   wgl_display->win_display.mouse_range_x2 = w;
+   wgl_display->win_display.mouse_range_y2 = h;
    if (al_is_mouse_installed()) {
       al_set_mouse_xy(w/2, h/2);
       al_set_mouse_range(0, 0, w, h);
    }
 
-   wgl_display->mouse_selected_hcursor = 0;
-   wgl_display->mouse_cursor_shown = false;
+   wgl_display->win_display.mouse_selected_hcursor = 0;
+   wgl_display->win_display.mouse_cursor_shown = false;
 
    if (al_is_mouse_installed()) {
       al_set_mouse_xy(w/2, h/2);
@@ -948,12 +951,13 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
 
 
 static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)wgl_disp;
+   ALLEGRO_DISPLAY *ogl_disp = (ALLEGRO_DISPLAY *)wgl_disp;
+   ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)wgl_disp;
 
    /* REVIEW: can al_destroy_bitmap() handle backbuffers? */
-   if (ogl_disp->backbuffer)
-      _al_ogl_destroy_backbuffer(ogl_disp->backbuffer);
-   ogl_disp->backbuffer = NULL;
+   if (ogl_disp->ogl_extras->backbuffer)
+      _al_ogl_destroy_backbuffer(ogl_disp->ogl_extras->backbuffer);
+   ogl_disp->ogl_extras->backbuffer = NULL;
 
    _al_ogl_unmanage_extensions(ogl_disp);
 
@@ -963,9 +967,11 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
 
    _al_win_ungrab_input();
 
-   PostMessage(wgl_disp->window, _al_win_msg_suicide, 0, 0);
+   PostMessage(win_disp->window, _al_win_msg_suicide, 0, 0);
 
-   _al_event_source_free(&ogl_disp->display.es);
+   _al_event_source_free(&ogl_disp->es);
+
+   _AL_FREE(ogl_disp->ogl_extras); /* Should this be in destroy_display? */
 }
 
 
@@ -993,7 +999,7 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 static bool wgl_set_current_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)d;
+   ALLEGRO_DISPLAY *ogl_disp = (ALLEGRO_DISPLAY *)d;
    HGLRC current_glrc;
 
    current_glrc = wglGetCurrentContext();
@@ -1006,7 +1012,7 @@ static bool wgl_set_current_display(ALLEGRO_DISPLAY *d)
          return false;
       }
 
-      _al_ogl_set_extensions(ogl_disp->extension_api);
+      _al_ogl_set_extensions(ogl_disp->ogl_extras->extension_api);
    }
 
    return true;
@@ -1022,6 +1028,7 @@ static void display_thread_proc(void *arg)
    new_display_parameters *ndp = arg;
    ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY*)ndp->display;
    ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
+   ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)disp;
    DWORD result;
    MSG msg;
 
@@ -1034,9 +1041,9 @@ static void display_thread_proc(void *arg)
       }
    }
 
-   wgl_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
+   win_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
 
-   if (!wgl_disp->window) {
+   if (!win_disp->window) {
       ndp->init_failed = true;
       return;
    }
@@ -1048,13 +1055,13 @@ static void display_thread_proc(void *arg)
       rect.right = disp->w;
       rect.top  = 0;
       rect.bottom = disp->h;
-      SetWindowPos(wgl_disp->window, 0, rect.left, rect.top,
+      SetWindowPos(win_disp->window, 0, rect.left, rect.top,
              rect.right - rect.left, rect.bottom - rect.top,
              SWP_NOZORDER | SWP_FRAMECHANGED);
    }
 
    /* get the device context of our window */
-   wgl_disp->dc = GetDC(wgl_disp->window);
+   wgl_disp->dc = GetDC(win_disp->window);
 
    if (!select_pixel_format(wgl_disp, wgl_disp->dc)) {
       wgl_disp->thread_ended = true;
@@ -1107,7 +1114,7 @@ End:
       wgl_disp->glrc = NULL;
    }
    if (wgl_disp->dc) {
-      ReleaseDC(wgl_disp->window, wgl_disp->dc);
+      ReleaseDC(win_disp->window, wgl_disp->dc);
       wgl_disp->dc = NULL;
    }
 
@@ -1115,9 +1122,9 @@ End:
       ChangeDisplaySettings(NULL, 0);
    }
 
-   if (wgl_disp->window) {
-      DestroyWindow(wgl_disp->window);
-      wgl_disp->window = NULL;
+   if (win_disp->window) {
+      DestroyWindow(win_disp->window);
+      win_disp->window = NULL;
    }
 
    _al_win_delete_thread_handle(GetCurrentThreadId());
@@ -1155,7 +1162,8 @@ static bool wgl_update_display_region(ALLEGRO_DISPLAY *d,
 static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 {
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)d;
+   ALLEGRO_DISPLAY *ogl_disp = (ALLEGRO_DISPLAY *)d;
+   ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
       destroy_display_internals(wgl_disp);
@@ -1181,11 +1189,11 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       win_size.bottom = height;
 
       wi.cbSize = sizeof(WINDOWINFO);
-      GetWindowInfo(wgl_disp->window, &wi);
+      GetWindowInfo(win_disp->window, &wi);
 
       AdjustWindowRectEx(&win_size, wi.dwStyle, FALSE, wi.dwExStyle);
 
-      if (!SetWindowPos(wgl_disp->window, HWND_TOP,
+      if (!SetWindowPos(win_disp->window, HWND_TOP,
          0, 0,
          win_size.right - win_size.left,
          win_size.bottom - win_size.top,
@@ -1195,7 +1203,7 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       d->w = width;
       d->h = height;
 
-      _al_ogl_resize_backbuffer(ogl_disp->backbuffer, width, height);
+      _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, width, height);
 
       setup_gl(d);
    }
@@ -1207,19 +1215,19 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
    WINDOWINFO wi;
-   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (ALLEGRO_DISPLAY_OGL *)d;
+   ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
+   ALLEGRO_DISPLAY *ogl_disp = (ALLEGRO_DISPLAY *)d;
    int w, h;
 
    wi.cbSize = sizeof(WINDOWINFO);
-   GetWindowInfo(wgl_disp->window, &wi);
+   GetWindowInfo(win_disp->window, &wi);
    w = wi.rcClient.right - wi.rcClient.left;
    h = wi.rcClient.bottom - wi.rcClient.top;
 
    d->w = w;
    d->h = h;
 
-   _al_ogl_resize_backbuffer(ogl_disp->backbuffer, w, h);
+   _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, w, h);
 
    setup_gl(d);
 
@@ -1245,11 +1253,11 @@ static bool wgl_wait_for_vsync(ALLEGRO_DISPLAY *display)
 
 static void wgl_switch_in(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL*)display;
+   ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)display;
 
    if (al_is_mouse_installed())
-      al_set_mouse_range(wgl_disp->mouse_range_x1, wgl_disp->mouse_range_y1,
-         wgl_disp->mouse_range_x2, wgl_disp->mouse_range_y2);
+      al_set_mouse_range(win_disp->mouse_range_x1, win_disp->mouse_range_y1,
+         win_disp->mouse_range_x2, win_disp->mouse_range_y2);
 }
 
 
@@ -1260,13 +1268,13 @@ static void wgl_switch_out(ALLEGRO_DISPLAY *display)
 
 static void wgl_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
-   _al_win_set_window_position(((ALLEGRO_DISPLAY_WGL *)display)->window, x, y);
+   _al_win_set_window_position(((ALLEGRO_DISPLAY_WIN *)display)->window, x, y);
 }
 
 
 static void wgl_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 {
-   _al_win_get_window_position(((ALLEGRO_DISPLAY_WGL *)display)->window, x, y);
+   _al_win_get_window_position(((ALLEGRO_DISPLAY_WIN *)display)->window, x, y);
 }
 
 
@@ -1274,7 +1282,7 @@ static void wgl_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 {
    _al_win_toggle_window_frame(
       display,
-      ((ALLEGRO_DISPLAY_WGL *)display)->window,
+      ((ALLEGRO_DISPLAY_WIN *)display)->window,
       display->w, display->h, onoff);
 }
 
@@ -1284,8 +1292,8 @@ static bool wgl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
 ALLEGRO_MOUSE_CURSOR *wgl_create_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *sprite, int xfocus, int yfocus)
 {
-   ALLEGRO_DISPLAY_WGL *wgl_display = (ALLEGRO_DISPLAY_WGL *) display;
-   HWND wnd = wgl_display->window;
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
+   HWND wnd = win_display->window;
    ALLEGRO_MOUSE_CURSOR_WIN *win_cursor;
 
    win_cursor = _al_win_create_mouse_cursor(wnd, sprite, xfocus, yfocus);
@@ -1295,12 +1303,12 @@ ALLEGRO_MOUSE_CURSOR *wgl_create_mouse_cursor(ALLEGRO_DISPLAY *display,
 static void wgl_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_DISPLAY_WGL *wgl_display = (ALLEGRO_DISPLAY_WGL *) display;
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    ALLEGRO_MOUSE_CURSOR_WIN *win_cursor = (ALLEGRO_MOUSE_CURSOR_WIN *) cursor;
 
    ASSERT(win_cursor);
 
-   if (win_cursor->hcursor == wgl_display->mouse_selected_hcursor) {
+   if (win_cursor->hcursor == win_display->mouse_selected_hcursor) {
       wgl_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
    }
 
@@ -1310,15 +1318,15 @@ static void wgl_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
 static bool wgl_set_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_DISPLAY_WGL *wgl_display = (ALLEGRO_DISPLAY_WGL *) display;
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    ALLEGRO_MOUSE_CURSOR_WIN *win_cursor = (ALLEGRO_MOUSE_CURSOR_WIN *) cursor;
 
    ASSERT(win_cursor);
    ASSERT(win_cursor->hcursor);
 
-   wgl_display->mouse_selected_hcursor = win_cursor->hcursor;
+   win_display->mouse_selected_hcursor = win_cursor->hcursor;
 
-   if (wgl_display->mouse_cursor_shown) {
+   if (win_display->mouse_cursor_shown) {
       _al_win_set_mouse_hcursor(win_cursor->hcursor);
    }
 
@@ -1328,7 +1336,7 @@ static bool wgl_set_mouse_cursor(ALLEGRO_DISPLAY *display,
 static bool wgl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
-   ALLEGRO_DISPLAY_WGL *wgl_display = (ALLEGRO_DISPLAY_WGL *) display;
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    HCURSOR wc;
 
    wc = _al_win_system_cursor_to_hcursor(cursor_id);
@@ -1336,8 +1344,8 @@ static bool wgl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
       return false;
    }
 
-   wgl_display->mouse_selected_hcursor = wc;
-   if (wgl_display->mouse_cursor_shown) {
+   win_display->mouse_selected_hcursor = wc;
+   if (win_display->mouse_cursor_shown) {
       /*
       MySetCursor(wc);
       PostMessage(wgl_display->window, WM_MOUSEMOVE, 0, 0);
@@ -1349,25 +1357,25 @@ static bool wgl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
 
 static bool wgl_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_WGL *wgl_display = (ALLEGRO_DISPLAY_WGL *) display;
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
 
    /* XXX do we need this? */
-   if (!wgl_display->mouse_selected_hcursor) {
+   if (!win_display->mouse_selected_hcursor) {
       wgl_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
    }
 
-   _al_win_set_mouse_hcursor(wgl_display->mouse_selected_hcursor);
-   wgl_display->mouse_cursor_shown = true;
+   _al_win_set_mouse_hcursor(win_display->mouse_selected_hcursor);
+   win_display->mouse_cursor_shown = true;
 
    return true;
 }
 
 static bool wgl_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_WGL *wgl_display = (ALLEGRO_DISPLAY_WGL *) display;
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
 
    _al_win_set_mouse_hcursor(NULL);
-   wgl_display->mouse_cursor_shown = false;
+   win_display->mouse_cursor_shown = false;
 
    return true;
 }
