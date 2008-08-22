@@ -261,6 +261,8 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
    unsigned char bpp, descriptor_bits;
    short unsigned int first_color, palette_colors;
    short unsigned int left, top, image_width, image_height;
+   bool left_to_right;
+   bool top_to_bottom;
    unsigned int c, i;
    int y;
    int compressed;
@@ -281,6 +283,9 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
    image_height = pack_igetw(f);
    bpp = pack_getc(f);
    descriptor_bits = pack_getc(f);
+
+   left_to_right = !(descriptor_bits & (1<<4));
+   top_to_bottom =  (descriptor_bits & (1<<5));
 
    pack_fread(image_id, id_length, f);
 
@@ -374,7 +379,9 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
    _al_push_target_bitmap();
    al_set_target_bitmap(bmp);
 
-   for (y=image_height-1; y>=0; y--) {
+   for (y=0; y < image_height; y++) {
+      int true_y = (top_to_bottom) ? y : (image_height - 1 - y);
+
       switch (image_type) {
 
 	 case 1:
@@ -385,12 +392,13 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
 	       raw_tga_read8(buf, image_width, f);
 
             for (i = 0; i < image_width; i++) {
+               int true_x = (left_to_right) ? i : (image_width - 1 - i);
                int pix = buf[i];
                ALLEGRO_COLOR color = al_map_rgb(
                   image_palette[pix][0],
                   image_palette[pix][1],
                   image_palette[pix][2]);
-               al_put_pixel(i, y, color);
+               al_put_pixel(true_x, true_y, color);
             }
 
 	    break;
@@ -403,12 +411,13 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
 		  raw_tga_read32((unsigned int *)buf, image_width, f);
 
                for (i = 0; i < image_width; i++) {
+                  int true_x = (left_to_right) ? i : (image_width - 1 - i);
                   int b = buf[i*4+0];
                   int g = buf[i*4+1];
                   int r = buf[i*4+2];
                   int a = buf[i*4+3];
                   ALLEGRO_COLOR color = al_map_rgba(r, g, b, a);
-                  al_put_pixel(i, y, color);
+                  al_put_pixel(true_x, true_y, color);
                }
 	    }
 	    else if (bpp == 24) {
@@ -417,11 +426,12 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
 	       else
 		  raw_tga_read24(buf, image_width, f);
                for (i = 0; i < image_width; i++) {
+                  int true_x = (left_to_right) ? i : (image_width - 1 - i);
                   int b = buf[i*3+0];
                   int g = buf[i*3+1];
                   int r = buf[i*3+2];
                   ALLEGRO_COLOR color = al_map_rgb(r, g, b);
-                  al_put_pixel(i, y, color);
+                  al_put_pixel(true_x, true_y, color);
                }
 	    }
 	    else {
@@ -430,12 +440,13 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
 	       else
 		  raw_tga_read16((unsigned short *)buf, image_width, f);
                for (i = 0; i < image_width; i++) {
+                  int true_x = (left_to_right) ? i : (image_width - 1 - i);
                   int pix = *((unsigned short *)(buf+i*2));
                   int r = _rgb_scale_5[(pix >> 10)];
                   int g = _rgb_scale_5[(pix >> 5) & 0x1F];
                   int b = _rgb_scale_5[(pix & 0x1F)];
                   ALLEGRO_COLOR color = al_map_rgb(r, g, b);
-                  al_put_pixel(i, y, color);
+                  al_put_pixel(true_x, true_y, color);
                }
 	    }
 	    break;
