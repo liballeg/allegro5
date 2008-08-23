@@ -1,15 +1,15 @@
 # XXX put in proper tests for libraries
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    # Linux needs ALSA -- for the moment ALSA is unmaintained so it is removed
-    set(AUDIO_SOURCES audio.c voice.c stream.c sample.c openal.c)
+    # Linux needs ALSA.
+    set(AUDIO_SOURCES audio.c openal.c alsa.c)
     set(AUDIO_LIBRARIES openal asound)
 else(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set(AUDIO_SOURCES audio.c voice.c stream.c sample.c openal.c)
+    set(AUDIO_SOURCES audio.c openal.c)
     set(AUDIO_LIBRARIES openal32)
 endif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
-set(AUDIO_INCLUDE_FILES allegro5/audio.h allegro5/voice.h allegro5/sample.h allegro5/stream.h)
+set(AUDIO_INCLUDE_FILES allegro5/audio.h)
 
 macro(add_audio_build nm extra_flags)
     macro(really_add_audio_build nm target libtype more_extra_flags)
