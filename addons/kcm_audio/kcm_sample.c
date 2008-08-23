@@ -19,7 +19,6 @@
 void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, _AL_MUTEX *mutex)
 {
    ASSERT(stream);
-   ASSERT(mutex);
 
    if(stream->mutex == mutex)
       return;
