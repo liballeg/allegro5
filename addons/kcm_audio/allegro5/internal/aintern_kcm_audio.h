@@ -115,6 +115,7 @@ struct ALLEGRO_SAMPLE {
 };
 
 void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, _AL_MUTEX *mutex);
+void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl);
 
 
 struct ALLEGRO_STREAM {
