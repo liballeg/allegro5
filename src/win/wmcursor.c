@@ -202,7 +202,7 @@ HCURSOR _al_win_system_cursor_to_hcursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 static BITMAPINFO *get_bitmap_info(ALLEGRO_BITMAP *bitmap)
 {
    BITMAPINFO *bi;
-   int bpp, i;
+   int i;
 
    bi = (BITMAPINFO *) _AL_MALLOC(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
 
