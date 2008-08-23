@@ -70,8 +70,6 @@ if can_build:
             "allegro5/kcm_audio.h",
             "allegro5/internal/aintern_kcm_audio.h",
             "aintern_kcm_cfg.h"],
-        configs = configs,
-        example_libs = ["sndfile"],
-        examples = [("ex_kcm_player", ["ex_kcm_play.c"])],)
+        configs = configs)
 
 Return("can_build")

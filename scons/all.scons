@@ -94,12 +94,14 @@ def examples(env,appendDir,buildDir,libDir):
     exEnv = env.Clone()
     exEnv.Append(CPPPATH = ['addons/font', 'addons/iio'])
     exEnv.BuildDir(buildDir + 'examples', 'examples', duplicate = 0)
+    # FIXME: those should be per-example..
     exEnv.Append(LIBS = [context.libraryName('a5_font')])
     exEnv.Append(LIBS = [context.libraryName('a5_iio')])
+    exEnv.Append(LIBS = ["GLU"])
     ## Add an example
     ## name - filename of example and also the alias of the target
     ## files - list of files associated with the example
-    def example(name, files = None):
+    def example(name, files = None, libs = []):
         if files is None:
             files = [name + ".c"]
         example = exEnv.Program('examples/' + name, appendDir(buildDir + '/examples/', files))
@@ -113,6 +115,7 @@ def examples(env,appendDir,buildDir,libDir):
     example("exnew_dualies")
     example("exnew_events")
     example("exnew_fs_resize")
+    example("exnew_glext", libs = ["GLU"])
     example("exnew_icon")
     example("exnew_lines")
     example("exnew_lockbitmap")
@@ -125,7 +128,6 @@ def examples(env,appendDir,buildDir,libDir):
     example("exnew_multiwin")
     example("exnew_noframe")
     example("exnew_opengl")
-    example("exnew_glext")
     example("exnew_resize")
     example("exnew_scale")
     example("exnew_threads")
@@ -153,14 +155,14 @@ def buildAddon(name):
 
 buildAddon("iio")
 buildAddon('font')
-buildAddon("kcm_audio")
-if buildAddon('audio'):
+if buildAddon("kcm_audio"):
     buildAddon('acodec')
+#if buildAddon('audio'):
 
 # addon_dirs = ['#addons/font','#addons/acodec','#addons/audio']
 # SConscript( dirs = addon_dirs, exports = 'context' )
 
-context.addExtra(demo)
+#context.addExtra(demo)
 context.addExtra(examples)
 # context.addExtra(addons)
 # context.addExtra(tools)

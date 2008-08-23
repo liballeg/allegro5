@@ -122,11 +122,12 @@ addons.do_build(
     dir = 'acodec',
     name = 'a5_acodec',
     install_headers = ['allegro5/acodec.h'],
-    includes = ['#addons/audio','#addons/acodec'],
+    includes = ['#addons/kcm_audio','#addons/acodec'],
     examples = [('ex_acodec',['ex_acodec.c']),
      ('ex_acodec_multi',['ex_acodec_multi.c']),
-     ('ex_acodec_stream',['ex_acodec_stream.c'])],
-    example_libs = [context.libraryName('a5_audio')],
+#     ('ex_acodec_stream',['ex_acodec_stream.c'])
+    ],
+    example_libs = [context.libraryName('kcm_audio')],
     configs = configs,
 )
 
