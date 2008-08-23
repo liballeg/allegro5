@@ -41,14 +41,13 @@ int main(int argc, char **argv)
 
    ALLEGRO_VOICE *title_voice = al_voice_create(title_music);
    ALLEGRO_VOICE *game_voice = al_voice_create(game_music);
-   al_voice_set_loop_mode(title_voice, ALLEGRO_AUDIO_ONE_DIR);
-   al_voice_set_loop_mode(game_voice, ALLEGRO_AUDIO_ONE_DIR);
+   // al_voice_set_loop_mode(title_voice, ALLEGRO_AUDIO_ONE_DIR);
+   // al_voice_set_loop_mode(game_voice, ALLEGRO_AUDIO_ONE_DIR);
    for (;;) {
       player->load();
 
       al_rest(0.500);
 
-      
       al_voice_start(title_voice);
       
       int choice = do_menu();
