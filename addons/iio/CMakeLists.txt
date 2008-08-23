@@ -6,7 +6,7 @@ macro(add_iio_build nm extra_flags)
         add_library(${target} ${libtype} ${IIO_SOURCES})
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DALLEGRO_SRC"
+            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DA5_IIO_SRC"
             OUTPUT_NAME ${nm2}
             )
         
