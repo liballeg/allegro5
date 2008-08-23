@@ -34,8 +34,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
-//#include "xwin.h"
-#include "../xglx/xglx.h"
+#include "xglx.h"
 
 /*----------------------------------------------------------------------*/
 static void handle_key_press(int mycode, int unichar, unsigned int modifiers,

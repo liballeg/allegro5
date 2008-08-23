@@ -288,58 +288,12 @@ unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 #asmdef = asmdefEnv.Program('#build/asmdef', '#build/i386/asmdef.c')
 #asmdefEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
 
-# TODO: How does the modules stuff work? Shouldn't they still be linked in?
-# unixfiles.remove("src/unix/alsa5.c")
-# unixfiles.remove("src/unix/alsa9.c")
-# unixfiles.remove("src/unix/alsamidi.c")
-
 context.add_files(unixfiles)
 
 def supportModules():
     return True
 
 modules = []
-
-# These should probably also pass -DALLEGRO_MODULE or something
-if platform["ALLEGRO_WITH_ALSADIGI"]:
-    def buildAlsa(menv,appendDir,buildDir,libDir):
-        alsaEnv = menv.Clone()
-        alsaEnv.Append(LIBS = "asound")
-        alsaBuildDir = buildDir + '/modules'
-        alsaEnv.BuildDir(alsaBuildDir, '.')
-        sources = ["alsa5.c", "alsa9.c"]
-        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsadigi",appendDir(alsaBuildDir + "/src/unix/", sources))
-        modules.append(lib)
-        return lib
-    context.addExtra(buildAlsa, depends = True)
-
-if platform["ALLEGRO_WITH_ALSAMIDI"]:
-    def buildAlsa(menv,appendDir,buildDir,libDir):
-        alsaEnv = menv.Clone()
-        alsaEnv.Append(LIBS = "asound")
-        alsaBuildDir = buildDir + '/modules'
-        alsaEnv.BuildDir(alsaBuildDir, '.')
-        sources = ["alsamidi.c"]
-        lib = alsaEnv.SharedLibrary(libDir + "/alleg-alsamidi",appendDir(alsaBuildDir + "/src/unix/", sources))
-        modules.append(lib)
-        return lib
-    context.addExtra(buildAlsa, depends = True)
-
-
-# FIXME: Does A5 really support svgalib?
-# This might be broken. asmdefs.inc isnt generated until after svgalibs.s
-# is compiled, but svgalib.s depends on asmdefs.inc. Either this dependancy
-# needs to be fixed from scons or asmdefs.inc should be moved/generated elsewhere
-#if platform["ALLEGRO_LINUX_SVGALIB"][0]:
-#    def buildSVGA(menv,appendDir,buildDir,libDir):
-#        vgaEnv = menv.Clone()
-#        vgaEnv.Append(LIBS = "vga")
-#        sources = ["svgalib.c"]
-#        assembler_object = vgaEnv.SharedObject(appendDir(buildDir + "/src/linux/",['svgalibs.s']))
-#        lib = vgaEnv.SharedLibrary(libDir + "/alleg-svgalib",appendDir(buildDir + "/src/linux/", sources) + [assembler_object])
-#        modules.append(lib)
-#        return lib
-#    context.addExtra(buildSVGA)
 
 if platform["ALLEGRO_LINUX_FBCON"]:
     def buildFBCon(menv,appendDir,buildDir,libDir):

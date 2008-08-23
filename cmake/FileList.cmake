@@ -201,12 +201,13 @@ set(ALLEGRO_SRC_UNIX_FILES
     )
 
 set(ALLEGRO_SRC_X_FILES
+    src/x/xcursor.c
     src/x/xkeyboard.c
     src/x/xmousenu.c
-    src/xglx/xdisplay.c
-    src/xglx/xfullscreen.c
-    src/xglx/xglx_config.c
-    src/xglx/xsystem.c
+    src/x/xdisplay.c
+    src/x/xfullscreen.c
+    src/x/xglx_config.c
+    src/x/xsystem.c
     )
     
 set(ALLEGRO_SRC_QNX_FILES
@@ -220,8 +221,6 @@ set(ALLEGRO_SRC_QNX_FILES
     src/qnx/qphwin.c
     src/qnx/qswitch.s
     src/qnx/qsystem.c
-    src/unix/alsa5.c
-    src/unix/alsamidi.c
     src/unix/udjgpp.c
     src/unix/ufile.c
     src/unix/umain.c
@@ -270,28 +269,21 @@ set(ALLEGRO_MODULE_FBCON_FILES
     )
 
 set(ALLEGRO_MODULE_ALSADIGI_FILES
-    src/unix/alsa5.c
-    src/unix/alsa9.c
     )
 
 set(ALLEGRO_MODULE_ALSAMIDI_FILES
-    src/unix/alsamidi.c
     )
 
 set(ALLEGRO_MODULE_ESD_FILES
-    src/unix/uesd.c
     )
 
 set(ALLEGRO_MODULE_ARTS_FILES
-    src/unix/arts.c
     )
 
 set(ALLEGRO_MODULE_SGIAL_FILES
-    src/unix/sgial.c
     )
 
 set(ALLEGRO_MODULE_JACK_FILES
-    src/unix/jack.c
     )
 
 set(ALLEGRO_INCLUDE_FILES
