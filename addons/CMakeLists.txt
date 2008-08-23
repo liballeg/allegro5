@@ -17,6 +17,10 @@ if(WANT_AUDIO)
     endif(WANT_ACODEC)
 endif(WANT_AUDIO)
 
+if(WANT_KCM_AUDIO)
+    add_subdirectory(kcm_audio)
+endif(WANT_KCM_AUDIO)
+
 if(WANT_ICODEC)
     add_subdirectory(icodec)
 endif(WANT_ICODEC)

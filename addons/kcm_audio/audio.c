@@ -20,7 +20,7 @@ typedef enum {
 
 void _al_set_error(int error, char* string)
 {
-   allegro_message(string);
+   TRACE("%s (error code: %d)", string, error);
 }
 
 ALLEGRO_AUDIO_DRIVER* driver = NULL;
