@@ -49,12 +49,9 @@ int main(void)
       return 1;
    }
 
-   /* XXX work around blitting problem */
-   /* this problem no longer appears in X, but did in Wine */
-   /*al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);*/
    bmp = iio_load("allegro.pcx");
    if (!bmp) {
-      TRACE("Error loading mysha.pcx\n");
+      TRACE("Error loading allegro.pcx\n");
       return 1;
    }
 
@@ -101,6 +98,12 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
 
    /* XXX some instructions on this blank screen would be nice */
+
+   al_set_target_bitmap(al_get_backbuffer());
+   al_clear(al_map_rgb(128, 128, 128));
+   al_flip_display();
+
+   al_show_mouse_cursor();
 
    while (1) {
       al_wait_for_event(queue, &event);

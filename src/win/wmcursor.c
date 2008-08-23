@@ -79,6 +79,7 @@ HICON _al_win_create_icon(HWND wnd,
 	 SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
       }
    }
+
    local_draw_to_hdc(h_xor_dc, sprite, 0, 0);
 
    /* Make cursor background transparent */
@@ -195,38 +196,32 @@ HCURSOR _al_win_system_cursor_to_hcursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 /* get_bitmap_info:
  *  Returns a BITMAPINFO structure suited to an ALLEGRO_BITMAP.
  *  You have to free the memory allocated by this function.
+ *
+ *  This version always returns a 32-bit BITMAPINFO.
  */
 static BITMAPINFO *get_bitmap_info(ALLEGRO_BITMAP *bitmap)
 {
    BITMAPINFO *bi;
-   int bpp;
+   int bpp, i;
 
    bi = (BITMAPINFO *) _AL_MALLOC(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
-
-   bpp = al_get_pixel_format_bits(al_get_bitmap_format(bitmap));
-   if (bpp == 15)
-      bpp = 16;
 
    ZeroMemory(&bi->bmiHeader, sizeof(BITMAPINFOHEADER));
 
    bi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-   bi->bmiHeader.biBitCount = bpp;
+   bi->bmiHeader.biBitCount = 32;
    bi->bmiHeader.biPlanes = 1;
-   bi->bmiHeader.biWidth = bitmap->w;
-   bi->bmiHeader.biHeight = -bitmap->h;
+   bi->bmiHeader.biWidth = al_get_bitmap_width(bitmap);
+   bi->bmiHeader.biHeight = -al_get_bitmap_height(bitmap);
    bi->bmiHeader.biClrUsed = 256;
    bi->bmiHeader.biCompression = BI_RGB;
 
-   /*
-   if (pal) {
-      for (i = 0; i < 256; i++) {
-	 bi->bmiColors[i].rgbRed = _rgb_scale_6[pal[i].r];
-	 bi->bmiColors[i].rgbGreen = _rgb_scale_6[pal[i].g];
-	 bi->bmiColors[i].rgbBlue = _rgb_scale_6[pal[i].b];
-	 bi->bmiColors[i].rgbReserved = 0;
-      }
+   for (i = 0; i < 256; i++) {
+      bi->bmiColors[i].rgbRed = 0;
+      bi->bmiColors[i].rgbGreen = 0;
+      bi->bmiColors[i].rgbBlue = 0;
+      bi->bmiColors[i].rgbReserved = 0;
    }
-   */
 
    return bi;
 }
@@ -265,9 +260,10 @@ static BYTE *get_dib_from_bitmap_32(ALLEGRO_BITMAP *bitmap)
          col = al_get_pixel(bitmap, x, y);
          al_unmap_rgba(col, &r, &g, &b, &a);
 
-         dst[0] = r;
+         /* BGR */
+         dst[0] = b;
          dst[1] = g;
-         dst[2] = b;
+         dst[2] = r;
          dst[3] = a;
 
          dst += 4;

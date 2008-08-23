@@ -285,13 +285,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          case WM_MOUSEACTIVATE:
             return MA_ACTIVATEANDEAT;
          case WM_SETCURSOR:
-            SetCursor(win_display->mouse_selected_hcursor);
+            if (win_display->mouse_cursor_shown) {
+               SetCursor(win_display->mouse_selected_hcursor);
+            }
             return 1;
-	    // XXX ?
-            /*
-	    if (_win_hcursor == NULL)
-	       SetCursor(NULL);
-               */
          //case WM_SETCURSOR:
          //   mouse_set_syscursor();
          //   return 1;
