@@ -288,6 +288,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             if (win_display->mouse_cursor_shown) {
                SetCursor(win_display->mouse_selected_hcursor);
             }
+            else {
+               SetCursor(NULL);
+            }
             return 1;
          //case WM_SETCURSOR:
          //   mouse_set_syscursor();

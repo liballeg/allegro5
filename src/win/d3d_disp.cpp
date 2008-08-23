@@ -2071,6 +2071,8 @@ static bool d3d_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
    _al_win_set_mouse_hcursor(NULL);
    win_display->mouse_cursor_shown = false;
 
+   PostMessage(win_display->window, WM_SETCURSOR, NULL, NULL);
+
    return true;
 }
 

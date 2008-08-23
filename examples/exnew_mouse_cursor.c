@@ -43,6 +43,11 @@ int main(void)
    al_init();
    iio_init();
 
+   if (!al_install_mouse()) {
+      TRACE("Error installing mouse\n");
+      return 1;
+   }
+
    display = al_create_display(400, 300);
    if (!display) {
       TRACE("Error creating display\n");
@@ -77,11 +82,6 @@ int main(void)
    al_destroy_bitmap(bmp);
    shrunk_bmp = NULL;
    bmp = NULL;
-
-   if (!al_install_mouse()) {
-      TRACE("Error installing mouse\n");
-      return 1;
-   }
 
    if (!al_install_keyboard()) {
       TRACE("Error installing keyboard\n");
