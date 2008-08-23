@@ -929,6 +929,8 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
 
    win_grab_input();
 
+   _al_win_active_window = wgl_display->win_display.window;
+
    wgl_display->win_display.mouse_range_x1 = 0;
    wgl_display->win_display.mouse_range_y1 = 0;
    wgl_display->win_display.mouse_range_x2 = w;
@@ -940,11 +942,6 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
 
    wgl_display->win_display.mouse_selected_hcursor = 0;
    wgl_display->win_display.mouse_cursor_shown = false;
-
-   if (al_is_mouse_installed()) {
-      al_set_mouse_xy(w/2, h/2);
-      al_set_mouse_range(0, 0, w, h);
-   }
 
    return display;
 }
