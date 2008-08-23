@@ -253,15 +253,15 @@ static unsigned int osx_get_mouse_num_axes(void)
 /* osx_mouse_set_sprite:
 *  Sets the hardware cursor sprite.
 */
-int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
+int osx_mouse_set_sprite(ALLEGRO_BITMAP *sprite, int x, int y)
 {
 	int ix, iy;
 	int sw, sh;
 	
 	if (!sprite)
 		return -1;
-	sw = sprite->w;
-	sh = sprite->h;
+	sw = al_get_width(sprite);
+	sh = al_get_height(sprite);
 	if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_2) {
 		// Before MacOS X 10.3, NSCursor can handle only 16x16 cursor sprites
 		// Pad to 16x16 or fail if the sprite is already larger.

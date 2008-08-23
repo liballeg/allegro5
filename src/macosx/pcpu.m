@@ -20,10 +20,10 @@
 #endif
 
 void check_cpu() {
-  const NXArchInfo* info=NXGetLocalArchInfo();
-  cpu_family=info->cputype;
-  cpu_model=info->cpusubtype;
-  cpu_capabilities=CPU_ID|CPU_FPU; /* confident that this info is correct */
-  do_uconvert(info->name, U_ASCII, cpu_vendor, U_CURRENT,
-	      _AL_CPU_VENDOR_SIZE);
+//  const NXArchInfo* info=NXGetLocalArchInfo();
+//  cpu_family=info->cputype;
+//  cpu_model=info->cpusubtype;
+//  cpu_capabilities=CPU_ID|CPU_FPU; /* confident that this info is correct */
+//  do_uconvert(info->name, U_ASCII, cpu_vendor, U_CURRENT,
+//	      _AL_CPU_VENDOR_SIZE);
 }

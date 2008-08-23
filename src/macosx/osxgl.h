@@ -9,7 +9,7 @@
 
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
 typedef struct ALLEGRO_DISPLAY_OSX_WIN {
-	ALLEGRO_DISPLAY_OGL parent;
+	ALLEGRO_DISPLAY parent;
 	int gl_fmt, gl_datasize;
 	NSOpenGLContext* ctx;
 	NSWindow* win;

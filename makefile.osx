@@ -159,7 +159,7 @@ endif
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_MACOSX_FILES)))
 
-STATIC_LIBRARIES = -framework Cocoa -framework Carbon -framework IOKit -framework System -framework CoreAudio -framework AudioUnit -framework AudioToolbox -framework QuickTime
+STATIC_LIBRARIES = -framework Cocoa -framework Carbon -framework IOKit -framework System -framework CoreAudio -framework AudioUnit -framework AudioToolbox -framework OpenGL
 ifdef STATICLINK
 LIBRARIES = $(STATIC_LIBRARIES)
 else

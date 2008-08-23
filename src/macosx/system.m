@@ -17,9 +17,6 @@
 
 
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_keyboard.h"
-#include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
@@ -54,7 +51,6 @@ static int osx_sys_find_resource(char *, AL_CONST char *, int);
 static void osx_sys_set_window_title(AL_CONST char *);
 static int osx_sys_set_close_button_callback(void (*proc)(void));
 static int osx_sys_set_display_switch_mode(int mode);
-static void osx_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode);
 static int osx_sys_desktop_color_depth(void);
 static int osx_sys_get_desktop_resolution(int *width, int *height);
 
@@ -80,49 +76,49 @@ static int osx_sys_init_compat(void) {
 	return 0;
 }
 
-SYSTEM_DRIVER system_macosx =
-{
-   SYSTEM_MACOSX,
-   empty_string,
-   empty_string,
-   "MacOS X",
-   osx_sys_init_compat,
-   osx_sys_exit,
-   osx_sys_get_executable_name,
-   osx_sys_find_resource,
-   osx_sys_set_window_title,
-   osx_sys_set_close_button_callback,
-   osx_sys_message,
-   NULL,  /* AL_METHOD(void, assert, (AL_CONST char *msg)); */
-   NULL,  /* AL_METHOD(void, save_console_state, (void)); */
-   NULL,  /* AL_METHOD(void, restore_console_state, (void)); */
-   NULL,  /* AL_METHOD(struct BITMAP *, create_bitmap, (int color_depth, int width, int height)); */
-   NULL,  /* AL_METHOD(void, created_bitmap, (struct BITMAP *bmp)); */
-   NULL,  /* AL_METHOD(struct BITMAP *, create_sub_bitmap, (struct BITMAP *parent, int x, int y, int width, int height)); */
-   NULL,  /* AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp, struct BITMAP *parent)); */
-   NULL,  /* AL_METHOD(int, destroy_bitmap, (struct BITMAP *bitmap)); */
-   NULL,  /* AL_METHOD(void, read_hardware_palette, (void)); */
-   NULL,  /* AL_METHOD(void, set_palette_range, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
-   NULL,  /* AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth)); */
-   osx_sys_set_display_switch_mode,
-   NULL,  /* AL_METHOD(void, display_switch_lock, (int lock, int foreground)); */
-   osx_sys_desktop_color_depth,
-   osx_sys_get_desktop_resolution,
-   osx_sys_get_gfx_safe_mode,
-   NULL,
-   NULL,  /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
-   NULL,  /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
-   NULL,  /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
-   NULL,  /* AL_METHOD(_DRIVER_INFO *, keyboard_drivers, (void)); */
-   NULL,  /* AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void)); */
-   NULL   /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
-};
+//SYSTEM_DRIVER system_macosx =
+//{
+//   SYSTEM_MACOSX,
+//   empty_string,
+//   empty_string,
+//   "MacOS X",
+//   osx_sys_init_compat,
+//   osx_sys_exit,
+//   osx_sys_get_executable_name,
+//   osx_sys_find_resource,
+//   osx_sys_set_window_title,
+//   osx_sys_set_close_button_callback,
+//   osx_sys_message,
+//   NULL,  /* AL_METHOD(void, assert, (AL_CONST char *msg)); */
+//   NULL,  /* AL_METHOD(void, save_console_state, (void)); */
+//   NULL,  /* AL_METHOD(void, restore_console_state, (void)); */
+//   NULL,  /* AL_METHOD(struct BITMAP *, create_bitmap, (int color_depth, int width, int height)); */
+//   NULL,  /* AL_METHOD(void, created_bitmap, (struct BITMAP *bmp)); */
+//   NULL,  /* AL_METHOD(struct BITMAP *, create_sub_bitmap, (struct BITMAP *parent, int x, int y, int width, int height)); */
+//   NULL,  /* AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp, struct BITMAP *parent)); */
+//   NULL,  /* AL_METHOD(int, destroy_bitmap, (struct BITMAP *bitmap)); */
+//   NULL,  /* AL_METHOD(void, read_hardware_palette, (void)); */
+//   NULL,  /* AL_METHOD(void, set_palette_range, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
+//   NULL,  /* AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth)); */
+//   osx_sys_set_display_switch_mode,
+//   NULL,  /* AL_METHOD(void, display_switch_lock, (int lock, int foreground)); */
+//   osx_sys_desktop_color_depth,
+//   osx_sys_get_desktop_resolution,
+//   osx_sys_get_gfx_safe_mode,
+//   NULL,
+//   NULL,  /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
+//   NULL,  /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
+//   NULL,  /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
+//   NULL,  /* AL_METHOD(_DRIVER_INFO *, keyboard_drivers, (void)); */
+//   NULL,  /* AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void)); */
+//   NULL   /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
+//};
+//
 
-
-_DRIVER_INFO _system_driver_list[] = {
-{1, &system_macosx, TRUE },
-{0, NULL, FALSE},
-};
+//_DRIVER_INFO _system_driver_list[] = {
+//{1, &system_macosx, TRUE },
+//{0, NULL, FALSE},
+//};
 
 /* osx_signal_handler:
  *  Used to trap various signals, to make sure things get shut down cleanly.
@@ -207,7 +203,6 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    }
    
    /* Setup OS type & version */
-   os_type = OSTYPE_MACOSX;
    NSDictionary* sysinfo = [NSDictionary dictionaryWithContentsOfFile: @"/System/Library/CoreServices/SystemVersion.plist"];
    NSArray* version = [((NSString*) [sysinfo objectForKey:@"ProductVersion"]) componentsSeparatedByString:@"."];
    switch ( [version count] ){
@@ -222,16 +217,16 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
 	/* nothing at all */
 	case 0 : break;
    }
-   os_version = 10 * v1 + v2;
-   os_revision = v3;
+//   os_version = 10 * v1 + v2;
+//   os_revision = v3;
    [version release];
-   os_multitasking = TRUE;
+//   os_multitasking = TRUE;
    
    
    osx_gfx_mode = OSX_GFX_NONE;
    
-   set_display_switch_mode(SWITCH_BACKGROUND);
-   set_window_title([[[NSProcessInfo processInfo] processName] cString]);
+//   set_display_switch_mode(SWITCH_BACKGROUND);
+   //set_window_title([[[NSProcessInfo processInfo] processName] cString]);
    
    osx_threads_init();
    /* Mark the beginning of time. */
@@ -335,33 +330,6 @@ static int osx_sys_set_close_button_callback(void (*proc)(void))
    return 0;
 }
 
-
-
-/* osx_sys_set_display_switch_mode:
- *  Sets the current display switch mode.
- */
-static int osx_sys_set_display_switch_mode(int mode)
-{
-   if (mode != SWITCH_BACKGROUND)
-      return -1;   
-   return 0;
-}
-
-
-
-/* osx_sys_get_gfx_safe_mode:
- *  Defines the safe graphics mode for this system.
- */
-static void osx_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
-{
-   *driver = 0;
-   mode->width = 320;
-   mode->height = 200;
-   mode->bpp = 8;
-}
-
-
-
 /* osx_sys_desktop_color_depth:
  *  Queries the desktop color depth.
  */
@@ -426,6 +394,15 @@ static void osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
       info->y2 = (int) (rc.origin.y + rc.size.height);
    }
 }
+/* This works as long as there is only one screen */
+/* Not clear from docs how mouseLocation works if > 1 */
+void osx_get_cursor_position(int *x, int *y) 
+{
+   NSPoint p = [NSEvent mouseLocation];
+   NSRect r = [[NSScreen mainScreen] frame];
+   *x = p.x;
+   *y = r.size.height - p.y;
+}
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 {
@@ -439,7 +416,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 		NULL,//ALLEGRO_DISPLAY_MODE *(*get_display_mode)(int index, ALLEGRO_DISPLAY_MODE *mode);
 		osx_sys_exit,//void (*shutdown_system)(void);
       osx_get_num_video_adapters,//int (*get_num_video_adapters)(void);
-      osx_get_monitor_info//void (*get_monitor_info)(int adapter, ALLEGRO_MONITOR_INFO *info);
+      osx_get_monitor_info,//void (*get_monitor_info)(int adapter, ALLEGRO_MONITOR_INFO *info);
+      osx_get_cursor_position, //void (*get_cursor_position)(int *x, int *y);
 	};
 		
 	return &vt;

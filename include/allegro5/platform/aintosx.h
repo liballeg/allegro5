@@ -20,6 +20,9 @@
 #define AINTOSX_H
 
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_joystick.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/internal/aintern_mouse.h"
@@ -109,8 +112,8 @@ void osx_keyboard_focused(int focused, int state);
 
 void osx_mouse_generate_event(NSEvent*, ALLEGRO_DISPLAY*);
 void osx_mouse_handler(NSEvent*);
-int osx_mouse_set_sprite(BITMAP *sprite, int x, int y);
-int osx_mouse_show(BITMAP *bmp, int x, int y);
+int osx_mouse_set_sprite(ALLEGRO_BITMAP *sprite, int x, int y);
+int osx_mouse_show(ALLEGRO_BITMAP *bmp, int x, int y);
 void osx_mouse_hide(void);
 void osx_mouse_move(int x, int y);
 

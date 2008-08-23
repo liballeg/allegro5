@@ -47,6 +47,8 @@ ALLEGRO_JOYSTICK_DRIVER joystick_hid = {
 	release_joystick, 	// AL_METHOD(void, release_joystick, (ALLEGRO_JOYSTICK*));
 	get_state, 		// AL_METHOD(void, get_state, (ALLEGRO_JOYSTICK*, AL_JOYSTICK_STATE *ret_state));
 };
+_AL_BEGIN_JOYSTICK_DRIVER_LIST
+_AL_END_JOYSTICK_DRIVER_LIST
 
 
 static HID_DEVICE_COLLECTION hid_devices;
@@ -72,80 +74,80 @@ static bool init_joystick(void)
 	hid_devices.devices=NULL;
 	osx_hid_scan(HID_JOYSTICK, &hid_devices);
 	osx_hid_scan(HID_GAMEPAD, &hid_devices);
-	num_joysticks = hid_devices.count > 0 ? hid_devices.devices[hid_devices.count - 1].cur_app : 0;
-	for (i = 0; i < num_joysticks; i++) {
-		memset(&joy[i], 0, sizeof(joy[i]));
-	}
+//	num_joysticks = hid_devices.count > 0 ? hid_devices.devices[hid_devices.count - 1].cur_app : 0;
+//	for (i = 0; i < num_joysticks; i++) {
+//		memset(&joy[i], 0, sizeof(joy[i]));
+//	}
 	for (i=0; i<hid_devices.count; ++i) {
 		for (j = 0; j < hid_devices.devices[i].num_elements; j++) {
 			element = &hid_devices.devices[i].element[j];
 			switch (element->type) {
 				case HID_ELEMENT_BUTTON:
-					if (element->index >= MAX_JOYSTICK_BUTTONS || element->app>=MAX_JOYSTICKS) {
-						element->cookie=0x0;
-						break;
-					}
-					if (element->name)
-						joy[element->app].button[element->index].name = element->name;
-					else
-						joy[element->app].button[element->index].name = name_b[element->index];
-					joy[element->app].num_buttons++;
+//					if (element->index >= MAX_JOYSTICK_BUTTONS || element->app>=MAX_JOYSTICKS) {
+//						element->cookie=0x0;
+//						break;
+//					}
+//					if (element->name)
+//						joy[element->app].button[element->index].name = element->name;
+//					else
+//						joy[element->app].button[element->index].name = name_b[element->index];
+//					joy[element->app].num_buttons++;
 					break;
 					
 				case HID_ELEMENT_AXIS:
 				case HID_ELEMENT_AXIS_PRIMARY_X:
 				case HID_ELEMENT_AXIS_PRIMARY_Y:
 					/* Changes here may need to be duplicated in case below. */
-					if (element->app>=MAX_JOYSTICKS || element->col>=MAX_JOYSTICK_STICKS || element->index>=MAX_JOYSTICK_AXIS) {
-						element->cookie=0x0;
-						break;
-					}
-					joy[element->app].stick[element->col].name = name_stick;
-					joy[element->app].stick[element->col].num_axis++;
-					if (joy[element->app].num_sticks<(element->col+1))
-						joy[element->app].num_sticks=element->col+1;
-						joy[element->app].stick[element->col].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE | JOYFLAG_SIGNED;
-					if (element->name)
-						joy[element->app].stick[element->col].axis[element->index].name = element->name;
-					else
-						joy[element->app].stick[element->col].axis[element->index].name = element->index==0 ? name_x : name_y;
+//					if (element->app>=MAX_JOYSTICKS || element->col>=MAX_JOYSTICK_STICKS || element->index>=MAX_JOYSTICK_AXIS) {
+//						element->cookie=0x0;
+//						break;
+//					}
+//					joy[element->app].stick[element->col].name = name_stick;
+//					joy[element->app].stick[element->col].num_axis++;
+//					if (joy[element->app].num_sticks<(element->col+1))
+//						joy[element->app].num_sticks=element->col+1;
+//						joy[element->app].stick[element->col].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE | JOYFLAG_SIGNED;
+//					if (element->name)
+//						joy[element->app].stick[element->col].axis[element->index].name = element->name;
+//					else
+//						joy[element->app].stick[element->col].axis[element->index].name = element->index==0 ? name_x : name_y;
 					
 					break;
 					
 				case HID_ELEMENT_STANDALONE_AXIS:
 					/* Changes here may need to be duplicated in case directly above. */
-					if (element->app>=MAX_JOYSTICKS || element->col>=MAX_JOYSTICK_STICKS || element->index>=MAX_JOYSTICK_AXIS) {
-						element->cookie=0x0;
-						break;
-					}
-					joy[element->app].stick[element->col].name = name_stick;
-					joy[element->app].stick[element->col].num_axis++;
-					if (joy[element->app].num_sticks<(element->col+1))
-						joy[element->app].num_sticks=element->col+1;
-						joy[element->app].stick[element->col].flags = JOYFLAG_ANALOGUE | JOYFLAG_UNSIGNED;
-					if (element->name)
-						joy[element->app].stick[element->col].axis[element->index].name = element->name;
-					else
-						joy[element->app].stick[element->col].axis[element->index].name = element->index==0 ? name_x : name_y;
+//					if (element->app>=MAX_JOYSTICKS || element->col>=MAX_JOYSTICK_STICKS || element->index>=MAX_JOYSTICK_AXIS) {
+//						element->cookie=0x0;
+//						break;
+//					}
+//					joy[element->app].stick[element->col].name = name_stick;
+//					joy[element->app].stick[element->col].num_axis++;
+//					if (joy[element->app].num_sticks<(element->col+1))
+//						joy[element->app].num_sticks=element->col+1;
+//						joy[element->app].stick[element->col].flags = JOYFLAG_ANALOGUE | JOYFLAG_UNSIGNED;
+//					if (element->name)
+//						joy[element->app].stick[element->col].axis[element->index].name = element->name;
+//					else
+//						joy[element->app].stick[element->col].axis[element->index].name = element->index==0 ? name_x : name_y;
 					
 					break;
 					
 				case HID_ELEMENT_HAT:
-					if (element->app>=MAX_JOYSTICKS || element->col >= MAX_JOYSTICK_STICKS) {
-						element->cookie=0x0;
-						break;
-					}
-					if (joy[element->app].num_sticks<(element->col+1))
-						joy[element->app].num_sticks=element->col+1;
-					
-					if (element->name)
-						joy[element->app].stick[element->col].name = element->name;
-					else
-						joy[element->app].stick[element->col].name = name_hat;
-					joy[element->app].stick[element->col].num_axis = 2;
-					joy[element->app].stick[element->col].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE | JOYFLAG_SIGNED;
-					joy[element->app].stick[element->col].axis[0].name = name_x;
-					joy[element->app].stick[element->col].axis[1].name = name_y;
+//					if (element->app>=MAX_JOYSTICKS || element->col >= MAX_JOYSTICK_STICKS) {
+//						element->cookie=0x0;
+//						break;
+//					}
+//					if (joy[element->app].num_sticks<(element->col+1))
+//						joy[element->app].num_sticks=element->col+1;
+//					
+//					if (element->name)
+//						joy[element->app].stick[element->col].name = element->name;
+//					else
+//						joy[element->app].stick[element->col].name = name_hat;
+//					joy[element->app].stick[element->col].num_axis = 2;
+//					joy[element->app].stick[element->col].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE | JOYFLAG_SIGNED;
+//					joy[element->app].stick[element->col].axis[0].name = name_x;
+//					joy[element->app].stick[element->col].axis[1].name = name_y;
 					break;
 			}
 		}
@@ -175,8 +177,8 @@ static int poll(void)
 	IOHIDEventStruct hid_event;
 	int i, j, pos;
 	
-	if (num_joysticks <= 0)
-		return -1;
+//	if (num_joysticks <= 0)
+//		return -1;
 	
 	for (i = 0; i < hid_devices.count; i++) {
 		device = &hid_devices.devices[i];
@@ -188,109 +190,109 @@ static int poll(void)
 				switch (element->type) {
 					
 					case HID_ELEMENT_BUTTON:
-						joy[element->app].button[element->index].b = hid_event.value;
+//						joy[element->app].button[element->index].b = hid_event.value;
 						break;
 						
 					case HID_ELEMENT_AXIS:
 					case HID_ELEMENT_AXIS_PRIMARY_X:
 					case HID_ELEMENT_AXIS_PRIMARY_Y:
 						pos = (((hid_event.value - element->min) * 256) / (element->max - element->min + 1)) - 128;
-						joy[element->app].stick[element->col].axis[element->index].pos = pos;
-						joy[element->app].stick[element->col].axis[element->index].d1 = FALSE;
-						joy[element->app].stick[element->col].axis[element->index].d2 = FALSE;
-						if (pos < 0)
-							joy[element->app].stick[element->col].axis[element->index].d1 = TRUE;
-						else if (pos > 0)
-							joy[element->app].stick[element->col].axis[element->index].d2 = TRUE;
+//						joy[element->app].stick[element->col].axis[element->index].pos = pos;
+//						joy[element->app].stick[element->col].axis[element->index].d1 = FALSE;
+//						joy[element->app].stick[element->col].axis[element->index].d2 = FALSE;
+//						if (pos < 0)
+//							joy[element->app].stick[element->col].axis[element->index].d1 = TRUE;
+//						else if (pos > 0)
+//							joy[element->app].stick[element->col].axis[element->index].d2 = TRUE;
 							break;
 						
 					case HID_ELEMENT_STANDALONE_AXIS:
 						pos = (((hid_event.value - element->min) * 255) / (element->max - element->min + 1));
-						joy[element->app].stick[element->col].axis[element->index].pos = pos;
+//						joy[element->app].stick[element->col].axis[element->index].pos = pos;
 						break;
 						
 					case HID_ELEMENT_HAT:
 						switch (hid_event.value) {
 							
 							case 0:  /* up */
-								joy[element->app].stick[element->col].axis[0].pos = 0;
-								joy[element->app].stick[element->col].axis[0].d1 = 0;
-								joy[element->app].stick[element->col].axis[0].d2 = 0;
-								joy[element->app].stick[element->col].axis[1].pos = -128;
-								joy[element->app].stick[element->col].axis[1].d1 = 1;
-								joy[element->app].stick[element->col].axis[1].d2 = 0;
+//								joy[element->app].stick[element->col].axis[0].pos = 0;
+//								joy[element->app].stick[element->col].axis[0].d1 = 0;
+//								joy[element->app].stick[element->col].axis[0].d2 = 0;
+//								joy[element->app].stick[element->col].axis[1].pos = -128;
+//								joy[element->app].stick[element->col].axis[1].d1 = 1;
+//								joy[element->app].stick[element->col].axis[1].d2 = 0;
 								break;
 								
 							case 1:  /* up and right */
-								joy[element->app].stick[element->col].axis[0].pos = 128;
-									joy[element->app].stick[element->col].axis[0].d1 = 0;
-									joy[element->app].stick[element->col].axis[0].d2 = 1;
-									joy[element->app].stick[element->col].axis[1].pos = -128;
-									joy[element->app].stick[element->col].axis[1].d1 = 1;
-									joy[element->app].stick[element->col].axis[1].d2 = 0;
+//								joy[element->app].stick[element->col].axis[0].pos = 128;
+//									joy[element->app].stick[element->col].axis[0].d1 = 0;
+//									joy[element->app].stick[element->col].axis[0].d2 = 1;
+//									joy[element->app].stick[element->col].axis[1].pos = -128;
+//									joy[element->app].stick[element->col].axis[1].d1 = 1;
+//									joy[element->app].stick[element->col].axis[1].d2 = 0;
 									break;
 									
 								case 2:  /* right */
-									joy[element->app].stick[element->col].axis[0].pos = 128;
-										joy[element->app].stick[element->col].axis[0].d1 = 0;
-										joy[element->app].stick[element->col].axis[0].d2 = 1;
-										joy[element->app].stick[element->col].axis[1].pos = 0;
-										joy[element->app].stick[element->col].axis[1].d1 = 0;
-										joy[element->app].stick[element->col].axis[1].d2 = 0;
+//									joy[element->app].stick[element->col].axis[0].pos = 128;
+//										joy[element->app].stick[element->col].axis[0].d1 = 0;
+//										joy[element->app].stick[element->col].axis[0].d2 = 1;
+//										joy[element->app].stick[element->col].axis[1].pos = 0;
+//										joy[element->app].stick[element->col].axis[1].d1 = 0;
+//										joy[element->app].stick[element->col].axis[1].d2 = 0;
 										break;
 										
 									case 3:  /* down and right */
-										joy[element->app].stick[element->col].axis[0].pos = 128;
-											joy[element->app].stick[element->col].axis[0].d1 = 0;
-											joy[element->app].stick[element->col].axis[0].d2 = 1;
-											joy[element->app].stick[element->col].axis[1].pos = 128;
-											joy[element->app].stick[element->col].axis[1].d1 = 0;
-											joy[element->app].stick[element->col].axis[1].d2 = 1;
+//										joy[element->app].stick[element->col].axis[0].pos = 128;
+//											joy[element->app].stick[element->col].axis[0].d1 = 0;
+//											joy[element->app].stick[element->col].axis[0].d2 = 1;
+//											joy[element->app].stick[element->col].axis[1].pos = 128;
+//											joy[element->app].stick[element->col].axis[1].d1 = 0;
+//											joy[element->app].stick[element->col].axis[1].d2 = 1;
 											break;
 											
 										case 4:  /* down */
-											joy[element->app].stick[element->col].axis[0].pos = 0;
-												joy[element->app].stick[element->col].axis[0].d1 = 0;
-												joy[element->app].stick[element->col].axis[0].d2 = 0;
-												joy[element->app].stick[element->col].axis[1].pos = 128;
-												joy[element->app].stick[element->col].axis[1].d1 = 0;
-												joy[element->app].stick[element->col].axis[1].d2 = 1;
+//											joy[element->app].stick[element->col].axis[0].pos = 0;
+//												joy[element->app].stick[element->col].axis[0].d1 = 0;
+//												joy[element->app].stick[element->col].axis[0].d2 = 0;
+//												joy[element->app].stick[element->col].axis[1].pos = 128;
+//												joy[element->app].stick[element->col].axis[1].d1 = 0;
+//												joy[element->app].stick[element->col].axis[1].d2 = 1;
 												break;
 												
 											case 5:  /* down and left */
-												joy[element->app].stick[element->col].axis[0].pos = -128;
-													joy[element->app].stick[element->col].axis[0].d1 = 1;
-													joy[element->app].stick[element->col].axis[0].d2 = 0;
-													joy[element->app].stick[element->col].axis[1].pos = 128;
-													joy[element->app].stick[element->col].axis[1].d1 = 0;
-													joy[element->app].stick[element->col].axis[1].d2 = 1;
+//												joy[element->app].stick[element->col].axis[0].pos = -128;
+//													joy[element->app].stick[element->col].axis[0].d1 = 1;
+//													joy[element->app].stick[element->col].axis[0].d2 = 0;
+//													joy[element->app].stick[element->col].axis[1].pos = 128;
+//													joy[element->app].stick[element->col].axis[1].d1 = 0;
+//													joy[element->app].stick[element->col].axis[1].d2 = 1;
 													break;
 													
 												case 6:  /* left */
-													joy[element->app].stick[element->col].axis[0].pos = -128;
-														joy[element->app].stick[element->col].axis[0].d1 = 1;
-														joy[element->app].stick[element->col].axis[0].d2 = 0;
-														joy[element->app].stick[element->col].axis[1].pos = 0;
-														joy[element->app].stick[element->col].axis[1].d1 = 0;
-														joy[element->app].stick[element->col].axis[1].d2 = 0;
+//													joy[element->app].stick[element->col].axis[0].pos = -128;
+//														joy[element->app].stick[element->col].axis[0].d1 = 1;
+//														joy[element->app].stick[element->col].axis[0].d2 = 0;
+//														joy[element->app].stick[element->col].axis[1].pos = 0;
+//														joy[element->app].stick[element->col].axis[1].d1 = 0;
+//														joy[element->app].stick[element->col].axis[1].d2 = 0;
 														break;
 														
 													case 7:  /* up and left */
-														joy[element->app].stick[element->col].axis[0].pos = -128;
-															joy[element->app].stick[element->col].axis[0].d1 = 1;
-															joy[element->app].stick[element->col].axis[0].d2 = 0;
-															joy[element->app].stick[element->col].axis[1].pos = -128;
-															joy[element->app].stick[element->col].axis[1].d1 = 1;
-															joy[element->app].stick[element->col].axis[1].d2 = 0;
+//														joy[element->app].stick[element->col].axis[0].pos = -128;
+//															joy[element->app].stick[element->col].axis[0].d1 = 1;
+//															joy[element->app].stick[element->col].axis[0].d2 = 0;
+//															joy[element->app].stick[element->col].axis[1].pos = -128;
+//															joy[element->app].stick[element->col].axis[1].d1 = 1;
+//															joy[element->app].stick[element->col].axis[1].d2 = 0;
 															break;
 															
 														case 15:  /* centered */
-															joy[element->app].stick[element->col].axis[0].pos = 0;
-																joy[element->app].stick[element->col].axis[0].d1 = 0;
-																joy[element->app].stick[element->col].axis[0].d2 = 0;
-																joy[element->app].stick[element->col].axis[1].pos = 0;
-																joy[element->app].stick[element->col].axis[1].d1 = 0;
-																joy[element->app].stick[element->col].axis[1].d2 = 0;
+//															joy[element->app].stick[element->col].axis[0].pos = 0;
+//																joy[element->app].stick[element->col].axis[0].d1 = 0;
+//																joy[element->app].stick[element->col].axis[0].d2 = 0;
+//																joy[element->app].stick[element->col].axis[1].pos = 0;
+//																joy[element->app].stick[element->col].axis[1].d1 = 0;
+//																joy[element->app].stick[element->col].axis[1].d2 = 0;
 																break;
 						}
 						break;
@@ -306,7 +308,7 @@ static int poll(void)
 */
 int count_joysticks(void) 
 {
-	return num_joysticks;
+//	return num_joysticks;
 }
 
 /* get_joystick:
