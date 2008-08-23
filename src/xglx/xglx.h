@@ -103,6 +103,9 @@ void _al_xwin_mouse_button_press_handler(int button, ALLEGRO_DISPLAY *display);
 void _al_xwin_mouse_button_release_handler(int button, ALLEGRO_DISPLAY *d);
 void _al_xwin_mouse_motion_notify_handler(int x, int y, ALLEGRO_DISPLAY *d);
 
+/* cursor */
+void _al_xglx_add_cursor_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
+
 /* fullscreen */
 int _al_xglx_get_num_display_modes(void);
 ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(
