@@ -383,7 +383,7 @@ ALLEGRO_MIXER *al_mixer_create(unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALL
    mixer->ss.chan_conf = chan_conf;
    mixer->ss.frequency = freq;
 
-   mixer->ss.read = mixer_read;
+   mixer->ss.read = _al_kcm_mixer_read;
 
    mixer->quality = ALLEGRO_AUDIO_LINEAR;
 

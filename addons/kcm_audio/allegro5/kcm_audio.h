@@ -215,7 +215,8 @@ AL_FUNC(int, al_mixer_get_bool, (const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM 
 AL_FUNC(int, al_mixer_set_long, (ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, unsigned long val));
 AL_FUNC(int, al_mixer_set_enum, (ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val));
 AL_FUNC(int, al_mixer_set_bool, (ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, bool val));
-AL_FUNC(void, mixer_read, (void*, void**, unsigned long, ALLEGRO_AUDIO_ENUM, size_t));
+/* XXX is this supposed to be public? */
+AL_FUNC(void, _al_kcm_mixer_read, (void*, void**, unsigned long, ALLEGRO_AUDIO_ENUM, size_t));
 /* Voice functions */
 AL_FUNC(ALLEGRO_VOICE*, al_voice_create, (unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf));
 AL_FUNC(void, al_voice_destroy, (ALLEGRO_VOICE *voice));
