@@ -489,32 +489,32 @@ static void mouse_dinput_handle(void)
             POINT p;
             int wx, wy;
 
-	    GetCursorPos(&p);
+         GetCursorPos(&p);
 
-            _al_win_get_window_position(_al_win_active_window, &wx, &wy);
+         _al_win_get_window_position(_al_win_active_window, &wx, &wy);
 
-	    p.x -= wx;
-	    p.y -= wy;
+         p.x -= wx;
+         p.y -= wy;
 
-	    if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||
-		(p.y < mouse_miny) || (p.y > mouse_maxy)) {
-	       if (_mouse_on) {
-		  _mouse_on = FALSE;
-		  wnd_schedule_proc(mouse_set_syscursor);
-		  mouse_directx_motion_handler_abs(
-		     CLAMP(mouse_minx, p.x, mouse_maxx),
-		     CLAMP(mouse_miny, p.y, mouse_maxy));
-	       }
-	    }
-	    else {
-	       if (!_mouse_on) {
-		  _mouse_on = TRUE;
-		  wnd_schedule_proc(mouse_set_syscursor);
-	       }
-	       mouse_directx_motion_handler_abs(p.x, p.y);
-	    }
+         if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||
+             (p.y < mouse_miny) || (p.y > mouse_maxy)) {
+            if (_mouse_on) {
+               _mouse_on = FALSE;
+               wnd_schedule_proc(mouse_set_syscursor);
+               mouse_directx_motion_handler_abs(
+                  CLAMP(mouse_minx, p.x, mouse_maxx),
+                  CLAMP(mouse_miny, p.y, mouse_maxy));
+            }
+         }
+         else {
+            if (!_mouse_on) {
+               _mouse_on = TRUE;
+               wnd_schedule_proc(mouse_set_syscursor);
+            }
+            mouse_directx_motion_handler_abs(p.x, p.y);
          }
       }
+   }
 #if 0
       else {
          /* fullscreen input mode */
@@ -923,20 +923,20 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
       dy = new_y - the_mouse.state.y;
 
       if ((dx != 0) || (dy != 0)) {
-	 the_mouse.state.x = x;
-	 the_mouse.state.y = y;
+         the_mouse.state.x = x;
+         the_mouse.state.y = y;
 
-	 generate_mouse_event(
-	    ALLEGRO_EVENT_MOUSE_AXES,
-	    the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
-	    dx, dy, 0,
-	    0);
+      generate_mouse_event(
+         ALLEGRO_EVENT_MOUSE_AXES,
+         the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+         dx, dy, 0,
+         0);
       }
 
       _al_win_get_window_position(_al_win_active_window, &wx, &wy);
 
       if (_al_display_type() == 1) {
-	 SetCursorPos(new_x+wx, new_y+wy);
+         SetCursorPos(new_x+wx, new_y+wy);
       }
    }
    _al_event_source_unlock(&the_mouse.parent.es);
