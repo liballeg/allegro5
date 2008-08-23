@@ -1,4 +1,7 @@
-set(AUDIO_SOURCES audio.c)
+set(AUDIO_SOURCES
+    audio.c
+    kcm_voice.c
+    )
 set(AUDIO_INCLUDE_FILES allegro5/kcm_audio.h)
 
 # XXX make this optional?

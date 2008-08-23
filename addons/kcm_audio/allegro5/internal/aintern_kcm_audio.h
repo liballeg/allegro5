@@ -37,6 +37,8 @@ typedef struct ALLEGRO_AUDIO_DRIVER {
    int (*set_voice_position)(ALLEGRO_VOICE*, unsigned long);
 }ALLEGRO_AUDIO_DRIVER;
 
+extern ALLEGRO_AUDIO_DRIVER *_al_kcm_driver;
+
 const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples);
 
 /* A voice structure that you'd attach a mixer or sample to. Ideally there
@@ -112,6 +114,8 @@ struct ALLEGRO_SAMPLE {
    bool parent_is_voice;
 };
 
+void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, _AL_MUTEX *mutex);
+
 
 struct ALLEGRO_STREAM {
    ALLEGRO_SAMPLE spl;
@@ -144,4 +148,17 @@ struct ALLEGRO_MIXER {
    ALLEGRO_SAMPLE **streams;
 };
 
+
+typedef enum {
+   ALLEGRO_NO_ERROR       = 0,
+   ALLEGRO_INVALID_PARAM  = 1,
+   ALLEGRO_INVALID_OBJECT = 2,
+   ALLEGRO_GENERIC_ERROR  = 255
+} AL_ERROR_ENUM;
+
+extern void _al_set_error(int error, char* string);
+
+
 #endif
+
+/* vim: set sts=3 sw=3 et: */
