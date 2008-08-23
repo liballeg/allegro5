@@ -118,9 +118,12 @@ static int d3d_formats[] = {
 bool al_d3d_supports_non_pow2_textures(void)
 {
    D3DCAPS9 caps;
+   int adapter = al_get_current_video_adapter();
+   if (adapter == -1)
+         adapter = 0;
 
    /* This might have to change for multihead */
-   if (_al_d3d->GetDeviceCaps(al_get_current_video_adapter(), D3DDEVTYPE_HAL, &caps) != D3D_OK) {
+   if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
    	return false;
    }
 
@@ -135,9 +138,12 @@ bool al_d3d_supports_non_pow2_textures(void)
 bool al_d3d_supports_non_square_textures(void)
 {
    D3DCAPS9 caps;
+   int adapter = al_get_current_video_adapter();
+   if (adapter == -1)
+      adapter = 0;
 
    /* This might have to change for multihead */
-   if (_al_d3d->GetDeviceCaps(al_get_current_video_adapter(), D3DDEVTYPE_HAL, &caps) != D3D_OK) {
+   if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
    	return false;
    }
 
@@ -1241,10 +1247,13 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    ALLEGRO_DISPLAY_D3D **add;
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
+   int adapter = al_get_current_video_adapter();
+   if (adapter == -1)
+      adapter = 0;
 
    memset(d3d_display, 0, sizeof *d3d_display);
  
-   d3d_display->adapter = al_get_current_video_adapter();
+   d3d_display->adapter = adapter;
    d3d_display->ignore_ack = false;
    al_display->w = w;
    al_display->h = h;
@@ -2199,13 +2208,17 @@ int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
    }
 
    for (; allegro_formats[j] != -1; j++) {
+      int adapter = al_get_current_video_adapter();
+      if (adapter == -1)
+         adapter = 0;
+
       if (!_al_pixel_format_is_real(allegro_formats[j]))
          continue;
 
-      num_modes = _al_d3d->GetAdapterModeCount(al_get_current_video_adapter(), (D3DFORMAT)d3d_formats[j]);
+      num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)d3d_formats[j]);
    
       for (i = 0; i < num_modes; i++) {
-         if (_al_d3d->EnumAdapterModes(al_get_current_video_adapter(), (D3DFORMAT)_al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
+         if (_al_d3d->EnumAdapterModes(adapter, (D3DFORMAT)_al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
             return matches;
          }
          if (refresh_rate && display_mode.RefreshRate != (unsigned)refresh_rate)
@@ -2243,13 +2256,17 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
    }
 
    for (; allegro_formats[j] != -1; j++) {
+      int adapter = al_get_current_video_adapter();
+      if (adapter == -1)
+         adapter = 0;
+
       if (!_al_pixel_format_is_real(allegro_formats[j]))
          continue;
 
-      num_modes = _al_d3d->GetAdapterModeCount(al_get_current_video_adapter(), (D3DFORMAT)d3d_formats[j]);
+      num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)d3d_formats[j]);
    
       for (i = 0; i < num_modes; i++) {
-         if (_al_d3d->EnumAdapterModes(al_get_current_video_adapter(), (D3DFORMAT)_al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
+         if (_al_d3d->EnumAdapterModes(adapter, (D3DFORMAT)_al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
             return NULL;
          }
          if (refresh_rate && display_mode.RefreshRate != (unsigned)refresh_rate)

@@ -607,18 +607,23 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
    DEVMODE dm;
    DEVMODE fallback_dm;
    DISPLAY_DEVICE dd;
+   char* dev_name = NULL;
    int i, modeswitch, result;
    int fallback_dm_valid = 0;
    int bpp;
+   int adapter = al_get_current_video_adapter();
+
+   if (adapter != -1) {
+      memset(&dd, 0, sizeof(dd));
+      dd.cb = sizeof(dd);
+      if (EnumDisplayDevices(NULL, adapter, &dd, 0) == FALSE)
+         return false;
+      dev_name = dd.DeviceName;
+   }
 
    memset(&fallback_dm, 0, sizeof(fallback_dm));
    memset(&dm, 0, sizeof(dm));
    dm.dmSize = sizeof(DEVMODE);
-
-   memset(&dd, 0, sizeof(dd));
-   dd.cb = sizeof(dd);
-   if (EnumDisplayDevices(NULL, al_get_current_video_adapter(), &dd, 0) == FALSE)
-      return false;
 
    bpp = al_get_pixel_format_bits(d->format);
    if (!bpp)
@@ -626,7 +631,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
 
    i = 0;
    do {
-      modeswitch = EnumDisplaySettings(dd.DeviceName, i, &dm);
+      modeswitch = EnumDisplaySettings(dev_name, i, &dm);
       if (!modeswitch)
          break;
 
@@ -665,7 +670,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
       dm = fallback_dm;
 
    dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
-   result = ChangeDisplaySettingsEx(dd.DeviceName, &dm, NULL, CDS_FULLSCREEN, 0);
+   result = ChangeDisplaySettingsEx(dev_name, &dm, NULL, CDS_FULLSCREEN, 0);
 
    if (result != DISP_CHANGE_SUCCESSFUL) {
       log_win32_error("change_display_mode", "Unable to set mode!",

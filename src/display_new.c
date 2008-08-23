@@ -31,7 +31,7 @@
 
 
 
-static int current_video_adapter = 0;
+static int current_video_adapter = -1;
 static int new_window_x = INT_MAX;
 static int new_window_y = INT_MAX;
 
