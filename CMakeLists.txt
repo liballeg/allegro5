@@ -14,7 +14,7 @@
 #
 #-----------------------------------------------------------------------------#
 
-cmake_minimum_required(VERSION 2.4)
+cmake_minimum_required(VERSION 2.6)
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
@@ -61,30 +61,13 @@ option(GRADE_PROFILE "Build the profiling library" off)
 option(SHARED "Build shared libraries" on)
 option(STATIC "Build static libraries" on)
 
-option(WANT_MODULES "Use dynamically loaded modules (Unix)" on)
 option(WANT_MAGIC_MAIN "Enable magic main" off)
 
 #
 # Platforms and drivers.
 #
 
-# All A4 driver are disabled by default
-
-option(WANT_LINUX_CONSOLE "Linux console support" off)
-option(WANT_FBCON "Enable framebuffer graphics driver (Linux)" off)
-option(WANT_SVGALIB "Enable SVGAlib graphics driver (Linux)" off)
-option(WANT_VGA "Enable VGA graphics driver (Linux)" off)
-
 option(WANT_X11 "X11 support" on)
-
-option(WANT_ALSADIGI "Enable ALSA digital audio driver (Unix)" off)
-option(WANT_ALSAMIDI "Enable ALSA MIDI driver (Unix)" off)
-option(WANT_JACK "Enable JACK audio driver (Unix)" off)
-option(WANT_OSSDIGI "Enable OSS digital audio driver (Unix)" off)
-option(WANT_OSSMIDI "Enable OSS MIDI driver (Unix)" off)
-option(WANT_SGIAL "Enable SGI AL audio driver (Unix)" off)
-
-option(WANT_A5_ALSA "Enable A5 ALSA digital audio driver (Unix)" on)
 
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 option(WANT_D3DEX "Enable Direct3D 9Ex extensions (Vista)" off)
@@ -104,14 +87,13 @@ option(WANT_KCM_AUDIO "Enable kcm_audio engine" off)
 option(WANT_ICODEC "Enable image loading/saving for most filetypes (requires libMagick)" off)
 option(WANT_IIO "Enable IIO image load/save addon" on)
 
+option(WANT_A5_ALSA "Enable A5 ALSA digital audio driver (Unix)" on)
+
 #
 # For developers.
 #
 
 option(STRICT_WARN "Halt at warnings" off)
-option(WANT_OLD_EXAMPLES "Build examples from < 4.9" off)
-option(WANT_OLD_TESTS "Build tests from < 4.9" off)
-option(WANT_OLD_TOOLS "Build tools from < 4.9" off)
 
 #-----------------------------------------------------------------------------#
 #
@@ -165,16 +147,9 @@ endif(NOT ALLEGRO_BIG_ENDIAN)
 
 check_include_files(dirent.h ALLEGRO_HAVE_DIRENT_H)
 check_include_files(inttypes.h ALLEGRO_HAVE_INTTYPES_H)
-check_include_files(linux/awe_voice.h ALLEGRO_HAVE_LINUX_AWE_VOICE_H)
-check_include_files(linux/input.h ALLEGRO_HAVE_LINUX_INPUT_H)
-check_include_files(linux/joystick.h ALLEGRO_HAVE_LINUX_JOYSTICK_H)
-check_include_files(linux/soundcard.h ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
-check_include_files(machine/soundcard.h ALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
-check_include_files(soundcard.h ALLEGRO_HAVE_SOUNDCARD_H)
 check_include_files(stdbool.h ALLEGRO_HAVE_STDBOOL_H)
 check_include_files(stdint.h ALLEGRO_HAVE_STDINT_H)
 check_include_files(sys/io.h ALLEGRO_HAVE_SYS_IO_H)
-check_include_files(sys/soundcard.h ALLEGRO_HAVE_SYS_SOUNDCARD_H)
 check_include_files(sys/stat.h ALLEGRO_HAVE_SYS_STAT_H)
 check_include_files(sys/time.h ALLEGRO_HAVE_SYS_TIME_H)
 check_include_files(sys/utsname.h ALLEGRO_HAVE_SYS_UTSNAME_H)
@@ -219,12 +194,6 @@ check_ctors(ALLEGRO_USE_CONSTRUCTOR)
 
 # We no longer support hand-written assembly routines.
 set(ALLEGRO_NO_ASM 1)
-
-if(WANT_MODULES)
-    # Should ask CMake whether it can build modules on this platform.
-    set(ALLEGRO_WITH_MODULES 1)
-    set(SUPPORT_MODULES 1)
-endif(WANT_MODULES)
 
 if(WANT_MAGIC_MAIN)
     set(ALLEGRO_WITH_MAGIC_MAIN 1)
@@ -279,19 +248,11 @@ if(UNIX)
         set(ALLEGRO_HAVE_LIBPTHREAD 1)
     endif(CMAKE_USE_PTHREADS_INIT)
 
-    if(SUPPORT_MODULES)
-        set(ALLEGRO_MODULES_PATH_TAIL lib/allegro)
-        # This is a #define variable.
-        set(ALLEGRO_MODULES_PATH
-            \"${CMAKE_INSTALL_PREFIX}/${ALLEGRO_MODULES_PATH_TAIL}\"
-            )
-    endif(SUPPORT_MODULES)
-
     #
     # Sound drivers
     #
 
-    if(WANT_ALSADIGI OR WANT_A5_ALSA)
+    if(WANT_A5_ALSA)
         check_c_source_compiles("
             #include <sys/asoundlib.h>
             int main(void) { 
@@ -303,133 +264,11 @@ if(UNIX)
             }"
             CAN_ALSADIGI
         )
-        if(CAN_ALSADIGI AND WANT_ALSADIGI)
-            set(SUPPORT_ALSADIGI 1)
-            set(ALLEGRO_WITH_ALSADIGI 1)
-            set(ALLEGRO_ALSA_VERSION 9)
-            list(APPEND DRIVER_LIBS_STATIC asound)
-        endif(CAN_ALSADIGI AND WANT_ALSADIGI)
         if (CAN_ALSADIGI AND WANT_A5_ALSA)
             set(SUPPORT_A5_ALSA 1)
         endif(CAN_ALSADIGI AND WANT_A5_ALSA)
-    endif(WANT_ALSADIGI OR WANT_A5_ALSA)
-
-    if(WANT_ALSAMIDI)
-        check_c_source_compiles("
-            #include <sys/asoundlib.h>
-            int main(void) { 
-            #if(SND_LIB_MAJOR > 0) || (SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9)
-                return 0;
-            #else
-                return 1;
-            #endif
-            }"
-            CAN_ALSAMIDI
-        )
-        if(CAN_ALSAMIDI)
-            set(SUPPORT_ALSAMIDI 1)
-            set(ALLEGRO_WITH_ALSAMIDI 1)
-            set(ALLEGRO_ALSA_VERSION 9)
-            list(APPEND DRIVER_LIBS_STATIC asound)
-        endif(CAN_ALSAMIDI)
-    endif(WANT_ALSAMIDI)
-
-    if(WANT_JACK)
-        pkg_check_modules(JACK jack)
-        if(JACK_FOUND)
-            set(SUPPORT_JACK 1)
-            set(ALLEGRO_WITH_JACKDIGI 1)
-            list(APPEND DRIVER_LIBS_STATIC ${JACK_LDFLAGS})
-        endif(JACK_FOUND)
-    endif(WANT_JACK)
-
-    if(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR 
-        ALLEGRO_HAVE_MACHINE_SOUNDCARD_H OR ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
-        
-        if(WANT_OSSDIGI)
-            set(SUPPORT_OSSDIGI 1)
-            set(ALLEGRO_WITH_OSSDIGI 1)
-        endif(WANT_OSSDIGI)
-
-        if(WANT_OSSMIDI)
-            set(SUPPORT_OSSMIDI 1)
-            set(ALLEGRO_WITH_OSSMIDI 1)
-        endif(WANT_OSSMIDI)
-
-        # XXX we assume that if libossaudio exists then we need to use it.
-        check_library_exists(ossaudio _oss_ioctl "" ALLEGRO_HAVE_LIBOSSAUDIO)
-        if(ALLEGRO_HAVE_LIBOSSAUDIO)
-            list(APPEND DRIVER_LIBS_STATIC ossaudio)
-            list(APPEND DRIVER_LIBS_SHARED ossaudio)
-        endif(ALLEGRO_HAVE_LIBOSSAUDIO)
-
-    endif(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR
-        ALLEGRO_HAVE_MACHINE_SOUNDCARD_H OR ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
-
-    if(WANT_SGIAL)
-        check_library_exists(audio alOpenPort "" CAN_SGIAL)
-        if(CAN_SGIAL)
-            set(SUPPORT_SGIAL 1)
-            set(ALLEGRO_WITH_SGIALDIGI 1)
-            list(append DRIVER_LIBS_STATIC audio)
-        endif(CAN_SGIAL)
-    endif(WANT_SGIAL)
+    endif(WANT_A5_ALSA)
 endif(UNIX)
-
-#
-# Linux-specific
-#
-
-if(WANT_LINUX_CONSOLE)
-    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        set(SUPPORT_LINUX_CONSOLE 1)
-        set(ALLEGRO_LINUX 1)
-    endif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-endif(WANT_LINUX_CONSOLE)
-
-if(SUPPORT_LINUX_CONSOLE)
-
-    if(WANT_FBCON)
-        check_c_source_compiles("
-            #include <linux/fb.h>
-            int main(void) {
-                int x = FB_SYNC_ON_GREEN;
-                return 0;
-            }"
-            CAN_FBCON
-        )
-        if(CAN_FBCON)
-            set(SUPPORT_FBCON 1)
-            set(ALLEGRO_LINUX_FBCON 1)
-        endif(CAN_FBCON)
-    endif(WANT_FBCON)
-
-    if(WANT_SVGALIB)
-        check_library_exists(vga vga_init "" CAN_SVGALIB)
-        if(CAN_SVGALIB)
-            set(SUPPORT_SVGALIB 1)
-            set(ALLEGRO_LINUX_SVGALIB 1)
-            list(APPEND DRIVER_LIBS_STATIC vga)
-        endif(CAN_SVGALIB)
-
-        set(CMAKE_REQUIRED_LIBRARIES vga)
-        check_c_source_compiles("
-            #include <vga.h>
-            int main(void) {
-                int x = vga_version;
-                return x;
-            }"
-            ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION
-        )
-        set(CMAKE_REQUIRED_LIBRARIES)
-    endif(WANT_SVGALIB)
-
-    if(WANT_VGA)
-        set(SUPPORT_VGA 1)
-        set(ALLEGRO_LINUX_VGA 1)
-    endif(WANT_VGA)
-
-endif(SUPPORT_LINUX_CONSOLE)
 
 #
 # X Window System
@@ -554,14 +393,7 @@ set(PLATFORM_LIBS)
 if(UNIX)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_UNIX_FILES})
     list(APPEND PLATFORM_LIBS m pthread)
-    if(NOT SUPPORT_MODULES)
-        list(APPEND PLATFORM_LIBS "${DRIVER_LIBS_STATIC}")
-    endif(NOT SUPPORT_MODULES)
 endif(UNIX)
-
-if(SUPPORT_LINUX_CONSOLE)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_LINUX_FILES})
-endif(SUPPORT_LINUX_CONSOLE)
 
 if(SUPPORT_X11)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_X_FILES})
@@ -720,70 +552,6 @@ foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
             )
 endforeach(genfile)
 
-#-----------------------------------------------------------------------------#
-#
-#   Modules (Unix)
-#
-#-----------------------------------------------------------------------------#
-
-if(SUPPORT_MODULES)
-
-    macro(add_module target files)
-        add_library(${target} MODULE ${files})
-        set_target_properties(${target}
-            PROPERTIES
-            PREFIX ""
-            COMPILE_FLAGS "-DALLEGRO_MODULE ${WFLAGS}"
-            )
-        target_link_libraries(${target} ${ARGN})
-
-        install(TARGETS ${target}
-                DESTINATION ${ALLEGRO_MODULES_PATH_TAIL}/${ALLEGRO_VERSION}
-                PERMISSIONS
-                    OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                    GROUP_READ             GROUP_EXECUTE
-                    WORLD_READ             WORLD_EXECUTE
-                )
-    endmacro(add_module)
-
-    install(FILES modules.lst
-            DESTINATION ${ALLEGRO_MODULES_PATH_TAIL}/${ALLEGRO_VERSION}
-            )
-
-    if(SUPPORT_FBCON)
-        add_module(alleg-fbcon "${ALLEGRO_MODULE_FBCON_FILES}")
-    endif(SUPPORT_FBCON)
-
-    if(SUPPORT_SVGALIB)
-        add_module(alleg-svgalib "${ALLEGRO_MODULE_SVGALIB_FILES}"
-            vga)
-    endif(SUPPORT_SVGALIB)
-
-    if(SUPPORT_VGA)
-        add_module(alleg-vga "${ALLEGRO_MODULE_VGA_FILES}")
-    endif(SUPPORT_VGA)
-
-    if(SUPPORT_ALSADIGI)
-        add_module(alleg-alsadigi "${ALLEGRO_MODULE_ALSADIGI_FILES}"
-            asound)
-    endif(SUPPORT_ALSADIGI)
-
-    if(SUPPORT_ALSAMIDI)
-        add_module(alleg-alsamidi "${ALLEGRO_MODULE_ALSAMIDI_FILES}"
-            asound)
-    endif(SUPPORT_ALSAMIDI)
-
-    if(SUPPORT_JACK)
-        add_module(alleg-jackdigi ${ALLEGRO_MODULE_JACK_FILES}
-            ${JACK_LDFLAGS})
-    endif(SUPPORT_JACK)
-
-    if(SUPPORT_SGIAL)
-        add_module(alleg-sgialdigi ${ALLEGRO_MODULE_SGIAL_FILES}
-            audio)
-    endif(SUPPORT_SGIAL)
-
-endif(SUPPORT_MODULES)
 
 #-----------------------------------------------------------------------------#
 #
@@ -912,14 +680,6 @@ endif(NOT MSVC80)
 
 add_subdirectory(examples)
 
-if(WANT_OLD_TESTS)
-    add_subdirectory(tests)
-endif(WANT_OLD_TESTS)
-
-if(WANT_OLD_TOOLS)
-    add_subdirectory(tools)
-endif(WANT_OLD_TOOLS)
-
 #-----------------------------------------------------------------------------#
 #
 #   allegro-config script
@@ -942,9 +702,6 @@ if(UNIX)
     endif(SHARED)
 
     set(LDFLAGS)
-    if(SUPPORT_MODULES)
-        set(LDFLAGS "-Wl,--export-dynamic ${LDFLAGS}")
-    endif(SUPPORT_MODULES)
 
     set(LIBS)
     foreach(lib ${PLATFORM_LIBS})
