@@ -86,6 +86,7 @@ add_custom_target(docs
 #-----------------------------------------------------------------------------#
 
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/html/refman)
+make_directory(${CMAKE_CURRENT_BINARY_DIR}/txt)
 
 # Copy CSS files.
 configure_file(
