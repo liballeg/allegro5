@@ -2,8 +2,6 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_opengl.h"
 
-#include <X11/cursorfont.h>
-
 
 
 static ALLEGRO_DISPLAY_INTERFACE *xdpy_vt;
@@ -298,8 +296,8 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    ogl->backbuffer = _al_ogl_create_backbuffer(display);
 
-   d->invisible_cursor = None;
-   d->current_cursor = XC_left_ptr;
+   d->invisible_cursor = None; /* Will be created on demand. */
+   d->current_cursor = None; /* Initially, we use the root cursor. */
    d->cursor_hidden = false;
 
    d->icon = None;
