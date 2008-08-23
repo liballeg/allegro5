@@ -52,7 +52,7 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples)
  *  Creates a voice struct and allocates a voice from the digital sound driver.
  *  The sound driver's allocate_voice function should change the voice's
  *  frequency, depth, chan_conf, and settings fields to match what is actually
- *  allocated. If it cannot create a voice with exact settings it will fail Use
+ *  allocated. If it cannot create a voice with exact settings it will fail. Use
  *  a mixer in such a case.
  */
 ALLEGRO_VOICE *al_voice_create(unsigned long freq, ALLEGRO_AUDIO_ENUM depth,

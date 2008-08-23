@@ -100,6 +100,8 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
 
 bool _sndfile_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long buf_size)
 {
+/* TODO: implement streaming */
+#if 0
    int bytes_per_sample, samples, num_read, bytes_read, silence;
 
    SNDFILE* sndfile = (SNDFILE*) stream->ex_data;
@@ -124,18 +126,25 @@ bool _sndfile_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long bu
    silence = _al_audio_get_silence(stream->depth);
    memset((char*)data + bytes_read, silence, buf_size - bytes_read);
    return false;
+#endif
+   return false;
 }
 
 void _sndfile_stream_close(ALLEGRO_STREAM* stream)
 {
+/* TODO: implement streaming */
+#if 0
    SNDFILE* sndfile = (SNDFILE*) stream->ex_data;
    sf_close(sndfile);
    stream->ex_data = NULL;
    return;
+#endif
 }
 
 ALLEGRO_STREAM* al_load_stream_sndfile(const char *filename)
 {
+/* TODO: implement streaming */
+#if 0
    ALLEGRO_AUDIO_ENUM depth; 
    SF_INFO sfinfo;
    SNDFILE* sndfile;
@@ -182,6 +191,8 @@ ALLEGRO_STREAM* al_load_stream_sndfile(const char *filename)
 
    stream->ex_data = sndfile;
    return stream;
+#endif
+   return NULL;
 }
 
 

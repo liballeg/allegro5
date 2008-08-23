@@ -6,14 +6,14 @@
 
 #include <stdio.h>
 #include "allegro5/allegro5.h"
-#include "allegro5/audio.h"
 #include "allegro5/acodec.h"
 
 int main(int argc, char **argv)
 {
    int i;
-   ALLEGRO_SAMPLE** sample;
-   ALLEGRO_VOICE**  voice;
+   ALLEGRO_SAMPLE **sample;
+   ALLEGRO_MIXER *mixer;
+   ALLEGRO_VOICE *voice;
    float longest_sample;
 
    if(argc < 2) {
@@ -21,7 +21,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   if (al_init())
+   if (!al_init())
    {
        fprintf(stderr, "Could not init allegro\n");
        return 1;
@@ -37,9 +37,23 @@ int main(int argc, char **argv)
    if (!sample)
       return 1;
 
-   voice  = malloc(argc * sizeof(*voice));
-   if (!voice)
+   /* a voice is used for playback */
+   voice = al_voice_create(44100, ALLEGRO_AUDIO_16_BIT_INT, ALLEGRO_AUDIO_2_CH);
+   if (!voice) {
+      fprintf(stderr, "Could not create ALLEGRO_VOICE from sample\n");
       return 1;
+   }
+
+   mixer = al_mixer_create(44100, ALLEGRO_AUDIO_32_BIT_FLOAT, ALLEGRO_AUDIO_2_CH);
+   if (!mixer) {
+      fprintf(stderr, "al_mixer_create failed.\n");
+      return 1;
+   }
+
+   if (al_voice_attach_mixer(voice, mixer) != 0) {
+      TRACE("al_voice_attach_mixer failed.\n");
+      return 1;
+   }
 
    for (i = 1; i < argc; ++i)
    {
@@ -49,15 +63,12 @@ int main(int argc, char **argv)
       /* loads the entire sound file from disk into sample data */
       sample[i] = al_load_sample(filename);
       if (!sample[i]) {
-         voice[i] = NULL;
          fprintf(stderr, "Could not load ALLEGRO_SAMPLE from '%s'!\n", filename);
          continue;
       }
 
-      /* a voice is used for playback */
-      voice[i] = al_voice_create(sample[i]);
-      if (!voice[i]) {
-         fprintf(stderr, "Could not create ALLEGRO_VOICE from sample\n");
+      if (al_mixer_attach_sample(mixer, sample[i]) != 0) {
+         fprintf(stderr, "al_mixer_attach_sample failed.\n");
          continue;
       }
    }
@@ -69,13 +80,10 @@ int main(int argc, char **argv)
       const char* filename = argv[i];
       float sample_time;
 
-      if (!voice[i])
-         continue;
-
       /* play each sample once */
-      al_voice_start(voice[i]);
+      al_sample_play(sample[i]);
 
-      sample_time = al_sample_get_time(sample[i]);
+      al_sample_get_float(sample[i], ALLEGRO_AUDIO_TIME, &sample_time);
       fprintf(stderr, "Playing '%s' (%.3f seconds)\n", filename, sample_time);
 
       if (sample_time > longest_sample)
@@ -87,16 +95,15 @@ int main(int argc, char **argv)
    for (i = 1; i < argc; ++i)
    {
       /* free the memory allocated when creating the sample + voice */
-      if (voice[i]) {
-         al_voice_stop(voice[i]);
-         al_voice_destroy(voice[i]);
-      }
-
-      if (sample[i])
+      if (sample[i]) {
+         al_sample_stop(sample[i]);
          al_sample_destroy(sample[i]);
+      }
    }
+   al_mixer_destroy(mixer);
+   al_voice_destroy(voice);
+
    free(sample);
-   free(voice);
 
    al_audio_deinit();
 

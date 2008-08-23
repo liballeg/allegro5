@@ -97,6 +97,8 @@ struct ALLEGRO_SAMPLE {
    unsigned long loop_start, loop_end;
    long step;
 
+   bool free_buf;
+
    /* Used to convert from this format to the attached mixers */
    float *matrix;
 

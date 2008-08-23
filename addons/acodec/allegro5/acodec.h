@@ -34,7 +34,8 @@ extern "C" {
    #define A5_ACODEC_FUNC      AL_FUNC
 #endif
 
-#include "allegro5/audio.h"
+#include "allegro5/kcm_audio.h"
+
 A5_ACODEC_FUNC(ALLEGRO_SAMPLE*, al_load_sample,(const char* filename));
 A5_ACODEC_FUNC(ALLEGRO_STREAM*, al_load_stream,(const char* filename));
 

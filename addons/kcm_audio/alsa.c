@@ -19,6 +19,7 @@
  *
  *      See readme.txt for copyright information.
  */
+
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_thread.h"
@@ -28,13 +29,16 @@
 
 /* FIXME: alsa segfaults for unhandled formats (channel and depth etc) */
 
-/* To be put into ALSA_CHECK macro. */
-/* TODO: replace this with something cleaner */
+
+#define TRACE_E "a5-kcm-audio Error: "
+#define TRACE_N "a5-kcm-audio Notice: "
+
+
 #define ALSA_CHECK(a) \
 do {                                                                  \
    int err = (a);                                                     \
    if (err < 0) {                                                     \
-      fprintf(stderr, "%s: %s\n", snd_strerror(err), #a);             \
+      TRACE(TRACE_E "%s: %s\n", snd_strerror(err), #a);               \
       goto Error;                                                     \
    }                                                                  \
 } while(0)

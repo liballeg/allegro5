@@ -250,10 +250,12 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl)
 /* Function: al_sample_create
  *  Creates a sample stream, using the supplied buffer at the specified size,
  *  channel configuration, sample depth, and frequency. This must be attached
- *  to a voice or mixer before it can be played.
+ *  to a voice or mixer before it can be played. Set free_buf to true if you
+ *  want the supplied buffer to be freed using free() in al_sample_destroy().
  */
 ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples,
-   unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf)
+   unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf,
+   bool free_buf)
 {
    ALLEGRO_SAMPLE *spl;
 
@@ -284,6 +286,8 @@ ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples,
    spl->loop_start = 0;
    spl->loop_end = spl->len;
 
+   spl->free_buf = true;
+
    return spl;
 }
 
@@ -296,6 +300,9 @@ ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples,
 void al_sample_destroy(ALLEGRO_SAMPLE *spl)
 {
    if (spl) {
+      if (spl->free_buf)
+         free(spl->buffer.ptr);
+
       _al_kcm_detach_from_parent(spl);
       stream_free(spl);
    }

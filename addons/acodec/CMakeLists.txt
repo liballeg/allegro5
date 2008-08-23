@@ -1,4 +1,4 @@
-include_directories(../audio)
+include_directories(../kcm_audio)
 
 option(WANT_FLAC "Enable FLAC support (acodec)" on)
 option(WANT_VORBIS "Enable Ogg Vorbis support (acodec)" on)
@@ -151,7 +151,8 @@ endif(SUPPORT_SNDFILE)
 
 example(ex_acodec ${ACODEC_LINK_WITH})
 example(ex_acodec_multi ${ACODEC_LINK_WITH})
-example(ex_acodec_stream ${ACODEC_LINK_WITH})
+#disable until the streaming is done
+#example(ex_acodec_stream ${ACODEC_LINK_WITH})
 
 #example(ex_acodec_mixer ${ACODEC_LINK_WITH})
 

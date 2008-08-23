@@ -245,7 +245,7 @@ typedef struct ALLEGRO_VOICE ALLEGRO_VOICE;
 
 
 /* Sample functions (more detailed explanations below) */
-AL_FUNC(ALLEGRO_SAMPLE*, al_sample_create, (void *buf, unsigned long samples, unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf));
+AL_FUNC(ALLEGRO_SAMPLE*, al_sample_create, (void *buf, unsigned long samples, unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf, bool free_buf));
 AL_FUNC(void, al_sample_destroy, (ALLEGRO_SAMPLE *spl));
 AL_FUNC(int, al_sample_get_long, (const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, unsigned long *val));
 AL_FUNC(int, al_sample_get_float, (const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, float *val));

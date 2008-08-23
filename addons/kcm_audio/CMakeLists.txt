@@ -87,28 +87,6 @@ else(STATIC)
 endif(STATIC)
 
 #-----------------------------------------------------------------------------#
-
-# XXX temporary only. We should be able to load a simple format like
-# .wav without an external dependency.
-if(WANT_SNDFILE)
-    find_path(SNDFILE_INCLUDE_DIR sndfile.h PATHS ENV INCLUDE)
-    find_library(SNDFILE_LIBRARY NAMES sndfile PATHS ENV LIB)
-    mark_as_advanced(SNDFILE_INCLUDE_DIR SNDFILE_LIBRARY)
-
-    if(SNDFILE_INCLUDE_DIR AND SNDFILE_LIBRARY)
-        set(CAN_SNDFILE 1)
-    endif(SNDFILE_INCLUDE_DIR AND SNDFILE_LIBRARY)
-
-    if(CAN_SNDFILE)
-        set(SUPPORT_SNDFILE 1)
-    endif(CAN_SNDFILE)
-endif(WANT_SNDFILE)
-
-if(SUPPORT_SNDFILE)
-    example(ex_kcm_play ${AUDIO_LINK_WITH} sndfile)
-endif(SUPPORT_SNDFILE)
-
-#-----------------------------------------------------------------------------#
 #
 # Install header files.
 #

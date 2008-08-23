@@ -95,19 +95,22 @@ typedef struct AL_OV_DATA {
    int bitStream;
 } AL_OV_DATA;
 
+/* TODO: implement streaming */
 /* to be called when stream is destroyed */
 void _ogg_stream_close(ALLEGRO_STREAM* stream)
 {
-   AL_OV_DATA* ex_data = (AL_OV_DATA*) stream->ex_data;
+/*   AL_OV_DATA* ex_data = (AL_OV_DATA*) stream->ex_data;
    ov_clear(ex_data->vf);
    fclose(ex_data->file);
    free(ex_data->vf);
    free(ex_data);
-   stream->ex_data = NULL;
+   stream->ex_data = NULL;*/
 }
 
 bool _ogg_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long buf_size)
 {
+/* TODO: implement streaming */
+#if 0
    AL_OV_DATA* ex_data = (AL_OV_DATA*) stream->ex_data;
 
    const int endian = 0; /* 0 for Little-Endian, 1 for Big-Endian */
@@ -132,10 +135,14 @@ bool _ogg_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long buf_si
       }
    }
    return true;
+#endif
+   return false;
 }
 
 ALLEGRO_STREAM* al_load_stream_oggvorbis(const char *filename)
 {
+/* TODO: implement streaming */
+#if 0
    const int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
    const int signedness = 1; /* 0  for unsigned, 1 for signed */
    FILE* file = NULL;
@@ -191,6 +198,8 @@ ALLEGRO_STREAM* al_load_stream_oggvorbis(const char *filename)
    stream->ex_data = ex_data;
 
    return stream;
+#endif
+   return NULL;
 }
 
 #endif /* ALLEGRO_CFG_ACODEC_VORBIS */

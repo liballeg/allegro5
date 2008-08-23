@@ -6,7 +6,6 @@
 
 #include "allegro5/acodec.h"
 #include "allegro5/internal/aintern_acodec.h"
-#include "allegro5/audio.h"
 
 
 ALLEGRO_SAMPLE* al_load_sample(const char* filename)

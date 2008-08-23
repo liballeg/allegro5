@@ -11,14 +11,14 @@ endif(WANT_IIO)
 
 if(WANT_AUDIO)
     add_subdirectory(audio)
-
-    if(WANT_ACODEC)
-        add_subdirectory(acodec)
-    endif(WANT_ACODEC)
 endif(WANT_AUDIO)
 
 if(WANT_KCM_AUDIO)
     add_subdirectory(kcm_audio)
+
+    if(WANT_ACODEC)
+        add_subdirectory(acodec)
+    endif(WANT_ACODEC)
 endif(WANT_KCM_AUDIO)
 
 if(WANT_ICODEC)
