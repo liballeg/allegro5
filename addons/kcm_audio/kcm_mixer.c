@@ -432,6 +432,7 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
    for(i = 0;mixer->streams[i];++i)
       ;
 
+   ASSERT(mixer->ss.mutex);
    _al_mutex_lock(mixer->ss.mutex);
 
    temp = realloc(mixer->streams, (i+2) * sizeof(ALLEGRO_SAMPLE*));
