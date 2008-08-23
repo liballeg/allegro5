@@ -33,16 +33,27 @@ set(DEMO_SRCS
     src/wave.cpp
     )
 
-SET_SOURCE_FILES_PROPERTIES(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
-include_directories(include ../addons/font)
+if(USE_CXX AND SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
+    set_source_files_properties(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
+    include_directories(
+        include
+        ../addons/font
+        ../addons/audio
+        ../addons/acodec
+        )
 
-add_executable(demo ${EXECUTABLE_TYPE} ${DEMO_SRCS})
-set_target_properties(demo PROPERTIES
-    COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
-    LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
-    )
-target_link_libraries(demo ${LINK_WITH})
-target_link_libraries(demo ${FONT_LINK_WITH})
+    add_executable(demo ${EXECUTABLE_TYPE} ${DEMO_SRCS})
+    set_target_properties(demo PROPERTIES
+        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
+        LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
+        )
+    target_link_libraries(demo
+        ${LINK_WITH}
+        ${FONT_LINK_WITH}
+        ${AUDIO_LINK_WITH}
+        ${ACODEC_LINK_WITH}
+        )
+endif(USE_CXX AND SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

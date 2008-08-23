@@ -899,10 +899,7 @@ add_subdirectory(addons)
 #-----------------------------------------------------------------------------#
 
 if(NOT MSVC80) # XXX disabled because it breaks MSVC's intellisense for some reason
-    if(USE_CXX AND SUPPORT_FONT)
-        # temporarily disabled
-        #add_subdirectory(demo)
-    endif(USE_CXX AND SUPPORT_FONT)
+    add_subdirectory(demo)
 endif(NOT MSVC80)
 
 #-----------------------------------------------------------------------------#
