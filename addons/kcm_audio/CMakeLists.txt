@@ -1,5 +1,6 @@
 set(AUDIO_SOURCES
     audio.c
+    kcm_mixer.c
     kcm_stream.c
     kcm_voice.c
     )
