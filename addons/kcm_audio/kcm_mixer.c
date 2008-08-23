@@ -357,7 +357,8 @@ MAKE_MIXER(32u, linear)
  *   will mix into a buffer at the requested frequency and channel count.
  *   Only 24-bit signed integer mixing is currently supported.
  */
-ALLEGRO_MIXER *al_mixer_create(unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf)
+ALLEGRO_MIXER *al_mixer_create(unsigned long freq, ALLEGRO_AUDIO_ENUM depth,
+   ALLEGRO_AUDIO_ENUM chan_conf)
 {
    ALLEGRO_MIXER *mixer;
 
@@ -416,6 +417,9 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
 {
    void *temp;
    unsigned long i;
+
+   ASSERT(mixer);
+   ASSERT(spl);
 
    /* Already referenced, do not attach */
    if(spl->parent.ptr)
@@ -502,6 +506,9 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
  */
 int al_mixer_attach_stream(ALLEGRO_MIXER *mixer, ALLEGRO_STREAM *stream)
 {
+   ASSERT(mixer);
+   ASSERT(stream);
+
    return al_mixer_attach_sample(mixer, &stream->spl);
 }
 
@@ -513,6 +520,9 @@ int al_mixer_attach_stream(ALLEGRO_MIXER *mixer, ALLEGRO_STREAM *stream)
  */
 int al_mixer_attach_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
 {
+   ASSERT(mixer);
+   ASSERT(stream);
+
    if(mixer->ss.frequency != stream->ss.frequency)
    {
       _al_set_error(ALLEGRO_INVALID_OBJECT, "Attempted to attach a mixer with different frequencies");
@@ -529,6 +539,8 @@ int al_mixer_attach_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
  */
 int al_mixer_set_postprocess_callback(ALLEGRO_MIXER *mixer, void (*cb)(void *buf, unsigned long samples, void *data), void *data)
 {
+   ASSERT(mixer);
+
    _al_mutex_lock(mixer->ss.mutex);
    mixer->post_process = cb;
    mixer->cb_ptr = data;
@@ -540,6 +552,8 @@ int al_mixer_set_postprocess_callback(ALLEGRO_MIXER *mixer, void (*cb)(void *buf
 
 int al_mixer_get_long(const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, unsigned long *val)
 {
+   ASSERT(mixer);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_FREQUENCY:
@@ -556,6 +570,8 @@ int al_mixer_get_long(const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, un
 
 int al_mixer_get_enum(const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val)
 {
+   ASSERT(mixer);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_CHANNELS:
@@ -580,6 +596,8 @@ int al_mixer_get_enum(const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, AL
 
 int al_mixer_get_bool(const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, bool *val)
 {
+   ASSERT(mixer);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_PLAYING:
@@ -600,6 +618,8 @@ int al_mixer_get_bool(const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, bo
 
 int al_mixer_set_long(ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, unsigned long val)
 {
+   ASSERT(mixer);
+
    switch(setting)
    {
       /* You can change the frequency of a mixer as long as it's not attached
@@ -623,6 +643,8 @@ int al_mixer_set_long(ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, unsigned
 
 int al_mixer_set_enum(ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val)
 {
+   ASSERT(mixer);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_QUALITY:
@@ -667,6 +689,8 @@ int al_mixer_set_enum(ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_
 
 int al_mixer_set_bool(ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, bool val)
 {
+   ASSERT(mixer);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_PLAYING:

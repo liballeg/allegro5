@@ -32,6 +32,8 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples)
 {
    void *buf = NULL;
 
+   ASSERT(voice);
+
    if(voice->stream)
    {
       _al_mutex_lock(&voice->mutex);
@@ -72,6 +74,7 @@ ALLEGRO_VOICE *al_voice_create(unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALL
    /* XXX why is this needed? there should only be one active driver */
    voice->driver = _al_kcm_driver;
 
+   ASSERT(_al_kcm_driver);
    if(_al_kcm_driver->allocate_voice(voice) != 0)
    {
       _al_mutex_destroy(&voice->mutex);
@@ -107,6 +110,9 @@ void al_voice_destroy(ALLEGRO_VOICE *voice)
  */
 int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
 {
+   ASSERT(voice);
+   ASSERT(spl);
+
    if(voice->stream)
    {
       fprintf(stderr,"Attempted to attach to a voice that already has an attachment\n");
@@ -197,6 +203,9 @@ static void stream_read(void *source, void **vbuf, unsigned long samples, ALLEGR
  */
 int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
 {
+   ASSERT(voice);
+   ASSERT(stream);
+
    if(voice->stream)
    {
       _al_set_error(ALLEGRO_INVALID_OBJECT, "Attempted to attach to a voice that already has an attachment");
@@ -256,6 +265,9 @@ int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
  */
 int al_voice_attach_mixer(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
 {
+   ASSERT(voice);
+   ASSERT(mixer);
+
    if(voice->stream)
       return 1;
    if(mixer->ss.parent.ptr)
@@ -298,6 +310,8 @@ int al_voice_attach_mixer(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
  */
 void al_voice_detach(ALLEGRO_VOICE *voice)
 {
+   ASSERT(voice);
+
    if(!voice->stream)
       return;
 
@@ -329,6 +343,8 @@ void al_voice_detach(ALLEGRO_VOICE *voice)
 
 int al_voice_get_long(const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, unsigned long *val)
 {
+   ASSERT(voice);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_FREQUENCY:
@@ -353,6 +369,8 @@ int al_voice_get_long(const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, un
 
 int al_voice_get_enum(const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val)
 {
+   ASSERT(voice);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_CHANNELS:
@@ -372,6 +390,8 @@ int al_voice_get_enum(const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, AL
 
 int al_voice_get_bool(const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, bool *val)
 {
+   ASSERT(voice);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_PLAYING:
@@ -392,6 +412,8 @@ int al_voice_get_bool(const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, bo
 
 int al_voice_set_long(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, unsigned long val)
 {
+   ASSERT(voice);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_POSITION:
@@ -408,6 +430,8 @@ int al_voice_set_long(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, unsigned
 
 int al_voice_set_enum(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val)
 {
+   ASSERT(voice);
+
    (void)voice;
    (void)val;
 
@@ -422,6 +446,8 @@ int al_voice_set_enum(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_
 
 int al_voice_set_bool(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, bool val)
 {
+   ASSERT(voice);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_PLAYING:

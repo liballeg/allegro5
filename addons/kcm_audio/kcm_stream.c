@@ -107,6 +107,8 @@ void al_stream_destroy(ALLEGRO_STREAM *stream)
 
 int al_stream_get_long(const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, unsigned long *val)
 {
+   ASSERT(stream);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_FREQUENCY:
@@ -140,6 +142,8 @@ int al_stream_get_long(const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
 
 int al_stream_get_float(const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, float *val)
 {
+   ASSERT(stream);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_SPEED:
@@ -156,6 +160,8 @@ int al_stream_get_float(const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting
 
 int al_stream_get_enum(const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val)
 {
+   ASSERT(stream);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_DEPTH:
@@ -176,6 +182,8 @@ int al_stream_get_enum(const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
 
 int al_stream_get_bool(const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, bool *val)
 {
+   ASSERT(stream);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_PLAYING:
@@ -196,6 +204,8 @@ int al_stream_get_bool(const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
 
 int al_stream_get_ptr(const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, void **val)
 {
+   ASSERT(stream);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_BUFFER:
@@ -221,6 +231,8 @@ int al_stream_get_ptr(const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, 
 
 int al_stream_set_long(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, unsigned long val)
 {
+   ASSERT(stream);
+
    (void)stream;
    (void)val;
 
@@ -236,6 +248,8 @@ int al_stream_set_long(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, unsig
 
 int al_stream_set_float(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, float val)
 {
+   ASSERT(stream);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_SPEED:
@@ -283,6 +297,8 @@ int al_stream_set_float(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, floa
 
 int al_stream_set_enum(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val)
 {
+   ASSERT(stream);
+
    (void)stream;
    (void)val;
 
@@ -298,6 +314,8 @@ int al_stream_set_enum(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, ALLEG
 
 int al_stream_set_bool(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, bool val)
 {
+   ASSERT(stream);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_PLAYING:
@@ -336,6 +354,8 @@ int al_stream_set_bool(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, bool 
 
 int al_stream_set_ptr(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, void *val)
 {
+   ASSERT(stream);
+
    switch(setting)
    {
       case ALLEGRO_AUDIO_BUFFER:
