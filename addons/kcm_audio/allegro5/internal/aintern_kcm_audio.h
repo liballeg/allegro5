@@ -5,7 +5,6 @@
 #ifndef AINTERN_AUDIO_H
 #define AINTERN_AUDIO_H
 
-//aintern.h included because aintern_thread.h is not complete!!
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_thread.h"
@@ -16,7 +15,8 @@
 #define MIXER_FRAC_ONE    (1<<MIXER_FRAC_SHIFT)
 #define MIXER_FRAC_MASK   (MIXER_FRAC_ONE-1)
 
-typedef struct ALLEGRO_AUDIO_DRIVER {
+typedef struct ALLEGRO_AUDIO_DRIVER ALLEGRO_AUDIO_DRIVER;
+struct ALLEGRO_AUDIO_DRIVER {
    const char *specifier;
 
    int  (*open)();
@@ -35,14 +35,15 @@ typedef struct ALLEGRO_AUDIO_DRIVER {
 
    unsigned long (*get_voice_position)(const ALLEGRO_VOICE*);
    int (*set_voice_position)(ALLEGRO_VOICE*, unsigned long);
-}ALLEGRO_AUDIO_DRIVER;
+};
 
 extern ALLEGRO_AUDIO_DRIVER *_al_kcm_driver;
 
 const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples);
 
 /* A voice structure that you'd attach a mixer or sample to. Ideally there
-   would be one ALLEGRO_VOICE per system/hardware voice */
+ * would be one ALLEGRO_VOICE per system/hardware voice.
+ */
 struct ALLEGRO_VOICE {
    ALLEGRO_AUDIO_ENUM depth;
    ALLEGRO_AUDIO_ENUM chan_conf;
@@ -67,7 +68,8 @@ struct ALLEGRO_VOICE {
 };
 
 
-typedef void (*stream_reader)(void*,void**,unsigned long,ALLEGRO_AUDIO_ENUM,size_t);
+typedef void (*stream_reader)(void *, void **, unsigned long,
+   ALLEGRO_AUDIO_ENUM, size_t);
 
 /* The sample struct */
 struct ALLEGRO_SAMPLE {
@@ -95,15 +97,17 @@ struct ALLEGRO_SAMPLE {
    unsigned long loop_start, loop_end;
    long step;
 
-   /* Used to convert from this format to the attached mixer's */
+   /* Used to convert from this format to the attached mixers */
    float *matrix;
 
    /* Reads sample data into the provided buffer, using the specified format,
-      converting as necessary */
+    * converting as necessary.
+    */
    stream_reader read;
 
    /* The mutex is shared with the parent object. It is NULL if it is not
-      directly or indirectly attached to a voice. */
+    * directly or indirectly attached to a voice.
+    */
    _AL_MUTEX *mutex;
 
    union {
@@ -130,14 +134,14 @@ struct ALLEGRO_STREAM {
 };
 
 
-typedef void (*pp_callback)(void*,unsigned long,void*);
+typedef void (*pp_callback)(void *, unsigned long, void *);
 
-/* Slight evilness. ALLEGRO_MIXER is derived from ALLEGRO_SAMPLE. Certain internal
-   functions and pointers may take either object type, and such things are
-   explicitly noted. This is never exposed to the user, though.
-   The sample object's read method will be set to a different function
-   that will call the read method of all attached streams (which may be a
-   sample, or another mixer) */
+/* ALLEGRO_MIXER is derived from ALLEGRO_SAMPLE. Certain internal functions and
+ * pointers may take either object type, and such things are explicitly noted.
+ * This is never exposed to the user, though.  The sample object's read method
+ * will be set to a different function that will call the read method of all
+ * attached streams (which may be a sample, or another mixer).
+ */
 struct ALLEGRO_MIXER {
    ALLEGRO_SAMPLE ss;
 

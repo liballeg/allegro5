@@ -42,13 +42,13 @@ size_t al_channel_count(ALLEGRO_AUDIO_ENUM conf)
 size_t al_depth_size(ALLEGRO_AUDIO_ENUM conf)
 {
    ALLEGRO_AUDIO_ENUM depth = conf&~ALLEGRO_AUDIO_UNSIGNED;
-   if(depth == ALLEGRO_AUDIO_8_BIT_INT)
+   if (depth == ALLEGRO_AUDIO_8_BIT_INT)
       return sizeof(int8_t);
-   if(depth == ALLEGRO_AUDIO_16_BIT_INT)
+   if (depth == ALLEGRO_AUDIO_16_BIT_INT)
       return sizeof(int16_t);
-   if(depth == ALLEGRO_AUDIO_24_BIT_INT)
+   if (depth == ALLEGRO_AUDIO_24_BIT_INT)
       return sizeof(int32_t);
-   if(depth == ALLEGRO_AUDIO_32_BIT_FLOAT)
+   if (depth == ALLEGRO_AUDIO_32_BIT_FLOAT)
       return sizeof(float);
    return 0;
 }
@@ -97,7 +97,7 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
 
       case ALLEGRO_AUDIO_DRIVER_ALSA:
          #if defined(ALLEGRO_CFG_KCM_ALSA)
-            if(_alsa_driver.open() == 0) {
+            if (_alsa_driver.open() == 0) {
                fprintf(stderr, "Using ALSA driver\n"); 
                _al_kcm_driver = &_alsa_driver;
                return 0;
@@ -121,7 +121,7 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
 
 void al_audio_deinit()
 {
-   if(_al_kcm_driver)
+   if (_al_kcm_driver)
       _al_kcm_driver->close();
    _al_kcm_driver = NULL;
 }
