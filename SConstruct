@@ -393,21 +393,6 @@ context.addLibrary('-l%s' % getLibraryName(context.getDebug(),context.getStatic(
 
 SConscript("scons/naturaldocs.scons")
 
-plugins_h = context.getLibraryEnv().Cat( 'tools/plugins/plugins.h', appendDir( 'tools/plugins/', Split("""
-datalpha.inc
-datfli.inc
-datfname.inc
-datfont.inc
-datgrab.inc
-datgrid.inc
-datimage.inc
-datitype.inc
-datmidi.inc
-datpal.inc
-datsamp.inc
-datworms.inc
-""")));
-
 # For some reason I have to call Program() from this file
 # otherwise 'scons/' will be appended to all the sources
 # and targets. 
@@ -432,7 +417,6 @@ for et in context.getExtraTargets():
         useEnv.Depends(make,library)
     extraTargets.append(make)
 
-extraTargets.append(plugins_h)
 Default(library, extraTargets)
 
 # Depends(library, extraTargets)
