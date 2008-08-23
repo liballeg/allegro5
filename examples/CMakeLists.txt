@@ -41,6 +41,7 @@ endif(SUPPORT_D3D)
 
 if(SUPPORT_OPENGL)
     example(exnew_opengl NOTHING)
+    example(exnew_glext NOTHING)
 endif(SUPPORT_OPENGL)
 
 
