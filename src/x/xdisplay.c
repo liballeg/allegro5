@@ -575,6 +575,19 @@ static void xdpy_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 
 
 
+static void xdpy_set_window_title(
+   ALLEGRO_DISPLAY *display, AL_CONST char *title)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+
+   _al_mutex_lock(&system->lock);
+   XStoreName(system->x11display, glx->window, title);
+   _al_mutex_unlock(&system->lock);
+}
+
+
+
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
 {
@@ -597,10 +610,11 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt->is_compatible_bitmap = xdpy_is_compatible_bitmap;
    xdpy_vt->resize_display = xdpy_resize_display;
    xdpy_vt->set_icon = xdpy_set_icon;
+   xdpy_vt->set_window_title = xdpy_set_window_title;
    xdpy_vt->set_window_position = xdpy_set_window_position;
    xdpy_vt->get_window_position = xdpy_get_window_position;
    xdpy_vt->toggle_frame = xdpy_toggle_frame;
-
+   
    _al_xglx_add_cursor_functions(xdpy_vt);
    _al_ogl_add_drawing_functions(xdpy_vt);
 
