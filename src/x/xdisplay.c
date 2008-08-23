@@ -553,6 +553,30 @@ void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
 
 
 
+/* Handle X11 switch event. [X11 thread]
+ */
+void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *display,
+   XFocusChangeEvent *xevent)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
+   ALLEGRO_EVENT_SOURCE *es = &display->es;
+   _al_event_source_lock(es);
+   if (_al_event_source_needs_to_generate_event(es)) {
+      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+      if (event) {
+         if (xevent->type == FocusOut)
+            event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+         else
+            event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+         event->display.timestamp = al_current_time();
+         _al_event_source_emit_event(es, event);
+      }
+   }
+   _al_event_source_unlock(es);
+}
+
+
+
 static bool xdpy_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bitmap)
 {

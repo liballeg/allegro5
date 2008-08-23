@@ -153,6 +153,20 @@ void log_key_up(int keycode, int unichar, int modifiers)
 
 
 
+void log_general(char const *format, ...)
+{
+   char buf[MAX_MSG_LEN];
+   va_list args;
+   va_start(args, format);
+
+   uvszprintf(buf, sizeof(buf), format, args);
+   va_end(args);
+
+   log_message(buf);
+}
+
+
+
 void draw_timer_tick(ALLEGRO_TIMER *timer, long count)
 {
    char buf[MAX_MSG_LEN];
@@ -407,6 +421,14 @@ void main_loop(void)
           */
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
             return;
+         
+         case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
+            log_general("Switch In");
+            break;
+         
+         case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
+            log_general("Switch Out");
+            break;
 
          /* We received an event of some type we don't know about.
           * Just ignore it.

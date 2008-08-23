@@ -98,6 +98,11 @@ typedef unsigned int ALLEGRO_EVENT_TYPE;
  *
  *  ALLEGRO_EVENT_DISPLAY_FOUND - Generated when a lost device is regained.
  *    Drawing will no longer be a no-op.
+ * 
+ *  ALLEGRO_EVENT_DISPLAY_SWITCH_OUT - The window is no longer active, that
+ *    is the user might have clicked into another window or "tabbed" away.
+ * 
+ *  ALLEGRO_EVENT_DISPLAY_SWITCH_IN - The window is the active one again.
  */
 enum
 {
