@@ -49,6 +49,9 @@ void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND window, int w, i
 ALLEGRO_DISPLAY *_al_win_get_event_display(void);
 
 
+HICON _al_win_create_mouse_hcursor(HWND wnd,
+   ALLEGRO_BITMAP *sprite, int xfocus, int yfocus, bool is_cursor);
+
 
 /* wmcursor.c */
 

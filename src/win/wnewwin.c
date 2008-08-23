@@ -512,56 +512,41 @@ static HICON win_create_icon_from_old_bitmap(struct BITMAP *sprite)
 
 void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
 {
-// FIXME
-#if 0
-   HICON scaled_icon;
-   HWND hwnd;
-   HICON old_small;
-   HICON old_big;
+   ALLEGRO_BITMAP *scaled_bmp;
+   HICON icon, old_small, old_big;
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
 
-   /* Convert to BITMAP */
-   BITMAP *oldbmp = create_bitmap_ex(32,
-      al_get_bitmap_width(bmp), al_get_bitmap_height(bmp));
-   
-   BITMAP *scaled_bmp = create_bitmap_ex(32, 16, 16);
+   _al_push_new_bitmap_parameters();
+   _al_push_target_bitmap();
+   _al_push_blender();
 
-   int x, y;
-   for (y = 0; y < oldbmp->h; y++) {
-      for (x = 0; x < oldbmp->w; x++) {
-         ALLEGRO_COLOR color = al_get_pixel(bmp, x, y);
-         unsigned char r, g, b, a;
-         int oldcolor;
-         al_unmap_rgba(color, &r, &g, &b, &a);
-         if (a == 0) {
-            oldcolor = makecol32(255, 0, 255);
-         }
-         else
-            oldcolor = makecol32(r, g, b);
-         putpixel(oldbmp, x, y, oldcolor);
-      }
-   }
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+   scaled_bmp = al_create_bitmap(32, 32);
+   al_set_target_bitmap(scaled_bmp);
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
+   al_draw_scaled_bitmap(bmp, 0, 0,
+      al_get_bitmap_width(bmp),
+      al_get_bitmap_height(bmp),
+      0, 0, 32, 32, 0);
 
-   stretch_blit(oldbmp, scaled_bmp, 0, 0, oldbmp->w, oldbmp->h,
-   	0, 0, scaled_bmp->w, scaled_bmp->h);
+   _al_pop_target_bitmap();
+   _al_pop_new_bitmap_parameters();
+   _al_pop_blender();
 
-   scaled_icon = win_create_icon_from_old_bitmap(scaled_bmp);
+   icon = _al_win_create_icon(win_display->window, scaled_bmp, 0, 0, false);
 
-   hwnd = _al_win_active_window;
-
-   /* Set new icons and destroy old */
-   old_small = (HICON)SendMessage(hwnd, WM_SETICON,
-      ICON_SMALL, (LPARAM)scaled_icon);
-   old_big = (HICON)SendMessage(hwnd, WM_SETICON,
-      ICON_BIG, (LPARAM)scaled_icon);
+   old_small = (HICON)SendMessage(win_display->window, WM_SETICON,
+      ICON_SMALL, (LPARAM)icon);
+   old_big = (HICON)SendMessage(win_display->window, WM_SETICON,
+      ICON_BIG, (LPARAM)icon);
 
    if (old_small)
       DestroyIcon(old_small);
    if (old_big)
       DestroyIcon(old_big);
 
-   destroy_bitmap(oldbmp);
-   destroy_bitmap(scaled_bmp);
-#endif
+   al_destroy_bitmap(scaled_bmp);
 }
 
 void _al_win_set_window_position(HWND window, int x, int y)

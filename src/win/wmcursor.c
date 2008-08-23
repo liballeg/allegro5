@@ -32,9 +32,8 @@ static void local_stretch_blit_to_hdc(ALLEGRO_BITMAP *bitmap, HDC dc,
 static void local_draw_to_hdc(HDC dc, ALLEGRO_BITMAP *bitmap, int x, int y);
 
 
-
-static HCURSOR _al_win_create_mouse_hcursor(HWND wnd,
-   ALLEGRO_BITMAP *sprite, int xfocus, int yfocus)
+HICON _al_win_create_icon(HWND wnd,
+   ALLEGRO_BITMAP *sprite, int xfocus, int yfocus, bool is_cursor)
 {
    int x, y;
    int sys_sm_cx, sys_sm_cy;
@@ -46,11 +45,17 @@ static HCURSOR _al_win_create_mouse_hcursor(HWND wnd,
    HBITMAP xor_mask;
    HBITMAP hOldAndMaskBitmap;
    HBITMAP hOldXorMaskBitmap;
-   HCURSOR hcursor;
+   HICON icon;
 
-   /* Get allowed cursor size - Windows can't make cursors of arbitrary size */
-   sys_sm_cx = GetSystemMetrics(SM_CXCURSOR);
-   sys_sm_cy = GetSystemMetrics(SM_CYCURSOR);
+   if (is_cursor) {
+      /* Get allowed cursor size - Windows can't make cursors of arbitrary size */
+      sys_sm_cx = GetSystemMetrics(SM_CXCURSOR);
+      sys_sm_cy = GetSystemMetrics(SM_CYCURSOR);
+   }
+   else {
+      sys_sm_cx = GetSystemMetrics(SM_CXICON);
+      sys_sm_cy = GetSystemMetrics(SM_CYICON);
+   }
 
    if ((sprite->w > sys_sm_cx) || (sprite->h > sys_sm_cy)) {
       return NULL;
@@ -101,20 +106,19 @@ static HCURSOR _al_win_create_mouse_hcursor(HWND wnd,
    DeleteDC(h_xor_dc);
    ReleaseDC(wnd, h_dc);
 
-   iconinfo.fIcon = FALSE;
+   iconinfo.fIcon = is_cursor ? FALSE : TRUE;
    iconinfo.xHotspot = xfocus;
    iconinfo.yHotspot = yfocus;
    iconinfo.hbmMask = and_mask;
    iconinfo.hbmColor = xor_mask;
 
-   hcursor = CreateIconIndirect(&iconinfo);
+   icon = CreateIconIndirect(&iconinfo);
 
    DeleteObject(and_mask);
    DeleteObject(xor_mask);
 
-   return hcursor;
+   return icon;
 }
-
 
 
 ALLEGRO_MOUSE_CURSOR_WIN *_al_win_create_mouse_cursor(HWND wnd,
@@ -123,7 +127,7 @@ ALLEGRO_MOUSE_CURSOR_WIN *_al_win_create_mouse_cursor(HWND wnd,
    HCURSOR hcursor;
    ALLEGRO_MOUSE_CURSOR_WIN *win_cursor;
 
-   hcursor = _al_win_create_mouse_hcursor(wnd, sprite, xfocus, yfocus);
+   hcursor = (HCURSOR)_al_win_create_icon(wnd, sprite, xfocus, yfocus, true);
    if (!hcursor) {
       return NULL;
    }
