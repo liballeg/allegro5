@@ -9,7 +9,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_thread.h"
-#include "../audio.h"
+#include "../kcm_audio.h"
 
 /* This can probably be set to 16, or higher, if long is 64-bit */
 #define MIXER_FRAC_SHIFT  8

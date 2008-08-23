@@ -2,8 +2,9 @@
  * Updated for 4.9 api inclusion by Ryan Dickie
  * Originally done by KC/Milan
  */
-#ifndef AUDIO_H
-#define AUDIO_H
+
+#ifndef __al_included_kcm_audio_h
+#define __al_included_kcm_audio_h
 
 /* user-included header */
 #include "allegro5/allegro5.h"
@@ -231,5 +232,6 @@ AL_FUNC(int, al_voice_set_bool, (ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM settin
 /* Misc. audio functions */
 AL_FUNC(int,  al_audio_init, (ALLEGRO_AUDIO_ENUM mode));
 AL_FUNC(void, al_audio_deinit, (void));
-#endif
+
+#endif	/* __al_included_kcm_audio_h */
 

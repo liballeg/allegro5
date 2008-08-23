@@ -9,7 +9,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "allegro5/internal/aintern_audio.h"
+#include "allegro5/internal/aintern_kcm_audio.h"
 
 typedef enum {
 	ALLEGRO_NO_ERROR       = 0,

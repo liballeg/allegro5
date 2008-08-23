@@ -12,7 +12,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_thread.h"
-#include "allegro5/internal/aintern_audio.h"
+#include "allegro5/internal/aintern_kcm_audio.h"
 
 /* OpenAL vars */
 ALCdevice*  openal_dev;
