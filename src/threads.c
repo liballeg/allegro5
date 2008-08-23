@@ -165,6 +165,15 @@ void al_join_thread(ALLEGRO_THREAD *outer, void **ret_value)
 }
 
 
+/* Function: al_set_thread_should_stop
+ */
+void al_set_thread_should_stop(ALLEGRO_THREAD *outer)
+{
+   ASSERT(outer);
+   _al_thread_set_should_stop(&outer->thread);
+}
+
+
 /* Function: al_thread_should_stop
  */
 bool al_thread_should_stop(ALLEGRO_THREAD *outer)

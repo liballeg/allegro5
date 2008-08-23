@@ -59,7 +59,7 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*), voi
 }
 
 
-void _al_thread_join(_AL_THREAD *thread)
+void _al_thread_set_should_stop(_AL_THREAD *thread)
 {
    ASSERT(thread);
 
@@ -68,6 +68,15 @@ void _al_thread_join(_AL_THREAD *thread)
       thread->should_stop = true;
    }
    pthread_mutex_unlock(&thread->mutex);
+}
+
+
+
+void _al_thread_join(_AL_THREAD *thread)
+{
+   ASSERT(thread);
+
+   _al_thread_set_should_stop(thread);
    pthread_join(thread->thread, NULL);
 
    pthread_mutex_destroy(&thread->mutex);

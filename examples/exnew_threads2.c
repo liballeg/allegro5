@@ -138,7 +138,6 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    ThreadInfo *info = (ThreadInfo *) arg;
    Viewport viewport;
    unsigned char palette[256][3];
-   ALLEGRO_TIMEOUT timeout;
    int y, w, h;
 
    y = 0;
@@ -154,27 +153,24 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    info->target_y = 0;
 
    while (!al_thread_should_stop(thr)) {
-      if (y == 0) {
-         random_palette(palette);
-      }
-
       al_lock_mutex(info->mutex);
 
-      /* When we wait for a condition we won't wake up if someone calls
-       * al_join_thread() on us, so we won't know to quit.  In a proper
-       * program you would signal the condition variable in that case.  Here,
-       * we just make sure to wait up every so often so we can make the check.
-       */
-      al_init_timeout(&timeout, 0.5);
       while (info->is_paused) {
-         if (-1 == al_wait_cond_timed(info->cond, info->mutex, &timeout)) {
-            /* timeout */
+         al_wait_cond(info->cond, info->mutex);
+
+         /* We might be awoken because the program is terminating. */
+         if (al_thread_should_stop(thr)) {
             break;
          }
       }
 
       if (!info->is_paused) {
+         if (y == 0) {
+            random_palette(palette);
+         }
+
          draw_mandel_line(info->bitmap, &viewport, palette, y);
+
          y++;
          if (y >= h) {
             double z = viewport.zoom;
@@ -357,6 +353,17 @@ int main(void)
    }
 
    for (i = 0; i < NUM_THREADS; i++) {
+      /* Set the flag to stop the thread.  The thread might be waiting on a
+       * condition variable, so signal the condition to force it to wake up.
+       */
+      al_set_thread_should_stop(thread[i]);
+      al_lock_mutex(thread_info[i].mutex);
+      al_broadcast_cond(thread_info[i].cond);
+      al_unlock_mutex(thread_info[i].mutex);
+
+      /* al_destroy_thread() implicitly joins the thread, so this call is not
+       * strictly necessary.
+       */
       al_join_thread(thread[i], NULL);
       al_destroy_thread(thread[i]);
    }
