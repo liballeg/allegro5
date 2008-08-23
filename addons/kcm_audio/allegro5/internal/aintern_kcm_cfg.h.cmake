@@ -1,0 +1,2 @@
+#cmakedefine ALLEGRO_CFG_KCM_ALSA
+#cmakedefine ALLEGRO_CFG_KCM_OPENAL

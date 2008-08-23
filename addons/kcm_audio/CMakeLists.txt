@@ -4,14 +4,21 @@ set(AUDIO_INCLUDE_FILES allegro5/kcm_audio.h)
 # XXX make this optional?
 include(FindOpenAL)
 if(OPENAL_FOUND)
+    set(ALLEGRO_CFG_KCM_OPENAL 1)
     list(APPEND AUDIO_SOURCES openal.c)
     list(APPEND AUDIO_LIBRARIES ${OPENAL_LIBRARY})
 endif(OPENAL_FOUND)
 
 if(SUPPORT_A5_ALSA)
+    set(ALLEGRO_CFG_KCM_ALSA 1)
     list(APPEND AUDIO_SOURCES alsa.c)
     list(APPEND AUDIO_LIBRARIES asound)
 endif(SUPPORT_A5_ALSA)
+
+configure_file(
+    allegro5/internal/aintern_kcm_cfg.h.cmake
+    include/allegro5/internal/aintern_kcm_cfg.h
+    )
 
 macro(add_audio_build nm extra_flags)
     macro(really_add_audio_build nm2 target libtype more_extra_flags)

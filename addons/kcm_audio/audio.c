@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include "allegro5/internal/aintern_kcm_audio.h"
+#include "allegro5/internal/aintern_kcm_cfg.h"
 
 typedef enum {
 	ALLEGRO_NO_ERROR       = 0,
@@ -24,8 +25,10 @@ void _al_set_error(int error, char* string)
 }
 
 ALLEGRO_AUDIO_DRIVER* driver = NULL;
-extern struct ALLEGRO_AUDIO_DRIVER _openal_driver;
-#if defined(ALLEGRO_LINUX)
+#if defined(ALLEGRO_CFG_KCM_OPENAL)
+   extern struct ALLEGRO_AUDIO_DRIVER _openal_driver;
+#endif
+#if defined(ALLEGRO_CFG_KCM_ALSA)
    extern struct ALLEGRO_AUDIO_DRIVER _alsa_driver;
 #endif
 
@@ -2135,47 +2138,42 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
          /* check openal first then fallback on others */
          retVal = al_audio_init(ALLEGRO_AUDIO_DRIVER_OPENAL);
          if (retVal == 0)
-            return retVal;
-
-         #if defined(ALLEGRO_LINUX)
-            return al_audio_init(ALLEGRO_AUDIO_DRIVER_ALSA);
-         #elif defined(ALLEGRO_WINDOWS)
-            return al_audio_init(ALLEGRO_AUDIO_DRIVER_DSOUND);
-         #elif defined(ALLEGRO_MACOSX)
-            driver = NULL;
-            return 1:
-         #endif
+            return 0;
+         retVal = al_audio_init(ALLEGRO_AUDIO_DRIVER_ALSA);
+         if (retVal == 0)
+            return 0;
+         driver = NULL;
+         return 1;
 
       case ALLEGRO_AUDIO_DRIVER_OPENAL:
-         if (_openal_driver.open() == 0 )
-         {
-            fprintf(stderr, "Using OpenAL driver\n"); 
-            driver = &_openal_driver;
-            return 0;
-         }
-         return 1;
+         #if defined(ALLEGRO_CFG_KCM_OPENAL)
+            if (_openal_driver.open() == 0) {
+               fprintf(stderr, "Using OpenAL driver\n"); 
+               driver = &_openal_driver;
+               return 0;
+            }
+            return 1;
+         #else
+            _al_set_error(ALLEGRO_INVALID_PARAM, "OpenAL not available on this platform");
+            return 1;
+         #endif
+
       case ALLEGRO_AUDIO_DRIVER_ALSA:
-         #if defined(ALLEGRO_LINUX)
-            if(_alsa_driver.open() == 0)
-            {
+         #if defined(ALLEGRO_CFG_KCM_ALSA)
+            if(_alsa_driver.open() == 0) {
                fprintf(stderr, "Using ALSA driver\n"); 
                driver = &_alsa_driver;
                return 0;
             }
             return 1;
          #else
-            _al_set_error(ALLEGRO_INVALID_PARAM, "Alsa not available on this platform");
+            _al_set_error(ALLEGRO_INVALID_PARAM, "ALSA not available on this platform");
             return 1;
          #endif
 
       case ALLEGRO_AUDIO_DRIVER_DSOUND:
-         #if defined(ALLEGRO_WINDOWS)
             _al_set_error(ALLEGRO_INVALID_PARAM, "DirectSound driver not yet implemented");
             return 1;
-         #else
-            _al_set_error(ALLEGRO_INVALID_PARAM, "DirectSound not available on this platform");
-            return 1;
-         #endif
 
       default:
          _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid audio driver");
