@@ -191,6 +191,7 @@ def buildAddon(name):
 
 buildAddon("iio")
 buildAddon('font')
+buildAddon("kcm_audio")
 if buildAddon('audio'):
     buildAddon('acodec')
 
