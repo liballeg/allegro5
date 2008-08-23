@@ -36,6 +36,8 @@ int main(void)
    }
    al_set_target_bitmap(al_get_backbuffer());
 
+   al_set_window_title("<-- Changing icon example");
+
    for (i = 0; i < 8; i++) {
       al_set_display_icon((i & 1) ? icon2 : icon1);
       al_flip_display();

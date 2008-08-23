@@ -123,6 +123,7 @@ AL_FUNC(void, al_get_new_window_position, (int *x, int *y));
 AL_FUNC(void, al_set_window_position, (ALLEGRO_DISPLAY *display, int x, int y));
 AL_FUNC(void, al_get_window_position, (ALLEGRO_DISPLAY *display, int *x, int *y));
 AL_FUNC(void, al_toggle_window_frame, (ALLEGRO_DISPLAY *display, bool onoff));
+AL_FUNC(void, al_set_window_title, (AL_CONST char *title));
 
 #ifdef __cplusplus
    }

@@ -2170,6 +2170,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->set_window_position = d3d_set_window_position;
    vt->get_window_position = d3d_get_window_position;
    vt->toggle_frame = d3d_toggle_frame;
+   vt->set_window_title = _al_win_set_window_title;
 
    return vt;
 }

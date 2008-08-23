@@ -37,13 +37,10 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display ,ALLEGRO_BITMAP *bitmap);
 void _al_win_get_window_pos(HWND window, RECT *pos);
 
 
-
-
-
 void _al_win_set_window_position(HWND window, int x, int y);
 void _al_win_get_window_position(HWND window, int *x, int *y);
 void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND window, int w, int h, bool onoff);
-
+void _al_win_set_window_title(ALLEGRO_DISPLAY *display, AL_CONST char *title);
 
 
 ALLEGRO_DISPLAY *_al_win_get_event_display(void);

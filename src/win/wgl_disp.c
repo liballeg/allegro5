@@ -1416,6 +1416,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt->set_window_position = wgl_set_window_position;
    vt->get_window_position = wgl_get_window_position;
    vt->toggle_frame = wgl_toggle_frame;
+   vt->set_window_title = _al_win_set_window_title;
    _al_ogl_add_drawing_functions(vt);
 
    return vt;

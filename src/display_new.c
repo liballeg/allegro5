@@ -723,3 +723,12 @@ int _al_display_type(void)
    }
 }
 
+
+void al_set_window_title(AL_CONST char *title)
+{
+   ALLEGRO_DISPLAY *current_display = al_get_current_display();
+
+   if (current_display && current_display->vt && current_display->vt->set_window_title)
+      current_display->vt->set_window_title(current_display, title);
+}
+
