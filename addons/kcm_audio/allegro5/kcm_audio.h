@@ -246,6 +246,7 @@ typedef struct ALLEGRO_VOICE ALLEGRO_VOICE;
 
 /* Sample functions (more detailed explanations below) */
 AL_FUNC(ALLEGRO_SAMPLE*, al_sample_create, (void *buf, unsigned long samples, unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf, bool free_buf));
+AL_FUNC(ALLEGRO_SAMPLE*, al_sample_create_clone, (const ALLEGRO_SAMPLE *spl));
 AL_FUNC(void, al_sample_destroy, (ALLEGRO_SAMPLE *spl));
 AL_FUNC(int, al_sample_get_long, (const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, unsigned long *val));
 AL_FUNC(int, al_sample_get_float, (const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, float *val));
@@ -257,8 +258,8 @@ AL_FUNC(int, al_sample_set_float, (ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setti
 AL_FUNC(int, al_sample_set_enum, (ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val));
 AL_FUNC(int, al_sample_set_bool, (ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, bool val));
 AL_FUNC(int, al_sample_set_ptr, (ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, void *ptr));
-AL_FUNC(void, al_sample_play, (ALLEGRO_SAMPLE *spl));
-AL_FUNC(void, al_sample_stop, (ALLEGRO_SAMPLE *spl));
+AL_FUNC(int, al_sample_play, (ALLEGRO_SAMPLE *spl));
+AL_FUNC(int, al_sample_stop, (ALLEGRO_SAMPLE *spl));
 
 AL_FUNC(bool, al_is_channel_conf, (ALLEGRO_AUDIO_ENUM conf));
 AL_FUNC(size_t, al_channel_count, (ALLEGRO_AUDIO_ENUM conf));

@@ -292,6 +292,22 @@ ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples,
 }
 
 
+/* Function: al_sample_create_clone
+ *  Creates a new sample from an existing sample. The new sample will share
+ *  the buffer with the original, and inherit its properties.
+ *  This is equivalent to calling <al_sample_create> with 'free_buf'
+ *  set to true.
+ */
+ALLEGRO_SAMPLE *al_sample_create_clone(const ALLEGRO_SAMPLE *spl)
+{
+   unsigned long length;
+
+   length = spl->len >> MIXER_FRAC_SHIFT;
+   return al_sample_create(spl->buffer.ptr, length, spl->frequency,
+      spl->depth, spl->chan_conf, false);
+}
+
+
 /* Function: al_sample_destroy
  *  Detaches the sample stream from anything it may be attached to and frees
  *  its data (note, the sample data is *not* freed!).
@@ -311,21 +327,21 @@ void al_sample_destroy(ALLEGRO_SAMPLE *spl)
 
 /* Function: al_sample_play
  */
-void al_sample_play(ALLEGRO_SAMPLE *spl)
+int al_sample_play(ALLEGRO_SAMPLE *spl)
 {
    ASSERT(spl);
 
-   al_sample_set_bool(spl, ALLEGRO_AUDIO_PLAYING, 1);
+   return al_sample_set_bool(spl, ALLEGRO_AUDIO_PLAYING, true);
 }
 
 
 /* Function: al_sample_stop
  */
-void al_sample_stop(ALLEGRO_SAMPLE *spl)
+int al_sample_stop(ALLEGRO_SAMPLE *spl)
 {
    ASSERT(spl);
 
-   al_sample_set_bool(spl, ALLEGRO_AUDIO_PLAYING, 0);
+   return al_sample_set_bool(spl, ALLEGRO_AUDIO_PLAYING, false);
 }
 
 
