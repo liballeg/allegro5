@@ -88,7 +88,7 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
  *
  * XXX reconsider inlining this; it looks rather big
  */
-static inline int fix_looped_position(ALLEGRO_SAMPLE *spl)
+static INLINE int fix_looped_position(ALLEGRO_SAMPLE *spl)
 {
    /* Looping! Should be mostly self-explanitory */
    switch (spl->loop) {
@@ -169,7 +169,7 @@ static inline int fix_looped_position(ALLEGRO_SAMPLE *spl)
 }
 
 
-static inline const float *point_spl32(const ALLEGRO_SAMPLE *spl,
+static INLINE const float *point_spl32(const ALLEGRO_SAMPLE *spl,
    unsigned int maxc)
 {
    float *s = _samp_buf;
@@ -198,7 +198,7 @@ static inline const float *point_spl32(const ALLEGRO_SAMPLE *spl,
 }
 
 
-static inline const float *point_spl32u(const ALLEGRO_SAMPLE *spl,
+static INLINE const float *point_spl32u(const ALLEGRO_SAMPLE *spl,
    unsigned int maxc)
 {
    float *s = _samp_buf;
@@ -225,7 +225,7 @@ static inline const float *point_spl32u(const ALLEGRO_SAMPLE *spl,
 }
 
 
-static inline const float *linear_spl32(const ALLEGRO_SAMPLE *spl,
+static INLINE const float *linear_spl32(const ALLEGRO_SAMPLE *spl,
    unsigned int maxc)
 {
    unsigned long p1, p2;
@@ -274,7 +274,7 @@ static inline const float *linear_spl32(const ALLEGRO_SAMPLE *spl,
 }
 
 
-static inline const float *linear_spl32u(const ALLEGRO_SAMPLE *spl,
+static INLINE const float *linear_spl32u(const ALLEGRO_SAMPLE *spl,
    unsigned int maxc)
 {
    unsigned long p1, p2;
@@ -452,11 +452,11 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
       ;
 
    ASSERT(mixer->ss.mutex);
-   _al_mutex_lock(mixer->ss.mutex);
+   al_lock_mutex(mixer->ss.mutex);
 
    temp = realloc(mixer->streams, (i+2) * sizeof(ALLEGRO_SAMPLE *));
    if (!temp) {
-      _al_mutex_unlock(mixer->ss.mutex);
+      al_unlock_mutex(mixer->ss.mutex);
       _al_set_error(ALLEGRO_GENERIC_ERROR,
          "Out of memory allocating attachment pointers");
       return 1;
@@ -515,7 +515,7 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
    spl->parent.u.mixer = mixer;
    spl->parent.is_voice = false;
 
-   _al_mutex_unlock(mixer->ss.mutex);
+   al_unlock_mutex(mixer->ss.mutex);
 
    return 0;
 }
@@ -562,10 +562,10 @@ int al_mixer_set_postprocess_callback(ALLEGRO_MIXER *mixer,
 {
    ASSERT(mixer);
 
-   _al_mutex_lock(mixer->ss.mutex);
+   al_lock_mutex(mixer->ss.mutex);
    mixer->postprocess_callback = postprocess_callback;
    mixer->pp_callback_userdata = pp_callback_userdata;
-   _al_mutex_unlock(mixer->ss.mutex);
+   al_unlock_mutex(mixer->ss.mutex);
 
    return 0;
 }
@@ -688,7 +688,7 @@ int al_mixer_set_enum(ALLEGRO_MIXER *mixer,
             return 1;
          }
 
-         _al_mutex_lock(mixer->ss.mutex);
+         al_lock_mutex(mixer->ss.mutex);
          {
             size_t i;
 
@@ -714,7 +714,7 @@ int al_mixer_set_enum(ALLEGRO_MIXER *mixer,
             }
          }
          mixer->quality = val;
-         _al_mutex_unlock(mixer->ss.mutex);
+         al_unlock_mutex(mixer->ss.mutex);
          return 0;
 
       default:

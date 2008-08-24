@@ -21,7 +21,7 @@
  *  ALLEGRO_MIXER aware, and will recursively set any attached streams' mutex
  *  to the same value.
  */
-void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, _AL_MUTEX *mutex)
+void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, ALLEGRO_MUTEX *mutex)
 {
    ASSERT(stream);
 
@@ -75,7 +75,7 @@ static void stream_free(ALLEGRO_SAMPLE *spl)
 }
 
 
-static inline int32_t clamp(int32_t val, int32_t min, int32_t max)
+static INLINE int32_t clamp(int32_t val, int32_t min, int32_t max)
 {
    /* Clamp to min */
    val -= min;
@@ -232,7 +232,7 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl)
    /* Search through the streams and check for this one */
    for (i = 0; mixer->streams[i]; i++) {
       if (mixer->streams[i] == spl) {
-         _al_mutex_lock(mixer->ss.mutex);
+         al_lock_mutex(mixer->ss.mutex);
 
          do {
             mixer->streams[i] = mixer->streams[i+1];
@@ -243,7 +243,7 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl)
          if (spl->spl_read != _al_kcm_mixer_read)
             spl->spl_read = NULL;
 
-         _al_mutex_unlock(mixer->ss.mutex);
+         al_unlock_mutex(mixer->ss.mutex);
 
          break;
       }
@@ -512,9 +512,9 @@ int al_sample_set_long(ALLEGRO_SAMPLE *spl,
                return 1;
          }
          else {
-            _al_mutex_lock(spl->mutex);
+            al_lock_mutex(spl->mutex);
             spl->pos = val << MIXER_FRAC_SHIFT;
-            _al_mutex_unlock(spl->mutex);
+            al_unlock_mutex(spl->mutex);
          }
 
          return 0;
@@ -561,7 +561,7 @@ int al_sample_set_float(ALLEGRO_SAMPLE *spl,
          if (spl->parent.u.mixer) {
             ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
 
-            _al_mutex_lock(spl->mutex);
+            al_lock_mutex(spl->mutex);
 
             spl->step = (spl->frequency<<MIXER_FRAC_SHIFT) *
                         spl->speed / mixer->ss.frequency;
@@ -573,7 +573,7 @@ int al_sample_set_float(ALLEGRO_SAMPLE *spl,
                   spl->step = -1;
             }
 
-            _al_mutex_unlock(spl->mutex);
+            al_unlock_mutex(spl->mutex);
          }
 
          return 0;
@@ -599,7 +599,7 @@ int al_sample_set_enum(ALLEGRO_SAMPLE *spl,
             return 1;
          }
 
-         _al_mutex_lock(spl->mutex);
+         al_lock_mutex(spl->mutex);
          spl->loop = val;
          if (spl->loop != ALLEGRO_PLAYMODE_ONCE) {
             if (spl->pos < spl->loop_start)
@@ -607,7 +607,7 @@ int al_sample_set_enum(ALLEGRO_SAMPLE *spl,
             else if (spl->pos > spl->loop_end-MIXER_FRAC_ONE)
                spl->pos = spl->loop_end-MIXER_FRAC_ONE;
          }
-         _al_mutex_unlock(spl->mutex);
+         al_unlock_mutex(spl->mutex);
          return 0;
 
       default:
@@ -650,11 +650,11 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl,
          }
          else {
             /* parent is mixer */
-            _al_mutex_lock(spl->mutex);
+            al_lock_mutex(spl->mutex);
             spl->is_playing = val;
             if (!val)
                spl->pos = 0;
-            _al_mutex_unlock(spl->mutex);
+            al_unlock_mutex(spl->mutex);
          }
          return 0;
 

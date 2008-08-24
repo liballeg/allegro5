@@ -308,7 +308,7 @@ int al_stream_set_float(ALLEGRO_STREAM *stream,
             ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
             long i;
 
-            _al_mutex_lock(stream->spl.mutex);
+            al_lock_mutex(stream->spl.mutex);
 
             /* Make step 1 before applying the freq difference
              * (so we play forward).
@@ -323,7 +323,7 @@ int al_stream_set_float(ALLEGRO_STREAM *stream,
                stream->spl.step *= i;
             }
 
-            _al_mutex_unlock(stream->spl.mutex);
+            al_unlock_mutex(stream->spl.mutex);
          }
 
          return 0;
@@ -373,9 +373,9 @@ int al_stream_set_bool(ALLEGRO_STREAM *stream,
          stream->spl.is_playing = val;
 
          if (!val) {
-            _al_mutex_lock(stream->spl.mutex);
+            al_lock_mutex(stream->spl.mutex);
             stream->spl.pos = stream->spl.len;
-            _al_mutex_unlock(stream->spl.mutex);
+            al_unlock_mutex(stream->spl.mutex);
          }
          return 0;
 
@@ -408,7 +408,7 @@ int al_stream_set_ptr(ALLEGRO_STREAM *stream,
          size_t i;
          int ret;
 
-         _al_mutex_lock(stream->spl.mutex);
+         al_lock_mutex(stream->spl.mutex);
 
          for (i = 0; stream->pending_bufs[i] && i < stream->buf_count; i++)
             ;
@@ -422,7 +422,7 @@ int al_stream_set_ptr(ALLEGRO_STREAM *stream,
             ret = 1;
          }
 
-         _al_mutex_unlock(stream->spl.mutex);
+         al_unlock_mutex(stream->spl.mutex);
          return ret;
       }
 

@@ -7,7 +7,6 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_thread.h"
 #include "../kcm_audio.h"
 
 /* This can probably be set to 16, or higher, if long is 64-bit */
@@ -61,7 +60,7 @@ struct ALLEGRO_VOICE {
    bool                 is_streaming;
                         /* True for voices with an attached mixer. */
 
-   _AL_MUTEX            mutex;
+   ALLEGRO_MUTEX        *mutex;
 
    ALLEGRO_AUDIO_DRIVER *driver;
 
@@ -136,7 +135,7 @@ struct ALLEGRO_SAMPLE {
                          * the specified format, converting as necessary.
                          */
 
-   _AL_MUTEX            *mutex;
+   ALLEGRO_MUTEX        *mutex;
                         /* The mutex is shared with the parent object. It is
                          * NULL if it is not directly or indirectly attached
                          * to a voice.
@@ -147,7 +146,7 @@ struct ALLEGRO_SAMPLE {
                          */
 };
 
-void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, _AL_MUTEX *mutex);
+void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, ALLEGRO_MUTEX *mutex);
 void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl);
 
 

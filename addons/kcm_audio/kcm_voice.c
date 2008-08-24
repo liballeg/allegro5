@@ -39,9 +39,9 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples)
    ASSERT(voice);
 
    if (voice->stream) {
-      _al_mutex_lock(&voice->mutex);
+      al_lock_mutex(voice->mutex);
       voice->stream->spl_read(voice->stream, &buf, samples, voice->depth, 0);
-      _al_mutex_unlock(&voice->mutex);
+      al_unlock_mutex(voice->mutex);
    }
 
    return buf;
@@ -74,13 +74,13 @@ ALLEGRO_VOICE *al_voice_create(unsigned long freq,
    voice->chan_conf = chan_conf;
    voice->frequency = freq;
 
-   _al_mutex_init(&voice->mutex);
+   voice->mutex = al_create_mutex();
    /* XXX why is this needed? there should only be one active driver */
    voice->driver = _al_kcm_driver;
 
    ASSERT(_al_kcm_driver);
    if (_al_kcm_driver->allocate_voice(voice) != 0) {
-      _al_mutex_destroy(&voice->mutex);
+      al_destroy_mutex(voice->mutex);
       free(voice);
       return NULL;
    }
@@ -98,7 +98,7 @@ void al_voice_destroy(ALLEGRO_VOICE *voice)
    if (voice) {
       al_voice_detach(voice);
       voice->driver->deallocate_voice(voice);
-      _al_mutex_destroy(&voice->mutex);
+      al_destroy_mutex(voice->mutex);
 
       free(voice);
    }
@@ -143,7 +143,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
       return 1;
    }
 
-   _al_mutex_lock(&voice->mutex);
+   al_lock_mutex(voice->mutex);
 
    voice->stream = spl;
 
@@ -154,7 +154,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
                         al_depth_size(voice->depth);
 
    spl->spl_read = NULL;
-   _al_kcm_stream_set_mutex(spl, &voice->mutex);
+   _al_kcm_stream_set_mutex(spl, voice->mutex);
 
    spl->parent.u.voice = voice;
    spl->parent.is_voice = true;
@@ -174,7 +174,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
       ret = 0;
    }
 
-   _al_mutex_unlock(&voice->mutex);
+   al_unlock_mutex(voice->mutex);
 
    return ret;
 }
@@ -247,11 +247,11 @@ int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
       return 1;
    }
 
-   _al_mutex_lock(&voice->mutex);
+   al_lock_mutex(voice->mutex);
 
    voice->stream = &stream->spl;
 
-   _al_kcm_stream_set_mutex(&stream->spl, &voice->mutex);
+   _al_kcm_stream_set_mutex(&stream->spl, voice->mutex);
 
    stream->spl.parent.u.voice = voice;
    stream->spl.parent.is_voice = true;
@@ -277,7 +277,7 @@ int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
       ret = 0;
    }
 
-   _al_mutex_unlock(&voice->mutex);
+   al_unlock_mutex(voice->mutex);
 
    return ret;
 }
@@ -304,11 +304,11 @@ int al_voice_attach_mixer(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
       return 3;
    }
 
-   _al_mutex_lock(&voice->mutex);
+   al_lock_mutex(voice->mutex);
 
    voice->stream = &mixer->ss;
 
-   _al_kcm_stream_set_mutex(&mixer->ss, &voice->mutex);
+   _al_kcm_stream_set_mutex(&mixer->ss, voice->mutex);
 
    mixer->ss.parent.u.voice = voice;
    mixer->ss.parent.is_voice = true;
@@ -327,7 +327,7 @@ int al_voice_attach_mixer(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
       ret = 0;
    }
 
-   _al_mutex_unlock(&voice->mutex);
+   al_unlock_mutex(voice->mutex);
 
    return ret;
 }
@@ -344,7 +344,7 @@ void al_voice_detach(ALLEGRO_VOICE *voice)
       return;
    }
 
-   _al_mutex_lock(&voice->mutex);
+   al_lock_mutex(voice->mutex);
 
    if (!voice->is_streaming) {
       ALLEGRO_SAMPLE *spl = voice->stream;
@@ -366,7 +366,7 @@ void al_voice_detach(ALLEGRO_VOICE *voice)
    voice->stream->parent.u.voice = NULL;
    voice->stream = NULL;
 
-   _al_mutex_unlock(&voice->mutex);
+   al_unlock_mutex(voice->mutex);
 }
 
 
