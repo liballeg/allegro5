@@ -520,6 +520,8 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
       withObject: [NSValue valueWithPointer:dpy] 
       waitUntilDone: YES];
 	[dpy->ctx makeCurrentContext];
+   dpy->parent.ogl_extras = _AL_MALLOC(sizeof(ALLEGRO_OGL_EXTRAS));
+   memset(dpy->parent.ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
    _al_ogl_manage_extensions(&dpy->parent);
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
 	dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
@@ -606,6 +608,15 @@ static void get_window_position(ALLEGRO_DISPLAY* display, int* px, int* py)
    *py = (int) (sc.size.height - rc.origin.y - rc.size.height);
 }
 
+/* set_window_title:
+ * Set the title of the window with this display
+ */
+void set_window_title(ALLEGRO_DISPLAY *display, AL_CONST char *title)
+{
+   ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) display;
+   [dpy->win setTitle: [NSString stringWithCString:title]];
+}
+
 ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void)
 {
 	static ALLEGRO_DISPLAY_INTERFACE* vt = NULL;
@@ -626,6 +637,7 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void)
       vt->hide_mouse_cursor = hide_cursor;
       vt->get_window_position = get_window_position;
       vt->set_window_position = set_window_position;
+      vt->set_window_title = set_window_title;
       _al_ogl_add_drawing_functions(vt);
    }
 	return vt;
