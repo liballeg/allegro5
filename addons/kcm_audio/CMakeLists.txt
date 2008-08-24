@@ -35,7 +35,7 @@ macro(add_audio_build nm extra_flags)
             OUTPUT_NAME ${nm2}
             )
 
-        target_link_libraries(${target} ${LINK_WITH} ${AUDIO_LIBRARIES})
+        target_link_libraries(${target} ${AUDIO_LIBRARIES})
 
         install(TARGETS ${target}
                 DESTINATION lib
