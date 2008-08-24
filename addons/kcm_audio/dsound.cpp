@@ -98,12 +98,12 @@ static void _dsound_update(_AL_THREAD* self, void* arg)
    DWORD block1_bytes, block2_bytes;
    const void *data;
    const int bytes_per_sample = ex_data->bits_per_sample / 8;
-
-   printf("here\n");
+   int count = 0, count_bytes = 0;
 
    /* Fill buffer */
-   hr = ex_data->ds8_buffer->Lock(0, BUFSIZE, &ptr1, &block1_bytes, &ptr2, &block2_bytes, 0);
+   hr = ex_data->ds8_buffer->Lock(0, BUFSIZE, &ptr1, &block1_bytes, &ptr2, &block2_bytes, DSBLOCK_ENTIREBUFFER);
    if (!FAILED(hr)) {
+      data = _al_voice_update(voice, BUFSIZE / bytes_per_sample / ex_data->channels);
       memcpy(ptr1, data, block1_bytes);
       memcpy(ptr2, ((unsigned char *)data)+block1_bytes, block2_bytes);
       ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
@@ -117,11 +117,11 @@ static void _dsound_update(_AL_THREAD* self, void* arg)
          d = play_cursor - saved_play_cursor;
          if (d < 0)
             d += BUFSIZE;
-         samples = d / bytes_per_sample;
-         printf("here, d=%d samples=%d write_cursor=%d play_cursor=%d saved_play_cursor=%d\n", d, samples, write_cursor, play_cursor, saved_play_cursor);
+         samples = d / bytes_per_sample / ex_data->channels;
+         count += samples;
+         count_bytes += d;
          data = _al_voice_update(voice, samples);
          if (data == NULL) {
-            printf("data == NULL\n");
             /* FIXME: play silence */
          }
          else {
@@ -132,13 +132,14 @@ static void _dsound_update(_AL_THREAD* self, void* arg)
                ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
             }
             else {
-               printf("lock failed\n");
             }
+            saved_play_cursor += block1_bytes + block2_bytes;
+            saved_play_cursor %= BUFSIZE;
          }
-         saved_play_cursor = play_cursor;
       }
       al_rest(0.005);
    } while (!ex_data->stop_voice);
+
 
    ex_data->ds8_buffer->Stop();
 }
@@ -241,8 +242,6 @@ static int _dsound_allocate_voice(ALLEGRO_VOICE *voice)
 
    voice->extra = ex_data;
 
-   printf("allocate voice ok\n");
-
    return 0;
 }
 
@@ -265,8 +264,6 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *data)
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
    LPVOID ptr1, ptr2;
    DWORD block1_bytes, block2_bytes;
-
-   printf("here in load_voice\n");
 
    ex_data->wave_fmt.wFormatTag = WAVE_FORMAT_PCM;
    ex_data->wave_fmt.nChannels = ex_data->channels;
@@ -300,8 +297,6 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *data)
 
    ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
 
-   printf("after load_voice\n");
-
    return 0;
 }
 
@@ -323,15 +318,11 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
 
    if (!voice->is_streaming) {
-      printf("playing voice\n");
       hr = ex_data->ds8_buffer->Play(0, 0, 0);
       if (FAILED(hr))
          return 1;
-         printf("playing voice didn't fail\n");
       return 0;
    }
-
-   printf("streaming\n");
 
    if(ex_data->stop_voice != 0)
    {
@@ -356,15 +347,10 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
       if (FAILED(hr)) {
          fprintf(stderr, "CreateSoundBuffer failed: %s\n", ds_get_error(hr));
          free(ex_data);
-         printf("returning\n");
          return 1;
       }
 
-      printf("here2\n");
-
       ex_data->ds_buffer->QueryInterface(IID_IDirectSoundBuffer8, (void **)&ex_data->ds8_buffer);
-
-      printf("here3\n");
 
       ex_data->stop_voice = 0;
       _al_thread_create(&ex_data->thread, _dsound_update, (void*) voice);
