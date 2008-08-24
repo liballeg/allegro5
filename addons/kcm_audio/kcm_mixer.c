@@ -373,6 +373,142 @@ MAKE_MIXER(32u, linear)
 #undef MAKE_MIXER
 
 
+static INLINE int32_t clamp(int32_t val, int32_t min, int32_t max)
+{
+   /* Clamp to min */
+   val -= min;
+   val &= (~val) >> 31;
+   val += min;
+
+   /* Clamp to max */
+   val -= max;
+   val &= val >> 31;
+   val += max;
+
+   return val;
+}
+
+
+/* _al_kcm_mixer_read:
+ *  Mixes the streams attached to the mixer and writes additively to the
+ *  specified buffer (or if *buf is NULL, indicating a voice, convert it and
+ *  set it to the buffer pointer).
+ */
+void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
+   ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
+{
+   const ALLEGRO_MIXER *mixer;
+   ALLEGRO_MIXER *m = (ALLEGRO_MIXER *)source;
+   int maxc = al_channel_count(m->ss.chan_conf);
+   int i;
+
+   if (!m->ss.is_playing)
+      return;
+
+   /* Make sure the mixer buffer is big enough. */
+   if (m->ss.len*maxc < samples*maxc) {
+      free(m->ss.buffer.ptr);
+      m->ss.buffer.ptr = malloc(samples*maxc*sizeof(float));
+      if (!m->ss.buffer.ptr) {
+         _al_set_error(ALLEGRO_GENERIC_ERROR,
+            "Out of memory allocating mixer buffer");
+         m->ss.len = 0;
+         return;
+      }
+      m->ss.len = samples;
+   }
+
+   mixer = m;
+
+   /* Clear the buffer to silence. */
+   memset(mixer->ss.buffer.ptr, 0, samples * maxc * sizeof(float));
+
+   /* Mix the streams into the mixer buffer. */
+   for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
+      ALLEGRO_SAMPLE **slot = _al_vector_ref(&mixer->streams, i);
+      ALLEGRO_SAMPLE *spl = *slot;
+      spl->spl_read(spl, (void **) &mixer->ss.buffer.ptr, samples,
+         ALLEGRO_AUDIO_DEPTH_FLOAT32, maxc);
+   }
+
+   /* Call the post-processing callback. */
+   if (mixer->postprocess_callback) {
+      mixer->postprocess_callback(mixer->ss.buffer.ptr, mixer->ss.len,
+         mixer->pp_callback_userdata);
+   }
+
+   samples *= maxc;
+
+   if (*buf) {
+      /* We don't need to clamp in the mixer yet. */
+      float *lbuf = *buf;
+      float *src = mixer->ss.buffer.f32;
+
+      while (samples > 0) {
+         *(lbuf++) += *(src++);
+         samples--;
+      }
+      return;
+   }
+
+   /* We're feeding to a voice, so we pass it back the mixed data (make sure
+    * to clamp and convert it).
+    */
+   *buf = mixer->ss.buffer.ptr;
+   switch (buffer_depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED) {
+      case ALLEGRO_AUDIO_DEPTH_INT24: {
+         int32_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+                        ? 0x800000 : 0);
+         int32_t *lbuf = mixer->ss.buffer.s24;
+         float *src = mixer->ss.buffer.f32;
+
+         while (samples > 0) {
+            *lbuf = clamp(*(src++) * ((float)0x7FFFFF + 0.5f),
+               ~0x7FFFFF, 0x7FFFFF);
+            *lbuf += off;
+            lbuf++;
+            samples--;
+         }
+         break;
+      }
+
+      case ALLEGRO_AUDIO_DEPTH_INT16: {
+         int16_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+                        ? 0x8000 : 0);
+         int16_t *lbuf = mixer->ss.buffer.s16;
+         float *src = mixer->ss.buffer.f32;
+
+         while (samples > 0) {
+            *lbuf = clamp(*(src++) * ((float)0x7FFF + 0.5f), ~0x7FFF, 0x7FFF);
+            *lbuf += off;
+            lbuf++;
+            samples--;
+         }
+         break;
+      }
+
+      case ALLEGRO_AUDIO_DEPTH_INT8:
+      default:
+      {
+         int8_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+                        ? 0x80 : 0);
+         int8_t *lbuf = mixer->ss.buffer.s8;
+         float *src = mixer->ss.buffer.f32;
+
+         while (samples > 0) {
+            *lbuf = clamp(*(src++) * ((float)0x7F + 0.5f), ~0x7F, 0x7F);
+            *lbuf += off;
+            lbuf++;
+            samples--;
+         }
+         break;
+      }
+   }
+
+   (void)dest_maxc;
+}
+
+
 /* Function: al_mixer_create
  *  Creates a mixer stream, to attach sample streams or other mixers to. It
  *  will mix into a buffer at the requested frequency and channel count.
