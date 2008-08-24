@@ -27,12 +27,12 @@ const char* BMP_NAMES[] = {
 };
 
 const char* SAMPLE_NAMES[] = {
-   "sfx/big_explosion.wav",
-   "sfx/collision.wav",
-   "sfx/fire_large.wav",
-   "sfx/fire_small.wav",
-   "sfx/small_explosion.wav",
-   "sfx/powerup.wav",
+   "sfx/big_explosion.ogg",
+   "sfx/collision.ogg",
+   "sfx/fire_large.ogg",
+   "sfx/fire_small.ogg",
+   "sfx/small_explosion.ogg",
+   "sfx/powerup.ogg",
    0
 };
 

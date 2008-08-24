@@ -6,6 +6,10 @@
 #ifndef __al_included_kcm_audio_h
 #define __al_included_kcm_audio_h
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Title: Audio
  */
 
@@ -411,6 +415,11 @@ A5_KCM_AUDIO_FUNC(int, al_voice_set_bool, (ALLEGRO_VOICE *voice,
 /* Misc. audio functions */
 A5_KCM_AUDIO_FUNC(int,  al_audio_init, (ALLEGRO_AUDIO_DRIVER_ENUM mode));
 A5_KCM_AUDIO_FUNC(void, al_audio_deinit, (void));
+
+#ifdef __cplusplus
+} /* End extern "C" */
+#endif
+
 
 #endif  /* __al_included_kcm_audio_h */
 

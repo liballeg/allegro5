@@ -4,7 +4,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_iio.h"
 #include "allegro5/a5_font.h"
-#include "allegro5/audio.h"
+#include "allegro5/kcm_audio.h"
 #include "allegro5/acodec.h"
 
 #ifdef ALLEGRO_UNIX
@@ -70,6 +70,9 @@
 
 const int BB_W = 640;
 const int BB_H = 480;
+
+extern ALLEGRO_VOICE *voice;
+extern ALLEGRO_MIXER *mixer;
 
 #endif // A5TEROIDS_HPP
 

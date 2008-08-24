@@ -33,12 +33,12 @@ set(DEMO_SRCS
     src/wave.cpp
     )
 
-if(USE_CXX AND SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
+if(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
     set_source_files_properties(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
     include_directories(
         include
         ../addons/font
-        ../addons/audio
+        ../addons/kcm_audio
         ../addons/acodec
         )
 
@@ -53,7 +53,9 @@ if(USE_CXX AND SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
         ${AUDIO_LINK_WITH}
         ${ACODEC_LINK_WITH}
         )
-endif(USE_CXX AND SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
+else(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
+    message(STATUS "Not building demo")
+endif(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

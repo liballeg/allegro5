@@ -15,9 +15,17 @@ endif(WANT_AUDIO)
 
 if(WANT_KCM_AUDIO)
     add_subdirectory(kcm_audio)
+    if(SUPPORT_KCM_AUDIO)
+        set(SUPPORT_KCM_AUDIO 1 PARENT_SCOPE)
+        set(AUDIO_LINK_WITH ${AUDIO_LINK_WITH} PARENT_SCOPE)
+    endif(SUPPORT_KCM_AUDIO)
 
     if(WANT_ACODEC)
         add_subdirectory(acodec)
+        if(SUPPORT_ACODEC)
+            set(SUPPORT_ACODEC 1 PARENT_SCOPE)
+            set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} PARENT_SCOPE)
+        endif(SUPPORT_ACODEC)
     endif(WANT_ACODEC)
 endif(WANT_KCM_AUDIO)
 

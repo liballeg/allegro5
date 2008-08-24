@@ -7,6 +7,8 @@ option(WANT_SNDFILE "Enable WAV/AIFF/FLAC support (acodec)" on)
 set(ACODEC_EXTRA_LIBS)
 set(ACODEC_SOURCES acodec.c)
 
+set(SUPPORT_ACODEC 1 PARENT_SCOPE)
+
 if(WANT_FLAC)
     # XXX flac.c doesn't compile with flac 1.1.2
     # missing FLAC__StreamDecoderInitStatus
@@ -131,9 +133,11 @@ endif(GRADE_STANDARD)
 
 if(STATIC)
     set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_static CACHE INTERNAL "internal")
+    set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_static PARENT_SCOPE)
     set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} ${AUDIO_LIB_TO_LINK}_static CACHE INTERNAL "internal")
 else(STATIC)
     set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
+    set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared PARENT_SCOPE)
     set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} ${AUDIO_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
 endif(STATIC)
 
