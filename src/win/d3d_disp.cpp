@@ -187,11 +187,13 @@ int _al_d3d_format_to_allegro(int d3d_fmt)
    return -1;
 }
 
-static int d3d_al_color_to_d3d(ALLEGRO_COLOR *color)
+static int d3d_al_color_to_d3d(ALLEGRO_COLOR color)
 {
    unsigned char r, g, b, a;
-   al_unmap_rgba(*color, &r, &g, &b, &a);
-   return D3DCOLOR_ARGB(a, r, g, b);
+   int result;
+   al_unmap_rgba(color, &r, &g, &b, &a);
+   result = D3DCOLOR_ARGB(a, r, g, b);
+   return result;
 }
 
 static bool d3d_format_is_valid(int format)
@@ -1369,8 +1371,9 @@ static int d3d_al_blender_to_d3d(int al_mode)
 void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    int src, dst;
+   ALLEGRO_COLOR color;
 
-   al_get_blender(&src, &dst, NULL);
+   al_get_blender(&src, &dst, &color);
 
    src = d3d_al_blender_to_d3d(src);
    dst = d3d_al_blender_to_d3d(dst);
@@ -1379,6 +1382,10 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
       TRACE("Failed to set source blender");
    if (d3d_display->device->SetRenderState(D3DRS_DESTBLEND, dst) != D3D_OK)
       TRACE("Failed to set dest blender");
+   if (d3d_display->device->SetRenderState(D3DRS_TEXTUREFACTOR, d3d_al_color_to_d3d(color)) != D3D_OK)
+      TRACE("SetRenderState BLENDFACTOR failed.\n");
+
+   d3d_display->device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_BLENDFACTORALPHA);
 }
 
 
@@ -1398,7 +1405,7 @@ static DWORD d3d_blend_colors(
       b*bc->b,
       a*bc->a);
 
-   return d3d_al_color_to_d3d(&result);
+   return d3d_al_color_to_d3d(result);
 }
 
 /* Dummy implementation of line. */

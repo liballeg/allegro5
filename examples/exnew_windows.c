@@ -39,12 +39,12 @@ int main(void)
    al_set_new_window_position(x, y);
 
    displays[0] = al_create_display(W, H);
+   al_show_mouse_cursor();
 
    x *= 2;
    al_set_new_window_position(x, y);
 
    displays[1] = al_create_display(W, H);
-
    al_show_mouse_cursor();
 
    myfont = a5font_load_font("fixed_font.tga", 0);

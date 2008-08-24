@@ -299,6 +299,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/altime.h
     include/allegro5/base.h
     include/allegro5/bitmap_new.h
+    include/allegro5/color.h
     include/allegro5/color_new.h
     include/allegro5/debug.h
     include/allegro5/display_new.h
@@ -315,6 +316,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/a5_opengl.h
     include/allegro5/system.h
     include/allegro5/system_new.h
+    include/allegro5/threads.h
     include/allegro5/timer.h
     include/allegro5/unicode.h
     )

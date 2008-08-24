@@ -71,7 +71,7 @@ endif(SHARED)
 # Install header files.
 #
 
-install(FILES ${FONT_INCLUDE_FILES}
+install(FILES ${IIO_INCLUDE_FILES}
         DESTINATION include/allegro5
         )
 

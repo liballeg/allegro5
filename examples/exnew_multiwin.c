@@ -15,6 +15,7 @@ int main(void)
 
    al_init();
    al_install_keyboard();
+   al_install_mouse();
    iio_init();
 
    events = al_create_event_queue();
@@ -23,7 +24,10 @@ int main(void)
 
    /* Create two windows. */
    display[0] = al_create_display(W, H);
+   al_show_mouse_cursor();
    display[1] = al_create_display(W, H);
+   al_show_mouse_cursor();
+
 
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[0]);

@@ -179,28 +179,32 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
    vertices[0].x = dx;
    vertices[0].y = dy;
    vertices[0].z = z;
-   vertices[0].color = color;
+   vertices[0].diffuse = color;
+   vertices[0].specular = color;
    vertices[0].tu = tu_start;
    vertices[0].tv = tv_start;
 
    vertices[1].x = right;
    vertices[1].y = dy;
    vertices[1].z = z;
-   vertices[1].color = color;
+   vertices[1].diffuse = color;
+   vertices[1].specular = color;
    vertices[1].tu = tu_end;
    vertices[1].tv = tv_start;
 
    vertices[2].x = right;
    vertices[2].y = bottom;
    vertices[2].z = z;
-   vertices[2].color = color;
+   vertices[2].diffuse = color;
+   vertices[2].specular = color;
    vertices[2].tu = tu_end;
    vertices[2].tv = tv_end;
 
    vertices[3].x = dx;
    vertices[3].y = bottom;
    vertices[3].z = z;
-   vertices[3].color = color;
+   vertices[3].diffuse = color;
+   vertices[3].specular = color;
    vertices[3].tu = tu_start;
    vertices[3].tv = tv_end;
 

@@ -14,7 +14,7 @@ extern "C" {
 
 /* Flexible vertex formats */
 #define D3DFVF_COLORED_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE)
-#define D3DFVF_TL_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+#define D3DFVF_TL_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_SPECULAR | D3DFVF_TEX1)
 
 
 typedef struct ALLEGRO_SYSTEM_D3D ALLEGRO_SYSTEM_D3D;
@@ -93,7 +93,8 @@ typedef struct D3D_TL_VERTEX
    float x;		/* x position */
    float y;		/* y position */
    float z;		/* z position */
-   D3DCOLOR color;		/* color */
+   D3DCOLOR diffuse;    /* diffuse color */
+   D3DCOLOR specular;   /* specular color */
    float tu;		/* texture coordinate */
    float tv;		/* texture coordinate */
 } D3D_TL_VERTEX;
