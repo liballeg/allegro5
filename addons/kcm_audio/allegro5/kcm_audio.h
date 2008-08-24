@@ -128,10 +128,6 @@ enum ALLEGRO_AUDIO_PROPERTY {
 
    ALLEGRO_AUDIOPROP_QUALITY        = 0x20D,
 
-   ALLEGRO_AUDIOPROP_SETTINGS       = 0x20E,
-
-   ALLEGRO_AUDIOPROP_DEVICE         = 0x20F,
-
    /* Length of audio sample. */
    ALLEGRO_AUDIOPROP_TIME           = 0x210
 };
@@ -141,11 +137,6 @@ enum ALLEGRO_AUDIO_PROPERTY {
  */
 typedef enum ALLEGRO_AUDIO_DRIVER_ENUM ALLEGRO_AUDIO_DRIVER_ENUM;
 enum ALLEGRO_AUDIO_DRIVER_ENUM {
-   /* Used to define driver-specific option values, not to collide with
-    * standard values.
-    */
-   ALLEGRO_AUDIO_USER_START = 0x10000,
-
    /* Various driver modes. */
    ALLEGRO_AUDIO_DRIVER_AUTODETECT = 0x20000,
    ALLEGRO_AUDIO_DRIVER_OPENAL     = 0x20001,
