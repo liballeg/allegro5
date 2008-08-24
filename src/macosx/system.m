@@ -48,7 +48,6 @@ static void osx_sys_exit(void);
 static void osx_sys_message(AL_CONST char *);
 static void osx_sys_get_executable_name(char *, int);
 static int osx_sys_find_resource(char *, AL_CONST char *, int);
-static void osx_sys_set_window_title(AL_CONST char *);
 static int osx_sys_set_close_button_callback(void (*proc)(void));
 static int osx_sys_set_display_switch_mode(int mode);
 static int osx_sys_desktop_color_depth(void);
@@ -76,49 +75,6 @@ static int osx_sys_init_compat(void) {
 	return 0;
 }
 
-//SYSTEM_DRIVER system_macosx =
-//{
-//   SYSTEM_MACOSX,
-//   empty_string,
-//   empty_string,
-//   "MacOS X",
-//   osx_sys_init_compat,
-//   osx_sys_exit,
-//   osx_sys_get_executable_name,
-//   osx_sys_find_resource,
-//   osx_sys_set_window_title,
-//   osx_sys_set_close_button_callback,
-//   osx_sys_message,
-//   NULL,  /* AL_METHOD(void, assert, (AL_CONST char *msg)); */
-//   NULL,  /* AL_METHOD(void, save_console_state, (void)); */
-//   NULL,  /* AL_METHOD(void, restore_console_state, (void)); */
-//   NULL,  /* AL_METHOD(struct BITMAP *, create_bitmap, (int color_depth, int width, int height)); */
-//   NULL,  /* AL_METHOD(void, created_bitmap, (struct BITMAP *bmp)); */
-//   NULL,  /* AL_METHOD(struct BITMAP *, create_sub_bitmap, (struct BITMAP *parent, int x, int y, int width, int height)); */
-//   NULL,  /* AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp, struct BITMAP *parent)); */
-//   NULL,  /* AL_METHOD(int, destroy_bitmap, (struct BITMAP *bitmap)); */
-//   NULL,  /* AL_METHOD(void, read_hardware_palette, (void)); */
-//   NULL,  /* AL_METHOD(void, set_palette_range, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
-//   NULL,  /* AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth)); */
-//   osx_sys_set_display_switch_mode,
-//   NULL,  /* AL_METHOD(void, display_switch_lock, (int lock, int foreground)); */
-//   osx_sys_desktop_color_depth,
-//   osx_sys_get_desktop_resolution,
-//   osx_sys_get_gfx_safe_mode,
-//   NULL,
-//   NULL,  /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
-//   NULL,  /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
-//   NULL,  /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
-//   NULL,  /* AL_METHOD(_DRIVER_INFO *, keyboard_drivers, (void)); */
-//   NULL,  /* AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void)); */
-//   NULL   /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
-//};
-//
-
-//_DRIVER_INFO _system_driver_list[] = {
-//{1, &system_macosx, TRUE },
-//{0, NULL, FALSE},
-//};
 
 /* osx_signal_handler:
  *  Used to trap various signals, to make sure things get shut down cleanly.
@@ -225,9 +181,6 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    
    osx_gfx_mode = OSX_GFX_NONE;
    
-//   set_display_switch_mode(SWITCH_BACKGROUND);
-   //set_window_title([[[NSProcessInfo processInfo] processName] cString]);
-   
    osx_threads_init();
    /* Mark the beginning of time. */
    _al_unix_init_time();
@@ -299,26 +252,6 @@ static void osx_sys_message(AL_CONST char *msg)
    
    NSRunAlertPanel(ns_title, ns_msg, nil, nil, nil);
 }
-
-
-
-/* osx_sys_set_window_title:
- *  Sets the title for both the application menu and the window if present.
- */
-static void osx_sys_set_window_title(AL_CONST char *title)
-{
-//   char tmp[ALLEGRO_MESSAGE_SIZE];
-//   
-//   _al_sane_strncpy(osx_window_title, title, ALLEGRO_MESSAGE_SIZE);
-//   do_uconvert(title, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE);
-//
-//   NSString *ns_title = [NSString stringWithUTF8String: tmp];
-//   
-//   if (osx_window)
-//      [osx_window setTitle: ns_title];
-}
-
-
 
 /* osx_sys_set_close_button_callback:
  *  Sets the window close callback. Also used when user hits Command-Q or
