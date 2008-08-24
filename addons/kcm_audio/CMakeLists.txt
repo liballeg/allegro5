@@ -7,8 +7,8 @@ set(AUDIO_SOURCES
     )
 set(AUDIO_INCLUDE_FILES allegro5/kcm_audio.h)
 
-# XXX make this optional?
-include(FindOpenAL)
+# This is a rather cheap way of doing it, but it works in most cases
+check_include_file(AL/al.h OPENAL_FOUND)
 if(OPENAL_FOUND)
     set(ALLEGRO_CFG_KCM_OPENAL 1)
     list(APPEND AUDIO_SOURCES openal.c)
@@ -20,6 +20,14 @@ if(SUPPORT_A5_ALSA)
     list(APPEND AUDIO_SOURCES alsa.c)
     list(APPEND AUDIO_LIBRARIES asound)
 endif(SUPPORT_A5_ALSA)
+
+
+check_include_file(dsound.h HAVE_DSOUND)
+if(HAVE_DSOUND)
+    set(ALLEGRO_CFG_KCM_DSOUND 1)
+    list(APPEND AUDIO_SOURCES dsound.cpp)
+    list(APPEND AUDIO_LIBRARIES dsound)
+endif(HAVE_DSOUND)
 
 configure_file(
     allegro5/internal/aintern_kcm_cfg.h.cmake

@@ -26,6 +26,9 @@ ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
 #if defined(ALLEGRO_CFG_KCM_ALSA)
    extern struct ALLEGRO_AUDIO_DRIVER _alsa_driver;
 #endif
+#if defined(ALLEGRO_CFG_KCM_DSOUND)
+   extern struct ALLEGRO_AUDIO_DRIVER _dsound_driver;
+#endif
 
 /* Channel configuration helpers */
 bool al_is_channel_conf(ALLEGRO_CHANNEL_CONF conf)
@@ -77,6 +80,9 @@ int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
          retVal = al_audio_init(ALLEGRO_AUDIO_DRIVER_ALSA);
          if (retVal == 0)
             return 0;
+         retVal = al_audio_init(ALLEGRO_AUDIO_DRIVER_DSOUND);
+         if (retVal == 0)
+            return 0;
          _al_kcm_driver = NULL;
          return 1;
 
@@ -107,8 +113,17 @@ int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
          #endif
 
       case ALLEGRO_AUDIO_DRIVER_DSOUND:
-            _al_set_error(ALLEGRO_INVALID_PARAM, "DirectSound driver not yet implemented");
+         #if defined(ALLEGRO_CFG_KCM_DSOUND)
+            if (_dsound_driver.open() == 0) {
+               fprintf(stderr, "Using DirectSound driver\n"); 
+               _al_kcm_driver = &_dsound_driver;
+               return 0;
+            }
             return 1;
+         #else
+            _al_set_error(ALLEGRO_INVALID_PARAM, "DirectSound not available on this platform");
+            return 1;
+         #endif
 
       default:
          _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid audio driver");

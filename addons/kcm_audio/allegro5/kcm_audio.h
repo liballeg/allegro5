@@ -37,7 +37,16 @@
 
 /* Type: ALLEGRO_AUDIO_DEPTH
  */
+
+#ifndef __cplusplus
 typedef enum ALLEGRO_AUDIO_DEPTH ALLEGRO_AUDIO_DEPTH;
+typedef enum ALLEGRO_CHANNEL_CONF ALLEGRO_CHANNEL_CONF;
+typedef enum ALLEGRO_PLAYMODE ALLEGRO_PLAYMODE;
+typedef enum ALLEGRO_MIXER_QUALITY ALLEGRO_MIXER_QUALITY;
+typedef enum ALLEGRO_AUDIO_PROPERTY ALLEGRO_AUDIO_PROPERTY;
+typedef enum ALLEGRO_AUDIO_DRIVER_ENUM ALLEGRO_AUDIO_DRIVER_ENUM;
+#endif
+
 enum ALLEGRO_AUDIO_DEPTH {
    /* Sample depth and type, and signedness. Mixers only use 32-bit signed
     * float (-1..+1). The unsigned value is a bit-flag applied to the depth
@@ -62,7 +71,6 @@ enum ALLEGRO_AUDIO_DEPTH {
 
 /* Type: ALLEGRO_CHANNEL_CONF
  */
-typedef enum ALLEGRO_CHANNEL_CONF ALLEGRO_CHANNEL_CONF;
 enum ALLEGRO_CHANNEL_CONF {
    /* Speaker configuration (mono, stereo, 2.1, 3, etc). With regards to
     * behavior, most of this code makes no distinction between, say, 4.1 and
@@ -85,7 +93,6 @@ enum ALLEGRO_CHANNEL_CONF {
 /* Type: ALLEGRO_PLAYMODE
  *  Sample looping mode.
  */
-typedef enum ALLEGRO_PLAYMODE ALLEGRO_PLAYMODE;
 enum ALLEGRO_PLAYMODE {
    ALLEGRO_PLAYMODE_ONCE   = 0x100,
    ALLEGRO_PLAYMODE_ONEDIR = 0x101,
@@ -95,7 +102,6 @@ enum ALLEGRO_PLAYMODE {
 
 /* Type: ALLEGRO_MIXER_QUALITY
  */
-typedef enum ALLEGRO_MIXER_QUALITY ALLEGRO_MIXER_QUALITY;
 enum ALLEGRO_MIXER_QUALITY {
    ALLEGRO_MIXER_QUALITY_POINT   = 0x110,
    ALLEGRO_MIXER_QUALITY_LINEAR  = 0x111,
@@ -106,7 +112,6 @@ enum ALLEGRO_MIXER_QUALITY {
  *  Flags to pass to the various al_*_get_* and al_*_set_* functions. Not
  *  all types will apply to all functions.
  */
-typedef enum ALLEGRO_AUDIO_PROPERTY ALLEGRO_AUDIO_PROPERTY;
 enum ALLEGRO_AUDIO_PROPERTY {
    ALLEGRO_AUDIOPROP_DEPTH          = 0x200,
    ALLEGRO_AUDIOPROP_CHANNELS       = 0x201,
@@ -135,7 +140,6 @@ enum ALLEGRO_AUDIO_PROPERTY {
 
 /* Type: ALLEGRO_AUDIO_DRIVER_ENUM
  */
-typedef enum ALLEGRO_AUDIO_DRIVER_ENUM ALLEGRO_AUDIO_DRIVER_ENUM;
 enum ALLEGRO_AUDIO_DRIVER_ENUM {
    /* Various driver modes. */
    ALLEGRO_AUDIO_DRIVER_AUTODETECT = 0x20000,

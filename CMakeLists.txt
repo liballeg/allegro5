@@ -410,7 +410,7 @@ if(WIN32)
         list(APPEND LIBRARY_SOURCES lib/msvc/allegro.def)
     endif(COMPILER_MSVC)
     list(APPEND PLATFORM_LIBS
-        kernel32 user32 gdi32 comdlg32 ole32 dinput8 ddraw dxguid winmm dsound
+        kernel32 user32 gdi32 comdlg32 ole32 dinput8 dxguid winmm
         )
     if(SUPPORT_D3D)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
