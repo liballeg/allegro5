@@ -286,7 +286,7 @@ ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples,
    spl->loop_start = 0;
    spl->loop_end = spl->len;
 
-   spl->free_buf = true;
+   spl->free_buf = free_buf;
 
    return spl;
 }
