@@ -537,8 +537,9 @@ void al_set_display_icon(ALLEGRO_BITMAP *icon)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(display);
-
-   display->vt->set_icon(display, icon);
+   if (display->vt->set_icon) {
+      display->vt->set_icon(display, icon);
+   }
 }
 
 
