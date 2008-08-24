@@ -36,8 +36,10 @@ void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, ALLEGRO_MUTEX *mutex)
       ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER *)stream;
       int i;
 
-      for (i = 0; mixer->streams[i]; i++) {
-         _al_kcm_stream_set_mutex(mixer->streams[i], mutex);
+      for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
+         ALLEGRO_SAMPLE **slot = _al_vector_ref(&mixer->streams, i);
+         ALLEGRO_SAMPLE *spl = *slot;
+         _al_kcm_stream_set_mutex(spl, mutex);
       }
    }
 }
@@ -54,16 +56,18 @@ static void stream_free(ALLEGRO_SAMPLE *spl)
        * streams if this is a mixer stream.
        */
       if (spl->spl_read == _al_kcm_mixer_read) {
-         ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER*)spl;
+         ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER *)spl;
          int i;
 
          _al_kcm_stream_set_mutex(&mixer->ss, NULL);
 
-         for (i = 0; mixer->streams[i]; i++) {
-            mixer->streams[i]->parent.u.ptr = NULL;
+         for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
+            ALLEGRO_SAMPLE **slot = _al_vector_ref(&mixer->streams, i);
+            ALLEGRO_SAMPLE *spl = *slot;
+            spl->parent.u.ptr = NULL;
          }
 
-         free(mixer->streams);
+         _al_vector_free(&mixer->streams);
       }
 
       if (spl->orphan_buffer) {
@@ -102,7 +106,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
    const ALLEGRO_MIXER *mixer;
    ALLEGRO_MIXER *m = (ALLEGRO_MIXER *)source;
    int maxc = al_channel_count(m->ss.chan_conf);
-   ALLEGRO_SAMPLE **spl;
+   int i;
 
    if (!m->ss.is_playing)
       return;
@@ -124,11 +128,15 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
 
    /* Clear the buffer to silence. */
    memset(mixer->ss.buffer.ptr, 0, samples * maxc * sizeof(float));
+
    /* Mix the streams into the mixer buffer. */
-   for (spl = mixer->streams; *spl; spl++) {
-      (*spl)->spl_read(*spl, (void **) &mixer->ss.buffer.ptr, samples,
+   for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
+      ALLEGRO_SAMPLE **slot = _al_vector_ref(&mixer->streams, i);
+      ALLEGRO_SAMPLE *spl = *slot;
+      spl->spl_read(spl, (void **) &mixer->ss.buffer.ptr, samples,
          ALLEGRO_AUDIO_DEPTH_FLOAT32, maxc);
    }
+
    /* Call the post-processing callback. */
    if (mixer->postprocess_callback) {
       mixer->postprocess_callback(mixer->ss.buffer.ptr, mixer->ss.len,
@@ -230,13 +238,13 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl)
    spl->matrix = NULL;
 
    /* Search through the streams and check for this one */
-   for (i = 0; mixer->streams[i]; i++) {
-      if (mixer->streams[i] == spl) {
+   for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
+      ALLEGRO_SAMPLE **slot = _al_vector_ref(&mixer->streams, i);
+
+      if (*slot == spl) {
          al_lock_mutex(mixer->ss.mutex);
 
-         do {
-            mixer->streams[i] = mixer->streams[i+1];
-         } while (mixer->streams[++i]);
+         _al_vector_delete_at(&mixer->streams, i);
          spl->parent.u.mixer = NULL;
          _al_kcm_stream_set_mutex(spl, NULL);
 

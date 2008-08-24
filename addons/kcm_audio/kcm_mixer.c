@@ -16,8 +16,14 @@
 #include "allegro5/internal/aintern_kcm_cfg.h"
 
 
+/* forward declarations */
+static void mixer_change_quality(ALLEGRO_MIXER *mixer,
+   ALLEGRO_MIXER_QUALITY new_quality);
 
+
+/* globals */
 static float _samp_buf[ALLEGRO_MAX_CHANNELS]; /* max: 7.1 */
+
 
 
 /* _al_rechannel_matrix:
@@ -407,14 +413,7 @@ ALLEGRO_MIXER *al_mixer_create(unsigned long freq,
 
    mixer->quality = ALLEGRO_MIXER_QUALITY_LINEAR;
 
-   mixer->streams = malloc(sizeof(ALLEGRO_SAMPLE*));
-   if (!mixer->streams) {
-      free(mixer);
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Out of memory allocating attachment pointers");
-      return NULL;
-   }
-   mixer->streams[0] = NULL;
+   _al_vector_init(&mixer->streams, sizeof(ALLEGRO_SAMPLE *));
 
    return mixer;
 }
@@ -434,7 +433,7 @@ void al_mixer_destroy(ALLEGRO_MIXER *mixer)
 /* This function is ALLEGRO_MIXER aware */
 int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
 {
-   void *temp;
+   ALLEGRO_SAMPLE **slot;
    unsigned long i;
 
    ASSERT(mixer);
@@ -447,24 +446,17 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
       return 1;
    }
 
-   /* Get the number of streams attached. */
-   for (i = 0; mixer->streams[i]; i++)
-      ;
-
    ASSERT(mixer->ss.mutex);
    al_lock_mutex(mixer->ss.mutex);
 
-   temp = realloc(mixer->streams, (i+2) * sizeof(ALLEGRO_SAMPLE *));
-   if (!temp) {
+   slot = _al_vector_alloc_back(&mixer->streams);
+   if (!slot) {
       al_unlock_mutex(mixer->ss.mutex);
       _al_set_error(ALLEGRO_GENERIC_ERROR,
          "Out of memory allocating attachment pointers");
       return 1;
    }
-   mixer->streams = temp;
-
-   mixer->streams[i++] = spl;
-   mixer->streams[i  ] = NULL;
+   (*slot) = spl;
 
    spl->step = (spl->frequency<<MIXER_FRAC_SHIFT) * spl->speed /
                mixer->ss.frequency;
@@ -486,7 +478,7 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
       src_chans = (spl->chan_conf >> 4) + (spl->chan_conf & 0xF);
 
       if (mixer->quality == ALLEGRO_MIXER_QUALITY_LINEAR) {
-         if ((spl->depth&ALLEGRO_AUDIO_DEPTH_UNSIGNED))
+         if ((spl->depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
             spl->spl_read = read_to_mixer_linear32u;
          else
             spl->spl_read = read_to_mixer_linear32;
@@ -632,7 +624,7 @@ int al_mixer_get_bool(const ALLEGRO_MIXER *mixer,
          return 0;
 
       case ALLEGRO_AUDIOPROP_ATTACHED:
-         *val = (mixer->streams[0] != NULL);
+         *val = _al_vector_is_nonempty(&mixer->streams);
          return 0;
 
       default:
@@ -687,34 +679,7 @@ int al_mixer_set_enum(ALLEGRO_MIXER *mixer,
                "Attempted to set unknown mixer quality");
             return 1;
          }
-
-         al_lock_mutex(mixer->ss.mutex);
-         {
-            size_t i;
-
-            for (i = 0; mixer->streams[i]; i++) {
-               if (val == ALLEGRO_MIXER_QUALITY_LINEAR) {
-                  if (mixer->streams[i]->spl_read == read_to_mixer_point32) {
-                     mixer->streams[i]->spl_read = read_to_mixer_linear32;
-                  }
-                  else if (mixer->streams[i]->spl_read ==
-                        read_to_mixer_point32u) {
-                     mixer->streams[i]->spl_read = read_to_mixer_linear32u;
-                  }
-               }
-               else if (val == ALLEGRO_MIXER_QUALITY_POINT) {
-                  if (mixer->streams[i]->spl_read == read_to_mixer_linear32) {
-                     mixer->streams[i]->spl_read = read_to_mixer_point32;
-                  }
-                  else if (mixer->streams[i]->spl_read ==
-                        read_to_mixer_linear32u) {
-                     mixer->streams[i]->spl_read = read_to_mixer_point32u;
-                  }
-               }
-            }
-         }
-         mixer->quality = val;
-         al_unlock_mutex(mixer->ss.mutex);
+         mixer_change_quality(mixer, val);
          return 0;
 
       default:
@@ -722,6 +687,45 @@ int al_mixer_set_enum(ALLEGRO_MIXER *mixer,
             "Attempted to set invalid mixer enum setting");
          return 1;
    }
+}
+
+
+/* mixer_change_quality:
+ *  Change the mixer quality, updating the streams already attached to it.
+ *  XXX this seems an unnecessary and perhaps dangerous function
+ */
+static void mixer_change_quality(ALLEGRO_MIXER *mixer,
+   ALLEGRO_MIXER_QUALITY new_quality)
+{
+   int i;
+
+   al_lock_mutex(mixer->ss.mutex);
+
+   for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
+      ALLEGRO_SAMPLE **slot = _al_vector_ref(&mixer->streams, i);
+      ALLEGRO_SAMPLE *spl = *slot;
+
+      if (new_quality == ALLEGRO_MIXER_QUALITY_LINEAR) {
+         if (spl->spl_read == read_to_mixer_point32) {
+            spl->spl_read = read_to_mixer_linear32;
+         }
+         else if (spl->spl_read == read_to_mixer_point32u) {
+            spl->spl_read = read_to_mixer_linear32u;
+         }
+      }
+      else if (new_quality == ALLEGRO_MIXER_QUALITY_POINT) {
+         if (spl->spl_read == read_to_mixer_linear32) {
+            spl->spl_read = read_to_mixer_point32;
+         }
+         else if (spl->spl_read == read_to_mixer_linear32u) {
+            spl->spl_read = read_to_mixer_point32u;
+         }
+      }
+   }
+
+   mixer->quality = new_quality;
+
+   al_unlock_mutex(mixer->ss.mutex);
 }
 
 

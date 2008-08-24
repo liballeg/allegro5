@@ -7,6 +7,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_vector.h"
 #include "../kcm_audio.h"
 
 /* This can probably be set to 16, or higher, if long is 64-bit */
@@ -63,6 +64,9 @@ struct ALLEGRO_VOICE {
    ALLEGRO_MUTEX        *mutex;
 
    ALLEGRO_AUDIO_DRIVER *driver;
+                        /* XXX shouldn't there only be one audio driver active
+                         * at a time?
+                         */
 
    void                 *extra;
                         /* Extra data for use by the driver. */
@@ -179,7 +183,10 @@ struct ALLEGRO_MIXER {
    postprocess_callback_t  postprocess_callback;
    void                    *pp_callback_userdata;
 
-   ALLEGRO_SAMPLE          **streams;
+   _AL_VECTOR              streams;
+                           /* Vector of ALLEGRO_SAMPLE*.  Holds the list of
+                            * streams being mixed together.
+                            */
 };
 
 
