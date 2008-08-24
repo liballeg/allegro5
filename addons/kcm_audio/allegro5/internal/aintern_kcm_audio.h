@@ -84,7 +84,7 @@ typedef union {
 typedef void (*stream_reader_t)(void *, void **, unsigned long,
    ALLEGRO_AUDIO_DEPTH, size_t);
 
-typedef union {
+typedef struct {
    union {
       ALLEGRO_MIXER     *mixer;
       ALLEGRO_VOICE     *voice;
