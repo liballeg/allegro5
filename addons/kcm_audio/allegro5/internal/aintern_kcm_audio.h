@@ -1,4 +1,4 @@
-/* internal-only header 
+/* internal-only header
  * Updated for 4.9 api inclusion by Ryan Dickie
  * Originally done by KC/Milan
  */
@@ -17,24 +17,24 @@
 
 typedef struct ALLEGRO_AUDIO_DRIVER ALLEGRO_AUDIO_DRIVER;
 struct ALLEGRO_AUDIO_DRIVER {
-   const char *specifier;
+   const char     *specifier;
 
-   int  (*open)();
-   void (*close)();
+   int            (*open)();
+   void           (*close)();
 
-   int  (*allocate_voice)(ALLEGRO_VOICE*);
-   void (*deallocate_voice)(ALLEGRO_VOICE*);
+   int            (*allocate_voice)(ALLEGRO_VOICE*);
+   void           (*deallocate_voice)(ALLEGRO_VOICE*);
 
-   int (*load_voice)(ALLEGRO_VOICE*, const void*);
-   void (*unload_voice)(ALLEGRO_VOICE*);
+   int            (*load_voice)(ALLEGRO_VOICE*, const void*);
+   void           (*unload_voice)(ALLEGRO_VOICE*);
 
-   int  (*start_voice)(ALLEGRO_VOICE*);
-   int  (*stop_voice)(ALLEGRO_VOICE*);
+   int            (*start_voice)(ALLEGRO_VOICE*);
+   int            (*stop_voice)(ALLEGRO_VOICE*);
 
-   bool (*voice_is_playing)(const ALLEGRO_VOICE*);
+   bool           (*voice_is_playing)(const ALLEGRO_VOICE*);
 
-   unsigned long (*get_voice_position)(const ALLEGRO_VOICE*);
-   int (*set_voice_position)(ALLEGRO_VOICE*, unsigned long);
+   unsigned long  (*get_voice_position)(const ALLEGRO_VOICE*);
+   int            (*set_voice_position)(ALLEGRO_VOICE*, unsigned long);
 };
 
 extern ALLEGRO_AUDIO_DRIVER *_al_kcm_driver;
@@ -45,79 +45,106 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples);
  * would be one ALLEGRO_VOICE per system/hardware voice.
  */
 struct ALLEGRO_VOICE {
-   ALLEGRO_AUDIO_DEPTH depth;
+   ALLEGRO_AUDIO_DEPTH  depth;
    ALLEGRO_CHANNEL_CONF chan_conf;
 
-   unsigned long frequency;
+   unsigned long        frequency;
 
-   /* If set to non-0, they must be honored by the driver */
-   size_t buffer_size;
-   size_t num_buffers;
+   size_t               buffer_size;
+   size_t               num_buffers;
+                        /* If non-0, they must be honored by the driver. */
 
-   /* This may be an ALLEGRO_SAMPLE or ALLEGRO_MIXER object */
-   ALLEGRO_SAMPLE *stream;
-   /* True for voices with an attached mixer */
-   bool streaming;
+   ALLEGRO_SAMPLE       *stream;
+                        /* May be an ALLEGRO_SAMPLE or ALLEGRO_MIXER object.
+                         */
 
-   _AL_MUTEX mutex;
+   bool                 is_streaming;
+                        /* True for voices with an attached mixer. */
+
+   _AL_MUTEX            mutex;
 
    ALLEGRO_AUDIO_DRIVER *driver;
 
-   /* Extra data for use by the driver */
-   void *extra;
+   void                 *extra;
+                        /* Extra data for use by the driver. */
 };
 
 
-typedef void (*stream_reader)(void *, void **, unsigned long,
+typedef union {
+   float    *f32;
+   uint32_t *u24;
+   int32_t  *s24;
+   uint16_t *u16;
+   int16_t  *s16;
+   uint8_t  *u8;
+   int8_t   *s8;
+   void     *ptr;
+} any_buffer_t;
+
+typedef void (*stream_reader_t)(void *, void **, unsigned long,
    ALLEGRO_AUDIO_DEPTH, size_t);
+
+typedef union {
+   union {
+      ALLEGRO_MIXER     *mixer;
+      ALLEGRO_VOICE     *voice;
+      void              *ptr;
+   } u;
+   bool                 is_voice;
+} sample_parent_t;
 
 /* The sample struct */
 struct ALLEGRO_SAMPLE {
-   volatile bool playing;
-   volatile bool is_stream;
+   volatile bool        is_playing;
+                        /* Is this sample is playing? */
 
-   ALLEGRO_PLAYMODE loop;
-   ALLEGRO_AUDIO_DEPTH depth;
+   volatile bool        is_stream;
+                        /* Is this sample is part of a ALLEGRO_STREAM object?
+                         */
+
+   ALLEGRO_PLAYMODE     loop;
+   ALLEGRO_AUDIO_DEPTH  depth;
    ALLEGRO_CHANNEL_CONF chan_conf;
-   unsigned long frequency;
-   float speed;
+   unsigned long        frequency;
+   float                speed;
 
-   union {
-      float    *f32;
-      uint32_t *u24;
-      int32_t  *s24;
-      uint16_t *u16;
-      int16_t  *s16;
-      uint8_t  *u8;
-      int8_t   *s8;
-      void *ptr;
-   } buffer;
-   bool orphan_buffer;
-   unsigned long pos, len;
-   unsigned long loop_start, loop_end;
-   long step;
+   any_buffer_t         buffer;
+   bool                 orphan_buffer;
+                        /* Whether `buffer' needs to be freed when the sample
+                         * is destroyed, or when `buffer' changes.
+                         */
 
-   bool free_buf;
+   unsigned long        pos;
+   unsigned long        len;
+   unsigned long        loop_start;
+   unsigned long        loop_end;
+   long                 step;
 
-   /* Used to convert from this format to the attached mixers */
-   float *matrix;
+   bool                 free_buf;
+                        /* Whether to free `buffer' when this sample is
+                         * destroyed.
+                         * XXX how does this interact with orphan_buffer?
+                         */
 
-   /* Reads sample data into the provided buffer, using the specified format,
-    * converting as necessary.
-    */
-   stream_reader spl_read;
+   float                *matrix;
+                        /* Used to convert from this format to the attached
+                         * mixers.
+                         */
 
-   /* The mutex is shared with the parent object. It is NULL if it is not
-    * directly or indirectly attached to a voice.
-    */
-   _AL_MUTEX *mutex;
+   stream_reader_t      spl_read;
+                        /* Reads sample data into the provided buffer, using
+                         * the specified format, converting as necessary.
+                         */
 
-   union {
-      ALLEGRO_MIXER *mixer;
-      ALLEGRO_VOICE *voice;
-      void *ptr;
-   } parent;
-   bool parent_is_voice;
+   _AL_MUTEX            *mutex;
+                        /* The mutex is shared with the parent object. It is
+                         * NULL if it is not directly or indirectly attached
+                         * to a voice.
+                         */
+
+   sample_parent_t      parent;
+                        /* The object that this sample is attached to, if any.
+                         */
 };
 
 void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, _AL_MUTEX *mutex);
@@ -125,18 +152,19 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl);
 
 
 struct ALLEGRO_STREAM {
-   ALLEGRO_SAMPLE spl;
+   ALLEGRO_SAMPLE       spl;
 
-   size_t buf_count;
+   size_t               buf_count;
 
-   void *main_buffer;
+   void                 *main_buffer;
 
-   void **pending_bufs;
-   void **used_bufs;
+   void                 **pending_bufs;
+   void                 **used_bufs;
 };
 
 
-typedef void (*pp_callback)(void *, unsigned long, void *);
+typedef void (*postprocess_callback_t)(void *buf, unsigned long samples,
+   void *userdata);
 
 /* ALLEGRO_MIXER is derived from ALLEGRO_SAMPLE. Certain internal functions and
  * pointers may take either object type, and such things are explicitly noted.
@@ -145,14 +173,14 @@ typedef void (*pp_callback)(void *, unsigned long, void *);
  * attached streams (which may be a sample, or another mixer).
  */
 struct ALLEGRO_MIXER {
-   ALLEGRO_SAMPLE ss;
+   ALLEGRO_SAMPLE          ss;
 
-   ALLEGRO_MIXER_QUALITY quality;
+   ALLEGRO_MIXER_QUALITY   quality;
 
-   pp_callback post_process;
-   void *cb_ptr;
+   postprocess_callback_t  postprocess_callback;
+   void                    *pp_callback_userdata;
 
-   ALLEGRO_SAMPLE **streams;
+   ALLEGRO_SAMPLE          **streams;
 };
 
 

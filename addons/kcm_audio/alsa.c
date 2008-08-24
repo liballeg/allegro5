@@ -274,7 +274,7 @@ static void alsa_update(_AL_THREAD* self, void *arg)
       }
 
 
-      if (!voice->streaming)
+      if (!voice->is_streaming)
          res = alsa_update_nonstream(voice, &buf);
       else
          res = alsa_update_stream(voice, &buf);
@@ -368,7 +368,7 @@ static int alsa_start_voice(ALLEGRO_VOICE *voice)
 
    _al_mutex_lock(&ex_data->mutex);
 
-   if (voice->streaming && (voice->buffer_size || voice->num_buffers)) {
+   if (voice->is_streaming && (voice->buffer_size || voice->num_buffers)) {
       snd_pcm_hw_params_t *hwparams;
       snd_pcm_hw_params_alloca(&hwparams);
 
@@ -403,7 +403,7 @@ static int alsa_stop_voice(ALLEGRO_VOICE *voice)
    _al_mutex_lock(&ex_data->mutex);
 
    ex_data->stop = true;
-   if(!voice->streaming) {
+   if(!voice->is_streaming) {
       ex_data->pos = 0;
    }
 

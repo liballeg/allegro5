@@ -83,7 +83,7 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
 
 /* fix_looped_position:
  *  When a stream loops, this will fix up the position and anything else to
- *  allow it to safely continue playing as expected. Returns 0 if it should
+ *  allow it to safely continue is_playing as expected. Returns 0 if it should
  *  stop being mixed.
  *
  * XXX reconsider inlining this; it looks rather big
@@ -160,7 +160,7 @@ static inline int fix_looped_position(ALLEGRO_SAMPLE *spl)
             }
 
             spl->pos = spl->len;
-            spl->playing = false;
+            spl->is_playing = false;
             return 0;
          }
    }
@@ -334,7 +334,7 @@ static void read_to_mixer_##interp##bits(void *source, void **vbuf,           \
    size_t maxc = al_channel_count(spl->chan_conf);                            \
    size_t c;                                                                  \
                                                                               \
-   if (!spl->playing)                                                         \
+   if (!spl->is_playing)                                                      \
       return;                                                                 \
                                                                               \
    while (samples > 0) {                                                      \
@@ -395,7 +395,7 @@ ALLEGRO_MIXER *al_mixer_create(unsigned long freq,
       return NULL;
    }
 
-   mixer->ss.playing = true;
+   mixer->ss.is_playing = true;
    mixer->ss.orphan_buffer = true;
 
    mixer->ss.loop      = ALLEGRO_PLAYMODE_ONCE;
@@ -441,7 +441,7 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
    ASSERT(spl);
 
    /* Already referenced, do not attach. */
-   if (spl->parent.ptr) {
+   if (spl->parent.u.ptr) {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach a sample that's already attached");
       return 1;
@@ -512,8 +512,8 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
 
    _al_kcm_stream_set_mutex(spl, mixer->ss.mutex);
 
-   spl->parent.mixer = mixer;
-   spl->parent_is_voice = false;
+   spl->parent.u.mixer = mixer;
+   spl->parent.is_voice = false;
 
    _al_mutex_unlock(mixer->ss.mutex);
 
@@ -558,13 +558,13 @@ int al_mixer_attach_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
  *  was created with. The sample count and user-data pointer is also passed.
  */
 int al_mixer_set_postprocess_callback(ALLEGRO_MIXER *mixer,
-   void (*cb)(void *buf, unsigned long samples, void *data), void *data)
+   postprocess_callback_t postprocess_callback, void *pp_callback_userdata)
 {
    ASSERT(mixer);
 
    _al_mutex_lock(mixer->ss.mutex);
-   mixer->post_process = cb;
-   mixer->cb_ptr = data;
+   mixer->postprocess_callback = postprocess_callback;
+   mixer->pp_callback_userdata = pp_callback_userdata;
    _al_mutex_unlock(mixer->ss.mutex);
 
    return 0;
@@ -628,7 +628,7 @@ int al_mixer_get_bool(const ALLEGRO_MIXER *mixer,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_PLAYING:
-         *val = mixer->ss.playing;
+         *val = mixer->ss.is_playing;
          return 0;
 
       case ALLEGRO_AUDIOPROP_ATTACHED:
@@ -655,7 +655,7 @@ int al_mixer_set_long(ALLEGRO_MIXER *mixer,
        * to anything.
        */
       case ALLEGRO_AUDIOPROP_FREQUENCY:
-         if (mixer->ss.parent.ptr) {
+         if (mixer->ss.parent.u.ptr) {
             _al_set_error(ALLEGRO_INVALID_OBJECT,
                "Attempted to change the frequency of an attached mixer");
             return 1;
@@ -734,7 +734,7 @@ int al_mixer_set_bool(ALLEGRO_MIXER *mixer,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_PLAYING:
-         mixer->ss.playing = val;
+         mixer->ss.is_playing = val;
          return 0;
 
       case ALLEGRO_AUDIOPROP_ATTACHED:

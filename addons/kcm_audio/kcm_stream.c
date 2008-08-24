@@ -71,7 +71,7 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
       return NULL;
    }
 
-   stream->spl.playing   = true;
+   stream->spl.is_playing = true;
    stream->spl.is_stream = true;
 
    stream->spl.loop      = ALLEGRO_PLAYMODE_ONCE;
@@ -216,11 +216,11 @@ int al_stream_get_bool(const ALLEGRO_STREAM *stream,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_PLAYING:
-         *val = stream->spl.playing;
+         *val = stream->spl.is_playing;
          return 0;
 
       case ALLEGRO_AUDIOPROP_ATTACHED:
-         *val = (stream->spl.parent.ptr != NULL);
+         *val = (stream->spl.parent.u.ptr != NULL);
          return 0;
 
       default:
@@ -297,15 +297,15 @@ int al_stream_set_float(ALLEGRO_STREAM *stream,
             return 1;
          }
 
-         if (stream->spl.parent.ptr && stream->spl.parent_is_voice) {
+         if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
             _al_set_error(ALLEGRO_GENERIC_ERROR,
                "Could not set voice playback speed");
             return 1;
          }
 
          stream->spl.speed = val;
-         if (stream->spl.parent.mixer) {
-            ALLEGRO_MIXER *mixer = stream->spl.parent.mixer;
+         if (stream->spl.parent.u.mixer) {
+            ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
             long i;
 
             _al_mutex_lock(stream->spl.mutex);
@@ -364,13 +364,13 @@ int al_stream_set_bool(ALLEGRO_STREAM *stream,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_PLAYING:
-         if (stream->spl.parent.ptr && stream->spl.parent_is_voice) {
-            ALLEGRO_VOICE *voice = stream->spl.parent.voice;
+         if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
+            ALLEGRO_VOICE *voice = stream->spl.parent.u.voice;
             if (al_voice_set_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, val) != 0) {
                return 1;
             }
          }
-         stream->spl.playing = val;
+         stream->spl.is_playing = val;
 
          if (!val) {
             _al_mutex_lock(stream->spl.mutex);

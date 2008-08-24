@@ -126,7 +126,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
       return 1;
    }
 
-   if (spl->parent.ptr) {
+   if (spl->parent.u.ptr) {
       TRACE("Attempted to attach a sample that is already attached\n");
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach a sample that is already attached");
@@ -147,7 +147,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
 
    voice->stream = spl;
 
-   voice->streaming = false;
+   voice->is_streaming = false;
    voice->num_buffers = 1;
    voice->buffer_size = (spl->len >> MIXER_FRAC_SHIFT) *
                         al_channel_count(voice->chan_conf) *
@@ -156,16 +156,16 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
    spl->spl_read = NULL;
    _al_kcm_stream_set_mutex(spl, &voice->mutex);
 
-   spl->parent.voice = voice;
-   spl->parent_is_voice = true;
+   spl->parent.u.voice = voice;
+   spl->parent.is_voice = true;
 
    if (voice->driver->load_voice(voice, spl->buffer.ptr) != 0 ||
-      (spl->playing && voice->driver->start_voice(voice) != 0))
+      (spl->is_playing && voice->driver->start_voice(voice) != 0))
    {      
       voice->stream = NULL;
       spl->spl_read = NULL;
       _al_kcm_stream_set_mutex(spl, NULL);
-      spl->parent.voice = NULL;
+      spl->parent.u.voice = NULL;
 
       TRACE("Unable to load sample into voice\n");
       ret = 1;
@@ -191,7 +191,7 @@ static void stream_read(void *source, void **vbuf, unsigned long samples,
    void *old_buf;
    size_t i;
 
-   if (!stream->spl.playing) {
+   if (!stream->spl.is_playing) {
       return;
    }
 
@@ -232,7 +232,7 @@ int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
       return 1;
    }
 
-   if (stream->spl.parent.ptr) {
+   if (stream->spl.parent.u.ptr) {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach a stream that is already attached");
       return 1;
@@ -253,10 +253,10 @@ int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
 
    _al_kcm_stream_set_mutex(&stream->spl, &voice->mutex);
 
-   stream->spl.parent.voice = voice;
-   stream->spl.parent_is_voice = true;
+   stream->spl.parent.u.voice = voice;
+   stream->spl.parent.is_voice = true;
 
-   voice->streaming = true;
+   voice->is_streaming = true;
    voice->num_buffers = stream->buf_count;
    voice->buffer_size = (stream->spl.len>>MIXER_FRAC_SHIFT) *
                         al_channel_count(stream->spl.chan_conf) *
@@ -267,7 +267,7 @@ int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
    if (voice->driver->start_voice(voice) != 0) {
       voice->stream = NULL;
       _al_kcm_stream_set_mutex(&stream->spl, NULL);
-      stream->spl.parent.voice = NULL;
+      stream->spl.parent.u.voice = NULL;
       stream->spl.spl_read = NULL;
 
       _al_set_error(ALLEGRO_GENERIC_ERROR, "Unable to start stream");
@@ -296,7 +296,7 @@ int al_voice_attach_mixer(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
 
    if (voice->stream)
       return 1;
-   if (mixer->ss.parent.ptr)
+   if (mixer->ss.parent.u.ptr)
       return 2;
 
    if (voice->chan_conf != mixer->ss.chan_conf ||
@@ -310,17 +310,17 @@ int al_voice_attach_mixer(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
 
    _al_kcm_stream_set_mutex(&mixer->ss, &voice->mutex);
 
-   mixer->ss.parent.voice = voice;
-   mixer->ss.parent_is_voice = true;
+   mixer->ss.parent.u.voice = voice;
+   mixer->ss.parent.is_voice = true;
 
-   voice->streaming = true;
+   voice->is_streaming = true;
    voice->num_buffers = 0;
    voice->buffer_size = 0;
 
    if (voice->driver->start_voice(voice) != 0) {
       voice->stream = NULL;
       _al_kcm_stream_set_mutex(&mixer->ss, NULL);
-      mixer->ss.parent.voice = NULL;
+      mixer->ss.parent.u.voice = NULL;
       ret = 1;
    }
    else {
@@ -346,14 +346,14 @@ void al_voice_detach(ALLEGRO_VOICE *voice)
 
    _al_mutex_lock(&voice->mutex);
 
-   if (!voice->streaming) {
+   if (!voice->is_streaming) {
       ALLEGRO_SAMPLE *spl = voice->stream;
       bool playing = false;
 
       al_voice_get_long(voice, ALLEGRO_AUDIOPROP_POSITION, &spl->pos);
       spl->pos <<= MIXER_FRAC_SHIFT;
       al_voice_get_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, &playing);
-      spl->playing = playing;
+      spl->is_playing = playing;
 
       voice->driver->stop_voice(voice);
       voice->driver->unload_voice(voice);
@@ -363,7 +363,7 @@ void al_voice_detach(ALLEGRO_VOICE *voice)
    }
 
    _al_kcm_stream_set_mutex(voice->stream, NULL);
-   voice->stream->parent.voice = NULL;
+   voice->stream->parent.u.voice = NULL;
    voice->stream = NULL;
 
    _al_mutex_unlock(&voice->mutex);
@@ -383,7 +383,7 @@ int al_voice_get_long(const ALLEGRO_VOICE *voice,
          return 0;
 
       case ALLEGRO_AUDIOPROP_POSITION:
-         if (voice->stream && !voice->streaming)
+         if (voice->stream && !voice->is_streaming)
             *val = voice->driver->get_voice_position(voice);
          else
             *val = 0;
@@ -426,7 +426,7 @@ int al_voice_get_bool(const ALLEGRO_VOICE *voice,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_PLAYING:
-         if (voice->stream && !voice->streaming) {
+         if (voice->stream && !voice->is_streaming) {
             *val = voice->driver->voice_is_playing(voice);
          }
          else if (voice->stream) {
@@ -452,7 +452,7 @@ int al_voice_set_long(ALLEGRO_VOICE *voice,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_POSITION:
-         if (voice->stream && !voice->streaming) {
+         if (voice->stream && !voice->is_streaming) {
             return voice->driver->set_voice_position(voice, val);
          }
          return 1;
@@ -489,7 +489,7 @@ int al_voice_set_bool(ALLEGRO_VOICE *voice,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_PLAYING:
-         if (voice->stream && !voice->streaming) {
+         if (voice->stream && !voice->is_streaming) {
             bool playing = false;
             if (al_voice_get_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, &playing)) {
                TRACE("Unable to get voice playing status\n");

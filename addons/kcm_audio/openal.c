@@ -359,7 +359,7 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
    ALLEGRO_AL_DATA *ex_data = voice->extra;
 
    /* playing a sample instead of a stream */
-   if(!voice->streaming)
+   if(!voice->is_streaming)
    {
       alSourcePlay(ex_data->source);
       if((openal_err = alGetError()) != AL_NO_ERROR)
@@ -435,7 +435,7 @@ static int _openal_stop_voice(ALLEGRO_VOICE* voice)
    }
 
    /* if playing a sample */
-   if(!voice->streaming)
+   if(!voice->is_streaming)
    {
       alSourceStop(ex_data->source);
       if((openal_err = alGetError()) != AL_NO_ERROR)
