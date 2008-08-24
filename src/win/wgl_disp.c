@@ -823,9 +823,20 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
    int maxindex = 0;
    int i;
 
+   /* XXX
+    * The correct and more logical way would be to first try the more
+    * modern _ext mode and then fallback to the _old mode, but the _old
+    * mode is less complicated and better supported by WINE. And faster.
+    * We don't use any of the potential features provided by _ext anyway.
+    */
+/*
    pf_list = get_available_pixel_formats_ext(&maxindex);
    if (!pf_list)
       pf_list = get_available_pixel_formats_old(&maxindex, dc);
+*/
+   pf_list = get_available_pixel_formats_old(&maxindex, dc);
+   if (!pf_list)
+      pf_list = get_available_pixel_formats_ext(&maxindex);
 
    for (i = 1; i <= maxindex; i++) {
       OGL_PIXEL_FORMAT *pf = pf_list[i-1];
